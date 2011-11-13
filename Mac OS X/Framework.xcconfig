@@ -1,0 +1,21 @@
+//
+// This file defines additional configuration options that are appropriate only
+// for a framework. This should be set at the target level for each project
+// configuration.
+//
+
+// Import common settings specific to Mac OS X
+#include "Common.xcconfig"
+
+// Whether to strip out code that isn't called from anywhere
+DEAD_CODE_STRIPPING = NO
+
+// Whether function calls should be position-dependent (should always be
+// disabled for library code)
+GCC_DYNAMIC_NO_PIC = NO
+
+// Other linker flags
+//
+// This -install_name setting enables and requires the framework to be included
+// in an application bundle (inside the "Frameworks" folder)
+OTHER_LDFLAGS = -install_name "@executable_path/../Frameworks/$(PRODUCT_NAME).$(WRAPPER_EXTENSION)/$(PRODUCT_NAME)"

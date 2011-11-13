@@ -1,0 +1,12 @@
+//
+// This file defines additional configuration options that are appropriate only
+// for a static library. Typically, you want to use a platform-specific variant
+// instead.
+//
+
+// Whether to strip out code that isn't called from anywhere
+DEAD_CODE_STRIPPING = NO
+
+// Whether function calls should be position-dependent (should always be
+// disabled for library code)
+GCC_DYNAMIC_NO_PIC = NO

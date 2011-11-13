@@ -1,0 +1,11 @@
+//
+// This file defines additional configuration options that are appropriate only
+// for a static library on Mac OS X. This should be set at the target level for
+// each project configuration.
+//
+
+// Import base static library settings
+#include "../Base/Static Library.xcconfig"
+
+// Apply common settings specific to Mac OS X
+#include "Common.xcconfig"

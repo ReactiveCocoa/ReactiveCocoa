@@ -1,0 +1,30 @@
+// 
+// This file defines the base configuration for a Release build of any project.
+// This should be set at the project level for the Release configuration.
+//
+
+#include "Common.xcconfig"
+
+// Whether to strip debugging symbols when copying resources (like included
+// binaries)
+COPY_PHASE_STRIP = YES
+
+// Whether to generate debugging symbols
+GCC_GENERATE_DEBUGGING_SYMBOLS = NO
+
+// The optimization level (0, 1, 2, 3, s) for the produced binary
+GCC_OPTIMIZATION_LEVEL = s
+
+// Preproccessor definitions to apply to each file compiled
+GCC_PREPROCESSOR_DEFINITIONS = NDEBUG=1
+
+// Whether to enable link-time optimizations (such as inlining across translation
+// units)
+LLVM_LTO = YES
+
+// Whether to only build the active architecture
+ONLY_ACTIVE_ARCH = NO
+
+// Whether to strip debugging symbols when copying the built product to its
+// final installation location
+STRIP_INSTALLED_PRODUCT = YES

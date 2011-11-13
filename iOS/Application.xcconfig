@@ -1,0 +1,11 @@
+//
+// This file defines additional configuration options that are appropriate only
+// for an application on iOS. This should be set at the target level for each
+// project configuration.
+//
+
+// Import base application settings
+#include "../Base/Application.xcconfig"
+
+// Apply common settings specific to iOS
+#include "Common.xcconfig"

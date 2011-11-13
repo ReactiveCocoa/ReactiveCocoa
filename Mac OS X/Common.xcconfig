@@ -1,0 +1,15 @@
+//
+// This file defines additional configuration options that are appropriate only
+// for Mac OS X. This file is not standalone -- it is meant to be included into
+// a configuration file for a specific type of target.
+//
+
+// The base SDK to use (if no version is specified, the latest version is
+// assumed)
+SDKROOT = macosx
+
+// Supported SDK platforms
+SUPPORTED_PLATFORMS = macosx
+
+// Supported architectures
+VALID_ARCHS = i386 x86_64

@@ -1,0 +1,16 @@
+//
+// This file defines additional configuration options that are appropriate only
+// for iOS. This file is not standalone -- it is meant to be included into
+// a configuration file for a specific type of target.
+//
+
+// The base SDK to use (if no version is specified, the latest version is
+// assumed)
+SDKROOT = iphoneos
+
+// Supported SDK platforms
+SUPPORTED_PLATFORMS = iphonesimulator iphoneos
+
+// Supported architectures
+VALID_ARCHS = armv6 armv7
+

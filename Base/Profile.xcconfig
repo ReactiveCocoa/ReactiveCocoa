@@ -1,0 +1,32 @@
+// 
+// This file defines the base configuration for an optional profiling-specific
+// build of any project. To use these settings, create a Profile configuration
+// in your project, and use this file at the project level for the new
+// configuration.
+//
+
+#include "Common.xcconfig"
+
+// Whether to strip debugging symbols when copying resources (like included
+// binaries)
+COPY_PHASE_STRIP = NO
+
+// Whether to generate debugging symbols
+GCC_GENERATE_DEBUGGING_SYMBOLS = YES
+
+// The optimization level (0, 1, 2, 3, s) for the produced binary
+GCC_OPTIMIZATION_LEVEL = s
+
+// Preproccessor definitions to apply to each file compiled
+GCC_PREPROCESSOR_DEFINITIONS = NDEBUG=1
+
+// Whether to enable link-time optimizations (such as inlining across translation
+// units)
+LLVM_LTO = YES
+
+// Whether to only build the active architecture
+ONLY_ACTIVE_ARCH = YES
+
+// Whether to strip debugging symbols when copying the built product to its
+// final installation location
+STRIP_INSTALLED_PRODUCT = NO

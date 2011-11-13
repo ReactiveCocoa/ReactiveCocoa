@@ -5,7 +5,7 @@
 //
 
 // Import base static library settings
-#include "../Base/Static Library.xcconfig"
+#include "../Base/Targets/StaticLibrary.xcconfig"
 
 // Apply common settings specific to Mac OS X
-#include "Common.xcconfig"
+#include "Mac-Base.xcconfig"

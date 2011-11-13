@@ -3,7 +3,7 @@
 // This should be set at the project level for the Debug configuration.
 //
 
-#include "Common.xcconfig"
+#include "../Common.xcconfig"
 
 // Whether to strip debugging symbols when copying resources (like included
 // binaries)

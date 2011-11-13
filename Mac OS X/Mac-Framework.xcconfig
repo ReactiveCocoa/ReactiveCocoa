@@ -5,7 +5,7 @@
 //
 
 // Import common settings specific to Mac OS X
-#include "Common.xcconfig"
+#include "Mac-Base.xcconfig"
 
 // Whether to strip out code that isn't called from anywhere
 DEAD_CODE_STRIPPING = NO

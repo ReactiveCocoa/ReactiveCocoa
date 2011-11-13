@@ -5,7 +5,7 @@
 //
 
 // Import base application settings
-#include "../Base/Application.xcconfig"
+#include "../Base/Targets/Application.xcconfig"
 
 // Apply common settings specific to iOS
-#include "Common.xcconfig"
+#include "iOS-Base.xcconfig"

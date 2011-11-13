@@ -5,10 +5,10 @@
 //
 
 // Import base static library settings
-#include "../Base/Static Library.xcconfig"
+#include "../Base/Targets/StaticLibrary.xcconfig"
 
 // Apply common settings specific to iOS
-#include "Common.xcconfig"
+#include "iOS-Base.xcconfig"
 
 // Supported device families (1 is iPhone, 2 is iPad)
 TARGETED_DEVICE_FAMILY = 1,2

@@ -25,6 +25,12 @@ LLVM_LTO = NO
 // Whether to only build the active architecture
 ONLY_ACTIVE_ARCH = YES
 
+// Other compiler flags
+// 
+// These settings catch some errors in integer arithmetic and some instances of
+// undefined behavior
+OTHER_CFLAGS = -ftrapv -fcatch-undefined-behavior
+
 // Whether to strip debugging symbols when copying the built product to its
 // final installation location
 STRIP_INSTALLED_PRODUCT = NO

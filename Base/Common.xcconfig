@@ -88,6 +88,12 @@ GCC_WARN_SIGN_COMPARE = YES
 // the format specifiers
 GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES
 
+// Whether to warn about static functions that are unused
+GCC_WARN_UNUSED_FUNCTION = YES
+
+// Whether to warn about labels that are unused
+GCC_WARN_UNUSED_LABEL = YES
+
 // Whether to run the static analyzer with every build
 RUN_CLANG_STATIC_ANALYZER = YES
 

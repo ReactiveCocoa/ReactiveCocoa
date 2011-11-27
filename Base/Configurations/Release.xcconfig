@@ -16,7 +16,7 @@ GCC_GENERATE_DEBUGGING_SYMBOLS = NO
 GCC_OPTIMIZATION_LEVEL = s
 
 // Preproccessor definitions to apply to each file compiled
-GCC_PREPROCESSOR_DEFINITIONS = NDEBUG=1
+GCC_PREPROCESSOR_DEFINITIONS = NDEBUG=1 NS_BLOCK_ASSERTIONS=1
 
 // Whether to warn about variables that are used without initialization
 GCC_WARN_UNINITIALIZED_AUTOS = YES

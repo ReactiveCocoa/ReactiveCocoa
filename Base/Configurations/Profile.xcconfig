@@ -22,7 +22,7 @@ GCC_PREPROCESSOR_DEFINITIONS = NDEBUG=1
 
 // Whether to enable link-time optimizations (such as inlining across translation
 // units)
-LLVM_LTO = YES
+LLVM_LTO = NO
 
 // Whether to only build the active architecture
 ONLY_ACTIVE_ARCH = YES

@@ -6,7 +6,3 @@
 
 // Whether to strip out code that isn't called from anywhere
 DEAD_CODE_STRIPPING = YES
-
-// Whether function calls should be position-dependent (should always be
-// disabled for library code)
-GCC_DYNAMIC_NO_PIC = YES

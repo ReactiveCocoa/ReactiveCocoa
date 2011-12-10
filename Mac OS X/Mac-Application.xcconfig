@@ -9,3 +9,7 @@
 
 // Apply common settings specific to Mac OS X
 #include "Mac-Base.xcconfig"
+
+// Whether function calls should be position-dependent (should always be
+// disabled for library code)
+GCC_DYNAMIC_NO_PIC = YES

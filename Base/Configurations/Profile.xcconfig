@@ -5,7 +5,9 @@
 // configuration.
 //
 
-#include "../Common.xcconfig"
+// based on the Release configuration, with some stuff related to debugging
+// symbols re-enabled
+#include "Release.xcconfig"
 
 // Whether to strip debugging symbols when copying resources (like included
 // binaries)
@@ -13,16 +15,6 @@ COPY_PHASE_STRIP = NO
 
 // Whether to generate debugging symbols
 GCC_GENERATE_DEBUGGING_SYMBOLS = YES
-
-// The optimization level (0, 1, 2, 3, s) for the produced binary
-GCC_OPTIMIZATION_LEVEL = s
-
-// Preproccessor definitions to apply to each file compiled
-GCC_PREPROCESSOR_DEFINITIONS = NDEBUG=1
-
-// Whether to enable link-time optimizations (such as inlining across translation
-// units)
-LLVM_LTO = NO
 
 // Whether to only build the active architecture
 ONLY_ACTIVE_ARCH = YES

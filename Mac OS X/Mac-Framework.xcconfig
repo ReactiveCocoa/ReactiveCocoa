@@ -14,8 +14,6 @@ DEAD_CODE_STRIPPING = NO
 // disabled for library code)
 GCC_DYNAMIC_NO_PIC = NO
 
-// Other linker flags
-//
-// This -install_name setting enables and requires the framework to be included
-// in an application bundle (inside the "Frameworks" folder)
-OTHER_LDFLAGS = -install_name "@executable_path/../Frameworks/$(PRODUCT_NAME).$(WRAPPER_EXTENSION)/$(PRODUCT_NAME)"
+// Enables and requires the framework to be included in an application bundle
+// (inside the "Frameworks" folder)
+LD_DYLIB_INSTALL_NAME = "@executable_path/../Frameworks/$(PRODUCT_NAME).$(WRAPPER_EXTENSION)/$(PRODUCT_NAME)"

@@ -1,0 +1,451 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		88CDF7C015000FCE00163A9F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7BF15000FCE00163A9F /* Cocoa.framework */; };
+		88CDF7CA15000FCE00163A9F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 88CDF7C815000FCE00163A9F /* InfoPlist.strings */; };
+		88CDF7CC15000FCE00163A9F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF7CB15000FCE00163A9F /* main.m */; };
+		88CDF7D015000FCE00163A9F /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 88CDF7CE15000FCE00163A9F /* Credits.rtf */; };
+		88CDF7D315000FCE00163A9F /* GHAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF7D215000FCE00163A9F /* GHAppDelegate.m */; };
+		88CDF7D615000FCF00163A9F /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 88CDF7D415000FCF00163A9F /* MainMenu.xib */; };
+		88CDF7DE15000FCF00163A9F /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7DD15000FCF00163A9F /* SenTestingKit.framework */; };
+		88CDF7DF15000FCF00163A9F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7BF15000FCE00163A9F /* Cocoa.framework */; };
+		88CDF7E715000FCF00163A9F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 88CDF7E515000FCF00163A9F /* InfoPlist.strings */; };
+		88CDF7EA15000FCF00163A9F /* GHObservableTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF7E915000FCF00163A9F /* GHObservableTests.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		88CDF7E015000FCF00163A9F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 88CDF7B215000FCE00163A9F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 88CDF7BA15000FCE00163A9F;
+			remoteInfo = GHObservable;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		88CDF7BB15000FCE00163A9F /* GHObservable.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GHObservable.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		88CDF7BF15000FCE00163A9F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		88CDF7C215000FCE00163A9F /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		88CDF7C315000FCE00163A9F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		88CDF7C415000FCE00163A9F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		88CDF7C715000FCE00163A9F /* GHObservable-Info.plist */ = {isa = PBXFileReference; path = "GHObservable-Info.plist"; sourceTree = "<group>"; };
+		88CDF7C915000FCE00163A9F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		88CDF7CB15000FCE00163A9F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		88CDF7CD15000FCE00163A9F /* GHObservable-Prefix.pch */ = {isa = PBXFileReference; path = "GHObservable-Prefix.pch"; sourceTree = "<group>"; };
+		88CDF7CF15000FCE00163A9F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
+		88CDF7D115000FCE00163A9F /* GHAppDelegate.h */ = {isa = PBXFileReference; path = GHAppDelegate.h; sourceTree = "<group>"; };
+		88CDF7D215000FCE00163A9F /* GHAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GHAppDelegate.m; sourceTree = "<group>"; };
+		88CDF7D515000FCF00163A9F /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		88CDF7DC15000FCF00163A9F /* GHObservableTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GHObservableTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		88CDF7DD15000FCF00163A9F /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
+		88CDF7E415000FCF00163A9F /* GHObservableTests-Info.plist */ = {isa = PBXFileReference; path = "GHObservableTests-Info.plist"; sourceTree = "<group>"; };
+		88CDF7E615000FCF00163A9F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		88CDF7E815000FCF00163A9F /* GHObservableTests.h */ = {isa = PBXFileReference; path = GHObservableTests.h; sourceTree = "<group>"; };
+		88CDF7E915000FCF00163A9F /* GHObservableTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GHObservableTests.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		88CDF7B815000FCE00163A9F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				88CDF7C015000FCE00163A9F /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		88CDF7D815000FCF00163A9F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				88CDF7DE15000FCF00163A9F /* SenTestingKit.framework in Frameworks */,
+				88CDF7DF15000FCF00163A9F /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		88CDF7B015000FCE00163A9F = {
+			isa = PBXGroup;
+			children = (
+				88CDF7C515000FCE00163A9F /* GHObservable */,
+				88CDF7E215000FCF00163A9F /* GHObservableTests */,
+				88CDF7BE15000FCE00163A9F /* Frameworks */,
+				88CDF7BC15000FCE00163A9F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		88CDF7BC15000FCE00163A9F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				88CDF7BB15000FCE00163A9F /* GHObservable.app */,
+				88CDF7DC15000FCF00163A9F /* GHObservableTests.octest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		88CDF7BE15000FCE00163A9F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				88CDF7BF15000FCE00163A9F /* Cocoa.framework */,
+				88CDF7DD15000FCF00163A9F /* SenTestingKit.framework */,
+				88CDF7C115000FCE00163A9F /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		88CDF7C115000FCE00163A9F /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				88CDF7C215000FCE00163A9F /* AppKit.framework */,
+				88CDF7C315000FCE00163A9F /* CoreData.framework */,
+				88CDF7C415000FCE00163A9F /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		88CDF7C515000FCE00163A9F /* GHObservable */ = {
+			isa = PBXGroup;
+			children = (
+				88CDF7D115000FCE00163A9F /* GHAppDelegate.h */,
+				88CDF7D215000FCE00163A9F /* GHAppDelegate.m */,
+				88CDF7D415000FCF00163A9F /* MainMenu.xib */,
+				88CDF7C615000FCE00163A9F /* Supporting Files */,
+			);
+			path = GHObservable;
+			sourceTree = "<group>";
+		};
+		88CDF7C615000FCE00163A9F /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				88CDF7C715000FCE00163A9F /* GHObservable-Info.plist */,
+				88CDF7C815000FCE00163A9F /* InfoPlist.strings */,
+				88CDF7CB15000FCE00163A9F /* main.m */,
+				88CDF7CD15000FCE00163A9F /* GHObservable-Prefix.pch */,
+				88CDF7CE15000FCE00163A9F /* Credits.rtf */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		88CDF7E215000FCF00163A9F /* GHObservableTests */ = {
+			isa = PBXGroup;
+			children = (
+				88CDF7E815000FCF00163A9F /* GHObservableTests.h */,
+				88CDF7E915000FCF00163A9F /* GHObservableTests.m */,
+				88CDF7E315000FCF00163A9F /* Supporting Files */,
+			);
+			path = GHObservableTests;
+			sourceTree = "<group>";
+		};
+		88CDF7E315000FCF00163A9F /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				88CDF7E415000FCF00163A9F /* GHObservableTests-Info.plist */,
+				88CDF7E515000FCF00163A9F /* InfoPlist.strings */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		88CDF7BA15000FCE00163A9F /* GHObservable */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 88CDF7ED15000FCF00163A9F /* Build configuration list for PBXNativeTarget "GHObservable" */;
+			buildPhases = (
+				88CDF7B715000FCE00163A9F /* Sources */,
+				88CDF7B815000FCE00163A9F /* Frameworks */,
+				88CDF7B915000FCE00163A9F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = GHObservable;
+			productName = GHObservable;
+			productReference = 88CDF7BB15000FCE00163A9F /* GHObservable.app */;
+			productType = "com.apple.product-type.application";
+		};
+		88CDF7DB15000FCF00163A9F /* GHObservableTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 88CDF7F015000FCF00163A9F /* Build configuration list for PBXNativeTarget "GHObservableTests" */;
+			buildPhases = (
+				88CDF7D715000FCF00163A9F /* Sources */,
+				88CDF7D815000FCF00163A9F /* Frameworks */,
+				88CDF7D915000FCF00163A9F /* Resources */,
+				88CDF7DA15000FCF00163A9F /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				88CDF7E115000FCF00163A9F /* PBXTargetDependency */,
+			);
+			name = GHObservableTests;
+			productName = GHObservableTests;
+			productReference = 88CDF7DC15000FCF00163A9F /* GHObservableTests.octest */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		88CDF7B215000FCE00163A9F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = GH;
+				LastUpgradeCheck = 0430;
+			};
+			buildConfigurationList = 88CDF7B515000FCE00163A9F /* Build configuration list for PBXProject "GHObservable" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 88CDF7B015000FCE00163A9F;
+			productRefGroup = 88CDF7BC15000FCE00163A9F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				88CDF7BA15000FCE00163A9F /* GHObservable */,
+				88CDF7DB15000FCF00163A9F /* GHObservableTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		88CDF7B915000FCE00163A9F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				88CDF7CA15000FCE00163A9F /* InfoPlist.strings in Resources */,
+				88CDF7D015000FCE00163A9F /* Credits.rtf in Resources */,
+				88CDF7D615000FCF00163A9F /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		88CDF7D915000FCF00163A9F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				88CDF7E715000FCF00163A9F /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		88CDF7DA15000FCF00163A9F /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		88CDF7B715000FCE00163A9F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				88CDF7CC15000FCE00163A9F /* main.m in Sources */,
+				88CDF7D315000FCE00163A9F /* GHAppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		88CDF7D715000FCF00163A9F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				88CDF7EA15000FCF00163A9F /* GHObservableTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		88CDF7E115000FCF00163A9F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 88CDF7BA15000FCE00163A9F /* GHObservable */;
+			targetProxy = 88CDF7E015000FCF00163A9F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		88CDF7C815000FCE00163A9F /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				88CDF7C915000FCE00163A9F /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		88CDF7CE15000FCE00163A9F /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				88CDF7CF15000FCE00163A9F /* en */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		88CDF7D415000FCF00163A9F /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				88CDF7D515000FCF00163A9F /* en */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+		88CDF7E515000FCF00163A9F /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				88CDF7E615000FCF00163A9F /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		88CDF7EB15000FCF00163A9F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		88CDF7EC15000FCF00163A9F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		88CDF7EE15000FCF00163A9F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "GHObservable/GHObservable-Prefix.pch";
+				INFOPLIST_FILE = "GHObservable/GHObservable-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		88CDF7EF15000FCF00163A9F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "GHObservable/GHObservable-Prefix.pch";
+				INFOPLIST_FILE = "GHObservable/GHObservable-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		88CDF7F115000FCF00163A9F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/GHObservable.app/Contents/MacOS/GHObservable";
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "GHObservable/GHObservable-Prefix.pch";
+				INFOPLIST_FILE = "GHObservableTests/GHObservableTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Debug;
+		};
+		88CDF7F215000FCF00163A9F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/GHObservable.app/Contents/MacOS/GHObservable";
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "GHObservable/GHObservable-Prefix.pch";
+				INFOPLIST_FILE = "GHObservableTests/GHObservableTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		88CDF7B515000FCE00163A9F /* Build configuration list for PBXProject "GHObservable" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				88CDF7EB15000FCF00163A9F /* Debug */,
+				88CDF7EC15000FCF00163A9F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		88CDF7ED15000FCF00163A9F /* Build configuration list for PBXNativeTarget "GHObservable" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				88CDF7EE15000FCF00163A9F /* Debug */,
+				88CDF7EF15000FCF00163A9F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		88CDF7F015000FCF00163A9F /* Build configuration list for PBXNativeTarget "GHObservableTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				88CDF7F115000FCF00163A9F /* Debug */,
+				88CDF7F215000FCF00163A9F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 88CDF7B215000FCE00163A9F /* Project object */;
+}

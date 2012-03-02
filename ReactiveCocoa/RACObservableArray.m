@@ -166,6 +166,12 @@
 	return throttled;
 }
 
+- (id<RACObservable>)selectMany:(id<RACObservable> (^)(id<RACObservable> observable))block {
+	NSParameterAssert(block != NULL);
+	
+	return block(self);
+}
+
 - (void)addObjectAndNilsAreOK:(id)object {
 	if(object != nil) {
 		[self.backingArray addObject:object];

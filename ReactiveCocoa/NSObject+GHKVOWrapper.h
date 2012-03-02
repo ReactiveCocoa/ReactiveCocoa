@@ -13,7 +13,7 @@
 
 @interface NSObject (GHKVOWrapper)
 
-// Adds the given block as the callback for when the keyPath changes. The observer does not need to be explicitly removed. It will be removed when the identifier is dealloc'd.
+// Adds the given block as the callback for when the keyPath changes. The observer does not need to be explicitly removed. It will be removed when the identifier is dealloc'd or when the target is dealloc'd.
 //
 // target - the object to which callbacks will be delivered. This is passed back into the target block.
 // keyPath - the key path to observe
@@ -24,11 +24,16 @@
 // Returns an identifier that can be used to remove the observer. The identifier should be kept alive for as long as you want the observation to continue. The observer will be removed when the identifier is dealloc'd.
 - (id)addObserver:(NSObject *)target forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options queue:(NSOperationQueue *)queue block:(void (^)(id target, NSDictionary *change))block;
 
+- (id)addObserver:(NSObject *)target forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options queue:(NSOperationQueue *)queue;
+
 // Remove the observer represented by the identifier.
 //
 // identifier - the identifier to removed. This should be an object previously returned by a called to -addObserverForKeyPath:options:queue:block:.
 //
 // Returns whether the removal was successful. The only reason for failure would be if the identifier doesn't represent anything currently being observed by the object, or if the identifier is nil.
 - (BOOL)removeObserverWithIdentifier:(id)identifier;
+
+- (id)when:(BOOL (^)(id object, NSString *keyPath, NSDictionary *change))predicate;
+- (id)do:(void (^)(id target, NSDictionary *change))block;
 
 @end

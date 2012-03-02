@@ -6,11 +6,15 @@
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
-#import "RACObservableArray.h"
+#import "RACObservableSequence.h"
 
 
-@interface RACObservableArray ()
+@interface RACObservableSequence ()
+
+@property (nonatomic, readonly) NSUInteger count;
 
 - (void)addObjectAndNilsAreOK:(id)object;
+- (void)removeFirstObject;
+- (id)lastObject;
 
 @end

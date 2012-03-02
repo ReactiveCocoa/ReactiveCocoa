@@ -8,12 +8,12 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol RACObservable;
+@class RACObservableSequence;
 
 
 @interface NSObject (RACPropertyObserving)
 
-- (id<RACObservable>)observableForKeyPath:(NSString *)keyPath;
-- (id<RACObservable>)observableForBinding:(NSString *)binding;
+- (RACObservableSequence *)observableSequenceForKeyPath:(NSString *)keyPath;
+- (RACObservableSequence *)observableSequenceForBinding:(NSString *)binding;
 
 @end

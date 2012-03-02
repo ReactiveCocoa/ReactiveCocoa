@@ -18,7 +18,7 @@
 		88CDF7E715000FCF00163A9F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 88CDF7E515000FCF00163A9F /* InfoPlist.strings */; };
 		88CDF7FC150019CA00163A9F /* RACObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF7FB150019CA00163A9F /* RACObserver.m */; };
 		88CDF8141500300500163A9F /* NSObject+GHExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF8131500300400163A9F /* NSObject+GHExtensions.m */; };
-		88CDF826150087D500163A9F /* RACObservableArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF825150087D500163A9F /* RACObservableArray.m */; };
+		88CDF826150087D500163A9F /* RACObservableSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF825150087D500163A9F /* RACObservableSequence.m */; };
 		88CDF82A15008BBA00163A9F /* NSObject+GHKVOWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF82915008BB900163A9F /* NSObject+GHKVOWrapper.m */; };
 		88CDF82E15008C0600163A9F /* NSObject+RACPropertyObserving.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF82D15008C0500163A9F /* NSObject+RACPropertyObserving.m */; };
 /* End PBXBuildFile section */
@@ -34,6 +34,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		8820928215012D3B00796685 /* RACQueryable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RACQueryable.h; sourceTree = "<group>"; };
 		88CDF7BB15000FCE00163A9F /* ReactiveCocoa.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ReactiveCocoa.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		88CDF7BF15000FCE00163A9F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		88CDF7C215000FCE00163A9F /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -56,13 +57,13 @@
 		88CDF80415001CA800163A9F /* RACObservable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RACObservable.h; sourceTree = "<group>"; };
 		88CDF8121500300400163A9F /* NSObject+GHExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+GHExtensions.h"; sourceTree = "<group>"; };
 		88CDF8131500300400163A9F /* NSObject+GHExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+GHExtensions.m"; sourceTree = "<group>"; };
-		88CDF824150087D500163A9F /* RACObservableArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACObservableArray.h; sourceTree = "<group>"; };
-		88CDF825150087D500163A9F /* RACObservableArray.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACObservableArray.m; sourceTree = "<group>"; };
+		88CDF824150087D500163A9F /* RACObservableSequence.h */ = {isa = PBXFileReference; fileEncoding = 4; path = RACObservableSequence.h; sourceTree = "<group>"; };
+		88CDF825150087D500163A9F /* RACObservableSequence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACObservableSequence.m; sourceTree = "<group>"; };
 		88CDF82815008BB900163A9F /* NSObject+GHKVOWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+GHKVOWrapper.h"; sourceTree = "<group>"; };
 		88CDF82915008BB900163A9F /* NSObject+GHKVOWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+GHKVOWrapper.m"; sourceTree = "<group>"; };
 		88CDF82C15008C0500163A9F /* NSObject+RACPropertyObserving.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACPropertyObserving.h"; sourceTree = "<group>"; };
 		88CDF82D15008C0500163A9F /* NSObject+RACPropertyObserving.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACPropertyObserving.m"; sourceTree = "<group>"; };
-		88CDF8301500978F00163A9F /* RACObservableArray+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACObservableArray+Private.h"; sourceTree = "<group>"; };
+		88CDF8301500978F00163A9F /* RACObservableSequence+Private.h */ = {isa = PBXFileReference; path = "RACObservableSequence+Private.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -139,11 +140,12 @@
 				88CDF82C15008C0500163A9F /* NSObject+RACPropertyObserving.h */,
 				88CDF82D15008C0500163A9F /* NSObject+RACPropertyObserving.m */,
 				88CDF80415001CA800163A9F /* RACObservable.h */,
+				8820928215012D3B00796685 /* RACQueryable.h */,
 				88CDF7FA150019CA00163A9F /* RACObserver.h */,
 				88CDF7FB150019CA00163A9F /* RACObserver.m */,
-				88CDF824150087D500163A9F /* RACObservableArray.h */,
-				88CDF825150087D500163A9F /* RACObservableArray.m */,
-				88CDF8301500978F00163A9F /* RACObservableArray+Private.h */,
+				88CDF824150087D500163A9F /* RACObservableSequence.h */,
+				88CDF825150087D500163A9F /* RACObservableSequence.m */,
+				88CDF8301500978F00163A9F /* RACObservableSequence+Private.h */,
 			);
 			path = ReactiveCocoa;
 			sourceTree = "<group>";
@@ -289,7 +291,7 @@
 				88CDF7D315000FCE00163A9F /* RACAppDelegate.m in Sources */,
 				88CDF7FC150019CA00163A9F /* RACObserver.m in Sources */,
 				88CDF8141500300500163A9F /* NSObject+GHExtensions.m in Sources */,
-				88CDF826150087D500163A9F /* RACObservableArray.m in Sources */,
+				88CDF826150087D500163A9F /* RACObservableSequence.m in Sources */,
 				88CDF82A15008BBA00163A9F /* NSObject+GHKVOWrapper.m in Sources */,
 				88CDF82E15008C0600163A9F /* NSObject+RACPropertyObserving.m in Sources */,
 			);

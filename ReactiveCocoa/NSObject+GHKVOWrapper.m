@@ -7,8 +7,15 @@
 //
 
 #import "NSObject+GHKVOWrapper.h"
+#import <objc/runtime.h>
+
+static const void *GHKVOTrampolinesKey = &GHKVOTrampolinesKey;
 
 @class GHKVOTrampoline;
+
+@interface NSObject ()
+@property (readonly) NSMutableSet *KVOTrampolines;
+@end
 
 
 @interface GHKVOTrampoline : NSObject
@@ -18,6 +25,7 @@
 @property (nonatomic, strong) NSOperationQueue *queue;
 @property (nonatomic, unsafe_unretained) NSObject *observer;
 @property (nonatomic, unsafe_unretained) NSObject *target;
+@property (nonatomic, copy) BOOL (^predicate)(id object, NSString *keyPath, NSDictionary *change);
 
 - (void)startObservingOnObject:(NSObject *)object options:(NSKeyValueObservingOptions)options;
 - (void)stopObserving;
@@ -33,7 +41,14 @@ static char GHKVOWrapperContext;
 }
 
 - (void)observeValueForKeyPath:(NSString *)triggeredKeyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    if(context == &GHKVOWrapperContext) {		
+    if(context == &GHKVOWrapperContext) {
+        BOOL notify = YES;
+        if(self.predicate != NULL) {
+            notify = self.predicate(object, triggeredKeyPath, change);
+        }
+        
+        if(!notify) return;
+        
         if(self.queue == nil) {
             self.block(self.observer, change);
             return;
@@ -58,13 +73,18 @@ static char GHKVOWrapperContext;
 @synthesize queue;
 @synthesize observer;
 @synthesize target;
+@synthesize predicate;
 
 - (void)startObservingOnObject:(NSObject *)object options:(NSKeyValueObservingOptions)options {
 	self.observer = object;
 	[self.observer addObserver:self forKeyPath:self.keyPath options:options context:&GHKVOWrapperContext];
+    
+    [self.target.KVOTrampolines addObject:self];
 }
 
 - (void)stopObserving {
+    [self.target.KVOTrampolines removeObject:self];
+    
 	self.target = nil;
 	
 	[self.observer removeObserver:self forKeyPath:self.keyPath];
@@ -86,6 +106,14 @@ static char GHKVOWrapperContext;
 	return trampoline;
 }
 
+- (id)addObserver:(NSObject *)target forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options queue:(NSOperationQueue *)queue {
+    GHKVOTrampoline *trampoline = [[GHKVOTrampoline alloc] init];
+	trampoline.keyPath = keyPath;
+	trampoline.queue = queue;
+	trampoline.target = target;
+	return trampoline;
+}
+
 - (BOOL)removeObserverWithIdentifier:(id)identifier {
 	return [self removeObserverTrampoline:identifier];
 }
@@ -96,6 +124,38 @@ static char GHKVOWrapperContext;
 	[trampoline stopObserving];
 
 	return YES;
+}
+
+- (id)when:(BOOL (^)(id object, NSString *keyPath, NSDictionary *change))predicate {
+    NSParameterAssert([self isKindOfClass:[GHKVOTrampoline class]]);
+    
+    GHKVOTrampoline *trampoline = (GHKVOTrampoline *) self;
+    trampoline.predicate = predicate;
+    
+    [trampoline startObservingOnObject:self options:0];
+    
+    return self;
+}
+
+- (id)do:(void (^)(id target, NSDictionary *change))block {
+    NSParameterAssert([self isKindOfClass:[GHKVOTrampoline class]]);
+
+    GHKVOTrampoline *trampoline = (GHKVOTrampoline *) self;
+    trampoline.block = block;
+
+    return self;
+}
+
+- (NSMutableSet *)KVOTrampolines {
+    @synchronized(self) {
+        NSMutableSet *trampolines = objc_getAssociatedObject(self, GHKVOTrampolinesKey);
+        if(trampolines == nil) {
+            trampolines = [NSMutableSet set];
+            objc_setAssociatedObject(self, GHKVOTrampolinesKey, trampolines, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        }
+        
+        return trampolines;
+    }
 }
 
 @end

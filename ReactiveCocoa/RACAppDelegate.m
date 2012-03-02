@@ -7,13 +7,14 @@
 //
 
 #import "RACAppDelegate.h"
-#import "RACObservableArray.h"
+#import "RACObservableSequence.h"
 #import "RACObserver.h"
 #import "NSObject+RACPropertyObserving.h"
 
 @interface RACAppDelegate ()
-@property (nonatomic, strong) id<RACObservable> textFieldValueObserver;
+@property (nonatomic, strong) RACObservableSequence *textFieldValues;
 @property (nonatomic, assign) BOOL isMagic;
+@property (nonatomic, copy) NSString *textFieldValue;
 @end
 
 
@@ -23,27 +24,30 @@
 #pragma mark NSApplicationDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
+	// UI elements should *always* be backed by the model.
 	[self.doMagicButton bind:@"enabled" toObject:self withKeyPath:@"isMagic" options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nil]];
+	[self.textField bind:@"value" toObject:self withKeyPath:@"textFieldValue" options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nil]];
 	
-	self.textFieldValueObserver = [self.textField observableForBinding:@"value"];
+	// We can then observe the sequence of values that our model receives.
+	self.textFieldValues = [self observableSequenceForKeyPath:@"textFieldValue"];
 	
-	[[[self.textFieldValueObserver 
-	   where:^BOOL(id x) {
-		return [[x lowercaseString] rangeOfString:@"upper"].length > 0;
-	}] select:^(id x) {
+	[[[self.textFieldValues 
+	   where:^BOOL(id x) { 
+		return [[x lowercaseString] rangeOfString:@"upper"].length > 0; 
+	}] select:^(id x) { 
 		return [x uppercaseString];
 	}] subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id x) {
 		[self.textField setStringValue:x];
 	}]];
 	
-	[[self.textFieldValueObserver 
+	[[self.textFieldValues 
 	  select:^(id x) {
 		  return [NSNumber numberWithBool:[x hasPrefix:@"magic"]];
 	}] subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id x) {
 		self.isMagic = [x boolValue];
 	}]];
 	
-	[[[self.textFieldValueObserver 
+	[[[self.textFieldValues 
 	   select:^(id x) {
 		return x;
 	}] throttle:1.0f] 
@@ -57,8 +61,9 @@
 
 @synthesize window;
 @synthesize textField;
-@synthesize textFieldValueObserver;
+@synthesize textFieldValues;
 @synthesize doMagicButton;
 @synthesize isMagic;
+@synthesize textFieldValue;
 
 @end

@@ -8,26 +8,26 @@
 
 #import "NSObject+RACPropertyObserving.h"
 #import "NSObject+GHKVOWrapper.h"
-#import "RACObservableArray.h"
-#import "RACObservableArray+Private.h"
+#import "RACObservableSequence.h"
+#import "RACObservableSequence+Private.h"
 #import <objc/runtime.h>
 
-static const NSUInteger RACObservableArrayCountThreshold = 10; // I dunno
+static const NSUInteger RACObservableSequenceCountThreshold = 100; // I dunno
 
-static const void *RACObservableArrayKey = &RACObservableArrayKey;
+static const void *RACObservableSequenceKey = &RACObservableSequenceKey;
 static NSString * const RACPropertyObservingBindingKeyPath = @"RACPropertyObservingBindingValue";
 
 @interface NSObject ()
-@property (nonatomic, strong) RACObservableArray *RACObservableArray;
+@property (nonatomic, strong) RACObservableSequence *RACObservableSequence;
 @end
 
 
 @implementation NSObject (RACPropertyObserving)
 
-- (id<RACObservable>)observableForKeyPath:(NSString *)keyPath {
-	RACObservableArray *array = [RACObservableArray array];
+- (RACObservableSequence *)observableSequenceForKeyPath:(NSString *)keyPath {
+	RACObservableSequence *array = [RACObservableSequence sequence];
 	__unsafe_unretained NSObject *weakSelf = self;
-	[self addObserver:array forKeyPath:keyPath options:0 queue:nil block:^(id target, NSDictionary *change) {
+	[self addObserver:array forKeyPath:keyPath options:0 queue:[NSOperationQueue mainQueue] block:^(id target, NSDictionary *change) {
 		NSObject *strongSelf = weakSelf;
 		
 		[[strongSelf class] pruneObservingArray:array];
@@ -38,35 +38,35 @@ static NSString * const RACPropertyObservingBindingKeyPath = @"RACPropertyObserv
 	return array;
 }
 
-- (id<RACObservable>)observableForBinding:(NSString *)binding {
-	self.RACObservableArray = [RACObservableArray array];
+- (RACObservableSequence *)observableSequenceForBinding:(NSString *)binding {
+	self.RACObservableSequence = [RACObservableSequence sequence];
 	
 	[self bind:binding toObject:self withKeyPath:RACPropertyObservingBindingKeyPath options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nil]];
 	
-	return self.RACObservableArray;
+	return self.RACObservableSequence;
 }
 
-- (RACObservableArray *)RACObservableArray {
-	return objc_getAssociatedObject(self, RACObservableArrayKey);
+- (RACObservableSequence *)RACObservableSequence {
+	return objc_getAssociatedObject(self, RACObservableSequenceKey);
 }
 
-- (void)setRACObservableArray:(RACObservableArray *)a {
-	objc_setAssociatedObject(self, RACObservableArrayKey, a, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+- (void)setRACObservableSequence:(RACObservableSequence *)a {
+	objc_setAssociatedObject(self, RACObservableSequenceKey, a, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (void)setRACPropertyObservingBindingValue:(id)value {
-	[[self class] pruneObservingArray:self.RACObservableArray];
+	[[self class] pruneObservingArray:self.RACObservableSequence];
 	
-	[self.RACObservableArray addObjectAndNilsAreOK:value];
+	[self.RACObservableSequence addObjectAndNilsAreOK:value];
 }
 
 - (id)RACPropertyObservingBindingValue {
-	return [self.RACObservableArray lastObject];
+	return [self.RACObservableSequence lastObject];
 }
 
-+ (void)pruneObservingArray:(RACObservableArray *)array {
-	while(array.count > RACObservableArrayCountThreshold) {
-		[array removeObjectAtIndex:0];
++ (void)pruneObservingArray:(RACObservableSequence *)sequence {
+	while(sequence.count > RACObservableSequenceCountThreshold) {
+		[sequence removeFirstObject];
 	}
 }
 

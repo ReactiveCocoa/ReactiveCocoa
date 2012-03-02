@@ -46,7 +46,8 @@
 	  select:^(id x) { return [NSNumber numberWithBool:[x hasPrefix:@"magic"]]; }] 
 	 toProperty:self.isMagicValue];
 	
-	[[self.textField1Value 
+	[[[RACObservableValue 
+	   whenAny:self.textField1Value, self.textField2Value, nil]
 	  throttle:1.0f] 
 	 subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id x) {
 		NSLog(@"delayed: %@", x);

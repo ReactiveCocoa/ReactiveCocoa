@@ -414,6 +414,10 @@
 					"-all_load",
 				);
 				PRODUCT_NAME = ReactiveCocoa;
+				WARNING_CFLAGS = (
+					"-Werror",
+					"-Wall",
+				);
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -429,6 +433,10 @@
 					"-all_load",
 				);
 				PRODUCT_NAME = ReactiveCocoa;
+				WARNING_CFLAGS = (
+					"-Werror",
+					"-Wall",
+				);
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

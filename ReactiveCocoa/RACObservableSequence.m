@@ -101,17 +101,22 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return block(self);
 }
 
-+ (RACObservableSequence *)whenAny:(RACObservableSequence *)observable1, ... {
++ (RACObservableSequence *)whenAny:(NSArray *)observables reduce:(id (^)(NSArray *observables))reduceBlock {
 	RACObservableSequence *unified = [RACObservableSequence sequence];
-	
-	va_list args;
-    va_start(args, observable1);
-    for(RACObservableSequence *arg = observable1; arg != nil; arg = va_arg(args, RACObservableSequence *)) {
-		[arg subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id value) {
-			[unified addObjectAndNilsAreOK:value];
+
+    for(RACObservableSequence *observable in observables) {
+		[observable subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id value) {
+			NSMutableArray *topValues = [NSMutableArray arrayWithCapacity:observables.count];
+			for(RACObservableSequence *observable in observables) {
+				if([observable lastObject] != nil) {
+					[topValues addObject:[observable lastObject]];
+				}
+			}
+			
+			id newValue = reduceBlock != NULL ? reduceBlock(topValues) : value;
+			[unified addObjectAndNilsAreOK:newValue];
 		}]];
     }
-    va_end(args);
 	
 	return unified;
 }

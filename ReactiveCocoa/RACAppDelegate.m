@@ -37,9 +37,11 @@
 	[self.matchesLabel bind:NSHiddenBinding toObject:self withKeyPath:RACKVO(self.textFieldsDoNotMatchValue.value)];
 	[self.textField2 bind:NSValueBinding toObject:self withKeyPath:RACKVO(self.textField2Value.value)];
 	
-	[[[RACObservableValue 
-	   whenAny:self.textField1Value, self.textField2Value, nil] 
-	  select:^(id value) { return [NSNumber numberWithBool:![self.textField1Value.value isEqualToString:self.textField2Value.value]]; }] 
+	[[RACObservableValue 
+	   whenAny:[NSArray arrayWithObjects:self.textField1Value, self.textField2Value, nil] 
+	   reduce:^(NSArray *observers) { 
+		   return [NSNumber numberWithBool:![[observers objectAtIndex:0] isEqualToString:[observers objectAtIndex:1]]]; 
+	   }]
 	 toProperty:self.textFieldsDoNotMatchValue];
 	
 	[[self.textField1Value 
@@ -47,7 +49,8 @@
 	 toProperty:self.isMagicValue];
 	
 	[[[RACObservableValue 
-	   whenAny:self.textField1Value, self.textField2Value, nil]
+	   whenAny:[NSArray arrayWithObjects:self.textField1Value, self.textField2Value, nil] 
+	   reduce:NULL]
 	  throttle:1.0f] 
 	 subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id x) {
 		NSLog(@"delayed: %@", x);

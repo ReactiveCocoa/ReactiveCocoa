@@ -15,7 +15,7 @@
 - (id<RACQueryable>)select:(id (^)(id value))block;
 - (id<RACQueryable>)throttle:(NSTimeInterval)interval;
 - (id<RACQueryable>)selectMany:(id<RACQueryable> (^)(id<RACQueryable> observable))block;
-+ (id<RACQueryable>)whenAny:(id<RACQueryable>)observable1, ... NS_REQUIRES_NIL_TERMINATION;
++ (id<RACQueryable>)whenAny:(NSArray *)observables reduce:(id (^)(NSArray *observables))reduceBlock;
 - (void)toProperty:(id<RACQueryable>)property;
 
 @end

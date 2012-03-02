@@ -23,7 +23,7 @@
 - (RACObservableSequence *)select:(id (^)(id value))block;
 - (RACObservableSequence *)throttle:(NSTimeInterval)interval;
 - (RACObservableSequence *)selectMany:(RACObservableSequence * (^)(RACObservableSequence *observable))block;
-+ (RACObservableSequence *)whenAny:(RACObservableSequence *)observable1, ... NS_REQUIRES_NIL_TERMINATION;
++ (RACObservableSequence *)whenAny:(NSArray *)observables reduce:(id (^)(NSArray *observables))reduceBlock;
 - (void)toProperty:(RACObservableSequence *)property;
 
 @end

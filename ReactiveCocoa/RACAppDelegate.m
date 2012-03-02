@@ -37,7 +37,7 @@
 	[self.matchesLabel bind:NSHiddenBinding toObject:self withKeyPath:RACKVO(self.doMatchObservable.value)];
 	[self.textField2 bind:NSValueBinding toObject:self withKeyPath:RACKVO(self.textField2Value.value)];
 	
-	[[[self.doMatchObservable 
+	[[[RACObservableSequence 
 	   whenAny:self.textField1Value, self.textField2Value, nil] 
 	  select:^(id value) { return [NSNumber numberWithBool:![self.textField1Value.value isEqualToString:self.textField2Value.value]]; }] 
 	 toProperty:self.doMatchObservable];

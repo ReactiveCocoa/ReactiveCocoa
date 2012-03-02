@@ -101,7 +101,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return block(self);
 }
 
-- (RACObservableSequence *)whenAny:(RACObservableSequence *)observable1, ... {
++ (RACObservableSequence *)whenAny:(RACObservableSequence *)observable1, ... {
 	RACObservableSequence *unified = [RACObservableSequence sequence];
 	
 	va_list args;

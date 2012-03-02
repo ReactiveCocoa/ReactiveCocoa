@@ -15,5 +15,6 @@
 - (id<RACQueryable>)select:(id (^)(id value))block;
 - (id<RACQueryable>)throttle:(NSTimeInterval)interval;
 - (id<RACQueryable>)selectMany:(id<RACQueryable> (^)(id<RACQueryable> observable))block;
+- (id<RACQueryable>)whereAny:(id (^)(void))value1Block :(id (^)(void))value2Block :(BOOL (^)(id value1, id value2))block;
 
 @end

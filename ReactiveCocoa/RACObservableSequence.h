@@ -22,5 +22,6 @@
 - (RACObservableSequence *)select:(id (^)(id value))block;
 - (RACObservableSequence *)throttle:(NSTimeInterval)interval;
 - (RACObservableSequence *)selectMany:(RACObservableSequence * (^)(RACObservableSequence *observable))block;
+- (RACObservableSequence *)whereAny:(id (^)(void))value1Block :(id (^)(void))value2Block :(BOOL (^)(id value1, id value2))block;
 
 @end

@@ -98,6 +98,20 @@
 	return block(self);
 }
 
+- (RACObservableSequence *)whereAny:(id (^)(void))value1Block :(id (^)(void))value2Block :(BOOL (^)(id value1, id value2))block {
+	RACObservableSequence *filtered = [RACObservableSequence sequence];
+	[self subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id value) {
+		id value1 = value1Block();
+		id value2 = value2Block();
+		BOOL accept = block(value1, value2);
+		if(accept) {
+			[filtered addObjectAndNilsAreOK:value];
+		}
+	}]];
+	
+	return filtered;
+}
+
 
 #pragma mark API
 

@@ -39,7 +39,7 @@
 	
 	[[[RACObservableSequence 
 	   whenAny:self.textField1Value, self.textField2Value, nil] 
-	  select:^(id value) { return [NSNumber numberWithBool:[self.textField1Value.value isEqualToString:self.textField2Value.value]]; }] 
+	  select:^(id value) { return [NSNumber numberWithBool:![self.textField1Value.value isEqualToString:self.textField2Value.value]]; }] 
 	 toProperty:self.dontMatchObservable];
 	
 	[[self.textField1Value 

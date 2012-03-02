@@ -11,11 +11,14 @@
 #import "RACObserver.h"
 #import "NSObject+GHExtensions.h"
 
+static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
+
 @interface RACObservableSequence ()
 
 @property (nonatomic, strong) NSMutableArray *backingArray;
 @property (nonatomic, strong) NSMutableArray *subscribers;
 @property (nonatomic, assign) BOOL suspendNotifications;
+@property (nonatomic, assign) NSUInteger capacity;
 
 - (void)performBlockOnAllObservers:(void (^)(RACObserver *observer))block;
 
@@ -98,18 +101,25 @@
 	return block(self);
 }
 
-- (RACObservableSequence *)whereAny:(id (^)(void))value1Block :(id (^)(void))value2Block :(BOOL (^)(id value1, id value2))block {
-	RACObservableSequence *filtered = [RACObservableSequence sequence];
-	[self subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id value) {
-		id value1 = value1Block();
-		id value2 = value2Block();
-		BOOL accept = block(value1, value2);
-		if(accept) {
-			[filtered addObjectAndNilsAreOK:value];
-		}
-	}]];
+- (RACObservableSequence *)whenAny:(RACObservableSequence *)observable1, ... {
+	RACObservableSequence *unified = [RACObservableSequence sequence];
 	
-	return filtered;
+	va_list args;
+    va_start(args, observable1);
+    for(RACObservableSequence *arg = observable1; arg != nil; arg = va_arg(args, RACObservableSequence *)) {
+		[arg subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id value) {
+			[unified addObjectAndNilsAreOK:value];
+		}]];
+    }
+    va_end(args);
+	
+	return unified;
+}
+
+- (void)toProperty:(RACObservableSequence *)property {
+	[self subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id value) {
+		[property addObjectAndNilsAreOK:value];
+	}]];
 }
 
 
@@ -118,12 +128,28 @@
 @synthesize backingArray;
 @synthesize subscribers;
 @synthesize suspendNotifications;
+@synthesize capacity;
 
 + (id)sequence {
-	return [[self alloc] init];
+	return [self sequenceWithCapacity:RACObservableSequenceDefaultCapacity];
+}
+
++ (id)sequenceWithCapacity:(NSUInteger)capacity {
+	return [[self alloc] initWithCapacity:capacity];
+}
+
+- (id)initWithCapacity:(NSUInteger)cap {
+	self = [self init];
+	if(self == nil) return nil;
+	
+	self.capacity = cap;
+	
+	return self;
 }
 
 - (void)removeFirstObject {
+	if(self.count < 1) return;
+	
 	[self.backingArray removeObjectAtIndex:0];
 }
 
@@ -143,6 +169,10 @@
 			observer.next(object);
 		}
 	}];
+	
+	while(self.count > self.capacity) {
+		[self removeFirstObject];
+	}
 }
 
 - (NSUInteger)count {

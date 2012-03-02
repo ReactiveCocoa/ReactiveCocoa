@@ -13,6 +13,8 @@
 
 @property (nonatomic, readonly) NSUInteger count;
 
+- (id)initWithCapacity:(NSUInteger)cap;
+
 - (void)addObjectAndNilsAreOK:(id)object;
 - (void)removeFirstObject;
 - (id)lastObject;

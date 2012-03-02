@@ -10,11 +10,13 @@
 #import "RACObservableSequence.h"
 #import "RACObserver.h"
 #import "NSObject+RACPropertyObserving.h"
+#import "RACObservableValue.h"
 
 @interface RACAppDelegate ()
-@property (nonatomic, strong) RACObservableSequence *textField1Values;
-@property (nonatomic, copy) NSString *textField1Value;
-@property (nonatomic, assign) BOOL isMagic;
+@property (nonatomic, strong) RACObservableValue *textField1Value;
+@property (nonatomic, strong) RACObservableValue *isMagicValue;
+@property (nonatomic, strong) RACObservableValue *doMatchObservable;
+@property (nonatomic, strong) RACObservableValue *textField2Value;
 @end
 
 
@@ -24,35 +26,28 @@
 #pragma mark NSApplicationDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
+	self.textField1Value = [RACObservableValue valueWithValue:@""];
+	self.textField2Value = [RACObservableValue valueWithValue:@""];
+	self.isMagicValue = [RACObservableValue valueWithValue:[NSNumber numberWithBool:NO]];
+	self.doMatchObservable = [RACObservableValue valueWithValue:[NSNumber numberWithBool:YES]];
+	
 	// UI elements should *always* be backed by the model.
-	[self.doMagicButton bind:@"enabled" toObject:self withKeyPath:@"isMagic" options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nil]];
-	[self.textField1 bind:@"value" toObject:self withKeyPath:@"textField1Value" options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nil]];
+	[self.doMagicButton bind:NSEnabledBinding toObject:self withKeyPath:RACKVO(self.isMagicValue.value)];
+	[self.textField1 bind:NSValueBinding toObject:self withKeyPath:RACKVO(self.textField1Value.value)];
+	[self.matchesLabel bind:NSHiddenBinding toObject:self withKeyPath:RACKVO(self.doMatchObservable.value)];
+	[self.textField2 bind:NSValueBinding toObject:self withKeyPath:RACKVO(self.textField2Value.value)];
 	
-	// We can then observe the sequence of values that our model receives.
-	self.textField1Values = RACObservableSequenceForProperty(self.textField1Value);
+	[[[self.doMatchObservable 
+	   whenAny:self.textField1Value, self.textField2Value, nil] 
+	  select:^(id value) { return [NSNumber numberWithBool:![self.textField1Value.value isEqualToString:self.textField2Value.value]]; }] 
+	 toProperty:self.doMatchObservable];
 	
-	[[[[self.textField1Values 
-		select:^(id x) {
-		return [x lowercaseString];
-	}] where:^BOOL(id x) { 
-		return [x rangeOfString:@"upper"].length > 0; 
-	}] select:^(id x) { 
-		return [x uppercaseString];
-	}] subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id x) {
-		self.textField1Value = x;
-	}]];
+	[[self.textField1Value 
+	  select:^(id x) { return [NSNumber numberWithBool:[x hasPrefix:@"magic"]]; }] 
+	 toProperty:self.isMagicValue];
 	
-	[[self.textField1Values 
-	  select:^(id x) {
-		  return [NSNumber numberWithBool:[x hasPrefix:@"magic"]];
-	}] subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id x) {
-		self.isMagic = [x boolValue];
-	}]];
-	
-	[[[self.textField1Values 
-	   select:^(id x) {
-		return x;
-	}] throttle:1.0f] 
+	[[self.textField1Value 
+	  throttle:1.0f] 
 	 subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id x) {
 		NSLog(@"delayed: %@", x);
 	}]];
@@ -63,11 +58,12 @@
 
 @synthesize window;
 @synthesize textField1;
-@synthesize textField1Values;
 @synthesize doMagicButton;
-@synthesize isMagic;
+@synthesize isMagicValue;
 @synthesize textField1Value;
 @synthesize textField2;
 @synthesize matchesLabel;
+@synthesize doMatchObservable;
+@synthesize textField2Value;
 	 
 @end

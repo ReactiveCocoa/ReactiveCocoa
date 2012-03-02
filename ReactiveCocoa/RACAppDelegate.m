@@ -37,7 +37,7 @@
 	}] select:^(id x) { 
 		return [x uppercaseString];
 	}] subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id x) {
-		[self.textField setStringValue:x];
+		self.textFieldValue = x;
 	}]];
 	
 	[[self.textFieldValues 

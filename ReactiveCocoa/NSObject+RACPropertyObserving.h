@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+#define RACObservableSequenceForProperty(property) ((void)(NO && ((void)property, NO)), [self observableSequenceForKeyPath:@#property])
+
 @class RACObservableSequence;
 
 

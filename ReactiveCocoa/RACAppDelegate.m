@@ -28,12 +28,12 @@
 	self.textFieldValueObserver = [self.textField observableForBinding:@"value"];
 	
 	[[[self.textFieldValueObserver 
-	   where:^(id x) {
-		return [x hasPrefix:@"magic"];
+	   where:^BOOL(id x) {
+		return [[x lowercaseString] rangeOfString:@"upper"].length > 0;
 	}] select:^(id x) {
 		return [x uppercaseString];
 	}] subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id x) {
-		NSLog(@"got: %@", x);
+		[self.textField setStringValue:x];
 	}]];
 	
 	[[self.textFieldValueObserver 

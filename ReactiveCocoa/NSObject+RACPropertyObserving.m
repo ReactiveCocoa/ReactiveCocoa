@@ -12,6 +12,8 @@
 #import "RACObservableArray+Private.h"
 #import <objc/runtime.h>
 
+static const NSUInteger RACObservableArrayCountThreshold = 10; // I dunno
+
 static const void *RACObservableArrayKey = &RACObservableArrayKey;
 static NSString * const RACPropertyObservingBindingKeyPath = @"RACPropertyObservingBindingValue";
 
@@ -27,6 +29,9 @@ static NSString * const RACPropertyObservingBindingKeyPath = @"RACPropertyObserv
 	__unsafe_unretained NSObject *weakSelf = self;
 	[self addObserver:array forKeyPath:keyPath options:0 queue:nil block:^(id target, NSDictionary *change) {
 		NSObject *strongSelf = weakSelf;
+		
+		[[strongSelf class] pruneObservingArray:array];
+		
 		[array addObjectAndNilsAreOK:[strongSelf valueForKeyPath:keyPath]];
 	}];
 	
@@ -50,11 +55,19 @@ static NSString * const RACPropertyObservingBindingKeyPath = @"RACPropertyObserv
 }
 
 - (void)setRACPropertyObservingBindingValue:(id)value {
+	[[self class] pruneObservingArray:self.RACObservableArray];
+	
 	[self.RACObservableArray addObjectAndNilsAreOK:value];
 }
 
 - (id)RACPropertyObservingBindingValue {
 	return [self.RACObservableArray lastObject];
+}
+
++ (void)pruneObservingArray:(RACObservableArray *)array {
+	while(array.count > RACObservableArrayCountThreshold) {
+		[array removeObjectAtIndex:0];
+	}
 }
 
 @end

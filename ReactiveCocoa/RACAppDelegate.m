@@ -45,8 +45,8 @@
 		subscribeNext:^(id x) { NSLog(@"even more magic!"); }];
 	
 	[[self.textField1Value 
-	  select:^(id x) { return [NSNumber numberWithBool:[x hasPrefix:@"magic"]]; }] 
-	 toProperty:loginCommand.canExecute];
+		select:^(id x) { return [NSNumber numberWithBool:[x hasPrefix:@"magic"]]; }] 
+		toProperty:loginCommand.canExecute];
 	
 	[self.doMagicButton addCommand:loginCommand];
 	

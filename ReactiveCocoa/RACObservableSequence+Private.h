@@ -17,6 +17,5 @@
 
 - (void)addObjectAndNilsAreOK:(id)object;
 - (void)removeFirstObject;
-- (id)lastObject;
 
 @end

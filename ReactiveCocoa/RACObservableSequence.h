@@ -18,6 +18,7 @@
 + (id)sequenceWithCapacity:(NSUInteger)capacity;
 
 - (void)addObject:(id)object;
+- (id)lastObject;
 
 - (RACObservableSequence *)where:(BOOL (^)(id value))predicate;
 - (RACObservableSequence *)select:(id (^)(id value))block;

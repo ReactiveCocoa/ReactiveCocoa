@@ -11,6 +11,8 @@
 		8820937C1501C8A600796685 /* RACObservableSequenceSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 8820937B1501C8A600796685 /* RACObservableSequenceSpec.m */; };
 		8820937D1501C93C00796685 /* libExpecta.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8820936F1501C84700796685 /* libExpecta.a */; };
 		8820937E1501C94900796685 /* libSpecta.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8820935C1501C84000796685 /* libSpecta.a */; };
+		882093E81501E6CB00796685 /* NSButton+RACCommandSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 882093E71501E6CB00796685 /* NSButton+RACCommandSupport.m */; };
+		882093EB1501E6EE00796685 /* RACCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 882093EA1501E6EE00796685 /* RACCommand.m */; };
 		88CDF7C015000FCE00163A9F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7BF15000FCE00163A9F /* Cocoa.framework */; };
 		88CDF7CA15000FCE00163A9F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 88CDF7C815000FCE00163A9F /* InfoPlist.strings */; };
 		88CDF7CC15000FCE00163A9F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF7CB15000FCE00163A9F /* main.m */; };
@@ -126,6 +128,10 @@
 		882093511501C83F00796685 /* Specta.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Specta.xcodeproj; path = specta/Specta.xcodeproj; sourceTree = "<group>"; };
 		882093641501C84700796685 /* Expecta.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Expecta.xcodeproj; path = expecta/Expecta.xcodeproj; sourceTree = "<group>"; };
 		8820937B1501C8A600796685 /* RACObservableSequenceSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACObservableSequenceSpec.m; sourceTree = "<group>"; };
+		882093E61501E6CB00796685 /* NSButton+RACCommandSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; path = "NSButton+RACCommandSupport.h"; sourceTree = "<group>"; };
+		882093E71501E6CB00796685 /* NSButton+RACCommandSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSButton+RACCommandSupport.m"; sourceTree = "<group>"; };
+		882093E91501E6EE00796685 /* RACCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACCommand.h; sourceTree = "<group>"; };
+		882093EA1501E6EE00796685 /* RACCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACCommand.m; sourceTree = "<group>"; };
 		88CDF7BB15000FCE00163A9F /* ReactiveCocoa.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ReactiveCocoa.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		88CDF7BF15000FCE00163A9F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		88CDF7C215000FCE00163A9F /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -263,6 +269,10 @@
 				88CDF8301500978F00163A9F /* RACObservableSequence+Private.h */,
 				8820934515016B3A00796685 /* RACObservableValue.h */,
 				8820934615016B3A00796685 /* RACObservableValue.m */,
+				882093E91501E6EE00796685 /* RACCommand.h */,
+				882093EA1501E6EE00796685 /* RACCommand.m */,
+				882093E61501E6CB00796685 /* NSButton+RACCommandSupport.h */,
+				882093E71501E6CB00796685 /* NSButton+RACCommandSupport.m */,
 			);
 			path = ReactiveCocoa;
 			sourceTree = "<group>";
@@ -487,6 +497,8 @@
 				88CDF82A15008BBA00163A9F /* NSObject+GHKVOWrapper.m in Sources */,
 				88CDF82E15008C0600163A9F /* NSObject+RACPropertyObserving.m in Sources */,
 				8820934715016B3A00796685 /* RACObservableValue.m in Sources */,
+				882093E81501E6CB00796685 /* NSButton+RACCommandSupport.m in Sources */,
+				882093EB1501E6EE00796685 /* RACCommand.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

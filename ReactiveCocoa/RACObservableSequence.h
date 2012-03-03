@@ -11,6 +11,15 @@
 #import "RACObservable.h"
 #import "RACQueryable.h"
 
+#define rac_synthesize_seq(a) \
+	@synthesize a; \
+	- (RACObservableSequence *)a { \
+		if(a == nil) { \
+			a = [RACObservableSequence sequence]; \
+		} \
+		return a; \
+	}
+
 
 @interface RACObservableSequence : NSObject <RACObservable, RACQueryable>
 

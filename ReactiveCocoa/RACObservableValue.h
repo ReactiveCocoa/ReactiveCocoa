@@ -8,6 +8,15 @@
 
 #import "RACObservableSequence.h"
 
+#define rac_synthesize_val(a, val) \
+	@synthesize a; \
+	- (RACObservableValue *)a { \
+		if(a == nil) { \
+			a = [RACObservableValue valueWithValue:val]; \
+		} \
+		return a; \
+	}
+
 
 @interface RACObservableValue : RACObservableSequence
 

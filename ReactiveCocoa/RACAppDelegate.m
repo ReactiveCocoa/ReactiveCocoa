@@ -7,7 +7,6 @@
 //
 
 #import "RACAppDelegate.h"
-#import "RACObservableSequence.h"
 #import "RACObserver.h"
 #import "NSObject+RACPropertyObserving.h"
 #import "RACObservableValue.h"
@@ -27,10 +26,6 @@
 #pragma mark NSApplicationDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
-	self.textField1Value = [RACObservableValue valueWithValue:@""];
-	self.textField2Value = [RACObservableValue valueWithValue:@""];
-	self.textFieldsDoNotMatchValue = [RACObservableValue valueWithValue:[NSNumber numberWithBool:YES]];
-	
 	// UI elements should *always* be backed by the model.
 	[self.textField1 bind:NSValueBinding toObject:self withKeyPath:RACKVO(self.textField1Value.value)];
 	[self.matchesLabel bind:NSHiddenBinding toObject:self withKeyPath:RACKVO(self.textFieldsDoNotMatchValue.value)];
@@ -67,10 +62,10 @@
 @synthesize window;
 @synthesize textField1;
 @synthesize doMagicButton;
-@synthesize textField1Value;
 @synthesize textField2;
 @synthesize matchesLabel;
-@synthesize textFieldsDoNotMatchValue;
-@synthesize textField2Value;
+rac_synthesize_val(textField1Value, @"");
+rac_synthesize_val(textFieldsDoNotMatchValue, [NSNumber numberWithBool:YES]);
+rac_synthesize_val(textField2Value, @"");
 	 
 @end

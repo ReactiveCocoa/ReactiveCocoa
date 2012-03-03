@@ -39,7 +39,7 @@
 	
 	[[RACObservableValue 
 		whenAny:[NSArray arrayWithObjects:self.textField1Value, self.textField2Value, nil] 
-		reduce:^(NSArray *observers) { return [NSNumber numberWithBool:![[observers objectAtIndex:0] isEqualToString:[observers objectAtIndex:1]]]; }]
+		reduce:^(NSArray *x) { return [NSNumber numberWithBool:![[x objectAtIndex:0] isEqualToString:[x objectAtIndex:1]]]; }]
 		toProperty:self.textFieldsDoNotMatchValue];
 	
 	[[self.textField1Value 

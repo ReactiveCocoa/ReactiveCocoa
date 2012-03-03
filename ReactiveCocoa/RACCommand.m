@@ -16,6 +16,10 @@
 
 @synthesize canExecute;
 
++ (RACCommand *)command {
+	return [self value];
+}
+
 - (RACObservableValue *)canExecute {
 	if(canExecute == nil) {
 		canExecute = [RACObservableValue value];

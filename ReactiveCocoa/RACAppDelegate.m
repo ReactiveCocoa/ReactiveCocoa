@@ -36,7 +36,7 @@
 	[self.matchesLabel bind:NSHiddenBinding toObject:self withKeyPath:RACKVO(self.textFieldsDoNotMatchValue.value)];
 	[self.textField2 bind:NSValueBinding toObject:self withKeyPath:RACKVO(self.textField2Value.value)];
 	
-	RACCommand *loginCommand = [RACCommand value];
+	RACCommand *loginCommand = [RACCommand command];
 	[loginCommand 
 		subscribeNext:^(id x) { NSLog(@"clicked!"); }];
 	

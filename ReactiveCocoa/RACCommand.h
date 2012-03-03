@@ -15,4 +15,6 @@
 
 @property (nonatomic, strong) RACObservableValue *canExecute;
 
++ (RACCommand *)command;
+
 @end

@@ -10,6 +10,8 @@
 #import "NSObject+GHKVOWrapper.h"
 #import "RACObservableSequence.h"
 #import "RACObservableSequence+Private.h"
+#import "RACObservableValue.h"
+
 #import <objc/runtime.h>
 
 static const NSUInteger RACObservableSequenceCountThreshold = 100; // I dunno
@@ -18,14 +20,25 @@ static const NSUInteger RACObservableSequenceCountThreshold = 100; // I dunno
 @implementation NSObject (RACPropertyObserving)
 
 - (RACObservableSequence *)observableSequenceForKeyPath:(NSString *)keyPath {
-	RACObservableSequence *array = [RACObservableSequence sequenceWithCapacity:RACObservableSequenceCountThreshold];
+	RACObservableSequence *sequence = [RACObservableSequence sequenceWithCapacity:RACObservableSequenceCountThreshold];
 	__unsafe_unretained NSObject *weakSelf = self;
-	[self addObserver:array forKeyPath:keyPath options:0 queue:[NSOperationQueue mainQueue] block:^(id target, NSDictionary *change) {
+	[self addObserver:sequence forKeyPath:keyPath options:0 queue:[NSOperationQueue mainQueue] block:^(id target, NSDictionary *change) {
 		NSObject *strongSelf = weakSelf;
-		[array addObjectAndNilsAreOK:[strongSelf valueForKeyPath:keyPath]];
+		[sequence addObjectAndNilsAreOK:[strongSelf valueForKeyPath:keyPath]];
 	}];
 	
-	return array;
+	return sequence;
+}
+
+- (RACObservableValue *)observableValueForKeyPath:(NSString *)keyPath {
+	RACObservableValue *value = [RACObservableValue value];
+	__unsafe_unretained NSObject *weakSelf = self;
+	[self addObserver:value forKeyPath:keyPath options:0 queue:[NSOperationQueue mainQueue] block:^(id target, NSDictionary *change) {
+		NSObject *strongSelf = weakSelf;
+		value.value = [strongSelf valueForKeyPath:keyPath];
+	}];
+	
+	return value;
 }
 
 - (void)bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath {

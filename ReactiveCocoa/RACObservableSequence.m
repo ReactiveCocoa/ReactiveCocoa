@@ -52,11 +52,11 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	NSParameterAssert(predicate != NULL);
 	
 	RACObservableSequence *filtered = [RACObservableSequence sequence];
-	[self subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id value) {
-		if(predicate(value)) {
-			[filtered addObjectAndNilsAreOK:value];
+	[self subscribeNext:^(id x) {
+		if(predicate(x)) {
+			[filtered addObjectAndNilsAreOK:x];
 		}
-	}]];
+	}];
 	
 	return filtered;
 }
@@ -65,10 +65,10 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	NSParameterAssert(block != NULL);
 	
 	RACObservableSequence *mapped = [RACObservableSequence sequence];
-	[self subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id value) {
-		id mappedValue = block(value);		
+	[self subscribeNext:^(id x) {
+		id mappedValue = block(x);		
 		[mapped addObjectAndNilsAreOK:mappedValue];
-	}]];
+	}];
 	
 	return mapped;
 }
@@ -76,11 +76,11 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 - (RACObservableSequence *)throttle:(NSTimeInterval)interval {	
 	RACObservableSequence *throttled = [RACObservableSequence sequence];
 	__block id lastDelayedId = nil;
-	[self subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id value) {
+	[self subscribeNext:^(id x) {
 		[self cancelPreviousPerformBlockRequestsWithId:lastDelayedId];
 		
 		throttled.suspendNotifications = YES;
-		[throttled addObjectAndNilsAreOK:value];
+		[throttled addObjectAndNilsAreOK:x];
 		throttled.suspendNotifications = NO;
 		
 		lastDelayedId = [self performBlock:^{
@@ -90,22 +90,22 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 				}
 			}];
 		} afterDelay:interval];
-	}]];
+	}];
 	
 	return throttled;
 }
 
-- (RACObservableSequence *)selectMany:(RACObservableSequence * (^)(RACObservableSequence *observable))block {
+- (RACObservableSequence *)selectMany:(RACObservableSequence * (^)(RACObservableSequence *x))block {
 	NSParameterAssert(block != NULL);
 	
 	return block(self);
 }
 
-+ (RACObservableSequence *)whenAny:(NSArray *)observables reduce:(id (^)(NSArray *observables))reduceBlock {
++ (RACObservableSequence *)whenAny:(NSArray *)observables reduce:(id (^)(NSArray *x))reduceBlock {
 	RACObservableSequence *unified = [RACObservableSequence sequence];
 
     for(RACObservableSequence *observable in observables) {
-		[observable subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id value) {
+		[observable subscribeNext:^(id x) {
 			NSMutableArray *topValues = [NSMutableArray arrayWithCapacity:observables.count];
 			for(RACObservableSequence *observable in observables) {
 				if([observable lastObject] != nil) {
@@ -113,18 +113,18 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 				}
 			}
 			
-			id newValue = reduceBlock != NULL ? reduceBlock(topValues) : value;
+			id newValue = reduceBlock != NULL ? reduceBlock(topValues) : x;
 			[unified addObjectAndNilsAreOK:newValue];
-		}]];
+		}];
     }
 	
 	return unified;
 }
 
 - (void)toProperty:(RACObservableSequence *)property {
-	[self subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id value) {
-		[property addObjectAndNilsAreOK:value];
-	}]];
+	[self subscribeNext:^(id x) {
+		[property addObjectAndNilsAreOK:x];
+	}];
 }
 
 

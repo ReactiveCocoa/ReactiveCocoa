@@ -50,7 +50,7 @@
 		whenAny:[NSArray arrayWithObjects:self.textField1Value, self.textField2Value, nil] 
 		reduce:NULL]
 		throttle:1.0f] 
-		subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id x) { NSLog(@"delayed: %@", x); }]];
+		subscribeNext:^(id x) { NSLog(@"delayed: %@", x); }];
 }
 
 

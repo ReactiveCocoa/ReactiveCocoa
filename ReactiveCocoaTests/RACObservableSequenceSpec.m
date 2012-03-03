@@ -49,9 +49,9 @@ describe(@"observing", ^{
 	
 	it(@"should tell its observer when a new object is added", ^{
 		__block BOOL wasNotified = NO;
-		[sequence subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id value) {
+		[sequence subscribeNext:^(id value) {
 			wasNotified = YES;
-		}]];
+		}];
 		 
 		[sequence addObject:@"test"];
 		
@@ -60,31 +60,31 @@ describe(@"observing", ^{
 	
 	it(@"should send its observer the object that was added", ^{
 		id testObject = @"test";
-		[sequence subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id value) {
+		[sequence subscribeNext:^(id value) {
 			expect(value).toEqual(testObject);
-		}]];
+		}];
 		
 		[sequence addObject:testObject];
 	});
 	
 	it(@"should send its observer the last object", ^{
-		[sequence subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id value) {
+		[sequence subscribeNext:^(id value) {
 			expect([sequence lastObject]).toEqual(value);
-		}]];
+		}];
 		
 		[sequence addObject:@"test"];
 	});
 	
 	it(@"should support multiple observers", ^{
 		__block BOOL was1Notified = NO;
-		[sequence subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id value) {
+		[sequence subscribeNext:^(id value) {
 			was1Notified = YES;
-		}]];
+		}];
 		
 		__block BOOL was2Notified = NO;
-		[sequence subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id value) {
+		[sequence subscribeNext:^(id value) {
 			was2Notified = YES;
-		}]];
+		}];
 		
 		[sequence addObject:@"test"];
 		
@@ -105,7 +105,7 @@ describe(@"querying", ^{
 			__block BOOL gotPredicateValue = NO;
 			[[sequence 
 				where:^(id value) { return [value isEqual:predicateValue]; }] 
-				subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id value) { gotPredicateValue = YES; }]];
+				subscribeNext:^(id value) { gotPredicateValue = YES; }];
 			
 			[sequence addObject:predicateValue];
 			
@@ -118,7 +118,7 @@ describe(@"querying", ^{
 			__block BOOL gotPredicateValue = NO;
 			[[sequence 
 				where:^(id value) { return [value isEqual:predicateValue]; }] 
-				subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id value) { gotPredicateValue = YES; }]];
+				subscribeNext:^(id value) { gotPredicateValue = YES; }];
 			
 			[sequence addObject:@"nyan"];
 			

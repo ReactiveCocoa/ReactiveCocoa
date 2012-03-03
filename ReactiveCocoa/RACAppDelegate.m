@@ -47,8 +47,7 @@
 		toProperty:self.isMagicValue];
 	
 	[[[RACObservableValue 
-		whenAny:[NSArray arrayWithObjects:self.textField1Value, self.textField2Value, nil] 
-		reduce:NULL]
+		merge:[NSArray arrayWithObjects:self.textField1Value, self.textField2Value, nil]] 
 		throttle:1.0f] 
 		subscribeNext:^(id x) { NSLog(@"delayed: %@", x); }];
 }

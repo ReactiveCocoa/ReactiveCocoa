@@ -121,6 +121,10 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return unified;
 }
 
++ (RACObservableSequence *)merge:(NSArray *)observables {
+	return [self whenAny:observables reduce:NULL];
+}
+
 - (void)toProperty:(RACObservableSequence *)property {
 	[self subscribeNext:^(id x) {
 		[property addObjectAndNilsAreOK:x];

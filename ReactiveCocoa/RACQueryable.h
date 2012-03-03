@@ -11,11 +11,11 @@
 
 @protocol RACQueryable <NSObject>
 
-- (id<RACQueryable>)where:(BOOL (^)(id value))predicate;
-- (id<RACQueryable>)select:(id (^)(id value))block;
+- (id<RACQueryable>)where:(BOOL (^)(id x))predicate;
+- (id<RACQueryable>)select:(id (^)(id x))block;
 - (id<RACQueryable>)throttle:(NSTimeInterval)interval;
-- (id<RACQueryable>)selectMany:(id<RACQueryable> (^)(id<RACQueryable> observable))block;
-+ (id<RACQueryable>)whenAny:(NSArray *)observables reduce:(id (^)(NSArray *observables))reduceBlock;
+- (id<RACQueryable>)selectMany:(id<RACQueryable> (^)(id<RACQueryable> x))block;
++ (id<RACQueryable>)whenAny:(NSArray *)observables reduce:(id (^)(NSArray *x))reduceBlock;
 - (void)toProperty:(id<RACQueryable>)property;
 
 @end

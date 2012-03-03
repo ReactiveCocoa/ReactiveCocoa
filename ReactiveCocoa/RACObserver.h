@@ -13,8 +13,8 @@
 
 @property (nonatomic, readonly, copy) void (^completed)(void);
 @property (nonatomic, readonly, copy) void (^error)(NSError *error);
-@property (nonatomic, readonly, copy) void (^next)(id value);
+@property (nonatomic, readonly, copy) void (^next)(id x);
 
-+ (id)observerWithCompleted:(void (^)(void))completed error:(void (^)(NSError *error))error next:(void (^)(id value))next;
++ (id)observerWithCompleted:(void (^)(void))completed error:(void (^)(NSError *error))error next:(void (^)(id x))next;
 
 @end

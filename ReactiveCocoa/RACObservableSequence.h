@@ -20,11 +20,11 @@
 - (void)addObject:(id)object;
 - (id)lastObject;
 
-- (RACObservableSequence *)where:(BOOL (^)(id value))predicate;
-- (RACObservableSequence *)select:(id (^)(id value))block;
+- (RACObservableSequence *)where:(BOOL (^)(id x))predicate;
+- (RACObservableSequence *)select:(id (^)(id x))block;
 - (RACObservableSequence *)throttle:(NSTimeInterval)interval;
-- (RACObservableSequence *)selectMany:(RACObservableSequence * (^)(RACObservableSequence *observable))block;
-+ (RACObservableSequence *)whenAny:(NSArray *)observables reduce:(id (^)(NSArray *observables))reduceBlock;
+- (RACObservableSequence *)selectMany:(RACObservableSequence * (^)(RACObservableSequence *x))block;
++ (RACObservableSequence *)whenAny:(NSArray *)observables reduce:(id (^)(NSArray *x))reduceBlock;
 - (void)toProperty:(RACObservableSequence *)property;
 
 @end

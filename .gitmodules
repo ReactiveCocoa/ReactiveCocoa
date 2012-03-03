@@ -1,0 +1,6 @@
+[submodule "ReactiveCocoaTests/specta"]
+	path = ReactiveCocoaTests/specta
+	url = git@github.com:github/specta.git
+[submodule "ReactiveCocoaTests/expecta"]
+	path = ReactiveCocoaTests/expecta
+	url = git@github.com:github/expecta.git

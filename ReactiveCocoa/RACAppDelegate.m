@@ -38,23 +38,19 @@
 	[self.textField2 bind:NSValueBinding toObject:self withKeyPath:RACKVO(self.textField2Value.value)];
 	
 	[[RACObservableValue 
-	   whenAny:[NSArray arrayWithObjects:self.textField1Value, self.textField2Value, nil] 
-	   reduce:^(NSArray *observers) { 
-		   return [NSNumber numberWithBool:![[observers objectAtIndex:0] isEqualToString:[observers objectAtIndex:1]]]; 
-	   }]
-	 toProperty:self.textFieldsDoNotMatchValue];
+		whenAny:[NSArray arrayWithObjects:self.textField1Value, self.textField2Value, nil] 
+		reduce:^(NSArray *observers) { return [NSNumber numberWithBool:![[observers objectAtIndex:0] isEqualToString:[observers objectAtIndex:1]]]; }]
+		toProperty:self.textFieldsDoNotMatchValue];
 	
 	[[self.textField1Value 
-	  select:^(id x) { return [NSNumber numberWithBool:[x hasPrefix:@"magic"]]; }] 
-	 toProperty:self.isMagicValue];
+		select:^(id x) { return [NSNumber numberWithBool:[x hasPrefix:@"magic"]]; }] 
+		toProperty:self.isMagicValue];
 	
 	[[[RACObservableValue 
-	   whenAny:[NSArray arrayWithObjects:self.textField1Value, self.textField2Value, nil] 
-	   reduce:NULL]
-	  throttle:1.0f] 
-	 subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id x) {
-		NSLog(@"delayed: %@", x);
-	}]];
+		whenAny:[NSArray arrayWithObjects:self.textField1Value, self.textField2Value, nil] 
+		reduce:NULL]
+		throttle:1.0f] 
+		subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id x) { NSLog(@"delayed: %@", x); }]];
 }
 
 

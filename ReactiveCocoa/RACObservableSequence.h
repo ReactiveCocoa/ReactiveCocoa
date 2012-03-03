@@ -27,4 +27,6 @@
 + (RACObservableSequence *)whenAny:(NSArray *)observables reduce:(id (^)(NSArray *x))reduceBlock;
 - (void)toProperty:(RACObservableSequence *)property;
 
+- (id)subscribeNext:(void (^)(id x))nextBlock;
+
 @end

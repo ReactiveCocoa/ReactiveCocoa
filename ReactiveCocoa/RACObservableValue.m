@@ -26,6 +26,10 @@
 	return [[self alloc] initWithValue:v];
 }
 
++ (id)value {
+	return [self valueWithValue:nil];
+}
+
 - (id)initWithValue:(id)v {
 	self = [super initWithCapacity:1];
 	if(self == nil) return nil;

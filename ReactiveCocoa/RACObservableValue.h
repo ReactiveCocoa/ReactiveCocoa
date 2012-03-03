@@ -14,5 +14,6 @@
 @property (nonatomic, strong) id value; // KVO-compliant
 
 + (id)valueWithValue:(id)v;
++ (id)value;
 
 @end

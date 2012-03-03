@@ -30,12 +30,12 @@ static void * NSButtonRACEnabledValueKey = &NSButtonRACEnabledValueKey;
 	[[RACObservableValue 
 		whenAny:[self.commands valueForKey:@"canExecute"]
 		reduce:^(NSArray *x) {
-			BOOL value = YES;
+			BOOL enabled = YES;
 			for(id v in x) {
-				value = value && [v boolValue];
+				enabled = enabled && [v boolValue];
 			}
 		
-			return [NSNumber numberWithBool:value];
+			return [NSNumber numberWithBool:enabled];
 		}]
 		toProperty:self.enabledValue];
 	

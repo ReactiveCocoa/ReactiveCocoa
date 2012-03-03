@@ -45,8 +45,13 @@ static void * NSButtonRACEnabledValueKey = &NSButtonRACEnabledValueKey;
 }
 
 - (void)hijackActionAndTargetIfNeeded {
-	[self setTarget:self];
-	[self setAction:@selector(RACCommandsPerformAction:)];
+	SEL hijackSelector = @selector(RACCommandsPerformAction:);
+	if([self target] != self || [self action] != hijackSelector) {
+		if([self action] != NULL) NSLog(@"WARNING: -[NSButton addCommand:] hijacks the button's existing target and action.");
+		
+		[self setTarget:self];
+		[self setAction:hijackSelector];
+	}
 }
 
 - (void)RACCommandsPerformAction:(id)sender {

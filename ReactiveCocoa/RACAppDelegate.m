@@ -33,12 +33,12 @@
 	
 	RACCommand *loginCommand = [RACCommand command];
 	[loginCommand 
-		subscribeNext:^(id x) { NSLog(@"clicked!"); }];
+		subscribeNext:^(id _) { NSLog(@"clicked!"); }];
 	
 	[[[loginCommand 
-		select:^(id x) { return self.textField1Value.value;	}]
+		select:^(id _) { return self.textField1Value.value;	}]
 		where:^(id x) { return [x isEqualToString:@"magic!"]; }] 
-		subscribeNext:^(id x) { NSLog(@"even more magic!"); }];
+		subscribeNext:^(id _) { NSLog(@"even more magic!"); }];
 	
 	[[self.textField1Value 
 		select:^(id x) { return [NSNumber numberWithBool:[x hasPrefix:@"magic"]]; }] 

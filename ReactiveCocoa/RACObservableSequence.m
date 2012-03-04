@@ -185,8 +185,9 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	RACObservableSequence *taken = [RACObservableSequence sequence];
 	
 	[self subscribeNext:^(id x) {
-		BOOL notify = taken.count + 1 % count == 0;
-		
+		NSUInteger countWillBe = taken.count + 1;
+		BOOL notify = countWillBe % count == 0;
+				
 		BOOL originalSuspendNotifications = taken.suspendNotifications;
 		taken.suspendNotifications = !notify;
 		[taken addObjectAndNilsAreOK:x];

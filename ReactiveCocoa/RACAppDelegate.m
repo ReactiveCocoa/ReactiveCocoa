@@ -35,8 +35,9 @@
 	[loginCommand 
 		subscribeNext:^(id x) { NSLog(@"clicked!"); }];
 	
-	[[loginCommand 
-		where:^(id x) { return [self.textField1Value.value isEqualToString:@"magic!"]; }] 
+	[[[loginCommand 
+		select:^(id x) { return self.textField1Value.value;	}]
+		where:^(id x) { return [x isEqualToString:@"magic!"]; }] 
 		subscribeNext:^(id x) { NSLog(@"even more magic!"); }];
 	
 	[[self.textField1Value 

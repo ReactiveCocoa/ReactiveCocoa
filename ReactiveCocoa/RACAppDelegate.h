@@ -16,5 +16,6 @@
 @property (assign) IBOutlet NSButton *doMagicButton;
 @property (assign) IBOutlet NSTextField *textField2;
 @property (assign) IBOutlet NSTextField *matchesLabel;
+@property (assign) IBOutlet NSButton *duplicateButton;
 
 @end

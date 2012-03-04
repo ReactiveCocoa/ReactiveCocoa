@@ -46,6 +46,17 @@
 	
 	[self.doMagicButton addCommand:loginCommand];
 	
+	RACCommand *duplicateCommand = [RACCommand command];
+
+	[[self.textField1Value 
+		select:^id(id x) { return [NSNumber numberWithBool:[x length] > 0]; }] 
+		toProperty:duplicateCommand.canExecute];
+	
+	[duplicateCommand 
+		subscribeNext:^(id x) { self.textField2Value.value = self.textField1Value.value; }];
+	
+	[self.duplicateButton addCommand:duplicateCommand];
+	
 	[[RACObservableValue 
 		whenAny:[NSArray arrayWithObjects:self.textField1Value, self.textField2Value, nil] 
 		reduce:^(NSArray *x) { return [NSNumber numberWithBool:![[x objectAtIndex:0] isEqualToString:[x objectAtIndex:1]]]; }]
@@ -66,6 +77,7 @@
 @synthesize doMagicButton;
 @synthesize textField2;
 @synthesize matchesLabel;
+@synthesize duplicateButton;
 rac_synthesize_val(textField1Value, @"");
 rac_synthesize_val(textFieldsDoNotMatchValue, [NSNumber numberWithBool:YES]);
 rac_synthesize_val(textField2Value, @"");

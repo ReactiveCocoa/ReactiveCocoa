@@ -41,7 +41,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 
 - (id)subscribe:(RACObserver *)observer {
 	[self.subscribers addObject:observer];
-	return observer;
+	return self;
 }
 
 

@@ -49,7 +49,7 @@
 	RACCommand *duplicateCommand = [RACCommand command];
 
 	[[self.textField1Value 
-		select:^id(id x) { return [NSNumber numberWithBool:[x length] > 0]; }] 
+		select:^(id x) { return [NSNumber numberWithBool:[x length] > 0]; }] 
 		toProperty:duplicateCommand.canExecute];
 	
 	[duplicateCommand 

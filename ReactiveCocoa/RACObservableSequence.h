@@ -40,5 +40,6 @@
 - (RACObservableSequence *)selectMany:(RACObservableSequence * (^)(id x))selectMany;
 
 - (id)subscribeNext:(void (^)(id x))nextBlock;
+- (id)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock;
 
 @end

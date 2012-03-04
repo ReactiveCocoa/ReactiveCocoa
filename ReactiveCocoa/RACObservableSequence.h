@@ -32,7 +32,6 @@
 - (RACObservableSequence *)where:(BOOL (^)(id x))predicate;
 - (RACObservableSequence *)select:(id (^)(id x))block;
 - (RACObservableSequence *)throttle:(NSTimeInterval)interval;
-- (RACObservableSequence *)selectMany:(RACObservableSequence * (^)(RACObservableSequence *x))block;
 + (RACObservableSequence *)combineLatest:(NSArray *)observables;
 + (RACObservableSequence *)merge:(NSArray *)observables;
 - (void)toProperty:(RACObservableSequence *)property;

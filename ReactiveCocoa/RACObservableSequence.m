@@ -96,20 +96,6 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return throttled;
 }
 
-- (RACObservableSequence *)selectMany:(RACObservableSequence * (^)(RACObservableSequence *x))block {
-	NSParameterAssert(block != NULL);
-	
-	RACObservableSequence *translated = [RACObservableSequence sequence];
-	RACObservableSequence *otherSequence = block(self);
-	[self subscribeNext:^(id x) {
-		[otherSequence subscribeNext:^(id x) {
-			[translated addObjectAndNilsAreOK:x];
-		}];
-	}];
-	
-	return translated;
-}
-
 + (RACObservableSequence *)combineLatest:(NSArray *)observables {
 	RACObservableSequence *unified = [RACObservableSequence sequence];
 

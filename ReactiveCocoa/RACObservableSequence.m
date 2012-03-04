@@ -139,6 +139,19 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	}];
 }
 
+- (RACObservableSequence *)distinctUntilChanged {
+	RACObservableSequence *distinct = [RACObservableSequence sequence];
+	__block id previousObject = nil;
+	[self subscribeNext:^(id x) {
+		if(![x isEqual:previousObject]) {
+			[distinct addObjectAndNilsAreOK:x];
+			previousObject = x;
+		}
+	}];
+	
+	return distinct;
+}
+
 
 #pragma mark API
 

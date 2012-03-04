@@ -141,6 +141,8 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 }
 
 - (void)toProperty:(RACObservableSequence *)property {
+	NSParameterAssert(property != nil);
+	
 	[self subscribeNext:^(id x) {
 		[property addObjectAndNilsAreOK:x];
 	}];

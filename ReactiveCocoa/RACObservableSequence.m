@@ -125,6 +125,31 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return unified;
 }
 
++ (RACObservableSequence *)zip:(NSArray *)observables {
+	RACObservableSequence *unified = [RACObservableSequence sequence];
+	
+    for(RACObservableSequence *observable in observables) {
+		[observable subscribeNext:^(id x) {
+			NSMutableArray *topValues = [NSMutableArray arrayWithCapacity:observables.count];
+			BOOL valid = YES;
+			for(RACObservableSequence *observable in observables) {
+				id lastValue = [observable lastObject];
+				[topValues addObject:lastValue ? : [RACNil nill]];
+				if(lastValue == nil) {
+					valid = NO;
+					break;
+				}
+			}
+			
+			if(valid) {
+				[unified addObjectAndNilsAreOK:topValues];
+			}
+		}];
+    }
+	
+	return unified;
+}
+
 - (void)toProperty:(RACObservableSequence *)property {
 	NSParameterAssert(property != nil);
 	

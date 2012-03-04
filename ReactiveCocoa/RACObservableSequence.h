@@ -36,6 +36,7 @@
 + (RACObservableSequence *)merge:(NSArray *)observables;
 - (void)toProperty:(RACObservableSequence *)property;
 - (RACObservableSequence *)distinctUntilChanged;
++ (RACObservableSequence *)zip:(NSArray *)observables;
 
 - (id)subscribeNext:(void (^)(id x))nextBlock;
 

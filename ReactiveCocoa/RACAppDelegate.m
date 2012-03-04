@@ -50,6 +50,10 @@
 		select:^(id x) { return [NSNumber numberWithBool:[x hasPrefix:@"magic"]]; }] 
 		toProperty:loginCommand.canExecute];
 	
+	[[loginCommand 
+		take:2] 
+		subscribeNext:^(id _) { NSLog(@"double-click!"); }];
+	
 	[self.doMagicButton addCommand:loginCommand];
 	
 	RACCommand *duplicateCommand = [RACCommand command];

@@ -109,7 +109,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return translated;
 }
 
-+ (RACObservableSequence *)combineLatest:(NSArray *)observables reduce:(id (^)(NSArray *x))reduceBlock {
++ (RACObservableSequence *)combineLatest:(NSArray *)observables {
 	RACObservableSequence *unified = [RACObservableSequence sequence];
 
     for(RACObservableSequence *observable in observables) {
@@ -121,8 +121,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 				}
 			}
 			
-			id newValue = reduceBlock != NULL ? reduceBlock(topValues) : x;
-			[unified addObjectAndNilsAreOK:newValue];
+			[unified addObjectAndNilsAreOK:topValues];
 		}];
     }
 	
@@ -130,7 +129,15 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 }
 
 + (RACObservableSequence *)merge:(NSArray *)observables {
-	return [self combineLatest:observables reduce:NULL];
+	RACObservableSequence *unified = [RACObservableSequence sequence];
+	
+    for(RACObservableSequence *observable in observables) {
+		[observable subscribeNext:^(id x) {
+			[unified addObjectAndNilsAreOK:x];
+		}];
+    }
+	
+	return unified;
 }
 
 - (void)toProperty:(RACObservableSequence *)property {

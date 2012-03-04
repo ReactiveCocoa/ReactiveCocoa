@@ -57,9 +57,9 @@
 	
 	[self.duplicateButton addCommand:duplicateCommand];
 	
-	[[RACObservableValue 
-		combineLatest:[NSArray arrayWithObjects:self.textField1Value, self.textField2Value, nil] 
-		reduce:^(NSArray *x) { return [NSNumber numberWithBool:![[x objectAtIndex:0] isEqualToString:[x objectAtIndex:1]]]; }]
+	[[[RACObservableValue 
+		combineLatest:[NSArray arrayWithObjects:self.textField1Value, self.textField2Value, nil]] 
+		select:^(NSArray *x) { return [NSNumber numberWithBool:![[x objectAtIndex:0] isEqualToString:[x objectAtIndex:1]]]; }]
 		toProperty:self.textFieldsDoNotMatchValue];
 	
 	[[[[RACObservableValue 

@@ -78,9 +78,10 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	[self subscribeNext:^(id x) {
 		[self cancelPreviousPerformBlockRequestsWithId:lastDelayedId];
 		
+		BOOL originalSuspendNotifications = throttled.suspendNotifications;
 		throttled.suspendNotifications = YES;
 		[throttled addObjectAndNilsAreOK:x];
-		throttled.suspendNotifications = NO;
+		throttled.suspendNotifications = originalSuspendNotifications;
 		
 		lastDelayedId = [self performBlock:^{
 			[throttled performBlockOnAllObservers:^(RACObserver *observer) {

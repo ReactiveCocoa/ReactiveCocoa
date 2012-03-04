@@ -180,6 +180,21 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return other;
 }
 
+- (RACObservableSequence *)take:(NSUInteger)count {
+	RACObservableSequence *taken = [RACObservableSequence sequence];
+	
+	[self subscribeNext:^(id x) {
+		BOOL notify = taken.count + 1 % count == 0;
+		
+		BOOL originalSuspendNotifications = taken.suspendNotifications;
+		taken.suspendNotifications = !notify;
+		[taken addObjectAndNilsAreOK:x];
+		taken.suspendNotifications = originalSuspendNotifications;
+	}];
+	
+	return taken;
+}
+
 
 #pragma mark API
 

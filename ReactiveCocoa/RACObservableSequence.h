@@ -38,6 +38,7 @@
 - (RACObservableSequence *)distinctUntilChanged;
 + (RACObservableSequence *)zip:(NSArray *)observables;
 - (RACObservableSequence *)selectMany:(RACObservableSequence * (^)(id x))selectMany;
+- (RACObservableSequence *)take:(NSUInteger)count;
 
 - (id)subscribeNext:(void (^)(id x))nextBlock;
 - (id)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock;

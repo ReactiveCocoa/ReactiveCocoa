@@ -53,7 +53,7 @@
 		toProperty:duplicateCommand.canExecute];
 	
 	[duplicateCommand 
-		subscribeNext:^(id x) { self.textField2Value.value = self.textField1Value.value; }];
+		subscribeNext:^(id _) { self.textField2Value.value = self.textField1Value.value; }];
 	
 	[self.duplicateButton addCommand:duplicateCommand];
 	

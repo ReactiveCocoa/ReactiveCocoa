@@ -109,7 +109,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return translated;
 }
 
-+ (RACObservableSequence *)whenAny:(NSArray *)observables reduce:(id (^)(NSArray *x))reduceBlock {
++ (RACObservableSequence *)combineLatest:(NSArray *)observables reduce:(id (^)(NSArray *x))reduceBlock {
 	RACObservableSequence *unified = [RACObservableSequence sequence];
 
     for(RACObservableSequence *observable in observables) {
@@ -130,7 +130,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 }
 
 + (RACObservableSequence *)merge:(NSArray *)observables {
-	return [self whenAny:observables reduce:NULL];
+	return [self combineLatest:observables reduce:NULL];
 }
 
 - (void)toProperty:(RACObservableSequence *)property {

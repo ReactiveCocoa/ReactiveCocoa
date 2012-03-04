@@ -10,6 +10,7 @@
 #import "RACObservableSequence+Private.h"
 #import "RACObserver.h"
 #import "NSObject+GHExtensions.h"
+#import "RACNil.h"
 
 static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 
@@ -116,9 +117,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 		[observable subscribeNext:^(id x) {
 			NSMutableArray *topValues = [NSMutableArray arrayWithCapacity:observables.count];
 			for(RACObservableSequence *observable in observables) {
-				if([observable lastObject] != nil) {
-					[topValues addObject:[observable lastObject]];
-				}
+				[topValues addObject:[observable lastObject] ? : [RACNil nill]];
 			}
 			
 			[unified addObjectAndNilsAreOK:topValues];

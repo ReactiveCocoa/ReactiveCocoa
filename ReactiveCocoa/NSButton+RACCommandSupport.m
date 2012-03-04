@@ -40,6 +40,7 @@ static void * NSButtonRACEnabledValueKey = &NSButtonRACEnabledValueKey;
 		toProperty:self.enabledValue];
 	
 	[self bind:NSEnabledBinding toObject:self withKeyPath:RACKVO(self.enabledValue.value)];
+	[self setEnabled:[self.enabledValue.value boolValue]];
 	
 	[self hijackActionAndTargetIfNeeded];
 }

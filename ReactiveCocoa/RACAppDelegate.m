@@ -40,6 +40,12 @@
 		where:^(id x) { return [x isEqualToString:@"magic!"]; }] 
 		subscribeNext:^(id _) { NSLog(@"even more magic!"); }];
 	
+	[[[[loginCommand 
+		select:^(id _) { return self.textField1Value.value;	}]
+		where:^(id x) { return [x isEqualToString:@"magic!"]; }] 
+		selectMany:^(id _) { return self.textField1Value; }]
+		subscribeNext:^(id x) { NSLog(@"most magic! %@", x); }];
+	
 	[[self.textField1Value 
 		select:^(id x) { return [NSNumber numberWithBool:[x hasPrefix:@"magic"]]; }] 
 		toProperty:loginCommand.canExecute];

@@ -21,8 +21,6 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 @property (nonatomic, assign) BOOL suspendNotifications;
 @property (nonatomic, assign) NSUInteger capacity;
 
-- (void)performBlockOnAllObservers:(void (^)(RACObserver *observer))block;
-
 @end
 
 

@@ -28,4 +28,14 @@
 	return canExecute;
 }
 
+- (BOOL)canCurrentlyExecute {
+	return [self.canExecute.value boolValue];
+}
+
+- (void)execute:(id)sender {
+	if(!self.canCurrentlyExecute) return;
+	
+	self.value = sender;
+}
+
 @end

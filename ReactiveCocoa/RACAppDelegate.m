@@ -51,9 +51,10 @@
 		reduce:^(NSArray *x) { return [NSNumber numberWithBool:![[x objectAtIndex:0] isEqualToString:[x objectAtIndex:1]]]; }]
 		toProperty:self.textFieldsDoNotMatchValue];
 	
-	[[[RACObservableValue 
+	[[[[RACObservableValue 
 		merge:[NSArray arrayWithObjects:self.textField1Value, self.textField2Value, nil]] 
 		throttle:1.0f] 
+		distinctUntilChanged]
 		subscribeNext:^(id x) { NSLog(@"delayed: %@", x); }];
 }
 

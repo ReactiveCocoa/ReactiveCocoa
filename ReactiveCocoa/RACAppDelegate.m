@@ -27,9 +27,9 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
 	// UI elements should *always* be backed by the model.
-	[self.textField1 bind:NSValueBinding toObject:self withKeyPath:RACKVO(self.textField1Value.value)];
-	[self.matchesLabel bind:NSHiddenBinding toObject:self withKeyPath:RACKVO(self.textFieldsDoNotMatchValue.value)];
-	[self.textField2 bind:NSValueBinding toObject:self withKeyPath:RACKVO(self.textField2Value.value)];
+	[self.textField1 bind:NSValueBinding toObservable:self.textField1Value];
+	[self.matchesLabel bind:NSHiddenBinding toObservable:self.textFieldsDoNotMatchValue];
+	[self.textField2 bind:NSValueBinding toObservable:self.textField2Value];
 	
 	RACCommand *loginCommand = [RACCommand command];
 	[loginCommand 

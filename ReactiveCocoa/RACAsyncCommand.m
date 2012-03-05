@@ -32,12 +32,19 @@
 	if(self == nil) return nil;
 	
 	self.queue = [[self class] defaultQueue];
+	self.maxConcurrent = 1;
 	
 	return self;
 }
 
 
 #pragma mark RACCommand
+
+- (BOOL)canExecute:(id)value {
+	if(self.queue.operationCount >= self.maxConcurrent) return NO;
+	
+	return [super canExecute:value];
+}
 
 - (void)execute:(id)value {
 	if(![self canExecute:value]) return;
@@ -61,6 +68,7 @@
 
 @synthesize queue;
 @synthesize asyncFunctionPairs;
+@synthesize maxConcurrent;
 
 + (NSOperationQueue *)defaultQueue {
 	static dispatch_once_t onceToken;

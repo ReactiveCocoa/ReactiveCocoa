@@ -12,6 +12,7 @@
 @interface RACAsyncCommand : RACCommand
 
 @property (nonatomic, strong) NSOperationQueue *queue;
+@property (nonatomic, assign) NSUInteger maxConcurrent;
 
 - (RACObservableSequence *)addAsyncFunction:(RACObservableSequence * (^)(id value))block;
 

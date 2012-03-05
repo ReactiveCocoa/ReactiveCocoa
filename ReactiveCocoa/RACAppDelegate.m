@@ -33,6 +33,7 @@
 	[self.textField2 bind:NSValueBinding toObservable:self.textField2Value];
 	
 	RACCommand *loginCommand = [RACCommand command];
+	loginCommand.canExecuteValue = [RACObservableValue valueWithValue:[NSNumber numberWithBool:NO]];
 	[loginCommand 
 		subscribeNext:^(id _) { NSLog(@"clicked!"); }];
 	
@@ -60,7 +61,7 @@
 	
 	[[self.textField1Value 
 		select:^(id x) { return [NSNumber numberWithBool:[x hasPrefix:@"magic"]]; }] 
-		toProperty:loginCommand.canExecute];
+		toProperty:loginCommand.canExecuteValue];
 	
 	[[loginCommand 
 		take:2] 
@@ -69,10 +70,10 @@
 	[self.doMagicButton addCommand:loginCommand];
 	
 	RACCommand *duplicateCommand = [RACCommand command];
-
+	duplicateCommand.canExecuteValue = [RACObservableValue valueWithValue:[NSNumber numberWithBool:NO]];
 	[[self.textField1Value 
 		select:^(id x) { return [NSNumber numberWithBool:[x length] > 0]; }] 
-		toProperty:duplicateCommand.canExecute];
+		toProperty:duplicateCommand.canExecuteValue];
 	
 	[duplicateCommand 
 		subscribeNext:^(id _) { self.textField2Value.value = self.textField1Value.value; }];

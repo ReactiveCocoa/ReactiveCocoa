@@ -42,5 +42,6 @@
 
 - (id)subscribeNext:(void (^)(id x))nextBlock;
 - (id)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock;
+- (id)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock error:(void (^)(NSError *error))errorBlock;
 
 @end

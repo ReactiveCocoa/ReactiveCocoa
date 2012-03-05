@@ -14,6 +14,6 @@
 @property (nonatomic, strong) NSOperationQueue *queue;
 @property (nonatomic, assign) NSUInteger maxConcurrent;
 
-- (RACObservableSequence *)addAsyncFunction:(RACObservableSequence * (^)(id value))block;
+- (RACObservableSequence *)addAsyncFunction:(id (^)(id value, NSError **error))block;
 
 @end

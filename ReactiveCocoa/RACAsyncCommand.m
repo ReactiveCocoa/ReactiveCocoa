@@ -11,10 +11,10 @@
 
 @interface RACAsyncCommandPair : NSObject
 
-@property (nonatomic, readonly, copy) RACObservableSequence * (^block)(id value);
-@property (nonatomic, readonly, strong) RACObservableSequence *sequence;
+@property (nonatomic, copy) id (^block)(id value, NSError **error);
+@property (nonatomic, strong) RACObservableSequence *sequence;
 
-+ (id)pairWithBlock:(RACObservableSequence * (^)(id value))block sequence:(RACObservableSequence *)sequence;
++ (id)pairWithBlock:(id (^)(id value, NSError **error))block sequence:(RACObservableSequence *)sequence;
 
 @end
 
@@ -55,9 +55,16 @@
 	
 	[self.queue addOperationWithBlock:^{
 		for(RACAsyncCommandPair *pair in self.asyncFunctionPairs) {
-			id returnedValue = pair.block(value);
+			NSError *error = nil;
+			id returnedValue = pair.block(value, &error);
 			[[NSOperationQueue mainQueue] addOperationWithBlock:^{
-				[pair.sequence addObjectAndNilsAreOK:returnedValue];
+				if(returnedValue != nil) {
+					[pair.sequence addObjectAndNilsAreOK:returnedValue];
+				} else {
+					[pair.sequence sendErrorToAllObservers:error];
+				}
+				
+				[pair.sequence sendCompletedToAllObservers];
 			}];
 		}
 	}];
@@ -81,7 +88,7 @@
 	return queue;
 }
 
-- (RACObservableSequence *)addAsyncFunction:(RACObservableSequence * (^)(id value))block {
+- (RACObservableSequence *)addAsyncFunction:(id (^)(id value, NSError **error))block {
 	NSParameterAssert(block != NULL);
 	
 	RACObservableSequence *sequence = [RACObservableSequence sequence];
@@ -101,12 +108,6 @@
 @end
 
 
-@interface RACAsyncCommandPair ()
-@property (nonatomic, copy) RACObservableSequence * (^block)(id value);
-@property (nonatomic, strong) RACObservableSequence *sequence;
-@end
-
-
 @implementation RACAsyncCommandPair
 
 
@@ -115,7 +116,7 @@
 @synthesize block;
 @synthesize sequence;
 
-+ (id)pairWithBlock:(RACObservableSequence * (^)(id value))block sequence:(RACObservableSequence *)sequence {
++ (id)pairWithBlock:(id (^)(id value, NSError **error))block sequence:(RACObservableSequence *)sequence {
 	RACAsyncCommandPair *pair = [[self alloc] init];
 	pair.block = block;
 	pair.sequence = sequence;

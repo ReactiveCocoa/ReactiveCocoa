@@ -24,6 +24,8 @@ static void * NSButtonRACEnabledValueKey = &NSButtonRACEnabledValueKey;
 @implementation NSButton (RACCommandSupport)
 
 - (void)addCommand:(RACCommand *)command {
+	NSParameterAssert(command != nil);
+	
 	[self.commands addObject:command];
 	
 	self.enabledValue = [RACValue value];

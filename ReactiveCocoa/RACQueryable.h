@@ -14,12 +14,12 @@
 - (id<RACQueryable>)where:(BOOL (^)(id x))predicate;
 - (id<RACQueryable>)select:(id (^)(id x))block;
 - (id<RACQueryable>)throttle:(NSTimeInterval)interval;
-+ (id<RACQueryable>)combineLatest:(NSArray *)observables;
-- (void)toProperty:(id<RACQueryable>)property;
-+ (id<RACQueryable>)combineLatest:(NSArray *)observables;
-+ (id<RACQueryable>)merge:(NSArray *)observables;
++ (id<RACQueryable>)combineLatest:(NSArray *)queryables;
+- (void)toProperty:(id)property;
++ (id<RACQueryable>)combineLatest:(NSArray *)queryables;
++ (id<RACQueryable>)merge:(NSArray *)queryables;
 - (id<RACQueryable>)distinctUntilChanged;
-+ (id<RACQueryable>)zip:(NSArray *)observables;
++ (id<RACQueryable>)zip:(NSArray *)queryables;
 - (id<RACQueryable>)selectMany:(id (^)(id x))selectMany;
 - (id<RACQueryable>)take:(NSUInteger)count;
 

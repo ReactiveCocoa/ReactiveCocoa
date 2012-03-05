@@ -20,29 +20,66 @@
 		return a; \
 	}
 
-// A sequence is essentially a stream of values.
-@interface RACSequence : NSObject <RACObservable, RACQueryable>
 
+// A sequence is essentially a stream of values. It can be observed and queried.
+// It only ever sends the `next` event. It does this when an object is added to the sequence. The added object is passed as the value for the `next` event.
+@interface RACSequence : NSObject <RACObservable>
+
+// Creates a new sequence with the default capacity.
 + (id)sequence;
+
+// Creates a new sequence with the given capacity. The capacity dictates how many values are held at once. When the capacity is exceeded, the sequence removes the oldest value.
 + (id)sequenceWithCapacity:(NSUInteger)capacity;
 
+// Adds a new object into the sequence. This will notify observers of this object.
+//
+// object - the object to insert into the sequence. Cannot be nil.
 - (void)addObject:(id)object;
+
+// Returns the last object added to the sequence. May be nil.
 - (id)lastObject;
 
-// See the documentation for RACQueryable. These are defined here just so that the return type is more specific.
+// Convenience method to subscribe to the `next` event.
+//
+// Returns self to allow for chaining.
+- (id)subscribeNext:(void (^)(id x))nextBlock;
+
+// Convenience method to subscribe to the `next` and `completed` events.
+//
+// Returns self to allow for chaining.
+- (id)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock;
+
+// Convenience method to subscribe to the `next`, `completed`, and `error` events.
+//
+// Returns self to allow for chaining.
+- (id)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock error:(void (^)(NSError *error))errorBlock;
+
+@end
+
+@interface RACSequence (QueryableImplementations) <RACQueryable>
+
+// Returns a sequence that adds only the objects from the receiver to which `predicate` returns YES.
 - (RACSequence *)where:(BOOL (^)(id x))predicate;
+
+// Returns a sequence that adds the objects returned by calling `block` for each object added to the receiver.
 - (RACSequence *)select:(id (^)(id x))block;
+
+// Returns a sequence that fires its `next` event only after the receiver hasn't received any new objects for `interval` seconds.
 - (RACSequence *)throttle:(NSTimeInterval)interval;
-+ (RACSequence *)combineLatest:(NSArray *)observables;
-+ (RACSequence *)merge:(NSArray *)observables;
+
+// Returns a sequence that adds an NSArray of the last objects of each sequence each time any an object is added to any of the sequences.
++ (RACSequence *)combineLatest:(NSArray *)sequences;
+
+// Returns a sequence that adds the latest object any time any of the given sequences are added to.
++ (RACSequence *)merge:(NSArray *)sequences;
+
+// Adds the last added object to the given sequence.
 - (void)toProperty:(RACSequence *)property;
+
+// Returns a sequence that adds objects only if they're not equal to the last added object of the receiver.
 - (RACSequence *)distinctUntilChanged;
-+ (RACSequence *)zip:(NSArray *)observables;
++ (RACSequence *)zip:(NSArray *)sequences;
 - (RACSequence *)selectMany:(RACSequence * (^)(id x))selectMany;
 - (RACSequence *)take:(NSUInteger)count;
-
-- (id)subscribeNext:(void (^)(id x))nextBlock;
-- (id)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock;
-- (id)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock error:(void (^)(NSError *error))errorBlock;
 
 @end

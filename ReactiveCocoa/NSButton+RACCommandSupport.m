@@ -59,7 +59,9 @@ static void * NSButtonRACEnabledValueKey = &NSButtonRACEnabledValueKey;
 
 - (void)RACCommandsPerformAction:(id)sender {
 	for(RACCommand *command in self.commands) {
-		[command execute:sender];
+		if([command canExecute:sender]) {
+			[command execute:sender];
+		}
 	}
 }
 

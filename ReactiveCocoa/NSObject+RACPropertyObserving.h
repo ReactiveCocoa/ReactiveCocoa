@@ -16,10 +16,10 @@
 
 @interface NSObject (RACPropertyObserving)
 
-// Create a sequence from the value at the given keypath.
+// Creates a sequence from observing the value at the given keypath.
 - (RACSequence *)RACSequenceForKeyPath:(NSString *)keyPath;
 
-// Create a value from the value at the given keypath.
+// Creates a value from observing the value at the given keypath.
 - (RACValue *)RACValueForKeyPath:(NSString *)keyPath;
 
 // Bind the given binding to the value.

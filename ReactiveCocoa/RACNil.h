@@ -9,8 +9,10 @@
 #import <Foundation/Foundation.h>
 
 
+// Acts as `nil`.
 @interface RACNil : NSObject
 
+// Returns the singleton instance.
 + (id)nill;
 
 @end

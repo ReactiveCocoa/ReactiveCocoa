@@ -67,7 +67,7 @@
 // Returns a sequence that fires its `next` event only after the receiver hasn't received any new objects for `interval` seconds.
 - (RACSequence *)throttle:(NSTimeInterval)interval;
 
-// Returns a sequence that adds an NSArray of the last objects of each sequence each time any an object is added to any of the sequences.
+// Returns a sequence that adds an NSArray of the last objects of each sequence each time any an object is added to any of the sequences. If any of the sequences don't have an object, a RACNil is added in its place.
 + (RACSequence *)combineLatest:(NSArray *)sequences;
 
 // Returns a sequence that adds the latest object any time any of the given sequences are added to.
@@ -76,10 +76,16 @@
 // Adds the last added object to the given sequence.
 - (void)toProperty:(RACSequence *)property;
 
-// Returns a sequence that adds objects only if they're not equal to the last added object of the receiver.
+// Returns a sequence that adds objects from the receiver only if they're not equal to the last added object added to the sequence.
 - (RACSequence *)distinctUntilChanged;
+
+// Returns an sequence that adds an NSArray of the last objects of each of the sequence each time an object is added to any of the sequences, *and* there is a last object for each of the sequences.
 + (RACSequence *)zip:(NSArray *)sequences;
+
+// Returns a sequence that is added to only after the receiver's been added to and the sequence returned by `selectMany` has been added to. This can be used to chain different sequences together.
 - (RACSequence *)selectMany:(RACSequence * (^)(id x))selectMany;
+
+// Returns a sequence that only sends its `next` after the receiver has received `count` objects.
 - (RACSequence *)take:(NSUInteger)count;
 
 @end

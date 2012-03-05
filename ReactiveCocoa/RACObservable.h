@@ -13,6 +13,7 @@
 
 @protocol RACObservable <NSObject>
 
+// Subscribes observer to changes on the receiver. The receiver defines which events it actually sends and in what situations the events are sent.
 - (id)subscribe:(RACObserver *)observer;
 
 @end

@@ -13,7 +13,7 @@
 
 @interface RACOperation : NSOperation
 
-+ (id)operationWithBlock:(id (^)(void))block onQueue:(NSOperationQueue *)queue;
++ (id)operationOnQueue:(NSOperationQueue *)queue withBlock:(id (^)(void))block;
 
 - (RACObservableValue *)execute;
 

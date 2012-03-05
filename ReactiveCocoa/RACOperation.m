@@ -39,9 +39,9 @@
 @synthesize queue;
 @synthesize currentValue;
 
-+ (id)operationWithBlock:(id (^)(void))block onQueue:(NSOperationQueue *)queue {
-	NSParameterAssert(block != NULL);
++ (id)operationOnQueue:(NSOperationQueue *)queue withBlock:(id (^)(void))block {
 	NSParameterAssert(queue != nil);
+	NSParameterAssert(block != NULL);
 	
 	RACOperation *operation = [[self alloc] init];
 	operation.executeBlock = block;

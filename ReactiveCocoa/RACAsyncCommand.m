@@ -51,7 +51,9 @@
 	
 	[super execute:value];
 	
-	NSAssert(self.queue != nil, @"Queue cannot be nil.");
+	if(self.asyncFunctionPairs.count > 0) {
+		NSAssert(self.queue != nil, @"Queue cannot be nil.");
+	}
 	
 	[self.queue addOperationWithBlock:^{
 		for(RACAsyncCommandPair *pair in self.asyncFunctionPairs) {

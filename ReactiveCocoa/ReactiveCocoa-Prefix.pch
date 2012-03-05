@@ -1,5 +1,5 @@
 //
-// Prefix header for all source files of the 'GHObservable' target in the 'GHObservable' project
+// Prefix header for all source files of the 'ReactiveCocoa' target in the 'ReactiveCocoa' project
 //
 
 #ifdef __OBJC__

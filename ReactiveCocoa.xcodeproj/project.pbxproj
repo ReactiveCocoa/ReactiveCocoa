@@ -7,31 +7,57 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8820934715016B3A00796685 /* RACValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 8820934615016B3A00796685 /* RACValue.m */; };
+		88037F8415056328001A5B19 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7BF15000FCE00163A9F /* Cocoa.framework */; };
+		88037FB81505645C001A5B19 /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = 88037F8C15056328001A5B19 /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		88037FB91505645E001A5B19 /* NSObject+GHExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CDF8121500300400163A9F /* NSObject+GHExtensions.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		88037FBA15056460001A5B19 /* NSObject+GHKVOWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CDF82815008BB900163A9F /* NSObject+GHKVOWrapper.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		88037FBB1505646C001A5B19 /* NSObject+RACPropertyObserving.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CDF82C15008C0500163A9F /* NSObject+RACPropertyObserving.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		88037FBC1505646C001A5B19 /* RACObservable.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CDF80415001CA800163A9F /* RACObservable.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		88037FBD1505646C001A5B19 /* RACQueryable.h in Headers */ = {isa = PBXBuildFile; fileRef = 8820928215012D3B00796685 /* RACQueryable.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		88037FBE1505646C001A5B19 /* RACObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CDF7FA150019CA00163A9F /* RACObserver.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		88037FBF1505646C001A5B19 /* RACSequence.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CDF824150087D500163A9F /* RACSequence.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		88037FC01505646C001A5B19 /* RACValue.h in Headers */ = {isa = PBXBuildFile; fileRef = 8820934515016B3A00796685 /* RACValue.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		88037FC11505646C001A5B19 /* RACCommand.h in Headers */ = {isa = PBXBuildFile; fileRef = 882093E91501E6EE00796685 /* RACCommand.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		88037FC21505646C001A5B19 /* NSButton+RACCommandSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 882093E61501E6CB00796685 /* NSButton+RACCommandSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		88037FC31505646C001A5B19 /* RACNil.h in Headers */ = {isa = PBXBuildFile; fileRef = 88C6F04115033EC000480671 /* RACNil.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		88037FC41505646C001A5B19 /* RACAsyncCommand.h in Headers */ = {isa = PBXBuildFile; fileRef = 88DE7CD2150459E800C722C5 /* RACAsyncCommand.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		88037FC51505646F001A5B19 /* RACSequence+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CDF8301500978F00163A9F /* RACSequence+Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		88037FC61505647C001A5B19 /* NSObject+GHExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF8131500300400163A9F /* NSObject+GHExtensions.m */; };
+		88037FC71505647E001A5B19 /* NSObject+GHKVOWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF82915008BB900163A9F /* NSObject+GHKVOWrapper.m */; };
+		88037FC81505647F001A5B19 /* NSObject+RACPropertyObserving.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF82D15008C0500163A9F /* NSObject+RACPropertyObserving.m */; };
+		88037FC91505648C001A5B19 /* RACObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF7FB150019CA00163A9F /* RACObserver.m */; };
+		88037FCA1505648C001A5B19 /* RACSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF825150087D500163A9F /* RACSequence.m */; };
+		88037FCB1505648C001A5B19 /* RACValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 8820934615016B3A00796685 /* RACValue.m */; };
+		88037FCC1505648C001A5B19 /* RACCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 882093EA1501E6EE00796685 /* RACCommand.m */; };
+		88037FCD1505648C001A5B19 /* NSButton+RACCommandSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 882093E71501E6CB00796685 /* NSButton+RACCommandSupport.m */; };
+		88037FCE1505648C001A5B19 /* RACNil.m in Sources */ = {isa = PBXBuildFile; fileRef = 88C6F04215033EC000480671 /* RACNil.m */; };
+		88037FCF1505648C001A5B19 /* RACAsyncCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 88DE7CD3150459E800C722C5 /* RACAsyncCommand.m */; };
+		88037FD0150564BD001A5B19 /* NSObject+GHExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF8131500300400163A9F /* NSObject+GHExtensions.m */; };
+		88037FD1150564BF001A5B19 /* NSObject+GHKVOWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF82915008BB900163A9F /* NSObject+GHKVOWrapper.m */; };
+		88037FD2150564C1001A5B19 /* NSObject+RACPropertyObserving.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF82D15008C0500163A9F /* NSObject+RACPropertyObserving.m */; };
+		88037FD3150564C4001A5B19 /* RACObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF7FB150019CA00163A9F /* RACObserver.m */; };
+		88037FD4150564C5001A5B19 /* RACSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF825150087D500163A9F /* RACSequence.m */; };
+		88037FD5150564C7001A5B19 /* RACValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 8820934615016B3A00796685 /* RACValue.m */; };
+		88037FD6150564C9001A5B19 /* NSButton+RACCommandSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 882093E71501E6CB00796685 /* NSButton+RACCommandSupport.m */; };
+		88037FD7150564CB001A5B19 /* RACNil.m in Sources */ = {isa = PBXBuildFile; fileRef = 88C6F04215033EC000480671 /* RACNil.m */; };
+		88037FD8150564CD001A5B19 /* RACAsyncCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 88DE7CD3150459E800C722C5 /* RACAsyncCommand.m */; };
+		88037FD9150564D9001A5B19 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88037F8315056328001A5B19 /* ReactiveCocoa.framework */; };
 		8820937C1501C8A600796685 /* RACObservableSequenceSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 8820937B1501C8A600796685 /* RACObservableSequenceSpec.m */; };
 		8820937D1501C93C00796685 /* libExpecta.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8820936F1501C84700796685 /* libExpecta.a */; };
 		8820937E1501C94900796685 /* libSpecta.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8820935C1501C84000796685 /* libSpecta.a */; };
-		882093E81501E6CB00796685 /* NSButton+RACCommandSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 882093E71501E6CB00796685 /* NSButton+RACCommandSupport.m */; };
-		882093EB1501E6EE00796685 /* RACCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 882093EA1501E6EE00796685 /* RACCommand.m */; };
-		88C6F04315033EC000480671 /* RACNil.m in Sources */ = {isa = PBXBuildFile; fileRef = 88C6F04215033EC000480671 /* RACNil.m */; };
-		88CDF7C015000FCE00163A9F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7BF15000FCE00163A9F /* Cocoa.framework */; };
-		88CDF7CA15000FCE00163A9F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 88CDF7C815000FCE00163A9F /* InfoPlist.strings */; };
-		88CDF7CC15000FCE00163A9F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF7CB15000FCE00163A9F /* main.m */; };
-		88CDF7D015000FCE00163A9F /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 88CDF7CE15000FCE00163A9F /* Credits.rtf */; };
-		88CDF7D315000FCE00163A9F /* RACAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF7D215000FCE00163A9F /* RACAppDelegate.m */; };
-		88CDF7D615000FCF00163A9F /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 88CDF7D415000FCF00163A9F /* MainMenu.xib */; };
 		88CDF7DE15000FCF00163A9F /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7DD15000FCF00163A9F /* SenTestingKit.framework */; };
 		88CDF7DF15000FCF00163A9F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7BF15000FCE00163A9F /* Cocoa.framework */; };
 		88CDF7E715000FCF00163A9F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 88CDF7E515000FCF00163A9F /* InfoPlist.strings */; };
-		88CDF7FC150019CA00163A9F /* RACObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF7FB150019CA00163A9F /* RACObserver.m */; };
-		88CDF8141500300500163A9F /* NSObject+GHExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF8131500300400163A9F /* NSObject+GHExtensions.m */; };
-		88CDF826150087D500163A9F /* RACSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF825150087D500163A9F /* RACSequence.m */; };
-		88CDF82A15008BBA00163A9F /* NSObject+GHKVOWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF82915008BB900163A9F /* NSObject+GHKVOWrapper.m */; };
-		88CDF82E15008C0600163A9F /* NSObject+RACPropertyObserving.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF82D15008C0500163A9F /* NSObject+RACPropertyObserving.m */; };
-		88DE7CD4150459E800C722C5 /* RACAsyncCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 88DE7CD3150459E800C722C5 /* RACAsyncCommand.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		88037FDA150564E9001A5B19 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 88CDF7B215000FCE00163A9F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 88037F8215056328001A5B19;
+			remoteInfo = ReactiveCocoa;
+		};
 		8820935B1501C84000796685 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 882093511501C83F00796685 /* Specta.xcodeproj */;
@@ -102,13 +128,6 @@
 			remoteGlobalIDString = E9D96A2514B6B8AB007D9521;
 			remoteInfo = Specta;
 		};
-		88CDF7E015000FCF00163A9F /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 88CDF7B215000FCE00163A9F /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 88CDF7BA15000FCE00163A9F;
-			remoteInfo = GHObservable;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -124,8 +143,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		88037F8315056328001A5B19 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		88037F8C15056328001A5B19 /* ReactiveCocoa.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReactiveCocoa.h; sourceTree = "<group>"; };
 		8820928215012D3B00796685 /* RACQueryable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RACQueryable.h; sourceTree = "<group>"; };
-		8820934515016B3A00796685 /* RACValue.h */ = {isa = PBXFileReference; fileEncoding = 4; path = RACValue.h; sourceTree = "<group>"; };
+		8820934515016B3A00796685 /* RACValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACValue.h; sourceTree = "<group>"; };
 		8820934615016B3A00796685 /* RACValue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACValue.m; sourceTree = "<group>"; };
 		882093511501C83F00796685 /* Specta.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Specta.xcodeproj; path = specta/Specta.xcodeproj; sourceTree = "<group>"; };
 		882093641501C84700796685 /* Expecta.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Expecta.xcodeproj; path = expecta/Expecta.xcodeproj; sourceTree = "<group>"; };
@@ -136,19 +157,13 @@
 		882093EA1501E6EE00796685 /* RACCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACCommand.m; sourceTree = "<group>"; };
 		88C6F04115033EC000480671 /* RACNil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACNil.h; sourceTree = "<group>"; };
 		88C6F04215033EC000480671 /* RACNil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACNil.m; sourceTree = "<group>"; };
-		88CDF7BB15000FCE00163A9F /* ReactiveCocoa.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ReactiveCocoa.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		88CDF7BF15000FCE00163A9F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		88CDF7C215000FCE00163A9F /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		88CDF7C315000FCE00163A9F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		88CDF7C415000FCE00163A9F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		88CDF7C715000FCE00163A9F /* ReactiveCocoa-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "ReactiveCocoa-Info.plist"; sourceTree = "<group>"; };
 		88CDF7C915000FCE00163A9F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		88CDF7CB15000FCE00163A9F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		88CDF7CD15000FCE00163A9F /* ReactiveCocoa-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ReactiveCocoa-Prefix.pch"; sourceTree = "<group>"; };
-		88CDF7CF15000FCE00163A9F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
-		88CDF7D115000FCE00163A9F /* RACAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RACAppDelegate.h; sourceTree = "<group>"; };
-		88CDF7D215000FCE00163A9F /* RACAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RACAppDelegate.m; sourceTree = "<group>"; };
-		88CDF7D515000FCF00163A9F /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		88CDF7DC15000FCF00163A9F /* ReactiveCocoaTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReactiveCocoaTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		88CDF7DD15000FCF00163A9F /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		88CDF7E415000FCF00163A9F /* ReactiveCocoaTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "ReactiveCocoaTests-Info.plist"; sourceTree = "<group>"; };
@@ -158,23 +173,23 @@
 		88CDF80415001CA800163A9F /* RACObservable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RACObservable.h; sourceTree = "<group>"; };
 		88CDF8121500300400163A9F /* NSObject+GHExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+GHExtensions.h"; sourceTree = "<group>"; };
 		88CDF8131500300400163A9F /* NSObject+GHExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+GHExtensions.m"; sourceTree = "<group>"; };
-		88CDF824150087D500163A9F /* RACSequence.h */ = {isa = PBXFileReference; fileEncoding = 4; path = RACSequence.h; sourceTree = "<group>"; };
+		88CDF824150087D500163A9F /* RACSequence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACSequence.h; sourceTree = "<group>"; };
 		88CDF825150087D500163A9F /* RACSequence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSequence.m; sourceTree = "<group>"; };
 		88CDF82815008BB900163A9F /* NSObject+GHKVOWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+GHKVOWrapper.h"; sourceTree = "<group>"; };
 		88CDF82915008BB900163A9F /* NSObject+GHKVOWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+GHKVOWrapper.m"; sourceTree = "<group>"; };
 		88CDF82C15008C0500163A9F /* NSObject+RACPropertyObserving.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACPropertyObserving.h"; sourceTree = "<group>"; };
 		88CDF82D15008C0500163A9F /* NSObject+RACPropertyObserving.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACPropertyObserving.m"; sourceTree = "<group>"; };
-		88CDF8301500978F00163A9F /* RACSequence+Private.h */ = {isa = PBXFileReference; path = "RACSequence+Private.h"; sourceTree = "<group>"; };
+		88CDF8301500978F00163A9F /* RACSequence+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACSequence+Private.h"; sourceTree = "<group>"; };
 		88DE7CD2150459E800C722C5 /* RACAsyncCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACAsyncCommand.h; sourceTree = "<group>"; };
 		88DE7CD3150459E800C722C5 /* RACAsyncCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACAsyncCommand.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		88CDF7B815000FCE00163A9F /* Frameworks */ = {
+		88037F7F15056328001A5B19 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				88CDF7C015000FCE00163A9F /* Cocoa.framework in Frameworks */,
+				88037F8415056328001A5B19 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -182,6 +197,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				88037FD9150564D9001A5B19 /* ReactiveCocoa.framework in Frameworks */,
 				88CDF7DE15000FCF00163A9F /* SenTestingKit.framework in Frameworks */,
 				88CDF7DF15000FCF00163A9F /* Cocoa.framework in Frameworks */,
 				8820937D1501C93C00796685 /* libExpecta.a in Frameworks */,
@@ -227,8 +243,8 @@
 		88CDF7BC15000FCE00163A9F /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				88CDF7BB15000FCE00163A9F /* ReactiveCocoa.app */,
 				88CDF7DC15000FCF00163A9F /* ReactiveCocoaTests.octest */,
+				88037F8315056328001A5B19 /* ReactiveCocoa.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -256,10 +272,7 @@
 		88CDF7C515000FCE00163A9F /* ReactiveCocoa */ = {
 			isa = PBXGroup;
 			children = (
-				88CDF7D115000FCE00163A9F /* RACAppDelegate.h */,
-				88CDF7D215000FCE00163A9F /* RACAppDelegate.m */,
-				88CDF7D415000FCF00163A9F /* MainMenu.xib */,
-				88CDF7C615000FCE00163A9F /* Supporting Files */,
+				88037F8C15056328001A5B19 /* ReactiveCocoa.h */,
 				88CDF8121500300400163A9F /* NSObject+GHExtensions.h */,
 				88CDF8131500300400163A9F /* NSObject+GHExtensions.m */,
 				88CDF82815008BB900163A9F /* NSObject+GHKVOWrapper.h */,
@@ -283,6 +296,7 @@
 				88C6F04215033EC000480671 /* RACNil.m */,
 				88DE7CD2150459E800C722C5 /* RACAsyncCommand.h */,
 				88DE7CD3150459E800C722C5 /* RACAsyncCommand.m */,
+				88CDF7C615000FCE00163A9F /* Supporting Files */,
 			);
 			path = ReactiveCocoa;
 			sourceTree = "<group>";
@@ -292,9 +306,7 @@
 			children = (
 				88CDF7C715000FCE00163A9F /* ReactiveCocoa-Info.plist */,
 				88CDF7C815000FCE00163A9F /* InfoPlist.strings */,
-				88CDF7CB15000FCE00163A9F /* main.m */,
 				88CDF7CD15000FCE00163A9F /* ReactiveCocoa-Prefix.pch */,
-				88CDF7CE15000FCE00163A9F /* Credits.rtf */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -321,23 +333,48 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXHeadersBuildPhase section */
+		88037F8015056328001A5B19 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				88037FB81505645C001A5B19 /* ReactiveCocoa.h in Headers */,
+				88037FB91505645E001A5B19 /* NSObject+GHExtensions.h in Headers */,
+				88037FBA15056460001A5B19 /* NSObject+GHKVOWrapper.h in Headers */,
+				88037FBB1505646C001A5B19 /* NSObject+RACPropertyObserving.h in Headers */,
+				88037FBC1505646C001A5B19 /* RACObservable.h in Headers */,
+				88037FBD1505646C001A5B19 /* RACQueryable.h in Headers */,
+				88037FBE1505646C001A5B19 /* RACObserver.h in Headers */,
+				88037FBF1505646C001A5B19 /* RACSequence.h in Headers */,
+				88037FC01505646C001A5B19 /* RACValue.h in Headers */,
+				88037FC11505646C001A5B19 /* RACCommand.h in Headers */,
+				88037FC21505646C001A5B19 /* NSButton+RACCommandSupport.h in Headers */,
+				88037FC31505646C001A5B19 /* RACNil.h in Headers */,
+				88037FC41505646C001A5B19 /* RACAsyncCommand.h in Headers */,
+				88037FC51505646F001A5B19 /* RACSequence+Private.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
 /* Begin PBXNativeTarget section */
-		88CDF7BA15000FCE00163A9F /* ReactiveCocoa */ = {
+		88037F8215056328001A5B19 /* ReactiveCocoa */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 88CDF7ED15000FCF00163A9F /* Build configuration list for PBXNativeTarget "ReactiveCocoa" */;
+			buildConfigurationList = 88037F8F15056328001A5B19 /* Build configuration list for PBXNativeTarget "ReactiveCocoa" */;
 			buildPhases = (
-				88CDF7B715000FCE00163A9F /* Sources */,
-				88CDF7B815000FCE00163A9F /* Frameworks */,
-				88CDF7B915000FCE00163A9F /* Resources */,
+				88037F7E15056328001A5B19 /* Sources */,
+				88037F7F15056328001A5B19 /* Frameworks */,
+				88037F8015056328001A5B19 /* Headers */,
+				88037F8115056328001A5B19 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = ReactiveCocoa;
-			productName = GHObservable;
-			productReference = 88CDF7BB15000FCE00163A9F /* ReactiveCocoa.app */;
-			productType = "com.apple.product-type.application";
+			productName = ReactiveCocoa;
+			productReference = 88037F8315056328001A5B19 /* ReactiveCocoa.framework */;
+			productType = "com.apple.product-type.framework";
 		};
 		88CDF7DB15000FCF00163A9F /* ReactiveCocoaTests */ = {
 			isa = PBXNativeTarget;
@@ -352,9 +389,9 @@
 			buildRules = (
 			);
 			dependencies = (
+				88037FDB150564E9001A5B19 /* PBXTargetDependency */,
 				882093791501C85600796685 /* PBXTargetDependency */,
 				882093771501C85200796685 /* PBXTargetDependency */,
-				88CDF7E115000FCF00163A9F /* PBXTargetDependency */,
 			);
 			name = ReactiveCocoaTests;
 			productName = GHObservableTests;
@@ -392,7 +429,7 @@
 			);
 			projectRoot = "";
 			targets = (
-				88CDF7BA15000FCE00163A9F /* ReactiveCocoa */,
+				88037F8215056328001A5B19 /* ReactiveCocoa */,
 				88CDF7DB15000FCF00163A9F /* ReactiveCocoaTests */,
 			);
 		};
@@ -458,13 +495,10 @@
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
-		88CDF7B915000FCE00163A9F /* Resources */ = {
+		88037F8115056328001A5B19 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				88CDF7CA15000FCE00163A9F /* InfoPlist.strings in Resources */,
-				88CDF7D015000FCE00163A9F /* Credits.rtf in Resources */,
-				88CDF7D615000FCF00163A9F /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -495,22 +529,20 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		88CDF7B715000FCE00163A9F /* Sources */ = {
+		88037F7E15056328001A5B19 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				88CDF7CC15000FCE00163A9F /* main.m in Sources */,
-				88CDF7D315000FCE00163A9F /* RACAppDelegate.m in Sources */,
-				88CDF7FC150019CA00163A9F /* RACObserver.m in Sources */,
-				88CDF8141500300500163A9F /* NSObject+GHExtensions.m in Sources */,
-				88CDF826150087D500163A9F /* RACSequence.m in Sources */,
-				88CDF82A15008BBA00163A9F /* NSObject+GHKVOWrapper.m in Sources */,
-				88CDF82E15008C0600163A9F /* NSObject+RACPropertyObserving.m in Sources */,
-				8820934715016B3A00796685 /* RACValue.m in Sources */,
-				882093E81501E6CB00796685 /* NSButton+RACCommandSupport.m in Sources */,
-				882093EB1501E6EE00796685 /* RACCommand.m in Sources */,
-				88C6F04315033EC000480671 /* RACNil.m in Sources */,
-				88DE7CD4150459E800C722C5 /* RACAsyncCommand.m in Sources */,
+				88037FC61505647C001A5B19 /* NSObject+GHExtensions.m in Sources */,
+				88037FC71505647E001A5B19 /* NSObject+GHKVOWrapper.m in Sources */,
+				88037FC81505647F001A5B19 /* NSObject+RACPropertyObserving.m in Sources */,
+				88037FC91505648C001A5B19 /* RACObserver.m in Sources */,
+				88037FCA1505648C001A5B19 /* RACSequence.m in Sources */,
+				88037FCB1505648C001A5B19 /* RACValue.m in Sources */,
+				88037FCC1505648C001A5B19 /* RACCommand.m in Sources */,
+				88037FCD1505648C001A5B19 /* NSButton+RACCommandSupport.m in Sources */,
+				88037FCE1505648C001A5B19 /* RACNil.m in Sources */,
+				88037FCF1505648C001A5B19 /* RACAsyncCommand.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -519,12 +551,26 @@
 			buildActionMask = 2147483647;
 			files = (
 				8820937C1501C8A600796685 /* RACObservableSequenceSpec.m in Sources */,
+				88037FD3150564C4001A5B19 /* RACObserver.m in Sources */,
+				88037FD4150564C5001A5B19 /* RACSequence.m in Sources */,
+				88037FD6150564C9001A5B19 /* NSButton+RACCommandSupport.m in Sources */,
+				88037FD5150564C7001A5B19 /* RACValue.m in Sources */,
+				88037FD0150564BD001A5B19 /* NSObject+GHExtensions.m in Sources */,
+				88037FD7150564CB001A5B19 /* RACNil.m in Sources */,
+				88037FD8150564CD001A5B19 /* RACAsyncCommand.m in Sources */,
+				88037FD2150564C1001A5B19 /* NSObject+RACPropertyObserving.m in Sources */,
+				88037FD1150564BF001A5B19 /* NSObject+GHKVOWrapper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		88037FDB150564E9001A5B19 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 88037F8215056328001A5B19 /* ReactiveCocoa */;
+			targetProxy = 88037FDA150564E9001A5B19 /* PBXContainerItemProxy */;
+		};
 		882093771501C85200796685 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = Expecta;
@@ -535,11 +581,6 @@
 			name = Specta;
 			targetProxy = 882093781501C85600796685 /* PBXContainerItemProxy */;
 		};
-		88CDF7E115000FCF00163A9F /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 88CDF7BA15000FCE00163A9F /* ReactiveCocoa */;
-			targetProxy = 88CDF7E015000FCF00163A9F /* PBXContainerItemProxy */;
-		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
@@ -549,22 +590,6 @@
 				88CDF7C915000FCE00163A9F /* en */,
 			);
 			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-		88CDF7CE15000FCE00163A9F /* Credits.rtf */ = {
-			isa = PBXVariantGroup;
-			children = (
-				88CDF7CF15000FCE00163A9F /* en */,
-			);
-			name = Credits.rtf;
-			sourceTree = "<group>";
-		};
-		88CDF7D415000FCF00163A9F /* MainMenu.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				88CDF7D515000FCF00163A9F /* en */,
-			);
-			name = MainMenu.xib;
 			sourceTree = "<group>";
 		};
 		88CDF7E515000FCF00163A9F /* InfoPlist.strings */ = {
@@ -578,6 +603,34 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		88037F9015056328001A5B19 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
+				INFOPLIST_FILE = "ReactiveCocoa/ReactiveCocoa-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Debug;
+		};
+		88037F9115056328001A5B19 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
+				INFOPLIST_FILE = "ReactiveCocoa/ReactiveCocoa-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Release;
+		};
 		88CDF7EB15000FCF00163A9F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -602,6 +655,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				VALID_ARCHS = x86_64;
 			};
 			name = Debug;
 		};
@@ -622,51 +676,13 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				SDKROOT = macosx;
-			};
-			name = Release;
-		};
-		88CDF7EE15000FCF00163A9F /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
-				INFOPLIST_FILE = "ReactiveCocoa/ReactiveCocoa-Info.plist";
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"-all_load",
-				);
-				PRODUCT_NAME = ReactiveCocoa;
-				WARNING_CFLAGS = (
-					"-Werror",
-					"-Wall",
-				);
-				WRAPPER_EXTENSION = app;
-			};
-			name = Debug;
-		};
-		88CDF7EF15000FCF00163A9F /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
-				INFOPLIST_FILE = "ReactiveCocoa/ReactiveCocoa-Info.plist";
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"-all_load",
-				);
-				PRODUCT_NAME = ReactiveCocoa;
-				WARNING_CFLAGS = (
-					"-Werror",
-					"-Wall",
-				);
-				WRAPPER_EXTENSION = app;
+				VALID_ARCHS = x86_64;
 			};
 			name = Release;
 		};
 		88CDF7F115000FCF00163A9F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/ReactiveCocoa.app/Contents/MacOS/ReactiveCocoa";
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
@@ -677,7 +693,6 @@
 				INFOPLIST_FILE = "ReactiveCocoaTests/ReactiveCocoaTests-Info.plist";
 				OTHER_LDFLAGS = "-all_load";
 				PRODUCT_NAME = ReactiveCocoaTests;
-				TEST_HOST = "$(BUNDLE_LOADER)";
 				VALID_ARCHS = x86_64;
 				WRAPPER_EXTENSION = octest;
 			};
@@ -686,7 +701,6 @@
 		88CDF7F215000FCF00163A9F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/ReactiveCocoa.app/Contents/MacOS/ReactiveCocoa";
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
@@ -697,7 +711,6 @@
 				INFOPLIST_FILE = "ReactiveCocoaTests/ReactiveCocoaTests-Info.plist";
 				OTHER_LDFLAGS = "-all_load";
 				PRODUCT_NAME = ReactiveCocoaTests;
-				TEST_HOST = "$(BUNDLE_LOADER)";
 				VALID_ARCHS = x86_64;
 				WRAPPER_EXTENSION = octest;
 			};
@@ -706,20 +719,20 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		88037F8F15056328001A5B19 /* Build configuration list for PBXNativeTarget "ReactiveCocoa" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				88037F9015056328001A5B19 /* Debug */,
+				88037F9115056328001A5B19 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		88CDF7B515000FCE00163A9F /* Build configuration list for PBXProject "ReactiveCocoa" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				88CDF7EB15000FCF00163A9F /* Debug */,
 				88CDF7EC15000FCF00163A9F /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		88CDF7ED15000FCF00163A9F /* Build configuration list for PBXNativeTarget "ReactiveCocoa" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				88CDF7EE15000FCF00163A9F /* Debug */,
-				88CDF7EF15000FCF00163A9F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

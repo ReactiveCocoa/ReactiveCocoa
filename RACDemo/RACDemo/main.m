@@ -1,8 +1,8 @@
 //
 //  main.m
-//  GHObservable
+//  RACDemo
 //
-//  Created by Josh Abernathy on 3/1/12.
+//  Created by Josh Abernathy on 3/5/12.
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 

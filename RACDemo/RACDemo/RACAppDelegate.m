@@ -7,11 +7,7 @@
 //
 
 #import "RACAppDelegate.h"
-#import "RACObserver.h"
-#import "NSObject+RACPropertyObserving.h"
-#import "RACValue.h"
-#import "RACCommand.h"
-#import "NSButton+RACCommandSupport.h"
+#import <ReactiveCocoa/ReactiveCocoa.h>
 
 @interface RACAppDelegate ()
 @property (nonatomic, strong) RACValue *textField1Value;

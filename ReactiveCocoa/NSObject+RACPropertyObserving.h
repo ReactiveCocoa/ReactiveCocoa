@@ -22,5 +22,6 @@
 - (RACObservableValue *)observableValueForKeyPath:(NSString *)keyPath;
 
 - (void)bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath;
+- (void)bind:(NSString *)binding toObservable:(RACObservableValue *)observable;
 
 @end

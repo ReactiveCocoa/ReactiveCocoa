@@ -29,7 +29,8 @@
 
 + (RACCommand *)commandWithCanExecute:(BOOL (^)(id value))canExecuteBlock execute:(void (^)(id value))executeBlock {
 	RACCommand *command = [self command];
-	
+	command.canExecuteBlock = canExecuteBlock;
+	command.executeBlock = executeBlock;
 	return command;
 }
 

@@ -28,6 +28,7 @@
 		88CDF826150087D500163A9F /* RACObservableSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF825150087D500163A9F /* RACObservableSequence.m */; };
 		88CDF82A15008BBA00163A9F /* NSObject+GHKVOWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF82915008BB900163A9F /* NSObject+GHKVOWrapper.m */; };
 		88CDF82E15008C0600163A9F /* NSObject+RACPropertyObserving.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF82D15008C0500163A9F /* NSObject+RACPropertyObserving.m */; };
+		88EB3C3715042D7C000E0551 /* RACOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 88EB3C3615042D7C000E0551 /* RACOperation.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -164,6 +165,8 @@
 		88CDF82C15008C0500163A9F /* NSObject+RACPropertyObserving.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACPropertyObserving.h"; sourceTree = "<group>"; };
 		88CDF82D15008C0500163A9F /* NSObject+RACPropertyObserving.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACPropertyObserving.m"; sourceTree = "<group>"; };
 		88CDF8301500978F00163A9F /* RACObservableSequence+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACObservableSequence+Private.h"; sourceTree = "<group>"; };
+		88EB3C3515042D7C000E0551 /* RACOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACOperation.h; sourceTree = "<group>"; };
+		88EB3C3615042D7C000E0551 /* RACOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACOperation.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -278,6 +281,8 @@
 				882093E71501E6CB00796685 /* NSButton+RACCommandSupport.m */,
 				88C6F04115033EC000480671 /* RACNil.h */,
 				88C6F04215033EC000480671 /* RACNil.m */,
+				88EB3C3515042D7C000E0551 /* RACOperation.h */,
+				88EB3C3615042D7C000E0551 /* RACOperation.m */,
 			);
 			path = ReactiveCocoa;
 			sourceTree = "<group>";
@@ -505,6 +510,7 @@
 				882093E81501E6CB00796685 /* NSButton+RACCommandSupport.m in Sources */,
 				882093EB1501E6EE00796685 /* RACCommand.m in Sources */,
 				88C6F04315033EC000480671 /* RACNil.m in Sources */,
+				88EB3C3715042D7C000E0551 /* RACOperation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

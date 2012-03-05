@@ -84,11 +84,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 		throttled.suspendNotifications = originalSuspendNotifications;
 		
 		lastDelayedId = [self performBlock:^{
-			[throttled performBlockOnAllObservers:^(RACObserver *observer) {
-				if(observer.next != NULL) {
-					observer.next([throttled lastObject]);
-				}
-			}];
+			[throttled sendNextToAllObservers:[throttled lastObject]];
 		} afterDelay:interval];
 	}];
 	
@@ -239,11 +235,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 		[self.backingArray addObject:object];
 	}
 	
-	[self performBlockOnAllObservers:^(RACObserver *observer) {
-		if(observer.next != NULL) {
-			observer.next(object);
-		}
-	}];
+	[self sendNextToAllObservers:object];
 	
 	while(self.count > self.capacity) {
 		[self removeFirstObject];
@@ -264,6 +256,30 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 
 - (id)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock {
 	return [self subscribe:[RACObserver observerWithCompleted:completedBlock error:NULL next:nextBlock]];
+}
+
+- (void)sendNextToAllObservers:(id)value {
+	[self performBlockOnAllObservers:^(RACObserver *observer) {
+		if(observer.next != NULL) {
+			observer.next(value);
+		}
+	}];
+}
+
+- (void)sendCompletedToAllObservers {
+	[self performBlockOnAllObservers:^(RACObserver *observer) {
+		if(observer.completed != NULL) {
+			observer.completed();
+		}
+	}];
+}
+
+- (void)sendErrorToAllObservers:(NSError *)error {
+	[self performBlockOnAllObservers:^(RACObserver *observer) {
+		if(observer.error != NULL) {
+			observer.error(error);
+		}
+	}];
 }
 
 - (void)performBlockOnAllObservers:(void (^)(RACObserver *observer))block {

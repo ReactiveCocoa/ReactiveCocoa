@@ -18,6 +18,8 @@
 - (void)addObjectAndNilsAreOK:(id)object;
 - (void)removeFirstObject;
 
-- (void)performBlockOnAllObservers:(void (^)(RACObserver *observer))block;
+- (void)sendNextToAllObservers:(id)value;
+- (void)sendCompletedToAllObservers;
+- (void)sendErrorToAllObservers:(NSError *)error;
 
 @end

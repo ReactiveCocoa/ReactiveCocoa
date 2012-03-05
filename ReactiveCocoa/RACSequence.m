@@ -286,14 +286,20 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 - (RACSequence *)take:(NSUInteger)count {
 	RACSequence *taken = [RACSequence sequence];
 	
+	__block NSUInteger receivedCount = 0;
 	[self subscribeNext:^(id x) {
-		NSUInteger countWillBe = taken.count + 1;
-		BOOL notify = countWillBe % count == 0;
+		receivedCount++;
+		
+		BOOL notify = receivedCount >= count;
 		
 		BOOL originalSuspendNotifications = taken.suspendNotifications;
 		taken.suspendNotifications = !notify;
 		[taken addObjectAndNilsAreOK:x];
 		taken.suspendNotifications = originalSuspendNotifications;
+		
+		if(notify) {
+			receivedCount = 0;
+		}
 	}];
 	
 	return taken;

@@ -7,14 +7,14 @@
 //
 
 #import "RACAsyncCommand.h"
-#import "RACObservableSequence+Private.h"
+#import "RACSequence+Private.h"
 
 @interface RACAsyncCommandPair : NSObject
 
 @property (nonatomic, copy) id (^block)(id value, NSError **error);
-@property (nonatomic, strong) RACObservableSequence *sequence;
+@property (nonatomic, strong) RACSequence *sequence;
 
-+ (id)pairWithBlock:(id (^)(id value, NSError **error))block sequence:(RACObservableSequence *)sequence;
++ (id)pairWithBlock:(id (^)(id value, NSError **error))block sequence:(RACSequence *)sequence;
 
 @end
 
@@ -88,10 +88,10 @@
 	return queue;
 }
 
-- (RACObservableSequence *)addAsyncFunction:(id (^)(id value, NSError **error))block {
+- (RACSequence *)addAsyncFunction:(id (^)(id value, NSError **error))block {
 	NSParameterAssert(block != NULL);
 	
-	RACObservableSequence *sequence = [RACObservableSequence sequence];
+	RACSequence *sequence = [RACSequence sequence];
 	RACAsyncCommandPair *pair = [RACAsyncCommandPair pairWithBlock:block sequence:sequence];
 	[self.asyncFunctionPairs addObject:pair];
 	return sequence;
@@ -116,7 +116,7 @@
 @synthesize block;
 @synthesize sequence;
 
-+ (id)pairWithBlock:(id (^)(id value, NSError **error))block sequence:(RACObservableSequence *)sequence {
++ (id)pairWithBlock:(id (^)(id value, NSError **error))block sequence:(RACSequence *)sequence {
 	RACAsyncCommandPair *pair = [[self alloc] init];
 	pair.block = block;
 	pair.sequence = sequence;

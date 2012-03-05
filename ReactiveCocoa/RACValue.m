@@ -1,16 +1,16 @@
 //
-//  RACObservableValue.m
+//  RACValue.m
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 3/2/12.
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
-#import "RACObservableValue.h"
-#import "RACObservableSequence+Private.h"
+#import "RACValue.h"
+#import "RACSequence+Private.h"
 
 
-@implementation RACObservableValue
+@implementation RACValue
 
 
 #pragma mark RACObservableSequence

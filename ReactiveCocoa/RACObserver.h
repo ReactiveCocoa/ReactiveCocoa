@@ -15,6 +15,7 @@
 @property (nonatomic, readonly, copy) void (^error)(NSError *error);
 @property (nonatomic, readonly, copy) void (^next)(id x);
 
+// Create a new observer with the given blocks.
 + (id)observerWithCompleted:(void (^)(void))completed error:(void (^)(NSError *error))error next:(void (^)(id x))next;
 
 @end

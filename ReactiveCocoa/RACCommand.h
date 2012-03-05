@@ -8,12 +8,12 @@
 
 #import <Foundation/Foundation.h>
 
-#import "RACObservableValue.h"
+#import "RACValue.h"
 
 
-@interface RACCommand : RACObservableValue
+@interface RACCommand : RACValue
 
-@property (nonatomic, strong) RACObservableValue *canExecuteValue;
+@property (nonatomic, strong) RACValue *canExecuteValue;
 
 + (RACCommand *)command;
 + (RACCommand *)commandWithCanExecute:(BOOL (^)(id value))canExecuteBlock execute:(void (^)(id value))executeBlock;

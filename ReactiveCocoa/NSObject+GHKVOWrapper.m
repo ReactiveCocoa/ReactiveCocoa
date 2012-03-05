@@ -106,14 +106,6 @@ static char GHKVOWrapperContext;
 	return trampoline;
 }
 
-- (id)addObserver:(NSObject *)target forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options queue:(NSOperationQueue *)queue {
-    GHKVOTrampoline *trampoline = [[GHKVOTrampoline alloc] init];
-	trampoline.keyPath = keyPath;
-	trampoline.queue = queue;
-	trampoline.target = target;
-	return trampoline;
-}
-
 - (BOOL)removeObserverWithIdentifier:(id)identifier {
 	return [self removeObserverTrampoline:identifier];
 }

@@ -1,24 +1,24 @@
 //
-//  RACObservableValue.h
+//  RACValue.h
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 3/2/12.
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
-#import "RACObservableSequence.h"
+#import "RACSequence.h"
 
 #define rac_synthesize_val(a, val) \
 	@synthesize a; \
-	- (RACObservableValue *)a { \
+	- (RACValue *)a { \
 		if(a == nil) { \
-			a = [RACObservableValue valueWithValue:val]; \
+			a = [RACValue valueWithValue:val]; \
 		} \
 		return a; \
 	}
 
 
-@interface RACObservableValue : RACObservableSequence
+@interface RACValue : RACSequence
 
 @property (nonatomic, strong) id value; // KVO-compliant
 

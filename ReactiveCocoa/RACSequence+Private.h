@@ -6,10 +6,10 @@
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
-#import "RACObservableSequence.h"
+#import "RACSequence.h"
 
 
-@interface RACObservableSequence ()
+@interface RACSequence ()
 
 @property (nonatomic, readonly) NSUInteger count;
 

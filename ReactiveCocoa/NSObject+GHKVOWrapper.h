@@ -24,8 +24,6 @@
 // Returns an identifier that can be used to remove the observer. The identifier should be kept alive for as long as you want the observation to continue. The observer will be removed when the identifier is dealloc'd.
 - (id)addObserver:(NSObject *)target forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options queue:(NSOperationQueue *)queue block:(void (^)(id target, NSDictionary *change))block;
 
-- (id)addObserver:(NSObject *)target forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options queue:(NSOperationQueue *)queue;
-
 // Remove the observer represented by the identifier.
 //
 // identifier - the identifier to removed. This should be an object previously returned by a called to -addObserverForKeyPath:options:queue:block:.

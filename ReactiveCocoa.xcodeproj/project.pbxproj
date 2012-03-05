@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8820934715016B3A00796685 /* RACObservableValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 8820934615016B3A00796685 /* RACObservableValue.m */; };
+		8820934715016B3A00796685 /* RACValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 8820934615016B3A00796685 /* RACValue.m */; };
 		8820937C1501C8A600796685 /* RACObservableSequenceSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 8820937B1501C8A600796685 /* RACObservableSequenceSpec.m */; };
 		8820937D1501C93C00796685 /* libExpecta.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8820936F1501C84700796685 /* libExpecta.a */; };
 		8820937E1501C94900796685 /* libSpecta.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8820935C1501C84000796685 /* libSpecta.a */; };
@@ -25,7 +25,7 @@
 		88CDF7E715000FCF00163A9F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 88CDF7E515000FCF00163A9F /* InfoPlist.strings */; };
 		88CDF7FC150019CA00163A9F /* RACObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF7FB150019CA00163A9F /* RACObserver.m */; };
 		88CDF8141500300500163A9F /* NSObject+GHExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF8131500300400163A9F /* NSObject+GHExtensions.m */; };
-		88CDF826150087D500163A9F /* RACObservableSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF825150087D500163A9F /* RACObservableSequence.m */; };
+		88CDF826150087D500163A9F /* RACSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF825150087D500163A9F /* RACSequence.m */; };
 		88CDF82A15008BBA00163A9F /* NSObject+GHKVOWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF82915008BB900163A9F /* NSObject+GHKVOWrapper.m */; };
 		88CDF82E15008C0600163A9F /* NSObject+RACPropertyObserving.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF82D15008C0500163A9F /* NSObject+RACPropertyObserving.m */; };
 		88DE7CD4150459E800C722C5 /* RACAsyncCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 88DE7CD3150459E800C722C5 /* RACAsyncCommand.m */; };
@@ -125,8 +125,8 @@
 
 /* Begin PBXFileReference section */
 		8820928215012D3B00796685 /* RACQueryable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RACQueryable.h; sourceTree = "<group>"; };
-		8820934515016B3A00796685 /* RACObservableValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACObservableValue.h; sourceTree = "<group>"; };
-		8820934615016B3A00796685 /* RACObservableValue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACObservableValue.m; sourceTree = "<group>"; };
+		8820934515016B3A00796685 /* RACValue.h */ = {isa = PBXFileReference; fileEncoding = 4; path = RACValue.h; sourceTree = "<group>"; };
+		8820934615016B3A00796685 /* RACValue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACValue.m; sourceTree = "<group>"; };
 		882093511501C83F00796685 /* Specta.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Specta.xcodeproj; path = specta/Specta.xcodeproj; sourceTree = "<group>"; };
 		882093641501C84700796685 /* Expecta.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Expecta.xcodeproj; path = expecta/Expecta.xcodeproj; sourceTree = "<group>"; };
 		8820937B1501C8A600796685 /* RACObservableSequenceSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACObservableSequenceSpec.m; sourceTree = "<group>"; };
@@ -158,13 +158,13 @@
 		88CDF80415001CA800163A9F /* RACObservable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RACObservable.h; sourceTree = "<group>"; };
 		88CDF8121500300400163A9F /* NSObject+GHExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+GHExtensions.h"; sourceTree = "<group>"; };
 		88CDF8131500300400163A9F /* NSObject+GHExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+GHExtensions.m"; sourceTree = "<group>"; };
-		88CDF824150087D500163A9F /* RACObservableSequence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACObservableSequence.h; sourceTree = "<group>"; };
-		88CDF825150087D500163A9F /* RACObservableSequence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACObservableSequence.m; sourceTree = "<group>"; };
+		88CDF824150087D500163A9F /* RACSequence.h */ = {isa = PBXFileReference; fileEncoding = 4; path = RACSequence.h; sourceTree = "<group>"; };
+		88CDF825150087D500163A9F /* RACSequence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSequence.m; sourceTree = "<group>"; };
 		88CDF82815008BB900163A9F /* NSObject+GHKVOWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+GHKVOWrapper.h"; sourceTree = "<group>"; };
 		88CDF82915008BB900163A9F /* NSObject+GHKVOWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+GHKVOWrapper.m"; sourceTree = "<group>"; };
 		88CDF82C15008C0500163A9F /* NSObject+RACPropertyObserving.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACPropertyObserving.h"; sourceTree = "<group>"; };
 		88CDF82D15008C0500163A9F /* NSObject+RACPropertyObserving.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACPropertyObserving.m"; sourceTree = "<group>"; };
-		88CDF8301500978F00163A9F /* RACObservableSequence+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACObservableSequence+Private.h"; sourceTree = "<group>"; };
+		88CDF8301500978F00163A9F /* RACSequence+Private.h */ = {isa = PBXFileReference; path = "RACSequence+Private.h"; sourceTree = "<group>"; };
 		88DE7CD2150459E800C722C5 /* RACAsyncCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACAsyncCommand.h; sourceTree = "<group>"; };
 		88DE7CD3150459E800C722C5 /* RACAsyncCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACAsyncCommand.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -270,11 +270,11 @@
 				8820928215012D3B00796685 /* RACQueryable.h */,
 				88CDF7FA150019CA00163A9F /* RACObserver.h */,
 				88CDF7FB150019CA00163A9F /* RACObserver.m */,
-				88CDF824150087D500163A9F /* RACObservableSequence.h */,
-				88CDF825150087D500163A9F /* RACObservableSequence.m */,
-				88CDF8301500978F00163A9F /* RACObservableSequence+Private.h */,
-				8820934515016B3A00796685 /* RACObservableValue.h */,
-				8820934615016B3A00796685 /* RACObservableValue.m */,
+				88CDF824150087D500163A9F /* RACSequence.h */,
+				88CDF825150087D500163A9F /* RACSequence.m */,
+				88CDF8301500978F00163A9F /* RACSequence+Private.h */,
+				8820934515016B3A00796685 /* RACValue.h */,
+				8820934615016B3A00796685 /* RACValue.m */,
 				882093E91501E6EE00796685 /* RACCommand.h */,
 				882093EA1501E6EE00796685 /* RACCommand.m */,
 				882093E61501E6CB00796685 /* NSButton+RACCommandSupport.h */,
@@ -503,10 +503,10 @@
 				88CDF7D315000FCE00163A9F /* RACAppDelegate.m in Sources */,
 				88CDF7FC150019CA00163A9F /* RACObserver.m in Sources */,
 				88CDF8141500300500163A9F /* NSObject+GHExtensions.m in Sources */,
-				88CDF826150087D500163A9F /* RACObservableSequence.m in Sources */,
+				88CDF826150087D500163A9F /* RACSequence.m in Sources */,
 				88CDF82A15008BBA00163A9F /* NSObject+GHKVOWrapper.m in Sources */,
 				88CDF82E15008C0600163A9F /* NSObject+RACPropertyObserving.m in Sources */,
-				8820934715016B3A00796685 /* RACObservableValue.m in Sources */,
+				8820934715016B3A00796685 /* RACValue.m in Sources */,
 				882093E81501E6CB00796685 /* NSButton+RACCommandSupport.m in Sources */,
 				882093EB1501E6EE00796685 /* RACCommand.m in Sources */,
 				88C6F04315033EC000480671 /* RACNil.m in Sources */,

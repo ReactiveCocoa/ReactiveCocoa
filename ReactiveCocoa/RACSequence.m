@@ -6,15 +6,15 @@
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
-#import "RACObservableSequence.h"
-#import "RACObservableSequence+Private.h"
+#import "RACSequence.h"
+#import "RACSequence+Private.h"
 #import "RACObserver.h"
 #import "NSObject+GHExtensions.h"
 #import "RACNil.h"
 
 static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 
-@interface RACObservableSequence ()
+@interface RACSequence ()
 
 @property (nonatomic, strong) NSMutableArray *backingArray;
 @property (nonatomic, strong) NSMutableArray *subscribers;
@@ -24,7 +24,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 @end
 
 
-@implementation RACObservableSequence
+@implementation RACSequence
 
 - (id)init {
 	self = [super init];
@@ -47,10 +47,10 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 
 #pragma mark RACQueryable
 
-- (RACObservableSequence *)where:(BOOL (^)(id value))predicate {
+- (RACSequence *)where:(BOOL (^)(id value))predicate {
 	NSParameterAssert(predicate != NULL);
 	
-	RACObservableSequence *filtered = [RACObservableSequence sequence];
+	RACSequence *filtered = [RACSequence sequence];
 	[self subscribeNext:^(id x) {
 		if(predicate(x)) {
 			[filtered addObjectAndNilsAreOK:x];
@@ -60,10 +60,10 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return filtered;
 }
 
-- (RACObservableSequence *)select:(id (^)(id value))block {
+- (RACSequence *)select:(id (^)(id value))block {
 	NSParameterAssert(block != NULL);
 	
-	RACObservableSequence *mapped = [RACObservableSequence sequence];
+	RACSequence *mapped = [RACSequence sequence];
 	[self subscribeNext:^(id x) {
 		id mappedValue = block(x);		
 		[mapped addObjectAndNilsAreOK:mappedValue];
@@ -72,8 +72,8 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return mapped;
 }
 
-- (RACObservableSequence *)throttle:(NSTimeInterval)interval {	
-	RACObservableSequence *throttled = [RACObservableSequence sequence];
+- (RACSequence *)throttle:(NSTimeInterval)interval {	
+	RACSequence *throttled = [RACSequence sequence];
 	__block id lastDelayedId = nil;
 	[self subscribeNext:^(id x) {
 		[self cancelPreviousPerformBlockRequestsWithId:lastDelayedId];
@@ -91,13 +91,13 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return throttled;
 }
 
-+ (RACObservableSequence *)combineLatest:(NSArray *)observables {
-	RACObservableSequence *unified = [RACObservableSequence sequence];
++ (RACSequence *)combineLatest:(NSArray *)observables {
+	RACSequence *unified = [RACSequence sequence];
 
-    for(RACObservableSequence *observable in observables) {
+    for(RACSequence *observable in observables) {
 		[observable subscribeNext:^(id x) {
 			NSMutableArray *topValues = [NSMutableArray arrayWithCapacity:observables.count];
-			for(RACObservableSequence *observable in observables) {
+			for(RACSequence *observable in observables) {
 				[topValues addObject:[observable lastObject] ? : [RACNil nill]];
 			}
 			
@@ -108,10 +108,10 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return unified;
 }
 
-+ (RACObservableSequence *)merge:(NSArray *)observables {
-	RACObservableSequence *unified = [RACObservableSequence sequence];
++ (RACSequence *)merge:(NSArray *)observables {
+	RACSequence *unified = [RACSequence sequence];
 	
-    for(RACObservableSequence *observable in observables) {
+    for(RACSequence *observable in observables) {
 		[observable subscribeNext:^(id x) {
 			[unified addObjectAndNilsAreOK:x];
 		}];
@@ -120,14 +120,14 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return unified;
 }
 
-+ (RACObservableSequence *)zip:(NSArray *)observables {
-	RACObservableSequence *unified = [RACObservableSequence sequence];
++ (RACSequence *)zip:(NSArray *)observables {
+	RACSequence *unified = [RACSequence sequence];
 	
-    for(RACObservableSequence *observable in observables) {
+    for(RACSequence *observable in observables) {
 		[observable subscribeNext:^(id x) {
 			NSMutableArray *topValues = [NSMutableArray arrayWithCapacity:observables.count];
 			BOOL valid = YES;
-			for(RACObservableSequence *observable in observables) {
+			for(RACSequence *observable in observables) {
 				id lastValue = [observable lastObject];
 				[topValues addObject:lastValue ? : [RACNil nill]];
 				if(lastValue == nil) {
@@ -145,7 +145,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return unified;
 }
 
-- (void)toProperty:(RACObservableSequence *)property {
+- (void)toProperty:(RACSequence *)property {
 	NSParameterAssert(property != nil);
 	
 	[self subscribeNext:^(id x) {
@@ -153,8 +153,8 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	}];
 }
 
-- (RACObservableSequence *)distinctUntilChanged {
-	RACObservableSequence *distinct = [RACObservableSequence sequence];
+- (RACSequence *)distinctUntilChanged {
+	RACSequence *distinct = [RACSequence sequence];
 	__block id previousObject = nil;
 	[self subscribeNext:^(id x) {
 		if(![x isEqual:previousObject]) {
@@ -166,10 +166,10 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return distinct;
 }
 
-- (RACObservableSequence *)selectMany:(RACObservableSequence * (^)(id x))selectMany {
-	RACObservableSequence *other = [RACObservableSequence sequence];
+- (RACSequence *)selectMany:(RACSequence * (^)(id x))selectMany {
+	RACSequence *other = [RACSequence sequence];
 	[self subscribeNext:^(id x) {
-		RACObservableSequence *s = selectMany(x);
+		RACSequence *s = selectMany(x);
 		[s subscribeNext:^(id x) {
 			[other addObject:x];
 		}];
@@ -177,8 +177,8 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return other;
 }
 
-- (RACObservableSequence *)take:(NSUInteger)count {
-	RACObservableSequence *taken = [RACObservableSequence sequence];
+- (RACSequence *)take:(NSUInteger)count {
+	RACSequence *taken = [RACSequence sequence];
 	
 	[self subscribeNext:^(id x) {
 		NSUInteger countWillBe = taken.count + 1;

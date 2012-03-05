@@ -9,19 +9,20 @@
 #import <Foundation/Foundation.h>
 
 #define RACKVO(property) ((void)(NO && ((void)property, NO)), @#property)
-#define RACObservableSequenceForProperty(property) ((void)(NO && ((void)property, NO)), [self observableSequenceForKeyPath:@#property])
-#define RACObservableValueForProperty(property) ((void)(NO && ((void)property, NO)), [self observableValueForKeyPath:@#property])
 
-@class RACObservableSequence;
-@class RACObservableValue;
+@class RACSequence;
+@class RACValue;
 
 
 @interface NSObject (RACPropertyObserving)
 
-- (RACObservableSequence *)observableSequenceForKeyPath:(NSString *)keyPath;
-- (RACObservableValue *)observableValueForKeyPath:(NSString *)keyPath;
+// Create a sequence from the value at the given keypath.
+- (RACSequence *)RACSequenceForKeyPath:(NSString *)keyPath;
 
-- (void)bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath;
-- (void)bind:(NSString *)binding toObservable:(RACObservableValue *)observable;
+// Create a value from the value at the given keypath.
+- (RACValue *)RACValueForKeyPath:(NSString *)keyPath;
+
+// Bind the given binding to the value.
+- (void)bind:(NSString *)binding toValue:(RACValue *)value;
 
 @end

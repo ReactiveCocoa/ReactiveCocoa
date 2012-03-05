@@ -10,18 +10,18 @@
 #import "Specta.h"
 #import "Expecta.h"
 
-#import "RACObservableSequence.h"
+#import "RACSequence.h"
 #import "RACObserver.h"
 
 
 SpecBegin(RACObservableSequence)
 
 static const NSUInteger capacity = 5;
-__block RACObservableSequence *sequence = nil;
+__block RACSequence *sequence = nil;
 
 describe(@"holding objects", ^{
 	beforeEach(^{
-		sequence = [RACObservableSequence sequenceWithCapacity:capacity];
+		sequence = [RACSequence sequenceWithCapacity:capacity];
 	});
 	
 	it(@"should add a new object", ^{
@@ -44,7 +44,7 @@ describe(@"holding objects", ^{
 
 describe(@"observing", ^{
 	beforeEach(^{
-		sequence = [RACObservableSequence sequenceWithCapacity:capacity];
+		sequence = [RACSequence sequenceWithCapacity:capacity];
 	});
 	
 	it(@"should tell its observer when a new object is added", ^{
@@ -95,7 +95,7 @@ describe(@"observing", ^{
 
 describe(@"querying", ^{
 	beforeEach(^{
-		sequence = [RACObservableSequence sequenceWithCapacity:capacity];
+		sequence = [RACSequence sequenceWithCapacity:capacity];
 	});
 	
 	describe(@"where", ^{

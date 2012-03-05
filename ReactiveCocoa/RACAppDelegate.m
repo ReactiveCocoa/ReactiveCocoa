@@ -9,14 +9,14 @@
 #import "RACAppDelegate.h"
 #import "RACObserver.h"
 #import "NSObject+RACPropertyObserving.h"
-#import "RACObservableValue.h"
+#import "RACValue.h"
 #import "RACCommand.h"
 #import "NSButton+RACCommandSupport.h"
 
 @interface RACAppDelegate ()
-@property (nonatomic, strong) RACObservableValue *textField1Value;
-@property (nonatomic, strong) RACObservableValue *textFieldsDoNotMatchValue;
-@property (nonatomic, strong) RACObservableValue *textField2Value;
+@property (nonatomic, strong) RACValue *textField1Value;
+@property (nonatomic, strong) RACValue *textFieldsDoNotMatchValue;
+@property (nonatomic, strong) RACValue *textField2Value;
 @end
 
 
@@ -27,12 +27,12 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
 	// UI elements should *always* be backed by the model.
-	[self.textField1 bind:NSValueBinding toObservable:self.textField1Value];
-	[self.matchesLabel bind:NSHiddenBinding toObservable:self.textFieldsDoNotMatchValue];
-	[self.textField2 bind:NSValueBinding toObservable:self.textField2Value];
+	[self.textField1 bind:NSValueBinding toValue:self.textField1Value];
+	[self.matchesLabel bind:NSHiddenBinding toValue:self.textFieldsDoNotMatchValue];
+	[self.textField2 bind:NSValueBinding toValue:self.textField2Value];
 	
 	RACCommand *loginCommand = [RACCommand command];
-	loginCommand.canExecuteValue = [RACObservableValue valueWithValue:[NSNumber numberWithBool:NO]];
+	loginCommand.canExecuteValue = [RACValue valueWithValue:[NSNumber numberWithBool:NO]];
 	[loginCommand 
 		subscribeNext:^(id _) { NSLog(@"clicked!"); }];
 	
@@ -58,7 +58,7 @@
 	[self.doMagicButton addCommand:loginCommand];
 	
 	RACCommand *duplicateCommand = [RACCommand command];
-	duplicateCommand.canExecuteValue = [RACObservableValue valueWithValue:[NSNumber numberWithBool:NO]];
+	duplicateCommand.canExecuteValue = [RACValue valueWithValue:[NSNumber numberWithBool:NO]];
 	[[self.textField1Value 
 		select:^(id x) { return [NSNumber numberWithBool:[x length] > 0]; }] 
 		toProperty:duplicateCommand.canExecuteValue];
@@ -68,12 +68,12 @@
 	
 	[self.duplicateButton addCommand:duplicateCommand];
 	
-	[[[RACObservableValue 
+	[[[RACValue 
 		combineLatest:[NSArray arrayWithObjects:self.textField1Value, self.textField2Value, nil]] 
 		select:^(NSArray *x) { return [NSNumber numberWithBool:![[x objectAtIndex:0] isEqualToString:[x objectAtIndex:1]]]; }]
 		toProperty:self.textFieldsDoNotMatchValue];
 	
-	[[[[RACObservableValue 
+	[[[[RACValue 
 		merge:[NSArray arrayWithObjects:self.textField1Value, self.textField2Value, nil]] 
 		throttle:1.0f] 
 		distinctUntilChanged]

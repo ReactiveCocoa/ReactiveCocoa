@@ -12,7 +12,6 @@
 #import "RACObservableValue.h"
 #import "RACCommand.h"
 #import "NSButton+RACCommandSupport.h"
-#import "RACOperation.h"
 
 @interface RACAppDelegate ()
 @property (nonatomic, strong) RACObservableValue *textField1Value;
@@ -47,17 +46,6 @@
 		where:^(id x) { return [x isEqualToString:@"magic!"]; }] 
 		selectMany:^(id _) { return self.textField1Value; }]
 		subscribeNext:^(id x) { NSLog(@"most magic! %@", x); }];
-	
-	NSOperationQueue *queue = [[NSOperationQueue alloc] init];
-	RACOperation *op = [RACOperation operationOnQueue:queue withBlock:^{
-		// This could be anything, really. A long-running task, service call, etc.
-		[NSThread sleepForTimeInterval:5.0f];
-		return @"test";
-	}];
-	
-	[[loginCommand 
-		selectMany:^(id _) { return [op execute]; }] 
-		subscribeNext:^(id x) { NSLog(@"from op: %@", x); }];
 	
 	[[self.textField1Value 
 		select:^(id x) { return [NSNumber numberWithBool:[x hasPrefix:@"magic"]]; }] 

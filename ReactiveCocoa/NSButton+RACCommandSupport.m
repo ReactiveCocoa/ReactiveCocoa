@@ -28,7 +28,7 @@ static void * NSButtonRACEnabledValueKey = &NSButtonRACEnabledValueKey;
 	
 	self.enabledValue = [RACObservableValue value];
 	[[[RACObservableValue 
-		combineLatest:[self.commands valueForKey:@"canExecute"]]
+		combineLatest:[self.commands valueForKey:@"canExecuteValue"]]
 		select:^(NSArray *x) {
 			BOOL enabled = YES;
 			for(id v in x) {

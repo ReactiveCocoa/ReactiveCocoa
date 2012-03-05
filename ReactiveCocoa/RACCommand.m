@@ -8,34 +8,47 @@
 
 #import "RACCommand.h"
 
+@interface RACCommand ()
+@property (nonatomic, copy) BOOL (^canExecuteBlock)(id value);
+@property (nonatomic, copy) void (^executeBlock)(id value);
+@end
+
 
 @implementation RACCommand
 
 
 #pragma mark API
 
-@synthesize canExecute;
+@synthesize canExecuteValue;
+@synthesize canExecuteBlock;
+@synthesize executeBlock;
 
 + (RACCommand *)command {
 	return [self value];
 }
 
-- (RACObservableValue *)canExecute {
-	if(canExecute == nil) {
-		canExecute = [RACObservableValue value];
++ (RACCommand *)commandWithCanExecute:(BOOL (^)(id value))canExecuteBlock execute:(void (^)(id value))executeBlock {
+	RACCommand *command = [self command];
+	
+	return command;
+}
+
+- (BOOL)canExecute:(id)value {
+	if(self.canExecuteBlock != NULL) {
+		return self.canExecuteBlock(value);
 	}
 	
-	return canExecute;
+	return [self.canExecuteValue.value boolValue];
 }
 
-- (BOOL)canCurrentlyExecute {
-	return [self.canExecute.value boolValue];
-}
-
-- (void)execute:(id)sender {
-	if(!self.canCurrentlyExecute) return;
+- (void)execute:(id)value {
+	if(![self canExecute:value]) return;
 	
-	self.value = sender;
+	self.value = value;
+	
+	if(self.executeBlock != NULL) {
+		self.executeBlock(value);
+	}
 }
 
 @end

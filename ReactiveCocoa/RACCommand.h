@@ -13,11 +13,12 @@
 
 @interface RACCommand : RACObservableValue
 
-@property (nonatomic, strong) RACObservableValue *canExecute;
-@property (nonatomic, readonly) BOOL canCurrentlyExecute;
+@property (nonatomic, strong) RACObservableValue *canExecuteValue;
 
 + (RACCommand *)command;
++ (RACCommand *)commandWithCanExecute:(BOOL (^)(id value))canExecuteBlock execute:(void (^)(id value))executeBlock;
 
-- (void)execute:(id)sender;
+- (BOOL)canExecute:(id)value;
+- (void)execute:(id)value;
 
 @end

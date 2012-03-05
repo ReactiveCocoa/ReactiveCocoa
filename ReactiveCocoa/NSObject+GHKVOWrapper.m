@@ -126,26 +126,6 @@ static char GHKVOWrapperContext;
 	return YES;
 }
 
-- (id)when:(BOOL (^)(id object, NSString *keyPath, NSDictionary *change))predicate {
-    NSParameterAssert([self isKindOfClass:[GHKVOTrampoline class]]);
-    
-    GHKVOTrampoline *trampoline = (GHKVOTrampoline *) self;
-    trampoline.predicate = predicate;
-    
-    [trampoline startObservingOnObject:self options:0];
-    
-    return self;
-}
-
-- (id)do:(void (^)(id target, NSDictionary *change))block {
-    NSParameterAssert([self isKindOfClass:[GHKVOTrampoline class]]);
-
-    GHKVOTrampoline *trampoline = (GHKVOTrampoline *) self;
-    trampoline.block = block;
-
-    return self;
-}
-
 - (NSMutableSet *)KVOTrampolines {
     @synchronized(self) {
         NSMutableSet *trampolines = objc_getAssociatedObject(self, GHKVOTrampolinesKey);

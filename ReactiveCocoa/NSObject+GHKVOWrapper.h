@@ -33,7 +33,4 @@
 // Returns whether the removal was successful. The only reason for failure would be if the identifier doesn't represent anything currently being observed by the object, or if the identifier is nil.
 - (BOOL)removeObserverWithIdentifier:(id)identifier;
 
-- (id)when:(BOOL (^)(id object, NSString *keyPath, NSDictionary *change))predicate;
-- (id)do:(void (^)(id target, NSDictionary *change))block;
-
 @end

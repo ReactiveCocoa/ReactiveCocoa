@@ -11,4 +11,8 @@
 
 @interface RACAsyncCommand : RACCommand
 
+@property (nonatomic, strong) NSOperationQueue *queue;
+
+- (RACObservableSequence *)addAsyncFunction:(RACObservableSequence * (^)(id value))block;
+
 @end

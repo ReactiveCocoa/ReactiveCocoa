@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 #define RACKVO(property) ((void)(NO && ((void)property, NO)), @#property)
+#define RACObservable(property) [self RACValueForKeyPath:RACKVO(self.property)]
 
 @class RACSequence;
 @class RACValue;

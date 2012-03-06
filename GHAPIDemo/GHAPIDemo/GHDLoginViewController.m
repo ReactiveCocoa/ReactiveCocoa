@@ -29,6 +29,11 @@
 	self.loginCommand = [RACAsyncCommand command];
 	self.loginCommand.canExecuteValue = [RACValue valueWithValue:[NSNumber numberWithBool:NO]];
 	
+	[[[RACSequence 
+		combineLatest:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), nil]]
+		select:^(NSArray *x) { return [NSNumber numberWithBool:[[x objectAtIndex:0] length] > 0 && [[x objectAtIndex:1] length] > 0]; }] 
+		toSequence:self.loginCommand.canExecuteValue];
+	
 	__block BOOL didLoginLastTime = NO;
 	RACValue *result = [self.loginCommand addAsyncFunction:^(id value, NSError **error) {
 		NSLog(@"execute!");
@@ -40,11 +45,6 @@
 		didLoginLastTime = !didLoginLastTime;
 		return didLogin;
 	}];
-	
-	[[[RACSequence 
-		combineLatest:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), nil]]
-		select:^(NSArray *x) { return [NSNumber numberWithBool:[[x objectAtIndex:0] length] > 0 && [[x objectAtIndex:1] length] > 0]; }] 
-		toSequence:self.loginCommand.canExecuteValue];
 	
 	[[[[[result 
 		subscribeNext:^(id x) { NSLog(@"could login: %@", x); }] 

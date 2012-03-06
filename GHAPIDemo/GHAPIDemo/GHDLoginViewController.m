@@ -8,19 +8,52 @@
 
 #import "GHDLoginViewController.h"
 #import "GHDLoginView.h"
-#import <ReactiveCocoa/ReactiveCocoa.h>
 
 @interface GHDLoginViewController ()
-@property (nonatomic, copy) NSString *username;
-@property (nonatomic, copy) NSString *password;
-@property (nonatomic, assign) BOOL loginEnabled;
 @property (nonatomic, strong) GHDLoginView *view;
-@property (nonatomic, strong) RACValue *successHiddenValue;
-@property (nonatomic, strong) RACValue *loginFailedHiddenValue;
 @end
 
 
 @implementation GHDLoginViewController
+
+- (id)init {
+	self = [super init];
+	if(self == nil) return nil;
+	
+	[[[RACSequence 
+		combineLatest:[NSArray arrayWithObjects:[self RACValueForKeyPath:RACKVO(self.username)], [self RACValueForKeyPath:RACKVO(self.password)], nil]]
+		select:^(NSArray *x) { return [NSNumber numberWithBool:[[x objectAtIndex:0] length] > 0 && [[x objectAtIndex:1] length] > 0]; }] 
+		toObject:self keyPath:RACKVO(self.loginEnabled)];
+	
+	self.loginCommand = [RACAsyncCommand commandWithCanExecute:^(id _) { return self.loginEnabled; } execute:NULL];
+	
+	__block BOOL didLoginLastTime = NO;
+	RACValue *result = [self.loginCommand addAsyncFunction:^(id value, NSError **error) {
+		NSLog(@"execute!");
+		
+		// TODO: actually attempt to auth
+		
+		[NSThread sleepForTimeInterval:5.0f];
+		NSNumber *didLogin = [NSNumber numberWithBool:!didLoginLastTime];
+		didLoginLastTime = !didLoginLastTime;
+		return didLogin;
+	}];
+	
+	[[[[[result 
+		subscribeNext:^(id x) { NSLog(@"could login: %@", x); }] 
+		select:^(id x) { return [NSNumber numberWithBool:![x boolValue]]; }]
+		toSequence:self.successHiddenValue]
+		select:^(id x) { return [NSNumber numberWithBool:![x boolValue]]; }] 
+		toSequence:self.loginFailedHiddenValue];
+	
+	[[[[RACSequence 
+		merge:[NSArray arrayWithObjects:[self RACValueForKeyPath:RACKVO(self.username)], [self RACValueForKeyPath:RACKVO(self.password)], nil]] 
+		select:^(id _) { return [NSNumber numberWithBool:YES]; }]
+		toSequence:self.successHiddenValue]
+		toSequence:self.loginFailedHiddenValue];
+	
+	return self;
+}
 
 
 #pragma mark NSViewController
@@ -35,38 +68,7 @@
 	[self.view.successTextField bind:NSHiddenBinding toValue:self.successHiddenValue];
 	[self.view.couldNotLoginTextField bind:NSHiddenBinding toValue:self.loginFailedHiddenValue];
 	
-	[[[RACSequence 
-		combineLatest:[NSArray arrayWithObjects:[self RACValueForKeyPath:RACKVO(self.username)], [self RACValueForKeyPath:RACKVO(self.password)], nil]]
-		select:^(NSArray *x) { return [NSNumber numberWithBool:[[x objectAtIndex:0] length] > 0 && [[x objectAtIndex:1] length] > 0]; }] 
-		toObject:self keyPath:RACKVO(self.loginEnabled)];
-	
-	RACAsyncCommand *loginCommand = [RACAsyncCommand commandWithCanExecute:^(id _) { return self.loginEnabled; } execute:NULL];
-	
-	__block BOOL didLoginLastTime = NO;
-	RACValue *result = [loginCommand addAsyncFunction:^(id value, NSError **error) {
-		NSLog(@"execute!");
-		
-		// TODO: actually attempt to auth
-		
-		[NSThread sleepForTimeInterval:5.0f];
-		NSNumber *didLogin = [NSNumber numberWithBool:!didLoginLastTime];
-		didLoginLastTime = !didLoginLastTime;
-		return didLogin;
-	}];
-	[self.view.loginButton addCommand:loginCommand];
-	
-	[[[[[result 
-		subscribeNext:^(id x) { NSLog(@"could login: %@", x); }] 
-		select:^(id x) { return [NSNumber numberWithBool:![x boolValue]]; }]
-		toSequence:self.successHiddenValue]
-		select:^(id x) { return [NSNumber numberWithBool:![x boolValue]]; }] 
-		toSequence:self.loginFailedHiddenValue];
-	
-	[[[[RACSequence 
-		merge:[NSArray arrayWithObjects:[self RACValueForKeyPath:RACKVO(self.username)], [self RACValueForKeyPath:RACKVO(self.password)], nil]] 
-		select:^(id _) { return [NSNumber numberWithBool:YES]; }]
-		toSequence:self.successHiddenValue]
-		toSequence:self.loginFailedHiddenValue];
+	[self.view.loginButton addCommand:self.loginCommand];
 }
 
 
@@ -78,5 +80,6 @@
 @dynamic view;
 rac_synthesize_val(successHiddenValue, [NSNumber numberWithBool:YES]);
 rac_synthesize_val(loginFailedHiddenValue, [NSNumber numberWithBool:YES]);
+@synthesize loginCommand;
 
 @end

@@ -6,8 +6,61 @@
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
-#import "GHDLoginViewSpec.h"
+#define EXP_SHORTHAND
+#import "Specta.h"
+#import "Expecta.h"
 
-@implementation GHDLoginViewSpec
+#import "GHDLoginViewController.h"
 
-@end
+
+SpecBegin(LoginViewSpec)
+
+describe(@"validation", ^{
+	__block GHDLoginViewController *viewController = nil;
+	
+	void (^runRunLoop)(void) = ^{
+		[[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1f]];
+	};
+	
+	beforeEach(^{
+		viewController = [[GHDLoginViewController alloc] init];
+	});
+	
+	it(@"shouldn't allow you to login with only a username", ^{
+		viewController.username = @"johnsmith";
+		viewController.password = @"";
+		
+		runRunLoop();
+		
+		expect(viewController.loginEnabled).toBeFalsy();
+	});
+	
+	it(@"shouldn't allow you to login with only a password", ^{
+		viewController.username = @"";
+		viewController.password = @"secret";
+		
+		runRunLoop();
+		
+		expect(viewController.loginEnabled).toBeFalsy();
+	});
+	
+	it(@"shouldn't allow you to login without both a username and password", ^{
+		viewController.username = @"";
+		viewController.password = @"";
+		
+		runRunLoop();
+		
+		expect(viewController.loginEnabled).toBeFalsy();
+	});
+	
+	it(@"should allow you to login with both a username and password", ^{
+		viewController.username = @"johnsmith";
+		viewController.password = @"secret";
+		
+		runRunLoop();
+		
+		expect(viewController.loginEnabled).toBeTruthy();
+	});
+});
+
+SpecEnd

@@ -16,7 +16,6 @@
 		884E04B41505ACF000035AFC /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 884E04B31505ACF000035AFC /* SenTestingKit.framework */; };
 		884E04B51505ACF000035AFC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 884E04951505ACF000035AFC /* Cocoa.framework */; };
 		884E04BD1505ACF000035AFC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 884E04BB1505ACF000035AFC /* InfoPlist.strings */; };
-		884E04C01505ACF000035AFC /* GHAPIDemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 884E04BF1505ACF000035AFC /* GHAPIDemoTests.m */; };
 		884E04E71505AD1600035AFC /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 884E04DD1505AD0D00035AFC /* ReactiveCocoa.framework */; };
 		884E04EB1505AD2E00035AFC /* ReactiveCocoa.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 884E04DD1505AD0D00035AFC /* ReactiveCocoa.framework */; };
 		884E04EF1505AD4F00035AFC /* GHDMainWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 884E04ED1505AD4F00035AFC /* GHDMainWindowController.m */; };
@@ -24,6 +23,9 @@
 		884E04F41505AEB200035AFC /* GHDLoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 884E04F21505AEB200035AFC /* GHDLoginViewController.m */; };
 		884E04F81505B0A000035AFC /* GHDLoginView.m in Sources */ = {isa = PBXBuildFile; fileRef = 884E04F71505B0A000035AFC /* GHDLoginView.m */; };
 		884E04FA1505B0AF00035AFC /* GHDLoginView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 884E04F91505B0AF00035AFC /* GHDLoginView.xib */; };
+		886F988715065C0300A20BE7 /* libExpecta.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 886F986D15065BEF00A20BE7 /* libExpecta.a */; };
+		886F988815065C0300A20BE7 /* libSpecta.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 886F987C15065BF500A20BE7 /* libSpecta.a */; };
+		886F988B15065CB400A20BE7 /* GHDLoginViewSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 886F988A15065CB400A20BE7 /* GHDLoginViewSpec.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +56,76 @@
 			proxyType = 1;
 			remoteGlobalIDString = 88037F8215056328001A5B19;
 			remoteInfo = ReactiveCocoa;
+		};
+		886F986C15065BEF00A20BE7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 886F986515065BEF00A20BE7 /* Expecta.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = E9ACDF0C13B2DD520010F4D7;
+			remoteInfo = Expecta;
+		};
+		886F986E15065BEF00A20BE7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 886F986515065BEF00A20BE7 /* Expecta.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = E93067CE13B2E6D100EA26FF;
+			remoteInfo = "Expecta-iOS";
+		};
+		886F987015065BEF00A20BE7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 886F986515065BEF00A20BE7 /* Expecta.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = E9ACDF1D13B2DD520010F4D7;
+			remoteInfo = ExpectaTests;
+		};
+		886F987215065BEF00A20BE7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 886F986515065BEF00A20BE7 /* Expecta.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = E93067DA13B2E6D100EA26FF;
+			remoteInfo = "Expecta-iOSTests";
+		};
+		886F987B15065BF500A20BE7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 886F987415065BF500A20BE7 /* Specta.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = E9D96A2614B6B8AB007D9521;
+			remoteInfo = Specta;
+		};
+		886F987D15065BF500A20BE7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 886F987415065BF500A20BE7 /* Specta.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = E9B777A414BA294B00D8DC76;
+			remoteInfo = "Specta-iOS";
+		};
+		886F987F15065BF500A20BE7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 886F987415065BF500A20BE7 /* Specta.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = E9D96A3A14B6B8AB007D9521;
+			remoteInfo = SpectaTests;
+		};
+		886F988115065BF500A20BE7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 886F987415065BF500A20BE7 /* Specta.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = E9B777B314BA294C00D8DC76;
+			remoteInfo = "Specta-iOSTests";
+		};
+		886F988315065BF900A20BE7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 886F986515065BEF00A20BE7 /* Expecta.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = E9ACDF0B13B2DD520010F4D7;
+			remoteInfo = Expecta;
+		};
+		886F988515065BFC00A20BE7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 886F987415065BF500A20BE7 /* Specta.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = E9D96A2514B6B8AB007D9521;
+			remoteInfo = Specta;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -88,8 +160,6 @@
 		884E04B31505ACF000035AFC /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		884E04BA1505ACF000035AFC /* GHAPIDemoTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GHAPIDemoTests-Info.plist"; sourceTree = "<group>"; };
 		884E04BC1505ACF000035AFC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		884E04BE1505ACF000035AFC /* GHAPIDemoTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GHAPIDemoTests.h; sourceTree = "<group>"; };
-		884E04BF1505ACF000035AFC /* GHAPIDemoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GHAPIDemoTests.m; sourceTree = "<group>"; };
 		884E04CC1505AD0D00035AFC /* ReactiveCocoa.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ReactiveCocoa.xcodeproj; path = ../ReactiveCocoaFramework/ReactiveCocoa.xcodeproj; sourceTree = "<group>"; };
 		884E04EC1505AD4F00035AFC /* GHDMainWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHDMainWindowController.h; sourceTree = "<group>"; };
 		884E04ED1505AD4F00035AFC /* GHDMainWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHDMainWindowController.m; sourceTree = "<group>"; };
@@ -99,6 +169,9 @@
 		884E04F61505B0A000035AFC /* GHDLoginView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHDLoginView.h; sourceTree = "<group>"; };
 		884E04F71505B0A000035AFC /* GHDLoginView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHDLoginView.m; sourceTree = "<group>"; };
 		884E04F91505B0AF00035AFC /* GHDLoginView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GHDLoginView.xib; sourceTree = "<group>"; };
+		886F986515065BEF00A20BE7 /* Expecta.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Expecta.xcodeproj; path = ../../external/expecta/Expecta.xcodeproj; sourceTree = "<group>"; };
+		886F987415065BF500A20BE7 /* Specta.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Specta.xcodeproj; path = ../../external/specta/Specta.xcodeproj; sourceTree = "<group>"; };
+		886F988A15065CB400A20BE7 /* GHDLoginViewSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHDLoginViewSpec.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -115,6 +188,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				886F988715065C0300A20BE7 /* libExpecta.a in Frameworks */,
+				886F988815065C0300A20BE7 /* libSpecta.a in Frameworks */,
 				884E04B41505ACF000035AFC /* SenTestingKit.framework in Frameworks */,
 				884E04B51505ACF000035AFC /* Cocoa.framework in Frameworks */,
 			);
@@ -197,8 +272,7 @@
 		884E04B81505ACF000035AFC /* GHAPIDemoTests */ = {
 			isa = PBXGroup;
 			children = (
-				884E04BE1505ACF000035AFC /* GHAPIDemoTests.h */,
-				884E04BF1505ACF000035AFC /* GHAPIDemoTests.m */,
+				886F988A15065CB400A20BE7 /* GHDLoginViewSpec.m */,
 				884E04B91505ACF000035AFC /* Supporting Files */,
 			);
 			path = GHAPIDemoTests;
@@ -207,6 +281,8 @@
 		884E04B91505ACF000035AFC /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				886F987415065BF500A20BE7 /* Specta.xcodeproj */,
+				886F986515065BEF00A20BE7 /* Expecta.xcodeproj */,
 				884E04BA1505ACF000035AFC /* GHAPIDemoTests-Info.plist */,
 				884E04BB1505ACF000035AFC /* InfoPlist.strings */,
 			);
@@ -218,6 +294,28 @@
 			children = (
 				884E04DD1505AD0D00035AFC /* ReactiveCocoa.framework */,
 				884E04DF1505AD0D00035AFC /* ReactiveCocoaTests.octest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		886F986615065BEF00A20BE7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				886F986D15065BEF00A20BE7 /* libExpecta.a */,
+				886F986F15065BEF00A20BE7 /* libExpecta-iOS.a */,
+				886F987115065BEF00A20BE7 /* ExpectaTests.octest */,
+				886F987315065BEF00A20BE7 /* Expecta-iOSTests.octest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		886F987515065BF500A20BE7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				886F987C15065BF500A20BE7 /* libSpecta.a */,
+				886F987E15065BF500A20BE7 /* libSpecta-iOS.a */,
+				886F988015065BF500A20BE7 /* SpectaTests.octest */,
+				886F988215065BF500A20BE7 /* Specta-iOSTests.octest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -256,6 +354,8 @@
 			buildRules = (
 			);
 			dependencies = (
+				886F988615065BFC00A20BE7 /* PBXTargetDependency */,
+				886F988415065BF900A20BE7 /* PBXTargetDependency */,
 				884E04B71505ACF000035AFC /* PBXTargetDependency */,
 			);
 			name = GHAPIDemoTests;
@@ -284,8 +384,16 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
+					ProductGroup = 886F986615065BEF00A20BE7 /* Products */;
+					ProjectRef = 886F986515065BEF00A20BE7 /* Expecta.xcodeproj */;
+				},
+				{
 					ProductGroup = 884E04CD1505AD0D00035AFC /* Products */;
 					ProjectRef = 884E04CC1505AD0D00035AFC /* ReactiveCocoa.xcodeproj */;
+				},
+				{
+					ProductGroup = 886F987515065BF500A20BE7 /* Products */;
+					ProjectRef = 886F987415065BF500A20BE7 /* Specta.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -309,6 +417,62 @@
 			fileType = wrapper.cfbundle;
 			path = ReactiveCocoaTests.octest;
 			remoteRef = 884E04DE1505AD0D00035AFC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		886F986D15065BEF00A20BE7 /* libExpecta.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libExpecta.a;
+			remoteRef = 886F986C15065BEF00A20BE7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		886F986F15065BEF00A20BE7 /* libExpecta-iOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libExpecta-iOS.a";
+			remoteRef = 886F986E15065BEF00A20BE7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		886F987115065BEF00A20BE7 /* ExpectaTests.octest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = ExpectaTests.octest;
+			remoteRef = 886F987015065BEF00A20BE7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		886F987315065BEF00A20BE7 /* Expecta-iOSTests.octest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = "Expecta-iOSTests.octest";
+			remoteRef = 886F987215065BEF00A20BE7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		886F987C15065BF500A20BE7 /* libSpecta.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSpecta.a;
+			remoteRef = 886F987B15065BF500A20BE7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		886F987E15065BF500A20BE7 /* libSpecta-iOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libSpecta-iOS.a";
+			remoteRef = 886F987D15065BF500A20BE7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		886F988015065BF500A20BE7 /* SpectaTests.octest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = SpectaTests.octest;
+			remoteRef = 886F987F15065BF500A20BE7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		886F988215065BF500A20BE7 /* Specta-iOSTests.octest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = "Specta-iOSTests.octest";
+			remoteRef = 886F988115065BF500A20BE7 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -369,7 +533,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				884E04C01505ACF000035AFC /* GHAPIDemoTests.m in Sources */,
+				886F988B15065CB400A20BE7 /* GHDLoginViewSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -385,6 +549,16 @@
 			isa = PBXTargetDependency;
 			name = ReactiveCocoa;
 			targetProxy = 884E04E81505AD1F00035AFC /* PBXContainerItemProxy */;
+		};
+		886F988415065BF900A20BE7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Expecta;
+			targetProxy = 886F988315065BF900A20BE7 /* PBXContainerItemProxy */;
+		};
+		886F988615065BFC00A20BE7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Specta;
+			targetProxy = 886F988515065BFC00A20BE7 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -448,6 +622,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				VALID_ARCHS = x86_64;
 			};
 			name = Debug;
 		};
@@ -468,6 +643,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				SDKROOT = macosx;
+				VALID_ARCHS = x86_64;
 			};
 			name = Release;
 		};
@@ -500,7 +676,12 @@
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "GHAPIDemo/GHAPIDemo-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"\"$(PROJECT_DIR)/../external/specta/src\"",
+					"\"$(PROJECT_DIR)/../external/expecta/src\"/**",
+				);
 				INFOPLIST_FILE = "GHAPIDemoTests/GHAPIDemoTests-Info.plist";
+				OTHER_LDFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = octest;
@@ -514,7 +695,12 @@
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "GHAPIDemo/GHAPIDemo-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"\"$(PROJECT_DIR)/../external/specta/src\"",
+					"\"$(PROJECT_DIR)/../external/expecta/src\"/**",
+				);
 				INFOPLIST_FILE = "GHAPIDemoTests/GHAPIDemoTests-Info.plist";
+				OTHER_LDFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = octest;

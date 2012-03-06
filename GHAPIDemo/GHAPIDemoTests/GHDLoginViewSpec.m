@@ -32,7 +32,7 @@ describe(@"validation", ^{
 		
 		runRunLoop();
 		
-		expect([viewController.loginCommand canExecute:nil]).toBeFalsy();
+		expect(viewController.loginEnabled).toBeFalsy();
 	});
 	
 	it(@"shouldn't allow you to login with only a password", ^{
@@ -41,7 +41,7 @@ describe(@"validation", ^{
 		
 		runRunLoop();
 		
-		expect([viewController.loginCommand canExecute:nil]).toBeFalsy();
+		expect(viewController.loginEnabled).toBeFalsy();
 	});
 	
 	it(@"shouldn't allow you to login without both a username and password", ^{
@@ -50,7 +50,7 @@ describe(@"validation", ^{
 		
 		runRunLoop();
 		
-		expect([viewController.loginCommand canExecute:nil]).toBeFalsy();
+		expect(viewController.loginEnabled).toBeFalsy();
 	});
 	
 	it(@"should allow you to login with both a username and password", ^{
@@ -59,7 +59,7 @@ describe(@"validation", ^{
 		
 		runRunLoop();
 		
-		expect([viewController.loginCommand canExecute:nil]).toBeTruthy();
+		expect(viewController.loginEnabled).toBeTruthy();
 	});
 });
 

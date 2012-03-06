@@ -8,6 +8,7 @@
 
 #import "RACAsyncCommand.h"
 #import "RACSequence+Private.h"
+#import "NSObject+RACPropertyObserving.h"
 
 @interface RACAsyncCommandPair : NSObject
 
@@ -105,6 +106,16 @@
 	}
 	
 	return asyncFunctionPairs;
+}
+
+- (void)setQueue:(NSOperationQueue *)q {
+	if(queue == q) return;
+	
+	queue = q;
+	
+	[[RACObservable(self.queue.operationCount) 
+		select:^(id _) { return [NSNumber numberWithBool:self.queue.operationCount < self.maxConcurrent]; }] 
+		toSequence:self.canExecuteValue];
 }
 
 @end

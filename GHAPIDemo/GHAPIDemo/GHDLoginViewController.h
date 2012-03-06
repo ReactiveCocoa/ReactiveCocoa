@@ -18,6 +18,7 @@
 @property (nonatomic, copy) NSString *password;
 @property (nonatomic, assign, readonly) BOOL successHidden;
 @property (nonatomic, assign, readonly) BOOL loginFailedHidden;
+@property (nonatomic, assign, readonly) BOOL loginEnabled;
 @property (nonatomic, strong, readonly) RACAsyncCommand *loginCommand;
 
 @end

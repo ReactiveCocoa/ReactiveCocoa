@@ -12,6 +12,7 @@
 @interface GHDLoginViewController ()
 @property (nonatomic, assign) BOOL successHidden;
 @property (nonatomic, assign) BOOL loginFailedHidden;
+@property (nonatomic, assign) BOOL loginEnabled;
 @property (nonatomic, strong) RACAsyncCommand *loginCommand;
 @property (nonatomic, strong) GHDLoginView *view;
 @end
@@ -27,12 +28,11 @@
 	self.successHidden = YES;
 	
 	self.loginCommand = [RACAsyncCommand command];
-	self.loginCommand.canExecuteValue = [RACValue valueWithValue:[NSNumber numberWithBool:NO]];
 	
 	[[[RACSequence 
-		combineLatest:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), nil]]
-		select:^(NSArray *x) { return [NSNumber numberWithBool:[[x objectAtIndex:0] length] > 0 && [[x objectAtIndex:1] length] > 0]; }] 
-		toSequence:self.loginCommand.canExecuteValue];
+		combineLatest:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), self.loginCommand.canExecuteValue, nil]]
+		select:^(NSArray *x) { return [NSNumber numberWithBool:[[x objectAtIndex:0] length] > 0 && [[x objectAtIndex:1] length] > 0 && [[x objectAtIndex:2] boolValue]]; }] 
+		toObject:self keyPath:RACKVO(self.loginEnabled)];
 	
 	__block BOOL didLoginLastTime = NO;
 	RACValue *result = [self.loginCommand addAsyncFunction:^(id value, NSError **error) {
@@ -40,7 +40,7 @@
 		
 		// TODO: actually attempt to auth
 		
-		[NSThread sleepForTimeInterval:5.0f];
+		[NSThread sleepForTimeInterval:3.0f];
 		NSNumber *didLogin = [NSNumber numberWithBool:!didLoginLastTime];
 		didLoginLastTime = !didLoginLastTime;
 		return didLogin;
@@ -73,6 +73,7 @@
 	
 	[self.view.successTextField bind:NSHiddenBinding toObject:self withKeyPath:RACKVO(self.successHidden)];
 	[self.view.couldNotLoginTextField bind:NSHiddenBinding toObject:self withKeyPath:RACKVO(self.loginFailedHidden)];
+	[self.view.loginButton bind:NSEnabledBinding toObject:self withKeyPath:RACKVO(self.loginEnabled)];
 	
 	[self.view.loginButton addCommand:self.loginCommand];
 }
@@ -86,5 +87,6 @@
 @synthesize successHidden;
 @synthesize loginFailedHidden;
 @synthesize loginCommand;
+@synthesize loginEnabled;
 
 @end

@@ -76,6 +76,9 @@
 // Adds the last added object to the given sequence and returns self.
 - (RACSequence *)toSequence:(RACSequence *)property;
 
+// Sets the last added object to the value of the given key path and returns self.
+- (RACSequence *)toObject:(NSObject *)object keyPath:(NSString *)keyPath;
+
 // Returns a sequence that adds objects from the receiver only if they're not equal to the last added object added to the sequence.
 - (RACSequence *)distinctUntilChanged;
 

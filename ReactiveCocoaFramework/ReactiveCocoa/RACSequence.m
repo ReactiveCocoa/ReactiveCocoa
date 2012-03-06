@@ -261,6 +261,16 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return self;
 }
 
+- (RACSequence *)toObject:(NSObject *)object keyPath:(NSString *)keyPath {
+	NSParameterAssert(keyPath != nil);
+	
+	[self subscribeNext:^(id x) {
+		[object setValue:x forKeyPath:keyPath];
+	}];
+	
+	return self;
+}
+
 - (RACSequence *)distinctUntilChanged {
 	RACSequence *distinct = [RACSequence sequence];
 	[self subscribeNext:^(id x) {

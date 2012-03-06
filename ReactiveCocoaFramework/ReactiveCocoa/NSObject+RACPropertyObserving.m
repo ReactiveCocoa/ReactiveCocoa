@@ -45,4 +45,8 @@ static const NSUInteger RACObservableSequenceCountThreshold = 100; // I dunno
 	[self bind:binding toObject:value withKeyPath:@"value" options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nil]];
 }
 
+- (void)bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath {
+	[self bind:binding toObject:object withKeyPath:keyPath options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nil]];
+}
+
 @end

@@ -26,4 +26,7 @@
 // Bind the given binding to the value.
 - (void)bind:(NSString *)binding toValue:(RACValue *)value;
 
+// Calls -[NSObject bind:binding toObject:object withKeyPath:keyPath options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nil]]
+- (void)bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath;
+
 @end

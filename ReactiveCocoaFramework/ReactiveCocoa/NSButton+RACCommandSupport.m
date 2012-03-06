@@ -45,7 +45,7 @@ static void * NSButtonRACEnabledValueKey = &NSButtonRACEnabledValueKey;
 			  
 			  return [NSNumber numberWithBool:enabled];
 		  }]
-		 toProperty:self.enabledValue];
+		 toSequence:self.enabledValue];
 		
 		[self bind:NSEnabledBinding toValue:self.enabledValue];
 		[self setEnabled:[self.enabledValue.value boolValue]];

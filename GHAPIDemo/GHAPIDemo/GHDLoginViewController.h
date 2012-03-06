@@ -16,8 +16,8 @@
 
 @property (nonatomic, copy) NSString *username;
 @property (nonatomic, copy) NSString *password;
-@property (nonatomic, strong) RACValue *successHiddenValue;
-@property (nonatomic, strong) RACValue *loginFailedHiddenValue;
-@property (nonatomic, strong) RACAsyncCommand *loginCommand;
+@property (nonatomic, assign, readonly) BOOL successHidden;
+@property (nonatomic, assign, readonly) BOOL loginFailedHidden;
+@property (nonatomic, strong, readonly) RACAsyncCommand *loginCommand;
 
 @end

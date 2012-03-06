@@ -12,10 +12,20 @@
 @interface RACCommand ()
 @property (nonatomic, copy) BOOL (^canExecuteBlock)(id value);
 @property (nonatomic, copy) void (^executeBlock)(id value);
+@property (nonatomic, strong) RACValue *canExecuteValue;
 @end
 
 
 @implementation RACCommand
+
+- (id)init {
+	self = [super init];
+	if(self == nil) return nil;
+	
+	self.canExecuteValue = [RACValue valueWithValue:[NSNumber numberWithBool:YES]];
+	
+	return self;
+}
 
 
 #pragma mark API

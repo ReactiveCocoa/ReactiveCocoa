@@ -15,7 +15,7 @@
 - (id<RACQueryable>)select:(id (^)(id x))block;
 - (id<RACQueryable>)throttle:(NSTimeInterval)interval;
 + (id<RACQueryable>)combineLatest:(NSArray *)queryables;
-- (id<RACQueryable>)toProperty:(id)property;
+- (id<RACQueryable>)toSequence:(id)property;
 + (id<RACQueryable>)combineLatest:(NSArray *)queryables;
 + (id<RACQueryable>)merge:(NSArray *)queryables;
 - (id<RACQueryable>)distinctUntilChanged;

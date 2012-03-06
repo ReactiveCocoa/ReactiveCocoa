@@ -73,8 +73,8 @@
 // Returns a sequence that adds the latest object any time any of the given sequences are added to.
 + (RACSequence *)merge:(NSArray *)sequences;
 
-// Adds the last added object to the given sequence.
-- (RACSequence *)toProperty:(RACSequence *)property;
+// Adds the last added object to the given sequence and returns self.
+- (RACSequence *)toSequence:(RACSequence *)property;
 
 // Returns a sequence that adds objects from the receiver only if they're not equal to the last added object added to the sequence.
 - (RACSequence *)distinctUntilChanged;

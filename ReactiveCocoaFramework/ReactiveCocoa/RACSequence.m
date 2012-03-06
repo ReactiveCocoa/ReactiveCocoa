@@ -251,7 +251,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return unified;
 }
 
-- (RACSequence *)toProperty:(RACSequence *)property {
+- (RACSequence *)toSequence:(RACSequence *)property {
 	NSParameterAssert(property != nil);
 	
 	[self subscribeNext:^(id x) {

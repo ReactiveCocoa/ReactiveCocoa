@@ -1,0 +1,539 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		884E04961505ACF000035AFC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 884E04951505ACF000035AFC /* Cocoa.framework */; };
+		884E04A01505ACF000035AFC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 884E049E1505ACF000035AFC /* InfoPlist.strings */; };
+		884E04A21505ACF000035AFC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 884E04A11505ACF000035AFC /* main.m */; };
+		884E04A61505ACF000035AFC /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 884E04A41505ACF000035AFC /* Credits.rtf */; };
+		884E04A91505ACF000035AFC /* GHDAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 884E04A81505ACF000035AFC /* GHDAppDelegate.m */; };
+		884E04AC1505ACF000035AFC /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 884E04AA1505ACF000035AFC /* MainMenu.xib */; };
+		884E04B41505ACF000035AFC /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 884E04B31505ACF000035AFC /* SenTestingKit.framework */; };
+		884E04B51505ACF000035AFC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 884E04951505ACF000035AFC /* Cocoa.framework */; };
+		884E04BD1505ACF000035AFC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 884E04BB1505ACF000035AFC /* InfoPlist.strings */; };
+		884E04C01505ACF000035AFC /* GHAPIDemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 884E04BF1505ACF000035AFC /* GHAPIDemoTests.m */; };
+		884E04E71505AD1600035AFC /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 884E04DD1505AD0D00035AFC /* ReactiveCocoa.framework */; };
+		884E04EB1505AD2E00035AFC /* ReactiveCocoa.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 884E04DD1505AD0D00035AFC /* ReactiveCocoa.framework */; };
+		884E04EF1505AD4F00035AFC /* GHDMainWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 884E04ED1505AD4F00035AFC /* GHDMainWindowController.m */; };
+		884E04F01505AD4F00035AFC /* GHDMainWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 884E04EE1505AD4F00035AFC /* GHDMainWindowController.xib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		884E04B61505ACF000035AFC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 884E04881505ACEF00035AFC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 884E04901505ACF000035AFC;
+			remoteInfo = GHAPIDemo;
+		};
+		884E04DC1505AD0D00035AFC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 884E04CC1505AD0D00035AFC /* ReactiveCocoa.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 88037F8315056328001A5B19;
+			remoteInfo = ReactiveCocoa;
+		};
+		884E04DE1505AD0D00035AFC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 884E04CC1505AD0D00035AFC /* ReactiveCocoa.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 88CDF7DC15000FCF00163A9F;
+			remoteInfo = ReactiveCocoaTests;
+		};
+		884E04E81505AD1F00035AFC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 884E04CC1505AD0D00035AFC /* ReactiveCocoa.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 88037F8215056328001A5B19;
+			remoteInfo = ReactiveCocoa;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		884E04EA1505AD2500035AFC /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				884E04EB1505AD2E00035AFC /* ReactiveCocoa.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		884E04911505ACF000035AFC /* GHAPIDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GHAPIDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		884E04951505ACF000035AFC /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		884E04981505ACF000035AFC /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		884E04991505ACF000035AFC /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		884E049A1505ACF000035AFC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		884E049D1505ACF000035AFC /* GHAPIDemo-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GHAPIDemo-Info.plist"; sourceTree = "<group>"; };
+		884E049F1505ACF000035AFC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		884E04A11505ACF000035AFC /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		884E04A31505ACF000035AFC /* GHAPIDemo-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "GHAPIDemo-Prefix.pch"; sourceTree = "<group>"; };
+		884E04A51505ACF000035AFC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
+		884E04A71505ACF000035AFC /* GHDAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GHDAppDelegate.h; sourceTree = "<group>"; };
+		884E04A81505ACF000035AFC /* GHDAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GHDAppDelegate.m; sourceTree = "<group>"; };
+		884E04AB1505ACF000035AFC /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		884E04B21505ACF000035AFC /* GHAPIDemoTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GHAPIDemoTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		884E04B31505ACF000035AFC /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
+		884E04BA1505ACF000035AFC /* GHAPIDemoTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GHAPIDemoTests-Info.plist"; sourceTree = "<group>"; };
+		884E04BC1505ACF000035AFC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		884E04BE1505ACF000035AFC /* GHAPIDemoTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GHAPIDemoTests.h; sourceTree = "<group>"; };
+		884E04BF1505ACF000035AFC /* GHAPIDemoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GHAPIDemoTests.m; sourceTree = "<group>"; };
+		884E04CC1505AD0D00035AFC /* ReactiveCocoa.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ReactiveCocoa.xcodeproj; path = ../ReactiveCocoaFramework/ReactiveCocoa.xcodeproj; sourceTree = "<group>"; };
+		884E04EC1505AD4F00035AFC /* GHDMainWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHDMainWindowController.h; sourceTree = "<group>"; };
+		884E04ED1505AD4F00035AFC /* GHDMainWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHDMainWindowController.m; sourceTree = "<group>"; };
+		884E04EE1505AD4F00035AFC /* GHDMainWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GHDMainWindowController.xib; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		884E048E1505ACF000035AFC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				884E04E71505AD1600035AFC /* ReactiveCocoa.framework in Frameworks */,
+				884E04961505ACF000035AFC /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		884E04AE1505ACF000035AFC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				884E04B41505ACF000035AFC /* SenTestingKit.framework in Frameworks */,
+				884E04B51505ACF000035AFC /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		884E04861505ACEF00035AFC = {
+			isa = PBXGroup;
+			children = (
+				884E049B1505ACF000035AFC /* GHAPIDemo */,
+				884E04B81505ACF000035AFC /* GHAPIDemoTests */,
+				884E04941505ACF000035AFC /* Frameworks */,
+				884E04921505ACF000035AFC /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		884E04921505ACF000035AFC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				884E04911505ACF000035AFC /* GHAPIDemo.app */,
+				884E04B21505ACF000035AFC /* GHAPIDemoTests.octest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		884E04941505ACF000035AFC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				884E04CC1505AD0D00035AFC /* ReactiveCocoa.xcodeproj */,
+				884E04951505ACF000035AFC /* Cocoa.framework */,
+				884E04B31505ACF000035AFC /* SenTestingKit.framework */,
+				884E04971505ACF000035AFC /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		884E04971505ACF000035AFC /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				884E04981505ACF000035AFC /* AppKit.framework */,
+				884E04991505ACF000035AFC /* CoreData.framework */,
+				884E049A1505ACF000035AFC /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		884E049B1505ACF000035AFC /* GHAPIDemo */ = {
+			isa = PBXGroup;
+			children = (
+				884E04A71505ACF000035AFC /* GHDAppDelegate.h */,
+				884E04A81505ACF000035AFC /* GHDAppDelegate.m */,
+				884E04AA1505ACF000035AFC /* MainMenu.xib */,
+				884E04EC1505AD4F00035AFC /* GHDMainWindowController.h */,
+				884E04ED1505AD4F00035AFC /* GHDMainWindowController.m */,
+				884E04EE1505AD4F00035AFC /* GHDMainWindowController.xib */,
+				884E049C1505ACF000035AFC /* Supporting Files */,
+			);
+			path = GHAPIDemo;
+			sourceTree = "<group>";
+		};
+		884E049C1505ACF000035AFC /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				884E049D1505ACF000035AFC /* GHAPIDemo-Info.plist */,
+				884E049E1505ACF000035AFC /* InfoPlist.strings */,
+				884E04A11505ACF000035AFC /* main.m */,
+				884E04A31505ACF000035AFC /* GHAPIDemo-Prefix.pch */,
+				884E04A41505ACF000035AFC /* Credits.rtf */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		884E04B81505ACF000035AFC /* GHAPIDemoTests */ = {
+			isa = PBXGroup;
+			children = (
+				884E04BE1505ACF000035AFC /* GHAPIDemoTests.h */,
+				884E04BF1505ACF000035AFC /* GHAPIDemoTests.m */,
+				884E04B91505ACF000035AFC /* Supporting Files */,
+			);
+			path = GHAPIDemoTests;
+			sourceTree = "<group>";
+		};
+		884E04B91505ACF000035AFC /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				884E04BA1505ACF000035AFC /* GHAPIDemoTests-Info.plist */,
+				884E04BB1505ACF000035AFC /* InfoPlist.strings */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		884E04CD1505AD0D00035AFC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				884E04DD1505AD0D00035AFC /* ReactiveCocoa.framework */,
+				884E04DF1505AD0D00035AFC /* ReactiveCocoaTests.octest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		884E04901505ACF000035AFC /* GHAPIDemo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 884E04C31505ACF000035AFC /* Build configuration list for PBXNativeTarget "GHAPIDemo" */;
+			buildPhases = (
+				884E048D1505ACF000035AFC /* Sources */,
+				884E048E1505ACF000035AFC /* Frameworks */,
+				884E048F1505ACF000035AFC /* Resources */,
+				884E04EA1505AD2500035AFC /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				884E04E91505AD1F00035AFC /* PBXTargetDependency */,
+			);
+			name = GHAPIDemo;
+			productName = GHAPIDemo;
+			productReference = 884E04911505ACF000035AFC /* GHAPIDemo.app */;
+			productType = "com.apple.product-type.application";
+		};
+		884E04B11505ACF000035AFC /* GHAPIDemoTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 884E04C61505ACF000035AFC /* Build configuration list for PBXNativeTarget "GHAPIDemoTests" */;
+			buildPhases = (
+				884E04AD1505ACF000035AFC /* Sources */,
+				884E04AE1505ACF000035AFC /* Frameworks */,
+				884E04AF1505ACF000035AFC /* Resources */,
+				884E04B01505ACF000035AFC /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				884E04B71505ACF000035AFC /* PBXTargetDependency */,
+			);
+			name = GHAPIDemoTests;
+			productName = GHAPIDemoTests;
+			productReference = 884E04B21505ACF000035AFC /* GHAPIDemoTests.octest */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		884E04881505ACEF00035AFC /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = GHD;
+				LastUpgradeCheck = 0430;
+			};
+			buildConfigurationList = 884E048B1505ACEF00035AFC /* Build configuration list for PBXProject "GHAPIDemo" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 884E04861505ACEF00035AFC;
+			productRefGroup = 884E04921505ACF000035AFC /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 884E04CD1505AD0D00035AFC /* Products */;
+					ProjectRef = 884E04CC1505AD0D00035AFC /* ReactiveCocoa.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				884E04901505ACF000035AFC /* GHAPIDemo */,
+				884E04B11505ACF000035AFC /* GHAPIDemoTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		884E04DD1505AD0D00035AFC /* ReactiveCocoa.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = ReactiveCocoa.framework;
+			remoteRef = 884E04DC1505AD0D00035AFC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		884E04DF1505AD0D00035AFC /* ReactiveCocoaTests.octest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = ReactiveCocoaTests.octest;
+			remoteRef = 884E04DE1505AD0D00035AFC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		884E048F1505ACF000035AFC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				884E04A01505ACF000035AFC /* InfoPlist.strings in Resources */,
+				884E04A61505ACF000035AFC /* Credits.rtf in Resources */,
+				884E04AC1505ACF000035AFC /* MainMenu.xib in Resources */,
+				884E04F01505AD4F00035AFC /* GHDMainWindowController.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		884E04AF1505ACF000035AFC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				884E04BD1505ACF000035AFC /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		884E04B01505ACF000035AFC /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		884E048D1505ACF000035AFC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				884E04A21505ACF000035AFC /* main.m in Sources */,
+				884E04A91505ACF000035AFC /* GHDAppDelegate.m in Sources */,
+				884E04EF1505AD4F00035AFC /* GHDMainWindowController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		884E04AD1505ACF000035AFC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				884E04C01505ACF000035AFC /* GHAPIDemoTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		884E04B71505ACF000035AFC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 884E04901505ACF000035AFC /* GHAPIDemo */;
+			targetProxy = 884E04B61505ACF000035AFC /* PBXContainerItemProxy */;
+		};
+		884E04E91505AD1F00035AFC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = ReactiveCocoa;
+			targetProxy = 884E04E81505AD1F00035AFC /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		884E049E1505ACF000035AFC /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				884E049F1505ACF000035AFC /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		884E04A41505ACF000035AFC /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				884E04A51505ACF000035AFC /* en */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		884E04AA1505ACF000035AFC /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				884E04AB1505ACF000035AFC /* en */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+		884E04BB1505ACF000035AFC /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				884E04BC1505ACF000035AFC /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		884E04C11505ACF000035AFC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		884E04C21505ACF000035AFC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		884E04C41505ACF000035AFC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "GHAPIDemo/GHAPIDemo-Prefix.pch";
+				INFOPLIST_FILE = "GHAPIDemo/GHAPIDemo-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		884E04C51505ACF000035AFC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "GHAPIDemo/GHAPIDemo-Prefix.pch";
+				INFOPLIST_FILE = "GHAPIDemo/GHAPIDemo-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		884E04C71505ACF000035AFC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/GHAPIDemo.app/Contents/MacOS/GHAPIDemo";
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "GHAPIDemo/GHAPIDemo-Prefix.pch";
+				INFOPLIST_FILE = "GHAPIDemoTests/GHAPIDemoTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Debug;
+		};
+		884E04C81505ACF000035AFC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/GHAPIDemo.app/Contents/MacOS/GHAPIDemo";
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "GHAPIDemo/GHAPIDemo-Prefix.pch";
+				INFOPLIST_FILE = "GHAPIDemoTests/GHAPIDemoTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		884E048B1505ACEF00035AFC /* Build configuration list for PBXProject "GHAPIDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				884E04C11505ACF000035AFC /* Debug */,
+				884E04C21505ACF000035AFC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		884E04C31505ACF000035AFC /* Build configuration list for PBXNativeTarget "GHAPIDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				884E04C41505ACF000035AFC /* Debug */,
+				884E04C51505ACF000035AFC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		884E04C61505ACF000035AFC /* Build configuration list for PBXNativeTarget "GHAPIDemoTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				884E04C71505ACF000035AFC /* Debug */,
+				884E04C81505ACF000035AFC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 884E04881505ACEF00035AFC /* Project object */;
+}

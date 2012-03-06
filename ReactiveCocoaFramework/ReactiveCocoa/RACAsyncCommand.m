@@ -13,9 +13,10 @@
 @interface RACAsyncCommandPair : NSObject
 
 @property (nonatomic, copy) id (^block)(id value, NSError **error);
+@property (nonatomic, strong) NSOperation<RACAsyncCommandOperation> *operation;
 @property (nonatomic, strong) RACValue *value;
 
-+ (id)pairWithBlock:(id (^)(id value, NSError **error))block value:(RACValue *)value;
++ (id)pair;
 
 @end
 
@@ -56,21 +57,33 @@
 		NSAssert(self.queue != nil, @"Queue cannot be nil.");
 	}
 	
-	[self.queue addOperationWithBlock:^{
-		for(RACAsyncCommandPair *pair in self.asyncFunctionPairs) {
-			NSError *error = nil;
-			id returnedValue = pair.block(value, &error);
-			[[NSOperationQueue mainQueue] addOperationWithBlock:^{
-				if(returnedValue != nil) {
-					pair.value.value = returnedValue;
-				} else {
-					[pair.value sendErrorToAllObservers:error];
-				}
-				
-				[pair.value sendCompletedToAllObservers];
+	void (^finish)(RACValue *value, id returnedValue, NSError *error) = ^(RACValue *value, id returnedValue, NSError *error) {
+		[[NSOperationQueue mainQueue] addOperationWithBlock:^{
+			if(returnedValue != nil) {
+				value.value = returnedValue;
+			} else {
+				[value sendErrorToAllObservers:error];
+			}
+			
+			[value sendCompletedToAllObservers];
+		}];
+	};
+	
+	for(RACAsyncCommandPair *pair in self.asyncFunctionPairs) {
+		if(pair.block != NULL) {
+			[self.queue addOperationWithBlock:^{
+				NSError *error = nil;
+				id returnedValue = pair.block(value, &error);
+				finish(value, returnedValue, error);
 			}];
+		} else if(pair.operation != nil) {
+			pair.operation.RACAsyncCallback = ^(id returnedValue, NSError *error) {
+				finish(pair.value, returnedValue, error);
+			};
+			
+			[self.queue addOperation:pair.operation];
 		}
-	}];
+	}
 }
 
 
@@ -95,7 +108,20 @@
 	NSParameterAssert(block != NULL);
 	
 	RACValue *value = [RACValue value];
-	RACAsyncCommandPair *pair = [RACAsyncCommandPair pairWithBlock:block value:value];
+	RACAsyncCommandPair *pair = [RACAsyncCommandPair pair];
+	pair.block = block;
+	pair.value = value;
+	[self.asyncFunctionPairs addObject:pair];
+	return value;
+}
+
+- (RACValue *)addOperation:(NSOperation<RACAsyncCommandOperation> *)operation {
+	NSParameterAssert(operation != nil);
+	
+	RACValue *value = [RACValue value];
+	RACAsyncCommandPair *pair = [RACAsyncCommandPair pair];
+	pair.operation = operation;
+	pair.value = value;
 	[self.asyncFunctionPairs addObject:pair];
 	return value;
 }
@@ -128,12 +154,10 @@
 
 @synthesize block;
 @synthesize value;
+@synthesize operation;
 
-+ (id)pairWithBlock:(id (^)(id value, NSError **error))block value:(RACValue *)value {
-	RACAsyncCommandPair *pair = [[self alloc] init];
-	pair.block = block;
-	pair.value = value;
-	return pair;
++ (id)pair {
+	return [[self alloc] init];
 }
 
 @end

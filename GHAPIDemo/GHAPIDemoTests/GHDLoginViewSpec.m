@@ -61,6 +61,19 @@ describe(@"validation", ^{
 		
 		expect(viewController.loginEnabled).toBeTruthy();
 	});
+	
+	it(@"shouldn't allow you to login when login is executing", ^{
+		viewController.username = @"johnsmith";
+		viewController.password = @"secret";
+		
+		runRunLoop();
+		
+		[viewController.loginCommand execute:nil];
+		
+		runRunLoop();
+		
+		expect(viewController.loginEnabled).toBeFalsy();
+	});
 });
 
 SpecEnd

@@ -20,12 +20,8 @@
 	self = [super init];
 	if(self == nil) return nil;
 	
-	[[[RACSequence 
-		combineLatest:[NSArray arrayWithObjects:[self RACValueForKeyPath:RACKVO(self.username)], [self RACValueForKeyPath:RACKVO(self.password)], nil]]
-		select:^(NSArray *x) { return [NSNumber numberWithBool:[[x objectAtIndex:0] length] > 0 && [[x objectAtIndex:1] length] > 0]; }] 
-		toObject:self keyPath:RACKVO(self.loginEnabled)];
-	
-	self.loginCommand = [RACAsyncCommand commandWithCanExecute:^(id _) { return self.loginEnabled; } execute:NULL];
+	self.loginCommand = [RACAsyncCommand command];
+	self.loginCommand.canExecuteValue = [RACValue valueWithValue:[NSNumber numberWithBool:NO]];
 	
 	__block BOOL didLoginLastTime = NO;
 	RACValue *result = [self.loginCommand addAsyncFunction:^(id value, NSError **error) {
@@ -38,6 +34,11 @@
 		didLoginLastTime = !didLoginLastTime;
 		return didLogin;
 	}];
+	
+	[[[RACSequence 
+		combineLatest:[NSArray arrayWithObjects:[self RACValueForKeyPath:RACKVO(self.username)], [self RACValueForKeyPath:RACKVO(self.password)], nil]]
+		select:^(NSArray *x) { return [NSNumber numberWithBool:[[x objectAtIndex:0] length] > 0 && [[x objectAtIndex:1] length] > 0]; }] 
+		toSequence:self.loginCommand.canExecuteValue];
 	
 	[[[[[result 
 		subscribeNext:^(id x) { NSLog(@"could login: %@", x); }] 
@@ -63,7 +64,6 @@
 	
 	[self.view.usernameTextField bind:NSValueBinding toObject:self withKeyPath:RACKVO(self.username) options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nil]];
 	[self.view.passwordTextField bind:NSValueBinding toObject:self withKeyPath:RACKVO(self.password) options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nil]];
-	[self.view.loginButton bind:NSEnabledBinding toObject:self withKeyPath:RACKVO(self.loginEnabled) options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nil]];
 	
 	[self.view.successTextField bind:NSHiddenBinding toValue:self.successHiddenValue];
 	[self.view.couldNotLoginTextField bind:NSHiddenBinding toValue:self.loginFailedHiddenValue];
@@ -76,7 +76,6 @@
 
 @synthesize username;
 @synthesize password;
-@synthesize loginEnabled;
 @dynamic view;
 rac_synthesize_val(successHiddenValue, [NSNumber numberWithBool:YES]);
 rac_synthesize_val(loginFailedHiddenValue, [NSNumber numberWithBool:YES]);

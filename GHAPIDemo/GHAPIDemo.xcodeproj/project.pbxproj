@@ -540,6 +540,7 @@
 				884E04C51505ACF000035AFC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		884E04C61505ACF000035AFC /* Build configuration list for PBXNativeTarget "GHAPIDemoTests" */ = {
 			isa = XCConfigurationList;
@@ -548,6 +549,7 @@
 				884E04C81505ACF000035AFC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

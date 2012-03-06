@@ -26,6 +26,7 @@
 	
 	self.loginFailedHidden = YES;
 	self.successHidden = YES;
+	self.loginEnabled = YES;
 	
 	self.loginCommand = [RACAsyncCommand command];
 	

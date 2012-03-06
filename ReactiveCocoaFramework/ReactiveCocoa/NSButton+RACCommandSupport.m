@@ -13,11 +13,9 @@
 #import <objc/runtime.h>
 
 static void * NSButtonRACCommandsKey = &NSButtonRACCommandsKey;
-static void * NSButtonRACEnabledValueKey = &NSButtonRACEnabledValueKey;
 
 @interface NSButton ()
 @property (nonatomic, readonly) NSMutableArray *commands;
-@property (nonatomic, strong) RACValue *enabledValue;
 @end
 
 
@@ -27,29 +25,6 @@ static void * NSButtonRACEnabledValueKey = &NSButtonRACEnabledValueKey;
 	NSParameterAssert(command != nil);
 	
 	[self.commands addObject:command];
-	
-	self.enabledValue = [RACValue value];
-	NSMutableArray *canExecuteValues = [NSMutableArray arrayWithCapacity:self.commands.count];
-	for(RACCommand *command in self.commands) {
-		if(command.canExecuteValue != nil) [canExecuteValues addObject:command.canExecuteValue];
-	}
-	
-	if(canExecuteValues.count > 0) {
-		[[[RACValue 
-		   combineLatest:canExecuteValues]
-		  select:^(NSArray *x) {
-			  BOOL enabled = YES;
-			  for(id v in x) {
-				  enabled = enabled && [v boolValue];
-			  }
-			  
-			  return [NSNumber numberWithBool:enabled];
-		  }]
-		 toSequence:self.enabledValue];
-		
-		[self bind:NSEnabledBinding toValue:self.enabledValue];
-		[self setEnabled:[self.enabledValue.value boolValue]];
-	}
 	
 	[self hijackActionAndTargetIfNeeded];
 }
@@ -80,14 +55,6 @@ static void * NSButtonRACEnabledValueKey = &NSButtonRACEnabledValueKey;
 	}
 	
 	return c;
-}
-
-- (void)setEnabledValue:(RACValue *)ev {
-	objc_setAssociatedObject(self, NSButtonRACEnabledValueKey, ev, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (RACValue *)enabledValue {
-	return objc_getAssociatedObject(self, NSButtonRACEnabledValueKey);
 }
 
 @end

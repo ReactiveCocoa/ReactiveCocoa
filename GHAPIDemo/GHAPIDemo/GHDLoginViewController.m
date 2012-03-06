@@ -38,7 +38,7 @@
 	[[[RACSequence 
 		combineLatest:[NSArray arrayWithObjects:[self RACValueForKeyPath:RACKVO(self.username)], [self RACValueForKeyPath:RACKVO(self.password)], nil]]
 		select:^(NSArray *x) { return [NSNumber numberWithBool:[[x objectAtIndex:0] length] > 0 && [[x objectAtIndex:1] length] > 0]; }] 
-		subscribeNext:^(id x) { self.loginEnabled = [x boolValue]; }];
+		toObject:self keyPath:RACKVO(self.loginEnabled)];
 	
 	RACAsyncCommand *loginCommand = [RACAsyncCommand commandWithCanExecute:^(id _) { return self.loginEnabled; } execute:NULL];
 	
@@ -58,15 +58,15 @@
 	[[[[[result 
 		subscribeNext:^(id x) { NSLog(@"could login: %@", x); }] 
 		select:^(id x) { return [NSNumber numberWithBool:![x boolValue]]; }]
-		toProperty:self.successHiddenValue]
+		toSequence:self.successHiddenValue]
 		select:^(id x) { return [NSNumber numberWithBool:![x boolValue]]; }] 
-		toProperty:self.loginFailedHiddenValue];
+		toSequence:self.loginFailedHiddenValue];
 	
 	[[[[RACSequence 
 		merge:[NSArray arrayWithObjects:[self RACValueForKeyPath:RACKVO(self.username)], [self RACValueForKeyPath:RACKVO(self.password)], nil]] 
 		select:^(id _) { return [NSNumber numberWithBool:YES]; }]
-		toProperty:self.successHiddenValue]
-		toProperty:self.loginFailedHiddenValue];
+		toSequence:self.successHiddenValue]
+		toSequence:self.loginFailedHiddenValue];
 }
 
 

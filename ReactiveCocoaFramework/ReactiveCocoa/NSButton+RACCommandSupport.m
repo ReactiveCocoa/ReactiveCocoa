@@ -29,20 +29,27 @@ static void * NSButtonRACEnabledValueKey = &NSButtonRACEnabledValueKey;
 	[self.commands addObject:command];
 	
 	self.enabledValue = [RACValue value];
-	[[[RACValue 
-		combineLatest:[self.commands valueForKey:@"canExecuteValue"]]
-		select:^(NSArray *x) {
-			BOOL enabled = YES;
-			for(id v in x) {
-				enabled = enabled && [v boolValue];
-			}
-		
-			return [NSNumber numberWithBool:enabled];
-		}]
-		toProperty:self.enabledValue];
+	NSMutableArray *canExecuteValues = [NSMutableArray arrayWithCapacity:self.commands.count];
+	for(RACCommand *command in self.commands) {
+		if(command.canExecuteValue != nil) [canExecuteValues addObject:command.canExecuteValue];
+	}
 	
-	[self bind:NSEnabledBinding toValue:self.enabledValue];
-	[self setEnabled:[self.enabledValue.value boolValue]];
+	if(canExecuteValues.count > 0) {
+		[[[RACValue 
+		   combineLatest:canExecuteValues]
+		  select:^(NSArray *x) {
+			  BOOL enabled = YES;
+			  for(id v in x) {
+				  enabled = enabled && [v boolValue];
+			  }
+			  
+			  return [NSNumber numberWithBool:enabled];
+		  }]
+		 toProperty:self.enabledValue];
+		
+		[self bind:NSEnabledBinding toValue:self.enabledValue];
+		[self setEnabled:[self.enabledValue.value boolValue]];
+	}
 	
 	[self hijackActionAndTargetIfNeeded];
 }

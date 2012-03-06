@@ -7,9 +7,10 @@
 //
 
 #import "GHDMainWindowController.h"
+#import "GHDLoginViewController.h"
 
 @interface GHDMainWindowController ()
-
+@property (nonatomic, strong) GHDLoginViewController *loginViewController;
 @end
 
 
@@ -19,6 +20,8 @@
 	self = [super initWithWindowNibName:NSStringFromClass([self class]) owner:self];
 	if(self == nil) return nil;
 	
+	self.loginViewController = [[GHDLoginViewController alloc] init];
+	
 	return self;
 }
 
@@ -27,6 +30,13 @@
 
 - (void)windowDidLoad {
     [super windowDidLoad];
+	
+	self.window.contentView = self.loginViewController.view;
 }
+
+
+#pragma mark API
+
+@synthesize loginViewController;
 
 @end

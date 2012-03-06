@@ -21,6 +21,9 @@
 		884E04EB1505AD2E00035AFC /* ReactiveCocoa.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 884E04DD1505AD0D00035AFC /* ReactiveCocoa.framework */; };
 		884E04EF1505AD4F00035AFC /* GHDMainWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 884E04ED1505AD4F00035AFC /* GHDMainWindowController.m */; };
 		884E04F01505AD4F00035AFC /* GHDMainWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 884E04EE1505AD4F00035AFC /* GHDMainWindowController.xib */; };
+		884E04F41505AEB200035AFC /* GHDLoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 884E04F21505AEB200035AFC /* GHDLoginViewController.m */; };
+		884E04F81505B0A000035AFC /* GHDLoginView.m in Sources */ = {isa = PBXBuildFile; fileRef = 884E04F71505B0A000035AFC /* GHDLoginView.m */; };
+		884E04FA1505B0AF00035AFC /* GHDLoginView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 884E04F91505B0AF00035AFC /* GHDLoginView.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -91,6 +94,11 @@
 		884E04EC1505AD4F00035AFC /* GHDMainWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHDMainWindowController.h; sourceTree = "<group>"; };
 		884E04ED1505AD4F00035AFC /* GHDMainWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHDMainWindowController.m; sourceTree = "<group>"; };
 		884E04EE1505AD4F00035AFC /* GHDMainWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GHDMainWindowController.xib; sourceTree = "<group>"; };
+		884E04F11505AEB200035AFC /* GHDLoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHDLoginViewController.h; sourceTree = "<group>"; };
+		884E04F21505AEB200035AFC /* GHDLoginViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHDLoginViewController.m; sourceTree = "<group>"; };
+		884E04F61505B0A000035AFC /* GHDLoginView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHDLoginView.h; sourceTree = "<group>"; };
+		884E04F71505B0A000035AFC /* GHDLoginView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHDLoginView.m; sourceTree = "<group>"; };
+		884E04F91505B0AF00035AFC /* GHDLoginView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GHDLoginView.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -164,6 +172,11 @@
 				884E04EC1505AD4F00035AFC /* GHDMainWindowController.h */,
 				884E04ED1505AD4F00035AFC /* GHDMainWindowController.m */,
 				884E04EE1505AD4F00035AFC /* GHDMainWindowController.xib */,
+				884E04F11505AEB200035AFC /* GHDLoginViewController.h */,
+				884E04F21505AEB200035AFC /* GHDLoginViewController.m */,
+				884E04F61505B0A000035AFC /* GHDLoginView.h */,
+				884E04F71505B0A000035AFC /* GHDLoginView.m */,
+				884E04F91505B0AF00035AFC /* GHDLoginView.xib */,
 				884E049C1505ACF000035AFC /* Supporting Files */,
 			);
 			path = GHAPIDemo;
@@ -309,6 +322,7 @@
 				884E04A61505ACF000035AFC /* Credits.rtf in Resources */,
 				884E04AC1505ACF000035AFC /* MainMenu.xib in Resources */,
 				884E04F01505AD4F00035AFC /* GHDMainWindowController.xib in Resources */,
+				884E04FA1505B0AF00035AFC /* GHDLoginView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -346,6 +360,8 @@
 				884E04A21505ACF000035AFC /* main.m in Sources */,
 				884E04A91505ACF000035AFC /* GHDAppDelegate.m in Sources */,
 				884E04EF1505AD4F00035AFC /* GHDMainWindowController.m in Sources */,
+				884E04F41505AEB200035AFC /* GHDLoginViewController.m in Sources */,
+				884E04F81505B0A000035AFC /* GHDLoginView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

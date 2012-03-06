@@ -19,13 +19,13 @@
 @property (nonatomic, strong) RACValue *canExecuteValue;
 
 // Creates a new command with no execute or can execute block.
-+ (RACCommand *)command;
++ (id)command;
 
 // Creates a new command with the given can execute and execute blocks.
 //
 // canExecuteBlock - the block that is called to determine if the command may execute. It is passed the value that would be passed to `-execute:` if it is allowed to execute. Can be nil.
 // executeBlock - the block that will be executed when the command is executed. It will be passed the object given to `-execute:`.
-+ (RACCommand *)commandWithCanExecute:(BOOL (^)(id value))canExecuteBlock execute:(void (^)(id value))executeBlock;
++ (id)commandWithCanExecute:(BOOL (^)(id value))canExecuteBlock execute:(void (^)(id value))executeBlock;
 
 - (BOOL)canExecute:(id)value;
 - (void)execute:(id)value;

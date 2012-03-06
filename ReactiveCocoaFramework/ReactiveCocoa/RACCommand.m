@@ -24,11 +24,11 @@
 @synthesize canExecuteBlock;
 @synthesize executeBlock;
 
-+ (RACCommand *)command {
++ (id)command {
 	return [self value];
 }
 
-+ (RACCommand *)commandWithCanExecute:(BOOL (^)(id value))canExecuteBlock execute:(void (^)(id value))executeBlock {
++ (id)commandWithCanExecute:(BOOL (^)(id value))canExecuteBlock execute:(void (^)(id value))executeBlock {
 	RACCommand *command = [self command];
 	command.canExecuteBlock = canExecuteBlock;
 	command.executeBlock = executeBlock;

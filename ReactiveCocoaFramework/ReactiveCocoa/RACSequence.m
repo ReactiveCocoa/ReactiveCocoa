@@ -81,10 +81,8 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	[self addObjectAndNilsAreOK:object];
 }
 
-- (void)addObjectAndNilsAreOK:(id)object {
-	if(object != nil) {
-		[self.backingArray addObject:object];
-	}
+- (void)addObjectAndNilsAreOK:(id)object {	
+	[self.backingArray addObject:object ? : [RACNil nill]];
 	
 	[self sendNextToAllObservers:object];
 	

@@ -61,7 +61,7 @@
 			id returnedValue = pair.block(value, &error);
 			[[NSOperationQueue mainQueue] addOperationWithBlock:^{
 				if(returnedValue != nil) {
-					pair.value = returnedValue;
+					pair.value.value = returnedValue;
 				} else {
 					[pair.value sendErrorToAllObservers:error];
 				}

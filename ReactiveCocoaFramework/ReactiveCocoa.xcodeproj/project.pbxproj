@@ -9,8 +9,6 @@
 /* Begin PBXBuildFile section */
 		88037F8415056328001A5B19 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7BF15000FCE00163A9F /* Cocoa.framework */; };
 		88037FB81505645C001A5B19 /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = 88037F8C15056328001A5B19 /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		88037FB91505645E001A5B19 /* NSObject+GHExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CDF8121500300400163A9F /* NSObject+GHExtensions.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		88037FBA15056460001A5B19 /* NSObject+GHKVOWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CDF82815008BB900163A9F /* NSObject+GHKVOWrapper.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88037FBB1505646C001A5B19 /* NSObject+RACPropertyObserving.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CDF82C15008C0500163A9F /* NSObject+RACPropertyObserving.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88037FBC1505646C001A5B19 /* RACObservable.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CDF80415001CA800163A9F /* RACObservable.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88037FBD1505646C001A5B19 /* RACQueryable.h in Headers */ = {isa = PBXBuildFile; fileRef = 8820928215012D3B00796685 /* RACQueryable.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -21,7 +19,7 @@
 		88037FC21505646C001A5B19 /* NSButton+RACCommandSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 882093E61501E6CB00796685 /* NSButton+RACCommandSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88037FC31505646C001A5B19 /* RACNil.h in Headers */ = {isa = PBXBuildFile; fileRef = 88C6F04115033EC000480671 /* RACNil.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88037FC41505646C001A5B19 /* RACAsyncCommand.h in Headers */ = {isa = PBXBuildFile; fileRef = 88DE7CD2150459E800C722C5 /* RACAsyncCommand.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		88037FC51505646F001A5B19 /* RACSequence+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CDF8301500978F00163A9F /* RACSequence+Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		88037FC51505646F001A5B19 /* RACSequence+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CDF8301500978F00163A9F /* RACSequence+Private.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88037FC61505647C001A5B19 /* NSObject+GHExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF8131500300400163A9F /* NSObject+GHExtensions.m */; };
 		88037FC71505647E001A5B19 /* NSObject+GHKVOWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF82915008BB900163A9F /* NSObject+GHKVOWrapper.m */; };
 		88037FC81505647F001A5B19 /* NSObject+RACPropertyObserving.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF82D15008C0500163A9F /* NSObject+RACPropertyObserving.m */; };
@@ -339,8 +337,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				88037FB81505645C001A5B19 /* ReactiveCocoa.h in Headers */,
-				88037FB91505645E001A5B19 /* NSObject+GHExtensions.h in Headers */,
-				88037FBA15056460001A5B19 /* NSObject+GHKVOWrapper.h in Headers */,
 				88037FBB1505646C001A5B19 /* NSObject+RACPropertyObserving.h in Headers */,
 				88037FBC1505646C001A5B19 /* RACObservable.h in Headers */,
 				88037FBD1505646C001A5B19 /* RACQueryable.h in Headers */,

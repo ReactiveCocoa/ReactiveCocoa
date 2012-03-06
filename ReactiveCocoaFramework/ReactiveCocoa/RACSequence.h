@@ -74,7 +74,7 @@
 + (RACSequence *)merge:(NSArray *)sequences;
 
 // Adds the last added object to the given sequence.
-- (void)toProperty:(RACSequence *)property;
+- (RACSequence *)toProperty:(RACSequence *)property;
 
 // Returns a sequence that adds objects from the receiver only if they're not equal to the last added object added to the sequence.
 - (RACSequence *)distinctUntilChanged;

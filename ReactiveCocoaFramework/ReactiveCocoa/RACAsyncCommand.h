@@ -24,7 +24,7 @@
 //
 // block - the execution block for the async function. The block will be performed in `queue`. The value passed into the block is the value sent to `-execute:`. If an error occurs during the block's execute, it should return nil and set the error passed into the block. This will cause the sequence's `error` event to be fired. The block's return value will be added to the sequence returned by this method call.
 //
-// Returns a sequence to which the command will add the return value of the block.
-- (RACSequence *)addAsyncFunction:(id (^)(id value, NSError **error))block;
+// Returns a value to which the command will set the return value of the block.
+- (RACValue *)addAsyncFunction:(id (^)(id value, NSError **error))block;
 
 @end

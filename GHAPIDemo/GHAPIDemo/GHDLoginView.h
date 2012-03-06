@@ -15,6 +15,7 @@
 @property (assign) IBOutlet NSTextField *passwordTextField;
 @property (assign) IBOutlet NSButton *loginButton;
 @property (assign) IBOutlet NSTextField *successTextField;
+@property (assign) IBOutlet NSTextField *couldNotLoginTextField;
 
 + (id)view;
 

@@ -18,6 +18,7 @@
 @synthesize passwordTextField;
 @synthesize loginButton;
 @synthesize successTextField;
+@synthesize couldNotLoginTextField;
 
 + (id)view {
 	NSNib *nib = [[NSNib alloc] initWithNibNamed:NSStringFromClass(self) bundle:nil];

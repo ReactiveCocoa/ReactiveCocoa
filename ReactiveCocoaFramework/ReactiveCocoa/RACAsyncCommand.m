@@ -33,7 +33,7 @@
 	if(self == nil) return nil;
 	
 	self.queue = [[self class] defaultQueue];
-	self.maxConcurrent = 1;
+	self.maxConcurrentExecutions = 1;
 	
 	return self;
 }
@@ -42,7 +42,7 @@
 #pragma mark RACCommand
 
 - (BOOL)canExecute:(id)value {
-	if(self.queue.operationCount >= self.maxConcurrent) return NO;
+	if(self.queue.operationCount >= self.maxConcurrentExecutions) return NO;
 	
 	return [super canExecute:value];
 }
@@ -78,7 +78,7 @@
 
 @synthesize queue;
 @synthesize asyncFunctionPairs;
-@synthesize maxConcurrent;
+@synthesize maxConcurrentExecutions;
 
 + (NSOperationQueue *)defaultQueue {
 	static dispatch_once_t onceToken;
@@ -114,8 +114,8 @@
 	queue = q;
 	
 	[[RACObservable(self.queue.operationCount) 
-		select:^(id _) { return [NSNumber numberWithBool:self.queue.operationCount < self.maxConcurrent]; }] 
-		toSequence:self.canExecuteValue];
+		select:^(id _) { return [NSNumber numberWithBool:self.queue.operationCount < self.maxConcurrentExecutions]; }]
+		subscribeNext:^(id x) { self.canExecuteValue.value = x; }];
 }
 
 @end

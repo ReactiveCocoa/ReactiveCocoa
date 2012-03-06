@@ -17,8 +17,8 @@
 // The queue on which the async functions should be performed. By default, this is an NSOperationQueue with a normal priority and a max concurrent operation count of NSOperationQueueDefaultMaxConcurrentOperationCount.
 @property (nonatomic, strong) NSOperationQueue *queue;
 
-// The maximum number of concurrent executions allowed. `-canExecute:` will return NO if the number of active executions is greater than or equal to this.
-@property (nonatomic, assign) NSUInteger maxConcurrent;
+// The maximum number of concurrent executions allowed. `-canExecute:` will return NO if the number of active executions is greater than or equal to this. `canExecuteValue` is updated as the number of concurrent calls changes.
+@property (nonatomic, assign) NSUInteger maxConcurrentExecutions;
 
 // Adds a new asynchronous function to the command.
 //

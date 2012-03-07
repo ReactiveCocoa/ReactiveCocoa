@@ -58,10 +58,10 @@
 		}];
 	
 	[[[self.loginCommand 
-		subscribeNext:^(id _) { self.loggingIn = YES; }] 
+		subscribeNext:^(id _) { self.loggingIn = YES; }]
 		selectMany:^(id _) { return result; }] 
 		subscribeCompleted:^{ self.loggingIn = NO; }];
-	
+
 	[[RACSequence 
 		merge:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), nil]] 
 		subscribeNext:^(id _) { self.successHidden = self.loginFailedHidden = YES; }];

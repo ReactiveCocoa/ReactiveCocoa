@@ -15,6 +15,7 @@
 @property (nonatomic, assign) BOOL successHidden;
 @property (nonatomic, assign) BOOL loginFailedHidden;
 @property (nonatomic, assign) BOOL loginEnabled;
+@property (nonatomic, assign) BOOL loggingIn;
 @property (nonatomic, strong) RACAsyncCommand *loginCommand;
 @property (nonatomic, strong) GHDLoginView *view;
 @end
@@ -29,6 +30,7 @@
 	self.loginFailedHidden = YES;
 	self.successHidden = YES;
 	self.loginEnabled = NO;
+	self.loggingIn = NO;
 	
 	self.loginCommand = [RACAsyncCommand command];
 	
@@ -55,6 +57,9 @@
 		NSLog(@"error: %@", error);
 	}];
 	
+	[self.loginCommand subscribeNext:^(id _) { self.loggingIn = YES; }];
+	[result subscribeCompleted:^{ self.loggingIn = NO; }];
+	
 	[[RACSequence 
 		merge:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), nil]] 
 		subscribeNext:^(id _) { self.successHidden = self.loginFailedHidden = YES; }];
@@ -70,10 +75,12 @@
 	
 	[self.view.usernameTextField bind:NSValueBinding toObject:self withKeyPath:RACKVO(self.username)];
 	[self.view.passwordTextField bind:NSValueBinding toObject:self withKeyPath:RACKVO(self.password)];
-	
 	[self.view.successTextField bind:NSHiddenBinding toObject:self withKeyPath:RACKVO(self.successHidden)];
 	[self.view.couldNotLoginTextField bind:NSHiddenBinding toObject:self withKeyPath:RACKVO(self.loginFailedHidden)];
 	[self.view.loginButton bind:NSEnabledBinding toObject:self withKeyPath:RACKVO(self.loginEnabled)];
+	[self.view.loggingInSpinner bind:NSHiddenBinding toObject:self withKeyPath:RACKVO(self.loggingIn) options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, NSNegateBooleanTransformerName, NSValueTransformerNameBindingOption, nil]];
+	
+	[self.view.loggingInSpinner startAnimation:nil];
 	
 	[self.view.loginButton addCommand:self.loginCommand];
 }
@@ -88,5 +95,6 @@
 @synthesize loginFailedHidden;
 @synthesize loginCommand;
 @synthesize loginEnabled;
+@synthesize loggingIn;
 
 @end

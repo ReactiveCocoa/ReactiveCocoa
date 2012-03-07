@@ -16,6 +16,7 @@
 @property (assign) IBOutlet NSButton *loginButton;
 @property (assign) IBOutlet NSTextField *successTextField;
 @property (assign) IBOutlet NSTextField *couldNotLoginTextField;
+@property (assign) IBOutlet NSProgressIndicator *loggingInSpinner;
 
 + (id)view;
 

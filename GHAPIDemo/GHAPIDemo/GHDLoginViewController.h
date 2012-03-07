@@ -19,6 +19,7 @@
 @property (nonatomic, assign, readonly) BOOL successHidden;
 @property (nonatomic, assign, readonly) BOOL loginFailedHidden;
 @property (nonatomic, assign, readonly) BOOL loginEnabled;
+@property (nonatomic, assign, readonly) BOOL loggingIn;
 @property (nonatomic, strong, readonly) RACAsyncCommand *loginCommand;
 
 @end

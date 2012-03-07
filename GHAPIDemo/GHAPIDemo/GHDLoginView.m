@@ -19,6 +19,7 @@
 @synthesize loginButton;
 @synthesize successTextField;
 @synthesize couldNotLoginTextField;
+@synthesize loggingInSpinner;
 
 + (id)view {
 	NSNib *nib = [[NSNib alloc] initWithNibNamed:NSStringFromClass(self) bundle:nil];

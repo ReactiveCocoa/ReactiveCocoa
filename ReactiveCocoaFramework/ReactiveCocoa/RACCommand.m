@@ -7,11 +7,10 @@
 //
 
 #import "RACCommand.h"
+#import "RACCommand+Private.h"
 #import "RACSequence+Private.h"
 
 @interface RACCommand ()
-@property (nonatomic, copy) BOOL (^canExecuteBlock)(id value);
-@property (nonatomic, copy) void (^executeBlock)(id value);
 @property (nonatomic, strong) RACValue *canExecuteValue;
 @end
 

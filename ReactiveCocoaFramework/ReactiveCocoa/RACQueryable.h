@@ -21,7 +21,7 @@
 + (id<RACQueryable>)merge:(NSArray *)queryables;
 - (id<RACQueryable>)distinctUntilChanged;
 + (id<RACQueryable>)zip:(NSArray *)queryables;
-- (id<RACQueryable>)selectMany:(id (^)(id x))selectMany;
+- (id<RACQueryable>)selectMany:(id (^)(id<RACQueryable> x))selectMany;
 - (id<RACQueryable>)take:(NSUInteger)count;
 
 @end

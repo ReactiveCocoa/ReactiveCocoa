@@ -72,18 +72,18 @@ describe(@"validation", ^{
 		expect(viewController.loginEnabled).toBeFalsy();
 	});
 	
-	it(@"should show login failure", ^{
-		viewController.username = @"johnsmith";
-		viewController.password = @"secret";
-		
-		GHDRunRunLoop();
-				
-		[viewController.loginCommand execute:nil];
-		
-		GHDRunRunLoop();
-		
-		expect(viewController.loginEnabled).toBeFalsy();
-	});
+//	it(@"should show login failure", ^{
+//		viewController.username = @"johnsmith";
+//		viewController.password = @"secret";
+//		
+//		GHDRunRunLoop();
+//				
+//		[viewController.loginCommand execute:nil];
+//		
+//		GHDRunRunLoop();
+//		
+//		expect(viewController.loginEnabled).toBeFalsy();
+//	});
 });
 
 SpecEnd

@@ -22,7 +22,6 @@
 
 
 // A sequence is essentially a stream of values. It can be observed and queried.
-// It only ever sends the `next` event. It does this when an object is added to the sequence. The added object is passed as the value for the `next` event.
 @interface RACSequence : NSObject <RACObservable>
 
 // Creates a new sequence with the default capacity.
@@ -52,7 +51,7 @@
 // Convenience method to subscribe to the `next`, `completed`, and `error` events.
 //
 // Returns self to allow for chaining.
-- (RACSequence *)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock error:(void (^)(NSError *error))errorBlock;
+- (RACSequence *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
 
 // Convenience method to subscribe to `error` events.
 - (RACSequence *)subscribeError:(void (^)(NSError *error))errorBlock;
@@ -65,19 +64,40 @@
 @interface RACSequence (QueryableImplementations) <RACQueryable>
 
 // Returns a sequence that adds only the objects from the receiver to which `predicate` returns YES.
+// `next` is sent when the receiver sends a `next` and the `predicate` block returns YES. The `next` value is the value that the receiver got from `next`.
+// `error` is sent when the receiver gets `error`.
+// `completed` is sent when the receiver gets `completed`.
 - (RACSequence *)where:(BOOL (^)(id x))predicate;
 
 // Returns a sequence that adds the objects returned by calling `block` for each object added to the receiver.
+// `next` is sent when the receiver sends a `next`. The `next` value is the value returned by calling `block` with the value of the receiver's `next`.
+// `error` is sent when the receiver gets `error`.
+// `completed` is sent when the receiver gets `completed`.
 - (RACSequence *)select:(id (^)(id x))block;
 
 // Returns a sequence that fires its `next` event only after the receiver hasn't received any new objects for `interval` seconds.
+// `next` is sent only after `interval` has passed since the receiver's last `next`. The `next` value is the receiver's `-lastObject`.
+// `error` is sent when the receiver gets `error`.
+// `completed` is sent when the receiver gets `completed`.
 - (RACSequence *)throttle:(NSTimeInterval)interval;
 
-// Returns a sequence that adds an NSArray of the last objects of each sequence each time any an object is added to any of the sequences. If any of the sequences don't have an object, a RACNil is added in its place.
-+ (RACSequence *)combineLatest:(NSArray *)sequences;
+// Combine the latest values from the sequences and add the reduced value to the returned sequence.
+// `next` is sent when a `next` is sent on any of the sequences and all sequences return non-nil for `-lastObject`. The `next` value is the value returned from calling `reduceBlock` with an array of the `-lastObject` for each of the sequences.
+// `error` is sent when one of the sequences sends `error`.
+// `completed` is sent once all the sequences have sent `completed`.
++ (RACSequence *)combineLatest:(NSArray *)sequences reduce:(id (^)(NSArray *xs))reduceBlock;
 
 // Returns a sequence that adds the latest object any time any of the given sequences are added to.
+// `next` is sent when any of the given sequences get `next`. The `next` value is value of whichever receiver got `next`.
+// `error` is sent when as one of the sequences sends `error`.
+// `completed` is sent once all the sequences have sent `completed`.
 + (RACSequence *)merge:(NSArray *)sequences;
+
+// Returns an sequence that adds an NSArray of the last objects of each of the sequence each time an object is added to any of the sequences, *and* there is a last object for each of the sequences. This is different from `-combineLatest:reduce:` in that it waits for pairs of `next`'s to come in before sending `next`.
+// `next` is sent after each of the given sequences has sent a `next` with a non-nil object. Its `next` value is the value returned from calling `reduceBlock` with an array of each of the values from the sequence's `next`'s.
+// `error` is sent when one of the sequences sends `error`.
+// `completed` is sent once all the sequences have sent `completed`.
++ (RACSequence *)zip:(NSArray *)sequences reduce:(id (^)(NSArray *xs))reduceBlock;
 
 // Adds the last added object to the given sequence and returns self.
 - (RACSequence *)toSequence:(RACSequence *)property;
@@ -86,10 +106,10 @@
 - (RACSequence *)toObject:(NSObject *)object keyPath:(NSString *)keyPath;
 
 // Returns a sequence that adds objects from the receiver only if they're not equal to the last added object added to the sequence.
+// `next` is sent when the receiver gets a `next` with a value that is not equal to its `-lastObject`.
+// `error` is sent when the receiver gets `error`.
+// `completed` is sent when the receiver gets `completed`.
 - (RACSequence *)distinctUntilChanged;
-
-// Returns an sequence that adds an NSArray of the last objects of each of the sequence each time an object is added to any of the sequences, *and* there is a last object for each of the sequences.
-+ (RACSequence *)zip:(NSArray *)sequences;
 
 // Returns the sequence returned by the block. This can be used to chain different sequences together.
 - (RACSequence *)selectMany:(RACSequence * (^)(id x))selectMany;

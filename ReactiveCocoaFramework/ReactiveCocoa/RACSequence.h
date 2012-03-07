@@ -42,22 +42,23 @@
 // Convenience method to subscribe to the `next` event.
 //
 // Returns self to allow for chaining.
-- (id)subscribeNext:(void (^)(id x))nextBlock;
+- (RACSequence *)subscribeNext:(void (^)(id x))nextBlock;
 
 // Convenience method to subscribe to the `next` and `completed` events.
 //
 // Returns self to allow for chaining.
-- (id)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock;
+- (RACSequence *)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock;
 
 // Convenience method to subscribe to the `next`, `completed`, and `error` events.
 //
 // Returns self to allow for chaining.
-- (id)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock error:(void (^)(NSError *error))errorBlock;
+- (RACSequence *)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock error:(void (^)(NSError *error))errorBlock;
 
 // Convenience method to subscribe to `error` events.
-- (id)subscribeError:(void (^)(NSError *error))errorBlock;
+- (RACSequence *)subscribeError:(void (^)(NSError *error))errorBlock;
 
-- (id)subscribeCompleted:(void (^)(void))completedBlock;
+// Convenence method to subscribe to `completed` events.
+- (RACSequence *)subscribeCompleted:(void (^)(void))completedBlock;
 
 @end
 

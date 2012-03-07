@@ -99,23 +99,23 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return [self.backingArray lastObject];
 }
 
-- (id)subscribeNext:(void (^)(id x))nextBlock {
+- (RACSequence *)subscribeNext:(void (^)(id x))nextBlock {
 	return [self subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:nextBlock]];
 }
 
-- (id)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock {
+- (RACSequence *)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock {
 	return [self subscribe:[RACObserver observerWithCompleted:completedBlock error:NULL next:nextBlock]];
 }
 
-- (id)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock error:(void (^)(NSError *error))errorBlock {
+- (RACSequence *)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock error:(void (^)(NSError *error))errorBlock {
 	return [self subscribe:[RACObserver observerWithCompleted:completedBlock error:errorBlock next:nextBlock]];
 }
 
-- (id)subscribeError:(void (^)(NSError *error))errorBlock {
+- (RACSequence *)subscribeError:(void (^)(NSError *error))errorBlock {
 	return [self subscribe:[RACObserver observerWithCompleted:NULL error:errorBlock next:NULL]];
 }
 
-- (id)subscribeCompleted:(void (^)(void))completedBlock {
+- (RACSequence *)subscribeCompleted:(void (^)(void))completedBlock {
 	return [self subscribe:[RACObserver observerWithCompleted:completedBlock error:NULL next:NULL]];
 }
 

@@ -179,7 +179,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	
 	RACSequence *mapped = [RACSequence sequence];
 	[self subscribeNext:^(id x) {
-		id mappedValue = block(x);		
+		id mappedValue = block(x);
 		[mapped addObjectAndNilsAreOK:mappedValue];
 	}];
 	
@@ -290,8 +290,19 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return distinct;
 }
 
-- (RACSequence *)selectMany:(RACSequence * (^)(RACSequence *x))selectMany {
-	return selectMany(self);
+- (RACSequence *)selectMany:(RACSequence * (^)(id x))selectMany {
+	NSParameterAssert(selectMany != NULL);
+	
+	RACSequence *sequence = [RACSequence sequence];
+	[self subscribeNext:^(id x) {
+		RACSequence *many = selectMany(x);
+		[many 
+			subscribeNext:^(id x) { [sequence addObjectAndNilsAreOK:x]; } 
+			completed:^{ [sequence sendCompletedToAllObservers]; } 
+			error:^(NSError *error) { [sequence sendErrorToAllObservers:error]; }];
+	}];
+	
+	return sequence;
 }
 
 - (RACSequence *)take:(NSUInteger)count {

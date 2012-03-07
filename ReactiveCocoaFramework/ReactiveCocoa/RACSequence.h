@@ -92,7 +92,7 @@
 + (RACSequence *)zip:(NSArray *)sequences;
 
 // Returns the sequence returned by the block. This can be used to chain different sequences together.
-- (RACSequence *)selectMany:(RACSequence * (^)(RACSequence *x))selectMany;
+- (RACSequence *)selectMany:(RACSequence * (^)(id x))selectMany;
 
 // Returns a sequence that only sends its `next` after the receiver has received `count` objects.
 - (RACSequence *)take:(NSUInteger)count;

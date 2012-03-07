@@ -290,15 +290,8 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return distinct;
 }
 
-- (RACSequence *)selectMany:(RACSequence * (^)(id x))selectMany {
-	RACSequence *other = [RACSequence sequence];
-	[self subscribeNext:^(id x) {
-		RACSequence *s = selectMany(x);
-		[s subscribeNext:^(id x) {
-			[other addObject:x];
-		}];
-	}];
-	return other;
+- (RACSequence *)selectMany:(RACSequence * (^)(RACSequence *x))selectMany {
+	return selectMany(self);
 }
 
 - (RACSequence *)take:(NSUInteger)count {

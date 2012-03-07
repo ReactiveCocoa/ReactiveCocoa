@@ -91,8 +91,8 @@
 // Returns an sequence that adds an NSArray of the last objects of each of the sequence each time an object is added to any of the sequences, *and* there is a last object for each of the sequences.
 + (RACSequence *)zip:(NSArray *)sequences;
 
-// Returns a sequence that is added to only after the receiver's been added to and the sequence returned by `selectMany` has been added to. This can be used to chain different sequences together.
-- (RACSequence *)selectMany:(RACSequence * (^)(id x))selectMany;
+// Returns the sequence returned by the block. This can be used to chain different sequences together.
+- (RACSequence *)selectMany:(RACSequence * (^)(RACSequence *x))selectMany;
 
 // Returns a sequence that only sends its `next` after the receiver has received `count` objects.
 - (RACSequence *)take:(NSUInteger)count;

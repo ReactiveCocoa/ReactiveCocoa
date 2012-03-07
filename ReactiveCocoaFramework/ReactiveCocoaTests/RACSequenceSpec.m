@@ -1,20 +1,18 @@
 //
-//  RACObservableSequenceSpec.m
+//  RACSequenceSpec.m
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 3/2/12.
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
-#define EXP_SHORTHAND
-#import "Specta.h"
-#import "Expecta.h"
+#import "RACSpecs.h"
 
 #import "RACSequence.h"
 #import "RACObserver.h"
 
 
-SpecBegin(RACObservableSequence)
+SpecBegin(RACSequence)
 
 static const NSUInteger capacity = 5;
 __block RACSequence *sequence = nil;

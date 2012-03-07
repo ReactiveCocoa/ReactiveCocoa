@@ -46,19 +46,21 @@
 		return [[GHGitHubClient sharedClient] HTTPRequestOperationWithRequest:request];
 	}];
 	
-	[result subscribeNext:^(id x) {
-		self.successHidden = NO;
-		self.loginFailedHidden = YES;
-	}];
+	[[result 
+		subscribeNext:^(id _) {
+			self.successHidden = NO;
+			self.loginFailedHidden = YES; 
+		}] 
+		subscribeError:^(NSError *error) {
+			self.successHidden = YES;
+			self.loginFailedHidden = NO;
+			NSLog(@"error: %@", error); 
+		}];
 	
-	[result subscribeError:^(NSError *error) {
-		self.successHidden = YES;
-		self.loginFailedHidden = NO;
-		NSLog(@"error: %@", error);
-	}];
-	
-	[self.loginCommand subscribeNext:^(id _) { self.loggingIn = YES; }];
-	[result subscribeCompleted:^{ self.loggingIn = NO; }];
+	[[[self.loginCommand 
+		subscribeNext:^(id _) { self.loggingIn = YES; }] 
+		selectMany:^(id _) { return result; }] 
+		subscribeCompleted:^{ self.loggingIn = NO; }];
 	
 	[[RACSequence 
 		merge:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), nil]] 

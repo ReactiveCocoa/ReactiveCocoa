@@ -32,11 +32,11 @@
 // Returns a value to which the command will set the return value of the block.
 - (RACValue *)addAsyncFunction:(id (^)(id value, NSError **error))block;
 
-// Adds an operation to be added to the queue when the command is executed.
+// Adds a block that will create an operation to be performed when the command is executed.
 //
-// operation - the operation to add to the command. See the docs for the RACAsyncCommandOperation protocol.
+// operationBlock - the block to create an operation when the command is executed.
 //
 // Returns a value to which the operation will set the value of the operation's execution.
-- (RACValue *)addOperation:(NSOperation<RACAsyncCommandOperation> *)operation;
+- (RACValue *)addOperationBlock:(NSOperation<RACAsyncCommandOperation> * (^)(void))operationBlock;
 
 @end

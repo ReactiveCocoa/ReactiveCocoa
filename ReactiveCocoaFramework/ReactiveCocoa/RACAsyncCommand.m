@@ -13,7 +13,7 @@
 @interface RACAsyncCommandPair : NSObject
 
 @property (nonatomic, copy) id (^block)(id value, NSError **error);
-@property (nonatomic, strong) NSOperation<RACAsyncCommandOperation> *operation;
+@property (nonatomic, copy) NSOperation<RACAsyncCommandOperation> * (^operationBlock)(void);
 @property (nonatomic, strong) RACValue *value;
 
 + (id)pair;
@@ -79,9 +79,12 @@
 		} else if(pair.operation != nil) {
 			pair.operation.RACAsyncCallback = ^(id returnedValue, NSError *error) {
 				finish(pair.value, returnedValue, error);
+		} else if(pair.operationBlock != nil) {
+			NSOperation<RACAsyncCommandOperation> *operation = pair.operationBlock();
+			operation.RACAsyncCallback = ^(id returnedValue, BOOL success, NSError *error) {
 			};
 			
-			[self.queue addOperation:pair.operation];
+			[self.queue addOperation:operation];
 		}
 	}
 }
@@ -115,12 +118,12 @@
 	return value;
 }
 
-- (RACValue *)addOperation:(NSOperation<RACAsyncCommandOperation> *)operation {
-	NSParameterAssert(operation != nil);
+- (RACValue *)addOperationBlock:(NSOperation<RACAsyncCommandOperation> * (^)(void))operationBlock {
+	NSParameterAssert(operationBlock != NULL);
 	
 	RACValue *value = [RACValue value];
 	RACAsyncCommandPair *pair = [RACAsyncCommandPair pair];
-	pair.operation = operation;
+	pair.operationBlock = operationBlock;
 	pair.value = value;
 	[self.asyncFunctionPairs addObject:pair];
 	return value;
@@ -154,7 +157,7 @@
 
 @synthesize block;
 @synthesize value;
-@synthesize operation;
+@synthesize operationBlock;
 
 + (id)pair {
 	return [[self alloc] init];

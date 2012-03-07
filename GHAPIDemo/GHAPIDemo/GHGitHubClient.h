@@ -6,8 +6,15 @@
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
-#import "AFHTTPClient.h"
+#import "AFNetworking.h"
+
+@class GHJSONRequestOperation;
+
 
 @interface GHGitHubClient : AFHTTPClient
+
++ (GHGitHubClient *)sharedClient;
+
+- (GHJSONRequestOperation *)HTTPRequestOperationWithRequest:(NSURLRequest *)request;
 
 @end

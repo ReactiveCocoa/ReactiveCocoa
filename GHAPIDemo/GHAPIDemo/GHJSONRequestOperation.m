@@ -1,13 +1,19 @@
 //
-//  GHDJSONRequestOperation.m
+//  GHJSONRequestOperation.m
 //  GHAPIDemo
 //
 //  Created by Josh Abernathy on 3/6/12.
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
-#import "GHDJSONRequestOperation.h"
+#import "GHJSONRequestOperation.h"
 
-@implementation GHDJSONRequestOperation
+
+@implementation GHJSONRequestOperation
+
+
+#pragma mark API
+
+@synthesize RACAsyncCallback;
 
 @end

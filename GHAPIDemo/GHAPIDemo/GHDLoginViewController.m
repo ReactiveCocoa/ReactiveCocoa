@@ -8,6 +8,8 @@
 
 #import "GHDLoginViewController.h"
 #import "GHDLoginView.h"
+#import "GHGitHubClient.h"
+#import "GHJSONRequestOperation.h"
 
 @interface GHDLoginViewController ()
 @property (nonatomic, assign) BOOL successHidden;
@@ -26,7 +28,7 @@
 	
 	self.loginFailedHidden = YES;
 	self.successHidden = YES;
-	self.loginEnabled = YES;
+	self.loginEnabled = NO;
 	
 	self.loginCommand = [RACAsyncCommand command];
 	
@@ -35,30 +37,27 @@
 		select:^(NSArray *x) { return [NSNumber numberWithBool:[[x objectAtIndex:0] length] > 0 && [[x objectAtIndex:1] length] > 0 && [[x objectAtIndex:2] boolValue]]; }] 
 		toObject:self keyPath:RACKVO(self.loginEnabled)];
 	
-	__block BOOL didLoginLastTime = NO;
-	RACValue *result = [self.loginCommand addAsyncFunction:^(id value, NSError **error) {
-		NSLog(@"execute!");
+	RACValue *result = [self.loginCommand addOperationBlock:^{
+		[[GHGitHubClient sharedClient] setAuthorizationHeaderWithUsername:self.username password:self.password];
 		
-		// TODO: actually attempt to auth
-		
-		[NSThread sleepForTimeInterval:3.0f];
-		NSNumber *didLogin = [NSNumber numberWithBool:!didLoginLastTime];
-		didLoginLastTime = !didLoginLastTime;
-		return didLogin;
+		NSURLRequest *request = [[GHGitHubClient sharedClient] requestWithMethod:@"GET" path:@"" parameters:nil];
+		return [[GHGitHubClient sharedClient] HTTPRequestOperationWithRequest:request];
 	}];
 	
-	[[[[[result 
-		subscribeNext:^(id x) { NSLog(@"could login: %@", x); }] 
-		select:^(id x) { return [NSNumber numberWithBool:![x boolValue]]; }]
-		toObject:self keyPath:RACKVO(self.successHidden)]
-		select:^(id x) { return [NSNumber numberWithBool:![x boolValue]]; }] 
-		toObject:self keyPath:RACKVO(self.loginFailedHidden)];
+	[result subscribeNext:^(id x) {
+		self.successHidden = NO;
+		self.loginFailedHidden = YES;
+	}];
 	
-	[[[[RACSequence 
+	[result subscribeError:^(NSError *error) {
+		self.successHidden = YES;
+		self.loginFailedHidden = NO;
+		NSLog(@"error: %@", error);
+	}];
+	
+	[[RACSequence 
 		merge:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), nil]] 
-		select:^(id _) { return [NSNumber numberWithBool:YES]; }]
-		toObject:self keyPath:RACKVO(self.successHidden)]
-		toObject:self keyPath:RACKVO(self.loginFailedHidden)];
+		subscribeNext:^(id _) { self.successHidden = self.loginFailedHidden = YES; }];
 	
 	return self;
 }

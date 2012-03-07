@@ -38,5 +38,14 @@
 #pragma mark API
 
 @synthesize loginViewController;
+@synthesize gitHubClient;
+
+- (AFHTTPClient *)gitHubClient {
+	if(gitHubClient == nil) {
+		gitHubClient = [AFHTTPClient clientWithBaseURL:[NSURL URLWithString:@"https://api.github.com"]];
+	}
+	
+	return gitHubClient;
+}
 
 @end

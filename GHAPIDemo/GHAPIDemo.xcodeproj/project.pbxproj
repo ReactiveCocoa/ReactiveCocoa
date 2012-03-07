@@ -26,6 +26,16 @@
 		886F988715065C0300A20BE7 /* libExpecta.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 886F986D15065BEF00A20BE7 /* libExpecta.a */; };
 		886F988815065C0300A20BE7 /* libSpecta.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 886F987C15065BF500A20BE7 /* libSpecta.a */; };
 		886F988B15065CB400A20BE7 /* GHDLoginViewSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 886F988A15065CB400A20BE7 /* GHDLoginViewSpec.m */; };
+		886F99531506C3FC00A20BE7 /* AFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 886F993F1506C3FC00A20BE7 /* AFHTTPClient.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		886F99541506C3FC00A20BE7 /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 886F99411506C3FC00A20BE7 /* AFHTTPRequestOperation.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		886F99551506C3FC00A20BE7 /* AFImageRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 886F99431506C3FC00A20BE7 /* AFImageRequestOperation.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		886F99561506C3FC00A20BE7 /* AFJSONRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 886F99451506C3FC00A20BE7 /* AFJSONRequestOperation.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		886F99571506C3FC00A20BE7 /* AFJSONUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 886F99471506C3FC00A20BE7 /* AFJSONUtilities.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		886F99591506C3FC00A20BE7 /* AFPropertyListRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 886F994C1506C3FC00A20BE7 /* AFPropertyListRequestOperation.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		886F995A1506C3FC00A20BE7 /* AFURLConnectionOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 886F994E1506C3FC00A20BE7 /* AFURLConnectionOperation.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		886F995B1506C3FC00A20BE7 /* AFXMLRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 886F99501506C3FC00A20BE7 /* AFXMLRequestOperation.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		886F995F1506C48900A20BE7 /* GHJSONRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 886F995E1506C48900A20BE7 /* GHJSONRequestOperation.m */; };
+		88BC15931506F12600F5F6D9 /* GHGitHubClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 88BC15921506F12600F5F6D9 /* GHGitHubClient.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -172,6 +182,27 @@
 		886F986515065BEF00A20BE7 /* Expecta.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Expecta.xcodeproj; path = ../../external/expecta/Expecta.xcodeproj; sourceTree = "<group>"; };
 		886F987415065BF500A20BE7 /* Specta.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Specta.xcodeproj; path = ../../external/specta/Specta.xcodeproj; sourceTree = "<group>"; };
 		886F988A15065CB400A20BE7 /* GHDLoginViewSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHDLoginViewSpec.m; sourceTree = "<group>"; };
+		886F993E1506C3FC00A20BE7 /* AFHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPClient.h; sourceTree = "<group>"; };
+		886F993F1506C3FC00A20BE7 /* AFHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFHTTPClient.m; sourceTree = "<group>"; };
+		886F99401506C3FC00A20BE7 /* AFHTTPRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPRequestOperation.h; sourceTree = "<group>"; };
+		886F99411506C3FC00A20BE7 /* AFHTTPRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFHTTPRequestOperation.m; sourceTree = "<group>"; };
+		886F99421506C3FC00A20BE7 /* AFImageRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFImageRequestOperation.h; sourceTree = "<group>"; };
+		886F99431506C3FC00A20BE7 /* AFImageRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFImageRequestOperation.m; sourceTree = "<group>"; };
+		886F99441506C3FC00A20BE7 /* AFJSONRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFJSONRequestOperation.h; sourceTree = "<group>"; };
+		886F99451506C3FC00A20BE7 /* AFJSONRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFJSONRequestOperation.m; sourceTree = "<group>"; };
+		886F99461506C3FC00A20BE7 /* AFJSONUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFJSONUtilities.h; sourceTree = "<group>"; };
+		886F99471506C3FC00A20BE7 /* AFJSONUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFJSONUtilities.m; sourceTree = "<group>"; };
+		886F994A1506C3FC00A20BE7 /* AFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworking.h; sourceTree = "<group>"; };
+		886F994B1506C3FC00A20BE7 /* AFPropertyListRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFPropertyListRequestOperation.h; sourceTree = "<group>"; };
+		886F994C1506C3FC00A20BE7 /* AFPropertyListRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFPropertyListRequestOperation.m; sourceTree = "<group>"; };
+		886F994D1506C3FC00A20BE7 /* AFURLConnectionOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFURLConnectionOperation.h; sourceTree = "<group>"; };
+		886F994E1506C3FC00A20BE7 /* AFURLConnectionOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFURLConnectionOperation.m; sourceTree = "<group>"; };
+		886F994F1506C3FC00A20BE7 /* AFXMLRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFXMLRequestOperation.h; sourceTree = "<group>"; };
+		886F99501506C3FC00A20BE7 /* AFXMLRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFXMLRequestOperation.m; sourceTree = "<group>"; };
+		886F995D1506C48900A20BE7 /* GHJSONRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; path = GHJSONRequestOperation.h; sourceTree = "<group>"; };
+		886F995E1506C48900A20BE7 /* GHJSONRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHJSONRequestOperation.m; sourceTree = "<group>"; };
+		88BC15911506F12600F5F6D9 /* GHGitHubClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHGitHubClient.h; sourceTree = "<group>"; };
+		88BC15921506F12600F5F6D9 /* GHGitHubClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHGitHubClient.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -220,6 +251,7 @@
 		884E04941505ACF000035AFC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				886F993D1506C3FC00A20BE7 /* AFNetworking */,
 				884E04CC1505AD0D00035AFC /* ReactiveCocoa.xcodeproj */,
 				884E04951505ACF000035AFC /* Cocoa.framework */,
 				884E04B31505ACF000035AFC /* SenTestingKit.framework */,
@@ -253,6 +285,10 @@
 				884E04F71505B0A000035AFC /* GHDLoginView.m */,
 				884E04F91505B0AF00035AFC /* GHDLoginView.xib */,
 				884E049C1505ACF000035AFC /* Supporting Files */,
+				886F995D1506C48900A20BE7 /* GHJSONRequestOperation.h */,
+				886F995E1506C48900A20BE7 /* GHJSONRequestOperation.m */,
+				88BC15911506F12600F5F6D9 /* GHGitHubClient.h */,
+				88BC15921506F12600F5F6D9 /* GHGitHubClient.m */,
 			);
 			path = GHAPIDemo;
 			sourceTree = "<group>";
@@ -318,6 +354,31 @@
 				886F988215065BF500A20BE7 /* Specta-iOSTests.octest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		886F993D1506C3FC00A20BE7 /* AFNetworking */ = {
+			isa = PBXGroup;
+			children = (
+				886F993E1506C3FC00A20BE7 /* AFHTTPClient.h */,
+				886F993F1506C3FC00A20BE7 /* AFHTTPClient.m */,
+				886F99401506C3FC00A20BE7 /* AFHTTPRequestOperation.h */,
+				886F99411506C3FC00A20BE7 /* AFHTTPRequestOperation.m */,
+				886F99421506C3FC00A20BE7 /* AFImageRequestOperation.h */,
+				886F99431506C3FC00A20BE7 /* AFImageRequestOperation.m */,
+				886F99441506C3FC00A20BE7 /* AFJSONRequestOperation.h */,
+				886F99451506C3FC00A20BE7 /* AFJSONRequestOperation.m */,
+				886F99461506C3FC00A20BE7 /* AFJSONUtilities.h */,
+				886F99471506C3FC00A20BE7 /* AFJSONUtilities.m */,
+				886F994A1506C3FC00A20BE7 /* AFNetworking.h */,
+				886F994B1506C3FC00A20BE7 /* AFPropertyListRequestOperation.h */,
+				886F994C1506C3FC00A20BE7 /* AFPropertyListRequestOperation.m */,
+				886F994D1506C3FC00A20BE7 /* AFURLConnectionOperation.h */,
+				886F994E1506C3FC00A20BE7 /* AFURLConnectionOperation.m */,
+				886F994F1506C3FC00A20BE7 /* AFXMLRequestOperation.h */,
+				886F99501506C3FC00A20BE7 /* AFXMLRequestOperation.m */,
+			);
+			name = AFNetworking;
+			path = external/AFNetworking/AFNetworking;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -526,6 +587,16 @@
 				884E04EF1505AD4F00035AFC /* GHDMainWindowController.m in Sources */,
 				884E04F41505AEB200035AFC /* GHDLoginViewController.m in Sources */,
 				884E04F81505B0A000035AFC /* GHDLoginView.m in Sources */,
+				886F99531506C3FC00A20BE7 /* AFHTTPClient.m in Sources */,
+				886F99541506C3FC00A20BE7 /* AFHTTPRequestOperation.m in Sources */,
+				886F99551506C3FC00A20BE7 /* AFImageRequestOperation.m in Sources */,
+				886F99561506C3FC00A20BE7 /* AFJSONRequestOperation.m in Sources */,
+				886F99571506C3FC00A20BE7 /* AFJSONUtilities.m in Sources */,
+				886F99591506C3FC00A20BE7 /* AFPropertyListRequestOperation.m in Sources */,
+				886F995A1506C3FC00A20BE7 /* AFURLConnectionOperation.m in Sources */,
+				886F995B1506C3FC00A20BE7 /* AFXMLRequestOperation.m in Sources */,
+				886F995F1506C48900A20BE7 /* GHJSONRequestOperation.m in Sources */,
+				88BC15931506F12600F5F6D9 /* GHGitHubClient.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

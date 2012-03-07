@@ -57,6 +57,8 @@
 // Convenience method to subscribe to `error` events.
 - (id)subscribeError:(void (^)(NSError *error))errorBlock;
 
+- (id)subscribeCompleted:(void (^)(void))completedBlock;
+
 @end
 
 @interface RACSequence (QueryableImplementations) <RACQueryable>

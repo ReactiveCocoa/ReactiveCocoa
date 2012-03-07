@@ -115,6 +115,10 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return [self subscribe:[RACObserver observerWithCompleted:NULL error:errorBlock next:NULL]];
 }
 
+- (id)subscribeCompleted:(void (^)(void))completedBlock {
+	return [self subscribe:[RACObserver observerWithCompleted:completedBlock error:NULL next:NULL]];
+}
+
 - (void)sendNextToAllObservers:(id)value {
 	[self performBlockOnAllObservers:^(RACObserver *observer) {
 		if(observer.next != NULL) {

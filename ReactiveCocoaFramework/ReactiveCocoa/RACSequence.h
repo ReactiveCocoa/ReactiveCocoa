@@ -54,6 +54,9 @@
 // Returns self to allow for chaining.
 - (id)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock error:(void (^)(NSError *error))errorBlock;
 
+// Convenience method to subscribe to `error` events.
+- (id)subscribeError:(void (^)(NSError *error))errorBlock;
+
 @end
 
 @interface RACSequence (QueryableImplementations) <RACQueryable>

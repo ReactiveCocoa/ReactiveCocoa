@@ -39,9 +39,11 @@
 		select:^(NSArray *x) { return [NSNumber numberWithBool:[[x objectAtIndex:0] length] > 0 && [[x objectAtIndex:1] length] > 0 && [[x objectAtIndex:2] boolValue]]; }] 
 		toObject:self keyPath:RACKVO(self.loginEnabled)];
 	
-	RACValue *result = [self.loginCommand addOperationBlock:^{
+	[self.loginCommand subscribeNext:^(id _) {
 		[[GHGitHubClient sharedClient] setAuthorizationHeaderWithUsername:self.username password:self.password];
-		
+	}];
+	
+	RACValue *result = [self.loginCommand addOperationBlock:^{
 		NSURLRequest *request = [[GHGitHubClient sharedClient] requestWithMethod:@"GET" path:@"" parameters:nil];
 		return [[GHGitHubClient sharedClient] HTTPRequestOperationWithRequest:request];
 	}];

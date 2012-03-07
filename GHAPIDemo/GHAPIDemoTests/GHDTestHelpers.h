@@ -7,4 +7,4 @@
 //
 
 extern void GHDRunRunLoop();
-extern void GHDRunRunLoopUntil(BOOL condition);
+extern void GHDRunRunLoopWhile(BOOL (^conditionBlock)(void));

@@ -12,8 +12,8 @@ void GHDRunRunLoop(void) {
 	[[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1f]];
 }
 
-void GHDRunRunLoopUntil(BOOL condition) {
-	while(!condition) {
+extern void GHDRunRunLoopWhile(BOOL (^conditionBlock)(void)) {
+	while(conditionBlock()) {
 		GHDRunRunLoop();
 	}
 }

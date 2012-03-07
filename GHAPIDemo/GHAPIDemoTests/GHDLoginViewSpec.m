@@ -9,6 +9,7 @@
 #define EXP_SHORTHAND
 #import "Specta.h"
 #import "Expecta.h"
+#import "GHDTestHelpers.h"
 
 #import "GHDLoginViewController.h"
 
@@ -18,10 +19,6 @@ SpecBegin(LoginViewSpec)
 describe(@"validation", ^{
 	__block GHDLoginViewController *viewController = nil;
 	
-	void (^runRunLoop)(void) = ^{
-		[[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1f]];
-	};
-	
 	beforeEach(^{
 		viewController = [[GHDLoginViewController alloc] init];
 	});
@@ -30,7 +27,7 @@ describe(@"validation", ^{
 		viewController.username = @"johnsmith";
 		viewController.password = @"";
 		
-		runRunLoop();
+		GHDRunRunLoop();
 		
 		expect(viewController.loginEnabled).toBeFalsy();
 	});
@@ -39,7 +36,7 @@ describe(@"validation", ^{
 		viewController.username = @"";
 		viewController.password = @"secret";
 		
-		runRunLoop();
+		GHDRunRunLoop();
 		
 		expect(viewController.loginEnabled).toBeFalsy();
 	});
@@ -48,7 +45,7 @@ describe(@"validation", ^{
 		viewController.username = @"";
 		viewController.password = @"";
 		
-		runRunLoop();
+		GHDRunRunLoop();
 		
 		expect(viewController.loginEnabled).toBeFalsy();
 	});
@@ -57,7 +54,7 @@ describe(@"validation", ^{
 		viewController.username = @"johnsmith";
 		viewController.password = @"secret";
 		
-		runRunLoop();
+		GHDRunRunLoop();
 		
 		expect(viewController.loginEnabled).toBeTruthy();
 	});
@@ -66,11 +63,24 @@ describe(@"validation", ^{
 		viewController.username = @"johnsmith";
 		viewController.password = @"secret";
 		
-		runRunLoop();
+		GHDRunRunLoop();
 		
 		[viewController.loginCommand execute:nil];
 		
-		runRunLoop();
+		GHDRunRunLoop();
+		
+		expect(viewController.loginEnabled).toBeFalsy();
+	});
+	
+	it(@"should show login failure", ^{
+		viewController.username = @"johnsmith";
+		viewController.password = @"secret";
+		
+		GHDRunRunLoop();
+				
+		[viewController.loginCommand execute:nil];
+		
+		GHDRunRunLoop();
 		
 		expect(viewController.loginEnabled).toBeFalsy();
 	});

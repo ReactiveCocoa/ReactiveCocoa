@@ -36,6 +36,7 @@
 		886F995B1506C3FC00A20BE7 /* AFXMLRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 886F99501506C3FC00A20BE7 /* AFXMLRequestOperation.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		886F995F1506C48900A20BE7 /* GHJSONRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 886F995E1506C48900A20BE7 /* GHJSONRequestOperation.m */; };
 		88BC15931506F12600F5F6D9 /* GHGitHubClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 88BC15921506F12600F5F6D9 /* GHGitHubClient.m */; };
+		88BC15D21507024F00F5F6D9 /* GHDTestHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 88BC15D11507024F00F5F6D9 /* GHDTestHelpers.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -199,10 +200,12 @@
 		886F994E1506C3FC00A20BE7 /* AFURLConnectionOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFURLConnectionOperation.m; sourceTree = "<group>"; };
 		886F994F1506C3FC00A20BE7 /* AFXMLRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFXMLRequestOperation.h; sourceTree = "<group>"; };
 		886F99501506C3FC00A20BE7 /* AFXMLRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFXMLRequestOperation.m; sourceTree = "<group>"; };
-		886F995D1506C48900A20BE7 /* GHJSONRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; path = GHJSONRequestOperation.h; sourceTree = "<group>"; };
+		886F995D1506C48900A20BE7 /* GHJSONRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHJSONRequestOperation.h; sourceTree = "<group>"; };
 		886F995E1506C48900A20BE7 /* GHJSONRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHJSONRequestOperation.m; sourceTree = "<group>"; };
 		88BC15911506F12600F5F6D9 /* GHGitHubClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHGitHubClient.h; sourceTree = "<group>"; };
 		88BC15921506F12600F5F6D9 /* GHGitHubClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHGitHubClient.m; sourceTree = "<group>"; };
+		88BC15D11507024F00F5F6D9 /* GHDTestHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHDTestHelpers.m; sourceTree = "<group>"; };
+		88BC15D31507025900F5F6D9 /* GHDTestHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GHDTestHelpers.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -308,6 +311,8 @@
 		884E04B81505ACF000035AFC /* GHAPIDemoTests */ = {
 			isa = PBXGroup;
 			children = (
+				88BC15D31507025900F5F6D9 /* GHDTestHelpers.h */,
+				88BC15D11507024F00F5F6D9 /* GHDTestHelpers.m */,
 				886F988A15065CB400A20BE7 /* GHDLoginViewSpec.m */,
 				884E04B91505ACF000035AFC /* Supporting Files */,
 			);
@@ -605,6 +610,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				886F988B15065CB400A20BE7 /* GHDLoginViewSpec.m in Sources */,
+				88BC15D21507024F00F5F6D9 /* GHDTestHelpers.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -10,6 +10,7 @@
 #import "GHDLoginView.h"
 #import "GHGitHubClient.h"
 #import "GHJSONRequestOperation.h"
+#import "GHUserAccount.h"
 
 @interface GHDLoginViewController ()
 @property (nonatomic, assign) BOOL successHidden;
@@ -18,6 +19,8 @@
 @property (nonatomic, assign) BOOL loggingIn;
 @property (nonatomic, strong) RACAsyncCommand *loginCommand;
 @property (nonatomic, strong) GHDLoginView *view;
+@property (nonatomic, strong) GHUserAccount *userAccount;
+@property (nonatomic, strong) GHGitHubClient *client;
 @end
 
 
@@ -34,21 +37,21 @@
 	
 	self.loginCommand = [RACAsyncCommand command];
 	
-	[[[RACSequence 
-		combineLatest:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), self.loginCommand.canExecuteValue, nil]]
-		select:^(NSArray *x) { return [NSNumber numberWithBool:[[x objectAtIndex:0] length] > 0 && [[x objectAtIndex:1] length] > 0 && [[x objectAtIndex:2] boolValue]]; }] 
+	[[RACSequence 
+		combineLatest:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), self.loginCommand.canExecuteValue, nil] 
+		reduce:^(NSArray *xs) { return [NSNumber numberWithBool:[[xs objectAtIndex:0] length] > 0 && [[xs objectAtIndex:1] length] > 0 && [[xs objectAtIndex:2] boolValue]]; }]
 		toObject:self keyPath:RACKVO(self.loginEnabled)];
 	
 	[self.loginCommand subscribeNext:^(id _) {
-		[[GHGitHubClient sharedClient] setAuthorizationHeaderWithUsername:self.username password:self.password];
+		self.userAccount = [GHUserAccount userAccountWithUsername:self.username password:self.password];
+		self.client = [GHGitHubClient clientForUserAccount:self.userAccount];
 	}];
 	
-	RACValue *result = [self.loginCommand addOperationBlock:^{
-		NSURLRequest *request = [[GHGitHubClient sharedClient] requestWithMethod:@"GET" path:@"" parameters:nil];
-		return [[GHGitHubClient sharedClient] HTTPRequestOperationWithRequest:request];
+	RACValue *loginResult = [self.loginCommand addOperationBlock:^{
+		return [self.client operationWithMethod:@"GET" path:@"" parameters:nil];
 	}];
 	
-	[[result 
+	[[loginResult 
 		subscribeNext:^(id _) {
 			self.successHidden = NO;
 			self.loginFailedHidden = YES; 
@@ -59,9 +62,22 @@
 			NSLog(@"error: %@", error); 
 		}];
 	
-	[[[self.loginCommand 
+	RACAsyncCommand *getUserInfo = [RACAsyncCommand command];
+	RACValue *getUserInfoResult = [getUserInfo addOperationBlock:^{
+		return [self.client operationWithMethod:@"GET" path:@"user" parameters:nil];
+	}];
+	
+	[[[[loginResult 
+		subscribeNext:^(id x) { [getUserInfo execute:x]; }] 
+		selectMany:^(id _) { return getUserInfoResult; }] 
+		subscribeNext:^(id x) { NSLog(@"%@", x); }] 
+		subscribeError:^(NSError *error) { NSLog(@"error: %@", error); }];
+	
+	[[[[[self.loginCommand 
 		subscribeNext:^(id _) { self.loggingIn = YES; }]
-		selectMany:^(id _) { return result; }] 
+		selectMany:^(id _) { return loginResult; }] 
+		subscribeError:^(NSError *_) { self.loggingIn = NO; }]
+		selectMany:^(id _) { return getUserInfoResult; }]
 		subscribeCompleted:^{ self.loggingIn = NO; }];
 
 	[[RACSequence 
@@ -100,5 +116,7 @@
 @synthesize loginCommand;
 @synthesize loginEnabled;
 @synthesize loggingIn;
+@synthesize userAccount;
+@synthesize client;
 
 @end

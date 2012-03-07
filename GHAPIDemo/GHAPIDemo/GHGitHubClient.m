@@ -8,6 +8,11 @@
 
 #import "GHGitHubClient.h"
 #import "GHJSONRequestOperation.h"
+#import "GHUserAccount.h"
+
+@interface GHGitHubClient ()
+@property (nonatomic, strong) GHUserAccount *userAccount;
+@end
 
 
 @implementation GHGitHubClient
@@ -15,21 +20,18 @@
 
 #pragma mark API
 
-+ (GHGitHubClient *)sharedClient {
-	static dispatch_once_t onceToken;
-	static GHGitHubClient *client = nil;
-	dispatch_once(&onceToken, ^{
-		client = [[self alloc] initWithBaseURL:[NSURL URLWithString:@"https://api.github.com"]];
-	});
-	
+@synthesize userAccount;
+
++ (GHGitHubClient *)clientForUserAccount:(GHUserAccount *)userAccount {
+	GHGitHubClient *client = [[self alloc] initWithBaseURL:userAccount.APIEndpoint];
+	[client setAuthorizationHeaderWithUsername:userAccount.username password:userAccount.password];
+	client.userAccount = userAccount;
 	return client;
 }
 
 - (id)initWithBaseURL:(NSURL *)url {
     self = [super initWithBaseURL:url];
-    if (!self) {
-        return nil;
-    }
+    if(self == nil) return nil;
     
     [self registerHTTPOperationClass:[GHJSONRequestOperation class]];
     
@@ -46,6 +48,11 @@
 		GHJSONRequestOperation *op = (GHJSONRequestOperation *) operation;
 		op.RACAsyncCallback(nil, NO, error);
 	}];
+}
+
+- (GHJSONRequestOperation *)operationWithMethod:(NSString *)method path:(NSString *)path parameters:(NSDictionary *)parameters {
+	NSURLRequest *request = [self requestWithMethod:method path:path parameters:parameters];
+	return [self HTTPRequestOperationWithRequest:request];
 }
 
 @end

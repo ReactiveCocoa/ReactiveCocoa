@@ -9,12 +9,17 @@
 #import "AFNetworking.h"
 
 @class GHJSONRequestOperation;
+@class GHUserAccount;
 
 
 @interface GHGitHubClient : AFHTTPClient
 
-+ (GHGitHubClient *)sharedClient;
+@property (nonatomic, readonly, strong) GHUserAccount *userAccount;
+
++ (GHGitHubClient *)clientForUserAccount:(GHUserAccount *)userAccount;
 
 - (GHJSONRequestOperation *)HTTPRequestOperationWithRequest:(NSURLRequest *)request;
+
+- (GHJSONRequestOperation *)operationWithMethod:(NSString *)method path:(NSString *)path parameters:(NSDictionary *)parameters;
 
 @end

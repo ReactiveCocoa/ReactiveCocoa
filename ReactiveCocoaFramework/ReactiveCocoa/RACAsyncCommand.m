@@ -7,6 +7,7 @@
 //
 
 #import "RACAsyncCommand.h"
+#import "RACCommand+Private.h"
 #import "RACSequence+Private.h"
 #import "NSObject+RACPropertyObserving.h"
 
@@ -45,7 +46,11 @@
 - (BOOL)canExecute:(id)value {
 	if(self.queue.operationCount >= self.maxConcurrentExecutions) return NO;
 	
-	return [super canExecute:value];
+	if(self.canExecuteBlock != NULL) {
+		return self.canExecuteBlock(value);
+	}
+
+	return YES;
 }
 
 - (void)execute:(id)value {

@@ -11,6 +11,7 @@
 #import "RACSequence.h"
 #import "RACSequence+Private.h"
 #import "RACValue.h"
+#import "RACValueTransformer.h"
 
 #import <objc/runtime.h>
 
@@ -47,6 +48,15 @@ static const NSUInteger RACObservableSequenceCountThreshold = 100; // I dunno
 
 - (void)bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath {
 	[self bind:binding toObject:object withKeyPath:keyPath options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nil]];
+}
+
+- (void)bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath transform:(id (^)(id value))transformBlock {
+	RACValueTransformer *transformer = [RACValueTransformer transformerWithBlock:transformBlock];
+	[self bind:binding toObject:object withKeyPath:keyPath options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, transformer, NSValueTransformerBindingOption, nil]];
+}
+
+- (void)bind:(NSString *)binding toObject:(id)object withNegatedKeyPath:(NSString *)keyPath {
+	[self bind:binding toObject:object withKeyPath:keyPath options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, NSNegateBooleanTransformerName, NSValueTransformerNameBindingOption, nil]];
 }
 
 @end

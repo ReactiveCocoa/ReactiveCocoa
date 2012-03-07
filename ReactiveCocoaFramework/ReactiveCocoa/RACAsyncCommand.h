@@ -11,8 +11,8 @@
 @class RACSequence;
 
 @protocol RACAsyncCommandOperation <NSObject>
-// The RACAsyncCommand will set this before the operation's added it a queue. The operation must then call it when it is done. `returnedValue` will get set as the value of the RACVAlue returned by the original `-[RACAsyncCommand addOperation:]` call. If an error occurred, it should send nil and an error.
-@property (nonatomic, strong) void (^RACAsyncCallback)(id returnedValue, NSError *error);
+// The RACAsyncCommand will set this before the operation's added it a queue. The operation must then call it when it is done. `returnedValue` will get set as the value of the RACVAlue returned by the original `-[RACAsyncCommand addOperation:]` call. If an error occurred, it should pass NO to `success` and send the error.
+@property (nonatomic, strong) void (^RACAsyncCallback)(id returnedValue, BOOL success, NSError *error);
 @end
 
 
@@ -27,10 +27,10 @@
 
 // Adds a new asynchronous function to the command.
 //
-// block - the execution block for the async function. The block will be performed in `queue`. The value passed into the block is the value sent to `-execute:`. If an error occurs during the block's execute, it should return nil and set the error passed into the block. This will cause the sequence's `error` event to be fired. The block's return value will be added to the sequence returned by this method call.
+// block - the execution block for the async function. The block will be performed in `queue`. The value passed into the block is the value sent to `-execute:`. If an error occurs during the block's execute, it should set `success` to NO and set the error passed into the block. This will cause the sequence's `error` event to be fired. The block's return value will be added to the sequence returned by this method call.
 //
 // Returns a value to which the command will set the return value of the block.
-- (RACValue *)addAsyncFunction:(id (^)(id value, NSError **error))block;
+- (RACValue *)addAsyncFunction:(id (^)(id value, BOOL *success, NSError **error))block;
 
 // Adds a block that will create an operation to be performed when the command is executed.
 //

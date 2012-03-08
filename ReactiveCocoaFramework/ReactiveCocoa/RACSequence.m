@@ -414,4 +414,57 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return taken;
 }
 
+- (RACSequence *)until:(RACSequence *)untilSequence {
+	NSParameterAssert(untilSequence != nil);
+	
+	RACSequence *sequence = [RACSequence sequence];
+	__block RACObserver *observer = [self subscribeNext:^(id x) {
+		[sequence addObjectAndNilsAreOK:x];
+	} error:^(NSError *error) {
+		[sequence sendErrorToAllObservers:error];
+		[self unsubscribe:observer];
+	} completed:^{
+		[sequence sendCompletedToAllObservers];
+		[self unsubscribe:observer];
+	}];
+	
+	__block RACObserver *untilObserver = [untilSequence subscribeNext:^(id x) {
+		[sequence sendCompletedToAllObservers];
+	} error:^(NSError *error) {
+		[sequence sendErrorToAllObservers:error];
+		[untilSequence unsubscribe:untilObserver];
+	} completed:^{
+		[sequence sendCompletedToAllObservers];
+		[untilSequence unsubscribe:untilObserver];
+	}];
+	
+	return sequence;
+}
+
+- (RACSequence *)waitUntil:(RACSequence *)untilSequence {
+	NSParameterAssert(untilSequence != nil);
+	
+	RACSequence *sequence = [RACSequence sequence];
+	
+	__block RACObserver *observer = [untilSequence subscribeNext:^(id x) {
+		__block RACObserver *innerObserver = [self subscribeNext:^(id x) {
+			[sequence addObjectAndNilsAreOK:x];
+		} error:^(NSError *error) {
+			[sequence sendErrorToAllObservers:error];
+			[self unsubscribe:innerObserver];
+		} completed:^{
+			[sequence sendCompletedToAllObservers];
+			[self unsubscribe:innerObserver];
+		}];
+	} error:^(NSError *error) {
+		[sequence sendErrorToAllObservers:error];
+		[untilSequence unsubscribe:observer];
+	} completed:^{
+		// do nothing?
+		[untilSequence unsubscribe:observer];
+	}];
+	
+	return sequence;
+}
+
 @end

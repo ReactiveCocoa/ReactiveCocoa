@@ -117,4 +117,16 @@
 // Returns a sequence that only sends its `next` after the receiver has received `count` objects.
 - (RACSequence *)take:(NSUInteger)count;
 
+// Returns a sequence that adds objects from the receiver only until `untilSequence` gets a `next` or `error`.
+// `next` is sent when the receiver gets a `next`. The `next` value is value of the receiver's `next`.
+// `error` is sent when the receiver or `untilSequence` get `error`.
+// `completed` is sent when the receiver gets `completed` or when `untilSequence` gets next.
+- (RACSequence *)until:(RACSequence *)untilSequence;
+
+// Returns a sequence that adds objects from the receiver only after `untilSequence` gets a `next`.
+// `next` is sent when the receiver gets a `next` after `untilSequence` has received a `next`. The `next` value is the value of the receiver's `next`.
+// `error` is sent when the receiver or `untilSequence` get `error`.
+// `completed` is sent when the receiver gets `completed`.
+- (RACSequence *)waitUntil:(RACSequence *)untilSequence;
+
 @end

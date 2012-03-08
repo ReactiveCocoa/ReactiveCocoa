@@ -73,9 +73,9 @@
 	[[[[[self.loginCommand 
 		doNext:^(id _) { self.loggingIn = YES; }]
 		selectMany:^(id _) { return loginResult; }] 
-		doError:^(NSError *_) { self.loggingIn = NO; }]
 		selectMany:^(id _) { return getUserInfoResult; }]
-		subscribeCompleted:^{ self.loggingIn = NO; }];
+		doError:^(NSError *_) { self.loggingIn = NO; }]
+		subscribeNext:^(id _) { self.loggingIn = NO; }];
 
 	[[RACSequence 
 		merge:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), nil]] 

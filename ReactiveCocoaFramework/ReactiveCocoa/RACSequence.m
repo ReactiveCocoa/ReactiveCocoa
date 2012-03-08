@@ -152,7 +152,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	
 	if(self.suspendNotifications) return;
 	
-	for(RACObserver *observer in self.subscribers) {
+	for(RACObserver *observer in [self.subscribers copy]) {
 		block(observer);
 	}
 }

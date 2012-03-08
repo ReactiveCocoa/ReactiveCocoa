@@ -69,8 +69,6 @@
 			} else {
 				[value sendErrorToAllObservers:error];
 			}
-			
-			[value sendCompletedToAllObservers];
 		}];
 	};
 	

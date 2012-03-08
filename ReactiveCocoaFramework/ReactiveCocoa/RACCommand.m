@@ -56,7 +56,6 @@
 	if(![self canExecute:value]) return;
 	
 	self.value = value;
-	[self sendCompletedToAllObservers];
 	
 	if(self.executeBlock != NULL) {
 		self.executeBlock(value);

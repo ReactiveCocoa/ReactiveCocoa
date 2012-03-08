@@ -51,32 +51,29 @@
 		return [self.client operationWithMethod:@"GET" path:@"" parameters:nil];
 	}];
 	
-	[[loginResult 
-		subscribeNext:^(id _) {
-			self.successHidden = NO;
-			self.loginFailedHidden = YES; 
-		}] 
-		subscribeError:^(NSError *error) {
-			self.successHidden = YES;
-			self.loginFailedHidden = NO;
-			NSLog(@"error: %@", error); 
-		}];
+	[loginResult subscribeNext:^(id _) {
+		self.successHidden = NO;
+		self.loginFailedHidden = YES; 
+	} error:^(NSError *error) {
+		self.successHidden = YES;
+		self.loginFailedHidden = NO;
+	}];
 	
 	RACAsyncCommand *getUserInfo = [RACAsyncCommand command];
 	RACValue *getUserInfoResult = [getUserInfo addOperationBlock:^{
 		return [self.client operationWithMethod:@"GET" path:@"user" parameters:nil];
 	}];
 	
-	[[[[loginResult 
-		subscribeNext:^(id x) { [getUserInfo execute:x]; }] 
+	[[[loginResult 
+		doNext:^(id x) { [getUserInfo execute:x]; }] 
 		selectMany:^(id _) { return getUserInfoResult; }] 
-		subscribeNext:^(id x) { NSLog(@"%@", x); }] 
-		subscribeError:^(NSError *error) { NSLog(@"error: %@", error); }];
+		subscribeNext:^(id x) { NSLog(@"%@", x); }
+		error:^(NSError *error) { NSLog(@"error: %@", error); }];
 	
 	[[[[[self.loginCommand 
-		subscribeNext:^(id _) { self.loggingIn = YES; }]
+		doNext:^(id _) { self.loggingIn = YES; }]
 		selectMany:^(id _) { return loginResult; }] 
-		subscribeError:^(NSError *_) { self.loggingIn = NO; }]
+		doError:^(NSError *_) { self.loggingIn = NO; }]
 		selectMany:^(id _) { return getUserInfoResult; }]
 		subscribeCompleted:^{ self.loggingIn = NO; }];
 

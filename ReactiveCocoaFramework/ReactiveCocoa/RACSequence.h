@@ -39,25 +39,37 @@
 - (id)lastObject;
 
 // Convenience method to subscribe to the `next` event.
-//
-// Returns self to allow for chaining.
-- (RACSequence *)subscribeNext:(void (^)(id x))nextBlock;
+- (RACObserver *)subscribeNext:(void (^)(id x))nextBlock;
 
 // Convenience method to subscribe to the `next` and `completed` events.
-//
-// Returns self to allow for chaining.
-- (RACSequence *)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock;
+- (RACObserver *)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock;
 
 // Convenience method to subscribe to the `next`, `completed`, and `error` events.
-//
-// Returns self to allow for chaining.
-- (RACSequence *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
+- (RACObserver *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
 
 // Convenience method to subscribe to `error` events.
-- (RACSequence *)subscribeError:(void (^)(NSError *error))errorBlock;
+- (RACObserver *)subscribeError:(void (^)(NSError *error))errorBlock;
 
-// Convenence method to subscribe to `completed` events.
-- (RACSequence *)subscribeCompleted:(void (^)(void))completedBlock;
+// Convenience method to subscribe to `completed` events.
+- (RACObserver *)subscribeCompleted:(void (^)(void))completedBlock;
+
+// Convenience method to subscribe to `next` and `error` events.
+- (RACObserver *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock;
+
+// Perform the given block on the `next` event. The observer is unregistered on `error` or `completed`.
+//
+// Returns self.
+- (RACSequence *)doNext:(void (^)(id x))nextBlock;
+
+// Perform the given block on the `error` event. The observer is unregistered on `completed`.
+//
+// Returns self.
+- (RACSequence *)doError:(void (^)(NSError *error))errorBlock;
+
+// Perform the given block on the `completed` event. The observer is unregistered on `error`.
+//
+// Returns self.
+- (RACSequence *)doCompleted:(void (^)(void))completedBlock;
 
 @end
 

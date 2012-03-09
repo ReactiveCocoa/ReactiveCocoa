@@ -11,6 +11,8 @@
 #import "RACObservable.h"
 #import "RACQueryable.h"
 
+@class RACCommand;
+
 #define rac_synthesize_seq(a) \
 	@synthesize a; \
 	- (RACSequence *)a { \
@@ -142,5 +144,7 @@
 - (RACSequence *)waitUntil:(RACSequence *)untilSequence;
 
 - (RACSequence *)catch:(RACSequence * (^)(NSError *error))catchBlock;
+
+- (RACSequence *)executeCommand:(RACCommand *)command;
 
 @end

@@ -11,6 +11,7 @@
 #import "RACObserver.h"
 #import "NSObject+GHExtensions.h"
 #import "EXTNil.h"
+#import "RACCommand.h"
 
 static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 
@@ -580,6 +581,23 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 		[sequence addObjectAndNilsAreOK:x];
 	} error:^(NSError *error) {
 		[sequence addObjectAndNilsAreOK:catchBlock(error)];
+	} completed:^{
+		[sequence sendCompletedToAllObservers];
+		[sequence unsubscribe:observer];
+	}];
+	
+	return sequence;
+}
+
+- (RACSequence *)executeCommand:(RACCommand *)command {
+	RACSequence *sequence = [RACSequence sequence];
+	
+	__block RACObserver *observer = [self subscribeNext:^(id x) {
+		[sequence addObjectAndNilsAreOK:x];
+		[command execute:x];
+	} error:^(NSError *error) {
+		[sequence sendErrorToAllObservers:error];
+		[sequence unsubscribe:observer];
 	} completed:^{
 		[sequence sendCompletedToAllObservers];
 		[sequence unsubscribe:observer];

@@ -100,13 +100,9 @@
 @synthesize maxConcurrentExecutions;
 
 + (NSOperationQueue *)defaultQueue {
-	static dispatch_once_t onceToken;
-	static NSOperationQueue *queue = nil;
-	dispatch_once(&onceToken, ^{
-		queue = [[NSOperationQueue alloc] init];
-		[queue setMaxConcurrentOperationCount:NSOperationQueueDefaultMaxConcurrentOperationCount];
-	});
-	
+	NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+	[queue setName:@"RACAsyncCommand queue"];
+	[queue setMaxConcurrentOperationCount:NSOperationQueueDefaultMaxConcurrentOperationCount];
 	return queue;
 }
 

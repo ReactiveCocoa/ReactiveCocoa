@@ -11,7 +11,8 @@
 #import "RACSequence+Private.h"
 
 @interface RACCommand ()
-@property (nonatomic, strong) RACValue *canExecuteValue;
+@property (nonatomic, copy) BOOL (^canExecuteBlock)(id value);
+@property (nonatomic, copy) void (^executeBlock)(id value);
 @end
 
 

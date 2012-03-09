@@ -7,6 +7,5 @@
 //
 
 @interface RACCommand ()
-@property (nonatomic, copy) BOOL (^canExecuteBlock)(id value);
-@property (nonatomic, copy) void (^executeBlock)(id value);
+@property (nonatomic, assign) BOOL canExecute;
 @end

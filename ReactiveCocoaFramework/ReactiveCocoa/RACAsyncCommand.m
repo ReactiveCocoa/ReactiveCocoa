@@ -54,9 +54,7 @@
 	return YES;
 }
 
-- (void)execute:(id)value {
-	if(![self canExecute:value]) return;
-	
+- (void)execute:(id)value {	
 	[super execute:value];
 	
 	if(self.asyncFunctionPairs.count > 0) {

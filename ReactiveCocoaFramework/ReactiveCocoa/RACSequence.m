@@ -594,7 +594,9 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	
 	__block RACObserver *observer = [self subscribeNext:^(id x) {
 		[sequence addObjectAndNilsAreOK:x];
-		[command execute:x];
+		if([command canExecute:x]) {
+			[command execute:x];
+		}
 	} error:^(NSError *error) {
 		[sequence sendErrorToAllObservers:error];
 		[sequence unsubscribe:observer];

@@ -12,7 +12,7 @@
 
 
 // A command is a value that allows more customization of its behavior.
-// It sends both `next` and `completed` events when the command executes. `next` is sent the value passed into `-execute:`.
+// It sends `next` events when the command executes. `next` is sent the value passed into `-execute:`.
 @interface RACCommand : RACValue
 
 // The value that controls whether the command can execute, regardless of the value passed in.

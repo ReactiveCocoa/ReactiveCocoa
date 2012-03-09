@@ -43,10 +43,10 @@
 - (GHJSONRequestOperation *)HTTPRequestOperationWithRequest:(NSURLRequest *)request {
 	return (GHJSONRequestOperation *) [super HTTPRequestOperationWithRequest:request success:^(AFHTTPRequestOperation *operation, id responseObject) {
 		GHJSONRequestOperation *op = (GHJSONRequestOperation *) operation;
-		op.RACAsyncCallback(responseObject, YES, nil);
+		op.RACAsyncCallback([RACMaybe maybeWithObject:responseObject], YES, nil);
 	} failure:^(AFHTTPRequestOperation *operation, NSError *error) {
 		GHJSONRequestOperation *op = (GHJSONRequestOperation *) operation;
-		op.RACAsyncCallback(nil, NO, error);
+		op.RACAsyncCallback([RACMaybe maybeWithError:error], YES, nil);
 	}];
 }
 

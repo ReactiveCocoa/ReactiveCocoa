@@ -10,8 +10,8 @@
 #import "AFJSONRequestOperation.h"
 
 
-@interface GHJSONRequestOperation : AFJSONRequestOperation <RACAsyncCommandOperation>
+@interface GHJSONRequestOperation : AFJSONRequestOperation <RACAsyncFunctionOperation>
 
-@property (nonatomic, strong) void (^RACAsyncCallback)(id returnedValue, BOOL success, NSError *error);
+@property (nonatomic, copy) void (^RACAsyncCallback)(id returnedValue, BOOL success, NSError *error);
 
 @end

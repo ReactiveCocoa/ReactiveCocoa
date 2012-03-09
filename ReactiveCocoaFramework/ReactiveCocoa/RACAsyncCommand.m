@@ -24,6 +24,7 @@
 
 @interface RACAsyncCommand ()
 @property (nonatomic, readonly) NSMutableArray *asyncFunctionPairs;
+@property (nonatomic, assign) NSUInteger numberOfActiveExecutions;
 
 + (NSOperationQueue *)defaultQueue;
 @end
@@ -46,7 +47,7 @@
 
 - (BOOL)canExecute:(id)value {
 	if(![super canExecute:value]) return NO;
-	if(self.queue.operationCount >= self.maxConcurrentExecutions) return NO;
+	if(self.numberOfActiveExecutions >= self.maxConcurrentExecutions) return NO;
 
 	return YES;
 }
@@ -93,6 +94,7 @@
 @synthesize queue;
 @synthesize asyncFunctionPairs;
 @synthesize maxConcurrentExecutions;
+@synthesize numberOfActiveExecutions;
 
 + (NSOperationQueue *)defaultQueue {
 	NSOperationQueue *queue = [[NSOperationQueue alloc] init];
@@ -135,10 +137,10 @@
 	if(queue == q) return;
 	
 	queue = q;
-	
-	[[RACObservable(self.queue.operationCount) 
-		select:^(id _) { return [NSNumber numberWithBool:self.queue.operationCount < self.maxConcurrentExecutions]; }]
-		subscribeNext:^(id x) { self.canExecute = [x boolValue]; }];
+		
+	[RACObservable(self.queue.operationCount) subscribeNext:^(id x) {
+		self.numberOfActiveExecutions = [x unsignedIntegerValue];
+	}];
 }
 
 @end

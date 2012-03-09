@@ -21,6 +21,8 @@
 // The maximum number of concurrent executions allowed. `-canExecute:` will return NO if the number of active executions is greater than or equal to this. `canExecuteValue` is updated as the number of concurrent calls changes.
 @property (nonatomic, assign) NSUInteger maxConcurrentExecutions;
 
+@property (nonatomic, readonly, assign) NSUInteger numberOfActiveExecutions;
+
 // Adds a new asynchronous function to the command.
 //
 // block - the execution block for the async function. The block will be performed in `queue`. The value passed into the block is the value sent to `-execute:`. If an error occurs during the block's execute, it should set `success` to NO and set the error passed into the block. This will cause the sequence's `error` event to be fired. The block's return value will be added to the sequence returned by this method call.

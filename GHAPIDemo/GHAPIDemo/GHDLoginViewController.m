@@ -37,10 +37,7 @@
 	
 	self.loginCommand = [RACAsyncCommand command];
 	RACValue *loginResult = [self.loginCommand addOperationBlock:^{ return [self.client operationToLogin]; }];
-	
-	RACAsyncCommand *getUserInfoCommand = [RACAsyncCommand command];
-	RACValue *getUserInfoResult = [getUserInfoCommand addOperationBlock:^{ return [self.client operationToGetCurrentUserInfo]; }];
-	
+
 	[self.loginCommand subscribeNext:^(id _) {
 		self.userAccount = [GHUserAccount userAccountWithUsername:self.username password:self.password];
 		self.client = [GHGitHubClient clientForUserAccount:self.userAccount];
@@ -57,29 +54,14 @@
 		NSLog(@"error logging in: %@", x);
 	}];
 	
-	[[[getUserInfoResult where:^(id x) {
-		return [x hasError];
-	}] select:^(id x) {
-		return [x error];
-	}] subscribeNext:^(id x) {
-		self.loggingIn = NO;
-		NSLog(@"error getting user info: %@", x);
-	}];
-	
 	[[loginResult where:^(id x) {
 		return [x hasObject];
 	}] subscribeNext:^(id _) {
 		self.successHidden = NO;
-		[getUserInfoCommand execute:nil]; 
-	}];
-	
-	[[[getUserInfoResult where:^(id x) {
-		return [x hasObject];
-	}] select:^(id x) {
-		return [x object];
-	}] subscribeNext:^(id x) {
 		self.loggingIn = NO;
-		NSLog(@"user info: %@", x);
+		[[self refreshAll] subscribeNext:^(id x) {
+			NSLog(@"all the things: %@", x);
+		}];
 	}];
 	
 	[[RACSequence merge:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), nil]] subscribeNext:^(id _) {
@@ -124,5 +106,38 @@
 @synthesize loggingIn;
 @synthesize userAccount;
 @synthesize client;
+
+- (RACSequence *)refreshAll {
+	RACAsyncCommand *getUserInfoCommand = [RACAsyncCommand command];
+	getUserInfoCommand.queue = [[NSOperationQueue alloc] init];
+	RACValue *getUserInfoResult = [getUserInfoCommand addOperationBlock:^{
+		return [self.client operationToGetCurrentUserInfo];
+	}];
+	
+	RACAsyncCommand *getReposCommand = [RACAsyncCommand command];
+	getReposCommand.queue = [[NSOperationQueue alloc] init];
+	RACValue *getReposResult = [getReposCommand addOperationBlock:^{
+		return [self.client operationToGetCurrentUsersRepos];
+	}];
+	
+	RACAsyncCommand *getOrgsCommand = [RACAsyncCommand command];
+	getOrgsCommand.queue = [[NSOperationQueue alloc] init];
+	RACValue *getOrgsResult = [getOrgsCommand addOperationBlock:^{ 
+		return [self.client operationToGetCurrentUsersOrgs]; 
+	}];
+	
+	RACSequence *results = [RACSequence zip:[NSArray arrayWithObjects:getUserInfoResult, getReposResult, getOrgsResult, nil] reduce:^(NSArray *xs) {
+		RACMaybe *first = [xs objectAtIndex:0];
+		RACMaybe *second = [xs objectAtIndex:1];
+		RACMaybe *third = [xs objectAtIndex:2];
+		return [NSArray arrayWithObjects:first.object ? : first.error, second.object ? : second.error, third.object ? : third.error, nil];
+	}];
+
+	[getUserInfoCommand execute:nil];
+	[getReposCommand execute:nil];
+	[getOrgsCommand execute:nil];
+	
+	return results;
+}
 
 @end

@@ -45,11 +45,8 @@
 #pragma mark RACCommand
 
 - (BOOL)canExecute:(id)value {
+	if(![super canExecute:value]) return NO;
 	if(self.queue.operationCount >= self.maxConcurrentExecutions) return NO;
-	
-	if(self.canExecuteBlock != NULL) {
-		return self.canExecuteBlock(value);
-	}
 
 	return YES;
 }

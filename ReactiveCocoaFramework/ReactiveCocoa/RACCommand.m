@@ -53,9 +53,7 @@
 	return self.canExecute;
 }
 
-- (void)execute:(id)value {
-	if(![self canExecute:value]) return;
-	
+- (void)execute:(id)value {	
 	self.value = value;
 	
 	if(self.executeBlock != NULL) {

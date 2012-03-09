@@ -22,5 +22,7 @@
 
 - (GHJSONRequestOperation *)operationToLogin;
 - (GHJSONRequestOperation *)operationToGetCurrentUserInfo;
+- (GHJSONRequestOperation *)operationToGetCurrentUsersRepos;
+- (GHJSONRequestOperation *)operationToGetCurrentUsersOrgs;
 
 @end

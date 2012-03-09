@@ -63,4 +63,12 @@
 	return [self operationWithMethod:@"GET" path:@"user" parameters:nil];
 }
 
+- (GHJSONRequestOperation *)operationToGetCurrentUsersRepos {
+	return [self operationWithMethod:@"GET" path:@"user/repos" parameters:nil];
+}
+
+- (GHJSONRequestOperation *)operationToGetCurrentUsersOrgs {
+	return [self operationWithMethod:@"GET" path:@"user/orgs" parameters:nil];
+}
+
 @end

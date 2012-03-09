@@ -138,7 +138,7 @@
 	
 	[[RACObservable(self.queue.operationCount) 
 		select:^(id _) { return [NSNumber numberWithBool:self.queue.operationCount < self.maxConcurrentExecutions]; }]
-		subscribeNext:^(id x) { self.canExecute = [x boolValue] && self.canExecute; }];
+		subscribeNext:^(id x) { self.canExecute = [x boolValue]; }];
 }
 
 @end

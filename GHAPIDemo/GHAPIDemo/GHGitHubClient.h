@@ -18,8 +18,9 @@
 
 + (GHGitHubClient *)clientForUserAccount:(GHUserAccount *)userAccount;
 
-- (GHJSONRequestOperation *)HTTPRequestOperationWithRequest:(NSURLRequest *)request;
-
 - (GHJSONRequestOperation *)operationWithMethod:(NSString *)method path:(NSString *)path parameters:(NSDictionary *)parameters;
+
+- (GHJSONRequestOperation *)operationToLogin;
+- (GHJSONRequestOperation *)operationToGetCurrentUserInfo;
 
 @end

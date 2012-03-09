@@ -55,4 +55,12 @@
 	return [self HTTPRequestOperationWithRequest:request];
 }
 
+- (GHJSONRequestOperation *)operationToLogin {
+	return [self operationWithMethod:@"GET" path:@"" parameters:nil];
+}
+
+- (GHJSONRequestOperation *)operationToGetCurrentUserInfo {
+	return [self operationWithMethod:@"GET" path:@"user" parameters:nil];
+}
+
 @end

@@ -33,6 +33,6 @@
 // operationBlock - the block to create an operation when the command is executed.
 //
 // Returns a value to which the operation will set the value of the operation's execution.
-- (RACValue *)addOperationBlock:(NSOperation<RACAsyncFunctionOperation> * (^)(void))operationBlock;
+- (RACValue *)addOperationYieldingBlock:(NSOperation<RACAsyncFunctionOperation> * (^)(id value))operationBlock;
 
 @end

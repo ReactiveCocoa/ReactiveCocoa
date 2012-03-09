@@ -45,6 +45,14 @@
 	return command;
 }
 
++ (id)commandWithCanExecuteObservable:(RACSequence *)canExecuteObservable execute:(void (^)(id value))executeBlock {
+	RACCommand *command = [self commandWithCanExecute:NULL execute:executeBlock];
+	[canExecuteObservable subscribeNext:^(id x) {
+		command.canExecute = [x boolValue];
+	}];
+	return command;
+}
+
 - (BOOL)canExecute:(id)value {
 	if(self.canExecuteBlock != NULL) {
 		return self.canExecuteBlock(value);

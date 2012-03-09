@@ -26,6 +26,8 @@
 // executeBlock - the block that will be executed when the command is executed. It will be passed the object given to `-execute:`.
 + (id)commandWithCanExecute:(BOOL (^)(id value))canExecuteBlock execute:(void (^)(id value))executeBlock;
 
++ (id)commandWithCanExecuteObservable:(RACSequence *)canExecuteObservable execute:(void (^)(id value))executeBlock;
+
 // Can the command execute with the given value?
 //
 // value - the value that would be passed into `-execute:` if it returns YES.

@@ -14,3 +14,8 @@
 #import <ReactiveCocoa/NSButton+RACCommandSupport.h>
 #import <ReactiveCocoa/RACNil.h>
 #import <ReactiveCocoa/RACAsyncCommand.h>
+#import <ReactiveCocoa/RACReturnPrimitive.h>
+#import <ReactiveCocoa/RACMaybe.h>
+#import <ReactiveCocoa/EXTNil.h>
+#import <ReactiveCocoa/RACAsyncFunctionOperation.h>
+#import <ReactiveCocoa/RACAsyncFunction.h>

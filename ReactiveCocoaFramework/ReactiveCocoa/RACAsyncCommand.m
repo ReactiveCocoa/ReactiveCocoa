@@ -10,11 +10,12 @@
 #import "RACCommand+Private.h"
 #import "RACSequence+Private.h"
 #import "NSObject+RACPropertyObserving.h"
+#import "RACAsyncFunctionOperation.h"
 
 @interface RACAsyncCommandPair : NSObject
 
 @property (nonatomic, copy) id (^block)(id value, BOOL *success, NSError **error);
-@property (nonatomic, copy) NSOperation<RACAsyncCommandOperation> * (^operationBlock)(void);
+@property (nonatomic, copy) NSOperation<RACAsyncFunctionOperation> * (^operationBlock)(void);
 @property (nonatomic, strong) RACValue *value;
 
 + (id)pair;
@@ -81,7 +82,7 @@
 				finish(value, returnedValue, success, error);
 			}];
 		} else if(pair.operationBlock != nil) {
-			NSOperation<RACAsyncCommandOperation> *operation = pair.operationBlock();
+			NSOperation<RACAsyncFunctionOperation> *operation = pair.operationBlock();
 			operation.RACAsyncCallback = ^(id returnedValue, BOOL success, NSError *error) {
 				finish(pair.value, returnedValue, success, error);
 			};
@@ -120,7 +121,7 @@
 	return value;
 }
 
-- (RACValue *)addOperationBlock:(NSOperation<RACAsyncCommandOperation> * (^)(void))operationBlock {
+- (RACValue *)addOperationBlock:(NSOperation<RACAsyncFunctionOperation> * (^)(void))operationBlock {
 	NSParameterAssert(operationBlock != NULL);
 	
 	RACValue *value = [RACValue value];

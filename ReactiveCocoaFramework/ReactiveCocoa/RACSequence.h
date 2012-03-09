@@ -141,4 +141,6 @@
 // `completed` is sent when the receiver gets `completed`.
 - (RACSequence *)waitUntil:(RACSequence *)untilSequence;
 
+- (RACSequence *)catch:(RACSequence * (^)(NSError *error))catchBlock;
+
 @end

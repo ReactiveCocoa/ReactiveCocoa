@@ -9,11 +9,7 @@
 #import "RACCommand.h"
 
 @class RACSequence;
-
-@protocol RACAsyncCommandOperation <NSObject>
-// The RACAsyncCommand will set this before the operation's added it a queue. The operation must then call it when it is done. `returnedValue` will get set as the value of the RACVAlue returned by the original `-[RACAsyncCommand addOperation:]` call. If an error occurred, it should pass NO to `success` and send the error.
-@property (nonatomic, strong) void (^RACAsyncCallback)(id returnedValue, BOOL success, NSError *error);
-@end
+@protocol RACAsyncFunctionOperation;
 
 
 // An async command is a command that can run asynchronous functions when the command is executed.
@@ -37,6 +33,6 @@
 // operationBlock - the block to create an operation when the command is executed.
 //
 // Returns a value to which the operation will set the value of the operation's execution.
-- (RACValue *)addOperationBlock:(NSOperation<RACAsyncCommandOperation> * (^)(void))operationBlock;
+- (RACValue *)addOperationBlock:(NSOperation<RACAsyncFunctionOperation> * (^)(void))operationBlock;
 
 @end

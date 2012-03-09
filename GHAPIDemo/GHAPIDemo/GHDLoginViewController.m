@@ -36,7 +36,7 @@
 	self.loggingIn = NO;
 	
 	self.loginCommand = [RACAsyncCommand command];
-	RACValue *loginResult = [self.loginCommand addOperationBlock:^{ return [self.client operationToLogin]; }];
+	RACValue *loginResult = [self.loginCommand addOperationYieldingBlock:^(id _) { return [self.client operationToLogin]; }];
 
 	[self.loginCommand subscribeNext:^(id _) {
 		self.userAccount = [GHUserAccount userAccountWithUsername:self.username password:self.password];
@@ -68,8 +68,8 @@
 		self.successHidden = self.loginFailedHidden = YES;
 	}];
 	
-	[[RACSequence combineLatest:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), self.loginCommand.canExecuteValue, nil] reduce:^(NSArray *xs) {
-		return [NSNumber numberWithBool:[[xs objectAtIndex:0] length] > 0 && [[xs objectAtIndex:1] length] > 0 && [[xs objectAtIndex:2] boolValue]];
+	[[RACSequence combineLatest:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), nil] reduce:^(NSArray *xs) {
+		return [NSNumber numberWithBool:[[xs objectAtIndex:0] length] > 0 && [[xs objectAtIndex:1] length] > 0];
 	}] toObject:self keyPath:RACKVO(self.loginEnabled)];
 	
 	return self;
@@ -109,20 +109,17 @@
 
 - (RACSequence *)refreshAll {
 	RACAsyncCommand *getUserInfoCommand = [RACAsyncCommand command];
-	getUserInfoCommand.queue = [[NSOperationQueue alloc] init];
-	RACValue *getUserInfoResult = [getUserInfoCommand addOperationBlock:^{
+	RACValue *getUserInfoResult = [getUserInfoCommand addOperationYieldingBlock:^(id _) {
 		return [self.client operationToGetCurrentUserInfo];
 	}];
 	
 	RACAsyncCommand *getReposCommand = [RACAsyncCommand command];
-	getReposCommand.queue = [[NSOperationQueue alloc] init];
-	RACValue *getReposResult = [getReposCommand addOperationBlock:^{
+	RACValue *getReposResult = [getReposCommand addOperationYieldingBlock:^(id _) {
 		return [self.client operationToGetCurrentUsersRepos];
 	}];
 	
 	RACAsyncCommand *getOrgsCommand = [RACAsyncCommand command];
-	getOrgsCommand.queue = [[NSOperationQueue alloc] init];
-	RACValue *getOrgsResult = [getOrgsCommand addOperationBlock:^{ 
+	RACValue *getOrgsResult = [getOrgsCommand addOperationYieldingBlock:^(id _) { 
 		return [self.client operationToGetCurrentUsersOrgs]; 
 	}];
 	

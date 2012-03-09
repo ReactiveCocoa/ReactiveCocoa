@@ -21,7 +21,7 @@
 	self = [super init];
 	if(self == nil) return nil;
 	
-	self.canExecuteValue = [RACValue valueWithValue:[NSNumber numberWithBool:YES]];
+	self.canExecute = YES;
 	
 	return self;
 }
@@ -29,7 +29,7 @@
 
 #pragma mark API
 
-@synthesize canExecuteValue;
+@synthesize canExecute;
 @synthesize canExecuteBlock;
 @synthesize executeBlock;
 
@@ -49,7 +49,7 @@
 		return self.canExecuteBlock(value);
 	}
 	
-	return [self.canExecuteValue.value boolValue];
+	return self.canExecute;
 }
 
 - (void)execute:(id)value {

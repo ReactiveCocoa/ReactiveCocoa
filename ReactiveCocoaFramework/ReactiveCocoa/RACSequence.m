@@ -507,8 +507,6 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 		
 		if(notify) {
 			receivedCount = 0;
-//			[taken sendCompletedToAllObservers];
-//			[self unsubscribe:observer];
 		}
 	} error:^(NSError *error) {
 		[taken sendErrorToAllObservers:error];

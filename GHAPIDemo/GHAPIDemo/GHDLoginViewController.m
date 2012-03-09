@@ -35,6 +35,10 @@
 	self.loginEnabled = NO;
 	self.loggingIn = NO;
 	
+	[[RACSequence combineLatest:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), RACObservable(self.loginCommand.canExecute), nil] reduce:^(NSArray *xs) {
+		return [NSNumber numberWithBool:[[xs objectAtIndex:0] length] > 0 && [[xs objectAtIndex:1] length] > 0 && [[xs objectAtIndex:2] boolValue]];
+	}] toObject:self keyPath:RACKVO(self.loginEnabled)];
+	
 	self.loginCommand = [RACAsyncCommand command];
 	RACValue *loginResult = [self.loginCommand addOperationYieldingBlock:^(id _) { return [self.client operationToLogin]; }];
 
@@ -67,10 +71,6 @@
 	[[RACSequence merge:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), nil]] subscribeNext:^(id _) {
 		self.successHidden = self.loginFailedHidden = YES;
 	}];
-	
-	[[RACSequence combineLatest:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), nil] reduce:^(NSArray *xs) {
-		return [NSNumber numberWithBool:[[xs objectAtIndex:0] length] > 0 && [[xs objectAtIndex:1] length] > 0];
-	}] toObject:self keyPath:RACKVO(self.loginEnabled)];
 	
 	return self;
 }

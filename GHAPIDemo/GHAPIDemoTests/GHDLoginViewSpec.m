@@ -57,7 +57,6 @@ describe(@"validation", ^{
 		
 		GHDRunRunLoop();
 		
-		viewController.loginCommand.queue = [[NSOperationQueue alloc] init];
 		[viewController.loginCommand execute:nil];
 				
 		expect(viewController.loginEnabled).isGoing.toBeFalsy();
@@ -69,7 +68,6 @@ describe(@"validation", ^{
 		
 		GHDRunRunLoop();
 		
-		viewController.loginCommand.queue = [[NSOperationQueue alloc] init];
 		[viewController.loginCommand execute:nil];
 				
 		expect(viewController.loggingIn).isGoing.toBeTruthy();
@@ -81,7 +79,6 @@ describe(@"validation", ^{
 		
 		GHDRunRunLoop();
 		
-		viewController.loginCommand.queue = [[NSOperationQueue alloc] init];
 		[viewController.loginCommand execute:nil];
 		
 		GHDRunRunLoopWhile(^{ return viewController.loggingIn; });

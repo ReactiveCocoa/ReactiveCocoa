@@ -35,8 +35,8 @@
 	self.loginEnabled = NO;
 	self.loggingIn = NO;
 	
-	[[RACSequence combineLatest:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), RACObservable(self.loginCommand.canExecute), nil] reduce:^(NSArray *xs) {
-		return [NSNumber numberWithBool:[[xs objectAtIndex:0] length] > 0 && [[xs objectAtIndex:1] length] > 0 && [[xs objectAtIndex:2] boolValue]];
+	[[RACSequence combineLatest:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), RACObservable(self.loginCommand.numberOfActiveExecutions), nil] reduce:^(NSArray *xs) {
+		return [NSNumber numberWithBool:[[xs objectAtIndex:0] length] > 0 && [[xs objectAtIndex:1] length] > 0 && [[xs objectAtIndex:2] unsignedIntegerValue] < 1];
 	}] toObject:self keyPath:RACKVO(self.loginEnabled)];
 	
 	self.loginCommand = [RACAsyncCommand command];

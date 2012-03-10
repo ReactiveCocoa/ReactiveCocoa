@@ -123,11 +123,19 @@
 		return [self.client operationToGetCurrentUsersOrgs]; 
 	}];
 	
+	[[[getUserInfoResult where:^(id x) {
+		return [x hasObject];
+	}] select:^(id x) {
+		return [x object];
+	}] subscribeNext:^(id x) {
+		NSLog(@"user: %@", x);
+	}];
+	
 	RACSequence *results = [RACSequence zip:[NSArray arrayWithObjects:getUserInfoResult, getReposResult, getOrgsResult, nil] reduce:^(NSArray *xs) {
 		RACMaybe *first = [xs objectAtIndex:0];
 		RACMaybe *second = [xs objectAtIndex:1];
 		RACMaybe *third = [xs objectAtIndex:2];
-		return [NSArray arrayWithObjects:first.object ? : first.error, second.object ? : second.error, third.object ? : third.error, nil];
+		return [NSNumber numberWithBool:[first hasObject] && [second hasObject] && [third hasObject]];
 	}];
 
 	[getUserInfoCommand execute:nil];

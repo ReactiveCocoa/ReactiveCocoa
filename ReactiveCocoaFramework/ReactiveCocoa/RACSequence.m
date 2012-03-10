@@ -539,12 +539,15 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	__block RACObserver *untilObserver = [untilSequence subscribeNext:^(id x) {
 		[sequence sendCompletedToAllObservers];
 		[untilSequence unsubscribe:untilObserver];
+		[self unsubscribe:observer];
 	} error:^(NSError *error) {
 		[sequence sendErrorToAllObservers:error];
 		[untilSequence unsubscribe:untilObserver];
+		[self unsubscribe:observer];
 	} completed:^{
 		[sequence sendCompletedToAllObservers];
 		[untilSequence unsubscribe:untilObserver];
+		[self unsubscribe:observer];
 	}];
 	
 	return sequence;

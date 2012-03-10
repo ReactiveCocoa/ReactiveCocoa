@@ -568,6 +568,8 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 			[sequence sendCompletedToAllObservers];
 			[self unsubscribe:innerObserver];
 		}];
+		
+		[untilSequence unsubscribe:observer];
 	} error:^(NSError *error) {
 		[sequence sendErrorToAllObservers:error];
 		[untilSequence unsubscribe:observer];

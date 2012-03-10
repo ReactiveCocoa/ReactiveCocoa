@@ -39,6 +39,8 @@
 		88037FD9150564D9001A5B19 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88037F8315056328001A5B19 /* ReactiveCocoa.framework */; };
 		8803807115056B22001A5B19 /* libExpecta.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8803805315056ACB001A5B19 /* libExpecta.a */; };
 		8803807215056B22001A5B19 /* libSpecta.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8803806615056AD7001A5B19 /* libSpecta.a */; };
+		880B916B150B07420008488E /* NSObject+RACAsync.h in Headers */ = {isa = PBXBuildFile; fileRef = 880B9169150B07410008488E /* NSObject+RACAsync.h */; };
+		880B916C150B07420008488E /* NSObject+RACAsync.m in Sources */ = {isa = PBXBuildFile; fileRef = 880B916A150B07420008488E /* NSObject+RACAsync.m */; };
 		882036AC150962DD002428D3 /* RACReturnPrimitive.h in Headers */ = {isa = PBXBuildFile; fileRef = 882036AA150962DD002428D3 /* RACReturnPrimitive.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		882036AD150962DD002428D3 /* RACReturnPrimitive.m in Sources */ = {isa = PBXBuildFile; fileRef = 882036AB150962DD002428D3 /* RACReturnPrimitive.m */; };
 		882036E31509677A002428D3 /* EXTNil.h in Headers */ = {isa = PBXBuildFile; fileRef = 882036DD1509677A002428D3 /* EXTNil.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -158,6 +160,8 @@
 		88037F8C15056328001A5B19 /* ReactiveCocoa.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReactiveCocoa.h; sourceTree = "<group>"; };
 		8803804815056ACA001A5B19 /* Expecta.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Expecta.xcodeproj; path = ../../external/expecta/Expecta.xcodeproj; sourceTree = "<group>"; };
 		8803805B15056AD7001A5B19 /* Specta.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Specta.xcodeproj; path = ../../external/specta/Specta.xcodeproj; sourceTree = "<group>"; };
+		880B9169150B07410008488E /* NSObject+RACAsync.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACAsync.h"; sourceTree = "<group>"; };
+		880B916A150B07420008488E /* NSObject+RACAsync.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACAsync.m"; sourceTree = "<group>"; };
 		882036AA150962DD002428D3 /* RACReturnPrimitive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACReturnPrimitive.h; sourceTree = "<group>"; };
 		882036AB150962DD002428D3 /* RACReturnPrimitive.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACReturnPrimitive.m; sourceTree = "<group>"; };
 		882036DD1509677A002428D3 /* EXTNil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXTNil.h; sourceTree = "<group>"; };
@@ -386,6 +390,8 @@
 				88ABAB581509A5940073CDA2 /* RACAsyncFunction.m */,
 				88ABAB661509A89C0073CDA2 /* RACAsyncBlockFunctionOperation.h */,
 				88ABAB671509A89C0073CDA2 /* RACAsyncBlockFunctionOperation.m */,
+				880B9169150B07410008488E /* NSObject+RACAsync.h */,
+				880B916A150B07420008488E /* NSObject+RACAsync.m */,
 			);
 			name = Core;
 			sourceTree = "<group>";
@@ -425,6 +431,7 @@
 				88DA309715071CBA00C19D0F /* RACValueTransformer.h in Headers */,
 				882036E51509677A002428D3 /* EXTRuntimeExtensions.h in Headers */,
 				88ABAB681509A89C0073CDA2 /* RACAsyncBlockFunctionOperation.h in Headers */,
+				880B916B150B07420008488E /* NSObject+RACAsync.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -622,6 +629,7 @@
 				8820370B15096A4F002428D3 /* RACMaybe.m in Sources */,
 				88ABAB5A1509A5940073CDA2 /* RACAsyncFunction.m in Sources */,
 				88ABAB691509A89C0073CDA2 /* RACAsyncBlockFunctionOperation.m in Sources */,
+				880B916C150B07420008488E /* NSObject+RACAsync.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

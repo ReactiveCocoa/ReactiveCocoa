@@ -12,7 +12,6 @@
 
 @interface RACCommand ()
 @property (nonatomic, copy) BOOL (^canExecuteBlock)(id value);
-@property (nonatomic, copy) void (^executeBlock)(id value);
 @end
 
 
@@ -32,7 +31,6 @@
 
 @synthesize canExecute;
 @synthesize canExecuteBlock;
-@synthesize executeBlock;
 
 + (id)command {
 	return [self value];
@@ -40,8 +38,8 @@
 
 + (id)commandWithCanExecute:(BOOL (^)(id value))canExecuteBlock execute:(void (^)(id value))executeBlock {
 	RACCommand *command = [self command];
+	if(executeBlock != NULL) [command subscribeNext:executeBlock];
 	command.canExecuteBlock = canExecuteBlock;
-	command.executeBlock = executeBlock;
 	return command;
 }
 
@@ -63,10 +61,6 @@
 
 - (void)execute:(id)value {	
 	self.value = value;
-	
-	if(self.executeBlock != NULL) {
-		self.executeBlock(value);
-	}
 }
 
 @end

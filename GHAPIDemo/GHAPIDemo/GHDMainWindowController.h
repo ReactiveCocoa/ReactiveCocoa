@@ -7,11 +7,8 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "AFNetworking.h"
 
 
 @interface GHDMainWindowController : NSWindowController
-
-@property (nonatomic, readonly) AFHTTPClient *gitHubClient;
 
 @end

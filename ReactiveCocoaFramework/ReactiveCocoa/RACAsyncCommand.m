@@ -24,7 +24,7 @@
 
 @interface RACAsyncCommand ()
 @property (nonatomic, readonly) NSMutableArray *asyncFunctionPairs;
-@property (nonatomic, assign) NSUInteger numberOfActiveExecutions;
+@property (assign) NSUInteger numberOfActiveExecutions;
 
 + (NSOperationQueue *)defaultQueue;
 @end

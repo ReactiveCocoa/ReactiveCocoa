@@ -21,7 +21,7 @@
 // The maximum number of concurrent executions allowed. `-canExecute:` will return NO if the number of active executions is greater than or equal to this. `canExecuteValue` is updated as the number of concurrent calls changes.
 @property (nonatomic, assign) NSUInteger maxConcurrentExecutions;
 
-@property (nonatomic, readonly, assign) NSUInteger numberOfActiveExecutions;
+@property (readonly, assign) NSUInteger numberOfActiveExecutions;
 
 // Adds a new asynchronous function to the command.
 //

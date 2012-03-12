@@ -14,6 +14,8 @@
 // The number of objects in the sequence.
 @property (nonatomic, readonly) NSUInteger count;
 
+@property (nonatomic, copy) void (^didSubscribe)(RACSequence *sequence, RACObserver *observer);
+
 // Initializes the new sequence with the given capacity.
 - (id)initWithCapacity:(NSUInteger)cap;
 

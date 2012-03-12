@@ -42,6 +42,11 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 
 - (id)subscribe:(RACObserver *)observer {
 	[self.subscribers addObject:observer];
+	
+	if(self.didSubscribe != NULL) {
+		self.didSubscribe(self, observer);
+	}
+	
 	return self;
 }
 
@@ -56,6 +61,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 @synthesize subscribers;
 @synthesize suspendNotifications;
 @synthesize capacity;
+@synthesize didSubscribe;
 
 + (id)sequence {
 	return [self sequenceWithCapacity:RACObservableSequenceDefaultCapacity];

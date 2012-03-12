@@ -108,14 +108,9 @@
 @synthesize client;
 
 - (RACSequence *)refreshAll {
-	RACAsyncCommand *getUserInfoCommand = [RACAsyncCommand command];
-	RACValue *getUserInfoResult = [getUserInfoCommand addFunction:^(id _) { return [self.client fetchUserInfo]; }];
-	
-	RACAsyncCommand *getReposCommand = [RACAsyncCommand command];
-	RACValue *getReposResult = [getReposCommand addFunction:^(id _) { return [self.client fetchUserRepos]; }];
-	
-	RACAsyncCommand *getOrgsCommand = [RACAsyncCommand command];
-	RACValue *getOrgsResult = [getOrgsCommand addFunction:^(id _) { return [self.client fetchUserOrgs]; }];
+	RACSequence *getUserInfoResult = [self.client fetchUserInfo];
+	RACSequence *getReposResult = [self.client fetchUserRepos];
+	RACSequence *getOrgsResult = [self.client fetchUserOrgs];
 	
 	[[[getUserInfoResult where:^(id x) {
 		return [x hasObject];
@@ -131,10 +126,6 @@
 		RACMaybe *third = [xs objectAtIndex:2];
 		return [NSNumber numberWithBool:[first hasObject] && [second hasObject] && [third hasObject]];
 	}];
-
-	[getUserInfoCommand execute:nil];
-	[getReposCommand execute:nil];
-	[getOrgsCommand execute:nil];
 	
 	return results;
 }

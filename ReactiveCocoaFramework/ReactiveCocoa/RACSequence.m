@@ -111,6 +111,8 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 }
 
 - (RACObserver *)subscribeNext:(void (^)(id x))nextBlock {
+	NSParameterAssert(nextBlock != NULL);
+	
 	__block RACObserver *o = [RACObserver observerWithCompleted:^{
 		[self unsubscribe:o];
 	} error:^(NSError *error) {
@@ -123,6 +125,9 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 }
 
 - (RACObserver *)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock {
+	NSParameterAssert(nextBlock != NULL);
+	NSParameterAssert(completedBlock != NULL);
+	
 	__block RACObserver *o = [RACObserver observerWithCompleted:completedBlock error:^(NSError *error) {
 		[self unsubscribe:o];
 	} next:nextBlock];
@@ -133,12 +138,18 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 }
 
 - (RACObserver *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock {
+	NSParameterAssert(nextBlock != NULL);
+	NSParameterAssert(errorBlock != NULL);
+	NSParameterAssert(completedBlock != NULL);
+	
 	RACObserver *o = [RACObserver observerWithCompleted:completedBlock error:errorBlock next:nextBlock];
 	[self subscribe:o];
 	return o;
 }
 
 - (RACObserver *)subscribeError:(void (^)(NSError *error))errorBlock {
+	NSParameterAssert(errorBlock != NULL);
+	
 	__block RACObserver *o = [RACObserver observerWithCompleted:^{
 		[self unsubscribe:o];
 	} error:errorBlock next:NULL];
@@ -149,6 +160,8 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 }
 
 - (RACObserver *)subscribeCompleted:(void (^)(void))completedBlock {
+	NSParameterAssert(completedBlock != NULL);
+	
 	__block RACObserver *o = [RACObserver observerWithCompleted:completedBlock error:^(NSError *error) {
 		[self unsubscribe:o];
 	} next:NULL];
@@ -159,6 +172,9 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 }
 
 - (RACObserver *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock {
+	NSParameterAssert(nextBlock != NULL);
+	NSParameterAssert(errorBlock != NULL);
+	
 	__block RACObserver *o = [RACObserver observerWithCompleted:^{
 		[self unsubscribe:o];
 	} error:errorBlock next:nextBlock];
@@ -169,41 +185,19 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 }
 
 - (RACSequence *)doNext:(void (^)(id x))nextBlock {
-	NSParameterAssert(nextBlock != NULL);
-	
-	__block RACObserver *observer = [self subscribeNext:^(id x) {
-		nextBlock(x);
-	} error:^(NSError *error) {
-		[self unsubscribe:observer];
-	} completed:^{
-		[self unsubscribe:observer];
-	}];
+	[self subscribeNext:nextBlock];
 	
 	return self;
 }
 
 - (RACSequence *)doError:(void (^)(NSError *error))errorBlock {
-	NSParameterAssert(errorBlock != NULL);
-	
-	__block RACObserver *observer = [self subscribeNext:NULL error:^(NSError *error) {
-		errorBlock(error);
-		[self unsubscribe:observer];
-	} completed:^{
-		[self unsubscribe:observer];
-	}];
+	[self subscribeError:errorBlock];
 	
 	return self;
 }
 
 - (RACSequence *)doCompleted:(void (^)(void))completedBlock {
-	NSParameterAssert(completedBlock != NULL);
-	
-	__block RACObserver *observer = [self subscribeNext:NULL error:^(NSError *error) {
-		[self unsubscribe:observer];
-	} completed:^{
-		completedBlock();
-		[self unsubscribe:observer];
-	}];
+	[self subscribeCompleted:completedBlock];
 	
 	return self;
 }

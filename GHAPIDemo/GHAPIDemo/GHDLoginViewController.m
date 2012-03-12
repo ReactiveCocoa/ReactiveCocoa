@@ -40,7 +40,7 @@
 	}] toObject:self keyPath:RACKVO(self.loginEnabled)];
 	
 	self.loginCommand = [RACAsyncCommand command];
-	RACValue *loginResult = [self.loginCommand addOperationYieldingBlock:^(id _) { return [self.client operationToLogin]; }];
+	RACValue *loginResult = [self.loginCommand addFunction:^(id _) { return [self.client login]; }];
 
 	[self.loginCommand subscribeNext:^(id _) {
 		self.userAccount = [GHUserAccount userAccountWithUsername:self.username password:self.password];
@@ -109,19 +109,13 @@
 
 - (RACSequence *)refreshAll {
 	RACAsyncCommand *getUserInfoCommand = [RACAsyncCommand command];
-	RACValue *getUserInfoResult = [getUserInfoCommand addOperationYieldingBlock:^(id _) {
-		return [self.client operationToGetCurrentUserInfo];
-	}];
+	RACValue *getUserInfoResult = [getUserInfoCommand addFunction:^(id _) { return [self.client fetchUserInfo]; }];
 	
 	RACAsyncCommand *getReposCommand = [RACAsyncCommand command];
-	RACValue *getReposResult = [getReposCommand addOperationYieldingBlock:^(id _) {
-		return [self.client operationToGetCurrentUsersRepos];
-	}];
+	RACValue *getReposResult = [getReposCommand addFunction:^(id _) { return [self.client fetchUserRepos]; }];
 	
 	RACAsyncCommand *getOrgsCommand = [RACAsyncCommand command];
-	RACValue *getOrgsResult = [getOrgsCommand addOperationYieldingBlock:^(id _) { 
-		return [self.client operationToGetCurrentUsersOrgs]; 
-	}];
+	RACValue *getOrgsResult = [getOrgsCommand addFunction:^(id _) { return [self.client fetchUserOrgs]; }];
 	
 	[[[getUserInfoResult where:^(id x) {
 		return [x hasObject];

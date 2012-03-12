@@ -149,4 +149,6 @@
 
 - (RACSequence *)executeCommand:(RACCommand *)command;
 
+- (RACSequence *)startWith:(id)value;
+
 @end

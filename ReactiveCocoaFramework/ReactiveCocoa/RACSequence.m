@@ -71,6 +71,17 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return [[self alloc] initWithCapacity:capacity];
 }
 
++ (RACSequence *)returnValue:(id)value {
+	RACSequence *sequence = [[self alloc] initWithCapacity:1];
+	sequence.didSubscribe = ^(RACSequence *s, RACObserver *o) {
+		[s addObjectAndNilsAreOK:value];
+		[s sendCompletedToAllObservers];
+		[s unsubscribe:o];
+	};
+	
+	return sequence;
+}
+
 - (id)initWithCapacity:(NSUInteger)cap {
 	self = [self init];
 	if(self == nil) return nil;

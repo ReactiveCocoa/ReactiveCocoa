@@ -32,6 +32,8 @@
 // Creates a new sequence with the given capacity. The capacity dictates how many values are held at once. When the capacity is exceeded, the sequence removes the oldest value.
 + (id)sequenceWithCapacity:(NSUInteger)capacity;
 
++ (RACSequence *)returnValue:(id)value;
+
 // Adds a new object into the sequence. This will notify observers of this object.
 //
 // object - the object to insert into the sequence. Cannot be nil.

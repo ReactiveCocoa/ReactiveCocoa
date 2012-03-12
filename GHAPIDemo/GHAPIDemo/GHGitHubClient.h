@@ -7,6 +7,7 @@
 //
 
 #import "AFNetworking.h"
+#import <ReactiveCocoa/ReactiveCocoa.h>
 
 @class GHJSONRequestOperation;
 @class GHUserAccount;
@@ -18,11 +19,9 @@
 
 + (GHGitHubClient *)clientForUserAccount:(GHUserAccount *)userAccount;
 
-- (GHJSONRequestOperation *)operationWithMethod:(NSString *)method path:(NSString *)path parameters:(NSDictionary *)parameters;
-
-- (GHJSONRequestOperation *)operationToLogin;
-- (GHJSONRequestOperation *)operationToGetCurrentUserInfo;
-- (GHJSONRequestOperation *)operationToGetCurrentUsersRepos;
-- (GHJSONRequestOperation *)operationToGetCurrentUsersOrgs;
+- (RACSequence *)login;
+- (RACSequence *)fetchUserInfo;
+- (RACSequence *)fetchUserRepos;
+- (RACSequence *)fetchUserOrgs;
 
 @end

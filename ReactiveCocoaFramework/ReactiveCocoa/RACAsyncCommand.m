@@ -56,10 +56,14 @@
 - (void)execute:(id)value {	
 	[super execute:value];
 	
+	self.numberOfActiveExecutions++;
+	
 	if(self.asyncFunctionPairs.count > 0) {
 		NSAssert(self.queue != nil, @"Queue cannot be nil.");
 	}
 	
+	NSUInteger valuesExpected = self.asyncFunctionPairs.count;
+	__block NSUInteger valuesReceived = 0;
 	void (^finish)(RACValue *, id, BOOL, NSError *) = ^(RACValue *value, id returnedValue, BOOL success, NSError *error) {
 		[[NSOperationQueue mainQueue] addOperationWithBlock:^{
 			if(success) {
@@ -69,6 +73,26 @@
 			}
 		}];
 	};
+		
+	for(RACAsyncCommandPair *pair in self.asyncFunctionPairs) {
+		__block RACObserver *observer = nil;
+		void (^receive)(void) = ^{
+			[pair.value unsubscribe:observer];
+			valuesReceived++;
+			
+			if(valuesReceived >= valuesExpected) {
+				self.numberOfActiveExecutions--;
+			}
+		};
+		
+		observer = [pair.value subscribeNext:^(id x) {
+			receive();
+		} error:^(NSError *error) {
+			receive();
+		} completed:^{
+			receive();
+		}];
+	}
 	
 	for(RACAsyncCommandPair *pair in self.asyncFunctionPairs) {
 		if(pair.block != NULL) {
@@ -159,10 +183,6 @@
 	if(queue == q) return;
 	
 	queue = q;
-		
-	[RACObservable(self.queue.operationCount) subscribeNext:^(id x) {
-		self.numberOfActiveExecutions = [x unsignedIntegerValue];
-	}];
 }
 
 @end

@@ -17,6 +17,7 @@
 @property (nonatomic, copy) id (^block)(id value, BOOL *success, NSError **error);
 @property (nonatomic, copy) NSOperation<RACAsyncFunctionOperation> * (^operationBlock)(id value);
 @property (nonatomic, strong) RACValue *value;
+@property (nonatomic, strong) RACSequence * (^function)(id value);
 
 + (id)pair;
 
@@ -84,6 +85,16 @@
 			};
 			
 			[self.queue addOperation:operation];
+		} else if(pair.function != nil) {
+			RACSequence *sequence = pair.function(value);
+			__block RACObserver *observer = [sequence subscribeNext:^(id x) {
+				pair.value.value = x;
+				[sequence unsubscribe:observer];
+			} error:^(NSError *error) {
+				[sequence unsubscribe:observer];
+			} completed:^{
+				[sequence unsubscribe:observer];
+			}];
 		}
 	}
 }
@@ -125,6 +136,17 @@
 	return value;
 }
 
+- (RACValue *)addFunction:(RACSequence * (^)(id value))function {
+	NSParameterAssert(function != NULL);
+	
+	RACValue *value = [RACValue value];
+	RACAsyncCommandPair *pair = [RACAsyncCommandPair pair];
+	pair.function = function;
+	pair.value = value;
+	[self.asyncFunctionPairs addObject:pair];
+	return value;
+}
+
 - (NSMutableArray *)asyncFunctionPairs {
 	if(asyncFunctionPairs == nil) {
 		asyncFunctionPairs = [NSMutableArray array];
@@ -154,6 +176,7 @@
 @synthesize block;
 @synthesize value;
 @synthesize operationBlock;
+@synthesize function;
 
 + (id)pair {
 	return [[self alloc] init];

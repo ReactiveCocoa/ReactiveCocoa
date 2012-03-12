@@ -37,4 +37,6 @@
 // Returns a value to which the operation will set the value of the operation's execution.
 - (RACValue *)addOperationYieldingBlock:(NSOperation<RACAsyncFunctionOperation> * (^)(id value))operationBlock;
 
+- (RACValue *)addFunction:(RACSequence * (^)(id value))function;
+
 @end

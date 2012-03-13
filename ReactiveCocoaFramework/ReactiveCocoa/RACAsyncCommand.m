@@ -65,10 +65,9 @@
 	for(RACAsyncFunctionPair *pair in self.asyncFunctionPairs) {
 		[self.operationQueue addOperationWithBlock:^{
 			RACSequence *sequence = pair.asyncFunction(value);
-			__block __unsafe_unretained RACObserver *observer = [sequence subscribeNext:^(id x) {
+			[sequence subscribeNext:^(id x) {
 				dispatch_async(dispatch_get_main_queue(), ^{
 					pair.value.value = x;
-					[sequence unsubscribe:observer];
 					didComplete();
 				});
 			} error:^(NSError *error) {
@@ -78,7 +77,6 @@
 				});
 			} completed:^{
 				dispatch_async(dispatch_get_main_queue(), ^{
-					[pair.value sendCompletedToAllObservers];
 					didComplete();
 				});
 			}];

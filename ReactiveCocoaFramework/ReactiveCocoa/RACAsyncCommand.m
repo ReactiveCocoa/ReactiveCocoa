@@ -31,6 +31,7 @@
 	if(self == nil) return nil;
 	
 	self.maxConcurrentExecutions = 1;
+	self.operationQueue = [[self class] defaultOperationQueue];
 	
 	return self;
 }
@@ -62,17 +63,25 @@
 	};
 	
 	for(RACAsyncFunctionPair *pair in self.asyncFunctionPairs) {
-		RACSequence *sequence = pair.asyncFunction(value);
-		__block __unsafe_unretained RACObserver *observer = [sequence subscribeNext:^(id x) {
-			pair.value.value = x;
-			[sequence unsubscribe:observer];
-			didComplete();
-		} error:^(NSError *error) {
-			[pair.value sendErrorToAllObservers:error];
-			didComplete();
-		} completed:^{
-			[pair.value sendCompletedToAllObservers];
-			didComplete();
+		[self.operationQueue addOperationWithBlock:^{
+			RACSequence *sequence = pair.asyncFunction(value);
+			__block __unsafe_unretained RACObserver *observer = [sequence subscribeNext:^(id x) {
+				dispatch_async(dispatch_get_main_queue(), ^{
+					pair.value.value = x;
+					[sequence unsubscribe:observer];
+					didComplete();
+				});
+			} error:^(NSError *error) {
+				dispatch_async(dispatch_get_main_queue(), ^{
+					[pair.value sendErrorToAllObservers:error];
+					didComplete();
+				});
+			} completed:^{
+				dispatch_async(dispatch_get_main_queue(), ^{
+					[pair.value sendCompletedToAllObservers];
+					didComplete();
+				});
+			}];
 		}];
 	}
 }
@@ -83,6 +92,14 @@
 @synthesize asyncFunctionPairs;
 @synthesize maxConcurrentExecutions;
 @synthesize numberOfActiveExecutions;
+@synthesize operationQueue;
+
++ (NSOperationQueue *)defaultOperationQueue {
+	NSOperationQueue *operationQueue = [[NSOperationQueue alloc] init];
+	[operationQueue setMaxConcurrentOperationCount:NSOperationQueueDefaultMaxConcurrentOperationCount];
+	[operationQueue setName:@"RACAsyncCommandOperationQueue"];
+	return operationQueue;
+}
 
 - (RACValue *)addAsyncFunction:(RACSequence * (^)(id value))function {
 	NSParameterAssert(function != NULL);

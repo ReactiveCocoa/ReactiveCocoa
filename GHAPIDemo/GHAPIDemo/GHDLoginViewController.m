@@ -40,7 +40,7 @@
 	}] toObject:self keyPath:RACKVO(self.loginEnabled)];
 	
 	self.loginCommand = [RACAsyncCommand command];
-	RACValue *loginResult = [self.loginCommand addFunction:^(id _) { return [self.client login]; }];
+	RACValue *loginResult = [self.loginCommand addAsyncFunction:^(id _) { return [self.client login]; }];
 
 	[self.loginCommand subscribeNext:^(id _) {
 		self.userAccount = [GHUserAccount userAccountWithUsername:self.username password:self.password];

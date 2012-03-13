@@ -257,16 +257,14 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	NSParameterAssert(predicate != NULL);
 	
 	RACSequence *filtered = [RACSequence sequence];
-	__block RACObserver *observer = [self subscribeNext:^(id x) {
+	[self subscribeNext:^(id x) {
 		if(predicate(x)) {
 			[filtered addObjectAndNilsAreOK:x];
 		}
 	} error:^(NSError *error) {
 		[filtered sendErrorToAllObservers:error];
-		[self unsubscribe:observer];
 	} completed:^{
 		[filtered sendCompletedToAllObservers];
-		[self unsubscribe:observer];
 	}];
 	
 	return filtered;
@@ -276,14 +274,12 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	NSParameterAssert(block != NULL);
 	
 	RACSequence *mapped = [RACSequence sequence];
-	__block RACObserver *observer = [self subscribeNext:^(id x) {
+	[self subscribeNext:^(id x) {
 		[mapped addObjectAndNilsAreOK:block(x)];
 	} error:^(NSError *error) {
 		[mapped sendErrorToAllObservers:error];
-		[self unsubscribe:observer];
 	} completed:^{
 		[mapped sendCompletedToAllObservers];
-		[self unsubscribe:observer];
 	}];
 	
 	return mapped;
@@ -292,7 +288,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 - (RACSequence *)throttle:(NSTimeInterval)interval {	
 	RACSequence *throttled = [RACSequence sequence];
 	__block id lastDelayedId = nil;
-	__block RACObserver *observer = [self subscribeNext:^(id x) {
+	[self subscribeNext:^(id x) {
 		[self cancelPreviousPerformBlockRequestsWithId:lastDelayedId];
 		
 		BOOL originalSuspendNotifications = throttled.suspendNotifications;
@@ -306,10 +302,8 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	} error:^(NSError *error) {
 		[self cancelPreviousPerformBlockRequestsWithId:lastDelayedId];
 		[throttled sendErrorToAllObservers:error];
-		[self unsubscribe:observer];
 	} completed:^{
 		[throttled sendCompletedToAllObservers];
-		[self unsubscribe:observer];
 	}];
 	
 	return throttled;
@@ -322,7 +316,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	RACSequence *unified = [RACSequence sequence];
 	NSMutableSet *completedSequences = [NSMutableSet setWithCapacity:sequences.count];
     for(RACSequence *sequence in sequences) {
-		__block RACObserver *observer = [sequence subscribeNext:^(id x) {
+		[sequence subscribeNext:^(id x) {
 			NSMutableArray *latestValues = [NSMutableArray arrayWithCapacity:sequences.count];
 			for(RACSequence *sequence in sequences) {
 				id lastestValue = [sequence lastObject];
@@ -341,7 +335,6 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 		} error:^(NSError *error) {
 			[unified sendErrorToAllObservers:error];
 			[completedSequences removeAllObjects];
-			[sequence unsubscribe:observer];
 		} completed:^{
 			[completedSequences addObject:sequence];
 			
@@ -349,8 +342,6 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 				[unified sendCompletedToAllObservers];
 				[completedSequences removeAllObjects];
 			}
-			
-			[sequence unsubscribe:observer];
 		}];
     }
 	
@@ -363,12 +354,11 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	RACSequence *unified = [RACSequence sequence];
 	NSMutableSet *completedSequences = [NSMutableSet setWithCapacity:sequences.count];
     for(RACSequence *sequence in sequences) {
-		__block RACObserver *observer = [sequence subscribeNext:^(id x) {
+		[sequence subscribeNext:^(id x) {
 			[unified addObjectAndNilsAreOK:x];
 		} error:^(NSError *error) {
 			[unified sendErrorToAllObservers:error];
 			[completedSequences removeAllObjects];
-			[sequence unsubscribe:observer];
 		} completed:^{
 			[completedSequences addObject:sequence];
 			
@@ -376,8 +366,6 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 				[unified sendCompletedToAllObservers];
 				[completedSequences removeAllObjects];
 			}
-			
-			[sequence unsubscribe:observer];
 		}];
     }
 	
@@ -392,7 +380,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	NSMutableSet *completedSequences = [NSMutableSet setWithCapacity:sequences.count];
 	NSMutableDictionary *currentPairs = [NSMutableDictionary dictionaryWithCapacity:sequences.count];
     for(RACSequence *sequence in sequences) {
-		__block RACObserver *observer = [sequence subscribeNext:^(id x) {
+		[sequence subscribeNext:^(id x) {
 			if(x != nil) {
 				[currentPairs setObject:x forKey:[NSString stringWithFormat:@"%p", sequence]];
 			}
@@ -405,7 +393,6 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 			[unified sendErrorToAllObservers:error];
 			[completedSequences removeAllObjects];
 			[currentPairs removeAllObjects];
-			[sequence unsubscribe:observer];
 		} completed:^{
 			[completedSequences addObject:sequence];
 			
@@ -414,8 +401,6 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 				[completedSequences removeAllObjects];
 				[currentPairs removeAllObjects];
 			}
-			
-			[sequence unsubscribe:observer];
 		}];
     }
 	
@@ -444,16 +429,14 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 
 - (RACSequence *)distinctUntilChanged {
 	RACSequence *distinct = [RACSequence sequence];
-	__block RACObserver *observer = [self subscribeNext:^(id x) {
+	[self subscribeNext:^(id x) {
 		if(![x isEqual:[distinct lastObject]]) {
 			[distinct addObjectAndNilsAreOK:x];
 		}
 	} error:^(NSError *error) {
 		[distinct sendErrorToAllObservers:error];
-		[self unsubscribe:observer];
 	} completed:^{
 		[distinct sendCompletedToAllObservers];
-		[self unsubscribe:observer];
 	}];
 	
 	return distinct;
@@ -476,26 +459,22 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 		}
 	};
 	
-	__block RACObserver *outerObserver = [self subscribeNext:^(id x) {
+	[self subscribeNext:^(id x) {
 		RACSequence *many = selectMany(x);
 		[manySequences addObject:many];
-		__block RACObserver *observer = [many subscribeNext:^(id x) {
+		[many subscribeNext:^(id x) {
 			[sequence addObjectAndNilsAreOK:x];
 		} error:^(NSError *error) {
 			[sequence sendErrorToAllObservers:error];
-			[many unsubscribe:observer];
 		} completed:^{
 			didComplete(many);
-			[many unsubscribe:observer];
 		}];
 	} error:^(NSError *error) {
 		[manySequences removeAllObjects];
 		[completedSequences removeAllObjects];
 		[sequence sendErrorToAllObservers:error];
-		[self unsubscribe:outerObserver];
 	} completed:^{
 		didComplete(self);
-		[self unsubscribe:outerObserver];
 	}];
 	
 	return sequence;
@@ -505,7 +484,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	RACSequence *taken = [RACSequence sequence];
 	
 	__block NSUInteger receivedCount = 0;
-	__block RACObserver *observer = [self subscribeNext:^(id x) {
+	[self subscribeNext:^(id x) {
 		receivedCount++;
 		
 		BOOL notify = receivedCount >= count;
@@ -518,14 +497,11 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 		if(notify) {
 			receivedCount = 0;
 			[taken sendCompletedToAllObservers];
-			[self unsubscribe:observer];
 		}
 	} error:^(NSError *error) {
 		[taken sendErrorToAllObservers:error];
-		[self unsubscribe:observer];
 	} completed:^{
 		[taken sendCompletedToAllObservers];
-		[self unsubscribe:observer];
 	}];
 	
 	return taken;
@@ -535,28 +511,20 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	NSParameterAssert(untilSequence != nil);
 	
 	RACSequence *sequence = [RACSequence sequence];
-	__block RACObserver *observer = [self subscribeNext:^(id x) {
+	[self subscribeNext:^(id x) {
 		[sequence addObjectAndNilsAreOK:x];
 	} error:^(NSError *error) {
 		[sequence sendErrorToAllObservers:error];
-		[self unsubscribe:observer];
 	} completed:^{
 		[sequence sendCompletedToAllObservers];
-		[self unsubscribe:observer];
 	}];
 	
-	__block RACObserver *untilObserver = [untilSequence subscribeNext:^(id x) {
+	[untilSequence subscribeNext:^(id x) {
 		[sequence sendCompletedToAllObservers];
-		[untilSequence unsubscribe:untilObserver];
-		[self unsubscribe:observer];
 	} error:^(NSError *error) {
 		[sequence sendErrorToAllObservers:error];
-		[untilSequence unsubscribe:untilObserver];
-		[self unsubscribe:observer];
 	} completed:^{
 		[sequence sendCompletedToAllObservers];
-		[untilSequence unsubscribe:untilObserver];
-		[self unsubscribe:observer];
 	}];
 	
 	return sequence;
@@ -567,24 +535,18 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	
 	RACSequence *sequence = [RACSequence sequence];
 	
-	__block RACObserver *observer = [untilSequence subscribeNext:^(id x) {
-		__block RACObserver *innerObserver = [self subscribeNext:^(id x) {
+	[untilSequence subscribeNext:^(id x) {
+		[self subscribeNext:^(id x) {
 			[sequence addObjectAndNilsAreOK:x];
 		} error:^(NSError *error) {
 			[sequence sendErrorToAllObservers:error];
-			[self unsubscribe:innerObserver];
 		} completed:^{
 			[sequence sendCompletedToAllObservers];
-			[self unsubscribe:innerObserver];
 		}];
-		
-		[untilSequence unsubscribe:observer];
 	} error:^(NSError *error) {
 		[sequence sendErrorToAllObservers:error];
-		[untilSequence unsubscribe:observer];
 	} completed:^{
 		// do nothing?
-		[untilSequence unsubscribe:observer];
 	}];
 	
 	return sequence;
@@ -593,13 +555,12 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 - (RACSequence *)catch:(RACSequence * (^)(NSError *error))catchBlock {
 	RACSequence *sequence = [RACSequence sequence];
 	
-	__block RACObserver *observer = [self subscribeNext:^(id x) {
+	[self subscribeNext:^(id x) {
 		[sequence addObjectAndNilsAreOK:x];
 	} error:^(NSError *error) {
 		[sequence addObjectAndNilsAreOK:catchBlock(error)];
 	} completed:^{
 		[sequence sendCompletedToAllObservers];
-		[sequence unsubscribe:observer];
 	}];
 	
 	return sequence;
@@ -608,17 +569,15 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 - (RACSequence *)executeCommand:(RACCommand *)command {
 	RACSequence *sequence = [RACSequence sequence];
 	
-	__block RACObserver *observer = [self subscribeNext:^(id x) {
+	[self subscribeNext:^(id x) {
 		[sequence addObjectAndNilsAreOK:x];
 		if([command canExecute:x]) {
 			[command execute:x];
 		}
 	} error:^(NSError *error) {
 		[sequence sendErrorToAllObservers:error];
-		[sequence unsubscribe:observer];
 	} completed:^{
 		[sequence sendCompletedToAllObservers];
-		[sequence unsubscribe:observer];
 	}];
 	
 	return sequence;
@@ -630,14 +589,12 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 		[s addObjectAndNilsAreOK:value];
 	};
 	
-	__block RACObserver *observer = [self subscribeNext:^(id x) {
+	[self subscribeNext:^(id x) {
 		[sequence addObjectAndNilsAreOK:x];
 	} error:^(NSError *error) {
 		[sequence sendErrorToAllObservers:error];
-		[sequence unsubscribe:observer];
 	} completed:^{
 		[sequence sendCompletedToAllObservers];
-		[sequence unsubscribe:observer];
 	}];
 	
 	return sequence;

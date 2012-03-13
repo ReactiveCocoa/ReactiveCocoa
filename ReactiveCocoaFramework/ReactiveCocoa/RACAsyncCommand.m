@@ -58,7 +58,7 @@
 		valuesReceived++;
 		
 		if(valuesReceived >= valuesExpected) {
-			self.numberOfActiveExecutions--;
+			if(self.numberOfActiveExecutions > 0) self.numberOfActiveExecutions--;
 		}
 	};
 	

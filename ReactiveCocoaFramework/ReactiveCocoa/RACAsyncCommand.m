@@ -10,24 +10,17 @@
 #import "RACCommand+Private.h"
 #import "RACSequence+Private.h"
 #import "NSObject+RACPropertyObserving.h"
-#import "RACAsyncFunctionOperation.h"
 
-@interface RACAsyncCommandPair : NSObject
-
-@property (nonatomic, copy) id (^block)(id value, BOOL *success, NSError **error);
-@property (nonatomic, copy) NSOperation<RACAsyncFunctionOperation> * (^operationBlock)(id value);
+@interface RACAsyncFunctionPair : NSObject
 @property (nonatomic, strong) RACValue *value;
-@property (nonatomic, strong) RACSequence * (^function)(id value);
+@property (nonatomic, strong) RACSequence * (^asyncFunction)(id value);
 
 + (id)pair;
-
 @end
 
 @interface RACAsyncCommand ()
 @property (nonatomic, readonly) NSMutableArray *asyncFunctionPairs;
 @property (assign) NSUInteger numberOfActiveExecutions;
-
-+ (NSOperationQueue *)defaultQueue;
 @end
 
 
@@ -37,7 +30,6 @@
 	self = [super init];
 	if(self == nil) return nil;
 	
-	self.queue = [[self class] defaultQueue];
 	self.maxConcurrentExecutions = 1;
 	
 	return self;
@@ -58,114 +50,46 @@
 	
 	self.numberOfActiveExecutions++;
 	
-	if(self.asyncFunctionPairs.count > 0) {
-		NSAssert(self.queue != nil, @"Queue cannot be nil.");
-	}
-	
 	NSUInteger valuesExpected = self.asyncFunctionPairs.count;
 	__block NSUInteger valuesReceived = 0;
-	void (^finish)(RACValue *, id, BOOL, NSError *) = ^(RACValue *value, id returnedValue, BOOL success, NSError *error) {
-		[[NSOperationQueue mainQueue] addOperationWithBlock:^{
-			if(success) {
-				value.value = returnedValue;
-			} else {
-				[value sendErrorToAllObservers:error];
-			}
-		}];
-	};
-		
-	for(RACAsyncCommandPair *pair in self.asyncFunctionPairs) {
-		__block RACObserver *observer = nil;
-		void (^receive)(void) = ^{
-			[pair.value unsubscribe:observer];
-			valuesReceived++;
-			
-			if(valuesReceived >= valuesExpected) {
-				self.numberOfActiveExecutions--;
-			}
-		};
-		
-		observer = [pair.value subscribeNext:^(id x) {
-			receive();
-		} error:^(NSError *error) {
-			receive();
-		} completed:^{
-			receive();
-		}];
-	}
 	
-	for(RACAsyncCommandPair *pair in self.asyncFunctionPairs) {
-		if(pair.block != NULL) {
-			[self.queue addOperationWithBlock:^{
-				NSError *error = nil;
-				BOOL success = YES;
-				id returnedValue = pair.block(value, &success, &error);
-				finish(value, returnedValue, success, error);
-			}];
-		} else if(pair.operationBlock != nil) {
-			NSOperation<RACAsyncFunctionOperation> *operation = pair.operationBlock(value);
-			operation.RACAsyncCallback = ^(id returnedValue, BOOL success, NSError *error) {
-				finish(pair.value, returnedValue, success, error);
-			};
-			
-			[self.queue addOperation:operation];
-		} else if(pair.function != nil) {
-			RACSequence *sequence = pair.function(value);
-			__block RACObserver *observer = [sequence subscribeNext:^(id x) {
-				pair.value.value = x;
-				[sequence unsubscribe:observer];
-			} error:^(NSError *error) {
-				[sequence unsubscribe:observer];
-			} completed:^{
-				[sequence unsubscribe:observer];
-			}];
+	void (^didComplete)(void) = ^{
+		valuesReceived++;
+		
+		if(valuesReceived >= valuesExpected) {
+			self.numberOfActiveExecutions--;
 		}
+	};
+	
+	for(RACAsyncFunctionPair *pair in self.asyncFunctionPairs) {
+		RACSequence *sequence = pair.asyncFunction(value);
+		__block __unsafe_unretained RACObserver *observer = [sequence subscribeNext:^(id x) {
+			pair.value.value = x;
+			[sequence unsubscribe:observer];
+			didComplete();
+		} error:^(NSError *error) {
+			[pair.value sendErrorToAllObservers:error];
+			didComplete();
+		} completed:^{
+			[pair.value sendCompletedToAllObservers];
+			didComplete();
+		}];
 	}
 }
 
 
 #pragma mark API
 
-@synthesize queue;
 @synthesize asyncFunctionPairs;
 @synthesize maxConcurrentExecutions;
 @synthesize numberOfActiveExecutions;
 
-+ (NSOperationQueue *)defaultQueue {
-	NSOperationQueue *queue = [[NSOperationQueue alloc] init];
-	[queue setName:@"RACAsyncCommand queue"];
-	[queue setMaxConcurrentOperationCount:NSOperationQueueDefaultMaxConcurrentOperationCount];
-	return queue;
-}
-
-- (RACValue *)addAsyncFunction:(id (^)(id value, BOOL *success, NSError **error))block {
-	NSParameterAssert(block != NULL);
-	
-	RACValue *value = [RACValue value];
-	RACAsyncCommandPair *pair = [RACAsyncCommandPair pair];
-	pair.block = block;
-	pair.value = value;
-	[self.asyncFunctionPairs addObject:pair];
-	return value;
-}
-
-- (RACValue *)addOperationYieldingBlock:(NSOperation<RACAsyncFunctionOperation> * (^)(id value))operationBlock {
-	NSParameterAssert(operationBlock != NULL);
-	
-	RACValue *value = [RACValue value];
-	RACAsyncCommandPair *pair = [RACAsyncCommandPair pair];
-	pair.operationBlock = operationBlock;
-	pair.value = value;
-	[self.asyncFunctionPairs addObject:pair];
-	return value;
-}
-
-- (RACValue *)addFunction:(RACSequence * (^)(id value))function {
+- (RACValue *)addAsyncFunction:(RACSequence * (^)(id value))function {
 	NSParameterAssert(function != NULL);
 	
 	RACValue *value = [RACValue value];
-	RACAsyncCommandPair *pair = [RACAsyncCommandPair pair];
-	pair.function = function;
+	RACAsyncFunctionPair *pair = [RACAsyncFunctionPair pair];
+	pair.asyncFunction = function;
 	pair.value = value;
 	[self.asyncFunctionPairs addObject:pair];
 	return value;
@@ -179,24 +103,13 @@
 	return asyncFunctionPairs;
 }
 
-- (void)setQueue:(NSOperationQueue *)q {
-	if(queue == q) return;
-	
-	queue = q;
-}
-
 @end
 
 
-@implementation RACAsyncCommandPair
+@implementation RACAsyncFunctionPair
 
-
-#pragma mark API
-
-@synthesize block;
 @synthesize value;
-@synthesize operationBlock;
-@synthesize function;
+@synthesize asyncFunction;
 
 + (id)pair {
 	return [[self alloc] init];

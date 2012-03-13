@@ -25,12 +25,13 @@
 
 - (void)loadView {
 	self.view = [GHDUserView ghd_viewFromNib];
-
+	
+	[self.view.spinner startAnimation:nil];
+	
 	[self.view.usernameTextField bind:NSValueBinding toObject:self withKeyPath:RACKVO(self.userAccount.username)];
 	[self.view.realNameTextField bind:NSValueBinding toObject:self withKeyPath:RACKVO(self.userAccount.realName)];
 	[self.view.spinner bind:NSHiddenBinding toObject:self withNegatedKeyPath:RACKVO(self.loading)];
-	[self.view.usernameTextField bind:NSHiddenBinding toObject:self withKeyPath:RACKVO(self.loading)];
-	[self.view.realNameTextField bind:NSHiddenBinding toObject:self withKeyPath:RACKVO(self.loading)];
+	[self.view.valuesContainerView bind:NSHiddenBinding toObject:self withKeyPath:RACKVO(self.loading)];
 }
 
 
@@ -44,13 +45,17 @@
 	self = [super initWithNibName:nil bundle:nil];
 	if(self == nil) return nil;
 	
+	self.loading = YES;
+	
 	RACSequence *userInfo = [[RACObservable(self.userAccount) where:^BOOL(id x) {
 		return x != nil;
 	}] selectMany:^(GHUserAccount *x) {
 		return [[GHGitHubClient clientForUserAccount:x] fetchUserInfo];
 	}];
 	
-	[RACObservable(self.userAccount) subscribeNext:^(id x) {
+	[[RACObservable(self.userAccount) select:^(id x) {
+		return [NSNumber numberWithBool:x != nil];
+	}] subscribeNext:^(id x) {
 		self.loading = YES;
 	}];
 

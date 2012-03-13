@@ -17,5 +17,6 @@
 @synthesize usernameTextField;
 @synthesize realNameTextField;
 @synthesize spinner;
+@synthesize valuesContainerView;
 
 @end

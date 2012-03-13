@@ -4,4 +4,6 @@
 
 #ifdef __OBJC__
 	#import <Cocoa/Cocoa.h>
+	#import <ReactiveCocoa/ReactiveCocoa.h>
+	#import "NSView+GHDExtensions.h"
 #endif

@@ -18,6 +18,4 @@
 @property (assign) IBOutlet NSTextField *couldNotLoginTextField;
 @property (assign) IBOutlet NSProgressIndicator *loggingInSpinner;
 
-+ (id)view;
-
 @end

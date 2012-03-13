@@ -8,9 +8,11 @@
 
 #import "GHDMainWindowController.h"
 #import "GHDLoginViewController.h"
+#import "GHDUserViewController.h"
+#import "GHUserAccount.h"
 
 @interface GHDMainWindowController ()
-@property (nonatomic, strong) GHDLoginViewController *loginViewController;
+@property (nonatomic, strong) NSViewController *currentViewController;
 @end
 
 
@@ -19,8 +21,6 @@
 - (id)init {
 	self = [super initWithWindowNibName:NSStringFromClass([self class]) owner:self];
 	if(self == nil) return nil;
-	
-	self.loginViewController = [[GHDLoginViewController alloc] init];
 	
 	return self;
 }
@@ -31,12 +31,26 @@
 - (void)windowDidLoad {
     [super windowDidLoad];
 	
-	self.window.contentView = self.loginViewController.view;
+	GHDLoginViewController *loginViewController = [[GHDLoginViewController alloc] init];
+	self.currentViewController = loginViewController;
+		
+	[loginViewController.didLoginValue subscribeNext:^(GHUserAccount *account) {
+		GHDUserViewController *userViewController = [[GHDUserViewController alloc] initWithUserAccount:account];
+		self.currentViewController = userViewController;
+	}];
 }
 
 
 #pragma mark API
 
-@synthesize loginViewController;
+@synthesize currentViewController;
+
+- (void)setCurrentViewController:(NSViewController *)vc {
+	if(currentViewController == vc) return;
+	
+	currentViewController = vc;
+	
+	self.window.contentView = self.currentViewController.view;
+}
 
 @end

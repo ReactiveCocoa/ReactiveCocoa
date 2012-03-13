@@ -21,21 +21,4 @@
 @synthesize couldNotLoginTextField;
 @synthesize loggingInSpinner;
 
-+ (id)view {
-	NSNib *nib = [[NSNib alloc] initWithNibNamed:NSStringFromClass(self) bundle:nil];
-	NSArray *topLevelObjects = nil;
-	BOOL success = [nib instantiateNibWithOwner:self topLevelObjects:&topLevelObjects];
-	if(!success) return nil;
-		
-	NSView *view = nil;
-	for(id topLevelObject in topLevelObjects) {
-		if([topLevelObject isKindOfClass:self]) {
-			view = topLevelObject;
-			break;
-		}
-	}
-	
-	return view;
-}
-
 @end

@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		88485A7F150FCDF200DC4A1F /* GHDUserViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 88485A7E150FCDF200DC4A1F /* GHDUserViewController.m */; };
+		88485A82150FCE0700DC4A1F /* GHDUserView.m in Sources */ = {isa = PBXBuildFile; fileRef = 88485A81150FCE0700DC4A1F /* GHDUserView.m */; };
+		88485A84150FCE1300DC4A1F /* GHDUserView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 88485A83150FCE1300DC4A1F /* GHDUserView.xib */; };
+		88485A88150FCE4500DC4A1F /* NSView+GHDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 88485A87150FCE4500DC4A1F /* NSView+GHDExtensions.m */; };
 		884E04961505ACF000035AFC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 884E04951505ACF000035AFC /* Cocoa.framework */; };
 		884E04A01505ACF000035AFC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 884E049E1505ACF000035AFC /* InfoPlist.strings */; };
 		884E04A21505ACF000035AFC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 884E04A11505ACF000035AFC /* main.m */; };
@@ -155,6 +159,13 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		88485A7D150FCDF200DC4A1F /* GHDUserViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHDUserViewController.h; sourceTree = "<group>"; };
+		88485A7E150FCDF200DC4A1F /* GHDUserViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHDUserViewController.m; sourceTree = "<group>"; };
+		88485A80150FCE0700DC4A1F /* GHDUserView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHDUserView.h; sourceTree = "<group>"; };
+		88485A81150FCE0700DC4A1F /* GHDUserView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHDUserView.m; sourceTree = "<group>"; };
+		88485A83150FCE1300DC4A1F /* GHDUserView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GHDUserView.xib; sourceTree = "<group>"; };
+		88485A86150FCE4500DC4A1F /* NSView+GHDExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSView+GHDExtensions.h"; sourceTree = "<group>"; };
+		88485A87150FCE4500DC4A1F /* NSView+GHDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSView+GHDExtensions.m"; sourceTree = "<group>"; };
 		884E04911505ACF000035AFC /* GHAPIDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GHAPIDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		884E04951505ACF000035AFC /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		884E04981505ACF000035AFC /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -235,6 +246,28 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		88485A7C150FCDD400DC4A1F /* GitHub API */ = {
+			isa = PBXGroup;
+			children = (
+				886F995D1506C48900A20BE7 /* GHJSONRequestOperation.h */,
+				886F995E1506C48900A20BE7 /* GHJSONRequestOperation.m */,
+				88BC15911506F12600F5F6D9 /* GHGitHubClient.h */,
+				88BC15921506F12600F5F6D9 /* GHGitHubClient.m */,
+				88DA30B31507BFE700C19D0F /* GHUserAccount.h */,
+				88DA30B41507BFE700C19D0F /* GHUserAccount.m */,
+			);
+			name = "GitHub API";
+			sourceTree = "<group>";
+		};
+		88485A85150FCE1B00DC4A1F /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				88485A86150FCE4500DC4A1F /* NSView+GHDExtensions.h */,
+				88485A87150FCE4500DC4A1F /* NSView+GHDExtensions.m */,
+			);
+			name = Extensions;
+			sourceTree = "<group>";
+		};
 		884E04861505ACEF00035AFC = {
 			isa = PBXGroup;
 			children = (
@@ -290,13 +323,14 @@
 				884E04F61505B0A000035AFC /* GHDLoginView.h */,
 				884E04F71505B0A000035AFC /* GHDLoginView.m */,
 				884E04F91505B0AF00035AFC /* GHDLoginView.xib */,
+				88485A7D150FCDF200DC4A1F /* GHDUserViewController.h */,
+				88485A7E150FCDF200DC4A1F /* GHDUserViewController.m */,
+				88485A80150FCE0700DC4A1F /* GHDUserView.h */,
+				88485A81150FCE0700DC4A1F /* GHDUserView.m */,
+				88485A83150FCE1300DC4A1F /* GHDUserView.xib */,
+				88485A85150FCE1B00DC4A1F /* Extensions */,
+				88485A7C150FCDD400DC4A1F /* GitHub API */,
 				884E049C1505ACF000035AFC /* Supporting Files */,
-				886F995D1506C48900A20BE7 /* GHJSONRequestOperation.h */,
-				886F995E1506C48900A20BE7 /* GHJSONRequestOperation.m */,
-				88BC15911506F12600F5F6D9 /* GHGitHubClient.h */,
-				88BC15921506F12600F5F6D9 /* GHGitHubClient.m */,
-				88DA30B31507BFE700C19D0F /* GHUserAccount.h */,
-				88DA30B41507BFE700C19D0F /* GHUserAccount.m */,
 			);
 			path = GHAPIDemo;
 			sourceTree = "<group>";
@@ -558,6 +592,7 @@
 				884E04AC1505ACF000035AFC /* MainMenu.xib in Resources */,
 				884E04F01505AD4F00035AFC /* GHDMainWindowController.xib in Resources */,
 				884E04FA1505B0AF00035AFC /* GHDLoginView.xib in Resources */,
+				88485A84150FCE1300DC4A1F /* GHDUserView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -608,6 +643,9 @@
 				886F995F1506C48900A20BE7 /* GHJSONRequestOperation.m in Sources */,
 				88BC15931506F12600F5F6D9 /* GHGitHubClient.m in Sources */,
 				88DA30B51507BFE700C19D0F /* GHUserAccount.m in Sources */,
+				88485A7F150FCDF200DC4A1F /* GHDUserViewController.m in Sources */,
+				88485A82150FCE0700DC4A1F /* GHDUserView.m in Sources */,
+				88485A88150FCE4500DC4A1F /* NSView+GHDExtensions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

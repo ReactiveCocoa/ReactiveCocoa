@@ -7,7 +7,6 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import <ReactiveCocoa/ReactiveCocoa.h>
 
 @class GHDLoginView;
 
@@ -21,5 +20,6 @@
 @property (nonatomic, assign, readonly) BOOL loginEnabled;
 @property (nonatomic, assign, readonly) BOOL loggingIn;
 @property (nonatomic, strong, readonly) RACAsyncCommand *loginCommand;
+@property (nonatomic, strong, readonly) RACValue *didLoginValue;
 
 @end

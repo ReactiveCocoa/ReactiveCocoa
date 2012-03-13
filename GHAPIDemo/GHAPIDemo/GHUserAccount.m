@@ -25,6 +25,7 @@ static NSString * const GHUserAccountDefaultAPIEndpoint = @"https://api.github.c
 @synthesize username;
 @synthesize password;
 @synthesize APIEndpoint;
+@synthesize realName;
 
 + (GHUserAccount *)userAccountWithUsername:(NSString *)username password:(NSString *)password {
 	return [self userAccountWithUsername:username password:password APIEndpoint:[NSURL URLWithString:GHUserAccountDefaultAPIEndpoint]];

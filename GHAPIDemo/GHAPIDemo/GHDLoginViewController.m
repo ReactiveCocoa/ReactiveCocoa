@@ -21,6 +21,7 @@
 @property (nonatomic, strong) GHDLoginView *view;
 @property (nonatomic, strong) GHUserAccount *userAccount;
 @property (nonatomic, strong) GHGitHubClient *client;
+@property (nonatomic, strong) RACValue *didLoginValue;
 @end
 
 
@@ -34,6 +35,8 @@
 	self.successHidden = YES;
 	self.loginEnabled = NO;
 	self.loggingIn = NO;
+	
+	self.didLoginValue = [RACValue value];
 	
 	[[RACSequence combineLatest:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), RACObservable(self.loginCommand.numberOfActiveExecutions), nil] reduce:^(NSArray *xs) {
 		return [NSNumber numberWithBool:[[xs objectAtIndex:0] length] > 0 && [[xs objectAtIndex:1] length] > 0 && [[xs objectAtIndex:2] unsignedIntegerValue] < 1];
@@ -63,9 +66,8 @@
 	}] subscribeNext:^(id _) {
 		self.successHidden = NO;
 		self.loggingIn = NO;
-		[[self refreshAll] subscribeNext:^(id x) {
-			NSLog(@"all the things: %@", x);
-		}];
+		
+		self.didLoginValue.value = self.userAccount;
 	}];
 	
 	[[RACSequence merge:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), nil]] subscribeNext:^(id _) {
@@ -79,7 +81,7 @@
 #pragma mark NSViewController
 
 - (void)loadView {
-	self.view = [GHDLoginView view];
+	self.view = [GHDLoginView ghd_viewFromNib];
 	
 	[self.view.usernameTextField bind:NSValueBinding toObject:self withKeyPath:RACKVO(self.username)];
 	[self.view.passwordTextField bind:NSValueBinding toObject:self withKeyPath:RACKVO(self.password)];
@@ -106,6 +108,7 @@
 @synthesize loggingIn;
 @synthesize userAccount;
 @synthesize client;
+@synthesize didLoginValue;
 
 - (RACSequence *)refreshAll {
 	RACSequence *getUserInfoResult = [self.client fetchUserInfo];

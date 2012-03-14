@@ -31,4 +31,14 @@
 	[self sendErrorToAllObservers:error];
 }
 
+- (id)subscribeTo:(RACSequence *)sequence {
+	return [sequence subscribeNext:^(id x) {
+		[self sendNext:x];
+	} error:^(NSError *error) {
+		[self sendError:error];
+	} completed:^{
+		[self sendCompleted];
+	}];
+}
+
 @end

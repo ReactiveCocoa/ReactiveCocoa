@@ -26,4 +26,6 @@
 // error - the error to send to our observers. Can be nil, though that's highly discouraged.
 - (void)sendError:(NSError *)error;
 
+- (id)subscribeTo:(RACSequence *)sequence;
+
 @end

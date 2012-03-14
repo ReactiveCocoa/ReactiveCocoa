@@ -151,8 +151,8 @@
 
 - (RACSequence *)startWith:(id)value;
 
-- (RACSequence *)buffer:(NSUInteger)count;
+- (RACSequence *)bufferWithCount:(NSUInteger)count;
 
-- (RACSequence *)window:(NSUInteger)count;
+- (RACSequence *)windowWithCount:(NSUInteger)count;
 
 @end

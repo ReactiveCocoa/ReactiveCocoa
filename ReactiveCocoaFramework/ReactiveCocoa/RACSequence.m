@@ -600,7 +600,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return sequence;
 }
 
-- (RACSequence *)buffer:(NSUInteger)count {
+- (RACSequence *)bufferWithCount:(NSUInteger)count {
 	RACSequence *buffered = [RACSequence sequence];
 	
 	NSMutableArray *items = [NSMutableArray arrayWithCapacity:count];
@@ -620,7 +620,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return buffered;
 }
 
-- (RACSequence *)window:(NSUInteger)count {
+- (RACSequence *)windowWithCount:(NSUInteger)count {
 	RACSequence *windows = [RACSequence sequence];
 	
 	__block RACSequence *innerSequence = nil;

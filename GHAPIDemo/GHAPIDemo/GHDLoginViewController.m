@@ -38,41 +38,42 @@
 	
 	self.didLoginValue = [RACValue value];
 	
-	[[RACSequence combineLatest:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), RACObservable(self.loginCommand.numberOfActiveExecutions), nil] reduce:^(NSArray *xs) {
-		return [NSNumber numberWithBool:[[xs objectAtIndex:0] length] > 0 && [[xs objectAtIndex:1] length] > 0 && [[xs objectAtIndex:2] unsignedIntegerValue] < 1];
-	}] toObject:self keyPath:RACKVO(self.loginEnabled)];
+	[[RACSequence 
+		combineLatest:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), RACObservable(self.loginCommand.numberOfActiveExecutions), nil] 
+		reduce:^(NSArray *xs) {
+			return [NSNumber numberWithBool:[[xs objectAtIndex:0] length] > 0 && [[xs objectAtIndex:1] length] > 0 && [[xs objectAtIndex:2] unsignedIntegerValue] < 1];
+		}] toObject:self keyPath:RACKVO(self.loginEnabled)];
 	
 	self.loginCommand = [RACAsyncCommand command];
 	RACValue *loginResult = [self.loginCommand addAsyncFunction:^(id _) { return [self.client login]; }];
 
-	[self.loginCommand subscribeNext:^(id _) {
-		self.userAccount = [GHUserAccount userAccountWithUsername:self.username password:self.password];
-		self.client = [GHGitHubClient clientForUserAccount:self.userAccount];
-		self.loggingIn = YES;
-	}];
+	[self.loginCommand 
+		subscribeNext:^(id _) {
+			self.userAccount = [GHUserAccount userAccountWithUsername:self.username password:self.password];
+			self.client = [GHGitHubClient clientForUserAccount:self.userAccount];
+			self.loggingIn = YES;
+		}];
 	
-	[[[loginResult where:^(id x) {
-		return [x hasError];
-	}] select:^(id x) {
-		return [x error];
-	}] subscribeNext:^(id x) {
-		self.loggingIn = NO;
-		self.loginFailedHidden = NO;
-		NSLog(@"error logging in: %@", x);
-	}];
+	[[[loginResult 
+		where:^(id x) { return [x hasError]; }] 
+		select:^(id x) { return [x error]; }] 
+		subscribeNext:^(id x) {
+			self.loggingIn = NO;
+			self.loginFailedHidden = NO;
+			NSLog(@"error logging in: %@", x);
+		}];
 	
-	[[loginResult where:^(id x) {
-		return [x hasObject];
-	}] subscribeNext:^(id _) {
-		self.successHidden = NO;
-		self.loggingIn = NO;
-		
-		self.didLoginValue.value = self.userAccount;
-	}];
+	[[loginResult 
+		where:^(id x) { return [x hasObject]; }]
+		subscribeNext:^(id _) {
+			self.successHidden = NO;
+			self.loggingIn = NO;
+			self.didLoginValue.value = self.userAccount;
+		}];
 	
-	[[RACSequence merge:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), nil]] subscribeNext:^(id _) {
-		self.successHidden = self.loginFailedHidden = YES;
-	}];
+	[[RACSequence 
+		merge:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), nil]] 
+		subscribeNext:^(id _) { self.successHidden = self.loginFailedHidden = YES; }];
 	
 	return self;
 }

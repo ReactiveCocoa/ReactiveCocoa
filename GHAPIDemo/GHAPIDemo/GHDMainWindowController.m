@@ -33,11 +33,11 @@
 	
 	GHDLoginViewController *loginViewController = [[GHDLoginViewController alloc] init];
 	self.currentViewController = loginViewController;
-		
-	[loginViewController.didLoginValue subscribeNext:^(GHUserAccount *account) {
-		GHDUserViewController *userViewController = [[GHDUserViewController alloc] initWithUserAccount:account];
-		self.currentViewController = userViewController;
-	}];
+	
+	[[[loginViewController.didLoginValue 
+		where:^BOOL(id x) { return x != nil; }] 
+		select:^(id x) { return [[GHDUserViewController alloc] initWithUserAccount:x]; }] 
+		toObject:self keyPath:RACKVO(self.currentViewController)];
 }
 
 

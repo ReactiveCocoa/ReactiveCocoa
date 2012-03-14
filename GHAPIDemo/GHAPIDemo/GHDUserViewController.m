@@ -47,32 +47,26 @@
 	
 	self.loading = YES;
 	
-	RACSequence *userInfo = [[RACObservable(self.userAccount) where:^BOOL(id x) {
-		return x != nil;
-	}] selectMany:^(GHUserAccount *x) {
-		return [[GHGitHubClient clientForUserAccount:x] fetchUserInfo];
-	}];
+	RACSequence *userInfo = [[RACObservable(self.userAccount) 
+								where:^BOOL(id x) { return x != nil; }] 
+								selectMany:^(GHUserAccount *x) { return [[GHGitHubClient clientForUserAccount:x] fetchUserInfo]; }];
 	
-	[[RACObservable(self.userAccount) where:^BOOL(id x) {
-		return x != nil;
-	}] subscribeNext:^(id _) {
-		self.loading = YES;
-	}];
+	[[RACObservable(self.userAccount) 
+		where:^BOOL(id x) { return x != nil; }] 
+		subscribeNext:^(id _) { self.loading = YES; }];
 
-	[userInfo subscribeNext:^(id _) {
-		self.loading = NO;
-	} error:^(NSError *error) {
-		self.loading = NO;
-		NSLog(@"error: %@", error);
-	}];
+	[[[userInfo 
+		where:^(id x) { return [x hasError]; }] 
+		select:^(id x) { return [x error]; }] 
+		subscribeNext:^(id x) { NSLog(@"error: %@", x); }];
 	
-	[[[userInfo where:^(id x) {
-		return [x hasObject];
-	}] select:^(id x) {
-		return [x object];
-	}] subscribeNext:^(id x) {
-		self.userAccount.realName = [x objectForKey:@"name"];
-	}];
+	[userInfo 
+		subscribeNext:^(id x) { self.loading = NO; }];
+	
+	[[[userInfo 
+		where:^(id x) { return [x hasObject]; }] 
+		select:^(id x) { return [x object]; }] 
+		subscribeNext:^(id x) { self.userAccount.realName = [x objectForKey:@"name"]; }];
 	
 	self.userAccount = user;
 	

@@ -155,4 +155,6 @@
 
 - (RACSequence *)windowWithCount:(NSUInteger)count;
 
++ (RACSequence *)windowWithStart:(RACSequence *)startSequence close:(RACSequence * (^)(RACSequence *start))closeBlock;
+
 @end

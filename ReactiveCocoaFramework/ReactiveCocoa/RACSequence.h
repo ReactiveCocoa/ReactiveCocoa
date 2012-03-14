@@ -153,4 +153,6 @@
 
 - (RACSequence *)buffer:(NSUInteger)count;
 
+- (RACSequence *)window:(NSUInteger)count;
+
 @end

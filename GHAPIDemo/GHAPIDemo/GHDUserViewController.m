@@ -53,13 +53,13 @@
 		return [[GHGitHubClient clientForUserAccount:x] fetchUserInfo];
 	}];
 	
-	[[RACObservable(self.userAccount) select:^(id x) {
-		return [NSNumber numberWithBool:x != nil];
-	}] subscribeNext:^(id x) {
+	[[RACObservable(self.userAccount) where:^BOOL(id x) {
+		return x != nil;
+	}] subscribeNext:^(id _) {
 		self.loading = YES;
 	}];
 
-	[userInfo subscribeNext:^(id x) {
+	[userInfo subscribeNext:^(id _) {
 		self.loading = NO;
 	} error:^(NSError *error) {
 		self.loading = NO;

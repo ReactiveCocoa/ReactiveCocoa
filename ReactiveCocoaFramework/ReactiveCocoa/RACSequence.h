@@ -161,4 +161,6 @@
 
 - (id)defer;
 
+- (id)finally:(void (^)(void))block;
+
 @end

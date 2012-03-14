@@ -723,4 +723,18 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return sequence;
 }
 
+- (id)finally:(void (^)(void))block {
+	NSParameterAssert(block != NULL);
+	
+	[self subscribeNext:^(id _) {
+		
+	} error:^(NSError *error) {
+		block();
+	} completed:^{
+		block();
+	}];
+	
+	return self;
+}
+
 @end

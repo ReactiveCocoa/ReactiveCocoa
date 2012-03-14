@@ -11,6 +11,8 @@
 
 @interface RACSubject : RACValue
 
++ (id)subject;
+
 // Send the `next` event to all our observers with the given value.
 //
 // value - the value to send to our observers. Can be nil.

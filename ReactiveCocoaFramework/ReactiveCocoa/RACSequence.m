@@ -691,4 +691,36 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return windows;
 }
 
+- (id)repeat {
+	RACSequence *sequence = [RACSequence sequence];
+	
+	__block __unsafe_unretained RACObserver *observer = [RACObserver observerWithCompleted:^{
+		[self subscribe:observer];
+	} error:^(NSError *error) {
+		[sequence sendErrorToAllObservers:error];
+	} next:^(id x) {
+		[sequence addObjectAndNilsAreOK:x];
+	}];
+	
+	[self subscribe:observer];
+	
+	return sequence;
+}
+
+- (id)defer {
+	RACSequence *sequence = [RACSequence sequence];
+	
+	__block __unsafe_unretained RACObserver *observer = [RACObserver observerWithCompleted:^{
+		[sequence sendCompletedToAllObservers];
+	} error:^(NSError *error) {
+		[self subscribe:observer];
+	} next:^(id x) {
+		[sequence addObjectAndNilsAreOK:x];
+	}];
+	
+	[self subscribe:observer];
+	
+	return sequence;
+}
+
 @end

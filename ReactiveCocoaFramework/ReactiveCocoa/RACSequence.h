@@ -157,4 +157,8 @@
 
 - (RACSequence *)windowWithStart:(RACSequence *)startSequence close:(RACSequence * (^)(RACSequence *start))closeBlock;
 
+- (id)repeat;
+
+- (id)defer;
+
 @end

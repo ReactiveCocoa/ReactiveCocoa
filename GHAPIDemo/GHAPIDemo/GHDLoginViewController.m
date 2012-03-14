@@ -110,27 +110,4 @@
 @synthesize client;
 @synthesize didLoginValue;
 
-- (RACSequence *)refreshAll {
-	RACSequence *getUserInfoResult = [self.client fetchUserInfo];
-	RACSequence *getReposResult = [self.client fetchUserRepos];
-	RACSequence *getOrgsResult = [self.client fetchUserOrgs];
-	
-	[[[getUserInfoResult where:^(id x) {
-		return [x hasObject];
-	}] select:^(id x) {
-		return [x object];
-	}] subscribeNext:^(id x) {
-		NSLog(@"user: %@", x);
-	}];
-	
-	RACSequence *results = [RACSequence zip:[NSArray arrayWithObjects:getUserInfoResult, getReposResult, getOrgsResult, nil] reduce:^(NSArray *xs) {
-		RACMaybe *first = [xs objectAtIndex:0];
-		RACMaybe *second = [xs objectAtIndex:1];
-		RACMaybe *third = [xs objectAtIndex:2];
-		return [NSNumber numberWithBool:[first hasObject] && [second hasObject] && [third hasObject]];
-	}];
-	
-	return results;
-}
-
 @end

@@ -645,23 +645,23 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return windows;
 }
 
-+ (RACSequence *)windowWithStart:(RACSequence *)startSequence close:(RACSequence * (^)(RACSequence *start))closeBlock {
+- (RACSequence *)windowWithStart:(RACSequence *)startSequence close:(RACSequence * (^)(RACSequence *start))closeBlock {
 	NSParameterAssert(closeBlock != NULL);
 	
 	RACSequence *windows = [RACSequence sequence];
 	
 	__block RACSequence *currentWindow = nil;
 	__block RACSequence *currentCloseSequence = nil;
-	[startSequence subscribeNext:^(id x) {
+	
+	void (^closeCurrentWindow)(void) = ^{
+		[currentWindow sendCompletedToAllObservers];
+		currentWindow = nil;
+		currentCloseSequence = nil;
+	};
+	
+	[startSequence subscribeNext:^(id _) {
 		if(currentWindow == nil) {
 			currentWindow = [RACSequence sequence];
-			[windows addObjectAndNilsAreOK:currentWindow];
-			
-			void (^closeCurrentWindow)(void) = ^{
-				[currentWindow sendCompletedToAllObservers];
-				currentWindow = nil;
-				currentCloseSequence = nil;
-			};
 			
 			currentCloseSequence = closeBlock(currentWindow);
 			[currentCloseSequence subscribeNext:^(id _) {
@@ -671,8 +671,16 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 			} completed:^{
 				closeCurrentWindow();
 			}];
+			
+			[windows addObjectAndNilsAreOK:currentWindow];
 		}
-		
+	} error:^(NSError *error) {
+		closeCurrentWindow();
+	} completed:^{
+		closeCurrentWindow();
+	}];
+	
+	[self subscribeNext:^(id x) {
 		[currentWindow addObjectAndNilsAreOK:x];
 	} error:^(NSError *error) {
 		[windows sendErrorToAllObservers:error];

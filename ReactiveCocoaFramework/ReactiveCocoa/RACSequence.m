@@ -253,7 +253,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 
 #pragma mark RACQueryable
 
-- (RACSequence *)where:(BOOL (^)(id value))predicate {
+- (id)where:(BOOL (^)(id value))predicate {
 	NSParameterAssert(predicate != NULL);
 	
 	RACSequence *filtered = [RACSequence sequence];
@@ -270,7 +270,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return filtered;
 }
 
-- (RACSequence *)select:(id (^)(id value))block {
+- (id)select:(id (^)(id value))block {
 	NSParameterAssert(block != NULL);
 	
 	RACSequence *mapped = [RACSequence sequence];
@@ -285,7 +285,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return mapped;
 }
 
-- (RACSequence *)throttle:(NSTimeInterval)interval {	
+- (id)throttle:(NSTimeInterval)interval {	
 	RACSequence *throttled = [RACSequence sequence];
 	__block id lastDelayedId = nil;
 	[self subscribeNext:^(id x) {
@@ -407,7 +407,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return unified;
 }
 
-- (RACSequence *)toSequence:(RACSequence *)property {
+- (id)toSequence:(RACSequence *)property {
 	NSParameterAssert(property != nil);
 	
 	[self subscribeNext:^(id x) {
@@ -417,7 +417,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return self;
 }
 
-- (RACSequence *)toObject:(NSObject *)object keyPath:(NSString *)keyPath {
+- (id)toObject:(NSObject *)object keyPath:(NSString *)keyPath {
 	NSParameterAssert(keyPath != nil);
 	
 	[self subscribeNext:^(id x) {
@@ -427,7 +427,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return self;
 }
 
-- (RACSequence *)distinctUntilChanged {
+- (id)distinctUntilChanged {
 	RACSequence *distinct = [RACSequence sequence];
 	[self subscribeNext:^(id x) {
 		if(![x isEqual:[distinct lastObject]]) {
@@ -442,7 +442,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return distinct;
 }
 
-- (RACSequence *)selectMany:(RACSequence * (^)(id x))selectMany {
+- (id)selectMany:(RACSequence * (^)(id x))selectMany {
 	NSParameterAssert(selectMany != NULL);
 	
 	RACSequence *sequence = [RACSequence sequence];
@@ -480,7 +480,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return sequence;
 }
 
-- (RACSequence *)take:(NSUInteger)count {
+- (id)take:(NSUInteger)count {
 	RACSequence *taken = [RACSequence sequence];
 	
 	__block NSUInteger receivedCount = 0;
@@ -507,7 +507,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return taken;
 }
 
-- (RACSequence *)until:(RACSequence *)untilSequence {
+- (id)until:(RACSequence *)untilSequence {
 	NSParameterAssert(untilSequence != nil);
 	
 	RACSequence *sequence = [RACSequence sequence];
@@ -530,7 +530,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return sequence;
 }
 
-- (RACSequence *)waitUntil:(RACSequence *)untilSequence {
+- (id)waitUntil:(RACSequence *)untilSequence {
 	NSParameterAssert(untilSequence != nil);
 	
 	RACSequence *sequence = [RACSequence sequence];
@@ -552,7 +552,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return sequence;
 }
 
-- (RACSequence *)catch:(RACSequence * (^)(NSError *error))catchBlock {
+- (id)catch:(RACSequence * (^)(NSError *error))catchBlock {
 	RACSequence *sequence = [RACSequence sequence];
 	
 	[self subscribeNext:^(id x) {
@@ -566,7 +566,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return sequence;
 }
 
-- (RACSequence *)executeCommand:(RACCommand *)command {
+- (id)executeCommand:(RACCommand *)command {
 	RACSequence *sequence = [RACSequence sequence];
 	
 	[self subscribeNext:^(id x) {
@@ -583,7 +583,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return sequence;
 }
 
-- (RACSequence *)startWith:(id)value {
+- (id)startWith:(id)value {
 	RACSequence *sequence = [RACSequence sequence];
 	sequence.didSubscribe = ^(RACSequence *s, RACObserver *o) {
 		[s addObjectAndNilsAreOK:value];
@@ -600,7 +600,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return sequence;
 }
 
-- (RACSequence *)bufferWithCount:(NSUInteger)count {
+- (id)bufferWithCount:(NSUInteger)count {
 	RACSequence *buffered = [RACSequence sequence];
 	
 	NSMutableArray *items = [NSMutableArray arrayWithCapacity:count];
@@ -620,7 +620,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return buffered;
 }
 
-- (RACSequence *)windowWithCount:(NSUInteger)count {
+- (id)windowWithCount:(NSUInteger)count {
 	RACSequence *windows = [RACSequence sequence];
 	
 	__block RACSequence *innerSequence = nil;
@@ -645,7 +645,7 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return windows;
 }
 
-- (RACSequence *)windowWithStart:(RACSequence *)startSequence close:(RACSequence * (^)(RACSequence *start))closeBlock {
+- (id)windowWithStart:(RACSequence *)startSequence close:(RACSequence * (^)(RACSequence *start))closeBlock {
 	NSParameterAssert(closeBlock != NULL);
 	
 	RACSequence *windows = [RACSequence sequence];

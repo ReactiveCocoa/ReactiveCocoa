@@ -83,19 +83,19 @@
 // `next` is sent when the receiver sends a `next` and the `predicate` block returns YES. The `next` value is the value that the receiver got from `next`.
 // `error` is sent when the receiver gets `error`.
 // `completed` is sent when the receiver gets `completed`.
-- (RACSequence *)where:(BOOL (^)(id x))predicate;
+- (id)where:(BOOL (^)(id x))predicate;
 
 // Returns a sequence that adds the objects returned by calling `block` for each object added to the receiver.
 // `next` is sent when the receiver sends a `next`. The `next` value is the value returned by calling `block` with the value of the receiver's `next`.
 // `error` is sent when the receiver gets `error`.
 // `completed` is sent when the receiver gets `completed`.
-- (RACSequence *)select:(id (^)(id x))block;
+- (id)select:(id (^)(id x))block;
 
 // Returns a sequence that fires its `next` event only after the receiver hasn't received any new objects for `interval` seconds.
 // `next` is sent only after `interval` has passed since the receiver's last `next`. The `next` value is the receiver's `-lastObject`.
 // `error` is sent when the receiver gets `error`.
 // `completed` is sent when the receiver gets `completed`.
-- (RACSequence *)throttle:(NSTimeInterval)interval;
+- (id)throttle:(NSTimeInterval)interval;
 
 // Combine the latest values from the sequences and add the reduced value to the returned sequence.
 // `next` is sent when a `next` is sent on any of the sequences and all sequences return non-nil for `-lastObject`. The `next` value is the value returned from calling `reduceBlock` with an array of the `-lastObject` for each of the sequences.
@@ -116,46 +116,46 @@
 + (RACSequence *)zip:(NSArray *)sequences reduce:(id (^)(NSArray *xs))reduceBlock;
 
 // Adds the last added object to the given sequence and returns self.
-- (RACSequence *)toSequence:(RACSequence *)property;
+- (id)toSequence:(RACSequence *)property;
 
 // Sets the last added object to the value of the given key path and returns self.
-- (RACSequence *)toObject:(NSObject *)object keyPath:(NSString *)keyPath;
+- (id)toObject:(NSObject *)object keyPath:(NSString *)keyPath;
 
 // Returns a sequence that adds objects from the receiver only if they're not equal to the last added object added to the sequence.
 // `next` is sent when the receiver gets a `next` with a value that is not equal to its `-lastObject`.
 // `error` is sent when the receiver gets `error`.
 // `completed` is sent when the receiver gets `completed`.
-- (RACSequence *)distinctUntilChanged;
+- (id)distinctUntilChanged;
 
 // Returns the sequence returned by the block. This can be used to chain different sequences together.
-- (RACSequence *)selectMany:(RACSequence * (^)(id x))selectMany;
+- (id)selectMany:(RACSequence * (^)(id x))selectMany;
 
 // Returns a sequence that only sends its `next` after the receiver has received `count` objects.
-- (RACSequence *)take:(NSUInteger)count;
+- (id)take:(NSUInteger)count;
 
 // Returns a sequence that adds objects from the receiver only until `untilSequence` gets a `next` or `error`.
 // `next` is sent when the receiver gets a `next`. The `next` value is value of the receiver's `next`.
 // `error` is sent when the receiver or `untilSequence` get `error`.
 // `completed` is sent when the receiver gets `completed` or when `untilSequence` gets next.
-- (RACSequence *)until:(RACSequence *)untilSequence;
+- (id)until:(RACSequence *)untilSequence;
 
 // Returns a sequence that adds objects from the receiver only after `untilSequence` gets a `next`.
 // `next` is sent when the receiver gets a `next` after `untilSequence` has received a `next`. The `next` value is the value of the receiver's `next`.
 // `error` is sent when the receiver or `untilSequence` get `error`.
 // `completed` is sent when the receiver gets `completed`.
-- (RACSequence *)waitUntil:(RACSequence *)untilSequence;
+- (id)waitUntil:(RACSequence *)untilSequence;
 
-- (RACSequence *)catch:(RACSequence * (^)(NSError *error))catchBlock;
+- (id)catch:(RACSequence * (^)(NSError *error))catchBlock;
 
-- (RACSequence *)executeCommand:(RACCommand *)command;
+- (id)executeCommand:(RACCommand *)command;
 
-- (RACSequence *)startWith:(id)value;
+- (id)startWith:(id)value;
 
-- (RACSequence *)bufferWithCount:(NSUInteger)count;
+- (id)bufferWithCount:(NSUInteger)count;
 
-- (RACSequence *)windowWithCount:(NSUInteger)count;
+- (id)windowWithCount:(NSUInteger)count;
 
-- (RACSequence *)windowWithStart:(RACSequence *)startSequence close:(RACSequence * (^)(RACSequence *start))closeBlock;
+- (id)windowWithStart:(RACSequence *)startSequence close:(RACSequence * (^)(RACSequence *start))closeBlock;
 
 - (id)repeat;
 

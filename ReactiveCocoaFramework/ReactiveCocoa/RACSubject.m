@@ -15,6 +15,10 @@
 
 #pragma mark API
 
++ (id)subject {
+	return [self value];
+}
+
 - (void)sendNext:(id)value {
 	[self sendNextToAllObservers:value];
 }

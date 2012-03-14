@@ -151,4 +151,6 @@
 
 - (RACSequence *)startWith:(id)value;
 
+- (RACSequence *)buffer:(NSUInteger)count;
+
 @end

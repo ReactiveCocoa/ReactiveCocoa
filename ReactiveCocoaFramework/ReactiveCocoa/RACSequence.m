@@ -600,4 +600,24 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	return sequence;
 }
 
+- (RACSequence *)buffer:(NSUInteger)count {
+	RACSequence *buffered = [RACSequence sequence];
+	
+	NSMutableArray *items = [NSMutableArray arrayWithCapacity:count];
+	[self subscribeNext:^(id x) {
+		[items addObject:x ? : [EXTNil null]];
+		
+		if(items.count == count) {
+			[buffered addObjectAndNilsAreOK:items];
+			[items removeAllObjects];
+		}
+	} error:^(NSError *error) {
+		[buffered sendErrorToAllObservers:error];
+	} completed:^{
+		[buffered sendCompletedToAllObservers];
+	}];
+	
+	return buffered;
+}
+
 @end

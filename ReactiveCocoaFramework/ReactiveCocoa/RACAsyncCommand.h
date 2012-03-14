@@ -9,6 +9,7 @@
 #import "RACCommand.h"
 
 @class RACSequence;
+@class RACAsyncSubject;
 
 
 // An async command is a command that can run asynchronous functions when the command is executed.
@@ -21,6 +22,6 @@
 
 @property (readonly, assign) NSUInteger numberOfActiveExecutions;
 
-- (RACValue *)addAsyncFunction:(RACSequence * (^)(id value))function;
+- (RACAsyncSubject *)addAsyncFunction:(RACAsyncSubject * (^)(id value))function;
 
 @end

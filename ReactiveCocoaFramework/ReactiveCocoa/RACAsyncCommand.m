@@ -10,10 +10,11 @@
 #import "RACCommand+Private.h"
 #import "RACSequence+Private.h"
 #import "NSObject+RACPropertyObserving.h"
+#import "RACAsyncSubject.h"
 
 @interface RACAsyncFunctionPair : NSObject
-@property (nonatomic, strong) RACValue *value;
-@property (nonatomic, strong) RACSequence * (^asyncFunction)(id value);
+@property (nonatomic, strong) RACAsyncSubject *subject;
+@property (nonatomic, strong) RACAsyncSubject * (^asyncFunction)(id value);
 
 + (id)pair;
 @end
@@ -64,15 +65,15 @@
 	
 	for(RACAsyncFunctionPair *pair in self.asyncFunctionPairs) {
 		[self.operationQueue addOperationWithBlock:^{
-			RACSequence *sequence = pair.asyncFunction(value);
-			[sequence subscribeNext:^(id x) {
+			RACAsyncSubject *subject = pair.asyncFunction(value);
+			[subject subscribeNext:^(id x) {
 				dispatch_async(dispatch_get_main_queue(), ^{
-					pair.value.value = x;
+					[pair.subject sendNext:x];
 					didComplete();
 				});
 			} error:^(NSError *error) {
 				dispatch_async(dispatch_get_main_queue(), ^{
-					[pair.value sendErrorToAllObservers:error];
+					[pair.subject sendError:error];
 					didComplete();
 				});
 			} completed:^{
@@ -99,15 +100,15 @@
 	return operationQueue;
 }
 
-- (RACValue *)addAsyncFunction:(RACSequence * (^)(id value))function {
+- (RACAsyncSubject *)addAsyncFunction:(RACAsyncSubject * (^)(id value))function {
 	NSParameterAssert(function != NULL);
 	
-	RACValue *value = [RACValue value];
+	RACAsyncSubject *subject = [RACAsyncSubject subject];
 	RACAsyncFunctionPair *pair = [RACAsyncFunctionPair pair];
 	pair.asyncFunction = function;
-	pair.value = value;
+	pair.subject = subject;
 	[self.asyncFunctionPairs addObject:pair];
-	return value;
+	return subject;
 }
 
 - (NSMutableArray *)asyncFunctionPairs {
@@ -123,7 +124,7 @@
 
 @implementation RACAsyncFunctionPair
 
-@synthesize value;
+@synthesize subject;
 @synthesize asyncFunction;
 
 + (id)pair {

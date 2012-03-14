@@ -17,4 +17,5 @@
 #import <ReactiveCocoa/RACMaybe.h>
 #import <ReactiveCocoa/EXTNil.h>
 #import <ReactiveCocoa/RACAsyncFunctionOperation.h>
-#import <ReactiveCocoa/RACAsyncFunction.h>
+#import <ReactiveCocoa/NSObject+RACAsync.h>
+#import <ReactiveCocoa/RACSubject.h>

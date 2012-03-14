@@ -39,9 +39,9 @@
 		88037FD9150564D9001A5B19 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88037F8315056328001A5B19 /* ReactiveCocoa.framework */; };
 		8803807115056B22001A5B19 /* libExpecta.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8803805315056ACB001A5B19 /* libExpecta.a */; };
 		8803807215056B22001A5B19 /* libSpecta.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8803806615056AD7001A5B19 /* libSpecta.a */; };
-		880B916B150B07420008488E /* NSObject+RACAsync.h in Headers */ = {isa = PBXBuildFile; fileRef = 880B9169150B07410008488E /* NSObject+RACAsync.h */; };
+		880B916B150B07420008488E /* NSObject+RACAsync.h in Headers */ = {isa = PBXBuildFile; fileRef = 880B9169150B07410008488E /* NSObject+RACAsync.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		880B916C150B07420008488E /* NSObject+RACAsync.m in Sources */ = {isa = PBXBuildFile; fileRef = 880B916A150B07420008488E /* NSObject+RACAsync.m */; };
-		880B9176150B09190008488E /* RACSubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 880B9174150B09190008488E /* RACSubject.h */; };
+		880B9176150B09190008488E /* RACSubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 880B9174150B09190008488E /* RACSubject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		880B9177150B09190008488E /* RACSubject.m in Sources */ = {isa = PBXBuildFile; fileRef = 880B9175150B09190008488E /* RACSubject.m */; };
 		882036E31509677A002428D3 /* EXTNil.h in Headers */ = {isa = PBXBuildFile; fileRef = 882036DD1509677A002428D3 /* EXTNil.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		882036E41509677A002428D3 /* EXTNil.m in Sources */ = {isa = PBXBuildFile; fileRef = 882036DE1509677A002428D3 /* EXTNil.m */; };
@@ -410,14 +410,14 @@
 				88037FC11505646C001A5B19 /* RACCommand.h in Headers */,
 				8820370A15096A4F002428D3 /* RACMaybe.h in Headers */,
 				88037FC21505646C001A5B19 /* NSButton+RACCommandSupport.h in Headers */,
+				880B9176150B09190008488E /* RACSubject.h in Headers */,
 				88037FC41505646C001A5B19 /* RACAsyncCommand.h in Headers */,
 				88ABAB631509A67C0073CDA2 /* RACAsyncFunctionOperation.h in Headers */,
+				880B916B150B07420008488E /* NSObject+RACAsync.h in Headers */,
 				88037FC51505646F001A5B19 /* RACSequence+Private.h in Headers */,
 				882036E31509677A002428D3 /* EXTNil.h in Headers */,
 				88DA309715071CBA00C19D0F /* RACValueTransformer.h in Headers */,
 				882036E51509677A002428D3 /* EXTRuntimeExtensions.h in Headers */,
-				880B916B150B07420008488E /* NSObject+RACAsync.h in Headers */,
-				880B9176150B09190008488E /* RACSubject.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

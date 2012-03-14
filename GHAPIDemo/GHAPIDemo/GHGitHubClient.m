@@ -41,36 +41,36 @@
     return self;
 }
 
-- (RACSequence *)login {
+- (RACAsyncSubject *)login {
 	return [self enqueueRequestWithMethod:@"GET" path:@"" parameters:nil];
 }
 
-- (RACSequence *)fetchUserInfo {
+- (RACAsyncSubject *)fetchUserInfo {
 	return [self enqueueRequestWithMethod:@"GET" path:@"user" parameters:nil];
 }
 
-- (RACSequence *)fetchUserRepos {
+- (RACAsyncSubject *)fetchUserRepos {
 	return [self enqueueRequestWithMethod:@"GET" path:@"user/repos" parameters:nil];
 }
 
-- (RACSequence *)fetchUserOrgs {
+- (RACAsyncSubject *)fetchUserOrgs {
 	return [self enqueueRequestWithMethod:@"GET" path:@"user/orgs" parameters:nil];
 }
 
-- (RACSequence *)enqueueRequestWithMethod:(NSString *)method path:(NSString *)path parameters:(NSDictionary *)parameters {
-	RACSequence *sequence = [RACSequence sequence];
+- (RACAsyncSubject *)enqueueRequestWithMethod:(NSString *)method path:(NSString *)path parameters:(NSDictionary *)parameters {
+	RACAsyncSubject *subject = [RACAsyncSubject subject];
 	NSURLRequest *request = [self requestWithMethod:method path:path parameters:parameters];
 	AFHTTPRequestOperation *operation = [self HTTPRequestOperationWithRequest:request success:^(AFHTTPRequestOperation *operation, id responseObject) {
-		[sequence addObject:[RACMaybe maybeWithObject:responseObject]];
-		[sequence sendCompletedToAllObservers];
+		[subject sendNext:[RACMaybe maybeWithObject:responseObject]];
+		[subject sendCompletedToAllObservers];
 	} failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-		[sequence addObject:[RACMaybe maybeWithError:error]];
-		[sequence sendCompletedToAllObservers];
+		[subject sendNext:[RACMaybe maybeWithError:error]];
+		[subject sendCompletedToAllObservers];
 	}];
 	
     [self enqueueHTTPRequestOperation:operation];
 	
-	return sequence;
+	return subject;
 }
 
 @end

@@ -45,7 +45,7 @@
 		}] toObject:self keyPath:RACKVO(self.loginEnabled)];
 	
 	self.loginCommand = [RACAsyncCommand command];
-	RACValue *loginResult = [self.loginCommand addAsyncFunction:^(id _) { return [self.client login]; }];
+	RACAsyncSubject *loginResult = [self.loginCommand addAsyncFunction:^(id _) { return [self.client login]; }];
 
 	[self.loginCommand 
 		subscribeNext:^(id _) {

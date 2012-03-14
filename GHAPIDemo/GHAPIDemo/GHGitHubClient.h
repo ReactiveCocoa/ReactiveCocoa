@@ -19,9 +19,9 @@
 
 + (GHGitHubClient *)clientForUserAccount:(GHUserAccount *)userAccount;
 
-- (RACSequence *)login;
-- (RACSequence *)fetchUserInfo;
-- (RACSequence *)fetchUserRepos;
-- (RACSequence *)fetchUserOrgs;
+- (RACAsyncSubject *)login;
+- (RACAsyncSubject *)fetchUserInfo;
+- (RACAsyncSubject *)fetchUserRepos;
+- (RACAsyncSubject *)fetchUserOrgs;
 
 @end

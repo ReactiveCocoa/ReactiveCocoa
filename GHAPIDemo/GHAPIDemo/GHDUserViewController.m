@@ -47,21 +47,16 @@
 	
 	self.loading = YES;
 	
-	RACSequence *userInfo = [[RACObservable(self.userAccount) 
-								where:^BOOL(id x) { return x != nil; }] 
-								selectMany:^(GHUserAccount *x) { return [[GHGitHubClient clientForUserAccount:x] fetchUserInfo]; }];
+	RACSequence *userAccountIsntNil = [RACObservable(self.userAccount) where:^BOOL(id x) { return x != nil; }];
+	[userAccountIsntNil subscribeNext:^(id _) { self.loading = YES; }];
 	
-	[[RACObservable(self.userAccount) 
-		where:^BOOL(id x) { return x != nil; }] 
-		subscribeNext:^(id _) { self.loading = YES; }];
-
+	RACSequence *userInfo = [userAccountIsntNil selectMany:^(GHUserAccount *x) { return [[GHGitHubClient clientForUserAccount:x] fetchUserInfo]; }];
+	[userInfo subscribeNext:^(id _) { self.loading = NO; }];
+	
 	[[[userInfo 
 		where:^(id x) { return [x hasError]; }] 
 		select:^(id x) { return [x error]; }] 
 		subscribeNext:^(id x) { NSLog(@"error: %@", x); }];
-	
-	[userInfo 
-		subscribeNext:^(id x) { self.loading = NO; }];
 	
 	[[[userInfo 
 		where:^(id x) { return [x hasObject]; }] 

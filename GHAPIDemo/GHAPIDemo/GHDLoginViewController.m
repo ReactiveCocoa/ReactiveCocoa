@@ -45,8 +45,6 @@
 		}] toObject:self keyPath:RACKVO(self.loginEnabled)];
 	
 	self.loginCommand = [RACAsyncCommand command];
-	RACAsyncSubject *loginResult = [self.loginCommand addAsyncFunction:^(id _) { return [self.client login]; }];
-
 	[self.loginCommand 
 		subscribeNext:^(id _) {
 			self.userAccount = [GHUserAccount userAccountWithUsername:self.username password:self.password];
@@ -54,11 +52,11 @@
 			self.loggingIn = YES;
 		}];
 	
+	RACAsyncSubject *loginResult = [self.loginCommand addAsyncFunction:^(id _) { return [self.client login]; }];
 	[[[loginResult 
 		where:^(id x) { return [x hasError]; }] 
 		select:^(id x) { return [x error]; }] 
 		subscribeNext:^(id x) {
-			self.loggingIn = NO;
 			self.loginFailedHidden = NO;
 			NSLog(@"error logging in: %@", x);
 		}];
@@ -67,10 +65,11 @@
 		where:^(id x) { return [x hasObject]; }]
 		subscribeNext:^(id _) {
 			self.successHidden = NO;
-			self.loggingIn = NO;
 			self.didLoginValue.value = self.userAccount;
 		}];
 	
+	[loginResult subscribeNext:^(id x) { self.loggingIn = NO; }];
+		
 	[[RACSequence 
 		merge:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), nil]] 
 		subscribeNext:^(id _) { self.successHidden = self.loginFailedHidden = YES; }];

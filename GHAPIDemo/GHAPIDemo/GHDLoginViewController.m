@@ -11,6 +11,7 @@
 #import "GHGitHubClient.h"
 #import "GHJSONRequestOperation.h"
 #import "GHUserAccount.h"
+#import "NSView+GHDExtensions.h"
 
 @interface GHDLoginViewController ()
 @property (nonatomic, assign) BOOL successHidden;

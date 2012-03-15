@@ -10,6 +10,7 @@
 #import "GHDUserView.h"
 #import "GHUserAccount.h"
 #import "GHGitHubClient.h"
+#import "NSView+GHDExtensions.h"
 
 @interface GHDUserViewController ()
 @property (nonatomic, strong) GHDUserView *view;

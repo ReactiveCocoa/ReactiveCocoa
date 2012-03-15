@@ -12,6 +12,7 @@
 #import "NSObject+GHExtensions.h"
 #import "EXTNil.h"
 #import "RACCommand.h"
+#import "RACSubject.h"
 
 static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 
@@ -73,6 +74,13 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 @synthesize suspendNotifications;
 @synthesize capacity;
 @synthesize didSubscribe;
+@synthesize didSubscribeBlock;
+
++ (id)create:(void (^)(RACSubject *subject))didSubscribeBlock {
+	RACSubject *subject = [RACSubject subject];
+	subject.didSubscribeBlock = didSubscribeBlock;
+	return subject;
+}
 
 + (id)sequence {
 	return [self sequenceWithCapacity:RACObservableSequenceDefaultCapacity];
@@ -735,6 +743,20 @@ static const NSUInteger RACObservableSequenceDefaultCapacity = 100;
 	}];
 	
 	return self;
+}
+
+- (id)select_:(id (^)(id x))block {
+	__block __unsafe_unretained RACSequence *weakSelf = self;
+	return [RACSequence create:^(RACSubject *subject) {
+		RACSequence *strongSelf = weakSelf;
+		[strongSelf subscribeNext:^(id x) {
+			[subject sendNext:x];
+		} error:^(NSError *error) {
+			[subject sendError:error];
+		} completed:^{
+			[subject sendCompleted];
+		}];
+	}];
 }
 
 @end

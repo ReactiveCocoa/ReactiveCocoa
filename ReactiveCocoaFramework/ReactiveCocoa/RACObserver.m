@@ -32,4 +32,22 @@
 	return observer;
 }
 
+- (void)sendNext:(id)value {
+	if(self.next != NULL) {
+		self.next(value);
+	}
+}
+
+- (void)sendError:(NSError *)e {
+	if(self.error != NULL) {
+		self.error(e);
+	}
+}
+
+- (void)sendCompleted {
+	if(self.completed != NULL) {
+		self.completed();
+	}
+}
+
 @end

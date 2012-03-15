@@ -8,12 +8,12 @@
 
 #import <Foundation/Foundation.h>
 
-#import "RACValue.h"
+#import "RACObservable.h"
 
 
 // A command is a value that allows more customization of its behavior.
 // It sends `next` events when the command executes. `next` is sent the value passed into `-execute:`.
-@interface RACCommand : RACValue
+@interface RACCommand : RACObservable
 
 @property (nonatomic, readonly, assign) BOOL canExecute;
 
@@ -26,7 +26,7 @@
 // executeBlock - the block that will be executed when the command is executed. It will be passed the object given to `-execute:`.
 + (id)commandWithCanExecute:(BOOL (^)(id value))canExecuteBlock execute:(void (^)(id value))executeBlock;
 
-+ (id)commandWithCanExecuteObservable:(RACSequence *)canExecuteObservable execute:(void (^)(id value))executeBlock;
++ (id)commandWithCanExecuteObservable:(id<RACObservable>)canExecuteObservable execute:(void (^)(id value))executeBlock;
 
 // Can the command execute with the given value?
 //

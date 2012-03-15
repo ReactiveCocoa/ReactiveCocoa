@@ -8,12 +8,14 @@
 
 #import <Foundation/Foundation.h>
 
+@protocol RACObserver <NSObject>
+- (void)sendNext:(id)value;
+- (void)sendError:(NSError *)error;
+- (void)sendCompleted;
+@end
 
-@interface RACObserver : NSObject
 
-@property (nonatomic, readonly, copy) void (^completed)(void);
-@property (nonatomic, readonly, copy) void (^error)(NSError *error);
-@property (nonatomic, readonly, copy) void (^next)(id x);
+@interface RACObserver : NSObject <RACObserver>
 
 // Creates a new observer with the given blocks.
 + (id)observerWithCompleted:(void (^)(void))completed error:(void (^)(NSError *error))error next:(void (^)(id x))next;

@@ -7,19 +7,21 @@
 //
 
 #import "NSObject+RACAsync.h"
-#import "RACSequence.h"
-#import "RACSequence+Private.h"
+#import "RACAsyncSubject.h"
 
 
 @implementation NSObject (RACAsync)
 
-+ (RACSequence *)RACAsync:(id (^)(void))block {
-	RACSequence *sequence = [RACSequence sequence];
++ (id<RACObservable>)RACAsync:(id (^)(void))block {
+	NSParameterAssert(block != NULL);
+	
+	RACAsyncSubject *subject = [RACAsyncSubject subject];
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-		[sequence addObjectAndNilsAreOK:block()];
+		[subject sendNext:block()];
+		[subject sendCompleted];
 	});
 	
-	return sequence;
+	return subject;
 }
 
 @end

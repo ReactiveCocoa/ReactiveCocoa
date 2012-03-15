@@ -30,24 +30,22 @@
 
 #pragma mark RACObservable
 
-- (id)subscribe:(RACObserver *)observer {
+- (id)subscribe:(id<RACObserver>)observer {
 	id result = [super subscribe:observer];
-	for(id object in self.valuesReceived) {
-		if(observer.next != NULL) {
-			observer.next(object);
-		}
+	for(id value in self.valuesReceived) {
+		[observer sendNext:value];
 	}
 	
 	return result;
 }
 
 
-#pragma mark RACSequence
+#pragma mark RACObserver
 
-- (void)addObjectAndNilsAreOK:(id)object {
-	[self.valuesReceived addObject:object ? : [EXTNil null]];
+- (void)sendNext:(id)value {
+	[super sendNext:value];
 	
-	[super addObjectAndNilsAreOK:object];
+	[self.valuesReceived addObject:value ? : [EXTNil null]];
 }
 
 

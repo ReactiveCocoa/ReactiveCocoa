@@ -8,7 +8,7 @@
 
 #import "RACCommand.h"
 #import "RACCommand+Private.h"
-#import "RACSequence+Private.h"
+#import "RACObserver.h"
 
 @interface RACCommand ()
 @property (nonatomic, copy) BOOL (^canExecuteBlock)(id value);
@@ -43,11 +43,13 @@
 	return command;
 }
 
-+ (id)commandWithCanExecuteObservable:(RACSequence *)canExecuteObservable execute:(void (^)(id value))executeBlock {
++ (id)commandWithCanExecuteObservable:(id<RACObservable>)canExecuteObservable execute:(void (^)(id value))executeBlock {
 	RACCommand *command = [self commandWithCanExecute:NULL execute:executeBlock];
-	[canExecuteObservable subscribeNext:^(id x) {
+	
+	[canExecuteObservable subscribe:[RACObserver observerWithCompleted:NULL error:NULL next:^(id x) {
 		command.canExecute = [x boolValue];
-	}];
+	}]];
+	
 	return command;
 }
 

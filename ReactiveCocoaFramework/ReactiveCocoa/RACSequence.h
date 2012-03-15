@@ -11,6 +11,7 @@
 #import "RACObservable.h"
 #import "RACQueryable.h"
 
+@class RACSubject;
 @class RACCommand;
 
 #define rac_synthesize_seq(a) \
@@ -25,6 +26,8 @@
 
 // A sequence is essentially a stream of values. It can be observed and queried.
 @interface RACSequence : NSObject <RACObservable>
+
++ (id)create:(void (^)(RACSubject *subject))didSubscribeBlock;
 
 // Creates a new sequence with the default capacity.
 + (id)sequence;
@@ -162,5 +165,7 @@
 - (id)defer;
 
 - (id)finally:(void (^)(void))block;
+
+- (id)select_:(id (^)(id x))block;
 
 @end

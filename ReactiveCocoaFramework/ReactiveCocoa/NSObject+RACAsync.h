@@ -8,11 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
-@class RACSequence;
+@protocol RACObservable;
 
 
 @interface NSObject (RACAsync)
 
-+ (RACSequence *)RACAsync:(id (^)(void))block;
++ (id<RACObservable>)RACAsync:(id (^)(void))block;
 
 @end

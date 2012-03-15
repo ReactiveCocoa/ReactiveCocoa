@@ -8,7 +8,6 @@
 
 #import "RACCommand.h"
 
-@class RACSequence;
 @class RACAsyncSubject;
 
 

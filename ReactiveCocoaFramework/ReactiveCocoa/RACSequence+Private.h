@@ -15,6 +15,7 @@
 @property (nonatomic, readonly) NSUInteger count;
 
 @property (nonatomic, copy) void (^didSubscribe)(RACSequence *sequence, RACObserver *observer);
+@property (nonatomic, copy) void (^didSubscribeBlock)(RACSubject *subject);
 
 // Initializes the new sequence with the given capacity.
 - (id)initWithCapacity:(NSUInteger)cap;

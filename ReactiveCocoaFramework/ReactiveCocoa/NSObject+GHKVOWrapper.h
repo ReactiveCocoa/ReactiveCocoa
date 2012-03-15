@@ -8,8 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-#define GH_KVPATH(_path_) @#_path_
-
 
 @interface NSObject (GHKVOWrapper)
 

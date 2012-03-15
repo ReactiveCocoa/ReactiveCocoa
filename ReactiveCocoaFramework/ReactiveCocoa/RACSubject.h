@@ -6,26 +6,12 @@
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
-#import "RACValue.h"
+#import "RACObservable.h"
+#import "RACObserver.h"
 
 
-@interface RACSubject : RACValue
+@interface RACSubject : RACObservable <RACObserver>
 
 + (id)subject;
-
-// Send the `next` event to all our observers with the given value.
-//
-// value - the value to send to our observers. Can be nil.
-- (void)sendNext:(id)value;
-
-// Send the `completed` event to all our observers.
-- (void)sendCompleted;
-
-// Send the `error` event to all our observers with the given error.
-//
-// error - the error to send to our observers. Can be nil, though that's highly discouraged.
-- (void)sendError:(NSError *)error;
-
-- (id)subscribeTo:(RACSequence *)sequence;
 
 @end

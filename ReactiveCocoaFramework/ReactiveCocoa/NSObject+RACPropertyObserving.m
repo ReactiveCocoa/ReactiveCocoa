@@ -8,42 +8,21 @@
 
 #import "NSObject+RACPropertyObserving.h"
 #import "NSObject+GHKVOWrapper.h"
-#import "RACSequence.h"
-#import "RACSequence+Private.h"
-#import "RACValue.h"
 #import "RACValueTransformer.h"
-
-#import <objc/runtime.h>
-
-static const NSUInteger RACObservableSequenceCountThreshold = 100; // I dunno
+#import "RACReplaySubject.h"
 
 
 @implementation NSObject (RACPropertyObserving)
 
-- (RACSequence *)RACSequenceForKeyPath:(NSString *)keyPath {
-	RACSequence *sequence = [RACSequence sequenceWithCapacity:RACObservableSequenceCountThreshold];
+- (id<RACObservable>)RACObservableForKeyPath:(NSString *)keyPath {
+	RACReplaySubject *subject = [RACReplaySubject subject];
 	__unsafe_unretained NSObject *weakSelf = self;
-	[self addObserver:sequence forKeyPath:keyPath options:0 queue:[NSOperationQueue mainQueue] block:^(id target, NSDictionary *change) {
+	[self addObserver:subject forKeyPath:keyPath options:0 queue:[NSOperationQueue mainQueue] block:^(RACReplaySubject *s, NSDictionary *change) {
 		NSObject *strongSelf = weakSelf;
-		[sequence addObjectAndNilsAreOK:[strongSelf valueForKeyPath:keyPath]];
+		[s sendNext:[strongSelf valueForKeyPath:keyPath]];
 	}];
 	
-	return sequence;
-}
-
-- (RACValue *)RACValueForKeyPath:(NSString *)keyPath {
-	RACValue *value = [RACValue value];
-	__unsafe_unretained NSObject *weakSelf = self;
-	[self addObserver:value forKeyPath:keyPath options:0 queue:[NSOperationQueue mainQueue] block:^(id target, NSDictionary *change) {
-		NSObject *strongSelf = weakSelf;
-		value.value = [strongSelf valueForKeyPath:keyPath];
-	}];
-	
-	return value;
-}
-
-- (void)bind:(NSString *)binding toValue:(RACValue *)value {
-	[self bind:binding toObject:value withKeyPath:@"value" options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nil]];
+	return subject;
 }
 
 - (void)bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath {

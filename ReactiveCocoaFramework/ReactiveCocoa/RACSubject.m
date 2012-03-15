@@ -7,38 +7,58 @@
 //
 
 #import "RACSubject.h"
-#import "RACSequence+Private.h"
+#import "RACObservable+Private.h"
+
+@interface RACSubject ()
+
+@end
 
 
 @implementation RACSubject
 
 
-#pragma mark API
+#pragma mark RACObservable
 
-+ (id)subject {
-	return [self value];
+- (id)subscribe:(id<RACObserver>)observer {
+	id result = [super subscribe:observer];
+	
+	if(self.didSubscribe != NULL) {
+		self.didSubscribe(observer);
+	}
+	
+	return result;
 }
+
+
+#pragma mark RACObserver
 
 - (void)sendNext:(id)value {
-	[self sendNextToAllObservers:value];
-}
-
-- (void)sendCompleted {
-	[self sendCompletedToAllObservers];
+	[self performBlockOnAllSubscribers:^(id<RACObserver> observer) {
+		[observer sendNext:value];
+	}];
 }
 
 - (void)sendError:(NSError *)error {
-	[self sendErrorToAllObservers:error];
+	[self performBlockOnAllSubscribers:^(id<RACObserver> observer) {
+		[observer sendError:error];
+		
+		[self unsubscribe:observer];
+	}];
 }
 
-- (id)subscribeTo:(RACSequence *)sequence {
-	return [sequence subscribeNext:^(id x) {
-		[self sendNext:x];
-	} error:^(NSError *error) {
-		[self sendError:error];
-	} completed:^{
-		[self sendCompleted];
+- (void)sendCompleted {
+	[self performBlockOnAllSubscribers:^(id<RACObserver> observer) {
+		[observer sendCompleted];
+		
+		[self unsubscribe:observer];
 	}];
+}
+
+
+#pragma mark API
+
++ (id)subject {
+	return [[self alloc] init];
 }
 
 @end

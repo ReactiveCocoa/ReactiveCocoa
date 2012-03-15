@@ -12,7 +12,7 @@
 
 @interface RACAsyncSubject ()
 @property (nonatomic, strong) id lastValue;
-@property (nonatomic, assign) BOOL hasCompleted;
+@property (assign) BOOL hasCompletedAlready;
 @end
 
 
@@ -21,33 +21,33 @@
 
 #pragma mark RACObservable
 
-- (id)subscribe:(RACObserver *)observer {
+- (id)subscribe:(id<RACObserver>)observer {
 	id result = [super subscribe:observer];
-	if(self.hasCompleted) {
-		[self sendCompletedToAllObservers];
+	if(self.hasCompletedAlready) {
+		[self sendCompleted];
 	}
 	
 	return result;
 }
 
 
-#pragma mark RACSequence
+#pragma mark RACObserver
 
-- (void)addObjectAndNilsAreOK:(id)object {	
-	self.lastValue = object;
+- (void)sendNext:(id)value {
+	self.lastValue = value;
 }
 
-- (void)sendCompletedToAllObservers {
-	self.hasCompleted = YES;
+- (void)sendCompleted {
+	self.hasCompletedAlready = YES;
 	
-	[self sendNextToAllObservers:self.lastValue];
-	[super sendCompletedToAllObservers];
+	[super sendNext:self.lastValue];
+	[super sendCompleted];
 }
 
 
 #pragma mark API
 
 @synthesize lastValue;
-@synthesize hasCompleted;
+@synthesize hasCompletedAlready;
 
 @end

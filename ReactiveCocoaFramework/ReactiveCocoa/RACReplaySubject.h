@@ -11,4 +11,6 @@
 
 @interface RACReplaySubject : RACSubject
 
++ (id)replaySubjectWithCapacity:(NSUInteger)capacity;
+
 @end

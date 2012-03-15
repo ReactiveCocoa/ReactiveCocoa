@@ -13,6 +13,7 @@
 
 @interface RACReplaySubject ()
 @property (nonatomic, strong) NSMutableArray *valuesReceived;
+@property (nonatomic, assign) NSUInteger capacity;
 @end
 
 
@@ -46,11 +47,21 @@
 	[super sendNext:value];
 	
 	[self.valuesReceived addObject:value ? : [EXTNil null]];
+	
+	while(self.valuesReceived.count > self.capacity) {
+		[self.valuesReceived removeObjectAtIndex:0];
+	}
 }
 
 
 #pragma mark API
 
 @synthesize valuesReceived;
+
++ (id)replaySubjectWithCapacity:(NSUInteger)capacity {
+	RACReplaySubject *subject = [self subject];
+	subject.capacity = capacity;
+	return subject;
+}
 
 @end

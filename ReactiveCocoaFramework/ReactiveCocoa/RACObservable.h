@@ -24,28 +24,27 @@ typedef void (^RACObservableDisposeBlock)(void);
 
 @interface RACObservable : NSObject <RACObservable>
 
-+ (id)createObservable:(id<RACObserver> (^)(id<RACObserver> observer))didSubscribe;
++ (id)createObservable:(RACObservableDisposeBlock (^)(id<RACObserver> observer))didSubscribe;
 + (id)return:(id)value;
 + (id)error:(NSError *)error;
-+ (id)complete;
-+ (id)none;
++ (id)empty;
 
 // Convenience method to subscribe to the `next` event.
-- (id<RACObserver>)subscribeNext:(void (^)(id x))nextBlock;
+- (RACObservableDisposeBlock)subscribeNext:(void (^)(id x))nextBlock;
 
 // Convenience method to subscribe to the `next` and `completed` events.
-- (id<RACObserver>)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock;
+- (RACObservableDisposeBlock)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock;
 
 // Convenience method to subscribe to the `next`, `completed`, and `error` events.
-- (id<RACObserver>)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
+- (RACObservableDisposeBlock)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
 
 // Convenience method to subscribe to `error` events.
-- (id<RACObserver>)subscribeError:(void (^)(NSError *error))errorBlock;
+- (RACObservableDisposeBlock)subscribeError:(void (^)(NSError *error))errorBlock;
 
 // Convenience method to subscribe to `completed` events.
-- (id<RACObserver>)subscribeCompleted:(void (^)(void))completedBlock;
+- (RACObservableDisposeBlock)subscribeCompleted:(void (^)(void))completedBlock;
 
 // Convenience method to subscribe to `next` and `error` events.
-- (id<RACObserver>)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock;
+- (RACObservableDisposeBlock)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock;
 
 @end

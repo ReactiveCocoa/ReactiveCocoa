@@ -16,7 +16,7 @@
 
 - (id<RACObservable>)RACObservableForKeyPath:(NSString *)keyPath {
 	RACReplaySubject *subject = [RACReplaySubject replaySubjectWithCapacity:1];
-	__unsafe_unretained NSObject *weakSelf = self;
+	__block __unsafe_unretained NSObject *weakSelf = self;
 	[self addObserver:subject forKeyPath:keyPath options:0 queue:[NSOperationQueue mainQueue] block:^(RACReplaySubject *s, NSDictionary *change) {
 		NSObject *strongSelf = weakSelf;
 		[s sendNext:[strongSelf valueForKeyPath:keyPath]];

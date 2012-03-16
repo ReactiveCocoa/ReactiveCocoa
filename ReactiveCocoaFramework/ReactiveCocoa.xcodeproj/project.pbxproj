@@ -12,16 +12,13 @@
 		88037FBB1505646C001A5B19 /* NSObject+RACPropertyObserving.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CDF82C15008C0500163A9F /* NSObject+RACPropertyObserving.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88037FBC1505646C001A5B19 /* RACObservable.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CDF80415001CA800163A9F /* RACObservable.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88037FBE1505646C001A5B19 /* RACObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CDF7FA150019CA00163A9F /* RACObserver.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		88037FBF1505646C001A5B19 /* RACSequence.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CDF824150087D500163A9F /* RACSequence.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88037FC11505646C001A5B19 /* RACCommand.h in Headers */ = {isa = PBXBuildFile; fileRef = 882093E91501E6EE00796685 /* RACCommand.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88037FC21505646C001A5B19 /* NSButton+RACCommandSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 882093E61501E6CB00796685 /* NSButton+RACCommandSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88037FC41505646C001A5B19 /* RACAsyncCommand.h in Headers */ = {isa = PBXBuildFile; fileRef = 88DE7CD2150459E800C722C5 /* RACAsyncCommand.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		88037FC51505646F001A5B19 /* RACSequence+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CDF8301500978F00163A9F /* RACSequence+Private.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88037FC61505647C001A5B19 /* NSObject+GHExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF8131500300400163A9F /* NSObject+GHExtensions.m */; };
 		88037FC71505647E001A5B19 /* NSObject+GHKVOWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF82915008BB900163A9F /* NSObject+GHKVOWrapper.m */; };
 		88037FC81505647F001A5B19 /* NSObject+RACPropertyObserving.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF82D15008C0500163A9F /* NSObject+RACPropertyObserving.m */; };
 		88037FC91505648C001A5B19 /* RACObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF7FB150019CA00163A9F /* RACObserver.m */; };
-		88037FCA1505648C001A5B19 /* RACSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF825150087D500163A9F /* RACSequence.m */; };
 		88037FCC1505648C001A5B19 /* RACCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 882093EA1501E6EE00796685 /* RACCommand.m */; };
 		88037FCD1505648C001A5B19 /* NSButton+RACCommandSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 882093E71501E6CB00796685 /* NSButton+RACCommandSupport.m */; };
 		88037FCF1505648C001A5B19 /* RACAsyncCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 88DE7CD3150459E800C722C5 /* RACAsyncCommand.m */; };
@@ -419,7 +416,6 @@
 				88037FBB1505646C001A5B19 /* NSObject+RACPropertyObserving.h in Headers */,
 				88037FBC1505646C001A5B19 /* RACObservable.h in Headers */,
 				88037FBE1505646C001A5B19 /* RACObserver.h in Headers */,
-				88037FBF1505646C001A5B19 /* RACSequence.h in Headers */,
 				88037FC11505646C001A5B19 /* RACCommand.h in Headers */,
 				8820370A15096A4F002428D3 /* RACMaybe.h in Headers */,
 				88037FC21505646C001A5B19 /* NSButton+RACCommandSupport.h in Headers */,
@@ -428,7 +424,6 @@
 				88ABAB631509A67C0073CDA2 /* RACAsyncFunctionOperation.h in Headers */,
 				880B916B150B07420008488E /* NSObject+RACAsync.h in Headers */,
 				88D4AB3E1510F6C30011494F /* RACReplaySubject.h in Headers */,
-				88037FC51505646F001A5B19 /* RACSequence+Private.h in Headers */,
 				88D4AB491510F8F10011494F /* RACAsyncSubject.h in Headers */,
 				882036E31509677A002428D3 /* EXTNil.h in Headers */,
 				88DA309715071CBA00C19D0F /* RACValueTransformer.h in Headers */,
@@ -618,7 +613,6 @@
 				88037FC71505647E001A5B19 /* NSObject+GHKVOWrapper.m in Sources */,
 				88037FC81505647F001A5B19 /* NSObject+RACPropertyObserving.m in Sources */,
 				88037FC91505648C001A5B19 /* RACObserver.m in Sources */,
-				88037FCA1505648C001A5B19 /* RACSequence.m in Sources */,
 				88037FCC1505648C001A5B19 /* RACCommand.m in Sources */,
 				88037FCD1505648C001A5B19 /* NSButton+RACCommandSupport.m in Sources */,
 				88037FCF1505648C001A5B19 /* RACAsyncCommand.m in Sources */,

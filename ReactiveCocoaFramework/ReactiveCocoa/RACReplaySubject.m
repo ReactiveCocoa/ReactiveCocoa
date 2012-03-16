@@ -7,7 +7,6 @@
 //
 
 #import "RACReplaySubject.h"
-#import "RACSequence+Private.h"
 #import "EXTNil.h"
 #import "RACObserver.h"
 

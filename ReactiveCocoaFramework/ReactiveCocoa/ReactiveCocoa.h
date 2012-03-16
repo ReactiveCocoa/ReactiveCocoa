@@ -7,8 +7,6 @@
 //
 
 #import <ReactiveCocoa/RACObserver.h>
-#import <ReactiveCocoa/RACSequence.h>
-#import <ReactiveCocoa/RACValue.h>
 #import <ReactiveCocoa/RACCommand.h>
 #import <ReactiveCocoa/NSObject+RACPropertyObserving.h>
 #import <ReactiveCocoa/NSButton+RACCommandSupport.h>

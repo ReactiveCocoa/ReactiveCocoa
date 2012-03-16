@@ -7,7 +7,6 @@
 //
 
 #import "RACAsyncSubject.h"
-#import "RACSequence+Private.h"
 #import "RACObserver.h"
 
 @interface RACAsyncSubject ()

@@ -126,4 +126,53 @@
 	return self;
 }
 
+- (instancetype)windowWithStart:(id<RACObservable>)openObservable close:(id<RACObservable> (^)(id<RACObservable> start))closeBlock {
+	NSParameterAssert(openObservable != nil);
+	NSParameterAssert(closeBlock != NULL);
+	
+	RACCreateWeakSelf
+	return [RACObservable createObservable:^(id<RACObserver> observer) {
+		RACRedefineSelf
+				
+		__block RACSubject *currentWindow = nil;
+		__block id<RACObservable> currentCloseWindow = nil;
+		
+		void (^closeCurrentWindow)(void) = ^{
+			[currentWindow sendCompleted];
+			currentWindow = nil;
+			currentCloseWindow = nil;
+		};
+		
+		id<RACObserver> windowOpenObserver = [openObservable subscribe:[RACObserver observerWithNext:^(id x) {
+			if(currentWindow == nil) {
+				currentWindow = [RACSubject subject];
+				[observer sendNext:currentWindow];
+				
+				currentCloseWindow = closeBlock(currentWindow);
+				[currentCloseWindow subscribe:[RACObserver observerWithNext:^(id x) {
+					closeCurrentWindow();
+				} error:^(NSError *error) {
+					closeCurrentWindow();
+				} completed:^{
+					closeCurrentWindow();
+				}]];
+			}
+		} error:^(NSError *error) {
+			closeCurrentWindow();
+		} completed:^{
+			closeCurrentWindow();
+		}]];
+		
+		[self subscribeNext:^(id x) {
+			[currentWindow sendNext:x];
+		} error:^(NSError *error) {
+			[observer sendError:error];
+		} completed:^{
+			[observer sendCompleted];
+		}];
+		
+		return windowOpenObserver;
+	}];
+}
+
 @end

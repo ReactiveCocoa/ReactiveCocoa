@@ -10,10 +10,12 @@
 
 @protocol RACObserver;
 
+typedef void (^RACObservableDisposeBlock)(void);
+
 
 @protocol RACObservable <NSObject>
 // Subscribes observer to changes on the receiver. The receiver defines which events it actually sends and in what situations the events are sent.
-- (id<RACObserver>)subscribe:(id<RACObserver>)observer;
+- (RACObservableDisposeBlock)subscribe:(id<RACObserver>)observer;
 
 // Unsubscribes the observer.
 - (void)unsubscribe:(id<RACObserver>)observer;

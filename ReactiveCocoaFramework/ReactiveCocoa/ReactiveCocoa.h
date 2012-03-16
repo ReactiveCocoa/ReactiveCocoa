@@ -18,3 +18,4 @@
 #import <ReactiveCocoa/RACSubject.h>
 #import <ReactiveCocoa/RACReplaySubject.h>
 #import <ReactiveCocoa/RACAsyncSubject.h>
+#import <ReactiveCocoa/RACBehaviorSubject.h>

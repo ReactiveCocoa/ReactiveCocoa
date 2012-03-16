@@ -158,9 +158,9 @@
 				}]];
 			}
 		} error:^(NSError *error) {
-			closeCurrentWindow();
+			
 		} completed:^{
-			closeCurrentWindow();
+			
 		}]];
 		
 		[self subscribeNext:^(id x) {

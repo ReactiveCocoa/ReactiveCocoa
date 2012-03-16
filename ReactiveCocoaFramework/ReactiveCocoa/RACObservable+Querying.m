@@ -133,20 +133,23 @@
 				
 		__block RACSubject *currentWindow = nil;
 		__block id<RACObservable> currentCloseWindow = nil;
+		__block RACObservableDisposeBlock disposeCloseObserver = NULL;
 		
 		void (^closeCurrentWindow)(void) = ^{
 			[currentWindow sendCompleted];
 			currentWindow = nil;
 			currentCloseWindow = nil;
+			disposeCloseObserver();
+			disposeCloseObserver = NULL;
 		};
 		
-		RACObservableDisposeBlock dispose = [openObservable subscribe:[RACObserver observerWithNext:^(id x) {
+		RACObservableDisposeBlock disposeOpenObserver = [openObservable subscribe:[RACObserver observerWithNext:^(id x) {
 			if(currentWindow == nil) {
 				currentWindow = [RACSubject subject];
 				[observer sendNext:currentWindow];
 				
 				currentCloseWindow = closeBlock(currentWindow);
-				[currentCloseWindow subscribe:[RACObserver observerWithNext:^(id x) {
+				disposeCloseObserver = [currentCloseWindow subscribe:[RACObserver observerWithNext:^(id x) {
 					closeCurrentWindow();
 				} error:^(NSError *error) {
 					closeCurrentWindow();
@@ -160,7 +163,7 @@
 			
 		}]];
 		
-		[self subscribeNext:^(id x) {
+		RACObservableDisposeBlock disposeSelfObserver = [self subscribeNext:^(id x) {
 			[currentWindow sendNext:x];
 		} error:^(NSError *error) {
 			[observer sendError:error];
@@ -168,7 +171,11 @@
 			[observer sendCompleted];
 		}];
 		
-		return dispose;
+		return ^{
+			if(disposeCloseObserver != NULL) disposeCloseObserver();
+			disposeOpenObserver();
+			disposeSelfObserver();
+		};
 	}];
 }
 

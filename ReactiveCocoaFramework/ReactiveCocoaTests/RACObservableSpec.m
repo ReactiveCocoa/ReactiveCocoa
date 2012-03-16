@@ -74,31 +74,49 @@ describe(@"querying", ^{
 	beforeEach(^{
 		observable = [RACObservable createObservable:^(id<RACObserver> observer) {
 			[observer sendNext:nextValueSent];
+			[observer sendNext:@"other value"];
 			[observer sendCompleted];
 			return observer;
 		}];
 	});
 	
-	it(@"should support where", ^{
-		__block id valueReceived = nil;
-		
+	it(@"should support where", ^{		
 		[[observable where:^BOOL(id x) {
 			return x == nextValueSent;
 		}] subscribeNext:^(id x) {
-			valueReceived = x;
+			expect(x).toEqual(nextValueSent);
 		} error:^(NSError *error) {
 			
 		} completed:^{
 			
 		}];
-		
-		expect(valueReceived).toEqual(nextValueSent);
+	});
+	
+	it(@"should support select", ^{
+		id transformedValue = @"other";
+		[[observable select:^(id x) {			
+			return transformedValue;
+		}] subscribeNext:^(id x) {
+			expect(x).toEqual(transformedValue);
+		} error:^(NSError *error) {
+			
+		} completed:^{
+			
+		}];
 	});
 });
 
 describe(@"continuation", ^{
 	it(@"shouldn't receive deferred errors", ^{
-		RACObservable *observable = [RACObservable createObservable:^(id<RACObserver> observer) {
+		__block NSUInteger numberOfSubscriptions = 0;
+		RACObservable *observable = [RACObservable createObservable:^id<RACObserver>(id<RACObserver> observer) {
+			if(numberOfSubscriptions > 2) {
+				[observer sendCompleted];
+				return observer;
+			}
+			
+			numberOfSubscriptions++;
+			
 			[observer sendNext:@"1"];
 			[observer sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
 			[observer sendCompleted];
@@ -120,7 +138,15 @@ describe(@"continuation", ^{
 	});
 	
 	it(@"should repeat after completion", ^{
+		__block NSUInteger numberOfSubscriptions = 0;
 		RACObservable *observable = [RACObservable createObservable:^(id<RACObserver> observer) {
+			if(numberOfSubscriptions > 2) {
+				[observer sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+				return observer;
+			}
+			
+			numberOfSubscriptions++;
+			
 			[observer sendNext:@"1"];
 			[observer sendCompleted];
 			[observer sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];

@@ -62,10 +62,10 @@
 	NSURLRequest *request = [self requestWithMethod:method path:path parameters:parameters];
 	AFHTTPRequestOperation *operation = [self HTTPRequestOperationWithRequest:request success:^(AFHTTPRequestOperation *operation, id responseObject) {
 		[subject sendNext:[RACMaybe maybeWithObject:responseObject]];
-		[subject sendCompletedToAllObservers];
+		[subject sendCompleted];
 	} failure:^(AFHTTPRequestOperation *operation, NSError *error) {
 		[subject sendNext:[RACMaybe maybeWithError:error]];
-		[subject sendCompletedToAllObservers];
+		[subject sendCompleted];
 	}];
 	
     [self enqueueHTTPRequestOperation:operation];

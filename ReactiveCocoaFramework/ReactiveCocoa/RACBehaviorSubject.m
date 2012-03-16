@@ -18,11 +18,11 @@
 
 #pragma mark RACObservable
 
-- (RACObservableDisposeBlock)subscribe:(id<RACObserver>)observer {
-	RACObservableDisposeBlock dispose = [super subscribe:observer];
+- (RACDisposable *)subscribe:(id<RACObserver>)observer {
+	RACDisposable * disposable = [super subscribe:observer];
 	[observer sendNext:self.currentValue];
 	
-	return dispose;
+	return disposable;
 }
 
 

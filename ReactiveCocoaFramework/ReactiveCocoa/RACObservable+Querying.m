@@ -11,6 +11,8 @@
 #import "RACSubject.h"
 #import "NSObject+GHExtensions.h"
 #import "RACBehaviorSubject.h"
+#import "RACDisposable.h"
+#import "EXTNil.h"
 
 #define RACCreateWeakSelf __block __unsafe_unretained id weakSelf = self;
 #define RACRedefineSelf id self = weakSelf;
@@ -133,23 +135,22 @@
 				
 		__block RACSubject *currentWindow = nil;
 		__block id<RACObservable> currentCloseWindow = nil;
-		__block RACObservableDisposeBlock disposeCloseObserver = NULL;
+		__block RACDisposable *closeObserverDisposable = NULL;
 		
 		void (^closeCurrentWindow)(void) = ^{
 			[currentWindow sendCompleted];
 			currentWindow = nil;
 			currentCloseWindow = nil;
-			disposeCloseObserver();
-			disposeCloseObserver = NULL;
+			[closeObserverDisposable dispose], closeObserverDisposable = nil;
 		};
 		
-		RACObservableDisposeBlock disposeOpenObserver = [openObservable subscribe:[RACObserver observerWithNext:^(id x) {
+		RACDisposable *openObserverDisposable = [openObservable subscribe:[RACObserver observerWithNext:^(id x) {
 			if(currentWindow == nil) {
 				currentWindow = [RACSubject subject];
 				[observer sendNext:currentWindow];
 				
 				currentCloseWindow = closeBlock(currentWindow);
-				disposeCloseObserver = [currentCloseWindow subscribe:[RACObserver observerWithNext:^(id x) {
+				closeObserverDisposable = [currentCloseWindow subscribe:[RACObserver observerWithNext:^(id x) {
 					closeCurrentWindow();
 				} error:^(NSError *error) {
 					closeCurrentWindow();
@@ -162,20 +163,20 @@
 		} completed:^{
 			
 		}]];
-		
-		RACObservableDisposeBlock disposeSelfObserver = [self subscribeNext:^(id x) {
+				
+		RACDisposable *selfObserverDisposable = [self subscribeNext:^(id x) {
 			[currentWindow sendNext:x];
 		} error:^(NSError *error) {
 			[observer sendError:error];
 		} completed:^{
 			[observer sendCompleted];
 		}];
-		
-		return ^{
-			if(disposeCloseObserver != NULL) disposeCloseObserver();
-			disposeOpenObserver();
-			disposeSelfObserver();
-		};
+				
+		return [RACDisposable disposableWithBlock:^{
+			[closeObserverDisposable dispose];
+			[openObserverDisposable dispose];
+			[selfObserverDisposable dispose];
+		}];
 	}];
 }
 
@@ -205,6 +206,133 @@
 			
 		} completed:^{
 			
+		}];
+	}];
+}
+
+- (instancetype)take:(NSUInteger)count {
+	RACCreateWeakSelf
+	return [RACObservable createObservable:^(id<RACObserver> observer) {
+		RACRedefineSelf
+		
+		__block NSUInteger valuesTaken = 0;
+		return [self subscribeNext:^(id x) {
+			valuesTaken++;
+			[observer sendNext:x];
+			
+			if(valuesTaken >= count) {
+				[observer sendCompleted];
+			}
+		} error:^(NSError *error) {
+			[observer sendError:error];
+		} completed:^{
+			[observer sendCompleted];
+		}];
+	}];
+}
+
++ (instancetype)combineLatest:(NSArray *)observables reduce:(id (^)(NSArray *xs))reduceBlock {
+	NSParameterAssert(reduceBlock != NULL);
+	
+	return [RACObservable createObservable:^(id<RACObserver> observer) {
+		NSMutableSet *disposables = [NSMutableSet setWithCapacity:observables.count];
+		NSMutableSet *completedObservables = [NSMutableSet setWithCapacity:observables.count];
+		NSMutableDictionary *lastValues = [NSMutableDictionary dictionaryWithCapacity:observables.count];
+		for(id<RACObservable> observable in observables) {
+			RACDisposable *disposable = [observable subscribe:[RACObserver observerWithNext:^(id x) {
+				[lastValues setObject:x ? : [EXTNil null] forKey:[NSString stringWithFormat:@"%p", observable]];
+				
+				if(lastValues.count == observables.count) {
+					NSMutableArray *orderedValues = [NSMutableArray arrayWithCapacity:observables.count];
+					for(id<RACObservable> o in observables) {
+						[orderedValues addObject:[lastValues objectForKey:[NSString stringWithFormat:@"%p", o]]];
+					}
+					
+					[observer sendNext:reduceBlock(orderedValues)];
+				}
+			} error:^(NSError *error) {
+				[observer sendError:error];
+			} completed:^{
+				[completedObservables addObject:observable];
+				if(completedObservables.count == observables.count) {
+					[observer sendCompleted];
+				}
+			}]];
+			
+			[disposables addObject:disposable];
+		}
+		
+		return [RACDisposable disposableWithBlock:^{
+			for(RACDisposable *disposable in disposables) {
+				[disposable dispose];
+			}
+		}];
+	}];
+}
+
++ (instancetype)merge:(NSArray *)observables {
+	return [RACObservable createObservable:^(id<RACObserver> observer) {
+		NSMutableSet *disposables = [NSMutableSet setWithCapacity:observables.count];
+		NSMutableSet *completedObservables = [NSMutableSet setWithCapacity:observables.count];
+		for(id<RACObservable> observable in observables) {
+			RACDisposable *disposable = [observable subscribe:[RACObserver observerWithNext:^(id x) {
+				[observer sendNext:x];
+			} error:^(NSError *error) {
+				[observer sendError:error];
+			} completed:^{
+				[completedObservables addObject:observable];
+				if(completedObservables.count == observables.count) {
+					[observer sendCompleted];
+				}
+			}]];
+			
+			[disposables addObject:disposable];
+		}
+		
+		return [RACDisposable disposableWithBlock:^{
+			for(RACDisposable *disposable in disposables) {
+				[disposable dispose];
+			}
+		}];
+	}];
+}
+
+- (instancetype)selectMany:(id<RACObservable> (^)(id x))selectBlock {
+	NSParameterAssert(selectBlock != NULL);
+	
+	RACCreateWeakSelf
+	return [RACObservable createObservable:^(id<RACObserver> observer) {
+		RACRedefineSelf
+		NSMutableSet *activeObservables = [NSMutableSet set];
+		[activeObservables addObject:self];
+		
+		NSMutableSet *completedObservables = [NSMutableSet set];
+		RACDisposable *outerDisposable = [self subscribeNext:^(id x) {
+			id<RACObservable> observable = selectBlock(x);
+			[activeObservables addObject:observable];
+			[observable subscribe:[RACObserver observerWithNext:^(id x) {
+				[observer sendNext:x];
+			} error:^(NSError *error) {
+				[observer sendError:error];
+			} completed:^{
+				[completedObservables addObject:observable];
+				
+				if(completedObservables.count == activeObservables.count) {
+					[observer sendCompleted];
+				}
+			}]];
+		} error:^(NSError *error) {
+			[observer sendError:error];
+		} completed:^{
+			[completedObservables addObject:self];
+			
+			if(completedObservables.count == activeObservables.count) {
+				[observer sendCompleted];
+			}
+		}];
+		
+		return [RACDisposable disposableWithBlock:^{
+			[outerDisposable dispose];
 		}];
 	}];
 }

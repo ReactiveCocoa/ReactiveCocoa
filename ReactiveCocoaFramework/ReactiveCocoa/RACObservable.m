@@ -9,18 +9,18 @@
 #import "RACObservable.h"
 #import "RACObservable+Private.h"
 #import "RACSubject.h"
+#import "RACDisposable.h"
 
 @interface RACObservable ()
-@property (nonatomic, strong) NSMutableArray *subscribers;
-@property (nonatomic, strong) NSMutableArray *disposeBlocks;
+@property (nonatomic, strong) NSMutableArray *disposables;
 @end
 
 
 @implementation RACObservable
 
 - (void)dealloc {
-	for(RACObservableDisposeBlock dispose in self.disposeBlocks) {
-		dispose();
+	for(RACDisposable *disposable in self.disposables) {
+		[disposable dispose];
 	}
 }
 
@@ -28,8 +28,7 @@
 	self = [super init];
 	if(self == nil) return nil;
 	
-	self.subscribers = [NSMutableArray array];
-	self.disposeBlocks = [NSMutableArray array];
+	self.disposables = [NSMutableArray array];
 	
 	return self;
 }
@@ -37,83 +36,74 @@
 
 #pragma mark RACObservable
 
-- (RACObservableDisposeBlock)subscribe:(id<RACObserver>)observer {
+- (RACDisposable *)subscribe:(id<RACObserver>)observer {
 	NSParameterAssert(observer != nil);
 	
 	if(self.didSubscribe != NULL) {
-		RACObservableDisposeBlock disposeBlock = self.didSubscribe(observer);
-		if(disposeBlock != NULL) {
-			[self.disposeBlocks addObject:disposeBlock];
+		__block RACDisposable *disposable = self.didSubscribe(observer);
+		if(disposable == nil) {
+			__block __unsafe_unretained id weakSelf = self;
+			disposable = [RACDisposable disposableWithBlock:^{
+				RACObservable *strongSelf = weakSelf;
+				[strongSelf.disposables removeObject:disposable];
+			}];
 		}
+		
+		[self.disposables addObject:disposable];
+		return disposable;
 	}
 	
-	[self.subscribers addObject:observer];
-	
-	__block __unsafe_unretained id weakSelf = self;
-	return ^{
-		id strongSelf = weakSelf;
-		[strongSelf unsubscribe:observer];
-	};
-}
-
-- (void)unsubscribe:(id<RACObserver>)observer {
-	BOOL isValidSubscriber = [self.subscribers containsObject:observer];
-	NSAssert2(isValidSubscriber, @"WARNING: %@ does not subscribe to %@", observer, self);
-	
-	[self.subscribers removeObject:observer];
+	return nil;
 }
 
 
 #pragma mark API
 
-@synthesize subscribers;
 @synthesize didSubscribe;
-@synthesize disposeBlocks;
+@synthesize disposables;
 
-+ (id)createObservable:(RACObservableDisposeBlock (^)(id<RACObserver> observer))didSubscribe {
++ (id)createObservable:(RACDisposable * (^)(id<RACObserver> observer))didSubscribe {
 	RACObservable *observable = [[RACObservable alloc] init];
 	observable.didSubscribe = didSubscribe;
 	return observable;
 }
 
 + (id)return:(id)value {
-	return [self createObservable:^RACObservableDisposeBlock(id<RACObserver> observer) {
+	return [self createObservable:^RACDisposable *(id<RACObserver> observer) {
 		[observer sendNext:value];
 		[observer sendCompleted];
-		return NULL;
+		return nil;
 	}];
 }
 
 + (id)error:(NSError *)error {
-	return [self createObservable:^RACObservableDisposeBlock(id<RACObserver> observer) {
+	return [self createObservable:^RACDisposable *(id<RACObserver> observer) {
 		[observer sendError:error];
-		return NULL;
+		return nil;
 	}];
 }
 
 + (id)empty {
-	return [self createObservable:^RACObservableDisposeBlock(id<RACObserver> observer) {
+	return [self createObservable:^RACDisposable *(id<RACObserver> observer) {
 		[observer sendCompleted];
-		return NULL;
+		return nil;
 	}];
 }
 
-- (void)performBlockOnAllSubscribers:(void (^)(id<RACObserver> observer))block {
-	NSParameterAssert(block != NULL);
-	
-	for(id<RACObserver> observer in [self.subscribers copy]) {
-		block(observer);
-	}
++ (id)never {
+	return [self createObservable:^RACDisposable *(id<RACObserver> observer) {
+		return nil;
+	}];
 }
 
-- (RACObservableDisposeBlock)subscribeNext:(void (^)(id x))nextBlock {
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock {
 	NSParameterAssert(nextBlock != NULL);
 	
 	RACObserver *o = [RACObserver observerWithNext:nextBlock error:NULL completed:NULL];
 	return [self subscribe:o];
 }
 
-- (RACObservableDisposeBlock)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock {
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock {
 	NSParameterAssert(nextBlock != NULL);
 	NSParameterAssert(completedBlock != NULL);
 	
@@ -121,7 +111,7 @@
 	return [self subscribe:o];
 }
 
-- (RACObservableDisposeBlock)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock {
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock {
 	NSParameterAssert(nextBlock != NULL);
 	NSParameterAssert(errorBlock != NULL);
 	NSParameterAssert(completedBlock != NULL);
@@ -130,21 +120,21 @@
 	return [self subscribe:o];
 }
 
-- (RACObservableDisposeBlock)subscribeError:(void (^)(NSError *error))errorBlock {
+- (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock {
 	NSParameterAssert(errorBlock != NULL);
 	
 	RACObserver *o = [RACObserver observerWithNext:NULL error:errorBlock completed:NULL];
 	return [self subscribe:o];
 }
 
-- (RACObservableDisposeBlock)subscribeCompleted:(void (^)(void))completedBlock {
+- (RACDisposable *)subscribeCompleted:(void (^)(void))completedBlock {
 	NSParameterAssert(completedBlock != NULL);
 	
 	RACObserver *o = [RACObserver observerWithNext:NULL error:NULL completed:completedBlock];
 	return [self subscribe:o];
 }
 
-- (RACObservableDisposeBlock)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock {
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock {
 	NSParameterAssert(nextBlock != NULL);
 	NSParameterAssert(errorBlock != NULL);
 	

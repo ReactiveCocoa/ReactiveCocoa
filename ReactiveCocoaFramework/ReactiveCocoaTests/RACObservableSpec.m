@@ -13,6 +13,7 @@
 #import "RACObserver.h"
 #import "RACSubject.h"
 #import "RACBehaviorSubject.h"
+#import "RACDisposable.h"
 
 
 SpecBegin(RACObservable)
@@ -22,10 +23,10 @@ describe(@"subscribing", ^{
 	id nextValueSent = @"1";
 	
 	beforeEach(^{
-		observable = [RACObservable createObservable:^RACObservableDisposeBlock(id<RACObserver> observer) {
+		observable = [RACObservable createObservable:^RACDisposable *(id<RACObserver> observer) {
 			[observer sendNext:nextValueSent];
 			[observer sendCompleted];
-			return NULL;
+			return nil;
 		}];
 	});
 	
@@ -67,6 +68,23 @@ describe(@"subscribing", ^{
 		
 		expect(didGetError).toBeFalsy();
 	});
+	
+	it(@"shouldn't get anything after dispose", ^{
+		__block BOOL shouldBeGettingItems = YES;
+		RACSubject *subject = [RACSubject subject];
+		RACDisposable *disposable = [subject subscribeNext:^(id x) {
+			expect(shouldBeGettingItems).toBeTruthy();
+		}];
+		
+		shouldBeGettingItems = YES;
+		[subject sendNext:@"test 1"];
+		[subject sendNext:@"test 2"];
+		
+		[disposable dispose];
+		
+		shouldBeGettingItems = NO;
+		[subject sendNext:@"test 3"];
+	});
 });
 
 describe(@"querying", ^{
@@ -74,59 +92,68 @@ describe(@"querying", ^{
 	id nextValueSent = @"1";
 	
 	beforeEach(^{
-		observable = [RACObservable createObservable:^RACObservableDisposeBlock(id<RACObserver> observer) {
+		observable = [RACObservable createObservable:^RACDisposable *(id<RACObserver> observer) {
 			[observer sendNext:nextValueSent];
 			[observer sendNext:@"other value"];
 			[observer sendCompleted];
-			return NULL;
+			return nil;
 		}];
 	});
 	
-	it(@"should support where", ^{		
+	it(@"should support where", ^{
+		__block BOOL didGetCallbacks = NO;
 		[[observable where:^BOOL(id x) {
 			return x == nextValueSent;
 		}] subscribeNext:^(id x) {
 			expect(x).toEqual(nextValueSent);
+			didGetCallbacks = YES;
 		} error:^(NSError *error) {
 			
 		} completed:^{
 			
 		}];
+		
+		expect(didGetCallbacks).toBeTruthy();
 	});
 	
 	it(@"should support select", ^{
+		__block BOOL didGetCallbacks = NO;
 		id transformedValue = @"other";
 		[[observable select:^(id x) {			
 			return transformedValue;
 		}] subscribeNext:^(id x) {
 			expect(x).toEqual(transformedValue);
+			didGetCallbacks = YES;
 		} error:^(NSError *error) {
 			
 		} completed:^{
 			
 		}];
+		
+		expect(didGetCallbacks).toBeTruthy();
 	});
 	
 	it(@"should support window", ^{
-		RACObservable *observable = [RACObservable createObservable:^RACObservableDisposeBlock(id<RACObserver> observer) {
+		RACObservable *observable = [RACObservable createObservable:^RACDisposable *(id<RACObserver> observer) {
 			[observer sendNext:@"1"];
 			[observer sendNext:@"2"];
 			[observer sendNext:@"3"];
 			[observer sendNext:@"4"];
 			[observer sendNext:@"5"];
 			[observer sendCompleted];
-			return NULL;
+			return nil;
 		}];
 		
 		RACBehaviorSubject *windowOpen = [RACBehaviorSubject behaviorSubjectWithDefaultValue:@""];
 		
 		RACSubject *closeSubject = [RACSubject subject];
 		__block NSUInteger valuesReceived = 0;
-		[[observable windowWithStart:windowOpen close:^(id<RACObservable> start) {
+		
+		RACObservable *window = [observable windowWithStart:windowOpen close:^(id<RACObservable> start) {
 			return closeSubject;
-		}] subscribeNext:^(id x) {
-			NSLog(@"got: %@", x);
-			
+		}];
+				
+		[window subscribeNext:^(id x) {			
 			[x subscribeNext:^(id x) {
 				valuesReceived++;
 				NSLog(@"got: %@", x);
@@ -146,15 +173,37 @@ describe(@"querying", ^{
 			NSLog(@"completed");
 		}];
 	});
+	
+	it(@"should support take", ^{
+		@autoreleasepool {
+			RACObservable *observable = [RACObservable createObservable:^RACDisposable *(id<RACObserver> observer) {
+				[observer sendNext:@"1"];
+				[observer sendNext:@"2"];
+				[observer sendNext:@"3"];
+				[observer sendNext:@"4"];
+				[observer sendNext:@"5"];
+				[observer sendCompleted];
+				return nil;
+			}];
+			
+			RACObserver *ob = [RACObserver observerWithNext:NULL error:NULL completed:NULL];
+			
+			@autoreleasepool {
+				[observable subscribe:ob];
+			}
+			
+			NSLog(@"d");
+		}
+	});
 });
 
 describe(@"continuation", ^{
 	it(@"shouldn't receive deferred errors", ^{
 		__block NSUInteger numberOfSubscriptions = 0;
-		RACObservable *observable = [RACObservable createObservable:^RACObservableDisposeBlock(id<RACObserver> observer) {
+		RACObservable *observable = [RACObservable createObservable:^RACDisposable *(id<RACObserver> observer) {
 			if(numberOfSubscriptions > 2) {
 				[observer sendCompleted];
-				return NULL;
+				return nil;
 			}
 			
 			numberOfSubscriptions++;
@@ -162,7 +211,7 @@ describe(@"continuation", ^{
 			[observer sendNext:@"1"];
 			[observer sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
 			[observer sendCompleted];
-			return NULL;
+			return nil;
 		}];
 		
 		__block BOOL gotNext = NO;
@@ -181,10 +230,10 @@ describe(@"continuation", ^{
 	
 	it(@"should repeat after completion", ^{
 		__block NSUInteger numberOfSubscriptions = 0;
-		RACObservable *observable = [RACObservable createObservable:^RACObservableDisposeBlock(id<RACObserver> observer) {
+		RACObservable *observable = [RACObservable createObservable:^RACDisposable *(id<RACObserver> observer) {
 			if(numberOfSubscriptions > 2) {
 				[observer sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
-				return NULL;
+				return nil;
 			}
 			
 			numberOfSubscriptions++;
@@ -192,7 +241,7 @@ describe(@"continuation", ^{
 			[observer sendNext:@"1"];
 			[observer sendCompleted];
 			[observer sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
-			return NULL;
+			return nil;
 		}];
 		
 		__block NSUInteger nextCount = 0;

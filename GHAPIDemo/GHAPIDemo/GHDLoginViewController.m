@@ -22,7 +22,9 @@
 @property (nonatomic, strong) GHDLoginView *view;
 @property (nonatomic, strong) GHUserAccount *userAccount;
 @property (nonatomic, strong) GHGitHubClient *client;
-@property (nonatomic, strong) RACValue *didLoginValue;
+@property (nonatomic, strong) RACSubject *didLoginValue;
+
+@property (nonatomic, strong) RACDisposable *usernameAndPasswordChanged;
 @end
 
 
@@ -37,13 +39,19 @@
 	self.loginEnabled = NO;
 	self.loggingIn = NO;
 	
-	self.didLoginValue = [RACValue value];
+	self.didLoginValue = [RACSubject subject];
 	
-	[[RACSequence 
-		combineLatest:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), RACObservable(self.loginCommand.numberOfActiveExecutions), nil] 
+	[RACObservable(self.username) subscribeNext:^(id x) {
+		NSLog(@"changed to %@", x);
+	}];
+	
+	self.usernameAndPasswordChanged = [[RACObservable 
+		combineLatest:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), nil] 
 		reduce:^(NSArray *xs) {
-			return [NSNumber numberWithBool:[[xs objectAtIndex:0] length] > 0 && [[xs objectAtIndex:1] length] > 0 && [[xs objectAtIndex:2] unsignedIntegerValue] < 1];
-		}] toObject:self keyPath:RACKVO(self.loginEnabled)];
+			return [NSNumber numberWithBool:[[xs objectAtIndex:0] length] > 0 && [[xs objectAtIndex:1] length] > 0];
+		}] subscribeNext:^(id x) {
+			self.loginEnabled = [x boolValue];
+		}];
 	
 	self.loginCommand = [RACAsyncCommand command];
 	[self.loginCommand 
@@ -71,7 +79,7 @@
 	
 	[loginResult subscribeNext:^(id x) { self.loggingIn = NO; }];
 		
-	[[RACSequence 
+	[[RACObservable 
 		merge:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), nil]] 
 		subscribeNext:^(id _) { self.successHidden = self.loginFailedHidden = YES; }];
 	
@@ -110,5 +118,7 @@
 @synthesize userAccount;
 @synthesize client;
 @synthesize didLoginValue;
+
+@synthesize usernameAndPasswordChanged;
 
 @end

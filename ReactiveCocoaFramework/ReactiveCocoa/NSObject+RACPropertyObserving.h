@@ -11,13 +11,13 @@
 #define RACKVO(property) ((void)(NO && ((void)property, NO)), @#property)
 #define RACObservable(property) [self RACObservableForKeyPath:RACKVO(self.property)]
 
-@protocol RACObservable;
+@class RACObservable;
 
 
 @interface NSObject (RACPropertyObserving)
 
 // Creates a value from observing the value at the given keypath.
-- (id<RACObservable>)RACObservableForKeyPath:(NSString *)keyPath;
+- (RACObservable *)RACObservableForKeyPath:(NSString *)keyPath;
 
 // Calls -[NSObject bind:binding toObject:object withKeyPath:keyPath options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nil]]
 - (void)bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath;

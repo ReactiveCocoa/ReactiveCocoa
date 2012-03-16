@@ -20,5 +20,9 @@
 - (instancetype)finally:(void (^)(void))block;
 - (instancetype)windowWithStart:(id<RACObservable>)openObservable close:(id<RACObservable> (^)(id<RACObservable> start))closeBlock;
 - (instancetype)buffer:(NSUInteger)bufferCount;
+- (instancetype)take:(NSUInteger)count;
++ (instancetype)combineLatest:(NSArray *)observables reduce:(id (^)(NSArray *xs))reduceBlock;
++ (instancetype)merge:(NSArray *)observables;
+- (instancetype)selectMany:(id<RACObservable> (^)(id x))selectBlock;
 
 @end

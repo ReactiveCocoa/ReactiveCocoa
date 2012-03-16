@@ -33,7 +33,7 @@
 @synthesize canExecuteBlock;
 
 + (id)command {
-	return [self value];
+	return [[self alloc] init];
 }
 
 + (id)commandWithCanExecute:(BOOL (^)(id value))canExecuteBlock execute:(void (^)(id value))executeBlock {

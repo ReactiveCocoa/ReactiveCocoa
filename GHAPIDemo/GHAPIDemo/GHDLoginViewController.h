@@ -21,6 +21,6 @@
 @property (nonatomic, assign, readonly) BOOL loginEnabled;
 @property (nonatomic, assign, readonly) BOOL loggingIn;
 @property (nonatomic, strong, readonly) RACAsyncCommand *loginCommand;
-@property (nonatomic, strong, readonly) RACValue *didLoginValue;
+@property (nonatomic, strong, readonly) RACSubject *didLoginValue;
 
 @end

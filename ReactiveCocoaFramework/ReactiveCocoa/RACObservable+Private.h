@@ -8,11 +8,11 @@
 
 #import "RACObservable.h"
 
+@class RACDisposable;
+
 
 @interface RACObservable ()
 
-@property (nonatomic, copy) RACObservableDisposeBlock (^didSubscribe)(id<RACObserver> observer);
-
-- (void)performBlockOnAllSubscribers:(void (^)(id<RACObserver> observer))block;
+@property (nonatomic, copy) RACDisposable * (^didSubscribe)(id<RACObserver> observer);
 
 @end

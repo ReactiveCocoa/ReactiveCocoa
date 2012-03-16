@@ -56,6 +56,7 @@
 #pragma mark API
 
 @synthesize valuesReceived;
+@synthesize capacity;
 
 + (id)replaySubjectWithCapacity:(NSUInteger)capacity {
 	RACReplaySubject *subject = [self subject];

@@ -13,7 +13,7 @@
 
 @protocol RACObservable <NSObject>
 // Subscribes observer to changes on the receiver. The receiver defines which events it actually sends and in what situations the events are sent.
-- (id)subscribe:(id<RACObserver>)observer;
+- (id<RACObserver>)subscribe:(id<RACObserver>)observer;
 
 // Unsubscribes the observer.
 - (void)unsubscribe:(id<RACObserver>)observer;
@@ -22,7 +22,11 @@
 
 @interface RACObservable : NSObject <RACObservable>
 
-+ (id)createObservable:(void (^)(id<RACObserver> observer))didSubscribe;
++ (id)createObservable:(id<RACObserver> (^)(id<RACObserver> observer))didSubscribe;
++ (id)return:(id)value;
++ (id)error:(NSError *)error;
++ (id)complete;
++ (id)none;
 
 // Convenience method to subscribe to the `next` event.
 - (id<RACObserver>)subscribeNext:(void (^)(id x))nextBlock;

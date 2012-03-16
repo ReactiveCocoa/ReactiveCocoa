@@ -17,19 +17,6 @@
 @implementation RACSubject
 
 
-#pragma mark RACObservable
-
-- (id)subscribe:(id<RACObserver>)observer {
-	id result = [super subscribe:observer];
-	
-	if(self.didSubscribe != NULL) {
-		self.didSubscribe(observer);
-	}
-	
-	return result;
-}
-
-
 #pragma mark RACObserver
 
 - (void)sendNext:(id)value {

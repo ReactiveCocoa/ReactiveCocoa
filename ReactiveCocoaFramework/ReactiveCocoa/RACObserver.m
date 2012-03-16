@@ -9,9 +9,9 @@
 #import "RACObserver.h"
 
 @interface RACObserver ()
-@property (nonatomic, copy) void (^completed)(void);
-@property (nonatomic, copy) void (^error)(NSError *error);
 @property (nonatomic, copy) void (^next)(id value);
+@property (nonatomic, copy) void (^error)(NSError *error);
+@property (nonatomic, copy) void (^completed)(void);
 @end
 
 
@@ -20,15 +20,15 @@
 
 #pragma mark API
 
-@synthesize completed;
 @synthesize next;
 @synthesize error;
+@synthesize completed;
 
-+ (id)observerWithCompleted:(void (^)(void))completed error:(void (^)(NSError *error))error next:(void (^)(id value))next {
++ (id)observerWithNext:(void (^)(id x))next error:(void (^)(NSError *error))error completed:(void (^)(void))completed {
 	RACObserver *observer = [[self alloc] init];
-	observer.completed = completed;
-	observer.error = error;
 	observer.next = next;
+	observer.error = error;
+	observer.completed = completed;
 	return observer;
 }
 

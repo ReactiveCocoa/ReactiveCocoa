@@ -18,6 +18,6 @@
 @interface RACObserver : NSObject <RACObserver>
 
 // Creates a new observer with the given blocks.
-+ (id)observerWithCompleted:(void (^)(void))completed error:(void (^)(NSError *error))error next:(void (^)(id x))next;
++ (id)observerWithNext:(void (^)(id x))next error:(void (^)(NSError *error))error completed:(void (^)(void))completed;
 
 @end

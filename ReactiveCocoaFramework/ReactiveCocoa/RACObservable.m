@@ -35,12 +35,17 @@
 
 #pragma mark RACObservable
 
-- (id)subscribe:(id<RACObserver>)observer {
+- (id<RACObserver>)subscribe:(id<RACObserver>)observer {
 	NSParameterAssert(observer != nil);
 	
-	[self.subscribers addObject:observer];
+	id<RACObserver> newObserver = observer;
+	if(self.didSubscribe != NULL) {
+		newObserver = self.didSubscribe(observer);
+	}
 	
-	return observer;
+	[self.subscribers addObject:newObserver];
+	
+	return newObserver;
 }
 
 - (void)unsubscribe:(id<RACObserver>)observer {
@@ -59,10 +64,38 @@
 @synthesize subscribers;
 @synthesize didSubscribe;
 
-+ (id)createObservable:(void (^)(id<RACObserver> observer))didSubscribe {
-	RACSubject *subject = [RACSubject subject];
-	subject.didSubscribe = didSubscribe;
-	return subject;
++ (id)createObservable:(id<RACObserver> (^)(id<RACObserver> observer))didSubscribe {
+	RACObservable *observable = [[RACObservable alloc] init];
+	observable.didSubscribe = didSubscribe;
+	return observable;
+}
+
++ (id)return:(id)value {
+	return [self createObservable:^(id<RACObserver> observer) {
+		[observer sendNext:value];
+		[observer sendCompleted];
+		return observer;
+	}];
+}
+
++ (id)error:(NSError *)error {
+	return [self createObservable:^id<RACObserver>(id<RACObserver> observer) {
+		[observer sendError:error];
+		return observer;
+	}];
+}
+
++ (id)complete {
+	return [self createObservable:^id<RACObserver>(id<RACObserver> observer) {
+		[observer sendCompleted];
+		return observer;
+	}];
+}
+
++ (id)none {
+	return [self createObservable:^id<RACObserver>(id<RACObserver> observer) {
+		return observer;
+	}];
 }
 
 - (void)performBlockOnAllSubscribers:(void (^)(id<RACObserver> observer))block {
@@ -76,7 +109,7 @@
 - (id<RACObserver>)subscribeNext:(void (^)(id x))nextBlock {
 	NSParameterAssert(nextBlock != NULL);
 	
-	RACObserver *o = [RACObserver observerWithCompleted:NULL error:NULL next:nextBlock];
+	RACObserver *o = [RACObserver observerWithNext:nextBlock error:NULL completed:NULL];
 	[self subscribe:o];
 	
 	return o;
@@ -86,7 +119,7 @@
 	NSParameterAssert(nextBlock != NULL);
 	NSParameterAssert(completedBlock != NULL);
 	
-	RACObserver *o = [RACObserver observerWithCompleted:completedBlock error:NULL next:nextBlock];
+	RACObserver *o = [RACObserver observerWithNext:nextBlock error:NULL completed:completedBlock];
 	[self subscribe:o];
 	
 	return o;
@@ -97,7 +130,7 @@
 	NSParameterAssert(errorBlock != NULL);
 	NSParameterAssert(completedBlock != NULL);
 	
-	RACObserver *o = [RACObserver observerWithCompleted:completedBlock error:errorBlock next:nextBlock];
+	RACObserver *o = [RACObserver observerWithNext:nextBlock error:errorBlock completed:completedBlock];
 	[self subscribe:o];
 	
 	return o;
@@ -106,7 +139,7 @@
 - (id<RACObserver>)subscribeError:(void (^)(NSError *error))errorBlock {
 	NSParameterAssert(errorBlock != NULL);
 	
-	RACObserver *o = [RACObserver observerWithCompleted:NULL error:errorBlock next:NULL];
+	RACObserver *o = [RACObserver observerWithNext:NULL error:errorBlock completed:NULL];
 	[self subscribe:o];
 	
 	return o;
@@ -115,7 +148,7 @@
 - (id<RACObserver>)subscribeCompleted:(void (^)(void))completedBlock {
 	NSParameterAssert(completedBlock != NULL);
 	
-	RACObserver *o = [RACObserver observerWithCompleted:completedBlock error:NULL next:NULL];
+	RACObserver *o = [RACObserver observerWithNext:NULL error:NULL completed:completedBlock];
 	[self subscribe:o];
 	
 	return o;
@@ -125,7 +158,7 @@
 	NSParameterAssert(nextBlock != NULL);
 	NSParameterAssert(errorBlock != NULL);
 	
-	RACObserver *o = [RACObserver observerWithCompleted:NULL error:errorBlock next:nextBlock];
+	RACObserver *o = [RACObserver observerWithNext:nextBlock error:errorBlock completed:NULL];
 	[self subscribe:o];
 	
 	return o;

@@ -11,7 +11,7 @@
 
 @interface RACObservable ()
 
-@property (nonatomic, copy) id<RACObserver> (^didSubscribe)(id<RACObserver> observer);
+@property (nonatomic, copy) RACObservableDisposeBlock (^didSubscribe)(id<RACObserver> observer);
 
 - (void)performBlockOnAllSubscribers:(void (^)(id<RACObserver> observer))block;
 

@@ -88,9 +88,7 @@
 			[self subscribe:innerObserver];
 		}];
 		
-		[self subscribe:innerObserver];
-		
-		return innerObserver;
+		return [self subscribe:innerObserver];
 	}];
 }
 
@@ -106,9 +104,7 @@
 			[observer sendCompleted];
 		}];
 		
-		[self subscribe:innerObserver];
-		
-		return innerObserver;
+		return [self subscribe:innerObserver];
 	}];
 }
 
@@ -143,7 +139,7 @@
 			currentCloseWindow = nil;
 		};
 		
-		id<RACObserver> windowOpenObserver = [openObservable subscribe:[RACObserver observerWithNext:^(id x) {
+		RACObservableDisposeBlock dispose = [openObservable subscribe:[RACObserver observerWithNext:^(id x) {
 			if(currentWindow == nil) {
 				currentWindow = [RACSubject subject];
 				[observer sendNext:currentWindow];
@@ -171,7 +167,9 @@
 			[observer sendCompleted];
 		}];
 		
-		return windowOpenObserver;
+		return dispose;
+	}];
+}
 	}];
 }
 

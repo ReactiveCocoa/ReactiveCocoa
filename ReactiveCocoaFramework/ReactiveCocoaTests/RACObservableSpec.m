@@ -20,10 +20,10 @@ describe(@"subscribing", ^{
 	id nextValueSent = @"1";
 	
 	beforeEach(^{
-		observable = [RACObservable createObservable:^(id<RACObserver> observer) {
+		observable = [RACObservable createObservable:^RACObservableDisposeBlock(id<RACObserver> observer) {
 			[observer sendNext:nextValueSent];
 			[observer sendCompleted];
-			return observer;
+			return NULL;
 		}];
 	});
 	
@@ -72,11 +72,11 @@ describe(@"querying", ^{
 	id nextValueSent = @"1";
 	
 	beforeEach(^{
-		observable = [RACObservable createObservable:^(id<RACObserver> observer) {
+		observable = [RACObservable createObservable:^RACObservableDisposeBlock(id<RACObserver> observer) {
 			[observer sendNext:nextValueSent];
 			[observer sendNext:@"other value"];
 			[observer sendCompleted];
-			return observer;
+			return NULL;
 		}];
 	});
 	
@@ -109,10 +109,10 @@ describe(@"querying", ^{
 describe(@"continuation", ^{
 	it(@"shouldn't receive deferred errors", ^{
 		__block NSUInteger numberOfSubscriptions = 0;
-		RACObservable *observable = [RACObservable createObservable:^id<RACObserver>(id<RACObserver> observer) {
+		RACObservable *observable = [RACObservable createObservable:^RACObservableDisposeBlock(id<RACObserver> observer) {
 			if(numberOfSubscriptions > 2) {
 				[observer sendCompleted];
-				return observer;
+				return NULL;
 			}
 			
 			numberOfSubscriptions++;
@@ -120,7 +120,7 @@ describe(@"continuation", ^{
 			[observer sendNext:@"1"];
 			[observer sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
 			[observer sendCompleted];
-			return observer;
+			return NULL;
 		}];
 		
 		__block BOOL gotNext = NO;
@@ -139,10 +139,10 @@ describe(@"continuation", ^{
 	
 	it(@"should repeat after completion", ^{
 		__block NSUInteger numberOfSubscriptions = 0;
-		RACObservable *observable = [RACObservable createObservable:^(id<RACObserver> observer) {
+		RACObservable *observable = [RACObservable createObservable:^RACObservableDisposeBlock(id<RACObserver> observer) {
 			if(numberOfSubscriptions > 2) {
 				[observer sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
-				return observer;
+				return NULL;
 			}
 			
 			numberOfSubscriptions++;
@@ -150,7 +150,7 @@ describe(@"continuation", ^{
 			[observer sendNext:@"1"];
 			[observer sendCompleted];
 			[observer sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
-			return observer;
+			return NULL;
 		}];
 		
 		__block NSUInteger nextCount = 0;

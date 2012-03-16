@@ -73,37 +73,31 @@
 @synthesize didSubscribe;
 @synthesize disposeBlocks;
 
-+ (id)createObservable:(id<RACObserver> (^)(id<RACObserver> observer))didSubscribe {
++ (id)createObservable:(RACObservableDisposeBlock (^)(id<RACObserver> observer))didSubscribe {
 	RACObservable *observable = [[RACObservable alloc] init];
 	observable.didSubscribe = didSubscribe;
 	return observable;
 }
 
 + (id)return:(id)value {
-	return [self createObservable:^(id<RACObserver> observer) {
+	return [self createObservable:^RACObservableDisposeBlock(id<RACObserver> observer) {
 		[observer sendNext:value];
 		[observer sendCompleted];
-		return observer;
+		return NULL;
 	}];
 }
 
 + (id)error:(NSError *)error {
-	return [self createObservable:^id<RACObserver>(id<RACObserver> observer) {
+	return [self createObservable:^RACObservableDisposeBlock(id<RACObserver> observer) {
 		[observer sendError:error];
-		return observer;
+		return NULL;
 	}];
 }
 
-+ (id)complete {
-	return [self createObservable:^id<RACObserver>(id<RACObserver> observer) {
++ (id)empty {
+	return [self createObservable:^RACObservableDisposeBlock(id<RACObserver> observer) {
 		[observer sendCompleted];
-		return observer;
-	}];
-}
-
-+ (id)none {
-	return [self createObservable:^id<RACObserver>(id<RACObserver> observer) {
-		return observer;
+		return NULL;
 	}];
 }
 
@@ -115,62 +109,50 @@
 	}
 }
 
-- (id<RACObserver>)subscribeNext:(void (^)(id x))nextBlock {
+- (RACObservableDisposeBlock)subscribeNext:(void (^)(id x))nextBlock {
 	NSParameterAssert(nextBlock != NULL);
 	
 	RACObserver *o = [RACObserver observerWithNext:nextBlock error:NULL completed:NULL];
-	[self subscribe:o];
-	
-	return o;
+	return [self subscribe:o];
 }
 
-- (id<RACObserver>)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock {
+- (RACObservableDisposeBlock)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock {
 	NSParameterAssert(nextBlock != NULL);
 	NSParameterAssert(completedBlock != NULL);
 	
 	RACObserver *o = [RACObserver observerWithNext:nextBlock error:NULL completed:completedBlock];
-	[self subscribe:o];
-	
-	return o;
+	return [self subscribe:o];
 }
 
-- (id<RACObserver>)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock {
+- (RACObservableDisposeBlock)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock {
 	NSParameterAssert(nextBlock != NULL);
 	NSParameterAssert(errorBlock != NULL);
 	NSParameterAssert(completedBlock != NULL);
 	
 	RACObserver *o = [RACObserver observerWithNext:nextBlock error:errorBlock completed:completedBlock];
-	[self subscribe:o];
-	
-	return o;
+	return [self subscribe:o];
 }
 
-- (id<RACObserver>)subscribeError:(void (^)(NSError *error))errorBlock {
+- (RACObservableDisposeBlock)subscribeError:(void (^)(NSError *error))errorBlock {
 	NSParameterAssert(errorBlock != NULL);
 	
 	RACObserver *o = [RACObserver observerWithNext:NULL error:errorBlock completed:NULL];
-	[self subscribe:o];
-	
-	return o;
+	return [self subscribe:o];
 }
 
-- (id<RACObserver>)subscribeCompleted:(void (^)(void))completedBlock {
+- (RACObservableDisposeBlock)subscribeCompleted:(void (^)(void))completedBlock {
 	NSParameterAssert(completedBlock != NULL);
 	
 	RACObserver *o = [RACObserver observerWithNext:NULL error:NULL completed:completedBlock];
-	[self subscribe:o];
-	
-	return o;
+	return [self subscribe:o];
 }
 
-- (id<RACObserver>)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock {
+- (RACObservableDisposeBlock)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock {
 	NSParameterAssert(nextBlock != NULL);
 	NSParameterAssert(errorBlock != NULL);
 	
 	RACObserver *o = [RACObserver observerWithNext:nextBlock error:errorBlock completed:NULL];
-	[self subscribe:o];
-	
-	return o;
+	return [self subscribe:o];
 }
 
 @end

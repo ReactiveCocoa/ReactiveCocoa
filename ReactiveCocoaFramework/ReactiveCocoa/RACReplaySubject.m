@@ -30,13 +30,13 @@
 
 #pragma mark RACObservable
 
-- (id)subscribe:(id<RACObserver>)observer {
-	id result = [super subscribe:observer];
+- (id<RACObserver>)subscribe:(id<RACObserver>)observer {
+	id<RACObserver> actualObserver = [super subscribe:observer];
 	for(id value in self.valuesReceived) {
-		[observer sendNext:value];
+		[actualObserver sendNext:value];
 	}
 	
-	return result;
+	return actualObserver;
 }
 
 

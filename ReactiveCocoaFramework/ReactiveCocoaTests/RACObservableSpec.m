@@ -11,6 +11,8 @@
 #import "RACObservable.h"
 #import "RACObservable+Querying.h"
 #import "RACObserver.h"
+#import "RACSubject.h"
+#import "RACBehaviorSubject.h"
 
 
 SpecBegin(RACObservable)
@@ -102,6 +104,46 @@ describe(@"querying", ^{
 			
 		} completed:^{
 			
+		}];
+	});
+	
+	it(@"should support window", ^{
+		RACObservable *observable = [RACObservable createObservable:^RACObservableDisposeBlock(id<RACObserver> observer) {
+			[observer sendNext:@"1"];
+			[observer sendNext:@"2"];
+			[observer sendNext:@"3"];
+			[observer sendNext:@"4"];
+			[observer sendNext:@"5"];
+			[observer sendCompleted];
+			return NULL;
+		}];
+		
+		RACBehaviorSubject *windowOpen = [RACBehaviorSubject behaviorSubjectWithDefaultValue:@""];
+		
+		RACSubject *closeSubject = [RACSubject subject];
+		__block NSUInteger valuesReceived = 0;
+		[[observable windowWithStart:windowOpen close:^(id<RACObservable> start) {
+			return closeSubject;
+		}] subscribeNext:^(id x) {
+			NSLog(@"got: %@", x);
+			
+			[x subscribeNext:^(id x) {
+				valuesReceived++;
+				NSLog(@"got: %@", x);
+				
+				if(valuesReceived % 2 == 0) {
+					[closeSubject sendNext:x];
+					[windowOpen sendNext:@""];
+				}
+			} error:^(NSError *error) {
+				
+			} completed:^{
+				
+			}];
+		} error:^(NSError *error) {
+			
+		} completed:^{
+			NSLog(@"completed");
 		}];
 	});
 });

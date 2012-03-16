@@ -19,5 +19,6 @@
 - (instancetype)defer;
 - (instancetype)finally:(void (^)(void))block;
 - (instancetype)windowWithStart:(id<RACObservable>)openObservable close:(id<RACObservable> (^)(id<RACObservable> start))closeBlock;
+- (instancetype)buffer:(NSUInteger)bufferCount;
 
 @end

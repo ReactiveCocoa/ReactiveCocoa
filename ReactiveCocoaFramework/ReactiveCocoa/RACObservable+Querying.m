@@ -10,6 +10,7 @@
 #import "RACObserver.h"
 #import "RACSubject.h"
 #import "NSObject+GHExtensions.h"
+#import "RACBehaviorSubject.h"
 
 #define RACCreateWeakSelf __block __unsafe_unretained id weakSelf = self;
 #define RACRedefineSelf id self = weakSelf;
@@ -170,6 +171,34 @@
 		return dispose;
 	}];
 }
+
+- (instancetype)buffer:(NSUInteger)bufferCount {
+	RACCreateWeakSelf
+	return [RACObservable createObservable:^(id<RACObserver> observer) {
+		RACRedefineSelf
+		RACBehaviorSubject *windowOpenSubject = [RACBehaviorSubject behaviorSubjectWithDefaultValue:@""];
+		RACSubject *windowCloseSubject = [RACSubject subject];
+		
+		__block NSUInteger valuesReceived = 0;
+		return [[self windowWithStart:windowOpenSubject close:^(id<RACObservable> start) {
+			return windowCloseSubject;
+		}] subscribeNext:^(id x) {		
+			[x subscribeNext:^(id x) {
+				valuesReceived++;
+				if(valuesReceived % bufferCount == 0) {
+					[windowCloseSubject sendNext:x];
+					[windowOpenSubject sendNext:@""];
+				}
+			} error:^(NSError *error) {
+				
+			} completed:^{
+				
+			}];
+		} error:^(NSError *error) {
+			
+		} completed:^{
+			
+		}];
 	}];
 }
 

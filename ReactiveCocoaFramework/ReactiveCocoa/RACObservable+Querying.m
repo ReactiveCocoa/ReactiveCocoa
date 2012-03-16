@@ -11,13 +11,18 @@
 #import "RACSubject.h"
 #import "NSObject+GHExtensions.h"
 
+#define RACCreateWeakSelf __block __unsafe_unretained id weakSelf = self;
+#define RACRedefineSelf id self = weakSelf;
+
 
 @implementation RACObservable (Querying)
 
 - (instancetype)select:(id (^)(id x))selectBlock {
 	NSParameterAssert(selectBlock != NULL);
 	
+	RACCreateWeakSelf
 	return [RACObservable createObservable:^(id<RACObserver> observer) {
+		RACRedefineSelf
 		return [self subscribeNext:^(id x) {
 			[observer sendNext:selectBlock(x)];
 		} error:^(NSError *error) {
@@ -31,7 +36,9 @@
 - (instancetype)where:(BOOL (^)(id x))whereBlock {
 	NSParameterAssert(whereBlock != NULL);
 	
+	RACCreateWeakSelf
 	return [RACObservable createObservable:^(id<RACObserver> observer) {
+		RACRedefineSelf
 		return [self subscribeNext:^(id x) {
 			if(whereBlock(x)) {
 				[observer sendNext:x];
@@ -52,7 +59,9 @@
 }
 
 - (instancetype)throttle:(NSTimeInterval)interval {	
+	RACCreateWeakSelf
 	return [RACObservable createObservable:^(id<RACObserver> observer) {
+		RACRedefineSelf
 		__block id lastDelayedId = nil;
 		return [self subscribeNext:^(id x) {
 			lastDelayedId = [self performBlock:^{
@@ -68,7 +77,9 @@
 }
 
 - (instancetype)repeat {
+	RACCreateWeakSelf
 	return [RACObservable createObservable:^(id<RACObserver> observer) {
+		RACRedefineSelf
 		__block RACObserver *innerObserver = [RACObserver observerWithNext:^(id x) {
 			[observer sendNext:x];
 		} error:^(NSError *error) {
@@ -84,7 +95,9 @@
 }
 
 - (instancetype)defer {
+	RACCreateWeakSelf
 	return [RACObservable createObservable:^(id<RACObserver> observer) {
+		RACRedefineSelf
 		__block RACObserver *innerObserver = [RACObserver observerWithNext:^(id x) {
 			[observer sendNext:x];
 		} error:^(NSError *error) {

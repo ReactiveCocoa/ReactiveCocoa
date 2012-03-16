@@ -58,10 +58,7 @@
 
 - (void)unsubscribe:(id<RACObserver>)observer {
 	BOOL isValidSubscriber = [self.subscribers containsObject:observer];
-	if(!isValidSubscriber) {
-		NSLog(@"WARNING: %@ does not subscribe to %@", observer, self);
-		return;
-	}
+	NSAssert2(isValidSubscriber, @"WARNING: %@ does not subscribe to %@", observer, self);
 	
 	[self.subscribers removeObject:observer];
 }

@@ -12,15 +12,16 @@
 
 @interface RACObservable ()
 @property (nonatomic, strong) NSMutableArray *subscribers;
+@property (nonatomic, strong) NSMutableArray *disposeBlocks;
 @end
 
 
 @implementation RACObservable
 
 - (void)dealloc {
-	[self performBlockOnAllSubscribers:^(id<RACObserver> observer) {		
-		[self unsubscribe:observer];
-	}];
+	for(RACObservableDisposeBlock dispose in self.disposeBlocks) {
+		dispose();
+	}
 }
 
 - (id)init {
@@ -28,6 +29,7 @@
 	if(self == nil) return nil;
 	
 	self.subscribers = [NSMutableArray array];
+	self.disposeBlocks = [NSMutableArray array];
 	
 	return self;
 }
@@ -35,17 +37,23 @@
 
 #pragma mark RACObservable
 
-- (id<RACObserver>)subscribe:(id<RACObserver>)observer {
+- (RACObservableDisposeBlock)subscribe:(id<RACObserver>)observer {
 	NSParameterAssert(observer != nil);
 	
-	id<RACObserver> newObserver = observer;
 	if(self.didSubscribe != NULL) {
-		newObserver = self.didSubscribe(observer);
+		RACObservableDisposeBlock disposeBlock = self.didSubscribe(observer);
+		if(disposeBlock != NULL) {
+			[self.disposeBlocks addObject:disposeBlock];
+		}
 	}
 	
-	[self.subscribers addObject:newObserver];
+	[self.subscribers addObject:observer];
 	
-	return newObserver;
+	__block __unsafe_unretained id weakSelf = self;
+	return ^{
+		id strongSelf = weakSelf;
+		[strongSelf unsubscribe:observer];
+	};
 }
 
 - (void)unsubscribe:(id<RACObserver>)observer {
@@ -63,6 +71,7 @@
 
 @synthesize subscribers;
 @synthesize didSubscribe;
+@synthesize disposeBlocks;
 
 + (id)createObservable:(id<RACObserver> (^)(id<RACObserver> observer))didSubscribe {
 	RACObservable *observable = [[RACObservable alloc] init];

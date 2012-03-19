@@ -7,11 +7,16 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "NSObject+RACObservable.h"
+
+@protocol RACObservable;
 
 @protocol RACObserver <NSObject>
 - (void)sendNext:(id)value;
 - (void)sendError:(NSError *)error;
 - (void)sendCompleted;
+- (void)didSubscribeToObservable:(id<RACObservable>)observable;
+- (void)stopObserving;
 @end
 
 

@@ -10,9 +10,10 @@
 #import "RACCommand+Private.h"
 #import "NSObject+RACPropertyObserving.h"
 #import "RACAsyncSubject.h"
+#import "RACReplaySubject.h"
 
 @interface RACAsyncFunctionPair : NSObject
-@property (nonatomic, strong) RACAsyncSubject *subject;
+@property (nonatomic, strong) RACSubject *subject;
 @property (nonatomic, strong) RACAsyncSubject * (^asyncFunction)(id value);
 
 + (id)pair;
@@ -99,10 +100,10 @@
 	return operationQueue;
 }
 
-- (RACAsyncSubject *)addAsyncFunction:(RACAsyncSubject * (^)(id value))function {
+- (RACSubject *)addAsyncFunction:(RACAsyncSubject * (^)(id value))function {
 	NSParameterAssert(function != NULL);
 	
-	RACAsyncSubject *subject = [RACAsyncSubject subject];
+	RACReplaySubject *subject = [RACReplaySubject replaySubjectWithCapacity:1];
 	RACAsyncFunctionPair *pair = [RACAsyncFunctionPair pair];
 	pair.asyncFunction = function;
 	pair.subject = subject;

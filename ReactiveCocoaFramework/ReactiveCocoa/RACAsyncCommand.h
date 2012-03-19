@@ -21,6 +21,6 @@
 
 @property (readonly, assign) NSUInteger numberOfActiveExecutions;
 
-- (RACAsyncSubject *)addAsyncFunction:(RACAsyncSubject * (^)(id value))function;
+- (RACSubject *)addAsyncFunction:(RACAsyncSubject * (^)(id value))function;
 
 @end

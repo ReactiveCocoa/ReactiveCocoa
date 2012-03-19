@@ -41,10 +41,6 @@
 	
 	self.didLoginValue = [RACSubject subject];
 	
-	[RACObservable(self.username) subscribeNext:^(id x) {
-		NSLog(@"changed to %@", x);
-	}];
-	
 	self.usernameAndPasswordChanged = [[RACObservable 
 		combineLatest:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), nil] 
 		reduce:^(NSArray *xs) {
@@ -61,7 +57,8 @@
 			self.loggingIn = YES;
 		}];
 	
-	RACAsyncSubject *loginResult = [self.loginCommand addAsyncFunction:^(id _) { return [self.client login]; }];
+	RACSubject *loginResult = [self.loginCommand addAsyncFunction:^(id _) { return [self.client login]; }];
+
 	[[[loginResult 
 		where:^(id x) { return [x hasError]; }] 
 		select:^(id x) { return [x error]; }] 

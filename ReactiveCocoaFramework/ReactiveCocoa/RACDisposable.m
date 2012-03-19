@@ -15,10 +15,6 @@
 
 @implementation RACDisposable
 
-- (void)dealloc {
-	[self dispose];
-}
-
 
 #pragma mark API
 

@@ -20,4 +20,5 @@
 #import <ReactiveCocoa/RACReplaySubject.h>
 #import <ReactiveCocoa/RACAsyncSubject.h>
 #import <ReactiveCocoa/RACBehaviorSubject.h>
+#import <ReactiveCocoa/RACDisposable.h>
 #import <ReactiveCocoa/NSObject+RACObservable.h>

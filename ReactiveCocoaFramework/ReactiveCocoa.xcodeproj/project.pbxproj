@@ -52,6 +52,8 @@
 		88977C861512EA7C00A09EC5 /* RACAsyncSubject.m in Sources */ = {isa = PBXBuildFile; fileRef = 88D4AB481510F8F10011494F /* RACAsyncSubject.m */; };
 		88977C871512EA7E00A09EC5 /* RACMaybe.m in Sources */ = {isa = PBXBuildFile; fileRef = 8820370915096A4F002428D3 /* RACMaybe.m */; };
 		88ABAB631509A67C0073CDA2 /* RACAsyncFunctionOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 88ABAB621509A5E40073CDA2 /* RACAsyncFunctionOperation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		88CBB39A1517A29F00DDC7D7 /* NSObject+RACObservable.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CBB3981517A29E00DDC7D7 /* NSObject+RACObservable.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		88CBB39B1517A29F00DDC7D7 /* NSObject+RACObservable.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CBB3991517A29E00DDC7D7 /* NSObject+RACObservable.m */; };
 		88CDF7DE15000FCF00163A9F /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7DD15000FCF00163A9F /* SenTestingKit.framework */; };
 		88CDF7DF15000FCF00163A9F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7BF15000FCE00163A9F /* Cocoa.framework */; };
 		88CDF7E715000FCF00163A9F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 88CDF7E515000FCF00163A9F /* InfoPlist.strings */; };
@@ -184,6 +186,8 @@
 		88977C7E1512E69200A09EC5 /* RACObservable+Querying.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RACObservable+Querying.h"; sourceTree = "<group>"; };
 		88977C7F1512E69200A09EC5 /* RACObservable+Querying.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RACObservable+Querying.m"; sourceTree = "<group>"; };
 		88ABAB621509A5E40073CDA2 /* RACAsyncFunctionOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RACAsyncFunctionOperation.h; sourceTree = "<group>"; };
+		88CBB3981517A29E00DDC7D7 /* NSObject+RACObservable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACObservable.h"; sourceTree = "<group>"; };
+		88CBB3991517A29E00DDC7D7 /* NSObject+RACObservable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACObservable.m"; sourceTree = "<group>"; };
 		88CDF7BF15000FCE00163A9F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		88CDF7C215000FCE00163A9F /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		88CDF7C315000FCE00163A9F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
@@ -408,6 +412,8 @@
 				8820370915096A4F002428D3 /* RACMaybe.m */,
 				883A84DD1513B5EC006DB4C7 /* RACDisposable.h */,
 				883A84DE1513B5EC006DB4C7 /* RACDisposable.m */,
+				88CBB3981517A29E00DDC7D7 /* NSObject+RACObservable.h */,
+				88CBB3991517A29E00DDC7D7 /* NSObject+RACObservable.m */,
 			);
 			name = Core;
 			sourceTree = "<group>";
@@ -443,6 +449,7 @@
 				88D4AB491510F8F10011494F /* RACAsyncSubject.h in Headers */,
 				883A84DA1513964B006DB4C7 /* RACBehaviorSubject.h in Headers */,
 				882036E31509677A002428D3 /* EXTNil.h in Headers */,
+				88CBB39A1517A29F00DDC7D7 /* NSObject+RACObservable.h in Headers */,
 				88977C801512E69200A09EC5 /* RACObservable+Querying.h in Headers */,
 				882036E51509677A002428D3 /* EXTRuntimeExtensions.h in Headers */,
 				88DA309715071CBA00C19D0F /* RACValueTransformer.h in Headers */,
@@ -647,6 +654,7 @@
 				88977C811512E69200A09EC5 /* RACObservable+Querying.m in Sources */,
 				883A84DB1513964B006DB4C7 /* RACBehaviorSubject.m in Sources */,
 				883A84E01513B5EC006DB4C7 /* RACDisposable.m in Sources */,
+				88CBB39B1517A29F00DDC7D7 /* NSObject+RACObservable.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

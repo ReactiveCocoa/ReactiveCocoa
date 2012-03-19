@@ -12,6 +12,7 @@
 
 @interface RACCommand ()
 @property (nonatomic, copy) BOOL (^canExecuteBlock)(id value);
+@property (nonatomic, strong) RACSubject *executeSubject;
 @end
 
 
@@ -22,8 +23,16 @@
 	if(self == nil) return nil;
 	
 	self.canExecute = YES;
+	self.executeSubject = [RACSubject subject];
 	
 	return self;
+}
+
+
+#pragma mark RACObservable
+
+- (RACDisposable *)subscribe:(id<RACObserver>)observer {
+	return [self.executeSubject subscribe:observer];
 }
 
 
@@ -31,6 +40,7 @@
 
 @synthesize canExecute;
 @synthesize canExecuteBlock;
+@synthesize executeSubject;
 
 + (id)command {
 	return [[self alloc] init];
@@ -38,7 +48,7 @@
 
 + (id)commandWithCanExecute:(BOOL (^)(id value))canExecuteBlock execute:(void (^)(id value))executeBlock {
 	RACCommand *command = [self command];
-	if(executeBlock != NULL) [command subscribeNext:executeBlock];
+	if(executeBlock != NULL) [command.executeSubject subscribeNext:executeBlock];
 	command.canExecuteBlock = canExecuteBlock;
 	return command;
 }
@@ -61,8 +71,8 @@
 	return self.canExecute;
 }
 
-- (void)execute:(id)value {	
-	self.value = value;
+- (void)execute:(id)value {
+	[self.executeSubject sendNext:value];
 }
 
 @end

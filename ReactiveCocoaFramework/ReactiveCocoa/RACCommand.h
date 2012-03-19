@@ -8,12 +8,12 @@
 
 #import <Foundation/Foundation.h>
 
-#import "RACObservable.h"
+#import "RACSubject.h"
 
 
 // A command is a value that allows more customization of its behavior.
 // It sends `next` events when the command executes. `next` is sent the value passed into `-execute:`.
-@interface RACCommand : RACObservable
+@interface RACCommand : NSObject <RACObservable>
 
 @property (nonatomic, readonly, assign) BOOL canExecute;
 

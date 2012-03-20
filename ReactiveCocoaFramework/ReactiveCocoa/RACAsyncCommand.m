@@ -8,7 +8,7 @@
 
 #import "RACAsyncCommand.h"
 #import "RACCommand+Private.h"
-#import "NSObject+RACPropertyObserving.h"
+#import "NSObject+RACPropertySubscribing.h"
 #import "RACAsyncSubject.h"
 #import "RACReplaySubject.h"
 

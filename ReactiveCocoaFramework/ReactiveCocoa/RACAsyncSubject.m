@@ -7,7 +7,7 @@
 //
 
 #import "RACAsyncSubject.h"
-#import "RACObserver.h"
+#import "RACSubscriber.h"
 
 @interface RACAsyncSubject ()
 @property (nonatomic, strong) id lastValue;
@@ -20,7 +20,7 @@
 
 #pragma mark RACObservable
 
-- (RACDisposable *)subscribe:(id<RACObserver>)observer {
+- (RACDisposable *)subscribe:(id<RACSubscriber>)observer {
 	RACDisposable * disposable = [super subscribe:observer];
 	if(self.hasCompletedAlready) {
 		[self sendCompleted];

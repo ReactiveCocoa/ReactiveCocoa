@@ -7,7 +7,7 @@
 //
 
 #import "NSButton+RACCommandSupport.h"
-#import "NSObject+RACPropertyObserving.h"
+#import "NSObject+RACPropertySubscribing.h"
 #import "RACCommand.h"
 
 #import <objc/runtime.h>

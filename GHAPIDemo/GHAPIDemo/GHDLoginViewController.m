@@ -22,7 +22,7 @@
 @property (nonatomic, strong) GHDLoginView *view;
 @property (nonatomic, strong) GHUserAccount *userAccount;
 @property (nonatomic, strong) GHGitHubClient *client;
-@property (nonatomic, strong) RACSubject *didLoginValue;
+@property (nonatomic, strong) RACSubject *didLoginSubject;
 
 @property (nonatomic, strong) RACDisposable *usernameAndPasswordChanged;
 @end
@@ -39,10 +39,10 @@
 	self.loginEnabled = NO;
 	self.loggingIn = NO;
 	
-	self.didLoginValue = [RACSubject subject];
+	self.didLoginSubject = [RACSubject subject];
 	
-	self.usernameAndPasswordChanged = [[RACObservable 
-		combineLatest:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), nil] 
+	self.usernameAndPasswordChanged = [[RACSubscribable 
+		combineLatest:[NSArray arrayWithObjects:RACSubscribable(self.username), RACSubscribable(self.password), nil] 
 		reduce:^(NSArray *xs) {
 			return [NSNumber numberWithBool:[[xs objectAtIndex:0] length] > 0 && [[xs objectAtIndex:1] length] > 0];
 		}] subscribeNext:^(id x) {
@@ -71,13 +71,13 @@
 		where:^(id x) { return [x hasObject]; }]
 		subscribeNext:^(id _) {
 			self.successHidden = NO;
-			self.didLoginValue.value = self.userAccount;
+			[self.didLoginSubject sendNext:self.userAccount];
 		}];
 	
 	[loginResult subscribeNext:^(id x) { self.loggingIn = NO; }];
 		
-	[[RACObservable 
-		merge:[NSArray arrayWithObjects:RACObservable(self.username), RACObservable(self.password), nil]] 
+	[[RACSubscribable 
+		merge:[NSArray arrayWithObjects:RACSubscribable(self.username), RACSubscribable(self.password), nil]] 
 		subscribeNext:^(id _) { self.successHidden = self.loginFailedHidden = YES; }];
 	
 	return self;
@@ -114,7 +114,7 @@
 @synthesize loggingIn;
 @synthesize userAccount;
 @synthesize client;
-@synthesize didLoginValue;
+@synthesize didLoginSubject;
 
 @synthesize usernameAndPasswordChanged;
 

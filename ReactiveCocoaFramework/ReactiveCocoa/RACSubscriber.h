@@ -1,5 +1,5 @@
 //
-//  RACObserver.h
+//  RACSubscriber.h
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 3/1/12.
@@ -7,20 +7,20 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "NSObject+RACObservable.h"
+#import "NSObject+RACSubscribable.h"
 
-@protocol RACObservable;
+@protocol RACSubscribable;
 
-@protocol RACObserver <NSObject>
+@protocol RACSubscriber <NSObject>
 - (void)sendNext:(id)value;
 - (void)sendError:(NSError *)error;
 - (void)sendCompleted;
-- (void)didSubscribeToObservable:(id<RACObservable>)observable;
+- (void)didSubscribeToObservable:(id<RACSubscribable>)observable;
 - (void)stopObserving;
 @end
 
 
-@interface RACObserver : NSObject <RACObserver>
+@interface RACSubscriber : NSObject <RACSubscriber>
 
 // Creates a new observer with the given blocks.
 + (id)observerWithNext:(void (^)(id x))next error:(void (^)(NSError *error))error completed:(void (^)(void))completed;

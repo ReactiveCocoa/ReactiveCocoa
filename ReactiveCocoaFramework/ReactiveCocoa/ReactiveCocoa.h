@@ -6,10 +6,11 @@
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
-#import <ReactiveCocoa/RACObserver.h>
-#import <ReactiveCocoa/RACObservable+Querying.h>
+#import <ReactiveCocoa/RACSubscriber.h>
+#import <ReactiveCocoa/RACSubscribable.h>
+#import <ReactiveCocoa/RACSubscribable+Querying.h>
 #import <ReactiveCocoa/RACCommand.h>
-#import <ReactiveCocoa/NSObject+RACPropertyObserving.h>
+#import <ReactiveCocoa/NSObject+RACPropertySubscribing.h>
 #import <ReactiveCocoa/NSButton+RACCommandSupport.h>
 #import <ReactiveCocoa/RACAsyncCommand.h>
 #import <ReactiveCocoa/RACMaybe.h>
@@ -21,4 +22,4 @@
 #import <ReactiveCocoa/RACAsyncSubject.h>
 #import <ReactiveCocoa/RACBehaviorSubject.h>
 #import <ReactiveCocoa/RACDisposable.h>
-#import <ReactiveCocoa/NSObject+RACObservable.h>
+#import <ReactiveCocoa/NSObject+RACSubscribable.h>

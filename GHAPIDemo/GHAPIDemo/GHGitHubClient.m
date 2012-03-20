@@ -9,7 +9,6 @@
 #import "GHGitHubClient.h"
 #import "GHJSONRequestOperation.h"
 #import "GHUserAccount.h"
-#import <ReactiveCocoa/RACSequence+Private.h>
 
 @interface GHGitHubClient ()
 @property (nonatomic, strong) GHUserAccount *userAccount;

@@ -18,7 +18,7 @@
 
 #pragma mark RACObservable
 
-- (RACDisposable *)subscribe:(id<RACObserver>)observer {
+- (RACDisposable *)subscribe:(id<RACSubscriber>)observer {
 	RACDisposable * disposable = [super subscribe:observer];
 	[observer sendNext:self.currentValue];
 	

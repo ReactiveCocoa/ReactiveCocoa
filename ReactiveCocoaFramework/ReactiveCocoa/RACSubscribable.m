@@ -1,22 +1,22 @@
 //
-//  RACObservable.m
+//  RACSubscribable.m
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 3/15/12.
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
-#import "RACObservable.h"
-#import "RACObservable+Private.h"
+#import "RACSubscribable.h"
+#import "RACSubscribable+Private.h"
 #import "RACSubject.h"
 #import "RACDisposable.h"
 
-@interface RACObservable ()
+@interface RACSubscribable ()
 @property (nonatomic, strong) NSMutableArray *disposables;
 @end
 
 
-@implementation RACObservable
+@implementation RACSubscribable
 
 - (void)dealloc {
 	for(RACDisposable *disposable in self.disposables) {
@@ -34,9 +34,9 @@
 }
 
 
-#pragma mark RACObservable
+#pragma mark RACSubscribable
 
-- (RACDisposable *)subscribe:(id<RACObserver>)observer {
+- (RACDisposable *)subscribe:(id<RACSubscriber>)observer {
 	NSParameterAssert(observer != nil);
 	
 	[observer didSubscribeToObservable:self];
@@ -46,7 +46,7 @@
 		if(disposable == nil) {
 			__block __unsafe_unretained id weakSelf = self;
 			disposable = [RACDisposable disposableWithBlock:^{
-				RACObservable *strongSelf = weakSelf;
+				RACSubscribable *strongSelf = weakSelf;
 				[observer stopObserving];
 				[strongSelf.disposables removeObject:disposable];
 			}];
@@ -65,14 +65,14 @@
 @synthesize didSubscribe;
 @synthesize disposables;
 
-+ (id)createObservable:(RACDisposable * (^)(id<RACObserver> observer))didSubscribe {
-	RACObservable *observable = [[RACObservable alloc] init];
++ (id)createSubscribable:(RACDisposable * (^)(id<RACSubscriber> observer))didSubscribe {
+	RACSubscribable *observable = [[RACSubscribable alloc] init];
 	observable.didSubscribe = didSubscribe;
 	return observable;
 }
 
 + (id)return:(id)value {
-	return [self createObservable:^RACDisposable *(id<RACObserver> observer) {
+	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> observer) {
 		[observer sendNext:value];
 		[observer sendCompleted];
 		return nil;
@@ -80,21 +80,21 @@
 }
 
 + (id)error:(NSError *)error {
-	return [self createObservable:^RACDisposable *(id<RACObserver> observer) {
+	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> observer) {
 		[observer sendError:error];
 		return nil;
 	}];
 }
 
 + (id)empty {
-	return [self createObservable:^RACDisposable *(id<RACObserver> observer) {
+	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> observer) {
 		[observer sendCompleted];
 		return nil;
 	}];
 }
 
 + (id)never {
-	return [self createObservable:^RACDisposable *(id<RACObserver> observer) {
+	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> observer) {
 		return nil;
 	}];
 }

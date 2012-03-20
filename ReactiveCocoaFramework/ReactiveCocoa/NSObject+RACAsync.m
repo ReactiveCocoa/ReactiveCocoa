@@ -12,7 +12,7 @@
 
 @implementation NSObject (RACAsync)
 
-+ (id<RACObservable>)RACAsync:(id (^)(void))block {
++ (id<RACSubscribable>)RACAsync:(id (^)(void))block {
 	NSParameterAssert(block != NULL);
 	
 	RACAsyncSubject *subject = [RACAsyncSubject subject];

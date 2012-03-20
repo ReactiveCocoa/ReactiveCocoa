@@ -6,13 +6,13 @@
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
-#import "RACObservable.h"
+#import "RACSubscribable.h"
 
 @class RACDisposable;
 
 
-@interface RACObservable ()
+@interface RACSubscribable ()
 
-@property (nonatomic, copy) RACDisposable * (^didSubscribe)(id<RACObserver> observer);
+@property (nonatomic, copy) RACDisposable * (^didSubscribe)(id<RACSubscriber> observer);
 
 @end

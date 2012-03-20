@@ -34,7 +34,7 @@
 	GHDLoginViewController *loginViewController = [[GHDLoginViewController alloc] init];
 	self.currentViewController = loginViewController;
 	
-	[[[loginViewController.didLoginValue 
+	[[[loginViewController.didLoginSubject 
 		where:^BOOL(id x) { return x != nil; }] 
 		select:^(id x) { return [[GHDUserViewController alloc] initWithUserAccount:x]; }] 
 		subscribeNext:^(id x) { self.currentViewController = x; }];

@@ -8,7 +8,7 @@
 
 #import "RACReplaySubject.h"
 #import "EXTNil.h"
-#import "RACObserver.h"
+#import "RACSubscriber.h"
 
 @interface RACReplaySubject ()
 @property (nonatomic, strong) NSMutableArray *valuesReceived;
@@ -30,7 +30,7 @@
 
 #pragma mark RACObservable
 
-- (RACDisposable *)subscribe:(id<RACObserver>)observer {
+- (RACDisposable *)subscribe:(id<RACSubscriber>)observer {
 	RACDisposable * disposable = [super subscribe:observer];
 	for(id value in self.valuesReceived) {
 		[observer sendNext:value];

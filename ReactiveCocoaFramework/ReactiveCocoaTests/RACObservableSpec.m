@@ -8,9 +8,9 @@
 
 #import "RACSpecs.h"
 
-#import "RACObservable.h"
+#import "RACSubscribable.h"
 #import "RACObservable+Querying.h"
-#import "RACObserver.h"
+#import "RACSubscriber.h"
 #import "RACSubject.h"
 #import "RACBehaviorSubject.h"
 #import "RACDisposable.h"
@@ -19,11 +19,11 @@
 SpecBegin(RACObservable)
 
 describe(@"subscribing", ^{
-	__block RACObservable *observable = nil;
+	__block RACSubscribable *observable = nil;
 	id nextValueSent = @"1";
 	
 	beforeEach(^{
-		observable = [RACObservable createObservable:^RACDisposable *(id<RACObserver> observer) {
+		observable = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> observer) {
 			[observer sendNext:nextValueSent];
 			[observer sendCompleted];
 			return nil;
@@ -88,11 +88,11 @@ describe(@"subscribing", ^{
 });
 
 describe(@"querying", ^{
-	__block RACObservable *observable = nil;
+	__block RACSubscribable *observable = nil;
 	id nextValueSent = @"1";
 	
 	beforeEach(^{
-		observable = [RACObservable createObservable:^RACDisposable *(id<RACObserver> observer) {
+		observable = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> observer) {
 			[observer sendNext:nextValueSent];
 			[observer sendNext:@"other value"];
 			[observer sendCompleted];
@@ -134,7 +134,7 @@ describe(@"querying", ^{
 	});
 	
 	it(@"should support window", ^{
-		RACObservable *observable = [RACObservable createObservable:^RACDisposable *(id<RACObserver> observer) {
+		RACObservable *observable = [RACObservable createObservable:^RACDisposable *(id<RACSubscriber> observer) {
 			[observer sendNext:@"1"];
 			[observer sendNext:@"2"];
 			[observer sendNext:@"3"];
@@ -149,7 +149,7 @@ describe(@"querying", ^{
 		RACSubject *closeSubject = [RACSubject subject];
 		__block NSUInteger valuesReceived = 0;
 		
-		RACObservable *window = [observable windowWithStart:windowOpen close:^(id<RACObservable> start) {
+		RACSubscribable *window = [observable windowWithStart:windowOpen close:^(id<RACSubscribable> start) {
 			return closeSubject;
 		}];
 				
@@ -176,7 +176,7 @@ describe(@"querying", ^{
 	
 	it(@"should support take", ^{
 		@autoreleasepool {
-			RACObservable *observable = [RACObservable createObservable:^RACDisposable *(id<RACObserver> observer) {
+			RACObservable *observable = [RACObservable createObservable:^RACDisposable *(id<RACSubscriber> observer) {
 				[observer sendNext:@"1"];
 				[observer sendNext:@"2"];
 				[observer sendNext:@"3"];
@@ -186,7 +186,7 @@ describe(@"querying", ^{
 				return nil;
 			}];
 			
-			RACObserver *ob = [RACObserver observerWithNext:NULL error:NULL completed:NULL];
+			RACSubscriber *ob = [RACObserver observerWithNext:NULL error:NULL completed:NULL];
 			
 			@autoreleasepool {
 				[observable subscribe:ob];
@@ -200,7 +200,7 @@ describe(@"querying", ^{
 describe(@"continuation", ^{
 	it(@"shouldn't receive deferred errors", ^{
 		__block NSUInteger numberOfSubscriptions = 0;
-		RACObservable *observable = [RACObservable createObservable:^RACDisposable *(id<RACObserver> observer) {
+		RACObservable *observable = [RACObservable createObservable:^RACDisposable *(id<RACSubscriber> observer) {
 			if(numberOfSubscriptions > 2) {
 				[observer sendCompleted];
 				return nil;
@@ -230,7 +230,7 @@ describe(@"continuation", ^{
 	
 	it(@"should repeat after completion", ^{
 		__block NSUInteger numberOfSubscriptions = 0;
-		RACObservable *observable = [RACObservable createObservable:^RACDisposable *(id<RACObserver> observer) {
+		RACObservable *observable = [RACObservable createObservable:^RACDisposable *(id<RACSubscriber> observer) {
 			if(numberOfSubscriptions > 2) {
 				[observer sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
 				return nil;

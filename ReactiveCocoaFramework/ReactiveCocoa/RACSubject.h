@@ -6,11 +6,11 @@
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
-#import "RACObservable.h"
-#import "RACObserver.h"
+#import "RACSubscribable.h"
+#import "RACSubscriber.h"
 
 
-@interface RACSubject : RACObservable <RACObserver>
+@interface RACSubject : RACSubscribable <RACSubscriber>
 
 + (id)subject;
 

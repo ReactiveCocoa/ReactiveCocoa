@@ -7,7 +7,7 @@
 //
 
 #import "RACSubject.h"
-#import "RACObservable+Private.h"
+#import "RACSubscribable+Private.h"
 #import "RACDisposable.h"
 
 @interface RACSubject ()
@@ -31,7 +31,7 @@
 
 #pragma mark RACObservable
 
-- (RACDisposable *)subscribe:(id<RACObserver>)observer {
+- (RACDisposable *)subscribe:(id<RACSubscriber>)observer {
 	RACDisposable *disposable = [super subscribe:observer];
 	
 	[self.subscribers addObject:[NSValue valueWithNonretainedObject:observer]];
@@ -48,13 +48,13 @@
 #pragma mark RACObserver
 
 - (void)sendNext:(id)value {
-	[self performBlockOnAllSubscribers:^(id<RACObserver> observer) {
+	[self performBlockOnAllSubscribers:^(id<RACSubscriber> observer) {
 		[observer sendNext:value];
 	}];
 }
 
 - (void)sendError:(NSError *)error {
-	[self performBlockOnAllSubscribers:^(id<RACObserver> observer) {
+	[self performBlockOnAllSubscribers:^(id<RACSubscriber> observer) {
 		[observer sendError:error];
 		
 		[self unsubscribe:observer];
@@ -64,7 +64,7 @@
 }
 
 - (void)sendCompleted {
-	[self performBlockOnAllSubscribers:^(id<RACObserver> observer) {
+	[self performBlockOnAllSubscribers:^(id<RACSubscriber> observer) {
 		[observer sendCompleted];
 		
 		[self unsubscribe:observer];
@@ -73,7 +73,7 @@
 	[self removeAllSources];
 }
 
-- (void)didSubscribeToObservable:(id<RACObservable>)observable {
+- (void)didSubscribeToObservable:(id<RACSubscribable>)observable {
 	[self.sources addObject:observable];
 }
 
@@ -91,20 +91,20 @@
 	return [[self alloc] init];
 }
 
-- (void)performBlockOnAllSubscribers:(void (^)(id<RACObserver> observer))block {
+- (void)performBlockOnAllSubscribers:(void (^)(id<RACSubscriber> observer))block {
 	for(NSValue *observer in [self.subscribers copy]) {
 		block([observer nonretainedObjectValue]);
 	}
 }
 
-- (void)unsubscribe:(id<RACObserver>)observer {
+- (void)unsubscribe:(id<RACSubscriber>)observer {
 	NSValue *observerValue = [NSValue valueWithNonretainedObject:observer];
 	NSAssert2([self.subscribers containsObject:observerValue], @"%@ does not subscribe to %@", observer, self);
 	
 	[self.subscribers removeObject:observerValue];
 }
 
-- (void)unsubscribeIfActive:(id<RACObserver>)observer {
+- (void)unsubscribeIfActive:(id<RACSubscriber>)observer {
 	if([self.subscribers containsObject:observer]) {
 		[self unsubscribe:observer];
 	}

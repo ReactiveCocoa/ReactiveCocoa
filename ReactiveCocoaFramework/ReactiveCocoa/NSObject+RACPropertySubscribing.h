@@ -1,5 +1,5 @@
 //
-//  NSObject+RACPropertyObserving.h
+//  NSObject+RACPropertySubscribing.h
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 3/2/12.
@@ -9,15 +9,15 @@
 #import <Foundation/Foundation.h>
 
 #define RACKVO(property) ((void)(NO && ((void)property, NO)), @#property)
-#define RACObservable(property) [self RACObservableForKeyPath:RACKVO(self.property)]
+#define RACSubscribable(property) [self RACSubscribableForKeyPath:RACKVO(self.property)]
 
-@class RACObservable;
+@class RACSubscribable;
 
 
-@interface NSObject (RACPropertyObserving)
+@interface NSObject (RACPropertySubscribing)
 
 // Creates a value from observing the value at the given keypath.
-- (RACObservable *)RACObservableForKeyPath:(NSString *)keyPath;
+- (RACSubscribable *)RACSubscribableForKeyPath:(NSString *)keyPath;
 
 // Calls -[NSObject bind:binding toObject:object withKeyPath:keyPath options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nil]]
 - (void)bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath;

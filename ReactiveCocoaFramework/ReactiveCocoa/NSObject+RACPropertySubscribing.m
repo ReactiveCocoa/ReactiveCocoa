@@ -1,20 +1,20 @@
 //
-//  NSObject+RACPropertyObserving.m
+//  NSObject+RACPropertySubscribing.m
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 3/2/12.
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
-#import "NSObject+RACPropertyObserving.h"
+#import "NSObject+RACPropertySubscribing.h"
 #import "NSObject+GHKVOWrapper.h"
 #import "RACValueTransformer.h"
 #import "RACReplaySubject.h"
 
 
-@implementation NSObject (RACPropertyObserving)
+@implementation NSObject (RACPropertySubscribing)
 
-- (RACObservable *)RACObservableForKeyPath:(NSString *)keyPath {
+- (RACSubscribable *)RACSubscribableForKeyPath:(NSString *)keyPath {
 	RACReplaySubject *subject = [RACReplaySubject replaySubjectWithCapacity:1];
 	__block __unsafe_unretained NSObject *weakSelf = self;
 	[self addObserver:self forKeyPath:keyPath options:0 queue:[NSOperationQueue mainQueue] block:^(id target, NSDictionary *change) {

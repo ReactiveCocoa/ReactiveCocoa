@@ -8,11 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol RACObservable;
+@protocol RACSubscribable;
 
 
 @interface NSObject (RACAsync)
 
-+ (id<RACObservable>)RACAsync:(id (^)(void))block;
++ (id<RACSubscribable>)RACAsync:(id (^)(void))block;
 
 @end

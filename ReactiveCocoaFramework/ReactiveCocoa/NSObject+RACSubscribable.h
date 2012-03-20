@@ -1,5 +1,5 @@
 //
-//  NSObject+RACObservable.h
+//  NSObject+RACSubscribable.h
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 3/19/12.
@@ -11,7 +11,7 @@
 @class RACDisposable;
 
 
-@interface NSObject (RACObservable)
+@interface NSObject (RACSubscribable)
 
 // Convenience method to subscribe to the `next` event.
 - (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock;

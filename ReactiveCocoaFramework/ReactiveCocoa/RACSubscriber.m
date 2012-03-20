@@ -1,16 +1,16 @@
 //
-//  RACObserver.m
+//  RACSubscriber.m
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 3/1/12.
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
-#import "RACObserver.h"
+#import "RACSubscriber.h"
 
-static NSMutableSet *activeObservers = nil;
+static NSMutableSet *activeSubscribers = nil;
 
-@interface RACObserver ()
+@interface RACSubscriber ()
 @property (nonatomic, copy) void (^next)(id value);
 @property (nonatomic, copy) void (^error)(NSError *error);
 @property (nonatomic, copy) void (^completed)(void);
@@ -18,11 +18,11 @@ static NSMutableSet *activeObservers = nil;
 @end
 
 
-@implementation RACObserver
+@implementation RACSubscriber
 
 + (void)initialize {
-	if(self == [RACObserver class]) {
-		activeObservers = [NSMutableSet set];
+	if(self == [RACSubscriber class]) {
+		activeSubscribers = [NSMutableSet set];
 	}
 }
 
@@ -60,10 +60,10 @@ static NSMutableSet *activeObservers = nil;
 	[self removeAllSources];
 }
 
-- (void)didSubscribeToObservable:(id<RACObservable>)observable {
+- (void)didSubscribeToObservable:(id<RACSubscribable>)observable {
 	[self.sources addObject:observable];
 	
-	[activeObservers addObject:self];
+	[activeSubscribers addObject:self];
 }
 
 - (void)stopObserving {
@@ -79,7 +79,7 @@ static NSMutableSet *activeObservers = nil;
 @synthesize sources;
 
 + (id)observerWithNext:(void (^)(id x))next error:(void (^)(NSError *error))error completed:(void (^)(void))completed {
-	RACObserver *observer = [[self alloc] init];
+	RACSubscriber *observer = [[self alloc] init];
 	observer.next = next;
 	observer.error = error;
 	observer.completed = completed;
@@ -89,7 +89,7 @@ static NSMutableSet *activeObservers = nil;
 - (void)removeAllSources {
 	[self.sources removeAllObjects];
 	
-	[activeObservers removeObject:self];
+	[activeSubscribers removeObject:self];
 }
 
 @end

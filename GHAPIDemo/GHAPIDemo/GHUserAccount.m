@@ -14,10 +14,15 @@ static NSString * const GHUserAccountDefaultAPIEndpoint = @"https://api.github.c
 @property (nonatomic, copy) NSString *username;
 @property (nonatomic, copy) NSString *password;
 @property (nonatomic, copy) NSURL *APIEndpoint;
+@property (nonatomic, copy) NSString *realName;
 @end
 
 
 @implementation GHUserAccount
+
+- (void)setValuesForKeysWithDictionary:(NSDictionary *)keyedValues {
+	self.realName = [keyedValues objectForKey:@"name"];
+}
 
 
 #pragma mark API

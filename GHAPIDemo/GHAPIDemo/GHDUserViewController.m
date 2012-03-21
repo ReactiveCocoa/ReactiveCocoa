@@ -62,7 +62,7 @@
 	[[[userInfo 
 		where:^(id x) { return [x hasObject]; }] 
 		select:^(id x) { return [x object]; }] 
-		subscribeNext:^(id x) { self.userAccount.realName = [x objectForKey:@"name"]; }];
+		subscribeNext:^(id x) { [self.userAccount setValuesForKeysWithDictionary:x]; }];
 	
 	self.userAccount = user;
 	

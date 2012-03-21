@@ -14,7 +14,7 @@
 @property (nonatomic, readonly, copy) NSString *username;
 @property (nonatomic, readonly, copy) NSString *password;
 @property (nonatomic, readonly, copy) NSURL *APIEndpoint;
-@property (nonatomic, copy) NSString *realName;
+@property (nonatomic, readonly, copy) NSString *realName;
 
 + (GHUserAccount *)userAccountWithUsername:(NSString *)username password:(NSString *)password;
 + (GHUserAccount *)userAccountWithUsername:(NSString *)username password:(NSString *)password APIEndpoint:(NSURL *)URL;

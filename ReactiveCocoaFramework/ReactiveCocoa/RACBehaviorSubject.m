@@ -16,7 +16,7 @@
 @implementation RACBehaviorSubject
 
 
-#pragma mark RACObservable
+#pragma mark RACSubscribable
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)observer {
 	RACDisposable * disposable = [super subscribe:observer];
@@ -26,7 +26,7 @@
 }
 
 
-#pragma mark RACObserver
+#pragma mark RACSubscriber
 
 - (void)sendNext:(id)value {
 	[super sendNext:value];

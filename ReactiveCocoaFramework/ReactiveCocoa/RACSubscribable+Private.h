@@ -1,5 +1,5 @@
 //
-//  RACObservable_Private.h
+//  RACSubscribable+Private.h
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 3/15/12.

@@ -36,7 +36,7 @@ static NSMutableSet *activeSubscribers = nil;
 }
 
 
-#pragma mark RACObserver
+#pragma mark RACSubscriber
 
 - (void)sendNext:(id)value {
 	if(self.next != NULL) {

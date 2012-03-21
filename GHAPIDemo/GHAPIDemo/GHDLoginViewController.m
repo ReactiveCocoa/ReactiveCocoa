@@ -9,7 +9,6 @@
 #import "GHDLoginViewController.h"
 #import "GHDLoginView.h"
 #import "GHGitHubClient.h"
-#import "GHJSONRequestOperation.h"
 #import "GHUserAccount.h"
 #import "NSView+GHDExtensions.h"
 

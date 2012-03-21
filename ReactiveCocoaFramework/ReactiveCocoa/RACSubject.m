@@ -105,7 +105,7 @@
 }
 
 - (void)unsubscribeIfActive:(id<RACSubscriber>)observer {
-	if([self.subscribers containsObject:observer]) {
+	if([self.subscribers containsObject:[NSValue valueWithNonretainedObject:observer]]) {
 		[self unsubscribe:observer];
 	}
 }

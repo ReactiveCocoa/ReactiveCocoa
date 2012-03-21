@@ -41,9 +41,9 @@
 	self.didLoginSubject = [RACSubject subject];
 	
 	self.usernameAndPasswordChanged = [[RACSubscribable 
-		combineLatest:[NSArray arrayWithObjects:RACSubscribable(self.username), RACSubscribable(self.password), nil] 
+		combineLatest:[NSArray arrayWithObjects:RACSubscribable(self.username), RACSubscribable(self.password), RACSubscribable(self.loginCommand.numberOfActiveExecutions), nil] 
 		reduce:^(NSArray *xs) {
-			return [NSNumber numberWithBool:[[xs objectAtIndex:0] length] > 0 && [[xs objectAtIndex:1] length] > 0];
+			return [NSNumber numberWithBool:[[xs objectAtIndex:0] length] > 0 && [[xs objectAtIndex:1] length] > 0 && [[xs objectAtIndex:2] unsignedIntegerValue] < 1];
 		}] subscribeNext:^(id x) {
 			self.loginEnabled = [x boolValue];
 		}];

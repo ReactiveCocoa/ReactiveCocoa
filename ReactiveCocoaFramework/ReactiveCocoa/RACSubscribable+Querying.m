@@ -364,4 +364,22 @@
 	}];
 }
 
+- (instancetype)scanWithStart:(NSInteger)start combine:(NSInteger (^)(NSInteger running, NSInteger next))combineBlock {
+	NSParameterAssert(combineBlock != NULL);
+	
+	RACCreateWeakSelf
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		RACRedefineSelf
+		
+		NSInteger runningValue = start;
+		return [self subscribeNext:^(id x) {
+			[subscriber sendNext:[NSNumber numberWithInteger:combineBlock(runningValue, [x integerValue])]];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
+	}];
+}
+
 @end

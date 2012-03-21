@@ -25,5 +25,6 @@
 + (instancetype)merge:(NSArray *)observables;
 - (instancetype)selectMany:(id<RACSubscribable> (^)(id x))selectBlock;
 - (instancetype)concat:(id<RACSubscribable>)subscribable;
+- (instancetype)scanWithStart:(NSInteger)start combine:(NSInteger (^)(NSInteger running, NSInteger next))combineBlock;
 
 @end

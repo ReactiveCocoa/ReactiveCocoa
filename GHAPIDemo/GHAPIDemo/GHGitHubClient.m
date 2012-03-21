@@ -23,7 +23,6 @@
 
 + (GHGitHubClient *)clientForUserAccount:(GHUserAccount *)userAccount {
 	GHGitHubClient *client = [[self alloc] initWithBaseURL:userAccount.APIEndpoint];
-	[client setAuthorizationHeaderWithUsername:userAccount.username password:userAccount.password];
 	client.userAccount = userAccount;
 	return client;
 }
@@ -67,6 +66,14 @@
     [self enqueueHTTPRequestOperation:operation];
 	
 	return subject;
+}
+
+- (void)setUserAccount:(GHUserAccount *)u {
+	if(userAccount == u) return;
+	
+	userAccount = u;
+	
+	[self setAuthorizationHeaderWithUsername:self.userAccount.username password:self.userAccount.password];
 }
 
 @end

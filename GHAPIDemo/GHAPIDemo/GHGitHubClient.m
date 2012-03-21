@@ -7,7 +7,6 @@
 //
 
 #import "GHGitHubClient.h"
-#import "GHJSONRequestOperation.h"
 #import "GHUserAccount.h"
 
 @interface GHGitHubClient ()

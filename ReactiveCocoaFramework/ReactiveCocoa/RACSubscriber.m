@@ -60,13 +60,13 @@ static NSMutableSet *activeSubscribers = nil;
 	[self removeAllSources];
 }
 
-- (void)didSubscribeToObservable:(id<RACSubscribable>)observable {
+- (void)didSubscribeToSubscribable:(id<RACSubscribable>)observable {
 	[self.sources addObject:observable];
 	
 	[activeSubscribers addObject:self];
 }
 
-- (void)stopObserving {
+- (void)stopSubscription {
 	[self removeAllSources];
 }
 
@@ -78,7 +78,7 @@ static NSMutableSet *activeSubscribers = nil;
 @synthesize completed;
 @synthesize sources;
 
-+ (id)observerWithNext:(void (^)(id x))next error:(void (^)(NSError *error))error completed:(void (^)(void))completed {
++ (id)subscriberWithNext:(void (^)(id x))next error:(void (^)(NSError *error))error completed:(void (^)(void))completed {
 	RACSubscriber *observer = [[self alloc] init];
 	observer.next = next;
 	observer.error = error;

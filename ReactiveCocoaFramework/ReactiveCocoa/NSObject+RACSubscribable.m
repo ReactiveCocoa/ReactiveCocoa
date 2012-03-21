@@ -17,7 +17,7 @@
 	NSParameterAssert([self conformsToProtocol:@protocol(RACSubscribable)]);
 	NSParameterAssert(nextBlock != NULL);
 	
-	RACSubscriber *o = [RACSubscriber observerWithNext:nextBlock error:NULL completed:NULL];
+	RACSubscriber *o = [RACSubscriber subscriberWithNext:nextBlock error:NULL completed:NULL];
 	return [(RACSubscribable *) self subscribe:o];
 }
 
@@ -26,7 +26,7 @@
 	NSParameterAssert(nextBlock != NULL);
 	NSParameterAssert(completedBlock != NULL);
 	
-	RACSubscriber *o = [RACSubscriber observerWithNext:nextBlock error:NULL completed:completedBlock];
+	RACSubscriber *o = [RACSubscriber subscriberWithNext:nextBlock error:NULL completed:completedBlock];
 	return [(RACSubscribable *) self subscribe:o];
 }
 
@@ -36,7 +36,7 @@
 	NSParameterAssert(errorBlock != NULL);
 	NSParameterAssert(completedBlock != NULL);
 	
-	RACSubscriber *o = [RACSubscriber observerWithNext:nextBlock error:errorBlock completed:completedBlock];
+	RACSubscriber *o = [RACSubscriber subscriberWithNext:nextBlock error:errorBlock completed:completedBlock];
 	return [(RACSubscribable *) self subscribe:o];
 }
 
@@ -44,7 +44,7 @@
 	NSParameterAssert([self conformsToProtocol:@protocol(RACSubscribable)]);
 	NSParameterAssert(errorBlock != NULL);
 	
-	RACSubscriber *o = [RACSubscriber observerWithNext:NULL error:errorBlock completed:NULL];
+	RACSubscriber *o = [RACSubscriber subscriberWithNext:NULL error:errorBlock completed:NULL];
 	return [(RACSubscribable *) self subscribe:o];
 }
 
@@ -52,7 +52,7 @@
 	NSParameterAssert([self conformsToProtocol:@protocol(RACSubscribable)]);
 	NSParameterAssert(completedBlock != NULL);
 	
-	RACSubscriber *o = [RACSubscriber observerWithNext:NULL error:NULL completed:completedBlock];
+	RACSubscriber *o = [RACSubscriber subscriberWithNext:NULL error:NULL completed:completedBlock];
 	return [(RACSubscribable *) self subscribe:o];
 }
 
@@ -61,7 +61,7 @@
 	NSParameterAssert(nextBlock != NULL);
 	NSParameterAssert(errorBlock != NULL);
 	
-	RACSubscriber *o = [RACSubscriber observerWithNext:nextBlock error:errorBlock completed:NULL];
+	RACSubscriber *o = [RACSubscriber subscriberWithNext:nextBlock error:errorBlock completed:NULL];
 	return [(RACSubscribable *) self subscribe:o];
 }
 

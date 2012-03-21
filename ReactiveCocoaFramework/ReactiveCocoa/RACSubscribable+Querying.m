@@ -83,7 +83,7 @@
 	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
 		RACRedefineSelf
-		__block RACSubscriber *innerObserver = [RACSubscriber observerWithNext:^(id x) {
+		__block RACSubscriber *innerObserver = [RACSubscriber subscriberWithNext:^(id x) {
 			[observer sendNext:x];
 		} error:^(NSError *error) {
 			[observer sendError:error];
@@ -99,7 +99,7 @@
 	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
 		RACRedefineSelf
-		__block RACSubscriber *innerObserver = [RACSubscriber observerWithNext:^(id x) {
+		__block RACSubscriber *innerObserver = [RACSubscriber subscriberWithNext:^(id x) {
 			[observer sendNext:x];
 		} error:^(NSError *error) {
 			[self subscribe:innerObserver];
@@ -144,13 +144,13 @@
 			[closeObserverDisposable dispose], closeObserverDisposable = nil;
 		};
 		
-		RACDisposable *openObserverDisposable = [openObservable subscribe:[RACSubscriber observerWithNext:^(id x) {
+		RACDisposable *openObserverDisposable = [openObservable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 			if(currentWindow == nil) {
 				currentWindow = [RACSubject subject];
 				[observer sendNext:currentWindow];
 				
 				currentCloseWindow = closeBlock(currentWindow);
-				closeObserverDisposable = [currentCloseWindow subscribe:[RACSubscriber observerWithNext:^(id x) {
+				closeObserverDisposable = [currentCloseWindow subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 					closeCurrentWindow();
 				} error:^(NSError *error) {
 					closeCurrentWindow();
@@ -239,7 +239,7 @@
 		NSMutableSet *completedObservables = [NSMutableSet setWithCapacity:observables.count];
 		NSMutableDictionary *lastValues = [NSMutableDictionary dictionaryWithCapacity:observables.count];
 		for(id<RACSubscribable> observable in observables) {
-			RACDisposable *disposable = [observable subscribe:[RACSubscriber observerWithNext:^(id x) {
+			RACDisposable *disposable = [observable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 				[lastValues setObject:x ? : [EXTNil null] forKey:[NSString stringWithFormat:@"%p", observable]];
 				
 				if(lastValues.count == observables.count) {
@@ -275,7 +275,7 @@
 		NSMutableSet *disposables = [NSMutableSet setWithCapacity:observables.count];
 		NSMutableSet *completedObservables = [NSMutableSet setWithCapacity:observables.count];
 		for(id<RACSubscribable> observable in observables) {
-			RACDisposable *disposable = [observable subscribe:[RACSubscriber observerWithNext:^(id x) {
+			RACDisposable *disposable = [observable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 				[observer sendNext:x];
 			} error:^(NSError *error) {
 				[observer sendError:error];
@@ -310,7 +310,7 @@
 		RACDisposable *outerDisposable = [self subscribeNext:^(id x) {
 			id<RACSubscribable> observable = selectBlock(x);
 			[activeObservables addObject:observable];
-			[observable subscribe:[RACSubscriber observerWithNext:^(id x) {
+			[observable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 				[observer sendNext:x];
 			} error:^(NSError *error) {
 				[observer sendError:error];
@@ -348,7 +348,7 @@
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
-			concattedDisposable = [subscribable subscribe:[RACSubscriber observerWithNext:^(id x) {
+			concattedDisposable = [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 				[subscriber sendNext:x];
 			} error:^(NSError *error) {
 				[subscriber sendError:error];

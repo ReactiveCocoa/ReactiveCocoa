@@ -39,7 +39,7 @@
 - (RACDisposable *)subscribe:(id<RACSubscriber>)observer {
 	NSParameterAssert(observer != nil);
 	
-	[observer didSubscribeToObservable:self];
+	[observer didSubscribeToSubscribable:self];
 	
 	if(self.didSubscribe != NULL) {
 		__block RACDisposable *disposable = self.didSubscribe(observer);
@@ -47,7 +47,7 @@
 			__block __unsafe_unretained id weakSelf = self;
 			disposable = [RACDisposable disposableWithBlock:^{
 				RACSubscribable *strongSelf = weakSelf;
-				[observer stopObserving];
+				[observer stopSubscription];
 				[strongSelf.disposables removeObject:disposable];
 			}];
 		}

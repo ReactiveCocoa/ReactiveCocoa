@@ -186,7 +186,7 @@ describe(@"querying", ^{
 				return nil;
 			}];
 			
-			RACSubscriber *ob = [RACSubscriber observerWithNext:NULL error:NULL completed:NULL];
+			RACSubscriber *ob = [RACSubscriber subscriberWithNext:NULL error:NULL completed:NULL];
 			
 			@autoreleasepool {
 				[observable subscribe:ob];

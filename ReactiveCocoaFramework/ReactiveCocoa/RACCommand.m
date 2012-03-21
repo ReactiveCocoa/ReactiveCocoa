@@ -56,7 +56,7 @@
 + (id)commandWithCanExecuteObservable:(id<RACSubscribable>)canExecuteObservable execute:(void (^)(id value))executeBlock {
 	RACCommand *command = [self commandWithCanExecute:NULL execute:executeBlock];
 	
-	[canExecuteObservable subscribe:[RACSubscriber observerWithNext:^(id x) {
+	[canExecuteObservable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 		command.canExecute = [x boolValue];
 	} error:NULL completed:NULL]];
 	

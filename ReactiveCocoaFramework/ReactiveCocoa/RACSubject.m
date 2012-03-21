@@ -73,11 +73,11 @@
 	[self removeAllSources];
 }
 
-- (void)didSubscribeToObservable:(id<RACSubscribable>)observable {
+- (void)didSubscribeToSubscribable:(id<RACSubscribable>)observable {
 	[self.sources addObject:observable];
 }
 
-- (void)stopObserving {
+- (void)stopSubscription {
 	[self removeAllSources];
 }
 

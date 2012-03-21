@@ -24,5 +24,6 @@
 + (instancetype)combineLatest:(NSArray *)observables reduce:(id (^)(NSArray *xs))reduceBlock;
 + (instancetype)merge:(NSArray *)observables;
 - (instancetype)selectMany:(id<RACSubscribable> (^)(id x))selectBlock;
+- (instancetype)concat:(id<RACSubscribable>)subscribable;
 
 @end

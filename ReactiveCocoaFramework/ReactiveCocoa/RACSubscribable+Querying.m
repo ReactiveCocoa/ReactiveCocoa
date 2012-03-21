@@ -337,4 +337,31 @@
 	}];
 }
 
+- (instancetype)concat:(id<RACSubscribable>)subscribable {
+	RACCreateWeakSelf
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		RACRedefineSelf
+		
+		__block RACDisposable *concattedDisposable = nil;
+		RACDisposable *sourceDisposable = [self subscribeNext:^(id x) {
+			[subscriber sendNext:x];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			concattedDisposable = [subscribable subscribe:[RACSubscriber observerWithNext:^(id x) {
+				[subscriber sendNext:x];
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				[subscriber sendCompleted];
+			}]];
+		}];
+		
+		return [RACDisposable disposableWithBlock:^{
+			[sourceDisposable dispose];
+			[concattedDisposable dispose];
+		}];
+	}];
+}
+
 @end

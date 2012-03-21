@@ -31,9 +31,7 @@
 - (id)initWithBaseURL:(NSURL *)url {
     self = [super initWithBaseURL:url];
     if(self == nil) return nil;
-    
-    [self registerHTTPOperationClass:[GHJSONRequestOperation class]];
-    
+        
 	[self setDefaultHeader:@"Accept" value:@"application/json"];
 
     return self;

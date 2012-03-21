@@ -35,7 +35,7 @@
 		882036E61509677A002428D3 /* EXTRuntimeExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 882036E01509677A002428D3 /* EXTRuntimeExtensions.m */; };
 		8820370A15096A4F002428D3 /* RACMaybe.h in Headers */ = {isa = PBXBuildFile; fileRef = 8820370815096A4F002428D3 /* RACMaybe.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		8820370B15096A4F002428D3 /* RACMaybe.m in Sources */ = {isa = PBXBuildFile; fileRef = 8820370915096A4F002428D3 /* RACMaybe.m */; };
-		8820937C1501C8A600796685 /* RACObservableSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 8820937B1501C8A600796685 /* RACObservableSpec.m */; };
+		8820937C1501C8A600796685 /* RACSubscribableSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 8820937B1501C8A600796685 /* RACSubscribableSpec.m */; };
 		883A84DA1513964B006DB4C7 /* RACBehaviorSubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 883A84D81513964B006DB4C7 /* RACBehaviorSubject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		883A84DB1513964B006DB4C7 /* RACBehaviorSubject.m in Sources */ = {isa = PBXBuildFile; fileRef = 883A84D91513964B006DB4C7 /* RACBehaviorSubject.m */; };
 		883A84DC151398CA006DB4C7 /* RACBehaviorSubject.m in Sources */ = {isa = PBXBuildFile; fileRef = 883A84D91513964B006DB4C7 /* RACBehaviorSubject.m */; };
@@ -171,7 +171,7 @@
 		882036E01509677A002428D3 /* EXTRuntimeExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EXTRuntimeExtensions.m; sourceTree = "<group>"; };
 		8820370815096A4F002428D3 /* RACMaybe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACMaybe.h; sourceTree = "<group>"; };
 		8820370915096A4F002428D3 /* RACMaybe.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACMaybe.m; sourceTree = "<group>"; };
-		8820937B1501C8A600796685 /* RACObservableSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACObservableSpec.m; sourceTree = "<group>"; };
+		8820937B1501C8A600796685 /* RACSubscribableSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSubscribableSpec.m; sourceTree = "<group>"; };
 		882093E61501E6CB00796685 /* NSButton+RACCommandSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSButton+RACCommandSupport.h"; sourceTree = "<group>"; };
 		882093E71501E6CB00796685 /* NSButton+RACCommandSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSButton+RACCommandSupport.m"; sourceTree = "<group>"; };
 		882093E91501E6EE00796685 /* RACCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACCommand.h; sourceTree = "<group>"; };
@@ -362,7 +362,7 @@
 			children = (
 				88CDF7E315000FCF00163A9F /* Supporting Files */,
 				88DA30D31508051F00C19D0F /* RACSpecs.h */,
-				8820937B1501C8A600796685 /* RACObservableSpec.m */,
+				8820937B1501C8A600796685 /* RACSubscribableSpec.m */,
 			);
 			path = ReactiveCocoaTests;
 			sourceTree = "<group>";
@@ -661,7 +661,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8820937C1501C8A600796685 /* RACObservableSpec.m in Sources */,
+				8820937C1501C8A600796685 /* RACSubscribableSpec.m in Sources */,
 				88037FD3150564C4001A5B19 /* RACSubscriber.m in Sources */,
 				88977C831512EA7700A09EC5 /* RACSubject.m in Sources */,
 				88977C861512EA7C00A09EC5 /* RACAsyncSubject.m in Sources */,

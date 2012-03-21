@@ -1,5 +1,5 @@
 //
-//  RACSequenceSpec.m
+//  RACSubscribableSpc.m
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 3/2/12.
@@ -9,14 +9,14 @@
 #import "RACSpecs.h"
 
 #import "RACSubscribable.h"
-#import "RACObservable+Querying.h"
+#import "RACSubscribable+Querying.h"
 #import "RACSubscriber.h"
 #import "RACSubject.h"
 #import "RACBehaviorSubject.h"
 #import "RACDisposable.h"
 
 
-SpecBegin(RACObservable)
+SpecBegin(RACSubscribable)
 
 describe(@"subscribing", ^{
 	__block RACSubscribable *observable = nil;
@@ -134,7 +134,7 @@ describe(@"querying", ^{
 	});
 	
 	it(@"should support window", ^{
-		RACObservable *observable = [RACObservable createObservable:^RACDisposable *(id<RACSubscriber> observer) {
+		RACSubscribable *observable = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> observer) {
 			[observer sendNext:@"1"];
 			[observer sendNext:@"2"];
 			[observer sendNext:@"3"];
@@ -176,7 +176,7 @@ describe(@"querying", ^{
 	
 	it(@"should support take", ^{
 		@autoreleasepool {
-			RACObservable *observable = [RACObservable createObservable:^RACDisposable *(id<RACSubscriber> observer) {
+			RACSubscribable *observable = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> observer) {
 				[observer sendNext:@"1"];
 				[observer sendNext:@"2"];
 				[observer sendNext:@"3"];
@@ -186,7 +186,7 @@ describe(@"querying", ^{
 				return nil;
 			}];
 			
-			RACSubscriber *ob = [RACObserver observerWithNext:NULL error:NULL completed:NULL];
+			RACSubscriber *ob = [RACSubscriber observerWithNext:NULL error:NULL completed:NULL];
 			
 			@autoreleasepool {
 				[observable subscribe:ob];
@@ -200,7 +200,7 @@ describe(@"querying", ^{
 describe(@"continuation", ^{
 	it(@"shouldn't receive deferred errors", ^{
 		__block NSUInteger numberOfSubscriptions = 0;
-		RACObservable *observable = [RACObservable createObservable:^RACDisposable *(id<RACSubscriber> observer) {
+		RACSubscribable *observable = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> observer) {
 			if(numberOfSubscriptions > 2) {
 				[observer sendCompleted];
 				return nil;
@@ -230,7 +230,7 @@ describe(@"continuation", ^{
 	
 	it(@"should repeat after completion", ^{
 		__block NSUInteger numberOfSubscriptions = 0;
-		RACObservable *observable = [RACObservable createObservable:^RACDisposable *(id<RACSubscriber> observer) {
+		RACSubscribable *observable = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> observer) {
 			if(numberOfSubscriptions > 2) {
 				[observer sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
 				return nil;

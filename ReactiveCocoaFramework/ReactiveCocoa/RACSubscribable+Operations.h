@@ -28,5 +28,6 @@
 - (instancetype)scanWithStart:(NSInteger)start combine:(NSInteger (^)(NSInteger running, NSInteger next))combineBlock;
 - (instancetype)toPropery:(NSString *)keyPath onObject:(NSObject *)object;
 - (instancetype)startWith:(id)initialValue;
++ (instancetype)interval:(NSTimeInterval)interval;
 
 @end

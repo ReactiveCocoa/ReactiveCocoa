@@ -13,6 +13,7 @@
 #import "RACBehaviorSubject.h"
 #import "RACDisposable.h"
 #import "EXTNil.h"
+#import "RACUnit.h"
 
 #define RACCreateWeakSelf __block __unsafe_unretained id weakSelf = self;
 #define RACRedefineSelf id self = weakSelf;
@@ -413,6 +414,22 @@
 			[subscriber sendCompleted];
 		}];
 	}];
+}
+
++ (instancetype)interval:(NSTimeInterval)interval {
+	return [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> observer) {
+		NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(intervalTimerFired:) userInfo:observer repeats:YES];
+		
+		return [RACDisposable disposableWithBlock:^{
+			[observer sendCompleted];
+			[timer invalidate];
+		}];
+	}];
+}
+
++ (void)intervalTimerFired:(NSTimer *)timer {
+	id<RACSubscriber> observer = [timer userInfo];
+	[observer sendNext:[RACUnit defaultUnit]];
 }
 
 @end

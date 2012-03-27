@@ -31,6 +31,8 @@
 		880B9177150B09190008488E /* RACSubject.m in Sources */ = {isa = PBXBuildFile; fileRef = 880B9175150B09190008488E /* RACSubject.m */; };
 		881B3746152253810079220B /* NSObject+RACFastEnumeration.h in Headers */ = {isa = PBXBuildFile; fileRef = 881B3744152253810079220B /* NSObject+RACFastEnumeration.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		881B3747152253810079220B /* NSObject+RACFastEnumeration.m in Sources */ = {isa = PBXBuildFile; fileRef = 881B3745152253810079220B /* NSObject+RACFastEnumeration.m */; };
+		881B37CC152260BF0079220B /* RACUnit.h in Headers */ = {isa = PBXBuildFile; fileRef = 881B37CA152260BF0079220B /* RACUnit.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		881B37CD152260BF0079220B /* RACUnit.m in Sources */ = {isa = PBXBuildFile; fileRef = 881B37CB152260BF0079220B /* RACUnit.m */; };
 		882036E31509677A002428D3 /* EXTNil.h in Headers */ = {isa = PBXBuildFile; fileRef = 882036DD1509677A002428D3 /* EXTNil.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		882036E41509677A002428D3 /* EXTNil.m in Sources */ = {isa = PBXBuildFile; fileRef = 882036DE1509677A002428D3 /* EXTNil.m */; };
 		882036E51509677A002428D3 /* EXTRuntimeExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 882036DF1509677A002428D3 /* EXTRuntimeExtensions.h */; };
@@ -170,6 +172,8 @@
 		880B9175150B09190008488E /* RACSubject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSubject.m; sourceTree = "<group>"; };
 		881B3744152253810079220B /* NSObject+RACFastEnumeration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACFastEnumeration.h"; sourceTree = "<group>"; };
 		881B3745152253810079220B /* NSObject+RACFastEnumeration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACFastEnumeration.m"; sourceTree = "<group>"; };
+		881B37CA152260BF0079220B /* RACUnit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACUnit.h; sourceTree = "<group>"; };
+		881B37CB152260BF0079220B /* RACUnit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACUnit.m; sourceTree = "<group>"; };
 		882036DD1509677A002428D3 /* EXTNil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXTNil.h; sourceTree = "<group>"; };
 		882036DE1509677A002428D3 /* EXTNil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EXTNil.m; sourceTree = "<group>"; };
 		882036DF1509677A002428D3 /* EXTRuntimeExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXTRuntimeExtensions.h; sourceTree = "<group>"; };
@@ -420,6 +424,8 @@
 				88CBB3991517A29E00DDC7D7 /* NSObject+RACSubscribable.m */,
 				881B3744152253810079220B /* NSObject+RACFastEnumeration.h */,
 				881B3745152253810079220B /* NSObject+RACFastEnumeration.m */,
+				881B37CA152260BF0079220B /* RACUnit.h */,
+				881B37CB152260BF0079220B /* RACUnit.m */,
 			);
 			name = Core;
 			sourceTree = "<group>";
@@ -458,6 +464,7 @@
 				883A84DF1513B5EC006DB4C7 /* RACDisposable.h in Headers */,
 				88CBB39A1517A29F00DDC7D7 /* NSObject+RACSubscribable.h in Headers */,
 				88977C801512E69200A09EC5 /* RACSubscribable+Operations.h in Headers */,
+				881B37CC152260BF0079220B /* RACUnit.h in Headers */,
 				881B3746152253810079220B /* NSObject+RACFastEnumeration.h in Headers */,
 				882036E51509677A002428D3 /* EXTRuntimeExtensions.h in Headers */,
 				88DA309715071CBA00C19D0F /* RACValueTransformer.h in Headers */,
@@ -663,6 +670,7 @@
 				8866784E1518D93E00DE77EC /* RACSubscribable+Operations.m in Sources */,
 				886678711518DCD800DE77EC /* NSObject+RACPropertySubscribing.m in Sources */,
 				881B3747152253810079220B /* NSObject+RACFastEnumeration.m in Sources */,
+				881B37CD152260BF0079220B /* RACUnit.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

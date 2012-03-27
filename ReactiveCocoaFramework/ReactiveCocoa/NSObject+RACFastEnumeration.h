@@ -1,5 +1,5 @@
 //
-//  NSObject+RACFastEnumerator.h
+//  NSObject+RACFastEnumeration.h
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 3/27/12.
@@ -8,6 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
-@interface NSObject (RACFastEnumerator)
+@protocol RACSubscribable;
+
+
+@interface NSObject (RACFastEnumeration) // Must conform to NSFastEnumeration
+
+- (id<RACSubscribable>)toSubscribable;
 
 @end

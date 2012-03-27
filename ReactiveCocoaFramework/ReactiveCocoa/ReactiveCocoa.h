@@ -23,3 +23,4 @@
 #import <ReactiveCocoa/RACBehaviorSubject.h>
 #import <ReactiveCocoa/RACDisposable.h>
 #import <ReactiveCocoa/NSObject+RACSubscribable.h>
+#import <ReactiveCocoa/NSObject+RACFastEnumeration.h>

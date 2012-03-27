@@ -383,19 +383,14 @@
 	}];
 }
 
-- (instancetype)toPropery:(NSString *)keyPath onObject:(NSObject *)object {
+- (RACDisposable *)toPropery:(NSString *)keyPath onObject:(NSObject *)object {
 	NSParameterAssert(keyPath != nil);
 	NSParameterAssert(object != nil);
 	
 	__block __unsafe_unretained NSObject *weakObject = object;
-	RACCreateWeakSelf
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+	return [self subscribeNext:^(id x) {
 		NSObject *strongObject = weakObject;
-		RACRedefineSelf
-		
-		return [self subscribeNext:^(id x) {
-			[strongObject setValue:x forKeyPath:keyPath];
-		}];
+		[strongObject setValue:x forKeyPath:keyPath];
 	}];
 }
 

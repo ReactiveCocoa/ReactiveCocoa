@@ -427,4 +427,33 @@
 	[observer sendNext:[RACUnit defaultUnit]];
 }
 
+- (instancetype)takeUntil:(id<RACSubscribable>)subscribableTrigger {
+	RACCreateWeakSelf
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		RACRedefineSelf
+				
+		__block RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
+			[subscriber sendNext:x];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
+		
+		RACDisposable *triggerDisposable = [subscribableTrigger subscribe:[RACSubscriber subscriberWithNext:^(id x) {
+			[selfDisposable dispose], selfDisposable = nil;
+			[subscriber sendCompleted];
+		} error:^(NSError *error) {
+			
+		} completed:^{
+			
+		}]];
+		
+		return [RACDisposable disposableWithBlock:^{
+			[triggerDisposable dispose];
+			[selfDisposable dispose];
+		}];
+	}];
+}
+
 @end

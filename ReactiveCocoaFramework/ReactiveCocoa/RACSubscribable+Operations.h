@@ -29,5 +29,6 @@
 - (RACDisposable *)toPropery:(NSString *)keyPath onObject:(NSObject *)object;
 - (instancetype)startWith:(id)initialValue;
 + (instancetype)interval:(NSTimeInterval)interval;
+- (instancetype)takeUntil:(id<RACSubscribable>)subscribableTrigger;
 
 @end

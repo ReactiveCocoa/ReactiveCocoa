@@ -1,5 +1,5 @@
 //
-//  RACSubscribable+Querying.h
+//  RACSubscribable+Operations.h
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 3/15/12.
@@ -9,7 +9,7 @@
 #import "RACSubscribable.h"
 
 
-@interface RACSubscribable (Querying)
+@interface RACSubscribable (Operations)
 
 - (instancetype)select:(id (^)(id x))selectBlock;
 - (instancetype)where:(BOOL (^)(id x))whereBlock;
@@ -26,5 +26,7 @@
 - (instancetype)selectMany:(id<RACSubscribable> (^)(id x))selectBlock;
 - (instancetype)concat:(id<RACSubscribable>)subscribable;
 - (instancetype)scanWithStart:(NSInteger)start combine:(NSInteger (^)(NSInteger running, NSInteger next))combineBlock;
+- (instancetype)toPropery:(NSString *)keyPath onObject:(NSObject *)object;
+- (instancetype)startWith:(id)initialValue;
 
 @end

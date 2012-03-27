@@ -1,12 +1,12 @@
 //
-//  RACSubscribable+Querying.m
+//  RACSubscribable+Operations.m
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 3/15/12.
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
-#import "RACSubscribable+Querying.h"
+#import "RACSubscribable+Operations.h"
 #import "RACSubscriber.h"
 #import "RACSubject.h"
 #import "NSObject+GHExtensions.h"
@@ -18,7 +18,7 @@
 #define RACRedefineSelf id self = weakSelf;
 
 
-@implementation RACSubscribable (Querying)
+@implementation RACSubscribable (Operations)
 
 - (instancetype)select:(id (^)(id x))selectBlock {
 	NSParameterAssert(selectBlock != NULL);
@@ -374,6 +374,39 @@
 		NSInteger runningValue = start;
 		return [self subscribeNext:^(id x) {
 			[subscriber sendNext:[NSNumber numberWithInteger:combineBlock(runningValue, [x integerValue])]];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
+	}];
+}
+
+- (instancetype)toPropery:(NSString *)keyPath onObject:(NSObject *)object {
+	NSParameterAssert(keyPath != nil);
+	NSParameterAssert(object != nil);
+	
+	__block __unsafe_unretained NSObject *weakObject = object;
+	RACCreateWeakSelf
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		NSObject *strongObject = weakObject;
+		RACRedefineSelf
+		
+		return [self subscribeNext:^(id x) {
+			[strongObject setValue:x forKeyPath:keyPath];
+		}];
+	}];
+}
+
+- (instancetype)startWith:(id)initialValue {
+	RACCreateWeakSelf
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		RACRedefineSelf
+		
+		[subscriber sendNext:initialValue];
+		
+		return [self subscribeNext:^(id x) {
+			[subscriber sendNext:x];
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{

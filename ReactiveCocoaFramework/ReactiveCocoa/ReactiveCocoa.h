@@ -8,7 +8,7 @@
 
 #import <ReactiveCocoa/RACSubscriber.h>
 #import <ReactiveCocoa/RACSubscribable.h>
-#import <ReactiveCocoa/RACSubscribable+Querying.h>
+#import <ReactiveCocoa/RACSubscribable+Operations.h>
 #import <ReactiveCocoa/RACCommand.h>
 #import <ReactiveCocoa/NSObject+RACPropertySubscribing.h>
 #import <ReactiveCocoa/NSButton+RACCommandSupport.h>

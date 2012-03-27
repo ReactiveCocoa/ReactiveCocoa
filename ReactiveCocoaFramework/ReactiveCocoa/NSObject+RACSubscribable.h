@@ -11,7 +11,7 @@
 @class RACDisposable;
 
 
-@interface NSObject (RACSubscribable)
+@interface NSObject (RACSubscribable) // Must conform to RACSubscribable
 
 // Convenience method to subscribe to the `next` event.
 - (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock;

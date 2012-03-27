@@ -37,7 +37,7 @@
 	[[[loginViewController.didLoginSubject 
 		where:^BOOL(id x) { return x != nil; }] 
 		select:^(id x) { return [[GHDUserViewController alloc] initWithUserAccount:x]; }] 
-		subscribeNext:^(id x) { self.currentViewController = x; }];
+		toPropery:RACKVO(self.currentViewController) onObject:self];
 }
 
 

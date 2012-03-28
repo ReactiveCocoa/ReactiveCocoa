@@ -16,7 +16,6 @@
 - (instancetype)do:(void (^)(id x))block;
 - (instancetype)throttle:(NSTimeInterval)interval;
 - (instancetype)repeat;
-- (instancetype)defer;
 - (instancetype)finally:(void (^)(void))block;
 - (instancetype)windowWithStart:(id<RACSubscribable>)openObservable close:(id<RACSubscribable> (^)(id<RACSubscribable> start))closeBlock;
 - (instancetype)buffer:(NSUInteger)bufferCount;
@@ -30,6 +29,7 @@
 - (instancetype)startWith:(id)initialValue;
 + (instancetype)interval:(NSTimeInterval)interval;
 - (instancetype)takeUntil:(id<RACSubscribable>)subscribableTrigger;
+- (instancetype)catchToMaybe;
 
 // The source must be a subscribable of subscribables.
 - (instancetype)switch;

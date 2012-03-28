@@ -96,19 +96,26 @@
 	}];
 }
 
-- (instancetype)defer {
+- (instancetype)catchToMaybe {
 	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
 		RACRedefineSelf
+		__block RACDisposable *currentDisposable = nil;
+		
 		__block RACSubscriber *innerObserver = [RACSubscriber subscriberWithNext:^(id x) {
-			[observer sendNext:x];
+			[observer sendNext:[RACMaybe maybeWithObject:x]];
 		} error:^(NSError *error) {
-			[self subscribe:innerObserver];
+			[observer sendNext:[RACMaybe maybeWithError:error]];
+			currentDisposable = [self subscribe:innerObserver];
 		} completed:^{
 			[observer sendCompleted];
 		}];
 		
-		return [self subscribe:innerObserver];
+		currentDisposable = [self subscribe:innerObserver];
+		
+		return [RACDisposable disposableWithBlock:^{
+			[currentDisposable dispose];
+		}];
 	}];
 }
 

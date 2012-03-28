@@ -6,15 +6,15 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "GHGitHubObject.h"
 
 
-@interface GHGitHubUser : NSObject
+@interface GHGitHubUser : GHGitHubObject
 
 @property (nonatomic, readonly, copy) NSString *username;
 @property (nonatomic, readonly, copy) NSString *password;
 @property (nonatomic, readonly, copy) NSURL *APIEndpoint;
 @property (nonatomic, readonly, copy) NSString *realName;
-@property (nonatomic, readonly, copy) NSString *objectID;
 
 + (GHGitHubUser *)userWithUsername:(NSString *)username password:(NSString *)password;
 + (GHGitHubUser *)userWithUsername:(NSString *)username password:(NSString *)password APIEndpoint:(NSURL *)URL;

@@ -30,7 +30,6 @@ static NSString * const GHGitHubUserDefaultAPIEndpoint = @"https://api.github.co
 @synthesize password;
 @synthesize APIEndpoint;
 @synthesize realName;
-@synthesize objectID;
 
 + (GHGitHubUser *)userWithUsername:(NSString *)username password:(NSString *)password {
 	return [self userWithUsername:username password:password APIEndpoint:[NSURL URLWithString:GHGitHubUserDefaultAPIEndpoint]];

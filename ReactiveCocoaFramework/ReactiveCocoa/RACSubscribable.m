@@ -66,7 +66,7 @@
 @synthesize disposables;
 
 + (id)createSubscribable:(RACDisposable * (^)(id<RACSubscriber> observer))didSubscribe {
-	RACSubscribable *observable = [[RACSubscribable alloc] init];
+	RACSubscribable *observable = [[self alloc] init];
 	observable.didSubscribe = didSubscribe;
 	return observable;
 }

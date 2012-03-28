@@ -8,13 +8,13 @@
 
 #import "GHDUserViewController.h"
 #import "GHDUserView.h"
-#import "GHUserAccount.h"
+#import "GHGitHubUser.h"
 #import "GHGitHubClient.h"
 #import "NSView+GHDExtensions.h"
 
 @interface GHDUserViewController ()
 @property (nonatomic, strong) GHDUserView *view;
-@property (nonatomic, strong) GHUserAccount *userAccount;
+@property (nonatomic, strong) GHGitHubUser *userAccount;
 @property (nonatomic, assign) BOOL loading;
 @end
 
@@ -42,16 +42,16 @@
 @dynamic view;
 @synthesize loading;
 
-- (id)initWithUserAccount:(GHUserAccount *)user {
+- (id)initWithUserAccount:(GHGitHubUser *)user {
 	self = [super initWithNibName:nil bundle:nil];
 	if(self == nil) return nil;
 	
 	self.loading = YES;
 	
-	RACSubscribable *userAccountIsntNil = [RACSubscribable(self.userAccount) where:^BOOL(id x) { return x != nil; }];
+	RACSubscribable *userAccountIsntNil = [RACProperty(self.userAccount) where:^BOOL(id x) { return x != nil; }];
 	[userAccountIsntNil subscribeNext:^(id _) { self.loading = YES; }];
 	
-	RACSubscribable *userInfo = [userAccountIsntNil selectMany:^(GHUserAccount *x) { return [[GHGitHubClient clientForUserAccount:x] fetchUserInfo]; }];
+	RACSubscribable *userInfo = [userAccountIsntNil selectMany:^(GHGitHubUser *x) { return [[GHGitHubClient clientForUser:x] fetchUserInfo]; }];
 	[userInfo subscribeNext:^(id _) { self.loading = NO; }];
 	
 	[[[userInfo 

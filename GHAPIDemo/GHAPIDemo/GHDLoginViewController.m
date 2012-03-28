@@ -9,7 +9,7 @@
 #import "GHDLoginViewController.h"
 #import "GHDLoginView.h"
 #import "GHGitHubClient.h"
-#import "GHUserAccount.h"
+#import "GHGitHubUser.h"
 #import "NSView+GHDExtensions.h"
 
 @interface GHDLoginViewController ()
@@ -19,11 +19,9 @@
 @property (nonatomic, assign) BOOL loggingIn;
 @property (nonatomic, strong) RACAsyncCommand *loginCommand;
 @property (nonatomic, strong) GHDLoginView *view;
-@property (nonatomic, strong) GHUserAccount *userAccount;
+@property (nonatomic, strong) GHGitHubUser *user;
 @property (nonatomic, strong) GHGitHubClient *client;
 @property (nonatomic, strong) RACSubject *didLoginSubject;
-
-@property (nonatomic, strong) RACDisposable *usernameAndPasswordChanged;
 @end
 
 
@@ -40,9 +38,8 @@
 	
 	self.didLoginSubject = [RACSubject subject];
 	
-	self.usernameAndPasswordChanged = [[RACSubscribable 
-		combineLatest:[NSArray arrayWithObjects:RACSubscribable(self.username), RACSubscribable(self.password), RACSubscribable(self.loginCommand.numberOfActiveExecutions), nil] 
-		reduce:^(NSArray *xs) {
+	[[RACSubscribable 
+		combineLatest:[NSArray arrayWithObjects:RACProperty(self.username), RACProperty(self.password), RACProperty(self.loginCommand.numberOfActiveExecutions), nil] reduce:^(NSArray *xs) {
 			return [NSNumber numberWithBool:[[xs objectAtIndex:0] length] > 0 && [[xs objectAtIndex:1] length] > 0 && [[xs objectAtIndex:2] unsignedIntegerValue] < 1];
 		}] subscribeNext:^(id x) {
 			self.loginEnabled = [x boolValue];
@@ -51,12 +48,12 @@
 	self.loginCommand = [RACAsyncCommand command];
 	[self.loginCommand 
 		subscribeNext:^(id _) {
-			self.userAccount = [GHUserAccount userAccountWithUsername:self.username password:self.password];
-			self.client = [GHGitHubClient clientForUserAccount:self.userAccount];
+			self.user = [GHGitHubUser userWithUsername:self.username password:self.password];
+			self.client = [GHGitHubClient clientForUser:self.user];
 			self.loggingIn = YES;
 		}];
 	
-	RACSubject *loginResult = [self.loginCommand addAsyncFunction:^(id _) { return [self.client login]; }];
+	RACSubject *loginResult = [[[self.loginCommand addAsyncFunction:^(id _) { return [self.client login]; }] repeat] catchToMaybe];
 
 	[[[loginResult 
 		where:^(id x) { return [x hasError]; }] 
@@ -70,13 +67,13 @@
 		where:^(id x) { return [x hasObject]; }]
 		subscribeNext:^(id _) {
 			self.successHidden = NO;
-			[self.didLoginSubject sendNext:self.userAccount];
+			[self.didLoginSubject sendNext:self.user];
 		}];
 	
 	[loginResult subscribeNext:^(id x) { self.loggingIn = NO; }];
 		
 	[[RACSubscribable 
-		merge:[NSArray arrayWithObjects:RACSubscribable(self.username), RACSubscribable(self.password), nil]] 
+		merge:[NSArray arrayWithObjects:RACProperty(self.username), RACProperty(self.password), nil]] 
 		subscribeNext:^(id _) { self.successHidden = self.loginFailedHidden = YES; }];
 	
 	return self;
@@ -111,10 +108,8 @@
 @synthesize loginCommand;
 @synthesize loginEnabled;
 @synthesize loggingIn;
-@synthesize userAccount;
+@synthesize user;
 @synthesize client;
 @synthesize didLoginSubject;
-
-@synthesize usernameAndPasswordChanged;
 
 @end

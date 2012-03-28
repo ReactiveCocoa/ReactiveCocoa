@@ -1,16 +1,17 @@
 //
 //  GHGitHubClient.m
-//  GHAPIDemo
 //
 //  Created by Josh Abernathy on 3/6/12.
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
 #import "GHGitHubClient.h"
-#import "GHUserAccount.h"
+#import "GHGitHubUser.h"
+#import "GHGitHubOrg.h"
+#import "GHGitHubTeam.h"
 
 @interface GHGitHubClient ()
-@property (nonatomic, strong) GHUserAccount *userAccount;
+@property (nonatomic, strong) GHGitHubUser *user;
 @end
 
 
@@ -19,11 +20,11 @@
 
 #pragma mark API
 
-@synthesize userAccount;
+@synthesize user;
 
-+ (GHGitHubClient *)clientForUserAccount:(GHUserAccount *)userAccount {
-	GHGitHubClient *client = [[self alloc] initWithBaseURL:userAccount.APIEndpoint];
-	client.userAccount = userAccount;
++ (GHGitHubClient *)clientForUser:(GHGitHubUser *)user {
+	GHGitHubClient *client = [[self alloc] initWithBaseURL:user.APIEndpoint];
+	client.user = user;
 	return client;
 }
 
@@ -53,6 +54,40 @@
 	return [self enqueueRequestWithMethod:@"GET" path:@"user/orgs" parameters:nil];
 }
 
+- (RACAsyncSubject *)fetchOrgInfo:(GHGitHubOrg *)org {
+	return [self enqueueRequestWithMethod:@"GET" path:[NSString stringWithFormat:@"orgs/%@", org.username] parameters:nil];
+}
+
+- (RACAsyncSubject *)fetchReposForOrg:(GHGitHubOrg *)org {
+	return [self enqueueRequestWithMethod:@"GET" path:[NSString stringWithFormat:@"orgs/%@/repos", org.username] parameters:nil];
+}
+
+- (RACAsyncSubject *)fetchPublicKeys {
+	return [self enqueueRequestWithMethod:@"GET" path:@"user/keys" parameters:nil];
+}
+
+- (RACAsyncSubject *)createRepoWithName:(NSString *)name description:(NSString *)description private:(BOOL)isPrivate {
+	return [self createRepoWithName:name org:nil team:nil description:description private:isPrivate];
+}
+
+- (RACAsyncSubject *)createRepoWithName:(NSString *)name org:(GHGitHubOrg *)org team:(GHGitHubTeam *)team description:(NSString *)description private:(BOOL)isPrivate {
+	NSMutableDictionary *options = [NSMutableDictionary dictionary];
+	[options setObject:name forKey:@"name"];
+	[options setObject:description forKey:@"description"];
+	[options setObject:isPrivate ? @"true" : @"false" forKey:@"private"];
+	if(team != nil) [options setObject:team.objectID forKey:@"team_id"];
+	
+	NSString *path = org == nil ? @"user/repos" : [NSString stringWithFormat:@"orgs/%@/repos", org.username];
+	return [self enqueueRequestWithMethod:@"POST" path:path parameters:options];
+}
+
+- (RACAsyncSubject *)postPublicKey:(NSString *)key title:(NSString *)title {
+	NSMutableDictionary *options = [NSMutableDictionary dictionary];
+	[options setObject:key forKey:@"key"];
+	[options setObject:title forKey:@"title"];
+	return [self enqueueRequestWithMethod:@"POST" path:@"user/keys" parameters:options];
+}
+
 - (RACAsyncSubject *)enqueueRequestWithMethod:(NSString *)method path:(NSString *)path parameters:(NSDictionary *)parameters {
 	RACAsyncSubject *subject = [RACAsyncSubject subject];
 	NSURLRequest *request = [self requestWithMethod:method path:path parameters:parameters];
@@ -60,8 +95,7 @@
 		[subject sendNext:[RACMaybe maybeWithObject:responseObject]];
 		[subject sendCompleted];
 	} failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-		[subject sendNext:[RACMaybe maybeWithError:error]];
-		[subject sendCompleted];
+		[subject sendError:error];
 	}];
 	
     [self enqueueHTTPRequestOperation:operation];
@@ -69,12 +103,12 @@
 	return subject;
 }
 
-- (void)setUserAccount:(GHUserAccount *)u {
-	if(userAccount == u) return;
+- (void)setUser:(GHGitHubUser *)u {
+	if(user == u) return;
 	
-	userAccount = u;
+	user = u;
 	
-	[self setAuthorizationHeaderWithUsername:self.userAccount.username password:self.userAccount.password];
+	[self setAuthorizationHeaderWithUsername:self.user.username password:self.user.password];
 }
 
 @end

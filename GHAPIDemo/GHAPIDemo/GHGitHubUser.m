@@ -1,16 +1,15 @@
 //
-//  GHUserAccount.m
-//  GHAPIDemo
+//  GHGitHubUser.m
 //
 //  Created by Josh Abernathy on 3/7/12.
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
-#import "GHUserAccount.h"
+#import "GHGitHubUser.h"
 
-static NSString * const GHUserAccountDefaultAPIEndpoint = @"https://api.github.com";
+static NSString * const GHGitHubUserDefaultAPIEndpoint = @"https://api.github.com";
 
-@interface GHUserAccount ()
+@interface GHGitHubUser ()
 @property (nonatomic, copy) NSString *username;
 @property (nonatomic, copy) NSString *password;
 @property (nonatomic, copy) NSURL *APIEndpoint;
@@ -18,7 +17,7 @@ static NSString * const GHUserAccountDefaultAPIEndpoint = @"https://api.github.c
 @end
 
 
-@implementation GHUserAccount
+@implementation GHGitHubUser
 
 - (void)setValuesForKeysWithDictionary:(NSDictionary *)keyedValues {
 	self.realName = [keyedValues objectForKey:@"name"];
@@ -31,13 +30,14 @@ static NSString * const GHUserAccountDefaultAPIEndpoint = @"https://api.github.c
 @synthesize password;
 @synthesize APIEndpoint;
 @synthesize realName;
+@synthesize objectID;
 
-+ (GHUserAccount *)userAccountWithUsername:(NSString *)username password:(NSString *)password {
-	return [self userAccountWithUsername:username password:password APIEndpoint:[NSURL URLWithString:GHUserAccountDefaultAPIEndpoint]];
++ (GHGitHubUser *)userWithUsername:(NSString *)username password:(NSString *)password {
+	return [self userWithUsername:username password:password APIEndpoint:[NSURL URLWithString:GHGitHubUserDefaultAPIEndpoint]];
 }
 
-+ (GHUserAccount *)userAccountWithUsername:(NSString *)username password:(NSString *)password APIEndpoint:(NSURL *)URL {
-	GHUserAccount *account = [[self alloc] init];
++ (GHGitHubUser *)userWithUsername:(NSString *)username password:(NSString *)password APIEndpoint:(NSURL *)URL {
+	GHGitHubUser *account = [[self alloc] init];
 	account.username = username;
 	account.password = password;
 	account.APIEndpoint = URL;

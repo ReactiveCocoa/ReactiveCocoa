@@ -8,11 +8,11 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class GHUserAccount;
+@class GHGitHubUser;
 
 
 @interface GHDUserViewController : NSViewController
 
-- (id)initWithUserAccount:(GHUserAccount *)user;
+- (id)initWithUserAccount:(GHGitHubUser *)user;
 
 @end

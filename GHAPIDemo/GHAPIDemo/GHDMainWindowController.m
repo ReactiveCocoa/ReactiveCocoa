@@ -9,7 +9,7 @@
 #import "GHDMainWindowController.h"
 #import "GHDLoginViewController.h"
 #import "GHDUserViewController.h"
-#import "GHUserAccount.h"
+#import "GHGitHubUser.h"
 
 @interface GHDMainWindowController ()
 @property (nonatomic, strong) NSViewController *currentViewController;

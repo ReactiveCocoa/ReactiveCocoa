@@ -14,6 +14,7 @@
 #import "RACDisposable.h"
 #import "EXTNil.h"
 #import "RACUnit.h"
+#import "RACMaybe.h"
 
 #define RACCreateWeakSelf __block __unsafe_unretained id weakSelf = self;
 #define RACRedefineSelf id self = weakSelf;
@@ -84,6 +85,8 @@
 	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
 		RACRedefineSelf
+		__block RACDisposable *currentDisposable = nil;
+		
 		__block RACSubscriber *innerObserver = [RACSubscriber subscriberWithNext:^(id x) {
 			[observer sendNext:x];
 		} error:^(NSError *error) {
@@ -92,7 +95,11 @@
 			[self subscribe:innerObserver];
 		}];
 		
-		return [self subscribe:innerObserver];
+		currentDisposable = [self subscribe:innerObserver];
+		
+		return [RACDisposable disposableWithBlock:^{
+			[currentDisposable dispose];
+		}];
 	}];
 }
 

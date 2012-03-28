@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 
 #define RACKVO(property) ((void)(NO && ((void)property, NO)), @#property)
-#define RACSubscribable(property) [self RACSubscribableForKeyPath:RACKVO(self.property)]
+#define RACProperty(property) [self RACSubscribableForKeyPath:RACKVO(self.property)]
 
 @class RACSubscribable;
 

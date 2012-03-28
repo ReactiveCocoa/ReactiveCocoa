@@ -54,23 +54,21 @@
 }
 
 - (void)sendError:(NSError *)error {
-	[self performBlockOnAllSubscribers:^(id<RACSubscriber> observer) {
-		[observer sendError:error];
-		
-		[self unsubscribe:observer];
-	}];
-	
 	[self removeAllSources];
+	
+	[self performBlockOnAllSubscribers:^(id<RACSubscriber> observer) {
+		[self unsubscribeIfActive:observer];
+		[observer sendError:error];
+	}];
 }
 
 - (void)sendCompleted {
-	[self performBlockOnAllSubscribers:^(id<RACSubscriber> observer) {
-		[observer sendCompleted];
-		
-		[self unsubscribe:observer];
-	}];
-	
 	[self removeAllSources];
+	
+	[self performBlockOnAllSubscribers:^(id<RACSubscriber> observer) {
+		[self unsubscribeIfActive:observer];
+		[observer sendCompleted];
+	}];
 }
 
 - (void)didSubscribeToSubscribable:(id<RACSubscribable>)observable {

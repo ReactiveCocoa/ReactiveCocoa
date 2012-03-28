@@ -45,19 +45,19 @@ static NSMutableSet *activeSubscribers = nil;
 }
 
 - (void)sendError:(NSError *)e {
+	[self removeAllSources];
+	
 	if(self.error != NULL) {
 		self.error(e);
 	}
-	
-	[self removeAllSources];
 }
 
 - (void)sendCompleted {
+	[self removeAllSources];
+	
 	if(self.completed != NULL) {
 		self.completed();
 	}
-	
-	[self removeAllSources];
 }
 
 - (void)didSubscribeToSubscribable:(id<RACSubscribable>)observable {

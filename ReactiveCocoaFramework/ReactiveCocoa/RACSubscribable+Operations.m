@@ -285,6 +285,10 @@
 	}];
 }
 
++ (instancetype)combineLatest:(NSArray *)observables {
+	return [self combineLatest:observables reduce:^(NSArray *xs) { return [RACUnit defaultUnit]; }];
+}
+
 + (instancetype)merge:(NSArray *)observables {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
 		NSMutableSet *disposables = [NSMutableSet setWithCapacity:observables.count];

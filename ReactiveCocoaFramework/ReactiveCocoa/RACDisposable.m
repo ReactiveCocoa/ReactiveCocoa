@@ -7,6 +7,7 @@
 //
 
 #import "RACDisposable.h"
+#import "RACScopedDisposable.h"
 
 @interface RACDisposable ()
 @property (nonatomic, copy) void (^disposeBlock)(void);
@@ -31,6 +32,10 @@
 		self.disposeBlock();
 		self.disposeBlock = NULL;
 	}
+}
+
+- (RACScopedDisposable *)asScopedDisposable {
+	return [RACScopedDisposable scopedDisposableWithDisposable:self];
 }
 
 @end

@@ -456,4 +456,35 @@
 	}];
 }
 
+- (instancetype)switch {
+	RACCreateWeakSelf
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		RACRedefineSelf
+		
+		__block RACDisposable *innerDisposable = nil;
+		RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
+			NSAssert2([x conformsToProtocol:@protocol(RACSubscribable)], @"-switch requires that the source subscribable (%@) send subscribables. Instead we got: %@", self, x);
+			
+			[innerDisposable dispose], innerDisposable = nil;
+			
+			innerDisposable = [x subscribeNext:^(id x) {
+				[subscriber sendNext:x];
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				
+			}];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
+		
+		return [RACDisposable disposableWithBlock:^{
+			[innerDisposable dispose];
+			[selfDisposable dispose];
+		}];
+	}];
+}
+
 @end

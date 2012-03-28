@@ -31,4 +31,7 @@
 + (instancetype)interval:(NSTimeInterval)interval;
 - (instancetype)takeUntil:(id<RACSubscribable>)subscribableTrigger;
 
+// The source must be a subscribable of subscribables.
+- (instancetype)switch;
+
 @end

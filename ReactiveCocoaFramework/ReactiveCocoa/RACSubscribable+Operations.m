@@ -285,7 +285,7 @@
 	}];
 }
 
-+ (instancetype)combineLatest:(NSArray *)observables {
++ (instancetype)whenAll:(NSArray *)observables {
 	return [self combineLatest:observables reduce:^(NSArray *xs) { return [RACUnit defaultUnit]; }];
 }
 

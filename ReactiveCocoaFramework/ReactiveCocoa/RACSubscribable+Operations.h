@@ -21,7 +21,7 @@
 - (instancetype)buffer:(NSUInteger)bufferCount;
 - (instancetype)take:(NSUInteger)count;
 + (instancetype)combineLatest:(NSArray *)observables reduce:(id (^)(NSArray *xs))reduceBlock;
-+ (instancetype)combineLatest:(NSArray *)observables;
++ (instancetype)whenAll:(NSArray *)observables;
 + (instancetype)merge:(NSArray *)observables;
 - (instancetype)selectMany:(id<RACSubscribable> (^)(id x))selectBlock;
 - (instancetype)concat:(id<RACSubscribable>)subscribable;

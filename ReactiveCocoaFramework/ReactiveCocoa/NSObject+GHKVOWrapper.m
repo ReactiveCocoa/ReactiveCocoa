@@ -9,7 +9,7 @@
 #import "NSObject+GHKVOWrapper.h"
 #import <objc/runtime.h>
 
-static const void *GHKVOTrampolinesKey = &GHKVOTrampolinesKey;
+static void *GHKVOTrampolinesKey = &GHKVOTrampolinesKey;
 
 @class GHKVOTrampoline;
 

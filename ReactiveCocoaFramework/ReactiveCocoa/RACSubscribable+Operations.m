@@ -138,25 +138,42 @@
 
 - (instancetype)catch:(id<RACSubscribable> (^)(NSError *error))catchBlock {
 	NSParameterAssert(catchBlock != NULL);
-	
+		
 	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
 		RACRedefineSelf
-		__block RACDisposable *currentDisposable = nil;
+		NSMutableSet *activeObservables = [NSMutableSet set];
+		[activeObservables addObject:self];
 		
-		__block RACSubscriber *innerObserver = [RACSubscriber subscriberWithNext:^(id x) {
+		NSMutableSet *completedObservables = [NSMutableSet set];
+		RACDisposable *outerDisposable = [self subscribeNext:^(id x) {
 			[observer sendNext:x];
 		} error:^(NSError *error) {
-			[observer sendNext:catchBlock(error)];
-			currentDisposable = [self subscribe:innerObserver];
+			[observer sendError:error];
+			
+			id<RACSubscribable> observable = catchBlock(error);
+			[activeObservables addObject:observable];
+			[observable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
+				[observer sendNext:x];
+			} error:^(NSError *error) {
+				[observer sendError:error];
+			} completed:^{
+				[completedObservables addObject:observable];
+				
+				if(completedObservables.count == activeObservables.count) {
+					[observer sendCompleted];
+				}
+			}]];
 		} completed:^{
-			[observer sendCompleted];
+			[completedObservables addObject:self];
+			
+			if(completedObservables.count == activeObservables.count) {
+				[observer sendCompleted];
+			}
 		}];
 		
-		currentDisposable = [self subscribe:innerObserver];
-		
 		return [RACDisposable disposableWithBlock:^{
-			[currentDisposable dispose];
+			[outerDisposable dispose];
 		}];
 	}];
 }

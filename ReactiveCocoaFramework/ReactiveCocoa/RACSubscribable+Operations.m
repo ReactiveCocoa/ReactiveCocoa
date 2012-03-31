@@ -444,6 +444,22 @@
 		}];
 	}];
 }
+
+- (instancetype)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock {
+	NSParameterAssert(combineBlock != NULL);
+	
+	RACCreateWeakSelf
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		RACRedefineSelf
+		
+		__block id runningValue = start;
+		return [self subscribeNext:^(id x) {
+			runningValue = combineBlock(runningValue, x);
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendNext:runningValue];
+			[subscriber sendCompleted];
 		}];
 	}];
 }

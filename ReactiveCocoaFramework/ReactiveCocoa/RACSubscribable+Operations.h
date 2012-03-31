@@ -26,6 +26,7 @@
 - (instancetype)selectMany:(id<RACSubscribable> (^)(id x))selectBlock;
 - (instancetype)concat:(id<RACSubscribable>)subscribable;
 - (instancetype)scanWithStart:(NSInteger)start combine:(NSInteger (^)(NSInteger running, NSInteger next))combineBlock;
+- (instancetype)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock;
 - (RACDisposable *)toPropery:(NSString *)keyPath onObject:(NSObject *)object;
 - (instancetype)startWith:(id)initialValue;
 + (instancetype)interval:(NSTimeInterval)interval;

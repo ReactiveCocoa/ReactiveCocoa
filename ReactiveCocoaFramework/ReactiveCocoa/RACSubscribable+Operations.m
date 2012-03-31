@@ -515,4 +515,28 @@
 	}];
 }
 
+- (id)first {
+	return [self firstOrDefault:nil];
+}
+
+- (id)firstOrDefault:(id)defaultValue {
+	__block id value = defaultValue;
+	__block BOOL stop = NO;
+	__block RACDisposable *disposable = [self subscribeNext:^(id x) {
+		value = x;
+		stop = YES;
+		[disposable dispose];
+	} error:^(NSError *error) {
+		stop = YES;
+	} completed:^{
+		stop = YES;
+	}];
+	
+	while(!stop) {
+		[[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1f]];
+	}
+	
+	return value;
+}
+
 @end

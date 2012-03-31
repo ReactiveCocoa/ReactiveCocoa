@@ -31,6 +31,8 @@
 + (instancetype)interval:(NSTimeInterval)interval;
 - (instancetype)takeUntil:(id<RACSubscribable>)subscribableTrigger;
 - (instancetype)catchToMaybe;
+- (id)first;
+- (id)firstOrDefault:(id)defaultValue;
 
 // The source must be a subscribable of subscribables.
 - (instancetype)switch;

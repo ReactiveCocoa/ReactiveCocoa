@@ -539,4 +539,24 @@
 	return value;
 }
 
+- (instancetype)skip:(NSUInteger)skipCount {
+	RACCreateWeakSelf
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		RACRedefineSelf
+		
+		__block NSUInteger skipped = 0;
+		return [self subscribeNext:^(id x) {
+			if(skipped >= skipCount) {
+				[subscriber sendNext:x];
+			}
+			
+			skipped++;
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
+	}];
+}
+
 @end

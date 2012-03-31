@@ -33,6 +33,7 @@
 - (instancetype)catchToMaybe;
 - (id)first;
 - (id)firstOrDefault:(id)defaultValue;
+- (instancetype)skip:(NSUInteger)skipCount;
 
 // The source must be a subscribable of subscribables.
 - (instancetype)switch;

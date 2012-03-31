@@ -32,6 +32,7 @@
 - (instancetype)takeUntil:(id<RACSubscribable>)subscribableTrigger;
 - (instancetype)catchToMaybe;
 - (instancetype)catch:(id<RACSubscribable> (^)(NSError *error))catchBlock;
+- (instancetype)catchTo:(id<RACSubscribable>)subscribable;
 - (id)first;
 - (id)firstOrDefault:(id)defaultValue;
 - (instancetype)skip:(NSUInteger)skipCount;

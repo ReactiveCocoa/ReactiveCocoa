@@ -178,6 +178,12 @@
 	}];
 }
 
+- (instancetype)catchTo:(id<RACSubscribable>)subscribable {
+	return [self catch:^(NSError *error) {
+		return subscribable;
+	}];
+}
+
 - (instancetype)finally:(void (^)(void))block {
 	NSParameterAssert(block != NULL);
 	

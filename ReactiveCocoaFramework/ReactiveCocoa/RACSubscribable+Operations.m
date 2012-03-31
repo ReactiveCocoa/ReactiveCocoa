@@ -620,6 +620,23 @@
 	return value;
 }
 
++ (instancetype)defer:(id<RACSubscribable> (^)(void))block {
+	RACSubject *subject = [RACSubject subject];
+	
+	return [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {		
+		id<RACSubscribable> subscribable = block();
+		return [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
+			[subject sendNext:x];
+		} error:^(NSError *error) {
+			[subject sendError:error];
+		} completed:^{
+			[subject sendCompleted];
+		}]];
+	}];
+	
+	return subject;
+}
+
 - (instancetype)skip:(NSUInteger)skipCount {
 	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {

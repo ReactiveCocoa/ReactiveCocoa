@@ -136,6 +136,31 @@
 	}];
 }
 
+- (instancetype)catch:(id<RACSubscribable> (^)(NSError *error))catchBlock {
+	NSParameterAssert(catchBlock != NULL);
+	
+	RACCreateWeakSelf
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
+		RACRedefineSelf
+		__block RACDisposable *currentDisposable = nil;
+		
+		__block RACSubscriber *innerObserver = [RACSubscriber subscriberWithNext:^(id x) {
+			[observer sendNext:x];
+		} error:^(NSError *error) {
+			[observer sendNext:catchBlock(error)];
+			currentDisposable = [self subscribe:innerObserver];
+		} completed:^{
+			[observer sendCompleted];
+		}];
+		
+		currentDisposable = [self subscribe:innerObserver];
+		
+		return [RACDisposable disposableWithBlock:^{
+			[currentDisposable dispose];
+		}];
+	}];
+}
+
 - (instancetype)finally:(void (^)(void))block {
 	NSParameterAssert(block != NULL);
 	

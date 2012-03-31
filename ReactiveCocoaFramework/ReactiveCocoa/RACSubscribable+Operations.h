@@ -31,6 +31,7 @@
 + (instancetype)interval:(NSTimeInterval)interval;
 - (instancetype)takeUntil:(id<RACSubscribable>)subscribableTrigger;
 - (instancetype)catchToMaybe;
+- (instancetype)catch:(id<RACSubscribable> (^)(NSError *error))catchBlock;
 - (id)first;
 - (id)firstOrDefault:(id)defaultValue;
 - (instancetype)skip:(NSUInteger)skipCount;

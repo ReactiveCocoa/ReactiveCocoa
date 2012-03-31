@@ -31,6 +31,7 @@
 - (instancetype)startWith:(id)initialValue;
 + (instancetype)interval:(NSTimeInterval)interval;
 - (instancetype)takeUntil:(id<RACSubscribable>)subscribableTrigger;
+- (instancetype)takeUntilBlock:(BOOL (^)(id x))predicate;
 - (instancetype)catchToMaybe;
 - (instancetype)catch:(id<RACSubscribable> (^)(NSError *error))catchBlock;
 - (instancetype)catchTo:(id<RACSubscribable>)subscribable;

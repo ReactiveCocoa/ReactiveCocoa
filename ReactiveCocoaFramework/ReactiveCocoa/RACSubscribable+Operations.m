@@ -537,6 +537,34 @@
 	}];
 }
 
+- (instancetype)takeUntilBlock:(BOOL (^)(id x))predicate {
+	NSParameterAssert(predicate != NULL);
+	
+	RACCreateWeakSelf
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		RACRedefineSelf
+		
+		__block RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
+			BOOL keepTaking = predicate(x);
+			if(!keepTaking) {
+				[selfDisposable dispose], selfDisposable = nil;
+				[subscriber sendCompleted];
+				return;
+			}
+			
+			[subscriber sendNext:x];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
+		
+		return [RACDisposable disposableWithBlock:^{
+			[selfDisposable dispose];
+		}];
+	}];
+}
+
 - (instancetype)switch {
 	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {

@@ -59,8 +59,18 @@
 - (instancetype)do:(void (^)(id x))block {
 	NSParameterAssert(block != NULL);
 
-	[self subscribeNext:block];
-	return self;
+	RACCreateWeakSelf
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
+		RACRedefineSelf
+		return [self subscribeNext:^(id x) {
+			block(x);
+			[observer sendNext:x];
+		} error:^(NSError *error) {
+			[observer sendError:error];
+		} completed:^{
+			[observer sendCompleted];
+		}];
+	}];
 }
 
 - (instancetype)throttle:(NSTimeInterval)interval {	

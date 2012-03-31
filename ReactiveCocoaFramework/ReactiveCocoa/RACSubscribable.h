@@ -25,4 +25,6 @@
 + (id)empty;
 + (id)never;
 
++ (id)start:(id (^)(void))block;
+
 @end

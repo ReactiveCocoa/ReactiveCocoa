@@ -10,6 +10,7 @@
 #import "RACSubscribable+Private.h"
 #import "RACSubject.h"
 #import "RACDisposable.h"
+#import "RACAsyncSubject.h"
 
 @interface RACSubscribable ()
 @property (nonatomic, strong) NSMutableArray *disposables;
@@ -97,6 +98,26 @@
 	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> observer) {
 		return nil;
 	}];
+}
+
++ (id)start:(id (^)(void))block {
+	NSParameterAssert(block != NULL);
+	
+	RACAsyncSubject *subject = [RACAsyncSubject subject];
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+		id returned = block();
+		
+		dispatch_async(dispatch_get_main_queue(), ^{
+			if([returned isKindOfClass:[NSError class]]) {
+				[subject sendError:returned];
+			} else {
+				[subject sendNext:returned];
+				[subject sendCompleted];
+			}
+		});
+	});
+	
+	return subject;
 }
 
 @end

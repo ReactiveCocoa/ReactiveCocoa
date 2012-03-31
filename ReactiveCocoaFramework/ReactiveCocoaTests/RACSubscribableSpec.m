@@ -216,7 +216,7 @@ describe(@"continuation", ^{
 		
 		__block BOOL gotNext = NO;
 		__block BOOL gotError = NO;
-		[[observable defer] subscribeNext:^(id x) {
+		[[observable catchToMaybe] subscribeNext:^(id x) {
 			gotNext = YES;
 		} error:^(NSError *error) {
 			gotError = YES;

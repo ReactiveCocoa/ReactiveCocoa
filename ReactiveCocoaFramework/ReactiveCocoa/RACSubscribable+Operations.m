@@ -56,7 +56,7 @@
 	}];
 }
 
-- (instancetype)do:(void (^)(id x))block {
+- (instancetype)doNext:(void (^)(id x))block {
 	NSParameterAssert(block != NULL);
 
 	RACCreateWeakSelf

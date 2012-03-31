@@ -13,7 +13,7 @@
 
 - (instancetype)select:(id (^)(id x))selectBlock;
 - (instancetype)where:(BOOL (^)(id x))whereBlock;
-- (instancetype)do:(void (^)(id x))block;
+- (instancetype)doNext:(void (^)(id x))block;
 - (instancetype)throttle:(NSTimeInterval)interval;
 - (instancetype)repeat;
 - (instancetype)finally:(void (^)(void))block;

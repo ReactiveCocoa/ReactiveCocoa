@@ -433,13 +433,17 @@
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		RACRedefineSelf
 		
-		NSInteger runningValue = start;
+		__block NSInteger runningValue = start;
 		return [self subscribeNext:^(id x) {
-			[subscriber sendNext:[NSNumber numberWithInteger:combineBlock(runningValue, [x integerValue])]];
+			runningValue = combineBlock(runningValue, [x integerValue]);
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
 			[subscriber sendCompleted];
+			[subscriber sendNext:[NSNumber numberWithInteger:runningValue]];
+		}];
+	}];
+}
 		}];
 	}];
 }

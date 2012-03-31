@@ -172,15 +172,20 @@
 - (instancetype)finally:(void (^)(void))block {
 	NSParameterAssert(block != NULL);
 	
-	[self subscribeNext:^(id _) {
+	RACCreateWeakSelf
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
+		RACRedefineSelf
 		
-	} error:^(NSError *error) {
-		block();
-	} completed:^{
-		block();
+		return [self subscribeNext:^(id x) {
+			[observer sendNext:x];
+		} error:^(NSError *error) {
+			[observer sendError:error];
+			block();
+		} completed:^{
+			[observer sendCompleted];
+			block();
+		}];
 	}];
-	
-	return self;
 }
 
 - (instancetype)windowWithStart:(id<RACSubscribable>)openObservable close:(id<RACSubscribable> (^)(id<RACSubscribable> start))closeBlock {

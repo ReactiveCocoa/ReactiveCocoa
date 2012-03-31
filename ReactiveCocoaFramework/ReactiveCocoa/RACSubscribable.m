@@ -19,7 +19,7 @@
 @implementation RACSubscribable
 
 - (void)dealloc {
-	for(RACDisposable *disposable in self.disposables) {
+	for(RACDisposable *disposable in [self.disposables copy]) {
 		[disposable dispose];
 	}
 }

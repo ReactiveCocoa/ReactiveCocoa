@@ -1,5 +1,5 @@
 //
-//  NSObject+GHKVOWrapper.h
+//  NSObject+RACKVOWrapper.h
 //  GitHub
 //
 //  Created by Josh Abernathy on 10/11/11.
@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 
 
-@interface NSObject (GHKVOWrapper)
+@interface NSObject (RACKVOWrapper)
 
 // Adds the given block as the callback for when the keyPath changes. The observer does not need to be explicitly removed. It will be removed when the identifier is dealloc'd or when the target is dealloc'd.
 //

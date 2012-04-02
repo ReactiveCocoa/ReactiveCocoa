@@ -9,7 +9,7 @@
 #import "RACSubscribable+Operations.h"
 #import "RACSubscriber.h"
 #import "RACSubject.h"
-#import "NSObject+GHExtensions.h"
+#import "NSObject+RACExtensions.h"
 #import "RACBehaviorSubject.h"
 #import "RACDisposable.h"
 #import "EXTNil.h"
@@ -79,11 +79,11 @@
 		RACRedefineSelf
 		__block id lastDelayedId = nil;
 		return [self subscribeNext:^(id x) {
-			lastDelayedId = [self performBlock:^{
+			lastDelayedId = [self rac_performBlock:^{
 				[observer sendNext:x];
 			} afterDelay:interval];
 		} error:^(NSError *error) {
-			[self cancelPreviousPerformBlockRequestsWithId:lastDelayedId];
+			[self rac_cancelPreviousPerformBlockRequestsWithId:lastDelayedId];
 			[observer sendError:error];
 		} completed:^{
 			[observer sendCompleted];

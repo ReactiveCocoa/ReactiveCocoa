@@ -1,24 +1,20 @@
 //
-//  NSObject+GHKVOWrapper.m
+//  NSObject+RACKVOWrapper.m
 //  GitHub
 //
 //  Created by Josh Abernathy on 10/11/11.
 //  Copyright (c) 2011 GitHub. All rights reserved.
 //
 
-#import "NSObject+GHKVOWrapper.h"
+#import "NSObject+RACKVOWrapper.h"
 #import <objc/runtime.h>
 
-static void *GHKVOTrampolinesKey = &GHKVOTrampolinesKey;
-
-@class GHKVOTrampoline;
-
 @interface NSObject ()
-@property (readonly) NSMutableSet *KVOTrampolines;
+@property (readonly) NSMutableSet *RACKVOTrampolines;
 @end
 
 
-@interface GHKVOTrampoline : NSObject
+@interface RACKVOTrampoline : NSObject
 
 @property (nonatomic, copy) void (^block)(id blockSelf, NSDictionary *change);
 @property (nonatomic, copy) NSString *keyPath;
@@ -32,16 +28,16 @@ static void *GHKVOTrampolinesKey = &GHKVOTrampolinesKey;
 
 @end
 
-@implementation GHKVOTrampoline
+@implementation RACKVOTrampoline
 
-static char GHKVOWrapperContext;
+static char RACKVOWrapperContext;
 
 - (void)dealloc {
 	[self stopObserving];
 }
 
 - (void)observeValueForKeyPath:(NSString *)triggeredKeyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    if(context == &GHKVOWrapperContext) {
+    if(context == &RACKVOWrapperContext) {
         BOOL notify = YES;
         if(self.predicate != NULL) {
             notify = self.predicate(object, triggeredKeyPath, change);
@@ -55,7 +51,7 @@ static char GHKVOWrapperContext;
         }
 		
 		// We want to keep all these guys around until we've delivered the notification block. So this.
-		GHKVOTrampoline *capturedSelf = self;
+		RACKVOTrampoline *capturedSelf = self;
 		NSObject *strongTarget = self.target;
         [self.queue addOperationWithBlock:^{
             capturedSelf.block(strongTarget, change);
@@ -77,13 +73,13 @@ static char GHKVOWrapperContext;
 
 - (void)startObservingOnObject:(NSObject *)object options:(NSKeyValueObservingOptions)options {
 	self.observer = object;
-	[self.observer addObserver:self forKeyPath:self.keyPath options:options context:&GHKVOWrapperContext];
+	[self.observer addObserver:self forKeyPath:self.keyPath options:options context:&RACKVOWrapperContext];
     
-    [self.target.KVOTrampolines addObject:self];
+    [self.target.RACKVOTrampolines addObject:self];
 }
 
 - (void)stopObserving {
-    [self.target.KVOTrampolines removeObject:self];
+    [self.target.RACKVOTrampolines removeObject:self];
     
 	self.target = nil;
 	
@@ -94,10 +90,12 @@ static char GHKVOWrapperContext;
 @end
 
 
-@implementation NSObject (GHKVOWrapper)
+static void *RACKVOTrampolinesKey = &RACKVOTrampolinesKey;
+
+@implementation NSObject (RACKVOWrapper)
 
 - (id)addObserver:(NSObject *)target forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options queue:(NSOperationQueue *)queue block:(void (^)(id target, NSDictionary *change))block {
-	GHKVOTrampoline *trampoline = [[GHKVOTrampoline alloc] init];
+	RACKVOTrampoline *trampoline = [[RACKVOTrampoline alloc] init];
 	trampoline.block = block;
 	trampoline.keyPath = keyPath;
 	trampoline.queue = queue;
@@ -110,7 +108,7 @@ static char GHKVOWrapperContext;
 	return [self removeObserverTrampoline:identifier];
 }
 
-- (BOOL)removeObserverTrampoline:(GHKVOTrampoline *)trampoline {
+- (BOOL)removeObserverTrampoline:(RACKVOTrampoline *)trampoline {
 	if(trampoline.observer != self) return NO;
 	
 	[trampoline stopObserving];
@@ -118,12 +116,12 @@ static char GHKVOWrapperContext;
 	return YES;
 }
 
-- (NSMutableSet *)KVOTrampolines {
+- (NSMutableSet *)RACKVOTrampolines {
     @synchronized(self) {
-        NSMutableSet *trampolines = objc_getAssociatedObject(self, GHKVOTrampolinesKey);
+        NSMutableSet *trampolines = objc_getAssociatedObject(self, RACKVOTrampolinesKey);
         if(trampolines == nil) {
             trampolines = [NSMutableSet set];
-            objc_setAssociatedObject(self, GHKVOTrampolinesKey, trampolines, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            objc_setAssociatedObject(self, RACKVOTrampolinesKey, trampolines, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         }
         
         return trampolines;

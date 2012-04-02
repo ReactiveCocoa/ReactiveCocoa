@@ -7,7 +7,7 @@
 //
 
 #import "NSObject+RACPropertySubscribing.h"
-#import "NSObject+GHKVOWrapper.h"
+#import "NSObject+RACKVOWrapper.h"
 #import "RACValueTransformer.h"
 #import "RACReplaySubject.h"
 

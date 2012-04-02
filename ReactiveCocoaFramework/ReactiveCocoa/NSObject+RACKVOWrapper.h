@@ -20,13 +20,13 @@
 // block - the block called when the value at the key path changes.
 //
 // Returns an identifier that can be used to remove the observer. The identifier should be kept alive for as long as you want the observation to continue. The observer will be removed when the identifier is dealloc'd.
-- (id)addObserver:(NSObject *)target forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options queue:(NSOperationQueue *)queue block:(void (^)(id target, NSDictionary *change))block;
+- (id)rac_addObserver:(NSObject *)target forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options queue:(NSOperationQueue *)queue block:(void (^)(id target, NSDictionary *change))block;
 
 // Remove the observer represented by the identifier.
 //
 // identifier - the identifier to removed. This should be an object previously returned by a called to -addObserverForKeyPath:options:queue:block:.
 //
 // Returns whether the removal was successful. The only reason for failure would be if the identifier doesn't represent anything currently being observed by the object, or if the identifier is nil.
-- (BOOL)removeObserverWithIdentifier:(id)identifier;
+- (BOOL)rac_removeObserverWithIdentifier:(id)identifier;
 
 @end

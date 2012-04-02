@@ -94,7 +94,7 @@ static void *RACKVOTrampolinesKey = &RACKVOTrampolinesKey;
 
 @implementation NSObject (RACKVOWrapper)
 
-- (id)addObserver:(NSObject *)target forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options queue:(NSOperationQueue *)queue block:(void (^)(id target, NSDictionary *change))block {
+- (id)rac_addObserver:(NSObject *)target forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options queue:(NSOperationQueue *)queue block:(void (^)(id target, NSDictionary *change))block {
 	RACKVOTrampoline *trampoline = [[RACKVOTrampoline alloc] init];
 	trampoline.block = block;
 	trampoline.keyPath = keyPath;
@@ -104,11 +104,11 @@ static void *RACKVOTrampolinesKey = &RACKVOTrampolinesKey;
 	return trampoline;
 }
 
-- (BOOL)removeObserverWithIdentifier:(id)identifier {
-	return [self removeObserverTrampoline:identifier];
+- (BOOL)rac_removeObserverWithIdentifier:(id)identifier {
+	return [self rac_removeObserverTrampoline:identifier];
 }
 
-- (BOOL)removeObserverTrampoline:(RACKVOTrampoline *)trampoline {
+- (BOOL)rac_removeObserverTrampoline:(RACKVOTrampoline *)trampoline {
 	if(trampoline.observer != self) return NO;
 	
 	[trampoline stopObserving];

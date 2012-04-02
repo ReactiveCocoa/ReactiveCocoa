@@ -8,11 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol RACSubscribable;
+@class RACSubscribable;
 
 
 @interface NSObject (RACFastEnumeration) // Must conform to NSFastEnumeration
 
-- (id<RACSubscribable>)toSubscribable;
+- (RACSubscribable *)toSubscribable;
 
 @end

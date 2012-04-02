@@ -13,7 +13,7 @@
 
 @implementation NSObject (RACFastEnumeration)
 
-- (id<RACSubscribable>)toSubscribable {
+- (RACSubscribable *)toSubscribable {
 	NSParameterAssert([self conformsToProtocol:@protocol(NSFastEnumeration)]);
 	
 	__block __unsafe_unretained id weakSelf = self;

@@ -8,13 +8,18 @@
 
 #import <Foundation/Foundation.h>
 
-#define RACKVO(property) ((void)(NO && ((void)property, NO)), @#property)
-#define RACProperty(property) [self RACSubscribableForKeyPath:RACKVO(self.property)]
+#define RAC_KEYPATH(object, property) ((void)(NO && ((void)object.property, NO)), @#property)
+#define RAC_KEYPATH_SELF(property) RAC_KEYPATH(self, property)
+
+#define RACABLE(object, property) [object RACSubscribableForKeyPath:RAC_KEYPATH(object, property)]
+#define RACABLE_SELF(property) RACABLE(self, property)
 
 @class RACSubscribable;
 
 
 @interface NSObject (RACPropertySubscribing)
+
++ (RACSubscribable *)RACSubscribableFor:(NSObject *)object keyPath:(NSString *)keyPath;
 
 // Creates a value from observing the value at the given keypath.
 - (RACSubscribable *)RACSubscribableForKeyPath:(NSString *)keyPath;

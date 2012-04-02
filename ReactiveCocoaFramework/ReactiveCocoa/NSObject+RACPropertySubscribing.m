@@ -14,6 +14,17 @@
 
 @implementation NSObject (RACPropertySubscribing)
 
++ (RACSubscribable *)RACSubscribableFor:(NSObject *)object keyPath:(NSString *)keyPath {
+	RACReplaySubject *subject = [RACReplaySubject replaySubjectWithCapacity:1];
+	__block __unsafe_unretained NSObject *weakSelf = object;
+	[object addObserver:object forKeyPath:keyPath options:0 queue:[NSOperationQueue mainQueue] block:^(id target, NSDictionary *change) {
+		NSObject *strongSelf = weakSelf;
+		[subject sendNext:[strongSelf valueForKeyPath:keyPath]];
+	}];
+	
+	return subject;
+}
+
 - (RACSubscribable *)RACSubscribableForKeyPath:(NSString *)keyPath {
 	RACReplaySubject *subject = [RACReplaySubject replaySubjectWithCapacity:1];
 	__block __unsafe_unretained NSObject *weakSelf = self;

@@ -39,6 +39,7 @@
 - (id)firstOrDefault:(id)defaultValue;
 - (instancetype)skip:(NSUInteger)skipCount;
 + (instancetype)defer:(id<RACSubscribable> (^)(void))block;
+- (instancetype)distinctUntilChanged;
 
 // The source must be a subscribable of subscribables.
 - (instancetype)switch;

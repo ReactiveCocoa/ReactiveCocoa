@@ -662,4 +662,23 @@
 	}];
 }
 
+- (instancetype)distinctUntilChanged {
+	RACCreateWeakSelf
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		RACRedefineSelf
+		
+		__block id lastValue = nil;
+		return [self subscribeNext:^(id x) {
+			if(![x isEqual:lastValue]) {
+				[subscriber sendNext:x];
+				lastValue = x;
+			}
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
+	}];
+}
+
 @end

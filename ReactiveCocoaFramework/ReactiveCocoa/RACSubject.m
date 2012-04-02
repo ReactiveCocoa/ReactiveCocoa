@@ -36,11 +36,9 @@
 	
 	[self.subscribers addObject:[NSValue valueWithNonretainedObject:observer]];
 	
-	__block __unsafe_unretained id weakSelf = self;
 	return [RACDisposable disposableWithBlock:^{
-		RACSubject *strongSelf = weakSelf;
 		[disposable dispose];
-		[strongSelf unsubscribeIfActive:observer];
+		[self unsubscribeIfActive:observer];
 	}];
 }
 

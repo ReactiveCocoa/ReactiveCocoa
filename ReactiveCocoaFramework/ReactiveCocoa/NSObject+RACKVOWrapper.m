@@ -21,7 +21,6 @@
 @property (nonatomic, strong) NSOperationQueue *queue;
 @property (nonatomic, unsafe_unretained) NSObject *observer;
 @property (nonatomic, unsafe_unretained) NSObject *target;
-@property (nonatomic, copy) BOOL (^predicate)(id object, NSString *keyPath, NSDictionary *change);
 
 - (void)startObservingOnObject:(NSObject *)object options:(NSKeyValueObservingOptions)options;
 - (void)stopObserving;
@@ -38,13 +37,6 @@ static char RACKVOWrapperContext;
 
 - (void)observeValueForKeyPath:(NSString *)triggeredKeyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if(context == &RACKVOWrapperContext) {
-        BOOL notify = YES;
-        if(self.predicate != NULL) {
-            notify = self.predicate(object, triggeredKeyPath, change);
-        }
-        
-        if(!notify) return;
-        
         if(self.queue == nil) {
             self.block(self.observer, change);
             return;
@@ -69,7 +61,6 @@ static char RACKVOWrapperContext;
 @synthesize queue;
 @synthesize observer;
 @synthesize target;
-@synthesize predicate;
 
 - (void)startObservingOnObject:(NSObject *)object options:(NSKeyValueObservingOptions)options {
 	self.observer = object;

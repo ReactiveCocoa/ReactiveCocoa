@@ -469,7 +469,7 @@
 	}];
 }
 
-- (RACDisposable *)toPropery:(NSString *)keyPath onObject:(NSObject *)object {
+- (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object {
 	NSParameterAssert(keyPath != nil);
 	NSParameterAssert(object != nil);
 	

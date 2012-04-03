@@ -11,8 +11,10 @@
 #define RAC_KEYPATH(object, property) ((void)(NO && ((void)object.property, NO)), @#property)
 #define RAC_KEYPATH_SELF(property) RAC_KEYPATH(self, property)
 
-#define RACABLE(object, property) [object RACSubscribableForKeyPath:RAC_KEYPATH(object, property)]
-#define RACABLE_SELF(property) RACABLE(self, property)
+#define RACAble(object, property) [object RACSubscribableForKeyPath:RAC_KEYPATH(object, property)]
+#define RACAbleWithStart(object, property) [[object RACSubscribableForKeyPath:RAC_KEYPATH(object, property)] startWith:object.property]
+#define RACAbleSelf(property) RACAble(self, property)
+#define RACAbleSelfWithStart(property) RACAbleWithStart(self, property)
 
 @class RACSubscribable;
 

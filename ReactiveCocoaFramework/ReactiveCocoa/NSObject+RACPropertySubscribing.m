@@ -33,10 +33,10 @@ static const void *RACPropertySubscribingDisposables = &RACPropertySubscribingDi
 		[strongSubject sendCompleted];
 	}]];
 	
-	__block __unsafe_unretained NSObject *weakSelf = object;
+	__block __unsafe_unretained NSObject *weakObject = object;
 	[object rac_addObserver:object forKeyPath:keyPath options:0 queue:[NSOperationQueue mainQueue] block:^(id target, NSDictionary *change) {
-		NSObject *strongSelf = weakSelf;
-		[subject sendNext:[strongSelf valueForKeyPath:keyPath]];
+		NSObject *strongObject = weakObject;
+		[subject sendNext:[strongObject valueForKeyPath:keyPath]];
 	}];
 	
 	return subject;

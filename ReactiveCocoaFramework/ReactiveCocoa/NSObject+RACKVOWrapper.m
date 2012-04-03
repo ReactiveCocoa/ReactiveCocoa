@@ -97,7 +97,7 @@ void Swizzle(Class c, SEL orig, SEL new)
 @implementation NSObject (RACKVOWrapper)
 
 + (void)load {
-	swizzledClasses = [NSMutableDictionary dictionary];
+	swizzledClasses = [[NSMutableDictionary alloc] init];
 }
 
 - (void)rac_customDealloc {

@@ -19,7 +19,7 @@
 @property (nonatomic, copy) void (^block)(id blockSelf, NSDictionary *change);
 @property (nonatomic, copy) NSString *keyPath;
 @property (nonatomic, strong) NSOperationQueue *queue;
-@property (nonatomic, unsafe_unretained) NSObject *observer;
+@property (nonatomic, unsafe_unretained) NSObject *observable;
 @property (nonatomic, unsafe_unretained) NSObject *target;
 
 - (void)startObservingOnObject:(NSObject *)object options:(NSKeyValueObservingOptions)options;
@@ -38,7 +38,7 @@ static char RACKVOWrapperContext;
 - (void)observeValueForKeyPath:(NSString *)triggeredKeyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if(context == &RACKVOWrapperContext) {
         if(self.queue == nil) {
-            self.block(self.observer, change);
+            self.block(self.target, change);
             return;
         }
 		
@@ -59,23 +59,22 @@ static char RACKVOWrapperContext;
 @synthesize block;
 @synthesize keyPath;
 @synthesize queue;
-@synthesize observer;
+@synthesize observable;
 @synthesize target;
 
 - (void)startObservingOnObject:(NSObject *)object options:(NSKeyValueObservingOptions)options {
-	self.observer = object;
-	[self.observer addObserver:self forKeyPath:self.keyPath options:options context:&RACKVOWrapperContext];
+	self.observable = object;
+	[self.observable addObserver:self forKeyPath:self.keyPath options:options context:&RACKVOWrapperContext];
     
-    [self.target.RACKVOTrampolines addObject:self];
+    [self.observable.RACKVOTrampolines addObject:self];
 }
 
 - (void)stopObserving {
-    [self.target.RACKVOTrampolines removeObject:self];
-    
-	self.target = nil;
+	[self.observable removeObserver:self forKeyPath:self.keyPath];
+	self.observable = nil;
 	
-	[self.observer removeObserver:self forKeyPath:self.keyPath];
-	self.observer = nil;
+    [self.observable.RACKVOTrampolines removeObject:self];
+	self.observable = nil;
 }
 
 @end
@@ -83,9 +82,38 @@ static char RACKVOWrapperContext;
 
 static void *RACKVOTrampolinesKey = &RACKVOTrampolinesKey;
 
+static NSMutableDictionary *swizzledClasses = nil;
+
+void Swizzle(Class c, SEL orig, SEL new)
+{
+    Method origMethod = class_getInstanceMethod(c, orig);
+    Method newMethod = class_getInstanceMethod(c, new);
+    if(class_addMethod(c, orig, method_getImplementation(newMethod), method_getTypeEncoding(newMethod)))
+        class_replaceMethod(c, new, method_getImplementation(origMethod), method_getTypeEncoding(origMethod));
+    else
+		method_exchangeImplementations(origMethod, newMethod);
+}
+
 @implementation NSObject (RACKVOWrapper)
 
++ (void)load {
+	swizzledClasses = [NSMutableDictionary dictionary];
+}
+
+- (void)rac_customDealloc {
+	objc_setAssociatedObject(self, RACKVOTrampolinesKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	
+	[self rac_customDealloc];
+}
+
 - (id)rac_addObserver:(NSObject *)target forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options queue:(NSOperationQueue *)queue block:(void (^)(id target, NSDictionary *change))block {
+	@synchronized(swizzledClasses) {
+		if([swizzledClasses objectForKey:NSStringFromClass([self class])] == nil) {
+			Swizzle([self class], NSSelectorFromString(@"dealloc"), @selector(rac_customDealloc));
+			[swizzledClasses setObject:[NSNull null] forKey:NSStringFromClass([self class])];
+		}
+	}
+	
 	RACKVOTrampoline *trampoline = [[RACKVOTrampoline alloc] init];
 	trampoline.block = block;
 	trampoline.keyPath = keyPath;
@@ -100,7 +128,7 @@ static void *RACKVOTrampolinesKey = &RACKVOTrampolinesKey;
 }
 
 - (BOOL)rac_removeObserverTrampoline:(RACKVOTrampoline *)trampoline {
-	if(trampoline.observer != self) return NO;
+	if(trampoline.observable != self) return NO;
 	
 	[trampoline stopObserving];
 

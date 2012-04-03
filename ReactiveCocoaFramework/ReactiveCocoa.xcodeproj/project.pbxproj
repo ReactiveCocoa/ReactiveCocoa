@@ -47,6 +47,8 @@
 		8857BB7E152A2747009804CC /* NSObject+RACExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 8857BB7C152A2747009804CC /* NSObject+RACExtensions.h */; };
 		8857BB7F152A2747009804CC /* NSObject+RACExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8857BB7D152A2747009804CC /* NSObject+RACExtensions.m */; };
 		8857BB82152A27A9009804CC /* NSObject+RACKVOWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 8857BB81152A27A9009804CC /* NSObject+RACKVOWrapper.h */; };
+		886044D8152A9693008ABD0D /* NSArray+EXTNilSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 886044D6152A9693008ABD0D /* NSArray+EXTNilSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		886044D9152A9693008ABD0D /* NSArray+EXTNilSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 886044D7152A9693008ABD0D /* NSArray+EXTNilSupport.m */; };
 		8866784E1518D93E00DE77EC /* RACSubscribable+Operations.m in Sources */ = {isa = PBXBuildFile; fileRef = 8866784D1518D93D00DE77EC /* RACSubscribable+Operations.m */; };
 		886678711518DCD800DE77EC /* NSObject+RACPropertySubscribing.m in Sources */ = {isa = PBXBuildFile; fileRef = 886678701518DCD800DE77EC /* NSObject+RACPropertySubscribing.m */; };
 		887F200F151A07930092D842 /* RACSubscribable+Operations.m in Sources */ = {isa = PBXBuildFile; fileRef = 8866784D1518D93D00DE77EC /* RACSubscribable+Operations.m */; };
@@ -194,6 +196,8 @@
 		8857BB7C152A2747009804CC /* NSObject+RACExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACExtensions.h"; sourceTree = "<group>"; };
 		8857BB7D152A2747009804CC /* NSObject+RACExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACExtensions.m"; sourceTree = "<group>"; };
 		8857BB81152A27A9009804CC /* NSObject+RACKVOWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACKVOWrapper.h"; sourceTree = "<group>"; };
+		886044D6152A9693008ABD0D /* NSArray+EXTNilSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+EXTNilSupport.h"; sourceTree = "<group>"; };
+		886044D7152A9693008ABD0D /* NSArray+EXTNilSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+EXTNilSupport.m"; sourceTree = "<group>"; };
 		8866784D1518D93D00DE77EC /* RACSubscribable+Operations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RACSubscribable+Operations.m"; sourceTree = "<group>"; };
 		886678701518DCD800DE77EC /* NSObject+RACPropertySubscribing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACPropertySubscribing.m"; sourceTree = "<group>"; };
 		88977C3D1512914A00A09EC5 /* RACSubscribable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSubscribable.m; sourceTree = "<group>"; };
@@ -291,6 +295,17 @@
 			path = ../../external/libextobjc;
 			sourceTree = "<group>";
 		};
+		886044CC152A95B5008ABD0D /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				8857BB7C152A2747009804CC /* NSObject+RACExtensions.h */,
+				8857BB7D152A2747009804CC /* NSObject+RACExtensions.m */,
+				886044D6152A9693008ABD0D /* NSArray+EXTNilSupport.h */,
+				886044D7152A9693008ABD0D /* NSArray+EXTNilSupport.m */,
+			);
+			name = Extensions;
+			sourceTree = "<group>";
+		};
 		88977C5915129AB200A09EC5 /* KVO + Bindings */ = {
 			isa = PBXGroup;
 			children = (
@@ -347,8 +362,7 @@
 			isa = PBXGroup;
 			children = (
 				88037F8C15056328001A5B19 /* ReactiveCocoa.h */,
-				8857BB7C152A2747009804CC /* NSObject+RACExtensions.h */,
-				8857BB7D152A2747009804CC /* NSObject+RACExtensions.m */,
+				886044CC152A95B5008ABD0D /* Extensions */,
 				88DA308C15071C4C00C19D0F /* Core */,
 				88977C5915129AB200A09EC5 /* KVO + Bindings */,
 				88DA309415071C5F00C19D0F /* AppKitSupport */,
@@ -468,6 +482,7 @@
 				881B37CC152260BF0079220B /* RACUnit.h in Headers */,
 				884476E4152367D100958F44 /* RACScopedDisposable.h in Headers */,
 				881B3746152253810079220B /* NSObject+RACFastEnumeration.h in Headers */,
+				886044D8152A9693008ABD0D /* NSArray+EXTNilSupport.h in Headers */,
 				882036E51509677A002428D3 /* EXTRuntimeExtensions.h in Headers */,
 				88DA309715071CBA00C19D0F /* RACValueTransformer.h in Headers */,
 				8857BB7E152A2747009804CC /* NSObject+RACExtensions.h in Headers */,
@@ -675,6 +690,7 @@
 				881B37CD152260BF0079220B /* RACUnit.m in Sources */,
 				884476E5152367D100958F44 /* RACScopedDisposable.m in Sources */,
 				8857BB7F152A2747009804CC /* NSObject+RACExtensions.m in Sources */,
+				886044D9152A9693008ABD0D /* NSArray+EXTNilSupport.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

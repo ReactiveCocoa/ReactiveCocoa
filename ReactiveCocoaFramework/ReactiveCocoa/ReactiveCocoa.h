@@ -25,3 +25,4 @@
 #import <ReactiveCocoa/NSObject+RACFastEnumeration.h>
 #import <ReactiveCocoa/RACUnit.h>
 #import <ReactiveCocoa/RACScopedDisposable.h>
+#import <ReactiveCocoa/NSArray+EXTNilSupport.h>

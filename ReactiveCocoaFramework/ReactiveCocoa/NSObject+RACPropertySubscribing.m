@@ -7,15 +7,32 @@
 //
 
 #import "NSObject+RACPropertySubscribing.h"
+#import <objc/runtime.h>
 #import "NSObject+RACKVOWrapper.h"
 #import "RACValueTransformer.h"
 #import "RACReplaySubject.h"
+#import "RACScopedDisposable.h"
+
+static const void *RACPropertySubscribingDisposables = &RACPropertySubscribingDisposables;
 
 
 @implementation NSObject (RACPropertySubscribing)
 
 + (RACSubscribable *)RACSubscribableFor:(NSObject *)object keyPath:(NSString *)keyPath {
 	RACReplaySubject *subject = [RACReplaySubject replaySubjectWithCapacity:1];
+	
+	NSMutableSet *disposables = objc_getAssociatedObject(object, RACPropertySubscribingDisposables);
+	if(disposables == nil) {
+		disposables = [NSMutableSet set];
+		objc_setAssociatedObject(object, RACPropertySubscribingDisposables, disposables, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	}
+	
+	__block __unsafe_unretained id weakSubject = subject;
+	[disposables addObject:[RACScopedDisposable disposableWithBlock:^{
+		RACReplaySubject *strongSubject = weakSubject;
+		[strongSubject sendCompleted];
+	}]];
+	
 	__block __unsafe_unretained NSObject *weakSelf = object;
 	[object rac_addObserver:object forKeyPath:keyPath options:0 queue:[NSOperationQueue mainQueue] block:^(id target, NSDictionary *change) {
 		NSObject *strongSelf = weakSelf;

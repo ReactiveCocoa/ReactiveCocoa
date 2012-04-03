@@ -27,6 +27,8 @@
 // Calls -[NSObject bind:binding toObject:object withKeyPath:keyPath options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nil]]
 - (void)bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath;
 
+- (void)bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath nilValue:(id)nilValue;
+
 // Same as `-[NSObject bind:toObject:withKeyPath:] but also transforms values using the given transform block.
 - (void)bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath transform:(id (^)(id value))transformBlock;
 

@@ -26,18 +26,15 @@
 }
 
 - (RACSubscribable *)RACSubscribableForKeyPath:(NSString *)keyPath {
-	RACReplaySubject *subject = [RACReplaySubject replaySubjectWithCapacity:1];
-	__block __unsafe_unretained NSObject *weakSelf = self;
-	[self rac_addObserver:self forKeyPath:keyPath options:0 queue:[NSOperationQueue mainQueue] block:^(id target, NSDictionary *change) {
-		NSObject *strongSelf = weakSelf;
-		[subject sendNext:[strongSelf valueForKeyPath:keyPath]];
-	}];
-	
-	return subject;
+	return [[self class] RACSubscribableFor:self keyPath:keyPath];
 }
 
 - (void)bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath {
-	[self bind:binding toObject:object withKeyPath:keyPath options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nil]];
+	[self bind:binding toObject:object withKeyPath:keyPath nilValue:nil];
+}
+
+- (void)bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath nilValue:(id)nilValue {
+	[self bind:binding toObject:object withKeyPath:keyPath options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nilValue, NSNullPlaceholderBindingOption, nil]];
 }
 
 - (void)bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath transform:(id (^)(id value))transformBlock {

@@ -322,7 +322,9 @@
 				}
 			}]];
 			
-			[disposables addObject:disposable];
+			if(disposable != nil) {
+				[disposables addObject:disposable];
+			}
 		}
 		
 		return [RACDisposable disposableWithBlock:^{
@@ -474,9 +476,14 @@
 	NSParameterAssert(object != nil);
 	
 	__block __unsafe_unretained NSObject *weakObject = object;
-	return [self subscribeNext:^(id x) {
+	RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
 		NSObject *strongObject = weakObject;
 		[strongObject setValue:x forKeyPath:keyPath];
+	}];
+	
+	return [RACDisposable disposableWithBlock:^{
+		weakObject = nil;
+		[subscriptionDisposable dispose];
 	}];
 }
 
@@ -670,8 +677,8 @@
 		__block id lastValue = nil;
 		return [self subscribeNext:^(id x) {
 			if(![x isEqual:lastValue]) {
-				[subscriber sendNext:x];
 				lastValue = x;
+				[subscriber sendNext:x];
 			}
 		} error:^(NSError *error) {
 			[subscriber sendError:error];

@@ -18,23 +18,26 @@ static const void *RACPropertySubscribingDisposables = &RACPropertySubscribingDi
 
 @implementation NSObject (RACPropertySubscribing)
 
-+ (RACSubscribable *)RACSubscribableFor:(NSObject *)object keyPath:(NSString *)keyPath {
++ (RACSubscribable *)RACSubscribableFor:(NSObject *)object keyPath:(NSString *)keyPath onObject:(NSObject *)onObject {
 	RACReplaySubject *subject = [RACReplaySubject replaySubjectWithCapacity:1];
 	
-	NSMutableSet *disposables = objc_getAssociatedObject(object, RACPropertySubscribingDisposables);
-	if(disposables == nil) {
-		disposables = [NSMutableSet set];
-		objc_setAssociatedObject(object, RACPropertySubscribingDisposables, disposables, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	@synchronized(self) {
+		NSMutableSet *disposables = objc_getAssociatedObject(object, RACPropertySubscribingDisposables);
+		if(disposables == nil) {
+			disposables = [NSMutableSet set];
+			objc_setAssociatedObject(object, RACPropertySubscribingDisposables, disposables, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+		}
+		
+		__block __unsafe_unretained id weakSubject = subject;
+		[disposables addObject:[RACScopedDisposable disposableWithBlock:^{
+			RACReplaySubject *strongSubject = weakSubject;
+			// TODO: do we *really* want to send completed here? or just tear down the stream some other way?
+			[strongSubject sendCompleted];
+		}]];
 	}
 	
-	__block __unsafe_unretained id weakSubject = subject;
-	[disposables addObject:[RACScopedDisposable disposableWithBlock:^{
-		RACReplaySubject *strongSubject = weakSubject;
-		[strongSubject sendCompleted];
-	}]];
-	
 	__block __unsafe_unretained NSObject *weakObject = object;
-	[object rac_addObserver:object forKeyPath:keyPath options:0 queue:[NSOperationQueue mainQueue] block:^(id target, NSDictionary *change) {
+	[object rac_addObserver:onObject forKeyPath:keyPath options:0 queue:[NSOperationQueue mainQueue] block:^(id target, NSDictionary *change) {
 		NSObject *strongObject = weakObject;
 		[subject sendNext:[strongObject valueForKeyPath:keyPath]];
 	}];
@@ -42,8 +45,8 @@ static const void *RACPropertySubscribingDisposables = &RACPropertySubscribingDi
 	return subject;
 }
 
-- (RACSubscribable *)RACSubscribableForKeyPath:(NSString *)keyPath {
-	return [[self class] RACSubscribableFor:self keyPath:keyPath];
+- (RACSubscribable *)RACSubscribableForKeyPath:(NSString *)keyPath onObject:(NSObject *)object {
+	return [[self class] RACSubscribableFor:self keyPath:keyPath onObject:object];
 }
 
 - (void)bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath {

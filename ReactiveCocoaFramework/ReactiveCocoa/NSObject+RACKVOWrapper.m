@@ -7,6 +7,7 @@
 //
 
 #import "NSObject+RACKVOWrapper.h"
+#import "RACSwizzling.h"
 #import <objc/runtime.h>
 
 @interface NSObject ()
@@ -37,17 +38,13 @@ static char RACKVOWrapperContext;
 
 - (void)observeValueForKeyPath:(NSString *)triggeredKeyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if(context == &RACKVOWrapperContext) {
-        if(self.queue == nil) {
+        if(self.queue == nil || self.queue == [NSOperationQueue currentQueue]) {
             self.block(self.target, change);
-            return;
-        }
-		
-		// We want to keep all these guys around until we've delivered the notification block. So this.
-		RACKVOTrampoline *capturedSelf = self;
-		NSObject *strongTarget = self.target;
-        [self.queue addOperationWithBlock:^{
-            capturedSelf.block(strongTarget, change);
-        }];
+        } else {
+			[self.queue addOperationWithBlock:^{
+				self.block(self.target, change);
+			}];
+		}
     } else {
         [super observeValueForKeyPath:triggeredKeyPath ofObject:object change:change context:context];
     }
@@ -66,15 +63,15 @@ static char RACKVOWrapperContext;
 	self.observable = object;
 	[self.observable addObserver:self forKeyPath:self.keyPath options:options context:&RACKVOWrapperContext];
     
-    [self.observable.RACKVOTrampolines addObject:self];
+    [self.target.RACKVOTrampolines addObject:self];
 }
 
 - (void)stopObserving {
 	[self.observable removeObserver:self forKeyPath:self.keyPath];
 	self.observable = nil;
 	
-    [self.observable.RACKVOTrampolines removeObject:self];
-	self.observable = nil;
+    [self.target.RACKVOTrampolines removeObject:self];
+	self.target = nil;
 }
 
 @end
@@ -84,16 +81,6 @@ static void *RACKVOTrampolinesKey = &RACKVOTrampolinesKey;
 
 static NSMutableDictionary *swizzledClasses = nil;
 
-void Swizzle(Class c, SEL orig, SEL new)
-{
-    Method origMethod = class_getInstanceMethod(c, orig);
-    Method newMethod = class_getInstanceMethod(c, new);
-    if(class_addMethod(c, orig, method_getImplementation(newMethod), method_getTypeEncoding(newMethod)))
-        class_replaceMethod(c, new, method_getImplementation(origMethod), method_getTypeEncoding(origMethod));
-    else
-		method_exchangeImplementations(origMethod, newMethod);
-}
-
 @implementation NSObject (RACKVOWrapper)
 
 + (void)load {
@@ -101,16 +88,24 @@ void Swizzle(Class c, SEL orig, SEL new)
 }
 
 - (void)rac_customDealloc {
+	// If we're currently delivering a KVO callback then niling the trampoline set might not dealloc the trampoline and therefore make them be dealloc'd. So we need to manually stop observing on all of them as well.
+	for(RACKVOTrampoline *trampoline in [self.RACKVOTrampolines copy]) {
+		[trampoline stopObserving];
+	}
+	
 	objc_setAssociatedObject(self, RACKVOTrampolinesKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
 	[self rac_customDealloc];
 }
 
 - (id)rac_addObserver:(NSObject *)target forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options queue:(NSOperationQueue *)queue block:(void (^)(id target, NSDictionary *change))block {
+	// We gotta swizzle dealloc to make sure no KVO callbacks are sent once we've started dealloc'ing.
 	@synchronized(swizzledClasses) {
-		if([swizzledClasses objectForKey:NSStringFromClass([self class])] == nil) {
-			Swizzle([self class], NSSelectorFromString(@"dealloc"), @selector(rac_customDealloc));
-			[swizzledClasses setObject:[NSNull null] forKey:NSStringFromClass([self class])];
+		Class classToSwizzle = [target class];
+		NSString *classKey = NSStringFromClass(classToSwizzle);
+		if([swizzledClasses objectForKey:classKey] == nil) {
+			RACSwizzle(classToSwizzle, NSSelectorFromString(@"dealloc"), @selector(rac_customDealloc));
+			[swizzledClasses setObject:[NSNull null] forKey:classKey];
 		}
 	}
 	
@@ -128,7 +123,7 @@ void Swizzle(Class c, SEL orig, SEL new)
 }
 
 - (BOOL)rac_removeObserverTrampoline:(RACKVOTrampoline *)trampoline {
-	if(trampoline.observable != self) return NO;
+	if(trampoline.target != self) return NO;
 	
 	[trampoline stopObserving];
 

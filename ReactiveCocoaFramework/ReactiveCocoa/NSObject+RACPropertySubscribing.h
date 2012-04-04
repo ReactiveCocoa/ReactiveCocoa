@@ -11,8 +11,8 @@
 #define RAC_KEYPATH(object, property) ((void)(NO && ((void)object.property, NO)), @#property)
 #define RAC_KEYPATH_SELF(property) RAC_KEYPATH(self, property)
 
-#define RACAble(object, property) [object RACSubscribableForKeyPath:RAC_KEYPATH(object, property)]
-#define RACAbleWithStart(object, property) [[object RACSubscribableForKeyPath:RAC_KEYPATH(object, property)] startWith:object.property]
+#define RACAble(object, property) [object RACSubscribableForKeyPath:RAC_KEYPATH(object, property) onObject:self]
+#define RACAbleWithStart(object, property) [RACAble(object, property) startWith:object.property]
 #define RACAbleSelf(property) RACAble(self, property)
 #define RACAbleSelfWithStart(property) RACAbleWithStart(self, property)
 
@@ -21,10 +21,10 @@
 
 @interface NSObject (RACPropertySubscribing)
 
-+ (RACSubscribable *)RACSubscribableFor:(NSObject *)object keyPath:(NSString *)keyPath;
++ (RACSubscribable *)RACSubscribableFor:(NSObject *)object keyPath:(NSString *)keyPath onObject:(NSObject *)onObject;
 
 // Creates a value from observing the value at the given keypath.
-- (RACSubscribable *)RACSubscribableForKeyPath:(NSString *)keyPath;
+- (RACSubscribable *)RACSubscribableForKeyPath:(NSString *)keyPath onObject:(NSObject *)object;
 
 // Calls -[NSObject bind:binding toObject:object withKeyPath:keyPath options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nil]]
 - (void)bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath;

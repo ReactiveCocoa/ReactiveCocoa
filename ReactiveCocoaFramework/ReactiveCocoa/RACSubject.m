@@ -31,14 +31,14 @@
 
 #pragma mark RACSubscribable
 
-- (RACDisposable *)subscribe:(id<RACSubscriber>)observer {
-	RACDisposable *disposable = [super subscribe:observer];
+- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
+	RACDisposable *disposable = [super subscribe:subscriber];
 	
-	[self.subscribers addObject:[NSValue valueWithNonretainedObject:observer]];
+	[self.subscribers addObject:[NSValue valueWithNonretainedObject:subscriber]];
 	
 	return [RACDisposable disposableWithBlock:^{
+		[self unsubscribeIfActive:subscriber];
 		[disposable dispose];
-		[self unsubscribeIfActive:observer];
 	}];
 }
 

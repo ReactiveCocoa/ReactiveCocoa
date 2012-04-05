@@ -16,10 +16,8 @@
 - (RACSubscribable *)toSubscribable {
 	NSParameterAssert([self conformsToProtocol:@protocol(NSFastEnumeration)]);
 	
-	__block __unsafe_unretained id weakSelf = self;
 	return [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> observer) {
-		id strongSelf = weakSelf;
-		id<NSFastEnumeration> fastEnumerable = (id<NSFastEnumeration>) strongSelf;
+		id<NSFastEnumeration> fastEnumerable = (id<NSFastEnumeration>) self;
 		for(id object in fastEnumerable) {
 			[observer sendNext:object];
 		}

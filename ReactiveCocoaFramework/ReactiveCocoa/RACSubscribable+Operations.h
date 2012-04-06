@@ -104,6 +104,7 @@
 // The source must be a subscribable of subscribables. Subscribe and send `next`s for the latest subscribable. This is mostly useful when combined with `-selectMany:`.
 - (instancetype)switch;
 
+// Add every `next` to an array. Note that this is a blocking call.
 - (NSArray *)toArray;
 
 @end

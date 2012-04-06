@@ -27,3 +27,4 @@
 #import <ReactiveCocoa/RACScopedDisposable.h>
 #import <ReactiveCocoa/NSArray+EXTNilSupport.h>
 #import <ReactiveCocoa/NSObject+RACBindings.h>
+#import <ReactiveCocoa/NSObject+RACOperations.h>

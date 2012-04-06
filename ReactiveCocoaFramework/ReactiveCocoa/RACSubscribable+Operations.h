@@ -44,4 +44,6 @@
 // The source must be a subscribable of subscribables.
 - (instancetype)switch;
 
+- (NSArray *)toArray;
+
 @end

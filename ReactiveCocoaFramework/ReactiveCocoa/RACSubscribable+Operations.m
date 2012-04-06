@@ -68,6 +68,23 @@
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
 		__block id lastDelayedId = nil;
 		return [self subscribeNext:^(id x) {
+			if(lastDelayedId != nil) [self rac_cancelPreviousPerformBlockRequestsWithId:lastDelayedId];
+			lastDelayedId = [self rac_performBlock:^{
+				[observer sendNext:x];
+			} afterDelay:interval];
+		} error:^(NSError *error) {
+			[self rac_cancelPreviousPerformBlockRequestsWithId:lastDelayedId];
+			[observer sendError:error];
+		} completed:^{
+			[observer sendCompleted];
+		}];
+	}];
+}
+
+- (instancetype)delay:(NSTimeInterval)interval {
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
+		__block id lastDelayedId = nil;
+		return [self subscribeNext:^(id x) {
 			lastDelayedId = [self rac_performBlock:^{
 				[observer sendNext:x];
 			} afterDelay:interval];
@@ -167,8 +184,8 @@
 	}];
 }
 
-- (instancetype)windowWithStart:(id<RACSubscribable>)openObservable close:(id<RACSubscribable> (^)(id<RACSubscribable> start))closeBlock {
-	NSParameterAssert(openObservable != nil);
+- (instancetype)windowWithStart:(id<RACSubscribable>)openSubscribable close:(id<RACSubscribable> (^)(id<RACSubscribable> start))closeBlock {
+	NSParameterAssert(openSubscribable != nil);
 	NSParameterAssert(closeBlock != NULL);
 	
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
@@ -183,7 +200,7 @@
 			[closeObserverDisposable dispose], closeObserverDisposable = nil;
 		};
 		
-		RACDisposable *openObserverDisposable = [openObservable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
+		RACDisposable *openObserverDisposable = [openSubscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 			if(currentWindow == nil) {
 				currentWindow = [RACSubject subject];
 				[observer sendNext:currentWindow];
@@ -581,20 +598,16 @@
 }
 
 + (instancetype)defer:(id<RACSubscribable> (^)(void))block {
-	RACSubject *subject = [RACSubject subject];
-	
 	return [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
 		id<RACSubscribable> subscribable = block();
 		return [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
-			[subject sendNext:x];
+			[subscriber sendNext:x];
 		} error:^(NSError *error) {
-			[subject sendError:error];
+			[subscriber sendError:error];
 		} completed:^{
-			[subject sendCompleted];
+			[subscriber sendCompleted];
 		}]];
 	}];
-	
-	return subject;
 }
 
 - (instancetype)skip:(NSUInteger)skipCount {

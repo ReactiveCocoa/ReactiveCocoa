@@ -22,7 +22,7 @@
 	
 	NSMutableArray *subscribables = [NSMutableArray arrayWithCapacity:keyPaths.count];
 	for(NSString *keyPath in keyPaths) {
-		[subscribables addObject:[self RACSubscribableForKeyPath:keyPath onObject:self]];
+		[subscribables addObject:[[self RACSubscribableForKeyPath:keyPath onObject:self] distinctUntilChanged]];
 	}
 	
 	__block __unsafe_unretained id weakSelf = self;

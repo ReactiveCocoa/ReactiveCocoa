@@ -643,4 +643,24 @@
 	}];
 }
 
+- (NSArray *)toArray {
+	NSMutableArray *values = [NSMutableArray array];
+	__block BOOL stop = NO;
+	__block RACDisposable *disposable = [self subscribeNext:^(id x) {
+		[values addObject:x ? : [EXTNil null]];
+		stop = YES;
+		[disposable dispose];
+	} error:^(NSError *error) {
+		stop = YES;
+	} completed:^{
+		stop = YES;
+	}];
+	
+	while(!stop) {
+		[[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1f]];
+	}
+	
+	return values;
+}
+
 @end

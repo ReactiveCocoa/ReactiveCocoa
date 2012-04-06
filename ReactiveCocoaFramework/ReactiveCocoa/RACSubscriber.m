@@ -7,33 +7,17 @@
 //
 
 #import "RACSubscriber.h"
-
-static NSMutableSet *activeSubscribers = nil;
+#import "RACDisposable.h"
 
 @interface RACSubscriber ()
 @property (nonatomic, copy) void (^next)(id value);
 @property (nonatomic, copy) void (^error)(NSError *error);
 @property (nonatomic, copy) void (^completed)(void);
-@property (nonatomic, strong) NSMutableSet *sources;
+@property (nonatomic, strong) RACDisposable *disposable;
 @end
 
 
 @implementation RACSubscriber
-
-+ (void)initialize {
-	if(self == [RACSubscriber class]) {
-		activeSubscribers = [NSMutableSet set];
-	}
-}
-
-- (id)init {
-	self = [super init];
-	if(self == nil) return nil;
-	
-	self.sources = [NSMutableSet set];
-	
-	return self;
-}
 
 
 #pragma mark RACSubscriber
@@ -45,7 +29,7 @@ static NSMutableSet *activeSubscribers = nil;
 }
 
 - (void)sendError:(NSError *)e {
-	[self removeAllSources];
+	[self stopSubscription];
 	
 	if(self.error != NULL) {
 		self.error(e);
@@ -53,21 +37,15 @@ static NSMutableSet *activeSubscribers = nil;
 }
 
 - (void)sendCompleted {
-	[self removeAllSources];
+	[self stopSubscription];
 	
 	if(self.completed != NULL) {
 		self.completed();
 	}
 }
 
-- (void)didSubscribeToSubscribable:(id<RACSubscribable>)observable {
-	[self.sources addObject:observable];
-	
-	[activeSubscribers addObject:self];
-}
-
-- (void)stopSubscription {
-	[self removeAllSources];
+- (void)didSubscribeWithDisposable:(RACDisposable *)d {
+	self.disposable = d;
 }
 
 
@@ -76,7 +54,7 @@ static NSMutableSet *activeSubscribers = nil;
 @synthesize next;
 @synthesize error;
 @synthesize completed;
-@synthesize sources;
+@synthesize disposable;
 
 + (id)subscriberWithNext:(void (^)(id x))next error:(void (^)(NSError *error))error completed:(void (^)(void))completed {
 	RACSubscriber *observer = [[self alloc] init];
@@ -86,10 +64,9 @@ static NSMutableSet *activeSubscribers = nil;
 	return observer;
 }
 
-- (void)removeAllSources {
-	[self.sources removeAllObjects];
-	
-	[activeSubscribers removeObject:self];
+- (void)stopSubscription {
+	[self.disposable dispose];
+	self.disposable = nil;
 }
 
 @end

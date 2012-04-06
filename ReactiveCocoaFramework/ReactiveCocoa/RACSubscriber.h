@@ -10,13 +10,13 @@
 #import "NSObject+RACSubscribable.h"
 
 @protocol RACSubscribable;
+@class RACDisposable;
 
 @protocol RACSubscriber <NSObject>
 - (void)sendNext:(id)value;
 - (void)sendError:(NSError *)error;
 - (void)sendCompleted;
-- (void)didSubscribeToSubscribable:(id<RACSubscribable>)subscribable;
-- (void)stopSubscription;
+- (void)didSubscribeWithDisposable:(RACDisposable *)disposable;
 @end
 
 

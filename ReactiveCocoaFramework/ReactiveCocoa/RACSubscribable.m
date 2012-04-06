@@ -12,16 +12,18 @@
 #import "RACDisposable.h"
 #import "RACAsyncSubject.h"
 
+static NSMutableSet *activeSubscribables = nil;
+
 @interface RACSubscribable ()
-@property (nonatomic, strong) NSMutableArray *disposables;
+
 @end
 
 
 @implementation RACSubscribable
 
-- (void)dealloc {
-	for(RACDisposable *disposable in [self.disposables copy]) {
-		[disposable dispose];
++ (void)initialize {
+	if(self == [RACSubscribable class]) {
+		activeSubscribables = [NSMutableSet set];
 	}
 }
 
@@ -29,7 +31,10 @@
 	self = [super init];
 	if(self == nil) return nil;
 	
-	self.disposables = [NSMutableArray array];
+	// we want to keep the subscribable around until all its subscribers are done
+	[activeSubscribables addObject:self];
+	
+	self.subscribers = [NSMutableArray array];
 	
 	return self;
 }
@@ -37,34 +42,45 @@
 
 #pragma mark RACSubscribable
 
-- (RACDisposable *)subscribe:(id<RACSubscriber>)observer {
-	NSParameterAssert(observer != nil);
+- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
+	NSParameterAssert(subscriber != nil);
 	
-	[observer didSubscribeToSubscribable:self];
+	[self.subscribers addObject:subscriber];
 	
-	if(self.didSubscribe != NULL) {
-		__block RACDisposable *disposable = self.didSubscribe(observer);
-		if(disposable == nil) {
-			__block __unsafe_unretained id weakSelf = self;
-			disposable = [RACDisposable disposableWithBlock:^{
-				RACSubscribable *strongSelf = weakSelf;
-				[observer stopSubscription];
-				[strongSelf.disposables removeObject:disposable];
-			}];
+	__block __unsafe_unretained id weakSelf = self;
+	__block __unsafe_unretained id weakSubscriber = subscriber;
+	// the didSubscribe block will usually contain a strong reference to self, so we need to break that retain cycle
+	void (^defaultDisposableBlock)(void) = ^{
+		RACSubscribable *strongSelf = weakSelf;
+		id<RACSubscriber> strongSubscriber = weakSubscriber;
+		[strongSelf.subscribers removeObject:strongSubscriber];
+		if(strongSelf.subscribers.count < 1) {
+			[activeSubscribables removeObject:strongSelf];
+			strongSelf.didSubscribe = nil;
 		}
-		
-		[self.disposables addObject:disposable];
-		return disposable;
+	};
+	
+	RACDisposable *disposable = nil;
+	if(self.didSubscribe != NULL) {
+		RACDisposable *innerDisposable = self.didSubscribe(subscriber);
+		disposable = [RACDisposable disposableWithBlock:^{
+			[innerDisposable dispose];
+			defaultDisposableBlock();
+		}];
+	} else {
+		disposable = [RACDisposable disposableWithBlock:defaultDisposableBlock];
 	}
 	
-	return nil;
+	[subscriber didSubscribeWithDisposable:disposable];
+	
+	return disposable;
 }
 
 
 #pragma mark API
 
 @synthesize didSubscribe;
-@synthesize disposables;
+@synthesize subscribers;
 
 + (id)createSubscribable:(RACDisposable * (^)(id<RACSubscriber> observer))didSubscribe {
 	RACSubscribable *observable = [[self alloc] init];

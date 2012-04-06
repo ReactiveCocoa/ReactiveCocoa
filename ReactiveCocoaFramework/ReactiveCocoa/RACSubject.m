@@ -11,103 +11,59 @@
 #import "RACDisposable.h"
 
 @interface RACSubject ()
-@property (nonatomic, strong) NSMutableArray *subscribers;
-@property (nonatomic, strong) NSMutableSet *sources;
+@property (nonatomic, strong) RACDisposable *disposable;
 @end
 
 
 @implementation RACSubject
 
-- (id)init {
-	self = [super init];
-	if(self == nil) return nil;
-	
-	self.subscribers = [NSMutableArray array];
-	self.sources = [NSMutableSet set];
-	
-	return self;
-}
-
-
-#pragma mark RACSubscribable
-
-- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	RACDisposable *disposable = [super subscribe:subscriber];
-	
-	[self.subscribers addObject:[NSValue valueWithNonretainedObject:subscriber]];
-	
-	return [RACDisposable disposableWithBlock:^{
-		[self unsubscribeIfActive:subscriber];
-		[disposable dispose];
-	}];
-}
-
 
 #pragma mark RACSubscriber
 
 - (void)sendNext:(id)value {
-	[self performBlockOnAllSubscribers:^(id<RACSubscriber> observer) {
-		[observer sendNext:value];
+	[self performBlockOnAllSubscribers:^(id<RACSubscriber> subscriber) {
+		[subscriber sendNext:value];
 	}];
 }
 
 - (void)sendError:(NSError *)error {
-	[self removeAllSources];
+	[self stopSubscription];
 	
-	[self performBlockOnAllSubscribers:^(id<RACSubscriber> observer) {
-		[self unsubscribeIfActive:observer];
-		[observer sendError:error];
+	[self performBlockOnAllSubscribers:^(id<RACSubscriber> subscriber) {
+		[subscriber sendError:error];
 	}];
 }
 
 - (void)sendCompleted {
-	[self removeAllSources];
+	[self stopSubscription];
 	
-	[self performBlockOnAllSubscribers:^(id<RACSubscriber> observer) {
-		[self unsubscribeIfActive:observer];
-		[observer sendCompleted];
+	[self performBlockOnAllSubscribers:^(id<RACSubscriber> subscriber) {
+		[subscriber sendCompleted];
 	}];
 }
 
-- (void)didSubscribeToSubscribable:(id<RACSubscribable>)observable {
-	[self.sources addObject:observable];
-}
-
-- (void)stopSubscription {
-	[self removeAllSources];
+- (void)didSubscribeWithDisposable:(RACDisposable *)d {
+	self.disposable = d;
 }
 
 
 #pragma mark API
 
-@synthesize subscribers;
-@synthesize sources;
+@synthesize disposable;
 
 + (id)subject {
 	return [[self alloc] init];
 }
 
+- (void)stopSubscription {
+	[self.disposable dispose];
+	self.disposable = nil;
+}
+
 - (void)performBlockOnAllSubscribers:(void (^)(id<RACSubscriber> observer))block {
-	for(NSValue *observer in [self.subscribers copy]) {
-		block([observer nonretainedObjectValue]);
+	for(id<RACSubscriber> subscriber in [self.subscribers copy]) {
+		block(subscriber);
 	}
-}
-
-- (void)unsubscribe:(id<RACSubscriber>)observer {
-	NSValue *observerValue = [NSValue valueWithNonretainedObject:observer];
-	NSAssert2([self.subscribers containsObject:observerValue], @"%@ does not subscribe to %@", observer, self);
-	
-	[self.subscribers removeObject:observerValue];
-}
-
-- (void)unsubscribeIfActive:(id<RACSubscriber>)observer {
-	if([self.subscribers containsObject:[NSValue valueWithNonretainedObject:observer]]) {
-		[self unsubscribe:observer];
-	}
-}
-
-- (void)removeAllSources {
-	[self.sources removeAllObjects];
 }
 
 @end

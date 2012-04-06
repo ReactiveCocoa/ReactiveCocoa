@@ -16,18 +16,13 @@
 #import "RACUnit.h"
 #import "RACMaybe.h"
 
-#define RACCreateWeakSelf __block __unsafe_unretained id weakSelf = self;
-#define RACRedefineSelf id self = weakSelf;
-
 
 @implementation RACSubscribable (Operations)
 
 - (instancetype)select:(id (^)(id x))selectBlock {
 	NSParameterAssert(selectBlock != NULL);
 	
-	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
-		RACRedefineSelf
 		return [self subscribeNext:^(id x) {
 			[observer sendNext:selectBlock(x)];
 		} error:^(NSError *error) {
@@ -41,9 +36,7 @@
 - (instancetype)where:(BOOL (^)(id x))whereBlock {
 	NSParameterAssert(whereBlock != NULL);
 	
-	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
-		RACRedefineSelf
 		return [self subscribeNext:^(id x) {
 			if(whereBlock(x)) {
 				[observer sendNext:x];
@@ -59,9 +52,7 @@
 - (instancetype)doNext:(void (^)(id x))block {
 	NSParameterAssert(block != NULL);
 
-	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
-		RACRedefineSelf
 		return [self subscribeNext:^(id x) {
 			block(x);
 			[observer sendNext:x];
@@ -74,9 +65,7 @@
 }
 
 - (instancetype)throttle:(NSTimeInterval)interval {	
-	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
-		RACRedefineSelf
 		__block id lastDelayedId = nil;
 		return [self subscribeNext:^(id x) {
 			lastDelayedId = [self rac_performBlock:^{
@@ -92,9 +81,7 @@
 }
 
 - (instancetype)repeat {
-	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
-		RACRedefineSelf
 		__block RACDisposable *currentDisposable = nil;
 		
 		__block RACSubscriber *innerObserver = [RACSubscriber subscriberWithNext:^(id x) {
@@ -114,9 +101,7 @@
 }
 
 - (instancetype)catchToMaybe {
-	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
-		RACRedefineSelf
 		__block RACDisposable *currentDisposable = nil;
 		
 		__block RACSubscriber *innerObserver = [RACSubscriber subscriberWithNext:^(id x) {
@@ -139,10 +124,7 @@
 - (instancetype)catch:(id<RACSubscribable> (^)(NSError *error))catchBlock {
 	NSParameterAssert(catchBlock != NULL);
 		
-	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
-		RACRedefineSelf
-		
 		__block RACDisposable *innerDisposable = nil;
 		RACDisposable *outerDisposable = [self subscribeNext:^(id x) {
 			[observer sendNext:x];
@@ -172,10 +154,7 @@
 - (instancetype)finally:(void (^)(void))block {
 	NSParameterAssert(block != NULL);
 	
-	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
-		RACRedefineSelf
-		
 		return [self subscribeNext:^(id x) {
 			[observer sendNext:x];
 		} error:^(NSError *error) {
@@ -192,10 +171,7 @@
 	NSParameterAssert(openObservable != nil);
 	NSParameterAssert(closeBlock != NULL);
 	
-	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
-		RACRedefineSelf
-				
 		__block RACSubject *currentWindow = nil;
 		__block id<RACSubscribable> currentCloseWindow = nil;
 		__block RACDisposable *closeObserverDisposable = NULL;
@@ -244,9 +220,7 @@
 }
 
 - (instancetype)buffer:(NSUInteger)bufferCount {
-	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
-		RACRedefineSelf
 		RACBehaviorSubject *windowOpenSubject = [RACBehaviorSubject behaviorSubjectWithDefaultValue:@""];
 		RACSubject *windowCloseSubject = [RACSubject subject];
 		
@@ -274,10 +248,7 @@
 }
 
 - (instancetype)take:(NSUInteger)count {
-	RACCreateWeakSelf
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
-		RACRedefineSelf
-		
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {		
 		__block NSUInteger valuesTaken = 0;
 		return [self subscribeNext:^(id x) {
 			valuesTaken++;
@@ -369,9 +340,7 @@
 - (instancetype)selectMany:(id<RACSubscribable> (^)(id x))selectBlock {
 	NSParameterAssert(selectBlock != NULL);
 	
-	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
-		RACRedefineSelf
 		NSMutableSet *activeObservables = [NSMutableSet set];
 		[activeObservables addObject:self];
 		
@@ -407,10 +376,7 @@
 }
 
 - (instancetype)concat:(id<RACSubscribable>)subscribable {
-	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
-		RACRedefineSelf
-		
 		__block RACDisposable *concattedDisposable = nil;
 		RACDisposable *sourceDisposable = [self subscribeNext:^(id x) {
 			[subscriber sendNext:x];
@@ -436,10 +402,7 @@
 - (instancetype)scanWithStart:(NSInteger)start combine:(NSInteger (^)(NSInteger running, NSInteger next))combineBlock {
 	NSParameterAssert(combineBlock != NULL);
 	
-	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
-		RACRedefineSelf
-		
 		__block NSInteger runningValue = start;
 		return [self subscribeNext:^(id x) {
 			runningValue = combineBlock(runningValue, [x integerValue]);
@@ -455,10 +418,7 @@
 - (instancetype)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock {
 	NSParameterAssert(combineBlock != NULL);
 	
-	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
-		RACRedefineSelf
-		
 		__block id runningValue = start;
 		return [self subscribeNext:^(id x) {
 			runningValue = combineBlock(runningValue, x);
@@ -488,10 +448,7 @@
 }
 
 - (instancetype)startWith:(id)initialValue {
-	RACCreateWeakSelf
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
-		RACRedefineSelf
-		
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {		
 		[subscriber sendNext:initialValue];
 		
 		return [self subscribeNext:^(id x) {
@@ -521,10 +478,7 @@
 }
 
 - (instancetype)takeUntil:(id<RACSubscribable>)subscribableTrigger {
-	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
-		RACRedefineSelf
-				
 		__block RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
@@ -552,10 +506,7 @@
 - (instancetype)takeUntilBlock:(BOOL (^)(id x))predicate {
 	NSParameterAssert(predicate != NULL);
 	
-	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
-		RACRedefineSelf
-		
 		__block RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
 			BOOL keepTaking = predicate(x);
 			if(!keepTaking) {
@@ -578,10 +529,7 @@
 }
 
 - (instancetype)switch {
-	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
-		RACRedefineSelf
-		
 		__block RACDisposable *innerDisposable = nil;
 		RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
 			NSAssert2([x conformsToProtocol:@protocol(RACSubscribable)], @"-switch requires that the source subscribable (%@) send subscribables. Instead we got: %@", self, x);
@@ -635,7 +583,7 @@
 + (instancetype)defer:(id<RACSubscribable> (^)(void))block {
 	RACSubject *subject = [RACSubject subject];
 	
-	return [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {		
+	return [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
 		id<RACSubscribable> subscribable = block();
 		return [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 			[subject sendNext:x];
@@ -650,10 +598,7 @@
 }
 
 - (instancetype)skip:(NSUInteger)skipCount {
-	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
-		RACRedefineSelf
-		
 		__block NSUInteger skipped = 0;
 		return [self subscribeNext:^(id x) {
 			if(skipped >= skipCount) {
@@ -670,10 +615,7 @@
 }
 
 - (instancetype)distinctUntilChanged {
-	RACCreateWeakSelf
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
-		RACRedefineSelf
-		
 		__block id lastValue = nil;
 		return [self subscribeNext:^(id x) {
 			if(![x isEqual:lastValue]) {

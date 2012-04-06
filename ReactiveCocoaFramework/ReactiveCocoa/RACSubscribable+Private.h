@@ -14,5 +14,6 @@
 @interface RACSubscribable ()
 
 @property (nonatomic, copy) RACDisposable * (^didSubscribe)(id<RACSubscriber> observer);
+@property (nonatomic, strong) NSMutableArray *subscribers;
 
 @end

@@ -11,12 +11,9 @@
 #import "RACSubject.h"
 #import "RACDisposable.h"
 #import "RACAsyncSubject.h"
+#import "NSObject+RACExtensions.h"
 
 static NSMutableSet *activeSubscribables = nil;
-
-@interface RACSubscribable ()
-
-@end
 
 
 @implementation RACSubscribable
@@ -36,6 +33,8 @@ static NSMutableSet *activeSubscribables = nil;
 	
 	self.subscribers = [NSMutableArray array];
 	
+	[self invalidateIfNoNewSubscribersShowUp];
+	
 	return self;
 }
 
@@ -49,15 +48,11 @@ static NSMutableSet *activeSubscribables = nil;
 	
 	__block __unsafe_unretained id weakSelf = self;
 	__block __unsafe_unretained id weakSubscriber = subscriber;
-	// the didSubscribe block will usually contain a strong reference to self, so we need to break that retain cycle
 	void (^defaultDisposableBlock)(void) = ^{
 		RACSubscribable *strongSelf = weakSelf;
 		id<RACSubscriber> strongSubscriber = weakSubscriber;
 		[strongSelf.subscribers removeObject:strongSubscriber];
-		if(strongSelf.subscribers.count < 1) {
-			[activeSubscribables removeObject:strongSelf];
-			strongSelf.didSubscribe = nil;
-		}
+		[strongSelf invalidateIfNoNewSubscribersShowUp];
 	};
 	
 	RACDisposable *disposable = nil;
@@ -134,6 +129,15 @@ static NSMutableSet *activeSubscribables = nil;
 	});
 	
 	return subject;
+}
+
+- (void)invalidateIfNoNewSubscribersShowUp {
+	// if no one subscribed in the runloop's pass, then I guess we're free to go
+	[self rac_performBlock:^{
+		if(self.subscribers.count < 1) {
+			[activeSubscribables removeObject:self];
+		}
+	} afterDelay:0];
 }
 
 @end

@@ -13,6 +13,7 @@
 #import "RACSubscribable+Operations.h"
 #import "EXTNil.h"
 #import "RACSubscriber.h"
+#import "NSObject+RACFastEnumeration.h"
 
 
 @implementation NSObject (RACOperations)
@@ -34,13 +35,9 @@
 			return values;
 		};
 		
-		NSMutableArray *subscribables = [NSMutableArray arrayWithCapacity:keyPaths.count];
-		for(NSString *keyPath in keyPaths) {
-			[subscribables addObject:[self RACSubscribableForKeyPath:keyPath onObject:self]];
-		}
-		
 		[observer sendNext:reduceBlock(currentValues())];
 		
+		NSArray *subscribables = [[[keyPaths toSubscribable] select:^(NSString *keyPath) { return [strongSelf RACSubscribableForKeyPath:keyPath onObject:strongSelf]; }] toArray];
 		return [[RACSubscribable merge:subscribables] subscribeNext:^(id x) {
 			[observer sendNext:reduceBlock(currentValues())];
 		} error:^(NSError *error) {

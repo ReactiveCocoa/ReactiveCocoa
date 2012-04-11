@@ -77,10 +77,10 @@ static NSMutableSet *activeSubscribables = nil;
 @synthesize didSubscribe;
 @synthesize subscribers;
 
-+ (id)createSubscribable:(RACDisposable * (^)(id<RACSubscriber> observer))didSubscribe {
-	RACSubscribable *observable = [[self alloc] init];
-	observable.didSubscribe = didSubscribe;
-	return observable;
++ (id)createSubscribable:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
+	RACSubscribable *subscribable = [[self alloc] init];
+	subscribable.didSubscribe = didSubscribe;
+	return subscribable;
 }
 
 + (id)return:(id)value {

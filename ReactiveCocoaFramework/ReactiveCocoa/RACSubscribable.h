@@ -19,7 +19,7 @@
 
 @interface RACSubscribable : NSObject <RACSubscribable>
 
-+ (id)createSubscribable:(RACDisposable * (^)(id<RACSubscriber> observer))didSubscribe;
++ (id)createSubscribable:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe;
 + (id)return:(id)value;
 + (id)error:(NSError *)error;
 + (id)empty;

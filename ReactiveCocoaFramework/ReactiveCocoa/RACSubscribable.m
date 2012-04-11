@@ -140,4 +140,12 @@ static NSMutableSet *activeSubscribables = nil;
 	} afterDelay:0];
 }
 
+- (void)performBlockOnEachSubscriber:(void (^)(id<RACSubscriber> subscriber))block {
+	NSParameterAssert(block != NULL);
+
+	for(id<RACSubscriber> subscriber in [self.subscribers copy]) {
+		block(subscriber);
+	}
+}
+
 @end

@@ -21,7 +21,7 @@
 #pragma mark RACSubscriber
 
 - (void)sendNext:(id)value {
-	[self performBlockOnAllSubscribers:^(id<RACSubscriber> subscriber) {
+	[self performBlockOnEachSubscriber:^(id<RACSubscriber> subscriber) {
 		[subscriber sendNext:value];
 	}];
 }
@@ -29,7 +29,7 @@
 - (void)sendError:(NSError *)error {
 	[self stopSubscription];
 	
-	[self performBlockOnAllSubscribers:^(id<RACSubscriber> subscriber) {
+	[self performBlockOnEachSubscriber:^(id<RACSubscriber> subscriber) {
 		[subscriber sendError:error];
 	}];
 }
@@ -37,7 +37,7 @@
 - (void)sendCompleted {
 	[self stopSubscription];
 	
-	[self performBlockOnAllSubscribers:^(id<RACSubscriber> subscriber) {
+	[self performBlockOnEachSubscriber:^(id<RACSubscriber> subscriber) {
 		[subscriber sendCompleted];
 	}];
 }
@@ -58,12 +58,6 @@
 - (void)stopSubscription {
 	[self.disposable dispose];
 	self.disposable = nil;
-}
-
-- (void)performBlockOnAllSubscribers:(void (^)(id<RACSubscriber> observer))block {
-	for(id<RACSubscriber> subscriber in [self.subscribers copy]) {
-		block(subscriber);
-	}
 }
 
 @end

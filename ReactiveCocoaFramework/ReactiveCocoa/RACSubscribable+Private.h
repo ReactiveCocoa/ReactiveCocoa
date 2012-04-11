@@ -16,4 +16,6 @@
 @property (nonatomic, copy) RACDisposable * (^didSubscribe)(id<RACSubscriber> observer);
 @property (nonatomic, strong) NSMutableArray *subscribers;
 
+- (void)performBlockOnEachSubscriber:(void (^)(id<RACSubscriber> subscriber))block;
+
 @end

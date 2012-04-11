@@ -230,11 +230,8 @@
 		88CDF7FA150019CA00163A9F /* RACSubscriber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACSubscriber.h; sourceTree = "<group>"; };
 		88CDF7FB150019CA00163A9F /* RACSubscriber.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSubscriber.m; sourceTree = "<group>"; };
 		88CDF80415001CA800163A9F /* RACSubscribable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RACSubscribable.h; sourceTree = "<group>"; };
-		88CDF824150087D500163A9F /* RACSequence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACSequence.h; sourceTree = "<group>"; };
-		88CDF825150087D500163A9F /* RACSequence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSequence.m; sourceTree = "<group>"; };
 		88CDF82915008BB900163A9F /* NSObject+RACKVOWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACKVOWrapper.m"; sourceTree = "<group>"; };
 		88CDF82C15008C0500163A9F /* NSObject+RACPropertySubscribing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACPropertySubscribing.h"; sourceTree = "<group>"; };
-		88CDF8301500978F00163A9F /* RACSequence+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACSequence+Private.h"; sourceTree = "<group>"; };
 		88D4AB3C1510F6C30011494F /* RACReplaySubject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACReplaySubject.h; sourceTree = "<group>"; };
 		88D4AB3D1510F6C30011494F /* RACReplaySubject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACReplaySubject.m; sourceTree = "<group>"; };
 		88D4AB471510F8F10011494F /* RACAsyncSubject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACAsyncSubject.h; sourceTree = "<group>"; };
@@ -424,9 +421,6 @@
 		88DA308C15071C4C00C19D0F /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				88CDF824150087D500163A9F /* RACSequence.h */,
-				88CDF825150087D500163A9F /* RACSequence.m */,
-				88CDF8301500978F00163A9F /* RACSequence+Private.h */,
 				882093E91501E6EE00796685 /* RACCommand.h */,
 				882093EA1501E6EE00796685 /* RACCommand.m */,
 				88DA30B61507CC3900C19D0F /* RACCommand+Private.h */,

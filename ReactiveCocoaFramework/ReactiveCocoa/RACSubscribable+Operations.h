@@ -8,6 +8,8 @@
 
 #import "RACSubscribable.h"
 
+@class RACConnectableSubscribable;
+
 
 @interface RACSubscribable (Operations)
 
@@ -109,5 +111,8 @@
 
 // Add every `next` to an array. Note that this is a blocking call.
 - (NSArray *)toArray;
+
+// Creates and returns a connectable subscribable. This allows you to share 1 single subscription to the underlying subscribable.
+- (RACConnectableSubscribable *)publish;
 
 @end

@@ -8,6 +8,10 @@
 
 #import "RACSubscribable.h"
 
+
 @interface RACConnectableSubscribable : RACSubscribable
+
+// Connect to the underlying subscribable.
+- (RACDisposable *)connect;
 
 @end

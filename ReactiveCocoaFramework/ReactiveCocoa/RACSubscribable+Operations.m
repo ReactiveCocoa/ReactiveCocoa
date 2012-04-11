@@ -15,6 +15,7 @@
 #import "EXTNil.h"
 #import "RACUnit.h"
 #import "RACMaybe.h"
+#import "RACConnectableSubscribable+Private.h"
 
 
 @implementation RACSubscribable (Operations)
@@ -690,6 +691,10 @@
 	}
 	
 	return values;
+}
+
+- (RACConnectableSubscribable *)publish {
+	return [RACConnectableSubscribable connectableSubscribableWithSourceSubscribable:self];
 }
 
 @end

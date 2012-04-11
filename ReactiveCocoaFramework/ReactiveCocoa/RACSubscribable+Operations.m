@@ -238,28 +238,59 @@
 
 - (instancetype)buffer:(NSUInteger)bufferCount {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
-		RACBehaviorSubject *windowOpenSubject = [RACBehaviorSubject behaviorSubjectWithDefaultValue:@""];
+		NSMutableArray *values = [NSMutableArray arrayWithCapacity:bufferCount];
+		RACBehaviorSubject *windowOpenSubject = [RACBehaviorSubject behaviorSubjectWithDefaultValue:[RACUnit defaultUnit]];
 		RACSubject *windowCloseSubject = [RACSubject subject];
 		
-		__block NSUInteger valuesReceived = 0;
-		return [[self windowWithStart:windowOpenSubject close:^(id<RACSubscribable> start) {
+		__block RACDisposable *innerDisposable = nil;
+		RACDisposable *outerDisposable = [[self windowWithStart:windowOpenSubject close:^(id<RACSubscribable> start) {
 			return windowCloseSubject;
 		}] subscribeNext:^(id x) {		
-			[x subscribeNext:^(id x) {
-				valuesReceived++;
-				if(valuesReceived % bufferCount == 0) {
-					[windowCloseSubject sendNext:x];
-					[windowOpenSubject sendNext:@""];
+			innerDisposable = [x subscribeNext:^(id x) {
+				if(values.count % bufferCount == 0) {
+					[observer sendNext:x];
+					[windowCloseSubject sendNext:[RACUnit defaultUnit]];
+					[windowOpenSubject sendNext:[RACUnit defaultUnit]];
 				}
-			} error:^(NSError *error) {
-				
-			} completed:^{
-				
 			}];
 		} error:^(NSError *error) {
-			
+			[observer sendError:error];
 		} completed:^{
-			
+			[observer sendCompleted];
+		}];
+
+		return [RACDisposable disposableWithBlock:^{
+			[innerDisposable dispose];
+			[outerDisposable dispose];
+		}];
+	}];
+}
+
+- (instancetype)bufferWithTime:(NSTimeInterval)interval {
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
+		NSMutableArray *values = [NSMutableArray array];
+		RACBehaviorSubject *windowOpenSubject = [RACBehaviorSubject behaviorSubjectWithDefaultValue:[RACUnit defaultUnit]];
+
+		__block RACDisposable *innerDisposable = nil;
+		RACDisposable *outerDisposable = [[self windowWithStart:windowOpenSubject close:^(id<RACSubscribable> start) {
+			return [[[RACSubscribable interval:interval] take:1] doNext:^(id x) {
+				[observer sendNext:values];
+				[values removeAllObjects];
+				[windowOpenSubject sendNext:[RACUnit defaultUnit]];
+			}];
+		}] subscribeNext:^(id x) {
+			innerDisposable = [x subscribeNext:^(id x) {
+				[values addObject:x ? : [EXTNil null]];
+			}];
+		} error:^(NSError *error) {
+			[observer sendError:error];
+		} completed:^{
+			[observer sendCompleted];
+		}];
+
+		return [RACDisposable disposableWithBlock:^{
+			[innerDisposable dispose];
+			[outerDisposable dispose];
 		}];
 	}];
 }

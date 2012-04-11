@@ -38,6 +38,9 @@
 // Divide the `next`s into buffers with `bufferCount` items each.
 - (instancetype)buffer:(NSUInteger)bufferCount;
 
+// Divide the `next`s into buffers delivery every `interval` seconds.
+- (instancetype)bufferWithTime:(NSTimeInterval)interval;
+
 // Take `count` `next`s and then completes.
 - (instancetype)take:(NSUInteger)count;
 

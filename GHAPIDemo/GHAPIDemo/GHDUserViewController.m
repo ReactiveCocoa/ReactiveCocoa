@@ -29,10 +29,10 @@
 	
 	[self.view.spinner startAnimation:nil];
 	
-	[self.view.usernameTextField bind:NSValueBinding toObject:self withKeyPath:RACKVO(self.userAccount.username)];
-	[self.view.realNameTextField bind:NSValueBinding toObject:self withKeyPath:RACKVO(self.userAccount.realName)];
-	[self.view.spinner bind:NSHiddenBinding toObject:self withNegatedKeyPath:RACKVO(self.loading)];
-	[self.view.valuesContainerView bind:NSHiddenBinding toObject:self withKeyPath:RACKVO(self.loading)];
+	[self.view.usernameTextField bind:NSValueBinding toObject:self withKeyPath:RAC_KEYPATH_SELF(self.userAccount.username)];
+	[self.view.realNameTextField bind:NSValueBinding toObject:self withKeyPath:RAC_KEYPATH_SELF(self.userAccount.realName)];
+	[self.view.spinner bind:NSHiddenBinding toObject:self withNegatedKeyPath:RAC_KEYPATH_SELF(self.loading)];
+	[self.view.valuesContainerView bind:NSHiddenBinding toObject:self withKeyPath:RAC_KEYPATH_SELF(self.loading)];
 }
 
 
@@ -48,21 +48,41 @@
 	
 	self.loading = YES;
 	
-	RACSubscribable *userAccountIsntNil = [RACProperty(self.userAccount) where:^BOOL(id x) { return x != nil; }];
-	[userAccountIsntNil subscribeNext:^(id _) { self.loading = YES; }];
+	RACSubscribable *userAccountIsntNil = [RACAbleSelf(self.userAccount) where:^BOOL(id x) {
+		return x != nil;
+	}];
+	[userAccountIsntNil subscribeNext:^(id _) {
+		self.loading = YES;
+	}];
 	
-	RACSubscribable *userInfo = [userAccountIsntNil selectMany:^(GHGitHubUser *x) { return [[GHGitHubClient clientForUser:x] fetchUserInfo]; }];
-	[userInfo subscribeNext:^(id _) { self.loading = NO; }];
+	RACSubscribable *userInfo = [userAccountIsntNil selectMany:^(GHGitHubUser *x) {
+		return [[GHGitHubClient clientForUser:x] fetchUserInfo];
+	}];
+	[userInfo subscribeNext:^(id _) {
+		self.loading = NO;
+	}];
 	
 	[[[userInfo 
-		where:^(id x) { return [x hasError]; }] 
-		select:^(id x) { return [x error]; }] 
-		subscribeNext:^(id x) { NSLog(@"error: %@", x); }];
+		where:^(id x) {
+			return [x hasError];
+		}] 
+		select:^(id x) {
+			return [x error];
+		}] 
+		subscribeNext:^(id x) {
+			NSLog(@"error: %@", x);
+		}];
 	
 	[[[userInfo 
-		where:^(id x) { return [x hasObject]; }] 
-		select:^(id x) { return [x object]; }] 
-		subscribeNext:^(id x) { [self.userAccount setValuesForKeysWithDictionary:x]; }];
+		where:^(id x) {
+			return [x hasObject];
+		}] 
+		select:^(id x) {
+			return [x object];
+		}] 
+		subscribeNext:^(id x) {
+			[self.userAccount setValuesForKeysWithDictionary:x];
+		}];
 	
 	self.userAccount = user;
 	

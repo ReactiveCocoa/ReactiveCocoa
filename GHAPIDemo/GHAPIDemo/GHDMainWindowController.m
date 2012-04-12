@@ -34,10 +34,14 @@
 	GHDLoginViewController *loginViewController = [[GHDLoginViewController alloc] init];
 	self.currentViewController = loginViewController;
 	
-	[[[loginViewController.didLoginSubject 
-		where:^BOOL(id x) { return x != nil; }] 
-		select:^(id x) { return [[GHDUserViewController alloc] initWithUserAccount:x]; }] 
-		toPropery:RACKVO(self.currentViewController) onObject:self];
+	[self rac_bind:RAC_KEYPATH_SELF(self.currentViewController) 
+				to:[[loginViewController.didLoginSubject 
+					 where:^BOOL(id x) {
+						 return x != nil;
+					 }] 
+					 select:^(id x) {
+						 return [[GHDUserViewController alloc] initWithUserAccount:x];
+					 }]];
 }
 
 

@@ -27,28 +27,28 @@ describe(@"validation", ^{
 		viewController.username = @"johnsmith";
 		viewController.password = @"";
 				
-		expect(viewController.loginEnabled).isGoing.toBeFalsy();
+		expect(viewController.loginEnabled).toBeFalsy();
 	});
 	
 	it(@"shouldn't allow you to login with only a password", ^{
 		viewController.username = @"";
 		viewController.password = @"secret";
 				
-		expect(viewController.loginEnabled).isGoing.toBeFalsy();
+		expect(viewController.loginEnabled).toBeFalsy();
 	});
 	
 	it(@"shouldn't allow you to login without both a username and password", ^{
 		viewController.username = @"";
 		viewController.password = @"";
 				
-		expect(viewController.loginEnabled).isGoing.toBeFalsy();
+		expect(viewController.loginEnabled).toBeFalsy();
 	});
 	
 	it(@"should allow you to login with both a username and password", ^{
 		viewController.username = @"johnsmith";
 		viewController.password = @"secret";
 				
-		expect(viewController.loginEnabled).isGoing.toBeTruthy();
+		expect(viewController.loginEnabled).toBeTruthy();
 	});
 	
 	it(@"shouldn't allow you to login when login is executing", ^{
@@ -59,7 +59,7 @@ describe(@"validation", ^{
 		
 		[viewController.loginCommand execute:nil];
 				
-		expect(viewController.loginEnabled).isGoing.toBeFalsy();
+		expect(viewController.loginEnabled).toBeFalsy();
 	});
 	
 	it(@"should set loggingIn when it's logging in", ^{
@@ -70,7 +70,7 @@ describe(@"validation", ^{
 		
 		[viewController.loginCommand execute:nil];
 				
-		expect(viewController.loggingIn).isGoing.toBeTruthy();
+		expect(viewController.loggingIn).toBeTruthy();
 	});
 	
 	it(@"should show the login failed message when login fails", ^{
@@ -83,7 +83,7 @@ describe(@"validation", ^{
 		
 		GHDRunRunLoopWhile(^{ return viewController.loggingIn; });
 
-		expect(viewController.loginFailedHidden).isGoing.toBeFalsy();
+		expect(viewController.loginFailedHidden).toBeFalsy();
 	});
 });
 

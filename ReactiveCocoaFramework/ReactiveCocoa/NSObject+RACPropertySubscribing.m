@@ -28,11 +28,9 @@ static const void *RACPropertySubscribingDisposables = &RACPropertySubscribingDi
 			objc_setAssociatedObject(object, RACPropertySubscribingDisposables, disposables, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 		}
 		
-		__block __unsafe_unretained id weakSubject = subject;
 		[disposables addObject:[RACScopedDisposable disposableWithBlock:^{
-			RACReplaySubject *strongSubject = weakSubject;
 			// TODO: do we *really* want to send completed here? or just tear down the stream some other way?
-			[strongSubject sendCompleted];
+			[subject sendCompleted];
 		}]];
 	}
 	

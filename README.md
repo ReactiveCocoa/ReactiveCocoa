@@ -107,6 +107,8 @@ Or to chain async operations:
 }];
 ```
 
+That will login, then fetch message, then for each message fetched, fetch the full message, log each full message and then log when it's all done.
+
 ## Lifetime
 The point of RAC is to make your life better as a programmer. To that end, `RACSubscribable`'s lifetime is a little funny.
 

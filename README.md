@@ -1,15 +1,15 @@
 # ReactiveCocoa
 ReactiveCocoa (RAC) is an Objective-C version of .NET's [Reactive Extensions](http://msdn.microsoft.com/en-us/data/gg577609) (Rx).
 
-## No srsly, what is it
+# No srsly, what is it
 A many splendid thing:
 
-1. Unified, higher-order interface for asynchronous operations.
 1. Functional, declarative way to describe behaviors and the relationships between properties.
+1. Unified, high-level interface for asynchronous operations.
 1. A lovely API on top of KVO.
-1. Futures!
+1. Futures, kinda sorta.
 
-## Intro
+# Intro
 The fundamental ideas of RAC are pretty straightforward. It's all about subscribables. You can think of them as the evil twin of enumerables. With enumerables, you walk across some collection—item by item—until you manually stop, you hit the end of the collection, or something bad happens.
 
 With subscribables, you subscribe to it and it then feeds you items—one by one—until you manually stop, the subscribable completes, or something bad happens.
@@ -18,7 +18,7 @@ This is often described in the Rx world as enumeration being pull while subscrib
 
 Pretty straightforward right? So what's the big deal?
 
-## The Big Deal™
+# The Big Deal™
 It turns out this subscribable behavior is really useful in a lot of different cases. And it's extraordinarily useful especially once you start composing subscribables.
 
 ## Examples
@@ -81,17 +81,43 @@ Sure, but by using RAC you get some pretty awesome stuff for free:
 1. Code locality. If we did it manually, the code would be spread out across many different method calls. This way we define the behavior all in one place.
 1. Higher order messaging. RAC allows us to more clearly express our _intent_ rather than worrying about the specific implementation details.
 
+## Async
+The subscribable paradigm also fits quite nicely with async operations. Your async calls return subscribables which lets you leverage all the power of composing subscribable operations.
+
+For example, to call a block once multiple async operations have completed:
+
+``` obj-c
+NSArray *requests = [NSArray arrayWithObjects:[client fetchUserRepos], [client fetchOrgRepos], nil]];
+[[RACSubscribable merge:requests] subscribeCompleted:^{
+	NSLog(@"They're both done!");
+}];
+```
+
+Or to chain async operations:
+
+``` obj-c
+[[[[client loginUser] selectMany:^(id _) {
+	return [client fetchMessages];
+}] selectMany:^(Message *message) {
+	return [client fetchFullMessage:message];
+}] subscribeNext:^(Message *fullMessage) {
+	NSLog(@"Got message: %@", fullMessage);
+} completed:^{
+	NSLog(@"Fetched all messages.");
+}];
+```
+
 ## Lifetime
 The point of RAC is to make your life better as a programmer. To that end, `RACSubscribable`'s lifetime is a little funny.
 
-RAC will keep subscribables alive for as long as they need in order to deliver events to its subscribers. This means you usually don't need to worry about keeping a strong reference to a subscribable.
+RAC will keep subscribables alive for as long as they need in order to deliver events to its subscribers. This means you usually don't need to worry about keeping a strong reference to a subscribable. RAC will manage it for you.
 
 RAC cleans up a subscribable when:
 
 1. The subscribable sends an error or is completed, or
 1. When all its subscribers have unsubscribed and it receives no new subscribers after one runloop iteration.
 
-If you want to keep a subscribable alive past either of those cases, you need to keep a strong reference to it. But that shouldn't be typical.
+If you want to keep a subscribable alive past either of those cases, you need to keep a strong reference to it. But you shouldn't usually need to do that.
 
 ### KVO
 KVO is a special case when it comes to lifetime. If the normal rules applied, you'd end up causing retain cycles all over the place.
@@ -99,6 +125,4 @@ KVO is a special case when it comes to lifetime. If the normal rules applied, yo
 Instead, sbscribables for a KVO property send the `completed` event when the observing object is deallocated. This tears down the subscribable and its subscribers.
 
 ### Disposables
-The `-[RACSubscribable subscribe:]` method returns a `RACDisposable`. The disposable encapsulates the tasks necessary to clean up the subscription. You can call `-dispose` on a disposable to end your subscription.
-
-## Async
+The `-[RACSubscribable subscribe:]` method returns a `RACDisposable`. That disposable encapsulates the tasks necessary to clean up the subscription. You can call `-dispose` on a disposable to end your subscription.

@@ -146,3 +146,8 @@ Instead, sbscribables for a KVO property send the `completed` event when the obs
 
 ### Disposables
 The `-[RACSubscribable subscribe:]` method returns a `RACDisposable`. That disposable encapsulates the tasks necessary to clean up the subscription. You can call `-dispose` on a disposable to end your subscription.
+
+## It's ugly!
+OK I might grant you that. Beauty is in the eye of the beholder and all that. We've played with a lot of different formatting styles so try to find one that's both concise and readable. The examples are in the style we currently use.
+
+That said, it's also a matter of getting used to what a different kind of code looks like. Give it time. It might grow on you.

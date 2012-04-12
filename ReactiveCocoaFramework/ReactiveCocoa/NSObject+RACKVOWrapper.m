@@ -11,7 +11,8 @@
 #import <objc/runtime.h>
 
 @interface NSObject ()
-@property (readonly) NSMutableSet *RACKVOTrampolines;
+@property (readonly) NSMutableSet *RACKVOObservingTrampolines;
+@property (readonly) NSMutableSet *RACKVOTargetTrampolines;
 @end
 
 
@@ -20,11 +21,8 @@
 @property (nonatomic, copy) void (^block)(id blockSelf, NSDictionary *change);
 @property (nonatomic, copy) NSString *keyPath;
 @property (nonatomic, strong) NSOperationQueue *queue;
-@property (nonatomic, unsafe_unretained) NSObject *observable;
+@property (nonatomic, unsafe_unretained) NSObject *observing;
 @property (nonatomic, unsafe_unretained) NSObject *target;
-
-- (void)startObservingOnObject:(NSObject *)object options:(NSKeyValueObservingOptions)options;
-- (void)stopObserving;
 
 @end
 
@@ -56,56 +54,81 @@ static char RACKVOWrapperContext;
 @synthesize block;
 @synthesize keyPath;
 @synthesize queue;
-@synthesize observable;
+@synthesize observing;
 @synthesize target;
 
-- (void)startObservingOnObject:(NSObject *)object options:(NSKeyValueObservingOptions)options {
-	self.observable = object;
-	[self.observable addObserver:self forKeyPath:self.keyPath options:options context:&RACKVOWrapperContext];
-    
-    [self.target.RACKVOTrampolines addObject:self];
+- (void)startObservingObject:(NSObject *)object options:(NSKeyValueObservingOptions)options {
+	self.observing = object;
+	[self.observing addObserver:self forKeyPath:self.keyPath options:options context:&RACKVOWrapperContext];
+    [self.observing.RACKVOObservingTrampolines addObject:self];
+	
+	[self.target.RACKVOTargetTrampolines addObject:self];
 }
 
 - (void)stopObserving {
-	[self.observable removeObserver:self forKeyPath:self.keyPath];
-	self.observable = nil;
+	[self.observing removeObserver:self forKeyPath:self.keyPath];
+	[self.observing.RACKVOObservingTrampolines removeObject:self];
+	self.observing = nil;
 	
-    [self.target.RACKVOTrampolines removeObject:self];
+	[self.target.RACKVOTargetTrampolines removeObject:self];
 	self.target = nil;
 }
 
 @end
 
 
-static void *RACKVOTrampolinesKey = &RACKVOTrampolinesKey;
+static void *RACKVOObservingTrampolinesKey = &RACKVOObservingTrampolinesKey;
+static void *RACKVOTargetTrampolinesKey = &RACKVOTargetTrampolinesKey;
 
-static NSMutableDictionary *swizzledClasses = nil;
+static NSMutableDictionary *swizzledTargetClasses = nil;
+static NSMutableDictionary *swizzledObservableClasses = nil;
 
 @implementation NSObject (RACKVOWrapper)
 
 + (void)load {
-	swizzledClasses = [[NSMutableDictionary alloc] init];
+	swizzledTargetClasses = [[NSMutableDictionary alloc] init];
+	swizzledObservableClasses = [[NSMutableDictionary alloc] init];
 }
 
-- (void)rac_customDealloc {
+- (void)rac_customTargetDealloc {
 	// If we're currently delivering a KVO callback then niling the trampoline set might not dealloc the trampoline and therefore make them be dealloc'd. So we need to manually stop observing on all of them as well.
-	for(RACKVOTrampoline *trampoline in [self.RACKVOTrampolines copy]) {
+	for(RACKVOTrampoline *trampoline in [self.RACKVOTargetTrampolines copy]) {
 		[trampoline stopObserving];
 	}
 	
-	objc_setAssociatedObject(self, RACKVOTrampolinesKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	objc_setAssociatedObject(self, RACKVOTargetTrampolinesKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
-	[self rac_customDealloc];
+	[self rac_customTargetDealloc];
+}
+
+- (void)rac_customObservableDealloc {
+	// If we're currently delivering a KVO callback then niling the trampoline set might not dealloc the trampoline and therefore make them be dealloc'd. So we need to manually stop observing on all of them as well.
+	for(RACKVOTrampoline *trampoline in [self.RACKVOObservingTrampolines copy]) {
+		[trampoline stopObserving];
+	}
+	
+	objc_setAssociatedObject(self, RACKVOObservingTrampolinesKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	
+	[self rac_customObservableDealloc];
 }
 
 - (id)rac_addObserver:(NSObject *)target forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options queue:(NSOperationQueue *)queue block:(void (^)(id target, NSDictionary *change))block {
-	// We gotta swizzle dealloc to make sure no KVO callbacks are sent once we've started dealloc'ing.
-	@synchronized(swizzledClasses) {
+	// We swizzle the dealloc for both the object being observed and the target of the observation. Because when either gets dealloc'd, we need to tear down the observation.
+	@synchronized(swizzledObservableClasses) {
+		Class classToSwizzle = [self class];
+		NSString *classKey = NSStringFromClass(classToSwizzle);
+		if([swizzledObservableClasses objectForKey:classKey] == nil) {
+			RACSwizzle(classToSwizzle, NSSelectorFromString(@"dealloc"), @selector(rac_customObservableDealloc));
+			[swizzledObservableClasses setObject:[NSNull null] forKey:classKey];
+		}
+	}
+	
+	@synchronized(swizzledTargetClasses) {
 		Class classToSwizzle = [target class];
 		NSString *classKey = NSStringFromClass(classToSwizzle);
-		if([swizzledClasses objectForKey:classKey] == nil) {
-			RACSwizzle(classToSwizzle, NSSelectorFromString(@"dealloc"), @selector(rac_customDealloc));
-			[swizzledClasses setObject:[NSNull null] forKey:classKey];
+		if([swizzledTargetClasses objectForKey:classKey] == nil) {
+			RACSwizzle(classToSwizzle, NSSelectorFromString(@"dealloc"), @selector(rac_customTargetDealloc));
+			[swizzledTargetClasses setObject:[NSNull null] forKey:classKey];
 		}
 	}
 	
@@ -114,7 +137,8 @@ static NSMutableDictionary *swizzledClasses = nil;
 	trampoline.keyPath = keyPath;
 	trampoline.queue = queue;
 	trampoline.target = target;
-	[trampoline startObservingOnObject:self options:options];
+	[trampoline startObservingObject:self options:options];
+	
 	return trampoline;
 }
 
@@ -130,12 +154,24 @@ static NSMutableDictionary *swizzledClasses = nil;
 	return YES;
 }
 
-- (NSMutableSet *)RACKVOTrampolines {
+- (NSMutableSet *)RACKVOObservingTrampolines {
     @synchronized(self) {
-        NSMutableSet *trampolines = objc_getAssociatedObject(self, RACKVOTrampolinesKey);
+        NSMutableSet *trampolines = objc_getAssociatedObject(self, RACKVOObservingTrampolinesKey);
         if(trampolines == nil) {
             trampolines = [NSMutableSet set];
-            objc_setAssociatedObject(self, RACKVOTrampolinesKey, trampolines, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            objc_setAssociatedObject(self, RACKVOObservingTrampolinesKey, trampolines, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        }
+        
+        return trampolines;
+    }
+}
+
+- (NSMutableSet *)RACKVOTargetTrampolines {
+    @synchronized(self) {
+        NSMutableSet *trampolines = objc_getAssociatedObject(self, RACKVOTargetTrampolinesKey);
+        if(trampolines == nil) {
+            trampolines = [NSMutableSet set];
+            objc_setAssociatedObject(self, RACKVOTargetTrampolinesKey, trampolines, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         }
         
         return trampolines;

@@ -25,9 +25,10 @@ It turns out this subscribable behavior is really useful in a lot of different c
 Enough words. Let's see some code:
 
 ```obj-c
-[RACAbleSelf(self.username) subscribeNext:^(NSString *newName) {
-	NSLog(@"%@", newName);
-}];
+[RACAbleSelf(self.username) 
+	subscribeNext:^(NSString *newName) {
+		NSLog(@"%@", newName);
+	}];
 ```
 
 That creates a subscribable from `self`'s KVO-compliant property `username` and logs the new value whenever it changes.
@@ -35,23 +36,30 @@ That creates a subscribable from `self`'s KVO-compliant property `username` and 
 That's nice but the real power comes when we compose subscribables. Like so:
 
 ```obj-c
-[[RACAbleSelf(self.username) where:^(NSString *newName) {
-	return [newName isEqualToString:@"joshaber"];
-}] subscribeNext:^(id _) {
-	NSLog(@"Hi me!");
-}];
+[[RACAbleSelf(self.username) 
+	where:^(NSString *newName) {
+		return [newName isEqualToString:@"joshaber"];
+	}] 
+	subscribeNext:^(id _) {
+		NSLog(@"Hi me!");
+	}];
 ```
 
 So now we're logging "Hi me!" whenever the username is "joshaber." Cool, but we can do better:
 
 ```obj-c
-[[[[RACAbleSelf(self.username) distinctUntilChanged] take:3] where:^(NSString *newName) {
-	return [newName isEqualToString:@"joshaber"];
-}] subscribeNext:^(id _) {
-	NSLog(@"Hi me!");
-} completed:^{
-	NSLog(@"Awww too bad you're not me!");
-}];
+[[[[RACAbleSelf(self.username) 
+	distinctUntilChanged] 
+	take:3] 
+	where:^(NSString *newName) {
+		return [newName isEqualToString:@"joshaber"];
+	}] 
+	subscribeNext:^(id _) {
+		NSLog(@"Hi me!");
+	} 
+	completed:^{
+		NSLog(@"Awww too bad you're not me!");
+	}];
 ```
 
 Holy composed subscribables Batman! So we're now only being notified if the new value isn't the same as the old value, we're only giving them 3 tries to be me, and if they're not, we print out a condescending message.
@@ -60,13 +68,16 @@ We can even combine subscribables. Suppose we have a view where they create an a
 
 ```obj-c
 NSArray *subscribables = [NSArray arrayWithObjects:RACAbleSelf(self.password), RACAbleSelf(self.passwordConfirmation), nil];
-[[RACSubscribable combineLatest:subscribables reduce:^(NSArray *values) {
-	NSString *currentPassword = [values objectAtIndex:0];
-	NSString *currentConfirmPassword = [values objectAtIndex:1];
-	return [NSNumber numberWithBool:[currentConfirmPassword isEqualToString:currentPassword]];
-}] subscribeNext:^(NSNumber *match) {
-	self.createEnabled = [match boolValue];
-}];
+[[RACSubscribable 
+	combineLatest:subscribables 
+	reduce:^(NSArray *values) {
+		NSString *currentPassword = [values objectAtIndex:0];
+		NSString *currentConfirmPassword = [values objectAtIndex:1];
+		return [NSNumber numberWithBool:[currentConfirmPassword isEqualToString:currentPassword]];
+	}] 
+	subscribeNext:^(NSNumber *match) {
+		self.createEnabled = [match boolValue];
+	}];
 ```
 
 So any time our `password` or `passwordConfirmation` properties change, we reduce them to a BOOL of whether or not they match. Then we enable or disable the create button with that result.
@@ -88,23 +99,30 @@ For example, to call a block once multiple async operations have completed:
 
 ``` obj-c
 NSArray *requests = [NSArray arrayWithObjects:[client fetchUserRepos], [client fetchOrgRepos], nil]];
-[[RACSubscribable merge:requests] subscribeCompleted:^{
-	NSLog(@"They're both done!");
-}];
+[[RACSubscribable 
+	merge:requests] 
+	subscribeCompleted:^{
+		NSLog(@"They're both done!");
+	}];
 ```
 
 Or to chain async operations:
 
 ``` obj-c
-[[[[client loginUser] selectMany:^(id _) {
-	return [client fetchMessages];
-}] selectMany:^(Message *message) {
-	return [client fetchFullMessage:message];
-}] subscribeNext:^(Message *fullMessage) {
-	NSLog(@"Got message: %@", fullMessage);
-} completed:^{
-	NSLog(@"Fetched all messages.");
-}];
+[[[[client 
+	loginUser] 
+	selectMany:^(id _) {
+		return [client fetchMessages];
+	}]
+	selectMany:^(Message *message) {
+		return [client fetchFullMessage:message];
+	}]
+	subscribeNext:^(Message *fullMessage) {
+		NSLog(@"Got message: %@", fullMessage);
+	} 
+	completed:^{
+		NSLog(@"Fetched all messages.");
+	}];
 ```
 
 That will login, then fetch message, then for each message fetched, fetch the full message, log each full message and then log when it's all done.

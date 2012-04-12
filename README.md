@@ -99,6 +99,6 @@ KVO is a special case when it comes to lifetime. If the normal rules applied, yo
 Instead, sbscribables for a KVO property send the `completed` event when the observing object is deallocated. This tears down the subscribable and its subscribers.
 
 ### Disposables
-The `-[RACSubscriber subscribe:]` method returns a `RACDisposable`. The disposable encapsulates the tasks necessary to clean up the subscription. You can call `-dispose` on a disposable to end your subscription.
+The `-[RACSubscribable subscribe:]` method returns a `RACDisposable`. The disposable encapsulates the tasks necessary to clean up the subscription. You can call `-dispose` on a disposable to end your subscription.
 
 ## Async

@@ -44,7 +44,7 @@
 }
 
 - (id)object {
-	return object == [RACTupleNil tupleNil] ? nil : object;
+	return [object isKindOfClass:[RACTupleNil class]] ? nil : object;
 }
 
 @end

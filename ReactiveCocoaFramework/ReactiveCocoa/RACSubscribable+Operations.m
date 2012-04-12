@@ -275,13 +275,13 @@
 		__block RACDisposable *innerDisposable = nil;
 		RACDisposable *outerDisposable = [[self windowWithStart:windowOpenSubject close:^(id<RACSubscribable> start) {
 			return [[[RACSubscribable interval:interval] take:1] doNext:^(id x) {
-				[observer sendNext:[RACTuple tupleWithObjectsFromArray:values]];
+				[observer sendNext:[RACTuple tupleWithObjectsFromArray:values convertNullsToNils:YES]];
 				[values removeAllObjects];
 				[windowOpenSubject sendNext:[RACUnit defaultUnit]];
 			}];
 		}] subscribeNext:^(id x) {
 			innerDisposable = [x subscribeNext:^(id x) {
-				[values addObject:x ? : [RACTupleNil tupleNil]];
+				[values addObject:x ? : [NSNull null]];
 			}];
 		} error:^(NSError *error) {
 			[observer sendError:error];
@@ -331,7 +331,7 @@
 						[orderedValues addObject:[lastValues objectForKey:[NSString stringWithFormat:@"%p", o]]];
 					}
 					
-					[observer sendNext:reduceBlock([RACTuple tupleWithObjectsFromArray:orderedValues])];
+					[observer sendNext:reduceBlock([RACTuple tupleWithObjectsFromArray:orderedValues convertNullsToNils:YES])];
 				}
 			} error:^(NSError *error) {
 				[observer sendError:error];

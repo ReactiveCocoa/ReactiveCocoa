@@ -32,7 +32,7 @@
 				[values addObject:[strongSelf valueForKeyPath:keyPath] ? : [NSNull null]];
 			}
 			
-			return [RACTuple tupleWithObjectsFromArray:values];
+			return [RACTuple tupleWithObjectsFromArray:values convertNullsToNils:YES];
 		};
 		
 		[observer sendNext:reduceBlock(currentValues())];

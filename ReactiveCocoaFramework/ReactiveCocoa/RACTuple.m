@@ -40,6 +40,10 @@
 	return self;
 }
 
+- (NSString *)description {
+	return [NSString stringWithFormat:@"<%@: %p> %@", NSStringFromClass([self class]), self, [self allObjects]];
+}
+
 
 #pragma mark NSFastEnumeration
 
@@ -61,8 +65,23 @@
 @synthesize backingArray;
 
 + (id)tupleWithObjectsFromArray:(NSArray *)array {
+	return [self tupleWithObjectsFromArray:array convertNullsToNils:NO];
+}
+
++ (id)tupleWithObjectsFromArray:(NSArray *)array convertNullsToNils:(BOOL)convert {
 	RACTuple *tuple = [[self alloc] init];
-	tuple.backingArray = [array copy];
+	
+	if(convert) {
+		NSMutableArray *newArray = [NSMutableArray arrayWithCapacity:array.count];
+		for(id object in array) {
+			[newArray addObject:[object isKindOfClass:[NSNull class]] ? [RACTupleNil tupleNil] : object];
+		}
+		
+		tuple.backingArray = [newArray copy];
+	} else {
+		tuple.backingArray = [array copy];
+	}
+	
 	return tuple;
 }
 
@@ -85,11 +104,16 @@
 
 - (id)objectAtIndex:(NSUInteger)index {
 	id object = [self.backingArray objectAtIndex:index];
-	return object == [RACTupleNil tupleNil] ? nil : object;
+	return [object isKindOfClass:[RACTupleNil class]] ? nil : object;
 }
 
 - (NSArray *)allObjects {
-	return self.backingArray;
+	NSMutableArray *newArray = [NSMutableArray arrayWithCapacity:self.backingArray.count];
+	for(id object in self.backingArray) {
+		[newArray addObject:[object isKindOfClass:[RACTupleNil class]] ? [NSNull null] : object];
+	}
+	
+	return newArray;
 }
 
 - (NSUInteger)count {

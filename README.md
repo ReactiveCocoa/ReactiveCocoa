@@ -21,7 +21,7 @@ Pretty straightforward right? So what's the big deal?
 ## The Big Deal™
 It turns out this subscribable behavior is really useful in a lot of different cases. And it's extraordinarily useful especially once you start composing subscribables.
 
-## Example
+## Examples
 Enough words. Let's see some code:
 
 ```obj-c
@@ -77,9 +77,9 @@ Only kinda. It's like KVO in that it's a way of being told when things change. B
 ### Yeah but I can already do all that myself
 Sure, but by using RAC you get some pretty awesome stuff for free:
 
-1. Free state management. Doing it ourselves, we'd have to keep and manage quite a bit of state ourselves. State is bad.
-1. Code locality. Doing it manually would involve code spread out across many different method calls. This way we define the behavior all in one place.
-1. Higher order message. RAC allows us to more clearly express our _intent_ rather than worrying about the specific implementation details.
+1. No state. Doing it ourselves, we'd have to keep and manage quite a bit of state manually. Therein lies bugs.
+1. Code locality. If we did it manually, the code would be spread out across many different method calls. This way we define the behavior all in one place.
+1. Higher order messaging. RAC allows us to more clearly express our _intent_ rather than worrying about the specific implementation details.
 
 ## Lifetime
 The point of RAC is to make your life better as a programmer. To that end, `RACSubscribable`'s lifetime is a little funny.
@@ -87,6 +87,7 @@ The point of RAC is to make your life better as a programmer. To that end, `RACS
 RAC will keep subscribables alive for as long as they need in order to deliver events to its subscribers. This means you usually don't need to worry about keeping a strong reference to a subscribable.
 
 RAC cleans up a subscribable when:
+
 1. The subscribable sends an error or is completed, or
 1. When all its subscribers have unsubscribed and it receives no new subscribers after one runloop iteration.
 
@@ -99,3 +100,5 @@ Instead, sbscribables for a KVO property send the `completed` event when the obs
 
 ### Disposables
 The `-[RACSubscriber subscribe:]` method returns a `RACDisposable`. The disposable encapsulates the tasks necessary to clean up the subscription. You can call `-dispose` on a disposable to end your subscription.
+
+## Async

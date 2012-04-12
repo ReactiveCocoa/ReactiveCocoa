@@ -7,7 +7,6 @@
 //
 
 #import "RACReplaySubject.h"
-#import "EXTNil.h"
 #import "RACSubscriber.h"
 
 @interface RACReplaySubject ()
@@ -33,7 +32,7 @@
 - (RACDisposable *)subscribe:(id<RACSubscriber>)observer {
 	RACDisposable * disposable = [super subscribe:observer];
 	for(id value in self.valuesReceived) {
-		[observer sendNext:value];
+		[observer sendNext:[value isKindOfClass:[NSNull class]] ? nil : value];
 	}
 	
 	return disposable;
@@ -45,7 +44,7 @@
 - (void)sendNext:(id)value {
 	[super sendNext:value];
 	
-	[self.valuesReceived addObject:value ? : [EXTNil null]];
+	[self.valuesReceived addObject:value ? : [NSNull null]];
 	
 	while(self.valuesReceived.count > self.capacity) {
 		[self.valuesReceived removeObjectAtIndex:0];

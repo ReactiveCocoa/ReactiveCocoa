@@ -8,6 +8,7 @@
 
 #import "RACSubscribable.h"
 
+@class RACTuple;
 @class RACConnectableSubscribable;
 
 
@@ -37,17 +38,17 @@
 // Divide the `next`s of the subscribable into windows. When `openSubscribable` sends a next, a window is opened and the `closeBlock` is asked for a close subscribable. The window is closed when the close subscribable sends a `next`.
 - (instancetype)windowWithStart:(id<RACSubscribable>)openSubscribable close:(id<RACSubscribable> (^)(id<RACSubscribable> start))closeBlock;
 
-// Divide the `next`s into buffers with `bufferCount` items each.
+// Divide the `next`s into buffers with `bufferCount` items each. The `next` will be a RACTuple of values.
 - (instancetype)buffer:(NSUInteger)bufferCount;
 
-// Divide the `next`s into buffers delivery every `interval` seconds.
+// Divide the `next`s into buffers delivery every `interval` seconds. The `next` will be a RACTuple of values.
 - (instancetype)bufferWithTime:(NSTimeInterval)interval;
 
 // Take `count` `next`s and then completes.
 - (instancetype)take:(NSUInteger)count;
 
 // Combine the latest values from each of the subscribables once all the subscribables have sent a `next`.
-+ (instancetype)combineLatest:(NSArray *)observables reduce:(id (^)(NSArray *xs))reduceBlock;
++ (instancetype)combineLatest:(NSArray *)observables reduce:(id (^)(RACTuple *xs))reduceBlock;
 
 // Sends a `+[RACUnit defaultUnit]` when all the subscribables have sent a `next`.
 + (instancetype)whenAll:(NSArray *)observables;
@@ -109,7 +110,7 @@
 // The source must be a subscribable of subscribables. Subscribe and send `next`s for the latest subscribable. This is mostly useful when combined with `-selectMany:`.
 - (instancetype)switch;
 
-// Add every `next` to an array. Note that this is a blocking call.
+// Add every `next` to an array. Nils are represented by NSNulls. Note that this is a blocking call.
 - (NSArray *)toArray;
 
 // Creates and returns a connectable subscribable. This allows you to share 1 single subscription to the underlying subscribable.

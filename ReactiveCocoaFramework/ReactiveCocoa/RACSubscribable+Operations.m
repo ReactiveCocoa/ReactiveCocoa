@@ -12,10 +12,10 @@
 #import "NSObject+RACExtensions.h"
 #import "RACBehaviorSubject.h"
 #import "RACDisposable.h"
-#import "EXTNil.h"
 #import "RACUnit.h"
 #import "RACMaybe.h"
 #import "RACConnectableSubscribable+Private.h"
+#import "RACTuple.h"
 
 
 @implementation RACSubscribable (Operations)
@@ -275,13 +275,13 @@
 		__block RACDisposable *innerDisposable = nil;
 		RACDisposable *outerDisposable = [[self windowWithStart:windowOpenSubject close:^(id<RACSubscribable> start) {
 			return [[[RACSubscribable interval:interval] take:1] doNext:^(id x) {
-				[observer sendNext:values];
+				[observer sendNext:[RACTuple tupleWithObjectsFromArray:values]];
 				[values removeAllObjects];
 				[windowOpenSubject sendNext:[RACUnit defaultUnit]];
 			}];
 		}] subscribeNext:^(id x) {
 			innerDisposable = [x subscribeNext:^(id x) {
-				[values addObject:x ? : [EXTNil null]];
+				[values addObject:x ? : [RACTupleNil tupleNil]];
 			}];
 		} error:^(NSError *error) {
 			[observer sendError:error];
@@ -314,7 +314,7 @@
 	}];
 }
 
-+ (instancetype)combineLatest:(NSArray *)observables reduce:(id (^)(NSArray *xs))reduceBlock {
++ (instancetype)combineLatest:(NSArray *)observables reduce:(id (^)(RACTuple *xs))reduceBlock {
 	NSParameterAssert(reduceBlock != NULL);
 	
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
@@ -323,7 +323,7 @@
 		NSMutableDictionary *lastValues = [NSMutableDictionary dictionaryWithCapacity:observables.count];
 		for(id<RACSubscribable> observable in observables) {
 			RACDisposable *disposable = [observable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
-				[lastValues setObject:x ? : [EXTNil null] forKey:[NSString stringWithFormat:@"%p", observable]];
+				[lastValues setObject:x ? : [NSNull null] forKey:[NSString stringWithFormat:@"%p", observable]];
 				
 				if(lastValues.count == observables.count) {
 					NSMutableArray *orderedValues = [NSMutableArray arrayWithCapacity:observables.count];
@@ -331,7 +331,7 @@
 						[orderedValues addObject:[lastValues objectForKey:[NSString stringWithFormat:@"%p", o]]];
 					}
 					
-					[observer sendNext:reduceBlock(orderedValues)];
+					[observer sendNext:reduceBlock([RACTuple tupleWithObjectsFromArray:orderedValues])];
 				}
 			} error:^(NSError *error) {
 				[observer sendError:error];
@@ -356,7 +356,7 @@
 }
 
 + (instancetype)whenAll:(NSArray *)observables {
-	return [self combineLatest:observables reduce:^(NSArray *xs) { return [RACUnit defaultUnit]; }];
+	return [self combineLatest:observables reduce:^(RACTuple *xs) { return [RACUnit defaultUnit]; }];
 }
 
 + (instancetype)merge:(NSArray *)observables {
@@ -679,7 +679,7 @@
 	NSMutableArray *values = [NSMutableArray array];
 	__block BOOL stop = NO;
 	[self subscribeNext:^(id x) {
-		[values addObject:x ? : [EXTNil null]];
+		[values addObject:x ? : [NSNull null]];
 	} error:^(NSError *error) {
 		stop = YES;
 	} completed:^{

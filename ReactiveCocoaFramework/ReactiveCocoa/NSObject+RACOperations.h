@@ -9,10 +9,11 @@
 #import <Foundation/Foundation.h>
 
 @class RACSubscribable;
+@class RACTuple;
 
 
 @interface NSObject (RACOperations)
 
-- (RACSubscribable *)rac_whenAny:(NSArray *)keyPaths reduce:(id (^)(NSArray *xs))reduceBlock;
+- (RACSubscribable *)rac_whenAny:(NSArray *)keyPaths reduce:(id (^)(RACTuple *xs))reduceBlock;
 
 @end

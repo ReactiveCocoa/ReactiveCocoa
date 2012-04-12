@@ -7,7 +7,7 @@
 //
 
 #import "RACMaybe.h"
-#import "EXTNil.h"
+#import "RACTuple.h"
 
 @interface RACMaybe ()
 @property (nonatomic, strong) id object;
@@ -25,7 +25,7 @@
 
 + (id)maybeWithObject:(id)object {
 	RACMaybe *maybe = [[self alloc] init];
-	maybe.object = object ? : [EXTNil null];
+	maybe.object = object ? : [RACTupleNil tupleNil];
 	return maybe;
 }
 
@@ -41,6 +41,10 @@
 
 - (BOOL)hasError {
 	return self.error != nil;
+}
+
+- (id)object {
+	return object == [RACTupleNil tupleNil] ? nil : object;
 }
 
 @end

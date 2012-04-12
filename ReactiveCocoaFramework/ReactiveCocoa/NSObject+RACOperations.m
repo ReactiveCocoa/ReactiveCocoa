@@ -11,14 +11,14 @@
 #import "NSObject+RACSubscribable.h"
 #import "RACSubscribable.h"
 #import "RACSubscribable+Operations.h"
-#import "EXTNil.h"
 #import "RACSubscriber.h"
 #import "NSObject+RACFastEnumeration.h"
+#import "RACTuple.h"
 
 
 @implementation NSObject (RACOperations)
 
-- (RACSubscribable *)rac_whenAny:(NSArray *)keyPaths reduce:(id (^)(NSArray *xs))reduceBlock {
+- (RACSubscribable *)rac_whenAny:(NSArray *)keyPaths reduce:(id (^)(RACTuple *xs))reduceBlock {
 	NSParameterAssert(keyPaths != nil);
 	NSParameterAssert(reduceBlock != NULL);
 	
@@ -26,13 +26,13 @@
 	return [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> observer) {
 		NSObject *strongSelf = weakSelf;
 		
-		NSArray * (^currentValues)(void) = ^{
+		RACTuple * (^currentValues)(void) = ^{
 			NSMutableArray *values = [NSMutableArray arrayWithCapacity:keyPaths.count];
 			for(NSString *keyPath in keyPaths) {
-				[values addObject:[strongSelf valueForKeyPath:keyPath] ? : [EXTNil null]];
+				[values addObject:[strongSelf valueForKeyPath:keyPath] ? : [NSNull null]];
 			}
 			
-			return values;
+			return [RACTuple tupleWithObjectsFromArray:values];
 		};
 		
 		[observer sendNext:reduceBlock(currentValues())];

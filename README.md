@@ -3,6 +3,7 @@ ReactiveCocoa (RAC) is an Objective-C version of .NET's [Reactive Extensions](ht
 
 ## No srsly, what is it
 A many splendid thing:
+
 1. Unified, higher-order interface for asynchronous operations.
 1. Functional, declarative way to describe behaviors and the relationships between properties.
 1. A lovely API on top of KVO.
@@ -21,27 +22,27 @@ Pretty straightforward right? So what's the big deal?
 It turns out this subscribable behavior is really useful in a lot of different cases. And it's extraordinarily useful especially once you start composing subscribables.
 
 ## Example
-Enough words. Let's see some code.
+Enough words. Let's see some code:
 
 ```obj-c
 [RACAbleSelf(self.username) subscribeNext:^(NSString *newName) {
 	NSLog(@"%@", newName);
-};
+}];
 ```
 
 That creates a subscribable from `self`'s KVO-compliant property `username` and logs the new value whenever it changes.
 
-That's nice but the real power comes when we compose subscribables. Like so.
+That's nice but the real power comes when we compose subscribables. Like so:
 
 ```obj-c
 [[RACAbleSelf(self.username) where:^(NSString *newName) {
 	return [newName isEqualToString:@"joshaber"];
-}] subscribeNext:^(NSString *_) {
+}] subscribeNext:^(id _) {
 	NSLog(@"Hi me!");
 }];
 ```
 
-So now we're logging "Hi me!" whenever the username is "joshaber." Cool, but we can do better.
+So now we're logging "Hi me!" whenever the username is "joshaber." Cool, but we can do better:
 
 ```obj-c
 [[[[RACAbleSelf(self.username) distinctUntilChanged] take:3] where:^(NSString *newName) {
@@ -70,8 +71,15 @@ NSArray *subscribables = [NSArray arrayWithObjects:RACAbleSelf(self.password), R
 
 So any time our `password` or `passwordConfirmation` properties change, we reduce them to a BOOL of whether or not they match. Then we enable or disable the create button with that result.
 
-## Isn't this just KVO?
+### Isn't this just KVO?
 Only kinda. It's like KVO in that it's a way of being told when things change. But it's really much more general, flexible, and usable than KVO. That said, it **does** leverage KVO. You can, for instance, create a subscribable from a KVO-compliant property.
+
+### Yeah but I can already do all that myself
+Sure, but by using RAC you get some pretty awesome stuff for free:
+
+1. Free state management. Doing it ourselves, we'd have to keep and manage quite a bit of state ourselves. State is bad.
+1. Code locality. Doing it manually would involve code spread out across many different method calls. This way we define the behavior all in one place.
+1. Higher order message. RAC allows us to more clearly express our _intent_ rather than worrying about the specific implementation details.
 
 ## Lifetime
 The point of RAC is to make your life better as a programmer. To that end, `RACSubscribable`'s lifetime is a little funny.

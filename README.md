@@ -67,9 +67,8 @@ Holy composed subscribables Batman! So we're now only being notified if the new 
 We can even combine subscribables. Suppose we have a view where they create an account, and we want to only enable the "Create" button when the password and password confirmation fields match.
 
 ```obj-c
-NSArray *subscribables = [NSArray arrayWithObjects:RACAbleSelf(self.password), RACAbleSelf(self.passwordConfirmation), nil];
 [[RACSubscribable 
-	combineLatest:subscribables 
+	combineLatest:[NSArray arrayWithObjects:RACAbleSelf(self.password), RACAbleSelf(self.passwordConfirmation), nil] 
 	reduce:^(NSArray *values) {
 		NSString *currentPassword = [values objectAtIndex:0];
 		NSString *currentConfirmPassword = [values objectAtIndex:1];
@@ -83,12 +82,12 @@ NSArray *subscribables = [NSArray arrayWithObjects:RACAbleSelf(self.password), R
 So any time our `password` or `passwordConfirmation` properties change, we reduce them to a BOOL of whether or not they match. Then we enable or disable the create button with that result.
 
 ### Isn't this just KVO?
-Only kinda. It's like KVO in that it's a way of being told when things change. But it's really much more general, flexible, and usable than KVO. That said, it **does** leverage KVO. You can, for instance, create a subscribable from a KVO-compliant property.
+Only kinda. It's like KVO in that it's a way of being told when things change. But it's really much more general, flexible, and usable than KVO. That said, it **does** leverage KVO. As you can see above, for instance, you can create a subscribable from a KVO-compliant property.
 
 ### Yeah but I can already do all that myself
 Sure, but by using RAC you get some pretty awesome stuff for free:
 
-1. No state. Doing it ourselves, we'd have to keep and manage quite a bit of state manually. Therein lies bugs.
+1. No state. If we did it ourselves, we'd have to keep and manage quite a bit of state manually. Therein lies bugs.
 1. Code locality. If we did it manually, the code would be spread out across many different method calls. This way we define the behavior all in one place.
 1. Higher order messaging. RAC allows us to more clearly express our _intent_ rather than worrying about the specific implementation details.
 
@@ -98,9 +97,8 @@ The subscribable paradigm also fits quite nicely with async operations. Your asy
 For example, to call a block once multiple async operations have completed:
 
 ``` obj-c
-NSArray *requests = [NSArray arrayWithObjects:[client fetchUserRepos], [client fetchOrgRepos], nil]];
 [[RACSubscribable 
-	merge:requests] 
+	merge:[NSArray arrayWithObjects:[client fetchUserRepos], [client fetchOrgRepos], nil]] 
 	subscribeCompleted:^{
 		NSLog(@"They're both done!");
 	}];
@@ -125,7 +123,7 @@ Or to chain async operations:
 	}];
 ```
 
-That will login, then fetch message, then for each message fetched, fetch the full message, log each full message and then log when it's all done.
+That will login, then fetch messages, then for each message fetched, fetch the full message, log each full message and then log when it's all done.
 
 ## Lifetime
 The point of RAC is to make your life better as a programmer. To that end, `RACSubscribable`'s lifetime is a little funny.
@@ -142,12 +140,12 @@ If you want to keep a subscribable alive past either of those cases, you need to
 ### KVO
 KVO is a special case when it comes to lifetime. If the normal rules applied, you'd end up causing retain cycles all over the place.
 
-Instead, sbscribables for a KVO property send the `completed` event when the observing object is deallocated. This tears down the subscribable and its subscribers.
+Instead, sbscribables for a KVO property send the `completed` event when the observing object is deallocated. This falls under case (1) above, so it tears down the subscribable and its subscribers.
 
 ### Disposables
-The `-[RACSubscribable subscribe:]` method returns a `RACDisposable`. That disposable encapsulates the tasks necessary to clean up the subscription. You can call `-dispose` on a disposable to end your subscription.
+The `-[RACSubscribable subscribe:]` method returns a `RACDisposable`. That disposable encapsulates the tasks necessary to clean up the subscription. You can call `-dispose` on a disposable to end your subscription manually.
 
 ## It's ugly!
-OK I might grant you that. Beauty is in the eye of the beholder and all that. We've played with a lot of different formatting styles so try to find one that's both concise and readable. The examples are in the style we currently use.
+OK I might grant you that. Beauty is in the eye of the beholder and all that. We've played with a lot of different formatting styles to try to find one that's both concise and readable. The examples are in the style we currently use.
 
 That said, it's also a matter of getting used to what a different kind of code looks like. Give it time. It might grow on you.

@@ -281,7 +281,7 @@
 			}];
 		}] subscribeNext:^(id x) {
 			innerDisposable = [x subscribeNext:^(id x) {
-				[values addObject:x ? : [NSNull null]];
+				[values addObject:x ? : [RACTupleNil tupleNil]];
 			}];
 		} error:^(NSError *error) {
 			[observer sendError:error];
@@ -323,7 +323,7 @@
 		NSMutableDictionary *lastValues = [NSMutableDictionary dictionaryWithCapacity:observables.count];
 		for(id<RACSubscribable> observable in observables) {
 			RACDisposable *disposable = [observable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
-				[lastValues setObject:x ? : [NSNull null] forKey:[NSString stringWithFormat:@"%p", observable]];
+				[lastValues setObject:x ? : [RACTupleNil tupleNil] forKey:[NSString stringWithFormat:@"%p", observable]];
 				
 				if(lastValues.count == observables.count) {
 					NSMutableArray *orderedValues = [NSMutableArray arrayWithCapacity:observables.count];
@@ -331,7 +331,7 @@
 						[orderedValues addObject:[lastValues objectForKey:[NSString stringWithFormat:@"%p", o]]];
 					}
 					
-					[observer sendNext:reduceBlock([RACTuple tupleWithObjectsFromArray:orderedValues convertNullsToNils:YES])];
+					[observer sendNext:reduceBlock([RACTuple tupleWithObjectsFromArray:orderedValues])];
 				}
 			} error:^(NSError *error) {
 				[observer sendError:error];

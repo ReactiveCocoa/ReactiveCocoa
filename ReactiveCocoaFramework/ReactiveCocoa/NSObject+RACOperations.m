@@ -29,10 +29,10 @@
 		RACTuple * (^currentValues)(void) = ^{
 			NSMutableArray *values = [NSMutableArray arrayWithCapacity:keyPaths.count];
 			for(NSString *keyPath in keyPaths) {
-				[values addObject:[strongSelf valueForKeyPath:keyPath] ? : [NSNull null]];
+				[values addObject:[strongSelf valueForKeyPath:keyPath] ? : [RACTupleNil tupleNil]];
 			}
 			
-			return [RACTuple tupleWithObjectsFromArray:values convertNullsToNils:YES];
+			return [RACTuple tupleWithObjectsFromArray:values];
 		};
 		
 		[observer sendNext:reduceBlock(currentValues())];

@@ -50,7 +50,7 @@
 		self.loggingIn = YES;
 	}];
 	
-	RACSubject *loginResult = [[[self.loginCommand addAsyncFunction:^(id _) {
+	RACSubscribable *loginResult = [[[self.loginCommand addAsyncFunction:^(id _) {
 		return [self.client login];
 	}] repeat] catchToMaybe];
 

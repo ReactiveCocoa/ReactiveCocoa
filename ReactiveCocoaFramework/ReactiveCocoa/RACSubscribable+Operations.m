@@ -20,7 +20,7 @@
 
 @implementation RACSubscribable (Operations)
 
-- (instancetype)select:(id (^)(id x))selectBlock {
+- (RACSubscribable *)select:(id (^)(id x))selectBlock {
 	NSParameterAssert(selectBlock != NULL);
 	
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
@@ -34,7 +34,7 @@
 	}];
 }
 
-- (instancetype)where:(BOOL (^)(id x))whereBlock {
+- (RACSubscribable *)where:(BOOL (^)(id x))whereBlock {
 	NSParameterAssert(whereBlock != NULL);
 	
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
@@ -50,7 +50,7 @@
 	}];
 }
 
-- (instancetype)doNext:(void (^)(id x))block {
+- (RACSubscribable *)doNext:(void (^)(id x))block {
 	NSParameterAssert(block != NULL);
 
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
@@ -65,7 +65,7 @@
 	}];
 }
 
-- (instancetype)throttle:(NSTimeInterval)interval {	
+- (RACSubscribable *)throttle:(NSTimeInterval)interval {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
 		__block id lastDelayedId = nil;
 		return [self subscribeNext:^(id x) {
@@ -82,7 +82,7 @@
 	}];
 }
 
-- (instancetype)delay:(NSTimeInterval)interval {
+- (RACSubscribable *)delay:(NSTimeInterval)interval {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
 		__block id lastDelayedId = nil;
 		return [self subscribeNext:^(id x) {
@@ -98,7 +98,7 @@
 	}];
 }
 
-- (instancetype)repeat {
+- (RACSubscribable *)repeat {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
 		__block RACDisposable *currentDisposable = nil;
 		
@@ -118,7 +118,7 @@
 	}];
 }
 
-- (instancetype)catchToMaybe {
+- (RACSubscribable *)catchToMaybe {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
 		__block RACDisposable *currentDisposable = nil;
 		
@@ -139,7 +139,7 @@
 	}];
 }
 
-- (instancetype)catch:(id<RACSubscribable> (^)(NSError *error))catchBlock {
+- (RACSubscribable *)catch:(id<RACSubscribable> (^)(NSError *error))catchBlock {
 	NSParameterAssert(catchBlock != NULL);
 		
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
@@ -163,13 +163,13 @@
 	}];
 }
 
-- (instancetype)catchTo:(id<RACSubscribable>)subscribable {
+- (RACSubscribable *)catchTo:(id<RACSubscribable>)subscribable {
 	return [self catch:^(NSError *error) {
 		return subscribable;
 	}];
 }
 
-- (instancetype)finally:(void (^)(void))block {
+- (RACSubscribable *)finally:(void (^)(void))block {
 	NSParameterAssert(block != NULL);
 	
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
@@ -185,7 +185,7 @@
 	}];
 }
 
-- (instancetype)windowWithStart:(id<RACSubscribable>)openSubscribable close:(id<RACSubscribable> (^)(id<RACSubscribable> start))closeBlock {
+- (RACSubscribable *)windowWithStart:(id<RACSubscribable>)openSubscribable close:(id<RACSubscribable> (^)(id<RACSubscribable> start))closeBlock {
 	NSParameterAssert(openSubscribable != nil);
 	NSParameterAssert(closeBlock != NULL);
 	
@@ -237,7 +237,7 @@
 	}];
 }
 
-- (instancetype)buffer:(NSUInteger)bufferCount {
+- (RACSubscribable *)buffer:(NSUInteger)bufferCount {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
 		NSMutableArray *values = [NSMutableArray arrayWithCapacity:bufferCount];
 		RACBehaviorSubject *windowOpenSubject = [RACBehaviorSubject behaviorSubjectWithDefaultValue:[RACUnit defaultUnit]];
@@ -267,7 +267,7 @@
 	}];
 }
 
-- (instancetype)bufferWithTime:(NSTimeInterval)interval {
+- (RACSubscribable *)bufferWithTime:(NSTimeInterval)interval {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
 		NSMutableArray *values = [NSMutableArray array];
 		RACBehaviorSubject *windowOpenSubject = [RACBehaviorSubject behaviorSubjectWithDefaultValue:[RACUnit defaultUnit]];
@@ -296,7 +296,7 @@
 	}];
 }
 
-- (instancetype)take:(NSUInteger)count {
+- (RACSubscribable *)take:(NSUInteger)count {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {		
 		__block NSUInteger valuesTaken = 0;
 		return [self subscribeNext:^(id x) {
@@ -314,7 +314,7 @@
 	}];
 }
 
-+ (instancetype)combineLatest:(NSArray *)observables reduce:(id (^)(RACTuple *xs))reduceBlock {
++ (RACSubscribable *)combineLatest:(NSArray *)observables reduce:(id (^)(RACTuple *xs))reduceBlock {
 	NSParameterAssert(reduceBlock != NULL);
 	
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
@@ -355,11 +355,11 @@
 	}];
 }
 
-+ (instancetype)whenAll:(NSArray *)observables {
++ (RACSubscribable *)whenAll:(NSArray *)observables {
 	return [self combineLatest:observables reduce:^(RACTuple *xs) { return [RACUnit defaultUnit]; }];
 }
 
-+ (instancetype)merge:(NSArray *)observables {
++ (RACSubscribable *)merge:(NSArray *)observables {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
 		NSMutableSet *disposables = [NSMutableSet setWithCapacity:observables.count];
 		NSMutableSet *completedObservables = [NSMutableSet setWithCapacity:observables.count];
@@ -386,7 +386,7 @@
 	}];
 }
 
-- (instancetype)selectMany:(id<RACSubscribable> (^)(id x))selectBlock {
+- (RACSubscribable *)selectMany:(id<RACSubscribable> (^)(id x))selectBlock {
 	NSParameterAssert(selectBlock != NULL);
 	
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
@@ -424,7 +424,7 @@
 	}];
 }
 
-- (instancetype)concat:(id<RACSubscribable>)subscribable {
+- (RACSubscribable *)concat:(id<RACSubscribable>)subscribable {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *concattedDisposable = nil;
 		RACDisposable *sourceDisposable = [self subscribeNext:^(id x) {
@@ -448,7 +448,7 @@
 	}];
 }
 
-- (instancetype)scanWithStart:(NSInteger)start combine:(NSInteger (^)(NSInteger running, NSInteger next))combineBlock {
+- (RACSubscribable *)scanWithStart:(NSInteger)start combine:(NSInteger (^)(NSInteger running, NSInteger next))combineBlock {
 	NSParameterAssert(combineBlock != NULL);
 	
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
@@ -464,7 +464,7 @@
 	}];
 }
 
-- (instancetype)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock {
+- (RACSubscribable *)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock {
 	NSParameterAssert(combineBlock != NULL);
 	
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
@@ -496,7 +496,7 @@
 	}];
 }
 
-- (instancetype)startWith:(id)initialValue {
+- (RACSubscribable *)startWith:(id)initialValue {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {		
 		[subscriber sendNext:initialValue];
 		
@@ -510,7 +510,7 @@
 	}];
 }
 
-+ (instancetype)interval:(NSTimeInterval)interval {
++ (RACSubscribable *)interval:(NSTimeInterval)interval {
 	return [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> observer) {
 		NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(intervalTimerFired:) userInfo:observer repeats:YES];
 		
@@ -526,7 +526,7 @@
 	[observer sendNext:[RACUnit defaultUnit]];
 }
 
-- (instancetype)takeUntil:(id<RACSubscribable>)subscribableTrigger {
+- (RACSubscribable *)takeUntil:(id<RACSubscribable>)subscribableTrigger {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
 			[subscriber sendNext:x];
@@ -552,7 +552,7 @@
 	}];
 }
 
-- (instancetype)takeUntilBlock:(BOOL (^)(id x))predicate {
+- (RACSubscribable *)takeUntilBlock:(BOOL (^)(id x))predicate {
 	NSParameterAssert(predicate != NULL);
 	
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
@@ -577,7 +577,7 @@
 	}];
 }
 
-- (instancetype)switch {
+- (RACSubscribable *)switch {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *innerDisposable = nil;
 		RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
@@ -629,7 +629,7 @@
 	return value;
 }
 
-+ (instancetype)defer:(id<RACSubscribable> (^)(void))block {
++ (RACSubscribable *)defer:(id<RACSubscribable> (^)(void))block {
 	return [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
 		id<RACSubscribable> subscribable = block();
 		return [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
@@ -642,7 +642,7 @@
 	}];
 }
 
-- (instancetype)skip:(NSUInteger)skipCount {
+- (RACSubscribable *)skip:(NSUInteger)skipCount {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		__block NSUInteger skipped = 0;
 		return [self subscribeNext:^(id x) {
@@ -659,7 +659,7 @@
 	}];
 }
 
-- (instancetype)distinctUntilChanged {
+- (RACSubscribable *)distinctUntilChanged {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		__block id lastValue = nil;
 		return [self subscribeNext:^(id x) {

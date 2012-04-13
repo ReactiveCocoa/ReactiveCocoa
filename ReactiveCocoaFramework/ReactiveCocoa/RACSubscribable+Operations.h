@@ -15,82 +15,82 @@
 @interface RACSubscribable (Operations)
 
 // Transform each `next` value by calling the given block.
-- (instancetype)select:(id (^)(id x))selectBlock;
+- (RACSubscribable *)select:(id (^)(id x))selectBlock;
 
 // Only send `next` when the given block returns YES.
-- (instancetype)where:(BOOL (^)(id x))whereBlock;
+- (RACSubscribable *)where:(BOOL (^)(id x))whereBlock;
 
 // Do the given block on `next`. This can be used to inject side effects into a subscribable.
-- (instancetype)doNext:(void (^)(id x))block;
+- (RACSubscribable *)doNext:(void (^)(id x))block;
 
 // Only send `next` when we don't receive another `next` in `interval` seconds.
-- (instancetype)throttle:(NSTimeInterval)interval;
+- (RACSubscribable *)throttle:(NSTimeInterval)interval;
 
 // Sends `next` after delaying for `interval` seconds.
-- (instancetype)delay:(NSTimeInterval)interval;
+- (RACSubscribable *)delay:(NSTimeInterval)interval;
 
 // Resubscribes when the subscribable completes.
-- (instancetype)repeat;
+- (RACSubscribable *)repeat;
 
 // Execute the given block when the subscribable completes or errors.
-- (instancetype)finally:(void (^)(void))block;
+- (RACSubscribable *)finally:(void (^)(void))block;
 
 // Divide the `next`s of the subscribable into windows. When `openSubscribable` sends a next, a window is opened and the `closeBlock` is asked for a close subscribable. The window is closed when the close subscribable sends a `next`.
-- (instancetype)windowWithStart:(id<RACSubscribable>)openSubscribable close:(id<RACSubscribable> (^)(id<RACSubscribable> start))closeBlock;
+- (RACSubscribable *)windowWithStart:(id<RACSubscribable>)openSubscribable close:(id<RACSubscribable> (^)(id<RACSubscribable> start))closeBlock;
 
 // Divide the `next`s into buffers with `bufferCount` items each. The `next` will be a RACTuple of values.
-- (instancetype)buffer:(NSUInteger)bufferCount;
+- (RACSubscribable *)buffer:(NSUInteger)bufferCount;
 
 // Divide the `next`s into buffers delivery every `interval` seconds. The `next` will be a RACTuple of values.
-- (instancetype)bufferWithTime:(NSTimeInterval)interval;
+- (RACSubscribable *)bufferWithTime:(NSTimeInterval)interval;
 
 // Take `count` `next`s and then completes.
-- (instancetype)take:(NSUInteger)count;
+- (RACSubscribable *)take:(NSUInteger)count;
 
 // Combine the latest values from each of the subscribables once all the subscribables have sent a `next`.
-+ (instancetype)combineLatest:(NSArray *)observables reduce:(id (^)(RACTuple *xs))reduceBlock;
++ (RACSubscribable *)combineLatest:(NSArray *)observables reduce:(id (^)(RACTuple *xs))reduceBlock;
 
 // Sends a `+[RACUnit defaultUnit]` when all the subscribables have sent a `next`.
-+ (instancetype)whenAll:(NSArray *)observables;
++ (RACSubscribable *)whenAll:(NSArray *)observables;
 
 // Sends the latest `next` from any of the subscribables.
-+ (instancetype)merge:(NSArray *)observables;
++ (RACSubscribable *)merge:(NSArray *)observables;
 
 // Gets a new subscribable for every `next` and sends `next` when any of those subscribables do.
-- (instancetype)selectMany:(id<RACSubscribable> (^)(id x))selectBlock;
+- (RACSubscribable *)selectMany:(id<RACSubscribable> (^)(id x))selectBlock;
 
 // Subscribes to `subscribable` when the source subscribable completes.
-- (instancetype)concat:(id<RACSubscribable>)subscribable;
+- (RACSubscribable *)concat:(id<RACSubscribable>)subscribable;
 
 // Combine `next`s with the given start and combination.
-- (instancetype)scanWithStart:(NSInteger)start combine:(NSInteger (^)(NSInteger running, NSInteger next))combineBlock;
+- (RACSubscribable *)scanWithStart:(NSInteger)start combine:(NSInteger (^)(NSInteger running, NSInteger next))combineBlock;
 
 // Aggregate `next`s with the given start and combination.
-- (instancetype)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock;
+- (RACSubscribable *)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock;
 
 // Set the object's keyPath to the value of `next`.
 - (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object;
 
 // Send `next` with `initialValue` before getting the first `next`.
-- (instancetype)startWith:(id)initialValue;
+- (RACSubscribable *)startWith:(id)initialValue;
 
 // Sends `+[RACUnit defaultUnit]` every `interval` seconds.
-+ (instancetype)interval:(NSTimeInterval)interval;
++ (RACSubscribable *)interval:(NSTimeInterval)interval;
 
 // Take `next`s until the `subscribableTrigger` sends a `next`.
-- (instancetype)takeUntil:(id<RACSubscribable>)subscribableTrigger;
+- (RACSubscribable *)takeUntil:(id<RACSubscribable>)subscribableTrigger;
 
 // Take `next`s until the given block returns NO.
-- (instancetype)takeUntilBlock:(BOOL (^)(id x))predicate;
+- (RACSubscribable *)takeUntilBlock:(BOOL (^)(id x))predicate;
 
 // Convert every `next` and `error` into a RACMaybe.
-- (instancetype)catchToMaybe;
+- (RACSubscribable *)catchToMaybe;
 
 // Subscribe to the returned subscribable when an error occurs.
-- (instancetype)catch:(id<RACSubscribable> (^)(NSError *error))catchBlock;
+- (RACSubscribable *)catch:(id<RACSubscribable> (^)(NSError *error))catchBlock;
 
 // Subscribe to the given subscribable when an error occurs.
-- (instancetype)catchTo:(id<RACSubscribable>)subscribable;
+- (RACSubscribable *)catchTo:(id<RACSubscribable>)subscribable;
 
 // Returns the first `next`. Note that this is a blocking call.
 - (id)first;
@@ -99,16 +99,16 @@
 - (id)firstOrDefault:(id)defaultValue;
 
 // Skip the first `skipCount` `next`s.
-- (instancetype)skip:(NSUInteger)skipCount;
+- (RACSubscribable *)skip:(NSUInteger)skipCount;
 
 // Defer creation of a subscribable until the subscribable's actually subscribed to.
-+ (instancetype)defer:(id<RACSubscribable> (^)(void))block;
++ (RACSubscribable *)defer:(id<RACSubscribable> (^)(void))block;
 
 // Send only `next`s for which -isEqual: returns NO when compared to the previous `next`.
-- (instancetype)distinctUntilChanged;
+- (RACSubscribable *)distinctUntilChanged;
 
 // The source must be a subscribable of subscribables. Subscribe and send `next`s for the latest subscribable. This is mostly useful when combined with `-selectMany:`.
-- (instancetype)switch;
+- (RACSubscribable *)switch;
 
 // Add every `next` to an array. Nils are represented by NSNulls. Note that this is a blocking call.
 - (NSArray *)toArray;

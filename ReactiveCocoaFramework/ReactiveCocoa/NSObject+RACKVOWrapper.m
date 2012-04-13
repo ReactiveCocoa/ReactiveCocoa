@@ -35,17 +35,17 @@ static char RACKVOWrapperContext;
 }
 
 - (void)observeValueForKeyPath:(NSString *)triggeredKeyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    if(context == &RACKVOWrapperContext) {
-        if(self.queue == nil || self.queue == [NSOperationQueue currentQueue]) {
-            self.block(self.target, change);
+	if(context == &RACKVOWrapperContext) {
+		if(self.queue == nil || self.queue == [NSOperationQueue currentQueue]) {
+			if(self.target != nil) self.block(self.target, change);
         } else {
 			[self.queue addOperationWithBlock:^{
-				self.block(self.target, change);
+				if(self.target != nil) self.block(self.target, change);
 			}];
 		}
-    } else {
-        [super observeValueForKeyPath:triggeredKeyPath ofObject:object change:change context:context];
-    }
+	} else {
+		[super observeValueForKeyPath:triggeredKeyPath ofObject:object change:change context:context];
+	}
 }
 
 

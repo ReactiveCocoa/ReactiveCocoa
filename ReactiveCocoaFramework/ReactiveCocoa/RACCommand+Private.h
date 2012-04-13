@@ -7,5 +7,7 @@
 //
 
 @interface RACCommand ()
+
 @property (nonatomic, assign) BOOL canExecute;
+
 @end

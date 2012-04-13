@@ -9,7 +9,9 @@
 #import <Foundation/Foundation.h>
 
 
+// A sentinel object that represents nils in the tuple. It should never be necessary to create a tuple nil yourself. Just use +tupleNil.
 @interface RACTupleNil : NSObject
+// A singleton instance.
 + (RACTupleNil *)tupleNil;
 @end
 
@@ -25,12 +27,13 @@
 // Creates a new tuple out of the array. If `convert` is YES, it also converts every NSNull to RACTupleNil.
 + (id)tupleWithObjectsFromArray:(NSArray *)array convertNullsToNils:(BOOL)convert;
 
+// Creates a new tuple with the given objects. Use RACTupleNil to represent nils.
 + (id)tupleWithObjects:(id)object, ... NS_REQUIRES_NIL_TERMINATION;
 
 // Returns the object at `index` or nil if the object is a RACTupleNil.
 - (id)objectAtIndex:(NSUInteger)index;
 
-// Returns an array of all the objects. RACTupleNils are translated to NSNulls.
+// Returns an array of all the objects. RACTupleNils are converted to NSNulls.
 - (NSArray *)allObjects;
 
 @end

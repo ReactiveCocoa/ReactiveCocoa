@@ -14,6 +14,7 @@
 #import "RACSubscriber.h"
 #import "NSObject+RACFastEnumeration.h"
 #import "RACTuple.h"
+#import "NSArray+RACExtensions.h"
 
 
 @implementation NSObject (RACOperations)
@@ -37,7 +38,10 @@
 		
 		[observer sendNext:reduceBlock(currentValues())];
 		
-		NSArray *subscribables = [[[keyPaths toSubscribable] select:^(NSString *keyPath) { return [strongSelf RACSubscribableForKeyPath:keyPath onObject:strongSelf]; }] toArray];
+		NSArray *subscribables = [keyPaths rac_select:^(NSString *keyPath) {
+			return [strongSelf RACSubscribableForKeyPath:keyPath onObject:strongSelf];
+		}];
+		
 		return [[RACSubscribable merge:subscribables] subscribeNext:^(id x) {
 			[observer sendNext:reduceBlock(currentValues())];
 		} error:^(NSError *error) {

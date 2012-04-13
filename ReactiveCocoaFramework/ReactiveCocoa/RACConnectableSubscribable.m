@@ -30,20 +30,16 @@
 }
 
 - (RACDisposable *)connect {
-	__block __unsafe_unretained id weakSelf = self;
 	return [self.sourceSubscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
-		RACConnectableSubscribable *strongSelf = weakSelf;
-		[strongSelf performBlockOnEachSubscriber:^(id<RACSubscriber> subscriber) {
+		[self performBlockOnEachSubscriber:^(id<RACSubscriber> subscriber) {
 			[subscriber sendNext:x];
 		}];
 	} error:^(NSError *error) {
-		RACConnectableSubscribable *strongSelf = weakSelf;
-		[strongSelf performBlockOnEachSubscriber:^(id<RACSubscriber> subscriber) {
+		[self performBlockOnEachSubscriber:^(id<RACSubscriber> subscriber) {
 			[subscriber sendError:error];
 		}];
 	} completed:^{
-		RACConnectableSubscribable *strongSelf = weakSelf;
-		[strongSelf performBlockOnEachSubscriber:^(id<RACSubscriber> subscriber) {
+		[self performBlockOnEachSubscriber:^(id<RACSubscriber> subscriber) {
 			[subscriber sendCompleted];
 		}];
 	}]];

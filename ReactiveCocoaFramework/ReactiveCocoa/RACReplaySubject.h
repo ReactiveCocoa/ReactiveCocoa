@@ -9,8 +9,10 @@
 #import "RACSubject.h"
 
 
+// A replay subject saves the values it is sent, up to its defined capacity, and resends those to new subscribers.
 @interface RACReplaySubject : RACSubject
 
+// Creates a new replay subject with the given capacity.
 + (id)replaySubjectWithCapacity:(NSUInteger)capacity;
 
 @end

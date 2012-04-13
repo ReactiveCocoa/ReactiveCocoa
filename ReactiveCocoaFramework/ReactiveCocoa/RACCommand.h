@@ -15,6 +15,7 @@
 // It sends `next` events when the command executes. `next` is sent the value passed into `-execute:`.
 @interface RACCommand : NSObject <RACSubscribable>
 
+// Whether or not the command can execute.
 @property (nonatomic, readonly, assign) BOOL canExecute;
 
 // Creates a new command with no execute or can execute block.

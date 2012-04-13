@@ -13,6 +13,7 @@
 
 @interface NSObject (RACFastEnumeration) // Must conform to NSFastEnumeration
 
+// Sends each object of the enumerable and then completes.
 - (RACSubscribable *)toSubscribable;
 
 @end

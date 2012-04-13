@@ -9,8 +9,10 @@
 #import "RACDisposable.h"
 
 
+// A disposable that calls its own -dispose when it is dealloc'd.
 @interface RACScopedDisposable : RACDisposable
 
+// Creates a new scoped disposable that will also dispose of the given disposable when it is dealloc'd.
 + (id)scopedDisposableWithDisposable:(RACDisposable *)disposable;
 
 @end

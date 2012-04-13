@@ -12,9 +12,9 @@
 #import "RACAsyncSubject.h"
 #import "RACReplaySubject.h"
 
-@interface RACAsyncFunctionPair : NSObject
+@interface RACAsyncBlockPair : NSObject
 @property (nonatomic, strong) RACSubject *subject;
-@property (nonatomic, strong) RACAsyncSubject * (^asyncFunction)(id value);
+@property (nonatomic, strong) RACAsyncSubject * (^asyncBlock)(id value);
 
 + (id)pair;
 @end
@@ -63,9 +63,9 @@
 		}
 	};
 	
-	for(RACAsyncFunctionPair *pair in self.asyncFunctionPairs) {
+	for(RACAsyncBlockPair *pair in self.asyncFunctionPairs) {
 		[self.operationQueue addOperationWithBlock:^{
-			RACAsyncSubject *subject = pair.asyncFunction(value);
+			RACAsyncSubject *subject = pair.asyncBlock(value);
 			[subject subscribeNext:^(id x) {
 				dispatch_async(dispatch_get_main_queue(), ^{
 					[pair.subject sendNext:x];
@@ -100,12 +100,12 @@
 	return operationQueue;
 }
 
-- (RACSubject *)addAsyncFunction:(RACAsyncSubject * (^)(id value))function {
-	NSParameterAssert(function != NULL);
+- (RACSubscribable *)addAsyncBlock:(RACAsyncSubject * (^)(id value))block {
+	NSParameterAssert(block != NULL);
 	
 	RACReplaySubject *subject = [RACReplaySubject replaySubjectWithCapacity:1];
-	RACAsyncFunctionPair *pair = [RACAsyncFunctionPair pair];
-	pair.asyncFunction = function;
+	RACAsyncBlockPair *pair = [RACAsyncBlockPair pair];
+	pair.asyncBlock = block;
 	pair.subject = subject;
 	[self.asyncFunctionPairs addObject:pair];
 	return subject;
@@ -122,10 +122,10 @@
 @end
 
 
-@implementation RACAsyncFunctionPair
+@implementation RACAsyncBlockPair
 
 @synthesize subject;
-@synthesize asyncFunction;
+@synthesize asyncBlock;
 
 + (id)pair {
 	return [[self alloc] init];

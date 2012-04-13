@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 
+// Represents the return value of a method that could be either an object or an error.
 @interface RACMaybe : NSObject
 
 @property (nonatomic, readonly, strong) id object;

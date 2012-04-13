@@ -113,7 +113,7 @@
 // Add every `next` to an array. Nils are represented by NSNulls. Note that this is a blocking call.
 - (NSArray *)toArray;
 
-// Creates and returns a connectable subscribable. This allows you to share 1 single subscription to the underlying subscribable.
+// Creates and returns a connectable subscribable. This allows you to share a single subscription to the underlying subscribable.
 - (RACConnectableSubscribable *)publish;
 
 @end

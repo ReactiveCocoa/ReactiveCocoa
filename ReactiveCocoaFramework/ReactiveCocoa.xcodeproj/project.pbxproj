@@ -60,6 +60,8 @@
 		88ABAB631509A67C0073CDA2 /* RACAsyncFunctionOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 88ABAB621509A5E40073CDA2 /* RACAsyncFunctionOperation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88B76F8E153726B00053EAE2 /* RACTuple.h in Headers */ = {isa = PBXBuildFile; fileRef = 88B76F8C153726B00053EAE2 /* RACTuple.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88B76F8F153726B00053EAE2 /* RACTuple.m in Sources */ = {isa = PBXBuildFile; fileRef = 88B76F8D153726B00053EAE2 /* RACTuple.m */; };
+		88CA3EAE1538B88F00AA806C /* NSArray+RACExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CA3EAC1538B88F00AA806C /* NSArray+RACExtensions.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		88CA3EAF1538B88F00AA806C /* NSArray+RACExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CA3EAD1538B88F00AA806C /* NSArray+RACExtensions.m */; };
 		88CBB39A1517A29F00DDC7D7 /* NSObject+RACSubscribable.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CBB3981517A29E00DDC7D7 /* NSObject+RACSubscribable.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88CBB39B1517A29F00DDC7D7 /* NSObject+RACSubscribable.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CBB3991517A29E00DDC7D7 /* NSObject+RACSubscribable.m */; };
 		88CDF7DE15000FCF00163A9F /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7DD15000FCF00163A9F /* SenTestingKit.framework */; };
@@ -209,6 +211,8 @@
 		88ABAB621509A5E40073CDA2 /* RACAsyncFunctionOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RACAsyncFunctionOperation.h; sourceTree = "<group>"; };
 		88B76F8C153726B00053EAE2 /* RACTuple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACTuple.h; sourceTree = "<group>"; };
 		88B76F8D153726B00053EAE2 /* RACTuple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACTuple.m; sourceTree = "<group>"; };
+		88CA3EAC1538B88F00AA806C /* NSArray+RACExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+RACExtensions.h"; sourceTree = "<group>"; };
+		88CA3EAD1538B88F00AA806C /* NSArray+RACExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+RACExtensions.m"; sourceTree = "<group>"; };
 		88CBB3981517A29E00DDC7D7 /* NSObject+RACSubscribable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACSubscribable.h"; sourceTree = "<group>"; };
 		88CBB3991517A29E00DDC7D7 /* NSObject+RACSubscribable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACSubscribable.m"; sourceTree = "<group>"; };
 		88CDF7BF15000FCE00163A9F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -299,6 +303,8 @@
 				8867D5F8152BDAC300321BD5 /* RACSwizzling.m */,
 				886DCD84152EA272004A666F /* NSObject+RACOperations.h */,
 				886DCD85152EA272004A666F /* NSObject+RACOperations.m */,
+				88CA3EAC1538B88F00AA806C /* NSArray+RACExtensions.h */,
+				88CA3EAD1538B88F00AA806C /* NSArray+RACExtensions.m */,
 			);
 			name = Extensions;
 			sourceTree = "<group>";
@@ -484,6 +490,7 @@
 				88F70068152D2D7B00B32771 /* NSObject+RACBindings.h in Headers */,
 				8857BB82152A27A9009804CC /* NSObject+RACKVOWrapper.h in Headers */,
 				886DCD86152EA272004A666F /* NSObject+RACOperations.h in Headers */,
+				88CA3EAE1538B88F00AA806C /* NSArray+RACExtensions.h in Headers */,
 				88F5870215361BCD0084BD32 /* RACConnectableSubscribable.h in Headers */,
 				88B76F8E153726B00053EAE2 /* RACTuple.h in Headers */,
 				88DA309715071CBA00C19D0F /* RACValueTransformer.h in Headers */,
@@ -696,6 +703,7 @@
 				886DCD87152EA272004A666F /* NSObject+RACOperations.m in Sources */,
 				88F5870315361BCD0084BD32 /* RACConnectableSubscribable.m in Sources */,
 				88B76F8F153726B00053EAE2 /* RACTuple.m in Sources */,
+				88CA3EAF1538B88F00AA806C /* NSArray+RACExtensions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

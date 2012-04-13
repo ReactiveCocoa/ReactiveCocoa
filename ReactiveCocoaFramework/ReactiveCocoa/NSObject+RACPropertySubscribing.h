@@ -21,6 +21,7 @@
 
 @interface NSObject (RACPropertySubscribing)
 
+// Creates a subscribable for observing on the given object the key path of the source object.
 + (RACSubscribable *)RACSubscribableFor:(NSObject *)object keyPath:(NSString *)keyPath onObject:(NSObject *)onObject;
 
 // Creates a value from observing the value at the given keypath.
@@ -29,6 +30,7 @@
 // Calls -[NSObject bind:binding toObject:object withKeyPath:keyPath options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nil]]
 - (void)bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath;
 
+// Calls -[NSObject bind:binding toObject:object withKeyPath:keyPath options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nilValue, NSNullPlaceholderBindingOption, nil]];
 - (void)bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath nilValue:(id)nilValue;
 
 // Same as `-[NSObject bind:toObject:withKeyPath:] but also transforms values using the given transform block.

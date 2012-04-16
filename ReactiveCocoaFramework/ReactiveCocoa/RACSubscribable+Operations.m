@@ -154,6 +154,11 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 				[observer sendNext:x];
 				[innerDisposable dispose], innerDisposable = nil;
 			} error:NULL completed:NULL]];
+			} error:^(NSError *error) {
+				[observer sendError:error];
+			} completed:^{
+				[observer sendCompleted];
+			}]];
 		} completed:^{
 			[observer sendCompleted];
 		}];

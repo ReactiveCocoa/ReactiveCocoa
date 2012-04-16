@@ -152,8 +152,6 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 			id<RACSubscribable> observable = catchBlock(error);
 			innerDisposable = [observable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 				[observer sendNext:x];
-				[innerDisposable dispose], innerDisposable = nil;
-			} error:NULL completed:NULL]];
 			} error:^(NSError *error) {
 				[observer sendError:error];
 			} completed:^{
@@ -465,8 +463,8 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
-			[subscriber sendCompleted];
 			[subscriber sendNext:[NSNumber numberWithInteger:runningValue]];
+			[subscriber sendCompleted];
 		}];
 	}];
 }

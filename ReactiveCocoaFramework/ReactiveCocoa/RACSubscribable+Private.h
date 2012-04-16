@@ -18,4 +18,6 @@
 
 - (void)performBlockOnEachSubscriber:(void (^)(id<RACSubscriber> subscriber))block;
 
+- (void)tearDown;
+
 @end

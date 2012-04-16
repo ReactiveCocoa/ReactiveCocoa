@@ -148,4 +148,9 @@ static NSMutableSet *activeSubscribables = nil;
 	}
 }
 
+- (void)tearDown {
+	[self.subscribers removeAllObjects];
+	[activeSubscribables removeObject:self];
+}
+
 @end

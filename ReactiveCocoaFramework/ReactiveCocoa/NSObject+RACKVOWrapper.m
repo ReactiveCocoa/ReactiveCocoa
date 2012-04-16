@@ -37,10 +37,10 @@ static char RACKVOWrapperContext;
 - (void)observeValueForKeyPath:(NSString *)triggeredKeyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
 	if(context == &RACKVOWrapperContext) {
 		if(self.queue == nil || self.queue == [NSOperationQueue currentQueue]) {
-			if(self.target != nil) self.block(self.target, change);
+			if(self.block != NULL) self.block(self.target, change);
         } else {
 			[self.queue addOperationWithBlock:^{
-				if(self.target != nil) self.block(self.target, change);
+				if(self.block != NULL) self.block(self.target, change);
 			}];
 		}
 	} else {
@@ -72,6 +72,8 @@ static char RACKVOWrapperContext;
 	
 	[self.target.RACKVOTargetTrampolines removeObject:self];
 	self.target = nil;
+	
+	self.block = nil;
 }
 
 @end

@@ -11,26 +11,54 @@
 #import "NSObject+RACKVOWrapper.h"
 #import "RACValueTransformer.h"
 #import "RACReplaySubject.h"
-#import "RACScopedDisposable.h"
+#import "RACDisposable.h"
+#import "RACSwizzling.h"
+#import "RACSubscribable+Private.h"
+
+static NSMutableDictionary *swizzledClasses = nil;
 
 static const void *RACPropertySubscribingDisposables = &RACPropertySubscribingDisposables;
 
 
 @implementation NSObject (RACPropertySubscribing)
 
++ (void)load {
+	swizzledClasses = [[NSMutableDictionary alloc] init];
+}
+
+- (void)rac_propertySubscribingDealloc {
+	NSMutableSet *disposables = objc_getAssociatedObject(self, RACPropertySubscribingDisposables);
+	for(RACDisposable *disposable in [disposables copy]) {
+		[disposable dispose];
+	}
+	
+	objc_setAssociatedObject(self, RACPropertySubscribingDisposables, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	
+	[self rac_propertySubscribingDealloc];
+}
+
 + (RACSubscribable *)RACSubscribableFor:(NSObject *)object keyPath:(NSString *)keyPath onObject:(NSObject *)onObject {
 	RACReplaySubject *subject = [RACReplaySubject replaySubjectWithCapacity:1];
 	
+	@synchronized(swizzledClasses) {
+		Class class = [onObject class];
+		NSString *keyName = NSStringFromClass(class);
+		if([swizzledClasses objectForKey:keyName] == nil) {
+			RACSwizzle(class, NSSelectorFromString(@"dealloc"), @selector(rac_propertySubscribingDealloc));
+			[swizzledClasses setObject:[NSNull null] forKey:keyName];
+		}
+	}
+	
 	@synchronized(self) {
-		NSMutableSet *disposables = objc_getAssociatedObject(object, RACPropertySubscribingDisposables);
+		NSMutableSet *disposables = objc_getAssociatedObject(onObject, RACPropertySubscribingDisposables);
 		if(disposables == nil) {
 			disposables = [NSMutableSet set];
-			objc_setAssociatedObject(object, RACPropertySubscribingDisposables, disposables, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+			objc_setAssociatedObject(onObject, RACPropertySubscribingDisposables, disposables, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 		}
 		
-		[disposables addObject:[RACScopedDisposable disposableWithBlock:^{
-			// TODO: do we *really* want to send completed here? or just tear down the stream some other way?
-			[subject sendCompleted];
+		[disposables addObject:[RACDisposable disposableWithBlock:^{
+			// tear down the subscribable without sending notifications to the subscribers, since they could have already been dealloc'd by this point
+			[subject tearDown];
 		}]];
 	}
 	

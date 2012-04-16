@@ -8,6 +8,14 @@
 
 #import "RACSubscribable.h"
 
+extern NSString * const RACSubscribableErrorDomain;
+
+typedef enum {
+	RACSubscribableErrorTimedOut = 1,
+} _RACSubscribableError;
+
+typedef NSInteger RACSubscribableError;
+
 @class RACTuple;
 @class RACConnectableSubscribable;
 
@@ -115,5 +123,8 @@
 
 // Creates and returns a connectable subscribable. This allows you to share a single subscription to the underlying subscribable.
 - (RACConnectableSubscribable *)publish;
+
+// Sends an error after `interval` seconds if the source doesn't complete before then.
+- (RACSubscribable *)timeout:(NSTimeInterval)interval;
 
 @end

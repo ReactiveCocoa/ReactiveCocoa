@@ -17,6 +17,8 @@
 #import "RACConnectableSubscribable+Private.h"
 #import "RACTuple.h"
 
+NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
+
 
 @implementation RACSubscribable (Operations)
 
@@ -695,6 +697,28 @@
 
 - (RACConnectableSubscribable *)publish {
 	return [RACConnectableSubscribable connectableSubscribableWithSourceSubscribable:self];
+}
+
+- (RACSubscribable *)timeout:(NSTimeInterval)interval {
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		id delayedIdentifier = [self rac_performBlock:^{
+			[subscriber sendError:[NSError errorWithDomain:RACSubscribableErrorDomain code:RACSubscribableErrorTimedOut userInfo:nil]];
+		} afterDelay:interval];
+		
+		RACDisposable *disposable = [self subscribeNext:^(id x) {
+			[subscriber sendNext:x];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[self rac_cancelPreviousPerformBlockRequestsWithId:delayedIdentifier];
+			[subscriber sendCompleted];
+		}];
+		
+		return [RACDisposable disposableWithBlock:^{
+			[self rac_cancelPreviousPerformBlockRequestsWithId:delayedIdentifier];
+			[disposable dispose];
+		}];
+	}];
 }
 
 @end

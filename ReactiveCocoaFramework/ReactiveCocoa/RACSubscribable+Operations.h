@@ -18,6 +18,7 @@ typedef NSInteger RACSubscribableError;
 
 @class RACTuple;
 @class RACConnectableSubscribable;
+@class RACSubject;
 
 
 @interface RACSubscribable (Operations)
@@ -123,6 +124,9 @@ typedef NSInteger RACSubscribableError;
 
 // Creates and returns a connectable subscribable. This allows you to share a single subscription to the underlying subscribable.
 - (RACConnectableSubscribable *)publish;
+
+// Creates and returns a connectable subscribable that pushes values into the given subject. This allows you to share a single subscription to the underlying subscribable.
+- (RACConnectableSubscribable *)multicast:(RACSubject *)subject;
 
 // Sends an error after `interval` seconds if the source doesn't complete before then.
 - (RACSubscribable *)timeout:(NSTimeInterval)interval;

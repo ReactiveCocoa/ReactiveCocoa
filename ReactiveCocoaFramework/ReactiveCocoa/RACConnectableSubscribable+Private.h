@@ -8,9 +8,11 @@
 
 #import "RACConnectableSubscribable.h"
 
+@class RACSubject;
+
 
 @interface RACConnectableSubscribable ()
 
-+ (RACConnectableSubscribable *)connectableSubscribableWithSourceSubscribable:(id<RACSubscribable>)source;
++ (RACConnectableSubscribable *)connectableSubscribableWithSourceSubscribable:(id<RACSubscribable>)source subject:(RACSubject *)subject;
 
 @end

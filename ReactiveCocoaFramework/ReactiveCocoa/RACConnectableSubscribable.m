@@ -10,39 +10,38 @@
 #import "RACConnectableSubscribable+Private.h"
 #import "RACSubscribable+Private.h"
 #import "RACSubscriber.h"
+#import "RACSubject.h"
 
 @interface RACConnectableSubscribable ()
 @property (nonatomic, strong) id<RACSubscribable> sourceSubscribable;
+@property (nonatomic, strong) RACSubject *subject;
 @end
 
 
 @implementation RACConnectableSubscribable
 
 
+#pragma mark RACSubscribable
+
+- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
+	return [self.subject subscribe:subscriber];
+}
+
+
 #pragma mark API
 
 @synthesize sourceSubscribable;
+@synthesize subject;
 
-+ (RACConnectableSubscribable *)connectableSubscribableWithSourceSubscribable:(id<RACSubscribable>)source {
++ (RACConnectableSubscribable *)connectableSubscribableWithSourceSubscribable:(id<RACSubscribable>)source subject:(RACSubject *)subject {
 	RACConnectableSubscribable *subscribable = [[self alloc] init];
 	subscribable.sourceSubscribable = source;
+	subscribable.subject = subject;
 	return subscribable;
 }
 
 - (RACDisposable *)connect {
-	return [self.sourceSubscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
-		[self performBlockOnEachSubscriber:^(id<RACSubscriber> subscriber) {
-			[subscriber sendNext:x];
-		}];
-	} error:^(NSError *error) {
-		[self performBlockOnEachSubscriber:^(id<RACSubscriber> subscriber) {
-			[subscriber sendError:error];
-		}];
-	} completed:^{
-		[self performBlockOnEachSubscriber:^(id<RACSubscriber> subscriber) {
-			[subscriber sendCompleted];
-		}];
-	}]];
+	return [self.sourceSubscribable subscribe:self.subject];
 }
 
 @end

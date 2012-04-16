@@ -696,7 +696,11 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 - (RACConnectableSubscribable *)publish {
-	return [RACConnectableSubscribable connectableSubscribableWithSourceSubscribable:self];
+	return [self multicast:[RACSubject subject]];
+}
+
+- (RACConnectableSubscribable *)multicast:(RACSubject *)subject {
+	return [RACConnectableSubscribable connectableSubscribableWithSourceSubscribable:self subject:subject];
 }
 
 - (RACSubscribable *)timeout:(NSTimeInterval)interval {

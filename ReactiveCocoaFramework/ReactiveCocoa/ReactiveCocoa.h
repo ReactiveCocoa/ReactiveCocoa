@@ -27,3 +27,4 @@
 #import <ReactiveCocoa/NSObject+RACOperations.h>
 #import <ReactiveCocoa/RACTuple.h>
 #import <ReactiveCocoa/NSArray+RACExtensions.h>
+#import <ReactiveCocoa/RACScheduler.h>

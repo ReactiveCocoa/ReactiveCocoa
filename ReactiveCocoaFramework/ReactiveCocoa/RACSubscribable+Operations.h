@@ -19,6 +19,7 @@ typedef NSInteger RACSubscribableError;
 @class RACTuple;
 @class RACConnectableSubscribable;
 @class RACSubject;
+@class RACScheduler;
 
 
 @interface RACSubscribable (Operations)
@@ -130,5 +131,8 @@ typedef NSInteger RACSubscribableError;
 
 // Sends an error after `interval` seconds if the source doesn't complete before then.
 - (RACSubscribable *)timeout:(NSTimeInterval)interval;
+
+// Creates and returns a subscribable that delivers its callbacks using the given scheduler.
+- (RACSubscribable *)deliverOnScheduler:(RACScheduler *)scheduler;
 
 @end

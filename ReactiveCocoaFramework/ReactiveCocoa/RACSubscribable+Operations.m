@@ -16,6 +16,7 @@
 #import "RACMaybe.h"
 #import "RACConnectableSubscribable+Private.h"
 #import "RACTuple.h"
+#import "RACScheduler.h"
 
 NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 
@@ -726,6 +727,24 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		return [RACDisposable disposableWithBlock:^{
 			[self rac_cancelPreviousPerformBlockRequestsWithId:delayedIdentifier];
 			[disposable dispose];
+		}];
+	}];
+}
+
+- (RACSubscribable *)deliverOnScheduler:(RACScheduler *)scheduler {
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		return [self subscribeNext:^(id x) {
+			[scheduler schedule:^{
+				[subscriber sendNext:x];
+			}];
+		} error:^(NSError *error) {
+			[scheduler schedule:^{
+				[subscriber sendError:error];
+			}];
+		} completed:^{
+			[scheduler schedule:^{
+				[subscriber sendCompleted];
+			}];
 		}];
 	}];
 }

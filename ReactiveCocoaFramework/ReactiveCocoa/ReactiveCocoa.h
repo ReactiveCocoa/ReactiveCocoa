@@ -29,3 +29,7 @@
 #import <ReactiveCocoa/NSArray+RACExtensions.h>
 #import <ReactiveCocoa/RACScheduler.h>
 #import <ReactiveCocoa/RACCollection.h>
+
+#ifdef TARGET_OS_MAC
+#import <ReactiveCocoa/NSObject+RACAppKitBindings.h>
+#endif

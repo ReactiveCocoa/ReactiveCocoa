@@ -6,8 +6,6 @@
 //  Copyright 2010 GitHub. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
-
 
 @interface NSObject (RACExtensions)
 

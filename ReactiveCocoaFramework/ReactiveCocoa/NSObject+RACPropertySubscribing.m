@@ -9,7 +9,6 @@
 #import "NSObject+RACPropertySubscribing.h"
 #import <objc/runtime.h>
 #import "NSObject+RACKVOWrapper.h"
-#import "RACValueTransformer.h"
 #import "RACReplaySubject.h"
 #import "RACDisposable.h"
 #import "RACSwizzling.h"
@@ -73,23 +72,6 @@ static const void *RACPropertySubscribingDisposables = &RACPropertySubscribingDi
 
 - (RACSubscribable *)RACSubscribableForKeyPath:(NSString *)keyPath onObject:(NSObject *)object {
 	return [[self class] RACSubscribableFor:self keyPath:keyPath onObject:object];
-}
-
-- (void)bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath {
-	[self bind:binding toObject:object withKeyPath:keyPath nilValue:nil];
-}
-
-- (void)bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath nilValue:(id)nilValue {
-	[self bind:binding toObject:object withKeyPath:keyPath options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nilValue, NSNullPlaceholderBindingOption, nil]];
-}
-
-- (void)bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath transform:(id (^)(id value))transformBlock {
-	RACValueTransformer *transformer = [RACValueTransformer transformerWithBlock:transformBlock];
-	[self bind:binding toObject:object withKeyPath:keyPath options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, transformer, NSValueTransformerBindingOption, nil]];
-}
-
-- (void)bind:(NSString *)binding toObject:(id)object withNegatedKeyPath:(NSString *)keyPath {
-	[self bind:binding toObject:object withKeyPath:keyPath options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, NSNegateBooleanTransformerName, NSValueTransformerNameBindingOption, nil]];
 }
 
 @end

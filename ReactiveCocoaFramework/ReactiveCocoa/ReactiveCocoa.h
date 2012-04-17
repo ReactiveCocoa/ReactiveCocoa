@@ -11,7 +11,6 @@
 #import <ReactiveCocoa/RACSubscribable+Operations.h>
 #import <ReactiveCocoa/RACCommand.h>
 #import <ReactiveCocoa/NSObject+RACPropertySubscribing.h>
-#import <ReactiveCocoa/NSButton+RACCommandSupport.h>
 #import <ReactiveCocoa/RACAsyncCommand.h>
 #import <ReactiveCocoa/RACMaybe.h>
 #import <ReactiveCocoa/RACSubject.h>
@@ -31,5 +30,8 @@
 #import <ReactiveCocoa/RACCollection.h>
 
 #ifdef TARGET_OS_MAC
+#import <ReactiveCocoa/NSButton+RACCommandSupport.h>
 #import <ReactiveCocoa/NSObject+RACAppKitBindings.h>
+#elif TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
+// any iOS-specific headers
 #endif

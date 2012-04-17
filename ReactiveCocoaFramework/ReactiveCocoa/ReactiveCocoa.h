@@ -31,6 +31,7 @@
 
 #ifdef TARGET_OS_IPHONE
 #import <ReactiveCocoa/UIControl+RACSubscribableSupport.h>
+#import <ReactiveCocoa/UITextField+RACSubscribableSupport.h>
 #elif TARGET_OS_MAC
 #import <ReactiveCocoa/NSButton+RACCommandSupport.h>
 #import <ReactiveCocoa/NSObject+RACAppKitBindings.h>

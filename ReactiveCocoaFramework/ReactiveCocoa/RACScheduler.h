@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 
+// Schedulers are used to control when and in which queue work is performed.
 @interface RACScheduler : NSObject
 
 // Create a new scheduler with the given schedule block. The schedule block will get called by -schedule: with the block it is given. The schedule block should then schedule that block to be performed.

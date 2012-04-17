@@ -30,7 +30,7 @@
 #import <ReactiveCocoa/RACCollection.h>
 
 #ifdef TARGET_OS_IPHONE
-// any iOS-specific headers
+#import <ReactiveCocoa/UIControl+RACSubscribableSupport.h>
 #elif TARGET_OS_MAC
 #import <ReactiveCocoa/NSButton+RACCommandSupport.h>
 #import <ReactiveCocoa/NSObject+RACAppKitBindings.h>

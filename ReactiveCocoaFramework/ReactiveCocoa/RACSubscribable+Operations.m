@@ -731,7 +731,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (RACSubscribable *)deliverOnScheduler:(RACScheduler *)scheduler {
+- (RACSubscribable *)deliverOn:(RACScheduler *)scheduler {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		return [self subscribeNext:^(id x) {
 			[scheduler schedule:^{
@@ -745,6 +745,25 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 			[scheduler schedule:^{
 				[subscriber sendCompleted];
 			}];
+		}];
+	}];
+}
+
+- (RACSubscribable *)subscribeOn:(RACScheduler *)scheduler {
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		__block RACDisposable *innerDisposable = nil;
+		[scheduler schedule:^{
+			innerDisposable = [self subscribeNext:^(id x) {
+				[subscriber sendNext:x];
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				[subscriber sendCompleted];
+			}];
+		}];
+		
+		return [RACDisposable disposableWithBlock:^{
+			[innerDisposable dispose];
 		}];
 	}];
 }

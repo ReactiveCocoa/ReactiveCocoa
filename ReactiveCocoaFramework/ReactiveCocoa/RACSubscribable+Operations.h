@@ -133,6 +133,9 @@ typedef NSInteger RACSubscribableError;
 - (RACSubscribable *)timeout:(NSTimeInterval)interval;
 
 // Creates and returns a subscribable that delivers its callbacks using the given scheduler.
-- (RACSubscribable *)deliverOnScheduler:(RACScheduler *)scheduler;
+- (RACSubscribable *)deliverOn:(RACScheduler *)scheduler;
+
+// Creates and returns a subscribable whose didSubscribe block is scheduled on the given scheduler.
+- (RACSubscribable *)subscribeOn:(RACScheduler *)scheduler;
 
 @end

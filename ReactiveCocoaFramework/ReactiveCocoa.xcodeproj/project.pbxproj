@@ -43,6 +43,8 @@
 		8857BB7E152A2747009804CC /* NSObject+RACExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 8857BB7C152A2747009804CC /* NSObject+RACExtensions.h */; };
 		8857BB7F152A2747009804CC /* NSObject+RACExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8857BB7D152A2747009804CC /* NSObject+RACExtensions.m */; };
 		8857BB82152A27A9009804CC /* NSObject+RACKVOWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 8857BB81152A27A9009804CC /* NSObject+RACKVOWrapper.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		885A3232153CF9EF00486A61 /* RACCollection.h in Headers */ = {isa = PBXBuildFile; fileRef = 885A3230153CF9EF00486A61 /* RACCollection.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		885A3233153CF9EF00486A61 /* RACCollection.m in Sources */ = {isa = PBXBuildFile; fileRef = 885A3231153CF9EF00486A61 /* RACCollection.m */; };
 		8866784E1518D93E00DE77EC /* RACSubscribable+Operations.m in Sources */ = {isa = PBXBuildFile; fileRef = 8866784D1518D93D00DE77EC /* RACSubscribable+Operations.m */; };
 		886678711518DCD800DE77EC /* NSObject+RACPropertySubscribing.m in Sources */ = {isa = PBXBuildFile; fileRef = 886678701518DCD800DE77EC /* NSObject+RACPropertySubscribing.m */; };
 		8867D5F9152BDAC300321BD5 /* RACSwizzling.h in Headers */ = {isa = PBXBuildFile; fileRef = 8867D5F7152BDAC300321BD5 /* RACSwizzling.h */; };
@@ -200,6 +202,8 @@
 		8857BB7C152A2747009804CC /* NSObject+RACExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACExtensions.h"; sourceTree = "<group>"; };
 		8857BB7D152A2747009804CC /* NSObject+RACExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACExtensions.m"; sourceTree = "<group>"; };
 		8857BB81152A27A9009804CC /* NSObject+RACKVOWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACKVOWrapper.h"; sourceTree = "<group>"; };
+		885A3230153CF9EF00486A61 /* RACCollection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACCollection.h; sourceTree = "<group>"; };
+		885A3231153CF9EF00486A61 /* RACCollection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACCollection.m; sourceTree = "<group>"; };
 		8866784D1518D93D00DE77EC /* RACSubscribable+Operations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RACSubscribable+Operations.m"; sourceTree = "<group>"; };
 		886678701518DCD800DE77EC /* NSObject+RACPropertySubscribing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACPropertySubscribing.m"; sourceTree = "<group>"; };
 		8867D5F7152BDAC300321BD5 /* RACSwizzling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACSwizzling.h; sourceTree = "<group>"; };
@@ -451,6 +455,8 @@
 				88B76F8D153726B00053EAE2 /* RACTuple.m */,
 				88E2C6B2153C771C00C7493C /* RACScheduler.h */,
 				88E2C6B3153C771C00C7493C /* RACScheduler.m */,
+				885A3230153CF9EF00486A61 /* RACCollection.h */,
+				885A3231153CF9EF00486A61 /* RACCollection.m */,
 			);
 			name = Core;
 			sourceTree = "<group>";
@@ -496,6 +502,7 @@
 				88F5870215361BCD0084BD32 /* RACConnectableSubscribable.h in Headers */,
 				88E2C6B4153C771C00C7493C /* RACScheduler.h in Headers */,
 				88B76F8E153726B00053EAE2 /* RACTuple.h in Headers */,
+				885A3232153CF9EF00486A61 /* RACCollection.h in Headers */,
 				88DA309715071CBA00C19D0F /* RACValueTransformer.h in Headers */,
 				8857BB7E152A2747009804CC /* NSObject+RACExtensions.h in Headers */,
 				8867D5F9152BDAC300321BD5 /* RACSwizzling.h in Headers */,
@@ -709,6 +716,7 @@
 				88B76F8F153726B00053EAE2 /* RACTuple.m in Sources */,
 				88CA3EAF1538B88F00AA806C /* NSArray+RACExtensions.m in Sources */,
 				88E2C6B5153C771C00C7493C /* RACScheduler.m in Sources */,
+				885A3233153CF9EF00486A61 /* RACCollection.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

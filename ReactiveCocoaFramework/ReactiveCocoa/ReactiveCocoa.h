@@ -28,3 +28,4 @@
 #import <ReactiveCocoa/RACTuple.h>
 #import <ReactiveCocoa/NSArray+RACExtensions.h>
 #import <ReactiveCocoa/RACScheduler.h>
+#import <ReactiveCocoa/RACCollection.h>

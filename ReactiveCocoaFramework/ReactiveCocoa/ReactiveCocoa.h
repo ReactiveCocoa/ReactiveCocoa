@@ -29,7 +29,7 @@
 #import <ReactiveCocoa/RACScheduler.h>
 #import <ReactiveCocoa/RACCollection.h>
 
-#ifdef TARGET_OS_IPHONE
+#ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
 #import <ReactiveCocoa/UIControl+RACSubscribableSupport.h>
 #import <ReactiveCocoa/UITextField+RACSubscribableSupport.h>
 #elif TARGET_OS_MAC

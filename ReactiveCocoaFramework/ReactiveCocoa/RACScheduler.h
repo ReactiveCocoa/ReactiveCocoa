@@ -18,14 +18,23 @@
 // A singleton scheduler that immediately performs blocks.
 + (id)immediateScheduler;
 
-// A singleton scheduler that performs blocks in the main queue.
+// A singleton scheduler that performs blocks asynchronously in the main queue.
 + (id)mainQueueScheduler;
 
-// A singleton scheduler that performs blocks asynchronously in a background queue.
+// A singleton scheduler that performs blocks asynchronously in GCD's default priority global queue.
 + (id)backgroundScheduler;
 
 // A singleton scheduler that performs blocks asynchronously in the current queue.
 + (id)deferredScheduler;
+
+// A singleton scheduler that adds blocks to an operation queue whose max concurrent operation count is NSOperationQueueDefaultMaxConcurrentOperationCount.
++ (id)sharedOperationQueueScheduler;
+
+// Creates a new scheduler that adds blocks to an operation queue whose max concurrent operation count is NSOperationQueueDefaultMaxConcurrentOperationCount.
++ (id)operationQueueScheduler;
+
+// Creates a new scheduler that adds blocks to the given operation queue.
++ (id)schedulerWithOperationQueue:(NSOperationQueue *)queue;
 
 // Schedule the given block for execution on the scheduler. The default implementation just calls the schedule block if the scheduler was created with one.
 - (void)schedule:(void (^)(void))block;

@@ -45,11 +45,7 @@
 	static RACScheduler *mainQueueScheduler = nil;
 	dispatch_once(&onceToken, ^{
 		mainQueueScheduler = [RACScheduler schedulerWithScheduleBlock:^(void (^block)(void)) {
-			if(dispatch_get_current_queue() == dispatch_get_main_queue()) {
-				block();
-			} else {
-				dispatch_async(dispatch_get_main_queue(), block);
-			}
+			dispatch_async(dispatch_get_main_queue(), block);
 		}];
 	});
 	
@@ -78,6 +74,32 @@
 	});
 	
 	return deferredScheduler;
+}
+
++ (id)operationQueueScheduler {
+	NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+	[queue setMaxConcurrentOperationCount:NSOperationQueueDefaultMaxConcurrentOperationCount];
+	[queue setName:@"RACOperationQueueSchedulerQueue"];
+	return [self schedulerWithOperationQueue:queue];
+}
+
++ (id)sharedOperationQueueScheduler {
+	static dispatch_once_t onceToken;
+	static RACScheduler *sharedOperationQueueScheduler = nil;
+	dispatch_once(&onceToken, ^{
+		NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+		[queue setMaxConcurrentOperationCount:NSOperationQueueDefaultMaxConcurrentOperationCount];
+		[queue setName:@"RACSharedOperationQueueSchedulerQueue"];
+		sharedOperationQueueScheduler = [self schedulerWithOperationQueue:queue];
+	});
+	
+	return sharedOperationQueueScheduler;
+}
+
++ (id)schedulerWithOperationQueue:(NSOperationQueue *)queue {
+	return [RACScheduler schedulerWithScheduleBlock:^(void (^block)(void)) {
+		[queue addOperationWithBlock:block];
+	}];
 }
 
 - (void)schedule:(void (^)(void))block {

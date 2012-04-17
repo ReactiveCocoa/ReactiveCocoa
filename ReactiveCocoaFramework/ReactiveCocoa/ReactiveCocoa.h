@@ -29,9 +29,9 @@
 #import <ReactiveCocoa/RACScheduler.h>
 #import <ReactiveCocoa/RACCollection.h>
 
-#ifdef TARGET_OS_MAC
+#ifdef TARGET_OS_IPHONE
+// any iOS-specific headers
+#elif TARGET_OS_MAC
 #import <ReactiveCocoa/NSButton+RACCommandSupport.h>
 #import <ReactiveCocoa/NSObject+RACAppKitBindings.h>
-#elif TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
-// any iOS-specific headers
 #endif

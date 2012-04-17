@@ -8,24 +8,26 @@
 
 #import "GHDMainView.h"
 
+
 @implementation GHDMainView
 
-- (id)initWithFrame:(CGRect)frame
-{
-    self = [super initWithFrame:frame];
-    if (self) {
-        // Initialization code
-    }
-    return self;
-}
 
-/*
-// Only override drawRect: if you perform custom drawing.
-// An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect
-{
-    // Drawing code
+#pragma mark API
+
+@synthesize textField;
+@synthesize label;
+
++ (id)viewFromNib {
+	NSArray *topLevelObjects = [[UINib nibWithNibName:NSStringFromClass(self) bundle:nil] instantiateWithOwner:nil options:nil];
+	for(id object in topLevelObjects) {
+		if([object isKindOfClass:self]) {
+			return object;
+		}
+	}
+	
+	NSAssert(NO, @"We didn't find a top-level object of class %@", NSStringFromClass(self));
+	
+	return nil;
 }
-*/
 
 @end

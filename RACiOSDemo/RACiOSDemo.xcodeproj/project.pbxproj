@@ -18,6 +18,10 @@
 		88F4415E153DB1770097B4C3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88F44145153DB1770097B4C3 /* Foundation.framework */; };
 		88F44166153DB1770097B4C3 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 88F44164153DB1770097B4C3 /* InfoPlist.strings */; };
 		88F44169153DB1770097B4C3 /* RACiOSDemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 88F44168153DB1770097B4C3 /* RACiOSDemoTests.m */; };
+		88F44174153DB1FA0097B4C3 /* GHDMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 88F44173153DB1FA0097B4C3 /* GHDMainViewController.m */; };
+		88F44195153DB2510097B4C3 /* libReactiveCocoa-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 88F44189153DB2360097B4C3 /* libReactiveCocoa-iOS.a */; };
+		88F441E3153DB3FB0097B4C3 /* GHDMainView.m in Sources */ = {isa = PBXBuildFile; fileRef = 88F441E2153DB3FB0097B4C3 /* GHDMainView.m */; };
+		88F441E5153DB4DB0097B4C3 /* GHDMainView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 88F441E4153DB4DB0097B4C3 /* GHDMainView.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -28,6 +32,34 @@
 			remoteGlobalIDString = 88F4413E153DB1770097B4C3;
 			remoteInfo = RACiOSDemo;
 		};
+		88F44186153DB2360097B4C3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 88F44175153DB2350097B4C3 /* ReactiveCocoa.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 88037F8315056328001A5B19;
+			remoteInfo = ReactiveCocoa;
+		};
+		88F44188153DB2360097B4C3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 88F44175153DB2350097B4C3 /* ReactiveCocoa.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 88F440AB153DAC820097B4C3;
+			remoteInfo = "ReactiveCocoa-iOS";
+		};
+		88F4418A153DB2360097B4C3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 88F44175153DB2350097B4C3 /* ReactiveCocoa.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 88CDF7DC15000FCF00163A9F;
+			remoteInfo = ReactiveCocoaTests;
+		};
+		88F44193153DB2420097B4C3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 88F44175153DB2350097B4C3 /* ReactiveCocoa.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 88F440AA153DAC820097B4C3;
+			remoteInfo = "ReactiveCocoa-iOS";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -35,18 +67,24 @@
 		88F44143153DB1770097B4C3 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		88F44145153DB1770097B4C3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		88F44147153DB1770097B4C3 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		88F4414B153DB1770097B4C3 /* RACiOSDemo-Info.plist */ = {isa = PBXFileReference; path = "RACiOSDemo-Info.plist"; sourceTree = "<group>"; };
+		88F4414B153DB1770097B4C3 /* RACiOSDemo-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RACiOSDemo-Info.plist"; sourceTree = "<group>"; };
 		88F4414D153DB1770097B4C3 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		88F4414F153DB1770097B4C3 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		88F44151153DB1770097B4C3 /* RACiOSDemo-Prefix.pch */ = {isa = PBXFileReference; path = "RACiOSDemo-Prefix.pch"; sourceTree = "<group>"; };
-		88F44152153DB1770097B4C3 /* GHDAppDelegate.h */ = {isa = PBXFileReference; path = GHDAppDelegate.h; sourceTree = "<group>"; };
+		88F44151153DB1770097B4C3 /* RACiOSDemo-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACiOSDemo-Prefix.pch"; sourceTree = "<group>"; };
+		88F44152153DB1770097B4C3 /* GHDAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GHDAppDelegate.h; sourceTree = "<group>"; };
 		88F44153153DB1770097B4C3 /* GHDAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GHDAppDelegate.m; sourceTree = "<group>"; };
 		88F4415A153DB1770097B4C3 /* RACiOSDemoTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RACiOSDemoTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		88F4415B153DB1770097B4C3 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
-		88F44163153DB1770097B4C3 /* RACiOSDemoTests-Info.plist */ = {isa = PBXFileReference; path = "RACiOSDemoTests-Info.plist"; sourceTree = "<group>"; };
+		88F44163153DB1770097B4C3 /* RACiOSDemoTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RACiOSDemoTests-Info.plist"; sourceTree = "<group>"; };
 		88F44165153DB1770097B4C3 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		88F44167153DB1770097B4C3 /* RACiOSDemoTests.h */ = {isa = PBXFileReference; path = RACiOSDemoTests.h; sourceTree = "<group>"; };
+		88F44167153DB1770097B4C3 /* RACiOSDemoTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RACiOSDemoTests.h; sourceTree = "<group>"; };
 		88F44168153DB1770097B4C3 /* RACiOSDemoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RACiOSDemoTests.m; sourceTree = "<group>"; };
+		88F44172153DB1FA0097B4C3 /* GHDMainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHDMainViewController.h; sourceTree = "<group>"; };
+		88F44173153DB1FA0097B4C3 /* GHDMainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHDMainViewController.m; sourceTree = "<group>"; };
+		88F44175153DB2350097B4C3 /* ReactiveCocoa.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ReactiveCocoa.xcodeproj; path = ../ReactiveCocoaFramework/ReactiveCocoa.xcodeproj; sourceTree = "<group>"; };
+		88F441E1153DB3FB0097B4C3 /* GHDMainView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHDMainView.h; sourceTree = "<group>"; };
+		88F441E2153DB3FB0097B4C3 /* GHDMainView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHDMainView.m; sourceTree = "<group>"; };
+		88F441E4153DB4DB0097B4C3 /* GHDMainView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GHDMainView.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +92,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				88F44195153DB2510097B4C3 /* libReactiveCocoa-iOS.a in Frameworks */,
 				88F44144153DB1770097B4C3 /* UIKit.framework in Frameworks */,
 				88F44146153DB1770097B4C3 /* Foundation.framework in Frameworks */,
 				88F44148153DB1770097B4C3 /* CoreGraphics.framework in Frameworks */,
@@ -95,6 +134,7 @@
 		88F44142153DB1770097B4C3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				88F44175153DB2350097B4C3 /* ReactiveCocoa.xcodeproj */,
 				88F44143153DB1770097B4C3 /* UIKit.framework */,
 				88F44145153DB1770097B4C3 /* Foundation.framework */,
 				88F44147153DB1770097B4C3 /* CoreGraphics.framework */,
@@ -109,6 +149,11 @@
 				88F44152153DB1770097B4C3 /* GHDAppDelegate.h */,
 				88F44153153DB1770097B4C3 /* GHDAppDelegate.m */,
 				88F4414A153DB1770097B4C3 /* Supporting Files */,
+				88F44172153DB1FA0097B4C3 /* GHDMainViewController.h */,
+				88F44173153DB1FA0097B4C3 /* GHDMainViewController.m */,
+				88F441E1153DB3FB0097B4C3 /* GHDMainView.h */,
+				88F441E2153DB3FB0097B4C3 /* GHDMainView.m */,
+				88F441E4153DB4DB0097B4C3 /* GHDMainView.xib */,
 			);
 			path = RACiOSDemo;
 			sourceTree = "<group>";
@@ -143,6 +188,16 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		88F44176153DB2350097B4C3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				88F44187153DB2360097B4C3 /* ReactiveCocoa.framework */,
+				88F44189153DB2360097B4C3 /* libReactiveCocoa-iOS.a */,
+				88F4418B153DB2360097B4C3 /* ReactiveCocoaTests.octest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -157,6 +212,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				88F44194153DB2420097B4C3 /* PBXTargetDependency */,
 			);
 			name = RACiOSDemo;
 			productName = RACiOSDemo;
@@ -190,6 +246,7 @@
 			attributes = {
 				CLASSPREFIX = GHD;
 				LastUpgradeCheck = 0430;
+				ORGANIZATIONNAME = "GitHub, Inc.";
 			};
 			buildConfigurationList = 88F44139153DB1770097B4C3 /* Build configuration list for PBXProject "RACiOSDemo" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -201,6 +258,12 @@
 			mainGroup = 88F44134153DB1770097B4C3;
 			productRefGroup = 88F44140153DB1770097B4C3 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 88F44176153DB2350097B4C3 /* Products */;
+					ProjectRef = 88F44175153DB2350097B4C3 /* ReactiveCocoa.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				88F4413E153DB1770097B4C3 /* RACiOSDemo */,
@@ -209,12 +272,37 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXReferenceProxy section */
+		88F44187153DB2360097B4C3 /* ReactiveCocoa.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = ReactiveCocoa.framework;
+			remoteRef = 88F44186153DB2360097B4C3 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		88F44189153DB2360097B4C3 /* libReactiveCocoa-iOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libReactiveCocoa-iOS.a";
+			remoteRef = 88F44188153DB2360097B4C3 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		88F4418B153DB2360097B4C3 /* ReactiveCocoaTests.octest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = ReactiveCocoaTests.octest;
+			remoteRef = 88F4418A153DB2360097B4C3 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
 /* Begin PBXResourcesBuildPhase section */
 		88F4413D153DB1770097B4C3 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				88F4414E153DB1770097B4C3 /* InfoPlist.strings in Resources */,
+				88F441E5153DB4DB0097B4C3 /* GHDMainView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -251,6 +339,8 @@
 			files = (
 				88F44150153DB1770097B4C3 /* main.m in Sources */,
 				88F44154153DB1770097B4C3 /* GHDAppDelegate.m in Sources */,
+				88F44174153DB1FA0097B4C3 /* GHDMainViewController.m in Sources */,
+				88F441E3153DB3FB0097B4C3 /* GHDMainView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -269,6 +359,11 @@
 			isa = PBXTargetDependency;
 			target = 88F4413E153DB1770097B4C3 /* RACiOSDemo */;
 			targetProxy = 88F4415F153DB1770097B4C3 /* PBXContainerItemProxy */;
+		};
+		88F44194153DB2420097B4C3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "ReactiveCocoa-iOS";
+			targetProxy = 88F44193153DB2420097B4C3 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -342,9 +437,12 @@
 		88F4416D153DB1770097B4C3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = "\"$(PROJECT_DIR)/../ReactiveCocoaFramework\"";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RACiOSDemo/RACiOSDemo-Prefix.pch";
+				HEADER_SEARCH_PATHS = "\"$(PROJECT_DIR)/../ReactiveCocoaFramework\"";
 				INFOPLIST_FILE = "RACiOSDemo/RACiOSDemo-Info.plist";
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -353,9 +451,12 @@
 		88F4416E153DB1770097B4C3 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = "\"$(PROJECT_DIR)/../ReactiveCocoaFramework\"";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RACiOSDemo/RACiOSDemo-Prefix.pch";
+				HEADER_SEARCH_PATHS = "\"$(PROJECT_DIR)/../ReactiveCocoaFramework\"";
 				INFOPLIST_FILE = "RACiOSDemo/RACiOSDemo-Info.plist";
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -414,6 +515,7 @@
 				88F4416E153DB1770097B4C3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		88F4416F153DB1770097B4C3 /* Build configuration list for PBXNativeTarget "RACiOSDemoTests" */ = {
 			isa = XCConfigurationList;
@@ -422,6 +524,7 @@
 				88F44171153DB1770097B4C3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

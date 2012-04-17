@@ -3,41 +3,69 @@
 //  RACiOSDemo
 //
 //  Created by Josh Abernathy on 4/17/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
 #import "GHDMainViewController.h"
+#import <ReactiveCocoa/ReactiveCocoa.h>
+#import "GHDMainView.h"
 
 @interface GHDMainViewController ()
-
+@property (nonatomic, strong) GHDMainView *view;
+@property (nonatomic, copy) NSString *text;
+@property (nonatomic, copy) NSString *label;
 @end
+
 
 @implementation GHDMainViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
+
+#pragma mark UIViewController
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+	self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+	if(self == nil) return nil;
+	
+	[RACAbleSelf(self.text) subscribeNext:^(id x) {
+		NSLog(@"%@", x);
+	}];
+	
+	[[RACAbleSelf(self.text) select:^(id x) {
+		return [x uppercaseString]; 
+	}] toProperty:RAC_KEYPATH_SELF(self.label) onObject:self];
+	
+	[self rac_bind:RAC_KEYPATH_SELF(self.view.label.text) to:RACAbleSelf(self.label)];
+	
+	return self;
 }
 
-- (void)viewDidLoad
-{
+- (void)loadView {
+	self.view = [GHDMainView viewFromNib];
+}
+
+- (void)viewDidLoad {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
+	
+	[self.view.textField addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
 }
 
-- (void)viewDidUnload
-{
+- (void)viewDidUnload {
     [super viewDidUnload];
-    // Release any retained subviews of the main view.
 }
 
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-{
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+    return interfaceOrientation == UIInterfaceOrientationPortrait;
+}
+
+
+#pragma mark API
+
+@dynamic view;
+@synthesize text;
+@synthesize label;
+
+- (void)textFieldDidChange:(id)sender {
+	self.text = self.view.textField.text;
 }
 
 @end

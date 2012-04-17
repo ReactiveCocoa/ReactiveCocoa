@@ -46,9 +46,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 	
-	[[[self.view.textField rac_subscribableForControlEvents:UIControlEventEditingChanged] select:^id(id x) {
-		return [x text];
-	}] toProperty:RAC_KEYPATH_SELF(self.text) onObject:self];
+	[self rac_bind:RAC_KEYPATH_SELF(self.text) to:self.view.textField.rac_textSubscribable];
 }
 
 - (void)viewDidUnload {

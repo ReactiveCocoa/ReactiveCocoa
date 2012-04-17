@@ -36,7 +36,7 @@ static const void *RACPropertySubscribingDisposables = &RACPropertySubscribingDi
 	[self rac_propertySubscribingDealloc];
 }
 
-+ (RACSubscribable *)RACSubscribableFor:(NSObject *)object keyPath:(NSString *)keyPath onObject:(NSObject *)onObject {
++ (RACSubscribable *)rac_subscribableFor:(NSObject *)object keyPath:(NSString *)keyPath onObject:(NSObject *)onObject {
 	RACReplaySubject *subject = [RACReplaySubject replaySubjectWithCapacity:1];
 	
 	@synchronized(swizzledClasses) {
@@ -70,8 +70,8 @@ static const void *RACPropertySubscribingDisposables = &RACPropertySubscribingDi
 	return subject;
 }
 
-- (RACSubscribable *)RACSubscribableForKeyPath:(NSString *)keyPath onObject:(NSObject *)object {
-	return [[self class] RACSubscribableFor:self keyPath:keyPath onObject:object];
+- (RACSubscribable *)rac_subscribableForKeyPath:(NSString *)keyPath onObject:(NSObject *)object {
+	return [[self class] rac_subscribableFor:self keyPath:keyPath onObject:object];
 }
 
 @end

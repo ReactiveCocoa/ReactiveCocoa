@@ -39,7 +39,7 @@
 		[observer sendNext:reduceBlock(currentValues())];
 		
 		NSArray *subscribables = [keyPaths rac_select:^(NSString *keyPath) {
-			return [strongSelf RACSubscribableForKeyPath:keyPath onObject:strongSelf];
+			return [strongSelf rac_subscribableForKeyPath:keyPath onObject:strongSelf];
 		}];
 		
 		return [[RACSubscribable merge:subscribables] subscribeNext:^(id x) {

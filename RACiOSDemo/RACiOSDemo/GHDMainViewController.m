@@ -46,7 +46,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 	
-	[self.view.textField addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
+	[[[self.view.textField rac_subscribableForControlEvents:UIControlEventEditingChanged] select:^id(id x) {
+		return [x text];
+	}] toProperty:RAC_KEYPATH_SELF(self.text) onObject:self];
 }
 
 - (void)viewDidUnload {
@@ -63,9 +65,5 @@
 @dynamic view;
 @synthesize text;
 @synthesize label;
-
-- (void)textFieldDidChange:(id)sender {
-	self.text = self.view.textField.text;
-}
 
 @end

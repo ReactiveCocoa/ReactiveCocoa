@@ -31,6 +31,8 @@
 
 - (id)objectAtIndex:(NSUInteger)index;
 
+- (NSArray *)allObjects;
+
 - (RACCollection *)derivedCollection:(id (^)(id object))selectBlock;
 
 @end

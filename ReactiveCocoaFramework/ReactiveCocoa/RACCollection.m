@@ -113,6 +113,10 @@
 	return [self.backingArray objectAtIndex:index];
 }
 
+- (NSArray *)allObjects {
+	return [self.backingArray copy];
+}
+
 - (RACCollection *)derivedCollection:(id (^)(id object))selectBlock {
 	NSParameterAssert(selectBlock != NULL);
 	

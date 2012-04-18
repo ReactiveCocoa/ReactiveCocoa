@@ -75,6 +75,13 @@
 			remoteGlobalIDString = 88037F8215056328001A5B19;
 			remoteInfo = ReactiveCocoa;
 		};
+		886DE461153F3F8900D7B999 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 884E04CC1505AD0D00035AFC /* ReactiveCocoa.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 88F440AB153DAC820097B4C3;
+			remoteInfo = "ReactiveCocoa-iOS";
+		};
 		886F986C15065BEF00A20BE7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 886F986515065BEF00A20BE7 /* Expecta.xcodeproj */;
@@ -383,6 +390,7 @@
 			isa = PBXGroup;
 			children = (
 				884E04DD1505AD0D00035AFC /* ReactiveCocoa.framework */,
+				886DE462153F3F8900D7B999 /* libReactiveCocoa-iOS.a */,
 				884E04DF1505AD0D00035AFC /* ReactiveCocoaTests.octest */,
 			);
 			name = Products;
@@ -532,6 +540,13 @@
 			fileType = wrapper.cfbundle;
 			path = ReactiveCocoaTests.octest;
 			remoteRef = 884E04DE1505AD0D00035AFC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		886DE462153F3F8900D7B999 /* libReactiveCocoa-iOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libReactiveCocoa-iOS.a";
+			remoteRef = 886DE461153F3F8900D7B999 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		886F986D15065BEF00A20BE7 /* libExpecta.a */ = {

@@ -19,6 +19,10 @@
 
 @implementation RACSubscriber
 
+- (void)dealloc {
+	[self stopSubscription];
+}
+
 
 #pragma mark RACSubscriber
 

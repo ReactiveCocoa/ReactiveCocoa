@@ -52,7 +52,7 @@
 	
 	RACSubscribable *loginResult = [[[self.loginCommand addAsyncBlock:^(id _) {
 		return [self.client login];
-	}] repeat] catchToMaybe];
+	}] repeat] asMaybes];
 
 	[[[loginResult 
 		where:^(id x) {

@@ -94,7 +94,7 @@ typedef NSInteger RACSubscribableError;
 - (RACSubscribable *)takeUntilBlock:(BOOL (^)(id x))predicate;
 
 // Convert every `next` and `error` into a RACMaybe.
-- (RACSubscribable *)catchToMaybe;
+- (RACSubscribable *)asMaybes;
 
 // Subscribe to the returned subscribable when an error occurs.
 - (RACSubscribable *)catch:(id<RACSubscribable> (^)(NSError *error))catchBlock;

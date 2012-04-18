@@ -121,7 +121,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (RACSubscribable *)catchToMaybe {
+- (RACSubscribable *)asMaybes {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
 		__block RACDisposable *currentDisposable = nil;
 		

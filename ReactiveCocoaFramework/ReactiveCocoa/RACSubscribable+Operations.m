@@ -768,4 +768,26 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
+- (RACSubscribable *)let:(RACSubscribable * (^)(RACSubscribable *sharedSubscribable))letBlock {
+	NSParameterAssert(letBlock != NULL);
+	
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		RACConnectableSubscribable *connectable = [self publish];
+		RACDisposable *finalDisposable = [letBlock(connectable) subscribeNext:^(id x) {
+			[subscriber sendNext:x];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
+		
+		RACDisposable *connectableDisposable = [connectable connect];
+		
+		return [RACDisposable disposableWithBlock:^{
+			[connectableDisposable dispose];
+			[finalDisposable dispose];
+		}];
+	}];
+}
+
 @end

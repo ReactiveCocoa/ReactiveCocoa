@@ -138,4 +138,7 @@ typedef NSInteger RACSubscribableError;
 // Creates and returns a subscribable whose didSubscribe block is scheduled on the given scheduler.
 - (RACSubscribable *)subscribeOn:(RACScheduler *)scheduler;
 
+// Creates a shared subscribable which is passed into the let block. The let block then returns a subscribable derived from that shared subscribable.
+- (RACSubscribable *)let:(RACSubscribable * (^)(RACSubscribable *sharedSubscribable))letBlock;
+
 @end

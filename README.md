@@ -1,5 +1,5 @@
 # ReactiveCocoa
-ReactiveCocoa (RAC) is an Objective-C version of .NET's [Reactive Extensions](http://msdn.microsoft.com/en-us/data/gg577609) (Rx).
+ReactiveCocoa (RAC) is a framework for composing and transforming sequences of values. (It's more or less and Objective-C version of .NET's [Reactive Extensions](http://msdn.microsoft.com/en-us/data/gg577609) (Rx).)
 
 See the announcement blogpost for a quick intro: [ReactiveCocoa is now open source](https://github.com/blog/1107-reactivecocoa-is-now-open-source).
 

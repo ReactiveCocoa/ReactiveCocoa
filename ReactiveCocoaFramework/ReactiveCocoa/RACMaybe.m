@@ -36,7 +36,7 @@
 }
 
 - (BOOL)hasObject {
-	return self.object != nil;
+	return object != nil;
 }
 
 - (BOOL)hasError {

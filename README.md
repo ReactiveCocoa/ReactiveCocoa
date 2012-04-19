@@ -3,15 +3,6 @@ ReactiveCocoa (RAC) is a framework for composing and transforming sequences of v
 
 See the announcement blogpost for a quick intro: [ReactiveCocoa is now open source](https://github.com/blog/1107-reactivecocoa-is-now-open-source).
 
-## No srsly, what is it
-A many splendid thing:
-
-1. The ability to compose operations on future data.
-1. A way to minimize state and mutability.
-1. A declarative way to define behaviors and the relationships between properties.
-1. A unified, high-level interface for asynchronous operations.
-1. A lovely API on top of KVO.
-
 ## Intro
 The fundamental ideas of RAC are pretty straightforward. It's all about subscribables. You can think of them as the evil twin of enumerables. With enumerables, you walk across some collection—item by item—until you manually stop, you hit the end of the collection, or something bad happens.
 
@@ -123,6 +114,33 @@ Or to chain async operations:
 ```
 
 That will login, then fetch messages, then for each message fetched, fetch the full message, log each full message and then log when it's all done.
+
+## Bindings
+Bindings let you use RAC to drive your user interface. See the [Mac](https://github.com/github/ReactiveCocoa/tree/master/GHAPIDemo/GHAPIDemo) sample project.
+
+But iOS doesn't have bindings. Thankfully, RAC's KVO wrapping makes it easy to bind to KVC-compliant properties a RAC subscribable. It looks like this:
+
+``` obj-c
+[self rac_bind:RAC_KEYPATH_SELF(self.someLabel.text) to:RACAbleSelf(self.someText)];
+```
+
+The real beauty of this is that we could also use any RAC operations on the subscribable to which it is bound. For example, to transform the new value before propagating it to the bound object:
+
+``` obj-c
+[self rac_bind:RAC_KEYPATH_SELF(self.someLabel.text) to:[RACAbleSelf(self.someText) select:^(NSString *newText) {
+	return [newText uppercaseString];
+}]];
+```
+
+Unfortunately, a lot of UIKit classes don't expose KVO-compliant properties. `UITextField`'s `text` property, for example, isn't KVO-compliant. For cases like that, we added `-[UIControl rac_subscribableForControlEvents:]` which sends a new value every time the control events fire.
+
+To go even one step further, we wrapped that in a property on `UITextField` so you can just use `-[UITextField rac_textSubscribable]` to watch for changes to `text`. Now we can write:
+
+```obj-c
+[self rac_bind:RAC_KEYPATH_SELF(self.username) to:self.usernameField.rac_textSubscribable];
+```
+
+Our `username` property is now bound to the value of our `usernameField` text field.
 
 ## Lifetime
 The point of RAC is to make your life better as a programmer. To that end, `RACSubscribable`'s lifetime is a little funny.

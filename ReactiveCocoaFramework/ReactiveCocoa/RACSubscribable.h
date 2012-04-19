@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 
 @class RACDisposable;
+@class RACScheduler;
+@class RACSubject;
 @protocol RACSubscriber;
 
 @protocol RACSubscribable <NSObject>
@@ -38,7 +40,10 @@
 // Returns a subscribable that never completes.
 + (id)never;
 
-// Returns a subscribable that calls the block in a background queue. If the return value is an NSError, it sends the error, otherwise it sends the value and then completes.
+// Returns a subscribable that calls the block in a background queue. If the return value of the block is an NSError, it sends the error, otherwise it sends the value and then completes.
 + (id)start:(id (^)(void))block;
+
+// Returns a subscribable that calls the block with the given scheduler. If the return value of the block is an NSError, it sends the error, otherwise it sends the value and then completes.
++ (id)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(void))block;
 
 @end

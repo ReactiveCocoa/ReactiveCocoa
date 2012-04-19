@@ -12,6 +12,7 @@
 #import "RACDisposable.h"
 #import "RACAsyncSubject.h"
 #import "NSObject+RACExtensions.h"
+#import "RACScheduler.h"
 
 static NSMutableSet *activeSubscribables = nil;
 
@@ -112,10 +113,14 @@ static NSMutableSet *activeSubscribables = nil;
 }
 
 + (id)start:(id (^)(void))block {
+	return [self startWithScheduler:[RACScheduler backgroundScheduler] block:block];
+}
+
++ (id)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(void))block {
 	NSParameterAssert(block != NULL);
 	
 	RACAsyncSubject *subject = [RACAsyncSubject subject];
-	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+	[scheduler schedule:^{
 		id returned = block();
 		
 		dispatch_async(dispatch_get_main_queue(), ^{
@@ -126,7 +131,7 @@ static NSMutableSet *activeSubscribables = nil;
 				[subject sendCompleted];
 			}
 		});
-	});
+	}];
 	
 	return subject;
 }

@@ -1,7 +1,9 @@
 # ReactiveCocoa
 ReactiveCocoa (RAC) is an Objective-C version of .NET's [Reactive Extensions](http://msdn.microsoft.com/en-us/data/gg577609) (Rx).
 
-# No srsly, what is it
+See the announcement blogpost for a quick intro: [ReactiveCocoa is now open source](https://github.com/blog/1107-reactivecocoa-is-now-open-source).
+
+## No srsly, what is it
 A many splendid thing:
 
 1. Functional, declarative way to describe behaviors and the relationships between properties.
@@ -9,7 +11,7 @@ A many splendid thing:
 1. A lovely API on top of KVO.
 1. Futures, kinda sorta.
 
-# Intro
+## Intro
 The fundamental ideas of RAC are pretty straightforward. It's all about subscribables. You can think of them as the evil twin of enumerables. With enumerables, you walk across some collection—item by item—until you manually stop, you hit the end of the collection, or something bad happens.
 
 With subscribables, you subscribe to it and it then feeds you items—one by one—until you manually stop, the subscribable completes, or something bad happens.
@@ -18,7 +20,7 @@ This is often described in the Rx world as enumeration being pull while subscrib
 
 Pretty straightforward right? So what's the big deal?
 
-# The Big Deal™
+## The Big Deal™
 It turns out this subscribable behavior is really useful in a lot of different cases. And it's extraordinarily useful especially once you start composing subscribables.
 
 ## Examples

@@ -116,7 +116,7 @@ Or to chain async operations:
 That will login, then fetch messages, then for each message fetched, fetch the full message, log each full message and then log when it's all done.
 
 ## Bindings
-Bindings let you use RAC to drive your user interface. See the [Mac](https://github.com/github/ReactiveCocoa/tree/master/GHAPIDemo/GHAPIDemo) sample project.
+Bindings let you use RAC to drive your user interface. See the [Mac sample project](https://github.com/github/ReactiveCocoa/tree/master/GHAPIDemo/GHAPIDemo).
 
 But iOS doesn't have bindings. Thankfully, RAC's KVO wrapping makes it easy to bind to KVC-compliant properties a RAC subscribable. It looks like this:
 
@@ -141,6 +141,8 @@ To go even one step further, we wrapped that in a property on `UITextField` so y
 ```
 
 Our `username` property is now bound to the value of our `usernameField` text field.
+
+See the [iOS sample project](https://github.com/github/ReactiveCocoa/tree/master/RACiOSDemo) for an example.
 
 ## Lifetime
 The point of RAC is to make your life better as a programmer. To that end, `RACSubscribable`'s lifetime is a little funny.

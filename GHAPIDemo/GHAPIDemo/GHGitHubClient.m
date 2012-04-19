@@ -93,7 +93,7 @@
 	RACAsyncSubject *subject = [RACAsyncSubject subject];
 	NSURLRequest *request = [self requestWithMethod:method path:path parameters:parameters];
 	AFHTTPRequestOperation *operation = [self HTTPRequestOperationWithRequest:request success:^(AFHTTPRequestOperation *operation, id responseObject) {
-		[subject sendNext:[RACMaybe maybeWithObject:responseObject]];
+		[subject sendNext:responseObject];
 		[subject sendCompleted];
 	} failure:^(AFHTTPRequestOperation *operation, NSError *error) {
 		[subject sendError:error];

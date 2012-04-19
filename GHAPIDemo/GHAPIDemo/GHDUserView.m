@@ -18,5 +18,6 @@
 @synthesize realNameTextField;
 @synthesize spinner;
 @synthesize valuesContainerView;
+@synthesize avatarImageView;
 
 @end

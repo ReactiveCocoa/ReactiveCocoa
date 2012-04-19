@@ -38,22 +38,40 @@
 	
 	self.didLoginSubject = [RACSubject subject];
 	
-	NSArray *loginEnabledSubscribables = [NSArray arrayWithObjects:RACAbleSelf(self.username), RACAbleSelf(self.password), RACAbleSelf(self.loginCommand.numberOfActiveExecutions), nil];
-	[self rac_bind:RAC_KEYPATH_SELF(self.loginEnabled) to:[RACSubscribable combineLatest:loginEnabledSubscribables reduce:^(RACTuple *xs) {
-		return [NSNumber numberWithBool:[[xs objectAtIndex:0] length] > 0 && [[xs objectAtIndex:1] length] > 0 && [[xs objectAtIndex:2] unsignedIntegerValue] < 1];
-	}]];
+	// Login is only enabled when they've entered both a username and password,
+	// and we aren't already trying to login.
+	[[RACSubscribable 
+		combineLatest:[NSArray arrayWithObjects:RACAbleSelf(self.username), RACAbleSelf(self.password), RACAbleSelf(self.loginCommand.numberOfActiveExecutions), nil] 
+		reduce:^(RACTuple *xs) {
+			return [NSNumber numberWithBool:[[xs objectAtIndex:0] length] > 0 && [[xs objectAtIndex:1] length] > 0 && [[xs objectAtIndex:2] unsignedIntegerValue] < 1];
+		}]
+		toProperty:RAC_KEYPATH_SELF(self.loginEnabled) onObject:self];
 	
 	self.loginCommand = [RACAsyncCommand command];
+	__block __unsafe_unretained id weakSelf = self;
 	[self.loginCommand subscribeNext:^(id _) {
-		self.user = [GHGitHubUser userWithUsername:self.username password:self.password];
-		self.client = [GHGitHubClient clientForUser:self.user];
-		self.loggingIn = YES;
+		GHDLoginViewController *strongSelf = weakSelf;
+		strongSelf.user = [GHGitHubUser userWithUsername:strongSelf.username password:strongSelf.password];
+		strongSelf.client = [GHGitHubClient clientForUser:strongSelf.user];
+		strongSelf.loggingIn = YES;
 	}];
 	
-	RACSubscribable *loginResult = [[[self.loginCommand addAsyncBlock:^(id _) {
-		return [self.client login];
-	}] repeat] asMaybes];
+	// Note the -repeat and -asMaybes at the end. -repeat means that this
+	// subscribable will resubscribe to its source right after it completes.
+	// This lets us subscribe to the same subscribable even though the source
+	// subscribable (the API call) completes. -asMaybes means that we wrap 
+	// each next value or error in a RACMaybe. This means that even if the 
+	// API hits an error, the subscribable will still be valid.
+	RACSubscribable *loginResult = [[[self.loginCommand 
+		addAsyncBlock:^(id _) {
+			GHDLoginViewController *strongSelf = weakSelf;
+			return [strongSelf.client login];
+		}]
+		repeat]
+		asMaybes];
 
+	// Since we used -asMaybes above, we'll need to filter out the specific
+	// error or success cases.
 	[[[loginResult 
 		where:^(id x) {
 			return [x hasError];
@@ -62,7 +80,8 @@
 			return [x error];
 		}] 
 		subscribeNext:^(id x) {
-			self.loginFailedHidden = NO;
+			GHDLoginViewController *strongSelf = weakSelf;
+			strongSelf.loginFailedHidden = NO;
 			NSLog(@"error logging in: %@", x);
 		}];
 	
@@ -71,18 +90,23 @@
 			return [x hasObject];
 		}]
 		subscribeNext:^(id _) {
-			self.successHidden = NO;
-			[self.didLoginSubject sendNext:self.user];
+			GHDLoginViewController *strongSelf = weakSelf;
+			strongSelf.successHidden = NO;
+			[strongSelf.didLoginSubject sendNext:strongSelf.user];
 		}];
 	
 	[loginResult subscribeNext:^(id x) {
-		self.loggingIn = NO;
+		GHDLoginViewController *strongSelf = weakSelf;
+		strongSelf.loggingIn = NO;
 	}];
-		
+	
+	// When either username or password change, hide the success or failure
+	// message.
 	[[RACSubscribable 
 		merge:[NSArray arrayWithObjects:RACAbleSelf(self.username), RACAbleSelf(self.password), nil]] 
 		subscribeNext:^(id _) {
-			self.successHidden = self.loginFailedHidden = YES;
+			GHDLoginViewController *strongSelf = weakSelf;
+			strongSelf.successHidden = strongSelf.loginFailedHidden = YES;
 		}];
 	
 	return self;

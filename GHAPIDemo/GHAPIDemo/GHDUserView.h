@@ -15,5 +15,6 @@
 @property (assign) IBOutlet NSTextField *realNameTextField;
 @property (assign) IBOutlet NSProgressIndicator *spinner;
 @property (assign) IBOutlet NSView *valuesContainerView;
+@property (assign) IBOutlet NSImageView *avatarImageView;
 
 @end

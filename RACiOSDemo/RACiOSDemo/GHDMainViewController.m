@@ -30,9 +30,11 @@
 		NSLog(@"%@", x);
 	}];
 	
-	[[RACAbleSelf(self.text) select:^(id x) {
-		return [x uppercaseString]; 
-	}] toProperty:RAC_KEYPATH_SELF(self.label) onObject:self];
+	[[RACAbleSelf(self.text) 
+		select:^(id x) {
+			return [x uppercaseString]; 
+		}]
+		toProperty:RAC_KEYPATH_SELF(self.label) onObject:self];
 	
 	[self rac_bind:RAC_KEYPATH_SELF(self.view.label.text) to:RACAbleSelf(self.label)];
 	

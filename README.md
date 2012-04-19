@@ -166,3 +166,6 @@ The `-[RACSubscribable subscribe:]` method returns a `RACDisposable`. That dispo
 Beauty is in the eye of the beholder! We've played with a lot of different formatting styles to try to find one that's both concise and readable. The examples are in the style we currently use.
 
 That said, it's also a matter of getting used to what a different kind of code looks like. Give it time. It might grow on you.
+
+## License
+Simplified BSD License

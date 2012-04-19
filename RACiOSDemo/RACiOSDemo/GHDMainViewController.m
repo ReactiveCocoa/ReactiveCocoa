@@ -48,6 +48,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 	
+	// Even though iOS doesn't give us bindings like AppKit, we can fake them 
+	// pretty easily using RAC.
 	[self rac_bind:RAC_KEYPATH_SELF(self.text) to:self.view.textField.rac_textSubscribable];
 }
 

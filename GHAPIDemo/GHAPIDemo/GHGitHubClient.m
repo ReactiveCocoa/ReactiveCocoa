@@ -2,7 +2,7 @@
 //  GHGitHubClient.m
 //
 //  Created by Josh Abernathy on 3/6/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
 #import "GHGitHubClient.h"
@@ -93,7 +93,7 @@
 	RACAsyncSubject *subject = [RACAsyncSubject subject];
 	NSURLRequest *request = [self requestWithMethod:method path:path parameters:parameters];
 	AFHTTPRequestOperation *operation = [self HTTPRequestOperationWithRequest:request success:^(AFHTTPRequestOperation *operation, id responseObject) {
-		[subject sendNext:[RACMaybe maybeWithObject:responseObject]];
+		[subject sendNext:responseObject];
 		[subject sendCompleted];
 	} failure:^(AFHTTPRequestOperation *operation, NSError *error) {
 		[subject sendError:error];

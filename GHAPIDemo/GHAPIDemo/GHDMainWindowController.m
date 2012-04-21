@@ -3,7 +3,7 @@
 //  GHAPIDemo
 //
 //  Created by Josh Abernathy on 3/5/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
 #import "GHDMainWindowController.h"
@@ -34,14 +34,14 @@
 	GHDLoginViewController *loginViewController = [[GHDLoginViewController alloc] init];
 	self.currentViewController = loginViewController;
 	
-	[self rac_bind:RAC_KEYPATH_SELF(self.currentViewController) 
-				to:[[loginViewController.didLoginSubject 
-					 where:^BOOL(id x) {
-						 return x != nil;
-					 }] 
-					 select:^(id x) {
-						 return [[GHDUserViewController alloc] initWithUserAccount:x];
-					 }]];
+	[[[loginViewController.didLoginSubject 
+		where:^BOOL(id x) {
+			return x != nil;
+		}] 
+		select:^(id x) {
+			return [[GHDUserViewController alloc] initWithUserAccount:x];
+		}]
+		toProperty:RAC_KEYPATH_SELF(self.currentViewController) onObject:self];
 }
 
 

@@ -2,7 +2,7 @@
 //  GHGitHubUser.m
 //
 //  Created by Josh Abernathy on 3/7/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
 #import "GHGitHubUser.h"
@@ -14,6 +14,7 @@ static NSString * const GHGitHubUserDefaultAPIEndpoint = @"https://api.github.co
 @property (nonatomic, copy) NSString *password;
 @property (nonatomic, copy) NSURL *APIEndpoint;
 @property (nonatomic, copy) NSString *realName;
+@property (nonatomic, copy) NSURL *avatarURL;
 @end
 
 
@@ -21,6 +22,11 @@ static NSString * const GHGitHubUserDefaultAPIEndpoint = @"https://api.github.co
 
 - (void)setValuesForKeysWithDictionary:(NSDictionary *)keyedValues {
 	self.realName = [keyedValues objectForKey:@"name"];
+	
+	NSString *avatarUrl = [keyedValues objectForKey:@"avatar_url"];
+	if(avatarUrl.length > 0) {
+		self.avatarURL = [NSURL URLWithString:avatarUrl];
+	}
 }
 
 
@@ -30,6 +36,7 @@ static NSString * const GHGitHubUserDefaultAPIEndpoint = @"https://api.github.co
 @synthesize password;
 @synthesize APIEndpoint;
 @synthesize realName;
+@synthesize avatarURL;
 
 + (GHGitHubUser *)userWithUsername:(NSString *)username password:(NSString *)password {
 	return [self userWithUsername:username password:password APIEndpoint:[NSURL URLWithString:GHGitHubUserDefaultAPIEndpoint]];

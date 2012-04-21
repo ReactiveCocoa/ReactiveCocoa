@@ -1,15 +1,9 @@
 # ReactiveCocoa
-ReactiveCocoa (RAC) is an Objective-C version of .NET's [Reactive Extensions](http://msdn.microsoft.com/en-us/data/gg577609) (Rx).
+ReactiveCocoa (RAC) is a framework for composing and transforming sequences of values. (It's more or less and Objective-C version of .NET's [Reactive Extensions](http://msdn.microsoft.com/en-us/data/gg577609) (Rx).)
 
-# No srsly, what is it
-A many splendid thing:
+See the announcement blogpost for a quick intro: [ReactiveCocoa is now open source](https://github.com/blog/1107-reactivecocoa-is-now-open-source).
 
-1. Functional, declarative way to describe behaviors and the relationships between properties.
-1. Unified, high-level interface for asynchronous operations.
-1. A lovely API on top of KVO.
-1. Futures, kinda sorta.
-
-# Intro
+## Intro
 The fundamental ideas of RAC are pretty straightforward. It's all about subscribables. You can think of them as the evil twin of enumerables. With enumerables, you walk across some collection—item by item—until you manually stop, you hit the end of the collection, or something bad happens.
 
 With subscribables, you subscribe to it and it then feeds you items—one by one—until you manually stop, the subscribable completes, or something bad happens.
@@ -18,15 +12,14 @@ This is often described in the Rx world as enumeration being pull while subscrib
 
 Pretty straightforward right? So what's the big deal?
 
-# The Big Deal™
+## The Big Deal™
 It turns out this subscribable behavior is really useful in a lot of different cases. And it's extraordinarily useful especially once you start composing subscribables.
 
 ## Examples
 Enough words. Let's see some code:
 
 ```obj-c
-[RACAbleSelf(self.username) 
-	subscribeNext:^(NSString *newName) {
+[RACAbleSelf(self.username) subscribeNext:^(NSString *newName) {
 		NSLog(@"%@", newName);
 	}];
 ```
@@ -56,20 +49,17 @@ So now we're logging "Hi me!" whenever the username is "joshaber." Cool, but we 
 	}] 
 	subscribeNext:^(id _) {
 		NSLog(@"Hi me!");
-	} 
-	completed:^{
-		NSLog(@"Awww too bad you're not me!");
 	}];
 ```
 
-Holy composed subscribables Batman! So we're now only being notified if the new value isn't the same as the old value, we're only giving them 3 tries to be me, and if they're not, we print out a condescending message.
+Holy composed subscribables Batman! So we're now only being notified if the new value isn't the same as the old value, and we're only giving them 3 tries to be me.
 
 We can even combine subscribables. Suppose we have a view where they create an account, and we want to only enable the "Create" button when the password and password confirmation fields match.
 
 ```obj-c
 [[RACSubscribable 
 	combineLatest:[NSArray arrayWithObjects:RACAbleSelf(self.password), RACAbleSelf(self.passwordConfirmation), nil] 
-	reduce:^(NSArray *values) {
+	reduce:^(RACTuple *values) {
 		NSString *currentPassword = [values objectAtIndex:0];
 		NSString *currentConfirmPassword = [values objectAtIndex:1];
 		return [NSNumber numberWithBool:[currentConfirmPassword isEqualToString:currentPassword]];
@@ -89,7 +79,7 @@ Sure, but by using RAC you get some pretty awesome stuff for free:
 
 1. No state. If we did it ourselves, we'd have to keep and manage quite a bit of state manually. Therein lies bugs.
 1. Code locality. If we did it manually, the code would be spread out across many different method calls. This way we define the behavior all in one place.
-1. Higher order messaging. RAC allows us to more clearly express our _intent_ rather than worrying about the specific implementation details.
+1. Better expression of intent. RAC allows us to more clearly express our _intent_ rather than worrying about the specific implementation details.
 
 ## Async
 The subscribable paradigm also fits quite nicely with async operations. Your async calls return subscribables which lets you leverage all the power of composing subscribable operations.
@@ -125,6 +115,35 @@ Or to chain async operations:
 
 That will login, then fetch messages, then for each message fetched, fetch the full message, log each full message and then log when it's all done.
 
+## Bindings
+Bindings let you use RAC to drive your user interface. See the [Mac sample project](https://github.com/github/ReactiveCocoa/tree/master/GHAPIDemo/GHAPIDemo).
+
+But iOS doesn't have bindings. Thankfully, RAC's KVO wrapping makes it easy to bind to KVC-compliant properties a RAC subscribable. It looks like this:
+
+``` obj-c
+[self rac_bind:RAC_KEYPATH_SELF(self.someLabel.text) to:RACAbleSelf(self.someText)];
+```
+
+The real beauty of this is that we could also use any RAC operations on the subscribable to which it is bound. For example, to transform the new value before propagating it to the bound object:
+
+``` obj-c
+[self rac_bind:RAC_KEYPATH_SELF(self.someLabel.text) to:[RACAbleSelf(self.someText) select:^(NSString *newText) {
+	return [newText uppercaseString];
+}]];
+```
+
+Unfortunately, a lot of UIKit classes don't expose KVO-compliant properties. `UITextField`'s `text` property, for example, isn't KVO-compliant. For cases like that, we added `-[UIControl rac_subscribableForControlEvents:]` which sends a new value every time the control events fire.
+
+To go even one step further, we wrapped that in a property on `UITextField` so you can just use `-[UITextField rac_textSubscribable]` to watch for changes to `text`. Now we can write:
+
+```obj-c
+[self rac_bind:RAC_KEYPATH_SELF(self.username) to:self.usernameField.rac_textSubscribable];
+```
+
+Our `username` property is now bound to the value of our `usernameField` text field.
+
+See the [iOS sample project](https://github.com/github/ReactiveCocoa/tree/master/RACiOSDemo) for an example.
+
 ## Lifetime
 The point of RAC is to make your life better as a programmer. To that end, `RACSubscribable`'s lifetime is a little funny.
 
@@ -138,14 +157,15 @@ RAC cleans up a subscribable when:
 If you want to keep a subscribable alive past either of those cases, you need to keep a strong reference to it. But you shouldn't usually need to do that.
 
 ### KVO
-KVO is a special case when it comes to lifetime. If the normal rules applied, you'd end up causing retain cycles all over the place.
-
-Instead, sbscribables for a KVO property send the `completed` event when the observing object is deallocated. This falls under case (1) above, so it tears down the subscribable and its subscribers.
+KVO is a special case when it comes to lifetime. Subscribables created from a KVO-compliant property are kept alive for the lifetime of the source object. As such, they never really 'complete.' Instead, when the source object is dealloc'd, the subscribable removes all its subscribers and gets released.
 
 ### Disposables
-The `-[RACSubscribable subscribe:]` method returns a `RACDisposable`. That disposable encapsulates the tasks necessary to clean up the subscription. You can call `-dispose` on a disposable to end your subscription manually.
+The `-[RACSubscribable subscribe:]` method returns a `RACDisposable`. That disposable encapsulates the tasks necessary to stop and clean up the subscription. You can call `-dispose` on a disposable to end your subscription manually. Typically you won't need to manually track or dispose of disposables. They're automatically called by RAC as part of the subscribable's lifecycle.
 
 ## It's ugly!
-OK I might grant you that. Beauty is in the eye of the beholder and all that. We've played with a lot of different formatting styles to try to find one that's both concise and readable. The examples are in the style we currently use.
+Beauty is in the eye of the beholder! We've played with a lot of different formatting styles to try to find one that's both concise and readable. The examples are in the style we currently use.
 
 That said, it's also a matter of getting used to what a different kind of code looks like. Give it time. It might grow on you.
+
+## License
+Simplified BSD License

@@ -494,6 +494,7 @@
 			attributes = {
 				CLASSPREFIX = GHD;
 				LastUpgradeCheck = 0430;
+				ORGANIZATIONNAME = "GitHub, Inc.";
 			};
 			buildConfigurationList = 884E048B1505ACEF00035AFC /* Build configuration list for PBXProject "GHAPIDemo" */;
 			compatibilityVersion = "Xcode 3.2";

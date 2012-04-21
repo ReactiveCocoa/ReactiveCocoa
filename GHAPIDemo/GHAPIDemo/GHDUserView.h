@@ -3,7 +3,7 @@
 //  GHAPIDemo
 //
 //  Created by Josh Abernathy on 3/13/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>
@@ -15,5 +15,6 @@
 @property (assign) IBOutlet NSTextField *realNameTextField;
 @property (assign) IBOutlet NSProgressIndicator *spinner;
 @property (assign) IBOutlet NSView *valuesContainerView;
+@property (assign) IBOutlet NSImageView *avatarImageView;
 
 @end

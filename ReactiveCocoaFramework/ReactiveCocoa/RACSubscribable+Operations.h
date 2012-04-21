@@ -66,6 +66,12 @@ typedef NSInteger RACSubscribableError;
 // Sends the latest `next` from any of the subscribables.
 + (RACSubscribable *)merge:(NSArray *)observables;
 
+// Merge the subscribable with the given subscribable.
+- (RACSubscribable *)mergeWith:(RACSubscribable *)subscribable;
+
+// Merges the subscribable of subscribables into a flattened subscribable.
+- (RACSubscribable *)merge;
+
 // Gets a new subscribable for every `next` and sends `next` when any of those subscribables do.
 - (RACSubscribable *)selectMany:(id<RACSubscribable> (^)(id x))selectBlock;
 

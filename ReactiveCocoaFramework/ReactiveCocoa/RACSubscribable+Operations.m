@@ -110,7 +110,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		} error:^(NSError *error) {
 			[observer sendError:error];
 		} completed:^{
-			[self subscribe:innerObserver];
+			currentDisposable = [self subscribe:innerObserver];
 		}];
 		
 		currentDisposable = [self subscribe:innerObserver];
@@ -400,10 +400,11 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		[activeObservables addObject:self];
 		
 		NSMutableSet *completedObservables = [NSMutableSet set];
+		NSMutableSet *innerDisposables = [NSMutableSet set];
 		RACDisposable *outerDisposable = [self subscribeNext:^(id x) {
 			id<RACSubscribable> observable = selectBlock(x);
 			[activeObservables addObject:observable];
-			[observable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
+			RACDisposable *disposable = [observable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 				[observer sendNext:x];
 			} error:^(NSError *error) {
 				[observer sendError:error];
@@ -414,6 +415,8 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 					[observer sendCompleted];
 				}
 			}]];
+			
+			[innerDisposables addObject:disposable];
 		} error:^(NSError *error) {
 			[observer sendError:error];
 		} completed:^{
@@ -425,6 +428,9 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		}];
 		
 		return [RACDisposable disposableWithBlock:^{
+			for(RACDisposable *innerDisposable in innerDisposables) {
+				[innerDisposable dispose];
+			}
 			[outerDisposable dispose];
 		}];
 	}];
@@ -534,15 +540,8 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 
 - (RACSubscribable *)takeUntil:(id<RACSubscribable>)subscribableTrigger {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
-		__block RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
-			[subscriber sendNext:x];
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendCompleted];
-		}];
-		
-		RACDisposable *triggerDisposable = [subscribableTrigger subscribe:[RACSubscriber subscriberWithNext:^(id x) {
+		__block RACDisposable *selfDisposable = nil;
+		__block RACDisposable *triggerDisposable = [subscribableTrigger subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 			[selfDisposable dispose], selfDisposable = nil;
 			[subscriber sendCompleted];
 		} error:^(NSError *error) {
@@ -550,6 +549,15 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		} completed:^{
 			
 		}]];
+		
+		selfDisposable = [self subscribeNext:^(id x) {
+			[subscriber sendNext:x];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[triggerDisposable dispose];
+			[subscriber sendCompleted];
+		}];
 		
 		return [RACDisposable disposableWithBlock:^{
 			[triggerDisposable dispose];

@@ -14,6 +14,7 @@
 #import "RACSubject.h"
 #import "RACBehaviorSubject.h"
 #import "RACDisposable.h"
+#import "RACUnit.h"
 
 
 SpecBegin(RACSubscribable)
@@ -82,6 +83,24 @@ describe(@"subscribing", ^{
 		
 		[disposable dispose];
 		
+		shouldBeGettingItems = NO;
+		[subject sendNext:@"test 3"];
+	});
+
+	it(@"should support -takeUntil:", ^{
+		__block BOOL shouldBeGettingItems = YES;
+		RACSubject *subject = [RACSubject subject];
+		RACSubject *cutOffSubject = [RACSubject subject];
+		[[subject takeUntil:cutOffSubject] subscribeNext:^(id x) {
+			expect(shouldBeGettingItems).toBeTruthy();
+		}];
+
+		shouldBeGettingItems = YES;
+		[subject sendNext:@"test 1"];
+		[subject sendNext:@"test 2"];
+
+		[cutOffSubject sendNext:[RACUnit defaultUnit]];
+
 		shouldBeGettingItems = NO;
 		[subject sendNext:@"test 3"];
 	});
@@ -216,7 +235,7 @@ describe(@"continuation", ^{
 		
 		__block BOOL gotNext = NO;
 		__block BOOL gotError = NO;
-		[[observable catchToMaybe] subscribeNext:^(id x) {
+		[[observable asMaybes] subscribeNext:^(id x) {
 			gotNext = YES;
 		} error:^(NSError *error) {
 			gotError = YES;

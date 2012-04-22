@@ -441,47 +441,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 - (RACSubscribable *)selectMany:(id<RACSubscribable> (^)(id x))selectBlock {
-	NSParameterAssert(selectBlock != NULL);
-	
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> observer) {
-		NSMutableSet *activeObservables = [NSMutableSet set];
-		[activeObservables addObject:self];
-		
-		NSMutableSet *completedObservables = [NSMutableSet set];
-		NSMutableSet *innerDisposables = [NSMutableSet set];
-		RACDisposable *outerDisposable = [self subscribeNext:^(id x) {
-			id<RACSubscribable> observable = selectBlock(x);
-			[activeObservables addObject:observable];
-			RACDisposable *disposable = [observable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
-				[observer sendNext:x];
-			} error:^(NSError *error) {
-				[observer sendError:error];
-			} completed:^{
-				[completedObservables addObject:observable];
-				
-				if(completedObservables.count == activeObservables.count) {
-					[observer sendCompleted];
-				}
-			}]];
-			
-			[innerDisposables addObject:disposable];
-		} error:^(NSError *error) {
-			[observer sendError:error];
-		} completed:^{
-			[completedObservables addObject:self];
-			
-			if(completedObservables.count == activeObservables.count) {
-				[observer sendCompleted];
-			}
-		}];
-		
-		return [RACDisposable disposableWithBlock:^{
-			for(RACDisposable *innerDisposable in innerDisposables) {
-				[innerDisposable dispose];
-			}
-			[outerDisposable dispose];
-		}];
-	}];
+	return [[self select:selectBlock] merge];
 }
 
 - (RACSubscribable *)concat:(id<RACSubscribable>)subscribable {

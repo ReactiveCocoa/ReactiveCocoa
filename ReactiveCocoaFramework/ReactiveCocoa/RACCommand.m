@@ -31,8 +31,8 @@
 
 #pragma mark RACObservable
 
-- (RACDisposable *)subscribe:(id<RACSubscriber>)observer {
-	return [self.executeSubject subscribe:observer];
+- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
+	return [self.executeSubject subscribe:subscriber];
 }
 
 

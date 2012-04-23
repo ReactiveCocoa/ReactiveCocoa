@@ -20,8 +20,8 @@
 
 #pragma mark RACSubscribable
 
-- (RACDisposable *)subscribe:(id<RACSubscriber>)observer {
-	RACDisposable * disposable = [super subscribe:observer];
+- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
+	RACDisposable * disposable = [super subscribe:subscriber];
 	if(self.hasCompletedAlready) {
 		[self sendCompleted];
 	}

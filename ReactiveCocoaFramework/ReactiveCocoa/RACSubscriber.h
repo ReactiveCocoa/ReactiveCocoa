@@ -22,7 +22,7 @@
 
 @interface RACSubscriber : NSObject <RACSubscriber>
 
-// Creates a new observer with the given blocks.
+// Creates a new subscriber with the given blocks.
 + (id)subscriberWithNext:(void (^)(id x))next error:(void (^)(NSError *error))error completed:(void (^)(void))completed;
 
 @end

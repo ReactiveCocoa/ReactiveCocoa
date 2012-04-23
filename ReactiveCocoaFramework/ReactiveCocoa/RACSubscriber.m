@@ -61,11 +61,11 @@
 @synthesize disposable;
 
 + (id)subscriberWithNext:(void (^)(id x))next error:(void (^)(NSError *error))error completed:(void (^)(void))completed {
-	RACSubscriber *observer = [[self alloc] init];
-	observer.next = next;
-	observer.error = error;
-	observer.completed = completed;
-	return observer;
+	RACSubscriber *subscriber = [[self alloc] init];
+	subscriber.next = next;
+	subscriber.error = error;
+	subscriber.completed = completed;
+	return subscriber;
 }
 
 - (void)stopSubscription {

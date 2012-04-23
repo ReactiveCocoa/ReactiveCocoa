@@ -16,13 +16,13 @@
 - (RACSubscribable *)toSubscribable {
 	NSParameterAssert([self conformsToProtocol:@protocol(NSFastEnumeration)]);
 	
-	return [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> observer) {
+	return [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
 		id<NSFastEnumeration> fastEnumerable = (id<NSFastEnumeration>) self;
 		for(id object in fastEnumerable) {
-			[observer sendNext:object];
+			[subscriber sendNext:object];
 		}
 		
-		[observer sendCompleted];
+		[subscriber sendCompleted];
 		
 		return nil;
 	}];

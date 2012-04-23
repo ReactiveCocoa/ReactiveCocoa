@@ -24,7 +24,7 @@
 	NSParameterAssert(reduceBlock != NULL);
 	
 	__block __unsafe_unretained id weakSelf = self;
-	return [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> observer) {
+	return [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
 		NSObject *strongSelf = weakSelf;
 		
 		RACTuple * (^currentValues)(void) = ^{
@@ -36,18 +36,18 @@
 			return [RACTuple tupleWithObjectsFromArray:values];
 		};
 		
-		[observer sendNext:reduceBlock(currentValues())];
+		[subscriber sendNext:reduceBlock(currentValues())];
 		
 		NSArray *subscribables = [keyPaths rac_select:^(NSString *keyPath) {
 			return [strongSelf rac_subscribableForKeyPath:keyPath onObject:strongSelf];
 		}];
 		
 		return [[RACSubscribable merge:subscribables] subscribeNext:^(id x) {
-			[observer sendNext:reduceBlock(currentValues())];
+			[subscriber sendNext:reduceBlock(currentValues())];
 		} error:^(NSError *error) {
-			[observer sendError:error];
+			[subscriber sendError:error];
 		} completed:^{
-			[observer sendCompleted];
+			[subscriber sendCompleted];
 		}];
 	}];
 }

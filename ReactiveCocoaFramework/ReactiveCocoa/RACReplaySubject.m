@@ -29,10 +29,10 @@
 
 #pragma mark RACSubscribable
 
-- (RACDisposable *)subscribe:(id<RACSubscriber>)observer {
-	RACDisposable * disposable = [super subscribe:observer];
+- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
+	RACDisposable * disposable = [super subscribe:subscriber];
 	for(id value in self.valuesReceived) {
-		[observer sendNext:[value isKindOfClass:[NSNull class]] ? nil : value];
+		[subscriber sendNext:[value isKindOfClass:[NSNull class]] ? nil : value];
 	}
 	
 	return disposable;

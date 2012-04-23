@@ -85,29 +85,29 @@ static NSMutableSet *activeSubscribables = nil;
 }
 
 + (id)return:(id)value {
-	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> observer) {
-		[observer sendNext:value];
-		[observer sendCompleted];
+	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+		[subscriber sendNext:value];
+		[subscriber sendCompleted];
 		return nil;
 	}];
 }
 
 + (id)error:(NSError *)error {
-	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> observer) {
-		[observer sendError:error];
+	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+		[subscriber sendError:error];
 		return nil;
 	}];
 }
 
 + (id)empty {
-	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> observer) {
-		[observer sendCompleted];
+	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+		[subscriber sendCompleted];
 		return nil;
 	}];
 }
 
 + (id)never {
-	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> observer) {
+	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
 		return nil;
 	}];
 }

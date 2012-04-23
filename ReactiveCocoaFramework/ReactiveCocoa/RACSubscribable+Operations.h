@@ -58,13 +58,13 @@ typedef NSInteger RACSubscribableError;
 - (RACSubscribable *)take:(NSUInteger)count;
 
 // Combine the latest values from each of the subscribables once all the subscribables have sent a `next`.
-+ (RACSubscribable *)combineLatest:(NSArray *)observables reduce:(id (^)(RACTuple *xs))reduceBlock;
++ (RACSubscribable *)combineLatest:(NSArray *)subscribables reduce:(id (^)(RACTuple *xs))reduceBlock;
 
 // Sends a `+[RACUnit defaultUnit]` when all the subscribables have sent a `next`.
-+ (RACSubscribable *)whenAll:(NSArray *)observables;
++ (RACSubscribable *)whenAll:(NSArray *)subscribables;
 
 // Sends the latest `next` from any of the subscribables.
-+ (RACSubscribable *)merge:(NSArray *)observables;
++ (RACSubscribable *)merge:(NSArray *)subscribables;
 
 // Merge the subscribable with the given subscribable.
 - (RACSubscribable *)mergeWith:(RACSubscribable *)subscribable;

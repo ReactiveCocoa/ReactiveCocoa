@@ -40,10 +40,10 @@
 // Returns a subscribable that never completes.
 + (id)never;
 
-// Returns a subscribable that calls the block in a background queue. If the return value of the block is an NSError, it sends the error, otherwise it sends the value and then completes.
-+ (id)start:(id (^)(void))block;
+// Returns a subscribable that calls the block in a background queue. The block's success is YES by default. If the block sets success = NO, the subscribable sends error with the return value.
++ (id)start:(id (^)(BOOL *success))block;
 
-// Returns a subscribable that calls the block with the given scheduler. If the return value of the block is an NSError, it sends the error, otherwise it sends the value and then completes.
-+ (id)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(void))block;
+// Returns a subscribable that calls the block with the given scheduler. The block's success is YES by default. If the block sets success = NO, the subscribable sends error with the return value.
++ (id)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success))block;
 
 @end

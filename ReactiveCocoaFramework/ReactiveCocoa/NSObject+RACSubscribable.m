@@ -65,4 +65,14 @@
 	return [(RACSubscribable *) self subscribe:o];
 }
 
+- (RACDisposable *)subscribeError:(void (^)(NSError *))errorBlock completed:(void (^)(void))completedBlock
+{
+	NSParameterAssert([self conformsToProtocol:@protocol(RACSubscribable)]);
+	NSParameterAssert(completedBlock != NULL);
+	NSParameterAssert(errorBlock != NULL);
+	
+	RACSubscriber *o = [RACSubscriber subscriberWithNext:NULL error:errorBlock completed:completedBlock];
+	return [(RACSubscribable *) self subscribe:o];
+}
+
 @end

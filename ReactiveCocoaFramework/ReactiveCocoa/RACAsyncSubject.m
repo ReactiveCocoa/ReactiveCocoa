@@ -12,6 +12,7 @@
 @interface RACAsyncSubject ()
 @property (nonatomic, strong) id lastValue;
 @property (assign) BOOL hasCompletedAlready;
+@property (strong) NSError *error;
 @end
 
 
@@ -24,6 +25,8 @@
 	RACDisposable * disposable = [super subscribe:subscriber];
 	if(self.hasCompletedAlready) {
 		[self sendCompleted];
+	} else if(self.error != nil) {
+		[self sendError:self.error];
 	}
 	
 	return disposable;
@@ -48,10 +51,17 @@
 	[super sendCompleted];
 }
 
+- (void)sendError:(NSError *)e {
+	[super sendError:e];
+	
+	self.error = e;
+}
+
 
 #pragma mark API
 
 @synthesize lastValue;
 @synthesize hasCompletedAlready;
+@synthesize error;
 
 @end

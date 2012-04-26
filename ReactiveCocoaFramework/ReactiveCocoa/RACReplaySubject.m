@@ -13,6 +13,8 @@
 @interface RACReplaySubject ()
 @property (nonatomic, strong) NSMutableArray *valuesReceived;
 @property (nonatomic, assign) NSUInteger capacity;
+@property (assign) BOOL hasCompletedAlready;
+@property (strong) NSError *error;
 @end
 
 
@@ -41,6 +43,12 @@
 		[subscriber sendNext:[value isKindOfClass:[RACTupleNil class]] ? nil : value];
 	}
 	
+	if(self.hasCompletedAlready) {
+		[subscriber sendCompleted];
+	} else if(self.error != nil) {
+		[subscriber sendError:self.error];
+	}
+	
 	return disposable;
 }
 
@@ -61,11 +69,25 @@
 	}
 }
 
+- (void)sendCompleted {
+	[super sendCompleted];
+	
+	self.hasCompletedAlready = YES;
+}
+
+- (void)sendError:(NSError *)e {
+	[super sendError:e];
+	
+	self.error = e;
+}
+
 
 #pragma mark API
 
 @synthesize valuesReceived;
 @synthesize capacity;
+@synthesize hasCompletedAlready;
+@synthesize error;
 
 + (id)replaySubjectWithCapacity:(NSUInteger)capacity {
 	RACReplaySubject *subject = [self subject];

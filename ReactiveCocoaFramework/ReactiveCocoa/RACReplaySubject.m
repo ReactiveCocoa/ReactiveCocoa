@@ -8,10 +8,13 @@
 
 #import "RACReplaySubject.h"
 #import "RACSubscriber.h"
+#import "RACTuple.h"
 
 @interface RACReplaySubject ()
 @property (nonatomic, strong) NSMutableArray *valuesReceived;
 @property (nonatomic, assign) NSUInteger capacity;
+@property (assign) BOOL hasCompletedAlready;
+@property (strong) NSError *error;
 @end
 
 
@@ -31,8 +34,19 @@
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
 	RACDisposable * disposable = [super subscribe:subscriber];
-	for(id value in self.valuesReceived) {
-		[subscriber sendNext:[value isKindOfClass:[NSNull class]] ? nil : value];
+	NSArray *valuesCopy = nil;
+	@synchronized(self.valuesReceived) {
+		valuesCopy = [self.valuesReceived copy];
+	}
+	
+	for(id value in valuesCopy) {
+		[subscriber sendNext:[value isKindOfClass:[RACTupleNil class]] ? nil : value];
+	}
+	
+	if(self.hasCompletedAlready) {
+		[subscriber sendCompleted];
+	} else if(self.error != nil) {
+		[subscriber sendError:self.error];
 	}
 	
 	return disposable;
@@ -44,11 +58,27 @@
 - (void)sendNext:(id)value {
 	[super sendNext:value];
 	
-	[self.valuesReceived addObject:value ? : [NSNull null]];
-	
-	while(self.valuesReceived.count > self.capacity) {
-		[self.valuesReceived removeObjectAtIndex:0];
+	@synchronized(self.valuesReceived) {
+		[self.valuesReceived addObject:value ? : [RACTupleNil tupleNil]];
+		
+		if(self.capacity > 0) {
+			while(self.valuesReceived.count > self.capacity) {
+				[self.valuesReceived removeObjectAtIndex:0];
+			}
+		}
 	}
+}
+
+- (void)sendCompleted {
+	[super sendCompleted];
+	
+	self.hasCompletedAlready = YES;
+}
+
+- (void)sendError:(NSError *)e {
+	[super sendError:e];
+	
+	self.error = e;
 }
 
 
@@ -56,6 +86,8 @@
 
 @synthesize valuesReceived;
 @synthesize capacity;
+@synthesize hasCompletedAlready;
+@synthesize error;
 
 + (id)replaySubjectWithCapacity:(NSUInteger)capacity {
 	RACReplaySubject *subject = [self subject];

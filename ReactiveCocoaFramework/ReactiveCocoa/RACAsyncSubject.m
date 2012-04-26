@@ -33,13 +33,18 @@
 #pragma mark RACSubscriber
 
 - (void)sendNext:(id)value {
-	self.lastValue = value;
+	@synchronized(self.lastValue) {
+		self.lastValue = value;
+	}
 }
 
 - (void)sendCompleted {
 	self.hasCompletedAlready = YES;
 	
-	[super sendNext:self.lastValue];
+	@synchronized(self.lastValue) {
+		[super sendNext:self.lastValue];
+	}
+	
 	[super sendCompleted];
 }
 

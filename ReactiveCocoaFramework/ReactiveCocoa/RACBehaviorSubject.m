@@ -20,7 +20,9 @@
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
 	RACDisposable * disposable = [super subscribe:subscriber];
-	[subscriber sendNext:self.currentValue];
+	@synchronized(self.currentValue) {
+		[subscriber sendNext:self.currentValue];
+	}
 	
 	return disposable;
 }
@@ -31,7 +33,9 @@
 - (void)sendNext:(id)value {
 	[super sendNext:value];
 	
-	self.currentValue = value;
+	@synchronized(self.currentValue) {
+		self.currentValue = value;
+	}
 }
 
 

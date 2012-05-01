@@ -10,6 +10,8 @@
 #import "RACSubscriber.h"
 #import "RACTuple.h"
 
+const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
+
 @interface RACReplaySubject ()
 @property (nonatomic, strong) NSMutableArray *valuesReceived;
 @property (nonatomic, assign) NSUInteger capacity;

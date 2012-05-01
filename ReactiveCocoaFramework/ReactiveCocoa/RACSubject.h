@@ -10,7 +10,8 @@
 #import "RACSubscriber.h"
 
 
-// A subject can be thought of as a subscribable that you can manually control by sending next, completed, and error.
+// A subject can be thought of as a subscribable that you can manually control
+// by sending next, completed, and error.
 @interface RACSubject : RACSubscribable <RACSubscriber>
 
 // Returns a new subject.

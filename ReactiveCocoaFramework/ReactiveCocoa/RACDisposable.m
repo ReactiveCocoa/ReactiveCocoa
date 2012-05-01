@@ -35,8 +35,6 @@
 }
 
 - (RACScopedDisposable *)asScopedDisposable {
-	if([self isKindOfClass:[RACScopedDisposable class]]) return (RACScopedDisposable *) self;
-	
 	return [RACScopedDisposable scopedDisposableWithDisposable:self];
 }
 

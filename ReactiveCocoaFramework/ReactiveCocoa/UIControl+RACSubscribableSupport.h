@@ -13,6 +13,8 @@
 
 @interface UIControl (RACSubscribableSupport)
 
+// Creates and returns a subscribable that sends the sender of the control event
+// whenever one of the control events is triggered.
 - (RACSubscribable *)rac_subscribableForControlEvents:(UIControlEvents)controlEvents;
 
 @end

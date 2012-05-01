@@ -21,6 +21,14 @@
 }
 
 
+#pragma mark RACDisposable
+
+- (RACScopedDisposable *)asScopedDisposable {
+	// totally already are
+	return self;
+}
+
+
 #pragma mark API
 
 @synthesize disposable;

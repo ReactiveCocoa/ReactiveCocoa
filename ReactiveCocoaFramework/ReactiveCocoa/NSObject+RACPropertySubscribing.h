@@ -21,7 +21,8 @@
 
 @interface NSObject (RACPropertySubscribing)
 
-// Creates a subscribable for observing on the given object the key path of the source object.
+// Creates a subscribable for observing on the given object the key path of the
+// source object.
 + (RACSubscribable *)rac_subscribableFor:(NSObject *)object keyPath:(NSString *)keyPath onObject:(NSObject *)onObject;
 
 // Creates a value from observing the value at the given keypath.

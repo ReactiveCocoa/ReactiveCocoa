@@ -12,7 +12,8 @@
 
 
 // A command is a value that allows more customization of its behavior.
-// It sends `next` events when the command executes. `next` is sent the value passed into `-execute:`.
+// It sends `next` events when the command executes. `next` is sent the value
+// passed into `-execute:`.
 @interface RACCommand : NSObject <RACSubscribable>
 
 // Whether or not the command can execute.
@@ -23,8 +24,12 @@
 
 // Creates a new command with the given can execute and execute blocks.
 //
-// canExecuteBlock - the block that is called to determine if the command may execute. It is passed the value that would be passed to `-execute:` if it is allowed to execute. Can be nil.
-// executeBlock - the block that will be executed when the command is executed. It will be passed the object given to `-execute:`.
+// canExecuteBlock - the block that is called to determine if the command may
+// execute. It is passed the value that would be passed to `-execute:` if it is
+// allowed to execute. Can be nil.
+//
+// executeBlock - the block that will be executed when the command is executed.
+// It will be passed the object given to `-execute:`.
 + (id)commandWithCanExecute:(BOOL (^)(id value))canExecuteBlock execute:(void (^)(id value))executeBlock;
 
 + (id)commandWithCanExecuteObservable:(id<RACSubscribable>)canExecuteObservable execute:(void (^)(id value))executeBlock;

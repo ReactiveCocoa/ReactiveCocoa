@@ -10,11 +10,14 @@
 #import "RACSubscriber.h"
 #import "RACSubscribable.h"
 
+#define REQUIRES_RAC_SUBSCRIBABLE NSParameterAssert([self conformsToProtocol:@protocol(RACSubscribable)]);
+
 
 @implementation NSObject (RACSubscribable)
 
 - (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock {
-	NSParameterAssert([self conformsToProtocol:@protocol(RACSubscribable)]);
+	REQUIRES_RAC_SUBSCRIBABLE
+
 	NSParameterAssert(nextBlock != NULL);
 	
 	RACSubscriber *o = [RACSubscriber subscriberWithNext:nextBlock error:NULL completed:NULL];
@@ -22,7 +25,8 @@
 }
 
 - (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock {
-	NSParameterAssert([self conformsToProtocol:@protocol(RACSubscribable)]);
+	REQUIRES_RAC_SUBSCRIBABLE
+
 	NSParameterAssert(nextBlock != NULL);
 	NSParameterAssert(completedBlock != NULL);
 	
@@ -31,7 +35,8 @@
 }
 
 - (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock {
-	NSParameterAssert([self conformsToProtocol:@protocol(RACSubscribable)]);
+	REQUIRES_RAC_SUBSCRIBABLE
+
 	NSParameterAssert(nextBlock != NULL);
 	NSParameterAssert(errorBlock != NULL);
 	NSParameterAssert(completedBlock != NULL);
@@ -41,7 +46,8 @@
 }
 
 - (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock {
-	NSParameterAssert([self conformsToProtocol:@protocol(RACSubscribable)]);
+	REQUIRES_RAC_SUBSCRIBABLE
+
 	NSParameterAssert(errorBlock != NULL);
 	
 	RACSubscriber *o = [RACSubscriber subscriberWithNext:NULL error:errorBlock completed:NULL];
@@ -49,7 +55,8 @@
 }
 
 - (RACDisposable *)subscribeCompleted:(void (^)(void))completedBlock {
-	NSParameterAssert([self conformsToProtocol:@protocol(RACSubscribable)]);
+	REQUIRES_RAC_SUBSCRIBABLE
+
 	NSParameterAssert(completedBlock != NULL);
 	
 	RACSubscriber *o = [RACSubscriber subscriberWithNext:NULL error:NULL completed:completedBlock];
@@ -57,7 +64,8 @@
 }
 
 - (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock {
-	NSParameterAssert([self conformsToProtocol:@protocol(RACSubscribable)]);
+	REQUIRES_RAC_SUBSCRIBABLE
+
 	NSParameterAssert(nextBlock != NULL);
 	NSParameterAssert(errorBlock != NULL);
 	

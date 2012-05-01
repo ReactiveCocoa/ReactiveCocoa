@@ -13,6 +13,7 @@
 
 @interface UITextField (RACSubscribableSupport)
 
+// Creates and returns a subscribable for the text of the field.
 - (RACSubscribable *)rac_textSubscribable;
 
 @end

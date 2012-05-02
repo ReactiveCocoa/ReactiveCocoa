@@ -17,6 +17,7 @@
 #import "RACConnectableSubscribable+Private.h"
 #import "RACTuple.h"
 #import "RACScheduler.h"
+#import "RACGroupedSubscribable.h"
 
 NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 
@@ -814,11 +815,11 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 
 		return [self subscribeNext:^(id x) {
 			id<NSCopying> key = keyBlock(x);
-			RACSubject *groupSubject = nil;
+			RACGroupedSubscribable *groupSubject = nil;
 			@synchronized(groups) {
 				groupSubject = [groups objectForKey:key];
 				if(groupSubject == nil) {
-					groupSubject = [RACSubject subject];
+					groupSubject = [RACGroupedSubscribable subscribableWithKey:key];
 					[groups setObject:groupSubject forKey:key];
 					[subscriber sendNext:groupSubject];
 				}

@@ -171,7 +171,7 @@ typedef NSInteger RACSubscribableError;
 // with that object. The object sent is transformed by calling `objectBlock`
 // with the object. If `objectBlock` is nil, it sends the original object.
 //
-// The returned subscribable is a subscribable of subscribables.
+// The returned subscribable is a subscribable of RACGroupedSubscribables.
 - (RACSubscribable *)groupBy:(id<NSCopying> (^)(id object))keyBlock objectBlock:(id (^)(id object))objectBlock;
 
 // Calls -[RACSubscribable groupBy:keyBlock objectBlock:nil].

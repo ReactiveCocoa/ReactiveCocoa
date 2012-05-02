@@ -28,6 +28,7 @@
 #import <ReactiveCocoa/NSArray+RACExtensions.h>
 #import <ReactiveCocoa/RACScheduler.h>
 #import <ReactiveCocoa/RACCollection.h>
+#import <ReactiveCocoa/RACGroupedSubscribable.h>
 
 #ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
 #import <ReactiveCocoa/UIControl+RACSubscribableSupport.h>

@@ -814,11 +814,14 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 
 		return [self subscribeNext:^(id x) {
 			id<NSCopying> key = keyBlock(x);
-			RACSubject *groupSubject = [groups objectForKey:key];
-			if(groupSubject == nil) {
-				groupSubject = [RACSubject subject];
-				[groups setObject:groupSubject forKey:key];
-				[subscriber sendNext:groupSubject];
+			RACSubject *groupSubject = nil;
+			@synchronized(groups) {
+				groupSubject = [groups objectForKey:key];
+				if(groupSubject == nil) {
+					groupSubject = [RACSubject subject];
+					[groups setObject:groupSubject forKey:key];
+					[subscriber sendNext:groupSubject];
+				}
 			}
 
 			[groupSubject sendNext:objectBlock != NULL ? objectBlock(x) : x];

@@ -392,7 +392,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (RACSubscribable *)mergeWith:(RACSubscribable *)subscribable {
+- (RACSubscribable *)merge:(RACSubscribable *)subscribable {
 	return [[self class] merge:[NSArray arrayWithObjects:self, subscribable, nil]];
 }
 
@@ -804,6 +804,34 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 			[finalDisposable dispose];
 		}];
 	}];
+}
+
+- (RACSubscribable *)groupBy:(id<NSCopying> (^)(id object))keyBlock objectBlock:(id (^)(id object))objectBlock {
+	NSParameterAssert(keyBlock != NULL);
+
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		NSMutableDictionary *groups = [NSMutableDictionary dictionary];
+
+		return [self subscribeNext:^(id x) {
+			id<NSCopying> key = keyBlock(x);
+			RACSubject *groupSubject = [groups objectForKey:key];
+			if(groupSubject == nil) {
+				groupSubject = [RACSubject subject];
+				[groups setObject:groupSubject forKey:key];
+				[subscriber sendNext:groupSubject];
+			}
+
+			[groupSubject sendNext:objectBlock != NULL ? objectBlock(x) : x];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
+	}];
+}
+
+- (RACSubscribable *)groupBy:(id<NSCopying> (^)(id object))keyBlock {
+	return [self groupBy:keyBlock objectBlock:nil];
 }
 
 @end

@@ -74,7 +74,7 @@ typedef NSInteger RACSubscribableError;
 + (RACSubscribable *)merge:(NSArray *)subscribables;
 
 // Merge the subscribable with the given subscribable.
-- (RACSubscribable *)mergeWith:(RACSubscribable *)subscribable;
+- (RACSubscribable *)merge:(RACSubscribable *)subscribable;
 
 // Merges the subscribable of subscribables into a flattened subscribable.
 - (RACSubscribable *)merge;
@@ -159,12 +159,22 @@ typedef NSInteger RACSubscribableError;
 // given scheduler.
 - (RACSubscribable *)deliverOn:(RACScheduler *)scheduler;
 
-// Creates and returns a subscribable whose didSubscribe block is scheduled on
-// the given scheduler.
+// Creates and returns a subscribable whose `didSubscribe` block is scheduled
+// with the given scheduler.
 - (RACSubscribable *)subscribeOn:(RACScheduler *)scheduler;
 
 // Creates a shared subscribable which is passed into the let block. The let
 // block then returns a subscribable derived from that shared subscribable.
 - (RACSubscribable *)let:(RACSubscribable * (^)(RACSubscribable *sharedSubscribable))letBlock;
+
+// Groups each received object into a group, as determined by calling `keyBlock`
+// with that object. The object sent is transformed by calling `objectBlock`
+// with the object. If `objectBlock` is nil, it sends the original object.
+//
+// The returned subscribable is a subscribable of subscribables.
+- (RACSubscribable *)groupBy:(id<NSCopying> (^)(id object))keyBlock objectBlock:(id (^)(id object))objectBlock;
+
+// Calls -[RACSubscribable groupBy:keyBlock objectBlock:nil].
+- (RACSubscribable *)groupBy:(id<NSCopying> (^)(id object))keyBlock;
 
 @end

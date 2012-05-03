@@ -16,6 +16,10 @@
 
 static NSMutableSet *activeSubscribables = nil;
 
+@interface RACSubscribable ()
+@property (assign, getter=isTearingDown) BOOL tearingDown;
+@end
+
 
 @implementation RACSubscribable
 
@@ -52,8 +56,11 @@ static NSMutableSet *activeSubscribables = nil;
 	void (^defaultDisposableBlock)(void) = ^{
 		RACSubscribable *strongSelf = weakSelf;
 		id<RACSubscriber> strongSubscriber = weakSubscriber;
-		[strongSelf.subscribers removeObject:strongSubscriber];
-		[strongSelf invalidateIfNoNewSubscribersShowUp];
+		// if the disposal is happening because the subscribable's being torn down, we don't need to duplicate the invalidation
+		if(!strongSelf.tearingDown) {
+			[strongSelf.subscribers removeObject:strongSubscriber];
+			[strongSelf invalidateIfNoNewSubscribersShowUp];
+		}
 	};
 	
 	RACDisposable *disposable = nil;
@@ -77,6 +84,7 @@ static NSMutableSet *activeSubscribables = nil;
 
 @synthesize didSubscribe;
 @synthesize subscribers;
+@synthesize tearingDown;
 
 + (id)createSubscribable:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
 	RACSubscribable *subscribable = [[self alloc] init];
@@ -156,6 +164,7 @@ static NSMutableSet *activeSubscribables = nil;
 }
 
 - (void)tearDown {
+	self.tearingDown = YES;
 	[self.subscribers removeAllObjects];
 	[activeSubscribables removeObject:self];
 }

@@ -9,8 +9,10 @@
 #import "RACSubject.h"
 
 
+// A grouped subscribable is used by -[RACSubscribable groupBy:transform:].
 @interface RACGroupedSubscribable : RACSubject
 
+// The key shared by the group.
 @property (nonatomic, readonly, copy) id<NSCopying> key;
 
 + (id)subscribableWithKey:(id<NSCopying>)key;

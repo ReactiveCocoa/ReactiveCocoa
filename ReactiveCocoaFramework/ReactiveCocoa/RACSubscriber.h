@@ -9,13 +9,19 @@
 #import <Foundation/Foundation.h>
 #import "NSObject+RACSubscribable.h"
 
-@protocol RACSubscribable;
 @class RACDisposable;
 
 @protocol RACSubscriber <NSObject>
+// Send the next value to subscribers. `value` can be nil.
 - (void)sendNext:(id)value;
+
+// Send the error to subscribers. This terminates the subscription.
 - (void)sendError:(NSError *)error;
+
+// Send completed to subscribers. This terminates the subscription.
 - (void)sendCompleted;
+
+// Sends the subscriber the disposable that represents its subscription.
 - (void)didSubscribeWithDisposable:(RACDisposable *)disposable;
 @end
 

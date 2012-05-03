@@ -807,7 +807,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (RACSubscribable *)groupBy:(id<NSCopying> (^)(id object))keyBlock objectBlock:(id (^)(id object))objectBlock {
+- (RACSubscribable *)groupBy:(id<NSCopying> (^)(id object))keyBlock transform:(id (^)(id object))transformBlock {
 	NSParameterAssert(keyBlock != NULL);
 
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
@@ -825,7 +825,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 				}
 			}
 
-			[groupSubject sendNext:objectBlock != NULL ? objectBlock(x) : x];
+			[groupSubject sendNext:transformBlock != NULL ? transformBlock(x) : x];
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
@@ -835,7 +835,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 - (RACSubscribable *)groupBy:(id<NSCopying> (^)(id object))keyBlock {
-	return [self groupBy:keyBlock objectBlock:nil];
+	return [self groupBy:keyBlock transform:nil];
 }
 
 @end

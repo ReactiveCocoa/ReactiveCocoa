@@ -63,7 +63,7 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
 	@synchronized(self.valuesReceived) {
 		[self.valuesReceived addObject:value ? : [RACTupleNil tupleNil]];
 		
-		if(self.capacity > 0) {
+		if(self.capacity != RACReplaySubjectUnlimitedCapacity) {
 			while(self.valuesReceived.count > self.capacity) {
 				[self.valuesReceived removeObjectAtIndex:0];
 			}

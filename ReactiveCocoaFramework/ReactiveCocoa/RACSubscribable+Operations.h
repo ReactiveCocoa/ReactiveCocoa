@@ -168,13 +168,13 @@ typedef NSInteger RACSubscribableError;
 - (RACSubscribable *)let:(RACSubscribable * (^)(RACSubscribable *sharedSubscribable))letBlock;
 
 // Groups each received object into a group, as determined by calling `keyBlock`
-// with that object. The object sent is transformed by calling `objectBlock`
-// with the object. If `objectBlock` is nil, it sends the original object.
+// with that object. The object sent is transformed by calling `transformBlock`
+// with the object. If `transformBlock` is nil, it sends the original object.
 //
 // The returned subscribable is a subscribable of RACGroupedSubscribables.
-- (RACSubscribable *)groupBy:(id<NSCopying> (^)(id object))keyBlock objectBlock:(id (^)(id object))objectBlock;
+- (RACSubscribable *)groupBy:(id<NSCopying> (^)(id object))keyBlock transform:(id (^)(id object))transformBlock;
 
-// Calls -[RACSubscribable groupBy:keyBlock objectBlock:nil].
+// Calls -[RACSubscribable groupBy:keyBlock transform:nil].
 - (RACSubscribable *)groupBy:(id<NSCopying> (^)(id object))keyBlock;
 
 @end

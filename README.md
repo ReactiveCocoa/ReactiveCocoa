@@ -1,11 +1,5 @@
 # ReactiveCocoa
-Native apps spend a lot of time waiting and reacting. We wait for the user to do something in the UI. Wait for a network call to respond. Wait for an asynchronous operation to complete. Wait for some dependent value to change. And then they react.
-
-But all those things—all that waiting and reacting—is usually handled in many disparate ways. That keeps us from reasoning about them, chaining them, or composing them in any uniform, high-level way. We can do better.
-
-That's why we've open-sourced a piece of the magic behind [GitHub for Mac](http://mac.github.com/): [ReactiveCocoa](https://github.com/github/ReactiveCocoa) (RAC).
-
-RAC is a framework for **composing and transforming sequences of values**.
+ReactiveCocoa is a framework for **composing and transforming sequences of values**.
 
 ## No seriously, what is it?
 Let's get more concrete. ReactiveCocoa gives us a lot of cool stuff:
@@ -47,7 +41,6 @@ That's cool, but it's really just a nicer API around KVO. The really cool stuff 
 
 Now we're watching `username` for changes, filtering out non-distinct changes, taking only the first three non-distinct values, and then if the new value is "joshaber", we print out a nice welcome.
 
-
 ### So what?
 Think about what we'd have to do to implement that without RAC. We'd have to:
 
@@ -59,104 +52,26 @@ Think about what we'd have to do to implement that without RAC. We'd have to:
 
 RAC lets us do the same thing with **less state, less boilerplate, better code locality, and better expression of our intent**.
 
-## Combining
-We can combine sequences:
-
-```obj-c
-[[RACSubscribable 
-	combineLatest:[NSArray arrayWithObjects:RACAbleSelf(self.password), RACAbleSelf(self.passwordConfirmation), nil] 
-	reduce:^(RACTuple *values) {
-		NSString *currentPassword = [values objectAtIndex:0];
-		NSString *currentConfirmPassword = [values objectAtIndex:1];
-		return [NSNumber numberWithBool:[currentConfirmPassword isEqualToString:currentPassword]];
-	}] 
-	subscribeNext:^(NSNumber *passwordsMatch) {
-		self.createEnabled = [passwordsMatch boolValue];
-	}];
-```
-
-Any time our `password` or `passwordConfirmation` properties change, we combine the latest values from both and reduce them to a BOOL of whether or not they matched. Then we enable or disable the create button with that result.
-
-## Bindings
-We can adapt RAC to give us powerful bindings with conditions and transformations:
-
-``` obj-c
-[self 
-	rac_bind:RAC_KEYPATH_SELF(self.helpLabel.text) 
-	to:[[RACAbleSelf(self.help) 
-		where:^(NSString *newHelp) {
-			return newHelp != nil;
-		}] 
-		select:^(NSString *newHelp) {
-			return [newHelp uppercaseString];
-		}]];
-```
-That will bind our help label's text to our `help` property when the `help` property isn't nil and after uppercasing the string (because users love being YELLED AT).
-
-## Async
-RAC also fits quite nicely with async operations.
-
-For example, we can call a block once multiple concurrent operations have completed:
-
-``` obj-c
-[[RACSubscribable 
-	merge:[NSArray arrayWithObjects:[client fetchUserRepos], [client fetchOrgRepos], nil]] 
-	subscribeCompleted:^{
-		NSLog(@"They're both done!");
-	}];
-```
-
-Or chain async operations:
-
-``` obj-c
-[[[[client 
-	loginUser] 
-	selectMany:^(id _) {
-		return [client loadCachedMessages];
-	}]
-	selectMany:^(id _) {
-		return [client fetchMessages];
-	}]
-	subscribeCompleted:^{
-		NSLog(@"Fetched all messages.");
-	}];
-```
-
-That will login, load the cached messages, then fetch the remote messages, and then print "Fetched all messages."
-
-Or we can trivially move work to a background queue:
-
-``` obj-c
-[[[[[client 
-	fetchUserWithUsername:@"joshaber"] 
-	deliverOn:[RACScheduler backgroundScheduler]]
-	select:^(User *user) {
-		// this is on a background queue
-		return [[NSImage alloc] initWithContentsOfURL:user.avatarURL];
-	}]
-	deliverOn:[RACSheduler mainQueueScheduler]]
-	subscribeNext:^(NSImage *image) {
-		// now we're back on the main queue
-		self.imageView.image = image;
-	}];
-```
-
-Or easily deal with potential race conditions. For example, we could update a property with the result of an asynchronous call, but only if the property doesn't change before the async call completes:
-
-``` obj-c
-[[[self 
-	loadDefaultMessageInBackground]
-	takeUntil:RACAbleSelf(self.message)]
-	toProperty:RAC_KEYPATH_SELF(self.message) onObject:self];
-```
-
-## How does it work?
+# How does it work?
 RAC is fundamentally pretty simple. It's all subscribables all the way down. _([Until you reach turtles.](http://www.cvaieee.org/html/humor/programming_history.html))_
 
 Subscribers subscribe to subscribables. Subscribables send their subscribers 'next', 'error', and 'completed' events. So if it's all just subscribables sending events, the key question becomes **when do those events get sent?**
 
-### Creating subscribables
-Subscribables define their own behavior with respect to if and when events are sent. We can create our own subscribables using `+[RACSubscribable createSubscribable:]`:
+## Subscribables
+Subscribables define their own behavior with respect to if and when events are sent.
+
+Not all subscribables are created equal. There are fundamentally two different kinds of subscribables: hot and cold.
+
+Hot subscribables always send events regardless of whether anyone's subscribed. For example, a subscribable of the text of a text field will always send the new text value even if no one has subscribed to it.
+
+Hot subscribables also always send the same values to all their subscribers, regardless of when they subscribed. To return to our previous example, the text subscribable always sends the same text to all its subscribers. It'd be pretty baffling if it didn't.
+
+Cold subscribables—as you might guess—are the opposite. They only send events once they are subscribed to.
+
+Also in contrast to hot subscribables, cold subscribables send a different stream of events to each subscriber.
+
+## Creating cold subscribables
+We can create our own cold subscribables using `+[RACSubscribable createSubscribable:]`:
 
 ``` obj-c
 RACSubscribable *helloWorld = [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
@@ -167,10 +82,14 @@ RACSubscribable *helloWorld = [RACSubscribable createSubscribable:^(id<RACSubscr
 }];
 ```
 
-The block we give to `+[RACSubscribable createSubscribable:]` is called whenever the subscribable gets a new subscriber. The new subscriber is passed into the block so that we can then send it events. In the above example, we created a subscribable that sends "Hello, ", and then "world!", and then completes.
+That block we gave to `+[RACSubscribable createSubscribable:]` will be called whenever the subscribable gets a new subscriber. This is why it's a cold subscribable; it sends events only when it gets a new subscriber and it treats each subscriber separately. The new subscriber is passed into the block so that we can then send it events. In the above example, we created a subscribable that sends "Hello, ", and then "world!", and then completes.
+
+Note that none of the work in the block given to `+[RACSubscribable createSubscribable:]` is performed until someone subscribes. In that sense, cold subscribables are lazy.
+
+You might notice the block is returning nil. We'll come back to what that means in a minute.
 
 ### Nesting subscribables
-We could then create another subscribable based off our `helloWorld` subscribable:
+We could create another subscribable based off our `helloWorld` subscribable:
 
 ``` obj-c
 RACSubscribable *joiner = [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
@@ -186,10 +105,34 @@ RACSubscribable *joiner = [RACSubscribable createSubscribable:^(id<RACSubscriber
 }];
 ```
 
-Now we have a `joiner` subscribable. When someone subscribes to `joiner`, it subscribes to our `helloWorld` subscribable. It adds all the values it receives from `helloWorld` and then when `helloWorld` completes, it joins all the strings it received into a single string, sends that, and completes.
+Now we have a `joiner` subscribable. When someone subscribes to `joiner`, it subscribes to our `helloWorld` subscribable. It adds all the values it receives from `helloWorld` to an array and then when `helloWorld` completes, it joins all the strings it received into a single string, sends that, and completes.
 
-In this way, we can build subscribables on each other to express complex behaviors.
+There are a couple cool things to note about this.
 
+The semantics changed so that `joiner` only sends a value once `helloWorld` completes. That's the simple beauty of RAC. We can transform one subscribable with another.
+
+The nested subscriptions are lazy. Since `joiner`'s block is only called when someone subscribes to it, it only subscribes to `helloWorld` when someone subscribes to `joiner`. The subscriptions cascade up.
+
+`joiner`'s block is returning the value of `-[RACSubscribable subscribeNext:error:completed]`. If you look at the definition for `+[RACSubscribable createSubscribable:]`, you'll notice that return value is a `RACDisposable`.
+
+Disposables are in charge of cleaning up the subscription for the subscribable. In this case, by returning our subscription to `helloWorld`, we're making sure that when the subscription to `joiner` is disposed of, the underlying subscription to `helloWorld` also gets disposed. This is a pattern you should follow whenever you make a subscribable based off another.
+
+## Creating hot subscribables
+The easiest way to create hot subscribables is by using [RACSubject](https://github.com/github/ReactiveCocoa/blob/master/ReactiveCocoaFramework/ReactiveCocoa/RACSubject.h). Subjects are subscribables you can manually control with `-sendNext:`, `-sendError:`, `-sendCompleted`. Those will send the corresponding events to the subject's subscribers.
+
+Remember that hot subscribables send events regardless of whether anyone's listening. Sometimes that's fine, but often we'd actually like to avoid missing any events.
+
+Suppose that we're using RAC to interact with a web API. (In fact, that's exactly what the [GHAPIDemo](https://github.com/github/ReactiveCocoa/blob/master/GHAPIDemo/GHAPIDemo/GHGitHubClient.m) does.) We'd probably return a subject from our request method and the subject would send the value of the API call.
+
+But there's a race condition here. If the API call sends its result and completes before I have a chance to subscribe, then I completely missed the whole point of the API call and I'd never know it.
+
+Because of this, RAC has a few `RACSubject` subclasses:
+
+1. [RACAsyncSubject](https://github.com/github/ReactiveCocoa/blob/master/ReactiveCocoaFramework/ReactiveCocoa/RACAsyncSubject.h). It doesn't send any value until it completes and if anyone subscribes after it has completed, it resends the last value it received to that new subscriber and tells the subscriber it's completed.
+1. [RACReplaySubject](https://github.com/github/ReactiveCocoa/blob/master/ReactiveCocoaFramework/ReactiveCocoa/RACReplaySubject.h). It remembers every value it sends (or some pre-defined cut-off you give it) and replays those to any subscriber that misses them.
+1. [RACBehaviorSubject](https://github.com/github/ReactiveCocoa/blob/master/ReactiveCocoaFramework/ReactiveCocoa/RACBehaviorSubject.h). It remembers the last value it received and sends that to any new subscribers that missed it.
+
+## Operations
 RAC implements a set of [operations](https://github.com/github/ReactiveCocoa/blob/master/ReactiveCocoaFramework/ReactiveCocoa/RACSubscribable%2BOperations.h) on `RACSubscribable` that do exactly that. They take the source subscribable and return a new subscribable with some defined behavior.
 
 ## Bindings
@@ -236,16 +179,11 @@ If you want to keep a subscribable alive past either of those cases, you need to
 ### KVO
 KVO is a special case when it comes to lifetime. Subscribables created from a KVO-compliant property are kept alive for the lifetime of the source object. As such, they never really 'complete.' Instead, when the source object is dealloc'd, the subscribable removes all its subscribers and gets released.
 
-### Disposables
+## Disposables
 The `-[RACSubscribable subscribe:]` method returns a `RACDisposable`. That disposable encapsulates the tasks necessary to stop and clean up the subscription. You can call `-dispose` on a disposable to end your subscription manually. Typically you won't need to manually track or dispose of disposables. They're automatically called by RAC as part of the subscribable's lifecycle.
 
-## Subjects
-You can think of subjects as being subscribables you can manually control. Because they implement `RACSubscriber`, you can call `-sendNext`, `-sendError:`, or `-sendCompleted` to send events to its subscribers.
-
-Subjects are most often used to bridge the non-RAC world to RAC.
-
 ## More info
-[ReactiveCocoa](https://github.com/github/ReactiveCocoa) works on both Mac and iOS. See the [README](https://github.com/github/ReactiveCocoa/blob/master/README.md) for more info and check out the [Mac](https://github.com/github/ReactiveCocoa/tree/master/GHAPIDemo) demo project for some practical examples.
+[ReactiveCocoa](https://github.com/github/ReactiveCocoa) works on both Mac and iOS. Check out the [Mac](https://github.com/github/ReactiveCocoa/tree/master/GHAPIDemo) demo project for some practical examples.
 
 For .NET developers, this all might sound eerily familiar. ReactiveCocoa essentially an Objective-C version of .NET's [Reactive Extensions](http://msdn.microsoft.com/en-us/data/gg577609) (Rx).
 

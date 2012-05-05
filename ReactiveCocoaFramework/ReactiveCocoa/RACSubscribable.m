@@ -34,7 +34,9 @@ static NSMutableSet *activeSubscribables = nil;
 	if(self == nil) return nil;
 	
 	// we want to keep the subscribable around until all its subscribers are done
-	[activeSubscribables addObject:self];
+	@synchronized(activeSubscribables) {
+		[activeSubscribables addObject:self];
+	}
 	
 	self.subscribers = [NSMutableArray array];
 	
@@ -49,7 +51,9 @@ static NSMutableSet *activeSubscribables = nil;
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
 	NSParameterAssert(subscriber != nil);
 	
-	[self.subscribers addObject:subscriber];
+	@synchronized(self.subscribers) {
+		[self.subscribers addObject:subscriber];
+	}
 	
 	__block __unsafe_unretained id weakSelf = self;
 	__block __unsafe_unretained id weakSubscriber = subscriber;
@@ -58,7 +62,10 @@ static NSMutableSet *activeSubscribables = nil;
 		id<RACSubscriber> strongSubscriber = weakSubscriber;
 		// if the disposal is happening because the subscribable's being torn down, we don't need to duplicate the invalidation
 		if(!strongSelf.tearingDown) {
-			[strongSelf.subscribers removeObject:strongSubscriber];
+			@synchronized(strongSelf.subscribers) {
+				[strongSelf.subscribers removeObject:strongSubscriber];
+			}
+			
 			[strongSelf invalidateIfNoNewSubscribersShowUp];
 		}
 	};
@@ -149,8 +156,15 @@ static NSMutableSet *activeSubscribables = nil;
 - (void)invalidateIfNoNewSubscribersShowUp {
 	// if no one subscribed in the runloop's pass, then I guess we're free to go
 	[self rac_performBlock:^{
-		if(self.subscribers.count < 1) {
-			[activeSubscribables removeObject:self];
+		BOOL noSubscribers = NO;
+		@synchronized(self.subscribers) {
+			noSubscribers = self.subscribers.count < 1;
+		}
+		
+		if(noSubscribers) {
+			@synchronized(activeSubscribables) {
+				[activeSubscribables removeObject:self];
+			}
 		}
 	} afterDelay:0];
 }
@@ -158,15 +172,26 @@ static NSMutableSet *activeSubscribables = nil;
 - (void)performBlockOnEachSubscriber:(void (^)(id<RACSubscriber> subscriber))block {
 	NSParameterAssert(block != NULL);
 
-	for(id<RACSubscriber> subscriber in [self.subscribers copy]) {
+	NSArray *currentSubscribers = nil;
+	@synchronized(self.subscribers) {
+		currentSubscribers = [self.subscribers copy];
+	}
+	
+	for(id<RACSubscriber> subscriber in currentSubscribers) {
 		block(subscriber);
 	}
 }
 
 - (void)tearDown {
 	self.tearingDown = YES;
-	[self.subscribers removeAllObjects];
-	[activeSubscribables removeObject:self];
+	
+	@synchronized(self.subscribers) {
+		[self.subscribers removeAllObjects];
+	}
+	
+	@synchronized(activeSubscribables) {
+		[activeSubscribables removeObject:self];
+	}
 }
 
 @end

@@ -104,7 +104,7 @@
 - (RACSubscribable *)addAsyncBlock:(RACAsyncSubject * (^)(id value))block {
 	NSParameterAssert(block != NULL);
 	
-	RACReplaySubject *subject = [RACReplaySubject replaySubjectWithCapacity:1];
+	RACSubject *subject = [RACSubject subject];
 	RACAsyncBlockPair *pair = [RACAsyncBlockPair pair];
 	pair.asyncBlock = block;
 	pair.subject = subject;

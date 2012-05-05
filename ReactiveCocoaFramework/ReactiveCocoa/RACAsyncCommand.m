@@ -78,6 +78,7 @@
 				});
 			} completed:^{
 				dispatch_async(dispatch_get_main_queue(), ^{
+					[pair.subject sendCompleted];
 					didComplete();
 				});
 			}];

@@ -1,9 +1,9 @@
 [submodule "external/specta"]
 	path = external/specta
-	url = git@github.com:github/specta.git
+	url = git://github.com/github/specta.git
 [submodule "external/expecta"]
 	path = external/expecta
-	url = git@github.com:github/expecta.git
+	url = git://github.com/github/expecta.git
 [submodule "GHAPIDemo/external/AFNetworking"]
 	path = GHAPIDemo/external/AFNetworking
 	url = git://github.com/AFNetworking/AFNetworking.git

@@ -202,4 +202,13 @@ typedef NSInteger RACSubscribableError;
 // predicateBlock - cannot be nil.
 - (RACSubscribable *)all:(BOOL (^)(id object))predicateBlock;
 
+// Resubscribes to the receiving subscribable if an error occurs, up until it 
+// has retried the given number of times.
+//
+// retryCount - if 0, it keeps retrying until it completes.
+- (RACSubscribable *)retry:(NSInteger)retryCount;
+
+// Resubscribes to the receiving subscribable if an error occurs.
+- (RACSubscribable *)retry;
+
 @end

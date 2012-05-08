@@ -902,4 +902,35 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
+- (RACSubscribable *)retry:(NSInteger)retryCount {
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		__block NSInteger currentRetryCount = 0;
+		
+		__block RACDisposable *currentDisposable = nil;
+		__block RACSubscriber *innerSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
+			[subscriber sendNext:x];
+		} error:^(NSError *error) {
+			if(retryCount == 0 || currentRetryCount < retryCount) {
+				currentDisposable = [self subscribe:innerSubscriber];
+			} else {
+				[subscriber sendError:error];
+			}
+			
+			currentRetryCount++;
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
+		
+		currentDisposable = [self subscribe:innerSubscriber];
+		
+		return [RACDisposable disposableWithBlock:^{
+			[currentDisposable dispose];
+		}];
+	}];
+}
+
+- (RACSubscribable *)retry {
+	return [self retry:0];
+}
+
 @end

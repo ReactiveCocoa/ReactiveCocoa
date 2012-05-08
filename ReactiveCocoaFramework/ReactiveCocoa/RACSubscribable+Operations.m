@@ -38,6 +38,20 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
+- (RACSubscribable *)injectObjectWeakly:(id)object {
+	__block __unsafe_unretained id weakObject = object;
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		return [self subscribeNext:^(id x) {
+			id strongObject = weakObject;
+			[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:[NSArray arrayWithObjects:x ? : [RACTupleNil tupleNil], strongObject, nil]]];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
+	}];
+}
+
 - (RACSubscribable *)where:(BOOL (^)(id x))whereBlock {
 	NSParameterAssert(whereBlock != NULL);
 	

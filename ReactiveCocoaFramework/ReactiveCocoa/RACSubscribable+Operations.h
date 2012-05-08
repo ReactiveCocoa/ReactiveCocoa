@@ -28,6 +28,15 @@ typedef NSInteger RACSubscribableError;
 // Transform each `next` value by calling the given block.
 - (RACSubscribable *)select:(id (^)(id x))selectBlock;
 
+// Injects the given object weakly into the receiver's stream. The returned 
+// subscribable sends a tuple where the first object is the value received by
+// the receiver subscribable and the second is the weak object.
+//
+// This is most useful for bringing the caller's self into the subscribable 
+// while preventing retain cycles so we don't always have to do the 
+// weakObject / strongObject dance.
+- (RACSubscribable *)injectObjectWeakly:(id)object;
+
 // Only send `next` when the given block returns YES.
 - (RACSubscribable *)where:(BOOL (^)(id x))whereBlock;
 

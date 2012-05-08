@@ -60,16 +60,18 @@
 		}]
 		toProperty:RAC_KEYPATH_SELF(self.loading) onObject:self];
 	
+	__block __unsafe_unretained id weakSelf = self;
 	// We're using -selectMany: to chain userAccountIsntNil so that we fetch
 	// the new user account's info whenever it changes.
-	[[userAccountIsntNil 
+	[[[userAccountIsntNil 
 		selectMany:^(GHGitHubUser *x) {
 			return [[GHGitHubClient clientForUser:x] fetchUserInfo];
 		}]
-		subscribeNext:^(id x) {
-			GHDUserViewController *strongSelf = weakSelf;
-			[strongSelf.userAccount setValuesForKeysWithDictionary:x];
-			strongSelf.loading = NO;
+		injectObjectWeakly:self]
+		subscribeNext:^(RACTuple *t) {
+			GHDUserViewController *self = t.last;
+			[self.userAccount setValuesForKeysWithDictionary:t.first];
+			self.loading = NO;
 		}
 		error:^(NSError *error) {
 			NSLog(@"error: %@", error);

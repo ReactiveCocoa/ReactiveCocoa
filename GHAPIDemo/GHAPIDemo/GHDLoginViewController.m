@@ -67,10 +67,15 @@
 	RACSubscribable *loginResult = [[[self.loginCommand 
 		addAsyncBlock:^(id _) {
 			GHDLoginViewController *strongSelf = weakSelf;
-			return [strongSelf.client login];
+			RACAsyncSubject *subject = [RACAsyncSubject subject];
+			[[[strongSelf.client 
+				login] 
+				multicast:subject] 
+				connect];
+			return subject;
 		}]
-		repeat]
-		asMaybes];
+		asMaybes] 
+		repeat];
 
 	// Since we used -asMaybes above, we'll need to filter out the specific
 	// error or success cases.

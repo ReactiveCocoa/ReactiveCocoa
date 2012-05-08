@@ -100,11 +100,10 @@
 		}];
 	
 	[[loginResult 
-		injectObjectWeakly:self] 
-		subscribeNext:^(RACTuple *t) {
-			GHDLoginViewController *self = t.last;
-			self.loggingIn = NO;
-		}];
+		select:^id(id x) {
+			return [NSNumber numberWithBool:NO];
+		}] 
+		toProperty:RAC_KEYPATH_SELF(self.loggingIn) onObject:self];
 	
 	// When either username or password change, hide the success or failure
 	// message.

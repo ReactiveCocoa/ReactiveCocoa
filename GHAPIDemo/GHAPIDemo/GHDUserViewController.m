@@ -49,15 +49,16 @@
 	self = [super initWithNibName:nil bundle:nil];
 	if(self == nil) return nil;
 		
-	__block __unsafe_unretained id weakSelf = self;
 	RACSubscribable *userAccountIsntNil = [RACAbleSelf(self.userAccount) where:^BOOL(id x) {
 		return x != nil;
 	}];
 	
-	[userAccountIsntNil subscribeNext:^(id _) {
-		GHDUserViewController *strongSelf = weakSelf;
-		strongSelf.loading = YES;
-	}];
+	[[[userAccountIsntNil 
+		injectObjectWeakly:self]
+		select:^id(id x) {
+			return [NSNumber numberWithBool:YES];
+		}]
+		toProperty:RAC_KEYPATH_SELF(self.loading) onObject:self];
 	
 	// We're using -selectMany: to chain userAccountIsntNil so that we fetch
 	// the new user account's info whenever it changes.

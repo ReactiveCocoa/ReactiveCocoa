@@ -22,7 +22,7 @@
 }
 
 - (void)rac_cancelPreviousPerformBlockRequestsWithId:(id)blockId {
-	[[self class] cancelPreviousPerformRequestsWithTarget:self selector:@selector(reallyPerformBlock:) object:blockId];
+	[[self class] cancelPreviousPerformRequestsWithTarget:self selector:@selector(rac_reallyPerformBlock:) object:blockId];
 }
 
 @end

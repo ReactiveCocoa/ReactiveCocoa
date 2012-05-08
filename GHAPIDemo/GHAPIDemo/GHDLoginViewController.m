@@ -66,6 +66,10 @@
 	// API hits an error, the subscribable will still be valid.
 	RACSubscribable *loginResult = [[[self.loginCommand 
 		addAsyncBlock:^(id _) {
+			// -addAsyncBlock requires that we return an async subject, so we
+			// multicast our subscribable to an async subject and connect to it
+			// immediately. That effectively funnels our login subscribable
+			// through the async subject.
 			GHDLoginViewController *strongSelf = weakSelf;
 			RACAsyncSubject *subject = [RACAsyncSubject subject];
 			[[[strongSelf.client 

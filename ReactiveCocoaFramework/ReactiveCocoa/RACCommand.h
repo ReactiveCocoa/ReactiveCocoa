@@ -14,7 +14,7 @@
 // A command is a value that allows more customization of its behavior.
 // It sends `next` events when the command executes. `next` is sent the value
 // passed into `-execute:`.
-@interface RACCommand : NSObject <RACSubscribable>
+@interface RACCommand : RACSubject
 
 // Whether or not the command can execute.
 @property (nonatomic, readonly, assign) BOOL canExecute;

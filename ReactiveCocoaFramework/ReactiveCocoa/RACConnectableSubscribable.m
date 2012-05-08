@@ -11,10 +11,12 @@
 #import "RACSubscribable+Private.h"
 #import "RACSubscriber.h"
 #import "RACSubject.h"
+#import "RACSubscribable+Operations.h"
 
 @interface RACConnectableSubscribable ()
 @property (nonatomic, strong) id<RACSubscribable> sourceSubscribable;
 @property (nonatomic, strong) RACSubject *subject;
+@property (strong) RACDisposable *disposable;
 @end
 
 
@@ -32,6 +34,7 @@
 
 @synthesize sourceSubscribable;
 @synthesize subject;
+@synthesize disposable;
 
 + (RACConnectableSubscribable *)connectableSubscribableWithSourceSubscribable:(id<RACSubscribable>)source subject:(RACSubject *)subject {
 	RACConnectableSubscribable *subscribable = [[self alloc] init];
@@ -41,7 +44,18 @@
 }
 
 - (RACDisposable *)connect {
-	return [self.sourceSubscribable subscribe:self.subject];
+	if(self.disposable == nil) {
+		self.disposable = [self.sourceSubscribable subscribe:self.subject];
+	}
+	
+	return self.disposable;
+}
+
+- (RACSubscribable *)autoconnect {
+	return [RACSubscribable defer:^{
+		[self connect];
+		return self;
+	}];
 }
 
 @end

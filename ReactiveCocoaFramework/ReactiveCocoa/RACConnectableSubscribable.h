@@ -21,4 +21,8 @@
 // Connect to the underlying subscribable.
 - (RACDisposable *)connect;
 
+// Creates and returns a subscribable that calls -connect when the receiver
+// gets its first subscription.
+- (RACSubscribable *)autoconnect;
+
 @end

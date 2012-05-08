@@ -177,4 +177,20 @@ typedef NSInteger RACSubscribableError;
 // Calls -[RACSubscribable groupBy:keyBlock transform:nil].
 - (RACSubscribable *)groupBy:(id<NSCopying> (^)(id object))keyBlock;
 
+// Sends an [NSNumber numberWithBool:YES] if the receiving subscribable sends 
+// any objects.
+- (RACSubscribable *)any;
+
+// Sends an [NSNumber numberWithBool:YES] if the receiving subscribable sends 
+// any objects that pass `predicateBlock`.
+//
+// predicateBlock - cannot be nil.
+- (RACSubscribable *)any:(BOOL (^)(id object))predicateBlock;
+
+// Sends an [NSNumber numberWithBool:YES] if all the objects the receiving 
+// subscribable sends pass `predicateBlock`.
+//
+// predicateBlock - cannot be nil.
+- (RACSubscribable *)all:(BOOL (^)(id object))predicateBlock;
+
 @end

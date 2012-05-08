@@ -838,4 +838,54 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	return [self groupBy:keyBlock transform:nil];
 }
 
+- (RACSubscribable *)any {	
+	return [self any:^(id x) {
+		return YES;
+	}];
+}
+
+- (RACSubscribable *)any:(BOOL (^)(id object))predicateBlock {
+	NSParameterAssert(predicateBlock != NULL);
+	
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		__block RACDisposable *disposable = [self subscribeNext:^(id x) {
+			if(predicateBlock(x)) {
+				[subscriber sendNext:[NSNumber numberWithBool:YES]];
+				[subscriber sendCompleted];
+				[disposable dispose];
+			}
+		} error:^(NSError *error) {
+			[subscriber sendNext:[NSNumber numberWithBool:NO]];
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendNext:[NSNumber numberWithBool:NO]];
+			[subscriber sendCompleted];
+		}];
+		
+		return disposable;
+	}];
+}
+
+- (RACSubscribable *)all:(BOOL (^)(id object))predicateBlock {
+	NSParameterAssert(predicateBlock != NULL);
+	
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		__block RACDisposable *disposable = [self subscribeNext:^(id x) {
+			if(!predicateBlock(x)) {
+				[subscriber sendNext:[NSNumber numberWithBool:NO]];
+				[subscriber sendCompleted];
+				[disposable dispose];
+			}
+		} error:^(NSError *error) {
+			[subscriber sendNext:[NSNumber numberWithBool:NO]];
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendNext:[NSNumber numberWithBool:YES]];
+			[subscriber sendCompleted];
+		}];
+		
+		return disposable;
+	}];
+}
+
 @end

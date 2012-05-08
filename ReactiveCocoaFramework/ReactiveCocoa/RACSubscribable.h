@@ -35,6 +35,8 @@
 // cleans up all the resources and disposables created by the subscribable.
 // This disposable is returned by the -subscribe: call. You may return nil if
 // there is no cleanup necessary.
+//
+// *Note* that the `didSubscribe` block is called every time a subscriber subscribes.
 + (id)createSubscribable:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe;
 
 // Returns a subscribable that immediately sends the given value and then

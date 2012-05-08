@@ -24,6 +24,15 @@
 
 @property (nonatomic, readonly) NSUInteger count;
 
+// These properties all return the object at that index or nil if the number of 
+// objects is less than the index.
+@property (nonatomic, readonly) id first;
+@property (nonatomic, readonly) id second;
+@property (nonatomic, readonly) id third;
+@property (nonatomic, readonly) id fourth;
+@property (nonatomic, readonly) id fifth;
+@property (nonatomic, readonly) id last;
+
 // Creates a new tuple out of the array. Does not convert nulls to nils.
 + (id)tupleWithObjectsFromArray:(NSArray *)array;
 

@@ -107,6 +107,10 @@
 	return [object isKindOfClass:[RACTupleNil class]] ? nil : object;
 }
 
+- (id)safeObjectAtIndex:(NSUInteger)index {
+	return index < self.count ? [self objectAtIndex:index] : nil;
+}
+
 - (NSArray *)allObjects {
 	NSMutableArray *newArray = [NSMutableArray arrayWithCapacity:self.backingArray.count];
 	for(id object in self.backingArray) {
@@ -118,6 +122,30 @@
 
 - (NSUInteger)count {
 	return self.backingArray.count;
+}
+
+- (id)first {
+	return [self safeObjectAtIndex:0];
+}
+
+- (id)second {
+	return [self safeObjectAtIndex:1];
+}
+
+- (id)third {
+	return [self safeObjectAtIndex:2];
+}
+
+- (id)fourth {
+	return [self safeObjectAtIndex:3];
+}
+
+- (id)fifth {
+	return [self safeObjectAtIndex:4];
+}
+
+- (id)last {
+	return [self objectAtIndex:self.count - 1];
 }
 
 @end

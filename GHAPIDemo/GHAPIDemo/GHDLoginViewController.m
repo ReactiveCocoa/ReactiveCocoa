@@ -48,14 +48,16 @@
 		toProperty:RAC_KEYPATH_SELF(self.loginEnabled) onObject:self];
 	
 	self.loginCommand = [RACAsyncCommand command];
-	__block __unsafe_unretained id weakSelf = self;
-	[self.loginCommand subscribeNext:^(id _) {
-		GHDLoginViewController *strongSelf = weakSelf;
-		strongSelf.user = [GHGitHubUser userWithUsername:strongSelf.username password:strongSelf.password];
-		strongSelf.client = [GHGitHubClient clientForUser:strongSelf.user];
-		strongSelf.loggingIn = YES;
-	}];
+	[[self.loginCommand 
+		injectObjectWeakly:self] 
+		subscribeNext:^(RACTuple *t) {
+			GHDLoginViewController *self = t.last;
+			self.user = [GHGitHubUser userWithUsername:self.username password:self.password];
+			self.client = [GHGitHubClient clientForUser:self.user];
+			self.loggingIn = YES;
+		}];
 	
+	__block __unsafe_unretained id weakSelf = self;
 	// Note the -repeat and -asMaybes at the end. -repeat means that this
 	// subscribable will resubscribe to its source right after it completes.
 	// This lets us subscribe to the same subscribable even though the source
@@ -72,41 +74,49 @@
 
 	// Since we used -asMaybes above, we'll need to filter out the specific
 	// error or success cases.
-	[[[loginResult 
+	[[[[loginResult 
 		where:^(id x) {
 			return [x hasError];
 		}] 
 		select:^(id x) {
 			return [x error];
 		}] 
-		subscribeNext:^(id x) {
-			GHDLoginViewController *strongSelf = weakSelf;
-			strongSelf.loginFailedHidden = NO;
-			NSLog(@"error logging in: %@", x);
+		injectObjectWeakly:self]
+		subscribeNext:^(RACTuple *t) {
+			GHDLoginViewController *self = t.last;
+			self.loginFailedHidden = NO;
+			NSLog(@"error logging in: %@", t.first);
 		}];
 	
-	[[loginResult 
+	[[[loginResult 
 		where:^(id x) {
 			return [x hasObject];
 		}]
-		subscribeNext:^(id _) {
-			GHDLoginViewController *strongSelf = weakSelf;
-			strongSelf.successHidden = NO;
-			[strongSelf.didLoginSubject sendNext:strongSelf.user];
+		injectObjectWeakly:self]
+		subscribeNext:^(RACTuple *t) {
+			GHDLoginViewController *self = t.last;
+			self.successHidden = NO;
+			[self.didLoginSubject sendNext:self.user];
 		}];
 	
-	[loginResult subscribeNext:^(id x) {
-		GHDLoginViewController *strongSelf = weakSelf;
-		strongSelf.loggingIn = NO;
-	}];
+	[[loginResult 
+		injectObjectWeakly:self] 
+		subscribeNext:^(RACTuple *t) {
+			GHDLoginViewController *self = t.last;
+			self.loggingIn = NO;
+		}];
 	
 	// When either username or password change, hide the success or failure
 	// message.
-	[[RACSubscribable 
-		merge:[NSArray arrayWithObjects:RACAbleSelf(self.username), RACAbleSelf(self.password), nil]] 
-		subscribeNext:^(id _) {
-			GHDLoginViewController *strongSelf = weakSelf;
-			strongSelf.successHidden = strongSelf.loginFailedHidden = YES;
+	[[[self 
+		rac_whenAny:[NSArray arrayWithObjects:RAC_KEYPATH_SELF(self.username), RAC_KEYPATH_SELF(self.password), nil] 
+		reduce:^id(RACTuple *xs) {
+			return xs;
+		}] 
+		injectObjectWeakly:self] 
+		subscribeNext:^(RACTuple *t) {
+			GHDLoginViewController *self = t.last;
+			self.successHidden = self.loginFailedHidden = YES;
 		}];
 	
 	return self;

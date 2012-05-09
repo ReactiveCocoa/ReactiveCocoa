@@ -90,7 +90,7 @@
 }
 
 - (RACSubscribable *)enqueueRequestWithMethod:(NSString *)method path:(NSString *)path parameters:(NSDictionary *)parameters {
-	return [RACSubscribable defer:^{
+	return [[[RACSubscribable defer:^{
 		RACAsyncSubject *subject = [RACAsyncSubject subject];
 		NSURLRequest *request = [self requestWithMethod:method path:path parameters:parameters];
 		AFHTTPRequestOperation *operation = [self HTTPRequestOperationWithRequest:request success:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -103,7 +103,7 @@
 		[self enqueueHTTPRequestOperation:operation];
 		
 		return subject;
-	}];
+	}] publish] autoconnect];
 }
 
 - (void)setUser:(GHGitHubUser *)u {

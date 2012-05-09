@@ -136,6 +136,8 @@ typedef NSInteger RACSubscribableError;
 - (RACSubscribable *)skip:(NSUInteger)skipCount;
 
 // Defer creation of a subscribable until the subscribable's actually subscribed to.
+//
+// This can be used to effectively turn a hot subscribable into a cold subscribable.
 + (RACSubscribable *)defer:(id<RACSubscribable> (^)(void))block;
 
 // Send only `next`s for which -isEqual: returns NO when compared to the

@@ -12,11 +12,12 @@
 #import "RACSubscriber.h"
 #import "RACSubject.h"
 #import "RACSubscribable+Operations.h"
+#import "RACDisposable.h"
 
 @interface RACConnectableSubscribable ()
 @property (nonatomic, strong) id<RACSubscribable> sourceSubscribable;
 @property (nonatomic, strong) RACSubject *subject;
-@property (strong) RACDisposable *disposable;
+@property (nonatomic, strong) RACDisposable *disposable;
 @end
 
 
@@ -44,17 +45,42 @@
 }
 
 - (RACDisposable *)connect {
-	if(self.disposable == nil) {
-		self.disposable = [self.sourceSubscribable subscribe:self.subject];
+	@synchronized(self.disposable) {
+		if(self.disposable == nil) {
+			self.disposable = [self.sourceSubscribable subscribe:self.subject];
+		}
+		
+		return self.disposable;
 	}
-	
-	return self.disposable;
 }
 
 - (RACSubscribable *)autoconnect {
-	return [RACSubscribable defer:^{
-		[self connect];
-		return self;
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
+			[subscriber sendNext:x];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
+		
+		RACDisposable *connectionDisposable = [self connect];
+		
+		return [RACDisposable disposableWithBlock:^{
+			[subscriptionDisposable dispose];
+			[connectionDisposable dispose];
+			
+			BOOL noSubscribers = NO;
+			@synchronized(self.subscribers) {
+				noSubscribers = self.subscribers.count < 1;
+			}
+			
+			if(noSubscribers) {
+				@synchronized(self.disposable) {
+					self.disposable = nil;
+				}
+			}
+		}];
 	}];
 }
 

@@ -18,11 +18,13 @@
 // use -[RACSubscribable publish] or -[RACSubscribable multicast:].
 @interface RACConnectableSubscribable : RACSubscribable
 
-// Connect to the underlying subscribable.
+// Connect to the underlying subscribable. Calling this multiple times does
+// nothing but return the existing connection's disposable.
 - (RACDisposable *)connect;
 
 // Creates and returns a subscribable that calls -connect when the receiver
-// gets its first subscription.
+// gets its first subscription. Once all its subscribers are gone, subsequent
+// subscriptions will reconnect to the receiver.
 - (RACSubscribable *)autoconnect;
 
 @end

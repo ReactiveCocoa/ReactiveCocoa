@@ -32,6 +32,6 @@
 //
 // block - a new block to perform when the command is executed. Cannot be nil.
 // The value it is passed is the value given to the command's -execute: call.
-- (RACSubscribable *)addAsyncBlock:(RACAsyncSubject * (^)(id value))block;
+- (RACSubscribable *)addAsyncBlock:(RACSubscribable * (^)(id value))block;
 
 @end

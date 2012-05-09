@@ -14,7 +14,7 @@
 
 @interface RACAsyncBlockPair : NSObject
 @property (nonatomic, strong) RACSubject *subject;
-@property (nonatomic, strong) RACAsyncSubject * (^asyncBlock)(id value);
+@property (nonatomic, strong) RACSubscribable * (^asyncBlock)(id value);
 
 + (id)pair;
 @end
@@ -65,8 +65,8 @@
 	
 	for(RACAsyncBlockPair *pair in self.asyncFunctionPairs) {
 		[self.operationQueue addOperationWithBlock:^{
-			RACAsyncSubject *subject = pair.asyncBlock(value);
-			[subject subscribeNext:^(id x) {
+			RACSubscribable *subscribable = pair.asyncBlock(value);
+			[subscribable subscribeNext:^(id x) {
 				dispatch_async(dispatch_get_main_queue(), ^{
 					[pair.subject sendNext:x];
 					didComplete();
@@ -101,7 +101,7 @@
 	return operationQueue;
 }
 
-- (RACSubscribable *)addAsyncBlock:(RACAsyncSubject * (^)(id value))block {
+- (RACSubscribable *)addAsyncBlock:(RACSubscribable * (^)(id value))block {
 	NSParameterAssert(block != NULL);
 	
 	RACSubject *subject = [RACSubject subject];

@@ -3,12 +3,12 @@
 	<data>
 		<int key="IBDocument.SystemTarget">1070</int>
 		<string key="IBDocument.SystemVersion">11D50b</string>
-		<string key="IBDocument.InterfaceBuilderVersion">2177</string>
+		<string key="IBDocument.InterfaceBuilderVersion">2182</string>
 		<string key="IBDocument.AppKitVersion">1138.32</string>
 		<string key="IBDocument.HIToolboxVersion">568.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
-			<string key="NS.object.0">2177</string>
+			<string key="NS.object.0">2182</string>
 		</object>
 		<array key="IBDocument.IntegratedClassDependencies">
 			<string>NSTextField</string>
@@ -50,6 +50,7 @@
 						<string key="NSFrame">{{264, 200}, {16, 16}}</string>
 						<reference key="NSSuperview" ref="253663638"/>
 						<reference key="NSWindow"/>
+						<reference key="NSNextKeyView"/>
 						<string key="NSReuseIdentifierKey">_NS:926</string>
 						<int key="NSpiFlags">28938</int>
 						<double key="NSMaxValue">100</double>
@@ -95,6 +96,7 @@
 						<string key="NSFrame">{{83, 201}, {71, 17}}</string>
 						<reference key="NSSuperview" ref="253663638"/>
 						<reference key="NSWindow"/>
+						<reference key="NSNextKeyView" ref="1021086152"/>
 						<string key="NSReuseIdentifierKey">_NS:1505</string>
 						<bool key="NSEnabled">YES</bool>
 						<object class="NSTextFieldCell" key="NSCell" id="782258775">
@@ -117,7 +119,7 @@
 						<string key="NSFrame">{{187, 191}, {75, 32}}</string>
 						<reference key="NSSuperview" ref="253663638"/>
 						<reference key="NSWindow"/>
-						<reference key="NSNextKeyView" ref="317930832"/>
+						<reference key="NSNextKeyView" ref="382886039"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<bool key="NSEnabled">YES</bool>
 						<object class="NSButtonCell" key="NSCell" id="91747209">
@@ -183,7 +185,7 @@
 						<string key="NSFrame">{{84, 227}, {172, 22}}</string>
 						<reference key="NSSuperview" ref="253663638"/>
 						<reference key="NSWindow"/>
-						<reference key="NSNextKeyView" ref="1021086152"/>
+						<reference key="NSNextKeyView" ref="317930832"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<bool key="NSEnabled">YES</bool>
 						<object class="NSSecureTextFieldCell" key="NSCell" id="146196899">

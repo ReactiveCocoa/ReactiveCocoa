@@ -31,7 +31,6 @@
 #import <ReactiveCocoa/RACGroupedSubscribable.h>
 #import <ReactiveCocoa/RACConnectableSubscribable.h>
 
-#import <ReactiveCocoa/NSTask+RACSupport.h>
 #import <ReactiveCocoa/NSFileHandle+RACSupport.h>
 #import <ReactiveCocoa/NSNotificationCenter+RACSupport.h>
 
@@ -41,4 +40,5 @@
 #elif TARGET_OS_MAC
 #import <ReactiveCocoa/NSButton+RACCommandSupport.h>
 #import <ReactiveCocoa/NSObject+RACAppKitBindings.h>
+#import <ReactiveCocoa/NSTask+RACSupport.h>
 #endif

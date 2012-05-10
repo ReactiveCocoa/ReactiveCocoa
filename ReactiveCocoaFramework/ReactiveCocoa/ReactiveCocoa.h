@@ -31,6 +31,10 @@
 #import <ReactiveCocoa/RACGroupedSubscribable.h>
 #import <ReactiveCocoa/RACConnectableSubscribable.h>
 
+#import <ReactiveCocoa/NSTask+RACSupport.h>
+#import <ReactiveCocoa/NSFileHandle+RACSupport.h>
+#import <ReactiveCocoa/NSNotificationCenter+RACSupport.h>
+
 #ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
 #import <ReactiveCocoa/UIControl+RACSubscribableSupport.h>
 #import <ReactiveCocoa/UITextField+RACSubscribableSupport.h>

@@ -213,4 +213,7 @@ typedef NSInteger RACSubscribableError;
 // Resubscribes to the receiving subscribable if an error occurs.
 - (RACSubscribable *)retry;
 
+// Treats any next as a completion.
+- (RACSubscribable *)asCompletion;
+
 @end

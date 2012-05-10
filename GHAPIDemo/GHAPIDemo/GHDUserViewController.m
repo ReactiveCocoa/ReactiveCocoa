@@ -87,13 +87,7 @@
 		injectObjectWeakly:self]
 		selectMany:^(RACTuple *t) {
 			GHDUserViewController *self = t.last;
-			// We retry the image request 1 time if an error occurs. We're also 
-			// using -catchTo: to send the default user image if an error occurs 
-			// and the retry fails.
-			return [[[self 
-						loadImageAtURL:t.first] 
-						retry:1] 
-						catchTo:[RACSubscribable return:[NSImage imageNamed:NSImageNameUser]]];
+			return [self loadImageAtURL:t.first];
 		}] 
 		deliverOn:[RACScheduler mainQueueScheduler]];
 	
@@ -122,7 +116,7 @@
 - (RACSubscribable *)fetchRepos {	
 	return [[[self.client 
 				fetchUserRepos] 
-				injectObjectWeakly:self]
+				injectObjectWeakly:self] 
 				select:^(RACTuple *t) {
 					NSLog(@"repos: %@", t.first);
 					return [RACUnit defaultUnit];
@@ -154,7 +148,7 @@
 	// So we use -publish to share the subscriptions to the underlying subscribable.
 	// -autoconnect means the connectable subscribable from -publish will connect
 	// automatically when it receives its first subscriber.
-	return [[[RACSubscribable defer:^{
+	RACSubscribable *loadImage = [RACSubscribable defer:^{
 		return [RACSubscribable startWithScheduler:[RACScheduler immediateScheduler] block:^id(BOOL *success, NSError **error) {
 			NSImage *image = [[NSImage alloc] initWithContentsOfURL:URL];
 			if(image == nil) {
@@ -164,7 +158,13 @@
 			
 			return image;
 		}];
-	}] publish] autoconnect];
+	}];
+	
+	return [[[[loadImage 
+				retry:1] 
+				catchTo:[RACSubscribable return:[NSImage imageNamed:NSImageNameUser]]] 
+				publish] 
+				autoconnect];
 }
 
 @end

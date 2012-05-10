@@ -159,9 +159,12 @@ static NSMutableSet *activeSubscribables = nil;
 		BOOL noSubscribers = NO;
 		@synchronized(self.subscribers) {
 			noSubscribers = self.subscribers.count < 1;
+			if(noSubscribers) self.subscribers = nil;
 		}
 		
 		if(noSubscribers) {
+			self.tearingDown = YES;
+			
 			@synchronized(activeSubscribables) {
 				[activeSubscribables removeObject:self];
 			}
@@ -186,7 +189,7 @@ static NSMutableSet *activeSubscribables = nil;
 	self.tearingDown = YES;
 	
 	@synchronized(self.subscribers) {
-		[self.subscribers removeAllObjects];
+		self.subscribers = nil;
 	}
 	
 	@synchronized(activeSubscribables) {

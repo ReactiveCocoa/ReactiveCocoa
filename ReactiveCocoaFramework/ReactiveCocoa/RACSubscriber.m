@@ -69,8 +69,9 @@
 }
 
 - (void)stopSubscription {
-	[self.disposable dispose];
+	RACDisposable *d = self.disposable;
 	self.disposable = nil;
+	[d dispose];
 }
 
 @end

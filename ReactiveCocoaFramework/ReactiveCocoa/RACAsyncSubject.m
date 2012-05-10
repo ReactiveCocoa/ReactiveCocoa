@@ -52,9 +52,9 @@
 }
 
 - (void)sendError:(NSError *)e {
-	[super sendError:e];
-	
 	self.error = e;
+	
+	[super sendError:e];
 }
 
 

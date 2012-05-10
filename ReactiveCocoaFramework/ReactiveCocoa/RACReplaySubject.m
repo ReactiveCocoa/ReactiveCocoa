@@ -72,15 +72,15 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
 }
 
 - (void)sendCompleted {
-	[super sendCompleted];
-	
 	self.hasCompletedAlready = YES;
+	
+	[super sendCompleted];
 }
 
 - (void)sendError:(NSError *)e {
-	[super sendError:e];
-	
 	self.error = e;
+	
+	[super sendError:e];
 }
 
 

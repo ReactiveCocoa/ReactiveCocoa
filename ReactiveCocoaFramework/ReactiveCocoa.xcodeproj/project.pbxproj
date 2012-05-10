@@ -57,9 +57,7 @@
 		886F702C1551CF9D0045D68B /* RACGroupedSubscribable.m in Sources */ = {isa = PBXBuildFile; fileRef = 886F70291551CF920045D68B /* RACGroupedSubscribable.m */; };
 		887F200F151A07930092D842 /* RACSubscribable+Operations.m in Sources */ = {isa = PBXBuildFile; fileRef = 8866784D1518D93D00DE77EC /* RACSubscribable+Operations.m */; };
 		88968014155C614700C3F673 /* NSTask+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 88968012155C614700C3F673 /* NSTask+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		88968015155C614700C3F673 /* NSTask+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 88968012155C614700C3F673 /* NSTask+RACSupport.h */; };
 		88968016155C614700C3F673 /* NSTask+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 88968013155C614700C3F673 /* NSTask+RACSupport.m */; };
-		88968017155C614700C3F673 /* NSTask+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 88968013155C614700C3F673 /* NSTask+RACSupport.m */; };
 		8896801A155C615000C3F673 /* NSFileHandle+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 88968018155C615000C3F673 /* NSFileHandle+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		8896801B155C615000C3F673 /* NSFileHandle+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 88968018155C615000C3F673 /* NSFileHandle+RACSupport.h */; };
 		8896801C155C615000C3F673 /* NSFileHandle+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 88968019155C615000C3F673 /* NSFileHandle+RACSupport.m */; };
@@ -618,7 +616,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				88F44266153DCAC50097B4C3 /* UITextField+RACSubscribableSupport.h in Headers */,
-				88968015155C614700C3F673 /* NSTask+RACSupport.h in Headers */,
 				8896801B155C615000C3F673 /* NSFileHandle+RACSupport.h in Headers */,
 				88968021155C615800C3F673 /* NSNotificationCenter+RACSupport.h in Headers */,
 			);
@@ -907,7 +904,6 @@
 				88F440BE153DAD5E0097B4C3 /* RACSubscribable+Operations.m in Sources */,
 				886F702C1551CF9D0045D68B /* RACGroupedSubscribable.m in Sources */,
 				88F44267153DCAC50097B4C3 /* UITextField+RACSubscribableSupport.m in Sources */,
-				88968017155C614700C3F673 /* NSTask+RACSupport.m in Sources */,
 				8896801D155C615000C3F673 /* NSFileHandle+RACSupport.m in Sources */,
 				88968023155C615800C3F673 /* NSNotificationCenter+RACSupport.m in Sources */,
 			);

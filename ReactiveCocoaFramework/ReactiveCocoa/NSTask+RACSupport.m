@@ -14,6 +14,7 @@
 #import "NSObject+RACSubscribable.h"
 #import "RACSubscribable+Operations.h"
 #import "RACAsyncSubject.h"
+#import "RACScheduler.h"
 
 NSString * const NSTaskRACSupportErrorDomain = @"NSTaskRACSupportErrorDomain";
 
@@ -48,6 +49,12 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 }
 
 - (RACSubscribable *)rac_runAsync {
+	return [self rac_runAsyncWithScheduler:[RACScheduler immediateScheduler]];
+}
+
+- (RACSubscribable *)rac_runAsyncWithScheduler:(RACScheduler *)scheduler {
+	NSParameterAssert(scheduler != nil);
+	
 	NSMutableData * (^aggregateData)(NSMutableData *, NSData *) = ^(NSMutableData *running, NSData *next) {
 		[running appendData:next];
 		return running;
@@ -87,7 +94,9 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 	[outputSubscribable connect];
 	[errorSubscribable connect];
 	
-	[self launch];
+	[scheduler schedule:^{
+		[self launch];
+	}];
 	
 	return subject;
 }

@@ -149,3 +149,11 @@
 }
 
 @end
+
+@implementation RACTuple (ObjectSubscripting)
+
+- (id)objectAtIndexedSubscript:(NSUInteger)idx {
+    return [self safeObjectAtIndex:idx];
+}
+
+@end

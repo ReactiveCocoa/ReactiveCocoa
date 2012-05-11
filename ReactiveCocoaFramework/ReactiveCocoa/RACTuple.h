@@ -50,3 +50,10 @@
 - (NSArray *)allObjects;
 
 @end
+
+@interface RACTuple (ObjectSubscripting)
+// Returns the object at that index or nil if the number of objects is less
+// than the index.
+- (id)objectAtIndexedSubscript:(NSUInteger)idx; 
+@end
+

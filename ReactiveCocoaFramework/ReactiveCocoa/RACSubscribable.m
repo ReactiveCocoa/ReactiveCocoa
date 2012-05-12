@@ -132,22 +132,26 @@ static NSMutableSet *activeSubscribables = nil;
 }
 
 + (id)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block {
-	NSParameterAssert(block != NULL);
-	
-	RACAsyncSubject *subject = [RACAsyncSubject subject];
-	[scheduler schedule:^{
+	return [self startWithScheduler:scheduler subjectBlock:^(RACSubject *subject) {
 		BOOL success = YES;
 		NSError *error = nil;
 		id returned = block(&success, &error);
 		
-		dispatch_async(dispatch_get_main_queue(), ^{
-			if(!success) {
-				[subject sendError:error];
-			} else {
-				[subject sendNext:returned];
-				[subject sendCompleted];
-			}
-		});
+		if(!success) {
+			[subject sendError:error];
+		} else {
+			[subject sendNext:returned];
+			[subject sendCompleted];
+		}
+	}];
+}
+
++ (id)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block {
+	NSParameterAssert(block != NULL);
+
+	RACAsyncSubject *subject = [RACAsyncSubject subject];
+	[scheduler schedule:^{
+		block(subject);
 	}];
 	
 	return subject;

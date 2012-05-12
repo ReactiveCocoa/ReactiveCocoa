@@ -62,4 +62,9 @@
 // subscribable sends error with the error passed in by reference.
 + (id)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block;
 
+// Returns a subscribable that calls the block with the given scheduler. The
+// block is given the returned subject and it can send values, error, or
+// completed as needed.
++ (id)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block;
+
 @end

@@ -933,19 +933,4 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	return [self retry:0];
 }
 
-- (RACSubscribable *)asCompletion {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
-		__block RACDisposable *disposable = [self subscribeNext:^(id x) {
-			[subscriber sendCompleted];
-			[disposable dispose];
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendCompleted];
-		}];
-		
-		return disposable;
-	}];
-}
-
 @end

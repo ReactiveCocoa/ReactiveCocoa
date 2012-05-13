@@ -43,13 +43,16 @@
 // Creates a new tuple with the given objects. Use RACTupleNil to represent nils.
 + (id)tupleWithObjects:(id)object, ... NS_REQUIRES_NIL_TERMINATION;
 
-// Returns the object at `index` or nil if the object is a RACTupleNil.
+// Returns the object at `index` or nil if the object is a RACTupleNil. Unlike
+// NSArray and friends, it's perfectly fine to ask for the object at an index
+// past the tuple's count - 1. It will simply return nil.
 - (id)objectAtIndex:(NSUInteger)index;
 
 // Returns an array of all the objects. RACTupleNils are converted to NSNulls.
 - (NSArray *)allObjects;
 
 @end
+
 
 @interface RACTuple (ObjectSubscripting)
 // Returns the object at that index or nil if the number of objects is less

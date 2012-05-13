@@ -103,12 +103,10 @@
 }
 
 - (id)objectAtIndex:(NSUInteger)index {
+	if(index >= self.count) return nil;
+	
 	id object = [self.backingArray objectAtIndex:index];
 	return [object isKindOfClass:[RACTupleNil class]] ? nil : object;
-}
-
-- (id)safeObjectAtIndex:(NSUInteger)index {
-	return index < self.count ? [self objectAtIndex:index] : nil;
 }
 
 - (NSArray *)allObjects {
@@ -125,23 +123,23 @@
 }
 
 - (id)first {
-	return [self safeObjectAtIndex:0];
+	return [self objectAtIndex:0];
 }
 
 - (id)second {
-	return [self safeObjectAtIndex:1];
+	return [self objectAtIndex:1];
 }
 
 - (id)third {
-	return [self safeObjectAtIndex:2];
+	return [self objectAtIndex:2];
 }
 
 - (id)fourth {
-	return [self safeObjectAtIndex:3];
+	return [self objectAtIndex:3];
 }
 
 - (id)fifth {
-	return [self safeObjectAtIndex:4];
+	return [self objectAtIndex:4];
 }
 
 - (id)last {
@@ -150,10 +148,11 @@
 
 @end
 
+
 @implementation RACTuple (ObjectSubscripting)
 
 - (id)objectAtIndexedSubscript:(NSUInteger)idx {
-    return [self safeObjectAtIndex:idx];
+    return [self objectAtIndex:idx];
 }
 
 @end

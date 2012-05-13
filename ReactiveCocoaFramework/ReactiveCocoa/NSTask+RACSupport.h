@@ -33,16 +33,16 @@ extern const NSInteger NSTaskRACSupportNonZeroTerminationStatus;
 // Returns a subscribable to the standard error. Does not start the task.
 - (RACSubscribable *)rac_standardErrorSubscribable;
 
-// Runs the task asynchronously, scheduled with the given scheduler. It 
-// aggregates all the data from standard output and sends it once the task 
-// completes. If the task exists with a non-zero status, it sends an error. The
-// error's userInfo contains objects of the keys NSTaskRACSupportOutputData, 
-// NSTaskRACSupportErrorData, and NSTaskRACSupportTask.
+// Runs the task and waits for it to completed, scheduled with the given 
+// scheduler. It aggregates all the data from standard output and sends it once 
+// the task completes. If the task exists with a non-zero status, it sends an 
+// error. The error's userInfo contains objects of the keys 
+// NSTaskRACSupportOutputData, NSTaskRACSupportErrorData, and NSTaskRACSupportTask.
 //
 // scheduler - cannot be nil.
-- (RACSubscribable *)rac_runAsyncWithScheduler:(RACScheduler *)scheduler;
+- (RACSubscribable *)rac_runWithScheduler:(RACScheduler *)scheduler;
 
-// Calls -rac_runAsyncWithScheduler: with the immediate scheduler.
-- (RACSubscribable *)rac_runAsync;
+// Calls -rac_runWithScheduler: with the immediate scheduler.
+- (RACSubscribable *)rac_run;
 
 @end

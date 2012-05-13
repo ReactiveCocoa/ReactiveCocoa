@@ -48,11 +48,11 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 	return [fileHandle rac_readInBackground];
 }
 
-- (RACSubscribable *)rac_runAsync {
-	return [self rac_runAsyncWithScheduler:[RACScheduler immediateScheduler]];
+- (RACSubscribable *)rac_run {
+	return [self rac_runWithScheduler:[RACScheduler immediateScheduler]];
 }
 
-- (RACSubscribable *)rac_runAsyncWithScheduler:(RACScheduler *)scheduler {
+- (RACSubscribable *)rac_runWithScheduler:(RACScheduler *)scheduler {
 	NSParameterAssert(scheduler != nil);
 	
 	NSMutableData * (^aggregateData)(NSMutableData *, NSData *) = ^(NSMutableData *running, NSData *next) {
@@ -96,6 +96,7 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 	
 	[scheduler schedule:^{
 		[self launch];
+		[self waitUntilExit];
 	}];
 	
 	return subject;

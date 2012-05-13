@@ -504,6 +504,61 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
+- (RACSubscribable *)concat {
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		__block NSMutableArray *innerSubscribables = [NSMutableArray array];
+		__block RACDisposable *currentDisposable = nil;
+		__block BOOL outerDone = NO;
+		__block RACSubscriber *innerSubscriber = nil;
+		
+		void (^startNextInnerSubscribable)(void) = ^{
+			if(innerSubscribables.count < 1) return;
+			
+			RACSubscribable *currentInnerSubscribable = [innerSubscribables objectAtIndex:0];
+			[innerSubscribables removeObjectAtIndex:0];
+			currentDisposable = [currentInnerSubscribable subscribe:innerSubscriber];
+		};
+		
+		void (^sendCompletedIfWeReallyAreDone)(void) = ^{
+			if(outerDone && innerSubscribables.count < 1 && currentDisposable == nil) {
+				[subscriber sendCompleted];
+			}
+		};
+		
+		innerSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
+			[subscriber sendNext:x];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			currentDisposable = nil;
+			
+			startNextInnerSubscribable();
+			sendCompletedIfWeReallyAreDone();
+		}];
+		
+		RACDisposable *sourceDisposable = [self subscribeNext:^(id x) {
+			NSAssert1([x conformsToProtocol:@protocol(RACSubscribable)], @"The source must be a subscribable of subscribables. Instead, got %@", x);
+			[innerSubscribables addObject:x];
+			
+			if(currentDisposable == nil) {
+				startNextInnerSubscribable();
+			}
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			outerDone = YES;
+			
+			sendCompletedIfWeReallyAreDone();
+		}];
+		
+		return [RACDisposable disposableWithBlock:^{
+			innerSubscribables = nil;
+			[sourceDisposable dispose];
+			[currentDisposable dispose];
+		}];
+	}];
+}
+
 - (RACSubscribable *)scanWithStart:(NSInteger)start combine:(NSInteger (^)(NSInteger running, NSInteger next))combineBlock {
 	NSParameterAssert(combineBlock != NULL);
 	

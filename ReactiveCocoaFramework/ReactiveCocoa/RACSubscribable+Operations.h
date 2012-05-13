@@ -98,6 +98,9 @@ typedef NSInteger RACSubscribableError;
 // Subscribes to `subscribable` when the source subscribable completes.
 - (RACSubscribable *)concat:(id<RACSubscribable>)subscribable;
 
+// Concats the inner subscribables of a subscribable of subscribables.
+- (RACSubscribable *)concat;
+
 // Combine `next`s with the given start and combination.
 - (RACSubscribable *)scanWithStart:(NSInteger)start combine:(NSInteger (^)(NSInteger running, NSInteger next))combineBlock;
 

@@ -335,6 +335,27 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
+- (RACSubscribable *)takeLast:(NSUInteger)count {
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {		
+		NSMutableArray *valuesTaken = [NSMutableArray arrayWithCapacity:count];
+		return [self subscribeNext:^(id x) {
+			[valuesTaken addObject:x ? : [RACTupleNil tupleNil]];
+			
+			while(valuesTaken.count > count) {
+				[valuesTaken removeObjectAtIndex:0];
+			}
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			for(id value in valuesTaken) {
+				[subscriber sendNext:[value isKindOfClass:[RACTupleNil class]] ? nil : value];
+			}
+			
+			[subscriber sendCompleted];
+		}];
+	}];
+}
+
 + (RACSubscribable *)combineLatest:(NSArray *)subscribables reduce:(id (^)(RACTuple *xs))reduceBlock {
 	NSParameterAssert(reduceBlock != NULL);
 	

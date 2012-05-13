@@ -72,6 +72,9 @@ typedef NSInteger RACSubscribableError;
 // Take `count` `next`s and then completes.
 - (RACSubscribable *)take:(NSUInteger)count;
 
+// Takes the last `count` `next`'s after the receiving subscribable completes.
+- (RACSubscribable *)takeLast:(NSUInteger)count;
+
 // Combine the latest values from each of the subscribables once all the
 // subscribables have sent a `next`.
 + (RACSubscribable *)combineLatest:(NSArray *)subscribables reduce:(id (^)(RACTuple *xs))reduceBlock;

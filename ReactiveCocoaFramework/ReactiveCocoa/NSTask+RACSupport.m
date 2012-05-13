@@ -72,7 +72,7 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 		errorData = accumulatedData;
 	}];
 	
-	RACSubscribable *terminateNotification = [[[NSNotificationCenter defaultCenter] rac_addObserverForName:NSTaskDidTerminateNotification object:self] asCompletion];
+	RACSubscribable *terminateNotification = [[[NSNotificationCenter defaultCenter] rac_addObserverForName:NSTaskDidTerminateNotification object:self] any];
 	
 	RACAsyncSubject *subject = [RACAsyncSubject subject];
 	// wait until termination's signaled and output and error are done

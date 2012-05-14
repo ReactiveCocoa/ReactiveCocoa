@@ -33,6 +33,10 @@ extern const NSInteger NSTaskRACSupportNonZeroTerminationStatus;
 // Returns a subscribable to the standard error. Does not start the task.
 - (RACSubscribable *)rac_standardErrorSubscribable;
 
+// Returns a subscribable that sends a +[RACUnit defaultUnit] and completes when
+// the task completes.
+- (RACSubscribable *)rac_completionSubscribable;
+
 // Runs the task and waits for it to completed, scheduled with the given 
 // scheduler. It aggregates all the data from standard output and sends it once 
 // the task completes. If the task exists with a non-zero status, it sends an 

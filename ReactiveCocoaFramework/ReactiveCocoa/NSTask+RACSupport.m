@@ -15,6 +15,7 @@
 #import "RACSubscribable+Operations.h"
 #import "RACAsyncSubject.h"
 #import "RACScheduler.h"
+#import "RACUnit.h"
 
 NSString * const NSTaskRACSupportErrorDomain = @"NSTaskRACSupportErrorDomain";
 
@@ -48,6 +49,12 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 	return [fileHandle rac_readInBackground];
 }
 
+- (RACSubscribable *)rac_completionSubscribable {
+	return [[[[NSNotificationCenter defaultCenter] rac_addObserverForName:NSTaskDidTerminateNotification object:self] select:^(id _) {
+		return [RACUnit defaultUnit];
+	}] any];
+}
+
 - (RACSubscribable *)rac_run {
 	return [self rac_runWithScheduler:[RACScheduler immediateScheduler]];
 }
@@ -71,12 +78,10 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 	[errorSubscribable subscribeNext:^(NSData *accumulatedData) {
 		errorData = accumulatedData;
 	}];
-	
-	RACSubscribable *terminateNotification = [[[NSNotificationCenter defaultCenter] rac_addObserverForName:NSTaskDidTerminateNotification object:self] any];
-	
+		
 	RACAsyncSubject *subject = [RACAsyncSubject subject];
 	// wait until termination's signaled and output and error are done
-	[[RACSubscribable merge:[NSArray arrayWithObjects:outputSubscribable, errorSubscribable, terminateNotification, nil]] subscribeNext:^(id _) {
+	[[RACSubscribable merge:[NSArray arrayWithObjects:outputSubscribable, errorSubscribable, [self rac_completionSubscribable], nil]] subscribeNext:^(id _) {
 		// nothing
 	} completed:^{
 		if([self terminationStatus] == 0) {

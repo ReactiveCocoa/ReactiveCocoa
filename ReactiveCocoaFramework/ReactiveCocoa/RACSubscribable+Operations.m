@@ -677,8 +677,8 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
-			BOOL keepTaking = predicate(x);
-			if(!keepTaking) {
+			BOOL stop = predicate(x);
+			if(stop) {
 				[selfDisposable dispose], selfDisposable = nil;
 				[subscriber sendCompleted];
 				return;
@@ -694,6 +694,14 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		return [RACDisposable disposableWithBlock:^{
 			[selfDisposable dispose];
 		}];
+	}];
+}
+
+- (RACSubscribable *)takeWhileBlock:(BOOL (^)(id x))predicate {
+	NSParameterAssert(predicate != NULL);
+	
+	return [self takeUntilBlock:^BOOL(id x) {
+		return !predicate(x);
 	}];
 }
 
@@ -778,6 +786,35 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		} completed:^{
 			[subscriber sendCompleted];
 		}];
+	}];
+}
+
+- (RACSubscribable *)skipUntilBlock:(BOOL (^)(id x))block {
+	NSParameterAssert(block != NULL);
+	
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		__block BOOL keepSkipping = YES;
+		return [self subscribeNext:^(id x) {
+			if(keepSkipping) {
+				keepSkipping = !block(x);
+			}
+			
+			if(!keepSkipping) {
+				[subscriber sendNext:x];
+			}
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
+	}];
+}
+
+- (RACSubscribable *)skipWhileBlock:(BOOL (^)(id x))block {
+	NSParameterAssert(block != NULL);
+	
+	return [self skipUntilBlock:^BOOL(id x) {
+		return !block(x);
 	}];
 }
 

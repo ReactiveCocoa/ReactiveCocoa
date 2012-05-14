@@ -123,8 +123,11 @@ typedef NSInteger RACSubscribableError;
 // Take `next`s until the `subscribableTrigger` sends a `next`.
 - (RACSubscribable *)takeUntil:(id<RACSubscribable>)subscribableTrigger;
 
-// Take `next`s until the given block returns NO.
+// Take `next`s until the given block returns YES.
 - (RACSubscribable *)takeUntilBlock:(BOOL (^)(id x))predicate;
+
+// Take `next`s until the given block returns NO.
+- (RACSubscribable *)takeWhileBlock:(BOOL (^)(id x))predicate;
 
 // Convert every `next` and `error` into a RACMaybe.
 - (RACSubscribable *)asMaybes;
@@ -144,6 +147,12 @@ typedef NSInteger RACSubscribableError;
 
 // Skip the first `skipCount` `next`s.
 - (RACSubscribable *)skip:(NSUInteger)skipCount;
+
+// Skips values until the block returns YES.
+- (RACSubscribable *)skipUntilBlock:(BOOL (^)(id x))block;
+
+// Skips values until the block returns NO.
+- (RACSubscribable *)skipWhileBlock:(BOOL (^)(id x))block;
 
 // Defer creation of a subscribable until the subscribable's actually subscribed to.
 //

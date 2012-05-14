@@ -575,11 +575,12 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (RACSubscribable *)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock {
+- (RACSubscribable *)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock {
+	NSParameterAssert(startFactory != NULL);
 	NSParameterAssert(combineBlock != NULL);
 	
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
-		__block id runningValue = start;
+		__block id runningValue = startFactory();
 		return [self subscribeNext:^(id x) {
 			runningValue = combineBlock(runningValue, x);
 		} error:^(NSError *error) {
@@ -589,6 +590,12 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 			[subscriber sendCompleted];
 		}];
 	}];
+}
+
+- (RACSubscribable *)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock {
+	return [self aggregateWithStartFactory:^{
+		return start;
+	} combine:combineBlock];
 }
 
 - (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object {

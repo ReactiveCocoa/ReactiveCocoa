@@ -62,46 +62,49 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 - (RACSubscribable *)rac_runWithScheduler:(RACScheduler *)scheduler {
 	NSParameterAssert(scheduler != nil);
 	
-	NSMutableData * (^aggregateData)(NSMutableData *, NSData *) = ^(NSMutableData *running, NSData *next) {
-		[running appendData:next];
-		return running;
-	};
-	
-	RACConnectableSubscribable *outputSubscribable = [[[self rac_standardOutputSubscribable] aggregateWithStart:[NSMutableData data] combine:aggregateData] publish];
-	__block NSData *outputData = nil;
-	[outputSubscribable subscribeNext:^(NSData *accumulatedData) {
-		outputData = accumulatedData;
-	}];
-	
-	RACConnectableSubscribable *errorSubscribable = [[[self rac_standardErrorSubscribable] aggregateWithStart:[NSMutableData data] combine:aggregateData] publish];
-	__block NSData *errorData = nil;
-	[errorSubscribable subscribeNext:^(NSData *accumulatedData) {
-		errorData = accumulatedData;
-	}];
-		
 	RACAsyncSubject *subject = [RACAsyncSubject subject];
-	// wait until termination's signaled and output and error are done
-	[[RACSubscribable merge:[NSArray arrayWithObjects:outputSubscribable, errorSubscribable, [self rac_completionSubscribable], nil]] subscribeNext:^(id _) {
-		// nothing
-	} completed:^{
-		if([self terminationStatus] == 0) {
-			[subject sendNext:outputData];
-			[subject sendCompleted];
-		} else {
-			NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
-			if(outputData != nil) [userInfo setObject:outputData forKey:NSTaskRACSupportOutputData];
-			if(errorData != nil) [userInfo setObject:errorData forKey:NSTaskRACSupportErrorData];
-			[userInfo setObject:self forKey:NSTaskRACSupportTask];
-			[subject sendError:[NSError errorWithDomain:NSTaskRACSupportErrorDomain code:NSTaskRACSupportNonZeroTerminationStatus userInfo:userInfo]];
-		}
-	}];
 	
-	[outputSubscribable connect];
-	[errorSubscribable connect];
-	
-	[scheduler schedule:^{
-		[self launch];
-		[self waitUntilExit];
+	[[RACScheduler mainQueueScheduler] schedule:^{
+		NSMutableData * (^aggregateData)(NSMutableData *, NSData *) = ^(NSMutableData *running, NSData *next) {
+			[running appendData:next];
+			return running;
+		};
+		
+		RACConnectableSubscribable *outputSubscribable = [[[self rac_standardOutputSubscribable] aggregateWithStart:[NSMutableData data] combine:aggregateData] publish];
+		__block NSData *outputData = nil;
+		[outputSubscribable subscribeNext:^(NSData *accumulatedData) {
+			outputData = accumulatedData;
+		}];
+		
+		RACConnectableSubscribable *errorSubscribable = [[[self rac_standardErrorSubscribable] aggregateWithStart:[NSMutableData data] combine:aggregateData] publish];
+		__block NSData *errorData = nil;
+		[errorSubscribable subscribeNext:^(NSData *accumulatedData) {
+			errorData = accumulatedData;
+		}];
+				
+		// wait until termination's signaled and output and error are done
+		[[RACSubscribable merge:[NSArray arrayWithObjects:outputSubscribable, errorSubscribable, [self rac_completionSubscribable], nil]] subscribeNext:^(id _) {
+			// nothing
+		} completed:^{
+			if([self terminationStatus] == 0) {
+				[subject sendNext:outputData];
+				[subject sendCompleted];
+			} else {
+				NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+				if(outputData != nil) [userInfo setObject:outputData forKey:NSTaskRACSupportOutputData];
+				if(errorData != nil) [userInfo setObject:errorData forKey:NSTaskRACSupportErrorData];
+				[userInfo setObject:self forKey:NSTaskRACSupportTask];
+				[subject sendError:[NSError errorWithDomain:NSTaskRACSupportErrorDomain code:NSTaskRACSupportNonZeroTerminationStatus userInfo:userInfo]];
+			}
+		}];
+		
+		[outputSubscribable connect];
+		[errorSubscribable connect];
+		
+		[scheduler schedule:^{
+			[self launch];
+			[self waitUntilExit];
+		}];
 	}];
 	
 	return subject;

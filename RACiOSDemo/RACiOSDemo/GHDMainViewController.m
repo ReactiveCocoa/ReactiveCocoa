@@ -12,8 +12,12 @@
 
 @interface GHDMainViewController ()
 @property (nonatomic, strong) GHDMainView *view;
+
 @property (nonatomic, copy) NSString *text;
 @property (nonatomic, copy) NSString *label;
+
+@property (nonatomic, copy) NSString *text2;
+@property (nonatomic, copy) NSString *label2;
 @end
 
 
@@ -27,16 +31,27 @@
 	if(self == nil) return nil;
 	
 	[RACAbleSelf(self.text) subscribeNext:^(id x) {
-		NSLog(@"%@", x);
+		NSLog(@"text: %@", x);
 	}];
+    
+    [RACAbleSelf(self.text2) subscribeNext:^(id x) {
+        NSLog(@"text2: %@", x);
+    }];
 	
 	[[RACAbleSelf(self.text) 
 		select:^(id x) {
 			return [x uppercaseString]; 
 		}]
 		toProperty:RAC_KEYPATH_SELF(self.label) onObject:self];
+    
+    [[RACAbleSelf(self.text2)
+        select:^id(id x) {
+            return [x lowercaseString];
+        }]
+        toProperty:RAC_KEYPATH_SELF(self.label2) onObject:self];
 	
 	[self rac_bind:RAC_KEYPATH_SELF(self.view.label.text) to:RACAbleSelf(self.label)];
+    [self rac_bind:RAC_KEYPATH_SELF(self.view.label2.text) to:RACAbleSelf(self.label2)];
 	
 	return self;
 }
@@ -51,6 +66,7 @@
 	// Even though iOS doesn't give us bindings like AppKit, we can fake them 
 	// pretty easily using RAC.
 	[self rac_bind:RAC_KEYPATH_SELF(self.text) to:self.view.textField.rac_textSubscribable];
+    [self rac_bind:RAC_KEYPATH_SELF(self.text2) to:self.view.textView.rac_textSubscribable];
 }
 
 - (void)viewDidUnload {
@@ -67,5 +83,7 @@
 @dynamic view;
 @synthesize text;
 @synthesize label;
+@synthesize text2;
+@synthesize label2;
 
 @end

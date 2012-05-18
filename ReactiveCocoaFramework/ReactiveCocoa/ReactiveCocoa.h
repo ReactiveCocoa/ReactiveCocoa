@@ -39,6 +39,7 @@
 #ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
 #import <ReactiveCocoa/UIControl+RACSubscribableSupport.h>
 #import <ReactiveCocoa/UITextField+RACSubscribableSupport.h>
+#import <ReactiveCocoa/UITextView+RACSubscribableSupport.h>
 #elif TARGET_OS_MAC
 #import <ReactiveCocoa/NSButton+RACCommandSupport.h>
 #import <ReactiveCocoa/NSObject+RACAppKitBindings.h>

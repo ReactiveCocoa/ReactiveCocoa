@@ -127,7 +127,6 @@
 		88F440CF153DAD850097B4C3 /* NSObject+RACPropertySubscribing.m in Sources */ = {isa = PBXBuildFile; fileRef = 886678701518DCD800DE77EC /* NSObject+RACPropertySubscribing.m */; };
 		88F440D3153DADEA0097B4C3 /* NSObject+RACAppKitBindings.h in Headers */ = {isa = PBXBuildFile; fileRef = 88F440D1153DADEA0097B4C3 /* NSObject+RACAppKitBindings.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88F440D4153DADEA0097B4C3 /* NSObject+RACAppKitBindings.m in Sources */ = {isa = PBXBuildFile; fileRef = 88F440D2153DADEA0097B4C3 /* NSObject+RACAppKitBindings.m */; };
-		88F44261153DC0450097B4C3 /* UIControl+RACSubscribableSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 88F4425F153DC0450097B4C3 /* UIControl+RACSubscribableSupport.h */; };
 		88F44263153DC2C70097B4C3 /* UIControl+RACSubscribableSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 88F44260153DC0450097B4C3 /* UIControl+RACSubscribableSupport.m */; };
 		88F44266153DCAC50097B4C3 /* UITextField+RACSubscribableSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 88F44264153DCAC50097B4C3 /* UITextField+RACSubscribableSupport.h */; };
 		88F44267153DCAC50097B4C3 /* UITextField+RACSubscribableSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 88F44265153DCAC50097B4C3 /* UITextField+RACSubscribableSupport.m */; };
@@ -136,6 +135,9 @@
 		88F5870615361C170084BD32 /* RACConnectableSubscribable+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 88F5870515361C170084BD32 /* RACConnectableSubscribable+Private.h */; };
 		88F70068152D2D7B00B32771 /* NSObject+RACBindings.h in Headers */ = {isa = PBXBuildFile; fileRef = 88F70066152D2D7B00B32771 /* NSObject+RACBindings.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88F70069152D2D7B00B32771 /* NSObject+RACBindings.m in Sources */ = {isa = PBXBuildFile; fileRef = 88F70067152D2D7B00B32771 /* NSObject+RACBindings.m */; };
+		A1FCC27515666AA3008C9686 /* UITextView+RACSubscribableSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = A1FCC27215666AA3008C9686 /* UITextView+RACSubscribableSupport.h */; };
+		A1FCC27715666AA3008C9686 /* UITextView+RACSubscribableSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = A1FCC27315666AA3008C9686 /* UITextView+RACSubscribableSupport.m */; };
+		A1FCC27815666AF6008C9686 /* UIControl+RACSubscribableSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 88F4425F153DC0450097B4C3 /* UIControl+RACSubscribableSupport.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -327,6 +329,8 @@
 		88F5870515361C170084BD32 /* RACConnectableSubscribable+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RACConnectableSubscribable+Private.h"; sourceTree = "<group>"; };
 		88F70066152D2D7B00B32771 /* NSObject+RACBindings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACBindings.h"; sourceTree = "<group>"; };
 		88F70067152D2D7B00B32771 /* NSObject+RACBindings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACBindings.m"; sourceTree = "<group>"; };
+		A1FCC27215666AA3008C9686 /* UITextView+RACSubscribableSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITextView+RACSubscribableSupport.h"; sourceTree = "<group>"; };
+		A1FCC27315666AA3008C9686 /* UITextView+RACSubscribableSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITextView+RACSubscribableSupport.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -585,6 +589,8 @@
 				88F44260153DC0450097B4C3 /* UIControl+RACSubscribableSupport.m */,
 				88F44264153DCAC50097B4C3 /* UITextField+RACSubscribableSupport.h */,
 				88F44265153DCAC50097B4C3 /* UITextField+RACSubscribableSupport.m */,
+				A1FCC27215666AA3008C9686 /* UITextView+RACSubscribableSupport.h */,
+				A1FCC27315666AA3008C9686 /* UITextView+RACSubscribableSupport.m */,
 			);
 			name = UIKitSupport;
 			sourceTree = "<group>";
@@ -633,7 +639,6 @@
 				8857BB7E152A2747009804CC /* NSObject+RACExtensions.h in Headers */,
 				8867D5F9152BDAC300321BD5 /* RACSwizzling.h in Headers */,
 				88F5870615361C170084BD32 /* RACConnectableSubscribable+Private.h in Headers */,
-				88F44261153DC0450097B4C3 /* UIControl+RACSubscribableSupport.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -646,6 +651,8 @@
 				88968021155C615800C3F673 /* NSNotificationCenter+RACSupport.h in Headers */,
 				889C04BF155DA39B00F19F0C /* NSData+RACSupport.h in Headers */,
 				889C0528155DA6C800F19F0C /* NSString+RACSupport.h in Headers */,
+				A1FCC27515666AA3008C9686 /* UITextView+RACSubscribableSupport.h in Headers */,
+				A1FCC27815666AF6008C9686 /* UIControl+RACSubscribableSupport.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -938,6 +945,7 @@
 				88968023155C615800C3F673 /* NSNotificationCenter+RACSupport.m in Sources */,
 				889C04C1155DA39B00F19F0C /* NSData+RACSupport.m in Sources */,
 				889C052A155DA6C800F19F0C /* NSString+RACSupport.m in Sources */,
+				A1FCC27715666AA3008C9686 /* UITextView+RACSubscribableSupport.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -26,25 +26,4 @@
     return desc.name != NULL;
 }
 
-//unsigned int protoCount;
-//Protocol *__unsafe_unretained *protoList = protocol_copyProtocolList(proto, &protoCount);
-//
-//for (int i = 0; i < protoCount; i++) {
-//    unsigned int methodCount;
-//    struct objc_method_description* methods = protocol_copyMethodDescriptionList(protoList[i], NO, YES, &methodCount);
-//    
-//    for (int j = 0; j < methodCount; j++) {
-//        struct objc_method_description d = methods[i];
-//        if (d.name == aSelector) {
-//            free(methods);
-//            free(protoList);
-//            return YES;
-//        }
-//    }
-//    
-//    free(methods);
-//}
-//
-//free(protoList);
-
 @end

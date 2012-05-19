@@ -53,6 +53,7 @@ static NSMutableDictionary *swizzledClasses = nil;
 
 + (RACEventTrampoline *)trampolineForTextView:(UITextView *)textView delegateMethod:(SEL)method {
     RACEventTrampoline *trampoline = [[self alloc] init];
+    [trampoline setDelegateMethod:method];
     
     @synchronized(swizzledClasses) {
         Class class = [textView class];

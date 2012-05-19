@@ -7,45 +7,15 @@
 //
 
 #import "UIControl+RACSubscribableSupport.h"
-#import "RACSubject.h"
+#import "RACEventTrampoline.h"
 #import <objc/runtime.h>
-
-@interface RACControlEventTrampoline : NSObject
-@property (nonatomic, strong) RACSubject *subject;
-@end
-
-@implementation RACControlEventTrampoline
-
-@synthesize subject;
-
-+ (RACControlEventTrampoline *)trampolineForControl:(UIControl *)control ControlEvents:(UIControlEvents)controlEvents {
-	RACControlEventTrampoline *trampoline = [[self alloc] init];
-	[control addTarget:trampoline action:@selector(didGetControlEvent:) forControlEvents:controlEvents];
-	return trampoline;
-}
-
-- (id)init {
-	self = [super init];
-	if(self == nil) return nil;
-	
-	self.subject = [RACSubject subject];
-	
-	return self;
-}
-
-- (void)didGetControlEvent:(id)sender {
-	[self.subject sendNext:sender];
-}
-
-@end
-
 
 const void *RACUIControlEventTrampolinesKey = "RACUIControlEventTrampolinesKey";
 
 @implementation UIControl (RACSubscribableSupport)
 
 - (RACSubscribable *)rac_subscribableForControlEvents:(UIControlEvents)controlEvents {
-	RACControlEventTrampoline *trampoline = [RACControlEventTrampoline trampolineForControl:self ControlEvents:controlEvents];
+	RACEventTrampoline *trampoline = [RACEventTrampoline trampolineForControl:self controlEvents:controlEvents];
 	NSMutableSet *controlEventTrampolines = objc_getAssociatedObject(self, RACUIControlEventTrampolinesKey);
 	if(controlEventTrampolines == nil) {
 		controlEventTrampolines = [NSMutableSet set];

@@ -7,59 +7,19 @@
 //
 
 #import "UITextView+RACSubscribableSupport.h"
-#import "RACSubject.h"
 #import "RACSubscribable+Operations.h"
+#import "RACEventTrampoline.h"
 #import <objc/runtime.h>
-
-@interface RACTextViewEventTrampoline : NSObject <UITextViewDelegate>
-@property (nonatomic, strong) RACSubject *subject;
-@end
-
-@implementation RACTextViewEventTrampoline
-
-@synthesize subject;
-
-+ (RACTextViewEventTrampoline *)trampolineForControl:(UITextView *)control ControlEvents:(UIControlEvents)controlEvents {
-	RACTextViewEventTrampoline *trampoline = [[self alloc] init];
-    
-    if (controlEvents & UIControlEventEditingChanged) {
-        [control setDelegate:trampoline];
-    }
-    
-	return trampoline;
-}
-
-- (id)init {
-	self = [super init];
-	if(self == nil) return nil;
-	
-	self.subject = [RACSubject subject];
-	
-	return self;
-}
-
-- (void)didGetControlEvent:(id)sender {
-	[self.subject sendNext:sender];
-}
-
-- (void)textViewDidChange:(UITextView *)textView {
-    [self didGetControlEvent:textView];
-}
-
-@end
-
-
-const void *RACUITextViewEventTrampolinesKey = "RACUITextViewEventTrampolinesKey";
 
 @implementation UITextView (RACSubscribableSupport)
 
-- (RACSubscribable *)rac_subscribableForControlEvents:(UIControlEvents)controlEvents {
-	RACTextViewEventTrampoline *trampoline = [RACTextViewEventTrampoline trampolineForControl:self ControlEvents:controlEvents];
+- (RACSubscribable *)rac_subscribableForDelegateMethod:(SEL)method {
+    RACEventTrampoline *trampoline = [RACEventTrampoline trampolineForTextView:self delegateMethod:method];
     
-	NSMutableSet *controlEventTrampolines = objc_getAssociatedObject(self, RACUITextViewEventTrampolinesKey);
-	if(controlEventTrampolines == nil) {
+	NSMutableSet *controlEventTrampolines = objc_getAssociatedObject(self, RACEventTrampolinesKey);
+	if (controlEventTrampolines == nil) {
 		controlEventTrampolines = [NSMutableSet set];
-		objc_setAssociatedObject(self, RACUITextViewEventTrampolinesKey, controlEventTrampolines, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+		objc_setAssociatedObject(self, RACEventTrampolinesKey, controlEventTrampolines, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	}
 	
 	[controlEventTrampolines addObject:trampoline];
@@ -68,7 +28,7 @@ const void *RACUITextViewEventTrampolinesKey = "RACUITextViewEventTrampolinesKey
 }
 
 - (RACSubscribable *)rac_textSubscribable {
-	return [[self rac_subscribableForControlEvents:UIControlEventEditingChanged] select:^(id x) {
+	return [[self rac_subscribableForDelegateMethod:@selector(textViewDidChange:)] select:^(id x) {
 		return [x text];
 	}];
 }

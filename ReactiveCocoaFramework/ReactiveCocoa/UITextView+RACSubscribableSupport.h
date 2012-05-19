@@ -12,9 +12,9 @@
 
 @interface UITextView (RACSubscribableSupport)
 
-// Creates and returns a subscribable that sends the sender of the control event
-// whenever one of the control events is triggered.
-- (RACSubscribable *)rac_subscribableForControlEvents:(UIControlEvents)controlEvents;
+// Creates and returns a subscribable that sends the sender of the delegate 
+// method whenever it is triggered.
+- (RACSubscribable *)rac_subscribableForDelegateMethod:(SEL)method;
 
 // Creates and returns a subscribable for the text of the field.
 - (RACSubscribable *)rac_textSubscribable;

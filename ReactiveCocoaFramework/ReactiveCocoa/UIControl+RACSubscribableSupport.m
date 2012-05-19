@@ -10,16 +10,14 @@
 #import "RACEventTrampoline.h"
 #import <objc/runtime.h>
 
-const void *RACUIControlEventTrampolinesKey = "RACUIControlEventTrampolinesKey";
-
 @implementation UIControl (RACSubscribableSupport)
 
 - (RACSubscribable *)rac_subscribableForControlEvents:(UIControlEvents)controlEvents {
 	RACEventTrampoline *trampoline = [RACEventTrampoline trampolineForControl:self controlEvents:controlEvents];
-	NSMutableSet *controlEventTrampolines = objc_getAssociatedObject(self, RACUIControlEventTrampolinesKey);
-	if(controlEventTrampolines == nil) {
+	NSMutableSet *controlEventTrampolines = objc_getAssociatedObject(self, RACEventTrampolinesKey);
+	if (controlEventTrampolines == nil) {
 		controlEventTrampolines = [NSMutableSet set];
-		objc_setAssociatedObject(self, RACUIControlEventTrampolinesKey, controlEventTrampolines, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+		objc_setAssociatedObject(self, RACEventTrampolinesKey, controlEventTrampolines, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	}
 	
 	[controlEventTrampolines addObject:trampoline];

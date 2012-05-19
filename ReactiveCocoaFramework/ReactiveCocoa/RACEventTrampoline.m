@@ -39,6 +39,7 @@ static NSMutableDictionary *swizzledClasses = nil;
 @implementation RACEventTrampoline
 
 @synthesize subject;
+@synthesize proxy;
 @synthesize delegateMethod;
 
 + (void)load {
@@ -67,8 +68,11 @@ static NSMutableDictionary *swizzledClasses = nil;
     if ([[textView delegate] isKindOfClass:[RACDelegateProxy class]]) {
         [(RACDelegateProxy *)textView.delegate addTrampoline:trampoline];
     } else {
-        RACDelegateProxy *proxy = [RACDelegateProxy proxyWithProtocol:objc_getProtocol("UITextViewDelegate") andDelegator:textView];
+        Protocol *protocol = @protocol(UITextViewDelegate);
+        
+        RACDelegateProxy *proxy = [RACDelegateProxy proxyWithProtocol:protocol andDelegator:textView];
         [proxy addTrampoline:trampoline];
+        
         [textView setDelegate:(id<UITextViewDelegate>)proxy];
     }
     

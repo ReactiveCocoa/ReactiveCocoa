@@ -11,8 +11,11 @@
 
 extern const char *RACEventTrampolinesKey;
 
+@class RACDelegateProxy;
+
 @interface RACEventTrampoline : NSObject {
     SEL delegateMethod;
+    RACDelegateProxy *proxy;
 }
 
 + (RACEventTrampoline *)trampolineForControl:(UIControl *)control controlEvents:(UIControlEvents)controlEvents;
@@ -22,6 +25,7 @@ extern const char *RACEventTrampolinesKey;
 - (void)didGetDelegateEvent:(SEL)delegateMethod sender:(id)sender;
 
 @property (nonatomic, strong) RACSubject *subject;
+@property (nonatomic, strong) RACDelegateProxy *proxy;
 @property (nonatomic) SEL delegateMethod;
 
 @end

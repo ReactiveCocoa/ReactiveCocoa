@@ -23,12 +23,8 @@
 @synthesize actualDelegate;
 
 + (id)proxyWithProtocol:(Protocol *)protocol andDelegator:(NSObject *)delegator {
-    NSLog(@"proxyWithProtocol: %s", protocol_getName(protocol));
-    
     if (![self conformsToProtocol:protocol]) {
-        NSLog(@"adding protocol...");
         class_addProtocol([self class], protocol);
-        NSLog(@"conforms to protocol?: %d", [self conformsToProtocol:protocol]);
     }
     
     RACDelegateProxy *proxy = [[self alloc] init];
@@ -45,8 +41,6 @@
 }
 
 - (BOOL)respondsToSelector:(SEL)aSelector {
-    NSLog(@"respondsToSelector: %@, signature: %s", NSStringFromSelector(aSelector), [RACObjCRuntime getMethodTypesForMethod:aSelector inProtocol:protocol]);
-    NSLog(@"actualDelegate: %@", actualDelegate);
     if ([actualDelegate respondsToSelector:aSelector] || [self trampolinesRespondToSelector:aSelector])
         return YES;
     
@@ -59,7 +53,6 @@
 }
 
 - (void)forwardInvocation:(NSInvocation *)anInvocation {
-    NSLog(@"forwardInvocation: selector: %@, signature: %s", NSStringFromSelector(anInvocation.selector), [RACObjCRuntime getMethodTypesForMethod:anInvocation.selector inProtocol:protocol]);
     SEL selector = anInvocation.selector;
     
     for (RACEventTrampoline *trampoline in trampolines) {
@@ -77,10 +70,8 @@
 }
 
 - (BOOL)trampolinesRespondToSelector:(SEL)aSelector {
-//    NSLog(@"hurdur %@", NSStringFromSelector(aSelector));
     for (RACEventTrampoline *trampoline in trampolines) {
         if (trampoline.delegateMethod == aSelector) {
-            NSLog(@"trampoline responds to selector!: %@", NSStringFromSelector(aSelector));
             return YES;
         }
     }

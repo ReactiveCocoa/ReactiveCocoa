@@ -86,16 +86,18 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 		[[RACSubscribable merge:[NSArray arrayWithObjects:outputSubscribable, errorSubscribable, [self rac_completionSubscribable], nil]] subscribeNext:^(id _) {
 			// nothing
 		} completed:^{
-			if([self terminationStatus] == 0) {
-				[subject sendNext:outputData];
-				[subject sendCompleted];
-			} else {
-				NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
-				if(outputData != nil) [userInfo setObject:outputData forKey:NSTaskRACSupportOutputData];
-				if(errorData != nil) [userInfo setObject:errorData forKey:NSTaskRACSupportErrorData];
-				[userInfo setObject:self forKey:NSTaskRACSupportTask];
-				[subject sendError:[NSError errorWithDomain:NSTaskRACSupportErrorDomain code:NSTaskRACSupportNonZeroTerminationStatus userInfo:userInfo]];
-			}
+			[scheduler schedule:^{
+				if([self terminationStatus] == 0) {
+					[subject sendNext:outputData];
+					[subject sendCompleted];
+				} else {
+					NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+					if(outputData != nil) [userInfo setObject:outputData forKey:NSTaskRACSupportOutputData];
+					if(errorData != nil) [userInfo setObject:errorData forKey:NSTaskRACSupportErrorData];
+					[userInfo setObject:self forKey:NSTaskRACSupportTask];
+					[subject sendError:[NSError errorWithDomain:NSTaskRACSupportErrorDomain code:NSTaskRACSupportNonZeroTerminationStatus userInfo:userInfo]];
+				}
+			}];
 		}];
 		
 		[outputSubscribable connect];

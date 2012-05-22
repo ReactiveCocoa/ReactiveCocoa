@@ -12,6 +12,10 @@
 // Cancelable subscribables represents an operation that can be canceled. 
 // Canceling means that the subscribable is no longer valid. It will tear down
 // all its subscribers.
+//
+// Note that cancelation is different from disposing of a subscription.
+// Canceling invalidates and tears down the whole subscribable, whereas disposal
+// just closes a particular subscription.
 @interface RACCancelableSubscribable : RACConnectableSubscribable
 
 - (void)cancel;

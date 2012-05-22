@@ -55,11 +55,11 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 	}];
 }
 
-- (RACSubscribable *)rac_run {
+- (RACCancelableSubscribable *)rac_run {
 	return [self rac_runWithScheduler:[RACScheduler immediateScheduler]];
 }
 
-- (RACSubscribable *)rac_runWithScheduler:(RACScheduler *)scheduler {
+- (RACCancelableSubscribable *)rac_runWithScheduler:(RACScheduler *)scheduler {
 	NSParameterAssert(scheduler != nil);
 	
 	RACAsyncSubject *subject = [RACAsyncSubject subject];
@@ -109,7 +109,11 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 		}];
 	}];
 	
-	return subject;
+	__unsafe_unretained NSTask *weakSelf = self;
+	return [subject asCancelableWithBlock:^{
+		NSTask *strongSelf = weakSelf;
+		[strongSelf terminate];
+	}];;
 }
 
 @end

@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
+@class RACCancelableSubscribable;
 @class RACSubscribable;
 @class RACScheduler;
 
@@ -44,9 +45,9 @@ extern const NSInteger NSTaskRACSupportNonZeroTerminationStatus;
 // NSTaskRACSupportOutputData, NSTaskRACSupportErrorData, and NSTaskRACSupportTask.
 //
 // scheduler - cannot be nil.
-- (RACSubscribable *)rac_runWithScheduler:(RACScheduler *)scheduler;
+- (RACCancelableSubscribable *)rac_runWithScheduler:(RACScheduler *)scheduler;
 
 // Calls -rac_runWithScheduler: with the immediate scheduler.
-- (RACSubscribable *)rac_run;
+- (RACCancelableSubscribable *)rac_run;
 
 @end

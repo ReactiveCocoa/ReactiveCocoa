@@ -30,6 +30,7 @@
 #import <ReactiveCocoa/RACCollection.h>
 #import <ReactiveCocoa/RACGroupedSubscribable.h>
 #import <ReactiveCocoa/RACConnectableSubscribable.h>
+#import <ReactiveCocoa/RACCancelableSubscribable.h>
 
 #import <ReactiveCocoa/NSFileHandle+RACSupport.h>
 #import <ReactiveCocoa/NSNotificationCenter+RACSupport.h>

@@ -21,6 +21,7 @@ typedef NSInteger RACSubscribableError;
 @class RACConnectableSubscribable;
 @class RACSubject;
 @class RACScheduler;
+@class RACCancelableSubscribable;
 
 
 @interface RACSubscribable (Operations)
@@ -231,5 +232,8 @@ typedef NSInteger RACSubscribableError;
 
 // Resubscribes to the receiving subscribable if an error occurs.
 - (RACSubscribable *)retry;
+
+// Creates a cancelable subscribable with the given cancelation block.
+- (RACCancelableSubscribable *)asCancelableWithBlock:(void (^)(void))block;
 
 @end

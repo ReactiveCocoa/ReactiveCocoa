@@ -37,6 +37,7 @@
 
 + (RACCancelableSubscribable *)cancelableSubscribableSourceSubscribable:(id<RACSubscribable>)sourceSubscribable withBlock:(void (^)(void))block {
 	RACCancelableSubscribable *subscribable = [self connectableSubscribableWithSourceSubscribable:sourceSubscribable subject:[RACSubject subject]];
+	[subscribable connect];
 	subscribable.cancelBlock = block;
 	return subscribable;
 }

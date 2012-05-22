@@ -16,6 +16,7 @@
 #import "RACAsyncSubject.h"
 #import "RACScheduler.h"
 #import "RACUnit.h"
+#import "RACCancelableSubscribable.h"
 
 NSString * const NSTaskRACSupportErrorDomain = @"NSTaskRACSupportErrorDomain";
 
@@ -113,7 +114,7 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 	return [subject asCancelableWithBlock:^{
 		NSTask *strongSelf = weakSelf;
 		[strongSelf terminate];
-	}];;
+	}];
 }
 
 @end

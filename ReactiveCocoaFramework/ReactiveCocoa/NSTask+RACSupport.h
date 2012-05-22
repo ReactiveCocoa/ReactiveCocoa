@@ -10,6 +10,7 @@
 
 @class RACCancelableSubscribable;
 @class RACSubscribable;
+@class RACCancelableSubscribable;
 @class RACScheduler;
 
 extern NSString * const NSTaskRACSupportErrorDomain;

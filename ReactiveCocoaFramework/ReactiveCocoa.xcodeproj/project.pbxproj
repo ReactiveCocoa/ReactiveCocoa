@@ -418,6 +418,8 @@
 		889C04BB155DA37600F19F0C /* FoundationSupport */ = {
 			isa = PBXGroup;
 			children = (
+				881B3744152253810079220B /* NSObject+RACFastEnumeration.h */,
+				881B3745152253810079220B /* NSObject+RACFastEnumeration.m */,
 				886DCD84152EA272004A666F /* NSObject+RACOperations.h */,
 				886DCD85152EA272004A666F /* NSObject+RACOperations.m */,
 				88CA3EAC1538B88F00AA806C /* NSArray+RACExtensions.h */,
@@ -557,8 +559,6 @@
 				8820370915096A4F002428D3 /* RACMaybe.m */,
 				88CBB3981517A29E00DDC7D7 /* NSObject+RACSubscribable.h */,
 				88CBB3991517A29E00DDC7D7 /* NSObject+RACSubscribable.m */,
-				881B3744152253810079220B /* NSObject+RACFastEnumeration.h */,
-				881B3745152253810079220B /* NSObject+RACFastEnumeration.m */,
 				881B37CA152260BF0079220B /* RACUnit.h */,
 				881B37CB152260BF0079220B /* RACUnit.m */,
 				88B76F8C153726B00053EAE2 /* RACTuple.h */,

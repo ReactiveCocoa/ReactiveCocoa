@@ -634,7 +634,6 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(intervalTimerFired:) userInfo:subscriber repeats:YES];
 		
 		return [RACDisposable disposableWithBlock:^{
-			[subscriber sendCompleted];
 			[timer invalidate];
 		}];
 	}];

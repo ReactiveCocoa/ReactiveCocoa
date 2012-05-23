@@ -236,4 +236,7 @@ typedef NSInteger RACSubscribableError;
 // Creates a cancelable subscribable with the given cancelation block.
 - (RACCancelableSubscribable *)asCancelableWithBlock:(void (^)(void))block;
 
+// Creates a cancelable subscribable.
+- (RACCancelableSubscribable *)asCancelable;
+
 @end

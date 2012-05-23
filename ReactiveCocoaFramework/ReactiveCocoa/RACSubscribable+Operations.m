@@ -1058,4 +1058,8 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	return [RACCancelableSubscribable cancelableSubscribableSourceSubscribable:self withBlock:block];
 }
 
+- (RACCancelableSubscribable *)asCancelable {
+	return [self asCancelableWithBlock:NULL];
+}
+
 @end

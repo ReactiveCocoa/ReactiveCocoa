@@ -16,6 +16,7 @@
 #import "RACAsyncSubject.h"
 #import "RACScheduler.h"
 #import "RACUnit.h"
+#import "RACCancelableSubscribable.h"
 
 NSString * const NSTaskRACSupportErrorDomain = @"NSTaskRACSupportErrorDomain";
 
@@ -55,11 +56,11 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 	}];
 }
 
-- (RACSubscribable *)rac_run {
+- (RACCancelableSubscribable *)rac_run {
 	return [self rac_runWithScheduler:[RACScheduler immediateScheduler]];
 }
 
-- (RACSubscribable *)rac_runWithScheduler:(RACScheduler *)scheduler {
+- (RACCancelableSubscribable *)rac_runWithScheduler:(RACScheduler *)scheduler {
 	NSParameterAssert(scheduler != nil);
 	
 	RACAsyncSubject *subject = [RACAsyncSubject subject];
@@ -86,16 +87,18 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 		[[RACSubscribable merge:[NSArray arrayWithObjects:outputSubscribable, errorSubscribable, [self rac_completionSubscribable], nil]] subscribeNext:^(id _) {
 			// nothing
 		} completed:^{
-			if([self terminationStatus] == 0) {
-				[subject sendNext:outputData];
-				[subject sendCompleted];
-			} else {
-				NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
-				if(outputData != nil) [userInfo setObject:outputData forKey:NSTaskRACSupportOutputData];
-				if(errorData != nil) [userInfo setObject:errorData forKey:NSTaskRACSupportErrorData];
-				[userInfo setObject:self forKey:NSTaskRACSupportTask];
-				[subject sendError:[NSError errorWithDomain:NSTaskRACSupportErrorDomain code:NSTaskRACSupportNonZeroTerminationStatus userInfo:userInfo]];
-			}
+			[scheduler schedule:^{
+				if([self terminationStatus] == 0) {
+					[subject sendNext:outputData];
+					[subject sendCompleted];
+				} else {
+					NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+					if(outputData != nil) [userInfo setObject:outputData forKey:NSTaskRACSupportOutputData];
+					if(errorData != nil) [userInfo setObject:errorData forKey:NSTaskRACSupportErrorData];
+					[userInfo setObject:self forKey:NSTaskRACSupportTask];
+					[subject sendError:[NSError errorWithDomain:NSTaskRACSupportErrorDomain code:NSTaskRACSupportNonZeroTerminationStatus userInfo:userInfo]];
+				}
+			}];
 		}];
 		
 		[outputSubscribable connect];
@@ -107,7 +110,11 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 		}];
 	}];
 	
-	return subject;
+	__unsafe_unretained NSTask *weakSelf = self;
+	return [subject asCancelableWithBlock:^{
+		NSTask *strongSelf = weakSelf;
+		[strongSelf terminate];
+	}];
 }
 
 @end

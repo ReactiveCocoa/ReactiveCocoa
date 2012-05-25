@@ -13,7 +13,7 @@
 
 @implementation NSObject (RACFastEnumeration)
 
-- (RACSubscribable *)toSubscribable {
+- (RACSubscribable *)rac_toSubscribable {
 	NSParameterAssert([self conformsToProtocol:@protocol(NSFastEnumeration)]);
 	
 	return [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {

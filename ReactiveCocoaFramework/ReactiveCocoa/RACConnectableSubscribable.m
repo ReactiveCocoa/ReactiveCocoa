@@ -37,7 +37,7 @@
 @synthesize subject;
 @synthesize disposable;
 
-+ (RACConnectableSubscribable *)connectableSubscribableWithSourceSubscribable:(id<RACSubscribable>)source subject:(RACSubject *)subject {
++ (id)connectableSubscribableWithSourceSubscribable:(id<RACSubscribable>)source subject:(RACSubject *)subject {
 	RACConnectableSubscribable *subscribable = [[self alloc] init];
 	subscribable.sourceSubscribable = source;
 	subscribable.subject = subject;

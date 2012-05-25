@@ -18,6 +18,7 @@
 #import "RACTuple.h"
 #import "RACScheduler.h"
 #import "RACGroupedSubscribable.h"
+#import "RACCancelableSubscribable+Private.h"
 
 NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 
@@ -633,7 +634,6 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(intervalTimerFired:) userInfo:subscriber repeats:YES];
 		
 		return [RACDisposable disposableWithBlock:^{
-			[subscriber sendCompleted];
 			[timer invalidate];
 		}];
 	}];
@@ -1051,6 +1051,14 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 
 - (RACSubscribable *)retry {
 	return [self retry:0];
+}
+
+- (RACCancelableSubscribable *)asCancelableWithBlock:(void (^)(void))block {
+	return [RACCancelableSubscribable cancelableSubscribableSourceSubscribable:self withBlock:block];
+}
+
+- (RACCancelableSubscribable *)asCancelable {
+	return [self asCancelableWithBlock:NULL];
 }
 
 @end

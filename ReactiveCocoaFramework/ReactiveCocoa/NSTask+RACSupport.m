@@ -65,6 +65,7 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 	
 	RACAsyncSubject *subject = [RACAsyncSubject subject];
 	
+	__block BOOL canceled = NO;
 	[[RACScheduler mainQueueScheduler] schedule:^{
 		NSMutableData * (^aggregateData)(NSMutableData *, NSData *) = ^(NSMutableData *running, NSData *next) {
 			[running appendData:next];
@@ -87,7 +88,11 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 		[[RACSubscribable merge:[NSArray arrayWithObjects:outputSubscribable, errorSubscribable, [self rac_completionSubscribable], nil]] subscribeNext:^(id _) {
 			// nothing
 		} completed:^{
+			if(canceled) return;
+			
 			[scheduler schedule:^{
+				if(canceled) return;
+				
 				if([self terminationStatus] == 0) {
 					[subject sendNext:outputData];
 					[subject sendCompleted];
@@ -113,6 +118,7 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 	__unsafe_unretained NSTask *weakSelf = self;
 	return [subject asCancelableWithBlock:^{
 		NSTask *strongSelf = weakSelf;
+		canceled = YES;
 		[strongSelf terminate];
 	}];
 }

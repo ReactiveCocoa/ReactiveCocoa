@@ -39,9 +39,9 @@ extern const NSInteger NSTaskRACSupportNonZeroTerminationStatus;
 // the task completes.
 - (RACSubscribable *)rac_completionSubscribable;
 
-// Runs the task and waits for it to completed, scheduled with the given 
-// scheduler. It aggregates all the data from standard output and sends it once 
-// the task completes. If the task exists with a non-zero status, it sends an 
+// Runs the task asychronously on the main queue. It aggregates all the data 
+// from standard output and sends it once the task completes, scheduled on the
+// given scheduler. If the task exists with a non-zero status, it sends an 
 // error. The error's userInfo contains objects of the keys 
 // NSTaskRACSupportOutputData, NSTaskRACSupportErrorData, and NSTaskRACSupportTask.
 //

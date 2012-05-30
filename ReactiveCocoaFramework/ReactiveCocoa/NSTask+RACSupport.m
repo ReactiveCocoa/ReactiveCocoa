@@ -72,6 +72,7 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 			return running;
 		};
 		
+		// TODO: should we aggregate the data on the given scheduler too?
 		RACConnectableSubscribable *outputSubscribable = [[[self rac_standardOutputSubscribable] aggregateWithStart:[NSMutableData data] combine:aggregateData] publish];
 		__block NSData *outputData = nil;
 		[outputSubscribable subscribeNext:^(NSData *accumulatedData) {
@@ -89,10 +90,10 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 			// nothing
 		} completed:^{
 			if(canceled) return;
-			
+						
 			[scheduler schedule:^{
 				if(canceled) return;
-				
+								
 				if([self terminationStatus] == 0) {
 					[subject sendNext:outputData];
 					[subject sendCompleted];
@@ -109,10 +110,7 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 		[outputSubscribable connect];
 		[errorSubscribable connect];
 		
-		[scheduler schedule:^{
-			[self launch];
-			[self waitUntilExit];
-		}];
+		[self launch];
 	}];
 	
 	__unsafe_unretained NSTask *weakSelf = self;

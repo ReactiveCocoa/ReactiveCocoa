@@ -45,7 +45,11 @@
 	static RACScheduler *mainQueueScheduler = nil;
 	dispatch_once(&onceToken, ^{
 		mainQueueScheduler = [RACScheduler schedulerWithScheduleBlock:^(void (^block)(void)) {
-			dispatch_async(dispatch_get_main_queue(), block);
+			if(dispatch_get_current_queue() == dispatch_get_main_queue()) {
+				block();
+			} else {
+				dispatch_async(dispatch_get_main_queue(), block);
+			}
 		}];
 	});
 	

@@ -1,0 +1,101 @@
+//
+//  RACEventTrampoline.m
+//  ReactiveCocoa
+//
+//  Created by Cody Krieger on 5/18/12.
+//  Copyright (c) 2012 GitHub, Inc. All rights reserved.
+//
+
+#import "RACEventTrampoline.h"
+#import "RACSwizzling.h"
+#import "RACObjCRuntime.h"
+#import "RACDelegateProxy.h"
+#import <objc/runtime.h>
+
+const char *RACEventTrampolinesKey = "RACEventTrampolinesKey";
+static NSMutableDictionary *swizzledClasses = nil;
+
+
+@implementation UITextView (RACSubscribableSupport)
+
+- (void)rac_setDelegate:(id<UITextViewDelegate>)delegate {
+    Class proxyClass = [RACDelegateProxy class];
+    
+    if ([delegate isKindOfClass:proxyClass]) {
+        id<UITextViewDelegate> oldDelegate = [self delegate];
+        [(RACDelegateProxy *)delegate setActualDelegate:oldDelegate];
+        
+        [self rac_setDelegate:delegate];
+    } else if ([self.delegate isKindOfClass:proxyClass]) {
+        [(RACDelegateProxy *)self.delegate setActualDelegate:delegate];
+    } else {
+        [self rac_setDelegate:delegate];
+    }
+}
+
+@end
+
+
+@implementation RACEventTrampoline
+
+@synthesize subject;
+@synthesize proxy;
+@synthesize delegateMethod;
+
++ (void)load {
+	swizzledClasses = [[NSMutableDictionary alloc] init];
+}
+
++ (RACEventTrampoline *)trampolineForControl:(UIControl *)control controlEvents:(UIControlEvents)controlEvents {
+	RACEventTrampoline *trampoline = [[self alloc] init];
+	[control addTarget:trampoline action:@selector(didGetControlEvent:) forControlEvents:controlEvents];
+	return trampoline;
+}
+
++ (RACEventTrampoline *)trampolineForTextView:(UITextView *)textView delegateMethod:(SEL)method {
+    RACEventTrampoline *trampoline = [[self alloc] init];
+    [trampoline setDelegateMethod:method];
+    
+    @synchronized(swizzledClasses) {
+        Class class = [textView class];
+		NSString *keyName = NSStringFromClass(class);
+		if ([swizzledClasses objectForKey:keyName] == nil) {
+			RACSwizzle(class, @selector(setDelegate:), @selector(rac_setDelegate:));
+			[swizzledClasses setObject:[NSNull null] forKey:keyName];
+		}
+    }
+    
+    if ([[textView delegate] isKindOfClass:[RACDelegateProxy class]]) {
+        [(RACDelegateProxy *)textView.delegate addTrampoline:trampoline];
+    } else {
+        Protocol *protocol = @protocol(UITextViewDelegate);
+        
+        RACDelegateProxy *proxy = [RACDelegateProxy proxyWithProtocol:protocol andDelegator:textView];
+        [proxy addTrampoline:trampoline];
+        
+        [textView setDelegate:(id<UITextViewDelegate>)proxy];
+    }
+    
+    return trampoline;
+}
+
+- (id)init {
+	self = [super init];
+	if(self == nil) return nil;
+	
+	self.subject = [RACSubject subject];
+	
+	return self;
+}
+
+- (void)didGetControlEvent:(id)sender {
+	[self.subject sendNext:sender];
+}
+
+- (void)didGetDelegateEvent:(SEL)receivedEvent sender:(id)sender {
+    if (receivedEvent == delegateMethod) {
+        [self didGetControlEvent:sender];
+    }
+}
+
+@end

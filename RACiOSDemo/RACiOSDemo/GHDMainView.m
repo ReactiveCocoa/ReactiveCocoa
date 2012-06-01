@@ -16,6 +16,8 @@
 
 @synthesize textField;
 @synthesize label;
+@synthesize textView;
+@synthesize label2;
 
 + (id)viewFromNib {
 	NSArray *topLevelObjects = [[UINib nibWithNibName:NSStringFromClass(self) bundle:nil] instantiateWithOwner:nil options:nil];

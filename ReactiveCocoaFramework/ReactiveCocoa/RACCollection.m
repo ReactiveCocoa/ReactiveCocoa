@@ -85,6 +85,13 @@
 	[self.objectsAdded sendNext:object];
 }
 
+- (void)addObjectsFromArray:(NSArray *)otherArray {
+	[self.backingArray addObjectsFromArray:otherArray];
+	for(id object in otherArray) {
+		[self.objectsAdded sendNext:object];
+	}
+}
+
 - (void)removeObject:(id)object {
 	[self.backingArray removeObject:object];
 	[self.objectsRemoved sendNext:object];

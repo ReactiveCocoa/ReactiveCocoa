@@ -23,6 +23,7 @@
 + (RACCollection *)collectionWithObjects:(id)object, ... NS_REQUIRES_NIL_TERMINATION;
 
 - (void)addObject:(id)object;
+- (void)addObjectsFromArray:(NSArray *)otherArray;
 - (void)insertObject:(id)object atIndex:(NSUInteger)index;
 
 - (void)removeObject:(id)object;

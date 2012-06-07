@@ -630,18 +630,26 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 + (RACSubscribable *)interval:(NSTimeInterval)interval {
-	return [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
-		NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(intervalTimerFired:) userInfo:subscriber repeats:YES];
+	__block RACSubscribable *subscribable = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+		__block BOOL stop = NO;
+		
+		dispatch_time_t futureTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t) (interval * NSEC_PER_SEC));
+		__block void (^sendNext)(void) = ^{
+			if(stop) return;
+			
+			[subscriber sendNext:[RACUnit defaultUnit]];
+			
+			dispatch_after(futureTime, dispatch_get_current_queue(), sendNext);
+		};
+		
+		dispatch_after(futureTime, dispatch_get_current_queue(), sendNext);
 		
 		return [RACDisposable disposableWithBlock:^{
-			[timer invalidate];
+			stop = YES;
 		}];
 	}];
-}
-
-+ (void)intervalTimerFired:(NSTimer *)timer {
-	id<RACSubscriber> subscriber = [timer userInfo];
-	[subscriber sendNext:[RACUnit defaultUnit]];
+	
+	return subscribable;
 }
 
 - (RACSubscribable *)takeUntil:(id<RACSubscribable>)subscribableTrigger {

@@ -633,16 +633,19 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	__block RACSubscribable *subscribable = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
 		__block BOOL stop = NO;
 		
-		dispatch_time_t futureTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t) (interval * NSEC_PER_SEC));
+		dispatch_time_t (^nextFutureTime)(void) = ^{
+			return dispatch_time(DISPATCH_TIME_NOW, (int64_t) (interval * NSEC_PER_SEC));
+		};
+		
 		__block void (^sendNext)(void) = ^{
 			if(stop) return;
 			
 			[subscriber sendNext:[RACUnit defaultUnit]];
 			
-			dispatch_after(futureTime, dispatch_get_current_queue(), sendNext);
+			dispatch_after(nextFutureTime(), dispatch_get_current_queue(), sendNext);
 		};
 		
-		dispatch_after(futureTime, dispatch_get_current_queue(), sendNext);
+		dispatch_after(nextFutureTime(), dispatch_get_current_queue(), sendNext);
 		
 		return [RACDisposable disposableWithBlock:^{
 			stop = YES;

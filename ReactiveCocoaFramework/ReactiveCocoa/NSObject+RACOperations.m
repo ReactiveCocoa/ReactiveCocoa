@@ -25,9 +25,9 @@
 	
 	__block __unsafe_unretained id weakSelf = self;
 	return [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
-		NSObject *strongSelf = weakSelf;
 		
 		RACTuple * (^currentValues)(void) = ^{
+      NSObject *strongSelf = weakSelf;
 			NSMutableArray *values = [NSMutableArray arrayWithCapacity:keyPaths.count];
 			for(NSString *keyPath in keyPaths) {
 				[values addObject:[strongSelf valueForKeyPath:keyPath] ? : [RACTupleNil tupleNil]];
@@ -38,6 +38,7 @@
 		
 		[subscriber sendNext:reduceBlock(currentValues())];
 		
+    NSObject *strongSelf = weakSelf;
 		NSArray *subscribables = [keyPaths rac_select:^(NSString *keyPath) {
 			return [strongSelf rac_subscribableForKeyPath:keyPath onObject:strongSelf];
 		}];

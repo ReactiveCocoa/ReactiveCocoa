@@ -765,7 +765,7 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = RAC;
-				LastUpgradeCheck = 0440;
+				LastUpgradeCheck = 0450;
 				ORGANIZATIONNAME = "GitHub, Inc.";
 			};
 			buildConfigurationList = 88CDF7B515000FCE00163A9F /* Build configuration list for PBXProject "ReactiveCocoa" */;

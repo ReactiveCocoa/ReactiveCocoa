@@ -21,6 +21,14 @@ extern NSString * const NSTaskRACSupportOutputData;
 // The NSData from the standard error.
 extern NSString * const NSTaskRACSupportErrorData;
 
+// The NSString created from the output data. May be nil if a string couldn't
+// be made from the data.
+extern NSString * const NSTaskRACSupportOutputString;
+
+// The NSString created from the error data. May be nil if a string couldn't
+// be made from the data.
+extern NSString * const NSTaskRACSupportErrorString;
+
 // The task itself.
 extern NSString * const NSTaskRACSupportTask;
 

@@ -23,6 +23,8 @@ NSString * const NSTaskRACSupportErrorDomain = @"NSTaskRACSupportErrorDomain";
 NSString * const NSTaskRACSupportOutputData = @"NSTaskRACSupportOutputData";
 NSString * const NSTaskRACSupportErrorData = @"NSTaskRACSupportErrorData";
 NSString * const NSTaskRACSupportTask = @"NSTaskRACSupportTask";
+NSString * const NSTaskRACSupportOutputString = @"NSTaskRACSupportOutputString";
+NSString * const NSTaskRACSupportErrorString = @"NSTaskRACSupportErrorString";
 
 const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 
@@ -99,8 +101,18 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 					[subject sendCompleted];
 				} else {
 					NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
-					if(outputData != nil) [userInfo setObject:outputData forKey:NSTaskRACSupportOutputData];
-					if(errorData != nil) [userInfo setObject:errorData forKey:NSTaskRACSupportErrorData];
+					if(outputData != nil) {
+						[userInfo setObject:outputData forKey:NSTaskRACSupportOutputData];
+						
+						NSString *string = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
+						if(string != nil) [userInfo setObject:string forKey:NSTaskRACSupportOutputString];
+					}
+					if(errorData != nil) {
+						[userInfo setObject:errorData forKey:NSTaskRACSupportErrorData];
+						
+						NSString *string = [[NSString alloc] initWithData:errorData encoding:NSUTF8StringEncoding];
+						if(string != nil) [userInfo setObject:string forKey:NSTaskRACSupportErrorString];
+					}
 					[userInfo setObject:self forKey:NSTaskRACSupportTask];
 					[subject sendError:[NSError errorWithDomain:NSTaskRACSupportErrorDomain code:NSTaskRACSupportNonZeroTerminationStatus userInfo:userInfo]];
 				}

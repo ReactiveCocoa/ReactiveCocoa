@@ -25,6 +25,7 @@ NSString * const NSTaskRACSupportErrorData = @"NSTaskRACSupportErrorData";
 NSString * const NSTaskRACSupportTask = @"NSTaskRACSupportTask";
 NSString * const NSTaskRACSupportOutputString = @"NSTaskRACSupportOutputString";
 NSString * const NSTaskRACSupportErrorString = @"NSTaskRACSupportErrorString";
+NSString * const NSTaskRACSupportTaskArguments = @"NSTaskRACSupportTaskArguments";
 
 const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 
@@ -113,6 +114,7 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 						NSString *string = [[NSString alloc] initWithData:errorData encoding:NSUTF8StringEncoding];
 						if(string != nil) [userInfo setObject:string forKey:NSTaskRACSupportErrorString];
 					}
+					if([self arguments] != nil) [userInfo setObject:[self arguments] forKey:NSTaskRACSupportTaskArguments];
 					[userInfo setObject:self forKey:NSTaskRACSupportTask];
 					[subject sendError:[NSError errorWithDomain:NSTaskRACSupportErrorDomain code:NSTaskRACSupportNonZeroTerminationStatus userInfo:userInfo]];
 				}

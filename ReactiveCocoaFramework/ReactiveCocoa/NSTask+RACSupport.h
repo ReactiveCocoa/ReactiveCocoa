@@ -29,6 +29,9 @@ extern NSString * const NSTaskRACSupportOutputString;
 // be made from the data.
 extern NSString * const NSTaskRACSupportErrorString;
 
+// An NSArray of the task's arguments.
+extern NSString * const NSTaskRACSupportTaskArguments;
+
 // The task itself.
 extern NSString * const NSTaskRACSupportTask;
 

@@ -45,6 +45,10 @@ static NSMutableSet *activeSubscribables = nil;
 	return self;
 }
 
+- (NSString *)description {
+	return [NSString stringWithFormat:@"<%@: %p> name: %@", NSStringFromClass([self class]), self, self.name];
+}
+
 
 #pragma mark RACSubscribable
 
@@ -92,6 +96,7 @@ static NSMutableSet *activeSubscribables = nil;
 @synthesize didSubscribe;
 @synthesize subscribers;
 @synthesize tearingDown;
+@synthesize name;
 
 + (id)createSubscribable:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
 	RACSubscribable *subscribable = [[self alloc] init];

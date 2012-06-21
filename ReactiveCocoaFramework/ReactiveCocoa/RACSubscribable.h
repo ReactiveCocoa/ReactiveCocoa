@@ -25,6 +25,9 @@
 
 @interface RACSubscribable : NSObject <RACSubscribable>
 
+// The name of the subscribable. This is for debug / human purposes only.
+@property (nonatomic, copy) NSString *name;
+
 // Creates a new subscribable. This is the preferred way to create a new
 // subscribable operation or behavior.
 //

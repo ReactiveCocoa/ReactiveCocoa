@@ -33,14 +33,16 @@ static NSMutableSet *activeSubscribables = nil;
 	self = [super init];
 	if(self == nil) return nil;
 	
-	// we want to keep the subscribable around until all its subscribers are done
+	// We want to keep the subscribable around until all its subscribers are done
 	@synchronized(activeSubscribables) {
 		[activeSubscribables addObject:self];
 	}
 	
+	self.tearingDown = NO;
 	self.subscribers = [NSMutableArray array];
 	
-	[self invalidateIfNoNewSubscribersShowUp];
+	// As soon as we're created we're already trying to be released. Such is life.
+	[self invalidateGlobalRefIfNoNewSubscribersShowUp];
 	
 	return self;
 }
@@ -64,13 +66,18 @@ static NSMutableSet *activeSubscribables = nil;
 	void (^defaultDisposableBlock)(void) = ^{
 		RACSubscribable *strongSelf = weakSelf;
 		id<RACSubscriber> strongSubscriber = weakSubscriber;
-		// if the disposal is happening because the subscribable's being torn down, we don't need to duplicate the invalidation
+		// If the disposal is happening because the subscribable's being torn
+		// down, we don't need to duplicate the invalidation.
 		if(!strongSelf.tearingDown) {
+			BOOL stillHasSubscribers = YES;
 			@synchronized(strongSelf.subscribers) {
 				[strongSelf.subscribers removeObject:strongSubscriber];
+				stillHasSubscribers = strongSelf.subscribers.count > 0;
 			}
 			
-			[strongSelf invalidateIfNoNewSubscribersShowUp];
+			if(!stillHasSubscribers) {
+				[strongSelf invalidateGlobalRefIfNoNewSubscribersShowUp];
+			}
 		}
 	};
 	
@@ -162,23 +169,25 @@ static NSMutableSet *activeSubscribables = nil;
 	return subject;
 }
 
-- (void)invalidateIfNoNewSubscribersShowUp {
-	// if no one subscribed in the runloop's pass, then I guess we're free to go
+- (void)invalidateGlobalRefIfNoNewSubscribersShowUp {
+	// If no one subscribed in the runloop's pass, then we're free to go. It's
+	// up to the caller to keep us alive if they still want us.
 	[self rac_performBlock:^{
-		BOOL noSubscribers = NO;
+		BOOL hasSubscribers = YES;
 		@synchronized(self.subscribers) {
-			noSubscribers = self.subscribers.count < 1;
-			if(noSubscribers) self.subscribers = nil;
+			hasSubscribers = self.subscribers.count > 0;
 		}
 		
-		if(noSubscribers) {
-			self.tearingDown = YES;
-			
-			@synchronized(activeSubscribables) {
-				[activeSubscribables removeObject:self];
-			}
+		if(!hasSubscribers) {
+			[self invalidateGlobalRef];
 		}
 	} afterDelay:0];
+}
+
+- (void)invalidateGlobalRef {
+	@synchronized(activeSubscribables) {
+		[activeSubscribables removeObject:self];
+	}
 }
 
 - (void)performBlockOnEachSubscriber:(void (^)(id<RACSubscriber> subscriber))block {
@@ -198,12 +207,10 @@ static NSMutableSet *activeSubscribables = nil;
 	self.tearingDown = YES;
 	
 	@synchronized(self.subscribers) {
-		self.subscribers = nil;
+		[self.subscribers removeAllObjects];
 	}
 	
-	@synchronized(activeSubscribables) {
-		[activeSubscribables removeObject:self];
-	}
+	[self invalidateGlobalRef];
 }
 
 @end

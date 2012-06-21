@@ -379,9 +379,11 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 			} error:^(NSError *error) {
 				[subscriber sendError:error];
 			} completed:^{
-				[completedSubscribables addObject:subscribable];
-				if(completedSubscribables.count == subscribables.count) {
-					[subscriber sendCompleted];
+				@synchronized(completedSubscribables) {
+					[completedSubscribables addObject:subscribable];
+					if(completedSubscribables.count == subscribables.count) {
+						[subscriber sendCompleted];
+					}
 				}
 			}]];
 			
@@ -412,9 +414,11 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 			} error:^(NSError *error) {
 				[subscriber sendError:error];
 			} completed:^{
-				[completedSubscribables addObject:subscribable];
-				if(completedSubscribables.count == subscribables.count) {
-					[subscriber sendCompleted];
+				@synchronized(completedSubscribables) {
+					[completedSubscribables addObject:subscribable];
+					if(completedSubscribables.count == subscribables.count) {
+						[subscriber sendCompleted];
+					}
 				}
 			}]];
 			

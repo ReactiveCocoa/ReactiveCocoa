@@ -749,16 +749,24 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 - (id)firstOrDefault:(id)defaultValue {
+	return [self firstOrDefault:defaultValue success:NULL error:NULL];
+}
+
+- (id)firstOrDefault:(id)defaultValue success:(BOOL *)success error:(NSError **)error {
 	__block id value = defaultValue;
 	__block BOOL stop = NO;
 	__block RACDisposable *disposable = [self subscribeNext:^(id x) {
 		value = x;
 		stop = YES;
+		if(success != NULL) *success = YES;
 		[disposable dispose];
-	} error:^(NSError *error) {
+	} error:^(NSError *e) {
 		stop = YES;
+		if(success != NULL) *success = NO;
+		if(error != NULL) *error = e;
 	} completed:^{
 		stop = YES;
+		if(success != NULL) *success = YES;
 	}];
 	
 	while(!stop) {

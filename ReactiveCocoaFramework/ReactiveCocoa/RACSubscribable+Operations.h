@@ -146,6 +146,13 @@ typedef NSInteger RACSubscribableError;
 // errors without sending a `next`. Note that this is a blocking call.
 - (id)firstOrDefault:(id)defaultValue;
 
+// Returns the first `next` or `defaultValue` if the subscribable completes or
+// errors without sending a `next`. If an error occurs success will be NO
+// and error will be populated. Note that this is a blocking call.
+//
+// Both success and error may be NULL.
+- (id)firstOrDefault:(id)defaultValue success:(BOOL *)success error:(NSError **)error;
+
 // Skip the first `skipCount` `next`s.
 - (RACSubscribable *)skip:(NSUInteger)skipCount;
 

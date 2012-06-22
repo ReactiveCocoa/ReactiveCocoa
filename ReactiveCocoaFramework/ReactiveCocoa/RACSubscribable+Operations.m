@@ -366,15 +366,17 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		NSMutableDictionary *lastValues = [NSMutableDictionary dictionaryWithCapacity:subscribables.count];
 		for(id<RACSubscribable> subscribable in subscribables) {
 			RACDisposable *disposable = [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
-				[lastValues setObject:x ? : [RACTupleNil tupleNil] forKey:[NSString stringWithFormat:@"%p", subscribable]];
-				
-				if(lastValues.count == subscribables.count) {
-					NSMutableArray *orderedValues = [NSMutableArray arrayWithCapacity:subscribables.count];
-					for(id<RACSubscribable> o in subscribables) {
-						[orderedValues addObject:[lastValues objectForKey:[NSString stringWithFormat:@"%p", o]]];
-					}
+				@synchronized(lastValues) {
+					[lastValues setObject:x ? : [RACTupleNil tupleNil] forKey:[NSString stringWithFormat:@"%p", subscribable]];
 					
-					[subscriber sendNext:reduceBlock([RACTuple tupleWithObjectsFromArray:orderedValues])];
+					if(lastValues.count == subscribables.count) {
+						NSMutableArray *orderedValues = [NSMutableArray arrayWithCapacity:subscribables.count];
+						for(id<RACSubscribable> o in subscribables) {
+							[orderedValues addObject:[lastValues objectForKey:[NSString stringWithFormat:@"%p", o]]];
+						}
+						
+						[subscriber sendNext:reduceBlock([RACTuple tupleWithObjectsFromArray:orderedValues])];
+					}
 				}
 			} error:^(NSError *error) {
 				[subscriber sendError:error];
@@ -448,16 +450,23 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 			NSAssert1([x conformsToProtocol:@protocol(RACSubscribable)], @"The source must be a subscribable of subscribables. Instead, got %@", x);
 			
 			id<RACSubscribable> innerSubscribable = x;
-			[activeSubscribables addObject:innerSubscribable];
+			@synchronized(activeSubscribables) {
+				[activeSubscribables addObject:innerSubscribable];
+			}
+			
 			RACDisposable *disposable = [innerSubscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 				[subscriber sendNext:x];
 			} error:^(NSError *error) {
 				[subscriber sendError:error];
 			} completed:^{
-				[completedSubscribables addObject:innerSubscribable];
-				
-				if(completedSubscribables.count == activeSubscribables.count) {
-					[subscriber sendCompleted];
+				@synchronized(completedSubscribables) {
+					[completedSubscribables addObject:innerSubscribable];
+					
+					@synchronized(activeSubscribables) {
+						if(completedSubscribables.count == activeSubscribables.count) {
+							[subscriber sendCompleted];
+						}
+					}
 				}
 			}]];
 			
@@ -465,10 +474,14 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
-			[completedSubscribables addObject:self];
-			
-			if(completedSubscribables.count == activeSubscribables.count) {
-				[subscriber sendCompleted];
+			@synchronized(completedSubscribables) {
+				[completedSubscribables addObject:self];
+				
+				@synchronized(activeSubscribables) {
+					if(completedSubscribables.count == activeSubscribables.count) {
+						[subscriber sendCompleted];
+					}
+				}
 			}
 		}];
 		

@@ -776,7 +776,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	while(!stop) {
 		// Autorelease pooling this has a measureable performance benefit.
 		@autoreleasepool {
-			[[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1f]];
+			[[NSRunLoop currentRunLoop] runUntilDate:[NSDate date]];
 		}
 	}
 	

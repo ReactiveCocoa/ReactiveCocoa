@@ -81,6 +81,7 @@
 		889C0528155DA6C800F19F0C /* NSString+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 889C0525155DA6C800F19F0C /* NSString+RACSupport.h */; };
 		889C0529155DA6C800F19F0C /* NSString+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 889C0526155DA6C800F19F0C /* NSString+RACSupport.m */; };
 		889C052A155DA6C800F19F0C /* NSString+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 889C0526155DA6C800F19F0C /* NSString+RACSupport.m */; };
+		889D0A8015974B2A00F833E3 /* RACSubjectSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 889D0A7F15974B2A00F833E3 /* RACSubjectSpec.m */; };
 		88A5F4FB156B3FCB009E49DC /* RACCancelableSubscribable.h in Headers */ = {isa = PBXBuildFile; fileRef = 88A5F4F9156B3FCB009E49DC /* RACCancelableSubscribable.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88A5F4FC156B3FCB009E49DC /* RACCancelableSubscribable.m in Sources */ = {isa = PBXBuildFile; fileRef = 88A5F4FA156B3FCB009E49DC /* RACCancelableSubscribable.m */; };
 		88A5F4FE156B4301009E49DC /* RACCancelableSubscribable.m in Sources */ = {isa = PBXBuildFile; fileRef = 88A5F4FA156B3FCB009E49DC /* RACCancelableSubscribable.m */; };
@@ -294,6 +295,7 @@
 		889C04BD155DA39B00F19F0C /* NSData+RACSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+RACSupport.m"; sourceTree = "<group>"; };
 		889C0525155DA6C800F19F0C /* NSString+RACSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RACSupport.h"; sourceTree = "<group>"; };
 		889C0526155DA6C800F19F0C /* NSString+RACSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+RACSupport.m"; sourceTree = "<group>"; };
+		889D0A7F15974B2A00F833E3 /* RACSubjectSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSubjectSpec.m; sourceTree = "<group>"; };
 		88A5F4F9156B3FCB009E49DC /* RACCancelableSubscribable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACCancelableSubscribable.h; sourceTree = "<group>"; };
 		88A5F4FA156B3FCB009E49DC /* RACCancelableSubscribable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACCancelableSubscribable.m; sourceTree = "<group>"; };
 		88A5F4FD156B3FED009E49DC /* RACCancelableSubscribable+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACCancelableSubscribable+Private.h"; sourceTree = "<group>"; };
@@ -529,6 +531,7 @@
 				88DA30D31508051F00C19D0F /* RACSpecs.h */,
 				8820937B1501C8A600796685 /* RACSubscribableSpec.m */,
 				866557A51557086B00B39EB5 /* RACExtensionsSpec.m */,
+				889D0A7F15974B2A00F833E3 /* RACSubjectSpec.m */,
 			);
 			path = ReactiveCocoaTests;
 			sourceTree = "<group>";
@@ -949,6 +952,7 @@
 				883A84DC151398CA006DB4C7 /* RACBehaviorSubject.m in Sources */,
 				88977C821512EA7400A09EC5 /* RACSubscribable.m in Sources */,
 				866557A61557086B00B39EB5 /* RACExtensionsSpec.m in Sources */,
+				889D0A8015974B2A00F833E3 /* RACSubjectSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

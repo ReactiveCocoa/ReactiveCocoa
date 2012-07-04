@@ -11,9 +11,17 @@
 #import "RACSubscribable.h"
 #import "RACSubscribable+Operations.h"
 #import "RACUnit.h"
+#import "NSObject+RACPropertySubscribing.h"
 
-@interface RACCollection ()
+@interface RACCollection () {
+	// We explicitly declare these because otherwise the implicit declaration
+	// would make them RACSubscribables instead of RACSubjects.
+	RACSubject *objectsAdded;
+	RACSubject *objectsRemoved;
+}
+
 @property (nonatomic, strong) NSMutableArray *backingArray;
+@property (nonatomic, strong) NSMutableDictionary *trackedPropertiesToSubscribables;
 @end
 
 
@@ -23,13 +31,17 @@
 	self = [super init];
 	if(self == nil) return nil;
 	
-	backingArray = [NSMutableArray array];
+	self.backingArray = [NSMutableArray array];
 	objectsAdded = [RACSubject subject];
 	objectsRemoved = [RACSubject subject];
-	countChanged = [[RACSubscribable merge:[NSArray arrayWithObjects:self.objectsAdded, self.objectsRemoved, nil]] select:^(id x) {
-		return [RACUnit defaultUnit];
-	}];
+	countChanged = [[RACSubscribable
+		merge:[NSArray arrayWithObjects:self.objectsAdded, self.objectsRemoved, nil]]
+		select:^(id _) {
+			return [RACUnit defaultUnit];
+		}];
 	
+	self.trackedPropertiesToSubscribables = [NSMutableDictionary dictionary];
+		
 	return self;
 }
 
@@ -44,7 +56,9 @@
 #pragma mark NSCopying
 
 - (id)copyWithZone:(NSZone *)zone {
-	return [[self class] collectionWithObjectsInArray:self.backingArray];
+	RACCollection *copied = [[self class] collectionWithObjectsInArray:self.backingArray];
+	copied.trackedPropertiesToSubscribables = [self.trackedPropertiesToSubscribables mutableCopy];
+	return copied;
 }
 
 
@@ -54,6 +68,7 @@
 @synthesize objectsAdded;
 @synthesize objectsRemoved;
 @synthesize countChanged;
+@synthesize trackedPropertiesToSubscribables;
 
 + (RACCollection *)collectionWithObjectsInArray:(NSArray *)array {
 	RACCollection *collection = [[self alloc] init];
@@ -81,43 +96,45 @@
 }
 
 - (void)addObject:(id)object {
-	[self.backingArray addObject:object];
-	[self.objectsAdded sendNext:object];
+	[self addObjectsFromArray:[NSArray arrayWithObject:object]];
 }
 
 - (void)addObjectsFromArray:(NSArray *)otherArray {
 	[self.backingArray addObjectsFromArray:otherArray];
 	for(id object in otherArray) {
-		[self.objectsAdded sendNext:object];
+		[objectsAdded sendNext:object];
 	}
 }
 
 - (void)removeObject:(id)object {
-	[self.backingArray removeObject:object];
-	[self.objectsRemoved sendNext:object];
+	[self removeObjectAtIndex:[self indexOfObject:object]];
 }
 
 - (void)insertObject:(id)object atIndex:(NSUInteger)index {
 	[self.backingArray insertObject:object atIndex:index];
-	[self.objectsAdded sendNext:object];
+	[objectsAdded sendNext:object];
 }
 
 - (void)removeObjectAtIndex:(NSUInteger)index {
 	id object = [self.backingArray objectAtIndex:index];
 	[self.backingArray removeObjectAtIndex:index];
-	[self.objectsRemoved sendNext:object];
+	[objectsRemoved sendNext:object];
 }
 
 - (void)removeAllObjects {
 	NSArray *oldObjects = [self.backingArray copy];
 	[self.backingArray removeAllObjects];
 	for(id object in oldObjects) {
-		[self.objectsRemoved sendNext:object];
+		[objectsRemoved sendNext:object];
 	}
 }
 
 - (id)objectAtIndex:(NSUInteger)index {
 	return [self.backingArray objectAtIndex:index];
+}
+
+- (NSUInteger)indexOfObject:(id)object {
+	return [self.backingArray indexOfObject:object];
 }
 
 - (NSArray *)allObjects {
@@ -137,6 +154,22 @@
 	}];
 	
 	return copiedCollection;
+}
+
+- (RACSubscribable *)subscribableForContainedObjectPropertyChange:(NSString *)keyPath {
+	RACSubscribable *subscribable = [self.trackedPropertiesToSubscribables objectForKey:keyPath];
+	if(subscribable != nil) return subscribable;
+	
+	NSMutableArray *subscribables = [NSMutableArray arrayWithCapacity:self.backingArray.count];
+	for(id object in self.backingArray) {
+		RACSubscribable *innerSubscribable = [object rac_subscribableForKeyPath:keyPath onObject:object];
+		[subscribables addObject:innerSubscribable];
+	}
+	
+	subscribable = [RACSubscribable merge:subscribables];
+	[self.trackedPropertiesToSubscribables setObject:subscribable forKey:keyPath];
+		
+	return subscribable;
 }
 
 @end

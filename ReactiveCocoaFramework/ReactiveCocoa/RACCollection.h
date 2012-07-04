@@ -15,8 +15,8 @@
 @interface RACCollection : NSObject <NSFastEnumeration, NSCopying>
 
 @property (nonatomic, readonly) NSUInteger count;
-@property (nonatomic, readonly) RACSubject *objectsAdded;
-@property (nonatomic, readonly) RACSubject *objectsRemoved;
+@property (nonatomic, readonly) RACSubscribable *objectsAdded;
+@property (nonatomic, readonly) RACSubscribable *objectsRemoved;
 @property (nonatomic, readonly) RACSubscribable *countChanged;
 
 + (RACCollection *)collectionWithObjectsInArray:(NSArray *)array;
@@ -31,9 +31,12 @@
 - (void)removeAllObjects;
 
 - (id)objectAtIndex:(NSUInteger)index;
+- (NSUInteger)indexOfObject:(id)object;
 
 - (NSArray *)allObjects;
 
 - (RACCollection *)derivedCollection:(id (^)(id object))selectBlock;
+
+- (RACSubscribable *)subscribableForContainedObjectPropertyChange:(NSString *)keyPath;
 
 @end

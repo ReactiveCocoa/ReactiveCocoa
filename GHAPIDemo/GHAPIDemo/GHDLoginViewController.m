@@ -38,6 +38,10 @@
 	
 	self.didLoginSubject = [RACSubject subject];
 	
+	[RACAbleSelf(self.loginCommand.numberOfActiveExecutions) subscribeNext:^(id x) {
+		NSLog(@"Active requests: %@", x);
+	}];
+	
 	// Login is only enabled when they've entered both a username and password,
 	// and we aren't already trying to login.
 	[[RACSubscribable 

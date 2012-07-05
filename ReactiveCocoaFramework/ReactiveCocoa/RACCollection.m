@@ -21,7 +21,7 @@
 }
 
 @property (nonatomic, strong) NSMutableArray *backingArray;
-@property (nonatomic, strong) NSMutableDictionary *trackedPropertiesToSubscribables;
+@property (nonatomic, assign) NSInteger suppressChangeNotificationsCount;
 @end
 
 
@@ -30,6 +30,9 @@
 - (id)init {
 	self = [super init];
 	if(self == nil) return nil;
+	
+	self.changeNotificationsEnabled = YES;
+	self.suppressChangeNotificationsCount = 0;
 	
 	self.backingArray = [NSMutableArray array];
 	objectsAdded = [RACSubject subject];
@@ -40,8 +43,6 @@
 			return [RACUnit defaultUnit];
 		}];
 	
-	self.trackedPropertiesToSubscribables = [NSMutableDictionary dictionary];
-		
 	return self;
 }
 
@@ -57,7 +58,6 @@
 
 - (id)copyWithZone:(NSZone *)zone {
 	RACCollection *copied = [[self class] collectionWithObjectsInArray:self.backingArray];
-	copied.trackedPropertiesToSubscribables = [self.trackedPropertiesToSubscribables mutableCopy];
 	return copied;
 }
 
@@ -68,7 +68,8 @@
 @synthesize objectsAdded;
 @synthesize objectsRemoved;
 @synthesize countChanged;
-@synthesize trackedPropertiesToSubscribables;
+@synthesize suppressChangeNotificationsCount;
+@synthesize changeNotificationsEnabled;
 
 + (RACCollection *)collectionWithObjectsInArray:(NSArray *)array {
 	RACCollection *collection = [[self alloc] init];
@@ -101,8 +102,11 @@
 
 - (void)addObjectsFromArray:(NSArray *)otherArray {
 	[self.backingArray addObjectsFromArray:otherArray];
-	for(id object in otherArray) {
-		[objectsAdded sendNext:object];
+	
+	if([self changeNotificationsEnabled]) {
+		for(id object in otherArray) {
+			[objectsAdded sendNext:object];
+		}
 	}
 }
 
@@ -112,20 +116,29 @@
 
 - (void)insertObject:(id)object atIndex:(NSUInteger)index {
 	[self.backingArray insertObject:object atIndex:index];
-	[objectsAdded sendNext:object];
+	
+	if([self changeNotificationsEnabled]) {
+		[objectsAdded sendNext:object];
+	}
 }
 
 - (void)removeObjectAtIndex:(NSUInteger)index {
 	id object = [self.backingArray objectAtIndex:index];
 	[self.backingArray removeObjectAtIndex:index];
-	[objectsRemoved sendNext:object];
+	
+	if([self changeNotificationsEnabled]) {
+		[objectsRemoved sendNext:object];
+	}
 }
 
 - (void)removeAllObjects {
 	NSArray *oldObjects = [self.backingArray copy];
 	[self.backingArray removeAllObjects];
-	for(id object in oldObjects) {
-		[objectsRemoved sendNext:object];
+	
+	if([self changeNotificationsEnabled]) {
+		for(id object in oldObjects) {
+			[objectsRemoved sendNext:object];
+		}
 	}
 }
 
@@ -141,35 +154,18 @@
 	return [self.backingArray copy];
 }
 
-- (RACCollection *)derivedCollection:(id (^)(id object))selectBlock {
-	NSParameterAssert(selectBlock != NULL);
+- (void)withChangeNotificationsSuppressed:(void (^)(void))block {
+	NSParameterAssert(block != NULL);
 	
-	RACCollection *copiedCollection = [self copy];
-	[[self.objectsAdded select:selectBlock] subscribeNext:^(id x) {
-		[copiedCollection addObject:x];
-	}];
+	self.suppressChangeNotificationsCount++;
 	
-	[self.objectsRemoved subscribeNext:^(id x) {
-		[copiedCollection removeObject:x];
-	}];
+	block();
 	
-	return copiedCollection;
+	self.suppressChangeNotificationsCount--;
 }
 
-- (RACSubscribable *)subscribableForContainedObjectPropertyChange:(NSString *)keyPath {
-	RACSubscribable *subscribable = [self.trackedPropertiesToSubscribables objectForKey:keyPath];
-	if(subscribable != nil) return subscribable;
-	
-	NSMutableArray *subscribables = [NSMutableArray arrayWithCapacity:self.backingArray.count];
-	for(id object in self.backingArray) {
-		RACSubscribable *innerSubscribable = [object rac_subscribableForKeyPath:keyPath onObject:object];
-		[subscribables addObject:innerSubscribable];
-	}
-	
-	subscribable = [RACSubscribable merge:subscribables];
-	[self.trackedPropertiesToSubscribables setObject:subscribable forKey:keyPath];
-		
-	return subscribable;
+- (BOOL)changeNotificationsEnabled {
+	return changeNotificationsEnabled && self.suppressChangeNotificationsCount == 0;
 }
 
 @end

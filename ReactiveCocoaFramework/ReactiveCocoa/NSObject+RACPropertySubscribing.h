@@ -15,6 +15,7 @@
 #define RACAbleWithStart(object, property) [RACAble(object, property) startWith:[object valueForKey:RAC_KEYPATH(object, property)]]
 #define RACAbleSelf(property) RACAble(self, property)
 #define RACAbleSelfWithStart(property) RACAbleWithStart(self, property)
+#define RACAbleKeyPath(keyPath) [self rac_subscribableForKeyPath:keyPath onObject:self]
 
 @class RACSubscribable;
 

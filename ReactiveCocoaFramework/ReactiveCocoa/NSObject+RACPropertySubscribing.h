@@ -12,9 +12,7 @@
 #define RAC_KEYPATH_SELF(property) RAC_KEYPATH(self, property)
 
 #define RACAble(object, property) [object rac_subscribableForKeyPath:RAC_KEYPATH(object, property) onObject:self]
-#define RACAbleWithStart(object, property) [RACAble(object, property) startWith:[object valueForKey:RAC_KEYPATH(object, property)]]
 #define RACAbleSelf(property) RACAble(self, property)
-#define RACAbleSelfWithStart(property) RACAbleWithStart(self, property)
 #define RACAbleKeyPath(keyPath) [self rac_subscribableForKeyPath:keyPath onObject:self]
 
 @class RACSubscribable;

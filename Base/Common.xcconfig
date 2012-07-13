@@ -4,11 +4,23 @@
 // instead.
 //
 
+// Whether to warn when a floating-point value is used as a loop counter
+CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = YES
+
+// Whether to warn about use of rand() and random() being used instead of arc4random()
+CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = YES
+
+// Whether to warn about strcpy() and strcat()
+CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = YES
+
 // Enable ARC
 CLANG_ENABLE_OBJC_ARC = YES
 
 // Whether to warn when overriding deprecated methods
 CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES
+
+// Whether to warn on duplicate method definitions
+CLANG_WARN__DUPLICATE_METHOD_MATCH = YES
 
 // Whether to warn on implicit conversions between signed/unsigned types
 CLANG_WARN_IMPLICIT_SIGN_CONVERSION = NO

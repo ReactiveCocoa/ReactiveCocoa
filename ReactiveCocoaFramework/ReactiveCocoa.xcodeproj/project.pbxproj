@@ -25,6 +25,10 @@
 		88037FD9150564D9001A5B19 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88037F8315056328001A5B19 /* ReactiveCocoa.framework */; };
 		8803807115056B22001A5B19 /* libExpecta.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8803805315056ACB001A5B19 /* libExpecta.a */; };
 		8803807215056B22001A5B19 /* libSpecta.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8803806615056AD7001A5B19 /* libSpecta.a */; };
+		8809D6EE15B1F1EE007E32AA /* JRSwizzle.h in Headers */ = {isa = PBXBuildFile; fileRef = 8809D6EC15B1F1EE007E32AA /* JRSwizzle.h */; };
+		8809D6EF15B1F1EE007E32AA /* JRSwizzle.h in Headers */ = {isa = PBXBuildFile; fileRef = 8809D6EC15B1F1EE007E32AA /* JRSwizzle.h */; };
+		8809D6F015B1F1EE007E32AA /* JRSwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = 8809D6ED15B1F1EE007E32AA /* JRSwizzle.m */; };
+		8809D6F115B1F1EE007E32AA /* JRSwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = 8809D6ED15B1F1EE007E32AA /* JRSwizzle.m */; };
 		880B9176150B09190008488E /* RACSubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 880B9174150B09190008488E /* RACSubject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		880B9177150B09190008488E /* RACSubject.m in Sources */ = {isa = PBXBuildFile; fileRef = 880B9175150B09190008488E /* RACSubject.m */; };
 		881B3746152253810079220B /* NSObject+RACFastEnumeration.h in Headers */ = {isa = PBXBuildFile; fileRef = 881B3744152253810079220B /* NSObject+RACFastEnumeration.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -250,6 +254,8 @@
 		88037F8C15056328001A5B19 /* ReactiveCocoa.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReactiveCocoa.h; sourceTree = "<group>"; };
 		8803804815056ACA001A5B19 /* Expecta.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Expecta.xcodeproj; path = ../../external/expecta/Expecta.xcodeproj; sourceTree = "<group>"; };
 		8803805B15056AD7001A5B19 /* Specta.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Specta.xcodeproj; path = ../../external/specta/Specta.xcodeproj; sourceTree = "<group>"; };
+		8809D6EC15B1F1EE007E32AA /* JRSwizzle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JRSwizzle.h; path = ../external/jrswizzle/JRSwizzle.h; sourceTree = "<group>"; };
+		8809D6ED15B1F1EE007E32AA /* JRSwizzle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JRSwizzle.m; path = ../external/jrswizzle/JRSwizzle.m; sourceTree = "<group>"; };
 		880B9174150B09190008488E /* RACSubject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACSubject.h; sourceTree = "<group>"; };
 		880B9175150B09190008488E /* RACSubject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSubject.m; sourceTree = "<group>"; };
 		881B3744152253810079220B /* NSObject+RACFastEnumeration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACFastEnumeration.h"; sourceTree = "<group>"; };
@@ -409,6 +415,15 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		8809D6EB15B1F1E4007E32AA /* JRSwizzle */ = {
+			isa = PBXGroup;
+			children = (
+				8809D6EC15B1F1EE007E32AA /* JRSwizzle.h */,
+				8809D6ED15B1F1EE007E32AA /* JRSwizzle.m */,
+			);
+			name = JRSwizzle;
+			sourceTree = "<group>";
+		};
 		886044CC152A95B5008ABD0D /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -481,6 +496,7 @@
 		88CDF7BE15000FCE00163A9F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8809D6EB15B1F1E4007E32AA /* JRSwizzle */,
 				88CDF7BF15000FCE00163A9F /* Cocoa.framework */,
 				88CDF7DD15000FCF00163A9F /* SenTestingKit.framework */,
 				88CDF7C115000FCE00163A9F /* Other Frameworks */,
@@ -681,6 +697,7 @@
 				8867D5F9152BDAC300321BD5 /* RACSwizzling.h in Headers */,
 				88F5870615361C170084BD32 /* RACConnectableSubscribable+Private.h in Headers */,
 				A1FCC372156754A7008C9686 /* RACObjCRuntime.h in Headers */,
+				8809D6EE15B1F1EE007E32AA /* JRSwizzle.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -698,6 +715,7 @@
 				A1FCC36D15673FA3008C9686 /* RACEventTrampoline.h in Headers */,
 				A1FCC373156754A7008C9686 /* RACObjCRuntime.h in Headers */,
 				A1FCC3791567DED0008C9686 /* RACDelegateProxy.h in Headers */,
+				8809D6EF15B1F1EE007E32AA /* JRSwizzle.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -935,6 +953,7 @@
 				889C0529155DA6C800F19F0C /* NSString+RACSupport.m in Sources */,
 				88A5F4FC156B3FCB009E49DC /* RACCancelableSubscribable.m in Sources */,
 				A1FCC374156754A7008C9686 /* RACObjCRuntime.m in Sources */,
+				8809D6F015B1F1EE007E32AA /* JRSwizzle.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -998,6 +1017,7 @@
 				A1FCC36E15673FA3008C9686 /* RACEventTrampoline.m in Sources */,
 				A1FCC375156754A7008C9686 /* RACObjCRuntime.m in Sources */,
 				A1FCC37B1567DED0008C9686 /* RACDelegateProxy.m in Sources */,
+				8809D6F115B1F1EE007E32AA /* JRSwizzle.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

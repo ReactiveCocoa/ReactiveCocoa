@@ -4,13 +4,18 @@
 // a configuration file for a specific type of target.
 //
 
+// Architectures to build
+ARCHS = $(ARCHS_STANDARD_32_BIT)
+
 // The base SDK to use (if no version is specified, the latest version is
 // assumed)
 SDKROOT = iphoneos
+
+// Don't try to install iOS binaries
+SKIP_INSTALL = YES
 
 // Supported SDK platforms
 SUPPORTED_PLATFORMS = iphonesimulator iphoneos
 
 // Supported architectures
-VALID_ARCHS = armv6 armv7
-
+VALID_ARCHS = armv6 armv7 i386

@@ -240,6 +240,10 @@ typedef NSInteger RACSubscribableError;
 // Resubscribes to the receiving subscribable if an error occurs.
 - (RACSubscribable *)retry;
 
+// Creates a cancelable subscribable multicasted to the given subject with the
+// given cancelation block.
+- (RACCancelableSubscribable *)asCancelableToSubject:(RACSubject *)subject withBlock:(void (^)(void))block;
+
 // Creates a cancelable subscribable with the given cancelation block.
 - (RACCancelableSubscribable *)asCancelableWithBlock:(void (^)(void))block;
 

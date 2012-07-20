@@ -11,6 +11,8 @@
 
 @interface RACCancelableSubscribable ()
 
+// Defaults to using a RACReplaySubject.
 + (RACCancelableSubscribable *)cancelableSubscribableSourceSubscribable:(id<RACSubscribable>)subscribable withBlock:(void (^)(void))block;
++ (RACCancelableSubscribable *)cancelableSubscribableSourceSubscribable:(id<RACSubscribable>)sourceSubscribable subject:(RACSubject *)subject withBlock:(void (^)(void))block;
 
 @end

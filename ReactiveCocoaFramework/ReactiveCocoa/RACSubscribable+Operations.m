@@ -1092,6 +1092,10 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	return [self retry:0];
 }
 
+- (RACCancelableSubscribable *)asCancelableToSubject:(RACSubject *)subject withBlock:(void (^)(void))block {
+	return [RACCancelableSubscribable cancelableSubscribableSourceSubscribable:self subject:subject withBlock:block];
+}
+
 - (RACCancelableSubscribable *)asCancelableWithBlock:(void (^)(void))block {
 	return [RACCancelableSubscribable cancelableSubscribableSourceSubscribable:self withBlock:block];
 }

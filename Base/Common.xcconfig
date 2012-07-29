@@ -100,6 +100,9 @@ GCC_WARN_SIGN_COMPARE = YES
 // the format specifiers
 GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES
 
+// Whether to warn about variables that are not initialized before being used
+GCC_WARN_UNINITIALIZED_AUTOS = YES
+
 // Whether to warn about static functions that are unused
 GCC_WARN_UNUSED_FUNCTION = YES
 

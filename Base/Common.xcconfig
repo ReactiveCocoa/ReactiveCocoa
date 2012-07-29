@@ -34,6 +34,9 @@ DEBUG_INFORMATION_FORMAT = dwarf-with-dsym
 // Which C variant to use
 GCC_C_LANGUAGE_STANDARD = gnu99
 
+// Whether to enable exceptions for Objective-C
+GCC_ENABLE_OBJC_EXCEPTIONS = YES
+
 // Whether to precompile the prefix header (if one is specified)
 GCC_PRECOMPILE_PREFIX_HEADER = YES
 

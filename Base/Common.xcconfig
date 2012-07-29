@@ -112,6 +112,9 @@ GCC_WARN_UNUSED_FUNCTION = YES
 // Whether to warn about labels that are unused
 GCC_WARN_UNUSED_LABEL = YES
 
+// Whether to warn about variables that are never used
+GCC_WARN_UNUSED_VARIABLE = YES
+
 // Whether to run the static analyzer with every build
 RUN_CLANG_STATIC_ANALYZER = YES
 

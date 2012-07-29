@@ -4,6 +4,10 @@
 // a configuration file for a specific type of target.
 //
 
+// Whether to combine multiple image resolutions into a multirepresentational
+// TIFF
+COMBINE_HIDPI_IMAGES = YES
+
 // The base SDK to use (if no version is specified, the latest version is
 // assumed)
 SDKROOT = macosx

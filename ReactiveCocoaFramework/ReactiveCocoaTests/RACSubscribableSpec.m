@@ -41,7 +41,7 @@ describe(@"subscribing", ^{
 			
 		}];
 		
-		expect(nextValueReceived).toEqual(nextValueSent);
+		expect(nextValueReceived).to.equal(nextValueSent);
 	});
 	
 	it(@"should get completed", ^{
@@ -54,7 +54,7 @@ describe(@"subscribing", ^{
 			didGetCompleted = YES;
 		}];
 		
-		expect(didGetCompleted).toBeTruthy();
+		expect(didGetCompleted).to.beTruthy();
 	});
 	
 	it(@"should not get an error", ^{
@@ -67,14 +67,14 @@ describe(@"subscribing", ^{
 			
 		}];
 		
-		expect(didGetError).toBeFalsy();
+		expect(didGetError).to.beFalsy();
 	});
 	
 	it(@"shouldn't get anything after dispose", ^{
 		__block BOOL shouldBeGettingItems = YES;
 		RACSubject *subject = [RACSubject subject];
 		RACDisposable *disposable = [subject subscribeNext:^(id x) {
-			expect(shouldBeGettingItems).toBeTruthy();
+			expect(shouldBeGettingItems).to.beTruthy();
 		}];
 		
 		shouldBeGettingItems = YES;
@@ -92,7 +92,7 @@ describe(@"subscribing", ^{
 		RACSubject *subject = [RACSubject subject];
 		RACSubject *cutOffSubject = [RACSubject subject];
 		[[subject takeUntil:cutOffSubject] subscribeNext:^(id x) {
-			expect(shouldBeGettingItems).toBeTruthy();
+			expect(shouldBeGettingItems).to.beTruthy();
 		}];
 
 		shouldBeGettingItems = YES;
@@ -124,7 +124,7 @@ describe(@"querying", ^{
 		[[subscribable where:^BOOL(id x) {
 			return x == nextValueSent;
 		}] subscribeNext:^(id x) {
-			expect(x).toEqual(nextValueSent);
+			expect(x).to.equal(nextValueSent);
 			didGetCallbacks = YES;
 		} error:^(NSError *error) {
 			
@@ -132,7 +132,7 @@ describe(@"querying", ^{
 			
 		}];
 		
-		expect(didGetCallbacks).toBeTruthy();
+		expect(didGetCallbacks).to.beTruthy();
 	});
 	
 	it(@"should support select", ^{
@@ -141,7 +141,7 @@ describe(@"querying", ^{
 		[[subscribable select:^(id x) {			
 			return transformedValue;
 		}] subscribeNext:^(id x) {
-			expect(x).toEqual(transformedValue);
+			expect(x).to.equal(transformedValue);
 			didGetCallbacks = YES;
 		} error:^(NSError *error) {
 			
@@ -149,7 +149,7 @@ describe(@"querying", ^{
 			
 		}];
 		
-		expect(didGetCallbacks).toBeTruthy();
+		expect(didGetCallbacks).to.beTruthy();
 	});
 	
 	it(@"should support window", ^{
@@ -243,8 +243,8 @@ describe(@"continuation", ^{
 			
 		}];
 		
-		expect(gotNext).toBeTruthy();
-		expect(gotError).toBeFalsy();
+		expect(gotNext).to.beTruthy();
+		expect(gotError).to.beFalsy();
 	});
 	
 	it(@"should repeat after completion", ^{
@@ -273,8 +273,8 @@ describe(@"continuation", ^{
 			gotCompleted = YES;
 		}];
 		
-		expect(nextCount).toBeGreaterThan(1);
-		expect(gotCompleted).toBeFalsy();
+		expect(nextCount).to.beGreaterThan(1);
+		expect(gotCompleted).to.beFalsy();
 	});
 });
 

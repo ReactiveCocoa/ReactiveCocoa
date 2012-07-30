@@ -26,16 +26,16 @@ describe(@"NSObject", ^{
 	});
 	
 	it(@"should perform", ^{
-		expect(executed).Not.toBeTruthy();
+		expect(executed).notTo.beTruthy();
         [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.11]];
-        expect(executed).toBeTruthy();
+        expect(executed).to.beTruthy();
     });
 
 	it(@"should cancel", ^{
-        expect(executed).Not.toBeTruthy();
+        expect(executed).notTo.beTruthy();
         [foo rac_cancelPreviousPerformBlockRequestsWithId:performID];
         [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.11]];
-        expect(executed).Not.toBeTruthy();
+        expect(executed).notTo.beTruthy();
     });
 });
 

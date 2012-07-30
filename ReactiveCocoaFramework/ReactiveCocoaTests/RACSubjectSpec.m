@@ -37,13 +37,13 @@ describe(@"RACAsyncSubject", ^{
 		[subject sendNext:firstValue];
 		[subject sendNext:secondValue];
 		
-		expect(nextsReceived).toEqual(0);
-		expect(valueReceived).toBeNil();
+		expect(nextsReceived).to.equal(0);
+		expect(valueReceived).to.beNil();
 		
 		[subject sendCompleted];
 		
-		expect(nextsReceived).toEqual(1);
-		expect(valueReceived).toEqual(secondValue);
+		expect(nextsReceived).to.equal(1);
+		expect(valueReceived).to.equal(secondValue);
 	});
 	
 	it(@"should send the last value to new subscribers after completion", ^{
@@ -56,8 +56,8 @@ describe(@"RACAsyncSubject", ^{
 		[subject sendNext:firstValue];
 		[subject sendNext:secondValue];
 		
-		expect(nextsReceived).toEqual(0);
-		expect(valueReceived).toBeNil();
+		expect(nextsReceived).to.equal(0);
+		expect(valueReceived).to.beNil();
 		
 		[subject sendCompleted];
 		
@@ -66,8 +66,8 @@ describe(@"RACAsyncSubject", ^{
 			nextsReceived++;
 		}];
 		
-		expect(nextsReceived).toEqual(1);
-		expect(valueReceived).toEqual(secondValue);
+		expect(nextsReceived).to.equal(1);
+		expect(valueReceived).to.equal(secondValue);
 	});
 });
 
@@ -94,10 +94,10 @@ describe(@"RACReplaySubject", ^{
 			completed = YES;
 		}];
 		
-		expect(valuesReceived.count).toEqual(2);
+		expect(valuesReceived.count).to.equal(2);
 		NSArray *expected = [NSArray arrayWithObjects:firstValue, secondValue, nil];
-		expect(valuesReceived).toEqual(expected);
-		expect(completed).toBeTruthy();
+		expect(valuesReceived).to.equal(expected);
+		expect(completed).to.beTruthy();
 	});
 });
 

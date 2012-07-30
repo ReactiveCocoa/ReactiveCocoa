@@ -1,6 +1,6 @@
 [submodule "external/specta"]
 	path = external/specta
-	url = git://github.com/github/specta.git
+	url = git://github.com/petejkim/specta.git
 [submodule "external/expecta"]
 	path = external/expecta
 	url = git://github.com/github/expecta.git
@@ -8,6 +8,6 @@
 	path = GHAPIDemo/external/AFNetworking
 	url = git://github.com/AFNetworking/AFNetworking.git
 [submodule "external/jrswizzle"]
-  path= external/jrswizzle
-  url = git://github.com/rentzsch/jrswizzle.git
+	path= external/jrswizzle
+	url = git://github.com/rentzsch/jrswizzle.git
   

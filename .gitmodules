@@ -11,3 +11,6 @@
 	path= external/jrswizzle
 	url = git://github.com/rentzsch/jrswizzle.git
   
+[submodule "external/xcconfigs"]
+	path = external/xcconfigs
+	url = git://github.com/jspahrsummers/xcconfigs.git

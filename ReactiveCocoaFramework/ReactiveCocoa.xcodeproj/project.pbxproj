@@ -1276,6 +1276,74 @@
 			};
 			name = Release;
 		};
+		D095BDD115CB2F9D00E9BB13 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D095BDC115CB2E4B00E9BB13 /* Profile.xcconfig */;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_STRICT_SELECTOR_MATCH = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				SDKROOT = macosx;
+				VALID_ARCHS = x86_64;
+				WARNING_CFLAGS = (
+					"-Werror",
+					"-Wall",
+				);
+			};
+			name = Profile;
+		};
+		D095BDD215CB2F9D00E9BB13 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D095BDCE15CB2E4B00E9BB13 /* Mac-Framework.xcconfig */;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
+				INFOPLIST_FILE = "ReactiveCocoa/ReactiveCocoa-Info.plist";
+				INSTALL_PATH = "@executable_path/../Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Profile;
+		};
+		D095BDD315CB2F9D00E9BB13 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D095BDC915CB2E4B00E9BB13 /* iOS-StaticLibrary.xcconfig */;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				VALID_ARCHS = "armv6 armv7 i386";
+			};
+			name = Profile;
+		};
+		D095BDD415CB2F9D00E9BB13 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D095BDCB15CB2E4B00E9BB13 /* Mac-Application.xcconfig */;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"\"$(PROJECT_DIR)/../external/specta/src\"",
+					"\"$(PROJECT_DIR)/../external/expecta/src\"/**",
+				);
+				INFOPLIST_FILE = "ReactiveCocoaTests/ReactiveCocoaTests-Info.plist";
+				OTHER_LDFLAGS = "-all_load";
+				PRODUCT_NAME = ReactiveCocoaTests;
+				VALID_ARCHS = x86_64;
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Profile;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1284,6 +1352,7 @@
 			buildConfigurations = (
 				88037F9015056328001A5B19 /* Debug */,
 				88037F9115056328001A5B19 /* Release */,
+				D095BDD215CB2F9D00E9BB13 /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1293,6 +1362,7 @@
 			buildConfigurations = (
 				88CDF7EB15000FCF00163A9F /* Debug */,
 				88CDF7EC15000FCF00163A9F /* Release */,
+				D095BDD115CB2F9D00E9BB13 /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1302,6 +1372,7 @@
 			buildConfigurations = (
 				88CDF7F115000FCF00163A9F /* Debug */,
 				88CDF7F215000FCF00163A9F /* Release */,
+				D095BDD415CB2F9D00E9BB13 /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1311,6 +1382,7 @@
 			buildConfigurations = (
 				88F440B4153DAC820097B4C3 /* Debug */,
 				88F440B5153DAC820097B4C3 /* Release */,
+				D095BDD315CB2F9D00E9BB13 /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

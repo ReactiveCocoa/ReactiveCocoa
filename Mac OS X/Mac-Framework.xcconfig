@@ -16,4 +16,5 @@ GCC_DYNAMIC_NO_PIC = NO
 
 // Enables and requires the framework to be included in an application bundle
 // (inside the "Frameworks" folder)
+INSTALL_PATH = @executable_path/../Frameworks
 LD_DYLIB_INSTALL_NAME = @executable_path/../Frameworks/$(PRODUCT_NAME).$(WRAPPER_EXTENSION)/$(PRODUCT_NAME)

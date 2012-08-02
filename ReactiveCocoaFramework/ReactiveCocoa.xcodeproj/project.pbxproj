@@ -1149,7 +1149,6 @@
 				FRAMEWORK_VERSION = A;
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				INFOPLIST_FILE = "ReactiveCocoa/ReactiveCocoa-Info.plist";
-				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = framework;
 			};
@@ -1164,7 +1163,6 @@
 				FRAMEWORK_VERSION = A;
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				INFOPLIST_FILE = "ReactiveCocoa/ReactiveCocoa-Info.plist";
-				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = framework;
 			};
@@ -1307,7 +1305,6 @@
 				FRAMEWORK_VERSION = A;
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				INFOPLIST_FILE = "ReactiveCocoa/ReactiveCocoa-Info.plist";
-				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = framework;
 			};

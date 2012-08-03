@@ -770,29 +770,30 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 - (id)firstOrDefault:(id)defaultValue success:(BOOL *)success error:(NSError **)error {
+	dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+
 	__block id value = defaultValue;
-	__block BOOL stop = NO;
 	__block RACDisposable *disposable = [self subscribeNext:^(id x) {
 		value = x;
-		stop = YES;
 		if(success != NULL) *success = YES;
+
+		// Only signal after setting values that aren't thread-safe.
+		dispatch_semaphore_signal(semaphore);
 		[disposable dispose];
 	} error:^(NSError *e) {
-		stop = YES;
 		if(success != NULL) *success = NO;
 		if(error != NULL) *error = e;
+
+		dispatch_semaphore_signal(semaphore);
 	} completed:^{
-		stop = YES;
 		if(success != NULL) *success = YES;
+
+		dispatch_semaphore_signal(semaphore);
 	}];
+
+	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
 	
-	while(!stop) {
-		// Autorelease pooling this has a measureable performance benefit.
-		@autoreleasepool {
-			[[NSRunLoop currentRunLoop] runUntilDate:[NSDate date]];
-		}
-	}
-	
+	dispatch_release(semaphore);
 	return value;
 }
 

@@ -23,13 +23,13 @@
 @synthesize object;
 @synthesize error;
 
-+ (id)maybeWithObject:(id)object {
++ (instancetype)maybeWithObject:(id)object {
 	RACMaybe *maybe = [[self alloc] init];
 	maybe.object = object ? : [RACTupleNil tupleNil];
 	return maybe;
 }
 
-+ (id)maybeWithError:(NSError *)error {
++ (instancetype)maybeWithError:(NSError *)error {
 	RACMaybe *maybe = [[self alloc] init];
 	maybe.error = error;
 	return maybe;

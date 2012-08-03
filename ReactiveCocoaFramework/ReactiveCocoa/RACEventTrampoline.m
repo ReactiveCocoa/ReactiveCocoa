@@ -46,13 +46,13 @@ static NSMutableDictionary *swizzledClasses = nil;
 	swizzledClasses = [[NSMutableDictionary alloc] init];
 }
 
-+ (RACEventTrampoline *)trampolineForControl:(UIControl *)control controlEvents:(UIControlEvents)controlEvents {
++ (instancetype)trampolineForControl:(UIControl *)control controlEvents:(UIControlEvents)controlEvents {
 	RACEventTrampoline *trampoline = [[self alloc] init];
 	[control addTarget:trampoline action:@selector(didGetControlEvent:) forControlEvents:controlEvents];
 	return trampoline;
 }
 
-+ (RACEventTrampoline *)trampolineForTextView:(UITextView *)textView delegateMethod:(SEL)method {
++ (instancetype)trampolineForTextView:(UITextView *)textView delegateMethod:(SEL)method {
     RACEventTrampoline *trampoline = [[self alloc] init];
     [trampoline setDelegateMethod:method];
     

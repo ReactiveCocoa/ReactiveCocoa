@@ -16,8 +16,8 @@
 @property (nonatomic, readonly, strong) id object;
 @property (nonatomic, readonly, strong) NSError *error;
 
-+ (id)maybeWithObject:(id)object;
-+ (id)maybeWithError:(NSError *)error;
++ (instancetype)maybeWithObject:(id)object;
++ (instancetype)maybeWithError:(NSError *)error;
 
 - (BOOL)hasObject;
 - (BOOL)hasError;

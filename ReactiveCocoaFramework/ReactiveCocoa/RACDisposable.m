@@ -21,7 +21,7 @@
 
 @synthesize disposeBlock;
 
-+ (id)disposableWithBlock:(void (^)(void))block {
++ (instancetype)disposableWithBlock:(void (^)(void))block {
 	RACDisposable *disposable = [[self alloc] init];
 	disposable.disposeBlock = block;
 	return disposable;

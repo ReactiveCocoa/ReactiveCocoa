@@ -18,6 +18,6 @@ extern const NSUInteger RACReplaySubjectUnlimitedCapacity;
 
 // Creates a new replay subject with the given capacity. A capacity of
 // RACReplaySubjectUnlimitedCapacity means values are never trimmed.
-+ (id)replaySubjectWithCapacity:(NSUInteger)capacity;
++ (instancetype)replaySubjectWithCapacity:(NSUInteger)capacity;
 
 @end

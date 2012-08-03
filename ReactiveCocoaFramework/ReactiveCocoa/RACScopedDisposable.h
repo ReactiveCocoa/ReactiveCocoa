@@ -14,6 +14,6 @@
 
 // Creates a new scoped disposable that will also dispose of the given
 // disposable when it is dealloc'd.
-+ (id)scopedDisposableWithDisposable:(RACDisposable *)disposable;
++ (instancetype)scopedDisposableWithDisposable:(RACDisposable *)disposable;
 
 @end

@@ -18,6 +18,6 @@
 @interface RACSubject : RACSubscribable <RACSubscriber>
 
 // Returns a new subject.
-+ (id)subject;
++ (instancetype)subject;
 
 @end

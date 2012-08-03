@@ -34,14 +34,14 @@
 @property (nonatomic, readonly) id last;
 
 // Creates a new tuple out of the array. Does not convert nulls to nils.
-+ (id)tupleWithObjectsFromArray:(NSArray *)array;
++ (instancetype)tupleWithObjectsFromArray:(NSArray *)array;
 
 // Creates a new tuple out of the array. If `convert` is YES, it also converts
 // every NSNull to RACTupleNil.
-+ (id)tupleWithObjectsFromArray:(NSArray *)array convertNullsToNils:(BOOL)convert;
++ (instancetype)tupleWithObjectsFromArray:(NSArray *)array convertNullsToNils:(BOOL)convert;
 
 // Creates a new tuple with the given objects. Use RACTupleNil to represent nils.
-+ (id)tupleWithObjects:(id)object, ... NS_REQUIRES_NIL_TERMINATION;
++ (instancetype)tupleWithObjects:(id)object, ... NS_REQUIRES_NIL_TERMINATION;
 
 // Returns the object at `index` or nil if the object is a RACTupleNil. Unlike
 // NSArray and friends, it's perfectly fine to ask for the object at an index

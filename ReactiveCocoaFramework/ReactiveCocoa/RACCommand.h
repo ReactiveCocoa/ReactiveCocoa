@@ -20,7 +20,7 @@
 @property (nonatomic, readonly, assign) BOOL canExecute;
 
 // Creates a new command with no execute or can execute block.
-+ (id)command;
++ (instancetype)command;
 
 // Creates a new command with the given can execute and execute blocks.
 //
@@ -30,9 +30,9 @@
 //
 // executeBlock - the block that will be executed when the command is executed.
 // It will be passed the object given to `-execute:`.
-+ (id)commandWithCanExecute:(BOOL (^)(id value))canExecuteBlock execute:(void (^)(id value))executeBlock;
++ (instancetype)commandWithCanExecute:(BOOL (^)(id value))canExecuteBlock execute:(void (^)(id value))executeBlock;
 
-+ (id)commandWithCanExecuteObservable:(id<RACSubscribable>)canExecuteObservable execute:(void (^)(id value))executeBlock;
++ (instancetype)commandWithCanExecuteObservable:(id<RACSubscribable>)canExecuteObservable execute:(void (^)(id value))executeBlock;
 
 // Can the command execute with the given value?
 //

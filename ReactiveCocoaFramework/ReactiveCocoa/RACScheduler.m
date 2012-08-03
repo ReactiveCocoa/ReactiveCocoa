@@ -20,7 +20,7 @@
 
 @synthesize scheduleBlock;
 
-+ (id)schedulerWithScheduleBlock:(void (^)(void (^block)(void)))scheduleBlock {
++ (instancetype)schedulerWithScheduleBlock:(void (^)(void (^block)(void)))scheduleBlock {
 	NSParameterAssert(scheduleBlock != NULL);
 	
 	RACScheduler *scheduler = [[self alloc] init];
@@ -28,7 +28,7 @@
 	return scheduler;
 }
 
-+ (id)immediateScheduler {
++ (instancetype)immediateScheduler {
 	static dispatch_once_t onceToken;
 	static RACScheduler *immediateScheduler = nil;
 	dispatch_once(&onceToken, ^{
@@ -40,7 +40,7 @@
 	return immediateScheduler;
 }
 
-+ (id)mainQueueScheduler {
++ (instancetype)mainQueueScheduler {
 	static dispatch_once_t onceToken;
 	static RACScheduler *mainQueueScheduler = nil;
 	dispatch_once(&onceToken, ^{
@@ -56,7 +56,7 @@
 	return mainQueueScheduler;
 }
 
-+ (id)backgroundScheduler {
++ (instancetype)backgroundScheduler {
 	static dispatch_once_t onceToken;
 	static RACScheduler *backgroundScheduler = nil;
 	dispatch_once(&onceToken, ^{
@@ -68,7 +68,7 @@
 	return backgroundScheduler;
 }
 
-+ (id)deferredScheduler {
++ (instancetype)deferredScheduler {
 	static dispatch_once_t onceToken;
 	static RACScheduler *deferredScheduler = nil;
 	dispatch_once(&onceToken, ^{
@@ -80,14 +80,14 @@
 	return deferredScheduler;
 }
 
-+ (id)operationQueueScheduler {
++ (instancetype)operationQueueScheduler {
 	NSOperationQueue *queue = [[NSOperationQueue alloc] init];
 	[queue setMaxConcurrentOperationCount:NSOperationQueueDefaultMaxConcurrentOperationCount];
 	[queue setName:@"RACOperationQueueSchedulerQueue"];
 	return [self schedulerWithOperationQueue:queue];
 }
 
-+ (id)sharedOperationQueueScheduler {
++ (instancetype)sharedOperationQueueScheduler {
 	static dispatch_once_t onceToken;
 	static RACScheduler *sharedOperationQueueScheduler = nil;
 	dispatch_once(&onceToken, ^{
@@ -100,7 +100,7 @@
 	return sharedOperationQueueScheduler;
 }
 
-+ (id)schedulerWithOperationQueue:(NSOperationQueue *)queue {
++ (instancetype)schedulerWithOperationQueue:(NSOperationQueue *)queue {
 	return [RACScheduler schedulerWithScheduleBlock:^(void (^block)(void)) {
 		[queue addOperationWithBlock:block];
 	}];

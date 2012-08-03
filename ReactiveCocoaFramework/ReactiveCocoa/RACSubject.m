@@ -51,7 +51,7 @@
 
 @synthesize disposable;
 
-+ (id)subject {
++ (instancetype)subject {
 	return [[self alloc] init];
 }
 

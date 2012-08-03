@@ -11,6 +11,6 @@
 
 @interface RACValueTransformer : NSValueTransformer
 
-+ (RACValueTransformer *)transformerWithBlock:(id (^)(id value))block;
++ (instancetype)transformerWithBlock:(id (^)(id value))block;
 
 @end

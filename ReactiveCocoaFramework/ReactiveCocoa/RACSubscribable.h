@@ -58,16 +58,16 @@
 // Returns a subscribable that calls the block in a background queue. The
 // block's success is YES by default. If the block sets success = NO, the
 // subscribable sends error with the error passed in by reference.
-+ (id)start:(id (^)(BOOL *success, NSError **error))block;
++ (RACSubscribable *)start:(id (^)(BOOL *success, NSError **error))block;
 
 // Returns a subscribable that calls the block with the given scheduler. The
 // block's success is YES by default. If the block sets success = NO, the
 // subscribable sends error with the error passed in by reference.
-+ (id)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block;
++ (RACSubscribable *)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block;
 
 // Starts and returns an async subscribable. It calls the block with the given
 // scheduler and gives the block the subject that was returned from the method. 
 // The block can send events using the subject.
-+ (id)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block;
++ (RACSubscribable *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block;
 
 @end

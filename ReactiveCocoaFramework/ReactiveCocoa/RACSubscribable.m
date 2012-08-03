@@ -139,11 +139,11 @@ static NSMutableSet *activeSubscribables = nil;
 	}];
 }
 
-+ (id)start:(id (^)(BOOL *success, NSError **error))block {
++ (RACSubscribable *)start:(id (^)(BOOL *success, NSError **error))block {
 	return [self startWithScheduler:[RACScheduler backgroundScheduler] block:block];
 }
 
-+ (id)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block {
++ (RACSubscribable *)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block {
 	return [self startWithScheduler:scheduler subjectBlock:^(RACSubject *subject) {
 		BOOL success = YES;
 		NSError *error = nil;
@@ -158,7 +158,7 @@ static NSMutableSet *activeSubscribables = nil;
 	}];
 }
 
-+ (id)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block {
++ (RACSubscribable *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block {
 	NSParameterAssert(block != NULL);
 
 	RACAsyncSubject *subject = [RACAsyncSubject subject];

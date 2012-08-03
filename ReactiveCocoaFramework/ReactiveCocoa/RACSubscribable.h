@@ -40,20 +40,20 @@
 // there is no cleanup necessary.
 //
 // *Note* that the `didSubscribe` block is called every time a subscriber subscribes.
-+ (id)createSubscribable:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe;
++ (instancetype)createSubscribable:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe;
 
 // Returns a subscribable that immediately sends the given value and then
 // completes.
-+ (id)return:(id)value;
++ (instancetype)return:(id)value;
 
 // Returns a subscribable that immediately send the given error.
-+ (id)error:(NSError *)error;
++ (instancetype)error:(NSError *)error;
 
 // Returns a subscribable that immediately completes.
-+ (id)empty;
++ (instancetype)empty;
 
 // Returns a subscribable that never completes.
-+ (id)never;
++ (instancetype)never;
 
 // Returns a subscribable that calls the block in a background queue. The
 // block's success is YES by default. If the block sets success = NO, the

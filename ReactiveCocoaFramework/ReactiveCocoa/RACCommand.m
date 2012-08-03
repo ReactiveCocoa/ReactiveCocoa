@@ -17,7 +17,7 @@
 
 @implementation RACCommand
 
-- (id)init {
+- (instancetype)init {
 	self = [super init];
 	if(self == nil) return nil;
 	
@@ -32,18 +32,18 @@
 @synthesize canExecute;
 @synthesize canExecuteBlock;
 
-+ (id)command {
++ (instancetype)command {
 	return [self subject];
 }
 
-+ (id)commandWithCanExecute:(BOOL (^)(id value))canExecuteBlock execute:(void (^)(id value))executeBlock {
++ (instancetype)commandWithCanExecute:(BOOL (^)(id value))canExecuteBlock execute:(void (^)(id value))executeBlock {
 	RACCommand *command = [self command];
 	if(executeBlock != NULL) [command subscribeNext:executeBlock];
 	command.canExecuteBlock = canExecuteBlock;
 	return command;
 }
 
-+ (id)commandWithCanExecuteObservable:(id<RACSubscribable>)canExecuteObservable execute:(void (^)(id value))executeBlock {
++ (instancetype)commandWithCanExecuteObservable:(id<RACSubscribable>)canExecuteObservable execute:(void (^)(id value))executeBlock {
 	RACCommand *command = [self commandWithCanExecute:NULL execute:executeBlock];
 	
 	[canExecuteObservable subscribe:[RACSubscriber subscriberWithNext:^(id x) {

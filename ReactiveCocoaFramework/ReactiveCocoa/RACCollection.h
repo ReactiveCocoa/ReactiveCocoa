@@ -29,8 +29,8 @@
 // Controls whether change notifications are sent. Defaults to YES.
 @property (nonatomic, assign) BOOL changeNotificationsEnabled;
 
-+ (RACCollection *)collectionWithObjectsInArray:(NSArray *)array;
-+ (RACCollection *)collectionWithObjects:(id)object, ... NS_REQUIRES_NIL_TERMINATION;
++ (instancetype)collectionWithObjectsInArray:(NSArray *)array;
++ (instancetype)collectionWithObjects:(id)object, ... NS_REQUIRES_NIL_TERMINATION;
 
 - (void)addObject:(id)object;
 - (void)addObjectsFromArray:(NSArray *)otherArray;

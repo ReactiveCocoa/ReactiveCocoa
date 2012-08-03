@@ -43,7 +43,7 @@
 
 @synthesize currentValue;
 
-+ (id)behaviorSubjectWithDefaultValue:(id)value {
++ (instancetype)behaviorSubjectWithDefaultValue:(id)value {
 	RACBehaviorSubject *subject = [self subject];
 	subject.currentValue = value;
 	return subject;

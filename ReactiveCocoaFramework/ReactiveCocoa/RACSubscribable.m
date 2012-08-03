@@ -29,7 +29,7 @@ static NSMutableSet *activeSubscribables = nil;
 	}
 }
 
-- (id)init {
+- (instancetype)init {
 	self = [super init];
 	if(self == nil) return nil;
 	
@@ -105,13 +105,13 @@ static NSMutableSet *activeSubscribables = nil;
 @synthesize tearingDown;
 @synthesize name;
 
-+ (id)createSubscribable:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
++ (instancetype)createSubscribable:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
 	RACSubscribable *subscribable = [[self alloc] init];
 	subscribable.didSubscribe = didSubscribe;
 	return subscribable;
 }
 
-+ (id)return:(id)value {
++ (instancetype)return:(id)value {
 	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
 		[subscriber sendNext:value];
 		[subscriber sendCompleted];
@@ -119,21 +119,21 @@ static NSMutableSet *activeSubscribables = nil;
 	}];
 }
 
-+ (id)error:(NSError *)error {
++ (instancetype)error:(NSError *)error {
 	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
 		[subscriber sendError:error];
 		return nil;
 	}];
 }
 
-+ (id)empty {
++ (instancetype)empty {
 	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
 		[subscriber sendCompleted];
 		return nil;
 	}];
 }
 
-+ (id)never {
++ (instancetype)never {
 	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
 		return nil;
 	}];

@@ -22,7 +22,7 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
 
 @implementation RACReplaySubject
 
-- (id)init {
+- (instancetype)init {
 	self = [super init];
 	if(self == nil) return nil;
 	
@@ -91,7 +91,7 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
 @synthesize hasCompletedAlready;
 @synthesize error;
 
-+ (id)replaySubjectWithCapacity:(NSUInteger)capacity {
++ (instancetype)replaySubjectWithCapacity:(NSUInteger)capacity {
 	RACReplaySubject *subject = [self subject];
 	subject.capacity = capacity;
 	return subject;

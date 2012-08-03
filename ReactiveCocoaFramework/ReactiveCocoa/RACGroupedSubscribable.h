@@ -15,6 +15,6 @@
 // The key shared by the group.
 @property (nonatomic, readonly, copy) id<NSCopying> key;
 
-+ (id)subscribableWithKey:(id<NSCopying>)key;
++ (instancetype)subscribableWithKey:(id<NSCopying>)key;
 
 @end

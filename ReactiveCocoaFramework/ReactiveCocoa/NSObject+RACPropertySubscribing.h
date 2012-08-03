@@ -16,6 +16,7 @@
 #define RACAbleKeyPath(keyPath) [self rac_subscribableForKeyPath:keyPath onObject:self]
 
 @class RACSubscribable;
+@class RACDisposable;
 
 
 @interface NSObject (RACPropertySubscribing)
@@ -26,5 +27,9 @@
 
 // Creates a value from observing the value at the given keypath.
 - (RACSubscribable *)rac_subscribableForKeyPath:(NSString *)keyPath onObject:(NSObject *)object;
+
+// Keeps the value of the KVC-compliant keypath up-to-date with the latest value
+// sent by the subscribable.
+- (RACDisposable *)rac_deriveProperty:(NSString *)keyPath from:(RACSubscribable *)subscribable;
 
 @end

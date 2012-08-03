@@ -13,6 +13,7 @@
 #import "RACDisposable.h"
 #import "RACSwizzling.h"
 #import "RACSubscribable+Private.h"
+#import "RACSubscribable+Operations.h"
 
 static NSMutableDictionary *swizzledClasses = nil;
 
@@ -72,6 +73,10 @@ static const void *RACPropertySubscribingDisposables = &RACPropertySubscribingDi
 
 - (RACSubscribable *)rac_subscribableForKeyPath:(NSString *)keyPath onObject:(NSObject *)object {
 	return [[self class] rac_subscribableFor:self keyPath:keyPath onObject:object];
+}
+
+- (RACDisposable *)rac_deriveProperty:(NSString *)keyPath from:(RACSubscribable *)subscribable {
+	return [subscribable toProperty:keyPath onObject:self];
 }
 
 @end

@@ -14,7 +14,7 @@
 
 #pragma mark API
 
-+ (id)defaultUnit {
++ (RACUnit *)defaultUnit {
 	static dispatch_once_t onceToken;
 	static RACUnit *defaultUnit = nil;
 	dispatch_once(&onceToken, ^{

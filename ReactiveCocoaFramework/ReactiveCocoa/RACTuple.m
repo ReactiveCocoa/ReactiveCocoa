@@ -31,7 +31,7 @@
 
 @implementation RACTuple
 
-- (id)init {
+- (instancetype)init {
 	self = [super init];
 	if(self == nil) return nil;
 	
@@ -54,7 +54,7 @@
 
 #pragma mark NSCopying
 
-- (id)copyWithZone:(NSZone *)zone {
+- (instancetype)copyWithZone:(NSZone *)zone {
 	// we're immutable, bitches!
 	return self;
 }
@@ -64,11 +64,11 @@
 
 @synthesize backingArray;
 
-+ (id)tupleWithObjectsFromArray:(NSArray *)array {
++ (instancetype)tupleWithObjectsFromArray:(NSArray *)array {
 	return [self tupleWithObjectsFromArray:array convertNullsToNils:NO];
 }
 
-+ (id)tupleWithObjectsFromArray:(NSArray *)array convertNullsToNils:(BOOL)convert {
++ (instancetype)tupleWithObjectsFromArray:(NSArray *)array convertNullsToNils:(BOOL)convert {
 	RACTuple *tuple = [[self alloc] init];
 	
 	if(convert) {
@@ -85,7 +85,7 @@
 	return tuple;
 }
 
-+ (id)tupleWithObjects:(id)object, ... {
++ (instancetype)tupleWithObjects:(id)object, ... {
 	RACTuple *tuple = [[self alloc] init];
 	
 	NSMutableArray *objects = [NSMutableArray array];

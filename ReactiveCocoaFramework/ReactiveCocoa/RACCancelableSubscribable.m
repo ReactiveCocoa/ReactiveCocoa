@@ -35,11 +35,11 @@
 
 @synthesize cancelBlock;
 
-+ (RACCancelableSubscribable *)cancelableSubscribableSourceSubscribable:(id<RACSubscribable>)sourceSubscribable withBlock:(void (^)(void))block {
++ (instancetype)cancelableSubscribableSourceSubscribable:(id<RACSubscribable>)sourceSubscribable withBlock:(void (^)(void))block {
 	return [self cancelableSubscribableSourceSubscribable:sourceSubscribable subject:[RACReplaySubject subject] withBlock:block];
 }
 
-+ (RACCancelableSubscribable *)cancelableSubscribableSourceSubscribable:(id<RACSubscribable>)sourceSubscribable subject:(RACSubject *)subject withBlock:(void (^)(void))block {
++ (instancetype)cancelableSubscribableSourceSubscribable:(id<RACSubscribable>)sourceSubscribable subject:(RACSubject *)subject withBlock:(void (^)(void))block {
 	RACCancelableSubscribable *subscribable = [self connectableSubscribableWithSourceSubscribable:sourceSubscribable subject:subject];
 	[subscribable connect];
 	subscribable.cancelBlock = block;

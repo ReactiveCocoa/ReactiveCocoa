@@ -33,7 +33,7 @@
 
 @synthesize disposable;
 
-+ (id)scopedDisposableWithDisposable:(RACDisposable *)disposable {
++ (instancetype)scopedDisposableWithDisposable:(RACDisposable *)disposable {
 	RACScopedDisposable *scopedDisposable = [[self alloc] init];
 	scopedDisposable.disposable = disposable;
 	return scopedDisposable;

@@ -22,7 +22,7 @@
 @synthesize delegator;
 @synthesize actualDelegate;
 
-+ (id)proxyWithProtocol:(Protocol *)protocol andDelegator:(NSObject *)delegator {
++ (instancetype)proxyWithProtocol:(Protocol *)protocol andDelegator:(NSObject *)delegator {
     if (![self conformsToProtocol:protocol]) {
         class_addProtocol([self class], protocol);
     }
@@ -33,7 +33,7 @@
     return proxy;
 }
 
-- (id)init {
+- (instancetype)init {
     if (self = [super init]) {
         trampolines = [[NSMutableSet alloc] init];
     }

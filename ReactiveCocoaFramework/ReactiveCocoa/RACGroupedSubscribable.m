@@ -20,7 +20,7 @@
 
 @synthesize key;
 
-+ (id)subscribableWithKey:(id<NSCopying>)key {
++ (instancetype)subscribableWithKey:(id<NSCopying>)key {
 	RACGroupedSubscribable *subject = [self subject];
 	subject.key = key;
 	return subject;

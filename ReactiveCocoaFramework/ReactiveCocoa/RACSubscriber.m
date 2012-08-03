@@ -60,7 +60,7 @@
 @synthesize completed;
 @synthesize disposable;
 
-+ (id)subscriberWithNext:(void (^)(id x))next error:(void (^)(NSError *error))error completed:(void (^)(void))completed {
++ (instancetype)subscriberWithNext:(void (^)(id x))next error:(void (^)(NSError *error))error completed:(void (^)(void))completed {
 	RACSubscriber *subscriber = [[self alloc] init];
 	subscriber.next = next;
 	subscriber.error = error;

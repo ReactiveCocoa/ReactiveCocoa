@@ -14,6 +14,6 @@
 
 // Creates a new behavior subject with a default value. If it hasn't received
 // any values when it gets subscribed to, it sends the default value.
-+ (id)behaviorSubjectWithDefaultValue:(id)value;
++ (instancetype)behaviorSubjectWithDefaultValue:(id)value;
 
 @end

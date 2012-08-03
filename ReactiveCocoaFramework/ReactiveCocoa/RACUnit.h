@@ -15,6 +15,6 @@
 @interface RACUnit : NSObject
 
 // A singleton instance.
-+ (id)defaultUnit;
++ (RACUnit *)defaultUnit;
 
 @end

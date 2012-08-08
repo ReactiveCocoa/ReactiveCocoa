@@ -20,8 +20,6 @@ static NSMutableSet *swizzledClasses = nil;
 @interface NSObject ()
 // This set should only be manipulated while synchronized on the receiver.
 @property (nonatomic, strong) NSMutableSet *RACKVOTrampolines;
-
-- (void)rac_originalDealloc;
 @end
 
 @interface RACKVOTrampoline : NSObject

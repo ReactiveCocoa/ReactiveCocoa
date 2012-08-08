@@ -20,8 +20,6 @@ static NSMutableSet *swizzledClasses = nil;
 @interface NSObject ()
 // This set should only be manipulated while synchronized on the receiver.
 @property (nonatomic, strong) NSMutableSet *RACKVOTrampolines;
-
-- (void)rac_originalDealloc;
 @end
 
 @interface RACKVOTrampoline : NSObject
@@ -148,7 +146,7 @@ static NSMutableSet *swizzledClasses = nil;
 	// If we're currently delivering a KVO callback then niling the trampoline set might not dealloc the trampoline and therefore make them be dealloc'd. So we need to manually stop observing on all of them as well.
 	[trampolines makeObjectsPerformSelector:@selector(stopObserving)];
 
-	[self performSelector:@selector(rac_customDealloc)];
+	[self rac_customDealloc];
 }
 
 - (id)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options queue:(NSOperationQueue *)queue block:(void (^)(id observer, NSDictionary *change))block {

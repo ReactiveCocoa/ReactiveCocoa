@@ -13,10 +13,10 @@
 
 // Adds the given block as the callback for when the keyPath changes. The
 // observer does not need to be explicitly removed. It will be removed when the
-// target or observed object is dealloc'd.
+// observer or observed object is dealloc'd.
 //
-// target - the object to which callbacks will be delivered. This is passed back
-// into the target block.
+// observer - the object to which callbacks will be delivered. This is passed back
+// into the given block.
 //
 // keyPath - the key path to observe
 //
@@ -29,7 +29,7 @@
 // block - the block called when the value at the key path changes.
 //
 // Returns an identifier that can be used to remove the observer.
-- (id)rac_addObserver:(NSObject *)target forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options queue:(NSOperationQueue *)queue block:(void (^)(id target, NSDictionary *change))block;
+- (id)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options queue:(NSOperationQueue *)queue block:(void (^)(id observer, NSDictionary *change))block;
 
 // Remove the observer represented by the identifier.
 //

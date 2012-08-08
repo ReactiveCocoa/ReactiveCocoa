@@ -144,15 +144,10 @@ static NSMutableDictionary *swizzledObservableClasses = nil;
 	return trampoline;
 }
 
-- (BOOL)rac_removeObserverWithIdentifier:(id)identifier {
-	return [self rac_removeObserverTrampoline:identifier];
-}
-
-- (BOOL)rac_removeObserverTrampoline:(RACKVOTrampoline *)trampoline {
+- (BOOL)rac_removeObserverWithIdentifier:(RACKVOTrampoline *)trampoline {
 	if(trampoline.target != self) return NO;
 	
 	[trampoline stopObserving];
-
 	return YES;
 }
 

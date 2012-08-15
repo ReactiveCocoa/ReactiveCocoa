@@ -15,7 +15,15 @@ typedef void (^RACKVOBlock)(id, NSDictionary *);
 static void *RACKVOTrampolinesKey = &RACKVOTrampolinesKey;
 static void *RACKVOWrapperContext = &RACKVOWrapperContext;
 
-static NSMutableSet *swizzledClasses = nil;
+static NSMutableSet *swizzledClasses() {
+	static dispatch_once_t onceToken;
+	static NSMutableSet *swizzledClasses = nil;
+	dispatch_once(&onceToken, ^{
+		swizzledClasses = [[NSMutableSet alloc] init];
+	});
+	
+	return swizzledClasses;
+}
 
 @interface NSObject ()
 // This set should only be manipulated while synchronized on the receiver.
@@ -131,10 +139,6 @@ static NSMutableSet *swizzledClasses = nil;
 
 @implementation NSObject (RACKVOWrapper)
 
-+ (void)load {
-	swizzledClasses = [[NSMutableSet alloc] init];
-}
-
 - (void)rac_customDealloc {
 	NSSet *trampolines;
 	
@@ -152,14 +156,14 @@ static NSMutableSet *swizzledClasses = nil;
 - (id)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options queue:(NSOperationQueue *)queue block:(void (^)(id observer, NSDictionary *change))block {
 	void (^swizzle)(Class) = ^(Class classToSwizzle){
 		NSString *className = NSStringFromClass(classToSwizzle);
-		if ([swizzledClasses containsObject:className]) return;
+		if ([swizzledClasses() containsObject:className]) return;
 
 		RACSwizzle(classToSwizzle, NSSelectorFromString(@"dealloc"), @selector(rac_customDealloc));
-		[swizzledClasses addObject:className];
+		[swizzledClasses() addObject:className];
 	};
 
 	// We swizzle the dealloc for both the object being observed and the observer of the observation. Because when either gets dealloc'd, we need to tear down the observation.
-	@synchronized (swizzledClasses) {
+	@synchronized (swizzledClasses()) {
 		swizzle(self.class);
 		swizzle(observer.class);
 	}

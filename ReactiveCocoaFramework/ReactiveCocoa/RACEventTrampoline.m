@@ -14,6 +14,15 @@
 
 const char *RACEventTrampolinesKey = "RACEventTrampolinesKey";
 
+static NSMutableDictionary *swizzledClasses() {
+	static dispatch_once_t onceToken;
+	static NSMutableDictionary *swizzledClasses = nil;
+	dispatch_once(&onceToken, ^{
+		swizzledClasses = [[NSMutableDictionary alloc] init];
+	});
+	
+	return swizzledClasses;
+}
 
 @implementation UITextView (RACSubscribableSupport)
 
@@ -37,20 +46,6 @@ const char *RACEventTrampolinesKey = "RACEventTrampolinesKey";
 
 @implementation RACEventTrampoline
 
-#pragma mark Lazy
-
-+ (NSMutableDictionary *)swizzledClasses {
-	static dispatch_once_t onceToken;
-	static NSMutableDictionary *swizzledClasses = nil;
-	dispatch_once(&onceToken, ^{
-		swizzledClasses = [[NSMutableDictionary alloc] init];
-	});
-	
-	return swizzledClasses;
-}
-
-#pragma mark API
-
 @synthesize subject;
 @synthesize proxy;
 @synthesize delegateMethod;
@@ -65,12 +60,12 @@ const char *RACEventTrampolinesKey = "RACEventTrampolinesKey";
     RACEventTrampoline *trampoline = [[self alloc] init];
     [trampoline setDelegateMethod:method];
     
-    @synchronized([self swizzledClasses]) {
+    @synchronized(swizzledClasses()) {
         Class class = [textView class];
 		NSString *keyName = NSStringFromClass(class);
-		if ([[self swizzledClasses] objectForKey:keyName] == nil) {
+		if ([swizzledClasses() objectForKey:keyName] == nil) {
 			RACSwizzle(class, @selector(setDelegate:), @selector(rac_setDelegate:));
-			[[self swizzledClasses] setObject:[NSNull null] forKey:keyName];
+			[swizzledClasses() setObject:[NSNull null] forKey:keyName];
 		}
     }
     

@@ -14,6 +14,16 @@
 #import "NSObject+RACExtensions.h"
 #import "RACScheduler.h"
 
+static NSMutableSet *activeSubscribables() {
+	static dispatch_once_t onceToken;
+	static NSMutableSet *activeSubscribables = nil;
+	dispatch_once(&onceToken, ^{
+		activeSubscribables = [[NSMutableSet alloc] init];
+	});
+	
+	return activeSubscribables;
+}
+
 @interface RACSubscribable ()
 @property (assign, getter=isTearingDown) BOOL tearingDown;
 @end
@@ -26,8 +36,8 @@
 	if(self == nil) return nil;
 	
 	// We want to keep the subscribable around until all its subscribers are done
-	@synchronized([[self class] activeSubscribables]) {
-		[[[self class] activeSubscribables] addObject:self];
+	@synchronized(activeSubscribables()) {
+		[activeSubscribables() addObject:self];
 	}
 	
 	self.tearingDown = NO;
@@ -41,18 +51,6 @@
 
 - (NSString *)description {
 	return [NSString stringWithFormat:@"<%@: %p> name: %@", NSStringFromClass([self class]), self, self.name];
-}
-
-#pragma mark Lazy
-
-+ (NSMutableSet *)activeSubscribables {
-	static dispatch_once_t onceToken;
-	static NSMutableSet *activeSubscribables = nil;
-	dispatch_once(&onceToken, ^{
-		activeSubscribables = [NSMutableSet set];
-	});
-
-	return activeSubscribables;
 }
 
 #pragma mark RACSubscribable
@@ -188,8 +186,8 @@
 }
 
 - (void)invalidateGlobalRef {
-	@synchronized([[self class] activeSubscribables]) {
-		[[[self class] activeSubscribables] removeObject:self];
+	@synchronized(activeSubscribables()) {
+		[activeSubscribables() removeObject:self];
 	}
 }
 

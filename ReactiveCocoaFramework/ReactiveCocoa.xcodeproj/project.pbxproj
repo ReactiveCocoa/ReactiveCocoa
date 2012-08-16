@@ -147,6 +147,7 @@
 		A1FCC3791567DED0008C9686 /* RACDelegateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = A1FCC3761567DED0008C9686 /* RACDelegateProxy.h */; };
 		A1FCC37B1567DED0008C9686 /* RACDelegateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = A1FCC3771567DED0008C9686 /* RACDelegateProxy.m */; };
 		D041376915D2281C004BBF80 /* RACKVOWrapperSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D041376815D2281C004BBF80 /* RACKVOWrapperSpec.m */; };
+		D0DFBCD015DD70CC009DADB3 /* ReactiveCocoa.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 88037F8315056328001A5B19 /* ReactiveCocoa.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -230,13 +231,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		8820937F1501C94E00796685 /* CopyFiles */ = {
+		8820937F1501C94E00796685 /* Copy Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				D0DFBCD015DD70CC009DADB3 /* ReactiveCocoa.framework in Copy Frameworks */,
 			);
+			name = "Copy Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -822,7 +825,7 @@
 				88CDF7D815000FCF00163A9F /* Frameworks */,
 				88CDF7D915000FCF00163A9F /* Resources */,
 				88CDF7DA15000FCF00163A9F /* ShellScript */,
-				8820937F1501C94E00796685 /* CopyFiles */,
+				8820937F1501C94E00796685 /* Copy Frameworks */,
 			);
 			buildRules = (
 			);

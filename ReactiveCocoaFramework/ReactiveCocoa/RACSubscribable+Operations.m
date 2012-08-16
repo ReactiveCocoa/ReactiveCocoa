@@ -84,6 +84,21 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
+- (RACSubscribable *)doError:(void (^)(NSError *error))block {
+	NSParameterAssert(block != NULL);
+	
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		return [self subscribeNext:^(id x) {
+			[subscriber sendNext:x];
+		} error:^(NSError *error) {
+			block(error);
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
+	}];
+}
+
 - (RACSubscribable *)throttle:(NSTimeInterval)interval {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		__block id lastDelayedId = nil;
@@ -902,21 +917,24 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 
 - (RACSubscribable *)timeout:(NSTimeInterval)interval {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
-		id delayedIdentifier = [self rac_performBlock:^{
+		__block BOOL shouldTimeout = YES;
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t) (interval * NSEC_PER_SEC)), dispatch_get_current_queue(), ^{
+			if(!shouldTimeout) return;
+			
 			[subscriber sendError:[NSError errorWithDomain:RACSubscribableErrorDomain code:RACSubscribableErrorTimedOut userInfo:nil]];
-		} afterDelay:interval];
+		});
 		
 		RACDisposable *disposable = [self subscribeNext:^(id x) {
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
-			[self rac_cancelPreviousPerformBlockRequestsWithId:delayedIdentifier];
+			shouldTimeout = NO;
 			[subscriber sendCompleted];
 		}];
 		
 		return [RACDisposable disposableWithBlock:^{
-			[self rac_cancelPreviousPerformBlockRequestsWithId:delayedIdentifier];
+			shouldTimeout = NO;
 			[disposable dispose];
 		}];
 	}];

@@ -45,6 +45,8 @@ typedef NSInteger RACSubscribableError;
 // subscribable.
 - (RACSubscribable *)doNext:(void (^)(id x))block;
 
+- (RACSubscribable *)doError:(void (^)(NSError *error))block;
+
 // Only send `next` when we don't receive another `next` in `interval` seconds.
 - (RACSubscribable *)throttle:(NSTimeInterval)interval;
 

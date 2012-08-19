@@ -23,6 +23,7 @@
 #import <ReactiveCocoa/RACUnit.h>
 #import <ReactiveCocoa/RACScopedDisposable.h>
 #import <ReactiveCocoa/NSObject+RACBindings.h>
+#import <ReactiveCocoa/NSObject+RACKVOWrapper.h>
 #import <ReactiveCocoa/NSObject+RACOperations.h>
 #import <ReactiveCocoa/RACTuple.h>
 #import <ReactiveCocoa/NSArray+RACExtensions.h>

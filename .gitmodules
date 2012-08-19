@@ -1,6 +1,6 @@
 [submodule "external/specta"]
 	path = external/specta
-	url = git://github.com/petejkim/specta.git
+	url = git://github.com/github/specta.git
 [submodule "external/expecta"]
 	path = external/expecta
 	url = git://github.com/github/expecta.git
@@ -10,7 +10,6 @@
 [submodule "external/jrswizzle"]
 	path= external/jrswizzle
 	url = git://github.com/rentzsch/jrswizzle.git
-  
 [submodule "external/xcconfigs"]
 	path = external/xcconfigs
 	url = git://github.com/jspahrsummers/xcconfigs.git

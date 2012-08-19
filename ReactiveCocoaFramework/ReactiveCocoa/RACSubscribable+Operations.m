@@ -785,30 +785,53 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 - (id)firstOrDefault:(id)defaultValue success:(BOOL *)success error:(NSError **)error {
-	dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+	NSCondition *condition = [[NSCondition alloc] init];
+	condition.name = NSStringFromSelector(_cmd);
 
 	__block id value = defaultValue;
-	__block RACDisposable *disposable = [self subscribeNext:^(id x) {
-		value = x;
-		if(success != NULL) *success = YES;
 
-		// Only signal after setting values that aren't thread-safe.
-		dispatch_semaphore_signal(semaphore);
-		[disposable dispose];
+	// Protects against setting 'value' multiple times (e.g. to the second value
+	// instead of the first).
+	__block BOOL done = NO;
+
+	__block RACDisposable *disposable = [self subscribeNext:^(id x) {
+		[condition lock];
+
+		if (!done) {
+			value = x;
+			if(success != NULL) *success = YES;
+			
+			done = YES;
+			[disposable dispose];
+			[condition broadcast];
+		}
+
+		[condition unlock];
 	} error:^(NSError *e) {
+		[condition lock];
+
 		if(success != NULL) *success = NO;
 		if(error != NULL) *error = e;
 
-		dispatch_semaphore_signal(semaphore);
+		done = YES;
+		[condition broadcast];
+		[condition unlock];
 	} completed:^{
+		[condition lock];
+
 		if(success != NULL) *success = YES;
 
-		dispatch_semaphore_signal(semaphore);
+		done = YES;
+		[condition broadcast];
+		[condition unlock];
 	}];
 
-	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-	
-	dispatch_release(semaphore);
+	[condition lock];
+	while (!done) {
+		[condition wait];
+	}
+
+	[condition unlock];
 	return value;
 }
 

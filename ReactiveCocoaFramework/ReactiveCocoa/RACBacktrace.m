@@ -10,11 +10,6 @@
 #import <pthread.h>
 #import "RACBacktrace.h"
 
-typedef struct {
-	const void *replacement;
-	const void *replacee;
-} rac_interpose_t;
-
 @interface RACBacktrace ()
 @property (nonatomic, strong, readwrite) RACBacktrace *previousThreadBacktrace;
 @property (nonatomic, copy, readwrite) NSArray *callStackSymbols;
@@ -49,7 +44,11 @@ void rac_dispatch_after (dispatch_time_t time, dispatch_queue_t queue, dispatch_
 	dispatch_after(time, queue, RACBacktraceBlock(queue, block));
 }
 
-__attribute__((used)) static rac_interpose_t interposers[] __attribute__((section("__DATA,__interpose"))) = {
+// This is what actually performs the injection.
+//
+// The DYLD_INSERT_LIBRARIES environment variable must include the RAC dynamic
+// library in order for this to work.
+__attribute__((used)) static struct { const void *replacement; const void *replacee; } interposers[] __attribute__((section("__DATA,__interpose"))) = {
 	{ (const void *)&rac_dispatch_async, (const void *)&dispatch_async },
 	{ (const void *)&rac_dispatch_barrier_async, (const void *)&dispatch_barrier_async },
 	{ (const void *)&rac_dispatch_after, (const void *)&dispatch_after },

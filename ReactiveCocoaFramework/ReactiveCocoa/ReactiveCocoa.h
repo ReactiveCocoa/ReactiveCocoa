@@ -37,6 +37,7 @@
 #import <ReactiveCocoa/NSNotificationCenter+RACSupport.h>
 #import <ReactiveCocoa/NSData+RACSupport.h>
 #import <ReactiveCocoa/NSString+RACSupport.h>
+#import <ReactiveCocoa/NSObject+RACKVOWrapper.h>
 
 #ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
 #import <ReactiveCocoa/UIControl+RACSubscribableSupport.h>

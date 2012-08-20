@@ -78,6 +78,13 @@ static void rac_exception_handler (NSException *ex) {
 
 __attribute__((constructor))
 static void rac_install_handlers (void) {
+	const char *libraries = getenv("DYLD_INSERT_LIBRARIES");
+
+	// Don't install our handlers if we're not actually intercepting function
+	// calls.
+	if (libraries == NULL) return;
+	if (strstr(libraries, "ReactiveCocoa") == NULL) return;
+
 	NSSetUncaughtExceptionHandler(&rac_exception_handler);
 
 	signal(SIGILL, &rac_signal_handler);

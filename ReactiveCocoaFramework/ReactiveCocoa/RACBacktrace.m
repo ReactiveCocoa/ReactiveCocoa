@@ -29,7 +29,33 @@
 // Prints the backtrace of the current thread, appended to that of any previous
 // threads.
 + (void)printBacktrace;
+
 @end
+
+@interface RACDispatchInfo : NSObject
+
+// The recorded backtrace.
+@property (nonatomic, strong, readonly) RACBacktrace *backtrace;
+
+// The information for the original dispatch.
+@property (nonatomic, readonly) dispatch_function_t function;
+@property (nonatomic, readonly) void *context;
+@property (nonatomic, readonly) dispatch_queue_t queue;
+
+- (id)initWithQueue:(dispatch_queue_t)queue function:(dispatch_function_t)function context:(void *)context;
+
+@end
+
+// Function for use with dispatch_async_f and friends, which will save the
+// backtrace onto the current queue, then call through to the original dispatch.
+static void RACTraceDispatch (void *ptr) {
+	// Balance out the retain necessary for async calls.
+	RACDispatchInfo *info = CFBridgingRelease(ptr);
+
+	dispatch_queue_set_specific(info.queue, (void *)pthread_self(), (void *)CFBridgingRetain(info.backtrace), (dispatch_function_t)&CFBridgingRelease);
+	info.function(info.context);
+	dispatch_queue_set_specific(info.queue, (void *)pthread_self(), NULL, NULL);
+}
 
 // Always inline this function, for consistency in backtraces.
 __attribute__((always_inline))
@@ -43,8 +69,6 @@ static dispatch_block_t RACBacktraceBlock (dispatch_queue_t queue, dispatch_bloc
 	} copy];
 }
 
-// TODO: function pointer variants
-
 void rac_dispatch_async (dispatch_queue_t queue, dispatch_block_t block) {
 	dispatch_async(queue, RACBacktraceBlock(queue, block));
 }
@@ -57,6 +81,21 @@ void rac_dispatch_after (dispatch_time_t time, dispatch_queue_t queue, dispatch_
 	dispatch_after(time, queue, RACBacktraceBlock(queue, block));
 }
 
+void rac_dispatch_async_f (dispatch_queue_t queue, void *context, dispatch_function_t function) {
+	RACDispatchInfo *info = [[RACDispatchInfo alloc] initWithQueue:queue function:function context:context];
+	dispatch_async_f(queue, (void *)CFBridgingRetain(info), &RACTraceDispatch);
+}
+
+void rac_dispatch_barrier_async_f (dispatch_queue_t queue, void *context, dispatch_function_t function) {
+	RACDispatchInfo *info = [[RACDispatchInfo alloc] initWithQueue:queue function:function context:context];
+	dispatch_barrier_async_f(queue, (void *)CFBridgingRetain(info), &RACTraceDispatch);
+}
+
+void rac_dispatch_after_f (dispatch_time_t time, dispatch_queue_t queue, void *context, dispatch_function_t function) {
+	RACDispatchInfo *info = [[RACDispatchInfo alloc] initWithQueue:queue function:function context:context];
+	dispatch_after_f(time, queue, (void *)CFBridgingRetain(info), &RACTraceDispatch);
+}
+
 // This is what actually performs the injection.
 //
 // The DYLD_INSERT_LIBRARIES environment variable must include the RAC dynamic
@@ -65,6 +104,9 @@ __attribute__((used)) static struct { const void *replacement; const void *repla
 	{ (const void *)&rac_dispatch_async, (const void *)&dispatch_async },
 	{ (const void *)&rac_dispatch_barrier_async, (const void *)&dispatch_barrier_async },
 	{ (const void *)&rac_dispatch_after, (const void *)&dispatch_after },
+	{ (const void *)&rac_dispatch_async_f, (const void *)&dispatch_async_f },
+	{ (const void *)&rac_dispatch_barrier_async_f, (const void *)&dispatch_barrier_async_f },
+	{ (const void *)&rac_dispatch_after_f, (const void *)&dispatch_after_f },
 };
 
 static void RACSignalHandler (int sig) {
@@ -144,6 +186,39 @@ static void RACExceptionHandler (NSException *ex) {
 	}
 
 	return str;
+}
+
+@end
+
+@implementation RACDispatchInfo
+
+#pragma mark Lifecycle
+
+- (id)initWithQueue:(dispatch_queue_t)queue function:(dispatch_function_t)function context:(void *)context {
+	@autoreleasepool {
+		NSParameterAssert(queue != NULL);
+		NSParameterAssert(function != NULL);
+
+		self = [super init];
+		if (self == nil) return nil;
+
+		_backtrace = [RACBacktrace captureBacktraceIgnoringFrames:1];
+
+		dispatch_retain(queue);
+		_queue = queue;
+
+		_function = function;
+		_context = context;
+
+		return self;
+	}
+}
+
+- (void)dealloc {
+	if (_queue != NULL) {
+		dispatch_release(_queue);
+		_queue = NULL;
+	}
 }
 
 @end

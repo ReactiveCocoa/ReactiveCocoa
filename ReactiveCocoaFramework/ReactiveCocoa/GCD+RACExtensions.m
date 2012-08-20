@@ -66,14 +66,16 @@ static void rac_print_async_backtrace (void) {
 
 static void rac_signal_handler (int sig) {
 	rac_print_async_backtrace();
-	exit(EXIT_FAILURE);
+
+	// Restore the default action and raise the signal again.
+	signal(sig, SIG_DFL);
+	raise(sig);
 }
 
 static void rac_exception_handler (NSException *ex) {
 	NSLog(@"*** Uncaught exception: %@", ex);
 
 	rac_print_async_backtrace();
-	exit(EXIT_FAILURE);
 }
 
 __attribute__((constructor))

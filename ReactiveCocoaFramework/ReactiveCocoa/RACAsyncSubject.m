@@ -10,7 +10,7 @@
 #import "RACSubscriber.h"
 
 @interface RACAsyncSubject ()
-@property (nonatomic, strong) id lastValue;
+@property (strong) id lastValue;
 @property (assign) BOOL hasCompletedAlready;
 @property (strong) NSError *error;
 @end
@@ -36,17 +36,13 @@
 #pragma mark RACSubscriber
 
 - (void)sendNext:(id)value {
-	@synchronized(self.lastValue) {
-		self.lastValue = value;
-	}
+	self.lastValue = value;
 }
 
 - (void)sendCompleted {
 	self.hasCompletedAlready = YES;
 	
-	@synchronized(self.lastValue) {
-		[super sendNext:self.lastValue];
-	}
+	[super sendNext:self.lastValue];
 	
 	[super sendCompleted];
 }

@@ -9,7 +9,7 @@
 #import "RACBehaviorSubject.h"
 
 @interface RACBehaviorSubject ()
-@property (nonatomic, strong) id currentValue;
+@property (strong) id currentValue;
 @end
 
 
@@ -19,10 +19,8 @@
 #pragma mark RACSubscribable
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	RACDisposable * disposable = [super subscribe:subscriber];
-	@synchronized(self.currentValue) {
-		[subscriber sendNext:self.currentValue];
-	}
+	RACDisposable *disposable = [super subscribe:subscriber];
+	[subscriber sendNext:self.currentValue];
 	
 	return disposable;
 }
@@ -33,9 +31,7 @@
 - (void)sendNext:(id)value {
 	[super sendNext:value];
 	
-	@synchronized(self.currentValue) {
-		self.currentValue = value;
-	}
+	self.currentValue = value;
 }
 
 

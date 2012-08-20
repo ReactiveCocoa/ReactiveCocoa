@@ -23,7 +23,9 @@ typedef struct {
 + (void)printBacktrace;
 @end
 
-static dispatch_block_t rac_backtrace_block (dispatch_queue_t queue, dispatch_block_t block) {
+// Always inline this function, for consistency in backtraces.
+__attribute__((always_inline))
+static dispatch_block_t RACBacktraceBlock (dispatch_queue_t queue, dispatch_block_t block) {
 	RACBacktrace *backtrace = [RACBacktrace captureBacktrace];
 
 	return [^{
@@ -36,15 +38,15 @@ static dispatch_block_t rac_backtrace_block (dispatch_queue_t queue, dispatch_bl
 // TODO: function pointer variants
 
 void rac_dispatch_async (dispatch_queue_t queue, dispatch_block_t block) {
-	dispatch_async(queue, rac_backtrace_block(queue, block));
+	dispatch_async(queue, RACBacktraceBlock(queue, block));
 }
 
 void rac_dispatch_barrier_async (dispatch_queue_t queue, dispatch_block_t block) {
-	dispatch_barrier_async(queue, rac_backtrace_block(queue, block));
+	dispatch_barrier_async(queue, RACBacktraceBlock(queue, block));
 }
 
 void rac_dispatch_after (dispatch_time_t time, dispatch_queue_t queue, dispatch_block_t block) {
-	dispatch_after(time, queue, rac_backtrace_block(queue, block));
+	dispatch_after(time, queue, RACBacktraceBlock(queue, block));
 }
 
 __attribute__((used)) static rac_interpose_t interposers[] __attribute__((section("__DATA,__interpose"))) = {

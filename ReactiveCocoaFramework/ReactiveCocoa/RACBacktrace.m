@@ -11,10 +11,23 @@
 #import "RACBacktrace.h"
 
 @interface RACBacktrace ()
+
+// The backtrace from any previous thread.
 @property (nonatomic, strong, readwrite) RACBacktrace *previousThreadBacktrace;
+
+// The call stack of this backtrace's thread.
 @property (nonatomic, copy, readwrite) NSArray *callStackSymbols;
 
+// Captures the current thread's backtrace, appending it to any backtrace from
+// a previous thread.
 + (instancetype)captureBacktrace;
+
+// Same as +captureBacktrace, but omits the specified number of frames at the
+// top of the stack (in addition to this method itself).
++ (instancetype)captureBacktraceIgnoringFrames:(NSUInteger)ignoreCount;
+
+// Prints the backtrace of the current thread, appended to that of any previous
+// threads.
 + (void)printBacktrace;
 @end
 
@@ -71,15 +84,17 @@ static void RACExceptionHandler (NSException *ex) {
 #pragma mark Initialization
 
 + (void)load {
-	NSString *libraries = [[[NSProcessInfo processInfo] environment] objectForKey:@"DYLD_INSERT_LIBRARIES"];
+	@autoreleasepool {
+		NSString *libraries = [[[NSProcessInfo processInfo] environment] objectForKey:@"DYLD_INSERT_LIBRARIES"];
 
-	// Don't install our handlers if we're not actually intercepting function
-	// calls.
-	if ([libraries rangeOfString:@"ReactiveCocoa"].length == 0) return;
+		// Don't install our handlers if we're not actually intercepting function
+		// calls.
+		if ([libraries rangeOfString:@"ReactiveCocoa"].length == 0) return;
 
-	NSLog(@"*** Enabling asynchronous backtraces");
+		NSLog(@"*** Enabling asynchronous backtraces");
 
-	NSSetUncaughtExceptionHandler(&RACExceptionHandler);
+		NSSetUncaughtExceptionHandler(&RACExceptionHandler);
+	}
 
 	signal(SIGILL, &RACSignalHandler);
 	signal(SIGTRAP, &RACSignalHandler);
@@ -94,6 +109,10 @@ static void RACExceptionHandler (NSException *ex) {
 #pragma mark Backtraces
 
 + (instancetype)captureBacktrace {
+	return [self captureBacktraceIgnoringFrames:1];
+}
+
++ (instancetype)captureBacktraceIgnoringFrames:(NSUInteger)ignoreCount {
 	RACBacktrace *oldBacktrace = (__bridge id)dispatch_get_specific((void *)pthread_self());
 
 	RACBacktrace *newBacktrace = [[RACBacktrace alloc] init];
@@ -101,15 +120,19 @@ static void RACExceptionHandler (NSException *ex) {
 
 	NSArray *symbols = [NSThread callStackSymbols];
 
-	// Omit this method from the backtrace.
-	newBacktrace.callStackSymbols = [symbols subarrayWithRange:NSMakeRange(1, symbols.count - 1)];
+	// Omit this method plus however many others from the backtrace.
+	if (symbols.count > ignoreCount + 1) {
+		newBacktrace.callStackSymbols = [symbols subarrayWithRange:NSMakeRange(ignoreCount + 1, symbols.count - ignoreCount - 1)];
+	}
 
 	return newBacktrace;
 }
 
 + (void)printBacktrace {
-	NSLog(@"Backtrace: %@", [self captureBacktrace]);
-	fflush(stdout);
+	@autoreleasepool {
+		NSLog(@"Backtrace: %@", [self captureBacktraceIgnoringFrames:1]);
+		fflush(stdout);
+	}
 }
 
 #pragma mark NSObject

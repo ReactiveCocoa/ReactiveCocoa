@@ -138,20 +138,22 @@ static void RACExceptionHandler (NSException *ex) {
 }
 
 + (instancetype)captureBacktraceIgnoringFrames:(NSUInteger)ignoreCount {
-	RACBacktrace *oldBacktrace = (__bridge id)dispatch_get_specific((void *)pthread_self());
+	@autoreleasepool {
+		RACBacktrace *oldBacktrace = (__bridge id)dispatch_get_specific((void *)pthread_self());
 
-	RACBacktrace *newBacktrace = [[RACBacktrace alloc] init];
-	newBacktrace.previousThreadBacktrace = oldBacktrace;
+		RACBacktrace *newBacktrace = [[RACBacktrace alloc] init];
+		newBacktrace.previousThreadBacktrace = oldBacktrace;
 
-	NSArray *symbols = [NSThread callStackSymbols];
+		NSArray *symbols = [NSThread callStackSymbols];
 
-	// Omit this method plus however many others from the backtrace.
-	++ignoreCount;
-	if (symbols.count > ignoreCount) {
-		newBacktrace.callStackSymbols = [symbols subarrayWithRange:NSMakeRange(ignoreCount, symbols.count - ignoreCount)];
+		// Omit this method plus however many others from the backtrace.
+		++ignoreCount;
+		if (symbols.count > ignoreCount) {
+			newBacktrace.callStackSymbols = [symbols subarrayWithRange:NSMakeRange(ignoreCount, symbols.count - ignoreCount)];
+		}
+
+		return newBacktrace;
 	}
-
-	return newBacktrace;
 }
 
 + (void)printBacktrace {

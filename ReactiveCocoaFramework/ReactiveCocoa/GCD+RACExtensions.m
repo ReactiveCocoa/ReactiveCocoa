@@ -85,6 +85,8 @@ static void rac_install_handlers (void) {
 	if (libraries == NULL) return;
 	if (strstr(libraries, "ReactiveCocoa") == NULL) return;
 
+	NSLog(@"*** Enabling asynchronous backtraces");
+
 	NSSetUncaughtExceptionHandler(&rac_exception_handler);
 
 	signal(SIGILL, &rac_signal_handler);

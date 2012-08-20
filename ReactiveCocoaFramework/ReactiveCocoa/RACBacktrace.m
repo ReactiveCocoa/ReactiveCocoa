@@ -97,7 +97,11 @@ static void RACExceptionHandler (NSException *ex) {
 
 	RACBacktrace *newBacktrace = [[RACBacktrace alloc] init];
 	newBacktrace.previousThreadBacktrace = oldBacktrace;
-	newBacktrace.callStackSymbols = [NSThread callStackSymbols];
+
+	NSArray *symbols = [NSThread callStackSymbols];
+
+	// Omit this method from the backtrace.
+	newBacktrace.callStackSymbols = [symbols subarrayWithRange:NSMakeRange(1, symbols.count - 1)];
 
 	return newBacktrace;
 }

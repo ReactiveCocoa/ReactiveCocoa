@@ -49,7 +49,9 @@
 }
 
 - (void)didSubscribeWithDisposable:(RACDisposable *)d {
-	self.disposable = d;
+	@synchronized(self) {
+		self.disposable = d;
+	}
 }
 
 
@@ -69,9 +71,10 @@
 }
 
 - (void)stopSubscription {
-	RACDisposable *d = self.disposable;
-	self.disposable = nil;
-	[d dispose];
+	@synchronized(self) {
+		[self.disposable dispose];
+		self.disposable = nil;
+	}
 }
 
 @end

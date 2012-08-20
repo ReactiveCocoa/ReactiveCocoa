@@ -28,9 +28,11 @@
 }
 
 - (void)dispose {
-	if(self.disposeBlock != NULL) {
-		self.disposeBlock();
-		self.disposeBlock = NULL;
+	@synchronized(self) {
+		if(self.disposeBlock != NULL) {
+			self.disposeBlock();
+			self.disposeBlock = NULL;
+		}
 	}
 }
 

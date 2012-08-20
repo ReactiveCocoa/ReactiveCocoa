@@ -146,8 +146,9 @@ static void RACExceptionHandler (NSException *ex) {
 	NSArray *symbols = [NSThread callStackSymbols];
 
 	// Omit this method plus however many others from the backtrace.
-	if (symbols.count > ignoreCount + 1) {
-		newBacktrace.callStackSymbols = [symbols subarrayWithRange:NSMakeRange(ignoreCount + 1, symbols.count - ignoreCount - 1)];
+	++ignoreCount;
+	if (symbols.count > ignoreCount) {
+		newBacktrace.callStackSymbols = [symbols subarrayWithRange:NSMakeRange(ignoreCount, symbols.count - ignoreCount)];
 	}
 
 	return newBacktrace;

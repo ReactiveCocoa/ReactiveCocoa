@@ -8,6 +8,6 @@
 
 // Preserves backtraces across asynchronous calls.
 @interface RACBacktrace : NSObject
-@property (nonatomic, strong) RACBacktrace *previousThreadBacktrace;
-@property (nonatomic, copy) NSArray *callStackSymbols;
+@property (nonatomic, strong, readonly) RACBacktrace *previousThreadBacktrace;
+@property (nonatomic, copy, readonly) NSArray *callStackSymbols;
 @end

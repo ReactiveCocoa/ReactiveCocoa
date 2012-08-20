@@ -15,15 +15,19 @@ typedef struct {
 	const void *replacee;
 } rac_interpose_t;
 
-static dispatch_block_t rac_backtrace_block (dispatch_queue_t queue, dispatch_block_t block) {
-	RACBacktrace *oldBacktrace = (__bridge id)dispatch_get_specific((void *)pthread_self());
+@interface RACBacktrace ()
+@property (nonatomic, strong, readwrite) RACBacktrace *previousThreadBacktrace;
+@property (nonatomic, copy, readwrite) NSArray *callStackSymbols;
 
-	RACBacktrace *newBacktrace = [[RACBacktrace alloc] init];
-	newBacktrace.previousThreadBacktrace = oldBacktrace;
-	newBacktrace.callStackSymbols = [NSThread callStackSymbols];
++ (instancetype)captureBacktrace;
++ (void)printBacktrace;
+@end
+
+static dispatch_block_t rac_backtrace_block (dispatch_queue_t queue, dispatch_block_t block) {
+	RACBacktrace *backtrace = [RACBacktrace captureBacktrace];
 
 	return [^{
-		dispatch_queue_set_specific(queue, (void *)pthread_self(), (void *)CFBridgingRetain(newBacktrace), (dispatch_function_t)&CFBridgingRelease);
+		dispatch_queue_set_specific(queue, (void *)pthread_self(), (void *)CFBridgingRetain(backtrace), (dispatch_function_t)&CFBridgingRelease);
 		block();
 		dispatch_queue_set_specific(queue, (void *)pthread_self(), NULL, NULL);
 	} copy];
@@ -49,55 +53,61 @@ __attribute__((used)) static rac_interpose_t interposers[] __attribute__((sectio
 	{ (const void *)&rac_dispatch_after, (const void *)&dispatch_after },
 };
 
-static void rac_print_async_backtrace (void) {
-	RACBacktrace *lastBacktrace = (__bridge id)dispatch_get_specific((void *)pthread_self());
-
-	RACBacktrace *newBacktrace = [[RACBacktrace alloc] init];
-	newBacktrace.previousThreadBacktrace = lastBacktrace;
-	newBacktrace.callStackSymbols = [NSThread callStackSymbols];
-
-	NSLog(@"Backtrace: %@", newBacktrace);
-	fflush(stdout);
-}
-
-static void rac_signal_handler (int sig) {
-	rac_print_async_backtrace();
+static void RACSignalHandler (int sig) {
+	[RACBacktrace printBacktrace];
 
 	// Restore the default action and raise the signal again.
 	signal(sig, SIG_DFL);
 	raise(sig);
 }
 
-static void rac_exception_handler (NSException *ex) {
-	NSLog(@"*** Uncaught exception: %@", ex);
-
-	rac_print_async_backtrace();
-}
-
-__attribute__((constructor))
-static void rac_install_handlers (void) {
-	const char *libraries = getenv("DYLD_INSERT_LIBRARIES");
-
-	// Don't install our handlers if we're not actually intercepting function
-	// calls.
-	if (libraries == NULL) return;
-	if (strstr(libraries, "ReactiveCocoa") == NULL) return;
-
-	NSLog(@"*** Enabling asynchronous backtraces");
-
-	NSSetUncaughtExceptionHandler(&rac_exception_handler);
-
-	signal(SIGILL, &rac_signal_handler);
-	signal(SIGTRAP, &rac_signal_handler);
-	signal(SIGABRT, &rac_signal_handler);
-	signal(SIGFPE, &rac_signal_handler);
-	signal(SIGBUS, &rac_signal_handler);
-	signal(SIGSEGV, &rac_signal_handler);
-	signal(SIGSYS, &rac_signal_handler);
-	signal(SIGPIPE, &rac_signal_handler);
+static void RACExceptionHandler (NSException *ex) {
+	[RACBacktrace printBacktrace];
 }
 
 @implementation RACBacktrace
+
+#pragma mark Initialization
+
++ (void)load {
+	NSString *libraries = [[[NSProcessInfo processInfo] environment] objectForKey:@"DYLD_INSERT_LIBRARIES"];
+
+	// Don't install our handlers if we're not actually intercepting function
+	// calls.
+	if ([libraries rangeOfString:@"ReactiveCocoa"].length == 0) return;
+
+	NSLog(@"*** Enabling asynchronous backtraces");
+
+	NSSetUncaughtExceptionHandler(&RACExceptionHandler);
+
+	signal(SIGILL, &RACSignalHandler);
+	signal(SIGTRAP, &RACSignalHandler);
+	signal(SIGABRT, &RACSignalHandler);
+	signal(SIGFPE, &RACSignalHandler);
+	signal(SIGBUS, &RACSignalHandler);
+	signal(SIGSEGV, &RACSignalHandler);
+	signal(SIGSYS, &RACSignalHandler);
+	signal(SIGPIPE, &RACSignalHandler);
+}
+
+#pragma mark Backtraces
+
++ (instancetype)captureBacktrace {
+	RACBacktrace *oldBacktrace = (__bridge id)dispatch_get_specific((void *)pthread_self());
+
+	RACBacktrace *newBacktrace = [[RACBacktrace alloc] init];
+	newBacktrace.previousThreadBacktrace = oldBacktrace;
+	newBacktrace.callStackSymbols = [NSThread callStackSymbols];
+
+	return newBacktrace;
+}
+
++ (void)printBacktrace {
+	NSLog(@"Backtrace: %@", [self captureBacktrace]);
+	fflush(stdout);
+}
+
+#pragma mark NSObject
 
 - (NSString *)description {
 	NSString *str = [NSString stringWithFormat:@"%@", self.callStackSymbols];

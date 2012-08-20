@@ -1,5 +1,5 @@
 //
-//  GCD+RACExtensions.m
+//  RACBacktrace.m
 //  ReactiveCocoa
 //
 //  Created by Justin Spahr-Summers on 2012-08-16.
@@ -8,16 +8,12 @@
 
 #import <execinfo.h>
 #import <pthread.h>
+#import "RACBacktrace.h"
 
 typedef struct {
 	const void *replacement;
 	const void *replacee;
 } rac_interpose_t;
-
-@interface RACBacktrace : NSObject
-@property (nonatomic, strong) RACBacktrace *previousThreadBacktrace;
-@property (nonatomic, copy) NSArray *callStackSymbols;
-@end
 
 static dispatch_block_t rac_backtrace_block (dispatch_queue_t queue, dispatch_block_t block) {
 	RACBacktrace *oldBacktrace = (__bridge id)dispatch_get_specific((void *)pthread_self());

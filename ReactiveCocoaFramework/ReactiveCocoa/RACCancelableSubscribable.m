@@ -22,9 +22,11 @@
 #pragma mark RACSubscribable
 
 - (void)tearDown {
-	if(self.cancelBlock != NULL) {
-		self.cancelBlock();
-		self.cancelBlock = NULL;
+	@synchronized(self) {
+		if(self.cancelBlock != NULL) {
+			self.cancelBlock();
+			self.cancelBlock = NULL;
+		}
 	}
 	
 	[super tearDown];

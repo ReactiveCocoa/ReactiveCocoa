@@ -41,11 +41,17 @@ typedef NSInteger RACSubscribableError;
 // Only send `next` when the given block returns YES.
 - (RACSubscribable *)where:(BOOL (^)(id x))whereBlock;
 
-// Do the given block on `next`. This can be used to inject side effects into a
-// subscribable.
+// Do the given block on `next`. This should be used to inject side effects into
+// a subscribable.
 - (RACSubscribable *)doNext:(void (^)(id x))block;
 
+// Do the given block on `error`. This should be used to inject side effects
+// into a subscribable.
 - (RACSubscribable *)doError:(void (^)(NSError *error))block;
+
+// Do the given block on `completed`. This should be used to inject side effects
+// into a subscribable.
+- (RACSubscribable *)doCompleted:(void (^)(void))block;
 
 // Only send `next` when we don't receive another `next` in `interval` seconds.
 - (RACSubscribable *)throttle:(NSTimeInterval)interval;
@@ -192,7 +198,7 @@ typedef NSInteger RACSubscribableError;
 - (RACConnectableSubscribable *)multicast:(RACSubject *)subject;
 
 // Sends an error after `interval` seconds if the source doesn't complete
-// before then.
+// before then. The timeout is scheduled on the default priority global queue.
 - (RACSubscribable *)timeout:(NSTimeInterval)interval;
 
 // Creates and returns a subscribable that delivers its callbacks using the

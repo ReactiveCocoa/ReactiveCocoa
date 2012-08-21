@@ -99,6 +99,21 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
+- (RACSubscribable *)doCompleted:(void (^)(void))block {
+	NSParameterAssert(block != NULL);
+	
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		return [self subscribeNext:^(id x) {
+			[subscriber sendNext:x];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			block();
+			[subscriber sendCompleted];
+		}];
+	}];
+}
+
 - (RACSubscribable *)throttle:(NSTimeInterval)interval {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		__block id lastDelayedId = nil;
@@ -940,9 +955,9 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 
 - (RACSubscribable *)timeout:(NSTimeInterval)interval {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
-		__block BOOL shouldTimeout = YES;
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t) (interval * NSEC_PER_SEC)), dispatch_get_current_queue(), ^{
-			if(!shouldTimeout) return;
+		__block volatile uint32_t cancelTimeout = 0;
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t) (interval * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+			if(cancelTimeout) return;
 			
 			[subscriber sendError:[NSError errorWithDomain:RACSubscribableErrorDomain code:RACSubscribableErrorTimedOut userInfo:nil]];
 		});
@@ -952,12 +967,12 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
-			shouldTimeout = NO;
+			OSAtomicOr32Barrier(1, &cancelTimeout);
 			[subscriber sendCompleted];
 		}];
 		
 		return [RACDisposable disposableWithBlock:^{
-			shouldTimeout = NO;
+			OSAtomicOr32Barrier(1, &cancelTimeout);
 			[disposable dispose];
 		}];
 	}];

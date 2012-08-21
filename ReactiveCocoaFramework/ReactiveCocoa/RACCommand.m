@@ -43,7 +43,7 @@
 	return command;
 }
 
-+ (instancetype)commandWithCanExecuteObservable:(id<RACSubscribable>)canExecuteObservable execute:(void (^)(id value))executeBlock {
++ (instancetype)commandWithCanExecuteObservable:(RACSubscribable *)canExecuteObservable execute:(void (^)(id value))executeBlock {
 	RACCommand *command = [self commandWithCanExecute:NULL execute:executeBlock];
 	
 	[canExecuteObservable subscribe:[RACSubscriber subscriberWithNext:^(id x) {

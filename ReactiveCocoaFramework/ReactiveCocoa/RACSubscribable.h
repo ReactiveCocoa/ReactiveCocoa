@@ -13,17 +13,7 @@
 @class RACSubject;
 @protocol RACSubscriber;
 
-@protocol RACSubscribable <NSObject>
-// Subscribes subscriber to changes on the receiver. The receiver defines which
-// events it actually sends and in what situations the events are sent.
-//
-// Returns a disposable. You can call -dispose on it if you need to end your
-// subscription before it would otherwise end.
-- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber;
-@end
-
-
-@interface RACSubscribable : NSObject <RACSubscribable>
+@interface RACSubscribable : NSObject
 
 // The name of the subscribable. This is for debug / human purposes only.
 @property (nonatomic, copy) NSString *name;
@@ -69,5 +59,12 @@
 // scheduler and gives the block the subject that was returned from the method. 
 // The block can send events using the subject.
 + (RACSubscribable *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block;
+
+// Subscribes subscriber to changes on the receiver. The receiver defines which
+// events it actually sends and in what situations the events are sent.
+//
+// Returns a disposable. You can call -dispose on it if you need to end your
+// subscription before it would otherwise end.
+- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber;
 
 @end

@@ -62,7 +62,7 @@ typedef NSInteger RACSubscribableError;
 // Divide the `next`s of the subscribable into windows. When `openSubscribable`
 // sends a next, a window is opened and the `closeBlock` is asked for a close
 // subscribable. The window is closed when the close subscribable sends a `next`.
-- (RACSubscribable *)windowWithStart:(id<RACSubscribable>)openSubscribable close:(id<RACSubscribable> (^)(id<RACSubscribable> start))closeBlock;
+- (RACSubscribable *)windowWithStart:(RACSubscribable *)openSubscribable close:(RACSubscribable * (^)(RACSubscribable * start))closeBlock;
 
 // Divide the `next`s into buffers with `bufferCount` items each. The `next`
 // will be a RACTuple of values.
@@ -96,10 +96,10 @@ typedef NSInteger RACSubscribableError;
 
 // Gets a new subscribable for every `next` and sends `next` when any of those
 // subscribables do.
-- (RACSubscribable *)selectMany:(id<RACSubscribable> (^)(id x))selectBlock;
+- (RACSubscribable *)selectMany:(RACSubscribable * (^)(id x))selectBlock;
 
 // Subscribes to `subscribable` when the source subscribable completes.
-- (RACSubscribable *)concat:(id<RACSubscribable>)subscribable;
+- (RACSubscribable *)concat:(RACSubscribable *)subscribable;
 
 // Concats the inner subscribables of a subscribable of subscribables.
 - (RACSubscribable *)concat;
@@ -124,7 +124,7 @@ typedef NSInteger RACSubscribableError;
 + (RACSubscribable *)interval:(NSTimeInterval)interval;
 
 // Take `next`s until the `subscribableTrigger` sends a `next`.
-- (RACSubscribable *)takeUntil:(id<RACSubscribable>)subscribableTrigger;
+- (RACSubscribable *)takeUntil:(RACSubscribable *)subscribableTrigger;
 
 // Take `next`s until the given block returns YES.
 - (RACSubscribable *)takeUntilBlock:(BOOL (^)(id x))predicate;
@@ -136,10 +136,10 @@ typedef NSInteger RACSubscribableError;
 - (RACSubscribable *)asMaybes;
 
 // Subscribe to the returned subscribable when an error occurs.
-- (RACSubscribable *)catch:(id<RACSubscribable> (^)(NSError *error))catchBlock;
+- (RACSubscribable *)catch:(RACSubscribable * (^)(NSError *error))catchBlock;
 
 // Subscribe to the given subscribable when an error occurs.
-- (RACSubscribable *)catchTo:(id<RACSubscribable>)subscribable;
+- (RACSubscribable *)catchTo:(RACSubscribable *)subscribable;
 
 // Returns the first `next`. Note that this is a blocking call.
 - (id)first;
@@ -167,7 +167,7 @@ typedef NSInteger RACSubscribableError;
 // Defer creation of a subscribable until the subscribable's actually subscribed to.
 //
 // This can be used to effectively turn a hot subscribable into a cold subscribable.
-+ (RACSubscribable *)defer:(id<RACSubscribable> (^)(void))block;
++ (RACSubscribable *)defer:(RACSubscribable * (^)(void))block;
 
 // Send only `next`s for which -isEqual: returns NO when compared to the
 // previous `next`.

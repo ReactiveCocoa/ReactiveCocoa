@@ -173,7 +173,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (RACSubscribable *)catch:(id<RACSubscribable> (^)(NSError *error))catchBlock {
+- (RACSubscribable *)catch:(RACSubscribable * (^)(NSError *error))catchBlock {
 	NSParameterAssert(catchBlock != NULL);
 		
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
@@ -181,7 +181,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		RACDisposable *outerDisposable = [self subscribeNext:^(id x) {
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {			
-			id<RACSubscribable> subscribable = catchBlock(error);
+			RACSubscribable * subscribable = catchBlock(error);
 			innerDisposable = [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 				[subscriber sendNext:x];
 			} error:^(NSError *error) {
@@ -200,7 +200,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (RACSubscribable *)catchTo:(id<RACSubscribable>)subscribable {
+- (RACSubscribable *)catchTo:(RACSubscribable *)subscribable {
 	return [self catch:^(NSError *error) {
 		return subscribable;
 	}];
@@ -222,13 +222,13 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (RACSubscribable *)windowWithStart:(id<RACSubscribable>)openSubscribable close:(id<RACSubscribable> (^)(id<RACSubscribable> start))closeBlock {
+- (RACSubscribable *)windowWithStart:(RACSubscribable *)openSubscribable close:(RACSubscribable * (^)(RACSubscribable * start))closeBlock {
 	NSParameterAssert(openSubscribable != nil);
 	NSParameterAssert(closeBlock != NULL);
 	
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		__block RACSubject *currentWindow = nil;
-		__block id<RACSubscribable> currentCloseWindow = nil;
+		__block RACSubscribable * currentCloseWindow = nil;
 		__block RACDisposable *closeObserverDisposable = NULL;
 		
 		void (^closeCurrentWindow)(void) = ^{
@@ -281,7 +281,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		RACSubject *windowCloseSubject = [RACSubject subject];
 		
 		__block RACDisposable *innerDisposable = nil;
-		RACDisposable *outerDisposable = [[self windowWithStart:windowOpenSubject close:^(id<RACSubscribable> start) {
+		RACDisposable *outerDisposable = [[self windowWithStart:windowOpenSubject close:^(RACSubscribable * start) {
 			return windowCloseSubject;
 		}] subscribeNext:^(id x) {		
 			innerDisposable = [x subscribeNext:^(id x) {
@@ -310,7 +310,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		RACBehaviorSubject *windowOpenSubject = [RACBehaviorSubject behaviorSubjectWithDefaultValue:[RACUnit defaultUnit]];
 
 		__block RACDisposable *innerDisposable = nil;
-		RACDisposable *outerDisposable = [[self windowWithStart:windowOpenSubject close:^(id<RACSubscribable> start) {
+		RACDisposable *outerDisposable = [[self windowWithStart:windowOpenSubject close:^(RACSubscribable * start) {
 			return [[[RACSubscribable interval:interval] take:1] doNext:^(id x) {
 				[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:values convertNullsToNils:YES]];
 				[values removeAllObjects];
@@ -379,14 +379,14 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		NSMutableSet *disposables = [NSMutableSet setWithCapacity:subscribables.count];
 		NSMutableSet *completedSubscribables = [NSMutableSet setWithCapacity:subscribables.count];
 		NSMutableDictionary *lastValues = [NSMutableDictionary dictionaryWithCapacity:subscribables.count];
-		for(id<RACSubscribable> subscribable in subscribables) {
+		for(RACSubscribable * subscribable in subscribables) {
 			RACDisposable *disposable = [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 				@synchronized(lastValues) {
 					[lastValues setObject:x ? : [RACTupleNil tupleNil] forKey:[NSString stringWithFormat:@"%p", subscribable]];
 					
 					if(lastValues.count == subscribables.count) {
 						NSMutableArray *orderedValues = [NSMutableArray arrayWithCapacity:subscribables.count];
-						for(id<RACSubscribable> o in subscribables) {
+						for(RACSubscribable * o in subscribables) {
 							[orderedValues addObject:[lastValues objectForKey:[NSString stringWithFormat:@"%p", o]]];
 						}
 						
@@ -425,7 +425,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		NSMutableSet *disposables = [NSMutableSet setWithCapacity:subscribables.count];
 		NSMutableSet *completedSubscribables = [NSMutableSet setWithCapacity:subscribables.count];
-		for(id<RACSubscribable> subscribable in subscribables) {
+		for(RACSubscribable * subscribable in subscribables) {
 			RACDisposable *disposable = [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 				[subscriber sendNext:x];
 			} error:^(NSError *error) {
@@ -462,9 +462,9 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		NSMutableSet *completedSubscribables = [NSMutableSet set];
 		NSMutableSet *innerDisposables = [NSMutableSet set];
 		RACDisposable *outerDisposable = [self subscribeNext:^(id x) {
-			NSAssert1([x conformsToProtocol:@protocol(RACSubscribable)], @"The source must be a subscribable of subscribables. Instead, got %@", x);
+			NSAssert1([x isKindOfClass:[RACSubscribable class]], @"The source must be a subscribable of subscribables. Instead, got %@", x);
 			
-			id<RACSubscribable> innerSubscribable = x;
+			RACSubscribable * innerSubscribable = x;
 			@synchronized(activeSubscribables) {
 				[activeSubscribables addObject:innerSubscribable];
 			}
@@ -509,11 +509,11 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (RACSubscribable *)selectMany:(id<RACSubscribable> (^)(id x))selectBlock {
+- (RACSubscribable *)selectMany:(RACSubscribable * (^)(id x))selectBlock {
 	return [[self select:selectBlock] merge];
 }
 
-- (RACSubscribable *)concat:(id<RACSubscribable>)subscribable {
+- (RACSubscribable *)concat:(RACSubscribable *)subscribable {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *concattedDisposable = nil;
 		RACDisposable *sourceDisposable = [self subscribeNext:^(id x) {
@@ -570,7 +570,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		}];
 		
 		RACDisposable *sourceDisposable = [self subscribeNext:^(id x) {
-			NSAssert1([x conformsToProtocol:@protocol(RACSubscribable)], @"The source must be a subscribable of subscribables. Instead, got %@", x);
+			NSAssert1([x isKindOfClass:[RACSubscribable class]], @"The source must be a subscribable of subscribables. Instead, got %@", x);
 			[innerSubscribables addObject:x];
 			
 			if(currentDisposable == nil) {
@@ -687,7 +687,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	return subscribable;
 }
 
-- (RACSubscribable *)takeUntil:(id<RACSubscribable>)subscribableTrigger {
+- (RACSubscribable *)takeUntil:(RACSubscribable *)subscribableTrigger {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *selfDisposable = nil;
 		__block RACDisposable *triggerDisposable = [subscribableTrigger subscribe:[RACSubscriber subscriberWithNext:^(id x) {
@@ -752,7 +752,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *innerDisposable = nil;
 		RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
-			NSAssert2([x conformsToProtocol:@protocol(RACSubscribable)], @"-switch requires that the source subscribable (%@) send subscribables. Instead we got: %@", self, x);
+			NSAssert2([x isKindOfClass:[RACSubscribable class]], @"-switch requires that the source subscribable (%@) send subscribables. Instead we got: %@", self, x);
 			
 			[innerDisposable dispose], innerDisposable = nil;
 			
@@ -835,11 +835,11 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	return value;
 }
 
-+ (RACSubscribable *)defer:(id<RACSubscribable> (^)(void))block {
++ (RACSubscribable *)defer:(RACSubscribable * (^)(void))block {
 	NSParameterAssert(block != NULL);
 	
 	return [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
-		id<RACSubscribable> subscribable = block();
+		RACSubscribable * subscribable = block();
 		return [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {

@@ -10,7 +10,7 @@
 #import "RACSubscriber.h"
 #import "RACSubscribable.h"
 
-#define REQUIRES_RAC_SUBSCRIBABLE NSParameterAssert([self conformsToProtocol:@protocol(RACSubscribable)]);
+#define REQUIRES_RAC_SUBSCRIBABLE NSParameterAssert([self isKindOfClass:[RACSubscribable class]]);
 
 
 @implementation NSObject (RACSubscribable)
@@ -75,7 +75,7 @@
 
 - (RACDisposable *)subscribeError:(void (^)(NSError *))errorBlock completed:(void (^)(void))completedBlock
 {
-	NSParameterAssert([self conformsToProtocol:@protocol(RACSubscribable)]);
+	NSParameterAssert([self isKindOfClass:[RACSubscribable class]]);
 	NSParameterAssert(completedBlock != NULL);
 	NSParameterAssert(errorBlock != NULL);
 	

@@ -15,7 +15,7 @@
 #import "RACDisposable.h"
 
 @interface RACConnectableSubscribable ()
-@property (nonatomic, strong) id<RACSubscribable> sourceSubscribable;
+@property (nonatomic, strong) RACSubscribable * sourceSubscribable;
 @property (nonatomic, strong) RACSubject *subject;
 @property (nonatomic, strong) RACDisposable *disposable;
 @end
@@ -37,7 +37,7 @@
 @synthesize subject;
 @synthesize disposable;
 
-+ (instancetype)connectableSubscribableWithSourceSubscribable:(id<RACSubscribable>)source subject:(RACSubject *)subject {
++ (instancetype)connectableSubscribableWithSourceSubscribable:(RACSubscribable *)source subject:(RACSubject *)subject {
 	RACConnectableSubscribable *subscribable = [[self alloc] init];
 	subscribable.sourceSubscribable = source;
 	subscribable.subject = subject;

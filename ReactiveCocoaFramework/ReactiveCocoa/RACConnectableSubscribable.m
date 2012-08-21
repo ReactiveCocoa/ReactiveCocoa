@@ -45,7 +45,7 @@
 }
 
 - (RACDisposable *)connect {
-	@synchronized(self.disposable) {
+	@synchronized(self) {
 		if(self.disposable == nil) {
 			self.disposable = [self.sourceSubscribable subscribe:self.subject];
 		}
@@ -76,7 +76,7 @@
 			}
 			
 			if(noSubscribers) {
-				@synchronized(self.disposable) {
+				@synchronized(self) {
 					self.disposable = nil;
 				}
 			}

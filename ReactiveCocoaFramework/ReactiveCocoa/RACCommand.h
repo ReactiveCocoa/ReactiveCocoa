@@ -32,7 +32,7 @@
 // It will be passed the object given to `-execute:`.
 + (instancetype)commandWithCanExecute:(BOOL (^)(id value))canExecuteBlock execute:(void (^)(id value))executeBlock;
 
-+ (instancetype)commandWithCanExecuteObservable:(id<RACSubscribable>)canExecuteObservable execute:(void (^)(id value))executeBlock;
++ (instancetype)commandWithCanExecuteObservable:(RACSubscribable *)canExecuteObservable execute:(void (^)(id value))executeBlock;
 
 // Can the command execute with the given value?
 //

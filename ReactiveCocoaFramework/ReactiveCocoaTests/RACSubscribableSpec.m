@@ -168,7 +168,7 @@ describe(@"querying", ^{
 		RACSubject *closeSubject = [RACSubject subject];
 		__block NSUInteger valuesReceived = 0;
 		
-		RACSubscribable *window = [subscribable windowWithStart:windowOpen close:^(id<RACSubscribable> start) {
+		RACSubscribable *window = [subscribable windowWithStart:windowOpen close:^(RACSubscribable *start) {
 			return closeSubject;
 		}];
 				

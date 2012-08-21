@@ -13,17 +13,7 @@
 @class RACSubject;
 @protocol RACSubscriber;
 
-@protocol RACSubscribable <NSObject>
-// Subscribes subscriber to changes on the receiver. The receiver defines which
-// events it actually sends and in what situations the events are sent.
-//
-// Returns a disposable. You can call -dispose on it if you need to end your
-// subscription before it would otherwise end.
-- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber;
-@end
-
-
-@interface RACSubscribable : NSObject <RACSubscribable>
+@interface RACSubscribable : NSObject
 
 // The name of the subscribable. This is for debug / human purposes only.
 @property (nonatomic, copy) NSString *name;
@@ -69,5 +59,33 @@
 // scheduler and gives the block the subject that was returned from the method. 
 // The block can send events using the subject.
 + (RACSubscribable *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block;
+
+// Subscribes subscriber to changes on the receiver. The receiver defines which
+// events it actually sends and in what situations the events are sent.
+//
+// Returns a disposable. You can call -dispose on it if you need to end your
+// subscription before it would otherwise end.
+- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber;
+
+// Convenience method to subscribe to the `next` event.
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock;
+
+// Convenience method to subscribe to the `next` and `completed` events.
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock;
+
+// Convenience method to subscribe to the `next`, `completed`, and `error` events.
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
+
+// Convenience method to subscribe to `error` events.
+- (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock;
+
+// Convenience method to subscribe to `completed` events.
+- (RACDisposable *)subscribeCompleted:(void (^)(void))completedBlock;
+
+// Convenience method to subscribe to `next` and `error` events.
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock;
+
+// Convenience method to subscribe to `error` and `completed` events.
+- (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
 
 @end

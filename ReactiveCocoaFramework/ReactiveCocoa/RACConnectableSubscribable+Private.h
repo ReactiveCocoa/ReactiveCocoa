@@ -13,6 +13,6 @@
 
 @interface RACConnectableSubscribable ()
 
-+ (instancetype)connectableSubscribableWithSourceSubscribable:(id<RACSubscribable>)source subject:(RACSubject *)subject;
++ (instancetype)connectableSubscribableWithSourceSubscribable:(RACSubscribable *)source subject:(RACSubject *)subject;
 
 @end

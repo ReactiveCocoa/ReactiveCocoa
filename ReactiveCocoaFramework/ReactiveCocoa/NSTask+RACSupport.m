@@ -11,7 +11,6 @@
 #import "NSNotificationCenter+RACSupport.h"
 #import "RACConnectableSubscribable.h"
 #import "RACSubscribable+Operations.h"
-#import "NSObject+RACSubscribable.h"
 #import "RACSubscribable+Operations.h"
 #import "RACAsyncSubject.h"
 #import "RACScheduler.h"

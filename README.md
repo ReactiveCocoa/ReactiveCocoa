@@ -183,13 +183,13 @@ KVO is a special case when it comes to lifetime. Subscribables created from a KV
 The `-[RACSubscribable subscribe:]` method returns a `RACDisposable`. That disposable encapsulates the tasks necessary to stop and clean up the subscription. You can call `-dispose` on a disposable to end your subscription manually. Typically you won't need to manually track or dispose of disposables. They're automatically called by RAC as part of the subscribable's lifecycle.
 
 ## Debugging
-Once your code starts using RAC, it can become difficult to debug all of the asynchronous calls, especially when a crash occurs. On Mac OS X 10.8 and later, RAC can be configured to trace asynchronous GCD calls.
+Once your code starts using RAC, it can become difficult to debug all of the asynchronous calls, especially when a crash occurs. On Mac OS X 10.8 and later, debug builds of RAC can be configured to trace asynchronous GCD calls.
 
 To make use of this feature:
 
 1. Edit your application's build scheme.
 1. In the "Run" action, switch to the "Arguments" tab.
-1. Under "Environment Variables", add `DYLD_INSERT_LIBRARIES` with a value of `@executable_path/../Frameworks/ReactiveCocoa.framework/ReactiveCocoa`. This will require `ReactiveCocoa.framework` to be copied into your application bundle.
+1. Under "Environment Variables", add `DYLD_INSERT_LIBRARIES` with a value of `@executable_path/../Frameworks/ReactiveCocoa.framework/ReactiveCocoa`. Note that this will require `ReactiveCocoa.framework` to be copied into your application bundle.
 
 Then, when a crash occurs, the asynchronous backtrace will automatically be logged. You can also manually print it out (e.g., at a breakpoint) by invoking `[RACBacktrace printBacktrace]`.
 

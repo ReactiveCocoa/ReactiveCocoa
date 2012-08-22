@@ -10,6 +10,8 @@
 #import <pthread.h>
 #import "RACBacktrace.h"
 
+#ifdef DEBUG
+
 @interface RACBacktrace ()
 @property (nonatomic, strong, readwrite) RACBacktrace *previousThreadBacktrace;
 @property (nonatomic, copy, readwrite) NSArray *callStackSymbols;
@@ -208,3 +210,5 @@ static void RACExceptionHandler (NSException *ex) {
 }
 
 @end
+
+#endif

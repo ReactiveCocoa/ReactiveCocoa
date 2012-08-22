@@ -6,6 +6,8 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#ifdef DEBUG
+
 // Preserves backtraces across asynchronous calls.
 @interface RACBacktrace : NSObject
 
@@ -28,3 +30,5 @@
 + (void)printBacktrace;
 
 @end
+
+#endif

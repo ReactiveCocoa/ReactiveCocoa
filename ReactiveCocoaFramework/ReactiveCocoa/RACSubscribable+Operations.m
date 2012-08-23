@@ -20,6 +20,8 @@
 #import "RACGroupedSubscribable.h"
 #import "RACCancelableSubscribable+Private.h"
 
+#import <libkern/OSAtomic.h>
+
 NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 
 

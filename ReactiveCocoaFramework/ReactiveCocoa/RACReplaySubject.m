@@ -35,7 +35,7 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
 #pragma mark RACSubscribable
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	RACDisposable * disposable = [super subscribe:subscriber];
+	RACDisposable *disposable = [super subscribe:subscriber];
 	NSArray *valuesCopy = nil;
 	@synchronized(self.valuesReceived) {
 		valuesCopy = [self.valuesReceived copy];

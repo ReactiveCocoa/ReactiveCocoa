@@ -65,7 +65,7 @@ static NSMutableSet *activeSubscribables() {
 	
 	__block __unsafe_unretained id weakSelf = self;
 	__block __unsafe_unretained id weakSubscriber = subscriber;
-	void (^defaultDisposableBlock)(void) = ^{
+	RACDisposable *defaultDisposable = [RACDisposable disposableWithBlock:^{
 		RACSubscribable *strongSelf = weakSelf;
 		id<RACSubscriber> strongSubscriber = weakSubscriber;
 		// If the disposal is happening because the subscribable's being torn
@@ -81,17 +81,15 @@ static NSMutableSet *activeSubscribables() {
 				[strongSelf invalidateGlobalRefIfNoNewSubscribersShowUp];
 			}
 		}
-	};
-	
-	RACDisposable *disposable = nil;
+	}];
+
+	RACDisposable *disposable = defaultDisposable;
 	if(self.didSubscribe != NULL) {
 		RACDisposable *innerDisposable = self.didSubscribe(subscriber);
 		disposable = [RACDisposable disposableWithBlock:^{
 			[innerDisposable dispose];
-			defaultDisposableBlock();
+			[defaultDisposable dispose];
 		}];
-	} else {
-		disposable = [RACDisposable disposableWithBlock:defaultDisposableBlock];
 	}
 	
 	[subscriber didSubscribeWithDisposable:disposable];

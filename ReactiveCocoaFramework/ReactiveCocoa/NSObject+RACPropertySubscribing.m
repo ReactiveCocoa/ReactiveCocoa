@@ -60,8 +60,7 @@ static NSMutableDictionary *swizzledClasses() {
 		}
 		
 		[disposables addObject:[RACDisposable disposableWithBlock:^{
-			// tear down the subscribable without sending notifications to the subscribers, since they could have already been dealloc'd by this point
-			[subject tearDown];
+			[subject sendCompleted];
 		}]];
 	}
 	

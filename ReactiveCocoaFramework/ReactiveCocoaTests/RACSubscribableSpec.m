@@ -345,7 +345,7 @@ describe(@"combineLatest", ^{
     });
     
     it(@"should yield when all sources yield", ^{
-        __block id result;
+        __block id result = nil;
         
         [combined subscribeNext:^(id x) {
             result = x;
@@ -361,7 +361,7 @@ describe(@"combineLatest", ^{
     });
     
     it(@"should not yield when some sources have not yielded", ^{
-        __block id result;
+        __block id result = nil;
         
         [combined subscribeNext:^(id x) {
             result = x;
@@ -374,7 +374,7 @@ describe(@"combineLatest", ^{
     
     it(@"should yield multiple times when all sources yield multiple times", ^{
         __block int yieldCount = 0;
-        __block id result1, result2;
+        __block id result1 = nil, result2 = nil;
         
         [combined subscribeNext:^(id x) {
             yieldCount++;
@@ -403,7 +403,7 @@ describe(@"combineLatest", ^{
     
     it(@"should not yield multiple times when all sources do not yield multiple times", ^{
         __block int yieldCount = 0;
-        __block id result1, result2;
+        __block id result1 = nil, result2 = nil;
         
         [combined subscribeNext:^(id x) {
             yieldCount++;

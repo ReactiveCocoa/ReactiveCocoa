@@ -15,6 +15,7 @@
 #import "RACBehaviorSubject.h"
 #import "RACDisposable.h"
 #import "RACUnit.h"
+#import "RACTuple.h"
 
 
 SpecBegin(RACSubscribable)
@@ -325,6 +326,155 @@ describe(@"continuation", ^{
 		expect(nextCount).to.beGreaterThan(1);
 		expect(gotCompleted).to.beFalsy();
 	});
+});
+
+describe(@"combineLatest", ^{
+    __block id<RACSubscriber> subscriber1 = nil, subscriber2 = nil;
+    __block RACSubscribable *subscribable1 = nil, *subscribable2 = nil, *combined = nil;
+    
+    beforeEach(^{
+        subscribable1 = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+            subscriber1 = subscriber;
+            return nil;
+        }],
+        subscribable2 = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+            subscriber2 = subscriber;
+            return nil;
+        }],
+        combined = [RACSubscribable combineLatest:@[ subscribable1, subscribable2 ]];
+    });
+    
+    it(@"should yield when all sources yield", ^{
+        __block id result;
+        
+        [combined subscribeNext:^(id x) {
+            result = x;
+        }];
+        
+        [subscriber1 sendNext:@"1"];
+        [subscriber2 sendNext:@"2"];
+        
+        expect(result).to.beKindOf([RACTuple class]);
+        RACTuple *tuple = (RACTuple *)result;
+        expect(tuple.first).to.equal(@"1");
+        expect(tuple.second).to.equal(@"2");
+    });
+    
+    it(@"should not yield when some sources have not yielded", ^{
+        __block id result;
+        
+        [combined subscribeNext:^(id x) {
+            result = x;
+        }];
+        
+        [subscriber1 sendNext:@"1"];
+        
+        expect(result).to.beNil();
+    });
+    
+    it(@"should yield multiple times when all sources yield multiple times", ^{
+        __block int yieldCount = 0;
+        __block id result1, result2;
+        
+        [combined subscribeNext:^(id x) {
+            yieldCount++;
+            if (yieldCount == 1)
+                result1 = x;
+            if (yieldCount == 2)
+                result2 = x;
+        }];
+        
+        [subscriber1 sendNext:@"1"];
+        [subscriber2 sendNext:@"2"];
+        
+        [subscriber1 sendNext:@"3"];
+        [subscriber2 sendNext:@"4"];
+        
+        expect(result1).to.beKindOf([RACTuple class]);
+        RACTuple *tuple1 = (RACTuple *)result1;
+        expect(tuple1.first).to.equal(@"1");
+        expect(tuple1.second).to.equal(@"2");
+        
+        expect(result2).to.beKindOf([RACTuple class]);
+        RACTuple *tuple2 = (RACTuple *)result2;
+        expect(tuple2.first).to.equal(@"3");
+        expect(tuple2.second).to.equal(@"4");
+    });
+    
+    it(@"should not yield multiple times when all sources do not yield multiple times", ^{
+        __block int yieldCount = 0;
+        __block id result1, result2;
+        
+        [combined subscribeNext:^(id x) {
+            yieldCount++;
+            if (yieldCount == 1)
+                result1 = x;
+            if (yieldCount == 2)
+                result2 = x;
+        }];
+        
+        [subscriber1 sendNext:@"1"];
+        [subscriber2 sendNext:@"2"];
+        
+        [subscriber1 sendNext:@"3"];
+        
+        expect(result1).to.beKindOf([RACTuple class]);
+        RACTuple *tuple1 = (RACTuple *)result1;
+        expect(tuple1.first).to.equal(@"1");
+        expect(tuple1.second).to.equal(@"2");
+        
+        expect(result2).to.beNil();
+    });
+    
+    it(@"should complete when all sources complete", ^{
+        __block BOOL completed = NO;
+        
+        [combined subscribeCompleted:^{
+            completed = YES;
+        }];
+        
+        [subscriber1 sendCompleted];
+        [subscriber2 sendCompleted];
+        
+        expect(completed).to.beTruthy();
+    });
+    
+    it(@"should not complete when some sources are not complete", ^{
+        __block BOOL completed = NO;
+        
+        [combined subscribeCompleted:^{
+            completed = YES;
+        }];
+        
+        [subscriber1 sendCompleted];
+        
+        expect(completed).to.beFalsy();
+    });
+    
+    it(@"should error when a source errors", ^{
+        __block BOOL gotError = NO;
+        
+        [combined subscribeError:^(NSError *error) {
+            gotError = YES;
+        }];
+        
+        [subscriber1 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+        
+        expect(gotError).to.beTruthy();
+    });
+    
+    it(@"should error multiple times when multiple sources error", ^{
+        __block int errorCount = 0;
+        
+        [combined subscribeError:^(NSError *error) {
+            errorCount++;
+        }];
+        
+        [subscriber1 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+        [subscriber2 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+        
+        expect(errorCount).to.equal(2);
+    });
 });
 
 SpecEnd

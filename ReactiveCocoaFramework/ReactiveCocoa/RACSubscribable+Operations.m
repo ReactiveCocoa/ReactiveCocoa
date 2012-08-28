@@ -434,6 +434,10 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
++ (RACSubscribable *)combineLatest:(NSArray *)subscribables {
+    return [self combineLatest:subscribables reduce:^ id (RACTuple *xs) { return xs; }];
+}
+
 + (RACSubscribable *)whenAll:(NSArray *)subscribables {
 	return [self combineLatest:subscribables reduce:^(RACTuple *xs) { return [RACUnit defaultUnit]; }];
 }

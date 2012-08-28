@@ -395,11 +395,10 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		NSMutableSet *disposables = [NSMutableSet setWithCapacity:subscribables.count];
 		NSMutableSet *completedSubscribables = [NSMutableSet setWithCapacity:subscribables.count];
-		__block NSMutableDictionary *lastValues = [NSMutableDictionary dictionaryWithCapacity:subscribables.count];
-        NSObject *nextGate = [NSObject new];
+		NSMutableDictionary *lastValues = [NSMutableDictionary dictionaryWithCapacity:subscribables.count];
 		for(id<RACSubscribable> subscribable in subscribables) {
 			RACDisposable *disposable = [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
-				@synchronized(nextGate) {
+				@synchronized(lastValues) {
 					[lastValues setObject:x ? : [RACTupleNil tupleNil] forKey:[NSString stringWithFormat:@"%p", subscribable]];
 					
 					if(lastValues.count == subscribables.count) {
@@ -407,7 +406,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 						for(id<RACSubscribable> o in subscribables) {
 							[orderedValues addObject:[lastValues objectForKey:[NSString stringWithFormat:@"%p", o]]];
 						}
-						lastValues = [NSMutableDictionary dictionaryWithCapacity:subscribables.count];
+						[lastValues removeAllObjects];
 						[subscriber sendNext:reduceBlock([RACTuple tupleWithObjectsFromArray:orderedValues])];
 					}
 				}

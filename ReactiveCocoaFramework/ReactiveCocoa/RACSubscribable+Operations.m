@@ -406,7 +406,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 						for(id<RACSubscribable> o in subscribables) {
 							[orderedValues addObject:[lastValues objectForKey:[NSString stringWithFormat:@"%p", o]]];
 						}
-						
+						[lastValues removeAllObjects];
 						[subscriber sendNext:reduceBlock([RACTuple tupleWithObjectsFromArray:orderedValues])];
 					}
 				}
@@ -432,6 +432,10 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 			}
 		}];
 	}];
+}
+
++ (RACSubscribable *)combineLatest:(NSArray *)subscribables {
+    return [self combineLatest:subscribables reduce:^ id (RACTuple *xs) { return xs; }];
 }
 
 + (RACSubscribable *)whenAll:(NSArray *)subscribables {

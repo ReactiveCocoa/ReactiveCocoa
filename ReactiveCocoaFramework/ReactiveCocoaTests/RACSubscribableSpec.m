@@ -358,7 +358,7 @@ describe(@"combineLatest", ^{
 		[subscriber2 sendNext:@"2"];
 		
 		expect(result).to.beKindOf([RACTuple class]);
-		RACTuple *tuple = (RACTuple *)result;
+		RACTuple *tuple = result;
 		expect(tuple.first).to.equal(@"1");
 		expect(tuple.second).to.equal(@"2");
 	});
@@ -375,16 +375,10 @@ describe(@"combineLatest", ^{
 		expect(result).to.beNil();
 	});
 	
-	it(@"should yield multiple times when all sources yield multiple times", ^{
-		__block int yieldCount = 0;
-		__block id result1, result2;
-		
+	it(@"should yield multiple times when any sources yield multiple times", ^{
+		NSMutableArray *results = [NSMutableArray array];
 		[combined subscribeNext:^(id x) {
-			yieldCount++;
-			if (yieldCount == 1)
-				result1 = x;
-			if (yieldCount == 2)
-				result2 = x;
+			[results addObject:x];
 		}];
 		
 		[subscriber1 sendNext:@"1"];
@@ -393,40 +387,17 @@ describe(@"combineLatest", ^{
 		[subscriber1 sendNext:@"3"];
 		[subscriber2 sendNext:@"4"];
 		
-		expect(result1).to.beKindOf([RACTuple class]);
-		RACTuple *tuple1 = (RACTuple *)result1;
-		expect(tuple1.first).to.equal(@"1");
-		expect(tuple1.second).to.equal(@"2");
+		RACTuple *result1 = [results objectAtIndex:0];
+		expect(result1.first).to.equal(@"1");
+		expect(result1.second).to.equal(@"2");
 		
-		expect(result2).to.beKindOf([RACTuple class]);
-		RACTuple *tuple2 = (RACTuple *)result2;
-		expect(tuple2.first).to.equal(@"3");
-		expect(tuple2.second).to.equal(@"4");
-	});
-	
-	it(@"should not yield multiple times when all sources do not yield multiple times", ^{
-		__block int yieldCount = 0;
-		__block id result1, result2;
+		RACTuple *result2 = [results objectAtIndex:1];
+		expect(result2.first).to.equal(@"3");
+		expect(result2.second).to.equal(@"2");
 		
-		[combined subscribeNext:^(id x) {
-			yieldCount++;
-			if (yieldCount == 1)
-				result1 = x;
-			if (yieldCount == 2)
-				result2 = x;
-		}];
-		
-		[subscriber1 sendNext:@"1"];
-		[subscriber2 sendNext:@"2"];
-		
-		[subscriber1 sendNext:@"3"];
-		
-		expect(result1).to.beKindOf([RACTuple class]);
-		RACTuple *tuple1 = (RACTuple *)result1;
-		expect(tuple1.first).to.equal(@"1");
-		expect(tuple1.second).to.equal(@"2");
-		
-		expect(result2).to.beNil();
+		RACTuple *result3 = [results objectAtIndex:2];
+		expect(result3.first).to.equal(@"3");
+		expect(result3.second).to.equal(@"4");
 	});
 	
 	it(@"should complete when all sources complete", ^{

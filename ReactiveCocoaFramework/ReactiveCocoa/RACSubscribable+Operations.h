@@ -81,18 +81,21 @@ typedef NSInteger RACSubscribableError;
 // Take `count` `next`s and then completes.
 - (RACSubscribable *)take:(NSUInteger)count;
 
-// Takes the last `count` `next`'s after the receiving subscribable completes.
+// Takes the last `count` `next`s after the receiving subscribable completes.
 - (RACSubscribable *)takeLast:(NSUInteger)count;
 
-// Combine the latest values from each of the subscribables once all the
-// subscribables have sent a `next`. The `next` will be a RACTuple of 
-// the values from the subscribables.
+// Combine the latest values from each of the subscribables into a RACTuple, once
+// all the subscribables have sent a `next`. Any additional `next`s will result
+// in a new tuple with the changed value.
 + (RACSubscribable *)combineLatest:(NSArray *)subscribables;
 
 // Combine the latest values from each of the subscribables once all the
-// subscribables have sent a `next`. The `next` will be the return value
-// of the `reduceBlock`. The argument to `reduceBlock` is a RACTuple
-// of the values from the subscribables.
+// subscribables have sent a `next`. Any additional `next`s will result in a new
+// reduced value based on a new tuple with the changed value.
+//
+// The `next` of the returned subscribable will be the return value of the
+// `reduceBlock`. The argument to `reduceBlock` is a RACTuple of the values from
+// the subscribables.
 + (RACSubscribable *)combineLatest:(NSArray *)subscribables reduce:(id (^)(RACTuple *xs))reduceBlock;
 
 // Sends a `+[RACUnit defaultUnit]` when all the subscribables have sent a `next`.

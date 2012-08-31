@@ -41,6 +41,10 @@
 	return [[self alloc] initWithExecutionBlock:executeBlock canExecuteBlock:NULL canExecuteSubscribable:canExecuteSubscribable];
 }
 
++ (instancetype)commandWithExecuteBlock:(void (^)(id value))executeBlock {
+	return [[self alloc] initWithExecutionBlock:executeBlock canExecuteBlock:NULL canExecuteSubscribable:nil];
+}
+
 - (id)initWithExecutionBlock:(void (^)(id value))block canExecuteBlock:(BOOL (^)(id value))canExecuteBlock canExecuteSubscribable:(id<RACSubscribable>)canExecuteSubscribable {
 	self = [self init];
 	if (self == nil) return nil;
@@ -49,7 +53,7 @@
 	
 	_canExecuteBlock = [canExecuteBlock copy];
 	
-	__block __unsafe_unretained id weakSelf = self;
+	__unsafe_unretained id weakSelf = self;
 	[canExecuteSubscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 		RACCommand *strongSelf = weakSelf;
 		strongSelf.canExecute = [x boolValue];

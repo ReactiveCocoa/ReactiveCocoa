@@ -45,6 +45,9 @@
 // always YES.
 + (instancetype)commandWithCanExecuteSubscribable:(id<RACSubscribable>)canExecuteSubscribable execute:(void (^)(id value))executeBlock;
 
+// Creates a new command that can always execute with the given execute block.
++ (instancetype)commandWithExecuteBlock:(void (^)(id value))executeBlock;
+
 // Can the command execute with the given value? If the command was created with
 // a canExecute subscribable instead of a block, this will always return YES.
 // You should check the `canExecute` propery for the last value sent by the

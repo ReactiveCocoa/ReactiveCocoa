@@ -11,17 +11,17 @@
 #import "RACSubscriber.h"
 
 @interface RACCommand ()
-@property (nonatomic, copy) BOOL (^canExecuteBlock)(id value);
+@property (nonatomic, readonly, copy) BOOL (^canExecuteBlock)(id value);
 @end
 
 
 @implementation RACCommand
 
-- (instancetype)init {
+- (id)init {
 	self = [super init];
-	if(self == nil) return nil;
+	if (self == nil) return nil;
 	
-	self.canExecute = YES;
+	_canExecute = YES;
 	
 	return self;
 }
@@ -29,40 +29,51 @@
 
 #pragma mark API
 
-@synthesize canExecute;
-@synthesize canExecuteBlock;
-
 + (instancetype)command {
 	return [self subject];
 }
 
 + (instancetype)commandWithCanExecute:(BOOL (^)(id value))canExecuteBlock execute:(void (^)(id value))executeBlock {
-	RACCommand *command = [self command];
-	if(executeBlock != NULL) [command subscribeNext:executeBlock];
-	command.canExecuteBlock = canExecuteBlock;
-	return command;
+	return [[self alloc] initWithExecutionBlock:executeBlock canExecuteBlock:canExecuteBlock canExecuteSubscribable:nil];
 }
 
-+ (instancetype)commandWithCanExecuteObservable:(id<RACSubscribable>)canExecuteObservable execute:(void (^)(id value))executeBlock {
-	RACCommand *command = [self commandWithCanExecute:NULL execute:executeBlock];
++ (instancetype)commandWithCanExecuteSubscribable:(id<RACSubscribable>)canExecuteSubscribable execute:(void (^)(id value))executeBlock {
+	return [[self alloc] initWithExecutionBlock:executeBlock canExecuteBlock:NULL canExecuteSubscribable:canExecuteSubscribable];
+}
+
+- (id)initWithExecutionBlock:(void (^)(id value))block canExecuteBlock:(BOOL (^)(id value))canExecuteBlock canExecuteSubscribable:(id<RACSubscribable>)canExecuteSubscribable {
+	self = [self init];
+	if (self == nil) return nil;
 	
-	[canExecuteObservable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
-		command.canExecute = [x boolValue];
+	if (block != NULL) [self subscribeNext:block];
+	
+	_canExecuteBlock = [canExecuteBlock copy];
+	
+	__block __unsafe_unretained id weakSelf = self;
+	[canExecuteSubscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
+		RACCommand *strongSelf = weakSelf;
+		strongSelf.canExecute = [x boolValue];
 	} error:NULL completed:NULL]];
-	
-	return command;
+		
+	return self;
 }
 
 - (BOOL)canExecute:(id)value {
-	if(self.canExecuteBlock != NULL) {
-		return self.canExecuteBlock(value);
-	}
+	if (self.canExecuteBlock == NULL) return YES;
 	
-	return self.canExecute;
+	return self.canExecuteBlock(value);
 }
 
 - (void)execute:(id)value {
 	[self sendNext:value];
+}
+
+- (BOOL)executeIfAllowed:(id)value {
+	if (![self canExecute:value] || !self.canExecute) return NO;
+	
+	[self execute:value];
+	
+	return YES;
 }
 
 @end

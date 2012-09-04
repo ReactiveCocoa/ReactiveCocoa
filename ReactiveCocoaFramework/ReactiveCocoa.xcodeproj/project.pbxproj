@@ -684,7 +684,7 @@
 				D095BDD015CB2E4B00E9BB13 /* README.md */,
 			);
 			name = Configuration;
-			path = ../external/xcconfigs;
+			path = ../external/libextobjc/Configuration;
 			sourceTree = "<group>";
 		};
 		D095BDBD15CB2E4B00E9BB13 /* Base */ = {

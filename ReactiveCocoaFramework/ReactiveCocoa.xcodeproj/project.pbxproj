@@ -335,7 +335,6 @@
 		88D4AB481510F8F10011494F /* RACAsyncSubject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACAsyncSubject.m; sourceTree = "<group>"; };
 		88DA309515071CBA00C19D0F /* RACValueTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACValueTransformer.h; sourceTree = "<group>"; };
 		88DA309615071CBA00C19D0F /* RACValueTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACValueTransformer.m; sourceTree = "<group>"; };
-		88DA30B61507CC3900C19D0F /* RACCommand+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACCommand+Private.h"; sourceTree = "<group>"; };
 		88DA30D31508051F00C19D0F /* RACSpecs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RACSpecs.h; sourceTree = "<group>"; };
 		88DE7CD2150459E800C722C5 /* RACAsyncCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACAsyncCommand.h; sourceTree = "<group>"; };
 		88DE7CD3150459E800C722C5 /* RACAsyncCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACAsyncCommand.m; sourceTree = "<group>"; };
@@ -629,7 +628,6 @@
 				88E2C6B3153C771C00C7493C /* RACScheduler.m */,
 				882093E91501E6EE00796685 /* RACCommand.h */,
 				882093EA1501E6EE00796685 /* RACCommand.m */,
-				88DA30B61507CC3900C19D0F /* RACCommand+Private.h */,
 				88DE7CD2150459E800C722C5 /* RACAsyncCommand.h */,
 				88DE7CD3150459E800C722C5 /* RACAsyncCommand.m */,
 				885A3230153CF9EF00486A61 /* RACCollection.h */,

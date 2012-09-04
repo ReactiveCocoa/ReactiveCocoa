@@ -11,7 +11,7 @@
 @class RACAsyncSubject;
 
 
-// An async command is a command that can run asynchronous functions when the
+// An async command is a command that can run asynchronous blocks when the
 // command is executed.
 @interface RACAsyncCommand : RACCommand
 
@@ -20,12 +20,11 @@
 // NSOperationQueueDefaultMaxConcurrentOperationCount.
 @property (nonatomic, strong) NSOperationQueue *operationQueue;
 
-// The maximum number of concurrent executions allowed. `-canExecute:` will
-// return NO if the number of active executions is greater than or equal to
-// this. `canExecuteValue` is updated as the number of concurrent calls changes.
+// The maximum number of concurrent executions allowed.
 @property (nonatomic, assign) NSUInteger maxConcurrentExecutions;
 
-// The number of active executions.
+// The number of active executions. When this is equal to `maxConcurrentExecutions`,
+// `canExecute` will be NO.
 @property (readonly, assign) NSUInteger numberOfActiveExecutions;
 
 + (instancetype)command;

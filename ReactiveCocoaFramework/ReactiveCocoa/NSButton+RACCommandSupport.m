@@ -7,54 +7,42 @@
 //
 
 #import "NSButton+RACCommandSupport.h"
-#import "NSObject+RACPropertySubscribing.h"
 #import "RACCommand.h"
 
 #import <objc/runtime.h>
 
-static void * NSButtonRACCommandsKey = &NSButtonRACCommandsKey;
-
-@interface NSButton ()
-@property (nonatomic, readonly) NSMutableArray *commands;
-@end
-
+static char * NSButtonRACCommandKey = "com.github.ReactiveCocoa.NSButton.rac_command";
 
 @implementation NSButton (RACCommandSupport)
 
-- (void)addCommand:(RACCommand *)command {
-	NSParameterAssert(command != nil);
-	
-	[self.commands addObject:command];
-	
-	[self hijackActionAndTargetIfNeeded];
+- (RACCommand *)rac_command {
+	return objc_getAssociatedObject(self, NSButtonRACCommandKey);
 }
 
-- (void)hijackActionAndTargetIfNeeded {
-	SEL hijackSelector = @selector(RACCommandsPerformAction:);
-	if([self target] != self || [self action] != hijackSelector) {
-		if([self action] != NULL) NSLog(@"WARNING: -[NSButton addCommand:] hijacks the button's existing target and action.");
-		
-		[self setTarget:self];
-		[self setAction:hijackSelector];
-	}
-}
-
-- (void)RACCommandsPerformAction:(id)sender {
-	for(RACCommand *command in self.commands) {
-		if([command canExecute:sender]) {
-			[command execute:sender];
-		}
-	}
-}
-
-- (NSMutableArray *)commands {
-	NSMutableArray *c = objc_getAssociatedObject(self, NSButtonRACCommandsKey);
-	if(c == nil) {
-		c = [NSMutableArray array];
-		objc_setAssociatedObject(self, NSButtonRACCommandsKey, c, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-	}
+- (void)setRac_command:(RACCommand *)command {
+	objc_setAssociatedObject(self, NSButtonRACCommandKey, command, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
-	return c;
+	self.enabled = command != nil ? command.canExecute : YES;
+	
+	if (command == nil) return;
+	
+	[self bind:NSEnabledBinding toObject:self.rac_command withKeyPath:@"canExecute" options:nil];
+	
+	[self rac_hijackActionAndTargetIfNeeded];
+}
+
+- (void)rac_hijackActionAndTargetIfNeeded {
+	SEL hijackSelector = @selector(rac_commandPerformAction:);
+	if (self.target == self && self.action == hijackSelector) return;
+	
+	if (self.target != nil) NSLog(@"WARNING: -[NSButton rac_setCommand:] hijacks the button's existing target and action.");
+	
+	self.target = self;
+	self.action = hijackSelector;
+}
+
+- (void)rac_commandPerformAction:(id)sender {
+	[self.rac_command execute:sender];
 }
 
 @end

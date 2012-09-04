@@ -42,6 +42,7 @@
 		883A84E01513B5EC006DB4C7 /* RACDisposable.m in Sources */ = {isa = PBXBuildFile; fileRef = 883A84DE1513B5EC006DB4C7 /* RACDisposable.m */; };
 		884476E4152367D100958F44 /* RACScopedDisposable.h in Headers */ = {isa = PBXBuildFile; fileRef = 884476E2152367D100958F44 /* RACScopedDisposable.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		884476E5152367D100958F44 /* RACScopedDisposable.m in Sources */ = {isa = PBXBuildFile; fileRef = 884476E3152367D100958F44 /* RACScopedDisposable.m */; };
+		884848B615F658B800B11BD0 /* NSButtonRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 884848B515F658B800B11BD0 /* NSButtonRACSupportSpec.m */; };
 		8857BB7E152A2747009804CC /* NSObject+RACExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 8857BB7C152A2747009804CC /* NSObject+RACExtensions.h */; };
 		8857BB7F152A2747009804CC /* NSObject+RACExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8857BB7D152A2747009804CC /* NSObject+RACExtensions.m */; };
 		8857BB82152A27A9009804CC /* NSObject+RACKVOWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 8857BB81152A27A9009804CC /* NSObject+RACKVOWrapper.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -272,6 +273,7 @@
 		883A84DE1513B5EC006DB4C7 /* RACDisposable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACDisposable.m; sourceTree = "<group>"; };
 		884476E2152367D100958F44 /* RACScopedDisposable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACScopedDisposable.h; sourceTree = "<group>"; };
 		884476E3152367D100958F44 /* RACScopedDisposable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACScopedDisposable.m; sourceTree = "<group>"; };
+		884848B515F658B800B11BD0 /* NSButtonRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSButtonRACSupportSpec.m; sourceTree = "<group>"; };
 		8857BB7C152A2747009804CC /* NSObject+RACExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACExtensions.h"; sourceTree = "<group>"; };
 		8857BB7D152A2747009804CC /* NSObject+RACExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACExtensions.m"; sourceTree = "<group>"; };
 		8857BB81152A27A9009804CC /* NSObject+RACKVOWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACKVOWrapper.h"; sourceTree = "<group>"; };
@@ -563,6 +565,7 @@
 				889D0A7F15974B2A00F833E3 /* RACSubjectSpec.m */,
 				D041376815D2281C004BBF80 /* RACKVOWrapperSpec.m */,
 				882CCA1D15F1564D00937D6E /* RACCommandSpec.m */,
+				884848B515F658B800B11BD0 /* NSButtonRACSupportSpec.m */,
 			);
 			path = ReactiveCocoaTests;
 			sourceTree = "<group>";
@@ -1042,6 +1045,7 @@
 				889D0A8015974B2A00F833E3 /* RACSubjectSpec.m in Sources */,
 				D041376915D2281C004BBF80 /* RACKVOWrapperSpec.m in Sources */,
 				882CCA1E15F1564D00937D6E /* RACCommandSpec.m in Sources */,
+				884848B615F658B800B11BD0 /* NSButtonRACSupportSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

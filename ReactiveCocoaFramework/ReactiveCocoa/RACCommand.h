@@ -18,7 +18,8 @@
 
 // Whether or not this command can currently execute. If the command was created
 // with a can execute subscribable, this will be the latest value sent on that
-// subscribable. Otherwise this will always be YES. KVO-compliant.
+// subscribable. Otherwise this will always be YES. It is both KVO- and
+// KVC-compliant. Users can binding a subscribable to this property if needed.
 @property (readonly) BOOL canExecute;
 
 // Creates a new command with the given execution block. `canExecute` will
@@ -31,11 +32,11 @@
 // subscribable.
 + (instancetype)commandWithCanExecuteSubscribable:(id<RACSubscribable>)subscribable block:(void (^)(id sender))block;
 
-// If `canExecute` is YES, executes the receiver's block with the given block
 // Initializes a new command with the given execution block and can execute
 // subscribable. Both can be nil.
 - (id)initWithCanExecuteSubscribable:(id<RACSubscribable>)canExecuteSubscribable block:(void (^)(id sender))block;
 
+// If `canExecute` is YES, executes the receiver's block with the given sender
 // and returns YES. Otherwise, returns NO.
 - (BOOL)execute:(id)sender;
 

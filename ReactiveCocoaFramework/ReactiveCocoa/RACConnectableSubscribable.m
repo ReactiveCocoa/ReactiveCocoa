@@ -11,7 +11,6 @@
 #import "RACSubscribable+Private.h"
 #import "RACSubscriber.h"
 #import "RACSubject.h"
-#import "RACSubscribable+Operations.h"
 #import "RACDisposable.h"
 
 @interface RACConnectableSubscribable ()

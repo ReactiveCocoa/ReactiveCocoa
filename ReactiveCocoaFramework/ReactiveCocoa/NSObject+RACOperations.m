@@ -9,7 +9,6 @@
 #import "NSObject+RACOperations.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACSubscribable.h"
-#import "RACSubscribable+Operations.h"
 #import "RACSubscriber.h"
 #import "NSObject+RACFastEnumeration.h"
 #import "RACTuple.h"

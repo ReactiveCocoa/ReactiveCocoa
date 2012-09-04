@@ -10,8 +10,6 @@
 #import "NSFileHandle+RACSupport.h"
 #import "NSNotificationCenter+RACSupport.h"
 #import "RACConnectableSubscribable.h"
-#import "RACSubscribable+Operations.h"
-#import "RACSubscribable+Operations.h"
 #import "RACAsyncSubject.h"
 #import "RACScheduler.h"
 #import "RACUnit.h"

@@ -22,6 +22,7 @@ static void * NSButtonRACCommandKey = &NSButtonRACCommandKey;
 - (void)setRac_command:(RACCommand *)command {
 	objc_setAssociatedObject(self, NSButtonRACCommandKey, command, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
+	[self unbind:NSEnabledBinding];
 	self.enabled = command != nil ? command.canExecute : YES;
 	
 	if (command == nil) return;

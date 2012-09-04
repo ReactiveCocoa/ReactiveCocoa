@@ -18,6 +18,7 @@
 - (void)dealloc {
 	[self dispose];
 	[self.disposable dispose];
+	[super dealloc];
 }
 
 

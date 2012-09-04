@@ -81,6 +81,7 @@ static NSMutableSet *swizzledClasses() {
 
 - (void)dealloc {
 	[self stopObserving];
+	[super dealloc];
 }
 
 #pragma mark Observation

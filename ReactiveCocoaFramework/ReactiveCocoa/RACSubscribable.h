@@ -27,6 +27,14 @@ typedef NSInteger RACSubscribableError;
 @class RACTuple;
 @protocol RACSubscriber;
 
+// A concrete protocol representing something that can be subscribed to. Most
+// commonly, this will simply be an instance of RACSubscribable (the class), but
+// any class can conform to this protocol.
+//
+// When conforming to this protocol in a custom class, only `@required` methods
+// need to be implemented. Default implementations will automatically be
+// provided for any methods marked as `@concrete`. For more information, see
+// EXTConcreteProtocol.h.
 @protocol RACSubscribable <NSObject>
 @required
 

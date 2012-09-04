@@ -11,7 +11,7 @@
 
 #import <objc/runtime.h>
 
-static char * NSButtonRACCommandKey = "com.github.ReactiveCocoa.NSButton.rac_command";
+static void * NSButtonRACCommandKey = &NSButtonRACCommandKey;
 
 @implementation NSButton (RACCommandSupport)
 

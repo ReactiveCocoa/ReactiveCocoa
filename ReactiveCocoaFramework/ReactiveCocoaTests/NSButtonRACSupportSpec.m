@@ -25,7 +25,7 @@ it(@"should execute the button's command when clicked", ^{
 	NSButton *button = [[NSButton alloc] initWithFrame:NSZeroRect];
 	
 	__block BOOL executed = NO;
-	button.rac_command = [RACCommand commandWithCanExecuteSubscribable:[RACSubscribable return:@YES] block:^(id sender) {
+	button.rac_command = [RACCommand commandWithCanExecuteSubscribable:nil block:^(id sender) {
 		executed = YES;
 	}];
 	

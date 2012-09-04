@@ -32,6 +32,10 @@
 + (instancetype)commandWithCanExecuteSubscribable:(id<RACSubscribable>)subscribable block:(void (^)(id sender))block;
 
 // If `canExecute` is YES, executes the receiver's block with the given block
+// Initializes a new command with the given execution block and can execute
+// subscribable. Both can be nil.
+- (id)initWithCanExecuteSubscribable:(id<RACSubscribable>)canExecuteSubscribable block:(void (^)(id sender))block;
+
 // and returns YES. Otherwise, returns NO.
 - (BOOL)execute:(id)sender;
 

@@ -44,7 +44,7 @@
 }
 
 - (id)initWithBlock:(void (^)(id sender))block canExecuteSubscribable:(id<RACSubscribable>)canExecuteSubscribable {
-	self = [super initWithBlock:block canExecuteSubscribable:nil];
+	self = [super initWithCanExecuteSubscribable:nil block:block];
 	if (self == nil) return nil;
 	
 	[[RACSubscribable

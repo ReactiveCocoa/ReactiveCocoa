@@ -7,62 +7,54 @@
 //
 
 #import "RACCommand.h"
-#import "RACCommand+Private.h"
 #import "RACSubscriber.h"
 
 @interface RACCommand ()
-@property (nonatomic, copy) BOOL (^canExecuteBlock)(id value);
+@property (readwrite) BOOL canExecute;
 @end
-
 
 @implementation RACCommand
 
-- (instancetype)init {
+- (id)init {
 	self = [super init];
-	if(self == nil) return nil;
+	if (self == nil) return nil;
 	
-	self.canExecute = YES;
+	_canExecute = YES;
 	
 	return self;
 }
 
-
 #pragma mark API
 
-@synthesize canExecute;
-@synthesize canExecuteBlock;
-
-+ (instancetype)command {
-	return [self subject];
++ (instancetype)commandWithBlock:(void (^)(id value))executeBlock {
+	return [[self alloc] initWithCanExecuteSubscribable:nil block:executeBlock];
 }
 
-+ (instancetype)commandWithCanExecute:(BOOL (^)(id value))canExecuteBlock execute:(void (^)(id value))executeBlock {
-	RACCommand *command = [self command];
-	if(executeBlock != NULL) [command subscribeNext:executeBlock];
-	command.canExecuteBlock = canExecuteBlock;
-	return command;
++ (instancetype)commandWithCanExecuteSubscribable:(id<RACSubscribable>)canExecuteSubscribable block:(void (^)(id sender))block {
+	return [[self alloc] initWithCanExecuteSubscribable:canExecuteSubscribable block:block];
 }
 
-+ (instancetype)commandWithCanExecuteObservable:(id<RACSubscribable>)canExecuteObservable execute:(void (^)(id value))executeBlock {
-	RACCommand *command = [self commandWithCanExecute:NULL execute:executeBlock];
+- (id)initWithCanExecuteSubscribable:(id<RACSubscribable>)canExecuteSubscribable block:(void (^)(id sender))block {
+	self = [self init];
+	if (self == nil) return nil;
 	
-	[canExecuteObservable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
-		command.canExecute = [x boolValue];
+	if (block != NULL) [self subscribeNext:block];
+		
+	__unsafe_unretained id weakSelf = self;
+	[canExecuteSubscribable subscribe:[RACSubscriber subscriberWithNext:^(NSNumber *x) {
+		RACCommand *strongSelf = weakSelf;
+		strongSelf.canExecute = x.boolValue;
 	} error:NULL completed:NULL]];
-	
-	return command;
+		
+	return self;
 }
 
-- (BOOL)canExecute:(id)value {
-	if(self.canExecuteBlock != NULL) {
-		return self.canExecuteBlock(value);
-	}
+- (BOOL)execute:(id)sender {
+	if (!self.canExecute) return NO;
 	
-	return self.canExecute;
-}
-
-- (void)execute:(id)value {
-	[self sendNext:value];
+	[self sendNext:sender];
+	
+	return YES;
 }
 
 @end

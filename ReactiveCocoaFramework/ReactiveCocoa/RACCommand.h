@@ -16,34 +16,28 @@
 // passed into `-execute:`.
 @interface RACCommand : RACSubject
 
-// Whether or not the command can execute.
-@property (nonatomic, readonly, assign) BOOL canExecute;
+// Whether or not this command can currently execute. If the command was created
+// with a can execute subscribable, this will be the latest value sent on that
+// subscribable. Otherwise this will always be YES. It is both KVO- and
+// KVC-compliant. Users can binding a subscribable to this property if needed.
+@property (readonly) BOOL canExecute;
 
-// Creates a new command with no execute or can execute block.
-+ (instancetype)command;
+// Creates a new command with the given execution block. `canExecute` will
+// always be YES.
++ (instancetype)commandWithBlock:(void (^)(id sender))block;
 
-// Creates a new command with the given can execute and execute blocks.
-//
-// canExecuteBlock - the block that is called to determine if the command may
-// execute. It is passed the value that would be passed to `-execute:` if it is
-// allowed to execute. Can be nil.
-//
-// executeBlock - the block that will be executed when the command is executed.
-// It will be passed the object given to `-execute:`.
-+ (instancetype)commandWithCanExecute:(BOOL (^)(id value))canExecuteBlock execute:(void (^)(id value))executeBlock;
+// Creates a new command with the given execution block. `subscribable` should
+// be a subscribable that sends NSNumber-wrapped BOOLs. The `canExecute`
+// property will be set to the boolValue of the latest value received from the
+// subscribable.
++ (instancetype)commandWithCanExecuteSubscribable:(id<RACSubscribable>)subscribable block:(void (^)(id sender))block;
 
-+ (instancetype)commandWithCanExecuteObservable:(id<RACSubscribable>)canExecuteObservable execute:(void (^)(id value))executeBlock;
+// Initializes a new command with the given execution block and can execute
+// subscribable. Both can be nil.
+- (id)initWithCanExecuteSubscribable:(id<RACSubscribable>)canExecuteSubscribable block:(void (^)(id sender))block;
 
-// Can the command execute with the given value?
-//
-// value - the value that would be passed into `-execute:` if it returns YES.
-//
-// Returns whether the command can execute.
-- (BOOL)canExecute:(id)value;
-
-// Execute the command with the given value.
-//
-// value - the value to use in execution.
-- (void)execute:(id)value;
+// If `canExecute` is YES, executes the receiver's block with the given sender
+// and returns YES. Otherwise, returns NO.
+- (BOOL)execute:(id)sender;
 
 @end

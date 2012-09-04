@@ -15,7 +15,6 @@
 @interface GHDLoginViewController ()
 @property (nonatomic, assign) BOOL successHidden;
 @property (nonatomic, assign) BOOL loginFailedHidden;
-@property (nonatomic, assign) BOOL loginEnabled;
 @property (nonatomic, assign) BOOL loggingIn;
 @property (nonatomic, strong) RACAsyncCommand *loginCommand;
 @property (nonatomic, strong) GHDLoginView *view;
@@ -33,7 +32,6 @@
 	
 	self.loginFailedHidden = YES;
 	self.successHidden = YES;
-	self.loginEnabled = NO;
 	self.loggingIn = NO;
 	
 	self.didLoginSubject = [RACSubject subject];
@@ -42,16 +40,14 @@
 		NSLog(@"Active requests: %@", x);
 	}];
 	
-	// Login is only enabled when they've entered both a username and password,
-	// and we aren't already trying to login.
-	[[RACSubscribable 
-		combineLatest:[NSArray arrayWithObjects:RACAbleSelf(self.username), RACAbleSelf(self.password), RACAbleSelf(self.loginCommand.numberOfActiveExecutions), nil] 
+	// Login is only enabled when they've entered both a username and password.
+	self.loginCommand = [RACAsyncCommand commandWithCanExecuteSubscribable:[RACSubscribable
+		combineLatest:@[ [RACAbleSelf(self.username) startWith:self.username], [RACAbleSelf(self.password) startWith:self.password] ]
 		reduce:^(RACTuple *xs) {
-			return [NSNumber numberWithBool:[[xs objectAtIndex:0] length] > 0 && [[xs objectAtIndex:1] length] > 0 && [[xs objectAtIndex:2] unsignedIntegerValue] < 1];
+			return @([[xs objectAtIndex:0] length] > 0 && [[xs objectAtIndex:1] length] > 0);
 		}]
-		toProperty:RAC_KEYPATH_SELF(self.loginEnabled) onObject:self];
+		block:NULL];
 	
-	self.loginCommand = [RACAsyncCommand command];
 	[[self.loginCommand 
 		injectObjectWeakly:self] 
 		subscribeNext:^(RACTuple *t) {
@@ -135,12 +131,11 @@
 	[self.view.passwordTextField bind:NSValueBinding toObject:self withKeyPath:RAC_KEYPATH_SELF(self.password)];
 	[self.view.successTextField bind:NSHiddenBinding toObject:self withKeyPath:RAC_KEYPATH_SELF(self.successHidden)];
 	[self.view.couldNotLoginTextField bind:NSHiddenBinding toObject:self withKeyPath:RAC_KEYPATH_SELF(self.loginFailedHidden)];
-	[self.view.loginButton bind:NSEnabledBinding toObject:self withKeyPath:RAC_KEYPATH_SELF(self.loginEnabled)];
 	[self.view.loggingInSpinner bind:NSHiddenBinding toObject:self withNegatedKeyPath:RAC_KEYPATH_SELF(self.loggingIn)];
 	
 	[self.view.loggingInSpinner startAnimation:nil];
 	
-	[self.view.loginButton addCommand:self.loginCommand];
+	self.view.loginButton.rac_command = self.loginCommand;
 }
 
 
@@ -152,7 +147,6 @@
 @synthesize successHidden;
 @synthesize loginFailedHidden;
 @synthesize loginCommand;
-@synthesize loginEnabled;
 @synthesize loggingIn;
 @synthesize user;
 @synthesize client;

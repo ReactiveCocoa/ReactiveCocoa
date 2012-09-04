@@ -13,13 +13,11 @@
 
 @interface NSButton (RACCommandSupport)
 
-// Adds the given command to the button. The command's `canExecuteValue`
-// controls the button's enabledness. The command's `-canExecute:` and
-// `-execute:` are passed the action's sender.
+// Sets the button's command. When the button is clicked, the command is
+// executed with the sender of the event. The button's enabledness is bound
+// to the command's `canExecute`.
 //
 // Note: this will reset the button's target and action.
-//
-// command - the command to add. Cannot be nil.
-- (void)addCommand:(RACCommand *)command;
+@property (nonatomic, strong) RACCommand *rac_command;
 
 @end

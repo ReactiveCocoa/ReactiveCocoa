@@ -7,7 +7,6 @@
 //
 
 #import "RACAsyncCommand.h"
-#import "RACCommand+Private.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACScheduler.h"
 #import "RACSubscribable+Operations.h"

@@ -24,10 +24,17 @@ static NSMutableSet *activeSubscribables() {
 	return activeSubscribables;
 }
 
+@concreteprotocol(RACSubscribable)
+
+- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
+	return nil;
+}
+
+@end
+
 @interface RACSubscribable ()
 @property (assign, getter=isTearingDown) BOOL tearingDown;
 @end
-
 
 @implementation RACSubscribable
 

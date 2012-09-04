@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "EXTConcreteProtocol.h"
 
 @class RACDisposable;
 @class RACScheduler;
@@ -14,12 +15,15 @@
 @protocol RACSubscriber;
 
 @protocol RACSubscribable <NSObject>
+@required
+
 // Subscribes subscriber to changes on the receiver. The receiver defines which
 // events it actually sends and in what situations the events are sent.
 //
 // Returns a disposable. You can call -dispose on it if you need to end your
 // subscription before it would otherwise end.
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber;
+
 @end
 
 

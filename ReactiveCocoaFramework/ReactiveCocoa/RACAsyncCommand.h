@@ -28,6 +28,8 @@
 // The number of active executions.
 @property (readonly, assign) NSUInteger numberOfActiveExecutions;
 
++ (instancetype)command;
+
 // Adds a new async block to be called when the command executes.
 //
 // block - a new block to perform when the command is executed. Cannot be nil.

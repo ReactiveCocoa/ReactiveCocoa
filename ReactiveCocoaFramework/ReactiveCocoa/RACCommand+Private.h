@@ -10,4 +10,6 @@
 
 @property (assign) BOOL canExecute;
 
+- (id)initWithBlock:(void (^)(id sender))block canExecuteSubscribable:(id<RACSubscribable>)canExecuteSubscribable;
+
 @end

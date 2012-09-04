@@ -9,30 +9,29 @@
 #import "RACAsyncCommand.h"
 #import "RACCommand+Private.h"
 #import "NSObject+RACPropertySubscribing.h"
-#import "RACAsyncSubject.h"
-#import "RACReplaySubject.h"
+#import "RACScheduler.h"
+#import "RACSubscribable+Operations.h"
+#import "RACTuple.h"
 
 @interface RACAsyncBlockPair : NSObject
 @property (nonatomic, strong) RACSubject *subject;
 @property (nonatomic, strong) RACSubscribable * (^asyncBlock)(id value);
-
-+ (id)pair;
 @end
 
 @interface RACAsyncCommand ()
-@property (nonatomic, readonly) NSMutableArray *asyncFunctionPairs;
+@property (nonatomic, readonly, strong) NSMutableArray *asyncFunctionPairs;
 @property (assign) NSUInteger numberOfActiveExecutions;
 @end
 
-
 @implementation RACAsyncCommand
 
-- (instancetype)init {
+- (id)init {
 	self = [super init];
-	if(self == nil) return nil;
+	if (self == nil) return nil;
 	
-	self.maxConcurrentExecutions = 1;
-	self.operationQueue = [[self class] defaultOperationQueue];
+	_maxConcurrentExecutions = 1;
+	_operationQueue = [[self class] defaultOperationQueue];
+	_asyncFunctionPairs = [NSMutableArray array];
 	
 	return self;
 }
@@ -40,59 +39,61 @@
 
 #pragma mark RACCommand
 
-- (BOOL)canExecute:(id)value {
-	if(![super canExecute:value]) return NO;
-	if(self.numberOfActiveExecutions >= self.maxConcurrentExecutions) return NO;
-
-	return YES;
++ (instancetype)command {
+	return [[self alloc] initWithBlock:NULL canExecuteSubscribable:nil];
 }
 
-- (void)execute:(id)value {	
-	[super execute:value];
+- (id)initWithBlock:(void (^)(id sender))block canExecuteSubscribable:(id<RACSubscribable>)canExecuteSubscribable {
+	self = [super initWithBlock:block canExecuteSubscribable:nil];
+	if (self == nil) return nil;
+	
+	[[RACSubscribable
+		combineLatest:@[ canExecuteSubscribable ? : [RACSubscribable return:@YES], [RACAbleSelf(self.numberOfActiveExecutions) startWith:@(self.numberOfActiveExecutions)], [RACAbleSelf(self.maxConcurrentExecutions) startWith:@(self.maxConcurrentExecutions)] ]
+		reduce:^(RACTuple *xs) {
+			NSNumber *canExecute = xs.first;
+			NSNumber *executions = xs.second;
+			NSNumber *maxConcurrent = xs.third;
+			return @(canExecute.boolValue && executions.unsignedIntegerValue < maxConcurrent.unsignedIntegerValue);
+		}]
+		toProperty:RAC_KEYPATH_SELF(self.canExecute) onObject:self];
+	
+	return self;
+}
+
+- (BOOL)execute:(id)sender {
+	BOOL didExecute = [super execute:sender];
+	if (!didExecute) return NO;
 	
 	self.numberOfActiveExecutions++;
 	
-	NSUInteger valuesExpected = self.asyncFunctionPairs.count;
-	__block NSUInteger valuesReceived = 0;
+	NSArray *subscribables = [self.asyncFunctionPairs valueForKeyPath:@"subject"];
+	[[[RACSubscribable
+		merge:subscribables]
+		finally:^{
+			self.numberOfActiveExecutions--;
+		}]
+		subscribeNext:^(id _) {
+			// nothing bro
+		}];
 	
-	void (^didComplete)(void) = ^{
-		valuesReceived++;
-		
-		if(valuesReceived >= valuesExpected) {
-			if(self.numberOfActiveExecutions > 0) self.numberOfActiveExecutions--;
-		}
-	};
-	
-	for(RACAsyncBlockPair *pair in self.asyncFunctionPairs) {
+	for (RACAsyncBlockPair *pair in self.asyncFunctionPairs) {
 		[self.operationQueue addOperationWithBlock:^{
-			RACSubscribable *subscribable = pair.asyncBlock(value);
+			RACSubscribable *subscribable = [pair.asyncBlock(sender) deliverOn:[RACScheduler mainQueueScheduler]];
 			[subscribable subscribeNext:^(id x) {
-				dispatch_async(dispatch_get_main_queue(), ^{
-					[pair.subject sendNext:x];
-					didComplete();
-				});
+				[pair.subject sendNext:x];
 			} error:^(NSError *error) {
-				dispatch_async(dispatch_get_main_queue(), ^{
-					[pair.subject sendError:error];
-					didComplete();
-				});
+				[pair.subject sendError:error];
 			} completed:^{
-				dispatch_async(dispatch_get_main_queue(), ^{
-					[pair.subject sendCompleted];
-					didComplete();
-				});
+				[pair.subject sendCompleted];
 			}];
 		}];
 	}
+	
+	return YES;
 }
 
 
 #pragma mark API
-
-@synthesize asyncFunctionPairs;
-@synthesize maxConcurrentExecutions;
-@synthesize numberOfActiveExecutions;
-@synthesize operationQueue;
 
 + (NSOperationQueue *)defaultOperationQueue {
 	NSOperationQueue *operationQueue = [[NSOperationQueue alloc] init];
@@ -105,31 +106,16 @@
 	NSParameterAssert(block != NULL);
 	
 	RACSubject *subject = [RACSubject subject];
-	RACAsyncBlockPair *pair = [RACAsyncBlockPair pair];
+	RACAsyncBlockPair *pair = [[RACAsyncBlockPair alloc] init];
 	pair.asyncBlock = block;
 	pair.subject = subject;
 	[self.asyncFunctionPairs addObject:pair];
 	return subject;
 }
 
-- (NSMutableArray *)asyncFunctionPairs {
-	if(asyncFunctionPairs == nil) {
-		asyncFunctionPairs = [NSMutableArray array];
-	}
-	
-	return asyncFunctionPairs;
-}
-
 @end
 
 
 @implementation RACAsyncBlockPair
-
-@synthesize subject;
-@synthesize asyncBlock;
-
-+ (id)pair {
-	return [[self alloc] init];
-}
 
 @end

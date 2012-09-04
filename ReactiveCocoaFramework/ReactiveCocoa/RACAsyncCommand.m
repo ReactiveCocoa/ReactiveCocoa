@@ -48,7 +48,7 @@
 	if (self == nil) return nil;
 	
 	[[RACSubscribable
-		combineLatest:@[ canExecuteSubscribable ? : [RACSubscribable return:@YES], [RACAbleSelf(self.numberOfActiveExecutions) startWith:@(self.numberOfActiveExecutions)], [RACAbleSelf(self.maxConcurrentExecutions) startWith:@(self.maxConcurrentExecutions)] ]
+		combineLatest:@[ canExecuteSubscribable ? : [RACSubscribable return:@(YES)], [RACAbleSelf(self.numberOfActiveExecutions) startWith:@(self.numberOfActiveExecutions)], [RACAbleSelf(self.maxConcurrentExecutions) startWith:@(self.maxConcurrentExecutions)] ]
 		reduce:^(RACTuple *xs) {
 			NSNumber *canExecute = xs.first;
 			NSNumber *executions = xs.second;

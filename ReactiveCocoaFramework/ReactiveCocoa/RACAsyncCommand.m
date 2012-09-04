@@ -78,8 +78,7 @@
 	
 	for (RACAsyncBlockPair *pair in self.asyncFunctionPairs) {
 		[self.operationQueue addOperationWithBlock:^{
-			RACSubscribable *subscribable = [pair.asyncBlock(sender) deliverOn:[RACScheduler mainQueueScheduler]];
-			[subscribable subscribeNext:^(id x) {
+			[pair.asyncBlock(sender) subscribeNext:^(id x) {
 				[pair.subject sendNext:x];
 			} error:^(NSError *error) {
 				[pair.subject sendError:error];

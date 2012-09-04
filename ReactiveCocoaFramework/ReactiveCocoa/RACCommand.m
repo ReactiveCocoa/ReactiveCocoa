@@ -27,14 +27,14 @@
 #pragma mark API
 
 + (instancetype)commandWithBlock:(void (^)(id value))executeBlock {
-	return [[self alloc] initWithBlock:executeBlock canExecuteSubscribable:nil];
+	return [[self alloc] initWithCanExecuteSubscribable:nil block:executeBlock];
 }
 
 + (instancetype)commandWithCanExecuteSubscribable:(id<RACSubscribable>)canExecuteSubscribable block:(void (^)(id sender))block {
-	return [[self alloc] initWithBlock:block canExecuteSubscribable:canExecuteSubscribable];
+	return [[self alloc] initWithCanExecuteSubscribable:canExecuteSubscribable block:block];
 }
 
-- (id)initWithBlock:(void (^)(id sender))block canExecuteSubscribable:(id<RACSubscribable>)canExecuteSubscribable {
+- (id)initWithCanExecuteSubscribable:(id<RACSubscribable>)canExecuteSubscribable block:(void (^)(id sender))block {
 	self = [self init];
 	if (self == nil) return nil;
 	

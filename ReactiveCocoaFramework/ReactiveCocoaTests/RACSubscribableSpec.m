@@ -16,6 +16,7 @@
 #import "RACDisposable.h"
 #import "RACUnit.h"
 #import "RACTuple.h"
+#import "RACScheduler.h"
 
 
 SpecBegin(RACSubscribable)
@@ -448,6 +449,34 @@ describe(@"combineLatest", ^{
 		[subscriber2 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
 		
 		expect(errorCount).to.equal(2);
+	});
+});
+
+describe(@"generator", ^{
+	it(@"should generate values", ^{
+		RACSubscribable *s = [RACSubscribable generatorWithStart:@1 next:^id(NSNumber *x) {
+			return x.unsignedIntegerValue < 7 ? @(x.unsignedIntegerValue + 1) : nil;
+		}];
+		
+		NSArray *array = [s toArray];
+		NSArray *expected = @[ @1, @2, @3, @4, @5, @6, @7 ];
+		expect(array).to.equal(expected);
+	});
+	
+	it(@"shouldn't die on infinite sequences", ^{
+		RACSubscribable *s = [RACSubscribable generatorWithStart:@1 next:^(NSNumber *x) {
+			return @(x.unsignedIntegerValue + 1);
+		}];
+		
+		NSArray *array = [[[[s
+			where:^BOOL(NSNumber *x) {
+				return x.unsignedIntegerValue % 3 == 0;
+			}]
+			skip:5]
+			take:5]
+			toArray];
+		NSArray *expected = @[ @18, @21, @24, @27, @30 ];
+		expect(array).to.equal(expected);
 	});
 });
 

@@ -28,3 +28,6 @@ ONLY_ACTIVE_ARCH = NO
 // Whether to strip debugging symbols when copying the built product to its
 // final installation location
 STRIP_INSTALLED_PRODUCT = YES
+
+// Whether to perform App Store validation checks
+VALIDATE_PRODUCT = YES

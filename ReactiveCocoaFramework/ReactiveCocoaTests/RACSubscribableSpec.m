@@ -458,7 +458,7 @@ describe(@"generator", ^{
 			return x.unsignedIntegerValue < 7 ? @(x.unsignedIntegerValue + 1) : nil;
 		}];
 		
-		NSArray *array = [s toArray];
+		NSArray *array = s.toArray;
 		NSArray *expected = @[ @1, @2, @3, @4, @5, @6, @7 ];
 		expect(array).to.equal(expected);
 	});
@@ -468,13 +468,13 @@ describe(@"generator", ^{
 			return @(x.unsignedIntegerValue + 1);
 		}];
 		
-		NSArray *array = [[[[s
+		NSArray *array = [[[s
 			where:^BOOL(NSNumber *x) {
 				return x.unsignedIntegerValue % 3 == 0;
 			}]
 			skip:5]
 			take:5]
-			toArray];
+			.toArray;
 		NSArray *expected = @[ @18, @21, @24, @27, @30 ];
 		expect(array).to.equal(expected);
 	});

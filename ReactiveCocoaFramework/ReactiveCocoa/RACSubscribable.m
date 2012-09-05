@@ -117,8 +117,6 @@ static NSMutableSet *activeSubscribables() {
 }
 
 + (instancetype)generatorWithScheduler:(RACScheduler *)scheduler start:(id)start next:(id (^)(id x))block {
-	NSParameterAssert(block != NULL);
-
 	if (scheduler == nil) scheduler = [RACScheduler backgroundScheduler];
 
 	return [self createSubscribable:^(id<RACSubscriber> subscriber) {
@@ -127,7 +125,7 @@ static NSMutableSet *activeSubscribables() {
 			id next = start;
 			while (next != nil && dispose == 0) {
 				[subscriber sendNext:next];
-				next = block(next);
+				next = block != NULL ? block(next) : next;
 			}
 			
 			// Only send completed if we weren't manually disposed of.

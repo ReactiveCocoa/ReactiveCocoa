@@ -53,7 +53,8 @@
 // generate the next value.
 //
 // block - The block that generates a new value from the previous value. When
-// the block returns nil, the subscribable completes. Cannot be nil.
+// the block returns nil, the subscribable completes. If the block is nil, the
+// subscribable will repeatedly send `start`.
 + (instancetype)generatorWithScheduler:(RACScheduler *)scheduler start:(id)start next:(id (^)(id x))block;
 
 // Calls `+generateWithScheduler:start:block:` with a nil scheduler.

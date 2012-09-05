@@ -478,6 +478,13 @@ describe(@"generator", ^{
 		NSArray *expected = @[ @18, @21, @24, @27, @30 ];
 		expect(array).to.equal(expected);
 	});
+	
+	it(@"should generate the same value continuously when given a nil block", ^{
+		RACSubscribable *s = [RACSubscribable generatorWithStart:@42 next:nil];
+		NSArray *array = [s take:5].toArray;
+		NSArray *expected = @[ @42, @42, @42, @42, @42 ];
+		expect(array).to.equal(expected);
+	});
 });
 
 SpecEnd

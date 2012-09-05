@@ -463,27 +463,29 @@ describe(@"generator", ^{
 		expect(array).to.equal(expected);
 	});
 	
-	it(@"shouldn't die on infinite sequences", ^{
-		RACSubscribable *s = [RACSubscribable generatorWithStart:@1 next:^(NSNumber *x) {
-			return @(x.unsignedIntegerValue + 1);
-		}];
-		
-		NSArray *array = [[[s
-			where:^BOOL(NSNumber *x) {
-				return x.unsignedIntegerValue % 3 == 0;
-			}]
-			skip:5]
-			take:5]
-			.toArray;
-		NSArray *expected = @[ @18, @21, @24, @27, @30 ];
-		expect(array).to.equal(expected);
-	});
-	
 	it(@"should generate the same value continuously when given a nil block", ^{
 		RACSubscribable *s = [RACSubscribable generatorWithStart:@42 next:nil];
 		NSArray *array = [s take:5].toArray;
 		NSArray *expected = @[ @42, @42, @42, @42, @42 ];
 		expect(array).to.equal(expected);
+	});
+	
+	it(@"should generate only as many values as it needs", ^{
+		__block NSUInteger valuesGenerated = 0;
+		RACSubscribable *s = [RACSubscribable generatorWithStart:@1 next:^(NSNumber *x) {
+			valuesGenerated++;
+			return @(x.unsignedIntegerValue + 1);
+		}];
+		
+		NSArray *array = [[s
+			where:^BOOL(NSNumber *x) {
+				return x.unsignedIntegerValue % 3 == 0;
+			}]
+			take:5]
+			.toArray;
+		NSArray *expected = @[ @3, @6, @9, @12, @15 ];
+		expect(array).to.equal(expected);
+		expect(valuesGenerated).to.equal(15);
 	});
 });
 

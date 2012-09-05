@@ -111,6 +111,33 @@ static NSMutableSet *activeSubscribables() {
 	return subscribable;
 }
 
++ (instancetype)generatorWithStart:(id)start next:(id (^)(id x))block {
+	return [self generatorWithScheduler:nil start:start next:block];
+}
+
++ (instancetype)generatorWithScheduler:(RACScheduler *)scheduler start:(id)start next:(id (^)(id x))block {
+	NSParameterAssert(block != NULL);
+
+	if (scheduler == nil) scheduler = [RACScheduler backgroundScheduler];
+
+	return [self createSubscribable:^(id<RACSubscriber> subscriber) {
+		__block volatile uint32_t stop = 0;
+		[scheduler schedule:^{
+			id next = start;
+			while (next != nil && stop == 0) {
+				[subscriber sendNext:next];
+				next = block(next);
+			}
+
+			[subscriber sendCompleted];
+		}];
+
+		return [RACDisposable disposableWithBlock:^{
+			OSAtomicOr32Barrier(1, &stop);
+		}];
+	}];
+}
+
 + (instancetype)return:(id)value {
 	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
 		[subscriber sendNext:value];

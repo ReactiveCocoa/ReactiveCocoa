@@ -42,6 +42,23 @@
 // *Note* that the `didSubscribe` block is called every time a subscriber subscribes.
 + (instancetype)createSubscribable:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe;
 
+// Creates a new subscribable that uses the given block to generate values to
+// send to subscribers, based on the previous value. The subscribable completes
+// when `block` returns nil.
+//
+// scheduler - The scheduler on which the returned subscribable will generate
+// and send values. If it is nil, it uses `+[RACScheduler backgroundScheduler]`.
+//
+// start - The initial value sent to subscribers and then passed into `block` to
+// generate the next value.
+//
+// block - The block that generates a new value from the previous value. When
+// the block returns nil, the subscribable completes.
++ (instancetype)generatorWithScheduler:(RACScheduler *)scheduler start:(id)start next:(id (^)(id x))block;
+
+// Calls `+generateWithScheduler:start:block:` with a nil scheduler.
++ (instancetype)generatorWithStart:(id)start next:(id (^)(id x))block;
+
 // Returns a subscribable that immediately sends the given value and then
 // completes.
 + (instancetype)return:(id)value;

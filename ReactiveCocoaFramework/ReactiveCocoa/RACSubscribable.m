@@ -122,19 +122,25 @@ static NSMutableSet *activeSubscribables() {
 	if (scheduler == nil) scheduler = [RACScheduler backgroundScheduler];
 
 	return [self createSubscribable:^(id<RACSubscriber> subscriber) {
-		__block volatile uint32_t stop = 0;
+		__block volatile uint32_t dispose = 0;
 		[scheduler schedule:^{
 			id next = start;
-			while (next != nil && stop == 0) {
+			while (next != nil && dispose == 0) {
 				[subscriber sendNext:next];
 				next = block(next);
 			}
-
-			[subscriber sendCompleted];
+			
+			// Only send completed if we weren't manually disposed of.
+			// Otherwise we could send a message to subscribers after their
+			// subscription's been disposed which would violate the contract of
+			// subscription + disposal.
+			if (dispose == 0) {
+				[subscriber sendCompleted];
+			}
 		}];
 
 		return [RACDisposable disposableWithBlock:^{
-			OSAtomicOr32Barrier(1, &stop);
+			OSAtomicOr32Barrier(1, &dispose);
 		}];
 	}];
 }

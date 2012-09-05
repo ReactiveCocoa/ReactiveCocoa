@@ -13,6 +13,7 @@
 #import "RACAsyncSubject.h"
 #import "NSObject+RACExtensions.h"
 #import "RACScheduler.h"
+#import <libkern/OSAtomic.h>
 
 static NSMutableSet *activeSubscribables() {
 	static dispatch_once_t onceToken;

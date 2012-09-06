@@ -9,7 +9,6 @@
 #import "RACAsyncCommand.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACScheduler.h"
-#import "RACSubscribable+Operations.h"
 #import "RACTuple.h"
 
 @interface RACAsyncBlockPair : NSObject

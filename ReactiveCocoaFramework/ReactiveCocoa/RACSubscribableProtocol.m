@@ -1,31 +1,87 @@
 //
-//  RACSubscribable+Operations.m
+//  RACSubscribableProtocol.m
 //  ReactiveCocoa
 //
-//  Created by Josh Abernathy on 3/15/12.
+//  Created by Justin Spahr-Summers on 2012-09-06.
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACSubscribable+Operations.h"
-#import "RACSubscriber.h"
-#import "RACSubject.h"
+#import "RACSubscribableProtocol.h"
 #import "NSObject+RACExtensions.h"
 #import "RACBehaviorSubject.h"
-#import "RACDisposable.h"
-#import "RACUnit.h"
-#import "RACMaybe.h"
-#import "RACConnectableSubscribable+Private.h"
-#import "RACTuple.h"
-#import "RACScheduler.h"
-#import "RACGroupedSubscribable.h"
 #import "RACCancelableSubscribable+Private.h"
-
+#import "RACConnectableSubscribable+Private.h"
+#import "RACDisposable.h"
+#import "RACGroupedSubscribable.h"
+#import "RACMaybe.h"
+#import "RACScheduler.h"
+#import "RACSubject.h"
+#import "RACSubscriber.h"
+#import "RACTuple.h"
+#import "RACUnit.h"
 #import <libkern/OSAtomic.h>
 
 NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 
+@concreteprotocol(RACSubscribable)
 
-@implementation RACSubscribable (Operations)
+- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
+	return nil;
+}
+
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock {
+	NSParameterAssert(nextBlock != NULL);
+	
+	RACSubscriber *o = [RACSubscriber subscriberWithNext:nextBlock error:NULL completed:NULL];
+	return [self subscribe:o];
+}
+
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock {
+	NSParameterAssert(nextBlock != NULL);
+	NSParameterAssert(completedBlock != NULL);
+	
+	RACSubscriber *o = [RACSubscriber subscriberWithNext:nextBlock error:NULL completed:completedBlock];
+	return [self subscribe:o];
+}
+
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock {
+	NSParameterAssert(nextBlock != NULL);
+	NSParameterAssert(errorBlock != NULL);
+	NSParameterAssert(completedBlock != NULL);
+	
+	RACSubscriber *o = [RACSubscriber subscriberWithNext:nextBlock error:errorBlock completed:completedBlock];
+	return [self subscribe:o];
+}
+
+- (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock {
+	NSParameterAssert(errorBlock != NULL);
+	
+	RACSubscriber *o = [RACSubscriber subscriberWithNext:NULL error:errorBlock completed:NULL];
+	return [self subscribe:o];
+}
+
+- (RACDisposable *)subscribeCompleted:(void (^)(void))completedBlock {
+	NSParameterAssert(completedBlock != NULL);
+	
+	RACSubscriber *o = [RACSubscriber subscriberWithNext:NULL error:NULL completed:completedBlock];
+	return [self subscribe:o];
+}
+
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock {
+	NSParameterAssert(nextBlock != NULL);
+	NSParameterAssert(errorBlock != NULL);
+	
+	RACSubscriber *o = [RACSubscriber subscriberWithNext:nextBlock error:errorBlock completed:NULL];
+	return [self subscribe:o];
+}
+
+- (RACDisposable *)subscribeError:(void (^)(NSError *))errorBlock completed:(void (^)(void))completedBlock {
+	NSParameterAssert(completedBlock != NULL);
+	NSParameterAssert(errorBlock != NULL);
+	
+	RACSubscriber *o = [RACSubscriber subscriberWithNext:NULL error:errorBlock completed:completedBlock];
+	return [self subscribe:o];
+}
 
 - (RACSubscribable *)select:(id (^)(id x))selectBlock {
 	NSParameterAssert(selectBlock != NULL);

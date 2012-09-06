@@ -7,9 +7,8 @@
 //
 
 #import "UITextField+RACSubscribableSupport.h"
+#import "RACSubscribable.h"
 #import "UIControl+RACSubscribableSupport.h"
-#import "RACSubscribable+Operations.h"
-
 
 @implementation UITextField (RACSubscribableSupport)
 

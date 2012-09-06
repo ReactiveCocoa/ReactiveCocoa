@@ -76,7 +76,6 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 - (RACDisposable *)subscribeError:(void (^)(NSError *))errorBlock completed:(void (^)(void))completedBlock {
-	NSParameterAssert([self conformsToProtocol:@protocol(RACSubscribable)]);
 	NSParameterAssert(completedBlock != NULL);
 	NSParameterAssert(errorBlock != NULL);
 	

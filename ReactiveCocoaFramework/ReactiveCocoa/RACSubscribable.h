@@ -46,6 +46,16 @@
 // send to subscribers, based on the previous value. The subscribable completes
 // when `block` returns nil.
 //
+// Subscribers are sent values on the given scheduler, synchronously with
+// respect to the generation. So subscribers will get the next value and have a
+// chance to dispose of the subscription (and thus end the generator) before the
+// next value is generated. In this way, the generator only generates enough
+// values to satisify the subscriber's demand.
+//
+// Practically, this means users should always limit the subscribable on the
+// same scheduler passed in, otherwise the generator could outrun its need as
+// the limiting subscriber and the generator race to see who can work faster.
+//
 // scheduler - The scheduler on which the returned subscribable will generate
 // and send values. If it is nil, it uses `+[RACScheduler backgroundScheduler]`.
 //

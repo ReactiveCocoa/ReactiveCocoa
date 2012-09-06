@@ -11,8 +11,20 @@
 #define RAC_KEYPATH(object, property) ((void)(NO && ((void)object.property, NO)), @#property)
 #define RAC_KEYPATH_SELF(property) RAC_KEYPATH(self, property)
 
+// Returns a subscribable for the given property on the given object.
 #define RACAble(object, property) [object rac_subscribableForKeyPath:RAC_KEYPATH(object, property) onObject:self]
+
+// Same as RACAble but the subscribable also starts with the current value of
+// the property.
+#define RACAbleWithStart(object, property) [RACAble(object, property) startWith:object.property]
+
+// Returns a subscribable for the given property on self.
 #define RACAbleSelf(property) RACAble(self, property)
+
+// Same as RACAbleSelf but the subscribable also starts with the current value
+// of the property.
+#define RACAbleSelfWithStart(property) RACAbleWithStart(self, property)
+
 #define RACAbleKeyPath(keyPath) [self rac_subscribableForKeyPath:keyPath onObject:self]
 
 @class RACSubscribable;

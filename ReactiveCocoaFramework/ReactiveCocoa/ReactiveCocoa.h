@@ -8,6 +8,7 @@
 
 #import <ReactiveCocoa/RACSubscriber.h>
 #import <ReactiveCocoa/RACSubscribable.h>
+#import <ReactiveCocoa/RACSubscribableProtocol.h>
 #import <ReactiveCocoa/RACCommand.h>
 #import <ReactiveCocoa/NSObject+RACPropertySubscribing.h>
 #import <ReactiveCocoa/RACAsyncCommand.h>

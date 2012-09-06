@@ -8,7 +8,7 @@
 
 #import <ReactiveCocoa/RACSubscriber.h>
 #import <ReactiveCocoa/RACSubscribable.h>
-#import <ReactiveCocoa/RACSubscribable+Operations.h>
+#import <ReactiveCocoa/RACSubscribableProtocol.h>
 #import <ReactiveCocoa/RACCommand.h>
 #import <ReactiveCocoa/NSObject+RACPropertySubscribing.h>
 #import <ReactiveCocoa/RACAsyncCommand.h>
@@ -18,7 +18,6 @@
 #import <ReactiveCocoa/RACAsyncSubject.h>
 #import <ReactiveCocoa/RACBehaviorSubject.h>
 #import <ReactiveCocoa/RACDisposable.h>
-#import <ReactiveCocoa/NSObject+RACSubscribable.h>
 #import <ReactiveCocoa/NSObject+RACFastEnumeration.h>
 #import <ReactiveCocoa/RACUnit.h>
 #import <ReactiveCocoa/RACScopedDisposable.h>

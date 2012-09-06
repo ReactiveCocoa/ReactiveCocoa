@@ -438,7 +438,7 @@
 				FRAMEWORK_SEARCH_PATHS = "\"$(PROJECT_DIR)/../ReactiveCocoaFramework\"";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RACiOSDemo/RACiOSDemo-Prefix.pch";
-				HEADER_SEARCH_PATHS = "\"$(PROJECT_DIR)/../ReactiveCocoaFramework\"";
+				HEADER_SEARCH_PATHS = "\"$(PROJECT_DIR)/../ReactiveCocoaFramework\"/**";
 				INFOPLIST_FILE = "RACiOSDemo/RACiOSDemo-Info.plist";
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -455,7 +455,7 @@
 				FRAMEWORK_SEARCH_PATHS = "\"$(PROJECT_DIR)/../ReactiveCocoaFramework\"";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RACiOSDemo/RACiOSDemo-Prefix.pch";
-				HEADER_SEARCH_PATHS = "\"$(PROJECT_DIR)/../ReactiveCocoaFramework\"";
+				HEADER_SEARCH_PATHS = "\"$(PROJECT_DIR)/../ReactiveCocoaFramework\"/**";
 				INFOPLIST_FILE = "RACiOSDemo/RACiOSDemo-Info.plist";
 				OTHER_LDFLAGS = (
 					"-ObjC",

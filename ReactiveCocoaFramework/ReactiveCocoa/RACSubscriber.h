@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "NSObject+RACSubscribable.h"
 
 @class RACDisposable;
 

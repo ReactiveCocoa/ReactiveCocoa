@@ -7,7 +7,6 @@
 //
 
 #import "UITextView+RACSubscribableSupport.h"
-#import "RACSubscribable+Operations.h"
 #import "RACEventTrampoline.h"
 #import <objc/runtime.h>
 

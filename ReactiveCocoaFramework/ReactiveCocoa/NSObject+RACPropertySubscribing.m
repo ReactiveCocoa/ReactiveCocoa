@@ -13,7 +13,6 @@
 #import "RACDisposable.h"
 #import "RACSwizzling.h"
 #import "RACSubscribable+Private.h"
-#import "RACSubscribable+Operations.h"
 
 static const void *RACPropertySubscribingDisposables = &RACPropertySubscribingDisposables;
 

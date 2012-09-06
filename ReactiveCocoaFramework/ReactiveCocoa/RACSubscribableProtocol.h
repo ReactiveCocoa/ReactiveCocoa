@@ -1,12 +1,13 @@
 //
-//  RACSubscribable+Operations.h
+//  RACSubscribableProtocol.h
 //  ReactiveCocoa
 //
-//  Created by Josh Abernathy on 3/15/12.
+//  Created by Justin Spahr-Summers on 2012-09-06.
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACSubscribable.h"
+#import <Foundation/Foundation.h>
+#import "EXTConcreteProtocol.h"
 
 extern NSString * const RACSubscribableErrorDomain;
 
@@ -17,14 +18,55 @@ typedef enum {
 
 typedef NSInteger RACSubscribableError;
 
-@class RACTuple;
-@class RACConnectableSubscribable;
-@class RACSubject;
-@class RACScheduler;
 @class RACCancelableSubscribable;
+@class RACConnectableSubscribable;
+@class RACDisposable;
+@class RACScheduler;
+@class RACSubject;
+@class RACSubscribable;
+@class RACTuple;
+@protocol RACSubscriber;
 
+// A concrete protocol representing something that can be subscribed to. Most
+// commonly, this will simply be an instance of RACSubscribable (the class), but
+// any class can conform to this protocol.
+//
+// When conforming to this protocol in a custom class, only `@required` methods
+// need to be implemented. Default implementations will automatically be
+// provided for any methods marked as `@concrete`. For more information, see
+// EXTConcreteProtocol.h.
+@protocol RACSubscribable <NSObject>
+@required
 
-@interface RACSubscribable (Operations)
+// Subscribes subscriber to changes on the receiver. The receiver defines which
+// events it actually sends and in what situations the events are sent.
+//
+// Returns a disposable. You can call -dispose on it if you need to end your
+// subscription before it would otherwise end.
+- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber;
+
+@concrete
+
+// Convenience method to subscribe to the `next` event.
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock;
+
+// Convenience method to subscribe to the `next` and `completed` events.
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock;
+
+// Convenience method to subscribe to the `next`, `completed`, and `error` events.
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
+
+// Convenience method to subscribe to `error` events.
+- (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock;
+
+// Convenience method to subscribe to `completed` events.
+- (RACDisposable *)subscribeCompleted:(void (^)(void))completedBlock;
+
+// Convenience method to subscribe to `next` and `error` events.
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock;
+
+// Convenience method to subscribe to `error` and `completed` events.
+- (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
 
 // Transform each `next` value by calling the given block.
 - (RACSubscribable *)select:(id (^)(id x))selectBlock;

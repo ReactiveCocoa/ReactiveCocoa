@@ -8,7 +8,6 @@
 
 #import "NSObject+RACBindings.h"
 #import "RACSubscribable.h"
-#import "RACSubscribable+Operations.h"
 
 
 @implementation NSObject (RACBindings)

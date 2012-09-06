@@ -9,7 +9,6 @@
 #import "RACSpecs.h"
 
 #import "RACSubscribable.h"
-#import "RACSubscribable+Operations.h"
 #import "RACSubscriber.h"
 #import "RACSubject.h"
 #import "RACBehaviorSubject.h"

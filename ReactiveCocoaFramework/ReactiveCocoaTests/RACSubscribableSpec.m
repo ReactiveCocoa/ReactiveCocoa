@@ -15,6 +15,7 @@
 #import "RACDisposable.h"
 #import "RACUnit.h"
 #import "RACTuple.h"
+#import "RACScheduler.h"
 
 
 SpecBegin(RACSubscribable)
@@ -447,6 +448,43 @@ describe(@"combineLatest", ^{
 		[subscriber2 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
 		
 		expect(errorCount).to.equal(2);
+	});
+});
+
+describe(@"generator", ^{
+	it(@"should generate values", ^{
+		RACSubscribable *s = [RACSubscribable generatorWithStart:@1 next:^id(NSNumber *x) {
+			return x.unsignedIntegerValue < 7 ? @(x.unsignedIntegerValue + 1) : nil;
+		}];
+		
+		NSArray *array = s.toArray;
+		NSArray *expected = @[ @1, @2, @3, @4, @5, @6, @7 ];
+		expect(array).to.equal(expected);
+	});
+	
+	it(@"should generate the same value continuously when given a nil block", ^{
+		RACSubscribable *s = [RACSubscribable generatorWithStart:@42 next:nil];
+		NSArray *array = [s take:5].toArray;
+		NSArray *expected = @[ @42, @42, @42, @42, @42 ];
+		expect(array).to.equal(expected);
+	});
+	
+	it(@"should generate only as many values as it needs", ^{
+		__block NSUInteger valuesGenerated = 0;
+		RACSubscribable *s = [RACSubscribable generatorWithStart:@1 next:^(NSNumber *x) {
+			valuesGenerated++;
+			return @(x.unsignedIntegerValue + 1);
+		}];
+		
+		NSArray *array = [[s
+			where:^BOOL(NSNumber *x) {
+				return x.unsignedIntegerValue % 3 == 0;
+			}]
+			take:5]
+			.toArray;
+		NSArray *expected = @[ @3, @6, @9, @12, @15 ];
+		expect(array).to.equal(expected);
+		expect(valuesGenerated).to.equal(15);
 	});
 });
 

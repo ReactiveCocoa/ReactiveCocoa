@@ -13,6 +13,7 @@
 #import "RACAsyncSubject.h"
 #import "NSObject+RACExtensions.h"
 #import "RACScheduler.h"
+#import <libkern/OSAtomic.h>
 
 static NSMutableSet *activeSubscribables() {
 	static dispatch_once_t onceToken;
@@ -109,6 +110,37 @@ static NSMutableSet *activeSubscribables() {
 	RACSubscribable *subscribable = [[self alloc] init];
 	subscribable.didSubscribe = didSubscribe;
 	return subscribable;
+}
+
++ (instancetype)generatorWithStart:(id)start next:(id (^)(id x))block {
+	return [self generatorWithScheduler:nil start:start next:block];
+}
+
++ (instancetype)generatorWithScheduler:(RACScheduler *)scheduler start:(id)start next:(id (^)(id x))block {
+	if (scheduler == nil) scheduler = [RACScheduler backgroundScheduler];
+
+	return [self createSubscribable:^(id<RACSubscriber> subscriber) {
+		__block volatile uint32_t dispose = 0;
+		[scheduler schedule:^{
+			id next = start;
+			while (next != nil && dispose == 0) {
+				[subscriber sendNext:next];
+				next = block != NULL ? block(next) : next;
+			}
+			
+			// Only send completed if we weren't manually disposed of.
+			// Otherwise we could send a message to subscribers after their
+			// subscription's been disposed which would violate the contract of
+			// subscription + disposal.
+			if (dispose == 0) {
+				[subscriber sendCompleted];
+			}
+		}];
+
+		return [RACDisposable disposableWithBlock:^{
+			OSAtomicOr32Barrier(1, &dispose);
+		}];
+	}];
 }
 
 + (instancetype)return:(id)value {

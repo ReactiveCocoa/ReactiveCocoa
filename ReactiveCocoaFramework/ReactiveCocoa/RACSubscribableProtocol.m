@@ -33,7 +33,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	NSParameterAssert(nextBlock != NULL);
 	
 	RACSubscriber *o = [RACSubscriber subscriberWithNext:nextBlock error:NULL completed:NULL];
-	return [(RACSubscribable *) self subscribe:o];
+	return [self subscribe:o];
 }
 
 - (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock {
@@ -41,7 +41,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	NSParameterAssert(completedBlock != NULL);
 	
 	RACSubscriber *o = [RACSubscriber subscriberWithNext:nextBlock error:NULL completed:completedBlock];
-	return [(RACSubscribable *) self subscribe:o];
+	return [self subscribe:o];
 }
 
 - (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock {
@@ -50,21 +50,21 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	NSParameterAssert(completedBlock != NULL);
 	
 	RACSubscriber *o = [RACSubscriber subscriberWithNext:nextBlock error:errorBlock completed:completedBlock];
-	return [(RACSubscribable *) self subscribe:o];
+	return [self subscribe:o];
 }
 
 - (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock {
 	NSParameterAssert(errorBlock != NULL);
 	
 	RACSubscriber *o = [RACSubscriber subscriberWithNext:NULL error:errorBlock completed:NULL];
-	return [(RACSubscribable *) self subscribe:o];
+	return [self subscribe:o];
 }
 
 - (RACDisposable *)subscribeCompleted:(void (^)(void))completedBlock {
 	NSParameterAssert(completedBlock != NULL);
 	
 	RACSubscriber *o = [RACSubscriber subscriberWithNext:NULL error:NULL completed:completedBlock];
-	return [(RACSubscribable *) self subscribe:o];
+	return [self subscribe:o];
 }
 
 - (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock {
@@ -72,7 +72,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	NSParameterAssert(errorBlock != NULL);
 	
 	RACSubscriber *o = [RACSubscriber subscriberWithNext:nextBlock error:errorBlock completed:NULL];
-	return [(RACSubscribable *) self subscribe:o];
+	return [self subscribe:o];
 }
 
 - (RACDisposable *)subscribeError:(void (^)(NSError *))errorBlock completed:(void (^)(void))completedBlock {
@@ -81,7 +81,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	NSParameterAssert(errorBlock != NULL);
 	
 	RACSubscriber *o = [RACSubscriber subscriberWithNext:NULL error:errorBlock completed:completedBlock];
-	return [(RACSubscribable *) self subscribe:o];
+	return [self subscribe:o];
 }
 
 - (RACSubscribable *)select:(id (^)(id x))selectBlock {

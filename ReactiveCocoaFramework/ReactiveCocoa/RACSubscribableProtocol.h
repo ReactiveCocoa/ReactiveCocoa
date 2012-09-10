@@ -156,6 +156,10 @@ typedef NSInteger RACSubscribableError;
 // subscribables do.
 - (RACSubscribable *)selectMany:(id<RACSubscribable> (^)(id x))selectBlock;
 
+// Like `-selectMany:`, but the subscribable returned from the block is not
+// dependent on the value received from the source subscribable.
+- (RACSubscribable *)sequenceMany:(id<RACSubscribable> (^)(void))block;
+
 // Subscribes to `subscribable` when the source subscribable completes.
 - (RACSubscribable *)concat:(id<RACSubscribable>)subscribable;
 

@@ -599,11 +599,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 - (RACSubscribable *)sequenceNext:(id<RACSubscribable> (^)(void))block {
-	NSParameterAssert(block != NULL);
-
-	return [[self takeLast:1] selectMany:^(id _) {
-		return block();
-	}];
+	return [[self takeLast:1] sequenceMany:block];
 }
 
 - (RACSubscribable *)concat:(id<RACSubscribable>)subscribable {

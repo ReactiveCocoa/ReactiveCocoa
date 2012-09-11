@@ -451,6 +451,40 @@ describe(@"combineLatest", ^{
 	});
 });
 
+describe(@"distinctUntilChanged", ^{
+	it(@"should only send values that are distinct from the previous value", ^{
+		RACSubscribable *sub = [[RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendNext:@2];
+			[subscriber sendNext:@2];
+			[subscriber sendNext:@1];
+			[subscriber sendNext:@1];
+			[subscriber sendCompleted];
+			return nil;
+		}] distinctUntilChanged];
+		
+		NSArray *values = sub.toArray;
+		NSArray *expected = @[ @1, @2, @1 ];
+		expect(values).to.equal(expected);
+	});
+
+	it(@"shouldn't consider nils to always be distinct", ^{
+		RACSubscribable *sub = [[RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendNext:nil];
+			[subscriber sendNext:nil];
+			[subscriber sendNext:nil];
+			[subscriber sendNext:@1];
+			[subscriber sendCompleted];
+			return nil;
+		}] distinctUntilChanged];
+		
+		NSArray *values = sub.toArray;
+		NSArray *expected = @[ @1, [NSNull null], @1 ];
+		expect(values).to.equal(expected);
+	});
+});
+
 describe(@"generator", ^{
 	it(@"should generate values", ^{
 		RACSubscribable *s = [RACSubscribable generatorWithStart:@1 next:^id(NSNumber *x) {

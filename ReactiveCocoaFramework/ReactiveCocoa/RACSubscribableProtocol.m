@@ -409,11 +409,12 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 - (RACSubscribable *)take:(NSUInteger)count {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {		
 		__block NSUInteger valuesTaken = 0;
-		return [self subscribeNext:^(id x) {
+		__block RACDisposable *disposable = [self subscribeNext:^(id x) {
 			valuesTaken++;
 			[subscriber sendNext:x];
 			
-			if(valuesTaken >= count) {
+			if(valuesTaken == count) {
+				[disposable dispose];
 				[subscriber sendCompleted];
 			}
 		} error:^(NSError *error) {
@@ -421,6 +422,8 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		} completed:^{
 			[subscriber sendCompleted];
 		}];
+
+		return disposable;
 	}];
 }
 

@@ -27,11 +27,13 @@
 //
 // didSubscribe - called when the subscribable is subscribed to. The new
 // subscriber is passed in. You can then manually control the subscriber by
-// sending it -sendNext:, -sendError:, and -sendCompleted, as defined by the
-// operation you're implementing. The block should return a disposable that
+// sending it `-sendNext:`, `-sendError:`, and `-sendCompleted`, as defined by
+// the operation you're implementing. The block should return a disposable that
 // cleans up all the resources and disposables created by the subscribable.
-// This disposable is returned by the -subscribe: call. You may return nil if
-// there is no cleanup necessary.
+// This disposable is returned as part of the disposable returned by the
+// `-subscribe:` call. When the disposable is disposed of, the subscribable must
+// not send any more events to the subscriber. You may return nil if there is no
+// cleanup necessary.
 //
 // *Note* that the `didSubscribe` block is called every time a subscriber subscribes.
 + (instancetype)createSubscribable:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe;

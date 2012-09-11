@@ -41,8 +41,10 @@ typedef NSInteger RACSubscribableError;
 // Subscribes subscriber to changes on the receiver. The receiver defines which
 // events it actually sends and in what situations the events are sent.
 //
-// Returns a disposable. You can call -dispose on it if you need to end your
-// subscription before it would otherwise end.
+// Returns a disposable. You can call `-dispose` on it if you need to end your
+// subscription before it would "naturally" end, either by completing or
+// erroring. Once the disposable has been disposed, the subscriber won't receive
+// any more events from the subscription.
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber;
 
 @concrete

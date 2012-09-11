@@ -532,7 +532,7 @@ describe(@"generator", ^{
 			.toArray;
 		NSArray *expected = @[ @3, @6, @9, @12, @15 ];
 		expect(array).to.equal(expected);
-		expect(valuesGenerated).to.equal(15);
+		expect(valuesGenerated).to.equal(14);
 	});
 });
 

@@ -590,6 +590,18 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	return [[self select:selectBlock] merge];
 }
 
+- (RACSubscribable *)sequenceMany:(id<RACSubscribable> (^)(void))block {
+	NSParameterAssert(block != NULL);
+
+	return [self selectMany:^(id _) {
+		return block();
+	}];
+}
+
+- (RACSubscribable *)sequenceNext:(id<RACSubscribable> (^)(void))block {
+	return [[self takeLast:1] sequenceMany:block];
+}
+
 - (RACSubscribable *)concat:(id<RACSubscribable>)subscribable {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *concattedDisposable = nil;

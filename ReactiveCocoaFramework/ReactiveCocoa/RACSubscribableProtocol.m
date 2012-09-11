@@ -993,20 +993,32 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 - (NSArray *)toArray {
+	NSCondition *condition = [[NSCondition alloc] init];
+	condition.name = NSStringFromSelector(_cmd);
+
 	NSMutableArray *values = [NSMutableArray array];
-	__block BOOL stop = NO;
+	__block BOOL done = NO;
 	[self subscribeNext:^(id x) {
 		[values addObject:x ? : [NSNull null]];
 	} error:^(NSError *error) {
-		stop = YES;
+		[condition lock];
+		done = YES;
+		[condition broadcast];
+		[condition unlock];
 	} completed:^{
-		stop = YES;
+		[condition lock];
+		done = YES;
+		[condition broadcast];
+		[condition unlock];
 	}];
-	
-	while(!stop) {
-		[[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1f]];
+
+	[condition lock];
+	while (!done) {
+		[condition wait];
 	}
-	
+
+	[condition unlock];
+
 	return values;
 }
 

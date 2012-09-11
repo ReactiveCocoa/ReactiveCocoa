@@ -483,6 +483,20 @@ describe(@"distinctUntilChanged", ^{
 		NSArray *expected = @[ @1, [NSNull null], @1 ];
 		expect(values).to.equal(expected);
 	});
+
+	it(@"should consider initial nil to be distinct", ^{
+		RACSubscribable *sub = [[RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+			[subscriber sendNext:nil];
+			[subscriber sendNext:nil];
+			[subscriber sendNext:@1];
+			[subscriber sendCompleted];
+			return nil;
+		}] distinctUntilChanged];
+		
+		NSArray *values = sub.toArray;
+		NSArray *expected = @[ [NSNull null], @1 ];
+		expect(values).to.equal(expected);
+	});
 });
 
 describe(@"generator", ^{

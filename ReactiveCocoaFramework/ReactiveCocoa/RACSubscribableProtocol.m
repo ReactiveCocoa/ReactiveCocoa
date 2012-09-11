@@ -413,7 +413,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 			valuesTaken++;
 			[subscriber sendNext:x];
 			
-			if(valuesTaken == count) {
+			if (valuesTaken == count) {
 				[disposable dispose];
 				[subscriber sendCompleted];
 			}

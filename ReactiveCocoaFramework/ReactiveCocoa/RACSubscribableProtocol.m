@@ -976,8 +976,11 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 - (RACSubscribable *)distinctUntilChanged {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		__block id lastValue = nil;
+		__block BOOL initial = YES;
+
 		return [self subscribeNext:^(id x) {
-			if(lastValue != x && ![x isEqual:lastValue]) {
+			if (initial || (lastValue != x && ![x isEqual:lastValue])) {
+				initial = NO;
 				lastValue = x;
 				[subscriber sendNext:x];
 			}

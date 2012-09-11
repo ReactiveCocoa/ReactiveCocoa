@@ -126,7 +126,10 @@ static NSMutableSet *activeSubscribables() {
 			id next = start;
 			while (next != nil && dispose == 0) {
 				[subscriber sendNext:next];
-				next = block != NULL ? block(next) : next;
+
+				if (dispose == 0) {
+					next = block != NULL ? block(next) : next;
+				}
 			}
 			
 			// Only send completed if we weren't manually disposed of.

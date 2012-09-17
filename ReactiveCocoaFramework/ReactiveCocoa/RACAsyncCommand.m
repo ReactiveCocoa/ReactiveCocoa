@@ -37,11 +37,7 @@
 
 #pragma mark RACCommand
 
-+ (instancetype)command {
-	return [[self alloc] initWithBlock:NULL canExecuteSubscribable:nil];
-}
-
-- (id)initWithBlock:(void (^)(id sender))block canExecuteSubscribable:(id<RACSubscribable>)canExecuteSubscribable {
+- (id)initWithCanExecuteSubscribable:(id<RACSubscribable>)canExecuteSubscribable block:(void (^)(id sender))block {
 	self = [super initWithCanExecuteSubscribable:nil block:block];
 	if (self == nil) return nil;
 	

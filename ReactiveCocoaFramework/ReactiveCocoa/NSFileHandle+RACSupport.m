@@ -71,9 +71,9 @@ const NSInteger RACNSFileHandleErrorCouldNotCreateEventSource = 667;
 			[subscriber sendNext:self];
 		});
 
-		__block volatile uint32_t canceled = 0;
+		__block volatile uint32_t disposed = 0;
 		dispatch_source_set_cancel_handler(source, ^{
-			if (canceled == 0) {
+			if (disposed == 0) {
 				[subscriber sendCompleted];
 			}
 
@@ -83,7 +83,7 @@ const NSInteger RACNSFileHandleErrorCouldNotCreateEventSource = 667;
 		dispatch_resume(source);
 
 		return [RACDisposable disposableWithBlock:^{
-			OSAtomicOr32Barrier(1, &canceled);
+			OSAtomicOr32Barrier(1, &disposed);
 			dispatch_source_cancel(source);
 		}];
 	}];

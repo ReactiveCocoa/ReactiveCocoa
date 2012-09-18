@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <ReactiveCocoa/ReactiveCocoa.h>
 
 extern NSString * const RACNSFileHandleErrorDomain;
 
@@ -17,8 +18,6 @@ extern const NSInteger RACNSFileHandleErrorInvalidFileDescriptor;
 // An error occurred while trying to create an event source with the receiver's
 // file descriptor.
 extern const NSInteger RACNSFileHandleErrorCouldNotCreateEventSource;
-
-@class RACSubscribable;
 
 @interface NSFileHandle (RACSupport)
 

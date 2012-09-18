@@ -26,6 +26,10 @@
 
 #pragma mark API
 
++ (instancetype)command {
+	return [[self alloc] initWithCanExecuteSubscribable:nil block:NULL];
+}
+
 + (instancetype)commandWithBlock:(void (^)(id value))executeBlock {
 	return [[self alloc] initWithCanExecuteSubscribable:nil block:executeBlock];
 }

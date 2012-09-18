@@ -31,11 +31,6 @@
 #import <ReactiveCocoa/RACGroupedSubscribable.h>
 #import <ReactiveCocoa/RACConnectableSubscribable.h>
 #import <ReactiveCocoa/RACCancelableSubscribable.h>
-
-#import <ReactiveCocoa/NSFileHandle+RACSupport.h>
-#import <ReactiveCocoa/NSNotificationCenter+RACSupport.h>
-#import <ReactiveCocoa/NSData+RACSupport.h>
-#import <ReactiveCocoa/NSString+RACSupport.h>
 #import <ReactiveCocoa/NSObject+RACKVOWrapper.h>
 
 #ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
@@ -45,5 +40,4 @@
 #elif TARGET_OS_MAC
 #import <ReactiveCocoa/NSButton+RACCommandSupport.h>
 #import <ReactiveCocoa/NSObject+RACAppKitBindings.h>
-#import <ReactiveCocoa/NSTask+RACSupport.h>
 #endif

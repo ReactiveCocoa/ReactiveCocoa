@@ -22,6 +22,9 @@
 // KVC-compliant. Users can binding a subscribable to this property if needed.
 @property (readonly) BOOL canExecute;
 
+// Creates a new command that can always be executed and has no execution block.
++ (instancetype)command;
+
 // Creates a new command with the given execution block. `canExecute` will
 // always be YES.
 + (instancetype)commandWithBlock:(void (^)(id sender))block;

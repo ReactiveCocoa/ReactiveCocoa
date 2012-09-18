@@ -16,6 +16,8 @@
 #import "RACUnit.h"
 #import "RACTuple.h"
 #import "RACScheduler.h"
+#import "RACTestObject.h"
+#import "NSObject+RACPropertySubscribing.h"
 
 
 SpecBegin(RACSubscribable)
@@ -485,6 +487,42 @@ describe(@"generator", ^{
 		NSArray *expected = @[ @3, @6, @9, @12, @15 ];
 		expect(array).to.equal(expected);
 		expect(valuesGenerated).to.equal(15);
+	});
+});
+
+describe(@"RACAbleWithStart", ^{
+	__block RACTestObject *testObject;
+
+	beforeEach(^{
+		testObject = [[RACTestObject alloc] init];
+	});
+
+	it(@"should work with object properties", ^{
+		NSArray *expected = @[ @"hello", @"world" ];
+		testObject.objectValue = expected[0];
+
+		NSMutableArray *valuesReceived = [NSMutableArray array];
+		[RACAbleWithStart(testObject, objectValue) subscribeNext:^(id x) {
+			[valuesReceived addObject:x];
+		}];
+
+		testObject.objectValue = expected[1];
+
+		expect(valuesReceived).to.equal(expected);
+	});
+
+	it(@"should work with non-object properties", ^{
+		NSArray *expected = @[ @42, @43 ];
+		testObject.integerValue = [expected[0] integerValue];
+
+		NSMutableArray *valuesReceived = [NSMutableArray array];
+		[RACAbleWithStart(testObject, integerValue) subscribeNext:^(id x) {
+			[valuesReceived addObject:x];
+		}];
+
+		testObject.integerValue = [expected[1] integerValue];
+
+		expect(valuesReceived).to.equal(expected);
 	});
 });
 

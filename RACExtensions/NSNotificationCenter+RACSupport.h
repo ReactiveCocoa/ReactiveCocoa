@@ -7,9 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
-@class RACSubscribable;
-
+#import <ReactiveCocoa/ReactiveCocoa.h>
 
 @interface NSNotificationCenter (RACSupport)
 

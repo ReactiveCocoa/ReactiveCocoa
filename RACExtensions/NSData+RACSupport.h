@@ -7,10 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
-@class RACSubscribable;
-@class RACScheduler;
-
+#import <ReactiveCocoa/ReactiveCocoa.h>
 
 @interface NSData (RACSupport)
 

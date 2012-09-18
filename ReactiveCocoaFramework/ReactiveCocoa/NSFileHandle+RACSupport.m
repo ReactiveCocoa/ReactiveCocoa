@@ -10,7 +10,6 @@
 #import "NSNotificationCenter+RACSupport.h"
 #import "RACReplaySubject.h"
 #import "RACDisposable.h"
-#import "RACScheduler.h"
 #import <libkern/OSAtomic.h>
 #import <fcntl.h>
 

@@ -16,7 +16,7 @@
 
 // Same as RACAble but the subscribable also starts with the current value of
 // the property.
-#define RACAbleWithStart(object, property) [RACAble(object, property) startWith:object.property]
+#define RACAbleWithStart(object, property) [RACAble(object, property) startWith:[object valueForKeyPath:RAC_KEYPATH(object, property)]]
 
 // Returns a subscribable for the given property on self.
 #define RACAbleSelf(property) RACAble(self, property)

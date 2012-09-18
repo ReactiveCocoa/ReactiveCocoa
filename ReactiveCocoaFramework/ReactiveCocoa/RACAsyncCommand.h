@@ -27,9 +27,6 @@
 // `canExecute` will be NO.
 @property (readonly, assign) NSUInteger numberOfActiveExecutions;
 
-// Creates a new command that can always be executed and has no execution block.
-+ (instancetype)command;
-
 // Adds a new async block to be called when the command executes.
 //
 // block - a new block to perform when the command is executed. Cannot be nil.

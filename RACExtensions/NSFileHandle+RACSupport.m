@@ -58,7 +58,8 @@ const NSInteger RACNSFileHandleErrorCouldNotCreateEventSource = 667;
 	if (self.fileDescriptor < 0) return [RACSubscribable error:[NSError errorWithDomain:RACNSFileHandleErrorDomain code:RACNSFileHandleErrorInvalidFileDescriptor userInfo:nil]];
 
 	return [RACSubscribable createSubscribable:^ id (id<RACSubscriber> subscriber) {
-		dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_VNODE, (uintptr_t) self.fileDescriptor, DISPATCH_VNODE_DELETE | DISPATCH_VNODE_WRITE | DISPATCH_VNODE_EXTEND | DISPATCH_VNODE_ATTRIB | DISPATCH_VNODE_LINK | DISPATCH_VNODE_RENAME | DISPATCH_VNODE_REVOKE, queue ? : dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0));
+		dispatch_queue_t queueToUse = queue ? : dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+		dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_VNODE, (uintptr_t) self.fileDescriptor, DISPATCH_VNODE_DELETE | DISPATCH_VNODE_WRITE | DISPATCH_VNODE_EXTEND | DISPATCH_VNODE_ATTRIB | DISPATCH_VNODE_LINK | DISPATCH_VNODE_RENAME | DISPATCH_VNODE_REVOKE, queueToUse);
 		if (source == NULL) {
 			[subscriber sendError:[NSError errorWithDomain:RACNSFileHandleErrorDomain code:RACNSFileHandleErrorCouldNotCreateEventSource userInfo:nil]];
 			return nil;

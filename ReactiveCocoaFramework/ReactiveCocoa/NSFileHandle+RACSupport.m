@@ -12,6 +12,7 @@
 #import "RACDisposable.h"
 #import "RACScheduler.h"
 #import <libkern/OSAtomic.h>
+#import <fcntl.h>
 
 NSString * const RACNSFileHandleErrorDomain = @"com.github.ReactiveCocoa.NSFileHandle";
 

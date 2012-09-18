@@ -7,11 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
-@class RACCancelableSubscribable;
-@class RACSubscribable;
-@class RACCancelableSubscribable;
-@class RACScheduler;
+#import <ReactiveCocoa/ReactiveCocoa.h>
 
 extern NSString * const NSTaskRACSupportErrorDomain;
 

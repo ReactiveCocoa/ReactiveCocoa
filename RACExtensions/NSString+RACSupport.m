@@ -7,9 +7,6 @@
 //
 
 #import "NSString+RACSupport.h"
-#import "RACAsyncSubject.h"
-#import "RACScheduler.h"
-
 
 @implementation NSString (RACSupport)
 

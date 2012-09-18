@@ -7,9 +7,6 @@
 //
 
 #import "NSData+RACSupport.h"
-#import "RACAsyncSubject.h"
-#import "RACScheduler.h"
-
 
 @implementation NSData (RACSupport)
 

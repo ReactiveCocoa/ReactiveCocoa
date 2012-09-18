@@ -9,11 +9,6 @@
 #import "NSTask+RACSupport.h"
 #import "NSFileHandle+RACSupport.h"
 #import "NSNotificationCenter+RACSupport.h"
-#import "RACConnectableSubscribable.h"
-#import "RACAsyncSubject.h"
-#import "RACScheduler.h"
-#import "RACUnit.h"
-#import "RACCancelableSubscribable.h"
 
 NSString * const NSTaskRACSupportErrorDomain = @"NSTaskRACSupportErrorDomain";
 

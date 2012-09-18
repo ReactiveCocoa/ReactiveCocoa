@@ -9,5 +9,10 @@ RAC uses some submodules. Once you've cloned the repository, be sure to run `git
 
 Then checkout the [Mac](https://github.com/github/ReactiveCocoa/tree/master/GHAPIDemo) or [iOS](https://github.com/github/ReactiveCocoa/tree/master/RACiOSDemo) demos.
 
+## Foundation Support
+There are a number of categories that provide RAC-based bridges to standard Foundation classes. They're not included as part of the framework proper in order to keep the framework size down.
+
+You can find them in [RACExtensions](https://github.com/github/ReactiveCocoa/tree/master/RACExtensions). To use them, simple add them directly to your project as needed.
+
 ## License
 Simplified BSD License

@@ -24,8 +24,9 @@ extern const NSInteger RACNSFileManagerErrorCouldNotCreateEventSource;
 // an error if a problem occurred trying to watch the file, and sends completed
 // if the file was deleted.
 //
-// Take care when watching bundles. Events can be delivered before bundle is
-// done being written. The FSEvents API might be a better alternative for that case.
+// Take care when watching bundles. Events can be delivered before the bundle is
+// done being written. The FSEvents API might be a better alternative for that
+// case.
 //
 // queue - the dispatch queue to which the event blocks are submitted. If NULL,
 // the default priority global queue is used.

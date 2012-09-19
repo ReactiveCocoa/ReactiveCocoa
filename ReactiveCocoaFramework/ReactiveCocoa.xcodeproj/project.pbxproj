@@ -43,6 +43,8 @@
 		883A84DF1513B5EC006DB4C7 /* RACDisposable.h in Headers */ = {isa = PBXBuildFile; fileRef = 883A84DD1513B5EC006DB4C7 /* RACDisposable.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		883A84E01513B5EC006DB4C7 /* RACDisposable.m in Sources */ = {isa = PBXBuildFile; fileRef = 883A84DE1513B5EC006DB4C7 /* RACDisposable.m */; };
 		88442A341608A9AD00636B49 /* RACTestObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 88442A331608A9AD00636B49 /* RACTestObject.m */; };
+		88442C6C1608FBD200636B49 /* NSFileManagerRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 88442C6B1608FBD200636B49 /* NSFileManagerRACSupportSpec.m */; };
+		88442C9316090D9C00636B49 /* NSFileManager+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 88442C9216090C2300636B49 /* NSFileManager+RACSupport.m */; };
 		884476E4152367D100958F44 /* RACScopedDisposable.h in Headers */ = {isa = PBXBuildFile; fileRef = 884476E2152367D100958F44 /* RACScopedDisposable.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		884476E5152367D100958F44 /* RACScopedDisposable.m in Sources */ = {isa = PBXBuildFile; fileRef = 884476E3152367D100958F44 /* RACScopedDisposable.m */; };
 		884848B615F658B800B11BD0 /* NSButtonRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 884848B515F658B800B11BD0 /* NSButtonRACSupportSpec.m */; };
@@ -265,6 +267,19 @@
 		883A84DE1513B5EC006DB4C7 /* RACDisposable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACDisposable.m; sourceTree = "<group>"; };
 		88442A321608A9AD00636B49 /* RACTestObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACTestObject.h; sourceTree = "<group>"; };
 		88442A331608A9AD00636B49 /* RACTestObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACTestObject.m; sourceTree = "<group>"; };
+		88442C6B1608FBD200636B49 /* NSFileManagerRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSFileManagerRACSupportSpec.m; sourceTree = "<group>"; };
+		88442C8716090C1500636B49 /* NSData+RACSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSData+RACSupport.h"; path = "../../RACExtensions/NSData+RACSupport.h"; sourceTree = "<group>"; };
+		88442C8816090C1500636B49 /* NSData+RACSupport.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "NSData+RACSupport.m"; path = "../../RACExtensions/NSData+RACSupport.m"; sourceTree = "<group>"; };
+		88442C8916090C1500636B49 /* NSFileHandle+RACSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSFileHandle+RACSupport.h"; path = "../../RACExtensions/NSFileHandle+RACSupport.h"; sourceTree = "<group>"; };
+		88442C8A16090C1500636B49 /* NSFileHandle+RACSupport.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "NSFileHandle+RACSupport.m"; path = "../../RACExtensions/NSFileHandle+RACSupport.m"; sourceTree = "<group>"; };
+		88442C8B16090C1500636B49 /* NSNotificationCenter+RACSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSNotificationCenter+RACSupport.h"; path = "../../RACExtensions/NSNotificationCenter+RACSupport.h"; sourceTree = "<group>"; };
+		88442C8C16090C1500636B49 /* NSNotificationCenter+RACSupport.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "NSNotificationCenter+RACSupport.m"; path = "../../RACExtensions/NSNotificationCenter+RACSupport.m"; sourceTree = "<group>"; };
+		88442C8D16090C1500636B49 /* NSString+RACSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSString+RACSupport.h"; path = "../../RACExtensions/NSString+RACSupport.h"; sourceTree = "<group>"; };
+		88442C8E16090C1500636B49 /* NSString+RACSupport.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "NSString+RACSupport.m"; path = "../../RACExtensions/NSString+RACSupport.m"; sourceTree = "<group>"; };
+		88442C8F16090C1500636B49 /* NSTask+RACSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSTask+RACSupport.h"; path = "../../RACExtensions/NSTask+RACSupport.h"; sourceTree = "<group>"; };
+		88442C9016090C1500636B49 /* NSTask+RACSupport.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "NSTask+RACSupport.m"; path = "../../RACExtensions/NSTask+RACSupport.m"; sourceTree = "<group>"; };
+		88442C9116090C2300636B49 /* NSFileManager+RACSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSFileManager+RACSupport.h"; sourceTree = "<group>"; };
+		88442C9216090C2300636B49 /* NSFileManager+RACSupport.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSFileManager+RACSupport.m"; sourceTree = "<group>"; };
 		884476E2152367D100958F44 /* RACScopedDisposable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACScopedDisposable.h; sourceTree = "<group>"; };
 		884476E3152367D100958F44 /* RACScopedDisposable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACScopedDisposable.m; sourceTree = "<group>"; };
 		884848B515F658B800B11BD0 /* NSButtonRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSButtonRACSupportSpec.m; sourceTree = "<group>"; };
@@ -427,6 +442,25 @@
 			name = JRSwizzle;
 			sourceTree = "<group>";
 		};
+		88442C8616090BF800636B49 /* RACExtensions */ = {
+			isa = PBXGroup;
+			children = (
+				88442C8716090C1500636B49 /* NSData+RACSupport.h */,
+				88442C8816090C1500636B49 /* NSData+RACSupport.m */,
+				88442C8916090C1500636B49 /* NSFileHandle+RACSupport.h */,
+				88442C8A16090C1500636B49 /* NSFileHandle+RACSupport.m */,
+				88442C8B16090C1500636B49 /* NSNotificationCenter+RACSupport.h */,
+				88442C8C16090C1500636B49 /* NSNotificationCenter+RACSupport.m */,
+				88442C8D16090C1500636B49 /* NSString+RACSupport.h */,
+				88442C8E16090C1500636B49 /* NSString+RACSupport.m */,
+				88442C8F16090C1500636B49 /* NSTask+RACSupport.h */,
+				88442C9016090C1500636B49 /* NSTask+RACSupport.m */,
+				88442C9116090C2300636B49 /* NSFileManager+RACSupport.h */,
+				88442C9216090C2300636B49 /* NSFileManager+RACSupport.m */,
+			);
+			name = RACExtensions;
+			sourceTree = "<group>";
+		};
 		886044CC152A95B5008ABD0D /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -520,6 +554,7 @@
 				88F44257153DC0100097B4C3 /* UIKit Support */,
 				88977C5915129AB200A09EC5 /* KVO + Bindings */,
 				A1FCC36F15675466008C9686 /* Objective-C Runtime */,
+				88442C8616090BF800636B49 /* RACExtensions */,
 				88CDF7C615000FCE00163A9F /* Supporting Files */,
 			);
 			path = ReactiveCocoa;
@@ -548,6 +583,7 @@
 				884848B515F658B800B11BD0 /* NSButtonRACSupportSpec.m */,
 				88442A321608A9AD00636B49 /* RACTestObject.h */,
 				88442A331608A9AD00636B49 /* RACTestObject.m */,
+				88442C6B1608FBD200636B49 /* NSFileManagerRACSupportSpec.m */,
 			);
 			path = ReactiveCocoaTests;
 			sourceTree = "<group>";
@@ -817,8 +853,8 @@
 				88CDF7D715000FCF00163A9F /* Sources */,
 				88CDF7D815000FCF00163A9F /* Frameworks */,
 				88CDF7D915000FCF00163A9F /* Resources */,
-				88CDF7DA15000FCF00163A9F /* ShellScript */,
 				8820937F1501C94E00796685 /* Copy Frameworks */,
+				88CDF7DA15000FCF00163A9F /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -1028,6 +1064,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				88442C9316090D9C00636B49 /* NSFileManager+RACSupport.m in Sources */,
 				8820937C1501C8A600796685 /* RACSubscribableSpec.m in Sources */,
 				866557A61557086B00B39EB5 /* RACExtensionsSpec.m in Sources */,
 				889D0A8015974B2A00F833E3 /* RACSubjectSpec.m in Sources */,
@@ -1035,6 +1072,7 @@
 				882CCA1E15F1564D00937D6E /* RACCommandSpec.m in Sources */,
 				884848B615F658B800B11BD0 /* NSButtonRACSupportSpec.m in Sources */,
 				88442A341608A9AD00636B49 /* RACTestObject.m in Sources */,
+				88442C6C1608FBD200636B49 /* NSFileManagerRACSupportSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -24,6 +24,9 @@ extern const NSInteger RACNSFileManagerErrorCouldNotCreateEventSource;
 // an error if a problem occurred trying to watch the file, and sends completed
 // if the file was deleted.
 //
+// If the file at the URL is overwritten, it will re-register for events for the
+// new file and continue watching.
+//
 // Take care when watching bundles. Events can be delivered before the bundle is
 // done being written. The FSEvents API might be a better alternative for that
 // case.

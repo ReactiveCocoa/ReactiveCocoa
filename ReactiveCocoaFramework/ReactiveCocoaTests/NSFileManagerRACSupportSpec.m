@@ -12,7 +12,7 @@
 SpecBegin(NSFileManagerRACSupport)
 
 NSURL * (^createTestFile)(void) = ^ id {
-	NSString *guid = [[NSProcessInfo processInfo] globallyUniqueString];
+	NSString *guid = NSProcessInfo.processInfo.globallyUniqueString;
 	NSString *path = [NSTemporaryDirectory() stringByAppendingPathComponent:guid];
 	BOOL success = [@"" writeToFile:path atomically:YES encoding:NSUTF8StringEncoding error:NULL];
 	if (!success) return nil;

@@ -28,8 +28,8 @@ extern const NSInteger RACNSFileManagerErrorCouldNotCreateEventSource;
 // done being written. The FSEvents API might be a better alternative for that
 // case.
 //
-// queue - the dispatch queue to which the event blocks are submitted. If NULL,
-// the default priority global queue is used.
-+ (RACSubscribable *)rac_watchForEventsForFileAtURL:(NSURL *)URL queue:(dispatch_queue_t)queue;
+// scheduler - the scheduler that should be used to send values on the returned
+// subscribable. Should not be nil.
++ (RACSubscribable *)rac_watchForEventsForFileAtURL:(NSURL *)URL scheduler:(RACScheduler *)scheduler;
 
 @end

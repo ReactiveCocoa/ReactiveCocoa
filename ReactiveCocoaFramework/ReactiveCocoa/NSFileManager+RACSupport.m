@@ -17,9 +17,10 @@ const NSInteger RACNSFileManagerErrorCouldNotCreateEventSource = 667;
 
 @implementation NSFileManager (RACSupport)
 
-+ (RACSubscribable *)rac_watchForEventsForFileAtURL:(NSURL *)URL queue:(dispatch_queue_t)queue {
-	return [RACSubscribable createSubscribable:^ id (id<RACSubscriber> subscriber) {
-		dispatch_queue_t queueToUse = queue ? : dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
++ (RACSubscribable *)rac_watchForEventsForFileAtURL:(NSURL *)URL scheduler:(RACScheduler *)scheduler {
+	NSParameterAssert(scheduler != nil);
+
+	return [[RACSubscribable createSubscribable:^ id (id<RACSubscriber> subscriber) {
 		__block dispatch_source_t currentSource = NULL;
 		__block uint32_t volatile disposed = 0;
 
@@ -58,7 +59,7 @@ const NSInteger RACNSFileManagerErrorCouldNotCreateEventSource = 667;
 				return NO;
 			}
 
-			dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_VNODE, (uintptr_t) fd, DISPATCH_VNODE_DELETE | DISPATCH_VNODE_WRITE | DISPATCH_VNODE_EXTEND | DISPATCH_VNODE_ATTRIB | DISPATCH_VNODE_LINK | DISPATCH_VNODE_RENAME | DISPATCH_VNODE_REVOKE, queueToUse);
+			dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_VNODE, (uintptr_t) fd, DISPATCH_VNODE_DELETE | DISPATCH_VNODE_WRITE | DISPATCH_VNODE_EXTEND | DISPATCH_VNODE_ATTRIB | DISPATCH_VNODE_LINK | DISPATCH_VNODE_RENAME | DISPATCH_VNODE_REVOKE, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0));
 			if (source == NULL) {
 				close(fd);
 				if (error != NULL) {
@@ -89,14 +90,14 @@ const NSInteger RACNSFileManagerErrorCouldNotCreateEventSource = 667;
 		return [RACDisposable disposableWithBlock:^{
 			OSAtomicOr32Barrier(1, &disposed);
 
-			dispatch_async(queueToUse, ^{
+			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 				if (currentSource == NULL) return;
 				
 				dispatch_source_cancel(currentSource);
 				currentSource = NULL;
 			});
 		}];
-	}];
+	}] deliverOn:scheduler];
 }
 
 @end

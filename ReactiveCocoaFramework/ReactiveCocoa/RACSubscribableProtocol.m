@@ -585,8 +585,10 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		return [RACDisposable disposableWithBlock:^{
 			[outerDisposable dispose];
 
-			for(RACDisposable *innerDisposable in innerDisposables) {
-				[innerDisposable dispose];
+			@synchronized(innerDisposables) {
+				for(RACDisposable *innerDisposable in innerDisposables) {
+					[innerDisposable dispose];
+				}
 			}
 		}];
 	}];

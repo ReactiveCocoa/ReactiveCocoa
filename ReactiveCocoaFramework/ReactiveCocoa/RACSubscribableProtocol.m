@@ -564,8 +564,10 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 					}
 				}
 			}]];
-			
-			[innerDisposables addObject:disposable];
+
+			@synchronized(innerDisposables) {
+				[innerDisposables addObject:disposable];
+			}
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
@@ -581,10 +583,11 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		}];
 		
 		return [RACDisposable disposableWithBlock:^{
+			[outerDisposable dispose];
+
 			for(RACDisposable *innerDisposable in innerDisposables) {
 				[innerDisposable dispose];
 			}
-			[outerDisposable dispose];
 		}];
 	}];
 }

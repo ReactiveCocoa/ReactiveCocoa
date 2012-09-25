@@ -689,22 +689,6 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (RACSubscribable *)scanWithStart:(NSInteger)start combine:(NSInteger (^)(NSInteger running, NSInteger next))combineBlock {
-	NSParameterAssert(combineBlock != NULL);
-	
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
-		__block NSInteger runningValue = start;
-		return [self subscribeNext:^(id x) {
-			runningValue = combineBlock(runningValue, [x integerValue]);
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendNext:[NSNumber numberWithInteger:runningValue]];
-			[subscriber sendCompleted];
-		}];
-	}];
-}
-
 - (RACSubscribable *)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock {
 	NSParameterAssert(startFactory != NULL);
 	NSParameterAssert(combineBlock != NULL);
@@ -717,6 +701,24 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 			[subscriber sendError:error];
 		} completed:^{
 			[subscriber sendNext:runningValue];
+			[subscriber sendCompleted];
+		}];
+	}];
+}
+
+- (RACSubscribable *)scanWithStart:(id)start combine:(id (^)(id running, id next))combineBlock {
+	NSParameterAssert(combineBlock != NULL);
+
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		__block id runningValue = start;
+		[subscriber sendNext:start];
+
+		return [self subscribeNext:^(id x) {
+			runningValue = combineBlock(runningValue, x);
+			[subscriber sendNext:runningValue];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
 			[subscriber sendCompleted];
 		}];
 	}];

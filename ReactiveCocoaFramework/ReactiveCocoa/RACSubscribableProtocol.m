@@ -722,6 +722,24 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
+- (RACSubscribable *)foldWithStart:(id)start combine:(id (^)(id running, id next))combineBlock {
+	NSParameterAssert(combineBlock != NULL);
+
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		__block id runningValue = start;
+		[subscriber sendNext:start];
+
+		return [self subscribeNext:^(id x) {
+			runningValue = combineBlock(runningValue, x);
+			[subscriber sendNext:runningValue];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
+	}];
+}
+
 - (RACSubscribable *)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock {
 	return [self aggregateWithStartFactory:^{
 		return start;

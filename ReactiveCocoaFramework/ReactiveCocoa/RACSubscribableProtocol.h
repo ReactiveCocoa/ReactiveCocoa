@@ -181,6 +181,11 @@ typedef NSInteger RACSubscribableError;
 // block is called to get a new start object for each subscription.
 - (RACSubscribable *)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock;
 
+// Similar to -aggregateWithStart:combine: with two differences: (1) it sends
+// the combined value with each `next` instead of waiting for the receiving
+// subscribable to complete, and (2) it starts by sending `start`.
+- (RACSubscribable *)foldWithStart:(id)start combine:(id (^)(id running, id next))combineBlock;
+
 // Set the object's keyPath to the value of `next`.
 - (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object;
 

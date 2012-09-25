@@ -47,6 +47,9 @@ it(@"should with a non-object property", ^{
 
 	[subject sendNext:@0];
 	expect(testObject.integerValue).to.equal(0);
+
+	[subject sendNext:nil];
+	expect(testObject.integerValue).to.equal(0);
 });
 
 SpecEnd

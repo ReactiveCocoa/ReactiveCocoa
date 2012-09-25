@@ -574,7 +574,7 @@ describe(@"RACAbleWithStart", ^{
 	});
 });
 
-describe(@"-foldWithStart:combine:", ^{
+describe(@"-scanWithStart:combine:", ^{
 	it(@"should send each step in the fold", ^{
 		RACSubscribable *subscribable = [[RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
@@ -583,7 +583,7 @@ describe(@"-foldWithStart:combine:", ^{
 			[subscriber sendNext:@4];
 			[subscriber sendCompleted];
 			return nil;
-		}] foldWithStart:@0 combine:^(NSNumber *running, NSNumber *next) {
+		}] scanWithStart:@0 combine:^(NSNumber *running, NSNumber *next) {
 			return @(running.integerValue + next.integerValue);
 		}];
 		

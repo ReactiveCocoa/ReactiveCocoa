@@ -171,9 +171,6 @@ typedef NSInteger RACSubscribableError;
 // Concats the inner subscribables of a subscribable of subscribables.
 - (RACSubscribable *)concat;
 
-// Combine `next`s with the given start and combination.
-- (RACSubscribable *)scanWithStart:(NSInteger)start combine:(NSInteger (^)(NSInteger running, NSInteger next))combineBlock;
-
 // Aggregate `next`s with the given start and combination.
 - (RACSubscribable *)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock;
 
@@ -184,7 +181,7 @@ typedef NSInteger RACSubscribableError;
 // Similar to -aggregateWithStart:combine: with two differences: (1) it sends
 // the combined value with each `next` instead of waiting for the receiving
 // subscribable to complete, and (2) it starts by sending `start`.
-- (RACSubscribable *)foldWithStart:(id)start combine:(id (^)(id running, id next))combineBlock;
+- (RACSubscribable *)scanWithStart:(id)start combine:(id (^)(id running, id next))combineBlock;
 
 // Set the object's keyPath to the value of `next`.
 - (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object;

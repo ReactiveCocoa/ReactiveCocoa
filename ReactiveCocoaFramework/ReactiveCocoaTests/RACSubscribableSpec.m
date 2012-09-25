@@ -574,4 +574,23 @@ describe(@"RACAbleWithStart", ^{
 	});
 });
 
+describe(@"-foldWithStart:combine:", ^{
+	it(@"should send each step in the fold", ^{
+		RACSubscribable *subscribable = [[RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendNext:@2];
+			[subscriber sendNext:@3];
+			[subscriber sendNext:@4];
+			[subscriber sendCompleted];
+			return nil;
+		}] foldWithStart:@0 combine:^(NSNumber *running, NSNumber *next) {
+			return @(running.integerValue + next.integerValue);
+		}];
+		
+		NSArray *values = subscribable.toArray;
+		NSArray *expected = @[ @0, @1, @3, @6, @10 ];
+		expect(values).to.equal(expected);
+	});
+});
+
 SpecEnd

@@ -8,12 +8,12 @@
 
 #import "RACSubscriptingAssignmentTrampoline.h"
 
-@interface RACSubscriptingAssignmentTrampoline ()
+@interface RACSubscriptingAssignmentObjectKeyPathPair ()
 @property (nonatomic, readonly, strong) NSObject *object;
 @property (nonatomic, readonly, copy) NSString *keyPath;
 @end
 
-@implementation RACSubscriptingAssignmentTrampoline
+@implementation RACSubscriptingAssignmentObjectKeyPathPair
 
 #pragma mark NSCopying
 
@@ -22,16 +22,6 @@
 }
 
 #pragma mark API
-
-+ (instancetype)bouncer {
-	static dispatch_once_t onceToken;
-	static RACSubscriptingAssignmentTrampoline *bouncer = nil;
-	dispatch_once(&onceToken, ^{
-		bouncer = [[self alloc] init];
-	});
-
-	return bouncer;
-}
 
 - (id)initWithObject:(NSObject *)object keyPath:(NSString *)keyPath {
 	self = [super init];
@@ -43,11 +33,26 @@
 	return self;
 }
 
-- (void)setObject:(id)obj forKeyedSubscript:(id<NSCopying>)key {
-	NSAssert([(id) key isKindOfClass:RACSubscriptingAssignmentTrampoline.class], @"RACSubscriptingAssignmentTrampoline should only be used through the RAC macro.");
+@end
 
-	RACSubscriptingAssignmentTrampoline *trampoline = (RACSubscriptingAssignmentTrampoline *) key;
-	[trampoline.object rac_deriveProperty:trampoline.keyPath from:obj];
+@implementation RACSubscriptingAssignmentTrampoline
+
+#pragma mark API
+
++ (instancetype)trampoline {
+	static dispatch_once_t onceToken;
+	static RACSubscriptingAssignmentTrampoline *trampoline = nil;
+	dispatch_once(&onceToken, ^{
+		trampoline = [[self alloc] init];
+	});
+
+	return trampoline;
+}
+
+- (void)setObject:(id)obj forKeyedSubscript:(RACSubscriptingAssignmentObjectKeyPathPair *)pair {
+	NSParameterAssert([pair isKindOfClass:RACSubscriptingAssignmentObjectKeyPathPair.class]);
+
+	[pair.object rac_deriveProperty:pair.keyPath from:obj];
 }
 
 @end

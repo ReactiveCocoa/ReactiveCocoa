@@ -30,10 +30,7 @@
 #define RACAbleWithStart(...) [RACAble(__VA_ARGS__) startWith:_RACAbleWithStartValue(__VA_ARGS__)]
 
 // Do not use this directly. Use RACAbleWithStart above.
-#define _RACAbleWithStartValue(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))([self valueForKeyPath:_RACAbleWithStartKeypath(__VA_ARGS__)])([metamacro_at0(__VA_ARGS__) valueForKeyPath:_RACAbleWithStartKeypath(__VA_ARGS__)])
-
-// Do not use this directly. Use RACAbleWithStart above.
-#define _RACAbleWithStartKeypath(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))(RAC_KEYPATH(self, __VA_ARGS__))(RAC_KEYPATH(__VA_ARGS__))
+#define _RACAbleWithStartValue(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))([self valueForKeyPath:RAC_KEYPATH(self, __VA_ARGS__)])([metamacro_at0(__VA_ARGS__) valueForKeyPath:RAC_KEYPATH(__VA_ARGS__)])
 
 @class RACSubscribable;
 @class RACDisposable;

@@ -21,7 +21,7 @@ beforeEach(^{
 
 it(@"should set the value of the property with the latest value from the subscribable", ^{
 	RACSubject *subject = [RACSubject subject];
-	RAC_OBJ(testObject, objectValue) = subject;
+	RAC(testObject, objectValue) = subject;
 	expect(testObject.objectValue).to.beNil();
 
 	[subject sendNext:@1];
@@ -36,7 +36,7 @@ it(@"should set the value of the property with the latest value from the subscri
 
 it(@"should with a non-object property", ^{
 	RACSubject *subject = [RACSubject subject];
-	RAC_OBJ(testObject, integerValue) = subject;
+	RAC(testObject, integerValue) = subject;
 	expect(testObject.integerValue).to.equal(0);
 
 	[subject sendNext:@1];

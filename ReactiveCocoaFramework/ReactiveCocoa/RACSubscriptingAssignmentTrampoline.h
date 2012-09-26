@@ -9,8 +9,22 @@
 #import <Foundation/Foundation.h>
 #import "NSObject+RACPropertySubscribing.h"
 
-#define RAC_OBJ(obj, keypath) [RACSubscriptingAssignmentTrampoline trampoline][ [[RACSubscriptingAssignmentObjectKeyPathPair alloc] initWithObject:obj keyPath:RAC_KEYPATH(obj, keypath)] ]
-#define RAC(keypath) RAC_OBJ(self, keypath)
+// Lets you assign a keypath / property to a subscribable. The value of the
+// keypath or property is then kept up-to-date with the latest value from the
+// subscribable.
+//
+// If given just one argument, it's assumed to be a keypath or property on self.
+// If given two, the first argument is the to which the keypath is relative and
+// the second is the keypath.
+//
+// Examples:
+//
+//  RAC(self.blah) = someSubscribable;
+//  RAC(otherObject, blah) = someSubscribable;
+#define RAC(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))(_RAC_OBJ(self, __VA_ARGS__))(_RAC_OBJ(__VA_ARGS__))
+
+// Do not use this directly. Use the RAC macro above.
+#define _RAC_OBJ(obj, keypath) [RACSubscriptingAssignmentTrampoline trampoline][ [[RACSubscriptingAssignmentObjectKeyPathPair alloc] initWithObject:obj keyPath:RAC_KEYPATH(obj, keypath)] ]
 
 @interface RACSubscriptingAssignmentObjectKeyPathPair : NSObject <NSCopying>
 

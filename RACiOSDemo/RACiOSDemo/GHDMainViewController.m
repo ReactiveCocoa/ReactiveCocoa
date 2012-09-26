@@ -30,28 +30,28 @@
 	self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
 	if(self == nil) return nil;
 	
-	[RACAbleSelf(self.text) subscribeNext:^(id x) {
+	[RACAble(self.text) subscribeNext:^(id x) {
 		NSLog(@"text: %@", x);
 	}];
     
-    [RACAbleSelf(self.text2) subscribeNext:^(id x) {
+    [RACAble(self.text2) subscribeNext:^(id x) {
         NSLog(@"text2: %@", x);
     }];
 	
-	[[RACAbleSelf(self.text) 
+	[[RACAble(self.text) 
 		select:^(id x) {
 			return [x uppercaseString]; 
 		}]
 		toProperty:RAC_KEYPATH_SELF(self.label) onObject:self];
     
-    [[RACAbleSelf(self.text2)
+    [[RACAble(self.text2)
         select:^id(id x) {
             return [x lowercaseString];
         }]
         toProperty:RAC_KEYPATH_SELF(self.label2) onObject:self];
 	
-	[self rac_bind:RAC_KEYPATH_SELF(self.view.label.text) to:RACAbleSelf(self.label)];
-    [self rac_bind:RAC_KEYPATH_SELF(self.view.label2.text) to:RACAbleSelf(self.label2)];
+	[self rac_bind:RAC_KEYPATH_SELF(self.view.label.text) to:RACAble(self.label)];
+	[self rac_bind:RAC_KEYPATH_SELF(self.view.label2.text) to:RACAble(self.label2)];
 	
 	return self;
 }

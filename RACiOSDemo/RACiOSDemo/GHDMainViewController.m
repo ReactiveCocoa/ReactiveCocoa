@@ -51,7 +51,7 @@
         toProperty:RAC_KEYPATH_SELF(self.label2) onObject:self];
 	
 	[self rac_bind:RAC_KEYPATH_SELF(self.view.label.text) to:RACAble(self.label)];
-    [self rac_bind:RAC_KEYPATH_SELF(self.view.label2.text) to:RACAble(self.label2)];
+	[self rac_bind:RAC_KEYPATH_SELF(self.view.label2.text) to:RACAble(self.label2)];
 	
 	return self;
 }

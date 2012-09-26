@@ -79,7 +79,7 @@
 	// We're using -deliverOn: to load the image in a background queue and then 
 	// finish with another -deliverOn: so that subscribers get the result on the 
 	// main queue.
-	RACSubscribable *loadedAvatar = [[[[[RACAbleSelf(self.userAccount.avatarURL) 
+	RACSubscribable *loadedAvatar = [[[[[RACAble(self.userAccount.avatarURL) 
 		where:^BOOL(id x) {
 			return x != nil;
 		}] 

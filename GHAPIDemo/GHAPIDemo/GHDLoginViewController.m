@@ -36,13 +36,13 @@
 	
 	self.didLoginSubject = [RACSubject subject];
 	
-	[RACAbleSelf(self.loginCommand.numberOfActiveExecutions) subscribeNext:^(id x) {
+	[RACAble(self.loginCommand.numberOfActiveExecutions) subscribeNext:^(id x) {
 		NSLog(@"Active requests: %@", x);
 	}];
 	
 	// Login is only enabled when they've entered both a username and password.
 	self.loginCommand = [RACAsyncCommand commandWithCanExecuteSubscribable:[RACSubscribable
-		combineLatest:@[ [RACAbleSelf(self.username) startWith:self.username], [RACAbleSelf(self.password) startWith:self.password] ]
+		combineLatest:@[ RACAbleWithStart(self.username), RACAbleWithStart(self.password) ]
 		reduce:^(RACTuple *xs) {
 			return @([[xs objectAtIndex:0] length] > 0 && [[xs objectAtIndex:1] length] > 0);
 		}]

@@ -14,8 +14,8 @@
 // subscribable.
 //
 // If given just one argument, it's assumed to be a keypath or property on self.
-// If given two, the first argument is the to which the keypath is relative and
-// the second is the keypath.
+// If given two, the first argument is the object to which the keypath is
+// relative and the second is the keypath.
 //
 // Examples:
 //

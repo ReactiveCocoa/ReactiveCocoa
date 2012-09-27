@@ -23,7 +23,7 @@
 #define RACAble(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))(_RACAbleObject(self, __VA_ARGS__))(_RACAbleObject(__VA_ARGS__))
 
 // Do not use this directly. Use RACAble above.
-#define _RACAbleObject(object, property) [object rac_subscribableForKeyPath:RAC_KEYPATH(object, property) onObject:self]
+#define _RACAbleObject(object, property) [object rac_subscribableForKeyPath:RAC_KEYPATH(object, property) onObject:object]
 
 // Same as RACAble but the subscribable also starts with the current value of
 // the property.

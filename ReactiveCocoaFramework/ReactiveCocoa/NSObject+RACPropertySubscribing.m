@@ -28,40 +28,22 @@ static NSMutableDictionary *swizzledClasses() {
 
 @implementation NSObject (RACPropertySubscribing)
 
-- (void)rac_propertySubscribingDealloc {
+- (void)rac_disposablesDealloc {
 	NSMutableSet *disposables = objc_getAssociatedObject(self, RACPropertySubscribingDisposables);
-	for(RACDisposable *disposable in [disposables copy]) {
+	for (RACDisposable *disposable in [disposables copy]) {
 		[disposable dispose];
 	}
-	
+
 	objc_setAssociatedObject(self, RACPropertySubscribingDisposables, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-	
-	[self rac_propertySubscribingDealloc];
+
+	[self rac_disposablesDealloc];
 }
 
 + (RACSubscribable *)rac_subscribableFor:(NSObject *)object keyPath:(NSString *)keyPath onObject:(NSObject *)onObject {
 	RACReplaySubject *subject = [RACReplaySubject replaySubjectWithCapacity:1];
-	
-	@synchronized(swizzledClasses()) {
-		Class class = [onObject class];
-		NSString *keyName = NSStringFromClass(class);
-		if([swizzledClasses() objectForKey:keyName] == nil) {
-			RACSwizzle(class, NSSelectorFromString(@"dealloc"), @selector(rac_propertySubscribingDealloc));
-			[swizzledClasses() setObject:[NSNull null] forKey:keyName];
-		}
-	}
-	
-	@synchronized(self) {
-		NSMutableSet *disposables = objc_getAssociatedObject(onObject, RACPropertySubscribingDisposables);
-		if(disposables == nil) {
-			disposables = [NSMutableSet set];
-			objc_setAssociatedObject(onObject, RACPropertySubscribingDisposables, disposables, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-		}
-		
-		[disposables addObject:[RACDisposable disposableWithBlock:^{
-			[subject sendCompleted];
-		}]];
-	}
+	[object rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+		[subject sendCompleted];
+	}]];
 	
 	__block __unsafe_unretained NSObject *weakObject = object;
 	[object rac_addObserver:onObject forKeyPath:keyPath options:0 queue:[NSOperationQueue mainQueue] block:^(id target, NSDictionary *change) {
@@ -78,6 +60,27 @@ static NSMutableDictionary *swizzledClasses() {
 
 - (RACDisposable *)rac_deriveProperty:(NSString *)keyPath from:(RACSubscribable *)subscribable {
 	return [subscribable toProperty:keyPath onObject:self];
+}
+
+- (void)rac_addDeallocDisposable:(RACDisposable *)disposable {
+	@synchronized(swizzledClasses()) {
+		Class class = self.class;
+		NSString *keyName = NSStringFromClass(class);
+		if (swizzledClasses()[keyName] == nil) {
+			RACSwizzle(class, NSSelectorFromString(@"dealloc"), @selector(rac_disposablesDealloc));
+			swizzledClasses()[keyName] = NSNull.null;
+		}
+	}
+
+	@synchronized(self) {
+		NSMutableSet *disposables = objc_getAssociatedObject(self, RACPropertySubscribingDisposables);
+		if (disposables == nil) {
+			disposables = [NSMutableSet set];
+			objc_setAssociatedObject(self, RACPropertySubscribingDisposables, disposables, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+		}
+
+		[disposables addObject:disposable];
+	}
 }
 
 @end

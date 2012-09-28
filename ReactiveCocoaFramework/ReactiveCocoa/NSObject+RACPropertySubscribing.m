@@ -14,7 +14,7 @@
 #import "RACSwizzling.h"
 #import "RACSubscribable+Private.h"
 
-static const void *RACPropertySubscribingDisposables = &RACPropertySubscribingDisposables;
+static const void *RACObjectDisposables = &RACObjectDisposables;
 
 static NSMutableDictionary *swizzledClasses() {
 	static dispatch_once_t onceToken;
@@ -29,19 +29,19 @@ static NSMutableDictionary *swizzledClasses() {
 @implementation NSObject (RACPropertySubscribing)
 
 - (void)rac_disposablesDealloc {
-	NSMutableSet *disposables = objc_getAssociatedObject(self, RACPropertySubscribingDisposables);
+	NSMutableSet *disposables = objc_getAssociatedObject(self, RACObjectDisposables);
 	for (RACDisposable *disposable in [disposables copy]) {
 		[disposable dispose];
 	}
 
-	objc_setAssociatedObject(self, RACPropertySubscribingDisposables, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	objc_setAssociatedObject(self, RACObjectDisposables, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
 	[self rac_disposablesDealloc];
 }
 
 + (RACSubscribable *)rac_subscribableFor:(NSObject *)object keyPath:(NSString *)keyPath onObject:(NSObject *)onObject {
 	RACReplaySubject *subject = [RACReplaySubject replaySubjectWithCapacity:1];
-	[object rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+	[onObject rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 		[subject sendCompleted];
 	}]];
 	
@@ -73,10 +73,10 @@ static NSMutableDictionary *swizzledClasses() {
 	}
 
 	@synchronized(self) {
-		NSMutableSet *disposables = objc_getAssociatedObject(self, RACPropertySubscribingDisposables);
+		NSMutableSet *disposables = objc_getAssociatedObject(self, RACObjectDisposables);
 		if (disposables == nil) {
 			disposables = [NSMutableSet set];
-			objc_setAssociatedObject(self, RACPropertySubscribingDisposables, disposables, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+			objc_setAssociatedObject(self, RACObjectDisposables, disposables, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 		}
 
 		[disposables addObject:disposable];

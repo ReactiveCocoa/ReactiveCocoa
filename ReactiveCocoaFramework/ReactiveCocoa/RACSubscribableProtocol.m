@@ -1046,7 +1046,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 
 	[condition unlock];
 
-	return values;
+	return [values copy];
 }
 
 - (RACConnectableSubscribable *)publish {

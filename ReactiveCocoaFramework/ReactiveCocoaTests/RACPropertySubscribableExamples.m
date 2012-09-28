@@ -39,7 +39,7 @@ sharedExamplesFor(RACPropertySubscribableExamples, ^(NSDictionary *data) {
 		expect(testObject.objectValue).to.beNil();
 	});
 
-	it(@"should with a non-object property", ^{
+	it(@"should set the value of a non-object property with the latest value from the subscribable", ^{
 		RACSubject *subject = [RACSubject subject];
 		setupBlock(testObject, RAC_KEYPATH(testObject, integerValue), subject);
 		expect(testObject.integerValue).to.equal(0);

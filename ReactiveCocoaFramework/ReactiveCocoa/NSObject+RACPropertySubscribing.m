@@ -29,7 +29,7 @@ static NSMutableDictionary *swizzledClasses() {
 @implementation NSObject (RACPropertySubscribing)
 
 - (void)rac_disposablesDealloc {
-	NSMutableSet *disposables = [objc_getAssociatedObject(self, RACObjectDisposables) copy];
+	NSSet *disposables = objc_getAssociatedObject(self, RACObjectDisposables);
 	for (RACDisposable *disposable in disposables) {
 		[disposable dispose];
 	}
@@ -73,13 +73,9 @@ static NSMutableDictionary *swizzledClasses() {
 	}
 
 	@synchronized(self) {
-		NSMutableSet *disposables = objc_getAssociatedObject(self, RACObjectDisposables);
-		if (disposables == nil) {
-			disposables = [NSMutableSet set];
-			objc_setAssociatedObject(self, RACObjectDisposables, disposables, OBJC_ASSOCIATION_RETAIN);
-		}
-
-		[disposables addObject:disposable];
+		NSSet *disposables = objc_getAssociatedObject(self, RACObjectDisposables) ?: [NSSet set];
+		disposables = [disposables setByAddingObject:disposable];
+		objc_setAssociatedObject(self, RACObjectDisposables, disposables, OBJC_ASSOCIATION_RETAIN);
 	}
 }
 

@@ -17,7 +17,7 @@ describe(@"-rac_addDeallocDisposable:", ^{
 	it(@"should dispose of the disposable when it is dealloc'd", ^{
 		__block BOOL wasDisposed = NO;
 		@autoreleasepool {
-			RACTestObject *object = [[RACTestObject alloc] init];
+			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
 			[object rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 				wasDisposed = YES;
 			}]];

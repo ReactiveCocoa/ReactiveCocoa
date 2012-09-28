@@ -604,7 +604,7 @@ describe(@"-toProperty:onObject:", ^{
 	it(@"shouldn't send values to dealloc'd objects", ^{
 		RACSubject *subject = [RACSubject subject];
 		@autoreleasepool {
-			RACTestObject *testObject = [[RACTestObject alloc] init];
+			RACTestObject *testObject __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
 			[subject toProperty:RAC_KEYPATH(testObject, objectValue) onObject:testObject];
 			expect(testObject.objectValue).to.beNil();
 

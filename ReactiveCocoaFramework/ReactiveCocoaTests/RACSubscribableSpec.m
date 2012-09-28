@@ -593,4 +593,63 @@ describe(@"-scanWithStart:combine:", ^{
 	});
 });
 
+describe(@"toProperty:onObject:", ^{
+	__block RACTestObject *testObject = nil;
+
+	beforeEach(^{
+		testObject = [[RACTestObject alloc] init];
+	});
+
+	it(@"should set the value of the property with the latest value from the subscribable", ^{
+		RACSubject *subject = [RACSubject subject];
+		[subject toProperty:RAC_KEYPATH(testObject, objectValue) onObject:testObject];
+		expect(testObject.objectValue).to.beNil();
+
+		[subject sendNext:@1];
+		expect(testObject.objectValue).to.equal(@1);
+
+		[subject sendNext:@2];
+		expect(testObject.objectValue).to.equal(@2);
+
+		[subject sendNext:nil];
+		expect(testObject.objectValue).to.beNil();
+	});
+
+	it(@"should with a non-object property", ^{
+		RACSubject *subject = [RACSubject subject];
+		[subject toProperty:RAC_KEYPATH(testObject, integerValue) onObject:testObject];
+		expect(testObject.integerValue).to.equal(0);
+
+		[subject sendNext:@1];
+		expect(testObject.integerValue).to.equal(1);
+
+		[subject sendNext:@2];
+		expect(testObject.integerValue).to.equal(2);
+
+		[subject sendNext:@0];
+		expect(testObject.integerValue).to.equal(0);
+
+		[subject sendNext:nil];
+		expect(testObject.integerValue).to.equal(0);
+	});
+
+	it(@"shouldn't send values to dealloc'd objects", ^{
+		RACSubject *subject = [RACSubject subject];
+		@autoreleasepool {
+			RACTestObject *testObject = [[RACTestObject alloc] init];
+			[subject toProperty:RAC_KEYPATH(testObject, objectValue) onObject:testObject];
+			expect(testObject.objectValue).to.beNil();
+
+			[subject sendNext:@1];
+			expect(testObject.objectValue).to.equal(@1);
+
+			[subject sendNext:@2];
+			expect(testObject.objectValue).to.equal(@2);
+		}
+
+		// This shouldn't do anything.
+		[subject sendNext:@3];
+	});
+});
+
 SpecEnd

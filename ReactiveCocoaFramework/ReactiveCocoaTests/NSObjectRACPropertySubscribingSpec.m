@@ -9,6 +9,7 @@
 #import "RACSpecs.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACDisposable.h"
+#import "RACTestObject.h"
 
 SpecBegin(NSObjectRACPropertySubscribing)
 
@@ -16,7 +17,7 @@ describe(@"-rac_addDeallocDisposable:", ^{
 	it(@"should dispose of the disposable when it is dealloc'd", ^{
 		__block BOOL wasDisposed = NO;
 		@autoreleasepool {
-			NSObject *object = [[NSObject alloc] init];
+			RACTestObject *object = [[RACTestObject alloc] init];
 			[object rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 				wasDisposed = YES;
 			}]];

@@ -594,7 +594,7 @@ describe(@"-scanWithStart:combine:", ^{
 	});
 });
 
-describe(@"toProperty:onObject:", ^{
+describe(@"-toProperty:onObject:", ^{
 	void (^setupBlock)(RACTestObject *, NSString *, RACSubject *) = ^(RACTestObject *testObject, NSString *keyPath, RACSubject *subject) {
 		[subject toProperty:keyPath onObject:testObject];
 	};

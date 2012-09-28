@@ -20,6 +20,7 @@
 #import "RACTuple.h"
 #import "RACUnit.h"
 #import <libkern/OSAtomic.h>
+#import "NSObject+RACPropertySubscribing.h"
 
 NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 
@@ -740,10 +741,14 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		[strongObject setValue:x forKeyPath:keyPath];
 	}];
 	
-	return [RACDisposable disposableWithBlock:^{
+	RACDisposable *disposable = [RACDisposable disposableWithBlock:^{
 		weakObject = nil;
 		[subscriptionDisposable dispose];
 	}];
+
+	[object rac_addDeallocDisposable:disposable];
+
+	return disposable;
 }
 
 - (RACSubscribable *)startWith:(id)initialValue {
@@ -1041,7 +1046,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 
 	[condition unlock];
 
-	return values;
+	return [values copy];
 }
 
 - (RACConnectableSubscribable *)publish {

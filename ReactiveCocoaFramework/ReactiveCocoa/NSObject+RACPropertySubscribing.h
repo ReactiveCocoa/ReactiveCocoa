@@ -49,4 +49,7 @@
 // sent by the subscribable.
 - (RACDisposable *)rac_deriveProperty:(NSString *)keyPath from:(RACSubscribable *)subscribable;
 
+// Adds a disposable which will be disposed when the receiver deallocs.
+- (void)rac_addDeallocDisposable:(RACDisposable *)disposable;
+
 @end

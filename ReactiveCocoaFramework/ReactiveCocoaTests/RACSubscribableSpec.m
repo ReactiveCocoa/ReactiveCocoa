@@ -18,6 +18,7 @@
 #import "RACScheduler.h"
 #import "RACTestObject.h"
 #import "NSObject+RACPropertySubscribing.h"
+#import "RACPropertySubscribableExamples.h"
 
 
 SpecBegin(RACSubscribable)
@@ -590,6 +591,32 @@ describe(@"-scanWithStart:combine:", ^{
 		NSArray *values = subscribable.toArray;
 		NSArray *expected = @[ @0, @1, @3, @6, @10 ];
 		expect(values).to.equal(expected);
+	});
+});
+
+describe(@"-toProperty:onObject:", ^{
+	void (^setupBlock)(RACTestObject *, NSString *, RACSubject *) = ^(RACTestObject *testObject, NSString *keyPath, RACSubject *subject) {
+		[subject toProperty:keyPath onObject:testObject];
+	};
+
+	itShouldBehaveLike(RACPropertySubscribableExamples, @{ RACPropertySubscribableExamplesSetupBlock: setupBlock });
+
+	it(@"shouldn't send values to dealloc'd objects", ^{
+		RACSubject *subject = [RACSubject subject];
+		@autoreleasepool {
+			RACTestObject *testObject __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
+			[subject toProperty:RAC_KEYPATH(testObject, objectValue) onObject:testObject];
+			expect(testObject.objectValue).to.beNil();
+
+			[subject sendNext:@1];
+			expect(testObject.objectValue).to.equal(@1);
+
+			[subject sendNext:@2];
+			expect(testObject.objectValue).to.equal(@2);
+		}
+
+		// This shouldn't do anything.
+		[subject sendNext:@3];
 	});
 });
 

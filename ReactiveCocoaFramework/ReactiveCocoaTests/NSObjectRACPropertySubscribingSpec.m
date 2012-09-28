@@ -21,6 +21,8 @@ describe(@"-rac_addDeallocDisposable:", ^{
 			[object rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 				wasDisposed = YES;
 			}]];
+
+			expect(wasDisposed).to.beFalsy();
 		}
 
 		expect(wasDisposed).to.beTruthy();

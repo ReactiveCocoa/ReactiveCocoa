@@ -20,4 +20,13 @@ void (^setupBlock)(RACTestObject *, NSString *, RACSubject *) = ^(RACTestObject 
 
 itShouldBehaveLike(RACPropertySubscribableExamples, @{ RACPropertySubscribableExamplesSetupBlock: setupBlock });
 
+it(@"should expand the RAC macro properly", ^{
+	RACSubject *subject = [RACSubject subject];
+	RACTestObject *testObject = [[RACTestObject alloc] init];
+	RAC(testObject, objectValue) = subject;
+
+	[subject sendNext:@1];
+	expect(testObject.objectValue).to.equal(@1);
+});
+
 SpecEnd

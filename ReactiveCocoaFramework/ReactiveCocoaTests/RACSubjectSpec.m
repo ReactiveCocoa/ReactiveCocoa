@@ -69,6 +69,17 @@ describe(@"RACAsyncSubject", ^{
 		expect(nextsReceived).to.equal(1);
 		expect(valueReceived).to.equal(secondValue);
 	});
+
+	it(@"should not send any values to new subscribers if none were sent originally", ^{
+		[subject sendCompleted];
+
+		__block BOOL nextInvoked = NO;
+		[subject subscribeNext:^(id x) {
+			nextInvoked = YES;
+		}];
+
+		expect(nextInvoked).to.beFalsy();
+	});
 });
 
 describe(@"RACReplaySubject", ^{

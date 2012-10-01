@@ -10,11 +10,16 @@
 #import <pthread.h>
 #import "RACBacktrace.h"
 
+#define RAC_BACKTRACE_MAX_CALL_STACK_FRAMES 128
+
 #ifdef DEBUG
 
-@interface RACBacktrace ()
+@interface RACBacktrace () {
+	void *_callStackAddresses[RAC_BACKTRACE_MAX_CALL_STACK_FRAMES];
+	int _callStackSize;
+}
+
 @property (nonatomic, strong, readwrite) RACBacktrace *previousThreadBacktrace;
-@property (nonatomic, copy, readwrite) NSArray *callStackSymbols;
 @end
 
 @interface RACDispatchInfo : NSObject
@@ -108,6 +113,23 @@ static void RACExceptionHandler (NSException *ex) {
 
 @implementation RACBacktrace
 
+#pragma mark Properties
+
+- (NSArray *)callStackSymbols {
+	if (_callStackSize == 0) return @[];
+
+	char **symbols = backtrace_symbols(_callStackAddresses, _callStackSize);
+	NSMutableArray *array = [NSMutableArray arrayWithCapacity:(NSUInteger)_callStackSize];
+
+	for (int i = 0; i < _callStackSize; i++) {
+		NSString *str = @(symbols[i]);
+		[array addObject:str];
+	}
+
+	free(symbols);
+	return array;
+}
+
 #pragma mark Initialization
 
 + (void)load {
@@ -146,14 +168,16 @@ static void RACExceptionHandler (NSException *ex) {
 		RACBacktrace *newBacktrace = [[RACBacktrace alloc] init];
 		newBacktrace.previousThreadBacktrace = oldBacktrace;
 
-		NSArray *symbols = [NSThread callStackSymbols];
+		int size = backtrace(newBacktrace->_callStackAddresses, RAC_BACKTRACE_MAX_CALL_STACK_FRAMES);
 
 		// Omit this method plus however many others from the backtrace.
 		++ignoreCount;
-		if (symbols.count > ignoreCount) {
-			newBacktrace.callStackSymbols = [symbols subarrayWithRange:NSMakeRange(ignoreCount, symbols.count - ignoreCount)];
+		if ((NSUInteger)size > ignoreCount) {
+			memmove(newBacktrace->_callStackAddresses, newBacktrace->_callStackAddresses + ignoreCount, (NSUInteger)size - ignoreCount);
+			size -= (int)ignoreCount;
 		}
 
+		newBacktrace->_callStackSize = size;
 		return newBacktrace;
 	}
 }

@@ -67,6 +67,11 @@
 		888FA6A91613417F00CCAF86 /* metamacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 888FA6A71613417F00CCAF86 /* metamacros.h */; };
 		88977C3E1512914A00A09EC5 /* RACSubscribable.m in Sources */ = {isa = PBXBuildFile; fileRef = 88977C3D1512914A00A09EC5 /* RACSubscribable.m */; };
 		889D0A8015974B2A00F833E3 /* RACSubjectSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 889D0A7F15974B2A00F833E3 /* RACSubjectSpec.m */; };
+		889EECC1161B9296001E94E7 /* NSObject+RACPerformSelector.h in Headers */ = {isa = PBXBuildFile; fileRef = 889EECBF161B9296001E94E7 /* NSObject+RACPerformSelector.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		889EECC2161B9296001E94E7 /* NSObject+RACPerformSelector.h in Headers */ = {isa = PBXBuildFile; fileRef = 889EECBF161B9296001E94E7 /* NSObject+RACPerformSelector.h */; };
+		889EECC3161B9296001E94E7 /* NSObject+RACPerformSelector.m in Sources */ = {isa = PBXBuildFile; fileRef = 889EECC0161B9296001E94E7 /* NSObject+RACPerformSelector.m */; };
+		889EECC4161B9296001E94E7 /* NSObject+RACPerformSelector.m in Sources */ = {isa = PBXBuildFile; fileRef = 889EECC0161B9296001E94E7 /* NSObject+RACPerformSelector.m */; };
+		889EECC7161B930C001E94E7 /* NSObjectRACPerformSelectorSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 889EECC6161B930C001E94E7 /* NSObjectRACPerformSelectorSpec.m */; };
 		88A5F4FB156B3FCB009E49DC /* RACCancelableSubscribable.h in Headers */ = {isa = PBXBuildFile; fileRef = 88A5F4F9156B3FCB009E49DC /* RACCancelableSubscribable.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88A5F4FC156B3FCB009E49DC /* RACCancelableSubscribable.m in Sources */ = {isa = PBXBuildFile; fileRef = 88A5F4FA156B3FCB009E49DC /* RACCancelableSubscribable.m */; };
 		88A5F4FE156B4301009E49DC /* RACCancelableSubscribable.m in Sources */ = {isa = PBXBuildFile; fileRef = 88A5F4FA156B3FCB009E49DC /* RACCancelableSubscribable.m */; };
@@ -311,6 +316,9 @@
 		88977C3D1512914A00A09EC5 /* RACSubscribable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSubscribable.m; sourceTree = "<group>"; };
 		88977C58151296D600A09EC5 /* RACSubscribable+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACSubscribable+Private.h"; sourceTree = "<group>"; };
 		889D0A7F15974B2A00F833E3 /* RACSubjectSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSubjectSpec.m; sourceTree = "<group>"; };
+		889EECBF161B9296001E94E7 /* NSObject+RACPerformSelector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACPerformSelector.h"; sourceTree = "<group>"; };
+		889EECC0161B9296001E94E7 /* NSObject+RACPerformSelector.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACPerformSelector.m"; sourceTree = "<group>"; };
+		889EECC6161B930C001E94E7 /* NSObjectRACPerformSelectorSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSObjectRACPerformSelectorSpec.m; sourceTree = "<group>"; };
 		88A5F4F9156B3FCB009E49DC /* RACCancelableSubscribable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACCancelableSubscribable.h; sourceTree = "<group>"; };
 		88A5F4FA156B3FCB009E49DC /* RACCancelableSubscribable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACCancelableSubscribable.m; sourceTree = "<group>"; };
 		88A5F4FD156B3FED009E49DC /* RACCancelableSubscribable+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACCancelableSubscribable+Private.h"; sourceTree = "<group>"; };
@@ -605,6 +613,7 @@
 				8851A38A16161D500050D47F /* NSObjectRACPropertySubscribingSpec.m */,
 				8851A38C1616295D0050D47F /* RACPropertySubscribableExamples.h */,
 				8851A38D1616295D0050D47F /* RACPropertySubscribableExamples.m */,
+				889EECC6161B930C001E94E7 /* NSObjectRACPerformSelectorSpec.m */,
 			);
 			path = ReactiveCocoaTests;
 			sourceTree = "<group>";
@@ -668,6 +677,8 @@
 				D0DFBCCD15DD6D40009DADB3 /* RACBacktrace.m */,
 				88FC735316114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.h */,
 				88FC735416114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.m */,
+				889EECBF161B9296001E94E7 /* NSObject+RACPerformSelector.h */,
+				889EECC0161B9296001E94E7 /* NSObject+RACPerformSelector.m */,
 			);
 			name = Core;
 			sourceTree = "<group>";
@@ -822,6 +833,7 @@
 				88DA309715071CBA00C19D0F /* RACValueTransformer.h in Headers */,
 				8857BB7E152A2747009804CC /* NSObject+RACExtensions.h in Headers */,
 				8867D5F9152BDAC300321BD5 /* RACSwizzling.h in Headers */,
+				889EECC1161B9296001E94E7 /* NSObject+RACPerformSelector.h in Headers */,
 				88FC735516114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.h in Headers */,
 				88F5870615361C170084BD32 /* RACConnectableSubscribable+Private.h in Headers */,
 				A1FCC372156754A7008C9686 /* RACObjCRuntime.h in Headers */,
@@ -849,6 +861,7 @@
 				D0D910CF15F915BD00AD2DDA /* RACSubscribableProtocol.h in Headers */,
 				88FC735616114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.h in Headers */,
 				888FA6A91613417F00CCAF86 /* metamacros.h in Headers */,
+				889EECC2161B9296001E94E7 /* NSObject+RACPerformSelector.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1085,6 +1098,7 @@
 				D026A04B15F69FE70052F7FE /* EXTRuntimeExtensions.m in Sources */,
 				D0D910D015F915BD00AD2DDA /* RACSubscribableProtocol.m in Sources */,
 				88FC735716114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.m in Sources */,
+				889EECC3161B9296001E94E7 /* NSObject+RACPerformSelector.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1104,6 +1118,7 @@
 				88FC735B16114FFB00F8A774 /* RACSubscriptingAssignmentTrampolineSpec.m in Sources */,
 				8851A38B16161D500050D47F /* NSObjectRACPropertySubscribingSpec.m in Sources */,
 				8851A38E1616295D0050D47F /* RACPropertySubscribableExamples.m in Sources */,
+				889EECC7161B930C001E94E7 /* NSObjectRACPerformSelectorSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1149,6 +1164,7 @@
 				D026A04C15F69FE70052F7FE /* EXTRuntimeExtensions.m in Sources */,
 				D0D910D115F915BD00AD2DDA /* RACSubscribableProtocol.m in Sources */,
 				88FC735816114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.m in Sources */,
+				889EECC4161B9296001E94E7 /* NSObject+RACPerformSelector.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

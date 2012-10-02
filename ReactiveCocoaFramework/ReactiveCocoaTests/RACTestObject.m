@@ -14,4 +14,9 @@
 	[self setValue:@0 forKey:key];
 }
 
+- (void)setObjectValue:(id)objectValue andIntegerValue:(NSInteger)integerValue {
+	self.objectValue = objectValue;
+	self.integerValue = integerValue;
+}
+
 @end

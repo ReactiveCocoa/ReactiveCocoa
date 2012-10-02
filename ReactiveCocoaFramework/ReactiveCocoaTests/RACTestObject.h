@@ -13,4 +13,6 @@
 @property (nonatomic, strong) id objectValue;
 @property (nonatomic, assign) NSInteger integerValue;
 
+- (void)setObjectValue:(id)objectValue andIntegerValue:(NSInteger)integerValue;
+
 @end

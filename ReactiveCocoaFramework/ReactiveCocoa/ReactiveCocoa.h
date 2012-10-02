@@ -33,6 +33,7 @@
 #import <ReactiveCocoa/RACCancelableSubscribable.h>
 #import <ReactiveCocoa/NSObject+RACKVOWrapper.h>
 #import <ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h>
+#import <ReactiveCocoa/NSObject+RACPerformSelector.h>
 
 #ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
 #import <ReactiveCocoa/UIControl+RACSubscribableSupport.h>

@@ -52,7 +52,7 @@
 }
 
 - (void)setArgumentForInvocation:(NSInvocation *)invocation type:(const char *)argType atIndex:(NSInteger)index withObject:(id)object {
-	if (strcmp(argType, "@") == 0) {
+	if (strcmp(argType, "@") == 0 || strcmp(argType, "#") == 0) {
 		[invocation setArgument:&object atIndex:index];
 	} else if (strcmp(argType, "c") == 0) {
 		char c = [object charValue];
@@ -92,9 +92,6 @@
 		[invocation setArgument:&d atIndex:index];
 	} else if (strcmp(argType, "*") == 0) {
 		const char *c = [object UTF8String];
-		[invocation setArgument:&c atIndex:index];
-	} else if (strcmp(argType, "#") == 0) {
-		Class c = [object class];
 		[invocation setArgument:&c atIndex:index];
 	} else {
 		NSAssert1(NO, @"Unknown argument type %s", argType);

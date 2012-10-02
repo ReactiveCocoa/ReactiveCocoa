@@ -20,11 +20,11 @@
 	NSMutableArray *subscribeBlocks = [NSMutableArray array];
 
 	va_list args;
-    va_start(args, arg);
+	va_start(args, arg);
 	// First two arguments are self and selector.
 	NSUInteger i = 2;
 	__unsafe_unretained id weakSelf = self;
-    for (id currentObject = arg; currentObject != nil; currentObject = va_arg(args, id), i++) {
+	for (id currentObject = arg; currentObject != nil; currentObject = va_arg(args, id), i++) {
 		const char *argType = [methodSignature getArgumentTypeAtIndex:i];
 		if ([currentObject conformsToProtocol:@protocol(RACSubscribable)]) {
 			// We don't want to subscribe yet because our subscription could
@@ -43,8 +43,8 @@
 		} else {
 			[self setArgumentForInvocation:invocation type:argType atIndex:(NSInteger)i withObject:currentObject];
 		}
-    }
-    va_end(args);
+	}
+	va_end(args);
 
 	for (void (^block)(void) in subscribeBlocks) {
 		block();

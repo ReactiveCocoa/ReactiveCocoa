@@ -17,7 +17,6 @@
 
 	NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
 	invocation.selector = selector;
-	invocation.target = self;
 	NSMutableArray *subscribeBlocks = [NSMutableArray array];
 
 	va_list args;
@@ -34,11 +33,11 @@
 			// all the subscriptions into blocks and we'll call them after all
 			// the setup is done.
 			[subscribeBlocks addObject:^{
-				NSObject *strongSelf = weakSelf;
 				id<RACSubscribable> subscribable = (id<RACSubscribable>)currentObject;
 				[subscribable subscribeNext:^(id x) {
+					NSObject *strongSelf = weakSelf;
 					[strongSelf setArgumentForInvocation:invocation type:argType atIndex:(NSInteger)i withObject:x];
-					[invocation invoke];
+					[invocation invokeWithTarget:strongSelf];
 				}];
 			}];
 		} else {

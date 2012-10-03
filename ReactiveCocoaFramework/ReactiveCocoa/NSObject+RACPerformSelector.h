@@ -14,6 +14,8 @@
 // invoke the given selector on the receiver each time any subscribable
 // argument sends a new value.
 //
+// This does not support struct, union, or C array arguments.
+//
 // Examples:
 //
 //   [button rac_performSelector:@selector(setTitleColor:forState:) withObjects:textColorSubscribable, @(UIControlStateNormal), nil];

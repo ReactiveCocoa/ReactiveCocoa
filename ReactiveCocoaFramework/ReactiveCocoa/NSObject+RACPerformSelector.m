@@ -27,6 +27,8 @@
 	for (id currentObject = arg; currentObject != nil; currentObject = va_arg(args, id), i++) {
 		const char *argType = [methodSignature getArgumentTypeAtIndex:i];
 		if ([currentObject conformsToProtocol:@protocol(RACSubscribable)]) {
+			[self setArgumentForInvocation:invocation type:argType atIndex:(NSInteger)i withObject:nil];
+
 			// We don't want to subscribe yet because our subscription could
 			// immediately yield an object and we'd end up invoking the
 			// invocation before all its args have been set. So we accumulate

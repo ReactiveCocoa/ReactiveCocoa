@@ -21,7 +21,7 @@ beforeEach(^{
 
 it(@"should call the selector with the value of the subscribable", ^{
 	RACSubject *subject = [RACSubject subject];
-	[object rac_performSelector:@selector(setObjectValue:) withObjects:subject, nil];
+	[object rac_subscribeSelector:@selector(setObjectValue:) withObjects:subject];
 
 	expect(object.objectValue).to.beNil();
 
@@ -34,7 +34,7 @@ it(@"should call the selector with the value of the subscribable", ^{
 
 it(@"should call the selector with the value of the subscribable unboxed", ^{
 	RACSubject *subject = [RACSubject subject];
-	[object rac_performSelector:@selector(setIntegerValue:) withObjects:subject, nil];
+	[object rac_subscribeSelector:@selector(setIntegerValue:) withObjects:subject];
 
 	expect(object.integerValue).to.equal(0);
 
@@ -48,7 +48,7 @@ it(@"should call the selector with the value of the subscribable unboxed", ^{
 it(@"should should work with multiple arguments", ^{
 	RACSubject *objectValueSubject = [RACSubject subject];
 	RACSubject *integerValueSubject = [RACSubject subject];
-	[object rac_performSelector:@selector(setObjectValue:andIntegerValue:) withObjects:objectValueSubject, integerValueSubject, nil];
+	[object rac_subscribeSelector:@selector(setObjectValue:andIntegerValue:) withObjects:objectValueSubject, integerValueSubject];
 
 	expect(object.objectValue).to.beNil();
 	expect(object.integerValue).to.equal(0);

@@ -18,8 +18,8 @@
 //
 // Examples:
 //
-//   [button rac_performSelector:@selector(setTitleColor:forState:) withObjects:textColorSubscribable, @(UIControlStateNormal), nil];
-//   [[UIApplication sharedApplication] rac_performSelector:@selector(setNetworkActivityIndicatorVisible:) withObjects:subscribable, nil];
-- (void)rac_performSelector:(SEL)selector withObjects:(id)arg, ... NS_REQUIRES_NIL_TERMINATION;
+//   [button rac_subscribeSelector:@selector(setTitleColor:forState:) withObjects:textColorSubscribable, @(UIControlStateNormal), nil];
+//   [[UIApplication sharedApplication] rac_subscribeSelector:@selector(setNetworkActivityIndicatorVisible:) withObjects:subscribable, nil];
+- (void)rac_subscribeSelector:(SEL)selector withObjects:(id)arg, ...;
 
 @end

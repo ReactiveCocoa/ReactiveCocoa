@@ -93,6 +93,9 @@
 	} else if (strcmp(argType, "*") == 0) {
 		const char *c = [object UTF8String];
 		[invocation setArgument:&c atIndex:index];
+	} else if (argType[0] == '^') {
+		void *pointer = [object pointerValue];
+		[invocation setArgument:&pointer atIndex:index];
 	} else {
 		NSAssert(NO, @"Unknown argument type %s", argType);
 	}

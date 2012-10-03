@@ -12,7 +12,7 @@
 
 // Allows you to pass subscribables for non-subscribable arguments. It will
 // invoke the given selector on the receiver each time any subscribable
-// argument sends a new value.
+// argument sends a new value. Subscribable arguments default to nil/0.
 //
 // This does not support struct, union, or C array arguments.
 //

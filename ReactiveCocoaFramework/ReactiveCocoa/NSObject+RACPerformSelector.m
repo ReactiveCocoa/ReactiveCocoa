@@ -32,14 +32,14 @@
 			// invocation before all its args have been set. So we accumulate
 			// all the subscriptions into blocks and we'll call them after all
 			// the setup is done.
-			[subscribeBlocks addObject:^{
+			[subscribeBlocks addObject:[^{
 				id<RACSubscribable> subscribable = (id<RACSubscribable>)currentObject;
 				[subscribable subscribeNext:^(id x) {
 					NSObject *strongSelf = weakSelf;
 					[strongSelf setArgumentForInvocation:invocation type:argType atIndex:(NSInteger)i withObject:x];
 					[invocation invokeWithTarget:strongSelf];
 				}];
-			}];
+			} copy]];
 		} else {
 			[self setArgumentForInvocation:invocation type:argType atIndex:(NSInteger)i withObject:currentObject];
 		}

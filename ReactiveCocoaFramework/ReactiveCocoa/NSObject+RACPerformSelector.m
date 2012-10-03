@@ -13,7 +13,7 @@
 
 - (void)rac_performSelector:(SEL)selector withObjects:(id)arg, ... NS_REQUIRES_NIL_TERMINATION {
 	NSMethodSignature *methodSignature = [self methodSignatureForSelector:selector];
-	NSAssert2(methodSignature != nil, @"%@ does not respond to %@", self, NSStringFromSelector(selector));
+	NSAssert(methodSignature != nil, @"%@ does not respond to %@", self, NSStringFromSelector(selector));
 
 	NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
 	invocation.selector = selector;
@@ -94,7 +94,7 @@
 		const char *c = [object UTF8String];
 		[invocation setArgument:&c atIndex:index];
 	} else {
-		NSAssert1(NO, @"Unknown argument type %s", argType);
+		NSAssert(NO, @"Unknown argument type %s", argType);
 	}
 }
 

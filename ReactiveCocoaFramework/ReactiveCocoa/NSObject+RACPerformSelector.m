@@ -11,7 +11,7 @@
 
 @implementation NSObject (RACPerformSelector)
 
-- (void)rac_performSelector:(SEL)selector withObjects:(id)arg, ... NS_REQUIRES_NIL_TERMINATION {
+- (void)rac_subscribeSelector:(SEL)selector withObjects:(id)arg, ... {
 	NSMethodSignature *methodSignature = [self methodSignatureForSelector:selector];
 	NSAssert(methodSignature != nil, @"%@ does not respond to %@", self, NSStringFromSelector(selector));
 
@@ -19,12 +19,15 @@
 	invocation.selector = selector;
 	NSMutableArray *subscribeBlocks = [NSMutableArray array];
 
+	__unsafe_unretained id weakSelf = self;
+
 	va_list args;
 	va_start(args, arg);
+	id currentObject = nil;
 	// First two arguments are self and selector.
-	NSUInteger i = 2;
-	__unsafe_unretained id weakSelf = self;
-	for (id currentObject = arg; currentObject != nil; currentObject = va_arg(args, id), i++) {
+	for (NSUInteger i = 2; i < methodSignature.numberOfArguments; i++) {
+		currentObject = i == 2 ? arg : va_arg(args, id);
+
 		const char *argType = [methodSignature getArgumentTypeAtIndex:i];
 		if ([currentObject conformsToProtocol:@protocol(RACSubscribable)]) {
 			[self setArgumentForInvocation:invocation type:argType atIndex:(NSInteger)i withObject:nil];

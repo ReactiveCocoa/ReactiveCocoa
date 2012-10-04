@@ -1,5 +1,5 @@
 //
-//  NSObject+RACPerformSelector.h
+//  NSObject+RACSubscribeSelector.h
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 9/24/12.
@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface NSObject (RACPerformSelector)
+@interface NSObject (RACSubscribeSelector)
 
 // Allows you to pass subscribables for non-subscribable arguments. It will
 // invoke the given selector on the receiver each time any subscribable
@@ -18,8 +18,8 @@
 //
 // Examples:
 //
-//   [button rac_subscribeSelector:@selector(setTitleColor:forState:) withObjects:textColorSubscribable, @(UIControlStateNormal), nil];
-//   [[UIApplication sharedApplication] rac_subscribeSelector:@selector(setNetworkActivityIndicatorVisible:) withObjects:subscribable, nil];
+//   [button rac_subscribeSelector:@selector(setTitleColor:forState:) withObjects:textColorSubscribable, @(UIControlStateNormal)];
+//   [[UIApplication sharedApplication] rac_subscribeSelector:@selector(setNetworkActivityIndicatorVisible:) withObjects:subscribable];
 - (void)rac_subscribeSelector:(SEL)selector withObjects:(id)arg, ...;
 
 @end

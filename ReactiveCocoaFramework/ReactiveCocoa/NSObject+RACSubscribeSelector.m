@@ -1,15 +1,15 @@
 //
-//  NSObject+RACPerformSelector.m
+//  NSObject+RACSubscribeSelector.m
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 9/24/12.
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "NSObject+RACPerformSelector.h"
+#import "NSObject+RACSubscribeSelector.h"
 #import "RACSubscribable.h"
 
-@implementation NSObject (RACPerformSelector)
+@implementation NSObject (RACSubscribeSelector)
 
 - (void)rac_subscribeSelector:(SEL)selector withObjects:(id)arg, ... {
 	NSMethodSignature *methodSignature = [self methodSignatureForSelector:selector];
@@ -26,7 +26,7 @@
 	id currentObject = nil;
 	// First two arguments are self and selector.
 	for (NSUInteger i = 2; i < methodSignature.numberOfArguments; i++) {
-		currentObject = i == 2 ? arg : va_arg(args, id);
+		currentObject = (i == 2) ? arg : va_arg(args, id);
 
 		const char *argType = [methodSignature getArgumentTypeAtIndex:i];
 		if ([currentObject conformsToProtocol:@protocol(RACSubscribable)]) {

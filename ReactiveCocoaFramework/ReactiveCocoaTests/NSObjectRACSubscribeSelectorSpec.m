@@ -1,5 +1,5 @@
 //
-//  NSObjectRACPerformSelectorSpec.m
+//  NSObjectRACSubscribeSelector.m
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 10/2/12.
@@ -7,11 +7,11 @@
 //
 
 #import "RACSpecs.h"
-#import "NSObject+RACPerformSelector.h"
+#import "NSObject+RACSubscribeSelector.h"
 #import "RACTestObject.h"
 #import "RACSubject.h"
 
-SpecBegin(NSObjectRACPerformSelector)
+SpecBegin(NSObjectRACSubscribeSelector)
 
 __block RACTestObject *object;
 

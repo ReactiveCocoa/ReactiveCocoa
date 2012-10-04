@@ -12,6 +12,7 @@
 
 @property (nonatomic, strong) id objectValue;
 @property (nonatomic, assign) NSInteger integerValue;
+@property (nonatomic, assign) char *charPointerValue;
 
 - (void)setObjectValue:(id)objectValue andIntegerValue:(NSInteger)integerValue;
 

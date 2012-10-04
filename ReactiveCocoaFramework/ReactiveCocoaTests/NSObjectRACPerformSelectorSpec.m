@@ -62,4 +62,42 @@ it(@"should work with multiple arguments", ^{
 	expect(object.integerValue).to.equal(42);
 });
 
+it(@"should work with subscribables that immediately start with a value", ^{
+	RACSubject *subject = [RACSubject subject];
+	[object rac_subscribeSelector:@selector(setObjectValue:) withObjects:[subject startWith:@42]];
+
+	expect(object.objectValue).to.equal(@42);
+
+	[subject sendNext:@1];
+	expect(object.objectValue).to.equal(@1);
+});
+
+it(@"shouldn't do anything when it isn't given any subscribable arguments", ^{
+	[object rac_subscribeSelector:@selector(setObjectValue:) withObjects:@42];
+
+	expect(object.objectValue).to.beNil();
+
+});
+
+it(@"should work with class objects", ^{
+	RACSubject *subject = [RACSubject subject];
+	[object rac_subscribeSelector:@selector(setObjectValue:) withObjects:subject];
+
+	expect(object.objectValue).to.equal(nil);
+
+	[subject sendNext:self.class];
+	expect(object.objectValue).to.equal(self.class);
+});
+
+it(@"should work for char pointer", ^{
+	RACSubject *subject = [RACSubject subject];
+	[object rac_subscribeSelector:@selector(setCharPointerValue:) withObjects:subject];
+
+	expect(object.charPointerValue).to.equal(NULL);
+
+	const char *string = "blah blah blah";
+	[subject sendNext:@(string)];
+	expect(strcmp(object.charPointerValue, string) == 0).to.beTruthy();
+});
+
 SpecEnd

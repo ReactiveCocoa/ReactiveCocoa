@@ -45,7 +45,7 @@ it(@"should call the selector with the value of the subscribable unboxed", ^{
 	expect(object.integerValue).to.equal(42);
 });
 
-it(@"should should work with multiple arguments", ^{
+it(@"should work with multiple arguments", ^{
 	RACSubject *objectValueSubject = [RACSubject subject];
 	RACSubject *integerValueSubject = [RACSubject subject];
 	[object rac_subscribeSelector:@selector(setObjectValue:andIntegerValue:) withObjects:objectValueSubject, integerValueSubject];

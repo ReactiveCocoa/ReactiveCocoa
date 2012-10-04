@@ -26,7 +26,7 @@
 	id currentObject = nil;
 	// First two arguments are self and selector.
 	for (NSUInteger i = 2; i < methodSignature.numberOfArguments; i++) {
-		currentObject = (i == 2) ? arg : va_arg(args, id);
+		currentObject = (i == 2 ? arg : va_arg(args, id));
 
 		const char *argType = [methodSignature getArgumentTypeAtIndex:i];
 		if ([currentObject conformsToProtocol:@protocol(RACSubscribable)]) {

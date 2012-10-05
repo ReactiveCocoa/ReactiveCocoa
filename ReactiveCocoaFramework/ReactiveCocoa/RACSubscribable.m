@@ -122,23 +122,29 @@ static NSMutableSet *activeSubscribables() {
 
 	return [self createSubscribable:^(id<RACSubscriber> subscriber) {
 		__block volatile uint32_t dispose = 0;
-		[scheduler schedule:^{
-			id next = start;
-			while (next != nil && dispose == 0) {
-				[subscriber sendNext:next];
+		// Don't actually schedule the generator to start until we've had a
+		// chance to return the disposable to the caller. Otherwise the
+		// generator could get lucky and get scheduled before the caller has the
+		// ability to stop it.
+		[RACScheduler.deferredScheduler schedule:^{
+			[scheduler schedule:^{
+				id next = start;
+				while (next != nil && dispose == 0) {
+					[subscriber sendNext:next];
 
-				if (dispose == 0) {
-					next = block != NULL ? block(next) : next;
+					if (dispose == 0) {
+						next = block != NULL ? block(next) : next;
+					}
 				}
-			}
-			
-			// Only send completed if we weren't manually disposed of.
-			// Otherwise we could send a message to subscribers after their
-			// subscription's been disposed which would violate the contract of
-			// subscription + disposal.
-			if (dispose == 0) {
-				[subscriber sendCompleted];
-			}
+
+				// Only send completed if we weren't manually disposed of.
+				// Otherwise we could send a message to subscribers after their
+				// subscription's been disposed which would violate the contract of
+				// subscription + disposal.
+				if (dispose == 0) {
+					[subscriber sendCompleted];
+				}
+			}];
 		}];
 
 		return [RACDisposable disposableWithBlock:^{

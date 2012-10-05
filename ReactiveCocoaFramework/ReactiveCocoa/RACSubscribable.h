@@ -52,6 +52,8 @@
 // same scheduler passed in, otherwise the generator could outrun its need as
 // the limiting subscriber and the generator race to see who can work faster.
 //
+// The subscribable should never be -first'd or -toArray'd. This will deadlock.
+//
 // scheduler - The scheduler on which the returned subscribable will generate
 // and send values. If it is nil, it uses `+[RACScheduler backgroundScheduler]`.
 //

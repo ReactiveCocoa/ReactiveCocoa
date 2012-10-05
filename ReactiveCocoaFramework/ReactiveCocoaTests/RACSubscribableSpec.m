@@ -507,34 +507,77 @@ describe(@"generator", ^{
 		RACSubscribable *s = [RACSubscribable generatorWithStart:@1 next:^id(NSNumber *x) {
 			return x.unsignedIntegerValue < 7 ? @(x.unsignedIntegerValue + 1) : nil;
 		}];
+
+		__block NSArray *results;
+		__block BOOL done = NO;
+		[[s
+			aggregateWithStart:@[] combine:^(NSArray *running, NSNumber *next) {
+				return [running arrayByAddingObject:next];
+			}]
+			subscribeNext:^(NSArray *x) {
+				results = x;
+			}
+			completed:^{
+				done = YES;
+			}];
+
+		expect(done).will.beTruthy();
 		
-		NSArray *array = s.toArray;
 		NSArray *expected = @[ @1, @2, @3, @4, @5, @6, @7 ];
-		expect(array).to.equal(expected);
+		expect(results).to.equal(expected);
 	});
 	
 	it(@"should generate the same value continuously when given a nil block", ^{
 		RACSubscribable *s = [RACSubscribable generatorWithStart:@42 next:nil];
-		NSArray *array = [s take:5].toArray;
+
+		__block NSArray *results;
+		__block BOOL done = NO;
+		[[[s
+			take:5]
+			aggregateWithStart:@[] combine:^(NSArray *running, NSNumber *next) {
+				return [running arrayByAddingObject:next];
+			}]
+			subscribeNext:^(NSArray *x) {
+				results = x;
+			}
+			completed:^{
+				done = YES;
+			}];
+
+		expect(done).will.beTruthy();
+
 		NSArray *expected = @[ @42, @42, @42, @42, @42 ];
-		expect(array).to.equal(expected);
+		expect(results).to.equal(expected);
 	});
-	
+
 	it(@"should generate only as many values as it needs", ^{
 		__block NSUInteger valuesGenerated = 0;
 		RACSubscribable *s = [RACSubscribable generatorWithStart:@1 next:^(NSNumber *x) {
 			valuesGenerated++;
 			return @(x.unsignedIntegerValue + 1);
 		}];
-		
-		NSArray *array = [[s
+
+		__block BOOL done = NO;
+		__block NSArray *results;
+		[[[[s
 			where:^BOOL(NSNumber *x) {
 				return x.unsignedIntegerValue % 3 == 0;
 			}]
 			take:5]
-			.toArray;
+			aggregateWithStart:@[] combine:^(NSArray *running, NSNumber *next) {
+				return [running arrayByAddingObject:next];
+			}]
+			subscribeNext:^(NSArray *x) {
+				results = x;
+			}
+			completed:^{
+				done = YES;
+			}];
+
+		expect(done).will.beTruthy();
+
 		NSArray *expected = @[ @3, @6, @9, @12, @15 ];
-		expect(array).to.equal(expected);
+		expect(results).to.equal(expected);
 		expect(valuesGenerated).to.equal(14);
 	});
 });

@@ -254,7 +254,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		__block RACDisposable *innerDisposable = nil;
 		RACDisposable *outerDisposable = [self subscribeNext:^(id x) {
 			[subscriber sendNext:x];
-		} error:^(NSError *error) {			
+		} error:^(NSError *error) {
 			id<RACSubscribable> subscribable = catchBlock(error);
 			innerDisposable = [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 				[subscriber sendNext:x];

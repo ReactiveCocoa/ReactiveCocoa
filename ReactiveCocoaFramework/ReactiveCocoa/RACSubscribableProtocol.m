@@ -572,8 +572,10 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 				}
 			}]];
 
-			@synchronized(innerDisposables) {
-				[innerDisposables addObject:disposable];
+			if (disposable != nil) {
+				@synchronized(innerDisposables) {
+					[innerDisposables addObject:disposable];
+				}
 			}
 		} error:^(NSError *error) {
 			[subscriber sendError:error];

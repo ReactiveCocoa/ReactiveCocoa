@@ -183,7 +183,7 @@ static NSMutableSet *activeSubscribables() {
 				hasSubscribers = self.subscribers.count > 0;
 			}
 
-			if(!hasSubscribers) {
+			if (!hasSubscribers) {
 				[self invalidateGlobalRef];
 			}
 		} afterDelay:0];

@@ -24,7 +24,7 @@ describe(@"-rac_addDeallocDisposable:", ^{
 			expect(wasDisposed).to.beFalsy();
 		}
 
-		expect(wasDisposed).will.beTruthy();
+		expect(wasDisposed).to.beTruthy();
 	});
 });
 

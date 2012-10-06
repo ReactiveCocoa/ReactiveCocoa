@@ -8,6 +8,7 @@
 
 #import "RACAsyncSubject.h"
 #import "RACSubscriber.h"
+#import "RACDisposable.h"
 
 @interface RACAsyncSubject ()
 
@@ -26,13 +27,15 @@
 #pragma mark RACSubscribable
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	RACDisposable * disposable = [super subscribe:subscriber];
+	RACDisposable *disposable = [super subscribe:subscriber];
 
 	@synchronized (self) {
 		if (self.hasCompletedAlready) {
 			[self sendCompleted];
+			[disposable dispose];
 		} else if (self.error != nil) {
 			[self sendError:self.error];
+			[disposable dispose];
 		}
 	}
 	

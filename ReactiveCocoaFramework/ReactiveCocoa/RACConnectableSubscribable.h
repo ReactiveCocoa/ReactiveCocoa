@@ -8,7 +8,6 @@
 
 #import "RACSubscribable.h"
 
-
 // A connectable subscribable encapsulates the idea of sharing one subscription
 // to a subscribable to many subscribers. This is most often needed if the 
 // subscription to the underlying subscribable involves side-effects or 

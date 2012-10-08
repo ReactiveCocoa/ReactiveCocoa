@@ -67,6 +67,7 @@ describe(@"-autoconnect", ^{
 		
 		expect(numberOfSubscriptions).to.equal(0);
 
+		disposed = NO;
 		disposable = [subscribable subscribeNext:^(id _) {}];
 		expect(numberOfSubscriptions).to.equal(1);
 		[disposable dispose];

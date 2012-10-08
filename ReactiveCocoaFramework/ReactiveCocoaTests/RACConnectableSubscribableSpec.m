@@ -26,6 +26,7 @@ describe(@"-autoconnect", ^{
 				numberOfSubscriptions++;
 
 				return [RACDisposable disposableWithBlock:^{
+					numberOfSubscriptions--;
 					disposed = YES;
 				}];
 			}]
@@ -54,6 +55,21 @@ describe(@"-autoconnect", ^{
 		expect(disposed).to.beFalsy();
 
 		[disposable1 dispose];
+		expect(disposed).to.beTruthy();
+	});
+
+	it(@"should reconnect after all the original subscriptions have been disposed", ^{
+		RACDisposable *disposable = [subscribable subscribeNext:^(id _) {}];
+		expect(numberOfSubscriptions).to.equal(1);
+		
+		[disposable dispose];
+		expect(disposed).to.beTruthy();
+		
+		expect(numberOfSubscriptions).to.equal(0);
+
+		disposable = [subscribable subscribeNext:^(id _) {}];
+		expect(numberOfSubscriptions).to.equal(1);
+		[disposable dispose];
 		expect(disposed).to.beTruthy();
 	});
 });

@@ -668,6 +668,33 @@ describe(@"deallocation", ^{
 
 		expect(deallocd).will.beTruthy();
 	});
+
+	it(@"should dealloc if the subscribable was created on a background queue, never gets any subscribers, and the background queue gets delayed", ^{
+		__block BOOL deallocd = NO;
+		@autoreleasepool {
+			[RACScheduler.backgroundScheduler schedule:^{
+				RACSubscribable *subscribable __attribute__((objc_precise_lifetime)) = [RACSubscribable createSubscribable:^ id (id<RACSubscriber> subscriber) {
+					return nil;
+				}];
+
+				[subscribable rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+					deallocd = YES;
+				}]];
+
+				[NSThread sleepForTimeInterval:1];
+
+				expect(deallocd).to.beFalsy();
+			}];
+		}
+
+		// The default test timeout is 1s so we'd race to see if the queue delay
+		// or default timeout happens first. To avoid that, just bump the
+		// timeout slightly for this test.
+		NSTimeInterval originalTestTimeout = Expecta.asynchronousTestTimeout;
+		Expecta.asynchronousTestTimeout = 1.1f;
+		expect(deallocd).will.beTruthy();
+		Expecta.asynchronousTestTimeout = originalTestTimeout;
+	});
 });
 
 SpecEnd

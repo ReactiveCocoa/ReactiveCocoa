@@ -14,6 +14,8 @@
 @interface RACSubscribable ()
 
 @property (nonatomic, copy) RACDisposable * (^didSubscribe)(id<RACSubscriber> subscriber);
+
+// All access to this should be synchronized.
 @property (nonatomic, strong) NSMutableArray *subscribers;
 
 - (void)performBlockOnEachSubscriber:(void (^)(id<RACSubscriber> subscriber))block;

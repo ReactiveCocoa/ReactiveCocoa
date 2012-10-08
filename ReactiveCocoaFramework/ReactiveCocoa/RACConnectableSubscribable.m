@@ -19,16 +19,13 @@
 @property (nonatomic, strong) RACDisposable *disposable;
 @end
 
-
 @implementation RACConnectableSubscribable
-
 
 #pragma mark RACSubscribable
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
 	return [self.subject subscribe:subscriber];
 }
-
 
 #pragma mark API
 
@@ -45,7 +42,7 @@
 
 - (RACDisposable *)connect {
 	@synchronized(self) {
-		if(self.disposable == nil) {
+		if (self.disposable == nil) {
 			self.disposable = [self.sourceSubscribable subscribe:self.subject];
 		}
 		
@@ -55,27 +52,21 @@
 
 - (RACSubscribable *)autoconnect {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
-		RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
-			[subscriber sendNext:x];
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendCompleted];
-		}];
-		
-		RACDisposable *connectionDisposable = [self connect];
+		RACDisposable *subscriptionDisposable = [self subscribe:subscriber];
+
+		[self connect];
 		
 		return [RACDisposable disposableWithBlock:^{
 			[subscriptionDisposable dispose];
-			[connectionDisposable dispose];
-			
+
 			BOOL noSubscribers = NO;
-			@synchronized(self.subscribers) {
-				noSubscribers = self.subscribers.count < 1;
+			@synchronized(self.subject.subscribers) {
+				noSubscribers = self.subject.subscribers.count < 1;
 			}
 			
-			if(noSubscribers) {
+			if (noSubscribers) {
 				@synchronized(self) {
+					[self.disposable dispose];
 					self.disposable = nil;
 				}
 			}

@@ -599,7 +599,7 @@ describe(@"deallocation", ^{
 		expect(deallocd).will.beTruthy();
 	});
 
-	it(@"should dealloc subscribables even if the subscribable immediately completes", ^{
+	it(@"should dealloc subscribables if the subscribable immediately completes", ^{
 		__block BOOL deallocd = NO;
 		@autoreleasepool {
 			__block BOOL done = NO;
@@ -623,7 +623,7 @@ describe(@"deallocation", ^{
 		expect(deallocd).will.beTruthy();
 	});
 
-	it(@"should dealloc an async subject even if it completes immediately", ^{
+	it(@"should dealloc an async subject if it completes immediately", ^{
 		__block BOOL completed = NO;
 		__block BOOL deallocd = NO;
 		@autoreleasepool {
@@ -644,7 +644,7 @@ describe(@"deallocation", ^{
 		expect(deallocd).will.beTruthy();
 	});
 
-	it(@"should dealloc even if the subscribable was created on a background queue", ^{
+	it(@"should dealloc if the subscribable was created on a background queue", ^{
 		__block BOOL completed = NO;
 		__block BOOL deallocd = NO;
 		@autoreleasepool {

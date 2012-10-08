@@ -108,7 +108,7 @@ static NSMutableSet *activeSubscribables() {
 @synthesize name;
 
 + (instancetype)createSubscribable:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
-	RACSubscribable *subscribable = [[self alloc] init];
+	RACSubscribable *subscribable = [[RACSubscribable alloc] init];
 	subscribable.didSubscribe = didSubscribe;
 	return subscribable;
 }

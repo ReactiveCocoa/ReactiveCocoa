@@ -9,6 +9,7 @@
 #import "RACReplaySubject.h"
 #import "RACSubscriber.h"
 #import "RACTuple.h"
+#import "RACDisposable.h"
 
 const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
 
@@ -47,8 +48,10 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
 	
 	if(self.hasCompletedAlready) {
 		[subscriber sendCompleted];
+		[disposable dispose];
 	} else if(self.error != nil) {
 		[subscriber sendError:self.error];
+		[disposable dispose];
 	}
 	
 	return disposable;

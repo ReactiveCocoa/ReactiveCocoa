@@ -14,6 +14,7 @@
 @property (nonatomic, copy) void (^error)(NSError *error);
 @property (nonatomic, copy) void (^completed)(void);
 @property (nonatomic, strong) RACDisposable *disposable;
+@property (assign) BOOL completedOrErrored;
 @end
 
 
@@ -33,6 +34,8 @@
 }
 
 - (void)sendError:(NSError *)e {
+	self.completedOrErrored = YES;
+
 	[self stopSubscription];
 	
 	if(self.error != NULL) {
@@ -41,6 +44,8 @@
 }
 
 - (void)sendCompleted {
+	self.completedOrErrored = YES;
+
 	[self stopSubscription];
 	
 	if(self.completed != NULL) {
@@ -51,6 +56,10 @@
 - (void)didSubscribeWithDisposable:(RACDisposable *)d {
 	@synchronized(self) {
 		self.disposable = d;
+	}
+
+	if (self.completedOrErrored) {
+		[self stopSubscription];
 	}
 }
 

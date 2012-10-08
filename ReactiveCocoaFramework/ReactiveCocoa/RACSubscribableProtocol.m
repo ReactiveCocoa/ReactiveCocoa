@@ -254,7 +254,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		__block RACDisposable *innerDisposable = nil;
 		RACDisposable *outerDisposable = [self subscribeNext:^(id x) {
 			[subscriber sendNext:x];
-		} error:^(NSError *error) {			
+		} error:^(NSError *error) {
 			id<RACSubscribable> subscribable = catchBlock(error);
 			innerDisposable = [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 				[subscriber sendNext:x];
@@ -519,13 +519,17 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 					}
 				}
 			}]];
-			
-			[disposables addObject:disposable];
+
+			if (disposable != nil) {
+				@synchronized(disposables) {
+					[disposables addObject:disposable];
+				}
+			}
 		}
 		
 		return [RACDisposable disposableWithBlock:^{
-			for(RACDisposable *disposable in disposables) {
-				[disposable dispose];
+			@synchronized(disposables) {
+				[disposables makeObjectsPerformSelector:@selector(dispose)];
 			}
 		}];
 	}];
@@ -566,8 +570,10 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 				}
 			}]];
 
-			@synchronized(innerDisposables) {
-				[innerDisposables addObject:disposable];
+			if (disposable != nil) {
+				@synchronized(innerDisposables) {
+					[innerDisposables addObject:disposable];
+				}
 			}
 		} error:^(NSError *error) {
 			[subscriber sendError:error];

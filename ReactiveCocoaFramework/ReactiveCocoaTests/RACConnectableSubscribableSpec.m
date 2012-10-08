@@ -28,7 +28,7 @@ describe(@"-autoconnect", ^{
 				return [RACDisposable disposableWithBlock:^{
 					disposed = YES;
 				}];
-		}]
+			}]
 		publish]
 		autoconnect];
 	});

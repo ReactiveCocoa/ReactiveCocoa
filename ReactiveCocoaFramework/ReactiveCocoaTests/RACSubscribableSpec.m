@@ -19,7 +19,7 @@
 #import "RACTestObject.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACPropertySubscribableExamples.h"
-
+#import "RACAsyncSubject.h"
 
 SpecBegin(RACSubscribable)
 
@@ -580,6 +580,120 @@ describe(@"-toProperty:onObject:", ^{
 
 		// This shouldn't do anything.
 		[subject sendNext:@3];
+	});
+});
+
+describe(@"deallocation", ^{
+	it(@"should dealloc subscribables if the subscribable does nothing", ^{
+		__block BOOL deallocd = NO;
+		@autoreleasepool {
+			RACSubscribable *subscribable __attribute__((objc_precise_lifetime)) = [RACSubscribable createSubscribable:^ id (id<RACSubscriber> subscriber) {
+				return nil;
+			}];
+
+			[subscribable rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				deallocd = YES;
+			}]];
+		}
+
+		expect(deallocd).will.beTruthy();
+	});
+
+	it(@"should dealloc subscribables if the subscribable immediately completes", ^{
+		__block BOOL deallocd = NO;
+		@autoreleasepool {
+			__block BOOL done = NO;
+
+			RACSubscribable *subscribable __attribute__((objc_precise_lifetime)) = [RACSubscribable createSubscribable:^ id (id<RACSubscriber> subscriber) {
+				[subscriber sendCompleted];
+				return nil;
+			}];
+
+			[subscribable rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				deallocd = YES;
+			}]];
+
+			[subscribable subscribeCompleted:^{
+				done = YES;
+			}];
+
+			expect(done).will.beTruthy();
+		}
+		
+		expect(deallocd).will.beTruthy();
+	});
+
+	it(@"should dealloc an async subject if it completes immediately", ^{
+		__block BOOL completed = NO;
+		__block BOOL deallocd = NO;
+		@autoreleasepool {
+			RACAsyncSubject *subject __attribute__((objc_precise_lifetime)) = [RACAsyncSubject subject];
+			[subject sendCompleted];
+
+			[subject rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				deallocd = YES;
+			}]];
+
+			[subject subscribeCompleted:^{
+				completed = YES;
+			}];
+		}
+
+		expect(completed).will.beTruthy();
+
+		expect(deallocd).will.beTruthy();
+	});
+
+	it(@"should dealloc if the subscribable was created on a background queue", ^{
+		__block BOOL completed = NO;
+		__block BOOL deallocd = NO;
+		@autoreleasepool {
+			[RACScheduler.backgroundScheduler schedule:^{
+				RACSubscribable *subscribable __attribute__((objc_precise_lifetime)) = [RACSubscribable createSubscribable:^ id (id<RACSubscriber> subscriber) {
+					[subscriber sendCompleted];
+					return nil;
+				}];
+
+				[subscribable rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+					deallocd = YES;
+				}]];
+
+				[subscribable subscribeCompleted:^{
+					completed = YES;
+				}];
+			}];
+		}
+
+		expect(completed).will.beTruthy();
+
+		expect(deallocd).will.beTruthy();
+	});
+
+	it(@"should dealloc if the subscribable was created on a background queue, never gets any subscribers, and the background queue gets delayed", ^{
+		__block BOOL deallocd = NO;
+		@autoreleasepool {
+			[RACScheduler.backgroundScheduler schedule:^{
+				RACSubscribable *subscribable __attribute__((objc_precise_lifetime)) = [RACSubscribable createSubscribable:^ id (id<RACSubscriber> subscriber) {
+					return nil;
+				}];
+
+				[subscribable rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+					deallocd = YES;
+				}]];
+
+				[NSThread sleepForTimeInterval:1];
+
+				expect(deallocd).to.beFalsy();
+			}];
+		}
+
+		// The default test timeout is 1s so we'd race to see if the queue delay
+		// or default timeout happens first. To avoid that, just bump the
+		// timeout slightly for this test.
+		NSTimeInterval originalTestTimeout = Expecta.asynchronousTestTimeout;
+		Expecta.asynchronousTestTimeout = 1.1f;
+		expect(deallocd).will.beTruthy();
+		Expecta.asynchronousTestTimeout = originalTestTimeout;
 	});
 });
 

@@ -12,6 +12,7 @@
 
 @interface RACSubject ()
 @property (nonatomic, strong) RACDisposable *disposable;
+@property (assign) BOOL completedOrErrored;
 @end
 
 
@@ -27,6 +28,8 @@
 }
 
 - (void)sendError:(NSError *)error {
+	self.completedOrErrored = YES;
+
 	[self stopSubscription];
 	
 	[self performBlockOnEachSubscriber:^(id<RACSubscriber> subscriber) {
@@ -35,6 +38,8 @@
 }
 
 - (void)sendCompleted {
+	self.completedOrErrored = YES;
+
 	[self stopSubscription];
 	
 	[self performBlockOnEachSubscriber:^(id<RACSubscriber> subscriber) {
@@ -45,6 +50,10 @@
 - (void)didSubscribeWithDisposable:(RACDisposable *)d {
 	@synchronized(self) {
 		self.disposable = d;
+	}
+
+	if (self.completedOrErrored) {
+		[self stopSubscription];
 	}
 }
 

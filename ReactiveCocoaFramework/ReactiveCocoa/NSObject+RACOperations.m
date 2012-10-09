@@ -21,7 +21,7 @@
 	NSParameterAssert(keyPaths != nil);
 	NSParameterAssert(reduceBlock != NULL);
 	
-	__block __unsafe_unretained id weakSelf = self;
+	__unsafe_unretained id weakSelf = self;
 	return [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
 		
 		RACTuple * (^currentValues)(void) = ^{

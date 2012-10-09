@@ -22,7 +22,7 @@ static const void *RACObjectDisposables = &RACObjectDisposables;
 		[subject sendCompleted];
 	}]];
 	
-	__block __unsafe_unretained NSObject *weakObject = object;
+	__unsafe_unretained NSObject *weakObject = object;
 	[object rac_addObserver:onObject forKeyPath:keyPath options:0 queue:[NSOperationQueue mainQueue] block:^(id target, NSDictionary *change) {
 		NSObject *strongObject = weakObject;
 		[subject sendNext:[strongObject valueForKeyPath:keyPath]];

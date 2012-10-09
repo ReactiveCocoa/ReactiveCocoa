@@ -1333,7 +1333,7 @@
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				VALID_ARCHS = "armv6 armv7 i386";
+				VALID_ARCHS = "armv6 armv7 armv7s i386";
 			};
 			name = Debug;
 		};
@@ -1346,7 +1346,7 @@
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				VALID_ARCHS = "armv6 armv7 i386";
+				VALID_ARCHS = "armv6 armv7 armv7s i386";
 			};
 			name = Release;
 		};
@@ -1395,7 +1395,7 @@
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				VALID_ARCHS = "armv6 armv7 i386";
+				VALID_ARCHS = "armv6 armv7 armv7s i386";
 			};
 			name = Profile;
 		};

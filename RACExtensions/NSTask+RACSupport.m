@@ -119,7 +119,7 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 		[self launch];
 	}];
 	
-	__unsafe_unretained NSTask *weakSelf = self;
+	__weak NSTask *weakSelf = self;
 	return [subject asCancelableWithBlock:^{
 		NSTask *strongSelf = weakSelf;
 		canceled = YES;

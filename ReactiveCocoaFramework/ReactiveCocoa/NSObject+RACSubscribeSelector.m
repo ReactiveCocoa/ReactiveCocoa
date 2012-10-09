@@ -19,7 +19,7 @@
 	invocation.selector = selector;
 	NSMutableArray *subscribeBlocks = [NSMutableArray array];
 
-	__unsafe_unretained id weakSelf = self;
+	__weak id weakSelf = self;
 
 	va_list args;
 	va_start(args, arg);

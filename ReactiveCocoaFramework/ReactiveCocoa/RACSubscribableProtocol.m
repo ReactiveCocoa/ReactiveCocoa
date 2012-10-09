@@ -99,7 +99,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 - (RACSubscribable *)injectObjectWeakly:(id)object {
-	__block __unsafe_unretained id weakObject = object;
+	__unsafe_unretained id weakObject = object;
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		return [self subscribeNext:^(id x) {
 			id strongObject = weakObject;

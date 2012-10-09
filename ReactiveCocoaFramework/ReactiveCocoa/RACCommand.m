@@ -44,7 +44,7 @@
 	
 	if (block != NULL) [self subscribeNext:block];
 		
-	__unsafe_unretained id weakSelf = self;
+	__weak id weakSelf = self;
 	[canExecuteSubscribable subscribe:[RACSubscriber subscriberWithNext:^(NSNumber *x) {
 		RACCommand *strongSelf = weakSelf;
 		strongSelf.canExecute = x.boolValue;

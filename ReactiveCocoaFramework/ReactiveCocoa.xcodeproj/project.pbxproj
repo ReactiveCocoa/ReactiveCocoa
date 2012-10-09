@@ -1398,7 +1398,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				INSTALL_PATH = "/usr/local/lib/$(PROJECT_NAME)";
+				PRIVATE_HEADERS_FOLDER_PATH = "/usr/local/include/$(PROJECT_NAME)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PUBLIC_HEADERS_FOLDER_PATH = "/usr/local/include/$(PROJECT_NAME)";
 				SDKROOT = iphoneos;
 				VALID_ARCHS = "armv6 armv7 armv7s i386";
 			};
@@ -1412,7 +1414,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				INSTALL_PATH = "/usr/local/lib/$(PROJECT_NAME)";
+				PRIVATE_HEADERS_FOLDER_PATH = "/usr/local/include/$(PROJECT_NAME)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PUBLIC_HEADERS_FOLDER_PATH = "/usr/local/include/$(PROJECT_NAME)";
 				SDKROOT = iphoneos;
 				VALID_ARCHS = "armv6 armv7 armv7s i386";
 			};
@@ -1462,7 +1466,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				INSTALL_PATH = "/usr/local/lib/$(PROJECT_NAME)";
+				PRIVATE_HEADERS_FOLDER_PATH = "/usr/local/include/$(PROJECT_NAME)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PUBLIC_HEADERS_FOLDER_PATH = "/usr/local/include/$(PROJECT_NAME)";
 				SDKROOT = iphoneos;
 				VALID_ARCHS = "armv6 armv7 armv7s i386";
 			};

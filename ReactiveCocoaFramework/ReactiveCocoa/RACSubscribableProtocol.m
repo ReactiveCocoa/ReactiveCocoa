@@ -601,6 +601,87 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
+- (RACSubscribable *)mergeConcurrent:(NSUInteger)maxConcurrent {
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		NSMutableSet *activeSubscribables = [NSMutableSet setWithObject:self];
+		NSMutableSet *completedSubscribables = [NSMutableSet set];
+		NSMutableSet *disposables = [NSMutableSet set];
+		NSMutableArray *queuedSubscribables = [NSMutableArray array];
+
+		__block void (^dequeueAndSubscribeIfAllowed)(void);
+		void (^completeSubscribable)(id<RACSubscribable>) = ^(id<RACSubscribable> subscribable) {
+			@synchronized(completedSubscribables) {
+				[completedSubscribables addObject:subscribable];
+
+				@synchronized(activeSubscribables) {
+					@synchronized(queuedSubscribables) {
+						if (completedSubscribables.count == activeSubscribables.count && queuedSubscribables.count < 1) {
+							[subscriber sendCompleted];
+						} else {
+							dequeueAndSubscribeIfAllowed();
+						}
+					}
+				}
+			}
+		};
+
+		void (^addDisposable)(RACDisposable *) = ^(RACDisposable *disposable) {
+			if (disposable == nil) return;
+			
+			@synchronized(disposables) {
+				[disposables addObject:disposable];
+			}
+		};
+
+		dequeueAndSubscribeIfAllowed = ^{
+			@synchronized(activeSubscribables) {
+				if (activeSubscribables.count >= maxConcurrent && maxConcurrent != 0) return;
+			}
+
+			id<RACSubscribable> subscribable;
+			@synchronized(queuedSubscribables) {
+				if (queuedSubscribables.count < 1) return;
+
+				subscribable = queuedSubscribables.lastObject;
+				[queuedSubscribables removeLastObject];
+			}
+
+			RACDisposable *disposable = [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
+				[subscriber sendNext:x];
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				completeSubscribable(subscribable);
+			}]];
+
+			addDisposable(disposable);
+		};
+
+		RACDisposable *disposable = [self subscribeNext:^(id x) {
+			NSAssert1([x conformsToProtocol:@protocol(RACSubscribable)], @"The source must be a subscribable of subscribables. Instead, got %@", x);
+
+			id<RACSubscribable> innerSubscribable = x;
+			@synchronized(queuedSubscribables) {
+				[queuedSubscribables addObject:innerSubscribable];
+			}
+
+			dequeueAndSubscribeIfAllowed();
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			completeSubscribable(self);
+		}];
+
+		addDisposable(disposable);
+
+		return [RACDisposable disposableWithBlock:^{
+			@synchronized(disposables) {
+				[disposables makeObjectsPerformSelector:@selector(dispose)];
+			}
+		}];
+	}];
+}
+
 - (RACSubscribable *)selectMany:(id<RACSubscribable> (^)(id x))selectBlock {
 	return [[self select:selectBlock] merge];
 }

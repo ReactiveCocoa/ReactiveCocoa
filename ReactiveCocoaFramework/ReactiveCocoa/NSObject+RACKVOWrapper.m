@@ -40,8 +40,8 @@ static NSMutableSet *swizzledClasses() {
 // These properties should only be manipulated while synchronized on the
 // receiver.
 @property (nonatomic, copy) RACKVOBlock block;
-@property (nonatomic, weak) NSObject *target;
-@property (nonatomic, weak) NSObject *observer;
+@property (nonatomic, unsafe_unretained) NSObject *target;
+@property (nonatomic, unsafe_unretained) NSObject *observer;
 
 - (void)addAsTrampolineOnObject:(NSObject *)obj;
 

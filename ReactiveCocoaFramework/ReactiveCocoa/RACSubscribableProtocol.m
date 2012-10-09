@@ -99,7 +99,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 - (RACSubscribable *)injectObjectWeakly:(id)object {
-	__weak id weakObject = object;
+	__unsafe_unretained id weakObject = object;
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		return [self subscribeNext:^(id x) {
 			id strongObject = weakObject;
@@ -741,13 +741,14 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	NSParameterAssert(keyPath != nil);
 	NSParameterAssert(object != nil);
 	
-	__weak NSObject *weakObject = object;
+	__block __unsafe_unretained NSObject *weakObject = object;
 	RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
 		NSObject *strongObject = weakObject;
 		[strongObject setValue:x forKeyPath:keyPath];
 	}];
 	
 	RACDisposable *disposable = [RACDisposable disposableWithBlock:^{
+		weakObject = nil;
 		[subscriptionDisposable dispose];
 	}];
 

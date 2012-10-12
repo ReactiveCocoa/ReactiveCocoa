@@ -610,16 +610,16 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 
 		__block void (^dequeueAndSubscribeIfAllowed)(void);
 		void (^completeSubscribable)(id<RACSubscribable>) = ^(id<RACSubscribable> subscribable) {
-			BOOL completed = NO;
 			@synchronized(completedSubscribables) {
 				[completedSubscribables addObject:subscribable];
+			}
 
-				@synchronized(activeSubscribables) {
-					[activeSubscribables removeObject:subscribable];
+			BOOL completed = NO;
+			@synchronized(activeSubscribables) {
+				[activeSubscribables removeObject:subscribable];
 
-					@synchronized(queuedSubscribables) {
-						completed = activeSubscribables.count < 1 && queuedSubscribables.count < 1;
-					}
+				@synchronized(queuedSubscribables) {
+					completed = activeSubscribables.count < 1 && queuedSubscribables.count < 1;
 				}
 			}
 

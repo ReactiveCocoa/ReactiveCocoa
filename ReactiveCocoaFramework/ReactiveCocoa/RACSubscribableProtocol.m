@@ -862,7 +862,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *innerDisposable = nil;
 		RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
-			NSAssert2([x conformsToProtocol:@protocol(RACSubscribable)], @"-switch requires that the source subscribable (%@) send subscribables. Instead we got: %@", self, x);
+			NSAssert([x conformsToProtocol:@protocol(RACSubscribable)] || x == nil, @"-switch requires that the source subscribable (%@) send subscribables. Instead we got: %@", self, x);
 			
 			[innerDisposable dispose], innerDisposable = nil;
 			
@@ -870,8 +870,6 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 				[subscriber sendNext:x];
 			} error:^(NSError *error) {
 				[subscriber sendError:error];
-			} completed:^{
-				
 			}];
 		} error:^(NSError *error) {
 			[subscriber sendError:error];

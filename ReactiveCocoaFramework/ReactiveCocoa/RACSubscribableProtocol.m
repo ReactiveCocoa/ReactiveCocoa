@@ -653,6 +653,10 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 				[queuedSubscribables removeObjectAtIndex:0];
 			}
 
+			@synchronized(activeSubscribables) {
+				[activeSubscribables addObject:subscribable];
+			}
+
 			RACDisposable *disposable = [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 				[subscriber sendNext:x];
 			} error:^(NSError *error) {

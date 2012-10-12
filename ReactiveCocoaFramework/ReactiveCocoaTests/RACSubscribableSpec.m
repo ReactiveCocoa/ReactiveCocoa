@@ -705,13 +705,13 @@ describe(@"-switch", ^{
 			[values addObject:x];
 		}];
 
-		[subject sendNext:[RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+		[subject sendNext:[RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendNext:@2];
 			return nil;
 		}]];
 
-		[subject sendNext:[RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+		[subject sendNext:[RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@3];
 			[subscriber sendNext:@4];
 			[subscriber sendCompleted];
@@ -731,7 +731,7 @@ describe(@"-switch", ^{
 
 		[subject sendNext:nil];
 
-		[subject sendNext:[RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+		[subject sendNext:[RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendNext:@2];
 			[subscriber sendCompleted];

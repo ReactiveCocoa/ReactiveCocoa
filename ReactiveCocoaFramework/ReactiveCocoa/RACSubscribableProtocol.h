@@ -157,6 +157,10 @@ typedef NSInteger RACSubscribableError;
 // Merges the subscribables sent by the receiver into a flattened subscribable,
 // but only subscribes to `maxConcurrent` at a time. New subscribables are
 // queued and subscribed to as other subscribables complete.
+//
+// maxConcurrent - the maximum number of subscribables to subscribe to at a
+//                 time. If 0, it subscribes to an unlimited number of
+//                 subscribables.
 - (RACSubscribable *)mergeConcurrent:(NSUInteger)maxConcurrent;
 
 // Gets a new subscribable for every `next` and sends `next` when any of those

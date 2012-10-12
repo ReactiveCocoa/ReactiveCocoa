@@ -649,8 +649,8 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 			@synchronized(queuedSubscribables) {
 				if (queuedSubscribables.count < 1) return;
 
-				subscribable = queuedSubscribables.lastObject;
-				[queuedSubscribables removeLastObject];
+				subscribable = queuedSubscribables[0];
+				[queuedSubscribables removeObjectAtIndex:0];
 			}
 
 			RACDisposable *disposable = [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {

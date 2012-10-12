@@ -697,4 +697,50 @@ describe(@"deallocation", ^{
 	});
 });
 
+describe(@"-switch", ^{
+	it(@"should send values from the most recent subscribable", ^{
+		RACSubject *subject = [RACSubject subject];
+		NSMutableArray *values = [NSMutableArray array];
+		[[subject switch] subscribeNext:^(id x) {
+			[values addObject:x];
+		}];
+
+		[subject sendNext:[RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendNext:@2];
+			return nil;
+		}]];
+
+		[subject sendNext:[RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@3];
+			[subscriber sendNext:@4];
+			[subscriber sendCompleted];
+			return nil;
+		}]];
+
+		NSArray *expected = @[ @1, @2, @3, @4 ];
+		expect(values).to.equal(expected);
+	});
+
+	it(@"should accept nil subscribables", ^{
+		RACSubject *subject = [RACSubject subject];
+		NSMutableArray *values = [NSMutableArray array];
+		[[subject switch] subscribeNext:^(id x) {
+			[values addObject:x];
+		}];
+
+		[subject sendNext:nil];
+
+		[subject sendNext:[RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendNext:@2];
+			[subscriber sendCompleted];
+			return nil;
+		}]];
+
+		NSArray *expected = @[ @1, @2 ];
+		expect(values).to.equal(expected);
+	});
+});
+
 SpecEnd

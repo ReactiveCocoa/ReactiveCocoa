@@ -812,6 +812,38 @@ describe(@"-mergeConcurrent:", ^{
 		NSArray *expected = @[ @1, @2, @3 ];
 		expect(values).to.equal(expected);
 	});
+
+	it(@"should complete only after the source and all its subscribables have completed", ^{
+		RACSubject *subject1 = [RACSubject subject];
+		RACSubject *subject2 = [RACSubject subject];
+		RACSubject *subject3 = [RACSubject subject];
+
+		RACSubject *subscribablesSubject = [RACSubject subject];
+		__block BOOL completed = NO;
+		[[subscribablesSubject mergeConcurrent:1] subscribeCompleted:^{
+			completed = YES;
+		}];
+
+		[subscribablesSubject sendNext:subject1];
+		[subject1 sendCompleted];
+
+		expect(completed).to.beFalsy();
+
+		[subscribablesSubject sendNext:subject2];
+		[subscribablesSubject sendNext:subject3];
+
+		[subscribablesSubject sendCompleted];
+
+		expect(completed).to.beFalsy();
+
+		[subject2 sendCompleted];
+
+		expect(completed).to.beFalsy();
+
+		[subject3 sendCompleted];
+
+		expect(completed).to.beTruthy();
+	});
 });
 
 SpecEnd

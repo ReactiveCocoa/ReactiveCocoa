@@ -615,6 +615,8 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 				[completedSubscribables addObject:subscribable];
 
 				@synchronized(activeSubscribables) {
+					[activeSubscribables removeObject:subscribable];
+
 					@synchronized(queuedSubscribables) {
 						completed = activeSubscribables.count < 1 && queuedSubscribables.count < 1;
 					}

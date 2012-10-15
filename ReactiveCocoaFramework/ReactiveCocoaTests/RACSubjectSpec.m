@@ -80,6 +80,31 @@ describe(@"RACAsyncSubject", ^{
 
 		expect(nextInvoked).to.beFalsy();
 	});
+
+	it(@"should resend errors", ^{
+		NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
+		[subject sendError:error];
+
+		__block BOOL errorSent = NO;
+		[subject subscribeError:^(NSError *sentError) {
+			expect(sentError).to.equal(error);
+			errorSent = YES;
+		}];
+
+		expect(errorSent).to.beTruthy();
+	});
+
+	it(@"should resend nil errors", ^{
+		[subject sendError:nil];
+
+		__block BOOL errorSent = NO;
+		[subject subscribeError:^(NSError *sentError) {
+			expect(sentError).to.beNil();
+			errorSent = YES;
+		}];
+
+		expect(errorSent).to.beTruthy();
+	});
 });
 
 describe(@"RACReplaySubject", ^{

@@ -7,7 +7,6 @@
 //
 
 #import "GHDUserViewController.h"
-#import "EXTKeyPathCoding.h"
 #import "GHDUserView.h"
 #import "GHGitHubUser.h"
 #import "GHGitHubClient.h"

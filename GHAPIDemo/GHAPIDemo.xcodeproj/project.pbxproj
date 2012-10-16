@@ -493,7 +493,7 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = GHD;
-				LastUpgradeCheck = 0430;
+				LastUpgradeCheck = 0450;
 				ORGANIZATIONNAME = "GitHub, Inc.";
 			};
 			buildConfigurationList = 884E048B1505ACEF00035AFC /* Build configuration list for PBXProject "GHAPIDemo" */;
@@ -801,6 +801,7 @@
 		884E04C41505ACF000035AFC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "GHAPIDemo/GHAPIDemo-Prefix.pch";
 				INFOPLIST_FILE = "GHAPIDemo/GHAPIDemo-Info.plist";
@@ -812,6 +813,7 @@
 		884E04C51505ACF000035AFC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "GHAPIDemo/GHAPIDemo-Prefix.pch";
 				INFOPLIST_FILE = "GHAPIDemo/GHAPIDemo-Info.plist";
@@ -824,6 +826,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/GHAPIDemo.app/Contents/MacOS/GHAPIDemo";
+				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "GHAPIDemo/GHAPIDemo-Prefix.pch";
@@ -843,6 +846,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/GHAPIDemo.app/Contents/MacOS/GHAPIDemo";
+				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "GHAPIDemo/GHAPIDemo-Prefix.pch";

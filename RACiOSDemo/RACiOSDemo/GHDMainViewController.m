@@ -7,7 +7,6 @@
 //
 
 #import "GHDMainViewController.h"
-#import "EXTKeyPathCoding.h"
 #import <ReactiveCocoa/ReactiveCocoa.h>
 #import "GHDMainView.h"
 

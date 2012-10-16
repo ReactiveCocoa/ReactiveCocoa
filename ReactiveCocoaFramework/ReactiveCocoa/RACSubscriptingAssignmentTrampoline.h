@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "EXTKeyPathCoding.h"
 #import "NSObject+RACPropertySubscribing.h"
 
 // Lets you assign a keypath / property to a subscribable. The value of the
@@ -24,7 +25,7 @@
 #define RAC(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))(_RAC_OBJ(self, __VA_ARGS__))(_RAC_OBJ(__VA_ARGS__))
 
 // Do not use this directly. Use the RAC macro above.
-#define _RAC_OBJ(obj, keypath) [RACSubscriptingAssignmentTrampoline trampoline][ [[RACSubscriptingAssignmentObjectKeyPathPair alloc] initWithObject:obj keyPath:RAC_KEYPATH(obj, keypath)] ]
+#define _RAC_OBJ(OBJ, KEYPATH) [RACSubscriptingAssignmentTrampoline trampoline][ [[RACSubscriptingAssignmentObjectKeyPathPair alloc] initWithObject:OBJ keyPath:@keypath(OBJ, KEYPATH)] ]
 
 @interface RACSubscriptingAssignmentObjectKeyPathPair : NSObject <NSCopying>
 

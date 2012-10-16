@@ -7,6 +7,7 @@
 //
 
 #import "GHDLoginViewController.h"
+#import "EXTKeyPathCoding.h"
 #import "GHDLoginView.h"
 #import "GHGitHubClient.h"
 #import "GHGitHubUser.h"
@@ -103,12 +104,12 @@
 		select:^id(id x) {
 			return [NSNumber numberWithBool:NO];
 		}] 
-		toProperty:RAC_KEYPATH_SELF(self.loggingIn) onObject:self];
+		toProperty:@keypath(self.loggingIn) onObject:self];
 	
 	// When either username or password change, hide the success or failure
 	// message.
 	[[[self 
-		rac_whenAny:[NSArray arrayWithObjects:RAC_KEYPATH_SELF(self.username), RAC_KEYPATH_SELF(self.password), nil] 
+		rac_whenAny:[NSArray arrayWithObjects:@keypath(self.username), @keypath(self.password), nil] 
 		reduce:^id(RACTuple *xs) {
 			return xs;
 		}] 
@@ -127,11 +128,11 @@
 - (void)loadView {
 	self.view = [GHDLoginView ghd_viewFromNib];
 	
-	[self.view.usernameTextField bind:NSValueBinding toObject:self withKeyPath:RAC_KEYPATH_SELF(self.username)];
-	[self.view.passwordTextField bind:NSValueBinding toObject:self withKeyPath:RAC_KEYPATH_SELF(self.password)];
-	[self.view.successTextField bind:NSHiddenBinding toObject:self withKeyPath:RAC_KEYPATH_SELF(self.successHidden)];
-	[self.view.couldNotLoginTextField bind:NSHiddenBinding toObject:self withKeyPath:RAC_KEYPATH_SELF(self.loginFailedHidden)];
-	[self.view.loggingInSpinner bind:NSHiddenBinding toObject:self withNegatedKeyPath:RAC_KEYPATH_SELF(self.loggingIn)];
+	[self.view.usernameTextField bind:NSValueBinding toObject:self withKeyPath:@keypath(self.username)];
+	[self.view.passwordTextField bind:NSValueBinding toObject:self withKeyPath:@keypath(self.password)];
+	[self.view.successTextField bind:NSHiddenBinding toObject:self withKeyPath:@keypath(self.successHidden)];
+	[self.view.couldNotLoginTextField bind:NSHiddenBinding toObject:self withKeyPath:@keypath(self.loginFailedHidden)];
+	[self.view.loggingInSpinner bind:NSHiddenBinding toObject:self withNegatedKeyPath:@keypath(self.loggingIn)];
 	
 	[self.view.loggingInSpinner startAnimation:nil];
 	

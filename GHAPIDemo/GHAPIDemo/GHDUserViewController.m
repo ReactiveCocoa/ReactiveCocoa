@@ -7,6 +7,7 @@
 //
 
 #import "GHDUserViewController.h"
+#import "EXTKeyPathCoding.h"
 #import "GHDUserView.h"
 #import "GHGitHubUser.h"
 #import "GHGitHubClient.h"
@@ -31,11 +32,11 @@
 	
 	[self.view.spinner startAnimation:nil];
 	
-	[self.view.usernameTextField bind:NSValueBinding toObject:self withKeyPath:RAC_KEYPATH_SELF(self.userAccount.username)];
-	[self.view.realNameTextField bind:NSValueBinding toObject:self withKeyPath:RAC_KEYPATH_SELF(self.userAccount.realName)];
-	[self.view.spinner bind:NSHiddenBinding toObject:self withNegatedKeyPath:RAC_KEYPATH_SELF(self.loading)];
-	[self.view.valuesContainerView bind:NSHiddenBinding toObject:self withKeyPath:RAC_KEYPATH_SELF(self.loading)];
-	[self.view.avatarImageView bind:NSValueBinding toObject:self withKeyPath:RAC_KEYPATH_SELF(self.avatar)];
+	[self.view.usernameTextField bind:NSValueBinding toObject:self withKeyPath:@keypath(self.userAccount.username)];
+	[self.view.realNameTextField bind:NSValueBinding toObject:self withKeyPath:@keypath(self.userAccount.realName)];
+	[self.view.spinner bind:NSHiddenBinding toObject:self withNegatedKeyPath:@keypath(self.loading)];
+	[self.view.valuesContainerView bind:NSHiddenBinding toObject:self withKeyPath:@keypath(self.loading)];
+	[self.view.avatarImageView bind:NSValueBinding toObject:self withKeyPath:@keypath(self.avatar)];
 }
 
 
@@ -97,7 +98,7 @@
 	// it loads.
 	[[RACSubscribable 
 		merge:[NSArray arrayWithObjects:[RACSubscribable return:[NSImage imageNamed:NSImageNameUser]], loadedAvatar, nil]] 
-		toProperty:RAC_KEYPATH_SELF(self.avatar) onObject:self];
+		toProperty:@keypath(self.avatar) onObject:self];
 	
 	return self;
 }

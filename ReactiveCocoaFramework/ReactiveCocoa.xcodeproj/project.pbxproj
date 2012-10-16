@@ -189,6 +189,8 @@
 		D0DFBCCE15DD6D40009DADB3 /* RACBacktrace.m in Sources */ = {isa = PBXBuildFile; fileRef = D0DFBCCD15DD6D40009DADB3 /* RACBacktrace.m */; };
 		D0DFBCCF15DD6D40009DADB3 /* RACBacktrace.m in Sources */ = {isa = PBXBuildFile; fileRef = D0DFBCCD15DD6D40009DADB3 /* RACBacktrace.m */; };
 		D0DFBCD015DD70CC009DADB3 /* ReactiveCocoa.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 88037F8315056328001A5B19 /* ReactiveCocoa.framework */; };
+		D0FA57E3162CFED200AC6F42 /* EXTKeyPathCoding.h in Headers */ = {isa = PBXBuildFile; fileRef = D0FA57E2162CFED200AC6F42 /* EXTKeyPathCoding.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D0FA57E4162CFED200AC6F42 /* EXTKeyPathCoding.h in Headers */ = {isa = PBXBuildFile; fileRef = D0FA57E2162CFED200AC6F42 /* EXTKeyPathCoding.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -344,7 +346,6 @@
 		886DCD85152EA272004A666F /* NSObject+RACOperations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACOperations.m"; sourceTree = "<group>"; };
 		886F70281551CF920045D68B /* RACGroupedSubscribable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACGroupedSubscribable.h; sourceTree = "<group>"; };
 		886F70291551CF920045D68B /* RACGroupedSubscribable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACGroupedSubscribable.m; sourceTree = "<group>"; };
-		888FA6A71613417F00CCAF86 /* metamacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = metamacros.h; path = libextobjc/extobjc/metamacros.h; sourceTree = "<group>"; };
 		88977C3D1512914A00A09EC5 /* RACSubscribable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSubscribable.m; sourceTree = "<group>"; };
 		88977C58151296D600A09EC5 /* RACSubscribable+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACSubscribable+Private.h"; sourceTree = "<group>"; };
 		889D0A7F15974B2A00F833E3 /* RACSubjectSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSubjectSpec.m; sourceTree = "<group>"; };
@@ -434,6 +435,7 @@
 		D0D910CC15F915BD00AD2DDA /* RACSubscribableProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACSubscribableProtocol.h; sourceTree = "<group>"; };
 		D0D910CD15F915BD00AD2DDA /* RACSubscribableProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSubscribableProtocol.m; sourceTree = "<group>"; };
 		D0DFBCCD15DD6D40009DADB3 /* RACBacktrace.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACBacktrace.m; sourceTree = "<group>"; };
+		D0FA57E2162CFED200AC6F42 /* EXTKeyPathCoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EXTKeyPathCoding.h; path = extobjc/EXTKeyPathCoding.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -620,7 +622,6 @@
 		88CDF7C615000FCE00163A9F /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				888FA6A71613417F00CCAF86 /* metamacros.h */,
 				88CDF7C715000FCE00163A9F /* ReactiveCocoa-Info.plist */,
 				88CDF7C815000FCE00163A9F /* InfoPlist.strings */,
 				88CDF7CD15000FCE00163A9F /* ReactiveCocoa-Prefix.pch */,
@@ -759,6 +760,7 @@
 			children = (
 				D026A04015F69FE70052F7FE /* EXTConcreteProtocol.h */,
 				D026A04115F69FE70052F7FE /* EXTConcreteProtocol.m */,
+				D0FA57E2162CFED200AC6F42 /* EXTKeyPathCoding.h */,
 				D026A04215F69FE70052F7FE /* EXTRuntimeExtensions.h */,
 				D026A04315F69FE70052F7FE /* EXTRuntimeExtensions.m */,
 				D026A04415F69FE70052F7FE /* metamacros.h */,
@@ -875,6 +877,7 @@
 				D026A04515F69FE70052F7FE /* EXTConcreteProtocol.h in Headers */,
 				D026A04D15F69FE70052F7FE /* metamacros.h in Headers */,
 				D0D910CE15F915BD00AD2DDA /* RACSubscribableProtocol.h in Headers */,
+				D0FA57E3162CFED200AC6F42 /* EXTKeyPathCoding.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -927,6 +930,7 @@
 				90AF46EB1625538E0054F8A0 /* NSObject+RACPropertySubscribing.h in Headers */,
 				90AF46EC1625538E0054F8A0 /* RACValueTransformer.h in Headers */,
 				90AF46ED162553A10054F8A0 /* EXTRuntimeExtensions.h in Headers */,
+				D0FA57E4162CFED200AC6F42 /* EXTKeyPathCoding.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

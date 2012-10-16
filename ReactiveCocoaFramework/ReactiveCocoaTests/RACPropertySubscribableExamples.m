@@ -7,6 +7,7 @@
 //
 
 #import "RACSpecs.h"
+#import "EXTKeyPathCoding.h"
 #import "RACTestObject.h"
 #import "RACSubject.h"
 #import "NSObject+RACPropertySubscribing.h"
@@ -26,7 +27,7 @@ sharedExamplesFor(RACPropertySubscribableExamples, ^(NSDictionary *data) {
 
 	it(@"should set the value of the property with the latest value from the subscribable", ^{
 		RACSubject *subject = [RACSubject subject];
-		setupBlock(testObject, RAC_KEYPATH(testObject, objectValue), subject);
+		setupBlock(testObject, @keypath(testObject.objectValue), subject);
 		expect(testObject.objectValue).to.beNil();
 
 		[subject sendNext:@1];
@@ -41,7 +42,7 @@ sharedExamplesFor(RACPropertySubscribableExamples, ^(NSDictionary *data) {
 
 	it(@"should set the value of a non-object property with the latest value from the subscribable", ^{
 		RACSubject *subject = [RACSubject subject];
-		setupBlock(testObject, RAC_KEYPATH(testObject, integerValue), subject);
+		setupBlock(testObject, @keypath(testObject.integerValue), subject);
 		expect(testObject.integerValue).to.equal(0);
 
 		[subject sendNext:@1];

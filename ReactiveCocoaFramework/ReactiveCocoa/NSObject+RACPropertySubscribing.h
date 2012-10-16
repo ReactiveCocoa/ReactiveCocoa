@@ -7,9 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-
-#define RAC_KEYPATH(object, property) ((void)(NO && ((void)object.property, NO)), @#property)
-#define RAC_KEYPATH_SELF(property) RAC_KEYPATH(self, property)
+#import "EXTKeyPathCoding.h"
+#import "metamacros.h"
 
 // Returns a subscribable for the given keypath / property on the given object.
 // If it is given one argument, the keypath / property is assumed to be on self.
@@ -23,14 +22,14 @@
 #define RACAble(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))(_RACAbleObject(self, __VA_ARGS__))(_RACAbleObject(__VA_ARGS__))
 
 // Do not use this directly. Use RACAble above.
-#define _RACAbleObject(object, property) [object rac_subscribableForKeyPath:RAC_KEYPATH(object, property) onObject:self]
+#define _RACAbleObject(object, property) [object rac_subscribableForKeyPath:@keypath(object, property) onObject:self]
 
 // Same as RACAble but the subscribable also starts with the current value of
 // the property.
 #define RACAbleWithStart(...) [RACAble(__VA_ARGS__) startWith:_RACAbleWithStartValue(__VA_ARGS__)]
 
 // Do not use this directly. Use RACAbleWithStart above.
-#define _RACAbleWithStartValue(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))([self valueForKeyPath:RAC_KEYPATH(self, __VA_ARGS__)])([metamacro_at0(__VA_ARGS__) valueForKeyPath:RAC_KEYPATH(__VA_ARGS__)])
+#define _RACAbleWithStartValue(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))([self valueForKeyPath:@keypath(self, __VA_ARGS__)])([metamacro_at0(__VA_ARGS__) valueForKeyPath:@keypath(__VA_ARGS__)])
 
 @class RACSubscribable;
 @class RACDisposable;

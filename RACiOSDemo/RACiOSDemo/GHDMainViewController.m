@@ -67,7 +67,7 @@
 	// Even though iOS doesn't give us bindings like AppKit, we can fake them 
 	// pretty easily using RAC.
 	[self rac_bind:@keypath(self.text) to:self.view.textField.rac_textSubscribable];
-    [self rac_bind:@keypath(self.text2) to:self.view.textView.rac_textSubscribable];
+	[self rac_bind:@keypath(self.text2) to:self.view.textView.rac_textSubscribable];
 }
 
 - (void)viewDidUnload {

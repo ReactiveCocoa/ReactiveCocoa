@@ -10,8 +10,6 @@
 #import "EXTKeyPathCoding.h"
 #import "metamacros.h"
 
-#define RAC_KEYPATH_SELF(property) @keypath(self, property)
-
 // Returns a subscribable for the given keypath / property on the given object.
 // If it is given one argument, the keypath / property is assumed to be on self.
 // If it is given two, the first argument is the object and the second is the

@@ -8,6 +8,7 @@
 
 #import "RACSpecs.h"
 
+#import "EXTKeyPathCoding.h"
 #import "RACSubscribable.h"
 #import "RACSubscriber.h"
 #import "RACSubject.h"
@@ -568,7 +569,7 @@ describe(@"-toProperty:onObject:", ^{
 		RACSubject *subject = [RACSubject subject];
 		@autoreleasepool {
 			RACTestObject *testObject __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			[subject toProperty:RAC_KEYPATH(testObject, objectValue) onObject:testObject];
+			[subject toProperty:@keypath(testObject.objectValue) onObject:testObject];
 			expect(testObject.objectValue).to.beNil();
 
 			[subject sendNext:@1];

@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "metamacros.h"
 
 #define RAC_KEYPATH(object, property) ((void)(NO && ((void)object.property, NO)), @#property)
 #define RAC_KEYPATH_SELF(property) RAC_KEYPATH(self, property)

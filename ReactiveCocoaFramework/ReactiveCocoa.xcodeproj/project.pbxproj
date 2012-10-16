@@ -344,7 +344,6 @@
 		886DCD85152EA272004A666F /* NSObject+RACOperations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACOperations.m"; sourceTree = "<group>"; };
 		886F70281551CF920045D68B /* RACGroupedSubscribable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACGroupedSubscribable.h; sourceTree = "<group>"; };
 		886F70291551CF920045D68B /* RACGroupedSubscribable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACGroupedSubscribable.m; sourceTree = "<group>"; };
-		888FA6A71613417F00CCAF86 /* metamacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = metamacros.h; path = libextobjc/extobjc/metamacros.h; sourceTree = "<group>"; };
 		88977C3D1512914A00A09EC5 /* RACSubscribable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSubscribable.m; sourceTree = "<group>"; };
 		88977C58151296D600A09EC5 /* RACSubscribable+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACSubscribable+Private.h"; sourceTree = "<group>"; };
 		889D0A7F15974B2A00F833E3 /* RACSubjectSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSubjectSpec.m; sourceTree = "<group>"; };
@@ -620,7 +619,6 @@
 		88CDF7C615000FCE00163A9F /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				888FA6A71613417F00CCAF86 /* metamacros.h */,
 				88CDF7C715000FCE00163A9F /* ReactiveCocoa-Info.plist */,
 				88CDF7C815000FCE00163A9F /* InfoPlist.strings */,
 				88CDF7CD15000FCE00163A9F /* ReactiveCocoa-Prefix.pch */,

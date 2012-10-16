@@ -7,6 +7,7 @@
 //
 
 #import "GHDMainViewController.h"
+#import "EXTKeyPathCoding.h"
 #import <ReactiveCocoa/ReactiveCocoa.h>
 #import "GHDMainView.h"
 
@@ -42,16 +43,16 @@
 		select:^(id x) {
 			return [x uppercaseString]; 
 		}]
-		toProperty:RAC_KEYPATH_SELF(self.label) onObject:self];
+		toProperty:@keypath(self.label) onObject:self];
     
     [[RACAble(self.text2)
         select:^id(id x) {
             return [x lowercaseString];
         }]
-        toProperty:RAC_KEYPATH_SELF(self.label2) onObject:self];
+        toProperty:@keypath(self.label2) onObject:self];
 	
-	[self rac_bind:RAC_KEYPATH_SELF(self.view.label.text) to:RACAble(self.label)];
-	[self rac_bind:RAC_KEYPATH_SELF(self.view.label2.text) to:RACAble(self.label2)];
+	[self rac_bind:@keypath(self.view.label.text) to:RACAble(self.label)];
+	[self rac_bind:@keypath(self.view.label2.text) to:RACAble(self.label2)];
 	
 	return self;
 }
@@ -65,8 +66,8 @@
 	
 	// Even though iOS doesn't give us bindings like AppKit, we can fake them 
 	// pretty easily using RAC.
-	[self rac_bind:RAC_KEYPATH_SELF(self.text) to:self.view.textField.rac_textSubscribable];
-    [self rac_bind:RAC_KEYPATH_SELF(self.text2) to:self.view.textView.rac_textSubscribable];
+	[self rac_bind:@keypath(self.text) to:self.view.textField.rac_textSubscribable];
+    [self rac_bind:@keypath(self.text2) to:self.view.textView.rac_textSubscribable];
 }
 
 - (void)viewDidUnload {

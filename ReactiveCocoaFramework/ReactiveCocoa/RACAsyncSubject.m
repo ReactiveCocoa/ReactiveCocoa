@@ -17,6 +17,7 @@
 @property (nonatomic, assign) BOOL hasLastValue;
 @property (nonatomic, assign) BOOL hasCompletedAlready;
 @property (nonatomic, strong) NSError *error;
+@property (nonatomic, assign) BOOL hasError;
 
 @end
 
@@ -33,7 +34,7 @@
 		if (self.hasCompletedAlready) {
 			[self sendCompleted];
 			[disposable dispose];
-		} else if (self.error != nil) {
+		} else if (self.hasError) {
 			[self sendError:self.error];
 			[disposable dispose];
 		}
@@ -64,6 +65,7 @@
 - (void)sendError:(NSError *)e {
 	@synchronized (self) {
 		self.error = e;
+		self.hasError = YES;
 	}
 	
 	[super sendError:e];

@@ -7,6 +7,7 @@
 //
 
 #import "GHDMainWindowController.h"
+#import "EXTKeyPathCoding.h"
 #import "GHDLoginViewController.h"
 #import "GHDUserViewController.h"
 #import "GHGitHubUser.h"
@@ -41,7 +42,7 @@
 		select:^(id x) {
 			return [[GHDUserViewController alloc] initWithUserAccount:x];
 		}]
-		toProperty:RAC_KEYPATH_SELF(self.currentViewController) onObject:self];
+		toProperty:@keypath(self.currentViewController) onObject:self];
 }
 
 

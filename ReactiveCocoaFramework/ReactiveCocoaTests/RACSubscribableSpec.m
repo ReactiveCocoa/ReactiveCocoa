@@ -8,6 +8,7 @@
 
 #import "RACSpecs.h"
 
+#import "EXTKeyPathCoding.h"
 #import "RACSubscribable.h"
 #import "RACSubscriber.h"
 #import "RACSubject.h"
@@ -568,7 +569,7 @@ describe(@"-toProperty:onObject:", ^{
 		RACSubject *subject = [RACSubject subject];
 		@autoreleasepool {
 			RACTestObject *testObject __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			[subject toProperty:RAC_KEYPATH(testObject, objectValue) onObject:testObject];
+			[subject toProperty:@keypath(testObject.objectValue) onObject:testObject];
 			expect(testObject.objectValue).to.beNil();
 
 			[subject sendNext:@1];
@@ -843,6 +844,52 @@ describe(@"-mergeConcurrent:", ^{
 		[subject3 sendCompleted];
 
 		expect(completed).to.beTruthy();
+	});
+});
+
+describe(@"-switch", ^{
+	it(@"should send values from the most recent subscribable", ^{
+		RACSubject *subject = [RACSubject subject];
+		NSMutableArray *values = [NSMutableArray array];
+		[[subject switch] subscribeNext:^(id x) {
+			[values addObject:x];
+		}];
+
+		[subject sendNext:[RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendNext:@2];
+			return nil;
+		}]];
+
+		[subject sendNext:[RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@3];
+			[subscriber sendNext:@4];
+			[subscriber sendCompleted];
+			return nil;
+		}]];
+
+		NSArray *expected = @[ @1, @2, @3, @4 ];
+		expect(values).to.equal(expected);
+	});
+
+	it(@"should accept nil subscribables", ^{
+		RACSubject *subject = [RACSubject subject];
+		NSMutableArray *values = [NSMutableArray array];
+		[[subject switch] subscribeNext:^(id x) {
+			[values addObject:x];
+		}];
+
+		[subject sendNext:nil];
+
+		[subject sendNext:[RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendNext:@2];
+			[subscriber sendCompleted];
+			return nil;
+		}]];
+
+		NSArray *expected = @[ @1, @2 ];
+		expect(values).to.equal(expected);
 	});
 });
 

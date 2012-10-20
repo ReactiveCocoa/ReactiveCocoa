@@ -7,6 +7,7 @@
 //
 
 #import "RACAsyncCommand.h"
+#import "EXTKeyPathCoding.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACScheduler.h"
 #import "RACTuple.h"
@@ -49,7 +50,7 @@
 			NSNumber *maxConcurrent = xs.third;
 			return @(canExecute.boolValue && executions.unsignedIntegerValue < maxConcurrent.unsignedIntegerValue);
 		}]
-		toProperty:RAC_KEYPATH_SELF(self.canExecute) onObject:self];
+		toProperty:@keypath(self.canExecute) onObject:self];
 	
 	return self;
 }

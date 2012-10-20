@@ -65,8 +65,8 @@ static NSMutableSet *activeSubscribables() {
 		[self.subscribers addObject:subscriber];
 	}
 	
-	__block __unsafe_unretained id weakSelf = self;
-	__block __unsafe_unretained id weakSubscriber = subscriber;
+	__weak id weakSelf = self;
+	__weak id weakSubscriber = subscriber;
 	RACDisposable *defaultDisposable = [RACDisposable disposableWithBlock:^{
 		RACSubscribable *strongSelf = weakSelf;
 		id<RACSubscriber> strongSubscriber = weakSubscriber;

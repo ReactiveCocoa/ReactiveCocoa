@@ -158,6 +158,10 @@ typedef NSInteger RACSubscribableError;
 // but only subscribes to `maxConcurrent` at a time. New subscribables are
 // queued and subscribed to as other subscribables complete.
 //
+// If an error occurs on any of the subscribables, it it sent on the returned
+// subscribable. It completes only after the receiver and all sent subscribables
+// have completed.
+//
 // maxConcurrent - the maximum number of subscribables to subscribe to at a
 //                 time. If 0, it subscribes to an unlimited number of
 //                 subscribables.

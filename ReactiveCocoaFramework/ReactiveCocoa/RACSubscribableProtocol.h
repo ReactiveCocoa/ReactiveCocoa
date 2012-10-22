@@ -140,7 +140,7 @@ typedef NSInteger RACSubscribableError;
 // The `next` of the returned subscribable will be the return value of the
 // `reduceBlock`. The argument to `reduceBlock` is a RACTuple of the values from
 // the subscribables.
-+ (RACSubscribable *)combineLatest:(NSArray *)subscribables reduce:(id (^)(RACTuple *xs))reduceBlock;
++ (RACSubscribable *)combineLatest:(NSArray *)subscribables reduce:(id)reduceBlock;
 
 // Sends a `+[RACUnit defaultUnit]` when all the subscribables have sent a `next`.
 + (RACSubscribable *)whenAll:(NSArray *)subscribables;

@@ -18,4 +18,4 @@ SKIP_INSTALL = YES
 SUPPORTED_PLATFORMS = iphonesimulator iphoneos
 
 // Supported architectures
-VALID_ARCHS = armv6 armv7 i386
+VALID_ARCHS = armv6 armv7 armv7s i386

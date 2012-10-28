@@ -8,6 +8,7 @@
 
 #import "RACSpecs.h"
 #import "RACBlockTrampoline.h"
+#import "RACTuple.h"
 
 SpecBegin(RACBlockTrampoline)
 
@@ -26,12 +27,23 @@ it(@"should invoke the block with the given arguments", ^{
 });
 
 it(@"should return the result of the block invocation", ^{
-	id (^block)(NSString *) = ^(NSString *string) {
+	NSString * (^block)(NSString *) = ^(NSString *string) {
 		return string.uppercaseString;
 	};
 
 	NSString *result = [RACBlockTrampoline invokeBlock:block withArguments:@[ @"hi" ]];
 	expect(result).to.equal(@"HI");
+});
+
+it(@"should pass RACTupleNils as nil", ^{
+	__block id arg;
+	id (^block)(id) = ^ id (id obj) {
+		arg = obj;
+		return nil;
+	};
+
+	[RACBlockTrampoline invokeBlock:block withArguments:@[ RACTupleNil.tupleNil ]];
+	expect(arg).to.beNil();
 });
 
 SpecEnd

@@ -21,6 +21,7 @@
 #import "RACUnit.h"
 #import <libkern/OSAtomic.h>
 #import "NSObject+RACPropertySubscribing.h"
+#import "NSObject+RACFastEnumeration.h"
 
 NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 
@@ -503,99 +504,95 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 + (RACSubscribable *)merge:(NSArray *)subscribables {
+	return [subscribables.rac_toSubscribable merge];
+}
+
+- (RACSubscribable *)merge {
+	return [self merge:0];
+}
+
+- (RACSubscribable *)merge:(NSUInteger)maxConcurrent {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
-		NSMutableSet *disposables = [NSMutableSet setWithCapacity:subscribables.count];
-		NSMutableSet *completedSubscribables = [NSMutableSet setWithCapacity:subscribables.count];
-		for(id<RACSubscribable> subscribable in subscribables) {
+		NSMutableSet *activeSubscribables = [NSMutableSet setWithObject:self];
+		NSMutableSet *disposables = [NSMutableSet set];
+		NSMutableArray *queuedSubscribables = [NSMutableArray array];
+
+		// Returns whether the subscribable should complete.
+		__block BOOL (^dequeueAndSubscribeIfAllowed)(void);
+		void (^completeSubscribable)(id<RACSubscribable>) = ^(id<RACSubscribable> subscribable) {
+			@synchronized(activeSubscribables) {
+				[activeSubscribables removeObject:subscribable];
+			}
+			
+			BOOL completed = dequeueAndSubscribeIfAllowed();
+			if (completed) {
+				[subscriber sendCompleted];
+			}
+		};
+
+		void (^addDisposable)(RACDisposable *) = ^(RACDisposable *disposable) {
+			if (disposable == nil) return;
+			
+			@synchronized(disposables) {
+				[disposables addObject:disposable];
+			}
+		};
+
+		dequeueAndSubscribeIfAllowed = ^{
+			id<RACSubscribable> subscribable;
+			@synchronized(activeSubscribables) {
+				@synchronized(queuedSubscribables) {
+					BOOL completed = activeSubscribables.count < 1 && queuedSubscribables.count < 1;
+					if (completed) return YES;
+
+					// We add one to maxConcurrent since self is an active
+					// subscribable at the start and we don't want that to count
+					// against the max.
+					NSUInteger maxIncludingSelf = maxConcurrent + ([activeSubscribables containsObject:self] ? 1 : 0);
+					if (activeSubscribables.count >= maxIncludingSelf && maxConcurrent != 0) return NO;
+
+					if (queuedSubscribables.count < 1) return NO;
+
+					subscribable = queuedSubscribables[0];
+					[queuedSubscribables removeObjectAtIndex:0];
+
+					[activeSubscribables addObject:subscribable];
+				}
+			}
+
 			RACDisposable *disposable = [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 				[subscriber sendNext:x];
 			} error:^(NSError *error) {
 				[subscriber sendError:error];
 			} completed:^{
-				@synchronized(completedSubscribables) {
-					[completedSubscribables addObject:subscribable];
-					if(completedSubscribables.count == subscribables.count) {
-						[subscriber sendCompleted];
-					}
-				}
+				completeSubscribable(subscribable);
 			}]];
 
-			if (disposable != nil) {
-				@synchronized(disposables) {
-					[disposables addObject:disposable];
-				}
-			}
-		}
-		
-		return [RACDisposable disposableWithBlock:^{
-			@synchronized(disposables) {
-				[disposables makeObjectsPerformSelector:@selector(dispose)];
-			}
-		}];
-	}];
-}
+			addDisposable(disposable);
 
-- (RACSubscribable *)merge:(RACSubscribable *)subscribable {
-	return [[self class] merge:[NSArray arrayWithObjects:self, subscribable, nil]];
-}
+			return NO;
+		};
 
-- (RACSubscribable *)merge {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
-		NSMutableSet *activeSubscribables = [NSMutableSet set];
-		[activeSubscribables addObject:self];
-		
-		NSMutableSet *completedSubscribables = [NSMutableSet set];
-		NSMutableSet *innerDisposables = [NSMutableSet set];
-		RACDisposable *outerDisposable = [self subscribeNext:^(id x) {
-			NSAssert1([x conformsToProtocol:@protocol(RACSubscribable)], @"The source must be a subscribable of subscribables. Instead, got %@", x);
-			
+		RACDisposable *disposable = [self subscribeNext:^(id x) {
+			NSAssert([x conformsToProtocol:@protocol(RACSubscribable)], @"The source must be a subscribable of subscribables. Instead, got %@", x);
+
 			id<RACSubscribable> innerSubscribable = x;
-			@synchronized(activeSubscribables) {
-				[activeSubscribables addObject:innerSubscribable];
+			@synchronized(queuedSubscribables) {
+				[queuedSubscribables addObject:innerSubscribable];
 			}
-			
-			RACDisposable *disposable = [innerSubscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
-				[subscriber sendNext:x];
-			} error:^(NSError *error) {
-				[subscriber sendError:error];
-			} completed:^{
-				@synchronized(completedSubscribables) {
-					[completedSubscribables addObject:innerSubscribable];
-					
-					@synchronized(activeSubscribables) {
-						if(completedSubscribables.count == activeSubscribables.count) {
-							[subscriber sendCompleted];
-						}
-					}
-				}
-			}]];
 
-			if (disposable != nil) {
-				@synchronized(innerDisposables) {
-					[innerDisposables addObject:disposable];
-				}
-			}
+			dequeueAndSubscribeIfAllowed();
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
-			@synchronized(completedSubscribables) {
-				[completedSubscribables addObject:self];
-				
-				@synchronized(activeSubscribables) {
-					if(completedSubscribables.count == activeSubscribables.count) {
-						[subscriber sendCompleted];
-					}
-				}
-			}
+			completeSubscribable(self);
 		}];
-		
-		return [RACDisposable disposableWithBlock:^{
-			[outerDisposable dispose];
 
-			@synchronized(innerDisposables) {
-				for(RACDisposable *innerDisposable in innerDisposables) {
-					[innerDisposable dispose];
-				}
+		addDisposable(disposable);
+
+		return [RACDisposable disposableWithBlock:^{
+			@synchronized(disposables) {
+				[disposables makeObjectsPerformSelector:@selector(dispose)];
 			}
 		}];
 	}];

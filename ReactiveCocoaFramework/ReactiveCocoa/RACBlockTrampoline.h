@@ -8,17 +8,17 @@
 
 #import <Foundation/Foundation.h>
 
-// Allows a certain subset of dynamic block invocation.
+// Allows a limited type of dynamic block invocation.
 @interface RACBlockTrampoline : NSObject
 
-// Invokes the given block with the given arguments. The block must accept all
-// object arguments.
+// Invokes the given block with the given arguments. All of the block's
+// argument types must be objects and it must be typed to return an object.
 //
-// At this time, it only supports blocks that take up to 15 arguments. It will
-// assert when give more arguments than that.
+// At this time, it only supports blocks that take up to 15 arguments. Any more
+// is just cray.
 //
-// block - The block to invoke. Must accept all object arguments and return an
-//         object. Cannot be nil.
+// block - The block to invoke. Must accept as many arguments as are given in
+//         the arguments array. Cannot be nil.
 // arguments - The arguments with which to invoke the block. `RACTupleNil`s will
 //             be passed as nils.
 //

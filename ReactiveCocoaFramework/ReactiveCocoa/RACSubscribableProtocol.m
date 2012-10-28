@@ -579,7 +579,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		};
 
 		RACDisposable *disposable = [self subscribeNext:^(id x) {
-			NSAssert1([x conformsToProtocol:@protocol(RACSubscribable)], @"The source must be a subscribable of subscribables. Instead, got %@", x);
+			NSAssert([x conformsToProtocol:@protocol(RACSubscribable)], @"The source must be a subscribable of subscribables. Instead, got %@", x);
 
 			id<RACSubscribable> innerSubscribable = x;
 			@synchronized(queuedSubscribables) {

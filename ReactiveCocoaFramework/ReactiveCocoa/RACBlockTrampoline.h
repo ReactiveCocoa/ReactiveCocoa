@@ -14,6 +14,9 @@
 // Invokes the given block with the given arguments. The block must accept all
 // object arguments.
 //
+// At this time, it only supports blocks that take up to 15 arguments. It will
+// assert when give more arguments than that.
+//
 // block - The block to invoke. Must accept all object arguments and return an
 //         object. Cannot be nil.
 // arguments - The arguments with which to invoke the block. `RACTupleNil`s will

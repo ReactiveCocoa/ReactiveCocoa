@@ -41,12 +41,12 @@
 
 	for (NSUInteger i = 0; i < arguments.count; i++) {
 		id arg = arguments[i];
-		NSInteger argIndex = (NSInteger)(i + 2);
 		if ([arg isKindOfClass:RACTupleNil.class]) {
-			[invocation setArgument:nil atIndex:argIndex];
-		} else {
-			[invocation setArgument:&arg atIndex:argIndex];
+			arg = nil;
 		}
+
+		NSInteger argIndex = (NSInteger)(i + 2);
+		[invocation setArgument:&arg atIndex:argIndex];
 	}
 
 	[invocation invoke];

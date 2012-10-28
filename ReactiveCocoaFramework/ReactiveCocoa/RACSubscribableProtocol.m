@@ -544,21 +544,20 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		};
 
 		dequeueAndSubscribeIfAllowed = ^{
+			id<RACSubscribable> subscribable;
 			@synchronized(activeSubscribables) {
 				// We add one to maxConcurrent since self is an active
 				// subscribable at the start.
-				if (activeSubscribables.count >= maxConcurrent + 1 && maxConcurrent != 0) return;
-			}
+				NSUInteger maxIncludingSelf = maxConcurrent + ([activeSubscribables containsObject:self] ? 1 : 0);
+				if (activeSubscribables.count >= maxIncludingSelf && maxConcurrent != 0) return;
 
-			id<RACSubscribable> subscribable;
-			@synchronized(queuedSubscribables) {
-				if (queuedSubscribables.count < 1) return;
+				@synchronized(queuedSubscribables) {
+					if (queuedSubscribables.count < 1) return;
 
-				subscribable = queuedSubscribables[0];
-				[queuedSubscribables removeObjectAtIndex:0];
-			}
+					subscribable = queuedSubscribables[0];
+					[queuedSubscribables removeObjectAtIndex:0];
+				}
 
-			@synchronized(activeSubscribables) {
 				[activeSubscribables addObject:subscribable];
 			}
 

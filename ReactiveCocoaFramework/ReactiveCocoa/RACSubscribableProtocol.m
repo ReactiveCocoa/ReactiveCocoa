@@ -514,16 +514,11 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 - (RACSubscribable *)merge:(NSUInteger)maxConcurrent {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		NSMutableSet *activeSubscribables = [NSMutableSet setWithObject:self];
-		NSMutableSet *completedSubscribables = [NSMutableSet set];
 		NSMutableSet *disposables = [NSMutableSet set];
 		NSMutableArray *queuedSubscribables = [NSMutableArray array];
 
 		__block void (^dequeueAndSubscribeIfAllowed)(void);
 		void (^completeSubscribable)(id<RACSubscribable>) = ^(id<RACSubscribable> subscribable) {
-			@synchronized(completedSubscribables) {
-				[completedSubscribables addObject:subscribable];
-			}
-
 			BOOL completed = NO;
 			@synchronized(activeSubscribables) {
 				[activeSubscribables removeObject:subscribable];

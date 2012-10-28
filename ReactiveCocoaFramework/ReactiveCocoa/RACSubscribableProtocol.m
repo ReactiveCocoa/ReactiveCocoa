@@ -507,15 +507,11 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	return [subscribables.rac_toSubscribable merge];
 }
 
-- (RACSubscribable *)merge:(RACSubscribable *)subscribable {
-	return [self.class merge:@[ self, subscribable ]];
-}
-
 - (RACSubscribable *)merge {
-	return [self mergeConcurrent:0];
+	return [self merge:0];
 }
 
-- (RACSubscribable *)mergeConcurrent:(NSUInteger)maxConcurrent {
+- (RACSubscribable *)merge:(NSUInteger)maxConcurrent {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		NSMutableSet *activeSubscribables = [NSMutableSet setWithObject:self];
 		NSMutableSet *completedSubscribables = [NSMutableSet set];

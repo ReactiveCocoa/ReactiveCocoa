@@ -13,8 +13,8 @@
 @implementation UITextField (RACSubscribableSupport)
 
 - (RACSubscribable *)rac_textSubscribable {
-	return [[self rac_subscribableForControlEvents:UIControlEventEditingChanged] select:^(id x) {
-		return [x text];
+	return [[[self rac_subscribableForControlEvents:UIControlEventEditingChanged] startWith:self] select:^(UITextField *x) {
+		return x.text;
 	}];
 }
 

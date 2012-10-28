@@ -27,6 +27,8 @@
 }
 
 + (id)invokeBlock:(id)block withArguments:(NSArray *)arguments {
+	NSParameterAssert(block != NULL);
+
 	RACBlockTrampoline *trampoline = [[self alloc] initWithBlock:block];
 	return [trampoline invokeWithArguments:arguments];
 }

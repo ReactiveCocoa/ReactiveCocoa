@@ -800,31 +800,47 @@ describe(@"+merge:", ^{
 });
 
 describe(@"-merge:", ^{
+	__block BOOL subscribedTo1 = NO;
+	__block BOOL subscribedTo2 = NO;
+	__block BOOL subscribedTo3 = NO;
+	__block RACSubscribable *sub1;
+	__block RACSubscribable *sub2;
+	__block RACSubscribable *sub3;
+	__block RACSubject *subject1;
+	__block RACSubject *subject2;
+	__block RACSubject *subject3;
+	__block RACSubject *subscribablesSubject;
+	__block NSMutableArray *values;
+	
+	beforeEach(^{
+		subscribedTo1 = NO;
+		subject1 = [RACSubject subject];
+		sub1 = [RACSubscribable defer:^{
+			subscribedTo1 = YES;
+			return subject1;
+		}];
+
+		subscribedTo2 = NO;
+		subject2 = [RACSubject subject];
+		sub2 = [RACSubscribable defer:^{
+			subscribedTo2 = YES;
+			return subject2;
+		}];
+
+		subscribedTo3 = NO;
+		subject3 = [RACSubject subject];
+		sub3 = [RACSubscribable defer:^{
+			subscribedTo3 = YES;
+			return subject3;
+		}];
+
+		subscribablesSubject = [RACSubject subject];
+
+		values = [NSMutableArray array];
+	});
+
 	describe(@"when its max is 0", ^{
 		it(@"should merge all the subscribables concurrently", ^{
-			__block BOOL subscribedTo1 = NO;
-			RACSubject *subject1 = [RACSubject subject];
-			RACSubscribable *sub1 = [RACSubscribable defer:^{
-				subscribedTo1 = YES;
-				return subject1;
-			}];
-
-			__block BOOL subscribedTo2 = NO;
-			RACSubject *subject2 = [RACSubject subject];
-			RACSubscribable *sub2 = [RACSubscribable defer:^{
-				subscribedTo2 = YES;
-				return subject2;
-			}];
-
-			__block BOOL subscribedTo3 = NO;
-			RACSubject *subject3 = [RACSubject subject];
-			RACSubscribable *sub3 = [RACSubscribable defer:^{
-				subscribedTo3 = YES;
-				return subject3;
-			}];
-
-			RACSubject *subscribablesSubject = [RACSubject subject];
-			NSMutableArray *values = [NSMutableArray array];
 			[[subscribablesSubject merge:0] subscribeNext:^(id x) {
 				[values addObject:x];
 			}];
@@ -862,29 +878,6 @@ describe(@"-merge:", ^{
 
 	describe(@"when its max is > 0", ^{
 		it(@"should merge only the given number at a time", ^{
-			__block BOOL subscribedTo1 = NO;
-			RACSubject *subject1 = [RACSubject subject];
-			RACSubscribable *sub1 = [RACSubscribable defer:^{
-				subscribedTo1 = YES;
-				return subject1;
-			}];
-
-			__block BOOL subscribedTo2 = NO;
-			RACSubject *subject2 = [RACSubject subject];
-			RACSubscribable *sub2 = [RACSubscribable defer:^{
-				subscribedTo2 = YES;
-				return subject2;
-			}];
-
-			__block BOOL subscribedTo3 = NO;
-			RACSubject *subject3 = [RACSubject subject];
-			RACSubscribable *sub3 = [RACSubscribable defer:^{
-				subscribedTo3 = YES;
-				return subject3;
-			}];
-
-			RACSubject *subscribablesSubject = [RACSubject subject];
-			NSMutableArray *values = [NSMutableArray array];
 			[[subscribablesSubject merge:1] subscribeNext:^(id x) {
 				[values addObject:x];
 			}];

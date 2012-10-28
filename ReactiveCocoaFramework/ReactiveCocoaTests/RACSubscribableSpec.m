@@ -332,7 +332,7 @@ describe(@"continuation", ^{
 	});
 });
 
-describe(@"combineLatest", ^{
+describe(@"-combineLatest:", ^{
 	__block id<RACSubscriber> subscriber1 = nil;
 	__block id<RACSubscriber> subscriber2 = nil;
 	__block RACSubscribable *subscribable1 = nil;

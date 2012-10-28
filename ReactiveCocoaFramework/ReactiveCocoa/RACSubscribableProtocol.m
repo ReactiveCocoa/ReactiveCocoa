@@ -517,21 +517,16 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		NSMutableSet *disposables = [NSMutableSet set];
 		NSMutableArray *queuedSubscribables = [NSMutableArray array];
 
-		__block void (^dequeueAndSubscribeIfAllowed)(void);
+		// Returns whether the subscribable should complete.
+		__block BOOL (^dequeueAndSubscribeIfAllowed)(void);
 		void (^completeSubscribable)(id<RACSubscribable>) = ^(id<RACSubscribable> subscribable) {
-			BOOL completed = NO;
 			@synchronized(activeSubscribables) {
 				[activeSubscribables removeObject:subscribable];
-
-				@synchronized(queuedSubscribables) {
-					completed = activeSubscribables.count < 1 && queuedSubscribables.count < 1;
-				}
 			}
-
+			
+			BOOL completed = dequeueAndSubscribeIfAllowed();
 			if (completed) {
 				[subscriber sendCompleted];
-			} else {
-				dequeueAndSubscribeIfAllowed();
 			}
 		};
 
@@ -546,19 +541,23 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		dequeueAndSubscribeIfAllowed = ^{
 			id<RACSubscribable> subscribable;
 			@synchronized(activeSubscribables) {
-				// We add one to maxConcurrent since self is an active
-				// subscribable at the start.
-				NSUInteger maxIncludingSelf = maxConcurrent + ([activeSubscribables containsObject:self] ? 1 : 0);
-				if (activeSubscribables.count >= maxIncludingSelf && maxConcurrent != 0) return;
-
 				@synchronized(queuedSubscribables) {
-					if (queuedSubscribables.count < 1) return;
+					BOOL completed = activeSubscribables.count < 1 && queuedSubscribables.count < 1;
+					if (completed) return YES;
+
+					// We add one to maxConcurrent since self is an active
+					// subscribable at the start and we don't want that to count
+					// against the max.
+					NSUInteger maxIncludingSelf = maxConcurrent + ([activeSubscribables containsObject:self] ? 1 : 0);
+					if (activeSubscribables.count >= maxIncludingSelf && maxConcurrent != 0) return NO;
+
+					if (queuedSubscribables.count < 1) return NO;
 
 					subscribable = queuedSubscribables[0];
 					[queuedSubscribables removeObjectAtIndex:0];
-				}
 
-				[activeSubscribables addObject:subscribable];
+					[activeSubscribables addObject:subscribable];
+				}
 			}
 
 			RACDisposable *disposable = [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
@@ -570,6 +569,8 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 			}]];
 
 			addDisposable(disposable);
+
+			return NO;
 		};
 
 		RACDisposable *disposable = [self subscribeNext:^(id x) {

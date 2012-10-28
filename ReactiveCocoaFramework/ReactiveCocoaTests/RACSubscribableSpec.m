@@ -859,6 +859,9 @@ describe(@"-merge:", ^{
 			[subject1 sendNext:@1];
 
 			[subscribablesSubject sendNext:sub3];
+			
+			expect(subscribedTo1).to.beTruthy();
+			expect(subscribedTo2).to.beTruthy();
 			expect(subscribedTo3).to.beTruthy();
 
 			[subject1 sendCompleted];

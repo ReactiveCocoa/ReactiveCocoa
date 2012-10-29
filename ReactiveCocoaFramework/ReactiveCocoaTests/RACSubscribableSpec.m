@@ -22,6 +22,46 @@
 #import "RACPropertySubscribableExamples.h"
 #import "RACAsyncSubject.h"
 
+static NSString * const RACSubscribableMergeConcurrentCompletionExampleGroup = @"RACSubscribableMergeConcurrentCompletionExampleGroup";
+static NSString * const RACSubscribableMaxConcurrent = @"RACSubscribableMaxConcurrent";
+SharedExampleGroupsBegin(mergeConcurrentCompletionName);
+
+sharedExamplesFor(RACSubscribableMergeConcurrentCompletionExampleGroup, ^(NSDictionary *data) {
+	it(@"should complete only after the source and all its subscribables have completed", ^{
+		RACSubject *subject1 = [RACSubject subject];
+		RACSubject *subject2 = [RACSubject subject];
+		RACSubject *subject3 = [RACSubject subject];
+
+		RACSubject *subscribablesSubject = [RACSubject subject];
+		__block BOOL completed = NO;
+		[[subscribablesSubject merge:[data[RACSubscribableMaxConcurrent] unsignedIntegerValue]] subscribeCompleted:^{
+			completed = YES;
+		}];
+
+		[subscribablesSubject sendNext:subject1];
+		[subject1 sendCompleted];
+
+		expect(completed).to.beFalsy();
+
+		[subscribablesSubject sendNext:subject2];
+		[subscribablesSubject sendNext:subject3];
+
+		[subscribablesSubject sendCompleted];
+
+		expect(completed).to.beFalsy();
+
+		[subject2 sendCompleted];
+
+		expect(completed).to.beFalsy();
+
+		[subject3 sendCompleted];
+
+		expect(completed).to.beTruthy();
+	});
+});
+
+SharedExampleGroupsEnd
+
 SpecBegin(RACSubscribable)
 
 describe(@"subscribing", ^{
@@ -695,6 +735,199 @@ describe(@"deallocation", ^{
 		Expecta.asynchronousTestTimeout = 1.1f;
 		expect(deallocd).will.beTruthy();
 		Expecta.asynchronousTestTimeout = originalTestTimeout;
+	});
+});
+
+describe(@"+merge:", ^{
+	__block RACSubject *sub1;
+	__block RACSubject *sub2;
+	__block RACSubscribable *merged;
+	beforeEach(^{
+		sub1 = [RACSubject subject];
+		sub2 = [RACSubject subject];
+		merged = [RACSubscribable merge:@[ sub1, sub2 ]];
+	});
+
+	it(@"should send all values from both subscribables", ^{
+		NSMutableArray *values = [NSMutableArray array];
+		[merged subscribeNext:^(id x) {
+			[values addObject:x];
+		}];
+
+		[sub1 sendNext:@1];
+		[sub2 sendNext:@2];
+		[sub2 sendNext:@3];
+		[sub1 sendNext:@4];
+
+		NSArray *expected = @[ @1, @2, @3, @4 ];
+		expect(values).to.equal(expected);
+	});
+
+	it(@"should send an error if one occurs", ^{
+		__block NSError *errorReceived;
+		[merged subscribeError:^(NSError *error) {
+			errorReceived = error;
+		}];
+
+		NSError *error = [NSError errorWithDomain:@"" code:0 userInfo:nil];
+		[sub1 sendError:error];
+
+		expect(errorReceived).to.equal(error);
+	});
+
+	it(@"should complete only after both subscribables complete", ^{
+		NSMutableArray *values = [NSMutableArray array];
+		__block BOOL completed = NO;
+		[merged subscribeNext:^(id x) {
+			[values addObject:x];
+		} completed:^{
+			completed = YES;
+		}];
+
+		[sub1 sendNext:@1];
+		[sub2 sendNext:@2];
+		[sub2 sendNext:@3];
+		[sub2 sendCompleted];
+		expect(completed).to.beFalsy();
+
+		[sub1 sendNext:@4];
+		[sub1 sendCompleted];
+		expect(completed).to.beTruthy();
+
+		NSArray *expected = @[ @1, @2, @3, @4 ];
+		expect(values).to.equal(expected);
+	});
+});
+
+describe(@"-merge:", ^{
+	__block BOOL subscribedTo1 = NO;
+	__block BOOL subscribedTo2 = NO;
+	__block BOOL subscribedTo3 = NO;
+	__block RACSubscribable *sub1;
+	__block RACSubscribable *sub2;
+	__block RACSubscribable *sub3;
+	__block RACSubject *subject1;
+	__block RACSubject *subject2;
+	__block RACSubject *subject3;
+	__block RACSubject *subscribablesSubject;
+	__block NSMutableArray *values;
+	
+	beforeEach(^{
+		subscribedTo1 = NO;
+		subject1 = [RACSubject subject];
+		sub1 = [RACSubscribable defer:^{
+			subscribedTo1 = YES;
+			return subject1;
+		}];
+
+		subscribedTo2 = NO;
+		subject2 = [RACSubject subject];
+		sub2 = [RACSubscribable defer:^{
+			subscribedTo2 = YES;
+			return subject2;
+		}];
+
+		subscribedTo3 = NO;
+		subject3 = [RACSubject subject];
+		sub3 = [RACSubscribable defer:^{
+			subscribedTo3 = YES;
+			return subject3;
+		}];
+
+		subscribablesSubject = [RACSubject subject];
+
+		values = [NSMutableArray array];
+	});
+
+	describe(@"when its max is 0", ^{
+		it(@"should merge all the subscribables concurrently", ^{
+			[[subscribablesSubject merge:0] subscribeNext:^(id x) {
+				[values addObject:x];
+			}];
+
+			expect(subscribedTo1).to.beFalsy();
+			expect(subscribedTo2).to.beFalsy();
+			expect(subscribedTo3).to.beFalsy();
+
+			[subscribablesSubject sendNext:sub1];
+			[subscribablesSubject sendNext:sub2];
+
+			expect(subscribedTo1).to.beTruthy();
+			expect(subscribedTo2).to.beTruthy();
+			expect(subscribedTo3).to.beFalsy();
+
+			[subject1 sendNext:@1];
+
+			[subscribablesSubject sendNext:sub3];
+			
+			expect(subscribedTo1).to.beTruthy();
+			expect(subscribedTo2).to.beTruthy();
+			expect(subscribedTo3).to.beTruthy();
+
+			[subject1 sendCompleted];
+
+			[subject2 sendNext:@2];
+			[subject2 sendCompleted];
+
+			[subject3 sendNext:@3];
+			[subject3 sendCompleted];
+
+			NSArray *expected = @[ @1, @2, @3 ];
+			expect(values).to.equal(expected);
+		});
+
+		itShouldBehaveLike(RACSubscribableMergeConcurrentCompletionExampleGroup, @{ RACSubscribableMaxConcurrent: @0 });
+	});
+
+	describe(@"when its max is > 0", ^{
+		it(@"should merge only the given number at a time", ^{
+			[[subscribablesSubject merge:1] subscribeNext:^(id x) {
+				[values addObject:x];
+			}];
+
+			expect(subscribedTo1).to.beFalsy();
+			expect(subscribedTo2).to.beFalsy();
+			expect(subscribedTo3).to.beFalsy();
+
+			[subscribablesSubject sendNext:sub1];
+			[subscribablesSubject sendNext:sub2];
+
+			expect(subscribedTo1).to.beTruthy();
+			expect(subscribedTo2).to.beFalsy();
+			expect(subscribedTo3).to.beFalsy();
+
+			[subject1 sendNext:@1];
+
+			[subscribablesSubject sendNext:sub3];
+
+			expect(subscribedTo1).to.beTruthy();
+			expect(subscribedTo2).to.beFalsy();
+			expect(subscribedTo3).to.beFalsy();
+
+			[subscribablesSubject sendCompleted];
+
+			expect(subscribedTo1).to.beTruthy();
+			expect(subscribedTo2).to.beFalsy();
+			expect(subscribedTo3).to.beFalsy();
+
+			[subject1 sendCompleted];
+
+			expect(subscribedTo2).to.beTruthy();
+			expect(subscribedTo3).to.beFalsy();
+
+			[subject2 sendNext:@2];
+			[subject2 sendCompleted];
+
+			expect(subscribedTo3).to.beTruthy();
+
+			[subject3 sendNext:@3];
+			[subject3 sendCompleted];
+
+			NSArray *expected = @[ @1, @2, @3 ];
+			expect(values).to.equal(expected);
+		});
+
+		itShouldBehaveLike(RACSubscribableMergeConcurrentCompletionExampleGroup, @{ RACSubscribableMaxConcurrent: @1 });
 	});
 });
 

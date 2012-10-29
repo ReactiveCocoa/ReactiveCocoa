@@ -10,15 +10,14 @@
 #import "RACSubscribable.h"
 #import "RACSubscriber.h"
 
-
 @implementation NSObject (RACFastEnumeration)
 
 - (RACSubscribable *)rac_toSubscribable {
 	NSParameterAssert([self conformsToProtocol:@protocol(NSFastEnumeration)]);
 	
-	return [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
-		id<NSFastEnumeration> fastEnumerable = (id<NSFastEnumeration>) self;
-		for(id object in fastEnumerable) {
+	return [RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		id<NSFastEnumeration> fastEnumerable = (id<NSFastEnumeration>)self;
+		for (id object in fastEnumerable) {
 			[subscriber sendNext:object];
 		}
 		

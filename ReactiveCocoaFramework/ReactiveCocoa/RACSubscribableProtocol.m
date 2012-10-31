@@ -611,7 +611,20 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 - (RACSubscribable *)sequenceNext:(id<RACSubscribable> (^)(void))block {
-	return [[self takeLast:1] sequenceMany:block];
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		__block RACDisposable *concattedDisposable = nil;
+
+		RACDisposable *sourceDisposable = [self subscribeError:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			concattedDisposable = [block() subscribe:subscriber];
+		}];
+		
+		return [RACDisposable disposableWithBlock:^{
+			[sourceDisposable dispose];
+			[concattedDisposable dispose];
+		}];
+	}];
 }
 
 - (RACSubscribable *)concat:(id<RACSubscribable>)subscribable {

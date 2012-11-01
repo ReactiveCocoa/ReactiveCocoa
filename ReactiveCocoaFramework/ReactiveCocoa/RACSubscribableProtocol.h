@@ -219,9 +219,6 @@ typedef NSInteger RACSubscribableError;
 // Both success and error may be NULL.
 - (id)firstOrDefault:(id)defaultValue success:(BOOL *)success error:(NSError **)error;
 
-// Skip the first `skipCount` `next`s.
-- (id<RACSubscribable>)skip:(NSUInteger)skipCount;
-
 // Skips values until the block returns YES.
 - (id<RACSubscribable>)skipUntilBlock:(BOOL (^)(id x))block;
 

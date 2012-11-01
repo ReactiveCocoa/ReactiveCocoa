@@ -10,6 +10,8 @@
 
 @concreteprotocol(RACStream)
 
+#pragma mark Required primitives
+
 + (instancetype)empty {
 	return nil;
 }
@@ -26,6 +28,8 @@
 	return nil;
 }
 
+#pragma mark Concrete methods
+
 - (instancetype)flatten {
 	return [self bind:^(id value) {
 		NSAssert([value conformsToProtocol:@protocol(RACStream)], @"Stream %@ being flattened contains an object that is not a stream: %@", self, value);
@@ -41,6 +45,18 @@
 
 - (instancetype)startWith:(id)value {
 	return [[self.class return:value] concat:self];
+}
+
+- (instancetype)skip:(NSUInteger)skipCount {
+	__block NSUInteger skipped = 0;
+	return [self bind:^(id value) {
+		if (skipped >= skipCount) {
+			return [self.class return:value];
+		}
+
+		skipped++;
+		return self.class.empty;
+	}];
 }
 
 @end

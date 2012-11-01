@@ -936,23 +936,6 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)skip:(NSUInteger)skipCount {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
-		__block NSUInteger skipped = 0;
-		return [self subscribeNext:^(id x) {
-			if(skipped >= skipCount) {
-				[subscriber sendNext:x];
-			}
-			
-			skipped++;
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendCompleted];
-		}];
-	}];
-}
-
 - (id<RACSubscribable>)skipUntilBlock:(BOOL (^)(id x))block {
 	NSParameterAssert(block != NULL);
 	

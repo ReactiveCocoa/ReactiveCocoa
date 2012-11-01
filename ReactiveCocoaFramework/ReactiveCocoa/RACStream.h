@@ -64,4 +64,11 @@
 // receiver.
 - (instancetype)startWith:(id)value;
 
+// Skips the first `skipCount` values in the receiver.
+//
+// Returns the receiver after skipping the first `skipCount` values. If
+// `skipCount` is greater than the number of values in the stream, an empty
+// stream is returned.
+- (instancetype)skip:(NSUInteger)skipCount;
+
 @end

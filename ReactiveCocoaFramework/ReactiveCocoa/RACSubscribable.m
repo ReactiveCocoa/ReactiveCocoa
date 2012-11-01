@@ -104,6 +104,10 @@ static NSMutableSet *activeSubscribables() {
 	}];
 }
 
+- (instancetype)flatten {
+	return [self merge];
+}
+
 #pragma mark RACSubscribable
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {

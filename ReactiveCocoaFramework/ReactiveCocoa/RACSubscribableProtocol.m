@@ -47,6 +47,10 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	return nil;
 }
 
+- (instancetype)flatten {
+	return nil;
+}
+
 #pragma mark RACSubscribable
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {

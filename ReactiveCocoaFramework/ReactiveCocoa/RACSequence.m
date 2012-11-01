@@ -16,7 +16,7 @@
 #pragma mark Lifecycle
 
 + (RACSequence *)sequenceWithConcatenatedSequences:(NSArray *)seqs {
-	return [RACArraySequence sequenceWithArray:seqs offset:0].flattenedSequence;
+	return [RACArraySequence sequenceWithArray:seqs offset:0].flatten;
 }
 
 #pragma mark Class cluster primitives
@@ -57,7 +57,7 @@
 - (instancetype)concat:(id<RACStream>)stream {
 	NSParameterAssert(stream != nil);
 
-	return [RACArraySequence sequenceWithArray:@[ self, stream ] offset:0].flattenedSequence;
+	return [RACArraySequence sequenceWithArray:@[ self, stream ] offset:0].flatten;
 }
 
 #pragma mark Extended methods
@@ -90,7 +90,7 @@
 	}];
 }
 
-- (RACSequence *)flattenedSequence {
+- (RACSequence *)flatten {
 	__block RACSequence *(^nextSequence)(RACSequence *, RACSequence *);
 	
 	nextSequence = [^ RACSequence * (RACSequence *current, RACSequence *remainingSeqs) {

@@ -26,6 +26,10 @@
 	return nil;
 }
 
+- (instancetype)flatten {
+	return nil;
+}
+
 - (instancetype)map:(id (^)(id value))block {
 	return [self bind:^(id value) {
 		return [self.class return:block(value)];

@@ -47,6 +47,12 @@
 // Returns a new stream representing the receiver followed by `stream`.
 - (instancetype)concat:(id<RACStream>)stream;
 
+// Flattens a stream of streams.
+//
+// Returns a stream consisting of the concatenated streams obtained from the
+// receiver.
+- (instancetype)flatten;
+
 @concrete
 
 // Maps `block` across the values in the receiver.

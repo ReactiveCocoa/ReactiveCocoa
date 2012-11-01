@@ -39,10 +39,4 @@
 // the number of items in the sequence, nil is returned.
 - (RACSequence *)drop:(NSUInteger)count;
 
-// Flattens a sequence of sequences.
-//
-// Returns a sequence consisting of the concatenated sequences obtained from the
-// receiver.
-- (RACSequence *)flattenedSequence;
-
 @end

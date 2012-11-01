@@ -41,6 +41,29 @@ describe(@"NSArray sequences", ^{
 	});
 });
 
+describe(@"NSSet sequences", ^{
+	__block NSMutableSet *values;
+	__block RACSequence *sequence;
+
+	before(^{
+		values = [NSMutableSet setWithArray:@[ @0, @1, @2, @3, @4, @5 ]];
+		sequence = values.rac_sequence;
+	});
+
+	it(@"should initialize", ^{
+		expect(sequence).notTo.beNil();
+
+		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values.allObjects });
+	});
+
+	it(@"should not change even if the underlying set does", ^{
+		NSArray *unchangedValues = [values.allObjects copy];
+		[values addObject:@6];
+
+		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: unchangedValues });
+	});
+});
+
 describe(@"NSString sequences", ^{
 	__block NSMutableString *string;
 	__block NSArray *values;

@@ -34,6 +34,7 @@
 #import <ReactiveCocoa/RACScheduler.h>
 #import <ReactiveCocoa/RACScopedDisposable.h>
 #import <ReactiveCocoa/RACSequence.h>
+#import <ReactiveCocoa/RACStream.h>
 #import <ReactiveCocoa/RACSubject.h>
 #import <ReactiveCocoa/RACSubscribable.h>
 #import <ReactiveCocoa/RACSubscribableProtocol.h>

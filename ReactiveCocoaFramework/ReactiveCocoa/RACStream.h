@@ -10,7 +10,7 @@
 #import "EXTConcreteProtocol.h"
 
 // A concrete protocol representing any stream of values. Implemented by
-// RACSubscribable and RACStream.
+// RACSubscribable and RACSequence.
 //
 // This protocol represents a monad, upon which many stream-based operations can
 // be built.

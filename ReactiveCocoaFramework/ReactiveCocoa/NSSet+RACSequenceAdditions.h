@@ -15,6 +15,6 @@
 // Creates and returns a sequence corresponding to the receiver.
 //
 // Mutating the receiver will not affect the sequence after it's been created.
-@property (nonatomic, copy, readonly) RACSequence *mtl_sequence;
+@property (nonatomic, copy, readonly) RACSequence *rac_sequence;
 
 @end

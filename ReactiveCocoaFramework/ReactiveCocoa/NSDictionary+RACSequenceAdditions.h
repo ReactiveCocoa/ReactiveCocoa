@@ -15,11 +15,11 @@
 // Creates and returns a sequence corresponding to the keys in the receiver.
 //
 // Mutating the receiver will not affect the sequence after it's been created.
-@property (nonatomic, copy, readonly) RACSequence *mtl_sequence;
+@property (nonatomic, copy, readonly) RACSequence *rac_sequence;
 
 // Creates and returns a sequence corresponding to the values in the receiver.
 //
 // Mutating the receiver will not affect the sequence after it's been created.
-@property (nonatomic, copy, readonly) RACSequence *mtl_valueSequence;
+@property (nonatomic, copy, readonly) RACSequence *rac_valueSequence;
 
 @end

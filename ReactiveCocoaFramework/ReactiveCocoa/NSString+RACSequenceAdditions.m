@@ -11,7 +11,7 @@
 
 @implementation NSString (RACSequenceAdditions)
 
-- (RACSequence *)mtl_sequence {
+- (RACSequence *)rac_sequence {
 	return [RACStringSequence sequenceWithString:self offset:0];
 }
 

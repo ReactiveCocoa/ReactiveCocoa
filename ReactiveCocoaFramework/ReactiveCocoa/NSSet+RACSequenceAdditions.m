@@ -11,9 +11,9 @@
 
 @implementation NSSet (RACSequenceAdditions)
 
-- (RACSequence *)mtl_sequence {
+- (RACSequence *)rac_sequence {
 	// TODO: First class support for set sequences.
-	return self.allObjects.mtl_sequence;
+	return self.allObjects.rac_sequence;
 }
 
 @end

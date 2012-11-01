@@ -13,12 +13,12 @@
 
 // TODO: Sequence of key/value pairs.
 
-- (RACSequence *)mtl_sequence {
-	return self.allKeys.mtl_sequence;
+- (RACSequence *)rac_sequence {
+	return self.allKeys.rac_sequence;
 }
 
-- (RACSequence *)mtl_valueSequence {
-	return self.allValues.mtl_sequence;
+- (RACSequence *)rac_valueSequence {
+	return self.allValues.rac_sequence;
 }
 
 @end

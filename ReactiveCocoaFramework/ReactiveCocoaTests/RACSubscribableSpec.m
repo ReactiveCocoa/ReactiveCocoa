@@ -977,4 +977,23 @@ describe(@"-switch", ^{
 	});
 });
 
+describe(@"-interval:onScheduler:", ^{
+	void (^expectItToWorkWithScheduler)(RACScheduler *) = ^(RACScheduler *scheduler) {
+		__block NSUInteger nextsReceived = 0;
+		[[[RACSubscribable interval:0.1 onScheduler:scheduler] take:3] subscribeNext:^(id _) {
+			nextsReceived++;
+		}];
+
+		expect(nextsReceived).will.equal(3);
+	};
+
+	it(@"should fire repeatedly at every interval", ^{
+		expectItToWorkWithScheduler(RACScheduler.mainQueueScheduler);
+	});
+
+	it(@"should work on a background scheduler", ^{
+		expectItToWorkWithScheduler(RACScheduler.backgroundScheduler);
+	});
+});
+
 SpecEnd

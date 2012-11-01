@@ -769,29 +769,34 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 + (RACSubscribable *)interval:(NSTimeInterval)interval {
-	__block RACSubscribable *subscribable = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
-		__block BOOL stop = NO;
-		
-		dispatch_time_t (^nextFutureTime)(void) = ^{
-			return dispatch_time(DISPATCH_TIME_NOW, (int64_t) (interval * NSEC_PER_SEC));
+	return [self interval:interval onScheduler:RACScheduler.backgroundScheduler];
+}
+
++ (RACSubscribable *)interval:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler {
+	NSParameterAssert(scheduler != nil);
+
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		__block volatile uint32_t stop = 0;
+		__block void (^scheduleNextTime)(void) = ^{
+			dispatch_time_t nextFutureTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(interval * NSEC_PER_SEC));
+			dispatch_after(nextFutureTime, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+				if (stop == 1) return;
+
+				[scheduler schedule:^{
+					scheduleNextTime();
+					[subscriber sendNext:NSDate.date];
+				}];
+			});
 		};
-		
-		__block void (^sendNext)(void) = ^{
-			if(stop) return;
-			
-			[subscriber sendNext:[RACUnit defaultUnit]];
-			
-			dispatch_after(nextFutureTime(), dispatch_get_current_queue(), sendNext);
-		};
-		
-		dispatch_after(nextFutureTime(), dispatch_get_current_queue(), sendNext);
-		
+
+		[scheduler schedule:^{
+			scheduleNextTime();
+		}];
+
 		return [RACDisposable disposableWithBlock:^{
-			stop = YES;
+			OSAtomicOr32Barrier(1, &stop);
 		}];
 	}];
-	
-	return subscribable;
 }
 
 - (RACSubscribable *)takeUntil:(id<RACSubscribable>)subscribableTrigger {

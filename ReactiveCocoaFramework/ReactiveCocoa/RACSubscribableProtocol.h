@@ -199,7 +199,17 @@ typedef NSInteger RACSubscribableError;
 // Send `next` with `initialValue` before getting the first `next`.
 - (RACSubscribable *)startWith:(id)initialValue;
 
-// Sends `+[RACUnit defaultUnit]` every `interval` seconds.
+// Sends +[NSDate date] every `interval` seconds on the given scheduler.
+//
+// interval - The time interval in seconds at which the current time is sent.
+// scheduler - The scheduler on which the interval is calculated and sent.
+//             Cannot be nil.
+//
+// Returns a subscribable that sends the current date/time every `interval`.
++ (RACSubscribable *)interval:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler;
+
+// Calls +interval:onScheduler: with the given interval and the
+// RACScheduler.backgroundScheduler scheduler.
 + (RACSubscribable *)interval:(NSTimeInterval)interval;
 
 // Take `next`s until the `subscribableTrigger` sends a `next`.

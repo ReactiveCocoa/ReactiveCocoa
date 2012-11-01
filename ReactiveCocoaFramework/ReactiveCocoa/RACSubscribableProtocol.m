@@ -29,6 +29,10 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 
 #pragma mark RACStream
 
++ (instancetype)empty {
+	return nil;
+}
+
 + (instancetype)return:(id)value {
 	return nil;
 }

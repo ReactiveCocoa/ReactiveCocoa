@@ -22,6 +22,9 @@
 @protocol RACStream <NSObject>
 @required
 
+// Returns an empty stream.
++ (instancetype)empty;
+
 // Lifts `value` into the stream monad.
 //
 // Returns a stream containing only the given value.

@@ -26,7 +26,7 @@
 + (RACSequence *)sequenceWithString:(NSString *)string offset:(NSUInteger)offset {
 	NSParameterAssert(offset <= string.length);
 
-	if (offset == string.length) return self.emptySequence;
+	if (offset == string.length) return self.empty;
 
 	RACStringSequence *seq = [[self alloc] init];
 	seq->_string = [string copy];

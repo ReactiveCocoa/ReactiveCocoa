@@ -28,9 +28,6 @@
 // Evaluates the full sequence to produce an equivalently-sized array.
 @property (nonatomic, copy, readonly) NSArray *array;
 
-// Returns an empty sequence.
-+ (RACSequence *)emptySequence;
-
 // Returns a sequence consisting of the objects in the given sequences, lazily
 // appended.
 + (RACSequence *)sequenceWithConcatenatedSequences:(NSArray *)seqs;

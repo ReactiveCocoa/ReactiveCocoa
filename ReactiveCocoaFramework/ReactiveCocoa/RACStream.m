@@ -10,6 +10,10 @@
 
 @concreteprotocol(RACStream)
 
++ (instancetype)empty {
+	return nil;
+}
+
 + (instancetype)return:(id)value {
 	return nil;
 }

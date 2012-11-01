@@ -29,7 +29,7 @@
 + (RACSequence *)sequenceWithArray:(NSArray *)array offset:(NSUInteger)offset {
 	NSParameterAssert(offset <= array.count);
 
-	if (offset == array.count) return self.emptySequence;
+	if (offset == array.count) return self.empty;
 
 	RACArraySequence *seq = [[self alloc] init];
 	seq->_backingArray = [array copy];

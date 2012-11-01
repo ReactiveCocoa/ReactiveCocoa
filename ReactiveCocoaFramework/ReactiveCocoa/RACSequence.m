@@ -15,10 +15,6 @@
 
 #pragma mark Lifecycle
 
-+ (RACSequence *)emptySequence {
-	return RACEmptySequence.emptySequence;
-}
-
 + (RACSequence *)sequenceWithConcatenatedSequences:(NSArray *)seqs {
 	return [RACArraySequence sequenceWithArray:seqs offset:0].flattenedSequence;
 }
@@ -36,6 +32,10 @@
 }
 
 #pragma mark RACStream
+
++ (instancetype)empty {
+	return RACEmptySequence.empty;
+}
 
 + (instancetype)return:(id)value {
 	return [RACDynamicSequence sequenceWithHeadBlock:^{

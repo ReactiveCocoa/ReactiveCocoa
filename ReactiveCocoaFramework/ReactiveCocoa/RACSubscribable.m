@@ -57,8 +57,15 @@ static NSMutableSet *activeSubscribables() {
 
 #pragma mark RACStream
 
++ (instancetype)empty {
+	return [self createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		[subscriber sendCompleted];
+		return nil;
+	}];
+}
+
 + (instancetype)return:(id)value {
-	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+	return [self createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		[subscriber sendNext:value];
 		[subscriber sendCompleted];
 		return nil;
@@ -133,13 +140,6 @@ static NSMutableSet *activeSubscribables() {
 + (instancetype)error:(NSError *)error {
 	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
 		[subscriber sendError:error];
-		return nil;
-	}];
-}
-
-+ (instancetype)empty {
-	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
-		[subscriber sendCompleted];
 		return nil;
 	}];
 }

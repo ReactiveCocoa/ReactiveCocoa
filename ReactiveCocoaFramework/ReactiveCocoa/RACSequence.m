@@ -113,34 +113,6 @@
 	}];
 }
 
-- (RACSequence *)flatten {
-	__block RACSequence *(^nextSequence)(RACSequence *, RACSequence *);
-	
-	nextSequence = [^ RACSequence * (RACSequence *current, RACSequence *remainingSeqs) {
-		if (current == nil) {
-			// We've exhausted one sequence, try the next.
-			current = remainingSeqs.head;
-
-			if (current == nil) {
-				// We've exhausted all the sequences.
-				return nil;
-			}
-
-			remainingSeqs = remainingSeqs.tail;
-		}
-
-		NSAssert([current isKindOfClass:RACSequence.class], @"Sequence being flattened contains an object that is not a sequence: %@", current);
-
-		return [RACDynamicSequence sequenceWithHeadBlock:^{
-			return current.head;
-		} tailBlock:^{
-			return nextSequence(current.tail, remainingSeqs);
-		}];
-	} copy];
-
-	return nextSequence(self.head, self.tail);
-}
-
 #pragma mark NSCopying
 
 - (id)copyWithZone:(NSZone *)zone {

@@ -15,6 +15,10 @@
 
 #pragma mark Lifecycle
 
++ (RACSequence *)sequenceWithHeadBlock:(id (^)(void))headBlock tailBlock:(RACSequence *(^)(void))tailBlock {
+	return [RACDynamicSequence sequenceWithHeadBlock:headBlock tailBlock:tailBlock];
+}
+
 + (RACSequence *)sequenceWithConcatenatedSequences:(NSArray *)seqs {
 	return [RACArraySequence sequenceWithArray:seqs offset:0].flatten;
 }

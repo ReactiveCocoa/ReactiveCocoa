@@ -27,7 +27,6 @@
 #import <ReactiveCocoa/RACCommand.h>
 #import <ReactiveCocoa/RACConnectableSubscribable.h>
 #import <ReactiveCocoa/RACDisposable.h>
-#import <ReactiveCocoa/RACDynamicSequence.h>
 #import <ReactiveCocoa/RACGroupedSubscribable.h>
 #import <ReactiveCocoa/RACMaybe.h>
 #import <ReactiveCocoa/RACReplaySubject.h>

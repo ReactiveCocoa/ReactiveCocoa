@@ -211,8 +211,6 @@
 		D0E9677E1641EF9C00FCFF06 /* NSString+RACSequenceAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = D0E967601641EF9C00FCFF06 /* NSString+RACSequenceAdditions.m */; };
 		D0E967811641EF9C00FCFF06 /* RACArraySequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D0E967621641EF9C00FCFF06 /* RACArraySequence.m */; };
 		D0E967821641EF9C00FCFF06 /* RACArraySequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D0E967621641EF9C00FCFF06 /* RACArraySequence.m */; };
-		D0E967831641EF9C00FCFF06 /* RACDynamicSequence.h in Headers */ = {isa = PBXBuildFile; fileRef = D0E967631641EF9C00FCFF06 /* RACDynamicSequence.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D0E967841641EF9C00FCFF06 /* RACDynamicSequence.h in Headers */ = {isa = PBXBuildFile; fileRef = D0E967631641EF9C00FCFF06 /* RACDynamicSequence.h */; settings = {ATTRIBUTES = (); }; };
 		D0E967851641EF9C00FCFF06 /* RACDynamicSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D0E967641641EF9C00FCFF06 /* RACDynamicSequence.m */; };
 		D0E967861641EF9C00FCFF06 /* RACDynamicSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D0E967641641EF9C00FCFF06 /* RACDynamicSequence.m */; };
 		D0E967891641EF9C00FCFF06 /* RACEmptySequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D0E967661641EF9C00FCFF06 /* RACEmptySequence.m */; };
@@ -1007,7 +1005,6 @@
 				D0E967731641EF9C00FCFF06 /* NSOrderedSet+RACSequenceAdditions.h in Headers */,
 				D0E967771641EF9C00FCFF06 /* NSSet+RACSequenceAdditions.h in Headers */,
 				D0E9677B1641EF9C00FCFF06 /* NSString+RACSequenceAdditions.h in Headers */,
-				D0E967831641EF9C00FCFF06 /* RACDynamicSequence.h in Headers */,
 				D0E9678B1641EF9C00FCFF06 /* RACSequence.h in Headers */,
 				D0E967951641F07900FCFF06 /* EXTScope.h in Headers */,
 				D0E967991641F0AF00FCFF06 /* NSObject+RACExtensions.h in Headers */,
@@ -1032,7 +1029,6 @@
 				D0E967741641EF9C00FCFF06 /* NSOrderedSet+RACSequenceAdditions.h in Headers */,
 				D0E967781641EF9C00FCFF06 /* NSSet+RACSequenceAdditions.h in Headers */,
 				D0E9677C1641EF9C00FCFF06 /* NSString+RACSequenceAdditions.h in Headers */,
-				D0E967841641EF9C00FCFF06 /* RACDynamicSequence.h in Headers */,
 				D0E9678C1641EF9C00FCFF06 /* RACSequence.h in Headers */,
 				A1FCC3791567DED0008C9686 /* RACDelegateProxy.h in Headers */,
 				8809D6EF15B1F1EE007E32AA /* JRSwizzle.h in Headers */,

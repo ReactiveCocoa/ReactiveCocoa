@@ -8,11 +8,6 @@
 
 #import "RACSequence.h"
 
-// A sequence implemented dynamically using blocks.
+// Private class that implements a sequence dynamically using blocks.
 @interface RACDynamicSequence : RACSequence
-
-// Returns a sequence that lazily invokes the given blocks to provide head and
-// tail. `headBlock` must not be nil.
-+ (RACSequence *)sequenceWithHeadBlock:(id (^)(void))headBlock tailBlock:(RACSequence *(^)(void))tailBlock;
-
 @end

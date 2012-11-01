@@ -28,6 +28,10 @@
 // Evaluates the full sequence to produce an equivalently-sized array.
 @property (nonatomic, copy, readonly) NSArray *array;
 
+// Returns a sequence that lazily invokes the given blocks to provide head and
+// tail. `headBlock` must not be nil.
++ (RACSequence *)sequenceWithHeadBlock:(id (^)(void))headBlock tailBlock:(RACSequence *(^)(void))tailBlock;
+
 // Returns a sequence consisting of the objects in the given sequences, lazily
 // appended.
 + (RACSequence *)sequenceWithConcatenatedSequences:(NSArray *)seqs;

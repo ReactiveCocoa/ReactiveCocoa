@@ -48,15 +48,33 @@
 }
 
 - (instancetype)bind:(id (^)(id value))block {
-	NSMutableArray *sequences = [NSMutableArray array];
+	__block RACSequence *(^nextSequence)(RACSequence *, RACSequence *);
+	
+	nextSequence = [^ RACSequence * (RACSequence *current, RACSequence *valuesSeq) {
+		while (current == nil) {
+			// We've exhausted the current sequence, create a sequence from the
+			// next value.
+			id value = valuesSeq.head;
 
-	// TODO: Make this lazy.
-	for (id value in self) {
-		RACSequence *sequence = block(value);
-		[sequences addObject:sequence];
-	}
+			if (value == nil) {
+				// We've exhausted all the sequences.
+				return nil;
+			}
 
-	return [self.class sequenceWithConcatenatedSequences:sequences];
+			valuesSeq = valuesSeq.tail;
+			current = block(value);
+		}
+
+		NSAssert([current isKindOfClass:RACSequence.class], @"Bind returned an object that is not a sequence: %@", current);
+
+		return [RACDynamicSequence sequenceWithHeadBlock:^{
+			return current.head;
+		} tailBlock:^{
+			return nextSequence(current.tail, valuesSeq);
+		}];
+	} copy];
+
+	return nextSequence(nil, self);
 }
 
 - (instancetype)concat:(id<RACStream>)stream {

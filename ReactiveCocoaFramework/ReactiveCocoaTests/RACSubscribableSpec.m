@@ -989,6 +989,10 @@ describe(@"-sequenceNext:", ^{
 		}];
 
 		[subject sendNext:@1];
+
+		// The value shouldn't change until the first subscribable completes.
+		expect(value).to.beNil();
+
 		[subject sendCompleted];
 
 		expect(value).to.equal(@2);

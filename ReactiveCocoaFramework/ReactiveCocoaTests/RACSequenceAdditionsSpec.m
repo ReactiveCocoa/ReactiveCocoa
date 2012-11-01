@@ -9,12 +9,13 @@
 #import "RACSpecs.h"
 #import "RACSequenceExamples.h"
 
-#import "RACSequence.h"
 #import "NSArray+RACSequenceAdditions.h"
 #import "NSDictionary+RACSequenceAdditions.h"
 #import "NSOrderedSet+RACSequenceAdditions.h"
 #import "NSSet+RACSequenceAdditions.h"
 #import "NSString+RACSequenceAdditions.h"
+#import "RACSequence.h"
+#import "RACTuple.h"
 
 SpecBegin(RACSequenceAdditions)
 
@@ -38,6 +39,59 @@ describe(@"NSArray sequences", ^{
 		[values addObject:@6];
 
 		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: unchangedValues });
+	});
+});
+
+describe(@"NSDictionary sequences", ^{
+	__block NSMutableDictionary *dict;
+
+	__block RACSequence *tupleSequence;
+	__block NSMutableArray *tuples;
+
+	__block RACSequence *keySequence;
+	__block NSArray *keys;
+
+	__block RACSequence *valueSequence;
+	__block NSArray *values;
+
+	before(^{
+		dict = [@{
+			@"foo": @"bar",
+			@"baz": @"buzz",
+			@5: NSNull.null
+		} mutableCopy];
+
+		tupleSequence = dict.rac_sequence;
+		tuples = [NSMutableArray array];
+		for (id key in dict) {
+			RACTuple *tuple = [RACTuple tupleWithObjects:key, dict[key], nil];
+			[tuples addObject:tuple];
+		}
+
+		keySequence = dict.rac_keySequence;
+		keys = [dict.allKeys copy];
+
+		valueSequence = dict.rac_valueSequence;
+		values = [dict.allValues copy];
+	});
+
+	it(@"should initialize", ^{
+		expect(tupleSequence).notTo.beNil();
+		expect(keySequence).notTo.beNil();
+		expect(valueSequence).notTo.beNil();
+
+		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: tupleSequence, RACSequenceExpectedValues: tuples });
+		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: keySequence, RACSequenceExpectedValues: keys });
+		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: valueSequence, RACSequenceExpectedValues: values });
+	});
+
+	it(@"should not change even if the underlying dictionary does", ^{
+		dict[@"foo"] = @"rab";
+		dict[@6] = @7;
+
+		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: tupleSequence, RACSequenceExpectedValues: tuples });
+		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: keySequence, RACSequenceExpectedValues: keys });
+		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: valueSequence, RACSequenceExpectedValues: values });
 	});
 });
 

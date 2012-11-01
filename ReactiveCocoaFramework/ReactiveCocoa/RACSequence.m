@@ -46,6 +46,7 @@
 - (instancetype)bind:(id (^)(id value))block {
 	NSMutableArray *sequences = [NSMutableArray array];
 
+	// TODO: Make this lazy.
 	for (id value in self) {
 		RACSequence *sequence = block(value);
 		[sequences addObject:sequence];
@@ -145,25 +146,51 @@
 #pragma mark NSFastEnumeration
 
 - (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(__unsafe_unretained id *)stackbuf count:(NSUInteger)len {
+	if (state->state == ULONG_MAX) {
+		// Enumeration has completed.
+		return 0;
+	}
+
+	// We need to traverse the sequence itself on repeated calls to this
+	// method, so use the 'state' field to track the current head.
+	RACSequence *(^getSequence)(void) = ^{
+		return (__bridge RACSequence *)(void *)state->state;
+	};
+
+	void (^setSequence)(RACSequence *) = ^(RACSequence *sequence) {
+		// Release the old sequence and retain the new one.
+		CFBridgingRelease((void *)state->state);
+
+		state->state = (unsigned long)CFBridgingRetain(sequence);
+	};
+
 	if (state->state == 0) {
 		// Since a sequence doesn't mutate, this just needs to be set to
 		// something non-NULL.
 		state->mutationsPtr = state->extra;
+
+		setSequence(self);
 	}
 
 	state->itemsPtr = stackbuf;
 
-	RACSequence *seq = self;
 	NSUInteger enumeratedCount = 0;
-
 	while (enumeratedCount < len) {
+		RACSequence *seq = getSequence();
+
 		// Because the objects in a sequence may be generated lazily, we want to
 		// prevent them from being released until the enumerator's used them.
 		__autoreleasing id obj = seq.head;
-		if (obj == nil) break;
+		if (obj == nil) {
+			// Release any stored sequence.
+			setSequence(nil);
+			state->state = ULONG_MAX;
+
+			break;
+		}
 
 		stackbuf[enumeratedCount++] = obj;
-		seq = seq.tail;
+		setSequence(seq.tail);
 	}
 
 	return enumeratedCount;

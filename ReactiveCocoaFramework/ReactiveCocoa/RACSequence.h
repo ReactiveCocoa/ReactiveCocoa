@@ -36,9 +36,6 @@
 // appended.
 + (RACSequence *)sequenceWithConcatenatedSequences:(NSArray *)seqs;
 
-// Returns the receiver with `obj` prepended to the sequence.
-- (RACSequence *)sequenceByPrependingObject:(id)obj;
-
 // Returns all but the first `count` objects in the sequence. If `count` exceeds
 // the number of items in the sequence, nil is returned.
 - (RACSequence *)drop:(NSUInteger)count;

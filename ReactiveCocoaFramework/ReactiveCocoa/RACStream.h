@@ -60,4 +60,8 @@
 // Returns a new stream with the mapped values.
 - (instancetype)map:(id (^)(id value))block;
 
+// Returns a stream consisting of `value`, followed by the values in the
+// receiver.
+- (instancetype)startWith:(id)value;
+
 @end

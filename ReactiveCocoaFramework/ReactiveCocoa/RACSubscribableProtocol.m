@@ -749,20 +749,6 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	return disposable;
 }
 
-- (id<RACSubscribable>)startWith:(id)initialValue {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {		
-		[subscriber sendNext:initialValue];
-		
-		return [self subscribeNext:^(id x) {
-			[subscriber sendNext:x];
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendCompleted];
-		}];
-	}];
-}
-
 + (id<RACSubscribable>)interval:(NSTimeInterval)interval {
 	__block id<RACSubscribable> subscribable = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
 		__block BOOL stop = NO;

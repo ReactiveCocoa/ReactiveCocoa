@@ -39,4 +39,8 @@
 	}];
 }
 
+- (instancetype)startWith:(id)value {
+	return [[self.class return:value] concat:self];
+}
+
 @end

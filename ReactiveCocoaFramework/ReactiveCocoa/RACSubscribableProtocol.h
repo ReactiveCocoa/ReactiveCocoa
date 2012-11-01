@@ -184,9 +184,6 @@ typedef NSInteger RACSubscribableError;
 // Set the object's keyPath to the value of `next`.
 - (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object;
 
-// Send `next` with `initialValue` before getting the first `next`.
-- (id<RACSubscribable>)startWith:(id)initialValue;
-
 // Sends `+[RACUnit defaultUnit]` every `interval` seconds.
 + (id<RACSubscribable>)interval:(NSTimeInterval)interval;
 

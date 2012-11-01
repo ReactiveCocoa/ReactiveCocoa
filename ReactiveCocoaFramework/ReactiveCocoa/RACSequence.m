@@ -103,16 +103,6 @@
 	return seq;
 }
 
-- (RACSequence *)sequenceByPrependingObject:(id)obj {
-	NSParameterAssert(obj != nil);
-
-	return [RACDynamicSequence sequenceWithHeadBlock:^{
-		return obj;
-	} tailBlock:^{
-		return self;
-	}];
-}
-
 #pragma mark NSCopying
 
 - (id)copyWithZone:(NSZone *)zone {

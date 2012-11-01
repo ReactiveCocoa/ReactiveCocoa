@@ -111,20 +111,6 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	return [self subscribe:o];
 }
 
-- (id<RACSubscribable>)select:(id (^)(id x))selectBlock {
-	NSParameterAssert(selectBlock != NULL);
-	
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
-		return [self subscribeNext:^(id x) {
-			[subscriber sendNext:selectBlock(x)];
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendCompleted];
-		}];
-	}];
-}
-
 - (id<RACSubscribable>)injectObjectWeakly:(id)object {
 	__unsafe_unretained id weakObject = object;
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
@@ -621,7 +607,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 - (id<RACSubscribable>)selectMany:(id<RACSubscribable> (^)(id x))selectBlock {
-	return [[self select:selectBlock] flatten];
+	return [[self map:selectBlock] flatten];
 }
 
 - (id<RACSubscribable>)sequenceMany:(id<RACSubscribable> (^)(void))block {

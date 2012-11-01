@@ -72,12 +72,23 @@ static NSMutableSet *activeSubscribables() {
 	}];
 }
 
+// TODO: Implement this as a primitive, instead of depending on -map:.
 - (instancetype)bind:(id (^)(id value))block {
 	return [self selectMany:block];
 }
 
 - (instancetype)map:(id (^)(id value))block {
-	return [self select:block];
+	NSParameterAssert(block != NULL);
+	
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		return [self subscribeNext:^(id x) {
+			[subscriber sendNext:block(x)];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
+	}];
 }
 
 - (RACSubscribable *)concat:(id<RACSubscribable>)subscribable {

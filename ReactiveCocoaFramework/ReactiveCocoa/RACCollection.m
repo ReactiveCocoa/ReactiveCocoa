@@ -38,7 +38,7 @@
 	objectsRemoved = [RACSubject subject];
 	countChanged = [[RACSubscribable
 		merge:[NSArray arrayWithObjects:self.objectsAdded, self.objectsRemoved, nil]]
-		select:^(id _) {
+		map:^(id _) {
 			return [RACUnit defaultUnit];
 		}];
 	

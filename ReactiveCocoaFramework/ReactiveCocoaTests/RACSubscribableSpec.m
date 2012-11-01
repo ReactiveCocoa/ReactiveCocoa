@@ -265,10 +265,10 @@ describe(@"querying", ^{
 		expect(didGetCallbacks).to.beTruthy();
 	});
 	
-	it(@"should support select", ^{
+	it(@"should support map", ^{
 		__block BOOL didGetCallbacks = NO;
 		id transformedValue = @"other";
-		[[subscribable select:^(id x) {			
+		[[subscribable map:^(id x) {			
 			return transformedValue;
 		}] subscribeNext:^(id x) {
 			expect(x).to.equal(transformedValue);

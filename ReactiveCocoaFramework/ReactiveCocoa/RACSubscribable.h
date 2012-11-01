@@ -18,7 +18,7 @@
 @class RACTuple;
 @protocol RACSubscriber;
 
-@interface RACSubscribable : NSObject <RACSubscribable, RACStream>
+@interface RACSubscribable : NSObject <RACSubscribable>
 
 // The name of the subscribable. This is for debug / human purposes only.
 @property (nonatomic, copy) NSString *name;

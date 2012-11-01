@@ -41,4 +41,28 @@ describe(@"NSArray sequences", ^{
 	});
 });
 
+describe(@"NSString sequences", ^{
+	__block NSMutableString *string;
+	__block NSArray *values;
+	__block RACSequence *sequence;
+
+	before(^{
+		string = [@"foobar" mutableCopy];
+		values = @[ @"f", @"o", @"o", @"b", @"a", @"r" ];
+		sequence = string.rac_sequence;
+	});
+
+	it(@"should initialize", ^{
+		expect(sequence).notTo.beNil();
+
+		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values });
+	});
+
+	it(@"should not change even if the underlying string does", ^{
+		[string appendString:@"buzz"];
+
+		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values });
+	});
+});
+
 SpecEnd

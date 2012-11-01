@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "RACStream.h"
 #import "RACSubscribableProtocol.h"
 
 @class RACCancelableSubscribable;
@@ -17,7 +18,7 @@
 @class RACTuple;
 @protocol RACSubscriber;
 
-@interface RACSubscribable : NSObject <RACSubscribable>
+@interface RACSubscribable : NSObject <RACSubscribable, RACStream>
 
 // The name of the subscribable. This is for debug / human purposes only.
 @property (nonatomic, copy) NSString *name;

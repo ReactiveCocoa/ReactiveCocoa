@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "EXTConcreteProtocol.h"
+#import "RACStream.h"
 
 extern NSString * const RACSubscribableErrorDomain;
 
@@ -35,7 +36,7 @@ typedef NSInteger RACSubscribableError;
 // need to be implemented. Default implementations will automatically be
 // provided for any methods marked as `@concrete`. For more information, see
 // EXTConcreteProtocol.h.
-@protocol RACSubscribable <NSObject>
+@protocol RACSubscribable <NSObject, RACStream>
 @required
 
 // Subscribes subscriber to changes on the receiver. The receiver defines which

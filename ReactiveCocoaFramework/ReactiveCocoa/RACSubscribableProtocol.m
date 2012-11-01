@@ -27,6 +27,20 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 
 @concreteprotocol(RACSubscribable)
 
+#pragma mark RACStream
+
++ (instancetype)return:(id)value {
+	return nil;
+}
+
+// We can't actually provide a useful default implementation of this, because
+// conforming classes will be required to implement it anyways.
+- (instancetype)bind:(id (^)(id value))block {
+	return nil;
+}
+
+#pragma mark RACSubscribable
+
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
 	return nil;
 }

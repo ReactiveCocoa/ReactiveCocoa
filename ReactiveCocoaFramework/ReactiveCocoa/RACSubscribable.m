@@ -55,6 +55,23 @@ static NSMutableSet *activeSubscribables() {
 	return [NSString stringWithFormat:@"<%@: %p> name: %@", NSStringFromClass([self class]), self, self.name];
 }
 
+#pragma mark RACStream
+
++ (instancetype)return:(id)value {
+	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+		[subscriber sendNext:value];
+		[subscriber sendCompleted];
+		return nil;
+	}];
+}
+
+- (instancetype)bind:(id (^)(id value))block {
+	return [self selectMany:block];
+}
+
+- (instancetype)map:(id (^)(id value))block {
+	return [self select:block];
+}
 
 #pragma mark RACSubscribable
 
@@ -111,14 +128,6 @@ static NSMutableSet *activeSubscribables() {
 	RACSubscribable *subscribable = [[RACSubscribable alloc] init];
 	subscribable.didSubscribe = didSubscribe;
 	return subscribable;
-}
-
-+ (instancetype)return:(id)value {
-	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
-		[subscriber sendNext:value];
-		[subscriber sendCompleted];
-		return nil;
-	}];
 }
 
 + (instancetype)error:(NSError *)error {

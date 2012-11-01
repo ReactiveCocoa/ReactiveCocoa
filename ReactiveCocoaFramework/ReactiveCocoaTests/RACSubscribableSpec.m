@@ -34,7 +34,7 @@ sharedExamplesFor(RACSubscribableMergeConcurrentCompletionExampleGroup, ^(NSDict
 
 		RACSubject *subscribablesSubject = [RACSubject subject];
 		__block BOOL completed = NO;
-		[[subscribablesSubject merge:[data[RACSubscribableMaxConcurrent] unsignedIntegerValue]] subscribeCompleted:^{
+		[[subscribablesSubject flatten:[data[RACSubscribableMaxConcurrent] unsignedIntegerValue]] subscribeCompleted:^{
 			completed = YES;
 		}];
 
@@ -884,7 +884,7 @@ describe(@"+merge:", ^{
 	});
 });
 
-describe(@"-merge:", ^{
+describe(@"-flatten:", ^{
 	__block BOOL subscribedTo1 = NO;
 	__block BOOL subscribedTo2 = NO;
 	__block BOOL subscribedTo3 = NO;
@@ -926,7 +926,7 @@ describe(@"-merge:", ^{
 
 	describe(@"when its max is 0", ^{
 		it(@"should merge all the subscribables concurrently", ^{
-			[[subscribablesSubject merge:0] subscribeNext:^(id x) {
+			[[subscribablesSubject flatten:0] subscribeNext:^(id x) {
 				[values addObject:x];
 			}];
 
@@ -966,7 +966,7 @@ describe(@"-merge:", ^{
 
 	describe(@"when its max is > 0", ^{
 		it(@"should merge only the given number at a time", ^{
-			[[subscribablesSubject merge:1] subscribeNext:^(id x) {
+			[[subscribablesSubject flatten:1] subscribeNext:^(id x) {
 				[values addObject:x];
 			}];
 

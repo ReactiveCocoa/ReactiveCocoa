@@ -530,14 +530,10 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 + (RACSubscribable *)merge:(NSArray *)subscribables {
-	return [subscribables.rac_toSubscribable merge];
+	return [subscribables.rac_toSubscribable flatten];
 }
 
-- (RACSubscribable *)merge {
-	return [self merge:0];
-}
-
-- (RACSubscribable *)merge:(NSUInteger)maxConcurrent {
+- (RACSubscribable *)flatten:(NSUInteger)maxConcurrent {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		NSMutableSet *activeSubscribables = [NSMutableSet setWithObject:self];
 		NSMutableSet *disposables = [NSMutableSet set];
@@ -625,7 +621,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 - (RACSubscribable *)selectMany:(id<RACSubscribable> (^)(id x))selectBlock {
-	return [[self select:selectBlock] merge];
+	return [[self select:selectBlock] flatten];
 }
 
 - (RACSubscribable *)sequenceMany:(id<RACSubscribable> (^)(void))block {

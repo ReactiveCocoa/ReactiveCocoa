@@ -105,7 +105,7 @@ static NSMutableSet *activeSubscribables() {
 }
 
 - (instancetype)flatten {
-	return [self merge];
+	return [self flatten:0];
 }
 
 #pragma mark RACSubscribable

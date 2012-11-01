@@ -611,6 +611,8 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 - (RACSubscribable *)sequenceNext:(id<RACSubscribable> (^)(void))block {
+	NSParameterAssert(block != nil);
+
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *nextDisposable = nil;
 

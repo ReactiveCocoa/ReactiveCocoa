@@ -32,10 +32,6 @@
 // tail. `headBlock` must not be nil.
 + (RACSequence *)sequenceWithHeadBlock:(id (^)(void))headBlock tailBlock:(RACSequence *(^)(void))tailBlock;
 
-// Returns a sequence consisting of the objects in the given sequences, lazily
-// appended.
-+ (RACSequence *)sequenceWithConcatenatedSequences:(NSArray *)seqs;
-
 // Returns all but the first `count` objects in the sequence. If `count` exceeds
 // the number of items in the sequence, nil is returned.
 - (RACSequence *)drop:(NSUInteger)count;

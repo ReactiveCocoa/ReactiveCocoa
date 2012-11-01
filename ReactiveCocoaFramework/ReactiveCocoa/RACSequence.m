@@ -19,10 +19,6 @@
 	return [RACDynamicSequence sequenceWithHeadBlock:headBlock tailBlock:tailBlock];
 }
 
-+ (RACSequence *)sequenceWithConcatenatedSequences:(NSArray *)seqs {
-	return [RACArraySequence sequenceWithArray:seqs offset:0].flatten;
-}
-
 #pragma mark Class cluster primitives
 
 - (id)head {

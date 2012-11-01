@@ -996,4 +996,41 @@ describe(@"-interval:onScheduler:", ^{
 	});
 });
 
+describe(@"-sequenceNext:", ^{
+	it(@"should continue onto returned subscribable", ^{
+		RACSubject *subject = [RACSubject subject];
+
+		__block id value = nil;
+		[[subject sequenceNext:^{
+			return [RACSubscribable return:@2];
+		}] subscribeNext:^(id x) {
+			value = x;
+		}];
+
+		[subject sendNext:@1];
+
+		// The value shouldn't change until the first subscribable completes.
+		expect(value).to.beNil();
+
+		[subject sendCompleted];
+
+		expect(value).to.equal(@2);
+	});
+
+	it(@"should sequence even if no next value is sent", ^{
+		RACSubject *subject = [RACSubject subject];
+
+		__block id value = nil;
+		[[subject sequenceNext:^{
+			return [RACSubscribable return:RACUnit.defaultUnit];
+		}] subscribeNext:^(id x) {
+			value = x;
+		}];
+
+		[subject sendCompleted];
+
+		expect(value).to.equal(RACUnit.defaultUnit);
+	});
+});
+
 SpecEnd

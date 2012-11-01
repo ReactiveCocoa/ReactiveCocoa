@@ -15,8 +15,4 @@
 // tail. `headBlock` must not be nil.
 + (RACSequence *)sequenceWithHeadBlock:(id (^)(void))headBlock tailBlock:(RACSequence *(^)(void))tailBlock;
 
-// Returns a sequence of `value`, `generatorBlock(value)`,
-// `generatorBlock(generatorBlock(value))`, etc.
-+ (RACSequence *)sequenceWithGeneratorBlock:(id (^)(id))generatorBlock startingValue:(id)value;
-
 @end

@@ -28,17 +28,6 @@
 	return seq;
 }
 
-+ (RACSequence *)sequenceWithGeneratorBlock:(id (^)(id))generatorBlock startingValue:(id)value {
-	NSParameterAssert(generatorBlock != nil);
-
-	return [self sequenceWithHeadBlock:^{
-		return value;
-	} tailBlock:^ RACSequence * {
-		if (value == nil) return nil;
-		return [self sequenceWithGeneratorBlock:generatorBlock startingValue:generatorBlock(value)];
-	}];
-}
-
 #pragma mark RACSequence
 
 - (id)head {

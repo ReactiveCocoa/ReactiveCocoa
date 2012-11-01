@@ -74,6 +74,11 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 
 		verifyValues(stream, @[ @1, @2 ]);
 	});
+
+	it(@"should start with a value", ^{
+		id<RACStream> stream = [[streamClass return:@1] startWith:@0];
+		verifyValues(stream, @[ @0, @1 ]);
+	});
 });
 
 SharedExampleGroupsEnd

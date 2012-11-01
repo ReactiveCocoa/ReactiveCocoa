@@ -83,6 +83,25 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		id<RACStream> stream = [[streamClass return:@1] startWith:@0];
 		verifyValues(stream, @[ @0, @1 ]);
 	});
+
+	describe(@"-skip:", ^{
+		__block id<RACStream> stream;
+
+		before(^{
+			stream = [[[streamClass return:@0] concat:[streamClass return:@1]] concat:[streamClass return:@2]];
+		});
+
+		it(@"should skip any valid number of values", ^{
+			NSArray *values = @[ @0, @1, @2 ];
+			for (NSUInteger i = 0; i < 3; i++) {
+				verifyValues([stream skip:i], [values subarrayWithRange:NSMakeRange(i, values.count - i)]);
+			}
+		});
+
+		it(@"should return an empty stream when skipping too many values", ^{
+			verifyValues([stream skip:4], @[]);
+		});
+	});
 });
 
 SharedExampleGroupsEnd

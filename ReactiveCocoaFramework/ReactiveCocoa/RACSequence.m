@@ -19,12 +19,6 @@
 	return RACEmptySequence.emptySequence;
 }
 
-+ (RACSequence *)sequenceWithObject:(id)obj {
-	return [RACDynamicSequence sequenceWithHeadBlock:^{
-		return obj;
-	} tailBlock:nil];
-}
-
 + (RACSequence *)sequenceWithConcatenatedSequences:(NSArray *)seqs {
 	return [RACArraySequence sequenceWithArray:seqs offset:0].flattenedSequence;
 }
@@ -39,6 +33,25 @@
 - (RACSequence *)tail {
 	NSAssert(NO, @"%s must be overridden by subclasses", __func__);
 	return nil;
+}
+
+#pragma mark RACStream
+
++ (instancetype)return:(id)value {
+	return [RACDynamicSequence sequenceWithHeadBlock:^{
+		return value;
+	} tailBlock:nil];
+}
+
+- (instancetype)bind:(id (^)(id value))block {
+	NSMutableArray *sequences = [NSMutableArray array];
+
+	for (id value in self) {
+		RACSequence *sequence = block(value);
+		[sequences addObject:sequence];
+	}
+
+	return [self.class sequenceWithConcatenatedSequences:sequences];
 }
 
 #pragma mark Extended methods

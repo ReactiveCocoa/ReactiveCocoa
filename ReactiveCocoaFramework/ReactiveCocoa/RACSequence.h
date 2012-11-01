@@ -7,12 +7,13 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "RACStream.h"
 
 // Represents an immutable, lazy sequence of values. Like Cocoa collections,
 // sequences cannot contain nil.
 //
 // Implemented as a class cluster.
-@interface RACSequence : NSObject <NSCoding, NSCopying, NSFastEnumeration>
+@interface RACSequence : NSObject <NSCoding, NSCopying, NSFastEnumeration, RACStream>
 
 // The first object in the sequence, or nil if the sequence is empty.
 //
@@ -29,9 +30,6 @@
 
 // Returns an empty sequence.
 + (RACSequence *)emptySequence;
-
-// Returns a sequence consisting of a single object.
-+ (RACSequence *)sequenceWithObject:(id)obj;
 
 // Returns a sequence consisting of the objects in the given sequences, lazily
 // appended.

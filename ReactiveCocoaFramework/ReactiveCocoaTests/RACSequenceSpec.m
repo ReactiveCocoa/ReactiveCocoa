@@ -15,8 +15,9 @@ SpecBegin(RACSequence)
 
 it(@"should implement <RACStream>", ^{
 	id verifyValues = ^(RACSequence *sequence, NSArray *expectedValues) {
-		NSMutableArray *collectedValues = [NSMutableArray array];
+		expect(sequence).notTo.beNil();
 
+		NSMutableArray *collectedValues = [NSMutableArray array];
 		while (sequence.head != nil) {
 			[collectedValues addObject:sequence.head];
 			sequence = sequence.tail;

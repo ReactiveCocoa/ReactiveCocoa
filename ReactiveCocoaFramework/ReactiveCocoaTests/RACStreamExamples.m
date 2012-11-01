@@ -24,25 +24,21 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 
 	it(@"should return an empty stream", ^{
 		id<RACStream> stream = [streamClass empty];
-		expect(stream).notTo.beNil();
 		verifyValues(stream, @[]);
 	});
 
 	it(@"should lift a value into a stream", ^{
 		id<RACStream> stream = [streamClass return:RACUnit.defaultUnit];
-		expect(stream).notTo.beNil();
 		verifyValues(stream, @[ RACUnit.defaultUnit ]);
 	});
 
 	it(@"should concatenate two streams", ^{
 		id<RACStream> stream = [[streamClass return:@0] concat:[streamClass return:@1]];
-		expect(stream).notTo.beNil();
 		verifyValues(stream, @[ @0, @1 ]);
 	});
 
 	it(@"should concatenate three streams", ^{
 		id<RACStream> stream = [[[streamClass return:@0] concat:[streamClass return:@1]] concat:[streamClass return:@2]];
-		expect(stream).notTo.beNil();
 		verifyValues(stream, @[ @0, @1, @2 ]);
 	});
 
@@ -52,13 +48,11 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			return [streamClass return:newValue];
 		}];
 
-		expect(stream).notTo.beNil();
 		verifyValues(stream, @[ @1 ]);
 	});
 
 	it(@"should flatten", ^{
 		id<RACStream> stream = [[streamClass return:[streamClass return:RACUnit.defaultUnit]] flatten];
-		expect(stream).notTo.beNil();
 		verifyValues(stream, @[ RACUnit.defaultUnit ]);
 	});
 
@@ -69,7 +63,6 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			return [streamClass return:newValue];
 		}];
 
-		expect(stream).notTo.beNil();
 		verifyValues(stream, @[ @1, @2 ]);
 	});
 
@@ -79,7 +72,6 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			return @(value.integerValue + 1);
 		}];
 
-		expect(stream).notTo.beNil();
 		verifyValues(stream, @[ @1, @2 ]);
 	});
 });

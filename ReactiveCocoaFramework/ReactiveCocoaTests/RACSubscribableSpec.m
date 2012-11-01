@@ -67,6 +67,8 @@ SpecBegin(RACSubscribable)
 
 it(@"should implement <RACStream>", ^{
 	id verifyValues = ^(RACSubscribable *subscribable, NSArray *expectedValues) {
+		expect(subscribable).notTo.beNil();
+
 		NSMutableArray *collectedValues = [NSMutableArray array];
 
 		__block BOOL success = NO;

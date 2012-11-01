@@ -90,15 +90,6 @@
 	return [array copy];
 }
 
-- (RACSequence *)drop:(NSUInteger)count {
-	RACSequence *seq = self;
-	for (NSUInteger i = 0; i < count; i++) {
-		seq = seq.tail;
-	}
-
-	return seq;
-}
-
 #pragma mark NSCopying
 
 - (id)copyWithZone:(NSZone *)zone {

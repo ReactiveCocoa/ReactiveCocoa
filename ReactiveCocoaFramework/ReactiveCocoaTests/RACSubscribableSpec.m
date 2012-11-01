@@ -64,6 +64,91 @@ SharedExampleGroupsEnd
 
 SpecBegin(RACSubscribable)
 
+describe(@"<RACStream>", ^{
+	__block void (^expectValues)(RACSubscribable *, NSArray *);
+
+	before(^{
+		expectValues = ^(RACSubscribable *subscribable, NSArray *expectedValues) {
+			NSMutableArray *collectedValues = [NSMutableArray array];
+
+			__block BOOL success = NO;
+			__block NSError *error = nil;
+			[subscribable subscribeNext:^(id value) {
+				[collectedValues addObject:value];
+			} error:^(NSError *receivedError) {
+				error = receivedError;
+			} completed:^{
+				success = YES;
+			}];
+
+			expect(success).will.beTruthy();
+			expect(error).to.beNil();
+			expect(collectedValues).to.equal(expectedValues);
+		};
+	});
+
+	it(@"should return an empty subscribable", ^{
+		RACSubscribable *subscribable = RACSubscribable.empty;
+		expect(subscribable).notTo.beNil();
+		expectValues(subscribable, @[]);
+	});
+
+	it(@"should lift a value into a subscribable", ^{
+		RACSubscribable *subscribable = [RACSubscribable return:RACUnit.defaultUnit];
+		expect(subscribable).notTo.beNil();
+		expectValues(subscribable, @[ RACUnit.defaultUnit ]);
+	});
+
+	it(@"should concatenate two subscribables", ^{
+		RACSubscribable *subscribable = [[RACSubscribable return:@0] concat:[RACSubscribable return:@1]];
+		expect(subscribable).notTo.beNil();
+		expectValues(subscribable, @[ @0, @1 ]);
+	});
+
+	it(@"should concatenate three subscribables", ^{
+		RACSubscribable *subscribable = [[[RACSubscribable return:@0] concat:[RACSubscribable return:@1]] concat:[RACSubscribable return:@2]];
+		expect(subscribable).notTo.beNil();
+		expectValues(subscribable, @[ @0, @1, @2 ]);
+	});
+
+	it(@"should return the result of binding a single value", ^{
+		RACSubscribable *subscribable = [[RACSubscribable return:@0] bind:^(NSNumber *value) {
+			NSNumber *newValue = @(value.integerValue + 1);
+			return [RACSubscribable return:newValue];
+		}];
+
+		expect(subscribable).notTo.beNil();
+		expectValues(subscribable, @[ @1 ]);
+	});
+
+	it(@"should flatten", ^{
+		RACSubscribable *subscribable = [RACSubscribable return:[RACSubscribable return:RACUnit.defaultUnit]].flatten;
+		expect(subscribable).notTo.beNil();
+		expectValues(subscribable, @[ RACUnit.defaultUnit ]);
+	});
+
+	it(@"should concatenate the result of binding multiple values", ^{
+		RACSubscribable *baseSubscribable = [[RACSubscribable return:@0] concat:[RACSubscribable return:@1]];
+		RACSubscribable *subscribable = [baseSubscribable bind:^(NSNumber *value) {
+			NSNumber *newValue = @(value.integerValue + 1);
+			return [RACSubscribable return:newValue];
+		}];
+
+		expect(subscribable).notTo.beNil();
+		expectValues(subscribable, @[ @1, @2 ]);
+	});
+
+	it(@"should map", ^{
+		RACSubscribable *baseSubscribable = [[RACSubscribable return:@0] concat:[RACSubscribable return:@1]];
+		RACSubscribable *subscribable = [baseSubscribable map:^(NSNumber *value) {
+			return @(value.integerValue + 1);
+		}];
+
+		expect(subscribable).notTo.beNil();
+		expectValues(subscribable, @[ @1, @2 ]);
+	});
+});
+
 describe(@"subscribing", ^{
 	__block RACSubscribable *subscribable = nil;
 	id nextValueSent = @"1";

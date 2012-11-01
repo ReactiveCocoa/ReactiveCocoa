@@ -8,12 +8,20 @@
 
 #import "NSDictionary+RACSequenceAdditions.h"
 #import "NSArray+RACSequenceAdditions.h"
+#import "RACSequence.h"
+#import "RACTuple.h"
 
 @implementation NSDictionary (RACSequenceAdditions)
 
-// TODO: Sequence of key/value pairs.
-
 - (RACSequence *)rac_sequence {
+	// TODO: First class support for dictionary sequences.
+	return [self.allKeys.rac_sequence map:^(id key) {
+		id value = self[key];
+		return [RACTuple tupleWithObjects:key, value, nil];
+	}];
+}
+
+- (RACSequence *)rac_keySequence {
 	return self.allKeys.rac_sequence;
 }
 

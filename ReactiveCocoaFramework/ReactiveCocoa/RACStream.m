@@ -27,7 +27,10 @@
 }
 
 - (instancetype)flatten {
-	return nil;
+	return [self bind:^(id value) {
+		NSAssert([value conformsToProtocol:@protocol(RACStream)], @"Stream %@ being flattened contains an object that is not a stream: %@", self, value);
+		return value;
+	}];
 }
 
 - (instancetype)map:(id (^)(id value))block {

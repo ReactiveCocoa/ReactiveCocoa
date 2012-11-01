@@ -39,6 +39,14 @@
 // of `block`.
 - (instancetype)bind:(id (^)(id value))block;
 
+// Appends the values of `stream` to the values in the receiver.
+//
+// stream - A stream to concatenate. This must be an instance of the same
+//          concrete class as the receiver, and should not be `nil`.
+//
+// Returns a new stream representing the receiver followed by `stream`.
+- (instancetype)concat:(id<RACStream>)stream;
+
 @concrete
 
 // Maps `block` across the values in the receiver.

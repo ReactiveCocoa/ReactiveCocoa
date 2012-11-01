@@ -54,6 +54,12 @@
 	return [self.class sequenceWithConcatenatedSequences:sequences];
 }
 
+- (instancetype)concat:(id<RACStream>)stream {
+	NSParameterAssert(stream != nil);
+
+	return [RACArraySequence sequenceWithArray:@[ self, stream ] offset:0].flattenedSequence;
+}
+
 #pragma mark Extended methods
 
 - (NSArray *)array {

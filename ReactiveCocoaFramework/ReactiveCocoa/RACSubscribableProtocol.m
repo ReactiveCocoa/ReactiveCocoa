@@ -37,9 +37,13 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	return nil;
 }
 
-// We can't actually provide a useful default implementation of this, because
-// conforming classes will be required to implement it anyways.
+// We can't actually provide a useful default implementation of these methods,
+// because conforming classes will be required to implement them anyways.
 - (instancetype)bind:(id (^)(id value))block {
+	return nil;
+}
+
+- (instancetype)concat:(id<RACStream>)stream {
 	return nil;
 }
 
@@ -630,30 +634,6 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 
 - (RACSubscribable *)sequenceNext:(id<RACSubscribable> (^)(void))block {
 	return [[self takeLast:1] sequenceMany:block];
-}
-
-- (RACSubscribable *)concat:(id<RACSubscribable>)subscribable {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
-		__block RACDisposable *concattedDisposable = nil;
-		RACDisposable *sourceDisposable = [self subscribeNext:^(id x) {
-			[subscriber sendNext:x];
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			concattedDisposable = [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
-				[subscriber sendNext:x];
-			} error:^(NSError *error) {
-				[subscriber sendError:error];
-			} completed:^{
-				[subscriber sendCompleted];
-			}]];
-		}];
-		
-		return [RACDisposable disposableWithBlock:^{
-			[sourceDisposable dispose];
-			[concattedDisposable dispose];
-		}];
-	}];
 }
 
 - (RACSubscribable *)concat {

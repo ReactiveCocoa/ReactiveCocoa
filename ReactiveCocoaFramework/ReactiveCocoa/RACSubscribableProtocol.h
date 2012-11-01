@@ -176,9 +176,6 @@ typedef NSInteger RACSubscribableError;
 // Gets a new subscribable to subscribe to after the receiver completes.
 - (RACSubscribable *)sequenceNext:(id<RACSubscribable> (^)(void))block;
 
-// Subscribes to `subscribable` when the source subscribable completes.
-- (RACSubscribable *)concat:(id<RACSubscribable>)subscribable;
-
 // Concats the inner subscribables of a subscribable of subscribables.
 - (RACSubscribable *)concat;
 

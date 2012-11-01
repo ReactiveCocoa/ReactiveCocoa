@@ -22,6 +22,10 @@
 	return nil;
 }
 
+- (instancetype)concat:(id<RACStream>)stream {
+	return nil;
+}
+
 - (instancetype)map:(id (^)(id value))block {
 	return [self bind:^(id value) {
 		return [self.class return:block(value)];

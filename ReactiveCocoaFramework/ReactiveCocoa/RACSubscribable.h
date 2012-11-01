@@ -67,4 +67,7 @@
 // The block can send events using the subject.
 + (RACSubscribable *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block;
 
+// Subscribes to `subscribable` when the source subscribable completes.
+- (RACSubscribable *)concat:(id<RACSubscribable>)subscribable;
+
 @end

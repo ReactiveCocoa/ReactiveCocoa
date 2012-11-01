@@ -80,6 +80,30 @@ static NSMutableSet *activeSubscribables() {
 	return [self select:block];
 }
 
+- (RACSubscribable *)concat:(id<RACSubscribable>)subscribable {
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		__block RACDisposable *concattedDisposable = nil;
+		RACDisposable *sourceDisposable = [self subscribeNext:^(id x) {
+			[subscriber sendNext:x];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			concattedDisposable = [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
+				[subscriber sendNext:x];
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				[subscriber sendCompleted];
+			}]];
+		}];
+		
+		return [RACDisposable disposableWithBlock:^{
+			[sourceDisposable dispose];
+			[concattedDisposable dispose];
+		}];
+	}];
+}
+
 #pragma mark RACSubscribable
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {

@@ -32,23 +32,16 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		verifyValues(stream, @[ RACUnit.defaultUnit ]);
 	});
 
-	it(@"should concatenate two streams", ^{
-		id<RACStream> stream = [[streamClass return:@0] concat:[streamClass return:@1]];
-		verifyValues(stream, @[ @0, @1 ]);
-	});
+	describe(@"-concat:", ^{
+		it(@"should concatenate two streams", ^{
+			id<RACStream> stream = [[streamClass return:@0] concat:[streamClass return:@1]];
+			verifyValues(stream, @[ @0, @1 ]);
+		});
 
-	it(@"should concatenate three streams", ^{
-		id<RACStream> stream = [[[streamClass return:@0] concat:[streamClass return:@1]] concat:[streamClass return:@2]];
-		verifyValues(stream, @[ @0, @1, @2 ]);
-	});
-
-	it(@"should return the result of binding a single value", ^{
-		id<RACStream> stream = [[streamClass return:@0] bind:^(NSNumber *value) {
-			NSNumber *newValue = @(value.integerValue + 1);
-			return [streamClass return:newValue];
-		}];
-
-		verifyValues(stream, @[ @1 ]);
+		it(@"should concatenate three streams", ^{
+			id<RACStream> stream = [[[streamClass return:@0] concat:[streamClass return:@1]] concat:[streamClass return:@2]];
+			verifyValues(stream, @[ @0, @1, @2 ]);
+		});
 	});
 
 	it(@"should flatten", ^{
@@ -56,14 +49,25 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		verifyValues(stream, @[ RACUnit.defaultUnit ]);
 	});
 
-	it(@"should concatenate the result of binding multiple values", ^{
-		id<RACStream> baseStream = [[streamClass return:@0] concat:[streamClass return:@1]];
-		id<RACStream> stream = [baseStream bind:^(NSNumber *value) {
-			NSNumber *newValue = @(value.integerValue + 1);
-			return [streamClass return:newValue];
-		}];
+	describe(@"-bind:", ^{
+		it(@"should return the result of binding a single value", ^{
+			id<RACStream> stream = [[streamClass return:@0] bind:^(NSNumber *value) {
+				NSNumber *newValue = @(value.integerValue + 1);
+				return [streamClass return:newValue];
+			}];
 
-		verifyValues(stream, @[ @1, @2 ]);
+			verifyValues(stream, @[ @1 ]);
+		});
+
+		it(@"should concatenate the result of binding multiple values", ^{
+			id<RACStream> baseStream = [[streamClass return:@0] concat:[streamClass return:@1]];
+			id<RACStream> stream = [baseStream bind:^(NSNumber *value) {
+				NSNumber *newValue = @(value.integerValue + 1);
+				return [streamClass return:newValue];
+			}];
+
+			verifyValues(stream, @[ @1, @2 ]);
+		});
 	});
 
 	it(@"should map", ^{

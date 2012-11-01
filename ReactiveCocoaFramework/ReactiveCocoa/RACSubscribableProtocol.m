@@ -606,14 +606,10 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)selectMany:(id<RACSubscribable> (^)(id x))selectBlock {
-	return [[self map:selectBlock] flatten];
-}
-
 - (id<RACSubscribable>)sequenceMany:(id<RACSubscribable> (^)(void))block {
 	NSParameterAssert(block != NULL);
 
-	return [self selectMany:^(id _) {
+	return [self bind:^(id _) {
 		return block();
 	}];
 }

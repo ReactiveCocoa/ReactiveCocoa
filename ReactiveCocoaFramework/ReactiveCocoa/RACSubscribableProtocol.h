@@ -159,11 +159,7 @@ typedef NSInteger RACSubscribableError;
 //                 subscribables.
 - (id<RACSubscribable>)flatten:(NSUInteger)maxConcurrent;
 
-// Gets a new subscribable for every `next` and sends `next` when any of those
-// subscribables do.
-- (id<RACSubscribable>)selectMany:(id<RACSubscribable> (^)(id x))selectBlock;
-
-// Like `-selectMany:`, but the subscribable returned from the block is not
+// Like `-bind:`, but the subscribable returned from the block is not
 // dependent on the value received from the source subscribable.
 - (id<RACSubscribable>)sequenceMany:(id<RACSubscribable> (^)(void))block;
 
@@ -246,7 +242,7 @@ typedef NSInteger RACSubscribableError;
 
 // The source must be a subscribable of subscribables. Subscribe and send
 // `next`s for the latest subscribable. This is mostly useful when combined
-// with `-selectMany:`.
+// with `-bind:`.
 - (id<RACSubscribable>)switch;
 
 // Add every `next` to an array. Nils are represented by NSNulls. Note that this

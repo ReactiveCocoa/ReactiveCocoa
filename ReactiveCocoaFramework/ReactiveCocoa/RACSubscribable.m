@@ -74,7 +74,7 @@ static NSMutableSet *activeSubscribables() {
 
 // TODO: Implement this as a primitive, instead of depending on -map:.
 - (instancetype)bind:(id (^)(id value))block {
-	return [self selectMany:block];
+	return [self map:block].flatten;
 }
 
 - (instancetype)map:(id (^)(id value))block {

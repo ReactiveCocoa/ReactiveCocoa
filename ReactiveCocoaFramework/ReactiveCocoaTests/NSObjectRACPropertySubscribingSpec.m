@@ -31,13 +31,12 @@ describe(@"-rac_addDeallocDisposable:", ^{
 });
 
 describe(@"+rac_subscribableFor:keyPath:onObject:", ^{
-	it(@"shouldn't crash", ^{
+	it(@"shouldn't crash when the value is changed on a different queue", ^{
 		__block id value;
-		RACSubscribable *sub;
 		@autoreleasepool {
 			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			sub = [NSObject rac_subscribableFor:object keyPath:@"objectValue" onObject:self];
-			[sub subscribeNext:^(id x) {
+			RACSubscribable *subscribable = [NSObject rac_subscribableFor:object keyPath:@"objectValue" onObject:self];
+			[subscribable subscribeNext:^(id x) {
 				value = x;
 			}];
 

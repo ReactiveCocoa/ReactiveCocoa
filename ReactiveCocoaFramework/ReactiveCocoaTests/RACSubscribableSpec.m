@@ -189,23 +189,6 @@ describe(@"querying", ^{
 		}];
 	});
 	
-	it(@"should support map", ^{
-		__block BOOL didGetCallbacks = NO;
-		id transformedValue = @"other";
-		[[subscribable map:^(id x) {			
-			return transformedValue;
-		}] subscribeNext:^(id x) {
-			expect(x).to.equal(transformedValue);
-			didGetCallbacks = YES;
-		} error:^(NSError *error) {
-			
-		} completed:^{
-			
-		}];
-		
-		expect(didGetCallbacks).to.beTruthy();
-	});
-	
 	it(@"should support window", ^{
 		RACSubscribable *subscribable = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@"1"];

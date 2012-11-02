@@ -43,6 +43,16 @@
 	}];
 }
 
+- (instancetype)filter:(BOOL (^)(id value))block {
+	return [self bind:^(id value) {
+		if (block(value)) {
+			return [self.class return:value];
+		} else {
+			return self.class.empty;
+		}
+	}];
+}
+
 - (instancetype)startWith:(id)value {
 	return [[self.class return:value] concat:self];
 }

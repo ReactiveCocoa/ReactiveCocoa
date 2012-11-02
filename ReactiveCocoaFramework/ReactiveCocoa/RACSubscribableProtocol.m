@@ -125,22 +125,6 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)where:(BOOL (^)(id x))whereBlock {
-	NSParameterAssert(whereBlock != NULL);
-	
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
-		return [self subscribeNext:^(id x) {
-			if(whereBlock(x)) {
-				[subscriber sendNext:x];
-			}
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendCompleted];
-		}];
-	}];
-}
-
 - (id<RACSubscribable>)doNext:(void (^)(id x))block {
 	NSParameterAssert(block != NULL);
 

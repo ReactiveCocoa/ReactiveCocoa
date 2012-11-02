@@ -80,9 +80,6 @@ typedef NSInteger RACSubscribableError;
 // weakObject / strongObject dance.
 - (id<RACSubscribable>)injectObjectWeakly:(id)object;
 
-// Only send `next` when the given block returns YES.
-- (id<RACSubscribable>)where:(BOOL (^)(id x))whereBlock;
-
 // Do the given block on `next`. This should be used to inject side effects into
 // a subscribable.
 - (id<RACSubscribable>)doNext:(void (^)(id x))block;

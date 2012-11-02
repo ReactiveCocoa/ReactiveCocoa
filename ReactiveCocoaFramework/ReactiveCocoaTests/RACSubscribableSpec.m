@@ -189,22 +189,6 @@ describe(@"querying", ^{
 		}];
 	});
 	
-	it(@"should support where", ^{
-		__block BOOL didGetCallbacks = NO;
-		[[subscribable where:^BOOL(id x) {
-			return x == nextValueSent;
-		}] subscribeNext:^(id x) {
-			expect(x).to.equal(nextValueSent);
-			didGetCallbacks = YES;
-		} error:^(NSError *error) {
-			
-		} completed:^{
-			
-		}];
-		
-		expect(didGetCallbacks).to.beTruthy();
-	});
-	
 	it(@"should support map", ^{
 		__block BOOL didGetCallbacks = NO;
 		id transformedValue = @"other";

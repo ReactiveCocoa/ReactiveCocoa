@@ -98,6 +98,15 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		verifyValues(stream, @[ @1, @2, @3 ]);
 	});
 
+	it(@"should filter", ^{
+		id<RACStream> baseStream = streamWithValues(@[ @0, @1, @2, @3, @4, @5, @6 ]);
+		id<RACStream> stream = [baseStream filter:^ BOOL (NSNumber *value) {
+			return value.integerValue % 2 == 0;
+		}];
+
+		verifyValues(stream, @[ @0, @2, @4, @6 ]);
+	});
+
 	it(@"should start with a value", ^{
 		id<RACStream> stream = [[streamClass return:@1] startWith:@0];
 		verifyValues(stream, @[ @0, @1 ]);

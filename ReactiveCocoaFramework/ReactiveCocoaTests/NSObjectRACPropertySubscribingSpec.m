@@ -9,6 +9,8 @@
 #import "RACSpecs.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACDisposable.h"
+#import "RACTestObject.h"
+#import "RACSubscribable.h"
 
 SpecBegin(NSObjectRACPropertySubscribing)
 
@@ -25,6 +27,29 @@ describe(@"-rac_addDeallocDisposable:", ^{
 		}
 
 		expect(wasDisposed).to.beTruthy();
+	});
+});
+
+describe(@"+rac_subscribableFor:keyPath:onObject:", ^{
+	it(@"shouldn't crash", ^{
+		__block id value;
+		RACSubscribable *sub;
+		@autoreleasepool {
+			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
+			sub = [NSObject rac_subscribableFor:object keyPath:@"objectValue" onObject:self];
+			[sub subscribeNext:^(id x) {
+				value = x;
+			}];
+
+			NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+			[queue addOperationWithBlock:^{
+				object.objectValue = @1;
+			}];
+
+			[queue waitUntilAllOperationsAreFinished];
+		}
+
+		expect(value).will.equal(@1);
 	});
 });
 

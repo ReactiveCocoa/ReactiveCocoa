@@ -978,10 +978,15 @@ describe(@"-switch", ^{
 });
 
 describe(@"-interval:onScheduler:", ^{
+	static const NSTimeInterval interval = 0.1;
 	void (^expectItToWorkWithScheduler)(RACScheduler *) = ^(RACScheduler *scheduler) {
-		__block NSUInteger nextsReceived = 0;
-		[[[RACSubscribable interval:0.1 onScheduler:scheduler] take:3] subscribeNext:^(id _) {
-			nextsReceived++;
+		__block volatile int32_t nextsReceived = 0;
+		__block NSTimeInterval lastTime = NSDate.timeIntervalSinceReferenceDate;
+		[[[RACSubscribable interval:interval onScheduler:scheduler] take:3] subscribeNext:^(id _) {
+			NSTimeInterval currentTime = NSDate.timeIntervalSinceReferenceDate;
+			expect(currentTime - lastTime).beGreaterThanOrEqualTo(interval);
+			
+			OSAtomicAdd32Barrier(1, &nextsReceived);
 		}];
 
 		expect(nextsReceived).will.equal(3);

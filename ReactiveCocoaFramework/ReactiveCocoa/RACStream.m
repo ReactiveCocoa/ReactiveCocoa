@@ -60,12 +60,20 @@
 - (instancetype)skip:(NSUInteger)skipCount {
 	__block NSUInteger skipped = 0;
 	return [self bind:^(id value) {
-		if (skipped >= skipCount) {
-			return [self.class return:value];
-		}
+		if (skipped >= skipCount) return [self.class return:value];
 
 		skipped++;
 		return self.class.empty;
+	}];
+}
+
+- (instancetype)take:(NSUInteger)count {
+	__block NSUInteger taken = 0;
+	return [self bind:^(id value) {
+		if (taken >= count) return self.class.empty;
+
+		taken++;
+		return [self.class return:value];
 	}];
 }
 

@@ -122,13 +122,33 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 
 		it(@"should skip any valid number of values", ^{
-			for (NSUInteger i = 0; i < 3; i++) {
+			for (NSUInteger i = 0; i < values.count; i++) {
 				verifyValues([stream skip:i], [values subarrayWithRange:NSMakeRange(i, values.count - i)]);
 			}
 		});
 
 		it(@"should return an empty stream when skipping too many values", ^{
 			verifyValues([stream skip:4], @[]);
+		});
+	});
+
+	describe(@"-take:", ^{
+		__block NSArray *values;
+		__block id<RACStream> stream;
+
+		before(^{
+			values = @[ @0, @1, @2 ];
+			stream = streamWithValues(values);
+		});
+
+		it(@"should take any valid number of values", ^{
+			for (NSUInteger i = 0; i < values.count; i++) {
+				verifyValues([stream take:i], [values subarrayWithRange:NSMakeRange(0, i)]);
+			}
+		});
+
+		it(@"should return the same stream when taking too many values", ^{
+			expect([stream take:4]).to.equal(stream);
 		});
 	});
 });

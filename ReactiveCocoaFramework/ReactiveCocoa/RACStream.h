@@ -76,4 +76,9 @@
 // stream is returned.
 - (instancetype)skip:(NSUInteger)skipCount;
 
+// Returns a stream of the first `count` values in the receiver. If `count` is
+// greater than or equal to the number of values in the stream, a stream
+// equivalent to the receiver is returned.
+- (instancetype)take:(NSUInteger)count;
+
 @end

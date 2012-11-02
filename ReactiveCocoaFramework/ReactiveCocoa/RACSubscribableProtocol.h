@@ -117,9 +117,6 @@ typedef NSInteger RACSubscribableError;
 // will be a RACTuple of values.
 - (id<RACSubscribable>)bufferWithTime:(NSTimeInterval)interval;
 
-// Take `count` `next`s and then completes.
-- (id<RACSubscribable>)take:(NSUInteger)count;
-
 // Takes the last `count` `next`s after the receiving subscribable completes.
 - (id<RACSubscribable>)takeLast:(NSUInteger)count;
 

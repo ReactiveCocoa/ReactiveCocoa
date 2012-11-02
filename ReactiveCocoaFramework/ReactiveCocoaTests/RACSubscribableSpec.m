@@ -230,28 +230,6 @@ describe(@"querying", ^{
 		}];
 	});
 	
-	it(@"should support take", ^{
-		@autoreleasepool {
-			RACSubscribable *subscribable = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
-				[subscriber sendNext:@"1"];
-				[subscriber sendNext:@"2"];
-				[subscriber sendNext:@"3"];
-				[subscriber sendNext:@"4"];
-				[subscriber sendNext:@"5"];
-				[subscriber sendCompleted];
-				return nil;
-			}];
-			
-			RACSubscriber *ob = [RACSubscriber subscriberWithNext:NULL error:NULL completed:NULL];
-			
-			@autoreleasepool {
-				[subscribable subscribe:ob];
-			}
-			
-			NSLog(@"d");
-		}
-	});
-	
 	it(@"should return first 'next' value with -firstOrDefault:success:error:", ^{
 		RACSubscribable *subscribable = [RACSubscribable createSubscribable:^ id (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];

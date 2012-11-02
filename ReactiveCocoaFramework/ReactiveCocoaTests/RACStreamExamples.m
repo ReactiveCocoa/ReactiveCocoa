@@ -22,6 +22,25 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 	Class streamClass = data[RACStreamExamplesClass];
 	void (^verifyValues)(id<RACStream>, NSArray *) = data[RACStreamExamplesVerifyValuesBlock];
 
+	__block id<RACStream> (^streamWithValues)(NSArray *);
+	
+	before(^{
+		streamWithValues = [^(NSArray *values) {
+			id<RACStream> stream = nil;
+
+			for (id value in values) {
+				id<RACStream> valueSeq = [streamClass return:value];
+				if (stream == nil) {
+					stream = valueSeq;
+				} else {
+					stream = [stream concat:valueSeq];
+				}
+			}
+
+			return stream;
+		} copy];
+	});
+
 	it(@"should return an empty stream", ^{
 		id<RACStream> stream = [streamClass empty];
 		verifyValues(stream, @[]);
@@ -60,7 +79,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 
 		it(@"should concatenate the result of binding multiple values", ^{
-			id<RACStream> baseStream = [[streamClass return:@0] concat:[streamClass return:@1]];
+			id<RACStream> baseStream = streamWithValues(@[ @0, @1 ]);
 			id<RACStream> stream = [baseStream bind:^(NSNumber *value) {
 				NSNumber *newValue = @(value.integerValue + 1);
 				return [streamClass return:newValue];
@@ -71,12 +90,12 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 	});
 
 	it(@"should map", ^{
-		id<RACStream> baseStream = [[streamClass return:@0] concat:[streamClass return:@1]];
+		id<RACStream> baseStream = streamWithValues(@[ @0, @1, @2 ]);
 		id<RACStream> stream = [baseStream map:^(NSNumber *value) {
 			return @(value.integerValue + 1);
 		}];
 
-		verifyValues(stream, @[ @1, @2 ]);
+		verifyValues(stream, @[ @1, @2, @3 ]);
 	});
 
 	it(@"should start with a value", ^{
@@ -85,14 +104,15 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 	});
 
 	describe(@"-skip:", ^{
+		__block NSArray *values;
 		__block id<RACStream> stream;
 
 		before(^{
-			stream = [[[streamClass return:@0] concat:[streamClass return:@1]] concat:[streamClass return:@2]];
+			values = @[ @0, @1, @2 ];
+			stream = streamWithValues(values);
 		});
 
 		it(@"should skip any valid number of values", ^{
-			NSArray *values = @[ @0, @1, @2 ];
 			for (NSUInteger i = 0; i < 3; i++) {
 				verifyValues([stream skip:i], [values subarrayWithRange:NSMakeRange(i, values.count - i)]);
 			}

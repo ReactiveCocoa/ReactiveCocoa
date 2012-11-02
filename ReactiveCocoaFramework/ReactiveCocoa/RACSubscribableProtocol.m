@@ -787,30 +787,32 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	return [self interval:interval onScheduler:RACScheduler.backgroundScheduler];
 }
 
+static const NSString * RACSubscribableIntervalSubscriberKey = @"RACSubscribableIntervalSubscriberKey";
+static const NSString * RACSubscribableIntervalSchedulerKey = @"RACSubscribableIntervalSchedulerKey";
+
 + (RACSubscribable *)interval:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler {
 	NSParameterAssert(scheduler != nil);
 
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
-		__block volatile uint32_t stop = 0;
-		__block void (^scheduleNextTime)(void) = ^{
-			dispatch_time_t nextFutureTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(interval * NSEC_PER_SEC));
-			dispatch_after(nextFutureTime, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-				if (stop == 1) return;
-
-				[scheduler schedule:^{
-					scheduleNextTime();
-					[subscriber sendNext:NSDate.date];
-				}];
-			});
+		NSDictionary *userInfo = @{
+			RACSubscribableIntervalSubscriberKey: subscriber,
+			RACSubscribableIntervalSchedulerKey: scheduler,
 		};
-
-		[scheduler schedule:^{
-			scheduleNextTime();
-		}];
+		
+		NSTimer *timer = [NSTimer timerWithTimeInterval:interval target:self selector:@selector(intervalTimerFired:) userInfo:userInfo repeats:YES];
+		[NSRunLoop.mainRunLoop addTimer:timer forMode:NSRunLoopCommonModes];
 
 		return [RACDisposable disposableWithBlock:^{
-			OSAtomicOr32Barrier(1, &stop);
+			[timer invalidate];
 		}];
+	}];
+}
+
++ (void)intervalTimerFired:(NSTimer *)timer {
+	RACSubscriber *subscriber = timer.userInfo[RACSubscribableIntervalSubscriberKey];
+	RACScheduler *scheduler = timer.userInfo[RACSubscribableIntervalSchedulerKey];
+	[scheduler schedule:^{
+		[subscriber sendNext:NSDate.date];
 	}];
 }
 

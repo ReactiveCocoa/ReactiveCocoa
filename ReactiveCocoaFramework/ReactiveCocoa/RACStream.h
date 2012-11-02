@@ -81,4 +81,12 @@
 // equivalent to the receiver is returned.
 - (instancetype)take:(NSUInteger)count;
 
+// Invokes the given `block` for each value in the receiver.
+//
+// block - A block which returns a new instance of the receiver's class.
+//
+// Returns a new stream which represents the combined result of all invocations
+// of `block`.
+- (instancetype)sequenceMany:(id (^)(void))block;
+
 @end

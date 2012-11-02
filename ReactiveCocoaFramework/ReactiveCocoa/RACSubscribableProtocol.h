@@ -153,10 +153,6 @@ typedef NSInteger RACSubscribableError;
 //                 subscribables.
 - (id<RACSubscribable>)flatten:(NSUInteger)maxConcurrent;
 
-// Like `-bind:`, but the subscribable returned from the block is not
-// dependent on the value received from the source subscribable.
-- (id<RACSubscribable>)sequenceMany:(id<RACSubscribable> (^)(void))block;
-
 // Gets a new subscribable to subscribe to after the receiver completes.
 - (id<RACSubscribable>)sequenceNext:(id<RACSubscribable> (^)(void))block;
 

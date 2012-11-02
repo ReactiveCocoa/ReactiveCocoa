@@ -38,12 +38,16 @@
 }
 
 - (instancetype)map:(id (^)(id value))block {
+	NSParameterAssert(block != nil);
+
 	return [self bind:^(id value) {
 		return [self.class return:block(value)];
 	}];
 }
 
 - (instancetype)filter:(BOOL (^)(id value))block {
+	NSParameterAssert(block != nil);
+
 	return [self bind:^(id value) {
 		if (block(value)) {
 			return [self.class return:value];
@@ -74,6 +78,14 @@
 
 		taken++;
 		return [self.class return:value];
+	}];
+}
+
+- (instancetype)sequenceMany:(id (^)(void))block {
+	NSParameterAssert(block != NULL);
+
+	return [self bind:^(id _) {
+		return block();
 	}];
 }
 

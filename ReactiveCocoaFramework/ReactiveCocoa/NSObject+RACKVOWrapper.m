@@ -118,10 +118,14 @@ static NSMutableSet *swizzledClasses() {
 
 	RACKVOBlock block;
 	id observer;
+	// We need to keep the target alive until the notification's been delivered,
+	// which could be some point later in time if we're not in `queue` currently.
+	__block id target;
 
 	@synchronized (self) {
 		block = self.block;
 		observer = self.observer;
+		target = self.target;
 	}
 
 	void (^notificationBlock)(void) = ^{
@@ -131,7 +135,10 @@ static NSMutableSet *swizzledClasses() {
 	if (self.queue == nil || self.queue == [NSOperationQueue currentQueue]) {
 		notificationBlock();
 	} else {
-		[self.queue addOperationWithBlock:notificationBlock];
+		[self.queue addOperationWithBlock:^{
+			notificationBlock();
+			target = nil;
+		}];
 	}
 }
 

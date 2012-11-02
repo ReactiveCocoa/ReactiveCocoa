@@ -784,7 +784,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 + (RACSubscribable *)interval:(NSTimeInterval)interval {
-	return [self interval:interval onScheduler:RACScheduler.backgroundScheduler];
+	return [self interval:interval onScheduler:RACScheduler.immediateScheduler];
 }
 
 static const NSString * RACSubscribableIntervalSubscriberKey = @"RACSubscribableIntervalSubscriberKey";

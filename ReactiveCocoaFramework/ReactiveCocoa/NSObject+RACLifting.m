@@ -169,16 +169,16 @@
 	NSMutableArray *subscribables = [NSMutableArray array];
 
 	va_list args;
-    va_start(args, arg);
-    for (id currentObject = arg; currentObject != nil; currentObject = va_arg(args, id)) {
-        if ([currentObject conformsToProtocol:@protocol(RACSubscribable)]) {
+	va_start(args, arg);
+	for (id currentObject = arg; currentObject != nil; currentObject = va_arg(args, id)) {
+		if ([currentObject conformsToProtocol:@protocol(RACSubscribable)]) {
 			[arguments addObject:RACTupleNil.tupleNil];
 			[subscribables addObject:currentObject];
 		} else {
 			[arguments addObject:currentObject];
 		}
-    }
-    va_end(args);
+	}
+	va_end(args);
 
 	return [self rac_liftSubscribables:subscribables withReducingInvocation:^(RACTuple *xs) {
 		for (NSUInteger i = 0; i < xs.count; i++) {

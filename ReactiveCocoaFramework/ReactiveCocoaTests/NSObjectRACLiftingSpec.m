@@ -113,6 +113,15 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		expect(strcmp(object.charPointerValue, string) == 0).to.beTruthy();
 	});
 
+	it(@"should send the latest value of the subscribable as the right argument", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setObjectValue:andIntegerValue:) withObjects:@"object", subject];
+		[subject sendNext:@1];
+
+		expect(object.objectValue).to.equal(@"object");
+		expect(object.integerValue).to.equal(1);
+	});
+
 	describe(@"the returned subscribable", ^{
 		it(@"should send the return value of the method invocation", ^{
 			RACSubject *objectSubject = [RACSubject subject];
@@ -201,6 +210,22 @@ describe(@"-rac_liftBlock:withObjects:", ^{
 		}];
 
 		expect(received).to.equal(@3);
+	});
+
+	it(@"should send the latest value of the subscribable as the right argument", ^{
+		RACSubject *subject = [RACSubject subject];
+		__block id received1;
+		__block id received2;
+		[self rac_liftBlock:^(id object1, id object2) {
+			received1 = object1;
+			received2 = object2;
+			return nil;
+		} withArguments:@"object", subject, nil];
+		
+		[subject sendNext:@1];
+
+		expect(received1).to.equal(@"object");
+		expect(received2).to.equal(1);
 	});
 });
 

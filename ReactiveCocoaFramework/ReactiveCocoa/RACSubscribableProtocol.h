@@ -141,11 +141,11 @@ typedef NSInteger RACSubscribableError;
 // `reduceBlock`.
 //
 // subscribables - The subscribables to combine.
-// reduceBlock - The block which reduces the latest values from all the
-//               subscribables into one value. It should take as many arguments
-//               as the number of subscribables given. Each argument will be an
-//               object argument, wrapped as needed. If nil, the returned
-//               subscribable will send a RACTuple of all the latest values.
+// reduceBlock   - The block which reduces the latest values from all the
+//                 subscribables into one value. It should take as many arguments
+//                 as the number of subscribables given. Each argument will be an
+//                 object argument, wrapped as needed. If nil, the returned
+//                 subscribable will send a RACTuple of all the latest values.
 //
 // Example:
 //   [RACSubscribable combineLatest:@[ stringSubscribable, intSubscribable ] reduce:^(NSString *string, NSNumber *wrappedInt) {
@@ -156,11 +156,21 @@ typedef NSInteger RACSubscribableError;
 // Sends the latest `next` from any of the subscribables.
 + (RACSubscribable *)merge:(NSArray *)subscribables;
 
-// Merge the subscribable with the given subscribable.
-- (RACSubscribable *)merge:(RACSubscribable *)subscribable;
-
 // Merges the subscribable of subscribables into a flattened subscribable.
 - (RACSubscribable *)merge;
+
+// Merges the subscribables sent by the receiver into a flattened subscribable,
+// but only subscribes to `maxConcurrent` number of subscribables at a time. New
+// subscribables are queued and subscribed to as other subscribables complete.
+//
+// If an error occurs on any of the subscribables, it is sent on the returned
+// subscribable. It completes only after the receiver and all sent subscribables
+// have completed.
+//
+// maxConcurrent - the maximum number of subscribables to subscribe to at a
+//                 time. If 0, it subscribes to an unlimited number of
+//                 subscribables.
+- (RACSubscribable *)merge:(NSUInteger)maxConcurrent;
 
 // Gets a new subscribable for every `next` and sends `next` when any of those
 // subscribables do.

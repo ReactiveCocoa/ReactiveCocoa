@@ -45,6 +45,7 @@
 }
 
 - (BOOL)isEqual:(RACTuple *)object {
+	if (object == self) return YES;
 	if (![object isKindOfClass:self.class]) return NO;
 
 	return [self.backingArray isEqual:object.backingArray];

@@ -135,7 +135,7 @@ typedef NSInteger RACSubscribableError;
 
 // Combine the latest values from each of the subscribables once all the
 // subscribables have sent a `next`. Any additional `next`s will result in a new
-// reduced value based on all the latests values from all the subscribables.
+// reduced value based on all the latest values from all the subscribables.
 //
 // The `next` of the returned subscribable will be the return value of the
 // `reduceBlock`.

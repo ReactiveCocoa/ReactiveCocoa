@@ -977,16 +977,18 @@ describe(@"-switch", ^{
 	});
 });
 
-describe(@"-interval:onScheduler:", ^{
+describe(@"+interval:", ^{
 	static const NSTimeInterval interval = 0.1;
 	void (^expectItToWorkWithScheduler)(RACScheduler *) = ^(RACScheduler *scheduler) {
 		__block volatile int32_t nextsReceived = 0;
-		__block NSTimeInterval lastTime = NSDate.timeIntervalSinceReferenceDate;
-		[[[RACSubscribable interval:interval onScheduler:scheduler] take:3] subscribeNext:^(id _) {
-			NSTimeInterval currentTime = NSDate.timeIntervalSinceReferenceDate;
-			expect(currentTime - lastTime).beGreaterThanOrEqualTo(interval);
-			
-			OSAtomicAdd32Barrier(1, &nextsReceived);
+		[scheduler schedule:^{
+			__block NSTimeInterval lastTime = NSDate.timeIntervalSinceReferenceDate;
+			[[[RACSubscribable interval:interval] take:3] subscribeNext:^(id _) {
+				NSTimeInterval currentTime = NSDate.timeIntervalSinceReferenceDate;
+				expect(currentTime - lastTime).beGreaterThanOrEqualTo(interval);
+
+				OSAtomicAdd32Barrier(1, &nextsReceived);
+			}];
 		}];
 
 		expect(nextsReceived).will.equal(3);

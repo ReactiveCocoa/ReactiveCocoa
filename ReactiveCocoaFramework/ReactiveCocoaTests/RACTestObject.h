@@ -14,6 +14,12 @@
 @property (nonatomic, assign) NSInteger integerValue;
 @property (nonatomic, assign) char *charPointerValue;
 
+// Has -setObjectValue:andIntegerValue: been called?
+@property (nonatomic, assign) BOOL hasInvokedSetObjectValueAndIntegerValue;
+
 - (void)setObjectValue:(id)objectValue andIntegerValue:(NSInteger)integerValue;
+
+// Returns a string of the form "objectValue: integerValue".
+- (NSString *)combineObjectValue:(id)objectValue andIntegerValue:(NSInteger)integerValue;
 
 @end

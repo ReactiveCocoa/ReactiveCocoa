@@ -33,7 +33,7 @@
 #import <ReactiveCocoa/RACCancelableSubscribable.h>
 #import <ReactiveCocoa/NSObject+RACKVOWrapper.h>
 #import <ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h>
-#import <ReactiveCocoa/NSObject+RACSubscribeSelector.h>
+#import <ReactiveCocoa/NSObject+RACLifting.h>
 
 #ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
 #import <ReactiveCocoa/libextobjc/extobjc/EXTKeyPathCoding.h>

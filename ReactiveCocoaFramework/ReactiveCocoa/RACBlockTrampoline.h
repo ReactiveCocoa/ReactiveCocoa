@@ -17,8 +17,8 @@
 // At this time, it only supports blocks that take up to 15 arguments. Any more
 // is just cray.
 //
-// block - The block to invoke. Must accept as many arguments as are given in
-//         the arguments array. Cannot be nil.
+// block     - The block to invoke. Must accept as many arguments as are given in
+//             the arguments array. Cannot be nil.
 // arguments - The arguments with which to invoke the block. `RACTupleNil`s will
 //             be passed as nils.
 //

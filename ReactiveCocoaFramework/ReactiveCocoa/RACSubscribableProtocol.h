@@ -141,11 +141,11 @@ typedef NSInteger RACSubscribableError;
 // `reduceBlock`.
 //
 // subscribables - The subscribables to combine.
-// reduceBlock - The block which reduces the latest values from all the
-//               subscribables into one value. It should take as many arguments
-//               as the number of subscribables given. Each argument will be an
-//               object argument, wrapped as needed. If nil, the returned
-//               subscribable will send a RACTuple of all the latest values.
+// reduceBlock   - The block which reduces the latest values from all the
+//                 subscribables into one value. It should take as many arguments
+//                 as the number of subscribables given. Each argument will be an
+//                 object argument, wrapped as needed. If nil, the returned
+//                 subscribable will send a RACTuple of all the latest values.
 //
 // Example:
 //   [RACSubscribable combineLatest:@[ stringSubscribable, intSubscribable ] reduce:^(NSString *string, NSNumber *wrappedInt) {

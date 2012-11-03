@@ -783,15 +783,9 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-static const NSString * RACSubscribableIntervalSubscriberKey = @"RACSubscribableIntervalSubscriberKey";
-
 + (RACSubscribable *)interval:(NSTimeInterval)interval {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
-		NSDictionary *userInfo = @{
-			RACSubscribableIntervalSubscriberKey: subscriber,
-		};
-		
-		NSTimer *timer = [NSTimer timerWithTimeInterval:interval target:self selector:@selector(intervalTimerFired:) userInfo:userInfo repeats:YES];
+		NSTimer *timer = [NSTimer timerWithTimeInterval:interval target:self selector:@selector(intervalTimerFired:) userInfo:subscriber repeats:YES];
 		CFRunLoopAddTimer(CFRunLoopGetMain(), (__bridge CFRunLoopTimerRef)timer, kCFRunLoopCommonModes);
 
 		return [RACDisposable disposableWithBlock:^{
@@ -801,7 +795,7 @@ static const NSString * RACSubscribableIntervalSubscriberKey = @"RACSubscribable
 }
 
 + (void)intervalTimerFired:(NSTimer *)timer {
-	RACSubscriber *subscriber = timer.userInfo[RACSubscribableIntervalSubscriberKey];
+	RACSubscriber *subscriber = timer.userInfo;
 	[subscriber sendNext:NSDate.date];
 }
 

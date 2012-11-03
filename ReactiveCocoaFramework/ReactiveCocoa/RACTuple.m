@@ -44,6 +44,17 @@
 	return [NSString stringWithFormat:@"<%@: %p> %@", NSStringFromClass([self class]), self, [self allObjects]];
 }
 
+- (BOOL)isEqual:(RACTuple *)object {
+	if (object == self) return YES;
+	if (![object isKindOfClass:self.class]) return NO;
+
+	return [self.backingArray isEqual:object.backingArray];
+}
+
+- (NSUInteger)hash {
+	return self.backingArray.hash;
+}
+
 
 #pragma mark NSFastEnumeration
 

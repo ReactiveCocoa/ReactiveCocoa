@@ -21,6 +21,7 @@
 #import "RACUnit.h"
 #import <libkern/OSAtomic.h>
 #import "NSObject+RACPropertySubscribing.h"
+#import "RACBlockTrampoline.h"
 #import "NSObject+RACFastEnumeration.h"
 
 NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
@@ -450,9 +451,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-+ (RACSubscribable *)combineLatest:(NSArray *)subscribables reduce:(id (^)(RACTuple *xs))reduceBlock {
-	NSParameterAssert(reduceBlock != NULL);
-	
++ (RACSubscribable *)combineLatest:(NSArray *)subscribables reduce:(id)reduceBlock {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		NSMutableSet *disposables = [NSMutableSet setWithCapacity:subscribables.count];
 		NSMutableSet *completedSubscribables = [NSMutableSet setWithCapacity:subscribables.count];
@@ -461,14 +460,18 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 			RACDisposable *disposable = [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 				@synchronized(lastValues) {
 					[lastValues setObject:x ? : [RACTupleNil tupleNil] forKey:[NSString stringWithFormat:@"%p", subscribable]];
-					
+
 					if(lastValues.count == subscribables.count) {
 						NSMutableArray *orderedValues = [NSMutableArray arrayWithCapacity:subscribables.count];
 						for(id<RACSubscribable> o in subscribables) {
 							[orderedValues addObject:[lastValues objectForKey:[NSString stringWithFormat:@"%p", o]]];
 						}
 
-						[subscriber sendNext:reduceBlock([RACTuple tupleWithObjectsFromArray:orderedValues])];
+						if (reduceBlock == NULL) {
+							[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:orderedValues]];
+						} else {
+							[subscriber sendNext:[RACBlockTrampoline invokeBlock:reduceBlock withArguments:orderedValues]];
+						}
 					}
 				}
 			} error:^(NSError *error) {
@@ -481,12 +484,12 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 					}
 				}
 			}]];
-			
+
 			if(disposable != nil) {
 				[disposables addObject:disposable];
 			}
 		}
-		
+
 		return [RACDisposable disposableWithBlock:^{
 			for(RACDisposable *disposable in disposables) {
 				[disposable dispose];
@@ -496,11 +499,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 + (RACSubscribable *)combineLatest:(NSArray *)subscribables {
-	return [self combineLatest:subscribables reduce:^ id (RACTuple *xs) { return xs; }];
-}
-
-+ (RACSubscribable *)whenAll:(NSArray *)subscribables {
-	return [self combineLatest:subscribables reduce:^(RACTuple *xs) { return [RACUnit defaultUnit]; }];
+	return [self combineLatest:subscribables reduce:nil];
 }
 
 + (RACSubscribable *)merge:(NSArray *)subscribables {

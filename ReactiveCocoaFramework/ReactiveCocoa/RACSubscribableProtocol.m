@@ -784,29 +784,19 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 + (RACSubscribable *)interval:(NSTimeInterval)interval {
-	__block RACSubscribable *subscribable = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
-		__block BOOL stop = NO;
-		
-		dispatch_time_t (^nextFutureTime)(void) = ^{
-			return dispatch_time(DISPATCH_TIME_NOW, (int64_t) (interval * NSEC_PER_SEC));
-		};
-		
-		__block void (^sendNext)(void) = ^{
-			if(stop) return;
-			
-			[subscriber sendNext:[RACUnit defaultUnit]];
-			
-			dispatch_after(nextFutureTime(), dispatch_get_current_queue(), sendNext);
-		};
-		
-		dispatch_after(nextFutureTime(), dispatch_get_current_queue(), sendNext);
-		
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		NSTimer *timer = [NSTimer timerWithTimeInterval:interval target:self selector:@selector(intervalTimerFired:) userInfo:subscriber repeats:YES];
+		CFRunLoopAddTimer(CFRunLoopGetMain(), (__bridge CFRunLoopTimerRef)timer, kCFRunLoopCommonModes);
+
 		return [RACDisposable disposableWithBlock:^{
-			stop = YES;
+			[timer invalidate];
 		}];
 	}];
-	
-	return subscribable;
+}
+
++ (void)intervalTimerFired:(NSTimer *)timer {
+	RACSubscriber *subscriber = timer.userInfo;
+	[subscriber sendNext:NSDate.date];
 }
 
 - (RACSubscribable *)takeUntil:(id<RACSubscribable>)subscribableTrigger {

@@ -114,6 +114,12 @@ typedef NSInteger RACSubscribableError;
 // subscribable. The window is closed when the close subscribable sends a `next`.
 - (RACSubscribable *)windowWithStart:(id<RACSubscribable>)openSubscribable close:(id<RACSubscribable> (^)(id<RACSubscribable> start))closeBlock;
 
+// Stash the latest `replayCount` `next`s of the subscribable, or unlimited if
+// `replayCount` equals `RACReplaySubjectUnlimitedCapacity`, without sending
+// them. When `stopSubscribable` sends a next, all stashed values are sent.
+// Stashing then resumes when `startSubscribable` sends a next.
+- (id<RACSubscribable>)stashWithStart:(id<RACSubscribable>)startSubscribable stop:(id<RACSubscribable>)stopSubscribable replayUpToCount:(NSUInteger)replayCount;
+
 // Divide the `next`s into buffers with `bufferCount` items each. The `next`
 // will be a RACTuple of values.
 - (RACSubscribable *)buffer:(NSUInteger)bufferCount;

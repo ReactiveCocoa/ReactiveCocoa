@@ -16,6 +16,7 @@
 #import "RACMaybe.h"
 #import "RACScheduler.h"
 #import "RACSubject.h"
+#import "RACReplaySubject.h"
 #import "RACSubscriber.h"
 #import "RACTuple.h"
 #import "RACUnit.h"
@@ -348,6 +349,54 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 			[selfObserverDisposable dispose];
 		}];
 	}];
+}
+
+- (id<RACSubscribable>)stashWithStart:(id<RACSubscribable>)startSubscribable stop:(id<RACSubscribable>)stopSubscribable replayUpToCount:(NSUInteger)replayCount {
+  NSParameterAssert(startSubscribable != nil);
+  NSParameterAssert(stopSubscribable != nil);
+  
+  return [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+    NSMutableArray *stash = [NSMutableArray array];
+    __block BOOL isStashing = YES;
+    
+    RACDisposable *startDisposable = [startSubscribable subscribeNext:^(id x) {
+      isStashing = YES;
+    }];
+    
+    RACDisposable *stopDisposable = [stopSubscribable subscribeNext:^(id x) {
+      if (isStashing) {
+        for (id value in stash) {
+          [subscriber sendNext:[value isKindOfClass:[RACTupleNil class]] ? nil : value];
+        }
+        [stash removeAllObjects];
+        isStashing = NO;
+      }
+    }];
+    
+    RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
+      if (isStashing) {
+        [stash addObject:x ? : [RACTupleNil tupleNil]];
+        
+        if (replayCount != RACReplaySubjectUnlimitedCapacity) {
+          while(stash.count > replayCount) {
+            [stash removeObjectAtIndex:0];
+          }
+        }
+      } else {
+        [subscriber sendNext:x];
+      }
+    } error:^(NSError *error) {
+      [subscriber sendError:error];
+    } completed:^{
+      [subscriber sendCompleted];
+    }];
+    
+    return [RACDisposable disposableWithBlock:^{
+      [startDisposable dispose];
+      [stopDisposable dispose];
+      [selfDisposable dispose];
+    }];
+  }];
 }
 
 - (RACSubscribable *)buffer:(NSUInteger)bufferCount {

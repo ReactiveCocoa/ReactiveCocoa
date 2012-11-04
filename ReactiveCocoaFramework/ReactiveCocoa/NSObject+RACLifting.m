@@ -34,6 +34,7 @@
 	invocation.selector = selector;
 
 	NSMutableArray *subscribables = [NSMutableArray arrayWithCapacity:methodSignature.numberOfArguments - 2];
+	NSMutableDictionary *subscribableToArgIndex = [NSMutableDictionary dictionaryWithCapacity:methodSignature.numberOfArguments - 2];
 
 	va_list args;
 	va_start(args, arg);
@@ -45,6 +46,7 @@
 		const char *argType = [methodSignature getArgumentTypeAtIndex:i];
 		if ([currentObject conformsToProtocol:@protocol(RACSubscribable)]) {
 			[self rac_setArgumentForInvocation:invocation type:argType atIndex:(NSInteger)i withObject:nil];
+			subscribableToArgIndex[[NSValue valueWithPointer:(__bridge const void *)currentObject]] = @(i);
 			[subscribables addObject:currentObject];
 		} else {
 			[self rac_setArgumentForInvocation:invocation type:argType atIndex:(NSInteger)i withObject:currentObject];
@@ -56,8 +58,8 @@
 	return [self rac_liftSubscribables:subscribables withReducingInvocation:^(RACTuple *xs) {
 		NSObject *strongSelf = weakSelf;
 		for (NSUInteger i = 0; i < xs.count; i++) {
-			// First two arguments are self and selector.
-			NSUInteger argIndex = i + 2;
+			RACSubscribable *subscribable = subscribables[i];
+			NSUInteger argIndex = [subscribableToArgIndex[[NSValue valueWithPointer:(__bridge const void *)subscribable]] unsignedIntegerValue];
 			const char *argType = [methodSignature getArgumentTypeAtIndex:argIndex];
 			[strongSelf rac_setArgumentForInvocation:invocation type:argType atIndex:(NSInteger)argIndex withObject:xs[i]];
 		}
@@ -167,22 +169,29 @@
 
 	NSMutableArray *arguments = [NSMutableArray array];
 	NSMutableArray *subscribables = [NSMutableArray array];
+	NSMutableDictionary *subscribableToArgIndex = [NSMutableDictionary dictionary];
 
 	va_list args;
 	va_start(args, arg);
+	NSUInteger i = 0;
 	for (id currentObject = arg; currentObject != nil; currentObject = va_arg(args, id)) {
 		if ([currentObject conformsToProtocol:@protocol(RACSubscribable)]) {
 			[arguments addObject:RACTupleNil.tupleNil];
 			[subscribables addObject:currentObject];
+			subscribableToArgIndex[[NSValue valueWithPointer:(__bridge const void *)currentObject]] = @(i);
 		} else {
 			[arguments addObject:currentObject];
 		}
+
+		i++;
 	}
 	va_end(args);
 
 	return [self rac_liftSubscribables:subscribables withReducingInvocation:^(RACTuple *xs) {
 		for (NSUInteger i = 0; i < xs.count; i++) {
-			[arguments replaceObjectAtIndex:i withObject:xs[i]];
+			RACSubscribable *subscribable = subscribables[i];
+			NSUInteger argIndex = [subscribableToArgIndex[[NSValue valueWithPointer:(__bridge const void *)subscribable]] unsignedIntegerValue];
+			[arguments replaceObjectAtIndex:argIndex withObject:xs[i]];
 		}
 
 		return [RACBlockTrampoline invokeBlock:block withArguments:arguments];

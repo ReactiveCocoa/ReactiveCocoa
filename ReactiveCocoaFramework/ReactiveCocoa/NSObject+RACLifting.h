@@ -10,9 +10,9 @@
 
 @interface NSObject (RACLifting)
 
-// Lifts the selector on self into the reactive world. The selector will be
-// invoked whenever any subscribable argument sends a value, but only after each
-// subscribable has sent a value.
+// Lifts the selector on the receiver into the reactive world. The selector will
+// be invoked whenever any subscribable argument sends a value, but only after
+// each subscribable has sent a value.
 //
 // It will replay the most recently sent value to new subscribers.
 //

@@ -12,6 +12,8 @@
 #import "RACAsyncSubject.h"
 #import "RACBehaviorSubject.h"
 #import "RACReplaySubject.h"
+#import "RACStashSubject.h"
+#import "RACDisposable.h"
 
 
 SpecBegin(RACSubject)
@@ -135,6 +137,77 @@ describe(@"RACReplaySubject", ^{
 		expect(valuesReceived).to.equal(expected);
 		expect(completed).to.beTruthy();
 	});
+});
+
+describe(@"RACStashSubject", ^{
+	__block RACStashSubject *subject = nil;
+	
+	beforeEach(^{
+		subject = [RACStashSubject subject];
+	});
+	
+	it(@"should send values received when without subscribers to the first subscriber only", ^{
+		id firstValue = @"blah";
+		id secondValue = @"more blah";
+    id thirdValue = @"lots of blah";
+		
+		[subject sendNext:firstValue];
+		[subject sendNext:secondValue];
+    
+		__block BOOL firstSubscriberCompleted = NO;
+		NSMutableArray *valuesFirstSubscriberReceived = [NSMutableArray array];
+		[subject subscribeNext:^(id x) {
+			[valuesFirstSubscriberReceived addObject:x];
+		} completed:^{
+			firstSubscriberCompleted = YES;
+		}];    
+    
+    __block BOOL secondSubscriberCompleted = NO;
+    NSMutableArray *valuesSecondSubscriberReceived = [NSMutableArray array];
+    [subject subscribeNext:^(id x) {
+      [valuesSecondSubscriberReceived addObject:x];
+    } completed:^{
+      secondSubscriberCompleted = YES;
+    }];
+				
+    [subject sendNext:thirdValue];
+		[subject sendCompleted];
+    
+		expect(valuesFirstSubscriberReceived.count).to.equal(3);
+		NSArray *firstExpected = [NSArray arrayWithObjects:firstValue, secondValue, thirdValue, nil];
+		expect(valuesFirstSubscriberReceived).to.equal(firstExpected);
+		expect(firstSubscriberCompleted).to.beTruthy();
+    expect(valuesSecondSubscriberReceived.count).to.equal(1);
+    NSArray *secondExpected = [NSArray arrayWithObjects:thirdValue, nil];
+    expect(valuesSecondSubscriberReceived).to.equal(secondExpected);
+    expect(secondSubscriberCompleted).to.beTruthy();
+	});
+  
+  it(@"should resume stashing values when all subscriptions to it are disposed", ^{
+		id firstValue = @"blah";
+		id secondValue = @"more blah";
+    id thirdValue = @"lots of blah";
+    
+    NSMutableArray *valuesReceived = [NSMutableArray array];
+    
+    [subject sendNext:firstValue];
+    
+    RACDisposable *disposable = [subject subscribeNext:^(id x) {
+      [valuesReceived addObject:x];
+    }];
+    
+    [subject sendNext:secondValue];
+    [disposable dispose];
+    [subject sendNext:thirdValue];
+    
+    [subject subscribeNext:^(id x) {
+      [valuesReceived addObject:x];
+    }];
+    
+    expect(valuesReceived.count).to.equal(3);
+    NSArray *expected = [NSArray arrayWithObjects:firstValue, secondValue, thirdValue, nil];
+    expect(valuesReceived).to.equal(expected);
+  });
 });
 
 SpecEnd

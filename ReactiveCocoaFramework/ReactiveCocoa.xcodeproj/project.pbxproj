@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5FACF1E7164676D100487DEA /* RACStashSubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5FACF1E5164676D100487DEA /* RACStashSubject.h */; };
+		5FACF1E8164676D100487DEA /* RACStashSubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5FACF1E5164676D100487DEA /* RACStashSubject.h */; };
+		5FACF1E9164676D100487DEA /* RACStashSubject.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FACF1E6164676D100487DEA /* RACStashSubject.m */; };
+		5FACF1EA164676D100487DEA /* RACStashSubject.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FACF1E6164676D100487DEA /* RACStashSubject.m */; };
 		866557A61557086B00B39EB5 /* RACExtensionsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 866557A51557086B00B39EB5 /* RACExtensionsSpec.m */; };
 		88037F8415056328001A5B19 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7BF15000FCE00163A9F /* Cocoa.framework */; };
 		88037FB81505645C001A5B19 /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = 88037F8C15056328001A5B19 /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -293,6 +297,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		5FACF1E5164676D100487DEA /* RACStashSubject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACStashSubject.h; sourceTree = "<group>"; };
+		5FACF1E6164676D100487DEA /* RACStashSubject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACStashSubject.m; sourceTree = "<group>"; };
 		866557A51557086B00B39EB5 /* RACExtensionsSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACExtensionsSpec.m; sourceTree = "<group>"; };
 		88037F8315056328001A5B19 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		88037F8C15056328001A5B19 /* ReactiveCocoa.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReactiveCocoa.h; sourceTree = "<group>"; };
@@ -701,6 +707,8 @@
 				88D4AB481510F8F10011494F /* RACAsyncSubject.m */,
 				883A84D81513964B006DB4C7 /* RACBehaviorSubject.h */,
 				883A84D91513964B006DB4C7 /* RACBehaviorSubject.m */,
+				5FACF1E5164676D100487DEA /* RACStashSubject.h */,
+				5FACF1E6164676D100487DEA /* RACStashSubject.m */,
 				883A84DD1513B5EC006DB4C7 /* RACDisposable.h */,
 				883A84DE1513B5EC006DB4C7 /* RACDisposable.m */,
 				884476E2152367D100958F44 /* RACScopedDisposable.h */,
@@ -890,6 +898,7 @@
 				D0D910CE15F915BD00AD2DDA /* RACSubscribableProtocol.h in Headers */,
 				D0FA57E3162CFED200AC6F42 /* EXTKeyPathCoding.h in Headers */,
 				888439A31634E10D00DED0DB /* RACBlockTrampoline.h in Headers */,
+				5FACF1E7164676D100487DEA /* RACStashSubject.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -944,6 +953,7 @@
 				90AF46ED162553A10054F8A0 /* EXTRuntimeExtensions.h in Headers */,
 				D0FA57E4162CFED200AC6F42 /* EXTKeyPathCoding.h in Headers */,
 				888439A41634E10D00DED0DB /* RACBlockTrampoline.h in Headers */,
+				5FACF1E8164676D100487DEA /* RACStashSubject.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1182,6 +1192,7 @@
 				88FC735716114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.m in Sources */,
 				889EECC3161B9296001E94E7 /* NSObject+RACSubscribeSelector.m in Sources */,
 				888439A51634E10D00DED0DB /* RACBlockTrampoline.m in Sources */,
+				5FACF1E9164676D100487DEA /* RACStashSubject.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1251,6 +1262,7 @@
 				88FC735816114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.m in Sources */,
 				889EECC4161B9296001E94E7 /* NSObject+RACSubscribeSelector.m in Sources */,
 				888439A61634E10D00DED0DB /* RACBlockTrampoline.m in Sources */,
+				5FACF1EA164676D100487DEA /* RACStashSubject.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

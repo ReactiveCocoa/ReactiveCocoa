@@ -73,7 +73,7 @@ typedef NSInteger RACSubscribableError;
 // Transform each `next` value by calling the given block.
 - (RACSubscribable *)select:(id (^)(id x))selectBlock;
 
-// For each value sent on the receiving subscribable, the given object it sent
+// For each value sent on the receiving subscribable, the given object is sent
 // on the returned subscribable.
 //
 // object - The object to send for each value sent on the receiver.

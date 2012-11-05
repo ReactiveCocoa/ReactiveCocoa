@@ -100,6 +100,12 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
+- (RACSubscribable *)mapReplace:(id)object {
+	return [self select:^(id _) {
+		return object;
+	}];
+}
+
 - (RACSubscribable *)injectObjectWeakly:(id)object {
 	__unsafe_unretained id weakObject = object;
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {

@@ -127,15 +127,23 @@ typedef NSInteger RACSubscribableError;
 
 // Combine the latest values from each of the subscribables once all the
 // subscribables have sent a `next`. Any additional `next`s will result in a new
-// reduced value based on a new tuple with the changed value.
+// reduced value based on all the latest values from all the subscribables.
 //
 // The `next` of the returned subscribable will be the return value of the
-// `reduceBlock`. The argument to `reduceBlock` is a RACTuple of the values from
-// the subscribables.
-+ (id<RACSubscribable>)combineLatest:(NSArray *)subscribables reduce:(id (^)(RACTuple *xs))reduceBlock;
-
-// Sends a `+[RACUnit defaultUnit]` when all the subscribables have sent a `next`.
-+ (id<RACSubscribable>)whenAll:(NSArray *)subscribables;
+// `reduceBlock`.
+//
+// subscribables - The subscribables to combine.
+// reduceBlock   - The block which reduces the latest values from all the
+//                 subscribables into one value. It should take as many arguments
+//                 as the number of subscribables given. Each argument will be an
+//                 object argument, wrapped as needed. If nil, the returned
+//                 subscribable will send a RACTuple of all the latest values.
+//
+// Example:
+//   [RACSubscribable combineLatest:@[ stringSubscribable, intSubscribable ] reduce:^(NSString *string, NSNumber *wrappedInt) {
+//       return [NSString stringWithFormat:@"%@: %@", string, wrappedInt];
+//   }];
++ (id<RACSubscribable>)combineLatest:(NSArray *)subscribables reduce:(id)reduceBlock;
 
 // Sends the latest `next` from any of the subscribables.
 + (id<RACSubscribable>)merge:(NSArray *)subscribables;
@@ -174,7 +182,11 @@ typedef NSInteger RACSubscribableError;
 // Set the object's keyPath to the value of `next`.
 - (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object;
 
-// Sends `+[RACUnit defaultUnit]` every `interval` seconds.
+// Sends NSDate.date every `interval` seconds.
+//
+// interval - The time interval in seconds at which the current time is sent.
+//
+// Returns a subscribable that sends the current date/time every `interval`.
 + (id<RACSubscribable>)interval:(NSTimeInterval)interval;
 
 // Take `next`s until the `subscribableTrigger` sends a `next`.

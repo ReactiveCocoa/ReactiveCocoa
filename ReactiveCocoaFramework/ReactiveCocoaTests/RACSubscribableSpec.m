@@ -342,7 +342,7 @@ describe(@"continuation", ^{
 	});
 });
 
-describe(@"combineLatest", ^{
+describe(@"-combineLatest:", ^{
 	__block id<RACSubscriber> subscriber1 = nil;
 	__block id<RACSubscriber> subscriber2 = nil;
 	__block RACSubscribable *subscribable1 = nil;
@@ -462,6 +462,93 @@ describe(@"combineLatest", ^{
 		[subscriber2 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
 		
 		expect(errorCount).to.equal(2);
+	});
+});
+
+describe(@"-combineLatest:reduce:", ^{
+	__block RACSubject *subject1;
+	__block RACSubject *subject2;
+
+	beforeEach(^{
+		subject1 = [RACSubject subject];
+		subject2 = [RACSubject subject];
+	});
+
+	it(@"should send a RACTuple when given a nil reduce block", ^{
+		RACSubscribable *combined = [RACSubscribable combineLatest:@[ subject1, subject2 ] reduce:nil];
+
+		__block id received;
+		[combined subscribeNext:^(id x) {
+			received = x;
+		}];
+
+		[subject1 sendNext:@1];
+		[subject2 sendNext:@2];
+
+		RACTuple *expected = [RACTuple tupleWithObjects:@1, @2, nil];
+		expect(received).to.equal(expected);
+	});
+
+	it(@"should send nils for nil values", ^{
+		__block id receivedVal1;
+		__block id receivedVal2;
+		RACSubscribable *combined = [RACSubscribable combineLatest:@[ subject1, subject2 ] reduce:^(id val1, id val2) {
+			receivedVal1 = val1;
+			receivedVal2 = val2;
+			return nil;
+		}];
+
+		__block BOOL gotValue = NO;
+		[combined subscribeNext:^(id x) {
+			gotValue = YES;
+		}];
+
+		[subject1 sendNext:nil];
+		[subject2 sendNext:nil];
+
+		expect(gotValue).to.beTruthy();
+		expect(receivedVal1).to.beNil();
+		expect(receivedVal2).to.beNil();
+	});
+
+	it(@"should send the return result of the reduce block", ^{
+		RACSubscribable *combined = [RACSubscribable combineLatest:@[ subject1, subject2 ] reduce:^(NSString *string1, NSString *string2) {
+			return [NSString stringWithFormat:@"%@: %@", string1, string2];
+		}];
+
+		__block id received;
+		[combined subscribeNext:^(id x) {
+			received = x;
+		}];
+
+		[subject1 sendNext:@"hello"];
+		[subject2 sendNext:@"world"];
+
+		expect(received).to.equal(@"hello: world");
+	});
+
+	it(@"should only complete after all its subscribables complete", ^{
+		RACSubscribable *combined = [RACSubscribable combineLatest:@[ subject1, subject2 ] reduce:nil];
+
+		__block BOOL completed = NO;
+		[combined subscribeCompleted:^{
+			completed = YES;
+		}];
+
+		expect(completed).to.beFalsy();
+
+		[subject1 sendNext:@1];
+		[subject2 sendNext:@2];
+
+		expect(completed).to.beFalsy();
+
+		[subject1 sendCompleted];
+
+		expect(completed).to.beFalsy();
+
+		[subject2 sendCompleted];
+
+		expect(completed).will.beTruthy();
 	});
 });
 
@@ -944,6 +1031,32 @@ describe(@"-switch", ^{
 
 		NSArray *expected = @[ @1, @2 ];
 		expect(values).to.equal(expected);
+	});
+});
+
+describe(@"+interval:", ^{
+	static const NSTimeInterval interval = 0.1;
+	void (^expectItToWorkWithScheduler)(RACScheduler *) = ^(RACScheduler *scheduler) {
+		__block volatile int32_t nextsReceived = 0;
+		[scheduler schedule:^{
+			__block NSTimeInterval lastTime = NSDate.timeIntervalSinceReferenceDate;
+			[[[RACSubscribable interval:interval] take:3] subscribeNext:^(id _) {
+				NSTimeInterval currentTime = NSDate.timeIntervalSinceReferenceDate;
+				expect(currentTime - lastTime).beGreaterThanOrEqualTo(interval);
+
+				OSAtomicAdd32Barrier(1, &nextsReceived);
+			}];
+		}];
+
+		expect(nextsReceived).will.equal(3);
+	};
+
+	it(@"should fire repeatedly at every interval", ^{
+		expectItToWorkWithScheduler(RACScheduler.mainQueueScheduler);
+	});
+
+	it(@"should work on a background scheduler", ^{
+		expectItToWorkWithScheduler(RACScheduler.backgroundScheduler);
 	});
 });
 

@@ -21,6 +21,7 @@
 #import "RACUnit.h"
 #import <libkern/OSAtomic.h>
 #import "NSObject+RACPropertySubscribing.h"
+#import "RACBlockTrampoline.h"
 #import "NSObject+RACFastEnumeration.h"
 
 NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
@@ -425,9 +426,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-+ (id<RACSubscribable>)combineLatest:(NSArray *)subscribables reduce:(id (^)(RACTuple *xs))reduceBlock {
-	NSParameterAssert(reduceBlock != NULL);
-	
++ (id<RACSubscribable>)combineLatest:(NSArray *)subscribables reduce:(id)reduceBlock {
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		NSMutableSet *disposables = [NSMutableSet setWithCapacity:subscribables.count];
 		NSMutableSet *completedSubscribables = [NSMutableSet setWithCapacity:subscribables.count];
@@ -436,14 +435,18 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 			RACDisposable *disposable = [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 				@synchronized(lastValues) {
 					[lastValues setObject:x ? : [RACTupleNil tupleNil] forKey:[NSString stringWithFormat:@"%p", subscribable]];
-					
+
 					if(lastValues.count == subscribables.count) {
 						NSMutableArray *orderedValues = [NSMutableArray arrayWithCapacity:subscribables.count];
 						for(id<RACSubscribable> o in subscribables) {
 							[orderedValues addObject:[lastValues objectForKey:[NSString stringWithFormat:@"%p", o]]];
 						}
 
-						[subscriber sendNext:reduceBlock([RACTuple tupleWithObjectsFromArray:orderedValues])];
+						if (reduceBlock == NULL) {
+							[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:orderedValues]];
+						} else {
+							[subscriber sendNext:[RACBlockTrampoline invokeBlock:reduceBlock withArguments:orderedValues]];
+						}
 					}
 				}
 			} error:^(NSError *error) {
@@ -456,12 +459,12 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 					}
 				}
 			}]];
-			
+
 			if(disposable != nil) {
 				[disposables addObject:disposable];
 			}
 		}
-		
+
 		return [RACDisposable disposableWithBlock:^{
 			for(RACDisposable *disposable in disposables) {
 				[disposable dispose];
@@ -471,11 +474,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 + (id<RACSubscribable>)combineLatest:(NSArray *)subscribables {
-	return [self combineLatest:subscribables reduce:^ id (RACTuple *xs) { return xs; }];
-}
-
-+ (id<RACSubscribable>)whenAll:(NSArray *)subscribables {
-	return [self combineLatest:subscribables reduce:^(RACTuple *xs) { return [RACUnit defaultUnit]; }];
+	return [self combineLatest:subscribables reduce:nil];
 }
 
 + (id<RACSubscribable>)merge:(NSArray *)subscribables {
@@ -705,29 +704,19 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 + (id<RACSubscribable>)interval:(NSTimeInterval)interval {
-	__block id<RACSubscribable> subscribable = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
-		__block BOOL stop = NO;
-		
-		dispatch_time_t (^nextFutureTime)(void) = ^{
-			return dispatch_time(DISPATCH_TIME_NOW, (int64_t) (interval * NSEC_PER_SEC));
-		};
-		
-		__block void (^sendNext)(void) = ^{
-			if(stop) return;
-			
-			[subscriber sendNext:[RACUnit defaultUnit]];
-			
-			dispatch_after(nextFutureTime(), dispatch_get_current_queue(), sendNext);
-		};
-		
-		dispatch_after(nextFutureTime(), dispatch_get_current_queue(), sendNext);
-		
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		NSTimer *timer = [NSTimer timerWithTimeInterval:interval target:self selector:@selector(intervalTimerFired:) userInfo:subscriber repeats:YES];
+		CFRunLoopAddTimer(CFRunLoopGetMain(), (__bridge CFRunLoopTimerRef)timer, kCFRunLoopCommonModes);
+
 		return [RACDisposable disposableWithBlock:^{
-			stop = YES;
+			[timer invalidate];
 		}];
 	}];
-	
-	return subscribable;
+}
+
++ (void)intervalTimerFired:(NSTimer *)timer {
+	RACSubscriber *subscriber = timer.userInfo;
+	[subscriber sendNext:NSDate.date];
 }
 
 - (id<RACSubscribable>)takeUntil:(id<RACSubscribable>)subscribableTrigger {

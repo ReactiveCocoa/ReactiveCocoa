@@ -43,12 +43,9 @@
 	if (self == nil) return nil;
 	
 	[[RACSubscribable
-		combineLatest:@[ canExecuteSubscribable ? : [RACSubscribable return:@(YES)], RACAbleWithStart(self.numberOfActiveExecutions), RACAbleWithStart(self.maxConcurrentExecutions) ]
-		reduce:^(RACTuple *xs) {
-			NSNumber *canExecute = xs.first;
-			NSNumber *executions = xs.second;
-			NSNumber *maxConcurrent = xs.third;
-			return @(canExecute.boolValue && executions.unsignedIntegerValue < maxConcurrent.unsignedIntegerValue);
+		combineLatest:@[ canExecuteSubscribable ?: [RACSubscribable return:@YES], RACAbleWithStart(self.numberOfActiveExecutions), RACAbleWithStart(self.maxConcurrentExecutions) ]
+		reduce:^(NSNumber *canExecute, NSNumber *activeExecutions, NSNumber *maxConcurrent) {
+			return @(canExecute.boolValue && activeExecutions.unsignedIntegerValue < maxConcurrent.unsignedIntegerValue);
 		}]
 		toProperty:@keypath(self.canExecute) onObject:self];
 	

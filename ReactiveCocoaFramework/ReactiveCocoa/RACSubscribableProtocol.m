@@ -100,7 +100,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (RACSubscribable *)selectConst:(id)object {
+- (RACSubscribable *)mapReplace:(id)object {
 	return [self select:^(id _) {
 		return object;
 	}];

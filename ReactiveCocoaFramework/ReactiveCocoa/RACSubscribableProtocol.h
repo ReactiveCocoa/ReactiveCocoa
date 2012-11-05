@@ -80,7 +80,7 @@ typedef NSInteger RACSubscribableError;
 //
 // Returns a subscribable that sends the given object for each value sent on the
 // receiver.
-- (RACSubscribable *)selectConst:(id)object;
+- (RACSubscribable *)mapReplace:(id)object;
 
 // Injects the given object weakly into the receiver's stream. The returned 
 // subscribable sends a tuple where the first object is the value received by

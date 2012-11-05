@@ -1127,7 +1127,7 @@ describe(@"-sequenceNext:", ^{
 	});
 });
 
-describe(@"-selectConst:", ^{
+describe(@"-mapReplace:", ^{
 	it(@"should always yield the given object", ^{
 		RACSubscribable *subscribable = [RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
@@ -1136,7 +1136,7 @@ describe(@"-selectConst:", ^{
 			return nil;
 		}];
 
-		NSArray *results = [[subscribable selectConst:@"hi"] toArray];
+		NSArray *results = [[subscribable mapReplace:@"hi"] toArray];
 		NSArray *expected = @[ @"hi", @"hi" ];
 		expect(results).to.equal(expected);
 	});

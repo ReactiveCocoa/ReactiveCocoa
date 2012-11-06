@@ -27,7 +27,7 @@
 }
 
 - (RACSubscribable *)rac_textSubscribable {
-	return [[[self rac_subscribableForDelegateMethod:@selector(textViewDidChange:)] startWith:self] select:^(UITextView *x) {
+	return [[[self rac_subscribableForDelegateMethod:@selector(textViewDidChange:)] startWith:self] map:^(UITextView *x) {
 		return x.text;
 	}];
 }

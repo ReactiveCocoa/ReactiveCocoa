@@ -63,6 +63,11 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			id<RACStream> stream = [[[streamClass return:@0] concat:[streamClass return:@1]] concat:[streamClass return:@2]];
 			verifyValues(stream, @[ @0, @1, @2 ]);
 		});
+
+		it(@"should concatenate around an empty stream", ^{
+			id<RACStream> stream = [[[streamClass return:@0] concat:[streamClass empty]] concat:[streamClass return:@2]];
+			verifyValues(stream, @[ @0, @2 ]);
+		});
 	});
 
 	it(@"should flatten", ^{
@@ -88,6 +93,18 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			}];
 
 			verifyValues(stream, @[ @1, @2 ]);
+		});
+
+		it(@"should concatenate with an empty result from binding a value", ^{
+			id<RACStream> baseStream = streamWithValues(@[ @0, @1, @2 ]);
+			id<RACStream> stream = [baseStream bind:^(NSNumber *value) {
+				if (value.integerValue == 1) return [streamClass empty];
+
+				NSNumber *newValue = @(value.integerValue + 1);
+				return [streamClass return:newValue];
+			}];
+
+			verifyValues(stream, @[ @1, @3 ]);
 		});
 	});
 

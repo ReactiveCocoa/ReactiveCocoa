@@ -47,7 +47,7 @@
 	__block RACSequence *(^nextSequence)(RACSequence *, RACSequence *);
 	
 	nextSequence = [^ RACSequence * (RACSequence *current, RACSequence *valuesSeq) {
-		while (current == nil) {
+		while (current.head == nil) {
 			// We've exhausted the current sequence, create a sequence from the
 			// next value.
 			id value = valuesSeq.head;

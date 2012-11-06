@@ -14,6 +14,7 @@
 
 NSString * const RACStreamExamples = @"RACStreamExamples";
 NSString * const RACStreamExamplesClass = @"RACStreamExamplesClass";
+NSString * const RACStreamExamplesInfiniteStream = @"RACStreamExamplesInfiniteStream";
 NSString * const RACStreamExamplesVerifyValuesBlock = @"RACStreamExamplesVerifyValuesBlock";
 
 SharedExampleGroupsBegin(RACStreamExamples)
@@ -21,6 +22,7 @@ SharedExampleGroupsBegin(RACStreamExamples)
 sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 	Class streamClass = data[RACStreamExamplesClass];
 	void (^verifyValues)(id<RACStream>, NSArray *) = data[RACStreamExamplesVerifyValuesBlock];
+	id<RACStream> infiniteStream = data[RACStreamExamplesInfiniteStream];
 
 	__block id<RACStream> (^streamWithValues)(NSArray *);
 	
@@ -170,6 +172,10 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 
 		it(@"should return the same stream when taking too many values", ^{
 			expect([stream take:4]).to.equal(stream);
+		});
+
+		it(@"should take and terminate from an infinite stream", ^{
+			verifyValues([infiniteStream take:2], @[ RACUnit.defaultUnit, RACUnit.defaultUnit ]);
 		});
 	});
 });

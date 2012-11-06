@@ -86,7 +86,25 @@ describe(@"<RACStream>", ^{
 		expect(collectedValues).to.equal(expectedValues);
 	};
 
-	itShouldBehaveLike(RACStreamExamples, @{ RACStreamExamplesClass: RACSubscribable.class, RACStreamExamplesVerifyValuesBlock: verifyValues });
+	RACSubscribable *infiniteSubscribable = [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		__block volatile int32_t done = 0;
+
+		[RACScheduler.deferredScheduler schedule:^{
+			while (!done) {
+				[subscriber sendNext:RACUnit.defaultUnit];
+			}
+		}];
+
+		return [RACDisposable disposableWithBlock:^{
+			OSAtomicIncrement32Barrier(&done);
+		}];
+	}];
+
+	itShouldBehaveLike(RACStreamExamples, @{
+		RACStreamExamplesClass: RACSubscribable.class,
+		RACStreamExamplesVerifyValuesBlock: verifyValues,
+		RACStreamExamplesInfiniteStream: infiniteSubscribable
+	});
 });
 
 describe(@"subscribing", ^{

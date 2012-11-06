@@ -11,6 +11,7 @@
 #import "RACStreamExamples.h"
 
 #import "RACSequence.h"
+#import "RACUnit.h"
 
 SpecBegin(RACSequence)
 
@@ -27,7 +28,17 @@ describe(@"<RACStream>", ^{
 		expect(collectedValues).to.equal(expectedValues);
 	};
 
-	itShouldBehaveLike(RACStreamExamples, @{ RACStreamExamplesClass: RACSequence.class, RACStreamExamplesVerifyValuesBlock: verifyValues });
+	__block RACSequence *infiniteSequence = [RACSequence sequenceWithHeadBlock:^{
+		return RACUnit.defaultUnit;
+	} tailBlock:^{
+		return infiniteSequence;
+	}];
+
+	itShouldBehaveLike(RACStreamExamples, @{
+		RACStreamExamplesClass: RACSequence.class,
+		RACStreamExamplesVerifyValuesBlock: verifyValues,
+		RACStreamExamplesInfiniteStream: infiniteSequence
+	});
 });
 
 describe(@"+sequenceWithHeadBlock:tailBlock:", ^{

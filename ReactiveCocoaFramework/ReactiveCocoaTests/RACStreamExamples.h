@@ -12,6 +12,12 @@ extern NSString * const RACStreamExamples;
 // The <RACStream>-conforming class to test.
 extern NSString * const RACStreamExamplesClass;
 
+// An infinite <RACStream> to test, making sure that certain operations
+// terminate.
+//
+// The stream should contain infinite RACUnit values.
+extern NSString * const RACStreamExamplesInfiniteStream;
+
 // A block with the signature:
 //
 // void (^)(id<RACStream> stream, NSArray *expectedValues)

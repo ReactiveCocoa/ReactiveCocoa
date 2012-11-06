@@ -80,12 +80,12 @@
 	// finish with another -deliverOn: so that subscribers get the result on the 
 	// main queue.
 	RACSubscribable *loadedAvatar = [[[[[RACAble(self.userAccount.avatarURL) 
-		where:^BOOL(id x) {
+		filter:^ BOOL (id x) {
 			return x != nil;
 		}] 
 		deliverOn:[RACScheduler sharedOperationQueueScheduler]] 
 		injectObjectWeakly:self]
-		selectMany:^(RACTuple *t) {
+		bind:^(RACTuple *t) {
 			GHDUserViewController *self = t.last;
 			return [self loadImageAtURL:t.first];
 		}] 
@@ -106,7 +106,7 @@
 	return [[[self.client 
 				fetchUserInfo] 
 				injectObjectWeakly:self]
-				select:^(RACTuple *t) {
+				map:^(RACTuple *t) {
 					GHDUserViewController *self = t.last;
 					[self.userAccount setValuesForKeysWithDictionary:t.first];
 					return [RACUnit defaultUnit];
@@ -117,7 +117,7 @@
 	return [[[self.client 
 				fetchUserRepos] 
 				injectObjectWeakly:self] 
-				select:^(RACTuple *t) {
+				map:^(RACTuple *t) {
 					NSLog(@"repos: %@", t.first);
 					return [RACUnit defaultUnit];
 				}];
@@ -127,7 +127,7 @@
 	return [[[self.client 
 				fetchUserRepos] 
 				injectObjectWeakly:self]
-				select:^(RACTuple *t) {
+				map:^(RACTuple *t) {
 					NSLog(@"orgs: %@", t.first);
 					return [RACUnit defaultUnit];
 				}];

@@ -14,7 +14,7 @@
 
 SpecBegin(RACSequence)
 
-it(@"should implement <RACStream>", ^{
+describe(@"<RACStream>", ^{
 	id verifyValues = ^(RACSequence *sequence, NSArray *expectedValues) {
 		expect(sequence).notTo.beNil();
 
@@ -31,51 +31,51 @@ it(@"should implement <RACStream>", ^{
 });
 
 describe(@"+sequenceWithHeadBlock:tailBlock:", ^{
-	it(@"should use the values from the head and tail blocks", ^{
-		RACSequence *sequence = [RACSequence sequenceWithHeadBlock:^{
+	__block RACSequence *sequence;
+	__block BOOL headInvoked;
+	__block BOOL tailInvoked;
+
+	before(^{
+		headInvoked = NO;
+		tailInvoked = NO;
+
+		sequence = [RACSequence sequenceWithHeadBlock:^{
+			headInvoked = YES;
 			return @0;
 		} tailBlock:^{
+			tailInvoked = YES;
 			return [RACSequence return:@1];
 		}];
 
 		expect(sequence).notTo.beNil();
+	});
+
+	it(@"should use the values from the head and tail blocks", ^{
 		expect(sequence.head).to.equal(@0);
 		expect(sequence.tail.head).to.equal(@1);
 		expect(sequence.tail.tail).to.beNil();
-
-		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: @[ @0, @1 ] });
 	});
 
 	it(@"should lazily invoke head and tail blocks", ^{
-		__block BOOL headInvoked = NO;
-		__block BOOL tailInvoked = NO;
-
-		RACSequence *sequence = [RACSequence sequenceWithHeadBlock:^ id {
-			headInvoked = YES;
-			return nil;
-		} tailBlock:^ id {
-			tailInvoked = YES;
-			return nil;
-		}];
-
-		expect(sequence).notTo.beNil();
 		expect(headInvoked).to.beFalsy();
 		expect(tailInvoked).to.beFalsy();
 
-		expect(sequence.head).to.beNil();
+		expect(sequence.head).to.equal(@0);
 		expect(headInvoked).to.beTruthy();
 		expect(tailInvoked).to.beFalsy();
 
-		expect(sequence.tail).to.beNil();
+		expect(sequence.tail).notTo.beNil();
 		expect(tailInvoked).to.beTruthy();
 	});
+
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: @[ @0, @1 ] });
 });
 
-it(@"should support empty sequences", ^{
+describe(@"empty sequences", ^{
 	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: RACSequence.empty, RACSequenceExpectedValues: @[] });
 });
 
-it(@"should support non-empty sequences", ^{
+describe(@"non-empty sequences", ^{
 	RACSequence *sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
 	NSArray *values = @[ @0, @1, @2 ];
 

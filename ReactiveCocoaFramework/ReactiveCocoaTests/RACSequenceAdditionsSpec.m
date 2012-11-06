@@ -26,15 +26,12 @@ describe(@"NSArray sequences", ^{
 	before(^{
 		values = [@[ @0, @1, @2, @3, @4, @5 ] mutableCopy];
 		sequence = values.rac_sequence;
-	});
-
-	it(@"should initialize", ^{
 		expect(sequence).notTo.beNil();
-
-		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values });
 	});
 
-	it(@"should not change even if the underlying array does", ^{
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values });
+
+	describe(@"when the underlying array changes", ^{
 		NSArray *unchangedValues = [values copy];
 		[values addObject:@6];
 
@@ -61,31 +58,29 @@ describe(@"NSDictionary sequences", ^{
 			@5: NSNull.null
 		} mutableCopy];
 
-		tupleSequence = dict.rac_sequence;
 		tuples = [NSMutableArray array];
 		for (id key in dict) {
 			RACTuple *tuple = [RACTuple tupleWithObjects:key, dict[key], nil];
 			[tuples addObject:tuple];
 		}
 
-		keySequence = dict.rac_keySequence;
-		keys = [dict.allKeys copy];
-
-		valueSequence = dict.rac_valueSequence;
-		values = [dict.allValues copy];
-	});
-
-	it(@"should initialize", ^{
+		tupleSequence = dict.rac_sequence;
 		expect(tupleSequence).notTo.beNil();
-		expect(keySequence).notTo.beNil();
-		expect(valueSequence).notTo.beNil();
 
-		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: tupleSequence, RACSequenceExpectedValues: tuples });
-		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: keySequence, RACSequenceExpectedValues: keys });
-		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: valueSequence, RACSequenceExpectedValues: values });
+		keys = [dict.allKeys copy];
+		keySequence = dict.rac_keySequence;
+		expect(keySequence).notTo.beNil();
+
+		values = [dict.allValues copy];
+		valueSequence = dict.rac_valueSequence;
+		expect(valueSequence).notTo.beNil();
 	});
 
-	it(@"should not change even if the underlying dictionary does", ^{
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: tupleSequence, RACSequenceExpectedValues: tuples });
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: keySequence, RACSequenceExpectedValues: keys });
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: valueSequence, RACSequenceExpectedValues: values });
+
+	describe(@"when the underlying dictionary changes", ^{
 		dict[@"foo"] = @"rab";
 		dict[@6] = @7;
 
@@ -102,15 +97,12 @@ describe(@"NSOrderedSet sequences", ^{
 	before(^{
 		values = [NSMutableOrderedSet orderedSetWithArray:@[ @0, @1, @2, @3, @4, @5 ]];
 		sequence = values.rac_sequence;
-	});
-
-	it(@"should initialize", ^{
 		expect(sequence).notTo.beNil();
-
-		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values.array });
 	});
 
-	it(@"should not change even if the underlying ordered set does", ^{
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values.array });
+
+	describe(@"when the underlying ordered set changes", ^{
 		NSArray *unchangedValues = [values.array copy];
 		[values addObject:@6];
 
@@ -125,15 +117,12 @@ describe(@"NSSet sequences", ^{
 	before(^{
 		values = [NSMutableSet setWithArray:@[ @0, @1, @2, @3, @4, @5 ]];
 		sequence = values.rac_sequence;
-	});
-
-	it(@"should initialize", ^{
 		expect(sequence).notTo.beNil();
-
-		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values.allObjects });
 	});
 
-	it(@"should not change even if the underlying set does", ^{
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values.allObjects });
+
+	describe(@"when the underlying set changes", ^{
 		NSArray *unchangedValues = [values.allObjects copy];
 		[values addObject:@6];
 
@@ -150,15 +139,12 @@ describe(@"NSString sequences", ^{
 		string = [@"foobar" mutableCopy];
 		values = @[ @"f", @"o", @"o", @"b", @"a", @"r" ];
 		sequence = string.rac_sequence;
-	});
-
-	it(@"should initialize", ^{
 		expect(sequence).notTo.beNil();
-
-		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values });
 	});
 
-	it(@"should not change even if the underlying string does", ^{
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values });
+
+	describe(@"when the underlying string changes", ^{
 		[string appendString:@"buzz"];
 
 		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values });

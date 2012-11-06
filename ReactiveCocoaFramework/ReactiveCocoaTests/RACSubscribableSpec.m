@@ -65,7 +65,7 @@ SharedExampleGroupsEnd
 
 SpecBegin(RACSubscribable)
 
-it(@"should implement <RACStream>", ^{
+describe(@"<RACStream>", ^{
 	id verifyValues = ^(RACSubscribable *subscribable, NSArray *expectedValues) {
 		expect(subscribable).notTo.beNil();
 

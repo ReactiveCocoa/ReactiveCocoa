@@ -71,6 +71,15 @@ typedef NSInteger RACSubscribableError;
 // Convenience method to subscribe to `error` and `completed` events.
 - (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
 
+// For each value sent on the receiving subscribable, the given object is sent
+// on the returned subscribable.
+//
+// object - The object to send for each value sent on the receiver.
+//
+// Returns a subscribable that sends the given object for each value sent on the
+// receiver.
+- (id<RACSubscribable>)mapReplace:(id)object;
+
 // Injects the given object weakly into the receiver's stream. The returned 
 // subscribable sends a tuple where the first object is the value received by
 // the receiver subscribable and the second is the weak object.

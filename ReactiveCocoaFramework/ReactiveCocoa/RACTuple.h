@@ -20,7 +20,7 @@
 
 // A tuple is an ordered collection of objects. It may contain nils, represented
 // by RACTupleNil.
-@interface RACTuple : NSObject <NSCopying, NSFastEnumeration>
+@interface RACTuple : NSObject <NSCoding, NSCopying, NSFastEnumeration>
 
 @property (nonatomic, readonly) NSUInteger count;
 

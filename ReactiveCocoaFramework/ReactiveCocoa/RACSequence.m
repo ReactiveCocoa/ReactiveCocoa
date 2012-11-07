@@ -187,6 +187,8 @@
 
 		// Handles the nil case too.
 		if (![seqObj isEqual:selfObj]) return NO;
+
+		seq = seq.tail;
 	}
 
 	// self is now depleted -- the argument should be too.

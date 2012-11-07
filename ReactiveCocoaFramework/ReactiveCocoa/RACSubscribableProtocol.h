@@ -247,7 +247,7 @@ typedef NSInteger RACSubscribableError;
 
 // The source must be a subscribable of subscribables. Subscribe and send
 // `next`s for the latest subscribable. This is mostly useful when combined
-// with `-bind:`.
+// with `-flattenMap:`.
 - (id<RACSubscribable>)switch;
 
 // Add every `next` to an array. Nils are represented by NSNulls. Note that this

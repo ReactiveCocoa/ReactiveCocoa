@@ -37,7 +37,7 @@
 //
 // Returns a new stream which represents the combined result of all applications
 // of `block`, or `nil` to successfully terminate the bind early.
-- (instancetype)bind:(id (^)(id value))block;
+- (instancetype)flattenMap:(id (^)(id value))block;
 
 // Appends the values of `stream` to the values in the receiver.
 //

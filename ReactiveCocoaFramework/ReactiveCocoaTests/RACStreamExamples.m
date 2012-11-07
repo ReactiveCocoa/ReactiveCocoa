@@ -70,9 +70,9 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		verifyValues(stream, @[ RACUnit.defaultUnit ]);
 	});
 
-	describe(@"-bind:", ^{
+	describe(@"-flattenMap:", ^{
 		it(@"should return the result of binding a single value", ^{
-			id<RACStream> stream = [[streamClass return:@0] bind:^(NSNumber *value) {
+			id<RACStream> stream = [[streamClass return:@0] flattenMap:^(NSNumber *value) {
 				NSNumber *newValue = @(value.integerValue + 1);
 				return [streamClass return:newValue];
 			}];
@@ -82,7 +82,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 
 		it(@"should concatenate the result of binding multiple values", ^{
 			id<RACStream> baseStream = streamWithValues(@[ @0, @1 ]);
-			id<RACStream> stream = [baseStream bind:^(NSNumber *value) {
+			id<RACStream> stream = [baseStream flattenMap:^(NSNumber *value) {
 				NSNumber *newValue = @(value.integerValue + 1);
 				return [streamClass return:newValue];
 			}];
@@ -92,7 +92,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 
 		it(@"should concatenate with an empty result from binding a value", ^{
 			id<RACStream> baseStream = streamWithValues(@[ @0, @1, @2 ]);
-			id<RACStream> stream = [baseStream bind:^(NSNumber *value) {
+			id<RACStream> stream = [baseStream flattenMap:^(NSNumber *value) {
 				if (value.integerValue == 1) return [streamClass empty];
 
 				NSNumber *newValue = @(value.integerValue + 1);
@@ -103,7 +103,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 
 		it(@"should terminate when returning nil", ^{
-			id<RACStream> stream = [infiniteStream bind:^ id (id _) {
+			id<RACStream> stream = [infiniteStream flattenMap:^ id (id _) {
 				return nil;
 			}];
 

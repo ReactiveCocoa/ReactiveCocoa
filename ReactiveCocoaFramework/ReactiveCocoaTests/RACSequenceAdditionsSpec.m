@@ -20,135 +20,91 @@
 SpecBegin(RACSequenceAdditions)
 
 describe(@"NSArray sequences", ^{
-	__block NSMutableArray *values;
-	__block RACSequence *sequence;
-
-	before(^{
-		values = [@[ @0, @1, @2, @3, @4, @5 ] mutableCopy];
-		sequence = values.rac_sequence;
-		expect(sequence).notTo.beNil();
-	});
+	NSMutableArray *values = [@[ @0, @1, @2, @3, @4, @5 ] mutableCopy];
+	RACSequence *sequence = values.rac_sequence;
+	expect(sequence).notTo.beNil();
 
 	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values });
 
-	describe(@"when the underlying array changes", ^{
-		NSArray *unchangedValues = [values copy];
-		[values addObject:@6];
+	NSArray *unchangedValues = [values copy];
+	[values addObject:@6];
 
-		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: unchangedValues });
-	});
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: unchangedValues });
 });
 
 describe(@"NSDictionary sequences", ^{
-	__block NSMutableDictionary *dict;
+	NSMutableDictionary *dict = [@{
+		@"foo": @"bar",
+		@"baz": @"buzz",
+		@5: NSNull.null
+	} mutableCopy];
 
-	__block RACSequence *tupleSequence;
-	__block NSMutableArray *tuples;
+	NSMutableArray *tuples = [NSMutableArray array];
+	for (id key in dict) {
+		RACTuple *tuple = [RACTuple tupleWithObjects:key, dict[key], nil];
+		[tuples addObject:tuple];
+	}
 
-	__block RACSequence *keySequence;
-	__block NSArray *keys;
+	RACSequence *tupleSequence = dict.rac_sequence;
+	expect(tupleSequence).notTo.beNil();
 
-	__block RACSequence *valueSequence;
-	__block NSArray *values;
+	NSArray *keys = [dict.allKeys copy];
+	RACSequence *keySequence = dict.rac_keySequence;
+	expect(keySequence).notTo.beNil();
 
-	before(^{
-		dict = [@{
-			@"foo": @"bar",
-			@"baz": @"buzz",
-			@5: NSNull.null
-		} mutableCopy];
-
-		tuples = [NSMutableArray array];
-		for (id key in dict) {
-			RACTuple *tuple = [RACTuple tupleWithObjects:key, dict[key], nil];
-			[tuples addObject:tuple];
-		}
-
-		tupleSequence = dict.rac_sequence;
-		expect(tupleSequence).notTo.beNil();
-
-		keys = [dict.allKeys copy];
-		keySequence = dict.rac_keySequence;
-		expect(keySequence).notTo.beNil();
-
-		values = [dict.allValues copy];
-		valueSequence = dict.rac_valueSequence;
-		expect(valueSequence).notTo.beNil();
-	});
+	NSArray *values = [dict.allValues copy];
+	RACSequence *valueSequence = dict.rac_valueSequence;
+	expect(valueSequence).notTo.beNil();
 
 	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: tupleSequence, RACSequenceExpectedValues: tuples });
 	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: keySequence, RACSequenceExpectedValues: keys });
 	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: valueSequence, RACSequenceExpectedValues: values });
 
-	describe(@"when the underlying dictionary changes", ^{
-		dict[@"foo"] = @"rab";
-		dict[@6] = @7;
+	dict[@"foo"] = @"rab";
+	dict[@6] = @7;
 
-		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: tupleSequence, RACSequenceExpectedValues: tuples });
-		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: keySequence, RACSequenceExpectedValues: keys });
-		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: valueSequence, RACSequenceExpectedValues: values });
-	});
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: tupleSequence, RACSequenceExpectedValues: tuples });
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: keySequence, RACSequenceExpectedValues: keys });
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: valueSequence, RACSequenceExpectedValues: values });
 });
 
 describe(@"NSOrderedSet sequences", ^{
-	__block NSMutableOrderedSet *values;
-	__block RACSequence *sequence;
-
-	before(^{
-		values = [NSMutableOrderedSet orderedSetWithArray:@[ @0, @1, @2, @3, @4, @5 ]];
-		sequence = values.rac_sequence;
-		expect(sequence).notTo.beNil();
-	});
+	NSMutableOrderedSet *values = [NSMutableOrderedSet orderedSetWithArray:@[ @0, @1, @2, @3, @4, @5 ]];
+	RACSequence *sequence = values.rac_sequence;
+	expect(sequence).notTo.beNil();
 
 	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values.array });
 
-	describe(@"when the underlying ordered set changes", ^{
-		NSArray *unchangedValues = [values.array copy];
-		[values addObject:@6];
+	NSArray *unchangedValues = [values.array copy];
+	[values addObject:@6];
 
-		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: unchangedValues });
-	});
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: unchangedValues });
 });
 
 describe(@"NSSet sequences", ^{
-	__block NSMutableSet *values;
-	__block RACSequence *sequence;
-
-	before(^{
-		values = [NSMutableSet setWithArray:@[ @0, @1, @2, @3, @4, @5 ]];
-		sequence = values.rac_sequence;
-		expect(sequence).notTo.beNil();
-	});
+	NSMutableSet *values = [NSMutableSet setWithArray:@[ @0, @1, @2, @3, @4, @5 ]];
+	RACSequence *sequence = values.rac_sequence;
+	expect(sequence).notTo.beNil();
 
 	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values.allObjects });
 
-	describe(@"when the underlying set changes", ^{
-		NSArray *unchangedValues = [values.allObjects copy];
-		[values addObject:@6];
+	NSArray *unchangedValues = [values.allObjects copy];
+	[values addObject:@6];
 
-		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: unchangedValues });
-	});
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: unchangedValues });
 });
 
 describe(@"NSString sequences", ^{
-	__block NSMutableString *string;
-	__block NSArray *values;
-	__block RACSequence *sequence;
-
-	before(^{
-		string = [@"foobar" mutableCopy];
-		values = @[ @"f", @"o", @"o", @"b", @"a", @"r" ];
-		sequence = string.rac_sequence;
-		expect(sequence).notTo.beNil();
-	});
+	NSMutableString *string = [@"foobar" mutableCopy];
+	NSArray *values = @[ @"f", @"o", @"o", @"b", @"a", @"r" ];
+	RACSequence *sequence = string.rac_sequence;
+	expect(sequence).notTo.beNil();
 
 	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values });
 
-	describe(@"when the underlying string changes", ^{
-		[string appendString:@"buzz"];
+	[string appendString:@"buzz"];
 
-		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values });
-	});
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values });
 });
 
 SpecEnd

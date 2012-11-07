@@ -77,7 +77,9 @@ describe(@"+sequenceWithHeadBlock:tailBlock:", ^{
 		expect(tailInvoked).to.beTruthy();
 	});
 
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: @[ @0, @1 ] });
+	after(^{
+		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: @[ @0, @1 ] });
+	});
 });
 
 describe(@"empty sequences", ^{

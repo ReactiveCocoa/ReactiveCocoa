@@ -52,7 +52,7 @@
 		if (block(value)) {
 			return [self.class return:value];
 		} else {
-			return nil;
+			return [self.class empty];
 		}
 	}];
 }

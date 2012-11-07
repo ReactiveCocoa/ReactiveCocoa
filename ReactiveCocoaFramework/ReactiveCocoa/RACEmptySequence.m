@@ -33,6 +33,21 @@
 	return nil;
 }
 
+#pragma mark NSCoding
+
+- (Class)classForCoder {
+	// Empty sequences should be encoded as themselves, not array sequences.
+	return self.class;
+}
+
+- (id)initWithCoder:(NSCoder *)coder {
+	// Return the singleton.
+	return self.class.empty;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder {
+}
+
 #pragma mark NSObject
 
 - (NSUInteger)hash {

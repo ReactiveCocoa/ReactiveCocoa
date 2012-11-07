@@ -104,7 +104,7 @@
 #pragma mark NSCoding
 
 - (Class)classForCoder {
-	// All sequences should be archived as RACArraySequences.
+	// Most sequences should be archived as RACArraySequences.
 	return RACArraySequence.class;
 }
 

@@ -106,6 +106,14 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 
 			verifyValues(stream, @[ @1, @3 ]);
 		});
+
+		it(@"should terminate when returning nil", ^{
+			id<RACStream> stream = [infiniteStream bind:^ id (id _) {
+				return nil;
+			}];
+
+			verifyValues(stream, @[]);
+		});
 	});
 
 	describe(@"-sequenceMany:", ^{

@@ -48,11 +48,11 @@
 - (instancetype)filter:(BOOL (^)(id value))block {
 	NSParameterAssert(block != nil);
 
-	return [self bind:^(id value) {
+	return [self bind:^ id (id value) {
 		if (block(value)) {
 			return [self.class return:value];
 		} else {
-			return self.class.empty;
+			return nil;
 		}
 	}];
 }
@@ -73,8 +73,8 @@
 
 - (instancetype)take:(NSUInteger)count {
 	__block NSUInteger taken = 0;
-	return [self bind:^(id value) {
-		if (taken >= count) return self.class.empty;
+	return [self bind:^ id (id value) {
+		if (taken >= count) return nil;
 
 		taken++;
 		return [self.class return:value];

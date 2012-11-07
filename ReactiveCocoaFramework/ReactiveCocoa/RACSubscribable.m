@@ -72,9 +72,26 @@ static NSMutableSet *activeSubscribables() {
 	}];
 }
 
-// TODO: Implement this as a primitive, instead of depending on -map:.
+// TODO: Implement this as a primitive, instead of depending on -flatten.
 - (instancetype)bind:(id (^)(id value))block {
-	return [self map:block].flatten;
+	NSParameterAssert(block != NULL);
+
+	RACSubscribable *subscribablesSubscribable = [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		return [self subscribeNext:^(id x) {
+			id<RACSubscribable> subscribable = block(x);
+			if (subscribable == nil) {
+				[subscriber sendCompleted];
+			} else {
+				[subscriber sendNext:subscribable];
+			}
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
+	}];
+
+	return subscribablesSubscribable.flatten;
 }
 
 - (instancetype)map:(id (^)(id value))block {

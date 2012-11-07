@@ -59,6 +59,11 @@
 
 			valuesSeq = valuesSeq.tail;
 			current = block(value);
+
+			if (current == nil) {
+				// Stop binding.
+				return nil;
+			}
 		}
 
 		NSAssert([current isKindOfClass:RACSequence.class], @"Bind returned an object that is not a sequence: %@", current);

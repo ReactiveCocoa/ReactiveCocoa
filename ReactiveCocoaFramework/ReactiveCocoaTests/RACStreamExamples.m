@@ -176,26 +176,36 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 	});
 
 	describe(@"-take:", ^{
-		__block NSArray *values;
-		__block id<RACStream> stream;
+		describe(@"with three values", ^{
+			__block NSArray *values;
+			__block id<RACStream> stream;
 
-		before(^{
-			values = @[ @0, @1, @2 ];
-			stream = streamWithValues(values);
-		});
+			before(^{
+				values = @[ @0, @1, @2 ];
+				stream = streamWithValues(values);
+			});
 
-		it(@"should take any valid number of values", ^{
-			for (NSUInteger i = 0; i < values.count; i++) {
-				verifyValues([stream take:i], [values subarrayWithRange:NSMakeRange(0, i)]);
-			}
-		});
+			it(@"should take any valid number of values", ^{
+				for (NSUInteger i = 0; i < values.count; i++) {
+					verifyValues([stream take:i], [values subarrayWithRange:NSMakeRange(0, i)]);
+				}
+			});
 
-		it(@"should return the same stream when taking too many values", ^{
-			verifyValues([stream take:4], values);
+			it(@"should return the same stream when taking too many values", ^{
+				verifyValues([stream take:4], values);
+			});
 		});
 
 		it(@"should take and terminate from an infinite stream", ^{
+			verifyValues([infiniteStream take:0], @[]);
+			verifyValues([infiniteStream take:1], @[ RACUnit.defaultUnit ]);
 			verifyValues([infiniteStream take:2], @[ RACUnit.defaultUnit, RACUnit.defaultUnit ]);
+		});
+
+		it(@"should take and terminate from a single-item stream", ^{
+			NSArray *values = @[ RACUnit.defaultUnit ];
+			id<RACStream> stream = streamWithValues(values);
+			verifyValues([stream take:1], values);
 		});
 	});
 });

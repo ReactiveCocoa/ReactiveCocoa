@@ -12,7 +12,7 @@
 // A sentinel object that represents nils in the tuple.
 //
 // It should never be necessary to create a tuple nil yourself. Just use +tupleNil.
-@interface RACTupleNil : NSObject
+@interface RACTupleNil : NSObject <NSCopying, NSCoding>
 // A singleton instance.
 + (RACTupleNil *)tupleNil;
 @end

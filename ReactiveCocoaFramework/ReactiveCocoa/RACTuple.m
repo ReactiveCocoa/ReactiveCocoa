@@ -21,6 +21,22 @@
 	return tupleNil;
 }
 
+#pragma mark NSCopying
+
+- (id)copyWithZone:(NSZone *)zone {
+	return self;
+}
+
+#pragma mark NSCoding
+
+- (id)initWithCoder:(NSCoder *)coder {
+	// Always return the singleton.
+	return self.class.tupleNil;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder {
+}
+
 @end
 
 

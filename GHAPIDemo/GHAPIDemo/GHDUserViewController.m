@@ -85,7 +85,7 @@
 		}] 
 		deliverOn:[RACScheduler sharedOperationQueueScheduler]] 
 		injectObjectWeakly:self]
-		bind:^(RACTuple *t) {
+		flattenMap:^(RACTuple *t) {
 			GHDUserViewController *self = t.last;
 			return [self loadImageAtURL:t.first];
 		}] 

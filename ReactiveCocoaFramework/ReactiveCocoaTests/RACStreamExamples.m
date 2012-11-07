@@ -28,15 +28,10 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 	
 	before(^{
 		streamWithValues = [^(NSArray *values) {
-			id<RACStream> stream = nil;
+			id<RACStream> stream = [streamClass empty];
 
 			for (id value in values) {
-				id<RACStream> valueSeq = [streamClass return:value];
-				if (stream == nil) {
-					stream = valueSeq;
-				} else {
-					stream = [stream concat:valueSeq];
-				}
+				stream = [stream concat:[streamClass return:value]];
 			}
 
 			return stream;

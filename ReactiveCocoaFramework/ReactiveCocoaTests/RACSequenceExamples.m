@@ -39,16 +39,12 @@ sharedExamplesFor(RACSequenceExamples, ^(NSDictionary *data) {
 	});
 
 	it(@"should be equal to the same sequence of values", ^{
-		RACSequence *newSequence = nil;
+		RACSequence *newSequence = RACSequence.empty;
 		for (id value in values) {
 			RACSequence *valueSeq = [RACSequence return:value];
 			expect(valueSeq).notTo.beNil();
 
-			if (newSequence == nil) {
-				newSequence = valueSeq;
-			} else {
-				newSequence = [newSequence concat:valueSeq];
-			}
+			newSequence = [newSequence concat:valueSeq];
 		}
 		
 		expect(sequence).to.equal(newSequence);

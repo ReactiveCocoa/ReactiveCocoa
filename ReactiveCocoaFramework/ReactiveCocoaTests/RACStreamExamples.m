@@ -196,7 +196,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 
 		it(@"should return the same stream when taking too many values", ^{
-			expect([stream take:4]).to.equal(stream);
+			verifyValues([stream take:4], values);
 		});
 
 		it(@"should take and terminate from an infinite stream", ^{

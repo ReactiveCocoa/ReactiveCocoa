@@ -46,9 +46,7 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 }
 
 - (RACSubscribable *)rac_completionSubscribable {
-	return [[[[NSNotificationCenter defaultCenter] rac_addObserverForName:NSTaskDidTerminateNotification object:self] any] mapReplace:^(id _) {
-		return [RACUnit defaultUnit];
-	}];
+	return [[[NSNotificationCenter.defaultCenter rac_addObserverForName:NSTaskDidTerminateNotification object:self] any] mapReplace:RACUnit.defaultUnit];
 }
 
 - (RACCancelableSubscribable *)rac_run {

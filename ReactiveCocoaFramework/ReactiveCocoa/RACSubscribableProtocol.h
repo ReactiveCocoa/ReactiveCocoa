@@ -23,6 +23,7 @@ typedef NSInteger RACSubscribableError;
 @class RACConnectableSubscribable;
 @class RACDisposable;
 @class RACScheduler;
+@class RACSequence;
 @class RACSubject;
 @class RACSubscribable;
 @class RACTuple;
@@ -253,6 +254,13 @@ typedef NSInteger RACSubscribableError;
 // Add every `next` to an array. Nils are represented by NSNulls. Note that this
 // is a blocking call.
 - (NSArray *)toArray;
+
+// Add every `next` to a sequence. Nils are represented by NSNulls.
+//
+// Returns a sequence which provides values from the subscribable as they're
+// sent. Trying to retrieve a value from the sequence which has not yet been
+// sent will block.
+@property (nonatomic, strong, readonly) RACSequence *sequence;
 
 // Creates and returns a connectable subscribable. This allows you to share a
 // single subscription to the underlying subscribable.

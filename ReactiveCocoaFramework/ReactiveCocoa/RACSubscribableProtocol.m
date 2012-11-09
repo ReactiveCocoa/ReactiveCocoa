@@ -16,6 +16,7 @@
 #import "RACMaybe.h"
 #import "RACScheduler.h"
 #import "RACSubject.h"
+#import "RACSubscribableSequence.h"
 #import "RACSubscriber.h"
 #import "RACTuple.h"
 #import "RACUnit.h"
@@ -962,6 +963,10 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	[condition unlock];
 
 	return [values copy];
+}
+
+- (RACSequence *)sequence {
+	return [RACSubscribableSequence sequenceWithSubscribable:self];
 }
 
 - (RACConnectableSubscribable *)publish {

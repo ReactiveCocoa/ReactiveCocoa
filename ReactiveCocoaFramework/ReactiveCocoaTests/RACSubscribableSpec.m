@@ -8,6 +8,7 @@
 
 #import "RACSpecs.h"
 #import "RACPropertySubscribableExamples.h"
+#import "RACSequenceExamples.h"
 #import "RACStreamExamples.h"
 
 #import "EXTKeyPathCoding.h"
@@ -1128,6 +1129,19 @@ describe(@"-mapReplace:", ^{
 		NSArray *expected = @[ @"hi", @"hi" ];
 		expect(results).to.equal(expected);
 	});
+});
+
+describe(@"-sequence", ^{
+	RACSubscribable *subscribable = [RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		[subscriber sendNext:@1];
+		[subscriber sendNext:@2];
+		[subscriber sendNext:@3];
+		[subscriber sendNext:@4];
+		[subscriber sendCompleted];
+		return nil;
+	}];
+
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: subscribable.sequence, RACSequenceExpectedValues: @[ @1, @2, @3, @4 ] });
 });
 
 SpecEnd

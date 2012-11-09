@@ -9,6 +9,9 @@
 #import <Foundation/Foundation.h>
 #import "RACStream.h"
 
+@class RACScheduler;
+@protocol RACSubscribable;
+
 // Represents an immutable, lazy sequence of values. Like Cocoa collections,
 // sequences cannot contain nil.
 //
@@ -27,6 +30,12 @@
 
 // Evaluates the full sequence to produce an equivalently-sized array.
 @property (nonatomic, copy, readonly) NSArray *array;
+
+// Evaluates the full sequence on the given scheduler.
+//
+// Returns a subscribable which sends the receiver's values on the given
+// scheduler as they're evaluated.
+- (id<RACSubscribable>)subscribableWithScheduler:(RACScheduler *)scheduler;
 
 // Returns a sequence that lazily invokes the given blocks to provide head and
 // tail. `headBlock` must not be nil.

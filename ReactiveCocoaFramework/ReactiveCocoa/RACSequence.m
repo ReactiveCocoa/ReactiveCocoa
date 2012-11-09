@@ -8,8 +8,13 @@
 
 #import "RACSequence.h"
 #import "RACArraySequence.h"
+#import "RACDisposable.h"
 #import "RACDynamicSequence.h"
 #import "RACEmptySequence.h"
+#import "RACScheduler.h"
+#import "RACSubject.h"
+#import "RACSubscribable.h"
+#import <libkern/OSAtomic.h>
 
 @implementation RACSequence
 
@@ -93,6 +98,26 @@
 	}
 
 	return [array copy];
+}
+
+- (id<RACSubscribable>)subscribableWithScheduler:(RACScheduler *)scheduler {
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		__block int32_t disposed = 0;
+
+		[scheduler schedule:^{
+			for (id value in self) {
+				if (disposed) break;
+
+				[subscriber sendNext:value];
+			}
+
+			[subscriber sendCompleted];
+		}];
+
+		return [RACDisposable disposableWithBlock:^{
+			OSAtomicIncrement32Barrier(&disposed);
+		}];
+	}];
 }
 
 #pragma mark NSCopying

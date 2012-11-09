@@ -9,7 +9,9 @@
 #import "RACSpecs.h"
 #import "RACSequenceExamples.h"
 
+#import "RACScheduler.h"
 #import "RACSequence.h"
+#import "RACSubscribableProtocol.h"
 
 NSString * const RACSequenceExamples = @"RACSequenceExamples";
 NSString * const RACSequenceSequence = @"RACSequenceSequence";
@@ -32,6 +34,16 @@ sharedExamplesFor(RACSequenceExamples, ^(NSDictionary *data) {
 
 	it(@"should return an array", ^{
 		expect(sequence.array).to.equal(values);
+	});
+
+	it(@"should return an immediately scheduled subscribable", ^{
+		id<RACSubscribable> subscribable = [sequence subscribableWithScheduler:RACScheduler.immediateScheduler];
+		expect(subscribable.toArray).to.equal(values);
+	});
+
+	it(@"should return a background scheduled subscribable", ^{
+		id<RACSubscribable> subscribable = [sequence subscribableWithScheduler:RACScheduler.backgroundScheduler];
+		expect(subscribable.toArray).to.equal(values);
 	});
 
 	it(@"should be equal to itself", ^{

@@ -936,7 +936,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 
 - (NSArray *)toArray {
 	NSCondition *condition = [[NSCondition alloc] init];
-	condition.name = NSStringFromSelector(_cmd);
+	condition.name = @(__func__);
 
 	NSMutableArray *values = [NSMutableArray array];
 	__block BOOL done = NO;

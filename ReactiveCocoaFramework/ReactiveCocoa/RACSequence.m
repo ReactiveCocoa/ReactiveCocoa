@@ -48,11 +48,14 @@
 	} tailBlock:nil];
 }
 
-- (instancetype)flattenMap:(id (^)(id value))block {
+- (instancetype)flattenMap:(id (^)(id value, BOOL *stop))block {
 	__block RACSequence *(^nextSequence)(RACSequence *, RACSequence *);
 	
 	nextSequence = [^ RACSequence * (RACSequence *current, RACSequence *valuesSeq) {
+		BOOL stop = NO;
 		while (current.head == nil) {
+			if (stop) return nil;
+
 			// We've exhausted the current sequence, create a sequence from the
 			// next value.
 			id value = valuesSeq.head;
@@ -62,20 +65,19 @@
 				return nil;
 			}
 
-			valuesSeq = valuesSeq.tail;
-			current = block(value);
+			current = block(value, &stop);
+			if (current == nil) return nil;
 
-			if (current == nil) {
-				// Stop binding.
-				return nil;
-			}
+			valuesSeq = valuesSeq.tail;
 		}
 
 		NSAssert([current isKindOfClass:RACSequence.class], @"-flattenMap: block returned an object that is not a sequence: %@", current);
 
 		return [RACDynamicSequence sequenceWithHeadBlock:^{
 			return current.head;
-		} tailBlock:^{
+		} tailBlock:^ id {
+			if (stop) return nil;
+
 			return nextSequence(current.tail, valuesSeq);
 		}];
 	} copy];

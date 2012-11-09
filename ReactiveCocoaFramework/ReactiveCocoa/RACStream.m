@@ -20,7 +20,7 @@
 	return nil;
 }
 
-- (instancetype)flattenMap:(id (^)(id value))block {
+- (instancetype)flattenMap:(id (^)(id value, BOOL *stop))block {
 	return nil;
 }
 
@@ -31,7 +31,7 @@
 #pragma mark Concrete methods
 
 - (instancetype)flatten {
-	return [self flattenMap:^(id value) {
+	return [self flattenMap:^(id value, BOOL *stop) {
 		NSAssert([value conformsToProtocol:@protocol(RACStream)], @"Stream %@ being flattened contains an object that is not a stream: %@", self, value);
 		return value;
 	}];
@@ -40,7 +40,7 @@
 - (instancetype)map:(id (^)(id value))block {
 	NSParameterAssert(block != nil);
 
-	return [self flattenMap:^(id value) {
+	return [self flattenMap:^(id value, BOOL *stop) {
 		return [self.class return:block(value)];
 	}];
 }
@@ -48,7 +48,7 @@
 - (instancetype)filter:(BOOL (^)(id value))block {
 	NSParameterAssert(block != nil);
 
-	return [self flattenMap:^ id (id value) {
+	return [self flattenMap:^ id (id value, BOOL *stop) {
 		if (block(value)) {
 			return [self.class return:value];
 		} else {
@@ -63,7 +63,7 @@
 
 - (instancetype)skip:(NSUInteger)skipCount {
 	__block NSUInteger skipped = 0;
-	return [self flattenMap:^(id value) {
+	return [self flattenMap:^(id value, BOOL *stop) {
 		if (skipped >= skipCount) return [self.class return:value];
 
 		skipped++;
@@ -73,18 +73,20 @@
 
 - (instancetype)take:(NSUInteger)count {
 	__block NSUInteger taken = 0;
-	return [self flattenMap:^ id (id value) {
-		if (taken >= count) return nil;
+	return [self flattenMap:^ id (id value, BOOL *stop) {
+		id<RACStream> result = self.class.empty;
 
-		taken++;
-		return [self.class return:value];
+		if (taken < count) result = [self.class return:value];
+		if (++taken >= count) *stop = YES;
+
+		return result;
 	}];
 }
 
 - (instancetype)sequenceMany:(id (^)(void))block {
 	NSParameterAssert(block != NULL);
 
-	return [self flattenMap:^(id _) {
+	return [self flattenMap:^(id _, BOOL *stop) {
 		return block();
 	}];
 }

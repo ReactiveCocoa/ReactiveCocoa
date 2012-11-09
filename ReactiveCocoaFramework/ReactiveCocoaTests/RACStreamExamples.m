@@ -72,7 +72,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 
 	describe(@"-flattenMap:", ^{
 		it(@"should return the result of binding a single value", ^{
-			id<RACStream> stream = [[streamClass return:@0] flattenMap:^(NSNumber *value) {
+			id<RACStream> stream = [[streamClass return:@0] flattenMap:^(NSNumber *value, BOOL *stop) {
 				NSNumber *newValue = @(value.integerValue + 1);
 				return [streamClass return:newValue];
 			}];
@@ -82,7 +82,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 
 		it(@"should concatenate the result of binding multiple values", ^{
 			id<RACStream> baseStream = streamWithValues(@[ @0, @1 ]);
-			id<RACStream> stream = [baseStream flattenMap:^(NSNumber *value) {
+			id<RACStream> stream = [baseStream flattenMap:^(NSNumber *value, BOOL *stop) {
 				NSNumber *newValue = @(value.integerValue + 1);
 				return [streamClass return:newValue];
 			}];
@@ -92,7 +92,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 
 		it(@"should concatenate with an empty result from binding a value", ^{
 			id<RACStream> baseStream = streamWithValues(@[ @0, @1, @2 ]);
-			id<RACStream> stream = [baseStream flattenMap:^(NSNumber *value) {
+			id<RACStream> stream = [baseStream flattenMap:^(NSNumber *value, BOOL *stop) {
 				if (value.integerValue == 1) return [streamClass empty];
 
 				NSNumber *newValue = @(value.integerValue + 1);
@@ -102,8 +102,26 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			verifyValues(stream, @[ @1, @3 ]);
 		});
 
-		it(@"should terminate when returning nil", ^{
-			id<RACStream> stream = [infiniteStream flattenMap:^ id (id _) {
+		it(@"should terminate immediately when returning nil", ^{
+			id<RACStream> stream = [infiniteStream flattenMap:^ id (id _, BOOL *stop) {
+				return nil;
+			}];
+
+			verifyValues(stream, @[]);
+		});
+
+		it(@"should terminate after one value when setting 'stop'", ^{
+			id<RACStream> stream = [infiniteStream flattenMap:^ id (id value, BOOL *stop) {
+				*stop = YES;
+				return [streamClass return:value];
+			}];
+
+			verifyValues(stream, @[ RACUnit.defaultUnit ]);
+		});
+
+		it(@"should terminate immediately when returning nil and setting 'stop'", ^{
+			id<RACStream> stream = [infiniteStream flattenMap:^ id (id _, BOOL *stop) {
+				*stop = YES;
 				return nil;
 			}];
 

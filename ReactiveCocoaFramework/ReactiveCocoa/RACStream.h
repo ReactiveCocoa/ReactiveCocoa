@@ -33,11 +33,13 @@
 // Binds `block` to the values in the receiver.
 //
 // block - A block which accepts the values in the receiver and returns a new
-//         instance of the receiver's class.
+//         instance of the receiver's class. If the block sets `stop` to `YES`,
+//         the bind will terminate after the returned value. Returning `nil`
+//         will result in immediate termination.
 //
 // Returns a new stream which represents the combined result of all applications
-// of `block`, or `nil` to successfully terminate the bind early.
-- (instancetype)flattenMap:(id (^)(id value))block;
+// of `block`.
+- (instancetype)flattenMap:(id (^)(id value, BOOL *stop))block;
 
 // Appends the values of `stream` to the values in the receiver.
 //

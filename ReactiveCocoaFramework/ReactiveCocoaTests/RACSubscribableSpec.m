@@ -1144,4 +1144,22 @@ describe(@"-sequence", ^{
 	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: subscribable.sequence, RACSequenceExpectedValues: @[ @1, @2, @3, @4 ] });
 });
 
+it(@"should complete take: even if the original subscribable doesn't", ^{
+	id<RACSubscribable> sendOne = [RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		[subscriber sendNext:RACUnit.defaultUnit];
+		return nil;
+	}];
+
+	__block id value = nil;
+	__block BOOL completed = NO;
+	[[sendOne take:1] subscribeNext:^(id received) {
+		value = received;
+	} completed:^{
+		completed = YES;
+	}];
+
+	expect(value).to.equal(RACUnit.defaultUnit);
+	expect(completed).to.beTruthy();
+});
+
 SpecEnd

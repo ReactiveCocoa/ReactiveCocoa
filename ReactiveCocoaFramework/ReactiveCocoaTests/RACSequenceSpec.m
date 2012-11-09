@@ -93,4 +93,21 @@ describe(@"non-empty sequences", ^{
 	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values });
 });
 
+describe(@"-take:", ^{
+	it(@"should complete take: without needing the head of the second item in the sequence", ^{
+		__block NSUInteger valuesTaken = 0;
+
+		__block RACSequence *sequence = [RACSequence sequenceWithHeadBlock:^{
+			++valuesTaken;
+			return RACUnit.defaultUnit;
+		} tailBlock:^{
+			return sequence;
+		}];
+
+		NSArray *values = [sequence take:1].array;
+		expect(values).to.equal(@[ RACUnit.defaultUnit ]);
+		expect(valuesTaken).to.equal(1);
+	});
+});
+
 SpecEnd

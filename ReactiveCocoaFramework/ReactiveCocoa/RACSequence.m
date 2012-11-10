@@ -48,7 +48,7 @@
 	} tailBlock:nil];
 }
 
-- (instancetype)flattenMap:(id (^)(id value, BOOL *stop))block {
+- (instancetype)bind:(id (^)(id value, BOOL *stop))block {
 	__block RACSequence *(^nextSequence)(RACSequence *, RACSequence *);
 	
 	nextSequence = [^ RACSequence * (RACSequence *current, RACSequence *valuesSeq) {
@@ -71,7 +71,7 @@
 			valuesSeq = valuesSeq.tail;
 		}
 
-		NSAssert([current isKindOfClass:RACSequence.class], @"-flattenMap: block returned an object that is not a sequence: %@", current);
+		NSAssert([current isKindOfClass:RACSequence.class], @"-bind: block returned an object that is not a sequence: %@", current);
 
 		return [RACDynamicSequence sequenceWithHeadBlock:^{
 			return current.head;

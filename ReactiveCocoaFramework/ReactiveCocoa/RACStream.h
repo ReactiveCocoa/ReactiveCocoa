@@ -39,7 +39,7 @@
 //
 // Returns a new stream which represents the combined result of all applications
 // of `block`.
-- (instancetype)flattenMap:(id (^)(id value, BOOL *stop))block;
+- (instancetype)bind:(id (^)(id value, BOOL *stop))block;
 
 // Appends the values of `stream` to the values in the receiver.
 //
@@ -50,6 +50,15 @@
 - (instancetype)concat:(id<RACStream>)stream;
 
 @concrete
+
+// Maps `block` across the values in the receiver and flattens the result.
+//
+// block - A block which accepts the values in the receiver and returns a new
+//         instance of the receiver's class. This block should not return `nil`.
+//
+// Returns a new stream which represents the combined streams resulting from
+// mapping `block`.
+- (instancetype)flattenMap:(id (^)(id value))block;
 
 // Flattens a stream of streams.
 //

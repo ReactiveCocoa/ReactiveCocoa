@@ -41,7 +41,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 
 // We can't actually provide a useful default implementation of these methods,
 // because conforming classes will be required to implement them anyways.
-- (instancetype)flattenMap:(id (^)(id value))block {
+- (instancetype)bind:(id (^)(id value))block {
 	return nil;
 }
 

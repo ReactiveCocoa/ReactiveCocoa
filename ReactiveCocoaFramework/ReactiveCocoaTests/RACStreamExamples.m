@@ -70,9 +70,9 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		verifyValues(stream, @[ RACUnit.defaultUnit ]);
 	});
 
-	describe(@"-flattenMap:", ^{
+	describe(@"-bind:", ^{
 		it(@"should return the result of binding a single value", ^{
-			id<RACStream> stream = [[streamClass return:@0] flattenMap:^(NSNumber *value, BOOL *stop) {
+			id<RACStream> stream = [[streamClass return:@0] bind:^(NSNumber *value, BOOL *stop) {
 				NSNumber *newValue = @(value.integerValue + 1);
 				return [streamClass return:newValue];
 			}];
@@ -82,7 +82,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 
 		it(@"should concatenate the result of binding multiple values", ^{
 			id<RACStream> baseStream = streamWithValues(@[ @0, @1 ]);
-			id<RACStream> stream = [baseStream flattenMap:^(NSNumber *value, BOOL *stop) {
+			id<RACStream> stream = [baseStream bind:^(NSNumber *value, BOOL *stop) {
 				NSNumber *newValue = @(value.integerValue + 1);
 				return [streamClass return:newValue];
 			}];
@@ -92,7 +92,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 
 		it(@"should concatenate with an empty result from binding a value", ^{
 			id<RACStream> baseStream = streamWithValues(@[ @0, @1, @2 ]);
-			id<RACStream> stream = [baseStream flattenMap:^(NSNumber *value, BOOL *stop) {
+			id<RACStream> stream = [baseStream bind:^(NSNumber *value, BOOL *stop) {
 				if (value.integerValue == 1) return [streamClass empty];
 
 				NSNumber *newValue = @(value.integerValue + 1);
@@ -103,7 +103,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 
 		it(@"should terminate immediately when returning nil", ^{
-			id<RACStream> stream = [infiniteStream flattenMap:^ id (id _, BOOL *stop) {
+			id<RACStream> stream = [infiniteStream bind:^ id (id _, BOOL *stop) {
 				return nil;
 			}];
 
@@ -111,7 +111,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 
 		it(@"should terminate after one value when setting 'stop'", ^{
-			id<RACStream> stream = [infiniteStream flattenMap:^ id (id value, BOOL *stop) {
+			id<RACStream> stream = [infiniteStream bind:^ id (id value, BOOL *stop) {
 				*stop = YES;
 				return [streamClass return:value];
 			}];
@@ -120,12 +120,45 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 
 		it(@"should terminate immediately when returning nil and setting 'stop'", ^{
-			id<RACStream> stream = [infiniteStream flattenMap:^ id (id _, BOOL *stop) {
+			id<RACStream> stream = [infiniteStream bind:^ id (id _, BOOL *stop) {
 				*stop = YES;
 				return nil;
 			}];
 
 			verifyValues(stream, @[]);
+		});
+	});
+
+	describe(@"-flattenMap:", ^{
+		it(@"should return a single mapped result", ^{
+			id<RACStream> stream = [[streamClass return:@0] flattenMap:^(NSNumber *value) {
+				NSNumber *newValue = @(value.integerValue + 1);
+				return [streamClass return:newValue];
+			}];
+
+			verifyValues(stream, @[ @1 ]);
+		});
+
+		it(@"should concatenate the results of mapping multiple values", ^{
+			id<RACStream> baseStream = streamWithValues(@[ @0, @1 ]);
+			id<RACStream> stream = [baseStream flattenMap:^(NSNumber *value) {
+				NSNumber *newValue = @(value.integerValue + 1);
+				return [streamClass return:newValue];
+			}];
+
+			verifyValues(stream, @[ @1, @2 ]);
+		});
+
+		it(@"should concatenate with an empty result from mapping a value", ^{
+			id<RACStream> baseStream = streamWithValues(@[ @0, @1, @2 ]);
+			id<RACStream> stream = [baseStream flattenMap:^(NSNumber *value) {
+				if (value.integerValue == 1) return [streamClass empty];
+
+				NSNumber *newValue = @(value.integerValue + 1);
+				return [streamClass return:newValue];
+			}];
+
+			verifyValues(stream, @[ @1, @3 ]);
 		});
 	});
 

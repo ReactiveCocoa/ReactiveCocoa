@@ -16,11 +16,11 @@
 	return nil;
 }
 
-+ (instancetype)return:(id)value {
+- (instancetype)bind:(id (^)(id value, BOOL *stop))block {
 	return nil;
 }
 
-- (instancetype)flattenMap:(id (^)(id value, BOOL *stop))block {
++ (instancetype)return:(id)value {
 	return nil;
 }
 
@@ -30,8 +30,14 @@
 
 #pragma mark Concrete methods
 
+- (instancetype)flattenMap:(id (^)(id value))block {
+	return [self bind:^(id value, BOOL *stop) {
+		return block(value);
+	}];
+}
+
 - (instancetype)flatten {
-	return [self flattenMap:^(id value, BOOL *stop) {
+	return [self bind:^(id value, BOOL *stop) {
 		NSAssert([value conformsToProtocol:@protocol(RACStream)], @"Stream %@ being flattened contains an object that is not a stream: %@", self, value);
 		return value;
 	}];
@@ -40,7 +46,7 @@
 - (instancetype)map:(id (^)(id value))block {
 	NSParameterAssert(block != nil);
 
-	return [self flattenMap:^(id value, BOOL *stop) {
+	return [self bind:^(id value, BOOL *stop) {
 		return [self.class return:block(value)];
 	}];
 }
@@ -48,7 +54,7 @@
 - (instancetype)filter:(BOOL (^)(id value))block {
 	NSParameterAssert(block != nil);
 
-	return [self flattenMap:^ id (id value, BOOL *stop) {
+	return [self bind:^ id (id value, BOOL *stop) {
 		if (block(value)) {
 			return [self.class return:value];
 		} else {
@@ -63,7 +69,7 @@
 
 - (instancetype)skip:(NSUInteger)skipCount {
 	__block NSUInteger skipped = 0;
-	return [self flattenMap:^(id value, BOOL *stop) {
+	return [self bind:^(id value, BOOL *stop) {
 		if (skipped >= skipCount) return [self.class return:value];
 
 		skipped++;
@@ -73,7 +79,7 @@
 
 - (instancetype)take:(NSUInteger)count {
 	__block NSUInteger taken = 0;
-	return [self flattenMap:^ id (id value, BOOL *stop) {
+	return [self bind:^ id (id value, BOOL *stop) {
 		id<RACStream> result = self.class.empty;
 
 		if (taken < count) result = [self.class return:value];
@@ -86,7 +92,7 @@
 - (instancetype)sequenceMany:(id (^)(void))block {
 	NSParameterAssert(block != NULL);
 
-	return [self flattenMap:^(id _, BOOL *stop) {
+	return [self bind:^(id _, BOOL *stop) {
 		return block();
 	}];
 }

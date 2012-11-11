@@ -15,6 +15,8 @@
 #import "RACSubject.h"
 #import "RACSubscribable+Private.h"
 #import "RACSubscriber.h"
+#import "RACTuple.h"
+#import "RACBlockTrampoline.h"
 #import <libkern/OSAtomic.h>
 
 static NSMutableSet *activeSubscribables() {
@@ -138,6 +140,96 @@ static NSMutableSet *activeSubscribables() {
 
 - (instancetype)flatten {
 	return [self flatten:0];
+}
+
++ (instancetype)zip:(NSArray *)subscribables reduce:(id)reduceBlock {
+  static id completePlaceholder = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    completePlaceholder = [[NSObject alloc] init];
+  });
+  
+  return [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+    NSMutableSet *disposables = [NSMutableSet setWithCapacity:subscribables.count];
+    NSMutableDictionary *valuesBySubscribable = [NSMutableDictionary dictionaryWithCapacity:subscribables.count];
+    for (id<RACSubscribable>subscribable in subscribables) {
+      [valuesBySubscribable setObject:[NSMutableArray array] forKey:[NSString stringWithFormat:@"%p", subscribable]];
+    }
+    
+    BOOL (^shouldComplete)(void) = ^BOOL(void) {
+      for (NSArray *values in valuesBySubscribable.allValues) {
+        if (values.count && [values objectAtIndex:0] == completePlaceholder) {
+          return YES;
+        }
+      }
+      return NO;
+    };
+    
+    NSMutableArray *(^valuesForSubscribable)(id<RACSubscribable>) = ^NSMutableArray *(id<RACSubscribable>subscribable) {
+      return [valuesBySubscribable objectForKey:[NSString stringWithFormat:@"%p", subscribable]];
+    };
+    
+    for (id<RACSubscribable>subscribable in subscribables) {
+      RACDisposable *disposable = [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
+        @synchronized(valuesBySubscribable) {
+          [valuesForSubscribable(subscribable) addObject:x ? : [RACTupleNil tupleNil]];
+          
+          BOOL isMissingValues = NO;
+          NSMutableArray *earliestValues = [NSMutableArray arrayWithCapacity:subscribables.count];
+          for (id<RACSubscribable>subscribable in subscribables) {
+            NSArray *values = valuesForSubscribable(subscribable);
+            if (!values.count) {
+              isMissingValues = YES;
+              break;
+            }
+            [earliestValues addObject:[values objectAtIndex:0]];
+          }
+          
+          if (!isMissingValues) {
+            for (NSMutableArray *values in valuesBySubscribable.allValues) {
+              [values removeObjectAtIndex:0];
+            }
+            
+            if (reduceBlock == NULL) {
+              [subscriber sendNext:[RACTuple tupleWithObjectsFromArray:earliestValues]];
+            } else {
+              [subscriber sendNext:[RACBlockTrampoline invokeBlock:reduceBlock withArguments:earliestValues]];
+            }
+          }
+          
+          if (shouldComplete()) {
+            [subscriber sendCompleted];
+          }
+        }
+      } error:^(NSError *error) {
+        // Ignore errors sent by subscribables that have already completed
+        @synchronized(valuesBySubscribable) {
+          NSArray *values = valuesForSubscribable(subscribable);
+          if (!values.count || [values lastObject] != completePlaceholder) {
+            [subscriber sendError:error];
+          }
+        }
+      } completed:^{
+        @synchronized(valuesBySubscribable) {
+          NSMutableArray *values = valuesForSubscribable(subscribable);
+          [values addObject:completePlaceholder];
+          if (shouldComplete()) {
+            [subscriber sendCompleted];
+          }
+        }
+      }]];
+      
+			if(disposable != nil) {
+				[disposables addObject:disposable];
+			}
+    }
+    
+		return [RACDisposable disposableWithBlock:^{
+			for(RACDisposable *disposable in disposables) {
+				[disposable dispose];
+			}
+		}];
+  }];
 }
 
 #pragma mark RACSubscribable

@@ -12,8 +12,10 @@
 #import "RACDynamicSequence.h"
 #import "RACEmptySequence.h"
 #import "RACScheduler.h"
-#import "RACSubject.h"
+#import "RACSubscriber.h"
 #import "RACSubscribable.h"
+#import "RACTuple.h"
+#import "RACBlockTrampoline.h"
 #import <libkern/OSAtomic.h>
 
 @implementation RACSequence
@@ -89,6 +91,34 @@
 	NSParameterAssert(stream != nil);
 
 	return [RACArraySequence sequenceWithArray:@[ self, stream ] offset:0].flatten;
+}
+
++ (instancetype)zip:(NSArray *)sequences reduce:(id)reduceBlock {
+  return [RACSequence sequenceWithHeadBlock:^id{
+    NSMutableArray *heads = [NSMutableArray arrayWithCapacity:sequences.count];
+    for (RACSequence *sequence in sequences) {
+      id head = sequence.head;
+      if (!head) {
+        return nil;
+      }
+      [heads addObject:head];
+    }
+    if (reduceBlock == NULL) {
+      return [RACTuple tupleWithObjectsFromArray:heads];
+    } else {
+      return [RACBlockTrampoline invokeBlock:reduceBlock withArguments:heads];
+    }
+  } tailBlock:^RACSequence *{
+    NSMutableArray *tails = [NSMutableArray arrayWithCapacity:sequences.count];
+    for (RACSequence *sequence in sequences) {
+      RACSequence *tail = sequence.tail;
+      if (!tail) {
+        return [RACSequence empty];
+      }
+      [tails addObject:tail];
+    }
+    return [RACSequence zip:tails reduce:reduceBlock];
+  }];
 }
 
 #pragma mark Extended methods

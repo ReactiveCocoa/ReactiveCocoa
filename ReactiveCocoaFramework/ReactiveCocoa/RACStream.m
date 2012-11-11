@@ -28,6 +28,10 @@
 	return nil;
 }
 
++ (instancetype)zip:(NSArray *)streams reduce:(id)reduceBlock {
+  return nil;
+}
+
 #pragma mark Concrete methods
 
 - (instancetype)flatten {
@@ -89,6 +93,10 @@
 	return [self flattenMap:^(id _, BOOL *stop) {
 		return block();
 	}];
+}
+
++ (instancetype)zip:(NSArray *)streams {
+  return [self zip:streams reduce:nil];
 }
 
 @end

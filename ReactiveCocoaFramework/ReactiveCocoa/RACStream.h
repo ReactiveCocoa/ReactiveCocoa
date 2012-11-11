@@ -49,6 +49,16 @@
 // Returns a new stream representing the receiver followed by `stream`.
 - (instancetype)concat:(id<RACStream>)stream;
 
+// Combines the values in `streams` using `reduceBlock`
+//
+// streams       - The streams to combine.
+// reduceBlock   - The block which reduces the values from all the streams
+//                 into one value. It should take as many arguments as the
+//                 number of streams given. Each argument will be an object
+//                 argument, wrapped as needed. If nil, the returned stream
+//                 will contain a RACTuple of the values.
++ (instancetype)zip:(NSArray *)streams reduce:(id)reduceBlock;
+
 @concrete
 
 // Flattens a stream of streams.
@@ -90,5 +100,9 @@
 // Returns a new stream which represents the combined result of all invocations
 // of `block`.
 - (instancetype)sequenceMany:(id (^)(void))block;
+
+// Returns a streams consisting of RACTuples containing a value for each of the
+// given streams.
++ (instancetype)zip:(NSArray *)streams;
 
 @end

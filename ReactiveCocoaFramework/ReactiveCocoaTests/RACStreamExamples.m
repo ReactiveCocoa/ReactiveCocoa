@@ -259,6 +259,32 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			verifyValues([stream take:1], values);
 		});
 	});
+  
+  describe(@"+zip:reduce:", ^{
+    it(@"should combine values", ^{
+      NSArray *streams = @[streamWithValues(@[@1, @2, @3]), streamWithValues(@[@1, @2, @3]), streamWithValues(@[@1, @2, @3])];
+      id<RACStream>stream = [streamClass zip:streams reduce:^NSString *(id x, id y, id z) {
+        return [NSString stringWithFormat:@"%@%@%@", x, y, z];
+      }];
+      verifyValues(stream, @[@"111", @"222", @"333"]);
+    });
+    
+    it(@"should truncate values", ^{
+      NSArray *streams = @[streamWithValues(@[@1, @2, @3]), streamWithValues(@[@1, @2, @3]), streamWithValues(@[@1, @2])];
+      id<RACStream>stream = [streamClass zip:streams reduce:^NSString *(id x, id y, id z) {
+        return [NSString stringWithFormat:@"%@%@%@", x, y, z];
+      }];
+      verifyValues(stream, @[@"111", @"222"]);
+    });
+    
+    it(@"should work on infinite streams", ^{
+      NSArray *streams = @[streamWithValues(@[@1, @2, @3]), streamWithValues(@[@1, @2, @3]), infiniteStream];
+      id<RACStream>stream = [streamClass zip:streams reduce:^NSString *(id x, id y, id z) {
+        return [NSString stringWithFormat:@"%@%@", x, y];
+      }];
+      verifyValues(stream, @[@"11", @"22", @"33"]);
+    });
+  });
 });
 
 SharedExampleGroupsEnd

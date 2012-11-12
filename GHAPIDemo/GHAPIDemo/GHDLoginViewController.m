@@ -44,8 +44,8 @@
 	// Login is only enabled when they've entered both a username and password.
 	self.loginCommand = [RACAsyncCommand commandWithCanExecuteSubscribable:[RACSubscribable
 		combineLatest:@[ RACAbleWithStart(self.username), RACAbleWithStart(self.password) ]
-		reduce:^(RACTuple *xs) {
-			return @([[xs objectAtIndex:0] length] > 0 && [[xs objectAtIndex:1] length] > 0);
+		reduce:^(NSString *username, NSString *password) {
+			return @(username.length > 0 && password.length > 0);
 		}]
 		block:NULL];
 	

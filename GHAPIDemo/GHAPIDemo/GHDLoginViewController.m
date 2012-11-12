@@ -142,15 +142,6 @@
 
 #pragma mark API
 
-@synthesize username;
-@synthesize password;
 @dynamic view;
-@synthesize successHidden;
-@synthesize loginFailedHidden;
-@synthesize loginCommand;
-@synthesize loggingIn;
-@synthesize user;
-@synthesize client;
-@synthesize didLoginSubject;
 
 @end

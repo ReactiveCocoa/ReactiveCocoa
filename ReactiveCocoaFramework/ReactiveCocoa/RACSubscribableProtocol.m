@@ -54,7 +54,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 + (instancetype)zip:(NSArray *)streams reduce:(id)reduceBlock {
-  return nil;
+	return nil;
 }
 
 #pragma mark RACSubscribable

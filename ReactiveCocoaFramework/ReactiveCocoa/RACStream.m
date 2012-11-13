@@ -29,7 +29,7 @@
 }
 
 + (instancetype)zip:(NSArray *)streams reduce:(id)reduceBlock {
-  return nil;
+	return nil;
 }
 
 #pragma mark Concrete methods
@@ -96,7 +96,7 @@
 }
 
 + (instancetype)zip:(NSArray *)streams {
-  return [self zip:streams reduce:nil];
+	return [self zip:streams reduce:nil];
 }
 
 @end

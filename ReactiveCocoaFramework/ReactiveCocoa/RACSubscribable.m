@@ -143,42 +143,55 @@ static NSMutableSet *activeSubscribables() {
 }
 
 + (instancetype)zip:(NSArray *)subscribables reduce:(id)reduceBlock {
-	static id completePlaceholder = nil;
-	static dispatch_once_t onceToken;
-	dispatch_once(&onceToken, ^{
-		completePlaceholder = NSObject.alloc.init;
-	});
+	static NSString *(^keyForSubscribable)(id<RACSubscribable>) = ^ NSString * (id<RACSubscribable> subscribable) {
+		return [NSString stringWithFormat:@"%p", subscribable];
+	};
 	
 	return [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
 		NSMutableSet *disposables = [NSMutableSet setWithCapacity:subscribables.count];
+		NSMutableDictionary *completedOrErrorBySubscribable = [NSMutableDictionary dictionaryWithCapacity:subscribables.count];
 		NSMutableDictionary *valuesBySubscribable = [NSMutableDictionary dictionaryWithCapacity:subscribables.count];
 		for (id<RACSubscribable> subscribable in subscribables) {
-			[valuesBySubscribable setObject:[NSMutableArray array] forKey:[NSString stringWithFormat:@"%p", subscribable]];
+			[valuesBySubscribable setObject:NSMutableArray.array forKey:[NSString stringWithFormat:@"%p", subscribable]];
 		}
 		
-		BOOL (^shouldComplete)(void) = ^ BOOL (void) {
-			for (NSArray *values in valuesBySubscribable.allValues) {
-				if (values.count && [values objectAtIndex:0] == completePlaceholder) {
-					return YES;
+		void (^sendCompleteOrErrorIfNecessary)(void) = ^{
+			BOOL completed = NO;
+			NSError *error = nil;
+			for (id<RACSubscribable> subscribable in subscribables) {
+				if ([valuesBySubscribable[keyForSubscribable(subscribable)] count] != 0) {
+					continue;
 				}
+				id completedOrError = completedOrErrorBySubscribable[keyForSubscribable(subscribable)];
+				if (completedOrError == nil) {
+					continue;
+				}
+				if ([completedOrError isKindOfClass:[NSError class]]) {
+					error = completedOrError;
+					continue;
+				}
+				completed = YES;
+				break;
 			}
-			return NO;
-		};
-		
-		NSMutableArray *(^valuesForSubscribable)(id<RACSubscribable>) = ^ NSMutableArray * (id<RACSubscribable> subscribable) {
-			return [valuesBySubscribable objectForKey:[NSString stringWithFormat:@"%p", subscribable]];
+			if (completed) {
+				[subscriber sendCompleted];
+				return;
+			}
+			if (error != nil) {
+				[subscriber sendError:error];
+			}
 		};
 		
 		for (id<RACSubscribable> subscribable in subscribables) {
 			RACDisposable *disposable = [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 				@synchronized(valuesBySubscribable) {
-					[valuesForSubscribable(subscribable) addObject:x ? : RACTupleNil.tupleNil];
+					[valuesBySubscribable[keyForSubscribable(subscribable)] addObject:x ? : RACTupleNil.tupleNil];
 					
 					BOOL isMissingValues = NO;
 					NSMutableArray *earliestValues = [NSMutableArray arrayWithCapacity:subscribables.count];
 					for (id<RACSubscribable> subscribable in subscribables) {
-						NSArray *values = valuesForSubscribable(subscribable);
-						if (!values.count) {
+						NSArray *values = valuesBySubscribable[keyForSubscribable(subscribable)];
+						if (values.count == 0) {
 							isMissingValues = YES;
 							break;
 						}
@@ -197,24 +210,26 @@ static NSMutableSet *activeSubscribables() {
 						}
 					}
 					
-					if (shouldComplete()) {
-						[subscriber sendCompleted];
+					@synchronized(completedOrErrorBySubscribable) {
+						sendCompleteOrErrorIfNecessary();
 					}
 				}
 			} error:^(NSError *error) {
-				// Ignore errors sent by subscribables that have already completed
-				@synchronized(valuesBySubscribable) {
-					NSArray *values = valuesForSubscribable(subscribable);
-					if (!values.count || [values lastObject] != completePlaceholder) {
-						[subscriber sendError:error];
+				@synchronized(completedOrErrorBySubscribable) {
+					if (!completedOrErrorBySubscribable[keyForSubscribable(subscribable)]) {
+						completedOrErrorBySubscribable[keyForSubscribable(subscribable)] = error;
+					}
+					@synchronized(valuesBySubscribable) {
+						sendCompleteOrErrorIfNecessary();
 					}
 				}
 			} completed:^{
-				@synchronized(valuesBySubscribable) {
-					NSMutableArray *values = valuesForSubscribable(subscribable);
-					[values addObject:completePlaceholder];
-					if (shouldComplete()) {
-						[subscriber sendCompleted];
+				@synchronized(completedOrErrorBySubscribable) {
+					if (!completedOrErrorBySubscribable[keyForSubscribable(subscribable)]) {
+						completedOrErrorBySubscribable[keyForSubscribable(subscribable)] = @YES;
+					}
+					@synchronized(valuesBySubscribable) {
+						sendCompleteOrErrorIfNecessary();
 					}
 				}
 			}]];

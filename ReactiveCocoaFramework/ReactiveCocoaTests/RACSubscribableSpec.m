@@ -1168,20 +1168,20 @@ describe(@"+zip:reduce:", ^{
 	__block id<RACSubscribable> sendTwo = nil;
 	
 	before(^{
-		errorAfterTwo = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+		errorAfterTwo = [RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendNext:@2];
 			[subscriber sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
 			return nil;
 		}];
-		errorAfterThree = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+		errorAfterThree = [RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendNext:@2];
 			[subscriber sendNext:@3];
 			[subscriber sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
 			return nil;
 		}];
-		sendTwo = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+		sendTwo = [RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendNext:@2];
 			[subscriber sendCompleted];

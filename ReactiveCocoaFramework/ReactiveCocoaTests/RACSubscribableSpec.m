@@ -1162,4 +1162,53 @@ it(@"should complete take: even if the original subscribable doesn't", ^{
 	expect(completed).to.beTruthy();
 });
 
+describe(@"+zip:reduce:", ^{
+	__block id<RACSubscribable> errorAfterTwo = nil;
+	__block id<RACSubscribable> errorAfterThree = nil;
+	__block id<RACSubscribable> sendTwo = nil;
+	
+	before(^{
+		errorAfterTwo = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendNext:@2];
+			[subscriber sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+			return nil;
+		}];
+		errorAfterThree = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendNext:@2];
+			[subscriber sendNext:@3];
+			[subscriber sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+			return nil;
+		}];
+		sendTwo = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendNext:@2];
+			[subscriber sendCompleted];
+			return nil;
+		}];
+	});
+	
+	it(@"should ignore errors sent after values needed by +zip:reduce:", ^{
+		__block NSError *receivedError = nil;
+		
+		[[RACSubscribable zip:@[ errorAfterThree, sendTwo ] reduce:nil] subscribeError:^(NSError *error) {
+			receivedError = error;
+		}];
+		
+		expect(receivedError).to.beNil();
+	});
+	
+	it(@"shouldn't ignore errors sent before values needed by +zip:reduce:", ^{
+		__block NSError *receivedError = nil;
+		
+		[[RACSubscribable zip:@[ errorAfterTwo, sendTwo ] reduce:nil] subscribeError:^(NSError *error) {
+			receivedError = error;
+		}];
+		
+		expect(receivedError).notTo.beNil();
+	});
+	
+});
+
 SpecEnd

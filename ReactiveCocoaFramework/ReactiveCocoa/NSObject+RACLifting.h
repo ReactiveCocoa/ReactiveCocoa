@@ -38,7 +38,8 @@
 // It will replay the most recently sent value to new subscribers.
 //
 // block - The block to invoke. All its arguments must be objects. Cannot return
-//         void. Cannot be nil.
+//         void. Cannot be nil. This currently only supports block of up to 15
+//         arguments. If you need any more, you need to reconsider your life.
 // arg   - The variadic, nil-terminated list of arguments.
 //
 // Returns a subscribable which sends the return value from each invocation of

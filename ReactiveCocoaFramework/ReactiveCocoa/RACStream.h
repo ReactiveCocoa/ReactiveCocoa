@@ -49,7 +49,9 @@
 // Returns a new stream representing the receiver followed by `stream`.
 - (instancetype)concat:(id<RACStream>)stream;
 
-// Combines the values in `streams` using `reduceBlock`.
+// Combines the values in `streams` using `reduceBlock`. `reduceBlock` will be
+// called with the first value of each stream, then with the second value of
+// each stream, and so forth until at least one of the streams is exhausted.
 //
 // streams       - The streams to combine. These must all be instances of the
 //                 same concrete class implementing the protocol.

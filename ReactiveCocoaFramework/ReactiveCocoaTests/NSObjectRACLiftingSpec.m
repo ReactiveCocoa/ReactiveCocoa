@@ -51,29 +51,19 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		RACSubject *integerValueSubject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setObjectValue:andIntegerValue:) withObjects:objectValueSubject, integerValueSubject];
 
+		expect(object.hasInvokedSetObjectValueAndIntegerValue).to.beFalsy();
 		expect(object.objectValue).to.beNil();
 		expect(object.integerValue).to.equal(0);
 
 		[objectValueSubject sendNext:@1];
+		expect(object.hasInvokedSetObjectValueAndIntegerValue).to.beFalsy();
 		expect(object.objectValue).to.beNil();
 		expect(object.integerValue).to.equal(0);
-
-		[integerValueSubject sendNext:@42];
-		expect(object.objectValue).to.equal(@1);
-		expect(object.integerValue).to.equal(42);
-	});
-
-	it(@"should only call the selector once all subscribables have yielded a value", ^{
-		RACSubject *objectValueSubject = [RACSubject subject];
-		RACSubject *integerValueSubject = [RACSubject subject];
-		[object rac_liftSelector:@selector(setObjectValue:andIntegerValue:) withObjects:objectValueSubject, integerValueSubject];
-		expect(object.hasInvokedSetObjectValueAndIntegerValue).to.beFalsy();
-
-		[objectValueSubject sendNext:@1];
-		expect(object.hasInvokedSetObjectValueAndIntegerValue).to.beFalsy();
 
 		[integerValueSubject sendNext:@42];
 		expect(object.hasInvokedSetObjectValueAndIntegerValue).to.beTruthy();
+		expect(object.objectValue).to.equal(@1);
+		expect(object.integerValue).to.equal(42);
 	});
 
 	it(@"should work with subscribables that immediately start with a value", ^{

@@ -10,6 +10,7 @@
 #import "NSObject+RACLifting.h"
 #import "RACTestObject.h"
 #import "RACSubject.h"
+#import "RACUnit.h"
 
 SpecBegin(NSObjectRACLiftingSpec)
 
@@ -130,23 +131,18 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 			expect(result).to.equal(@"Magic number: 42");
 		});
 
-		it(@"should send nil for void-returning methods", ^{
+		it(@"should send RACUnit.defaultUnit for void-returning methods", ^{
 			RACSubject *subject = [RACSubject subject];
 			RACSubscribable *subscribable = [object rac_liftSelector:@selector(setObjectValue:) withObjects:subject];
 
-			__block BOOL gotNext = NO;
 			__block id result;
 			[subscribable subscribeNext:^(id x) {
-				gotNext = YES;
 				result = x;
 			}];
 
-			expect(gotNext).to.beFalsy();
-
 			[subject sendNext:@1];
 
-			expect(gotNext).to.beTruthy();
-			expect(result).to.beNil();
+			expect(result).to.equal(RACUnit.defaultUnit);
 		});
 
 		it(@"should replay the last value", ^{

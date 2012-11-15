@@ -77,10 +77,10 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		expect(object.objectValue).to.equal(@1);
 	});
 
-	it(@"shouldn't do anything when it isn't given any subscribable arguments", ^{
+	it(@"should immediately invoke the selector when it isn't given any subscribable arguments", ^{
 		[object rac_liftSelector:@selector(setObjectValue:) withObjects:@42];
 
-		expect(object.objectValue).to.beNil();
+		expect(object.objectValue).to.equal(@42);
 	});
 
 	it(@"should work with class objects", ^{

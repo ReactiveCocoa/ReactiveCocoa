@@ -1162,4 +1162,135 @@ it(@"should complete take: even if the original subscribable doesn't", ^{
 	expect(completed).to.beTruthy();
 });
 
+describe(@"+zip:reduce:", ^{
+	__block id<RACSubscribable> errorAfterTwo = nil;
+	__block id<RACSubscribable> errorAfterThree = nil;
+	__block id<RACSubscribable> sendTwo = nil;
+	
+	before(^{
+		errorAfterTwo = [RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendNext:@2];
+			[subscriber sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+			return nil;
+		}];
+		errorAfterThree = [RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendNext:@2];
+			[subscriber sendNext:@3];
+			[subscriber sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+			return nil;
+		}];
+		sendTwo = [RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendNext:@2];
+			[subscriber sendCompleted];
+			return nil;
+		}];
+	});
+	
+	it(@"should ignore errors sent after values needed by +zip:reduce:", ^{
+		__block NSError *receivedError = nil;
+		
+		[[RACSubscribable zip:@[ errorAfterThree, sendTwo ] reduce:nil] subscribeError:^(NSError *error) {
+			receivedError = error;
+		}];
+		
+		expect(receivedError).to.beNil();
+	});
+	
+	it(@"shouldn't ignore errors sent before values needed by +zip:reduce:", ^{
+		__block NSError *receivedError = nil;
+		
+		[[RACSubscribable zip:@[ errorAfterTwo, sendTwo ] reduce:nil] subscribeError:^(NSError *error) {
+			receivedError = error;
+		}];
+		
+		expect(receivedError).notTo.beNil();
+	});
+	
+	it(@"should handle subscribables sending values unevenly", ^{
+		__block NSError *receivedError = nil;
+		__block BOOL hasCompleted = NO;
+		
+		RACSubject *a = [RACSubject subject];
+		RACSubject *b = [RACSubject subject];
+		RACSubject *c = [RACSubject subject];
+		
+		NSMutableArray *receivedValues = NSMutableArray.array;
+		NSArray *expectedValues = nil;
+		
+		[[RACSubscribable zip:@[ a, b, c ] reduce:^(NSNumber *a, NSNumber *b, NSNumber *c) {
+			return [NSString stringWithFormat:@"%@%@%@", a, b, c];
+		}] subscribeNext:^(id x) {
+			[receivedValues addObject:x];
+		} error:^(NSError *error) {
+			receivedError = error;
+		} completed:^{
+			hasCompleted = YES;
+		}];
+		
+		[a sendNext:@1];
+		[a sendNext:@2];
+		[a sendNext:@3];
+		
+		[b sendNext:@1];
+		
+		[c sendNext:@1];
+		[c sendNext:@2];
+		
+		// a: [===......]
+		// b: [=........]
+		// c: [==.......]
+		
+		expectedValues = @[ @"111" ];
+		expect(receivedValues).to.equal(expectedValues);
+		expect(receivedError).to.beNil();
+		expect(hasCompleted).to.beFalsy();
+		
+		[b sendNext:@2];
+		[b sendNext:@3];
+		[b sendNext:@4];
+		[b sendCompleted];
+		
+		// a: [===......]
+		// b: [====C....]
+		// c: [==.......]
+		
+		expectedValues = @[ @"111", @"222" ];
+		expect(receivedValues).to.equal(expectedValues);
+		expect(receivedError).to.beNil();
+		expect(hasCompleted).to.beFalsy();
+		
+		[c sendNext:@3];
+		[c sendNext:@4];
+		[c sendNext:@5];
+		[c sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+		
+		// a: [===......]
+		// b: [====C....]
+		// c: [=====E...]
+		
+		expectedValues = @[ @"111", @"222", @"333" ];
+		expect(receivedValues).to.equal(expectedValues);
+		expect(receivedError).to.beNil();
+		expect(hasCompleted).to.beFalsy();
+		
+		[a sendNext:@4];
+		[a sendNext:@5];
+		[a sendNext:@6];
+		[a sendNext:@7];
+		
+		// a: [=======..]
+		// b: [====C....]
+		// c: [=====E...]
+		
+		expectedValues = @[ @"111", @"222", @"333", @"444" ];
+		expect(receivedValues).to.equal(expectedValues);
+		expect(receivedError).to.beNil();
+		expect(hasCompleted).to.beTruthy();
+	});
+	
+});
+
 SpecEnd

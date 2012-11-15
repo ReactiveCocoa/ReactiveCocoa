@@ -15,6 +15,8 @@
 #import "RACSubject.h"
 #import "RACSubscribable+Private.h"
 #import "RACSubscriber.h"
+#import "RACTuple.h"
+#import "RACBlockTrampoline.h"
 #import <libkern/OSAtomic.h>
 
 static NSMutableSet *activeSubscribables() {
@@ -138,6 +140,111 @@ static NSMutableSet *activeSubscribables() {
 
 - (instancetype)flatten {
 	return [self flatten:0];
+}
+
++ (instancetype)zip:(NSArray *)subscribables reduce:(id)reduceBlock {
+	static NSString *(^keyForSubscribable)(id<RACSubscribable>) = ^ NSString * (id<RACSubscribable> subscribable) {
+		return [NSString stringWithFormat:@"%p", subscribable];
+	};
+	
+	return [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+		NSMutableSet *disposables = [NSMutableSet setWithCapacity:subscribables.count];
+		NSMutableDictionary *completedOrErrorBySubscribable = [NSMutableDictionary dictionaryWithCapacity:subscribables.count];
+		NSMutableDictionary *valuesBySubscribable = [NSMutableDictionary dictionaryWithCapacity:subscribables.count];
+		for (id<RACSubscribable> subscribable in subscribables) {
+			[valuesBySubscribable setObject:NSMutableArray.array forKey:[NSString stringWithFormat:@"%p", subscribable]];
+		}
+		
+		void (^sendCompleteOrErrorIfNecessary)(void) = ^{
+			BOOL completed = NO;
+			NSError *error = nil;
+			for (id<RACSubscribable> subscribable in subscribables) {
+				if ([valuesBySubscribable[keyForSubscribable(subscribable)] count] != 0) {
+					continue;
+				}
+				id completedOrError = completedOrErrorBySubscribable[keyForSubscribable(subscribable)];
+				if (completedOrError == nil) {
+					continue;
+				}
+				if ([completedOrError isKindOfClass:[NSError class]]) {
+					error = completedOrError;
+					continue;
+				}
+				completed = YES;
+				break;
+			}
+			if (completed) {
+				[subscriber sendCompleted];
+				return;
+			}
+			if (error != nil) {
+				[subscriber sendError:error];
+			}
+		};
+		
+		for (id<RACSubscribable> subscribable in subscribables) {
+			RACDisposable *disposable = [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
+				@synchronized(valuesBySubscribable) {
+					[valuesBySubscribable[keyForSubscribable(subscribable)] addObject:x ? : RACTupleNil.tupleNil];
+					
+					BOOL isMissingValues = NO;
+					NSMutableArray *earliestValues = [NSMutableArray arrayWithCapacity:subscribables.count];
+					for (id<RACSubscribable> subscribable in subscribables) {
+						NSArray *values = valuesBySubscribable[keyForSubscribable(subscribable)];
+						if (values.count == 0) {
+							isMissingValues = YES;
+							break;
+						}
+						[earliestValues addObject:[values objectAtIndex:0]];
+					}
+					
+					if (!isMissingValues) {
+						for (NSMutableArray *values in valuesBySubscribable.allValues) {
+							[values removeObjectAtIndex:0];
+						}
+						
+						if (reduceBlock == NULL) {
+							[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:earliestValues]];
+						} else {
+							[subscriber sendNext:[RACBlockTrampoline invokeBlock:reduceBlock withArguments:earliestValues]];
+						}
+					}
+					
+					@synchronized(completedOrErrorBySubscribable) {
+						sendCompleteOrErrorIfNecessary();
+					}
+				}
+			} error:^(NSError *error) {
+				@synchronized(completedOrErrorBySubscribable) {
+					if (!completedOrErrorBySubscribable[keyForSubscribable(subscribable)]) {
+						completedOrErrorBySubscribable[keyForSubscribable(subscribable)] = error;
+					}
+					@synchronized(valuesBySubscribable) {
+						sendCompleteOrErrorIfNecessary();
+					}
+				}
+			} completed:^{
+				@synchronized(completedOrErrorBySubscribable) {
+					if (!completedOrErrorBySubscribable[keyForSubscribable(subscribable)]) {
+						completedOrErrorBySubscribable[keyForSubscribable(subscribable)] = @YES;
+					}
+					@synchronized(valuesBySubscribable) {
+						sendCompleteOrErrorIfNecessary();
+					}
+				}
+			}]];
+			
+			if(disposable != nil) {
+				[disposables addObject:disposable];
+			}
+		}
+		
+		return [RACDisposable disposableWithBlock:^{
+			for(RACDisposable *disposable in disposables) {
+				[disposable dispose];
+			}
+		}];
+	}];
 }
 
 #pragma mark RACSubscribable

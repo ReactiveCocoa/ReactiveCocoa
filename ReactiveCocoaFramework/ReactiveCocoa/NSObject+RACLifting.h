@@ -18,6 +18,9 @@
 //
 // This does not support struct, union, or C array arguments.
 //
+// If it is not given any subscribable arguments, it will immediately invoke the
+// selector with the arguments.
+//
 // selector - The selector on self to invoke.
 // arg      - The variadic list of arguments. Doesn't need to be nil-terminated
 //            since we can figure out the number of arguments from the selector's

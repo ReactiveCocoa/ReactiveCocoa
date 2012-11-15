@@ -57,21 +57,26 @@
 
 	[invocation retainArguments];
 
-	@unsafeify(self);
-	return [self rac_liftSubscribables:subscribables withReducingInvocation:^(RACTuple *xs) {
-		@strongify(self);
-		for (NSUInteger i = 0; i < xs.count; i++) {
-			RACSubscribable *subscribable = subscribables[i];
-			NSUInteger argIndex = [argIndexesBySubscribable[[NSValue valueWithNonretainedObject:subscribable]] unsignedIntegerValue];
-			const char *argType = [methodSignature getArgumentTypeAtIndex:argIndex];
-			[self rac_setArgumentForInvocation:invocation type:argType atIndex:(NSInteger)argIndex withObject:xs[i]];
-			[invocation retainArguments];
-		}
-
+	if (subscribables.count < 1) {
 		[invocation invokeWithTarget:self];
-
 		return [self rac_returnValueForInvocation:invocation methodSignature:methodSignature];
-	}];
+	} else {
+		@unsafeify(self);
+		return [self rac_liftSubscribables:subscribables withReducingInvocation:^(RACTuple *xs) {
+			@strongify(self);
+			for (NSUInteger i = 0; i < xs.count; i++) {
+				RACSubscribable *subscribable = subscribables[i];
+				NSUInteger argIndex = [argIndexesBySubscribable[[NSValue valueWithNonretainedObject:subscribable]] unsignedIntegerValue];
+				const char *argType = [methodSignature getArgumentTypeAtIndex:argIndex];
+				[self rac_setArgumentForInvocation:invocation type:argType atIndex:(NSInteger)argIndex withObject:xs[i]];
+				[invocation retainArguments];
+			}
+
+			[invocation invokeWithTarget:self];
+
+			return [self rac_returnValueForInvocation:invocation methodSignature:methodSignature];
+		}];
+	}
 }
 
 - (void)rac_setArgumentForInvocation:(NSInvocation *)invocation type:(const char *)argType atIndex:(NSInteger)index withObject:(id)object {
@@ -193,15 +198,19 @@
 	}
 	va_end(args);
 
-	return [self rac_liftSubscribables:subscribables withReducingInvocation:^(RACTuple *xs) {
-		for (NSUInteger i = 0; i < xs.count; i++) {
-			RACSubscribable *subscribable = subscribables[i];
-			NSUInteger argIndex = [argIndexesBySubscribable[[NSValue valueWithNonretainedObject:subscribable]] unsignedIntegerValue];
-			[arguments replaceObjectAtIndex:argIndex withObject:xs[i]];
-		}
-
+	if (subscribables.count < 1) {
 		return [RACBlockTrampoline invokeBlock:block withArguments:arguments];
-	}];
+	} else {
+		return [self rac_liftSubscribables:subscribables withReducingInvocation:^(RACTuple *xs) {
+			for (NSUInteger i = 0; i < xs.count; i++) {
+				RACSubscribable *subscribable = subscribables[i];
+				NSUInteger argIndex = [argIndexesBySubscribable[[NSValue valueWithNonretainedObject:subscribable]] unsignedIntegerValue];
+				[arguments replaceObjectAtIndex:argIndex withObject:xs[i]];
+			}
+
+			return [RACBlockTrampoline invokeBlock:block withArguments:arguments];
+		}];
+	}
 }
 
 @end

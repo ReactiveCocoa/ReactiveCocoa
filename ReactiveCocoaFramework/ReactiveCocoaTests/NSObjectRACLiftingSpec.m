@@ -150,16 +150,11 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 			RACSubject *integerSubject = [RACSubject subject];
 			RACSubscribable *subscribable = [object rac_liftSelector:@selector(combineObjectValue:andIntegerValue:) withObjects:objectSubject, integerSubject];
 
-			__block NSString *result;
 			[objectSubject sendNext:@"Magic number"];
-			expect(result).to.beNil();
-
 			[integerSubject sendNext:@42];
-			expect(result).to.beNil();
-
 			[integerSubject sendNext:@43];
-			expect(result).to.beNil();
 
+			__block NSString *result;
 			[subscribable subscribeNext:^(id x) {
 				result = x;
 			}];

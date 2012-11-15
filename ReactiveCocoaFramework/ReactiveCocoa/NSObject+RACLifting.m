@@ -31,7 +31,6 @@
 	NSAssert(methodSignature != nil, @"%@ does not respond to %@", self, NSStringFromSelector(selector));
 
 	NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
-	[invocation retainArguments];
 	invocation.selector = selector;
 
 	NSMutableArray *subscribables = [NSMutableArray arrayWithCapacity:methodSignature.numberOfArguments - 2];
@@ -56,6 +55,7 @@
 	va_end(args);
 
 	__unsafe_unretained id weakSelf = self;
+	[invocation retainArguments];
 	return [self rac_liftSubscribables:subscribables withReducingInvocation:^(RACTuple *xs) {
 		NSObject *strongSelf = weakSelf;
 		for (NSUInteger i = 0; i < xs.count; i++) {
@@ -63,6 +63,7 @@
 			NSUInteger argIndex = [argIndexesBySubscribable[[NSValue valueWithNonretainedObject:subscribable]] unsignedIntegerValue];
 			const char *argType = [methodSignature getArgumentTypeAtIndex:argIndex];
 			[strongSelf rac_setArgumentForInvocation:invocation type:argType atIndex:(NSInteger)argIndex withObject:xs[i]];
+			[invocation retainArguments];
 		}
 
 		[invocation invokeWithTarget:strongSelf];

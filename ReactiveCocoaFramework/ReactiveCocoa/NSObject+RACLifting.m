@@ -75,49 +75,51 @@
 }
 
 - (void)rac_setArgumentForInvocation:(NSInvocation *)invocation type:(const char *)argType atIndex:(NSInteger)index withObject:(id)object {
-#define pullAndSet(type, selector) \
-	type val = [object selector]; \
-	[invocation setArgument:&val atIndex:index];
+#define PULL_AND_SET(type, selector) \
+	do { \
+		type val = [object selector]; \
+		[invocation setArgument:&val atIndex:index]; \
+	} while(0)
 
 	if (strcmp(argType, "@") == 0 || strcmp(argType, "#") == 0) {
 		[invocation setArgument:&object atIndex:index];
 	} else if (strcmp(argType, "c") == 0) {
-		pullAndSet(char, charValue);
+		PULL_AND_SET(char, charValue);
 	} else if (strcmp(argType, "i") == 0) {
-		pullAndSet(int, intValue);
+		PULL_AND_SET(int, intValue);
 	} else if (strcmp(argType, "s") == 0) {
-		pullAndSet(short, shortValue);
+		PULL_AND_SET(short, shortValue);
 	} else if (strcmp(argType, "l") == 0) {
-		pullAndSet(long, longValue);
+		PULL_AND_SET(long, longValue);
 	} else if (strcmp(argType, "q") == 0) {
-		pullAndSet(long long, longLongValue);
+		PULL_AND_SET(long long, longLongValue);
 	} else if (strcmp(argType, "C") == 0) {
-		pullAndSet(unsigned char, unsignedCharValue);
+		PULL_AND_SET(unsigned char, unsignedCharValue);
 	} else if (strcmp(argType, "I") == 0) {
-		pullAndSet(unsigned int, unsignedIntValue);
+		PULL_AND_SET(unsigned int, unsignedIntValue);
 	} else if (strcmp(argType, "C") == 0) {
-		pullAndSet(unsigned short, unsignedShortValue);
+		PULL_AND_SET(unsigned short, unsignedShortValue);
 	} else if (strcmp(argType, "L") == 0) {
-		pullAndSet(unsigned long, unsignedLongValue);
+		PULL_AND_SET(unsigned long, unsignedLongValue);
 	} else if (strcmp(argType, "Q") == 0) {
-		pullAndSet(unsigned long long, unsignedLongLongValue);
+		PULL_AND_SET(unsigned long long, unsignedLongLongValue);
 	} else if (strcmp(argType, "f") == 0) {
-		pullAndSet(float, floatValue);
+		PULL_AND_SET(float, floatValue);
 	} else if (strcmp(argType, "d") == 0) {
-		pullAndSet(double, doubleValue);
+		PULL_AND_SET(double, doubleValue);
 	} else if (strcmp(argType, "*") == 0) {
-		pullAndSet(const char *, UTF8String);
+		PULL_AND_SET(const char *, UTF8String);
 	} else if (argType[0] == '^') {
-		pullAndSet(void *, pointerValue);
+		PULL_AND_SET(void *, pointerValue);
 	} else {
 		NSAssert(NO, @"Unknown argument type %s", argType);
 	}
 
-#undef pullAndSet
+#undef PULL_AND_SET
 }
 
 - (id)rac_returnValueForInvocation:(NSInvocation *)invocation methodSignature:(NSMethodSignature *)signature {
-#define wrapAndReturn(type) \
+#define WRAP_AND_RETURN(type) \
 	type val = 0; \
 	[invocation getReturnValue:&val]; \
 	return @(val);
@@ -128,31 +130,31 @@
 		[invocation getReturnValue:&returnObj];
 		return returnObj;
 	} else if (strcmp(returnType, "c") == 0) {
-		wrapAndReturn(char);
+		WRAP_AND_RETURN(char);
 	} else if (strcmp(returnType, "i") == 0) {
-		wrapAndReturn(int);
+		WRAP_AND_RETURN(int);
 	} else if (strcmp(returnType, "s") == 0) {
-		wrapAndReturn(short);
+		WRAP_AND_RETURN(short);
 	} else if (strcmp(returnType, "l") == 0) {
-		wrapAndReturn(long);
+		WRAP_AND_RETURN(long);
 	} else if (strcmp(returnType, "q") == 0) {
-		wrapAndReturn(long long);
+		WRAP_AND_RETURN(long long);
 	} else if (strcmp(returnType, "C") == 0) {
-		wrapAndReturn(unsigned char);
+		WRAP_AND_RETURN(unsigned char);
 	} else if (strcmp(returnType, "I") == 0) {
-		wrapAndReturn(unsigned int);
+		WRAP_AND_RETURN(unsigned int);
 	} else if (strcmp(returnType, "C") == 0) {
-		wrapAndReturn(unsigned short);
+		WRAP_AND_RETURN(unsigned short);
 	} else if (strcmp(returnType, "L") == 0) {
-		wrapAndReturn(unsigned long);
+		WRAP_AND_RETURN(unsigned long);
 	} else if (strcmp(returnType, "Q") == 0) {
-		wrapAndReturn(unsigned long long);
+		WRAP_AND_RETURN(unsigned long long);
 	} else if (strcmp(returnType, "f") == 0) {
-		wrapAndReturn(float);
+		WRAP_AND_RETURN(float);
 	} else if (strcmp(returnType, "d") == 0) {
-		wrapAndReturn(double);
+		WRAP_AND_RETURN(double);
 	} else if (strcmp(returnType, "*") == 0) {
-		wrapAndReturn(const char *);
+		WRAP_AND_RETURN(const char *);
 	} else if (strcmp(returnType, "v") == 0) {
 		return RACUnit.defaultUnit;
 	} else if (returnType[0] == '^') {
@@ -165,7 +167,7 @@
 
 	return nil;
 
-#undef wrapAndReturn
+#undef WRAP_AND_RETURN
 }
 
 - (id<RACSubscribable>)rac_liftBlock:(id)block withArguments:(id)arg, ... {

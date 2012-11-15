@@ -13,6 +13,7 @@
 #import "RACConnectableSubscribable.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACBlockTrampoline.h"
+#import "RACUnit.h"
 
 @implementation NSObject (RACLifting)
 
@@ -150,7 +151,7 @@
 	} else if (strcmp(returnType, "*") == 0) {
 		wrapAndReturn(const char *);
 	} else if (strcmp(returnType, "v") == 0) {
-		return nil;
+		return RACUnit.defaultUnit;
 	} else if (returnType[0] == '^') {
 		const void *pointer = NULL;
 		[invocation getReturnValue:&pointer];

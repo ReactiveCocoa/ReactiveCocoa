@@ -28,8 +28,9 @@
 //   [button rac_liftSelector:@selector(setTitleColor:forState:) withObjects:textColorSubscribable, @(UIControlStateNormal)];
 //
 // Returns a subscribable which sends the return value from each invocation of
-// the selector. If the selector returns void, it instead sends nil. It
-// completes only after all the subscribable arguments complete.
+// the selector. If the selector returns void, it instead sends
+// RACUnit.defaultUnit. It completes only after all the subscribable arguments
+// complete.
 - (id<RACSubscribable>)rac_liftSelector:(SEL)selector withObjects:(id)arg, ...;
 
 // Like -rac_lift:withObjects: but invokes the block instead of a selector.

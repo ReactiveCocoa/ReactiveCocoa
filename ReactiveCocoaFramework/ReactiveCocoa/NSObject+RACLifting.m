@@ -13,6 +13,7 @@
 #import "RACConnectableSubscribable.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACBlockTrampoline.h"
+#import "EXTScope.h"
 #import "RACUnit.h"
 
 @implementation NSObject (RACLifting)
@@ -54,21 +55,22 @@
 	}
 	va_end(args);
 
-	__unsafe_unretained id weakSelf = self;
 	[invocation retainArguments];
+
+	@unsafeify(self);
 	return [self rac_liftSubscribables:subscribables withReducingInvocation:^(RACTuple *xs) {
-		NSObject *strongSelf = weakSelf;
+		@strongify(self);
 		for (NSUInteger i = 0; i < xs.count; i++) {
 			RACSubscribable *subscribable = subscribables[i];
 			NSUInteger argIndex = [argIndexesBySubscribable[[NSValue valueWithNonretainedObject:subscribable]] unsignedIntegerValue];
 			const char *argType = [methodSignature getArgumentTypeAtIndex:argIndex];
-			[strongSelf rac_setArgumentForInvocation:invocation type:argType atIndex:(NSInteger)argIndex withObject:xs[i]];
+			[self rac_setArgumentForInvocation:invocation type:argType atIndex:(NSInteger)argIndex withObject:xs[i]];
 			[invocation retainArguments];
 		}
 
-		[invocation invokeWithTarget:strongSelf];
+		[invocation invokeWithTarget:self];
 
-		return [strongSelf rac_returnValueForInvocation:invocation methodSignature:methodSignature];
+		return [self rac_returnValueForInvocation:invocation methodSignature:methodSignature];
 	}];
 }
 

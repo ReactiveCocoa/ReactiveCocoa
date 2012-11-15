@@ -35,7 +35,7 @@
 	invocation.selector = selector;
 
 	NSMutableArray *subscribables = [NSMutableArray arrayWithCapacity:methodSignature.numberOfArguments - 2];
-	NSMutableDictionary *subscribableToArgIndex = [NSMutableDictionary dictionaryWithCapacity:methodSignature.numberOfArguments - 2];
+	NSMutableDictionary *argIndexesBySubscribable = [NSMutableDictionary dictionaryWithCapacity:methodSignature.numberOfArguments - 2];
 
 	va_list args;
 	va_start(args, arg);
@@ -47,7 +47,7 @@
 		const char *argType = [methodSignature getArgumentTypeAtIndex:i];
 		if ([currentObject conformsToProtocol:@protocol(RACSubscribable)]) {
 			[self rac_setArgumentForInvocation:invocation type:argType atIndex:(NSInteger)i withObject:nil];
-			subscribableToArgIndex[[NSValue valueWithPointer:(__bridge const void *)currentObject]] = @(i);
+			argIndexesBySubscribable[[NSValue valueWithNonretainedObject:currentObject]] = @(i);
 			[subscribables addObject:currentObject];
 		} else {
 			[self rac_setArgumentForInvocation:invocation type:argType atIndex:(NSInteger)i withObject:currentObject];
@@ -60,7 +60,7 @@
 		NSObject *strongSelf = weakSelf;
 		for (NSUInteger i = 0; i < xs.count; i++) {
 			RACSubscribable *subscribable = subscribables[i];
-			NSUInteger argIndex = [subscribableToArgIndex[[NSValue valueWithPointer:(__bridge const void *)subscribable]] unsignedIntegerValue];
+			NSUInteger argIndex = [argIndexesBySubscribable[[NSValue valueWithNonretainedObject:subscribable]] unsignedIntegerValue];
 			const char *argType = [methodSignature getArgumentTypeAtIndex:argIndex];
 			[strongSelf rac_setArgumentForInvocation:invocation type:argType atIndex:(NSInteger)argIndex withObject:xs[i]];
 		}
@@ -170,7 +170,7 @@
 
 	NSMutableArray *arguments = [NSMutableArray array];
 	NSMutableArray *subscribables = [NSMutableArray array];
-	NSMutableDictionary *subscribableToArgIndex = [NSMutableDictionary dictionary];
+	NSMutableDictionary *argIndexesBySubscribable = [NSMutableDictionary dictionary];
 
 	va_list args;
 	va_start(args, arg);
@@ -179,7 +179,7 @@
 		if ([currentObject conformsToProtocol:@protocol(RACSubscribable)]) {
 			[arguments addObject:RACTupleNil.tupleNil];
 			[subscribables addObject:currentObject];
-			subscribableToArgIndex[[NSValue valueWithPointer:(__bridge const void *)currentObject]] = @(i);
+			argIndexesBySubscribable[[NSValue valueWithNonretainedObject:currentObject]] = @(i);
 		} else {
 			[arguments addObject:currentObject];
 		}
@@ -191,7 +191,7 @@
 	return [self rac_liftSubscribables:subscribables withReducingInvocation:^(RACTuple *xs) {
 		for (NSUInteger i = 0; i < xs.count; i++) {
 			RACSubscribable *subscribable = subscribables[i];
-			NSUInteger argIndex = [subscribableToArgIndex[[NSValue valueWithPointer:(__bridge const void *)subscribable]] unsignedIntegerValue];
+			NSUInteger argIndex = [argIndexesBySubscribable[[NSValue valueWithNonretainedObject:subscribable]] unsignedIntegerValue];
 			[arguments replaceObjectAtIndex:argIndex withObject:xs[i]];
 		}
 

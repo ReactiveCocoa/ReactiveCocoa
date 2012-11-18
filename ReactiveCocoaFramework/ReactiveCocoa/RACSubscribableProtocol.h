@@ -73,6 +73,15 @@ typedef NSInteger RACSubscribableError;
 // Transform each `next` value by calling the given block.
 - (RACSubscribable *)select:(id (^)(id x))selectBlock;
 
+// For each value sent on the receiving subscribable, the given object is sent
+// on the returned subscribable.
+//
+// object - The object to send for each value sent on the receiver.
+//
+// Returns a subscribable that sends the given object for each value sent on the
+// receiver.
+- (RACSubscribable *)mapReplace:(id)object;
+
 // Injects the given object weakly into the receiver's stream. The returned 
 // subscribable sends a tuple where the first object is the value received by
 // the receiver subscribable and the second is the weak object.
@@ -135,7 +144,7 @@ typedef NSInteger RACSubscribableError;
 
 // Combine the latest values from each of the subscribables once all the
 // subscribables have sent a `next`. Any additional `next`s will result in a new
-// reduced value based on all the latests values from all the subscribables.
+// reduced value based on all the latest values from all the subscribables.
 //
 // The `next` of the returned subscribable will be the return value of the
 // `reduceBlock`.
@@ -196,9 +205,9 @@ typedef NSInteger RACSubscribableError;
 // block is called to get a new start object for each subscription.
 - (RACSubscribable *)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock;
 
-// Similar to -aggregateWithStart:combine: with two differences: (1) it sends
-// the combined value with each `next` instead of waiting for the receiving
-// subscribable to complete, and (2) it starts by sending `start`.
+// Similar to -aggregateWithStart:combine: with an important difference: it
+// sends the combined value with each `next` instead of waiting for the
+// receiving subscribable to complete.
 - (RACSubscribable *)scanWithStart:(id)start combine:(id (^)(id running, id next))combineBlock;
 
 // Set the object's keyPath to the value of `next`.
@@ -207,7 +216,11 @@ typedef NSInteger RACSubscribableError;
 // Send `next` with `initialValue` before getting the first `next`.
 - (RACSubscribable *)startWith:(id)initialValue;
 
-// Sends `+[RACUnit defaultUnit]` every `interval` seconds.
+// Sends NSDate.date every `interval` seconds.
+//
+// interval - The time interval in seconds at which the current time is sent.
+//
+// Returns a subscribable that sends the current date/time every `interval`.
 + (RACSubscribable *)interval:(NSTimeInterval)interval;
 
 // Take `next`s until the `subscribableTrigger` sends a `next`.

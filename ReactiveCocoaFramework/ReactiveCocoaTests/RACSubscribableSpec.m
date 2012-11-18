@@ -680,7 +680,7 @@ describe(@"-scanWithStart:combine:", ^{
 		}];
 		
 		NSArray *values = subscribable.toArray;
-		NSArray *expected = @[ @0, @1, @3, @6, @10 ];
+		NSArray *expected = @[ @1, @3, @6, @10 ];
 		expect(values).to.equal(expected);
 	});
 });
@@ -1064,6 +1064,32 @@ describe(@"-switch", ^{
 	});
 });
 
+describe(@"+interval:", ^{
+	static const NSTimeInterval interval = 0.1;
+	void (^expectItToWorkWithScheduler)(RACScheduler *) = ^(RACScheduler *scheduler) {
+		__block volatile int32_t nextsReceived = 0;
+		[scheduler schedule:^{
+			__block NSTimeInterval lastTime = NSDate.timeIntervalSinceReferenceDate;
+			[[[RACSubscribable interval:interval] take:3] subscribeNext:^(id _) {
+				NSTimeInterval currentTime = NSDate.timeIntervalSinceReferenceDate;
+				expect(currentTime - lastTime).beGreaterThanOrEqualTo(interval);
+
+				OSAtomicAdd32Barrier(1, &nextsReceived);
+			}];
+		}];
+
+		expect(nextsReceived).will.equal(3);
+	};
+
+	it(@"should fire repeatedly at every interval", ^{
+		expectItToWorkWithScheduler(RACScheduler.mainQueueScheduler);
+	});
+
+	it(@"should work on a background scheduler", ^{
+		expectItToWorkWithScheduler(RACScheduler.backgroundScheduler);
+	});
+});
+
 describe(@"-sequenceNext:", ^{
 	it(@"should continue onto returned subscribable", ^{
 		RACSubject *subject = [RACSubject subject];
@@ -1098,6 +1124,21 @@ describe(@"-sequenceNext:", ^{
 		[subject sendCompleted];
 
 		expect(value).to.equal(RACUnit.defaultUnit);
+	});
+});
+
+describe(@"-mapReplace:", ^{
+	it(@"should always yield the given object", ^{
+		RACSubscribable *subscribable = [RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendNext:@2];
+			[subscriber sendCompleted];
+			return nil;
+		}];
+
+		NSArray *results = [[subscribable mapReplace:@"hi"] toArray];
+		NSArray *expected = @[ @"hi", @"hi" ];
+		expect(results).to.equal(expected);
 	});
 });
 

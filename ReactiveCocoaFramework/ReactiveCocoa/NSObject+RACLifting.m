@@ -15,6 +15,7 @@
 #import "RACBlockTrampoline.h"
 #import "EXTScope.h"
 #import "RACUnit.h"
+#import "NSInvocation+RACTypeParsing.h"
 
 @implementation NSObject (RACLifting)
 
@@ -46,11 +47,11 @@
 
 		const char *argType = [methodSignature getArgumentTypeAtIndex:i];
 		if ([currentObject conformsToProtocol:@protocol(RACSubscribable)]) {
-			[self rac_setArgumentForInvocation:invocation type:argType atIndex:(NSInteger)i withObject:nil];
+			[invocation rac_setArgumentForType:argType atIndex:(NSInteger)i withObject:nil];
 			argIndexesBySubscribable[[NSValue valueWithNonretainedObject:currentObject]] = @(i);
 			[subscribables addObject:currentObject];
 		} else {
-			[self rac_setArgumentForInvocation:invocation type:argType atIndex:(NSInteger)i withObject:currentObject];
+			[invocation rac_setArgumentForType:argType atIndex:(NSInteger)i withObject:currentObject];
 		}
 	}
 	va_end(args);
@@ -59,7 +60,7 @@
 
 	if (subscribables.count < 1) {
 		[invocation invokeWithTarget:self];
-		return [self rac_returnValueForInvocation:invocation methodSignature:methodSignature];
+		return [invocation rac_returnValueWithTypeSignature:methodSignature.methodReturnType];
 	} else {
 		@unsafeify(self);
 		return [self rac_liftSubscribables:subscribables withReducingInvocation:^(RACTuple *xs) {
@@ -68,111 +69,15 @@
 				RACSubscribable *subscribable = subscribables[i];
 				NSUInteger argIndex = [argIndexesBySubscribable[[NSValue valueWithNonretainedObject:subscribable]] unsignedIntegerValue];
 				const char *argType = [methodSignature getArgumentTypeAtIndex:argIndex];
-				[self rac_setArgumentForInvocation:invocation type:argType atIndex:(NSInteger)argIndex withObject:xs[i]];
+				[invocation rac_setArgumentForType:argType atIndex:(NSInteger)argIndex withObject:xs[i]];
 				[invocation retainArguments];
 			}
 
 			[invocation invokeWithTarget:self];
 
-			return [self rac_returnValueForInvocation:invocation methodSignature:methodSignature];
+			return [invocation rac_returnValueWithTypeSignature:methodSignature.methodReturnType];
 		}];
 	}
-}
-
-- (void)rac_setArgumentForInvocation:(NSInvocation *)invocation type:(const char *)argType atIndex:(NSInteger)index withObject:(id)object {
-#define PULL_AND_SET(type, selector) \
-	do { \
-		type val = [object selector]; \
-		[invocation setArgument:&val atIndex:index]; \
-	} while(0)
-
-	if (strcmp(argType, "@") == 0 || strcmp(argType, "#") == 0) {
-		[invocation setArgument:&object atIndex:index];
-	} else if (strcmp(argType, "c") == 0) {
-		PULL_AND_SET(char, charValue);
-	} else if (strcmp(argType, "i") == 0) {
-		PULL_AND_SET(int, intValue);
-	} else if (strcmp(argType, "s") == 0) {
-		PULL_AND_SET(short, shortValue);
-	} else if (strcmp(argType, "l") == 0) {
-		PULL_AND_SET(long, longValue);
-	} else if (strcmp(argType, "q") == 0) {
-		PULL_AND_SET(long long, longLongValue);
-	} else if (strcmp(argType, "C") == 0) {
-		PULL_AND_SET(unsigned char, unsignedCharValue);
-	} else if (strcmp(argType, "I") == 0) {
-		PULL_AND_SET(unsigned int, unsignedIntValue);
-	} else if (strcmp(argType, "C") == 0) {
-		PULL_AND_SET(unsigned short, unsignedShortValue);
-	} else if (strcmp(argType, "L") == 0) {
-		PULL_AND_SET(unsigned long, unsignedLongValue);
-	} else if (strcmp(argType, "Q") == 0) {
-		PULL_AND_SET(unsigned long long, unsignedLongLongValue);
-	} else if (strcmp(argType, "f") == 0) {
-		PULL_AND_SET(float, floatValue);
-	} else if (strcmp(argType, "d") == 0) {
-		PULL_AND_SET(double, doubleValue);
-	} else if (strcmp(argType, "*") == 0) {
-		PULL_AND_SET(const char *, UTF8String);
-	} else if (argType[0] == '^') {
-		PULL_AND_SET(void *, pointerValue);
-	} else {
-		NSAssert(NO, @"Unknown argument type %s", argType);
-	}
-
-#undef PULL_AND_SET
-}
-
-- (id)rac_returnValueForInvocation:(NSInvocation *)invocation methodSignature:(NSMethodSignature *)signature {
-#define WRAP_AND_RETURN(type) \
-	type val = 0; \
-	[invocation getReturnValue:&val]; \
-	return @(val);
-
-	const char *returnType = signature.methodReturnType;
-	if (strcmp(returnType, "@") == 0 || strcmp(returnType, "#") == 0) {
-		__autoreleasing id returnObj;
-		[invocation getReturnValue:&returnObj];
-		return returnObj;
-	} else if (strcmp(returnType, "c") == 0) {
-		WRAP_AND_RETURN(char);
-	} else if (strcmp(returnType, "i") == 0) {
-		WRAP_AND_RETURN(int);
-	} else if (strcmp(returnType, "s") == 0) {
-		WRAP_AND_RETURN(short);
-	} else if (strcmp(returnType, "l") == 0) {
-		WRAP_AND_RETURN(long);
-	} else if (strcmp(returnType, "q") == 0) {
-		WRAP_AND_RETURN(long long);
-	} else if (strcmp(returnType, "C") == 0) {
-		WRAP_AND_RETURN(unsigned char);
-	} else if (strcmp(returnType, "I") == 0) {
-		WRAP_AND_RETURN(unsigned int);
-	} else if (strcmp(returnType, "C") == 0) {
-		WRAP_AND_RETURN(unsigned short);
-	} else if (strcmp(returnType, "L") == 0) {
-		WRAP_AND_RETURN(unsigned long);
-	} else if (strcmp(returnType, "Q") == 0) {
-		WRAP_AND_RETURN(unsigned long long);
-	} else if (strcmp(returnType, "f") == 0) {
-		WRAP_AND_RETURN(float);
-	} else if (strcmp(returnType, "d") == 0) {
-		WRAP_AND_RETURN(double);
-	} else if (strcmp(returnType, "*") == 0) {
-		WRAP_AND_RETURN(const char *);
-	} else if (strcmp(returnType, "v") == 0) {
-		return RACUnit.defaultUnit;
-	} else if (returnType[0] == '^') {
-		const void *pointer = NULL;
-		[invocation getReturnValue:&pointer];
-		return [NSValue valueWithPointer:pointer];
-	} else {
-		NSAssert(NO, @"Unknown return type %s", returnType);
-	}
-
-	return nil;
-
-#undef WRAP_AND_RETURN
 }
 
 - (id<RACSubscribable>)rac_liftBlock:(id)block withArguments:(id)arg, ... {

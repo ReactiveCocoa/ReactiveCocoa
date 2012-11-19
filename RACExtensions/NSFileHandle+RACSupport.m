@@ -13,7 +13,7 @@
 
 - (RACSubscribable *)rac_readInBackground {
 	RACReplaySubject *subject = [RACReplaySubject subject];
-	RACSubscribable *dataNotification = [[[NSNotificationCenter defaultCenter] rac_addObserverForName:NSFileHandleReadCompletionNotification object:self] select:^(NSNotification *note) {
+	RACSubscribable *dataNotification = [[[NSNotificationCenter defaultCenter] rac_addObserverForName:NSFileHandleReadCompletionNotification object:self] map:^(NSNotification *note) {
 		return [note.userInfo objectForKey:NSFileHandleNotificationDataItem];
 	}];
 	

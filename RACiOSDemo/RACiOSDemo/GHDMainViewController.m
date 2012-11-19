@@ -39,13 +39,13 @@
     }];
 	
 	[[RACAble(self.text) 
-		select:^(id x) {
+		map:^(id x) {
 			return [x uppercaseString]; 
 		}]
 		toProperty:@keypath(self.label) onObject:self];
     
     [[RACAble(self.text2)
-        select:^id(id x) {
+        map:^ id (id x) {
             return [x lowercaseString];
         }]
         toProperty:@keypath(self.label2) onObject:self];

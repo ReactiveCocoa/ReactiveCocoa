@@ -671,7 +671,6 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 
 	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
 		__block id runningValue = start;
-		[subscriber sendNext:start];
 
 		return [self subscribeNext:^(id x) {
 			runningValue = combineBlock(runningValue, x);

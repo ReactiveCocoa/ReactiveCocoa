@@ -669,7 +669,7 @@ describe(@"-scanWithStart:combine:", ^{
 		}];
 		
 		NSArray *values = subscribable.toArray;
-		NSArray *expected = @[ @0, @1, @3, @6, @10 ];
+		NSArray *expected = @[ @1, @3, @6, @10 ];
 		expect(values).to.equal(expected);
 	});
 });

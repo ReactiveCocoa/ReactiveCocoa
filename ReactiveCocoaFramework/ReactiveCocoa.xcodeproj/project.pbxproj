@@ -1577,7 +1577,7 @@
 				);
 				INFOPLIST_FILE = "ReactiveCocoaTests/ReactiveCocoaTests-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
-				OTHER_LDFLAGS = "-all_load";
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = ReactiveCocoaTests;
 				VALID_ARCHS = x86_64;
 				WRAPPER_EXTENSION = octest;
@@ -1597,7 +1597,7 @@
 				);
 				INFOPLIST_FILE = "ReactiveCocoaTests/ReactiveCocoaTests-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
-				OTHER_LDFLAGS = "-all_load";
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = ReactiveCocoaTests;
 				VALID_ARCHS = x86_64;
 				WRAPPER_EXTENSION = octest;
@@ -1692,7 +1692,7 @@
 				);
 				INFOPLIST_FILE = "ReactiveCocoaTests/ReactiveCocoaTests-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
-				OTHER_LDFLAGS = "-all_load";
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = ReactiveCocoaTests;
 				VALID_ARCHS = x86_64;
 				WRAPPER_EXTENSION = octest;

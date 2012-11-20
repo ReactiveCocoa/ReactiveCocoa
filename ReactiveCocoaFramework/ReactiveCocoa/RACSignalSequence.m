@@ -13,7 +13,7 @@
 
 @interface RACSignalSequence ()
 
-// Replays the subscribable given on initialization.
+// Replays the signal given on initialization.
 @property (nonatomic, strong, readonly) RACReplaySubject *subject;
 
 @end

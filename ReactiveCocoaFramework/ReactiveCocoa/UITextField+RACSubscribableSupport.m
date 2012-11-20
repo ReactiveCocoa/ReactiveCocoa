@@ -12,8 +12,8 @@
 
 @implementation UITextField (RACSignalSupport)
 
-- (RACSignal *)rac_textSubscribable {
-	return [[[self rac_subscribableForControlEvents:UIControlEventEditingChanged] startWith:self] map:^(UITextField *x) {
+- (RACSignal *)rac_textSignal {
+	return [[[self rac_signalForControlEvents:UIControlEventEditingChanged] startWith:self] map:^(UITextField *x) {
 		return x.text;
 	}];
 }

@@ -12,12 +12,12 @@
 
 @interface UITextView (RACSignalSupport)
 
-// Creates and returns a subscribable that sends the sender of the delegate 
-// method whenever it is triggered.
-- (RACSignal *)rac_subscribableForDelegateMethod:(SEL)method;
+// Creates and returns a signal that sends the sender of the delegate method
+// whenever it is triggered.
+- (RACSignal *)rac_signalForDelegateMethod:(SEL)method;
 
-// Creates and returns a subscribable for the text of the field. It always
-// starts with the current text.
-- (RACSignal *)rac_textSubscribable;
+// Creates and returns a signal for the text of the field. It always starts with
+// the current text.
+- (RACSignal *)rac_textSignal;
 
 @end

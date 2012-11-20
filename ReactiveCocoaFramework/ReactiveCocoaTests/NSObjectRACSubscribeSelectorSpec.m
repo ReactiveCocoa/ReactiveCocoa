@@ -19,7 +19,7 @@ beforeEach(^{
 	object = [[RACTestObject alloc] init];
 });
 
-it(@"should call the selector with the value of the subscribable", ^{
+it(@"should call the selector with the value of the signal", ^{
 	RACSubject *subject = [RACSubject subject];
 	[object rac_subscribeSelector:@selector(setObjectValue:) withObjects:subject];
 
@@ -32,7 +32,7 @@ it(@"should call the selector with the value of the subscribable", ^{
 	expect(object.objectValue).to.equal(@42);
 });
 
-it(@"should call the selector with the value of the subscribable unboxed", ^{
+it(@"should call the selector with the value of the signal unboxed", ^{
 	RACSubject *subject = [RACSubject subject];
 	[object rac_subscribeSelector:@selector(setIntegerValue:) withObjects:subject];
 
@@ -62,7 +62,7 @@ it(@"should work with multiple arguments", ^{
 	expect(object.integerValue).to.equal(42);
 });
 
-it(@"should work with subscribables that immediately start with a value", ^{
+it(@"should work with signals that immediately start with a value", ^{
 	RACSubject *subject = [RACSubject subject];
 	[object rac_subscribeSelector:@selector(setObjectValue:) withObjects:[subject startWith:@42]];
 
@@ -72,7 +72,7 @@ it(@"should work with subscribables that immediately start with a value", ^{
 	expect(object.objectValue).to.equal(@1);
 });
 
-it(@"shouldn't do anything when it isn't given any subscribable arguments", ^{
+it(@"shouldn't do anything when it isn't given any signal arguments", ^{
 	[object rac_subscribeSelector:@selector(setObjectValue:) withObjects:@42];
 
 	expect(object.objectValue).to.beNil();

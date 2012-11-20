@@ -38,8 +38,8 @@
 			// all the subscriptions into blocks and we'll call them after all
 			// the setup is done.
 			[subscribeBlocks addObject:[^{
-				id<RACSignal> subscribable = (id<RACSignal>)currentObject;
-				[subscribable subscribeNext:^(id x) {
+				id<RACSignal> signal = (id<RACSignal>)currentObject;
+				[signal subscribeNext:^(id x) {
 					NSObject *strongSelf = weakSelf;
 					[strongSelf setArgumentForInvocation:invocation type:argType atIndex:(NSInteger)i withObject:x];
 					[invocation invokeWithTarget:strongSelf];

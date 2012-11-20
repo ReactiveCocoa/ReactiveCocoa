@@ -198,8 +198,8 @@ typedef NSInteger RACSignalError;
 // Returns a signal that sends the current date/time every `interval`.
 + (id<RACSignal>)interval:(NSTimeInterval)interval;
 
-// Take `next`s until the `subscribableTrigger` sends a `next`.
-- (id<RACSignal>)takeUntil:(id<RACSignal>)subscribableTrigger;
+// Take `next`s until the `signalTrigger` sends a `next`.
+- (id<RACSignal>)takeUntil:(id<RACSignal>)signalTrigger;
 
 // Take `next`s until the given block returns YES.
 - (id<RACSignal>)takeUntilBlock:(BOOL (^)(id x))predicate;
@@ -214,7 +214,7 @@ typedef NSInteger RACSignalError;
 - (id<RACSignal>)catch:(id<RACSignal> (^)(NSError *error))catchBlock;
 
 // Subscribe to the given signal when an error occurs.
-- (id<RACSignal>)catchTo:(id<RACSignal>)subscribable;
+- (id<RACSignal>)catchTo:(id<RACSignal>)signal;
 
 // Returns the first `next`. Note that this is a blocking call.
 - (id)first;
@@ -289,7 +289,7 @@ typedef NSInteger RACSignalError;
 // with that object. The object sent is transformed by calling `transformBlock`
 // with the object. If `transformBlock` is nil, it sends the original object.
 //
-// The returned subscribable is a subscribable of RACGroupedSignal.
+// The returned signal is a signal of RACGroupedSignal.
 - (id<RACSignal>)groupBy:(id<NSCopying> (^)(id object))keyBlock transform:(id (^)(id object))transformBlock;
 
 // Calls -[RACSignal groupBy:keyBlock transform:nil].

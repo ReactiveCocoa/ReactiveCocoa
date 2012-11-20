@@ -10,11 +10,10 @@
 
 @class RACSignal;
 
-
 @interface UITextField (RACSignalSupport)
 
-// Creates and returns a subscribable for the text of the field. It always
-// starts with the current text.
-- (RACSignal *)rac_textSubscribable;
+// Creates and returns a signal for the text of the field. It always starts with
+// the current text.
+- (RACSignal *)rac_textSignal;
 
 @end

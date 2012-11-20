@@ -10,16 +10,16 @@
 
 @interface NSObject (RACSubscribeSelector)
 
-// Allows you to pass subscribables for non-subscribable arguments. It will
-// invoke the given selector on the receiver each time any subscribable
-// argument sends a new value. Subscribable arguments default to nil/0.
+// Allows you to pass signals for non-signal arguments. It will invoke the given
+// selector on the receiver each time any signal argument sends a new value.
+// Signal arguments default to nil/0.
 //
 // This does not support struct, union, or C array arguments.
 //
 // Examples:
 //
-//   [button rac_subscribeSelector:@selector(setTitleColor:forState:) withObjects:textColorSubscribable, @(UIControlStateNormal)];
-//   [[UIApplication sharedApplication] rac_subscribeSelector:@selector(setNetworkActivityIndicatorVisible:) withObjects:subscribable];
+//   [button rac_subscribeSelector:@selector(setTitleColor:forState:) withObjects:textColorSignal, @(UIControlStateNormal)];
+//   [[UIApplication sharedApplication] rac_subscribeSelector:@selector(setNetworkActivityIndicatorVisible:) withObjects:signal];
 - (void)rac_subscribeSelector:(SEL)selector withObjects:(id)arg, ...;
 
 @end

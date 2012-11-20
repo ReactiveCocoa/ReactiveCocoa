@@ -152,7 +152,7 @@ static NSMutableSet *activeSignals() {
 		NSMutableDictionary *completedOrErrorBySubscribable = [NSMutableDictionary dictionaryWithCapacity:subscribables.count];
 		NSMutableDictionary *valuesBySubscribable = [NSMutableDictionary dictionaryWithCapacity:subscribables.count];
 		for (id<RACSignal> subscribable in subscribables) {
-			[valuesBySubscribable setObject:NSMutableArray.array forKey:[NSString stringWithFormat:@"%p", subscribable]];
+			valuesBySubscribable[keyForSubscribable(subscribable)] = NSMutableArray.array;
 		}
 		
 		void (^sendCompleteOrErrorIfNecessary)(void) = ^{
@@ -166,7 +166,7 @@ static NSMutableSet *activeSignals() {
 				if (completedOrError == nil) {
 					continue;
 				}
-				if ([completedOrError isKindOfClass:[NSError class]]) {
+				if ([completedOrError isKindOfClass:NSError.class]) {
 					error = completedOrError;
 					continue;
 				}
@@ -195,7 +195,7 @@ static NSMutableSet *activeSignals() {
 							isMissingValues = YES;
 							break;
 						}
-						[earliestValues addObject:[values objectAtIndex:0]];
+						[earliestValues addObject:values[0]];
 					}
 					
 					if (!isMissingValues) {
@@ -216,7 +216,7 @@ static NSMutableSet *activeSignals() {
 				}
 			} error:^(NSError *error) {
 				@synchronized(completedOrErrorBySubscribable) {
-					if (!completedOrErrorBySubscribable[keyForSubscribable(subscribable)]) {
+					if (completedOrErrorBySubscribable[keyForSubscribable(subscribable)] == nil) {
 						completedOrErrorBySubscribable[keyForSubscribable(subscribable)] = error;
 					}
 					@synchronized(valuesBySubscribable) {
@@ -225,7 +225,7 @@ static NSMutableSet *activeSignals() {
 				}
 			} completed:^{
 				@synchronized(completedOrErrorBySubscribable) {
-					if (!completedOrErrorBySubscribable[keyForSubscribable(subscribable)]) {
+					if (completedOrErrorBySubscribable[keyForSubscribable(subscribable)] == nil) {
 						completedOrErrorBySubscribable[keyForSubscribable(subscribable)] = @YES;
 					}
 					@synchronized(valuesBySubscribable) {

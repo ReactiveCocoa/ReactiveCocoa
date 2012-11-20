@@ -1189,7 +1189,7 @@ describe(@"+zip:reduce:", ^{
 		}];
 	});
 	
-	it(@"should ignore errors sent after values needed by +zip:reduce:", ^{
+	it(@"should ignore errors that occur after +zip:reduce: finishes", ^{
 		__block NSError *receivedError = nil;
 		
 		[[RACSignal zip:@[ errorAfterThree, sendTwo ] reduce:nil] subscribeError:^(NSError *error) {
@@ -1199,7 +1199,7 @@ describe(@"+zip:reduce:", ^{
 		expect(receivedError).to.beNil();
 	});
 	
-	it(@"shouldn't ignore errors sent before values needed by +zip:reduce:", ^{
+	it(@"should send errors that occur before +zip:reduce: finishes", ^{
 		__block NSError *receivedError = nil;
 		
 		[[RACSignal zip:@[ errorAfterTwo, sendTwo ] reduce:nil] subscribeError:^(NSError *error) {

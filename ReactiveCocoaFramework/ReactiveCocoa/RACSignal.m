@@ -203,27 +203,21 @@ static NSMutableSet *activeSignals() {
 						}
 					}
 					
-					@synchronized(completedOrErrorBySignal) {
-						sendCompleteOrErrorIfNecessary();
-					}
+					sendCompleteOrErrorIfNecessary();
 				}
 			} error:^(NSError *error) {
-				@synchronized(completedOrErrorBySignal) {
+				@synchronized(valuesBySignal) {
 					if (completedOrErrorBySignal[keyForSignal(signal)] == nil) {
 						completedOrErrorBySignal[keyForSignal(signal)] = error;
 					}
-					@synchronized(valuesBySignal) {
-						sendCompleteOrErrorIfNecessary();
-					}
+					sendCompleteOrErrorIfNecessary();
 				}
 			} completed:^{
-				@synchronized(completedOrErrorBySignal) {
+				@synchronized(valuesBySignal) {
 					if (completedOrErrorBySignal[keyForSignal(signal)] == nil) {
 						completedOrErrorBySignal[keyForSignal(signal)] = @YES;
 					}
-					@synchronized(valuesBySignal) {
-						sendCompleteOrErrorIfNecessary();
-					}
+					sendCompleteOrErrorIfNecessary();
 				}
 			}];
 			

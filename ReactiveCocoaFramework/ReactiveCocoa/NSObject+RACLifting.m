@@ -20,7 +20,7 @@
 @implementation NSObject (RACLifting)
 
 - (id<RACSubscribable>)rac_liftSubscribables:(NSArray *)subscribables withReducingInvocation:(id (^)(RACTuple *))reduceBlock {
-	RACConnectableSubscribable *subscribable = [[[RACSubscribable combineLatest:subscribables] select:reduceBlock] multicast:[RACReplaySubject replaySubjectWithCapacity:1]];
+	RACConnectableSubscribable *subscribable = [[[RACSubscribable combineLatest:subscribables] map:reduceBlock] multicast:[RACReplaySubject replaySubjectWithCapacity:1]];
 
 	RACDisposable *disposable = [subscribable connect];
 	[self rac_addDeallocDisposable:disposable];

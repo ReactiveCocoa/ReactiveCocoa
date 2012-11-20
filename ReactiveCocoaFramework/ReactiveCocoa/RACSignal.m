@@ -143,11 +143,11 @@ static NSMutableSet *activeSignals() {
 }
 
 + (instancetype)zip:(NSArray *)subscribables reduce:(id)reduceBlock {
-	static NSString *(^keyForSubscribable)(id<RACSignal>) = ^ NSString * (id<RACSignal> subscribable) {
-		return [NSString stringWithFormat:@"%p", subscribable];
+	static NSValue *(^keyForSubscribable)(id<RACSignal>) = ^ NSValue * (id<RACSignal> subscribable) {
+		return [NSValue valueWithNonretainedObject:subscribable];
 	};
 	
-	return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+	return [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		NSMutableSet *disposables = [NSMutableSet setWithCapacity:subscribables.count];
 		NSMutableDictionary *completedOrErrorBySubscribable = [NSMutableDictionary dictionaryWithCapacity:subscribables.count];
 		NSMutableDictionary *valuesBySubscribable = [NSMutableDictionary dictionaryWithCapacity:subscribables.count];
@@ -234,15 +234,13 @@ static NSMutableSet *activeSignals() {
 				}
 			}]];
 			
-			if(disposable != nil) {
+			if (disposable != nil) {
 				[disposables addObject:disposable];
 			}
 		}
 		
 		return [RACDisposable disposableWithBlock:^{
-			for(RACDisposable *disposable in disposables) {
-				[disposable dispose];
-			}
+			[disposables makeObjectsPerformSelector:@selector(dispose)];
 		}];
 	}];
 }

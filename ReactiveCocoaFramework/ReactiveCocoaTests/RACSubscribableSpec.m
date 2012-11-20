@@ -7,6 +7,9 @@
 //
 
 #import "RACSpecs.h"
+#import "RACPropertySubscribableExamples.h"
+#import "RACSequenceExamples.h"
+#import "RACStreamExamples.h"
 
 #import "EXTKeyPathCoding.h"
 #import "RACSubscribable.h"
@@ -19,7 +22,6 @@
 #import "RACScheduler.h"
 #import "RACTestObject.h"
 #import "NSObject+RACPropertySubscribing.h"
-#import "RACPropertySubscribableExamples.h"
 #import "RACAsyncSubject.h"
 
 static NSString * const RACSubscribableMergeConcurrentCompletionExampleGroup = @"RACSubscribableMergeConcurrentCompletionExampleGroup";
@@ -34,7 +36,7 @@ sharedExamplesFor(RACSubscribableMergeConcurrentCompletionExampleGroup, ^(NSDict
 
 		RACSubject *subscribablesSubject = [RACSubject subject];
 		__block BOOL completed = NO;
-		[[subscribablesSubject merge:[data[RACSubscribableMaxConcurrent] unsignedIntegerValue]] subscribeCompleted:^{
+		[[subscribablesSubject flatten:[data[RACSubscribableMaxConcurrent] unsignedIntegerValue]] subscribeCompleted:^{
 			completed = YES;
 		}];
 
@@ -63,6 +65,48 @@ sharedExamplesFor(RACSubscribableMergeConcurrentCompletionExampleGroup, ^(NSDict
 SharedExampleGroupsEnd
 
 SpecBegin(RACSubscribable)
+
+describe(@"<RACStream>", ^{
+	id verifyValues = ^(RACSubscribable *subscribable, NSArray *expectedValues) {
+		expect(subscribable).notTo.beNil();
+
+		NSMutableArray *collectedValues = [NSMutableArray array];
+
+		__block BOOL success = NO;
+		__block NSError *error = nil;
+		[subscribable subscribeNext:^(id value) {
+			[collectedValues addObject:value];
+		} error:^(NSError *receivedError) {
+			error = receivedError;
+		} completed:^{
+			success = YES;
+		}];
+
+		expect(success).will.beTruthy();
+		expect(error).to.beNil();
+		expect(collectedValues).to.equal(expectedValues);
+	};
+
+	RACSubscribable *infiniteSubscribable = [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		__block volatile int32_t done = 0;
+
+		[RACScheduler.deferredScheduler schedule:^{
+			while (!done) {
+				[subscriber sendNext:RACUnit.defaultUnit];
+			}
+		}];
+
+		return [RACDisposable disposableWithBlock:^{
+			OSAtomicIncrement32Barrier(&done);
+		}];
+	}];
+
+	itShouldBehaveLike(RACStreamExamples, @{
+		RACStreamExamplesClass: RACSubscribable.class,
+		RACStreamExamplesVerifyValuesBlock: verifyValues,
+		RACStreamExamplesInfiniteStream: infiniteSubscribable
+	});
+});
 
 describe(@"subscribing", ^{
 	__block RACSubscribable *subscribable = nil;
@@ -164,39 +208,6 @@ describe(@"querying", ^{
 		}];
 	});
 	
-	it(@"should support where", ^{
-		__block BOOL didGetCallbacks = NO;
-		[[subscribable where:^BOOL(id x) {
-			return x == nextValueSent;
-		}] subscribeNext:^(id x) {
-			expect(x).to.equal(nextValueSent);
-			didGetCallbacks = YES;
-		} error:^(NSError *error) {
-			
-		} completed:^{
-			
-		}];
-		
-		expect(didGetCallbacks).to.beTruthy();
-	});
-	
-	it(@"should support select", ^{
-		__block BOOL didGetCallbacks = NO;
-		id transformedValue = @"other";
-		[[subscribable select:^(id x) {			
-			return transformedValue;
-		}] subscribeNext:^(id x) {
-			expect(x).to.equal(transformedValue);
-			didGetCallbacks = YES;
-		} error:^(NSError *error) {
-			
-		} completed:^{
-			
-		}];
-		
-		expect(didGetCallbacks).to.beTruthy();
-	});
-	
 	it(@"should support window", ^{
 		RACSubscribable *subscribable = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@"1"];
@@ -236,28 +247,6 @@ describe(@"querying", ^{
 		} completed:^{
 			NSLog(@"completed");
 		}];
-	});
-	
-	it(@"should support take", ^{
-		@autoreleasepool {
-			RACSubscribable *subscribable = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
-				[subscriber sendNext:@"1"];
-				[subscriber sendNext:@"2"];
-				[subscriber sendNext:@"3"];
-				[subscriber sendNext:@"4"];
-				[subscriber sendNext:@"5"];
-				[subscriber sendCompleted];
-				return nil;
-			}];
-			
-			RACSubscriber *ob = [RACSubscriber subscriberWithNext:NULL error:NULL completed:NULL];
-			
-			@autoreleasepool {
-				[subscribable subscribe:ob];
-			}
-			
-			NSLog(@"d");
-		}
 	});
 	
 	it(@"should return first 'next' value with -firstOrDefault:success:error:", ^{
@@ -886,7 +875,7 @@ describe(@"+merge:", ^{
 	});
 });
 
-describe(@"-merge:", ^{
+describe(@"-flatten:", ^{
 	__block BOOL subscribedTo1 = NO;
 	__block BOOL subscribedTo2 = NO;
 	__block BOOL subscribedTo3 = NO;
@@ -928,7 +917,7 @@ describe(@"-merge:", ^{
 
 	describe(@"when its max is 0", ^{
 		it(@"should merge all the subscribables concurrently", ^{
-			[[subscribablesSubject merge:0] subscribeNext:^(id x) {
+			[[subscribablesSubject flatten:0] subscribeNext:^(id x) {
 				[values addObject:x];
 			}];
 
@@ -968,7 +957,7 @@ describe(@"-merge:", ^{
 
 	describe(@"when its max is > 0", ^{
 		it(@"should merge only the given number at a time", ^{
-			[[subscribablesSubject merge:1] subscribeNext:^(id x) {
+			[[subscribablesSubject flatten:1] subscribeNext:^(id x) {
 				[values addObject:x];
 			}];
 
@@ -1140,6 +1129,37 @@ describe(@"-mapReplace:", ^{
 		NSArray *expected = @[ @"hi", @"hi" ];
 		expect(results).to.equal(expected);
 	});
+});
+
+describe(@"-sequence", ^{
+	RACSubscribable *subscribable = [RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		[subscriber sendNext:@1];
+		[subscriber sendNext:@2];
+		[subscriber sendNext:@3];
+		[subscriber sendNext:@4];
+		[subscriber sendCompleted];
+		return nil;
+	}];
+
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: subscribable.sequence, RACSequenceExpectedValues: @[ @1, @2, @3, @4 ] });
+});
+
+it(@"should complete take: even if the original subscribable doesn't", ^{
+	id<RACSubscribable> sendOne = [RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		[subscriber sendNext:RACUnit.defaultUnit];
+		return nil;
+	}];
+
+	__block id value = nil;
+	__block BOOL completed = NO;
+	[[sendOne take:1] subscribeNext:^(id received) {
+		value = received;
+	} completed:^{
+		completed = YES;
+	}];
+
+	expect(value).to.equal(RACUnit.defaultUnit);
+	expect(completed).to.beTruthy();
 });
 
 SpecEnd

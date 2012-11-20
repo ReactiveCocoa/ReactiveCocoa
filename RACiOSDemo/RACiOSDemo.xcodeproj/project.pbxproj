@@ -440,10 +440,7 @@
 				GCC_PREFIX_HEADER = "RACiOSDemo/RACiOSDemo-Prefix.pch";
 				HEADER_SEARCH_PATHS = "\"$(PROJECT_DIR)/../ReactiveCocoaFramework\"/**";
 				INFOPLIST_FILE = "RACiOSDemo/RACiOSDemo-Info.plist";
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"-all_load",
-				);
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -457,10 +454,7 @@
 				GCC_PREFIX_HEADER = "RACiOSDemo/RACiOSDemo-Prefix.pch";
 				HEADER_SEARCH_PATHS = "\"$(PROJECT_DIR)/../ReactiveCocoaFramework\"/**";
 				INFOPLIST_FILE = "RACiOSDemo/RACiOSDemo-Info.plist";
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"-all_load",
-				);
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};

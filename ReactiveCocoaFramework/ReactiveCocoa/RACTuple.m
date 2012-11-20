@@ -7,7 +7,7 @@
 //
 
 #import "RACTuple.h"
-
+#import "EXTKeyPathCoding.h"
 
 @implementation RACTupleNil
 
@@ -19,6 +19,22 @@
 	});
 	
 	return tupleNil;
+}
+
+#pragma mark NSCopying
+
+- (id)copyWithZone:(NSZone *)zone {
+	return self;
+}
+
+#pragma mark NSCoding
+
+- (id)initWithCoder:(NSCoder *)coder {
+	// Always return the singleton.
+	return self.class.tupleNil;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder {
 }
 
 @end
@@ -71,9 +87,22 @@
 }
 
 
-#pragma mark API
+#pragma mark NSCoding
 
-@synthesize backingArray;
+- (id)initWithCoder:(NSCoder *)coder {
+	self = [self init];
+	if (self == nil) return nil;
+
+	self.backingArray = [coder decodeObjectForKey:@keypath(self.backingArray)];
+	return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder {
+	if (self.backingArray != nil) [coder encodeObject:self.backingArray forKey:@keypath(self.backingArray)];
+}
+
+
+#pragma mark API
 
 + (instancetype)tupleWithObjectsFromArray:(NSArray *)array {
 	return [self tupleWithObjectsFromArray:array convertNullsToNils:NO];

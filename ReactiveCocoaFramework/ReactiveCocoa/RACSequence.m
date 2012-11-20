@@ -12,8 +12,8 @@
 #import "RACDynamicSequence.h"
 #import "RACEmptySequence.h"
 #import "RACScheduler.h"
-#import "RACSubscriber.h"
-#import "RACSubscribable.h"
+#import "RACSubject.h"
+#import "RACSignal.h"
 #import "RACTuple.h"
 #import "RACBlockTrampoline.h"
 #import <libkern/OSAtomic.h>
@@ -132,8 +132,8 @@
 	return [array copy];
 }
 
-- (id<RACSubscribable>)subscribableWithScheduler:(RACScheduler *)scheduler {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+- (id<RACSignal>)signalWithScheduler:(RACScheduler *)scheduler {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block int32_t disposed = 0;
 
 		[scheduler schedule:^{

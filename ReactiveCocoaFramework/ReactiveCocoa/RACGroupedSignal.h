@@ -1,5 +1,5 @@
 //
-//  RACGroupedSubscribable.h
+//  RACGroupedSignal.h
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 5/2/12.
@@ -9,12 +9,12 @@
 #import "RACSubject.h"
 
 
-// A grouped subscribable is used by -[RACSubscribable groupBy:transform:].
-@interface RACGroupedSubscribable : RACSubject
+// A grouped signal is used by -[RACSignal groupBy:transform:].
+@interface RACGroupedSignal : RACSubject
 
 // The key shared by the group.
 @property (nonatomic, readonly, copy) id<NSCopying> key;
 
-+ (instancetype)subscribableWithKey:(id<NSCopying>)key;
++ (instancetype)signalWithKey:(id<NSCopying>)key;
 
 @end

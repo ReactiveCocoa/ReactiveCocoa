@@ -36,7 +36,7 @@ describe(@"<RACStream>", ^{
 		RACStreamExamplesClass: RACSequence.class,
 		RACStreamExamplesVerifyValuesBlock: verifyValues,
 		RACStreamExamplesInfiniteStream: infiniteSequence
-	});
+	}, nil);
 });
 
 describe(@"+sequenceWithHeadBlock:tailBlock:", ^{
@@ -78,19 +78,19 @@ describe(@"+sequenceWithHeadBlock:tailBlock:", ^{
 	});
 
 	after(^{
-		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: @[ @0, @1 ] });
+		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: @[ @0, @1 ] }, nil);
 	});
 });
 
 describe(@"empty sequences", ^{
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: RACSequence.empty, RACSequenceExpectedValues: @[] });
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: RACSequence.empty, RACSequenceExpectedValues: @[] }, nil);
 });
 
 describe(@"non-empty sequences", ^{
 	RACSequence *sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
 	NSArray *values = @[ @0, @1, @2 ];
 
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values });
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values }, nil);
 });
 
 describe(@"-take:", ^{

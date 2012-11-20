@@ -8,7 +8,7 @@
 
 #import "RACSpecs.h"
 #import "RACSubscriptingAssignmentTrampoline.h"
-#import "RACPropertySubscribableExamples.h"
+#import "RACPropertySignalExamples.h"
 #import "RACTestObject.h"
 #import "RACSubject.h"
 
@@ -18,7 +18,7 @@ void (^setupBlock)(RACTestObject *, NSString *, RACSubject *) = ^(RACTestObject 
 	[RACSubscriptingAssignmentTrampoline trampoline][ [[RACSubscriptingAssignmentObjectKeyPathPair alloc] initWithObject:testObject keyPath:keyPath] ] = subject;
 };
 
-itShouldBehaveLike(RACPropertySubscribableExamples, @{ RACPropertySubscribableExamplesSetupBlock: setupBlock });
+itShouldBehaveLike(RACPropertySignalExamples, @{ RACPropertySignalExamplesSetupBlock: setupBlock }, nil);
 
 it(@"should expand the RAC macro properly", ^{
 	RACSubject *subject = [RACSubject subject];

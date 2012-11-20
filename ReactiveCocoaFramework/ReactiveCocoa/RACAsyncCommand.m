@@ -14,7 +14,7 @@
 
 @interface RACAsyncBlockPair : NSObject
 @property (nonatomic, strong) RACSubject *subject;
-@property (nonatomic, strong) RACSubscribable * (^asyncBlock)(id value);
+@property (nonatomic, strong) RACSignal * (^asyncBlock)(id value);
 @end
 
 @interface RACAsyncCommand ()
@@ -35,15 +35,14 @@
 	return self;
 }
 
-
 #pragma mark RACCommand
 
-- (id)initWithCanExecuteSubscribable:(id<RACSubscribable>)canExecuteSubscribable block:(void (^)(id sender))block {
-	self = [super initWithCanExecuteSubscribable:nil block:block];
+- (id)initWithCanExecuteSignal:(id<RACSignal>)canExecuteSignal block:(void (^)(id sender))block {
+	self = [super initWithCanExecuteSignal:nil block:block];
 	if (self == nil) return nil;
 	
-	[[RACSubscribable
-		combineLatest:@[ canExecuteSubscribable ?: [RACSubscribable return:@YES], RACAbleWithStart(self.numberOfActiveExecutions), RACAbleWithStart(self.maxConcurrentExecutions) ]
+	[[RACSignal
+		combineLatest:@[ canExecuteSignal ?: [RACSignal return:@YES], RACAbleWithStart(self.numberOfActiveExecutions), RACAbleWithStart(self.maxConcurrentExecutions) ]
 		reduce:^(NSNumber *canExecute, NSNumber *activeExecutions, NSNumber *maxConcurrent) {
 			return @(canExecute.boolValue && activeExecutions.unsignedIntegerValue < maxConcurrent.unsignedIntegerValue);
 		}]
@@ -58,9 +57,9 @@
 	
 	self.numberOfActiveExecutions++;
 	
-	NSArray *subscribables = [self.asyncFunctionPairs valueForKeyPath:@"subject"];
-	[[[RACSubscribable
-		merge:subscribables]
+	NSArray *signals = [self.asyncFunctionPairs valueForKeyPath:@"subject"];
+	[[[RACSignal
+		merge:signals]
 		finally:^{
 			self.numberOfActiveExecutions--;
 		}]
@@ -93,7 +92,7 @@
 	return operationQueue;
 }
 
-- (RACSubscribable *)addAsyncBlock:(RACSubscribable * (^)(id value))block {
+- (RACSignal *)addAsyncBlock:(RACSignal * (^)(id value))block {
 	NSParameterAssert(block != NULL);
 	
 	RACSubject *subject = [RACSubject subject];

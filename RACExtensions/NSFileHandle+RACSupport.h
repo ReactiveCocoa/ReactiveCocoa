@@ -13,6 +13,6 @@
 
 // Read any available data in the background and send it. Completes when data
 // length is <= 0.
-- (RACSubscribable *)rac_readInBackground;
+- (RACSignal *)rac_readInBackground;
 
 @end

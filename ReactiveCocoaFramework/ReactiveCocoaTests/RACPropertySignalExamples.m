@@ -1,5 +1,5 @@
 //
-//  RACPropertySubscribableExamples.m
+//  RACPropertySignalExamples.m
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 9/28/12.
@@ -12,20 +12,20 @@
 #import "RACSubject.h"
 #import "NSObject+RACPropertySubscribing.h"
 
-NSString * const RACPropertySubscribableExamples = @"RACPropertySubscribableExamples";
-NSString * const RACPropertySubscribableExamplesSetupBlock = @"RACPropertySubscribableExamplesSetupBlock";
+NSString * const RACPropertySignalExamples = @"RACPropertySignalExamples";
+NSString * const RACPropertySignalExamplesSetupBlock = @"RACPropertySignalExamplesSetupBlock";
 
-SharedExampleGroupsBegin(RACPropertySubscribableExamples)
+SharedExampleGroupsBegin(RACPropertySignalExamples)
 
-sharedExamplesFor(RACPropertySubscribableExamples, ^(NSDictionary *data) {
+sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 	__block RACTestObject *testObject = nil;
-	void (^setupBlock)(RACTestObject *, NSString *keyPath, RACSubject *) = data[RACPropertySubscribableExamplesSetupBlock];
+	void (^setupBlock)(RACTestObject *, NSString *keyPath, RACSubject *) = data[RACPropertySignalExamplesSetupBlock];
 
 	beforeEach(^{
 		testObject = [[RACTestObject alloc] init];
 	});
 
-	it(@"should set the value of the property with the latest value from the subscribable", ^{
+	it(@"should set the value of the property with the latest value from the signal", ^{
 		RACSubject *subject = [RACSubject subject];
 		setupBlock(testObject, @keypath(testObject.objectValue), subject);
 		expect(testObject.objectValue).to.beNil();
@@ -40,7 +40,7 @@ sharedExamplesFor(RACPropertySubscribableExamples, ^(NSDictionary *data) {
 		expect(testObject.objectValue).to.beNil();
 	});
 
-	it(@"should set the value of a non-object property with the latest value from the subscribable", ^{
+	it(@"should set the value of a non-object property with the latest value from the signal", ^{
 		RACSubject *subject = [RACSubject subject];
 		setupBlock(testObject, @keypath(testObject.integerValue), subject);
 		expect(testObject.integerValue).to.equal(0);

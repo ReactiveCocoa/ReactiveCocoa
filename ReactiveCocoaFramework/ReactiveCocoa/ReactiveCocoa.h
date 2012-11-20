@@ -15,7 +15,6 @@
 #import <ReactiveCocoa/NSObject+RACKVOWrapper.h>
 #import <ReactiveCocoa/NSObject+RACOperations.h>
 #import <ReactiveCocoa/NSObject+RACPropertySubscribing.h>
-#import <ReactiveCocoa/NSObject+RACSubscribeSelector.h>
 #import <ReactiveCocoa/NSOrderedSet+RACSequenceAdditions.h>
 #import <ReactiveCocoa/NSSet+RACSequenceAdditions.h>
 #import <ReactiveCocoa/NSString+RACSequenceAdditions.h>
@@ -39,6 +38,7 @@
 #import <ReactiveCocoa/RACSubscribableProtocol.h>
 #import <ReactiveCocoa/RACSubscriber.h>
 #import <ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h>
+#import <ReactiveCocoa/NSObject+RACLifting.h>
 #import <ReactiveCocoa/RACTuple.h>
 #import <ReactiveCocoa/RACUnit.h>
 

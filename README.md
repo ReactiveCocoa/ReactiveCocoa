@@ -35,7 +35,7 @@ Derive properties:
 RAC(self.createEnabled) = [RACSignal 
     combineLatest:@[ RACAble(self.password), RACAble(self.passwordConfirmation) ] 
     reduce:^(NSString *password, NSString *passwordConfirm) {
-        return @([passwordConfirm isEqualToString: password]);
+        return @([passwordConfirm isEqualToString:password]);
     }];
 ```
 

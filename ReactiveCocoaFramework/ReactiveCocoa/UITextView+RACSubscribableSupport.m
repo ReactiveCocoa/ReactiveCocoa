@@ -1,18 +1,18 @@
 //
-//  UITextView+RACSubscribableSupport.m
+//  UITextView+RACSignalSupport.m
 //  ReactiveCocoa
 //
 //  Created by Cody Krieger on 5/18/12.
 //  Copyright (c) 2012 Cody Krieger. All rights reserved.
 //
 
-#import "UITextView+RACSubscribableSupport.h"
+#import "UITextView+RACSignalSupport.h"
 #import "RACEventTrampoline.h"
 #import <objc/runtime.h>
 
-@implementation UITextView (RACSubscribableSupport)
+@implementation UITextView (RACSignalSupport)
 
-- (RACSubscribable *)rac_subscribableForDelegateMethod:(SEL)method {
+- (RACSignal *)rac_subscribableForDelegateMethod:(SEL)method {
     RACEventTrampoline *trampoline = [RACEventTrampoline trampolineForTextView:self delegateMethod:method];
     
 	NSMutableSet *controlEventTrampolines = objc_getAssociatedObject(self, RACEventTrampolinesKey);
@@ -26,7 +26,7 @@
 	return trampoline.subject;
 }
 
-- (RACSubscribable *)rac_textSubscribable {
+- (RACSignal *)rac_textSubscribable {
 	return [[[self rac_subscribableForDelegateMethod:@selector(textViewDidChange:)] startWith:self] map:^(UITextView *x) {
 		return x.text;
 	}];

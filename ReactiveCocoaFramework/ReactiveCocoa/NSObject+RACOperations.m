@@ -8,7 +8,7 @@
 
 #import "NSObject+RACOperations.h"
 #import "NSObject+RACPropertySubscribing.h"
-#import "RACSubscribable.h"
+#import "RACSignal.h"
 #import "RACSubscriber.h"
 #import "NSObject+RACFastEnumeration.h"
 #import "RACTuple.h"
@@ -17,12 +17,12 @@
 
 @implementation NSObject (RACOperations)
 
-- (RACSubscribable *)rac_whenAny:(NSArray *)keyPaths reduce:(id (^)(RACTuple *xs))reduceBlock {
+- (RACSignal *)rac_whenAny:(NSArray *)keyPaths reduce:(id (^)(RACTuple *xs))reduceBlock {
 	NSParameterAssert(keyPaths != nil);
 	NSParameterAssert(reduceBlock != NULL);
 	
 	__unsafe_unretained id weakSelf = self;
-	return [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+	return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
 		
 		RACTuple * (^currentValues)(void) = ^{
       NSObject *strongSelf = weakSelf;
@@ -41,7 +41,7 @@
 			return [strongSelf rac_subscribableForKeyPath:keyPath onObject:strongSelf];
 		}];
 		
-		return [[RACSubscribable merge:subscribables] subscribeNext:^(id x) {
+		return [[RACSignal merge:subscribables] subscribeNext:^(id x) {
 			[subscriber sendNext:reduceBlock(currentValues())];
 		} error:^(NSError *error) {
 			[subscriber sendError:error];

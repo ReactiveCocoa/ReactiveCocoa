@@ -1,5 +1,5 @@
 //
-//  UITextView+RACSubscribableSupport.h
+//  UITextView+RACSignalSupport.h
 //  ReactiveCocoa
 //
 //  Created by Cody Krieger on 5/18/12.
@@ -8,16 +8,16 @@
 
 #import <UIKit/UIKit.h>
 
-@class RACSubscribable;
+@class RACSignal;
 
-@interface UITextView (RACSubscribableSupport)
+@interface UITextView (RACSignalSupport)
 
 // Creates and returns a subscribable that sends the sender of the delegate 
 // method whenever it is triggered.
-- (RACSubscribable *)rac_subscribableForDelegateMethod:(SEL)method;
+- (RACSignal *)rac_subscribableForDelegateMethod:(SEL)method;
 
 // Creates and returns a subscribable for the text of the field. It always
 // starts with the current text.
-- (RACSubscribable *)rac_textSubscribable;
+- (RACSignal *)rac_textSubscribable;
 
 @end

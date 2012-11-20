@@ -15,6 +15,6 @@
 // Note that encoding won't be valid until the subscribable completes successfully.
 //
 // scheduler - cannot be nil.
-+ (RACSubscribable *)rac_readContentsOfURL:(NSURL *)URL usedEncoding:(NSStringEncoding *)encoding scheduler:(RACScheduler *)scheduler;
++ (RACSignal *)rac_readContentsOfURL:(NSURL *)URL usedEncoding:(NSStringEncoding *)encoding scheduler:(RACScheduler *)scheduler;
 
 @end

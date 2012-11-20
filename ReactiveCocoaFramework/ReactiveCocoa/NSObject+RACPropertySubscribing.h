@@ -17,8 +17,8 @@
 //
 // Examples:
 //
-//  RACSubscribable *subscribable1 = RACAble(self.blah);
-//  RACSubscribable *subscribable2 = RACAble(blah, someOtherBlah);
+//  RACSignal *subscribable1 = RACAble(self.blah);
+//  RACSignal *subscribable2 = RACAble(blah, someOtherBlah);
 #define RACAble(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))(_RACAbleObject(self, __VA_ARGS__))(_RACAbleObject(__VA_ARGS__))
 
 // Do not use this directly. Use RACAble above.
@@ -31,7 +31,7 @@
 // Do not use this directly. Use RACAbleWithStart above.
 #define _RACAbleWithStartValue(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))([self valueForKeyPath:@keypath(self, __VA_ARGS__)])([metamacro_at0(__VA_ARGS__) valueForKeyPath:@keypath(__VA_ARGS__)])
 
-@class RACSubscribable;
+@class RACSignal;
 @class RACDisposable;
 
 
@@ -39,14 +39,14 @@
 
 // Creates a subscribable for observing on the given object the key path of the
 // source object.
-+ (RACSubscribable *)rac_subscribableFor:(NSObject *)object keyPath:(NSString *)keyPath onObject:(NSObject *)onObject;
++ (RACSignal *)rac_subscribableFor:(NSObject *)object keyPath:(NSString *)keyPath onObject:(NSObject *)onObject;
 
 // Creates a value from observing the value at the given keypath.
-- (RACSubscribable *)rac_subscribableForKeyPath:(NSString *)keyPath onObject:(NSObject *)object;
+- (RACSignal *)rac_subscribableForKeyPath:(NSString *)keyPath onObject:(NSObject *)object;
 
 // Keeps the value of the KVC-compliant keypath up-to-date with the latest value
 // sent by the subscribable.
-- (RACDisposable *)rac_deriveProperty:(NSString *)keyPath from:(RACSubscribable *)subscribable;
+- (RACDisposable *)rac_deriveProperty:(NSString *)keyPath from:(RACSignal *)subscribable;
 
 // Adds a disposable which will be disposed when the receiver deallocs.
 - (void)rac_addDeallocDisposable:(RACDisposable *)disposable;

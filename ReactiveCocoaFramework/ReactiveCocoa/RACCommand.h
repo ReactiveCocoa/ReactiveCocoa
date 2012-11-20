@@ -33,11 +33,11 @@
 // be a subscribable that sends NSNumber-wrapped BOOLs. The `canExecute`
 // property will be set to the boolValue of the latest value received from the
 // subscribable.
-+ (instancetype)commandWithCanExecuteSubscribable:(id<RACSubscribable>)subscribable block:(void (^)(id sender))block;
++ (instancetype)commandWithCanExecuteSubscribable:(id<RACSignal>)subscribable block:(void (^)(id sender))block;
 
 // Initializes a new command with the given execution block and can execute
 // subscribable. Both can be nil.
-- (id)initWithCanExecuteSubscribable:(id<RACSubscribable>)canExecuteSubscribable block:(void (^)(id sender))block;
+- (id)initWithCanExecuteSubscribable:(id<RACSignal>)canExecuteSubscribable block:(void (^)(id sender))block;
 
 // If `canExecute` is YES, executes the receiver's block with the given sender
 // and returns YES. Otherwise, returns NO.

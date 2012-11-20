@@ -1,18 +1,18 @@
 //
-//  UITextField+RACSubscribableSupport.m
+//  UITextField+RACSignalSupport.m
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 4/17/12.
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "UITextField+RACSubscribableSupport.h"
-#import "RACSubscribable.h"
-#import "UIControl+RACSubscribableSupport.h"
+#import "UITextField+RACSignalSupport.h"
+#import "RACSignal.h"
+#import "UIControl+RACSignalSupport.h"
 
-@implementation UITextField (RACSubscribableSupport)
+@implementation UITextField (RACSignalSupport)
 
-- (RACSubscribable *)rac_textSubscribable {
+- (RACSignal *)rac_textSubscribable {
 	return [[[self rac_subscribableForControlEvents:UIControlEventEditingChanged] startWith:self] map:^(UITextField *x) {
 		return x.text;
 	}];

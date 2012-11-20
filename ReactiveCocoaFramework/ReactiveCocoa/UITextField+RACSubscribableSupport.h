@@ -1,5 +1,5 @@
 //
-//  UITextField+RACSubscribableSupport.h
+//  UITextField+RACSignalSupport.h
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 4/17/12.
@@ -8,13 +8,13 @@
 
 #import <UIKit/UIKit.h>
 
-@class RACSubscribable;
+@class RACSignal;
 
 
-@interface UITextField (RACSubscribableSupport)
+@interface UITextField (RACSignalSupport)
 
 // Creates and returns a subscribable for the text of the field. It always
 // starts with the current text.
-- (RACSubscribable *)rac_textSubscribable;
+- (RACSignal *)rac_textSubscribable;
 
 @end

@@ -10,7 +10,7 @@
 
 @implementation NSData (RACSupport)
 
-+ (RACSubscribable *)rac_readContentsOfURL:(NSURL *)URL options:(NSDataReadingOptions)options scheduler:(RACScheduler *)scheduler {
++ (RACSignal *)rac_readContentsOfURL:(NSURL *)URL options:(NSDataReadingOptions)options scheduler:(RACScheduler *)scheduler {
 	NSParameterAssert(scheduler != nil);
 	
 	RACAsyncSubject *subject = [RACAsyncSubject subject];

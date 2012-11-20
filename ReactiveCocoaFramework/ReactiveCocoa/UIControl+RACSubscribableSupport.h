@@ -1,5 +1,5 @@
 //
-//  UIControl+RACSubscribableSupport.h
+//  UIControl+RACSignalSupport.h
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 4/17/12.
@@ -8,13 +8,13 @@
 
 #import <UIKit/UIKit.h>
 
-@class RACSubscribable;
+@class RACSignal;
 
 
-@interface UIControl (RACSubscribableSupport)
+@interface UIControl (RACSignalSupport)
 
 // Creates and returns a subscribable that sends the sender of the control event
 // whenever one of the control events is triggered.
-- (RACSubscribable *)rac_subscribableForControlEvents:(UIControlEvents)controlEvents;
+- (RACSignal *)rac_subscribableForControlEvents:(UIControlEvents)controlEvents;
 
 @end

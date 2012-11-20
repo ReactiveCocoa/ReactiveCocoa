@@ -13,11 +13,11 @@ SpecBegin(RACCommand)
 
 describe(@"when it's created with a canExecute subscribable", ^{
 	it(@"shouldn't be executable when its subscribable has sent NO most recently", ^{
-		RACCommand *command = [RACCommand commandWithCanExecuteSubscribable:[RACSubscribable return:@NO] block:NULL];
+		RACCommand *command = [RACCommand commandWithCanExecuteSubscribable:[RACSignal return:@NO] block:NULL];
 		
 		expect(command.canExecute).to.beFalsy();
 		
-		command = [RACCommand commandWithCanExecuteSubscribable:[RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+		command = [RACCommand commandWithCanExecuteSubscribable:[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@YES];
 			[subscriber sendNext:@NO];
 			return nil;
@@ -27,11 +27,11 @@ describe(@"when it's created with a canExecute subscribable", ^{
 	});
 	
 	it(@"should be executable when its subscribable has sent YES most recently", ^{
-		RACCommand *command = [RACCommand commandWithCanExecuteSubscribable:[RACSubscribable return:@YES] block:NULL];
+		RACCommand *command = [RACCommand commandWithCanExecuteSubscribable:[RACSignal return:@YES] block:NULL];
 		
 		expect(command.canExecute).to.beTruthy();
 		
-		command = [RACCommand commandWithCanExecuteSubscribable:[RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+		command = [RACCommand commandWithCanExecuteSubscribable:[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@NO];
 			[subscriber sendNext:@YES];
 			return nil;

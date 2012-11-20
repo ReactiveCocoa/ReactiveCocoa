@@ -25,7 +25,7 @@
 @implementation RACAsyncSubject
 
 
-#pragma mark RACSubscribable
+#pragma mark RACSignal
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
 	RACDisposable *disposable = [super subscribe:subscriber];

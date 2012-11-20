@@ -34,11 +34,11 @@
 	return [[self alloc] initWithCanExecuteSubscribable:nil block:executeBlock];
 }
 
-+ (instancetype)commandWithCanExecuteSubscribable:(id<RACSubscribable>)canExecuteSubscribable block:(void (^)(id sender))block {
++ (instancetype)commandWithCanExecuteSubscribable:(id<RACSignal>)canExecuteSubscribable block:(void (^)(id sender))block {
 	return [[self alloc] initWithCanExecuteSubscribable:canExecuteSubscribable block:block];
 }
 
-- (id)initWithCanExecuteSubscribable:(id<RACSubscribable>)canExecuteSubscribable block:(void (^)(id sender))block {
+- (id)initWithCanExecuteSubscribable:(id<RACSignal>)canExecuteSubscribable block:(void (^)(id sender))block {
 	self = [self init];
 	if (self == nil) return nil;
 	

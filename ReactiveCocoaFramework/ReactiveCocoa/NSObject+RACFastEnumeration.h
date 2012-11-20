@@ -8,11 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
-@class RACSubscribable;
+@class RACSignal;
 
 @interface NSObject (RACFastEnumeration) // Must conform to NSFastEnumeration
 
 // Sends each object of the enumerable and then completes.
-- (RACSubscribable *)rac_toSubscribable;
+- (RACSignal *)rac_toSubscribable;
 
 @end

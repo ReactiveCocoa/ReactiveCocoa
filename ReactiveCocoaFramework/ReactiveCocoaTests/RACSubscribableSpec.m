@@ -1,5 +1,5 @@
 //
-//  RACSubscribableSpc.m
+//  RACSignalSpc.m
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 3/2/12.
@@ -12,7 +12,7 @@
 #import "RACStreamExamples.h"
 
 #import "EXTKeyPathCoding.h"
-#import "RACSubscribable.h"
+#import "RACSignal.h"
 #import "RACSubscriber.h"
 #import "RACSubject.h"
 #import "RACBehaviorSubject.h"
@@ -24,11 +24,11 @@
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACAsyncSubject.h"
 
-static NSString * const RACSubscribableMergeConcurrentCompletionExampleGroup = @"RACSubscribableMergeConcurrentCompletionExampleGroup";
-static NSString * const RACSubscribableMaxConcurrent = @"RACSubscribableMaxConcurrent";
+static NSString * const RACSignalMergeConcurrentCompletionExampleGroup = @"RACSignalMergeConcurrentCompletionExampleGroup";
+static NSString * const RACSignalMaxConcurrent = @"RACSignalMaxConcurrent";
 SharedExampleGroupsBegin(mergeConcurrentCompletionName);
 
-sharedExamplesFor(RACSubscribableMergeConcurrentCompletionExampleGroup, ^(NSDictionary *data) {
+sharedExamplesFor(RACSignalMergeConcurrentCompletionExampleGroup, ^(NSDictionary *data) {
 	it(@"should complete only after the source and all its subscribables have completed", ^{
 		RACSubject *subject1 = [RACSubject subject];
 		RACSubject *subject2 = [RACSubject subject];
@@ -36,7 +36,7 @@ sharedExamplesFor(RACSubscribableMergeConcurrentCompletionExampleGroup, ^(NSDict
 
 		RACSubject *subscribablesSubject = [RACSubject subject];
 		__block BOOL completed = NO;
-		[[subscribablesSubject flatten:[data[RACSubscribableMaxConcurrent] unsignedIntegerValue]] subscribeCompleted:^{
+		[[subscribablesSubject flatten:[data[RACSignalMaxConcurrent] unsignedIntegerValue]] subscribeCompleted:^{
 			completed = YES;
 		}];
 
@@ -64,10 +64,10 @@ sharedExamplesFor(RACSubscribableMergeConcurrentCompletionExampleGroup, ^(NSDict
 
 SharedExampleGroupsEnd
 
-SpecBegin(RACSubscribable)
+SpecBegin(RACSignal)
 
 describe(@"<RACStream>", ^{
-	id verifyValues = ^(RACSubscribable *subscribable, NSArray *expectedValues) {
+	id verifyValues = ^(RACSignal *subscribable, NSArray *expectedValues) {
 		expect(subscribable).notTo.beNil();
 
 		NSMutableArray *collectedValues = [NSMutableArray array];
@@ -87,7 +87,7 @@ describe(@"<RACStream>", ^{
 		expect(collectedValues).to.equal(expectedValues);
 	};
 
-	RACSubscribable *infiniteSubscribable = [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+	RACSignal *infiniteSubscribable = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block volatile int32_t done = 0;
 
 		[RACScheduler.deferredScheduler schedule:^{
@@ -102,18 +102,18 @@ describe(@"<RACStream>", ^{
 	}];
 
 	itShouldBehaveLike(RACStreamExamples, @{
-		RACStreamExamplesClass: RACSubscribable.class,
+		RACStreamExamplesClass: RACSignal.class,
 		RACStreamExamplesVerifyValuesBlock: verifyValues,
 		RACStreamExamplesInfiniteStream: infiniteSubscribable
 	});
 });
 
 describe(@"subscribing", ^{
-	__block RACSubscribable *subscribable = nil;
+	__block RACSignal *subscribable = nil;
 	id nextValueSent = @"1";
 	
 	beforeEach(^{
-		subscribable = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+		subscribable = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
 			[subscriber sendNext:nextValueSent];
 			[subscriber sendCompleted];
 			return nil;
@@ -196,11 +196,11 @@ describe(@"subscribing", ^{
 });
 
 describe(@"querying", ^{
-	__block RACSubscribable *subscribable = nil;
+	__block RACSignal *subscribable = nil;
 	id nextValueSent = @"1";
 	
 	beforeEach(^{
-		subscribable = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+		subscribable = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
 			[subscriber sendNext:nextValueSent];
 			[subscriber sendNext:@"other value"];
 			[subscriber sendCompleted];
@@ -209,7 +209,7 @@ describe(@"querying", ^{
 	});
 	
 	it(@"should support window", ^{
-		RACSubscribable *subscribable = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+		RACSignal *subscribable = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@"1"];
 			[subscriber sendNext:@"2"];
 			[subscriber sendNext:@"3"];
@@ -224,7 +224,7 @@ describe(@"querying", ^{
 		RACSubject *closeSubject = [RACSubject subject];
 		__block NSUInteger valuesReceived = 0;
 		
-		RACSubscribable *window = [subscribable windowWithStart:windowOpen close:^(id<RACSubscribable> start) {
+		RACSignal *window = [subscribable windowWithStart:windowOpen close:^(id<RACSignal> start) {
 			return closeSubject;
 		}];
 				
@@ -250,7 +250,7 @@ describe(@"querying", ^{
 	});
 	
 	it(@"should return first 'next' value with -firstOrDefault:success:error:", ^{
-		RACSubscribable *subscribable = [RACSubscribable createSubscribable:^ id (id<RACSubscriber> subscriber) {
+		RACSignal *subscribable = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendNext:@2];
 			[subscriber sendNext:@3];
@@ -268,7 +268,7 @@ describe(@"querying", ^{
 	});
 	
 	it(@"should return first default value with -firstOrDefault:success:error:", ^{
-		RACSubscribable *subscribable = [RACSubscribable createSubscribable:^ id (id<RACSubscriber> subscriber) {
+		RACSignal *subscribable = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 			[subscriber sendCompleted];
 			return nil;
 		}];
@@ -284,7 +284,7 @@ describe(@"querying", ^{
 	
 	it(@"should return error with -firstOrDefault:success:error:", ^{
 		NSError *testError = [NSError errorWithDomain:@"foo" code:100 userInfo:nil];
-		RACSubscribable *subscribable = [RACSubscribable createSubscribable:^ id (id<RACSubscriber> subscriber) {
+		RACSignal *subscribable = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 			[subscriber sendError:testError];
 			return nil;
 		}];
@@ -302,7 +302,7 @@ describe(@"querying", ^{
 describe(@"continuation", ^{
 	it(@"shouldn't receive deferred errors", ^{
 		__block NSUInteger numberOfSubscriptions = 0;
-		RACSubscribable *subscribable = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+		RACSignal *subscribable = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
 			if(numberOfSubscriptions > 2) {
 				[subscriber sendCompleted];
 				return nil;
@@ -332,7 +332,7 @@ describe(@"continuation", ^{
 	
 	it(@"should repeat after completion", ^{
 		__block NSUInteger numberOfSubscriptions = 0;
-		RACSubscribable *subscribable = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+		RACSignal *subscribable = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
 			if(numberOfSubscriptions > 2) {
 				[subscriber sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
 				return nil;
@@ -364,20 +364,20 @@ describe(@"continuation", ^{
 describe(@"-combineLatest:", ^{
 	__block id<RACSubscriber> subscriber1 = nil;
 	__block id<RACSubscriber> subscriber2 = nil;
-	__block RACSubscribable *subscribable1 = nil;
-	__block RACSubscribable *subscribable2 = nil;
-	__block RACSubscribable *combined = nil;
+	__block RACSignal *subscribable1 = nil;
+	__block RACSignal *subscribable2 = nil;
+	__block RACSignal *combined = nil;
 	
 	beforeEach(^{
-		subscribable1 = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+		subscribable1 = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
 			subscriber1 = subscriber;
 			return nil;
 		}],
-		subscribable2 = [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+		subscribable2 = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
 			subscriber2 = subscriber;
 			return nil;
 		}],
-		combined = [RACSubscribable combineLatest:@[ subscribable1, subscribable2 ]];
+		combined = [RACSignal combineLatest:@[ subscribable1, subscribable2 ]];
 	});
 	
 	it(@"should yield when all sources yield", ^{
@@ -494,7 +494,7 @@ describe(@"-combineLatest:reduce:", ^{
 	});
 
 	it(@"should send a RACTuple when given a nil reduce block", ^{
-		RACSubscribable *combined = [RACSubscribable combineLatest:@[ subject1, subject2 ] reduce:nil];
+		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2 ] reduce:nil];
 
 		__block id received;
 		[combined subscribeNext:^(id x) {
@@ -511,7 +511,7 @@ describe(@"-combineLatest:reduce:", ^{
 	it(@"should send nils for nil values", ^{
 		__block id receivedVal1;
 		__block id receivedVal2;
-		RACSubscribable *combined = [RACSubscribable combineLatest:@[ subject1, subject2 ] reduce:^(id val1, id val2) {
+		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2 ] reduce:^(id val1, id val2) {
 			receivedVal1 = val1;
 			receivedVal2 = val2;
 			return nil;
@@ -531,7 +531,7 @@ describe(@"-combineLatest:reduce:", ^{
 	});
 
 	it(@"should send the return result of the reduce block", ^{
-		RACSubscribable *combined = [RACSubscribable combineLatest:@[ subject1, subject2 ] reduce:^(NSString *string1, NSString *string2) {
+		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2 ] reduce:^(NSString *string1, NSString *string2) {
 			return [NSString stringWithFormat:@"%@: %@", string1, string2];
 		}];
 
@@ -547,7 +547,7 @@ describe(@"-combineLatest:reduce:", ^{
 	});
 
 	it(@"should only complete after all its subscribables complete", ^{
-		RACSubscribable *combined = [RACSubscribable combineLatest:@[ subject1, subject2 ] reduce:nil];
+		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2 ] reduce:nil];
 
 		__block BOOL completed = NO;
 		[combined subscribeCompleted:^{
@@ -573,7 +573,7 @@ describe(@"-combineLatest:reduce:", ^{
 
 describe(@"distinctUntilChanged", ^{
 	it(@"should only send values that are distinct from the previous value", ^{
-		RACSubscribable *sub = [[RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+		RACSignal *sub = [[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendNext:@2];
 			[subscriber sendNext:@2];
@@ -589,7 +589,7 @@ describe(@"distinctUntilChanged", ^{
 	});
 
 	it(@"shouldn't consider nils to always be distinct", ^{
-		RACSubscribable *sub = [[RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+		RACSignal *sub = [[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendNext:nil];
 			[subscriber sendNext:nil];
@@ -605,7 +605,7 @@ describe(@"distinctUntilChanged", ^{
 	});
 
 	it(@"should consider initial nil to be distinct", ^{
-		RACSubscribable *sub = [[RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+		RACSignal *sub = [[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
 			[subscriber sendNext:nil];
 			[subscriber sendNext:nil];
 			[subscriber sendNext:@1];
@@ -657,7 +657,7 @@ describe(@"RACAbleWithStart", ^{
 
 describe(@"-scanWithStart:combine:", ^{
 	it(@"should send each step in the fold", ^{
-		RACSubscribable *subscribable = [[RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		RACSignal *subscribable = [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendNext:@2];
 			[subscriber sendNext:@3];
@@ -704,7 +704,7 @@ describe(@"deallocation", ^{
 	it(@"should dealloc subscribables if the subscribable does nothing", ^{
 		__block BOOL deallocd = NO;
 		@autoreleasepool {
-			RACSubscribable *subscribable __attribute__((objc_precise_lifetime)) = [RACSubscribable createSubscribable:^ id (id<RACSubscriber> subscriber) {
+			RACSignal *subscribable __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 				return nil;
 			}];
 
@@ -721,7 +721,7 @@ describe(@"deallocation", ^{
 		@autoreleasepool {
 			__block BOOL done = NO;
 
-			RACSubscribable *subscribable __attribute__((objc_precise_lifetime)) = [RACSubscribable createSubscribable:^ id (id<RACSubscriber> subscriber) {
+			RACSignal *subscribable __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 				[subscriber sendCompleted];
 				return nil;
 			}];
@@ -766,7 +766,7 @@ describe(@"deallocation", ^{
 		__block BOOL deallocd = NO;
 		@autoreleasepool {
 			[RACScheduler.backgroundScheduler schedule:^{
-				RACSubscribable *subscribable __attribute__((objc_precise_lifetime)) = [RACSubscribable createSubscribable:^ id (id<RACSubscriber> subscriber) {
+				RACSignal *subscribable __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 					[subscriber sendCompleted];
 					return nil;
 				}];
@@ -790,7 +790,7 @@ describe(@"deallocation", ^{
 		__block BOOL deallocd = NO;
 		@autoreleasepool {
 			[RACScheduler.backgroundScheduler schedule:^{
-				RACSubscribable *subscribable __attribute__((objc_precise_lifetime)) = [RACSubscribable createSubscribable:^ id (id<RACSubscriber> subscriber) {
+				RACSignal *subscribable __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 					return nil;
 				}];
 
@@ -817,11 +817,11 @@ describe(@"deallocation", ^{
 describe(@"+merge:", ^{
 	__block RACSubject *sub1;
 	__block RACSubject *sub2;
-	__block RACSubscribable *merged;
+	__block RACSignal *merged;
 	beforeEach(^{
 		sub1 = [RACSubject subject];
 		sub2 = [RACSubject subject];
-		merged = [RACSubscribable merge:@[ sub1, sub2 ]];
+		merged = [RACSignal merge:@[ sub1, sub2 ]];
 	});
 
 	it(@"should send all values from both subscribables", ^{
@@ -879,9 +879,9 @@ describe(@"-flatten:", ^{
 	__block BOOL subscribedTo1 = NO;
 	__block BOOL subscribedTo2 = NO;
 	__block BOOL subscribedTo3 = NO;
-	__block RACSubscribable *sub1;
-	__block RACSubscribable *sub2;
-	__block RACSubscribable *sub3;
+	__block RACSignal *sub1;
+	__block RACSignal *sub2;
+	__block RACSignal *sub3;
 	__block RACSubject *subject1;
 	__block RACSubject *subject2;
 	__block RACSubject *subject3;
@@ -891,21 +891,21 @@ describe(@"-flatten:", ^{
 	beforeEach(^{
 		subscribedTo1 = NO;
 		subject1 = [RACSubject subject];
-		sub1 = [RACSubscribable defer:^{
+		sub1 = [RACSignal defer:^{
 			subscribedTo1 = YES;
 			return subject1;
 		}];
 
 		subscribedTo2 = NO;
 		subject2 = [RACSubject subject];
-		sub2 = [RACSubscribable defer:^{
+		sub2 = [RACSignal defer:^{
 			subscribedTo2 = YES;
 			return subject2;
 		}];
 
 		subscribedTo3 = NO;
 		subject3 = [RACSubject subject];
-		sub3 = [RACSubscribable defer:^{
+		sub3 = [RACSignal defer:^{
 			subscribedTo3 = YES;
 			return subject3;
 		}];
@@ -952,7 +952,7 @@ describe(@"-flatten:", ^{
 			expect(values).to.equal(expected);
 		});
 
-		itShouldBehaveLike(RACSubscribableMergeConcurrentCompletionExampleGroup, @{ RACSubscribableMaxConcurrent: @0 });
+		itShouldBehaveLike(RACSignalMergeConcurrentCompletionExampleGroup, @{ RACSignalMaxConcurrent: @0 });
 	});
 
 	describe(@"when its max is > 0", ^{
@@ -1003,7 +1003,7 @@ describe(@"-flatten:", ^{
 			expect(values).to.equal(expected);
 		});
 
-		itShouldBehaveLike(RACSubscribableMergeConcurrentCompletionExampleGroup, @{ RACSubscribableMaxConcurrent: @1 });
+		itShouldBehaveLike(RACSignalMergeConcurrentCompletionExampleGroup, @{ RACSignalMaxConcurrent: @1 });
 	});
 });
 
@@ -1015,13 +1015,13 @@ describe(@"-switch", ^{
 			[values addObject:x];
 		}];
 
-		[subject sendNext:[RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		[subject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendNext:@2];
 			return nil;
 		}]];
 
-		[subject sendNext:[RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		[subject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@3];
 			[subscriber sendNext:@4];
 			[subscriber sendCompleted];
@@ -1041,7 +1041,7 @@ describe(@"-switch", ^{
 
 		[subject sendNext:nil];
 
-		[subject sendNext:[RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		[subject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendNext:@2];
 			[subscriber sendCompleted];
@@ -1059,7 +1059,7 @@ describe(@"+interval:", ^{
 		__block volatile int32_t nextsReceived = 0;
 		[scheduler schedule:^{
 			__block NSTimeInterval lastTime = NSDate.timeIntervalSinceReferenceDate;
-			[[[RACSubscribable interval:interval] take:3] subscribeNext:^(id _) {
+			[[[RACSignal interval:interval] take:3] subscribeNext:^(id _) {
 				NSTimeInterval currentTime = NSDate.timeIntervalSinceReferenceDate;
 				expect(currentTime - lastTime).beGreaterThanOrEqualTo(interval);
 
@@ -1085,7 +1085,7 @@ describe(@"-sequenceNext:", ^{
 
 		__block id value = nil;
 		[[subject sequenceNext:^{
-			return [RACSubscribable return:@2];
+			return [RACSignal return:@2];
 		}] subscribeNext:^(id x) {
 			value = x;
 		}];
@@ -1105,7 +1105,7 @@ describe(@"-sequenceNext:", ^{
 
 		__block id value = nil;
 		[[subject sequenceNext:^{
-			return [RACSubscribable return:RACUnit.defaultUnit];
+			return [RACSignal return:RACUnit.defaultUnit];
 		}] subscribeNext:^(id x) {
 			value = x;
 		}];
@@ -1118,7 +1118,7 @@ describe(@"-sequenceNext:", ^{
 
 describe(@"-mapReplace:", ^{
 	it(@"should always yield the given object", ^{
-		RACSubscribable *subscribable = [RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		RACSignal *subscribable = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendNext:@2];
 			[subscriber sendCompleted];
@@ -1132,7 +1132,7 @@ describe(@"-mapReplace:", ^{
 });
 
 describe(@"-sequence", ^{
-	RACSubscribable *subscribable = [RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
+	RACSignal *subscribable = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		[subscriber sendNext:@1];
 		[subscriber sendNext:@2];
 		[subscriber sendNext:@3];
@@ -1145,7 +1145,7 @@ describe(@"-sequence", ^{
 });
 
 it(@"should complete take: even if the original subscribable doesn't", ^{
-	id<RACSubscribable> sendOne = [RACSubscribable createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
+	id<RACSignal> sendOne = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		[subscriber sendNext:RACUnit.defaultUnit];
 		return nil;
 	}];

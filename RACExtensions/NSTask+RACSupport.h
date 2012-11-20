@@ -37,14 +37,14 @@ extern const NSInteger NSTaskRACSupportNonZeroTerminationStatus;
 @interface NSTask (RACSupport)
 
 // Returns a subscribable to the standard output. Does not start the task.
-- (RACSubscribable *)rac_standardOutputSubscribable;
+- (RACSignal *)rac_standardOutputSubscribable;
 
 // Returns a subscribable to the standard error. Does not start the task.
-- (RACSubscribable *)rac_standardErrorSubscribable;
+- (RACSignal *)rac_standardErrorSubscribable;
 
 // Returns a subscribable that sends a +[RACUnit defaultUnit] and completes when
 // the task completes.
-- (RACSubscribable *)rac_completionSubscribable;
+- (RACSignal *)rac_completionSubscribable;
 
 // Runs the task asychronously on the main queue. It aggregates all the data 
 // from standard output and sends it once the task completes, scheduled on the
@@ -53,9 +53,9 @@ extern const NSInteger NSTaskRACSupportNonZeroTerminationStatus;
 // NSTaskRACSupportOutputData, NSTaskRACSupportErrorData, and NSTaskRACSupportTask.
 //
 // scheduler - cannot be nil.
-- (RACCancelableSubscribable *)rac_runWithScheduler:(RACScheduler *)scheduler;
+- (RACCancelableSignal *)rac_runWithScheduler:(RACScheduler *)scheduler;
 
 // Calls -rac_runWithScheduler: with the immediate scheduler.
-- (RACCancelableSubscribable *)rac_run;
+- (RACCancelableSignal *)rac_run;
 
 @end

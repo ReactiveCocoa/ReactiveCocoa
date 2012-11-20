@@ -17,10 +17,10 @@ const NSInteger RACNSFileManagerErrorCouldNotCreateEventSource = 667;
 
 @implementation NSFileManager (RACSupport)
 
-+ (RACSubscribable *)rac_watchForEventsForFileAtURL:(NSURL *)URL scheduler:(RACScheduler *)scheduler {
++ (RACSignal *)rac_watchForEventsForFileAtURL:(NSURL *)URL scheduler:(RACScheduler *)scheduler {
 	NSParameterAssert(scheduler != nil);
 
-	return [[RACSubscribable createSubscribable:^ id (id<RACSubscriber> subscriber) {
+	return [[RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 		__block dispatch_source_t currentSource = NULL;
 		__block uint32_t volatile disposed = 0;
 

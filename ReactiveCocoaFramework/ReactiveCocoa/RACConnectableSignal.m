@@ -1,27 +1,27 @@
 //
-//  RACConnectableSubscribable.m
+//  RACConnectableSignal.m
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 4/11/12.
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACConnectableSubscribable.h"
-#import "RACConnectableSubscribable+Private.h"
-#import "RACSubscribable+Private.h"
+#import "RACConnectableSignal.h"
+#import "RACConnectableSignal+Private.h"
+#import "RACSignal+Private.h"
 #import "RACSubscriber.h"
 #import "RACSubject.h"
 #import "RACDisposable.h"
 
-@interface RACConnectableSubscribable ()
-@property (nonatomic, strong) id<RACSubscribable> sourceSubscribable;
+@interface RACConnectableSignal ()
+@property (nonatomic, strong) id<RACSignal> sourceSignal;
 @property (nonatomic, strong) RACSubject *subject;
 @property (nonatomic, strong) RACDisposable *disposable;
 @end
 
-@implementation RACConnectableSubscribable
+@implementation RACConnectableSignal
 
-#pragma mark RACSubscribable
+#pragma mark RACSignal
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
 	return [self.subject subscribe:subscriber];
@@ -29,13 +29,9 @@
 
 #pragma mark API
 
-@synthesize sourceSubscribable;
-@synthesize subject;
-@synthesize disposable;
-
-+ (instancetype)connectableSubscribableWithSourceSubscribable:(id<RACSubscribable>)source subject:(RACSubject *)subject {
-	RACConnectableSubscribable *subscribable = [[self alloc] init];
-	subscribable.sourceSubscribable = source;
++ (instancetype)connectableSignalWithSourceSignal:(id<RACSignal>)source subject:(RACSubject *)subject {
+	RACConnectableSignal *subscribable = [[self alloc] init];
+	subscribable.sourceSignal = source;
 	subscribable.subject = subject;
 	return subscribable;
 }
@@ -43,15 +39,15 @@
 - (RACDisposable *)connect {
 	@synchronized(self) {
 		if (self.disposable == nil) {
-			self.disposable = [self.sourceSubscribable subscribe:self.subject];
+			self.disposable = [self.sourceSignal subscribe:self.subject];
 		}
 		
 		return self.disposable;
 	}
 }
 
-- (RACSubscribable *)autoconnect {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+- (RACSignal *)autoconnect {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		RACDisposable *subscriptionDisposable = [self subscribe:subscriber];
 
 		[self connect];

@@ -11,9 +11,9 @@
 
 @implementation NSFileHandle (RACSupport)
 
-- (RACSubscribable *)rac_readInBackground {
+- (RACSignal *)rac_readInBackground {
 	RACReplaySubject *subject = [RACReplaySubject subject];
-	RACSubscribable *dataNotification = [[[NSNotificationCenter defaultCenter] rac_addObserverForName:NSFileHandleReadCompletionNotification object:self] map:^(NSNotification *note) {
+	RACSignal *dataNotification = [[[NSNotificationCenter defaultCenter] rac_addObserverForName:NSFileHandleReadCompletionNotification object:self] map:^(NSNotification *note) {
 		return [note.userInfo objectForKey:NSFileHandleNotificationDataItem];
 	}];
 	

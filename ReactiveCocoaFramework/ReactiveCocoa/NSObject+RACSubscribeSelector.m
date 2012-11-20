@@ -7,7 +7,7 @@
 //
 
 #import "NSObject+RACSubscribeSelector.h"
-#import "RACSubscribable.h"
+#import "RACSignal.h"
 
 @implementation NSObject (RACSubscribeSelector)
 
@@ -29,7 +29,7 @@
 		currentObject = (i == 2 ? arg : va_arg(args, id));
 
 		const char *argType = [methodSignature getArgumentTypeAtIndex:i];
-		if ([currentObject conformsToProtocol:@protocol(RACSubscribable)]) {
+		if ([currentObject conformsToProtocol:@protocol(RACSignal)]) {
 			[self setArgumentForInvocation:invocation type:argType atIndex:(NSInteger)i withObject:nil];
 
 			// We don't want to subscribe yet because our subscription could
@@ -38,7 +38,7 @@
 			// all the subscriptions into blocks and we'll call them after all
 			// the setup is done.
 			[subscribeBlocks addObject:[^{
-				id<RACSubscribable> subscribable = (id<RACSubscribable>)currentObject;
+				id<RACSignal> subscribable = (id<RACSignal>)currentObject;
 				[subscribable subscribeNext:^(id x) {
 					NSObject *strongSelf = weakSelf;
 					[strongSelf setArgumentForInvocation:invocation type:argType atIndex:(NSInteger)i withObject:x];

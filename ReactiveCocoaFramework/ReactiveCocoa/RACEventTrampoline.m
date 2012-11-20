@@ -24,7 +24,7 @@ static NSMutableDictionary *swizzledClasses() {
 	return swizzledClasses;
 }
 
-@implementation UITextView (RACSubscribableSupport)
+@implementation UITextView (RACSignalSupport)
 
 - (void)rac_setDelegate:(id<UITextViewDelegate>)delegate {
     Class proxyClass = [RACDelegateProxy class];

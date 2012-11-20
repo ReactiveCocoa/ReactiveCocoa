@@ -1,22 +1,22 @@
 //
-//  RACSubscribableProtocol.m
+//  RACSignalProtocol.m
 //  ReactiveCocoa
 //
 //  Created by Justin Spahr-Summers on 2012-09-06.
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACSubscribableProtocol.h"
+#import "RACSignalProtocol.h"
 #import "NSObject+RACExtensions.h"
 #import "RACBehaviorSubject.h"
-#import "RACCancelableSubscribable+Private.h"
-#import "RACConnectableSubscribable+Private.h"
+#import "RACCancelableSignal+Private.h"
+#import "RACConnectableSignal+Private.h"
 #import "RACDisposable.h"
-#import "RACGroupedSubscribable.h"
+#import "RACGroupedSignal.h"
 #import "RACMaybe.h"
 #import "RACScheduler.h"
 #import "RACSubject.h"
-#import "RACSubscribableSequence.h"
+#import "RACSignalSequence.h"
 #import "RACSubscriber.h"
 #import "RACTuple.h"
 #import "RACUnit.h"
@@ -25,9 +25,9 @@
 #import "RACBlockTrampoline.h"
 #import "NSObject+RACFastEnumeration.h"
 
-NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
+NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 
-@concreteprotocol(RACSubscribable)
+@concreteprotocol(RACSignal)
 
 #pragma mark RACStream
 
@@ -53,7 +53,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	return nil;
 }
 
-#pragma mark RACSubscribable
+#pragma mark RACSignal
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
 	return nil;
@@ -113,15 +113,15 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	return [self subscribe:o];
 }
 
-- (id<RACSubscribable>)mapReplace:(id)object {
+- (id<RACSignal>)mapReplace:(id)object {
 	return [self map:^(id _) {
 		return object;
 	}];
 }
 
-- (id<RACSubscribable>)injectObjectWeakly:(id)object {
+- (id<RACSignal>)injectObjectWeakly:(id)object {
 	__unsafe_unretained id weakObject = object;
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		return [self subscribeNext:^(id x) {
 			id strongObject = weakObject;
 			[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:[NSArray arrayWithObjects:x ? : [RACTupleNil tupleNil], strongObject, nil]]];
@@ -133,10 +133,10 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)doNext:(void (^)(id x))block {
+- (id<RACSignal>)doNext:(void (^)(id x))block {
 	NSParameterAssert(block != NULL);
 
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		return [self subscribeNext:^(id x) {
 			block(x);
 			[subscriber sendNext:x];
@@ -148,10 +148,10 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)doError:(void (^)(NSError *error))block {
+- (id<RACSignal>)doError:(void (^)(NSError *error))block {
 	NSParameterAssert(block != NULL);
 	
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		return [self subscribeNext:^(id x) {
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
@@ -163,10 +163,10 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)doCompleted:(void (^)(void))block {
+- (id<RACSignal>)doCompleted:(void (^)(void))block {
 	NSParameterAssert(block != NULL);
 	
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		return [self subscribeNext:^(id x) {
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
@@ -178,8 +178,8 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)throttle:(NSTimeInterval)interval {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+- (id<RACSignal>)throttle:(NSTimeInterval)interval {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block id lastDelayedId = nil;
 		return [self subscribeNext:^(id x) {
 			if(lastDelayedId != nil) [self rac_cancelPreviousPerformBlockRequestsWithId:lastDelayedId];
@@ -195,8 +195,8 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)delay:(NSTimeInterval)interval {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+- (id<RACSignal>)delay:(NSTimeInterval)interval {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block id lastDelayedId = nil;
 		return [self subscribeNext:^(id x) {
 			lastDelayedId = [self rac_performBlock:^{
@@ -211,8 +211,8 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)repeat {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+- (id<RACSignal>)repeat {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *currentDisposable = nil;
 		
 		__block RACSubscriber *innerObserver = [RACSubscriber subscriberWithNext:^(id x) {
@@ -231,8 +231,8 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)asMaybes {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+- (id<RACSignal>)asMaybes {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *currentDisposable = nil;
 		
 		__block RACSubscriber *innerObserver = [RACSubscriber subscriberWithNext:^(id x) {
@@ -252,15 +252,15 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)catch:(id<RACSubscribable> (^)(NSError *error))catchBlock {
+- (id<RACSignal>)catch:(id<RACSignal> (^)(NSError *error))catchBlock {
 	NSParameterAssert(catchBlock != NULL);
 		
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *innerDisposable = nil;
 		RACDisposable *outerDisposable = [self subscribeNext:^(id x) {
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
-			id<RACSubscribable> subscribable = catchBlock(error);
+			id<RACSignal> subscribable = catchBlock(error);
 			innerDisposable = [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 				[subscriber sendNext:x];
 			} error:^(NSError *error) {
@@ -279,16 +279,16 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)catchTo:(id<RACSubscribable>)subscribable {
+- (id<RACSignal>)catchTo:(id<RACSignal>)subscribable {
 	return [self catch:^(NSError *error) {
 		return subscribable;
 	}];
 }
 
-- (id<RACSubscribable>)finally:(void (^)(void))block {
+- (id<RACSignal>)finally:(void (^)(void))block {
 	NSParameterAssert(block != NULL);
 	
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		return [self subscribeNext:^(id x) {
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
@@ -301,13 +301,13 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)windowWithStart:(id<RACSubscribable>)openSubscribable close:(id<RACSubscribable> (^)(id<RACSubscribable> start))closeBlock {
+- (id<RACSignal>)windowWithStart:(id<RACSignal>)openSubscribable close:(id<RACSignal> (^)(id<RACSignal> start))closeBlock {
 	NSParameterAssert(openSubscribable != nil);
 	NSParameterAssert(closeBlock != NULL);
 	
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACSubject *currentWindow = nil;
-		__block id<RACSubscribable> currentCloseWindow = nil;
+		__block id<RACSignal> currentCloseWindow = nil;
 		__block RACDisposable *closeObserverDisposable = NULL;
 		
 		void (^closeCurrentWindow)(void) = ^{
@@ -353,14 +353,14 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)buffer:(NSUInteger)bufferCount {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+- (id<RACSignal>)buffer:(NSUInteger)bufferCount {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		NSMutableArray *values = [NSMutableArray arrayWithCapacity:bufferCount];
 		RACBehaviorSubject *windowOpenSubject = [RACBehaviorSubject behaviorSubjectWithDefaultValue:[RACUnit defaultUnit]];
 		RACSubject *windowCloseSubject = [RACSubject subject];
 		
 		__block RACDisposable *innerDisposable = nil;
-		RACDisposable *outerDisposable = [[self windowWithStart:windowOpenSubject close:^(id<RACSubscribable> start) {
+		RACDisposable *outerDisposable = [[self windowWithStart:windowOpenSubject close:^(id<RACSignal> start) {
 			return windowCloseSubject;
 		}] subscribeNext:^(id x) {		
 			innerDisposable = [x subscribeNext:^(id x) {
@@ -383,14 +383,14 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)bufferWithTime:(NSTimeInterval)interval {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+- (id<RACSignal>)bufferWithTime:(NSTimeInterval)interval {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		NSMutableArray *values = [NSMutableArray array];
 		RACBehaviorSubject *windowOpenSubject = [RACBehaviorSubject behaviorSubjectWithDefaultValue:[RACUnit defaultUnit]];
 
 		__block RACDisposable *innerDisposable = nil;
-		RACDisposable *outerDisposable = [[self windowWithStart:windowOpenSubject close:^(id<RACSubscribable> start) {
-			return [[[RACSubscribable interval:interval] take:1] doNext:^(id x) {
+		RACDisposable *outerDisposable = [[self windowWithStart:windowOpenSubject close:^(id<RACSignal> start) {
+			return [[[RACSignal interval:interval] take:1] doNext:^(id x) {
 				[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:values convertNullsToNils:YES]];
 				[values removeAllObjects];
 				[windowOpenSubject sendNext:[RACUnit defaultUnit]];
@@ -412,8 +412,8 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)takeLast:(NSUInteger)count {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {		
+- (id<RACSignal>)takeLast:(NSUInteger)count {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {		
 		NSMutableArray *valuesTaken = [NSMutableArray arrayWithCapacity:count];
 		return [self subscribeNext:^(id x) {
 			[valuesTaken addObject:x ? : [RACTupleNil tupleNil]];
@@ -433,19 +433,19 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-+ (id<RACSubscribable>)combineLatest:(NSArray *)subscribables reduce:(id)reduceBlock {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
++ (id<RACSignal>)combineLatest:(NSArray *)subscribables reduce:(id)reduceBlock {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		NSMutableSet *disposables = [NSMutableSet setWithCapacity:subscribables.count];
 		NSMutableSet *completedSubscribables = [NSMutableSet setWithCapacity:subscribables.count];
 		NSMutableDictionary *lastValues = [NSMutableDictionary dictionaryWithCapacity:subscribables.count];
-		for(id<RACSubscribable> subscribable in subscribables) {
+		for(id<RACSignal> subscribable in subscribables) {
 			RACDisposable *disposable = [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 				@synchronized(lastValues) {
 					[lastValues setObject:x ? : [RACTupleNil tupleNil] forKey:[NSString stringWithFormat:@"%p", subscribable]];
 
 					if(lastValues.count == subscribables.count) {
 						NSMutableArray *orderedValues = [NSMutableArray arrayWithCapacity:subscribables.count];
-						for(id<RACSubscribable> o in subscribables) {
+						for(id<RACSignal> o in subscribables) {
 							[orderedValues addObject:[lastValues objectForKey:[NSString stringWithFormat:@"%p", o]]];
 						}
 
@@ -480,23 +480,23 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-+ (id<RACSubscribable>)combineLatest:(NSArray *)subscribables {
++ (id<RACSignal>)combineLatest:(NSArray *)subscribables {
 	return [self combineLatest:subscribables reduce:nil];
 }
 
-+ (id<RACSubscribable>)merge:(NSArray *)subscribables {
++ (id<RACSignal>)merge:(NSArray *)subscribables {
 	return [subscribables.rac_toSubscribable flatten];
 }
 
-- (id<RACSubscribable>)flatten:(NSUInteger)maxConcurrent {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+- (id<RACSignal>)flatten:(NSUInteger)maxConcurrent {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		NSMutableSet *activeSubscribables = [NSMutableSet setWithObject:self];
 		NSMutableSet *disposables = [NSMutableSet set];
 		NSMutableArray *queuedSubscribables = [NSMutableArray array];
 
 		// Returns whether the subscribable should complete.
 		__block BOOL (^dequeueAndSubscribeIfAllowed)(void);
-		void (^completeSubscribable)(id<RACSubscribable>) = ^(id<RACSubscribable> subscribable) {
+		void (^completeSubscribable)(id<RACSignal>) = ^(id<RACSignal> subscribable) {
 			@synchronized(activeSubscribables) {
 				[activeSubscribables removeObject:subscribable];
 			}
@@ -516,7 +516,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		};
 
 		dequeueAndSubscribeIfAllowed = ^{
-			id<RACSubscribable> subscribable;
+			id<RACSignal> subscribable;
 			@synchronized(activeSubscribables) {
 				@synchronized(queuedSubscribables) {
 					BOOL completed = activeSubscribables.count < 1 && queuedSubscribables.count < 1;
@@ -551,9 +551,9 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		};
 
 		RACDisposable *disposable = [self subscribeNext:^(id x) {
-			NSAssert([x conformsToProtocol:@protocol(RACSubscribable)], @"The source must be a subscribable of subscribables. Instead, got %@", x);
+			NSAssert([x conformsToProtocol:@protocol(RACSignal)], @"The source must be a subscribable of subscribables. Instead, got %@", x);
 
-			id<RACSubscribable> innerSubscribable = x;
+			id<RACSignal> innerSubscribable = x;
 			@synchronized(queuedSubscribables) {
 				[queuedSubscribables addObject:innerSubscribable];
 			}
@@ -575,10 +575,10 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)sequenceNext:(id<RACSubscribable> (^)(void))block {
+- (id<RACSignal>)sequenceNext:(id<RACSignal> (^)(void))block {
 	NSParameterAssert(block != nil);
 
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *nextDisposable = nil;
 
 		RACDisposable *sourceDisposable = [self subscribeError:^(NSError *error) {
@@ -594,8 +594,8 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)concat {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+- (id<RACSignal>)concat {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block NSMutableArray *innerSubscribables = [NSMutableArray array];
 		__block RACDisposable *currentDisposable = nil;
 		__block BOOL outerDone = NO;
@@ -604,7 +604,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		void (^startNextInnerSubscribable)(void) = ^{
 			if(innerSubscribables.count < 1) return;
 			
-			id<RACSubscribable> currentInnerSubscribable = [innerSubscribables objectAtIndex:0];
+			id<RACSignal> currentInnerSubscribable = [innerSubscribables objectAtIndex:0];
 			[innerSubscribables removeObjectAtIndex:0];
 			currentDisposable = [currentInnerSubscribable subscribe:innerSubscriber];
 		};
@@ -627,7 +627,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 		}];
 		
 		RACDisposable *sourceDisposable = [self subscribeNext:^(id x) {
-			NSAssert1([x conformsToProtocol:@protocol(RACSubscribable)], @"The source must be a subscribable of subscribables. Instead, got %@", x);
+			NSAssert1([x conformsToProtocol:@protocol(RACSignal)], @"The source must be a subscribable of subscribables. Instead, got %@", x);
 			[innerSubscribables addObject:x];
 			
 			if(currentDisposable == nil) {
@@ -649,11 +649,11 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock {
+- (id<RACSignal>)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock {
 	NSParameterAssert(startFactory != NULL);
 	NSParameterAssert(combineBlock != NULL);
 	
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block id runningValue = startFactory();
 		return [self subscribeNext:^(id x) {
 			runningValue = combineBlock(runningValue, x);
@@ -666,10 +666,10 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)scanWithStart:(id)start combine:(id (^)(id running, id next))combineBlock {
+- (id<RACSignal>)scanWithStart:(id)start combine:(id (^)(id running, id next))combineBlock {
 	NSParameterAssert(combineBlock != NULL);
 
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block id runningValue = start;
 
 		return [self subscribeNext:^(id x) {
@@ -683,7 +683,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock {
+- (id<RACSignal>)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock {
 	return [self aggregateWithStartFactory:^{
 		return start;
 	} combine:combineBlock];
@@ -709,8 +709,8 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	return disposable;
 }
 
-+ (id<RACSubscribable>)interval:(NSTimeInterval)interval {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
++ (id<RACSignal>)interval:(NSTimeInterval)interval {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		NSTimer *timer = [NSTimer timerWithTimeInterval:interval target:self selector:@selector(intervalTimerFired:) userInfo:subscriber repeats:YES];
 		CFRunLoopAddTimer(CFRunLoopGetMain(), (__bridge CFRunLoopTimerRef)timer, kCFRunLoopCommonModes);
 
@@ -725,8 +725,8 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	[subscriber sendNext:NSDate.date];
 }
 
-- (id<RACSubscribable>)takeUntil:(id<RACSubscribable>)subscribableTrigger {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+- (id<RACSignal>)takeUntil:(id<RACSignal>)subscribableTrigger {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *selfDisposable = nil;
 		__block RACDisposable *triggerDisposable = [subscribableTrigger subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 			[selfDisposable dispose], selfDisposable = nil;
@@ -753,10 +753,10 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)takeUntilBlock:(BOOL (^)(id x))predicate {
+- (id<RACSignal>)takeUntilBlock:(BOOL (^)(id x))predicate {
 	NSParameterAssert(predicate != NULL);
 	
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
 			BOOL stop = predicate(x);
 			if(stop) {
@@ -778,7 +778,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)takeWhileBlock:(BOOL (^)(id x))predicate {
+- (id<RACSignal>)takeWhileBlock:(BOOL (^)(id x))predicate {
 	NSParameterAssert(predicate != NULL);
 	
 	return [self takeUntilBlock:^BOOL(id x) {
@@ -786,11 +786,11 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)switch {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+- (id<RACSignal>)switch {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *innerDisposable = nil;
 		RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
-			NSAssert([x conformsToProtocol:@protocol(RACSubscribable)] || x == nil, @"-switch requires that the source subscribable (%@) send subscribables. Instead we got: %@", self, x);
+			NSAssert([x conformsToProtocol:@protocol(RACSignal)] || x == nil, @"-switch requires that the source subscribable (%@) send subscribables. Instead we got: %@", self, x);
 			
 			[innerDisposable dispose], innerDisposable = nil;
 			
@@ -871,11 +871,11 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	return value;
 }
 
-+ (id<RACSubscribable>)defer:(id<RACSubscribable> (^)(void))block {
++ (id<RACSignal>)defer:(id<RACSignal> (^)(void))block {
 	NSParameterAssert(block != NULL);
 	
-	return [RACSubscribable createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
-		id<RACSubscribable> subscribable = block();
+	return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+		id<RACSignal> subscribable = block();
 		return [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
@@ -886,10 +886,10 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)skipUntilBlock:(BOOL (^)(id x))block {
+- (id<RACSignal>)skipUntilBlock:(BOOL (^)(id x))block {
 	NSParameterAssert(block != NULL);
 	
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block BOOL keepSkipping = YES;
 		return [self subscribeNext:^(id x) {
 			if(keepSkipping) {
@@ -907,7 +907,7 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)skipWhileBlock:(BOOL (^)(id x))block {
+- (id<RACSignal>)skipWhileBlock:(BOOL (^)(id x))block {
 	NSParameterAssert(block != NULL);
 	
 	return [self skipUntilBlock:^BOOL(id x) {
@@ -915,8 +915,8 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)distinctUntilChanged {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+- (id<RACSignal>)distinctUntilChanged {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block id lastValue = nil;
 		__block BOOL initial = YES;
 
@@ -965,24 +965,24 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 }
 
 - (RACSequence *)sequence {
-	return [RACSubscribableSequence sequenceWithSubscribable:self];
+	return [RACSignalSequence sequenceWithSignal:self];
 }
 
-- (RACConnectableSubscribable *)publish {
+- (RACConnectableSignal *)publish {
 	return [self multicast:[RACSubject subject]];
 }
 
-- (RACConnectableSubscribable *)multicast:(RACSubject *)subject {
-	return [RACConnectableSubscribable connectableSubscribableWithSourceSubscribable:self subject:subject];
+- (RACConnectableSignal *)multicast:(RACSubject *)subject {
+	return [RACConnectableSignal connectableSignalWithSourceSignal:self subject:subject];
 }
 
-- (id<RACSubscribable>)timeout:(NSTimeInterval)interval {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+- (id<RACSignal>)timeout:(NSTimeInterval)interval {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block volatile uint32_t cancelTimeout = 0;
 		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t) (interval * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 			if(cancelTimeout) return;
 			
-			[subscriber sendError:[NSError errorWithDomain:RACSubscribableErrorDomain code:RACSubscribableErrorTimedOut userInfo:nil]];
+			[subscriber sendError:[NSError errorWithDomain:RACSignalErrorDomain code:RACSignalErrorTimedOut userInfo:nil]];
 		});
 		
 		RACDisposable *disposable = [self subscribeNext:^(id x) {
@@ -1001,8 +1001,8 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)deliverOn:(RACScheduler *)scheduler {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+- (id<RACSignal>)deliverOn:(RACScheduler *)scheduler {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		return [self subscribeNext:^(id x) {
 			[scheduler schedule:^{
 				[subscriber sendNext:x];
@@ -1019,8 +1019,8 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)subscribeOn:(RACScheduler *)scheduler {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+- (id<RACSignal>)subscribeOn:(RACScheduler *)scheduler {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *innerDisposable = nil;
 		[scheduler schedule:^{
 			innerDisposable = [self subscribeNext:^(id x) {
@@ -1038,11 +1038,11 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)let:(id<RACSubscribable> (^)(id<RACSubscribable> sharedSubscribable))letBlock {
+- (id<RACSignal>)let:(id<RACSignal> (^)(id<RACSignal> sharedSubscribable))letBlock {
 	NSParameterAssert(letBlock != NULL);
 	
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
-		RACConnectableSubscribable *connectable = [self publish];
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		RACConnectableSignal *connectable = [self publish];
 		RACDisposable *finalDisposable = [letBlock(connectable) subscribeNext:^(id x) {
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
@@ -1060,19 +1060,19 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)groupBy:(id<NSCopying> (^)(id object))keyBlock transform:(id (^)(id object))transformBlock {
+- (id<RACSignal>)groupBy:(id<NSCopying> (^)(id object))keyBlock transform:(id (^)(id object))transformBlock {
 	NSParameterAssert(keyBlock != NULL);
 
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		NSMutableDictionary *groups = [NSMutableDictionary dictionary];
 
 		return [self subscribeNext:^(id x) {
 			id<NSCopying> key = keyBlock(x);
-			RACGroupedSubscribable *groupSubject = nil;
+			RACGroupedSignal *groupSubject = nil;
 			@synchronized(groups) {
 				groupSubject = [groups objectForKey:key];
 				if(groupSubject == nil) {
-					groupSubject = [RACGroupedSubscribable subscribableWithKey:key];
+					groupSubject = [RACGroupedSignal signalWithKey:key];
 					[groups setObject:groupSubject forKey:key];
 					[subscriber sendNext:groupSubject];
 				}
@@ -1087,20 +1087,20 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)groupBy:(id<NSCopying> (^)(id object))keyBlock {
+- (id<RACSignal>)groupBy:(id<NSCopying> (^)(id object))keyBlock {
 	return [self groupBy:keyBlock transform:nil];
 }
 
-- (id<RACSubscribable>)any {	
+- (id<RACSignal>)any {	
 	return [self any:^(id x) {
 		return YES;
 	}];
 }
 
-- (id<RACSubscribable>)any:(BOOL (^)(id object))predicateBlock {
+- (id<RACSignal>)any:(BOOL (^)(id object))predicateBlock {
 	NSParameterAssert(predicateBlock != NULL);
 	
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *disposable = [self subscribeNext:^(id x) {
 			if(predicateBlock(x)) {
 				[subscriber sendNext:@(YES)];
@@ -1119,10 +1119,10 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)all:(BOOL (^)(id object))predicateBlock {
+- (id<RACSignal>)all:(BOOL (^)(id object))predicateBlock {
 	NSParameterAssert(predicateBlock != NULL);
 	
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *disposable = [self subscribeNext:^(id x) {
 			if(!predicateBlock(x)) {
 				[subscriber sendNext:@(NO)];
@@ -1141,8 +1141,8 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)retry:(NSInteger)retryCount {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+- (id<RACSignal>)retry:(NSInteger)retryCount {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block NSInteger currentRetryCount = 0;
 		
 		__block RACDisposable *currentDisposable = nil;
@@ -1168,19 +1168,19 @@ NSString * const RACSubscribableErrorDomain = @"RACSubscribableErrorDomain";
 	}];
 }
 
-- (id<RACSubscribable>)retry {
+- (id<RACSignal>)retry {
 	return [self retry:0];
 }
 
-- (RACCancelableSubscribable *)asCancelableToSubject:(RACSubject *)subject withBlock:(void (^)(void))block {
-	return [RACCancelableSubscribable cancelableSubscribableSourceSubscribable:self subject:subject withBlock:block];
+- (RACCancelableSignal *)asCancelableToSubject:(RACSubject *)subject withBlock:(void (^)(void))block {
+	return [RACCancelableSignal cancelableSignalSourceSignal:self subject:subject withBlock:block];
 }
 
-- (RACCancelableSubscribable *)asCancelableWithBlock:(void (^)(void))block {
-	return [RACCancelableSubscribable cancelableSubscribableSourceSubscribable:self withBlock:block];
+- (RACCancelableSignal *)asCancelableWithBlock:(void (^)(void))block {
+	return [RACCancelableSignal cancelableSignalSourceSignal:self withBlock:block];
 }
 
-- (RACCancelableSubscribable *)asCancelable {
+- (RACCancelableSignal *)asCancelable {
 	return [self asCancelableWithBlock:NULL];
 }
 

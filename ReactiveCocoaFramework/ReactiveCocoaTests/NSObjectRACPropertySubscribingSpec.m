@@ -10,7 +10,7 @@
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACDisposable.h"
 #import "RACTestObject.h"
-#import "RACSubscribable.h"
+#import "RACSignal.h"
 
 SpecBegin(NSObjectRACPropertySubscribing)
 
@@ -35,7 +35,7 @@ describe(@"+rac_subscribableFor:keyPath:onObject:", ^{
 		__block id value;
 		@autoreleasepool {
 			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			RACSubscribable *subscribable = [NSObject rac_subscribableFor:object keyPath:@"objectValue" onObject:self];
+			RACSignal *subscribable = [NSObject rac_subscribableFor:object keyPath:@"objectValue" onObject:self];
 			[subscribable subscribeNext:^(id x) {
 				value = x;
 			}];

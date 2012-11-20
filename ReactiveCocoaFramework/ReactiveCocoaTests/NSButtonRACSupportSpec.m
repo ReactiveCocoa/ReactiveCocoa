@@ -14,10 +14,10 @@ SpecBegin(NSButtonRACSupport)
 
 it(@"should bind the button's enabledness to the command's canExecute", ^{
 	NSButton *button = [[NSButton alloc] initWithFrame:NSZeroRect];
-	button.rac_command = [RACCommand commandWithCanExecuteSubscribable:[RACSubscribable return:@NO] block:NULL];
+	button.rac_command = [RACCommand commandWithCanExecuteSubscribable:[RACSignal return:@NO] block:NULL];
 	expect([button isEnabled]).to.beFalsy();
 	
-	button.rac_command = [RACCommand commandWithCanExecuteSubscribable:[RACSubscribable return:@YES] block:NULL];
+	button.rac_command = [RACCommand commandWithCanExecuteSubscribable:[RACSignal return:@YES] block:NULL];
 	expect([button isEnabled]).to.beTruthy();
 });
 

@@ -7,7 +7,7 @@
 //
 
 #import "RACSpecs.h"
-#import "RACConnectableSubscribable.h"
+#import "RACConnectableSignal.h"
 #import "RACDisposable.h"
 #import "RACSubscriber.h"
 
@@ -16,13 +16,13 @@ SpecBegin(RACConnectableSubscribable)
 describe(@"-autoconnect", ^{
 	__block BOOL disposed = NO;
 	__block NSUInteger numberOfSubscriptions = 0;
-	__block RACSubscribable *subscribable;
+	__block RACSignal *subscribable;
 
 	beforeEach(^{
 		disposed = NO;
 		numberOfSubscriptions = 0;
-		subscribable = [[[RACConnectableSubscribable
-			createSubscribable:^(id<RACSubscriber> subscriber) {
+		subscribable = [[[RACConnectableSignal
+			createSignal:^(id<RACSubscriber> subscriber) {
 				numberOfSubscriptions++;
 
 				return [RACDisposable disposableWithBlock:^{

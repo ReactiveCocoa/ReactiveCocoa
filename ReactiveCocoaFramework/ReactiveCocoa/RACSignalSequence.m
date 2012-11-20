@@ -1,32 +1,32 @@
 //
-//  RACSubscribableSequence.m
+//  RACSignalSequence.m
 //  ReactiveCocoa
 //
 //  Created by Justin Spahr-Summers on 2012-11-09.
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACSubscribableSequence.h"
-#import "RACConnectableSubscribable.h"
+#import "RACSignalSequence.h"
+#import "RACConnectableSignal.h"
 #import "RACReplaySubject.h"
-#import "RACSubscribableProtocol.h"
+#import "RACSignalProtocol.h"
 
-@interface RACSubscribableSequence ()
+@interface RACSignalSequence ()
 
 // Replays the subscribable given on initialization.
 @property (nonatomic, strong, readonly) RACReplaySubject *subject;
 
 @end
 
-@implementation RACSubscribableSequence
+@implementation RACSignalSequence
 
 #pragma mark Lifecycle
 
-+ (RACSequence *)sequenceWithSubscribable:(id<RACSubscribable>)subscribable {
-	RACSubscribableSequence *seq = [[self alloc] init];
++ (RACSequence *)sequenceWithSignal:(id<RACSignal>)signal {
+	RACSignalSequence *seq = [[self alloc] init];
 
 	RACReplaySubject *subject = [RACReplaySubject subject];
-	[subscribable subscribeNext:^(id value) {
+	[signal subscribeNext:^(id value) {
 		[subject sendNext:value];
 	} error:^(NSError *error) {
 		[subject sendError:error];
@@ -51,7 +51,7 @@
 }
 
 - (RACSequence *)tail {
-	return [self.class sequenceWithSubscribable:[self.subject skip:1]];
+	return [self.class sequenceWithSignal:[self.subject skip:1]];
 }
 
 - (NSArray *)array {

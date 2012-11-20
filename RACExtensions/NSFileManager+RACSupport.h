@@ -42,6 +42,6 @@ extern const NSInteger RACNSFileManagerErrorCouldNotCreateEventSource;
 //
 // scheduler - the scheduler that should be used to send values on the returned
 // subscribable. Should not be nil.
-+ (RACSubscribable *)rac_watchForEventsForFileAtURL:(NSURL *)URL scheduler:(RACScheduler *)scheduler;
++ (RACSignal *)rac_watchForEventsForFileAtURL:(NSURL *)URL scheduler:(RACScheduler *)scheduler;
 
 @end

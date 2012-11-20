@@ -49,6 +49,20 @@ typedef NSInteger RACSignalError;
 // any more events from the subscription.
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber;
 
+// Combine values from each of the subscribables using `reduceBlock`.
+// `reduceBlock` will be called with the first `next` of each subscribable, then
+// with the second `next` of each subscribable, and so forth. If any of the
+// subscribables sent `complete` or `error` after the nth `next`, then the
+// resulting subscribable will also complete or error after the nth `next`.
+//
+// subscribables - The subscribables to combine.
+// reduceBlock   - The block which reduces the latest values from all the
+//                 subscribables into one value. It should take as many arguments
+//                 as the number of subscribables given. Each argument will be an
+//                 object argument, wrapped as needed. If nil, the returned
+//                 subscribable will send a RACTuple of all the latest values.
++ (instancetype)zip:(NSArray *)streams reduce:(id)reduceBlock;
+
 @concrete
 
 // Convenience method to subscribe to the `next` event.

@@ -1209,7 +1209,7 @@ describe(@"+zip:reduce:", ^{
 		expect(receivedError).notTo.beNil();
 	});
 	
-	it(@"should handle subscribables sending values unevenly", ^{
+	it(@"should handle signals sending values unevenly", ^{
 		__block NSError *receivedError = nil;
 		__block BOOL hasCompleted = NO;
 		

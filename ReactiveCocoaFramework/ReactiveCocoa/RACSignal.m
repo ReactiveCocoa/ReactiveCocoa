@@ -176,7 +176,7 @@ static NSMutableSet *activeSignals() {
 		};
 		
 		for (id<RACSignal> signal in signals) {
-			RACDisposable *disposable = [signal subscribe:[RACSubscriber subscriberWithNext:^(id x) {
+			RACDisposable *disposable = [signal subscribeNext:^(id x) {
 				@synchronized(valuesBySignal) {
 					[valuesBySignal[keyForSignal(signal)] addObject:x ? : RACTupleNil.tupleNil];
 					
@@ -225,7 +225,7 @@ static NSMutableSet *activeSignals() {
 						sendCompleteOrErrorIfNecessary();
 					}
 				}
-			}]];
+			}];
 			
 			if (disposable != nil) {
 				[disposables addObject:disposable];

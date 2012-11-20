@@ -18,8 +18,8 @@ describe(@"<RACStream>", ^{
     expect(array).to.equal(expectedValues);
 	};
   
-  // NSArray cannot be infinite, cheat the tests for now
-	NSArray *infiniteArray = @[[RACUnit defaultUnit], [RACUnit defaultUnit], [RACUnit defaultUnit], [RACUnit defaultUnit], [RACUnit defaultUnit], [RACUnit defaultUnit], [RACUnit defaultUnit]];
+  // NSArray cannot be infinite, cheat the tests
+	NSArray *infiniteArray = @[ RACUnit.defaultUnit, RACUnit.defaultUnit, RACUnit.defaultUnit, RACUnit.defaultUnit, RACUnit.defaultUnit, RACUnit.defaultUnit, RACUnit.defaultUnit ];
   
 	itShouldBehaveLike(RACStreamExamples, @{
                      RACStreamExamplesClass: NSArray.class,

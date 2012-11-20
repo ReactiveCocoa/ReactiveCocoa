@@ -15,11 +15,11 @@
 }
 
 + (instancetype)return:(id)value {
-  return @[value];
+  return @[ value ];
 }
 
 - (instancetype)bind:(id (^)(id, BOOL *))block {
-  NSMutableArray *mapped = [NSMutableArray array];
+  NSMutableArray *mapped = NSMutableArray.array;
   BOOL stop = NO;
   
   for (id value in self) {

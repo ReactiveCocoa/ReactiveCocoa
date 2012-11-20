@@ -105,7 +105,7 @@ describe(@"<RACStream>", ^{
 		RACStreamExamplesClass: RACSignal.class,
 		RACStreamExamplesVerifyValuesBlock: verifyValues,
 		RACStreamExamplesInfiniteStream: infiniteSignal
-	});
+	}, nil);
 });
 
 describe(@"subscribing", ^{
@@ -679,7 +679,7 @@ describe(@"-toProperty:onObject:", ^{
 		[subject toProperty:keyPath onObject:testObject];
 	};
 
-	itShouldBehaveLike(RACPropertySignalExamples, @{ RACPropertySignalExamplesSetupBlock: setupBlock });
+	itShouldBehaveLike(RACPropertySignalExamples, @{ RACPropertySignalExamplesSetupBlock: setupBlock }, nil);
 
 	it(@"shouldn't send values to dealloc'd objects", ^{
 		RACSubject *subject = [RACSubject subject];
@@ -952,7 +952,7 @@ describe(@"-flatten:", ^{
 			expect(values).to.equal(expected);
 		});
 
-		itShouldBehaveLike(RACSignalMergeConcurrentCompletionExampleGroup, @{ RACSignalMaxConcurrent: @0 });
+		itShouldBehaveLike(RACSignalMergeConcurrentCompletionExampleGroup, @{ RACSignalMaxConcurrent: @0 }, nil);
 	});
 
 	describe(@"when its max is > 0", ^{
@@ -1003,7 +1003,7 @@ describe(@"-flatten:", ^{
 			expect(values).to.equal(expected);
 		});
 
-		itShouldBehaveLike(RACSignalMergeConcurrentCompletionExampleGroup, @{ RACSignalMaxConcurrent: @1 });
+		itShouldBehaveLike(RACSignalMergeConcurrentCompletionExampleGroup, @{ RACSignalMaxConcurrent: @1 }, nil);
 	});
 });
 
@@ -1141,7 +1141,7 @@ describe(@"-sequence", ^{
 		return nil;
 	}];
 
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: signal.sequence, RACSequenceExpectedValues: @[ @1, @2, @3, @4 ] });
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: signal.sequence, RACSequenceExpectedValues: @[ @1, @2, @3, @4 ] }, nil);
 });
 
 it(@"should complete take: even if the original signal doesn't", ^{

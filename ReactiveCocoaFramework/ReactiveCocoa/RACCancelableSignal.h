@@ -13,8 +13,8 @@
 // subscribers.
 //
 // Note that cancelation is different from disposing of a subscription.
-// Canceling invalidates and tears down the whole subscribable, whereas disposal
-// just closes a particular subscription.
+// Canceling invalidates and tears down the whole signal, whereas disposal just
+// closes a particular subscription.
 @interface RACCancelableSignal : RACConnectableSignal
 
 - (void)cancel;

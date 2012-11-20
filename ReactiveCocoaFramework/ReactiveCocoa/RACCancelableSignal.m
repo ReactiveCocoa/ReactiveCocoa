@@ -37,10 +37,10 @@
 }
 
 + (instancetype)cancelableSignalSourceSignal:(id<RACSignal>)sourceSignal subject:(RACSubject *)subject withBlock:(void (^)(void))block {
-	RACCancelableSignal *subscribable = [self connectableSignalWithSourceSignal:sourceSignal subject:subject];
-	[subscribable connect];
-	subscribable.cancelBlock = block;
-	return subscribable;
+	RACCancelableSignal *signal = [self connectableSignalWithSourceSignal:sourceSignal subject:subject];
+	[signal connect];
+	signal.cancelBlock = block;
+	return signal;
 }
 
 - (void)cancel {

@@ -72,34 +72,34 @@ typedef NSInteger RACSignalError;
 // Convenience method to subscribe to `error` and `completed` events.
 - (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
 
-// For each value sent on the receiving subscribable, the given object is sent
-// on the returned subscribable.
+// For each value sent on the receiving signal, the given object is sent on the
+// returned signal.
 //
 // object - The object to send for each value sent on the receiver.
 //
-// Returns a subscribable that sends the given object for each value sent on the
+// Returns a signal that sends the given object for each value sent on the
 // receiver.
 - (id<RACSignal>)mapReplace:(id)object;
 
 // Injects the given object weakly into the receiver's stream. The returned 
-// subscribable sends a tuple where the first object is the value received by
-// the receiver subscribable and the second is the weak object.
+// signal sends a tuple where the first object is the value received by the
+// receiver signal and the second is the weak object.
 //
-// This is most useful for bringing the caller's self into the subscribable 
-// while preventing retain cycles so we don't always have to do the 
+// This is most useful for bringing the caller's self into the signal while
+// preventing retain cycles so we don't always have to do the
 // weakObject / strongObject dance.
 - (id<RACSignal>)injectObjectWeakly:(id)object;
 
 // Do the given block on `next`. This should be used to inject side effects into
-// a subscribable.
+// the signal.
 - (id<RACSignal>)doNext:(void (^)(id x))block;
 
 // Do the given block on `error`. This should be used to inject side effects
-// into a subscribable.
+// into the signal.
 - (id<RACSignal>)doError:(void (^)(NSError *error))block;
 
 // Do the given block on `completed`. This should be used to inject side effects
-// into a subscribable.
+// into the signal.
 - (id<RACSignal>)doCompleted:(void (^)(void))block;
 
 // Only send `next` when we don't receive another `next` in `interval` seconds.
@@ -108,16 +108,16 @@ typedef NSInteger RACSignalError;
 // Sends `next` after delaying for `interval` seconds.
 - (id<RACSignal>)delay:(NSTimeInterval)interval;
 
-// Resubscribes when the subscribable completes.
+// Resubscribes when the signal completes.
 - (id<RACSignal>)repeat;
 
-// Execute the given block when the subscribable completes or errors.
+// Execute the given block when the signal completes or errors.
 - (id<RACSignal>)finally:(void (^)(void))block;
 
-// Divide the `next`s of the subscribable into windows. When `openSubscribable`
-// sends a next, a window is opened and the `closeBlock` is asked for a close
-// subscribable. The window is closed when the close subscribable sends a `next`.
-- (id<RACSignal>)windowWithStart:(id<RACSignal>)openSubscribable close:(id<RACSignal> (^)(id<RACSignal> start))closeBlock;
+// Divide the `next`s of the signal into windows. When `openSignal` sends a
+// next, a window is opened and the `closeBlock` is asked for a close
+// signal. The window is closed when the close signal sends a `next`.
+- (id<RACSignal>)windowWithStart:(id<RACSignal>)openSignal close:(id<RACSignal> (^)(id<RACSignal> start))closeBlock;
 
 // Divide the `next`s into buffers with `bufferCount` items each. The `next`
 // will be a RACTuple of values.
@@ -127,54 +127,53 @@ typedef NSInteger RACSignalError;
 // will be a RACTuple of values.
 - (id<RACSignal>)bufferWithTime:(NSTimeInterval)interval;
 
-// Takes the last `count` `next`s after the receiving subscribable completes.
+// Takes the last `count` `next`s after the receiving signal completes.
 - (id<RACSignal>)takeLast:(NSUInteger)count;
 
-// Combine the latest values from each of the subscribables into a RACTuple, once
-// all the subscribables have sent a `next`. Any additional `next`s will result
-// in a new tuple with the changed value.
-+ (id<RACSignal>)combineLatest:(NSArray *)subscribables;
+// Combine the latest values from each of the signals into a RACTuple, once all
+// the signals have sent a `next`. Any additional `next`s will result in a new
+// tuple with the changed value.
++ (id<RACSignal>)combineLatest:(NSArray *)signals;
 
-// Combine the latest values from each of the subscribables once all the
-// subscribables have sent a `next`. Any additional `next`s will result in a new
-// reduced value based on all the latest values from all the subscribables.
+// Combine the latest values from each of the signals once all the signals have
+// sent a `next`. Any additional `next`s will result in a new reduced value
+// based on all the latest values from all the signals.
 //
-// The `next` of the returned subscribable will be the return value of the
+// The `next` of the returned signal will be the return value of the
 // `reduceBlock`.
 //
-// subscribables - The subscribables to combine.
-// reduceBlock   - The block which reduces the latest values from all the
-//                 subscribables into one value. It should take as many arguments
-//                 as the number of subscribables given. Each argument will be an
-//                 object argument, wrapped as needed. If nil, the returned
-//                 subscribable will send a RACTuple of all the latest values.
+// signals     - The signals to combine.
+// reduceBlock - The block which reduces the latest values from all the
+//               signals into one value. It should take as many arguments as the
+//               number of signals given. Each argument will be an object
+//               argument, wrapped as needed. If nil, the returned signal will
+//               send a RACTuple of all the latest values.
 //
 // Example:
-//   [RACSignal combineLatest:@[ stringSubscribable, intSubscribable ] reduce:^(NSString *string, NSNumber *wrappedInt) {
+//   [RACSignal combineLatest:@[ stringSignal, intSignal ] reduce:^(NSString *string, NSNumber *wrappedInt) {
 //       return [NSString stringWithFormat:@"%@: %@", string, wrappedInt];
 //   }];
-+ (id<RACSignal>)combineLatest:(NSArray *)subscribables reduce:(id)reduceBlock;
++ (id<RACSignal>)combineLatest:(NSArray *)signals reduce:(id)reduceBlock;
 
-// Sends the latest `next` from any of the subscribables.
-+ (id<RACSignal>)merge:(NSArray *)subscribables;
+// Sends the latest `next` from any of the signals.
++ (id<RACSignal>)merge:(NSArray *)signals;
 
-// Merges the subscribables sent by the receiver into a flattened subscribable,
-// but only subscribes to `maxConcurrent` number of subscribables at a time. New
-// subscribables are queued and subscribed to as other subscribables complete.
+// Merges the signals sent by the receiver into a flattened signal, but only
+// subscribes to `maxConcurrent` number of signals at a time. New signals are
+// queued and subscribed to as other signals complete.
 //
-// If an error occurs on any of the subscribables, it is sent on the returned
-// subscribable. It completes only after the receiver and all sent subscribables
-// have completed.
+// If an error occurs on any of the signals, it is sent on the returned signal.
+// It completes only after the receiver and all sent signals have completed.
 //
-// maxConcurrent - the maximum number of subscribables to subscribe to at a
+// maxConcurrent - the maximum number of signals to subscribe to at a
 //                 time. If 0, it subscribes to an unlimited number of
-//                 subscribables.
+//                 signals.
 - (id<RACSignal>)flatten:(NSUInteger)maxConcurrent;
 
-// Gets a new subscribable to subscribe to after the receiver completes.
+// Gets a new signal to subscribe to after the receiver completes.
 - (id<RACSignal>)sequenceNext:(id<RACSignal> (^)(void))block;
 
-// Concats the inner subscribables of a subscribable of subscribables.
+// Concats the inner signals of a signal of signals.
 - (id<RACSignal>)concat;
 
 // Aggregate `next`s with the given start and combination.
@@ -186,7 +185,7 @@ typedef NSInteger RACSignalError;
 
 // Similar to -aggregateWithStart:combine: with an important difference: it
 // sends the combined value with each `next` instead of waiting for the
-// receiving subscribable to complete.
+// receiving signal to complete.
 - (id<RACSignal>)scanWithStart:(id)start combine:(id (^)(id running, id next))combineBlock;
 
 // Set the object's keyPath to the value of `next`.
@@ -196,7 +195,7 @@ typedef NSInteger RACSignalError;
 //
 // interval - The time interval in seconds at which the current time is sent.
 //
-// Returns a subscribable that sends the current date/time every `interval`.
+// Returns a signal that sends the current date/time every `interval`.
 + (id<RACSignal>)interval:(NSTimeInterval)interval;
 
 // Take `next`s until the `subscribableTrigger` sends a `next`.
@@ -211,22 +210,22 @@ typedef NSInteger RACSignalError;
 // Convert every `next` and `error` into a RACMaybe.
 - (id<RACSignal>)asMaybes;
 
-// Subscribe to the returned subscribable when an error occurs.
+// Subscribe to the returned signal when an error occurs.
 - (id<RACSignal>)catch:(id<RACSignal> (^)(NSError *error))catchBlock;
 
-// Subscribe to the given subscribable when an error occurs.
+// Subscribe to the given signal when an error occurs.
 - (id<RACSignal>)catchTo:(id<RACSignal>)subscribable;
 
 // Returns the first `next`. Note that this is a blocking call.
 - (id)first;
 
-// Returns the first `next` or `defaultValue` if the subscribable completes or
-// errors without sending a `next`. Note that this is a blocking call.
+// Returns the first `next` or `defaultValue` if the signal completes or errors
+// without sending a `next`. Note that this is a blocking call.
 - (id)firstOrDefault:(id)defaultValue;
 
-// Returns the first `next` or `defaultValue` if the subscribable completes or
-// errors without sending a `next`. If an error occurs success will be NO
-// and error will be populated. Note that this is a blocking call.
+// Returns the first `next` or `defaultValue` if the signal completes or errors
+// without sending a `next`. If an error occurs success will be NO and error
+// will be populated. Note that this is a blocking call.
 //
 // Both success and error may be NULL.
 - (id)firstOrDefault:(id)defaultValue success:(BOOL *)success error:(NSError **)error;
@@ -237,18 +236,17 @@ typedef NSInteger RACSignalError;
 // Skips values until the block returns NO.
 - (id<RACSignal>)skipWhileBlock:(BOOL (^)(id x))block;
 
-// Defer creation of a subscribable until the subscribable's actually subscribed to.
+// Defer creation of a signal until the signal's actually subscribed to.
 //
-// This can be used to effectively turn a hot subscribable into a cold subscribable.
+// This can be used to effectively turn a hot signal into a cold signal.
 + (id<RACSignal>)defer:(id<RACSignal> (^)(void))block;
 
 // Send only `next`s for which -isEqual: returns NO when compared to the
 // previous `next`.
 - (id<RACSignal>)distinctUntilChanged;
 
-// The source must be a subscribable of subscribables. Subscribe and send
-// `next`s for the latest subscribable. This is mostly useful when combined
-// with `-flattenMap:`.
+// The source must be a signal of signals. Subscribe and send `next`s for the
+// latest signal. This is mostly useful when combined with `-flattenMap:`.
 - (id<RACSignal>)switch;
 
 // Add every `next` to an array. Nils are represented by NSNulls. Note that this
@@ -257,79 +255,79 @@ typedef NSInteger RACSignalError;
 
 // Add every `next` to a sequence. Nils are represented by NSNulls.
 //
-// Returns a sequence which provides values from the subscribable as they're
-// sent. Trying to retrieve a value from the sequence which has not yet been
-// sent will block.
+// Returns a sequence which provides values from the signal as they're sent.
+// Trying to retrieve a value from the sequence which has not yet been sent will
+// block.
 @property (nonatomic, strong, readonly) RACSequence *sequence;
 
-// Creates and returns a connectable subscribable. This allows you to share a
-// single subscription to the underlying subscribable.
+// Creates and returns a connectable signal. This allows you to share a single
+// subscription to the underlying signal.
 - (RACConnectableSignal *)publish;
 
-// Creates and returns a connectable subscribable that pushes values into the
-// given subject. This allows you to share a single subscription to the
-// underlying subscribable.
+// Creates and returns a connectable signal that pushes values into the given
+// subject. This allows you to share a single subscription to the underlying
+// signal.
 - (RACConnectableSignal *)multicast:(RACSubject *)subject;
 
 // Sends an error after `interval` seconds if the source doesn't complete
 // before then. The timeout is scheduled on the default priority global queue.
 - (id<RACSignal>)timeout:(NSTimeInterval)interval;
 
-// Creates and returns a subscribable that delivers its callbacks using the
-// given scheduler.
+// Creates and returns a signal that delivers its callbacks using the given
+// scheduler.
 - (id<RACSignal>)deliverOn:(RACScheduler *)scheduler;
 
-// Creates and returns a subscribable whose `didSubscribe` block is scheduled
-// with the given scheduler.
+// Creates and returns a signal whose `didSubscribe` block is scheduled with the
+// given scheduler.
 - (id<RACSignal>)subscribeOn:(RACScheduler *)scheduler;
 
-// Creates a shared subscribable which is passed into the let block. The let
-// block then returns a subscribable derived from that shared subscribable.
-- (id<RACSignal>)let:(id<RACSignal> (^)(id<RACSignal> sharedSubscribable))letBlock;
+// Creates a shared signal which is passed into the let block. The let block
+// then returns a signal derived from that shared signal.
+- (id<RACSignal>)let:(id<RACSignal> (^)(id<RACSignal> sharedSignal))letBlock;
 
 // Groups each received object into a group, as determined by calling `keyBlock`
 // with that object. The object sent is transformed by calling `transformBlock`
 // with the object. If `transformBlock` is nil, it sends the original object.
 //
-// The returned subscribable is a subscribable of RACGroupedSubscribables.
+// The returned subscribable is a subscribable of RACGroupedSignal.
 - (id<RACSignal>)groupBy:(id<NSCopying> (^)(id object))keyBlock transform:(id (^)(id object))transformBlock;
 
 // Calls -[RACSignal groupBy:keyBlock transform:nil].
 - (id<RACSignal>)groupBy:(id<NSCopying> (^)(id object))keyBlock;
 
-// Sends an [NSNumber numberWithBool:YES] if the receiving subscribable sends 
-// any objects.
+// Sends an [NSNumber numberWithBool:YES] if the receiving signal sends any
+// objects.
 - (id<RACSignal>)any;
 
-// Sends an [NSNumber numberWithBool:YES] if the receiving subscribable sends 
-// any objects that pass `predicateBlock`.
+// Sends an [NSNumber numberWithBool:YES] if the receiving signal sends any
+// objects that pass `predicateBlock`.
 //
 // predicateBlock - cannot be nil.
 - (id<RACSignal>)any:(BOOL (^)(id object))predicateBlock;
 
 // Sends an [NSNumber numberWithBool:YES] if all the objects the receiving 
-// subscribable sends pass `predicateBlock`.
+// signal sends pass `predicateBlock`.
 //
 // predicateBlock - cannot be nil.
 - (id<RACSignal>)all:(BOOL (^)(id object))predicateBlock;
 
-// Resubscribes to the receiving subscribable if an error occurs, up until it 
-// has retried the given number of times.
+// Resubscribes to the receiving signal if an error occurs, up until it has
+// retried the given number of times.
 //
 // retryCount - if 0, it keeps retrying until it completes.
 - (id<RACSignal>)retry:(NSInteger)retryCount;
 
-// Resubscribes to the receiving subscribable if an error occurs.
+// Resubscribes to the receiving signal if an error occurs.
 - (id<RACSignal>)retry;
 
-// Creates a cancelable subscribable multicasted to the given subject with the
-// given cancelation block.
+// Creates a cancelable signal multicasted to the given subject with the given
+// cancelation block.
 - (RACCancelableSignal *)asCancelableToSubject:(RACSubject *)subject withBlock:(void (^)(void))block;
 
-// Creates a cancelable subscribable with the given cancelation block.
+// Creates a cancelable signal with the given cancelation block.
 - (RACCancelableSignal *)asCancelableWithBlock:(void (^)(void))block;
 
-// Creates a cancelable subscribable.
+// Creates a cancelable signal.
 - (RACCancelableSignal *)asCancelable;
 
 @end

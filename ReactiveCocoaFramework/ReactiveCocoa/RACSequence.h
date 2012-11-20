@@ -33,9 +33,9 @@
 
 // Evaluates the full sequence on the given scheduler.
 //
-// Returns a subscribable which sends the receiver's values on the given
-// scheduler as they're evaluated.
-- (id<RACSignal>)subscribableWithScheduler:(RACScheduler *)scheduler;
+// Returns a signal which sends the receiver's values on the given scheduler as
+// they're evaluated.
+- (id<RACSignal>)signalWithScheduler:(RACScheduler *)scheduler;
 
 // Returns a sequence that lazily invokes the given blocks to provide head and
 // tail. `headBlock` must not be nil.

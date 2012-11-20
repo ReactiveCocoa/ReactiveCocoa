@@ -485,7 +485,7 @@ NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 }
 
 + (id<RACSignal>)merge:(NSArray *)subscribables {
-	return [subscribables.rac_toSubscribable flatten];
+	return [subscribables.rac_toSignal flatten];
 }
 
 - (id<RACSignal>)flatten:(NSUInteger)maxConcurrent {

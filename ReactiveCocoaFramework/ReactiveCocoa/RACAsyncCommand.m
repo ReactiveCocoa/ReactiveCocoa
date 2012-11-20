@@ -35,15 +35,14 @@
 	return self;
 }
 
-
 #pragma mark RACCommand
 
-- (id)initWithCanExecuteSubscribable:(id<RACSignal>)canExecuteSubscribable block:(void (^)(id sender))block {
-	self = [super initWithCanExecuteSubscribable:nil block:block];
+- (id)initWithCanExecuteSignal:(id<RACSignal>)canExecuteSignal block:(void (^)(id sender))block {
+	self = [super initWithCanExecuteSignal:nil block:block];
 	if (self == nil) return nil;
 	
 	[[RACSignal
-		combineLatest:@[ canExecuteSubscribable ?: [RACSignal return:@YES], RACAbleWithStart(self.numberOfActiveExecutions), RACAbleWithStart(self.maxConcurrentExecutions) ]
+		combineLatest:@[ canExecuteSignal ?: [RACSignal return:@YES], RACAbleWithStart(self.numberOfActiveExecutions), RACAbleWithStart(self.maxConcurrentExecutions) ]
 		reduce:^(NSNumber *canExecute, NSNumber *activeExecutions, NSNumber *maxConcurrent) {
 			return @(canExecute.boolValue && activeExecutions.unsignedIntegerValue < maxConcurrent.unsignedIntegerValue);
 		}]
@@ -58,9 +57,9 @@
 	
 	self.numberOfActiveExecutions++;
 	
-	NSArray *subscribables = [self.asyncFunctionPairs valueForKeyPath:@"subject"];
+	NSArray *signals = [self.asyncFunctionPairs valueForKeyPath:@"subject"];
 	[[[RACSignal
-		merge:subscribables]
+		merge:signals]
 		finally:^{
 			self.numberOfActiveExecutions--;
 		}]

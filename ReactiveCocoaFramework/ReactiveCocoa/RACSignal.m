@@ -17,14 +17,14 @@
 #import "RACSubscriber.h"
 #import <libkern/OSAtomic.h>
 
-static NSMutableSet *activeSubscribables() {
+static NSMutableSet *activeSignals() {
 	static dispatch_once_t onceToken;
-	static NSMutableSet *activeSubscribables = nil;
+	static NSMutableSet *activeSignal = nil;
 	dispatch_once(&onceToken, ^{
-		activeSubscribables = [[NSMutableSet alloc] init];
+		activeSignal = [[NSMutableSet alloc] init];
 	});
 	
-	return activeSubscribables;
+	return activeSignal;
 }
 
 @interface RACSignal ()
@@ -37,9 +37,9 @@ static NSMutableSet *activeSubscribables() {
 	self = [super init];
 	if(self == nil) return nil;
 	
-	// We want to keep the subscribable around until all its subscribers are done
-	@synchronized(activeSubscribables()) {
-		[activeSubscribables() addObject:self];
+	// We want to keep the signal around until all its subscribers are done
+	@synchronized(activeSignals()) {
+		[activeSignals() addObject:self];
 	}
 	
 	self.tearingDown = NO;
@@ -76,17 +76,17 @@ static NSMutableSet *activeSubscribables() {
 - (instancetype)bind:(id (^)(id value, BOOL *stop))block {
 	NSParameterAssert(block != NULL);
 
-	RACSignal *subscribablesSubscribable = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	RACSignal *signalsSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		return [self subscribeNext:^(id x) {
 			BOOL stop = NO;
-			id<RACSignal> subscribable = block(x, &stop);
+			id<RACSignal> signal = block(x, &stop);
 
-			if (subscribable == nil) {
+			if (signal == nil) {
 				[subscriber sendCompleted];
 				return;
 			}
 
-			[subscriber sendNext:subscribable];
+			[subscriber sendNext:signal];
 			if (stop) [subscriber sendCompleted];
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
@@ -95,7 +95,7 @@ static NSMutableSet *activeSubscribables() {
 		}];
 	}];
 
-	return subscribablesSubscribable.flatten;
+	return signalsSignal.flatten;
 }
 
 - (instancetype)map:(id (^)(id value))block {
@@ -154,8 +154,8 @@ static NSMutableSet *activeSubscribables() {
 	RACDisposable *defaultDisposable = [RACDisposable disposableWithBlock:^{
 		RACSignal *strongSelf = weakSelf;
 		id<RACSubscriber> strongSubscriber = weakSubscriber;
-		// If the disposal is happening because the subscribable's being torn
-		// down, we don't need to duplicate the invalidation.
+		// If the disposal is happening because the signal's being torn down, we
+		// don't need to duplicate the invalidation.
 		if(!strongSelf.tearingDown) {
 			BOOL stillHasSubscribers = YES;
 			@synchronized(strongSelf.subscribers) {
@@ -192,9 +192,9 @@ static NSMutableSet *activeSubscribables() {
 @synthesize name;
 
 + (instancetype)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
-	RACSignal *subscribable = [[RACSignal alloc] init];
-	subscribable.didSubscribe = didSubscribe;
-	return subscribable;
+	RACSignal *signal = [[RACSignal alloc] init];
+	signal.didSubscribe = didSubscribe;
+	return signal;
 }
 
 + (instancetype)error:(NSError *)error {
@@ -260,8 +260,8 @@ static NSMutableSet *activeSubscribables() {
 }
 
 - (void)invalidateGlobalRef {
-	@synchronized(activeSubscribables()) {
-		[activeSubscribables() removeObject:self];
+	@synchronized(activeSignals()) {
+		[activeSignals() removeObject:self];
 	}
 }
 

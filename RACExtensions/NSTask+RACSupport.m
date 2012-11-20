@@ -21,31 +21,30 @@ NSString * const NSTaskRACSupportTaskArguments = @"NSTaskRACSupportTaskArguments
 
 const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 
-
 @implementation NSTask (RACSupport)
 
-- (RACSignal *)rac_standardOutputSubscribable {
+- (RACSignal *)rac_standardOutput {
 	if(![[self standardOutput] isKindOfClass:[NSPipe class]]) {
 		[self setStandardOutput:[NSPipe pipe]];
 	}
 	
-	return [self rac_subscribableForPipe:[self standardOutput]];
+	return [self rac_signalForPipe:[self standardOutput]];
 }
 
-- (RACSignal *)rac_standardErrorSubscribable {
+- (RACSignal *)rac_standardError {
 	if(![[self standardError] isKindOfClass:[NSPipe class]]) {
 		[self setStandardError:[NSPipe pipe]];
 	}
 	
-	return [self rac_subscribableForPipe:[self standardError]];
+	return [self rac_signalForPipe:[self standardError]];
 }
 
-- (RACSignal *)rac_subscribableForPipe:(NSPipe *)pipe {
+- (RACSignal *)rac_signalForPipe:(NSPipe *)pipe {
 	NSFileHandle *fileHandle = [pipe fileHandleForReading];	
 	return [fileHandle rac_readInBackground];
 }
 
-- (RACSignal *)rac_completionSubscribable {
+- (RACSignal *)rac_completion {
 	return [[[NSNotificationCenter.defaultCenter rac_addObserverForName:NSTaskDidTerminateNotification object:self] any] mapReplace:RACUnit.defaultUnit];
 }
 
@@ -66,20 +65,20 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 		};
 		
 		// TODO: should we aggregate the data on the given scheduler too?
-		RACConnectableSignal *outputSubscribable = [[[self rac_standardOutputSubscribable] aggregateWithStart:[NSMutableData data] combine:aggregateData] publish];
+		RACConnectableSignal *outputSignal = [[self.rac_standardOutput aggregateWithStart:[NSMutableData data] combine:aggregateData] publish];
 		__block NSData *outputData = nil;
-		[outputSubscribable subscribeNext:^(NSData *accumulatedData) {
+		[outputSignal subscribeNext:^(NSData *accumulatedData) {
 			outputData = accumulatedData;
 		}];
 		
-		RACConnectableSignal *errorSubscribable = [[[self rac_standardErrorSubscribable] aggregateWithStart:[NSMutableData data] combine:aggregateData] publish];
+		RACConnectableSignal *errorSignal = [[self.rac_standardError aggregateWithStart:[NSMutableData data] combine:aggregateData] publish];
 		__block NSData *errorData = nil;
-		[errorSubscribable subscribeNext:^(NSData *accumulatedData) {
+		[errorSignal subscribeNext:^(NSData *accumulatedData) {
 			errorData = accumulatedData;
 		}];
 				
 		// wait until termination's signaled and output and error are done
-		[[RACSignal merge:[NSArray arrayWithObjects:outputSubscribable, errorSubscribable, [self rac_completionSubscribable], nil]] subscribeNext:^(id _) {
+		[[RACSignal merge:@[ outputSignal, errorSignal, self.rac_completion ]] subscribeNext:^(id _) {
 			// nothing
 		} completed:^{
 			if(canceled) return;
@@ -111,8 +110,8 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 			}];
 		}];
 		
-		[outputSubscribable connect];
-		[errorSubscribable connect];
+		[outputSignal connect];
+		[errorSignal connect];
 		
 		[self launch];
 	}];

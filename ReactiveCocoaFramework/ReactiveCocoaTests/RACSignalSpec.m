@@ -1,5 +1,5 @@
 //
-//  RACSignalSpc.m
+//  RACSignalSpec.m
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 3/2/12.
@@ -7,7 +7,7 @@
 //
 
 #import "RACSpecs.h"
-#import "RACPropertySubscribableExamples.h"
+#import "RACPropertySignalExamples.h"
 #import "RACSequenceExamples.h"
 #import "RACStreamExamples.h"
 
@@ -679,7 +679,7 @@ describe(@"-toProperty:onObject:", ^{
 		[subject toProperty:keyPath onObject:testObject];
 	};
 
-	itShouldBehaveLike(RACPropertySubscribableExamples, @{ RACPropertySubscribableExamplesSetupBlock: setupBlock });
+	itShouldBehaveLike(RACPropertySignalExamples, @{ RACPropertySignalExamplesSetupBlock: setupBlock });
 
 	it(@"shouldn't send values to dealloc'd objects", ^{
 		RACSubject *subject = [RACSubject subject];

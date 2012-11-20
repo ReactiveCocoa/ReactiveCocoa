@@ -11,13 +11,13 @@
 
 SpecBegin(RACCommand)
 
-describe(@"when it's created with a canExecute subscribable", ^{
-	it(@"shouldn't be executable when its subscribable has sent NO most recently", ^{
-		RACCommand *command = [RACCommand commandWithCanExecuteSubscribable:[RACSignal return:@NO] block:NULL];
+describe(@"when it's created with a canExecute signal", ^{
+	it(@"shouldn't be executable when its signal has sent NO most recently", ^{
+		RACCommand *command = [RACCommand commandWithCanExecuteSignal:[RACSignal return:@NO] block:NULL];
 		
 		expect(command.canExecute).to.beFalsy();
 		
-		command = [RACCommand commandWithCanExecuteSubscribable:[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+		command = [RACCommand commandWithCanExecuteSignal:[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@YES];
 			[subscriber sendNext:@NO];
 			return nil;
@@ -26,12 +26,12 @@ describe(@"when it's created with a canExecute subscribable", ^{
 		expect(command.canExecute).to.beFalsy();
 	});
 	
-	it(@"should be executable when its subscribable has sent YES most recently", ^{
-		RACCommand *command = [RACCommand commandWithCanExecuteSubscribable:[RACSignal return:@YES] block:NULL];
+	it(@"should be executable when its signal has sent YES most recently", ^{
+		RACCommand *command = [RACCommand commandWithCanExecuteSignal:[RACSignal return:@YES] block:NULL];
 		
 		expect(command.canExecute).to.beTruthy();
 		
-		command = [RACCommand commandWithCanExecuteSubscribable:[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+		command = [RACCommand commandWithCanExecuteSignal:[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@NO];
 			[subscriber sendNext:@YES];
 			return nil;
@@ -41,15 +41,15 @@ describe(@"when it's created with a canExecute subscribable", ^{
 	});
 });
 
-it(@"should always be able to execute when its can execute subscribable is nil", ^{
-	RACCommand *command = [RACCommand commandWithCanExecuteSubscribable:nil block:NULL];
+it(@"should always be able to execute when its can execute signal is nil", ^{
+	RACCommand *command = [RACCommand commandWithCanExecuteSignal:nil block:NULL];
 	
 	expect(command.canExecute).to.beTruthy();
 });
 
 it(@"should call its execution block when executed", ^{
 	__block id valueReceived = nil;
-	RACCommand *command = [RACCommand commandWithCanExecuteSubscribable:nil block:^(id value) {
+	RACCommand *command = [RACCommand commandWithCanExecuteSignal:nil block:^(id value) {
 		valueReceived = value;
 	}];
 	

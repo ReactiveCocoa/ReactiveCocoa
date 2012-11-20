@@ -30,10 +30,10 @@
 #pragma mark API
 
 + (instancetype)connectableSignalWithSourceSignal:(id<RACSignal>)source subject:(RACSubject *)subject {
-	RACConnectableSignal *subscribable = [[self alloc] init];
-	subscribable.sourceSignal = source;
-	subscribable.subject = subject;
-	return subscribable;
+	RACConnectableSignal *signal = [[self alloc] init];
+	signal.sourceSignal = source;
+	signal.subject = subject;
+	return signal;
 }
 
 - (RACDisposable *)connect {

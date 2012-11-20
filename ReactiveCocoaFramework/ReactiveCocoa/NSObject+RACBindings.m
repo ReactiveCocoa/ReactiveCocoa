@@ -9,16 +9,15 @@
 #import "NSObject+RACBindings.h"
 #import "RACSignal.h"
 
-
 @implementation NSObject (RACBindings)
 
-- (void)rac_bind:(NSString *)keyPath to:(RACSignal *)subscribable {
-	[subscribable toProperty:keyPath onObject:self];
+- (void)rac_bind:(NSString *)keyPath to:(RACSignal *)signal {
+	[signal toProperty:keyPath onObject:self];
 }
 
-+ (void)rac_bind:(NSString *)keyPath1 on:(NSObject *)object1 through:(RACSignal *)subscribableOfProperty2 withKeyPath:(NSString *)keyPath2 on:(NSObject *)object2 through:(RACSignal *)subscribableOfProperty1 {
-	[object1 rac_bind:keyPath1 to:subscribableOfProperty2];
-	[object2 rac_bind:keyPath2 to:subscribableOfProperty1];
++ (void)rac_bind:(NSString *)keyPath1 on:(NSObject *)object1 through:(RACSignal *)signalOfProperty2 withKeyPath:(NSString *)keyPath2 on:(NSObject *)object2 through:(RACSignal *)signalOfProperty1 {
+	[object1 rac_bind:keyPath1 to:signalOfProperty2];
+	[object2 rac_bind:keyPath2 to:signalOfProperty1];
 }
 
 @end

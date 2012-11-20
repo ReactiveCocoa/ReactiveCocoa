@@ -102,7 +102,7 @@
 	return [array copy];
 }
 
-- (id<RACSignal>)subscribableWithScheduler:(RACScheduler *)scheduler {
+- (id<RACSignal>)signalWithScheduler:(RACScheduler *)scheduler {
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block int32_t disposed = 0;
 

@@ -1,45 +1,45 @@
 //
-//  RACSubscribable.m
+//  RACSignal.m
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 3/15/12.
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACSubscribable.h"
+#import "RACSignal.h"
 #import "NSObject+RACExtensions.h"
 #import "RACAsyncSubject.h"
 #import "RACBehaviorSubject.h"
 #import "RACDisposable.h"
 #import "RACScheduler.h"
 #import "RACSubject.h"
-#import "RACSubscribable+Private.h"
+#import "RACSignal+Private.h"
 #import "RACSubscriber.h"
 #import <libkern/OSAtomic.h>
 
-static NSMutableSet *activeSubscribables() {
+static NSMutableSet *activeSignals() {
 	static dispatch_once_t onceToken;
-	static NSMutableSet *activeSubscribables = nil;
+	static NSMutableSet *activeSignal = nil;
 	dispatch_once(&onceToken, ^{
-		activeSubscribables = [[NSMutableSet alloc] init];
+		activeSignal = [[NSMutableSet alloc] init];
 	});
 	
-	return activeSubscribables;
+	return activeSignal;
 }
 
-@interface RACSubscribable ()
+@interface RACSignal ()
 @property (assign, getter=isTearingDown) BOOL tearingDown;
 @end
 
-@implementation RACSubscribable
+@implementation RACSignal
 
 - (instancetype)init {
 	self = [super init];
 	if(self == nil) return nil;
 	
-	// We want to keep the subscribable around until all its subscribers are done
-	@synchronized(activeSubscribables()) {
-		[activeSubscribables() addObject:self];
+	// We want to keep the signal around until all its subscribers are done
+	@synchronized(activeSignals()) {
+		[activeSignals() addObject:self];
 	}
 	
 	self.tearingDown = NO;
@@ -58,14 +58,14 @@ static NSMutableSet *activeSubscribables() {
 #pragma mark RACStream
 
 + (instancetype)empty {
-	return [self createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
+	return [self createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		[subscriber sendCompleted];
 		return nil;
 	}];
 }
 
 + (instancetype)return:(id)value {
-	return [self createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
+	return [self createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		[subscriber sendNext:value];
 		[subscriber sendCompleted];
 		return nil;
@@ -76,17 +76,17 @@ static NSMutableSet *activeSubscribables() {
 - (instancetype)bind:(id (^)(id value, BOOL *stop))block {
 	NSParameterAssert(block != NULL);
 
-	RACSubscribable *subscribablesSubscribable = [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+	RACSignal *signalsSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		return [self subscribeNext:^(id x) {
 			BOOL stop = NO;
-			id<RACSubscribable> subscribable = block(x, &stop);
+			id<RACSignal> signal = block(x, &stop);
 
-			if (subscribable == nil) {
+			if (signal == nil) {
 				[subscriber sendCompleted];
 				return;
 			}
 
-			[subscriber sendNext:subscribable];
+			[subscriber sendNext:signal];
 			if (stop) [subscriber sendCompleted];
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
@@ -95,13 +95,13 @@ static NSMutableSet *activeSubscribables() {
 		}];
 	}];
 
-	return subscribablesSubscribable.flatten;
+	return signalsSignal.flatten;
 }
 
 - (instancetype)map:(id (^)(id value))block {
 	NSParameterAssert(block != NULL);
 	
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		return [self subscribeNext:^(id x) {
 			[subscriber sendNext:block(x)];
 		} error:^(NSError *error) {
@@ -112,15 +112,15 @@ static NSMutableSet *activeSubscribables() {
 	}];
 }
 
-- (RACSubscribable *)concat:(id<RACSubscribable>)subscribable {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+- (RACSignal *)concat:(id<RACSignal>)signal {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *concattedDisposable = nil;
 		RACDisposable *sourceDisposable = [self subscribeNext:^(id x) {
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
-			concattedDisposable = [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
+			concattedDisposable = [signal subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 				[subscriber sendNext:x];
 			} error:^(NSError *error) {
 				[subscriber sendError:error];
@@ -140,7 +140,7 @@ static NSMutableSet *activeSubscribables() {
 	return [self flatten:0];
 }
 
-#pragma mark RACSubscribable
+#pragma mark RACSignal
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
 	NSParameterAssert(subscriber != nil);
@@ -152,10 +152,10 @@ static NSMutableSet *activeSubscribables() {
 	__weak id weakSelf = self;
 	__weak id weakSubscriber = subscriber;
 	RACDisposable *defaultDisposable = [RACDisposable disposableWithBlock:^{
-		RACSubscribable *strongSelf = weakSelf;
+		RACSignal *strongSelf = weakSelf;
 		id<RACSubscriber> strongSubscriber = weakSubscriber;
-		// If the disposal is happening because the subscribable's being torn
-		// down, we don't need to duplicate the invalidation.
+		// If the disposal is happening because the signal's being torn down, we
+		// don't need to duplicate the invalidation.
 		if(!strongSelf.tearingDown) {
 			BOOL stillHasSubscribers = YES;
 			@synchronized(strongSelf.subscribers) {
@@ -191,30 +191,30 @@ static NSMutableSet *activeSubscribables() {
 @synthesize tearingDown;
 @synthesize name;
 
-+ (instancetype)createSubscribable:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
-	RACSubscribable *subscribable = [[RACSubscribable alloc] init];
-	subscribable.didSubscribe = didSubscribe;
-	return subscribable;
++ (instancetype)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
+	RACSignal *signal = [[RACSignal alloc] init];
+	signal.didSubscribe = didSubscribe;
+	return signal;
 }
 
 + (instancetype)error:(NSError *)error {
-	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+	return [self createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		[subscriber sendError:error];
 		return nil;
 	}];
 }
 
 + (instancetype)never {
-	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
+	return [self createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		return nil;
 	}];
 }
 
-+ (RACSubscribable *)start:(id (^)(BOOL *success, NSError **error))block {
++ (RACSignal *)start:(id (^)(BOOL *success, NSError **error))block {
 	return [self startWithScheduler:[RACScheduler backgroundScheduler] block:block];
 }
 
-+ (RACSubscribable *)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block {
++ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block {
 	return [self startWithScheduler:scheduler subjectBlock:^(RACSubject *subject) {
 		BOOL success = YES;
 		NSError *error = nil;
@@ -229,7 +229,7 @@ static NSMutableSet *activeSubscribables() {
 	}];
 }
 
-+ (RACSubscribable *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block {
++ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block {
 	NSParameterAssert(block != NULL);
 
 	RACAsyncSubject *subject = [RACAsyncSubject subject];
@@ -260,8 +260,8 @@ static NSMutableSet *activeSubscribables() {
 }
 
 - (void)invalidateGlobalRef {
-	@synchronized(activeSubscribables()) {
-		[activeSubscribables() removeObject:self];
+	@synchronized(activeSignals()) {
+		[activeSignals() removeObject:self];
 	}
 }
 

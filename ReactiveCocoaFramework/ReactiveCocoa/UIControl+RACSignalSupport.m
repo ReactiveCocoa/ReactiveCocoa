@@ -1,18 +1,18 @@
 //
-//  UIControl+RACSubscribableSupport.m
+//  UIControl+RACSignalSupport.m
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 4/17/12.
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "UIControl+RACSubscribableSupport.h"
+#import "UIControl+RACSignalSupport.h"
 #import "RACEventTrampoline.h"
 #import <objc/runtime.h>
 
-@implementation UIControl (RACSubscribableSupport)
+@implementation UIControl (RACSignalSupport)
 
-- (RACSubscribable *)rac_subscribableForControlEvents:(UIControlEvents)controlEvents {
+- (RACSignal *)rac_signalForControlEvents:(UIControlEvents)controlEvents {
 	RACEventTrampoline *trampoline = [RACEventTrampoline trampolineForControl:self controlEvents:controlEvents];
 	NSMutableSet *controlEventTrampolines = objc_getAssociatedObject(self, RACEventTrampolinesKey);
 	if (controlEventTrampolines == nil) {

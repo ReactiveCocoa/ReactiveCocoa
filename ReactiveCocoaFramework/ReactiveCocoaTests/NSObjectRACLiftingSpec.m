@@ -21,7 +21,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		object = [[RACTestObject alloc] init];
 	});
 
-	it(@"should call the selector with the value of the subscribable", ^{
+	it(@"should call the selector with the value of the signal", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setObjectValue:) withObjects:subject];
 
@@ -34,7 +34,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		expect(object.objectValue).to.equal(@42);
 	});
 
-	it(@"should call the selector with the value of the subscribable unboxed", ^{
+	it(@"should call the selector with the value of the signal unboxed", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setIntegerValue:) withObjects:subject];
 
@@ -67,7 +67,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		expect(object.integerValue).to.equal(42);
 	});
 
-	it(@"should work with subscribables that immediately start with a value", ^{
+	it(@"should work with signals that immediately start with a value", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setObjectValue:) withObjects:[subject startWith:@42]];
 
@@ -77,7 +77,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		expect(object.objectValue).to.equal(@1);
 	});
 
-	it(@"should immediately invoke the selector when it isn't given any subscribable arguments", ^{
+	it(@"should immediately invoke the selector when it isn't given any signal arguments", ^{
 		[object rac_liftSelector:@selector(setObjectValue:) withObjects:@42];
 
 		expect(object.objectValue).to.equal(@42);
@@ -104,7 +104,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		expect(strcmp(object.charPointerValue, string) == 0).to.beTruthy();
 	});
 
-	it(@"should send the latest value of the subscribable as the right argument", ^{
+	it(@"should send the latest value of the signal as the right argument", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setObjectValue:andIntegerValue:) withObjects:@"object", subject];
 		[subject sendNext:@1];
@@ -113,14 +113,14 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		expect(object.integerValue).to.equal(1);
 	});
 
-	describe(@"the returned subscribable", ^{
+	describe(@"the returned signal", ^{
 		it(@"should send the return value of the method invocation", ^{
 			RACSubject *objectSubject = [RACSubject subject];
 			RACSubject *integerSubject = [RACSubject subject];
-			RACSubscribable *subscribable = [object rac_liftSelector:@selector(combineObjectValue:andIntegerValue:) withObjects:objectSubject, integerSubject];
+			RACSignal *signal = [object rac_liftSelector:@selector(combineObjectValue:andIntegerValue:) withObjects:objectSubject, integerSubject];
 
 			__block NSString *result;
-			[subscribable subscribeNext:^(id x) {
+			[signal subscribeNext:^(id x) {
 				result = x;
 			}];
 
@@ -133,10 +133,10 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 
 		it(@"should send RACUnit.defaultUnit for void-returning methods", ^{
 			RACSubject *subject = [RACSubject subject];
-			RACSubscribable *subscribable = [object rac_liftSelector:@selector(setObjectValue:) withObjects:subject];
+			RACSignal *signal = [object rac_liftSelector:@selector(setObjectValue:) withObjects:subject];
 
 			__block id result;
-			[subscribable subscribeNext:^(id x) {
+			[signal subscribeNext:^(id x) {
 				result = x;
 			}];
 
@@ -148,14 +148,14 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		it(@"should replay the last value", ^{
 			RACSubject *objectSubject = [RACSubject subject];
 			RACSubject *integerSubject = [RACSubject subject];
-			RACSubscribable *subscribable = [object rac_liftSelector:@selector(combineObjectValue:andIntegerValue:) withObjects:objectSubject, integerSubject];
+			RACSignal *signal = [object rac_liftSelector:@selector(combineObjectValue:andIntegerValue:) withObjects:objectSubject, integerSubject];
 
 			[objectSubject sendNext:@"Magic number"];
 			[integerSubject sendNext:@42];
 			[integerSubject sendNext:@43];
 
 			__block NSString *result;
-			[subscribable subscribeNext:^(id x) {
+			[signal subscribeNext:^(id x) {
 				result = x;
 			}];
 
@@ -165,13 +165,13 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 });
 
 describe(@"-rac_liftBlock:withObjects:", ^{
-	it(@"should invoke the block with the latest value from the subscribables", ^{
+	it(@"should invoke the block with the latest value from the signals", ^{
 		RACSubject *subject1 = [RACSubject subject];
 		RACSubject *subject2 = [RACSubject subject];
 
 		__block id received1;
 		__block id received2;
-		RACSubscribable *subscribable = [self rac_liftBlock:^(NSNumber *arg1, NSNumber *arg2) {
+		RACSignal *signal = [self rac_liftBlock:^(NSNumber *arg1, NSNumber *arg2) {
 			received1 = arg1;
 			received2 = arg2;
 			return @(arg1.unsignedIntegerValue + arg2.unsignedIntegerValue);
@@ -186,14 +186,14 @@ describe(@"-rac_liftBlock:withObjects:", ^{
 		expect(received2).to.equal(@2);
 
 		__block id received;
-		[subscribable subscribeNext:^(id x) {
+		[signal subscribeNext:^(id x) {
 			received = x;
 		}];
 
 		expect(received).to.equal(@3);
 	});
 
-	it(@"should send the latest value of the subscribable as the right argument", ^{
+	it(@"should send the latest value of the signal as the right argument", ^{
 		RACSubject *subject = [RACSubject subject];
 		__block id received1;
 		__block id received2;

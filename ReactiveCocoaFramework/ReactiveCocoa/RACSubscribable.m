@@ -55,6 +55,90 @@ static NSMutableSet *activeSubscribables() {
 	return [NSString stringWithFormat:@"<%@: %p> name: %@", NSStringFromClass([self class]), self, self.name];
 }
 
+#pragma mark RACStream
+
++ (instancetype)empty {
+	return [self createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		[subscriber sendCompleted];
+		return nil;
+	}];
+}
+
++ (instancetype)return:(id)value {
+	return [self createSubscribable:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		[subscriber sendNext:value];
+		[subscriber sendCompleted];
+		return nil;
+	}];
+}
+
+// TODO: Implement this as a primitive, instead of depending on -flatten.
+- (instancetype)bind:(id (^)(id value, BOOL *stop))block {
+	NSParameterAssert(block != NULL);
+
+	RACSubscribable *subscribablesSubscribable = [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		return [self subscribeNext:^(id x) {
+			BOOL stop = NO;
+			id<RACSubscribable> subscribable = block(x, &stop);
+
+			if (subscribable == nil) {
+				[subscriber sendCompleted];
+				return;
+			}
+
+			[subscriber sendNext:subscribable];
+			if (stop) [subscriber sendCompleted];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
+	}];
+
+	return subscribablesSubscribable.flatten;
+}
+
+- (instancetype)map:(id (^)(id value))block {
+	NSParameterAssert(block != NULL);
+	
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		return [self subscribeNext:^(id x) {
+			[subscriber sendNext:block(x)];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
+	}];
+}
+
+- (RACSubscribable *)concat:(id<RACSubscribable>)subscribable {
+	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+		__block RACDisposable *concattedDisposable = nil;
+		RACDisposable *sourceDisposable = [self subscribeNext:^(id x) {
+			[subscriber sendNext:x];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			concattedDisposable = [subscribable subscribe:[RACSubscriber subscriberWithNext:^(id x) {
+				[subscriber sendNext:x];
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				[subscriber sendCompleted];
+			}]];
+		}];
+		
+		return [RACDisposable disposableWithBlock:^{
+			[sourceDisposable dispose];
+			[concattedDisposable dispose];
+		}];
+	}];
+}
+
+- (instancetype)flatten {
+	return [self flatten:0];
+}
 
 #pragma mark RACSubscribable
 
@@ -113,24 +197,9 @@ static NSMutableSet *activeSubscribables() {
 	return subscribable;
 }
 
-+ (instancetype)return:(id)value {
-	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
-		[subscriber sendNext:value];
-		[subscriber sendCompleted];
-		return nil;
-	}];
-}
-
 + (instancetype)error:(NSError *)error {
 	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
 		[subscriber sendError:error];
-		return nil;
-	}];
-}
-
-+ (instancetype)empty {
-	return [self createSubscribable:^RACDisposable *(id<RACSubscriber> subscriber) {
-		[subscriber sendCompleted];
 		return nil;
 	}];
 }

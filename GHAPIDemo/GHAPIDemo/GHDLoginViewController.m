@@ -76,10 +76,10 @@
 	// Since we used -asMaybes above, we'll need to filter out the specific
 	// error or success cases.
 	[[[[loginResult 
-		where:^(id x) {
+		filter:^(id x) {
 			return [x hasError];
 		}] 
-		select:^(id x) {
+		map:^(id x) {
 			return [x error];
 		}] 
 		injectObjectWeakly:self]
@@ -90,7 +90,7 @@
 		}];
 	
 	[[[loginResult 
-		where:^(id x) {
+		filter:^(id x) {
 			return [x hasObject];
 		}]
 		injectObjectWeakly:self]
@@ -101,7 +101,7 @@
 		}];
 	
 	[[loginResult 
-		select:^id(id x) {
+		map:^ id (id x) {
 			return [NSNumber numberWithBool:NO];
 		}] 
 		toProperty:@keypath(self.loggingIn) onObject:self];

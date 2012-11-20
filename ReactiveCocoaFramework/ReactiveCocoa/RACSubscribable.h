@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "RACStream.h"
 #import "RACSubscribableProtocol.h"
 
 @class RACCancelableSubscribable;
@@ -65,5 +66,8 @@
 // scheduler and gives the block the subject that was returned from the method. 
 // The block can send events using the subject.
 + (RACSubscribable *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block;
+
+// Subscribes to `subscribable` when the source subscribable completes.
+- (RACSubscribable *)concat:(id<RACSubscribable>)subscribable;
 
 @end

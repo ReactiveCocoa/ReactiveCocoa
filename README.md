@@ -71,7 +71,7 @@ RAC(self.imageView.image) = [[[[client
         // This is on a background queue.
         return [[NSImage alloc] initWithContentsOfURL:user.avatarURL];
     }]
-		// Now the assignment will be done on the main queue.
+    // Now the assignment will be done on the main queue.
     deliverOn:RACSheduler.mainQueueScheduler]
 ```
 

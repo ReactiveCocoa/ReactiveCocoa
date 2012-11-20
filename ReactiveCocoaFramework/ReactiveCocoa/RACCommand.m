@@ -27,25 +27,25 @@
 #pragma mark API
 
 + (instancetype)command {
-	return [[self alloc] initWithCanExecuteSubscribable:nil block:NULL];
+	return [[self alloc] initWithCanExecuteSignal:nil block:NULL];
 }
 
 + (instancetype)commandWithBlock:(void (^)(id value))executeBlock {
-	return [[self alloc] initWithCanExecuteSubscribable:nil block:executeBlock];
+	return [[self alloc] initWithCanExecuteSignal:nil block:executeBlock];
 }
 
-+ (instancetype)commandWithCanExecuteSubscribable:(id<RACSubscribable>)canExecuteSubscribable block:(void (^)(id sender))block {
-	return [[self alloc] initWithCanExecuteSubscribable:canExecuteSubscribable block:block];
++ (instancetype)commandWithCanExecuteSignal:(id<RACSignal>)canExecuteSignal block:(void (^)(id sender))block {
+	return [[self alloc] initWithCanExecuteSignal:canExecuteSignal block:block];
 }
 
-- (id)initWithCanExecuteSubscribable:(id<RACSubscribable>)canExecuteSubscribable block:(void (^)(id sender))block {
+- (id)initWithCanExecuteSignal:(id<RACSignal>)canExecuteSignal block:(void (^)(id sender))block {
 	self = [self init];
 	if (self == nil) return nil;
 	
 	if (block != NULL) [self subscribeNext:block];
 		
 	__weak id weakSelf = self;
-	[canExecuteSubscribable subscribe:[RACSubscriber subscriberWithNext:^(NSNumber *x) {
+	[canExecuteSignal subscribe:[RACSubscriber subscriberWithNext:^(NSNumber *x) {
 		RACCommand *strongSelf = weakSelf;
 		strongSelf.canExecute = x.boolValue;
 	} error:NULL completed:NULL]];

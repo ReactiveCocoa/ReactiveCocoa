@@ -10,8 +10,8 @@
 
 @implementation NSNotificationCenter (RACSupport)
 
-- (RACSubscribable *)rac_addObserverForName:(NSString *)notificationName object:(id)object {
-	return [RACSubscribable createSubscribable:^(id<RACSubscriber> subscriber) {
+- (RACSignal *)rac_addObserverForName:(NSString *)notificationName object:(id)object {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block id observer = [self addObserverForName:notificationName object:object queue:nil usingBlock:^(NSNotification *note) {
 			[subscriber sendNext:note];
 		}];

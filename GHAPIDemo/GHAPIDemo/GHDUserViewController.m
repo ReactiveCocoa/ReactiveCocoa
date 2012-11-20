@@ -62,7 +62,7 @@
 	// all executed independently. We're then told when they've all completed.
 	// -finally: lets us share logic regardless of whether we get an error or 
 	// complete successfully.
-	[[[RACSubscribable 
+	[[[RACSignal 
 		merge:[NSArray arrayWithObjects:[self fetchUser], [self fetchRepos], [self fetchOrgs], nil]] 
 		finally:^{
 			GHDUserViewController *strongSelf = weakSelf;
@@ -79,7 +79,7 @@
 	// We're using -deliverOn: to load the image in a background queue and then 
 	// finish with another -deliverOn: so that subscribers get the result on the 
 	// main queue.
-	RACSubscribable *loadedAvatar = [[[[[RACAble(self.userAccount.avatarURL) 
+	RACSignal *loadedAvatar = [[[[[RACAble(self.userAccount.avatarURL) 
 		filter:^ BOOL (id x) {
 			return x != nil;
 		}] 
@@ -91,18 +91,18 @@
 		}] 
 		deliverOn:[RACScheduler mainQueueScheduler]];
 	
-	// -merge: takes the latest value from the subscribables. In this case, 
-	// we're using -[RACSubscribable return:] to make a subscribable that 
+	// -merge: takes the latest value from the Signals. In this case, 
+	// we're using -[RACSignal return:] to make a Signal that 
 	// immediately sends the default image, and will use the loaded avatar when
 	// it loads.
-	[[RACSubscribable 
-		merge:[NSArray arrayWithObjects:[RACSubscribable return:[NSImage imageNamed:NSImageNameUser]], loadedAvatar, nil]] 
+	[[RACSignal 
+		merge:[NSArray arrayWithObjects:[RACSignal return:[NSImage imageNamed:NSImageNameUser]], loadedAvatar, nil]] 
 		toProperty:@keypath(self.avatar) onObject:self];
 	
 	return self;
 }
 
-- (RACSubscribable *)fetchUser {	
+- (RACSignal *)fetchUser {	
 	return [[[self.client 
 				fetchUserInfo] 
 				injectObjectWeakly:self]
@@ -113,7 +113,7 @@
 				}];
 }
 
-- (RACSubscribable *)fetchRepos {	
+- (RACSignal *)fetchRepos {	
 	return [[[self.client 
 				fetchUserRepos] 
 				injectObjectWeakly:self] 
@@ -123,7 +123,7 @@
 				}];
 }
 
-- (RACSubscribable *)fetchOrgs {	
+- (RACSignal *)fetchOrgs {	
 	return [[[self.client 
 				fetchUserRepos] 
 				injectObjectWeakly:self]
@@ -133,23 +133,23 @@
 				}];
 }
 
-- (RACSubscribable *)loadImageAtURL:(NSURL *)URL {
+- (RACSignal *)loadImageAtURL:(NSURL *)URL {
 	// This -defer, -publish, -autoconnect dance might seem a little odd, so 
 	// let's talk through it.
 	//
 	// We're using -defer because -startWithScheduler:block: returns us a hot 
-	// subscribable but we really want a cold one. Why do we want a cold one? 
+	// Signal but we really want a cold one. Why do we want a cold one? 
 	// It lets us defer the actual work of loading the image until someone 
 	// actually cares enough about it to subscribe. But even more than that, 
-	// cold subscribables let us use operations like -retry: or -repeat:.
+	// cold Signals let us use operations like -retry: or -repeat:.
 	//
-	// But the downside to cold subscribables is that subsequent subscribers
-	// will cause the subscribable to fire again, which we don't really want.
-	// So we use -publish to share the subscriptions to the underlying subscribable.
-	// -autoconnect means the connectable subscribable from -publish will connect
+	// But the downside to cold Signals is that subsequent subscribers
+	// will cause the Signal to fire again, which we don't really want.
+	// So we use -publish to share the subscriptions to the underlying Signal.
+	// -autoconnect means the connectable Signal from -publish will connect
 	// automatically when it receives its first subscriber.
-	RACSubscribable *loadImage = [RACSubscribable defer:^{
-		return [RACSubscribable startWithScheduler:[RACScheduler immediateScheduler] block:^id(BOOL *success, NSError **error) {
+	RACSignal *loadImage = [RACSignal defer:^{
+		return [RACSignal startWithScheduler:[RACScheduler immediateScheduler] block:^id(BOOL *success, NSError **error) {
 			NSImage *image = [[NSImage alloc] initWithContentsOfURL:URL];
 			if(image == nil) {
 				*success = NO;
@@ -162,7 +162,7 @@
 	
 	return [[[[loadImage 
 				retry:1] 
-				catchTo:[RACSubscribable return:[NSImage imageNamed:NSImageNameUser]]] 
+				catchTo:[RACSignal return:[NSImage imageNamed:NSImageNameUser]]] 
 				publish] 
 				autoconnect];
 }

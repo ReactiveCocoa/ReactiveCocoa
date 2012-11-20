@@ -7,7 +7,7 @@
 //
 
 #import "RACSubject.h"
-#import "RACSubscribable+Private.h"
+#import "RACSignal+Private.h"
 #import "RACDisposable.h"
 
 @interface RACSubject ()

@@ -11,17 +11,16 @@
 
 @implementation NSInvocation (RACTypeParsing)
 
-- (void)rac_setArgumentForType:(const char *)argType atIndex:(NSInteger)index withObject:(id)object {
+- (void)rac_setArgument:(id)object atIndex:(NSUInteger)index {
 #define PULL_AND_SET(type, selector) \
 	do { \
 		type val = [object selector]; \
-		[self setArgument:&val atIndex:index]; \
+		[self setArgument:&val atIndex:(NSInteger)index]; \
 	} while(0)
 
-	NSParameterAssert(argType != NULL);
-
+	const char *argType = [self.methodSignature getArgumentTypeAtIndex:index];
 	if (strcmp(argType, "@") == 0 || strcmp(argType, "#") == 0) {
-		[self setArgument:&object atIndex:index];
+		[self setArgument:&object atIndex:(NSInteger)index];
 	} else if (strcmp(argType, "c") == 0) {
 		PULL_AND_SET(char, charValue);
 	} else if (strcmp(argType, "i") == 0) {
@@ -57,14 +56,13 @@
 #undef PULL_AND_SET
 }
 
-- (id)rac_returnValueWithTypeSignature:(const char *)typeSignature {
+- (id)rac_returnValue {
 #define WRAP_AND_RETURN(type) \
 	type val = 0; \
 	[self getReturnValue:&val]; \
 	return @(val);
 
-	NSParameterAssert(typeSignature != NULL);
-
+	const char *typeSignature = self.methodSignature.methodReturnType;
 	if (strcmp(typeSignature, "@") == 0 || strcmp(typeSignature, "#") == 0) {
 		__autoreleasing id returnObj;
 		[self getReturnValue:&returnObj];

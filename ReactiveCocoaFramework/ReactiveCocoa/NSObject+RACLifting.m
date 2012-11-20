@@ -45,13 +45,12 @@
 	for (NSUInteger i = 2; i < methodSignature.numberOfArguments; i++) {
 		currentObject = (i == 2 ? arg : va_arg(args, id));
 
-		const char *argType = [methodSignature getArgumentTypeAtIndex:i];
 		if ([currentObject conformsToProtocol:@protocol(RACSubscribable)]) {
-			[invocation rac_setArgumentForType:argType atIndex:(NSInteger)i withObject:nil];
+			[invocation rac_setArgument:nil atIndex:i];
 			argIndexesBySubscribable[[NSValue valueWithNonretainedObject:currentObject]] = @(i);
 			[subscribables addObject:currentObject];
 		} else {
-			[invocation rac_setArgumentForType:argType atIndex:(NSInteger)i withObject:currentObject];
+			[invocation rac_setArgument:currentObject atIndex:i];
 		}
 	}
 	va_end(args);
@@ -60,7 +59,7 @@
 
 	if (subscribables.count < 1) {
 		[invocation invokeWithTarget:self];
-		return [invocation rac_returnValueWithTypeSignature:methodSignature.methodReturnType];
+		return [invocation rac_returnValue];
 	} else {
 		@unsafeify(self);
 		return [self rac_liftSubscribables:subscribables withReducingInvocation:^(RACTuple *xs) {
@@ -68,14 +67,13 @@
 			for (NSUInteger i = 0; i < xs.count; i++) {
 				RACSubscribable *subscribable = subscribables[i];
 				NSUInteger argIndex = [argIndexesBySubscribable[[NSValue valueWithNonretainedObject:subscribable]] unsignedIntegerValue];
-				const char *argType = [methodSignature getArgumentTypeAtIndex:argIndex];
-				[invocation rac_setArgumentForType:argType atIndex:(NSInteger)argIndex withObject:xs[i]];
+				[invocation rac_setArgument:xs[i] atIndex:argIndex];
 				[invocation retainArguments];
 			}
 
 			[invocation invokeWithTarget:self];
 
-			return [invocation rac_returnValueWithTypeSignature:methodSignature.methodReturnType];
+			return [invocation rac_returnValue];
 		}];
 	}
 }

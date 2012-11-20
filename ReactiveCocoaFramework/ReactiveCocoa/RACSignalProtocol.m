@@ -53,6 +53,10 @@ NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 	return nil;
 }
 
++ (instancetype)zip:(NSArray *)streams reduce:(id)reduceBlock {
+	return nil;
+}
+
 #pragma mark RACSignal
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {

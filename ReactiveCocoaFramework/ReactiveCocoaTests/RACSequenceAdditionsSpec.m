@@ -24,12 +24,12 @@ describe(@"NSArray sequences", ^{
 	RACSequence *sequence = values.rac_sequence;
 	expect(sequence).notTo.beNil();
 
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values });
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values }, nil);
 
 	NSArray *unchangedValues = [values copy];
 	[values addObject:@6];
 
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: unchangedValues });
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: unchangedValues }, nil);
 });
 
 describe(@"NSDictionary sequences", ^{
@@ -56,16 +56,16 @@ describe(@"NSDictionary sequences", ^{
 	RACSequence *valueSequence = dict.rac_valueSequence;
 	expect(valueSequence).notTo.beNil();
 
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: tupleSequence, RACSequenceExpectedValues: tuples });
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: keySequence, RACSequenceExpectedValues: keys });
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: valueSequence, RACSequenceExpectedValues: values });
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: tupleSequence, RACSequenceExpectedValues: tuples }, nil);
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: keySequence, RACSequenceExpectedValues: keys }, nil);
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: valueSequence, RACSequenceExpectedValues: values }, nil);
 
 	dict[@"foo"] = @"rab";
 	dict[@6] = @7;
 
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: tupleSequence, RACSequenceExpectedValues: tuples });
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: keySequence, RACSequenceExpectedValues: keys });
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: valueSequence, RACSequenceExpectedValues: values });
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: tupleSequence, RACSequenceExpectedValues: tuples }, nil);
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: keySequence, RACSequenceExpectedValues: keys }, nil);
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: valueSequence, RACSequenceExpectedValues: values }, nil);
 });
 
 describe(@"NSOrderedSet sequences", ^{
@@ -73,12 +73,12 @@ describe(@"NSOrderedSet sequences", ^{
 	RACSequence *sequence = values.rac_sequence;
 	expect(sequence).notTo.beNil();
 
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values.array });
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values.array }, nil);
 
 	NSArray *unchangedValues = [values.array copy];
 	[values addObject:@6];
 
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: unchangedValues });
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: unchangedValues }, nil);
 });
 
 describe(@"NSSet sequences", ^{
@@ -86,12 +86,12 @@ describe(@"NSSet sequences", ^{
 	RACSequence *sequence = values.rac_sequence;
 	expect(sequence).notTo.beNil();
 
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values.allObjects });
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values.allObjects }, nil);
 
 	NSArray *unchangedValues = [values.allObjects copy];
 	[values addObject:@6];
 
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: unchangedValues });
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: unchangedValues }, nil);
 });
 
 describe(@"NSString sequences", ^{
@@ -100,11 +100,11 @@ describe(@"NSString sequences", ^{
 	RACSequence *sequence = string.rac_sequence;
 	expect(sequence).notTo.beNil();
 
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values });
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values }, nil);
 
 	[string appendString:@"buzz"];
 
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values });
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values }, nil);
 });
 
 SpecEnd

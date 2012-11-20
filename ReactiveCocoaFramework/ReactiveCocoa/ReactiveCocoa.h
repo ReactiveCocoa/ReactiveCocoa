@@ -13,7 +13,6 @@
 #import <ReactiveCocoa/NSObject+RACFastEnumeration.h>
 #import <ReactiveCocoa/NSObject+RACKVOWrapper.h>
 #import <ReactiveCocoa/NSObject+RACKVOWrapper.h>
-#import <ReactiveCocoa/NSObject+RACOperations.h>
 #import <ReactiveCocoa/NSObject+RACPropertySubscribing.h>
 #import <ReactiveCocoa/NSObject+RACSubscribeSelector.h>
 #import <ReactiveCocoa/NSOrderedSet+RACSequenceAdditions.h>

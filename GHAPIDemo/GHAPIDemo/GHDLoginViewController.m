@@ -42,7 +42,7 @@
 	}];
 	
 	// Login is only enabled when they've entered both a username and password.
-	self.loginCommand = [RACAsyncCommand commandWithCanExecuteSubscribable:[RACSubscribable
+	self.loginCommand = [RACAsyncCommand commandWithCanExecuteSignal:[RACSignal
 		combineLatest:@[ RACAbleWithStart(self.username), RACAbleWithStart(self.password) ]
 		reduce:^(NSString *username, NSString *password) {
 			return @(username.length > 0 && password.length > 0);
@@ -60,12 +60,12 @@
 	
 	__block __unsafe_unretained id weakSelf = self;
 	// Note the -repeat and -asMaybes at the end. -repeat means that this
-	// subscribable will resubscribe to its source right after it completes.
-	// This lets us subscribe to the same subscribable even though the source
-	// subscribable (the API call) completes. -asMaybes means that we wrap 
+	// Signal will resubscribe to its source right after it completes.
+	// This lets us subscribe to the same Signal even though the source
+	// Signal (the API call) completes. -asMaybes means that we wrap 
 	// each next value or error in a RACMaybe. This means that even if the 
-	// API hits an error, the subscribable will still be valid.
-	RACSubscribable *loginResult = [[[self.loginCommand 
+	// API hits an error, the Signal will still be valid.
+	RACSignal *loginResult = [[[self.loginCommand 
 		addAsyncBlock:^(id _) {
 			GHDLoginViewController *strongSelf = weakSelf;
 			return [strongSelf.client login];
@@ -108,11 +108,8 @@
 	
 	// When either username or password change, hide the success or failure
 	// message.
-	[[[self 
-		rac_whenAny:[NSArray arrayWithObjects:@keypath(self.username), @keypath(self.password), nil] 
-		reduce:^id(RACTuple *xs) {
-			return xs;
-		}] 
+	[[[RACSignal
+		combineLatest:@[ RACAble(self.username), RACAble(self.password)]]
 		injectObjectWeakly:self] 
 		subscribeNext:^(RACTuple *t) {
 			GHDLoginViewController *self = t.last;

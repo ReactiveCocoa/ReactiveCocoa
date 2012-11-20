@@ -51,10 +51,10 @@ Chain asynchronous calls:
 ```objc
 [[[[client 
     loginUser] 
-    selectMany:^(User *user) {
+    flattenMap:^(User *user) {
         return [client loadCachedMessagesForUser:user];
     }]
-    selectMany:^(NSArray *messages) {
+    flattenMap:^(NSArray *messages) {
         return [client fetchMessagesAfterMessage:messages.lastObject];
     }]
     subscribeCompleted:^{

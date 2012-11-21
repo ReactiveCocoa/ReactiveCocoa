@@ -25,7 +25,7 @@ describe(@"<RACStream>", ^{
                      RACStreamExamplesClass: NSArray.class,
                      RACStreamExamplesVerifyValuesBlock: verifyValues,
                      RACStreamExamplesInfiniteStream: infiniteArray
-                     });
+                     }, nil);
 });
 
 SpecEnd

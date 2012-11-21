@@ -7,6 +7,7 @@
 //
 
 #import "NSArray+RACStream.h"
+#import <ReactiveCocoa/RACBlockTrampoline.h>
 
 @implementation NSArray (RACStream)
 
@@ -45,6 +46,28 @@
 
 - (instancetype)concat:(id<RACStream>)stream {
   return [self arrayByAddingObjectsFromArray:(NSArray *)stream];
+}
+
++ (instancetype)zip:(NSArray *)arrays reduce:(id)reduceBlock {
+	NSUInteger minCount = NSUIntegerMax;
+	for (NSArray *array in arrays) {
+		if (minCount > array.count) {
+			minCount = array.count;
+		}
+	}
+	NSMutableArray *zippedArray = [NSMutableArray arrayWithCapacity:minCount];
+	for (NSUInteger i = 0; i < minCount; ++i) {
+		NSMutableArray *nthValues = [NSMutableArray arrayWithCapacity:arrays.count];
+		for (NSArray *array in arrays) {
+			[nthValues addObject:array[i]];
+		}
+		if (reduceBlock == NULL) {
+			[zippedArray addObject:[RACTuple tupleWithObjectsFromArray:nthValues]];
+		} else {
+			[zippedArray addObject:[RACBlockTrampoline invokeBlock:reduceBlock withArguments:nthValues]];
+		}
+	}
+	return zippedArray.copy;
 }
 
 @end

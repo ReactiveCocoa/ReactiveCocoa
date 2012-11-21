@@ -6,7 +6,8 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACStream.h"
+#import <Foundation/Foundation.h>
+#import <ReactiveCocoa/ReactiveCocoa.h>
 
 @interface NSArray (RACStream) <RACStream>
 

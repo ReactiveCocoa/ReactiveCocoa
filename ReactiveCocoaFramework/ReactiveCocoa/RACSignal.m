@@ -15,6 +15,8 @@
 #import "RACSubject.h"
 #import "RACSignal+Private.h"
 #import "RACSubscriber.h"
+#import "RACTuple.h"
+#import "RACBlockTrampoline.h"
 #import <libkern/OSAtomic.h>
 
 static NSMutableSet *activeSignals() {
@@ -138,6 +140,96 @@ static NSMutableSet *activeSignals() {
 
 - (instancetype)flatten {
 	return [self flatten:0];
+}
+
++ (instancetype)zip:(NSArray *)signals reduce:(id)reduceBlock {
+	static NSValue *(^keyForSignal)(id<RACSignal>) = ^ NSValue * (id<RACSignal> signal) {
+		return [NSValue valueWithNonretainedObject:signal];
+	};
+	
+	return [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		NSMutableSet *disposables = [NSMutableSet setWithCapacity:signals.count];
+		NSMutableDictionary *completedOrErrorBySignal = [NSMutableDictionary dictionaryWithCapacity:signals.count];
+		NSMutableDictionary *valuesBySignal = [NSMutableDictionary dictionaryWithCapacity:signals.count];
+		for (id<RACSignal> signal in signals) {
+			valuesBySignal[keyForSignal(signal)] = NSMutableArray.array;
+		}
+		
+		void (^sendCompleteOrErrorIfNecessary)(void) = ^{
+			NSError *error = nil;
+			for (id<RACSignal> signal in signals) {
+				if ([valuesBySignal[keyForSignal(signal)] count] == 0) {
+					id completedOrError = completedOrErrorBySignal[keyForSignal(signal)];
+					if (completedOrError) {
+						if ([completedOrError isKindOfClass:NSError.class]) {
+							error = completedOrError;
+							continue;
+						}
+						[subscriber sendCompleted];
+						return;
+					}
+				}
+			}
+			if (error != nil) {
+				[subscriber sendError:error];
+			}
+		};
+		
+		for (id<RACSignal> signal in signals) {
+			RACDisposable *disposable = [signal subscribeNext:^(id x) {
+				@synchronized(valuesBySignal) {
+					[valuesBySignal[keyForSignal(signal)] addObject:x ? : RACTupleNil.tupleNil];
+					
+					BOOL isMissingValues = NO;
+					NSMutableArray *earliestValues = [NSMutableArray arrayWithCapacity:signals.count];
+					for (id<RACSignal> signal in signals) {
+						NSArray *values = valuesBySignal[keyForSignal(signal)];
+						if (values.count == 0) {
+							isMissingValues = YES;
+							break;
+						}
+						[earliestValues addObject:values[0]];
+					}
+					
+					if (!isMissingValues) {
+						for (NSMutableArray *values in valuesBySignal.allValues) {
+							[values removeObjectAtIndex:0];
+						}
+						
+						if (reduceBlock == NULL) {
+							[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:earliestValues]];
+						} else {
+							[subscriber sendNext:[RACBlockTrampoline invokeBlock:reduceBlock withArguments:earliestValues]];
+						}
+					}
+					
+					sendCompleteOrErrorIfNecessary();
+				}
+			} error:^(NSError *error) {
+				@synchronized(valuesBySignal) {
+					if (completedOrErrorBySignal[keyForSignal(signal)] == nil) {
+						completedOrErrorBySignal[keyForSignal(signal)] = error;
+					}
+					sendCompleteOrErrorIfNecessary();
+				}
+			} completed:^{
+				@synchronized(valuesBySignal) {
+					if (completedOrErrorBySignal[keyForSignal(signal)] == nil) {
+						completedOrErrorBySignal[keyForSignal(signal)] = @YES;
+					}
+					sendCompleteOrErrorIfNecessary();
+				}
+			}];
+			
+			if (disposable != nil) {
+				[disposables addObject:disposable];
+			}
+		}
+		
+		return [RACDisposable disposableWithBlock:^{
+			[disposables makeObjectsPerformSelector:@selector(dispose)];
+		}];
+	}];
 }
 
 #pragma mark RACSignal

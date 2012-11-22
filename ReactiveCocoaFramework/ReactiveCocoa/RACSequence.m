@@ -18,6 +18,18 @@
 #import "RACBlockTrampoline.h"
 #import <libkern/OSAtomic.h>
 
+@interface RACSequence ()
+
+// Performs one iteration of lazy binding, passing through values from `current`
+// until the sequence is exhausted, then recursively binding the remaining
+// values in the receiver.
+//
+// Returns a new sequence which contains `current`, followed by the combined
+// result of all applications of `block` to the remaining values in the receiver.
+- (instancetype)bind:(id (^)(id value, BOOL *stop))block passingThroughValuesFromSequence:(RACSequence *)current;
+
+@end
+
 @implementation RACSequence
 
 #pragma mark Lifecycle
@@ -51,40 +63,40 @@
 }
 
 - (instancetype)bind:(id (^)(id value, BOOL *stop))block {
-	__block RACSequence *(^nextSequence)(RACSequence *, RACSequence *);
-	
-	nextSequence = [^ RACSequence * (RACSequence *current, RACSequence *valuesSeq) {
-		BOOL stop = NO;
-		while (current.head == nil) {
-			if (stop) return nil;
+	return [self bind:block passingThroughValuesFromSequence:nil];
+}
 
-			// We've exhausted the current sequence, create a sequence from the
-			// next value.
-			id value = valuesSeq.head;
+- (instancetype)bind:(id (^)(id value, BOOL *stop))block passingThroughValuesFromSequence:(RACSequence *)current {
+	RACSequence *valuesSeq = self;
 
-			if (value == nil) {
-				// We've exhausted all the sequences.
-				return nil;
-			}
+	BOOL stop = NO;
+	while (current.head == nil) {
+		if (stop) return nil;
 
-			current = block(value, &stop);
-			if (current == nil) return nil;
+		// We've exhausted the current sequence, create a sequence from the
+		// next value.
+		id value = valuesSeq.head;
 
-			valuesSeq = valuesSeq.tail;
+		if (value == nil) {
+			// We've exhausted all the sequences.
+			return nil;
 		}
 
-		NSAssert([current isKindOfClass:RACSequence.class], @"-bind: block returned an object that is not a sequence: %@", current);
+		current = block(value, &stop);
+		if (current == nil) return nil;
 
-		return [RACDynamicSequence sequenceWithHeadBlock:^{
-			return current.head;
-		} tailBlock:^ id {
-			if (stop) return nil;
+		valuesSeq = valuesSeq.tail;
+	}
 
-			return nextSequence(current.tail, valuesSeq);
-		}];
-	} copy];
+	NSAssert([current isKindOfClass:RACSequence.class], @"-bind: block returned an object that is not a sequence: %@", current);
 
-	return nextSequence(nil, self);
+	return [RACDynamicSequence sequenceWithHeadBlock:^{
+		return current.head;
+	} tailBlock:^ id {
+		if (stop) return nil;
+
+		return [valuesSeq bind:block passingThroughValuesFromSequence:current.tail];
+	}];
 }
 
 - (instancetype)concat:(id<RACStream>)stream {

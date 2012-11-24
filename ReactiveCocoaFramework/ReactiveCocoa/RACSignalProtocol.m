@@ -1188,4 +1188,52 @@ NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 	return [self asCancelableWithBlock:NULL];
 }
 
+- (id<RACSignal>)sample:(id<RACSignal>)sampler {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		NSLock *lock = [[NSLock alloc] init];
+		__block id lastValue;
+		__block BOOL hasNewValue = NO;
+
+		__block RACDisposable *samplerDisposable;
+		RACDisposable *sourceDisposable = [self subscribeNext:^(id x) {
+			[lock lock];
+			hasNewValue = YES;
+			lastValue = x;
+			[lock unlock];
+		} error:^(NSError *error) {
+			[samplerDisposable dispose];
+			[subscriber sendError:error];
+		} completed:^{
+			[samplerDisposable dispose];
+			[subscriber sendCompleted];
+		}];
+
+		samplerDisposable = [sampler subscribeNext:^(id _) {
+			BOOL shouldSend = NO;
+			id value;
+			[lock lock];
+			shouldSend = hasNewValue;
+			value = lastValue;
+			lastValue = nil;
+			hasNewValue = NO;
+			[lock unlock];
+
+			if (shouldSend) {
+				[subscriber sendNext:value];
+			}
+		} error:^(NSError *error) {
+			[sourceDisposable dispose];
+			[subscriber sendError:error];
+		} completed:^{
+			[sourceDisposable dispose];
+			[subscriber sendCompleted];
+		}];
+
+		return [RACDisposable disposableWithBlock:^{
+			[samplerDisposable dispose];
+			[sourceDisposable dispose];
+		}];
+	}];
+}
+
 @end

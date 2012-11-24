@@ -344,4 +344,6 @@ typedef NSInteger RACSignalError;
 // Creates a cancelable signal.
 - (RACCancelableSignal *)asCancelable;
 
+- (id<RACSignal>)sample:(id<RACSignal>)sampler;
+
 @end

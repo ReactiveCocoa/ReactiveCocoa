@@ -1189,6 +1189,8 @@ NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 }
 
 - (id<RACSignal>)sample:(id<RACSignal>)sampler {
+	NSParameterAssert(sampler != nil);
+
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		NSLock *lock = [[NSLock alloc] init];
 		__block id lastValue;

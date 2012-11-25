@@ -55,6 +55,12 @@
 	}];
 }
 
+- (instancetype)mapReplace:(id)object {
+	return [self map:^(id _) {
+		return object;
+	}];
+}
+
 - (instancetype)filter:(BOOL (^)(id value))block {
 	NSParameterAssert(block != nil);
 

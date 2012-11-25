@@ -193,6 +193,13 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		verifyValues(stream, @[ @1, @2, @3 ]);
 	});
 
+	it(@"should map and replace", ^{
+		id<RACStream> baseStream = streamWithValues(@[ @0, @1, @2 ]);
+		id<RACStream> stream = [baseStream mapReplace:RACUnit.defaultUnit];
+
+		verifyValues(stream, @[ RACUnit.defaultUnit, RACUnit.defaultUnit, RACUnit.defaultUnit ]);
+	});
+
 	it(@"should filter", ^{
 		id<RACStream> baseStream = streamWithValues(@[ @0, @1, @2, @3, @4, @5, @6 ]);
 		id<RACStream> stream = [baseStream filter:^ BOOL (NSNumber *value) {

@@ -86,15 +86,6 @@ typedef NSInteger RACSignalError;
 // Convenience method to subscribe to `error` and `completed` events.
 - (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
 
-// For each value sent on the receiving signal, the given object is sent on the
-// returned signal.
-//
-// object - The object to send for each value sent on the receiver.
-//
-// Returns a signal that sends the given object for each value sent on the
-// receiver.
-- (id<RACSignal>)mapReplace:(id)object;
-
 // Injects the given object weakly into the receiver's stream. The returned 
 // signal sends a tuple where the first object is the value received by the
 // receiver signal and the second is the weak object.

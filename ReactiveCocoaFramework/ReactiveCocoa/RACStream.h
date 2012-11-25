@@ -88,6 +88,12 @@
 // Returns a new stream with the mapped values.
 - (instancetype)map:(id (^)(id value))block;
 
+// Replace each value in the receiver with the given object.
+//
+// Returns a new stream which includes the given object once for each value in
+// the receiver.
+- (instancetype)mapReplace:(id)object;
+
 // Filters out values in the receiver that don't pass the given test.
 //
 // Returns a new stream with only those values that passed.

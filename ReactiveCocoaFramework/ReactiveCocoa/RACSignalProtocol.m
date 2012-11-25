@@ -117,12 +117,6 @@ NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 	return [self subscribe:o];
 }
 
-- (id<RACSignal>)mapReplace:(id)object {
-	return [self map:^(id _) {
-		return object;
-	}];
-}
-
 - (id<RACSignal>)injectObjectWeakly:(id)object {
 	__unsafe_unretained id weakObject = object;
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {

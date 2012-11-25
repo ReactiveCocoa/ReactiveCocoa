@@ -110,4 +110,27 @@ describe(@"-take:", ^{
 	});
 });
 
+describe(@"-bind:", ^{
+	it(@"should only evaluate head when the resulting sequence is evaluated", ^{
+		__block BOOL headInvoked = NO;
+
+		RACSequence *original = [RACSequence sequenceWithHeadBlock:^{
+			headInvoked = YES;
+			return RACUnit.defaultUnit;
+		} tailBlock:^ id {
+			return nil;
+		}];
+
+		RACSequence *bound = [original bind:^(id value, BOOL *stop) {
+			return [RACSequence return:value];
+		}];
+
+		expect(bound).notTo.beNil();
+		expect(headInvoked).to.beFalsy();
+
+		expect(bound.head).to.equal(RACUnit.defaultUnit);
+		expect(headInvoked).to.beTruthy();
+	});
+});
+
 SpecEnd

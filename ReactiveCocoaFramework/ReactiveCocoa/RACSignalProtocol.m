@@ -23,7 +23,6 @@
 #import <libkern/OSAtomic.h>
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACBlockTrampoline.h"
-#import "NSObject+RACFastEnumeration.h"
 
 NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 
@@ -489,7 +488,17 @@ NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 }
 
 + (id<RACSignal>)merge:(NSArray *)signals {
-	return [signals.rac_toSignal flatten];
+	RACSignal *signalOfSignals = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+		for (id<RACSignal> signal in signals) {
+			NSAssert([signal conformsToProtocol:@protocol(RACSignal)], @"%@ is not a signal, cannot be merged", signal);
+			[subscriber sendNext:signal];
+		}
+
+		[subscriber sendCompleted];
+		return nil;
+	}];
+
+	return signalOfSignals.flatten;
 }
 
 - (id<RACSignal>)flatten:(NSUInteger)maxConcurrent {

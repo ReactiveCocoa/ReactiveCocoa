@@ -6,7 +6,6 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import <ReactiveCocoa/NSArray+RACExtensions.h>
 #import <ReactiveCocoa/NSArray+RACSequenceAdditions.h>
 #import <ReactiveCocoa/NSDictionary+RACSequenceAdditions.h>
 #import <ReactiveCocoa/NSObject+RACBindings.h>

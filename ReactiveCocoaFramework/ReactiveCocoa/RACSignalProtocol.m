@@ -650,23 +650,6 @@ NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 	}];
 }
 
-- (id<RACSignal>)scanWithStart:(id)start combine:(id (^)(id running, id next))combineBlock {
-	NSParameterAssert(combineBlock != NULL);
-
-	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		__block id runningValue = start;
-
-		return [self subscribeNext:^(id x) {
-			runningValue = combineBlock(runningValue, x);
-			[subscriber sendNext:runningValue];
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendCompleted];
-		}];
-	}];
-}
-
 - (id<RACSignal>)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock {
 	return [self aggregateWithStartFactory:^{
 		return start;

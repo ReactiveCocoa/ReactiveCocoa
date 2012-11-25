@@ -122,4 +122,14 @@
 	}];
 }
 
+- (instancetype)scanWithStart:(id)startingValue combine:(id (^)(id running, id next))block {
+	NSParameterAssert(block != nil);
+
+	__block id running = startingValue;
+	return [self bind:^(id value, BOOL *stop) {
+		running = block(running, value);
+		return [self.class return:running];
+	}];
+}
+
 @end

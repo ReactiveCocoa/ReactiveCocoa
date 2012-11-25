@@ -179,11 +179,6 @@ typedef NSInteger RACSignalError;
 // block is called to get a new start object for each subscription.
 - (id<RACSignal>)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock;
 
-// Similar to -aggregateWithStart:combine: with an important difference: it
-// sends the combined value with each `next` instead of waiting for the
-// receiving signal to complete.
-- (id<RACSignal>)scanWithStart:(id)start combine:(id (^)(id running, id next))combineBlock;
-
 // Set the object's keyPath to the value of `next`.
 - (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object;
 

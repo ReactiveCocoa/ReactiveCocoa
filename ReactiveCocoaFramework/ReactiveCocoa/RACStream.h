@@ -141,4 +141,25 @@
 // object in the tuple is `weakObject`.
 - (instancetype)injectObjectWeakly:(__weak id)weakObject;
 
+// Combines values in the receiver from left to right using the given block.
+//
+// The algorithm proceeds as follows:
+//
+//  1. `startingValue` is passed into the block as the `running` value, and the
+//  first element of the receiver is passed into the block as the `next` value.
+//  2. The result of the invocation is added to the returned stream.
+//  3. The result of the invocation (`running`) and the next element of the
+//  receiver (`next`) is passed into `block`.
+//  4. Steps 2 and 3 are repeated until all elements have been processed.
+//
+// startingValue - The value to be combined with the first element of the
+//                 receiver. This value may be `nil`.
+// block         - A block that describes how to combine elements of the
+//                 receiver. If the receiver is empty, this block will never be
+//                 invoked.
+//
+// Returns a new stream that consists of each application of `block`. If the
+// receiver is empty, an empty stream is returned.
+- (instancetype)scanWithStart:(id)startingValue combine:(id (^)(id running, id next))block;
+
 @end

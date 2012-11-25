@@ -655,25 +655,6 @@ describe(@"RACAbleWithStart", ^{
 	});
 });
 
-describe(@"-scanWithStart:combine:", ^{
-	it(@"should send each step in the scan", ^{
-		RACSignal *signal = [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendNext:@1];
-			[subscriber sendNext:@2];
-			[subscriber sendNext:@3];
-			[subscriber sendNext:@4];
-			[subscriber sendCompleted];
-			return nil;
-		}] scanWithStart:@0 combine:^(NSNumber *running, NSNumber *next) {
-			return @(running.integerValue + next.integerValue);
-		}];
-		
-		NSArray *values = signal.toArray;
-		NSArray *expected = @[ @1, @3, @6, @10 ];
-		expect(values).to.equal(expected);
-	});
-});
-
 describe(@"-toProperty:onObject:", ^{
 	void (^setupBlock)(RACTestObject *, NSString *, RACSubject *) = ^(RACTestObject *testObject, NSString *keyPath, RACSubject *subject) {
 		[subject toProperty:keyPath onObject:testObject];

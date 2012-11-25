@@ -358,6 +358,15 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			verifyValues(tupleStream, expected);
 		});
 	});
+
+	it(@"should scan", ^{
+		id<RACStream> stream = streamWithValues(@[ @1, @2, @3, @4 ]);
+		id<RACStream> scanned = [stream scanWithStart:@0 combine:^(NSNumber *running, NSNumber *next) {
+			return @(running.integerValue + next.integerValue);
+		}];
+
+		verifyValues(scanned, @[ @1, @3, @6, @10 ]);
+	});
 });
 
 SharedExampleGroupsEnd

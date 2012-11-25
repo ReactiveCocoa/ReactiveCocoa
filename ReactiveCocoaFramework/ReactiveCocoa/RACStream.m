@@ -132,4 +132,22 @@
 	}];
 }
 
+- (instancetype)takeUntilBlock:(BOOL (^)(id x))predicate {
+	NSParameterAssert(predicate != nil);
+
+	return [self bind:^ id (id value, BOOL *stop) {
+		if (predicate(value)) return nil;
+
+		return [self.class return:value];
+	}];
+}
+
+- (instancetype)takeWhileBlock:(BOOL (^)(id x))predicate {
+	NSParameterAssert(predicate != nil);
+
+	return [self takeUntilBlock:^ BOOL (id x) {
+		return !predicate(x);
+	}];
+}
+
 @end

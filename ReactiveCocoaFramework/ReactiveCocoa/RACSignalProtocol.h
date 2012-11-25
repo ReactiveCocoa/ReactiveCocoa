@@ -192,12 +192,6 @@ typedef NSInteger RACSignalError;
 // Take `next`s until the `signalTrigger` sends a `next`.
 - (id<RACSignal>)takeUntil:(id<RACSignal>)signalTrigger;
 
-// Take `next`s until the given block returns YES.
-- (id<RACSignal>)takeUntilBlock:(BOOL (^)(id x))predicate;
-
-// Take `next`s until the given block returns NO.
-- (id<RACSignal>)takeWhileBlock:(BOOL (^)(id x))predicate;
-
 // Convert every `next` and `error` into a RACMaybe.
 - (id<RACSignal>)asMaybes;
 

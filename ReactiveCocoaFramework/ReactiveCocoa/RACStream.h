@@ -162,4 +162,18 @@
 // receiver is empty, an empty stream is returned.
 - (instancetype)scanWithStart:(id)startingValue combine:(id (^)(id running, id next))block;
 
+// Takes values until the given block returns `YES`.
+//
+// Returns a stream of the first values in the receiver that fail `predicate`.
+// If `predicate` never returns `YES`, a stream equivalent to the receiver is
+// returned.
+- (instancetype)takeUntilBlock:(BOOL (^)(id x))predicate;
+
+// Takes values until the given block returns `NO`.
+//
+// Returns a stream of the first values in the receiver that pass `predicate`.
+// If `predicate` never returns `NO`, a stream equivalent to the receiver is
+// returned.
+- (instancetype)takeWhileBlock:(BOOL (^)(id x))predicate;
+
 @end

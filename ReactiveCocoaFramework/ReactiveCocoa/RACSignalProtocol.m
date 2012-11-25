@@ -720,39 +720,6 @@ NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 	}];
 }
 
-- (id<RACSignal>)takeUntilBlock:(BOOL (^)(id x))predicate {
-	NSParameterAssert(predicate != NULL);
-	
-	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		__block RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
-			BOOL stop = predicate(x);
-			if(stop) {
-				[selfDisposable dispose], selfDisposable = nil;
-				[subscriber sendCompleted];
-				return;
-			}
-			
-			[subscriber sendNext:x];
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendCompleted];
-		}];
-		
-		return [RACDisposable disposableWithBlock:^{
-			[selfDisposable dispose];
-		}];
-	}];
-}
-
-- (id<RACSignal>)takeWhileBlock:(BOOL (^)(id x))predicate {
-	NSParameterAssert(predicate != NULL);
-	
-	return [self takeUntilBlock:^BOOL(id x) {
-		return !predicate(x);
-	}];
-}
-
 - (id<RACSignal>)switch {
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *innerDisposable = nil;

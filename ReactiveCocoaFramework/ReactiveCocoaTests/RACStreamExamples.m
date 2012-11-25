@@ -367,6 +367,60 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 
 		verifyValues(scanned, @[ @1, @3, @6, @10 ]);
 	});
+
+	describe(@"taking with a predicate", ^{
+		NSArray *values = @[ @0, @1, @2, @3, @0, @2, @4 ];
+
+		__block id<RACStream> stream;
+
+		before(^{
+			stream = streamWithValues(values);
+		});
+
+		it(@"should take until a predicate is true", ^{
+			id<RACStream> taken = [stream takeUntilBlock:^ BOOL (NSNumber *x) {
+				return x.integerValue >= 3;
+			}];
+
+			verifyValues(taken, @[ @0, @1, @2 ]);
+		});
+
+		it(@"should take while a predicate is true", ^{
+			id<RACStream> taken = [stream takeWhileBlock:^ BOOL (NSNumber *x) {
+				return x.integerValue <= 1;
+			}];
+
+			verifyValues(taken, @[ @0, @1 ]);
+		});
+
+		it(@"should take a full stream", ^{
+			id<RACStream> taken = [stream takeWhileBlock:^ BOOL (NSNumber *x) {
+				return x.integerValue <= 10;
+			}];
+
+			verifyValues(taken, values);
+		});
+
+		it(@"should return an empty stream", ^{
+			id<RACStream> taken = [stream takeWhileBlock:^ BOOL (NSNumber *x) {
+				return x.integerValue < 0;
+			}];
+
+			verifyValues(taken, @[]);
+		});
+
+		it(@"should terminate an infinite stream", ^{
+			id<RACStream> infiniteCounter = [infiniteStream scanWithStart:@0 combine:^(NSNumber *running, id _) {
+				return @(running.unsignedIntegerValue + 1);
+			}];
+
+			id<RACStream> taken = [infiniteCounter takeWhileBlock:^ BOOL (NSNumber *x) {
+				return x.integerValue <= 5;
+			}];
+
+			verifyValues(taken, @[ @1, @2, @3, @4, @5 ]);
+		});
+	});
 });
 
 SharedExampleGroupsEnd

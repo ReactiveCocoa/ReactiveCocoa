@@ -117,20 +117,6 @@ NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 	return [self subscribe:o];
 }
 
-- (id<RACSignal>)injectObjectWeakly:(id)object {
-	__unsafe_unretained id weakObject = object;
-	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		return [self subscribeNext:^(id x) {
-			id strongObject = weakObject;
-			[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:[NSArray arrayWithObjects:x ? : [RACTupleNil tupleNil], strongObject, nil]]];
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendCompleted];
-		}];
-	}];
-}
-
 - (id<RACSignal>)doNext:(void (^)(id x))block {
 	NSParameterAssert(block != NULL);
 

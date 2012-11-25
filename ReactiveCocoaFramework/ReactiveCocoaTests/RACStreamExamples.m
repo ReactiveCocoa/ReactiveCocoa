@@ -322,6 +322,42 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			});
 		});
 	});
+
+	describe(@"-injectObjectWeakly:", ^{
+		it(@"should return tuples with the object", ^{
+			id<RACStream> stream = streamWithValues(@[ @0, @1, @2 ]);
+			id injected = [[NSObject alloc] init];
+
+			id<RACStream> tupleStream = [stream injectObjectWeakly:injected];
+			NSArray *expected = @[
+				[RACTuple tupleWithObjects:@0, injected, nil],
+				[RACTuple tupleWithObjects:@1, injected, nil],
+				[RACTuple tupleWithObjects:@2, injected, nil]
+			];
+
+			verifyValues(tupleStream, expected);
+		});
+
+		it(@"should weakly reference the injected object", ^{
+			__weak id weakInjected = nil;
+			id<RACStream> tupleStream;
+
+			@autoreleasepool {
+				id injected __attribute__((objc_precise_lifetime)) = [[NSObject alloc] init];
+
+				weakInjected = injected;
+				expect(weakInjected).notTo.beNil();
+
+				id<RACStream> stream = streamWithValues(@[ RACUnit.defaultUnit ]);
+				tupleStream = [stream injectObjectWeakly:injected];
+			}
+
+			expect(weakInjected).to.beNil();
+
+			NSArray *expected = @[ [RACTuple tupleWithObjects:RACUnit.defaultUnit, RACTupleNil.tupleNil, nil] ];
+			verifyValues(tupleStream, expected);
+		});
+	});
 });
 
 SharedExampleGroupsEnd

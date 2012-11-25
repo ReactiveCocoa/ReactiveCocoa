@@ -7,6 +7,7 @@
 //
 
 #import "RACStream.h"
+#import "RACTuple.h"
 
 @concreteprotocol(RACStream)
 
@@ -109,6 +110,16 @@
 
 + (instancetype)zip:(NSArray *)streams {
 	return [self zip:streams reduce:nil];
+}
+
+- (instancetype)injectObjectWeakly:(__weak id)injectedObject {
+	return [self bind:^(id value, BOOL *stop) {
+		id tupleValue = value ?: RACTupleNil.tupleNil;
+		id strongObject = injectedObject ?: RACTupleNil.tupleNil;
+
+		RACTuple *tuple = [RACTuple tupleWithObjects:tupleValue, strongObject, nil];
+		return [self.class return:tuple];
+	}];
 }
 
 @end

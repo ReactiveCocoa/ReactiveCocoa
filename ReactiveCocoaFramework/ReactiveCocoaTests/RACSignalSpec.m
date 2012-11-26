@@ -1305,8 +1305,9 @@ describe(@"-sample:", ^{
 		
 		[subject sendNext:@1];
 		[subject sendNext:@2];
+		expect(values).to.equal(@[]);
+
 		[sampleSubject sendNext:RACUnit.defaultUnit];
-		
 		NSArray *expected = @[ @2 ];
 		expect(values).to.equal(expected);
 
@@ -1318,6 +1319,7 @@ describe(@"-sample:", ^{
 		expect(values).to.equal(expected);
 
 		[sampleSubject sendNext:RACUnit.defaultUnit];
+		expected = @[ @2, @3, @3 ];
 		expect(values).to.equal(expected);
 	});
 });

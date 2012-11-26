@@ -1194,12 +1194,12 @@ NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		NSLock *lock = [[NSLock alloc] init];
 		__block id lastValue;
-		__block BOOL hasNewValue = NO;
+		__block BOOL hasValue = NO;
 
 		__block RACDisposable *samplerDisposable;
 		RACDisposable *sourceDisposable = [self subscribeNext:^(id x) {
 			[lock lock];
-			hasNewValue = YES;
+			hasValue = YES;
 			lastValue = x;
 			[lock unlock];
 		} error:^(NSError *error) {
@@ -1214,10 +1214,8 @@ NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 			BOOL shouldSend = NO;
 			id value;
 			[lock lock];
-			shouldSend = hasNewValue;
+			shouldSend = hasValue;
 			value = lastValue;
-			lastValue = nil;
-			hasNewValue = NO;
 			[lock unlock];
 
 			if (shouldSend) {

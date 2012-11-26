@@ -79,6 +79,9 @@ static NSMutableSet *activeSignals() {
 	NSParameterAssert(block != NULL);
 
 	RACSignal *signalsSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		// Works around the issue described in #94 by making sure -bind: doesn't
+		// send more values than it should. This doesn't help the subscription
+		// actually terminate properly, though.
 		__block volatile uint32_t disposed = 0;
 
 		RACDisposable *disposable = [self subscribeNext:^(id x) {

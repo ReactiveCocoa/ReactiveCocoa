@@ -220,10 +220,6 @@ typedef NSInteger RACSignalError;
 // This can be used to effectively turn a hot signal into a cold signal.
 + (id<RACSignal>)defer:(id<RACSignal> (^)(void))block;
 
-// Send only `next`s for which -isEqual: returns NO when compared to the
-// previous `next`.
-- (id<RACSignal>)distinctUntilChanged;
-
 // The source must be a signal of signals. Subscribe and send `next`s for the
 // latest signal. This is mostly useful when combined with `-flattenMap:`.
 - (id<RACSignal>)switch;

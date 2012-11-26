@@ -175,4 +175,21 @@
 	}];
 }
 
+- (instancetype)skipRepeats {
+	__block id lastValue = nil;
+	__block BOOL initial = YES;
+
+	return [self bind:^(id value, BOOL *stop) {
+		if (!initial) {
+			if (value == lastValue || [value isEqual:lastValue]) {
+				return self.class.empty;
+			}
+		}
+
+		initial = NO;
+		lastValue = value;
+		return [self.class return:value];
+	}];
+}
+
 @end

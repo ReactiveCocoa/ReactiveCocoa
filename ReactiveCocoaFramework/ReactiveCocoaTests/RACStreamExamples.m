@@ -472,6 +472,11 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			verifyValues(taken, values);
 		});
 	});
+
+	it(@"should skip repeats", ^{
+		id<RACStream> stream = streamWithValues(@[ @1, @2, @2, @1, @1 ]);
+		verifyValues(stream.skipRepeats, @[ @1, @2, @1 ]);
+	});
 });
 
 SharedExampleGroupsEnd

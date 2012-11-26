@@ -14,9 +14,11 @@
 @implementation NSDictionary (RACSequenceAdditions)
 
 - (RACSequence *)rac_sequence {
+	NSDictionary *immutableDict = [self copy];
+
 	// TODO: First class support for dictionary sequences.
-	return [self.allKeys.rac_sequence map:^(id key) {
-		id value = self[key];
+	return [immutableDict.allKeys.rac_sequence map:^(id key) {
+		id value = immutableDict[key];
 		return [RACTuple tupleWithObjects:key, value, nil];
 	}];
 }

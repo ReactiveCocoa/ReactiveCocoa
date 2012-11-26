@@ -28,6 +28,34 @@
 	return seq;
 }
 
++ (RACSequence *)sequenceWithLazyDependency:(id (^)(void))dependencyBlock headBlock:(id (^)(id dependency))headBlock tailBlock:(RACSequence *(^)(id dependency))tailBlock {
+	NSParameterAssert(dependencyBlock != nil);
+	NSParameterAssert(headBlock != nil);
+
+	NSLock *lock = [[NSLock alloc] init];
+
+	__block id dependency = nil;
+	__block BOOL dependencyBlockExecuted = NO;
+
+	id (^evaluateDependency)(void) = [^{
+		[lock lock];
+		if (!dependencyBlockExecuted) {
+			dependency = dependencyBlock();
+			dependencyBlockExecuted = YES;
+		}
+		[lock unlock];
+
+		return dependency;
+	} copy];
+
+	return [self sequenceWithHeadBlock:^{
+		return headBlock(evaluateDependency());
+	} tailBlock:^ id {
+		if (tailBlock == nil) return nil;
+		return tailBlock(evaluateDependency());
+	}];
+}
+
 #pragma mark RACSequence
 
 - (id)head {

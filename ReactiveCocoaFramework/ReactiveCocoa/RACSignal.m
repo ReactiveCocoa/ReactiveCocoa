@@ -79,22 +79,23 @@ static NSMutableSet *activeSignals() {
 	NSParameterAssert(block != NULL);
 
 	RACSignal *signalsSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		return [self subscribeNext:^(id x) {
+		__block RACDisposable *disposable = [self subscribeNext:^(id x) {
 			BOOL stop = NO;
 			id<RACSignal> signal = block(x, &stop);
 
-			if (signal == nil) {
-				[subscriber sendCompleted];
-				return;
-			}
+			if (signal != nil) [subscriber sendNext:signal];
 
-			[subscriber sendNext:signal];
-			if (stop) [subscriber sendCompleted];
+			if (signal == nil || stop) {
+				[disposable dispose];
+				[subscriber sendCompleted];
+			}
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
 			[subscriber sendCompleted];
 		}];
+
+		return disposable;
 	}];
 
 	return signalsSignal.flatten;

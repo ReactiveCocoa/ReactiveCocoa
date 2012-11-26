@@ -104,7 +104,11 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 
 		it(@"should terminate immediately when returning nil", ^{
+			__block BOOL returnedNil = NO;
+
 			id<RACStream> stream = [infiniteStream bind:^ id (id _, BOOL *stop) {
+				expect(returnedNil).to.beFalsy();
+				returnedNil = YES;
 				return nil;
 			}];
 
@@ -121,8 +125,13 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 
 		it(@"should terminate immediately when returning nil and setting 'stop'", ^{
+			__block BOOL returnedNil = NO;
+
 			id<RACStream> stream = [infiniteStream bind:^ id (id _, BOOL *stop) {
 				*stop = YES;
+
+				expect(returnedNil).to.beFalsy();
+				returnedNil = YES;
 				return nil;
 			}];
 

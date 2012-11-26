@@ -66,35 +66,42 @@
 	return [self bind:block passingThroughValuesFromSequence:nil];
 }
 
-- (instancetype)bind:(id (^)(id value, BOOL *stop))block passingThroughValuesFromSequence:(RACSequence *)current {
-	RACSequence *valuesSeq = self;
+- (instancetype)bind:(id (^)(id value, BOOL *stop))block passingThroughValuesFromSequence:(RACSequence *)passthroughSequence {
+	return [RACDynamicSequence sequenceWithLazyDependency:^ id {
+		RACSequence *valuesSeq = self;
+		RACSequence *current = passthroughSequence;
 
-	BOOL stop = NO;
-	while (current.head == nil) {
-		if (stop) return nil;
+		BOOL stop = NO;
+		while (current.head == nil) {
+			if (stop) return nil;
 
-		// We've exhausted the current sequence, create a sequence from the
-		// next value.
-		id value = valuesSeq.head;
+			// We've exhausted the current sequence, create a sequence from the
+			// next value.
+			id value = valuesSeq.head;
 
-		if (value == nil) {
-			// We've exhausted all the sequences.
-			return nil;
+			if (value == nil) {
+				// We've exhausted all the sequences.
+				return nil;
+			}
+
+			current = block(value, &stop);
+			if (current == nil) return nil;
+
+			valuesSeq = valuesSeq.tail;
 		}
 
-		current = block(value, &stop);
-		if (current == nil) return nil;
+		NSAssert([current isKindOfClass:RACSequence.class], @"-bind: block returned an object that is not a sequence: %@", current);
 
-		valuesSeq = valuesSeq.tail;
-	}
-
-	NSAssert([current isKindOfClass:RACSequence.class], @"-bind: block returned an object that is not a sequence: %@", current);
-
-	return [RACDynamicSequence sequenceWithHeadBlock:^{
+		return [RACTuple tupleWithObjects:(valuesSeq ?: RACTupleNil.tupleNil), (current ?: RACTupleNil.tupleNil), @(stop), nil];
+	} headBlock:^ id (RACTuple *sequences) {
+		RACSequence *current = sequences[1];
 		return current.head;
-	} tailBlock:^ id {
-		if (stop) return nil;
+	} tailBlock:^ id (RACTuple *sequences) {
+		NSNumber *stop = sequences[2];
+		if (sequences == nil || stop.boolValue) return nil;
 
+		RACSequence *valuesSeq = sequences[0];
+		RACSequence *current = sequences[1];
 		return [valuesSeq bind:block passingThroughValuesFromSequence:current.tail];
 	}];
 }

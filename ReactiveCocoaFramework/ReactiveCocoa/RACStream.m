@@ -69,7 +69,7 @@
 		if (block(value)) {
 			return [self.class return:value];
 		} else {
-			return [self.class empty];
+			return self.class.empty;
 		}
 	}];
 }
@@ -146,6 +146,31 @@
 	NSParameterAssert(predicate != nil);
 
 	return [self takeUntilBlock:^ BOOL (id x) {
+		return !predicate(x);
+	}];
+}
+
+- (instancetype)skipUntilBlock:(BOOL (^)(id x))predicate {
+	NSParameterAssert(predicate != nil);
+
+	__block BOOL skipping = YES;
+	return [self bind:^ id (id value, BOOL *stop) {
+		if (skipping) {
+			if (predicate(value)) {
+				skipping = NO;
+			} else {
+				return self.class.empty;
+			}
+		}
+
+		return [self.class return:value];
+	}];
+}
+
+- (instancetype)skipWhileBlock:(BOOL (^)(id x))predicate {
+	NSParameterAssert(predicate != nil);
+
+	return [self skipUntilBlock:^ BOOL (id x) {
 		return !predicate(x);
 	}];
 }

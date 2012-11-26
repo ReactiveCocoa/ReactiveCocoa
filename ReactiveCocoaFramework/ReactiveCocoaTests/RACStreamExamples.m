@@ -430,6 +430,48 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			verifyValues(taken, @[ @1, @2, @3, @4, @5 ]);
 		});
 	});
+
+	describe(@"skipping with a predicate", ^{
+		NSArray *values = @[ @0, @1, @2, @3, @0, @2, @4 ];
+
+		__block id<RACStream> stream;
+
+		before(^{
+			stream = streamWithValues(values);
+		});
+
+		it(@"should skip until a predicate is true", ^{
+			id<RACStream> taken = [stream skipUntilBlock:^ BOOL (NSNumber *x) {
+				return x.integerValue >= 3;
+			}];
+
+			verifyValues(taken, @[ @3, @0, @2, @4 ]);
+		});
+
+		it(@"should skip while a predicate is true", ^{
+			id<RACStream> taken = [stream skipWhileBlock:^ BOOL (NSNumber *x) {
+				return x.integerValue <= 1;
+			}];
+
+			verifyValues(taken, @[ @2, @3, @0, @2, @4 ]);
+		});
+
+		it(@"should skip a full stream", ^{
+			id<RACStream> taken = [stream skipWhileBlock:^ BOOL (NSNumber *x) {
+				return x.integerValue <= 10;
+			}];
+
+			verifyValues(taken, @[]);
+		});
+
+		it(@"should finish skipping immediately", ^{
+			id<RACStream> taken = [stream skipWhileBlock:^ BOOL (NSNumber *x) {
+				return x.integerValue < 0;
+			}];
+
+			verifyValues(taken, values);
+		});
+	});
 });
 
 SharedExampleGroupsEnd

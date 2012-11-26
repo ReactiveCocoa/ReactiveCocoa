@@ -820,35 +820,6 @@ NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 	}];
 }
 
-- (id<RACSignal>)skipUntilBlock:(BOOL (^)(id x))block {
-	NSParameterAssert(block != NULL);
-	
-	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		__block BOOL keepSkipping = YES;
-		return [self subscribeNext:^(id x) {
-			if(keepSkipping) {
-				keepSkipping = !block(x);
-			}
-			
-			if(!keepSkipping) {
-				[subscriber sendNext:x];
-			}
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendCompleted];
-		}];
-	}];
-}
-
-- (id<RACSignal>)skipWhileBlock:(BOOL (^)(id x))block {
-	NSParameterAssert(block != NULL);
-	
-	return [self skipUntilBlock:^BOOL(id x) {
-		return !block(x);
-	}];
-}
-
 - (id<RACSignal>)distinctUntilChanged {
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block id lastValue = nil;

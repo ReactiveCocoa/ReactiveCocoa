@@ -215,12 +215,6 @@ typedef NSInteger RACSignalError;
 // Both success and error may be NULL.
 - (id)firstOrDefault:(id)defaultValue success:(BOOL *)success error:(NSError **)error;
 
-// Skips values until the block returns YES.
-- (id<RACSignal>)skipUntilBlock:(BOOL (^)(id x))block;
-
-// Skips values until the block returns NO.
-- (id<RACSignal>)skipWhileBlock:(BOOL (^)(id x))block;
-
 // Defer creation of a signal until the signal's actually subscribed to.
 //
 // This can be used to effectively turn a hot signal into a cold signal.

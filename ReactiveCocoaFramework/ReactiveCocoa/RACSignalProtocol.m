@@ -7,23 +7,23 @@
 //
 
 #import "RACSignalProtocol.h"
+#import "NSArray+RACSequenceAdditions.h"
 #import "NSObject+RACExtensions.h"
+#import "NSObject+RACPropertySubscribing.h"
 #import "RACBehaviorSubject.h"
+#import "RACBlockTrampoline.h"
 #import "RACCancelableSignal+Private.h"
 #import "RACConnectableSignal+Private.h"
 #import "RACDisposable.h"
 #import "RACGroupedSignal.h"
 #import "RACMaybe.h"
 #import "RACScheduler.h"
-#import "RACSubject.h"
 #import "RACSignalSequence.h"
+#import "RACSubject.h"
 #import "RACSubscriber.h"
 #import "RACTuple.h"
 #import "RACUnit.h"
 #import <libkern/OSAtomic.h>
-#import "NSObject+RACPropertySubscribing.h"
-#import "RACBlockTrampoline.h"
-#import "NSObject+RACFastEnumeration.h"
 
 NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 
@@ -469,7 +469,7 @@ NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 }
 
 + (id<RACSignal>)merge:(NSArray *)signals {
-	return [signals.rac_toSignal flatten];
+	return [signals.rac_sequence signalWithScheduler:RACScheduler.immediateScheduler].flatten;
 }
 
 - (id<RACSignal>)flatten:(NSUInteger)maxConcurrent {

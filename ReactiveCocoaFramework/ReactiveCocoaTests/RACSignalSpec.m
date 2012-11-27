@@ -1165,7 +1165,8 @@ it(@"should complete take: even if the original signal doesn't", ^{
 describe(@"+zip:reduce:", ^{
 	__block id<RACSignal> errorAfterTwo = nil;
 	__block id<RACSignal> errorAfterThree = nil;
-	__block id<RACSignal> sendTwo = nil;
+	__block id<RACSignal> completeAfterTwo = nil;
+	__block id<RACSignal> completeAfterThree = nil;
 	
 	before(^{
 		errorAfterTwo = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
@@ -1181,9 +1182,16 @@ describe(@"+zip:reduce:", ^{
 			[subscriber sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
 			return nil;
 		}];
-		sendTwo = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		completeAfterTwo = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendNext:@2];
+			[subscriber sendCompleted];
+			return nil;
+		}];
+		completeAfterThree = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendNext:@2];
+			[subscriber sendNext:@3];
 			[subscriber sendCompleted];
 			return nil;
 		}];
@@ -1192,7 +1200,7 @@ describe(@"+zip:reduce:", ^{
 	it(@"should ignore errors that occur after +zip:reduce: finishes", ^{
 		__block NSError *receivedError = nil;
 		
-		[[RACSignal zip:@[ errorAfterThree, sendTwo ] reduce:nil] subscribeError:^(NSError *error) {
+		[[RACSignal zip:@[ errorAfterThree, completeAfterTwo ] reduce:nil] subscribeError:^(NSError *error) {
 			receivedError = error;
 		}];
 		
@@ -1202,11 +1210,21 @@ describe(@"+zip:reduce:", ^{
 	it(@"should send errors that occur before +zip:reduce: finishes", ^{
 		__block NSError *receivedError = nil;
 		
-		[[RACSignal zip:@[ errorAfterTwo, sendTwo ] reduce:nil] subscribeError:^(NSError *error) {
+		[[RACSignal zip:@[ errorAfterTwo, completeAfterThree ] reduce:nil] subscribeError:^(NSError *error) {
 			receivedError = error;
 		}];
 		
 		expect(receivedError).notTo.beNil();
+	});
+	
+	it(@"should ignore errors if +zip:reduce: would have finished regardless", ^{
+		__block NSError *receivedError = nil;
+		
+		[[RACSignal zip:@[ errorAfterThree, completeAfterThree ] reduce:nil] subscribeError:^(NSError *error) {
+			receivedError = error;
+		}];
+		
+		expect(receivedError).to.beNil();
 	});
 	
 	it(@"should handle signals sending values unevenly", ^{

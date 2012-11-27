@@ -160,14 +160,14 @@ static NSMutableSet *activeSignals() {
 			for (id<RACSignal> signal in signals) {
 				if ([valuesBySignal[keyForSignal(signal)] count] == 0) {
 					id completedOrError = completedOrErrorBySignal[keyForSignal(signal)];
-					if (completedOrError) {
-						if ([completedOrError isKindOfClass:NSError.class]) {
-							error = completedOrError;
-							continue;
-						}
-						[subscriber sendCompleted];
-						return;
+					if ([completedOrError isKindOfClass:NSError.class]) {
+						error = completedOrError;
+						continue;
 					}
+					if (completedOrError != nil) {
+						[subscriber sendCompleted];
+					}
+					return;
 				}
 			}
 			if (error != nil) {

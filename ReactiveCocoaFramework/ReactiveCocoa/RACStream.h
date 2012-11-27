@@ -9,6 +9,13 @@
 #import <Foundation/Foundation.h>
 #import "EXTConcreteProtocol.h"
 
+// A block which accepts a value from a <RACStream> and returns a new instance
+// of the same stream class.
+//
+// Setting `stop` to `YES` will cause the bind to terminate after the returned
+// value. Returning `nil` will result in immediate termination.
+typedef id (^RACStreamBindBlock)(id value, BOOL *stop);
+
 // A concrete protocol representing any stream of values. Implemented by
 // RACSignal and RACSequence.
 //
@@ -30,16 +37,18 @@
 // Returns a stream containing only the given value.
 + (instancetype)return:(id)value;
 
-// Binds `block` to the values in the receiver.
+// Lazily binds a block to the values in the receiver.
 //
-// block - A block which accepts the values in the receiver and returns a new
-//         instance of the receiver's class. If the block sets `stop` to `YES`,
-//         the bind will terminate after the returned value. Returning `nil`
-//         will result in immediate termination.
+// This should only be used if you need to terminate the bind early, or close
+// over some state. -flattenMap: is more appropriate for all other cases.
 //
-// Returns a new stream which represents the combined result of all applications
-// of `block`.
-- (instancetype)bind:(id (^)(id value, BOOL *stop))block;
+// block - A block returning a RACStreamBindBlock. This block will be invoked
+//         each time the bound stream is re-evaluated. This block must not be
+//         nil or return nil.
+//
+// Returns a new stream which represents the combined result of all lazy
+// applications of `block`.
+- (instancetype)bind:(RACStreamBindBlock (^)(void))block;
 
 // Appends the values of `stream` to the values in the receiver.
 //

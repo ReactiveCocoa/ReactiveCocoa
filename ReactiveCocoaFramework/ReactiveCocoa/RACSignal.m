@@ -138,7 +138,7 @@ static NSMutableSet *activeSignals() {
 			}
 		};
 
-		__block RACDisposable *bindingDisposable = [self subscribeNext:^(id x) {
+		RACDisposable *bindingDisposable = [self subscribeNext:^(id x) {
 			if (stopBinding) return;
 			
 			BOOL stop = NO;

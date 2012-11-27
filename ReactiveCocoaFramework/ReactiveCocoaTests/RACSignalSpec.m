@@ -640,8 +640,8 @@ describe(@"RACAbleWithStart", ^{
 });
 
 describe(@"-toProperty:onObject:", ^{
-	void (^setupBlock)(RACTestObject *, NSString *, RACSubject *) = ^(RACTestObject *testObject, NSString *keyPath, RACSubject *subject) {
-		[subject toProperty:keyPath onObject:testObject];
+	id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, id<RACSignal> signal) {
+		[signal toProperty:keyPath onObject:testObject];
 	};
 
 	itShouldBehaveLike(RACPropertySignalExamples, @{ RACPropertySignalExamplesSetupBlock: setupBlock }, nil);

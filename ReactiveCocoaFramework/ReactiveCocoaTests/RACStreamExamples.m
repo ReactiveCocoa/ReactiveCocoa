@@ -128,6 +128,44 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 
 			verifyValues(stream, @[]);
 		});
+
+		it(@"should be restartable even with block state", ^{
+			NSArray *values = @[ @0, @1, @2 ];
+			id<RACStream> baseStream = streamWithValues(values);
+
+			__block NSUInteger counter = 0;
+			id<RACStream> countingStream = [baseStream bind:^(id x, BOOL *stop) {
+				counter++;
+				return [streamClass return:x];
+			}];
+
+			verifyValues(countingStream, values);
+			expect(counter).to.equal(values.count);
+
+			verifyValues(countingStream, values);
+			expect(counter).to.equal(values.count);
+		});
+
+		it(@"should be interleavable even with block state", ^{
+			NSArray *values = @[ @0, @1, @2 ];
+			id<RACStream> baseStream = streamWithValues(values);
+
+			__block NSUInteger counter = 0;
+			id<RACStream> countingStream = [baseStream bind:^(id x, BOOL *stop) {
+				counter++;
+				return [streamClass return:x];
+			}];
+
+			// Just so +zip:reduce: thinks this is a unique stream.
+			id<RACStream> anotherStream = [[streamClass empty] concat:countingStream];
+
+			id<RACStream> zipped = [streamClass zip:@[ countingStream, anotherStream ] reduce:^(id v1, id v2) {
+				return v1;
+			}];
+
+			verifyValues(zipped, values);
+			expect(counter).to.equal(values.count);
+		});
 	});
 
 	describe(@"-flattenMap:", ^{

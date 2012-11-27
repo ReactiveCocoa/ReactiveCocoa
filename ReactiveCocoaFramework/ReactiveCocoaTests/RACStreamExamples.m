@@ -264,12 +264,15 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 	describe(@"zip stream creation methods", ^{
 		__block NSArray *threeStreams;
 		__block NSArray *threeTuples;
+		__block id<RACStream> streamOne;
+		__block id<RACStream> streamTwo;
+		__block id<RACStream> streamThree;
 		
 		before(^{
 			NSArray *values = @[ @1, @2, @3 ];
-			id<RACStream> streamOne = streamWithValues(values);
-			id<RACStream> streamTwo = streamWithValues(values);
-			id<RACStream> streamThree = streamWithValues(values);
+			streamOne = streamWithValues(values);
+			streamTwo = streamWithValues(values);
+			streamThree = streamWithValues(values);
 			threeStreams = @[ streamOne, streamTwo, streamThree ];
 			RACTuple *firstTuple = [RACTuple tupleWithObjectsFromArray:@[ @1, @1, @1 ]];
 			RACTuple *secondTuple = [RACTuple tupleWithObjectsFromArray:@[ @2, @2, @2 ]];
@@ -305,6 +308,14 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 					return [NSString stringWithFormat:@"%@%@%@", w, x, y];
 				}];
 				verifyValues(stream, @[ @"111", @"222", @"333" ]);
+			});
+			
+			it(@"should handle multiples of the same stream", ^{
+				NSArray *streams = @[ streamOne, streamOne, streamTwo, streamThree, streamTwo, streamThree ];
+				id<RACStream> stream = [streamClass zip:streams reduce:^ NSString * (id x1, id x2, id y1, id z1, id y2, id z2) {
+					return [NSString stringWithFormat:@"%@%@%@%@%@%@", x1, x2, y1, z1, y2, z2];
+				}];
+				verifyValues(stream, @[ @"111111", @"222222", @"333333" ]);
 			});
 		});
 		

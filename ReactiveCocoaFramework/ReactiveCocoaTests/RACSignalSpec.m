@@ -569,6 +569,32 @@ describe(@"-combineLatest:reduce:", ^{
 
 		expect(completed).will.beTruthy();
 	});
+	
+	it(@"should handle multiples of the same signals", ^{
+		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2, subject1, subject2 ] reduce:^ NSString * (NSString *string1, NSString *string2, NSString *string3, NSString *string4) {
+			return [NSString stringWithFormat:@"%@ : %@ = %@ : %@", string1, string2, string3, string4];
+		}];
+		
+		NSMutableArray *receivedValues = NSMutableArray.array;
+		NSArray *expected = nil;
+		
+		[combined subscribeNext:^(id x) {
+			[receivedValues addObject:x];
+		}];
+		
+		[subject1 sendNext:@"apples"];
+		[subject2 sendNext:@"oranges"];
+		
+		expected = @[ @"apples : oranges = apples : oranges" ];
+		expect(receivedValues).to.equal(expected);
+		
+		[subject1 sendNext:@"horses"];
+		[subject2 sendNext:@"cattle"];
+		
+		expected = @[ @"apples : oranges = apples : oranges", @"horses : cattle = horses : cattle" ];
+		expect(receivedValues).to.equal(expected);
+		
+	});
 });
 
 describe(@"distinctUntilChanged", ^{

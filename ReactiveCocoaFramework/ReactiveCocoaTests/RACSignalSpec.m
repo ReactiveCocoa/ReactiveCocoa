@@ -576,22 +576,22 @@ describe(@"-combineLatest:reduce:", ^{
 		}];
 		
 		NSMutableArray *receivedValues = NSMutableArray.array;
-		NSArray *expected = nil;
+		NSArray *expected = NSArray.array;
 		
 		[combined subscribeNext:^(id x) {
 			[receivedValues addObject:x];
 		}];
 		
 		[subject1 sendNext:@"apples"];
-		[subject2 sendNext:@"oranges"];
+		expect(receivedValues).to.equal(expected);
 		
+		[subject2 sendNext:@"oranges"];
 		expected = @[ @"apples : oranges = apples : oranges" ];
 		expect(receivedValues).to.equal(expected);
 		
-		[subject1 sendNext:@"horses"];
-		[subject2 sendNext:@"cattle"];
+		[subject2 sendNext:@"pears"];
 		
-		expected = @[ @"apples : oranges = apples : oranges", @"horses : cattle = horses : cattle" ];
+		expected = @[ @"apples : oranges = apples : oranges", @"apples : pears = apples : pears" ];
 		expect(receivedValues).to.equal(expected);
 		
 	});

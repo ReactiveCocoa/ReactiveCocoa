@@ -438,16 +438,18 @@ NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 }
 
 + (id<RACSignal>)combineLatest:(NSArray *)signals reduce:(id)reduceBlock {
+	signals = signals.copy;
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		NSMutableSet *disposables = [NSMutableSet setWithCapacity:signals.count];
-		NSMutableSet *completedSignals = [NSMutableSet setWithCapacity:signals.count];
-		NSMutableDictionary *lastValues = [NSMutableDictionary dictionaryWithCapacity:signals.count];
-		for(id<RACSignal> signal in signals) {
+		NSSet *uniqueSignals = [NSSet setWithArray:signals];
+		NSMutableSet *disposables = [NSMutableSet setWithCapacity:uniqueSignals.count];
+		NSMutableSet *completedSignals = [NSMutableSet setWithCapacity:uniqueSignals.count];
+		NSMutableDictionary *lastValues = [NSMutableDictionary dictionaryWithCapacity:uniqueSignals.count];
+		for(id<RACSignal> signal in uniqueSignals) {
 			RACDisposable *disposable = [signal subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 				@synchronized(lastValues) {
 					[lastValues setObject:x ? : [RACTupleNil tupleNil] forKey:[NSString stringWithFormat:@"%p", signal]];
 
-					if(lastValues.count == signals.count) {
+					if(lastValues.count == uniqueSignals.count) {
 						NSMutableArray *orderedValues = [NSMutableArray arrayWithCapacity:signals.count];
 						for(id<RACSignal> o in signals) {
 							[orderedValues addObject:[lastValues objectForKey:[NSString stringWithFormat:@"%p", o]]];
@@ -465,7 +467,7 @@ NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 			} completed:^{
 				@synchronized(completedSignals) {
 					[completedSignals addObject:signal];
-					if(completedSignals.count == signals.count) {
+					if(completedSignals.count == uniqueSignals.count) {
 						[subscriber sendCompleted];
 					}
 				}

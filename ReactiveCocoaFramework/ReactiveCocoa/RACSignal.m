@@ -147,17 +147,19 @@ static NSMutableSet *activeSignals() {
 		return [NSValue valueWithNonretainedObject:signal];
 	};
 	
+	signals = signals.copy;
 	return [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-		NSMutableSet *disposables = [NSMutableSet setWithCapacity:signals.count];
-		NSMutableDictionary *completedOrErrorBySignal = [NSMutableDictionary dictionaryWithCapacity:signals.count];
-		NSMutableDictionary *valuesBySignal = [NSMutableDictionary dictionaryWithCapacity:signals.count];
-		for (id<RACSignal> signal in signals) {
+		NSSet *uniqueSignals = [NSSet setWithArray:signals];
+		NSMutableSet *disposables = [NSMutableSet setWithCapacity:uniqueSignals.count];
+		NSMutableDictionary *completedOrErrorBySignal = [NSMutableDictionary dictionaryWithCapacity:uniqueSignals.count];
+		NSMutableDictionary *valuesBySignal = [NSMutableDictionary dictionaryWithCapacity:uniqueSignals.count];
+		for (id<RACSignal> signal in uniqueSignals) {
 			valuesBySignal[keyForSignal(signal)] = NSMutableArray.array;
 		}
 		
 		void (^sendCompleteOrErrorIfNecessary)(void) = ^{
 			NSError *error = nil;
-			for (id<RACSignal> signal in signals) {
+			for (id<RACSignal> signal in uniqueSignals) {
 				if ([valuesBySignal[keyForSignal(signal)] count] == 0) {
 					id completedOrError = completedOrErrorBySignal[keyForSignal(signal)];
 					if (completedOrError) {
@@ -175,7 +177,7 @@ static NSMutableSet *activeSignals() {
 			}
 		};
 		
-		for (id<RACSignal> signal in signals) {
+		for (id<RACSignal> signal in uniqueSignals) {
 			RACDisposable *disposable = [signal subscribeNext:^(id x) {
 				@synchronized(valuesBySignal) {
 					[valuesBySignal[keyForSignal(signal)] addObject:x ? : RACTupleNil.tupleNil];

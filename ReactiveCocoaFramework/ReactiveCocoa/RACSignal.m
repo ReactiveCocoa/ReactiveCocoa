@@ -77,6 +77,18 @@ static NSMutableSet *activeSignals() {
 - (instancetype)bind:(id (^)(id value, BOOL *stop))block {
 	NSParameterAssert(block != NULL);
 
+	/*
+	 * -bind: should:
+	 * 
+	 * 1. Subscribe to the original signal of values.
+	 * 2. Any time the original signal sends a value, transform it using the binding block.
+	 * 3. If the binding block returns a signal, subscribe to it, and pass all of its values through to the subscriber as they're received.
+	 * 4. If the binding block asks the bind to terminate, complete the _original_ signal.
+	 * 5. When _all_ signals complete, send completed to the subscriber.
+	 * 
+	 * If any signal sends an error at any point, send that to the subscriber.
+	 */
+
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		NSMutableArray *signals = [NSMutableArray arrayWithObject:self];
 		NSMutableArray *disposables = [NSMutableArray array];

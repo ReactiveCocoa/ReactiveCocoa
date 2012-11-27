@@ -74,7 +74,7 @@ static NSMutableSet *activeSignals() {
 	}];
 }
 
-- (instancetype)bind:(id (^)(id value, BOOL *stop))block {
+- (instancetype)bind:(RACStreamBindBlock (^)(void))block {
 	NSParameterAssert(block != NULL);
 
 	/*
@@ -90,6 +90,8 @@ static NSMutableSet *activeSignals() {
 	 */
 
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		RACStreamBindBlock bindingBlock = block();
+
 		NSMutableArray *signals = [NSMutableArray arrayWithObject:self];
 		NSMutableArray *disposables = [NSMutableArray array];
 
@@ -142,7 +144,7 @@ static NSMutableSet *activeSignals() {
 			if (stopBinding) return;
 			
 			BOOL stop = NO;
-			id<RACSignal> signal = block(x, &stop);
+			id<RACSignal> signal = bindingBlock(x, &stop);
 
 			if (signal != nil) addSignal(signal);
 

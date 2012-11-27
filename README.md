@@ -81,4 +81,4 @@ There are a number of categories that provide RAC-based bridges to standard Foun
 You can find them in [RACExtensions](https://github.com/github/ReactiveCocoa/tree/master/RACExtensions). To use them, simply add them directly to your project as needed.
 
 ## License
-Simplified BSD License
+MIT License

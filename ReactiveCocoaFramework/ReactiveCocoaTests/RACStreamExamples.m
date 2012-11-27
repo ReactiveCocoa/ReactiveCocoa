@@ -269,23 +269,25 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		__block id<RACStream> streamThree;
 		
 		before(^{
-			NSArray *values = @[ @1, @2, @3 ];
-			streamOne = streamWithValues(values);
-			streamTwo = streamWithValues(values);
-			streamThree = streamWithValues(values);
+			NSArray *valuesOne = @[ @"Ada", @"Bob", @"Dea" ];
+			NSArray *valuesTwo = @[ @"eats", @"cooks", @"jumps" ];
+			NSArray *valuesThree = @[ @"fish", @"bear", @"rock" ];
+			streamOne = streamWithValues(valuesOne);
+			streamTwo = streamWithValues(valuesTwo);
+			streamThree = streamWithValues(valuesThree);
 			threeStreams = @[ streamOne, streamTwo, streamThree ];
-			RACTuple *firstTuple = [RACTuple tupleWithObjectsFromArray:@[ @1, @1, @1 ]];
-			RACTuple *secondTuple = [RACTuple tupleWithObjectsFromArray:@[ @2, @2, @2 ]];
-			RACTuple *thirdTuple = [RACTuple tupleWithObjectsFromArray:@[ @3, @3, @3 ]];
-			threeTuples = @[ firstTuple, secondTuple, thirdTuple ];
+			RACTuple *tupleOne = [RACTuple tupleWithObjectsFromArray:@[ valuesOne[0], valuesTwo[0], valuesThree[0] ]];
+			RACTuple *tupleTwo = [RACTuple tupleWithObjectsFromArray:@[ valuesOne[1], valuesTwo[1], valuesThree[1] ]];
+			RACTuple *tupleThree = [RACTuple tupleWithObjectsFromArray:@[ valuesOne[2], valuesTwo[2], valuesThree[2] ]];
+			threeTuples = @[ tupleOne, tupleTwo, tupleThree ];
 		});
 		
-		describe(@"+zip:reduce", ^{
+		describe(@"+zip:reduce:", ^{
 			it(@"should reduce values if a block is given", ^{
 				id<RACStream> stream = [streamClass zip:threeStreams reduce:^ NSString * (id x, id y, id z) {
-					return [NSString stringWithFormat:@"%@%@%@", x, y, z];
+					return [NSString stringWithFormat:@"%@ %@ %@", x, y, z];
 				}];
-				verifyValues(stream, @[ @"111", @"222", @"333" ]);
+				verifyValues(stream, @[ @"Ada eats fish", @"Bob cooks bear", @"Dea jumps rock" ]);
 			});
 			
 			it(@"should make a stream of tuples if no block is given", ^{
@@ -294,28 +296,28 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			});
 			
 			it(@"should truncate streams", ^{
-				id<RACStream> shortStream = streamWithValues(@[ @1, @2 ]);
+				id<RACStream> shortStream = streamWithValues(@[ @"now", @"later" ]);
 				NSArray *streams = [threeStreams arrayByAddingObject:shortStream];
 				id<RACStream> stream = [streamClass zip:streams reduce:^ NSString * (id w, id x, id y, id z) {
-					return [NSString stringWithFormat:@"%@%@%@%@", w, x, y, z];
+					return [NSString stringWithFormat:@"%@ %@ %@ %@", w, x, y, z];
 				}];
-				verifyValues(stream, @[ @"1111", @"2222" ]);
+				verifyValues(stream, @[ @"Ada eats fish now", @"Bob cooks bear later" ]);
 			});
 			
 			it(@"should work on infinite streams", ^{
 				NSArray *streams = [threeStreams arrayByAddingObject:infiniteStream];
 				id<RACStream> stream = [streamClass zip:streams reduce:^ NSString * (id w, id x, id y, id z) {
-					return [NSString stringWithFormat:@"%@%@%@", w, x, y];
+					return [NSString stringWithFormat:@"%@ %@ %@", w, x, y];
 				}];
-				verifyValues(stream, @[ @"111", @"222", @"333" ]);
+				verifyValues(stream, @[ @"Ada eats fish", @"Bob cooks bear", @"Dea jumps rock" ]);
 			});
 			
 			it(@"should handle multiples of the same stream", ^{
 				NSArray *streams = @[ streamOne, streamOne, streamTwo, streamThree, streamTwo, streamThree ];
 				id<RACStream> stream = [streamClass zip:streams reduce:^ NSString * (id x1, id x2, id y1, id z1, id y2, id z2) {
-					return [NSString stringWithFormat:@"%@%@%@%@%@%@", x1, x2, y1, z1, y2, z2];
+					return [NSString stringWithFormat:@"%@ %@ %@ %@ %@ %@", x1, x2, y1, z1, y2, z2];
 				}];
-				verifyValues(stream, @[ @"111111", @"222222", @"333333" ]);
+				verifyValues(stream, @[ @"Ada Ada eats fish eats fish", @"Bob Bob cooks bear cooks bear", @"Dea Dea jumps rock jumps rock" ]);
 			});
 		});
 		

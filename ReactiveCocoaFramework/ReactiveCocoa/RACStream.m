@@ -121,7 +121,7 @@
 }
 
 - (instancetype)injectObjectWeakly:(__weak id)injectedObject {
-	return [self bind:^(id value, BOOL *stop) {
+	return [self flattenMap:^(id value) {
 		id tupleValue = value ?: RACTupleNil.tupleNil;
 		id strongObject = injectedObject ?: RACTupleNil.tupleNil;
 
@@ -133,20 +133,25 @@
 - (instancetype)scanWithStart:(id)startingValue combine:(id (^)(id running, id next))block {
 	NSParameterAssert(block != nil);
 
-	__block id running = startingValue;
-	return [self bind:^(id value, BOOL *stop) {
-		running = block(running, value);
-		return [self.class return:running];
+	return [self bind:^{
+		__block id running = startingValue;
+
+		return ^(id value, BOOL *stop) {
+			running = block(running, value);
+			return [self.class return:running];
+		};
 	}];
 }
 
 - (instancetype)takeUntilBlock:(BOOL (^)(id x))predicate {
 	NSParameterAssert(predicate != nil);
 
-	return [self bind:^ id (id value, BOOL *stop) {
-		if (predicate(value)) return nil;
+	return [self bind:^{
+		return ^ id (id value, BOOL *stop) {
+			if (predicate(value)) return nil;
 
-		return [self.class return:value];
+			return [self.class return:value];
+		};
 	}];
 }
 
@@ -161,17 +166,20 @@
 - (instancetype)skipUntilBlock:(BOOL (^)(id x))predicate {
 	NSParameterAssert(predicate != nil);
 
-	__block BOOL skipping = YES;
-	return [self bind:^ id (id value, BOOL *stop) {
-		if (skipping) {
-			if (predicate(value)) {
-				skipping = NO;
-			} else {
-				return self.class.empty;
-			}
-		}
+	return [self bind:^{
+		__block BOOL skipping = YES;
 
-		return [self.class return:value];
+		return ^ id (id value, BOOL *stop) {
+			if (skipping) {
+				if (predicate(value)) {
+					skipping = NO;
+				} else {
+					return self.class.empty;
+				}
+			}
+
+			return [self.class return:value];
+		};
 	}];
 }
 
@@ -184,19 +192,21 @@
 }
 
 - (instancetype)skipRepeats {
-	__block id lastValue = nil;
-	__block BOOL initial = YES;
+	return [self bind:^{
+		__block id lastValue = nil;
+		__block BOOL initial = YES;
 
-	return [self bind:^(id value, BOOL *stop) {
-		if (!initial) {
-			if (value == lastValue || [value isEqual:lastValue]) {
-				return self.class.empty;
+		return ^(id value, BOOL *stop) {
+			if (!initial) {
+				if (value == lastValue || [value isEqual:lastValue]) {
+					return self.class.empty;
+				}
 			}
-		}
 
-		initial = NO;
-		lastValue = value;
-		return [self.class return:value];
+			initial = NO;
+			lastValue = value;
+			return [self.class return:value];
+		};
 	}];
 }
 

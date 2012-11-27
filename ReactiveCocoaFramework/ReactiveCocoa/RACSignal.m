@@ -74,47 +74,92 @@ static NSMutableSet *activeSignals() {
 	}];
 }
 
-// TODO: Implement this as a primitive, instead of depending on -flatten.
 - (instancetype)bind:(id (^)(id value, BOOL *stop))block {
 	NSParameterAssert(block != NULL);
 
-	RACSignal *signalsSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		NSMutableArray *signals = [NSMutableArray arrayWithObject:self];
+		NSMutableArray *disposables = [NSMutableArray array];
+
 		// Works around the issue described in #94 by making sure -bind: doesn't
 		// send more values than it should. This doesn't help the subscription
 		// actually terminate properly, though.
-		__block volatile uint32_t disposed = 0;
+		__block volatile uint32_t stopBinding = 0;
 
-		RACDisposable *disposable = [self subscribeNext:^(id x) {
-			if (disposed) return;
+		void (^disposeAll)(void) = ^{
+			OSAtomicOr32Barrier(1, &stopBinding);
 
+			@synchronized (disposables) {
+				[disposables makeObjectsPerformSelector:@selector(dispose)];
+			}
+		};
+
+		void (^completeSignal)(id<RACSignal>) = ^(id<RACSignal> signal) {
+			@synchronized (signals) {
+				[signals removeObject:signal];
+
+				if (signals.count == 0) {
+					[subscriber sendCompleted];
+					[disposables makeObjectsPerformSelector:@selector(dispose)];
+				}
+			}
+		};
+
+		void (^addSignal)(id<RACSignal>) = ^(id<RACSignal> signal) {
+			@synchronized (signals) {
+				[signals addObject:signal];
+			}
+
+			RACDisposable *disposable = [signal subscribeNext:^(id x) {
+				[subscriber sendNext:x];
+			} error:^(NSError *error) {
+				disposeAll();
+				[subscriber sendError:error];
+			} completed:^{
+				completeSignal(signal);
+			}];
+
+			if (disposable != nil) {
+				@synchronized (disposables) {
+					[disposables addObject:disposable];
+				}
+			}
+		};
+
+		__block RACDisposable *bindingDisposable = [self subscribeNext:^(id x) {
+			if (stopBinding) return;
+			
 			BOOL stop = NO;
 			id<RACSignal> signal = block(x, &stop);
 
-			if (signal != nil) [subscriber sendNext:signal];
+			if (signal != nil) addSignal(signal);
 
 			if (signal == nil || stop) {
-				OSAtomicOr32Barrier(1, &disposed);
-				[subscriber sendCompleted];
+				OSAtomicOr32Barrier(1, &stopBinding);
+				completeSignal(self);
 			}
 		} error:^(NSError *error) {
-			if (disposed) return;
+			if (stopBinding) return;
 
-			OSAtomicOr32Barrier(1, &disposed);
+			disposeAll();
 			[subscriber sendError:error];
 		} completed:^{
-			if (disposed) return;
+			if (stopBinding) return;
 
-			OSAtomicOr32Barrier(1, &disposed);
-			[subscriber sendCompleted];
+			OSAtomicOr32Barrier(1, &stopBinding);
+			completeSignal(self);
 		}];
+
+		if (bindingDisposable != nil) {
+			@synchronized (disposables) {
+				[disposables addObject:bindingDisposable];
+			}
+		}
 
 		return [RACDisposable disposableWithBlock:^{
-			OSAtomicOr32Barrier(1, &disposed);
-			[disposable dispose];
+			disposeAll();
 		}];
 	}];
-
-	return signalsSignal.flatten;
 }
 
 - (instancetype)map:(id (^)(id value))block {

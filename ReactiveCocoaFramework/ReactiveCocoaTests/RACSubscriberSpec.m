@@ -18,6 +18,7 @@ __block RACSubscriber *subscriber;
 __block NSMutableSet *values;
 
 __block volatile BOOL finished;
+__block volatile int32_t nextsAfterFinished;
 
 __block BOOL success;
 __block NSError *error;
@@ -26,11 +27,13 @@ beforeEach(^{
 	values = [NSMutableSet set];
 
 	finished = NO;
+	nextsAfterFinished = 0;
+
 	success = YES;
 	error = nil;
 
 	subscriber = [RACSubscriber subscriberWithNext:^(id value) {
-		expect(finished).to.beFalsy();
+		if (finished) OSAtomicIncrement32Barrier(&nextsAfterFinished);
 
 		[values addObject:value];
 	} error:^(NSError *e) {
@@ -87,6 +90,8 @@ describe(@"finishing", ^{
 
 		dispatch_release(concurrentQueue);
 		concurrentQueue = NULL;
+
+		expect(nextsAfterFinished).to.equal(0);
 
 		if (expectedSuccess) {
 			expect(success).to.beTruthy();

@@ -35,7 +35,7 @@ beforeEach(^{
 	}];
 });
 
-itShouldBehaveLike(RACSubscriberExamples, ^{ return subscriber; }, [^(NSSet *expectedValues) {
+itShouldBehaveLike(RACSubscriberExamples, [^{ return subscriber; } copy], [^(NSSet *expectedValues) {
 	expect(success).to.beTruthy();
 	expect(error).to.beNil();
 	expect(values).to.equal(expectedValues);

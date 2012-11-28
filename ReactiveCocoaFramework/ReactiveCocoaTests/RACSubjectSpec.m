@@ -41,7 +41,7 @@ describe(@"RACSubject", ^{
 		}];
 	});
 
-	itShouldBehaveLike(RACSubscriberExamples, ^{ return subject; }, [^(NSSet *expectedValues) {
+	itShouldBehaveLike(RACSubscriberExamples, [^{ return subject; } copy], [^(NSSet *expectedValues) {
 		expect(success).to.beTruthy();
 		expect(error).to.beNil();
 		expect(values).to.equal(expectedValues);
@@ -146,7 +146,7 @@ describe(@"RACReplaySubject", ^{
 		subject = [RACReplaySubject subject];
 	});
 
-	itShouldBehaveLike(RACSubscriberExamples, ^{ return subject; }, ^(NSSet *expectedValues) {
+	itShouldBehaveLike(RACSubscriberExamples, [^{ return subject; } copy], [^(NSSet *expectedValues) {
 		NSMutableSet *values = [NSMutableSet set];
 
 		// This subscription should synchronously dump all values already
@@ -156,7 +156,7 @@ describe(@"RACReplaySubject", ^{
 		}];
 
 		expect(values).to.equal(expectedValues);
-	}, nil);
+	} copy], nil);
 	
 	it(@"should send both values to new subscribers after completion", ^{
 		id firstValue = @"blah";

@@ -86,24 +86,6 @@ typedef NSInteger RACSignalError;
 // Convenience method to subscribe to `error` and `completed` events.
 - (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
 
-// For each value sent on the receiving signal, the given object is sent on the
-// returned signal.
-//
-// object - The object to send for each value sent on the receiver.
-//
-// Returns a signal that sends the given object for each value sent on the
-// receiver.
-- (id<RACSignal>)mapReplace:(id)object;
-
-// Injects the given object weakly into the receiver's stream. The returned 
-// signal sends a tuple where the first object is the value received by the
-// receiver signal and the second is the weak object.
-//
-// This is most useful for bringing the caller's self into the signal while
-// preventing retain cycles so we don't always have to do the
-// weakObject / strongObject dance.
-- (id<RACSignal>)injectObjectWeakly:(id)object;
-
 // Do the given block on `next`. This should be used to inject side effects into
 // the signal.
 - (id<RACSignal>)doNext:(void (^)(id x))block;
@@ -197,11 +179,6 @@ typedef NSInteger RACSignalError;
 // block is called to get a new start object for each subscription.
 - (id<RACSignal>)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock;
 
-// Similar to -aggregateWithStart:combine: with an important difference: it
-// sends the combined value with each `next` instead of waiting for the
-// receiving signal to complete.
-- (id<RACSignal>)scanWithStart:(id)start combine:(id (^)(id running, id next))combineBlock;
-
 // Set the object's keyPath to the value of `next`.
 - (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object;
 
@@ -214,12 +191,6 @@ typedef NSInteger RACSignalError;
 
 // Take `next`s until the `signalTrigger` sends a `next`.
 - (id<RACSignal>)takeUntil:(id<RACSignal>)signalTrigger;
-
-// Take `next`s until the given block returns YES.
-- (id<RACSignal>)takeUntilBlock:(BOOL (^)(id x))predicate;
-
-// Take `next`s until the given block returns NO.
-- (id<RACSignal>)takeWhileBlock:(BOOL (^)(id x))predicate;
 
 // Convert every `next` and `error` into a RACMaybe.
 - (id<RACSignal>)asMaybes;
@@ -243,12 +214,6 @@ typedef NSInteger RACSignalError;
 //
 // Both success and error may be NULL.
 - (id)firstOrDefault:(id)defaultValue success:(BOOL *)success error:(NSError **)error;
-
-// Skips values until the block returns YES.
-- (id<RACSignal>)skipUntilBlock:(BOOL (^)(id x))block;
-
-// Skips values until the block returns NO.
-- (id<RACSignal>)skipWhileBlock:(BOOL (^)(id x))block;
 
 // Defer creation of a signal until the signal's actually subscribed to.
 //

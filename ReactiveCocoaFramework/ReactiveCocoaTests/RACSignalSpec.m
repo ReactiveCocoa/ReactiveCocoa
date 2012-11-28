@@ -655,25 +655,6 @@ describe(@"RACAbleWithStart", ^{
 	});
 });
 
-describe(@"-scanWithStart:combine:", ^{
-	it(@"should send each step in the scan", ^{
-		RACSignal *signal = [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendNext:@1];
-			[subscriber sendNext:@2];
-			[subscriber sendNext:@3];
-			[subscriber sendNext:@4];
-			[subscriber sendCompleted];
-			return nil;
-		}] scanWithStart:@0 combine:^(NSNumber *running, NSNumber *next) {
-			return @(running.integerValue + next.integerValue);
-		}];
-		
-		NSArray *values = signal.toArray;
-		NSArray *expected = @[ @1, @3, @6, @10 ];
-		expect(values).to.equal(expected);
-	});
-});
-
 describe(@"-toProperty:onObject:", ^{
 	id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, id<RACSignal> signal) {
 		[signal toProperty:keyPath onObject:testObject];
@@ -1195,21 +1176,6 @@ describe(@"-sequenceNext:", ^{
 		[subject sendCompleted];
 
 		expect(value).to.equal(RACUnit.defaultUnit);
-	});
-});
-
-describe(@"-mapReplace:", ^{
-	it(@"should always yield the given object", ^{
-		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendNext:@1];
-			[subscriber sendNext:@2];
-			[subscriber sendCompleted];
-			return nil;
-		}];
-
-		NSArray *results = [[signal mapReplace:@"hi"] toArray];
-		NSArray *expected = @[ @"hi", @"hi" ];
-		expect(results).to.equal(expected);
 	});
 });
 

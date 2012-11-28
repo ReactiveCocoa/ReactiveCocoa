@@ -7,9 +7,10 @@
 //
 
 #import "GHDUserViewController.h"
+#import "EXTScope.h"
 #import "GHDUserView.h"
-#import "GHGitHubUser.h"
 #import "GHGitHubClient.h"
+#import "GHGitHubUser.h"
 #import "NSView+GHDExtensions.h"
 
 @interface GHDUserViewController ()
@@ -57,7 +58,8 @@
 	self.client = [GHGitHubClient clientForUser:self.userAccount];
 	self.loading = YES;
 	
-	__block __unsafe_unretained id weakSelf = self;
+	@unsafeify(self);
+
 	// We're using -merge: so that -fetchUser, -fetchRepos, and -fetchOrgs are 
 	// all executed independently. We're then told when they've all completed.
 	// -finally: lets us share logic regardless of whether we get an error or 
@@ -65,8 +67,8 @@
 	[[[RACSignal 
 		merge:[NSArray arrayWithObjects:[self fetchUser], [self fetchRepos], [self fetchOrgs], nil]] 
 		finally:^{
-			GHDUserViewController *strongSelf = weakSelf;
-			strongSelf.loading = NO;
+			@strongify(self);
+			self.loading = NO;
 		}]
 		subscribeNext:^(id x) {
 			// nothing
@@ -79,15 +81,15 @@
 	// We're using -deliverOn: to load the image in a background queue and then 
 	// finish with another -deliverOn: so that subscribers get the result on the 
 	// main queue.
-	RACSignal *loadedAvatar = [[[[[RACAble(self.userAccount.avatarURL) 
+	RACSignal *loadedAvatar = [[[[RACAble(self.userAccount.avatarURL) 
 		filter:^ BOOL (id x) {
 			return x != nil;
 		}] 
 		deliverOn:[RACScheduler sharedOperationQueueScheduler]] 
-		injectObjectWeakly:self]
-		flattenMap:^(RACTuple *t) {
-			GHDUserViewController *self = t.last;
-			return [self loadImageAtURL:t.first];
+		flattenMap:^(NSURL *URL) {
+			@strongify(self);
+
+			return [self loadImageAtURL:URL];
 		}] 
 		deliverOn:[RACScheduler mainQueueScheduler]];
 	
@@ -103,32 +105,31 @@
 }
 
 - (RACSignal *)fetchUser {	
-	return [[[self.client 
+	@unsafeify(self);
+	return [[self.client 
 				fetchUserInfo] 
-				injectObjectWeakly:self]
-				map:^(RACTuple *t) {
-					GHDUserViewController *self = t.last;
-					[self.userAccount setValuesForKeysWithDictionary:t.first];
+				map:^(NSDictionary *userDict) {
+					@strongify(self);
+
+					[self.userAccount setValuesForKeysWithDictionary:userDict];
 					return [RACUnit defaultUnit];
 				}];
 }
 
 - (RACSignal *)fetchRepos {	
-	return [[[self.client 
+	return [[self.client 
 				fetchUserRepos] 
-				injectObjectWeakly:self] 
-				map:^(RACTuple *t) {
-					NSLog(@"repos: %@", t.first);
+				map:^(NSArray *repos) {
+					NSLog(@"repos: %@", repos);
 					return [RACUnit defaultUnit];
 				}];
 }
 
 - (RACSignal *)fetchOrgs {	
-	return [[[self.client 
-				fetchUserRepos] 
-				injectObjectWeakly:self]
-				map:^(RACTuple *t) {
-					NSLog(@"orgs: %@", t.first);
+	return [[self.client 
+				fetchUserOrgs] 
+				map:^(NSArray *orgs) {
+					NSLog(@"orgs: %@", orgs);
 					return [RACUnit defaultUnit];
 				}];
 }

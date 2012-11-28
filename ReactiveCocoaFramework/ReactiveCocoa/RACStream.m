@@ -7,6 +7,7 @@
 //
 
 #import "RACStream.h"
+#import "RACTuple.h"
 
 @concreteprotocol(RACStream)
 
@@ -57,6 +58,12 @@
 	}];
 }
 
+- (instancetype)mapReplace:(id)object {
+	return [self map:^(id _) {
+		return object;
+	}];
+}
+
 - (instancetype)filter:(BOOL (^)(id value))block {
 	NSParameterAssert(block != nil);
 
@@ -64,7 +71,7 @@
 		if (block(value)) {
 			return [self.class return:value];
 		} else {
-			return [self.class empty];
+			return self.class.empty;
 		}
 	}];
 }
@@ -111,6 +118,67 @@
 
 + (instancetype)zip:(NSArray *)streams {
 	return [self zip:streams reduce:nil];
+}
+
+- (instancetype)scanWithStart:(id)startingValue combine:(id (^)(id running, id next))block {
+	NSParameterAssert(block != nil);
+
+	return [self bind:^{
+		__block id running = startingValue;
+
+		return ^(id value, BOOL *stop) {
+			running = block(running, value);
+			return [self.class return:running];
+		};
+	}];
+}
+
+- (instancetype)takeUntilBlock:(BOOL (^)(id x))predicate {
+	NSParameterAssert(predicate != nil);
+
+	return [self bind:^{
+		return ^ id (id value, BOOL *stop) {
+			if (predicate(value)) return nil;
+
+			return [self.class return:value];
+		};
+	}];
+}
+
+- (instancetype)takeWhileBlock:(BOOL (^)(id x))predicate {
+	NSParameterAssert(predicate != nil);
+
+	return [self takeUntilBlock:^ BOOL (id x) {
+		return !predicate(x);
+	}];
+}
+
+- (instancetype)skipUntilBlock:(BOOL (^)(id x))predicate {
+	NSParameterAssert(predicate != nil);
+
+	return [self bind:^{
+		__block BOOL skipping = YES;
+
+		return ^ id (id value, BOOL *stop) {
+			if (skipping) {
+				if (predicate(value)) {
+					skipping = NO;
+				} else {
+					return self.class.empty;
+				}
+			}
+
+			return [self.class return:value];
+		};
+	}];
+}
+
+- (instancetype)skipWhileBlock:(BOOL (^)(id x))predicate {
+	NSParameterAssert(predicate != nil);
+
+	return [self skipUntilBlock:^ BOOL (id x) {
+		return !predicate(x);
+	}];
 }
 
 @end

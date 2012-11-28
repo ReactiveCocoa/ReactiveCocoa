@@ -675,8 +675,8 @@ describe(@"-scanWithStart:combine:", ^{
 });
 
 describe(@"-toProperty:onObject:", ^{
-	void (^setupBlock)(RACTestObject *, NSString *, RACSubject *) = ^(RACTestObject *testObject, NSString *keyPath, RACSubject *subject) {
-		[subject toProperty:keyPath onObject:testObject];
+	id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, id<RACSignal> signal) {
+		[signal toProperty:keyPath onObject:testObject];
 	};
 
 	itShouldBehaveLike(RACPropertySignalExamples, @{ RACPropertySignalExamplesSetupBlock: setupBlock }, nil);
@@ -700,7 +700,7 @@ describe(@"-toProperty:onObject:", ^{
 	});
 });
 
-describe(@"deallocation", ^{
+describe(@"memory management", ^{
 	it(@"should dealloc signals if the signal does nothing", ^{
 		__block BOOL deallocd = NO;
 		@autoreleasepool {
@@ -713,6 +713,23 @@ describe(@"deallocation", ^{
 			}]];
 		}
 
+		expect(deallocd).will.beTruthy();
+	});
+
+	it(@"should retain signals for a single run loop iteration", ^{
+		__block BOOL deallocd = NO;
+
+		@autoreleasepool {
+			RACSignal *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+				return nil;
+			}];
+
+			[signal rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				deallocd = YES;
+			}]];
+		}
+
+		expect(deallocd).to.beFalsy();
 		expect(deallocd).will.beTruthy();
 	});
 
@@ -811,6 +828,71 @@ describe(@"deallocation", ^{
 		Expecta.asynchronousTestTimeout = 1.1f;
 		expect(deallocd).will.beTruthy();
 		Expecta.asynchronousTestTimeout = originalTestTimeout;
+	});
+
+	it(@"should retain signals when subscribing", ^{
+		__block BOOL deallocd = NO;
+
+		RACDisposable *disposable;
+
+		@autoreleasepool {
+			@autoreleasepool {
+				RACSignal *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+					return nil;
+				}];
+
+				[signal rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+					deallocd = YES;
+				}]];
+
+				disposable = [signal subscribeCompleted:^{}];
+			}
+
+			// Spin the run loop to account for RAC magic that retains the
+			// signal for a single iteration.
+			[NSRunLoop.mainRunLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate date]];
+		}
+
+		expect(deallocd).to.beFalsy();
+
+		[disposable dispose];
+		expect(deallocd).will.beTruthy();
+	});
+
+	it(@"should retain intermediate signals when subscribing", ^{
+		RACSubject *subject = [RACSubject subject];
+		expect(subject).notTo.beNil();
+
+		__block BOOL gotNext = NO;
+		__block BOOL completed = NO;
+
+		RACDisposable *disposable;
+
+		@autoreleasepool {
+			@autoreleasepool {
+				RACSignal *intermediateSignal = [subject doNext:^(id _) {
+					gotNext = YES;
+				}];
+
+				expect(intermediateSignal).notTo.beNil();
+
+				disposable = [intermediateSignal subscribeCompleted:^{
+					completed = YES;
+				}];
+			}
+
+			// Spin the run loop to account for RAC magic that retains the
+			// signal for a single iteration.
+			[NSRunLoop.mainRunLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate date]];
+		}
+
+		[subject sendNext:@5];
+		expect(gotNext).to.beTruthy();
+
+		[subject sendCompleted];
+		expect(completed).to.beTruthy();
+		
+		[disposable dispose];
 	});
 });
 

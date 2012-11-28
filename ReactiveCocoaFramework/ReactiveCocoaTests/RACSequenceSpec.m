@@ -121,8 +121,10 @@ describe(@"-bind:", ^{
 			return nil;
 		}];
 
-		RACSequence *bound = [original bind:^(id value, BOOL *stop) {
-			return [RACSequence return:value];
+		RACSequence *bound = [original bind:^{
+			return ^(id value, BOOL *stop) {
+				return [RACSequence return:value];
+			};
 		}];
 
 		expect(bound).notTo.beNil();

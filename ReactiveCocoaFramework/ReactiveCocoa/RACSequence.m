@@ -26,7 +26,7 @@
 //
 // Returns a new sequence which contains `current`, followed by the combined
 // result of all applications of `block` to the remaining values in the receiver.
-- (instancetype)bind:(id (^)(id value, BOOL *stop))block passingThroughValuesFromSequence:(RACSequence *)current;
+- (instancetype)bind:(RACStreamBindBlock)block passingThroughValuesFromSequence:(RACSequence *)current;
 
 @end
 
@@ -62,11 +62,12 @@
 	} tailBlock:nil];
 }
 
-- (instancetype)bind:(id (^)(id value, BOOL *stop))block {
-	return [self bind:block passingThroughValuesFromSequence:nil];
+- (instancetype)bind:(RACStreamBindBlock (^)(void))block {
+	RACStreamBindBlock bindBlock = block();
+	return [self bind:bindBlock passingThroughValuesFromSequence:nil];
 }
 
-- (instancetype)bind:(id (^)(id value, BOOL *stop))block passingThroughValuesFromSequence:(RACSequence *)passthroughSequence {
+- (instancetype)bind:(RACStreamBindBlock)bindBlock passingThroughValuesFromSequence:(RACSequence *)passthroughSequence {
 	return [RACDynamicSequence sequenceWithLazyDependency:^ id {
 		RACSequence *valuesSeq = self;
 		RACSequence *current = passthroughSequence;
@@ -84,7 +85,7 @@
 				return nil;
 			}
 
-			current = block(value, &stop);
+			current = bindBlock(value, &stop);
 			if (current == nil) return nil;
 
 			valuesSeq = valuesSeq.tail;
@@ -102,7 +103,7 @@
 
 		RACSequence *valuesSeq = sequences[0];
 		RACSequence *current = sequences[1];
-		return [valuesSeq bind:block passingThroughValuesFromSequence:current.tail];
+		return [valuesSeq bind:bindBlock passingThroughValuesFromSequence:current.tail];
 	}];
 }
 

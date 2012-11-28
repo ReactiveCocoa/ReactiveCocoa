@@ -181,16 +181,14 @@ describe(@"RACReplaySubject", ^{
 	});
 
 	it(@"should send values in the same order live as when replaying", ^{
-		NSUInteger count = 50;
+		NSUInteger count = 49317;
 
 		// Just leak it, ain't no thang.
-		__strong volatile id *values = (__strong id *)calloc(count, sizeof(*values));
+		__unsafe_unretained volatile id *values = (__unsafe_unretained id *)calloc(count, sizeof(*values));
 		__block volatile int32_t nextIndex = 0;
 
 		[subject subscribeNext:^(NSNumber *value) {
 			int32_t indexPlusOne = OSAtomicIncrement32(&nextIndex);
-			NSAssert((NSUInteger)indexPlusOne <= count, @"Index out of bounds: %u", (unsigned)(indexPlusOne - 1));
-
 			values[indexPlusOne - 1] = value;
 		}];
 
@@ -216,9 +214,16 @@ describe(@"RACReplaySubject", ^{
 
 		NSArray *liveValues = [NSArray arrayWithObjects:(id *)values count:(NSUInteger)nextIndex];
 		expect(liveValues.count).to.equal(count);
+		
+		NSArray *replayedValues = subject.toArray;
+		expect(replayedValues.count).to.equal(count);
 
-		expect(liveValues).to.equal(subject.toArray);
-		expect(subject.toArray).to.equal(subject.toArray);
+		// It should return the same ordering for multiple invocations too.
+		expect(replayedValues).to.equal(subject.toArray);
+
+		[replayedValues enumerateObjectsUsingBlock:^(id value, NSUInteger index, BOOL *stop) {
+			expect(liveValues[index]).to.equal(value);
+		}];
 	});
 });
 

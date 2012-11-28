@@ -139,17 +139,6 @@ typedef id (^RACStreamBindBlock)(id value, BOOL *stop);
 //                 same concrete class implementing the protocol.
 + (instancetype)zip:(NSArray *)streams;
 
-// Injects the given object weakly into the receiver's stream.
-//
-// This is most useful for bringing the caller's `self` into the stream, while
-// preventing retain cycles, so we don't always have to do the
-// `__weak`/`__strong` dance.
-//
-// Returns a stream which sends a RACTuple for each value in the receiver, where
-// the first object in the tuple is the value from the receiver, and the second
-// object in the tuple is `weakObject`.
-- (instancetype)injectObjectWeakly:(__weak id)weakObject;
-
 // Combines values in the receiver from left to right using the given block.
 //
 // The algorithm proceeds as follows:

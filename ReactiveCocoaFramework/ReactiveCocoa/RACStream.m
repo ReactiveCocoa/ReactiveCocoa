@@ -120,16 +120,6 @@
 	return [self zip:streams reduce:nil];
 }
 
-- (instancetype)injectObjectWeakly:(__weak id)injectedObject {
-	return [self flattenMap:^(id value) {
-		id tupleValue = value ?: RACTupleNil.tupleNil;
-		id strongObject = injectedObject ?: RACTupleNil.tupleNil;
-
-		RACTuple *tuple = [RACTuple tupleWithObjects:tupleValue, strongObject, nil];
-		return [self.class return:tuple];
-	}];
-}
-
 - (instancetype)scanWithStart:(id)startingValue combine:(id (^)(id running, id next))block {
 	NSParameterAssert(block != nil);
 

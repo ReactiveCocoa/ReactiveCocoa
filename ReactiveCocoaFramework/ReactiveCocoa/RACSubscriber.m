@@ -10,79 +10,83 @@
 #import "RACDisposable.h"
 
 @interface RACSubscriber ()
-@property (nonatomic, copy) void (^next)(id value);
-@property (nonatomic, copy) void (^error)(NSError *error);
-@property (nonatomic, copy) void (^completed)(void);
+
+@property (nonatomic, copy, readonly) void (^next)(id value);
+@property (nonatomic, copy, readonly) void (^error)(NSError *error);
+@property (nonatomic, copy, readonly) void (^completed)(void);
+
+// These properties should only be accessed while synchronized on self.
 @property (nonatomic, strong) RACDisposable *disposable;
-@property (assign) BOOL completedOrErrored;
+@property (nonatomic, assign) BOOL completedOrErrored;
+
+// Disposes of and releases the receiver's disposable.
+- (void)stopSubscription;
+
 @end
 
-
 @implementation RACSubscriber
+
+#pragma mark Lifecycle
+
++ (instancetype)subscriberWithNext:(void (^)(id x))next error:(void (^)(NSError *error))error completed:(void (^)(void))completed {
+	RACSubscriber *subscriber = [[self alloc] init];
+
+	subscriber->_next = [next copy];
+	subscriber->_error = [error copy];
+	subscriber->_completed = [completed copy];
+
+	return subscriber;
+}
+
+- (void)stopSubscription {
+	@synchronized (self) {
+		[self.disposable dispose];
+		self.disposable = nil;
+	}
+}
 
 - (void)dealloc {
 	[self stopSubscription];
 }
 
-
 #pragma mark RACSubscriber
 
 - (void)sendNext:(id)value {
-	if(self.next != NULL) {
-		self.next(value);
+	if (self.next != NULL) {
+		@synchronized (self) {
+			if (self.completedOrErrored) return;
+
+			self.next(value);
+		}
 	}
 }
 
 - (void)sendError:(NSError *)e {
-	self.completedOrErrored = YES;
+	@synchronized (self) {
+		if (self.completedOrErrored) return;
 
-	[self stopSubscription];
+		self.completedOrErrored = YES;
+		[self stopSubscription];
 	
-	if(self.error != NULL) {
-		self.error(e);
+		if (self.error != NULL) self.error(e);
 	}
 }
 
 - (void)sendCompleted {
-	self.completedOrErrored = YES;
+	@synchronized (self) {
+		if (self.completedOrErrored) return;
 
-	[self stopSubscription];
-	
-	if(self.completed != NULL) {
-		self.completed();
+		self.completedOrErrored = YES;
+		[self stopSubscription];
+		
+		if (self.completed != NULL) self.completed();
 	}
 }
 
 - (void)didSubscribeWithDisposable:(RACDisposable *)d {
-	@synchronized(self) {
+	@synchronized (self) {
 		self.disposable = d;
-	}
-
-	if (self.completedOrErrored) {
-		[self stopSubscription];
-	}
-}
-
-
-#pragma mark API
-
-@synthesize next;
-@synthesize error;
-@synthesize completed;
-@synthesize disposable;
-
-+ (instancetype)subscriberWithNext:(void (^)(id x))next error:(void (^)(NSError *error))error completed:(void (^)(void))completed {
-	RACSubscriber *subscriber = [[self alloc] init];
-	subscriber.next = next;
-	subscriber.error = error;
-	subscriber.completed = completed;
-	return subscriber;
-}
-
-- (void)stopSubscription {
-	@synchronized(self) {
-		[self.disposable dispose];
-		self.disposable = nil;
+		if (self.completedOrErrored) [self stopSubscription];
 	}
 }
 

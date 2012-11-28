@@ -12,17 +12,17 @@
 #import "RACStreamExamples.h"
 
 #import "EXTKeyPathCoding.h"
-#import "RACSignal.h"
-#import "RACSubscriber.h"
-#import "RACSubject.h"
+#import "NSObject+RACPropertySubscribing.h"
 #import "RACBehaviorSubject.h"
 #import "RACDisposable.h"
-#import "RACUnit.h"
-#import "RACTuple.h"
+#import "RACReplaySubject.h"
 #import "RACScheduler.h"
+#import "RACSignal.h"
+#import "RACSubject.h"
+#import "RACSubscriber.h"
 #import "RACTestObject.h"
-#import "NSObject+RACPropertySubscribing.h"
-#import "RACAsyncSubject.h"
+#import "RACTuple.h"
+#import "RACUnit.h"
 
 static NSString * const RACSignalMergeConcurrentCompletionExampleGroup = @"RACSignalMergeConcurrentCompletionExampleGroup";
 static NSString * const RACSignalMaxConcurrent = @"RACSignalMaxConcurrent";
@@ -470,7 +470,7 @@ describe(@"-combineLatest:", ^{
 		expect(gotError).to.beTruthy();
 	});
 	
-	it(@"should error multiple times when multiple sources error", ^{
+	it(@"should error only once when multiple sources error", ^{
 		__block int errorCount = 0;
 		
 		[combined subscribeError:^(NSError *error) {
@@ -480,7 +480,7 @@ describe(@"-combineLatest:", ^{
 		[subscriber1 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
 		[subscriber2 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
 		
-		expect(errorCount).to.equal(2);
+		expect(errorCount).to.equal(1);
 	});
 });
 
@@ -738,11 +738,11 @@ describe(@"memory management", ^{
 		expect(deallocd).will.beTruthy();
 	});
 
-	it(@"should dealloc an async subject if it completes immediately", ^{
+	it(@"should dealloc a replay subject if it completes immediately", ^{
 		__block BOOL completed = NO;
 		__block BOOL deallocd = NO;
 		@autoreleasepool {
-			RACAsyncSubject *subject __attribute__((objc_precise_lifetime)) = [RACAsyncSubject subject];
+			RACReplaySubject *subject __attribute__((objc_precise_lifetime)) = [RACReplaySubject subject];
 			[subject sendCompleted];
 
 			[subject rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{

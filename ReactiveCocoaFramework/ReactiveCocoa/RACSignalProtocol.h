@@ -305,4 +305,12 @@ typedef NSInteger RACSignalError;
 // Creates a cancelable signal.
 - (RACCancelableSignal *)asCancelable;
 
+// Sends the latest value from the receiver only when `sampler` sends a value.
+// The returned signal could repeat values if `sampler` fires more often than
+// the receiver.
+//
+// sampler - The signal that controls when the latest value from the receiver
+//           is sent. Cannot be nil.
+- (id<RACSignal>)sample:(id<RACSignal>)sampler;
+
 @end

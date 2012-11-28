@@ -53,6 +53,8 @@
 - (void)sendNext:(id)value {
 	if (self.next != NULL) {
 		@synchronized (self) {
+			if (self.completedOrErrored) return;
+
 			self.next(value);
 		}
 	}
@@ -60,6 +62,8 @@
 
 - (void)sendError:(NSError *)e {
 	@synchronized (self) {
+		if (self.completedOrErrored) return;
+
 		self.completedOrErrored = YES;
 		[self stopSubscription];
 	
@@ -69,6 +73,8 @@
 
 - (void)sendCompleted {
 	@synchronized (self) {
+		if (self.completedOrErrored) return;
+
 		self.completedOrErrored = YES;
 		[self stopSubscription];
 		

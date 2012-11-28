@@ -7,6 +7,7 @@
 //
 
 #import "RACSpecs.h"
+#import "RACSubscriberExamples.h"
 
 #import "RACSubject.h"
 #import "RACAsyncSubject.h"
@@ -15,6 +16,37 @@
 
 
 SpecBegin(RACSubject)
+
+describe(@"RACSubject", ^{
+	__block RACSubject *subject;
+	__block NSMutableSet *values;
+
+	__block BOOL success;
+	__block NSError *error;
+
+	beforeEach(^{
+		values = [NSMutableSet set];
+
+		subject = [RACSubject subject];
+		success = YES;
+		error = nil;
+
+		[subject subscribeNext:^(id value) {
+			[values addObject:value];
+		} error:^(NSError *e) {
+			error = e;
+			success = NO;
+		} completed:^{
+			success = YES;
+		}];
+	});
+
+	itShouldBehaveLike(RACSubscriberExamples, ^{ return subject; }, [^(NSSet *expectedValues) {
+		expect(success).to.beTruthy();
+		expect(error).to.beNil();
+		expect(values).to.equal(expectedValues);
+	} copy], nil);
+});
 
 describe(@"RACAsyncSubject", ^{
 	__block RACAsyncSubject *subject = nil;
@@ -113,6 +145,18 @@ describe(@"RACReplaySubject", ^{
 	beforeEach(^{
 		subject = [RACReplaySubject subject];
 	});
+
+	itShouldBehaveLike(RACSubscriberExamples, ^{ return subject; }, ^(NSSet *expectedValues) {
+		NSMutableSet *values = [NSMutableSet set];
+
+		// This subscription should synchronously dump all values already
+		// received into 'values'.
+		[subject subscribeNext:^(id value) {
+			[values addObject:value];
+		}];
+
+		expect(values).to.equal(expectedValues);
+	}, nil);
 	
 	it(@"should send both values to new subscribers after completion", ^{
 		id firstValue = @"blah";

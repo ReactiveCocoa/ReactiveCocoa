@@ -179,6 +179,26 @@ describe(@"RACReplaySubject", ^{
 		expect(valuesReceived).to.equal(expected);
 		expect(completed).to.beTruthy();
 	});
+
+	it(@"should send values in the same order live as when replaying", ^{
+		NSMutableArray *liveValues = [NSMutableArray array];
+		[subject subscribeNext:^(id value) {
+			@synchronized (liveValues) {
+				[liveValues addObject:value];
+			}
+		}];
+
+		size_t count = 50;
+		dispatch_apply(count, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), [^(size_t index) {
+			[subject sendNext:@(index)];
+		} copy]);
+
+		[subject sendCompleted];
+
+		expect(liveValues.count).to.equal(count);
+		expect(liveValues).to.equal(subject.toArray);
+		expect(subject.toArray).to.equal(subject.toArray);
+	});
 });
 
 SpecEnd

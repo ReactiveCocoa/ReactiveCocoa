@@ -35,7 +35,10 @@
 
 @end
 
-
+// A simple block-based subscriber.
+//
+// You shouldn't need to interact with this class directly. Use
+// -subscribeNext:error:completed: from <RACSignal> instead.
 @interface RACSubscriber : NSObject <RACSubscriber>
 
 // Creates a new subscriber with the given blocks.

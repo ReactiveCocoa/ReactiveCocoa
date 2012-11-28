@@ -12,17 +12,17 @@
 #import "RACStreamExamples.h"
 
 #import "EXTKeyPathCoding.h"
-#import "RACSignal.h"
-#import "RACSubscriber.h"
-#import "RACSubject.h"
+#import "NSObject+RACPropertySubscribing.h"
 #import "RACBehaviorSubject.h"
 #import "RACDisposable.h"
-#import "RACUnit.h"
-#import "RACTuple.h"
+#import "RACReplaySubject.h"
 #import "RACScheduler.h"
+#import "RACSignal.h"
+#import "RACSubject.h"
+#import "RACSubscriber.h"
 #import "RACTestObject.h"
-#import "NSObject+RACPropertySubscribing.h"
-#import "RACAsyncSubject.h"
+#import "RACTuple.h"
+#import "RACUnit.h"
 
 static NSString * const RACSignalMergeConcurrentCompletionExampleGroup = @"RACSignalMergeConcurrentCompletionExampleGroup";
 static NSString * const RACSignalMaxConcurrent = @"RACSignalMaxConcurrent";
@@ -740,11 +740,11 @@ describe(@"deallocation", ^{
 		expect(deallocd).will.beTruthy();
 	});
 
-	it(@"should dealloc an async subject if it completes immediately", ^{
+	it(@"should dealloc a replay subject if it completes immediately", ^{
 		__block BOOL completed = NO;
 		__block BOOL deallocd = NO;
 		@autoreleasepool {
-			RACAsyncSubject *subject __attribute__((objc_precise_lifetime)) = [RACAsyncSubject subject];
+			RACReplaySubject *subject __attribute__((objc_precise_lifetime)) = [RACReplaySubject subject];
 			[subject sendCompleted];
 
 			[subject rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{

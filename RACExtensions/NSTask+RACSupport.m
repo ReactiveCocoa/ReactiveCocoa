@@ -55,7 +55,7 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 - (RACCancelableSignal *)rac_runWithScheduler:(RACScheduler *)scheduler {
 	NSParameterAssert(scheduler != nil);
 	
-	RACAsyncSubject *subject = [RACAsyncSubject subject];
+	RACReplaySubject *subject = [RACReplaySubject subject];
 	
 	__block BOOL canceled = NO;
 	[[RACScheduler mainQueueScheduler] schedule:^{

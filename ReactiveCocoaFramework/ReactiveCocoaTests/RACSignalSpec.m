@@ -1311,4 +1311,35 @@ describe(@"+zip:reduce:", ^{
 	
 });
 
+describe(@"-sample:", ^{
+	it(@"should send the latest value when the sampler signal fires", ^{
+		RACSubject *subject = [RACSubject subject];
+		RACSubject *sampleSubject = [RACSubject subject];
+		RACSignal *sampled = [subject sample:sampleSubject];
+		NSMutableArray *values = [NSMutableArray array];
+		[sampled subscribeNext:^(id x) {
+			[values addObject:x];
+		}];
+		
+		[subject sendNext:@1];
+		[subject sendNext:@2];
+		expect(values).to.equal(@[]);
+
+		[sampleSubject sendNext:RACUnit.defaultUnit];
+		NSArray *expected = @[ @2 ];
+		expect(values).to.equal(expected);
+
+		[subject sendNext:@3];
+		expect(values).to.equal(expected);
+
+		[sampleSubject sendNext:RACUnit.defaultUnit];
+		expected = @[ @2, @3 ];
+		expect(values).to.equal(expected);
+
+		[sampleSubject sendNext:RACUnit.defaultUnit];
+		expected = @[ @2, @3, @3 ];
+		expect(values).to.equal(expected);
+	});
+});
+
 SpecEnd

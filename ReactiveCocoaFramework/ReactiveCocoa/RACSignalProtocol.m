@@ -57,6 +57,10 @@ NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 	return nil;
 }
 
+- (NSArray *)toArray {
+  return nil;
+}
+
 #pragma mark RACSignal
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
@@ -936,36 +940,6 @@ NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 			[subscriber sendCompleted];
 		}];
 	}];
-}
-
-- (NSArray *)toArray {
-	NSCondition *condition = [[NSCondition alloc] init];
-	condition.name = @(__func__);
-
-	NSMutableArray *values = [NSMutableArray array];
-	__block BOOL done = NO;
-	[self subscribeNext:^(id x) {
-		[values addObject:x ? : [NSNull null]];
-	} error:^(NSError *error) {
-		[condition lock];
-		done = YES;
-		[condition broadcast];
-		[condition unlock];
-	} completed:^{
-		[condition lock];
-		done = YES;
-		[condition broadcast];
-		[condition unlock];
-	}];
-
-	[condition lock];
-	while (!done) {
-		[condition wait];
-	}
-
-	[condition unlock];
-
-	return [values copy];
 }
 
 - (RACSequence *)sequence {

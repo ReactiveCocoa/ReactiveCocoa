@@ -32,6 +32,10 @@
 	return nil;
 }
 
+- (NSArray *)toArray {
+  return nil;
+}
+
 #pragma mark Concrete methods
 
 - (instancetype)flattenMap:(id (^)(id value))block {

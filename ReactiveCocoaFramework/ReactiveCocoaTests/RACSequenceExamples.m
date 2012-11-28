@@ -33,7 +33,7 @@ sharedExamplesFor(RACSequenceExamples, ^(NSDictionary *data) {
 	});
 
 	it(@"should return an array", ^{
-		expect(sequence.array).to.equal(values);
+		expect(sequence.toArray).to.equal(values);
 	});
 
 	it(@"should return an immediately scheduled signal", ^{

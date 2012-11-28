@@ -470,7 +470,7 @@ describe(@"-combineLatest:", ^{
 		expect(gotError).to.beTruthy();
 	});
 	
-	it(@"should error multiple times when multiple sources error", ^{
+	it(@"should error only once when multiple sources error", ^{
 		__block int errorCount = 0;
 		
 		[combined subscribeError:^(NSError *error) {
@@ -480,7 +480,7 @@ describe(@"-combineLatest:", ^{
 		[subscriber1 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
 		[subscriber2 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
 		
-		expect(errorCount).to.equal(2);
+		expect(errorCount).to.equal(1);
 	});
 });
 

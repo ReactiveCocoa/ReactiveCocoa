@@ -9,6 +9,13 @@
 #import <Foundation/Foundation.h>
 #import "EXTConcreteProtocol.h"
 
+// A block which accepts a value from a <RACStream> and returns a new instance
+// of the same stream class.
+//
+// Setting `stop` to `YES` will cause the bind to terminate after the returned
+// value. Returning `nil` will result in immediate termination.
+typedef id (^RACStreamBindBlock)(id value, BOOL *stop);
+
 // A concrete protocol representing any stream of values. Implemented by
 // RACSignal and RACSequence.
 //
@@ -30,16 +37,18 @@
 // Returns a stream containing only the given value.
 + (instancetype)return:(id)value;
 
-// Binds `block` to the values in the receiver.
+// Lazily binds a block to the values in the receiver.
 //
-// block - A block which accepts the values in the receiver and returns a new
-//         instance of the receiver's class. If the block sets `stop` to `YES`,
-//         the bind will terminate after the returned value. Returning `nil`
-//         will result in immediate termination.
+// This should only be used if you need to terminate the bind early, or close
+// over some state. -flattenMap: is more appropriate for all other cases.
 //
-// Returns a new stream which represents the combined result of all applications
-// of `block`.
-- (instancetype)bind:(id (^)(id value, BOOL *stop))block;
+// block - A block returning a RACStreamBindBlock. This block will be invoked
+//         each time the bound stream is re-evaluated. This block must not be
+//         nil or return nil.
+//
+// Returns a new stream which represents the combined result of all lazy
+// applications of `block`.
+- (instancetype)bind:(RACStreamBindBlock (^)(void))block;
 
 // Appends the values of `stream` to the values in the receiver.
 //
@@ -88,6 +97,12 @@
 // Returns a new stream with the mapped values.
 - (instancetype)map:(id (^)(id value))block;
 
+// Replace each value in the receiver with the given object.
+//
+// Returns a new stream which includes the given object once for each value in
+// the receiver.
+- (instancetype)mapReplace:(id)object;
+
 // Filters out values in the receiver that don't pass the given test.
 //
 // Returns a new stream with only those values that passed.
@@ -123,5 +138,54 @@
 // streams       - The streams to combine. These must all be instances of the
 //                 same concrete class implementing the protocol.
 + (instancetype)zip:(NSArray *)streams;
+
+// Combines values in the receiver from left to right using the given block.
+//
+// The algorithm proceeds as follows:
+//
+//  1. `startingValue` is passed into the block as the `running` value, and the
+//  first element of the receiver is passed into the block as the `next` value.
+//  2. The result of the invocation is added to the returned stream.
+//  3. The result of the invocation (`running`) and the next element of the
+//  receiver (`next`) is passed into `block`.
+//  4. Steps 2 and 3 are repeated until all elements have been processed.
+//
+// startingValue - The value to be combined with the first element of the
+//                 receiver. This value may be `nil`.
+// block         - A block that describes how to combine elements of the
+//                 receiver. If the receiver is empty, this block will never be
+//                 invoked.
+//
+// Returns a new stream that consists of each application of `block`. If the
+// receiver is empty, an empty stream is returned.
+- (instancetype)scanWithStart:(id)startingValue combine:(id (^)(id running, id next))block;
+
+// Takes values until the given block returns `YES`.
+//
+// Returns a stream of the initial values in the receiver that fail `predicate`.
+// If `predicate` never returns `YES`, a stream equivalent to the receiver is
+// returned.
+- (instancetype)takeUntilBlock:(BOOL (^)(id x))predicate;
+
+// Takes values until the given block returns `NO`.
+//
+// Returns a stream of the initial values in the receiver that pass `predicate`.
+// If `predicate` never returns `NO`, a stream equivalent to the receiver is
+// returned.
+- (instancetype)takeWhileBlock:(BOOL (^)(id x))predicate;
+
+// Skips values until the given block returns `YES`.
+//
+// Returns a stream containing the values of the receiver that follow any
+// initial values failing `predicate`. If `predicate` never returns `YES`,
+// an empty stream is returned.
+- (instancetype)skipUntilBlock:(BOOL (^)(id x))predicate;
+
+// Skips values until the given block returns `NO`.
+//
+// Returns a stream containing the values of the receiver that follow any
+// initial values passing `predicate`. If `predicate` never returns `NO`, an
+// empty stream is returned.
+- (instancetype)skipWhileBlock:(BOOL (^)(id x))predicate;
 
 @end

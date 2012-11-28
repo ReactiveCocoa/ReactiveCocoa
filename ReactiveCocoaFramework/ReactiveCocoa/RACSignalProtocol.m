@@ -162,26 +162,6 @@ static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), 
 	return [self subscribe:o];
 }
 
-- (id<RACSignal>)mapReplace:(id)object {
-	return [self map:^(id _) {
-		return object;
-	}];
-}
-
-- (id<RACSignal>)injectObjectWeakly:(id)object {
-	__unsafe_unretained id weakObject = object;
-	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		return [self subscribeNext:^(id x) {
-			id strongObject = weakObject;
-			[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:[NSArray arrayWithObjects:x ? : [RACTupleNil tupleNil], strongObject, nil]]];
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendCompleted];
-		}];
-	}];
-}
-
 - (id<RACSignal>)doNext:(void (^)(id x))block {
 	NSParameterAssert(block != NULL);
 
@@ -707,23 +687,6 @@ static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), 
 	}];
 }
 
-- (id<RACSignal>)scanWithStart:(id)start combine:(id (^)(id running, id next))combineBlock {
-	NSParameterAssert(combineBlock != NULL);
-
-	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		__block id runningValue = start;
-
-		return [self subscribeNext:^(id x) {
-			runningValue = combineBlock(runningValue, x);
-			[subscriber sendNext:runningValue];
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendCompleted];
-		}];
-	}];
-}
-
 - (id<RACSignal>)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock {
 	return [self aggregateWithStartFactory:^{
 		return start;
@@ -791,39 +754,6 @@ static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), 
 			[triggerDisposable dispose];
 			[selfDisposable dispose];
 		}];
-	}];
-}
-
-- (id<RACSignal>)takeUntilBlock:(BOOL (^)(id x))predicate {
-	NSParameterAssert(predicate != NULL);
-	
-	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		__block RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
-			BOOL stop = predicate(x);
-			if(stop) {
-				[selfDisposable dispose], selfDisposable = nil;
-				[subscriber sendCompleted];
-				return;
-			}
-			
-			[subscriber sendNext:x];
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendCompleted];
-		}];
-		
-		return [RACDisposable disposableWithBlock:^{
-			[selfDisposable dispose];
-		}];
-	}];
-}
-
-- (id<RACSignal>)takeWhileBlock:(BOOL (^)(id x))predicate {
-	NSParameterAssert(predicate != NULL);
-	
-	return [self takeUntilBlock:^BOOL(id x) {
-		return !predicate(x);
 	}];
 }
 
@@ -924,35 +854,6 @@ static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), 
 		} completed:^{
 			[subscriber sendCompleted];
 		}]];
-	}];
-}
-
-- (id<RACSignal>)skipUntilBlock:(BOOL (^)(id x))block {
-	NSParameterAssert(block != NULL);
-	
-	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		__block BOOL keepSkipping = YES;
-		return [self subscribeNext:^(id x) {
-			if(keepSkipping) {
-				keepSkipping = !block(x);
-			}
-			
-			if(!keepSkipping) {
-				[subscriber sendNext:x];
-			}
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendCompleted];
-		}];
-	}];
-}
-
-- (id<RACSignal>)skipWhileBlock:(BOOL (^)(id x))block {
-	NSParameterAssert(block != NULL);
-	
-	return [self skipUntilBlock:^BOOL(id x) {
-		return !block(x);
 	}];
 }
 
@@ -1220,6 +1121,54 @@ static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), 
 
 - (RACCancelableSignal *)asCancelable {
 	return [self asCancelableWithBlock:NULL];
+}
+
+- (id<RACSignal>)sample:(id<RACSignal>)sampler {
+	NSParameterAssert(sampler != nil);
+
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		NSLock *lock = [[NSLock alloc] init];
+		__block id lastValue;
+		__block BOOL hasValue = NO;
+
+		__block RACDisposable *samplerDisposable;
+		RACDisposable *sourceDisposable = [self subscribeNext:^(id x) {
+			[lock lock];
+			hasValue = YES;
+			lastValue = x;
+			[lock unlock];
+		} error:^(NSError *error) {
+			[samplerDisposable dispose];
+			[subscriber sendError:error];
+		} completed:^{
+			[samplerDisposable dispose];
+			[subscriber sendCompleted];
+		}];
+
+		samplerDisposable = [sampler subscribeNext:^(id _) {
+			BOOL shouldSend = NO;
+			id value;
+			[lock lock];
+			shouldSend = hasValue;
+			value = lastValue;
+			[lock unlock];
+
+			if (shouldSend) {
+				[subscriber sendNext:value];
+			}
+		} error:^(NSError *error) {
+			[sourceDisposable dispose];
+			[subscriber sendError:error];
+		} completed:^{
+			[sourceDisposable dispose];
+			[subscriber sendCompleted];
+		}];
+
+		return [RACDisposable disposableWithBlock:^{
+			[samplerDisposable dispose];
+			[sourceDisposable dispose];
+		}];
+	}];
 }
 
 @end

@@ -8,6 +8,7 @@
 
 #import "GHDLoginViewController.h"
 #import "EXTKeyPathCoding.h"
+#import "EXTScope.h"
 #import "GHDLoginView.h"
 #import "GHGitHubClient.h"
 #import "GHGitHubUser.h"
@@ -49,16 +50,16 @@
 		}]
 		block:NULL];
 	
-	[[self.loginCommand 
-		injectObjectWeakly:self] 
-		subscribeNext:^(RACTuple *t) {
-			GHDLoginViewController *self = t.last;
-			self.user = [GHGitHubUser userWithUsername:self.username password:self.password];
-			self.client = [GHGitHubClient clientForUser:self.user];
-			self.loggingIn = YES;
-		}];
+	@unsafeify(self);
+
+	[self.loginCommand subscribeNext:^(id _) {
+		@strongify(self);
+
+		self.user = [GHGitHubUser userWithUsername:self.username password:self.password];
+		self.client = [GHGitHubClient clientForUser:self.user];
+		self.loggingIn = YES;
+	}];
 	
-	__block __unsafe_unretained id weakSelf = self;
 	// Note the -repeat and -asMaybes at the end. -repeat means that this
 	// Signal will resubscribe to its source right after it completes.
 	// This lets us subscribe to the same Signal even though the source
@@ -67,35 +68,35 @@
 	// API hits an error, the Signal will still be valid.
 	RACSignal *loginResult = [[[self.loginCommand 
 		addAsyncBlock:^(id _) {
-			GHDLoginViewController *strongSelf = weakSelf;
-			return [strongSelf.client login];
+			@strongify(self);
+			return [self.client login];
 		}]
 		asMaybes] 
 		repeat];
 
 	// Since we used -asMaybes above, we'll need to filter out the specific
 	// error or success cases.
-	[[[[loginResult 
+	[[[loginResult 
 		filter:^(id x) {
 			return [x hasError];
 		}] 
 		map:^(id x) {
 			return [x error];
 		}] 
-		injectObjectWeakly:self]
-		subscribeNext:^(RACTuple *t) {
-			GHDLoginViewController *self = t.last;
+		subscribeNext:^(NSError *error) {
+			@strongify(self);
+
 			self.loginFailedHidden = NO;
-			NSLog(@"error logging in: %@", t.first);
+			NSLog(@"error logging in: %@", error);
 		}];
 	
-	[[[loginResult 
+	[[loginResult 
 		filter:^(id x) {
 			return [x hasObject];
 		}]
-		injectObjectWeakly:self]
-		subscribeNext:^(RACTuple *t) {
-			GHDLoginViewController *self = t.last;
+		subscribeNext:^(id _) {
+			@strongify(self);
+
 			self.successHidden = NO;
 			[self.didLoginSubject sendNext:self.user];
 		}];
@@ -108,11 +109,11 @@
 	
 	// When either username or password change, hide the success or failure
 	// message.
-	[[[RACSignal
+	[[RACSignal
 		combineLatest:@[ RACAble(self.username), RACAble(self.password)]]
-		injectObjectWeakly:self] 
-		subscribeNext:^(RACTuple *t) {
-			GHDLoginViewController *self = t.last;
+		subscribeNext:^(id _) {
+			@strongify(self);
+
 			self.successHidden = self.loginFailedHidden = YES;
 		}];
 	

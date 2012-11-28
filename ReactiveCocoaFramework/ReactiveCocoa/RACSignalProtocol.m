@@ -820,6 +820,25 @@ NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 	}];
 }
 
+- (id<RACSignal>)distinctUntilChanged {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		__block id lastValue = nil;
+		__block BOOL initial = YES;
+
+		return [self subscribeNext:^(id x) {
+			if (initial || (lastValue != x && ![x isEqual:lastValue])) {
+				initial = NO;
+				lastValue = x;
+				[subscriber sendNext:x];
+			}
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
+	}];
+}
+
 - (NSArray *)toArray {
 	NSCondition *condition = [[NSCondition alloc] init];
 	condition.name = @(__func__);

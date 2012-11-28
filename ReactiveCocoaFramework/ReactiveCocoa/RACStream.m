@@ -191,23 +191,4 @@
 	}];
 }
 
-- (instancetype)skipRepeats {
-	return [self bind:^{
-		__block id lastValue = nil;
-		__block BOOL initial = YES;
-
-		return ^(id value, BOOL *stop) {
-			if (!initial) {
-				if (value == lastValue || [value isEqual:lastValue]) {
-					return self.class.empty;
-				}
-			}
-
-			initial = NO;
-			lastValue = value;
-			return [self.class return:value];
-		};
-	}];
-}
-
 @end

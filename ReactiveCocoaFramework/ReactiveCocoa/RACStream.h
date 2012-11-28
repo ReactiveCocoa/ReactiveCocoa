@@ -199,10 +199,4 @@ typedef id (^RACStreamBindBlock)(id value, BOOL *stop);
 // empty stream is returned.
 - (instancetype)skipWhileBlock:(BOOL (^)(id x))predicate;
 
-// Skips all values in the receiver which compare equal to the previous value,
-// as determined by `==` or `isEqual:`.
-//
-// Returns a stream of the receiver's values with sequential repeats removed.
-- (instancetype)skipRepeats;
-
 @end

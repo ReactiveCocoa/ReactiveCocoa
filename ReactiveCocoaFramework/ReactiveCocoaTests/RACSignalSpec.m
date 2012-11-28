@@ -571,9 +571,25 @@ describe(@"-combineLatest:reduce:", ^{
 	});
 });
 
-describe(@"-skipRepeats", ^{
-	it(@"shouldn't consider nils to always be repeats", ^{
-		RACSignal *sub = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+describe(@"distinctUntilChanged", ^{
+	it(@"should only send values that are distinct from the previous value", ^{
+		RACSignal *sub = [[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendNext:@2];
+			[subscriber sendNext:@2];
+			[subscriber sendNext:@1];
+			[subscriber sendNext:@1];
+			[subscriber sendCompleted];
+			return nil;
+		}] distinctUntilChanged];
+		
+		NSArray *values = sub.toArray;
+		NSArray *expected = @[ @1, @2, @1 ];
+		expect(values).to.equal(expected);
+	});
+
+	it(@"shouldn't consider nils to always be distinct", ^{
+		RACSignal *sub = [[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendNext:nil];
 			[subscriber sendNext:nil];
@@ -581,24 +597,24 @@ describe(@"-skipRepeats", ^{
 			[subscriber sendNext:@1];
 			[subscriber sendCompleted];
 			return nil;
-		}].skipRepeats;
+		}] distinctUntilChanged];
 		
 		NSArray *values = sub.toArray;
-		NSArray *expected = @[ @1, NSNull.null, @1 ];
+		NSArray *expected = @[ @1, [NSNull null], @1 ];
 		expect(values).to.equal(expected);
 	});
 
 	it(@"should consider initial nil to be distinct", ^{
-		RACSignal *sub = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		RACSignal *sub = [[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
 			[subscriber sendNext:nil];
 			[subscriber sendNext:nil];
 			[subscriber sendNext:@1];
 			[subscriber sendCompleted];
 			return nil;
-		}].skipRepeats;
+		}] distinctUntilChanged];
 		
 		NSArray *values = sub.toArray;
-		NSArray *expected = @[ NSNull.null, @1 ];
+		NSArray *expected = @[ [NSNull null], @1 ];
 		expect(values).to.equal(expected);
 	});
 });

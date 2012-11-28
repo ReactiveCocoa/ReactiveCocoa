@@ -7,10 +7,12 @@
 //
 
 #import "RACSpecs.h"
-#import "EXTKeyPathCoding.h"
 #import "RACTestObject.h"
-#import "RACSubject.h"
+
+#import "EXTKeyPathCoding.h"
 #import "NSObject+RACPropertySubscribing.h"
+#import "RACDisposable.h"
+#import "RACSubject.h"
 
 NSString * const RACPropertySignalExamples = @"RACPropertySignalExamples";
 NSString * const RACPropertySignalExamplesSetupBlock = @"RACPropertySignalExamplesSetupBlock";
@@ -19,7 +21,7 @@ SharedExampleGroupsBegin(RACPropertySignalExamples)
 
 sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 	__block RACTestObject *testObject = nil;
-	void (^setupBlock)(RACTestObject *, NSString *keyPath, RACSubject *) = data[RACPropertySignalExamplesSetupBlock];
+	void (^setupBlock)(RACTestObject *, NSString *keyPath, id<RACSignal>) = data[RACPropertySignalExamplesSetupBlock];
 
 	beforeEach(^{
 		testObject = [[RACTestObject alloc] init];
@@ -56,6 +58,47 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 
 		[subject sendNext:nil];
 		expect(testObject.integerValue).to.equal(0);
+	});
+
+	it(@"should retain intermediate signals when binding", ^{
+		RACSubject *subject = [RACSubject subject];
+		expect(subject).notTo.beNil();
+
+		__block BOOL deallocd = NO;
+
+		@autoreleasepool {
+			@autoreleasepool {
+				RACSignal *intermediateSignal = [subject map:^(NSNumber *num) {
+					return @(num.integerValue + 1);
+				}];
+
+				expect(intermediateSignal).notTo.beNil();
+
+				[intermediateSignal rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+					deallocd = YES;
+				}]];
+
+				setupBlock(testObject, @keypath(testObject.integerValue), intermediateSignal);
+			}
+
+			// Spin the run loop to account for RAC magic that retains the
+			// signal for a single iteration.
+			[NSRunLoop.mainRunLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate date]];
+		}
+
+		expect(deallocd).to.beFalsy();
+
+		[subject sendNext:@5];
+		expect(testObject.integerValue).to.equal(6);
+
+		[subject sendNext:@6];
+		expect(testObject.integerValue).to.equal(7);
+
+		expect(deallocd).to.beFalsy();
+		[subject sendCompleted];
+
+		// Can't test deallocd again, because it's legal for the chain to be
+		// retained until the object or the original signal is destroyed.
 	});
 });
 

@@ -19,6 +19,7 @@
 @property (nonatomic, strong) RACDisposable *disposable;
 @property (nonatomic, assign) BOOL completedOrErrored;
 
+// Disposes of and releases the receiver's disposable.
 - (void)stopSubscription;
 
 @end

@@ -85,7 +85,7 @@
 
 - (id)head {
 	@synchronized (self) {
-		if (self.headBlock) {
+		if (self.headBlock != nil) {
 			_head = self.headBlock();
 			self.headBlock = nil;
 		}
@@ -96,7 +96,7 @@
 
 - (RACSequence *)tail {
 	@synchronized (self) {
-		if (self.tailBlock) {
+		if (self.tailBlock != nil) {
 			_tail = self.tailBlock();
 			self.tailBlock = nil;
 		}

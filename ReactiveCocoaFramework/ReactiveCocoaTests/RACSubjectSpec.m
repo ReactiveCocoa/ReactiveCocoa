@@ -9,11 +9,11 @@
 #import "RACSpecs.h"
 #import "RACSubscriberExamples.h"
 
+#import "EXTScope.h"
 #import "RACSubject.h"
 #import "RACAsyncSubject.h"
 #import "RACBehaviorSubject.h"
 #import "RACReplaySubject.h"
-
 
 SpecBegin(RACSubject)
 
@@ -181,21 +181,42 @@ describe(@"RACReplaySubject", ^{
 	});
 
 	it(@"should send values in the same order live as when replaying", ^{
-		NSMutableArray *liveValues = [NSMutableArray array];
-		[subject subscribeNext:^(id value) {
-			@synchronized (liveValues) {
-				[liveValues addObject:value];
-			}
+		NSUInteger count = 50;
+
+		// Just leak it, ain't no thang.
+		__strong volatile id *values = (__strong id *)calloc(count, sizeof(*values));
+		__block volatile int32_t nextIndex = 0;
+
+		[subject subscribeNext:^(NSNumber *value) {
+			int32_t indexPlusOne = OSAtomicIncrement32(&nextIndex);
+			NSAssert((NSUInteger)indexPlusOne <= count, @"Index out of bounds: %u", (unsigned)(indexPlusOne - 1));
+
+			values[indexPlusOne - 1] = value;
 		}];
 
-		size_t count = 50;
-		dispatch_apply(count, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), [^(size_t index) {
-			[subject sendNext:@(index)];
-		} copy]);
+		dispatch_queue_t queue = dispatch_queue_create("com.github.ReactiveCocoa.RACSubjectSpec", DISPATCH_QUEUE_CONCURRENT);
+		@onExit {
+			dispatch_release(queue);
+		};
 
-		[subject sendCompleted];
+		dispatch_suspend(queue);
+		
+		for (NSUInteger i = 0; i < count; i++) {
+			dispatch_async(queue, ^{
+				[subject sendNext:@(i)];
+			});
+		}
 
+		dispatch_resume(queue);
+		dispatch_barrier_sync(queue, ^{
+			[subject sendCompleted];
+		});
+
+		OSMemoryBarrier();
+
+		NSArray *liveValues = [NSArray arrayWithObjects:(id *)values count:(NSUInteger)nextIndex];
 		expect(liveValues.count).to.equal(count);
+
 		expect(liveValues).to.equal(subject.toArray);
 		expect(subject.toArray).to.equal(subject.toArray);
 	});

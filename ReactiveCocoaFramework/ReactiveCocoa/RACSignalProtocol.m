@@ -7,6 +7,7 @@
 //
 
 #import "RACSignalProtocol.h"
+#import "EXTScope.h"
 #import "NSArray+RACSequenceAdditions.h"
 #import "NSObject+RACExtensions.h"
 #import "NSObject+RACPropertySubscribing.h"
@@ -38,6 +39,7 @@ static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), 
 	completed = [completed copy];
 
 	NSRecursiveLock *lock = [[NSRecursiveLock alloc] init];
+	lock.name = @"com.github.ReactiveCocoa.RACSignalProtocol.subscribeForever";
 
 	// These should only be accessed while 'lock' is held.
 	__block BOOL disposed = NO;
@@ -45,25 +47,34 @@ static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), 
 
 	RACDisposable *shortCircuitingDisposable = [RACDisposable disposableWithBlock:^{
 		[lock lock];
+		@onExit {
+			[lock unlock];
+		};
+
 		disposed = YES;
 		[innerDisposable dispose];
-		[lock unlock];
 	}];
 
 	RACDisposable *outerDisposable = [signal subscribeNext:next error:^(NSError *e) {
 		error(e, shortCircuitingDisposable);
 
 		[lock lock];
+		@onExit {
+			[lock unlock];
+		};
+
 		if (disposed) return;
 		innerDisposable = subscribeForever(signal, next, error, completed);
-		[lock unlock];
 	} completed:^{
 		completed(shortCircuitingDisposable);
 
 		[lock lock];
+		@onExit {
+			[lock unlock];
+		};
+
 		if (disposed) return;
 		innerDisposable = subscribeForever(signal, next, error, completed);
-		[lock unlock];
 	}];
 
 	return [RACDisposable disposableWithBlock:^{

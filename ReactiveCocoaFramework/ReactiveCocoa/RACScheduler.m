@@ -132,7 +132,7 @@ const void * RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 }
 
 + (instancetype)currentScheduler {
-	return (__bridge RACScheduler *)dispatch_get_specific(RACSchedulerCurrentSchedulerKey);
+	return (__bridge id)dispatch_get_specific(RACSchedulerCurrentSchedulerKey);
 }
 
 - (RACDisposable *)schedule:(void (^)(void))block {

@@ -87,12 +87,12 @@ static void bridgedRelease(void *context) {
 	dispatch_once(&onceToken, ^{
 		currentQueueScheduler = [[RACScheduler alloc] initWithScheduleBlock:^(RACScheduler *scheduler, void (^block)(void)) {
 			@synchronized(scheduler) {
+				NSAssert(scheduler.queue != NULL, @"+concurrentQueueScheduler used without being in a scheduler.");
+				
 				NSMutableArray *queue = (__bridge id)dispatch_get_specific(RACSchedulerImmediateSchedulerQueueKey);
 				if (queue == nil) {
 					queue = [NSMutableArray array];
-					if (scheduler.queue != NULL) {
-						dispatch_queue_set_specific(scheduler.queue, RACSchedulerImmediateSchedulerQueueKey, (void *)CFBridgingRetain(queue), bridgedRelease);
-					}
+					dispatch_queue_set_specific(scheduler.queue, RACSchedulerImmediateSchedulerQueueKey, (void *)CFBridgingRetain(queue), bridgedRelease);
 
 					[queue addObject:block];
 
@@ -102,9 +102,7 @@ static void bridgedRelease(void *context) {
 						dequeuedBlock();
 					}
 
-					if (scheduler.queue != NULL) {
-						dispatch_queue_set_specific(scheduler.queue, RACSchedulerImmediateSchedulerQueueKey, nil, bridgedRelease);
-					}
+					dispatch_queue_set_specific(scheduler.queue, RACSchedulerImmediateSchedulerQueueKey, nil, bridgedRelease);
 				} else {
 					[queue addObject:block];
 				}

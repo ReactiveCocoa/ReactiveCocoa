@@ -23,11 +23,9 @@
 + (instancetype)immediateScheduler;
 
 // A singleton schedule like +immediateScheduler, with one important caveat. If
-// called within another immediately scheduled block, it will enqueue the new
-// block to be performed after the current block completes. This is used to
-// flatten possibly deep recursion.
-//
-// It must only be used when there is a valid current scheduler.
+// called within another +currentQueueScheduler scheduled block, it will enqueue
+// the new block to be performed after the current block completes, as opposed
+// to executing it immediately. This is used to flatten possibly deep recursion.
 + (instancetype)currentQueueScheduler;
 
 // A singleton scheduler that performs blocks asynchronously in the main queue.

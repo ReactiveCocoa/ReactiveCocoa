@@ -55,7 +55,8 @@ typedef NSInteger RACSignalError;
 // `complete` or `error` after the nth `next`, then the resulting signal will
 // also complete or error after the nth `next`.
 //
-// signals     - The signals to combine.
+// signals     - The signals to combine. If this array is empty, the returned
+//               signal will immediately complete upon subscription.
 // reduceBlock - The block which reduces the latest values from all the signals
 //               into one value. It should take as many arguments as the number
 //               of signals given. Each argument will be an object argument,

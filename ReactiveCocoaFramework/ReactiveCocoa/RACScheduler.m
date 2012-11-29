@@ -11,6 +11,8 @@
 
 const void * RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 
+const void * RACSchedulerImmediateSchedulerQueueKey = &RACSchedulerImmediateSchedulerQueueKey;
+
 @interface RACScheduler ()
 @property (nonatomic, copy) void (^scheduleBlock)(RACScheduler *scheduler, void (^block)(void));
 @property (nonatomic, assign) dispatch_queue_t queue;
@@ -59,7 +61,29 @@ const void * RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 	static RACScheduler *immediateScheduler = nil;
 	dispatch_once(&onceToken, ^{
 		immediateScheduler = [[RACScheduler alloc] initWithScheduleBlock:^(RACScheduler *scheduler, void (^block)(void)) {
-			block();
+			@synchronized(scheduler) {
+				NSMutableArray *queue = (__bridge id)dispatch_get_specific(RACSchedulerImmediateSchedulerQueueKey);
+				if (queue == nil) {
+					queue = [NSMutableArray array];
+					if (scheduler.queue != NULL) {
+						dispatch_queue_set_specific(scheduler.queue, RACSchedulerImmediateSchedulerQueueKey, (__bridge void *)queue, NULL);
+					}
+
+					[queue addObject:block];
+
+					while (queue.count > 0) {
+						void (^dequeuedBlock)(void) = queue[0];
+						[queue removeObjectAtIndex:0];
+						dequeuedBlock();
+					}
+
+					if (scheduler.queue != NULL) {
+						dispatch_queue_set_specific(scheduler.queue, RACSchedulerImmediateSchedulerQueueKey, nil, NULL);
+					}
+				} else {
+					[queue addObject:block];
+				}
+			}
 		}];
 	});
 	

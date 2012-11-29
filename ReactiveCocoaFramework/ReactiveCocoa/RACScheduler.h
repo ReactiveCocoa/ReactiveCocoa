@@ -16,7 +16,10 @@
 // Is this scheduler concurrent?
 @property (nonatomic, readonly, getter = isConcurrent) BOOL concurrent;
 
-// A singleton scheduler that immediately performs blocks.
+// A singleton scheduler that immediately performs the blocks it is given, with
+// one important caveat. If called within another immediately scheduled block,
+// it will enqueue the new block to be performed after the current block
+// completes. This is used to flatten possibly deep recursion.
 + (instancetype)immediateScheduler;
 
 // A singleton scheduler that performs blocks asynchronously in the main queue.

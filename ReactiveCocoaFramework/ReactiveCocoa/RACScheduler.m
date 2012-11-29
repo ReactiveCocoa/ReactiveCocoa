@@ -157,7 +157,12 @@ const void * RACSchedulerImmediateSchedulerQueueKey = &RACSchedulerImmediateSche
 }
 
 + (instancetype)currentScheduler {
-	return (__bridge id)dispatch_get_specific(RACSchedulerCurrentSchedulerKey);
+	RACScheduler *scheduler = (__bridge id)dispatch_get_specific(RACSchedulerCurrentSchedulerKey);
+	if (scheduler != nil) return scheduler;
+
+	if (NSOperationQueue.currentQueue == NSOperationQueue.mainQueue || [NSThread isMainThread]) return RACScheduler.mainQueueScheduler;
+
+	return nil;
 }
 
 - (RACDisposable *)schedule:(void (^)(void))block {

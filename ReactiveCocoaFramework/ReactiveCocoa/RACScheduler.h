@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class RACDisposable;
+
 // Schedulers are used to control when and in which queue RAC work is performed.
 @interface RACScheduler : NSObject
 
@@ -42,6 +44,11 @@
 - (instancetype)asSerialScheduler;
 
 // Schedule the given block for execution on the scheduler.
-- (void)schedule:(void (^)(void))block;
+//
+// block - The block to schedule for execution. Cannot be nil.
+//
+// Returns a disposable which can be disposed of to cancel the execution of the
+// block.
+- (RACDisposable *)schedule:(void (^)(void))block;
 
 @end

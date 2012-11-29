@@ -7,6 +7,7 @@
 //
 
 #import "RACScheduler.h"
+#import "RACDisposable.h"
 
 const void * RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 
@@ -132,12 +133,19 @@ const void * RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 	return (__bridge RACScheduler *)dispatch_get_specific(RACSchedulerCurrentSchedulerKey);
 }
 
-- (void)schedule:(void (^)(void))block {
+- (RACDisposable *)schedule:(void (^)(void))block {
 	NSParameterAssert(block != NULL);
-	
-	if (self.scheduleBlock == NULL) return;
-	
-	self.scheduleBlock(self, block);
+
+	__block uint32_t volatile disposed = 0;
+	self.scheduleBlock(self, ^{
+		if (disposed == 1) return;
+
+		block();
+	});
+
+	return [RACDisposable disposableWithBlock:^{
+		OSAtomicOr32Barrier(1, &disposed);
+	}];
 }
 
 - (dispatch_queue_t)queue {

@@ -163,11 +163,15 @@ static void bridgedRelease(void *context) {
 	return serializedScheduler;
 }
 
++ (BOOL)onMainThread {
+	return NSOperationQueue.currentQueue == NSOperationQueue.mainQueue || [NSThread isMainThread];
+}
+
 + (instancetype)currentScheduler {
 	RACScheduler *scheduler = (__bridge id)dispatch_get_specific(RACSchedulerCurrentSchedulerKey);
 	if (scheduler != nil) return scheduler;
 
-	if (NSOperationQueue.currentQueue == NSOperationQueue.mainQueue || [NSThread isMainThread]) return RACScheduler.mainQueueScheduler;
+	if (self.class.onMainThread) return RACScheduler.mainQueueScheduler;
 
 	return nil;
 }

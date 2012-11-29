@@ -41,6 +41,8 @@
 // -[RACScheduler schedule:] block.
 + (instancetype)currentScheduler;
 
+// Returns a serial scheduler based on the concurrent receiver. If the receiver
+// is not concurrent, it returns self.
 - (instancetype)asSerialScheduler;
 
 // Schedule the given block for execution on the scheduler.

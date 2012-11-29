@@ -120,6 +120,8 @@ const void * RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 }
 
 - (instancetype)asSerialScheduler {
+	if (!self.concurrent) return self;
+
 	NSParameterAssert(self.queue != NULL);
 
 	dispatch_queue_t queue = dispatch_queue_create("com.ReactiveCocoa.RACScheduler.asSerialScheduler", DISPATCH_QUEUE_SERIAL);

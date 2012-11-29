@@ -370,6 +370,11 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 				id<RACStream> stream = [streamClass zip:threeStreams];
 				verifyValues(stream, threeTuples);
 			});
+
+			it(@"should make an empty stream if given an empty array", ^{
+				id<RACStream> stream = [streamClass zip:@[]];
+				verifyValues(stream, @[]);
+			});
 		});
 	});
 

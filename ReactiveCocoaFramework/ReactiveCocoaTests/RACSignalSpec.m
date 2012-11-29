@@ -947,6 +947,17 @@ describe(@"+merge:", ^{
 		NSArray *expected = @[ @1, @2, @3, @4 ];
 		expect(values).to.equal(expected);
 	});
+
+	it(@"should complete immediately when not given any signals", ^{
+		id<RACSignal> signal = [RACSignal merge:@[]];
+
+		__block BOOL completed = NO;
+		[signal subscribeCompleted:^{
+			completed = YES;
+		}];
+
+		expect(completed).to.beTruthy();
+	});
 });
 
 describe(@"-flatten:", ^{

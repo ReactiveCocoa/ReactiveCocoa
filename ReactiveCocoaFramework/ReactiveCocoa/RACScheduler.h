@@ -8,15 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
-
 // Schedulers are used to control when and in which queue RAC work is performed.
 @interface RACScheduler : NSObject
 
-// Create a new scheduler with the given schedule block. The schedule block will
-// get called by -schedule: with the block it is given. The schedule block
-// should then schedule that block to be performed. This makes it easier to
-// create a custom scheduler without having to subclass.
-+ (instancetype)schedulerWithScheduleBlock:(void (^)(void (^block)(void)))scheduleBlock;
+// Is this scheduler concurrent?
+@property (nonatomic, readonly, getter = isConcurrent) BOOL concurrent;
 
 // A singleton scheduler that immediately performs blocks.
 + (instancetype)immediateScheduler;
@@ -28,23 +24,24 @@
 // priority global queue.
 + (instancetype)backgroundScheduler;
 
-// A singleton scheduler that performs blocks asynchronously in the current queue.
+// A singleton scheduler that performs blocks asynchronously in the current
+// scheduler. If the current scheduler cannot be determined, it uses the main
+// queue scheduler.
 + (instancetype)deferredScheduler;
 
-// A singleton scheduler that adds blocks to an operation queue whose max
-// concurrent operation count is NSOperationQueueDefaultMaxConcurrentOperationCount.
-+ (instancetype)sharedOperationQueueScheduler;
+// Creates and returns a new serial scheduler.
++ (instancetype)serialScheduler;
 
-// Creates a new scheduler that adds blocks to an operation queue whose max
-// concurrent operation count is NSOperationQueueDefaultMaxConcurrentOperationCount.
-+ (instancetype)operationQueueScheduler;
+// Creates and returns a new concurrent scheduler.
++ (instancetype)concurrentScheduler;
 
-// Creates a new scheduler that adds blocks to the given operation queue.
-+ (instancetype)schedulerWithOperationQueue:(NSOperationQueue *)queue;
+// The current scheduler. This will only be valid when using from within a
+// -[RACScheduler schedule:] block.
++ (instancetype)currentScheduler;
 
-// Schedule the given block for execution on the scheduler. The default
-// implementation just calls the schedule block if the scheduler was created
-// with one.
+- (instancetype)asSerialScheduler;
+
+// Schedule the given block for execution on the scheduler.
 - (void)schedule:(void (^)(void))block;
 
 @end

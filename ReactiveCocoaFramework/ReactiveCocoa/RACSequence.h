@@ -29,7 +29,7 @@
 @property (nonatomic, strong, readonly) RACSequence *tail;
 
 // Evaluates the full sequence to produce an equivalently-sized array.
-@property (nonatomic, copy, readonly) NSArray *array;
+- (NSArray *)toArray;
 
 // Evaluates the full sequence on the given scheduler.
 //

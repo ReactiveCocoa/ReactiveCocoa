@@ -143,7 +143,7 @@
 
 #pragma mark Extended methods
 
-- (NSArray *)array {
+- (NSArray *)toArray {
 	NSMutableArray *array = [NSMutableArray array];
 	for (id obj in self) {
 		[array addObject:obj];
@@ -193,7 +193,7 @@
 }
 
 - (void)encodeWithCoder:(NSCoder *)coder {
-	[coder encodeObject:self.array forKey:@"array"];
+	[coder encodeObject:self.toArray forKey:@"array"];
 }
 
 #pragma mark NSFastEnumeration

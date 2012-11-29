@@ -104,7 +104,7 @@ describe(@"-take:", ^{
 			return sequence;
 		}];
 
-		NSArray *values = [sequence take:1].array;
+		NSArray *values = [sequence take:1].toArray;
 		expect(values).to.equal(@[ RACUnit.defaultUnit ]);
 		expect(valuesTaken).to.equal(1);
 	});

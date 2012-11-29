@@ -75,6 +75,10 @@ typedef id (^RACStreamBindBlock)(id value, BOOL *stop);
 // of the same values
 + (instancetype)zip:(NSArray *)streams reduce:(id)reduceBlock;
 
+// Collect values in the stream serializing them in a \c NSArray.
+// Note that this is a blocking call.
+- (NSArray *)toArray;
+
 @concrete
 
 // Maps `block` across the values in the receiver and flattens the result.

@@ -25,7 +25,10 @@ const void * RACSchedulerImmediateSchedulerQueueKey = &RACSchedulerImmediateSche
 @implementation RACScheduler
 
 - (void)dealloc {
-	dispatch_release(_queue);
+	if (_queue != NULL) {
+		dispatch_queue_set_specific(_queue, RACSchedulerCurrentSchedulerKey, nil, NULL);
+		dispatch_release(_queue);
+	}
 }
 
 #pragma mark API

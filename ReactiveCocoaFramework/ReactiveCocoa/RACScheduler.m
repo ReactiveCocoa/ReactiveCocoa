@@ -8,6 +8,7 @@
 
 #import "RACScheduler.h"
 #import "RACDisposable.h"
+#import <libkern/OSAtomic.h>
 
 const void * RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 

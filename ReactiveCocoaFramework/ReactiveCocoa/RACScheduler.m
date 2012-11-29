@@ -60,6 +60,10 @@ const void * RACSchedulerImmediateSchedulerQueueKey = &RACSchedulerImmediateSche
 	return [self initWithQueue:NULL concurrent:NO scheduleBlock:scheduleBlock];
 }
 
+static void bridgedRelease(void *context) {
+	CFBridgingRelease(context);
+}
+
 + (instancetype)immediateScheduler {
 	static dispatch_once_t onceToken;
 	static RACScheduler *immediateScheduler = nil;
@@ -70,7 +74,7 @@ const void * RACSchedulerImmediateSchedulerQueueKey = &RACSchedulerImmediateSche
 				if (queue == nil) {
 					queue = [NSMutableArray array];
 					if (scheduler.queue != NULL) {
-						dispatch_queue_set_specific(scheduler.queue, RACSchedulerImmediateSchedulerQueueKey, (__bridge void *)queue, NULL);
+						dispatch_queue_set_specific(scheduler.queue, RACSchedulerImmediateSchedulerQueueKey, (void *)CFBridgingRetain(queue), bridgedRelease);
 					}
 
 					[queue addObject:block];
@@ -82,7 +86,7 @@ const void * RACSchedulerImmediateSchedulerQueueKey = &RACSchedulerImmediateSche
 					}
 
 					if (scheduler.queue != NULL) {
-						dispatch_queue_set_specific(scheduler.queue, RACSchedulerImmediateSchedulerQueueKey, nil, NULL);
+						dispatch_queue_set_specific(scheduler.queue, RACSchedulerImmediateSchedulerQueueKey, nil, bridgedRelease);
 					}
 				} else {
 					[queue addObject:block];

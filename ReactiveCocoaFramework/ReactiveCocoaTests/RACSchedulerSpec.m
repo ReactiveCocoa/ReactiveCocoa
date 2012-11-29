@@ -31,6 +31,41 @@ it(@"should know its current scheduler", ^{
 
 	expect(currentScheduler).willNot.beNil();
 	expect(currentScheduler).to.equal(scheduler);
+
+	scheduler = RACScheduler.backgroundScheduler;
+	currentScheduler = nil;
+	[scheduler schedule:^{
+		[RACScheduler.immediateScheduler schedule:^{
+			currentScheduler = RACScheduler.currentScheduler;
+		}];
+	}];
+
+	expect(currentScheduler).willNot.beNil();
+	expect(currentScheduler).to.equal(scheduler);
+
+	scheduler = RACScheduler.mainQueueScheduler;
+	currentScheduler = nil;
+	[RACScheduler.backgroundScheduler schedule:^{
+		[RACScheduler.mainQueueScheduler schedule:^{
+			currentScheduler = RACScheduler.currentScheduler;
+		}];
+	}];
+
+	expect(currentScheduler).willNot.beNil();
+	expect(currentScheduler).to.equal(scheduler);
+
+	scheduler = RACScheduler.serialScheduler;
+	currentScheduler = nil;
+	[RACScheduler.backgroundScheduler schedule:^{
+		[RACScheduler.mainQueueScheduler schedule:^{
+			[scheduler schedule:^{
+				currentScheduler = RACScheduler.currentScheduler;
+			}];
+		}];
+	}];
+
+	expect(currentScheduler).willNot.beNil();
+	expect(currentScheduler).to.equal(scheduler);
 });
 
 SpecEnd

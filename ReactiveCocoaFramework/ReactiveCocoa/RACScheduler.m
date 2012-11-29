@@ -71,6 +71,18 @@ static void bridgedRelease(void *context) {
 	static RACScheduler *immediateScheduler = nil;
 	dispatch_once(&onceToken, ^{
 		immediateScheduler = [[RACScheduler alloc] initWithScheduleBlock:^(RACScheduler *scheduler, void (^block)(void)) {
+			block();
+		}];
+	});
+	
+	return immediateScheduler;
+}
+
++ (instancetype)currentQueueScheduler {
+	static dispatch_once_t onceToken;
+	static RACScheduler *currentQueueScheduler;
+	dispatch_once(&onceToken, ^{
+		currentQueueScheduler = [[RACScheduler alloc] initWithScheduleBlock:^(RACScheduler *scheduler, void (^block)(void)) {
 			@synchronized(scheduler) {
 				NSMutableArray *queue = (__bridge id)dispatch_get_specific(RACSchedulerImmediateSchedulerQueueKey);
 				if (queue == nil) {
@@ -96,8 +108,8 @@ static void bridgedRelease(void *context) {
 			}
 		}];
 	});
-	
-	return immediateScheduler;
+
+	return currentQueueScheduler;
 }
 
 + (instancetype)mainQueueScheduler {

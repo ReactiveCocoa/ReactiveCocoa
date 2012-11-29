@@ -11,8 +11,10 @@
 #import "RACDisposable.h"
 #import <libkern/OSAtomic.h>
 
+// The key for the queue-specific current scheduler.
 const void * RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 
+// The key for the immedate scheduler-specific, queue-specific block queue.
 const void * RACSchedulerImmediateSchedulerQueueKey = &RACSchedulerImmediateSchedulerQueueKey;
 
 @interface RACScheduler ()

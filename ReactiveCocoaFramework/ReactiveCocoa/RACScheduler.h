@@ -10,7 +10,7 @@
 
 @class RACDisposable;
 
-// Schedulers are used to control when and in which queue RAC work is performed.
+// Schedulers are used to control when and in which queue work is performed.
 @interface RACScheduler : NSObject
 
 // Is this scheduler concurrent?
@@ -49,6 +49,9 @@
 - (instancetype)asSerialScheduler;
 
 // Schedule the given block for execution on the scheduler.
+//
+// Scheduled blocks will be executed in the order in which they were scheduled,
+// but they may be executed concurrently depending on the scheduler.
 //
 // block - The block to schedule for execution. Cannot be nil.
 //

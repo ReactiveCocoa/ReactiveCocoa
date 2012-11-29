@@ -6,7 +6,6 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACSpecs.h"
 #import "RACSubscriptingAssignmentTrampoline.h"
 #import "RACPropertySignalExamples.h"
 #import "RACTestObject.h"

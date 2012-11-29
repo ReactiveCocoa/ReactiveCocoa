@@ -1,10 +1,12 @@
 //
-//  RACSpecs.h
+//  ReactiveCocoaTests-Prefix.pch
 //  ReactiveCocoa
 //
-//  Created by Josh Abernathy on 3/7/12.
+//  Created by Justin Spahr-Summers on 2012-11-29.
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
+
+#import <Foundation/Foundation.h>
 
 #define EXP_SHORTHAND
 #import "Specta.h"

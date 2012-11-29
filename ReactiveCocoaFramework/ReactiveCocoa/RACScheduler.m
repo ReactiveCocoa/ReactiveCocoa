@@ -7,6 +7,7 @@
 //
 
 #import "RACScheduler.h"
+#import "RACScheduler+Private.h"
 #import "RACDisposable.h"
 #import <libkern/OSAtomic.h>
 
@@ -165,6 +166,22 @@ const void * RACSchedulerImmediateSchedulerQueueKey = &RACSchedulerImmediateSche
 	if (NSOperationQueue.currentQueue == NSOperationQueue.mainQueue || [NSThread isMainThread]) return RACScheduler.mainQueueScheduler;
 
 	return nil;
+}
+
++ (instancetype)subscriptionScheduler {
+	static dispatch_once_t onceToken;
+	static RACScheduler *subscriptionScheduler;
+	dispatch_once(&onceToken, ^{
+		subscriptionScheduler = [[RACScheduler alloc] initWithScheduleBlock:^(RACScheduler *scheduler, void (^block)(void)) {
+			if (RACScheduler.currentScheduler == nil) {
+				[RACScheduler.mainQueueScheduler schedule:block];
+			} else {
+				block();
+			}
+		}];
+	});
+
+	return subscriptionScheduler;
 }
 
 - (RACDisposable *)schedule:(void (^)(void))block {

@@ -387,6 +387,7 @@
 		886CEACC163DE669007632D1 /* RACBlockTrampolineSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACBlockTrampolineSpec.m; sourceTree = "<group>"; };
 		886CEAE0163DE942007632D1 /* NSObject+RACLifting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACLifting.h"; sourceTree = "<group>"; };
 		886CEAE1163DE942007632D1 /* NSObject+RACLifting.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACLifting.m"; sourceTree = "<group>"; };
+		886D98581667C86D00F22541 /* RACScheduler+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACScheduler+Private.h"; sourceTree = "<group>"; };
 		886F70281551CF920045D68B /* RACGroupedSignal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = RACGroupedSignal.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		886F70291551CF920045D68B /* RACGroupedSignal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACGroupedSignal.m; sourceTree = "<group>"; };
 		887ACDA5165878A7009190AD /* NSInvocation+RACTypeParsing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSInvocation+RACTypeParsing.h"; sourceTree = "<group>"; };
@@ -771,6 +772,7 @@
 				88B76F8C153726B00053EAE2 /* RACTuple.h */,
 				88B76F8D153726B00053EAE2 /* RACTuple.m */,
 				88E2C6B2153C771C00C7493C /* RACScheduler.h */,
+				886D98581667C86D00F22541 /* RACScheduler+Private.h */,
 				88E2C6B3153C771C00C7493C /* RACScheduler.m */,
 				885A3230153CF9EF00486A61 /* RACCollection.h */,
 				885A3231153CF9EF00486A61 /* RACCollection.m */,

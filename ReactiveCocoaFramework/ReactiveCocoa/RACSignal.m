@@ -8,9 +8,9 @@
 
 #import "RACSignal.h"
 #import "NSObject+RACExtensions.h"
-#import "RACAsyncSubject.h"
 #import "RACBehaviorSubject.h"
 #import "RACDisposable.h"
+#import "RACReplaySubject.h"
 #import "RACScheduler.h"
 #import "RACSubject.h"
 #import "RACSignal+Private.h"
@@ -400,7 +400,7 @@ static NSMutableSet *activeSignals() {
 + (RACSignal *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block {
 	NSParameterAssert(block != NULL);
 
-	RACAsyncSubject *subject = [RACAsyncSubject subject];
+	RACReplaySubject *subject = [RACReplaySubject subject];
 	[scheduler schedule:^{
 		block(subject);
 	}];

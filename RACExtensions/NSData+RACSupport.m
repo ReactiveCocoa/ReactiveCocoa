@@ -13,7 +13,7 @@
 + (RACSignal *)rac_readContentsOfURL:(NSURL *)URL options:(NSDataReadingOptions)options scheduler:(RACScheduler *)scheduler {
 	NSParameterAssert(scheduler != nil);
 	
-	RACAsyncSubject *subject = [RACAsyncSubject subject];
+	RACReplaySubject *subject = [RACReplaySubject subject];
 	
 	[scheduler schedule:^{
 		NSError *error = nil;

@@ -32,11 +32,11 @@
 	
 	[self.view.spinner startAnimation:nil];
 	
-	[self.view.usernameTextField bind:NSValueBinding toObject:self withKeyPath:@keypath(self.userAccount.username)];
-	[self.view.realNameTextField bind:NSValueBinding toObject:self withKeyPath:@keypath(self.userAccount.realName)];
-	[self.view.spinner bind:NSHiddenBinding toObject:self withNegatedKeyPath:@keypath(self.loading)];
-	[self.view.valuesContainerView bind:NSHiddenBinding toObject:self withKeyPath:@keypath(self.loading)];
-	[self.view.avatarImageView bind:NSValueBinding toObject:self withKeyPath:@keypath(self.avatar)];
+	[self.view.usernameTextField rac_bind:NSValueBinding toObject:self withKeyPath:@keypath(self.userAccount.username)];
+	[self.view.realNameTextField rac_bind:NSValueBinding toObject:self withKeyPath:@keypath(self.userAccount.realName)];
+	[self.view.spinner rac_bind:NSHiddenBinding toObject:self withNegatedKeyPath:@keypath(self.loading)];
+	[self.view.valuesContainerView rac_bind:NSHiddenBinding toObject:self withKeyPath:@keypath(self.loading)];
+	[self.view.avatarImageView rac_bind:NSValueBinding toObject:self withKeyPath:@keypath(self.avatar)];
 }
 
 

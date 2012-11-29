@@ -27,34 +27,36 @@ const void * RACSchedulerImmediateSchedulerQueueKey = &RACSchedulerImmediateSche
 
 #pragma mark API
 
-- (id)initWithQueue:(dispatch_queue_t)queue concurrent:(BOOL)concurrent {
-	NSParameterAssert(queue != NULL);
-
-	self = [self initWithScheduleBlock:^(RACScheduler *scheduler, void (^block)(void)) {
-		dispatch_async(scheduler.queue, block);
-	}];
-	
-	if (self == nil) return nil;
-
-	dispatch_retain(queue);
-	_queue = queue;
-
-	dispatch_queue_set_specific(_queue, RACSchedulerCurrentSchedulerKey, (__bridge void *)self, NULL);
-
-	_concurrent = concurrent;
-	
-	return self;
-}
-
-- (id)initWithScheduleBlock:(void (^)(RACScheduler *scheduler, void (^block)(void)))scheduleBlock {
-	NSParameterAssert(scheduleBlock != NULL);
+- (id)initWithQueue:(dispatch_queue_t)queue concurrent:(BOOL)concurrent scheduleBlock:(void (^)(RACScheduler *scheduler, void (^block)(void)))block {
+	NSParameterAssert(block != NULL);
 
 	self = [super init];
 	if (self == nil) return nil;
 
-	_scheduleBlock = [scheduleBlock copy];
+	_scheduleBlock = [block copy];
+
+	if (queue != NULL) {
+		dispatch_retain(queue);
+		_queue = queue;
+
+		dispatch_queue_set_specific(_queue, RACSchedulerCurrentSchedulerKey, (__bridge void *)self, NULL);
+	}
+
+	_concurrent = concurrent;
 
 	return self;
+}
+
+- (id)initWithQueue:(dispatch_queue_t)queue concurrent:(BOOL)concurrent {
+	NSParameterAssert(queue != NULL);
+
+	return [self initWithQueue:queue concurrent:concurrent scheduleBlock:^(RACScheduler *scheduler, void (^block)(void)) {
+		dispatch_async(scheduler.queue, block);
+	}];
+}
+
+- (id)initWithScheduleBlock:(void (^)(RACScheduler *scheduler, void (^block)(void)))scheduleBlock {	
+	return [self initWithQueue:NULL concurrent:NO scheduleBlock:scheduleBlock];
 }
 
 + (instancetype)immediateScheduler {

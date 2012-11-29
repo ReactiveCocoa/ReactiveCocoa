@@ -14,8 +14,8 @@
 // The key for the queue-specific current scheduler.
 const void * RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 
-// The key for the immedate scheduler-specific, queue-specific block queue.
-const void * RACSchedulerImmediateSchedulerQueueKey = &RACSchedulerImmediateSchedulerQueueKey;
+// The key for the immedate scheduler-specific, thread-specific block queue.
+static NSString * const RACSchedulerImmediateSchedulerQueueKey = @"RACSchedulerImmediateSchedulerQueueKey";
 
 @interface RACScheduler ()
 @property (nonatomic, copy) void (^scheduleBlock)(RACScheduler *scheduler, void (^block)(void));
@@ -65,10 +65,6 @@ const void * RACSchedulerImmediateSchedulerQueueKey = &RACSchedulerImmediateSche
 	return [self initWithQueue:NULL concurrent:NO scheduleBlock:scheduleBlock];
 }
 
-static void bridgedRelease(void *context) {
-	CFBridgingRelease(context);
-}
-
 + (instancetype)immediateScheduler {
 	static dispatch_once_t onceToken;
 	static RACScheduler *immediateScheduler = nil;
@@ -87,12 +83,10 @@ static void bridgedRelease(void *context) {
 	dispatch_once(&onceToken, ^{
 		currentQueueScheduler = [[RACScheduler alloc] initWithScheduleBlock:^(RACScheduler *scheduler, void (^block)(void)) {
 			@synchronized(scheduler) {
-				NSAssert(scheduler.queue != NULL, @"+concurrentQueueScheduler used without being in a scheduler.");
-				
-				NSMutableArray *queue = (__bridge id)dispatch_get_specific(RACSchedulerImmediateSchedulerQueueKey);
+				NSMutableArray *queue = NSThread.currentThread.threadDictionary[RACSchedulerImmediateSchedulerQueueKey];
 				if (queue == nil) {
 					queue = [NSMutableArray array];
-					dispatch_queue_set_specific(scheduler.queue, RACSchedulerImmediateSchedulerQueueKey, (void *)CFBridgingRetain(queue), bridgedRelease);
+					NSThread.currentThread.threadDictionary[RACSchedulerImmediateSchedulerQueueKey] = queue;
 
 					[queue addObject:block];
 
@@ -102,7 +96,7 @@ static void bridgedRelease(void *context) {
 						dequeuedBlock();
 					}
 
-					dispatch_queue_set_specific(scheduler.queue, RACSchedulerImmediateSchedulerQueueKey, nil, bridgedRelease);
+					[NSThread.currentThread.threadDictionary removeObjectForKey:RACSchedulerImmediateSchedulerQueueKey];
 				} else {
 					[queue addObject:block];
 				}

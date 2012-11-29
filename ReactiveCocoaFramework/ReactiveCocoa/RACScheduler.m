@@ -26,6 +26,8 @@ static NSString * const RACSchedulerImmediateSchedulerQueueKey = @"RACSchedulerI
 
 - (void)dealloc {
 	if (_queue != NULL) {
+		// TODO: This almost certainly isn't right. If there are still block on
+		// the queue they might still need the current scheduler.
 		dispatch_queue_set_specific(_queue, RACSchedulerCurrentSchedulerKey, nil, NULL);
 		dispatch_release(_queue);
 	}

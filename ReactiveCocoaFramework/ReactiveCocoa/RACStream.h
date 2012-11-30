@@ -63,7 +63,8 @@ typedef id (^RACStreamBindBlock)(id value, BOOL *stop);
 // each stream, and so forth until at least one of the streams is exhausted.
 //
 // streams       - The streams to combine. These must all be instances of the
-//                 same concrete class implementing the protocol.
+//                 same concrete class implementing the protocol. If this array
+//                 is empty, the returned stream will be empty.
 // reduceBlock   - The block which reduces the values from all the streams
 //                 into one value. It should take as many arguments as the
 //                 number of streams given. Each argument will be an object
@@ -132,11 +133,7 @@ typedef id (^RACStreamBindBlock)(id value, BOOL *stop);
 // of `block`.
 - (instancetype)sequenceMany:(id (^)(void))block;
 
-// Returns a streams consisting of RACTuples containing a value for each of the
-// given streams.
-//
-// streams       - The streams to combine. These must all be instances of the
-//                 same concrete class implementing the protocol.
+// Invokes +zip:reduce: with a nil `reduceBlock`.
 + (instancetype)zip:(NSArray *)streams;
 
 // Combines values in the receiver from left to right using the given block.

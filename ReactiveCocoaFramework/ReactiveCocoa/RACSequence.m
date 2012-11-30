@@ -114,6 +114,8 @@
 }
 
 + (instancetype)zip:(NSArray *)sequences reduce:(id)reduceBlock {
+	if (sequences.count == 0) return self.empty;
+
 	return [RACSequence sequenceWithHeadBlock:^ id {
 		NSMutableArray *heads = [NSMutableArray arrayWithCapacity:sequences.count];
 		for (RACSequence *sequence in sequences) {

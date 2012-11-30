@@ -14,7 +14,6 @@
 #import "RACIterativeScheduler.h"
 #import "RACDeferredScheduler.h"
 #import "RACSubscriptionScheduler.h"
-#import <libkern/OSAtomic.h>
 
 // The key for the queue-specific current scheduler.
 const void * RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;

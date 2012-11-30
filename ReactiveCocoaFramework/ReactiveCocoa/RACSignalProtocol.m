@@ -878,7 +878,7 @@ static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), 
 + (id<RACSignal>)defer:(id<RACSignal> (^)(void))block {
 	NSParameterAssert(block != NULL);
 	
-	return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+	return [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		id<RACSignal> signal = block();
 		return [signal subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 			[subscriber sendNext:x];

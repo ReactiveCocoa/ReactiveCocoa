@@ -232,12 +232,12 @@ static NSMutableSet *activeSignals() {
 		}
 		
 		void (^sendCompleteOrErrorIfNecessary)(void) = ^{
-			NSError *error = nil;
+			id errorOrTupleNil = nil;
 			for (NSUInteger i = 0; i < numSignals; ++i) {
 				if ([valuesBySignal[i] count] == 0) {
 					id completedOrError = completedOrErrorBySignal[i];
-					if ([completedOrError isKindOfClass:NSError.class]) {
-						error = completedOrError;
+					if (completedOrError == RACTupleNil.tupleNil || [completedOrError isKindOfClass:NSError.class]) {
+						errorOrTupleNil = completedOrError;
 					} else {
 						if ([completedOrError isEqual:@YES]) {
 							[subscriber sendCompleted];
@@ -246,8 +246,8 @@ static NSMutableSet *activeSignals() {
 					}
 				}
 			}
-			if (error != nil) {
-				[subscriber sendError:error];
+			if (errorOrTupleNil != nil) {
+				[subscriber sendError:errorOrTupleNil != RACTupleNil.tupleNil ? errorOrTupleNil : nil];
 			}
 		};
 		
@@ -284,7 +284,7 @@ static NSMutableSet *activeSignals() {
 				}
 			} error:^(NSError *error) {
 				@synchronized(valuesBySignal) {
-					completedOrErrorBySignal[i] = error;
+					completedOrErrorBySignal[i] = error ?: RACTupleNil.tupleNil;
 					sendCompleteOrErrorIfNecessary();
 				}
 			} completed:^{

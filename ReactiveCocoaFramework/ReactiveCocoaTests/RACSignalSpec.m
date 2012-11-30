@@ -175,6 +175,24 @@ describe(@"subscribing", ^{
 		[subject sendNext:@"test 3"];
 	});
 
+	it(@"should have a current scheduler in didSubscribe block", ^{
+		__block RACScheduler *currentScheduler;
+		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			currentScheduler = RACScheduler.currentScheduler;
+			[subscriber sendCompleted];
+			return nil;
+		}];
+
+		[signal subscribeNext:^(id x) {}];
+		expect(currentScheduler).notTo.beNil();
+
+		currentScheduler = nil;
+		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+			[signal subscribeNext:^(id x) {}];
+		});
+		expect(currentScheduler).willNot.beNil();
+	});
+
 	it(@"should support -takeUntil:", ^{
 		__block BOOL shouldBeGettingItems = YES;
 		RACSubject *subject = [RACSubject subject];
@@ -191,6 +209,30 @@ describe(@"subscribing", ^{
 
 		shouldBeGettingItems = NO;
 		[subject sendNext:@"test 3"];
+	});
+});
+
+describe(@"disposal", ^{
+	it(@"should dispose of the disposable returned from the didSubscribe block", ^{
+		__block BOOL innerDisposed = NO;
+		RACSignal *signal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			return [RACDisposable disposableWithBlock:^{
+				innerDisposed = YES;
+			}];
+		}];
+
+		__block RACDisposable *disposable = [signal subscribeNext:^(id x) {}];
+		[disposable dispose];
+
+		expect(innerDisposed).to.beTruthy();
+
+		innerDisposed = NO;
+		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+			disposable = [signal subscribeNext:^(id x) {}];
+			[disposable dispose];
+		});
+
+		expect(innerDisposed).will.beTruthy();
 	});
 });
 

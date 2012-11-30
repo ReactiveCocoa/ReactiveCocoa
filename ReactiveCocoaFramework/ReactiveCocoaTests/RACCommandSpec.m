@@ -16,7 +16,7 @@ describe(@"when it's created with a canExecute signal", ^{
 		
 		expect(command.canExecute).to.beFalsy();
 		
-		command = [RACCommand commandWithCanExecuteSignal:[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+		command = [RACCommand commandWithCanExecuteSignal:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@YES];
 			[subscriber sendNext:@NO];
 			return nil;
@@ -30,7 +30,7 @@ describe(@"when it's created with a canExecute signal", ^{
 		
 		expect(command.canExecute).to.beTruthy();
 		
-		command = [RACCommand commandWithCanExecuteSignal:[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+		command = [RACCommand commandWithCanExecuteSignal:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@NO];
 			[subscriber sendNext:@YES];
 			return nil;

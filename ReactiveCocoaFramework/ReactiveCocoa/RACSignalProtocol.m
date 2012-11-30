@@ -493,7 +493,7 @@ static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), 
 		for (id<RACSignal> signal in signals) {
 			__block RACSubscriber *innerSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
 				@synchronized(lastValues) {
-					lastValues[keyForSubscriber(innerSubscriber)] = x ?: [RACTupleNil tupleNil];
+					lastValues[keyForSubscriber(innerSubscriber)] = x ?: RACTupleNil.tupleNil;
 					
 					if(lastValues.count == signals.count) {
 						NSMutableArray *orderedValues = [NSMutableArray arrayWithCapacity:signals.count];

@@ -236,7 +236,7 @@ static NSMutableSet *activeSignals() {
 			for (NSUInteger i = 0; i < numSignals; ++i) {
 				if ([valuesBySignal[i] count] == 0) {
 					id completedOrError = completedOrErrorBySignal[i];
-					if (completedOrError == RACTupleNil.tupleNil || [completedOrError isKindOfClass:NSError.class]) {
+					if ([completedOrError isEqual:RACTupleNil.tupleNil] || [completedOrError isKindOfClass:NSError.class]) {
 						errorOrTupleNil = completedOrError;
 					} else {
 						if ([completedOrError isEqual:@YES]) {
@@ -247,7 +247,7 @@ static NSMutableSet *activeSignals() {
 				}
 			}
 			if (errorOrTupleNil != nil) {
-				[subscriber sendError:errorOrTupleNil != RACTupleNil.tupleNil ? errorOrTupleNil : nil];
+				[subscriber sendError:([errorOrTupleNil isEqual:RACTupleNil.tupleNil] ? nil : errorOrTupleNil)];
 			}
 		};
 		

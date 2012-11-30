@@ -94,24 +94,22 @@ static NSString * const RACSchedulerImmediateSchedulerQueueKey = @"RACSchedulerI
 	static RACScheduler *currentQueueScheduler;
 	dispatch_once(&onceToken, ^{
 		currentQueueScheduler = [[RACScheduler alloc] initWithName:@"com.ReactiveCocoa.RACScheduler.currentQueueScheduler" scheduleBlock:^(RACScheduler *scheduler, void (^block)(void)) {
-			@synchronized(scheduler) {
-				NSMutableArray *queue = NSThread.currentThread.threadDictionary[RACSchedulerImmediateSchedulerQueueKey];
-				if (queue == nil) {
-					queue = [NSMutableArray array];
-					NSThread.currentThread.threadDictionary[RACSchedulerImmediateSchedulerQueueKey] = queue;
+			NSMutableArray *queue = NSThread.currentThread.threadDictionary[RACSchedulerImmediateSchedulerQueueKey];
+			if (queue == nil) {
+				queue = [NSMutableArray array];
+				NSThread.currentThread.threadDictionary[RACSchedulerImmediateSchedulerQueueKey] = queue;
 
-					[queue addObject:block];
+				[queue addObject:block];
 
-					while (queue.count > 0) {
-						void (^dequeuedBlock)(void) = queue[0];
-						[queue removeObjectAtIndex:0];
-						dequeuedBlock();
-					}
-
-					[NSThread.currentThread.threadDictionary removeObjectForKey:RACSchedulerImmediateSchedulerQueueKey];
-				} else {
-					[queue addObject:block];
+				while (queue.count > 0) {
+					void (^dequeuedBlock)(void) = queue[0];
+					[queue removeObjectAtIndex:0];
+					dequeuedBlock();
 				}
+
+				[NSThread.currentThread.threadDictionary removeObjectForKey:RACSchedulerImmediateSchedulerQueueKey];
+			} else {
+				[queue addObject:block];
 			}
 		}];
 	});

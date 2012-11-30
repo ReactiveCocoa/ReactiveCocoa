@@ -481,7 +481,7 @@ static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), 
 
 + (id<RACSignal>)combineLatest:(NSArray *)signals reduce:(id)reduceBlock {
 	if (signals.count == 0) return self.empty;
-	static NSValue *(^keyForSubscriber)(RACSubscriber *) = ^ NSValue * (RACSubscriber *subscriber) {
+	static NSValue *(^keyForSubscriber)(RACSubscriber *) = ^(RACSubscriber *subscriber) {
 		return [NSValue valueWithNonretainedObject:subscriber];
 	};
 	signals = [signals copy];
@@ -878,7 +878,7 @@ static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), 
 + (id<RACSignal>)defer:(id<RACSignal> (^)(void))block {
 	NSParameterAssert(block != NULL);
 	
-	return [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		id<RACSignal> signal = block();
 		return [signal subscribe:[RACSubscriber subscriberWithNext:^(id x) {
 			[subscriber sendNext:x];

@@ -73,16 +73,6 @@ const void * RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 	return mainThreadScheduler;
 }
 
-+ (instancetype)sharedBackgroundScheduler {
-	static dispatch_once_t onceToken;
-	static RACScheduler *backgroundScheduler;
-	dispatch_once(&onceToken, ^{
-		backgroundScheduler = [self backgroundSchedulerWithPriority:RACSchedulerPriorityDefault];
-	});
-	
-	return backgroundScheduler;
-}
-
 + (instancetype)deferredScheduler {
 	static dispatch_once_t onceToken;
 	static RACScheduler *deferredScheduler;

@@ -41,10 +41,6 @@ typedef enum : long {
 // A singleton scheduler that executes blocks in the main thread.
 + (instancetype)mainThreadScheduler;
 
-// A singleton scheduler that executes blocks in GCD's default priority global
-// queue.
-+ (instancetype)sharedBackgroundScheduler;
-
 // A singleton scheduler that executes blocks in the current scheduler, after
 // any blocks already scheduled have completed. If the current scheduler cannot
 // be determined, it uses the main queue scheduler.

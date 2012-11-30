@@ -382,7 +382,7 @@ static NSMutableSet *activeSignals() {
 }
 
 + (RACSignal *)start:(id (^)(BOOL *success, NSError **error))block {
-	return [self startWithScheduler:RACScheduler.sharedBackgroundScheduler block:block];
+	return [self startWithScheduler:[RACScheduler backgroundSchedulerWithPriority:RACSchedulerPriorityDefault] block:block];
 }
 
 + (RACSignal *)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block {

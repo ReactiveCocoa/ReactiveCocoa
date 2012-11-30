@@ -28,16 +28,17 @@ it(@"should know its current scheduler", ^{
 		expect(currentScheduler).to.equal(expectedScheduler);
 	};
 
-	expectScheduler(RACScheduler.sharedBackgroundScheduler, ^(void (^captureCurrentScheduler)(void)) {
-		[RACScheduler.sharedBackgroundScheduler schedule:^{
+	RACScheduler *backgroundScheduler = [RACScheduler backgroundSchedulerWithPriority:RACSchedulerPriorityDefault];
+	expectScheduler(backgroundScheduler, ^(void (^captureCurrentScheduler)(void)) {
+		[backgroundScheduler schedule:^{
 			[RACScheduler.deferredScheduler schedule:^{
 				captureCurrentScheduler();
 			}];
 		}];
 	});
 
-	expectScheduler(RACScheduler.sharedBackgroundScheduler, ^(void (^captureCurrentScheduler)(void)) {
-		[RACScheduler.sharedBackgroundScheduler schedule:^{
+	expectScheduler(backgroundScheduler, ^(void (^captureCurrentScheduler)(void)) {
+		[backgroundScheduler schedule:^{
 			[RACScheduler.immediateScheduler schedule:^{
 				captureCurrentScheduler();
 			}];
@@ -46,7 +47,7 @@ it(@"should know its current scheduler", ^{
 
 	expectScheduler(RACScheduler.mainThreadScheduler, ^(void (^captureCurrentScheduler)(void)) {
 		[RACScheduler.mainThreadScheduler schedule:^{
-			[RACScheduler.sharedBackgroundScheduler schedule:^{
+			[backgroundScheduler schedule:^{
 				[RACScheduler.mainThreadScheduler schedule:^{
 					captureCurrentScheduler();
 				}];
@@ -54,7 +55,6 @@ it(@"should know its current scheduler", ^{
 		}];
 	});
 
-	RACScheduler *backgroundScheduler = [RACScheduler backgroundSchedulerWithPriority:RACSchedulerPriorityDefault];
 	expectScheduler(backgroundScheduler, ^(void (^captureCurrentScheduler)(void)) {
 		[backgroundScheduler schedule:^{
 			[RACScheduler.mainThreadScheduler schedule:^{
@@ -99,7 +99,7 @@ describe(@"+subscriptionScheduler", ^{
 
 	it(@"should execute scheduled blocks immediately if it's in a scheduler already", ^{
 		__block BOOL done = NO;
-		[RACScheduler.sharedBackgroundScheduler schedule:^{
+		[[RACScheduler backgroundSchedulerWithPriority:RACSchedulerPriorityDefault] schedule:^{
 			__block BOOL executedImmediately = NO;
 			[RACScheduler.subscriptionScheduler schedule:^{
 				executedImmediately = YES;

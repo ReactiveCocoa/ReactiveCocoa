@@ -25,6 +25,8 @@
 	NSParameterAssert(targetQueue != NULL);
 
 	_queue = dispatch_queue_create(name.UTF8String, DISPATCH_QUEUE_SERIAL);
+	if (_queue == nil) return nil;
+
 	dispatch_set_target_queue(_queue, targetQueue);
 	
 	return [super initWithName:name];
@@ -39,15 +41,9 @@ static void currentSchedulerRelease(void *context) {
 - (void)performAsCurrentScheduler:(void (^)(void))block {
 	NSParameterAssert(block != NULL);
 
-	if (self.queue != NULL) {
-		dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, (void *)CFBridgingRetain(self), currentSchedulerRelease);
-	}
-
+	dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, (void *)CFBridgingRetain(self), currentSchedulerRelease);
 	block();
-
-	if (self.queue != NULL) {
-		dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, nil, currentSchedulerRelease);
-	}
+	dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, nil, currentSchedulerRelease);
 }
 
 #pragma mark RACScheduler

@@ -48,7 +48,7 @@ typedef enum : long {
 
 // A singleton scheduler that executes blocks in the current scheduler, after
 // any blocks already scheduled have completed. If the current scheduler cannot
-// be determined, it uses the main queue scheduler.
+// be determined, it uses +mainThreadScheduler.
 + (instancetype)deferredScheduler;
 
 // Creates and returns a new scheduler with the given priority.

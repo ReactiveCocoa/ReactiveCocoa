@@ -319,6 +319,21 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 				}];
 				verifyValues(stream, @[ @"Ada Ada eats fish eats fish", @"Bob Bob cooks bear cooks bear", @"Dea Dea jumps rock jumps rock" ]);
 			});
+            
+            it(@"should handle multiples of the same side-effecting stream", ^{
+                __block NSUInteger counter = 0;
+                id<RACStream> sideEffectingStream = [streamWithValues(@[ @1, @2, @3 ]) map:^id(id value) {
+                    ++counter;
+                    return value;
+                }];
+                id<RACStream> stream = [streamClass zip:@[ sideEffectingStream, sideEffectingStream ] reduce:^ NSString * (id x, id y) {
+                    return [NSString stringWithFormat:@"%@%@", x, y];
+                }];
+                expect(counter).to.equal(0);
+                NSArray *expectedValues = @[ @"11", @"22", @"33" ];
+                verifyValues(stream, expectedValues);
+                expect(counter).to.equal(6);
+            });
 		});
 		
 		describe(@"+zip:", ^{

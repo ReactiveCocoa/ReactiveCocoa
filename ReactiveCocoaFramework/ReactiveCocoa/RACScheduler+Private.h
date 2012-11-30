@@ -8,8 +8,10 @@
 
 #import "RACScheduler.h"
 
+// The queue-specific current scheduler key.
 extern const void * RACSchedulerCurrentSchedulerKey;
 
+// A private interface for internal RAC use only.
 @interface RACScheduler ()
 
 // A dedicated scheduler for new subscriptions used to ensure that subscription

@@ -576,23 +576,20 @@ describe(@"-combineLatest:reduce:", ^{
 		}];
 		
 		NSMutableArray *receivedValues = NSMutableArray.array;
-		NSArray *expected = NSArray.array;
 		
 		[combined subscribeNext:^(id x) {
 			[receivedValues addObject:x];
 		}];
 		
 		[subject1 sendNext:@"apples"];
-		expect(receivedValues).to.equal(expected);
+		expect(receivedValues.lastObject).to.beNil();
 		
 		[subject2 sendNext:@"oranges"];
-		expected = @[ @"apples : oranges = apples : oranges" ];
-		expect(receivedValues).to.equal(expected);
+		expect(receivedValues.lastObject).to.equal(@"apples : oranges = apples : oranges");
 		
-		[subject2 sendNext:@"pears"];
-		
-		expected = @[ @"apples : oranges = apples : oranges", @"apples : pears = apples : pears" ];
-		expect(receivedValues).to.equal(expected);
+		[subject1 sendNext:@"horses"];
+		[subject2 sendNext:@"cattle"];
+		expect(receivedValues.lastObject).to.equal(@"horses : cattle = horses : cattle");
 	});
     
     it(@"should handle multiples of the same side-effecting signal", ^{

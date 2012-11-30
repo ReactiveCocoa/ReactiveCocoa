@@ -438,40 +438,46 @@ NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 }
 
 + (id<RACSignal>)combineLatest:(NSArray *)signals reduce:(id)reduceBlock {
-	signals = signals.copy;
-	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		NSSet *uniqueSignals = [NSSet setWithArray:signals];
-		NSMutableSet *disposables = [NSMutableSet setWithCapacity:uniqueSignals.count];
-		NSMutableSet *completedSignals = [NSMutableSet setWithCapacity:uniqueSignals.count];
-		NSMutableDictionary *lastValues = [NSMutableDictionary dictionaryWithCapacity:uniqueSignals.count];
-		for(id<RACSignal> signal in uniqueSignals) {
-			RACDisposable *disposable = [signal subscribe:[RACSubscriber subscriberWithNext:^(id x) {
+	static NSValue *(^keyForSubscriber)(RACSubscriber *) = ^ NSValue * (RACSubscriber *subscriber) {
+		return [NSValue valueWithNonretainedObject:subscriber];
+	};
+	signals = [signals copy];
+	return [RACSignal createSignal:^(id<RACSubscriber> outerSubscriber) {
+		NSMutableArray *innerSubscribers = [NSMutableArray arrayWithCapacity:signals.count];
+		NSMutableSet *disposables = [NSMutableSet setWithCapacity:signals.count];
+		NSMutableSet *completedSignals = [NSMutableSet setWithCapacity:signals.count];
+		NSMutableDictionary *lastValues = [NSMutableDictionary dictionaryWithCapacity:signals.count];
+		for(id<RACSignal> signal in signals) {
+			__block RACSubscriber *innerSubscriber = nil;
+			innerSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
 				@synchronized(lastValues) {
-					[lastValues setObject:x ? : [RACTupleNil tupleNil] forKey:[NSString stringWithFormat:@"%p", signal]];
-
-					if(lastValues.count == uniqueSignals.count) {
+					lastValues[keyForSubscriber(innerSubscriber)] = x ? : [RACTupleNil tupleNil];
+					
+					if(lastValues.count == signals.count) {
 						NSMutableArray *orderedValues = [NSMutableArray arrayWithCapacity:signals.count];
-						for(id<RACSignal> o in signals) {
-							[orderedValues addObject:[lastValues objectForKey:[NSString stringWithFormat:@"%p", o]]];
+						for(RACSubscriber *subscriber in innerSubscribers) {
+							[orderedValues addObject:lastValues[keyForSubscriber(subscriber)]];
 						}
-
+						
 						if (reduceBlock == NULL) {
-							[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:orderedValues]];
+							[outerSubscriber sendNext:[RACTuple tupleWithObjectsFromArray:orderedValues]];
 						} else {
-							[subscriber sendNext:[RACBlockTrampoline invokeBlock:reduceBlock withArguments:orderedValues]];
+							[outerSubscriber sendNext:[RACBlockTrampoline invokeBlock:reduceBlock withArguments:orderedValues]];
 						}
 					}
 				}
 			} error:^(NSError *error) {
-				[subscriber sendError:error];
+				[outerSubscriber sendError:error];
 			} completed:^{
 				@synchronized(completedSignals) {
 					[completedSignals addObject:signal];
-					if(completedSignals.count == uniqueSignals.count) {
-						[subscriber sendCompleted];
+					if(completedSignals.count == signals.count) {
+						[outerSubscriber sendCompleted];
 					}
 				}
-			}]];
+			}];
+			[innerSubscribers addObject:innerSubscriber];
+			RACDisposable *disposable = [signal subscribe:innerSubscriber];
 
 			if(disposable != nil) {
 				[disposables addObject:disposable];

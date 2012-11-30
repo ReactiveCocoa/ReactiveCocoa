@@ -445,7 +445,7 @@ static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), 
 }
 
 - (id<RACSignal>)collect {
-  return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+  return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
     NSMutableArray *collectedValues = [[NSMutableArray alloc] init];
     return [self subscribeNext:^(id x) {
       [collectedValues addObject:x];

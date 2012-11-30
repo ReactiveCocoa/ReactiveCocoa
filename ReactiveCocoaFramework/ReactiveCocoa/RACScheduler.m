@@ -181,8 +181,6 @@ static NSString * const RACSchedulerImmediateSchedulerQueueKey = @"RACSchedulerI
 	return subscriptionScheduler;
 }
 
-#pragma mark Scheduling
-
 + (BOOL)onMainThread {
 	return NSOperationQueue.currentQueue == NSOperationQueue.mainQueue || [NSThread isMainThread];
 }
@@ -194,6 +192,8 @@ static NSString * const RACSchedulerImmediateSchedulerQueueKey = @"RACSchedulerI
 
 	return nil;
 }
+
+#pragma mark Scheduling
 
 - (RACDisposable *)schedule:(void (^)(void))block {
 	NSParameterAssert(block != NULL);

@@ -29,7 +29,7 @@ typedef enum : long {
 // A singleton scheduler that immediately executes the blocks it is given.
 //
 // Note that unlike most other schedulers, this does not set the current
-// scheduler. There may be a valid current scheduler if this is used within a
+// scheduler. There may be a valid +currentScheduler if this is used within a
 // block scheduled on a different scheduler.
 + (instancetype)immediateScheduler;
 
@@ -46,9 +46,9 @@ typedef enum : long {
 // A singleton scheduler that executes blocks in the main thread.
 + (instancetype)mainThreadScheduler;
 
-// A singleton scheduler that executes blocks in the current scheduler, after
-// any blocks already scheduled have completed. If the current scheduler cannot
-// be determined, it uses +mainThreadScheduler.
+// A singleton scheduler that executes blocks in +currentScheduler, after any
+// blocks already scheduled have completed. If +currentScheduler is nil, it
+// uses +mainThreadScheduler.
 + (instancetype)deferredScheduler;
 
 // Creates and returns a new scheduler with the given priority.

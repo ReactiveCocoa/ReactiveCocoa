@@ -219,6 +219,7 @@ static NSMutableSet *activeSignals() {
 }
 
 + (instancetype)zip:(NSArray *)signals reduce:(id)reduceBlock {
+	if (signals.count == 0) return self.empty;
 	signals = [signals copy];
 	NSUInteger numSignals = signals.count;
 	return [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {

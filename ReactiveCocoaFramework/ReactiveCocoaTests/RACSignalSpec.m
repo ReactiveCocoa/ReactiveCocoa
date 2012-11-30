@@ -6,7 +6,6 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACSpecs.h"
 #import "RACPropertySignalExamples.h"
 #import "RACSequenceExamples.h"
 #import "RACStreamExamples.h"
@@ -361,7 +360,7 @@ describe(@"continuation", ^{
 	});
 });
 
-describe(@"-combineLatest:", ^{
+describe(@"+combineLatest:", ^{
 	__block id<RACSubscriber> subscriber1 = nil;
 	__block id<RACSubscriber> subscriber2 = nil;
 	__block RACSignal *signal1 = nil;
@@ -482,9 +481,20 @@ describe(@"-combineLatest:", ^{
 		
 		expect(errorCount).to.equal(1);
 	});
+
+	it(@"should complete immediately when not given any signals", ^{
+		id<RACSignal> signal = [RACSignal combineLatest:@[]];
+
+		__block BOOL completed = NO;
+		[signal subscribeCompleted:^{
+			completed = YES;
+		}];
+
+		expect(completed).to.beTruthy();
+	});
 });
 
-describe(@"-combineLatest:reduce:", ^{
+describe(@"+combineLatest:reduce:", ^{
 	__block RACSubject *subject1;
 	__block RACSubject *subject2;
 
@@ -981,6 +991,17 @@ describe(@"+merge:", ^{
 		NSArray *expected = @[ @1, @2, @3, @4 ];
 		expect(values).to.equal(expected);
 	});
+
+	it(@"should complete immediately when not given any signals", ^{
+		id<RACSignal> signal = [RACSignal merge:@[]];
+
+		__block BOOL completed = NO;
+		[signal subscribeCompleted:^{
+			completed = YES;
+		}];
+
+		expect(completed).to.beTruthy();
+	});
 });
 
 describe(@"-flatten:", ^{
@@ -1454,6 +1475,32 @@ describe(@"-sample:", ^{
 		[sampleSubject sendNext:RACUnit.defaultUnit];
 		expected = @[ @2, @3, @3 ];
 		expect(values).to.equal(expected);
+	});
+});
+
+describe(@"-collect", ^{
+	it(@"should send a single array when the original signal completes", ^{
+		RACSubject *subject = [RACSubject subject];
+		RACSignal *collected = [subject collect];
+
+		NSArray *expected = @[ @1, @2, @3 ];
+		__block id value = nil;
+		__block BOOL hasCompleted = NO;
+
+		[collected subscribeNext:^(id x) {
+			value = x;
+		} completed:^{
+			hasCompleted = YES;
+		}];
+
+		[subject sendNext:@1];
+		[subject sendNext:@2];
+		[subject sendNext:@3];
+		expect(value).to.beNil();
+
+		[subject sendCompleted];
+		expect(value).to.equal(expected);
+		expect(hasCompleted).to.beTruthy();
 	});
 });
 

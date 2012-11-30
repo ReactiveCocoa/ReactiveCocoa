@@ -55,7 +55,8 @@ typedef NSInteger RACSignalError;
 // `complete` or `error` after the nth `next`, then the resulting signal will
 // also complete or error after the nth `next`.
 //
-// signals     - The signals to combine.
+// signals     - The signals to combine. If this array is empty, the returned
+//               signal will immediately complete upon subscription.
 // reduceBlock - The block which reduces the latest values from all the signals
 //               into one value. It should take as many arguments as the number
 //               of signals given. Each argument will be an object argument,
@@ -123,12 +124,15 @@ typedef NSInteger RACSignalError;
 // will be a RACTuple of values.
 - (id<RACSignal>)bufferWithTime:(NSTimeInterval)interval;
 
+// Collect all receiver's `next`s into a NSArray.
+//
+// Returns a signal which sends a single NSArray when the receiver completes.
+- (id<RACSignal>)collect;
+
 // Takes the last `count` `next`s after the receiving signal completes.
 - (id<RACSignal>)takeLast:(NSUInteger)count;
 
-// Combine the latest values from each of the signals into a RACTuple, once all
-// the signals have sent a `next`. Any additional `next`s will result in a new
-// tuple with the changed value.
+// Invokes +combineLatest:reduce: with a nil `reduceBlock`.
 + (id<RACSignal>)combineLatest:(NSArray *)signals;
 
 // Combine the latest values from each of the signals once all the signals have
@@ -138,7 +142,8 @@ typedef NSInteger RACSignalError;
 // The `next` of the returned signal will be the return value of the
 // `reduceBlock`.
 //
-// signals     - The signals to combine.
+// signals     - The signals to combine. If empty or `nil`, the returned signal
+//               will immediately complete upon subscription.
 // reduceBlock - The block which reduces the latest values from all the
 //               signals into one value. It should take as many arguments as the
 //               number of signals given. Each argument will be an object

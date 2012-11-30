@@ -6,7 +6,6 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACSpecs.h"
 #import "NSObject+RACLifting.h"
 #import "RACTestObject.h"
 #import "RACSubject.h"

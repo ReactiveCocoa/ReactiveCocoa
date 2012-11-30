@@ -6,7 +6,6 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACSpecs.h"
 #import "NSObject+RACKVOWrapper.h"
 
 SpecBegin(RACKVOWrapper)

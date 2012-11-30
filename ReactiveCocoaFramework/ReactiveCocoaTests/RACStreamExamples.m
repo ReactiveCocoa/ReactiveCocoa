@@ -6,7 +6,6 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACSpecs.h"
 #import "RACStreamExamples.h"
 
 #import "RACStream.h"
@@ -369,6 +368,11 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			it(@"should make a stream of tuples out of an array of streams", ^{
 				id<RACStream> stream = [streamClass zip:threeStreams];
 				verifyValues(stream, threeTuples);
+			});
+
+			it(@"should make an empty stream if given an empty array", ^{
+				id<RACStream> stream = [streamClass zip:@[]];
+				verifyValues(stream, @[]);
 			});
 		});
 	});

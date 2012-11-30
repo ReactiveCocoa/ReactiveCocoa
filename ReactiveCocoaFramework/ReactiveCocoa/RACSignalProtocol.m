@@ -466,6 +466,8 @@ static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), 
 }
 
 + (id<RACSignal>)combineLatest:(NSArray *)signals reduce:(id)reduceBlock {
+	if (signals.count == 0) return self.empty;
+
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		NSMutableSet *disposables = [NSMutableSet setWithCapacity:signals.count];
 		NSMutableSet *completedSignals = [NSMutableSet setWithCapacity:signals.count];

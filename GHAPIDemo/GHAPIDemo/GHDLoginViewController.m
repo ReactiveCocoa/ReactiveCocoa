@@ -126,11 +126,11 @@
 - (void)loadView {
 	self.view = [GHDLoginView ghd_viewFromNib];
 	
-	[self.view.usernameTextField bind:NSValueBinding toObject:self withKeyPath:@keypath(self.username)];
-	[self.view.passwordTextField bind:NSValueBinding toObject:self withKeyPath:@keypath(self.password)];
-	[self.view.successTextField bind:NSHiddenBinding toObject:self withKeyPath:@keypath(self.successHidden)];
-	[self.view.couldNotLoginTextField bind:NSHiddenBinding toObject:self withKeyPath:@keypath(self.loginFailedHidden)];
-	[self.view.loggingInSpinner bind:NSHiddenBinding toObject:self withNegatedKeyPath:@keypath(self.loggingIn)];
+	[self.view.usernameTextField rac_bind:NSValueBinding toObject:self withKeyPath:@keypath(self.username)];
+	[self.view.passwordTextField rac_bind:NSValueBinding toObject:self withKeyPath:@keypath(self.password)];
+	[self.view.successTextField rac_bind:NSHiddenBinding toObject:self withKeyPath:@keypath(self.successHidden)];
+	[self.view.couldNotLoginTextField rac_bind:NSHiddenBinding toObject:self withKeyPath:@keypath(self.loginFailedHidden)];
+	[self.view.loggingInSpinner rac_bind:NSHiddenBinding toObject:self withNegatedKeyPath:@keypath(self.loggingIn)];
 	
 	[self.view.loggingInSpinner startAnimation:nil];
 	

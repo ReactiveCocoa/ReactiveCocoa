@@ -7,6 +7,7 @@
 //
 
 #import "RACStream.h"
+#import "RACTuple.h"
 
 @concreteprotocol(RACStream)
 
@@ -16,7 +17,7 @@
 	return nil;
 }
 
-- (instancetype)bind:(id (^)(id value, BOOL *stop))block {
+- (instancetype)bind:(RACStreamBindBlock (^)(void))block {
 	return nil;
 }
 
@@ -35,13 +36,15 @@
 #pragma mark Concrete methods
 
 - (instancetype)flattenMap:(id (^)(id value))block {
-	return [self bind:^(id value, BOOL *stop) {
-		return block(value);
+	return [self bind:^{
+		return ^(id value, BOOL *stop) {
+			return block(value);
+		};
 	}];
 }
 
 - (instancetype)flatten {
-	return [self bind:^(id value, BOOL *stop) {
+	return [self flattenMap:^(id value) {
 		NSAssert([value conformsToProtocol:@protocol(RACStream)], @"Stream %@ being flattened contains an object that is not a stream: %@", self, value);
 		return value;
 	}];
@@ -50,19 +53,25 @@
 - (instancetype)map:(id (^)(id value))block {
 	NSParameterAssert(block != nil);
 
-	return [self bind:^(id value, BOOL *stop) {
+	return [self flattenMap:^(id value) {
 		return [self.class return:block(value)];
+	}];
+}
+
+- (instancetype)mapReplace:(id)object {
+	return [self map:^(id _) {
+		return object;
 	}];
 }
 
 - (instancetype)filter:(BOOL (^)(id value))block {
 	NSParameterAssert(block != nil);
 
-	return [self bind:^ id (id value, BOOL *stop) {
+	return [self flattenMap:^ id (id value) {
 		if (block(value)) {
 			return [self.class return:value];
 		} else {
-			return [self.class empty];
+			return self.class.empty;
 		}
 	}];
 }
@@ -72,37 +81,104 @@
 }
 
 - (instancetype)skip:(NSUInteger)skipCount {
-	__block NSUInteger skipped = 0;
-	return [self bind:^(id value, BOOL *stop) {
-		if (skipped >= skipCount) return [self.class return:value];
+	return [self bind:^{
+		__block NSUInteger skipped = 0;
 
-		skipped++;
-		return self.class.empty;
+		return ^(id value, BOOL *stop) {
+			if (skipped >= skipCount) return [self.class return:value];
+
+			skipped++;
+			return self.class.empty;
+		};
 	}];
 }
 
 - (instancetype)take:(NSUInteger)count {
-	__block NSUInteger taken = 0;
-	return [self bind:^ id (id value, BOOL *stop) {
-		id<RACStream> result = self.class.empty;
+	return [self bind:^{
+		__block NSUInteger taken = 0;
 
-		if (taken < count) result = [self.class return:value];
-		if (++taken >= count) *stop = YES;
+		return ^ id (id value, BOOL *stop) {
+			id<RACStream> result = self.class.empty;
 
-		return result;
+			if (taken < count) result = [self.class return:value];
+			if (++taken >= count) *stop = YES;
+
+			return result;
+		};
 	}];
 }
 
 - (instancetype)sequenceMany:(id (^)(void))block {
 	NSParameterAssert(block != NULL);
 
-	return [self bind:^(id _, BOOL *stop) {
+	return [self flattenMap:^(id _) {
 		return block();
 	}];
 }
 
 + (instancetype)zip:(NSArray *)streams {
 	return [self zip:streams reduce:nil];
+}
+
+- (instancetype)scanWithStart:(id)startingValue combine:(id (^)(id running, id next))block {
+	NSParameterAssert(block != nil);
+
+	return [self bind:^{
+		__block id running = startingValue;
+
+		return ^(id value, BOOL *stop) {
+			running = block(running, value);
+			return [self.class return:running];
+		};
+	}];
+}
+
+- (instancetype)takeUntilBlock:(BOOL (^)(id x))predicate {
+	NSParameterAssert(predicate != nil);
+
+	return [self bind:^{
+		return ^ id (id value, BOOL *stop) {
+			if (predicate(value)) return nil;
+
+			return [self.class return:value];
+		};
+	}];
+}
+
+- (instancetype)takeWhileBlock:(BOOL (^)(id x))predicate {
+	NSParameterAssert(predicate != nil);
+
+	return [self takeUntilBlock:^ BOOL (id x) {
+		return !predicate(x);
+	}];
+}
+
+- (instancetype)skipUntilBlock:(BOOL (^)(id x))predicate {
+	NSParameterAssert(predicate != nil);
+
+	return [self bind:^{
+		__block BOOL skipping = YES;
+
+		return ^ id (id value, BOOL *stop) {
+			if (skipping) {
+				if (predicate(value)) {
+					skipping = NO;
+				} else {
+					return self.class.empty;
+				}
+			}
+
+			return [self.class return:value];
+		};
+	}];
+}
+
+- (instancetype)skipWhileBlock:(BOOL (^)(id x))predicate {
+	NSParameterAssert(predicate != nil);
+
+	return [self skipUntilBlock:^ BOOL (id x) {
+		return !predicate(x);
+	}];
 }
 
 @end

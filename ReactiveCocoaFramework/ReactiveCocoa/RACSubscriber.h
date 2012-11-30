@@ -10,7 +10,17 @@
 
 @class RACDisposable;
 
+// Represents any object which can directly receive values from a <RACSignal>.
+//
+// You generally shouldn't need to implement this protocol. +[RACSignal
+// createSignal:], <RACSignal>'s subscription methods, or RACSubject should work
+// for most uses.
+//
+// Implementors of this protocol may receive messages and values from multiple
+// threads simultaneously, and so should be thread-safe.
 @protocol RACSubscriber <NSObject>
+@required
+
 // Send the next value to subscribers. `value` can be nil.
 - (void)sendNext:(id)value;
 
@@ -22,9 +32,13 @@
 
 // Sends the subscriber the disposable that represents its subscription.
 - (void)didSubscribeWithDisposable:(RACDisposable *)disposable;
+
 @end
 
-
+// A simple block-based subscriber.
+//
+// You shouldn't need to interact with this class directly. Use
+// -subscribeNext:error:completed: from <RACSignal> instead.
 @interface RACSubscriber : NSObject <RACSubscriber>
 
 // Creates a new subscriber with the given blocks.

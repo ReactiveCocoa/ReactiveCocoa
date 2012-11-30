@@ -14,8 +14,8 @@
 
 SpecBegin(RACSubscriptingAssignmentTrampoline)
 
-void (^setupBlock)(RACTestObject *, NSString *, RACSubject *) = ^(RACTestObject *testObject, NSString *keyPath, RACSubject *subject) {
-	[RACSubscriptingAssignmentTrampoline trampoline][ [[RACSubscriptingAssignmentObjectKeyPathPair alloc] initWithObject:testObject keyPath:keyPath] ] = subject;
+id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, id<RACSignal> signal) {
+	[RACSubscriptingAssignmentTrampoline trampoline][ [[RACSubscriptingAssignmentObjectKeyPathPair alloc] initWithObject:testObject keyPath:keyPath] ] = signal;
 };
 
 itShouldBehaveLike(RACPropertySignalExamples, @{ RACPropertySignalExamplesSetupBlock: setupBlock }, nil);

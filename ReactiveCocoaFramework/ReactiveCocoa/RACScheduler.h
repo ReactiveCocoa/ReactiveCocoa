@@ -33,7 +33,7 @@ typedef enum : long {
 // block scheduled on a different scheduler.
 + (instancetype)immediateScheduler;
 
-// A singleton schedule like +immediateScheduler, with one important difference.
+// A singleton scheduler like +immediateScheduler, with one important difference.
 // If called within another +iterativeScheduler scheduled block, it will enqueue
 // the new block to be executed after the current block completes, as opposed to
 // executing it immediately.
@@ -58,7 +58,7 @@ typedef enum : long {
 + (instancetype)backgroundScheduler;
 
 // The current scheduler. This will only be valid when used from within a
-// -[RACScheduler schedule:] block.
+// -[RACScheduler schedule:] block or when on the main thread.
 + (instancetype)currentScheduler;
 
 // Schedule the given block for execution on the scheduler.

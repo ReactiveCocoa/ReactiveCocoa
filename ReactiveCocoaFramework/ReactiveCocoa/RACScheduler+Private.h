@@ -9,19 +9,19 @@
 #import "RACScheduler.h"
 
 // The queue-specific current scheduler key.
-extern const void * RACSchedulerCurrentSchedulerKey;
+extern const void *RACSchedulerCurrentSchedulerKey;
 
 // A private interface for internal RAC use only.
 @interface RACScheduler ()
 
 // A dedicated scheduler that fills two requirements:
 // 
-//  1. By the time subscription happens, we need a valid current scheduler.
-//  2. Subscription should happen as soon as possible.
+//   1. By the time subscription happens, we need a valid +currentScheduler.
+//   2. Subscription should happen as soon as possible.
 // 
-// To fulfill those two, if we already have a valid current scheduler, it
+// To fulfill those two, if we already have a valid +currentScheduler, it
 // immediately executes scheduled blocks. If we don't, it will execute scheduled
-// blocks with the main thread scheduler.
+// blocks with +mainThreadScheduler.
 + (instancetype)subscriptionScheduler;
 
 // Initializes the receiver with the given name.

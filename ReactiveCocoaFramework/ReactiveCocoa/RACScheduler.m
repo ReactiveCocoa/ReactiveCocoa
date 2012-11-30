@@ -16,7 +16,7 @@
 #import "RACSubscriptionScheduler.h"
 
 // The key for the queue-specific current scheduler.
-const void * RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
+const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 
 @interface RACScheduler ()
 @property (nonatomic, readonly, copy) NSString *name;

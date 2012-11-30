@@ -29,7 +29,8 @@ typedef enum : long {
 // A singleton scheduler that immediately executes the blocks it is given.
 //
 // Note that unlike most other schedulers, this does not set the current
-// scheduler.
+// scheduler. There may be a valid current scheduler if this is used within a
+// block scheduled on a different scheduler.
 + (instancetype)immediateScheduler;
 
 // A singleton schedule like +immediateScheduler, with one important difference.

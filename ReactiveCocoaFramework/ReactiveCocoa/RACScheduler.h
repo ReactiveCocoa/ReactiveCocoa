@@ -32,10 +32,14 @@ typedef enum : long {
 // scheduler.
 + (instancetype)immediateScheduler;
 
-// A singleton schedule like +immediateScheduler, with one important caveat. If
-// called within another +iterativeScheduler scheduled block, it will enqueue
+// A singleton schedule like +immediateScheduler, with one important difference.
+// If called within another +iterativeScheduler scheduled block, it will enqueue
 // the new block to be executed after the current block completes, as opposed to
-// executing it immediately. This is used to flatten possibly deep recursion.
+// executing it immediately.
+//
+// This should be used when you want to execute something immediately, unless it
+// would recurse. It prevents the possibility of stack overflow in deeply nested
+// scheduling.
 + (instancetype)iterativeScheduler;
 
 // A singleton scheduler that executes blocks in the main thread.

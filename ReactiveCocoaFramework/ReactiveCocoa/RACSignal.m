@@ -220,58 +220,57 @@ static NSMutableSet *activeSignals() {
 
 + (instancetype)zip:(NSArray *)signals reduce:(id)reduceBlock {
 	if (signals.count == 0) return self.empty;
-
-	static NSValue *(^keyForSignal)(id<RACSignal>) = ^ NSValue * (id<RACSignal> signal) {
-		return [NSValue valueWithNonretainedObject:signal];
-	};
-	
+	signals = [signals copy];
+	NSUInteger numSignals = signals.count;
 	return [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-		NSMutableSet *disposables = [NSMutableSet setWithCapacity:signals.count];
-		NSMutableDictionary *completedOrErrorBySignal = [NSMutableDictionary dictionaryWithCapacity:signals.count];
-		NSMutableDictionary *valuesBySignal = [NSMutableDictionary dictionaryWithCapacity:signals.count];
-		for (id<RACSignal> signal in signals) {
-			valuesBySignal[keyForSignal(signal)] = NSMutableArray.array;
+		NSMutableArray *disposables = [NSMutableArray arrayWithCapacity:numSignals];
+		NSMutableArray *completedOrErrorBySignal = [NSMutableArray arrayWithCapacity:numSignals];
+		NSMutableArray *valuesBySignal = [NSMutableArray arrayWithCapacity:numSignals];
+		for (NSUInteger i = 0; i < numSignals; ++i) {
+			[completedOrErrorBySignal addObject:@NO];
+			[valuesBySignal addObject:NSMutableArray.array];
 		}
 		
 		void (^sendCompleteOrErrorIfNecessary)(void) = ^{
-			NSError *error = nil;
-			for (id<RACSignal> signal in signals) {
-				if ([valuesBySignal[keyForSignal(signal)] count] == 0) {
-					id completedOrError = completedOrErrorBySignal[keyForSignal(signal)];
-					if ([completedOrError isKindOfClass:NSError.class]) {
-						error = completedOrError;
-						continue;
+			id errorOrTupleNil = nil;
+			for (NSUInteger i = 0; i < numSignals; ++i) {
+				if ([valuesBySignal[i] count] == 0) {
+					id completedOrError = completedOrErrorBySignal[i];
+					if ([completedOrError isEqual:RACTupleNil.tupleNil] || [completedOrError isKindOfClass:NSError.class]) {
+						errorOrTupleNil = completedOrError;
+					} else {
+						if ([completedOrError isEqual:@YES]) {
+							[subscriber sendCompleted];
+						}
+						return;
 					}
-					if (completedOrError != nil) {
-						[subscriber sendCompleted];
-					}
-					return;
 				}
 			}
-			if (error != nil) {
-				[subscriber sendError:error];
+			if (errorOrTupleNil != nil) {
+				[subscriber sendError:([errorOrTupleNil isEqual:RACTupleNil.tupleNil] ? nil : errorOrTupleNil)];
 			}
 		};
 		
-		for (id<RACSignal> signal in signals) {
+		for (NSUInteger i = 0; i < numSignals; ++i) {
+			id<RACSignal> signal = signals[i];
 			RACDisposable *disposable = [signal subscribeNext:^(id x) {
 				@synchronized(valuesBySignal) {
-					[valuesBySignal[keyForSignal(signal)] addObject:x ? : RACTupleNil.tupleNil];
+					[valuesBySignal[i] addObject:x ?: RACTupleNil.tupleNil];
 					
 					BOOL isMissingValues = NO;
-					NSMutableArray *earliestValues = [NSMutableArray arrayWithCapacity:signals.count];
-					for (id<RACSignal> signal in signals) {
-						NSArray *values = valuesBySignal[keyForSignal(signal)];
-						if (values.count == 0) {
+					NSMutableArray *earliestValues = [NSMutableArray arrayWithCapacity:numSignals];
+					for (NSUInteger j = 0; j < numSignals; ++j) {
+						NSArray *nexts = valuesBySignal[j];
+						if (nexts.count == 0) {
 							isMissingValues = YES;
 							break;
 						}
-						[earliestValues addObject:values[0]];
+						[earliestValues addObject:nexts[0]];
 					}
 					
 					if (!isMissingValues) {
-						for (NSMutableArray *values in valuesBySignal.allValues) {
-							[values removeObjectAtIndex:0];
+						for (NSMutableArray *nexts in valuesBySignal) {
+							[nexts removeObjectAtIndex:0];
 						}
 						
 						if (reduceBlock == NULL) {
@@ -285,16 +284,12 @@ static NSMutableSet *activeSignals() {
 				}
 			} error:^(NSError *error) {
 				@synchronized(valuesBySignal) {
-					if (completedOrErrorBySignal[keyForSignal(signal)] == nil) {
-						completedOrErrorBySignal[keyForSignal(signal)] = error;
-					}
+					completedOrErrorBySignal[i] = error ?: RACTupleNil.tupleNil;
 					sendCompleteOrErrorIfNecessary();
 				}
 			} completed:^{
 				@synchronized(valuesBySignal) {
-					if (completedOrErrorBySignal[keyForSignal(signal)] == nil) {
-						completedOrErrorBySignal[keyForSignal(signal)] = @YES;
-					}
+					completedOrErrorBySignal[i] = @YES;
 					sendCompleteOrErrorIfNecessary();
 				}
 			}];

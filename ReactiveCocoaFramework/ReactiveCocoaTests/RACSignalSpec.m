@@ -112,7 +112,7 @@ describe(@"subscribing", ^{
 	id nextValueSent = @"1";
 	
 	beforeEach(^{
-		signal = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+		signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:nextValueSent];
 			[subscriber sendCompleted];
 			return nil;
@@ -199,7 +199,7 @@ describe(@"querying", ^{
 	id nextValueSent = @"1";
 	
 	beforeEach(^{
-		signal = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+		signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:nextValueSent];
 			[subscriber sendNext:@"other value"];
 			[subscriber sendCompleted];
@@ -208,7 +208,7 @@ describe(@"querying", ^{
 	});
 	
 	it(@"should support window", ^{
-		RACSignal *signal = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@"1"];
 			[subscriber sendNext:@"2"];
 			[subscriber sendNext:@"3"];
@@ -301,7 +301,7 @@ describe(@"querying", ^{
 describe(@"continuation", ^{
 	it(@"shouldn't receive deferred errors", ^{
 		__block NSUInteger numberOfSubscriptions = 0;
-		RACSignal *signal = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			if(numberOfSubscriptions > 2) {
 				[subscriber sendCompleted];
 				return nil;
@@ -331,7 +331,7 @@ describe(@"continuation", ^{
 	
 	it(@"should repeat after completion", ^{
 		__block NSUInteger numberOfSubscriptions = 0;
-		RACSignal *signal = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			if(numberOfSubscriptions > 2) {
 				[subscriber sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
 				return nil;
@@ -368,11 +368,11 @@ describe(@"+combineLatest:", ^{
 	__block RACSignal *combined = nil;
 	
 	beforeEach(^{
-		signal1 = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+		signal1 = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			subscriber1 = subscriber;
 			return nil;
 		}],
-		signal2 = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+		signal2 = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			subscriber2 = subscriber;
 			return nil;
 		}],
@@ -579,11 +579,56 @@ describe(@"+combineLatest:reduce:", ^{
 
 		expect(completed).will.beTruthy();
 	});
+	
+	it(@"should handle multiples of the same signals", ^{
+		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2, subject1, subject2 ] reduce:^ NSString * (NSString *string1, NSString *string2, NSString *string3, NSString *string4) {
+			return [NSString stringWithFormat:@"%@ : %@ = %@ : %@", string1, string2, string3, string4];
+		}];
+		
+		NSMutableArray *receivedValues = NSMutableArray.array;
+		
+		[combined subscribeNext:^(id x) {
+			[receivedValues addObject:x];
+		}];
+		
+		[subject1 sendNext:@"apples"];
+		expect(receivedValues.lastObject).to.beNil();
+		
+		[subject2 sendNext:@"oranges"];
+		expect(receivedValues.lastObject).to.equal(@"apples : oranges = apples : oranges");
+		
+		[subject1 sendNext:@"horses"];
+		[subject2 sendNext:@"cattle"];
+		expect(receivedValues.lastObject).to.equal(@"horses : cattle = horses : cattle");
+	});
+    
+	it(@"should handle multiples of the same side-effecting signal", ^{
+		__block NSUInteger counter = 0;
+		RACSignal *sideEffectingSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			++counter;
+			[subscriber sendNext:@1];
+			[subscriber sendCompleted];
+			return nil;
+		}];
+		RACSignal *combined = [RACSignal combineLatest:@[ sideEffectingSignal, sideEffectingSignal ] reduce:^ NSString * (id x, id y) {
+			return [NSString stringWithFormat:@"%@%@", x, y];
+		}];
+		NSMutableArray *receivedValues = NSMutableArray.array;
+		
+		expect(counter).to.equal(0);
+		
+		[combined subscribeNext:^(id x) {
+			[receivedValues addObject:x];
+		}];
+		
+		expect(counter).to.equal(2);
+		expect(receivedValues).to.equal(@[ @"11" ]);
+	});
 });
 
 describe(@"distinctUntilChanged", ^{
 	it(@"should only send values that are distinct from the previous value", ^{
-		RACSignal *sub = [[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+		RACSignal *sub = [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendNext:@2];
 			[subscriber sendNext:@2];
@@ -599,7 +644,7 @@ describe(@"distinctUntilChanged", ^{
 	});
 
 	it(@"shouldn't consider nils to always be distinct", ^{
-		RACSignal *sub = [[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+		RACSignal *sub = [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendNext:nil];
 			[subscriber sendNext:nil];
@@ -615,7 +660,7 @@ describe(@"distinctUntilChanged", ^{
 	});
 
 	it(@"should consider initial nil to be distinct", ^{
-		RACSignal *sub = [[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+		RACSignal *sub = [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:nil];
 			[subscriber sendNext:nil];
 			[subscriber sendNext:@1];
@@ -1378,6 +1423,28 @@ describe(@"+zip:reduce:", ^{
 		expect(hasCompleted).to.beTruthy();
 	});
 	
+	it(@"should handle multiples of the same side-effecting signal", ^{
+		__block NSUInteger counter = 0;
+		RACSignal *sideEffectingSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			++counter;
+			[subscriber sendNext:@1];
+			[subscriber sendCompleted];
+			return nil;
+		}];
+		RACSignal *combined = [RACSignal zip:@[ sideEffectingSignal, sideEffectingSignal ] reduce:^ NSString * (id x, id y) {
+			return [NSString stringWithFormat:@"%@%@", x, y];
+		}];
+		NSMutableArray *receivedValues = NSMutableArray.array;
+		
+		expect(counter).to.equal(0);
+		
+		[combined subscribeNext:^(id x) {
+			[receivedValues addObject:x];
+		}];
+		
+		expect(counter).to.equal(2);
+		expect(receivedValues).to.equal(@[ @"11" ]);
+	});
 });
 
 describe(@"-sample:", ^{

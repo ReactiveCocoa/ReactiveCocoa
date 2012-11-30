@@ -18,24 +18,26 @@ const void * RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 static NSString * const RACSchedulerImmediateSchedulerQueueKey = @"RACSchedulerImmediateSchedulerQueueKey";
 
 @interface RACScheduler ()
-@property (nonatomic, copy) void (^scheduleBlock)(RACScheduler *scheduler, void (^block)(void));
-@property (nonatomic, assign) dispatch_queue_t queue;
+@property (nonatomic, readonly, copy) void (^scheduleBlock)(RACScheduler *scheduler, void (^block)(void));
+@property (nonatomic, readonly, assign) dispatch_queue_t queue;
+@property (nonatomic, readonly, copy) NSString *name;
 @end
 
 @implementation RACScheduler
 
 - (void)dealloc {
 	if (_queue != NULL) {
-		// TODO: This almost certainly isn't right. If there are still block on
-		// the queue they might still need the current scheduler.
-		dispatch_queue_set_specific(_queue, RACSchedulerCurrentSchedulerKey, nil, NULL);
 		dispatch_release(_queue);
 	}
 }
 
-#pragma mark API
+- (NSString *)description {
+	return [NSString stringWithFormat:@"<%@: %p> %@", self.class, self, self.name];
+}
 
-- (id)initWithQueue:(dispatch_queue_t)queue concurrent:(BOOL)concurrent scheduleBlock:(void (^)(RACScheduler *scheduler, void (^block)(void)))block {
+#pragma mark Initializers
+
+- (id)initWithQueue:(dispatch_queue_t)queue name:(NSString *)name scheduleBlock:(void (^)(RACScheduler *scheduler, void (^block)(void)))block {
 	NSParameterAssert(block != NULL);
 
 	self = [super init];
@@ -46,32 +48,40 @@ static NSString * const RACSchedulerImmediateSchedulerQueueKey = @"RACSchedulerI
 	if (queue != NULL) {
 		dispatch_retain(queue);
 		_queue = queue;
-
-		dispatch_queue_set_specific(_queue, RACSchedulerCurrentSchedulerKey, (__bridge void *)self, NULL);
 	}
 
-	_concurrent = concurrent;
+	if (name == nil) {
+		if (queue != NULL && dispatch_queue_get_label(queue) != NULL) {
+			name = @(dispatch_queue_get_label(queue));
+		} else {
+			name = @"com.ReactiveCocoa.RACScheduler.anonymousScheduler";
+		}
+	}
+
+	_name = [name copy];
 
 	return self;
 }
 
-- (id)initWithQueue:(dispatch_queue_t)queue concurrent:(BOOL)concurrent {
+- (id)initWithQueue:(dispatch_queue_t)queue {
 	NSParameterAssert(queue != NULL);
 
-	return [self initWithQueue:queue concurrent:concurrent scheduleBlock:^(RACScheduler *scheduler, void (^block)(void)) {
+	return [self initWithQueue:queue name:nil scheduleBlock:^(RACScheduler *scheduler, void (^block)(void)) {
 		dispatch_async(scheduler.queue, block);
 	}];
 }
 
-- (id)initWithScheduleBlock:(void (^)(RACScheduler *scheduler, void (^block)(void)))scheduleBlock {	
-	return [self initWithQueue:NULL concurrent:NO scheduleBlock:scheduleBlock];
+- (id)initWithName:(NSString *)name scheduleBlock:(void (^)(RACScheduler *scheduler, void (^block)(void)))scheduleBlock {
+	return [self initWithQueue:NULL name:name scheduleBlock:scheduleBlock];
 }
+
+#pragma mark Schedulers
 
 + (instancetype)immediateScheduler {
 	static dispatch_once_t onceToken;
-	static RACScheduler *immediateScheduler = nil;
+	static RACScheduler *immediateScheduler;
 	dispatch_once(&onceToken, ^{
-		immediateScheduler = [[RACScheduler alloc] initWithScheduleBlock:^(RACScheduler *scheduler, void (^block)(void)) {
+		immediateScheduler = [[RACScheduler alloc] initWithName:@"com.ReactiveCocoa.RACScheduler.immediateScheduler" scheduleBlock:^(RACScheduler *scheduler, void (^block)(void)) {
 			block();
 		}];
 	});
@@ -83,7 +93,7 @@ static NSString * const RACSchedulerImmediateSchedulerQueueKey = @"RACSchedulerI
 	static dispatch_once_t onceToken;
 	static RACScheduler *currentQueueScheduler;
 	dispatch_once(&onceToken, ^{
-		currentQueueScheduler = [[RACScheduler alloc] initWithScheduleBlock:^(RACScheduler *scheduler, void (^block)(void)) {
+		currentQueueScheduler = [[RACScheduler alloc] initWithName:@"com.ReactiveCocoa.RACScheduler.currentQueueScheduler" scheduleBlock:^(RACScheduler *scheduler, void (^block)(void)) {
 			@synchronized(scheduler) {
 				NSMutableArray *queue = NSThread.currentThread.threadDictionary[RACSchedulerImmediateSchedulerQueueKey];
 				if (queue == nil) {
@@ -111,24 +121,24 @@ static NSString * const RACSchedulerImmediateSchedulerQueueKey = @"RACSchedulerI
 
 + (instancetype)mainQueueScheduler {
 	static dispatch_once_t onceToken;
-	static RACScheduler *mainQueueScheduler = nil;
+	static RACScheduler *mainQueueScheduler;
 	dispatch_once(&onceToken, ^{
 		dispatch_queue_t queue = dispatch_queue_create("com.ReactiveCocoa.RACScheduler.mainQueueScheduler", DISPATCH_QUEUE_SERIAL);
 		dispatch_set_target_queue(queue, dispatch_get_main_queue());
-		mainQueueScheduler = [[RACScheduler alloc] initWithQueue:queue concurrent:NO];
+		mainQueueScheduler = [[RACScheduler alloc] initWithQueue:queue];
 		dispatch_release(queue);
 	});
 	
 	return mainQueueScheduler;
 }
 
-+ (instancetype)backgroundScheduler {
++ (instancetype)sharedBackgroundScheduler {
 	static dispatch_once_t onceToken;
-	static RACScheduler *backgroundScheduler = nil;
+	static RACScheduler *backgroundScheduler;
 	dispatch_once(&onceToken, ^{
-		dispatch_queue_t queue = dispatch_queue_create("com.ReactiveCocoa.RACScheduler.backgroundQueueScheduler", DISPATCH_QUEUE_CONCURRENT);
+		dispatch_queue_t queue = dispatch_queue_create("com.ReactiveCocoa.RACScheduler.sharedBackgroundScheduler", DISPATCH_QUEUE_SERIAL);
 		dispatch_set_target_queue(queue, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0));
-		backgroundScheduler = [[RACScheduler alloc] initWithQueue:queue concurrent:YES];
+		backgroundScheduler = [[RACScheduler alloc] initWithQueue:queue];
 		dispatch_release(queue);
 	});
 	
@@ -137,9 +147,9 @@ static NSString * const RACSchedulerImmediateSchedulerQueueKey = @"RACSchedulerI
 
 + (instancetype)deferredScheduler {
 	static dispatch_once_t onceToken;
-	static RACScheduler *deferredScheduler = nil;
+	static RACScheduler *deferredScheduler;
 	dispatch_once(&onceToken, ^{
-		deferredScheduler = [[RACScheduler alloc] initWithScheduleBlock:^(RACScheduler *scheduler, void (^block)(void)) {
+		deferredScheduler = [[RACScheduler alloc] initWithName:@"com.ReactiveCocoa.RACScheduler.deferredScheduler" scheduleBlock:^(RACScheduler *scheduler, void (^block)(void)) {
 			RACScheduler *currentScheduler = RACScheduler.currentScheduler ?: RACScheduler.mainQueueScheduler;
 			[currentScheduler schedule:block];
 		}];
@@ -148,50 +158,18 @@ static NSString * const RACSchedulerImmediateSchedulerQueueKey = @"RACSchedulerI
 	return deferredScheduler;
 }
 
-+ (instancetype)serialScheduler {
-	dispatch_queue_t queue = dispatch_queue_create("com.ReactiveCocoa.RACScheduler.serialScheduler", DISPATCH_QUEUE_SERIAL);
-	RACScheduler *scheduler = [[self alloc] initWithQueue:queue concurrent:NO];
++ (instancetype)backgroundScheduler {
+	dispatch_queue_t queue = dispatch_queue_create("com.ReactiveCocoa.RACScheduler.backgroundScheduler", DISPATCH_QUEUE_SERIAL);
+	RACScheduler *scheduler = [[self alloc] initWithQueue:queue];
 	dispatch_release(queue);
 	return scheduler;
-}
-
-+ (instancetype)concurrentScheduler {
-	dispatch_queue_t queue = dispatch_queue_create("com.ReactiveCocoa.RACScheduler.concurrentScheduler", DISPATCH_QUEUE_CONCURRENT);
-	RACScheduler *scheduler = [[self alloc] initWithQueue:queue concurrent:YES];
-	dispatch_release(queue);
-	return scheduler;
-}
-
-- (instancetype)asSerialScheduler {
-	if (!self.concurrent) return self;
-
-	NSParameterAssert(self.queue != NULL);
-
-	dispatch_queue_t queue = dispatch_queue_create("com.ReactiveCocoa.RACScheduler.asSerialScheduler", DISPATCH_QUEUE_SERIAL);
-	dispatch_set_target_queue(queue, self.queue);
-	RACScheduler *serializedScheduler = [[RACScheduler alloc] initWithQueue:queue concurrent:NO];
-	dispatch_release(queue);
-	return serializedScheduler;
-}
-
-+ (BOOL)onMainThread {
-	return NSOperationQueue.currentQueue == NSOperationQueue.mainQueue || [NSThread isMainThread];
-}
-
-+ (instancetype)currentScheduler {
-	RACScheduler *scheduler = (__bridge id)dispatch_get_specific(RACSchedulerCurrentSchedulerKey);
-	if (scheduler != nil) return scheduler;
-
-	if (self.class.onMainThread) return RACScheduler.mainQueueScheduler;
-
-	return nil;
 }
 
 + (instancetype)subscriptionScheduler {
 	static dispatch_once_t onceToken;
 	static RACScheduler *subscriptionScheduler;
 	dispatch_once(&onceToken, ^{
-		subscriptionScheduler = [[RACScheduler alloc] initWithScheduleBlock:^(RACScheduler *scheduler, void (^block)(void)) {
+		subscriptionScheduler = [[RACScheduler alloc] initWithName:@"com.ReactiveCocoa.RACScheduler.subscriptionScheduler" scheduleBlock:^(RACScheduler *scheduler, void (^block)(void)) {
 			if (RACScheduler.currentScheduler == nil) {
 				[RACScheduler.mainQueueScheduler schedule:block];
 			} else {
@@ -203,6 +181,20 @@ static NSString * const RACSchedulerImmediateSchedulerQueueKey = @"RACSchedulerI
 	return subscriptionScheduler;
 }
 
+#pragma mark Scheduling
+
++ (BOOL)onMainThread {
+	return NSOperationQueue.currentQueue == NSOperationQueue.mainQueue || [NSThread isMainThread];
+}
+
++ (instancetype)currentScheduler {
+	RACScheduler *scheduler = (__bridge id)dispatch_get_specific(RACSchedulerCurrentSchedulerKey);
+	if (scheduler != nil) return scheduler;
+	if (self.class.onMainThread) return RACScheduler.mainQueueScheduler;
+
+	return nil;
+}
+
 - (RACDisposable *)schedule:(void (^)(void))block {
 	NSParameterAssert(block != NULL);
 
@@ -210,7 +202,7 @@ static NSString * const RACSchedulerImmediateSchedulerQueueKey = @"RACSchedulerI
 	self.scheduleBlock(self, ^{
 		if (disposed == 1) return;
 
-		block();
+		[self performAsCurrentScheduler:block];
 	});
 
 	return [RACDisposable disposableWithBlock:^{
@@ -218,16 +210,22 @@ static NSString * const RACSchedulerImmediateSchedulerQueueKey = @"RACSchedulerI
 	}];
 }
 
-- (dispatch_queue_t)queue {
-	if (_queue != NULL) return _queue;
-
-	return RACScheduler.currentScheduler.queue;
+static void currentSchedulerRelease(void *context) {
+	CFBridgingRelease(context);
 }
 
-- (BOOL)concurrent {
-	if (_queue != NULL) return _concurrent;
+- (void)performAsCurrentScheduler:(void (^)(void))block {
+	NSParameterAssert(block != NULL);
 
-	return RACScheduler.currentScheduler.concurrent;
+	if (self.queue != NULL) {
+		dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, (void *)CFBridgingRetain(self), currentSchedulerRelease);
+	}
+
+	block();
+
+	if (self.queue != NULL) {
+		dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, nil, currentSchedulerRelease);
+	}
 }
 
 @end

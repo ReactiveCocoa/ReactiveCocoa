@@ -13,10 +13,7 @@
 // Schedulers are used to control when and in which queue work is performed.
 @interface RACScheduler : NSObject
 
-// Is this scheduler concurrent?
-@property (nonatomic, readonly, getter = isConcurrent) BOOL concurrent;
-
-// A singleton scheduler that immediately performs the blocks it is given.
+// A singleton scheduler that immediately executes the blocks it is given.
 //
 // Note that unlike most other schedulers, this does not set the current
 // scheduler.
@@ -24,40 +21,32 @@
 
 // A singleton schedule like +immediateScheduler, with one important caveat. If
 // called within another +currentQueueScheduler scheduled block, it will enqueue
-// the new block to be performed after the current block completes, as opposed
-// to executing it immediately. This is used to flatten possibly deep recursion.
+// the new block to be executed after the current block completes, as opposed to
+// executing it immediately. This is used to flatten possibly deep recursion.
 + (instancetype)currentQueueScheduler;
 
-// A singleton scheduler that performs blocks asynchronously in the main queue.
+// A singleton scheduler that executes blocks in the main queue.
 + (instancetype)mainQueueScheduler;
 
-// A singleton scheduler that performs blocks asynchronously in GCD's default
-// priority global queue.
-+ (instancetype)backgroundScheduler;
+// A singleton scheduler that executes blocks in GCD's default priority global
+// queue.
++ (instancetype)sharedBackgroundScheduler;
 
-// A singleton scheduler that performs blocks asynchronously in the current
-// scheduler. If the current scheduler cannot be determined, it uses the main
-// queue scheduler.
+// A singleton scheduler that executes blocks in the current scheduler. If the
+// current scheduler cannot be determined, it uses the main queue scheduler.
 + (instancetype)deferredScheduler;
 
-// Creates and returns a new serial scheduler.
-+ (instancetype)serialScheduler;
+// Creates and returns a new scheduler which executes blocks in a background
+// queue.
++ (instancetype)backgroundScheduler;
 
-// Creates and returns a new concurrent scheduler.
-+ (instancetype)concurrentScheduler;
-
-// The current scheduler. This will only be valid when using from within a
+// The current scheduler. This will only be valid when used from within a
 // -[RACScheduler schedule:] block.
 + (instancetype)currentScheduler;
 
-// Returns a serial scheduler based on the concurrent receiver. If the receiver
-// is not concurrent, it returns self.
-- (instancetype)asSerialScheduler;
-
 // Schedule the given block for execution on the scheduler.
 //
-// Scheduled blocks will be executed in the order in which they were scheduled,
-// but they may be executed concurrently depending on the scheduler.
+// Scheduled blocks will be executed in the order in which they were scheduled.
 //
 // block - The block to schedule for execution. Cannot be nil.
 //

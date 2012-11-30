@@ -32,7 +32,7 @@ it(@"should know its current scheduler", ^{
 	expect(currentScheduler).willNot.beNil();
 	expect(currentScheduler).to.equal(scheduler);
 
-	scheduler = RACScheduler.backgroundScheduler;
+	scheduler = RACScheduler.sharedBackgroundScheduler;
 	currentScheduler = nil;
 	[scheduler schedule:^{
 		[RACScheduler.immediateScheduler schedule:^{
@@ -54,7 +54,7 @@ it(@"should know its current scheduler", ^{
 	expect(currentScheduler).willNot.beNil();
 	expect(currentScheduler).to.equal(scheduler);
 
-	scheduler = RACScheduler.serialScheduler;
+	scheduler = RACScheduler.backgroundScheduler;
 	currentScheduler = nil;
 	[RACScheduler.backgroundScheduler schedule:^{
 		[RACScheduler.mainQueueScheduler schedule:^{

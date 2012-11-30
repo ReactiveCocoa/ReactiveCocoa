@@ -1390,4 +1390,30 @@ describe(@"-sample:", ^{
 	});
 });
 
+describe(@"-collect", ^{
+  it(@"should send a single array when the original signal completes", ^{
+    RACSubject *subject = [RACSubject subject];
+    RACSignal *collected = [subject collect];
+    
+    NSArray *expected = @[ @1, @2, @3 ];
+    __block id value = nil;
+    __block BOOL hasCompleted = NO;
+    
+    [collected subscribeNext:^(id x) {
+      value = x;
+    } completed:^{
+      hasCompleted = YES;
+    }];
+    
+    [subject sendNext:@1];
+    [subject sendNext:@2];
+    [subject sendNext:@3];
+    expect(value).to.beNil();
+    
+    [subject sendCompleted];
+    expect(value).to.equal(expected);
+    expect(hasCompleted).to.beTruthy();
+  });
+});
+
 SpecEnd

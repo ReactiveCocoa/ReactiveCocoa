@@ -24,7 +24,7 @@ it(@"should get notified of file events", ^{
 	expect(testFileURL).notTo.beNil();
 
 	__block NSUInteger eventsReceived = 0;
-	RACDisposable *disposable = [[NSFileManager rac_watchForEventsForFileAtURL:testFileURL scheduler:RACScheduler.mainQueueScheduler] subscribeNext:^(id x) {
+	RACDisposable *disposable = [[NSFileManager rac_watchForEventsForFileAtURL:testFileURL scheduler:RACScheduler.mainThreadScheduler] subscribeNext:^(id x) {
 		expect(x).to.equal(testFileURL);
 		eventsReceived++;
 	}];
@@ -47,7 +47,7 @@ it(@"should complete when the file's deleted", ^{
 	expect(testFileURL).notTo.beNil();
 
 	__block BOOL completed = NO;
-	RACDisposable *disposable = [[NSFileManager rac_watchForEventsForFileAtURL:testFileURL scheduler:RACScheduler.mainQueueScheduler] subscribeCompleted:^{
+	RACDisposable *disposable = [[NSFileManager rac_watchForEventsForFileAtURL:testFileURL scheduler:RACScheduler.mainThreadScheduler] subscribeCompleted:^{
 		completed = YES;
 	}];
 

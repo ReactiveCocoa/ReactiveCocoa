@@ -8,6 +8,19 @@
 
 #import <Foundation/Foundation.h>
 
+// The priority for the scheduler.
+//
+// RACSchedulerPriorityHigh       - High priority.
+// RACSchedulerPriorityDefault    - Default priority.
+// RACSchedulerPriorityLow        - Low priority.
+// RACSchedulerPriorityBackground - Background priority.
+typedef enum : long {
+	RACSchedulerPriorityHigh = DISPATCH_QUEUE_PRIORITY_HIGH,
+	RACSchedulerPriorityDefault = DISPATCH_QUEUE_PRIORITY_DEFAULT,
+	RACSchedulerPriorityLow = DISPATCH_QUEUE_PRIORITY_LOW,
+	RACSchedulerPriorityBackground = DISPATCH_QUEUE_PRIORITY_BACKGROUND,
+} RACSchedulerPriority;
+
 @class RACDisposable;
 
 // Schedulers are used to control when and in which queue work is performed.
@@ -20,25 +33,25 @@
 + (instancetype)immediateScheduler;
 
 // A singleton schedule like +immediateScheduler, with one important caveat. If
-// called within another +currentQueueScheduler scheduled block, it will enqueue
+// called within another +iterativeScheduler scheduled block, it will enqueue
 // the new block to be executed after the current block completes, as opposed to
 // executing it immediately. This is used to flatten possibly deep recursion.
-+ (instancetype)currentQueueScheduler;
++ (instancetype)iterativeScheduler;
 
-// A singleton scheduler that executes blocks in the main queue.
-+ (instancetype)mainQueueScheduler;
+// A singleton scheduler that executes blocks in the main thread.
++ (instancetype)mainThreadScheduler;
 
 // A singleton scheduler that executes blocks in GCD's default priority global
 // queue.
 + (instancetype)sharedBackgroundScheduler;
 
-// A singleton scheduler that executes blocks in the current scheduler. If the
-// current scheduler cannot be determined, it uses the main queue scheduler.
+// A singleton scheduler that executes blocks in the current scheduler, after
+// any blocks already scheduled have completed. If the current scheduler cannot
+// be determined, it uses the main queue scheduler.
 + (instancetype)deferredScheduler;
 
-// Creates and returns a new scheduler which executes blocks in a background
-// queue.
-+ (instancetype)backgroundScheduler;
+// Creates and returns a new scheduler with the given priority.
++ (instancetype)backgroundSchedulerWithPriority:(RACSchedulerPriority)priority;
 
 // The current scheduler. This will only be valid when used from within a
 // -[RACScheduler schedule:] block.
@@ -49,9 +62,6 @@
 // Scheduled blocks will be executed in the order in which they were scheduled.
 //
 // block - The block to schedule for execution. Cannot be nil.
-//
-// Returns a disposable which can be disposed of to cancel the execution of the
-// block.
-- (RACDisposable *)schedule:(void (^)(void))block;
+- (void)schedule:(void (^)(void))block;
 
 @end

@@ -85,13 +85,13 @@
 		filter:^ BOOL (id x) {
 			return x != nil;
 		}] 
-		deliverOn:[RACScheduler backgroundScheduler]]
+		deliverOn:RACScheduler.sharedBackgroundScheduler]
 		flattenMap:^(NSURL *URL) {
 			@strongify(self);
 
 			return [self loadImageAtURL:URL];
 		}] 
-		deliverOn:[RACScheduler mainQueueScheduler]];
+		deliverOn:RACScheduler.mainThreadScheduler];
 	
 	// -merge: takes the latest value from the Signals. In this case, 
 	// we're using -[RACSignal return:] to make a Signal that 

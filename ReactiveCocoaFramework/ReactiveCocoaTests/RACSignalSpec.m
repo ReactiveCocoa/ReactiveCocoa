@@ -815,7 +815,7 @@ describe(@"memory management", ^{
 		__block BOOL completed = NO;
 		__block BOOL deallocd = NO;
 		@autoreleasepool {
-			[RACScheduler.backgroundScheduler schedule:^{
+			[RACScheduler.sharedBackgroundScheduler schedule:^{
 				RACSignal *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 					[subscriber sendCompleted];
 					return nil;
@@ -839,7 +839,7 @@ describe(@"memory management", ^{
 	it(@"should dealloc if the signal was created on a background queue, never gets any subscribers, and the background queue gets delayed", ^{
 		__block BOOL deallocd = NO;
 		@autoreleasepool {
-			[RACScheduler.backgroundScheduler schedule:^{
+			[RACScheduler.sharedBackgroundScheduler schedule:^{
 				RACSignal *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 					return nil;
 				}];
@@ -1197,11 +1197,11 @@ describe(@"+interval:", ^{
 	};
 
 	it(@"should fire repeatedly at every interval", ^{
-		expectItToWorkWithScheduler(RACScheduler.mainQueueScheduler);
+		expectItToWorkWithScheduler(RACScheduler.mainThreadScheduler);
 	});
 
 	it(@"should work on a background scheduler", ^{
-		expectItToWorkWithScheduler(RACScheduler.backgroundScheduler);
+		expectItToWorkWithScheduler(RACScheduler.sharedBackgroundScheduler);
 	});
 });
 

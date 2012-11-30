@@ -8,6 +8,8 @@
 
 #import "RACScheduler.h"
 
+extern const void * RACSchedulerCurrentSchedulerKey;
+
 @interface RACScheduler ()
 
 // A dedicated scheduler for new subscriptions used to ensure that subscription
@@ -15,5 +17,12 @@
 // schedule blocks are immediately performed. If not, blocks are scheduled with
 // the +mainQueueScheduler.
 + (instancetype)subscriptionScheduler;
+
+// Initializes the receiver with the given name.
+//
+// name - The name of the scheduler. If nil, a default name will be used.
+//
+// Returns the initialized object.
+- (id)initWithName:(NSString *)name;
 
 @end

@@ -44,37 +44,26 @@ it(@"should know its current scheduler", ^{
 		}];
 	});
 
-	expectScheduler(RACScheduler.mainQueueScheduler, ^(void (^captureCurrentScheduler)(void)) {
-		[RACScheduler.mainQueueScheduler schedule:^{
-			[RACScheduler.backgroundScheduler schedule:^{
-				[RACScheduler.mainQueueScheduler schedule:^{
+	expectScheduler(RACScheduler.mainThreadScheduler, ^(void (^captureCurrentScheduler)(void)) {
+		[RACScheduler.mainThreadScheduler schedule:^{
+			[RACScheduler.sharedBackgroundScheduler schedule:^{
+				[RACScheduler.mainThreadScheduler schedule:^{
 					captureCurrentScheduler();
 				}];
 			}];
 		}];
 	});
 
-	RACScheduler *backgroundScheduler = RACScheduler.backgroundScheduler;
+	RACScheduler *backgroundScheduler = [RACScheduler backgroundSchedulerWithPriority:RACSchedulerPriorityDefault];
 	expectScheduler(backgroundScheduler, ^(void (^captureCurrentScheduler)(void)) {
 		[backgroundScheduler schedule:^{
-			[RACScheduler.mainQueueScheduler schedule:^{
+			[RACScheduler.mainThreadScheduler schedule:^{
 				[backgroundScheduler schedule:^{
 					captureCurrentScheduler();
 				}];
 			}];
 		}];
 	});
-});
-
-it(@"shouldn't execute a disposed block", ^{
-	__block BOOL executed = NO;
-	RACDisposable *disposable = [RACScheduler.deferredScheduler schedule:^{
-		executed = YES;
-	}];
-
-	expect(executed).to.beFalsy();
-	[disposable dispose];
-	expect(executed).willNot.beTruthy();
 });
 
 describe(@"+deferredScheduler", ^{
@@ -124,15 +113,15 @@ describe(@"+subscriptionScheduler", ^{
 	});
 });
 
-describe(@"+currentQueueScheduler", ^{
+describe(@"+iterativeScheduler", ^{
 	it(@"should flatten any recursive scheduled blocks", ^{
 		NSMutableArray *order = [NSMutableArray array];
-		[RACScheduler.currentQueueScheduler schedule:^{
+		[RACScheduler.iterativeScheduler schedule:^{
 			[order addObject:@1];
-			[RACScheduler.currentQueueScheduler schedule:^{
+			[RACScheduler.iterativeScheduler schedule:^{
 				[order addObject:@3];
 
-				[RACScheduler.currentQueueScheduler schedule:^{
+				[RACScheduler.iterativeScheduler schedule:^{
 					[order addObject:@5];
 				}];
 

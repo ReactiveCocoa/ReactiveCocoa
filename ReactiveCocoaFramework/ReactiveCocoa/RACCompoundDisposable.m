@@ -33,7 +33,7 @@
 	if (self == nil) return nil;
 
 	_disposables = [NSMutableArray array];
-	[_disposables addObjectsFromArray:disposables];
+	if (disposables != nil) [_disposables addObjectsFromArray:disposables];
 
 	return self;
 }

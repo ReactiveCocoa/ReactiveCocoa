@@ -490,15 +490,14 @@ static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), 
 		NSMutableSet *disposables = [NSMutableSet setWithCapacity:signals.count];
 		NSMutableSet *completedSignals = [NSMutableSet setWithCapacity:signals.count];
 		NSMutableDictionary *lastValues = [NSMutableDictionary dictionaryWithCapacity:signals.count];
-		for(id<RACSignal> signal in signals) {
-			__block RACSubscriber *innerSubscriber = nil;
-			innerSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
+		for (id<RACSignal> signal in signals) {
+			__block RACSubscriber *innerSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
 				@synchronized(lastValues) {
-					lastValues[keyForSubscriber(innerSubscriber)] = x ? : [RACTupleNil tupleNil];
+					lastValues[keyForSubscriber(innerSubscriber)] = x ?: [RACTupleNil tupleNil];
 					
 					if(lastValues.count == signals.count) {
 						NSMutableArray *orderedValues = [NSMutableArray arrayWithCapacity:signals.count];
-						for(RACSubscriber *subscriber in innerSubscribers) {
+						for (RACSubscriber *subscriber in innerSubscribers) {
 							[orderedValues addObject:lastValues[keyForSubscriber(subscriber)]];
 						}
 						
@@ -521,14 +520,14 @@ static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), 
 			}];
 			[innerSubscribers addObject:innerSubscriber];
 			RACDisposable *disposable = [signal subscribe:innerSubscriber];
-
-			if(disposable != nil) {
+			
+			if (disposable != nil) {
 				[disposables addObject:disposable];
 			}
 		}
-
+		
 		return [RACDisposable disposableWithBlock:^{
-			for(RACDisposable *disposable in disposables) {
+			for (RACDisposable *disposable in disposables) {
 				[disposable dispose];
 			}
 		}];

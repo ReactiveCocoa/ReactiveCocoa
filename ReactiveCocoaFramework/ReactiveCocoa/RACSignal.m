@@ -255,7 +255,7 @@ static NSMutableSet *activeSignals() {
 			id<RACSignal> signal = signals[i];
 			RACDisposable *disposable = [signal subscribeNext:^(id x) {
 				@synchronized(valuesBySignal) {
-					[valuesBySignal[i] addObject:x ? : RACTupleNil.tupleNil];
+					[valuesBySignal[i] addObject:x ?: RACTupleNil.tupleNil];
 					
 					BOOL isMissingValues = NO;
 					NSMutableArray *earliestValues = [NSMutableArray arrayWithCapacity:numSignals];

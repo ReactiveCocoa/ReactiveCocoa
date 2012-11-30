@@ -17,6 +17,8 @@
 #import "RACSubscriber.h"
 #import "RACTuple.h"
 #import "RACBlockTrampoline.h"
+#import "RACScheduler+Private.h"
+#import "RACCompoundDisposable.h"
 #import <libkern/OSAtomic.h>
 
 static NSMutableSet *activeSignals() {
@@ -339,12 +341,11 @@ static NSMutableSet *activeSignals() {
 		}
 	}];
 
-	RACDisposable *disposable = defaultDisposable;
+	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposableWithDisposables:@[ defaultDisposable ]];
 	if(self.didSubscribe != NULL) {
-		RACDisposable *innerDisposable = self.didSubscribe(subscriber);
-		disposable = [RACDisposable disposableWithBlock:^{
-			[innerDisposable dispose];
-			[defaultDisposable dispose];
+		[RACScheduler.subscriptionScheduler schedule:^{
+			RACDisposable *innerDisposable = self.didSubscribe(subscriber);
+			if (innerDisposable != nil) [disposable addDisposable:innerDisposable];
 		}];
 	}
 	

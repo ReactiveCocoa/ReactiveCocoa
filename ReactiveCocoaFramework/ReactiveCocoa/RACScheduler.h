@@ -29,18 +29,22 @@ typedef enum : long {
 // A singleton scheduler that immediately executes the blocks it is given.
 //
 // Note that unlike most other schedulers, this does not set the current
-// scheduler. There may be a valid +currentScheduler if this is used within a
-// block scheduled on a different scheduler.
+// scheduler. There may still be a valid +currentScheduler if this is used
+// within a block scheduled on a different scheduler.
 + (instancetype)immediateScheduler;
 
 // A singleton scheduler like +immediateScheduler, with one important difference.
 // If called within another +iterativeScheduler scheduled block, it will enqueue
-// the new block to be executed after the current block completes, as opposed to
-// executing it immediately.
+// the new block to be executed immediately after the current block completes,
+// as opposed to executing it immediately within the current block.
 //
 // This should be used when you want to execute something immediately, unless it
 // would recurse. It prevents the possibility of stack overflow in deeply nested
 // scheduling.
+//
+// Note that unlike most other schedulers, this does not set the current
+// scheduler. There may still be a valid +currentScheduler if this is used
+// within a block scheduled on a different scheduler.
 + (instancetype)iterativeScheduler;
 
 // A singleton scheduler that executes blocks in the main thread.

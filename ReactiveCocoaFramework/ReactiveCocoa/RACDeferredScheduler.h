@@ -8,9 +8,9 @@
 
 #import "RACScheduler.h"
 
-// A scheduler that executes blocks in the current scheduler, after any blocks
-// already scheduled have completed. If the current scheduler cannot be
-// determined, it uses the main queue scheduler.
+// A scheduler that executes blocks in +currentScheduler, after any blocks
+// already scheduled have completed. If +currentScheduler is nil, it uses
+// +mainThreadScheduler.
 @interface RACDeferredScheduler : RACScheduler
 
 @end

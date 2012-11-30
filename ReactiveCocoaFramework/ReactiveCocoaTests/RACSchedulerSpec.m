@@ -12,7 +12,10 @@
 
 SpecBegin(RACScheduler)
 
-RACScheduler * (^expectNonNilScheduler)(void (^)(void (^)(void))) = ^(void (^block)(void (^)(void))) {
+// Performs the given block and captures +currentScheduler when the passed-in
+// block is executed. It then expects that the captured +currentScheduler will
+// not be nil.
+RACScheduler * (^expectNonNilScheduler)(void (^)(dispatch_block_t)) = ^(void (^block)(dispatch_block_t)) {
 	__block RACScheduler *currentScheduler;
 	block(^{
 		currentScheduler = RACScheduler.currentScheduler;
@@ -23,7 +26,10 @@ RACScheduler * (^expectNonNilScheduler)(void (^)(void (^)(void))) = ^(void (^blo
 };
 
 it(@"should know its current scheduler", ^{
-	void (^expectScheduler)(RACScheduler *, void (^)(void (^)(void))) = ^(RACScheduler *expectedScheduler, void (^block)(void (^)(void))) {
+	// Performs the given block and captures +currentScheduler when the
+	// passed-in block is executed. It then expects that the captured
+	// +currentScheduler will equal the expected scheduler.
+	void (^expectScheduler)(RACScheduler *, void (^)(dispatch_block_t)) = ^(RACScheduler *expectedScheduler, void (^block)(dispatch_block_t)) {
 		RACScheduler *currentScheduler = expectNonNilScheduler(block);
 		expect(currentScheduler).to.equal(expectedScheduler);
 	};

@@ -101,14 +101,14 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 	return subscriptionScheduler;
 }
 
-+ (BOOL)onMainThread {
-	return NSOperationQueue.currentQueue == NSOperationQueue.mainQueue || [NSThread isMainThread];
++ (BOOL)isOnMainThread {
+	return [NSOperationQueue.currentQueue isEqual:NSOperationQueue.mainQueue] || [NSThread isMainThread];
 }
 
 + (instancetype)currentScheduler {
 	RACScheduler *scheduler = (__bridge id)dispatch_get_specific(RACSchedulerCurrentSchedulerKey);
 	if (scheduler != nil) return scheduler;
-	if (self.class.onMainThread) return RACScheduler.mainThreadScheduler;
+	if ([self.class isOnMainThread]) return RACScheduler.mainThreadScheduler;
 
 	return nil;
 }

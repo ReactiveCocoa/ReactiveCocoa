@@ -592,28 +592,28 @@ describe(@"-combineLatest:reduce:", ^{
 		expect(receivedValues.lastObject).to.equal(@"horses : cattle = horses : cattle");
 	});
     
-    it(@"should handle multiples of the same side-effecting signal", ^{
-        __block NSUInteger counter = 0;
-        RACSignal *sideEffectingSignal = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
-            ++counter;
-            [subscriber sendNext:@1];
-            [subscriber sendCompleted];
+	it(@"should handle multiples of the same side-effecting signal", ^{
+		__block NSUInteger counter = 0;
+		RACSignal *sideEffectingSignal = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+			++counter;
+			[subscriber sendNext:@1];
+			[subscriber sendCompleted];
 			return nil;
-        }];
-        RACSignal *combined = [RACSignal combineLatest:@[ sideEffectingSignal, sideEffectingSignal ] reduce:^ NSString * (id x, id y) {
-            return [NSString stringWithFormat:@"%@%@", x, y];
-        }];
+		}];
+		RACSignal *combined = [RACSignal combineLatest:@[ sideEffectingSignal, sideEffectingSignal ] reduce:^ NSString * (id x, id y) {
+			return [NSString stringWithFormat:@"%@%@", x, y];
+		}];
 		NSMutableArray *receivedValues = NSMutableArray.array;
 		
-        expect(counter).to.equal(0);
+		expect(counter).to.equal(0);
 		
 		[combined subscribeNext:^(id x) {
 			[receivedValues addObject:x];
 		}];
-
-        expect(counter).to.equal(2);
+		
+		expect(counter).to.equal(2);
 		expect(receivedValues).to.equal(@[ @"11" ]);
-    });
+	});
 });
 
 describe(@"distinctUntilChanged", ^{

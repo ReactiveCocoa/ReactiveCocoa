@@ -28,7 +28,7 @@ it(@"should know its current scheduler", ^{
 		expect(currentScheduler).to.equal(expectedScheduler);
 	};
 
-	RACScheduler *backgroundScheduler = [RACScheduler backgroundSchedulerWithPriority:RACSchedulerPriorityDefault];
+	RACScheduler *backgroundScheduler = RACScheduler.backgroundScheduler;
 	expectScheduler(backgroundScheduler, ^(void (^captureCurrentScheduler)(void)) {
 		[backgroundScheduler schedule:^{
 			[RACScheduler.deferredScheduler schedule:^{
@@ -99,7 +99,7 @@ describe(@"+subscriptionScheduler", ^{
 
 	it(@"should execute scheduled blocks immediately if it's in a scheduler already", ^{
 		__block BOOL done = NO;
-		[[RACScheduler backgroundSchedulerWithPriority:RACSchedulerPriorityDefault] schedule:^{
+		[RACScheduler.backgroundScheduler schedule:^{
 			__block BOOL executedImmediately = NO;
 			[RACScheduler.subscriptionScheduler schedule:^{
 				executedImmediately = YES;

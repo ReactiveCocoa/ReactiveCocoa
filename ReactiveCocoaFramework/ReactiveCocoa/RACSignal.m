@@ -224,18 +224,18 @@ static NSMutableSet *activeSignals() {
 	NSUInteger numSignals = signals.count;
 	return [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		NSMutableArray *disposables = [NSMutableArray arrayWithCapacity:numSignals];
-		NSMutableArray *completedOrErrors = [NSMutableArray arrayWithCapacity:numSignals];
-		NSMutableArray *values = [NSMutableArray arrayWithCapacity:numSignals];
+		NSMutableArray *completedOrErrorBySignal = [NSMutableArray arrayWithCapacity:numSignals];
+		NSMutableArray *valuesBySignal = [NSMutableArray arrayWithCapacity:numSignals];
 		for (NSUInteger i = 0; i < numSignals; ++i) {
-			[completedOrErrors addObject:@NO];
-			[values addObject:NSMutableArray.array];
+			[completedOrErrorBySignal addObject:@NO];
+			[valuesBySignal addObject:NSMutableArray.array];
 		}
 		
 		void (^sendCompleteOrErrorIfNecessary)(void) = ^{
 			NSError *error = nil;
 			for (NSUInteger i = 0; i < numSignals; ++i) {
-				if ([values[i] count] == 0) {
-					id completedOrError = completedOrErrors[i];
+				if ([valuesBySignal[i] count] == 0) {
+					id completedOrError = completedOrErrorBySignal[i];
 					if ([completedOrError isKindOfClass:NSError.class]) {
 						error = completedOrError;
 					} else {
@@ -254,13 +254,13 @@ static NSMutableSet *activeSignals() {
 		for (NSUInteger i = 0; i < numSignals; ++i) {
 			id<RACSignal> signal = signals[i];
 			RACDisposable *disposable = [signal subscribeNext:^(id x) {
-				@synchronized(values) {
-					[values[i] addObject:x ? : RACTupleNil.tupleNil];
+				@synchronized(valuesBySignal) {
+					[valuesBySignal[i] addObject:x ? : RACTupleNil.tupleNil];
 					
 					BOOL isMissingValues = NO;
 					NSMutableArray *earliestValues = [NSMutableArray arrayWithCapacity:numSignals];
 					for (NSUInteger j = 0; j < numSignals; ++j) {
-						NSArray *nexts = values[j];
+						NSArray *nexts = valuesBySignal[j];
 						if (nexts.count == 0) {
 							isMissingValues = YES;
 							break;
@@ -269,7 +269,7 @@ static NSMutableSet *activeSignals() {
 					}
 					
 					if (!isMissingValues) {
-						for (NSMutableArray *nexts in values) {
+						for (NSMutableArray *nexts in valuesBySignal) {
 							[nexts removeObjectAtIndex:0];
 						}
 						
@@ -283,13 +283,13 @@ static NSMutableSet *activeSignals() {
 					sendCompleteOrErrorIfNecessary();
 				}
 			} error:^(NSError *error) {
-				@synchronized(values) {
-					completedOrErrors[i] = error;
+				@synchronized(valuesBySignal) {
+					completedOrErrorBySignal[i] = error;
 					sendCompleteOrErrorIfNecessary();
 				}
 			} completed:^{
-				@synchronized(values) {
-					completedOrErrors[i] = @YES;
+				@synchronized(valuesBySignal) {
+					completedOrErrorBySignal[i] = @YES;
 					sendCompleteOrErrorIfNecessary();
 				}
 			}];

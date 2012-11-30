@@ -23,7 +23,7 @@ typedef enum : long {
 
 @class RACDisposable;
 
-// Schedulers are used to control when and in which queue work is performed.
+// Schedulers are used to control when and where work is performed.
 @interface RACScheduler : NSObject
 
 // A singleton scheduler that immediately executes the blocks it is given.

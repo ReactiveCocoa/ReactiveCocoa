@@ -14,10 +14,14 @@ extern const void * RACSchedulerCurrentSchedulerKey;
 // A private interface for internal RAC use only.
 @interface RACScheduler ()
 
-// A dedicated scheduler for new subscriptions used to ensure that subscription
-// happens on a known scheduler. If the current scheduler can be determined,
-// schedule blocks are immediately performed. If not, blocks are scheduled with
-// the +mainQueueScheduler.
+// A dedicated scheduler that fills two requirements:
+// 
+//  1. By the time subscription happens, we need a valid current scheduler.
+//  2. Subscription should happen as soon as possible.
+// 
+// To fulfill those two, if we already have a valid current scheduler, it
+// immediately executes scheduled blocks. If we don't, it will execute scheduled
+// blocks with the main thread scheduler.
 + (instancetype)subscriptionScheduler;
 
 // Initializes the receiver with the given name.

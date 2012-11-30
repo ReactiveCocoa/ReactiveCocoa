@@ -219,6 +219,8 @@ static NSMutableSet *activeSignals() {
 }
 
 + (instancetype)zip:(NSArray *)signals reduce:(id)reduceBlock {
+	if (signals.count == 0) return self.empty;
+
 	static NSValue *(^keyForSignal)(id<RACSignal>) = ^ NSValue * (id<RACSignal> signal) {
 		return [NSValue valueWithNonretainedObject:signal];
 	};

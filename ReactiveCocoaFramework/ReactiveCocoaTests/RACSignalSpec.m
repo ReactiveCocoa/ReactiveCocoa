@@ -360,7 +360,7 @@ describe(@"continuation", ^{
 	});
 });
 
-describe(@"-combineLatest:", ^{
+describe(@"+combineLatest:", ^{
 	__block id<RACSubscriber> subscriber1 = nil;
 	__block id<RACSubscriber> subscriber2 = nil;
 	__block RACSignal *signal1 = nil;
@@ -481,9 +481,20 @@ describe(@"-combineLatest:", ^{
 		
 		expect(errorCount).to.equal(1);
 	});
+
+	it(@"should complete immediately when not given any signals", ^{
+		id<RACSignal> signal = [RACSignal combineLatest:@[]];
+
+		__block BOOL completed = NO;
+		[signal subscribeCompleted:^{
+			completed = YES;
+		}];
+
+		expect(completed).to.beTruthy();
+	});
 });
 
-describe(@"-combineLatest:reduce:", ^{
+describe(@"+combineLatest:reduce:", ^{
 	__block RACSubject *subject1;
 	__block RACSubject *subject2;
 
@@ -934,6 +945,17 @@ describe(@"+merge:", ^{
 
 		NSArray *expected = @[ @1, @2, @3, @4 ];
 		expect(values).to.equal(expected);
+	});
+
+	it(@"should complete immediately when not given any signals", ^{
+		id<RACSignal> signal = [RACSignal merge:@[]];
+
+		__block BOOL completed = NO;
+		[signal subscribeCompleted:^{
+			completed = YES;
+		}];
+
+		expect(completed).to.beTruthy();
 	});
 });
 

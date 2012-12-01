@@ -40,7 +40,7 @@ static NSString * const RACIterativeSchedulerQueue = @"RACIterativeSchedulerQueu
 
 		[NSThread.currentThread.threadDictionary removeObjectForKey:RACIterativeSchedulerQueue];
 	} else {
-		[queue addObject:block];
+		[queue addObject:[block copy]];
 	}
 }
 

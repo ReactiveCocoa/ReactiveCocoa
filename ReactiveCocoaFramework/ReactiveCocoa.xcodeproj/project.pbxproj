@@ -25,6 +25,7 @@
 		88037FD9150564D9001A5B19 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88037F8315056328001A5B19 /* ReactiveCocoa.framework */; };
 		8803807115056B22001A5B19 /* libExpecta.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8803805315056ACB001A5B19 /* libExpecta.a */; };
 		8803807215056B22001A5B19 /* libSpecta.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8803806615056AD7001A5B19 /* libSpecta.a */; };
+		8803C011166732BA00C36839 /* RACSchedulerSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 8803C010166732BA00C36839 /* RACSchedulerSpec.m */; };
 		8809D6EF15B1F1EE007E32AA /* JRSwizzle.h in Headers */ = {isa = PBXBuildFile; fileRef = 8809D6EC15B1F1EE007E32AA /* JRSwizzle.h */; };
 		8809D6F015B1F1EE007E32AA /* JRSwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = 8809D6ED15B1F1EE007E32AA /* JRSwizzle.m */; };
 		8809D6F115B1F1EE007E32AA /* JRSwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = 8809D6ED15B1F1EE007E32AA /* JRSwizzle.m */; };
@@ -32,6 +33,31 @@
 		880B9177150B09190008488E /* RACSubject.m in Sources */ = {isa = PBXBuildFile; fileRef = 880B9175150B09190008488E /* RACSubject.m */; };
 		881B37CC152260BF0079220B /* RACUnit.h in Headers */ = {isa = PBXBuildFile; fileRef = 881B37CA152260BF0079220B /* RACUnit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		881B37CD152260BF0079220B /* RACUnit.m in Sources */ = {isa = PBXBuildFile; fileRef = 881B37CB152260BF0079220B /* RACUnit.m */; };
+		881E86A21669304800667F7B /* RACCompoundDisposable.h in Headers */ = {isa = PBXBuildFile; fileRef = 881E86A01669304700667F7B /* RACCompoundDisposable.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		881E86A31669304800667F7B /* RACCompoundDisposable.h in Headers */ = {isa = PBXBuildFile; fileRef = 881E86A01669304700667F7B /* RACCompoundDisposable.h */; };
+		881E86A41669304800667F7B /* RACCompoundDisposable.m in Sources */ = {isa = PBXBuildFile; fileRef = 881E86A11669304700667F7B /* RACCompoundDisposable.m */; };
+		881E86A51669304800667F7B /* RACCompoundDisposable.m in Sources */ = {isa = PBXBuildFile; fileRef = 881E86A11669304700667F7B /* RACCompoundDisposable.m */; };
+		881E86BA1669350B00667F7B /* RACCompoundDisposableSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 881E86B91669350B00667F7B /* RACCompoundDisposableSpec.m */; };
+		881E87AC16695C5600667F7B /* RACQueueScheduler.h in Headers */ = {isa = PBXBuildFile; fileRef = 881E87AA16695C5600667F7B /* RACQueueScheduler.h */; };
+		881E87AD16695C5600667F7B /* RACQueueScheduler.h in Headers */ = {isa = PBXBuildFile; fileRef = 881E87AA16695C5600667F7B /* RACQueueScheduler.h */; };
+		881E87AE16695C5600667F7B /* RACQueueScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 881E87AB16695C5600667F7B /* RACQueueScheduler.m */; };
+		881E87AF16695C5600667F7B /* RACQueueScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 881E87AB16695C5600667F7B /* RACQueueScheduler.m */; };
+		881E87B216695EDF00667F7B /* RACImmediateScheduler.h in Headers */ = {isa = PBXBuildFile; fileRef = 881E87B016695EDF00667F7B /* RACImmediateScheduler.h */; };
+		881E87B316695EDF00667F7B /* RACImmediateScheduler.h in Headers */ = {isa = PBXBuildFile; fileRef = 881E87B016695EDF00667F7B /* RACImmediateScheduler.h */; };
+		881E87B416695EDF00667F7B /* RACImmediateScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 881E87B116695EDF00667F7B /* RACImmediateScheduler.m */; };
+		881E87B516695EDF00667F7B /* RACImmediateScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 881E87B116695EDF00667F7B /* RACImmediateScheduler.m */; };
+		881E87B816695F7700667F7B /* RACIterativeScheduler.h in Headers */ = {isa = PBXBuildFile; fileRef = 881E87B616695F7700667F7B /* RACIterativeScheduler.h */; };
+		881E87B916695F7700667F7B /* RACIterativeScheduler.h in Headers */ = {isa = PBXBuildFile; fileRef = 881E87B616695F7700667F7B /* RACIterativeScheduler.h */; };
+		881E87BA16695F7700667F7B /* RACIterativeScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 881E87B716695F7700667F7B /* RACIterativeScheduler.m */; };
+		881E87BB16695F7700667F7B /* RACIterativeScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 881E87B716695F7700667F7B /* RACIterativeScheduler.m */; };
+		881E87BE166962E100667F7B /* RACDeferredScheduler.h in Headers */ = {isa = PBXBuildFile; fileRef = 881E87BC166962E100667F7B /* RACDeferredScheduler.h */; };
+		881E87BF166962E100667F7B /* RACDeferredScheduler.h in Headers */ = {isa = PBXBuildFile; fileRef = 881E87BC166962E100667F7B /* RACDeferredScheduler.h */; };
+		881E87C0166962E100667F7B /* RACDeferredScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 881E87BD166962E100667F7B /* RACDeferredScheduler.m */; };
+		881E87C1166962E100667F7B /* RACDeferredScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 881E87BD166962E100667F7B /* RACDeferredScheduler.m */; };
+		881E87C41669636000667F7B /* RACSubscriptionScheduler.h in Headers */ = {isa = PBXBuildFile; fileRef = 881E87C21669635F00667F7B /* RACSubscriptionScheduler.h */; };
+		881E87C51669636000667F7B /* RACSubscriptionScheduler.h in Headers */ = {isa = PBXBuildFile; fileRef = 881E87C21669635F00667F7B /* RACSubscriptionScheduler.h */; };
+		881E87C61669636000667F7B /* RACSubscriptionScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 881E87C31669636000667F7B /* RACSubscriptionScheduler.m */; };
+		881E87C71669636000667F7B /* RACSubscriptionScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 881E87C31669636000667F7B /* RACSubscriptionScheduler.m */; };
 		8820370A15096A4F002428D3 /* RACMaybe.h in Headers */ = {isa = PBXBuildFile; fileRef = 8820370815096A4F002428D3 /* RACMaybe.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		8820370B15096A4F002428D3 /* RACMaybe.m in Sources */ = {isa = PBXBuildFile; fileRef = 8820370915096A4F002428D3 /* RACMaybe.m */; };
 		8820937C1501C8A600796685 /* RACSignalSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 8820937B1501C8A600796685 /* RACSignalSpec.m */; };
@@ -335,12 +361,26 @@
 		88037F8C15056328001A5B19 /* ReactiveCocoa.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReactiveCocoa.h; sourceTree = "<group>"; };
 		8803804815056ACA001A5B19 /* Expecta.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Expecta.xcodeproj; path = ../../external/expecta/Expecta.xcodeproj; sourceTree = "<group>"; };
 		8803805B15056AD7001A5B19 /* Specta.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Specta.xcodeproj; path = ../../external/specta/Specta.xcodeproj; sourceTree = "<group>"; };
+		8803C010166732BA00C36839 /* RACSchedulerSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSchedulerSpec.m; sourceTree = "<group>"; };
 		8809D6EC15B1F1EE007E32AA /* JRSwizzle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JRSwizzle.h; path = ../external/jrswizzle/JRSwizzle.h; sourceTree = "<group>"; };
 		8809D6ED15B1F1EE007E32AA /* JRSwizzle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JRSwizzle.m; path = ../external/jrswizzle/JRSwizzle.m; sourceTree = "<group>"; };
 		880B9174150B09190008488E /* RACSubject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACSubject.h; sourceTree = "<group>"; };
 		880B9175150B09190008488E /* RACSubject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSubject.m; sourceTree = "<group>"; };
 		881B37CA152260BF0079220B /* RACUnit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACUnit.h; sourceTree = "<group>"; };
 		881B37CB152260BF0079220B /* RACUnit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACUnit.m; sourceTree = "<group>"; };
+		881E86A01669304700667F7B /* RACCompoundDisposable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACCompoundDisposable.h; sourceTree = "<group>"; };
+		881E86A11669304700667F7B /* RACCompoundDisposable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACCompoundDisposable.m; sourceTree = "<group>"; };
+		881E86B91669350B00667F7B /* RACCompoundDisposableSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACCompoundDisposableSpec.m; sourceTree = "<group>"; };
+		881E87AA16695C5600667F7B /* RACQueueScheduler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACQueueScheduler.h; sourceTree = "<group>"; };
+		881E87AB16695C5600667F7B /* RACQueueScheduler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACQueueScheduler.m; sourceTree = "<group>"; };
+		881E87B016695EDF00667F7B /* RACImmediateScheduler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACImmediateScheduler.h; sourceTree = "<group>"; };
+		881E87B116695EDF00667F7B /* RACImmediateScheduler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACImmediateScheduler.m; sourceTree = "<group>"; };
+		881E87B616695F7700667F7B /* RACIterativeScheduler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACIterativeScheduler.h; sourceTree = "<group>"; };
+		881E87B716695F7700667F7B /* RACIterativeScheduler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACIterativeScheduler.m; sourceTree = "<group>"; };
+		881E87BC166962E100667F7B /* RACDeferredScheduler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACDeferredScheduler.h; sourceTree = "<group>"; };
+		881E87BD166962E100667F7B /* RACDeferredScheduler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACDeferredScheduler.m; sourceTree = "<group>"; };
+		881E87C21669635F00667F7B /* RACSubscriptionScheduler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACSubscriptionScheduler.h; sourceTree = "<group>"; };
+		881E87C31669636000667F7B /* RACSubscriptionScheduler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSubscriptionScheduler.m; sourceTree = "<group>"; };
 		8820370815096A4F002428D3 /* RACMaybe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACMaybe.h; sourceTree = "<group>"; };
 		8820370915096A4F002428D3 /* RACMaybe.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACMaybe.m; sourceTree = "<group>"; };
 		8820937B1501C8A600796685 /* RACSignalSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSignalSpec.m; sourceTree = "<group>"; };
@@ -385,6 +425,7 @@
 		886CEACC163DE669007632D1 /* RACBlockTrampolineSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACBlockTrampolineSpec.m; sourceTree = "<group>"; };
 		886CEAE0163DE942007632D1 /* NSObject+RACLifting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACLifting.h"; sourceTree = "<group>"; };
 		886CEAE1163DE942007632D1 /* NSObject+RACLifting.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACLifting.m"; sourceTree = "<group>"; };
+		886D98581667C86D00F22541 /* RACScheduler+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACScheduler+Private.h"; sourceTree = "<group>"; };
 		886F70281551CF920045D68B /* RACGroupedSignal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = RACGroupedSignal.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		886F70291551CF920045D68B /* RACGroupedSignal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACGroupedSignal.m; sourceTree = "<group>"; };
 		887ACDA5165878A7009190AD /* NSInvocation+RACTypeParsing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSInvocation+RACTypeParsing.h"; sourceTree = "<group>"; };
@@ -738,6 +779,8 @@
 				88FC735A16114FFB00F8A774 /* RACSubscriptingAssignmentTrampolineSpec.m */,
 				88442A321608A9AD00636B49 /* RACTestObject.h */,
 				88442A331608A9AD00636B49 /* RACTestObject.m */,
+				8803C010166732BA00C36839 /* RACSchedulerSpec.m */,
+				881E86B91669350B00667F7B /* RACCompoundDisposableSpec.m */,
 			);
 			path = ReactiveCocoaTests;
 			sourceTree = "<group>";
@@ -768,7 +811,18 @@
 				88B76F8C153726B00053EAE2 /* RACTuple.h */,
 				88B76F8D153726B00053EAE2 /* RACTuple.m */,
 				88E2C6B2153C771C00C7493C /* RACScheduler.h */,
+				886D98581667C86D00F22541 /* RACScheduler+Private.h */,
 				88E2C6B3153C771C00C7493C /* RACScheduler.m */,
+				881E87AA16695C5600667F7B /* RACQueueScheduler.h */,
+				881E87AB16695C5600667F7B /* RACQueueScheduler.m */,
+				881E87B016695EDF00667F7B /* RACImmediateScheduler.h */,
+				881E87B116695EDF00667F7B /* RACImmediateScheduler.m */,
+				881E87B616695F7700667F7B /* RACIterativeScheduler.h */,
+				881E87B716695F7700667F7B /* RACIterativeScheduler.m */,
+				881E87BC166962E100667F7B /* RACDeferredScheduler.h */,
+				881E87BD166962E100667F7B /* RACDeferredScheduler.m */,
+				881E87C21669635F00667F7B /* RACSubscriptionScheduler.h */,
+				881E87C31669636000667F7B /* RACSubscriptionScheduler.m */,
 				885A3230153CF9EF00486A61 /* RACCollection.h */,
 				885A3231153CF9EF00486A61 /* RACCollection.m */,
 				D02538A115E2D7FB005BACB8 /* RACBacktrace.h */,
@@ -946,6 +1000,8 @@
 				883A84DE1513B5EC006DB4C7 /* RACDisposable.m */,
 				884476E2152367D100958F44 /* RACScopedDisposable.h */,
 				884476E3152367D100958F44 /* RACScopedDisposable.m */,
+				881E86A01669304700667F7B /* RACCompoundDisposable.h */,
+				881E86A11669304700667F7B /* RACCompoundDisposable.m */,
 			);
 			name = Disposables;
 			sourceTree = "<group>";
@@ -1025,8 +1081,14 @@
 				D0E967991641F0AF00FCFF06 /* NSObject+RACExtensions.h in Headers */,
 				88A0B6D3165B2B77005DE8F3 /* RACSubscriptingAssignmentTrampoline.h in Headers */,
 				D0D487011642550100DD7605 /* RACStream.h in Headers */,
+				881E86A21669304800667F7B /* RACCompoundDisposable.h in Headers */,
 				888439A31634E10D00DED0DB /* RACBlockTrampoline.h in Headers */,
 				887ACDA7165878A8009190AD /* NSInvocation+RACTypeParsing.h in Headers */,
+				881E87AC16695C5600667F7B /* RACQueueScheduler.h in Headers */,
+				881E87B216695EDF00667F7B /* RACImmediateScheduler.h in Headers */,
+				881E87B816695F7700667F7B /* RACIterativeScheduler.h in Headers */,
+				881E87BE166962E100667F7B /* RACDeferredScheduler.h in Headers */,
+				881E87C41669636000667F7B /* RACSubscriptionScheduler.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1086,6 +1148,12 @@
 				888439A41634E10D00DED0DB /* RACBlockTrampoline.h in Headers */,
 				886CEAE3163DE942007632D1 /* NSObject+RACLifting.h in Headers */,
 				887ACDA8165878A8009190AD /* NSInvocation+RACTypeParsing.h in Headers */,
+				881E86A31669304800667F7B /* RACCompoundDisposable.h in Headers */,
+				881E87AD16695C5600667F7B /* RACQueueScheduler.h in Headers */,
+				881E87B316695EDF00667F7B /* RACImmediateScheduler.h in Headers */,
+				881E87B916695F7700667F7B /* RACIterativeScheduler.h in Headers */,
+				881E87BF166962E100667F7B /* RACDeferredScheduler.h in Headers */,
+				881E87C51669636000667F7B /* RACSubscriptionScheduler.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1334,6 +1402,12 @@
 				D0E967971641F07900FCFF06 /* EXTScope.m in Sources */,
 				D0D487031642550100DD7605 /* RACStream.m in Sources */,
 				D0EE284D164D906B006954A4 /* RACSignalSequence.m in Sources */,
+				881E86A41669304800667F7B /* RACCompoundDisposable.m in Sources */,
+				881E87AE16695C5600667F7B /* RACQueueScheduler.m in Sources */,
+				881E87B416695EDF00667F7B /* RACImmediateScheduler.m in Sources */,
+				881E87BA16695F7700667F7B /* RACIterativeScheduler.m in Sources */,
+				881E87C0166962E100667F7B /* RACDeferredScheduler.m in Sources */,
+				881E87C61669636000667F7B /* RACSubscriptionScheduler.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1367,6 +1441,8 @@
 				D05C5CA116490C5200DE6D3E /* NSTask+RACSupport.m in Sources */,
 				D0C70EC616659333005AAD03 /* RACSubscriberExamples.m in Sources */,
 				D0C70EC8166595AD005AAD03 /* RACSubscriberSpec.m in Sources */,
+				8803C011166732BA00C36839 /* RACSchedulerSpec.m in Sources */,
+				881E86BA1669350B00667F7B /* RACCompoundDisposableSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1425,6 +1501,12 @@
 				D0D487041642550100DD7605 /* RACStream.m in Sources */,
 				888439A61634E10D00DED0DB /* RACBlockTrampoline.m in Sources */,
 				D0EE284E164D906B006954A4 /* RACSignalSequence.m in Sources */,
+				881E86A51669304800667F7B /* RACCompoundDisposable.m in Sources */,
+				881E87AF16695C5600667F7B /* RACQueueScheduler.m in Sources */,
+				881E87B516695EDF00667F7B /* RACImmediateScheduler.m in Sources */,
+				881E87BB16695F7700667F7B /* RACIterativeScheduler.m in Sources */,
+				881E87C1166962E100667F7B /* RACDeferredScheduler.m in Sources */,
+				881E87C71669636000667F7B /* RACSubscriptionScheduler.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

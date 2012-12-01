@@ -12,7 +12,7 @@
 
 // These properties should only be accessed while synchronized on self.
 @property (nonatomic, readonly, strong) NSMutableArray *disposables;
-@property (nonatomic, assign) BOOL disposed;
+@property (nonatomic, assign, getter = isDisposed) BOOL disposed;
 
 @end
 

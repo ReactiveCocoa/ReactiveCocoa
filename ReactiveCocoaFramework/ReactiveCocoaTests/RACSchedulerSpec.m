@@ -10,66 +10,45 @@
 #import "RACScheduler+Private.h"
 #import "RACDisposable.h"
 
+// This shouldn't be used directly. Use the `expectCurrentSchedulers` block
+// below instead.
+static void expectCurrentSchedulersInner(NSArray *schedulers, NSMutableArray *currentSchedulerArray) {
+	if (schedulers.count > 0) {
+		RACScheduler *topScheduler = schedulers[0];
+		[topScheduler schedule:^{
+			RACScheduler *currentScheduler = RACScheduler.currentScheduler;
+			if (currentScheduler != nil) [currentSchedulerArray addObject:currentScheduler];
+			expectCurrentSchedulersInner([schedulers subarrayWithRange:NSMakeRange(1, schedulers.count - 1)], currentSchedulerArray);
+		}];
+	}
+}
+
 SpecBegin(RACScheduler)
 
-// Performs the given block and captures +currentScheduler when the passed-in
-// block is executed. It then expects that the captured +currentScheduler will
-// not be nil.
-RACScheduler * (^expectNonNilScheduler)(void (^)(dispatch_block_t)) = ^(void (^block)(dispatch_block_t)) {
-	__block RACScheduler *currentScheduler;
-	block(^{
-		currentScheduler = RACScheduler.currentScheduler;
-	});
-
-	expect(currentScheduler).willNot.beNil();
-	return currentScheduler;
-};
-
 it(@"should know its current scheduler", ^{
-	// Performs the given block and captures +currentScheduler when the
-	// passed-in block is executed. It then expects that the captured
-	// +currentScheduler will equal the expected scheduler.
-	void (^expectScheduler)(RACScheduler *, void (^)(dispatch_block_t)) = ^(RACScheduler *expectedScheduler, void (^block)(dispatch_block_t)) {
-		RACScheduler *currentScheduler = expectNonNilScheduler(block);
-		expect(currentScheduler).to.equal(expectedScheduler);
+	// Recursively schedules a block in each of the given schedulers and records
+	// the +currentScheduler at each step. It then expects the array of
+	// +currentSchedulers and the expected array to be equal.
+	//
+	// schedulers                - The array of schedulers to recursively schedule.
+	// expectedCurrentSchedulers - The array of +currentSchedulers to expect.
+	void (^expectCurrentSchedulers)(NSArray *, NSArray *) = ^(NSArray *schedulers, NSArray *expectedCurrentSchedulers) {
+		NSMutableArray *currentSchedulerArray = [NSMutableArray array];
+		expectCurrentSchedulersInner(schedulers, currentSchedulerArray);
+		expect(currentSchedulerArray).will.equal(expectedCurrentSchedulers);
 	};
 
 	RACScheduler *backgroundScheduler = RACScheduler.backgroundScheduler;
-	expectScheduler(backgroundScheduler, ^(void (^captureCurrentScheduler)(void)) {
-		[backgroundScheduler schedule:^{
-			[RACScheduler.deferredScheduler schedule:^{
-				captureCurrentScheduler();
-			}];
-		}];
-	});
 
-	expectScheduler(backgroundScheduler, ^(void (^captureCurrentScheduler)(void)) {
-		[backgroundScheduler schedule:^{
-			[RACScheduler.immediateScheduler schedule:^{
-				captureCurrentScheduler();
-			}];
-		}];
-	});
+	expectCurrentSchedulers(@[ backgroundScheduler, RACScheduler.deferredScheduler ], @[ backgroundScheduler, backgroundScheduler ]);
+	expectCurrentSchedulers(@[ backgroundScheduler, RACScheduler.immediateScheduler ], @[ backgroundScheduler, backgroundScheduler ]);
+	expectCurrentSchedulers(@[ backgroundScheduler, RACScheduler.subscriptionScheduler ], @[ backgroundScheduler, backgroundScheduler ]);
 
-	expectScheduler(RACScheduler.mainThreadScheduler, ^(void (^captureCurrentScheduler)(void)) {
-		[RACScheduler.mainThreadScheduler schedule:^{
-			[backgroundScheduler schedule:^{
-				[RACScheduler.mainThreadScheduler schedule:^{
-					captureCurrentScheduler();
-				}];
-			}];
-		}];
-	});
+	NSArray *mainThreadJumper = @[ RACScheduler.mainThreadScheduler, backgroundScheduler, RACScheduler.mainThreadScheduler ];
+	expectCurrentSchedulers(mainThreadJumper, mainThreadJumper);
 
-	expectScheduler(backgroundScheduler, ^(void (^captureCurrentScheduler)(void)) {
-		[backgroundScheduler schedule:^{
-			[RACScheduler.mainThreadScheduler schedule:^{
-				[backgroundScheduler schedule:^{
-					captureCurrentScheduler();
-				}];
-			}];
-		}];
-	});
+	NSArray *backgroundJumper = @[ backgroundScheduler, RACScheduler.mainThreadScheduler, backgroundScheduler ];
+	expectCurrentSchedulers(backgroundJumper, backgroundJumper);
 });
 
 describe(@"+deferredScheduler", ^{
@@ -86,21 +65,30 @@ describe(@"+deferredScheduler", ^{
 
 describe(@"+subscriptionScheduler", ^{
 	it(@"should always have a valid +currentScheduler from within a scheduled block", ^{
-		expectNonNilScheduler(^(void (^captureCurrentScheduler)(void)) {
-			dispatch_async(dispatch_get_main_queue(), ^{
-				[RACScheduler.subscriptionScheduler schedule:^{
-					captureCurrentScheduler();
-				}];
-			});
+		__block RACScheduler *currentScheduler;
+		dispatch_async(dispatch_get_main_queue(), ^{
+			[RACScheduler.subscriptionScheduler schedule:^{
+				currentScheduler = RACScheduler.currentScheduler;
+			}];
 		});
+		expect(currentScheduler).will.equal(RACScheduler.mainThreadScheduler);
 
-		expectNonNilScheduler(^(void (^captureCurrentScheduler)(void)) {
-			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-				[RACScheduler.subscriptionScheduler schedule:^{
-					captureCurrentScheduler();
-				}];
-			});
+		currentScheduler = nil;
+		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+			[RACScheduler.subscriptionScheduler schedule:^{
+				currentScheduler = RACScheduler.currentScheduler;
+			}];
 		});
+		expect(currentScheduler).will.equal(RACScheduler.mainThreadScheduler);
+
+		currentScheduler = nil;
+		RACScheduler *backgroundScheduler = RACScheduler.backgroundScheduler;
+		[backgroundScheduler schedule:^{
+			[RACScheduler.subscriptionScheduler schedule:^{
+				currentScheduler = RACScheduler.currentScheduler;
+			}];
+		}];
+		expect(currentScheduler).will.equal(backgroundScheduler);
 	});
 
 	it(@"should execute scheduled blocks immediately if it's in a scheduler already", ^{

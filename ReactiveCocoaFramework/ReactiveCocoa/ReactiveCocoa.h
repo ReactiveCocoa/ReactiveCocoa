@@ -36,6 +36,7 @@
 #import <ReactiveCocoa/NSObject+RACLifting.h>
 #import <ReactiveCocoa/RACTuple.h>
 #import <ReactiveCocoa/RACUnit.h>
+#import <ReactiveCocoa/RACCompoundDisposable.h>
 
 #ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
 #import <ReactiveCocoa/libextobjc/extobjc/EXTKeyPathCoding.h>

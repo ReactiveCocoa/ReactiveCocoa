@@ -8,43 +8,68 @@
 
 #import <Foundation/Foundation.h>
 
+// The priority for the scheduler.
+//
+// RACSchedulerPriorityHigh       - High priority.
+// RACSchedulerPriorityDefault    - Default priority.
+// RACSchedulerPriorityLow        - Low priority.
+// RACSchedulerPriorityBackground - Background priority.
+typedef enum : long {
+	RACSchedulerPriorityHigh = DISPATCH_QUEUE_PRIORITY_HIGH,
+	RACSchedulerPriorityDefault = DISPATCH_QUEUE_PRIORITY_DEFAULT,
+	RACSchedulerPriorityLow = DISPATCH_QUEUE_PRIORITY_LOW,
+	RACSchedulerPriorityBackground = DISPATCH_QUEUE_PRIORITY_BACKGROUND,
+} RACSchedulerPriority;
 
-// Schedulers are used to control when and in which queue RAC work is performed.
+@class RACDisposable;
+
+// Schedulers are used to control when and where work is performed.
 @interface RACScheduler : NSObject
 
-// Create a new scheduler with the given schedule block. The schedule block will
-// get called by -schedule: with the block it is given. The schedule block
-// should then schedule that block to be performed. This makes it easier to
-// create a custom scheduler without having to subclass.
-+ (instancetype)schedulerWithScheduleBlock:(void (^)(void (^block)(void)))scheduleBlock;
-
-// A singleton scheduler that immediately performs blocks.
+// A singleton scheduler that immediately executes the blocks it is given.
+//
+// Note that unlike most other schedulers, this does not set the current
+// scheduler. There may still be a valid +currentScheduler if this is used
+// within a block scheduled on a different scheduler.
 + (instancetype)immediateScheduler;
 
-// A singleton scheduler that performs blocks asynchronously in the main queue.
-+ (instancetype)mainQueueScheduler;
+// A singleton scheduler like +immediateScheduler, with one important difference.
+// If called within another +iterativeScheduler scheduled block, it will enqueue
+// the new block to be executed immediately after the current block completes,
+// as opposed to executing it immediately within the current block.
+//
+// This should be used when you want to execute something immediately, unless it
+// would recurse. It prevents the possibility of stack overflow in deeply nested
+// scheduling.
+//
+// Note that unlike most other schedulers, this does not set the current
+// scheduler. There may still be a valid +currentScheduler if this is used
+// within a block scheduled on a different scheduler.
++ (instancetype)iterativeScheduler;
 
-// A singleton scheduler that performs blocks asynchronously in GCD's default
-// priority global queue.
-+ (instancetype)backgroundScheduler;
+// A singleton scheduler that executes blocks in the main thread.
++ (instancetype)mainThreadScheduler;
 
-// A singleton scheduler that performs blocks asynchronously in the current queue.
+// A singleton scheduler that executes blocks in +currentScheduler, after any
+// blocks already scheduled have completed. If +currentScheduler is nil, it
+// uses +mainThreadScheduler.
 + (instancetype)deferredScheduler;
 
-// A singleton scheduler that adds blocks to an operation queue whose max
-// concurrent operation count is NSOperationQueueDefaultMaxConcurrentOperationCount.
-+ (instancetype)sharedOperationQueueScheduler;
+// Creates and returns a new scheduler with the given priority.
++ (instancetype)backgroundSchedulerWithPriority:(RACSchedulerPriority)priority;
 
-// Creates a new scheduler that adds blocks to an operation queue whose max
-// concurrent operation count is NSOperationQueueDefaultMaxConcurrentOperationCount.
-+ (instancetype)operationQueueScheduler;
+// Creates and returns a new scheduler with the default priority.
++ (instancetype)backgroundScheduler;
 
-// Creates a new scheduler that adds blocks to the given operation queue.
-+ (instancetype)schedulerWithOperationQueue:(NSOperationQueue *)queue;
+// The current scheduler. This will only be valid when used from within a
+// -[RACScheduler schedule:] block or when on the main thread.
++ (instancetype)currentScheduler;
 
-// Schedule the given block for execution on the scheduler. The default
-// implementation just calls the schedule block if the scheduler was created
-// with one.
+// Schedule the given block for execution on the scheduler.
+//
+// Scheduled blocks will be executed in the order in which they were scheduled.
+//
+// block - The block to schedule for execution. Cannot be nil.
 - (void)schedule:(void (^)(void))block;
 
 @end

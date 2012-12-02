@@ -58,7 +58,7 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 	RACReplaySubject *subject = [RACReplaySubject subject];
 	
 	__block BOOL canceled = NO;
-	[[RACScheduler mainQueueScheduler] schedule:^{
+	[RACScheduler.mainThreadScheduler schedule:^{
 		NSMutableData * (^aggregateData)(NSMutableData *, NSData *) = ^(NSMutableData *running, NSData *next) {
 			[running appendData:next];
 			return running;

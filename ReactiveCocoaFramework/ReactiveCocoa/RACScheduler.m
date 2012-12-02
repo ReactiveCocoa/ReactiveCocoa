@@ -7,111 +7,116 @@
 //
 
 #import "RACScheduler.h"
+#import "RACScheduler+Private.h"
+#import "RACDisposable.h"
+#import "RACQueueScheduler.h"
+#import "RACImmediateScheduler.h"
+#import "RACIterativeScheduler.h"
+#import "RACDeferredScheduler.h"
+#import "RACSubscriptionScheduler.h"
+
+// The key for the queue-specific current scheduler.
+const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 
 @interface RACScheduler ()
-@property (nonatomic, copy) void (^scheduleBlock)(void (^block)(void));
+@property (nonatomic, readonly, copy) NSString *name;
 @end
-
 
 @implementation RACScheduler
 
+#pragma mark NSObject
 
-#pragma mark API
-
-@synthesize scheduleBlock;
-
-+ (instancetype)schedulerWithScheduleBlock:(void (^)(void (^block)(void)))scheduleBlock {
-	NSParameterAssert(scheduleBlock != NULL);
-	
-	RACScheduler *scheduler = [[self alloc] init];
-	scheduler.scheduleBlock = scheduleBlock;
-	return scheduler;
+- (NSString *)description {
+	return [NSString stringWithFormat:@"<%@: %p> %@", self.class, self, self.name];
 }
+
+#pragma mark Initializers
+
+- (id)initWithName:(NSString *)name {
+	self = [super init];
+	if (self == nil) return nil;
+
+	_name = [name ?: @"com.ReactiveCocoa.RACScheduler.anonymousScheduler" copy];
+
+	return self;
+}
+
+#pragma mark Schedulers
 
 + (instancetype)immediateScheduler {
 	static dispatch_once_t onceToken;
-	static RACScheduler *immediateScheduler = nil;
+	static RACScheduler *immediateScheduler;
 	dispatch_once(&onceToken, ^{
-		immediateScheduler = [RACScheduler schedulerWithScheduleBlock:^(void (^block)(void)) {
-			block();
-		}];
+		immediateScheduler = [[RACImmediateScheduler alloc] init];
 	});
 	
 	return immediateScheduler;
 }
 
-+ (instancetype)mainQueueScheduler {
++ (instancetype)iterativeScheduler {
 	static dispatch_once_t onceToken;
-	static RACScheduler *mainQueueScheduler = nil;
+	static RACScheduler *iterativeScheduler;
 	dispatch_once(&onceToken, ^{
-		mainQueueScheduler = [RACScheduler schedulerWithScheduleBlock:^(void (^block)(void)) {
-			if(dispatch_get_current_queue() == dispatch_get_main_queue()) {
-				block();
-			} else {
-				dispatch_async(dispatch_get_main_queue(), block);
-			}
-		}];
+		iterativeScheduler = [[RACIterativeScheduler alloc] init];
 	});
-	
-	return mainQueueScheduler;
+
+	return iterativeScheduler;
 }
 
-+ (instancetype)backgroundScheduler {
++ (instancetype)mainThreadScheduler {
 	static dispatch_once_t onceToken;
-	static RACScheduler *backgroundScheduler = nil;
+	static RACScheduler *mainThreadScheduler;
 	dispatch_once(&onceToken, ^{
-		backgroundScheduler = [RACScheduler schedulerWithScheduleBlock:^(void (^block)(void)) {
-			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), block);
-		}];
+		mainThreadScheduler = [[RACQueueScheduler alloc] initWithName:@"com.ReactiveCocoa.RACScheduler.mainThreadScheduler" targetQueue:dispatch_get_main_queue()];
 	});
 	
-	return backgroundScheduler;
+	return mainThreadScheduler;
 }
 
 + (instancetype)deferredScheduler {
 	static dispatch_once_t onceToken;
-	static RACScheduler *deferredScheduler = nil;
+	static RACScheduler *deferredScheduler;
 	dispatch_once(&onceToken, ^{
-		deferredScheduler = [RACScheduler schedulerWithScheduleBlock:^(void (^block)(void)) {
-			dispatch_async(dispatch_get_current_queue(), block);
-		}];
+		deferredScheduler = [[RACDeferredScheduler alloc] init];
 	});
 	
 	return deferredScheduler;
 }
 
-+ (instancetype)operationQueueScheduler {
-	NSOperationQueue *queue = [[NSOperationQueue alloc] init];
-	[queue setMaxConcurrentOperationCount:NSOperationQueueDefaultMaxConcurrentOperationCount];
-	[queue setName:@"RACOperationQueueSchedulerQueue"];
-	return [self schedulerWithOperationQueue:queue];
++ (instancetype)backgroundSchedulerWithPriority:(RACSchedulerPriority)priority {
+	return [[RACQueueScheduler alloc] initWithName:@"com.ReactiveCocoa.RACScheduler.backgroundScheduler" targetQueue:dispatch_get_global_queue(priority, 0)];
 }
 
-+ (instancetype)sharedOperationQueueScheduler {
++ (instancetype)backgroundScheduler {
+	return [self backgroundSchedulerWithPriority:RACSchedulerPriorityDefault];
+}
+
++ (instancetype)subscriptionScheduler {
 	static dispatch_once_t onceToken;
-	static RACScheduler *sharedOperationQueueScheduler = nil;
+	static RACScheduler *subscriptionScheduler;
 	dispatch_once(&onceToken, ^{
-		NSOperationQueue *queue = [[NSOperationQueue alloc] init];
-		[queue setMaxConcurrentOperationCount:NSOperationQueueDefaultMaxConcurrentOperationCount];
-		[queue setName:@"RACSharedOperationQueueSchedulerQueue"];
-		sharedOperationQueueScheduler = [self schedulerWithOperationQueue:queue];
+		subscriptionScheduler = [[RACSubscriptionScheduler alloc] init];
 	});
-	
-	return sharedOperationQueueScheduler;
+
+	return subscriptionScheduler;
 }
 
-+ (instancetype)schedulerWithOperationQueue:(NSOperationQueue *)queue {
-	return [RACScheduler schedulerWithScheduleBlock:^(void (^block)(void)) {
-		[queue addOperationWithBlock:block];
-	}];
++ (BOOL)isOnMainThread {
+	return [NSOperationQueue.currentQueue isEqual:NSOperationQueue.mainQueue] || [NSThread isMainThread];
 }
+
++ (instancetype)currentScheduler {
+	RACScheduler *scheduler = (__bridge id)dispatch_get_specific(RACSchedulerCurrentSchedulerKey);
+	if (scheduler != nil) return scheduler;
+	if ([self.class isOnMainThread]) return RACScheduler.mainThreadScheduler;
+
+	return nil;
+}
+
+#pragma mark Scheduling
 
 - (void)schedule:(void (^)(void))block {
-	NSParameterAssert(block != NULL);
-	
-	if(self.scheduleBlock != NULL) {
-		self.scheduleBlock(block);
-	}
+	NSAssert(NO, @"-schedule: must be implemented by a subclass.");
 }
 
 @end

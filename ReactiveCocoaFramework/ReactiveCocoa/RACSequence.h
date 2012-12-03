@@ -15,7 +15,13 @@
 // Represents an immutable, lazy sequence of values. Like Cocoa collections,
 // sequences cannot contain nil.
 //
-// Implemented as a class cluster.
+// Most inherited <RACStream> methods that accept a block will execute the block
+// _at most_ once for each value that is evaluated in the returned sequence.
+// Side effects are subject to the behavior described in
+// +sequenceWithHeadBlock:tailBlock:.
+//
+// Implemented as a class cluster. A minimal implementation for a subclass
+// consists simply of -head and -tail.
 @interface RACSequence : NSObject <NSCoding, NSCopying, NSFastEnumeration, RACStream>
 
 // The first object in the sequence, or nil if the sequence is empty.
@@ -37,6 +43,21 @@
 // they're evaluated.
 - (id<RACSignal>)signalWithScheduler:(RACScheduler *)scheduler;
 
+// Creates a sequence that dynamically generates its values.
+//
+// headBlock - Invoked the first time -head is accessed.
+// tailBlock - Invoked the first time -tail is accessed.
+//
+// The results from each block are memoized, so each block will be invoked at
+// most once, no matter how many times the head and tail properties of the
+// sequence are accessed.
+//
+// Any side effects in `headBlock` or `tailBlock` should be thread-safe, since
+// the sequence may be evaluated at any time from any thread. Not only that, but
+// -tail may be accessed before -head, or both may be accessed simultaneously.
+// As noted above, side effects will only be triggered the _first_ time -head or
+// -tail is invoked.
+//
 // Returns a sequence that lazily invokes the given blocks to provide head and
 // tail. `headBlock` must not be nil.
 + (RACSequence *)sequenceWithHeadBlock:(id (^)(void))headBlock tailBlock:(RACSequence *(^)(void))tailBlock;

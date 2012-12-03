@@ -49,6 +49,9 @@ describe(@"two-way bindings", ^{
 			b.name = testName2;
 			expect(a.name).to.equal(testName2);
 			expect(b.name).to.equal(testName2);
+			a.name = nil;
+			expect(a.name).to.beNil();
+			expect(b.name).to.beNil();
 		});
 		
 		it(@"should take the master's value at the start", ^{
@@ -82,22 +85,22 @@ describe(@"two-way bindings", ^{
 			expect(c.name).to.equal(testName3);
 		});
 		
-		it(@"should bind even if the initial update is the same as the master object's value", ^{
+		it(@"should bind even if the initial update is the same as the other object's value", ^{
 			a.name = testName1;
 			b.name = testName2;
 			[a rac_bind:@keypath(a.name) signalBlock:RACSignalTransformationIdentity toObject:b withKeyPath:@keypath(b.name) signalBlock:RACSignalTransformationIdentity];
-			expect(a.name).to.equal(testName1);
+			expect(a.name).to.equal(testName2);
 			expect(b.name).to.equal(testName2);
 			b.name = testName2;
 			expect(a.name).to.equal(testName2);
 			expect(b.name).to.equal(testName2);
 		});
 		
-		it(@"should bind even if the initial update is the same as the master object's value", ^{
+		it(@"should bind even if the initial update is the same as the receiver's value", ^{
 			a.name = testName1;
 			b.name = testName2;
 			[a rac_bind:@keypath(a.name) signalBlock:RACSignalTransformationIdentity toObject:b withKeyPath:@keypath(b.name) signalBlock:RACSignalTransformationIdentity];
-			expect(a.name).to.equal(testName1);
+			expect(a.name).to.equal(testName2);
 			expect(b.name).to.equal(testName2);
 			b.name = testName1;
 			expect(a.name).to.equal(testName1);
@@ -144,26 +147,31 @@ describe(@"two-way bindings", ^{
 	it(@"should run transformations only once per change, and only in one direction", ^{
 		__block NSUInteger aCounter = 0;
 		__block NSUInteger cCounter = 0;
-		RACSignalTransformationBlock (^incrementCounter)(NSUInteger *) = ^(NSUInteger *counter){
-			return ^(id<RACSignal> incoming) {
-				return [incoming doNext:^(id _) {
-					++*counter;
-				}];
-			};
+		RACSignalTransformationBlock incrementACounter = ^(id<RACSignal> incoming) {
+			return [incoming doNext:^(id _) {
+				aCounter++;
+			}];
 		};
-		[a rac_bind:@keypath(a.name) signalBlock:incrementCounter(&aCounter) toObject:b withKeyPath:@keypath(b.name) signalBlock:incrementCounter(&aCounter)];
-		[c rac_bind:@keypath(c.name) signalBlock:incrementCounter(&cCounter) toObject:b withKeyPath:@keypath(b.name) signalBlock:incrementCounter(&cCounter)];
+		RACSignalTransformationBlock incrementCCounter = ^(id<RACSignal> incoming) {
+			return [incoming doNext:^(id _) {
+				cCounter++;
+			}];
+		};
 		expect(aCounter).to.equal(0);
 		expect(cCounter).to.equal(0);
-		b.name = testName1;
+		[a rac_bind:@keypath(a.name) signalBlock:incrementACounter toObject:b withKeyPath:@keypath(b.name) signalBlock:incrementACounter];
+		[c rac_bind:@keypath(c.name) signalBlock:incrementCCounter toObject:b withKeyPath:@keypath(b.name) signalBlock:incrementCCounter];
 		expect(aCounter).to.equal(1);
 		expect(cCounter).to.equal(1);
-		a.name = testName2;
+		b.name = testName1;
 		expect(aCounter).to.equal(2);
 		expect(cCounter).to.equal(2);
-		c.name = testName3;
+		a.name = testName2;
 		expect(aCounter).to.equal(3);
 		expect(cCounter).to.equal(3);
+		c.name = testName3;
+		expect(aCounter).to.equal(4);
+		expect(cCounter).to.equal(4);
 	});
 });
 

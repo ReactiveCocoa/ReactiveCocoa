@@ -25,14 +25,18 @@ typedef id<RACSignal> (^RACSignalTransformationBlock)(id<RACSignal>);
 // `masterKeyPath` on the `masterObject`.
 //
 // The property `slaveKeypath` on the receiver will be updated with the value of
-// `masterKeyPath` on `masterObject` the first time it fires a KVO notification.
-// After that, the two properties will be kept in sync, mirroring each other.
+// `masterKeyPath` on `masterObject`. After that, the two properties will be
+// kept in sync, mirroring each other.
 //
 // Returns a disposable that can be used to sever the binding.
 - (RACDisposable *)rac_sync:(NSString *)slaveKeyPath to:(NSString *)masterKeyPath on:(NSObject *)masterObject;
 
 // Analogous to `-rac_sync:to:on:`, but with an additional parameter to specify
 // which options should be used for KVO.
+//
+// The binding will not start until the first KVO notification from
+// `masterObject`, so NSKeyValueObservingOptionInitial must be specified to
+// reproduce the behavior of `-rac_sync:to:on:`.
 //
 // options - A mask of NSKeyValueObservingOptions specifying which options to
 //           pass when subscribing to KVO notifications. Not all options make a
@@ -45,8 +49,7 @@ typedef id<RACSignal> (^RACSignalTransformationBlock)(id<RACSignal>);
 // to transform the signals used to bind the two properties.
 //
 // Both parameters accept a block that is passed the original signal used by the
-// binding and returns a new signal that will be used instead. The signals send
-// the KVO change dictionaries.
+// binding and returns a new signal that will be used instead.
 //
 // incomingTransformationBlock - The block that transforms the signal that
 //                               transmits changes from `masterObject` to the

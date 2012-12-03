@@ -9,7 +9,6 @@
 #import "RACSubscriberExamples.h"
 
 #import "RACSubscriber.h"
-#import "RACUnit.h"
 
 NSString * const RACSubscriberExamples = @"RACSubscriberExamples";
 

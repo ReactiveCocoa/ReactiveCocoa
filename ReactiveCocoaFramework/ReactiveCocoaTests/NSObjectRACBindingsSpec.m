@@ -12,19 +12,10 @@
 #import "RACScheduler.h"
 
 @interface TestClass : NSObject
-@property (nonatomic, strong) NSString *name;
-@property (nonatomic, strong) RACScheduler *homeScheduler;
+@property (strong) NSString *name;
 @end
 
 @implementation TestClass
-
-- (void)setName:(NSString *)name {
-	if (self.homeScheduler) {
-		expect(RACScheduler.currentScheduler).to.equal(self.homeScheduler);
-	}
-	_name = name;
-}
-
 @end
 
 SpecBegin(NSObjectRACBindings)
@@ -46,9 +37,9 @@ describe(@"two-way bindings", ^{
 		testName3 = @"sync it once more!";
 	});
 	
-	describe(@"-rac_sync:to:on:", ^{
+	describe(@"-rac_bind:toObject:withKeyPath:", ^{
 		it(@"should keep objects' properties in sync", ^{
-			[a rac_sync:@keypath(a.name) to:@keypath(b.name) on:b];
+			[a rac_bind:@keypath(a.name) toObject:b withKeyPath:@keypath(b.name)];
 			expect(a.name).to.beNil();
 			expect(b.name).to.beNil();
 			a.name = testName1;
@@ -62,7 +53,7 @@ describe(@"two-way bindings", ^{
 		it(@"should take the master's value at the start", ^{
 			a.name = testName1;
 			b.name = testName2;
-			[a rac_sync:@keypath(a.name) to:@keypath(b.name) on:b];
+			[a rac_bind:@keypath(a.name) toObject:b withKeyPath:@keypath(b.name)];
 			expect(a.name).to.equal(testName2);
 			expect(b.name).to.equal(testName2);
 		});
@@ -71,8 +62,8 @@ describe(@"two-way bindings", ^{
 			a.name = testName1;
 			b.name = testName2;
 			c.name = testName3;
-			[a rac_sync:@keypath(a.name) to:@keypath(b.name) on:b];
-			[b rac_sync:@keypath(b.name) to:@keypath(c.name) on:c];
+			[a rac_bind:@keypath(a.name) toObject:b withKeyPath:@keypath(b.name)];
+			[b rac_bind:@keypath(b.name) toObject:c withKeyPath:@keypath(c.name)];
 			expect(a.name).to.equal(testName3);
 			expect(b.name).to.equal(testName3);
 			expect(c.name).to.equal(testName3);
@@ -89,28 +80,11 @@ describe(@"two-way bindings", ^{
 			expect(b.name).to.equal(testName3);
 			expect(c.name).to.equal(testName3);
 		});
-	});
-	
-	describe(@"-rac_sync:to:on:withOptions:", ^{
-		it(@"should ignore updates on the slave object before the master object updates", ^{
-			[a rac_sync:@keypath(a.name) to:@keypath(b.name) on:b withOptions:0];
-			expect(a.name).to.beNil();
-			expect(b.name).to.beNil();
-			a.name = testName1;
-			expect(a.name).to.equal(testName1);
-			expect(b.name).to.beNil();
-			a.name = testName2;
-			expect(a.name).to.equal(testName2);
-			expect(b.name).to.beNil();
-			b.name = testName1;
-			expect(a.name).to.equal(testName1);
-			expect(b.name).to.equal(testName1);
-		});
 		
 		it(@"should bind even if the initial update is the same as the master object's value", ^{
 			a.name = testName1;
 			b.name = testName2;
-			[a rac_sync:@keypath(a.name) to:@keypath(b.name) on:b withOptions:0];
+			[a rac_bind:@keypath(a.name) toObject:b withKeyPath:@keypath(b.name)];
 			expect(a.name).to.equal(testName1);
 			expect(b.name).to.equal(testName2);
 			b.name = testName2;
@@ -121,7 +95,7 @@ describe(@"two-way bindings", ^{
 		it(@"should bind even if the initial update is the same as the master object's value", ^{
 			a.name = testName1;
 			b.name = testName2;
-			[a rac_sync:@keypath(a.name) to:@keypath(b.name) on:b withOptions:0];
+			[a rac_bind:@keypath(a.name) toObject:b withKeyPath:@keypath(b.name)];
 			expect(a.name).to.equal(testName1);
 			expect(b.name).to.equal(testName2);
 			b.name = testName1;
@@ -130,30 +104,24 @@ describe(@"two-way bindings", ^{
 		});
 	});
 	
-	describe(@"-rac_sync:to:on:withOptions:byTransformingIncomingSignal:outgoingSignal:", ^{
+	describe(@"-rac_bind:signalBlock:toObject:withKeyPath:signalBlock:", ^{
 		it(@"should trasform values of bound properties", ^{
-			[a rac_sync:@keypath(a.name) to:@keypath(b.name) on:b withOptions:0 byTransformingIncomingSignal:^(id<RACSignal> incoming) {
+			[a rac_bind:@keypath(a.name) signalBlock:^(id<RACSignal> incoming) {
 				return [incoming map:^(NSString *x) {
 					return x.stringByDeletingPathExtension;
 				}];
-			} outgoingSignal:^(id<RACSignal> outgoing) {
+			} toObject:b withKeyPath:@keypath(b.name) signalBlock:^(id<RACSignal> outgoing) {
 				return [outgoing map:^(NSString *x) {
-					if (c.name == nil) {
-						return x;
-					}
-					return [x stringByAppendingFormat:@".%@", c.name];
+					return [NSString stringWithFormat:@"%@.%@", x, c.name];
 				}];
 			}];
-			[c rac_sync:@keypath(c.name) to:@keypath(b.name) on:b withOptions:0 byTransformingIncomingSignal:^(id<RACSignal> incoming) {
+			[c rac_bind:@keypath(c.name) signalBlock:^(id<RACSignal> incoming) {
 				return [incoming map:^(NSString *x) {
 					return x.pathExtension;
 				}];
-			} outgoingSignal:^(id<RACSignal> outgoing) {
+			} toObject:b withKeyPath:@keypath(b.name) signalBlock:^(id<RACSignal> outgoing) {
 				return [outgoing map:^(NSString *x) {
-					if (x == nil) {
-						return a.name;
-					}
-					return [a.name stringByAppendingFormat:@".%@", x];
+					return [NSString stringWithFormat:@"%@.%@", a.name, x];
 				}];
 			}];
 			expect(a.name).to.beNil();
@@ -184,8 +152,8 @@ describe(@"two-way bindings", ^{
 				}];
 			};
 		};
-		[a rac_sync:@keypath(a.name) to:@keypath(b.name) on:b withOptions:0 byTransformingIncomingSignal:incrementCounter(&aCounter) outgoingSignal:incrementCounter(&aCounter)];
-		[c rac_sync:@keypath(c.name) to:@keypath(b.name) on:b withOptions:0 byTransformingIncomingSignal:incrementCounter(&cCounter) outgoingSignal:incrementCounter(&cCounter)];
+		[a rac_bind:@keypath(a.name) signalBlock:incrementCounter(&aCounter) toObject:b withKeyPath:@keypath(b.name) signalBlock:incrementCounter(&aCounter)];
+		[c rac_bind:@keypath(c.name) signalBlock:incrementCounter(&cCounter) toObject:b withKeyPath:@keypath(b.name) signalBlock:incrementCounter(&cCounter)];
 		expect(aCounter).to.equal(0);
 		expect(cCounter).to.equal(0);
 		b.name = testName1;

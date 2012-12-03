@@ -37,9 +37,10 @@ describe(@"two-way bindings", ^{
 		testName3 = @"sync it once more!";
 	});
 	
-	describe(@"-rac_bind:toObject:withKeyPath:", ^{
+	describe(@"-rac_bind:signalBlock:toObject:withKeyPath:signalBlock:", ^{
+		
 		it(@"should keep objects' properties in sync", ^{
-			[a rac_bind:@keypath(a.name) toObject:b withKeyPath:@keypath(b.name)];
+			[a rac_bind:@keypath(a.name) signalBlock:RACSignalTransformationIdentity toObject:b withKeyPath:@keypath(b.name) signalBlock:RACSignalTransformationIdentity];
 			expect(a.name).to.beNil();
 			expect(b.name).to.beNil();
 			a.name = testName1;
@@ -53,7 +54,7 @@ describe(@"two-way bindings", ^{
 		it(@"should take the master's value at the start", ^{
 			a.name = testName1;
 			b.name = testName2;
-			[a rac_bind:@keypath(a.name) toObject:b withKeyPath:@keypath(b.name)];
+			[a rac_bind:@keypath(a.name) signalBlock:RACSignalTransformationIdentity toObject:b withKeyPath:@keypath(b.name) signalBlock:RACSignalTransformationIdentity];
 			expect(a.name).to.equal(testName2);
 			expect(b.name).to.equal(testName2);
 		});
@@ -62,8 +63,8 @@ describe(@"two-way bindings", ^{
 			a.name = testName1;
 			b.name = testName2;
 			c.name = testName3;
-			[a rac_bind:@keypath(a.name) toObject:b withKeyPath:@keypath(b.name)];
-			[b rac_bind:@keypath(b.name) toObject:c withKeyPath:@keypath(c.name)];
+			[a rac_bind:@keypath(a.name) signalBlock:RACSignalTransformationIdentity toObject:b withKeyPath:@keypath(b.name) signalBlock:RACSignalTransformationIdentity];
+			[b rac_bind:@keypath(b.name) signalBlock:RACSignalTransformationIdentity toObject:c withKeyPath:@keypath(c.name) signalBlock:RACSignalTransformationIdentity];
 			expect(a.name).to.equal(testName3);
 			expect(b.name).to.equal(testName3);
 			expect(c.name).to.equal(testName3);
@@ -84,7 +85,7 @@ describe(@"two-way bindings", ^{
 		it(@"should bind even if the initial update is the same as the master object's value", ^{
 			a.name = testName1;
 			b.name = testName2;
-			[a rac_bind:@keypath(a.name) toObject:b withKeyPath:@keypath(b.name)];
+			[a rac_bind:@keypath(a.name) signalBlock:RACSignalTransformationIdentity toObject:b withKeyPath:@keypath(b.name) signalBlock:RACSignalTransformationIdentity];
 			expect(a.name).to.equal(testName1);
 			expect(b.name).to.equal(testName2);
 			b.name = testName2;
@@ -95,16 +96,14 @@ describe(@"two-way bindings", ^{
 		it(@"should bind even if the initial update is the same as the master object's value", ^{
 			a.name = testName1;
 			b.name = testName2;
-			[a rac_bind:@keypath(a.name) toObject:b withKeyPath:@keypath(b.name)];
+			[a rac_bind:@keypath(a.name) signalBlock:RACSignalTransformationIdentity toObject:b withKeyPath:@keypath(b.name) signalBlock:RACSignalTransformationIdentity];
 			expect(a.name).to.equal(testName1);
 			expect(b.name).to.equal(testName2);
 			b.name = testName1;
 			expect(a.name).to.equal(testName1);
 			expect(b.name).to.equal(testName1);
 		});
-	});
-	
-	describe(@"-rac_bind:signalBlock:toObject:withKeyPath:signalBlock:", ^{
+		
 		it(@"should trasform values of bound properties", ^{
 			[a rac_bind:@keypath(a.name) signalBlock:^(id<RACSignal> incoming) {
 				return [incoming map:^(NSString *x) {

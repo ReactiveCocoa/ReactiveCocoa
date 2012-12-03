@@ -33,6 +33,12 @@ typedef NSInteger RACSignalError;
 // commonly, this will simply be an instance of RACSignal (the class), but any
 // class can conform to this protocol.
 //
+// Most <RACSignal> methods and inherited <RACStream> methods that accept
+// a block will execute the block once for each time the returned signal is
+// subscribed to. Any side effects within the block will thus execute once for
+// each subscription, not necessarily on one thread, and possibly even
+// simultaneously!
+//
 // When conforming to this protocol in a custom class, only `@required` methods
 // need to be implemented. Default implementations will automatically be
 // provided for any methods marked as `@concrete`. For more information, see

@@ -24,17 +24,21 @@
 // Creates a new signal. This is the preferred way to create a new signal
 // operation or behavior.
 //
-// didSubscribe - called when the signal is subscribed to. The new subscriber is
-// passed in. You can then manually control the subscriber by sending it
-// `-sendNext:`, `-sendError:`, and `-sendCompleted`, as defined by the
-// operation you're implementing. The block should return a disposable that
-// cleans up all the resources and disposables created by the signal. This
-// disposable is returned as part of the disposable returned by the
-// `-subscribe:` call. When the disposable is disposed of, the signal must not
-// send any more events to the subscriber. You may return nil if there is no
-// cleanup necessary.
+// didSubscribe - Called when the signal is subscribed to. The new subscriber is
+//                passed in. You can then manually control the <RACSubscriber> by
+//                sending it -sendNext:, -sendError:, and -sendCompleted,
+//                as defined by the operation you're implementing. The block
+//                should return a RACDisposable that cleans up all the resources
+//                and disposables created by the signal. This disposable is
+//                returned as part of the disposable returned by the
+//                -subscribe: call. When the disposable is disposed of, the
+//                signal must not send any more events to the subscriber. You
+//                may return nil if there is no cleanup necessary.
 //
-// *Note* that the `didSubscribe` block is called every time a subscriber subscribes.
+// **Note:** The `didSubscribe` block is called every time a new subscriber
+// subscribes. Any side effects within the block will thus execute once for each
+// subscription, not necessarily on one thread, and possibly even
+// simultaneously!
 + (instancetype)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe;
 
 // Returns a signal that immediately sends the given value and then completes.

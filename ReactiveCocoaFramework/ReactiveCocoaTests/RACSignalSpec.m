@@ -400,6 +400,27 @@ describe(@"continuation", ^{
 		expect(nextCount).will.beGreaterThan(1);
 		expect(gotCompleted).to.beFalsy();
 	});
+
+	it(@"should stop repeating when disposed", ^{
+		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendCompleted];
+			return nil;
+		}];
+
+		NSMutableArray *values = [NSMutableArray array];
+
+		__block BOOL completed = NO;
+		__block RACDisposable *disposable = [[signal repeat] subscribeNext:^(id x) {
+			[values addObject:x];
+			[disposable dispose];
+		} completed:^{
+			completed = YES;
+		}];
+
+		expect(values).will.equal(@[ @1 ]);
+		expect(completed).to.beFalsy();
+	});
 });
 
 describe(@"+combineLatest:", ^{

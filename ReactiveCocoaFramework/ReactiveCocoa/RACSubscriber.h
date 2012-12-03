@@ -24,10 +24,14 @@
 // Send the next value to subscribers. `value` can be nil.
 - (void)sendNext:(id)value;
 
-// Send the error to subscribers. This terminates the subscription.
+// Send the error to subscribers. `error` can be nil.
+//
+// This terminates the subscription.
 - (void)sendError:(NSError *)error;
 
-// Send completed to subscribers. This terminates the subscription.
+// Send completed to subscribers.
+//
+// This terminates the subscription.
 - (void)sendCompleted;
 
 // Sends the subscriber the disposable that represents its subscription.

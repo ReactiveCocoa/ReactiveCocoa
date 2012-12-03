@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		5F6323B7166C3F45003C8B53 /* NSObjectRACBindingsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F6323B6166C3F45003C8B53 /* NSObjectRACBindingsSpec.m */; };
+		5F6323BA166CE11A003C8B53 /* NSObject+RACCocoaTouchBindings.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F6323B8166CE11A003C8B53 /* NSObject+RACCocoaTouchBindings.h */; };
+		5F6323BB166CE11A003C8B53 /* NSObject+RACCocoaTouchBindings.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F6323B9166CE11A003C8B53 /* NSObject+RACCocoaTouchBindings.m */; };
 		866557A61557086B00B39EB5 /* RACExtensionsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 866557A51557086B00B39EB5 /* RACExtensionsSpec.m */; };
 		8801E7511644BDE200A155FE /* NSObjectRACLiftingSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 8801E7501644BDE200A155FE /* NSObjectRACLiftingSpec.m */; };
 		88037F8415056328001A5B19 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7BF15000FCE00163A9F /* Cocoa.framework */; };
@@ -357,6 +359,8 @@
 
 /* Begin PBXFileReference section */
 		5F6323B6166C3F45003C8B53 /* NSObjectRACBindingsSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSObjectRACBindingsSpec.m; sourceTree = "<group>"; };
+		5F6323B8166CE11A003C8B53 /* NSObject+RACCocoaTouchBindings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACCocoaTouchBindings.h"; sourceTree = "<group>"; };
+		5F6323B9166CE11A003C8B53 /* NSObject+RACCocoaTouchBindings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACCocoaTouchBindings.m"; sourceTree = "<group>"; };
 		866557A51557086B00B39EB5 /* RACExtensionsSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACExtensionsSpec.m; sourceTree = "<group>"; };
 		8801E7501644BDE200A155FE /* NSObjectRACLiftingSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSObjectRACLiftingSpec.m; sourceTree = "<group>"; };
 		88037F8315056328001A5B19 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -652,6 +656,8 @@
 			children = (
 				88F70066152D2D7B00B32771 /* NSObject+RACBindings.h */,
 				88F70067152D2D7B00B32771 /* NSObject+RACBindings.m */,
+				5F6323B8166CE11A003C8B53 /* NSObject+RACCocoaTouchBindings.h */,
+				5F6323B9166CE11A003C8B53 /* NSObject+RACCocoaTouchBindings.m */,
 				8857BB81152A27A9009804CC /* NSObject+RACKVOWrapper.h */,
 				88CDF82915008BB900163A9F /* NSObject+RACKVOWrapper.m */,
 				88CDF82C15008C0500163A9F /* NSObject+RACPropertySubscribing.h */,
@@ -1157,6 +1163,7 @@
 				881E87B916695F7700667F7B /* RACIterativeScheduler.h in Headers */,
 				881E87BF166962E100667F7B /* RACDeferredScheduler.h in Headers */,
 				881E87C51669636000667F7B /* RACSubscriptionScheduler.h in Headers */,
+				5F6323BA166CE11A003C8B53 /* NSObject+RACCocoaTouchBindings.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1511,6 +1518,7 @@
 				881E87BB16695F7700667F7B /* RACIterativeScheduler.m in Sources */,
 				881E87C1166962E100667F7B /* RACDeferredScheduler.m in Sources */,
 				881E87C71669636000667F7B /* RACSubscriptionScheduler.m in Sources */,
+				5F6323BB166CE11A003C8B53 /* NSObject+RACCocoaTouchBindings.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

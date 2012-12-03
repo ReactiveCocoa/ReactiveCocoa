@@ -43,6 +43,7 @@
 #import <ReactiveCocoa/UIControl+RACSignalSupport.h>
 #import <ReactiveCocoa/UITextField+RACSignalSupport.h>
 #import <ReactiveCocoa/UITextView+RACSignalSupport.h>
+#import <ReactiveCocoa/NSObject+RACCocoaTouchBindings.h>
 #elif TARGET_OS_MAC
 #import <ReactiveCocoa/EXTKeyPathCoding.h>
 #import <ReactiveCocoa/NSButton+RACCommandSupport.h>

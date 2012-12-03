@@ -95,20 +95,7 @@ static NSMutableSet *activeSignals() {
 		RACStreamBindBlock bindingBlock = block();
 
 		NSMutableArray *signals = [NSMutableArray arrayWithObject:self];
-		NSMutableArray *disposables = [NSMutableArray array];
-
-		// Works around the issue described in #94 by making sure -bind: doesn't
-		// send more values than it should. This doesn't help the subscription
-		// actually terminate properly, though.
-		__block volatile uint32_t stopBinding = 0;
-
-		void (^disposeAll)(void) = ^{
-			OSAtomicOr32Barrier(1, &stopBinding);
-
-			@synchronized (disposables) {
-				[disposables makeObjectsPerformSelector:@selector(dispose)];
-			}
-		};
+		RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposable];
 
 		void (^completeSignal)(id<RACSignal>) = ^(id<RACSignal> signal) {
 			@synchronized (signals) {
@@ -116,7 +103,7 @@ static NSMutableSet *activeSignals() {
 
 				if (signals.count == 0) {
 					[subscriber sendCompleted];
-					[disposables makeObjectsPerformSelector:@selector(dispose)];
+					[compoundDisposable dispose];
 				}
 			}
 		};
@@ -129,52 +116,31 @@ static NSMutableSet *activeSignals() {
 			RACDisposable *disposable = [signal subscribeNext:^(id x) {
 				[subscriber sendNext:x];
 			} error:^(NSError *error) {
-				disposeAll();
+				[compoundDisposable dispose];
 				[subscriber sendError:error];
 			} completed:^{
 				completeSignal(signal);
 			}];
 
-			if (disposable != nil) {
-				@synchronized (disposables) {
-					[disposables addObject:disposable];
-				}
-			}
+			if (disposable != nil) [compoundDisposable addDisposable:disposable];
 		};
 
 		RACDisposable *bindingDisposable = [self subscribeNext:^(id x) {
-			if (stopBinding) return;
-			
 			BOOL stop = NO;
 			id<RACSignal> signal = bindingBlock(x, &stop);
 
 			if (signal != nil) addSignal(signal);
-
-			if (signal == nil || stop) {
-				OSAtomicOr32Barrier(1, &stopBinding);
-				completeSignal(self);
-			}
+			if (signal == nil || stop) completeSignal(self);
 		} error:^(NSError *error) {
-			if (stopBinding) return;
-
-			disposeAll();
+			[compoundDisposable dispose];
 			[subscriber sendError:error];
 		} completed:^{
-			if (stopBinding) return;
-
-			OSAtomicOr32Barrier(1, &stopBinding);
 			completeSignal(self);
 		}];
 
-		if (bindingDisposable != nil) {
-			@synchronized (disposables) {
-				[disposables addObject:bindingDisposable];
-			}
-		}
+		if (bindingDisposable != nil) [compoundDisposable addDisposable:bindingDisposable];
 
-		return [RACDisposable disposableWithBlock:^{
-			disposeAll();
-		}];
+		return compoundDisposable;
 	}];
 }
 

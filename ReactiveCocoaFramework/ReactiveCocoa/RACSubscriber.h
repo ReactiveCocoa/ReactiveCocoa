@@ -21,10 +21,14 @@
 @protocol RACSubscriber <NSObject>
 @required
 
-// Send the next value to subscribers. `value` can be nil.
+// Send the next value to subscribers.
+//
+// value - The value to send. This can be `nil`.
 - (void)sendNext:(id)value;
 
-// Send the error to subscribers. `error` can be nil.
+// Send the error to subscribers.
+//
+// error - The error to send. This can be `nil`.
 //
 // This terminates the subscription.
 - (void)sendError:(NSError *)error;

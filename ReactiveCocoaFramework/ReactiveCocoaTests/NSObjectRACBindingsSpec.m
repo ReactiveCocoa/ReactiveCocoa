@@ -144,6 +144,25 @@ describe(@"two-way bindings", ^{
 		});
 	});
 	
+	it(@"should apply transformation only once after binding", ^{
+		__block NSUInteger incomingExecuteCount = 0;
+		__block NSUInteger outgoingExecuteCount = 0;
+		[a rac_bind:@keypath(a.name) signalBlock:^(id<RACSignal> incoming) {
+			incomingExecuteCount++;
+			return incoming;
+		} toObject:b withKeyPath:@keypath(b.name) signalBlock:^(id<RACSignal> outgoing) {
+			outgoingExecuteCount++;
+			return outgoing;
+		}];
+		expect(incomingExecuteCount).to.equal(1);
+		expect(outgoingExecuteCount).to.equal(1);
+		a.name = testName1;
+		b.name = testName2;
+		a.name = testName3;
+		expect(incomingExecuteCount).to.equal(1);
+		expect(outgoingExecuteCount).to.equal(1);
+	});
+	
 	it(@"should run transformations only once per change, and only in one direction", ^{
 		__block NSUInteger aCounter = 0;
 		__block NSUInteger cCounter = 0;
@@ -172,6 +191,47 @@ describe(@"two-way bindings", ^{
 		c.name = testName3;
 		expect(aCounter).to.equal(4);
 		expect(cCounter).to.equal(4);
+	});
+	
+	it(@"should handle the bound objects being changed at the same time on different threads", ^{
+		RACScheduler *aScheduler = RACScheduler.backgroundScheduler;
+		RACScheduler *bScheduler = RACScheduler.backgroundScheduler;
+		
+		[a rac_bind:@keypath(a.name) signalBlock:^(id<RACSignal> incoming) {
+			return [incoming deliverOn:aScheduler];
+		} toObject:b withKeyPath:@keypath(b.name) signalBlock:^(id<RACSignal> outgoing) {
+			return [outgoing deliverOn:bScheduler];
+		}];
+		
+		a.name = nil;
+		expect(a.name).to.beNil();
+		expect(b.name).to.beNil();
+		__block volatile uint32_t aReady = 0;
+		__block volatile uint32_t bReady = 0;
+		[aScheduler schedule:^{
+			OSAtomicOr32Barrier(1, &aReady);
+			while (!bReady) {
+				// do nothing while waiting for b, sleeping might hide the race
+			}
+		 a.name = testName1;
+		}];
+		[bScheduler schedule:^{
+			OSAtomicOr32Barrier(1, &bReady);
+			while (!aReady) {
+				// do nothing while waiting for a, sleeping might hide the race
+			}
+			b.name = testName2;
+		}];
+		while (![a.name isEqual:testName2] || ![b.name isEqual:testName1]) {
+			sleep(1);
+		}
+		if ([a.name isEqual:testName1]) {
+			expect(a.name).to.equal(testName1);
+			expect(b.name).to.equal(testName1);
+		} else {
+			expect(a.name).to.equal(testName2);
+			expect(b.name).to.equal(testName2);
+		}
 	});
 });
 

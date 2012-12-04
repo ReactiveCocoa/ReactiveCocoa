@@ -144,25 +144,6 @@ describe(@"two-way bindings", ^{
 		});
 	});
 	
-	it(@"should apply transformation only once after binding", ^{
-		__block NSUInteger incomingExecuteCount = 0;
-		__block NSUInteger outgoingExecuteCount = 0;
-		[a rac_bind:@keypath(a.name) signalBlock:^(id<RACSignal> incoming) {
-			incomingExecuteCount++;
-			return incoming;
-		} toObject:b withKeyPath:@keypath(b.name) signalBlock:^(id<RACSignal> outgoing) {
-			outgoingExecuteCount++;
-			return outgoing;
-		}];
-		expect(incomingExecuteCount).to.equal(1);
-		expect(outgoingExecuteCount).to.equal(1);
-		a.name = testName1;
-		b.name = testName2;
-		a.name = testName3;
-		expect(incomingExecuteCount).to.equal(1);
-		expect(outgoingExecuteCount).to.equal(1);
-	});
-	
 	it(@"should run transformations only once per change, and only in one direction", ^{
 		__block NSUInteger aCounter = 0;
 		__block NSUInteger cCounter = 0;

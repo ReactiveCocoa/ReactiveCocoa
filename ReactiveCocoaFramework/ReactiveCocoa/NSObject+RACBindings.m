@@ -21,15 +21,15 @@ static id (^nilPlaceHolder)(void) = ^{
 	return nilPlaceHolder;
 };
 
-RACSignalTransformationBlock const RACSignalTransformationIdentity = ^(id<RACSignal> signal) {
+static RACSignalTransformationBlock const RACSignalTransformationIdentity = ^(id<RACSignal> signal) {
 	return signal;
 };
 
 @implementation NSObject (RACBindings)
 
 - (RACDisposable *)rac_bind:(NSString *)receiverKeyPath signalBlock:(RACSignalTransformationBlock)receiverSignalBlock toObject:(id)otherObject withKeyPath:(NSString *)otherKeyPath signalBlock:(RACSignalTransformationBlock)otherSignalBlock {
-	NSParameterAssert(receiverSignalBlock != nil);
-	NSParameterAssert(otherSignalBlock != nil);
+	if (receiverSignalBlock == nil) receiverSignalBlock = RACSignalTransformationIdentity;
+	if (otherSignalBlock == nil) otherSignalBlock = RACSignalTransformationIdentity;
 		
 	NSMutableArray *expectedReceiverBounces = NSMutableArray.array;
 	NSMutableArray *expectedOtherBounces = NSMutableArray.array;

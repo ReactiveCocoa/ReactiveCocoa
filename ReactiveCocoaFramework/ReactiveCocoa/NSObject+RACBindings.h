@@ -12,7 +12,6 @@
 @class RACDisposable;
 
 typedef id<RACSignal> (^RACSignalTransformationBlock)(id<RACSignal>);
-extern RACSignalTransformationBlock const RACSignalTransformationIdentity;
 
 @interface NSObject (RACBindings)
 
@@ -23,10 +22,10 @@ extern RACSignalTransformationBlock const RACSignalTransformationIdentity;
 // `otherKeyPath` on `otherObject`. After that, the two properties will be kept
 // in sync by forwarding changes to one onto the other.
 //
-// receiverSignalBlock - The block that transforms the signal that forwards
-//                       changes from `otherObject` to the receiver.
-// otherSignalBlock    - The block that transforms the signal that forwards
-//                       changes from the receiver to `otherObject`.
+// receiverSignalBlock - An optional block that transforms the signal that
+//                       forwards changes from `otherObject` to the receiver.
+// otherSignalBlock    - An optional block that transforms the signal that
+//                       forwards changes from the receiver to `otherObject`.
 //
 // Returns a disposable that can be used to sever the binding.
 - (RACDisposable *)rac_bind:(NSString *)receiverKeyPath signalBlock:(RACSignalTransformationBlock)receiverSignalBlock toObject:(id)otherObject withKeyPath:(NSString *)otherKeyPath signalBlock:(RACSignalTransformationBlock)otherSignalBlock;

@@ -80,17 +80,18 @@ describe(@"+subscriptionScheduler", ^{
 
 	it(@"should execute scheduled blocks immediately if it's in a scheduler already", ^{
 		__block BOOL done = NO;
+		__block BOOL executedImmediately = NO;
+
 		[RACScheduler.backgroundScheduler schedule:^{
-			__block BOOL executedImmediately = NO;
 			[RACScheduler.subscriptionScheduler schedule:^{
 				executedImmediately = YES;
 			}];
 
-			expect(executedImmediately).to.beTruthy();
 			done = YES;
 		}];
 
 		expect(done).will.beTruthy();
+		expect(executedImmediately).to.beTruthy();
 	});
 });
 

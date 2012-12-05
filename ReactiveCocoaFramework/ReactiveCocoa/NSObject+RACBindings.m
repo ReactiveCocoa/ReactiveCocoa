@@ -31,16 +31,16 @@
 	NSMutableArray *receiverBounces = NSMutableArray.array;
 	NSMutableArray *otherBounces = NSMutableArray.array;
 	
-	__block volatile int32_t versionCounter = -1;
-	__block int32_t receiverVersionLowerBound = -1;
-	__block int32_t otherVersionLowerBound = 0;
-	__block volatile int32_t *versionCounterPtr = &versionCounter;
-	__block int32_t *receiverVersionLowerBoundPtr = &receiverVersionLowerBound;
-	__block int32_t *otherVersionLowerBoundPtr = &otherVersionLowerBound;
+	__block volatile uint32_t versionCounter = 0;
+	__block uint32_t receiverVersionLowerBound = 0;
+	__block uint32_t otherVersionLowerBound = 0;
+	__block volatile uint32_t *versionCounterPtr = &versionCounter;
+	__block uint32_t *receiverVersionLowerBoundPtr = &receiverVersionLowerBound;
+	__block uint32_t *otherVersionLowerBoundPtr = &otherVersionLowerBound;
 	
-	static id (^addAsObserver)(id, id, NSString *, NSMutableArray *, int32_t *, id(^)(id), id, NSString *, NSMutableArray *, int32_t *, RACScheduler *, volatile int32_t *, NSKeyValueObservingOptions) = ^(id observer, id target, NSString *targetKeyPath, NSMutableArray *targetBounces, int32_t *targetVersionLowerBound, id(^targetTransformer)(id), id boundObject, NSString *boundObjectKeyPath, NSMutableArray *boundObjectBounces, int32_t *boundObjectVersionLowerBound, RACScheduler *boundObjectScheduler, volatile int32_t *versionCounter, NSKeyValueObservingOptions options){
+	static id (^addAsObserver)(id, id, NSString *, NSMutableArray *, uint32_t *, id(^)(id), id, NSString *, NSMutableArray *, uint32_t *, RACScheduler *, volatile uint32_t *, NSKeyValueObservingOptions) = ^(id observer, id target, NSString *targetKeyPath, NSMutableArray *targetBounces, uint32_t *targetVersionLowerBound, id(^targetTransformer)(id), id boundObject, NSString *boundObjectKeyPath, NSMutableArray *boundObjectBounces, uint32_t *boundObjectVersionLowerBound, RACScheduler *boundObjectScheduler, volatile uint32_t *versionCounter, NSKeyValueObservingOptions options){
 		return [target rac_addObserver:observer forKeyPath:targetKeyPath options:options queue:nil block:^(id observer, NSDictionary *change) {
-			int32_t currentVersion = OSAtomicIncrement32(versionCounter);
+			uint32_t currentVersion = __sync_fetch_and_add(versionCounter, 1);
 			*targetVersionLowerBound = currentVersion;
 			id value = [target valueForKeyPath:targetKeyPath];
 			
@@ -56,7 +56,7 @@
 			if (targetTransformer != nil) value = targetTransformer(value);
 			
 			[boundObjectScheduler schedule:^{
-				if (*boundObjectVersionLowerBound > currentVersion) return;
+				if (currentVersion - *boundObjectVersionLowerBound > UINT32_MAX / 2) return;
 				@synchronized(boundObjectBounces) {
 					[boundObjectBounces addObject:(value == nil ? nilPlaceHolder() : value)];
 				}

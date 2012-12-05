@@ -28,11 +28,19 @@
 	return [[self alloc] initWithDisposables:disposables];
 }
 
+- (id)init {
+	self = [super init];
+	if (self == nil) return nil;
+
+	_disposables = [NSMutableArray array];
+
+	return self;
+}
+
 - (id)initWithDisposables:(NSArray *)disposables {
 	self = [self init];
 	if (self == nil) return nil;
 
-	_disposables = [NSMutableArray array];
 	if (disposables != nil) [_disposables addObjectsFromArray:disposables];
 
 	return self;
@@ -42,6 +50,7 @@
 
 - (void)addDisposable:(RACDisposable *)disposable {
 	NSParameterAssert(disposable != nil);
+	NSParameterAssert(disposable != self);
 
 	@synchronized(self) {
 		if (self.disposed) {
@@ -57,8 +66,12 @@
 - (void)dispose {
 	@synchronized(self) {
 		self.disposed = YES;
-		[self.disposables makeObjectsPerformSelector:@selector(dispose)];
+
+		// Copy the disposables so there's no way that we could recursively
+		// modify (in -addDisposable:) the array we're disposing.
+		NSArray *disposablesCopy = [self.disposables copy];
 		[self.disposables removeAllObjects];
+		[disposablesCopy makeObjectsPerformSelector:@selector(dispose)];
 	}
 }
 

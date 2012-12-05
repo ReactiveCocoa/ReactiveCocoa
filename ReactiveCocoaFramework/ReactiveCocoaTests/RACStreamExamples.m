@@ -390,6 +390,22 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 	});
 
+	describe(@"+concat:", ^{
+		it(@"should concatenate many streams", ^{
+			id<RACStream> a = [streamClass return:@0];
+			id<RACStream> b = [streamClass empty];
+			id<RACStream> c = streamWithValues(@[ @1, @2, @3 ]);
+			id<RACStream> d = [streamClass return:@4];
+			id<RACStream> e = [streamClass return:@5];
+			id<RACStream> f = [streamClass empty];
+			id<RACStream> g = [streamClass empty];
+			id<RACStream> h = streamWithValues(@[ @6, @7 ]);
+			
+			id<RACStream> stream = [streamClass concat:@[ a, b, c, d, e, f, g, h ]];
+			verifyValues(stream, @[ @0, @1, @2, @3, @4, @5, @6, @7 ]);
+		});
+	});
+
 	it(@"should scan", ^{
 		id<RACStream> stream = streamWithValues(@[ @1, @2, @3, @4 ]);
 		id<RACStream> scanned = [stream scanWithStart:@0 combine:^(NSNumber *running, NSNumber *next) {

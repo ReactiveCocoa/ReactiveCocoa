@@ -120,6 +120,14 @@
 	return [self zip:streams reduce:nil];
 }
 
++ (instancetype)concat:(NSArray *)streams {
+	id<RACStream> result = self.empty;
+	for (id<RACStream> stream in streams) {
+		result = [result concat:stream];
+	}
+	return result;
+}
+
 - (instancetype)scanWithStart:(id)startingValue combine:(id (^)(id running, id next))block {
 	NSParameterAssert(block != nil);
 

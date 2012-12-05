@@ -136,6 +136,9 @@ typedef id (^RACStreamBindBlock)(id value, BOOL *stop);
 // Invokes +zip:reduce: with a nil `reduceBlock`.
 + (instancetype)zip:(NSArray *)streams;
 
+// Returns a stream obtained by concatening `streams` in order.
++ (instancetype)concat:(NSArray *)streams;
+
 // Combines values in the receiver from left to right using the given block.
 //
 // The algorithm proceeds as follows:

@@ -56,6 +56,11 @@
 
 		[condition signal];
 		[condition unlock];
+	} error:^(NSError *error) {
+		[condition lock];
+		done = YES;
+		[condition signal];
+		[condition unlock];
 	} completed:^{
 		[condition lock];
 		done = YES;

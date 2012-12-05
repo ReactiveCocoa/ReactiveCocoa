@@ -421,6 +421,26 @@ describe(@"continuation", ^{
 		expect(values).will.equal(@[ @1 ]);
 		expect(completed).to.beFalsy();
 	});
+
+	it(@"should stop repeating when disposed by -take:", ^{
+		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendCompleted];
+			return nil;
+		}];
+
+		NSMutableArray *values = [NSMutableArray array];
+
+		__block BOOL completed = NO;
+		[[[signal repeat] take:1] subscribeNext:^(id x) {
+			[values addObject:x];
+		} completed:^{
+			completed = YES;
+		}];
+
+		expect(values).will.equal(@[ @1 ]);
+		expect(completed).to.beTruthy();
+	});
 });
 
 describe(@"+combineLatest:", ^{

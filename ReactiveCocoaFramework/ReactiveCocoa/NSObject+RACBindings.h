@@ -19,6 +19,12 @@
 // `otherKeyPath` on `otherObject`. After that, the two properties will be kept
 // in sync by forwarding changes to one onto the other.
 //
+// WARNING: for this method to work, both properties must return a value equal
+// to the last one that has been set, for each value that is set. This excludes
+// setting `nil` on scalar properties, even if `-setNilValueForKey:` is
+// overridden. In this context, a equals b if both are `nil` or if
+// `[a isEqual:b]` returns `YES`.
+//
 // receiverKeyPath     - The key path of the receiver to bind.
 // receiverScheduler   - An optional scheduler on which all accesses to the
 //                       receiver will be scheduled. If not specified, the

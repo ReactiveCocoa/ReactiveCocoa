@@ -1476,7 +1476,7 @@ describe(@"-collect", ^{
 		RACSubject *subject = [RACSubject subject];
 		RACSignal *collected = [subject collect];
 
-		NSArray *expected = @[ @1, @2, @3 ];
+		NSArray *expected = @[ @1, @2, NSNull.null, @3 ];
 		__block id value = nil;
 		__block BOOL hasCompleted = NO;
 
@@ -1488,6 +1488,7 @@ describe(@"-collect", ^{
 
 		[subject sendNext:@1];
 		[subject sendNext:@2];
+		[subject sendNext:nil];
 		[subject sendNext:@3];
 		expect(value).to.beNil();
 

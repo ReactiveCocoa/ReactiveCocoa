@@ -130,7 +130,8 @@ typedef NSInteger RACSignalError;
 // will be a RACTuple of values.
 - (id<RACSignal>)bufferWithTime:(NSTimeInterval)interval;
 
-// Collect all receiver's `next`s into a NSArray.
+// Collect all receiver's `next`s into a NSArray. Any nil values will be
+// converted to NSNull.
 //
 // Returns a signal which sends a single NSArray when the receiver completes.
 - (id<RACSignal>)collect;

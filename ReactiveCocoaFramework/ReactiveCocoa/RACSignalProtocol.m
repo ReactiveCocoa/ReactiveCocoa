@@ -804,65 +804,6 @@ static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), 
 	}];
 }
 
-- (id)first {
-	return [self firstOrDefault:nil];
-}
-
-- (id)firstOrDefault:(id)defaultValue {
-	return [self firstOrDefault:defaultValue success:NULL error:NULL];
-}
-
-- (id)firstOrDefault:(id)defaultValue success:(BOOL *)success error:(NSError **)error {
-	NSCondition *condition = [[NSCondition alloc] init];
-	condition.name = NSStringFromSelector(_cmd);
-
-	__block id value = defaultValue;
-
-	// Protects against setting 'value' multiple times (e.g. to the second value
-	// instead of the first).
-	__block BOOL done = NO;
-
-	__block RACDisposable *disposable = [self subscribeNext:^(id x) {
-		[condition lock];
-
-		if (!done) {
-			value = x;
-			if(success != NULL) *success = YES;
-			
-			done = YES;
-			[disposable dispose];
-			[condition broadcast];
-		}
-
-		[condition unlock];
-	} error:^(NSError *e) {
-		[condition lock];
-
-		if(success != NULL) *success = NO;
-		if(error != NULL) *error = e;
-
-		done = YES;
-		[condition broadcast];
-		[condition unlock];
-	} completed:^{
-		[condition lock];
-
-		if(success != NULL) *success = YES;
-
-		done = YES;
-		[condition broadcast];
-		[condition unlock];
-	}];
-
-	[condition lock];
-	while (!done) {
-		[condition wait];
-	}
-
-	[condition unlock];
-	return value;
-}
-
 + (id<RACSignal>)defer:(id<RACSignal> (^)(void))block {
 	NSParameterAssert(block != NULL);
 	

@@ -191,7 +191,10 @@ describe(@"two-way bindings", ^{
 			b.name = testName2;
 		}];
 		
-		while (![a.name isEqual:testName2] || ![b.name isEqual:testName1]) {
+		while (a.name == nil || b.name == nil) {
+			sleep(1);
+		}
+		while ([a.name isEqual:testName1] && [b.name isEqual:testName2]) {
 			sleep(1);
 		}
 		

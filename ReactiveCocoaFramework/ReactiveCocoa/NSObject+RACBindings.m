@@ -13,26 +13,35 @@
 #import "RACDisposable.h"
 #import "RACScheduler.h"
 
-static id (^nilPlaceHolder)(void) = ^{
-	static id nilPlaceHolder = nil;
-	static dispatch_once_t onceToken;
-	dispatch_once(&onceToken, ^{
-    nilPlaceHolder = [[NSObject alloc] init];
-	});
-	return nilPlaceHolder;
-};
-
 @implementation NSObject (RACBindings)
 
 - (RACDisposable *)rac_bind:(NSString *)receiverKeyPath transformer:(id (^)(id))receiverTransformer onScheduler:(RACScheduler *)receiverScheduler toObject:(id)otherObject withKeyPath:(NSString *)otherKeyPath transformer:(id (^)(id))otherTransformer onScheduler:(RACScheduler *)otherScheduler {
+	static id (^nilPlaceHolder)(void) = ^{
+		static id nilPlaceHolder = nil;
+		static dispatch_once_t onceToken;
+		dispatch_once(&onceToken, ^{
+			nilPlaceHolder = [[NSObject alloc] init];
+		});
+		return nilPlaceHolder;
+	};
+	
 	if (receiverScheduler == nil) receiverScheduler = RACScheduler.immediateScheduler;
 	if (otherScheduler == nil) otherScheduler = RACScheduler.immediateScheduler;
 	
 	NSMutableArray *receiverBounces = NSMutableArray.array;
 	NSMutableArray *otherBounces = NSMutableArray.array;
 	
-	static id (^addAsObserver)(id, id, NSString *, NSMutableArray *, id(^)(id), id, NSString *, NSMutableArray *, RACScheduler *, NSKeyValueObservingOptions) = ^(id observer, id target, NSString *targetKeyPath, NSMutableArray *targetBounces, id(^targetTransformer)(id), id boundObject, NSString *boundObjectKeyPath, NSMutableArray *boundObjectBounces, RACScheduler *boundObjectScheduler, NSKeyValueObservingOptions options){
+	__block volatile int32_t versionCounter = -1;
+	__block int32_t receiverVersionLowerBound = -1;
+	__block int32_t otherVersionLowerBound = 0;
+	__block volatile int32_t *versionCounterPtr = &versionCounter;
+	__block int32_t *receiverVersionLowerBoundPtr = &receiverVersionLowerBound;
+	__block int32_t *otherVersionLowerBoundPtr = &otherVersionLowerBound;
+	
+	static id (^addAsObserver)(id, id, NSString *, NSMutableArray *, int32_t *(^)(void), id(^)(id), id, NSString *, NSMutableArray *, int32_t *(^)(void), RACScheduler *, volatile int32_t *(^)(void), NSKeyValueObservingOptions) = ^(id observer, id target, NSString *targetKeyPath, NSMutableArray *targetBounces, int32_t *(^targetVersionLowerBound)(void), id(^targetTransformer)(id), id boundObject, NSString *boundObjectKeyPath, NSMutableArray *boundObjectBounces, int32_t *(^boundObjectVersionLowerBound)(void), RACScheduler *boundObjectScheduler, volatile int32_t *(^versionCounter)(void), NSKeyValueObservingOptions options){
 		return [target rac_addObserver:observer forKeyPath:targetKeyPath options:options queue:nil block:^(id observer, NSDictionary *change) {
+			int32_t currentVersion = OSAtomicIncrement32(versionCounter());
+			*targetVersionLowerBound() = currentVersion;
 			id value = [target valueForKeyPath:targetKeyPath];
 			
 			@synchronized(targetBounces) {
@@ -47,6 +56,7 @@ static id (^nilPlaceHolder)(void) = ^{
 			if (targetTransformer != nil) value = targetTransformer(value);
 			
 			[boundObjectScheduler schedule:^{
+				if (*boundObjectVersionLowerBound() > currentVersion) return;
 				@synchronized(boundObjectBounces) {
 					[boundObjectBounces addObject:(value == nil ? nilPlaceHolder() : value)];
 				}
@@ -55,8 +65,8 @@ static id (^nilPlaceHolder)(void) = ^{
 		}];
 	};
 	
-	id outgoingIdentifier = addAsObserver(self, self, receiverKeyPath, receiverBounces, receiverTransformer, otherObject, otherKeyPath, otherBounces, otherScheduler, 0);
-	id incomingIdentifier = addAsObserver(self, otherObject, otherKeyPath, otherBounces, otherTransformer, self, receiverKeyPath, receiverBounces, receiverScheduler, NSKeyValueObservingOptionInitial);
+	id outgoingIdentifier = addAsObserver(self, self, receiverKeyPath, receiverBounces, ^{ return receiverVersionLowerBoundPtr; }, receiverTransformer, otherObject, otherKeyPath, otherBounces, ^{ return otherVersionLowerBoundPtr; }, otherScheduler, ^{ return versionCounterPtr; }, 0);
+	id incomingIdentifier = addAsObserver(self, otherObject, otherKeyPath, otherBounces, ^{ return otherVersionLowerBoundPtr; }, otherTransformer, self, receiverKeyPath, receiverBounces, ^{ return receiverVersionLowerBoundPtr; }, receiverScheduler, ^{ return versionCounterPtr; }, NSKeyValueObservingOptionInitial);
 		
 	return [RACDisposable disposableWithBlock:^{
 		[self rac_removeObserverWithIdentifier:outgoingIdentifier];

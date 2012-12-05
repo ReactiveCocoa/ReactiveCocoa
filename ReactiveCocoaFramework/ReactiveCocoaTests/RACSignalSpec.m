@@ -397,7 +397,7 @@ describe(@"continuation", ^{
 			gotCompleted = YES;
 		}];
 		
-		expect(nextCount).to.beGreaterThan(1);
+		expect(nextCount).will.beGreaterThan(1);
 		expect(gotCompleted).to.beFalsy();
 	});
 });

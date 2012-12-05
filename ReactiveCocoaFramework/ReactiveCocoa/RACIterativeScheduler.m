@@ -9,8 +9,10 @@
 #import "RACIterativeScheduler.h"
 #import "RACScheduler+Private.h"
 
-// The key for the thread-local block queue.
-static NSString * const RACIterativeSchedulerQueue = @"RACIterativeSchedulerQueue";
+// A key for NSThread.threadDictionary, associated with a boolean NSNumber
+// indicating whether the current code was scheduled using the
+// +iterativeScheduler.
+static NSString * const RACRunningOnIterativeSchedulerKey = @"RACRunningOnIterativeSchedulerKey";
 
 @implementation RACIterativeScheduler
 
@@ -25,22 +27,23 @@ static NSString * const RACIterativeSchedulerQueue = @"RACIterativeSchedulerQueu
 - (void)schedule:(void (^)(void))block {
 	NSParameterAssert(block != NULL);
 
-	NSMutableArray *queue = NSThread.currentThread.threadDictionary[RACIterativeSchedulerQueue];
-	if (queue == nil) {
-		queue = [NSMutableArray array];
-		NSThread.currentThread.threadDictionary[RACIterativeSchedulerQueue] = queue;
+	void (^schedulingBlock)(void) = ^{
+		NSNumber *wasOnIterativeScheduler = NSThread.currentThread.threadDictionary[RACRunningOnIterativeSchedulerKey] ?: @NO;
+		NSThread.currentThread.threadDictionary[RACRunningOnIterativeSchedulerKey] = @YES;
 
-		[queue addObject:block];
+		block();
 
-		while (queue.count > 0) {
-			void (^dequeuedBlock)(void) = queue[0];
-			[queue removeObjectAtIndex:0];
-			dequeuedBlock();
-		}
+		NSThread.currentThread.threadDictionary[RACRunningOnIterativeSchedulerKey] = wasOnIterativeScheduler;
+	};
 
-		[NSThread.currentThread.threadDictionary removeObjectForKey:RACIterativeSchedulerQueue];
+	BOOL isOnIterativeScheduler = [NSThread.currentThread.threadDictionary[RACRunningOnIterativeSchedulerKey] boolValue];
+	if (isOnIterativeScheduler) {
+		NSAssert(RACScheduler.currentScheduler != nil, @"+currentScheduler should never be nil when already on the +iterativeScheduler");
+		[RACScheduler.currentScheduler schedule:schedulingBlock];
+	} else if (RACScheduler.currentScheduler == nil) {
+		[RACScheduler.mainThreadScheduler schedule:schedulingBlock];
 	} else {
-		[queue addObject:[block copy]];
+		schedulingBlock();
 	}
 }
 

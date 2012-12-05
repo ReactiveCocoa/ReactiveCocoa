@@ -96,10 +96,54 @@ describe(@"+subscriptionScheduler", ^{
 });
 
 describe(@"+iterativeScheduler", ^{
+	it(@"should run immediately on the main scheduler", ^{
+		__block RACScheduler *scheduler = nil;
+
+		[RACScheduler.iterativeScheduler schedule:^{
+			scheduler = RACScheduler.currentScheduler;
+		}];
+
+		expect(scheduler).to.equal(RACScheduler.mainThreadScheduler);
+	});
+
+	it(@"should run immediately on a background scheduler", ^{
+		__block BOOL done = NO;
+		__block RACScheduler *scheduler = nil;
+
+		RACScheduler *backgroundScheduler = RACScheduler.backgroundScheduler;
+		[backgroundScheduler schedule:^{
+			[RACScheduler.iterativeScheduler schedule:^{
+				scheduler = RACScheduler.currentScheduler;
+			}];
+
+			done = YES;
+		}];
+
+		expect(done).will.beTruthy();
+		expect(scheduler).to.equal(backgroundScheduler);
+	});
+
+	it(@"should run on the main scheduler when invoked from an unknown scheduler", ^{
+		__block BOOL done = NO;
+		__block RACScheduler *scheduler = nil;
+
+		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+			[RACScheduler.iterativeScheduler schedule:^{
+				scheduler = RACScheduler.currentScheduler;
+			}];
+
+			done = YES;
+		});
+
+		expect(done).will.beTruthy();
+		expect(scheduler).to.equal(RACScheduler.mainThreadScheduler);
+	});
+
 	it(@"should flatten any recursive scheduled blocks", ^{
 		NSMutableArray *order = [NSMutableArray array];
 		[RACScheduler.iterativeScheduler schedule:^{
 			[order addObject:@1];
+
 			[RACScheduler.iterativeScheduler schedule:^{
 				[order addObject:@3];
 
@@ -109,11 +153,12 @@ describe(@"+iterativeScheduler", ^{
 
 				[order addObject:@4];
 			}];
+
 			[order addObject:@2];
 		}];
 
 		NSArray *expected = @[ @1, @2, @3, @4, @5 ];
-		expect(order).to.equal(expected);
+		expect(order).will.equal(expected);
 	});
 });
 

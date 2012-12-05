@@ -8,9 +8,7 @@
 
 #import "RACScheduler.h"
 
-// A schedule that executes scheduled blocks immediately, or if called within
-// another RACIterativeScheduler-scheduled block, enqueues the blocks to be
-// performed immediately after the current block ends.
+// A scheduler that flattens and defers recursion. See +[RACScheduler
+// iterativeScheduler] for more information.
 @interface RACIterativeScheduler : RACScheduler
-
 @end

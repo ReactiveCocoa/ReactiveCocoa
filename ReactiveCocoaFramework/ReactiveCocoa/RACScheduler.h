@@ -28,23 +28,31 @@ typedef enum : long {
 
 // A singleton scheduler that immediately executes the blocks it is given.
 //
-// Note that unlike most other schedulers, this does not set the current
+// **Note:** Unlike most other schedulers, this does not set the current
 // scheduler. There may still be a valid +currentScheduler if this is used
 // within a block scheduled on a different scheduler.
 + (instancetype)immediateScheduler;
 
-// A singleton scheduler like +immediateScheduler, with one important difference.
-// If called within another +iterativeScheduler scheduled block, it will enqueue
-// the new block to be executed immediately after the current block completes,
-// as opposed to executing it immediately within the current block.
+// A singleton scheduler that flattens and defers recursion.
 //
-// This should be used when you want to execute something immediately, unless it
-// would recurse. It prevents the possibility of stack overflow in deeply nested
-// scheduling.
+// The behavior of scheduling a block depends on which scheduler the calling
+// code is running from:
 //
-// Note that unlike most other schedulers, this does not set the current
-// scheduler. There may still be a valid +currentScheduler if this is used
-// within a block scheduled on a different scheduler.
+//  - If the caller isn't running on a scheduler, the block is scheduled on the
+//    +mainThreadScheduler.
+//  - If the caller is running on any scheduler other than the
+//    +iterativeScheduler, the block is executed immediately.
+//  - Otherwise, if the caller was scheduled using the +iterativeScheduler, the
+//    block is scheduled on the +currentScheduler, and will execute only _after_
+//    the calling block completes.
+//
+// This should be used when you want to execute something as soon as possible,
+// unless it would recurse. It prevents the possibility of stack overflow in
+// deeply nested scheduling.
+//
+// **Note:** Unlike most other schedulers, this does not set the current
+// scheduler to itself. However, because of the semantics defined above, there
+// is guaranteed to always be a +currentScheduler for scheduled blocks.
 + (instancetype)iterativeScheduler;
 
 // A singleton scheduler that executes blocks in the main thread.

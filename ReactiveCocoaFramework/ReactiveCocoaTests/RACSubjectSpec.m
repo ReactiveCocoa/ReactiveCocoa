@@ -204,11 +204,12 @@ describe(@"RACReplaySubject", ^{
 			NSArray *liveValues = [NSArray arrayWithObjects:(id *)values count:(NSUInteger)nextIndex];
 			expect(liveValues.count).to.equal(count);
 			
-			NSArray *replayedValues = subject.toArray;
-			expect(replayedValues.count).to.equal(count);
+			__block NSArray *replayedValues = nil;
+			[[subject collect] subscribeNext:^(NSArray *collected) {
+				replayedValues = [collected copy];
+			}];
 
-			// It should return the same ordering for multiple invocations too.
-			expect(replayedValues).to.equal(subject.toArray);
+			expect(replayedValues.count).to.equal(count);
 
 			[replayedValues enumerateObjectsUsingBlock:^(id value, NSUInteger index, BOOL *stop) {
 				expect(liveValues[index]).to.equal(value);

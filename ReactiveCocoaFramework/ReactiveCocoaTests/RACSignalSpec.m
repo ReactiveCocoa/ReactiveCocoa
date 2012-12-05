@@ -631,7 +631,11 @@ describe(@"distinctUntilChanged", ^{
 			return nil;
 		}] distinctUntilChanged];
 		
-		NSArray *values = sub.toArray;
+		__block NSArray *values = nil;
+		[[sub collect] subscribeNext:^(NSArray *collected) {
+			values = collected;
+		}];
+
 		NSArray *expected = @[ @1, @2, @1 ];
 		expect(values).to.equal(expected);
 	});
@@ -647,7 +651,11 @@ describe(@"distinctUntilChanged", ^{
 			return nil;
 		}] distinctUntilChanged];
 		
-		NSArray *values = sub.toArray;
+		__block NSArray *values = nil;
+		[[sub collect] subscribeNext:^(NSArray *collected) {
+			values = collected;
+		}];
+
 		NSArray *expected = @[ @1, [NSNull null], @1 ];
 		expect(values).to.equal(expected);
 	});
@@ -661,7 +669,11 @@ describe(@"distinctUntilChanged", ^{
 			return nil;
 		}] distinctUntilChanged];
 		
-		NSArray *values = sub.toArray;
+		__block NSArray *values = nil;
+		[[sub collect] subscribeNext:^(NSArray *collected) {
+			values = collected;
+		}];
+
 		NSArray *expected = @[ [NSNull null], @1 ];
 		expect(values).to.equal(expected);
 	});

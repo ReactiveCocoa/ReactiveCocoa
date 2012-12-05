@@ -226,10 +226,6 @@ typedef NSInteger RACSignalError;
 // latest signal. This is mostly useful when combined with `-flattenMap:`.
 - (id<RACSignal>)switch;
 
-// Add every `next` to an array. Nils are represented by NSNulls. Note that this
-// is a blocking call.
-- (NSArray *)toArray;
-
 // Add every `next` to a sequence. Nils are represented by NSNulls.
 //
 // Returns a sequence which provides values from the signal as they're sent.

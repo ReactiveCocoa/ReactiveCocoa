@@ -28,11 +28,19 @@
 	return [[self alloc] initWithDisposables:disposables];
 }
 
+- (id)init {
+	self = [super init];
+	if (self == nil) return nil;
+
+	_disposables = [NSMutableArray array];
+
+	return self;
+}
+
 - (id)initWithDisposables:(NSArray *)disposables {
 	self = [self init];
 	if (self == nil) return nil;
 
-	_disposables = [NSMutableArray array];
 	if (disposables != nil) [_disposables addObjectsFromArray:disposables];
 
 	return self;

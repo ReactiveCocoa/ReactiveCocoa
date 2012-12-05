@@ -38,10 +38,10 @@
 	__block int32_t *receiverVersionLowerBoundPtr = &receiverVersionLowerBound;
 	__block int32_t *otherVersionLowerBoundPtr = &otherVersionLowerBound;
 	
-	static id (^addAsObserver)(id, id, NSString *, NSMutableArray *, int32_t *(^)(void), id(^)(id), id, NSString *, NSMutableArray *, int32_t *(^)(void), RACScheduler *, volatile int32_t *(^)(void), NSKeyValueObservingOptions) = ^(id observer, id target, NSString *targetKeyPath, NSMutableArray *targetBounces, int32_t *(^targetVersionLowerBound)(void), id(^targetTransformer)(id), id boundObject, NSString *boundObjectKeyPath, NSMutableArray *boundObjectBounces, int32_t *(^boundObjectVersionLowerBound)(void), RACScheduler *boundObjectScheduler, volatile int32_t *(^versionCounter)(void), NSKeyValueObservingOptions options){
+	static id (^addAsObserver)(id, id, NSString *, NSMutableArray *, int32_t *, id(^)(id), id, NSString *, NSMutableArray *, int32_t *, RACScheduler *, volatile int32_t *, NSKeyValueObservingOptions) = ^(id observer, id target, NSString *targetKeyPath, NSMutableArray *targetBounces, int32_t *targetVersionLowerBound, id(^targetTransformer)(id), id boundObject, NSString *boundObjectKeyPath, NSMutableArray *boundObjectBounces, int32_t *boundObjectVersionLowerBound, RACScheduler *boundObjectScheduler, volatile int32_t *versionCounter, NSKeyValueObservingOptions options){
 		return [target rac_addObserver:observer forKeyPath:targetKeyPath options:options queue:nil block:^(id observer, NSDictionary *change) {
-			int32_t currentVersion = OSAtomicIncrement32(versionCounter());
-			*targetVersionLowerBound() = currentVersion;
+			int32_t currentVersion = OSAtomicIncrement32(versionCounter);
+			*targetVersionLowerBound = currentVersion;
 			id value = [target valueForKeyPath:targetKeyPath];
 			
 			@synchronized(targetBounces) {
@@ -56,7 +56,7 @@
 			if (targetTransformer != nil) value = targetTransformer(value);
 			
 			[boundObjectScheduler schedule:^{
-				if (*boundObjectVersionLowerBound() > currentVersion) return;
+				if (*boundObjectVersionLowerBound > currentVersion) return;
 				@synchronized(boundObjectBounces) {
 					[boundObjectBounces addObject:(value == nil ? nilPlaceHolder() : value)];
 				}
@@ -65,8 +65,8 @@
 		}];
 	};
 	
-	id outgoingIdentifier = addAsObserver(self, self, receiverKeyPath, receiverBounces, ^{ return receiverVersionLowerBoundPtr; }, receiverTransformer, otherObject, otherKeyPath, otherBounces, ^{ return otherVersionLowerBoundPtr; }, otherScheduler, ^{ return versionCounterPtr; }, 0);
-	id incomingIdentifier = addAsObserver(self, otherObject, otherKeyPath, otherBounces, ^{ return otherVersionLowerBoundPtr; }, otherTransformer, self, receiverKeyPath, receiverBounces, ^{ return receiverVersionLowerBoundPtr; }, receiverScheduler, ^{ return versionCounterPtr; }, NSKeyValueObservingOptionInitial);
+	id outgoingIdentifier = addAsObserver(self, self, receiverKeyPath, receiverBounces, receiverVersionLowerBoundPtr, receiverTransformer, otherObject, otherKeyPath, otherBounces, otherVersionLowerBoundPtr, otherScheduler, versionCounterPtr, 0);
+	id incomingIdentifier = addAsObserver(self, otherObject, otherKeyPath, otherBounces, otherVersionLowerBoundPtr, otherTransformer, self, receiverKeyPath, receiverBounces, receiverVersionLowerBoundPtr, receiverScheduler, versionCounterPtr, NSKeyValueObservingOptionInitial);
 		
 	return [RACDisposable disposableWithBlock:^{
 		[self rac_removeObserverWithIdentifier:outgoingIdentifier];

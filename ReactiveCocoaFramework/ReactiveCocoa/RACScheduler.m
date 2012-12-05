@@ -12,7 +12,6 @@
 #import "RACQueueScheduler.h"
 #import "RACImmediateScheduler.h"
 #import "RACIterativeScheduler.h"
-#import "RACDeferredScheduler.h"
 #import "RACSubscriptionScheduler.h"
 
 // The key for the queue-specific current scheduler.
@@ -71,16 +70,6 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 	});
 	
 	return mainThreadScheduler;
-}
-
-+ (instancetype)deferredScheduler {
-	static dispatch_once_t onceToken;
-	static RACScheduler *deferredScheduler;
-	dispatch_once(&onceToken, ^{
-		deferredScheduler = [[RACDeferredScheduler alloc] init];
-	});
-	
-	return deferredScheduler;
 }
 
 + (instancetype)backgroundSchedulerWithPriority:(RACSchedulerPriority)priority {

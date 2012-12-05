@@ -40,7 +40,6 @@ it(@"should know its current scheduler", ^{
 
 	RACScheduler *backgroundScheduler = RACScheduler.backgroundScheduler;
 
-	expectCurrentSchedulers(@[ backgroundScheduler, RACScheduler.deferredScheduler ], @[ backgroundScheduler, backgroundScheduler ]);
 	expectCurrentSchedulers(@[ backgroundScheduler, RACScheduler.immediateScheduler ], @[ backgroundScheduler, backgroundScheduler ]);
 	expectCurrentSchedulers(@[ backgroundScheduler, RACScheduler.subscriptionScheduler ], @[ backgroundScheduler, backgroundScheduler ]);
 
@@ -49,18 +48,6 @@ it(@"should know its current scheduler", ^{
 
 	NSArray *backgroundJumper = @[ backgroundScheduler, RACScheduler.mainThreadScheduler, backgroundScheduler ];
 	expectCurrentSchedulers(backgroundJumper, backgroundJumper);
-});
-
-describe(@"+deferredScheduler", ^{
-	it(@"shouldn't execute the block immediately", ^{
-		__block BOOL executed = NO;
-		[RACScheduler.deferredScheduler schedule:^{
-			executed = YES;
-		}];
-
-		expect(executed).to.beFalsy();
-		expect(executed).will.beTruthy();
-	});
 });
 
 describe(@"+subscriptionScheduler", ^{

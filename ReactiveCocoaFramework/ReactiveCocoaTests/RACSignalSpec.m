@@ -89,7 +89,7 @@ describe(@"<RACStream>", ^{
 	RACSignal *infiniteSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block volatile int32_t done = 0;
 
-		[RACScheduler.deferredScheduler schedule:^{
+		[RACScheduler.mainThreadScheduler schedule:^{
 			while (!done) {
 				[subscriber sendNext:RACUnit.defaultUnit];
 			}

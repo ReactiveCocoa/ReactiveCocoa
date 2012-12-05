@@ -50,11 +50,6 @@ typedef enum : long {
 // A singleton scheduler that executes blocks in the main thread.
 + (instancetype)mainThreadScheduler;
 
-// A singleton scheduler that executes blocks in +currentScheduler, after any
-// blocks already scheduled have completed. If +currentScheduler is nil, it
-// uses +mainThreadScheduler.
-+ (instancetype)deferredScheduler;
-
 // Creates and returns a new scheduler with the given priority.
 + (instancetype)backgroundSchedulerWithPriority:(RACSchedulerPriority)priority;
 

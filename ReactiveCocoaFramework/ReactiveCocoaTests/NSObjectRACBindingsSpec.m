@@ -40,7 +40,7 @@ describe(@"two-way bindings", ^{
 	describe(@"-rac_bind:signalBlock:toObject:withKeyPath:signalBlock:", ^{
 		
 		it(@"should keep objects' properties in sync", ^{
-			[a rac_bind:@keypath(a.name) signalBlock:nil toObject:b withKeyPath:@keypath(b.name) signalBlock:nil];
+			[a rac_bind:@keypath(a.name) transformer:nil onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:nil];
 			expect(a.name).to.beNil();
 			expect(b.name).to.beNil();
 			a.name = testName1;
@@ -57,7 +57,7 @@ describe(@"two-way bindings", ^{
 		it(@"should take the master's value at the start", ^{
 			a.name = testName1;
 			b.name = testName2;
-			[a rac_bind:@keypath(a.name) signalBlock:nil toObject:b withKeyPath:@keypath(b.name) signalBlock:nil];
+			[a rac_bind:@keypath(a.name) transformer:nil onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:nil];
 			expect(a.name).to.equal(testName2);
 			expect(b.name).to.equal(testName2);
 		});
@@ -66,8 +66,8 @@ describe(@"two-way bindings", ^{
 			a.name = testName1;
 			b.name = testName2;
 			c.name = testName3;
-			[a rac_bind:@keypath(a.name) signalBlock:nil toObject:b withKeyPath:@keypath(b.name) signalBlock:nil];
-			[b rac_bind:@keypath(b.name) signalBlock:nil toObject:c withKeyPath:@keypath(c.name) signalBlock:nil];
+			[a rac_bind:@keypath(a.name) transformer:nil onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:nil];
+			[b rac_bind:@keypath(b.name) transformer:nil onScheduler:nil toObject:c withKeyPath:@keypath(c.name) transformer:nil onScheduler:nil];
 			expect(a.name).to.equal(testName3);
 			expect(b.name).to.equal(testName3);
 			expect(c.name).to.equal(testName3);
@@ -88,7 +88,7 @@ describe(@"two-way bindings", ^{
 		it(@"should bind even if the initial update is the same as the other object's value", ^{
 			a.name = testName1;
 			b.name = testName2;
-			[a rac_bind:@keypath(a.name) signalBlock:nil toObject:b withKeyPath:@keypath(b.name) signalBlock:nil];
+			[a rac_bind:@keypath(a.name) transformer:nil onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:nil];
 			expect(a.name).to.equal(testName2);
 			expect(b.name).to.equal(testName2);
 			b.name = testName2;
@@ -99,7 +99,7 @@ describe(@"two-way bindings", ^{
 		it(@"should bind even if the initial update is the same as the receiver's value", ^{
 			a.name = testName1;
 			b.name = testName2;
-			[a rac_bind:@keypath(a.name) signalBlock:nil toObject:b withKeyPath:@keypath(b.name) signalBlock:nil];
+			[a rac_bind:@keypath(a.name) transformer:nil onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:nil];
 			expect(a.name).to.equal(testName2);
 			expect(b.name).to.equal(testName2);
 			b.name = testName1;
@@ -108,24 +108,16 @@ describe(@"two-way bindings", ^{
 		});
 		
 		it(@"should trasform values of bound properties", ^{
-			[a rac_bind:@keypath(a.name) signalBlock:^(id<RACSignal> incoming) {
-				return [incoming map:^(NSString *x) {
-					return x.stringByDeletingPathExtension;
-				}];
-			} toObject:b withKeyPath:@keypath(b.name) signalBlock:^(id<RACSignal> outgoing) {
-				return [outgoing map:^(NSString *x) {
-					return [NSString stringWithFormat:@"%@.%@", x, c.name];
-				}];
-			}];
-			[c rac_bind:@keypath(c.name) signalBlock:^(id<RACSignal> incoming) {
-				return [incoming map:^(NSString *x) {
-					return x.pathExtension;
-				}];
-			} toObject:b withKeyPath:@keypath(b.name) signalBlock:^(id<RACSignal> outgoing) {
-				return [outgoing map:^(NSString *x) {
-					return [NSString stringWithFormat:@"%@.%@", a.name, x];
-				}];
-			}];
+			[a rac_bind:@keypath(a.name) transformer:^(NSString *value) {
+				return [NSString stringWithFormat:@"%@.%@", value, c.name];
+			} onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:^(NSString *value) {
+				return value.stringByDeletingPathExtension;
+			} onScheduler:nil];
+			[c rac_bind:@keypath(c.name) transformer:^(NSString *x) {
+				return [NSString stringWithFormat:@"%@.%@", a.name, x];
+			} onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:^(NSString *value) {
+				return value.pathExtension;
+			} onScheduler:nil];
 			expect(a.name).to.beNil();
 			expect(b.name).to.beNil();
 			expect(c.name).to.beNil();
@@ -147,20 +139,18 @@ describe(@"two-way bindings", ^{
 	it(@"should run transformations only once per change, and only in one direction", ^{
 		__block NSUInteger aCounter = 0;
 		__block NSUInteger cCounter = 0;
-		RACSignalTransformationBlock incrementACounter = ^(id<RACSignal> incoming) {
-			return [incoming doNext:^(id _) {
-				aCounter++;
-			}];
+		id (^incrementACounter)(id) = ^(id value) {
+			++aCounter;
+			return value;
 		};
-		RACSignalTransformationBlock incrementCCounter = ^(id<RACSignal> incoming) {
-			return [incoming doNext:^(id _) {
-				cCounter++;
-			}];
+		id (^incrementCCounter)(id) = ^(id value) {
+			++cCounter;
+			return value;
 		};
 		expect(aCounter).to.equal(0);
 		expect(cCounter).to.equal(0);
-		[a rac_bind:@keypath(a.name) signalBlock:incrementACounter toObject:b withKeyPath:@keypath(b.name) signalBlock:incrementACounter];
-		[c rac_bind:@keypath(c.name) signalBlock:incrementCCounter toObject:b withKeyPath:@keypath(b.name) signalBlock:incrementCCounter];
+		[a rac_bind:@keypath(a.name) transformer:incrementACounter onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:incrementACounter onScheduler:nil];
+		[c rac_bind:@keypath(c.name) transformer:incrementCCounter onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:incrementCCounter onScheduler:nil];
 		expect(aCounter).to.equal(1);
 		expect(cCounter).to.equal(1);
 		b.name = testName1;
@@ -178,15 +168,12 @@ describe(@"two-way bindings", ^{
 		RACScheduler *aScheduler = RACScheduler.backgroundScheduler;
 		RACScheduler *bScheduler = RACScheduler.backgroundScheduler;
 		
-		[a rac_bind:@keypath(a.name) signalBlock:^(id<RACSignal> incoming) {
-			return [incoming deliverOn:aScheduler];
-		} toObject:b withKeyPath:@keypath(b.name) signalBlock:^(id<RACSignal> outgoing) {
-			return [outgoing deliverOn:bScheduler];
-		}];
-		
+		[a rac_bind:@keypath(a.name) transformer:nil onScheduler:aScheduler toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:bScheduler];
+
 		a.name = nil;
 		expect(a.name).to.beNil();
 		expect(b.name).to.beNil();
+		
 		__block volatile uint32_t aReady = 0;
 		__block volatile uint32_t bReady = 0;
 		[aScheduler schedule:^{
@@ -203,9 +190,11 @@ describe(@"two-way bindings", ^{
 			}
 			b.name = testName2;
 		}];
+		
 		while (![a.name isEqual:testName2] || ![b.name isEqual:testName1]) {
 			sleep(1);
 		}
+		
 		if ([a.name isEqual:testName1]) {
 			expect(a.name).to.equal(testName1);
 			expect(b.name).to.equal(testName1);

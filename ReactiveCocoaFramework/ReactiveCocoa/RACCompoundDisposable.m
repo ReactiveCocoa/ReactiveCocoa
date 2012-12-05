@@ -42,6 +42,7 @@
 
 - (void)addDisposable:(RACDisposable *)disposable {
 	NSParameterAssert(disposable != nil);
+	NSParameterAssert(disposable != self);
 
 	@synchronized(self) {
 		if (self.disposed) {
@@ -57,8 +58,12 @@
 - (void)dispose {
 	@synchronized(self) {
 		self.disposed = YES;
-		[self.disposables makeObjectsPerformSelector:@selector(dispose)];
+
+		// Copy the disposables so there's no way that we could recursively
+		// modify (in -addDisposable:) the array we're disposing.
+		NSArray *disposablesCopy = [self.disposables copy];
 		[self.disposables removeAllObjects];
+		[disposablesCopy makeObjectsPerformSelector:@selector(dispose)];
 	}
 }
 

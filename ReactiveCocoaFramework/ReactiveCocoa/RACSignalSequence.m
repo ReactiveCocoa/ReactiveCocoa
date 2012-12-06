@@ -41,7 +41,39 @@
 #pragma mark RACSequence
 
 - (id)head {
-	id value = [self.subject firstOrDefault:self];
+	NSCondition *condition = [[NSCondition alloc] init];
+	condition.name = @"com.github.ReactiveCocoa.RACSignalSequence";
+
+	__block id value = self;
+	__block BOOL done = NO;
+
+	[self.subject subscribeNext:^(id x) {
+		[condition lock];
+		if (!done) {
+			value = x;
+			done = YES;
+		}
+
+		[condition signal];
+		[condition unlock];
+	} error:^(NSError *error) {
+		[condition lock];
+		done = YES;
+		[condition signal];
+		[condition unlock];
+	} completed:^{
+		[condition lock];
+		done = YES;
+		[condition signal];
+		[condition unlock];
+	}];
+
+	[condition lock];
+	while (!done) {
+		[condition wait];
+	}
+
+	[condition unlock];
 
 	if (value == self) {
 		return nil;
@@ -55,7 +87,35 @@
 }
 
 - (NSArray *)array {
-	return self.subject.toArray;
+	NSCondition *condition = [[NSCondition alloc] init];
+	condition.name = @"com.github.ReactiveCocoa.RACSignalSequence";
+
+	NSMutableArray *values = [NSMutableArray array];
+	__block BOOL done = NO;
+
+	[self.subject subscribeNext:^(id x) {
+		[condition lock];
+		[values addObject:x];
+		[condition unlock];
+	} error:^(NSError *error) {
+		[condition lock];
+		done = YES;
+		[condition signal];
+		[condition unlock];
+	} completed:^{
+		[condition lock];
+		done = YES;
+		[condition signal];
+		[condition unlock];
+	}];
+
+	[condition lock];
+	while (!done) {
+		[condition wait];
+	}
+
+	[condition unlock];
+	return [values copy];
 }
 
 @end

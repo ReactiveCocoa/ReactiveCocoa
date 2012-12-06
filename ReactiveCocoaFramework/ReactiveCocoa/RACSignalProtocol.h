@@ -130,7 +130,8 @@ typedef NSInteger RACSignalError;
 // will be a RACTuple of values.
 - (id<RACSignal>)bufferWithTime:(NSTimeInterval)interval;
 
-// Collect all receiver's `next`s into a NSArray.
+// Collect all receiver's `next`s into a NSArray. Any nil values will be
+// converted to NSNull.
 //
 // Returns a signal which sends a single NSArray when the receiver completes.
 - (id<RACSignal>)collect;
@@ -212,20 +213,6 @@ typedef NSInteger RACSignalError;
 // Subscribe to the given signal when an error occurs.
 - (id<RACSignal>)catchTo:(id<RACSignal>)signal;
 
-// Returns the first `next`. Note that this is a blocking call.
-- (id)first;
-
-// Returns the first `next` or `defaultValue` if the signal completes or errors
-// without sending a `next`. Note that this is a blocking call.
-- (id)firstOrDefault:(id)defaultValue;
-
-// Returns the first `next` or `defaultValue` if the signal completes or errors
-// without sending a `next`. If an error occurs success will be NO and error
-// will be populated. Note that this is a blocking call.
-//
-// Both success and error may be NULL.
-- (id)firstOrDefault:(id)defaultValue success:(BOOL *)success error:(NSError **)error;
-
 // Defer creation of a signal until the signal's actually subscribed to.
 //
 // This can be used to effectively turn a hot signal into a cold signal.
@@ -238,10 +225,6 @@ typedef NSInteger RACSignalError;
 // The source must be a signal of signals. Subscribe and send `next`s for the
 // latest signal. This is mostly useful when combined with `-flattenMap:`.
 - (id<RACSignal>)switch;
-
-// Add every `next` to an array. Nils are represented by NSNulls. Note that this
-// is a blocking call.
-- (NSArray *)toArray;
 
 // Add every `next` to a sequence. Nils are represented by NSNulls.
 //

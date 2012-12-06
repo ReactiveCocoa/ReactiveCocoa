@@ -37,12 +37,12 @@ sharedExamplesFor(RACSequenceExamples, ^(NSDictionary *data) {
 
 	it(@"should return an immediately scheduled signal", ^{
 		id<RACSignal> signal = [sequence signalWithScheduler:RACScheduler.immediateScheduler];
-		expect(signal.toArray).to.equal(values);
+		expect(signal.sequence).to.equal(sequence);
 	});
 
 	it(@"should return a background scheduled signal", ^{
 		id<RACSignal> signal = [sequence signalWithScheduler:RACScheduler.backgroundScheduler];
-		expect(signal.toArray).to.equal(values);
+		expect(signal.sequence).to.equal(sequence);
 	});
 
 	it(@"should be equal to itself", ^{

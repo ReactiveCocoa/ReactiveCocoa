@@ -289,55 +289,6 @@ describe(@"querying", ^{
 			NSLog(@"completed");
 		}];
 	});
-	
-	it(@"should return first 'next' value with -firstOrDefault:success:error:", ^{
-		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
-			[subscriber sendNext:@1];
-			[subscriber sendNext:@2];
-			[subscriber sendNext:@3];
-			[subscriber sendCompleted];
-			return nil;
-		}];
-
-		expect(signal).notTo.beNil();
-
-		__block BOOL success = NO;
-		__block NSError *error = nil;
-		expect([signal firstOrDefault:@5 success:&success error:&error]).to.equal(@1);
-		expect(success).to.beTruthy();
-		expect(error).to.beNil();
-	});
-	
-	it(@"should return first default value with -firstOrDefault:success:error:", ^{
-		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
-			[subscriber sendCompleted];
-			return nil;
-		}];
-
-		expect(signal).notTo.beNil();
-
-		__block BOOL success = NO;
-		__block NSError *error = nil;
-		expect([signal firstOrDefault:@5 success:&success error:&error]).to.equal(@5);
-		expect(success).to.beTruthy();
-		expect(error).to.beNil();
-	});
-	
-	it(@"should return error with -firstOrDefault:success:error:", ^{
-		NSError *testError = [NSError errorWithDomain:@"foo" code:100 userInfo:nil];
-		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
-			[subscriber sendError:testError];
-			return nil;
-		}];
-
-		expect(signal).notTo.beNil();
-
-		__block BOOL success = NO;
-		__block NSError *error = nil;
-		expect([signal firstOrDefault:@5 success:&success error:&error]).to.equal(@5);
-		expect(success).to.beFalsy();
-		expect(error).to.equal(testError);
-	});
 });
 
 describe(@"continuation", ^{
@@ -680,7 +631,11 @@ describe(@"distinctUntilChanged", ^{
 			return nil;
 		}] distinctUntilChanged];
 		
-		NSArray *values = sub.toArray;
+		__block NSArray *values = nil;
+		[[sub collect] subscribeNext:^(NSArray *collected) {
+			values = collected;
+		}];
+
 		NSArray *expected = @[ @1, @2, @1 ];
 		expect(values).to.equal(expected);
 	});
@@ -696,7 +651,11 @@ describe(@"distinctUntilChanged", ^{
 			return nil;
 		}] distinctUntilChanged];
 		
-		NSArray *values = sub.toArray;
+		__block NSArray *values = nil;
+		[[sub collect] subscribeNext:^(NSArray *collected) {
+			values = collected;
+		}];
+
 		NSArray *expected = @[ @1, [NSNull null], @1 ];
 		expect(values).to.equal(expected);
 	});
@@ -710,7 +669,11 @@ describe(@"distinctUntilChanged", ^{
 			return nil;
 		}] distinctUntilChanged];
 		
-		NSArray *values = sub.toArray;
+		__block NSArray *values = nil;
+		[[sub collect] subscribeNext:^(NSArray *collected) {
+			values = collected;
+		}];
+
 		NSArray *expected = @[ [NSNull null], @1 ];
 		expect(values).to.equal(expected);
 	});
@@ -1525,7 +1488,7 @@ describe(@"-collect", ^{
 		RACSubject *subject = [RACSubject subject];
 		RACSignal *collected = [subject collect];
 
-		NSArray *expected = @[ @1, @2, @3 ];
+		NSArray *expected = @[ @1, @2, NSNull.null, @3 ];
 		__block id value = nil;
 		__block BOOL hasCompleted = NO;
 
@@ -1537,6 +1500,7 @@ describe(@"-collect", ^{
 
 		[subject sendNext:@1];
 		[subject sendNext:@2];
+		[subject sendNext:nil];
 		[subject sendNext:@3];
 		expect(value).to.beNil();
 

@@ -57,8 +57,7 @@ static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), 
 	// Subscribe once immediately, and then use recursive scheduling for any
 	// further resubscriptions.
 	recursiveBlock(^{
-		RACScheduler *recursiveScheduler = RACScheduler.currentScheduler;
-		NSCAssert(recursiveScheduler != nil, @"+currentScheduler should not be nil within a subscription");
+		RACScheduler *recursiveScheduler = RACScheduler.currentScheduler ?: [RACScheduler newBackgroundScheduler];
 
 		RACDisposable *schedulingDisposable = [recursiveScheduler scheduleRecursiveBlock:recursiveBlock];
 		if (schedulingDisposable != nil) [disposable addDisposable:schedulingDisposable];

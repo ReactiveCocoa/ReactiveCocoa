@@ -63,7 +63,7 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
 
 	__block volatile uint32_t disposed = 0;
 
-	[RACScheduler.subscriptionScheduler schedule:^{
+	RACDisposable *schedulingDisposable = [RACScheduler.subscriptionScheduler schedule:^{
 		@synchronized (self) {
 			for (id value in self.valuesReceived) {
 				if (disposed) return;
@@ -83,6 +83,7 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
 
 	return [RACDisposable disposableWithBlock:^{
 		[subscriptionDisposable dispose];
+		[schedulingDisposable dispose];
 		OSAtomicOr32Barrier(1, &disposed);
 	}];
 }

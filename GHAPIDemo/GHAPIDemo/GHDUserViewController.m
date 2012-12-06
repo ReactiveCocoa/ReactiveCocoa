@@ -85,7 +85,7 @@
 		filter:^ BOOL (id x) {
 			return x != nil;
 		}] 
-		deliverOn:RACScheduler.backgroundScheduler]
+		deliverOn:[RACScheduler newBackgroundScheduler]]
 		flattenMap:^(NSURL *URL) {
 			@strongify(self);
 

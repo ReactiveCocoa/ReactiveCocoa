@@ -63,9 +63,14 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 + (instancetype)mainThreadScheduler;
 
 // Creates and returns a new scheduler with the given priority.
+//
+// Scheduler creation is cheap. It's unnecessary to save the result of this
+// method call unless you want to serialize some actions on the same background
+// scheduler.
 + (instancetype)newBackgroundSchedulerWithPriority:(RACSchedulerPriority)priority;
 
-// Creates and returns a new scheduler with the default priority.
+// Invokes +newBackgroundSchedulerWithPriority: with
+// RACSchedulerPriorityDefault.
 + (instancetype)newBackgroundScheduler;
 
 // The current scheduler. This will only be valid when used from within a

@@ -39,7 +39,7 @@ it(@"should know its current scheduler", ^{
 		expect(currentSchedulerArray).will.equal(expectedCurrentSchedulers);
 	};
 
-	RACScheduler *backgroundScheduler = RACScheduler.backgroundScheduler;
+	RACScheduler *backgroundScheduler = [RACScheduler newBackgroundScheduler];
 
 	expectCurrentSchedulers(@[ backgroundScheduler, RACScheduler.immediateScheduler ], @[ backgroundScheduler, backgroundScheduler ]);
 	expectCurrentSchedulers(@[ backgroundScheduler, RACScheduler.subscriptionScheduler ], @[ backgroundScheduler, backgroundScheduler ]);
@@ -78,7 +78,7 @@ describe(@"+backgroundScheduler", ^{
 		__block BOOL firstBlockRan = NO;
 		__block BOOL secondBlockRan = NO;
 
-		RACScheduler *scheduler = [RACScheduler backgroundScheduler];
+		RACScheduler *scheduler = [RACScheduler newBackgroundScheduler];
 
 		// Start off on the scheduler so the enqueued blocks won't run until we
 		// return.
@@ -130,7 +130,7 @@ describe(@"+subscriptionScheduler", ^{
 		});
 
 		it(@"should equal the background scheduler from which the block was scheduled", ^{
-			RACScheduler *backgroundScheduler = RACScheduler.backgroundScheduler;
+			RACScheduler *backgroundScheduler = [RACScheduler newBackgroundScheduler];
 			[backgroundScheduler schedule:^{
 				[RACScheduler.subscriptionScheduler schedule:^{
 					currentScheduler = RACScheduler.currentScheduler;
@@ -145,7 +145,7 @@ describe(@"+subscriptionScheduler", ^{
 		__block BOOL done = NO;
 		__block BOOL executedImmediately = NO;
 
-		[RACScheduler.backgroundScheduler schedule:^{
+		[[RACScheduler newBackgroundScheduler] schedule:^{
 			[RACScheduler.subscriptionScheduler schedule:^{
 				executedImmediately = YES;
 			}];
@@ -205,7 +205,7 @@ describe(@"+iterativeScheduler", ^{
 		__block BOOL done = NO;
 		__block RACScheduler *scheduler = nil;
 
-		RACScheduler *backgroundScheduler = RACScheduler.backgroundScheduler;
+		RACScheduler *backgroundScheduler = [RACScheduler newBackgroundScheduler];
 		[backgroundScheduler schedule:^{
 			[RACScheduler.iterativeScheduler schedule:^{
 				scheduler = RACScheduler.currentScheduler;

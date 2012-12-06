@@ -59,10 +59,10 @@ typedef enum : long {
 + (instancetype)mainThreadScheduler;
 
 // Creates and returns a new scheduler with the given priority.
-+ (instancetype)backgroundSchedulerWithPriority:(RACSchedulerPriority)priority;
++ (instancetype)newBackgroundSchedulerWithPriority:(RACSchedulerPriority)priority;
 
 // Creates and returns a new scheduler with the default priority.
-+ (instancetype)backgroundScheduler;
++ (instancetype)newBackgroundScheduler;
 
 // The current scheduler. This will only be valid when used from within a
 // -[RACScheduler schedule:] block or when on the main thread.

@@ -10,7 +10,6 @@
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACImmediateScheduler.h"
-#import "RACIterativeScheduler.h"
 #import "RACQueueScheduler.h"
 #import "RACScheduler+Private.h"
 #import "RACSubscriptionScheduler.h"
@@ -52,16 +51,6 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 	});
 	
 	return immediateScheduler;
-}
-
-+ (instancetype)iterativeScheduler {
-	static dispatch_once_t onceToken;
-	static RACScheduler *iterativeScheduler;
-	dispatch_once(&onceToken, ^{
-		iterativeScheduler = [[RACIterativeScheduler alloc] init];
-	});
-
-	return iterativeScheduler;
 }
 
 + (instancetype)mainThreadScheduler {

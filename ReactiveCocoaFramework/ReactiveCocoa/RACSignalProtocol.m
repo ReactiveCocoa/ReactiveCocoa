@@ -20,6 +20,7 @@
 #import "RACGroupedSignal.h"
 #import "RACMaybe.h"
 #import "RACScheduler.h"
+#import "RACScheduler+Private.h"
 #import "RACSignalSequence.h"
 #import "RACSubject.h"
 #import "RACSubscriber.h"
@@ -34,39 +35,33 @@ NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 // If the signal errors or completes, the corresponding block is invoked. If the
 // disposable passed to the block is _not_ disposed, then the signal is
 // subscribed to again.
-static void subscribeForeverWithDisposable (id<RACSignal> signal, RACCompoundDisposable *disposable, BOOL (^isDisposed)(void), void (^next)(id), void (^error)(NSError *, RACDisposable *), void (^completed)(RACDisposable *)) {
-	[RACScheduler.iterativeScheduler schedule:^{
-		if (isDisposed()) return;
+static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), void (^error)(NSError *, RACDisposable *), void (^completed)(RACDisposable *)) {
+	next = [next copy];
+	error = [error copy];
+	completed = [completed copy];
 
+	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+
+	RACSchedulerRecursiveBlock recursiveBlock = ^(void (^recurse)(void)) {
 		RACDisposable *subscriptionDisposable = [signal subscribeNext:next error:^(NSError *e) {
 			error(e, disposable);
-			if (isDisposed()) return;
-
-			subscribeForeverWithDisposable(signal, disposable, isDisposed, next, error, completed);
+			recurse();
 		} completed:^{
 			completed(disposable);
-			if (isDisposed()) return;
-
-			subscribeForeverWithDisposable(signal, disposable, isDisposed, next, error, completed);
+			recurse();
 		}];
 
 		if (subscriptionDisposable != nil) [disposable addDisposable:subscriptionDisposable];
-	}];
-}
-
-static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), void (^error)(NSError *, RACDisposable *), void (^completed)(RACDisposable *)) {
-	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
-
-	__block volatile uint32_t disposed = 0;
-	[disposable addDisposable:[RACDisposable disposableWithBlock:^{
-		OSAtomicOr32Barrier(1, &disposed);
-	}]];
-
-	BOOL (^isDisposed)(void) = ^ BOOL {
-		return disposed != 0;
 	};
 	
-	subscribeForeverWithDisposable(signal, disposable, [isDisposed copy], [next copy], [error copy], [completed copy]);
+	// Subscribe once immediately, and then use recursive scheduling for any
+	// further resubscriptions.
+	recursiveBlock(^{
+		RACScheduler *recursiveScheduler = RACScheduler.currentScheduler ?: [RACScheduler newBackgroundScheduler];
+
+		RACDisposable *schedulingDisposable = [recursiveScheduler scheduleRecursiveBlock:recursiveBlock];
+		if (schedulingDisposable != nil) [disposable addDisposable:schedulingDisposable];
+	});
 
 	return disposable;
 }

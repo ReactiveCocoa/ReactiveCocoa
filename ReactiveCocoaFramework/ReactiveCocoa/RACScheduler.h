@@ -37,28 +37,6 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 // within a block scheduled on a different scheduler.
 + (instancetype)immediateScheduler;
 
-// A singleton scheduler that flattens and defers recursion.
-//
-// The behavior of scheduling a block depends on which scheduler the calling
-// code is running from:
-//
-//  - If the caller isn't running on a scheduler, the block is scheduled on the
-//    +mainThreadScheduler.
-//  - If the caller is running on any scheduler other than the
-//    +iterativeScheduler, the block is executed immediately.
-//  - Otherwise, if the caller was scheduled using the +iterativeScheduler, the
-//    block is scheduled on the +currentScheduler, and will execute only _after_
-//    the calling block completes.
-//
-// This should be used when you want to execute something as soon as possible,
-// unless it would recurse. It prevents the possibility of stack overflow in
-// deeply nested scheduling.
-//
-// **Note:** Unlike most other schedulers, this does not set the current
-// scheduler to itself. However, because of the semantics defined above, there
-// is guaranteed to always be a +currentScheduler for scheduled blocks.
-+ (instancetype)iterativeScheduler;
-
 // A singleton scheduler that executes blocks in the main thread.
 + (instancetype)mainThreadScheduler;
 

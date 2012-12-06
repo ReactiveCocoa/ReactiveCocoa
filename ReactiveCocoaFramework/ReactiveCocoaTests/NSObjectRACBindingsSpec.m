@@ -21,12 +21,12 @@
 SpecBegin(NSObjectRACBindings)
 
 describe(@"two-way bindings", ^{
-	__block TestClass *a;
-	__block TestClass *b;
-	__block TestClass *c;
-	__block NSString *testName1;
-	__block NSString *testName2;
-	__block NSString *testName3;
+	__block __attribute((objc_precise_lifetime)) TestClass *a;
+	__block __attribute((objc_precise_lifetime)) TestClass *b;
+	__block __attribute((objc_precise_lifetime)) TestClass *c;
+	__block __attribute((objc_precise_lifetime)) NSString *testName1;
+	__block __attribute((objc_precise_lifetime)) NSString *testName2;
+	__block __attribute((objc_precise_lifetime)) NSString *testName3;
 	
 	before(^{
 		a = [[TestClass alloc] init];
@@ -169,7 +169,7 @@ describe(@"two-way bindings", ^{
 		RACScheduler *bScheduler = RACScheduler.backgroundScheduler;
 		
 		[a rac_bind:@keypath(a.name) transformer:nil onScheduler:aScheduler toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:bScheduler];
-
+		
 		a.name = nil;
 		expect(a.name).to.beNil();
 		expect(b.name).to.beNil();
@@ -181,7 +181,7 @@ describe(@"two-way bindings", ^{
 			while (!bReady) {
 				// do nothing while waiting for b, sleeping might hide the race
 			}
-		 a.name = testName1;
+			a.name = testName1;
 		}];
 		[bScheduler schedule:^{
 			OSAtomicOr32Barrier(1, &bReady);
@@ -192,10 +192,10 @@ describe(@"two-way bindings", ^{
 		}];
 		
 		while (a.name == nil || b.name == nil) {
-			sleep(1);
+			sleep(0);
 		}
 		while ([a.name isEqual:testName1] && [b.name isEqual:testName2]) {
-			sleep(1);
+			sleep(0);
 		}
 		
 		if ([a.name isEqual:testName1]) {

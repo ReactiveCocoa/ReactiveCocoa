@@ -32,42 +32,59 @@
 	NSMutableArray *otherBounces = NSMutableArray.array;
 	
 	__block volatile uint32_t versionCounter = 0;
-	__block uint32_t receiverVersionLowerBound = 0;
-	__block uint32_t otherVersionLowerBound = 0;
-	__block volatile uint32_t *versionCounterPtr = &versionCounter;
-	__block uint32_t *receiverVersionLowerBoundPtr = &receiverVersionLowerBound;
-	__block uint32_t *otherVersionLowerBoundPtr = &otherVersionLowerBound;
+	__block volatile uint32_t receiverVersionLowerBound = 0;
+	__block volatile uint32_t otherVersionLowerBound = 0;
 	
-	static id (^addAsObserver)(id, id, NSString *, NSMutableArray *, uint32_t *, id(^)(id), id, NSString *, NSMutableArray *, uint32_t *, RACScheduler *, volatile uint32_t *, NSKeyValueObservingOptions) = ^(id observer, id target, NSString *targetKeyPath, NSMutableArray *targetBounces, uint32_t *targetVersionLowerBound, id(^targetTransformer)(id), id boundObject, NSString *boundObjectKeyPath, NSMutableArray *boundObjectBounces, uint32_t *boundObjectVersionLowerBound, RACScheduler *boundObjectScheduler, volatile uint32_t *versionCounter, NSKeyValueObservingOptions options){
-		return [target rac_addObserver:observer forKeyPath:targetKeyPath options:options queue:nil block:^(id observer, NSDictionary *change) {
-			uint32_t currentVersion = __sync_fetch_and_add(versionCounter, 1);
-			*targetVersionLowerBound = currentVersion;
-			id value = [target valueForKeyPath:targetKeyPath];
-			
-			@synchronized(targetBounces) {
-				for (NSUInteger i = 0; i < targetBounces.count; ++i) {
-					if ([targetBounces[i] isEqual:(value == nil ? nilPlaceHolder() : value)]) {
-						[targetBounces removeObjectAtIndex:i];
-						return;
-					}
+	id outgoingIdentifier = [self rac_addObserver:self forKeyPath:receiverKeyPath options:0 queue:nil block:^(id observer, NSDictionary *change) {
+		uint32_t currentVersion = __sync_fetch_and_add(&versionCounter, 1);
+		receiverVersionLowerBound = currentVersion;
+		id value = [self valueForKeyPath:receiverKeyPath];
+		
+		@synchronized(receiverBounces) {
+			for (NSUInteger i = 0; i < receiverBounces.count; ++i) {
+				if ([receiverBounces[i] isEqual:(value == nil ? nilPlaceHolder() : value)]) {
+					[receiverBounces removeObjectAtIndex:i];
+					return;
 				}
 			}
-			
-			if (targetTransformer != nil) value = targetTransformer(value);
-			
-			[boundObjectScheduler schedule:^{
-				if (currentVersion - *boundObjectVersionLowerBound > UINT32_MAX / 2) return;
-				@synchronized(boundObjectBounces) {
-					[boundObjectBounces addObject:(value == nil ? nilPlaceHolder() : value)];
-				}
-				[boundObject setValue:value forKeyPath:boundObjectKeyPath];
-			}];
-		}];
-	};
-	
-	id outgoingIdentifier = addAsObserver(self, self, receiverKeyPath, receiverBounces, receiverVersionLowerBoundPtr, receiverTransformer, otherObject, otherKeyPath, otherBounces, otherVersionLowerBoundPtr, otherScheduler, versionCounterPtr, 0);
-	id incomingIdentifier = addAsObserver(self, otherObject, otherKeyPath, otherBounces, otherVersionLowerBoundPtr, otherTransformer, self, receiverKeyPath, receiverBounces, receiverVersionLowerBoundPtr, receiverScheduler, versionCounterPtr, NSKeyValueObservingOptionInitial);
+		}
 		
+		if (receiverTransformer != nil) value = receiverTransformer(value);
+		
+		[otherScheduler schedule:^{
+			if (currentVersion - otherVersionLowerBound > UINT32_MAX / 2) return;
+			@synchronized(otherBounces) {
+				[otherBounces addObject:(value == nil ? nilPlaceHolder() : value)];
+			}
+			[otherObject setValue:value forKeyPath:otherKeyPath];
+		}];
+	}];
+	
+	id incomingIdentifier = [otherObject rac_addObserver:self forKeyPath:otherKeyPath options:NSKeyValueObservingOptionInitial queue:nil block:^(id observer, NSDictionary *change) {
+		uint32_t currentVersion = __sync_fetch_and_add(&versionCounter, 1);
+		otherVersionLowerBound = currentVersion;
+		id value = [otherObject valueForKeyPath:otherKeyPath];
+		
+		@synchronized(otherBounces) {
+			for (NSUInteger i = 0; i < otherBounces.count; ++i) {
+				if ([otherBounces[i] isEqual:(value == nil ? nilPlaceHolder() : value)]) {
+					[otherBounces removeObjectAtIndex:i];
+					return;
+				}
+			}
+		}
+		
+		if (otherTransformer != nil) value = otherTransformer(value);
+		
+		[receiverScheduler schedule:^{
+			if (currentVersion - receiverVersionLowerBound > UINT32_MAX / 2) return;
+			@synchronized(receiverBounces) {
+				[receiverBounces addObject:(value == nil ? nilPlaceHolder() : value)];
+			}
+			[self setValue:value forKeyPath:receiverKeyPath];
+		}];
+	}];
+
 	return [RACDisposable disposableWithBlock:^{
 		[self rac_removeObserverWithIdentifier:outgoingIdentifier];
 		[otherObject rac_removeObserverWithIdentifier:incomingIdentifier];

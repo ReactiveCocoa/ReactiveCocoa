@@ -51,31 +51,43 @@ it(@"should know its current scheduler", ^{
 });
 
 describe(@"+subscriptionScheduler", ^{
-	it(@"should always have a valid +currentScheduler from within a scheduled block", ^{
+	describe(@"setting +currentScheduler", ^{
 		__block RACScheduler *currentScheduler;
-		dispatch_async(dispatch_get_main_queue(), ^{
-			[RACScheduler.subscriptionScheduler schedule:^{
-				currentScheduler = RACScheduler.currentScheduler;
-			}];
-		});
-		expect(currentScheduler).will.equal(RACScheduler.mainThreadScheduler);
 
-		currentScheduler = nil;
-		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-			[RACScheduler.subscriptionScheduler schedule:^{
-				currentScheduler = RACScheduler.currentScheduler;
-			}];
+		beforeEach(^{
+			currentScheduler = nil;
 		});
-		expect(currentScheduler).will.equal(RACScheduler.mainThreadScheduler);
 
-		currentScheduler = nil;
-		RACScheduler *backgroundScheduler = RACScheduler.backgroundScheduler;
-		[backgroundScheduler schedule:^{
-			[RACScheduler.subscriptionScheduler schedule:^{
-				currentScheduler = RACScheduler.currentScheduler;
+		it(@"should be the +mainThreadScheduler when scheduled from the main queue", ^{
+			dispatch_async(dispatch_get_main_queue(), ^{
+				[RACScheduler.subscriptionScheduler schedule:^{
+					currentScheduler = RACScheduler.currentScheduler;
+				}];
+			});
+
+			expect(currentScheduler).will.equal(RACScheduler.mainThreadScheduler);
+		});
+
+		it(@"should be the +mainThreadScheduler when scheduled from an unknown queue", ^{
+			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+				[RACScheduler.subscriptionScheduler schedule:^{
+					currentScheduler = RACScheduler.currentScheduler;
+				}];
+			});
+
+			expect(currentScheduler).will.equal(RACScheduler.mainThreadScheduler);
+		});
+
+		it(@"should equal the background scheduler from which the block was scheduled", ^{
+			RACScheduler *backgroundScheduler = RACScheduler.backgroundScheduler;
+			[backgroundScheduler schedule:^{
+				[RACScheduler.subscriptionScheduler schedule:^{
+					currentScheduler = RACScheduler.currentScheduler;
+				}];
 			}];
-		}];
-		expect(currentScheduler).will.equal(backgroundScheduler);
+
+			expect(currentScheduler).will.equal(backgroundScheduler);
+		});
 	});
 
 	it(@"should execute scheduled blocks immediately if it's in a scheduler already", ^{

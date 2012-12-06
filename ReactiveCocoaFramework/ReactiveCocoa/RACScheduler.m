@@ -7,12 +7,14 @@
 //
 
 #import "RACScheduler.h"
-#import "RACScheduler+Private.h"
+#import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
-#import "RACQueueScheduler.h"
 #import "RACImmediateScheduler.h"
 #import "RACIterativeScheduler.h"
+#import "RACQueueScheduler.h"
+#import "RACScheduler+Private.h"
 #import "RACSubscriptionScheduler.h"
+#import <libkern/OSAtomic.h>
 
 // The key for the queue-specific current scheduler.
 const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
@@ -107,6 +109,30 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 - (RACDisposable *)schedule:(void (^)(void))block {
 	NSAssert(NO, @"-schedule: must be implemented by a subclass.");
 	return nil;
+}
+
+- (RACDisposable *)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock {
+	__block volatile uint32_t disposed = 0;
+
+	RACDisposable *schedulingDisposable = [self schedule:^{
+		__block NSUInteger remainingInvocations = 1;
+
+		do {
+			if (disposed) return;
+
+			recursiveBlock(^{
+				++remainingInvocations;
+			});
+
+			NSAssert(remainingInvocations > 0, @"remainingInvocations should be at least 1 while looping");
+			--remainingInvocations;
+		} while (remainingInvocations > 0);
+	}];
+
+	return [RACDisposable disposableWithBlock:^{
+		OSAtomicOr32Barrier(1, &disposed);
+		[schedulingDisposable dispose];
+	}];
 }
 
 @end

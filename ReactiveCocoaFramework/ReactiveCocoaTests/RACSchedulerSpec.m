@@ -288,4 +288,46 @@ describe(@"+immediateScheduler", ^{
 	});
 });
 
+describe(@"-scheduleRecursiveBlock:", ^{
+	it(@"should behave like a normal block when it doesn't invoke itself", ^{
+		__block BOOL executed = NO;
+		[RACScheduler.immediateScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
+			expect(executed).to.beFalsy();
+			executed = YES;
+		}];
+
+		expect(executed).to.beTruthy();
+	});
+
+	it(@"should reschedule itself after the caller completes", ^{
+		__block NSUInteger count = 0;
+		[RACScheduler.immediateScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
+			NSUInteger thisCount = ++count;
+			if (thisCount < 2) {
+				recurse();
+
+				// The block shouldn't have been invoked again yet, only
+				// scheduled.
+				expect(count).to.equal(thisCount);
+			}
+		}];
+
+		expect(count).to.equal(2);
+	});
+
+	it(@"shouldn't reschedule itself when disposed", ^{
+		__block NSUInteger count = 0;
+		__block RACDisposable *disposable = [RACScheduler.mainThreadScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
+			++count;
+
+			expect(disposable).notTo.beNil();
+			[disposable dispose];
+
+			recurse();
+		}];
+
+		expect(count).will.equal(1);
+	});
+});
+
 SpecEnd

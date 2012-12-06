@@ -96,14 +96,14 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 //
 // recursiveBlock - The block to schedule for execution. When invoked, the
 //                  recursive block will be passed a `void (^)(void)` block
-//                  which will reschedule the recursive block for execution
-//                  immediately after the current iteration. This passed-in
-//                  block will automatically skip scheduling if the scheduling
-//                  of the `recursiveBlock` was disposed in the meantime.
+//                  which will reschedule the recursive block at the end of the
+//                  receiver's queue. This passed-in block will automatically
+//                  skip scheduling if the scheduling of the `recursiveBlock`
+//                  was disposed in the meantime.
 //
 // Returns a disposable which can be used to cancel the scheduled block before
-// it begins executing, or to stop it from continuing to recurse if it's already
-// begun execution.
+// it begins executing, or to stop it from rescheduling if it's already begun
+// execution.
 - (RACDisposable *)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock;
 
 @end

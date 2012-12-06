@@ -112,27 +112,19 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 }
 
 - (RACDisposable *)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock {
-	__block volatile uint32_t disposed = 0;
+	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+	[self scheduleRecursiveBlock:[recursiveBlock copy] addingToDisposable:disposable];
+	return disposable;
+}
 
+- (void)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock addingToDisposable:(RACCompoundDisposable *)disposable {
 	RACDisposable *schedulingDisposable = [self schedule:^{
-		__block NSUInteger remainingInvocations = 1;
-
-		do {
-			if (disposed) return;
-
-			recursiveBlock(^{
-				++remainingInvocations;
-			});
-
-			NSAssert(remainingInvocations > 0, @"remainingInvocations should be at least 1 while looping");
-			--remainingInvocations;
-		} while (remainingInvocations > 0);
+		recursiveBlock(^{
+			[self scheduleRecursiveBlock:recursiveBlock addingToDisposable:disposable];
+		});
 	}];
 
-	return [RACDisposable disposableWithBlock:^{
-		OSAtomicOr32Barrier(1, &disposed);
-		[schedulingDisposable dispose];
-	}];
+	if (schedulingDisposable != nil) [disposable addDisposable:schedulingDisposable];
 }
 
 @end

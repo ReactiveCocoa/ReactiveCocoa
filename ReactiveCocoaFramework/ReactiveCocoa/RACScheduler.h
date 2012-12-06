@@ -73,6 +73,9 @@ typedef enum : long {
 // Scheduled blocks will be executed in the order in which they were scheduled.
 //
 // block - The block to schedule for execution. Cannot be nil.
-- (void)schedule:(void (^)(void))block;
+//
+// Returns a disposable which can be used to cancel the scheduled block before
+// it begins executing, or nil if cancellation is not supported.
+- (RACDisposable *)schedule:(void (^)(void))block;
 
 @end

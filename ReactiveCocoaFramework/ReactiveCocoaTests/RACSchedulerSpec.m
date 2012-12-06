@@ -9,6 +9,7 @@
 #import "RACScheduler.h"
 #import "RACScheduler+Private.h"
 #import "RACDisposable.h"
+#import "EXTScope.h"
 
 // This shouldn't be used directly. Use the `expectCurrentSchedulers` block
 // below instead.
@@ -48,6 +49,56 @@ it(@"should know its current scheduler", ^{
 
 	NSArray *backgroundJumper = @[ backgroundScheduler, RACScheduler.mainThreadScheduler, backgroundScheduler ];
 	expectCurrentSchedulers(backgroundJumper, backgroundJumper);
+});
+
+describe(@"+mainThreadScheduler", ^{
+	it(@"should cancel scheduled blocks when disposed", ^{
+		__block BOOL firstBlockRan = NO;
+		__block BOOL secondBlockRan = NO;
+
+		RACDisposable *disposable = [RACScheduler.mainThreadScheduler schedule:^{
+			firstBlockRan = YES;
+		}];
+
+		expect(disposable).notTo.beNil();
+
+		[RACScheduler.mainThreadScheduler schedule:^{
+			secondBlockRan = YES;
+		}];
+
+		[disposable dispose];
+
+		expect(secondBlockRan).will.beTruthy();
+		expect(firstBlockRan).to.beFalsy();
+	});
+});
+
+describe(@"+backgroundScheduler", ^{
+	it(@"should cancel scheduled blocks when disposed", ^{
+		__block BOOL firstBlockRan = NO;
+		__block BOOL secondBlockRan = NO;
+
+		RACScheduler *scheduler = [RACScheduler backgroundScheduler];
+
+		// Start off on the scheduler so the enqueued blocks won't run until we
+		// return.
+		[scheduler schedule:^{
+			RACDisposable *disposable = [scheduler schedule:^{
+				firstBlockRan = YES;
+			}];
+
+			expect(disposable).notTo.beNil();
+
+			[scheduler schedule:^{
+				secondBlockRan = YES;
+			}];
+
+			[disposable dispose];
+		}];
+
+		expect(secondBlockRan).will.beTruthy();
+		expect(firstBlockRan).to.beFalsy();
+	});
 });
 
 describe(@"+subscriptionScheduler", ^{
@@ -104,6 +155,38 @@ describe(@"+subscriptionScheduler", ^{
 
 		expect(done).will.beTruthy();
 		expect(executedImmediately).to.beTruthy();
+	});
+
+	it(@"should cancel scheduled blocks when disposed", ^{
+		__block BOOL firstBlockRan = NO;
+		__block BOOL secondBlockRan = NO;
+
+		dispatch_group_t group = dispatch_group_create();
+		@onExit {
+			dispatch_release(group);
+		};
+
+		// Schedule from a background thread so that it enqueues on the main
+		// thread.
+		dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+			RACDisposable *disposable = [RACScheduler.subscriptionScheduler schedule:^{
+				firstBlockRan = YES;
+			}];
+
+			expect(disposable).notTo.beNil();
+
+			[RACScheduler.subscriptionScheduler schedule:^{
+				secondBlockRan = YES;
+			}];
+
+			[disposable dispose];
+		});
+
+		// Block waiting for scheduling to complete.
+		dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+
+		expect(secondBlockRan).will.beTruthy();
+		expect(firstBlockRan).to.beFalsy();
 	});
 });
 
@@ -172,15 +255,35 @@ describe(@"+iterativeScheduler", ^{
 		NSArray *expected = @[ @1, @2, @3, @4, @5 ];
 		expect(order).will.equal(expected);
 	});
+
+	it(@"should cancel scheduled blocks when disposed", ^{
+		NSMutableArray *order = [NSMutableArray array];
+		[RACScheduler.iterativeScheduler schedule:^{
+			[order addObject:@1];
+
+			RACDisposable *disposable = [RACScheduler.iterativeScheduler schedule:^{
+				[order addObject:@3];
+			}];
+
+			expect(disposable).notTo.beNil();
+			[disposable dispose];
+
+			[order addObject:@2];
+		}];
+
+		NSArray *expected = @[ @1, @2 ];
+		expect(order).will.equal(expected);
+	});
 });
 
 describe(@"+immediateScheduler", ^{
 	it(@"should immediately execute scheduled blocks", ^{
 		__block BOOL executed = NO;
-		[RACScheduler.immediateScheduler schedule:^{
+		RACDisposable *disposable = [RACScheduler.immediateScheduler schedule:^{
 			executed = YES;
 		}];
 
+		expect(disposable).to.beNil();
 		expect(executed).to.beTruthy();
 	});
 });

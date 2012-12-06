@@ -19,14 +19,13 @@
 
 #pragma mark RACScheduler
 
-- (void)schedule:(void (^)(void))block {
+- (RACDisposable *)schedule:(void (^)(void))block {
 	NSParameterAssert(block != NULL);
 
-	if (RACScheduler.currentScheduler == nil) {
-		[RACScheduler.mainThreadScheduler schedule:block];
-	} else {
-		block();
-	}
+	if (RACScheduler.currentScheduler == nil) return [RACScheduler.mainThreadScheduler schedule:block];
+
+	block();
+	return nil;
 }
 
 @end

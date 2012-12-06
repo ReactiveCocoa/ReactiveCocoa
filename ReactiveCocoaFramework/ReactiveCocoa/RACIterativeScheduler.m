@@ -24,7 +24,7 @@ static NSString * const RACRunningOnIterativeSchedulerKey = @"RACRunningOnIterat
 
 #pragma mark RACScheduler
 
-- (void)schedule:(void (^)(void))block {
+- (RACDisposable *)schedule:(void (^)(void))block {
 	NSParameterAssert(block != NULL);
 
 	void (^schedulingBlock)(void) = ^{
@@ -39,12 +39,15 @@ static NSString * const RACRunningOnIterativeSchedulerKey = @"RACRunningOnIterat
 	BOOL isOnIterativeScheduler = [NSThread.currentThread.threadDictionary[RACRunningOnIterativeSchedulerKey] boolValue];
 	if (isOnIterativeScheduler) {
 		NSAssert(RACScheduler.currentScheduler != nil, @"+currentScheduler should never be nil when already on the +iterativeScheduler");
-		[RACScheduler.currentScheduler schedule:schedulingBlock];
-	} else if (RACScheduler.currentScheduler == nil) {
-		[RACScheduler.mainThreadScheduler schedule:schedulingBlock];
-	} else {
-		schedulingBlock();
+		return [RACScheduler.currentScheduler schedule:schedulingBlock];
 	}
+	
+	if (RACScheduler.currentScheduler == nil) {
+		return [RACScheduler.mainThreadScheduler schedule:schedulingBlock];
+	}
+
+	schedulingBlock();
+	return nil;
 }
 
 @end

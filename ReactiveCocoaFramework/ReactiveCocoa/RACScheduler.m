@@ -104,8 +104,9 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 
 #pragma mark Scheduling
 
-- (void)schedule:(void (^)(void))block {
+- (RACDisposable *)schedule:(void (^)(void))block {
 	NSAssert(NO, @"-schedule: must be implemented by a subclass.");
+	return nil;
 }
 
 @end

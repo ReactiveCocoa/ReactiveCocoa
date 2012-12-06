@@ -119,14 +119,15 @@ describe(@"+subscriptionScheduler", ^{
 			expect(currentScheduler).will.equal(RACScheduler.mainThreadScheduler);
 		});
 
-		it(@"should be the +mainThreadScheduler when scheduled from an unknown queue", ^{
+		it(@"should be a +newBackgroundScheduler when scheduled from an unknown queue", ^{
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 				[RACScheduler.subscriptionScheduler schedule:^{
 					currentScheduler = RACScheduler.currentScheduler;
 				}];
 			});
 
-			expect(currentScheduler).will.equal(RACScheduler.mainThreadScheduler);
+			expect(currentScheduler).willNot.beNil();
+			expect(currentScheduler).notTo.equal(RACScheduler.mainThreadScheduler);
 		});
 
 		it(@"should equal the background scheduler from which the block was scheduled", ^{
@@ -155,38 +156,6 @@ describe(@"+subscriptionScheduler", ^{
 
 		expect(done).will.beTruthy();
 		expect(executedImmediately).to.beTruthy();
-	});
-
-	it(@"should cancel scheduled blocks when disposed", ^{
-		__block BOOL firstBlockRan = NO;
-		__block BOOL secondBlockRan = NO;
-
-		dispatch_group_t group = dispatch_group_create();
-		@onExit {
-			dispatch_release(group);
-		};
-
-		// Schedule from a background thread so that it enqueues on the main
-		// thread.
-		dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-			RACDisposable *disposable = [RACScheduler.subscriptionScheduler schedule:^{
-				firstBlockRan = YES;
-			}];
-
-			expect(disposable).notTo.beNil();
-
-			[RACScheduler.subscriptionScheduler schedule:^{
-				secondBlockRan = YES;
-			}];
-
-			[disposable dispose];
-		});
-
-		// Block waiting for scheduling to complete.
-		dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
-
-		expect(secondBlockRan).will.beTruthy();
-		expect(firstBlockRan).to.beFalsy();
 	});
 });
 

@@ -102,15 +102,34 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 
 - (RACDisposable *)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock {
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
-	[self scheduleRecursiveBlock:[recursiveBlock copy] addingToDisposable:disposable];
+
+	__block volatile uint32_t disposed = 0;
+	BOOL (^isDisposed)(void) = [^{
+		return disposed != 0;
+	} copy];
+
+	[disposable addDisposable:[RACDisposable disposableWithBlock:^{
+		OSAtomicOr32Barrier(1, &disposed);
+	}]];
+
+	[self scheduleRecursiveBlock:[recursiveBlock copy] addingToDisposable:disposable isDisposedBlock:isDisposed];
 	return disposable;
 }
 
-- (void)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock addingToDisposable:(RACCompoundDisposable *)disposable {
+- (void)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock addingToDisposable:(RACCompoundDisposable *)disposable isDisposedBlock:(BOOL (^)(void))isDisposed {
 	RACDisposable *schedulingDisposable = [self schedule:^{
+		if (isDisposed()) return;
+
+		__block NSUInteger rescheduleCount = 0;
 		recursiveBlock(^{
-			[self scheduleRecursiveBlock:recursiveBlock addingToDisposable:disposable];
+			++rescheduleCount;
 		});
+
+		for (NSUInteger i = 0; i < rescheduleCount; i++) {
+			if (isDisposed()) return;
+
+			[self scheduleRecursiveBlock:recursiveBlock addingToDisposable:disposable isDisposedBlock:isDisposed];
+		}
 	}];
 
 	if (schedulingDisposable != nil) [disposable addDisposable:schedulingDisposable];

@@ -9,24 +9,36 @@
 #import "RACSubscriptionScheduler.h"
 #import "RACScheduler+Private.h"
 
+@interface RACSubscriptionScheduler ()
+
+// A private background scheduler on which to subscribe if the +currentScheduler
+// is unknown.
+@property (nonatomic, strong, readonly) RACScheduler *backgroundScheduler;
+
+@end
+
 @implementation RACSubscriptionScheduler
 
 #pragma mark Lifecycle
 
 - (id)init {
-	return [super initWithName:@"com.ReactiveCocoa.RACScheduler.subscriptionScheduler"];
+	self = [super initWithName:@"com.ReactiveCocoa.RACScheduler.subscriptionScheduler"];
+	if (self == nil) return nil;
+
+	_backgroundScheduler = [RACScheduler scheduler];
+
+	return self;
 }
 
 #pragma mark RACScheduler
 
-- (void)schedule:(void (^)(void))block {
+- (RACDisposable *)schedule:(void (^)(void))block {
 	NSParameterAssert(block != NULL);
 
-	if (RACScheduler.currentScheduler == nil) {
-		[RACScheduler.mainThreadScheduler schedule:block];
-	} else {
-		block();
-	}
+	if (RACScheduler.currentScheduler == nil) return [self.backgroundScheduler schedule:block];
+
+	block();
+	return nil;
 }
 
 @end

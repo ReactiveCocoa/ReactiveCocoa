@@ -14,11 +14,13 @@
 #import "RACBehaviorSubject.h"
 #import "RACBlockTrampoline.h"
 #import "RACCancelableSignal+Private.h"
+#import "RACCompoundDisposable.h"
 #import "RACConnectableSignal+Private.h"
 #import "RACDisposable.h"
 #import "RACGroupedSignal.h"
 #import "RACMaybe.h"
 #import "RACScheduler.h"
+#import "RACScheduler+Private.h"
 #import "RACSignalSequence.h"
 #import "RACSubject.h"
 #import "RACSubscriber.h"
@@ -38,49 +40,30 @@ static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), 
 	error = [error copy];
 	completed = [completed copy];
 
-	NSRecursiveLock *lock = [[NSRecursiveLock alloc] init];
-	lock.name = @"com.github.ReactiveCocoa.RACSignalProtocol.subscribeForever";
+	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 
-	// These should only be accessed while 'lock' is held.
-	__block BOOL disposed = NO;
-	__block RACDisposable *innerDisposable = nil;
+	RACSchedulerRecursiveBlock recursiveBlock = ^(void (^recurse)(void)) {
+		RACDisposable *subscriptionDisposable = [signal subscribeNext:next error:^(NSError *e) {
+			error(e, disposable);
+			recurse();
+		} completed:^{
+			completed(disposable);
+			recurse();
+		}];
 
-	RACDisposable *shortCircuitingDisposable = [RACDisposable disposableWithBlock:^{
-		[lock lock];
-		@onExit {
-			[lock unlock];
-		};
+		if (subscriptionDisposable != nil) [disposable addDisposable:subscriptionDisposable];
+	};
+	
+	// Subscribe once immediately, and then use recursive scheduling for any
+	// further resubscriptions.
+	recursiveBlock(^{
+		RACScheduler *recursiveScheduler = RACScheduler.currentScheduler ?: [RACScheduler scheduler];
 
-		disposed = YES;
-		[innerDisposable dispose];
-	}];
+		RACDisposable *schedulingDisposable = [recursiveScheduler scheduleRecursiveBlock:recursiveBlock];
+		if (schedulingDisposable != nil) [disposable addDisposable:schedulingDisposable];
+	});
 
-	RACDisposable *outerDisposable = [signal subscribeNext:next error:^(NSError *e) {
-		error(e, shortCircuitingDisposable);
-
-		[lock lock];
-		@onExit {
-			[lock unlock];
-		};
-
-		if (disposed) return;
-		innerDisposable = subscribeForever(signal, next, error, completed);
-	} completed:^{
-		completed(shortCircuitingDisposable);
-
-		[lock lock];
-		@onExit {
-			[lock unlock];
-		};
-
-		if (disposed) return;
-		innerDisposable = subscribeForever(signal, next, error, completed);
-	}];
-
-	return [RACDisposable disposableWithBlock:^{
-		[shortCircuitingDisposable dispose];
-		[outerDisposable dispose];
-	}];
+	return disposable;
 }
 
 @concreteprotocol(RACSignal)

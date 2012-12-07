@@ -63,12 +63,12 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 	return mainThreadScheduler;
 }
 
-+ (instancetype)newBackgroundSchedulerWithPriority:(RACSchedulerPriority)priority {
++ (instancetype)schedulerWithPriority:(RACSchedulerPriority)priority {
 	return [[RACQueueScheduler alloc] initWithName:@"com.ReactiveCocoa.RACScheduler.backgroundScheduler" targetQueue:dispatch_get_global_queue(priority, 0)];
 }
 
-+ (instancetype)newBackgroundScheduler {
-	return [self newBackgroundSchedulerWithPriority:RACSchedulerPriorityDefault];
++ (instancetype)scheduler {
+	return [self schedulerWithPriority:RACSchedulerPriorityDefault];
 }
 
 + (instancetype)subscriptionScheduler {

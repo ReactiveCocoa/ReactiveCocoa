@@ -39,7 +39,7 @@ it(@"should know its current scheduler", ^{
 		expect(currentSchedulerArray).will.equal(expectedCurrentSchedulers);
 	};
 
-	RACScheduler *backgroundScheduler = [RACScheduler newBackgroundScheduler];
+	RACScheduler *backgroundScheduler = [RACScheduler scheduler];
 
 	expectCurrentSchedulers(@[ backgroundScheduler, RACScheduler.immediateScheduler ], @[ backgroundScheduler, backgroundScheduler ]);
 	expectCurrentSchedulers(@[ backgroundScheduler, RACScheduler.subscriptionScheduler ], @[ backgroundScheduler, backgroundScheduler ]);
@@ -73,12 +73,12 @@ describe(@"+mainThreadScheduler", ^{
 	});
 });
 
-describe(@"+backgroundScheduler", ^{
+describe(@"+scheduler", ^{
 	it(@"should cancel scheduled blocks when disposed", ^{
 		__block BOOL firstBlockRan = NO;
 		__block BOOL secondBlockRan = NO;
 
-		RACScheduler *scheduler = [RACScheduler newBackgroundScheduler];
+		RACScheduler *scheduler = [RACScheduler scheduler];
 
 		// Start off on the scheduler so the enqueued blocks won't run until we
 		// return.
@@ -119,7 +119,7 @@ describe(@"+subscriptionScheduler", ^{
 			expect(currentScheduler).will.equal(RACScheduler.mainThreadScheduler);
 		});
 
-		it(@"should be a +newBackgroundScheduler when scheduled from an unknown queue", ^{
+		it(@"should be a +scheduler when scheduled from an unknown queue", ^{
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 				[RACScheduler.subscriptionScheduler schedule:^{
 					currentScheduler = RACScheduler.currentScheduler;
@@ -131,7 +131,7 @@ describe(@"+subscriptionScheduler", ^{
 		});
 
 		it(@"should equal the background scheduler from which the block was scheduled", ^{
-			RACScheduler *backgroundScheduler = [RACScheduler newBackgroundScheduler];
+			RACScheduler *backgroundScheduler = [RACScheduler scheduler];
 			[backgroundScheduler schedule:^{
 				[RACScheduler.subscriptionScheduler schedule:^{
 					currentScheduler = RACScheduler.currentScheduler;
@@ -146,7 +146,7 @@ describe(@"+subscriptionScheduler", ^{
 		__block BOOL done = NO;
 		__block BOOL executedImmediately = NO;
 
-		[[RACScheduler newBackgroundScheduler] schedule:^{
+		[[RACScheduler scheduler] schedule:^{
 			[RACScheduler.subscriptionScheduler schedule:^{
 				executedImmediately = YES;
 			}];

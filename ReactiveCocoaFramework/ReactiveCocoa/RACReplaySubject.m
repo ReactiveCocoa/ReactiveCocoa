@@ -66,12 +66,12 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
 	RACDisposable *schedulingDisposable = [RACScheduler.subscriptionScheduler schedule:^{
 		@synchronized (self) {
 			for (id value in self.valuesReceived) {
-				if (disposed) return;
+				if (disposed != 0) return;
 
 				[subscriber sendNext:([value isKindOfClass:RACTupleNil.class] ? nil : value)];
 			}
 
-			if (disposed) return;
+			if (disposed != 0) return;
 
 			if (self.hasCompleted) {
 				[subscriber sendCompleted];

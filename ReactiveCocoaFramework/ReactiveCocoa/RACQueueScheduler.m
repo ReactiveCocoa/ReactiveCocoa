@@ -56,7 +56,7 @@ static void currentSchedulerRelease(void *context) {
 	__block volatile uint32_t disposed = 0;
 
 	dispatch_async(self.queue, ^{
-		if (disposed) return;
+		if (disposed != 0) return;
 		[self performAsCurrentScheduler:block];
 	});
 

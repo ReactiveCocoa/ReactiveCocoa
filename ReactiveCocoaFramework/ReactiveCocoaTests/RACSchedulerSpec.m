@@ -172,6 +172,34 @@ describe(@"+immediateScheduler", ^{
 });
 
 describe(@"-scheduleRecursiveBlock:", ^{
+	describe(@"with a synchronous scheduler", ^{
+		it(@"should behave like a normal block when it doesn't invoke itself", ^{
+			__block BOOL executed = NO;
+			[RACScheduler.immediateScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
+				expect(executed).to.beFalsy();
+				executed = YES;
+			}];
+
+			expect(executed).to.beTruthy();
+		});
+
+		it(@"should reschedule itself after the caller completes", ^{
+			__block NSUInteger count = 0;
+			[RACScheduler.immediateScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
+				NSUInteger thisCount = ++count;
+				if (thisCount < 3) {
+					recurse();
+
+					// The block shouldn't have been invoked again yet, only
+					// scheduled.
+					expect(count).to.equal(thisCount);
+				}
+			}];
+
+			expect(count).to.equal(3);
+		});
+	});
+
 	describe(@"with an asynchronous scheduler", ^{
 		it(@"should behave like a normal block when it doesn't invoke itself", ^{
 			__block BOOL executed = NO;

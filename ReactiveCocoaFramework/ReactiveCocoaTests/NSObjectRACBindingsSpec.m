@@ -9,7 +9,91 @@
 #import "NSObject+RACBindings.h"
 #import "EXTKeyPathCoding.h"
 #import "RACSignal.h"
-#import "RACScheduler.h"
+#import "RACScheduler+Private.h"
+#import <pthread.h>
+#import <mach/thread_act.h>
+
+kern_return_t	thread_policy_set(thread_t thread, thread_policy_flavor_t flavor, thread_policy_t policy_info, mach_msg_type_number_t count);
+kern_return_t	thread_policy_get(thread_t thread, thread_policy_flavor_t flavor, thread_policy_t policy_info, mach_msg_type_number_t	*count, boolean_t *get_default);
+
+
+@interface RACRacingSchedulerData : NSObject
+
+@property (nonatomic) pthread_t thread;
+@property (nonatomic, strong) NSMutableArray *blockQueue;
+@property (nonatomic) BOOL shouldStop;
+
+@end
+
+@implementation RACRacingSchedulerData
+@end
+
+@interface RACRacingScheduler : RACScheduler
+
+@end
+
+static integer_t RACRacingSchedulerNewTag(void) {
+	static integer_t tag = 0;
+	return ++tag;
+}
+
+static void *RACRacingSchedulerStartRoutine(void *arg) {
+	@autoreleasepool {
+		RACRacingSchedulerData *data = CFBridgingRelease(arg);
+		for (;;) {
+			dispatch_block_t block = nil;
+			@synchronized(data) {
+				block = data.blockQueue.lastObject;
+				[data.blockQueue removeLastObject];
+			}
+			if (block != nil) {
+				block();
+			}
+			@synchronized(data) {
+				if (data.shouldStop) break;
+			}
+			sleep(0);
+		}
+	}
+	return NULL;
+}
+
+@implementation RACRacingScheduler {
+	RACRacingSchedulerData *_data;
+}
+
+- (instancetype)initWithName:(NSString *)name {
+	self = [super initWithName:name];
+	if (self == nil) return nil;
+	
+	_data = [[RACRacingSchedulerData alloc] init];
+	if (_data == nil) return nil;
+	_data.blockQueue = [NSMutableArray array];
+	
+	pthread_t thread;
+	if(pthread_create_suspended_np(&thread, NULL, RACRacingSchedulerStartRoutine, (void*)CFBridgingRetain(_data)) != 0) return nil;
+	mach_port_t mach_thread = pthread_mach_thread_np(thread);
+	thread_affinity_policy_data_t policyData = { RACRacingSchedulerNewTag() };
+	thread_policy_set(mach_thread, THREAD_AFFINITY_POLICY, (thread_policy_t)&policyData, 1);
+	thread_resume(mach_thread);
+	
+	return self;
+}
+
+- (void)dealloc {
+	@synchronized(_data) {
+		_data.shouldStop = YES;
+	}
+}
+
+- (void)schedule:(void (^)(void))block {
+	NSParameterAssert(block != nil);
+	@synchronized(_data) {
+		[_data.blockQueue insertObject:[block copy] atIndex:0];
+	}
+}
+
+@end
 
 @interface TestClass : NSObject
 @property (strong) NSString *name;
@@ -21,12 +105,12 @@
 SpecBegin(NSObjectRACBindings)
 
 describe(@"two-way bindings", ^{
-	__block __attribute((objc_precise_lifetime)) TestClass *a;
-	__block __attribute((objc_precise_lifetime)) TestClass *b;
-	__block __attribute((objc_precise_lifetime)) TestClass *c;
-	__block __attribute((objc_precise_lifetime)) NSString *testName1;
-	__block __attribute((objc_precise_lifetime)) NSString *testName2;
-	__block __attribute((objc_precise_lifetime)) NSString *testName3;
+	__block TestClass *a;
+	__block TestClass *b;
+	__block TestClass *c;
+	__block NSString *testName1;
+	__block NSString *testName2;
+	__block NSString *testName3;
 	
 	before(^{
 		a = [[TestClass alloc] init];
@@ -165,45 +249,41 @@ describe(@"two-way bindings", ^{
 	});
 	
 	it(@"should handle the bound objects being changed at the same time on different threads", ^{
-		RACScheduler *aScheduler = RACScheduler.backgroundScheduler;
-		RACScheduler *bScheduler = RACScheduler.backgroundScheduler;
+		RACScheduler *aScheduler = [[RACRacingScheduler alloc] init];
+		RACScheduler *bScheduler = [[RACRacingScheduler alloc] init];
 		
 		[a rac_bind:@keypath(a.name) transformer:nil onScheduler:aScheduler toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:bScheduler];
 		
-		a.name = nil;
-		expect(a.name).to.beNil();
-		expect(b.name).to.beNil();
-		
-		__block volatile uint32_t aReady = 0;
-		__block volatile uint32_t bReady = 0;
-		[aScheduler schedule:^{
-			OSAtomicOr32Barrier(1, &aReady);
-			while (!bReady) {
-				// do nothing while waiting for b, sleeping might hide the race
-			}
-			a.name = testName1;
-		}];
-		[bScheduler schedule:^{
-			OSAtomicOr32Barrier(1, &bReady);
-			while (!aReady) {
-				// do nothing while waiting for a, sleeping might hide the race
-			}
-			b.name = testName2;
-		}];
-		
-		while (a.name == nil || b.name == nil) {
-			sleep(0);
-		}
-		while ([a.name isEqual:testName1] && [b.name isEqual:testName2]) {
-			sleep(0);
-		}
-		
-		if ([a.name isEqual:testName1]) {
-			expect(a.name).to.equal(testName1);
-			expect(b.name).to.equal(testName1);
-		} else {
-			expect(a.name).to.equal(testName2);
-			expect(b.name).to.equal(testName2);
+		// Race conditions aren't deterministic, so loop this test more times to catch them.
+		// Change it back to 1 before committing so it's friendly on the CI testing.
+		for (NSUInteger i = 0; i < 1; ++i) {
+			[aScheduler schedule:^{
+				a.name = nil;
+			}];
+			expect(a.name).will.beNil();
+			expect(b.name).will.beNil();
+			
+			__block volatile uint32_t aReady = 0;
+			__block volatile uint32_t bReady = 0;
+			[aScheduler schedule:^{
+				OSAtomicOr32Barrier(1, &aReady);
+				while (!bReady) {
+					// do nothing while waiting for b, sleeping might hide the race
+				}
+				a.name = testName1;
+			}];
+			[bScheduler schedule:^{
+				OSAtomicOr32Barrier(1, &bReady);
+				while (!aReady) {
+					// do nothing while waiting for a, sleeping might hide the race
+				}
+				b.name = testName2;
+			}];
+			
+			expect(a.name).willNot.beNil();
+			expect(b.name).willNot.beNil();
+			
+			expect(a.name).will.equal(b.name);
 		}
 	});
 });

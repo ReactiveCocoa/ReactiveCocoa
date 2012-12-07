@@ -41,6 +41,10 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 	return self;
 }
 
+- (id)init {
+	return [self initWithName:nil];
+}
+
 #pragma mark Schedulers
 
 + (instancetype)immediateScheduler {

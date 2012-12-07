@@ -8,14 +8,7 @@
 
 #import "RACScheduler.h"
 
-// A scheduler that fills two requirements:
-//
-//   1. By the time subscription happens, we need a valid +currentScheduler.
-//   2. Subscription should happen as soon as possible.
-//
-// To fulfill those two, if we already have a valid +currentScheduler, it
-// immediately executes scheduled blocks. If we don't, it will execute scheduled
-// blocks with +mainThreadScheduler.
+// A private scheduler used only for subscriptions. See the private
+// +[RACScheduler subscriptionScheduler] method for more information.
 @interface RACSubscriptionScheduler : RACScheduler
-
 @end

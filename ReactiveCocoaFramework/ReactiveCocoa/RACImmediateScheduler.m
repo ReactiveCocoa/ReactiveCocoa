@@ -19,10 +19,11 @@
 
 #pragma mark RACScheduler
 
-- (void)schedule:(void (^)(void))block {
+- (RACDisposable *)schedule:(void (^)(void))block {
 	NSParameterAssert(block != NULL);
 
 	block();
+	return nil;
 }
 
 @end

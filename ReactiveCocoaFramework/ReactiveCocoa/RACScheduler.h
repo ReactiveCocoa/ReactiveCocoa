@@ -21,6 +21,10 @@ typedef enum : long {
 	RACSchedulerPriorityBackground = DISPATCH_QUEUE_PRIORITY_BACKGROUND,
 } RACSchedulerPriority;
 
+// Scheduled with -scheduleRecursiveBlock:, this type of block is passed a block
+// with which it can call itself recursively.
+typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
+
 @class RACDisposable;
 
 // Schedulers are used to control when and where work is performed.
@@ -28,38 +32,23 @@ typedef enum : long {
 
 // A singleton scheduler that immediately executes the blocks it is given.
 //
-// Note that unlike most other schedulers, this does not set the current
+// **Note:** Unlike most other schedulers, this does not set the current
 // scheduler. There may still be a valid +currentScheduler if this is used
 // within a block scheduled on a different scheduler.
 + (instancetype)immediateScheduler;
 
-// A singleton scheduler like +immediateScheduler, with one important difference.
-// If called within another +iterativeScheduler scheduled block, it will enqueue
-// the new block to be executed immediately after the current block completes,
-// as opposed to executing it immediately within the current block.
-//
-// This should be used when you want to execute something immediately, unless it
-// would recurse. It prevents the possibility of stack overflow in deeply nested
-// scheduling.
-//
-// Note that unlike most other schedulers, this does not set the current
-// scheduler. There may still be a valid +currentScheduler if this is used
-// within a block scheduled on a different scheduler.
-+ (instancetype)iterativeScheduler;
-
 // A singleton scheduler that executes blocks in the main thread.
 + (instancetype)mainThreadScheduler;
 
-// A singleton scheduler that executes blocks in +currentScheduler, after any
-// blocks already scheduled have completed. If +currentScheduler is nil, it
-// uses +mainThreadScheduler.
-+ (instancetype)deferredScheduler;
+// Creates and returns a new background scheduler with the given priority.
+//
+// Scheduler creation is cheap. It's unnecessary to save the result of this
+// method call unless you want to serialize some actions on the same background
+// scheduler.
++ (instancetype)schedulerWithPriority:(RACSchedulerPriority)priority;
 
-// Creates and returns a new scheduler with the given priority.
-+ (instancetype)backgroundSchedulerWithPriority:(RACSchedulerPriority)priority;
-
-// Creates and returns a new scheduler with the default priority.
-+ (instancetype)backgroundScheduler;
+// Invokes +schedulerWithPriority: with RACSchedulerPriorityDefault.
++ (instancetype)scheduler;
 
 // The current scheduler. This will only be valid when used from within a
 // -[RACScheduler schedule:] block or when on the main thread.
@@ -70,6 +59,28 @@ typedef enum : long {
 // Scheduled blocks will be executed in the order in which they were scheduled.
 //
 // block - The block to schedule for execution. Cannot be nil.
-- (void)schedule:(void (^)(void))block;
+//
+// Returns a disposable which can be used to cancel the scheduled block before
+// it begins executing, or nil if cancellation is not supported.
+- (RACDisposable *)schedule:(void (^)(void))block;
+
+// Schedule the given recursive block for execution on the scheduler. The
+// scheduler will automatically flatten any recursive scheduling into iteration
+// instead, so this can be used without issue for blocks that may keep invoking
+// themselves forever.
+//
+// Scheduled blocks will be executed in the order in which they were scheduled.
+//
+// recursiveBlock - The block to schedule for execution. When invoked, the
+//                  recursive block will be passed a `void (^)(void)` block
+//                  which will reschedule the recursive block at the end of the
+//                  receiver's queue. This passed-in block will automatically
+//                  skip scheduling if the scheduling of the `recursiveBlock`
+//                  was disposed in the meantime.
+//
+// Returns a disposable which can be used to cancel the scheduled block before
+// it begins executing, or to stop it from rescheduling if it's already begun
+// execution.
+- (RACDisposable *)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock;
 
 @end

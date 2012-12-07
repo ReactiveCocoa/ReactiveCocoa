@@ -9,9 +9,12 @@
 #import "RACSubscriberExamples.h"
 
 #import "EXTScope.h"
-#import "RACSubject.h"
 #import "RACBehaviorSubject.h"
+#import "RACDisposable.h"
 #import "RACReplaySubject.h"
+#import "RACScheduler.h"
+#import "RACSubject.h"
+#import "RACUnit.h"
 
 SpecBegin(RACSubject)
 
@@ -213,6 +216,44 @@ describe(@"RACReplaySubject", ^{
 			[replayedValues enumerateObjectsUsingBlock:^(id value, NSUInteger index, BOOL *stop) {
 				expect(liveValues[index]).to.equal(value);
 			}];
+		});
+
+		it(@"should have a current scheduler when replaying", ^{
+			[subject sendNext:RACUnit.defaultUnit];
+
+			__block RACScheduler *currentScheduler;
+			[subject subscribeNext:^(id x) {
+				currentScheduler = RACScheduler.currentScheduler;
+			}];
+
+			expect(currentScheduler).notTo.beNil();
+
+			currentScheduler = nil;
+			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+				[subject subscribeNext:^(id x) {
+					currentScheduler = RACScheduler.currentScheduler;
+				}];
+			});
+
+			expect(currentScheduler).willNot.beNil();
+		});
+		
+		it(@"should stop replaying when the subscription is disposed", ^{
+			NSMutableArray *values = [NSMutableArray array];
+
+			[subject sendNext:@0];
+			[subject sendNext:@1];
+
+			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+				__block RACDisposable *disposable = [subject subscribeNext:^(id x) {
+					expect(disposable).notTo.beNil();
+
+					[values addObject:x];
+					[disposable dispose];
+				}];
+			});
+
+			expect(values).will.equal(@[ @0 ]);
 		});
 	});
 });

@@ -41,7 +41,7 @@ sharedExamplesFor(RACSequenceExamples, ^(NSDictionary *data) {
 	});
 
 	it(@"should return a background scheduled signal", ^{
-		id<RACSignal> signal = [sequence signalWithScheduler:RACScheduler.backgroundScheduler];
+		id<RACSignal> signal = [sequence signalWithScheduler:[RACScheduler scheduler]];
 		expect(signal.toArray).to.equal(values);
 	});
 

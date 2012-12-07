@@ -7,42 +7,50 @@
 //
 
 #import "RACBehaviorSubject.h"
+#import "RACDisposable.h"
+#import "RACScheduler+Private.h"
 
 @interface RACBehaviorSubject ()
-@property (strong) id currentValue;
-@end
 
+// This property should only be used while synchronized on self.
+@property (nonatomic, strong) id currentValue;
+
+@end
 
 @implementation RACBehaviorSubject
 
-
-#pragma mark RACSignal
-
-- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	RACDisposable *disposable = [super subscribe:subscriber];
-	[subscriber sendNext:self.currentValue];
-	
-	return disposable;
-}
-
-
-#pragma mark RACSubscriber
-
-- (void)sendNext:(id)value {
-	[super sendNext:value];
-	
-	self.currentValue = value;
-}
-
-
-#pragma mark API
-
-@synthesize currentValue;
+#pragma mark Lifecycle
 
 + (instancetype)behaviorSubjectWithDefaultValue:(id)value {
 	RACBehaviorSubject *subject = [self subject];
 	subject.currentValue = value;
 	return subject;
+}
+
+#pragma mark RACSignal
+
+- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
+	RACDisposable *subscriptionDisposable = [super subscribe:subscriber];
+
+	RACDisposable *schedulingDisposable = [RACScheduler.subscriptionScheduler schedule:^{
+		@synchronized (self) {
+			[subscriber sendNext:self.currentValue];
+		}
+	}];
+	
+	return [RACDisposable disposableWithBlock:^{
+		[subscriptionDisposable dispose];
+		[schedulingDisposable dispose];
+	}];
+}
+
+#pragma mark RACSubscriber
+
+- (void)sendNext:(id)value {
+	@synchronized (self) {
+		self.currentValue = value;
+		[super sendNext:value];
+	}
 }
 
 @end

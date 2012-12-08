@@ -13,7 +13,6 @@
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACBehaviorSubject.h"
 #import "RACBlockTrampoline.h"
-#import "RACCancelableSignal+Private.h"
 #import "RACCompoundDisposable.h"
 #import "RACConnectableSignal+Private.h"
 #import "RACDisposable.h"
@@ -1125,18 +1124,6 @@ static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), 
 
 - (id<RACSignal>)retry {
 	return [self retry:0];
-}
-
-- (RACCancelableSignal *)asCancelableToSubject:(RACSubject *)subject withBlock:(void (^)(void))block {
-	return [RACCancelableSignal cancelableSignalSourceSignal:self subject:subject withBlock:block];
-}
-
-- (RACCancelableSignal *)asCancelableWithBlock:(void (^)(void))block {
-	return [RACCancelableSignal cancelableSignalSourceSignal:self withBlock:block];
-}
-
-- (RACCancelableSignal *)asCancelable {
-	return [self asCancelableWithBlock:NULL];
 }
 
 - (id<RACSignal>)sample:(id<RACSignal>)sampler {

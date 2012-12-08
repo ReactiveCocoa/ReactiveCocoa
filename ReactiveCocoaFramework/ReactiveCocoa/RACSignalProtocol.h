@@ -317,16 +317,6 @@ typedef NSInteger RACSignalError;
 // Resubscribes to the receiving signal if an error occurs.
 - (id<RACSignal>)retry;
 
-// Creates a cancelable signal multicasted to the given subject with the given
-// cancelation block.
-- (RACCancelableSignal *)asCancelableToSubject:(RACSubject *)subject withBlock:(void (^)(void))block;
-
-// Creates a cancelable signal with the given cancelation block.
-- (RACCancelableSignal *)asCancelableWithBlock:(void (^)(void))block;
-
-// Creates a cancelable signal.
-- (RACCancelableSignal *)asCancelable;
-
 // Sends the latest value from the receiver only when `sampler` sends a value.
 // The returned signal could repeat values if `sampler` fires more often than
 // the receiver.

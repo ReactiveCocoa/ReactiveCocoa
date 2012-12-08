@@ -9,6 +9,7 @@
 #import "NSObject+RACBindings.h"
 #import "EXTKeyPathCoding.h"
 #import "RACSignal.h"
+#import "NSObject+RACKVOWrapper.h"
 #import "RACScheduler+Private.h"
 #import <pthread.h>
 #import <mach/thread_act.h>
@@ -189,6 +190,41 @@ describe(@"two-way bindings", ^{
 			b.name = testName1;
 			expect(a.name).to.equal(testName1);
 			expect(b.name).to.equal(testName1);
+		});
+		
+		it(@"should not interfere with other KVO callbacks", ^{
+			__block BOOL firstObserverShouldChangeName = YES;
+			__block BOOL secondObserverShouldChangeName = YES;
+			__block BOOL thirdObserverShouldChangeName = YES;
+			__block BOOL fourthObserverShouldChangeName = YES;
+			[a rac_addObserver:self forKeyPath:@keypath(a.name) options:NSKeyValueObservingOptionPrior queue:nil block:^(id observer, NSDictionary *change) {
+				if (firstObserverShouldChangeName) {
+					firstObserverShouldChangeName = NO;
+					a.name = testName1;
+				}
+			}];
+			[a rac_addObserver:self forKeyPath:@keypath(a.name) options:0 queue:nil block:^(id observer, NSDictionary *change) {
+				if (secondObserverShouldChangeName) {
+					secondObserverShouldChangeName = NO;
+					a.name = testName2;
+				}
+			}];
+			[a rac_bind:@keypath(a.name) transformer:nil onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:nil];
+			[a rac_addObserver:self forKeyPath:@keypath(a.name) options:NSKeyValueObservingOptionPrior queue:nil block:^(id observer, NSDictionary *change) {
+				if (thirdObserverShouldChangeName) {
+					thirdObserverShouldChangeName = NO;
+					a.name = testName1;
+				}
+			}];
+			[a rac_addObserver:self forKeyPath:@keypath(a.name) options:0 queue:nil block:^(id observer, NSDictionary *change) {
+				if (fourthObserverShouldChangeName) {
+					fourthObserverShouldChangeName = NO;
+					a.name = testName2;
+				}
+			}];
+			a.name = testName3;
+			expect(a.name).to.equal(testName2);
+			expect(b.name).to.equal(testName2);
 		});
 		
 		it(@"should trasform values of bound properties", ^{

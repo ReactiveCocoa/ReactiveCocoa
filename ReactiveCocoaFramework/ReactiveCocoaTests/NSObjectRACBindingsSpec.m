@@ -272,126 +272,125 @@ describe(@"two-way bindings", ^{
 			expect(b.name).to.equal(@"file2.rtf");
 			expect(c.name).to.equal(@"rtf");
 		});
-	});
-	
-	it(@"should run transformations only once per change, and only in one direction", ^{
-		__block NSUInteger aCounter = 0;
-		__block NSUInteger cCounter = 0;
-		id (^incrementACounter)(id) = ^(id value) {
-			++aCounter;
-			return value;
-		};
-		id (^incrementCCounter)(id) = ^(id value) {
-			++cCounter;
-			return value;
-		};
-		expect(aCounter).to.equal(0);
-		expect(cCounter).to.equal(0);
-		[a rac_bind:@keypath(a.name) transformer:incrementACounter onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:incrementACounter onScheduler:nil];
-		[c rac_bind:@keypath(c.name) transformer:incrementCCounter onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:incrementCCounter onScheduler:nil];
-		expect(aCounter).to.equal(1);
-		expect(cCounter).to.equal(1);
-		b.name = testName1;
-		expect(aCounter).to.equal(2);
-		expect(cCounter).to.equal(2);
-		a.name = testName2;
-		expect(aCounter).to.equal(3);
-		expect(cCounter).to.equal(3);
-		c.name = testName3;
-		expect(aCounter).to.equal(4);
-		expect(cCounter).to.equal(4);
-	});
-	
-	it(@"should stop binding when disposed", ^{
-		RACScheduler *aScheduler = [RACScheduler backgroundScheduler];
-		RACScheduler *bScheduler = [RACScheduler backgroundScheduler];
-
-		RACDisposable *disposable = [a rac_bind:@keypath(a.name) transformer:nil onScheduler:aScheduler toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:bScheduler];
 		
-		a.name = testName1;
-		[disposable dispose];
-		a.name = testName2;
+		it(@"should run transformations only once per change, and only in one direction", ^{
+			__block NSUInteger aCounter = 0;
+			__block NSUInteger cCounter = 0;
+			id (^incrementACounter)(id) = ^(id value) {
+				++aCounter;
+				return value;
+			};
+			id (^incrementCCounter)(id) = ^(id value) {
+				++cCounter;
+				return value;
+			};
+			expect(aCounter).to.equal(0);
+			expect(cCounter).to.equal(0);
+			[a rac_bind:@keypath(a.name) transformer:incrementACounter onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:incrementACounter onScheduler:nil];
+			[c rac_bind:@keypath(c.name) transformer:incrementCCounter onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:incrementCCounter onScheduler:nil];
+			expect(aCounter).to.equal(1);
+			expect(cCounter).to.equal(1);
+			b.name = testName1;
+			expect(aCounter).to.equal(2);
+			expect(cCounter).to.equal(2);
+			a.name = testName2;
+			expect(aCounter).to.equal(3);
+			expect(cCounter).to.equal(3);
+			c.name = testName3;
+			expect(aCounter).to.equal(4);
+			expect(cCounter).to.equal(4);
+		});
 		
-		expect(a.name).will.equal(testName2);
-		expect(b.name).will.equal(testName1);
-	});
-	
-	it(@"should handle the bound objects being changed at the same time on different threads", ^{
-		RACScheduler *aScheduler = [[RACRacingScheduler alloc] init];
-		RACScheduler *bScheduler = [[RACRacingScheduler alloc] init];
+		it(@"should stop binding when disposed", ^{
+			RACScheduler *aScheduler = [RACScheduler backgroundScheduler];
+			RACScheduler *bScheduler = [RACScheduler backgroundScheduler];
+			
+			RACDisposable *disposable = [a rac_bind:@keypath(a.name) transformer:nil onScheduler:aScheduler toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:bScheduler];
+			
+			a.name = testName1;
+			[disposable dispose];
+			a.name = testName2;
+			
+			expect(a.name).will.equal(testName2);
+			expect(b.name).will.equal(testName1);
+		});
 		
-		[a rac_bind:@keypath(a.name) transformer:nil onScheduler:aScheduler toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:bScheduler];
+		it(@"should handle the bound objects being changed at the same time on different threads", ^{
+			RACScheduler *aScheduler = [[RACRacingScheduler alloc] init];
+			RACScheduler *bScheduler = [[RACRacingScheduler alloc] init];
+			
+			[a rac_bind:@keypath(a.name) transformer:nil onScheduler:aScheduler toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:bScheduler];
+			
+			// Race conditions aren't deterministic, so loop this test more times to catch them.
+			// Change it back to 1 before committing so it's friendly on the CI testing.
+			for (NSUInteger i = 0; i < 1; ++i) {
+				[aScheduler schedule:^{
+					a.name = nil;
+				}];
+				expect(a.name).will.beNil();
+				expect(b.name).will.beNil();
+				
+				__block volatile uint32_t aReady = 0;
+				__block volatile uint32_t bReady = 0;
+				[aScheduler schedule:^{
+					OSAtomicOr32Barrier(1, &aReady);
+					while (!bReady) {
+						// do nothing while waiting for b, sleeping might hide the race
+					}
+					a.name = testName1;
+				}];
+				[bScheduler schedule:^{
+					OSAtomicOr32Barrier(1, &bReady);
+					while (!aReady) {
+						// do nothing while waiting for a, sleeping might hide the race
+					}
+					b.name = testName2;
+				}];
+				
+				expect(a.name).willNot.beNil();
+				expect(b.name).willNot.beNil();
+				
+				expect(a.name).will.equal(b.name);
+			}
+		});
 		
-		// Race conditions aren't deterministic, so loop this test more times to catch them.
-		// Change it back to 1 before committing so it's friendly on the CI testing.
-		for (NSUInteger i = 0; i < 1; ++i) {
-			[aScheduler schedule:^{
+		it(@"should handle one of the bound objects being changed at the same time on different threads", ^{
+			RACScheduler *firstScheduler = [[RACRacingScheduler alloc] init];
+			RACScheduler *secondScheduler = [[RACRacingScheduler alloc] init];
+			
+			[a rac_bind:@keypath(a.name) transformer:nil onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:nil];
+			
+			// Race conditions aren't deterministic, so loop this test more times to catch them.
+			// Change it back to 1 before committing so it's friendly on the CI testing.
+			for (NSUInteger i = 0; i < 1; ++i) {
 				a.name = nil;
-			}];
-			expect(a.name).will.beNil();
-			expect(b.name).will.beNil();
-			
-			__block volatile uint32_t aReady = 0;
-			__block volatile uint32_t bReady = 0;
-			[aScheduler schedule:^{
-				OSAtomicOr32Barrier(1, &aReady);
-				while (!bReady) {
-					// do nothing while waiting for b, sleeping might hide the race
-				}
-				a.name = testName1;
-			}];
-			[bScheduler schedule:^{
-				OSAtomicOr32Barrier(1, &bReady);
-				while (!aReady) {
-					// do nothing while waiting for a, sleeping might hide the race
-				}
-				b.name = testName2;
-			}];
-			
-			expect(a.name).willNot.beNil();
-			expect(b.name).willNot.beNil();
-			
-			expect(a.name).will.equal(b.name);
-		}
+				expect(a.name).to.beNil();
+				expect(b.name).to.beNil();
+				
+				__block volatile uint32_t firstReady = 0;
+				__block volatile uint32_t secondReady = 0;
+				[firstScheduler schedule:^{
+					OSAtomicOr32Barrier(1, &firstReady);
+					while (!secondReady) {
+						// do nothing while waiting for b, sleeping might hide the race
+					}
+					a.name = testName1;
+				}];
+				[secondScheduler schedule:^{
+					OSAtomicOr32Barrier(1, &secondReady);
+					while (!firstReady) {
+						// do nothing while waiting for a, sleeping might hide the race
+					}
+					a.name = testName2;
+				}];
+				
+				expect(a.name).willNot.beNil();
+				expect(b.name).willNot.beNil();
+				
+				expect(a.name).will.equal(b.name);
+			}
+		});
 	});
-	
-	it(@"should handle one of the bound objects being changed at the same time on different threads", ^{
-		RACScheduler *firstScheduler = [[RACRacingScheduler alloc] init];
-		RACScheduler *secondScheduler = [[RACRacingScheduler alloc] init];
-		
-		[a rac_bind:@keypath(a.name) transformer:nil onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:nil];
-		
-		// Race conditions aren't deterministic, so loop this test more times to catch them.
-		// Change it back to 1 before committing so it's friendly on the CI testing.
-		for (NSUInteger i = 0; i < 1; ++i) {
-			a.name = nil;
-			expect(a.name).to.beNil();
-			expect(b.name).to.beNil();
-			
-			__block volatile uint32_t firstReady = 0;
-			__block volatile uint32_t secondReady = 0;
-			[firstScheduler schedule:^{
-				OSAtomicOr32Barrier(1, &firstReady);
-				while (!secondReady) {
-					// do nothing while waiting for b, sleeping might hide the race
-				}
-				a.name = testName1;
-			}];
-			[secondScheduler schedule:^{
-				OSAtomicOr32Barrier(1, &secondReady);
-				while (!firstReady) {
-					// do nothing while waiting for a, sleeping might hide the race
-				}
-				a.name = testName2;
-			}];
-			
-			expect(a.name).willNot.beNil();
-			expect(b.name).willNot.beNil();
-			
-			expect(a.name).will.equal(b.name);
-		}
-	});
-
 });
 
 SpecEnd

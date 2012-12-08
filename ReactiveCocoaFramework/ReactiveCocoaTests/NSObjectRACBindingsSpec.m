@@ -198,32 +198,49 @@ describe(@"two-way bindings", ^{
 			__block BOOL secondObserverShouldChangeName = YES;
 			__block BOOL thirdObserverShouldChangeName = YES;
 			__block BOOL fourthObserverShouldChangeName = YES;
-			[a rac_addObserver:self forKeyPath:@keypath(a.name) options:NSKeyValueObservingOptionPrior queue:nil block:^(id observer, NSDictionary *change) {
+			__block BOOL observerIsSettingValue = NO;
+			[a rac_addObserver:self forKeyPath:@keypath(a.name) options:NSKeyValueObservingOptionPrior | NSKeyValueObservingOptionNew queue:nil block:^(id observer, NSDictionary *change) {
+				if (observerIsSettingValue) return;
 				if (firstObserverShouldChangeName) {
 					firstObserverShouldChangeName = NO;
+					observerIsSettingValue = YES;
 					a.name = testName1;
+					observerIsSettingValue = NO;
 				}
 			}];
-			[a rac_addObserver:self forKeyPath:@keypath(a.name) options:0 queue:nil block:^(id observer, NSDictionary *change) {
+			[a rac_addObserver:self forKeyPath:@keypath(a.name) options:NSKeyValueObservingOptionOld queue:nil block:^(id observer, NSDictionary *change) {
+				if (observerIsSettingValue) return;
 				if (secondObserverShouldChangeName) {
 					secondObserverShouldChangeName = NO;
+					observerIsSettingValue = YES;
 					a.name = testName2;
+					observerIsSettingValue = NO;
 				}
 			}];
 			[a rac_bind:@keypath(a.name) transformer:nil onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:nil];
-			[a rac_addObserver:self forKeyPath:@keypath(a.name) options:NSKeyValueObservingOptionPrior queue:nil block:^(id observer, NSDictionary *change) {
+			[a rac_addObserver:self forKeyPath:@keypath(a.name) options:NSKeyValueObservingOptionPrior | NSKeyValueObservingOptionNew queue:nil block:^(id observer, NSDictionary *change) {
+				if (observerIsSettingValue) return;
 				if (thirdObserverShouldChangeName) {
 					thirdObserverShouldChangeName = NO;
+					observerIsSettingValue = YES;
 					a.name = testName1;
+					observerIsSettingValue = NO;
 				}
 			}];
-			[a rac_addObserver:self forKeyPath:@keypath(a.name) options:0 queue:nil block:^(id observer, NSDictionary *change) {
+			[a rac_addObserver:self forKeyPath:@keypath(a.name) options:NSKeyValueObservingOptionOld queue:nil block:^(id observer, NSDictionary *change) {
+				if (observerIsSettingValue) return;
 				if (fourthObserverShouldChangeName) {
 					fourthObserverShouldChangeName = NO;
+					observerIsSettingValue = YES;
 					a.name = testName2;
+					observerIsSettingValue = NO;
 				}
 			}];
 			a.name = testName3;
+			expect(firstObserverShouldChangeName).to.beFalsy();
+			expect(secondObserverShouldChangeName).to.beFalsy();
+			expect(thirdObserverShouldChangeName).to.beFalsy();
+			expect(fourthObserverShouldChangeName).to.beFalsy();
 			expect(a.name).to.equal(testName2);
 			expect(b.name).to.equal(testName2);
 		});

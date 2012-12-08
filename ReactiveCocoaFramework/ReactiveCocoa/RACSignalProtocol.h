@@ -197,6 +197,19 @@ typedef NSInteger RACSignalError;
 // block is called to get a new start object for each subscription.
 - (id<RACSignal>)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock;
 
+// Creates a stateful signal that sends a value based the previous value and new
+// value from the receiver.
+//
+// start        - The value passed into `combineBlock` as `previous` the first
+//                time the receiver sends a value, before it has a previous
+//                value.
+// combineBlock - The block that combines the previous value sent by the
+//                receiver and the next value sent by the receiver to create the
+//                combined value. Cannot be nil.
+//
+// Returns a new signal that combines the previous and next value.
+- (id<RACSignal>)keepLatestWithStart:(id)start combine:(id (^)(id previous, id next))combineBlock;
+
 // Set the object's keyPath to the value of `next`.
 - (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object;
 

@@ -313,6 +313,21 @@ describe(@"-rac_bind:signalBlock:toObject:withKeyPath:signalBlock:", ^{
 		expect(b.name).will.equal(testName1);
 	});
 	
+	it(@"bindings that haven't been disposed should continue binding", ^{
+		RACScheduler *aScheduler = [RACScheduler backgroundScheduler];
+		RACScheduler *bScheduler = [RACScheduler backgroundScheduler];
+		
+		RACDisposable *disposable = [a rac_bind:@keypath(a.name) transformer:nil onScheduler:aScheduler toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:bScheduler];
+		[a rac_bind:@keypath(a.name) transformer:nil onScheduler:aScheduler toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:bScheduler];
+		
+		a.name = testName1;
+		[disposable dispose];
+		a.name = testName2;
+		
+		expect(a.name).will.equal(testName2);
+		expect(b.name).will.equal(testName2);
+	});
+	
 	it(@"should handle the bound objects being changed at the same time on different threads", ^{
 		RACScheduler *aScheduler = [[RACRacingScheduler alloc] init];
 		RACScheduler *bScheduler = [[RACRacingScheduler alloc] init];

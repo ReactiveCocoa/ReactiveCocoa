@@ -98,7 +98,7 @@ static void *RACRacingSchedulerStartRoutine(void *arg) {
 @end
 
 @interface TestClass : NSObject
-@property (strong) NSString *name;
+@property (nonatomic, strong) NSString *name;
 @end
 
 @implementation TestClass
@@ -106,7 +106,7 @@ static void *RACRacingSchedulerStartRoutine(void *arg) {
 
 SpecBegin(NSObjectRACBindings)
 
-describe(@"two-way bindings", ^{
+describe(@"-rac_bind:signalBlock:toObject:withKeyPath:signalBlock:", ^{
 	__block TestClass *a;
 	__block TestClass *b;
 	__block TestClass *c;
@@ -123,273 +123,233 @@ describe(@"two-way bindings", ^{
 		testName3 = @"sync it once more!";
 	});
 	
-	describe(@"-rac_bind:signalBlock:toObject:withKeyPath:signalBlock:", ^{
-		
-		it(@"should keep objects' properties in sync", ^{
-			[a rac_bind:@keypath(a.name) transformer:nil onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:nil];
-			expect(a.name).to.beNil();
-			expect(b.name).to.beNil();
-			a.name = testName1;
-			expect(a.name).to.equal(testName1);
-			expect(b.name).to.equal(testName1);
-			b.name = testName2;
-			expect(a.name).to.equal(testName2);
-			expect(b.name).to.equal(testName2);
-			a.name = nil;
-			expect(a.name).to.beNil();
-			expect(b.name).to.beNil();
-		});
-		
-		it(@"should take the master's value at the start", ^{
-			a.name = testName1;
-			b.name = testName2;
-			[a rac_bind:@keypath(a.name) transformer:nil onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:nil];
-			expect(a.name).to.equal(testName2);
-			expect(b.name).to.equal(testName2);
-		});
-		
-		it(@"should bind transitively", ^{
-			a.name = testName1;
-			b.name = testName2;
-			c.name = testName3;
-			[a rac_bind:@keypath(a.name) transformer:nil onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:nil];
-			[b rac_bind:@keypath(b.name) transformer:nil onScheduler:nil toObject:c withKeyPath:@keypath(c.name) transformer:nil onScheduler:nil];
-			expect(a.name).to.equal(testName3);
-			expect(b.name).to.equal(testName3);
-			expect(c.name).to.equal(testName3);
-			c.name = testName1;
-			expect(a.name).to.equal(testName1);
-			expect(b.name).to.equal(testName1);
-			expect(c.name).to.equal(testName1);
-			b.name = testName2;
-			expect(a.name).to.equal(testName2);
-			expect(b.name).to.equal(testName2);
-			expect(c.name).to.equal(testName2);
-			a.name = testName3;
-			expect(a.name).to.equal(testName3);
-			expect(b.name).to.equal(testName3);
-			expect(c.name).to.equal(testName3);
-		});
-		
-		it(@"should bind even if the initial update is the same as the other object's value", ^{
-			a.name = testName1;
-			b.name = testName2;
-			[a rac_bind:@keypath(a.name) transformer:nil onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:nil];
-			expect(a.name).to.equal(testName2);
-			expect(b.name).to.equal(testName2);
-			b.name = testName2;
-			expect(a.name).to.equal(testName2);
-			expect(b.name).to.equal(testName2);
-		});
-		
-		it(@"should bind even if the initial update is the same as the receiver's value", ^{
-			a.name = testName1;
-			b.name = testName2;
-			[a rac_bind:@keypath(a.name) transformer:nil onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:nil];
-			expect(a.name).to.equal(testName2);
-			expect(b.name).to.equal(testName2);
-			b.name = testName1;
-			expect(a.name).to.equal(testName1);
-			expect(b.name).to.equal(testName1);
-		});
-		
-		it(@"should not interfere with other KVO callbacks", ^{
-			__block BOOL firstObserverShouldChangeName = YES;
-			__block BOOL secondObserverShouldChangeName = YES;
-			__block BOOL thirdObserverShouldChangeName = YES;
-			__block BOOL fourthObserverShouldChangeName = YES;
-			__block BOOL observerIsSettingValue = NO;
-			[a rac_addObserver:self forKeyPath:@keypath(a.name) options:NSKeyValueObservingOptionPrior | NSKeyValueObservingOptionNew queue:nil block:^(id observer, NSDictionary *change) {
-				if (observerIsSettingValue) return;
-				if (firstObserverShouldChangeName) {
-					firstObserverShouldChangeName = NO;
-					observerIsSettingValue = YES;
-					a.name = testName1;
-					observerIsSettingValue = NO;
-				}
-			}];
-			[a rac_addObserver:self forKeyPath:@keypath(a.name) options:NSKeyValueObservingOptionOld queue:nil block:^(id observer, NSDictionary *change) {
-				if (observerIsSettingValue) return;
-				if (secondObserverShouldChangeName) {
-					secondObserverShouldChangeName = NO;
-					observerIsSettingValue = YES;
-					a.name = testName2;
-					observerIsSettingValue = NO;
-				}
-			}];
-			[a rac_bind:@keypath(a.name) transformer:nil onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:nil];
-			[a rac_addObserver:self forKeyPath:@keypath(a.name) options:NSKeyValueObservingOptionPrior | NSKeyValueObservingOptionNew queue:nil block:^(id observer, NSDictionary *change) {
-				if (observerIsSettingValue) return;
-				if (thirdObserverShouldChangeName) {
-					thirdObserverShouldChangeName = NO;
-					observerIsSettingValue = YES;
-					a.name = testName1;
-					observerIsSettingValue = NO;
-				}
-			}];
-			[a rac_addObserver:self forKeyPath:@keypath(a.name) options:NSKeyValueObservingOptionOld queue:nil block:^(id observer, NSDictionary *change) {
-				if (observerIsSettingValue) return;
-				if (fourthObserverShouldChangeName) {
-					fourthObserverShouldChangeName = NO;
-					observerIsSettingValue = YES;
-					a.name = testName2;
-					observerIsSettingValue = NO;
-				}
-			}];
-			a.name = testName3;
-			expect(firstObserverShouldChangeName).to.beFalsy();
-			expect(secondObserverShouldChangeName).to.beFalsy();
-			expect(thirdObserverShouldChangeName).to.beFalsy();
-			expect(fourthObserverShouldChangeName).to.beFalsy();
-			expect(a.name).to.equal(testName2);
-			expect(b.name).to.equal(testName2);
-		});
-		
-		it(@"should trasform values of bound properties", ^{
-			[a rac_bind:@keypath(a.name) transformer:^(NSString *value) {
-				return [NSString stringWithFormat:@"%@.%@", value, c.name];
-			} onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:^(NSString *value) {
-				return value.stringByDeletingPathExtension;
-			} onScheduler:nil];
-			[c rac_bind:@keypath(c.name) transformer:^(NSString *x) {
-				return [NSString stringWithFormat:@"%@.%@", a.name, x];
-			} onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:^(NSString *value) {
-				return value.pathExtension;
-			} onScheduler:nil];
-			expect(a.name).to.beNil();
-			expect(b.name).to.beNil();
-			expect(c.name).to.beNil();
-			b.name = @"file.txt";
-			expect(a.name).to.equal(@"file");
-			expect(b.name).to.equal(@"file.txt");
-			expect(c.name).to.equal(@"txt");
-			a.name = @"file2";
-			expect(a.name).to.equal(@"file2");
-			expect(b.name).to.equal(@"file2.txt");
-			expect(c.name).to.equal(@"txt");
-			c.name = @"rtf";
-			expect(a.name).to.equal(@"file2");
-			expect(b.name).to.equal(@"file2.rtf");
-			expect(c.name).to.equal(@"rtf");
-		});
-		
-		it(@"should run transformations only once per change, and only in one direction", ^{
-			__block NSUInteger aCounter = 0;
-			__block NSUInteger cCounter = 0;
-			id (^incrementACounter)(id) = ^(id value) {
-				++aCounter;
-				return value;
-			};
-			id (^incrementCCounter)(id) = ^(id value) {
-				++cCounter;
-				return value;
-			};
-			expect(aCounter).to.equal(0);
-			expect(cCounter).to.equal(0);
-			[a rac_bind:@keypath(a.name) transformer:incrementACounter onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:incrementACounter onScheduler:nil];
-			[c rac_bind:@keypath(c.name) transformer:incrementCCounter onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:incrementCCounter onScheduler:nil];
-			expect(aCounter).to.equal(1);
-			expect(cCounter).to.equal(1);
-			b.name = testName1;
-			expect(aCounter).to.equal(2);
-			expect(cCounter).to.equal(2);
-			a.name = testName2;
-			expect(aCounter).to.equal(3);
-			expect(cCounter).to.equal(3);
-			c.name = testName3;
-			expect(aCounter).to.equal(4);
-			expect(cCounter).to.equal(4);
-		});
-		
-		it(@"should stop binding when disposed", ^{
-			RACScheduler *aScheduler = [RACScheduler backgroundScheduler];
-			RACScheduler *bScheduler = [RACScheduler backgroundScheduler];
-			
-			RACDisposable *disposable = [a rac_bind:@keypath(a.name) transformer:nil onScheduler:aScheduler toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:bScheduler];
-			
-			a.name = testName1;
-			[disposable dispose];
-			a.name = testName2;
-			
-			expect(a.name).will.equal(testName2);
-			expect(b.name).will.equal(testName1);
-		});
-		
-		it(@"should handle the bound objects being changed at the same time on different threads", ^{
-			RACScheduler *aScheduler = [[RACRacingScheduler alloc] init];
-			RACScheduler *bScheduler = [[RACRacingScheduler alloc] init];
-			
-			[a rac_bind:@keypath(a.name) transformer:nil onScheduler:aScheduler toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:bScheduler];
-			
-			// Race conditions aren't deterministic, so loop this test more times to catch them.
-			// Change it back to 1 before committing so it's friendly on the CI testing.
-			for (NSUInteger i = 0; i < 1; ++i) {
-				[aScheduler schedule:^{
-					a.name = nil;
-				}];
-				expect(a.name).will.beNil();
-				expect(b.name).will.beNil();
-				
-				__block volatile uint32_t aReady = 0;
-				__block volatile uint32_t bReady = 0;
-				[aScheduler schedule:^{
-					OSAtomicOr32Barrier(1, &aReady);
-					while (!bReady) {
-						// do nothing while waiting for b, sleeping might hide the race
-					}
-					a.name = testName1;
-				}];
-				[bScheduler schedule:^{
-					OSAtomicOr32Barrier(1, &bReady);
-					while (!aReady) {
-						// do nothing while waiting for a, sleeping might hide the race
-					}
-					b.name = testName2;
-				}];
-				
-				expect(a.name).willNot.beNil();
-				expect(b.name).willNot.beNil();
-				
-				expect(a.name).will.equal(b.name);
+	it(@"should keep objects' properties in sync", ^{
+		[a rac_bind:@keypath(a.name) transformer:nil onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:nil];
+		expect(a.name).to.beNil();
+		expect(b.name).to.beNil();
+		a.name = testName1;
+		expect(a.name).to.equal(testName1);
+		expect(b.name).to.equal(testName1);
+		b.name = testName2;
+		expect(a.name).to.equal(testName2);
+		expect(b.name).to.equal(testName2);
+		a.name = nil;
+		expect(a.name).to.beNil();
+		expect(b.name).to.beNil();
+	});
+	
+	it(@"should take the master's value at the start", ^{
+		a.name = testName1;
+		b.name = testName2;
+		[a rac_bind:@keypath(a.name) transformer:nil onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:nil];
+		expect(a.name).to.equal(testName2);
+		expect(b.name).to.equal(testName2);
+	});
+	
+	it(@"should bind transitively", ^{
+		a.name = testName1;
+		b.name = testName2;
+		c.name = testName3;
+		[a rac_bind:@keypath(a.name) transformer:nil onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:nil];
+		[b rac_bind:@keypath(b.name) transformer:nil onScheduler:nil toObject:c withKeyPath:@keypath(c.name) transformer:nil onScheduler:nil];
+		expect(a.name).to.equal(testName3);
+		expect(b.name).to.equal(testName3);
+		expect(c.name).to.equal(testName3);
+		c.name = testName1;
+		expect(a.name).to.equal(testName1);
+		expect(b.name).to.equal(testName1);
+		expect(c.name).to.equal(testName1);
+		b.name = testName2;
+		expect(a.name).to.equal(testName2);
+		expect(b.name).to.equal(testName2);
+		expect(c.name).to.equal(testName2);
+		a.name = testName3;
+		expect(a.name).to.equal(testName3);
+		expect(b.name).to.equal(testName3);
+		expect(c.name).to.equal(testName3);
+	});
+	
+	it(@"should bind even if the initial update is the same as the other object's value", ^{
+		a.name = testName1;
+		b.name = testName2;
+		[a rac_bind:@keypath(a.name) transformer:nil onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:nil];
+		expect(a.name).to.equal(testName2);
+		expect(b.name).to.equal(testName2);
+		b.name = testName2;
+		expect(a.name).to.equal(testName2);
+		expect(b.name).to.equal(testName2);
+	});
+	
+	it(@"should bind even if the initial update is the same as the receiver's value", ^{
+		a.name = testName1;
+		b.name = testName2;
+		[a rac_bind:@keypath(a.name) transformer:nil onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:nil];
+		expect(a.name).to.equal(testName2);
+		expect(b.name).to.equal(testName2);
+		b.name = testName1;
+		expect(a.name).to.equal(testName1);
+		expect(b.name).to.equal(testName1);
+	});
+	
+	it(@"should not interfere with other KVO callbacks", ^{
+		__block BOOL firstObserverShouldChangeName = YES;
+		__block BOOL secondObserverShouldChangeName = YES;
+		__block BOOL thirdObserverShouldChangeName = YES;
+		__block BOOL fourthObserverShouldChangeName = YES;
+		__block BOOL observerIsSettingValue = NO;
+		[a rac_addObserver:self forKeyPath:@keypath(a.name) options:NSKeyValueObservingOptionPrior | NSKeyValueObservingOptionNew queue:nil block:^(id observer, NSDictionary *change) {
+			if (observerIsSettingValue) return;
+			if (firstObserverShouldChangeName) {
+				firstObserverShouldChangeName = NO;
+				observerIsSettingValue = YES;
+				a.name = testName1;
+				observerIsSettingValue = NO;
 			}
-		});
+		}];
+		[a rac_addObserver:self forKeyPath:@keypath(a.name) options:NSKeyValueObservingOptionOld queue:nil block:^(id observer, NSDictionary *change) {
+			if (observerIsSettingValue) return;
+			if (secondObserverShouldChangeName) {
+				secondObserverShouldChangeName = NO;
+				observerIsSettingValue = YES;
+				a.name = testName2;
+				observerIsSettingValue = NO;
+			}
+		}];
+		[a rac_bind:@keypath(a.name) transformer:nil onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:nil];
+		[a rac_addObserver:self forKeyPath:@keypath(a.name) options:NSKeyValueObservingOptionPrior | NSKeyValueObservingOptionNew queue:nil block:^(id observer, NSDictionary *change) {
+			if (observerIsSettingValue) return;
+			if (thirdObserverShouldChangeName) {
+				thirdObserverShouldChangeName = NO;
+				observerIsSettingValue = YES;
+				a.name = testName1;
+				observerIsSettingValue = NO;
+			}
+		}];
+		[a rac_addObserver:self forKeyPath:@keypath(a.name) options:NSKeyValueObservingOptionOld queue:nil block:^(id observer, NSDictionary *change) {
+			if (observerIsSettingValue) return;
+			if (fourthObserverShouldChangeName) {
+				fourthObserverShouldChangeName = NO;
+				observerIsSettingValue = YES;
+				a.name = testName2;
+				observerIsSettingValue = NO;
+			}
+		}];
+		a.name = testName3;
+		expect(firstObserverShouldChangeName).to.beFalsy();
+		expect(secondObserverShouldChangeName).to.beFalsy();
+		expect(thirdObserverShouldChangeName).to.beFalsy();
+		expect(fourthObserverShouldChangeName).to.beFalsy();
+		expect(a.name).to.equal(testName2);
+		expect(b.name).to.equal(testName2);
+	});
+	
+	it(@"should trasform values of bound properties", ^{
+		[a rac_bind:@keypath(a.name) transformer:^(NSString *value) {
+			return [NSString stringWithFormat:@"%@.%@", value, c.name];
+		} onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:^(NSString *value) {
+			return value.stringByDeletingPathExtension;
+		} onScheduler:nil];
+		[c rac_bind:@keypath(c.name) transformer:^(NSString *x) {
+			return [NSString stringWithFormat:@"%@.%@", a.name, x];
+		} onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:^(NSString *value) {
+			return value.pathExtension;
+		} onScheduler:nil];
+		expect(a.name).to.beNil();
+		expect(b.name).to.beNil();
+		expect(c.name).to.beNil();
+		b.name = @"file.txt";
+		expect(a.name).to.equal(@"file");
+		expect(b.name).to.equal(@"file.txt");
+		expect(c.name).to.equal(@"txt");
+		a.name = @"file2";
+		expect(a.name).to.equal(@"file2");
+		expect(b.name).to.equal(@"file2.txt");
+		expect(c.name).to.equal(@"txt");
+		c.name = @"rtf";
+		expect(a.name).to.equal(@"file2");
+		expect(b.name).to.equal(@"file2.rtf");
+		expect(c.name).to.equal(@"rtf");
+	});
+	
+	it(@"should run transformations only once per change, and only in one direction", ^{
+		__block NSUInteger aCounter = 0;
+		__block NSUInteger cCounter = 0;
+		id (^incrementACounter)(id) = ^(id value) {
+			++aCounter;
+			return value;
+		};
+		id (^incrementCCounter)(id) = ^(id value) {
+			++cCounter;
+			return value;
+		};
+		expect(aCounter).to.equal(0);
+		expect(cCounter).to.equal(0);
+		[a rac_bind:@keypath(a.name) transformer:incrementACounter onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:incrementACounter onScheduler:nil];
+		[c rac_bind:@keypath(c.name) transformer:incrementCCounter onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:incrementCCounter onScheduler:nil];
+		expect(aCounter).to.equal(1);
+		expect(cCounter).to.equal(1);
+		b.name = testName1;
+		expect(aCounter).to.equal(2);
+		expect(cCounter).to.equal(2);
+		a.name = testName2;
+		expect(aCounter).to.equal(3);
+		expect(cCounter).to.equal(3);
+		c.name = testName3;
+		expect(aCounter).to.equal(4);
+		expect(cCounter).to.equal(4);
+	});
+	
+	it(@"should stop binding when disposed", ^{
+		RACScheduler *aScheduler = [RACScheduler backgroundScheduler];
+		RACScheduler *bScheduler = [RACScheduler backgroundScheduler];
 		
-		it(@"should handle one of the bound objects being changed at the same time on different threads", ^{
-			RACScheduler *firstScheduler = [[RACRacingScheduler alloc] init];
-			RACScheduler *secondScheduler = [[RACRacingScheduler alloc] init];
-			
-			[a rac_bind:@keypath(a.name) transformer:nil onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:nil];
-			
-			// Race conditions aren't deterministic, so loop this test more times to catch them.
-			// Change it back to 1 before committing so it's friendly on the CI testing.
-			for (NSUInteger i = 0; i < 1; ++i) {
+		RACDisposable *disposable = [a rac_bind:@keypath(a.name) transformer:nil onScheduler:aScheduler toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:bScheduler];
+		
+		a.name = testName1;
+		[disposable dispose];
+		a.name = testName2;
+		
+		expect(a.name).will.equal(testName2);
+		expect(b.name).will.equal(testName1);
+	});
+	
+	it(@"should handle the bound objects being changed at the same time on different threads", ^{
+		RACScheduler *aScheduler = [[RACRacingScheduler alloc] init];
+		RACScheduler *bScheduler = [[RACRacingScheduler alloc] init];
+		
+		[a rac_bind:@keypath(a.name) transformer:nil onScheduler:aScheduler toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:bScheduler];
+		
+		// Race conditions aren't deterministic, so loop this test more times to catch them.
+		// Change it back to 1 before committing so it's friendly on the CI testing.
+		for (NSUInteger i = 0; i < 1; ++i) {
+			[aScheduler schedule:^{
 				a.name = nil;
-				expect(a.name).to.beNil();
-				expect(b.name).to.beNil();
-				
-				__block volatile uint32_t firstReady = 0;
-				__block volatile uint32_t secondReady = 0;
-				[firstScheduler schedule:^{
-					OSAtomicOr32Barrier(1, &firstReady);
-					while (!secondReady) {
-						// do nothing while waiting for b, sleeping might hide the race
-					}
-					a.name = testName1;
-				}];
-				[secondScheduler schedule:^{
-					OSAtomicOr32Barrier(1, &secondReady);
-					while (!firstReady) {
-						// do nothing while waiting for a, sleeping might hide the race
-					}
-					a.name = testName2;
-				}];
-				
-				expect(a.name).willNot.beNil();
-				expect(b.name).willNot.beNil();
-				
-				expect(a.name).will.equal(b.name);
-			}
-		});
+			}];
+			expect(a.name).will.beNil();
+			expect(b.name).will.beNil();
+			
+			__block volatile uint32_t aReady = 0;
+			__block volatile uint32_t bReady = 0;
+			[aScheduler schedule:^{
+				OSAtomicOr32Barrier(1, &aReady);
+				while (!bReady) {
+					// do nothing while waiting for b, sleeping might hide the race
+				}
+				a.name = testName1;
+			}];
+			[bScheduler schedule:^{
+				OSAtomicOr32Barrier(1, &bReady);
+				while (!aReady) {
+					// do nothing while waiting for a, sleeping might hide the race
+				}
+				b.name = testName2;
+			}];
+			
+			expect(a.name).willNot.beNil();
+			expect(b.name).willNot.beNil();
+			
+			expect(a.name).will.equal(b.name);
+		}
 	});
 });
 

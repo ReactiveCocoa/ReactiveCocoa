@@ -78,4 +78,40 @@ it(@"should automatically stop KVO when the observer deallocates", ^{
 	expect(identifier).to.beNil();
 });
 
+it(@"should stop KVO when the observer is removed", ^{
+	NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+	__block NSString *name = nil;
+	
+	id identifier = [queue rac_addObserver:self forKeyPath:@"name" options:0 queue:nil block:^(id observer, NSDictionary *change) {
+		name = queue.name;
+	}];
+	
+	queue.name = @"1";
+	expect(name).to.equal(@"1");
+	[queue rac_removeObserverWithIdentifier:identifier];
+	queue.name = @"2";
+	expect(name).toNot.equal(@"2");
+});
+
+it(@"should distinguish between observers being removed", ^{
+	NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+	__block NSString *name1 = nil;
+	__block NSString *name2 = nil;
+	
+	id identifier1 = [queue rac_addObserver:self forKeyPath:@"name" options:0 queue:nil block:^(id observer, NSDictionary *change) {
+		name1 = queue.name;
+	}];
+	[queue rac_addObserver:self forKeyPath:@"name" options:0 queue:nil block:^(id observer, NSDictionary *change) {
+		name2 = queue.name;
+	}];
+	
+	queue.name = @"1";
+	expect(name1).to.equal(@"1");
+	expect(name2).to.equal(@"1");
+	[queue rac_removeObserverWithIdentifier:identifier1];
+	queue.name = @"2";
+	expect(name1).toNot.equal(@"2");
+	expect(name2).to.equal(@"2");
+});
+
 SpecEnd

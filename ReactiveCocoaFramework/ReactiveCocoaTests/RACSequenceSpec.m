@@ -11,6 +11,8 @@
 
 #import "RACSequence.h"
 #import "RACUnit.h"
+#import "NSArray+RACSequenceAdditions.h"
+#import "RACTuple.h"
 
 SpecBegin(RACSequence)
 
@@ -131,6 +133,35 @@ describe(@"-bind:", ^{
 
 		expect(bound.head).to.equal(RACUnit.defaultUnit);
 		expect(headInvoked).to.beTruthy();
+	});
+});
+
+describe(@"-mapPreviousWithStart:combine:", ^{
+	__block RACSequence *sequence;
+	beforeEach(^{
+		sequence = @[ @1, @2, @3 ].rac_sequence;
+	});
+
+	it(@"should pass the previous next into the combine block", ^{
+		NSMutableArray *previouses = [NSMutableArray array];
+		RACSequence *result = [sequence mapPreviousWithStart:nil combine:^(id previous, id next) {
+			[previouses addObject:previous ?: RACTupleNil.tupleNil];
+			return next;
+		}];
+
+		NSArray *expected = @[ RACTupleNil.tupleNil, @1, @2 ];
+		// Force the result sequence to fully evaluate.
+		(void) result.array;
+		expect(previouses).to.equal(expected);
+	});
+
+	it(@"should send the combined value", ^{
+		RACSequence *result = [sequence mapPreviousWithStart:@1 combine:^(NSNumber *previous, NSNumber *next) {
+			return [NSString stringWithFormat:@"%lu - %lu", (unsigned long)previous.unsignedIntegerValue, (unsigned long)next.unsignedIntegerValue];
+		}];
+
+		NSArray *expected = @[ @"1 - 1", @"1 - 2", @"2 - 3" ];
+		expect(result.array).to.equal(expected);
 	});
 });
 

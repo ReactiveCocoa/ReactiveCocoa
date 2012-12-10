@@ -1587,7 +1587,7 @@ describe(@"-collect", ^{
 	});
 });
 
-describe(@"-keepLatestWithStart:combine:", ^{
+describe(@"-mapPreviousWithStart:combine:", ^{
 	__block id<RACSignal> signal;
 	beforeEach(^{
 		signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
@@ -1601,7 +1601,7 @@ describe(@"-keepLatestWithStart:combine:", ^{
 
 	it(@"should pass the previous next into the combine block", ^{
 		NSMutableArray *previouses = [NSMutableArray array];
-		[[signal keepLatestWithStart:nil combine:^(id previous, id next) {
+		[[signal mapPreviousWithStart:nil combine:^(id previous, id next) {
 			[previouses addObject:previous ?: RACTupleNil.tupleNil];
 			return next;
 		}] subscribeNext:^(id _) {}];
@@ -1612,7 +1612,7 @@ describe(@"-keepLatestWithStart:combine:", ^{
 
 	it(@"should send the combined value", ^{
 		NSMutableArray *values = [NSMutableArray array];
-		[[signal keepLatestWithStart:@1 combine:^(NSNumber *previous, NSNumber *next) {
+		[[signal mapPreviousWithStart:@1 combine:^(NSNumber *previous, NSNumber *next) {
 			return [NSString stringWithFormat:@"%lu - %lu", (unsigned long)previous.unsignedIntegerValue, (unsigned long)next.unsignedIntegerValue];
 		}] subscribeNext:^(id x) {
 			[values addObject:x];

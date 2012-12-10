@@ -16,10 +16,19 @@
 // If given two arguments, the first argument is the object to observe, and the
 // second argument is the key path to observe upon it.
 //
+// In either case, the observation continues until the observed object _or self_
+// is deallocated. No intermediate objects along the key path should be
+// deallocated while the observation exists.
+//
 // Examples
 //
-//   RACSignal *signal1 = RACAble(self.blah);
-//   RACSignal *signal2 = RACAble(blah, someOtherBlah);
+//   // Observes self, and doesn't stop until self is deallocated. The array
+//   // controller should not be deallocated during this time.
+//   RACSignal *signal1 = RACAble(self.arrayController.items);
+//
+//   // Observes self.arrayController, and stops when self _or_ the array
+//   // controller is deallocated.
+//   RACSignal *signal2 = RACAble(self.arrayController, items);
 //
 // Returns a signal which sends a value every time the value at the given key
 // path changes, and sends completed if self is deallocated (no matter which

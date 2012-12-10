@@ -10,21 +10,26 @@
 #import "EXTKeyPathCoding.h"
 #import "metamacros.h"
 
-// Returns a signal for the given keypath / property on the given object.
-// If it is given one argument, the keypath / property is assumed to be on self.
-// If it is given two, the first argument is the object and the second is the
-// relative keypath / property.
+// Creates a signal which observes the given key path for changes.
 //
-// Examples:
+// If given one argument, the key path is assumed to be relative to self.
+// If given two arguments, the first argument is the object to observe, and the
+// second argument is the key path to observe upon it.
 //
-//  RACSignal *signal1 = RACAble(self.blah);
-//  RACSignal *signal2 = RACAble(blah, someOtherBlah);
+// Examples
+//
+//   RACSignal *signal1 = RACAble(self.blah);
+//   RACSignal *signal2 = RACAble(blah, someOtherBlah);
+//
+// Returns a signal which sends a value every time the value at the given key
+// path changes, and sends completed if self is deallocated (no matter which
+// variant of RACAble was used).
 #define RACAble(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))(_RACAbleObject(self, __VA_ARGS__))(_RACAbleObject(__VA_ARGS__))
 
 // Do not use this directly. Use RACAble above.
 #define _RACAbleObject(object, property) [object rac_signalForKeyPath:@keypath(object, property) onObject:self]
 
-// Same as RACAble but the signal also starts with the current value of the
+// Same as RACAble, but the signal also starts with the current value of the
 // property.
 #define RACAbleWithStart(...) [RACAble(__VA_ARGS__) startWith:_RACAbleWithStartValue(__VA_ARGS__)]
 

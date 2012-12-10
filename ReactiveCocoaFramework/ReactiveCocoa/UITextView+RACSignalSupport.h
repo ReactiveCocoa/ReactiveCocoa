@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@class RACSignal;
+@protocol RACSignal;
 
 @interface UITextView (RACSignalSupport)
 

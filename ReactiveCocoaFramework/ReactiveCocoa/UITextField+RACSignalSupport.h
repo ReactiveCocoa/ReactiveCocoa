@@ -8,12 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
-@class RACSignal;
+@protocol RACSignal;
 
 @interface UITextField (RACSignalSupport)
 
 // Creates and returns a signal for the text of the field. It always starts with
 // the current text.
-- (RACSignal *)rac_textSignal;
+- (id<RACSignal>)rac_textSignal;
 
 @end

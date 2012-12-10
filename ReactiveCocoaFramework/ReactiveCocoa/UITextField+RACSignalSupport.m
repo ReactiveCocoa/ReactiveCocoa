@@ -12,7 +12,7 @@
 
 @implementation UITextField (RACSignalSupport)
 
-- (RACSignal *)rac_textSignal {
+- (id<RACSignal>)rac_textSignal {
 	return [[[self rac_signalForControlEvents:UIControlEventEditingChanged] startWith:self] map:^(UITextField *x) {
 		return x.text;
 	}];

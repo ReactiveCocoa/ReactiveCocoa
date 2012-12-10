@@ -191,7 +191,7 @@ describe(@"-rac_bind:signalBlock:toObject:withKeyPath:signalBlock:", ^{
 		expect(b.name).to.equal(testName1);
 	});
 	
-	it(@"should not interfere with other KVO callbacks", ^{
+	it(@"should not interfere with or be interfered by KVO callbacks", ^{
 		__block BOOL firstObserverShouldChangeName = YES;
 		__block BOOL secondObserverShouldChangeName = YES;
 		__block BOOL thirdObserverShouldChangeName = YES;
@@ -300,32 +300,14 @@ describe(@"-rac_bind:signalBlock:toObject:withKeyPath:signalBlock:", ^{
 	});
 	
 	it(@"should stop binding when disposed", ^{
-		RACScheduler *aScheduler = [RACScheduler backgroundScheduler];
-		RACScheduler *bScheduler = [RACScheduler backgroundScheduler];
-		
-		RACDisposable *disposable = [a rac_bind:@keypath(a.name) transformer:nil onScheduler:aScheduler toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:bScheduler];
-		
+		RACDisposable *disposable = [a rac_bind:@keypath(a.name) transformer:nil onScheduler:nil toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:nil];
 		a.name = testName1;
+		expect(a.name).to.equal(testName1);
+		expect(b.name).to.equal(testName1);
 		[disposable dispose];
 		a.name = testName2;
-		
-		expect(a.name).will.equal(testName2);
-		expect(b.name).will.equal(testName1);
-	});
-	
-	it(@"bindings that haven't been disposed should continue binding", ^{
-		RACScheduler *aScheduler = [RACScheduler backgroundScheduler];
-		RACScheduler *bScheduler = [RACScheduler backgroundScheduler];
-		
-		RACDisposable *disposable = [a rac_bind:@keypath(a.name) transformer:nil onScheduler:aScheduler toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:bScheduler];
-		[a rac_bind:@keypath(a.name) transformer:nil onScheduler:aScheduler toObject:b withKeyPath:@keypath(b.name) transformer:nil onScheduler:bScheduler];
-		
-		a.name = testName1;
-		[disposable dispose];
-		a.name = testName2;
-		
-		expect(a.name).will.equal(testName2);
-		expect(b.name).will.equal(testName2);
+		expect(a.name).to.equal(testName2);
+		expect(b.name).to.equal(testName1);
 	});
 	
 	it(@"should handle the bound objects being changed at the same time on different threads", ^{

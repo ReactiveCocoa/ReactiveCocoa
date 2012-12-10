@@ -1587,40 +1587,4 @@ describe(@"-collect", ^{
 	});
 });
 
-describe(@"-mapPreviousWithStart:combine:", ^{
-	__block id<RACSignal> signal;
-	beforeEach(^{
-		signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendNext:@1];
-			[subscriber sendNext:@2];
-			[subscriber sendNext:@3];
-			[subscriber sendCompleted];
-			return nil;
-		}];
-	});
-
-	it(@"should pass the previous next into the combine block", ^{
-		NSMutableArray *previouses = [NSMutableArray array];
-		[[signal mapPreviousWithStart:nil combine:^(id previous, id next) {
-			[previouses addObject:previous ?: RACTupleNil.tupleNil];
-			return next;
-		}] subscribeNext:^(id _) {}];
-
-		NSArray *expected = @[ RACTupleNil.tupleNil, @1, @2 ];
-		expect(previouses).to.equal(expected);
-	});
-
-	it(@"should send the combined value", ^{
-		NSMutableArray *values = [NSMutableArray array];
-		[[signal mapPreviousWithStart:@1 combine:^(NSNumber *previous, NSNumber *next) {
-			return [NSString stringWithFormat:@"%lu - %lu", (unsigned long)previous.unsignedIntegerValue, (unsigned long)next.unsignedIntegerValue];
-		}] subscribeNext:^(id x) {
-			[values addObject:x];
-		}];
-
-		NSArray *expected = @[ @"1 - 1", @"1 - 2", @"2 - 3" ];
-		expect(values).to.equal(expected);
-	});
-});
-
 SpecEnd

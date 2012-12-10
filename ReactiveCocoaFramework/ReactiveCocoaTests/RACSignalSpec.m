@@ -823,7 +823,7 @@ describe(@"memory management", ^{
 	it(@"should dealloc signals if the signal does nothing", ^{
 		__block BOOL deallocd = NO;
 		@autoreleasepool {
-			id<RACSignal> signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			NSObject<RACSignal> *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 				return nil;
 			}];
 
@@ -839,7 +839,7 @@ describe(@"memory management", ^{
 		__block BOOL deallocd = NO;
 
 		@autoreleasepool {
-			id<RACSignal> signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			NSObject<RACSignal> *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 				return nil;
 			}];
 
@@ -857,7 +857,7 @@ describe(@"memory management", ^{
 		@autoreleasepool {
 			__block BOOL done = NO;
 
-			id<RACSignal> signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			NSObject<RACSignal> *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 				[subscriber sendCompleted];
 				return nil;
 			}];
@@ -902,7 +902,7 @@ describe(@"memory management", ^{
 		__block BOOL deallocd = NO;
 		@autoreleasepool {
 			[[RACScheduler scheduler] schedule:^{
-				id<RACSignal> signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+				NSObject<RACSignal> *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 					[subscriber sendCompleted];
 					return nil;
 				}];
@@ -926,7 +926,7 @@ describe(@"memory management", ^{
 		__block BOOL deallocd = NO;
 		@autoreleasepool {
 			[[RACScheduler scheduler] schedule:^{
-				id<RACSignal> signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+				NSObject<RACSignal> *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 					return nil;
 				}];
 
@@ -956,7 +956,7 @@ describe(@"memory management", ^{
 
 		@autoreleasepool {
 			@autoreleasepool {
-				id<RACSignal> signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+				NSObject<RACSignal> *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 					return nil;
 				}];
 

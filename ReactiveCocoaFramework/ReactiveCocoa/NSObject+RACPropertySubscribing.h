@@ -26,9 +26,9 @@
 //   // controller should not be deallocated during this time.
 //   RACSignal *signal1 = RACAble(self.arrayController.items);
 //
-//   // Observes self.arrayController, and stops when self _or_ the array
+//   // Observes obj.arrayController, and stops when _self_ or the array
 //   // controller is deallocated.
-//   RACSignal *signal2 = RACAble(self.arrayController, items);
+//   RACSignal *signal2 = RACAble(obj.arrayController, items);
 //
 // Returns a signal which sends a value every time the value at the given key
 // path changes, and sends completed if self is deallocated (no matter which

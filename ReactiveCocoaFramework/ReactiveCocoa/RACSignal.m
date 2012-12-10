@@ -315,13 +315,7 @@ static NSMutableSet *activeSignals() {
 	return disposable;
 }
 
-
 #pragma mark API
-
-@synthesize didSubscribe;
-@synthesize subscribers;
-@synthesize tearingDown;
-@synthesize name;
 
 + (instancetype)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
 	RACSignal *signal = [[RACSignal alloc] init];

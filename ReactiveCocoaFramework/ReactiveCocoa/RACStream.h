@@ -30,12 +30,12 @@ typedef id (^RACStreamBindBlock)(id value, BOOL *stop);
 @required
 
 // Returns an empty stream.
-+ (instancetype)empty;
++ (id)empty;
 
 // Lifts `value` into the stream monad.
 //
 // Returns a stream containing only the given value.
-+ (instancetype)return:(id)value;
++ (id)return:(id)value;
 
 // Lazily binds a block to the values in the receiver.
 //
@@ -74,7 +74,7 @@ typedef id (^RACStreamBindBlock)(id value, BOOL *stop);
 // Returns a new stream containing the return values of `reduceBlock` applied to
 // the values contained in the input streams, or if `reduceBlock` is nil, tuples
 // of the same values
-+ (instancetype)zip:(NSArray *)streams reduce:(id)reduceBlock;
++ (id)zip:(NSArray *)streams reduce:(id)reduceBlock;
 
 @concrete
 

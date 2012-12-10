@@ -14,7 +14,7 @@
 
 @interface RACAsyncBlockPair : NSObject
 @property (nonatomic, strong) RACSubject *subject;
-@property (nonatomic, strong) RACSignal * (^asyncBlock)(id value);
+@property (nonatomic, strong) id<RACSignal> (^asyncBlock)(id value);
 @end
 
 @interface RACAsyncCommand ()
@@ -92,7 +92,7 @@
 	return operationQueue;
 }
 
-- (RACSignal *)addAsyncBlock:(RACSignal * (^)(id value))block {
+- (id<RACSignal>)addAsyncBlock:(id<RACSignal> (^)(id value))block {
 	NSParameterAssert(block != NULL);
 	
 	RACSubject *subject = [RACSubject subject];

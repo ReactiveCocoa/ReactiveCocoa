@@ -27,8 +27,12 @@
 #import "RACTuple.h"
 #import "RACUnit.h"
 #import <libkern/OSAtomic.h>
+#import <objc/runtime.h>
 
 NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
+
+// An associated objects key used to implement the `name` property.
+static void *RACSignalNameKey = &RACSignalNameKey;
 
 // Subscribes to the given signal with the given blocks.
 //
@@ -154,6 +158,14 @@ static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), 
 	
 	RACSubscriber *o = [RACSubscriber subscriberWithNext:NULL error:errorBlock completed:completedBlock];
 	return [self subscribe:o];
+}
+
+- (NSString *)name {
+	return objc_getAssociatedObject(self, RACSignalNameKey);
+}
+
+- (void)setName:(NSString *)name {
+	objc_setAssociatedObject(self, RACSignalNameKey, name, OBJC_ASSOCIATION_COPY);
 }
 
 - (id<RACSignal>)doNext:(void (^)(id x))block {

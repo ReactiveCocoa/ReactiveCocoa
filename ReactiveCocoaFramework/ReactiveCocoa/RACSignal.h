@@ -17,9 +17,6 @@
 
 @interface RACSignal : NSObject <RACSignal>
 
-// The name of the signal. This is for debug / human purposes only.
-@property (nonatomic, copy) NSString *name;
-
 // Creates a new signal. This is the preferred way to create a new signal
 // operation or behavior.
 //

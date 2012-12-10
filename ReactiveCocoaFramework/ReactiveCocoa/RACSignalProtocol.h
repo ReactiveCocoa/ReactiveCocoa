@@ -100,6 +100,9 @@ typedef NSInteger RACSignalError;
 // Convenience method to subscribe to `error` and `completed` events.
 - (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
 
+// The name of the signal. This is for debugging/human purposes only.
+@property (copy) NSString *name;
+
 // Do the given block on `next`. This should be used to inject side effects into
 // the signal.
 - (id<RACSignal>)doNext:(void (^)(id x))block;

@@ -7,6 +7,7 @@
 //
 
 #import "RACSignal.h"
+#import "EXTScope.h"
 #import "NSObject+RACExtensions.h"
 #import "RACBehaviorSubject.h"
 #import "RACDisposable.h"
@@ -282,23 +283,22 @@ static NSMutableSet *activeSignals() {
 		[self.subscribers addObject:subscriber];
 	}
 	
-	__weak id weakSelf = self;
-	__weak id weakSubscriber = subscriber;
+	@weakify(self, subscriber);
 	RACDisposable *defaultDisposable = [RACDisposable disposableWithBlock:^{
-		id<RACSignal> strongSelf = weakSelf;
-		id<RACSubscriber> strongSubscriber = weakSubscriber;
+		@strongify(self, subscriber);
+
 		// If the disposal is happening because the signal's being torn down, we
 		// don't need to duplicate the invalidation.
-		if(!strongSelf.tearingDown) {
-			BOOL stillHasSubscribers = YES;
-			@synchronized(strongSelf.subscribers) {
-				[strongSelf.subscribers removeObject:strongSubscriber];
-				stillHasSubscribers = strongSelf.subscribers.count > 0;
-			}
-			
-			if(!stillHasSubscribers) {
-				[strongSelf invalidateGlobalRefIfNoNewSubscribersShowUp];
-			}
+		if (self.tearingDown) return;
+
+		BOOL stillHasSubscribers = YES;
+		@synchronized (self.subscribers) {
+			[self.subscribers removeObject:subscriber];
+			stillHasSubscribers = self.subscribers.count > 0;
+		}
+		
+		if (!stillHasSubscribers) {
+			[self invalidateGlobalRefIfNoNewSubscribersShowUp];
 		}
 	}];
 

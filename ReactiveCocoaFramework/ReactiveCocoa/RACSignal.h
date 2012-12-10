@@ -24,13 +24,13 @@
 // Creates a new signal. This is the preferred way to create a new signal
 // operation or behavior.
 //
-// For an asynchronous operation (where values are sent to subscribers in
+// For an asynchronous operation (where events are sent to subscribers in
 // a deferred or concurrent manner), `didSubscribe` should return
 // a RACDisposable that cancels the operation and cleans up any resources or
 // disposables that were created as part of it. When the disposable is disposed
 // of, the signal must not send any more events to the subscriber.
 //
-// For a synchronous operation (where values are sent to subscribers immediately
+// For a synchronous operation (where events are sent to subscribers immediately
 // and then the signal ends), `didSubscribe` should return nil, because there's
 // no way to return a RACDisposable before the signal ends. Note that
 // subscribers will not be able to dispose of the signal in such a case, so this

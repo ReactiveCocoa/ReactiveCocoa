@@ -104,7 +104,7 @@ typedef id (^RACStreamBindBlock)(id value, BOOL *stop);
 // the receiver.
 - (instancetype)mapReplace:(id)object;
 
-// Maps the combination of the previous and current objects into one object.
+// Maps the combination of the previous and current objects to one object.
 //
 // start        - The value passed into `combineBlock` as `previous` the first
 //                time the receiver sends a value, before it has a previous
@@ -113,7 +113,8 @@ typedef id (^RACStreamBindBlock)(id value, BOOL *stop);
 //                receiver and the current value sent by the receiver to create
 //                the combined value. Cannot be nil.
 //
-// Returns a new signal that combines the previous and next value.
+// Returns a new signal consisting of the return values from each application of
+// `combineBlock`.
 - (instancetype)mapPreviousWithStart:(id)start combine:(id (^)(id previous, id current))combineBlock;
 
 // Filters out values in the receiver that don't pass the given test.

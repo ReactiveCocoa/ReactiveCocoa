@@ -21,13 +21,11 @@ static void *RACBindingsAsOtherObjectKey = &RACBindingsAsOtherObjectKey;
 static NSString * const RACBindingExceptionName = @"RACBinding exception";
 static NSString * const RACBindingExceptionBindingKey = @"RACBindingExceptionBindingKey";
 
-
 @interface RACBinding : NSObject
 
 + (instancetype)bindingWithReceiver:(id)receiver receiverKeyPath:(NSString *)receiverKeyPath receiverTransformer:(id(^)(id))receiverTransformer receiverScheduler:(RACScheduler *)receiverScheduler otherObject:(id)otherObject otherKeyPath:(NSString *)otherKeyPath otherTransformer:(id(^)(id))otherTransformer otherScheduler:(RACScheduler *)otherScheduler;
 
 - (void)dispose;
-
 - (void)receiverWillChangeValue;
 - (void)receiverDidChangeValue;
 - (void)otherObjectWillChangeValue;
@@ -89,7 +87,7 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 @end
 
 @implementation RACBinding {
-	NSUInteger _currentVersion;
+	volatile NSUInteger _currentVersion;
 }
 
 - (instancetype)initWithReceiver:(id)receiver receiverKeyPath:(NSString *)receiverKeyPath receiverTransformer:(id (^)(id))receiverTransformer receiverScheduler:(RACScheduler *)receiverScheduler otherObject:(id)otherObject otherKeyPath:(NSString *)otherKeyPath otherTransformer:(id (^)(id))otherTransformer otherScheduler:(RACScheduler *)otherScheduler {

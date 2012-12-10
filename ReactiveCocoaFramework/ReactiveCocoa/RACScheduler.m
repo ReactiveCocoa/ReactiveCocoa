@@ -7,13 +7,13 @@
 //
 
 #import "RACScheduler.h"
-#import "RACScheduler+Private.h"
+#import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
-#import "RACQueueScheduler.h"
 #import "RACImmediateScheduler.h"
-#import "RACIterativeScheduler.h"
-#import "RACDeferredScheduler.h"
+#import "RACQueueScheduler.h"
+#import "RACScheduler+Private.h"
 #import "RACSubscriptionScheduler.h"
+#import <libkern/OSAtomic.h>
 
 // The key for the queue-specific current scheduler.
 const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
@@ -57,16 +57,6 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 	return immediateScheduler;
 }
 
-+ (instancetype)iterativeScheduler {
-	static dispatch_once_t onceToken;
-	static RACScheduler *iterativeScheduler;
-	dispatch_once(&onceToken, ^{
-		iterativeScheduler = [[RACIterativeScheduler alloc] init];
-	});
-
-	return iterativeScheduler;
-}
-
 + (instancetype)mainThreadScheduler {
 	static dispatch_once_t onceToken;
 	static RACScheduler *mainThreadScheduler;
@@ -77,22 +67,12 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 	return mainThreadScheduler;
 }
 
-+ (instancetype)deferredScheduler {
-	static dispatch_once_t onceToken;
-	static RACScheduler *deferredScheduler;
-	dispatch_once(&onceToken, ^{
-		deferredScheduler = [[RACDeferredScheduler alloc] init];
-	});
-	
-	return deferredScheduler;
-}
-
-+ (instancetype)backgroundSchedulerWithPriority:(RACSchedulerPriority)priority {
++ (instancetype)schedulerWithPriority:(RACSchedulerPriority)priority {
 	return [[RACQueueScheduler alloc] initWithName:@"com.ReactiveCocoa.RACScheduler.backgroundScheduler" targetQueue:dispatch_get_global_queue(priority, 0)];
 }
 
-+ (instancetype)backgroundScheduler {
-	return [self backgroundSchedulerWithPriority:RACSchedulerPriorityDefault];
++ (instancetype)scheduler {
+	return [self schedulerWithPriority:RACSchedulerPriorityDefault];
 }
 
 + (instancetype)subscriptionScheduler {
@@ -119,8 +99,44 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 
 #pragma mark Scheduling
 
-- (void)schedule:(void (^)(void))block {
+- (RACDisposable *)schedule:(void (^)(void))block {
 	NSAssert(NO, @"-schedule: must be implemented by a subclass.");
+	return nil;
+}
+
+- (RACDisposable *)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock {
+	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+
+	__block volatile uint32_t disposed = 0;
+	BOOL (^isDisposed)(void) = [^{
+		return disposed != 0;
+	} copy];
+
+	[disposable addDisposable:[RACDisposable disposableWithBlock:^{
+		OSAtomicOr32Barrier(1, &disposed);
+	}]];
+
+	[self scheduleRecursiveBlock:[recursiveBlock copy] addingToDisposable:disposable isDisposedBlock:isDisposed];
+	return disposable;
+}
+
+- (void)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock addingToDisposable:(RACCompoundDisposable *)disposable isDisposedBlock:(BOOL (^)(void))isDisposed {
+	RACDisposable *schedulingDisposable = [self schedule:^{
+		if (isDisposed()) return;
+
+		__block NSUInteger rescheduleCount = 0;
+		recursiveBlock(^{
+			++rescheduleCount;
+		});
+
+		for (NSUInteger i = 0; i < rescheduleCount; i++) {
+			if (isDisposed()) return;
+
+			[self scheduleRecursiveBlock:recursiveBlock addingToDisposable:disposable isDisposedBlock:isDisposed];
+		}
+	}];
+
+	if (schedulingDisposable != nil) [disposable addDisposable:schedulingDisposable];
 }
 
 @end

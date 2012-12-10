@@ -88,11 +88,12 @@ static void *RACRacingSchedulerStartRoutine(void *arg) {
 	}
 }
 
-- (void)schedule:(void (^)(void))block {
+- (RACDisposable *)schedule:(void (^)(void))block {
 	NSParameterAssert(block != nil);
 	@synchronized(_data) {
 		[_data.blockQueue insertObject:[block copy] atIndex:0];
 	}
+	return nil;
 }
 
 @end

@@ -46,13 +46,20 @@ typedef NSInteger RACSignalError;
 @protocol RACSignal <NSObject, RACStream>
 @required
 
-// Subscribes subscriber to changes on the receiver. The receiver defines which
+// Subscribes `subscriber` to changes on the receiver. The receiver defines which
 // events it actually sends and in what situations the events are sent.
 //
-// Returns a disposable. You can call `-dispose` on it if you need to end your
-// subscription before it would "naturally" end, either by completing or
-// erroring. Once the disposable has been disposed, the subscriber won't receive
-// any more events from the subscription.
+// Subscription will always happen on a valid RACScheduler. If the
+// +[RACScheduler currentScheduler] cannot be determined at the time of
+// subscription (e.g., because the calling code is running on a GCD queue or
+// NSOperationQueue), subscription will occur on a private background scheduler.
+// On the main thread, subscriptions will always occur immediately, with a
+// +[RACScheduler currentScheduler] of +[RACScheduler mainThreadScheduler].
+//
+// Returns nil or a disposable. You can call -[RACDisposable dispose] if you
+// need to end your subscription before it would "naturally" end, either by
+// completing or erroring. Once the disposable has been disposed, the subscriber
+// won't receive any more events from the subscription.
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber;
 
 // Combine values from each of the signals using `reduceBlock`.
@@ -68,7 +75,7 @@ typedef NSInteger RACSignalError;
 //               of signals given. Each argument will be an object argument,
 //               wrapped as needed. If nil, the returned signal will send a
 //               RACTuple of all the latest values.
-+ (instancetype)zip:(NSArray *)signals reduce:(id)reduceBlock;
++ (id)zip:(NSArray *)signals reduce:(id)reduceBlock;
 
 @concrete
 
@@ -92,6 +99,9 @@ typedef NSInteger RACSignalError;
 
 // Convenience method to subscribe to `error` and `completed` events.
 - (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
+
+// The name of the signal. This is for debugging/human purposes only.
+@property (copy) NSString *name;
 
 // Do the given block on `next`. This should be used to inject side effects into
 // the signal.

@@ -81,11 +81,11 @@
 	// We're using -deliverOn: to load the image in a background queue and then 
 	// finish with another -deliverOn: so that subscribers get the result on the 
 	// main queue.
-	RACSignal *loadedAvatar = [[[[RACAble(self.userAccount.avatarURL) 
+	id<RACSignal> loadedAvatar = [[[[RACAble(self.userAccount.avatarURL) 
 		filter:^ BOOL (id x) {
 			return x != nil;
 		}] 
-		deliverOn:RACScheduler.backgroundScheduler]
+		deliverOn:[RACScheduler scheduler]]
 		flattenMap:^(NSURL *URL) {
 			@strongify(self);
 
@@ -104,7 +104,7 @@
 	return self;
 }
 
-- (RACSignal *)fetchUser {	
+- (id<RACSignal>)fetchUser {	
 	@unsafeify(self);
 	return [[self.client 
 				fetchUserInfo] 
@@ -116,7 +116,7 @@
 				}];
 }
 
-- (RACSignal *)fetchRepos {	
+- (id<RACSignal>)fetchRepos {	
 	return [[self.client 
 				fetchUserRepos] 
 				map:^(NSArray *repos) {
@@ -125,7 +125,7 @@
 				}];
 }
 
-- (RACSignal *)fetchOrgs {	
+- (id<RACSignal>)fetchOrgs {	
 	return [[self.client 
 				fetchUserOrgs] 
 				map:^(NSArray *orgs) {
@@ -134,7 +134,7 @@
 				}];
 }
 
-- (RACSignal *)loadImageAtURL:(NSURL *)URL {
+- (id<RACSignal>)loadImageAtURL:(NSURL *)URL {
 	// This -defer, -publish, -autoconnect dance might seem a little odd, so 
 	// let's talk through it.
 	//
@@ -149,7 +149,7 @@
 	// So we use -publish to share the subscriptions to the underlying Signal.
 	// -autoconnect means the connectable Signal from -publish will connect
 	// automatically when it receives its first subscriber.
-	RACSignal *loadImage = [RACSignal defer:^{
+	id<RACSignal> loadImage = [RACSignal defer:^{
 		return [RACSignal startWithScheduler:[RACScheduler immediateScheduler] block:^id(BOOL *success, NSError **error) {
 			NSImage *image = [[NSImage alloc] initWithContentsOfURL:URL];
 			if(image == nil) {

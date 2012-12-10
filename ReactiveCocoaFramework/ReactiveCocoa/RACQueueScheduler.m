@@ -7,7 +7,9 @@
 //
 
 #import "RACQueueScheduler.h"
+#import "RACDisposable.h"
 #import "RACScheduler+Private.h"
+#import <libkern/OSAtomic.h>
 
 @interface RACQueueScheduler ()
 @property (nonatomic, readonly) dispatch_queue_t queue;
@@ -48,12 +50,19 @@ static void currentSchedulerRelease(void *context) {
 
 #pragma mark RACScheduler
 
-- (void)schedule:(void (^)(void))block {
+- (RACDisposable *)schedule:(void (^)(void))block {
 	NSParameterAssert(block != NULL);
 
+	__block volatile uint32_t disposed = 0;
+
 	dispatch_async(self.queue, ^{
+		if (disposed != 0) return;
 		[self performAsCurrentScheduler:block];
 	});
+
+	return [RACDisposable disposableWithBlock:^{
+		OSAtomicOr32Barrier(1, &disposed);
+	}];
 }
 
 @end

@@ -12,7 +12,7 @@
 
 @implementation UITextView (RACSignalSupport)
 
-- (RACSignal *)rac_signalForDelegateMethod:(SEL)method {
+- (id<RACSignal>)rac_signalForDelegateMethod:(SEL)method {
     RACEventTrampoline *trampoline = [RACEventTrampoline trampolineForTextView:self delegateMethod:method];
     
 	NSMutableSet *controlEventTrampolines = objc_getAssociatedObject(self, RACEventTrampolinesKey);
@@ -26,7 +26,7 @@
 	return trampoline.subject;
 }
 
-- (RACSignal *)rac_textSignal {
+- (id<RACSignal>)rac_textSignal {
 	return [[[self rac_signalForDelegateMethod:@selector(textViewDidChange:)] startWith:self] map:^(UITextView *x) {
 		return x.text;
 	}];

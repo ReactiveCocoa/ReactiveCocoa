@@ -12,7 +12,7 @@
 
 @implementation UIControl (RACSignalSupport)
 
-- (RACSignal *)rac_signalForControlEvents:(UIControlEvents)controlEvents {
+- (id<RACSignal>)rac_signalForControlEvents:(UIControlEvents)controlEvents {
 	RACEventTrampoline *trampoline = [RACEventTrampoline trampolineForControl:self controlEvents:controlEvents];
 	NSMutableSet *controlEventTrampolines = objc_getAssociatedObject(self, RACEventTrampolinesKey);
 	if (controlEventTrampolines == nil) {

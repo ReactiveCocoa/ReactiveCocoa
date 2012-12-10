@@ -66,7 +66,7 @@
 	// Signal (the API call) completes. -asMaybes means that we wrap 
 	// each next value or error in a RACMaybe. This means that even if the 
 	// API hits an error, the Signal will still be valid.
-	RACSignal *loginResult = [[[self.loginCommand 
+	id<RACSignal> loginResult = [[[self.loginCommand 
 		addAsyncBlock:^(id _) {
 			@strongify(self);
 			return [self.client login];

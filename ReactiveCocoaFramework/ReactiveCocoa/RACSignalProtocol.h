@@ -75,7 +75,7 @@ typedef NSInteger RACSignalError;
 //               of signals given. Each argument will be an object argument,
 //               wrapped as needed. If nil, the returned signal will send a
 //               RACTuple of all the latest values.
-+ (instancetype)zip:(NSArray *)signals reduce:(id)reduceBlock;
++ (id)zip:(NSArray *)signals reduce:(id)reduceBlock;
 
 @concrete
 
@@ -99,6 +99,9 @@ typedef NSInteger RACSignalError;
 
 // Convenience method to subscribe to `error` and `completed` events.
 - (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
+
+// The name of the signal. This is for debugging/human purposes only.
+@property (copy) NSString *name;
 
 // Do the given block on `next`. This should be used to inject side effects into
 // the signal.

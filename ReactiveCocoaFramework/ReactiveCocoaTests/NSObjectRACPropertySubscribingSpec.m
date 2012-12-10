@@ -34,7 +34,7 @@ describe(@"+rac_signalFor:keyPath:onObject:", ^{
 		__block id value;
 		@autoreleasepool {
 			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			RACSignal *signal = [NSObject rac_signalFor:object keyPath:@"objectValue" onObject:self];
+			id<RACSignal> signal = [NSObject rac_signalFor:object keyPath:@"objectValue" onObject:self];
 			[signal subscribeNext:^(id x) {
 				value = x;
 			}];

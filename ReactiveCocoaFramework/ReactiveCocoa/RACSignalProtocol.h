@@ -75,7 +75,7 @@ typedef NSInteger RACSignalError;
 //               of signals given. Each argument will be an object argument,
 //               wrapped as needed. If nil, the returned signal will send a
 //               RACTuple of all the latest values.
-+ (instancetype)zip:(NSArray *)signals reduce:(id)reduceBlock;
++ (id)zip:(NSArray *)signals reduce:(id)reduceBlock;
 
 @concrete
 

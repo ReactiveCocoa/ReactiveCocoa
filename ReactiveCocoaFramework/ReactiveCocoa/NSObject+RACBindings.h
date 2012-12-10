@@ -8,8 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class RACSignal;
-
+@protocol RACSignal;
 
 @interface NSObject (RACBindings)
 

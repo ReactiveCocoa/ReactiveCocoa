@@ -31,9 +31,8 @@
 // Do not use this directly. Use RACAbleWithStart above.
 #define _RACAbleWithStartValue(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))([self valueForKeyPath:@keypath(self, __VA_ARGS__)])([metamacro_at0(__VA_ARGS__) valueForKeyPath:@keypath(__VA_ARGS__)])
 
-@class RACSignal;
 @class RACDisposable;
-
+@protocol RACSignal;
 
 @interface NSObject (RACPropertySubscribing)
 

@@ -26,7 +26,7 @@
 //
 // For an asynchronous operation (where values are sent to subscribers in
 // a deferred or concurrent manner), `didSubscribe` should return
-// a RACDisposable that cancels the operation and cleans up any resources and
+// a RACDisposable that cancels the operation and cleans up any resources or
 // disposables that were created as part of it. When the disposable is disposed
 // of, the signal must not send any more events to the subscriber.
 //

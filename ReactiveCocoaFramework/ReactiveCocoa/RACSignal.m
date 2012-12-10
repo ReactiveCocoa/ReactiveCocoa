@@ -285,7 +285,7 @@ static NSMutableSet *activeSignals() {
 	__weak id weakSelf = self;
 	__weak id weakSubscriber = subscriber;
 	RACDisposable *defaultDisposable = [RACDisposable disposableWithBlock:^{
-		RACSignal *strongSelf = weakSelf;
+		id<RACSignal> strongSelf = weakSelf;
 		id<RACSubscriber> strongSubscriber = weakSubscriber;
 		// If the disposal is happening because the signal's being torn down, we
 		// don't need to duplicate the invalidation.

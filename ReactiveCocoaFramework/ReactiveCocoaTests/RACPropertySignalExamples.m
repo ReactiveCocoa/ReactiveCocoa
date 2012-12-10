@@ -67,7 +67,7 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 
 		@autoreleasepool {
 			@autoreleasepool {
-				RACSignal *intermediateSignal = [subject map:^(NSNumber *num) {
+				id<RACSignal> intermediateSignal = [subject map:^(NSNumber *num) {
 					return @(num.integerValue + 1);
 				}];
 

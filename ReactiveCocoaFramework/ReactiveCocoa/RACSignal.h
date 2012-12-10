@@ -13,7 +13,6 @@
 @class RACDisposable;
 @class RACScheduler;
 @class RACSubject;
-@class RACTuple;
 @protocol RACSubscriber;
 
 @interface RACSignal : NSObject <RACSignal>

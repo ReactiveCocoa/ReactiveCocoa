@@ -346,7 +346,7 @@ describe(@"-rac_bind:signalBlock:toObject:withKeyPath:signalBlock:", ^{
 			expect(a.name).willNot.beNil();
 			expect(b.name).willNot.beNil();
 			
-			expect(a.name).will.equal(b.name);
+			expect([a.name isEqualToString:b.name]).will.beTruthy();
 		}
 	});
 });

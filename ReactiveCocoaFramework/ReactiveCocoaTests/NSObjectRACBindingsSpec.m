@@ -100,6 +100,7 @@ static void *RACRacingSchedulerStartRoutine(void *arg) {
 
 @interface TestClass : NSObject
 @property (nonatomic, strong) NSString *name;
+@property (nonatomic, strong) TestClass *relatedObject;
 @end
 
 @implementation TestClass
@@ -137,6 +138,21 @@ describe(@"-rac_bind:signalBlock:toObject:withKeyPath:signalBlock:", ^{
 		a.name = nil;
 		expect(a.name).to.beNil();
 		expect(b.name).to.beNil();
+	});
+	
+	it(@"should keep properties identified by keypaths in sync", ^{
+		[a rac_bind:@keypath(a.relatedObject.name) transformer:nil onScheduler:nil toObject:b withKeyPath:@keypath(b.relatedObject.name) transformer:nil onScheduler:nil];
+		a.relatedObject = [[TestClass alloc] init];
+		b.relatedObject = [[TestClass alloc] init];
+		a.relatedObject.name = testName1;
+		expect(a.relatedObject.name).to.equal(testName1);
+		expect(b.relatedObject.name).to.equal(testName1);
+		b.relatedObject = nil;
+		expect(a.relatedObject.name).to.beNil();
+		c.name = testName2;
+		b.relatedObject = c;
+		expect(a.relatedObject.name).to.equal(testName2);
+		expect(b.relatedObject.name).to.equal(testName2);
 	});
 	
 	it(@"should take the master's value at the start", ^{

@@ -338,6 +338,23 @@ describe(@"querying", ^{
 		expect(success).to.beFalsy();
 		expect(error).to.equal(testError);
 	});
+
+	it(@"shouldn't crash when returning an error from a background scheduler", ^{
+		id<RACSignal> signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[RACScheduler.scheduler schedule:^{
+				[subscriber sendError:[NSError errorWithDomain:@"foo" code:100 userInfo:nil]];
+			}];
+			return nil;
+		}];
+
+		expect(signal).notTo.beNil();
+
+		__block BOOL success = NO;
+		__block NSError *error = nil;
+		expect([signal firstOrDefault:@5 success:&success error:&error]).to.equal(@5);
+		expect(success).to.beFalsy();
+		expect(error).to.equal([NSError errorWithDomain:@"foo" code:100 userInfo:nil]);
+	});
 });
 
 describe(@"continuation", ^{

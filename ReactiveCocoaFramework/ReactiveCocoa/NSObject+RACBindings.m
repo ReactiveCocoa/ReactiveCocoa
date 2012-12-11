@@ -21,11 +21,10 @@ static void *RACBindingsAsOtherObjectKey = &RACBindingsAsOtherObjectKey;
 static NSString * const RACBindingExceptionName = @"RACBinding exception";
 static NSString * const RACBindingExceptionBindingKey = @"RACBindingExceptionBindingKey";
 
-@interface RACBinding : NSObject
+@interface RACBinding : RACDisposable
 
-+ (instancetype)bindingWithReceiver:(id)receiver receiverKeyPath:(NSString *)receiverKeyPath receiverTransformer:(id(^)(id))receiverTransformer receiverScheduler:(RACScheduler *)receiverScheduler otherObject:(id)otherObject otherKeyPath:(NSString *)otherKeyPath otherTransformer:(id(^)(id))otherTransformer otherScheduler:(RACScheduler *)otherScheduler;
++ (instancetype)bindingWithReceiver:(id)receiver receiverKeyPath:(NSString *)receiverKeyPath receiverTransformer:(id(^)(id))receiverTransformer receiverScheduler:(RACScheduler *)receiverScheduler otherObject:(id)otherObject otherKeyPath:(NSString *)otherKeyPath otherTransformer:(id(^)(id))otherTransformer otherScheduler:(RACScheduler *)otherScheduler parentBinding:(RACBinding *)parentBinding;
 
-- (void)dispose;
 - (void)receiverWillChangeValue;
 - (void)receiverDidChangeValue;
 - (void)otherObjectWillChangeValue;
@@ -65,24 +64,29 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 @interface RACBinding ()
 
 @property (nonatomic, readonly, weak) id receiver;
-@property (nonatomic, readonly, copy) NSString *receiverKeyPath;
+@property (nonatomic, readonly, copy) NSString *receiverKey;
+@property (nonatomic, readonly, copy) NSString *receiverKeyPathRemainder;
 @property (nonatomic, readonly, copy) id (^receiverTransformer)(id);
 @property (nonatomic, readonly, strong) RACScheduler *receiverScheduler;
 @property (nonatomic, readonly, weak) id otherObject;
-@property (nonatomic, readonly, copy) NSString *otherKeyPath;
+@property (nonatomic, readonly, copy) NSString *otherKey;
+@property (nonatomic, readonly, copy) NSString *otherKeyPathRemainder;
 @property (nonatomic, readonly, copy) id (^otherTransformer)(id);
 @property (nonatomic, readonly, strong) RACScheduler *otherScheduler;
+@property (nonatomic, readonly, weak) RACBinding *parentBinding;
+@property (nonatomic, strong) RACBinding *receiverChildBinding;
 @property (nonatomic, strong) id receiverObserver;
 @property (nonatomic) NSUInteger receiverStackDepth;
 @property (nonatomic) BOOL ignoreNextReceiverUpdate;
 @property (nonatomic) NSUInteger receiverVersion;
+@property (nonatomic, strong) RACBinding *otherChildBinding;
 @property (nonatomic, strong) id otherObserver;
 @property (nonatomic) NSUInteger otherStackDepth;
 @property (nonatomic) BOOL ignoreNextOtherUpdate;
 @property (nonatomic) NSUInteger otherVersion;
 @property (nonatomic) BOOL disposed;
 
-- (instancetype)initWithReceiver:(id)receiver receiverKeyPath:(NSString *)receiverKeyPath receiverTransformer:(id(^)(id))receiverTransformer receiverScheduler:(RACScheduler *)receiverScheduler otherObject:(id)otherObject otherKeyPath:(NSString *)otherKeyPath otherTransformer:(id(^)(id))otherTransformer otherScheduler:(RACScheduler *)otherScheduler;
+- (instancetype)initWithReceiver:(id)receiver receiverKeyPath:(NSString *)receiverKeyPath receiverTransformer:(id(^)(id))receiverTransformer receiverScheduler:(RACScheduler *)receiverScheduler otherObject:(id)otherObject otherKeyPath:(NSString *)otherKeyPath otherTransformer:(id(^)(id))otherTransformer otherScheduler:(RACScheduler *)otherScheduler parentBinding:(RACBinding *)parentBinding;
 
 @end
 
@@ -90,44 +94,59 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 	volatile NSUInteger _currentVersion;
 }
 
-- (instancetype)initWithReceiver:(id)receiver receiverKeyPath:(NSString *)receiverKeyPath receiverTransformer:(id (^)(id))receiverTransformer receiverScheduler:(RACScheduler *)receiverScheduler otherObject:(id)otherObject otherKeyPath:(NSString *)otherKeyPath otherTransformer:(id (^)(id))otherTransformer otherScheduler:(RACScheduler *)otherScheduler {
+- (instancetype)initWithReceiver:(id)receiver receiverKeyPath:(NSString *)receiverKeyPath receiverTransformer:(id (^)(id))receiverTransformer receiverScheduler:(RACScheduler *)receiverScheduler otherObject:(id)otherObject otherKeyPath:(NSString *)otherKeyPath otherTransformer:(id (^)(id))otherTransformer otherScheduler:(RACScheduler *)otherScheduler parentBinding:(RACBinding *)parentBinding {
 	self = [super init];
 	if (self == nil) return nil;
 	_receiver = receiver;
-	_receiverKeyPath = [receiverKeyPath copy];
 	_receiverTransformer = [receiverTransformer copy];
 	_receiverScheduler = receiverScheduler ?: [RACScheduler immediateScheduler];
 	_receiverVersion = NSUIntegerMax;
 	_otherObject = otherObject;
-	_otherKeyPath = [otherKeyPath copy];
 	_otherTransformer = [otherTransformer copy];
 	_otherScheduler = otherScheduler ?: [RACScheduler immediateScheduler];
 	_otherVersion = NSUIntegerMax;
 	
-	_receiverObserver = [_receiver rac_addObserver:self forKeyPath:_receiverKeyPath options:NSKeyValueObservingOptionPrior queue:nil block:nil];
-	_otherObserver = [_otherObject rac_addObserver:self forKeyPath:_otherKeyPath options:NSKeyValueObservingOptionPrior queue:nil block:nil];
+	NSRange receiverFirstDot = [receiverKeyPath rangeOfString:@"."];
+	if (receiverFirstDot.location == NSNotFound) {
+		_receiverKey = [receiverKeyPath copy];
+	} else {
+		_receiverKey = [receiverKeyPath substringToIndex:receiverFirstDot.location];
+		_receiverKeyPathRemainder = [receiverKeyPath substringFromIndex:NSMaxRange(receiverFirstDot)];
+	}
+	NSRange otherFirstDot = [otherKeyPath rangeOfString:@"."];
+	if (otherFirstDot.location == NSNotFound) {
+		_otherKey = [otherKeyPath copy];
+	} else {
+		_otherKey = [otherKeyPath substringToIndex:otherFirstDot.location];
+		_otherKeyPathRemainder = [otherKeyPath substringFromIndex:NSMaxRange(otherFirstDot)];
+	}
 
 	[_otherScheduler schedule:^{
-		id value = [self.otherObject valueForKeyPath:self.otherKeyPath];
+		id value = [self.otherObject valueForKeyPath:self.otherKey];
 		if (self.otherTransformer) value = self.otherTransformer(value);
 		[self.receiverScheduler schedule:^{
 			@synchronized(self) {
 				if (self.disposed) return;
-				[self.receiver setValue:value forKeyPath:self.receiverKeyPath];
+				[self.receiver setValue:value forKeyPath:self.receiverKey];
 				[self.receiver rac_addAsReceiverForBinding:self];
+				self.receiverObserver = [self.receiver rac_addObserver:self forKeyPath:self.receiverKey options:NSKeyValueObservingOptionPrior queue:nil block:nil];
 			}
 		}];
 		@synchronized(self) {
 			if (self.disposed) return;
 			[self.otherObject rac_addAsOtherObjectForBinding:self];
+			self.otherObserver = [self.otherObject rac_addObserver:self forKeyPath:self.otherKey options:NSKeyValueObservingOptionPrior queue:nil block:nil];
 		}
 	}];
+	
+	[_receiver rac_addDeallocDisposable:self];
+	[_otherObject rac_addDeallocDisposable:self];
 
 	return self;
 }
 
-+ (instancetype)bindingWithReceiver:(id)receiver receiverKeyPath:(NSString *)receiverKeyPath receiverTransformer:(id (^)(id))receiverTransformer receiverScheduler:(RACScheduler *)receiverScheduler otherObject:(id)otherObject otherKeyPath:(NSString *)otherKeyPath otherTransformer:(id (^)(id))otherTransformer otherScheduler:(RACScheduler *)otherScheduler {
-	return [[self alloc] initWithReceiver:receiver receiverKeyPath:receiverKeyPath receiverTransformer:receiverTransformer receiverScheduler:receiverScheduler otherObject:otherObject otherKeyPath:otherKeyPath otherTransformer:otherTransformer otherScheduler:otherScheduler];
++ (instancetype)bindingWithReceiver:(id)receiver receiverKeyPath:(NSString *)receiverKeyPath receiverTransformer:(id (^)(id))receiverTransformer receiverScheduler:(RACScheduler *)receiverScheduler otherObject:(id)otherObject otherKeyPath:(NSString *)otherKeyPath otherTransformer:(id (^)(id))otherTransformer otherScheduler:(RACScheduler *)otherScheduler parentBinding:(RACBinding *)parentBinding {
+	return [[self alloc] initWithReceiver:receiver receiverKeyPath:receiverKeyPath receiverTransformer:receiverTransformer receiverScheduler:receiverScheduler otherObject:otherObject otherKeyPath:otherKeyPath otherTransformer:otherTransformer otherScheduler:otherScheduler parentBinding:parentBinding];
 }
 
 - (void)dispose {
@@ -137,6 +156,8 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 		[self.otherObject rac_removeObserverWithIdentifier:self.otherObserver];
 		[self.receiver rac_removeAsReceiverForBinding:self];
 		[self.otherObject rac_removeAsOtherObjectForBinding:self];
+		[self.receiverChildBinding dispose];
+		[self.otherChildBinding dispose];
 	}
 }
 
@@ -154,7 +175,7 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 	}
 	NSUInteger currentVersion = __sync_fetch_and_add(&_currentVersion, 1);
 	self.receiverVersion = currentVersion;
-	id value = [self.receiver valueForKeyPath:self.receiverKeyPath];
+	id value = [self.receiver valueForKeyPath:self.receiverKey];
 	if (self.receiverTransformer) value = self.receiverTransformer(value);
 	[self.otherScheduler schedule:^{
 		if (self.otherVersion - currentVersion < NSUIntegerMax / 2) return;
@@ -162,7 +183,7 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 		@synchronized(self) {
 			if (self.disposed) return;
 			self.otherVersion = currentVersion;
-			[self.otherObject setValue:value forKeyPath:self.otherKeyPath];
+			[self.otherObject setValue:value forKeyPath:self.otherKey];
 		}
 	}];
 }
@@ -181,7 +202,7 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 	}
 	NSUInteger currentVersion = __sync_fetch_and_add(&_currentVersion, 1);
 	self.otherVersion = currentVersion;
-	id value = [self.otherObject valueForKeyPath:self.otherKeyPath];
+	id value = [self.otherObject valueForKeyPath:self.otherKey];
 	if (self.otherTransformer) value = self.otherTransformer(value);
 	[self.receiverScheduler schedule:^{
 		if (self.receiverVersion - currentVersion < NSUIntegerMax / 2) return;
@@ -189,7 +210,7 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 		@synchronized(self) {
 			if (self.disposed) return;
 			self.receiverVersion = currentVersion;
-			[self.receiver setValue:value forKeyPath:self.receiverKeyPath];
+			[self.receiver setValue:value forKeyPath:self.receiverKey];
 		}
 	}];
 }
@@ -250,12 +271,12 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 		bindingsAsOtherObject = [self.RACBindingsAsOtherObject copy];
 	}
 	for (RACBinding *binding in bindingsAsReceiver) {
-    if (binding.receiver == self && [binding.receiverKeyPath isEqualToString:key]) {
+    if (binding.receiver == self && [binding.receiverKey isEqualToString:key]) {
 			[binding receiverWillChangeValue];
 		}
 	}
 	for (RACBinding *binding in bindingsAsOtherObject) {
-    if (binding.otherObject == self && [binding.otherKeyPath isEqualToString:key]) {
+    if (binding.otherObject == self && [binding.otherKey isEqualToString:key]) {
 			[binding otherObjectWillChangeValue];
 		}
 	}
@@ -270,12 +291,12 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 		bindingsAsOtherObject = [self.RACBindingsAsOtherObject copy];
 	}
 	for (RACBinding *binding in bindingsAsReceiver) {
-    if (binding.receiver == self && [binding.receiverKeyPath isEqualToString:key]) {
+    if (binding.receiver == self && [binding.receiverKey isEqualToString:key]) {
 			[binding receiverDidChangeValue];
 		}
 	}
 	for (RACBinding *binding in bindingsAsOtherObject) {
-    if (binding.otherObject == self && [binding.otherKeyPath isEqualToString:key]) {
+    if (binding.otherObject == self && [binding.otherKey isEqualToString:key]) {
 			[binding otherObjectDidChangeValue];
 		}
 	}
@@ -287,13 +308,7 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 @implementation NSObject (RACBindings)
 
 - (RACDisposable *)rac_bind:(NSString *)receiverKeyPath transformer:(id (^)(id))receiverTransformer onScheduler:(RACScheduler *)receiverScheduler toObject:(id)otherObject withKeyPath:(NSString *)otherKeyPath transformer:(id (^)(id))otherTransformer onScheduler:(RACScheduler *)otherScheduler {
-	RACBinding *binding = [RACBinding bindingWithReceiver:self receiverKeyPath:receiverKeyPath receiverTransformer:receiverTransformer receiverScheduler:receiverScheduler otherObject:otherObject otherKeyPath:otherKeyPath otherTransformer:otherTransformer otherScheduler:otherScheduler];
-	RACDisposable *disposable = [RACDisposable disposableWithBlock:^{
-			[binding dispose];
-	}];
-	[self rac_addDeallocDisposable:disposable];
-	[otherObject rac_addDeallocDisposable:disposable];
-	return disposable;
+	return [RACBinding bindingWithReceiver:self receiverKeyPath:receiverKeyPath receiverTransformer:receiverTransformer receiverScheduler:receiverScheduler otherObject:otherObject otherKeyPath:otherKeyPath otherTransformer:otherTransformer otherScheduler:otherScheduler parentBinding:nil];
 }
 
 @end

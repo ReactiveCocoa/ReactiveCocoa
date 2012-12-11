@@ -255,6 +255,21 @@ describe(@"RACReplaySubject", ^{
 
 			expect(values).will.equal(@[ @0 ]);
 		});
+
+		it(@"should finish replaying before sending anything else", ^{
+			[subject sendNext:@1];
+
+			__block id received;
+			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+				[subject subscribeNext:^(id x) {
+					received = x;
+				}];
+
+				[subject sendCompleted];
+			});
+
+			expect(received).will.equal(@1);
+		});
 	});
 });
 

@@ -147,12 +147,14 @@ describe(@"-rac_bind:signalBlock:toObject:withKeyPath:signalBlock:", ^{
 		a.relatedObject.name = testName1;
 		expect(a.relatedObject.name).to.equal(testName1);
 		expect(b.relatedObject.name).to.equal(testName1);
+		expect(a.relatedObject != b.relatedObject).to.beTruthy();
 		b.relatedObject = nil;
 		expect(a.relatedObject.name).to.beNil();
 		c.name = testName2;
 		b.relatedObject = c;
 		expect(a.relatedObject.name).to.equal(testName2);
 		expect(b.relatedObject.name).to.equal(testName2);
+		expect(a.relatedObject != b.relatedObject).to.beTruthy();
 	});
 	
 	it(@"should take the master's value at the start", ^{

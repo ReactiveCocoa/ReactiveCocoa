@@ -340,9 +340,11 @@ describe(@"querying", ^{
 	});
 
 	it(@"shouldn't crash when returning an error from a background scheduler", ^{
+		static NSString * const errorDomain = @"foo";
+		static const NSInteger errorCode = 100;
 		id<RACSignal> signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 			[RACScheduler.scheduler schedule:^{
-				[subscriber sendError:[NSError errorWithDomain:@"foo" code:100 userInfo:nil]];
+				[subscriber sendError:[NSError errorWithDomain:errorDomain code:errorCode userInfo:nil]];
 			}];
 			return nil;
 		}];
@@ -353,7 +355,8 @@ describe(@"querying", ^{
 		__block NSError *error = nil;
 		expect([signal firstOrDefault:@5 success:&success error:&error]).to.equal(@5);
 		expect(success).to.beFalsy();
-		expect(error).to.equal([NSError errorWithDomain:@"foo" code:100 userInfo:nil]);
+		expect(error.domain).to.equal(errorDomain);
+		expect(error.code).to.equal(errorCode);
 	});
 });
 

@@ -89,7 +89,7 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
 
 #pragma mark RACSubscriber
 
-- (void)sendNext:(id)value {	
+- (void)sendNext:(id)value {
 	@synchronized (self) {
 		[self.valuesReceived addObject:value ?: RACTupleNil.tupleNil];
 		[super sendNext:value];
@@ -100,14 +100,14 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
 	}
 }
 
-- (void)sendCompleted {	
+- (void)sendCompleted {
 	@synchronized (self) {
 		self.hasCompleted = YES;
 		[super sendCompleted];
 	}
 }
 
-- (void)sendError:(NSError *)e {	
+- (void)sendError:(NSError *)e {
 	@synchronized (self) {
 		self.hasError = YES;
 		self.error = e;

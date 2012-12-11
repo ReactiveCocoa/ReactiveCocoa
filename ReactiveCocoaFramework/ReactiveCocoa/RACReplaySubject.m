@@ -11,6 +11,7 @@
 #import "RACScheduler+Private.h"
 #import "RACSubscriber.h"
 #import "RACTuple.h"
+#import "RACCompoundDisposable.h"
 #import <libkern/OSAtomic.h>
 
 const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
@@ -24,9 +25,6 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
 @property (nonatomic, assign) BOOL hasCompleted;
 @property (nonatomic, assign) BOOL hasError;
 @property (nonatomic, strong) NSError *error;
-
-// This lock should be acquired whenever sending to subscribers.
-@property (nonatomic, strong) NSLock *sendLock;
 
 @end
 
@@ -49,7 +47,6 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
 	
 	_capacity = capacity;
 	_valuesReceived = [NSMutableArray arrayWithCapacity:capacity];
-	_sendLock = [[NSLock alloc] init];
 	
 	return self;
 }
@@ -57,20 +54,13 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
 #pragma mark RACSignal
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	RACDisposable *subscriptionDisposable = nil;
-
-	@synchronized (self) {
-		if (!self.hasCompleted && !self.hasError) {
-			subscriptionDisposable = [super subscribe:subscriber];
-		}
-	}
-
 	__block volatile uint32_t disposed = 0;
 
-	// The lock needs to be acquired before we schedule the catch-up sends so
-	// that the subject can't complete or error until we've caught everyone up.
-	[self.sendLock lock];
-
+	RACDisposable *stopDisposable = [RACDisposable disposableWithBlock:^{
+		OSAtomicOr32Barrier(1, &disposed);
+	}];
+	
+	__block RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposableWithDisposables:@[ stopDisposable ]];
 	RACDisposable *schedulingDisposable = [RACScheduler.subscriptionScheduler schedule:^{
 		@synchronized (self) {
 			for (id value in self.valuesReceived) {
@@ -85,24 +75,21 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
 				[subscriber sendCompleted];
 			} else if (self.hasError) {
 				[subscriber sendError:self.error];
+			} else {
+				RACDisposable *subscriptionDisposable = [super subscribe:subscriber];
+				[compoundDisposable addDisposable:subscriptionDisposable];
 			}
 		}
-
-		[self.sendLock unlock];
 	}];
 
-	return [RACDisposable disposableWithBlock:^{
-		[subscriptionDisposable dispose];
-		[schedulingDisposable dispose];
-		OSAtomicOr32Barrier(1, &disposed);
-	}];
+	if (schedulingDisposable != nil) [compoundDisposable addDisposable:schedulingDisposable];
+
+	return compoundDisposable;
 }
 
 #pragma mark RACSubscriber
 
-- (void)sendNext:(id)value {
-	[self.sendLock lock];
-	
+- (void)sendNext:(id)value {	
 	@synchronized (self) {
 		[self.valuesReceived addObject:value ?: RACTupleNil.tupleNil];
 		[super sendNext:value];
@@ -111,31 +98,21 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
 			[self.valuesReceived removeObjectsInRange:NSMakeRange(0, self.valuesReceived.count - self.capacity)];
 		}
 	}
-	
-	[self.sendLock unlock];
 }
 
-- (void)sendCompleted {
-	[self.sendLock lock];
-	
+- (void)sendCompleted {	
 	@synchronized (self) {
 		self.hasCompleted = YES;
 		[super sendCompleted];
 	}
-	
-	[self.sendLock unlock];
 }
 
-- (void)sendError:(NSError *)e {
-	[self.sendLock lock];
-	
+- (void)sendError:(NSError *)e {	
 	@synchronized (self) {
 		self.hasError = YES;
 		self.error = e;
 		[super sendError:e];
 	}
-	
-	[self.sendLock unlock];
 }
 
 @end

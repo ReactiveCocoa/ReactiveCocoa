@@ -343,7 +343,7 @@ describe(@"querying", ^{
 		static NSString * const errorDomain = @"foo";
 		static const NSInteger errorCode = 100;
 		id<RACSignal> signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
-			[RACScheduler.scheduler schedule:^{
+			[[RACScheduler scheduler] schedule:^{
 				[subscriber sendError:[NSError errorWithDomain:errorDomain code:errorCode userInfo:nil]];
 			}];
 			return nil;

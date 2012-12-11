@@ -60,7 +60,7 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
 		OSAtomicOr32Barrier(1, &disposed);
 	}];
 	
-	__block RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposableWithDisposables:@[ stopDisposable ]];
+	RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposableWithDisposables:@[ stopDisposable ]];
 	RACDisposable *schedulingDisposable = [RACScheduler.subscriptionScheduler schedule:^{
 		@synchronized (self) {
 			for (id value in self.valuesReceived) {

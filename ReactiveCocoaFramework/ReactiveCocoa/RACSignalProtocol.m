@@ -828,6 +828,7 @@ static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), 
 	// Protects against setting 'value' multiple times (e.g. to the second value
 	// instead of the first).
 	__block BOOL done = NO;
+	__block NSError *localError;
 
 	__block RACDisposable *disposable = [self subscribeNext:^(id x) {
 		[condition lock];
@@ -846,7 +847,7 @@ static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), 
 		[condition lock];
 
 		if(success != NULL) *success = NO;
-		if(error != NULL) *error = e;
+		localError = e;
 
 		done = YES;
 		[condition broadcast];
@@ -865,6 +866,8 @@ static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), 
 	while (!done) {
 		[condition wait];
 	}
+
+	if (error != NULL) *error = localError;
 
 	[condition unlock];
 	return value;

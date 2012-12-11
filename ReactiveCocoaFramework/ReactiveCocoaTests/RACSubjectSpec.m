@@ -256,7 +256,7 @@ describe(@"RACReplaySubject", ^{
 			expect(values).will.equal(@[ @0 ]);
 		});
 
-		it(@"should finish replaying before sending anything else", ^{
+		it(@"should finish replaying before completing", ^{
 			[subject sendNext:@1];
 
 			__block id received;
@@ -269,6 +269,37 @@ describe(@"RACReplaySubject", ^{
 			});
 
 			expect(received).will.equal(@1);
+		});
+
+		it(@"should finish replaying before erroring", ^{
+			[subject sendNext:@1];
+
+			__block id received;
+			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+				[subject subscribeNext:^(id x) {
+					received = x;
+				}];
+
+				[subject sendError:[NSError errorWithDomain:@"blah" code:-99 userInfo:nil]];
+			});
+
+			expect(received).will.equal(@1);
+		});
+
+		it(@"should finish replaying before sending new values", ^{
+			[subject sendNext:@1];
+
+			NSMutableArray *received = [NSMutableArray array];
+			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+				[subject subscribeNext:^(id x) {
+					[received addObject:x];
+				}];
+
+				[subject sendNext:@2];
+			});
+
+			NSArray *expected = @[ @1, @2 ];
+			expect(received).will.equal(expected);
 		});
 	});
 });

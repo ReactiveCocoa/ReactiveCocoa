@@ -13,44 +13,31 @@ SpecBegin(RACTuple)
 
 describe(@"RACTupleUnpack", ^{
 	it(@"should unpack a single value", ^{
-		RACUnit *value;
-
-		RACTupleUnpack(value) = [RACTuple tupleWithObjects:RACUnit.defaultUnit, nil];
+		RACTupleUnpack(RACUnit *value) = [RACTuple tupleWithObjects:RACUnit.defaultUnit, nil];
 		expect(value).to.equal(RACUnit.defaultUnit);
 	});
 
 	it(@"should translate RACTupleNil", ^{
-		id value;
-
-		RACTupleUnpack(value) = [RACTuple tupleWithObjects:RACTupleNil.tupleNil, nil];
+		RACTupleUnpack(id value) = [RACTuple tupleWithObjects:RACTupleNil.tupleNil, nil];
 		expect(value).to.beNil();
 	});
 
 	it(@"should unpack multiple values", ^{
-		NSString *str;
-		NSNumber *num;
-
-		RACTupleUnpack(str, num) = [RACTuple tupleWithObjects:@"foobar", @5, nil];
+		RACTupleUnpack(NSString *str, NSNumber *num) = [RACTuple tupleWithObjects:@"foobar", @5, nil];
 
 		expect(str).to.equal(@"foobar");
 		expect(num).to.equal(@5);
 	});
 
 	it(@"should fill in missing values with nil", ^{
-		NSString *str;
-		NSNumber *num;
-
-		RACTupleUnpack(str, num) = [RACTuple tupleWithObjects:@"foobar", nil];
+		RACTupleUnpack(NSString *str, NSNumber *num) = [RACTuple tupleWithObjects:@"foobar", nil];
 
 		expect(str).to.equal(@"foobar");
 		expect(num).to.beNil();
 	});
 
 	it(@"should skip any values not assigned to", ^{
-		NSString *str;
-		NSNumber *num;
-
-		RACTupleUnpack(str, num) = [RACTuple tupleWithObjects:@"foobar", @5, RACUnit.defaultUnit, nil];
+		RACTupleUnpack(NSString *str, NSNumber *num) = [RACTuple tupleWithObjects:@"foobar", @5, RACUnit.defaultUnit, nil];
 
 		expect(str).to.equal(@"foobar");
 		expect(num).to.equal(@5);

@@ -11,10 +11,39 @@
 
 // Unpacks a tuple into variables.
 #define RACTupleUnpack(...) \
-    [RACTupleUnpackingTrampoline trampoline][ @[ metamacro_foreach(RACTupleUnpack_iter,, __VA_ARGS__) ] ]
+    metamacro_foreach(RACTupleUnpack_decl,, __VA_ARGS__) \
+    \
+    int RACTupleUnpack_state = 0; \
+    goto RACTupleUnpack_loop; \
+    \
+    RACTupleUnpack_after: \
+        ; \
+        metamacro_foreach(RACTupleUnpack_assign,, __VA_ARGS__) \
+        RACTupleUnpack_state = 2; \
+    \
+    RACTupleUnpack_loop: \
+        while (RACTupleUnpack_state != 2) \
+            if (RACTupleUnpack_state == 1) { \
+                goto RACTupleUnpack_after; \
+            } else \
+                for (; RACTupleUnpack_state != 1; RACTupleUnpack_state = 1) \
+                    [RACTupleUnpackingTrampoline trampoline][ @[ metamacro_foreach(RACTupleUnpack_value,, __VA_ARGS__) ] ]
 
-#define RACTupleUnpack_iter(INDEX, ARG) \
-    [NSValue valueWithPointer:&ARG],
+#define RACTupleUnpack_state metamacro_concat(RACTupleUnpack_state, __LINE__)
+#define RACTupleUnpack_after metamacro_concat(RACTupleUnpack_after, __LINE__)
+#define RACTupleUnpack_loop metamacro_concat(RACTupleUnpack_loop, __LINE__)
+
+#define RACTupleUnpack_decl_name(INDEX) \
+    metamacro_concat(metamacro_concat(RACTupleUnpack, __LINE__), metamacro_concat(_var, INDEX))
+
+#define RACTupleUnpack_decl(INDEX, ARG) \
+    __unsafe_unretained id RACTupleUnpack_decl_name(INDEX);
+
+#define RACTupleUnpack_assign(INDEX, ARG) \
+    __autoreleasing ARG = RACTupleUnpack_decl_name(INDEX);
+
+#define RACTupleUnpack_value(INDEX, ARG) \
+    [NSValue valueWithPointer:&RACTupleUnpack_decl_name(INDEX)],
 
 // A sentinel object that represents nils in the tuple.
 //

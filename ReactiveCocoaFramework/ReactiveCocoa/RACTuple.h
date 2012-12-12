@@ -7,7 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "metamacros.h"
 
+// Unpacks a tuple into variables.
+#define RACTupleUnpack(...) \
+    [RACTupleUnpackingTrampoline trampoline][ @[ metamacro_foreach(RACTupleUnpack_iter,, __VA_ARGS__) ] ]
+
+#define RACTupleUnpack_iter(INDEX, ARG) \
+    [NSValue valueWithPointer:&ARG],
 
 // A sentinel object that represents nils in the tuple.
 //
@@ -60,3 +67,10 @@
 - (id)objectAtIndexedSubscript:(NSUInteger)idx; 
 @end
 
+
+@interface RACTupleUnpackingTrampoline : NSObject
+
++ (instancetype)trampoline;
+- (void)setObject:(RACTuple *)tuple forKeyedSubscript:(NSArray *)variables;
+
+@end

@@ -25,7 +25,7 @@
 // a RACDisposable is returned from `didSubscribe`. In the case of infinite
 // signals, this won't _ever_ happen if events are sent immediately.
 //
-// To ensure that the signal is disposable, events can scheduled on the
+// To ensure that the signal is disposable, events can be scheduled on the
 // +[RACScheduler currentScheduler] (so that they're deferred, not sent
 // immediately), or they can be sent in the background. The RACDisposable
 // returned by the `didSubscribe` block should cancel any such scheduling or

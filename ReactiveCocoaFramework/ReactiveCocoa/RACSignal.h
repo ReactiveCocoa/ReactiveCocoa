@@ -20,23 +20,26 @@
 // Creates a new signal. This is the preferred way to create a new signal
 // operation or behavior.
 //
-// For an asynchronous operation (where events are sent to subscribers in
-// a deferred or concurrent manner), `didSubscribe` should return
-// a RACDisposable that cancels the operation and cleans up any resources or
-// disposables that were created as part of it. When the disposable is disposed
-// of, the signal must not send any more events to the subscriber.
+// Events can be sent to new subscribers immediately in the `didSubscribe`
+// block, but the subscriber will not be able to dispose of the signal until
+// a RACDisposable is returned from `didSubscribe`. In the case of infinite
+// signals, this won't _ever_ happen if events are sent immediately.
 //
-// For a synchronous operation (where events are sent to subscribers immediately
-// and then the signal ends), `didSubscribe` should return nil, because there's
-// no way to return a RACDisposable before the signal ends. Note that
-// subscribers will not be able to dispose of the signal in such a case, so this
-// should not be used for infinite signals, or signals that need to be
-// cancelable.
+// To ensure that the signal is disposable, events can scheduled on the
+// +[RACScheduler currentScheduler] (so that they're deferred, not sent
+// immediately), or they can be sent in the background. The RACDisposable
+// returned by the `didSubscribe` block should cancel any such scheduling or
+// asynchronous work.
 //
 // didSubscribe - Called when the signal is subscribed to. The new subscriber is
 //                passed in. You can then manually control the <RACSubscriber> by
 //                sending it -sendNext:, -sendError:, and -sendCompleted,
-//                as defined by the operation you're implementing.
+//                as defined by the operation you're implementing. This block
+//                should return a RACDisposable which cancels any ongoing work
+//                triggered by the subscription, and cleans up any resources or
+//                disposables created as part of it. When the disposable is
+//                disposed of, the signal must not send any more events to the
+//                `subscriber`. If no cleanup is necessary, return nil.
 //
 // **Note:** The `didSubscribe` block is called every time a new subscriber
 // subscribes. Any side effects within the block will thus execute once for each

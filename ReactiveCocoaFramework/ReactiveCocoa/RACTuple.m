@@ -196,3 +196,29 @@
 }
 
 @end
+
+
+@implementation RACTupleUnpackingTrampoline
+
+#pragma mark Lifecycle
+
++ (instancetype)trampoline {
+	static dispatch_once_t onceToken;
+	static id trampoline = nil;
+	dispatch_once(&onceToken, ^{
+		trampoline = [[self alloc] init];
+	});
+
+	return trampoline;
+}
+
+- (void)setObject:(RACTuple *)tuple forKeyedSubscript:(NSArray *)variables {
+	NSParameterAssert(variables != nil);
+
+	[variables enumerateObjectsUsingBlock:^(NSValue *value, NSUInteger index, BOOL *stop) {
+		__unsafe_unretained id *ptr = (__unsafe_unretained id *)value.pointerValue;
+		*ptr = tuple[index];
+	}];
+}
+
+@end

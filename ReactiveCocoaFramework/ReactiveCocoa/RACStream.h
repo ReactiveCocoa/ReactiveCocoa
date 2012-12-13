@@ -30,12 +30,12 @@ typedef id (^RACStreamBindBlock)(id value, BOOL *stop);
 @required
 
 // Returns an empty stream.
-+ (instancetype)empty;
++ (id)empty;
 
 // Lifts `value` into the stream monad.
 //
 // Returns a stream containing only the given value.
-+ (instancetype)return:(id)value;
++ (id)return:(id)value;
 
 // Lazily binds a block to the values in the receiver.
 //
@@ -74,7 +74,7 @@ typedef id (^RACStreamBindBlock)(id value, BOOL *stop);
 // Returns a new stream containing the return values of `reduceBlock` applied to
 // the values contained in the input streams, or if `reduceBlock` is nil, tuples
 // of the same values
-+ (instancetype)zip:(NSArray *)streams reduce:(id)reduceBlock;
++ (id)zip:(NSArray *)streams reduce:(id)reduceBlock;
 
 @concrete
 
@@ -103,6 +103,17 @@ typedef id (^RACStreamBindBlock)(id value, BOOL *stop);
 // Returns a new stream which includes the given object once for each value in
 // the receiver.
 - (instancetype)mapReplace:(id)object;
+
+// Maps the combination of the previous and current objects to one object.
+//
+// start        - The value passed into `combineBlock` as `previous` for the
+//                first value.
+// combineBlock - The block that combines the previous value and the current
+//                value to create the combined value. Cannot be nil.
+//
+// Returns a new stream consisting of the return values from each application of
+// `combineBlock`.
+- (instancetype)mapPreviousWithStart:(id)start combine:(id (^)(id previous, id current))combineBlock;
 
 // Filters out values in the receiver that don't pass the given test.
 //

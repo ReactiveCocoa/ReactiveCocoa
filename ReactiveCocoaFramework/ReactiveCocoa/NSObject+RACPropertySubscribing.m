@@ -16,7 +16,7 @@ static const void *RACObjectDisposables = &RACObjectDisposables;
 
 @implementation NSObject (RACPropertySubscribing)
 
-+ (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath onObject:(NSObject *)onObject {
++ (id<RACSignal>)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath onObject:(NSObject *)onObject {
 	RACReplaySubject *subject = [RACReplaySubject replaySubjectWithCapacity:1];
 	[onObject rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 		[subject sendCompleted];
@@ -31,11 +31,11 @@ static const void *RACObjectDisposables = &RACObjectDisposables;
 	return subject;
 }
 
-- (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath onObject:(NSObject *)object {
+- (id<RACSignal>)rac_signalForKeyPath:(NSString *)keyPath onObject:(NSObject *)object {
 	return [self.class rac_signalFor:self keyPath:keyPath onObject:object];
 }
 
-- (RACDisposable *)rac_deriveProperty:(NSString *)keyPath from:(RACSignal *)signal {
+- (RACDisposable *)rac_deriveProperty:(NSString *)keyPath from:(id<RACSignal>)signal {
 	return [signal toProperty:keyPath onObject:self];
 }
 

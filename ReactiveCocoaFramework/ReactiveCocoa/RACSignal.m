@@ -7,6 +7,7 @@
 //
 
 #import "RACSignal.h"
+#import "EXTScope.h"
 #import "NSObject+RACExtensions.h"
 #import "RACBehaviorSubject.h"
 #import "RACDisposable.h"
@@ -61,14 +62,14 @@ static NSMutableSet *activeSignals() {
 
 #pragma mark RACStream
 
-+ (instancetype)empty {
++ (id<RACSignal>)empty {
 	return [self createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		[subscriber sendCompleted];
 		return nil;
 	}];
 }
 
-+ (instancetype)return:(id)value {
++ (id<RACSignal>)return:(id)value {
 	return [self createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		[subscriber sendNext:value];
 		[subscriber sendCompleted];
@@ -76,7 +77,7 @@ static NSMutableSet *activeSignals() {
 	}];
 }
 
-- (instancetype)bind:(RACStreamBindBlock (^)(void))block {
+- (id<RACSignal>)bind:(RACStreamBindBlock (^)(void))block {
 	NSParameterAssert(block != NULL);
 
 	/*
@@ -144,7 +145,7 @@ static NSMutableSet *activeSignals() {
 	}];
 }
 
-- (instancetype)map:(id (^)(id value))block {
+- (id<RACSignal>)map:(id (^)(id value))block {
 	NSParameterAssert(block != NULL);
 	
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
@@ -158,7 +159,7 @@ static NSMutableSet *activeSignals() {
 	}];
 }
 
-- (RACSignal *)concat:(id<RACSignal>)signal {
+- (id<RACSignal>)concat:(id<RACSignal>)signal {
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *concattedDisposable = nil;
 		RACDisposable *sourceDisposable = [self subscribeNext:^(id x) {
@@ -182,11 +183,11 @@ static NSMutableSet *activeSignals() {
 	}];
 }
 
-- (instancetype)flatten {
+- (id<RACSignal>)flatten {
 	return [self flatten:0];
 }
 
-+ (instancetype)zip:(NSArray *)signals reduce:(id)reduceBlock {
++ (id<RACSignal>)zip:(NSArray *)signals reduce:(id)reduceBlock {
 	if (signals.count == 0) return self.empty;
 	signals = [signals copy];
 	NSUInteger numSignals = signals.count;
@@ -282,23 +283,22 @@ static NSMutableSet *activeSignals() {
 		[self.subscribers addObject:subscriber];
 	}
 	
-	__weak id weakSelf = self;
-	__weak id weakSubscriber = subscriber;
+	@weakify(self, subscriber);
 	RACDisposable *defaultDisposable = [RACDisposable disposableWithBlock:^{
-		RACSignal *strongSelf = weakSelf;
-		id<RACSubscriber> strongSubscriber = weakSubscriber;
+		@strongify(self, subscriber);
+
 		// If the disposal is happening because the signal's being torn down, we
 		// don't need to duplicate the invalidation.
-		if(!strongSelf.tearingDown) {
-			BOOL stillHasSubscribers = YES;
-			@synchronized(strongSelf.subscribers) {
-				[strongSelf.subscribers removeObject:strongSubscriber];
-				stillHasSubscribers = strongSelf.subscribers.count > 0;
-			}
-			
-			if(!stillHasSubscribers) {
-				[strongSelf invalidateGlobalRefIfNoNewSubscribersShowUp];
-			}
+		if (self.tearingDown) return;
+
+		BOOL stillHasSubscribers = YES;
+		@synchronized (self.subscribers) {
+			[self.subscribers removeObject:subscriber];
+			stillHasSubscribers = self.subscribers.count > 0;
+		}
+		
+		if (!stillHasSubscribers) {
+			[self invalidateGlobalRefIfNoNewSubscribersShowUp];
 		}
 	}];
 
@@ -315,38 +315,32 @@ static NSMutableSet *activeSignals() {
 	return disposable;
 }
 
-
 #pragma mark API
 
-@synthesize didSubscribe;
-@synthesize subscribers;
-@synthesize tearingDown;
-@synthesize name;
-
-+ (instancetype)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
++ (id<RACSignal>)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
 	RACSignal *signal = [[RACSignal alloc] init];
 	signal.didSubscribe = didSubscribe;
 	return signal;
 }
 
-+ (instancetype)error:(NSError *)error {
++ (id<RACSignal>)error:(NSError *)error {
 	return [self createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		[subscriber sendError:error];
 		return nil;
 	}];
 }
 
-+ (instancetype)never {
++ (id<RACSignal>)never {
 	return [self createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		return nil;
 	}];
 }
 
-+ (RACSignal *)start:(id (^)(BOOL *success, NSError **error))block {
++ (id<RACSignal>)start:(id (^)(BOOL *success, NSError **error))block {
 	return [self startWithScheduler:[RACScheduler scheduler] block:block];
 }
 
-+ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block {
++ (id<RACSignal>)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block {
 	return [self startWithScheduler:scheduler subjectBlock:^(RACSubject *subject) {
 		BOOL success = YES;
 		NSError *error = nil;
@@ -361,7 +355,7 @@ static NSMutableSet *activeSignals() {
 	}];
 }
 
-+ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block {
++ (id<RACSignal>)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block {
 	NSParameterAssert(block != NULL);
 
 	RACReplaySubject *subject = [RACReplaySubject subject];

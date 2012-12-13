@@ -510,6 +510,35 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			verifyValues(taken, values);
 		});
 	});
+
+	describe(@"-mapPreviousWithStart:combine:", ^{
+		NSArray *values = @[ @1, @2, @3 ];
+		__block id<RACStream> stream;
+		beforeEach(^{
+			stream = streamWithValues(values);
+		});
+
+		it(@"should pass the previous next into the combine block", ^{
+			NSMutableArray *previouses = [NSMutableArray array];
+			id<RACStream> mapped = [stream mapPreviousWithStart:nil combine:^(id previous, id next) {
+				[previouses addObject:previous ?: RACTupleNil.tupleNil];
+				return next;
+			}];
+
+			verifyValues(mapped, @[ @1, @2, @3 ]);
+
+			NSArray *expected = @[ RACTupleNil.tupleNil, @1, @2 ];
+			expect(previouses).to.equal(expected);
+		});
+
+		it(@"should send the combined value", ^{
+			id<RACStream> mapped = [stream mapPreviousWithStart:@1 combine:^(NSNumber *previous, NSNumber *next) {
+				return [NSString stringWithFormat:@"%lu - %lu", (unsigned long)previous.unsignedIntegerValue, (unsigned long)next.unsignedIntegerValue];
+			}];
+
+			verifyValues(mapped, @[ @"1 - 1", @"1 - 2", @"2 - 3" ]);
+		});
+	});
 });
 
 SharedExampleGroupsEnd

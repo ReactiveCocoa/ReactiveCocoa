@@ -15,7 +15,7 @@ SpecBegin(RACConnectableSignal)
 describe(@"-autoconnect", ^{
 	__block BOOL disposed = NO;
 	__block NSUInteger numberOfSubscriptions = 0;
-	__block RACSignal *signal;
+	__block id<RACSignal> signal;
 
 	beforeEach(^{
 		disposed = NO;

@@ -13,6 +13,9 @@
 @property (nonatomic, strong) id objectValue;
 @property (nonatomic, assign) NSInteger integerValue;
 @property (nonatomic, assign) char *charPointerValue;
+@property (nonatomic, assign) CGRect rectValue;
+@property (nonatomic, assign) CGSize sizeValue;
+@property (nonatomic, assign) CGPoint pointValue;
 
 // Has -setObjectValue:andIntegerValue: been called?
 @property (nonatomic, assign) BOOL hasInvokedSetObjectValueAndIntegerValue;

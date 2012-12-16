@@ -10,9 +10,22 @@
 @class RACDisposable, RACTuple;
 @protocol RACSignal, RACSubscriber;
 
+// Convenience macro for creating RACBindingPoint instances and binding them.
+// 
+// If given just one argument, it's assumed to be a keypath or property on self.
+// If given two, the first argument is the object to which the keypath is
+// relative and the second is the keypath. If used as an rvalue returns the
+// binding point. If used as an lvalue creates a binding between the binding
+// point and the lvalue, which must be a binding point.
+//
+// Examples:
+// RACBindingPoint *point = RACBind(self.property);
+// RACBind(self.property) = RACBind(otherObject, property);
+// RACBind(self.property) = [RACBind(otherObject, property) bindingPointByTransformingSignals:mySignalTransformer];
+#define RACBind(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))(_RACBind(self, __VA_ARGS__))(_RACBind(__VA_ARGS__))
 
 // Represents the end-point of a two-way data binding.
-@interface RACBindingPoint : NSObject
+@interface RACBindingPoint : NSObject <NSCopying>
 
 // Returns a binding point for the given key path on the given target.
 + (instancetype)bindingPointFor:(id)target keyPath:(NSString *)keyPath;
@@ -38,7 +51,13 @@
 // dispose of it when either deallocates.
 //
 // Returns a disposable that may be used to dispose of the binding.
-- (RACDisposable *)bindingWithOtherPoint:(RACBindingPoint *)bindingPoint;
+- (RACDisposable *)bindWithOtherPoint:(RACBindingPoint *)bindingPoint;
+
+// Method needed for the convenience macro. Do not call explicitly.
+- (id)objectForKeyedSubscript:(id)key;
+
+// Method needed for the convenience macro. Do not call explicitly.
+- (void)setObject:(id)obj forKeyedSubscript:(id<NSCopying>)key;
 
 @end
 
@@ -49,3 +68,6 @@
 - (RACBindingPoint *)rac_bindingPointForKeyPath:(NSString *)keyPath;
 
 @end
+
+// Do not use this directly. Use the RACBind macro above.
+#define _RACBind(OBJ, KEYPATH) [RACBindingPoint bindingPointFor:OBJ keyPath:KEYPATH][ @"dummy-key" ]

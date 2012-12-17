@@ -22,7 +22,10 @@
 // RACBindingPoint *point = RACBind(self.property);
 // RACBind(self.property) = RACBind(otherObject, property);
 // RACBind(self.property) = [RACBind(otherObject, property) bindingPointByTransformingSignals:mySignalTransformer];
-#define RACBind(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))(_RACBind(self, __VA_ARGS__))(_RACBind(__VA_ARGS__))
+#define RACBind(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))(_RACBindObject(self, __VA_ARGS__))(_RACBindObject(__VA_ARGS__))
+
+// Do not use this directly. Use the RACBind macro above.
+#define _RACBindObject(OBJ, KEYPATH) [RACBindingPoint bindingPointFor:OBJ keyPath:@keypath(OBJ, KEYPATH)][ @"dummy-key" ]
 
 // Represents the end-point of a two-way data binding.
 @interface RACBindingPoint : NSObject <NSCopying>
@@ -68,6 +71,3 @@
 - (RACBindingPoint *)rac_bindingPointForKeyPath:(NSString *)keyPath;
 
 @end
-
-// Do not use this directly. Use the RACBind macro above.
-#define _RACBind(OBJ, KEYPATH) [RACBindingPoint bindingPointFor:OBJ keyPath:KEYPATH][ @"dummy-key" ]

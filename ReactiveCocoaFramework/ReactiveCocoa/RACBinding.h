@@ -28,6 +28,12 @@
 #define _RACBindObject(OBJ, KEYPATH) [RACBindingPoint bindingPointFor:OBJ keyPath:@keypath(OBJ, KEYPATH)][ @"dummy-key" ]
 
 // Represents the end-point of a two-way data binding.
+//
+// Each binding point has two signals: an outbound one that carries new values
+// away from the binding point and an inbound one that carries values towards
+// the binding point. When two binding points are bound together, each binding
+// point's signals are connected to the respective opposites on the other
+// binding point.
 @interface RACBindingPoint : NSObject <NSCopying>
 
 // Returns a binding point for the given key path on the given target.
@@ -38,12 +44,25 @@
 //
 // signalsTransformer - A block that takes as a parameter a RACTuple of two
 //                      signals and returns a RACTuple of two signals. In each
-//                      tuple the first signal is the outbound signal, which
-//                      carries values away from the binding point, and the
-//                      second one is the inbound signal, which carries values
-//                      towards the binding point. The block may return a new
-//                      signal based on the old one for either or both of them.
+//                      tuple the first signal is the outbound signal and the
+//                      second one is the inbound signal. The block may return a
+//                      new signal based on the old one for either or both of
+//                      them.
 - (instancetype)bindingPointByTransformingSignals:(RACTuple *(^)(RACTuple *signals))signalsTransformer;
+
+// Creates a new binding point based on the receiver by transforming the
+// outbound signal.
+//
+// signalsTransformer - A block that takes as a parameter the original outbound
+//                      signal and returns a new outbound signal.
+- (instancetype)bindingPointByTransformingOutboundSignal:(id<RACSignal>(^)(id<RACSignal> outboundSignal))signalTransformer;
+
+// Creates a new binding point based on the receiver by transforming the
+// inbound signal.
+//
+// signalsTransformer - A block that takes as a parameter the original inbound
+//                      signal and returns a new inbound signal.
+- (instancetype)bindingPointByTransformingInboundSignal:(id<RACSignal>(^)(id<RACSignal> inboundSignal))signalTransformer;
 
 // Creates a new two-way data binding between the receiver and `bindingPoint`.
 //

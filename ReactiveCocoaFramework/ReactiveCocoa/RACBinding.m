@@ -411,6 +411,24 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 	return [[RACTwoWayTransformerBindingPoint alloc] initWithTarget:self transformer:signalsTransformer];
 }
 
+- (instancetype)bindingPointByTransformingOutboundSignal:(id<RACSignal> (^)(id<RACSignal>))signalTransformer {
+	if (signalTransformer == nil) return nil;
+	return [self bindingPointByTransformingSignals:^RACTuple *(RACTuple *signals) {
+		RACTupleUnpack(id<RACSignal> outbound, id<RACSignal> inbound) = signals;
+		outbound = signalTransformer(outbound);
+		return [RACTuple tupleWithObjects:outbound, inbound, nil];
+	}];
+}
+
+- (instancetype)bindingPointByTransformingInboundSignal:(id<RACSignal> (^)(id<RACSignal>))signalTransformer {
+	if (signalTransformer == nil) return nil;
+	return [self bindingPointByTransformingSignals:^RACTuple *(RACTuple *signals) {
+		RACTupleUnpack(id<RACSignal> outbound, id<RACSignal> inbound) = signals;
+		inbound = signalTransformer(inbound);
+		return [RACTuple tupleWithObjects:outbound, inbound, nil];
+	}];
+}
+
 - (RACDisposable *)bindWithOtherPoint:(RACBindingPoint *)bindingPoint {
 	return [[RACRootBinding alloc] initWithSource:self destination:bindingPoint];
 }

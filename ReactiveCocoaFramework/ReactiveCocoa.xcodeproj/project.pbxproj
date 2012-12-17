@@ -11,6 +11,7 @@
 		5F244772167E5EDE0062180C /* RACBinding.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F24476F167E5EDE0062180C /* RACBinding.h */; };
 		5F244773167E5EDE0062180C /* RACBinding.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F244770167E5EDE0062180C /* RACBinding.m */; };
 		5F244774167E5EDE0062180C /* RACBinding.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F244770167E5EDE0062180C /* RACBinding.m */; };
+		5F2447AD167E87C50062180C /* RACBindingSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F2447AC167E87C50062180C /* RACBindingSpec.m */; };
 		5F6323B7166C3F45003C8B53 /* NSObjectRACBindingsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F6323B6166C3F45003C8B53 /* NSObjectRACBindingsSpec.m */; };
 		866557A61557086B00B39EB5 /* RACExtensionsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 866557A51557086B00B39EB5 /* RACExtensionsSpec.m */; };
 		8801E7511644BDE200A155FE /* NSObjectRACLiftingSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 8801E7501644BDE200A155FE /* NSObjectRACLiftingSpec.m */; };
@@ -353,6 +354,7 @@
 /* Begin PBXFileReference section */
 		5F24476F167E5EDE0062180C /* RACBinding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACBinding.h; sourceTree = "<group>"; };
 		5F244770167E5EDE0062180C /* RACBinding.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACBinding.m; sourceTree = "<group>"; };
+		5F2447AC167E87C50062180C /* RACBindingSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACBindingSpec.m; sourceTree = "<group>"; };
 		5F6323B6166C3F45003C8B53 /* NSObjectRACBindingsSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSObjectRACBindingsSpec.m; sourceTree = "<group>"; };
 		866557A51557086B00B39EB5 /* RACExtensionsSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACExtensionsSpec.m; sourceTree = "<group>"; };
 		8801E7501644BDE200A155FE /* NSObjectRACLiftingSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSObjectRACLiftingSpec.m; sourceTree = "<group>"; };
@@ -773,6 +775,7 @@
 				88442A331608A9AD00636B49 /* RACTestObject.m */,
 				8803C010166732BA00C36839 /* RACSchedulerSpec.m */,
 				881E86B91669350B00667F7B /* RACCompoundDisposableSpec.m */,
+				5F2447AC167E87C50062180C /* RACBindingSpec.m */,
 			);
 			path = ReactiveCocoaTests;
 			sourceTree = "<group>";
@@ -1438,6 +1441,7 @@
 				881E86BA1669350B00667F7B /* RACCompoundDisposableSpec.m in Sources */,
 				5F6323B7166C3F45003C8B53 /* NSObjectRACBindingsSpec.m in Sources */,
 				D0700F4C1672994D00D7CD30 /* NSNotificationCenterRACSupportSpec.m in Sources */,
+				5F2447AD167E87C50062180C /* RACBindingSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

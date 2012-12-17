@@ -8,6 +8,7 @@
 
 #import "NSInvocation+RACTypeParsing.h"
 #import "RACUnit.h"
+#import <CoreGraphics/CoreGraphics.h>
 
 @implementation NSInvocation (RACTypeParsing)
 
@@ -17,6 +18,13 @@
 		type val = [object selector]; \
 		[self setArgument:&val atIndex:(NSInteger)index]; \
 	} while(0)
+
+#define PULL_AND_SET_STRUCT(type) \
+	do { \
+		type val; \
+		[object getValue:&val]; \
+		[self setArgument:&val atIndex:(NSInteger)index]; \
+	} while (0)
 
 	const char *argType = [self.methodSignature getArgumentTypeAtIndex:index];
 	if (strcmp(argType, "@") == 0 || strcmp(argType, "#") == 0) {
@@ -49,18 +57,34 @@
 		PULL_AND_SET(const char *, UTF8String);
 	} else if (argType[0] == '^') {
 		PULL_AND_SET(void *, pointerValue);
+	} else if (strcmp(argType, @encode(CGRect)) == 0) {
+		PULL_AND_SET_STRUCT(CGRect);
+	} else if (strcmp(argType, @encode(CGSize)) == 0) {
+		PULL_AND_SET_STRUCT(CGSize);
+	} else if (strcmp(argType, @encode(CGPoint)) == 0) {
+		PULL_AND_SET_STRUCT(CGPoint);
 	} else {
 		NSAssert(NO, @"Unknown argument type %s", argType);
 	}
 
 #undef PULL_AND_SET
+#undef PULL_AND_SET_STRUCT
 }
 
 - (id)rac_returnValue {
 #define WRAP_AND_RETURN(type) \
-	type val = 0; \
-	[self getReturnValue:&val]; \
-	return @(val);
+	do { \
+		type val = 0; \
+		[self getReturnValue:&val]; \
+		return @(val); \
+	} while (0)
+
+#define WRAP_AND_RETURN_STRUCT(type) \
+	do { \
+		type val; \
+		[self getReturnValue:&val]; \
+		return [NSValue valueWithBytes:&val objCType:@encode(type)]; \
+	} while (0)
 
 	const char *typeSignature = self.methodSignature.methodReturnType;
 	if (strcmp(typeSignature, "@") == 0 || strcmp(typeSignature, "#") == 0) {
@@ -99,6 +123,12 @@
 		const void *pointer = NULL;
 		[self getReturnValue:&pointer];
 		return [NSValue valueWithPointer:pointer];
+	} else if (strcmp(typeSignature, @encode(CGRect)) == 0) {
+		WRAP_AND_RETURN_STRUCT(CGRect);
+	} else if (strcmp(typeSignature, @encode(CGSize)) == 0) {
+		WRAP_AND_RETURN_STRUCT(CGSize);
+	} else if (strcmp(typeSignature, @encode(CGPoint)) == 0) {
+		WRAP_AND_RETURN_STRUCT(CGPoint);
 	} else {
 		NSAssert(NO, @"Unknown return type signature %s", typeSignature);
 	}
@@ -106,6 +136,7 @@
 	return nil;
 
 #undef WRAP_AND_RETURN
+#undef WRAP_AND_RETURN_STRUCT
 }
 
 @end

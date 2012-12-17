@@ -16,7 +16,8 @@
 //
 // It will replay the most recently sent value to new subscribers.
 //
-// This does not support struct, union, or C array arguments.
+// This does not support C array, union, or struct types other than CGRect,
+// CGSize, and CGPoint.
 //
 // If it is not given any signal arguments, it will immediately invoke the
 // selector with the arguments.

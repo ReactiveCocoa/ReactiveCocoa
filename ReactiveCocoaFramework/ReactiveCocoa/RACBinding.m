@@ -7,10 +7,11 @@
 //
 
 #import "RACBinding.h"
-#import "NSObject+RACKVOWrapper.h"
-#import "RACSubject.h"
 #import "RACDisposable.h"
+#import "RACSubject.h"
 #import "RACSwizzling.h"
+#import "RACTuple.h"
+#import "NSObject+RACKVOWrapper.h"
 #import "NSObject+RACPropertySubscribing.h"
 
 static void *RACBindingsKey = &RACBindingsKey;
@@ -52,7 +53,7 @@ static NSString * const RACBindingExceptionBindingKey = @"RACBindingExceptionBin
 
 @end
 
-@interface NSObject (RACBindings_Private)
+@interface NSObject (RACBinding_Private)
 
 @property (nonatomic, strong) NSMutableSet *RACBindings;
 - (void)rac_addBinding:(RACBinding *)binding;
@@ -71,7 +72,7 @@ static NSString * const RACBindingExceptionBindingKey = @"RACBindingExceptionBin
 
 @end
 
-@interface RACTransformerBindingPoint : RACBindingPoint
+@interface RACTwoWayTransformerBindingPoint : RACBindingPoint
 
 @property (atomic, readonly, copy) RACBindingPoint *target;
 @property (atomic, readonly, copy) RACTuple *(^transformer)(RACTuple *);
@@ -154,23 +155,79 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 
 @interface RACRootBinding ()
 
-@property (nonatomic, strong) id receiverBinding;
-@property (nonatomic, strong) id otherBinding;
+@property (nonatomic, readonly, strong) id sourceBinding;
+@property (nonatomic, readonly, strong) id destinationBinding;
+@property (nonatomic, readonly, strong) RACSubject *sourceSubject;
+@property (nonatomic, readonly, strong) RACSubject *destinationSubject;
 
 @end
 
 @implementation RACRootBinding
 
 - (instancetype)initWithSource:(RACBindingPoint *)source destination:(RACBindingPoint *)destination {
+	self = [super init];
+	if (self == nil || source == nil || destination == nil) return nil;
+	
+	RACSubject *sourceSubject = [RACSubject subject];
+	RACSubject *destinationSubject = [RACSubject subject];
+	id<RACSignal> sourceSignal = destinationSubject;
+	id<RACSignal> destinationSignal = sourceSubject;
+
+	RACBindingPoint *currentSourcePoint = source;
+	while ([currentSourcePoint isKindOfClass:[RACTwoWayTransformerBindingPoint class]]) {
+		RACTwoWayTransformerBindingPoint *currentTransformerPoint = (RACTwoWayTransformerBindingPoint *)currentSourcePoint;
+		RACSubject *newSourceSubject = [RACSubject subject];
+		RACTupleUnpack(id<RACSignal> newOutgoingSignal, id<RACSignal> newIncomingSignal) = currentTransformerPoint.transformer([RACTuple tupleWithObjects:newSourceSubject, sourceSignal, nil]);
+		if (newOutgoingSignal != newSourceSubject) {
+			[newOutgoingSignal subscribe:sourceSubject];
+			sourceSubject = newSourceSubject;
+		}
+		sourceSignal = newIncomingSignal;
+		currentSourcePoint = currentTransformerPoint.target;
+	}
+	if (![currentSourcePoint isKindOfClass:[RACKeyPathBindingPoint class]]) return nil;
+	
+	RACBindingPoint *currentDestinationPoint = destination;
+	while ([currentDestinationPoint isKindOfClass:[RACTwoWayTransformerBindingPoint class]]) {
+		RACTwoWayTransformerBindingPoint *currentTransformerPoint = (RACTwoWayTransformerBindingPoint *)currentDestinationPoint;
+		RACSubject *newDestinationSubject = [RACSubject subject];
+		RACTupleUnpack(id<RACSignal> newOutgoingSignal, id<RACSignal> newIncomingSignal) = currentTransformerPoint.transformer([RACTuple tupleWithObjects:newDestinationSubject, destinationSignal, nil]);
+		if (newOutgoingSignal != newDestinationSubject) {
+			[newOutgoingSignal subscribe:destinationSubject];
+			destinationSubject = newDestinationSubject;
+		}
+		destinationSignal = newIncomingSignal;
+		currentDestinationPoint = currentTransformerPoint.target;
+	}
+	if (![currentDestinationPoint isKindOfClass:[RACKeyPathBindingPoint class]]) return nil;
+	
+	RACKeyPathBindingPoint *sourceEndPoint = (RACKeyPathBindingPoint *)currentSourcePoint;
+	RACKeyPathBindingPoint *destinationEndPoint = (RACKeyPathBindingPoint *)currentDestinationPoint;
+	
+	_sourceBinding = [RACBinding bindingWithTarget:sourceEndPoint.target keyPath:sourceEndPoint.keyPath parentBinding:self];
+	_destinationBinding = [RACBinding bindingWithTarget:destinationEndPoint.target keyPath:destinationEndPoint.keyPath parentBinding:self];
+	
+	[sourceSignal subscribeNext:^(id x) {
+		[self.sourceBinding sendBindingValue:x sender:self];
+	}];
+	
+	[destinationSignal subscribeNext:^(id x) {
+		[self.destinationBinding sendBindingValue:x sender:self];
+	}];
+	
+	[destinationSubject sendNext:[destinationEndPoint.target valueForKeyPath:destinationEndPoint.keyPath]];
+	
+	_sourceSubject = sourceSubject;
+	_destinationSubject = destinationSubject;
 	
 	return self;
 }
 
 - (void)sendBindingValue:(id)value sender:(id)sender {
-	if ([sender isEqual:self.receiverBinding]) {
-		[self.otherBinding sendBindingValue:value sender:self];
-	} else if ([sender isEqual:self.otherBinding]) {
-		[self.receiverBinding sendBindingValue:value sender:self];
+	if ([sender isEqual:self.sourceBinding]) {
+		[self.sourceSubject sendNext:value];
+	} else if ([sender isEqual:self.destinationBinding]) {
+		[self.destinationSubject sendNext:value];
 	}
 }
 
@@ -178,8 +235,10 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 	@synchronized(self) {
 		if (self.disposed) return;
 		[super dispose];
-		[self.receiverBinding dispose];
-		[self.otherBinding dispose];
+		[self.sourceBinding dispose];
+		[self.destinationBinding dispose];
+		[self.sourceSubject sendCompleted];
+		[self.destinationSubject sendCompleted];
 	}
 }
 
@@ -215,7 +274,7 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 	self.ignoreNextUpdate = YES;
 	@synchronized(self) {
 		if (self.disposed) return;
-		[self.target setValue:value forKeyPath:self.key];
+		[self.target setValue:value forKey:self.key];
 	}
 }
 
@@ -270,7 +329,7 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 
 @end
 
-@implementation NSObject (RACBindings_Private)
+@implementation NSObject (RACBinding_Private)
 
 - (NSMutableSet *)RACBindings {
 	return objc_getAssociatedObject(self, RACBindingsKey);
@@ -349,7 +408,7 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 }
 
 - (instancetype)bindingPointByTransformingSignals:(RACTuple *(^)(RACTuple *))signalsTransformer {
-	return [[RACTransformerBindingPoint alloc] initWithTarget:self transformer:signalsTransformer];
+	return [[RACTwoWayTransformerBindingPoint alloc] initWithTarget:self transformer:signalsTransformer];
 }
 
 - (RACDisposable *)bindWithOtherPoint:(RACBindingPoint *)bindingPoint {
@@ -370,7 +429,7 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 
 @end
 
-@implementation RACTransformerBindingPoint
+@implementation RACTwoWayTransformerBindingPoint
 
 - (instancetype)initWithTarget:(RACBindingPoint *)target transformer:(RACTuple *(^)(RACTuple *))transformer {
 	self = [super init];

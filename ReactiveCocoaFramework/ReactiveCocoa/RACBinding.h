@@ -43,7 +43,7 @@
 //                      second one is the inbound signal, which carries values
 //                      towards the binding point. The block may return a new
 //                      signal based on the old one for either or both of them.
-- (instancetype)bindingPointByTransformingSignals:(RACTuple *(^)(RACTuple *))signalsTransformer;
+- (instancetype)bindingPointByTransformingSignals:(RACTuple *(^)(RACTuple *signals))signalsTransformer;
 
 // Creates a new two-way data binding between the receiver and `bindingPoint`.
 //

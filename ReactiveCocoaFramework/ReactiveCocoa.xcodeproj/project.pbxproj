@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5F244771167E5EDE0062180C /* RACBinding.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F24476F167E5EDE0062180C /* RACBinding.h */; };
+		5F244771167E5EDE0062180C /* RACBinding.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F24476F167E5EDE0062180C /* RACBinding.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5F244772167E5EDE0062180C /* RACBinding.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F24476F167E5EDE0062180C /* RACBinding.h */; };
 		5F244773167E5EDE0062180C /* RACBinding.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F244770167E5EDE0062180C /* RACBinding.m */; };
 		5F244774167E5EDE0062180C /* RACBinding.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F244770167E5EDE0062180C /* RACBinding.m */; };
@@ -1074,12 +1074,12 @@
 				88A0B6D3165B2B77005DE8F3 /* RACSubscriptingAssignmentTrampoline.h in Headers */,
 				D0D487011642550100DD7605 /* RACStream.h in Headers */,
 				881E86A21669304800667F7B /* RACCompoundDisposable.h in Headers */,
+				5F244771167E5EDE0062180C /* RACBinding.h in Headers */,
 				888439A31634E10D00DED0DB /* RACBlockTrampoline.h in Headers */,
 				887ACDA7165878A8009190AD /* NSInvocation+RACTypeParsing.h in Headers */,
 				881E87AC16695C5600667F7B /* RACQueueScheduler.h in Headers */,
 				881E87B216695EDF00667F7B /* RACImmediateScheduler.h in Headers */,
 				881E87C41669636000667F7B /* RACSubscriptionScheduler.h in Headers */,
-				5F244771167E5EDE0062180C /* RACBinding.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

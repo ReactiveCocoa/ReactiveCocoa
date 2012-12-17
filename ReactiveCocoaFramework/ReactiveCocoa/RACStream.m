@@ -64,6 +64,19 @@
 	}];
 }
 
+- (instancetype)mapPreviousWithStart:(id)start combine:(id (^)(id previous, id next))combineBlock {
+	NSParameterAssert(combineBlock != NULL);
+	return [[self
+		scanWithStart:[RACTuple tupleWithObjects:start, nil]
+		combine:^(RACTuple *previousTuple, id next) {
+			id value = combineBlock(previousTuple[0], next);
+			return [RACTuple tupleWithObjects:next ?: RACTupleNil.tupleNil, value ?: RACTupleNil.tupleNil, nil];
+		}]
+		map:^(RACTuple *tuple) {
+			return tuple[1];
+		}];
+}
+
 - (instancetype)filter:(BOOL (^)(id value))block {
 	NSParameterAssert(block != nil);
 

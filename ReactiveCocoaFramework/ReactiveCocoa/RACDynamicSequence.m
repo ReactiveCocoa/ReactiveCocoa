@@ -105,4 +105,18 @@
 	}
 }
 
+#pragma mark NSObject
+
+- (NSString *)description {
+	id head = @"(unresolved)";
+	id tail = @"(unresolved)";
+
+	@synchronized (self) {
+		if (self.headBlock == nil) head = _head;
+		if (self.tailBlock == nil) tail = _tail;
+	}
+
+	return [NSString stringWithFormat:@"<%@: %p>{ head = %@, tail = %@ }", self.class, self, head, tail];
+}
+
 @end

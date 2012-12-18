@@ -8,16 +8,16 @@
 
 #import <UIKit/UIKit.h>
 
-@protocol RACSignal;
+@class RACSignal;
 
 @interface UITextView (RACSignalSupport)
 
 // Creates and returns a signal that sends the sender of the delegate method
 // whenever it is triggered.
-- (id<RACSignal>)rac_signalForDelegateMethod:(SEL)method;
+- (RACSignal *)rac_signalForDelegateMethod:(SEL)method;
 
 // Creates and returns a signal for the text of the field. It always starts with
 // the current text.
-- (id<RACSignal>)rac_textSignal;
+- (RACSignal *)rac_textSignal;
 
 @end

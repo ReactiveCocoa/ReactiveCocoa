@@ -10,7 +10,7 @@
 #import "RACStream.h"
 
 @class RACScheduler;
-@protocol RACSignal;
+@class RACSignal;
 
 // Represents an immutable, lazy sequence of values. Like Cocoa collections,
 // sequences cannot contain nil.
@@ -38,7 +38,7 @@
 @property (nonatomic, copy, readonly) NSArray *array;
 
 // Invokes -signalWithScheduler: with a new RACScheduler.
-- (id<RACSignal>)signal;
+- (RACSignal *)signal;
 
 // Evaluates the full sequence on the given scheduler.
 //
@@ -47,7 +47,7 @@
 //
 // Returns a signal which sends the receiver's values on the given scheduler as
 // they're evaluated.
-- (id<RACSignal>)signalWithScheduler:(RACScheduler *)scheduler;
+- (RACSignal *)signalWithScheduler:(RACScheduler *)scheduler;
 
 // Creates a sequence that dynamically generates its values.
 //

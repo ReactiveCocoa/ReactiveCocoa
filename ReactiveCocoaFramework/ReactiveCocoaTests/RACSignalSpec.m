@@ -16,7 +16,7 @@
 #import "RACDisposable.h"
 #import "RACReplaySubject.h"
 #import "RACScheduler.h"
-#import "RACSignal.h"
+#import "RACSignal+Operations.h"
 #import "RACSubject.h"
 #import "RACSubscriber.h"
 #import "RACTestObject.h"
@@ -66,7 +66,7 @@ SharedExampleGroupsEnd
 SpecBegin(RACSignal)
 
 describe(@"<RACStream>", ^{
-	id verifyValues = ^(id<RACSignal> signal, NSArray *expectedValues) {
+	id verifyValues = ^(RACSignal *signal, NSArray *expectedValues) {
 		expect(signal).notTo.beNil();
 
 		NSMutableArray *collectedValues = [NSMutableArray array];
@@ -86,7 +86,7 @@ describe(@"<RACStream>", ^{
 		expect(collectedValues).to.equal(expectedValues);
 	};
 
-	id<RACSignal> infiniteSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	RACSignal *infiniteSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block volatile int32_t done = 0;
 
 		[RACScheduler.mainThreadScheduler schedule:^{
@@ -108,7 +108,7 @@ describe(@"<RACStream>", ^{
 });
 
 describe(@"subscribing", ^{
-	__block id<RACSignal> signal = nil;
+	__block RACSignal *signal = nil;
 	id nextValueSent = @"1";
 	
 	beforeEach(^{
@@ -177,7 +177,7 @@ describe(@"subscribing", ^{
 
 	it(@"should have a current scheduler in didSubscribe block", ^{
 		__block RACScheduler *currentScheduler;
-		id<RACSignal> signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			currentScheduler = RACScheduler.currentScheduler;
 			[subscriber sendCompleted];
 			return nil;
@@ -229,7 +229,7 @@ describe(@"subscribing", ^{
 describe(@"disposal", ^{
 	it(@"should dispose of the disposable returned from the didSubscribe block", ^{
 		__block BOOL innerDisposed = NO;
-		id<RACSignal> signal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		RACSignal *signal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 			return [RACDisposable disposableWithBlock:^{
 				innerDisposed = YES;
 			}];
@@ -251,7 +251,7 @@ describe(@"disposal", ^{
 });
 
 describe(@"querying", ^{
-	__block id<RACSignal> signal = nil;
+	__block RACSignal *signal = nil;
 	id nextValueSent = @"1";
 	
 	beforeEach(^{
@@ -264,7 +264,7 @@ describe(@"querying", ^{
 	});
 	
 	it(@"should support window", ^{
-		id<RACSignal> signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@"1"];
 			[subscriber sendNext:@"2"];
 			[subscriber sendNext:@"3"];
@@ -279,7 +279,7 @@ describe(@"querying", ^{
 		RACSubject *closeSubject = [RACSubject subject];
 		__block NSUInteger valuesReceived = 0;
 		
-		id<RACSignal> window = [signal windowWithStart:windowOpen close:^(id<RACSignal> start) {
+		RACSignal *window = [signal windowWithStart:windowOpen close:^(RACSignal *start) {
 			return closeSubject;
 		}];
 				
@@ -305,7 +305,7 @@ describe(@"querying", ^{
 	});
 	
 	it(@"should return first 'next' value with -firstOrDefault:success:error:", ^{
-		id<RACSignal> signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendNext:@2];
 			[subscriber sendNext:@3];
@@ -323,7 +323,7 @@ describe(@"querying", ^{
 	});
 	
 	it(@"should return first default value with -firstOrDefault:success:error:", ^{
-		id<RACSignal> signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 			[subscriber sendCompleted];
 			return nil;
 		}];
@@ -339,7 +339,7 @@ describe(@"querying", ^{
 	
 	it(@"should return error with -firstOrDefault:success:error:", ^{
 		NSError *testError = [NSError errorWithDomain:@"foo" code:100 userInfo:nil];
-		id<RACSignal> signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 			[subscriber sendError:testError];
 			return nil;
 		}];
@@ -356,7 +356,7 @@ describe(@"querying", ^{
 	it(@"shouldn't crash when returning an error from a background scheduler", ^{
 		static NSString * const errorDomain = @"foo";
 		static const NSInteger errorCode = 100;
-		id<RACSignal> signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 			[[RACScheduler scheduler] schedule:^{
 				[subscriber sendError:[NSError errorWithDomain:errorDomain code:errorCode userInfo:nil]];
 			}];
@@ -377,7 +377,7 @@ describe(@"querying", ^{
 describe(@"continuation", ^{
 	it(@"shouldn't receive deferred errors", ^{
 		__block NSUInteger numberOfSubscriptions = 0;
-		id<RACSignal> signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			if(numberOfSubscriptions > 2) {
 				[subscriber sendCompleted];
 				return nil;
@@ -407,7 +407,7 @@ describe(@"continuation", ^{
 	
 	it(@"should repeat after completion", ^{
 		__block NSUInteger numberOfSubscriptions = 0;
-		id<RACSignal> signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			if(numberOfSubscriptions > 2) {
 				[subscriber sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
 				return nil;
@@ -436,7 +436,7 @@ describe(@"continuation", ^{
 	});
 
 	it(@"should stop repeating when disposed", ^{
-		id<RACSignal> signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendCompleted];
 			return nil;
@@ -457,7 +457,7 @@ describe(@"continuation", ^{
 	});
 
 	it(@"should stop repeating when disposed by -take:", ^{
-		id<RACSignal> signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendCompleted];
 			return nil;
@@ -480,9 +480,9 @@ describe(@"continuation", ^{
 describe(@"+combineLatest:", ^{
 	__block id<RACSubscriber> subscriber1 = nil;
 	__block id<RACSubscriber> subscriber2 = nil;
-	__block id<RACSignal> signal1 = nil;
-	__block id<RACSignal> signal2 = nil;
-	__block id<RACSignal> combined = nil;
+	__block RACSignal *signal1 = nil;
+	__block RACSignal *signal2 = nil;
+	__block RACSignal *combined = nil;
 	
 	beforeEach(^{
 		signal1 = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
@@ -600,7 +600,7 @@ describe(@"+combineLatest:", ^{
 	});
 
 	it(@"should complete immediately when not given any signals", ^{
-		id<RACSignal> signal = [RACSignal combineLatest:@[]];
+		RACSignal *signal = [RACSignal combineLatest:@[]];
 
 		__block BOOL completed = NO;
 		[signal subscribeCompleted:^{
@@ -621,7 +621,7 @@ describe(@"+combineLatest:reduce:", ^{
 	});
 
 	it(@"should send a RACTuple when given a nil reduce block", ^{
-		id<RACSignal> combined = [RACSignal combineLatest:@[ subject1, subject2 ] reduce:nil];
+		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2 ] reduce:nil];
 
 		__block id received;
 		[combined subscribeNext:^(id x) {
@@ -638,7 +638,7 @@ describe(@"+combineLatest:reduce:", ^{
 	it(@"should send nils for nil values", ^{
 		__block id receivedVal1;
 		__block id receivedVal2;
-		id<RACSignal> combined = [RACSignal combineLatest:@[ subject1, subject2 ] reduce:^(id val1, id val2) {
+		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2 ] reduce:^(id val1, id val2) {
 			receivedVal1 = val1;
 			receivedVal2 = val2;
 			return nil;
@@ -658,7 +658,7 @@ describe(@"+combineLatest:reduce:", ^{
 	});
 
 	it(@"should send the return result of the reduce block", ^{
-		id<RACSignal> combined = [RACSignal combineLatest:@[ subject1, subject2 ] reduce:^(NSString *string1, NSString *string2) {
+		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2 ] reduce:^(NSString *string1, NSString *string2) {
 			return [NSString stringWithFormat:@"%@: %@", string1, string2];
 		}];
 
@@ -674,7 +674,7 @@ describe(@"+combineLatest:reduce:", ^{
 	});
 
 	it(@"should only complete after all its signals complete", ^{
-		id<RACSignal> combined = [RACSignal combineLatest:@[ subject1, subject2 ] reduce:nil];
+		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2 ] reduce:nil];
 
 		__block BOOL completed = NO;
 		[combined subscribeCompleted:^{
@@ -698,7 +698,7 @@ describe(@"+combineLatest:reduce:", ^{
 	});
 	
 	it(@"should handle multiples of the same signals", ^{
-		id<RACSignal> combined = [RACSignal combineLatest:@[ subject1, subject2, subject1, subject2 ] reduce:^ NSString * (NSString *string1, NSString *string2, NSString *string3, NSString *string4) {
+		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2, subject1, subject2 ] reduce:^ NSString * (NSString *string1, NSString *string2, NSString *string3, NSString *string4) {
 			return [NSString stringWithFormat:@"%@ : %@ = %@ : %@", string1, string2, string3, string4];
 		}];
 		
@@ -721,13 +721,13 @@ describe(@"+combineLatest:reduce:", ^{
     
 	it(@"should handle multiples of the same side-effecting signal", ^{
 		__block NSUInteger counter = 0;
-		id<RACSignal> sideEffectingSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		RACSignal *sideEffectingSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			++counter;
 			[subscriber sendNext:@1];
 			[subscriber sendCompleted];
 			return nil;
 		}];
-		id<RACSignal> combined = [RACSignal combineLatest:@[ sideEffectingSignal, sideEffectingSignal ] reduce:^ NSString * (id x, id y) {
+		RACSignal *combined = [RACSignal combineLatest:@[ sideEffectingSignal, sideEffectingSignal ] reduce:^ NSString * (id x, id y) {
 			return [NSString stringWithFormat:@"%@%@", x, y];
 		}];
 		NSMutableArray *receivedValues = NSMutableArray.array;
@@ -745,7 +745,7 @@ describe(@"+combineLatest:reduce:", ^{
 
 describe(@"distinctUntilChanged", ^{
 	it(@"should only send values that are distinct from the previous value", ^{
-		id<RACSignal> sub = [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		RACSignal *sub = [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendNext:@2];
 			[subscriber sendNext:@2];
@@ -761,7 +761,7 @@ describe(@"distinctUntilChanged", ^{
 	});
 
 	it(@"shouldn't consider nils to always be distinct", ^{
-		id<RACSignal> sub = [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		RACSignal *sub = [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendNext:nil];
 			[subscriber sendNext:nil];
@@ -777,7 +777,7 @@ describe(@"distinctUntilChanged", ^{
 	});
 
 	it(@"should consider initial nil to be distinct", ^{
-		id<RACSignal> sub = [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		RACSignal *sub = [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:nil];
 			[subscriber sendNext:nil];
 			[subscriber sendNext:@1];
@@ -828,7 +828,7 @@ describe(@"RACAbleWithStart", ^{
 });
 
 describe(@"-toProperty:onObject:", ^{
-	id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, id<RACSignal> signal) {
+	id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, RACSignal *signal) {
 		[signal toProperty:keyPath onObject:testObject];
 	};
 
@@ -857,7 +857,7 @@ describe(@"memory management", ^{
 	it(@"should dealloc signals if the signal does nothing", ^{
 		__block BOOL deallocd = NO;
 		@autoreleasepool {
-			NSObject<RACSignal> *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			RACSignal *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 				return nil;
 			}];
 
@@ -873,7 +873,7 @@ describe(@"memory management", ^{
 		__block BOOL deallocd = NO;
 
 		@autoreleasepool {
-			NSObject<RACSignal> *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			RACSignal *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 				return nil;
 			}];
 
@@ -891,7 +891,7 @@ describe(@"memory management", ^{
 		@autoreleasepool {
 			__block BOOL done = NO;
 
-			NSObject<RACSignal> *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			RACSignal *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 				[subscriber sendCompleted];
 				return nil;
 			}];
@@ -936,7 +936,7 @@ describe(@"memory management", ^{
 		__block BOOL deallocd = NO;
 		@autoreleasepool {
 			[[RACScheduler scheduler] schedule:^{
-				NSObject<RACSignal> *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+				RACSignal *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 					[subscriber sendCompleted];
 					return nil;
 				}];
@@ -960,7 +960,7 @@ describe(@"memory management", ^{
 		__block BOOL deallocd = NO;
 		@autoreleasepool {
 			[[RACScheduler scheduler] schedule:^{
-				NSObject<RACSignal> *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+				RACSignal *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 					return nil;
 				}];
 
@@ -990,7 +990,7 @@ describe(@"memory management", ^{
 
 		@autoreleasepool {
 			@autoreleasepool {
-				NSObject<RACSignal> *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+				RACSignal *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 					return nil;
 				}];
 
@@ -1023,7 +1023,7 @@ describe(@"memory management", ^{
 
 		@autoreleasepool {
 			@autoreleasepool {
-				id<RACSignal> intermediateSignal = [subject doNext:^(id _) {
+				RACSignal *intermediateSignal = [subject doNext:^(id _) {
 					gotNext = YES;
 				}];
 
@@ -1052,7 +1052,7 @@ describe(@"memory management", ^{
 describe(@"+merge:", ^{
 	__block RACSubject *sub1;
 	__block RACSubject *sub2;
-	__block id<RACSignal> merged;
+	__block RACSignal *merged;
 	beforeEach(^{
 		sub1 = [RACSubject subject];
 		sub2 = [RACSubject subject];
@@ -1110,7 +1110,7 @@ describe(@"+merge:", ^{
 	});
 
 	it(@"should complete immediately when not given any signals", ^{
-		id<RACSignal> signal = [RACSignal merge:@[]];
+		RACSignal *signal = [RACSignal merge:@[]];
 
 		__block BOOL completed = NO;
 		[signal subscribeCompleted:^{
@@ -1125,9 +1125,9 @@ describe(@"-flatten:", ^{
 	__block BOOL subscribedTo1 = NO;
 	__block BOOL subscribedTo2 = NO;
 	__block BOOL subscribedTo3 = NO;
-	__block id<RACSignal> sub1;
-	__block id<RACSignal> sub2;
-	__block id<RACSignal> sub3;
+	__block RACSignal *sub1;
+	__block RACSignal *sub2;
+	__block RACSignal *sub3;
 	__block RACSubject *subject1;
 	__block RACSubject *subject2;
 	__block RACSubject *subject3;
@@ -1363,7 +1363,7 @@ describe(@"-sequenceNext:", ^{
 });
 
 describe(@"-sequence", ^{
-	id<RACSignal> signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+	RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		[subscriber sendNext:@1];
 		[subscriber sendNext:@2];
 		[subscriber sendNext:@3];
@@ -1376,7 +1376,7 @@ describe(@"-sequence", ^{
 });
 
 it(@"should complete take: even if the original signal doesn't", ^{
-	id<RACSignal> sendOne = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+	RACSignal *sendOne = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		[subscriber sendNext:RACUnit.defaultUnit];
 		return nil;
 	}];
@@ -1394,10 +1394,10 @@ it(@"should complete take: even if the original signal doesn't", ^{
 });
 
 describe(@"+zip:reduce:", ^{
-	__block id<RACSignal> errorAfterTwo = nil;
-	__block id<RACSignal> errorAfterThree = nil;
-	__block id<RACSignal> completeAfterTwo = nil;
-	__block id<RACSignal> completeAfterThree = nil;
+	__block RACSignal *errorAfterTwo = nil;
+	__block RACSignal *errorAfterThree = nil;
+	__block RACSignal *completeAfterTwo = nil;
+	__block RACSignal *completeAfterThree = nil;
 	
 	before(^{
 		errorAfterTwo = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
@@ -1542,13 +1542,13 @@ describe(@"+zip:reduce:", ^{
 	
 	it(@"should handle multiples of the same side-effecting signal", ^{
 		__block NSUInteger counter = 0;
-		id<RACSignal> sideEffectingSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		RACSignal *sideEffectingSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			++counter;
 			[subscriber sendNext:@1];
 			[subscriber sendCompleted];
 			return nil;
 		}];
-		id<RACSignal> combined = [RACSignal zip:@[ sideEffectingSignal, sideEffectingSignal ] reduce:^ NSString * (id x, id y) {
+		RACSignal *combined = [RACSignal zip:@[ sideEffectingSignal, sideEffectingSignal ] reduce:^ NSString * (id x, id y) {
 			return [NSString stringWithFormat:@"%@%@", x, y];
 		}];
 		NSMutableArray *receivedValues = NSMutableArray.array;
@@ -1568,7 +1568,7 @@ describe(@"-sample:", ^{
 	it(@"should send the latest value when the sampler signal fires", ^{
 		RACSubject *subject = [RACSubject subject];
 		RACSubject *sampleSubject = [RACSubject subject];
-		id<RACSignal> sampled = [subject sample:sampleSubject];
+		RACSignal *sampled = [subject sample:sampleSubject];
 		NSMutableArray *values = [NSMutableArray array];
 		[sampled subscribeNext:^(id x) {
 			[values addObject:x];
@@ -1598,7 +1598,7 @@ describe(@"-sample:", ^{
 describe(@"-collect", ^{
 	it(@"should send a single array when the original signal completes", ^{
 		RACSubject *subject = [RACSubject subject];
-		id<RACSignal> collected = [subject collect];
+		RACSignal *collected = [subject collect];
 
 		NSArray *expected = @[ @1, @2, @3 ];
 		__block id value = nil;

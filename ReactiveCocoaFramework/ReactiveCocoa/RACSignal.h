@@ -8,14 +8,16 @@
 
 #import <Foundation/Foundation.h>
 #import "RACStream.h"
-#import "RACSignalProtocol.h"
 
 @class RACDisposable;
 @class RACScheduler;
 @class RACSubject;
 @protocol RACSubscriber;
 
-@interface RACSignal : NSObject <RACSignal>
+@interface RACSignal : NSObject
+
+// The name of the signal. This is for debugging/human purposes only.
+@property (copy) NSString *name;
 
 // Creates a new signal. This is the preferred way to create a new signal
 // operation or behavior.
@@ -45,36 +47,96 @@
 // subscribes. Any side effects within the block will thus execute once for each
 // subscription, not necessarily on one thread, and possibly even
 // simultaneously!
-+ (id<RACSignal>)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe;
-
-// Returns a signal that immediately sends the given value and then completes.
-+ (id<RACSignal>)return:(id)value;
++ (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe;
 
 // Returns a signal that immediately sends the given error.
-+ (id<RACSignal>)error:(NSError *)error;
-
-// Returns a signal that immediately completes.
-+ (id<RACSignal>)empty;
++ (RACSignal *)error:(NSError *)error;
 
 // Returns a signal that never completes.
-+ (id<RACSignal>)never;
++ (RACSignal *)never;
 
 // Returns a signal that calls the block in a background queue. The
 // block's success is YES by default. If the block sets success = NO, the
 // signal sends error with the error passed in by reference.
-+ (id<RACSignal>)start:(id (^)(BOOL *success, NSError **error))block;
++ (RACSignal *)start:(id (^)(BOOL *success, NSError **error))block;
 
 // Returns a signal that calls the block with the given scheduler. The
 // block's success is YES by default. If the block sets success = NO, the
 // signal sends error with the error passed in by reference.
-+ (id<RACSignal>)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block;
++ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block;
 
 // Starts and returns an async signal. It calls the block with the given
 // scheduler and gives the block the subject that was returned from the method.
 // The block can send events using the subject.
-+ (id<RACSignal>)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block;
++ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block;
+
+@end
+
+@interface RACSignal (RACStream) <RACStream>
+
+// Returns a signal that immediately sends the given value and then completes.
++ (RACSignal *)return:(id)value;
+
+// Returns a signal that immediately completes.
++ (RACSignal *)empty;
 
 // Subscribes to `signal` when the source signal completes.
-- (id<RACSignal>)concat:(id<RACSignal>)signal;
+- (RACSignal *)concat:(RACSignal *)signal;
+
+// Combine values from each of the signals using `reduceBlock`.
+// `reduceBlock` will be called with the first `next` of each signal, then with
+// the second `next` of each signal, and so forth. If any of the signals sent
+// `complete` or `error` after the nth `next`, then the resulting signal will
+// also complete or error after the nth `next`.
+//
+// signals     - The signals to combine. If this array is empty, the returned
+//               signal will immediately complete upon subscription.
+// reduceBlock - The block which reduces the latest values from all the signals
+//               into one value. It should take as many arguments as the number
+//               of signals given. Each argument will be an object argument,
+//               wrapped as needed. If nil, the returned signal will send a
+//               RACTuple of all the latest values.
++ (RACSignal *)zip:(NSArray *)signals reduce:(id)reduceBlock;
+
+@end
+
+@interface RACSignal (Subscription)
+
+// Subscribes `subscriber` to changes on the receiver. The receiver defines which
+// events it actually sends and in what situations the events are sent.
+//
+// Subscription will always happen on a valid RACScheduler. If the
+// +[RACScheduler currentScheduler] cannot be determined at the time of
+// subscription (e.g., because the calling code is running on a GCD queue or
+// NSOperationQueue), subscription will occur on a private background scheduler.
+// On the main thread, subscriptions will always occur immediately, with a
+// +[RACScheduler currentScheduler] of +[RACScheduler mainThreadScheduler].
+//
+// Returns nil or a disposable. You can call -[RACDisposable dispose] if you
+// need to end your subscription before it would "naturally" end, either by
+// completing or erroring. Once the disposable has been disposed, the subscriber
+// won't receive any more events from the subscription.
+- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber;
+
+// Convenience method to subscribe to the `next` event.
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock;
+
+// Convenience method to subscribe to the `next` and `completed` events.
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock;
+
+// Convenience method to subscribe to the `next`, `completed`, and `error` events.
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
+
+// Convenience method to subscribe to `error` events.
+- (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock;
+
+// Convenience method to subscribe to `completed` events.
+- (RACDisposable *)subscribeCompleted:(void (^)(void))completedBlock;
+
+// Convenience method to subscribe to `next` and `error` events.
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock;
+
+// Convenience method to subscribe to `error` and `completed` events.
+- (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
 
 @end

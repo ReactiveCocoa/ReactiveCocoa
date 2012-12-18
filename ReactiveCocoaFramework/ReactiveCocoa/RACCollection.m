@@ -7,10 +7,10 @@
 //
 
 #import "RACCollection.h"
-#import "RACSubject.h"
-#import "RACSignal.h"
-#import "RACUnit.h"
 #import "NSObject+RACPropertySubscribing.h"
+#import "RACSignal+Operations.h"
+#import "RACSubject.h"
+#import "RACUnit.h"
 
 @interface RACCollection () {
 	// We explicitly declare these because otherwise the implicit declaration

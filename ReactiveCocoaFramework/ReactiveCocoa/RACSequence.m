@@ -154,11 +154,11 @@
 	return [array copy];
 }
 
-- (id<RACSignal>)signal {
+- (RACSignal *)signal {
 	return [self signalWithScheduler:[RACScheduler scheduler]];
 }
 
-- (id<RACSignal>)signalWithScheduler:(RACScheduler *)scheduler {
+- (RACSignal *)signalWithScheduler:(RACScheduler *)scheduler {
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACSequence *sequence = self;
 

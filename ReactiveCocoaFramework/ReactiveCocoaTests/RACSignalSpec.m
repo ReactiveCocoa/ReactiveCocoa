@@ -210,6 +210,20 @@ describe(@"subscribing", ^{
 		shouldBeGettingItems = NO;
 		[subject sendNext:@"test 3"];
 	});
+    
+	it(@"should support -takeUntil: with completion as trigger", ^{
+		__block BOOL shouldBeGettingItems = YES;
+		RACSubject *subject = [RACSubject subject];
+		RACSubject *cutOffSubject = [RACSubject subject];
+		[[subject takeUntil:cutOffSubject] subscribeNext:^(id x) {
+			expect(shouldBeGettingItems).to.beTruthy();
+		}];
+        
+		[cutOffSubject sendCompleted];
+        
+		shouldBeGettingItems = NO;
+		[subject sendNext:@"should not go through"];
+	});
 });
 
 describe(@"disposal", ^{

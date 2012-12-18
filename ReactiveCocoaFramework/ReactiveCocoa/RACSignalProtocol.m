@@ -760,13 +760,16 @@ static RACDisposable *subscribeForever (id<RACSignal> signal, void (^next)(id), 
 - (id<RACSignal>)takeUntil:(id<RACSignal>)signalTrigger {
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *selfDisposable = nil;
-		__block RACDisposable *triggerDisposable = [signalTrigger subscribe:[RACSubscriber subscriberWithNext:^(id x) {
+        __block void (^triggerCompletion)() = ^(){
 			[selfDisposable dispose], selfDisposable = nil;
 			[subscriber sendCompleted];
+        };
+		__block RACDisposable *triggerDisposable = [signalTrigger subscribe:[RACSubscriber subscriberWithNext:^(id x) {
+            triggerCompletion();
 		} error:^(NSError *error) {
 			
 		} completed:^{
-			
+            triggerCompletion();
 		}]];
 		
 		selfDisposable = [self subscribeNext:^(id x) {

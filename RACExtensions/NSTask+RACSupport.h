@@ -36,14 +36,14 @@ extern const NSInteger NSTaskRACSupportNonZeroTerminationStatus;
 @interface NSTask (RACSupport)
 
 // Returns a signal to the standard output. Does not start the task.
-- (RACSignal *)rac_standardOutput;
+- (id<RACSignal>)rac_standardOutput;
 
 // Returns a signal to the standard error. Does not start the task.
-- (RACSignal *)rac_standardError;
+- (id<RACSignal>)rac_standardError;
 
 // Returns a signal that sends a `RACUnit.defaultUnit` and completes when the
 // task completes.
-- (RACSignal *)rac_completion;
+- (id<RACSignal>)rac_completion;
 
 // Runs the task asychronously on the main queue. It aggregates all the data 
 // from standard output and sends it once the task completes, scheduled on the
@@ -52,9 +52,13 @@ extern const NSInteger NSTaskRACSupportNonZeroTerminationStatus;
 // NSTaskRACSupportOutputData, NSTaskRACSupportErrorData, and NSTaskRACSupportTask.
 //
 // scheduler - cannot be nil.
-- (RACCancelableSignal *)rac_runWithScheduler:(RACScheduler *)scheduler;
+//
+// Returns a tuple whose first object is a signal that sends the output and
+// completes or errors, and whose second object is a block that can be invoked
+// to cancel the task.
+- (RACTuple *)rac_runWithScheduler:(RACScheduler *)scheduler;
 
 // Calls -rac_runWithScheduler: with the immediate scheduler.
-- (RACCancelableSignal *)rac_run;
+- (RACTuple *)rac_run;
 
 @end

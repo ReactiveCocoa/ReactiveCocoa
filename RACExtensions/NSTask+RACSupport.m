@@ -23,7 +23,7 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 
 @implementation NSTask (RACSupport)
 
-- (RACSignal *)rac_standardOutput {
+- (id<RACSignal>)rac_standardOutput {
 	if(![[self standardOutput] isKindOfClass:[NSPipe class]]) {
 		[self setStandardOutput:[NSPipe pipe]];
 	}
@@ -31,7 +31,7 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 	return [self rac_signalForPipe:[self standardOutput]];
 }
 
-- (RACSignal *)rac_standardError {
+- (id<RACSignal>)rac_standardError {
 	if(![[self standardError] isKindOfClass:[NSPipe class]]) {
 		[self setStandardError:[NSPipe pipe]];
 	}
@@ -39,20 +39,20 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 	return [self rac_signalForPipe:[self standardError]];
 }
 
-- (RACSignal *)rac_signalForPipe:(NSPipe *)pipe {
+- (id<RACSignal>)rac_signalForPipe:(NSPipe *)pipe {
 	NSFileHandle *fileHandle = [pipe fileHandleForReading];	
 	return [fileHandle rac_readInBackground];
 }
 
-- (RACSignal *)rac_completion {
+- (id<RACSignal>)rac_completion {
 	return [[[NSNotificationCenter.defaultCenter rac_addObserverForName:NSTaskDidTerminateNotification object:self] any] mapReplace:RACUnit.defaultUnit];
 }
 
-- (RACCancelableSignal *)rac_run {
+- (RACTuple *)rac_run {
 	return [self rac_runWithScheduler:[RACScheduler immediateScheduler]];
 }
 
-- (RACCancelableSignal *)rac_runWithScheduler:(RACScheduler *)scheduler {
+- (RACTuple *)rac_runWithScheduler:(RACScheduler *)scheduler {
 	NSParameterAssert(scheduler != nil);
 	
 	RACReplaySubject *subject = [RACReplaySubject subject];
@@ -115,13 +115,14 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 		
 		[self launch];
 	}];
-	
+
 	__weak NSTask *weakSelf = self;
-	return [subject asCancelableWithBlock:^{
+	void (^cancelBlock)(void) = ^{
 		NSTask *strongSelf = weakSelf;
 		canceled = YES;
 		[strongSelf terminate];
-	}];
+	};
+	return [RACTuple tupleWithObjects:subject, [cancelBlock copy], nil];
 }
 
 @end

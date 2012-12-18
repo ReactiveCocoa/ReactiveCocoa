@@ -35,14 +35,37 @@ sharedExamplesFor(RACSequenceExamples, ^(NSDictionary *data) {
 		expect(sequence.array).to.equal(values);
 	});
 
-	it(@"should return an immediately scheduled signal", ^{
-		id<RACSignal> signal = [sequence signalWithScheduler:RACScheduler.immediateScheduler];
-		expect(signal.toArray).to.equal(values);
-	});
+	describe(@"-signalWithScheduler:", ^{
+		it(@"should return an immediately scheduled signal", ^{
+			id<RACSignal> signal = [sequence signalWithScheduler:RACScheduler.immediateScheduler];
+			expect(signal.toArray).to.equal(values);
+		});
 
-	it(@"should return a background scheduled signal", ^{
-		id<RACSignal> signal = [sequence signalWithScheduler:[RACScheduler scheduler]];
-		expect(signal.toArray).to.equal(values);
+		it(@"should return a background scheduled signal", ^{
+			id<RACSignal> signal = [sequence signalWithScheduler:[RACScheduler scheduler]];
+			expect(signal.toArray).to.equal(values);
+		});
+
+		it(@"should only evaluate one value per scheduling", ^{
+			id<RACSignal> signal = [sequence signalWithScheduler:RACScheduler.mainThreadScheduler];
+
+			__block BOOL flag = YES;
+			__block BOOL completed = NO;
+			[signal subscribeNext:^(id x) {
+				expect(flag).to.beTruthy();
+				flag = NO;
+
+				[RACScheduler.mainThreadScheduler schedule:^{
+					// This should get executed before the next value (which
+					// verifies that it's YES).
+					flag = YES;
+				}];
+			} completed:^{
+				completed = YES;
+			}];
+
+			expect(completed).will.beTruthy();
+		});
 	});
 
 	it(@"should be equal to itself", ^{

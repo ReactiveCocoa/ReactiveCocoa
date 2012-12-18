@@ -156,20 +156,18 @@
 
 - (id<RACSignal>)signalWithScheduler:(RACScheduler *)scheduler {
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		__block int32_t disposed = 0;
+		__block RACSequence *sequence = self;
 
-		[scheduler schedule:^{
-			for (id value in self) {
-				if (disposed) break;
-
-				[subscriber sendNext:value];
+		return [scheduler scheduleRecursiveBlock:^(void (^reschedule)(void)) {
+			if (sequence.head == nil) {
+				[subscriber sendCompleted];
+				return;
 			}
 
-			[subscriber sendCompleted];
-		}];
+			[subscriber sendNext:sequence.head];
 
-		return [RACDisposable disposableWithBlock:^{
-			OSAtomicIncrement32Barrier(&disposed);
+			sequence = sequence.tail;
+			reschedule();
 		}];
 	}];
 }

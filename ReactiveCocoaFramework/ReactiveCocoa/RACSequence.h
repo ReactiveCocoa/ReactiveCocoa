@@ -39,6 +39,9 @@
 
 // Evaluates the full sequence on the given scheduler.
 //
+// Each item is evaluated in its own scheduled block, such that control of the
+// scheduler is yielded between each value.
+//
 // Returns a signal which sends the receiver's values on the given scheduler as
 // they're evaluated.
 - (id<RACSignal>)signalWithScheduler:(RACScheduler *)scheduler;

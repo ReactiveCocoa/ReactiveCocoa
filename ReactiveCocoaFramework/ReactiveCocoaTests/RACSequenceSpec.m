@@ -14,7 +14,7 @@
 
 SpecBegin(RACSequence)
 
-describe(@"<RACStream>", ^{
+describe(@"RACStream", ^{
 	id verifyValues = ^(RACSequence *sequence, NSArray *expectedValues) {
 		NSMutableArray *collectedValues = [NSMutableArray array];
 		while (sequence.head != nil) {

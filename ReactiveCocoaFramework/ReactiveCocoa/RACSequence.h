@@ -10,19 +10,19 @@
 #import "RACStream.h"
 
 @class RACScheduler;
-@protocol RACSignal;
+@class RACSignal;
 
 // Represents an immutable, lazy sequence of values. Like Cocoa collections,
 // sequences cannot contain nil.
 //
-// Most inherited <RACStream> methods that accept a block will execute the block
+// Most inherited RACStream methods that accept a block will execute the block
 // _at most_ once for each value that is evaluated in the returned sequence.
 // Side effects are subject to the behavior described in
 // +sequenceWithHeadBlock:tailBlock:.
 //
 // Implemented as a class cluster. A minimal implementation for a subclass
 // consists simply of -head and -tail.
-@interface RACSequence : NSObject <NSCoding, NSCopying, NSFastEnumeration, RACStream>
+@interface RACSequence : RACStream <NSCoding, NSCopying, NSFastEnumeration>
 
 // The first object in the sequence, or nil if the sequence is empty.
 //
@@ -38,7 +38,7 @@
 @property (nonatomic, copy, readonly) NSArray *array;
 
 // Invokes -signalWithScheduler: with a new RACScheduler.
-- (id<RACSignal>)signal;
+- (RACSignal *)signal;
 
 // Evaluates the full sequence on the given scheduler.
 //
@@ -47,7 +47,7 @@
 //
 // Returns a signal which sends the receiver's values on the given scheduler as
 // they're evaluated.
-- (id<RACSignal>)signalWithScheduler:(RACScheduler *)scheduler;
+- (RACSignal *)signalWithScheduler:(RACScheduler *)scheduler;
 
 // Creates a sequence that dynamically generates its values.
 //

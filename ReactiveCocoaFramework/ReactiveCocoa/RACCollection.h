@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol RACSignal;
+@class RACSignal;
 
 @interface RACCollection : NSObject <NSFastEnumeration, NSCopying>
 
@@ -16,14 +16,14 @@
 @property (nonatomic, readonly) NSUInteger count;
 
 // Sends each object after it has been added. It never completes or errors.
-@property (nonatomic, readonly) id<RACSignal> objectsAdded;
+@property (nonatomic, readonly) RACSignal *objectsAdded;
 
 // Sends each object after it has been removed. It never completes or errors.
-@property (nonatomic, readonly) id<RACSignal> objectsRemoved;
+@property (nonatomic, readonly) RACSignal *objectsRemoved;
 
 // Sends a -[RACUnit defaultUnit] whenever the count changes. It never completes
 // or errors.
-@property (nonatomic, readonly) id<RACSignal> countChanged;
+@property (nonatomic, readonly) RACSignal *countChanged;
 
 // Controls whether change notifications are sent. Defaults to YES.
 @property (nonatomic, assign) BOOL changeNotificationsEnabled;

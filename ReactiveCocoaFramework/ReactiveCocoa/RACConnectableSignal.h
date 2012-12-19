@@ -24,6 +24,6 @@
 // Creates and returns a signal that calls -connect when the receiver gets its
 // first subscription. Once all its subscribers are gone, subsequent
 // subscriptions will reconnect to the receiver.
-- (id<RACSignal>)autoconnect;
+- (RACSignal *)autoconnect;
 
 @end

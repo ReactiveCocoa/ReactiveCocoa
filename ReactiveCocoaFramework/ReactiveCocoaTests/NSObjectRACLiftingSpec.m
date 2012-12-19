@@ -149,7 +149,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		it(@"should send the return value of the method invocation", ^{
 			RACSubject *objectSubject = [RACSubject subject];
 			RACSubject *integerSubject = [RACSubject subject];
-			id<RACSignal> signal = [object rac_liftSelector:@selector(combineObjectValue:andIntegerValue:) withObjects:objectSubject, integerSubject];
+			RACSignal *signal = [object rac_liftSelector:@selector(combineObjectValue:andIntegerValue:) withObjects:objectSubject, integerSubject];
 
 			__block NSString *result;
 			[signal subscribeNext:^(id x) {
@@ -165,7 +165,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 
 		it(@"should send RACUnit.defaultUnit for void-returning methods", ^{
 			RACSubject *subject = [RACSubject subject];
-			id<RACSignal> signal = [object rac_liftSelector:@selector(setObjectValue:) withObjects:subject];
+			RACSignal *signal = [object rac_liftSelector:@selector(setObjectValue:) withObjects:subject];
 
 			__block id result;
 			[signal subscribeNext:^(id x) {
@@ -180,7 +180,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		it(@"should replay the last value", ^{
 			RACSubject *objectSubject = [RACSubject subject];
 			RACSubject *integerSubject = [RACSubject subject];
-			id<RACSignal> signal = [object rac_liftSelector:@selector(combineObjectValue:andIntegerValue:) withObjects:objectSubject, integerSubject];
+			RACSignal *signal = [object rac_liftSelector:@selector(combineObjectValue:andIntegerValue:) withObjects:objectSubject, integerSubject];
 
 			[objectSubject sendNext:@"Magic number"];
 			[integerSubject sendNext:@42];
@@ -203,7 +203,7 @@ describe(@"-rac_liftBlock:withObjects:", ^{
 
 		__block id received1;
 		__block id received2;
-		id<RACSignal> signal = [self rac_liftBlock:^(NSNumber *arg1, NSNumber *arg2) {
+		RACSignal *signal = [self rac_liftBlock:^(NSNumber *arg1, NSNumber *arg2) {
 			received1 = arg1;
 			received2 = arg2;
 			return @(arg1.unsignedIntegerValue + arg2.unsignedIntegerValue);

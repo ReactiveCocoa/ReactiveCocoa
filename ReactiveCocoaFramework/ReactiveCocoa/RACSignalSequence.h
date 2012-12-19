@@ -8,12 +8,12 @@
 
 #import "RACSequence.h"
 
-@protocol RACSignal;
+@class RACSignal;
 
-// Private class that adapts a <RACSignal> to the RACSequence interface.
+// Private class that adapts a RACSignal to the RACSequence interface.
 @interface RACSignalSequence : RACSequence
 
 // Returns a sequence for enumerating over the given signal.
-+ (RACSequence *)sequenceWithSignal:(id<RACSignal>)signal;
++ (RACSequence *)sequenceWithSignal:(RACSignal *)signal;
 
 @end

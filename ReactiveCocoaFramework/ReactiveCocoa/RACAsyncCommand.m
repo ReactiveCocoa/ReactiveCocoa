@@ -10,11 +10,12 @@
 #import "EXTKeyPathCoding.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACScheduler.h"
+#import "RACSignal+Operations.h"
 #import "RACTuple.h"
 
 @interface RACAsyncBlockPair : NSObject
 @property (nonatomic, strong) RACSubject *subject;
-@property (nonatomic, strong) id<RACSignal> (^asyncBlock)(id value);
+@property (nonatomic, strong) RACSignal * (^asyncBlock)(id value);
 @end
 
 @interface RACAsyncCommand ()
@@ -37,7 +38,7 @@
 
 #pragma mark RACCommand
 
-- (id)initWithCanExecuteSignal:(id<RACSignal>)canExecuteSignal block:(void (^)(id sender))block {
+- (id)initWithCanExecuteSignal:(RACSignal *)canExecuteSignal block:(void (^)(id sender))block {
 	self = [super initWithCanExecuteSignal:nil block:block];
 	if (self == nil) return nil;
 	
@@ -92,7 +93,7 @@
 	return operationQueue;
 }
 
-- (id<RACSignal>)addAsyncBlock:(id<RACSignal> (^)(id value))block {
+- (RACSignal *)addAsyncBlock:(RACSignal * (^)(id value))block {
 	NSParameterAssert(block != NULL);
 	
 	RACSubject *subject = [RACSubject subject];

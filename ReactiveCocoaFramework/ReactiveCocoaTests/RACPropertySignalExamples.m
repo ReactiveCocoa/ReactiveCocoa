@@ -20,7 +20,7 @@ SharedExampleGroupsBegin(RACPropertySignalExamples)
 
 sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 	__block RACTestObject *testObject = nil;
-	void (^setupBlock)(RACTestObject *, NSString *keyPath, id<RACSignal>) = data[RACPropertySignalExamplesSetupBlock];
+	void (^setupBlock)(RACTestObject *, NSString *keyPath, RACSignal *) = data[RACPropertySignalExamplesSetupBlock];
 
 	beforeEach(^{
 		testObject = [[RACTestObject alloc] init];
@@ -67,7 +67,7 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 
 		@autoreleasepool {
 			@autoreleasepool {
-				NSObject<RACSignal> *intermediateSignal = [subject map:^(NSNumber *num) {
+				RACSignal *intermediateSignal = [subject map:^(NSNumber *num) {
 					return @(num.integerValue + 1);
 				}];
 

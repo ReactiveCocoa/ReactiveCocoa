@@ -14,7 +14,7 @@
 #import "RACDisposable.h"
 
 @interface RACConnectableSignal ()
-@property (nonatomic, strong) id<RACSignal> sourceSignal;
+@property (nonatomic, strong) RACSignal *sourceSignal;
 @property (nonatomic, strong) RACSubject *subject;
 @property (nonatomic, strong) RACDisposable *disposable;
 @end
@@ -29,7 +29,7 @@
 
 #pragma mark API
 
-+ (instancetype)connectableSignalWithSourceSignal:(id<RACSignal>)source subject:(RACSubject *)subject {
++ (instancetype)connectableSignalWithSourceSignal:(RACSignal *)source subject:(RACSubject *)subject {
 	RACConnectableSignal *signal = [[self alloc] init];
 	signal.sourceSignal = source;
 	signal.subject = subject;
@@ -46,7 +46,7 @@
 	}
 }
 
-- (id<RACSignal>)autoconnect {
+- (RACSignal *)autoconnect {
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		RACDisposable *subscriptionDisposable = [self subscribe:subscriber];
 

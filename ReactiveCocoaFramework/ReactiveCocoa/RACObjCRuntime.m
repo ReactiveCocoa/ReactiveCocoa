@@ -12,6 +12,9 @@
 
 + (void)findMethod:(SEL)method inProtocol:(Protocol *)protocol outMethod:(struct objc_method_description *)outMethod {
     *outMethod = protocol_getMethodDescription(protocol, method, NO, YES);
+    if (outMethod->name == NULL) {
+        *outMethod = protocol_getMethodDescription(protocol, method, YES, YES);
+    }
 }
 
 + (const char *)getMethodTypesForMethod:(SEL)method inProtocol:(Protocol *)protocol {

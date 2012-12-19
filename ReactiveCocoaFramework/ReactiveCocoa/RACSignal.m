@@ -367,22 +367,18 @@ static NSMutableSet *activeSignals() {
 }
 
 - (void)invalidateGlobalRefIfNoNewSubscribersShowUp {
-	// We might not be on a queue with a runloop. So make sure we do the delay
-	// on the main queue.
-	dispatch_async(dispatch_get_main_queue(), ^{
-		// If no one subscribed in the runloop's pass, then we're free to go.
-		// It's up to the caller to keep us alive if they still want us.
-		[self rac_performBlock:^{
-			BOOL hasSubscribers = YES;
-			@synchronized(self.subscribers) {
-				hasSubscribers = self.subscribers.count > 0;
-			}
+	// If no one subscribed in one pass of the main run loop, then we're free to
+	// go. It's up to the caller to keep us alive if they still want us.
+	[RACScheduler.mainThreadScheduler schedule:^{
+		BOOL hasSubscribers = YES;
+		@synchronized(self.subscribers) {
+			hasSubscribers = self.subscribers.count > 0;
+		}
 
-			if (!hasSubscribers) {
-				[self invalidateGlobalRef];
-			}
-		} afterDelay:0];
-	});
+		if (!hasSubscribers) {
+			[self invalidateGlobalRef];
+		}
+	}];
 }
 
 - (void)invalidateGlobalRef {

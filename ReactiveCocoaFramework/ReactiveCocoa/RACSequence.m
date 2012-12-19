@@ -85,7 +85,7 @@
 				return nil;
 			}
 
-			current = bindBlock(value, &stop);
+			current = (id)bindBlock(value, &stop);
 			if (current == nil) return nil;
 
 			valuesSeq = valuesSeq.tail;
@@ -107,7 +107,7 @@
 	}];
 }
 
-- (instancetype)concat:(id<RACStream>)stream {
+- (instancetype)concat:(RACStream *)stream {
 	NSParameterAssert(stream != nil);
 
 	return [RACArraySequence sequenceWithArray:@[ self, stream ] offset:0].flatten;

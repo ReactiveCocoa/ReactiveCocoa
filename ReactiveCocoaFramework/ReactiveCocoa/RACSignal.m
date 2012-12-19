@@ -234,7 +234,7 @@ static NSMutableSet *activeSignals() {
 
 		RACDisposable *bindingDisposable = [self subscribeNext:^(id x) {
 			BOOL stop = NO;
-			RACSignal *signal = bindingBlock(x, &stop);
+			id signal = bindingBlock(x, &stop);
 
 			if (signal != nil) addSignal(signal);
 			if (signal == nil || stop) completeSignal(self);

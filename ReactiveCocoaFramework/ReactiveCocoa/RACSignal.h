@@ -14,7 +14,7 @@
 @class RACSubject;
 @protocol RACSubscriber;
 
-@interface RACSignal : NSObject
+@interface RACSignal : RACStream
 
 // The name of the signal. This is for debugging/human purposes only.
 @property (copy) NSString *name;
@@ -72,7 +72,7 @@
 
 @end
 
-@interface RACSignal (RACStream) <RACStream>
+@interface RACSignal (RACStream)
 
 // Returns a signal that immediately sends the given value and then completes.
 + (RACSignal *)return:(id)value;

@@ -65,7 +65,7 @@ SharedExampleGroupsEnd
 
 SpecBegin(RACSignal)
 
-describe(@"<RACStream>", ^{
+describe(@"RACStream", ^{
 	id verifyValues = ^(RACSignal *signal, NSArray *expectedValues) {
 		expect(signal).notTo.beNil();
 

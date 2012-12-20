@@ -32,11 +32,11 @@
 
 #pragma mark API
 
-+ (instancetype)cancelableSignalSourceSignal:(id<RACSignal>)sourceSignal withBlock:(void (^)(void))block {
++ (instancetype)cancelableSignalSourceSignal:(RACSignal *)sourceSignal withBlock:(void (^)(void))block {
 	return [self cancelableSignalSourceSignal:sourceSignal subject:[RACReplaySubject subject] withBlock:block];
 }
 
-+ (instancetype)cancelableSignalSourceSignal:(id<RACSignal>)sourceSignal subject:(RACSubject *)subject withBlock:(void (^)(void))block {
++ (instancetype)cancelableSignalSourceSignal:(RACSignal *)sourceSignal subject:(RACSubject *)subject withBlock:(void (^)(void))block {
 	RACCancelableSignal *signal = [self connectableSignalWithSourceSignal:sourceSignal subject:subject];
 	[signal connect];
 	signal.cancelBlock = block;

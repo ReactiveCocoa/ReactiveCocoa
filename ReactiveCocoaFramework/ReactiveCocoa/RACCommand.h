@@ -31,11 +31,11 @@
 // Creates a new command with the given execution block. `signal` should be a
 // signal that sends NSNumber-wrapped BOOLs. The `canExecute` property will be
 // set to the boolValue of the latest value received from the signal.
-+ (instancetype)commandWithCanExecuteSignal:(id<RACSignal>)signal block:(void (^)(id sender))block;
++ (instancetype)commandWithCanExecuteSignal:(RACSignal *)signal block:(void (^)(id sender))block;
 
 // Initializes a new command with the given execution block and can execute
 // signal. Both can be nil.
-- (id)initWithCanExecuteSignal:(id<RACSignal>)canExecuteSignal block:(void (^)(id sender))block;
+- (id)initWithCanExecuteSignal:(RACSignal *)canExecuteSignal block:(void (^)(id sender))block;
 
 // If `canExecute` is YES, executes the receiver's block with the given sender
 // and returns YES. Otherwise, returns NO.

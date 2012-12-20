@@ -13,6 +13,7 @@
 #import "RACDisposable.h"
 #import "RACReplaySubject.h"
 #import "RACScheduler.h"
+#import "RACSignal+Operations.h"
 #import "RACSubject.h"
 #import "RACUnit.h"
 

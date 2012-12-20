@@ -85,7 +85,7 @@
 				return nil;
 			}
 
-			current = bindBlock(value, &stop);
+			current = (id)bindBlock(value, &stop);
 			if (current == nil) return nil;
 
 			valuesSeq = valuesSeq.tail;
@@ -107,7 +107,7 @@
 	}];
 }
 
-- (instancetype)concat:(id<RACStream>)stream {
+- (instancetype)concat:(RACStream *)stream {
 	NSParameterAssert(stream != nil);
 
 	return [RACArraySequence sequenceWithArray:@[ self, stream ] offset:0].flatten;
@@ -154,11 +154,11 @@
 	return [array copy];
 }
 
-- (id<RACSignal>)signal {
+- (RACSignal *)signal {
 	return [self signalWithScheduler:[RACScheduler scheduler]];
 }
 
-- (id<RACSignal>)signalWithScheduler:(RACScheduler *)scheduler {
+- (RACSignal *)signalWithScheduler:(RACScheduler *)scheduler {
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACSequence *sequence = self;
 

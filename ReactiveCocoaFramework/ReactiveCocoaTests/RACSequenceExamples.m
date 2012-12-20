@@ -10,7 +10,7 @@
 
 #import "RACScheduler.h"
 #import "RACSequence.h"
-#import "RACSignalProtocol.h"
+#import "RACSignal+Operations.h"
 
 NSString * const RACSequenceExamples = @"RACSequenceExamples";
 NSString * const RACSequenceSequence = @"RACSequenceSequence";
@@ -37,17 +37,17 @@ sharedExamplesFor(RACSequenceExamples, ^(NSDictionary *data) {
 
 	describe(@"-signalWithScheduler:", ^{
 		it(@"should return an immediately scheduled signal", ^{
-			id<RACSignal> signal = [sequence signalWithScheduler:RACScheduler.immediateScheduler];
+			RACSignal *signal = [sequence signalWithScheduler:RACScheduler.immediateScheduler];
 			expect(signal.toArray).to.equal(values);
 		});
 
 		it(@"should return a background scheduled signal", ^{
-			id<RACSignal> signal = [sequence signalWithScheduler:[RACScheduler scheduler]];
+			RACSignal *signal = [sequence signalWithScheduler:[RACScheduler scheduler]];
 			expect(signal.toArray).to.equal(values);
 		});
 
 		it(@"should only evaluate one value per scheduling", ^{
-			id<RACSignal> signal = [sequence signalWithScheduler:RACScheduler.mainThreadScheduler];
+			RACSignal *signal = [sequence signalWithScheduler:RACScheduler.mainThreadScheduler];
 
 			__block BOOL flag = YES;
 			__block BOOL completed = NO;

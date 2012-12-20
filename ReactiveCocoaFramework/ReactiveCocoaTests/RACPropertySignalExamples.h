@@ -10,7 +10,7 @@
 extern NSString * const RACPropertySignalExamples;
 
 // The block should have the signature:
-//   void (^)(RACTestObject *testObject, NSString *keyPath, id<RACSignal> signal)
+//   void (^)(RACTestObject *testObject, NSString *keyPath, RACSignal *signal)
 // and should tie the value of the key path on testObject to signal. The value
 // for this key should not be nil.
 extern NSString * const RACPropertySignalExamplesSetupBlock;

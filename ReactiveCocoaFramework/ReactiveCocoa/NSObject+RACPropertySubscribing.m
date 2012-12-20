@@ -7,16 +7,17 @@
 //
 
 #import "NSObject+RACPropertySubscribing.h"
-#import <objc/runtime.h>
 #import "NSObject+RACKVOWrapper.h"
-#import "RACReplaySubject.h"
 #import "RACDisposable.h"
+#import "RACReplaySubject.h"
+#import "RACSignal+Operations.h"
+#import <objc/runtime.h>
 
 static const void *RACObjectDisposables = &RACObjectDisposables;
 
 @implementation NSObject (RACPropertySubscribing)
 
-+ (id<RACSignal>)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath onObject:(NSObject *)onObject {
++ (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath onObject:(NSObject *)onObject {
 	RACReplaySubject *subject = [RACReplaySubject replaySubjectWithCapacity:1];
 	[onObject rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 		[subject sendCompleted];
@@ -31,11 +32,11 @@ static const void *RACObjectDisposables = &RACObjectDisposables;
 	return subject;
 }
 
-- (id<RACSignal>)rac_signalForKeyPath:(NSString *)keyPath onObject:(NSObject *)object {
+- (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath onObject:(NSObject *)object {
 	return [self.class rac_signalFor:self keyPath:keyPath onObject:object];
 }
 
-- (RACDisposable *)rac_deriveProperty:(NSString *)keyPath from:(id<RACSignal>)signal {
+- (RACDisposable *)rac_deriveProperty:(NSString *)keyPath from:(RACSignal *)signal {
 	return [signal toProperty:keyPath onObject:self];
 }
 

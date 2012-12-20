@@ -11,7 +11,7 @@
 @interface RACCancelableSignal ()
 
 // Defaults to using a RACReplaySubject.
-+ (instancetype)cancelableSignalSourceSignal:(id<RACSignal>)sourceSignal withBlock:(void (^)(void))block;
-+ (instancetype)cancelableSignalSourceSignal:(id<RACSignal>)sourceSignal subject:(RACSubject *)subject withBlock:(void (^)(void))block;
++ (instancetype)cancelableSignalSourceSignal:(RACSignal *)sourceSignal withBlock:(void (^)(void))block;
++ (instancetype)cancelableSignalSourceSignal:(RACSignal *)sourceSignal subject:(RACSubject *)subject withBlock:(void (^)(void))block;
 
 @end

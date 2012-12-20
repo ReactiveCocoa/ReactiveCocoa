@@ -12,6 +12,6 @@
 
 @interface RACConnectableSignal ()
 
-+ (instancetype)connectableSignalWithSourceSignal:(id<RACSignal>)source subject:(RACSubject *)subject;
++ (instancetype)connectableSignalWithSourceSignal:(RACSignal *)source subject:(RACSubject *)subject;
 
 @end

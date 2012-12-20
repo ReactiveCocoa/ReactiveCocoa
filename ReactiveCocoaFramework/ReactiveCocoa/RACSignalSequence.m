@@ -10,7 +10,7 @@
 #import "RACConnectableSignal.h"
 #import "RACDisposable.h"
 #import "RACReplaySubject.h"
-#import "RACSignalProtocol.h"
+#import "RACSignal+Operations.h"
 
 @interface RACSignalSequence ()
 
@@ -23,7 +23,7 @@
 
 #pragma mark Lifecycle
 
-+ (RACSequence *)sequenceWithSignal:(id<RACSignal>)signal {
++ (RACSequence *)sequenceWithSignal:(RACSignal *)signal {
 	RACSignalSequence *seq = [[self alloc] init];
 
 	RACReplaySubject *subject = [RACReplaySubject subject];

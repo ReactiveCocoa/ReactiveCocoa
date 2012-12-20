@@ -8,6 +8,7 @@
 
 #import "RACConnectableSignal.h"
 #import "RACDisposable.h"
+#import "RACSignal+Operations.h"
 #import "RACSubscriber.h"
 
 SpecBegin(RACConnectableSignal)
@@ -15,7 +16,7 @@ SpecBegin(RACConnectableSignal)
 describe(@"-autoconnect", ^{
 	__block BOOL disposed = NO;
 	__block NSUInteger numberOfSubscriptions = 0;
-	__block id<RACSignal> signal;
+	__block RACSignal *signal;
 
 	beforeEach(^{
 		disposed = NO;

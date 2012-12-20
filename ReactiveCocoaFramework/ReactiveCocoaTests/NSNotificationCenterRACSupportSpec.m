@@ -21,7 +21,7 @@ beforeEach(^{
 });
 
 it(@"should send the notification when posted by any object", ^{
-	id<RACSignal> signal = [notificationCenter rac_addObserverForName:TestNotification object:nil];
+	RACSignal *signal = [notificationCenter rac_addObserverForName:TestNotification object:nil];
 
 	__block NSUInteger count = 0;
 	[signal subscribeNext:^(NSNotification *notification) {
@@ -41,7 +41,7 @@ it(@"should send the notification when posted by any object", ^{
 });
 
 it(@"should send the notification when posted by a specific object", ^{
-	id<RACSignal> signal = [notificationCenter rac_addObserverForName:TestNotification object:self];
+	RACSignal *signal = [notificationCenter rac_addObserverForName:TestNotification object:self];
 
 	__block NSUInteger count = 0;
 	[signal subscribeNext:^(NSNotification *notification) {

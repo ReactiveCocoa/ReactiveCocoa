@@ -625,15 +625,24 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 - (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object {
 	NSParameterAssert(keyPath != nil);
 	NSParameterAssert(object != nil);
+
+	// Purposely not retaining 'object', since we want to tear down the binding
+	// when it deallocates normally.
+	__block void * volatile objectPtr = (__bridge void *)object;
 	
-	__block __unsafe_unretained NSObject *weakObject = object;
 	RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
-		NSObject *strongObject = weakObject;
-		[strongObject setValue:x forKeyPath:keyPath];
+		NSObject *object = (__bridge id)objectPtr;
+		[object setValue:x forKeyPath:keyPath];
 	}];
 	
 	RACDisposable *disposable = [RACDisposable disposableWithBlock:^{
-		weakObject = nil;
+		while (YES) {
+			void *ptr = objectPtr;
+			if (OSAtomicCompareAndSwapPtrBarrier(ptr, NULL, &objectPtr)) {
+				break;
+			}
+		}
+
 		[subscriptionDisposable dispose];
 	}];
 

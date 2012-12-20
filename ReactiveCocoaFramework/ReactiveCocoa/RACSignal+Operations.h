@@ -126,7 +126,17 @@ typedef NSInteger RACSignalError;
 // block is called to get a new start object for each subscription.
 - (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock;
 
-// Set the object's keyPath to the value of `next`.
+// Binds the receiver to an object, automatically setting the given key path on
+// every `next`. When the signal completes, the binding is automatically
+// disposed of.
+//
+// Sending an error on the signal is considered undefined behavior, and will
+// generate an assertion failure in Debug builds.
+//
+// keyPath - The key path to update with `next`s from the receiver.
+// object  - The object that `keyPath` is relative to.
+//
+// Returns a disposable which can be used to terminate the binding.
 - (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object;
 
 // Sends NSDate.date every `interval` seconds.

@@ -633,6 +633,13 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
 		NSObject *object = (__bridge id)objectPtr;
 		[object setValue:x forKeyPath:keyPath];
+	} error:^(NSError *error) {
+		NSObject *object = (__bridge id)objectPtr;
+
+		NSAssert(NO, @"Received error in binding for key path \"%@\" on %@: %@", keyPath, object, error);
+
+		// Log the error if we're running with assertions disabled.
+		NSLog(@"Received error in binding for key path \"%@\" on %@: %@", keyPath, object, error);
 	}];
 	
 	RACDisposable *disposable = [RACDisposable disposableWithBlock:^{

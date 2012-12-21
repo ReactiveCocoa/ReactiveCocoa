@@ -321,7 +321,9 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			return [[[RACSignal interval:interval] take:1] doNext:^(id x) {
 				[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:values convertNullsToNils:YES]];
 				[values removeAllObjects];
-				[windowOpenSubject sendNext:[RACUnit defaultUnit]];
+				dispatch_async(dispatch_get_main_queue(), ^{
+					[windowOpenSubject sendNext:[RACUnit defaultUnit]];
+				});
 			}];
 		}] subscribeNext:^(id x) {
 			innerDisposable = [x subscribeNext:^(id x) {

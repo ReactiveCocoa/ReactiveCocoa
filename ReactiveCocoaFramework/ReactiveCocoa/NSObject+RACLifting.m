@@ -68,7 +68,7 @@
 		return invokeWithTarget(self);
 	} else {
 		@unsafeify(self);
-		return [self rac_liftSignals:signals withReducingInvocation:^ id (RACTuple *xs) {
+		return [self rac_liftSignals:signals withReducingInvocation:^(RACTuple *xs) {
 			@strongify(self);
 
 			for (NSUInteger i = 0; i < xs.count; i++) {

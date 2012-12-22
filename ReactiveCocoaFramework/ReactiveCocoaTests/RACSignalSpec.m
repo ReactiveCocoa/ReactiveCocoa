@@ -1621,4 +1621,54 @@ describe(@"-collect", ^{
 	});
 });
 
+describe(@"-bufferWithTime", ^{
+	it(@"it should buffer nexts and restart buffering if new next arrives", ^{
+		RACSubject *input = [RACSubject subject];
+		
+		RACSignal *bufferedInput = [input bufferWithTime:0.1];
+		
+		__block NSArray *received = nil;
+		
+		[bufferedInput subscribeNext:^(id x) {
+			received = [(RACTuple*)x allObjects];
+		}];
+		
+		[input sendNext:@1];
+		[input sendNext:@2];
+		
+		expect(received).will.equal((@[@1, @2]));
+		
+		[input sendNext:@3];
+		
+		expect(received).will.equal((@[@3]));
+	});
+});
+
+
+describe(@"-buffer", ^{
+	it(@"it should buffer nexts and restart buffering if new next arrives", ^{
+		RACSubject *input = [RACSubject subject];
+		
+		RACSignal *bufferedInput = [input buffer:2l];
+
+		__block NSUInteger received = 0;
+		
+		[bufferedInput subscribeNext:^(id x) {
+			NSLog(@"x=%@", x);
+			received = 2;
+		}];
+
+		[input sendNext:@1];
+		[input sendNext:@2];
+		
+//		expect(received).to.equal((@[@1, @2]));
+		
+//		[input sendNext:@3];
+//		[input sendNext:@4];
+//		[input sendNext:@5];
+//		
+//		expect(received).to.equal((@[@3, @4]));
+	});
+});
+
 SpecEnd

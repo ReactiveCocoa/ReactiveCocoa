@@ -316,14 +316,15 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		NSMutableArray *values = [NSMutableArray array];
 		RACBehaviorSubject *windowOpenSubject = [RACBehaviorSubject behaviorSubjectWithDefaultValue:[RACUnit defaultUnit]];
 
+		RACSignal *windowOpenerSignal = [self doNext:^(id x) {
+			[windowOpenSubject sendNext:[RACUnit defaultUnit]];
+		}];
+
 		__block RACDisposable *innerDisposable = nil;
-		RACDisposable *outerDisposable = [[self windowWithStart:windowOpenSubject close:^(RACSignal *start) {
+		RACDisposable *outerDisposable = [[windowOpenerSignal windowWithStart:windowOpenSubject close:^(RACSignal *start) {
 			return [[[RACSignal interval:interval] take:1] doNext:^(id x) {
 				[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:values convertNullsToNils:YES]];
 				[values removeAllObjects];
-				dispatch_async(dispatch_get_main_queue(), ^{
-					[windowOpenSubject sendNext:[RACUnit defaultUnit]];
-				});
 			}];
 		}] subscribeNext:^(id x) {
 			innerDisposable = [x subscribeNext:^(id x) {

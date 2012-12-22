@@ -1431,7 +1431,7 @@ describe(@"+zip:reduce:", ^{
 	it(@"should ignore errors that occur after +zip:reduce: finishes", ^{
 		__block NSError *receivedError = nil;
 		
-		[[RACSignal zip:@[ errorAfterThree, completeAfterTwo ] reduce:nil] subscribeError:^(NSError *error) {
+		[[RACSignal zip:@[ completeAfterTwo, errorAfterThree ] reduce:nil] subscribeError:^(NSError *error) {
 			receivedError = error;
 		}];
 		
@@ -1448,14 +1448,25 @@ describe(@"+zip:reduce:", ^{
 		expect(receivedError).notTo.beNil();
 	});
 	
-	it(@"should ignore errors if +zip:reduce: would have finished regardless", ^{
+	it(@"should forward errors immediately as they are sent", ^{
 		__block NSError *receivedError = nil;
+		RACSubject *subject1 = [RACSubject subject];
+		RACSubject *subject2 = [RACSubject subject];
 		
-		[[RACSignal zip:@[ errorAfterThree, completeAfterThree ] reduce:nil] subscribeError:^(NSError *error) {
+		[[RACSignal zip:@[ subject1, subject2 ] reduce:nil] subscribeError:^(NSError *error) {
 			receivedError = error;
 		}];
 		
-		expect(receivedError).to.beNil();
+		[subject1 sendNext:@1];
+		[subject1 sendNext:@2];
+		[subject2 sendNext:@1];
+		[subject2 sendNext:@2];
+		[subject2 sendNext:@3];
+		[subject2 sendNext:@4];
+		[subject2 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+		[subject1 sendCompleted];
+		
+		expect(receivedError).notTo.beNil();
 	});
 	
 	it(@"should handle signals sending values unevenly", ^{
@@ -1522,7 +1533,7 @@ describe(@"+zip:reduce:", ^{
 		
 		expectedValues = @[ @"111", @"222", @"333" ];
 		expect(receivedValues).to.equal(expectedValues);
-		expect(receivedError).to.beNil();
+		expect(receivedError).notTo.beNil();
 		expect(hasCompleted).to.beFalsy();
 		
 		[a sendNext:@4];
@@ -1534,10 +1545,10 @@ describe(@"+zip:reduce:", ^{
 		// b: [====C....]
 		// c: [=====E...]
 		
-		expectedValues = @[ @"111", @"222", @"333", @"444" ];
+		expectedValues = @[ @"111", @"222", @"333" ];
 		expect(receivedValues).to.equal(expectedValues);
-		expect(receivedError).to.beNil();
-		expect(hasCompleted).to.beTruthy();
+		expect(receivedError).notTo.beNil();
+		expect(hasCompleted).to.beFalsy();
 	});
 	
 	it(@"should handle multiples of the same side-effecting signal", ^{

@@ -295,30 +295,20 @@ static NSMutableSet *activeSignals() {
 	NSUInteger numSignals = signals.count;
 	return [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		NSMutableArray *disposables = [NSMutableArray arrayWithCapacity:numSignals];
-		NSMutableArray *completedOrErrorBySignal = [NSMutableArray arrayWithCapacity:numSignals];
+		NSMutableIndexSet *completedBySignal = [NSMutableIndexSet indexSet];
 		NSMutableArray *valuesBySignal = [NSMutableArray arrayWithCapacity:numSignals];
 		for (NSUInteger i = 0; i < numSignals; ++i) {
-			[completedOrErrorBySignal addObject:@NO];
-			[valuesBySignal addObject:NSMutableArray.array];
+			[valuesBySignal addObject:[NSMutableArray array]];
 		}
 		
-		void (^sendCompleteOrErrorIfNecessary)(void) = ^{
-			id errorOrTupleNil = nil;
+		void (^sendCompleteIfNecessary)(void) = ^{
 			for (NSUInteger i = 0; i < numSignals; ++i) {
 				if ([valuesBySignal[i] count] == 0) {
-					id completedOrError = completedOrErrorBySignal[i];
-					if ([completedOrError isEqual:RACTupleNil.tupleNil] || [completedOrError isKindOfClass:NSError.class]) {
-						errorOrTupleNil = completedOrError;
-					} else {
-						if ([completedOrError isEqual:@YES]) {
-							[subscriber sendCompleted];
-						}
-						return;
+					if ([completedBySignal containsIndex:i]) {
+						[subscriber sendCompleted];
 					}
+					return;
 				}
-			}
-			if (errorOrTupleNil != nil) {
-				[subscriber sendError:([errorOrTupleNil isEqual:RACTupleNil.tupleNil] ? nil : errorOrTupleNil)];
 			}
 		};
 		
@@ -351,17 +341,16 @@ static NSMutableSet *activeSignals() {
 						}
 					}
 					
-					sendCompleteOrErrorIfNecessary();
+					sendCompleteIfNecessary();
 				}
 			} error:^(NSError *error) {
 				@synchronized(valuesBySignal) {
-					completedOrErrorBySignal[i] = error ?: RACTupleNil.tupleNil;
-					sendCompleteOrErrorIfNecessary();
+					[subscriber sendError:error];
 				}
 			} completed:^{
 				@synchronized(valuesBySignal) {
-					completedOrErrorBySignal[i] = @YES;
-					sendCompleteOrErrorIfNecessary();
+					[completedBySignal addIndex:i];
+					sendCompleteIfNecessary();
 				}
 			}];
 			

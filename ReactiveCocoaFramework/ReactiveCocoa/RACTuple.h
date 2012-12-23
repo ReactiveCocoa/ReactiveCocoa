@@ -113,10 +113,10 @@
     metamacro_concat(metamacro_concat(RACTupleUnpack, __LINE__), metamacro_concat(_var, INDEX))
 
 #define RACTupleUnpack_decl(INDEX, ARG) \
-    __unsafe_unretained id RACTupleUnpack_decl_name(INDEX);
+    __autoreleasing id RACTupleUnpack_decl_name(INDEX);
 
 #define RACTupleUnpack_assign(INDEX, ARG) \
-    __autoreleasing ARG = RACTupleUnpack_decl_name(INDEX);
+    __unsafe_unretained ARG = RACTupleUnpack_decl_name(INDEX);
 
 #define RACTupleUnpack_value(INDEX, ARG) \
     [NSValue valueWithPointer:&RACTupleUnpack_decl_name(INDEX)],

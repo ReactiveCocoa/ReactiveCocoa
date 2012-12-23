@@ -344,9 +344,7 @@ static NSMutableSet *activeSignals() {
 					sendCompleteIfNecessary();
 				}
 			} error:^(NSError *error) {
-				@synchronized(valuesBySignal) {
-					[subscriber sendError:error];
-				}
+				[subscriber sendError:error];
 			} completed:^{
 				@synchronized(valuesBySignal) {
 					[completedBySignal addIndex:i];

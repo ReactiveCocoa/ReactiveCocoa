@@ -216,7 +216,7 @@
 	NSParameterAssert(variables != nil);
 
 	[variables enumerateObjectsUsingBlock:^(NSValue *value, NSUInteger index, BOOL *stop) {
-		__unsafe_unretained id *ptr = (__unsafe_unretained id *)value.pointerValue;
+		__autoreleasing id *ptr = (__autoreleasing id *)value.pointerValue;
 		*ptr = tuple[index];
 	}];
 }

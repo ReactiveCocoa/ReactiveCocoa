@@ -1651,23 +1651,26 @@ describe(@"-buffer", ^{
 		
 		RACSignal *bufferedInput = [input buffer:2l];
 
-		__block NSUInteger received = 0;
+		__block NSArray *received = nil;
 		
 		[bufferedInput subscribeNext:^(id x) {
-			NSLog(@"x=%@", x);
-			received = 2;
+			received = [x allObjects];
 		}];
 
 		[input sendNext:@1];
 		[input sendNext:@2];
 		
-//		expect(received).to.equal((@[@1, @2]));
+		expect(received).to.equal((@[@1, @2]));
 		
-//		[input sendNext:@3];
-//		[input sendNext:@4];
-//		[input sendNext:@5];
-//		
-//		expect(received).to.equal((@[@3, @4]));
+		[input sendNext:@3];
+		[input sendNext:@4];
+		[input sendNext:@5];
+		
+		expect(received).to.equal((@[@3, @4]));
+
+		[input sendNext:@6];
+		
+		expect(received).to.equal((@[@5, @6]));
 	});
 });
 

@@ -282,20 +282,25 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 }
 
 - (RACSignal *)buffer:(NSUInteger)bufferCount {
+	NSParameterAssert(bufferCount > 0);
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		NSMutableArray *values = [NSMutableArray arrayWithCapacity:bufferCount];
-		RACBehaviorSubject *windowOpenSubject = [RACBehaviorSubject behaviorSubjectWithDefaultValue:[RACUnit defaultUnit]];
 		RACSubject *windowCloseSubject = [RACSubject subject];
 		
+		RACDisposable *closeDisposable = nil;
+		closeDisposable = [windowCloseSubject subscribeNext:^(id x) {
+			[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:values convertNullsToNils:YES]];
+			[values removeAllObjects];
+		}];
+
 		__block RACDisposable *innerDisposable = nil;
-		RACDisposable *outerDisposable = [[self windowWithStart:windowOpenSubject close:^(RACSignal *start) {
+		RACDisposable *outerDisposable = [[self windowWithStart:self close:^(RACSignal *start) {
 			return windowCloseSubject;
 		}] subscribeNext:^(id x) {		
 			innerDisposable = [x subscribeNext:^(id x) {
-				if(values.count % bufferCount == 0) {
-					[subscriber sendNext:x];
+				[values addObject:x ? : [RACTupleNil tupleNil]];
+				if(values.count != 0 && values.count % bufferCount == 0) {
 					[windowCloseSubject sendNext:[RACUnit defaultUnit]];
-					[windowOpenSubject sendNext:[RACUnit defaultUnit]];
 				}
 			}];
 		} error:^(NSError *error) {
@@ -307,6 +312,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		return [RACDisposable disposableWithBlock:^{
 			[innerDisposable dispose];
 			[outerDisposable dispose];
+			[closeDisposable dispose];
 		}];
 	}];
 }
@@ -314,14 +320,9 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 - (RACSignal *)bufferWithTime:(NSTimeInterval)interval {
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		NSMutableArray *values = [NSMutableArray array];
-		RACBehaviorSubject *windowOpenSubject = [RACBehaviorSubject behaviorSubjectWithDefaultValue:[RACUnit defaultUnit]];
-
-		RACSignal *windowOpenerSignal = [self doNext:^(id x) {
-			[windowOpenSubject sendNext:[RACUnit defaultUnit]];
-		}];
 
 		__block RACDisposable *innerDisposable = nil;
-		RACDisposable *outerDisposable = [[windowOpenerSignal windowWithStart:windowOpenSubject close:^(RACSignal *start) {
+		RACDisposable *outerDisposable = [[self windowWithStart:self close:^(RACSignal *start) {
 			return [[[RACSignal interval:interval] take:1] doNext:^(id x) {
 				[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:values convertNullsToNils:YES]];
 				[values removeAllObjects];

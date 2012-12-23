@@ -1394,79 +1394,91 @@ it(@"should complete take: even if the original signal doesn't", ^{
 });
 
 describe(@"+zip:reduce:", ^{
-	__block RACSignal *errorAfterTwo = nil;
-	__block RACSignal *errorAfterThree = nil;
-	__block RACSignal *completeAfterTwo = nil;
-	__block RACSignal *completeAfterThree = nil;
-	
-	before(^{
-		errorAfterTwo = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendNext:@1];
-			[subscriber sendNext:@2];
-			[subscriber sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
-			return nil;
-		}];
-		errorAfterThree = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendNext:@1];
-			[subscriber sendNext:@2];
-			[subscriber sendNext:@3];
-			[subscriber sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
-			return nil;
-		}];
-		completeAfterTwo = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendNext:@1];
-			[subscriber sendNext:@2];
-			[subscriber sendCompleted];
-			return nil;
-		}];
-		completeAfterThree = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendNext:@1];
-			[subscriber sendNext:@2];
-			[subscriber sendNext:@3];
-			[subscriber sendCompleted];
-			return nil;
-		}];
-	});
-	
-	it(@"should ignore errors that occur after +zip:reduce: finishes", ^{
-		__block NSError *receivedError = nil;
-		
-		[[RACSignal zip:@[ completeAfterTwo, errorAfterThree ] reduce:nil] subscribeError:^(NSError *error) {
-			receivedError = error;
-		}];
-		
-		expect(receivedError).to.beNil();
-	});
-	
-	it(@"should send errors that occur before +zip:reduce: finishes", ^{
-		__block NSError *receivedError = nil;
-		
-		[[RACSignal zip:@[ errorAfterTwo, completeAfterThree ] reduce:nil] subscribeError:^(NSError *error) {
-			receivedError = error;
-		}];
-		
-		expect(receivedError).notTo.beNil();
-	});
-	
-	it(@"should forward errors immediately as they are sent", ^{
-		__block NSError *receivedError = nil;
-		RACSubject *subject1 = [RACSubject subject];
-		RACSubject *subject2 = [RACSubject subject];
-		
-		[[RACSignal zip:@[ subject1, subject2 ] reduce:nil] subscribeError:^(NSError *error) {
-			receivedError = error;
-		}];
-		
+	__block RACSubject *subject1 = nil;
+	__block RACSubject *subject2 = nil;
+	__block RACSignal *zippedSignal = nil;
+	__block BOOL hasSentError = NO;
+	__block BOOL hasSentCompleted = NO;
+	__block RACDisposable *disposable = nil;
+	void (^send2NextAndErrorTo1)(void) = ^{
 		[subject1 sendNext:@1];
 		[subject1 sendNext:@2];
+		[subject1 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+	};
+	void (^send3NextAndErrorTo1)(void) = ^{
+		[subject1 sendNext:@1];
+		[subject1 sendNext:@2];
+		[subject1 sendNext:@3];
+		[subject1 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+	};
+	void (^send2NextAndCompletedTo2)(void) = ^{
+		[subject2 sendNext:@1];
+		[subject2 sendNext:@2];
+		[subject2 sendCompleted];
+	};
+	void (^send3NextAndCompletedTo2)(void) = ^{
 		[subject2 sendNext:@1];
 		[subject2 sendNext:@2];
 		[subject2 sendNext:@3];
-		[subject2 sendNext:@4];
-		[subject2 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
-		[subject1 sendCompleted];
+		[subject2 sendCompleted];
+	};
+	
+	before(^{
+		subject1 = [RACSubject subject];
+		subject2 = [RACSubject subject];
+		zippedSignal = [RACSignal zip:@[ subject1, subject2 ] reduce:nil];
+		hasSentError = NO;
+		hasSentCompleted = NO;
+		disposable = [zippedSignal subscribeError:^(NSError *error) {
+			hasSentError = YES;
+		} completed:^{
+			hasSentCompleted = YES;
+		}];
+	});
+	
+	after(^{
+		[disposable dispose];
+	});
+	
+	it(@"should complete as soon as no new zipped values are possible", ^{
+		[subject1 sendNext:@1];
+		[subject2 sendNext:@1];
+		expect(hasSentCompleted).to.beFalsy();
 		
-		expect(receivedError).notTo.beNil();
+		[subject1 sendNext:@2];
+		[subject1 sendCompleted];
+		expect(hasSentCompleted).to.beFalsy();
+		
+		[subject2 sendNext:@2];
+		expect(hasSentCompleted).to.beTruthy();
+	});
+	
+	it(@"should forward errors sent earlier than (time-wise) and before (position-wise) a complete", ^{
+		send2NextAndErrorTo1();
+		send3NextAndCompletedTo2();
+		expect(hasSentError).to.beTruthy();
+		expect(hasSentCompleted).to.beFalsy();
+	});
+	
+	it(@"should forward errors sent earlier than (time-wise) and after (position-wise) a complete", ^{
+		send3NextAndErrorTo1();
+		send2NextAndCompletedTo2();
+		expect(hasSentError).to.beTruthy();
+		expect(hasSentCompleted).to.beFalsy();
+	});
+	
+	it(@"should forward errors sent later than (time-wise) and before (position-wise) a complete", ^{
+		send3NextAndCompletedTo2();
+		send2NextAndErrorTo1();
+		expect(hasSentError).to.beTruthy();
+		expect(hasSentCompleted).to.beFalsy();
+	});
+	
+	it(@"should ignore errors sent later than (time-wise) and after (position-wise) a complete", ^{
+		send2NextAndCompletedTo2();
+		send3NextAndErrorTo1();
+		expect(hasSentError).to.beFalsy();
+		expect(hasSentCompleted).to.beTruthy();
 	});
 	
 	it(@"should handle signals sending values unevenly", ^{

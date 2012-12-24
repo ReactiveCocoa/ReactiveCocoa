@@ -26,6 +26,7 @@
 #import "RACSubscriber.h"
 #import "RACTuple.h"
 #import "RACUnit.h"
+#import "RACReplaySubject.h"
 #import <libkern/OSAtomic.h>
 #import <objc/runtime.h>
 
@@ -865,6 +866,17 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 - (RACConnectableSignal *)multicast:(RACSubject *)subject {
 	return [RACConnectableSignal connectableSignalWithSourceSignal:self subject:subject];
+}
+
+- (RACSignal *)memoize {
+	RACConnectableSignal *multicasted = [self multicast:[RACReplaySubject subject]];
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		RACDisposable *disposable = [multicasted subscribe:subscriber];
+
+		[multicasted connect];
+
+		return disposable;
+	}];
 }
 
 - (RACSignal *)timeout:(NSTimeInterval)interval {

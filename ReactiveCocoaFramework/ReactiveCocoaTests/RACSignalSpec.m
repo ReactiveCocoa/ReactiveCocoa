@@ -1621,4 +1621,46 @@ describe(@"-collect", ^{
 	});
 });
 
+describe(@"-memoize", ^{
+	it(@"should connect only on the first subscription", ^{
+		__block NSUInteger connectionCount = 0;
+		RACSignal *signal = [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			connectionCount++;
+			return nil;
+		}] memoize];
+
+		[signal subscribeNext:^(id _) {}];
+		expect(connectionCount).to.equal(1);
+
+		[signal subscribeNext:^(id _) {}];
+		expect(connectionCount).to.equal(1);
+	});
+
+	it(@"should replay the previous results for later subscribers", ^{
+		id firstValue = @"hello";
+		id secondValue = @"world";
+		RACSignal *signal = [[[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:firstValue];
+			[subscriber sendNext:secondValue];
+			[subscriber sendCompleted];
+			return nil;
+		}] collect] memoize];
+
+		__block id result;
+		[signal subscribeNext:^(id x) {
+			result = x;
+		}];
+
+		NSArray *expected = @[ @"hello", @"world" ];
+		expect(result).to.equal(expected);
+
+		result = nil;
+		[signal subscribeNext:^(id x) {
+			result = x;
+		}];
+
+		expect(result).to.equal(expected);
+	});
+});
+
 SpecEnd

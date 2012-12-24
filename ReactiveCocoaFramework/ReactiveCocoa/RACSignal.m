@@ -408,10 +408,12 @@ static NSMutableSet *activeSignals() {
 
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposableWithDisposables:@[ defaultDisposable ]];
 	if (self.didSubscribe != NULL) {
-		[RACScheduler.subscriptionScheduler schedule:^{
+		RACDisposable *schedulingDisposable = [RACScheduler.subscriptionScheduler schedule:^{
 			RACDisposable *innerDisposable = self.didSubscribe(subscriber);
 			if (innerDisposable != nil) [disposable addDisposable:innerDisposable];
 		}];
+
+		if (schedulingDisposable != nil) [disposable addDisposable:schedulingDisposable];
 	}
 	
 	[subscriber didSubscribeWithDisposable:disposable];

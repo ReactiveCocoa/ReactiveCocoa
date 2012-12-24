@@ -193,6 +193,7 @@
 		D05C5CA016490C4D00DE6D3E /* NSString+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 88442C8E16090C1500636B49 /* NSString+RACSupport.m */; };
 		D05C5CA116490C5200DE6D3E /* NSTask+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 88442C9016090C1500636B49 /* NSTask+RACSupport.m */; };
 		D0700F4C1672994D00D7CD30 /* NSNotificationCenterRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D0700F4B1672994D00D7CD30 /* NSNotificationCenterRACSupportSpec.m */; };
+		D0870C6F16884A0600D0E11D /* RACBacktraceSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D0870C6E16884A0600D0E11D /* RACBacktraceSpec.m */; };
 		D0C70EC616659333005AAD03 /* RACSubscriberExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C70EC516659333005AAD03 /* RACSubscriberExamples.m */; };
 		D0C70EC8166595AD005AAD03 /* RACSubscriberSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C70EC7166595AD005AAD03 /* RACSubscriberSpec.m */; };
 		D0C70F90164337A2007027B4 /* RACSequenceAdditionsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C70F8F164337A2007027B4 /* RACSequenceAdditionsSpec.m */; };
@@ -485,6 +486,7 @@
 		D0487AB1164314430085D890 /* RACStreamExamples.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACStreamExamples.h; sourceTree = "<group>"; };
 		D0487AB2164314430085D890 /* RACStreamExamples.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACStreamExamples.m; sourceTree = "<group>"; };
 		D0700F4B1672994D00D7CD30 /* NSNotificationCenterRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSNotificationCenterRACSupportSpec.m; sourceTree = "<group>"; };
+		D0870C6E16884A0600D0E11D /* RACBacktraceSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACBacktraceSpec.m; sourceTree = "<group>"; };
 		D095BDBE15CB2E4B00E9BB13 /* Common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Common.xcconfig; sourceTree = "<group>"; };
 		D095BDC015CB2E4B00E9BB13 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		D095BDC115CB2E4B00E9BB13 /* Profile.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Profile.xcconfig; sourceTree = "<group>"; };
@@ -767,6 +769,7 @@
 				8803C010166732BA00C36839 /* RACSchedulerSpec.m */,
 				881E86B91669350B00667F7B /* RACCompoundDisposableSpec.m */,
 				D02221611678910900DBD031 /* RACTupleSpec.m */,
+				D0870C6E16884A0600D0E11D /* RACBacktraceSpec.m */,
 			);
 			path = ReactiveCocoaTests;
 			sourceTree = "<group>";
@@ -1427,6 +1430,7 @@
 				881E86BA1669350B00667F7B /* RACCompoundDisposableSpec.m in Sources */,
 				D0700F4C1672994D00D7CD30 /* NSNotificationCenterRACSupportSpec.m in Sources */,
 				D02221621678910900DBD031 /* RACTupleSpec.m in Sources */,
+				D0870C6F16884A0600D0E11D /* RACBacktraceSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

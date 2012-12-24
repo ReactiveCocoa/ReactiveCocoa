@@ -190,6 +190,20 @@ typedef NSInteger RACSignalError;
 // signal sent by the receiver, and sends `completed` when the receiver completes.
 - (RACSignal *)switch;
 
+// Switches between `trueSignal` and `falseSignal` based on the latest value
+// sent by `boolSignal`.
+//
+// boolSignal  - A signal of BOOLs determining whether `trueSignal` or
+//               `falseSignal` should be active. This argument must not be nil.
+// trueSignal  - The signal to pass through after `boolSignal` has sent YES.
+//               This argument must not be nil.
+// falseSignal - The signal to pass through after `boolSignal` has sent NO. This
+//               argument must not be nil.
+//
+// Returns a signal which passes through `next`s and `error`s from `trueSignal`
+// and/or `falseSignal`, and sends `completed` when `boolSignal` completes.
++ (RACSignal *)if:(RACSignal *)boolSignal then:(RACSignal *)trueSignal else:(RACSignal *)falseSignal;
+
 // Add every `next` to an array. Nils are represented by NSNulls. Note that this
 // is a blocking call.
 - (NSArray *)toArray;

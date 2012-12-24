@@ -1336,6 +1336,91 @@ describe(@"-switch", ^{
 	});
 });
 
+describe(@"+if:then:else", ^{
+	__block RACSubject *boolSubject;
+	__block RACSubject *trueSubject;
+	__block RACSubject *falseSubject;
+
+	__block NSMutableArray *values;
+	__block NSError *lastError = nil;
+	__block BOOL completed = NO;
+
+	beforeEach(^{
+		boolSubject = [RACSubject subject];
+		trueSubject = [RACSubject subject];
+		falseSubject = [RACSubject subject];
+
+		values = [NSMutableArray array];
+		lastError = nil;
+		completed = NO;
+
+		[[RACSignal if:boolSubject then:trueSubject else:falseSubject] subscribeNext:^(id x) {
+			expect(lastError).to.beNil();
+			expect(completed).to.beFalsy();
+
+			[values addObject:x];
+		} error:^(NSError *error) {
+			expect(lastError).to.beNil();
+			expect(completed).to.beFalsy();
+
+			lastError = error;
+		} completed:^{
+			expect(lastError).to.beNil();
+			expect(completed).to.beFalsy();
+
+			completed = YES;
+		}];
+	});
+
+	it(@"should not send any values before a boolean is sent", ^{
+		[trueSubject sendNext:RACUnit.defaultUnit];
+		[falseSubject sendNext:RACUnit.defaultUnit];
+
+		expect(values).to.equal(@[]);
+		expect(lastError).to.beNil();
+		expect(completed).to.beFalsy();
+	});
+
+	it(@"should send events based on the latest boolean", ^{
+		[boolSubject sendNext:@YES];
+
+		[trueSubject sendNext:@"foo"];
+		[falseSubject sendNext:@"buzz"];
+		[trueSubject sendNext:@"bar"];
+
+		NSArray *expected = @[ @"foo", @"bar" ];
+		expect(values).to.equal(expected);
+		expect(lastError).to.beNil();
+		expect(completed).to.beFalsy();
+
+		[boolSubject sendNext:@NO];
+
+		[trueSubject sendNext:@"baz"];
+		[falseSubject sendNext:@"buzz"];
+		[trueSubject sendNext:@"barfoo"];
+
+		expected = @[ @"foo", @"bar", @"buzz" ];
+		expect(values).to.equal(expected);
+		expect(lastError).to.beNil();
+		expect(completed).to.beFalsy();
+
+		[trueSubject sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+		expect(lastError).to.beNil();
+
+		[falseSubject sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+		expect(lastError).notTo.beNil();
+	});
+
+	it(@"should send completed when the BOOL signal completes", ^{
+		[boolSubject sendNext:@YES];
+		[trueSubject sendNext:@"foo"];
+		[boolSubject sendCompleted];
+
+		expect(values).to.equal(@[ @"foo" ]);
+		expect(completed).to.beTruthy();
+	});
+});
+
 describe(@"+interval:", ^{
 	static const NSTimeInterval interval = 0.1;
 	void (^expectItToWorkWithScheduler)(RACScheduler *) = ^(RACScheduler *scheduler) {

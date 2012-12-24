@@ -9,7 +9,6 @@
 #import "RACAsyncCommand.h"
 #import "EXTKeyPathCoding.h"
 #import "NSObject+RACPropertySubscribing.h"
-#import "RACScheduler.h"
 #import "RACSignal+Operations.h"
 #import "RACTuple.h"
 

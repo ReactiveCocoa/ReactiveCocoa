@@ -1396,40 +1396,42 @@ it(@"should complete take: even if the original signal doesn't", ^{
 describe(@"+zip:reduce:", ^{
 	__block RACSubject *subject1 = nil;
 	__block RACSubject *subject2 = nil;
-	__block RACSignal *zippedSignal = nil;
 	__block BOOL hasSentError = NO;
 	__block BOOL hasSentCompleted = NO;
 	__block RACDisposable *disposable = nil;
-	void (^send2NextAndErrorTo1)(void) = ^{
-		[subject1 sendNext:@1];
-		[subject1 sendNext:@2];
-		[subject1 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
-	};
-	void (^send3NextAndErrorTo1)(void) = ^{
-		[subject1 sendNext:@1];
-		[subject1 sendNext:@2];
-		[subject1 sendNext:@3];
-		[subject1 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
-	};
-	void (^send2NextAndCompletedTo2)(void) = ^{
-		[subject2 sendNext:@1];
-		[subject2 sendNext:@2];
-		[subject2 sendCompleted];
-	};
-	void (^send3NextAndCompletedTo2)(void) = ^{
-		[subject2 sendNext:@1];
-		[subject2 sendNext:@2];
-		[subject2 sendNext:@3];
-		[subject2 sendCompleted];
-	};
+	__block void (^send2NextAndErrorTo1)(void) = nil;
+	__block void (^send3NextAndErrorTo1)(void) = nil;
+	__block void (^send2NextAndCompletedTo2)(void) = nil;
+	__block void (^send3NextAndCompletedTo2)(void) = nil;
 	
 	before(^{
+		send2NextAndErrorTo1 = [^{
+			[subject1 sendNext:@1];
+			[subject1 sendNext:@2];
+			[subject1 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+		} copy];
+		send3NextAndErrorTo1 = [^{
+			[subject1 sendNext:@1];
+			[subject1 sendNext:@2];
+			[subject1 sendNext:@3];
+			[subject1 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+		} copy];
+		send2NextAndCompletedTo2 = [^{
+			[subject2 sendNext:@1];
+			[subject2 sendNext:@2];
+			[subject2 sendCompleted];
+		} copy];
+		send3NextAndCompletedTo2 = [^{
+			[subject2 sendNext:@1];
+			[subject2 sendNext:@2];
+			[subject2 sendNext:@3];
+			[subject2 sendCompleted];
+		} copy];
 		subject1 = [RACSubject subject];
 		subject2 = [RACSubject subject];
-		zippedSignal = [RACSignal zip:@[ subject1, subject2 ] reduce:nil];
 		hasSentError = NO;
 		hasSentCompleted = NO;
-		disposable = [zippedSignal subscribeError:^(NSError *error) {
+		disposable = [[RACSignal zip:@[ subject1, subject2 ] reduce:nil] subscribeError:^(NSError *error) {
 			hasSentError = YES;
 		} completed:^{
 			hasSentCompleted = YES;

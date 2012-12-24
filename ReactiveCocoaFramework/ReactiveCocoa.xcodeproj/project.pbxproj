@@ -487,6 +487,7 @@
 		D0487AB2164314430085D890 /* RACStreamExamples.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACStreamExamples.m; sourceTree = "<group>"; };
 		D0700F4B1672994D00D7CD30 /* NSNotificationCenterRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSNotificationCenterRACSupportSpec.m; sourceTree = "<group>"; };
 		D0870C6E16884A0600D0E11D /* RACBacktraceSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACBacktraceSpec.m; sourceTree = "<group>"; };
+		D0870D0B1688522E00D0E11D /* RACBacktrace+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACBacktrace+Private.h"; sourceTree = "<group>"; };
 		D095BDBE15CB2E4B00E9BB13 /* Common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Common.xcconfig; sourceTree = "<group>"; };
 		D095BDC015CB2E4B00E9BB13 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		D095BDC115CB2E4B00E9BB13 /* Profile.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Profile.xcconfig; sourceTree = "<group>"; };
@@ -802,6 +803,7 @@
 				885A3230153CF9EF00486A61 /* RACCollection.h */,
 				885A3231153CF9EF00486A61 /* RACCollection.m */,
 				D02538A115E2D7FB005BACB8 /* RACBacktrace.h */,
+				D0870D0B1688522E00D0E11D /* RACBacktrace+Private.h */,
 				D0DFBCCD15DD6D40009DADB3 /* RACBacktrace.m */,
 				88FC735316114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.h */,
 				88FC735416114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.m */,

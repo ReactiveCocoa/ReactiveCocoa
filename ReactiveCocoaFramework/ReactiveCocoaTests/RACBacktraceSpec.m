@@ -86,6 +86,17 @@ describe(@"with a GCD queue", ^{
 	});
 });
 
+it(@"should trace across a RACScheduler", ^{
+	[[RACScheduler scheduler] schedule:block];
+	expect(previousBacktrace).willNot.beNil();
+});
+
+it(@"should trace across an NSOperationQueue", ^{
+	NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+	[queue addOperationWithBlock:block];
+	expect(previousBacktrace).willNot.beNil();
+});
+
 SpecEnd
 
 #endif

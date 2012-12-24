@@ -181,8 +181,13 @@ typedef NSInteger RACSignalError;
 // previous `next`.
 - (RACSignal *)distinctUntilChanged;
 
-// The source must be a signal of signals. Subscribe and send `next`s for the
-// latest signal. This is mostly useful when combined with `-flattenMap:`.
+// Every time the receiver sends a new RACSignal, subscribes and sends `next`s and
+// `error`s only for that signal.
+//
+// The receiver must be a signal of signals.
+//
+// Returns a signal which passes through `next`s and `error`s from the latest
+// signal sent by the receiver, and sends `completed` when the receiver completes.
 - (RACSignal *)switch;
 
 // Add every `next` to an array. Nils are represented by NSNulls. Note that this

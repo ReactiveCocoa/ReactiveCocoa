@@ -57,17 +57,20 @@
 	}];
 
 	// Every time loginCommand is triggered…
-	RACSignal *loginResult = [[self.loginCommand
-		sequenceMany:^{
-			@strongify(self);
+	RACSignal *loginResult = [self.loginCommand sequenceMany:^{
+		@strongify(self);
 
-			// Try logging in, and return the result.
-			return [self.client login];
-		}]
+		// Try logging in, and return the result.
+		//
 		// -asMaybes means that we wrap each next value or error in
 		// a RACMaybe. This means that even if the API hits an error, the
 		// loginResult signal will still be valid.
-		asMaybes];
+		//
+		// We only take a single RACMaybe because -login uses a replay subject
+		// internally, and resubscribing to it with -asMaybes will cause it to
+		// keep giving us the same values in an infinite loop.
+		return [[[self.client login] asMaybes] take:1];
+	}];
 
 	// Since we used -asMaybes above, we'll need to filter out the specific
 	// error or success cases.

@@ -375,24 +375,27 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}];
 }
 
-+ (RACSignal *)combineLatest:(NSArray *)signals reduce:(id)reduceBlock {
-	if (signals.count == 0) return self.empty;
++ (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock {
+	NSMutableArray *signalsArray = [NSMutableArray array];
+	for (RACSignal *signal in signals) {
+		[signalsArray addObject:signal];
+	}
+	if (signalsArray.count == 0) return self.empty;
 	static NSValue *(^keyForSubscriber)(RACSubscriber *) = ^(RACSubscriber *subscriber) {
 		return [NSValue valueWithNonretainedObject:subscriber];
 	};
-	signals = [signals copy];
 	return [RACSignal createSignal:^(id<RACSubscriber> outerSubscriber) {
-		NSMutableArray *innerSubscribers = [NSMutableArray arrayWithCapacity:signals.count];
-		NSMutableSet *disposables = [NSMutableSet setWithCapacity:signals.count];
-		NSMutableSet *completedSignals = [NSMutableSet setWithCapacity:signals.count];
-		NSMutableDictionary *lastValues = [NSMutableDictionary dictionaryWithCapacity:signals.count];
-		for (RACSignal *signal in signals) {
+		NSMutableArray *innerSubscribers = [NSMutableArray arrayWithCapacity:signalsArray.count];
+		NSMutableSet *disposables = [NSMutableSet setWithCapacity:signalsArray.count];
+		NSMutableSet *completedSignals = [NSMutableSet setWithCapacity:signalsArray.count];
+		NSMutableDictionary *lastValues = [NSMutableDictionary dictionaryWithCapacity:signalsArray.count];
+		for (RACSignal *signal in signalsArray) {
 			__block RACSubscriber *innerSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
 				@synchronized(lastValues) {
 					lastValues[keyForSubscriber(innerSubscriber)] = x ?: RACTupleNil.tupleNil;
 					
-					if(lastValues.count == signals.count) {
-						NSMutableArray *orderedValues = [NSMutableArray arrayWithCapacity:signals.count];
+					if(lastValues.count == signalsArray.count) {
+						NSMutableArray *orderedValues = [NSMutableArray arrayWithCapacity:signalsArray.count];
 						for (RACSubscriber *subscriber in innerSubscribers) {
 							[orderedValues addObject:lastValues[keyForSubscriber(subscriber)]];
 						}
@@ -409,7 +412,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			} completed:^{
 				@synchronized(completedSignals) {
 					[completedSignals addObject:signal];
-					if(completedSignals.count == signals.count) {
+					if(completedSignals.count == signalsArray.count) {
 						[outerSubscriber sendCompleted];
 					}
 				}
@@ -430,12 +433,18 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}];
 }
 
-+ (RACSignal *)combineLatest:(NSArray *)signals {
++ (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals {
 	return [self combineLatest:signals reduce:nil];
 }
 
-+ (RACSignal *)merge:(NSArray *)signals {
-	return [signals.rac_sequence signalWithScheduler:RACScheduler.immediateScheduler].flatten;
++ (RACSignal *)merge:(id<NSFastEnumeration>)signals {
+	return [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		for (RACSignal *signal in signals) {
+			[subscriber sendNext:signal];
+		}
+		[subscriber sendCompleted];
+		return nil;
+	}].flatten;
 }
 
 - (RACSignal *)flatten:(NSUInteger)maxConcurrent {

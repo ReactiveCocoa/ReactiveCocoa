@@ -676,10 +676,12 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 + (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway {
   return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-    dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_current_queue());
-    dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(interval * (NSTimeInterval)NSEC_PER_SEC)), (uint64_t)(interval * (NSTimeInterval)NSEC_PER_SEC), (uint64_t)(leeway * (NSTimeInterval)NSEC_PER_SEC));
+		int64_t intervalInNanoSecs = (int64_t)(interval * NSEC_PER_SEC);
+		int64_t leewayInNanoSecs = (int64_t)(leeway * NSEC_PER_SEC);
+    dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_main_queue());
+    dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, intervalInNanoSecs), (uint64_t)intervalInNanoSecs, (uint64_t)leewayInNanoSecs);
     dispatch_source_set_event_handler(timer, ^{
-      [subscriber sendNext:NSDate.date];
+      [subscriber sendNext:[NSDate date]];
     });
     dispatch_resume(timer);
     

@@ -121,7 +121,7 @@
 	if (sequencesArray.count == 0) return self.empty;
 
 	return [RACSequence sequenceWithHeadBlock:^ id {
-		NSMutableArray *heads = [NSMutableArray array];
+		NSMutableArray *heads = [NSMutableArray arrayWithCapacity:sequencesArray.count];
 		for (RACSequence *sequence in sequencesArray) {
 			id head = sequence.head;
 			if (head == nil) {
@@ -135,7 +135,7 @@
 			return [RACBlockTrampoline invokeBlock:reduceBlock withArguments:heads];
 		}
 	} tailBlock:^ RACSequence * {
-		NSMutableArray *tails = [NSMutableArray array];
+		NSMutableArray *tails = [NSMutableArray arrayWithCapacity:sequencesArray.count];
 		for (RACSequence *sequence in sequencesArray) {
 			RACSequence *tail = sequence.tail;
 			if (tail == nil || tail == RACSequence.empty) {

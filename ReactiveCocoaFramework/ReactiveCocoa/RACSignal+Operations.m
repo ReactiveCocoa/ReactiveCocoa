@@ -375,7 +375,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}];
 }
 
-+ (RACSignal *)combineLatest:(NSArray *)signals reduce:(id)reduceBlock {
++ (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock {
 	if (signals.count == 0) return self.empty;
 	static NSValue *(^keyForSubscriber)(RACSubscriber *) = ^(RACSubscriber *subscriber) {
 		return [NSValue valueWithNonretainedObject:subscriber];
@@ -430,11 +430,11 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}];
 }
 
-+ (RACSignal *)combineLatest:(NSArray *)signals {
++ (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals {
 	return [self combineLatest:signals reduce:nil];
 }
 
-+ (RACSignal *)merge:(NSArray *)signals {
++ (RACSignal *)merge:(id<NSFastEnumeration>)signals {
 	return [signals.rac_sequence signalWithScheduler:RACScheduler.immediateScheduler].flatten;
 }
 

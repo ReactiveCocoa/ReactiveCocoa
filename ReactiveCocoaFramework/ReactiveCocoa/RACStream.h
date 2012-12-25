@@ -72,7 +72,7 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 // Returns a new stream containing the return values of `reduceBlock` applied to
 // the values contained in the input streams, or if `reduceBlock` is nil, tuples
 // of the same values
-+ (instancetype)zip:(NSArray *)streams reduce:(id)reduceBlock;
++ (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id)reduceBlock;
 
 @end
 
@@ -149,10 +149,10 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 - (instancetype)sequenceMany:(RACStream * (^)(void))block;
 
 // Invokes +zip:reduce: with a nil `reduceBlock`.
-+ (instancetype)zip:(NSArray *)streams;
++ (instancetype)zip:(id<NSFastEnumeration>)streams;
 
 // Returns a stream obtained by concatenating `streams` in order.
-+ (instancetype)concat:(NSArray *)streams;
++ (instancetype)concat:(id<NSFastEnumeration>)streams;
 
 // Combines values in the receiver from left to right using the given block.
 //

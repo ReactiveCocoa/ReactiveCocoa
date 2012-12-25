@@ -289,7 +289,7 @@ static NSMutableSet *activeSignals() {
 	return [self flatten:0];
 }
 
-+ (RACSignal *)zip:(NSArray *)signals reduce:(id)reduceBlock {
++ (RACSignal *)zip:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock {
 	if (signals.count == 0) return self.empty;
 	signals = [signals copy];
 	NSUInteger numSignals = signals.count;

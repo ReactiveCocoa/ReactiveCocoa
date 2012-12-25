@@ -96,7 +96,7 @@
 //               of signals given. Each argument will be an object argument,
 //               wrapped as needed. If nil, the returned signal will send a
 //               RACTuple of all the latest values.
-+ (RACSignal *)zip:(NSArray *)signals reduce:(id)reduceBlock;
++ (RACSignal *)zip:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock;
 
 @end
 

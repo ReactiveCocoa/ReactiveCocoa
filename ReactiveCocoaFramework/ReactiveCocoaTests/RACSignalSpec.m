@@ -1305,7 +1305,7 @@ describe(@"+interval:", ^{
 		__block volatile int32_t nextsReceived = 0;
 		[scheduler schedule:^{
 			__block NSTimeInterval lastTime = NSDate.timeIntervalSinceReferenceDate;
-			[[[RACSignal interval:interval] take:3] subscribeNext:^(id _) {
+			[[[[RACSignal interval:interval] take:3] deliverOn:RACScheduler.mainThreadScheduler] subscribeNext:^(id _) {
 				NSTimeInterval currentTime = NSDate.timeIntervalSinceReferenceDate;
 				expect(currentTime - lastTime).beGreaterThanOrEqualTo(interval);
 
@@ -1317,6 +1317,10 @@ describe(@"+interval:", ^{
 	};
 
 	it(@"should fire repeatedly at every interval", ^{
+		expectItToWorkWithScheduler(RACScheduler.immediateScheduler);
+	});
+	
+	it(@"should work on the main thread scheduler", ^{
 		expectItToWorkWithScheduler(RACScheduler.mainThreadScheduler);
 	});
 
@@ -1332,7 +1336,7 @@ describe(@"+interval:withLeeway:", ^{
 		__block volatile int32_t nextsReceived = 0;
 		[scheduler schedule:^{
 			__block NSTimeInterval lastTime = NSDate.timeIntervalSinceReferenceDate;
-			[[[RACSignal interval:interval withLeeway:leeway] take:3] subscribeNext:^(id _) {
+			[[[[RACSignal interval:interval withLeeway:leeway] take:3] deliverOn:RACScheduler.mainThreadScheduler] subscribeNext:^(id _) {
 				NSTimeInterval currentTime = NSDate.timeIntervalSinceReferenceDate;
 				expect(currentTime - lastTime).beGreaterThanOrEqualTo(interval);
 				expect(currentTime - lastTime).beLessThanOrEqualTo(interval + leeway);
@@ -1345,6 +1349,10 @@ describe(@"+interval:withLeeway:", ^{
 	};
 	
 	it(@"should fire repeatedly at every interval", ^{
+		expectItToWorkWithScheduler(RACScheduler.immediateScheduler);
+	});
+	
+	it(@"should work on the main thread scheduler", ^{
 		expectItToWorkWithScheduler(RACScheduler.mainThreadScheduler);
 	});
 	

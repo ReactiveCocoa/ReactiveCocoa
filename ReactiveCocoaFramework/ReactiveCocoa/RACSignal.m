@@ -289,10 +289,13 @@ static NSMutableSet *activeSignals() {
 	return [self flatten:0];
 }
 
-+ (RACSignal *)zip:(NSArray *)signals reduce:(id)reduceBlock {
-	if (signals.count == 0) return self.empty;
-	signals = [signals copy];
-	NSUInteger numSignals = signals.count;
++ (RACSignal *)zip:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock {
+	NSMutableArray *signalsArray = [NSMutableArray array];
+	for (RACSignal *signal in signals) {
+		[signalsArray addObject:signal];
+	}
+	if (signalsArray.count == 0) return self.empty;
+	NSUInteger numSignals = signalsArray.count;
 	return [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		NSMutableArray *disposables = [NSMutableArray arrayWithCapacity:numSignals];
 		NSMutableIndexSet *completedBySignal = [NSMutableIndexSet indexSet];
@@ -313,7 +316,7 @@ static NSMutableSet *activeSignals() {
 		};
 		
 		for (NSUInteger i = 0; i < numSignals; ++i) {
-			RACSignal *signal = signals[i];
+			RACSignal *signal = signalsArray[i];
 			RACDisposable *disposable = [signal subscribeNext:^(id x) {
 				@synchronized(valuesBySignal) {
 					[valuesBySignal[i] addObject:x ?: RACTupleNil.tupleNil];

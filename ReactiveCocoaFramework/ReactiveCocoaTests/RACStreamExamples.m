@@ -387,11 +387,24 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 				RACStream *stream = [streamClass zip:@[]];
 				verifyValues(stream, @[]);
 			});
+			
+			it(@"should make a stream of tuples out of an enumerator of streams", ^{
+				RACStream *stream = [streamClass zip:threeStreams.objectEnumerator];
+				verifyValues(stream, threeTuples);
+			});
+			
+			it(@"should make an empty stream if given an empty enumerator", ^{
+				RACStream *stream = [streamClass zip:@[].objectEnumerator];
+				verifyValues(stream, @[]);
+			});
 		});
 	});
 
 	describe(@"+concat:", ^{
-		it(@"should concatenate many streams", ^{
+		__block NSArray *streams = nil;
+		__block NSArray *result = nil;
+		
+		before(^{
 			RACStream *a = [streamClass return:@0];
 			RACStream *b = [streamClass empty];
 			RACStream *c = streamWithValues(@[ @1, @2, @3 ]);
@@ -400,9 +413,18 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			RACStream *f = [streamClass empty];
 			RACStream *g = [streamClass empty];
 			RACStream *h = streamWithValues(@[ @6, @7 ]);
-			
-			RACStream *stream = [streamClass concat:@[ a, b, c, d, e, f, g, h ]];
-			verifyValues(stream, @[ @0, @1, @2, @3, @4, @5, @6, @7 ]);
+			streams = @[ a, b, c, d, e, f, g, h ];
+			result = @[ @0, @1, @2, @3, @4, @5, @6, @7 ];
+		});
+		
+		it(@"should concatenate an array of streams", ^{
+			RACStream *stream = [streamClass concat:streams];
+			verifyValues(stream, result);
+		});
+		
+		it(@"should concatenate an enumerator of streams", ^{
+			RACStream *stream = [streamClass concat:streams.objectEnumerator];
+			verifyValues(stream, result);
 		});
 	});
 

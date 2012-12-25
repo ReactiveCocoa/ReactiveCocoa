@@ -75,7 +75,7 @@ typedef NSInteger RACSignalError;
 - (RACSignal *)takeLast:(NSUInteger)count;
 
 // Invokes +combineLatest:reduce: with a nil `reduceBlock`.
-+ (RACSignal *)combineLatest:(NSArray *)signals;
++ (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals;
 
 // Combine the latest values from each of the signals once all the signals have
 // sent a `next`. Any additional `next`s will result in a new reduced value
@@ -96,10 +96,10 @@ typedef NSInteger RACSignalError;
 //   [RACSignal combineLatest:@[ stringSignal, intSignal ] reduce:^(NSString *string, NSNumber *wrappedInt) {
 //       return [NSString stringWithFormat:@"%@: %@", string, wrappedInt];
 //   }];
-+ (RACSignal *)combineLatest:(NSArray *)signals reduce:(id)reduceBlock;
++ (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock;
 
 // Sends the latest `next` from any of the signals.
-+ (RACSignal *)merge:(NSArray *)signals;
++ (RACSignal *)merge:(id<NSFastEnumeration>)signals;
 
 // Merges the signals sent by the receiver into a flattened signal, but only
 // subscribes to `maxConcurrent` number of signals at a time. New signals are

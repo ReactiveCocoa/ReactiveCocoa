@@ -27,7 +27,7 @@
 	return nil;
 }
 
-+ (instancetype)zip:(NSArray *)streams reduce:(id)reduceBlock {
++ (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id)reduceBlock {
 	return nil;
 }
 
@@ -129,11 +129,11 @@
 	}];
 }
 
-+ (instancetype)zip:(NSArray *)streams {
++ (instancetype)zip:(id<NSFastEnumeration>)streams {
 	return [self zip:streams reduce:nil];
 }
 
-+ (instancetype)concat:(NSArray *)streams {
++ (instancetype)concat:(id<NSFastEnumeration>)streams {
 	RACStream *result = self.empty;
 	for (RACStream *stream in streams) {
 		result = [result concat:stream];

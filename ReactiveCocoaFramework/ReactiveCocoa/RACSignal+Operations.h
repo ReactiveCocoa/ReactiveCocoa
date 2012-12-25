@@ -146,6 +146,18 @@ typedef NSInteger RACSignalError;
 // Returns a signal that sends the current date/time every `interval`.
 + (RACSignal *)interval:(NSTimeInterval)interval;
 
+// Sends NSDate.date every `interval` + `leeway` seconds.
+//
+// interval - The base interval between `next`s.
+// leeway   - The maximum amount of time the `next` can be deferred.
+//
+// Returns a signal that sends the current date/time aproximately every
+// `interval`. The signal will defer sending a `next` for up to `leeway` in the
+// interest of performance or power consumption. Note that even when specifying
+// a `leeway` of 0, some latency is to be expected. If you require a precise
+// timer use one created with +[RACSignal interval:] instead.
++ (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway;
+
 // Take `next`s until the `signalTrigger` sends a `next`.
 - (RACSignal *)takeUntil:(RACSignal *)signalTrigger;
 

@@ -674,6 +674,22 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	[subscriber sendNext:NSDate.date];
 }
 
++ (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway {
+  return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+    dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_current_queue());
+    dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(interval * (NSTimeInterval)NSEC_PER_SEC)), (uint64_t)(interval * (NSTimeInterval)NSEC_PER_SEC), (uint64_t)(leeway * (NSTimeInterval)NSEC_PER_SEC));
+    dispatch_source_set_event_handler(timer, ^{
+      [subscriber sendNext:NSDate.date];
+    });
+    dispatch_resume(timer);
+    
+    return [RACDisposable disposableWithBlock:^{
+      dispatch_source_cancel(timer);
+      dispatch_release(timer);
+    }];
+  }];
+}
+
 - (RACSignal *)takeUntil:(RACSignal *)signalTrigger {
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *selfDisposable = nil;

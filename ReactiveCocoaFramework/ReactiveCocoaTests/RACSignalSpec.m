@@ -1325,6 +1325,34 @@ describe(@"+interval:", ^{
 	});
 });
 
+describe(@"+interval:withLeeway:", ^{
+	static const NSTimeInterval interval = 0.1;
+	static const NSTimeInterval leeway = 2.0;
+	void (^expectItToWorkWithScheduler)(RACScheduler *) = ^(RACScheduler *scheduler) {
+		__block volatile int32_t nextsReceived = 0;
+		[scheduler schedule:^{
+			__block NSTimeInterval lastTime = NSDate.timeIntervalSinceReferenceDate;
+			[[[RACSignal interval:interval withLeeway:leeway] take:3] subscribeNext:^(id _) {
+				NSTimeInterval currentTime = NSDate.timeIntervalSinceReferenceDate;
+				expect(currentTime - lastTime).beGreaterThanOrEqualTo(interval);
+				expect(currentTime - lastTime).beLessThanOrEqualTo(interval + leeway);
+				
+				OSAtomicAdd32Barrier(1, &nextsReceived);
+			}];
+		}];
+		
+		expect(nextsReceived).will.equal(3);
+	};
+	
+	it(@"should fire repeatedly at every interval", ^{
+		expectItToWorkWithScheduler(RACScheduler.mainThreadScheduler);
+	});
+	
+	it(@"should work on a background scheduler", ^{
+		expectItToWorkWithScheduler([RACScheduler scheduler]);
+	});
+});
+
 describe(@"-sequenceNext:", ^{
 	it(@"should continue onto returned signal", ^{
 		RACSubject *subject = [RACSubject subject];

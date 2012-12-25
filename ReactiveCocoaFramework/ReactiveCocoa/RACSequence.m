@@ -113,12 +113,16 @@
 	return [RACArraySequence sequenceWithArray:@[ self, stream ] offset:0].flatten;
 }
 
-+ (instancetype)zip:(NSArray *)sequences reduce:(id)reduceBlock {
-	if (sequences.count == 0) return self.empty;
++ (instancetype)zip:(id<NSFastEnumeration>)sequences reduce:(id)reduceBlock {
+	NSMutableArray *sequencesArray = [NSMutableArray array];
+	for (RACSequence *sequence in sequences) {
+		[sequencesArray addObject:sequence];
+	}
+	if (sequencesArray.count == 0) return self.empty;
 
 	return [RACSequence sequenceWithHeadBlock:^ id {
-		NSMutableArray *heads = [NSMutableArray arrayWithCapacity:sequences.count];
-		for (RACSequence *sequence in sequences) {
+		NSMutableArray *heads = [NSMutableArray array];
+		for (RACSequence *sequence in sequencesArray) {
 			id head = sequence.head;
 			if (head == nil) {
 				return nil;
@@ -131,8 +135,8 @@
 			return [RACBlockTrampoline invokeBlock:reduceBlock withArguments:heads];
 		}
 	} tailBlock:^ RACSequence * {
-		NSMutableArray *tails = [NSMutableArray arrayWithCapacity:sequences.count];
-		for (RACSequence *sequence in sequences) {
+		NSMutableArray *tails = [NSMutableArray array];
+		for (RACSequence *sequence in sequencesArray) {
 			RACSequence *tail = sequence.tail;
 			if (tail == nil || tail == RACSequence.empty) {
 				return tail;

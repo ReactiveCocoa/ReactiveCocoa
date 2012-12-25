@@ -493,7 +493,7 @@ describe(@"+combineLatest:", ^{
 			subscriber2 = subscriber;
 			return nil;
 		}],
-		combined = [RACSignal combineLatest:@[ signal1, signal2 ]];
+		combined = [RACSignal combineLatest:@[ signal1, signal2 ].objectEnumerator];
 	});
 	
 	it(@"should yield when all sources yield", ^{
@@ -600,7 +600,7 @@ describe(@"+combineLatest:", ^{
 	});
 
 	it(@"should complete immediately when not given any signals", ^{
-		RACSignal *signal = [RACSignal combineLatest:@[]];
+		RACSignal *signal = [RACSignal combineLatest:@[].objectEnumerator];
 
 		__block BOOL completed = NO;
 		[signal subscribeCompleted:^{
@@ -1056,7 +1056,7 @@ describe(@"+merge:", ^{
 	beforeEach(^{
 		sub1 = [RACSubject subject];
 		sub2 = [RACSubject subject];
-		merged = [RACSignal merge:@[ sub1, sub2 ]];
+		merged = [RACSignal merge:@[ sub1, sub2 ].objectEnumerator];
 	});
 
 	it(@"should send all values from both signals", ^{
@@ -1110,7 +1110,7 @@ describe(@"+merge:", ^{
 	});
 
 	it(@"should complete immediately when not given any signals", ^{
-		RACSignal *signal = [RACSignal merge:@[]];
+		RACSignal *signal = [RACSignal merge:@[].objectEnumerator];
 
 		__block BOOL completed = NO;
 		[signal subscribeCompleted:^{

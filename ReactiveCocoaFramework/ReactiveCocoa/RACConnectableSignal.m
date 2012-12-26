@@ -67,7 +67,7 @@
 				}
 			}
 		}];
-	} name:@"(%@) -autoconnect", self.name];
+	} name:@"[%@] -autoconnect", self.name];
 }
 
 @end

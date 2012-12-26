@@ -263,7 +263,7 @@ static NSMutableSet *activeSignals() {
 		if (bindingDisposable != nil) [compoundDisposable addDisposable:bindingDisposable];
 
 		return compoundDisposable;
-	} name:@"(%@) -bind:", self.name];
+	} name:@"[%@] -bind:", self.name];
 }
 
 - (RACSignal *)map:(id (^)(id value))block {
@@ -277,7 +277,7 @@ static NSMutableSet *activeSignals() {
 		} completed:^{
 			[subscriber sendCompleted];
 		}];
-	} name:@"(%@) -map:", self.name];
+	} name:@"[%@] -map:", self.name];
 }
 
 - (RACSignal *)concat:(RACSignal *)signal {
@@ -301,7 +301,7 @@ static NSMutableSet *activeSignals() {
 			[sourceDisposable dispose];
 			[concattedDisposable dispose];
 		}];
-	} name:@"(%@) -concat: %@", self.name, signal];
+	} name:@"[%@] -concat: %@", self.name, signal];
 }
 
 - (RACSignal *)flatten {

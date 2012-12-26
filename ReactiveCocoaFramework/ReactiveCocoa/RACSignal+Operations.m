@@ -81,7 +81,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		} completed:^{
 			[subscriber sendCompleted];
 		}];
-	} name:@"(%@) -doNext:", self.name];
+	} name:@"[%@] -doNext:", self.name];
 }
 
 - (RACSignal *)doError:(void (^)(NSError *error))block {
@@ -96,7 +96,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		} completed:^{
 			[subscriber sendCompleted];
 		}];
-	} name:@"(%@) -doError:", self.name];
+	} name:@"[%@] -doError:", self.name];
 }
 
 - (RACSignal *)doCompleted:(void (^)(void))block {
@@ -111,7 +111,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			block();
 			[subscriber sendCompleted];
 		}];
-	} name:@"(%@) -doCompleted:", self.name];
+	} name:@"[%@] -doCompleted:", self.name];
 }
 
 - (RACSignal *)throttle:(NSTimeInterval)interval {
@@ -128,7 +128,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		} completed:^{
 			[subscriber sendCompleted];
 		}];
-	} name:@"(%@) -throttle: %f", self.name, (double)interval];
+	} name:@"[%@] -throttle: %f", self.name, (double)interval];
 }
 
 - (RACSignal *)delay:(NSTimeInterval)interval {
@@ -144,7 +144,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		} completed:^{
 			[subscriber sendCompleted];
 		}];
-	} name:@"(%@) -delay: %f", self.name, (double)interval];
+	} name:@"[%@] -delay: %f", self.name, (double)interval];
 }
 
 - (RACSignal *)repeat {
@@ -160,7 +160,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			^(RACDisposable *disposable) {
 				// Resubscribe.
 			});
-	} name:@"(%@) -repeat", self.name];
+	} name:@"[%@] -repeat", self.name];
 }
 
 - (RACSignal *)asMaybes {
@@ -176,7 +176,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 				[disposable dispose];
 				[subscriber sendCompleted];
 			});
-	} name:@"(%@) -asMaybes", self.name];
+	} name:@"[%@] -asMaybes", self.name];
 }
 
 - (RACSignal *)catch:(RACSignal * (^)(NSError *error))catchBlock {
@@ -204,7 +204,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			[outerDisposable dispose];
 			[innerDisposable dispose];
 		}];
-	} name:@"(%@) -catch:", self.name];
+	} name:@"[%@] -catch:", self.name];
 }
 
 - (RACSignal *)catchTo:(RACSignal *)signal {
@@ -212,7 +212,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		return signal;
 	}];
 
-	result.name = [NSString stringWithFormat:@"(%@) -catchTo: %@", self.name, signal];
+	result.name = [NSString stringWithFormat:@"[%@] -catchTo: %@", self.name, signal];
 	return result;
 }
 
@@ -229,7 +229,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			[subscriber sendCompleted];
 			block();
 		}];
-	} name:@"(%@) -finally:", self.name];
+	} name:@"[%@] -finally:", self.name];
 }
 
 - (RACSignal *)windowWithStart:(RACSignal *)openSignal close:(RACSignal * (^)(RACSignal *start))closeBlock {
@@ -281,7 +281,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			[openObserverDisposable dispose];
 			[selfObserverDisposable dispose];
 		}];
-	} name:@"(%@) -windowWithStart: %@ close:", self.name, openSignal];
+	} name:@"[%@] -windowWithStart: %@ close:", self.name, openSignal];
 }
 
 - (RACSignal *)buffer:(NSUInteger)bufferCount {
@@ -311,7 +311,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			[innerDisposable dispose];
 			[outerDisposable dispose];
 		}];
-	} name:@"(%@) -buffer: %lu", self.name, (unsigned long)bufferCount];
+	} name:@"[%@] -buffer: %lu", self.name, (unsigned long)bufferCount];
 }
 
 - (RACSignal *)bufferWithTime:(NSTimeInterval)interval {
@@ -340,7 +340,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			[innerDisposable dispose];
 			[outerDisposable dispose];
 		}];
-	} name:@"(%@) -bufferWithTime: %f", self.name, (double)interval];
+	} name:@"[%@] -bufferWithTime: %f", self.name, (double)interval];
 }
 
 - (RACSignal *)collect {
@@ -354,7 +354,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			[subscriber sendNext:[collectedValues copy]];
 			[subscriber sendCompleted];
 		}];
-	} name:@"(%@) -collect", self.name];
+	} name:@"[%@] -collect", self.name];
 }
 
 - (RACSignal *)takeLast:(NSUInteger)count {
@@ -375,7 +375,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			
 			[subscriber sendCompleted];
 		}];
-	} name:@"(%@) -takeLast: %lu", self.name, (unsigned long)count];
+	} name:@"[%@] -takeLast: %lu", self.name, (unsigned long)count];
 }
 
 + (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock {
@@ -539,7 +539,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 				[disposables makeObjectsPerformSelector:@selector(dispose)];
 			}
 		}];
-	} name:@"(%@) -flatten: %lu", self.name, (unsigned long)maxConcurrent];
+	} name:@"[%@] -flatten: %lu", self.name, (unsigned long)maxConcurrent];
 }
 
 - (RACSignal *)sequenceNext:(RACSignal * (^)(void))block {
@@ -558,7 +558,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			[sourceDisposable dispose];
 			[nextDisposable dispose];
 		}];
-	} name:@"(%@) -sequenceNext:", self.name];
+	} name:@"[%@] -sequenceNext:", self.name];
 }
 
 - (RACSignal *)concat {
@@ -613,7 +613,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			[sourceDisposable dispose];
 			[currentDisposable dispose];
 		}];
-	} name:@"(%@) -concat", self.name];
+	} name:@"[%@] -concat", self.name];
 }
 
 - (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock {
@@ -630,7 +630,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			[subscriber sendNext:runningValue];
 			[subscriber sendCompleted];
 		}];
-	} name:@"(%@) -aggregateWithStartFactory:combine:", self.name];
+	} name:@"[%@] -aggregateWithStartFactory:combine:", self.name];
 }
 
 - (RACSignal *)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock {
@@ -638,7 +638,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		return start;
 	} combine:combineBlock];
 
-	signal.name = [NSString stringWithFormat:@"(%@) -aggregateWithStart: %@ combine:", self.name, start];
+	signal.name = [NSString stringWithFormat:@"[%@] -aggregateWithStart: %@ combine:", self.name, start];
 	return signal;
 }
 
@@ -720,7 +720,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			[triggerDisposable dispose];
 			[selfDisposable dispose];
 		}];
-	} name:@"(%@) -takeUntil: %@", self.name, signalTrigger];
+	} name:@"[%@] -takeUntil: %@", self.name, signalTrigger];
 }
 
 - (RACSignal *)switch {
@@ -746,7 +746,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			[innerDisposable dispose];
 			[selfDisposable dispose];
 		}];
-	} name:@"(%@) -switch", self.name];
+	} name:@"[%@] -switch", self.name];
 }
 
 - (id)first {
@@ -759,7 +759,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 - (id)firstOrDefault:(id)defaultValue success:(BOOL *)success error:(NSError **)error {
 	NSCondition *condition = [[NSCondition alloc] init];
-	condition.name = [NSString stringWithFormat:@"(%@) -firstOrDefault: %@ success:error:", self.name, defaultValue];
+	condition.name = [NSString stringWithFormat:@"[%@] -firstOrDefault: %@ success:error:", self.name, defaultValue];
 
 	__block id value = defaultValue;
 
@@ -842,12 +842,12 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		} completed:^{
 			[subscriber sendCompleted];
 		}];
-	} name:@"(%@) -distinctUntilChanged", self.name];
+	} name:@"[%@] -distinctUntilChanged", self.name];
 }
 
 - (NSArray *)toArray {
 	NSCondition *condition = [[NSCondition alloc] init];
-	condition.name = [NSString stringWithFormat:@"(%@) -toArray", self.name];
+	condition.name = [NSString stringWithFormat:@"[%@] -toArray", self.name];
 
 	NSMutableArray *values = [NSMutableArray array];
 	__block BOOL done = NO;
@@ -877,19 +877,19 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 - (RACSequence *)sequence {
 	RACSequence *sequence = [RACSignalSequence sequenceWithSignal:self];
-	sequence.name = [NSString stringWithFormat:@"(%@) -sequence", self.name];
+	sequence.name = [NSString stringWithFormat:@"[%@] -sequence", self.name];
 	return sequence;
 }
 
 - (RACConnectableSignal *)publish {
 	RACConnectableSignal *signal = [self multicast:[RACSubject subject]];
-	signal.name = [NSString stringWithFormat:@"(%@) -publish", self.name];
+	signal.name = [NSString stringWithFormat:@"[%@] -publish", self.name];
 	return signal;
 }
 
 - (RACConnectableSignal *)multicast:(RACSubject *)subject {
 	RACConnectableSignal *signal = [RACConnectableSignal connectableSignalWithSourceSignal:self subject:subject];
-	signal.name = [NSString stringWithFormat:@"(%@) -multicast: %@", self.name, subject];
+	signal.name = [NSString stringWithFormat:@"[%@] -multicast: %@", self.name, subject];
 	return signal;
 }
 
@@ -915,7 +915,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			OSAtomicOr32Barrier(1, &cancelTimeout);
 			[disposable dispose];
 		}];
-	} name:@"(%@) -timeout: %f", self.name, (double)interval];
+	} name:@"[%@] -timeout: %f", self.name, (double)interval];
 }
 
 - (RACSignal *)deliverOn:(RACScheduler *)scheduler {
@@ -933,7 +933,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 				[subscriber sendCompleted];
 			}];
 		}];
-	} name:@"(%@) -deliverOn: %@", self.name, scheduler];
+	} name:@"[%@] -deliverOn: %@", self.name, scheduler];
 }
 
 - (RACSignal *)subscribeOn:(RACScheduler *)scheduler {
@@ -952,7 +952,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		return [RACDisposable disposableWithBlock:^{
 			[innerDisposable dispose];
 		}];
-	} name:@"(%@) -subscribeOn: %@", self.name, scheduler];
+	} name:@"[%@] -subscribeOn: %@", self.name, scheduler];
 }
 
 - (RACSignal *)let:(RACSignal * (^)(RACSignal *sharedSignal))letBlock {
@@ -974,7 +974,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			[connectableDisposable dispose];
 			[finalDisposable dispose];
 		}];
-	} name:@"(%@) -let:", self.name];
+	} name:@"[%@] -let:", self.name];
 }
 
 - (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock transform:(id (^)(id object))transformBlock {
@@ -1001,12 +1001,12 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		} completed:^{
 			[subscriber sendCompleted];
 		}];
-	} name:@"(%@) -groupBy:transform:", self.name];
+	} name:@"[%@] -groupBy:transform:", self.name];
 }
 
 - (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock {
 	RACSignal *signal = [self groupBy:keyBlock transform:nil];
-	signal.name = [NSString stringWithFormat:@"(%@) -groupBy:", self.name];
+	signal.name = [NSString stringWithFormat:@"[%@] -groupBy:", self.name];
 	return signal;
 }
 
@@ -1015,7 +1015,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		return YES;
 	}];
 
-	signal.name = [NSString stringWithFormat:@"(%@) -any", self.name];
+	signal.name = [NSString stringWithFormat:@"[%@] -any", self.name];
 	return signal;
 }
 
@@ -1038,7 +1038,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		}];
 		
 		return disposable;
-	} name:@"(%@) -any:", self.name];
+	} name:@"[%@] -any:", self.name];
 }
 
 - (RACSignal *)all:(BOOL (^)(id object))predicateBlock {
@@ -1060,7 +1060,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		}];
 		
 		return disposable;
-	} name:@"(%@) -all:", self.name];
+	} name:@"[%@] -all:", self.name];
 }
 
 - (RACSignal *)retry:(NSInteger)retryCount {
@@ -1084,12 +1084,12 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 				[disposable dispose];
 				[subscriber sendCompleted];
 			});
-	} name:@"(%@) -retry: %lu", self.name, (unsigned long)retryCount];
+	} name:@"[%@] -retry: %lu", self.name, (unsigned long)retryCount];
 }
 
 - (RACSignal *)retry {
 	RACSignal *signal = [self retry:0];
-	signal.name = [NSString stringWithFormat:@"(%@) -retry", self.name];
+	signal.name = [NSString stringWithFormat:@"[%@] -retry", self.name];
 	return signal;
 }
 
@@ -1150,7 +1150,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			[samplerDisposable dispose];
 			[sourceDisposable dispose];
 		}];
-	} name:@"(%@) -sample: %@", self.name, sampler];
+	} name:@"[%@] -sample: %@", self.name, sampler];
 }
 
 @end

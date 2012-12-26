@@ -70,7 +70,7 @@
 - (instancetype)bind:(RACStreamBindBlock (^)(void))block {
 	RACStreamBindBlock bindBlock = block();
 	RACSequence *sequence = [self bind:bindBlock passingThroughValuesFromSequence:nil];
-	sequence.name = [NSString stringWithFormat:@"(%@) -bind:", self.name];
+	sequence.name = [NSString stringWithFormat:@"[%@] -bind:", self.name];
 	return sequence;
 }
 
@@ -121,7 +121,7 @@
 	NSParameterAssert(stream != nil);
 
 	RACSequence *sequence = [RACArraySequence sequenceWithArray:@[ self, stream ] offset:0].flatten;
-	sequence.name = [NSString stringWithFormat:@"(%@) -concat: %@", self.name, stream];
+	sequence.name = [NSString stringWithFormat:@"[%@] -concat: %@", self.name, stream];
 	return sequence;
 }
 
@@ -175,7 +175,7 @@
 
 - (RACSignal *)signal {
 	RACSignal *signal = [self signalWithScheduler:[RACScheduler scheduler]];
-	signal.name = [NSString stringWithFormat:@"(%@) -signal", self.name];
+	signal.name = [NSString stringWithFormat:@"[%@] -signal", self.name];
 	return signal;
 }
 
@@ -194,7 +194,7 @@
 			sequence = sequence.tail;
 			reschedule();
 		}];
-	} name:@"(%@) -signalWithScheduler:", self.name];
+	} name:@"[%@] -signalWithScheduler:", self.name];
 }
 
 #pragma mark NSCopying

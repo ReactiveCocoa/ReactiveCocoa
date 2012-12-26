@@ -54,7 +54,7 @@
 		};
 	}];
 
-	stream.name = [NSString stringWithFormat:@"(%@) -flattenMap:", self.name];
+	stream.name = [NSString stringWithFormat:@"[%@] -flattenMap:", self.name];
 	return stream;
 }
 
@@ -64,7 +64,7 @@
 		return value;
 	}];
 
-	stream.name = [NSString stringWithFormat:@"(%@) -flatten", self.name];
+	stream.name = [NSString stringWithFormat:@"[%@] -flatten", self.name];
 	return stream;
 }
 
@@ -75,7 +75,7 @@
 		return [self.class return:block(value)];
 	}];
 
-	stream.name = [NSString stringWithFormat:@"(%@) -map:", self.name];
+	stream.name = [NSString stringWithFormat:@"[%@] -map:", self.name];
 	return stream;
 }
 
@@ -84,7 +84,7 @@
 		return object;
 	}];
 
-	stream.name = [NSString stringWithFormat:@"(%@) -mapReplace: %@", self.name, object];
+	stream.name = [NSString stringWithFormat:@"[%@] -mapReplace: %@", self.name, object];
 	return stream;
 }
 
@@ -100,7 +100,7 @@
 			return tuple[1];
 		}];
 
-	stream.name = [NSString stringWithFormat:@"(%@) -mapPreviousWithStart: %@ combine:", self.name, start];
+	stream.name = [NSString stringWithFormat:@"[%@] -mapPreviousWithStart: %@ combine:", self.name, start];
 	return stream;
 }
 
@@ -115,13 +115,13 @@
 		}
 	}];
 
-	stream.name = [NSString stringWithFormat:@"(%@) -filter:", self.name];
+	stream.name = [NSString stringWithFormat:@"[%@] -filter:", self.name];
 	return stream;
 }
 
 - (instancetype)startWith:(id)value {
 	RACStream *stream = [[self.class return:value] concat:self];
-	stream.name = [NSString stringWithFormat:@"(%@) -startWith: %@", self.name, value];
+	stream.name = [NSString stringWithFormat:@"[%@] -startWith: %@", self.name, value];
 	return stream;
 }
 
@@ -137,7 +137,7 @@
 		};
 	}];
 
-	stream.name = [NSString stringWithFormat:@"(%@) -skip: %lu", self.name, (unsigned long)skipCount];
+	stream.name = [NSString stringWithFormat:@"[%@] -skip: %lu", self.name, (unsigned long)skipCount];
 	return stream;
 }
 
@@ -155,7 +155,7 @@
 		};
 	}];
 
-	stream.name = [NSString stringWithFormat:@"(%@) -take: %lu", self.name, (unsigned long)count];
+	stream.name = [NSString stringWithFormat:@"[%@] -take: %lu", self.name, (unsigned long)count];
 	return stream;
 }
 
@@ -166,7 +166,7 @@
 		return block();
 	}];
 
-	stream.name = [NSString stringWithFormat:@"(%@) -sequenceMany:", self.name];
+	stream.name = [NSString stringWithFormat:@"[%@] -sequenceMany:", self.name];
 	return stream;
 }
 
@@ -198,7 +198,7 @@
 		};
 	}];
 
-	stream.name = [NSString stringWithFormat:@"(%@) -scanWithStart: %@ combine:", self.name, startingValue];
+	stream.name = [NSString stringWithFormat:@"[%@] -scanWithStart: %@ combine:", self.name, startingValue];
 	return stream;
 }
 
@@ -213,7 +213,7 @@
 		};
 	}];
 
-	stream.name = [NSString stringWithFormat:@"(%@) -takeUntilBlock:", self.name];
+	stream.name = [NSString stringWithFormat:@"[%@] -takeUntilBlock:", self.name];
 	return stream;
 }
 
@@ -224,7 +224,7 @@
 		return !predicate(x);
 	}];
 
-	stream.name = [NSString stringWithFormat:@"(%@) -takeWhileBlock:", self.name];
+	stream.name = [NSString stringWithFormat:@"[%@] -takeWhileBlock:", self.name];
 	return stream;
 }
 
@@ -247,7 +247,7 @@
 		};
 	}];
 
-	stream.name = [NSString stringWithFormat:@"(%@) -skipUntilBlock:", self.name];
+	stream.name = [NSString stringWithFormat:@"[%@] -skipUntilBlock:", self.name];
 	return stream;
 }
 
@@ -258,7 +258,7 @@
 		return !predicate(x);
 	}];
 
-	stream.name = [NSString stringWithFormat:@"(%@) -skipUntilBlock:", self.name];
+	stream.name = [NSString stringWithFormat:@"[%@] -skipUntilBlock:", self.name];
 	return stream;
 }
 

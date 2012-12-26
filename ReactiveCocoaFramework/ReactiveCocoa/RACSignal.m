@@ -47,6 +47,17 @@ static NSMutableSet *activeSignals() {
 	return signal;
 }
 
++ (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe name:(NSString *)format, ... NS_FORMAT_FUNCTION(2, 3) {
+	RACSignal *signal = [self createSignal:didSubscribe];
+
+	va_list args;
+	va_start(args, format);
+	signal.name = [[NSString alloc] initWithFormat:format arguments:args];
+	va_end(args);
+
+	return signal;
+}
+
 + (RACSignal *)error:(NSError *)error {
 	return [self createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		[subscriber sendError:error];

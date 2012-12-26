@@ -28,7 +28,9 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 		[self setStandardOutput:[NSPipe pipe]];
 	}
 	
-	return [self rac_signalForPipe:[self standardOutput]];
+	RACSignal *signal = [self rac_signalForPipe:[self standardOutput]];
+	signal.name = [NSString stringWithFormat:@"%@ -rac_standardOutput", self];
+	return signal;
 }
 
 - (RACSignal *)rac_standardError {
@@ -36,7 +38,9 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 		[self setStandardError:[NSPipe pipe]];
 	}
 	
-	return [self rac_signalForPipe:[self standardError]];
+	RACSignal *signal = [self rac_signalForPipe:[self standardError]];
+	signal.name = [NSString stringWithFormat:@"%@ -rac_standardError", self];
+	return signal;
 }
 
 - (RACSignal *)rac_signalForPipe:(NSPipe *)pipe {
@@ -45,7 +49,9 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 }
 
 - (RACSignal *)rac_completion {
-	return [[[NSNotificationCenter.defaultCenter rac_addObserverForName:NSTaskDidTerminateNotification object:self] any] mapReplace:RACUnit.defaultUnit];
+	RACSignal *signal = [[[NSNotificationCenter.defaultCenter rac_addObserverForName:NSTaskDidTerminateNotification object:self] any] mapReplace:RACUnit.defaultUnit];
+	signal.name = [NSString stringWithFormat:@"%@ -rac_completion", self];
+	return signal;
 }
 
 - (RACCancelableSignal *)rac_run {
@@ -56,6 +62,7 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 	NSParameterAssert(scheduler != nil);
 	
 	RACReplaySubject *subject = [RACReplaySubject subject];
+	subject.name = [NSString stringWithFormat:@"%@ -rac_runWithScheduler: %@", self, scheduler];
 	
 	__block BOOL canceled = NO;
 	[RACScheduler.mainThreadScheduler schedule:^{

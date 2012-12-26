@@ -663,6 +663,8 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 }
 
 + (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway {
+	NSParameterAssert(interval > 0.0 && interval < INT64_MAX / NSEC_PER_SEC);
+	NSParameterAssert(leeway >= 0.0 && leeway < INT64_MAX / NSEC_PER_SEC);
   return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		int64_t intervalInNanoSecs = (int64_t)(interval * NSEC_PER_SEC);
 		int64_t leewayInNanoSecs = (int64_t)(leeway * NSEC_PER_SEC);

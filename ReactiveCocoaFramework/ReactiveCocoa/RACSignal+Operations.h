@@ -139,17 +139,16 @@ typedef NSInteger RACSignalError;
 // Returns a disposable which can be used to terminate the binding.
 - (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object;
 
-// Sends NSDate.date every `interval` seconds. The values are delivered on the
-// global concurrent high priority queue.
+// Sends NSDate.date every `interval` seconds.
 //
 // interval - The time interval in seconds at which the current time is sent.
 //
-// Returns a signal that sends the current date/time every `interval`.
+// Returns a signal that sends the current date/time every `interval` on the
+// global concurrent high priority queue.
 + (RACSignal *)interval:(NSTimeInterval)interval;
 
 // Sends NSDate.date at intervals of at least `interval` seconds, up to
-// aproximately `interval` + `leeway` seconds. The values are delivered on the
-// global concurrent high priority queue.
+// approximately `interval` + `leeway` seconds.
 //
 // The created signal will defer sending each `next` for at least `interval`
 // seconds, and for an additional amount of time up to `leeway` seconds in the
@@ -158,6 +157,10 @@ typedef NSInteger RACSignalError;
 //
 // interval - The base interval between `next`s.
 // leeway   - The maximum amount of additional time the `next` can be deferred.
+//
+// Returns a signal that sends the current date/time at intervals of at least
+// `interval seconds` up to approximately `interval` + `leeway` seconds on the
+// global concurrent high priority queue.
 + (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway;
 
 // Take `next`s until the `signalTrigger` sends a `next`.

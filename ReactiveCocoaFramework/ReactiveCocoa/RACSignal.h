@@ -16,9 +16,6 @@
 
 @interface RACSignal : RACStream
 
-// The name of the signal. This is for debugging/human purposes only.
-@property (copy) NSString *name;
-
 // Creates a new signal. This is the preferred way to create a new signal
 // operation or behavior.
 //

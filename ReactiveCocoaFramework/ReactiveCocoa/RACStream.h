@@ -74,6 +74,12 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 // of the same values
 + (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id)reduceBlock;
 
+// The name of the stream. This is for debugging/human purposes only.
+//
+// This property does not need to be overridden by subclasses. It is included in
+// the main implementation body only for easy synthesis.
+@property (copy) NSString *name;
+
 @end
 
 // Operations built on the RACStream primitives.

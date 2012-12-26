@@ -11,6 +11,18 @@
 
 @implementation RACStream
 
+#pragma mark Lifecycle
+
+- (id)init {
+	self = [super init];
+	if (self == nil) return nil;
+
+	self.name = @"";
+	return self;
+}
+
+#pragma mark Abstract methods
+
 + (instancetype)empty {
 	return nil;
 }

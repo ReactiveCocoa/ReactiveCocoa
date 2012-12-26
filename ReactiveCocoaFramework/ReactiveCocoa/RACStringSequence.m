@@ -41,7 +41,9 @@
 }
 
 - (RACSequence *)tail {
-	return [self.class sequenceWithString:self.string offset:self.offset + 1];
+	RACSequence *sequence = [self.class sequenceWithString:self.string offset:self.offset + 1];
+	sequence.name = self.name;
+	return sequence;
 }
 
 - (NSArray *)array {
@@ -68,7 +70,7 @@
 #pragma mark NSObject
 
 - (NSString *)description {
-	return [NSString stringWithFormat:@"<%@: %p>{ string = %@ }", self.class, self, [self.string substringFromIndex:self.offset]];
+	return [NSString stringWithFormat:@"<%@: %p>{ name = %@, string = %@ }", self.class, self, self.name, [self.string substringFromIndex:self.offset]];
 }
 
 @end

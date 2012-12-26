@@ -98,6 +98,8 @@
 	@synchronized (self) {
 		if (self.tailBlock != nil) {
 			_tail = self.tailBlock();
+			if (_tail.name == nil) _tail.name = self.name;
+
 			self.tailBlock = nil;
 		}
 
@@ -113,10 +115,13 @@
 
 	@synchronized (self) {
 		if (self.headBlock == nil) head = _head;
-		if (self.tailBlock == nil) tail = _tail;
+		if (self.tailBlock == nil) {
+			tail = _tail;
+			if (tail == self) tail = @"(self)";
+		}
 	}
 
-	return [NSString stringWithFormat:@"<%@: %p>{ head = %@, tail = %@ }", self.class, self, head, tail];
+	return [NSString stringWithFormat:@"<%@: %p>{ name = %@, head = %@, tail = %@ }", self.class, self, self.name, head, tail];
 }
 
 @end

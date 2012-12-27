@@ -674,21 +674,22 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 + (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway {
 	NSParameterAssert(interval > 0.0 && interval < INT64_MAX / NSEC_PER_SEC);
 	NSParameterAssert(leeway >= 0.0 && leeway < INT64_MAX / NSEC_PER_SEC);
-  return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		int64_t intervalInNanoSecs = (int64_t)(interval * NSEC_PER_SEC);
 		int64_t leewayInNanoSecs = (int64_t)(leeway * NSEC_PER_SEC);
-    dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0));
-    dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, intervalInNanoSecs), (uint64_t)intervalInNanoSecs, (uint64_t)leewayInNanoSecs);
-    dispatch_source_set_event_handler(timer, ^{
-      [subscriber sendNext:[NSDate date]];
-    });
-    dispatch_resume(timer);
-    
-    return [RACDisposable disposableWithBlock:^{
-      dispatch_source_cancel(timer);
-      dispatch_release(timer);
-    }];
-  }];
+		dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0));
+		dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, intervalInNanoSecs), (uint64_t)intervalInNanoSecs, (uint64_t)leewayInNanoSecs);
+		dispatch_source_set_event_handler(timer, ^{
+			[subscriber sendNext:[NSDate date]];
+		});
+		dispatch_resume(timer);
+
+		return [RACDisposable disposableWithBlock:^{
+			dispatch_source_cancel(timer);
+			dispatch_release(timer);
+		}];
+	}];
 }
 
 - (RACSignal *)takeUntil:(RACSignal *)signalTrigger {

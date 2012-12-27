@@ -85,7 +85,7 @@
 				return nil;
 			}
 
-			current = bindBlock(value, &stop);
+			current = (id)bindBlock(value, &stop);
 			if (current == nil) return nil;
 
 			valuesSeq = valuesSeq.tail;
@@ -107,18 +107,22 @@
 	}];
 }
 
-- (instancetype)concat:(id<RACStream>)stream {
+- (instancetype)concat:(RACStream *)stream {
 	NSParameterAssert(stream != nil);
 
 	return [RACArraySequence sequenceWithArray:@[ self, stream ] offset:0].flatten;
 }
 
-+ (instancetype)zip:(NSArray *)sequences reduce:(id)reduceBlock {
-	if (sequences.count == 0) return self.empty;
++ (instancetype)zip:(id<NSFastEnumeration>)sequences reduce:(id)reduceBlock {
+	NSMutableArray *sequencesArray = [NSMutableArray array];
+	for (RACSequence *sequence in sequences) {
+		[sequencesArray addObject:sequence];
+	}
+	if (sequencesArray.count == 0) return self.empty;
 
 	return [RACSequence sequenceWithHeadBlock:^ id {
-		NSMutableArray *heads = [NSMutableArray arrayWithCapacity:sequences.count];
-		for (RACSequence *sequence in sequences) {
+		NSMutableArray *heads = [NSMutableArray arrayWithCapacity:sequencesArray.count];
+		for (RACSequence *sequence in sequencesArray) {
 			id head = sequence.head;
 			if (head == nil) {
 				return nil;
@@ -131,8 +135,8 @@
 			return [RACBlockTrampoline invokeBlock:reduceBlock withArguments:heads];
 		}
 	} tailBlock:^ RACSequence * {
-		NSMutableArray *tails = [NSMutableArray arrayWithCapacity:sequences.count];
-		for (RACSequence *sequence in sequences) {
+		NSMutableArray *tails = [NSMutableArray arrayWithCapacity:sequencesArray.count];
+		for (RACSequence *sequence in sequencesArray) {
 			RACSequence *tail = sequence.tail;
 			if (tail == nil || tail == RACSequence.empty) {
 				return tail;
@@ -154,22 +158,24 @@
 	return [array copy];
 }
 
-- (id<RACSignal>)signalWithScheduler:(RACScheduler *)scheduler {
+- (RACSignal *)signal {
+	return [self signalWithScheduler:[RACScheduler scheduler]];
+}
+
+- (RACSignal *)signalWithScheduler:(RACScheduler *)scheduler {
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		__block int32_t disposed = 0;
+		__block RACSequence *sequence = self;
 
-		[scheduler schedule:^{
-			for (id value in self) {
-				if (disposed) break;
-
-				[subscriber sendNext:value];
+		return [scheduler scheduleRecursiveBlock:^(void (^reschedule)(void)) {
+			if (sequence.head == nil) {
+				[subscriber sendCompleted];
+				return;
 			}
 
-			[subscriber sendCompleted];
-		}];
+			[subscriber sendNext:sequence.head];
 
-		return [RACDisposable disposableWithBlock:^{
-			OSAtomicIncrement32Barrier(&disposed);
+			sequence = sequence.tail;
+			reschedule();
 		}];
 	}];
 }

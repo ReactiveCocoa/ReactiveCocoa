@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-@protocol RACSignal;
+@class RACSignal;
 
 @interface NSObject (RACLifting)
 
@@ -16,7 +16,8 @@
 //
 // It will replay the most recently sent value to new subscribers.
 //
-// This does not support struct, union, or C array arguments.
+// This does not support C array, union, or struct types other than CGRect,
+// CGSize, and CGPoint.
 //
 // If it is not given any signal arguments, it will immediately invoke the
 // selector with the arguments.
@@ -33,7 +34,7 @@
 // Returns a signal which sends the return value from each invocation of the
 // selector. If the selector returns void, it instead sends RACUnit.defaultUnit.
 // It completes only after all the signal arguments complete.
-- (id<RACSignal>)rac_liftSelector:(SEL)selector withObjects:(id)arg, ...;
+- (RACSignal *)rac_liftSelector:(SEL)selector withObjects:(id)arg, ...;
 
 // Like -rac_liftSelector:withObjects: but invokes the block instead of a selector.
 //
@@ -46,6 +47,6 @@
 //
 // Returns a signal which sends the return value from each invocation of the
 // block. It completes only after all the signal arguments complete.
-- (id<RACSignal>)rac_liftBlock:(id)block withArguments:(id)arg, ... NS_REQUIRES_NIL_TERMINATION;
+- (RACSignal *)rac_liftBlock:(id)block withArguments:(id)arg, ... NS_REQUIRES_NIL_TERMINATION;
 
 @end

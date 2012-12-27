@@ -29,7 +29,7 @@
 #import <ReactiveCocoa/RACStream.h>
 #import <ReactiveCocoa/RACSubject.h>
 #import <ReactiveCocoa/RACSignal.h>
-#import <ReactiveCocoa/RACSignalProtocol.h>
+#import <ReactiveCocoa/RACSignal+Operations.h>
 #import <ReactiveCocoa/RACSubscriber.h>
 #import <ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h>
 #import <ReactiveCocoa/NSObject+RACLifting.h>

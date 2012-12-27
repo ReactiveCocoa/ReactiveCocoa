@@ -10,6 +10,8 @@
 #import "RACTestObject.h"
 #import "RACSubject.h"
 #import "RACUnit.h"
+#import "NSObject+RACPropertySubscribing.h"
+#import "RACDisposable.h"
 
 SpecBegin(NSObjectRACLiftingSpec)
 
@@ -103,6 +105,39 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		expect(strcmp(object.charPointerValue, string) == 0).to.beTruthy();
 	});
 
+	it(@"should work for CGRect", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setRectValue:) withObjects:subject];
+
+		expect(object.rectValue).to.equal(CGRectZero);
+
+		CGRect value = CGRectMake(10, 20, 30, 40);
+		[subject sendNext:[NSValue valueWithRect:value]];
+		expect(object.rectValue).to.equal(value);
+	});
+
+	it(@"should work for CGSize", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setSizeValue:) withObjects:subject];
+
+		expect(object.sizeValue).to.equal(CGSizeZero);
+
+		CGSize value = CGSizeMake(10, 20);
+		[subject sendNext:[NSValue valueWithSize:value]];
+		expect(object.sizeValue).to.equal(value);
+	});
+
+	it(@"should work for CGPoint", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setPointValue:) withObjects:subject];
+
+		expect(object.pointValue).to.equal(CGPointZero);
+
+		CGPoint value = CGPointMake(10, 20);
+		[subject sendNext:[NSValue valueWithPoint:value]];
+		expect(object.pointValue).to.equal(value);
+	});
+
 	it(@"should send the latest value of the signal as the right argument", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setObjectValue:andIntegerValue:) withObjects:@"object", subject];
@@ -116,7 +151,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		it(@"should send the return value of the method invocation", ^{
 			RACSubject *objectSubject = [RACSubject subject];
 			RACSubject *integerSubject = [RACSubject subject];
-			id<RACSignal> signal = [object rac_liftSelector:@selector(combineObjectValue:andIntegerValue:) withObjects:objectSubject, integerSubject];
+			RACSignal *signal = [object rac_liftSelector:@selector(combineObjectValue:andIntegerValue:) withObjects:objectSubject, integerSubject];
 
 			__block NSString *result;
 			[signal subscribeNext:^(id x) {
@@ -132,7 +167,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 
 		it(@"should send RACUnit.defaultUnit for void-returning methods", ^{
 			RACSubject *subject = [RACSubject subject];
-			id<RACSignal> signal = [object rac_liftSelector:@selector(setObjectValue:) withObjects:subject];
+			RACSignal *signal = [object rac_liftSelector:@selector(setObjectValue:) withObjects:subject];
 
 			__block id result;
 			[signal subscribeNext:^(id x) {
@@ -147,7 +182,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		it(@"should replay the last value", ^{
 			RACSubject *objectSubject = [RACSubject subject];
 			RACSubject *integerSubject = [RACSubject subject];
-			id<RACSignal> signal = [object rac_liftSelector:@selector(combineObjectValue:andIntegerValue:) withObjects:objectSubject, integerSubject];
+			RACSignal *signal = [object rac_liftSelector:@selector(combineObjectValue:andIntegerValue:) withObjects:objectSubject, integerSubject];
 
 			[objectSubject sendNext:@"Magic number"];
 			[integerSubject sendNext:@42];
@@ -161,6 +196,22 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 			expect(result).to.equal(@"Magic number: 43");
 		});
 	});
+
+	it(@"shouldn't strongly capture the receiver", ^{
+		__block BOOL dealloced = NO;
+		@autoreleasepool {
+			RACTestObject *testObject __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
+			[testObject rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				dealloced = YES;
+			}]];
+
+			RACSubject *subject = [RACSubject subject];
+			[testObject rac_liftSelector:@selector(setObjectValue:) withObjects:subject];
+			[subject sendNext:@1];
+		}
+
+		expect(dealloced).to.beTruthy();
+	});
 });
 
 describe(@"-rac_liftBlock:withObjects:", ^{
@@ -170,7 +221,7 @@ describe(@"-rac_liftBlock:withObjects:", ^{
 
 		__block id received1;
 		__block id received2;
-		id<RACSignal> signal = [self rac_liftBlock:^(NSNumber *arg1, NSNumber *arg2) {
+		RACSignal *signal = [self rac_liftBlock:^(NSNumber *arg1, NSNumber *arg2) {
 			received1 = arg1;
 			received2 = arg2;
 			return @(arg1.unsignedIntegerValue + arg2.unsignedIntegerValue);

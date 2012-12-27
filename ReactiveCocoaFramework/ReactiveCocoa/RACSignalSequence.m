@@ -8,8 +8,9 @@
 
 #import "RACSignalSequence.h"
 #import "RACConnectableSignal.h"
+#import "RACDisposable.h"
 #import "RACReplaySubject.h"
-#import "RACSignalProtocol.h"
+#import "RACSignal+Operations.h"
 
 @interface RACSignalSequence ()
 
@@ -22,7 +23,7 @@
 
 #pragma mark Lifecycle
 
-+ (RACSequence *)sequenceWithSignal:(id<RACSignal>)signal {
++ (RACSequence *)sequenceWithSignal:(RACSignal *)signal {
 	RACSignalSequence *seq = [[self alloc] init];
 
 	RACReplaySubject *subject = [RACReplaySubject subject];
@@ -56,6 +57,22 @@
 
 - (NSArray *)array {
 	return self.subject.toArray;
+}
+
+#pragma mark NSObject
+
+- (NSString *)description {
+	// Synchronously accumulate the values that have been sent so far.
+	NSMutableArray *values = [NSMutableArray array];
+	RACDisposable *disposable = [self.subject subscribeNext:^(id value) {
+		@synchronized (values) {
+			[values addObject:value ?: NSNull.null];
+		}
+	}];
+
+	[disposable dispose];
+
+	return [NSString stringWithFormat:@"<%@: %p>{ values = %@ … }", self.class, self, values];
 }
 
 @end

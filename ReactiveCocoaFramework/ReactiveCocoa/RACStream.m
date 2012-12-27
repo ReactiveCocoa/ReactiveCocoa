@@ -9,9 +9,7 @@
 #import "RACStream.h"
 #import "RACTuple.h"
 
-@concreteprotocol(RACStream)
-
-#pragma mark Required primitives
+@implementation RACStream
 
 + (instancetype)empty {
 	return nil;
@@ -25,17 +23,19 @@
 	return nil;
 }
 
-- (instancetype)concat:(id<RACStream>)stream {
+- (instancetype)concat:(RACStream *)stream {
 	return nil;
 }
 
-+ (instancetype)zip:(NSArray *)streams reduce:(id)reduceBlock {
++ (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id)reduceBlock {
 	return nil;
 }
 
-#pragma mark Concrete methods
+@end
 
-- (instancetype)flattenMap:(id (^)(id value))block {
+@implementation RACStream (Operations)
+
+- (instancetype)flattenMap:(RACStream * (^)(id value))block {
 	return [self bind:^{
 		return ^(id value, BOOL *stop) {
 			return block(value);
@@ -45,7 +45,7 @@
 
 - (instancetype)flatten {
 	return [self flattenMap:^(id value) {
-		NSAssert([value conformsToProtocol:@protocol(RACStream)], @"Stream %@ being flattened contains an object that is not a stream: %@", self, value);
+		NSAssert([value isKindOfClass:RACStream.class], @"Stream %@ being flattened contains an object that is not a stream: %@", self, value);
 		return value;
 	}];
 }
@@ -111,7 +111,7 @@
 		__block NSUInteger taken = 0;
 
 		return ^ id (id value, BOOL *stop) {
-			id<RACStream> result = self.class.empty;
+			RACStream *result = self.class.empty;
 
 			if (taken < count) result = [self.class return:value];
 			if (++taken >= count) *stop = YES;
@@ -121,7 +121,7 @@
 	}];
 }
 
-- (instancetype)sequenceMany:(id (^)(void))block {
+- (instancetype)sequenceMany:(RACStream * (^)(void))block {
 	NSParameterAssert(block != NULL);
 
 	return [self flattenMap:^(id _) {
@@ -129,13 +129,13 @@
 	}];
 }
 
-+ (instancetype)zip:(NSArray *)streams {
++ (instancetype)zip:(id<NSFastEnumeration>)streams {
 	return [self zip:streams reduce:nil];
 }
 
-+ (instancetype)concat:(NSArray *)streams {
-	id<RACStream> result = self.empty;
-	for (id<RACStream> stream in streams) {
++ (instancetype)concat:(id<NSFastEnumeration>)streams {
+	RACStream *result = self.empty;
+	for (RACStream *stream in streams) {
 		result = [result concat:stream];
 	}
 	return result;

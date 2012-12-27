@@ -34,11 +34,11 @@
 	return [[self alloc] initWithCanExecuteSignal:nil block:executeBlock];
 }
 
-+ (instancetype)commandWithCanExecuteSignal:(id<RACSignal>)canExecuteSignal block:(void (^)(id sender))block {
++ (instancetype)commandWithCanExecuteSignal:(RACSignal *)canExecuteSignal block:(void (^)(id sender))block {
 	return [[self alloc] initWithCanExecuteSignal:canExecuteSignal block:block];
 }
 
-- (id)initWithCanExecuteSignal:(id<RACSignal>)canExecuteSignal block:(void (^)(id sender))block {
+- (id)initWithCanExecuteSignal:(RACSignal *)canExecuteSignal block:(void (^)(id sender))block {
 	self = [self init];
 	if (self == nil) return nil;
 	

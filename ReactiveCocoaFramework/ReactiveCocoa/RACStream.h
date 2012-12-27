@@ -9,33 +9,31 @@
 #import <Foundation/Foundation.h>
 #import "EXTConcreteProtocol.h"
 
-// A block which accepts a value from a <RACStream> and returns a new instance
+@class RACStream;
+
+// A block which accepts a value from a RACStream and returns a new instance
 // of the same stream class.
 //
 // Setting `stop` to `YES` will cause the bind to terminate after the returned
 // value. Returning `nil` will result in immediate termination.
-typedef id (^RACStreamBindBlock)(id value, BOOL *stop);
+typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 
-// A concrete protocol representing any stream of values. Implemented by
-// RACSignal and RACSequence.
+// An abstract class representing any stream of values.
 //
-// This protocol represents a monad, upon which many stream-based operations can
+// This class represents a monad, upon which many stream-based operations can
 // be built.
 //
-// When conforming to this protocol in a custom class, only `@required` methods
-// need to be implemented. Default implementations will automatically be
-// provided for any methods marked as `@concrete`. For more information, see
-// EXTConcreteProtocol.h.
-@protocol RACStream <NSObject>
-@required
+// When subclassing RACStream, only the methods in the main @interface body need
+// to be overridden.
+@interface RACStream : NSObject
 
 // Returns an empty stream.
-+ (id)empty;
++ (instancetype)empty;
 
 // Lifts `value` into the stream monad.
 //
 // Returns a stream containing only the given value.
-+ (id)return:(id)value;
++ (instancetype)return:(id)value;
 
 // Lazily binds a block to the values in the receiver.
 //
@@ -56,15 +54,15 @@ typedef id (^RACStreamBindBlock)(id value, BOOL *stop);
 //          concrete class as the receiver, and should not be `nil`.
 //
 // Returns a new stream representing the receiver followed by `stream`.
-- (instancetype)concat:(id<RACStream>)stream;
+- (instancetype)concat:(RACStream *)stream;
 
 // Combines the values in `streams` using `reduceBlock`. `reduceBlock` will be
 // called with the first value of each stream, then with the second value of
 // each stream, and so forth until at least one of the streams is exhausted.
 //
 // streams       - The streams to combine. These must all be instances of the
-//                 same concrete class implementing the protocol. If this array
-//                 is empty, the returned stream will be empty.
+//                 same concrete class implementing the protocol. If this
+//                 collection is empty, the returned stream will be empty.
 // reduceBlock   - The block which reduces the values from all the streams
 //                 into one value. It should take as many arguments as the
 //                 number of streams given. Each argument will be an object
@@ -74,9 +72,15 @@ typedef id (^RACStreamBindBlock)(id value, BOOL *stop);
 // Returns a new stream containing the return values of `reduceBlock` applied to
 // the values contained in the input streams, or if `reduceBlock` is nil, tuples
 // of the same values
-+ (id)zip:(NSArray *)streams reduce:(id)reduceBlock;
++ (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id)reduceBlock;
 
-@concrete
+@end
+
+// Operations built on the RACStream primitives.
+//
+// These methods do not need to be overridden, although subclasses may
+// occasionally gain better performance from doing so.
+@interface RACStream (Operations)
 
 // Maps `block` across the values in the receiver and flattens the result.
 //
@@ -85,7 +89,7 @@ typedef id (^RACStreamBindBlock)(id value, BOOL *stop);
 //
 // Returns a new stream which represents the combined streams resulting from
 // mapping `block`.
-- (instancetype)flattenMap:(id (^)(id value))block;
+- (instancetype)flattenMap:(RACStream * (^)(id value))block;
 
 // Flattens a stream of streams.
 //
@@ -142,13 +146,13 @@ typedef id (^RACStreamBindBlock)(id value, BOOL *stop);
 //
 // Returns a new stream which represents the combined result of all invocations
 // of `block`.
-- (instancetype)sequenceMany:(id (^)(void))block;
+- (instancetype)sequenceMany:(RACStream * (^)(void))block;
 
 // Invokes +zip:reduce: with a nil `reduceBlock`.
-+ (instancetype)zip:(NSArray *)streams;
++ (instancetype)zip:(id<NSFastEnumeration>)streams;
 
 // Returns a stream obtained by concatenating `streams` in order.
-+ (instancetype)concat:(NSArray *)streams;
++ (instancetype)concat:(id<NSFastEnumeration>)streams;
 
 // Combines values in the receiver from left to right using the given block.
 //

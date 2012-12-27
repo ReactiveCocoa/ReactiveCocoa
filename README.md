@@ -66,13 +66,13 @@ Easily move between different queues:
 ```objc
 RAC(self.imageView.image) = [[[[client 
     fetchUserWithUsername:@"joshaber"] 
-    deliverOn:RACScheduler.backgroundScheduler]
+    deliverOn:[RACScheduler scheduler]]
     map:^(User *user) {
         // This is on a background queue.
         return [[NSImage alloc] initWithContentsOfURL:user.avatarURL];
     }]
-    // Now the assignment will be done on the main queue.
-    deliverOn:RACSheduler.mainQueueScheduler]
+    // Now the assignment will be done on the main thread.
+    deliverOn:RACScheduler.mainThreadScheduler]
 ```
 
 ## Foundation Support

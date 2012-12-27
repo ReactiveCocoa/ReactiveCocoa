@@ -10,10 +10,10 @@
 
 @class RACDisposable;
 
-// Represents any object which can directly receive values from a <RACSignal>.
+// Represents any object which can directly receive values from a RACSignal.
 //
 // You generally shouldn't need to implement this protocol. +[RACSignal
-// createSignal:], <RACSignal>'s subscription methods, or RACSubject should work
+// createSignal:], RACSignal's subscription methods, or RACSubject should work
 // for most uses.
 //
 // Implementors of this protocol may receive messages and values from multiple
@@ -46,7 +46,7 @@
 // A simple block-based subscriber.
 //
 // You shouldn't need to interact with this class directly. Use
-// -subscribeNext:error:completed: from <RACSignal> instead.
+// -[RACSignal subscribeNext:error:completed:] instead.
 @interface RACSubscriber : NSObject <RACSubscriber>
 
 // Creates a new subscriber with the given blocks.

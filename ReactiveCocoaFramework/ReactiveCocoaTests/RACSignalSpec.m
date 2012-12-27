@@ -63,48 +63,6 @@ sharedExamplesFor(RACSignalMergeConcurrentCompletionExampleGroup, ^(NSDictionary
 
 SharedExampleGroupsEnd
 
-static NSString * const RACSignalTimerExamples = @"RACSignalTimerExamples";
-static NSString * const RACSignalTimerTimer = @"RACSignalTimerTimer";
-static NSString * const RACSignalTimerMinInterval = @"RACSignalTimerMinInterval";
-static NSString * const RACSignalTimerMaxInterval = @"RACSignalTimerMaxInterval";
-
-SharedExampleGroupsBegin(RACSignalTimerExamples)
-
-sharedExamplesFor(RACSignalTimerExamples, ^(NSDictionary *data) {
-	RACSignal *timer = data[RACSignalTimerTimer];
-	NSNumber *minInterval = data[RACSignalTimerMinInterval];
-	NSNumber *maxInterval = data[RACSignalTimerMaxInterval];
-	void (^expectItToWorkWithScheduler)(RACScheduler *) = ^(RACScheduler *scheduler) {
-		__block volatile int32_t nextsReceived = 0;
-		[scheduler schedule:^{
-			__block NSTimeInterval lastTime = NSDate.timeIntervalSinceReferenceDate;
-			[[[timer take:3] deliverOn:RACScheduler.mainThreadScheduler] subscribeNext:^(id _) {
-				NSTimeInterval currentTime = NSDate.timeIntervalSinceReferenceDate;
-				if (minInterval != nil) expect(currentTime - lastTime).beGreaterThanOrEqualTo(minInterval.doubleValue);
-				if (maxInterval != nil) expect(currentTime - lastTime).beLessThanOrEqualTo(maxInterval.doubleValue);
-				
-				OSAtomicAdd32Barrier(1, &nextsReceived);
-			}];
-		}];
-		
-		expect(nextsReceived).will.equal(3);
-	};
-	
-	it(@"should fire repeatedly at every interval", ^{
-		expectItToWorkWithScheduler(RACScheduler.immediateScheduler);
-	});
-	
-	it(@"should work on the main thread scheduler", ^{
-		expectItToWorkWithScheduler(RACScheduler.mainThreadScheduler);
-	});
-	
-	it(@"should work on a background scheduler", ^{
-		expectItToWorkWithScheduler([RACScheduler scheduler]);
-	});
-});
-
-SharedExampleGroupsEnd
-
 SpecBegin(RACSignal)
 
 describe(@"RACStream", ^{
@@ -1343,20 +1301,64 @@ describe(@"-switch", ^{
 
 describe(@"+interval:", ^{
 	static const NSTimeInterval interval = 0.1;
-	itShouldBehaveLike(RACSignalTimerExamples, @{
-		RACSignalTimerTimer: [RACSignal interval:interval],
-		RACSignalTimerMinInterval: @(interval)
-	}, nil);
+	void (^expectItToWorkWithScheduler)(RACScheduler *) = ^(RACScheduler *scheduler) {
+		__block volatile int32_t nextsReceived = 0;
+		[scheduler schedule:^{
+			__block NSTimeInterval lastTime = NSDate.timeIntervalSinceReferenceDate;
+			[[[[RACSignal interval:interval] take:3] deliverOn:RACScheduler.mainThreadScheduler] subscribeNext:^(id _) {
+				NSTimeInterval currentTime = NSDate.timeIntervalSinceReferenceDate;
+				expect(currentTime - lastTime).beGreaterThanOrEqualTo(interval);
+
+				OSAtomicAdd32Barrier(1, &nextsReceived);
+			}];
+		}];
+
+		expect(nextsReceived).will.equal(3);
+	};
+
+	it(@"should fire repeatedly at every interval", ^{
+		expectItToWorkWithScheduler(RACScheduler.immediateScheduler);
+	});
+	
+	it(@"should work on the main thread scheduler", ^{
+		expectItToWorkWithScheduler(RACScheduler.mainThreadScheduler);
+	});
+
+	it(@"should work on a background scheduler", ^{
+		expectItToWorkWithScheduler([RACScheduler scheduler]);
+	});
 });
 
 describe(@"+interval:withLeeway:", ^{
 	static const NSTimeInterval interval = 0.1;
 	static const NSTimeInterval leeway = 2.0;
-	itShouldBehaveLike(RACSignalTimerExamples, @{
-		RACSignalTimerTimer: [RACSignal interval:interval withLeeway:leeway],
-		RACSignalTimerMinInterval: @(interval),
-		RACSignalTimerMaxInterval: @(interval + leeway)
-	}, nil);
+	void (^expectItToWorkWithScheduler)(RACScheduler *) = ^(RACScheduler *scheduler) {
+		__block volatile int32_t nextsReceived = 0;
+		[scheduler schedule:^{
+			__block NSTimeInterval lastTime = NSDate.timeIntervalSinceReferenceDate;
+			[[[[RACSignal interval:interval withLeeway:leeway] take:3] deliverOn:RACScheduler.mainThreadScheduler] subscribeNext:^(id _) {
+				NSTimeInterval currentTime = NSDate.timeIntervalSinceReferenceDate;
+				expect(currentTime - lastTime).beGreaterThanOrEqualTo(interval);
+				expect(currentTime - lastTime).beLessThanOrEqualTo(interval + leeway);
+				
+				OSAtomicAdd32Barrier(1, &nextsReceived);
+			}];
+		}];
+		
+		expect(nextsReceived).will.equal(3);
+	};
+	
+	it(@"should fire repeatedly at every interval", ^{
+		expectItToWorkWithScheduler(RACScheduler.immediateScheduler);
+	});
+	
+	it(@"should work on the main thread scheduler", ^{
+		expectItToWorkWithScheduler(RACScheduler.mainThreadScheduler);
+	});
+	
+	it(@"should work on a background scheduler", ^{
+		expectItToWorkWithScheduler([RACScheduler scheduler]);
+	});
 });
 
 describe(@"-sequenceNext:", ^{

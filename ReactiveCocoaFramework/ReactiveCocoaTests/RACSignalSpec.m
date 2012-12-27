@@ -1299,65 +1299,67 @@ describe(@"-switch", ^{
 	});
 });
 
-describe(@"+interval:", ^{
+describe(@"+interval: and +interval:withLeeway:", ^{
 	static const NSTimeInterval interval = 0.1;
-	void (^expectItToWorkWithScheduler)(RACScheduler *) = ^(RACScheduler *scheduler) {
-		__block volatile int32_t nextsReceived = 0;
-		[scheduler schedule:^{
-			__block NSTimeInterval lastTime = NSDate.timeIntervalSinceReferenceDate;
-			[[[[RACSignal interval:interval] take:3] deliverOn:RACScheduler.mainThreadScheduler] subscribeNext:^(id _) {
-				NSTimeInterval currentTime = NSDate.timeIntervalSinceReferenceDate;
-				expect(currentTime - lastTime).beGreaterThanOrEqualTo(interval);
-
-				OSAtomicAdd32Barrier(1, &nextsReceived);
+	static const NSTimeInterval leeway = 0.2;
+	static const NSTimeInterval marginOfError = 0.001;
+	__block RACSignal *timer = nil;
+	
+	__block void (^testTimerWithSchedulerMinIntervalMaxInterval)(RACSignal *, RACScheduler *, NSNumber *, NSNumber *) = nil;
+	
+	before(^{
+		testTimerWithSchedulerMinIntervalMaxInterval = [^(RACSignal *timer, RACScheduler *scheduler, NSNumber *minInterval, NSNumber *maxInterval) {
+			__block NSUInteger nextsReceived = 0;
+			[scheduler schedule:^{
+				__block NSTimeInterval lastTime = NSDate.timeIntervalSinceReferenceDate;
+				[[[timer take:3] deliverOn:RACScheduler.mainThreadScheduler] subscribeNext:^(id _) {
+					NSTimeInterval currentTime = NSDate.timeIntervalSinceReferenceDate;
+					if (minInterval != nil) expect(currentTime - lastTime).beGreaterThanOrEqualTo(minInterval.doubleValue - marginOfError);
+					if (maxInterval != nil) expect(currentTime - lastTime).beLessThanOrEqualTo(maxInterval.doubleValue + marginOfError);
+					
+					lastTime = currentTime;
+					++nextsReceived;
+				}];
 			}];
-		}];
-
-		expect(nextsReceived).will.equal(3);
-	};
-
-	it(@"should fire repeatedly at every interval", ^{
-		expectItToWorkWithScheduler(RACScheduler.immediateScheduler);
+			
+			expect(nextsReceived).will.equal(3);
+		} copy];
 	});
 	
-	it(@"should work on the main thread scheduler", ^{
-		expectItToWorkWithScheduler(RACScheduler.mainThreadScheduler);
-	});
-
-	it(@"should work on a background scheduler", ^{
-		expectItToWorkWithScheduler([RACScheduler scheduler]);
-	});
-});
-
-describe(@"+interval:withLeeway:", ^{
-	static const NSTimeInterval interval = 0.1;
-	static const NSTimeInterval leeway = 2.0;
-	void (^expectItToWorkWithScheduler)(RACScheduler *) = ^(RACScheduler *scheduler) {
-		__block volatile int32_t nextsReceived = 0;
-		[scheduler schedule:^{
-			__block NSTimeInterval lastTime = NSDate.timeIntervalSinceReferenceDate;
-			[[[[RACSignal interval:interval withLeeway:leeway] take:3] deliverOn:RACScheduler.mainThreadScheduler] subscribeNext:^(id _) {
-				NSTimeInterval currentTime = NSDate.timeIntervalSinceReferenceDate;
-				expect(currentTime - lastTime).beGreaterThanOrEqualTo(interval);
-				expect(currentTime - lastTime).beLessThanOrEqualTo(interval + leeway);
-				
-				OSAtomicAdd32Barrier(1, &nextsReceived);
-			}];
-		}];
+	describe(@"+interval", ^{
+		before(^{
+			timer = [RACSignal interval:interval];
+		});
 		
-		expect(nextsReceived).will.equal(3);
-	};
-	
-	it(@"should fire repeatedly at every interval", ^{
-		expectItToWorkWithScheduler(RACScheduler.immediateScheduler);
+		it(@"should fire repeatedly at every interval", ^{
+			testTimerWithSchedulerMinIntervalMaxInterval(timer, RACScheduler.immediateScheduler, @(interval), nil);
+		});
+		
+		it(@"should work on the main thread scheduler", ^{
+			testTimerWithSchedulerMinIntervalMaxInterval(timer, RACScheduler.mainThreadScheduler, @(interval), nil);
+		});
+		
+		it(@"should work on a background scheduler", ^{
+			testTimerWithSchedulerMinIntervalMaxInterval(timer, [RACScheduler scheduler], @(interval), nil);
+		});
 	});
 	
-	it(@"should work on the main thread scheduler", ^{
-		expectItToWorkWithScheduler(RACScheduler.mainThreadScheduler);
-	});
-	
-	it(@"should work on a background scheduler", ^{
-		expectItToWorkWithScheduler([RACScheduler scheduler]);
+	describe(@"+interval:withLeeway:", ^{
+		before(^{
+			timer = [RACSignal interval:interval withLeeway:leeway];
+		});
+		
+		it(@"should fire repeatedly at every interval", ^{
+			testTimerWithSchedulerMinIntervalMaxInterval(timer, RACScheduler.immediateScheduler, @(interval), @(interval + leeway));
+		});
+		
+		it(@"should work on the main thread scheduler", ^{
+			testTimerWithSchedulerMinIntervalMaxInterval(timer, RACScheduler.mainThreadScheduler, @(interval), @(interval + leeway));
+		});
+		
+		it(@"should work on a background scheduler", ^{
+			testTimerWithSchedulerMinIntervalMaxInterval(timer, [RACScheduler scheduler], @(interval), @(interval + leeway));
+		});
 	});
 });
 

@@ -289,41 +289,34 @@ static NSMutableSet *activeSignals() {
 	return [self flatten:0];
 }
 
-+ (RACSignal *)zip:(NSArray *)signals reduce:(id)reduceBlock {
-	if (signals.count == 0) return self.empty;
-	signals = [signals copy];
-	NSUInteger numSignals = signals.count;
++ (RACSignal *)zip:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock {
+	NSMutableArray *signalsArray = [NSMutableArray array];
+	for (RACSignal *signal in signals) {
+		[signalsArray addObject:signal];
+	}
+	if (signalsArray.count == 0) return self.empty;
+	NSUInteger numSignals = signalsArray.count;
 	return [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		NSMutableArray *disposables = [NSMutableArray arrayWithCapacity:numSignals];
-		NSMutableArray *completedOrErrorBySignal = [NSMutableArray arrayWithCapacity:numSignals];
+		NSMutableIndexSet *completedBySignal = [NSMutableIndexSet indexSet];
 		NSMutableArray *valuesBySignal = [NSMutableArray arrayWithCapacity:numSignals];
 		for (NSUInteger i = 0; i < numSignals; ++i) {
-			[completedOrErrorBySignal addObject:@NO];
-			[valuesBySignal addObject:NSMutableArray.array];
+			[valuesBySignal addObject:[NSMutableArray array]];
 		}
 		
-		void (^sendCompleteOrErrorIfNecessary)(void) = ^{
-			id errorOrTupleNil = nil;
+		void (^sendCompleteIfNecessary)(void) = ^{
 			for (NSUInteger i = 0; i < numSignals; ++i) {
 				if ([valuesBySignal[i] count] == 0) {
-					id completedOrError = completedOrErrorBySignal[i];
-					if ([completedOrError isEqual:RACTupleNil.tupleNil] || [completedOrError isKindOfClass:NSError.class]) {
-						errorOrTupleNil = completedOrError;
-					} else {
-						if ([completedOrError isEqual:@YES]) {
-							[subscriber sendCompleted];
-						}
-						return;
+					if ([completedBySignal containsIndex:i]) {
+						[subscriber sendCompleted];
 					}
+					return;
 				}
-			}
-			if (errorOrTupleNil != nil) {
-				[subscriber sendError:([errorOrTupleNil isEqual:RACTupleNil.tupleNil] ? nil : errorOrTupleNil)];
 			}
 		};
 		
 		for (NSUInteger i = 0; i < numSignals; ++i) {
-			RACSignal *signal = signals[i];
+			RACSignal *signal = signalsArray[i];
 			RACDisposable *disposable = [signal subscribeNext:^(id x) {
 				@synchronized(valuesBySignal) {
 					[valuesBySignal[i] addObject:x ?: RACTupleNil.tupleNil];
@@ -351,17 +344,14 @@ static NSMutableSet *activeSignals() {
 						}
 					}
 					
-					sendCompleteOrErrorIfNecessary();
+					sendCompleteIfNecessary();
 				}
 			} error:^(NSError *error) {
-				@synchronized(valuesBySignal) {
-					completedOrErrorBySignal[i] = error ?: RACTupleNil.tupleNil;
-					sendCompleteOrErrorIfNecessary();
-				}
+				[subscriber sendError:error];
 			} completed:^{
 				@synchronized(valuesBySignal) {
-					completedOrErrorBySignal[i] = @YES;
-					sendCompleteOrErrorIfNecessary();
+					[completedBySignal addIndex:i];
+					sendCompleteIfNecessary();
 				}
 			}];
 			

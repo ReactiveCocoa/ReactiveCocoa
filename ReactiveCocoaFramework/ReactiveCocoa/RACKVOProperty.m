@@ -8,11 +8,12 @@
 
 #import "RACKVOProperty.h"
 #import "RACDisposable.h"
-#import "RACSubject.h"
+#import "RACReplaySubject.h"
 #import "RACSwizzling.h"
 #import "RACTuple.h"
 #import "NSObject+RACKVOWrapper.h"
 #import "NSObject+RACPropertySubscribing.h"
+#import "EXTScope.h"
 
 static void *RACKVOBindingsKey = &RACKVOBindingsKey;
 
@@ -27,6 +28,8 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 
 @property (nonatomic, readonly, weak) id target;
 @property (nonatomic, readonly, copy) NSString *key;
+@property (nonatomic, readonly, strong) RACReplaySubject *signalSubject;
+@property (nonatomic, readonly, strong) RACSubject *subscriberSubject;
 @property (nonatomic, readonly, strong) id observer;
 @property (nonatomic, getter = isDisposed) BOOL disposed;
 
@@ -74,6 +77,31 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 
 @implementation RACKVOBinding
 
+#pragma mark RACSignal
+
+- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
+	return [self.signalSubject subscribe:subscriber];
+}
+
+#pragma mark <RACSubscriber>
+
+- (void)sendNext:(id)value {
+	[self.subscriberSubject sendNext:value];
+}
+
+- (void)sendError:(NSError *)error {
+	[self.subscriberSubject sendError:error];
+}
+
+- (void)sendCompleted {
+	[self.subscriberSubject sendCompleted];
+}
+
+- (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
+	[self.subscriberSubject didSubscribeWithDisposable:disposable];
+}
+
+#pragma mark API
 + (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath {
 	NSRange firstDot = [keyPath rangeOfString:@"."];
 	if (firstDot.location == NSNotFound) {
@@ -90,6 +118,8 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 	if (self == nil || target == nil || key == nil) return nil;
 	_target = target;
 	_key = [key copy];
+	_signalSubject = [RACReplaySubject replaySubjectWithCapacity:1];
+	_subscriberSubject = [RACSubject subject];
 	prepareClassForBindingIfNeeded([_target class]);
 	[_target rac_addBinding:self];
 	_observer = [_target rac_addObserver:self forKeyPath:key options:NSKeyValueObservingOptionPrior queue:nil block:nil];
@@ -115,6 +145,8 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 	@synchronized(self) {
 		if (self.disposed) return;
 		self.disposed = YES;
+		[self.signalSubject sendCompleted];
+		[self.subscriberSubject sendCompleted];
 		[self.target rac_removeObserverWithIdentifier:self.observer];
 		[self.target rac_removeBinding:self];
 	}
@@ -131,6 +163,18 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 
 @implementation RACKeyKVOBinding
 
+- (instancetype)initWithTarget:(id)target key:(NSString *)key {
+	self = [super initWithTarget:target key:key];
+	if (self == nil) return nil;
+	@weakify(self);
+	[self.subscriberSubject subscribeNext:^(id x) {
+		@strongify(self);
+		self.ignoreNextUpdate = YES;
+		[self.target setValue:x forKey:self.key];
+	}];
+	return self;
+}
+
 - (void)targetWillChangeValue {
 	++self.stackDepth;
 }
@@ -143,8 +187,8 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 		self.ignoreNextUpdate = NO;
 		return;
 	}
-//	id value = [self.target valueForKey:self.key];
-//	[self.parentBinding sendBindingValue:value sender:self];
+	id value = [self.target valueForKey:self.key];
+	[self.signalSubject sendNext:value];
 }
 
 @end
@@ -161,11 +205,9 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 - (instancetype)initWithTarget:(id)target key:(NSString *)key remainder:(NSString *)remainder {
 	self = [super initWithTarget:target key:key];
 	if (self == nil || remainder == nil) return nil;
-	
 	_remainder = remainder;
 	id remainderTarget = [target valueForKey:key];
-	self.remainderBinding = [RACKVOBinding bindingWithTarget:remainderTarget keyPath:remainder];
-	
+	_remainderBinding = [RACKVOBinding bindingWithTarget:remainderTarget keyPath:remainder];
 	return self;
 }
 
@@ -175,9 +217,7 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 
 - (void)targetDidChangeValue {
 	id remainderTarget = [self.target valueForKey:self.key];
-//	id value = [remainderTarget valueForKeyPath:self.remainder];
 	self.remainderBinding = [RACKVOBinding bindingWithTarget:remainderTarget keyPath:self.remainder];
-//	[self.parentBinding sendBindingValue:value sender:self];
 }
 
 - (void)dispose {

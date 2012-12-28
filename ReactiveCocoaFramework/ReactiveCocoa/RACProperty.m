@@ -8,7 +8,6 @@
 
 #import "RACProperty.h"
 #import "RACDisposable.h"
-#import "EXTScope.h"
 
 @implementation RACProperty
 

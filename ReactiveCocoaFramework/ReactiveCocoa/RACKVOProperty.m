@@ -220,8 +220,23 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 	self = [super initWithTarget:target key:key];
 	if (self == nil || remainder == nil) return nil;
 	_remainder = remainder;
-	id remainderTarget = [target valueForKey:key];
-	_remainderBinding = [RACKVOBinding bindingWithTarget:remainderTarget keyPath:remainder];
+	_remainderBinding = [RACKVOBinding bindingWithTarget:[target valueForKey:key] keyPath:remainder];
+	@weakify(self);
+	[_remainderBinding subscribeNext:^(id x) {
+		@strongify(self);
+		[self.signalSubject sendNext:x];
+	}];
+	_signalBlock = [^{
+		return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+			@strongify(self);
+			[subscriber sendNext:[[self.target valueForKey:key] valueForKeyPath:remainder]];
+			return [self.signalSubject subscribe:subscriber];
+		}];
+	} copy];
+	[_subscriberSubject subscribeNext:^(id x) {
+		@strongify(self);
+		[self.remainderBinding.subscriberSubject sendNext:x];
+	}];
 	return self;
 }
 
@@ -231,7 +246,16 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 
 - (void)targetDidChangeValue {
 	id remainderTarget = [self.target valueForKey:self.key];
+	if (remainderTarget == nil) {
+		self.remainderBinding = nil;
+		[self.signalSubject sendNext:nil];
+	}
 	self.remainderBinding = [RACKVOBinding bindingWithTarget:remainderTarget keyPath:self.remainder];
+	@weakify(self);
+	[self.remainderBinding subscribeNext:^(id x) {
+		@strongify(self);
+		[self.signalSubject sendNext:x];
+	}];
 }
 
 - (void)dispose {

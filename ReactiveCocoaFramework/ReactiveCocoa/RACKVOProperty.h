@@ -7,6 +7,8 @@
 //
 
 #import "RACProperty.h"
+#import "EXTKeyPathCoding.h"
+#import "metamacros.h"
 
 // Convenience macro for creating bindings and binding them.
 //

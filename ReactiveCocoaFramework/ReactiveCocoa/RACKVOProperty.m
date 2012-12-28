@@ -143,8 +143,8 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 		self.ignoreNextUpdate = NO;
 		return;
 	}
-	id value = [self.target valueForKey:self.key];
-	[self.parentBinding sendBindingValue:value sender:self];
+//	id value = [self.target valueForKey:self.key];
+//	[self.parentBinding sendBindingValue:value sender:self];
 }
 
 @end
@@ -175,9 +175,9 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 
 - (void)targetDidChangeValue {
 	id remainderTarget = [self.target valueForKey:self.key];
-	id value = [remainderTarget valueForKeyPath:self.remainder];
+//	id value = [remainderTarget valueForKeyPath:self.remainder];
 	self.remainderBinding = [RACKVOBinding bindingWithTarget:remainderTarget keyPath:self.remainder];
-	[self.parentBinding sendBindingValue:value sender:self];
+//	[self.parentBinding sendBindingValue:value sender:self];
 }
 
 - (void)dispose {

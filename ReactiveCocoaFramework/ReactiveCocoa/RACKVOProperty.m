@@ -8,7 +8,7 @@
 
 #import "RACKVOProperty.h"
 #import "RACDisposable.h"
-#import "RACReplaySubject.h"
+#import "RACSubject.h"
 #import "RACSwizzling.h"
 #import "RACTuple.h"
 #import "NSObject+RACKVOWrapper.h"
@@ -20,7 +20,12 @@ static void *RACKVOBindingsKey = &RACKVOBindingsKey;
 static NSString * const RACKVOBindingExceptionName = @"RACKVOBinding exception";
 static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExceptionBindingKey";
 
-@interface RACKVOBinding : RACBinding
+@interface RACKVOBinding : RACBinding {
+@protected
+	RACSignal *(^_signalBlock)(void);
+	RACSubject *_signalSubject;
+	RACSubject *_subscriberSubject;
+}
 
 + (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath;
 
@@ -28,7 +33,8 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 
 @property (nonatomic, readonly, weak) id target;
 @property (nonatomic, readonly, copy) NSString *key;
-@property (nonatomic, readonly, strong) RACReplaySubject *signalSubject;
+@property (nonatomic, readonly, copy) RACSignal *(^signalBlock)(void);
+@property (nonatomic, readonly, strong) RACSubject *signalSubject;
 @property (nonatomic, readonly, strong) RACSubject *subscriberSubject;
 @property (nonatomic, readonly, strong) id observer;
 @property (nonatomic, getter = isDisposed) BOOL disposed;
@@ -80,6 +86,7 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 #pragma mark RACSignal
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
+	if (self.signalBlock != nil) return [self.signalBlock() subscribe:subscriber];
 	return [self.signalSubject subscribe:subscriber];
 }
 
@@ -118,7 +125,7 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 	if (self == nil || target == nil || key == nil) return nil;
 	_target = target;
 	_key = [key copy];
-	_signalSubject = [RACReplaySubject replaySubjectWithCapacity:1];
+	_signalSubject = [RACSubject subject];
 	_subscriberSubject = [RACSubject subject];
 	prepareClassForBindingIfNeeded([_target class]);
 	[_target rac_addBinding:self];
@@ -167,7 +174,14 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 	self = [super initWithTarget:target key:key];
 	if (self == nil) return nil;
 	@weakify(self);
-	[self.subscriberSubject subscribeNext:^(id x) {
+	_signalBlock = [^{
+		return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+			@strongify(self);
+			[subscriber sendNext:[self.target valueForKey:self.key]];
+			return [self.signalSubject subscribe:subscriber];
+		}];
+	} copy];
+	[_subscriberSubject subscribeNext:^(id x) {
 		@strongify(self);
 		self.ignoreNextUpdate = YES;
 		[self.target setValue:x forKey:self.key];

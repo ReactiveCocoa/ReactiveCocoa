@@ -61,11 +61,11 @@
 #pragma mark API
 
 - (RACDisposable *)bindTo:(RACBinding *)binding {
-	RACDisposable *selfDisposable = [self subscribe:binding];
 	RACDisposable *bindingDisposable = [binding subscribe:self];
+	RACDisposable *selfDisposable = [self subscribe:binding];
 	return [RACDisposable disposableWithBlock:^{
-		[selfDisposable dispose];
 		[bindingDisposable dispose];
+		[selfDisposable dispose];
 	}];
 	
 }

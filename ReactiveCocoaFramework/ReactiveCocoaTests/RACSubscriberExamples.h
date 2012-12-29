@@ -9,9 +9,11 @@
 // The name of the shared examples for implementors of <RACSubscriber>. This
 // example should be passed the following arguments:
 //
-// getSubscriber - A block of type `id<RACSubscriber> (^)(void)`, which
-//                 should return a <RACSubscriber>.
-// verifyNexts   - A block of type `void (^)(NSSet *)`, which should verify
-//                 that the subscriber received all of the values in the set
-//                 (regardless of order).
+// getSubscriber  - A block of type `id<RACSubscriber> (^)(void)`, which
+//                  should return a <RACSubscriber>.
+// valuesReceived - A block which returns an NSArray of the values received so
+//					far.
+// errorReceived  - A block which returns any NSError received so far.
+// success        - A block which returns a BOOL indicating whether the
+//					subscriber is successful so far.
 extern NSString * const RACSubscriberExamples;

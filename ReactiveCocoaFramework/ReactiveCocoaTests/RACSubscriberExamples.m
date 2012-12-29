@@ -8,13 +8,14 @@
 
 #import "RACSubscriberExamples.h"
 
+#import "RACSubject.h"
 #import "RACSubscriber.h"
 
 NSString * const RACSubscriberExamples = @"RACSubscriberExamples";
 
 SharedExampleGroupsBegin(RACSubscriberExamples)
 
-sharedExamplesFor(RACSubscriberExamples, ^(id<RACSubscriber> (^getSubscriber)(void), void (^verifyNexts)(NSSet *)) {
+sharedExamplesFor(RACSubscriberExamples, ^(id<RACSubscriber> (^getSubscriber)(void), NSArray * (^valuesReceived)(void), NSError * (^errorReceived)(void), BOOL (^success)(void)) {
 	__block id<RACSubscriber> subscriber;
 	
 	beforeEach(^{
@@ -24,6 +25,10 @@ sharedExamplesFor(RACSubscriberExamples, ^(id<RACSubscriber> (^getSubscriber)(vo
 
 	it(@"should accept a nil error", ^{
 		[subscriber sendError:nil];
+
+		expect(success()).to.beFalsy();
+		expect(errorReceived()).to.beNil();
+		expect(valuesReceived()).to.equal(@[]);
 	});
 
 	describe(@"with values", ^{
@@ -44,7 +49,11 @@ sharedExamplesFor(RACSubscriberExamples, ^(id<RACSubscriber> (^getSubscriber)(vo
 				[subscriber sendNext:allValues[index]];
 			} copy]);
 
-			verifyNexts(values);
+			expect(success()).to.beTruthy();
+			expect(errorReceived()).to.beNil();
+
+			NSSet *valuesReceivedSet = [NSSet setWithArray:valuesReceived()];
+			expect(valuesReceivedSet).to.equal(values);
 		});
 	});
 });

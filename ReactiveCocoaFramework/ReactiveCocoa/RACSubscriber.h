@@ -38,7 +38,11 @@
 // This terminates the subscription.
 - (void)sendCompleted;
 
-// Sends the subscriber the disposable that represents its subscription.
+// Sends the subscriber a disposable that represents one of its subscriptions.
+//
+// A subscriber may receive multiple disposables if it gets subscribed to
+// multiple signals; however, any error or completed events must terminate _all_
+// subscriptions.
 - (void)didSubscribeWithDisposable:(RACDisposable *)disposable;
 
 @end

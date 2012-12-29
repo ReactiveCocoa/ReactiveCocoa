@@ -1681,4 +1681,63 @@ describe(@"-collect", ^{
 	});
 });
 
+describe(@"-concat", ^{
+	__block RACSubject *subject;
+
+	__block RACSignal *oneSignal;
+	__block RACSignal *twoSignal;
+	__block RACSignal *threeSignal;
+
+	__block RACSignal *errorSignal;
+	__block RACSignal *completedSignal;
+
+	beforeEach(^{
+		subject = [RACReplaySubject subject];
+
+		oneSignal = [RACSignal return:@1];
+		twoSignal = [RACSignal return:@2];
+		threeSignal = [RACSignal return:@3];
+
+		errorSignal = [RACSignal error:RACSignalTestError];
+		completedSignal = RACSignal.empty;
+	});
+
+	it(@"should concatenate the values of inner signals", ^{
+		[subject sendNext:oneSignal];
+		[subject sendNext:twoSignal];
+		[subject sendNext:completedSignal];
+		[subject sendNext:threeSignal];
+
+		NSMutableArray *values = [NSMutableArray array];
+		[[subject concat] subscribeNext:^(id x) {
+			[values addObject:x];
+		}];
+
+		NSArray *expected = @[ @1, @2, @3 ];
+		expect(values).to.equal(expected);
+	});
+
+	it(@"should complete only after all signals complete", ^{
+		RACReplaySubject *valuesSubject = [RACReplaySubject subject];
+
+		[subject sendNext:valuesSubject];
+		[subject sendCompleted];
+
+		[valuesSubject sendNext:@1];
+		[valuesSubject sendNext:@2];
+		[valuesSubject sendCompleted];
+
+		NSArray *expected = @[ @1, @2 ];
+		expect([[subject concat] toArray]).to.equal(expected);
+	});
+
+	it(@"should pass through errors", ^{
+		[subject sendNext:errorSignal];
+		
+		NSError *error = nil;
+		[[subject concat] firstOrDefault:nil success:NULL error:&error];
+		expect(error).to.equal(RACSignalTestError);
+	});
+});
+
 SpecEnd

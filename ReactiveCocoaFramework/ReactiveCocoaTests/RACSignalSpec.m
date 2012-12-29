@@ -23,6 +23,8 @@
 #import "RACTuple.h"
 #import "RACUnit.h"
 
+#define RACSignalTestError [NSError errorWithDomain:@"foo" code:100 userInfo:nil]
+
 static NSString * const RACSignalMergeConcurrentCompletionExampleGroup = @"RACSignalMergeConcurrentCompletionExampleGroup";
 static NSString * const RACSignalMaxConcurrent = @"RACSignalMaxConcurrent";
 SharedExampleGroupsBegin(mergeConcurrentCompletionName);
@@ -338,9 +340,8 @@ describe(@"querying", ^{
 	});
 	
 	it(@"should return error with -firstOrDefault:success:error:", ^{
-		NSError *testError = [NSError errorWithDomain:@"foo" code:100 userInfo:nil];
 		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
-			[subscriber sendError:testError];
+			[subscriber sendError:RACSignalTestError];
 			return nil;
 		}];
 
@@ -350,16 +351,15 @@ describe(@"querying", ^{
 		__block NSError *error = nil;
 		expect([signal firstOrDefault:@5 success:&success error:&error]).to.equal(@5);
 		expect(success).to.beFalsy();
-		expect(error).to.equal(testError);
+		expect(error).to.equal(RACSignalTestError);
 	});
 
 	it(@"shouldn't crash when returning an error from a background scheduler", ^{
-		static NSString * const errorDomain = @"foo";
-		static const NSInteger errorCode = 100;
 		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 			[[RACScheduler scheduler] schedule:^{
-				[subscriber sendError:[NSError errorWithDomain:errorDomain code:errorCode userInfo:nil]];
+				[subscriber sendError:RACSignalTestError];
 			}];
+
 			return nil;
 		}];
 
@@ -369,8 +369,7 @@ describe(@"querying", ^{
 		__block NSError *error = nil;
 		expect([signal firstOrDefault:@5 success:&success error:&error]).to.equal(@5);
 		expect(success).to.beFalsy();
-		expect(error.domain).to.equal(errorDomain);
-		expect(error.code).to.equal(errorCode);
+		expect(error).to.equal(RACSignalTestError);
 	});
 });
 
@@ -386,7 +385,7 @@ describe(@"continuation", ^{
 			numberOfSubscriptions++;
 			
 			[subscriber sendNext:@"1"];
-			[subscriber sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+			[subscriber sendError:RACSignalTestError];
 			[subscriber sendCompleted];
 			return nil;
 		}];
@@ -409,7 +408,7 @@ describe(@"continuation", ^{
 		__block NSUInteger numberOfSubscriptions = 0;
 		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			if(numberOfSubscriptions > 2) {
-				[subscriber sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+				[subscriber sendError:RACSignalTestError];
 				return nil;
 			}
 			
@@ -417,7 +416,7 @@ describe(@"continuation", ^{
 			
 			[subscriber sendNext:@"1"];
 			[subscriber sendCompleted];
-			[subscriber sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+			[subscriber sendError:RACSignalTestError];
 			return nil;
 		}];
 		
@@ -581,7 +580,7 @@ describe(@"+combineLatest:", ^{
 			gotError = YES;
 		}];
 		
-		[subscriber1 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+		[subscriber1 sendError:RACSignalTestError];
 		
 		expect(gotError).to.beTruthy();
 	});
@@ -593,8 +592,8 @@ describe(@"+combineLatest:", ^{
 			errorCount++;
 		}];
 		
-		[subscriber1 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
-		[subscriber2 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+		[subscriber1 sendError:RACSignalTestError];
+		[subscriber2 sendError:RACSignalTestError];
 		
 		expect(errorCount).to.equal(1);
 	});
@@ -1080,10 +1079,8 @@ describe(@"+merge:", ^{
 			errorReceived = error;
 		}];
 
-		NSError *error = [NSError errorWithDomain:@"" code:0 userInfo:nil];
-		[sub1 sendError:error];
-
-		expect(errorReceived).to.equal(error);
+		[sub1 sendError:RACSignalTestError];
+		expect(errorReceived).to.equal(RACSignalTestError);
 	});
 
 	it(@"should complete only after both signals complete", ^{
@@ -1446,13 +1443,13 @@ describe(@"+zip:reduce:", ^{
 		send2NextAndErrorTo1 = [^{
 			[subject1 sendNext:@1];
 			[subject1 sendNext:@2];
-			[subject1 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+			[subject1 sendError:RACSignalTestError];
 		} copy];
 		send3NextAndErrorTo1 = [^{
 			[subject1 sendNext:@1];
 			[subject1 sendNext:@2];
 			[subject1 sendNext:@3];
-			[subject1 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+			[subject1 sendError:RACSignalTestError];
 		} copy];
 		send2NextAndCompletedTo2 = [^{
 			[subject2 sendNext:@1];
@@ -1577,7 +1574,7 @@ describe(@"+zip:reduce:", ^{
 		[c sendNext:@3];
 		[c sendNext:@4];
 		[c sendNext:@5];
-		[c sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+		[c sendError:RACSignalTestError];
 		
 		// a: [===......]
 		// b: [====C....]
@@ -1585,7 +1582,7 @@ describe(@"+zip:reduce:", ^{
 		
 		expectedValues = @[ @"111", @"222", @"333" ];
 		expect(receivedValues).to.equal(expectedValues);
-		expect(receivedError).notTo.beNil();
+		expect(receivedError).to.equal(RACSignalTestError);
 		expect(hasCompleted).to.beFalsy();
 		
 		[a sendNext:@4];
@@ -1599,7 +1596,7 @@ describe(@"+zip:reduce:", ^{
 		
 		expectedValues = @[ @"111", @"222", @"333" ];
 		expect(receivedValues).to.equal(expectedValues);
-		expect(receivedError).notTo.beNil();
+		expect(receivedError).to.equal(RACSignalTestError);
 		expect(hasCompleted).to.beFalsy();
 	});
 	

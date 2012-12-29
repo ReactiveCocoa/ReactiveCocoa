@@ -69,7 +69,7 @@ describe(@"RACKVOProperty", ^{
 	
 	it(@"should be able to subscribe to signals", ^{
 		NSMutableArray *receivedValues = [NSMutableArray array];
-		[object rac_addObserver:self forKeyPath:@keypath(object.name) options:0 queue:nil block:^(id observer, NSDictionary *change) {
+		[object rac_addObserver:self forKeyPath:@keypath(object.name) options:NSKeyValueObservingOptionNew queue:nil block:^(id observer, NSDictionary *change) {
 			[receivedValues addObject:change[NSKeyValueChangeNewKey]];
 		}];
 		[[RACSignal createSignal: ^RACDisposable * (id<RACSubscriber> subscriber) {
@@ -82,7 +82,7 @@ describe(@"RACKVOProperty", ^{
 	});
 });
 
-describe(@"RACBind", ^{
+describe(@"RACKVOProperty bindings", ^{
 	__block TestClass *a;
 	__block TestClass *b;
 	__block TestClass *c;

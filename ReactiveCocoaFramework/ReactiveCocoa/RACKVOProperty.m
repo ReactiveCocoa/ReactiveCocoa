@@ -324,16 +324,54 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 
 @property (nonatomic, readonly, weak) id target;
 @property (nonatomic, readonly, copy) NSString *keyPath;
+@property (nonatomic, readonly, strong) RACSignal *signal;
+@property (nonatomic, readonly, strong) id<RACSubscriber> subscriber;
 
 @end
 
 @implementation RACKVOProperty
+
+#pragma mark RACSignal
+
+- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
+	return [self.signal subscribe:subscriber];
+}
+
+#pragma mark <RACSubscriber>
+
+- (void)sendNext:(id)value {
+	[self.subscriber sendNext:value];
+}
+
+- (void)sendError:(NSError *)error {
+	[self.subscriber sendError:error];
+}
+
+- (void)sendCompleted {
+	[self.subscriber sendCompleted];
+}
+
+- (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
+	[self.subscriber didSubscribeWithDisposable:disposable];
+}
+
+#pragma mark API
 
 + (instancetype)propertyWithTarget:(id)target keyPath:(NSString *)keyPath {
 	RACKVOProperty *property = [[self alloc] init];
 	if (property == nil) return nil;
 	property->_target = target;
 	property->_keyPath = [keyPath copy];
+	@weakify(property);
+	property->_signal = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+		@strongify(property);
+		[subscriber sendNext:[property.target valueForKeyPath:keyPath]];
+		return [[property.target rac_signalForKeyPath:property.keyPath onObject:property] subscribe:subscriber];
+	}];
+	property->_subscriber = [RACSubscriber subscriberWithNext:^(id x) {
+		@strongify(property);
+		[property.target setValue:x forKeyPath:property.keyPath];
+	} error:nil completed:nil];
 	return property;
 }
 

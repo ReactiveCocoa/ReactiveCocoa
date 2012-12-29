@@ -555,56 +555,61 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 - (RACSignal *)concat {
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		__block NSMutableArray *innerSignals = [NSMutableArray array];
-		__block RACDisposable *currentDisposable = nil;
+		NSMutableArray *signals = [NSMutableArray array];
+		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+
 		__block BOOL outerDone = NO;
-		__block RACSubscriber *innerSubscriber = nil;
-		
-		void (^startNextInnerSignal)(void) = ^{
-			if(innerSignals.count < 1) return;
-			
-			RACSignal *currentInnerSignal = [innerSignals objectAtIndex:0];
-			[innerSignals removeObjectAtIndex:0];
-			currentDisposable = [currentInnerSignal subscribe:innerSubscriber];
-		};
-		
-		void (^sendCompletedIfWeReallyAreDone)(void) = ^{
-			if(outerDone && innerSignals.count < 1 && currentDisposable == nil) {
-				[subscriber sendCompleted];
+		__block RACSignal *currentSignal;
+
+		__block void (^popNextSignal)(void) = [^{
+			RACSignal *signal;
+
+			@synchronized (signals) {
+				if (outerDone && signals.count == 0 && currentSignal == nil) {
+					[subscriber sendCompleted];
+					return;
+				}
+
+				if (signals.count == 0 || currentSignal != nil) return;
+
+				currentSignal = signals[0];
+				[signals removeObjectAtIndex:0];
+
+				signal = currentSignal;
 			}
-		};
-		
-		innerSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
-			[subscriber sendNext:x];
+
+			RACDisposable *innerDisposable = [signal subscribeNext:^(id x) {
+				[subscriber sendNext:x];
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				@synchronized (signals) {
+					currentSignal = nil;
+					popNextSignal();
+				}
+			}];
+
+			if (innerDisposable != nil) [disposable addDisposable:innerDisposable];
+		} copy];
+
+		RACDisposable *subscriptionDisposable = [self subscribeNext:^(RACSignal *signal) {
+			NSAssert([signal isKindOfClass:RACSignal.class], @"%@ must be a signal of signals. Instead, got %@", self, signal);
+
+			@synchronized (signals) {
+				[signals addObject:signal];
+				popNextSignal();
+			}
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
-			currentDisposable = nil;
-			
-			startNextInnerSignal();
-			sendCompletedIfWeReallyAreDone();
-		}];
-		
-		RACDisposable *sourceDisposable = [self subscribeNext:^(id x) {
-			NSAssert([x isKindOfClass:RACSignal.class], @"The source must be a signal of signals. Instead, got %@", x);
-			[innerSignals addObject:x];
-			
-			if(currentDisposable == nil) {
-				startNextInnerSignal();
+			@synchronized (signals) {
+				outerDone = YES;
+				popNextSignal();
 			}
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			outerDone = YES;
-			
-			sendCompletedIfWeReallyAreDone();
 		}];
-		
-		return [RACDisposable disposableWithBlock:^{
-			innerSignals = nil;
-			[sourceDisposable dispose];
-			[currentDisposable dispose];
-		}];
+
+		if (subscriptionDisposable != nil) [disposable addDisposable:subscriptionDisposable];
+		return disposable;
 	}];
 }
 
@@ -674,21 +679,22 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 + (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway {
 	NSParameterAssert(interval > 0.0 && interval < INT64_MAX / NSEC_PER_SEC);
 	NSParameterAssert(leeway >= 0.0 && leeway < INT64_MAX / NSEC_PER_SEC);
-  return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		int64_t intervalInNanoSecs = (int64_t)(interval * NSEC_PER_SEC);
 		int64_t leewayInNanoSecs = (int64_t)(leeway * NSEC_PER_SEC);
-    dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0));
-    dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, intervalInNanoSecs), (uint64_t)intervalInNanoSecs, (uint64_t)leewayInNanoSecs);
-    dispatch_source_set_event_handler(timer, ^{
-      [subscriber sendNext:[NSDate date]];
-    });
-    dispatch_resume(timer);
-    
-    return [RACDisposable disposableWithBlock:^{
-      dispatch_source_cancel(timer);
-      dispatch_release(timer);
-    }];
-  }];
+		dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0));
+		dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, intervalInNanoSecs), (uint64_t)intervalInNanoSecs, (uint64_t)leewayInNanoSecs);
+		dispatch_source_set_event_handler(timer, ^{
+			[subscriber sendNext:[NSDate date]];
+		});
+		dispatch_resume(timer);
+
+		return [RACDisposable disposableWithBlock:^{
+			dispatch_source_cancel(timer);
+			dispatch_release(timer);
+		}];
+	}];
 }
 
 - (RACSignal *)takeUntil:(RACSignal *)signalTrigger {

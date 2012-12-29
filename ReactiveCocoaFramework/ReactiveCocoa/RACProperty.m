@@ -11,6 +11,13 @@
 
 @implementation RACProperty
 
+#pragma mark RACSignal
+
+- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
+	NSAssert(NO, @"%s must be overridden by subclasses", __func__);
+	return nil;
+}
+
 #pragma mark <RACSubscriber>
 
 - (void)sendNext:(id)value {
@@ -39,6 +46,13 @@
 @end
 
 @implementation RACBinding
+
+#pragma mark RACSignal
+
+- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
+	NSAssert(NO, @"%s must be overridden by subclasses", __func__);
+	return nil;
+}
 
 #pragma mark <RACSubscriber>
 

@@ -21,6 +21,67 @@
 
 SpecBegin(RACKVOProperty)
 
+describe(@"RACKVOProperty", ^{
+	__block TestClass *object;
+	__block RACKVOProperty *property;
+	id value1 = @"test value 1";
+	id value2 = @"test value 2";
+	id value3 = @"test value 3";
+	NSArray *values = @[ value1, value2, value3 ];
+	
+	before(^{
+		object = [[TestClass alloc] init];
+		property = [RACKVOProperty propertyWithTarget:object keyPath:@keypath(object.name)];
+	});
+	
+	it(@"should send the object's current value when subscribed to", ^{
+		__block id receivedValue = @"received value should not be this";
+		[[property take:1] subscribeNext:^(id x) {
+			receivedValue = x;
+		}];
+		expect(receivedValue).to.beNil();
+		
+		object.name = value1;
+		[[property take:1] subscribeNext:^(id x) {
+			receivedValue = x;
+		}];
+		expect(receivedValue).to.equal(value1);
+	});
+	
+	it(@"should send the object's new value when it's changed", ^{
+		object.name = value1;
+		NSMutableArray *receivedValues = [NSMutableArray array];
+		[property subscribeNext:^(id x) {
+			[receivedValues addObject:x];
+		}];
+		object.name = value2;
+		object.name = value3;
+		expect(receivedValues).to.equal(values);
+	});
+	
+	it(@"should set values it's sent", ^{
+		expect(object.name).to.beNil();
+		[property sendNext:value1];
+		expect(object.name).to.equal(value1);
+		[property sendNext:value2];
+		expect(object.name).to.equal(value2);
+	});
+	
+	it(@"should be able to subscribe to signals", ^{
+		NSMutableArray *receivedValues = [NSMutableArray array];
+		[object rac_addObserver:self forKeyPath:@keypath(object.name) options:0 queue:nil block:^(id observer, NSDictionary *change) {
+			[receivedValues addObject:change[NSKeyValueChangeNewKey]];
+		}];
+		[[RACSignal createSignal: ^RACDisposable * (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:value1];
+			[subscriber sendNext:value2];
+			[subscriber sendNext:value3];
+			return nil;
+		}] subscribe:property];
+		expect(receivedValues).to.equal(values);
+	});
+});
+
 describe(@"RACBind", ^{
 	__block TestClass *a;
 	__block TestClass *b;
@@ -70,7 +131,7 @@ describe(@"RACBind", ^{
 		expect(a.relatedObject != b.relatedObject).to.beTruthy();
 	});
 	
-	it(@"should take the master's value at the start", ^{
+	it(@"should take the value of the object being bound to at the start", ^{
 		a.name = testName1;
 		b.name = testName2;
 		RACBind(a, name) = RACBind(b, name);

@@ -1,15 +1,15 @@
 //
-//  RACBindingSpec.m
+//  RACKVOPropertySpec.m
 //  ReactiveCocoa
 //
 //  Created by Uri Baghin on 16/12/2012.
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACProperty.h"
 #import "RACKVOProperty.h"
 #import "RACDisposable.h"
 #import "NSObject+RACKVOWrapper.h"
+#import "RACPropertyExamples.h"
 
 @interface TestClass : NSObject
 @property (nonatomic, strong) NSString *name;
@@ -33,6 +33,8 @@ describe(@"RACKVOProperty", ^{
 		object = [[TestClass alloc] init];
 		property = [RACKVOProperty propertyWithTarget:object keyPath:@keypath(object.name)];
 	});
+	
+	itShouldBehaveLike(RACPropertyExamples, [^{ return [RACKVOProperty propertyWithTarget:object keyPath:@keypath(object.name)]; } copy], nil);
 	
 	it(@"should send the object's current value when subscribed to", ^{
 		__block id receivedValue = @"received value should not be this";

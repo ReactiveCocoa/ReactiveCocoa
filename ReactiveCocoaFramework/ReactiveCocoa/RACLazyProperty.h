@@ -15,4 +15,8 @@
 // sent by `start`. `start` must send at least one value.
 + (instancetype)lazyPropertyWithStart:(RACSignal *)start;
 
+// A signal that sends the values of the property, but doesn't trigger
+// generation of the default value.
+- (RACSignal *)nonLazyValues;
+
 @end

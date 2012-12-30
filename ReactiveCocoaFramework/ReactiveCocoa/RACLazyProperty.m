@@ -14,4 +14,8 @@
 	return nil;
 }
 
+- (RACSignal *)nonLazyValues {
+	return nil;
+}
+
 @end

@@ -35,6 +35,23 @@ describe(@"RACLazyProperty", ^{
 			receivedValue = x;
 		}];
 		expect(receivedValue).to.equal(defaultValue);
+		expect(didGenerateDefaultValue).to.beTruthy();
+	});
+	
+	it(@"should generate the default value only once", ^{
+		__block id receivedValue = nil;
+		[[property take:1] subscribeNext:^(id x) {
+			receivedValue = x;
+		}];
+		expect(receivedValue).to.equal(defaultValue);
+		expect(didGenerateDefaultValue).to.beTruthy();
+		didGenerateDefaultValue = NO;
+		receivedValue = nil;
+		[[property take:1] subscribeNext:^(id x) {
+			receivedValue = x;
+		}];
+		expect(receivedValue).to.equal(defaultValue);
+		expect(didGenerateDefaultValue).to.beFalsy();
 	});
 	
 	it(@"should send the default value to bindings on subscription", ^{

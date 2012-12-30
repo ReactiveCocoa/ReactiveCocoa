@@ -20,6 +20,16 @@
 
 @end
 
+@interface RACBinding ()
+
++ (instancetype)bindingWithBacking:(RACSubject *)backing;
+
+@property (nonatomic, readonly, strong) RACSubject *backing;
+@property (nonatomic, readonly, strong) RACSignal *signal;
+@property (nonatomic, readonly, strong) id<RACSubscriber> subscriber;
+
+@end
+
 @implementation RACProperty
 
 #pragma mark NSObject
@@ -71,8 +81,7 @@
 }
 
 - (RACBinding *)binding {
-	NSAssert(NO, @"%s must be overridden by subclasses", __func__);
-	return nil;
+	return [RACBinding bindingWithBacking:self.backing];
 }
 
 @end
@@ -82,29 +91,62 @@
 #pragma mark RACSignal
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	NSAssert(NO, @"%s must be overridden by subclasses", __func__);
-	return nil;
+	return [self.signal subscribe:subscriber];
 }
 
 #pragma mark <RACSubscriber>
 
 - (void)sendNext:(id)value {
-	NSAssert(NO, @"%s must be overridden by subclasses", __func__);
+	[self.subscriber sendNext:value];
 }
 
 - (void)sendError:(NSError *)error {
-	NSAssert(NO, @"%s must be overridden by subclasses", __func__);
+	[self.subscriber sendError:error];
 }
 
 - (void)sendCompleted {
-	NSAssert(NO, @"%s must be overridden by subclasses", __func__);
+	[self.subscriber sendCompleted];
 }
 
 - (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
-	NSAssert(NO, @"%s must be overridden by subclasses", __func__);
+	[self.subscriber didSubscribeWithDisposable:disposable];
 }
 
 #pragma mark API
+
++ (instancetype)bindingWithBacking:(RACSubject *)backing {
+	RACBinding *binding = [[self alloc] init];
+	if (binding == nil) return nil;
+	binding->_backing = backing;
+	@weakify(binding);
+	binding->_signal = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+		__block BOOL isFirstNext = YES;
+		return [backing subscribeNext:^(RACTuple *x) {
+			@strongify(binding)
+			if (isFirstNext) {
+				isFirstNext = NO;
+				[subscriber sendNext:x.first];
+				return;
+			}
+			if (![x.second isEqual:binding]) {
+				[subscriber sendNext:x.first];
+			}
+		}];
+	}];
+	
+	
+	[[backing filter:^BOOL(RACTuple *value) {
+		@strongify(binding);
+		return ![value.second isEqual:binding];
+	}] map:^id(RACTuple *value) {
+		return value.first;
+	}];
+	binding->_subscriber = [RACSubscriber subscriberWithNext:^(id x) {
+		@strongify(binding);
+		[binding.backing sendNext:[RACTuple tupleWithObjects:x ?: RACTupleNil.tupleNil, binding ?: RACTupleNil.tupleNil, nil]];
+	} error:nil completed:nil];
+	return binding;
+}
 
 - (RACDisposable *)bindTo:(RACBinding *)binding {
 	RACDisposable *bindingDisposable = [binding subscribe:self];
@@ -113,7 +155,6 @@
 		[bindingDisposable dispose];
 		[selfDisposable dispose];
 	}];
-	
 }
 
 @end

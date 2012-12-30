@@ -30,12 +30,14 @@
 //
 // error - The error to send. This can be `nil`.
 //
-// This terminates the subscription.
+// This terminates the subscription, and invalidates the subscriber (such that
+// it cannot subscribe to anything else in the future).
 - (void)sendError:(NSError *)error;
 
 // Send completed to subscribers.
 //
-// This terminates the subscription.
+// This terminates the subscription, and invalidates the subscriber (such that
+// it cannot subscribe to anything else in the future).
 - (void)sendCompleted;
 
 // Sends the subscriber a disposable that represents one of its subscriptions.

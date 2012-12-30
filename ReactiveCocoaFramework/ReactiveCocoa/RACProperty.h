@@ -15,6 +15,9 @@
 // subsequent values.
 @interface RACProperty : RACSignal <RACSubscriber>
 
+// Returns a new property
++ (instancetype)property;
+
 // Returns a new binding to the property.
 - (RACBinding *)binding;
 

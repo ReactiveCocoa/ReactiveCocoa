@@ -9,6 +9,8 @@
 #import "RACKVOProperty.h"
 #import "RACDisposable.h"
 #import "NSObject+RACKVOWrapper.h"
+#import "RACTestObject.h"
+#import "RACPropertySignalExamples.h"
 #import "RACPropertyExamples.h"
 
 @interface TestClass : NSObject
@@ -33,6 +35,12 @@ describe(@"RACKVOProperty", ^{
 		object = [[TestClass alloc] init];
 		property = [RACKVOProperty propertyWithTarget:object keyPath:@keypath(object.name)];
 	});
+	
+	id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, RACSignal *signal) {
+		[signal subscribe:[RACKVOProperty propertyWithTarget:testObject keyPath:keyPath]];
+	};
+	
+	itShouldBehaveLike(RACPropertySignalExamples, @{ RACPropertySignalExamplesSetupBlock: setupBlock }, nil);
 	
 	itShouldBehaveLike(RACPropertyExamples, [^{ return [RACKVOProperty propertyWithTarget:object keyPath:@keypath(object.name)]; } copy], nil);
 	

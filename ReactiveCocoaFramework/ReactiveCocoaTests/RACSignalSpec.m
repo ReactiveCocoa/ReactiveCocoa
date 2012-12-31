@@ -1817,4 +1817,48 @@ describe(@"-collect", ^{
 	});
 });
 
+describe(@"-squelch...", ^{
+	__block RACSubject *subject;
+	__block BOOL hasReceivedError;
+	__block BOOL hasReceivedCompleted;
+#define itShouldntForwardError(SIGNAL)\
+	it(@"shouldn't forward error", ^{\
+		[SIGNAL subscribeError:^(NSError *error) {\
+			hasReceivedError = YES;\
+		}];\
+		[subject sendError:nil];\
+		expect(hasReceivedError).to.beFalsy();\
+	});
+#define itShouldntForwardCompleted(SIGNAL)\
+	it(@"shouldn't forward completed", ^{\
+		[SIGNAL subscribeCompleted:^{\
+			hasReceivedCompleted = YES;\
+		}];\
+		[subject sendCompleted];\
+		expect(hasReceivedCompleted).to.beFalsy();\
+	});
+	
+	before(^{
+		subject = [RACSubject subject];
+		hasReceivedError = NO;
+		hasReceivedCompleted = NO;
+	});
+	
+	describe(@"-squelchError", ^{
+		itShouldntForwardError([subject squelchError]);
+	});
+	
+	describe(@"-squelchCompleted", ^{
+		itShouldntForwardCompleted([subject squelchCompleted]);
+	});
+	
+	describe(@"-squelchErrorAndCompleted", ^{
+		itShouldntForwardError([subject squelchErrorAndCompleted]);
+		itShouldntForwardCompleted([subject squelchErrorAndCompleted]);
+	});
+	
+#undef itShouldntForwardError
+#undef itShouldntForwardCompleted
+});
+
 SpecEnd

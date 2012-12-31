@@ -213,6 +213,34 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}];
 }
 
+- (RACSignal *)squelchError {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		return [self subscribeNext:^(id x) {
+			[subscriber sendNext:x];
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
+	}];
+}
+
+- (RACSignal *)squelchCompleted {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		return [self subscribeNext:^(id x) {
+			[subscriber sendNext:x];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		}];
+	}];
+}
+
+- (RACSignal *)squelchErrorAndCompleted {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		return [self subscribeNext:^(id x) {
+			[subscriber sendNext:x];
+		}];
+	}];
+}
+
 - (RACSignal *)finally:(void (^)(void))block {
 	NSParameterAssert(block != NULL);
 	

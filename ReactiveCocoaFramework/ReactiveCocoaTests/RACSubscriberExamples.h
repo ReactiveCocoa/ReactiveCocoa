@@ -12,8 +12,8 @@
 // getSubscriber  - A block of type `id<RACSubscriber> (^)(void)`, which
 //                  should return a <RACSubscriber>.
 // valuesReceived - A block which returns an NSArray of the values received so
-//					far.
+//                  far.
 // errorReceived  - A block which returns any NSError received so far.
 // success        - A block which returns a BOOL indicating whether the
-//					subscriber is successful so far.
+//                  subscriber is successful so far.
 extern NSString * const RACSubscriberExamples;

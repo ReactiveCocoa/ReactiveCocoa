@@ -30,15 +30,21 @@
 //
 // error - The error to send. This can be `nil`.
 //
-// This terminates the subscription.
+// This terminates the subscription, and invalidates the subscriber (such that
+// it cannot subscribe to anything else in the future).
 - (void)sendError:(NSError *)error;
 
 // Send completed to subscribers.
 //
-// This terminates the subscription.
+// This terminates the subscription, and invalidates the subscriber (such that
+// it cannot subscribe to anything else in the future).
 - (void)sendCompleted;
 
-// Sends the subscriber the disposable that represents its subscription.
+// Sends the subscriber a disposable that represents one of its subscriptions.
+//
+// A subscriber may receive multiple disposables if it gets subscribed to
+// multiple signals; however, any error or completed events must terminate _all_
+// subscriptions.
 - (void)didSubscribeWithDisposable:(RACDisposable *)disposable;
 
 @end

@@ -7,17 +7,36 @@
 //
 
 #import "RACSubject.h"
+#import "EXTScope.h"
 #import "RACSignal+Private.h"
-#import "RACDisposable.h"
+#import "RACCompoundDisposable.h"
 
 @interface RACSubject ()
-@property (nonatomic, strong) RACDisposable *disposable;
-@property (assign) BOOL completedOrErrored;
-@end
 
+@property (nonatomic, strong, readonly) RACCompoundDisposable *disposable;
+
+@end
 
 @implementation RACSubject
 
+#pragma mark Lifecycle
+
++ (instancetype)subject {
+	return [[self alloc] init];
+}
+
+- (id)init {
+	self = [super init];
+	if (self == nil) return nil;
+
+	_disposable = [RACCompoundDisposable compoundDisposable];
+	
+	return self;
+}
+
+- (void)dealloc {
+	[self.disposable dispose];
+}
 
 #pragma mark RACSubscriber
 
@@ -28,9 +47,7 @@
 }
 
 - (void)sendError:(NSError *)error {
-	self.completedOrErrored = YES;
-
-	[self stopSubscription];
+	[self.disposable dispose];
 	
 	[self performBlockOnEachSubscriber:^(id<RACSubscriber> subscriber) {
 		[subscriber sendError:error];
@@ -38,9 +55,7 @@
 }
 
 - (void)sendCompleted {
-	self.completedOrErrored = YES;
-
-	[self stopSubscription];
+	[self.disposable dispose];
 	
 	[self performBlockOnEachSubscriber:^(id<RACSubscriber> subscriber) {
 		[subscriber sendCompleted];
@@ -48,29 +63,7 @@
 }
 
 - (void)didSubscribeWithDisposable:(RACDisposable *)d {
-	@synchronized(self) {
-		self.disposable = d;
-	}
-
-	if (self.completedOrErrored) {
-		[self stopSubscription];
-	}
-}
-
-
-#pragma mark API
-
-@synthesize disposable;
-
-+ (instancetype)subject {
-	return [[self alloc] init];
-}
-
-- (void)stopSubscription {
-	@synchronized(self) {
-		[self.disposable dispose];
-		self.disposable = nil;
-	}
+	if (d != nil) [self.disposable addDisposable:d];
 }
 
 @end

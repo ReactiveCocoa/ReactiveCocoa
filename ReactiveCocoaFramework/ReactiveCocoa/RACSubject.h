@@ -9,7 +9,6 @@
 #import "RACSignal.h"
 #import "RACSubscriber.h"
 
-
 // A subject can be thought of as a signal that you can manually control by
 // sending next, completed, and error.
 //

@@ -24,7 +24,7 @@
 #define RACBind(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))(_RACBindObject(self, __VA_ARGS__))(_RACBindObject(__VA_ARGS__))
 
 // Do not use this directly. Use the RACBind macro above.
-#define _RACBindObject(OBJ, KEYPATH) [OBJ rac_propertyForKeyPath:@keypath(OBJ, KEYPATH)][ @"dummy-key" ]
+#define _RACBindObject(OBJ, KEYPATH) [RACKVOProperty propertyWithTarget:OBJ keyPath:@keypath(OBJ, KEYPATH)][ @"dummy-key" ]
 
 // A signal / subscriber interface wrapper for KVC compliant properties.
 //
@@ -41,12 +41,5 @@
 
 // Method needed for the convenience macro. Do not call explicitly.
 - (void)setObject:(id)obj forKeyedSubscript:(id<NSCopying>)key;
-
-@end
-
-@interface NSObject (RACKVOProperty)
-
-// Returns a property interface to the receiver's key path.
-- (RACKVOProperty *)rac_propertyForKeyPath:(NSString *)keyPath;
 
 @end

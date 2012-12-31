@@ -388,11 +388,3 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 }
 
 @end
-
-@implementation NSObject (RACKVOProperty)
-
-- (RACProperty *)rac_propertyForKeyPath:(NSString *)keyPath {
-	return [RACKVOProperty propertyWithTarget:self keyPath:keyPath];
-}
-
-@end

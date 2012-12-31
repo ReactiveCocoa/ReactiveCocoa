@@ -9,6 +9,7 @@
 #import <ReactiveCocoa/NSArray+RACSequenceAdditions.h>
 #import <ReactiveCocoa/NSDictionary+RACSequenceAdditions.h>
 #import <ReactiveCocoa/NSObject+RACKVOWrapper.h>
+#import <ReactiveCocoa/NSObject+RACKVOProperty.h>
 #import <ReactiveCocoa/NSObject+RACPropertySubscribing.h>
 #import <ReactiveCocoa/NSOrderedSet+RACSequenceAdditions.h>
 #import <ReactiveCocoa/NSSet+RACSequenceAdditions.h>

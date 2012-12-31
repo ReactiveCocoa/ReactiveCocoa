@@ -372,7 +372,13 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 	property->_subscriber = [RACSubscriber subscriberWithNext:^(id x) {
 		@strongify(property);
 		[property.target setValue:x forKeyPath:property.keyPath];
-	} error:nil completed:nil];
+	} error:^(NSError *error) {
+		@strongify(property);
+		NSAssert(NO, @"Received error in RACKVOProperty for key path \"%@\" on %@: %@", property.keyPath, property.target, error);
+		
+		// Log the error if we're running with assertions disabled.
+		NSLog(@"Received error in binding for key path \"%@\" on %@: %@", property.keyPath, property.target, error);
+	} completed:nil];
 	return property;
 }
 

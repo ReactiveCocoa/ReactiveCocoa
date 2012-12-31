@@ -55,12 +55,19 @@
 	if (self == nil) return nil;
 	_signal = signal;
 	_subscriber = subscriber;
+	@weakify(self);
 	_exposedSignal = [_signal map:^id(RACTuple *value) {
 		return value.first;
 	}];
 	_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
 		[subscriber sendNext:[RACTuple tupleWithObjects:x, RACTupleNil.tupleNil, nil]];
-	} error:nil completed:nil];
+	} error:^(NSError *error) {
+		@strongify(self);
+		NSAssert(NO, @"Received error in RACProperty %@: %@", self, error);
+		
+		// Log the error if we're running with assertions disabled.
+		NSLog(@"Received error in RACProperty %@: %@", self, error);
+	} completed:nil];
 	return self;
 }
 

@@ -41,6 +41,7 @@ static id pendingDefaultValue(void) {
 
 + (instancetype)lazyPropertyWithStart:(RACSignal *)start {
 	RACLazyProperty *lazyProperty = nil;
+	RACSubject *backing = [RACSubject subject];
 	RACSubject *subscriberSubject = [RACSubject subject];
 	RACSignal *signal = [[RACSignal alloc] init];
 	lazyProperty = [[self alloc] initWithSignal:signal subscriber:subscriberSubject];
@@ -49,7 +50,7 @@ static id pendingDefaultValue(void) {
 	signal.didSubscribe = [^RACDisposable *(id<RACSubscriber> subscriber) {
 		@strongify(lazyProperty);
 		@synchronized(lazyProperty) {
-			RACDisposable *disposable = [subscriberSubject subscribe:subscriber];
+			RACDisposable *disposable = [backing subscribe:subscriber];
 			if ([lazyProperty.latestValue isEqual:startingValue()]) {
 				lazyProperty.latestValue = pendingDefaultValue();
 				[[start take:1] subscribeNext:^(id x) {
@@ -57,8 +58,7 @@ static id pendingDefaultValue(void) {
 					@synchronized(lazyProperty) {
 						if (![lazyProperty.latestValue isEqual:pendingDefaultValue()]) return;
 						RACTuple *latestValue = [RACTuple tupleWithObjects:x ?: RACTupleNil.tupleNil, RACTupleNil.tupleNil, nil];
-						lazyProperty.latestValue = latestValue;
-						[subscriberSubject sendNext:latestValue];
+						[backing sendNext:latestValue];
 					}
 				}];
 			} else if (![lazyProperty.latestValue isEqual:pendingDefaultValue()]) {
@@ -67,20 +67,28 @@ static id pendingDefaultValue(void) {
 			return disposable;
 		}
 	} copy];
-	[subscriberSubject subscribeNext:^(id x) {
+	[backing subscribeNext:^(id x) {
 		@strongify(lazyProperty);
 		@synchronized(lazyProperty) {
 			lazyProperty.latestValue = x;
 		}
 	}];
-	lazyProperty->_nonLazyValuesSignal = [subscriberSubject filter:^BOOL(id value) {
-		@strongify(lazyProperty);
-		return !lazyProperty.latestValueIsDefaultValue;
+	[subscriberSubject subscribeNext:^(id x) {
+		[backing sendNext:x];
 	}];
 	[[subscriberSubject take:1] subscribeNext:^(id x) {
 		@strongify(lazyProperty);
 		@synchronized(lazyProperty) {
 			lazyProperty.latestValueIsDefaultValue = NO;
+		}
+	}];
+	lazyProperty->_nonLazyValuesSignal = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+		@strongify(lazyProperty);
+		@synchronized(lazyProperty) {
+			if (!lazyProperty.latestValueIsDefaultValue) [subscriber sendNext:[lazyProperty.latestValue first]];
+			return [[subscriberSubject map:^id(RACTuple *value) {
+				return value.first;
+			}] subscribe:subscriber];
 		}
 	}];
 	lazyProperty->_latestValue = startingValue();

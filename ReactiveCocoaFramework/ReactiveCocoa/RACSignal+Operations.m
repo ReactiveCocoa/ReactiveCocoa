@@ -747,6 +747,18 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}];
 }
 
++ (RACSignal *)if:(RACSignal *)boolSignal then:(RACSignal *)trueSignal else:(RACSignal *)falseSignal {
+	NSParameterAssert(boolSignal != nil);
+	NSParameterAssert(trueSignal != nil);
+	NSParameterAssert(falseSignal != nil);
+
+	return [[boolSignal map:^(NSNumber *value) {
+		NSAssert([value isKindOfClass:NSNumber.class], @"Expected %@ to send BOOLs, not %@", boolSignal, value);
+		
+		return (value.boolValue ? trueSignal : falseSignal);
+	}] switch];
+}
+
 - (id)first {
 	return [self firstOrDefault:nil];
 }

@@ -1443,10 +1443,10 @@ describe(@"+interval: and +interval:withLeeway:", ^{
 	static const NSTimeInterval marginOfError = 0.01;
 	__block RACSignal *timer = nil;
 	
-	__block void (^testTimerWithSchedulerMinIntervalMaxInterval)(RACSignal *, RACScheduler *, NSNumber *, NSNumber *) = nil;
+	__block void (^testTimer)(RACSignal *, RACScheduler *, NSNumber *, NSNumber *) = nil;
 	
 	before(^{
-		testTimerWithSchedulerMinIntervalMaxInterval = [^(RACSignal *timer, RACScheduler *scheduler, NSNumber *minInterval, NSNumber *maxInterval) {
+		testTimer = [^(RACSignal *timer, RACScheduler *scheduler, NSNumber *minInterval, NSNumber *leeway) {
 			__block NSUInteger nextsReceived = 0;
 			[scheduler schedule:^{
 				RACSignal *finalSignal = [[timer take:3] deliverOn:RACScheduler.mainThreadScheduler];
@@ -1462,7 +1462,7 @@ describe(@"+interval: and +interval:withLeeway:", ^{
 					// because a delayed interval may cause the _next_ value to
 					// send sooner than the interval.
 					NSTimeInterval expectedMinInterval = minInterval.doubleValue * nextsReceived;
-					NSTimeInterval expectedMaxInterval = expectedMinInterval + maxInterval.doubleValue;
+					NSTimeInterval expectedMaxInterval = expectedMinInterval + leeway.doubleValue;
 
 					expect(currentTime - startTime).beGreaterThanOrEqualTo(expectedMinInterval - marginOfError);
 					expect(currentTime - startTime).beLessThanOrEqualTo(expectedMaxInterval + marginOfError);
@@ -1479,15 +1479,15 @@ describe(@"+interval: and +interval:withLeeway:", ^{
 		});
 		
 		it(@"should fire repeatedly at every interval", ^{
-			testTimerWithSchedulerMinIntervalMaxInterval(timer, RACScheduler.immediateScheduler, @(interval), @(interval));
+			testTimer(timer, RACScheduler.immediateScheduler, @(interval), @0);
 		});
 		
 		it(@"should work on the main thread scheduler", ^{
-			testTimerWithSchedulerMinIntervalMaxInterval(timer, RACScheduler.mainThreadScheduler, @(interval), @(interval));
+			testTimer(timer, RACScheduler.mainThreadScheduler, @(interval), @0);
 		});
 		
 		it(@"should work on a background scheduler", ^{
-			testTimerWithSchedulerMinIntervalMaxInterval(timer, [RACScheduler scheduler], @(interval), @(interval));
+			testTimer(timer, [RACScheduler scheduler], @(interval), @0);
 		});
 	});
 	
@@ -1497,15 +1497,15 @@ describe(@"+interval: and +interval:withLeeway:", ^{
 		});
 		
 		it(@"should fire repeatedly at every interval", ^{
-			testTimerWithSchedulerMinIntervalMaxInterval(timer, RACScheduler.immediateScheduler, @(interval), @(interval + leeway));
+			testTimer(timer, RACScheduler.immediateScheduler, @(interval), @(leeway));
 		});
 		
 		it(@"should work on the main thread scheduler", ^{
-			testTimerWithSchedulerMinIntervalMaxInterval(timer, RACScheduler.mainThreadScheduler, @(interval), @(interval + leeway));
+			testTimer(timer, RACScheduler.mainThreadScheduler, @(interval), @(leeway));
 		});
 		
 		it(@"should work on a background scheduler", ^{
-			testTimerWithSchedulerMinIntervalMaxInterval(timer, [RACScheduler scheduler], @(interval), @(interval + leeway));
+			testTimer(timer, [RACScheduler scheduler], @(interval), @(leeway));
 		});
 	});
 });

@@ -21,13 +21,13 @@ SpecBegin(RACSubject)
 
 describe(@"RACSubject", ^{
 	__block RACSubject *subject;
-	__block NSMutableSet *values;
+	__block NSMutableArray *values;
 
 	__block BOOL success;
 	__block NSError *error;
 
 	beforeEach(^{
-		values = [NSMutableSet set];
+		values = [NSMutableArray array];
 
 		subject = [RACSubject subject];
 		success = YES;
@@ -43,11 +43,7 @@ describe(@"RACSubject", ^{
 		}];
 	});
 
-	itShouldBehaveLike(RACSubscriberExamples, [^{ return subject; } copy], [^(NSSet *expectedValues) {
-		expect(success).to.beTruthy();
-		expect(error).to.beNil();
-		expect(values).to.equal(expectedValues);
-	} copy], nil);
+	itShouldBehaveLike(RACSubscriberExamples, [^{ return subject; } copy], [^{ return [values copy]; } copy], [^{ return error; } copy], [^{ return success; } copy], nil);
 });
 
 describe(@"RACReplaySubject", ^{
@@ -139,8 +135,8 @@ describe(@"RACReplaySubject", ^{
 			subject = [RACReplaySubject subject];
 		});
 
-		itShouldBehaveLike(RACSubscriberExamples, [^{ return subject; } copy], [^(NSSet *expectedValues) {
-			NSMutableSet *values = [NSMutableSet set];
+		itShouldBehaveLike(RACSubscriberExamples, [^{ return subject; } copy], [^{
+			NSMutableArray *values = [NSMutableArray array];
 
 			// This subscription should synchronously dump all values already
 			// received into 'values'.
@@ -148,7 +144,23 @@ describe(@"RACReplaySubject", ^{
 				[values addObject:value];
 			}];
 
-			expect(values).to.equal(expectedValues);
+			return values;
+		} copy], [^{
+			__block NSError *error = nil;
+
+			[subject subscribeError:^(NSError *x) {
+				error = x;
+			}];
+
+			return error;
+		} copy], [^{
+			__block BOOL success = YES;
+
+			[subject subscribeError:^(NSError *x) {
+				success = NO;
+			}];
+
+			return success;
 		} copy], nil);
 		
 		it(@"should send both values to new subscribers after completion", ^{

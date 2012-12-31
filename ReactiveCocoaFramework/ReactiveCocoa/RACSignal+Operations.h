@@ -175,6 +175,15 @@ typedef NSInteger RACSignalError;
 // Subscribe to the given signal when an error occurs.
 - (RACSignal *)catchTo:(RACSignal *)signal;
 
+// Do not propagate error.
+- (RACSignal *)squelchError;
+
+// Do not propagate completed.
+- (RACSignal *)squelchCompleted;
+
+// Do not propagate error or completed.
+- (RACSignal *)squelchErrorAndCompleted;
+
 // Returns the first `next`. Note that this is a blocking call.
 - (id)first;
 

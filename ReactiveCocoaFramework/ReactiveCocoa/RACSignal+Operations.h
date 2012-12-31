@@ -75,7 +75,7 @@ typedef NSInteger RACSignalError;
 - (RACSignal *)takeLast:(NSUInteger)count;
 
 // Invokes +combineLatest:reduce: with a nil `reduceBlock`.
-+ (RACSignal *)combineLatest:(NSArray *)signals;
++ (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals;
 
 // Combine the latest values from each of the signals once all the signals have
 // sent a `next`. Any additional `next`s will result in a new reduced value
@@ -96,10 +96,10 @@ typedef NSInteger RACSignalError;
 //   [RACSignal combineLatest:@[ stringSignal, intSignal ] reduce:^(NSString *string, NSNumber *wrappedInt) {
 //       return [NSString stringWithFormat:@"%@: %@", string, wrappedInt];
 //   }];
-+ (RACSignal *)combineLatest:(NSArray *)signals reduce:(id)reduceBlock;
++ (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock;
 
 // Sends the latest `next` from any of the signals.
-+ (RACSignal *)merge:(NSArray *)signals;
++ (RACSignal *)merge:(id<NSFastEnumeration>)signals;
 
 // Merges the signals sent by the receiver into a flattened signal, but only
 // subscribes to `maxConcurrent` number of signals at a time. New signals are
@@ -143,8 +143,25 @@ typedef NSInteger RACSignalError;
 //
 // interval - The time interval in seconds at which the current time is sent.
 //
-// Returns a signal that sends the current date/time every `interval`.
+// Returns a signal that sends the current date/time every `interval` on the
+// global concurrent high priority queue.
 + (RACSignal *)interval:(NSTimeInterval)interval;
+
+// Sends NSDate.date at intervals of at least `interval` seconds, up to
+// approximately `interval` + `leeway` seconds.
+//
+// The created signal will defer sending each `next` for at least `interval`
+// seconds, and for an additional amount of time up to `leeway` seconds in the
+// interest of performance or power consumption. Note that some additional
+// latency is to be expected, even when specifying a `leeway` of 0.
+//
+// interval - The base interval between `next`s.
+// leeway   - The maximum amount of additional time the `next` can be deferred.
+//
+// Returns a signal that sends the current date/time at intervals of at least
+// `interval seconds` up to approximately `interval` + `leeway` seconds on the
+// global concurrent high priority queue.
++ (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway;
 
 // Take `next`s until the `signalTrigger` sends a `next`.
 - (RACSignal *)takeUntil:(RACSignal *)signalTrigger;
@@ -181,9 +198,28 @@ typedef NSInteger RACSignalError;
 // previous `next`.
 - (RACSignal *)distinctUntilChanged;
 
-// The source must be a signal of signals. Subscribe and send `next`s for the
-// latest signal. This is mostly useful when combined with `-flattenMap:`.
+// Every time the receiver sends a new RACSignal, subscribes and sends `next`s and
+// `error`s only for that signal.
+//
+// The receiver must be a signal of signals.
+//
+// Returns a signal which passes through `next`s and `error`s from the latest
+// signal sent by the receiver, and sends `completed` when the receiver completes.
 - (RACSignal *)switch;
+
+// Switches between `trueSignal` and `falseSignal` based on the latest value
+// sent by `boolSignal`.
+//
+// boolSignal  - A signal of BOOLs determining whether `trueSignal` or
+//               `falseSignal` should be active. This argument must not be nil.
+// trueSignal  - The signal to pass through after `boolSignal` has sent YES.
+//               This argument must not be nil.
+// falseSignal - The signal to pass through after `boolSignal` has sent NO. This
+//               argument must not be nil.
+//
+// Returns a signal which passes through `next`s and `error`s from `trueSignal`
+// and/or `falseSignal`, and sends `completed` when `boolSignal` completes.
++ (RACSignal *)if:(RACSignal *)boolSignal then:(RACSignal *)trueSignal else:(RACSignal *)falseSignal;
 
 // Add every `next` to an array. Nils are represented by NSNulls. Note that this
 // is a blocking call.

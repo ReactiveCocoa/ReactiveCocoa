@@ -7,9 +7,12 @@
 //
 
 #import "RACPropertyExamples.h"
+#import "RACDisposable.h"
 #import "RACProperty.h"
+#import "NSObject+RACPropertySubscribing.h"
 
 NSString * const RACPropertyExamples = @"RACPropertyExamples";
+NSString * const RACPropertyMemoryManagementExamples = @"RACPropertyMemoryManagementExamples";
 
 SharedExampleGroupsBegin(RACPropertyExamples)
 
@@ -50,7 +53,7 @@ sharedExamplesFor(RACPropertyExamples, ^(RACProperty *(^getProperty)(void)) {
 		expect(receivedValues).to.equal(values);
 	});
 	
-	describe(@"RACProperty bindings", ^{
+	describe(@"bindings", ^{
 		__block RACBinding *binding1;
 		__block RACBinding *binding2;
 		
@@ -143,6 +146,41 @@ sharedExamplesFor(RACPropertyExamples, ^(RACProperty *(^getProperty)(void)) {
 			expect(receivedValues1).to.equal(expectedValues1);
 			expect(receivedValues2).to.equal(expectedValues2);
 		});
+	});
+});
+
+sharedExamplesFor(RACPropertyMemoryManagementExamples, ^(RACProperty *(^getProperty)(void)) {
+	it(@"should dealloc when it's subscribers are disposed", ^{
+		RACDisposable *disposable = nil;
+		__block BOOL deallocd = NO;
+		@autoreleasepool {
+			RACProperty *property __attribute__((objc_precise_lifetime)) = [RACProperty property];
+			[property rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				deallocd = YES;
+			}]];
+			disposable = [property subscribeNext:^(id x) {
+				
+			}];
+		}
+		[disposable dispose];
+		expect(deallocd).will.beTruthy();
+	});
+	
+	it(@"should dealloc when it's subscriptions are disposed", ^{
+		RACDisposable *disposable = nil;
+		__block BOOL deallocd = NO;
+		RACSignal *signal = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+			return nil;
+		}];
+		@autoreleasepool {
+			RACProperty *property __attribute__((objc_precise_lifetime)) = [RACProperty property];
+			[property rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				deallocd = YES;
+			}]];
+			disposable = [signal subscribe:property];
+		}
+		[disposable dispose];
+		expect(deallocd).will.beTruthy();
 	});
 });
 

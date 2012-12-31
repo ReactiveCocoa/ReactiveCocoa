@@ -13,6 +13,7 @@ SpecBegin(RACProperty)
 
 describe(@"RACProperty", ^{
 	itShouldBehaveLike(RACPropertyExamples, [^{ return [RACProperty property]; } copy], nil);
+	itShouldBehaveLike(RACPropertyMemoryManagementExamples, [^{ return [RACProperty property]; } copy], nil);
 });
 
 SpecEnd

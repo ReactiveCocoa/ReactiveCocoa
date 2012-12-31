@@ -28,6 +28,7 @@ describe(@"RACLazyProperty", ^{
 	});
 	
 	itShouldBehaveLike(RACPropertyExamples, [^{ return [RACLazyProperty lazyPropertyWithStart:[RACSignal return:nil]]; } copy], nil);
+	itShouldBehaveLike(RACPropertyMemoryManagementExamples, [^{ return [RACLazyProperty lazyPropertyWithStart:[RACSignal return:nil]]; } copy], nil);
 	
 	it(@"should send the default value on subscription", ^{
 		__block id receivedValue = nil;

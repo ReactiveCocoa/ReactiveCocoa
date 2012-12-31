@@ -32,6 +32,7 @@ static id pendingDefaultValue(void) {
 @interface RACLazyProperty ()
 
 @property (nonatomic, strong) RACTuple *latestValue;
+@property (nonatomic) BOOL latestValueIsDefaultValue;
 @property (nonatomic, readonly, strong) RACSignal *nonLazyValuesSignal;
 
 @end
@@ -48,22 +49,22 @@ static id pendingDefaultValue(void) {
 	signal.didSubscribe = [^RACDisposable *(id<RACSubscriber> subscriber) {
 		@strongify(lazyProperty);
 		@synchronized(lazyProperty) {
+			RACDisposable *disposable = [subscriberSubject subscribe:subscriber];
 			if ([lazyProperty.latestValue isEqual:startingValue()]) {
 				lazyProperty.latestValue = pendingDefaultValue();
-				RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposable];
-				[compoundDisposable addDisposable:[start subscribeNext:^(id x) {
+				[[start take:1] subscribeNext:^(id x) {
 					@strongify(lazyProperty);
-					[compoundDisposable dispose];
 					@synchronized(lazyProperty) {
 						if (![lazyProperty.latestValue isEqual:pendingDefaultValue()]) return;
-						lazyProperty.latestValue = x;
-						[subscriberSubject sendNext:[RACTuple tupleWithObjects:x ?: RACTupleNil.tupleNil, RACTupleNil.tupleNil, nil]];
+						RACTuple *latestValue = [RACTuple tupleWithObjects:x ?: RACTupleNil.tupleNil, RACTupleNil.tupleNil, nil];
+						lazyProperty.latestValue = latestValue;
+						[subscriberSubject sendNext:latestValue];
 					}
-				}]];
+				}];
 			} else if (![lazyProperty.latestValue isEqual:pendingDefaultValue()]) {
 				[subscriber sendNext:lazyProperty.latestValue];
 			}
-			return [subscriberSubject subscribe:subscriber];
+			return disposable;
 		}
 	} copy];
 	[subscriberSubject subscribeNext:^(id x) {
@@ -72,7 +73,18 @@ static id pendingDefaultValue(void) {
 			lazyProperty.latestValue = x;
 		}
 	}];
+	lazyProperty->_nonLazyValuesSignal = [subscriberSubject filter:^BOOL(id value) {
+		@strongify(lazyProperty);
+		return !lazyProperty.latestValueIsDefaultValue;
+	}];
+	[[subscriberSubject take:1] subscribeNext:^(id x) {
+		@strongify(lazyProperty);
+		@synchronized(lazyProperty) {
+			lazyProperty.latestValueIsDefaultValue = NO;
+		}
+	}];
 	lazyProperty->_latestValue = startingValue();
+	lazyProperty->_latestValueIsDefaultValue = YES;
 	return lazyProperty;
 }
 

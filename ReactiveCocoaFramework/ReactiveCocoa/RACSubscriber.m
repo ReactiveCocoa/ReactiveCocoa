@@ -89,7 +89,7 @@
 }
 
 - (void)didSubscribeWithDisposable:(RACDisposable *)d {
-	[self.disposable addDisposable:d];
+	if (d != nil) [self.disposable addDisposable:d];
 }
 
 @end

@@ -1084,7 +1084,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		__block NSInteger currentRetryCount = 0;
 		return subscribeForever(self,
 			^(id x) {
-				[subscriber sendNext:[RACMaybe maybeWithObject:x]];
+				[subscriber sendNext:x];
 			},
 			^(NSError *error, RACDisposable *disposable) {
 				if (retryCount == 0 || currentRetryCount < retryCount) {

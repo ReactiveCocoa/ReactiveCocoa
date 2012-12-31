@@ -18,7 +18,7 @@
 		5F45A888168CFA3E00B58A2B /* RACKVOProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F45A884168CFA3E00B58A2B /* RACKVOProperty.m */; };
 		5F7EFECF168FBC4B0037E500 /* RACPropertyExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F7EFECD168FBC4B0037E500 /* RACPropertyExamples.m */; };
 		5F7EFED0168FBC4B0037E500 /* RACPropertySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F7EFECE168FBC4B0037E500 /* RACPropertySpec.m */; };
-		5F7EFED31690E3BA0037E500 /* RACLazyProperty.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F7EFED11690E3BA0037E500 /* RACLazyProperty.h */; };
+		5F7EFED31690E3BA0037E500 /* RACLazyProperty.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F7EFED11690E3BA0037E500 /* RACLazyProperty.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5F7EFED41690E3BA0037E500 /* RACLazyProperty.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F7EFED11690E3BA0037E500 /* RACLazyProperty.h */; };
 		5F7EFED51690E3BA0037E500 /* RACLazyProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F7EFED21690E3BA0037E500 /* RACLazyProperty.m */; };
 		5F7EFED61690E3BA0037E500 /* RACLazyProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F7EFED21690E3BA0037E500 /* RACLazyProperty.m */; };

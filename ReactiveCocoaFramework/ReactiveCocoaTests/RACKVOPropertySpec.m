@@ -7,6 +7,7 @@
 //
 
 #import "RACKVOProperty.h"
+#import "RACBinding.h"
 #import "RACDisposable.h"
 #import "NSObject+RACKVOWrapper.h"
 #import "RACTestObject.h"

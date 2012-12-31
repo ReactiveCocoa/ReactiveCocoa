@@ -36,6 +36,7 @@
 #import <ReactiveCocoa/RACUnit.h>
 #import <ReactiveCocoa/RACCompoundDisposable.h>
 #import <ReactiveCocoa/RACProperty.h>
+#import <ReactiveCocoa/RACBinding.h>
 #import <ReactiveCocoa/RACKVOProperty.h>
 
 #ifdef __IPHONE_OS_VERSION_MIN_REQUIRED

@@ -26,7 +26,3 @@
 - (instancetype)initWithSignal:(RACSignal *)signal subscriber:(id<RACSubscriber>)subscriber;
 
 @end
-
-@interface RACBinding ()
-
-@end

@@ -7,6 +7,7 @@
 //
 
 #import "RACKVOProperty.h"
+#import "RACBinding.h"
 #import "RACDisposable.h"
 #import "RACSubject.h"
 #import "RACSwizzling.h"

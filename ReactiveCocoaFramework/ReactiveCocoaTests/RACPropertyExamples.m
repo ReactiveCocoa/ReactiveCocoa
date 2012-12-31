@@ -9,6 +9,7 @@
 #import "RACPropertyExamples.h"
 #import "RACDisposable.h"
 #import "RACProperty.h"
+#import "RACBinding.h"
 #import "NSObject+RACPropertySubscribing.h"
 
 NSString * const RACPropertyExamples = @"RACPropertyExamples";

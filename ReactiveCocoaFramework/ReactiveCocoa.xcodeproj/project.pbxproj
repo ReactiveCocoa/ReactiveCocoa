@@ -20,6 +20,12 @@
 		5F6FE84D169251E900A8D7A6 /* NSObject+RACKVOProperty.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F6FE84B169251E900A8D7A6 /* NSObject+RACKVOProperty.h */; };
 		5F6FE84F1692524B00A8D7A6 /* NSObject+RACKVOProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F6FE84E1692524B00A8D7A6 /* NSObject+RACKVOProperty.m */; };
 		5F6FE8501692524B00A8D7A6 /* NSObject+RACKVOProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F6FE84E1692524B00A8D7A6 /* NSObject+RACKVOProperty.m */; };
+		5F6FE8531692568A00A8D7A6 /* RACBinding.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F6FE8511692568A00A8D7A6 /* RACBinding.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5F6FE8541692568A00A8D7A6 /* RACBinding.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F6FE8511692568A00A8D7A6 /* RACBinding.h */; };
+		5F6FE8551692568A00A8D7A6 /* RACBinding.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F6FE8521692568A00A8D7A6 /* RACBinding.m */; };
+		5F6FE8561692568A00A8D7A6 /* RACBinding.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F6FE8521692568A00A8D7A6 /* RACBinding.m */; };
+		5F6FE8591692572600A8D7A6 /* RACBinding+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F6FE8571692572600A8D7A6 /* RACBinding+Private.h */; };
+		5F6FE85A1692574100A8D7A6 /* RACProperty+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F7EFEDA16919A1A0037E500 /* RACProperty+Private.h */; };
 		5F7EFECF168FBC4B0037E500 /* RACPropertyExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F7EFECD168FBC4B0037E500 /* RACPropertyExamples.m */; };
 		5F7EFED0168FBC4B0037E500 /* RACPropertySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F7EFECE168FBC4B0037E500 /* RACPropertySpec.m */; };
 		866557A61557086B00B39EB5 /* RACExtensionsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 866557A51557086B00B39EB5 /* RACExtensionsSpec.m */; };
@@ -358,6 +364,9 @@
 		5F45A884168CFA3E00B58A2B /* RACKVOProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOProperty.m; sourceTree = "<group>"; };
 		5F6FE84B169251E900A8D7A6 /* NSObject+RACKVOProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACKVOProperty.h"; sourceTree = "<group>"; };
 		5F6FE84E1692524B00A8D7A6 /* NSObject+RACKVOProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACKVOProperty.m"; sourceTree = "<group>"; };
+		5F6FE8511692568A00A8D7A6 /* RACBinding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACBinding.h; sourceTree = "<group>"; };
+		5F6FE8521692568A00A8D7A6 /* RACBinding.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACBinding.m; sourceTree = "<group>"; };
+		5F6FE8571692572600A8D7A6 /* RACBinding+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RACBinding+Private.h"; sourceTree = "<group>"; };
 		5F7EFECC168FBC4B0037E500 /* RACPropertyExamples.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACPropertyExamples.h; sourceTree = "<group>"; };
 		5F7EFECD168FBC4B0037E500 /* RACPropertyExamples.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACPropertyExamples.m; sourceTree = "<group>"; };
 		5F7EFECE168FBC4B0037E500 /* RACPropertySpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACPropertySpec.m; sourceTree = "<group>"; };
@@ -647,6 +656,9 @@
 				5F24476F167E5EDE0062180C /* RACProperty.h */,
 				5F7EFEDA16919A1A0037E500 /* RACProperty+Private.h */,
 				5F244770167E5EDE0062180C /* RACProperty.m */,
+				5F6FE8511692568A00A8D7A6 /* RACBinding.h */,
+				5F6FE8571692572600A8D7A6 /* RACBinding+Private.h */,
+				5F6FE8521692568A00A8D7A6 /* RACBinding.m */,
 				5F45A883168CFA3E00B58A2B /* RACKVOProperty.h */,
 				5F45A884168CFA3E00B58A2B /* RACKVOProperty.m */,
 				5F6FE84B169251E900A8D7A6 /* NSObject+RACKVOProperty.h */,
@@ -1095,6 +1107,7 @@
 				881E87C41669636000667F7B /* RACSubscriptionScheduler.h in Headers */,
 				5F45A885168CFA3E00B58A2B /* RACKVOProperty.h in Headers */,
 				5F6FE84C169251E900A8D7A6 /* NSObject+RACKVOProperty.h in Headers */,
+				5F6FE8531692568A00A8D7A6 /* RACBinding.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1158,6 +1171,9 @@
 				5F244772167E5EDE0062180C /* RACProperty.h in Headers */,
 				5F45A886168CFA3E00B58A2B /* RACKVOProperty.h in Headers */,
 				5F6FE84D169251E900A8D7A6 /* NSObject+RACKVOProperty.h in Headers */,
+				5F6FE8541692568A00A8D7A6 /* RACBinding.h in Headers */,
+				5F6FE8591692572600A8D7A6 /* RACBinding+Private.h in Headers */,
+				5F6FE85A1692574100A8D7A6 /* RACProperty+Private.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1410,6 +1426,7 @@
 				5F244773167E5EDE0062180C /* RACProperty.m in Sources */,
 				5F45A887168CFA3E00B58A2B /* RACKVOProperty.m in Sources */,
 				5F6FE84F1692524B00A8D7A6 /* NSObject+RACKVOProperty.m in Sources */,
+				5F6FE8551692568A00A8D7A6 /* RACBinding.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1510,6 +1527,7 @@
 				5F244774167E5EDE0062180C /* RACProperty.m in Sources */,
 				5F45A888168CFA3E00B58A2B /* RACKVOProperty.m in Sources */,
 				5F6FE8501692524B00A8D7A6 /* NSObject+RACKVOProperty.m in Sources */,
+				5F6FE8561692568A00A8D7A6 /* RACBinding.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

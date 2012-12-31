@@ -8,11 +8,19 @@
 
 #import <execinfo.h>
 #import <pthread.h>
-#import "RACBacktrace.h"
+#import "RACBacktrace+Private.h"
 
 #define RAC_BACKTRACE_MAX_CALL_STACK_FRAMES 128
 
 #ifdef DEBUG
+
+// Undefine the private macros that hide the real GCD functions.
+#undef dispatch_async
+#undef dispatch_barrier_async
+#undef dispatch_after
+#undef dispatch_async_f
+#undef dispatch_barrier_async_f
+#undef dispatch_after_f
 
 @interface RACBacktrace () {
 	void *_callStackAddresses[RAC_BACKTRACE_MAX_CALL_STACK_FRAMES];
@@ -59,29 +67,29 @@ static dispatch_block_t RACBacktraceBlock (dispatch_queue_t queue, dispatch_bloc
 	} copy];
 }
 
-void rac_dispatch_async (dispatch_queue_t queue, dispatch_block_t block) {
+void rac_dispatch_async(dispatch_queue_t queue, dispatch_block_t block) {
 	dispatch_async(queue, RACBacktraceBlock(queue, block));
 }
 
-void rac_dispatch_barrier_async (dispatch_queue_t queue, dispatch_block_t block) {
+void rac_dispatch_barrier_async(dispatch_queue_t queue, dispatch_block_t block) {
 	dispatch_barrier_async(queue, RACBacktraceBlock(queue, block));
 }
 
-void rac_dispatch_after (dispatch_time_t time, dispatch_queue_t queue, dispatch_block_t block) {
+void rac_dispatch_after(dispatch_time_t time, dispatch_queue_t queue, dispatch_block_t block) {
 	dispatch_after(time, queue, RACBacktraceBlock(queue, block));
 }
 
-void rac_dispatch_async_f (dispatch_queue_t queue, void *context, dispatch_function_t function) {
+void rac_dispatch_async_f(dispatch_queue_t queue, void *context, dispatch_function_t function) {
 	RACDispatchInfo *info = [[RACDispatchInfo alloc] initWithQueue:queue function:function context:context];
 	dispatch_async_f(queue, (void *)CFBridgingRetain(info), &RACTraceDispatch);
 }
 
-void rac_dispatch_barrier_async_f (dispatch_queue_t queue, void *context, dispatch_function_t function) {
+void rac_dispatch_barrier_async_f(dispatch_queue_t queue, void *context, dispatch_function_t function) {
 	RACDispatchInfo *info = [[RACDispatchInfo alloc] initWithQueue:queue function:function context:context];
 	dispatch_barrier_async_f(queue, (void *)CFBridgingRetain(info), &RACTraceDispatch);
 }
 
-void rac_dispatch_after_f (dispatch_time_t time, dispatch_queue_t queue, void *context, dispatch_function_t function) {
+void rac_dispatch_after_f(dispatch_time_t time, dispatch_queue_t queue, void *context, dispatch_function_t function) {
 	RACDispatchInfo *info = [[RACDispatchInfo alloc] initWithQueue:queue function:function context:context];
 	dispatch_after_f(time, queue, (void *)CFBridgingRetain(info), &RACTraceDispatch);
 }

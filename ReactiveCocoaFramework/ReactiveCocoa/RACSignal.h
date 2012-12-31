@@ -16,9 +16,6 @@
 
 @interface RACSignal : RACStream
 
-// The name of the signal. This is for debugging/human purposes only.
-@property (copy) NSString *name;
-
 // Creates a new signal. This is the preferred way to create a new signal
 // operation or behavior.
 //
@@ -48,6 +45,10 @@
 // subscription, not necessarily on one thread, and possibly even
 // simultaneously!
 + (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe;
+
+// Convenience constructor which invokes +createSignal: and then sets the `name`
+// of the resulting signal to the given format string.
++ (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe name:(NSString *)format, ... NS_FORMAT_FUNCTION(2, 3);
 
 // Returns a signal that immediately sends the given error.
 + (RACSignal *)error:(NSError *)error;

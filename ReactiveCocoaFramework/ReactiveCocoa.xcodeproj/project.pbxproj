@@ -370,6 +370,7 @@
 		5F7EFED11690E3BA0037E500 /* RACLazyProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACLazyProperty.h; sourceTree = "<group>"; };
 		5F7EFED21690E3BA0037E500 /* RACLazyProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACLazyProperty.m; sourceTree = "<group>"; };
 		5F7EFED81690E3DF0037E500 /* RACLazyPropertySpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACLazyPropertySpec.m; sourceTree = "<group>"; };
+		5F7EFEDA16919A1A0037E500 /* RACProperty+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACProperty+Private.h"; sourceTree = "<group>"; };
 		866557A51557086B00B39EB5 /* RACExtensionsSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACExtensionsSpec.m; sourceTree = "<group>"; };
 		8801E7501644BDE200A155FE /* NSObjectRACLiftingSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSObjectRACLiftingSpec.m; sourceTree = "<group>"; };
 		88037F8315056328001A5B19 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -655,6 +656,7 @@
 			isa = PBXGroup;
 			children = (
 				5F24476F167E5EDE0062180C /* RACProperty.h */,
+				5F7EFEDA16919A1A0037E500 /* RACProperty+Private.h */,
 				5F244770167E5EDE0062180C /* RACProperty.m */,
 				5F7EFED11690E3BA0037E500 /* RACLazyProperty.h */,
 				5F7EFED21690E3BA0037E500 /* RACLazyProperty.m */,

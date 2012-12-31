@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACProperty.h"
+#import "RACProperty+Private.h"
 #import "RACDisposable.h"
 #import "RACReplaySubject.h"
 #import "RACTuple.h"
@@ -14,74 +14,72 @@
 
 @interface RACProperty ()
 
-@property (nonatomic, readonly, strong) RACReplaySubject *backing;
 @property (nonatomic, readonly, strong) RACSignal *signal;
 @property (nonatomic, readonly, strong) id<RACSubscriber> subscriber;
+@property (nonatomic, readonly, strong) RACSignal *exposedSignal;
+@property (nonatomic, readonly, strong) id<RACSubscriber> exposedSubscriber;
 
 @end
 
 @interface RACBinding ()
 
-+ (instancetype)bindingWithBacking:(RACSubject *)backing;
+- (instancetype)initWithSignal:(RACSignal *)signal subscriber:(id<RACSubscriber>)subscriber;
 
-@property (nonatomic, readonly, strong) RACSubject *backing;
-@property (nonatomic, readonly, strong) RACSignal *signal;
-@property (nonatomic, readonly, strong) id<RACSubscriber> subscriber;
+@property (nonatomic, readonly, strong) RACSignal *exposedSignal;
+@property (nonatomic, readonly, strong) id<RACSubscriber> exposedSubscriber;
 
 @end
 
 @implementation RACProperty
 
-#pragma mark NSObject
-
-- (id)init {
-	self = [super init];
-	if (self == nil) return nil;
-	_backing = [RACReplaySubject replaySubjectWithCapacity:1];
-	[_backing sendNext:[RACTuple tupleWithObjects:RACTupleNil.tupleNil, RACTupleNil.tupleNil, nil]];
-	@weakify(self);
-	_signal = [_backing map:^id(RACTuple *value) {
-		return value.first;
-	}];
-	_subscriber = [RACSubscriber subscriberWithNext:^(id x) {
-		@strongify(self);
-		[self.backing sendNext:[RACTuple tupleWithObjects:x, RACTupleNil.tupleNil, nil]];
-	} error:nil completed:nil];
-	return self;
-}
-
 #pragma mark RACSignal
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	return [self.signal subscribe:subscriber];
+	return [self.exposedSignal subscribe:subscriber];
 }
 
 #pragma mark <RACSubscriber>
 
 - (void)sendNext:(id)value {
-	[self.subscriber sendNext:value];
+	[self.exposedSubscriber sendNext:value];
 }
 
 - (void)sendError:(NSError *)error {
-	[self.subscriber sendError:error];
+	[self.exposedSubscriber sendError:error];
 }
 
 - (void)sendCompleted {
-	[self.subscriber sendCompleted];
+	[self.exposedSubscriber sendCompleted];
 }
 
 - (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
-	[self.subscriber didSubscribeWithDisposable:disposable];
+	[self.exposedSubscriber didSubscribeWithDisposable:disposable];
 }
 
 #pragma mark API
 
+- (instancetype)initWithSignal:(RACSignal *)signal subscriber:(id<RACSubscriber>)subscriber {
+	self = [super init];
+	if (self == nil) return nil;
+	_signal = signal;
+	_subscriber = subscriber;
+	_exposedSignal = [_signal map:^id(RACTuple *value) {
+		return value.first;
+	}];
+	_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
+		[subscriber sendNext:[RACTuple tupleWithObjects:x, RACTupleNil.tupleNil, nil]];
+	} error:nil completed:nil];
+	return self;
+}
+
 + (instancetype)property {
-	return [[self alloc] init];
+	RACReplaySubject *backing = [RACReplaySubject replaySubjectWithCapacity:1];
+	[backing sendNext:[RACTuple tupleWithObjects:RACTupleNil.tupleNil, RACTupleNil.tupleNil, nil]];
+	return [[self alloc] initWithSignal:backing subscriber:backing];
 }
 
 - (RACBinding *)binding {
-	return [RACBinding bindingWithBacking:self.backing];
+	return [[RACBinding alloc] initWithSignal:self.signal subscriber:self.subscriber];
 }
 
 @end
@@ -91,61 +89,52 @@
 #pragma mark RACSignal
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	return [self.signal subscribe:subscriber];
+	return [self.exposedSignal subscribe:subscriber];
 }
 
 #pragma mark <RACSubscriber>
 
 - (void)sendNext:(id)value {
-	[self.subscriber sendNext:value];
+	[self.exposedSubscriber sendNext:value];
 }
 
 - (void)sendError:(NSError *)error {
-	[self.subscriber sendError:error];
+	[self.exposedSubscriber sendError:error];
 }
 
 - (void)sendCompleted {
-	[self.subscriber sendCompleted];
+	[self.exposedSubscriber sendCompleted];
 }
 
 - (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
-	[self.subscriber didSubscribeWithDisposable:disposable];
+	[self.exposedSubscriber didSubscribeWithDisposable:disposable];
 }
 
 #pragma mark API
 
-+ (instancetype)bindingWithBacking:(RACSubject *)backing {
-	RACBinding *binding = [[self alloc] init];
-	if (binding == nil) return nil;
-	binding->_backing = backing;
-	@weakify(binding);
-	binding->_signal = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+- (instancetype)initWithSignal:(RACSignal *)signal subscriber:(id<RACSubscriber>)subscriber {
+	self = [super init];
+	if (self == nil) return nil;
+	@weakify(self);
+	_exposedSignal = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
 		__block BOOL isFirstNext = YES;
-		return [backing subscribeNext:^(RACTuple *x) {
-			@strongify(binding)
+		return [signal subscribeNext:^(RACTuple *x) {
+			@strongify(self)
 			if (isFirstNext) {
 				isFirstNext = NO;
 				[subscriber sendNext:x.first];
 				return;
 			}
-			if (![x.second isEqual:binding]) {
+			if (![x.second isEqual:self]) {
 				[subscriber sendNext:x.first];
 			}
 		}];
 	}];
-	
-	
-	[[backing filter:^BOOL(RACTuple *value) {
-		@strongify(binding);
-		return ![value.second isEqual:binding];
-	}] map:^id(RACTuple *value) {
-		return value.first;
-	}];
-	binding->_subscriber = [RACSubscriber subscriberWithNext:^(id x) {
-		@strongify(binding);
-		[binding.backing sendNext:[RACTuple tupleWithObjects:x ?: RACTupleNil.tupleNil, binding ?: RACTupleNil.tupleNil, nil]];
+	_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
+		@strongify(self);
+		[subscriber sendNext:[RACTuple tupleWithObjects:x ?: RACTupleNil.tupleNil, self ?: RACTupleNil.tupleNil, nil]];
 	} error:nil completed:nil];
-	return binding;
+	return self;
 }
 
 - (RACDisposable *)bindTo:(RACBinding *)binding {

@@ -1254,13 +1254,38 @@ describe(@"-flatten:", ^{
 });
 
 describe(@"-switch", ^{
-	it(@"should send values from the most recent signal", ^{
-		RACSubject *subject = [RACSubject subject];
-		NSMutableArray *values = [NSMutableArray array];
-		[[subject switch] subscribeNext:^(id x) {
-			[values addObject:x];
-		}];
+	__block RACSubject *subject;
 
+	__block NSMutableArray *values;
+	__block NSError *lastError = nil;
+	__block BOOL completed = NO;
+
+	beforeEach(^{
+		subject = [RACSubject subject];
+
+		values = [NSMutableArray array];
+		lastError = nil;
+		completed = NO;
+
+		[[subject switch] subscribeNext:^(id x) {
+			expect(lastError).to.beNil();
+			expect(completed).to.beFalsy();
+
+			[values addObject:x];
+		} error:^(NSError *error) {
+			expect(lastError).to.beNil();
+			expect(completed).to.beFalsy();
+
+			lastError = error;
+		} completed:^{
+			expect(lastError).to.beNil();
+			expect(completed).to.beFalsy();
+
+			completed = YES;
+		}];
+	});
+
+	it(@"should send values from the most recent signal", ^{
 		[subject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendNext:@2];
@@ -1270,7 +1295,6 @@ describe(@"-switch", ^{
 		[subject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@3];
 			[subscriber sendNext:@4];
-			[subscriber sendCompleted];
 			return nil;
 		}]];
 
@@ -1278,24 +1302,122 @@ describe(@"-switch", ^{
 		expect(values).to.equal(expected);
 	});
 
+	it(@"should send errors from the most recent signal", ^{
+		[subject sendNext:[RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+			return nil;
+		}]];
+
+		expect(lastError).notTo.beNil();
+	});
+
+	it(@"should send completed only when the switching signal completes", ^{
+		[subject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[subscriber sendCompleted];
+			return nil;
+		}]];
+
+		expect(completed).to.beFalsy();
+
+		[subject sendCompleted];
+		expect(completed).to.beTruthy();
+	});
+
 	it(@"should accept nil signals", ^{
-		RACSubject *subject = [RACSubject subject];
-		NSMutableArray *values = [NSMutableArray array];
-		[[subject switch] subscribeNext:^(id x) {
-			[values addObject:x];
-		}];
-
 		[subject sendNext:nil];
-
 		[subject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendNext:@2];
-			[subscriber sendCompleted];
 			return nil;
 		}]];
 
 		NSArray *expected = @[ @1, @2 ];
 		expect(values).to.equal(expected);
+	});
+});
+
+describe(@"+if:then:else", ^{
+	__block RACSubject *boolSubject;
+	__block RACSubject *trueSubject;
+	__block RACSubject *falseSubject;
+
+	__block NSMutableArray *values;
+	__block NSError *lastError = nil;
+	__block BOOL completed = NO;
+
+	beforeEach(^{
+		boolSubject = [RACSubject subject];
+		trueSubject = [RACSubject subject];
+		falseSubject = [RACSubject subject];
+
+		values = [NSMutableArray array];
+		lastError = nil;
+		completed = NO;
+
+		[[RACSignal if:boolSubject then:trueSubject else:falseSubject] subscribeNext:^(id x) {
+			expect(lastError).to.beNil();
+			expect(completed).to.beFalsy();
+
+			[values addObject:x];
+		} error:^(NSError *error) {
+			expect(lastError).to.beNil();
+			expect(completed).to.beFalsy();
+
+			lastError = error;
+		} completed:^{
+			expect(lastError).to.beNil();
+			expect(completed).to.beFalsy();
+
+			completed = YES;
+		}];
+	});
+
+	it(@"should not send any values before a boolean is sent", ^{
+		[trueSubject sendNext:RACUnit.defaultUnit];
+		[falseSubject sendNext:RACUnit.defaultUnit];
+
+		expect(values).to.equal(@[]);
+		expect(lastError).to.beNil();
+		expect(completed).to.beFalsy();
+	});
+
+	it(@"should send events based on the latest boolean", ^{
+		[boolSubject sendNext:@YES];
+
+		[trueSubject sendNext:@"foo"];
+		[falseSubject sendNext:@"buzz"];
+		[trueSubject sendNext:@"bar"];
+
+		NSArray *expected = @[ @"foo", @"bar" ];
+		expect(values).to.equal(expected);
+		expect(lastError).to.beNil();
+		expect(completed).to.beFalsy();
+
+		[boolSubject sendNext:@NO];
+
+		[trueSubject sendNext:@"baz"];
+		[falseSubject sendNext:@"buzz"];
+		[trueSubject sendNext:@"barfoo"];
+
+		expected = @[ @"foo", @"bar", @"buzz" ];
+		expect(values).to.equal(expected);
+		expect(lastError).to.beNil();
+		expect(completed).to.beFalsy();
+
+		[trueSubject sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+		expect(lastError).to.beNil();
+
+		[falseSubject sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+		expect(lastError).notTo.beNil();
+	});
+
+	it(@"should send completed when the BOOL signal completes", ^{
+		[boolSubject sendNext:@YES];
+		[trueSubject sendNext:@"foo"];
+		[boolSubject sendCompleted];
+
+		expect(values).to.equal(@[ @"foo" ]);
+		expect(completed).to.beTruthy();
 	});
 });
 

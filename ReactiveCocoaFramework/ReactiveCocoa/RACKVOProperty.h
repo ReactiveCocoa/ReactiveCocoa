@@ -26,6 +26,11 @@
 // Do not use this directly. Use the RACBind macro above.
 #define _RACBindObject(OBJ, KEYPATH) [OBJ rac_propertyForKeyPath:@keypath(OBJ, KEYPATH)][ @"dummy-key" ]
 
+// A signal / subscriber interface wrapper for KVC compliant properties.
+//
+// Send values to it to update the value of `keyPath` on `target`. Subscribers
+// are sent the current value of `keyPath` on `target` on subscription, and new
+// values as it changes.
 @interface RACKVOProperty : RACProperty
 
 // Returns a property interface to `keyPath` on `target`.

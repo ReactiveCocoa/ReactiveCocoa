@@ -23,11 +23,15 @@
 //
 // Examples
 //
-//   RACTupleUnpack(NSString *string) = [RACTuple tupleWithObjects:@"foobar", nil];
-//   NSLog(@"string: %@", str);
+//   RACTupleUnpack(NSString *string, NSNumber *num) = [RACTuple tupleWithObjects:@"foo", @5, nil];
+//   NSLog(@"string: %@", string);
+//   NSLog(@"num: %@", num);
 //
-//   RACTupleUnpack(NSString *secondString, NSNumber *num) = [RACTuple tupleWithObjects:@"foo", @5, nil];
-//   NSLog(@"secondString: %@", secondString);
+//   /* The above is equivalent to: */
+//   RACTuple *t = [RACTuple tupleWithObjects:@"foo", @5, nil];
+//   NSString *string = t[0];
+//   NSNumber *num = t[1];
+//   NSLog(@"string: %@", string);
 //   NSLog(@"num: %@", num);
 #define RACTupleUnpack(...) \
         RACTupleUnpack_(__VA_ARGS__)

@@ -17,7 +17,6 @@
 #import <ReactiveCocoa/RACAsyncCommand.h>
 #import <ReactiveCocoa/RACBehaviorSubject.h>
 #import <ReactiveCocoa/RACCancelableSignal.h>
-#import <ReactiveCocoa/RACCollection.h>
 #import <ReactiveCocoa/RACCommand.h>
 #import <ReactiveCocoa/RACConnectableSignal.h>
 #import <ReactiveCocoa/RACDisposable.h>

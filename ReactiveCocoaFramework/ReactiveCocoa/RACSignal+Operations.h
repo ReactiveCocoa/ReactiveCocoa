@@ -241,6 +241,12 @@ typedef NSInteger RACSignalError;
 // signal.
 - (RACConnectableSignal *)multicast:(RACSubject *)subject;
 
+// Memoizes the signal such that subscriptions after the first subscription
+// receive the results from the first subscription.
+//
+// Returns a memoized version of the receiver.
+- (RACSignal *)memoize;
+
 // Sends an error after `interval` seconds if the source doesn't complete
 // before then. The timeout is scheduled on the default priority global queue.
 - (RACSignal *)timeout:(NSTimeInterval)interval;

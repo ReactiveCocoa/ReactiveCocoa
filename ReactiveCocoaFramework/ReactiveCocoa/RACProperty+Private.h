@@ -12,10 +12,17 @@
 
 @interface RACProperty ()
 
-// Designated initializer. `signal` and `subscriber`'s values are `RACTuple`s of
-// two elements where the first element is the value being sent to / by the
-// property, and the second element is the binding that sent the value to the
-// property, or nil if the value wasn't sent by a binding.
+// Designated initializer.
+//
+// signal     - A signal of `RACTuple`s where the first element is the value of
+//              the property as it changes, and the second element is the
+//              binding that triggered the change, or `nil` if the change was
+//              triggered by other means. The signal must also send a `RACTuple`
+//              with the current value and it's originator on subscription.
+// subscriber - A subscriber that will be sent a `RACTuple` every time the
+//              property is changed. The first element will be the new value,
+//              the second element will be the binding that triggered the change
+//              or nil if the change was triggered by the property itself.
 - (instancetype)initWithSignal:(RACSignal *)signal subscriber:(id<RACSubscriber>)subscriber;
 
 @end

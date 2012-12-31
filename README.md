@@ -1,5 +1,5 @@
 # ReactiveCocoa
-ReactiveCocoa (RAC) is a framework for **composing and transforming sequences of values**.
+ReactiveCocoa (RAC) is a framework for **composing and transforming streams of values**.
 
 ## No seriously, what is it?
 Check out the [announcement blog post](https://github.com/blog/1107-reactivecocoa-is-now-open-source) for a ton more info.

@@ -760,6 +760,18 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	} name:@"[%@] -switch", self.name];
 }
 
++ (RACSignal *)if:(RACSignal *)boolSignal then:(RACSignal *)trueSignal else:(RACSignal *)falseSignal {
+	NSParameterAssert(boolSignal != nil);
+	NSParameterAssert(trueSignal != nil);
+	NSParameterAssert(falseSignal != nil);
+
+	return [[boolSignal map:^(NSNumber *value) {
+		NSAssert([value isKindOfClass:NSNumber.class], @"Expected %@ to send BOOLs, not %@", boolSignal, value);
+		
+		return (value.boolValue ? trueSignal : falseSignal);
+	}] switch];
+}
+
 - (id)first {
 	return [self firstOrDefault:nil];
 }
@@ -931,38 +943,50 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 - (RACSignal *)deliverOn:(RACScheduler *)scheduler {
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		return [self subscribeNext:^(id x) {
-			[scheduler schedule:^{
+		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+
+		void (^schedule)(id) = [^(id block) {
+			RACDisposable *schedulingDisposable = [scheduler schedule:block];
+			if (schedulingDisposable != nil) [disposable addDisposable:schedulingDisposable];
+		} copy];
+
+		RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
+			schedule(^{
 				[subscriber sendNext:x];
-			}];
+			});
 		} error:^(NSError *error) {
-			[scheduler schedule:^{
+			schedule(^{
 				[subscriber sendError:error];
-			}];
+			});
 		} completed:^{
-			[scheduler schedule:^{
+			schedule(^{
 				[subscriber sendCompleted];
-			}];
+			});
 		}];
+
+		if (subscriptionDisposable != nil) [disposable addDisposable:subscriptionDisposable];
+		return disposable;
 	} name:@"[%@] -deliverOn: %@", self.name, scheduler];
 }
 
 - (RACSignal *)subscribeOn:(RACScheduler *)scheduler {
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		__block RACDisposable *innerDisposable = nil;
-		[scheduler schedule:^{
-			innerDisposable = [self subscribeNext:^(id x) {
+		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+
+		RACDisposable *schedulingDisposable = [scheduler schedule:^{
+			RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
 				[subscriber sendNext:x];
 			} error:^(NSError *error) {
 				[subscriber sendError:error];
 			} completed:^{
 				[subscriber sendCompleted];
 			}];
+
+			if (subscriptionDisposable != nil) [disposable addDisposable:subscriptionDisposable];
 		}];
 		
-		return [RACDisposable disposableWithBlock:^{
-			[innerDisposable dispose];
-		}];
+		if (schedulingDisposable != nil) [disposable addDisposable:schedulingDisposable];
+		return disposable;
 	} name:@"[%@] -subscribeOn: %@", self.name, scheduler];
 }
 

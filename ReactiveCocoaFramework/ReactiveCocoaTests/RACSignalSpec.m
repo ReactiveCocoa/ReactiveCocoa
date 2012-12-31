@@ -227,7 +227,7 @@ describe(@"subscribing", ^{
 });
 
 describe(@"disposal", ^{
-	it(@"should dispose of the disposable returned from the didSubscribe block", ^{
+	it(@"should dispose of the didSubscribe disposable", ^{
 		__block BOOL innerDisposed = NO;
 		RACSignal *signal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 			return [RACDisposable disposableWithBlock:^{
@@ -235,16 +235,27 @@ describe(@"disposal", ^{
 			}];
 		}];
 
-		__block RACDisposable *disposable = [signal subscribeNext:^(id x) {}];
+		expect(innerDisposed).to.beFalsy();
+
+		RACDisposable *disposable = [signal subscribeNext:^(id x) {}];
+		expect(disposable).notTo.beNil();
+
 		[disposable dispose];
-
 		expect(innerDisposed).to.beTruthy();
+	});
 
-		innerDisposed = NO;
-		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-			disposable = [signal subscribeNext:^(id x) {}];
+	it(@"should dispose of the didSubscribe disposable asynchronously", ^{
+		__block BOOL innerDisposed = NO;
+		RACSignal *signal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			return [RACDisposable disposableWithBlock:^{
+				innerDisposed = YES;
+			}];
+		}];
+
+		[[RACScheduler scheduler] schedule:^{
+			RACDisposable *disposable = [signal subscribeNext:^(id x) {}];
 			[disposable dispose];
-		});
+		}];
 
 		expect(innerDisposed).will.beTruthy();
 	});

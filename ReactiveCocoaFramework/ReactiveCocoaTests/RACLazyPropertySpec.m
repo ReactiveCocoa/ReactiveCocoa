@@ -109,6 +109,18 @@ describe(@"RACLazyProperty", ^{
 			expect(didGenerateDefaultValue).to.beFalsy();
 		});
 		
+		it(@"should not send changes if it's the default value", ^{
+			__block id receivedValue = nil;
+			[nonLazyValues subscribeNext:^(id x) {
+				receivedValue = x;
+			}];
+			[property subscribeNext:^(id x) {
+				
+			}];
+			expect(receivedValue).to.beNil();
+			expect(didGenerateDefaultValue).to.beTruthy();
+		});
+		
 		it(@"should send the current value if it's not the default value", ^{
 			__block id receivedValue = nil;
 			[property sendNext:testValue];
@@ -117,6 +129,18 @@ describe(@"RACLazyProperty", ^{
 			}];
 			expect(receivedValue).to.equal(testValue);
 			expect(didGenerateDefaultValue).to.beFalsy();
+		});
+		
+		it(@"should not send the current value if it's the default value", ^{
+			[property subscribeNext:^(id x) {
+				
+			}];
+			expect(didGenerateDefaultValue).to.beTruthy();
+			__block id receivedValue = nil;
+			[nonLazyValues subscribeNext:^(id x) {
+				receivedValue = x;
+			}];
+			expect(receivedValue).to.beNil();
 		});
 	});
 });

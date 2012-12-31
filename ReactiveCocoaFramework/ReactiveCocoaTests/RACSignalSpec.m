@@ -1440,7 +1440,7 @@ describe(@"+if:then:else", ^{
 describe(@"+interval: and +interval:withLeeway:", ^{
 	static const NSTimeInterval interval = 0.1;
 	static const NSTimeInterval leeway = 0.2;
-	static const NSTimeInterval marginOfError = 0.001;
+	static const NSTimeInterval marginOfError = 0.01;
 	__block RACSignal *timer = nil;
 	
 	__block void (^testTimerWithSchedulerMinIntervalMaxInterval)(RACSignal *, RACScheduler *, NSNumber *, NSNumber *) = nil;

@@ -44,7 +44,9 @@
 }
 
 - (RACSequence *)tail {
-	return [self.class sequenceWithArray:self.backingArray offset:self.offset + 1];
+	RACSequence *sequence = [self.class sequenceWithArray:self.backingArray offset:self.offset + 1];
+	sequence.name = self.name;
+	return sequence;
 }
 
 #pragma clang diagnostic push
@@ -74,7 +76,7 @@
 #pragma mark NSObject
 
 - (NSString *)description {
-	return [NSString stringWithFormat:@"<%@: %p>{ array = %@ }", self.class, self, self.backingArray];
+	return [NSString stringWithFormat:@"<%@: %p>{ name = %@, array = %@ }", self.class, self, self.name, self.backingArray];
 }
 
 @end

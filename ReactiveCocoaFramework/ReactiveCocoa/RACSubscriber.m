@@ -7,20 +7,18 @@
 //
 
 #import "RACSubscriber.h"
-#import "RACDisposable.h"
+#import "EXTScope.h"
+#import "RACCompoundDisposable.h"
 
 @interface RACSubscriber ()
 
 @property (nonatomic, copy, readonly) void (^next)(id value);
 @property (nonatomic, copy, readonly) void (^error)(NSError *error);
 @property (nonatomic, copy, readonly) void (^completed)(void);
+@property (nonatomic, strong, readonly) RACCompoundDisposable *disposable;
 
-// These properties should only be accessed while synchronized on self.
-@property (nonatomic, strong) RACDisposable *disposable;
-@property (nonatomic, assign) BOOL completedOrErrored;
-
-// Disposes of and releases the receiver's disposable.
-- (void)stopSubscription;
+// This property should only be used while synchronized on self.
+@property (nonatomic, assign) BOOL disposed;
 
 @end
 
@@ -38,56 +36,60 @@
 	return subscriber;
 }
 
-- (void)stopSubscription {
-	@synchronized (self) {
-		[self.disposable dispose];
-		self.disposable = nil;
-	}
+- (id)init {
+	self = [super init];
+	if (self == nil) return nil;
+
+	@weakify(self);
+
+	RACDisposable *selfDisposable = [RACDisposable disposableWithBlock:^{
+		@strongify(self);
+
+		@synchronized (self) {
+			self.disposed = YES;
+		}
+	}];
+
+	_disposable = [RACCompoundDisposable compoundDisposableWithDisposables:@[ selfDisposable ]];
+	
+	return self;
 }
 
 - (void)dealloc {
-	[self stopSubscription];
+	[self.disposable dispose];
 }
 
 #pragma mark RACSubscriber
 
 - (void)sendNext:(id)value {
-	if (self.next != NULL) {
-		@synchronized (self) {
-			if (self.completedOrErrored) return;
+	if (self.next == NULL) return;
 
-			self.next(value);
-		}
+	@synchronized (self) {
+		if (self.disposed) return;
+		self.next(value);
 	}
 }
 
 - (void)sendError:(NSError *)e {
 	@synchronized (self) {
-		if (self.completedOrErrored) return;
+		if (self.disposed) return;
 
-		self.completedOrErrored = YES;
-		[self stopSubscription];
-	
+		[self.disposable dispose];
 		if (self.error != NULL) self.error(e);
 	}
 }
 
 - (void)sendCompleted {
 	@synchronized (self) {
-		if (self.completedOrErrored) return;
+		if (self.disposed) return;
 
-		self.completedOrErrored = YES;
-		[self stopSubscription];
-		
+		[self.disposable dispose];
 		if (self.completed != NULL) self.completed();
 	}
 }
 
 - (void)didSubscribeWithDisposable:(RACDisposable *)d {
-	@synchronized (self) {
-		self.disposable = d;
-		if (self.completedOrErrored) [self stopSubscription];
-	}
+	if (d != nil) [self.disposable addDisposable:d];
 }
 
 @end

@@ -10,12 +10,13 @@
 #import "RACSubscriber.h"
 @class RACDisposable, RACBinding;
 
-// A signal / subscriber interface to a property. Send values to it to set new
-// values. Subscribe to it to receive the property's current value and
-// subsequent values.
+// A signal / subscriber interface to a property.
+//
+// Send values to it to update it's value. Subscribers are sent the current
+// value on subscription, and new values as the property changes.
 @interface RACProperty : RACSignal <RACSubscriber>
 
-// Returns a new property
+// Returns a new property with a starting value of `nil`.
 + (instancetype)property;
 
 // Returns a new binding to the property.

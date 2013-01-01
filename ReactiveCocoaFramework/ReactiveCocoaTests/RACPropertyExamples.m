@@ -155,7 +155,7 @@ sharedExamplesFor(RACPropertyMemoryManagementExamples, ^(RACProperty *(^getPrope
 		RACDisposable *disposable = nil;
 		__block BOOL deallocd = NO;
 		@autoreleasepool {
-			RACProperty *property __attribute__((objc_precise_lifetime)) = [RACProperty property];
+			RACProperty *property __attribute__((objc_precise_lifetime)) = getProperty();
 			[property rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 				deallocd = YES;
 			}]];
@@ -174,7 +174,7 @@ sharedExamplesFor(RACPropertyMemoryManagementExamples, ^(RACProperty *(^getPrope
 			return nil;
 		}];
 		@autoreleasepool {
-			RACProperty *property __attribute__((objc_precise_lifetime)) = [RACProperty property];
+			RACProperty *property __attribute__((objc_precise_lifetime)) = getProperty();
 			[property rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 				deallocd = YES;
 			}]];
@@ -182,6 +182,59 @@ sharedExamplesFor(RACPropertyMemoryManagementExamples, ^(RACProperty *(^getPrope
 		}
 		[disposable dispose];
 		expect(deallocd).will.beTruthy();
+	});
+	
+	it(@"should dealloc when it's binding's subscribers are disposed", ^{
+		RACDisposable *disposable = nil;
+		__block BOOL deallocd = NO;
+		@autoreleasepool {
+			RACProperty *property __attribute__((objc_precise_lifetime)) = getProperty();
+			[property rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				deallocd = YES;
+			}]];
+			disposable = [[property binding] subscribeNext:^(id x) {
+				
+			}];
+		}
+		[disposable dispose];
+		expect(deallocd).will.beTruthy();
+	});
+
+	it(@"should dealloc when it's binding's subscriptions are disposed", ^{
+		RACDisposable *disposable = nil;
+		__block BOOL deallocd = NO;
+		RACSignal *signal = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+			return nil;
+		}];
+		@autoreleasepool {
+			RACProperty *property __attribute__((objc_precise_lifetime)) = getProperty();
+			[property rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				deallocd = YES;
+			}]];
+			disposable = [signal subscribe:[property binding]];
+		}
+		[disposable dispose];
+		expect(deallocd).will.beTruthy();
+	});
+	
+	it(@"should dealloc if it's binding with other properties is disposed", ^{
+		RACDisposable *disposable = nil;
+		__block BOOL deallocd1 = NO;
+		__block BOOL deallocd2 = NO;
+		@autoreleasepool {
+			RACProperty *property1 __attribute__((objc_precise_lifetime)) = getProperty();
+			RACProperty *property2 __attribute__((objc_precise_lifetime)) = getProperty();
+			[property1 rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				deallocd1 = YES;
+			}]];
+			[property2 rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				deallocd2 = YES;
+			}]];
+			disposable = [[property1 binding] bindTo:[property2 binding]];
+		}
+		[disposable dispose];
+		expect(deallocd1).will.beTruthy();
+		expect(deallocd2).will.beTruthy();
 	});
 });
 

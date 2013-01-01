@@ -150,7 +150,7 @@
 		NSMutableArray *tails = [NSMutableArray arrayWithCapacity:sequencesArray.count];
 		for (RACSequence *sequence in sequencesArray) {
 			RACSequence *tail = sequence.tail;
-			if (tail == nil || tail == RACSequence.empty) {
+			if (tail == nil || [tail isEqual:self.empty]) {
 				return tail;
 			}
 			[tails addObject:tail];

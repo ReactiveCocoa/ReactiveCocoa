@@ -54,81 +54,92 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 	return signal;
 }
 
-- (RACCancelableSignal *)rac_run {
+- (RACSignal *)rac_run {
 	return [self rac_runWithScheduler:[RACScheduler immediateScheduler]];
 }
 
-- (RACCancelableSignal *)rac_runWithScheduler:(RACScheduler *)scheduler {
+- (RACSignal *)rac_runWithScheduler:(RACScheduler *)scheduler {
 	NSParameterAssert(scheduler != nil);
 	
+	__weak NSTask *weakSelf = self;
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		__block uint32_t volatile canceled = 0;
+		RACDisposable *disposable = [[self rac_launchWithScheduler:scheduler cancelationToken:&canceled] subscribe:subscriber];
+		return [RACDisposable disposableWithBlock:^{
+			NSTask *strongSelf = weakSelf;
+			OSAtomicOr32Barrier(1, &canceled);
+			[strongSelf terminate];
+			[disposable dispose];
+		}];
+	}];
+}
+
+- (RACSignal *)rac_launchWithScheduler:(RACScheduler *)scheduler cancelationToken:(volatile uint32_t *)cancelationToken {
 	RACReplaySubject *subject = [RACReplaySubject subject];
 	subject.name = [NSString stringWithFormat:@"%@ -rac_runWithScheduler: %@", self, scheduler];
-	
-	__block BOOL canceled = NO;
+
 	[RACScheduler.mainThreadScheduler schedule:^{
 		NSMutableData * (^aggregateData)(NSMutableData *, NSData *) = ^(NSMutableData *running, NSData *next) {
 			[running appendData:next];
 			return running;
 		};
-		
+
 		// TODO: should we aggregate the data on the given scheduler too?
-		RACConnectableSignal *outputSignal = [[self.rac_standardOutput aggregateWithStart:[NSMutableData data] combine:aggregateData] publish];
+		RACMulticastConnection *outputConnection = [[self.rac_standardOutput aggregateWithStart:[NSMutableData data] combine:aggregateData] publish];
 		__block NSData *outputData = nil;
-		[outputSignal subscribeNext:^(NSData *accumulatedData) {
+		[outputConnection.signal subscribeNext:^(NSData *accumulatedData) {
 			outputData = accumulatedData;
 		}];
-		
-		RACConnectableSignal *errorSignal = [[self.rac_standardError aggregateWithStart:[NSMutableData data] combine:aggregateData] publish];
+
+		RACMulticastConnection *errorConnection = [[self.rac_standardError aggregateWithStart:[NSMutableData data] combine:aggregateData] publish];
 		__block NSData *errorData = nil;
-		[errorSignal subscribeNext:^(NSData *accumulatedData) {
+		[errorConnection.signal subscribeNext:^(NSData *accumulatedData) {
 			errorData = accumulatedData;
 		}];
-				
+
 		// wait until termination's signaled and output and error are done
-		[[RACSignal merge:@[ outputSignal, errorSignal, self.rac_completion ]] subscribeNext:^(id _) {
+		[[RACSignal merge:@[ outputConnection.signal, errorConnection.signal, self.rac_completion ]] subscribeNext:^(id _) {
 			// nothing
 		} completed:^{
-			if(canceled) return;
-						
+			if (*cancelationToken == 1) return;
+
 			[scheduler schedule:^{
-				if(canceled) return;
-								
-				if([self terminationStatus] == 0) {
+				if (*cancelationToken == 1) return;
+
+				if (self.terminationStatus == 0) {
 					[subject sendNext:outputData];
 					[subject sendCompleted];
 				} else {
 					NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
-					if(outputData != nil) {
-						[userInfo setObject:outputData forKey:NSTaskRACSupportOutputData];
-						
+					if (outputData != nil) {
+						userInfo[NSTaskRACSupportOutputData] = outputData;
+
 						NSString *string = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
-						if(string != nil) [userInfo setObject:string forKey:NSTaskRACSupportOutputString];
+						if(string != nil) userInfo[NSTaskRACSupportOutputString] = string;
 					}
-					if(errorData != nil) {
-						[userInfo setObject:errorData forKey:NSTaskRACSupportErrorData];
-						
+					
+					if (errorData != nil) {
+						userInfo[NSTaskRACSupportErrorData] = errorData;
+
 						NSString *string = [[NSString alloc] initWithData:errorData encoding:NSUTF8StringEncoding];
-						if(string != nil) [userInfo setObject:string forKey:NSTaskRACSupportErrorString];
+						if(string != nil) userInfo[NSTaskRACSupportErrorString] = string;
 					}
-					if([self arguments] != nil) [userInfo setObject:[self arguments] forKey:NSTaskRACSupportTaskArguments];
-					[userInfo setObject:self forKey:NSTaskRACSupportTask];
+					
+					if (self.arguments != nil) userInfo[NSTaskRACSupportTaskArguments] = self.arguments;
+
+					userInfo[NSTaskRACSupportTask] = self;
 					[subject sendError:[NSError errorWithDomain:NSTaskRACSupportErrorDomain code:NSTaskRACSupportNonZeroTerminationStatus userInfo:userInfo]];
 				}
 			}];
 		}];
-		
-		[outputSignal connect];
-		[errorSignal connect];
-		
+
+		[outputConnection connect];
+		[errorConnection connect];
+
 		[self launch];
 	}];
-	
-	__weak NSTask *weakSelf = self;
-	return [subject asCancelableWithBlock:^{
-		NSTask *strongSelf = weakSelf;
-		canceled = YES;
-		[strongSelf terminate];
-	}];
+
+	return subject;
 }
 
 @end

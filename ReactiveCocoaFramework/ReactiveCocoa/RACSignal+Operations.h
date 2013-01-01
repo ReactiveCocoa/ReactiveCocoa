@@ -19,7 +19,7 @@ typedef enum {
 typedef NSInteger RACSignalError;
 
 @class RACCancelableSignal;
-@class RACConnectableSignal;
+@class RACMulticastConnection;
 @class RACDisposable;
 @class RACScheduler;
 @class RACSequence;
@@ -232,14 +232,25 @@ typedef NSInteger RACSignalError;
 // block.
 @property (nonatomic, strong, readonly) RACSequence *sequence;
 
-// Creates and returns a connectable signal. This allows you to share a single
+// Creates and returns a multicast connection. This allows you to share a single
 // subscription to the underlying signal.
-- (RACConnectableSignal *)publish;
+- (RACMulticastConnection *)publish;
 
-// Creates and returns a connectable signal that pushes values into the given
+// Creates and returns a multicast connection that pushes values into the given
 // subject. This allows you to share a single subscription to the underlying
 // signal.
-- (RACConnectableSignal *)multicast:(RACSubject *)subject;
+- (RACMulticastConnection *)multicast:(RACSubject *)subject;
+
+// Multicasts the signal to a RACReplaySubject and connects.
+//
+// Returns the connection's signal.
+- (RACSignal *)replay;
+
+// Multicasts the signal to a RACReplaySubject. It will connect the multicast
+// connection on the first subscription.
+//
+// Returns the connection's signal.
+- (RACSignal *)replayLazily;
 
 // Sends an error after `interval` seconds if the source doesn't complete
 // before then. The timeout is scheduled on the default priority global queue.
@@ -291,16 +302,6 @@ typedef NSInteger RACSignalError;
 
 // Resubscribes to the receiving signal if an error occurs.
 - (RACSignal *)retry;
-
-// Creates a cancelable signal multicasted to the given subject with the given
-// cancelation block.
-- (RACCancelableSignal *)asCancelableToSubject:(RACSubject *)subject withBlock:(void (^)(void))block;
-
-// Creates a cancelable signal with the given cancelation block.
-- (RACCancelableSignal *)asCancelableWithBlock:(void (^)(void))block;
-
-// Creates a cancelable signal.
-- (RACCancelableSignal *)asCancelable;
 
 // Sends the latest value from the receiver only when `sampler` sends a value.
 // The returned signal could repeat values if `sampler` fires more often than

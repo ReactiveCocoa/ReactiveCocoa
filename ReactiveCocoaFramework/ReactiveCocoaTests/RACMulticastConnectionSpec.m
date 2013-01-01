@@ -1,0 +1,71 @@
+//
+//  RACMulticastConnectionSpec.m
+//  ReactiveCocoa
+//
+//  Created by Josh Abernathy on 10/8/12.
+//  Copyright (c) 2012 GitHub, Inc. All rights reserved.
+//
+
+#import "RACMulticastConnection.h"
+#import "RACDisposable.h"
+#import "RACSignal+Operations.h"
+#import "RACSubscriber.h"
+
+SpecBegin(RACMulticastConnection)
+
+__block NSUInteger subscriptionCount = 0;
+__block RACMulticastConnection *connection;
+__block BOOL disposed = NO;
+
+beforeEach(^{
+	subscriptionCount = 0;
+	disposed = NO;
+	connection = [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		subscriptionCount++;
+		return [RACDisposable disposableWithBlock:^{
+			disposed = YES;
+		}];
+	}] publish];
+	expect(subscriptionCount).to.equal(0);
+});
+
+describe(@"-connect", ^{
+	it(@"should subscribe to the underlying signal", ^{
+		[connection connect];
+		expect(subscriptionCount).to.equal(1);
+	});
+
+	it(@"should return the same disposable for each invocation", ^{
+		RACDisposable *d1 = [connection connect];
+		RACDisposable *d2 = [connection connect];
+		expect(d1).to.equal(d2);
+	});
+});
+
+describe(@"-autoconnect", ^{
+	__block RACSignal *autoconnectedSignal;
+	
+	beforeEach(^{
+		autoconnectedSignal = [connection autoconnect];
+	});
+
+	it(@"should subscribe to the multicasted signal on the first subscription", ^{
+		expect(subscriptionCount).to.equal(0);
+		
+		[autoconnectedSignal subscribeNext:^(id x) {}];
+		expect(subscriptionCount).to.equal(1);
+
+		[autoconnectedSignal subscribeNext:^(id x) {}];
+		expect(subscriptionCount).to.equal(1);
+	});
+
+	it(@"should dispose of the multicasted subscription when the signal has no subscribers", ^{
+		RACDisposable *disposable = [autoconnectedSignal subscribeNext:^(id x) {}];
+
+		expect(disposed).to.beFalsy();
+		[disposable dispose];
+		expect(disposed).to.beTruthy();
+	});
+});
+
+SpecEnd

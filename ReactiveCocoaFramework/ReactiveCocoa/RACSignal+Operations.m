@@ -13,9 +13,7 @@
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACBehaviorSubject.h"
 #import "RACBlockTrampoline.h"
-#import "RACCancelableSignal+Private.h"
 #import "RACCompoundDisposable.h"
-#import "RACConnectableSignal+Private.h"
 #import "RACDisposable.h"
 #import "RACGroupedSignal.h"
 #import "RACMaybe.h"
@@ -26,6 +24,8 @@
 #import "RACSubscriber.h"
 #import "RACTuple.h"
 #import "RACUnit.h"
+#import "RACMulticastConnection+Private.h"
+#import "RACReplaySubject.h"
 #import <libkern/OSAtomic.h>
 #import <objc/runtime.h>
 
@@ -912,16 +912,31 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	return sequence;
 }
 
-- (RACConnectableSignal *)publish {
-	RACConnectableSignal *signal = [self multicast:[RACSubject subject]];
-	signal.name = [NSString stringWithFormat:@"[%@] -publish", self.name];
-	return signal;
+- (RACMulticastConnection *)publish {
+	RACSubject *subject = [RACSubject subject];
+	RACMulticastConnection *connection = [self multicast:subject];
+	subject.name = [NSString stringWithFormat:@"[%@] -publish", self.name];
+	return connection;
 }
 
-- (RACConnectableSignal *)multicast:(RACSubject *)subject {
-	RACConnectableSignal *signal = [RACConnectableSignal connectableSignalWithSourceSignal:self subject:subject];
-	signal.name = [NSString stringWithFormat:@"[%@] -multicast: %@", self.name, subject];
-	return signal;
+- (RACMulticastConnection *)multicast:(RACSubject *)subject {
+	RACMulticastConnection *connection = [RACMulticastConnection connectionWithSourceSignal:self subject:subject];
+	connection.signal.name = [NSString stringWithFormat:@"[%@] -multicast: %@", self.name, subject];
+	return connection;
+}
+
+- (RACSignal *)replay {
+	RACMulticastConnection *connection = [self multicast:[RACReplaySubject subject]];
+	[connection connect];
+	return connection.signal;
+}
+
+- (RACSignal *)replayLazily {
+	RACMulticastConnection *connection = [self multicast:[RACReplaySubject subject]];
+	return [RACSignal defer:^{
+		[connection connect];
+		return connection.signal;
+	}];
 }
 
 - (RACSignal *)timeout:(NSTimeInterval)interval {
@@ -1002,8 +1017,8 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	NSParameterAssert(letBlock != NULL);
 	
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		RACConnectableSignal *connectable = [self publish];
-		RACDisposable *finalDisposable = [letBlock(connectable) subscribeNext:^(id x) {
+		RACMulticastConnection *connection = [self publish];
+		RACDisposable *finalDisposable = [letBlock(connection.signal) subscribeNext:^(id x) {
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
@@ -1011,10 +1026,10 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			[subscriber sendCompleted];
 		}];
 		
-		RACDisposable *connectableDisposable = [connectable connect];
+		RACDisposable *connectionDisposable = [connection connect];
 		
 		return [RACDisposable disposableWithBlock:^{
-			[connectableDisposable dispose];
+			[connectionDisposable dispose];
 			[finalDisposable dispose];
 		}];
 	} name:@"[%@] -let:", self.name];
@@ -1134,18 +1149,6 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	RACSignal *signal = [self retry:0];
 	signal.name = [NSString stringWithFormat:@"[%@] -retry", self.name];
 	return signal;
-}
-
-- (RACCancelableSignal *)asCancelableToSubject:(RACSubject *)subject withBlock:(void (^)(void))block {
-	return [RACCancelableSignal cancelableSignalSourceSignal:self subject:subject withBlock:block];
-}
-
-- (RACCancelableSignal *)asCancelableWithBlock:(void (^)(void))block {
-	return [RACCancelableSignal cancelableSignalSourceSignal:self withBlock:block];
-}
-
-- (RACCancelableSignal *)asCancelable {
-	return [self asCancelableWithBlock:NULL];
 }
 
 - (RACSignal *)sample:(RACSignal *)sampler {

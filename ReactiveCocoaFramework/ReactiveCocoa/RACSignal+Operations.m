@@ -932,11 +932,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 }
 
 - (RACSignal *)replayLazily {
-	RACMulticastConnection *connection = [self multicast:[RACReplaySubject subject]];
-	return [RACSignal defer:^{
-		[connection connect];
-		return connection.signal;
-	}];
+	return [[self multicast:[RACReplaySubject subject]] autoconnect];
 }
 
 - (RACSignal *)timeout:(NSTimeInterval)interval {

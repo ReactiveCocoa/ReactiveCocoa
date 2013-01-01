@@ -90,7 +90,7 @@ it(@"should stop KVO when the observer is removed", ^{
 	expect(name).to.equal(@"1");
 	[queue rac_removeObserverWithIdentifier:identifier];
 	queue.name = @"2";
-	expect(name).toNot.equal(@"2");
+	expect(name).to.equal(@"1");
 });
 
 it(@"should distinguish between observers being removed", ^{
@@ -110,7 +110,7 @@ it(@"should distinguish between observers being removed", ^{
 	expect(name2).to.equal(@"1");
 	[queue rac_removeObserverWithIdentifier:identifier1];
 	queue.name = @"2";
-	expect(name1).toNot.equal(@"2");
+	expect(name1).to.equal(@"1");
 	expect(name2).to.equal(@"2");
 });
 

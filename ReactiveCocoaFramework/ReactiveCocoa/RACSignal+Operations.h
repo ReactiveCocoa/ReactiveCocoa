@@ -18,7 +18,6 @@ typedef enum {
 
 typedef NSInteger RACSignalError;
 
-@class RACCancelableSignal;
 @class RACMulticastConnection;
 @class RACDisposable;
 @class RACScheduler;

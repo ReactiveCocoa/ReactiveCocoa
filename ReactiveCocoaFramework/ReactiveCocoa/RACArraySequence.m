@@ -26,7 +26,7 @@
 
 #pragma mark Lifecycle
 
-+ (RACSequence *)sequenceWithArray:(NSArray *)array offset:(NSUInteger)offset {
++ (instancetype)sequenceWithArray:(NSArray *)array offset:(NSUInteger)offset {
 	NSParameterAssert(offset <= array.count);
 
 	if (offset == array.count) return self.empty;
@@ -37,7 +37,7 @@
 	return seq;
 }
 
-#pragma mark RACSequence
+#pragma mark Class cluster primitives
 
 - (id)head {
 	return [self.backingArray objectAtIndex:self.offset];
@@ -48,6 +48,32 @@
 	sequence.name = self.name;
 	return sequence;
 }
+
+#pragma mark RACStream
+
+- (instancetype)map:(id (^)(id))block {
+	NSParameterAssert(block != nil);
+	NSMutableArray *array = [NSMutableArray arrayWithCapacity:self.backingArray.count - self.offset];
+	for (id value in self) {
+		[array addObject:block(value)];
+	}
+	RACArraySequence *sequence = [self.class sequenceWithArray:array offset:0];
+	sequence.name = [NSString stringWithFormat:@"[%@] -map:", self.name];
+	return sequence;
+}
+
+- (instancetype)filter:(BOOL (^)(id))block {
+	NSParameterAssert(block != nil);
+	NSMutableArray *array = [NSMutableArray arrayWithCapacity:self.backingArray.count - self.offset];
+	for (id value in self) {
+		if (block(value)) [array addObject:value];
+	}
+	RACArraySequence *sequence = [self.class sequenceWithArray:array offset:0];
+	sequence.name = [NSString stringWithFormat:@"[%@] -filter:", self.name];
+	return sequence;
+}
+
+#pragma mark Extended methods
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-implementations"
@@ -72,6 +98,15 @@
 	// Encoding is handled in RACSequence.
 	[super encodeWithCoder:coder];
 }
+
+#pragma mark NSFastEnumeration
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
+- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(__unsafe_unretained id [])buffer count:(NSUInteger)len {
+	return [self.array countByEnumeratingWithState:state objects:buffer count:len];
+}
+#pragma clang diagnostic pop
 
 #pragma mark NSObject
 

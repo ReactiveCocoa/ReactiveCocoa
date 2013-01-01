@@ -928,11 +928,14 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 - (RACSignal *)replay {
 	RACMulticastConnection *connection = [self multicast:[RACReplaySubject subject]];
 	[connection connect];
+	connection.signal.name = [NSString stringWithFormat:@"[%@] -replay", self.name];
 	return connection.signal;
 }
 
 - (RACSignal *)replayLazily {
-	return [[self multicast:[RACReplaySubject subject]] autoconnect];
+	RACSignal *signal = [[self multicast:[RACReplaySubject subject]] autoconnect];
+	signal.name = [NSString stringWithFormat:@"[%@] -replayLazily", self.name];
+	return signal;
 }
 
 - (RACSignal *)timeout:(NSTimeInterval)interval {

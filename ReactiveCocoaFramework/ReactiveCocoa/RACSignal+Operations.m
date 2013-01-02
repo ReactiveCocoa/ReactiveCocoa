@@ -67,6 +67,39 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	return disposable;
 }
 
+// Used from within -concat to pop the next signal to concatenate to.
+static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDonePtr, id<RACSubscriber> subscriber, RACSignal **currentSignalPtr) {
+	NSCParameterAssert(signals != nil);
+	NSCParameterAssert(currentSignalPtr != NULL);
+
+	RACSignal *signal;
+
+	@synchronized (signals) {
+		if (*outerDonePtr && signals.count == 0 && *currentSignalPtr == nil) {
+			[subscriber sendCompleted];
+			return nil;
+		}
+
+		if (signals.count == 0 || *currentSignalPtr != nil) return nil;
+
+		signal = signals[0];
+		[signals removeObjectAtIndex:0];
+
+		*currentSignalPtr = signal;
+	}
+
+	return [signal subscribeNext:^(id x) {
+		[subscriber sendNext:x];
+	} error:^(NSError *error) {
+		[subscriber sendError:error];
+	} completed:^{
+		@synchronized (signals) {
+			*currentSignalPtr = nil;
+			concatPopNextSignal(signals, outerDonePtr, subscriber, currentSignalPtr);
+		}
+	}];
+}
+
 @implementation RACSignal (Operations)
 
 - (RACSignal *)doNext:(void (^)(id x))block {
@@ -570,52 +603,25 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 
 		__block BOOL outerDone = NO;
-		__block RACSignal *currentSignal;
-
-		__block void (^popNextSignal)(void) = [^{
-			RACSignal *signal;
-
-			@synchronized (signals) {
-				if (outerDone && signals.count == 0 && currentSignal == nil) {
-					[subscriber sendCompleted];
-					return;
-				}
-
-				if (signals.count == 0 || currentSignal != nil) return;
-
-				currentSignal = signals[0];
-				[signals removeObjectAtIndex:0];
-
-				signal = currentSignal;
-			}
-
-			RACDisposable *innerDisposable = [signal subscribeNext:^(id x) {
-				[subscriber sendNext:x];
-			} error:^(NSError *error) {
-				[subscriber sendError:error];
-			} completed:^{
-				@synchronized (signals) {
-					currentSignal = nil;
-					popNextSignal();
-				}
-			}];
-
-			if (innerDisposable != nil) [disposable addDisposable:innerDisposable];
-		} copy];
+		__block RACSignal *currentSignal = nil;
 
 		RACDisposable *subscriptionDisposable = [self subscribeNext:^(RACSignal *signal) {
 			NSAssert([signal isKindOfClass:RACSignal.class], @"%@ must be a signal of signals. Instead, got %@", self, signal);
 
 			@synchronized (signals) {
 				[signals addObject:signal];
-				popNextSignal();
+
+				RACDisposable *nextDisposable = concatPopNextSignal(signals, &outerDone, subscriber, &currentSignal);
+				if (nextDisposable != nil) [disposable addDisposable:nextDisposable];
 			}
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
 			@synchronized (signals) {
 				outerDone = YES;
-				popNextSignal();
+
+				RACDisposable *nextDisposable = concatPopNextSignal(signals, &outerDone, subscriber, &currentSignal);
+				if (nextDisposable != nil) [disposable addDisposable:nextDisposable];
 			}
 		}];
 

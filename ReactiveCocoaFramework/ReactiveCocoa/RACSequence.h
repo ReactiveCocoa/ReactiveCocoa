@@ -12,7 +12,8 @@
 @class RACScheduler;
 @class RACSignal;
 
-// Represents an immutable, lazy sequence of values. Like Cocoa collections,
+// Represents an immutable, sequence of values. Unless otherwise specified, the
+// sequences' values are evaluated lazily on demand. Like Cocoa collections,
 // sequences cannot contain nil.
 //
 // Most inherited RACStream methods that accept a block will execute the block
@@ -49,14 +50,21 @@
 // they're evaluated.
 - (RACSignal *)signalWithScheduler:(RACScheduler *)scheduler;
 
-// Returns a sequence that is equivalent to the receiver, but whose values are
-// computed eagerly as early as possible. Sequences derived from an eager
-// sequence are eager by default. Newly created sequences are lazy by default.
+// Converts a sequence into an eager sequence.
+//
+// An eager sequence fully evaluates all of its values immediately. Sequences
+// derived from an eager sequence will also be eager.
+//
+// Returns a new eager sequence, or the receiver if the sequence is already
+// eager.
 - (RACSequence *)eagerSequence;
 
-// Returns a sequence that is equivalent to the receiver, but whose values are
-// computed lazily as late as possible. Sequences derived from a lazy sequence
-// are lazy by default. Newly created sequences are lazy by default.
+// Converts a sequence into a lazy sequence.
+//
+// A lazy sequence evaluates it's values on demand, as they are accessed.
+// Sequences derived from a lazy sequence will also be lazy.
+//
+// Returns a new lazy sequence, or the receiver if the sequence is already lazy.
 - (RACSequence *)lazySequence;
 
 // Creates a sequence that dynamically generates its values.

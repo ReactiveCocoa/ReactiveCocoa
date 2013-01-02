@@ -156,7 +156,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 
 // Prepares the given class for binding by swizzling willChangeValueForKey: and
 // didChangeValueForKey:. Does nothing if the class has already been prepared.
-static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
+static void prepareClassForBindingIfNeeded(Class class) {
 	static dispatch_once_t onceToken;
 	static NSMutableSet *swizzledClasses = nil;
 	dispatch_once(&onceToken, ^{
@@ -164,11 +164,10 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 	});
 	NSString *className = NSStringFromClass(class);
 	@synchronized(swizzledClasses) {
-		if (![swizzledClasses containsObject:className]) {
-			RACSwizzle(class, @selector(willChangeValueForKey:), @selector(rac_customWillChangeValueForKey:));
-			RACSwizzle(class, @selector(didChangeValueForKey:), @selector(rac_customDidChangeValueForKey:));
-			[swizzledClasses addObject:className];
-		}
+		if ([swizzledClasses containsObject:className]) return;
+		RACSwizzle(class, @selector(willChangeValueForKey:), @selector(rac_customWillChangeValueForKey:));
+		RACSwizzle(class, @selector(didChangeValueForKey:), @selector(rac_customDidChangeValueForKey:));
+		[swizzledClasses addObject:className];
 	}
 }
 

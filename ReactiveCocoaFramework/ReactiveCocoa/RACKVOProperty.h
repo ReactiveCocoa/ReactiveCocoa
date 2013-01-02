@@ -26,11 +26,11 @@
 // Do not use this directly. Use the RACBind macro above.
 #define _RACBindObject(OBJ, KEYPATH) [RACKVOProperty propertyWithTarget:OBJ keyPath:@keypath(OBJ, KEYPATH)][ @"binding" ]
 
-// A signal / subscriber interface wrapper for KVC compliant properties.
+// A signal / subscriber interface wrapper for KVO compliant key paths.
 //
 // Send values to it to update the value of `keyPath` on `target`. Subscribers
 // are sent the current value of `keyPath` on `target` on subscription, and new
-// values as it changes.
+// values as it is changed.
 @interface RACKVOProperty : RACProperty
 
 // Returns a property interface to `keyPath` on `target`.

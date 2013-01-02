@@ -20,65 +20,141 @@
 // The key for RACKVOBindings associated to an object.
 static void *RACKVOBindingsKey = &RACKVOBindingsKey;
 
-// Name of exceptions thrown by RACKVOBinding
+// Name of exceptions thrown by RACKVOBinding.
 static NSString * const RACKVOBindingExceptionName = @"RACKVOBinding exception";
+
 // Name of the key associated with the instance that threw the exception in the
 // userInfo dictionary in exceptions thrown by RACKVOBinding, if applicable.
 static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExceptionBindingKey";
 
 @interface RACKVOProperty ()
 
+// The object whose key path the RACKVOProperty is wrapping.
 @property (nonatomic, readonly, weak) id target;
+
+// The key path the RACKVOProperty is wrapping.
 @property (nonatomic, readonly, copy) NSString *keyPath;
+
+// The signal exposed to callers. The property will behave like this signal
+// towards it's subscribers.
 @property (nonatomic, readonly, strong) RACSignal *exposedSignal;
+
+// The subscriber exposed to callers. The property will behave like this
+// subscriber towards the signals it's subscribed to.
 @property (nonatomic, readonly, strong) id<RACSubscriber> exposedSubscriber;
 
 @end
 
+// A binding to a KVO compliant key path on an object.
+//
+// This class is not meant to be instanced directly, but only subclassed. Call
+// `+bindingWithTarget:keyPath:` to get an instance of the appropriate subclass.
 @interface RACKVOBinding : RACBinding
 
+// Create a new binding for `keyPath` on `target`.
 + (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath;
 
+// Designated initializer.
+//
+// This should only be called from subclass initializers.
+//
+// target        - The object whose key path the binding is wrapping.
+// key           - The first key of the key path the binding is wrapping.
+// exposedSignal - The signal exposed to callers. The binding will behave like
+//                 this signal towards it's subscribers. Must send the current
+//                 value of the wrapped key path on subscription, then forward
+//                 values sent to `exposedSignalSubject`.
 - (instancetype)initWithTarget:(id)target key:(NSString *)key exposedSignal:(RACSignal *)exposedSignal;
 
+// The object whose key path the binding is wrapping.
 @property (nonatomic, readonly, weak) id target;
+
+// The first key of the key path the binding is wrapping.
 @property (nonatomic, readonly, copy) NSString *key;
+
+// The signal exposed to callers. The binding will behave like this signal
+// towards it's subscribers.
 @property (nonatomic, readonly, strong) RACSignal *exposedSignal;
+
+// The backing subject for the binding's outgoing changes. Any time the value of
+// the key path the binding is wrapping is changed, the new value must be sent
+// to this subject.
 @property (nonatomic, readonly, strong) RACSubject *exposedSignalSubject;
+
+// The backing subject for the binding's incoming changes. Any time a value is
+// sent to this subject, the key path the binding is wrapping must be set to
+// that value.
 @property (nonatomic, readonly, strong) RACSubject *exposedSubscriberSubject;
+
+// The identifier of the internal KVO observer. See note in initializer for more
+// info.
 @property (nonatomic, readonly, strong) id observer;
+
+// Whether the binding has been disposed or not. Should only be accessed while
+// synchronized on self. Subclasses must not change it's value, they should call
+// the superclass implementation of `-dispose` instead.
 @property (nonatomic, getter = isDisposed) BOOL disposed;
 
+// This method is called when the `target`'s `key` will change. Subclasses must
+// override this method, and not call the superclass implementation in it.
 - (void)targetWillChangeValue;
+
+// This method is called when the `target`'s `key` did change. Subclasses must
+// override this method, and not call the superclass implementation in it.
 - (void)targetDidChangeValue;
+
+// Dispose the binding, removing it from the `target`. Also terminates all
+// subscriptions to and by the binding.
 - (void)dispose;
 
 @end
 
+// A binding to a KVO compliant property on an object.
 @interface RACKeyKVOBinding : RACKVOBinding
 
+// Current depth of the willChangeValueForKey:/didChangeValueForKey: call stack.
 @property (nonatomic) NSUInteger stackDepth;
+
+// Whether the next change of the property that occurs while `stackDepth` is 0
+// should be ignored.
 @property (nonatomic) BOOL ignoreNextUpdate;
 
 @end
 
+// A binding to a KVO compliant key path on an object. The key path must have at
+// least two keys.
 @interface RACRemainderKVOBinding : RACKVOBinding
 
+// The key path the binding is wrapping minus the first key.
 @property (nonatomic, readonly, copy) NSString *remainder;
+
+// The binding to `remainder` on the object value of `key`.
 @property (nonatomic, strong) RACKVOBinding *remainderBinding;
 
 @end
 
 @interface NSObject (RACKVOBinding)
 
+// The set of bindings wrapping the receiver. Should only be accessed while
+// synchronized on self.
 @property (nonatomic, strong) NSMutableSet *RACKVOBindings;
+
+// Adds `binding` to the receiver's binding..
 - (void)rac_addBinding:(RACKVOBinding *)binding;
+
+// Removes `binding` from the receiver's bindings.
 - (void)rac_removeBinding:(RACKVOBinding *)binding;
+
+// Calls `-targetWillChangeValue` on all the receiver's bindings.
 - (void)rac_customWillChangeValueForKey:(NSString *)key;
+
+// Calls `-targetDidChangeValue` on all the receiver's bindings.
 - (void)rac_customDidChangeValueForKey:(NSString *)key;
 
 @end
 
+// Prepares the given class for binding by swizzling willChangeValueForKey: and
+// didChangeValueForKey:. Does nothing if the class has already been prepared.
 static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 	static dispatch_once_t onceToken;
 	static NSMutableSet *swizzledClasses = nil;
@@ -95,6 +171,8 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 	}
 }
 
+// Given a key path, returns a tuple of the first key in the key path, and the
+// remaining key path, if any.
 static RACTuple *keyAndRemainderForKeyPath(NSString *keyPath) {
 	NSRange firstDot = [keyPath rangeOfString:@"."];
 	if (firstDot.location == NSNotFound) {
@@ -153,6 +231,11 @@ static RACTuple *keyAndRemainderForKeyPath(NSString *keyPath) {
 	_exposedSubscriberSubject = [RACSubject subject];
 	prepareClassForBindingIfNeeded([_target class]);
 	[_target rac_addBinding:self];
+	// This KVO observer doesn't do anything, but we have to add it or
+	// `-willChangeValueForKey:` and `-didChangeValueForKey:` might not get
+	// called.
+	// The observer is then removed when the binding is disposed, or when either
+	// the target or the binding deallocate.
 	_observer = [_target rac_addObserver:self forKeyPath:key options:NSKeyValueObservingOptionPrior queue:nil block:nil];
 	[_target rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 		[self dispose];

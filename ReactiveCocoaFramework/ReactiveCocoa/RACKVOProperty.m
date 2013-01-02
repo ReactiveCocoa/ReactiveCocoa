@@ -236,7 +236,7 @@ static RACTuple *keyAndRemainderForKeyPath(NSString *keyPath) {
 	// called.
 	// The observer is then removed when the binding is disposed, or when either
 	// the target or the binding deallocate.
-	_observer = [_target rac_addObserver:self forKeyPath:key options:NSKeyValueObservingOptionPrior queue:nil block:nil];
+	_observer = [_target rac_addObserver:self forKeyPath:key options:0 queue:nil block:nil];
 	[_target rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 		[self dispose];
 	}]];

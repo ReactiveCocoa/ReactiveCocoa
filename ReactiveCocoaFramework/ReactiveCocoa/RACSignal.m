@@ -485,3 +485,29 @@ static NSMutableSet *activeSignals() {
 }
 
 @end
+
+@implementation RACSignal (Debugging)
+
+- (RACSignal *)logAll {
+	return [[[self logNext] logError] logCompleted];
+}
+
+- (RACSignal *)logNext {
+	return [self doNext:^(id x) {
+		NSLog(@"%@ next: %@", self, x);
+	}];
+}
+
+- (RACSignal *)logError {
+	return [self doError:^(NSError *error) {
+		NSLog(@"%@ error: %@", self, error);
+	}];
+}
+
+- (RACSignal *)logCompleted {
+	return [self doCompleted:^{
+		NSLog(@"%@ completed", self);
+	}];
+}
+
+@end

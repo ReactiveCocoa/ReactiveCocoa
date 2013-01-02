@@ -34,7 +34,7 @@
 	}
 	
 	RACEagerSequence *sequence = [self.class sequenceWithArray:resultArray offset:0];
-	sequence.name = self.name;
+	sequence.name = [NSString stringWithFormat:@"[%@] -bind:", self.name];
 	return sequence;
 }
 

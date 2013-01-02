@@ -13,9 +13,9 @@
 //                new RACProperty.
 extern NSString * const RACPropertyExamples;
 
-// The name of the shared examples for RACProperty and subclasses that have it's
-// memory management semantics. This example should be passed the following
-// arguments:
+// The name of the shared memory management examples for RACProperty and it's
+// subclasses (except RACKVOProperty, since it has different memory management
+// semantics). This example should be passed the following arguments:
 //
 // getProperty  - A block of type `RACProperty (^)(void)`, which should return a
 //                new RACProperty.

@@ -1831,6 +1831,63 @@ describe(@"-collect", ^{
 	});
 });
 
+describe(@"-bufferWithTime:", ^{
+	it(@"should buffer nexts and restart buffering if new next arrives", ^{
+		RACSubject *input = [RACSubject subject];
+		
+		RACSignal *bufferedInput = [input bufferWithTime:0.1];
+		
+		__block NSArray *received = nil;
+		
+		[bufferedInput subscribeNext:^(RACTuple *x) {
+			received = [x allObjects];
+		}];
+		
+		[input sendNext:@1];
+		[input sendNext:@2];
+		
+		expect(received).will.equal((@[ @1, @2 ]));
+		
+		[input sendNext:@3];
+		// NSNull should not be converted
+		[input sendNext:NSNull.null];
+		
+		expect(received).will.equal((@[ @3, NSNull.null ]));
+	});
+	
+});
+
+
+describe(@"-buffer:", ^{
+	it(@"should buffer nexts and restart buffering if new next arrives", ^{
+		RACSubject *input = [RACSubject subject];
+		
+		RACSignal *bufferedInput = [input buffer:2];
+
+		__block NSArray *received = nil;
+		
+		[bufferedInput subscribeNext:^(RACTuple *x) {
+			received = [x allObjects];
+		}];
+
+		[input sendNext:@1];
+		[input sendNext:@2];
+		
+		expect(received).to.equal((@[ @1, @2 ]));
+		
+		[input sendNext:@3];
+		[input sendNext:@4];
+		[input sendNext:@5];
+		
+		expect(received).to.equal((@[ @3, @4 ]));
+
+		// NSNull should not be converted
+		[input sendNext:NSNull.null];
+		
+		expect(received).to.equal((@[ @5, NSNull.null ]));
+	});
+});
+
 describe(@"-concat", ^{
 	__block RACSubject *subject;
 

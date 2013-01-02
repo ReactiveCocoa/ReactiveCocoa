@@ -124,6 +124,7 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 - (instancetype)initWithTarget:(id)target key:(NSString *)key {
 	self = [super init];
 	if (self == nil || target == nil || key == nil) return nil;
+	
 	_target = target;
 	_key = [key copy];
 	_signalSubject = [RACSubject subject];
@@ -134,6 +135,7 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 	[_target rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 		[self dispose];
 	}]];
+	
 	return self;
 }
 
@@ -174,6 +176,7 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 - (instancetype)initWithTarget:(id)target key:(NSString *)key {
 	self = [super initWithTarget:target key:key];
 	if (self == nil) return nil;
+	
 	@weakify(self);
 	_signalBlock = [^{
 		return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
@@ -187,6 +190,7 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 		self.ignoreNextUpdate = YES;
 		[self.target setValue:x forKey:self.key];
 	}];
+	
 	return self;
 }
 
@@ -220,6 +224,7 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 - (instancetype)initWithTarget:(id)target key:(NSString *)key remainder:(NSString *)remainder {
 	self = [super initWithTarget:target key:key];
 	if (self == nil || remainder == nil) return nil;
+	
 	_remainder = remainder;
 	_remainderBinding = [RACKVOBinding bindingWithTarget:[target valueForKey:key] keyPath:remainder];
 	@weakify(self);
@@ -238,6 +243,7 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 		@strongify(self);
 		[self.remainderBinding.subscriberSubject sendNext:x];
 	}];
+	
 	return self;
 }
 
@@ -361,6 +367,7 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 + (instancetype)propertyWithTarget:(id)target keyPath:(NSString *)keyPath {
 	RACKVOProperty *property = [[self alloc] init];
 	if (property == nil) return nil;
+	
 	property->_target = target;
 	property->_keyPath = [keyPath copy];
 	@weakify(property);
@@ -379,6 +386,7 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 		// Log the error if we're running with assertions disabled.
 		NSLog(@"Received error in binding for key path \"%@\" on %@: %@", property.keyPath, property.target, error);
 	} completed:nil];
+	
 	return property;
 }
 

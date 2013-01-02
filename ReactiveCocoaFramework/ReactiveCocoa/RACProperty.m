@@ -15,9 +15,20 @@
 
 @interface RACProperty ()
 
+// The signal passed to `-initWithSignal:subscriber:`. Refer to the method's
+// docs for details.
 @property (nonatomic, readonly, strong) RACSignal *signal;
+
+// The subscriber passed to `-initWithSignal:subscriber:`. Refer to the method's
+// docs for details.
 @property (nonatomic, readonly, strong) id<RACSubscriber> subscriber;
+
+// The signal exposed to callers. The property will behave like this signal
+// towards it's subscribers.
 @property (nonatomic, readonly, strong) RACSignal *exposedSignal;
+
+// The subscriber exposed to callers. The property will behave like this
+// subscriber towards the signals it's subscribed to.
 @property (nonatomic, readonly, strong) id<RACSubscriber> exposedSubscriber;
 
 @end
@@ -53,6 +64,7 @@
 - (instancetype)initWithSignal:(RACSignal *)signal subscriber:(id<RACSubscriber>)subscriber {
 	self = [super init];
 	if (self == nil) return nil;
+	
 	_signal = signal;
 	_subscriber = subscriber;
 	@weakify(self);
@@ -68,6 +80,7 @@
 		// Log the error if we're running with assertions disabled.
 		NSLog(@"Received error in RACProperty %@: %@", self, error);
 	} completed:nil];
+	
 	return self;
 }
 

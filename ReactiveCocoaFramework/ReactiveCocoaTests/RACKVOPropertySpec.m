@@ -83,12 +83,13 @@ describe(@"RACKVOProperty", ^{
 		[object rac_addObserver:self forKeyPath:@keypath(object.name) options:NSKeyValueObservingOptionNew queue:nil block:^(id observer, NSDictionary *change) {
 			[receivedValues addObject:change[NSKeyValueChangeNewKey]];
 		}];
-		[[RACSignal createSignal: ^RACDisposable * (id<RACSubscriber> subscriber) {
+		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:value1];
 			[subscriber sendNext:value2];
 			[subscriber sendNext:value3];
 			return nil;
-		}] subscribe:property];
+		}];
+		[signal subscribe:property];
 		expect(receivedValues).to.equal(values);
 	});
 });
@@ -114,12 +115,15 @@ describe(@"RACKVOProperty bindings", ^{
 		RACBind(a, name) = RACBind(b, name);
 		expect(a.name).to.beNil();
 		expect(b.name).to.beNil();
+		
 		a.name = testName1;
 		expect(a.name).to.equal(testName1);
 		expect(b.name).to.equal(testName1);
+		
 		b.name = testName2;
 		expect(a.name).to.equal(testName2);
 		expect(b.name).to.equal(testName2);
+		
 		a.name = nil;
 		expect(a.name).to.beNil();
 		expect(b.name).to.beNil();
@@ -129,17 +133,20 @@ describe(@"RACKVOProperty bindings", ^{
 		RACBind(a, relatedObject.name) = RACBind(b, relatedObject.name);
 		a.relatedObject = [[TestClass alloc] init];
 		b.relatedObject = [[TestClass alloc] init];
+		
 		a.relatedObject.name = testName1;
 		expect(a.relatedObject.name).to.equal(testName1);
 		expect(b.relatedObject.name).to.equal(testName1);
 		expect(a.relatedObject != b.relatedObject).to.beTruthy();
+		
 		b.relatedObject = nil;
 		expect(a.relatedObject.name).to.beNil();
+		
 		c.name = testName2;
 		b.relatedObject = c;
 		expect(a.relatedObject.name).to.equal(testName2);
 		expect(b.relatedObject.name).to.equal(testName2);
-		expect(a.relatedObject != b.relatedObject).to.beTruthy();
+		expect(a.relatedObject).notTo.equal(b.relatedObject);
 	});
 	
 	it(@"should take the value of the object being bound to at the start", ^{
@@ -148,6 +155,18 @@ describe(@"RACKVOProperty bindings", ^{
 		RACBind(a, name) = RACBind(b, name);
 		expect(a.name).to.equal(testName2);
 		expect(b.name).to.equal(testName2);
+	});
+	
+	it(@"should update the value even if it's the same value the object had before it was bound", ^{
+		a.name = testName1;
+		b.name = testName2;
+		RACBind(a, name) = RACBind(b, name);
+		expect(a.name).to.equal(testName2);
+		expect(b.name).to.equal(testName2);
+		
+		b.name = testName1;
+		expect(a.name).to.equal(testName1);
+		expect(b.name).to.equal(testName1);
 	});
 	
 	it(@"should bind transitively", ^{
@@ -159,40 +178,21 @@ describe(@"RACKVOProperty bindings", ^{
 		expect(a.name).to.equal(testName3);
 		expect(b.name).to.equal(testName3);
 		expect(c.name).to.equal(testName3);
+		
 		c.name = testName1;
 		expect(a.name).to.equal(testName1);
 		expect(b.name).to.equal(testName1);
 		expect(c.name).to.equal(testName1);
+		
 		b.name = testName2;
 		expect(a.name).to.equal(testName2);
 		expect(b.name).to.equal(testName2);
 		expect(c.name).to.equal(testName2);
+		
 		a.name = testName3;
 		expect(a.name).to.equal(testName3);
 		expect(b.name).to.equal(testName3);
 		expect(c.name).to.equal(testName3);
-	});
-	
-	it(@"should bind even if the initial update is the same as the other object's value", ^{
-		a.name = testName1;
-		b.name = testName2;
-		RACBind(a, name) = RACBind(b, name);
-		expect(a.name).to.equal(testName2);
-		expect(b.name).to.equal(testName2);
-		b.name = testName2;
-		expect(a.name).to.equal(testName2);
-		expect(b.name).to.equal(testName2);
-	});
-	
-	it(@"should bind even if the initial update is the same as the receiver's value", ^{
-		a.name = testName1;
-		b.name = testName2;
-		RACBind(a, name) = RACBind(b, name);
-		expect(a.name).to.equal(testName2);
-		expect(b.name).to.equal(testName2);
-		b.name = testName1;
-		expect(a.name).to.equal(testName1);
-		expect(b.name).to.equal(testName1);
 	});
 	
 	it(@"should not interfere with or be interfered by KVO callbacks", ^{

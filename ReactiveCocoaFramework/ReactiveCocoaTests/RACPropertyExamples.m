@@ -159,9 +159,7 @@ sharedExamplesFor(RACPropertyMemoryManagementExamples, ^(RACProperty *(^getPrope
 			[property rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 				deallocd = YES;
 			}]];
-			disposable = [property subscribeNext:^(id x) {
-				
-			}];
+			disposable = [property subscribeNext:^(id x) {}];
 		}
 		[disposable dispose];
 		expect(deallocd).will.beTruthy();
@@ -170,15 +168,12 @@ sharedExamplesFor(RACPropertyMemoryManagementExamples, ^(RACProperty *(^getPrope
 	it(@"should dealloc when it's subscriptions are disposed", ^{
 		RACDisposable *disposable = nil;
 		__block BOOL deallocd = NO;
-		RACSignal *signal = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
-			return nil;
-		}];
 		@autoreleasepool {
 			RACProperty *property __attribute__((objc_precise_lifetime)) = getProperty();
 			[property rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 				deallocd = YES;
 			}]];
-			disposable = [signal subscribe:property];
+			disposable = [RACSignal.never subscribe:property];
 		}
 		[disposable dispose];
 		expect(deallocd).will.beTruthy();
@@ -192,9 +187,7 @@ sharedExamplesFor(RACPropertyMemoryManagementExamples, ^(RACProperty *(^getPrope
 			[property rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 				deallocd = YES;
 			}]];
-			disposable = [[property binding] subscribeNext:^(id x) {
-				
-			}];
+			disposable = [[property binding] subscribeNext:^(id x) {}];
 		}
 		[disposable dispose];
 		expect(deallocd).will.beTruthy();
@@ -203,15 +196,12 @@ sharedExamplesFor(RACPropertyMemoryManagementExamples, ^(RACProperty *(^getPrope
 	it(@"should dealloc when it's binding's subscriptions are disposed", ^{
 		RACDisposable *disposable = nil;
 		__block BOOL deallocd = NO;
-		RACSignal *signal = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
-			return nil;
-		}];
 		@autoreleasepool {
 			RACProperty *property __attribute__((objc_precise_lifetime)) = getProperty();
 			[property rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 				deallocd = YES;
 			}]];
-			disposable = [signal subscribe:[property binding]];
+			disposable = [RACSignal.never subscribe:[property binding]];
 		}
 		[disposable dispose];
 		expect(deallocd).will.beTruthy();

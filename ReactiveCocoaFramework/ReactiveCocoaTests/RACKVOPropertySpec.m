@@ -17,6 +17,7 @@
 @interface TestClass : NSObject
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic, strong) TestClass *relatedObject;
+@property (nonatomic, strong) NSArray *array;
 @end
 
 @implementation TestClass
@@ -245,6 +246,13 @@ describe(@"RACKVOProperty bindings", ^{
 		expect(fourthObserverShouldChangeName).to.beFalsy();
 		expect(a.name).to.equal(testName2);
 		expect(b.name).to.equal(testName2);
+	});
+	
+	it(@"should bind changes made by KVC mutable to-many relationship accessors", ^{
+		b.array = @[];
+		RACBind(a, array) = RACBind(b, array);
+		[b insertValue:@1 atIndex:0 inPropertyWithKey:@keypath(b.array)];
+		expect(a.array).to.equal(b.array);
 	});
 	
 	it(@"should stop binding when disposed", ^{

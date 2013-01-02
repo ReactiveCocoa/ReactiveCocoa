@@ -142,3 +142,27 @@
 - (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
 
 @end
+
+@interface RACSignal (Debugging)
+
+// Logs all events that the receiver sends.
+//
+// This method should only be used for debugging.
+- (RACSignal *)logAll;
+
+// Logs each `next` that the receiver sends.
+//
+// This method should only be used for debugging.
+- (RACSignal *)logNext;
+
+// Logs any error that the receiver sends.
+//
+// This method should only be used for debugging.
+- (RACSignal *)logError;
+
+// Logs any `completed` event that the receiver sends.
+//
+// This method should only be used for debugging.
+- (RACSignal *)logCompleted;
+
+@end

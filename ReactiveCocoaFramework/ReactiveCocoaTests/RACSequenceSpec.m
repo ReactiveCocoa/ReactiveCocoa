@@ -93,10 +93,34 @@ describe(@"non-empty sequences", ^{
 });
 
 describe(@"eager sequences", ^{
-	RACSequence *sequence = [[[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]] eagerSequence];
+	__block RACSequence *lazySequence;
+	__block BOOL headInvoked;
+	__block BOOL tailInvoked;
 	NSArray *values = @[ @0, @1, @2 ];
 	
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values }, nil);
+	before(^{
+		headInvoked = NO;
+		tailInvoked = NO;
+		
+		lazySequence = [RACSequence sequenceWithHeadBlock:^{
+			headInvoked = YES;
+			return @0;
+		} tailBlock:^{
+			tailInvoked = YES;
+			return [RACSequence return:@1];
+		}];
+		
+		expect(lazySequence).notTo.beNil();
+	});
+	
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: [lazySequence eagerSequence], RACSequenceExpectedValues: values }, nil);
+	
+	it(@"should evaluate all values immediately", ^{
+		RACSequence *eagerSequence = [lazySequence eagerSequence];
+		expect(headInvoked).to.beTruthy();
+		expect(tailInvoked).to.beTruthy();
+		expect([eagerSequence array]).to.equal(values);
+	});
 });
 
 describe(@"-take:", ^{

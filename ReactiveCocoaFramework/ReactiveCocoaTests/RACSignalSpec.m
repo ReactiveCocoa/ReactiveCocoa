@@ -1850,9 +1850,9 @@ describe(@"-bufferWithTime:", ^{
 		
 		[input sendNext:@3];
 		// NSNull should not be converted
-		[input sendNext:[NSNull null]];
+		[input sendNext:NSNull.null];
 		
-		expect(received).will.equal((@[ @3, [NSNull null] ]));
+		expect(received).will.equal((@[ @3, NSNull.null ]));
 	});
 	
 });
@@ -1882,9 +1882,9 @@ describe(@"-buffer:", ^{
 		expect(received).to.equal((@[ @3, @4 ]));
 
 		// NSNull should not be converted
-		[input sendNext:[NSNull null]];
+		[input sendNext:NSNull.null];
 		
-		expect(received).to.equal((@[ @5, [NSNull null] ]));
+		expect(received).to.equal((@[ @5, NSNull.null ]));
 	});
 });
 

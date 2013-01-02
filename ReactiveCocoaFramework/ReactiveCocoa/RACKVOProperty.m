@@ -20,7 +20,8 @@
 // The key for RACKVOBindings associated to an object.
 static void *RACKVOBindingsKey = &RACKVOBindingsKey;
 
-// Name of exceptions thrown by RACKVOBinding.
+// Name of exceptions thrown by RACKVOBinding when an object calls
+// -didChangeValueForKey: without a corresponding -willChangeValueForKey:.
 static NSString * const RACKVOBindingExceptionName = @"RACKVOBinding exception";
 
 // Name of the key associated with the instance that threw the exception in the

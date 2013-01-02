@@ -9,6 +9,7 @@
 #import "RACKVOProperty.h"
 #import "RACBinding.h"
 #import "RACDisposable.h"
+#import "RACSignal+Private.h"
 #import "RACSubject.h"
 #import "RACSwizzling.h"
 #import "RACTuple.h"
@@ -29,27 +30,22 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 
 @property (nonatomic, readonly, weak) id target;
 @property (nonatomic, readonly, copy) NSString *keyPath;
-@property (nonatomic, readonly, strong) RACSignal *signal;
-@property (nonatomic, readonly, strong) id<RACSubscriber> subscriber;
+@property (nonatomic, readonly, strong) RACSignal *exposedSignal;
+@property (nonatomic, readonly, strong) id<RACSubscriber> exposedSubscriber;
 
 @end
 
-@interface RACKVOBinding : RACBinding {
-@protected
-	RACSignal *(^_signalBlock)(void);
-	RACSubject *_signalSubject;
-	RACSubject *_subscriberSubject;
-}
+@interface RACKVOBinding : RACBinding
 
 + (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath;
 
-- (instancetype)initWithTarget:(id)target key:(NSString *)key;
+- (instancetype)initWithTarget:(id)target key:(NSString *)key exposedSignal:(RACSignal *)exposedSignal;
 
 @property (nonatomic, readonly, weak) id target;
 @property (nonatomic, readonly, copy) NSString *key;
-@property (nonatomic, readonly, copy) RACSignal *(^signalBlock)(void);
-@property (nonatomic, readonly, strong) RACSubject *signalSubject;
-@property (nonatomic, readonly, strong) RACSubject *subscriberSubject;
+@property (nonatomic, readonly, strong) RACSignal *exposedSignal;
+@property (nonatomic, readonly, strong) RACSubject *exposedSignalSubject;
+@property (nonatomic, readonly, strong) RACSubject *exposedSubscriberSubject;
 @property (nonatomic, readonly, strong) id observer;
 @property (nonatomic, getter = isDisposed) BOOL disposed;
 
@@ -67,8 +63,6 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 @end
 
 @interface RACRemainderKVOBinding : RACKVOBinding
-
-- (instancetype)initWithTarget:(id)target key:(NSString *)key remainder:(NSString *)remainder;
 
 @property (nonatomic, readonly, copy) NSString *remainder;
 @property (nonatomic, strong) RACKVOBinding *remainderBinding;
@@ -101,53 +95,62 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 	}
 }
 
+static RACTuple *keyAndRemainderForKeyPath(NSString *keyPath) {
+	NSRange firstDot = [keyPath rangeOfString:@"."];
+	if (firstDot.location == NSNotFound) {
+		return [RACTuple tupleWithObjects:keyPath, nil];
+	} else {
+		NSString *key = [keyPath substringToIndex:firstDot.location];
+		NSString *remainder = [keyPath substringFromIndex:NSMaxRange(firstDot)];
+		return [RACTuple tupleWithObjects:key, remainder, nil];
+	}
+}
+
 @implementation RACKVOBinding
 
 #pragma mark RACSignal
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	if (self.signalBlock != nil) return [self.signalBlock() subscribe:subscriber];
-	return [self.signalSubject subscribe:subscriber];
+	return [self.exposedSignal subscribe:subscriber];
 }
 
 #pragma mark <RACSubscriber>
 
 - (void)sendNext:(id)value {
-	[self.subscriberSubject sendNext:value];
+	[self.exposedSubscriberSubject sendNext:value];
 }
 
 - (void)sendError:(NSError *)error {
-	[self.subscriberSubject sendError:error];
+	[self.exposedSubscriberSubject sendError:error];
 }
 
 - (void)sendCompleted {
-	[self.subscriberSubject sendCompleted];
+	[self.exposedSubscriberSubject sendCompleted];
 }
 
 - (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
-	[self.subscriberSubject didSubscribeWithDisposable:disposable];
+	[self.exposedSubscriberSubject didSubscribeWithDisposable:disposable];
 }
 
 #pragma mark API
 + (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath {
-	NSRange firstDot = [keyPath rangeOfString:@"."];
-	if (firstDot.location == NSNotFound) {
-		return [[RACKeyKVOBinding alloc] initWithTarget:target key:keyPath];
+	if (keyAndRemainderForKeyPath(keyPath).second != nil) {
+		return [RACRemainderKVOBinding bindingWithTarget:target keyPath:keyPath];
 	} else {
-		NSString *key = [keyPath substringToIndex:firstDot.location];
-		NSString *remainder = [keyPath substringFromIndex:NSMaxRange(firstDot)];
-		return [[RACRemainderKVOBinding alloc] initWithTarget:target key:key remainder:remainder];
+		return [RACKeyKVOBinding bindingWithTarget:target keyPath:keyPath];
 	}
 }
 
-- (instancetype)initWithTarget:(id)target key:(NSString *)key {
+- (instancetype)initWithTarget:(id)target key:(NSString *)key exposedSignal:(RACSignal *)exposedSignal {
+	NSParameterAssert(exposedSignal != nil);
 	self = [super init];
 	if (self == nil || target == nil || key == nil) return nil;
 	
 	_target = target;
 	_key = [key copy];
-	_signalSubject = [RACSubject subject];
-	_subscriberSubject = [RACSubject subject];
+	_exposedSignal = exposedSignal;
+	_exposedSignalSubject = [RACSubject subject];
+	_exposedSubscriberSubject = [RACSubject subject];
 	prepareClassForBindingIfNeeded([_target class]);
 	[_target rac_addBinding:self];
 	_observer = [_target rac_addObserver:self forKeyPath:key options:NSKeyValueObservingOptionPrior queue:nil block:nil];
@@ -174,8 +177,8 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 	@synchronized(self) {
 		if (self.disposed) return;
 		self.disposed = YES;
-		[self.signalSubject sendCompleted];
-		[self.subscriberSubject sendCompleted];
+		[self.exposedSignalSubject sendCompleted];
+		[self.exposedSubscriberSubject sendCompleted];
 		[self.target rac_removeObserverWithIdentifier:self.observer];
 		[self.target rac_removeBinding:self];
 	}
@@ -185,25 +188,25 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 
 @implementation RACKeyKVOBinding
 
-- (instancetype)initWithTarget:(id)target key:(NSString *)key {
-	self = [super initWithTarget:target key:key];
-	if (self == nil) return nil;
++ (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath {
+	NSParameterAssert(keyAndRemainderForKeyPath(keyPath).second == nil);
+	RACSignal *signal = [[RACSignal alloc] init];
+	RACKeyKVOBinding *binding = [[self alloc] initWithTarget:target key:keyPath exposedSignal:signal];
+	if (binding == nil) return nil;
 	
-	@weakify(self);
-	_signalBlock = [^{
-		return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-			@strongify(self);
-			[subscriber sendNext:[self.target valueForKey:self.key]];
-			return [self.signalSubject subscribe:subscriber];
-		}];
-	} copy];
-	[_subscriberSubject subscribeNext:^(id x) {
-		@strongify(self);
-		self.ignoreNextUpdate = YES;
-		[self.target setValue:x forKey:self.key];
+	@weakify(binding);
+	signal.didSubscribe = ^(id<RACSubscriber> subscriber) {
+		@strongify(binding);
+		[subscriber sendNext:[binding.target valueForKey:binding.key]];
+		return [binding.exposedSignalSubject subscribe:subscriber];
+	};
+	[binding.exposedSubscriberSubject subscribeNext:^(id x) {
+		@strongify(binding);
+		binding.ignoreNextUpdate = YES;
+		[binding.target setValue:x forKey:binding.key];
 	}];
 	
-	return self;
+	return binding;
 }
 
 - (void)targetWillChangeValue {
@@ -219,40 +222,38 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 		return;
 	}
 	id value = [self.target valueForKey:self.key];
-	[self.signalSubject sendNext:value];
+	[self.exposedSignalSubject sendNext:value];
 }
 
 @end
 
 @implementation RACRemainderKVOBinding
 
-- (instancetype)initWithTarget:(id)target key:(NSString *)key remainder:(NSString *)remainder {
-	self = [super initWithTarget:target key:key];
-	if (self == nil || remainder == nil) return nil;
++ (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath {
+	RACTupleUnpack(NSString *key, NSString *remainder) = keyAndRemainderForKeyPath(keyPath);
+	NSParameterAssert(remainder != nil);
+	RACSignal *signal = [[RACSignal alloc] init];
+	RACRemainderKVOBinding *binding = [[self alloc] initWithTarget:target key:key exposedSignal:signal];
+	if (binding == nil) return nil;
 	
-	_remainder = remainder;
-	_remainderBinding = [RACKVOBinding bindingWithTarget:[target valueForKey:key] keyPath:remainder];
-	@weakify(self);
-	[_remainderBinding subscribeNext:^(id x) {
-		@strongify(self);
-		[self.signalSubject sendNext:x];
-	}];
-	_signalBlock = [^{
-		return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-			@strongify(self);
-			[subscriber sendNext:[[self.target valueForKey:key] valueForKeyPath:remainder]];
-			return [self.signalSubject subscribe:subscriber];
-		}];
-	} copy];
-	[_subscriberSubject subscribeNext:^(id x) {
-		@strongify(self);
-		[self.remainderBinding.subscriberSubject sendNext:x];
+	@weakify(binding);
+	binding->_remainder = remainder;
+	binding.remainderBinding = [RACKVOBinding bindingWithTarget:[target valueForKey:key] keyPath:remainder];
+	signal.didSubscribe = ^(id<RACSubscriber> subscriber) {
+		@strongify(binding);
+		[subscriber sendNext:[[binding.target valueForKey:key] valueForKeyPath:binding.remainder]];
+		return [binding.exposedSignalSubject subscribe:subscriber];
+	};
+	[binding.exposedSubscriberSubject subscribeNext:^(id x) {
+		@strongify(binding);
+		[binding.remainderBinding.exposedSubscriberSubject sendNext:x];
 	}];
 	
-	return self;
+	return binding;
 }
 
 - (void)targetWillChangeValue {
+	self.remainderBinding = nil;
 	[self.remainderBinding dispose];
 }
 
@@ -260,14 +261,9 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 	id remainderTarget = [self.target valueForKey:self.key];
 	if (remainderTarget == nil) {
 		self.remainderBinding = nil;
-		[self.signalSubject sendNext:nil];
+		[self.exposedSignalSubject sendNext:nil];
 	}
 	self.remainderBinding = [RACKVOBinding bindingWithTarget:remainderTarget keyPath:self.remainder];
-	@weakify(self);
-	[self.remainderBinding subscribeNext:^(id x) {
-		@strongify(self);
-		[self.signalSubject sendNext:x];
-	}];
 }
 
 - (void)dispose {
@@ -276,6 +272,17 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 		[super dispose];
 		[self.remainderBinding dispose];
 	}
+}
+
+- (void)setRemainderBinding:(RACKVOBinding *)remainderBinding {
+	if (remainderBinding == _remainderBinding) return;
+	[_remainderBinding dispose];
+	_remainderBinding = remainderBinding;
+	@weakify(self);
+	[_remainderBinding subscribeNext:^(id x) {
+		@strongify(self);
+		[self.exposedSignalSubject sendNext:x];
+	}];
 }
 
 @end
@@ -337,25 +344,25 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 #pragma mark RACSignal
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	return [self.signal subscribe:subscriber];
+	return [self.exposedSignal subscribe:subscriber];
 }
 
 #pragma mark <RACSubscriber>
 
 - (void)sendNext:(id)value {
-	[self.subscriber sendNext:value];
+	[self.exposedSubscriber sendNext:value];
 }
 
 - (void)sendError:(NSError *)error {
-	[self.subscriber sendError:error];
+	[self.exposedSubscriber sendError:error];
 }
 
 - (void)sendCompleted {
-	[self.subscriber sendCompleted];
+	[self.exposedSubscriber sendCompleted];
 }
 
 - (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
-	[self.subscriber didSubscribeWithDisposable:disposable];
+	[self.exposedSubscriber didSubscribeWithDisposable:disposable];
 }
 
 #pragma mark API
@@ -367,12 +374,12 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 	property->_target = target;
 	property->_keyPath = [keyPath copy];
 	@weakify(property);
-	property->_signal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	property->_exposedSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		@strongify(property);
 		[subscriber sendNext:[property.target valueForKeyPath:keyPath]];
 		return [[property.target rac_signalForKeyPath:property.keyPath onObject:property] subscribe:subscriber];
 	}];
-	property->_subscriber = [RACSubscriber subscriberWithNext:^(id x) {
+	property->_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
 		@strongify(property);
 		[property.target setValue:x forKeyPath:property.keyPath];
 	} error:^(NSError *error) {

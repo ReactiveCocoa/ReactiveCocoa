@@ -240,15 +240,17 @@ typedef NSInteger RACSignalError;
 // signal.
 - (RACMulticastConnection *)multicast:(RACSubject *)subject;
 
-// Multicasts the signal to a RACReplaySubject and connects.
+// Multicasts the signal to a RACReplaySubject and immediately connects to the
+// resulting RACMulticastConnection.
 //
-// Returns the connection's signal.
+// Returns the connected, multicasted signal.
 - (RACSignal *)replay;
 
-// Multicasts the signal to a RACReplaySubject. It will connect the multicast
-// connection on the first subscription.
+// Multicasts the signal to a RACReplaySubject and calls -autoconnect on the
+// resulting RACMulticastConnection. This means the signal will subscribe to
+// the multicasted signal only when it receives its first subscription.
 //
-// Returns the connection's signal.
+// Returns the autoconnected, multicasted signal.
 - (RACSignal *)replayLazily;
 
 // Sends an error after `interval` seconds if the source doesn't complete

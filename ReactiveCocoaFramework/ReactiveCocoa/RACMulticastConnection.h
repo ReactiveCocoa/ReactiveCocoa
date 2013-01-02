@@ -14,6 +14,11 @@
 // the underlying signal involves side-effects or shouldn't be called more than
 // once.
 //
+// The multicasted signal is only subscribed to when
+// -[RACMulticastConnection connect] is called. Until that happens, no values
+// will be sent on `signal`. See -[RACMulticastConnection autoconnect] for how
+// -[RACMulticastConnection connect] can be called automatically.
+//
 // Note that you shouldn't create RACMulticastConnection manually. Instead use
 // -[RACSignal publish] or -[RACSignal multicast:].
 @interface RACMulticastConnection : NSObject
@@ -28,8 +33,12 @@
 - (RACDisposable *)connect;
 
 // Connects to the underlying signal when the returned signal is first
-// subscribed to and disposes of the subscription to the multicasted signal when
-// the returned signal has no subscribers.
+// subscribed to, and disposes of the subscription to the multicasted signal
+// when the returned signal has no subscribers.
+//
+// If new subscribers show up after being disposed, they'll subscribe and then
+// be immediately disposed of. The returned signal will never re-connect to the
+// multicasted signal.
 //
 // Returns the autoconnecting signal.
 - (RACSignal *)autoconnect;

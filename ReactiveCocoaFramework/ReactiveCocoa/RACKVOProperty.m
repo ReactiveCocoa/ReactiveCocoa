@@ -25,6 +25,15 @@ static NSString * const RACKVOBindingExceptionName = @"RACKVOBinding exception";
 // userInfo dictionary in exceptions thrown by RACKVOBinding, if applicable.
 static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExceptionBindingKey";
 
+@interface RACKVOProperty ()
+
+@property (nonatomic, readonly, weak) id target;
+@property (nonatomic, readonly, copy) NSString *keyPath;
+@property (nonatomic, readonly, strong) RACSignal *signal;
+@property (nonatomic, readonly, strong) id<RACSubscriber> subscriber;
+
+@end
+
 @interface RACKVOBinding : RACBinding {
 @protected
 	RACSignal *(^_signalBlock)(void);
@@ -52,11 +61,17 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 
 @interface RACKeyKVOBinding : RACKVOBinding
 
+@property (nonatomic) NSUInteger stackDepth;
+@property (nonatomic) BOOL ignoreNextUpdate;
+
 @end
 
 @interface RACRemainderKVOBinding : RACKVOBinding
 
 - (instancetype)initWithTarget:(id)target key:(NSString *)key remainder:(NSString *)remainder;
+
+@property (nonatomic, readonly, copy) NSString *remainder;
+@property (nonatomic, strong) RACKVOBinding *remainderBinding;
 
 @end
 
@@ -168,13 +183,6 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 
 @end
 
-@interface RACKeyKVOBinding ()
-
-@property (nonatomic) NSUInteger stackDepth;
-@property (nonatomic) BOOL ignoreNextUpdate;
-
-@end
-
 @implementation RACKeyKVOBinding
 
 - (instancetype)initWithTarget:(id)target key:(NSString *)key {
@@ -213,13 +221,6 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 	id value = [self.target valueForKey:self.key];
 	[self.signalSubject sendNext:value];
 }
-
-@end
-
-@interface RACRemainderKVOBinding ()
-
-@property (nonatomic, readonly, copy) NSString *remainder;
-@property (nonatomic, strong) RACKVOBinding *remainderBinding;
 
 @end
 
@@ -328,15 +329,6 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 	}
 	[self rac_customDidChangeValueForKey:key];
 }
-
-@end
-
-@interface RACKVOProperty ()
-
-@property (nonatomic, readonly, weak) id target;
-@property (nonatomic, readonly, copy) NSString *keyPath;
-@property (nonatomic, readonly, strong) RACSignal *signal;
-@property (nonatomic, readonly, strong) id<RACSubscriber> subscriber;
 
 @end
 

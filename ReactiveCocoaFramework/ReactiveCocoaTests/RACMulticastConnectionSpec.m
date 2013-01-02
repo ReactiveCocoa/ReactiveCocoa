@@ -39,6 +39,18 @@ describe(@"-connect", ^{
 		RACDisposable *d1 = [connection connect];
 		RACDisposable *d2 = [connection connect];
 		expect(d1).to.equal(d2);
+		expect(subscriptionCount).to.equal(1);
+	});
+
+	it(@"shouldn't reconnect after disposal", ^{
+		RACDisposable *disposable1 = [connection connect];
+		expect(subscriptionCount).to.equal(1);
+
+		[disposable1 dispose];
+		
+		RACDisposable *disposable2 = [connection connect];
+		expect(subscriptionCount).to.equal(1);
+		expect(disposable1).to.equal(disposable2);
 	});
 });
 
@@ -65,6 +77,16 @@ describe(@"-autoconnect", ^{
 		expect(disposed).to.beFalsy();
 		[disposable dispose];
 		expect(disposed).to.beTruthy();
+	});
+
+	it(@"shouldn't reconnect after disposal", ^{
+		RACDisposable *disposable = [autoconnectedSignal subscribeNext:^(id x) {}];
+		expect(subscriptionCount).to.equal(1);
+		[disposable dispose];
+
+		disposable = [autoconnectedSignal subscribeNext:^(id x) {}];
+		expect(subscriptionCount).to.equal(1);
+		[disposable dispose];
 	});
 });
 

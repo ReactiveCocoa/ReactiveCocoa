@@ -7,7 +7,6 @@
 //
 
 #import "RACSignalSequence.h"
-#import "RACConnectableSignal.h"
 #import "RACDisposable.h"
 #import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"

@@ -52,9 +52,9 @@ extern const NSInteger NSTaskRACSupportNonZeroTerminationStatus;
 // NSTaskRACSupportOutputData, NSTaskRACSupportErrorData, and NSTaskRACSupportTask.
 //
 // scheduler - cannot be nil.
-- (RACCancelableSignal *)rac_runWithScheduler:(RACScheduler *)scheduler;
+- (RACSignal *)rac_runWithScheduler:(RACScheduler *)scheduler;
 
 // Calls -rac_runWithScheduler: with the immediate scheduler.
-- (RACCancelableSignal *)rac_run;
+- (RACSignal *)rac_run;
 
 @end

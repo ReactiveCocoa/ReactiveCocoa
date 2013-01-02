@@ -399,11 +399,11 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 }
 
 - (id)objectForKeyedSubscript:(id)key {
-	return [self binding];
+	return [self valueForKey:key];
 }
 
-- (void)setObject:(id)obj forKeyedSubscript:(id<NSCopying>)key {
-	[[self binding] bindTo:obj];
+- (void)setObject:(id)obj forKeyedSubscript:(id)key {
+	[[self valueForKey:key] bindTo:obj];
 }
 
 @end

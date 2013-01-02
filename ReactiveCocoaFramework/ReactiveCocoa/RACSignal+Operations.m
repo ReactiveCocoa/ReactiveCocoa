@@ -290,9 +290,8 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		NSMutableArray *values = [NSMutableArray arrayWithCapacity:bufferCount];
 		RACSubject *windowCloseSubject = [RACSubject subject];
 		
-		RACDisposable *closeDisposable = nil;
-		closeDisposable = [windowCloseSubject subscribeNext:^(id x) {
-			[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:values convertNullsToNils:YES]];
+		RACDisposable *closeDisposable = [windowCloseSubject subscribeNext:^(id x) {
+			[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:values convertNullsToNils:NO]];
 			[values removeAllObjects];
 		}];
 
@@ -302,7 +301,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		}] subscribeNext:^(id x) {		
 			innerDisposable = [x subscribeNext:^(id x) {
 				[values addObject:x ? : [RACTupleNil tupleNil]];
-				if(values.count != 0 && values.count % bufferCount == 0) {
+				if(values.count % bufferCount == 0) {
 					[windowCloseSubject sendNext:[RACUnit defaultUnit]];
 				}
 			}];
@@ -327,7 +326,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		__block RACDisposable *innerDisposable = nil;
 		RACDisposable *outerDisposable = [[self windowWithStart:self close:^(RACSignal *start) {
 			return [[[RACSignal interval:interval] take:1] doNext:^(id x) {
-				[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:values convertNullsToNils:YES]];
+				[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:values convertNullsToNils:NO]];
 				[values removeAllObjects];
 			}];
 		}] subscribeNext:^(id x) {

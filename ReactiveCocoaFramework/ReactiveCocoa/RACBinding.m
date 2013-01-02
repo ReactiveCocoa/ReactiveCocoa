@@ -56,16 +56,12 @@
 	if (self == nil) return nil;
 	
 	@weakify(self);
-	_exposedSignal = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+	_exposedSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block BOOL isFirstNext = YES;
 		return [signal subscribeNext:^(RACTuple *x) {
-			@strongify(self)
-			if (isFirstNext) {
+			@strongify(self);
+			if (isFirstNext || ![x.second isEqual:self]) {
 				isFirstNext = NO;
-				[subscriber sendNext:x.first];
-				return;
-			}
-			if (![x.second isEqual:self]) {
 				[subscriber sendNext:x.first];
 			}
 		}];

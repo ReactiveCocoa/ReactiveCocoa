@@ -16,9 +16,13 @@
 #import "NSObject+RACPropertySubscribing.h"
 #import "EXTScope.h"
 
+// The key for RACKVOBindings associated to an object.
 static void *RACKVOBindingsKey = &RACKVOBindingsKey;
 
+// Name of exceptions thrown by RACKVOBinding
 static NSString * const RACKVOBindingExceptionName = @"RACKVOBinding exception";
+// Name of the key associated with the instance that threw the exception in the
+// userInfo dictionary in exceptions thrown by RACKVOBinding, if applicable.
 static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExceptionBindingKey";
 
 @interface RACKVOBinding : RACBinding {
@@ -179,7 +183,7 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 	
 	@weakify(self);
 	_signalBlock = [^{
-		return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+		return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 			@strongify(self);
 			[subscriber sendNext:[self.target valueForKey:self.key]];
 			return [self.signalSubject subscribe:subscriber];
@@ -233,7 +237,7 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 		[self.signalSubject sendNext:x];
 	}];
 	_signalBlock = [^{
-		return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+		return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 			@strongify(self);
 			[subscriber sendNext:[[self.target valueForKey:key] valueForKeyPath:remainder]];
 			return [self.signalSubject subscribe:subscriber];
@@ -371,7 +375,7 @@ static void prepareClassForBindingIfNeeded(__unsafe_unretained Class class) {
 	property->_target = target;
 	property->_keyPath = [keyPath copy];
 	@weakify(property);
-	property->_signal = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+	property->_signal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		@strongify(property);
 		[subscriber sendNext:[property.target valueForKeyPath:keyPath]];
 		return [[property.target rac_signalForKeyPath:property.keyPath onObject:property] subscribe:subscriber];

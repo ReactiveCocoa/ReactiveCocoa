@@ -113,13 +113,13 @@ describe(@"eager sequences", ^{
 		expect(lazySequence).notTo.beNil();
 	});
 	
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: [lazySequence eagerSequence], RACSequenceExpectedValues: values }, nil);
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: lazySequence.eagerSequence, RACSequenceExpectedValues: values }, nil);
 	
 	it(@"should evaluate all values immediately", ^{
-		RACSequence *eagerSequence = [lazySequence eagerSequence];
+		RACSequence *eagerSequence = lazySequence.eagerSequence;
 		expect(headInvoked).to.beTruthy();
 		expect(tailInvoked).to.beTruthy();
-		expect([eagerSequence array]).to.equal(values);
+		expect(eagerSequence.array).to.equal(values);
 	});
 });
 

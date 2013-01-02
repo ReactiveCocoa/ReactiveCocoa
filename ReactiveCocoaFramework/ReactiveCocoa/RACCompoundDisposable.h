@@ -25,7 +25,7 @@
 + (instancetype)compoundDisposableWithDisposables:(NSArray *)disposables;
 
 // Adds the given disposable. If the receiving disposable has already been
-// disposed of, the given disposable is disposed immediately.
+// disposed of, the given disposable is disposed immediately. Thread-safe.
 //
 // disposable - The disposable to add. Cannot be nil.
 - (void)addDisposable:(RACDisposable *)disposable;

@@ -36,11 +36,11 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 // The key path the RACKVOProperty is wrapping.
 @property (nonatomic, readonly, copy) NSString *keyPath;
 
-// The signal exposed to callers. The property will behave like this signal
-// towards it's subscribers.
+// The signal exposed to callers. The RACKVOProperty will behave like this
+// signal towards it's subscribers.
 @property (nonatomic, readonly, strong) RACSignal *exposedSignal;
 
-// The subscriber exposed to callers. The property will behave like this
+// The subscriber exposed to callers. The RACKVOProperty will behave like this
 // subscriber towards the signals it's subscribed to.
 @property (nonatomic, readonly, strong) id<RACSubscriber> exposedSubscriber;
 

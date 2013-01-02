@@ -33,7 +33,7 @@
 // values as it is changed.
 @interface RACKVOProperty : RACProperty
 
-// Returns a property interface to `keyPath` on `target`.
+// Returns a wrapper to `keyPath` on `target`.
 + (instancetype)propertyWithTarget:(id)target keyPath:(NSString *)keyPath;
 
 // Method needed for the convenience macro. Do not call explicitly.

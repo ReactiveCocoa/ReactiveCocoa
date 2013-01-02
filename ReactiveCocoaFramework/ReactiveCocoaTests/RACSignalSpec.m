@@ -1839,7 +1839,7 @@ describe(@"-bufferWithTime:", ^{
 		
 		__block NSArray *received = nil;
 		
-		[bufferedInput subscribeNext:^(RACTuple* x) {
+		[bufferedInput subscribeNext:^(RACTuple *x) {
 			received = [x allObjects];
 		}];
 		
@@ -1866,7 +1866,7 @@ describe(@"-buffer:", ^{
 
 		__block NSArray *received = nil;
 		
-		[bufferedInput subscribeNext:^(id x) {
+		[bufferedInput subscribeNext:^(RACTuple *x) {
 			received = [x allObjects];
 		}];
 

@@ -7,7 +7,6 @@
 //
 
 #import "RACSignalSequence.h"
-#import "RACConnectableSignal.h"
 #import "RACDisposable.h"
 #import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"
@@ -52,7 +51,9 @@
 }
 
 - (RACSequence *)tail {
-	return [self.class sequenceWithSignal:[self.subject skip:1]];
+	RACSequence *sequence = [self.class sequenceWithSignal:[self.subject skip:1]];
+	sequence.name = self.name;
+	return sequence;
 }
 
 - (NSArray *)array {
@@ -72,7 +73,7 @@
 
 	[disposable dispose];
 
-	return [NSString stringWithFormat:@"<%@: %p>{ values = %@ … }", self.class, self, values];
+	return [NSString stringWithFormat:@"<%@: %p>{ name = %@, values = %@ … }", self.class, self, self.name, values];
 }
 
 @end

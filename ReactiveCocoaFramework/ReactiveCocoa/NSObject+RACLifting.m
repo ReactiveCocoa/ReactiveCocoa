@@ -11,7 +11,7 @@
 #import "NSInvocation+RACTypeParsing.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACBlockTrampoline.h"
-#import "RACConnectableSignal.h"
+#import "RACMulticastConnection.h"
 #import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"
 #import "RACTuple.h"
@@ -20,12 +20,12 @@
 @implementation NSObject (RACLifting)
 
 - (RACSignal *)rac_liftSignals:(NSArray *)signals withReducingInvocation:(id (^)(RACTuple *))reduceBlock {
-	RACConnectableSignal *signal = [[[RACSignal combineLatest:signals] map:reduceBlock] multicast:[RACReplaySubject replaySubjectWithCapacity:1]];
+	RACMulticastConnection *connection = [[[RACSignal combineLatest:signals] map:reduceBlock] multicast:[RACReplaySubject replaySubjectWithCapacity:1]];
 
-	RACDisposable *disposable = [signal connect];
+	RACDisposable *disposable = [connection connect];
 	[self rac_addDeallocDisposable:disposable];
 
-	return signal;
+	return connection.signal;
 }
 
 - (RACSignal *)rac_liftSelector:(SEL)selector withObjects:(id)arg, ... {

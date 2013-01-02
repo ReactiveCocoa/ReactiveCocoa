@@ -109,6 +109,14 @@ describe(@"RACStream", ^{
 	}, nil);
 });
 
+it(@"+createSignal:name: should set the name", ^{
+	RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+		return nil;
+	} name:@"foo %i", 5];
+
+	expect(signal.name).to.equal(@"foo 5");
+});
+
 describe(@"subscribing", ^{
 	__block RACSignal *signal = nil;
 	id nextValueSent = @"1";
@@ -1435,20 +1443,29 @@ describe(@"+interval: and +interval:withLeeway:", ^{
 	static const NSTimeInterval marginOfError = 0.01;
 	__block RACSignal *timer = nil;
 	
-	__block void (^testTimerWithSchedulerMinIntervalMaxInterval)(RACSignal *, RACScheduler *, NSNumber *, NSNumber *) = nil;
+	__block void (^testTimer)(RACSignal *, RACScheduler *, NSNumber *, NSNumber *) = nil;
 	
 	before(^{
-		testTimerWithSchedulerMinIntervalMaxInterval = [^(RACSignal *timer, RACScheduler *scheduler, NSNumber *minInterval, NSNumber *maxInterval) {
+		testTimer = [^(RACSignal *timer, RACScheduler *scheduler, NSNumber *minInterval, NSNumber *leeway) {
 			__block NSUInteger nextsReceived = 0;
 			[scheduler schedule:^{
-				__block NSTimeInterval lastTime = NSDate.timeIntervalSinceReferenceDate;
-				[[[timer take:3] deliverOn:RACScheduler.mainThreadScheduler] subscribeNext:^(id _) {
-					NSTimeInterval currentTime = NSDate.timeIntervalSinceReferenceDate;
-					if (minInterval != nil) expect(currentTime - lastTime).beGreaterThanOrEqualTo(minInterval.doubleValue - marginOfError);
-					if (maxInterval != nil) expect(currentTime - lastTime).beLessThanOrEqualTo(maxInterval.doubleValue + marginOfError);
-					
-					lastTime = currentTime;
+				RACSignal *finalSignal = [[timer take:3] deliverOn:RACScheduler.mainThreadScheduler];
+
+				NSTimeInterval startTime = NSDate.timeIntervalSinceReferenceDate;
+				[finalSignal subscribeNext:^(NSDate *date) {
 					++nextsReceived;
+
+					NSTimeInterval currentTime = date.timeIntervalSinceReferenceDate;
+
+					// Uniformly distribute the expected interval for all
+					// received values. We do this instead of saving a timestamp
+					// because a delayed interval may cause the _next_ value to
+					// send sooner than the interval.
+					NSTimeInterval expectedMinInterval = minInterval.doubleValue * nextsReceived;
+					NSTimeInterval expectedMaxInterval = expectedMinInterval + leeway.doubleValue;
+
+					expect(currentTime - startTime).beGreaterThanOrEqualTo(expectedMinInterval - marginOfError);
+					expect(currentTime - startTime).beLessThanOrEqualTo(expectedMaxInterval + marginOfError);
 				}];
 			}];
 			
@@ -1462,15 +1479,15 @@ describe(@"+interval: and +interval:withLeeway:", ^{
 		});
 		
 		it(@"should fire repeatedly at every interval", ^{
-			testTimerWithSchedulerMinIntervalMaxInterval(timer, RACScheduler.immediateScheduler, @(interval), nil);
+			testTimer(timer, RACScheduler.immediateScheduler, @(interval), @0);
 		});
 		
 		it(@"should work on the main thread scheduler", ^{
-			testTimerWithSchedulerMinIntervalMaxInterval(timer, RACScheduler.mainThreadScheduler, @(interval), nil);
+			testTimer(timer, RACScheduler.mainThreadScheduler, @(interval), @0);
 		});
 		
 		it(@"should work on a background scheduler", ^{
-			testTimerWithSchedulerMinIntervalMaxInterval(timer, [RACScheduler scheduler], @(interval), nil);
+			testTimer(timer, [RACScheduler scheduler], @(interval), @0);
 		});
 	});
 	
@@ -1480,15 +1497,15 @@ describe(@"+interval: and +interval:withLeeway:", ^{
 		});
 		
 		it(@"should fire repeatedly at every interval", ^{
-			testTimerWithSchedulerMinIntervalMaxInterval(timer, RACScheduler.immediateScheduler, @(interval), @(interval + leeway));
+			testTimer(timer, RACScheduler.immediateScheduler, @(interval), @(leeway));
 		});
 		
 		it(@"should work on the main thread scheduler", ^{
-			testTimerWithSchedulerMinIntervalMaxInterval(timer, RACScheduler.mainThreadScheduler, @(interval), @(interval + leeway));
+			testTimer(timer, RACScheduler.mainThreadScheduler, @(interval), @(leeway));
 		});
 		
 		it(@"should work on a background scheduler", ^{
-			testTimerWithSchedulerMinIntervalMaxInterval(timer, [RACScheduler scheduler], @(interval), @(interval + leeway));
+			testTimer(timer, [RACScheduler scheduler], @(interval), @(leeway));
 		});
 	});
 });
@@ -1811,6 +1828,63 @@ describe(@"-collect", ^{
 		[subject sendCompleted];
 		expect(value).to.equal(expected);
 		expect(hasCompleted).to.beTruthy();
+	});
+});
+
+describe(@"-bufferWithTime:", ^{
+	it(@"should buffer nexts and restart buffering if new next arrives", ^{
+		RACSubject *input = [RACSubject subject];
+		
+		RACSignal *bufferedInput = [input bufferWithTime:0.1];
+		
+		__block NSArray *received = nil;
+		
+		[bufferedInput subscribeNext:^(RACTuple *x) {
+			received = [x allObjects];
+		}];
+		
+		[input sendNext:@1];
+		[input sendNext:@2];
+		
+		expect(received).will.equal((@[ @1, @2 ]));
+		
+		[input sendNext:@3];
+		// NSNull should not be converted
+		[input sendNext:NSNull.null];
+		
+		expect(received).will.equal((@[ @3, NSNull.null ]));
+	});
+	
+});
+
+
+describe(@"-buffer:", ^{
+	it(@"should buffer nexts and restart buffering if new next arrives", ^{
+		RACSubject *input = [RACSubject subject];
+		
+		RACSignal *bufferedInput = [input buffer:2];
+
+		__block NSArray *received = nil;
+		
+		[bufferedInput subscribeNext:^(RACTuple *x) {
+			received = [x allObjects];
+		}];
+
+		[input sendNext:@1];
+		[input sendNext:@2];
+		
+		expect(received).to.equal((@[ @1, @2 ]));
+		
+		[input sendNext:@3];
+		[input sendNext:@4];
+		[input sendNext:@5];
+		
+		expect(received).to.equal((@[ @3, @4 ]));
+
+		// NSNull should not be converted
+		[input sendNext:NSNull.null];
+		
+		expect(received).to.equal((@[ @5, NSNull.null ]));
 	});
 });
 

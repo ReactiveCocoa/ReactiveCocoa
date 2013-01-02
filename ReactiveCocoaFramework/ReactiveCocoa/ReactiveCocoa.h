@@ -15,9 +15,8 @@
 #import <ReactiveCocoa/NSSet+RACSequenceAdditions.h>
 #import <ReactiveCocoa/NSString+RACSequenceAdditions.h>
 #import <ReactiveCocoa/RACBehaviorSubject.h>
-#import <ReactiveCocoa/RACCancelableSignal.h>
 #import <ReactiveCocoa/RACCommand.h>
-#import <ReactiveCocoa/RACConnectableSignal.h>
+#import <ReactiveCocoa/RACMulticastConnection.h>
 #import <ReactiveCocoa/RACDisposable.h>
 #import <ReactiveCocoa/RACGroupedSignal.h>
 #import <ReactiveCocoa/RACMaybe.h>

@@ -13,7 +13,7 @@
 // A signal / subscriber interface to a property.
 //
 // Send values to it to update it's value. Subscribers are sent the current
-// value on subscription, and new values as the property changes.
+// value on subscription, and new values as the property is changed.
 @interface RACProperty : RACSignal <RACSubscriber>
 
 // Returns a new property with a starting value of `nil`.

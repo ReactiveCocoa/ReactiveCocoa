@@ -9,6 +9,7 @@
 #import "NSTask+RACSupport.h"
 #import "NSFileHandle+RACSupport.h"
 #import "NSNotificationCenter+RACSupport.h"
+#import "EXTScope.h"
 
 NSString * const NSTaskRACSupportErrorDomain = @"NSTaskRACSupportErrorDomain";
 
@@ -61,17 +62,17 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 - (RACSignal *)rac_runWithScheduler:(RACScheduler *)scheduler {
 	NSParameterAssert(scheduler != nil);
 	
-	__weak NSTask *weakSelf = self;
-	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	@weakify(self);
+	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block uint32_t volatile canceled = 0;
 		RACDisposable *disposable = [[self rac_launchWithScheduler:scheduler cancelationToken:&canceled] subscribe:subscriber];
 		return [RACDisposable disposableWithBlock:^{
-			NSTask *strongSelf = weakSelf;
+			@strongify(self);
 			OSAtomicOr32Barrier(1, &canceled);
-			[strongSelf terminate];
+			[self terminate];
 			[disposable dispose];
 		}];
-	}];
+	}] replayLazily];
 }
 
 - (RACSignal *)rac_launchWithScheduler:(RACScheduler *)scheduler cancelationToken:(volatile uint32_t *)cancelationToken {

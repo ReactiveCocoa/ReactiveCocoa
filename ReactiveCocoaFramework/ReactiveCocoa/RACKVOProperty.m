@@ -17,9 +17,6 @@
 #import "NSObject+RACPropertySubscribing.h"
 #import "EXTScope.h"
 
-// The key for RACKVOBindings associated to an object.
-static void *RACKVOBindingsKey = &RACKVOBindingsKey;
-
 // Name of exceptions thrown by RACKVOBinding when an object calls
 // -didChangeValueForKey: without a corresponding -willChangeValueForKey:.
 static NSString * const RACKVOBindingExceptionName = @"RACKVOBinding exception";
@@ -134,43 +131,6 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 
 @end
 
-@interface NSObject (RACKVOBinding)
-
-// The set of bindings wrapping the receiver. Should only be accessed while
-// synchronized on self.
-@property (nonatomic, strong) NSMutableSet *RACKVOBindings;
-
-// Adds `binding` to the receiver's binding..
-- (void)rac_addBinding:(RACKVOBinding *)binding;
-
-// Removes `binding` from the receiver's bindings.
-- (void)rac_removeBinding:(RACKVOBinding *)binding;
-
-// Calls `-targetWillChangeValue` on all the receiver's bindings.
-- (void)rac_customWillChangeValueForKey:(NSString *)key;
-
-// Calls `-targetDidChangeValue` on all the receiver's bindings.
-- (void)rac_customDidChangeValueForKey:(NSString *)key;
-
-@end
-
-// Prepares the given class for binding by swizzling willChangeValueForKey: and
-// didChangeValueForKey:. Does nothing if the class has already been prepared.
-static void prepareClassForBindingIfNeeded(Class class) {
-	static dispatch_once_t onceToken;
-	static NSMutableSet *swizzledClasses = nil;
-	dispatch_once(&onceToken, ^{
-		swizzledClasses = [[NSMutableSet alloc] init];
-	});
-	NSString *className = NSStringFromClass(class);
-	@synchronized(swizzledClasses) {
-		if ([swizzledClasses containsObject:className]) return;
-		RACSwizzle(class, @selector(willChangeValueForKey:), @selector(rac_customWillChangeValueForKey:));
-		RACSwizzle(class, @selector(didChangeValueForKey:), @selector(rac_customDidChangeValueForKey:));
-		[swizzledClasses addObject:className];
-	}
-}
-
 // Given a key path, returns a tuple of the first key in the key path, and the
 // remaining key path, if any.
 static RACTuple *keyAndRemainderForKeyPath(NSString *keyPath) {
@@ -229,14 +189,20 @@ static RACTuple *keyAndRemainderForKeyPath(NSString *keyPath) {
 	_exposedSignal = exposedSignal;
 	_exposedSignalSubject = [RACSubject subject];
 	_exposedSubscriberSubject = [RACSubject subject];
-	prepareClassForBindingIfNeeded([_target class]);
-	[_target rac_addBinding:self];
 	// This KVO observer doesn't do anything, but we have to add it or
 	// `-willChangeValueForKey:` and `-didChangeValueForKey:` might not get
 	// called.
 	// The observer is then removed when the binding is disposed, or when either
 	// the target or the binding deallocate.
-	_observer = [_target rac_addObserver:self forKeyPath:key options:0 queue:nil block:nil];
+	@weakify(self);
+	_observer = [_target rac_addObserver:self forKeyPath:key options:NSKeyValueObservingOptionPrior queue:nil block:^(id observer, NSDictionary *change) {
+		@strongify(self);
+		if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
+			[self targetWillChangeValue];
+		} else {
+			[self targetDidChangeValue];
+		}
+	}];
 	[_target rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 		[self dispose];
 	}]];
@@ -263,7 +229,6 @@ static RACTuple *keyAndRemainderForKeyPath(NSString *keyPath) {
 		[self.exposedSignalSubject sendCompleted];
 		[self.exposedSubscriberSubject sendCompleted];
 		[self.target rac_removeObserverWithIdentifier:self.observer];
-		[self.target rac_removeBinding:self];
 	}
 }
 
@@ -366,58 +331,6 @@ static RACTuple *keyAndRemainderForKeyPath(NSString *keyPath) {
 		@strongify(self);
 		[self.exposedSignalSubject sendNext:x];
 	}];
-}
-
-@end
-
-@implementation NSObject (RACKVOBinding)
-
-- (NSMutableSet *)RACKVOBindings {
-	return objc_getAssociatedObject(self, RACKVOBindingsKey);
-}
-
-- (void)setRACKVOBindings:(NSMutableSet *)RACKVOBindings {
-	objc_setAssociatedObject(self, RACKVOBindingsKey, RACKVOBindings, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (void)rac_addBinding:(RACKVOBinding *)binding {
-	prepareClassForBindingIfNeeded([self class]);
-	@synchronized(self) {
-		if (!self.RACKVOBindings) self.RACKVOBindings = [NSMutableSet set];
-		[self.RACKVOBindings addObject:binding];
-	}
-}
-
-- (void)rac_removeBinding:(RACKVOBinding *)binding {
-	@synchronized(self) {
-		[self.RACKVOBindings removeObject:binding];
-	}
-}
-
-- (void)rac_customWillChangeValueForKey:(NSString *)key {
-	NSSet *bindings = nil;
-	@synchronized(self) {
-		bindings = [self.RACKVOBindings copy];
-	}
-	for (RACKVOBinding *binding in bindings) {
-    if (binding.target == self && [binding.key isEqualToString:key]) {
-			[binding targetWillChangeValue];
-		}
-	}
-	[self rac_customWillChangeValueForKey:key];
-}
-
-- (void)rac_customDidChangeValueForKey:(NSString *)key {
-	NSSet *bindings = nil;
-	@synchronized(self) {
-		bindings = [self.RACKVOBindings copy];
-	}
-	for (RACKVOBinding *binding in bindings) {
-    if (binding.target == self && [binding.key isEqualToString:key]) {
-			[binding targetDidChangeValue];
-		}
-	}
-	[self rac_customDidChangeValueForKey:key];
 }
 
 @end

@@ -92,6 +92,37 @@ describe(@"non-empty sequences", ^{
 	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values }, nil);
 });
 
+describe(@"eager sequences", ^{
+	__block RACSequence *lazySequence;
+	__block BOOL headInvoked;
+	__block BOOL tailInvoked;
+	NSArray *values = @[ @0, @1, @2 ];
+	
+	before(^{
+		headInvoked = NO;
+		tailInvoked = NO;
+		
+		lazySequence = [RACSequence sequenceWithHeadBlock:^{
+			headInvoked = YES;
+			return @0;
+		} tailBlock:^{
+			tailInvoked = YES;
+			return [RACSequence return:@1];
+		}];
+		
+		expect(lazySequence).notTo.beNil();
+	});
+	
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: lazySequence.eagerSequence, RACSequenceExpectedValues: values }, nil);
+	
+	it(@"should evaluate all values immediately", ^{
+		RACSequence *eagerSequence = lazySequence.eagerSequence;
+		expect(headInvoked).to.beTruthy();
+		expect(tailInvoked).to.beTruthy();
+		expect(eagerSequence.array).to.equal(values);
+	});
+});
+
 describe(@"-take:", ^{
 	it(@"should complete take: without needing the head of the second item in the sequence", ^{
 		__block NSUInteger valuesTaken = 0;

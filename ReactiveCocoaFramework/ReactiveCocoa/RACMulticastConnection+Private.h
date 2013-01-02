@@ -12,6 +12,6 @@
 
 @interface RACMulticastConnection ()
 
-+ (instancetype)connectionWithSourceSignal:(RACSignal *)source subject:(RACSubject *)subject;
+- (id)initWithSourceSignal:(RACSignal *)source subject:(RACSubject *)subject;
 
 @end

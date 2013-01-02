@@ -926,7 +926,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 - (RACMulticastConnection *)multicast:(RACSubject *)subject {
-	RACMulticastConnection *connection = [RACMulticastConnection connectionWithSourceSignal:self subject:subject];
+	RACMulticastConnection *connection = [[RACMulticastConnection alloc] initWithSourceSignal:self subject:subject];
 	connection.signal.name = [NSString stringWithFormat:@"[%@] -multicast: %@", self.name, subject];
 	return connection;
 }

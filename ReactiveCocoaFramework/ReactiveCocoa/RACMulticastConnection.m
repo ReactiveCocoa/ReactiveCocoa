@@ -25,19 +25,17 @@
 
 #pragma mark Lifecycle
 
-+ (instancetype)connectionWithSourceSignal:(RACSignal *)source subject:(RACSubject *)subject {
-	RACMulticastConnection *signal = [[self alloc] init];
-	signal->_sourceSignal = source;
-	signal->_signal = subject;
-	return signal;
-}
+- (id)initWithSourceSignal:(RACSignal *)source subject:(RACSubject *)subject {
+	NSParameterAssert(source != nil);
+	NSParameterAssert(subject != nil);
 
-- (id)init {
 	self = [super init];
 	if (self == nil) return nil;
 
 	_disposable = [RACCompoundDisposable compoundDisposable];
-
+	_sourceSignal = source;
+	_signal = subject;
+	
 	return self;
 }
 

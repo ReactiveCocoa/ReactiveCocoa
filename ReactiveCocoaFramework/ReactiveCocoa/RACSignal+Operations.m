@@ -932,9 +932,10 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 - (RACSignal *)replay {
-	RACMulticastConnection *connection = [self multicast:[RACReplaySubject subject]];
+	RACReplaySubject *subject = [RACReplaySubject subject];
+	RACMulticastConnection *connection = [self multicast:subject];
+	subject.name = [NSString stringWithFormat:@"[%@] -replay", self.name];
 	[connection connect];
-	connection.signal.name = [NSString stringWithFormat:@"[%@] -replay", self.name];
 	return connection.signal;
 }
 

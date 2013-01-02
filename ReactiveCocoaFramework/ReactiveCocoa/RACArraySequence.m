@@ -26,7 +26,7 @@
 
 #pragma mark Lifecycle
 
-+ (RACSequence *)sequenceWithArray:(NSArray *)array offset:(NSUInteger)offset {
++ (instancetype)sequenceWithArray:(NSArray *)array offset:(NSUInteger)offset {
 	NSParameterAssert(offset <= array.count);
 
 	if (offset == array.count) return self.empty;

@@ -92,6 +92,13 @@ describe(@"non-empty sequences", ^{
 	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values }, nil);
 });
 
+describe(@"eager sequences", ^{
+	RACSequence *sequence = [[[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]] eagerSequence];
+	NSArray *values = @[ @0, @1, @2 ];
+	
+	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values }, nil);
+});
+
 describe(@"-take:", ^{
 	it(@"should complete take: without needing the head of the second item in the sequence", ^{
 		__block NSUInteger valuesTaken = 0;

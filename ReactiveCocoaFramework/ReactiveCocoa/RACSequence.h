@@ -49,6 +49,16 @@
 // they're evaluated.
 - (RACSignal *)signalWithScheduler:(RACScheduler *)scheduler;
 
+// Returns a sequence that is equivalent to the receiver, but whose values are
+// computed eagerly as early as possible. Sequences derived from an eager
+// sequence are eager by default. Newly created sequences are lazy by default.
+- (RACSequence *)eagerSequence;
+
+// Returns a sequence that is equivalent to the receiver, but whose values are
+// computed lazily as late as possible. Sequences derived from a lazy sequence
+// are lazy by default. Newly created sequences are lazy by default.
+- (RACSequence *)lazySequence;
+
 // Creates a sequence that dynamically generates its values.
 //
 // headBlock - Invoked the first time -head is accessed.

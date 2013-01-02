@@ -23,11 +23,15 @@
 //
 // Examples
 //
-//   RACTupleUnpack(NSString *string) = [RACTuple tupleWithObjects:@"foobar", nil];
-//   NSLog(@"string: %@", str);
+//   RACTupleUnpack(NSString *string, NSNumber *num) = [RACTuple tupleWithObjects:@"foo", @5, nil];
+//   NSLog(@"string: %@", string);
+//   NSLog(@"num: %@", num);
 //
-//   RACTupleUnpack(NSString *secondString, NSNumber *num) = [RACTuple tupleWithObjects:@"foo", @5, nil];
-//   NSLog(@"secondString: %@", secondString);
+//   /* The above is equivalent to: */
+//   RACTuple *t = [RACTuple tupleWithObjects:@"foo", @5, nil];
+//   NSString *string = t[0];
+//   NSNumber *num = t[1];
+//   NSLog(@"string: %@", string);
 //   NSLog(@"num: %@", num);
 #define RACTupleUnpack(...) \
         RACTupleUnpack_(__VA_ARGS__)
@@ -113,10 +117,10 @@
     metamacro_concat(metamacro_concat(RACTupleUnpack, __LINE__), metamacro_concat(_var, INDEX))
 
 #define RACTupleUnpack_decl(INDEX, ARG) \
-    __unsafe_unretained id RACTupleUnpack_decl_name(INDEX);
+    __autoreleasing id RACTupleUnpack_decl_name(INDEX);
 
 #define RACTupleUnpack_assign(INDEX, ARG) \
-    __autoreleasing ARG = RACTupleUnpack_decl_name(INDEX);
+    __unsafe_unretained ARG = RACTupleUnpack_decl_name(INDEX);
 
 #define RACTupleUnpack_value(INDEX, ARG) \
     [NSValue valueWithPointer:&RACTupleUnpack_decl_name(INDEX)],

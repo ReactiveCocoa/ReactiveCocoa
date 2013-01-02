@@ -23,6 +23,8 @@
 #import "RACTuple.h"
 #import "RACUnit.h"
 
+#define RACSignalTestError [NSError errorWithDomain:@"foo" code:100 userInfo:nil]
+
 static NSString * const RACSignalMergeConcurrentCompletionExampleGroup = @"RACSignalMergeConcurrentCompletionExampleGroup";
 static NSString * const RACSignalMaxConcurrent = @"RACSignalMaxConcurrent";
 SharedExampleGroupsBegin(mergeConcurrentCompletionName);
@@ -105,6 +107,14 @@ describe(@"RACStream", ^{
 		RACStreamExamplesVerifyValuesBlock: verifyValues,
 		RACStreamExamplesInfiniteStream: infiniteSignal
 	}, nil);
+});
+
+it(@"+createSignal:name: should set the name", ^{
+	RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+		return nil;
+	} name:@"foo %i", 5];
+
+	expect(signal.name).to.equal(@"foo 5");
 });
 
 describe(@"subscribing", ^{
@@ -227,7 +237,7 @@ describe(@"subscribing", ^{
 });
 
 describe(@"disposal", ^{
-	it(@"should dispose of the disposable returned from the didSubscribe block", ^{
+	it(@"should dispose of the didSubscribe disposable", ^{
 		__block BOOL innerDisposed = NO;
 		RACSignal *signal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 			return [RACDisposable disposableWithBlock:^{
@@ -235,16 +245,27 @@ describe(@"disposal", ^{
 			}];
 		}];
 
-		__block RACDisposable *disposable = [signal subscribeNext:^(id x) {}];
+		expect(innerDisposed).to.beFalsy();
+
+		RACDisposable *disposable = [signal subscribeNext:^(id x) {}];
+		expect(disposable).notTo.beNil();
+
 		[disposable dispose];
-
 		expect(innerDisposed).to.beTruthy();
+	});
 
-		innerDisposed = NO;
-		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-			disposable = [signal subscribeNext:^(id x) {}];
+	it(@"should dispose of the didSubscribe disposable asynchronously", ^{
+		__block BOOL innerDisposed = NO;
+		RACSignal *signal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			return [RACDisposable disposableWithBlock:^{
+				innerDisposed = YES;
+			}];
+		}];
+
+		[[RACScheduler scheduler] schedule:^{
+			RACDisposable *disposable = [signal subscribeNext:^(id x) {}];
 			[disposable dispose];
-		});
+		}];
 
 		expect(innerDisposed).will.beTruthy();
 	});
@@ -338,9 +359,8 @@ describe(@"querying", ^{
 	});
 	
 	it(@"should return error with -firstOrDefault:success:error:", ^{
-		NSError *testError = [NSError errorWithDomain:@"foo" code:100 userInfo:nil];
 		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
-			[subscriber sendError:testError];
+			[subscriber sendError:RACSignalTestError];
 			return nil;
 		}];
 
@@ -350,16 +370,15 @@ describe(@"querying", ^{
 		__block NSError *error = nil;
 		expect([signal firstOrDefault:@5 success:&success error:&error]).to.equal(@5);
 		expect(success).to.beFalsy();
-		expect(error).to.equal(testError);
+		expect(error).to.equal(RACSignalTestError);
 	});
 
 	it(@"shouldn't crash when returning an error from a background scheduler", ^{
-		static NSString * const errorDomain = @"foo";
-		static const NSInteger errorCode = 100;
 		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 			[[RACScheduler scheduler] schedule:^{
-				[subscriber sendError:[NSError errorWithDomain:errorDomain code:errorCode userInfo:nil]];
+				[subscriber sendError:RACSignalTestError];
 			}];
+
 			return nil;
 		}];
 
@@ -369,8 +388,7 @@ describe(@"querying", ^{
 		__block NSError *error = nil;
 		expect([signal firstOrDefault:@5 success:&success error:&error]).to.equal(@5);
 		expect(success).to.beFalsy();
-		expect(error.domain).to.equal(errorDomain);
-		expect(error.code).to.equal(errorCode);
+		expect(error).to.equal(RACSignalTestError);
 	});
 });
 
@@ -386,7 +404,7 @@ describe(@"continuation", ^{
 			numberOfSubscriptions++;
 			
 			[subscriber sendNext:@"1"];
-			[subscriber sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+			[subscriber sendError:RACSignalTestError];
 			[subscriber sendCompleted];
 			return nil;
 		}];
@@ -409,7 +427,7 @@ describe(@"continuation", ^{
 		__block NSUInteger numberOfSubscriptions = 0;
 		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			if(numberOfSubscriptions > 2) {
-				[subscriber sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+				[subscriber sendError:RACSignalTestError];
 				return nil;
 			}
 			
@@ -417,7 +435,7 @@ describe(@"continuation", ^{
 			
 			[subscriber sendNext:@"1"];
 			[subscriber sendCompleted];
-			[subscriber sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+			[subscriber sendError:RACSignalTestError];
 			return nil;
 		}];
 		
@@ -493,7 +511,7 @@ describe(@"+combineLatest:", ^{
 			subscriber2 = subscriber;
 			return nil;
 		}],
-		combined = [RACSignal combineLatest:@[ signal1, signal2 ]];
+		combined = [RACSignal combineLatest:@[ signal1, signal2 ].objectEnumerator];
 	});
 	
 	it(@"should yield when all sources yield", ^{
@@ -581,7 +599,7 @@ describe(@"+combineLatest:", ^{
 			gotError = YES;
 		}];
 		
-		[subscriber1 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+		[subscriber1 sendError:RACSignalTestError];
 		
 		expect(gotError).to.beTruthy();
 	});
@@ -593,14 +611,14 @@ describe(@"+combineLatest:", ^{
 			errorCount++;
 		}];
 		
-		[subscriber1 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
-		[subscriber2 sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+		[subscriber1 sendError:RACSignalTestError];
+		[subscriber2 sendError:RACSignalTestError];
 		
 		expect(errorCount).to.equal(1);
 	});
 
 	it(@"should complete immediately when not given any signals", ^{
-		RACSignal *signal = [RACSignal combineLatest:@[]];
+		RACSignal *signal = [RACSignal combineLatest:@[].objectEnumerator];
 
 		__block BOOL completed = NO;
 		[signal subscribeCompleted:^{
@@ -1056,7 +1074,7 @@ describe(@"+merge:", ^{
 	beforeEach(^{
 		sub1 = [RACSubject subject];
 		sub2 = [RACSubject subject];
-		merged = [RACSignal merge:@[ sub1, sub2 ]];
+		merged = [RACSignal merge:@[ sub1, sub2 ].objectEnumerator];
 	});
 
 	it(@"should send all values from both signals", ^{
@@ -1080,10 +1098,8 @@ describe(@"+merge:", ^{
 			errorReceived = error;
 		}];
 
-		NSError *error = [NSError errorWithDomain:@"" code:0 userInfo:nil];
-		[sub1 sendError:error];
-
-		expect(errorReceived).to.equal(error);
+		[sub1 sendError:RACSignalTestError];
+		expect(errorReceived).to.equal(RACSignalTestError);
 	});
 
 	it(@"should complete only after both signals complete", ^{
@@ -1110,7 +1126,7 @@ describe(@"+merge:", ^{
 	});
 
 	it(@"should complete immediately when not given any signals", ^{
-		RACSignal *signal = [RACSignal merge:@[]];
+		RACSignal *signal = [RACSignal merge:@[].objectEnumerator];
 
 		__block BOOL completed = NO;
 		[signal subscribeCompleted:^{
@@ -1254,13 +1270,38 @@ describe(@"-flatten:", ^{
 });
 
 describe(@"-switch", ^{
-	it(@"should send values from the most recent signal", ^{
-		RACSubject *subject = [RACSubject subject];
-		NSMutableArray *values = [NSMutableArray array];
-		[[subject switch] subscribeNext:^(id x) {
-			[values addObject:x];
-		}];
+	__block RACSubject *subject;
 
+	__block NSMutableArray *values;
+	__block NSError *lastError = nil;
+	__block BOOL completed = NO;
+
+	beforeEach(^{
+		subject = [RACSubject subject];
+
+		values = [NSMutableArray array];
+		lastError = nil;
+		completed = NO;
+
+		[[subject switch] subscribeNext:^(id x) {
+			expect(lastError).to.beNil();
+			expect(completed).to.beFalsy();
+
+			[values addObject:x];
+		} error:^(NSError *error) {
+			expect(lastError).to.beNil();
+			expect(completed).to.beFalsy();
+
+			lastError = error;
+		} completed:^{
+			expect(lastError).to.beNil();
+			expect(completed).to.beFalsy();
+
+			completed = YES;
+		}];
+	});
+
+	it(@"should send values from the most recent signal", ^{
 		[subject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendNext:@2];
@@ -1270,7 +1311,6 @@ describe(@"-switch", ^{
 		[subject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@3];
 			[subscriber sendNext:@4];
-			[subscriber sendCompleted];
 			return nil;
 		}]];
 
@@ -1278,19 +1318,32 @@ describe(@"-switch", ^{
 		expect(values).to.equal(expected);
 	});
 
+	it(@"should send errors from the most recent signal", ^{
+		[subject sendNext:[RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+			return nil;
+		}]];
+
+		expect(lastError).notTo.beNil();
+	});
+
+	it(@"should send completed only when the switching signal completes", ^{
+		[subject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[subscriber sendCompleted];
+			return nil;
+		}]];
+
+		expect(completed).to.beFalsy();
+
+		[subject sendCompleted];
+		expect(completed).to.beTruthy();
+	});
+
 	it(@"should accept nil signals", ^{
-		RACSubject *subject = [RACSubject subject];
-		NSMutableArray *values = [NSMutableArray array];
-		[[subject switch] subscribeNext:^(id x) {
-			[values addObject:x];
-		}];
-
 		[subject sendNext:nil];
-
 		[subject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendNext:@2];
-			[subscriber sendCompleted];
 			return nil;
 		}]];
 
@@ -1299,29 +1352,161 @@ describe(@"-switch", ^{
 	});
 });
 
-describe(@"+interval:", ^{
-	static const NSTimeInterval interval = 0.1;
-	void (^expectItToWorkWithScheduler)(RACScheduler *) = ^(RACScheduler *scheduler) {
-		__block volatile int32_t nextsReceived = 0;
-		[scheduler schedule:^{
-			__block NSTimeInterval lastTime = NSDate.timeIntervalSinceReferenceDate;
-			[[[RACSignal interval:interval] take:3] subscribeNext:^(id _) {
-				NSTimeInterval currentTime = NSDate.timeIntervalSinceReferenceDate;
-				expect(currentTime - lastTime).beGreaterThanOrEqualTo(interval);
+describe(@"+if:then:else", ^{
+	__block RACSubject *boolSubject;
+	__block RACSubject *trueSubject;
+	__block RACSubject *falseSubject;
 
-				OSAtomicAdd32Barrier(1, &nextsReceived);
-			}];
+	__block NSMutableArray *values;
+	__block NSError *lastError = nil;
+	__block BOOL completed = NO;
+
+	beforeEach(^{
+		boolSubject = [RACSubject subject];
+		trueSubject = [RACSubject subject];
+		falseSubject = [RACSubject subject];
+
+		values = [NSMutableArray array];
+		lastError = nil;
+		completed = NO;
+
+		[[RACSignal if:boolSubject then:trueSubject else:falseSubject] subscribeNext:^(id x) {
+			expect(lastError).to.beNil();
+			expect(completed).to.beFalsy();
+
+			[values addObject:x];
+		} error:^(NSError *error) {
+			expect(lastError).to.beNil();
+			expect(completed).to.beFalsy();
+
+			lastError = error;
+		} completed:^{
+			expect(lastError).to.beNil();
+			expect(completed).to.beFalsy();
+
+			completed = YES;
 		}];
-
-		expect(nextsReceived).will.equal(3);
-	};
-
-	it(@"should fire repeatedly at every interval", ^{
-		expectItToWorkWithScheduler(RACScheduler.mainThreadScheduler);
 	});
 
-	it(@"should work on a background scheduler", ^{
-		expectItToWorkWithScheduler([RACScheduler scheduler]);
+	it(@"should not send any values before a boolean is sent", ^{
+		[trueSubject sendNext:RACUnit.defaultUnit];
+		[falseSubject sendNext:RACUnit.defaultUnit];
+
+		expect(values).to.equal(@[]);
+		expect(lastError).to.beNil();
+		expect(completed).to.beFalsy();
+	});
+
+	it(@"should send events based on the latest boolean", ^{
+		[boolSubject sendNext:@YES];
+
+		[trueSubject sendNext:@"foo"];
+		[falseSubject sendNext:@"buzz"];
+		[trueSubject sendNext:@"bar"];
+
+		NSArray *expected = @[ @"foo", @"bar" ];
+		expect(values).to.equal(expected);
+		expect(lastError).to.beNil();
+		expect(completed).to.beFalsy();
+
+		[boolSubject sendNext:@NO];
+
+		[trueSubject sendNext:@"baz"];
+		[falseSubject sendNext:@"buzz"];
+		[trueSubject sendNext:@"barfoo"];
+
+		expected = @[ @"foo", @"bar", @"buzz" ];
+		expect(values).to.equal(expected);
+		expect(lastError).to.beNil();
+		expect(completed).to.beFalsy();
+
+		[trueSubject sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+		expect(lastError).to.beNil();
+
+		[falseSubject sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+		expect(lastError).notTo.beNil();
+	});
+
+	it(@"should send completed when the BOOL signal completes", ^{
+		[boolSubject sendNext:@YES];
+		[trueSubject sendNext:@"foo"];
+		[boolSubject sendCompleted];
+
+		expect(values).to.equal(@[ @"foo" ]);
+		expect(completed).to.beTruthy();
+	});
+});
+
+describe(@"+interval: and +interval:withLeeway:", ^{
+	static const NSTimeInterval interval = 0.1;
+	static const NSTimeInterval leeway = 0.2;
+	static const NSTimeInterval marginOfError = 0.01;
+	__block RACSignal *timer = nil;
+	
+	__block void (^testTimer)(RACSignal *, RACScheduler *, NSNumber *, NSNumber *) = nil;
+	
+	before(^{
+		testTimer = [^(RACSignal *timer, RACScheduler *scheduler, NSNumber *minInterval, NSNumber *leeway) {
+			__block NSUInteger nextsReceived = 0;
+			[scheduler schedule:^{
+				RACSignal *finalSignal = [[timer take:3] deliverOn:RACScheduler.mainThreadScheduler];
+
+				NSTimeInterval startTime = NSDate.timeIntervalSinceReferenceDate;
+				[finalSignal subscribeNext:^(NSDate *date) {
+					++nextsReceived;
+
+					NSTimeInterval currentTime = date.timeIntervalSinceReferenceDate;
+
+					// Uniformly distribute the expected interval for all
+					// received values. We do this instead of saving a timestamp
+					// because a delayed interval may cause the _next_ value to
+					// send sooner than the interval.
+					NSTimeInterval expectedMinInterval = minInterval.doubleValue * nextsReceived;
+					NSTimeInterval expectedMaxInterval = expectedMinInterval + leeway.doubleValue;
+
+					expect(currentTime - startTime).beGreaterThanOrEqualTo(expectedMinInterval - marginOfError);
+					expect(currentTime - startTime).beLessThanOrEqualTo(expectedMaxInterval + marginOfError);
+				}];
+			}];
+			
+			expect(nextsReceived).will.equal(3);
+		} copy];
+	});
+	
+	describe(@"+interval", ^{
+		before(^{
+			timer = [RACSignal interval:interval];
+		});
+		
+		it(@"should fire repeatedly at every interval", ^{
+			testTimer(timer, RACScheduler.immediateScheduler, @(interval), @0);
+		});
+		
+		it(@"should work on the main thread scheduler", ^{
+			testTimer(timer, RACScheduler.mainThreadScheduler, @(interval), @0);
+		});
+		
+		it(@"should work on a background scheduler", ^{
+			testTimer(timer, [RACScheduler scheduler], @(interval), @0);
+		});
+	});
+	
+	describe(@"+interval:withLeeway:", ^{
+		before(^{
+			timer = [RACSignal interval:interval withLeeway:leeway];
+		});
+		
+		it(@"should fire repeatedly at every interval", ^{
+			testTimer(timer, RACScheduler.immediateScheduler, @(interval), @(leeway));
+		});
+		
+		it(@"should work on the main thread scheduler", ^{
+			testTimer(timer, RACScheduler.mainThreadScheduler, @(interval), @(leeway));
+		});
+		
+		it(@"should work on a background scheduler", ^{
+			testTimer(timer, [RACScheduler scheduler], @(interval), @(leeway));
+		});
 	});
 });
 
@@ -1394,68 +1579,93 @@ it(@"should complete take: even if the original signal doesn't", ^{
 });
 
 describe(@"+zip:reduce:", ^{
-	__block RACSignal *errorAfterTwo = nil;
-	__block RACSignal *errorAfterThree = nil;
-	__block RACSignal *completeAfterTwo = nil;
-	__block RACSignal *completeAfterThree = nil;
+	__block RACSubject *subject1 = nil;
+	__block RACSubject *subject2 = nil;
+	__block BOOL hasSentError = NO;
+	__block BOOL hasSentCompleted = NO;
+	__block RACDisposable *disposable = nil;
+	__block void (^send2NextAndErrorTo1)(void) = nil;
+	__block void (^send3NextAndErrorTo1)(void) = nil;
+	__block void (^send2NextAndCompletedTo2)(void) = nil;
+	__block void (^send3NextAndCompletedTo2)(void) = nil;
 	
 	before(^{
-		errorAfterTwo = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendNext:@1];
-			[subscriber sendNext:@2];
-			[subscriber sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
-			return nil;
-		}];
-		errorAfterThree = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendNext:@1];
-			[subscriber sendNext:@2];
-			[subscriber sendNext:@3];
-			[subscriber sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
-			return nil;
-		}];
-		completeAfterTwo = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendNext:@1];
-			[subscriber sendNext:@2];
-			[subscriber sendCompleted];
-			return nil;
-		}];
-		completeAfterThree = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendNext:@1];
-			[subscriber sendNext:@2];
-			[subscriber sendNext:@3];
-			[subscriber sendCompleted];
-			return nil;
+		send2NextAndErrorTo1 = [^{
+			[subject1 sendNext:@1];
+			[subject1 sendNext:@2];
+			[subject1 sendError:RACSignalTestError];
+		} copy];
+		send3NextAndErrorTo1 = [^{
+			[subject1 sendNext:@1];
+			[subject1 sendNext:@2];
+			[subject1 sendNext:@3];
+			[subject1 sendError:RACSignalTestError];
+		} copy];
+		send2NextAndCompletedTo2 = [^{
+			[subject2 sendNext:@1];
+			[subject2 sendNext:@2];
+			[subject2 sendCompleted];
+		} copy];
+		send3NextAndCompletedTo2 = [^{
+			[subject2 sendNext:@1];
+			[subject2 sendNext:@2];
+			[subject2 sendNext:@3];
+			[subject2 sendCompleted];
+		} copy];
+		subject1 = [RACSubject subject];
+		subject2 = [RACSubject subject];
+		hasSentError = NO;
+		hasSentCompleted = NO;
+		disposable = [[RACSignal zip:@[ subject1, subject2 ] reduce:nil] subscribeError:^(NSError *error) {
+			hasSentError = YES;
+		} completed:^{
+			hasSentCompleted = YES;
 		}];
 	});
 	
-	it(@"should ignore errors that occur after +zip:reduce: finishes", ^{
-		__block NSError *receivedError = nil;
-		
-		[[RACSignal zip:@[ errorAfterThree, completeAfterTwo ] reduce:nil] subscribeError:^(NSError *error) {
-			receivedError = error;
-		}];
-		
-		expect(receivedError).to.beNil();
+	after(^{
+		[disposable dispose];
 	});
 	
-	it(@"should send errors that occur before +zip:reduce: finishes", ^{
-		__block NSError *receivedError = nil;
+	it(@"should complete as soon as no new zipped values are possible", ^{
+		[subject1 sendNext:@1];
+		[subject2 sendNext:@1];
+		expect(hasSentCompleted).to.beFalsy();
 		
-		[[RACSignal zip:@[ errorAfterTwo, completeAfterThree ] reduce:nil] subscribeError:^(NSError *error) {
-			receivedError = error;
-		}];
+		[subject1 sendNext:@2];
+		[subject1 sendCompleted];
+		expect(hasSentCompleted).to.beFalsy();
 		
-		expect(receivedError).notTo.beNil();
+		[subject2 sendNext:@2];
+		expect(hasSentCompleted).to.beTruthy();
 	});
 	
-	it(@"should ignore errors if +zip:reduce: would have finished regardless", ^{
-		__block NSError *receivedError = nil;
-		
-		[[RACSignal zip:@[ errorAfterThree, completeAfterThree ] reduce:nil] subscribeError:^(NSError *error) {
-			receivedError = error;
-		}];
-		
-		expect(receivedError).to.beNil();
+	it(@"should forward errors sent earlier than (time-wise) and before (position-wise) a complete", ^{
+		send2NextAndErrorTo1();
+		send3NextAndCompletedTo2();
+		expect(hasSentError).to.beTruthy();
+		expect(hasSentCompleted).to.beFalsy();
+	});
+	
+	it(@"should forward errors sent earlier than (time-wise) and after (position-wise) a complete", ^{
+		send3NextAndErrorTo1();
+		send2NextAndCompletedTo2();
+		expect(hasSentError).to.beTruthy();
+		expect(hasSentCompleted).to.beFalsy();
+	});
+	
+	it(@"should forward errors sent later than (time-wise) and before (position-wise) a complete", ^{
+		send3NextAndCompletedTo2();
+		send2NextAndErrorTo1();
+		expect(hasSentError).to.beTruthy();
+		expect(hasSentCompleted).to.beFalsy();
+	});
+	
+	it(@"should ignore errors sent later than (time-wise) and after (position-wise) a complete", ^{
+		send2NextAndCompletedTo2();
+		send3NextAndErrorTo1();
+		expect(hasSentError).to.beFalsy();
+		expect(hasSentCompleted).to.beTruthy();
 	});
 	
 	it(@"should handle signals sending values unevenly", ^{
@@ -1514,7 +1724,7 @@ describe(@"+zip:reduce:", ^{
 		[c sendNext:@3];
 		[c sendNext:@4];
 		[c sendNext:@5];
-		[c sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+		[c sendError:RACSignalTestError];
 		
 		// a: [===......]
 		// b: [====C....]
@@ -1522,7 +1732,7 @@ describe(@"+zip:reduce:", ^{
 		
 		expectedValues = @[ @"111", @"222", @"333" ];
 		expect(receivedValues).to.equal(expectedValues);
-		expect(receivedError).to.beNil();
+		expect(receivedError).to.equal(RACSignalTestError);
 		expect(hasCompleted).to.beFalsy();
 		
 		[a sendNext:@4];
@@ -1534,10 +1744,10 @@ describe(@"+zip:reduce:", ^{
 		// b: [====C....]
 		// c: [=====E...]
 		
-		expectedValues = @[ @"111", @"222", @"333", @"444" ];
+		expectedValues = @[ @"111", @"222", @"333" ];
 		expect(receivedValues).to.equal(expectedValues);
-		expect(receivedError).to.beNil();
-		expect(hasCompleted).to.beTruthy();
+		expect(receivedError).to.equal(RACSignalTestError);
+		expect(hasCompleted).to.beFalsy();
 	});
 	
 	it(@"should handle multiples of the same side-effecting signal", ^{
@@ -1671,6 +1881,65 @@ describe(@"-buffer", ^{
 		[input sendNext:@6];
 		
 		expect(received).to.equal((@[@5, @6]));
+	});
+});
+
+describe(@"-concat", ^{
+	__block RACSubject *subject;
+
+	__block RACSignal *oneSignal;
+	__block RACSignal *twoSignal;
+	__block RACSignal *threeSignal;
+
+	__block RACSignal *errorSignal;
+	__block RACSignal *completedSignal;
+
+	beforeEach(^{
+		subject = [RACReplaySubject subject];
+
+		oneSignal = [RACSignal return:@1];
+		twoSignal = [RACSignal return:@2];
+		threeSignal = [RACSignal return:@3];
+
+		errorSignal = [RACSignal error:RACSignalTestError];
+		completedSignal = RACSignal.empty;
+	});
+
+	it(@"should concatenate the values of inner signals", ^{
+		[subject sendNext:oneSignal];
+		[subject sendNext:twoSignal];
+		[subject sendNext:completedSignal];
+		[subject sendNext:threeSignal];
+
+		NSMutableArray *values = [NSMutableArray array];
+		[[subject concat] subscribeNext:^(id x) {
+			[values addObject:x];
+		}];
+
+		NSArray *expected = @[ @1, @2, @3 ];
+		expect(values).to.equal(expected);
+	});
+
+	it(@"should complete only after all signals complete", ^{
+		RACReplaySubject *valuesSubject = [RACReplaySubject subject];
+
+		[subject sendNext:valuesSubject];
+		[subject sendCompleted];
+
+		[valuesSubject sendNext:@1];
+		[valuesSubject sendNext:@2];
+		[valuesSubject sendCompleted];
+
+		NSArray *expected = @[ @1, @2 ];
+		expect([[subject concat] toArray]).to.equal(expected);
+	});
+
+	it(@"should pass through errors", ^{
+		[subject sendNext:errorSignal];
+		
+		NSError *error = nil;
+		[[subject concat] firstOrDefault:nil success:NULL error:&error];
+		expect(error).to.equal(RACSignalTestError);
 	});
 });
 

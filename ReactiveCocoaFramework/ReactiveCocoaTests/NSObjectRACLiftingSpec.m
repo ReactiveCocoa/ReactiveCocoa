@@ -10,6 +10,8 @@
 #import "RACTestObject.h"
 #import "RACSubject.h"
 #import "RACUnit.h"
+#import "NSObject+RACPropertySubscribing.h"
+#import "RACDisposable.h"
 
 SpecBegin(NSObjectRACLiftingSpec)
 
@@ -193,6 +195,22 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 
 			expect(result).to.equal(@"Magic number: 43");
 		});
+	});
+
+	it(@"shouldn't strongly capture the receiver", ^{
+		__block BOOL dealloced = NO;
+		@autoreleasepool {
+			RACTestObject *testObject __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
+			[testObject rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				dealloced = YES;
+			}]];
+
+			RACSubject *subject = [RACSubject subject];
+			[testObject rac_liftSelector:@selector(setObjectValue:) withObjects:subject];
+			[subject sendNext:@1];
+		}
+
+		expect(dealloced).to.beTruthy();
 	});
 });
 

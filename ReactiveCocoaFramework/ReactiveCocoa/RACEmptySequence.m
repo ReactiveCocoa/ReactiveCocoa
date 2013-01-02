@@ -50,6 +50,10 @@
 
 #pragma mark NSObject
 
+- (NSString *)description {
+	return [NSString stringWithFormat:@"<%@: %p>{ name = %@ }", self.class, self, self.name];
+}
+
 - (NSUInteger)hash {
 	// This hash isn't ideal, but it's better than -[RACSequence hash], which
 	// would just be zero because we have no head.

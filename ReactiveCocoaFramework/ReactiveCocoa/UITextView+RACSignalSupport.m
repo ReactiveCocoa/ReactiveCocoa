@@ -14,6 +14,7 @@
 
 - (RACSignal *)rac_signalForDelegateMethod:(SEL)method {
     RACEventTrampoline *trampoline = [RACEventTrampoline trampolineForTextView:self delegateMethod:method];
+	trampoline.subject.name = [NSString stringWithFormat:@"%@ -rac_signalForDelegateMethod: (%@)", self, NSStringFromSelector(method)];
     
 	NSMutableSet *controlEventTrampolines = objc_getAssociatedObject(self, RACEventTrampolinesKey);
 	if (controlEventTrampolines == nil) {
@@ -27,9 +28,12 @@
 }
 
 - (RACSignal *)rac_textSignal {
-	return [[[self rac_signalForDelegateMethod:@selector(textViewDidChange:)] startWith:self] map:^(UITextView *x) {
+	RACSignal *signal = [[[self rac_signalForDelegateMethod:@selector(textViewDidChange:)] startWith:self] map:^(UITextView *x) {
 		return x.text;
 	}];
+
+	signal.name = [NSString stringWithFormat:@"%@ -rac_textSignal", self];
+	return signal;
 }
 
 @end

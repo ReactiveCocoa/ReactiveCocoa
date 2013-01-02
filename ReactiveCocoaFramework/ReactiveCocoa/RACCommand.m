@@ -7,7 +7,7 @@
 //
 
 #import "RACCommand.h"
-#import "RACSubscriber.h"
+#import "RACSubscriptingAssignmentTrampoline.h"
 
 @interface RACCommand ()
 @property (readwrite) BOOL canExecute;
@@ -15,16 +15,7 @@
 
 @implementation RACCommand
 
-- (id)init {
-	self = [super init];
-	if (self == nil) return nil;
-	
-	_canExecute = YES;
-	
-	return self;
-}
-
-#pragma mark API
+#pragma mark Lifecycle
 
 + (instancetype)command {
 	return [[self alloc] initWithCanExecuteSignal:nil block:NULL];
@@ -38,18 +29,22 @@
 	return [[self alloc] initWithCanExecuteSignal:canExecuteSignal block:block];
 }
 
+- (id)init {
+	self = [super init];
+	if (self == nil) return nil;
+	
+	_canExecute = YES;
+	
+	return self;
+}
+
 - (id)initWithCanExecuteSignal:(RACSignal *)canExecuteSignal block:(void (^)(id sender))block {
 	self = [self init];
 	if (self == nil) return nil;
 	
 	if (block != NULL) [self subscribeNext:block];
-		
-	__weak id weakSelf = self;
-	[canExecuteSignal subscribe:[RACSubscriber subscriberWithNext:^(NSNumber *x) {
-		RACCommand *strongSelf = weakSelf;
-		strongSelf.canExecute = x.boolValue;
-	} error:NULL completed:NULL]];
-		
+	
+	RAC(self.canExecute) = canExecuteSignal;
 	return self;
 }
 

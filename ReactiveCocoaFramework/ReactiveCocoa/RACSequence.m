@@ -35,7 +35,9 @@
 #pragma mark Lifecycle
 
 + (RACSequence *)sequenceWithHeadBlock:(id (^)(void))headBlock tailBlock:(RACSequence *(^)(void))tailBlock {
-	return [RACDynamicSequence sequenceWithHeadBlock:headBlock tailBlock:tailBlock];
+	RACSequence *sequence = [RACDynamicSequence sequenceWithHeadBlock:headBlock tailBlock:tailBlock];
+	sequence.name = @"+sequenceWithHeadBlock:tailBlock:";
+	return sequence;
 }
 
 #pragma mark Class cluster primitives
@@ -57,18 +59,23 @@
 }
 
 + (instancetype)return:(id)value {
-	return [RACDynamicSequence sequenceWithHeadBlock:^{
+	RACSequence *sequence = [RACDynamicSequence sequenceWithHeadBlock:^{
 		return value;
 	} tailBlock:nil];
+
+	sequence.name = [NSString stringWithFormat:@"+return: %@", value];
+	return sequence;
 }
 
 - (instancetype)bind:(RACStreamBindBlock (^)(void))block {
 	RACStreamBindBlock bindBlock = block();
-	return [self bind:bindBlock passingThroughValuesFromSequence:nil];
+	RACSequence *sequence = [self bind:bindBlock passingThroughValuesFromSequence:nil];
+	sequence.name = [NSString stringWithFormat:@"[%@] -bind:", self.name];
+	return sequence;
 }
 
 - (instancetype)bind:(RACStreamBindBlock)bindBlock passingThroughValuesFromSequence:(RACSequence *)passthroughSequence {
-	return [RACDynamicSequence sequenceWithLazyDependency:^ id {
+	RACSequence *sequence = [RACDynamicSequence sequenceWithLazyDependency:^ id {
 		RACSequence *valuesSeq = self;
 		RACSequence *current = passthroughSequence;
 
@@ -105,20 +112,29 @@
 		RACSequence *current = sequences[1];
 		return [valuesSeq bind:bindBlock passingThroughValuesFromSequence:current.tail];
 	}];
+
+	sequence.name = self.name;
+	return sequence;
 }
 
 - (instancetype)concat:(RACStream *)stream {
 	NSParameterAssert(stream != nil);
 
-	return [RACArraySequence sequenceWithArray:@[ self, stream ] offset:0].flatten;
+	RACSequence *sequence = [RACArraySequence sequenceWithArray:@[ self, stream ] offset:0].flatten;
+	sequence.name = [NSString stringWithFormat:@"[%@] -concat: %@", self.name, stream];
+	return sequence;
 }
 
-+ (instancetype)zip:(NSArray *)sequences reduce:(id)reduceBlock {
-	if (sequences.count == 0) return self.empty;
++ (instancetype)zip:(id<NSFastEnumeration>)sequences reduce:(id)reduceBlock {
+	NSMutableArray *sequencesArray = [NSMutableArray array];
+	for (RACSequence *sequence in sequences) {
+		[sequencesArray addObject:sequence];
+	}
+	if (sequencesArray.count == 0) return self.empty;
 
-	return [RACSequence sequenceWithHeadBlock:^ id {
-		NSMutableArray *heads = [NSMutableArray arrayWithCapacity:sequences.count];
-		for (RACSequence *sequence in sequences) {
+	RACSequence *sequence = [RACSequence sequenceWithHeadBlock:^ id {
+		NSMutableArray *heads = [NSMutableArray arrayWithCapacity:sequencesArray.count];
+		for (RACSequence *sequence in sequencesArray) {
 			id head = sequence.head;
 			if (head == nil) {
 				return nil;
@@ -131,8 +147,8 @@
 			return [RACBlockTrampoline invokeBlock:reduceBlock withArguments:heads];
 		}
 	} tailBlock:^ RACSequence * {
-		NSMutableArray *tails = [NSMutableArray arrayWithCapacity:sequences.count];
-		for (RACSequence *sequence in sequences) {
+		NSMutableArray *tails = [NSMutableArray arrayWithCapacity:sequencesArray.count];
+		for (RACSequence *sequence in sequencesArray) {
 			RACSequence *tail = sequence.tail;
 			if (tail == nil || tail == RACSequence.empty) {
 				return tail;
@@ -141,6 +157,9 @@
 		}
 		return [RACSequence zip:tails reduce:reduceBlock];
 	}];
+
+	sequence.name = [NSString stringWithFormat:@"+zip: %@ reduce:", sequencesArray];
+	return sequence;
 }
 
 #pragma mark Extended methods
@@ -155,7 +174,9 @@
 }
 
 - (RACSignal *)signal {
-	return [self signalWithScheduler:[RACScheduler scheduler]];
+	RACSignal *signal = [self signalWithScheduler:[RACScheduler scheduler]];
+	signal.name = [NSString stringWithFormat:@"[%@] -signal", self.name];
+	return signal;
 }
 
 - (RACSignal *)signalWithScheduler:(RACScheduler *)scheduler {
@@ -173,7 +194,7 @@
 			sequence = sequence.tail;
 			reschedule();
 		}];
-	}];
+	} name:@"[%@] -signalWithScheduler:", self.name];
 }
 
 #pragma mark NSCopying

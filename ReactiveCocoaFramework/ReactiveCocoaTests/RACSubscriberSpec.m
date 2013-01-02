@@ -14,7 +14,7 @@
 SpecBegin(RACSubscriber)
 
 __block RACSubscriber *subscriber;
-__block NSMutableSet *values;
+__block NSMutableArray *values;
 
 __block volatile BOOL finished;
 __block volatile int32_t nextsAfterFinished;
@@ -23,7 +23,7 @@ __block BOOL success;
 __block NSError *error;
 
 beforeEach(^{
-	values = [NSMutableSet set];
+	values = [NSMutableArray array];
 
 	finished = NO;
 	nextsAfterFinished = 0;
@@ -43,11 +43,7 @@ beforeEach(^{
 	}];
 });
 
-itShouldBehaveLike(RACSubscriberExamples, [^{ return subscriber; } copy], [^(NSSet *expectedValues) {
-	expect(success).to.beTruthy();
-	expect(error).to.beNil();
-	expect(values).to.equal(expectedValues);
-} copy], nil);
+itShouldBehaveLike(RACSubscriberExamples, [^{ return subscriber; } copy], [^{ return [values copy]; } copy], [^{ return error; } copy], [^{ return success; } copy], nil);
 
 describe(@"finishing", ^{
 	__block void (^sendValues)(void);

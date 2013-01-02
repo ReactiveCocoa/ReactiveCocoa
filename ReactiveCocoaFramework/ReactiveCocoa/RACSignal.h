@@ -16,9 +16,6 @@
 
 @interface RACSignal : RACStream
 
-// The name of the signal. This is for debugging/human purposes only.
-@property (copy) NSString *name;
-
 // Creates a new signal. This is the preferred way to create a new signal
 // operation or behavior.
 //
@@ -48,6 +45,10 @@
 // subscription, not necessarily on one thread, and possibly even
 // simultaneously!
 + (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe;
+
+// Convenience constructor which invokes +createSignal: and then sets the `name`
+// of the resulting signal to the given format string.
++ (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe name:(NSString *)format, ... NS_FORMAT_FUNCTION(2, 3);
 
 // Returns a signal that immediately sends the given error.
 + (RACSignal *)error:(NSError *)error;
@@ -84,19 +85,20 @@
 - (RACSignal *)concat:(RACSignal *)signal;
 
 // Combine values from each of the signals using `reduceBlock`.
+//
 // `reduceBlock` will be called with the first `next` of each signal, then with
 // the second `next` of each signal, and so forth. If any of the signals sent
 // `complete` or `error` after the nth `next`, then the resulting signal will
 // also complete or error after the nth `next`.
 //
-// signals     - The signals to combine. If this array is empty, the returned
-//               signal will immediately complete upon subscription.
+// signals     - The signals to combine. If the collection is empty, the
+//               returned signal will immediately complete upon subscription.
 // reduceBlock - The block which reduces the latest values from all the signals
 //               into one value. It should take as many arguments as the number
 //               of signals given. Each argument will be an object argument,
 //               wrapped as needed. If nil, the returned signal will send a
 //               RACTuple of all the latest values.
-+ (RACSignal *)zip:(NSArray *)signals reduce:(id)reduceBlock;
++ (RACSignal *)zip:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock;
 
 @end
 

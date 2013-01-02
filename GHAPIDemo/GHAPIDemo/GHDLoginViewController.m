@@ -18,7 +18,7 @@
 @property (nonatomic, assign) BOOL successHidden;
 @property (nonatomic, assign) BOOL loginFailedHidden;
 @property (nonatomic, assign) BOOL loggingIn;
-@property (nonatomic, strong) RACAsyncCommand *loginCommand;
+@property (nonatomic, strong) RACCommand *loginCommand;
 @property (nonatomic, strong) GHDLoginView *view;
 @property (nonatomic, strong) GHGitHubUser *user;
 @property (nonatomic, strong) GHGitHubClient *client;
@@ -38,12 +38,8 @@
 	
 	self.didLoginSubject = [RACSubject subject];
 	
-	[RACAble(self.loginCommand.numberOfActiveExecutions) subscribeNext:^(id x) {
-		NSLog(@"Active requests: %@", x);
-	}];
-	
 	// Login is only enabled when they've entered both a username and password.
-	self.loginCommand = [RACAsyncCommand commandWithCanExecuteSignal:[RACSignal
+	self.loginCommand = [RACCommand commandWithCanExecuteSignal:[RACSignal
 		combineLatest:@[ RACAbleWithStart(self.username), RACAbleWithStart(self.password) ]
 		reduce:^(NSString *username, NSString *password) {
 			return @(username.length > 0 && password.length > 0);
@@ -59,20 +55,22 @@
 		self.client = [GHGitHubClient clientForUser:self.user];
 		self.loggingIn = YES;
 	}];
-	
-	// Note the -repeat and -asMaybes at the end. -repeat means that this
-	// Signal will resubscribe to its source right after it completes.
-	// This lets us subscribe to the same Signal even though the source
-	// Signal (the API call) completes. -asMaybes means that we wrap 
-	// each next value or error in a RACMaybe. This means that even if the 
-	// API hits an error, the Signal will still be valid.
-	RACSignal *loginResult = [[[self.loginCommand 
-		addAsyncBlock:^(id _) {
-			@strongify(self);
-			return [self.client login];
-		}]
-		asMaybes] 
-		repeat];
+
+	// Every time loginCommand is triggered…
+	RACSignal *loginResult = [self.loginCommand sequenceMany:^{
+		@strongify(self);
+
+		// Try logging in, and return the result.
+		//
+		// -asMaybes means that we wrap each next value or error in
+		// a RACMaybe. This means that even if the API hits an error, the
+		// loginResult signal will still be valid.
+		//
+		// We only take a single RACMaybe because -login uses a replay subject
+		// internally, and resubscribing to it with -asMaybes will cause it to
+		// keep giving us the same values in an infinite loop.
+		return [[[self.client login] asMaybes] take:1];
+	}];
 
 	// Since we used -asMaybes above, we'll need to filter out the specific
 	// error or success cases.

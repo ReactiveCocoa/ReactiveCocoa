@@ -18,6 +18,8 @@
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic, strong) TestClass *relatedObject;
 @property (nonatomic, strong) NSArray *array;
+@property (nonatomic, strong) NSSet *set;
+@property (nonatomic, strong) NSOrderedSet *orderedSet;
 @end
 
 @implementation TestClass
@@ -196,11 +198,25 @@ describe(@"RACKVOProperty bindings", ^{
 		expect(c.name).to.equal(testName3);
 	});
 	
-	it(@"should bind changes made by KVC mutable to-many relationship accessors", ^{
+	it(@"should bind changes made by KVC on arrays", ^{
 		b.array = @[];
 		RACBind(a, array) = RACBind(b, array);
-		[b insertValue:@1 atIndex:0 inPropertyWithKey:@keypath(b.array)];
+		[[b mutableArrayValueForKeyPath:@keypath(b.array)] addObject:@1];
 		expect(a.array).to.equal(b.array);
+	});
+	
+	it(@"should bind changes made by KVC on sets", ^{
+		b.set = [NSSet set];
+		RACBind(a, set) = RACBind(b, set);
+		[[b mutableSetValueForKeyPath:@keypath(b.set)] addObject:@1];
+		expect(a.set).to.equal(b.set);
+	});
+	
+	it(@"should bind changes made by KVC on ordered sets", ^{
+		b.orderedSet = [NSOrderedSet orderedSet];
+		RACBind(a, orderedSet) = RACBind(b, orderedSet);
+		[[b mutableOrderedSetValueForKeyPath:@keypath(b.orderedSet)] addObject:@1];
+		expect(a.orderedSet).to.equal(b.orderedSet);
 	});
 	
 	it(@"should stop binding when disposed", ^{

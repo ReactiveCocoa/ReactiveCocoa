@@ -12,9 +12,10 @@
 
 // A binding of a RACProperty.
 //
-// Values sent to the binding are only sent to the binding's property and it's
-// other bindings's subscribers, not to the binding's subscribers. Values sent
-// to a property are sent to all it's bindings' subscribers.
+// Values sent to the binding are sent to the binding's RACProperty's
+// subscribers and subscribers of other RACBindings of the same property, but
+// are not sent to the receiver's subscribers. A binding's subscribers will also
+// receive values sent to the binding's RACProperty.
 @interface RACBinding : RACSignal <RACSubscriber>
 
 // Binds the receiver to `binding` by subscribing each one to the other's

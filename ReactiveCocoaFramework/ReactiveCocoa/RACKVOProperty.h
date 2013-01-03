@@ -14,9 +14,14 @@
 //
 // If given just one argument, it's assumed to be a keypath or property on self.
 // If given two, the first argument is the object to which the keypath is
-// relative and the second is the keypath. If used as an rvalue returns a new
-// binding. If used as an lvalue binds it with the lvalue, which must also be an
-// instance of RACBinding.
+// relative and the second is the keypath.
+//
+// If RACBind() is used as an lvalue (an assignee), the named property is bound
+// to the RACBinding provided on the right-hand side of the assignment. The
+// binding property's value is set to the value of the property being bound to,
+// then any changes to one property will be reflected on the other.
+//
+// If RACBind() is used as an rvalue, a RACBinding is returned.
 //
 // Examples:
 // RACBinding *binding = RACBind(self.property);

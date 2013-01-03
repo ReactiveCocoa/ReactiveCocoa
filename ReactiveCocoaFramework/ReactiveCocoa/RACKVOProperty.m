@@ -44,37 +44,71 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 @end
 
 // A binding to a KVO compliant key path on an object.
+//
+// This class is not meant to be instanced directly, but only subclassed. Call
+// `+bindingWithTarget:keyPath:` to get an instance of the appropriate subclass.
 @interface RACKVOBinding : RACBinding
 
 // Create a new binding for `keyPath` on `target`.
 + (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath;
 
+// Designated initializer.
+//
+// This should only be called from subclass initializers.
+//
+// target        - The object whose key path the binding is wrapping.
+// key           - The first key of the key path the binding is wrapping.
+// exposedSignal - The signal exposed to callers. The binding will behave like
+//                 this signal towards it's subscribers. Must send the current
+//                 value of the wrapped key path on subscription, then forward
+//                 values sent to `exposedSignalSubject`.
+- (instancetype)initWithTarget:(id)target key:(NSString *)key exposedSignal:(RACSignal *)exposedSignal;
+
 // The object whose key path the binding is wrapping.
 @property (nonatomic, readonly, weak) id target;
 
-// The key path the binding is wrapping.
-@property (nonatomic, readonly, copy) NSString *keyPath;
+// The first key of the key path the binding is wrapping.
+@property (nonatomic, readonly, copy) NSString *key;
 
 // The signal exposed to callers. The binding will behave like this signal
 // towards it's subscribers.
 @property (nonatomic, readonly, strong) RACSignal *exposedSignal;
 
 // The backing subject for the binding's outgoing changes. Any time the value of
-// the key path the binding is wrapping is changed, the new value is sent to
-// this subject.
+// the key path the binding is wrapping is changed, the new value must be sent
+// to this subject.
 @property (nonatomic, readonly, strong) RACSubject *exposedSignalSubject;
 
 // The backing subject for the binding's incoming changes. Any time a value is
-// sent to this subject, the key path the binding is wrapping is set to
+// sent to this subject, the key path the binding is wrapping must be set to
 // that value.
 @property (nonatomic, readonly, strong) RACSubject *exposedSubscriberSubject;
 
-// The identifier of the internal KVO observer.
+// The identifier of the internal KVO observer. See note in initializer for more
+// info.
 @property (nonatomic, readonly, strong) id observer;
 
 // Whether the binding has been disposed or not. Should only be accessed while
-// synchronized on self.
+// synchronized on self. Subclasses must not change it's value, they should call
+// the superclass implementation of `-dispose` instead.
 @property (nonatomic, getter = isDisposed) BOOL disposed;
+
+// This method is called when the `target`'s `key` will change. Subclasses must
+// override this method, and not call the superclass implementation in it.
+- (void)targetWillChangeValue;
+
+// This method is called when the `target`'s `key` did change. Subclasses must
+// override this method, and not call the superclass implementation in it.
+- (void)targetDidChangeValue;
+
+// Dispose the binding, removing it from the `target`. Also terminates all
+// subscriptions to and by the binding.
+- (void)dispose;
+
+@end
+
+// A binding to a KVO compliant property on an object.
+@interface RACKeyKVOBinding : RACKVOBinding
 
 // Current depth of the willChangeValueForKey:/didChangeValueForKey: call stack.
 @property (nonatomic) NSUInteger stackDepth;
@@ -83,17 +117,32 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 // should be ignored.
 @property (nonatomic) BOOL ignoreNextUpdate;
 
-// This method is called when the `target`'s `keyPath` will change.
-- (void)targetWillChangeValue;
+@end
 
-// This method is called when the `target`'s `keyPath` did change.
-- (void)targetDidChangeValue;
+// A binding to a KVO compliant key path on an object. The key path must have at
+// least two keys.
+@interface RACRemainderKVOBinding : RACKVOBinding
 
-// Dispose the binding, removing it from the `target`. Also terminates all
-// subscriptions to and by the binding.
-- (void)dispose;
+// The key path the binding is wrapping minus the first key.
+@property (nonatomic, readonly, copy) NSString *remainder;
+
+// The binding to `remainder` on the object value of `key`.
+@property (nonatomic, strong) RACKVOBinding *remainderBinding;
 
 @end
+
+// Given a key path, returns a tuple of the first key in the key path, and the
+// remaining key path, if any.
+static RACTuple *keyAndRemainderForKeyPath(NSString *keyPath) {
+	NSRange firstDot = [keyPath rangeOfString:@"."];
+	if (firstDot.location == NSNotFound) {
+		return [RACTuple tupleWithObjects:keyPath, nil];
+	} else {
+		NSString *key = [keyPath substringToIndex:firstDot.location];
+		NSString *remainder = [keyPath substringFromIndex:NSMaxRange(firstDot)];
+		return [RACTuple tupleWithObjects:key, remainder, nil];
+	}
+}
 
 @implementation RACKVOBinding
 
@@ -122,37 +171,88 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 }
 
 #pragma mark API
-
 + (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath {
-	RACKVOBinding *binding = [[self alloc] init];
-	if (binding == nil || target == nil || keyPath.length == 0) return nil;
+	if (keyAndRemainderForKeyPath(keyPath).second != nil) {
+		return [RACRemainderKVOBinding bindingWithTarget:target keyPath:keyPath];
+	} else {
+		return [RACKeyKVOBinding bindingWithTarget:target keyPath:keyPath];
+	}
+}
+
+- (instancetype)initWithTarget:(id)target key:(NSString *)key exposedSignal:(RACSignal *)exposedSignal {
+	NSParameterAssert(exposedSignal != nil);
+	self = [super init];
+	if (self == nil || target == nil || key == nil) return nil;
 	
-	@weakify(binding);
-	binding->_target = target;
-	binding->_keyPath = [keyPath copy];
-	binding->_exposedSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		@strongify(binding);
-		[subscriber sendNext:[binding.target valueForKeyPath:binding.keyPath]];
-		return [binding.exposedSignalSubject subscribe:subscriber];
-	}];
-	binding->_exposedSignalSubject = [RACSubject subject];
-	binding->_exposedSubscriberSubject = [RACSubject subject];
-	[binding->_exposedSubscriberSubject subscribeNext:^(id x) {
-		@strongify(binding);
-		binding.ignoreNextUpdate = YES;
-		[binding.target setValue:x forKeyPath:binding.keyPath];
-	}];
-	binding->_observer = [target rac_addObserver:binding forKeyPath:keyPath options:NSKeyValueObservingOptionPrior queue:nil block:^(id observer, NSDictionary *change) {
-		@strongify(binding);
+	_target = target;
+	_key = [key copy];
+	_exposedSignal = exposedSignal;
+	_exposedSignalSubject = [RACSubject subject];
+	_exposedSubscriberSubject = [RACSubject subject];
+	// This KVO observer doesn't do anything, but we have to add it or
+	// `-willChangeValueForKey:` and `-didChangeValueForKey:` might not get
+	// called.
+	// The observer is then removed when the binding is disposed, or when either
+	// the target or the binding deallocate.
+	@weakify(self);
+	_observer = [_target rac_addObserver:self forKeyPath:key options:NSKeyValueObservingOptionPrior queue:nil block:^(id observer, NSDictionary *change) {
+		@strongify(self);
 		if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
-			[binding targetWillChangeValue];
+			[self targetWillChangeValue];
 		} else {
-			[binding targetDidChangeValue];
+			[self targetDidChangeValue];
 		}
 	}];
-	[target rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
-		[binding dispose];
+	[_target rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+		[self dispose];
 	}]];
+	
+	return self;
+}
+
+- (void)targetWillChangeValue {
+	NSAssert(NO, @"%s must be overridden by subclasses", __func__);
+}
+
+- (void)targetDidChangeValue {
+	NSAssert(NO, @"%s must be overridden by subclasses", __func__);
+}
+
+- (void)sendBindingValue:(id)value sender:(id)sender {
+	NSAssert(NO, @"%s must be overridden by subclasses", __func__);
+}
+
+- (void)dispose {
+	@synchronized(self) {
+		if (self.disposed) return;
+		self.disposed = YES;
+		[self.exposedSignalSubject sendCompleted];
+		[self.exposedSubscriberSubject sendCompleted];
+		[self.target rac_removeObserverWithIdentifier:self.observer];
+	}
+}
+
+@end
+
+@implementation RACKeyKVOBinding
+
++ (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath {
+	NSParameterAssert(keyAndRemainderForKeyPath(keyPath).second == nil);
+	RACSignal *signal = [[RACSignal alloc] init];
+	RACKeyKVOBinding *binding = [[self alloc] initWithTarget:target key:keyPath exposedSignal:signal];
+	if (binding == nil) return nil;
+	
+	@weakify(binding);
+	signal.didSubscribe = ^(id<RACSubscriber> subscriber) {
+		@strongify(binding);
+		[subscriber sendNext:[binding.target valueForKey:binding.key]];
+		return [binding.exposedSignalSubject subscribe:subscriber];
+	};
+	[binding.exposedSubscriberSubject subscribeNext:^(id x) {
+		@strongify(binding);
+		binding.ignoreNextUpdate = YES;
+		[binding.target setValue:x forKey:binding.key];
+	}];
 	
 	return binding;
 }
@@ -169,18 +269,68 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 		self.ignoreNextUpdate = NO;
 		return;
 	}
-	id value = [self.target valueForKeyPath:self.keyPath];
+	id value = [self.target valueForKey:self.key];
 	[self.exposedSignalSubject sendNext:value];
+}
+
+@end
+
+@implementation RACRemainderKVOBinding
+
++ (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath {
+	RACTupleUnpack(NSString *key, NSString *remainder) = keyAndRemainderForKeyPath(keyPath);
+	NSParameterAssert(remainder != nil);
+	RACSignal *signal = [[RACSignal alloc] init];
+	RACRemainderKVOBinding *binding = [[self alloc] initWithTarget:target key:key exposedSignal:signal];
+	if (binding == nil) return nil;
+	
+	@weakify(binding);
+	binding->_remainder = remainder;
+	binding.remainderBinding = [RACKVOBinding bindingWithTarget:[target valueForKey:key] keyPath:remainder];
+	signal.didSubscribe = ^(id<RACSubscriber> subscriber) {
+		@strongify(binding);
+		[subscriber sendNext:[[binding.target valueForKey:key] valueForKeyPath:binding.remainder]];
+		return [binding.exposedSignalSubject subscribe:subscriber];
+	};
+	[binding.exposedSubscriberSubject subscribeNext:^(id x) {
+		@strongify(binding);
+		[binding.remainderBinding.exposedSubscriberSubject sendNext:x];
+	}];
+	
+	return binding;
+}
+
+- (void)targetWillChangeValue {
+	self.remainderBinding = nil;
+	[self.remainderBinding dispose];
+}
+
+- (void)targetDidChangeValue {
+	id remainderTarget = [self.target valueForKey:self.key];
+	if (remainderTarget == nil) {
+		self.remainderBinding = nil;
+		[self.exposedSignalSubject sendNext:nil];
+	}
+	self.remainderBinding = [RACKVOBinding bindingWithTarget:remainderTarget keyPath:self.remainder];
 }
 
 - (void)dispose {
 	@synchronized(self) {
 		if (self.disposed) return;
-		self.disposed = YES;
-		[self.exposedSignalSubject sendCompleted];
-		[self.exposedSubscriberSubject sendCompleted];
-		[self.target rac_removeObserverWithIdentifier:self.observer];
+		[super dispose];
+		[self.remainderBinding dispose];
 	}
+}
+
+- (void)setRemainderBinding:(RACKVOBinding *)remainderBinding {
+	if (remainderBinding == _remainderBinding) return;
+	[_remainderBinding dispose];
+	_remainderBinding = remainderBinding;
+	@weakify(self);
+	[_remainderBinding subscribeNext:^(id x) {
+		@strongify(self);
+		[self.exposedSignalSubject sendNext:x];
+	}];
 }
 
 @end

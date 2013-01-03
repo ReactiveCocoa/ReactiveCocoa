@@ -28,6 +28,8 @@
 		5F6FE85A1692574100A8D7A6 /* RACPropertySubject+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F7EFEDA16919A1A0037E500 /* RACPropertySubject+Private.h */; };
 		5F7EFECF168FBC4B0037E500 /* RACPropertySubjectExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F7EFECD168FBC4B0037E500 /* RACPropertySubjectExamples.m */; };
 		5F7EFED0168FBC4B0037E500 /* RACPropertySubjectSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F7EFECE168FBC4B0037E500 /* RACPropertySubjectSpec.m */; };
+		5F9743F91694A2460024EB82 /* RACEagerSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F9743F61694A2460024EB82 /* RACEagerSequence.m */; };
+		5F9743FA1694A2460024EB82 /* RACEagerSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F9743F61694A2460024EB82 /* RACEagerSequence.m */; };
 		866557A61557086B00B39EB5 /* RACExtensionsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 866557A51557086B00B39EB5 /* RACExtensionsSpec.m */; };
 		8801E7511644BDE200A155FE /* NSObjectRACLiftingSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 8801E7501644BDE200A155FE /* NSObjectRACLiftingSpec.m */; };
 		88037F8415056328001A5B19 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7BF15000FCE00163A9F /* Cocoa.framework */; };
@@ -365,6 +367,8 @@
 		5F7EFECD168FBC4B0037E500 /* RACPropertySubjectExamples.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACPropertySubjectExamples.m; sourceTree = "<group>"; };
 		5F7EFECE168FBC4B0037E500 /* RACPropertySubjectSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACPropertySubjectSpec.m; sourceTree = "<group>"; };
 		5F7EFEDA16919A1A0037E500 /* RACPropertySubject+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACPropertySubject+Private.h"; sourceTree = "<group>"; };
+		5F9743F51694A2460024EB82 /* RACEagerSequence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACEagerSequence.h; sourceTree = "<group>"; };
+		5F9743F61694A2460024EB82 /* RACEagerSequence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACEagerSequence.m; sourceTree = "<group>"; };
 		866557A51557086B00B39EB5 /* RACExtensionsSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACExtensionsSpec.m; sourceTree = "<group>"; };
 		8801E7501644BDE200A155FE /* NSObjectRACLiftingSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSObjectRACLiftingSpec.m; sourceTree = "<group>"; };
 		88037F8315056328001A5B19 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1031,6 +1035,8 @@
 				D0E967681641EF9C00FCFF06 /* RACSequence.m */,
 				D0E967611641EF9C00FCFF06 /* RACArraySequence.h */,
 				D0E967621641EF9C00FCFF06 /* RACArraySequence.m */,
+				5F9743F51694A2460024EB82 /* RACEagerSequence.h */,
+				5F9743F61694A2460024EB82 /* RACEagerSequence.m */,
 				D0E967631641EF9C00FCFF06 /* RACDynamicSequence.h */,
 				D0E967641641EF9C00FCFF06 /* RACDynamicSequence.m */,
 				D0E967651641EF9C00FCFF06 /* RACEmptySequence.h */,
@@ -1409,6 +1415,7 @@
 				5F6FE84F1692524B00A8D7A6 /* NSObject+RACObserverPropertySubject.m in Sources */,
 				5F6FE8551692568A00A8D7A6 /* RACBinding.m in Sources */,
 				88C5A026169246140045EF05 /* RACMulticastConnection.m in Sources */,
+				5F9743F91694A2460024EB82 /* RACEagerSequence.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1509,6 +1516,7 @@
 				5F6FE8501692524B00A8D7A6 /* NSObject+RACObserverPropertySubject.m in Sources */,
 				5F6FE8561692568A00A8D7A6 /* RACBinding.m in Sources */,
 				88C5A027169246140045EF05 /* RACMulticastConnection.m in Sources */,
+				5F9743FA1694A2460024EB82 /* RACEagerSequence.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

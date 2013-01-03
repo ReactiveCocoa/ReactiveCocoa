@@ -10,6 +10,7 @@
 #import "RACArraySequence.h"
 #import "RACDisposable.h"
 #import "RACDynamicSequence.h"
+#import "RACEagerSequence.h"
 #import "RACEmptySequence.h"
 #import "RACScheduler.h"
 #import "RACSubject.h"
@@ -195,6 +196,14 @@
 			reschedule();
 		}];
 	} name:@"[%@] -signalWithScheduler:", self.name];
+}
+
+- (RACSequence *)eagerSequence {
+	return [RACEagerSequence sequenceWithArray:self.array offset:0];
+}
+
+- (RACSequence *)lazySequence {
+	return self;
 }
 
 #pragma mark NSCopying

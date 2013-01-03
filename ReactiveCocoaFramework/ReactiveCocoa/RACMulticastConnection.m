@@ -17,9 +17,9 @@
 }
 
 @property (nonatomic, readonly, strong) RACSignal *sourceSignal;
-
-// Both of these should only be used while synchronized on self.
 @property (nonatomic, strong) RACDisposable *disposable;
+
+// Should only be used while synchronized on self.
 @property (nonatomic, assign) BOOL hasConnected;
 @end
 

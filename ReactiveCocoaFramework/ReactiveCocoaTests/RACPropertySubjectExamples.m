@@ -1,23 +1,23 @@
 //
-//  RACPropertyExamples.m
+//  RACPropertySubjectExamples.m
 //  ReactiveCocoa
 //
 //  Created by Uri Baghin on 30/12/2012.
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACPropertyExamples.h"
+#import "RACPropertySubjectExamples.h"
 #import "RACDisposable.h"
-#import "RACProperty.h"
+#import "RACPropertySubject.h"
 #import "RACBinding.h"
 #import "NSObject+RACPropertySubscribing.h"
 
-NSString * const RACPropertyExamples = @"RACPropertyExamples";
+NSString * const RACPropertySubjectExamples = @"RACPropertySubjectExamples";
 
-SharedExampleGroupsBegin(RACPropertyExamples)
+SharedExampleGroupsBegin(RACPropertySubjectExamples)
 
-sharedExamplesFor(RACPropertyExamples, ^(RACProperty *(^getProperty)(void)) {
-	__block RACProperty *property;
+sharedExamplesFor(RACPropertySubjectExamples, ^(RACPropertySubject *(^getProperty)(void)) {
+	__block RACPropertySubject *property;
 	id value1 = @"test value 1";
 	id value2 = @"test value 2";
 	id value3 = @"test value 3";
@@ -58,7 +58,7 @@ sharedExamplesFor(RACPropertyExamples, ^(RACProperty *(^getProperty)(void)) {
 			RACDisposable *disposable = nil;
 			__block BOOL deallocd = NO;
 			@autoreleasepool {
-				RACProperty *property __attribute__((objc_precise_lifetime)) = getProperty();
+				RACPropertySubject *property __attribute__((objc_precise_lifetime)) = getProperty();
 				[property rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd = YES;
 				}]];
@@ -72,7 +72,7 @@ sharedExamplesFor(RACPropertyExamples, ^(RACProperty *(^getProperty)(void)) {
 			RACDisposable *disposable = nil;
 			__block BOOL deallocd = NO;
 			@autoreleasepool {
-				RACProperty *property __attribute__((objc_precise_lifetime)) = getProperty();
+				RACPropertySubject *property __attribute__((objc_precise_lifetime)) = getProperty();
 				[property rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd = YES;
 				}]];
@@ -86,7 +86,7 @@ sharedExamplesFor(RACPropertyExamples, ^(RACProperty *(^getProperty)(void)) {
 			RACDisposable *disposable = nil;
 			__block BOOL deallocd = NO;
 			@autoreleasepool {
-				RACProperty *property __attribute__((objc_precise_lifetime)) = getProperty();
+				RACPropertySubject *property __attribute__((objc_precise_lifetime)) = getProperty();
 				[property rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd = YES;
 				}]];
@@ -100,7 +100,7 @@ sharedExamplesFor(RACPropertyExamples, ^(RACProperty *(^getProperty)(void)) {
 			RACDisposable *disposable = nil;
 			__block BOOL deallocd = NO;
 			@autoreleasepool {
-				RACProperty *property __attribute__((objc_precise_lifetime)) = getProperty();
+				RACPropertySubject *property __attribute__((objc_precise_lifetime)) = getProperty();
 				[property rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd = YES;
 				}]];
@@ -115,8 +115,8 @@ sharedExamplesFor(RACPropertyExamples, ^(RACProperty *(^getProperty)(void)) {
 			__block BOOL deallocd1 = NO;
 			__block BOOL deallocd2 = NO;
 			@autoreleasepool {
-				RACProperty *property1 __attribute__((objc_precise_lifetime)) = getProperty();
-				RACProperty *property2 __attribute__((objc_precise_lifetime)) = getProperty();
+				RACPropertySubject *property1 __attribute__((objc_precise_lifetime)) = getProperty();
+				RACPropertySubject *property2 __attribute__((objc_precise_lifetime)) = getProperty();
 				[property1 rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd1 = YES;
 				}]];

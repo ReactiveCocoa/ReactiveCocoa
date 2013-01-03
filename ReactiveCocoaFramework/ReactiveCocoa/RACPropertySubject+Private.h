@@ -1,16 +1,16 @@
 //
-//  RACProperty+Private.h
+//  RACPropertySubject+Private.h
 //  ReactiveCocoa
 //
 //  Created by Uri Baghin on 31/12/2012.
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACProperty.h"
+#import "RACPropertySubject.h"
 @class RACSignal;
 @protocol RACSubscriber;
 
-@interface RACProperty ()
+@interface RACPropertySubject ()
 
 // Designated initializer.
 //

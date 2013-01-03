@@ -1,19 +1,19 @@
 //
-//  RACProperty.m
+//  RACPropertySubject.m
 //  ReactiveCocoa
 //
 //  Created by Uri Baghin on 16/12/2012.
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACProperty+Private.h"
+#import "RACPropertySubject+Private.h"
 #import "RACBinding+Private.h"
 #import "RACDisposable.h"
 #import "RACReplaySubject.h"
 #import "RACTuple.h"
 #import "EXTScope.h"
 
-@interface RACProperty ()
+@interface RACPropertySubject ()
 
 // The signal passed to `-initWithSignal:subscriber:`. Refer to the method's
 // docs for details.
@@ -33,7 +33,7 @@
 
 @end
 
-@implementation RACProperty
+@implementation RACPropertySubject
 
 #pragma mark RACSignal
 
@@ -75,10 +75,10 @@
 		[subscriber sendNext:[RACTuple tupleWithObjects:x, RACTupleNil.tupleNil, nil]];
 	} error:^(NSError *error) {
 		@strongify(self);
-		NSAssert(NO, @"Received error in RACProperty %@: %@", self, error);
+		NSAssert(NO, @"Received error in RACPropertySubject %@: %@", self, error);
 		
 		// Log the error if we're running with assertions disabled.
-		NSLog(@"Received error in RACProperty %@: %@", self, error);
+		NSLog(@"Received error in RACPropertySubject %@: %@", self, error);
 	} completed:nil];
 	
 	return self;

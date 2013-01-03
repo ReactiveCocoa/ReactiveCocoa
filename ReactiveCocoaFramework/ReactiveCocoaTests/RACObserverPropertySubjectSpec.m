@@ -1,18 +1,18 @@
 //
-//  RACKVOPropertySpec.m
+//  RACObserverPropertySubjectSpec.m
 //  ReactiveCocoa
 //
 //  Created by Uri Baghin on 16/12/2012.
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACKVOProperty.h"
+#import "RACObserverPropertySubject.h"
 #import "RACBinding.h"
 #import "RACDisposable.h"
 #import "NSObject+RACKVOWrapper.h"
 #import "RACTestObject.h"
 #import "RACPropertySignalExamples.h"
-#import "RACPropertyExamples.h"
+#import "RACPropertySubjectExamples.h"
 
 @interface TestClass : NSObject
 @property (nonatomic, strong) NSString *name;
@@ -25,11 +25,11 @@
 @implementation TestClass
 @end
 
-SpecBegin(RACKVOProperty)
+SpecBegin(RACObserverPropertySubject)
 
-describe(@"RACKVOProperty", ^{
+describe(@"RACObserverPropertySubject", ^{
 	__block TestClass *object;
-	__block RACKVOProperty *property;
+	__block RACObserverPropertySubject *property;
 	id value1 = @"test value 1";
 	id value2 = @"test value 2";
 	id value3 = @"test value 3";
@@ -37,16 +37,16 @@ describe(@"RACKVOProperty", ^{
 	
 	before(^{
 		object = [[TestClass alloc] init];
-		property = [RACKVOProperty propertyWithTarget:object keyPath:@keypath(object.name)];
+		property = [RACObserverPropertySubject propertyWithTarget:object keyPath:@keypath(object.name)];
 	});
 	
 	id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, RACSignal *signal) {
-		[signal subscribe:[RACKVOProperty propertyWithTarget:testObject keyPath:keyPath]];
+		[signal subscribe:[RACObserverPropertySubject propertyWithTarget:testObject keyPath:keyPath]];
 	};
 	
 	itShouldBehaveLike(RACPropertySignalExamples, @{ RACPropertySignalExamplesSetupBlock: setupBlock }, nil);
 	
-	itShouldBehaveLike(RACPropertyExamples, [^{ return [RACKVOProperty propertyWithTarget:object keyPath:@keypath(object.name)]; } copy], nil);
+	itShouldBehaveLike(RACPropertySubjectExamples, [^{ return [RACObserverPropertySubject propertyWithTarget:object keyPath:@keypath(object.name)]; } copy], nil);
 	
 	it(@"should send the object's current value when subscribed to", ^{
 		__block id receivedValue = @"received value should not be this";
@@ -97,7 +97,7 @@ describe(@"RACKVOProperty", ^{
 	});
 });
 
-describe(@"RACKVOProperty bindings", ^{
+describe(@"RACObserverPropertySubject bindings", ^{
 	__block TestClass *a;
 	__block TestClass *b;
 	__block TestClass *c;

@@ -10,12 +10,12 @@
 #import "RACSubscriber.h"
 @class RACDisposable;
 
-// A binding of a RACProperty.
+// A binding of a RACPropertySubject.
 //
-// Values sent to the binding are sent to the binding's RACProperty's
-// subscribers and subscribers of other RACBindings of the same property, but
-// are not sent to the receiver's subscribers. A binding's subscribers will also
-// receive values sent to the binding's RACProperty.
+// Values sent to the binding are sent to the binding's RACPropertySubject's
+// subscribers and subscribers of other RACBindings of the same property
+// subject, but are not sent to the receiver's subscribers. A binding's
+// subscribers will also receive values sent to the binding's property subject.
 @interface RACBinding : RACSignal <RACSubscriber>
 
 // Binds the receiver to `binding` by subscribing each one to the other's

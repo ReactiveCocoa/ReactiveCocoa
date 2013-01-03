@@ -10,12 +10,11 @@
 #import "RACSubscriber.h"
 @class RACDisposable;
 
-// A signal / subscriber interface to a property.
+// A binding of a RACProperty.
 //
-// Send values to it to update the property's value. Subscribers are sent the
-// property's current value on subscription, and new values as the property is
-// changed, unless the change was triggered by the same instance of
-// `RACBinding`.
+// Values sent to the binding are only sent to the binding's property and it's
+// other bindings's subscribers, not to the binding's subscribers. Values sent
+// to a property are sent to all it's bindings' subscribers.
 @interface RACBinding : RACSignal <RACSubscriber>
 
 // Binds the receiver to `binding` by subscribing each one to the other's

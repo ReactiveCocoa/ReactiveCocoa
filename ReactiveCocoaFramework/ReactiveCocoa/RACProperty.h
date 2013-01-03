@@ -6,20 +6,20 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACSignal.h"
-#import "RACSubscriber.h"
+#import "RACSubject.h"
 @class RACDisposable, RACBinding;
 
-// A signal / subscriber interface to a property.
+// A RACProperty subject saves the last value sent to it and resends it to
+// new subscribers. It will also resend error or completion.
 //
-// Send values to it to update it's value. Subscribers are sent the current
-// value on subscription, and new values as the property is changed.
-@interface RACProperty : RACSignal <RACSubscriber>
+// Values sent to a RACProperty are also sent to it's bindings' subscribers.
+// Values sent to a RACProperty's bindings are also sent to the RACProperty.
+@interface RACProperty : RACSubject
 
-// Returns a new property with a starting value of `nil`.
+// Returns a new RACProperty with a starting value of `nil`.
 + (instancetype)property;
 
-// Returns a new binding to the property.
+// Returns a new binding of the RACProperty.
 - (RACBinding *)binding;
 
 @end

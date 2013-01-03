@@ -26,14 +26,16 @@
 // Do not use this directly. Use the RACBind macro above.
 #define _RACBindObject(OBJ, KEYPATH) [RACKVOProperty propertyWithTarget:OBJ keyPath:@keypath(OBJ, KEYPATH)][ @"binding" ]
 
-// A signal / subscriber interface wrapper for KVO compliant key paths.
+// A RACProperty wrapper for KVO compliant key paths.
 //
-// Send values to it to update the value of `keyPath` on `target`. Subscribers
-// are sent the current value of `keyPath` on `target` on subscription, and new
-// values as it is changed.
+// New values of `keyPath` will be sent to the wrapper's subscribers and it's
+// bindings' subscribers. `keyPath` will be updated with values sent to the
+// wrapper or it's bindings. Subscribers of the wrapper or it's bindings will be
+// sent the current value of `keyPath`.
 @interface RACKVOProperty : RACProperty
 
-// Returns a wrapper to `keyPath` on `target`.
+// Returns a new RACProperty wrapper for `keyPath` on `target` with a starting
+// value equal to the value of `keyPath` on `target`.
 + (instancetype)propertyWithTarget:(id)target keyPath:(NSString *)keyPath;
 
 // Method needed for the convenience macro. Do not call explicitly.

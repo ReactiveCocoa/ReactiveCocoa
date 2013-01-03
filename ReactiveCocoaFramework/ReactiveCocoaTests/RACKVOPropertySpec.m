@@ -138,7 +138,7 @@ describe(@"RACKVOProperty bindings", ^{
 		a.relatedObject.name = testName1;
 		expect(a.relatedObject.name).to.equal(testName1);
 		expect(b.relatedObject.name).to.equal(testName1);
-		expect(a.relatedObject != b.relatedObject).to.beTruthy();
+		expect(a.relatedObject).notTo.equal(b.relatedObject);
 		
 		b.relatedObject = nil;
 		expect(a.relatedObject.name).to.beNil();
@@ -194,58 +194,6 @@ describe(@"RACKVOProperty bindings", ^{
 		expect(a.name).to.equal(testName3);
 		expect(b.name).to.equal(testName3);
 		expect(c.name).to.equal(testName3);
-	});
-	
-	it(@"should not interfere with or be interfered by KVO callbacks", ^{
-		__block BOOL firstObserverShouldChangeName = YES;
-		__block BOOL secondObserverShouldChangeName = YES;
-		__block BOOL thirdObserverShouldChangeName = YES;
-		__block BOOL fourthObserverShouldChangeName = YES;
-		__block BOOL observerIsSettingValue = NO;
-		[a rac_addObserver:self forKeyPath:@keypath(a.name) options:NSKeyValueObservingOptionPrior | NSKeyValueObservingOptionNew queue:nil block:^(id observer, NSDictionary *change) {
-			if (observerIsSettingValue) return;
-			if (firstObserverShouldChangeName) {
-				firstObserverShouldChangeName = NO;
-				observerIsSettingValue = YES;
-				a.name = testName1;
-				observerIsSettingValue = NO;
-			}
-		}];
-		[a rac_addObserver:self forKeyPath:@keypath(a.name) options:NSKeyValueObservingOptionOld queue:nil block:^(id observer, NSDictionary *change) {
-			if (observerIsSettingValue) return;
-			if (secondObserverShouldChangeName) {
-				secondObserverShouldChangeName = NO;
-				observerIsSettingValue = YES;
-				a.name = testName2;
-				observerIsSettingValue = NO;
-			}
-		}];
-		RACBind(a, name) = RACBind(b, name);
-		[a rac_addObserver:self forKeyPath:@keypath(a.name) options:NSKeyValueObservingOptionPrior | NSKeyValueObservingOptionNew queue:nil block:^(id observer, NSDictionary *change) {
-			if (observerIsSettingValue) return;
-			if (thirdObserverShouldChangeName) {
-				thirdObserverShouldChangeName = NO;
-				observerIsSettingValue = YES;
-				a.name = testName1;
-				observerIsSettingValue = NO;
-			}
-		}];
-		[a rac_addObserver:self forKeyPath:@keypath(a.name) options:NSKeyValueObservingOptionOld queue:nil block:^(id observer, NSDictionary *change) {
-			if (observerIsSettingValue) return;
-			if (fourthObserverShouldChangeName) {
-				fourthObserverShouldChangeName = NO;
-				observerIsSettingValue = YES;
-				a.name = testName2;
-				observerIsSettingValue = NO;
-			}
-		}];
-		a.name = testName3;
-		expect(firstObserverShouldChangeName).to.beFalsy();
-		expect(secondObserverShouldChangeName).to.beFalsy();
-		expect(thirdObserverShouldChangeName).to.beFalsy();
-		expect(fourthObserverShouldChangeName).to.beFalsy();
-		expect(a.name).to.equal(testName2);
-		expect(b.name).to.equal(testName2);
 	});
 	
 	it(@"should bind changes made by KVC mutable to-many relationship accessors", ^{

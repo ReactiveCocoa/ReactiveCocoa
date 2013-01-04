@@ -14,9 +14,7 @@
 #pragma mark RACStream
 
 + (instancetype)return:(id)value {
-	RACEagerSequence *sequence = [self sequenceWithArray:@[ value ] offset:0];
-	sequence.name = [NSString stringWithFormat:@"+return: %@", value];
-	return sequence;
+	return [[self sequenceWithArray:@[ value ] offset:0] setNameWithFormat:@"+return: %@", value];
 }
 
 - (instancetype)bind:(RACStreamBindBlock (^)(void))block {
@@ -33,17 +31,15 @@
 		if (stop) break;
 	}
 	
-	RACEagerSequence *sequence = [self.class sequenceWithArray:resultArray offset:0];
-	sequence.name = [NSString stringWithFormat:@"[%@] -bind:", self.name];
-	return sequence;
+	return [[self.class sequenceWithArray:resultArray offset:0] setNameWithFormat:@"[%@] -bind:", self.name];
 }
 
-- (instancetype)concat:(RACStream *)stream {
-	NSParameterAssert(stream != nil);
-	NSArray *array = [self.array arrayByAddingObjectsFromArray:((RACSequence *)stream).array];
-	RACEagerSequence *sequence = [self.class sequenceWithArray:array offset:0];
-	sequence.name = [NSString stringWithFormat:@"[%@] -concat: %@", self.name, stream];
-	return sequence;
+- (instancetype)concat:(RACSequence *)sequence {
+	NSParameterAssert(sequence != nil);
+	NSParameterAssert([sequence isKindOfClass:RACSequence.class]);
+
+	NSArray *array = [self.array arrayByAddingObjectsFromArray:sequence.array];
+	return [[self.class sequenceWithArray:array offset:0] setNameWithFormat:@"[%@] -concat: %@", self.name, sequence];
 }
 
 #pragma mark Extended methods

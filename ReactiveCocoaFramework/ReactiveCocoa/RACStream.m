@@ -43,54 +43,57 @@
 	return nil;
 }
 
+#pragma mark Naming
+
+- (instancetype)setNameWithFormat:(NSString *)format, ... {
+	NSParameterAssert(format != nil);
+
+	va_list args;
+	va_start(args, format);
+
+	NSString *str = [[NSString alloc] initWithFormat:format arguments:args];
+	va_end(args);
+
+	self.name = str;
+	return self;
+}
+
 @end
 
 @implementation RACStream (Operations)
 
 - (instancetype)flattenMap:(RACStream * (^)(id value))block {
-	RACStream *stream = [self bind:^{
+	return [[self bind:^{
 		return ^(id value, BOOL *stop) {
 			return block(value);
 		};
-	}];
-
-	stream.name = [NSString stringWithFormat:@"[%@] -flattenMap:", self.name];
-	return stream;
+	}] setNameWithFormat:@"[%@] -flattenMap:", self.name];
 }
 
 - (instancetype)flatten {
-	RACStream *stream = [self flattenMap:^(id value) {
+	return [[self flattenMap:^(id value) {
 		NSAssert([value isKindOfClass:RACStream.class], @"Stream %@ being flattened contains an object that is not a stream: %@", self, value);
 		return value;
-	}];
-
-	stream.name = [NSString stringWithFormat:@"[%@] -flatten", self.name];
-	return stream;
+	}] setNameWithFormat:@"[%@] -flatten", self.name];
 }
 
 - (instancetype)map:(id (^)(id value))block {
 	NSParameterAssert(block != nil);
 
-	RACStream *stream = [self flattenMap:^(id value) {
+	return [[self flattenMap:^(id value) {
 		return [self.class return:block(value)];
-	}];
-
-	stream.name = [NSString stringWithFormat:@"[%@] -map:", self.name];
-	return stream;
+	}] setNameWithFormat:@"[%@] -map:", self.name];
 }
 
 - (instancetype)mapReplace:(id)object {
-	RACStream *stream = [self map:^(id _) {
+	return [[self map:^(id _) {
 		return object;
-	}];
-
-	stream.name = [NSString stringWithFormat:@"[%@] -mapReplace: %@", self.name, object];
-	return stream;
+	}] setNameWithFormat:@"[%@] -mapReplace: %@", self.name, object];
 }
 
 - (instancetype)mapPreviousWithStart:(id)start combine:(id (^)(id previous, id next))combineBlock {
 	NSParameterAssert(combineBlock != NULL);
-	RACStream *stream = [[self
+	return [[[self
 		scanWithStart:[RACTuple tupleWithObjects:start, nil]
 		combine:^(RACTuple *previousTuple, id next) {
 			id value = combineBlock(previousTuple[0], next);
@@ -98,35 +101,30 @@
 		}]
 		map:^(RACTuple *tuple) {
 			return tuple[1];
-		}];
-
-	stream.name = [NSString stringWithFormat:@"[%@] -mapPreviousWithStart: %@ combine:", self.name, start];
-	return stream;
+		}]
+		setNameWithFormat:@"[%@] -mapPreviousWithStart: %@ combine:", self.name, start];
 }
 
 - (instancetype)filter:(BOOL (^)(id value))block {
 	NSParameterAssert(block != nil);
 
-	RACStream *stream = [self flattenMap:^ id (id value) {
+	return [[self flattenMap:^ id (id value) {
 		if (block(value)) {
 			return [self.class return:value];
 		} else {
 			return self.class.empty;
 		}
-	}];
-
-	stream.name = [NSString stringWithFormat:@"[%@] -filter:", self.name];
-	return stream;
+	}] setNameWithFormat:@"[%@] -filter:", self.name];
 }
 
 - (instancetype)startWith:(id)value {
-	RACStream *stream = [[self.class return:value] concat:self];
-	stream.name = [NSString stringWithFormat:@"[%@] -startWith: %@", self.name, value];
-	return stream;
+	return [[[self.class return:value]
+		concat:self]
+		setNameWithFormat:@"[%@] -startWith: %@", self.name, value];
 }
 
 - (instancetype)skip:(NSUInteger)skipCount {
-	RACStream *stream = [self bind:^{
+	return [[self bind:^{
 		__block NSUInteger skipped = 0;
 
 		return ^(id value, BOOL *stop) {
@@ -135,14 +133,11 @@
 			skipped++;
 			return self.class.empty;
 		};
-	}];
-
-	stream.name = [NSString stringWithFormat:@"[%@] -skip: %lu", self.name, (unsigned long)skipCount];
-	return stream;
+	}] setNameWithFormat:@"[%@] -skip: %lu", self.name, (unsigned long)skipCount];
 }
 
 - (instancetype)take:(NSUInteger)count {
-	RACStream *stream = [self bind:^{
+	return [[self bind:^{
 		__block NSUInteger taken = 0;
 
 		return ^ id (id value, BOOL *stop) {
@@ -153,27 +148,19 @@
 
 			return result;
 		};
-	}];
-
-	stream.name = [NSString stringWithFormat:@"[%@] -take: %lu", self.name, (unsigned long)count];
-	return stream;
+	}] setNameWithFormat:@"[%@] -take: %lu", self.name, (unsigned long)count];
 }
 
 - (instancetype)sequenceMany:(RACStream * (^)(void))block {
 	NSParameterAssert(block != NULL);
 
-	RACStream *stream = [self flattenMap:^(id _) {
+	return [[self flattenMap:^(id _) {
 		return block();
-	}];
-
-	stream.name = [NSString stringWithFormat:@"[%@] -sequenceMany:", self.name];
-	return stream;
+	}] setNameWithFormat:@"[%@] -sequenceMany:", self.name];
 }
 
 + (instancetype)zip:(id<NSFastEnumeration>)streams {
-	RACStream *stream = [self zip:streams reduce:nil];
-	stream.name = [NSString stringWithFormat:@"+zip: %@", streams];
-	return stream;
+	return [[self zip:streams reduce:nil] setNameWithFormat:@"+zip: %@", streams];
 }
 
 + (instancetype)concat:(id<NSFastEnumeration>)streams {
@@ -182,56 +169,46 @@
 		result = [result concat:stream];
 	}
 
-	result.name = [NSString stringWithFormat:@"+concat: %@", streams];
-	return result;
+	return [result setNameWithFormat:@"+concat: %@", streams];
 }
 
 - (instancetype)scanWithStart:(id)startingValue combine:(id (^)(id running, id next))block {
 	NSParameterAssert(block != nil);
 
-	RACStream *stream = [self bind:^{
+	return [[self bind:^{
 		__block id running = startingValue;
 
 		return ^(id value, BOOL *stop) {
 			running = block(running, value);
 			return [self.class return:running];
 		};
-	}];
-
-	stream.name = [NSString stringWithFormat:@"[%@] -scanWithStart: %@ combine:", self.name, startingValue];
-	return stream;
+	}] setNameWithFormat:@"[%@] -scanWithStart: %@ combine:", self.name, startingValue];
 }
 
 - (instancetype)takeUntilBlock:(BOOL (^)(id x))predicate {
 	NSParameterAssert(predicate != nil);
 
-	RACStream *stream = [self bind:^{
+	return [[self bind:^{
 		return ^ id (id value, BOOL *stop) {
 			if (predicate(value)) return nil;
 
 			return [self.class return:value];
 		};
-	}];
-
-	stream.name = [NSString stringWithFormat:@"[%@] -takeUntilBlock:", self.name];
-	return stream;
+	}] setNameWithFormat:@"[%@] -takeUntilBlock:", self.name];
 }
 
 - (instancetype)takeWhileBlock:(BOOL (^)(id x))predicate {
 	NSParameterAssert(predicate != nil);
 
-	RACStream *stream = [self takeUntilBlock:^ BOOL (id x) {
+	return [[self takeUntilBlock:^ BOOL (id x) {
 		return !predicate(x);
-	}];
-
-	stream.name = [NSString stringWithFormat:@"[%@] -takeWhileBlock:", self.name];
-	return stream;
+	}] setNameWithFormat:@"[%@] -takeWhileBlock:", self.name];
 }
 
 - (instancetype)skipUntilBlock:(BOOL (^)(id x))predicate {
 	NSParameterAssert(predicate != nil);
 
-	RACStream *stream = [self bind:^{
+	return [[self bind:^{
 		__block BOOL skipping = YES;
 
 		return ^ id (id value, BOOL *stop) {
@@ -245,21 +222,15 @@
 
 			return [self.class return:value];
 		};
-	}];
-
-	stream.name = [NSString stringWithFormat:@"[%@] -skipUntilBlock:", self.name];
-	return stream;
+	}] setNameWithFormat:@"[%@] -skipUntilBlock:", self.name];
 }
 
 - (instancetype)skipWhileBlock:(BOOL (^)(id x))predicate {
 	NSParameterAssert(predicate != nil);
 
-	RACStream *stream = [self skipUntilBlock:^ BOOL (id x) {
+	return [[self skipUntilBlock:^ BOOL (id x) {
 		return !predicate(x);
-	}];
-
-	stream.name = [NSString stringWithFormat:@"[%@] -skipUntilBlock:", self.name];
-	return stream;
+	}] setNameWithFormat:@"[%@] -skipUntilBlock:", self.name];
 }
 
 @end

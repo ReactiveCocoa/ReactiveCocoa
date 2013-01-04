@@ -42,7 +42,7 @@ RAC(self.createEnabled) = [RACSignal
 Chain asynchronous calls:
 ```objc
 [[RACSignal 
-    flatten:@[ [client fetchUserRepos], [client fetchOrgRepos] ]] 
+    merge:@[ [client fetchUserRepos], [client fetchOrgRepos] ]] 
     subscribeCompleted:^{
         NSLog(@"They're both done!");
     }];

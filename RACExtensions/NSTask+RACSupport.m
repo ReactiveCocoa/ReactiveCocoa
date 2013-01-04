@@ -29,9 +29,7 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 		[self setStandardOutput:[NSPipe pipe]];
 	}
 	
-	RACSignal *signal = [self rac_signalForPipe:[self standardOutput]];
-	signal.name = [NSString stringWithFormat:@"%@ -rac_standardOutput", self];
-	return signal;
+	return [[self rac_signalForPipe:[self standardOutput]] setNameWithFormat:@"%@ -rac_standardOutput", self];
 }
 
 - (RACSignal *)rac_standardError {
@@ -39,9 +37,7 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 		[self setStandardError:[NSPipe pipe]];
 	}
 	
-	RACSignal *signal = [self rac_signalForPipe:[self standardError]];
-	signal.name = [NSString stringWithFormat:@"%@ -rac_standardError", self];
-	return signal;
+	return [[self rac_signalForPipe:[self standardError]] setNameWithFormat:@"%@ -rac_standardError", self];
 }
 
 - (RACSignal *)rac_signalForPipe:(NSPipe *)pipe {
@@ -50,9 +46,10 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 }
 
 - (RACSignal *)rac_completion {
-	RACSignal *signal = [[[NSNotificationCenter.defaultCenter rac_addObserverForName:NSTaskDidTerminateNotification object:self] any] mapReplace:RACUnit.defaultUnit];
-	signal.name = [NSString stringWithFormat:@"%@ -rac_completion", self];
-	return signal;
+	return [[[[NSNotificationCenter.defaultCenter rac_addObserverForName:NSTaskDidTerminateNotification object:self]
+		any]
+		mapReplace:RACUnit.defaultUnit]
+		setNameWithFormat:@"%@ -rac_completion", self];
 }
 
 - (RACSignal *)rac_run {
@@ -77,7 +74,7 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 
 - (RACSignal *)rac_launchWithScheduler:(RACScheduler *)scheduler cancelationToken:(volatile uint32_t *)cancelationToken {
 	RACReplaySubject *subject = [RACReplaySubject subject];
-	subject.name = [NSString stringWithFormat:@"%@ -rac_runWithScheduler: %@", self, scheduler];
+	[subject setNameWithFormat:@"%@ -rac_runWithScheduler: %@", self, scheduler];
 
 	[RACScheduler.mainThreadScheduler schedule:^{
 		NSMutableData * (^aggregateData)(NSMutableData *, NSData *) = ^(NSMutableData *running, NSData *next) {

@@ -40,10 +40,28 @@ typedef NSInteger RACSignalError;
 // into the signal.
 - (RACSignal *)doCompleted:(void (^)(void))block;
 
-// Only send `next` when we don't receive another `next` in `interval` seconds.
+// Send `next`s only if we don't receive another `next` in `interval` seconds.
+//
+// If a `next` is received, and then another `next` is received before
+// `interval` seconds have passed, the first value is discarded.
+//
+// After `interval` seconds have passed since the most recent `next` was sent,
+// the most recent `next` is forwarded on the scheduler that the value was
+// originally received on. If +[RACScheduler currentScheduler] was nil at the
+// time, a private background scheduler is used.
+//
+// Returns a signal which sends throttled and delayed `next` events. Completion
+// and errors are always forwarded immediately.
 - (RACSignal *)throttle:(NSTimeInterval)interval;
 
-// Sends `next` after delaying for `interval` seconds.
+// Forwards `next` and `completed` events after delaying for `interval` seconds
+// on the current scheduler (on which the events were delivered).
+//
+// If +[RACScheduler currentScheduler] is nil when `next` or `completed` is
+// received, a private background scheduler is used.
+//
+// Returns a signal which sends delayed `next` and `completed` events. Errors
+// are always forwarded immediately.
 - (RACSignal *)delay:(NSTimeInterval)interval;
 
 // Resubscribes when the signal completes.
@@ -98,6 +116,10 @@ typedef NSInteger RACSignalError;
 + (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock;
 
 // Sends the latest `next` from any of the signals.
+//
+// Returns a signal that passes through values from each of the given signals,
+// and sends `completed` when all of them complete. If any signal sends an error,
+// the returned signal sends `error` immediately.
 + (RACSignal *)merge:(id<NSFastEnumeration>)signals;
 
 // Merges the signals sent by the receiver into a flattened signal, but only
@@ -162,7 +184,11 @@ typedef NSInteger RACSignalError;
 // global concurrent high priority queue.
 + (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway;
 
-// Take `next`s until the `signalTrigger` sends a `next`.
+// Take `next`s until the `signalTrigger` sends `next` or `completed`.
+//
+// Returns a signal which passes through all events from the receiver until
+// `signalTrigger` sends `next` or `completed`, at which point the returned signal
+// will send `completed`.
 - (RACSignal *)takeUntil:(RACSignal *)signalTrigger;
 
 // Convert every `next` and `error` into a RACMaybe.
@@ -240,15 +266,23 @@ typedef NSInteger RACSignalError;
 // signal.
 - (RACMulticastConnection *)multicast:(RACSubject *)subject;
 
-// Multicasts the signal to a RACReplaySubject and immediately connects to the
-// resulting RACMulticastConnection.
+// Multicasts the signal to a RACReplaySubject of unlimited capacity, and
+// immediately connects to the resulting RACMulticastConnection.
 //
 // Returns the connected, multicasted signal.
 - (RACSignal *)replay;
 
-// Multicasts the signal to a RACReplaySubject and calls -autoconnect on the
-// resulting RACMulticastConnection. This means the signal will subscribe to
-// the multicasted signal only when it receives its first subscription.
+// Multicasts the signal to a RACReplaySubject of capacity 1, and immediately
+// connects to the resulting RACMulticastConnection.
+//
+// Returns the connected, multicasted signal.
+- (RACSignal *)replayLast;
+
+// Multicasts the signal to a RACReplaySubject of unlimited capacity, and calls
+// -autoconnect on the resulting RACMulticastConnection.
+//
+// This means the returned signal will subscribe to the multicasted signal only
+// when the former receives its first subscription.
 //
 // Returns the autoconnected, multicasted signal.
 - (RACSignal *)replayLazily;

@@ -241,12 +241,9 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 - (RACSignal *)catchTo:(RACSignal *)signal {
-	RACSignal *result = [self catch:^(NSError *error) {
+	return [[self catch:^(NSError *error) {
 		return signal;
-	}];
-
-	result.name = [NSString stringWithFormat:@"[%@] -catchTo: %@", self.name, signal];
-	return result;
+	}] setNameWithFormat:@"[%@] -catchTo: %@", self.name, signal];
 }
 
 - (RACSignal *)finally:(void (^)(void))block {
@@ -473,9 +470,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 + (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals {
-	RACSignal *signal = [self combineLatest:signals reduce:nil];
-	signal.name = [NSString stringWithFormat:@"+combineLatest: %@", signals];
-	return signal;
+	return [[self combineLatest:signals reduce:nil] setNameWithFormat:@"+combineLatest: %@", signals];
 }
 
 + (RACSignal *)merge:(id<NSFastEnumeration>)signals {
@@ -487,8 +482,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 		return nil;
 	}].flatten;
 
-	signal.name = [NSString stringWithFormat:@"+merge: %@", signals];
-	return signal;
+	return [signal setNameWithFormat:@"+merge: %@", signals];
 }
 
 - (RACSignal *)flatten:(NSUInteger)maxConcurrent {
@@ -652,8 +646,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 		return start;
 	} combine:combineBlock];
 
-	signal.name = [NSString stringWithFormat:@"[%@] -aggregateWithStart: %@ combine:", self.name, start];
-	return signal;
+	return [signal setNameWithFormat:@"[%@] -aggregateWithStart: %@ combine:", self.name, start];
 }
 
 - (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object {
@@ -693,9 +686,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 + (RACSignal *)interval:(NSTimeInterval)interval {
-	RACSignal *signal = [RACSignal interval:interval withLeeway:0.0];
-	signal.name = [NSString stringWithFormat:@"+interval: %f", (double)interval];
-	return signal;
+	return [[RACSignal interval:interval withLeeway:0.0] setNameWithFormat:@"+interval: %f", (double)interval];
 }
 
 + (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway {
@@ -779,14 +770,14 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	NSParameterAssert(trueSignal != nil);
 	NSParameterAssert(falseSignal != nil);
 
-	RACSignal *signal = [[boolSignal map:^(NSNumber *value) {
-		NSAssert([value isKindOfClass:NSNumber.class], @"Expected %@ to send BOOLs, not %@", boolSignal, value);
-		
-		return (value.boolValue ? trueSignal : falseSignal);
-	}] switch];
-
-	signal.name = [NSString stringWithFormat:@"+if: %@ then: %@ else: %@", boolSignal, trueSignal, falseSignal];
-	return signal;
+	return [[[boolSignal
+		map:^(NSNumber *value) {
+			NSAssert([value isKindOfClass:NSNumber.class], @"Expected %@ to send BOOLs, not %@", boolSignal, value);
+			
+			return (value.boolValue ? trueSignal : falseSignal);
+		}]
+		switch]
+		setNameWithFormat:@"+if: %@ then: %@ else: %@", boolSignal, trueSignal, falseSignal];
 }
 
 - (id)first {
@@ -916,36 +907,35 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 - (RACSequence *)sequence {
-	RACSequence *sequence = [RACSignalSequence sequenceWithSignal:self];
-	sequence.name = [NSString stringWithFormat:@"[%@] -sequence", self.name];
-	return sequence;
+	return [[RACSignalSequence sequenceWithSignal:self] setNameWithFormat:@"[%@] -sequence", self.name];
 }
 
 - (RACMulticastConnection *)publish {
-	RACSubject *subject = [RACSubject subject];
+	RACSubject *subject = [[RACSubject subject] setNameWithFormat:@"[%@] -publish", self.name];
 	RACMulticastConnection *connection = [self multicast:subject];
-	subject.name = [NSString stringWithFormat:@"[%@] -publish", self.name];
 	return connection;
 }
 
 - (RACMulticastConnection *)multicast:(RACSubject *)subject {
+	[subject setNameWithFormat:@"[%@] -multicast: %@", self.name, subject.name];
 	RACMulticastConnection *connection = [[RACMulticastConnection alloc] initWithSourceSignal:self subject:subject];
-	connection.signal.name = [NSString stringWithFormat:@"[%@] -multicast: %@", self.name, subject];
 	return connection;
 }
 
 - (RACSignal *)replay {
-	RACReplaySubject *subject = [RACReplaySubject subject];
+	RACReplaySubject *subject = [[RACReplaySubject subject] setNameWithFormat:@"[%@] -replay", self.name];
+
 	RACMulticastConnection *connection = [self multicast:subject];
-	subject.name = [NSString stringWithFormat:@"[%@] -replay", self.name];
 	[connection connect];
+
 	return connection.signal;
 }
 
 - (RACSignal *)replayLazily {
-	RACSignal *signal = [[self multicast:[RACReplaySubject subject]] autoconnect];
-	signal.name = [NSString stringWithFormat:@"[%@] -replayLazily", self.name];
-	return signal;
+	return [[[self
+		multicast:[RACReplaySubject subject]]
+		autoconnect]
+		setNameWithFormat:@"[%@] -replayLazily", self.name];
 }
 
 - (RACSignal *)timeout:(NSTimeInterval)interval {
@@ -1072,18 +1062,13 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 - (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock {
-	RACSignal *signal = [self groupBy:keyBlock transform:nil];
-	signal.name = [NSString stringWithFormat:@"[%@] -groupBy:", self.name];
-	return signal;
+	return [[self groupBy:keyBlock transform:nil] setNameWithFormat:@"[%@] -groupBy:", self.name];
 }
 
 - (RACSignal *)any {	
-	RACSignal *signal = [self any:^(id x) {
+	return [[self any:^(id x) {
 		return YES;
-	}];
-
-	signal.name = [NSString stringWithFormat:@"[%@] -any", self.name];
-	return signal;
+	}] setNameWithFormat:@"[%@] -any", self.name];
 }
 
 - (RACSignal *)any:(BOOL (^)(id object))predicateBlock {
@@ -1155,9 +1140,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 - (RACSignal *)retry {
-	RACSignal *signal = [self retry:0];
-	signal.name = [NSString stringWithFormat:@"[%@] -retry", self.name];
-	return signal;
+	return [[self retry:0] setNameWithFormat:@"[%@] -retry", self.name];
 }
 
 - (RACSignal *)sample:(RACSignal *)sampler {

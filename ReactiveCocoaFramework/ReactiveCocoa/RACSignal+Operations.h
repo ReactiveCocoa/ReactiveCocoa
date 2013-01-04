@@ -184,10 +184,11 @@ typedef NSInteger RACSignalError;
 // global concurrent high priority queue.
 + (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway;
 
-// Take `next`s until the `signalTrigger` sends a `next`.
+// Take `next`s until the `signalTrigger` sends `next` or `completed`.
 //
-// Returns a signal which passes through all events until `signalTrigger` sends
-// `next`, at which point the returned signal will send `completed`.
+// Returns a signal which passes through all events from the receiver until
+// `signalTrigger` sends `next` or `completed`, at which point the returned signal
+// will send `completed`.
 - (RACSignal *)takeUntil:(RACSignal *)signalTrigger;
 
 // Convert every `next` and `error` into a RACMaybe.

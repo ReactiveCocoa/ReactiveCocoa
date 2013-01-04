@@ -130,11 +130,11 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 	@weakify(binding);
 	binding->_target = target;
 	binding->_keyPath = [keyPath copy];
-	binding->_exposedSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	binding->_exposedSignal = [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		@strongify(binding);
 		[subscriber sendNext:[binding.target valueForKeyPath:binding.keyPath]];
 		return [binding.exposedSignalSubject subscribe:subscriber];
-	}];
+	}] setNameWithFormat:@"[+propertyWithTarget: %@ keyPath: %@] -binding", target, keyPath];
 	binding->_exposedSignalSubject = [RACSubject subject];
 	binding->_exposedSubscriberSubject = [RACSubject subject];
 	[binding->_exposedSubscriberSubject subscribeNext:^(id x) {
@@ -220,11 +220,11 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 	property->_target = target;
 	property->_keyPath = [keyPath copy];
 	@weakify(property);
-	property->_exposedSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	property->_exposedSignal = [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		@strongify(property);
 		[subscriber sendNext:[property.target valueForKeyPath:keyPath]];
 		return [[property.target rac_signalForKeyPath:property.keyPath onObject:property] subscribe:subscriber];
-	}];
+	}] setNameWithFormat:@"+propertyWithTarget: %@ keyPath: %@", target, keyPath];
 	property->_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
 		@strongify(property);
 		[property.target setValue:x forKeyPath:property.keyPath];

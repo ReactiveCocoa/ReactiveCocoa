@@ -210,3 +210,17 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 - (instancetype)skipWhileBlock:(BOOL (^)(id x))predicate;
 
 @end
+
+// Used in the implementation of RACNamedSignal() and RACNamedSequence(). Prefer
+// those variants instead.
+#define RACNamedStream(TYPE, NAME) \
+    TYPE NAME = [RACNamedStreamTrampoline trampoline][ @ # NAME ]
+    
+@interface RACNamedStreamTrampoline : NSObject
+
++ (instancetype)trampoline;
+
+- (id)objectForKeyedSubscript:(NSString *)name;
+- (void)setObject:(id)stream forKeyedSubscript:(NSString *)name;
+
+@end

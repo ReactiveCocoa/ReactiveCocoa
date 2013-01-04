@@ -14,6 +14,21 @@
 @class RACSubject;
 @protocol RACSubscriber;
 
+// Declares, initializes, and names a RACSignal variable.
+//
+// This macro must be used on the left-hand side of an assigment. It declares
+// a variable of type `RACSignal *`, performs the assignment, and then sets the
+// signal's name to `NAME`.
+//
+// Examples
+//
+//   RACNamedSignal(sig) = [RACSignal empty];
+//
+//   /* Prints 'sig'. */
+//   NSLog(@"%@", sig.name);
+#define RACNamedSignal(NAME) \
+    RACNamedStream(RACSignal *, NAME)
+
 @interface RACSignal : RACStream
 
 // Creates a new signal. This is the preferred way to create a new signal

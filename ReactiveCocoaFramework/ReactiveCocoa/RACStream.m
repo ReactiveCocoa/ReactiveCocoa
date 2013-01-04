@@ -9,6 +9,12 @@
 #import "RACStream.h"
 #import "RACTuple.h"
 
+@interface RACNamedStreamTrampoline ()
+
+@property (nonatomic, strong) RACStream *stream;
+
+@end
+
 @implementation RACStream
 
 #pragma mark Lifecycle
@@ -260,6 +266,27 @@
 
 	stream.name = [NSString stringWithFormat:@"[%@] -skipUntilBlock:", self.name];
 	return stream;
+}
+
+@end
+
+@implementation RACNamedStreamTrampoline
+
++ (instancetype)trampoline {
+	return [[self alloc] init];
+}
+
+- (id)objectForKeyedSubscript:(NSString *)name {
+	NSParameterAssert(name != nil);
+
+	return self.stream;
+}
+
+- (void)setObject:(RACStream *)stream forKeyedSubscript:(NSString *)name {
+	NSParameterAssert(name != nil);
+
+	stream.name = name;
+	self.stream = stream;
 }
 
 @end

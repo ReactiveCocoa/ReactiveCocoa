@@ -117,6 +117,18 @@ it(@"+createSignal:name: should set the name", ^{
 	expect(signal.name).to.equal(@"foo 5");
 });
 
+describe(@"RACNamedSignal", ^{
+	it(@"should set the name", ^{
+		RACNamedSignal(testSignal) = RACSignal.empty;
+		expect(testSignal.name).to.equal(@"testSignal");
+	});
+
+	it(@"should skip nil signals", ^{
+		RACNamedSignal(nilSignal) = nil;
+		expect(nilSignal).to.beNil();
+	});
+});
+
 describe(@"subscribing", ^{
 	__block RACSignal *signal = nil;
 	id nextValueSent = @"1";

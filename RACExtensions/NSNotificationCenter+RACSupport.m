@@ -11,7 +11,7 @@
 @implementation NSNotificationCenter (RACSupport)
 
 - (RACSignal *)rac_addObserverForName:(NSString *)notificationName object:(id)object {
-	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		id observer = [self addObserverForName:notificationName object:object queue:nil usingBlock:^(NSNotification *note) {
 			[subscriber sendNext:note];
 		}];
@@ -19,7 +19,7 @@
 		return [RACDisposable disposableWithBlock:^{
 			[NSNotificationCenter.defaultCenter removeObserver:observer];
 		}];
-	} name:@"-rac_addObserverForName: %@ object: %@", notificationName, object];
+	}] setNameWithFormat:@"-rac_addObserverForName: %@ object: %@", notificationName, object];
 }
 
 @end

@@ -19,7 +19,7 @@ static const void *RACObjectDisposables = &RACObjectDisposables;
 
 + (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath onObject:(NSObject *)onObject {
 	RACReplaySubject *subject = [RACReplaySubject replaySubjectWithCapacity:1];
-	subject.name = [NSString stringWithFormat:@"RACAble(%@, %@)", object, keyPath];
+	[subject setNameWithFormat:@"RACAble(%@, %@)", object, keyPath];
 
 	[onObject rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 		[subject sendCompleted];

@@ -74,11 +74,21 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 // of the same values
 + (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id)reduceBlock;
 
-// The name of the stream. This is for debugging/human purposes only.
+@end
+
+// This extension contains functionality to support naming streams for
+// debugging.
 //
-// This property does not need to be overridden by subclasses. It is included in
-// the main implementation body only for easy synthesis.
+// Subclasses do not need to override the methods here.
+@interface RACStream ()
+
+// The name of the stream. This is for debugging/human purposes only.
 @property (copy) NSString *name;
+
+// Sets the name of the receiver to the given format string.
+//
+// Returns the receiver, for easy method chaining.
+- (instancetype)setNameWithFormat:(NSString *)format, ... NS_FORMAT_FUNCTION(1, 2);
 
 @end
 

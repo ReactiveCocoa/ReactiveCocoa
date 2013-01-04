@@ -14,7 +14,7 @@
 	NSParameterAssert(scheduler != nil);
 	
 	RACReplaySubject *subject = [RACReplaySubject subject];
-	subject.name = [NSString stringWithFormat:@"+rac_readContentsOfURL: %@ options: %lu scheduler: %@", URL, (unsigned long)options, scheduler];
+	[subject setNameWithFormat:@"+rac_readContentsOfURL: %@ options: %lu scheduler: %@", URL, (unsigned long)options, scheduler];
 	
 	[scheduler schedule:^{
 		NSError *error = nil;

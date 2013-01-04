@@ -561,6 +561,25 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			verifyValues(mapped, @[ @"1 - 1", @"1 - 2", @"2 - 3" ]);
 		});
 	});
+
+	describe(@"naming", ^{
+		__block RACStream *stream;
+		
+		beforeEach(^{
+			stream = streamWithValues(@[]);
+		});
+
+		it(@"should have a name property", ^{
+			stream.name = @"foo";
+			expect(stream.name).to.equal(@"foo");
+		});
+
+		it(@"should set a formatted name", ^{
+			RACStream *result = [stream setNameWithFormat:@"foo %i %@", 5, @"bar"];
+			expect(result).to.beIdenticalTo(stream);
+			expect(stream.name).to.equal(@"foo 5 bar");
+		});
+	});
 });
 
 SharedExampleGroupsEnd

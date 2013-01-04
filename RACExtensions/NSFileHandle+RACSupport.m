@@ -13,7 +13,7 @@
 
 - (RACSignal *)rac_readInBackground {
 	RACReplaySubject *subject = [RACReplaySubject subject];
-	subject.name = [NSString stringWithFormat:@"%@ -rac_readInBackground", self];
+	[subject setNameWithFormat:@"%@ -rac_readInBackground", self];
 
 	RACSignal *dataNotification = [[[NSNotificationCenter defaultCenter] rac_addObserverForName:NSFileHandleReadCompletionNotification object:self] map:^(NSNotification *note) {
 		return [note.userInfo objectForKey:NSFileHandleNotificationDataItem];

@@ -17,7 +17,7 @@
 }
 
 @property (nonatomic, readonly, strong) RACSignal *sourceSignal;
-@property (nonatomic, readonly, strong) RACCompoundDisposable *disposable;
+@property (strong) RACDisposable *disposable;
 
 // Should only be used while synchronized on self.
 @property (nonatomic, assign) BOOL hasConnected;
@@ -34,7 +34,6 @@
 	self = [super init];
 	if (self == nil) return nil;
 
-	_disposable = [RACCompoundDisposable compoundDisposable];
 	_sourceSignal = source;
 	_signal = subject;
 	
@@ -53,8 +52,7 @@
 	}
 
 	if (shouldConnect) {
-		RACDisposable *sourceDisposable = [self.sourceSignal subscribe:_signal];
-		if (sourceDisposable != nil) [self.disposable addDisposable:sourceDisposable];
+		self.disposable = [self.sourceSignal subscribe:_signal];
 	}
 
 	return self.disposable;
@@ -63,7 +61,6 @@
 - (RACSignal *)autoconnect {
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		RACDisposable *subscriptionDisposable = [self.signal subscribe:subscriber];
-		if (subscriptionDisposable != nil) [self.disposable addDisposable:subscriptionDisposable];
 		[self connect];
 
 		return [RACDisposable disposableWithBlock:^{

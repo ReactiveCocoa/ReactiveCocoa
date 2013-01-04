@@ -36,9 +36,7 @@
 #pragma mark Lifecycle
 
 + (RACSequence *)sequenceWithHeadBlock:(id (^)(void))headBlock tailBlock:(RACSequence *(^)(void))tailBlock {
-	RACSequence *sequence = [RACDynamicSequence sequenceWithHeadBlock:headBlock tailBlock:tailBlock];
-	sequence.name = @"+sequenceWithHeadBlock:tailBlock:";
-	return sequence;
+	return [[RACDynamicSequence sequenceWithHeadBlock:headBlock tailBlock:tailBlock] setNameWithFormat:@"+sequenceWithHeadBlock:tailBlock:"];
 }
 
 #pragma mark Class cluster primitives
@@ -64,15 +62,12 @@
 		return value;
 	} tailBlock:nil];
 
-	sequence.name = [NSString stringWithFormat:@"+return: %@", value];
-	return sequence;
+	return [sequence setNameWithFormat:@"+return: %@", value];
 }
 
 - (instancetype)bind:(RACStreamBindBlock (^)(void))block {
 	RACStreamBindBlock bindBlock = block();
-	RACSequence *sequence = [self bind:bindBlock passingThroughValuesFromSequence:nil];
-	sequence.name = [NSString stringWithFormat:@"[%@] -bind:", self.name];
-	return sequence;
+	return [[self bind:bindBlock passingThroughValuesFromSequence:nil] setNameWithFormat:@"[%@] -bind:", self.name];
 }
 
 - (instancetype)bind:(RACStreamBindBlock)bindBlock passingThroughValuesFromSequence:(RACSequence *)passthroughSequence {
@@ -121,9 +116,9 @@
 - (instancetype)concat:(RACStream *)stream {
 	NSParameterAssert(stream != nil);
 
-	RACSequence *sequence = [RACArraySequence sequenceWithArray:@[ self, stream ] offset:0].flatten;
-	sequence.name = [NSString stringWithFormat:@"[%@] -concat: %@", self.name, stream];
-	return sequence;
+	return [[[RACArraySequence sequenceWithArray:@[ self, stream ] offset:0]
+		flatten]
+		setNameWithFormat:@"[%@] -concat: %@", self.name, stream];
 }
 
 + (instancetype)zip:(id<NSFastEnumeration>)sequences reduce:(id)reduceBlock {
@@ -159,8 +154,7 @@
 		return [RACSequence zip:tails reduce:reduceBlock];
 	}];
 
-	sequence.name = [NSString stringWithFormat:@"+zip: %@ reduce:", sequencesArray];
-	return sequence;
+	return [sequence setNameWithFormat:@"+zip: %@ reduce:", sequencesArray];
 }
 
 #pragma mark Extended methods
@@ -175,13 +169,11 @@
 }
 
 - (RACSignal *)signal {
-	RACSignal *signal = [self signalWithScheduler:[RACScheduler scheduler]];
-	signal.name = [NSString stringWithFormat:@"[%@] -signal", self.name];
-	return signal;
+	return [[self signalWithScheduler:[RACScheduler scheduler]] setNameWithFormat:@"[%@] -signal", self.name];
 }
 
 - (RACSignal *)signalWithScheduler:(RACScheduler *)scheduler {
-	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACSequence *sequence = self;
 
 		return [scheduler scheduleRecursiveBlock:^(void (^reschedule)(void)) {
@@ -195,7 +187,7 @@
 			sequence = sequence.tail;
 			reschedule();
 		}];
-	} name:@"[%@] -signalWithScheduler:", self.name];
+	}] setNameWithFormat:@"[%@] -signalWithScheduler:", self.name];
 }
 
 - (RACSequence *)eagerSequence {

@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		24532B5F169643E4003585AA /* ReactiveCocoa.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 88037F8C15056328001A5B19 /* ReactiveCocoa.h */; };
-		24532B60169643E4003585AA /* NSObject+RACExtensions.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8857BB7C152A2747009804CC /* NSObject+RACExtensions.h */; };
+		24532B60169643E4003585AA /* (null) in CopyFiles */ = {isa = PBXBuildFile; };
 		24532B61169643E4003585AA /* RACSwizzling.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8867D5F7152BDAC300321BD5 /* RACSwizzling.h */; };
 		24532B62169643E4003585AA /* RACSubscriber.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 88CDF7FA150019CA00163A9F /* RACSubscriber.h */; };
 		24532B63169643E4003585AA /* RACBlockTrampoline.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 888439A11634E10D00DED0DB /* RACBlockTrampoline.h */; };
@@ -390,7 +390,7 @@
 				24532B9A16964501003585AA /* EXTScope.h in CopyFiles */,
 				24532B9B16964501003585AA /* metamacros.h in CopyFiles */,
 				24532B5F169643E4003585AA /* ReactiveCocoa.h in CopyFiles */,
-				24532B60169643E4003585AA /* NSObject+RACExtensions.h in CopyFiles */,
+				24532B60169643E4003585AA /* (null) in CopyFiles */,
 				24532B61169643E4003585AA /* RACSwizzling.h in CopyFiles */,
 				24532B62169643E4003585AA /* RACSubscriber.h in CopyFiles */,
 				24532B63169643E4003585AA /* RACBlockTrampoline.h in CopyFiles */,

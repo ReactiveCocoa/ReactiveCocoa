@@ -13,12 +13,12 @@
 @implementation UITextField (RACSignalSupport)
 
 - (RACSignal *)rac_textSignal {
-	RACSignal *signal = [[[self rac_signalForControlEvents:UIControlEventEditingChanged] startWith:self] map:^(UITextField *x) {
-		return x.text;
-	}];
-
-	signal.name = [NSString stringWithFormat:@"%@ -rac_textSignal", self];
-	return signal;
+	return [[[[self rac_signalForControlEvents:UIControlEventEditingChanged]
+		startWith:self]
+		map:^(UITextField *x) {
+			return x.text;
+		}]
+		setNameWithFormat:@"%@ -rac_textSignal", self];
 }
 
 @end

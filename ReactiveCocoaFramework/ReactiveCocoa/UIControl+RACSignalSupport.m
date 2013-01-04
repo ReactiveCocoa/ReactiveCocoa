@@ -14,7 +14,7 @@
 
 - (RACSignal *)rac_signalForControlEvents:(UIControlEvents)controlEvents {
 	RACEventTrampoline *trampoline = [RACEventTrampoline trampolineForControl:self controlEvents:controlEvents];
-	trampoline.subject.name = [NSString stringWithFormat:@"%@ -rac_signalForControlEvents: %lx", self, (unsigned long)controlEvents];
+	[trampoline.subject setNameWithFormat:@"%@ -rac_signalForControlEvents: %lx", self, (unsigned long)controlEvents];
 
 	NSMutableSet *controlEventTrampolines = objc_getAssociatedObject(self, RACEventTrampolinesKey);
 	if (controlEventTrampolines == nil) {

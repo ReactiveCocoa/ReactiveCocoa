@@ -38,18 +38,6 @@ describe(@"RACStream", ^{
 	}, nil);
 });
 
-describe(@"RACNamedSequence", ^{
-	it(@"should set the name", ^{
-		RACNamedSequence(testSequence) = RACSequence.empty;
-		expect(testSequence.name).to.equal(@"testSequence");
-	});
-
-	it(@"should skip nil sequences", ^{
-		RACNamedSequence(nilSequence) = nil;
-		expect(nilSequence).to.beNil();
-	});
-});
-
 describe(@"+sequenceWithHeadBlock:tailBlock:", ^{
 	__block RACSequence *sequence;
 	__block BOOL headInvoked;

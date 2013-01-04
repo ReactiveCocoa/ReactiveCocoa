@@ -68,17 +68,59 @@ describe(@"+mainThreadScheduler", ^{
 
 		[disposable dispose];
 
+		expect(secondBlockRan).to.beFalsy();
+		expect(secondBlockRan).will.beTruthy();
+		expect(firstBlockRan).to.beFalsy();
+	});
+
+	it(@"should schedule future blocks", ^{
+		__block BOOL done = NO;
+
+		[RACScheduler.mainThreadScheduler after:DISPATCH_TIME_NOW schedule:^{
+			done = YES;
+		}];
+
+		expect(done).to.beFalsy();
+		expect(done).will.beTruthy();
+	});
+
+	it(@"should cancel future blocks when disposed", ^{
+		__block BOOL firstBlockRan = NO;
+		__block BOOL secondBlockRan = NO;
+
+		RACDisposable *disposable = [RACScheduler.mainThreadScheduler after:DISPATCH_TIME_NOW schedule:^{
+			firstBlockRan = YES;
+		}];
+
+		expect(disposable).notTo.beNil();
+
+		[RACScheduler.mainThreadScheduler after:DISPATCH_TIME_NOW schedule:^{
+			secondBlockRan = YES;
+		}];
+
+		[disposable dispose];
+
+		expect(secondBlockRan).to.beFalsy();
 		expect(secondBlockRan).will.beTruthy();
 		expect(firstBlockRan).to.beFalsy();
 	});
 });
 
 describe(@"+scheduler", ^{
+	__block RACScheduler *scheduler;
+	__block dispatch_time_t (^futureTime)(void);
+
+	beforeEach(^{
+		scheduler = [RACScheduler scheduler];
+
+		futureTime = ^{
+			return dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC));
+		};
+	});
+
 	it(@"should cancel scheduled blocks when disposed", ^{
 		__block BOOL firstBlockRan = NO;
 		__block BOOL secondBlockRan = NO;
-
-		RACScheduler *scheduler = [RACScheduler scheduler];
 
 		// Start off on the scheduler so the enqueued blocks won't run until we
 		// return.
@@ -96,6 +138,39 @@ describe(@"+scheduler", ^{
 			[disposable dispose];
 		}];
 
+		expect(secondBlockRan).will.beTruthy();
+		expect(firstBlockRan).to.beFalsy();
+	});
+
+	it(@"should schedule future blocks", ^{
+		__block BOOL done = NO;
+
+		[scheduler after:futureTime() schedule:^{
+			done = YES;
+		}];
+
+		expect(done).to.beFalsy();
+		expect(done).will.beTruthy();
+	});
+
+	it(@"should cancel future blocks when disposed", ^{
+		__block BOOL firstBlockRan = NO;
+		__block BOOL secondBlockRan = NO;
+
+		dispatch_time_t time = futureTime();
+
+		RACDisposable *disposable = [scheduler after:time schedule:^{
+			firstBlockRan = YES;
+		}];
+
+		expect(disposable).notTo.beNil();
+		[disposable dispose];
+
+		[scheduler after:time schedule:^{
+			secondBlockRan = YES;
+		}];
+
+		expect(secondBlockRan).to.beFalsy();
 		expect(secondBlockRan).will.beTruthy();
 		expect(firstBlockRan).to.beFalsy();
 	});
@@ -168,6 +243,16 @@ describe(@"+immediateScheduler", ^{
 
 		expect(disposable).to.beNil();
 		expect(executed).to.beTruthy();
+	});
+
+	it(@"should block for future scheduled blocks", ^{
+		__block BOOL executed = NO;
+		RACDisposable *disposable = [RACScheduler.immediateScheduler after:dispatch_time(DISPATCH_TIME_NOW, 1000) schedule:^{
+			executed = YES;
+		}];
+
+		expect(executed).to.beTruthy();
+		expect(disposable).to.beNil();
 	});
 });
 

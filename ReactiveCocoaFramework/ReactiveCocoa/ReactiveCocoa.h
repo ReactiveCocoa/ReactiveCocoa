@@ -36,7 +36,7 @@
 #import <ReactiveCocoa/RACCompoundDisposable.h>
 
 #ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
-#import <ReactiveCocoa/libextobjc/extobjc/EXTKeyPathCoding.h>
+#import <ReactiveCocoa/EXTKeyPathCoding.h>
 #import <ReactiveCocoa/UIControl+RACSignalSupport.h>
 #import <ReactiveCocoa/UITextField+RACSignalSupport.h>
 #import <ReactiveCocoa/UITextView+RACSignalSupport.h>

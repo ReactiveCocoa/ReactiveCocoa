@@ -90,28 +90,26 @@ describe(@"-autoconnect", ^{
 		[disposable dispose];
 	});
 
-	it(@"should replay values after completion when multicasted to a replay subject", ^{
-		__block NSUInteger disposeCount = 0;
-		RACSignal *s = [[[[RACSignal
-			createSignal:^(id<RACSubscriber> subscriber) {
-				[subscriber sendNext:@1];
-				[subscriber sendNext:@2];
-				[subscriber sendCompleted];
-				return [RACDisposable disposableWithBlock:^{
-					disposeCount++;
-				}];
-			}]
-			collect]
-			multicast:[RACReplaySubject subject]]
-			autoconnect];
+	it(@"should replay values after disposal when multicasted to a replay subject", ^{
+		RACSubject *subject = [RACSubject subject];
+		RACSignal *signal = [[subject multicast:[RACReplaySubject subject]] autoconnect];
 
-		NSArray *results = [s first];
-		expect(disposeCount).to.equal(1);
-		expect(results).to.equal((@[ @1, @2 ]));
+		NSMutableArray *results1 = [NSMutableArray array];
+		RACDisposable *disposable = [signal subscribeNext:^(id x) {
+			[results1 addObject:x];
+		}];
 
-		results = [s first];
-		expect(disposeCount).to.equal(1);
-		expect(results).to.equal((@[ @1, @2 ]));
+		[subject sendNext:@1];
+		[subject sendNext:@2];
+		
+		expect(results1).to.equal((@[ @1, @2 ]));
+		[disposable dispose];
+
+		NSMutableArray *results2 = [NSMutableArray array];
+		[signal subscribeNext:^(id x) {
+			[results2 addObject:x];
+		}];
+		expect(results2).will.equal((@[ @1, @2 ]));
 	});
 });
 

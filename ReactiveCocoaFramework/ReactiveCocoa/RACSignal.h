@@ -61,10 +61,6 @@
 // simultaneously!
 + (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe;
 
-// Convenience constructor which invokes +createSignal: and then sets the `name`
-// of the resulting signal to the given format string.
-+ (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe name:(NSString *)format, ... NS_FORMAT_FUNCTION(2, 3);
-
 // Returns a signal that immediately sends the given error.
 + (RACSignal *)error:(NSError *)error;
 

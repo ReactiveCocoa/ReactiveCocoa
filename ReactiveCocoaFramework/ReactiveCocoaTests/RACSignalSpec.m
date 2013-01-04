@@ -109,14 +109,6 @@ describe(@"RACStream", ^{
 	}, nil);
 });
 
-it(@"+createSignal:name: should set the name", ^{
-	RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
-		return nil;
-	} name:@"foo %i", 5];
-
-	expect(signal.name).to.equal(@"foo 5");
-});
-
 describe(@"RACNamedSignal", ^{
 	it(@"should set the name", ^{
 		RACNamedSignal(testSignal) = RACSignal.empty;

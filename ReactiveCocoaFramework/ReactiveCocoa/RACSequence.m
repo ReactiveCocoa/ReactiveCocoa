@@ -181,7 +181,7 @@
 }
 
 - (RACSignal *)signalWithScheduler:(RACScheduler *)scheduler {
-	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACSequence *sequence = self;
 
 		return [scheduler scheduleRecursiveBlock:^(void (^reschedule)(void)) {
@@ -195,7 +195,7 @@
 			sequence = sequence.tail;
 			reschedule();
 		}];
-	} name:@"[%@] -signalWithScheduler:", self.name];
+	}] setNameWithFormat:@"[%@] -signalWithScheduler:", self.name];
 }
 
 - (RACSequence *)eagerSequence {

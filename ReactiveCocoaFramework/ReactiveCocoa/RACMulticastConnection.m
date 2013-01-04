@@ -61,7 +61,7 @@
 }
 
 - (RACSignal *)autoconnect {
-	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		RACDisposable *subscriptionDisposable = [self.signal subscribe:subscriber];
 		if (subscriptionDisposable != nil) [self.disposable addDisposable:subscriptionDisposable];
 		[self connect];
@@ -75,7 +75,7 @@
 				}
 			}
 		}];
-	} name:@"[%@] -autoconnect", self.signal.name];
+	}] setNameWithFormat:@"[%@] -autoconnect", self.signal.name];
 }
 
 @end

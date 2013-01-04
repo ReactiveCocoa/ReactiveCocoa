@@ -48,28 +48,17 @@ static NSMutableSet *activeSignals() {
 	return signal;
 }
 
-+ (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe name:(NSString *)format, ... NS_FORMAT_FUNCTION(2, 3) {
-	RACSignal *signal = [self createSignal:didSubscribe];
-
-	va_list args;
-	va_start(args, format);
-	signal.name = [[NSString alloc] initWithFormat:format arguments:args];
-	va_end(args);
-
-	return signal;
-}
-
 + (RACSignal *)error:(NSError *)error {
-	return [self createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+	return [[self createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		[subscriber sendError:error];
 		return nil;
-	} name:@"+error: %@", error];
+	}] setNameWithFormat:@"+error: %@", error];
 }
 
 + (RACSignal *)never {
-	return [self createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+	return [[self createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		return nil;
-	} name:@"+never"];
+	}] setNameWithFormat:@"+never"];
 }
 
 + (RACSignal *)start:(id (^)(BOOL *success, NSError **error))block {
@@ -184,18 +173,18 @@ static NSMutableSet *activeSignals() {
 @implementation RACSignal (RACStream)
 
 + (RACSignal *)empty {
-	return [self createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+	return [[self createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		[subscriber sendCompleted];
 		return nil;
-	} name:@"+empty"];
+	}] setNameWithFormat:@"+empty"];
 }
 
 + (RACSignal *)return:(id)value {
-	return [self createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+	return [[self createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		[subscriber sendNext:value];
 		[subscriber sendCompleted];
 		return nil;
-	} name:@"+return: %@", value];
+	}] setNameWithFormat:@"+return: %@", value];
 }
 
 - (RACSignal *)bind:(RACStreamBindBlock (^)(void))block {
@@ -213,7 +202,7 @@ static NSMutableSet *activeSignals() {
 	 * If any signal sends an error at any point, send that to the subscriber.
 	 */
 
-	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		RACStreamBindBlock bindingBlock = block();
 
 		NSMutableArray *signals = [NSMutableArray arrayWithObject:self];
@@ -263,13 +252,13 @@ static NSMutableSet *activeSignals() {
 		if (bindingDisposable != nil) [compoundDisposable addDisposable:bindingDisposable];
 
 		return compoundDisposable;
-	} name:@"[%@] -bind:", self.name];
+	}] setNameWithFormat:@"[%@] -bind:", self.name];
 }
 
 - (RACSignal *)map:(id (^)(id value))block {
 	NSParameterAssert(block != NULL);
 	
-	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		return [self subscribeNext:^(id x) {
 			[subscriber sendNext:block(x)];
 		} error:^(NSError *error) {
@@ -277,11 +266,11 @@ static NSMutableSet *activeSignals() {
 		} completed:^{
 			[subscriber sendCompleted];
 		}];
-	} name:@"[%@] -map:", self.name];
+	}] setNameWithFormat:@"[%@] -map:", self.name];
 }
 
 - (RACSignal *)concat:(RACSignal *)signal {
-	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *concattedDisposable = nil;
 		RACDisposable *sourceDisposable = [self subscribeNext:^(id x) {
 			[subscriber sendNext:x];
@@ -301,7 +290,7 @@ static NSMutableSet *activeSignals() {
 			[sourceDisposable dispose];
 			[concattedDisposable dispose];
 		}];
-	} name:@"[%@] -concat: %@", self.name, signal];
+	}] setNameWithFormat:@"[%@] -concat: %@", self.name, signal];
 }
 
 - (RACSignal *)flatten {
@@ -313,9 +302,11 @@ static NSMutableSet *activeSignals() {
 	for (RACSignal *signal in signals) {
 		[signalsArray addObject:signal];
 	}
-	if (signalsArray.count == 0) return self.empty;
+
 	NSUInteger numSignals = signalsArray.count;
-	return [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+	if (numSignals == 0) return self.empty;
+
+	return [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		NSMutableArray *disposables = [NSMutableArray arrayWithCapacity:numSignals];
 		NSMutableIndexSet *completedBySignal = [NSMutableIndexSet indexSet];
 		NSMutableArray *valuesBySignal = [NSMutableArray arrayWithCapacity:numSignals];
@@ -382,7 +373,7 @@ static NSMutableSet *activeSignals() {
 		return [RACDisposable disposableWithBlock:^{
 			[disposables makeObjectsPerformSelector:@selector(dispose)];
 		}];
-	} name:@"+zip: %@ reduce:", signalsArray];
+	}] setNameWithFormat:@"+zip: %@ reduce:", signalsArray];
 }
 
 @end

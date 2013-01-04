@@ -64,6 +64,24 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 // it begins executing, or nil if cancellation is not supported.
 - (RACDisposable *)schedule:(void (^)(void))block;
 
+// Schedule the given block for execution on the scheduler at or after
+// a specific time.
+//
+// Note that blocks scheduled for a certain time will not preempt any other
+// scheduled work that is executing at the time.
+//
+// When invoked on the +immediateScheduler, the calling thread **will block**
+// until the specified time.
+//
+// when  - The earliest time at which `block` should begin executing. The block
+//         may not execute immediately at this time, whether due to system load
+//         or another block on the scheduler currently being run.
+// block - The block to schedule for execution. Cannot be nil.
+//
+// Returns a disposable which can be used to cancel the scheduled block before
+// it begins executing, or nil if cancellation is not supported.
+- (RACDisposable *)after:(dispatch_time_t)when schedule:(void (^)(void))block;
+
 // Schedule the given recursive block for execution on the scheduler. The
 // scheduler will automatically flatten any recursive scheduling into iteration
 // instead, so this can be used without issue for blocks that may keep invoking

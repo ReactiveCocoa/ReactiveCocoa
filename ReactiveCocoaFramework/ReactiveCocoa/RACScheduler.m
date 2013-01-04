@@ -96,7 +96,12 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 #pragma mark Scheduling
 
 - (RACDisposable *)schedule:(void (^)(void))block {
-	NSAssert(NO, @"-schedule: must be implemented by a subclass.");
+	NSAssert(NO, @"-schedule: must be implemented by subclasses.");
+	return nil;
+}
+
+- (RACDisposable *)after:(dispatch_time_t)when schedule:(void (^)(void))block {
+	NSAssert(NO, @"-after:schedule: must be implemented by subclasses.");
 	return nil;
 }
 

@@ -9,7 +9,6 @@
 #import "RACSignal+Operations.h"
 #import "EXTScope.h"
 #import "NSArray+RACSequenceAdditions.h"
-#import "NSObject+RACExtensions.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACBehaviorSubject.h"
 #import "RACBlockTrampoline.h"
@@ -149,34 +148,76 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 
 - (RACSignal *)throttle:(NSTimeInterval)interval {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		__block id lastDelayedId = nil;
-		return [self subscribeNext:^(id x) {
-			if(lastDelayedId != nil) [self rac_cancelPreviousPerformBlockRequestsWithId:lastDelayedId];
-			lastDelayedId = [self rac_performBlock:^{
+		// We may never use this scheduler, but we need to set it up ahead of
+		// time so that our scheduled blocks are run serially if we do.
+		RACScheduler *scheduler = [RACScheduler scheduler];
+
+		__block RACDisposable *lastDisposable = nil;
+
+		RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
+			[lastDisposable dispose];
+
+			dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(interval * NSEC_PER_SEC));
+			RACScheduler *delayScheduler = RACScheduler.currentScheduler ?: scheduler;
+
+			RACDisposable *nextDisposable = [delayScheduler after:time schedule:^{
 				[subscriber sendNext:x];
-			} afterDelay:interval];
+			}];
+
+			@synchronized (scheduler) {
+				// This assignment only needs to be synchronized with the
+				// disposable returned from -throttle:. The subscriber blocks
+				// are already serialized.
+				lastDisposable = nextDisposable;
+			}
 		} error:^(NSError *error) {
-			[self rac_cancelPreviousPerformBlockRequestsWithId:lastDelayedId];
+			[lastDisposable dispose];
 			[subscriber sendError:error];
 		} completed:^{
+			[lastDisposable dispose];
 			[subscriber sendCompleted];
+		}];
+
+		return [RACDisposable disposableWithBlock:^{
+			[subscriptionDisposable dispose];
+
+			@synchronized (scheduler) {
+				[lastDisposable dispose];
+			}
 		}];
 	}] setNameWithFormat:@"[%@] -throttle: %f", self.name, (double)interval];
 }
 
 - (RACSignal *)delay:(NSTimeInterval)interval {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		__block id lastDelayedId = nil;
-		return [self subscribeNext:^(id x) {
-			lastDelayedId = [self rac_performBlock:^{
+		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+
+		// We may never use this scheduler, but we need to set it up ahead of
+		// time so that our scheduled blocks are run serially if we do.
+		RACScheduler *scheduler = [RACScheduler scheduler];
+
+		void (^schedule)(dispatch_block_t) = ^(dispatch_block_t block) {
+			dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(interval * NSEC_PER_SEC));
+			RACScheduler *delayScheduler = RACScheduler.currentScheduler ?: scheduler;
+
+			RACDisposable *schedulerDisposable = [delayScheduler after:time schedule:block];
+			if (schedulerDisposable != nil) [disposable addDisposable:schedulerDisposable];
+		};
+
+		RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
+			schedule(^{
 				[subscriber sendNext:x];
-			} afterDelay:interval];
+			});
 		} error:^(NSError *error) {
-			[self rac_cancelPreviousPerformBlockRequestsWithId:lastDelayedId];
 			[subscriber sendError:error];
 		} completed:^{
-			[subscriber sendCompleted];
+			schedule(^{
+				[subscriber sendCompleted];
+			});
 		}];
+
+		if (subscriptionDisposable != nil) [disposable addDisposable:subscriptionDisposable];
+		return disposable;
 	}] setNameWithFormat:@"[%@] -delay: %f", self.name, (double)interval];
 }
 

@@ -1514,6 +1514,136 @@ describe(@"+interval: and +interval:withLeeway:", ^{
 	});
 });
 
+describe(@"-delay:", ^{
+	__block RACSubject *subject;
+	__block RACSignal *delayedSignal;
+
+	beforeEach(^{
+		subject = [RACSubject subject];
+		delayedSignal = [subject delay:0];
+	});
+
+	it(@"should delay nexts", ^{
+		__block id next = nil;
+		[delayedSignal subscribeNext:^(id x) {
+			next = x;
+		}];
+
+		[subject sendNext:@"foo"];
+		expect(next).to.beNil();
+		expect(next).will.equal(@"foo");
+	});
+
+	it(@"should delay completed", ^{
+		__block BOOL completed = NO;
+		[delayedSignal subscribeCompleted:^{
+			completed = YES;
+		}];
+
+		[subject sendCompleted];
+		expect(completed).to.beFalsy();
+		expect(completed).will.beTruthy();
+	});
+
+	it(@"should not delay errors", ^{
+		__block NSError *error = nil;
+		[delayedSignal subscribeError:^(NSError *e) {
+			error = e;
+		}];
+
+		[subject sendError:RACSignalTestError];
+		expect(error).to.equal(RACSignalTestError);
+	});
+
+	it(@"should cancel delayed events when disposed", ^{
+		__block id next = nil;
+		RACDisposable *disposable = [delayedSignal subscribeNext:^(id x) {
+			next = x;
+		}];
+
+		[subject sendNext:@"foo"];
+
+		__block BOOL done = NO;
+		[RACScheduler.mainThreadScheduler after:dispatch_time(DISPATCH_TIME_NOW, 1) schedule:^{
+			done = YES;
+		}];
+
+		[disposable dispose];
+
+		expect(done).will.beTruthy();
+		expect(next).to.beNil();
+	});
+});
+
+describe(@"-throttle:", ^{
+	__block RACSubject *subject;
+	__block RACSignal *throttledSignal;
+
+	beforeEach(^{
+		subject = [RACSubject subject];
+		throttledSignal = [subject throttle:0];
+	});
+
+	it(@"should throttle nexts", ^{
+		NSMutableArray *valuesReceived = [NSMutableArray array];
+		[throttledSignal subscribeNext:^(id x) {
+			[valuesReceived addObject:x];
+		}];
+
+		[subject sendNext:@"foo"];
+		[subject sendNext:@"bar"];
+		expect(valuesReceived).to.equal(@[]);
+
+		NSArray *expected = @[ @"bar" ];
+		expect(valuesReceived).will.equal(expected);
+
+		[subject sendNext:@"buzz"];
+		expect(valuesReceived).to.equal(expected);
+
+		expected = @[ @"bar", @"buzz" ];
+		expect(valuesReceived).will.equal(expected);
+	});
+
+	it(@"should forward completed immediately", ^{
+		__block BOOL completed = NO;
+		[throttledSignal subscribeCompleted:^{
+			completed = YES;
+		}];
+
+		[subject sendCompleted];
+		expect(completed).to.beTruthy();
+	});
+
+	it(@"should forward errors immediately", ^{
+		__block NSError *error = nil;
+		[throttledSignal subscribeError:^(NSError *e) {
+			error = e;
+		}];
+
+		[subject sendError:RACSignalTestError];
+		expect(error).to.equal(RACSignalTestError);
+	});
+
+	it(@"should cancel future nexts when disposed", ^{
+		__block id next = nil;
+		RACDisposable *disposable = [throttledSignal subscribeNext:^(id x) {
+			next = x;
+		}];
+
+		[subject sendNext:@"foo"];
+
+		__block BOOL done = NO;
+		[RACScheduler.mainThreadScheduler after:dispatch_time(DISPATCH_TIME_NOW, 1) schedule:^{
+			done = YES;
+		}];
+
+		[disposable dispose];
+
+		expect(done).will.beTruthy();
+		expect(next).to.beNil();
+	});
+});
+
 describe(@"-sequenceNext:", ^{
 	it(@"should continue onto returned signal", ^{
 		RACSubject *subject = [RACSubject subject];

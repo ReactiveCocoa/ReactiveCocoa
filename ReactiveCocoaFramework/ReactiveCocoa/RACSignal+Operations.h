@@ -185,6 +185,9 @@ typedef NSInteger RACSignalError;
 + (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway;
 
 // Take `next`s until the `signalTrigger` sends a `next`.
+//
+// Returns a signal which passes through all events until `signalTrigger` sends
+// `next`, at which point the returned signal will send `completed`.
 - (RACSignal *)takeUntil:(RACSignal *)signalTrigger;
 
 // Convert every `next` and `error` into a RACMaybe.

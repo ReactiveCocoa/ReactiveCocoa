@@ -40,7 +40,18 @@ typedef NSInteger RACSignalError;
 // into the signal.
 - (RACSignal *)doCompleted:(void (^)(void))block;
 
-// Only send `next` when we don't receive another `next` in `interval` seconds.
+// Send `next`s only if we don't receive another `next` in `interval` seconds.
+//
+// If a `next` is received, and then another `next` is received before
+// `interval` seconds have passed, the first value is discarded.
+//
+// After `interval` seconds have passed since the most recent `next` was sent,
+// the most recent `next` is forwarded on the scheduler that the value was
+// originally received on. If +[RACScheduler currentScheduler] was nil at the
+// time, a private background scheduler is used.
+//
+// Returns a signal which sends throttled and delayed `next` events. Completion
+// and errors are always forwarded immediately.
 - (RACSignal *)throttle:(NSTimeInterval)interval;
 
 // Forwards `next` and `completed` events after delaying for `interval` seconds

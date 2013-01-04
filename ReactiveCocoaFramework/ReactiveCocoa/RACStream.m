@@ -49,6 +49,21 @@
 	return nil;
 }
 
+#pragma mark Naming
+
+- (instancetype)setNameWithFormat:(NSString *)format, ... {
+	NSParameterAssert(format != nil);
+
+	va_list args;
+	va_start(args, format);
+
+	NSString *str = [[NSString alloc] initWithFormat:format arguments:args];
+	va_end(args);
+
+	self.name = str;
+	return self;
+}
+
 @end
 
 @implementation RACStream (Operations)

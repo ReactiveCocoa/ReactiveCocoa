@@ -1510,6 +1510,67 @@ describe(@"+interval: and +interval:withLeeway:", ^{
 	});
 });
 
+describe(@"-delay:", ^{
+	__block RACSubject *subject;
+	__block RACSignal *delayedSignal;
+
+	beforeEach(^{
+		subject = [RACSubject subject];
+		delayedSignal = [subject delay:0];
+	});
+
+	it(@"should delay nexts", ^{
+		__block id next = nil;
+		[delayedSignal subscribeNext:^(id x) {
+			next = x;
+		}];
+
+		[subject sendNext:@"foo"];
+		expect(next).to.beNil();
+		expect(next).will.equal(@"foo");
+	});
+
+	it(@"should delay completed", ^{
+		__block BOOL completed = NO;
+		[delayedSignal subscribeCompleted:^{
+			completed = YES;
+		}];
+
+		[subject sendCompleted];
+		expect(completed).to.beFalsy();
+		expect(completed).will.beTruthy();
+	});
+
+	it(@"should not delay errors", ^{
+		__block NSError *error = nil;
+		[delayedSignal subscribeError:^(NSError *e) {
+			error = e;
+		}];
+
+		[subject sendError:RACSignalTestError];
+		expect(error).to.equal(RACSignalTestError);
+	});
+
+	it(@"should cancel delayed events when disposed", ^{
+		__block id next = nil;
+		RACDisposable *disposable = [delayedSignal subscribeNext:^(id x) {
+			next = x;
+		}];
+
+		[subject sendNext:@"foo"];
+
+		__block BOOL done = NO;
+		[RACScheduler.mainThreadScheduler after:dispatch_time(DISPATCH_TIME_NOW, 1) schedule:^{
+			done = YES;
+		}];
+
+		[disposable dispose];
+
+		expect(done).will.beTruthy();
+		expect(next).to.beNil();
+	});
+});
+
 describe(@"-sequenceNext:", ^{
 	it(@"should continue onto returned signal", ^{
 		RACSubject *subject = [RACSubject subject];

@@ -65,4 +65,19 @@ static void currentSchedulerRelease(void *context) {
 	}];
 }
 
+- (RACDisposable *)after:(dispatch_time_t)when schedule:(void (^)(void))block {
+	NSParameterAssert(block != NULL);
+
+	__block volatile uint32_t disposed = 0;
+
+	dispatch_after(when, self.queue, ^{
+		if (disposed != 0) return;
+		[self performAsCurrentScheduler:block];
+	});
+
+	return [RACDisposable disposableWithBlock:^{
+		OSAtomicOr32Barrier(1, &disposed);
+	}];
+}
+
 @end

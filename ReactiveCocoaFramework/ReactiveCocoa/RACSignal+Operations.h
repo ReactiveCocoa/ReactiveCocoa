@@ -116,6 +116,10 @@ typedef NSInteger RACSignalError;
 + (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock;
 
 // Sends the latest `next` from any of the signals.
+//
+// Returns a signal that passes through values from each of the given signals,
+// and sends `completed` when all of them complete. If any signal sends an error,
+// the returned signal sends `error` immediately.
 + (RACSignal *)merge:(id<NSFastEnumeration>)signals;
 
 // Merges the signals sent by the receiver into a flattened signal, but only

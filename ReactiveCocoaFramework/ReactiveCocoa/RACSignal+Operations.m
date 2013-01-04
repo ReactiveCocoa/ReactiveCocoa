@@ -152,30 +152,29 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 		// time so that our scheduled blocks are run serially if we do.
 		RACScheduler *scheduler = [RACScheduler scheduler];
 
-		__block RACDisposable *lastScheduledNext = nil;
+		__block RACDisposable *lastDisposable = nil;
 
 		RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
+			[lastDisposable dispose];
+
 			dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(interval * NSEC_PER_SEC));
+			RACScheduler *delayScheduler = RACScheduler.currentScheduler ?: scheduler;
+
+			RACDisposable *nextDisposable = [delayScheduler after:time schedule:^{
+				[subscriber sendNext:x];
+			}];
 
 			@synchronized (scheduler) {
-				[lastScheduledNext dispose];
-
-				RACScheduler *delayScheduler = RACScheduler.currentScheduler ?: scheduler;
-				lastScheduledNext = [delayScheduler after:time schedule:^{
-					[subscriber sendNext:x];
-				}];
+				// This assignment only needs to be synchronized with the
+				// disposable returned from -throttle:. The subscriber blocks
+				// are already serialized.
+				lastDisposable = nextDisposable;
 			}
 		} error:^(NSError *error) {
-			@synchronized (scheduler) {
-				[lastScheduledNext dispose];
-			}
-
+			[lastDisposable dispose];
 			[subscriber sendError:error];
 		} completed:^{
-			@synchronized (scheduler) {
-				[lastScheduledNext dispose];
-			}
-
+			[lastDisposable dispose];
 			[subscriber sendCompleted];
 		}];
 
@@ -183,7 +182,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 			[subscriptionDisposable dispose];
 
 			@synchronized (scheduler) {
-				[lastScheduledNext dispose];
+				[lastDisposable dispose];
 			}
 		}];
 	} name:@"[%@] -throttle: %f", self.name, (double)interval];

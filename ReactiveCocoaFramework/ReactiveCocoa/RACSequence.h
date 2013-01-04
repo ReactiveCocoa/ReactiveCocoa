@@ -12,6 +12,21 @@
 @class RACScheduler;
 @class RACSignal;
 
+// Declares, initializes, and names a RACSequence variable.
+//
+// This macro must be used on the left-hand side of an assigment. It declares
+// a variable of type `RACSequence *`, performs the assignment, and then sets the
+// sequence's name to `NAME`.
+//
+// Examples
+//
+//   RACNamedSequence(seq) = @[ @5, @10 ].rac_sequence;
+//
+//   /* Prints 'seq'. */
+//   NSLog(@"%@", seq.name);
+#define RACNamedSequence(NAME) \
+    RACNamedStream(RACSequence *, NAME)
+
 // Represents an immutable, sequence of values. Unless otherwise specified, the
 // sequences' values are evaluated lazily on demand. Like Cocoa collections,
 // sequences cannot contain nil.

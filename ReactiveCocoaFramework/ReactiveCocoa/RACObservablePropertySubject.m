@@ -125,7 +125,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 
 + (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath {
 	RACKVOBinding *binding = [[self alloc] init];
-	if (binding == nil || target == nil || keyPath.length == 0) return nil;
+	if (binding == nil) return nil;
 	
 	@weakify(binding);
 	binding->_target = target;

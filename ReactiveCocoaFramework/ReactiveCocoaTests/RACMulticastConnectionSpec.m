@@ -10,6 +10,7 @@
 #import "RACDisposable.h"
 #import "RACSignal+Operations.h"
 #import "RACSubscriber.h"
+#import "RACReplaySubject.h"
 
 SpecBegin(RACMulticastConnection)
 
@@ -87,6 +88,30 @@ describe(@"-autoconnect", ^{
 		disposable = [autoconnectedSignal subscribeNext:^(id x) {}];
 		expect(subscriptionCount).to.equal(1);
 		[disposable dispose];
+	});
+
+	it(@"should replay values after completion when multicasted to a replay subject", ^{
+		__block NSUInteger disposeCount = 0;
+		RACSignal *s = [[[[RACSignal
+			createSignal:^(id<RACSubscriber> subscriber) {
+				[subscriber sendNext:@1];
+				[subscriber sendNext:@2];
+				[subscriber sendCompleted];
+				return [RACDisposable disposableWithBlock:^{
+					disposeCount++;
+				}];
+			}]
+			collect]
+			multicast:[RACReplaySubject subject]]
+			autoconnect];
+
+		NSArray *results = [s first];
+		expect(disposeCount).to.equal(1);
+		expect(results).to.equal((@[ @1, @2 ]));
+
+		results = [s first];
+		expect(disposeCount).to.equal(1);
+		expect(results).to.equal((@[ @1, @2 ]));
 	});
 });
 

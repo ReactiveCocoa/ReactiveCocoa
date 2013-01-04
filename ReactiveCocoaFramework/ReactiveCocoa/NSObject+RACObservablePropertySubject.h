@@ -1,5 +1,5 @@
 //
-//  NSObject+RACObserverPropertySubject.h
+//  NSObject+RACObservablePropertySubject.h
 //  ReactiveCocoa
 //
 //  Created by Uri Baghin on 01/01/2013.
@@ -7,11 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
-@class RACObserverPropertySubject;
+@class RACObservablePropertySubject;
 
-@interface NSObject (RACObserverPropertySubject)
+@interface NSObject (RACObservablePropertySubject)
 
 // Returns a property subject interface to the receiver's key path.
-- (RACObserverPropertySubject *)rac_propertyForKeyPath:(NSString *)keyPath;
+- (RACObservablePropertySubject *)rac_propertyForKeyPath:(NSString *)keyPath;
 
 @end

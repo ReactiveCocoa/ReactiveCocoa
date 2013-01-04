@@ -1,12 +1,12 @@
 //
-//  RACObserverPropertySubject.m
+//  RACObservablePropertySubject.m
 //  ReactiveCocoa
 //
 //  Created by Uri Baghin on 27/12/2012.
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACObserverPropertySubject.h"
+#import "RACObservablePropertySubject.h"
 #import "RACBinding.h"
 #import "RACDisposable.h"
 #import "RACSignal+Private.h"
@@ -25,20 +25,20 @@ static NSString * const RACKVOBindingExceptionName = @"RACKVOBinding exception";
 // userInfo dictionary in exceptions thrown by RACKVOBinding, if applicable.
 static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExceptionBindingKey";
 
-@interface RACObserverPropertySubject ()
+@interface RACObservablePropertySubject ()
 
-// The object whose key path the RACObserverPropertySubject is wrapping.
+// The object whose key path the RACObservablePropertySubject is wrapping.
 @property (nonatomic, readonly, weak) id target;
 
-// The key path the RACObserverPropertySubject is wrapping.
+// The key path the RACObservablePropertySubject is wrapping.
 @property (nonatomic, readonly, copy) NSString *keyPath;
 
-// The signal exposed to callers. The RACObserverPropertySubject will behave
+// The signal exposed to callers. The RACObservablePropertySubject will behave
 // like this signal towards it's subscribers.
 @property (nonatomic, readonly, strong) RACSignal *exposedSignal;
 
-// The subscriber exposed to callers. The RACObserverPropertySubject will behave
-// like this subscriber towards the signals it's subscribed to.
+// The subscriber exposed to callers. The RACObservablePropertySubject will
+// behave like this subscriber towards the signals it's subscribed to.
 @property (nonatomic, readonly, strong) id<RACSubscriber> exposedSubscriber;
 
 @end
@@ -185,7 +185,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 
 @end
 
-@implementation RACObserverPropertySubject
+@implementation RACObservablePropertySubject
 
 #pragma mark RACSignal
 
@@ -214,7 +214,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 #pragma mark API
 
 + (instancetype)propertyWithTarget:(id)target keyPath:(NSString *)keyPath {
-	RACObserverPropertySubject *property = [[self alloc] init];
+	RACObservablePropertySubject *property = [[self alloc] init];
 	if (property == nil) return nil;
 	
 	property->_target = target;
@@ -230,7 +230,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 		[property.target setValue:x forKeyPath:property.keyPath];
 	} error:^(NSError *error) {
 		@strongify(property);
-		NSAssert(NO, @"Received error in RACObserverPropertySubject for key path \"%@\" on %@: %@", property.keyPath, property.target, error);
+		NSAssert(NO, @"Received error in RACObservablePropertySubject for key path \"%@\" on %@: %@", property.keyPath, property.target, error);
 		
 		// Log the error if we're running with assertions disabled.
 		NSLog(@"Received error in binding for key path \"%@\" on %@: %@", property.keyPath, property.target, error);

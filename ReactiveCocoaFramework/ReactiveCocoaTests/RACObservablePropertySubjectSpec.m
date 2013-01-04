@@ -1,12 +1,12 @@
 //
-//  RACObserverPropertySubjectSpec.m
+//  RACObservablePropertySubjectSpec.m
 //  ReactiveCocoa
 //
 //  Created by Uri Baghin on 16/12/2012.
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACObserverPropertySubject.h"
+#import "RACObservablePropertySubject.h"
 #import "RACBinding.h"
 #import "RACDisposable.h"
 #import "NSObject+RACKVOWrapper.h"
@@ -25,11 +25,11 @@
 @implementation TestClass
 @end
 
-SpecBegin(RACObserverPropertySubject)
+SpecBegin(RACObservablePropertySubject)
 
-describe(@"RACObserverPropertySubject", ^{
+describe(@"RACObservablePropertySubject", ^{
 	__block TestClass *object;
-	__block RACObserverPropertySubject *property;
+	__block RACObservablePropertySubject *property;
 	id value1 = @"test value 1";
 	id value2 = @"test value 2";
 	id value3 = @"test value 3";
@@ -37,16 +37,16 @@ describe(@"RACObserverPropertySubject", ^{
 	
 	before(^{
 		object = [[TestClass alloc] init];
-		property = [RACObserverPropertySubject propertyWithTarget:object keyPath:@keypath(object.name)];
+		property = [RACObservablePropertySubject propertyWithTarget:object keyPath:@keypath(object.name)];
 	});
 	
 	id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, RACSignal *signal) {
-		[signal subscribe:[RACObserverPropertySubject propertyWithTarget:testObject keyPath:keyPath]];
+		[signal subscribe:[RACObservablePropertySubject propertyWithTarget:testObject keyPath:keyPath]];
 	};
 	
 	itShouldBehaveLike(RACPropertySignalExamples, @{ RACPropertySignalExamplesSetupBlock: setupBlock }, nil);
 	
-	itShouldBehaveLike(RACPropertySubjectExamples, [^{ return [RACObserverPropertySubject propertyWithTarget:object keyPath:@keypath(object.name)]; } copy], nil);
+	itShouldBehaveLike(RACPropertySubjectExamples, [^{ return [RACObservablePropertySubject propertyWithTarget:object keyPath:@keypath(object.name)]; } copy], nil);
 	
 	it(@"should send the object's current value when subscribed to", ^{
 		__block id receivedValue = @"received value should not be this";
@@ -97,7 +97,7 @@ describe(@"RACObserverPropertySubject", ^{
 	});
 });
 
-describe(@"RACObserverPropertySubject bindings", ^{
+describe(@"RACObservablePropertySubject bindings", ^{
 	__block TestClass *a;
 	__block TestClass *b;
 	__block TestClass *c;

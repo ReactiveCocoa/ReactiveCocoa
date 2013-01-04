@@ -9,7 +9,7 @@
 #import <ReactiveCocoa/NSArray+RACSequenceAdditions.h>
 #import <ReactiveCocoa/NSDictionary+RACSequenceAdditions.h>
 #import <ReactiveCocoa/NSObject+RACKVOWrapper.h>
-#import <ReactiveCocoa/NSObject+RACObserverPropertySubject.h>
+#import <ReactiveCocoa/NSObject+RACObservablePropertySubject.h>
 #import <ReactiveCocoa/NSObject+RACPropertySubscribing.h>
 #import <ReactiveCocoa/NSOrderedSet+RACSequenceAdditions.h>
 #import <ReactiveCocoa/NSSet+RACSequenceAdditions.h>
@@ -36,7 +36,7 @@
 #import <ReactiveCocoa/RACCompoundDisposable.h>
 #import <ReactiveCocoa/RACPropertySubject.h>
 #import <ReactiveCocoa/RACBinding.h>
-#import <ReactiveCocoa/RACObserverPropertySubject.h>
+#import <ReactiveCocoa/RACObservablePropertySubject.h>
 
 #ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
 #import <ReactiveCocoa/libextobjc/extobjc/EXTKeyPathCoding.h>

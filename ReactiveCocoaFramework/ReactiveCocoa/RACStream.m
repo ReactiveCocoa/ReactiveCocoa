@@ -46,6 +46,7 @@
 #pragma mark Naming
 
 - (instancetype)setNameWithFormat:(NSString *)format, ... {
+#ifdef DEBUG
 	NSParameterAssert(format != nil);
 
 	va_list args;
@@ -55,6 +56,8 @@
 	va_end(args);
 
 	self.name = str;
+#endif
+	
 	return self;
 }
 

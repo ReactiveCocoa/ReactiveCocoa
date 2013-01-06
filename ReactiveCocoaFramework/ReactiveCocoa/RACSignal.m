@@ -43,8 +43,7 @@ static NSMutableSet *activeSignals() {
 + (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
 	RACSignal *signal = [[RACSignal alloc] init];
 	signal.didSubscribe = didSubscribe;
-	signal.name = @"+createSignal:";
-	return signal;
+	return [signal setNameWithFormat:@"+createSignal:"];
 }
 
 + (RACSignal *)error:(NSError *)error {
@@ -61,13 +60,11 @@ static NSMutableSet *activeSignals() {
 }
 
 + (RACSignal *)start:(id (^)(BOOL *success, NSError **error))block {
-	RACSignal *signal = [self startWithScheduler:[RACScheduler scheduler] block:block];
-	signal.name = @"+start:";
-	return signal;
+	return [[self startWithScheduler:[RACScheduler scheduler] block:block] setNameWithFormat:@"+start:"];
 }
 
 + (RACSignal *)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block {
-	RACSignal *signal = [self startWithScheduler:scheduler subjectBlock:^(RACSubject *subject) {
+	return [[self startWithScheduler:scheduler subjectBlock:^(RACSubject *subject) {
 		BOOL success = YES;
 		NSError *error = nil;
 		id returned = block(&success, &error);
@@ -78,17 +75,13 @@ static NSMutableSet *activeSignals() {
 			[subject sendNext:returned];
 			[subject sendCompleted];
 		}
-	}];
-
-	signal.name = @"+startWithScheduler:block:";
-	return signal;
+	}] setNameWithFormat:@"+startWithScheduler:block:"];
 }
 
 + (RACSignal *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block {
 	NSParameterAssert(block != NULL);
 
-	RACReplaySubject *subject = [RACReplaySubject subject];
-	subject.name = @"+startWithScheduler:subjectBlock:";
+	RACReplaySubject *subject = [[RACReplaySubject subject] setNameWithFormat:@"+startWithScheduler:subjectBlock:"];
 
 	[scheduler schedule:^{
 		block(subject);

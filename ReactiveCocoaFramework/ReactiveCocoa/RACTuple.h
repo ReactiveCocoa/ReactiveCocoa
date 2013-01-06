@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import "metamacros.h"
 
+@class RACSequence;
+
 // Declares new object variables and unpacks a RACTuple into them.
 //
 // This macro should be used on the left side of an assignment, with the
@@ -38,7 +40,8 @@
 
 // A sentinel object that represents nils in the tuple.
 //
-// It should never be necessary to create a tuple nil yourself. Just use +tupleNil.
+// It should never be necessary to create a tuple nil yourself. Just use
+// +tupleNil.
 @interface RACTupleNil : NSObject <NSCopying, NSCoding>
 // A singleton instance.
 + (RACTupleNil *)tupleNil;
@@ -67,7 +70,8 @@
 // every NSNull to RACTupleNil.
 + (instancetype)tupleWithObjectsFromArray:(NSArray *)array convertNullsToNils:(BOOL)convert;
 
-// Creates a new tuple with the given objects. Use RACTupleNil to represent nils.
+// Creates a new tuple with the given objects. Use RACTupleNil to represent
+// nils.
 + (instancetype)tupleWithObjects:(id)object, ... NS_REQUIRES_NIL_TERMINATION;
 
 // Returns the object at `index` or nil if the object is a RACTupleNil. Unlike
@@ -80,6 +84,12 @@
 
 @end
 
+@interface RACTuple (RACSequenceAdditions)
+
+// Returns a sequence of all the objects. RACTupleNils are converted to NSNulls.
+- (RACSequence *)rac_sequence;
+
+@end
 
 @interface RACTuple (ObjectSubscripting)
 // Returns the object at that index or nil if the number of objects is less

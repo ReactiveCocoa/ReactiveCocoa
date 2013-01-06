@@ -458,23 +458,24 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 		[signalsArray addObject:signal];
 	}
 	if (signalsArray.count == 0) return self.empty;
-	static NSValue *(^keyForSubscriber)(RACSubscriber *) = ^(RACSubscriber *subscriber) {
-		return [NSValue valueWithNonretainedObject:subscriber];
+	static NSValue * (^keyForSubscriberID)(NSObject *) = ^(NSObject *subscriberID) {
+		return [NSValue valueWithNonretainedObject:subscriberID];
 	};
 	return [[RACSignal createSignal:^(id<RACSubscriber> outerSubscriber) {
-		NSMutableArray *innerSubscribers = [NSMutableArray arrayWithCapacity:signalsArray.count];
+		NSMutableArray *innerSubscribersIDs = [NSMutableArray arrayWithCapacity:signalsArray.count];
 		NSMutableSet *disposables = [NSMutableSet setWithCapacity:signalsArray.count];
 		NSMutableSet *completedSignals = [NSMutableSet setWithCapacity:signalsArray.count];
 		NSMutableDictionary *lastValues = [NSMutableDictionary dictionaryWithCapacity:signalsArray.count];
 		for (RACSignal *signal in signalsArray) {
-			__block RACSubscriber *innerSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
+			NSObject *subscriberID = [[NSObject alloc] init];
+			RACSubscriber *innerSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
 				@synchronized(lastValues) {
-					lastValues[keyForSubscriber(innerSubscriber)] = x ?: RACTupleNil.tupleNil;
+					lastValues[keyForSubscriberID(subscriberID)] = x ?: RACTupleNil.tupleNil;
 					
-					if(lastValues.count == signalsArray.count) {
+					if (lastValues.count == signalsArray.count) {
 						NSMutableArray *orderedValues = [NSMutableArray arrayWithCapacity:signalsArray.count];
-						for (RACSubscriber *subscriber in innerSubscribers) {
-							[orderedValues addObject:lastValues[keyForSubscriber(subscriber)]];
+						for (NSObject *subscriberID in innerSubscribersIDs) {
+							[orderedValues addObject:lastValues[keyForSubscriberID(subscriberID)]];
 						}
 						
 						if (reduceBlock == NULL) {
@@ -494,7 +495,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 					}
 				}
 			}];
-			[innerSubscribers addObject:innerSubscriber];
+			[innerSubscribersIDs addObject:subscriberID];
 			RACDisposable *disposable = [signal subscribe:innerSubscriber];
 			
 			if (disposable != nil) {

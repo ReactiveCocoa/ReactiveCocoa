@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "EXTConcreteProtocol.h"
+#import <ReactiveCocoa/EXTConcreteProtocol.h>
 
 @class RACStream;
 

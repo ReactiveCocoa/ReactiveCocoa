@@ -7,8 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "EXTKeyPathCoding.h"
-#import "metamacros.h"
+#import <ReactiveCocoa/EXTKeyPathCoding.h>
+#import <ReactiveCocoa/metamacros.h>
 
 // Creates a signal which observes the given key path for changes.
 //

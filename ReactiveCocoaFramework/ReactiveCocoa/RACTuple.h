@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "metamacros.h"
+#import <ReactiveCocoa/metamacros.h>
 
 // Declares new object variables and unpacks a RACTuple into them.
 //

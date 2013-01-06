@@ -121,3 +121,5 @@ RUN_CLANG_STATIC_ANALYZER = YES
 // Whether to run unit tests with every build
 TEST_AFTER_BUILD = NO
 
+// Disable GCC compatibility warnings
+WARNING_CFLAGS = -Wno-gcc-compat

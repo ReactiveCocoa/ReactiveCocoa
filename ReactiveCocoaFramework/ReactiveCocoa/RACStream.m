@@ -57,6 +57,7 @@
 
 	self.name = str;
 #endif
+	
 	return self;
 }
 

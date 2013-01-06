@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "metamacros.h"
+
 @class RACSequence;
 
 // Declares new object variables and unpacks a RACTuple into them.

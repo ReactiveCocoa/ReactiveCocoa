@@ -10,3 +10,8 @@ DEAD_CODE_STRIPPING = NO
 // Whether function calls should be position-dependent (should always be
 // disabled for library code)
 GCC_DYNAMIC_NO_PIC = NO
+
+// Copy headers to "include/LibraryName" in the build folder by default. This
+// lets consumers use #import <LibraryName/LibraryName.h> syntax even for static
+// libraries
+PUBLIC_HEADERS_FOLDER_PATH = include/$PRODUCT_NAME

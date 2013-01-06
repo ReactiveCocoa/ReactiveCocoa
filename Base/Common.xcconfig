@@ -119,5 +119,5 @@ GCC_WARN_UNUSED_VARIABLE = YES
 RUN_CLANG_STATIC_ANALYZER = YES
 
 // Whether to run unit tests with every build
-TEST_AFTER_BUILD = YES
+TEST_AFTER_BUILD = NO
 

@@ -40,6 +40,9 @@ GCC_ENABLE_OBJC_EXCEPTIONS = YES
 // Whether to precompile the prefix header (if one is specified)
 GCC_PRECOMPILE_PREFIX_HEADER = YES
 
+// Default name for a prefix header file
+GCC_PREFIX_HEADER = $PRODUCT_NAME/$PRODUCT_NAME-Prefix.pch
+
 // Whether to enable strict aliasing, meaning that two pointers of different
 // types (other than void * or any id type) cannot point to the same memory
 // location

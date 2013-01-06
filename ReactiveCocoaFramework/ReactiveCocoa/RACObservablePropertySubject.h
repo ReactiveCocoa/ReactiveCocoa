@@ -43,10 +43,12 @@
 // starting value equal to the value of `keyPath` on `target`.
 + (instancetype)propertyWithTarget:(id)target keyPath:(NSString *)keyPath;
 
-// Method needed for the convenience macro. Do not call explicitly.
-- (id)objectForKeyedSubscript:(id)key;
+@end
 
-// Method needed for the convenience macro. Do not call explicitly.
+// Methods needed for the convenience macro. Do not call explicitly.
+@interface RACObservablePropertySubject (RACBind)
+
+- (id)objectForKeyedSubscript:(id)key;
 - (void)setObject:(id)obj forKeyedSubscript:(id)key;
 
 @end

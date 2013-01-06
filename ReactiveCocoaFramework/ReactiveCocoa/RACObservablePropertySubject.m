@@ -243,6 +243,10 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 	return [RACKVOBinding bindingWithTarget:self.target keyPath:self.keyPath];
 }
 
+@end
+
+@implementation RACObservablePropertySubject (RACBind)
+
 - (id)objectForKeyedSubscript:(id)key {
 	return [self valueForKey:key];
 }

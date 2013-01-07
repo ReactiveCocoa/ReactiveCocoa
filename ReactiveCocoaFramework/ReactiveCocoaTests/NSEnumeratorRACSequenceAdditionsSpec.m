@@ -13,7 +13,7 @@
 SpecBegin(NSEnumeratorRACSequenceAdditions)
 
 describe(@"-rac_sequence", ^{
-	NSArray *values = @[ @0, @1, @2, @3, @4];
+	NSArray *values = @[ @0, @1, @2, @3, @4 ];
 	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: values.objectEnumerator.rac_sequence, RACSequenceExpectedValues: values }, nil);
 });
 

@@ -14,7 +14,7 @@
 
 // Creates and returns a sequence corresponding to the receiver.
 //
-// This exhausts the enumerator.
+// The receiver is exhausted lazily as the sequence is enumerated.
 @property (nonatomic, copy, readonly) RACSequence *rac_sequence;
 
 @end

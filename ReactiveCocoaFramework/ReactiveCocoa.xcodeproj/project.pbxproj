@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		5F773DEA169B46670023069D /* NSEnumerator+RACSequenceAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F773DE8169B46670023069D /* NSEnumerator+RACSequenceAdditions.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		5F773DEB169B46670023069D /* NSEnumerator+RACSequenceAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F773DE8169B46670023069D /* NSEnumerator+RACSequenceAdditions.h */; };
+		5F773DEB169B46670023069D /* NSEnumerator+RACSequenceAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F773DE8169B46670023069D /* NSEnumerator+RACSequenceAdditions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5F773DEC169B46670023069D /* NSEnumerator+RACSequenceAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F773DE9169B46670023069D /* NSEnumerator+RACSequenceAdditions.m */; };
 		5F773DED169B46670023069D /* NSEnumerator+RACSequenceAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F773DE9169B46670023069D /* NSEnumerator+RACSequenceAdditions.m */; };
 		5F773DF0169B48830023069D /* NSEnumeratorRACSequenceAdditionsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F773DEF169B48830023069D /* NSEnumeratorRACSequenceAdditionsSpec.m */; };

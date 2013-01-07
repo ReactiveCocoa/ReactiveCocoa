@@ -117,6 +117,8 @@
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber;
 
 // Convenience method to subscribe to the `next` event.
+//
+// This corresponds to the `OnNext()` method in Rx.
 - (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock;
 
 // Convenience method to subscribe to the `next` and `completed` events.
@@ -126,9 +128,13 @@
 - (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
 
 // Convenience method to subscribe to `error` events.
+//
+// This corresponds to the `OnError()` method in Rx.
 - (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock;
 
 // Convenience method to subscribe to `completed` events.
+//
+// This corresponds to the `OnCompleted()` method in Rx.
 - (RACDisposable *)subscribeCompleted:(void (^)(void))completedBlock;
 
 // Convenience method to subscribe to `next` and `error` events.

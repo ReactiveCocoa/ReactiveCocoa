@@ -1548,6 +1548,58 @@ describe(@"+interval: and +interval:withLeeway:", ^{
 	});
 });
 
+describe(@"-timeout:", ^{
+	__block RACSubject *subject;
+
+	beforeEach(^{
+		subject = [RACSubject subject];
+	});
+
+	it(@"should time out", ^{
+		__block NSError *receivedError = nil;
+		[[subject timeout:0.0001] subscribeError:^(NSError *e) {
+			receivedError = e;
+		}];
+
+		expect(receivedError).willNot.beNil();
+		expect(receivedError.domain).to.equal(RACSignalErrorDomain);
+		expect(receivedError.code).to.equal(RACSignalErrorTimedOut);
+	});
+
+	it(@"should pass through events while not timed out", ^{
+		__block id next = nil;
+		__block BOOL completed = NO;
+		[[subject timeout:1] subscribeNext:^(id x) {
+			next = x;
+		} completed:^{
+			completed = YES;
+		}];
+
+		[subject sendNext:RACUnit.defaultUnit];
+		expect(next).to.equal(RACUnit.defaultUnit);
+
+		[subject sendCompleted];
+		expect(completed).to.beTruthy();
+	});
+
+	it(@"should not time out after disposal", ^{
+		__block NSError *receivedError = nil;
+		RACDisposable *disposable = [[subject timeout:0.01] subscribeError:^(NSError *e) {
+			receivedError = e;
+		}];
+
+		__block BOOL done = NO;
+		[[[RACSignal interval:0.1] take:1] subscribeNext:^(id _) {
+			done = YES;
+		}];
+
+		[disposable dispose];
+
+		expect(done).will.beTruthy();
+		expect(receivedError).to.beNil();
+	});
+});
+
 describe(@"-delay:", ^{
 	__block RACSubject *subject;
 	__block RACSignal *delayedSignal;

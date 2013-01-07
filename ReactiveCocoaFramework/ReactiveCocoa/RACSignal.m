@@ -271,10 +271,6 @@ static NSMutableSet *activeSignals() {
 	}] setNameWithFormat:@"[%@] -concat: %@", self.name, signal];
 }
 
-- (RACSignal *)flatten {
-	return [self flatten:0];
-}
-
 + (RACSignal *)zip:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock {
 	NSMutableArray *signalsArray = [NSMutableArray array];
 	for (RACSignal *signal in signals) {

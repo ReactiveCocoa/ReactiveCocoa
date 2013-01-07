@@ -188,9 +188,6 @@ extern const NSInteger RACSignalErrorTimedOut;
 // will send `completed`.
 - (RACSignal *)takeUntil:(RACSignal *)signalTrigger;
 
-// Convert every `next` and `error` into a RACMaybe.
-- (RACSignal *)asMaybes;
-
 // Subscribe to the returned signal when an error occurs.
 - (RACSignal *)catch:(RACSignal * (^)(NSError *error))catchBlock;
 
@@ -354,5 +351,17 @@ extern const NSInteger RACSignalErrorTimedOut;
 // Returns a signal which only passes through `error` or `completed` events from
 // the receiver.
 - (RACSignal *)ignoreElements;
+
+// Converts each of the receiver's events into a RACEvent object.
+//
+// Returns a signal which sends the receiver's events as RACEvents, and
+// completes after the receiver sends `completed` or `error`.
+- (RACSignal *)materialize;
+
+// Converts each RACEvent in the receiver back into "real" RACSignal events.
+//
+// Returns a signal which sends `next` for each value RACEvent, `error` for each
+// error RACEvent, and `completed` for each completed RACEvent.
+- (RACSignal *)dematerialize;
 
 @end

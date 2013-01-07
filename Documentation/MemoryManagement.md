@@ -28,6 +28,7 @@ For example, if you have some code like this in your view controller:
 self.disposable = [signal subscribeCompleted:^{
     doSomethingPossiblyInvolving(self);
 }];
+```
 
 … the memory management will look something like the following:
 

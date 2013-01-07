@@ -1,7 +1,7 @@
 # Differences from Rx
 
-ReactiveCocoa is significantly inspired by .NET's [Reactive
-Extensions](http://msdn.microsoft.com/en-us/data/gg577609.aspx), but it is not
+ReactiveCocoa (RAC) is significantly inspired by .NET's [Reactive
+Extensions](http://msdn.microsoft.com/en-us/data/gg577609.aspx) (Rx), but it is not
 a direct port. Some concepts or interfaces presented in RAC may be initially
 confusing to a developer already familiar with Rx, but it's usually possible to
 express the same algorithms.

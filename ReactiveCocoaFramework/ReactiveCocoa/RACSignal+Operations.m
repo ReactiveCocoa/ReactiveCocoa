@@ -1091,44 +1091,40 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 - (RACSignal *)any:(BOOL (^)(id object))predicateBlock {
 	NSParameterAssert(predicateBlock != NULL);
 	
-	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		__block RACDisposable *disposable = [self subscribeNext:^(id x) {
-			if(predicateBlock(x)) {
-				[subscriber sendNext:@(YES)];
-				[disposable dispose];
-				[subscriber sendCompleted];
+	return [[[self materialize] bind:^{
+		return ^(RACEvent *event, BOOL *stop) {
+			if (event.finished) {
+				*stop = YES;
+				return [RACSignal return:@NO];
 			}
-		} error:^(NSError *error) {
-			[subscriber sendNext:@(NO)];
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendNext:@(NO)];
-			[subscriber sendCompleted];
-		}];
-		
-		return disposable;
+			
+			if (predicateBlock(event.value)) {
+				*stop = YES;
+				return [RACSignal return:@YES];
+			}
+
+			return [RACSignal empty];
+		};
 	}] setNameWithFormat:@"[%@] -any:", self.name];
 }
 
 - (RACSignal *)all:(BOOL (^)(id object))predicateBlock {
 	NSParameterAssert(predicateBlock != NULL);
 	
-	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		__block RACDisposable *disposable = [self subscribeNext:^(id x) {
-			if(!predicateBlock(x)) {
-				[subscriber sendNext:@(NO)];
-				[disposable dispose];
-				[subscriber sendCompleted];
+	return [[[self materialize] bind:^{
+		return ^(RACEvent *event, BOOL *stop) {
+			if (event.eventType == RACEventTypeCompleted) {
+				*stop = YES;
+				return [RACSignal return:@YES];
 			}
-		} error:^(NSError *error) {
-			[subscriber sendNext:@(NO)];
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendNext:@(YES)];
-			[subscriber sendCompleted];
-		}];
-		
-		return disposable;
+			
+			if (event.eventType == RACEventTypeError || !predicateBlock(event.value)) {
+				*stop = YES;
+				return [RACSignal return:@NO];
+			}
+
+			return [RACSignal empty];
+		};
 	}] setNameWithFormat:@"[%@] -all:", self.name];
 }
 

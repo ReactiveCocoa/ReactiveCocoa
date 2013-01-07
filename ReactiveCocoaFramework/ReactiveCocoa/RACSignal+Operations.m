@@ -457,26 +457,27 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	for (RACSignal *signal in signals) {
 		[signalsArray addObject:signal];
 	}
-	if (signalsArray.count == 0) return self.empty;
-	static NSValue *(^keyForSubscriber)(RACSubscriber *) = ^(RACSubscriber *subscriber) {
-		return [NSValue valueWithNonretainedObject:subscriber];
-	};
+	if (signalsArray.count == 0) return [self empty];
+	
 	return [[RACSignal createSignal:^(id<RACSubscriber> outerSubscriber) {
-		NSMutableArray *innerSubscribers = [NSMutableArray arrayWithCapacity:signalsArray.count];
+		NSMutableArray *subscriberIDs = [NSMutableArray arrayWithCapacity:signalsArray.count];
 		NSMutableSet *disposables = [NSMutableSet setWithCapacity:signalsArray.count];
 		NSMutableSet *completedSignals = [NSMutableSet setWithCapacity:signalsArray.count];
 		NSMutableDictionary *lastValues = [NSMutableDictionary dictionaryWithCapacity:signalsArray.count];
-		for (RACSignal *signal in signalsArray) {
-			__block RACSubscriber *innerSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
+		[signalsArray enumerateObjectsUsingBlock:^(RACSignal *signal, NSUInteger idx, BOOL *stop) {
+			NSNumber *subscriberID = @(idx);
+			[subscriberIDs addObject:subscriberID];
+
+			RACDisposable *disposable = [signal subscribeNext:^(id x) {
 				@synchronized(lastValues) {
-					lastValues[keyForSubscriber(innerSubscriber)] = x ?: RACTupleNil.tupleNil;
-					
-					if(lastValues.count == signalsArray.count) {
+					lastValues[subscriberID] = x ?: RACTupleNil.tupleNil;
+
+					if (lastValues.count == signalsArray.count) {
 						NSMutableArray *orderedValues = [NSMutableArray arrayWithCapacity:signalsArray.count];
-						for (RACSubscriber *subscriber in innerSubscribers) {
-							[orderedValues addObject:lastValues[keyForSubscriber(subscriber)]];
+						for (NSObject *subscriberID in subscriberIDs) {
+							[orderedValues addObject:lastValues[subscriberID]];
 						}
-						
+
 						if (reduceBlock == NULL) {
 							[outerSubscriber sendNext:[RACTuple tupleWithObjectsFromArray:orderedValues]];
 						} else {
@@ -494,18 +495,14 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 					}
 				}
 			}];
-			[innerSubscribers addObject:innerSubscriber];
-			RACDisposable *disposable = [signal subscribe:innerSubscriber];
-			
+
 			if (disposable != nil) {
 				[disposables addObject:disposable];
 			}
-		}
-		
+		}];
+
 		return [RACDisposable disposableWithBlock:^{
-			for (RACDisposable *disposable in disposables) {
-				[disposable dispose];
-			}
+			[disposables makeObjectsPerformSelector:@selector(dispose)];
 		}];
 	}] setNameWithFormat:@"+combineLatest: %@ reduce:", signalsArray];
 }

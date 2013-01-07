@@ -30,6 +30,8 @@
 
 NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 
+const NSInteger RACSignalErrorTimedOut = 1;
+
 // Subscribes to the given signal with the given blocks.
 //
 // If the signal errors or completes, the corresponding block is invoked. If the
@@ -989,26 +991,27 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 
 - (RACSignal *)timeout:(NSTimeInterval)interval {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		__block volatile uint32_t cancelTimeout = 0;
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t) (interval * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-			if(cancelTimeout) return;
-			
+		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+
+		RACDisposable *timeoutDisposable = [[[RACSignal interval:interval] take:1] subscribeNext:^(id _) {
+			[disposable dispose];
 			[subscriber sendError:[NSError errorWithDomain:RACSignalErrorDomain code:RACSignalErrorTimedOut userInfo:nil]];
-		});
+		}];
+
+		if (timeoutDisposable != nil) [disposable addDisposable:timeoutDisposable];
 		
-		RACDisposable *disposable = [self subscribeNext:^(id x) {
+		RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
+			[disposable dispose];
 			[subscriber sendError:error];
 		} completed:^{
-			OSAtomicOr32Barrier(1, &cancelTimeout);
+			[disposable dispose];
 			[subscriber sendCompleted];
 		}];
-		
-		return [RACDisposable disposableWithBlock:^{
-			OSAtomicOr32Barrier(1, &cancelTimeout);
-			[disposable dispose];
-		}];
+
+		if (subscriptionDisposable != nil) [disposable addDisposable:subscriptionDisposable];
+		return disposable;
 	}] setNameWithFormat:@"[%@] -timeout: %f", self.name, (double)interval];
 }
 

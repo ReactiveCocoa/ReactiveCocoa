@@ -188,9 +188,6 @@ extern const NSInteger RACSignalErrorTimedOut;
 // will send `completed`.
 - (RACSignal *)takeUntil:(RACSignal *)signalTrigger;
 
-// Convert every `next` and `error` into a RACMaybe.
-- (RACSignal *)asMaybes;
-
 // Subscribe to the returned signal when an error occurs.
 - (RACSignal *)catch:(RACSignal * (^)(NSError *error))catchBlock;
 

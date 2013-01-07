@@ -15,7 +15,6 @@
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACGroupedSignal.h"
-#import "RACMaybe.h"
 #import "RACScheduler.h"
 #import "RACScheduler+Private.h"
 #import "RACSignalSequence.h"
@@ -237,22 +236,6 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 				// Resubscribe.
 			});
 	}] setNameWithFormat:@"[%@] -repeat", self.name];
-}
-
-- (RACSignal *)asMaybes {
-	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		return subscribeForever(self,
-			^(id x) {
-				[subscriber sendNext:[RACMaybe maybeWithObject:x]];
-			},
-			^(NSError *error, RACDisposable *disposable) {
-				[subscriber sendNext:[RACMaybe maybeWithError:error]];
-			},
-			^(RACDisposable *disposable) {
-				[disposable dispose];
-				[subscriber sendCompleted];
-			});
-	}] setNameWithFormat:@"[%@] -asMaybes", self.name];
 }
 
 - (RACSignal *)catch:(RACSignal * (^)(NSError *error))catchBlock {

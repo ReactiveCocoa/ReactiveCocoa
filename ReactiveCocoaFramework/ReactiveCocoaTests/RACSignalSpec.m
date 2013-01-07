@@ -385,36 +385,6 @@ describe(@"querying", ^{
 });
 
 describe(@"continuation", ^{
-	it(@"shouldn't receive deferred errors", ^{
-		__block NSUInteger numberOfSubscriptions = 0;
-		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			if(numberOfSubscriptions > 2) {
-				[subscriber sendCompleted];
-				return nil;
-			}
-			
-			numberOfSubscriptions++;
-			
-			[subscriber sendNext:@"1"];
-			[subscriber sendError:RACSignalTestError];
-			[subscriber sendCompleted];
-			return nil;
-		}];
-		
-		__block BOOL gotNext = NO;
-		__block BOOL gotError = NO;
-		[[signal asMaybes] subscribeNext:^(id x) {
-			gotNext = YES;
-		} error:^(NSError *error) {
-			gotError = YES;
-		} completed:^{
-			
-		}];
-		
-		expect(gotNext).to.beTruthy();
-		expect(gotError).to.beFalsy();
-	});
-	
 	it(@"should repeat after completion", ^{
 		__block NSUInteger numberOfSubscriptions = 0;
 		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {

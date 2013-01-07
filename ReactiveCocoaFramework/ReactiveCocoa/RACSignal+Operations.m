@@ -292,17 +292,14 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 - (RACSignal *)finally:(void (^)(void))block {
 	NSParameterAssert(block != NULL);
 	
-	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		return [self subscribeNext:^(id x) {
-			[subscriber sendNext:x];
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
+	return [[[self
+		doError:^(NSError *error) {
 			block();
-		} completed:^{
-			[subscriber sendCompleted];
+		}]
+		doCompleted:^{
 			block();
-		}];
-	}] setNameWithFormat:@"[%@] -finally:", self.name];
+		}]
+		setNameWithFormat:@"[%@] -finally:", self.name];
 }
 
 - (RACSignal *)windowWithStart:(RACSignal *)openSignal close:(RACSignal * (^)(RACSignal *start))closeBlock {

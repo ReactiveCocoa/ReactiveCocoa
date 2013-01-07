@@ -401,16 +401,11 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 - (RACSignal *)collect {
-	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		NSMutableArray *collectedValues = [[NSMutableArray alloc] init];
-		return [self subscribeNext:^(id x) {
-			[collectedValues addObject:x];
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendNext:[collectedValues copy]];
-			[subscriber sendCompleted];
-		}];
+	return [[self aggregateWithStartFactory:^{
+		return [[NSMutableArray alloc] init];
+	} combine:^(NSMutableArray *collectedValues, id x) {
+		[collectedValues addObject:(x ?: RACTupleNil.tupleNil)];
+		return collectedValues;
 	}] setNameWithFormat:@"[%@] -collect", self.name];
 }
 

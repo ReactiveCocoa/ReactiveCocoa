@@ -464,11 +464,10 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 		NSMutableSet *disposables = [NSMutableSet setWithCapacity:signalsArray.count];
 		NSMutableSet *completedSignals = [NSMutableSet setWithCapacity:signalsArray.count];
 		NSMutableDictionary *lastValues = [NSMutableDictionary dictionaryWithCapacity:signalsArray.count];
-		NSUInteger i = 0;
-		for (RACSignal *signal in signalsArray) {
-			NSNumber *subscriberID = @(i);
+		[signalsArray enumerateObjectsUsingBlock:^(RACSignal *signal, NSUInteger idx, BOOL *stop) {
+			NSNumber *subscriberID = @(idx);
 			[subscriberIDs addObject:subscriberID];
-			
+
 			RACDisposable *disposable = [signal subscribeNext:^(id x) {
 				@synchronized(lastValues) {
 					lastValues[subscriberID] = x ?: RACTupleNil.tupleNil;
@@ -496,14 +495,12 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 					}
 				}
 			}];
-			
+
 			if (disposable != nil) {
 				[disposables addObject:disposable];
 			}
+		}];
 
-			i++;
-		}
-		
 		return [RACDisposable disposableWithBlock:^{
 			[disposables makeObjectsPerformSelector:@selector(dispose)];
 		}];

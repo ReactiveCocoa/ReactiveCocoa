@@ -609,6 +609,8 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 			@synchronized(disposables) {
 				[disposables makeObjectsPerformSelector:@selector(dispose)];
 			}
+			
+			dequeueAndSubscribeIfAllowed = nil;
 		}];
 	}] setNameWithFormat:@"[%@] -flatten: %lu", self.name, (unsigned long)maxConcurrent];
 }

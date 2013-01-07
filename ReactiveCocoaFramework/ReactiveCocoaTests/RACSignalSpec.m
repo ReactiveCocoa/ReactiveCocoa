@@ -1259,6 +1259,29 @@ describe(@"-flatten:", ^{
 
 		itShouldBehaveLike(RACSignalMergeConcurrentCompletionExampleGroup, @{ RACSignalMaxConcurrent: @1 }, nil);
 	});
+
+	it(@"shouldn't create a retain cycle", ^{
+		__block BOOL subjectDeallocd = NO;
+		__block BOOL signalDeallocd = NO;
+		@autoreleasepool {
+			RACSubject *subject __attribute__((objc_precise_lifetime)) = [RACSubject subject];
+			[subject rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				subjectDeallocd = YES;
+			}]];
+
+			RACSignal *signal __attribute__((objc_precise_lifetime)) = [subject flatten];
+			[signal rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				signalDeallocd = YES;
+			}]];
+
+			[signal subscribeCompleted:^{}];
+
+			[subject sendCompleted];
+		}
+
+		expect(subjectDeallocd).will.beTruthy();
+		expect(signalDeallocd).will.beTruthy();
+	});
 });
 
 describe(@"-switch", ^{

@@ -2167,4 +2167,52 @@ describe(@"-concat", ^{
 	});
 });
 
+describe(@"-finally:", ^{
+	__block RACSubject *subject;
+
+	__block BOOL finallyInvoked;
+	__block RACSignal *signal;
+
+	beforeEach(^{
+		subject = [RACSubject subject];
+		
+		finallyInvoked = NO;
+		signal = [subject finally:^{
+			finallyInvoked = YES;
+		}];
+	});
+
+	it(@"should not run finally without a subscription", ^{
+		[subject sendCompleted];
+		expect(finallyInvoked).to.beFalsy();
+	});
+
+	describe(@"with a subscription", ^{
+		__block RACDisposable *disposable;
+
+		beforeEach(^{
+			disposable = [signal subscribeCompleted:^{}];
+		});
+		
+		afterEach(^{
+			[disposable dispose];
+		});
+
+		it(@"should not run finally upon next", ^{
+			[subject sendNext:RACUnit.defaultUnit];
+			expect(finallyInvoked).to.beFalsy();
+		});
+
+		it(@"should run finally upon completed", ^{
+			[subject sendCompleted];
+			expect(finallyInvoked).to.beTruthy();
+		});
+
+		it(@"should run finally upon error", ^{
+			[subject sendError:nil];
+			expect(finallyInvoked).to.beTruthy();
+		});
+	});
+});
+
 SpecEnd

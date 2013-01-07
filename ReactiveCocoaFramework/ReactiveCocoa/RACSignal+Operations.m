@@ -1240,4 +1240,10 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	}] setNameWithFormat:@"[%@] -sample: %@", self.name, sampler];
 }
 
+- (RACSignal *)ignoreElements {
+	return [self filter:^(id _) {
+		return NO;
+	}];
+}
+
 @end

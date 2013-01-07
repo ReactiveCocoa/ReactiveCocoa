@@ -9,14 +9,11 @@
 #import <Foundation/Foundation.h>
 #import <ReactiveCocoa/RACSignal.h>
 
+// The domain for errors originating in RACSignal operations.
 extern NSString * const RACSignalErrorDomain;
 
-typedef enum {
-	// The error code used with -timeout:.
-	RACSignalErrorTimedOut = 1,
-} _RACSignalError;
-
-typedef NSInteger RACSignalError;
+// The error code used with -timeout:.
+extern const NSInteger RACSignalErrorTimedOut;
 
 @class RACMulticastConnection;
 @class RACDisposable;
@@ -288,7 +285,13 @@ typedef NSInteger RACSignalError;
 - (RACSignal *)replayLazily;
 
 // Sends an error after `interval` seconds if the source doesn't complete
-// before then. The timeout is scheduled on the default priority global queue.
+// before then.
+//
+// The error will be in the RACSignalErrorDomain and have a code of
+// RACSignalErrorTimedOut.
+//
+// Returns a signal that passes through the receiver's events on an
+// indeterminate scheduler, until the stream finishes or times out.
 - (RACSignal *)timeout:(NSTimeInterval)interval;
 
 // Creates and returns a signal that delivers its callbacks using the given

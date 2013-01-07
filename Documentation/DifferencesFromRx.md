@@ -39,9 +39,12 @@ main classes:
 RAC generally uses LINQ-style naming for its stream methods. Most of the
 exceptions are inspired by significantly better alternatives in Haskell or Elm.
 
-Notable differences include `-map:` instead of `Select()`, `-filter:` instead of
-`Where()`, `-flatten` instead of `Merge()`, and `-flattenMap:` instead of
-`SelectMany()`.
+Notable differences include:
+
+ * `-map:` instead of `Select()`
+ * `-filter:` instead of `Where()`
+ * `-flatten` instead of `Merge()`
+ * `-flattenMap:` instead of `SelectMany()`
 
 LINQ operators that go by different names in RAC (but behave more or less
 equivalently) will be referenced from method documentation, like so:

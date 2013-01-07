@@ -1213,9 +1213,9 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 - (RACSignal *)ignoreElements {
-	return [self filter:^(id _) {
+	return [[self filter:^(id _) {
 		return NO;
-	}];
+	}] setNameWithFormat:@"[%@] -ignoreElements", self.name];
 }
 
 @end

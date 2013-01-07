@@ -885,14 +885,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	NSParameterAssert(block != NULL);
 	
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		RACSignal *signal = block();
-		return [signal subscribe:[RACSubscriber subscriberWithNext:^(id x) {
-			[subscriber sendNext:x];
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendCompleted];
-		}]];
+		return [block() subscribe:subscriber];
 	}] setNameWithFormat:@"+defer:"];
 }
 

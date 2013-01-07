@@ -247,20 +247,6 @@ static NSMutableSet *activeSignals() {
 	}] setNameWithFormat:@"[%@] -bind:", self.name];
 }
 
-- (RACSignal *)map:(id (^)(id value))block {
-	NSParameterAssert(block != NULL);
-	
-	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		return [self subscribeNext:^(id x) {
-			[subscriber sendNext:block(x)];
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendCompleted];
-		}];
-	}] setNameWithFormat:@"[%@] -map:", self.name];
-}
-
 - (RACSignal *)concat:(RACSignal *)signal {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *concattedDisposable = nil;

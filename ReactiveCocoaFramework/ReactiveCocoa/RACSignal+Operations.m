@@ -1233,4 +1233,23 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	}] setNameWithFormat:@"[%@] -materialize", self.name];
 }
 
+- (RACSignal *)dematerialize {
+	return [[self bind:^{
+		return ^(RACEvent *event, BOOL *stop) {
+			switch (event.eventType) {
+				case RACEventTypeCompleted:
+					*stop = YES;
+					return [RACSignal empty];
+
+				case RACEventTypeError:
+					*stop = YES;
+					return [RACSignal error:event.error];
+
+				case RACEventTypeNext:
+					return [RACSignal return:event.value];
+			}
+		};
+	}] setNameWithFormat:@"[%@] -dematerialize", self.name];
+}
+
 @end

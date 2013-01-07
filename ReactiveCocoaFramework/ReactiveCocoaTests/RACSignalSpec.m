@@ -2247,4 +2247,44 @@ describe(@"-materialize", ^{
 	});
 });
 
+describe(@"-dematerialize", ^{
+	it(@"should convert nexts from RACEvents", ^{
+		RACSignal *events = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:[RACEvent eventWithValue:@1]];
+			[subscriber sendNext:[RACEvent eventWithValue:@2]];
+			[subscriber sendCompleted];
+			return nil;
+		}];
+
+		NSArray *expected = @[ @1, @2 ];
+		expect([[events dematerialize] toArray]).to.equal(expected);
+	});
+
+	it(@"should convert completed from a RACEvent", ^{
+		RACSignal *events = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:[RACEvent eventWithValue:@1]];
+			[subscriber sendNext:RACEvent.completedEvent];
+			[subscriber sendNext:[RACEvent eventWithValue:@2]];
+			[subscriber sendCompleted];
+			return nil;
+		}];
+
+		NSArray *expected = @[ @1 ];
+		expect([[events dematerialize] toArray]).to.equal(expected);
+	});
+
+	it(@"should convert error from a RACEvent", ^{
+		RACSignal *events = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:[RACEvent eventWithError:RACSignalTestError]];
+			[subscriber sendNext:[RACEvent eventWithValue:@1]];
+			[subscriber sendCompleted];
+			return nil;
+		}];
+
+		__block NSError *error = nil;
+		expect([[events dematerialize] firstOrDefault:nil success:NULL error:&error]).to.beNil();
+		expect(error).to.equal(RACSignalTestError);
+	});
+});
+
 SpecEnd

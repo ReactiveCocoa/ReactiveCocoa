@@ -14,6 +14,7 @@
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACBehaviorSubject.h"
 #import "RACDisposable.h"
+#import "RACEvent.h"
 #import "RACReplaySubject.h"
 #import "RACScheduler.h"
 #import "RACSignal+Operations.h"
@@ -2225,6 +2226,24 @@ describe(@"-ignoreElements", ^{
 		expect(gotNext).to.beFalsy();
 		expect(gotCompleted).to.beFalsy();
 		expect(receivedError).to.equal(RACSignalTestError);
+	});
+});
+
+describe(@"-materialize", ^{
+	it(@"should convert nexts and completed into RACEvents", ^{
+		NSArray *events = [[[RACSignal return:RACUnit.defaultUnit] materialize] toArray];
+		NSArray *expected = @[
+			[RACEvent eventWithValue:RACUnit.defaultUnit],
+			RACEvent.completedEvent
+		];
+
+		expect(events).to.equal(expected);
+	});
+
+	it(@"should convert errors into RACEvents and complete", ^{
+		NSArray *events = [[[RACSignal error:RACSignalTestError] materialize] toArray];
+		NSArray *expected = @[ [RACEvent eventWithError:RACSignalTestError] ];
+		expect(events).to.equal(expected);
 	});
 });
 

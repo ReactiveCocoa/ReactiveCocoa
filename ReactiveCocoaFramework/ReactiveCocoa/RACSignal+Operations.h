@@ -352,4 +352,10 @@ extern const NSInteger RACSignalErrorTimedOut;
 // the receiver.
 - (RACSignal *)ignoreElements;
 
+// Converts each of the receiver's events into a RACEvent object.
+//
+// Returns a signal which sends the receiver's events as RACEvents, and
+// completes after the receiver sends `completed` or `error`.
+- (RACSignal *)materialize;
+
 @end

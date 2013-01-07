@@ -14,6 +14,7 @@
 #import "RACBlockTrampoline.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
+#import "RACEvent.h"
 #import "RACGroupedSignal.h"
 #import "RACScheduler.h"
 #import "RACScheduler+Private.h"
@@ -1216,6 +1217,20 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	return [[self filter:^(id _) {
 		return NO;
 	}] setNameWithFormat:@"[%@] -ignoreElements", self.name];
+}
+
+- (RACSignal *)materialize {
+	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		return [self subscribeNext:^(id x) {
+			[subscriber sendNext:[RACEvent eventWithValue:x]];
+		} error:^(NSError *error) {
+			[subscriber sendNext:[RACEvent eventWithError:error]];
+			[subscriber sendCompleted];
+		} completed:^{
+			[subscriber sendNext:RACEvent.completedEvent];
+			[subscriber sendCompleted];
+		}];
+	}] setNameWithFormat:@"[%@] -materialize", self.name];
 }
 
 @end

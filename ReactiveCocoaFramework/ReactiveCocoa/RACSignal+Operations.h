@@ -349,4 +349,10 @@ extern const NSInteger RACSignalErrorTimedOut;
 //           is sent. Cannot be nil.
 - (RACSignal *)sample:(RACSignal *)sampler;
 
+// Ignores all `next`s from the receiver.
+//
+// Returns a signal which only passes through `error` or `completed` events from
+// the receiver.
+- (RACSignal *)ignoreElements;
+
 @end

@@ -2167,6 +2167,7 @@ describe(@"-concat", ^{
 	});
 });
 
+
 describe(@"-finally:", ^{
 	__block RACSubject *subject;
 
@@ -2212,6 +2213,48 @@ describe(@"-finally:", ^{
 			[subject sendError:nil];
 			expect(finallyInvoked).to.beTruthy();
 		});
+	});
+});
+
+describe(@"-ignoreElements", ^{
+	__block RACSubject *subject;
+
+	__block BOOL gotNext;
+	__block BOOL gotCompleted;
+	__block NSError *receivedError;
+
+	beforeEach(^{
+		subject = [RACSubject subject];
+
+		gotNext = NO;
+		gotCompleted = NO;
+		receivedError = nil;
+
+		[[subject ignoreElements] subscribeNext:^(id _) {
+			gotNext = YES;
+		} error:^(NSError *error) {
+			receivedError = error;
+		} completed:^{
+			gotCompleted = YES;
+		}];
+	});
+
+	it(@"should skip nexts and pass through completed", ^{
+		[subject sendNext:RACUnit.defaultUnit];
+		[subject sendCompleted];
+
+		expect(gotNext).to.beFalsy();
+		expect(gotCompleted).to.beTruthy();
+		expect(receivedError).to.beNil();
+	});
+
+	it(@"should skip nexts and pass through errors", ^{
+		[subject sendNext:RACUnit.defaultUnit];
+		[subject sendError:RACSignalTestError];
+
+		expect(gotNext).to.beFalsy();
+		expect(gotCompleted).to.beFalsy();
+		expect(receivedError).to.equal(RACSignalTestError);
 	});
 });
 

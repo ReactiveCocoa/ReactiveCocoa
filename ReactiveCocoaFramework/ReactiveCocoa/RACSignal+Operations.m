@@ -593,19 +593,20 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 - (RACSignal *)sequenceNext:(RACSignal * (^)(void))block {
 	NSParameterAssert(block != nil);
 
-	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		__block RACDisposable *nextDisposable = nil;
+	return [[[self materialize] flattenMap:^(RACEvent *event) {
+		switch (event.eventType) {
+			case RACEventTypeCompleted:
+				return block();
 
-		RACDisposable *sourceDisposable = [self subscribeError:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			nextDisposable = [block() subscribe:subscriber];
-		}];
-		
-		return [RACDisposable disposableWithBlock:^{
-			[sourceDisposable dispose];
-			[nextDisposable dispose];
-		}];
+			case RACEventTypeError:
+				return [RACSignal error:event.error];
+
+			case RACEventTypeNext:
+				return [RACSignal empty];
+
+			default:
+				NSAssert(NO, @"Unrecognized event type: %i", (int)event.eventType);
+		}
 	}] setNameWithFormat:@"[%@] -sequenceNext:", self.name];
 }
 

@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 GitHub. All rights reserved.
 //
 
-#import "RACSequence.h"
+#import <ReactiveCocoa/RACSequence.h>
 
 // Private class representing an empty sequence.
 @interface RACEmptySequence : RACSequence

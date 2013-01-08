@@ -30,8 +30,8 @@ describe(@"-rac_signal", ^{
 			completed = YES;
 		}];
 		
-		expect(sentValues).to.equal(values);
-		expect(completed).to.beTruthy();
+		expect(sentValues).will.equal(values);
+		expect(completed).will.beTruthy();
 	});
 	
 	it(@"should complete immediately if subscribed to a second time", ^{
@@ -49,9 +49,9 @@ describe(@"-rac_signal", ^{
 			completed2 = YES;
 		}];
 		
-		expect(sentValues).to.equal(values);
-		expect(sentValues2).to.equal(@[]);
-		expect(completed2).to.beTruthy();
+		expect(sentValues).will.equal(values);
+		expect(sentValues2).will.equal(@[]);
+		expect(completed2).will.beTruthy();
 	});
 	
 	it(@"should work with -replay", ^{
@@ -60,24 +60,24 @@ describe(@"-rac_signal", ^{
 		NSMutableArray *sentValues2 = [NSMutableArray array];
 		__block BOOL completed2 = NO;
 		
-		signal = [signal replay];
+		RACSignal *replay = [signal replay];
 		
-		[signal subscribeNext:^(id x) {
+		[replay subscribeNext:^(id x) {
 			[sentValues addObject:x];
 		} completed:^{
 			completed = YES;
 		}];
 		
-		[signal subscribeNext:^(id x) {
+		[replay subscribeNext:^(id x) {
 			[sentValues2 addObject:x];
 		} completed:^{
 			completed2 = YES;
 		}];
 		
-		expect(sentValues).to.equal(values);
-		expect(completed).to.beTruthy();
-		expect(sentValues2).to.equal(@[]);
-		expect(completed2).to.beTruthy();
+		expect(sentValues).will.equal(values);
+		expect(completed).will.beTruthy();
+		expect(sentValues2).will.equal(values);
+		expect(completed2).will.beTruthy();
 	});
 });
 
@@ -95,11 +95,11 @@ describe(@"-rac_signalWithScheduler:", ^{
 		NSMutableArray *sentValues = [NSMutableArray array];
 		
 		[signal subscribeNext:^(id x) {
-			expect(RACScheduler.currentScheduler).to.equal(scheduler);
+			expect(RACScheduler.currentScheduler).will.equal(scheduler);
 			[sentValues addObject:x];
 		}];
 		
-		expect(sentValues).to.equal(values);
+		expect(sentValues).will.equal(values);
 	});
 });
 

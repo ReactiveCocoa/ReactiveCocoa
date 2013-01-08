@@ -41,10 +41,10 @@ exceptions are inspired by significantly better alternatives in Haskell or Elm.
 
 Notable differences include:
 
- * `-map:` instead of `Select()`
- * `-filter:` instead of `Where()`
- * `-flatten` instead of `Merge()`
- * `-flattenMap:` instead of `SelectMany()`
+ * `-map:` instead of `Select`
+ * `-filter:` instead of `Where`
+ * `-flatten` instead of `Merge`
+ * `-flattenMap:` instead of `SelectMany`
 
 LINQ operators that go by different names in RAC (but behave more or less
 equivalently) will be referenced from method documentation, like so:
@@ -52,7 +52,7 @@ equivalently) will be referenced from method documentation, like so:
 ```objc
 // Maps `block` across the values in the receiver.
 //
-// This corresponds to the `Select()` method in Rx.
+// This corresponds to the `Select` method in Rx.
 //
 // Returns a new stream with the mapped values.
 - (instancetype)map:(id (^)(id value))block;

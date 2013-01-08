@@ -25,9 +25,22 @@
 + (instancetype)compoundDisposableWithDisposables:(NSArray *)disposables;
 
 // Adds the given disposable. If the receiving disposable has already been
-// disposed of, the given disposable is disposed immediately. Thread-safe.
+// disposed of, the given disposable is disposed immediately.
+//
+// This method is thread-safe.
 //
 // disposable - The disposable to add. Cannot be nil.
 - (void)addDisposable:(RACDisposable *)disposable;
+
+// Removes the specified disposable from the compound disposable (regardless of
+// its disposed status), or does nothing if it's not in the compound disposable.
+//
+// This is mainly useful for limiting the memory usage of the compound
+// disposable for long-running operations.
+//
+// This method is thread-safe.
+//
+// disposable - The disposable to remove. Cannot be nil.
+- (void)removeDisposable:(RACDisposable *)disposable;
 
 @end

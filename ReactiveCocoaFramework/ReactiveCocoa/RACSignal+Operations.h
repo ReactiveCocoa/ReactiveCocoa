@@ -128,7 +128,8 @@ extern const NSInteger RACSignalErrorTimedOut;
 // If an error occurs on any of the signals, it is sent on the returned signal.
 // It completes only after the receiver and all sent signals have completed.
 //
-// This corresponds to the `Merge` method in Rx.
+// This corresponds to `Merge<TSource>(IObservable<IObservable<TSource>>, Int32)`
+// in Rx.
 //
 // maxConcurrent - the maximum number of signals to subscribe to at a
 //                 time. If 0, it subscribes to an unlimited number of

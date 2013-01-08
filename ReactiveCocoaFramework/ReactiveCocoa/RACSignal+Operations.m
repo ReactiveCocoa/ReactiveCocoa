@@ -45,15 +45,24 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 
 	RACSchedulerRecursiveBlock recursiveBlock = ^(void (^recurse)(void)) {
+		__block __weak RACDisposable *selfDisposable = nil;
+
 		RACDisposable *subscriptionDisposable = [signal subscribeNext:next error:^(NSError *e) {
 			error(e, disposable);
+			[disposable removeDisposable:selfDisposable];
+
 			recurse();
 		} completed:^{
 			completed(disposable);
+			[disposable removeDisposable:selfDisposable];
+
 			recurse();
 		}];
 
-		if (subscriptionDisposable != nil) [disposable addDisposable:subscriptionDisposable];
+		if (subscriptionDisposable != nil) {
+			[disposable addDisposable:subscriptionDisposable];
+			selfDisposable = subscriptionDisposable;
+		}
 	};
 	
 	// Subscribe once immediately, and then use recursive scheduling for any

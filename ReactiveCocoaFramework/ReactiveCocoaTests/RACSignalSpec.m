@@ -14,6 +14,7 @@
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACBehaviorSubject.h"
 #import "RACDisposable.h"
+#import "RACEvent.h"
 #import "RACReplaySubject.h"
 #import "RACScheduler.h"
 #import "RACSignal+Operations.h"
@@ -385,36 +386,6 @@ describe(@"querying", ^{
 });
 
 describe(@"continuation", ^{
-	it(@"shouldn't receive deferred errors", ^{
-		__block NSUInteger numberOfSubscriptions = 0;
-		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			if(numberOfSubscriptions > 2) {
-				[subscriber sendCompleted];
-				return nil;
-			}
-			
-			numberOfSubscriptions++;
-			
-			[subscriber sendNext:@"1"];
-			[subscriber sendError:RACSignalTestError];
-			[subscriber sendCompleted];
-			return nil;
-		}];
-		
-		__block BOOL gotNext = NO;
-		__block BOOL gotError = NO;
-		[[signal asMaybes] subscribeNext:^(id x) {
-			gotNext = YES;
-		} error:^(NSError *error) {
-			gotError = YES;
-		} completed:^{
-			
-		}];
-		
-		expect(gotNext).to.beTruthy();
-		expect(gotError).to.beFalsy();
-	});
-	
 	it(@"should repeat after completion", ^{
 		__block NSUInteger numberOfSubscriptions = 0;
 		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
@@ -2255,6 +2226,64 @@ describe(@"-ignoreElements", ^{
 		expect(gotNext).to.beFalsy();
 		expect(gotCompleted).to.beFalsy();
 		expect(receivedError).to.equal(RACSignalTestError);
+	});
+});
+
+describe(@"-materialize", ^{
+	it(@"should convert nexts and completed into RACEvents", ^{
+		NSArray *events = [[[RACSignal return:RACUnit.defaultUnit] materialize] toArray];
+		NSArray *expected = @[
+			[RACEvent eventWithValue:RACUnit.defaultUnit],
+			RACEvent.completedEvent
+		];
+
+		expect(events).to.equal(expected);
+	});
+
+	it(@"should convert errors into RACEvents and complete", ^{
+		NSArray *events = [[[RACSignal error:RACSignalTestError] materialize] toArray];
+		NSArray *expected = @[ [RACEvent eventWithError:RACSignalTestError] ];
+		expect(events).to.equal(expected);
+	});
+});
+
+describe(@"-dematerialize", ^{
+	it(@"should convert nexts from RACEvents", ^{
+		RACSignal *events = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:[RACEvent eventWithValue:@1]];
+			[subscriber sendNext:[RACEvent eventWithValue:@2]];
+			[subscriber sendCompleted];
+			return nil;
+		}];
+
+		NSArray *expected = @[ @1, @2 ];
+		expect([[events dematerialize] toArray]).to.equal(expected);
+	});
+
+	it(@"should convert completed from a RACEvent", ^{
+		RACSignal *events = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:[RACEvent eventWithValue:@1]];
+			[subscriber sendNext:RACEvent.completedEvent];
+			[subscriber sendNext:[RACEvent eventWithValue:@2]];
+			[subscriber sendCompleted];
+			return nil;
+		}];
+
+		NSArray *expected = @[ @1 ];
+		expect([[events dematerialize] toArray]).to.equal(expected);
+	});
+
+	it(@"should convert error from a RACEvent", ^{
+		RACSignal *events = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:[RACEvent eventWithError:RACSignalTestError]];
+			[subscriber sendNext:[RACEvent eventWithValue:@1]];
+			[subscriber sendCompleted];
+			return nil;
+		}];
+
+		__block NSError *error = nil;
+		expect([[events dematerialize] firstOrDefault:nil success:NULL error:&error]).to.beNil();
+		expect(error).to.equal(RACSignalTestError);
 	});
 });
 

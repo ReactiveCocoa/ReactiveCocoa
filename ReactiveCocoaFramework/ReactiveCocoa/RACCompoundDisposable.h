@@ -40,7 +40,8 @@
 //
 // This method is thread-safe.
 //
-// disposable - The disposable to remove. Cannot be nil.
+// disposable - The disposable to remove. This argument may be nil (to make the
+//              use of weak references easier).
 - (void)removeDisposable:(RACDisposable *)disposable;
 
 @end

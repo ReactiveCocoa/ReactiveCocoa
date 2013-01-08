@@ -62,7 +62,7 @@
 }
 
 - (void)removeDisposable:(RACDisposable *)disposable {
-	NSParameterAssert(disposable != nil);
+	if (disposable == nil) return;
 
 	@synchronized(self) {
 		[self.disposables removeObjectIdenticalTo:disposable];

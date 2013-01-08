@@ -44,8 +44,9 @@ static const void *RACObjectDisposables = &RACObjectDisposables;
 
 - (void)rac_addDeallocDisposable:(RACDisposable *)disposable {
 	@synchronized(self) {
-		NSSet *disposables = objc_getAssociatedObject(self, RACObjectDisposables) ?: [NSSet set];
-		disposables = [disposables setByAddingObject:[disposable asScopedDisposable]];
+		NSMutableSet *disposables = objc_getAssociatedObject(self, RACObjectDisposables) ?: [NSMutableSet set];
+		[disposables addObject:disposable.asScopedDisposable];
+
 		objc_setAssociatedObject(self, RACObjectDisposables, disposables, OBJC_ASSOCIATION_RETAIN);
 	}
 }

@@ -82,7 +82,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 
 // Collect all receiver's `next`s into a NSArray.
 //
-// This corresponds to the `ToArray()` method in Rx.
+// This corresponds to the `ToArray` method in Rx.
 //
 // Returns a signal which sends a single NSArray when the receiver completes.
 - (RACSignal *)collect;
@@ -128,7 +128,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 // If an error occurs on any of the signals, it is sent on the returned signal.
 // It completes only after the receiver and all sent signals have completed.
 //
-// This corresponds to the `Merge()` method in Rx.
+// This corresponds to the `Merge` method in Rx.
 //
 // maxConcurrent - the maximum number of signals to subscribe to at a
 //                 time. If 0, it subscribes to an unlimited number of
@@ -247,13 +247,13 @@ extern const NSInteger RACSignalErrorTimedOut;
 // Add every `next` to an array. Nils are represented by NSNulls. Note that this
 // is a blocking call.
 //
-// **This is not the same as the `ToArray()` method in Rx.** See -collect for
+// **This is not the same as the `ToArray` method in Rx.** See -collect for
 // that behavior instead.
 - (NSArray *)toArray;
 
 // Add every `next` to a sequence. Nils are represented by NSNulls.
 //
-// This corresponds to the `ToEnumerable()` method in Rx.
+// This corresponds to the `ToEnumerable` method in Rx.
 //
 // Returns a sequence which provides values from the signal as they're sent.
 // Trying to retrieve a value from the sequence which has not yet been sent will
@@ -303,7 +303,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 // Creates and returns a signal that delivers its callbacks using the given
 // scheduler.
 //
-// This corresponds to the `ObserveOn()` method in Rx.
+// This corresponds to the `ObserveOn` method in Rx.
 - (RACSignal *)deliverOn:(RACScheduler *)scheduler;
 
 // Creates and returns a signal whose `didSubscribe` block is scheduled with the

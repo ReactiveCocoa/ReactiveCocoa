@@ -103,7 +103,7 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 
 // Maps `block` across the values in the receiver and flattens the result.
 //
-// This corresponds to the `SelectMany()` method in Rx.
+// This corresponds to the `SelectMany` method in Rx.
 //
 // block - A block which accepts the values in the receiver and returns a new
 //         instance of the receiver's class. This block should not return `nil`.
@@ -114,7 +114,7 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 
 // Flattens a stream of streams.
 //
-// This corresponds to the `Merge()` method in Rx.
+// This corresponds to the `Merge` method in Rx.
 //
 // Returns a stream consisting of the combined streams obtained from the
 // receiver.
@@ -122,7 +122,7 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 
 // Maps `block` across the values in the receiver.
 //
-// This corresponds to the `Select()` method in Rx.
+// This corresponds to the `Select` method in Rx.
 //
 // Returns a new stream with the mapped values.
 - (instancetype)map:(id (^)(id value))block;
@@ -146,7 +146,7 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 
 // Filters out values in the receiver that don't pass the given test.
 //
-// This corresponds to the `Where()` method in Rx.
+// This corresponds to the `Where` method in Rx.
 //
 // Returns a new stream with only those values that passed.
 - (instancetype)filter:(BOOL (^)(id value))block;

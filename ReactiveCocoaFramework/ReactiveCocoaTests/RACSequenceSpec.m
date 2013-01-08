@@ -96,7 +96,8 @@ describe(@"eager sequences", ^{
 	__block RACSequence *lazySequence;
 	__block BOOL headInvoked;
 	__block BOOL tailInvoked;
-	NSArray *values = @[ @0, @1, @2 ];
+
+	NSArray *values = @[ @0, @1 ];
 	
 	before(^{
 		headInvoked = NO;

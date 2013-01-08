@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACSequence.h"
+#import <ReactiveCocoa/RACSequence.h>
 
 @class RACSignal;
 

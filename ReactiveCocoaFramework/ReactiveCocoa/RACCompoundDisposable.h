@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACDisposable.h"
+#import <ReactiveCocoa/RACDisposable.h>
 
 // A disposable of disposables. When it is disposed, it disposes of all its
 // contained disposables.

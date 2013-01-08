@@ -7,16 +7,13 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RACSignal.h"
+#import <ReactiveCocoa/RACSignal.h>
 
+// The domain for errors originating in RACSignal operations.
 extern NSString * const RACSignalErrorDomain;
 
-typedef enum {
-	// The error code used with -timeout:.
-	RACSignalErrorTimedOut = 1,
-} _RACSignalError;
-
-typedef NSInteger RACSignalError;
+// The error code used with -timeout:.
+extern const NSInteger RACSignalErrorTimedOut;
 
 @class RACMulticastConnection;
 @class RACDisposable;
@@ -195,9 +192,6 @@ typedef NSInteger RACSignalError;
 // will send `completed`.
 - (RACSignal *)takeUntil:(RACSignal *)signalTrigger;
 
-// Convert every `next` and `error` into a RACMaybe.
-- (RACSignal *)asMaybes;
-
 // Subscribe to the returned signal when an error occurs.
 - (RACSignal *)catch:(RACSignal * (^)(NSError *error))catchBlock;
 
@@ -297,7 +291,13 @@ typedef NSInteger RACSignalError;
 - (RACSignal *)replayLazily;
 
 // Sends an error after `interval` seconds if the source doesn't complete
-// before then. The timeout is scheduled on the default priority global queue.
+// before then.
+//
+// The error will be in the RACSignalErrorDomain and have a code of
+// RACSignalErrorTimedOut.
+//
+// Returns a signal that passes through the receiver's events on an
+// indeterminate scheduler, until the stream finishes or times out.
 - (RACSignal *)timeout:(NSTimeInterval)interval;
 
 // Creates and returns a signal that delivers its callbacks using the given
@@ -356,5 +356,23 @@ typedef NSInteger RACSignalError;
 // sampler - The signal that controls when the latest value from the receiver
 //           is sent. Cannot be nil.
 - (RACSignal *)sample:(RACSignal *)sampler;
+
+// Ignores all `next`s from the receiver.
+//
+// Returns a signal which only passes through `error` or `completed` events from
+// the receiver.
+- (RACSignal *)ignoreElements;
+
+// Converts each of the receiver's events into a RACEvent object.
+//
+// Returns a signal which sends the receiver's events as RACEvents, and
+// completes after the receiver sends `completed` or `error`.
+- (RACSignal *)materialize;
+
+// Converts each RACEvent in the receiver back into "real" RACSignal events.
+//
+// Returns a signal which sends `next` for each value RACEvent, `error` for each
+// error RACEvent, and `completed` for each completed RACEvent.
+- (RACSignal *)dematerialize;
 
 @end

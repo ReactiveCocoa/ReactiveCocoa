@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "metamacros.h"
+#import <ReactiveCocoa/metamacros.h>
 
 @class RACSequence;
 
@@ -87,7 +87,7 @@
 @interface RACTuple (RACSequenceAdditions)
 
 // Returns a sequence of all the objects. RACTupleNils are converted to NSNulls.
-- (RACSequence *)rac_sequence;
+@property (nonatomic, copy, readonly) RACSequence *rac_sequence;
 
 @end
 

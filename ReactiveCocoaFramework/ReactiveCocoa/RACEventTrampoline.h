@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "RACSubject.h"
+#import <ReactiveCocoa/RACSubject.h>
 
 extern const char *RACEventTrampolinesKey;
 

@@ -14,12 +14,13 @@
 #import <ReactiveCocoa/NSOrderedSet+RACSequenceAdditions.h>
 #import <ReactiveCocoa/NSSet+RACSequenceAdditions.h>
 #import <ReactiveCocoa/NSString+RACSequenceAdditions.h>
+#import <ReactiveCocoa/NSEnumerator+RACSequenceAdditions.h>
 #import <ReactiveCocoa/RACBehaviorSubject.h>
 #import <ReactiveCocoa/RACCommand.h>
 #import <ReactiveCocoa/RACMulticastConnection.h>
 #import <ReactiveCocoa/RACDisposable.h>
+#import <ReactiveCocoa/RACEvent.h>
 #import <ReactiveCocoa/RACGroupedSignal.h>
-#import <ReactiveCocoa/RACMaybe.h>
 #import <ReactiveCocoa/RACReplaySubject.h>
 #import <ReactiveCocoa/RACScheduler.h>
 #import <ReactiveCocoa/RACScopedDisposable.h>

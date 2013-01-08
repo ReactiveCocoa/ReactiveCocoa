@@ -435,10 +435,8 @@
 		88F4416D153DB1770097B4C3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"$(PROJECT_DIR)/../ReactiveCocoaFramework\"";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RACiOSDemo/RACiOSDemo-Prefix.pch";
-				HEADER_SEARCH_PATHS = "\"$(PROJECT_DIR)/../ReactiveCocoaFramework\"/**";
 				INFOPLIST_FILE = "RACiOSDemo/RACiOSDemo-Info.plist";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -449,10 +447,8 @@
 		88F4416E153DB1770097B4C3 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"$(PROJECT_DIR)/../ReactiveCocoaFramework\"";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RACiOSDemo/RACiOSDemo-Prefix.pch";
-				HEADER_SEARCH_PATHS = "\"$(PROJECT_DIR)/../ReactiveCocoaFramework\"/**";
 				INFOPLIST_FILE = "RACiOSDemo/RACiOSDemo-Info.plist";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";

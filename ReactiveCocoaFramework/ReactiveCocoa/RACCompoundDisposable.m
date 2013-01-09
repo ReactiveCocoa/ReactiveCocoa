@@ -7,11 +7,15 @@
 //
 
 #import "RACCompoundDisposable.h"
+#import "EXTScope.h"
 
 @interface RACCompoundDisposable ()
 
-// These properties should only be accessed while synchronized on self.
-@property (nonatomic, readonly, strong) NSMutableArray *disposables;
+// Used for synchronization.
+@property (nonatomic, strong, readonly) NSLock *lock;
+
+// These properties should only be accessed while `lock` is held.
+@property (nonatomic, strong) NSMutableArray *disposables;
 @property (nonatomic, assign, getter = isDisposed) BOOL disposed;
 
 @end
@@ -32,6 +36,9 @@
 	self = [super init];
 	if (self == nil) return nil;
 
+	_lock = [[NSLock alloc] init];
+	_lock.name = @"com.github.ReactiveCocoa.RACCompoundDisposable";
+
 	_disposables = [NSMutableArray array];
 
 	return self;
@@ -41,7 +48,7 @@
 	self = [self init];
 	if (self == nil) return nil;
 
-	if (disposables != nil) [_disposables addObjectsFromArray:disposables];
+	if (disposables != nil) [self.disposables addObjectsFromArray:disposables];
 
 	return self;
 }
@@ -52,35 +59,63 @@
 	NSParameterAssert(disposable != nil);
 	NSParameterAssert(disposable != self);
 
-	@synchronized(self) {
+	BOOL shouldDispose = NO;
+
+	{
+		[self.lock lock];
+
+		// Ensures exception safety.
+		@onExit {
+			[self.lock unlock];
+		};
+
 		if (self.disposed) {
-			[disposable dispose];
+			shouldDispose = YES;
 		} else {
 			[self.disposables addObject:disposable];
 		}
 	}
+
+	// Performed outside of the lock in case the compound disposable is used
+	// recursively.
+	if (shouldDispose) [disposable dispose];
 }
 
 - (void)removeDisposable:(RACDisposable *)disposable {
 	if (disposable == nil) return;
 
-	@synchronized(self) {
-		[self.disposables removeObjectIdenticalTo:disposable];
-	}
+	[self.lock lock];
+
+	// Ensures exception safety.
+	@onExit {
+		[self.lock unlock];
+	};
+
+	[self.disposables removeObjectIdenticalTo:disposable];
 }
 
 #pragma mark RACDisposable
 
 - (void)dispose {
-	@synchronized(self) {
+	NSArray *disposables = nil;
+
+	{
+		[self.lock lock];
+
+		// Ensures exception safety.
+		@onExit {
+			[self.lock unlock];
+		};
+
 		self.disposed = YES;
 
-		// Copy the disposables so there's no way that we could recursively
-		// modify (in -addDisposable:) the array we're disposing.
-		NSArray *disposablesCopy = [self.disposables copy];
-		[self.disposables removeAllObjects];
-		[disposablesCopy makeObjectsPerformSelector:@selector(dispose)];
+		disposables = self.disposables;
+		self.disposables = nil;
 	}
+
+	// Performed outside of the lock in case the compound disposable is used
+	// recursively.
+	[disposables makeObjectsPerformSelector:@selector(dispose)];
 }
 
 @end

@@ -1278,7 +1278,7 @@ describe(@"-flatten:", ^{
 	});
 });
 
-describe(@"-switch", ^{
+describe(@"-switchToLatest", ^{
 	__block RACSubject *subject;
 
 	__block NSMutableArray *values;
@@ -1292,7 +1292,7 @@ describe(@"-switch", ^{
 		lastError = nil;
 		completed = NO;
 
-		[[subject switch] subscribeNext:^(id x) {
+		[[subject switchToLatest] subscribeNext:^(id x) {
 			expect(lastError).to.beNil();
 			expect(completed).to.beFalsy();
 

@@ -229,7 +229,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 //
 // Returns a signal which passes through `next`s and `error`s from the latest
 // signal sent by the receiver, and sends `completed` when the receiver completes.
-- (RACSignal *)switch;
+- (RACSignal *)switchToLatest;
 
 // Switches between `trueSignal` and `falseSignal` based on the latest value
 // sent by `boolSignal`.

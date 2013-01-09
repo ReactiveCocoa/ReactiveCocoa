@@ -7,12 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RACStream.h"
+#import <ReactiveCocoa/RACStream.h>
 
 @class RACScheduler;
 @class RACSignal;
 
-// Represents an immutable, sequence of values. Unless otherwise specified, the
+// Represents an immutable sequence of values. Unless otherwise specified, the
 // sequences' values are evaluated lazily on demand. Like Cocoa collections,
 // sequences cannot contain nil.
 //

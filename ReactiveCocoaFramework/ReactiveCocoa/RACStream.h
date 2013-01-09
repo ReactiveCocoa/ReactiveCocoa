@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "EXTConcreteProtocol.h"
+#import <ReactiveCocoa/EXTConcreteProtocol.h>
 
 @class RACStream;
 
@@ -87,6 +87,9 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 
 // Sets the name of the receiver to the given format string.
 //
+// This is for debugging purposes only, and won't do anything unless the DEBUG
+// preprocessor macro is defined.
+//
 // Returns the receiver, for easy method chaining.
 - (instancetype)setNameWithFormat:(NSString *)format, ... NS_FORMAT_FUNCTION(1, 2);
 
@@ -100,6 +103,8 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 
 // Maps `block` across the values in the receiver and flattens the result.
 //
+// This corresponds to the `SelectMany` method in Rx.
+//
 // block - A block which accepts the values in the receiver and returns a new
 //         instance of the receiver's class. This block should not return `nil`.
 //
@@ -109,11 +114,15 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 
 // Flattens a stream of streams.
 //
+// This corresponds to the `Merge` method in Rx.
+//
 // Returns a stream consisting of the combined streams obtained from the
 // receiver.
 - (instancetype)flatten;
 
 // Maps `block` across the values in the receiver.
+//
+// This corresponds to the `Select` method in Rx.
 //
 // Returns a new stream with the mapped values.
 - (instancetype)map:(id (^)(id value))block;
@@ -136,6 +145,8 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 - (instancetype)mapPreviousWithStart:(id)start combine:(id (^)(id previous, id current))combineBlock;
 
 // Filters out values in the receiver that don't pass the given test.
+//
+// This corresponds to the `Where` method in Rx.
 //
 // Returns a new stream with only those values that passed.
 - (instancetype)filter:(BOOL (^)(id value))block;

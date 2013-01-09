@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACSignal.h"
+#import <ReactiveCocoa/RACSignal.h>
 
 @class RACDisposable;
 

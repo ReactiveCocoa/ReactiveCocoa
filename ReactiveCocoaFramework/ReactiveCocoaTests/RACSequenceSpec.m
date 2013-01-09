@@ -9,6 +9,7 @@
 #import "RACSequenceExamples.h"
 #import "RACStreamExamples.h"
 
+#import "NSArray+RACSequenceAdditions.h"
 #import "RACSequence.h"
 #import "RACUnit.h"
 
@@ -77,26 +78,27 @@ describe(@"+sequenceWithHeadBlock:tailBlock:", ^{
 	});
 
 	after(^{
-		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: @[ @0, @1 ] }, nil);
+		itShouldBehaveLike(RACSequenceExamples, [^{ return sequence; } copy], ^{ return @[ @0, @1 ]; }, nil);
 	});
 });
 
 describe(@"empty sequences", ^{
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: RACSequence.empty, RACSequenceExpectedValues: @[] }, nil);
+	itShouldBehaveLike(RACSequenceExamples, ^{ return RACSequence.empty; }, ^{ return @[]; }, nil);
 });
 
 describe(@"non-empty sequences", ^{
-	RACSequence *sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
-	NSArray *values = @[ @0, @1, @2 ];
-
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values }, nil);
+	itShouldBehaveLike(RACSequenceExamples,
+		^{ return [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]]; },
+		^{ return @[ @0, @1, @2 ]; },
+		nil);
 });
 
 describe(@"eager sequences", ^{
 	__block RACSequence *lazySequence;
 	__block BOOL headInvoked;
 	__block BOOL tailInvoked;
-	NSArray *values = @[ @0, @1, @2 ];
+
+	NSArray *values = @[ @0, @1 ];
 	
 	before(^{
 		headInvoked = NO;
@@ -113,7 +115,7 @@ describe(@"eager sequences", ^{
 		expect(lazySequence).notTo.beNil();
 	});
 	
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: lazySequence.eagerSequence, RACSequenceExpectedValues: values }, nil);
+	itShouldBehaveLike(RACSequenceExamples, [^{ return lazySequence.eagerSequence; } copy], [^{ return values; } copy], nil);
 	
 	it(@"should evaluate all values immediately", ^{
 		RACSequence *eagerSequence = lazySequence.eagerSequence;
@@ -163,6 +165,30 @@ describe(@"-bind:", ^{
 		expect(bound.head).to.equal(RACUnit.defaultUnit);
 		expect(headInvoked).to.beTruthy();
 	});
+});
+
+it(@"it shouldn't overflow the stack when deallocated on a background queue", ^{
+	NSUInteger length = 10000;
+	NSMutableArray *values = [NSMutableArray arrayWithCapacity:length];
+	for (NSUInteger i = 0; i < length; ++i) {
+		[values addObject:@(i)];
+	}
+
+	__block BOOL finished = NO;
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+		@autoreleasepool {
+			[[values.rac_sequence map:^(id value) {
+				return value;
+			}] array];
+		}
+
+		finished = YES;
+	});
+
+	NSTimeInterval oldTimeout = Expecta.asynchronousTestTimeout;
+	Expecta.asynchronousTestTimeout = DBL_MAX;
+	expect(finished).will.beTruthy();
+	Expecta.asynchronousTestTimeout = oldTimeout;
 });
 
 SpecEnd

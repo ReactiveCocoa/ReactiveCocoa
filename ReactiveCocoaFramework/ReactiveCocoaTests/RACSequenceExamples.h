@@ -7,10 +7,9 @@
 //
 
 // The name of the shared examples for RACSequence instances.
+//
+// Takes two block arguments:
+//
+// RACSequence * (^getSequence)(void)
+// NSArray * (^getExpectedValues)(void)
 extern NSString * const RACSequenceExamples;
-
-// The RACSequence instance to test.
-extern NSString * const RACSequenceSequence;
-
-// An NSArray of the values contained within the sequence.
-extern NSString * const RACSequenceExpectedValues;

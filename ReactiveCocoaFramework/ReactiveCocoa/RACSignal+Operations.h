@@ -7,16 +7,13 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RACSignal.h"
+#import <ReactiveCocoa/RACSignal.h>
 
+// The domain for errors originating in RACSignal operations.
 extern NSString * const RACSignalErrorDomain;
 
-typedef enum {
-	// The error code used with -timeout:.
-	RACSignalErrorTimedOut = 1,
-} _RACSignalError;
-
-typedef NSInteger RACSignalError;
+// The error code used with -timeout:.
+extern const NSInteger RACSignalErrorTimedOut;
 
 @class RACMulticastConnection;
 @class RACDisposable;
@@ -85,6 +82,8 @@ typedef NSInteger RACSignalError;
 
 // Collect all receiver's `next`s into a NSArray.
 //
+// This corresponds to the `ToArray` method in Rx.
+//
 // Returns a signal which sends a single NSArray when the receiver completes.
 - (RACSignal *)collect;
 
@@ -128,6 +127,9 @@ typedef NSInteger RACSignalError;
 //
 // If an error occurs on any of the signals, it is sent on the returned signal.
 // It completes only after the receiver and all sent signals have completed.
+//
+// This corresponds to `Merge<TSource>(IObservable<IObservable<TSource>>, Int32)`
+// in Rx.
 //
 // maxConcurrent - the maximum number of signals to subscribe to at a
 //                 time. If 0, it subscribes to an unlimited number of
@@ -191,9 +193,6 @@ typedef NSInteger RACSignalError;
 // will send `completed`.
 - (RACSignal *)takeUntil:(RACSignal *)signalTrigger;
 
-// Convert every `next` and `error` into a RACMaybe.
-- (RACSignal *)asMaybes;
-
 // Subscribe to the returned signal when an error occurs.
 - (RACSignal *)catch:(RACSignal * (^)(NSError *error))catchBlock;
 
@@ -230,7 +229,7 @@ typedef NSInteger RACSignalError;
 //
 // Returns a signal which passes through `next`s and `error`s from the latest
 // signal sent by the receiver, and sends `completed` when the receiver completes.
-- (RACSignal *)switch;
+- (RACSignal *)switchToLatest;
 
 // Switches between `trueSignal` and `falseSignal` based on the latest value
 // sent by `boolSignal`.
@@ -248,9 +247,14 @@ typedef NSInteger RACSignalError;
 
 // Add every `next` to an array. Nils are represented by NSNulls. Note that this
 // is a blocking call.
+//
+// **This is not the same as the `ToArray` method in Rx.** See -collect for
+// that behavior instead.
 - (NSArray *)toArray;
 
 // Add every `next` to a sequence. Nils are represented by NSNulls.
+//
+// This corresponds to the `ToEnumerable` method in Rx.
 //
 // Returns a sequence which provides values from the signal as they're sent.
 // Trying to retrieve a value from the sequence which has not yet been sent will
@@ -288,11 +292,19 @@ typedef NSInteger RACSignalError;
 - (RACSignal *)replayLazily;
 
 // Sends an error after `interval` seconds if the source doesn't complete
-// before then. The timeout is scheduled on the default priority global queue.
+// before then.
+//
+// The error will be in the RACSignalErrorDomain and have a code of
+// RACSignalErrorTimedOut.
+//
+// Returns a signal that passes through the receiver's events on an
+// indeterminate scheduler, until the stream finishes or times out.
 - (RACSignal *)timeout:(NSTimeInterval)interval;
 
 // Creates and returns a signal that delivers its callbacks using the given
 // scheduler.
+//
+// This corresponds to the `ObserveOn` method in Rx.
 - (RACSignal *)deliverOn:(RACScheduler *)scheduler;
 
 // Creates and returns a signal whose `didSubscribe` block is scheduled with the
@@ -345,5 +357,23 @@ typedef NSInteger RACSignalError;
 // sampler - The signal that controls when the latest value from the receiver
 //           is sent. Cannot be nil.
 - (RACSignal *)sample:(RACSignal *)sampler;
+
+// Ignores all `next`s from the receiver.
+//
+// Returns a signal which only passes through `error` or `completed` events from
+// the receiver.
+- (RACSignal *)ignoreElements;
+
+// Converts each of the receiver's events into a RACEvent object.
+//
+// Returns a signal which sends the receiver's events as RACEvents, and
+// completes after the receiver sends `completed` or `error`.
+- (RACSignal *)materialize;
+
+// Converts each RACEvent in the receiver back into "real" RACSignal events.
+//
+// Returns a signal which sends `next` for each value RACEvent, `error` for each
+// error RACEvent, and `completed` for each completed RACEvent.
+- (RACSignal *)dematerialize;
 
 @end

@@ -62,24 +62,20 @@
 
 		// Try logging in, and return the result.
 		//
-		// -asMaybes means that we wrap each next value or error in
-		// a RACMaybe. This means that even if the API hits an error, the
+		// -materialize means that we wrap each next value or error in
+		// a RACEvent. This means that even if the API hits an error, the
 		// loginResult signal will still be valid.
-		//
-		// We only take a single RACMaybe because -login uses a replay subject
-		// internally, and resubscribing to it with -asMaybes will cause it to
-		// keep giving us the same values in an infinite loop.
-		return [[[self.client login] asMaybes] take:1];
+		return [[self.client login] materialize];
 	}];
 
-	// Since we used -asMaybes above, we'll need to filter out the specific
+	// Since we used -materialize above, we'll need to filter out the specific
 	// error or success cases.
 	[[[loginResult 
-		filter:^(id x) {
-			return [x hasError];
+		filter:^ BOOL (RACEvent *x) {
+			return x.eventType == RACEventTypeError;
 		}] 
-		map:^(id x) {
-			return [x error];
+		map:^(RACEvent *x) {
+			return x.error;
 		}] 
 		subscribeNext:^(NSError *error) {
 			@strongify(self);
@@ -89,8 +85,8 @@
 		}];
 	
 	[[loginResult 
-		filter:^(id x) {
-			return [x hasObject];
+		filter:^ BOOL (RACEvent *x) {
+			return x.eventType == RACEventTypeCompleted;
 		}]
 		subscribeNext:^(id _) {
 			@strongify(self);
@@ -100,8 +96,8 @@
 		}];
 	
 	[[loginResult 
-		map:^ id (id x) {
-			return [NSNumber numberWithBool:NO];
+		map:^(RACEvent *x) {
+			return @(!x.finished);
 		}] 
 		toProperty:@keypath(self.loggingIn) onObject:self];
 	

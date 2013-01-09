@@ -8,6 +8,7 @@
 
 #import "RACTuple.h"
 #import "EXTKeyPathCoding.h"
+#import "NSArray+RACSequenceAdditions.h"
 
 @implementation RACTupleNil
 
@@ -188,6 +189,14 @@
 
 @end
 
+
+@implementation RACTuple (RACSequenceAdditions)
+
+- (RACSequence *)rac_sequence {
+	return self.allObjects.rac_sequence;
+}
+
+@end
 
 @implementation RACTuple (ObjectSubscripting)
 

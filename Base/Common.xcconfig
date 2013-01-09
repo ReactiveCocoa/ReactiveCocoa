@@ -16,14 +16,26 @@ CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = YES
 // Enable ARC
 CLANG_ENABLE_OBJC_ARC = YES
 
+// Warn about implicit conversions of constant values that cause the constant value to change,
+// either through a loss of precision, or entirely in its meaning.
+CLANG_WARN_CONSTANT_CONVERSION = YES;
+
 // Whether to warn when overriding deprecated methods
 CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES
 
-// Whether to warn on duplicate method definitions
+// Warn about declaring the same method more than once within the same @interface.
 CLANG_WARN__DUPLICATE_METHOD_MATCH = YES
+
+// Warn about implicit conversions between different kinds of enum values.
+// For example, this can catch issues when using the wrong enum flag as an argument to a function or method.
+CLANG_WARN_ENUM_CONVERSION = YES;
 
 // Whether to warn on implicit conversions between signed/unsigned types
 CLANG_WARN_IMPLICIT_SIGN_CONVERSION = NO
+
+// Warn about implicit conversions between pointers and integers.
+// For example, this can catch issues when one incorrectly intermixes using NSNumbers and raw integers.
+CLANG_WARN_INT_CONVERSION = YES;
 
 // Whether to warn on suspicious implicit conversions
 CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES

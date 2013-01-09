@@ -7,11 +7,16 @@
 //
 
 #import "RACCompoundDisposable.h"
+#import "EXTScope.h"
+#import <libkern/OSAtomic.h>
 
-@interface RACCompoundDisposable ()
+@interface RACCompoundDisposable () {
+	// Used for synchronization.
+	OSSpinLock _spinLock;
+}
 
-// These properties should only be accessed while synchronized on self.
-@property (nonatomic, readonly, strong) NSMutableArray *disposables;
+// These properties should only be accessed while _spinLock is held.
+@property (nonatomic, strong) NSMutableArray *disposables;
 @property (nonatomic, assign, getter = isDisposed) BOOL disposed;
 
 @end
@@ -41,7 +46,7 @@
 	self = [self init];
 	if (self == nil) return nil;
 
-	if (disposables != nil) [_disposables addObjectsFromArray:disposables];
+	if (disposables != nil) [self.disposables addObjectsFromArray:disposables];
 
 	return self;
 }
@@ -52,35 +57,63 @@
 	NSParameterAssert(disposable != nil);
 	NSParameterAssert(disposable != self);
 
-	@synchronized(self) {
+	BOOL shouldDispose = NO;
+
+	{
+		OSSpinLockLock(&_spinLock);
+
+		// Ensures exception safety.
+		@onExit {
+			OSSpinLockUnlock(&_spinLock);
+		};
+
 		if (self.disposed) {
-			[disposable dispose];
+			shouldDispose = YES;
 		} else {
 			[self.disposables addObject:disposable];
 		}
 	}
+
+	// Performed outside of the lock in case the compound disposable is used
+	// recursively.
+	if (shouldDispose) [disposable dispose];
 }
 
 - (void)removeDisposable:(RACDisposable *)disposable {
 	if (disposable == nil) return;
 
-	@synchronized(self) {
-		[self.disposables removeObjectIdenticalTo:disposable];
-	}
+	OSSpinLockLock(&_spinLock);
+
+	// Ensures exception safety.
+	@onExit {
+		OSSpinLockUnlock(&_spinLock);
+	};
+
+	[self.disposables removeObjectIdenticalTo:disposable];
 }
 
 #pragma mark RACDisposable
 
 - (void)dispose {
-	@synchronized(self) {
+	NSArray *disposables = nil;
+
+	{
+		OSSpinLockLock(&_spinLock);
+
+		// Ensures exception safety.
+		@onExit {
+			OSSpinLockUnlock(&_spinLock);
+		};
+
 		self.disposed = YES;
 
-		// Copy the disposables so there's no way that we could recursively
-		// modify (in -addDisposable:) the array we're disposing.
-		NSArray *disposablesCopy = [self.disposables copy];
-		[self.disposables removeAllObjects];
-		[disposablesCopy makeObjectsPerformSelector:@selector(dispose)];
+		disposables = self.disposables;
+		self.disposables = nil;
 	}
+
+	// Performed outside of the lock in case the compound disposable is used
+	// recursively.
+	[disposables makeObjectsPerformSelector:@selector(dispose)];
 }
 
 @end

@@ -8,35 +8,25 @@
 
 #import "RACScopedDisposable.h"
 
-@interface RACScopedDisposable ()
-@property (nonatomic, strong) RACDisposable *disposable;
-@end
-
-
 @implementation RACScopedDisposable
+
+#pragma mark Lifecycle
+
++ (instancetype)scopedDisposableWithDisposable:(RACDisposable *)disposable {
+	return [self disposableWithBlock:^{
+		[disposable dispose];
+	}];
+}
 
 - (void)dealloc {
 	[self dispose];
-	[self.disposable dispose];
 }
-
 
 #pragma mark RACDisposable
 
 - (RACScopedDisposable *)asScopedDisposable {
 	// totally already are
 	return self;
-}
-
-
-#pragma mark API
-
-@synthesize disposable;
-
-+ (instancetype)scopedDisposableWithDisposable:(RACDisposable *)disposable {
-	RACScopedDisposable *scopedDisposable = [[self alloc] init];
-	scopedDisposable.disposable = disposable;
-	return scopedDisposable;
 }
 
 @end

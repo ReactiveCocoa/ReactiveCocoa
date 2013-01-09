@@ -121,7 +121,7 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 	return disposable;
 }
 
-- (void)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock addingToDisposable:(__weak RACCompoundDisposable *)disposable isDisposedBlock:(BOOL (^)(void))isDisposed {
+- (void)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock addingToDisposable:(RACCompoundDisposable *)disposable isDisposedBlock:(BOOL (^)(void))isDisposed {
 	@autoreleasepool {
 		RACCompoundDisposable *selfDisposable = [RACCompoundDisposable compoundDisposable];
 		[disposable addDisposable:selfDisposable];

@@ -198,6 +198,7 @@ static NSMutableSet *activeSignals() {
 		RACStreamBindBlock bindingBlock = block();
 
 		NSMutableArray *signals = [NSMutableArray arrayWithObject:self];
+
 		RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposable];
 
 		void (^completeSignal)(RACSignal *, RACDisposable *) = ^(RACSignal *signal, RACDisposable *finishedDisposable) {
@@ -222,7 +223,10 @@ static NSMutableSet *activeSignals() {
 				[signals addObject:signal];
 			}
 
-			__block __weak RACDisposable *selfDisposable = nil;
+			RACCompoundDisposable *selfDisposable = [RACCompoundDisposable compoundDisposable];
+			[compoundDisposable addDisposable:selfDisposable];
+
+			__weak RACDisposable *weakSelfDisposable = selfDisposable;
 
 			RACDisposable *disposable = [signal subscribeNext:^(id x) {
 				[subscriber sendNext:x];
@@ -230,33 +234,38 @@ static NSMutableSet *activeSignals() {
 				[compoundDisposable dispose];
 				[subscriber sendError:error];
 			} completed:^{
-				completeSignal(signal, selfDisposable);
+				@autoreleasepool {
+					completeSignal(signal, weakSelfDisposable);
+				}
 			}];
 
-			if (disposable != nil) {
-				[compoundDisposable addDisposable:disposable];
-				selfDisposable = disposable;
-			}
+			if (disposable != nil) [selfDisposable addDisposable:disposable];
 		};
 
-		__block __weak RACDisposable *selfDisposable = nil;
+		@autoreleasepool {
+			RACCompoundDisposable *selfDisposable = [RACCompoundDisposable compoundDisposable];
+			[compoundDisposable addDisposable:selfDisposable];
 
-		RACDisposable *bindingDisposable = [self subscribeNext:^(id x) {
-			BOOL stop = NO;
-			id signal = bindingBlock(x, &stop);
+			__weak RACDisposable *weakSelfDisposable = selfDisposable;
 
-			if (signal != nil) addSignal(signal);
-			if (signal == nil || stop) completeSignal(self, selfDisposable);
-		} error:^(NSError *error) {
-			[compoundDisposable dispose];
-			[subscriber sendError:error];
-		} completed:^{
-			completeSignal(self, selfDisposable);
-		}];
+			RACDisposable *bindingDisposable = [self subscribeNext:^(id x) {
+				BOOL stop = NO;
+				id signal = bindingBlock(x, &stop);
 
-		if (bindingDisposable != nil) {
-			[compoundDisposable addDisposable:bindingDisposable];
-			selfDisposable = bindingDisposable;
+				@autoreleasepool {
+					if (signal != nil) addSignal(signal);
+					if (signal == nil || stop) completeSignal(self, weakSelfDisposable);
+				}
+			} error:^(NSError *error) {
+				[compoundDisposable dispose];
+				[subscriber sendError:error];
+			} completed:^{
+				@autoreleasepool {
+					completeSignal(self, weakSelfDisposable);
+				}
+			}];
+
+			if (bindingDisposable != nil) [selfDisposable addDisposable:bindingDisposable];
 		}
 
 		return compoundDisposable;

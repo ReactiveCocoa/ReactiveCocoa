@@ -121,30 +121,37 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 	return disposable;
 }
 
-- (void)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock addingToDisposable:(__weak RACCompoundDisposable *)disposable isDisposedBlock:(BOOL (^)(void))isDisposed {
-	__block __weak RACDisposable *selfDisposable = nil;
+- (void)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock addingToDisposable:(RACCompoundDisposable *)disposable isDisposedBlock:(BOOL (^)(void))isDisposed {
+	@autoreleasepool {
+		RACCompoundDisposable *selfDisposable = [RACCompoundDisposable compoundDisposable];
+		[disposable addDisposable:selfDisposable];
 
-	RACDisposable *schedulingDisposable = [self schedule:^{
-		// At this point, we've been invoked, so our disposable is now useless.
-		[disposable removeDisposable:selfDisposable];
+		__weak RACDisposable *weakSelfDisposable = selfDisposable;
 
-		if (isDisposed()) return;
+		RACDisposable *schedulingDisposable = [self schedule:^{
+			@autoreleasepool {
+				// At this point, we've been invoked, so our disposable is now useless.
+				[disposable removeDisposable:weakSelfDisposable];
+			}
 
-		__block NSUInteger rescheduleCount = 0;
-		recursiveBlock(^{
-			++rescheduleCount;
-		});
-
-		for (NSUInteger i = 0; i < rescheduleCount; i++) {
 			if (isDisposed()) return;
 
-			[self scheduleRecursiveBlock:recursiveBlock addingToDisposable:disposable isDisposedBlock:isDisposed];
-		}
-	}];
+			__block NSUInteger rescheduleCount = 0;
 
-	if (schedulingDisposable != nil) {
-		[disposable addDisposable:schedulingDisposable];
-		selfDisposable = schedulingDisposable;
+			@autoreleasepool {
+				recursiveBlock(^{
+					++rescheduleCount;
+				});
+			}
+
+			for (NSUInteger i = 0; i < rescheduleCount; i++) {
+				if (isDisposed()) return;
+
+				[self scheduleRecursiveBlock:recursiveBlock addingToDisposable:disposable isDisposedBlock:isDisposed];
+			}
+		}];
+
+		if (schedulingDisposable != nil) [selfDisposable addDisposable:schedulingDisposable];
 	}
 }
 

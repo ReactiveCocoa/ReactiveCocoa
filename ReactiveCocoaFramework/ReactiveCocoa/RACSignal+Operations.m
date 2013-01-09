@@ -42,27 +42,27 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	error = [error copy];
 	completed = [completed copy];
 
-	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+	RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposable];
 
 	RACSchedulerRecursiveBlock recursiveBlock = ^(void (^recurse)(void)) {
-		__block __weak RACDisposable *selfDisposable = nil;
+		RACCompoundDisposable *selfDisposable = [RACCompoundDisposable compoundDisposable];
+		[compoundDisposable addDisposable:selfDisposable];
+
+		__weak RACDisposable *weakSelfDisposable = selfDisposable;
 
 		RACDisposable *subscriptionDisposable = [signal subscribeNext:next error:^(NSError *e) {
-			error(e, disposable);
-			[disposable removeDisposable:selfDisposable];
+			error(e, compoundDisposable);
+			[compoundDisposable removeDisposable:weakSelfDisposable];
 
 			recurse();
 		} completed:^{
-			completed(disposable);
-			[disposable removeDisposable:selfDisposable];
+			completed(compoundDisposable);
+			[compoundDisposable removeDisposable:weakSelfDisposable];
 
 			recurse();
 		}];
 
-		if (subscriptionDisposable != nil) {
-			[disposable addDisposable:subscriptionDisposable];
-			selfDisposable = subscriptionDisposable;
-		}
+		if (subscriptionDisposable != nil) [selfDisposable addDisposable:subscriptionDisposable];
 	};
 	
 	// Subscribe once immediately, and then use recursive scheduling for any
@@ -71,10 +71,10 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		RACScheduler *recursiveScheduler = RACScheduler.currentScheduler ?: [RACScheduler scheduler];
 
 		RACDisposable *schedulingDisposable = [recursiveScheduler scheduleRecursiveBlock:recursiveBlock];
-		if (schedulingDisposable != nil) [disposable addDisposable:schedulingDisposable];
+		if (schedulingDisposable != nil) [compoundDisposable addDisposable:schedulingDisposable];
 	});
 
-	return disposable;
+	return compoundDisposable;
 }
 
 // Used from within -concat to pop the next signal to concatenate to.

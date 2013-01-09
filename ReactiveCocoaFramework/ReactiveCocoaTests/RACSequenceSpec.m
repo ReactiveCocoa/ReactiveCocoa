@@ -167,7 +167,54 @@ describe(@"-bind:", ^{
 	});
 });
 
-it(@"it shouldn't overflow the stack when deallocated on a background queue", ^{
+describe(@"-objectEnumerator", ^{
+	it(@"should only evaluate head as it's enumerated", ^{
+		__block BOOL firstHeadInvoked = NO;
+		__block BOOL secondHeadInvoked = NO;
+		__block BOOL thirdHeadInvoked = NO;
+		
+		RACSequence *sequence = [RACSequence sequenceWithHeadBlock:^id{
+			firstHeadInvoked = YES;
+			return @1;
+		} tailBlock:^RACSequence *{
+			return [RACSequence sequenceWithHeadBlock:^id{
+				secondHeadInvoked = YES;
+				return @2;
+			} tailBlock:^RACSequence *{
+				return [RACSequence sequenceWithHeadBlock:^id{
+					thirdHeadInvoked = YES;
+					return @3;
+				} tailBlock:^RACSequence *{
+					return RACSequence.empty;
+				}];
+			}];
+		}];
+		NSEnumerator *enumerator = sequence.objectEnumerator;
+		
+		expect(firstHeadInvoked).to.beFalsy();
+		expect(secondHeadInvoked).to.beFalsy();
+		expect(thirdHeadInvoked).to.beFalsy();
+		
+		expect([enumerator nextObject]).to.equal(@1);
+		
+		expect(firstHeadInvoked).to.beTruthy();
+		expect(secondHeadInvoked).to.beFalsy();
+		expect(thirdHeadInvoked).to.beFalsy();
+		
+		expect([enumerator nextObject]).to.equal(@2);
+		
+		expect(secondHeadInvoked).to.beTruthy();
+		expect(thirdHeadInvoked).to.beFalsy();
+		
+		expect([enumerator nextObject]).to.equal(@3);
+		
+		expect(thirdHeadInvoked).to.beTruthy();
+		
+		expect([enumerator nextObject]).to.beNil();
+	});
+});
+
+it(@"shouldn't overflow the stack when deallocated on a background queue", ^{
 	NSUInteger length = 10000;
 	NSMutableArray *values = [NSMutableArray arrayWithCapacity:length];
 	for (NSUInteger i = 0; i < length; ++i) {

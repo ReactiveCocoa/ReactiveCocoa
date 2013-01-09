@@ -771,11 +771,11 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	}] setNameWithFormat:@"[%@] -takeUntil: %@", self.name, signalTrigger];
 }
 
-- (RACSignal *)switch {
+- (RACSignal *)switchToLatest {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *innerDisposable = nil;
 		RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
-			NSAssert([x isKindOfClass:RACSignal.class] || x == nil, @"-switch requires that the source signal (%@) send signals. Instead we got: %@", self, x);
+			NSAssert([x isKindOfClass:RACSignal.class] || x == nil, @"-switchToLatest requires that the source signal (%@) send signals. Instead we got: %@", self, x);
 			
 			[innerDisposable dispose], innerDisposable = nil;
 			
@@ -794,7 +794,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 			[innerDisposable dispose];
 			[selfDisposable dispose];
 		}];
-	}] setNameWithFormat:@"[%@] -switch", self.name];
+	}] setNameWithFormat:@"[%@] -switchToLatest", self.name];
 }
 
 + (RACSignal *)if:(RACSignal *)boolSignal then:(RACSignal *)trueSignal else:(RACSignal *)falseSignal {
@@ -808,7 +808,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 			
 			return (value.boolValue ? trueSignal : falseSignal);
 		}]
-		switch]
+		switchToLatest]
 		setNameWithFormat:@"+if: %@ then: %@ else: %@", boolSignal, trueSignal, falseSignal];
 }
 

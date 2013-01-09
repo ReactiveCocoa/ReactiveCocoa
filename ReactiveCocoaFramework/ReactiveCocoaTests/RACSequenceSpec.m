@@ -9,9 +9,11 @@
 #import "RACSequenceExamples.h"
 #import "RACStreamExamples.h"
 
-#import "NSArray+RACSequenceAdditions.h"
+#import "RACDisposable.h"
 #import "RACSequence.h"
 #import "RACUnit.h"
+#import "NSArray+RACSequenceAdditions.h"
+#import "NSObject+RACPropertySubscribing.h"
 
 SpecBegin(RACSequence)
 
@@ -211,6 +213,64 @@ describe(@"-objectEnumerator", ^{
 		expect(thirdHeadInvoked).to.beTruthy();
 		
 		expect([enumerator nextObject]).to.beNil();
+	});
+	
+	it(@"should let the sequence dealloc as it's enumerated", ^{
+		__block BOOL firstSequenceDeallocd = NO;
+		__block BOOL secondSequenceDeallocd = NO;
+		__block BOOL thirdSequenceDeallocd = NO;
+		
+		NSEnumerator *enumerator = nil;
+		
+		@autoreleasepool {
+			RACSequence *thirdSequence __attribute__((objc_precise_lifetime)) = [RACSequence sequenceWithHeadBlock:^id{
+				return @3;
+			} tailBlock:^RACSequence *{
+				return RACSequence.empty;
+			}];
+			[thirdSequence rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				thirdSequenceDeallocd = YES;
+			}]];
+			
+			RACSequence *secondSequence __attribute__((objc_precise_lifetime)) = [RACSequence sequenceWithHeadBlock:^id{
+				return @2;
+			} tailBlock:^RACSequence *{
+				return thirdSequence;
+			}];
+			[secondSequence rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				secondSequenceDeallocd = YES;
+			}]];
+			
+			RACSequence *firstSequence __attribute__((objc_precise_lifetime)) = [RACSequence sequenceWithHeadBlock:^id{
+				return @1;
+			} tailBlock:^RACSequence *{
+				return secondSequence;
+			}];
+			[firstSequence rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				firstSequenceDeallocd = YES;
+			}]];
+			
+			enumerator = firstSequence.objectEnumerator;
+		}
+		
+		@autoreleasepool {
+			expect([enumerator nextObject]).to.equal(@1);
+		}
+
+		@autoreleasepool {
+			expect([enumerator nextObject]).to.equal(@2);
+		}
+		expect(firstSequenceDeallocd).will.beTruthy();
+		
+		@autoreleasepool {
+			expect([enumerator nextObject]).to.equal(@3);
+		}
+		expect(secondSequenceDeallocd).will.beTruthy();
+		
+		@autoreleasepool {
+			expect([enumerator nextObject]).to.beNil();
+		}
+		expect(thirdSequenceDeallocd).will.beTruthy();
 	});
 });
 

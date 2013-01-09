@@ -140,11 +140,6 @@
 		A1FCC37B1567DED0008C9686 /* RACDelegateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = A1FCC3771567DED0008C9686 /* RACDelegateProxy.m */; };
 		D005A259169A3B7D00A9D2DB /* RACBacktrace.h in Headers */ = {isa = PBXBuildFile; fileRef = D02538A115E2D7FB005BACB8 /* RACBacktrace.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D02221621678910900DBD031 /* RACTupleSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D02221611678910900DBD031 /* RACTupleSpec.m */; };
-		D026A04515F69FE70052F7FE /* EXTConcreteProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = D026A04015F69FE70052F7FE /* EXTConcreteProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D026A04715F69FE70052F7FE /* EXTConcreteProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = D026A04115F69FE70052F7FE /* EXTConcreteProtocol.m */; };
-		D026A04815F69FE70052F7FE /* EXTConcreteProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = D026A04115F69FE70052F7FE /* EXTConcreteProtocol.m */; };
-		D026A04B15F69FE70052F7FE /* EXTRuntimeExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D026A04315F69FE70052F7FE /* EXTRuntimeExtensions.m */; settings = {COMPILER_FLAGS = "-Wno-sign-conversion"; }; };
-		D026A04C15F69FE70052F7FE /* EXTRuntimeExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D026A04315F69FE70052F7FE /* EXTRuntimeExtensions.m */; settings = {COMPILER_FLAGS = "-Wno-sign-conversion"; }; };
 		D026A04D15F69FE70052F7FE /* metamacros.h in Headers */ = {isa = PBXBuildFile; fileRef = D026A04415F69FE70052F7FE /* metamacros.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D041376915D2281C004BBF80 /* RACKVOWrapperSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D041376815D2281C004BBF80 /* RACKVOWrapperSpec.m */; };
 		D0487AB3164314430085D890 /* RACStreamExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = D0487AB2164314430085D890 /* RACStreamExamples.m */; };
@@ -197,9 +192,7 @@
 		D08FF287169A333400743C6D /* UITextView+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = A1FCC27215666AA3008C9686 /* UITextView+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D08FF288169A333400743C6D /* NSObject+RACKVOWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 8857BB81152A27A9009804CC /* NSObject+RACKVOWrapper.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D08FF289169A333400743C6D /* NSObject+RACPropertySubscribing.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CDF82C15008C0500163A9F /* NSObject+RACPropertySubscribing.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D08FF28B169A336000743C6D /* EXTConcreteProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = D026A04015F69FE70052F7FE /* EXTConcreteProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D08FF28C169A337000743C6D /* EXTKeyPathCoding.h in Headers */ = {isa = PBXBuildFile; fileRef = D0FA57E2162CFED200AC6F42 /* EXTKeyPathCoding.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D08FF28D169A337000743C6D /* EXTRuntimeExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = D026A04215F69FE70052F7FE /* EXTRuntimeExtensions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D08FF28E169A337000743C6D /* EXTScope.h in Headers */ = {isa = PBXBuildFile; fileRef = D0E967931641F07900FCFF06 /* EXTScope.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D08FF28F169A337000743C6D /* metamacros.h in Headers */ = {isa = PBXBuildFile; fileRef = D026A04415F69FE70052F7FE /* metamacros.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D099E819169E05D00000A975 /* NSObject+RACObservablePropertySubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F6FE84B169251E900A8D7A6 /* NSObject+RACObservablePropertySubject.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -479,10 +472,6 @@
 		D01DB9AE166819B9003E8F7F /* ReactiveCocoaTests-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ReactiveCocoaTests-Prefix.pch"; sourceTree = "<group>"; };
 		D02221611678910900DBD031 /* RACTupleSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACTupleSpec.m; sourceTree = "<group>"; };
 		D02538A115E2D7FB005BACB8 /* RACBacktrace.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RACBacktrace.h; sourceTree = "<group>"; };
-		D026A04015F69FE70052F7FE /* EXTConcreteProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EXTConcreteProtocol.h; path = extobjc/EXTConcreteProtocol.h; sourceTree = "<group>"; };
-		D026A04115F69FE70052F7FE /* EXTConcreteProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EXTConcreteProtocol.m; path = extobjc/EXTConcreteProtocol.m; sourceTree = "<group>"; };
-		D026A04215F69FE70052F7FE /* EXTRuntimeExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EXTRuntimeExtensions.h; path = extobjc/EXTRuntimeExtensions.h; sourceTree = "<group>"; };
-		D026A04315F69FE70052F7FE /* EXTRuntimeExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EXTRuntimeExtensions.m; path = extobjc/EXTRuntimeExtensions.m; sourceTree = "<group>"; };
 		D026A04415F69FE70052F7FE /* metamacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = metamacros.h; path = extobjc/metamacros.h; sourceTree = "<group>"; };
 		D041376815D2281C004BBF80 /* RACKVOWrapperSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOWrapperSpec.m; sourceTree = "<group>"; };
 		D0487AB1164314430085D890 /* RACStreamExamples.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACStreamExamples.h; sourceTree = "<group>"; };
@@ -885,11 +874,7 @@
 		D026A03F15F69FD00052F7FE /* libextobjc */ = {
 			isa = PBXGroup;
 			children = (
-				D026A04015F69FE70052F7FE /* EXTConcreteProtocol.h */,
-				D026A04115F69FE70052F7FE /* EXTConcreteProtocol.m */,
 				D0FA57E2162CFED200AC6F42 /* EXTKeyPathCoding.h */,
-				D026A04215F69FE70052F7FE /* EXTRuntimeExtensions.h */,
-				D026A04315F69FE70052F7FE /* EXTRuntimeExtensions.m */,
 				D0E967931641F07900FCFF06 /* EXTScope.h */,
 				D0E967941641F07900FCFF06 /* EXTScope.m */,
 				D026A04415F69FE70052F7FE /* metamacros.h */,
@@ -1062,7 +1047,6 @@
 				88E2C6B4153C771C00C7493C /* RACScheduler.h in Headers */,
 				88B76F8E153726B00053EAE2 /* RACTuple.h in Headers */,
 				886CEAE2163DE942007632D1 /* NSObject+RACLifting.h in Headers */,
-				D026A04515F69FE70052F7FE /* EXTConcreteProtocol.h in Headers */,
 				D026A04D15F69FE70052F7FE /* metamacros.h in Headers */,
 				D0D910CE15F915BD00AD2DDA /* RACSignal+Operations.h in Headers */,
 				D0FA57E3162CFED200AC6F42 /* EXTKeyPathCoding.h in Headers */,
@@ -1136,9 +1120,7 @@
 				D08FF287169A333400743C6D /* UITextView+RACSignalSupport.h in Headers */,
 				D08FF288169A333400743C6D /* NSObject+RACKVOWrapper.h in Headers */,
 				D08FF289169A333400743C6D /* NSObject+RACPropertySubscribing.h in Headers */,
-				D08FF28B169A336000743C6D /* EXTConcreteProtocol.h in Headers */,
 				D08FF28C169A337000743C6D /* EXTKeyPathCoding.h in Headers */,
-				D08FF28D169A337000743C6D /* EXTRuntimeExtensions.h in Headers */,
 				D08FF28E169A337000743C6D /* EXTScope.h in Headers */,
 				D08FF28F169A337000743C6D /* metamacros.h in Headers */,
 				5F773DEB169B46670023069D /* NSEnumerator+RACSequenceAdditions.h in Headers */,
@@ -1366,8 +1348,6 @@
 				A1FCC374156754A7008C9686 /* RACObjCRuntime.m in Sources */,
 				8809D6F015B1F1EE007E32AA /* JRSwizzle.m in Sources */,
 				D0DFBCCE15DD6D40009DADB3 /* RACBacktrace.m in Sources */,
-				D026A04715F69FE70052F7FE /* EXTConcreteProtocol.m in Sources */,
-				D026A04B15F69FE70052F7FE /* EXTRuntimeExtensions.m in Sources */,
 				D0D910D015F915BD00AD2DDA /* RACSignal+Operations.m in Sources */,
 				88FC735716114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.m in Sources */,
 				886CEAE4163DE942007632D1 /* NSObject+RACLifting.m in Sources */,
@@ -1468,8 +1448,6 @@
 				A1FCC37B1567DED0008C9686 /* RACDelegateProxy.m in Sources */,
 				8809D6F115B1F1EE007E32AA /* JRSwizzle.m in Sources */,
 				D0DFBCCF15DD6D40009DADB3 /* RACBacktrace.m in Sources */,
-				D026A04815F69FE70052F7FE /* EXTConcreteProtocol.m in Sources */,
-				D026A04C15F69FE70052F7FE /* EXTRuntimeExtensions.m in Sources */,
 				D0D910D115F915BD00AD2DDA /* RACSignal+Operations.m in Sources */,
 				88FC735816114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.m in Sources */,
 				886CEAE5163DE942007632D1 /* NSObject+RACLifting.m in Sources */,

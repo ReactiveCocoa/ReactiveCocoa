@@ -67,6 +67,7 @@
 	
 	_signal = signal;
 	_subscriber = subscriber;
+	
 	@weakify(self);
 	_exposedSignal = [_signal map:^(RACTuple *value) {
 		return value.first;

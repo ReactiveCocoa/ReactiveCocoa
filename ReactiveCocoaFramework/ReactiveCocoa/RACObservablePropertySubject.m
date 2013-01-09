@@ -130,18 +130,21 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 	@weakify(binding);
 	binding->_target = target;
 	binding->_keyPath = [keyPath copy];
+	
 	binding->_exposedSignal = [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		@strongify(binding);
 		[subscriber sendNext:[binding.target valueForKeyPath:binding.keyPath]];
 		return [binding.exposedSignalSubject subscribe:subscriber];
 	}] setNameWithFormat:@"[+propertyWithTarget: %@ keyPath: %@] -binding", target, keyPath];
 	binding->_exposedSignalSubject = [RACSubject subject];
+	
 	binding->_exposedSubscriberSubject = [RACSubject subject];
 	[binding->_exposedSubscriberSubject subscribeNext:^(id x) {
 		@strongify(binding);
 		binding.ignoreNextUpdate = YES;
 		[binding.target setValue:x forKeyPath:binding.keyPath];
 	}];
+	
 	binding->_observer = [target rac_addObserver:binding forKeyPath:keyPath options:NSKeyValueObservingOptionPrior queue:nil block:^(id observer, NSDictionary *change) {
 		@strongify(binding);
 		if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
@@ -219,6 +222,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 	
 	property->_target = target;
 	property->_keyPath = [keyPath copy];
+	
 	@weakify(property);
 	property->_exposedSignal = [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		@strongify(property);

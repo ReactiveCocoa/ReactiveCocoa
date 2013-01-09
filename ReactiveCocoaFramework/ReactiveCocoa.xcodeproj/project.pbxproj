@@ -202,6 +202,7 @@
 		D08FF28D169A337000743C6D /* EXTRuntimeExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = D026A04215F69FE70052F7FE /* EXTRuntimeExtensions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D08FF28E169A337000743C6D /* EXTScope.h in Headers */ = {isa = PBXBuildFile; fileRef = D0E967931641F07900FCFF06 /* EXTScope.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D08FF28F169A337000743C6D /* metamacros.h in Headers */ = {isa = PBXBuildFile; fileRef = D026A04415F69FE70052F7FE /* metamacros.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D099E819169E05D00000A975 /* NSObject+RACObservablePropertySubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F6FE84B169251E900A8D7A6 /* NSObject+RACObservablePropertySubject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D0C70EC616659333005AAD03 /* RACSubscriberExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C70EC516659333005AAD03 /* RACSubscriberExamples.m */; };
 		D0C70EC8166595AD005AAD03 /* RACSubscriberSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C70EC7166595AD005AAD03 /* RACSubscriberSpec.m */; };
 		D0C70F90164337A2007027B4 /* RACSequenceAdditionsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C70F8F164337A2007027B4 /* RACSequenceAdditionsSpec.m */; };
@@ -1142,6 +1143,7 @@
 				D08FF28F169A337000743C6D /* metamacros.h in Headers */,
 				5F773DEB169B46670023069D /* NSEnumerator+RACSequenceAdditions.h in Headers */,
 				D077A16E169B740200057BB1 /* RACEvent.h in Headers */,
+				D099E819169E05D00000A975 /* NSObject+RACObservablePropertySubject.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

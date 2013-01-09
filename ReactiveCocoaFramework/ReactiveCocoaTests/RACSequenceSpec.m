@@ -9,6 +9,7 @@
 #import "RACSequenceExamples.h"
 #import "RACStreamExamples.h"
 
+#import "NSArray+RACSequenceAdditions.h"
 #import "RACSequence.h"
 #import "RACUnit.h"
 
@@ -164,6 +165,30 @@ describe(@"-bind:", ^{
 		expect(bound.head).to.equal(RACUnit.defaultUnit);
 		expect(headInvoked).to.beTruthy();
 	});
+});
+
+it(@"it shouldn't overflow the stack when deallocated on a background queue", ^{
+	NSUInteger length = 10000;
+	NSMutableArray *values = [NSMutableArray arrayWithCapacity:length];
+	for (NSUInteger i = 0; i < length; ++i) {
+		[values addObject:@(i)];
+	}
+
+	__block BOOL finished = NO;
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+		@autoreleasepool {
+			[[values.rac_sequence map:^(id value) {
+				return value;
+			}] array];
+		}
+
+		finished = YES;
+	});
+
+	NSTimeInterval oldTimeout = Expecta.asynchronousTestTimeout;
+	Expecta.asynchronousTestTimeout = DBL_MAX;
+	expect(finished).will.beTruthy();
+	Expecta.asynchronousTestTimeout = oldTimeout;
 });
 
 SpecEnd

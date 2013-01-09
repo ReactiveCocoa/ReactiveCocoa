@@ -61,6 +61,14 @@
 	}
 }
 
+- (void)removeDisposable:(RACDisposable *)disposable {
+	if (disposable == nil) return;
+
+	@synchronized(self) {
+		[self.disposables removeObjectIdenticalTo:disposable];
+	}
+}
+
 #pragma mark RACDisposable
 
 - (void)dispose {

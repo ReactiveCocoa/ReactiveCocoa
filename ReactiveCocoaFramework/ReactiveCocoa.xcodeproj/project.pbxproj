@@ -8,24 +8,21 @@
 
 /* Begin PBXBuildFile section */
 		5F244771167E5EDE0062180C /* RACPropertySubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F24476F167E5EDE0062180C /* RACPropertySubject.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		5F244772167E5EDE0062180C /* RACPropertySubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F24476F167E5EDE0062180C /* RACPropertySubject.h */; };
+		5F244772167E5EDE0062180C /* RACPropertySubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F24476F167E5EDE0062180C /* RACPropertySubject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5F244773167E5EDE0062180C /* RACPropertySubject.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F244770167E5EDE0062180C /* RACPropertySubject.m */; };
 		5F244774167E5EDE0062180C /* RACPropertySubject.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F244770167E5EDE0062180C /* RACPropertySubject.m */; };
 		5F2447AD167E87C50062180C /* RACObservablePropertySubjectSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F2447AC167E87C50062180C /* RACObservablePropertySubjectSpec.m */; };
 		5F45A885168CFA3E00B58A2B /* RACObservablePropertySubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F45A883168CFA3E00B58A2B /* RACObservablePropertySubject.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		5F45A886168CFA3E00B58A2B /* RACObservablePropertySubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F45A883168CFA3E00B58A2B /* RACObservablePropertySubject.h */; settings = {ATTRIBUTES = (); }; };
+		5F45A886168CFA3E00B58A2B /* RACObservablePropertySubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F45A883168CFA3E00B58A2B /* RACObservablePropertySubject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5F45A887168CFA3E00B58A2B /* RACObservablePropertySubject.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F45A884168CFA3E00B58A2B /* RACObservablePropertySubject.m */; };
 		5F45A888168CFA3E00B58A2B /* RACObservablePropertySubject.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F45A884168CFA3E00B58A2B /* RACObservablePropertySubject.m */; };
 		5F6FE84C169251E900A8D7A6 /* NSObject+RACObservablePropertySubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F6FE84B169251E900A8D7A6 /* NSObject+RACObservablePropertySubject.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		5F6FE84D169251E900A8D7A6 /* NSObject+RACObservablePropertySubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F6FE84B169251E900A8D7A6 /* NSObject+RACObservablePropertySubject.h */; };
 		5F6FE84F1692524B00A8D7A6 /* NSObject+RACObservablePropertySubject.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F6FE84E1692524B00A8D7A6 /* NSObject+RACObservablePropertySubject.m */; };
 		5F6FE8501692524B00A8D7A6 /* NSObject+RACObservablePropertySubject.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F6FE84E1692524B00A8D7A6 /* NSObject+RACObservablePropertySubject.m */; };
 		5F6FE8531692568A00A8D7A6 /* RACBinding.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F6FE8511692568A00A8D7A6 /* RACBinding.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		5F6FE8541692568A00A8D7A6 /* RACBinding.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F6FE8511692568A00A8D7A6 /* RACBinding.h */; };
+		5F6FE8541692568A00A8D7A6 /* RACBinding.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F6FE8511692568A00A8D7A6 /* RACBinding.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5F6FE8551692568A00A8D7A6 /* RACBinding.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F6FE8521692568A00A8D7A6 /* RACBinding.m */; };
 		5F6FE8561692568A00A8D7A6 /* RACBinding.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F6FE8521692568A00A8D7A6 /* RACBinding.m */; };
-		5F6FE8591692572600A8D7A6 /* RACBinding+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F6FE8571692572600A8D7A6 /* RACBinding+Private.h */; };
-		5F6FE85A1692574100A8D7A6 /* RACPropertySubject+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F7EFEDA16919A1A0037E500 /* RACPropertySubject+Private.h */; };
 		5F773DEA169B46670023069D /* NSEnumerator+RACSequenceAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F773DE8169B46670023069D /* NSEnumerator+RACSequenceAdditions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5F773DEB169B46670023069D /* NSEnumerator+RACSequenceAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F773DE8169B46670023069D /* NSEnumerator+RACSequenceAdditions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5F773DEC169B46670023069D /* NSEnumerator+RACSequenceAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F773DE9169B46670023069D /* NSEnumerator+RACSequenceAdditions.m */; };
@@ -1100,10 +1097,7 @@
 			files = (
 				5F244772167E5EDE0062180C /* RACPropertySubject.h in Headers */,
 				5F45A886168CFA3E00B58A2B /* RACObservablePropertySubject.h in Headers */,
-				5F6FE84D169251E900A8D7A6 /* NSObject+RACObservablePropertySubject.h in Headers */,
 				5F6FE8541692568A00A8D7A6 /* RACBinding.h in Headers */,
-				5F6FE8591692572600A8D7A6 /* RACBinding+Private.h in Headers */,
-				5F6FE85A1692574100A8D7A6 /* RACPropertySubject+Private.h in Headers */,
 				D08FF264169A32D100743C6D /* ReactiveCocoa.h in Headers */,
 				D08FF265169A32DC00743C6D /* RACSubscriber.h in Headers */,
 				D08FF267169A330000743C6D /* RACUnit.h in Headers */,

@@ -8,8 +8,8 @@
 
 #import "RACMulticastConnection.h"
 #import "RACMulticastConnection+Private.h"
+#import "RACDisposable.h"
 #import "RACSubject.h"
-#import "RACCompoundDisposable.h"
 #import "RACSignal+Private.h"
 
 @interface RACMulticastConnection () {

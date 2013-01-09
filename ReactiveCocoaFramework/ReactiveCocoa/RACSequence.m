@@ -19,12 +19,13 @@
 #import "RACBlockTrampoline.h"
 #import <libkern/OSAtomic.h>
 
-// An enumerator over sequences
+// An enumerator over sequences.
 @interface RACSequenceEnumerator : NSEnumerator
 
-// The sequence the enumerator is enumerating
+// The sequence the enumerator is enumerating.
 //
-// This will change as the enumerator is exhausted
+// This will change as the enumerator is exhausted. This property should only be
+// accessed while synchronized on self.
 @property (nonatomic, strong) RACSequence *sequence;
 
 @end
@@ -44,8 +45,13 @@
 @implementation RACSequenceEnumerator
 
 - (id)nextObject {
-	id object = self.sequence.head;
-	self.sequence = self.sequence.tail;
+	id object = nil;
+	
+	@synchronized (self) {
+		object = self.sequence.head;
+		self.sequence = self.sequence.tail;
+	}
+	
 	return object;
 }
 

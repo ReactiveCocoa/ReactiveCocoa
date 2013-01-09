@@ -223,23 +223,23 @@ static NSMutableSet *activeSignals() {
 				[signals addObject:signal];
 			}
 
-			@autoreleasepool {
-				RACCompoundDisposable *selfDisposable = [RACCompoundDisposable compoundDisposable];
-				[compoundDisposable addDisposable:selfDisposable];
+			RACCompoundDisposable *selfDisposable = [RACCompoundDisposable compoundDisposable];
+			[compoundDisposable addDisposable:selfDisposable];
 
-				__weak RACDisposable *weakSelfDisposable = selfDisposable;
+			__weak RACDisposable *weakSelfDisposable = selfDisposable;
 
-				RACDisposable *disposable = [signal subscribeNext:^(id x) {
-					[subscriber sendNext:x];
-				} error:^(NSError *error) {
-					[compoundDisposable dispose];
-					[subscriber sendError:error];
-				} completed:^{
+			RACDisposable *disposable = [signal subscribeNext:^(id x) {
+				[subscriber sendNext:x];
+			} error:^(NSError *error) {
+				[compoundDisposable dispose];
+				[subscriber sendError:error];
+			} completed:^{
+				@autoreleasepool {
 					completeSignal(signal, weakSelfDisposable);
-				}];
+				}
+			}];
 
-				if (disposable != nil) [selfDisposable addDisposable:disposable];
-			}
+			if (disposable != nil) [selfDisposable addDisposable:disposable];
 		};
 
 		@autoreleasepool {
@@ -252,13 +252,17 @@ static NSMutableSet *activeSignals() {
 				BOOL stop = NO;
 				id signal = bindingBlock(x, &stop);
 
-				if (signal != nil) addSignal(signal);
-				if (signal == nil || stop) completeSignal(self, weakSelfDisposable);
+				@autoreleasepool {
+					if (signal != nil) addSignal(signal);
+					if (signal == nil || stop) completeSignal(self, weakSelfDisposable);
+				}
 			} error:^(NSError *error) {
 				[compoundDisposable dispose];
 				[subscriber sendError:error];
 			} completed:^{
-				completeSignal(self, weakSelfDisposable);
+				@autoreleasepool {
+					completeSignal(self, weakSelfDisposable);
+				}
 			}];
 
 			if (bindingDisposable != nil) [selfDisposable addDisposable:bindingDisposable];

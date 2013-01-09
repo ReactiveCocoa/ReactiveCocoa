@@ -129,8 +129,10 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 		__weak RACDisposable *weakSelfDisposable = selfDisposable;
 
 		RACDisposable *schedulingDisposable = [self schedule:^{
-			// At this point, we've been invoked, so our disposable is now useless.
-			[disposable removeDisposable:weakSelfDisposable];
+			@autoreleasepool {
+				// At this point, we've been invoked, so our disposable is now useless.
+				[disposable removeDisposable:weakSelfDisposable];
+			}
 
 			if (isDisposed()) return;
 

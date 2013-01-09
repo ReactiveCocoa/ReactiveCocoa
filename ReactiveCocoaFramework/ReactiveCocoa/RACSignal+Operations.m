@@ -51,13 +51,17 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		__weak RACDisposable *weakSelfDisposable = selfDisposable;
 
 		RACDisposable *subscriptionDisposable = [signal subscribeNext:next error:^(NSError *e) {
-			error(e, compoundDisposable);
-			[compoundDisposable removeDisposable:weakSelfDisposable];
+			@autoreleasepool {
+				error(e, compoundDisposable);
+				[compoundDisposable removeDisposable:weakSelfDisposable];
+			}
 
 			recurse();
 		} completed:^{
-			completed(compoundDisposable);
-			[compoundDisposable removeDisposable:weakSelfDisposable];
+			@autoreleasepool {
+				completed(compoundDisposable);
+				[compoundDisposable removeDisposable:weakSelfDisposable];
+			}
 
 			recurse();
 		}];

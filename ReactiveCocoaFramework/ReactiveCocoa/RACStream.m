@@ -8,7 +8,6 @@
 
 #import "RACStream.h"
 #import "RACTuple.h"
-#import "EXTScope.h"
 
 @implementation RACStream
 
@@ -75,10 +74,9 @@
 }
 
 - (instancetype)flatten {
-	@weakify(self);
+	__weak RACStream *stream __attribute__((unused)) = self;
 	return [[self flattenMap:^(id value) {
-		@strongify(self);
-		NSAssert([value isKindOfClass:RACStream.class], @"Stream %@ being flattened contains an object that is not a stream: %@", self, value);
+		NSAssert([value isKindOfClass:RACStream.class], @"Stream %@ being flattened contains an object that is not a stream: %@", stream, value);
 		return value;
 	}] setNameWithFormat:@"[%@] -flatten", self.name];
 }

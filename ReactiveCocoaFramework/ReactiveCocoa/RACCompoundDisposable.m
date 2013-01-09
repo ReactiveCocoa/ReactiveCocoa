@@ -8,13 +8,14 @@
 
 #import "RACCompoundDisposable.h"
 #import "EXTScope.h"
+#import <libkern/OSAtomic.h>
 
-@interface RACCompoundDisposable ()
+@interface RACCompoundDisposable () {
+	// Used for synchronization.
+	OSSpinLock _spinLock;
+}
 
-// Used for synchronization.
-@property (nonatomic, strong, readonly) NSLock *lock;
-
-// These properties should only be accessed while `lock` is held.
+// These properties should only be accessed while _spinLock is held.
 @property (nonatomic, strong) NSMutableArray *disposables;
 @property (nonatomic, assign, getter = isDisposed) BOOL disposed;
 
@@ -35,9 +36,6 @@
 - (id)init {
 	self = [super init];
 	if (self == nil) return nil;
-
-	_lock = [[NSLock alloc] init];
-	_lock.name = @"com.github.ReactiveCocoa.RACCompoundDisposable";
 
 	_disposables = [NSMutableArray array];
 
@@ -62,11 +60,11 @@
 	BOOL shouldDispose = NO;
 
 	{
-		[self.lock lock];
+		OSSpinLockLock(&_spinLock);
 
 		// Ensures exception safety.
 		@onExit {
-			[self.lock unlock];
+			OSSpinLockUnlock(&_spinLock);
 		};
 
 		if (self.disposed) {
@@ -84,11 +82,11 @@
 - (void)removeDisposable:(RACDisposable *)disposable {
 	if (disposable == nil) return;
 
-	[self.lock lock];
+	OSSpinLockLock(&_spinLock);
 
 	// Ensures exception safety.
 	@onExit {
-		[self.lock unlock];
+		OSSpinLockUnlock(&_spinLock);
 	};
 
 	[self.disposables removeObjectIdenticalTo:disposable];
@@ -100,11 +98,11 @@
 	NSArray *disposables = nil;
 
 	{
-		[self.lock lock];
+		OSSpinLockLock(&_spinLock);
 
 		// Ensures exception safety.
 		@onExit {
-			[self.lock unlock];
+			OSSpinLockUnlock(&_spinLock);
 		};
 
 		self.disposed = YES;

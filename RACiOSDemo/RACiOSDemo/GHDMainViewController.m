@@ -49,9 +49,9 @@
             return [x lowercaseString];
         }]
         toProperty:@keypath(self.label2) onObject:self];
-	
-	[self rac_bind:@keypath(self.view.label.text) to:RACAble(self.label)];
-	[self rac_bind:@keypath(self.view.label2.text) to:RACAble(self.label2)];
+
+	RACBind(self.view.label.text) = RACBind(self.label);
+	RACBind(self.view.label2.text) = RACBind(self.label2);
 	
 	return self;
 }
@@ -65,8 +65,8 @@
 	
 	// Even though iOS doesn't give us bindings like AppKit, we can fake them 
 	// pretty easily using RAC.
-	[self rac_bind:@keypath(self.text) to:self.view.textField.rac_textSignal];
-	[self rac_bind:@keypath(self.text2) to:self.view.textView.rac_textSignal];
+	[self.view.textField.rac_textSignal subscribe:RACBind(self.text)];
+	[self.view.textView.rac_textSignal subscribe:RACBind(self.text2)];
 }
 
 - (void)viewDidUnload {

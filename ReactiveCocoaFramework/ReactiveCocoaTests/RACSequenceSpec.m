@@ -77,26 +77,27 @@ describe(@"+sequenceWithHeadBlock:tailBlock:", ^{
 	});
 
 	after(^{
-		itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: @[ @0, @1 ] }, nil);
+		itShouldBehaveLike(RACSequenceExamples, [^{ return sequence; } copy], ^{ return @[ @0, @1 ]; }, nil);
 	});
 });
 
 describe(@"empty sequences", ^{
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: RACSequence.empty, RACSequenceExpectedValues: @[] }, nil);
+	itShouldBehaveLike(RACSequenceExamples, ^{ return RACSequence.empty; }, ^{ return @[]; }, nil);
 });
 
 describe(@"non-empty sequences", ^{
-	RACSequence *sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
-	NSArray *values = @[ @0, @1, @2 ];
-
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: sequence, RACSequenceExpectedValues: values }, nil);
+	itShouldBehaveLike(RACSequenceExamples,
+		^{ return [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]]; },
+		^{ return @[ @0, @1, @2 ]; },
+		nil);
 });
 
 describe(@"eager sequences", ^{
 	__block RACSequence *lazySequence;
 	__block BOOL headInvoked;
 	__block BOOL tailInvoked;
-	NSArray *values = @[ @0, @1, @2 ];
+
+	NSArray *values = @[ @0, @1 ];
 	
 	before(^{
 		headInvoked = NO;
@@ -113,7 +114,7 @@ describe(@"eager sequences", ^{
 		expect(lazySequence).notTo.beNil();
 	});
 	
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: lazySequence.eagerSequence, RACSequenceExpectedValues: values }, nil);
+	itShouldBehaveLike(RACSequenceExamples, [^{ return lazySequence.eagerSequence; } copy], [^{ return values; } copy], nil);
 	
 	it(@"should evaluate all values immediately", ^{
 		RACSequence *eagerSequence = lazySequence.eagerSequence;

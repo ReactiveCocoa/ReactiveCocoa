@@ -18,9 +18,14 @@ NSString * const RACSequenceExpectedValues = @"RACSequenceExpectedValues";
 
 SharedExampleGroupsBegin(RACSequenceExamples);
 
-sharedExamplesFor(RACSequenceExamples, ^(NSDictionary *data) {
-	RACSequence *sequence = data[RACSequenceSequence];
-	NSArray *values = [data[RACSequenceExpectedValues] copy];
+sharedExamplesFor(RACSequenceExamples, ^(RACSequence * (^getSequence)(void), NSArray * (^getExpectedValues)(void)) {
+	__block RACSequence *sequence;
+	__block NSArray *values;
+	
+	beforeEach(^{
+		sequence = getSequence();
+		values = [getExpectedValues() copy];
+	});
 
 	it(@"should implement <NSFastEnumeration>", ^{
 		NSMutableArray *collectedValues = [NSMutableArray array];

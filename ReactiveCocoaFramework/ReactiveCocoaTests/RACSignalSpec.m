@@ -1748,7 +1748,7 @@ describe(@"-sequence", ^{
 		return nil;
 	}];
 
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: signal.sequence, RACSequenceExpectedValues: @[ @1, @2, @3, @4 ] }, nil);
+	itShouldBehaveLike(RACSequenceExamples, [^{ return signal.sequence; } copy], ^{ return @[ @1, @2, @3, @4 ]; }, nil);
 });
 
 it(@"should complete take: even if the original signal doesn't", ^{

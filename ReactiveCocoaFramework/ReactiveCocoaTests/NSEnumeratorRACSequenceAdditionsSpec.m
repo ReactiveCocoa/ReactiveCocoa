@@ -14,7 +14,7 @@ SpecBegin(NSEnumeratorRACSequenceAdditions)
 
 describe(@"-rac_sequence", ^{
 	NSArray *values = @[ @0, @1, @2, @3, @4 ];
-	itShouldBehaveLike(RACSequenceExamples, @{ RACSequenceSequence: values.objectEnumerator.rac_sequence, RACSequenceExpectedValues: values }, nil);
+	itShouldBehaveLike(RACSequenceExamples, [^{ return values.objectEnumerator.rac_sequence; } copy], [^{ return values; } copy], nil);
 });
 
 SpecEnd

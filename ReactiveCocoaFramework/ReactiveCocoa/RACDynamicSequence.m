@@ -84,7 +84,7 @@
 - (void)dealloc {
 	// Prevents overflowing the stack when deallocating a long chain of dynamic
 	// sequences (which results in a lot of nested calls to -dealloc). This is
-	// obviously not ideal performance-wise, but is more correct.
+	// obviously not ideal performance-wise, but is safer.
 	__autoreleasing RACSequence *tail __attribute__((unused)) = _tail;
 }
 

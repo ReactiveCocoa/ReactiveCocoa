@@ -13,16 +13,18 @@
 #import "RACSignal+Operations.h"
 
 NSString * const RACSequenceExamples = @"RACSequenceExamples";
-NSString * const RACSequenceSequence = @"RACSequenceSequence";
-NSString * const RACSequenceExpectedValues = @"RACSequenceExpectedValues";
+NSString * const RACSequenceExampleGetSequenceBlock = @"RACSequenceExampleGetSequenceBlock";
+NSString * const RACSequenceExampleGetExpectedValuesBlock = @"RACSequenceExampleGetExpectedValuesBlock";
 
 SharedExampleGroupsBegin(RACSequenceExamples);
 
-sharedExamplesFor(RACSequenceExamples, ^(RACSequence * (^getSequence)(void), NSArray * (^getExpectedValues)(void)) {
+sharedExamplesFor(RACSequenceExamples, ^(NSDictionary *data) {
 	__block RACSequence *sequence;
 	__block NSArray *values;
 	
 	beforeEach(^{
+		RACSequence * (^getSequence)(void) = data[RACSequenceExampleGetSequenceBlock];
+		NSArray * (^getExpectedValues)(void) = data[RACSequenceExampleGetExpectedValuesBlock];
 		sequence = getSequence();
 		values = [getExpectedValues() copy];
 	});

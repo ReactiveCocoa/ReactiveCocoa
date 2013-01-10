@@ -29,7 +29,12 @@ describe(@"NSArray sequences", ^{
 		expect(sequence).notTo.beNil();
 	});
 
-	itShouldBehaveLike(RACSequenceExamples, [^{ return sequence; } copy], [^{ return values; } copy], nil);
+	itShouldBehaveLike(RACSequenceExamples, ^{
+		return @{
+			RACSequenceExampleGetSequenceBlock: [^{ return sequence; } copy],
+			RACSequenceExampleGetExpectedValuesBlock: [^{ return values; } copy]
+		};
+	});
 
 	describe(@"should be immutable", ^{
 		__block NSArray *unchangedValues;
@@ -39,7 +44,12 @@ describe(@"NSArray sequences", ^{
 			[values addObject:@6];
 		});
 
-		itShouldBehaveLike(RACSequenceExamples, [^{ return sequence; } copy], [^{ return unchangedValues; } copy], nil);
+		itShouldBehaveLike(RACSequenceExamples, ^{
+			return @{
+				RACSequenceExampleGetSequenceBlock: [^{ return sequence; } copy],
+				RACSequenceExampleGetExpectedValuesBlock: [^{ return unchangedValues; } copy]
+			};
+		});
 	});
 });
 
@@ -80,9 +90,26 @@ describe(@"NSDictionary sequences", ^{
 		expect(valueSequence).notTo.beNil();
 	});
 
-	itShouldBehaveLike(RACSequenceExamples, [^{ return tupleSequence; } copy], [^{ return tuples; } copy], nil);
-	itShouldBehaveLike(RACSequenceExamples, [^{ return keySequence; } copy], [^{ return keys; } copy], nil);
-	itShouldBehaveLike(RACSequenceExamples, [^{ return valueSequence; } copy], [^{ return values; } copy], nil);
+	itShouldBehaveLike(RACSequenceExamples, ^{
+		return @{
+			RACSequenceExampleGetSequenceBlock: [^{ return tupleSequence; } copy],
+			RACSequenceExampleGetExpectedValuesBlock: [^{ return tuples; } copy]
+		};
+	});
+
+	itShouldBehaveLike(RACSequenceExamples, ^{
+		return @{
+			RACSequenceExampleGetSequenceBlock: [^{ return keySequence; } copy],
+			RACSequenceExampleGetExpectedValuesBlock: [^{ return keys; } copy]
+		};
+	});
+
+	itShouldBehaveLike(RACSequenceExamples, ^{
+		return @{
+			RACSequenceExampleGetSequenceBlock: [^{ return valueSequence; } copy],
+			RACSequenceExampleGetExpectedValuesBlock: [^{ return values; } copy]
+		};
+	});
 
 	describe(@"should be immutable", ^{
 		beforeEach(^{
@@ -90,9 +117,26 @@ describe(@"NSDictionary sequences", ^{
 			dict[@6] = @7;
 		});
 
-		itShouldBehaveLike(RACSequenceExamples, [^{ return tupleSequence; } copy], [^{ return tuples; } copy], nil);
-		itShouldBehaveLike(RACSequenceExamples, [^{ return keySequence; } copy], [^{ return keys; } copy], nil);
-		itShouldBehaveLike(RACSequenceExamples, [^{ return valueSequence; } copy], [^{ return values; } copy], nil);
+		itShouldBehaveLike(RACSequenceExamples, ^{
+			return @{
+				RACSequenceExampleGetSequenceBlock: [^{ return tupleSequence; } copy],
+				RACSequenceExampleGetExpectedValuesBlock: [^{ return tuples; } copy]
+			};
+		});
+
+		itShouldBehaveLike(RACSequenceExamples, ^{
+			return @{
+				RACSequenceExampleGetSequenceBlock: [^{ return keySequence; } copy],
+				RACSequenceExampleGetExpectedValuesBlock: [^{ return keys; } copy]
+			};
+		});
+
+		itShouldBehaveLike(RACSequenceExamples, ^{
+			return @{
+				RACSequenceExampleGetSequenceBlock: [^{ return valueSequence; } copy],
+				RACSequenceExampleGetExpectedValuesBlock: [^{ return values; } copy]
+			};
+		});
 	});
 });
 
@@ -106,7 +150,12 @@ describe(@"NSOrderedSet sequences", ^{
 		expect(sequence).notTo.beNil();
 	});
 
-	itShouldBehaveLike(RACSequenceExamples, [^{ return sequence; } copy], [^{ return values.array; } copy], nil);
+	itShouldBehaveLike(RACSequenceExamples, ^{
+		return @{
+			RACSequenceExampleGetSequenceBlock: [^{ return sequence; } copy],
+			RACSequenceExampleGetExpectedValuesBlock: [^{ return values.array; } copy]
+		};
+	});
 
 	describe(@"should be immutable", ^{
 		__block NSArray *unchangedValues;
@@ -116,7 +165,12 @@ describe(@"NSOrderedSet sequences", ^{
 			[values addObject:@6];
 		});
 
-		itShouldBehaveLike(RACSequenceExamples, [^{ return sequence; } copy], [^{ return unchangedValues; } copy], nil);
+		itShouldBehaveLike(RACSequenceExamples, ^{
+			return @{
+				RACSequenceExampleGetSequenceBlock: [^{ return sequence; } copy],
+				RACSequenceExampleGetExpectedValuesBlock: [^{ return unchangedValues; } copy]
+			};
+		});
 	});
 });
 
@@ -130,7 +184,12 @@ describe(@"NSSet sequences", ^{
 		expect(sequence).notTo.beNil();
 	});
 
-	itShouldBehaveLike(RACSequenceExamples, [^{ return sequence; } copy], [^{ return values.allObjects; } copy], nil);
+	itShouldBehaveLike(RACSequenceExamples, ^{
+		return @{
+			RACSequenceExampleGetSequenceBlock: [^{ return sequence; } copy],
+			RACSequenceExampleGetExpectedValuesBlock: [^{ return values.allObjects; } copy]
+		};
+	});
 
 	describe(@"should be immutable", ^{
 		__block NSArray *unchangedValues;
@@ -140,7 +199,12 @@ describe(@"NSSet sequences", ^{
 			[values addObject:@6];
 		});
 
-		itShouldBehaveLike(RACSequenceExamples, [^{ return sequence; } copy], [^{ return unchangedValues; } copy], nil);
+		itShouldBehaveLike(RACSequenceExamples, ^{
+			return @{
+				RACSequenceExampleGetSequenceBlock: [^{ return sequence; } copy],
+				RACSequenceExampleGetExpectedValuesBlock: [^{ return unchangedValues; } copy]
+			};
+		});
 	});
 });
 
@@ -156,14 +220,24 @@ describe(@"NSString sequences", ^{
 		expect(sequence).notTo.beNil();
 	});
 
-	itShouldBehaveLike(RACSequenceExamples, [^{ return sequence; } copy], [^{ return values; } copy], nil);
+	itShouldBehaveLike(RACSequenceExamples, ^{
+		return @{
+			RACSequenceExampleGetSequenceBlock: [^{ return sequence; } copy],
+			RACSequenceExampleGetExpectedValuesBlock: [^{ return values; } copy]
+		};
+	});
 
 	describe(@"should be immutable", ^{
 		beforeEach(^{
 			[string appendString:@"buzz"];
 		});
 
-		itShouldBehaveLike(RACSequenceExamples, [^{ return sequence; } copy], [^{ return values; } copy], nil);
+		itShouldBehaveLike(RACSequenceExamples, ^{
+			return @{
+				RACSequenceExampleGetSequenceBlock: [^{ return sequence; } copy],
+				RACSequenceExampleGetExpectedValuesBlock: [^{ return values; } copy]
+			};
+		});
 	});
 });
 

@@ -34,11 +34,13 @@ describe(@"RACStream", ^{
 		return infiniteSequence;
 	}];
 
-	itShouldBehaveLike(RACStreamExamples, @{
-		RACStreamExamplesClass: RACSequence.class,
-		RACStreamExamplesVerifyValuesBlock: verifyValues,
-		RACStreamExamplesInfiniteStream: infiniteSequence
-	}, nil);
+	itShouldBehaveLike(RACStreamExamples, ^{
+		return @{
+			RACStreamExamplesClass: RACSequence.class,
+			RACStreamExamplesVerifyValuesBlock: verifyValues,
+			RACStreamExamplesInfiniteStream: infiniteSequence
+		};
+	});
 });
 
 describe(@"+sequenceWithHeadBlock:tailBlock:", ^{
@@ -80,19 +82,31 @@ describe(@"+sequenceWithHeadBlock:tailBlock:", ^{
 	});
 
 	after(^{
-		itShouldBehaveLike(RACSequenceExamples, [^{ return sequence; } copy], ^{ return @[ @0, @1 ]; }, nil);
+		itShouldBehaveLike(RACSequenceExamples, ^{
+			return @{
+				RACSequenceExampleGetSequenceBlock: [^{ return sequence; } copy],
+				RACSequenceExampleGetExpectedValuesBlock: ^{ return @[ @0, @1 ]; }
+			};
+		});
 	});
 });
 
 describe(@"empty sequences", ^{
-	itShouldBehaveLike(RACSequenceExamples, ^{ return RACSequence.empty; }, ^{ return @[]; }, nil);
+	itShouldBehaveLike(RACSequenceExamples, ^{
+		return @{
+			RACSequenceExampleGetSequenceBlock: [^{ return [RACSequence empty]; } copy],
+			RACSequenceExampleGetExpectedValuesBlock: ^{ return @[]; }
+		};
+	});
 });
 
 describe(@"non-empty sequences", ^{
-	itShouldBehaveLike(RACSequenceExamples,
-		^{ return [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]]; },
-		^{ return @[ @0, @1, @2 ]; },
-		nil);
+	itShouldBehaveLike(RACSequenceExamples, ^{
+		return @{
+			RACSequenceExampleGetSequenceBlock: ^{ return [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]]; },
+			RACSequenceExampleGetExpectedValuesBlock: ^{ return @[ @0, @1, @2 ]; }
+		};
+	});
 });
 
 describe(@"eager sequences", ^{
@@ -117,7 +131,12 @@ describe(@"eager sequences", ^{
 		expect(lazySequence).notTo.beNil();
 	});
 	
-	itShouldBehaveLike(RACSequenceExamples, [^{ return lazySequence.eagerSequence; } copy], [^{ return values; } copy], nil);
+	itShouldBehaveLike(RACSequenceExamples, ^{
+		return @{
+			RACSequenceExampleGetSequenceBlock: [^{ return lazySequence.eagerSequence; } copy],
+			RACSequenceExampleGetExpectedValuesBlock: [^{ return values; } copy]
+		};
+	});
 	
 	it(@"should evaluate all values immediately", ^{
 		RACSequence *eagerSequence = lazySequence.eagerSequence;

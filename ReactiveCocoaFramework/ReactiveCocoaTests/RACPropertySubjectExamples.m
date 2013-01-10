@@ -13,10 +13,12 @@
 #import "NSObject+RACPropertySubscribing.h"
 
 NSString * const RACPropertySubjectExamples = @"RACPropertySubjectExamples";
+NSString * const RACPropertySubjectExampleGetPropertyBlock = @"RACPropertySubjectExampleGetPropertyBlock";
 
 SharedExampleGroupsBegin(RACPropertySubjectExamples)
 
-sharedExamplesFor(RACPropertySubjectExamples, ^(RACPropertySubject *(^getProperty)(void)) {
+sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
+	__block RACPropertySubject *(^getProperty)(void);
 	__block RACPropertySubject *property;
 	id value1 = @"test value 1";
 	id value2 = @"test value 2";
@@ -24,6 +26,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(RACPropertySubject *(^getPropert
 	NSArray *values = @[ value1, value2, value3 ];
 	
 	before(^{
+		getProperty = data[RACPropertySubjectExampleGetPropertyBlock];
 		property = getProperty();
 	});
 	

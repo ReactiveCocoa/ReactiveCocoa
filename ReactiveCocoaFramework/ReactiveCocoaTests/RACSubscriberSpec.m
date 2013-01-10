@@ -43,7 +43,14 @@ beforeEach(^{
 	}];
 });
 
-itShouldBehaveLike(RACSubscriberExamples, [^{ return subscriber; } copy], [^{ return [values copy]; } copy], [^{ return error; } copy], [^{ return success; } copy], nil);
+itShouldBehaveLike(RACSubscriberExamples, ^{
+	return @{
+		RACSubscriberExampleGetSubscriberBlock: [^{ return subscriber; } copy],
+		RACSubscriberExampleValuesReceivedBlock: [^{ return [values copy]; } copy],
+		RACSubscriberExampleErrorReceivedBlock: [^{ return error; } copy],
+		RACSubscriberExampleSuccessBlock: [^{ return success; } copy]
+	};
+});
 
 describe(@"finishing", ^{
 	__block void (^sendValues)(void);

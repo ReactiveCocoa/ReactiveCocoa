@@ -43,7 +43,14 @@ describe(@"RACSubject", ^{
 		}];
 	});
 
-	itShouldBehaveLike(RACSubscriberExamples, [^{ return subject; } copy], [^{ return [values copy]; } copy], [^{ return error; } copy], [^{ return success; } copy], nil);
+	itShouldBehaveLike(RACSubscriberExamples, ^{
+		return @{
+			RACSubscriberExampleGetSubscriberBlock: [^{ return subject; } copy],
+			RACSubscriberExampleValuesReceivedBlock: [^{ return [values copy]; } copy],
+			RACSubscriberExampleErrorReceivedBlock: [^{ return error; } copy],
+			RACSubscriberExampleSuccessBlock: [^{ return success; } copy]
+		};
+	});
 });
 
 describe(@"RACReplaySubject", ^{
@@ -135,33 +142,40 @@ describe(@"RACReplaySubject", ^{
 			subject = [RACReplaySubject subject];
 		});
 
-		itShouldBehaveLike(RACSubscriberExamples, [^{ return subject; } copy], [^{
-			NSMutableArray *values = [NSMutableArray array];
+		itShouldBehaveLike(RACSubscriberExamples, ^{
+			return @{
+				RACSubscriberExampleGetSubscriberBlock: [^{ return subject; } copy],
+				RACSubscriberExampleValuesReceivedBlock: [^{
+					NSMutableArray *values = [NSMutableArray array];
 
-			// This subscription should synchronously dump all values already
-			// received into 'values'.
-			[subject subscribeNext:^(id value) {
-				[values addObject:value];
-			}];
+					// This subscription should synchronously dump all values already
+					// received into 'values'.
+					[subject subscribeNext:^(id value) {
+						[values addObject:value];
+					}];
 
-			return values;
-		} copy], [^{
-			__block NSError *error = nil;
+					return values;
+				} copy],
+				RACSubscriberExampleErrorReceivedBlock: [^{
+					__block NSError *error = nil;
 
-			[subject subscribeError:^(NSError *x) {
-				error = x;
-			}];
+					[subject subscribeError:^(NSError *x) {
+						error = x;
+					}];
 
-			return error;
-		} copy], [^{
-			__block BOOL success = YES;
+					return error;
+				} copy],
+				RACSubscriberExampleSuccessBlock: [^{
+					__block BOOL success = YES;
 
-			[subject subscribeError:^(NSError *x) {
-				success = NO;
-			}];
+					[subject subscribeError:^(NSError *x) {
+						success = NO;
+					}];
 
-			return success;
-		} copy], nil);
+					return success;
+				} copy]
+			};
+		});
 		
 		it(@"should send both values to new subscribers after completion", ^{
 			id firstValue = @"blah";

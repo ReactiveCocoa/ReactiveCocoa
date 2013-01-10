@@ -20,13 +20,16 @@ NSString * const RACStreamExamplesVerifyValuesBlock = @"RACStreamExamplesVerifyV
 SharedExampleGroupsBegin(RACStreamExamples)
 
 sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
-	Class streamClass = data[RACStreamExamplesClass];
-	void (^verifyValues)(RACStream *, NSArray *) = data[RACStreamExamplesVerifyValuesBlock];
-	RACStream *infiniteStream = data[RACStreamExamplesInfiniteStream];
+	__block Class streamClass;
+	__block void (^verifyValues)(RACStream *, NSArray *);
+	__block RACStream *infiniteStream;
 
 	__block RACStream *(^streamWithValues)(NSArray *);
 	
 	before(^{
+		streamClass = data[RACStreamExamplesClass];
+		verifyValues = data[RACStreamExamplesVerifyValuesBlock];
+		infiniteStream = data[RACStreamExamplesInfiniteStream];
 		streamWithValues = [^(NSArray *values) {
 			RACStream *stream = [streamClass empty];
 

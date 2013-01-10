@@ -74,8 +74,9 @@
 }
 
 - (instancetype)flatten {
+	__weak RACStream *stream __attribute__((unused)) = self;
 	return [[self flattenMap:^(id value) {
-		NSAssert([value isKindOfClass:RACStream.class], @"Stream %@ being flattened contains an object that is not a stream: %@", self, value);
+		NSAssert([value isKindOfClass:RACStream.class], @"Stream %@ being flattened contains an object that is not a stream: %@", stream, value);
 		return value;
 	}] setNameWithFormat:@"[%@] -flatten", self.name];
 }
@@ -83,8 +84,10 @@
 - (instancetype)map:(id (^)(id value))block {
 	NSParameterAssert(block != nil);
 
+	Class class = self.class;
+	
 	return [[self flattenMap:^(id value) {
-		return [self.class return:block(value)];
+		return [class return:block(value)];
 	}] setNameWithFormat:@"[%@] -map:", self.name];
 }
 
@@ -111,11 +114,13 @@
 - (instancetype)filter:(BOOL (^)(id value))block {
 	NSParameterAssert(block != nil);
 
+	Class class = self.class;
+	
 	return [[self flattenMap:^ id (id value) {
 		if (block(value)) {
-			return [self.class return:value];
+			return [class return:value];
 		} else {
-			return self.class.empty;
+			return class.empty;
 		}
 	}] setNameWithFormat:@"[%@] -filter:", self.name];
 }
@@ -127,26 +132,30 @@
 }
 
 - (instancetype)skip:(NSUInteger)skipCount {
+	Class class = self.class;
+	
 	return [[self bind:^{
 		__block NSUInteger skipped = 0;
 
 		return ^(id value, BOOL *stop) {
-			if (skipped >= skipCount) return [self.class return:value];
+			if (skipped >= skipCount) return [class return:value];
 
 			skipped++;
-			return self.class.empty;
+			return class.empty;
 		};
 	}] setNameWithFormat:@"[%@] -skip: %lu", self.name, (unsigned long)skipCount];
 }
 
 - (instancetype)take:(NSUInteger)count {
+	Class class = self.class;
+	
 	return [[self bind:^{
 		__block NSUInteger taken = 0;
 
 		return ^ id (id value, BOOL *stop) {
-			RACStream *result = self.class.empty;
+			RACStream *result = class.empty;
 
-			if (taken < count) result = [self.class return:value];
+			if (taken < count) result = [class return:value];
 			if (++taken >= count) *stop = YES;
 
 			return result;
@@ -178,12 +187,14 @@
 - (instancetype)scanWithStart:(id)startingValue combine:(id (^)(id running, id next))block {
 	NSParameterAssert(block != nil);
 
+	Class class = self.class;
+	
 	return [[self bind:^{
 		__block id running = startingValue;
 
 		return ^(id value, BOOL *stop) {
 			running = block(running, value);
-			return [self.class return:running];
+			return [class return:running];
 		};
 	}] setNameWithFormat:@"[%@] -scanWithStart: %@ combine:", self.name, startingValue];
 }
@@ -191,11 +202,13 @@
 - (instancetype)takeUntilBlock:(BOOL (^)(id x))predicate {
 	NSParameterAssert(predicate != nil);
 
+	Class class = self.class;
+	
 	return [[self bind:^{
 		return ^ id (id value, BOOL *stop) {
 			if (predicate(value)) return nil;
 
-			return [self.class return:value];
+			return [class return:value];
 		};
 	}] setNameWithFormat:@"[%@] -takeUntilBlock:", self.name];
 }
@@ -211,6 +224,8 @@
 - (instancetype)skipUntilBlock:(BOOL (^)(id x))predicate {
 	NSParameterAssert(predicate != nil);
 
+	Class class = self.class;
+	
 	return [[self bind:^{
 		__block BOOL skipping = YES;
 
@@ -219,11 +234,11 @@
 				if (predicate(value)) {
 					skipping = NO;
 				} else {
-					return self.class.empty;
+					return class.empty;
 				}
 			}
 
-			return [self.class return:value];
+			return [class return:value];
 		};
 	}] setNameWithFormat:@"[%@] -skipUntilBlock:", self.name];
 }

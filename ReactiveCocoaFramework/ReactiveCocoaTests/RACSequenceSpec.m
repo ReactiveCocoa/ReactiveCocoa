@@ -9,9 +9,11 @@
 #import "RACSequenceExamples.h"
 #import "RACStreamExamples.h"
 
-#import "NSArray+RACSequenceAdditions.h"
+#import "RACDisposable.h"
 #import "RACSequence.h"
 #import "RACUnit.h"
+#import "NSArray+RACSequenceAdditions.h"
+#import "NSObject+RACPropertySubscribing.h"
 
 SpecBegin(RACSequence)
 
@@ -167,7 +169,112 @@ describe(@"-bind:", ^{
 	});
 });
 
-it(@"it shouldn't overflow the stack when deallocated on a background queue", ^{
+describe(@"-objectEnumerator", ^{
+	it(@"should only evaluate head as it's enumerated", ^{
+		__block BOOL firstHeadInvoked = NO;
+		__block BOOL secondHeadInvoked = NO;
+		__block BOOL thirdHeadInvoked = NO;
+		
+		RACSequence *sequence = [RACSequence sequenceWithHeadBlock:^id{
+			firstHeadInvoked = YES;
+			return @1;
+		} tailBlock:^RACSequence *{
+			return [RACSequence sequenceWithHeadBlock:^id{
+				secondHeadInvoked = YES;
+				return @2;
+			} tailBlock:^RACSequence *{
+				return [RACSequence sequenceWithHeadBlock:^id{
+					thirdHeadInvoked = YES;
+					return @3;
+				} tailBlock:^RACSequence *{
+					return RACSequence.empty;
+				}];
+			}];
+		}];
+		NSEnumerator *enumerator = sequence.objectEnumerator;
+		
+		expect(firstHeadInvoked).to.beFalsy();
+		expect(secondHeadInvoked).to.beFalsy();
+		expect(thirdHeadInvoked).to.beFalsy();
+		
+		expect([enumerator nextObject]).to.equal(@1);
+		
+		expect(firstHeadInvoked).to.beTruthy();
+		expect(secondHeadInvoked).to.beFalsy();
+		expect(thirdHeadInvoked).to.beFalsy();
+		
+		expect([enumerator nextObject]).to.equal(@2);
+		
+		expect(secondHeadInvoked).to.beTruthy();
+		expect(thirdHeadInvoked).to.beFalsy();
+		
+		expect([enumerator nextObject]).to.equal(@3);
+		
+		expect(thirdHeadInvoked).to.beTruthy();
+		
+		expect([enumerator nextObject]).to.beNil();
+	});
+	
+	it(@"should let the sequence dealloc as it's enumerated", ^{
+		__block BOOL firstSequenceDeallocd = NO;
+		__block BOOL secondSequenceDeallocd = NO;
+		__block BOOL thirdSequenceDeallocd = NO;
+		
+		NSEnumerator *enumerator = nil;
+		
+		@autoreleasepool {
+			RACSequence *thirdSequence __attribute__((objc_precise_lifetime)) = [RACSequence sequenceWithHeadBlock:^id{
+				return @3;
+			} tailBlock:^RACSequence *{
+				return RACSequence.empty;
+			}];
+			[thirdSequence rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				thirdSequenceDeallocd = YES;
+			}]];
+			
+			RACSequence *secondSequence __attribute__((objc_precise_lifetime)) = [RACSequence sequenceWithHeadBlock:^id{
+				return @2;
+			} tailBlock:^RACSequence *{
+				return thirdSequence;
+			}];
+			[secondSequence rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				secondSequenceDeallocd = YES;
+			}]];
+			
+			RACSequence *firstSequence __attribute__((objc_precise_lifetime)) = [RACSequence sequenceWithHeadBlock:^id{
+				return @1;
+			} tailBlock:^RACSequence *{
+				return secondSequence;
+			}];
+			[firstSequence rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				firstSequenceDeallocd = YES;
+			}]];
+			
+			enumerator = firstSequence.objectEnumerator;
+		}
+		
+		@autoreleasepool {
+			expect([enumerator nextObject]).to.equal(@1);
+		}
+
+		@autoreleasepool {
+			expect([enumerator nextObject]).to.equal(@2);
+		}
+		expect(firstSequenceDeallocd).will.beTruthy();
+		
+		@autoreleasepool {
+			expect([enumerator nextObject]).to.equal(@3);
+		}
+		expect(secondSequenceDeallocd).will.beTruthy();
+		
+		@autoreleasepool {
+			expect([enumerator nextObject]).to.beNil();
+		}
+		expect(thirdSequenceDeallocd).will.beTruthy();
+	});
+});
+
+it(@"shouldn't overflow the stack when deallocated on a background queue", ^{
 	NSUInteger length = 10000;
 	NSMutableArray *values = [NSMutableArray arrayWithCapacity:length];
 	for (NSUInteger i = 0; i < length; ++i) {

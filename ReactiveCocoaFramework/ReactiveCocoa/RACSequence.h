@@ -38,6 +38,9 @@
 // Evaluates the full sequence to produce an equivalently-sized array.
 @property (nonatomic, copy, readonly) NSArray *array;
 
+// Returns an enumerator of all objects in the sequence.
+@property (nonatomic, copy, readonly) NSEnumerator *objectEnumerator;
+
 // Converts a sequence into an eager sequence.
 //
 // An eager sequence fully evaluates all of its values immediately. Sequences

@@ -19,6 +19,17 @@
 #import "RACBlockTrampoline.h"
 #import <libkern/OSAtomic.h>
 
+// An enumerator over sequences.
+@interface RACSequenceEnumerator : NSEnumerator
+
+// The sequence the enumerator is enumerating.
+//
+// This will change as the enumerator is exhausted. This property should only be
+// accessed while synchronized on self.
+@property (nonatomic, strong) RACSequence *sequence;
+
+@end
+
 @interface RACSequence ()
 
 // Performs one iteration of lazy binding, passing through values from `current`
@@ -28,6 +39,21 @@
 // Returns a new sequence which contains `current`, followed by the combined
 // result of all applications of `block` to the remaining values in the receiver.
 - (instancetype)bind:(RACStreamBindBlock)block passingThroughValuesFromSequence:(RACSequence *)current;
+
+@end
+
+@implementation RACSequenceEnumerator
+
+- (id)nextObject {
+	id object = nil;
+	
+	@synchronized (self) {
+		object = self.sequence.head;
+		self.sequence = self.sequence.tail;
+	}
+	
+	return object;
+}
 
 @end
 
@@ -166,6 +192,12 @@
 	}
 
 	return [array copy];
+}
+
+- (NSEnumerator *)objectEnumerator {
+	RACSequenceEnumerator *enumerator = [[RACSequenceEnumerator alloc] init];
+	enumerator.sequence = self;
+	return enumerator;
 }
 
 - (RACSignal *)signal {

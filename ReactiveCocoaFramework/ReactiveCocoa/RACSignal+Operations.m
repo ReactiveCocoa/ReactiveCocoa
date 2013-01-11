@@ -744,17 +744,20 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 
 - (RACSignal *)takeUntil:(RACSignal *)signalTrigger {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		__block RACDisposable *selfDisposable = nil;
-		__block void (^triggerCompletion)() = ^(){
-			[selfDisposable dispose], selfDisposable = nil;
+		__block RACDisposable *selfDisposable;
+		__block RACDisposable *triggerDisposable;
+		void (^triggerCompletion)(void) = ^{
+			[selfDisposable dispose];
+			[triggerDisposable dispose];
 			[subscriber sendCompleted];
 		};
-		__block RACDisposable *triggerDisposable = [signalTrigger subscribeNext:^(id x) {
+
+		triggerDisposable = [signalTrigger subscribeNext:^(id x) {
 			triggerCompletion();
 		} completed:^{
 			triggerCompletion();
 		}];
-		
+
 		selfDisposable = [self subscribeNext:^(id x) {
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
@@ -763,7 +766,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 			[triggerDisposable dispose];
 			[subscriber sendCompleted];
 		}];
-		
+
 		return [RACDisposable disposableWithBlock:^{
 			[triggerDisposable dispose];
 			[selfDisposable dispose];

@@ -8,6 +8,9 @@
 
 #import "NSObject+RACKVOWrapper.h"
 
+@interface RACTestOperation : NSOperation
+@end
+
 SpecBegin(RACKVOWrapper)
 
 it(@"should add and remove an observer", ^{
@@ -32,26 +35,38 @@ it(@"should add and remove an observer", ^{
 	expect([operation rac_removeObserverWithIdentifier:identifier]).to.beTruthy();
 });
 
-it(@"should automatically stop KVO when the target deallocates", ^{
-	__weak id weakTarget = nil;
-	__weak id identifier = nil;
+describe(@"automatically stopping KVO when the target deallocates", ^{
+	__block Class targetClass = nil;
 
-	@autoreleasepool {
-		// Create an observable target that we control the memory management of.
-		CFTypeRef target = CFBridgingRetain([[NSOperation alloc] init]);
-		expect(target).notTo.beNil();
+	after(^{
+		__weak id weakTarget = nil;
+		__weak id identifier = nil;
 
-		weakTarget = (__bridge id)target;
-		expect(weakTarget).notTo.beNil();
+		@autoreleasepool {
+			// Create an observable target that we control the memory management of.
+			CFTypeRef target = CFBridgingRetain([[targetClass alloc] init]);
+			expect(target).notTo.beNil();
 
-		identifier = [(__bridge id)target rac_addObserver:self forKeyPath:@"isFinished" options:0 queue:nil block:^(id target, NSDictionary *change){}];
-		expect(identifier).notTo.beNil();
+			weakTarget = (__bridge id)target;
+			expect(weakTarget).notTo.beNil();
 
-		CFRelease(target);
-	}
+			identifier = [(__bridge id)target rac_addObserver:self forKeyPath:@"isFinished" options:0 queue:nil block:^(id target, NSDictionary *change){}];
+			expect(identifier).notTo.beNil();
 
-	expect(weakTarget).to.beNil();
-	expect(identifier).to.beNil();
+			CFRelease(target);
+		}
+
+		expect(weakTarget).to.beNil();
+		expect(identifier).to.beNil();
+	});
+
+	it(@"with an NSObject subclass", ^{
+		targetClass = [NSOperation class];
+	});
+
+	it(@"with a subclass of an NSObject subclass", ^{
+		targetClass = [RACTestOperation class];
+	});
 });
 
 it(@"should automatically stop KVO when the observer deallocates", ^{
@@ -115,3 +130,6 @@ it(@"should distinguish between observers being removed", ^{
 });
 
 SpecEnd
+
+@implementation RACTestOperation
+@end

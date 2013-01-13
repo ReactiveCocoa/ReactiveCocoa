@@ -35,10 +35,8 @@ it(@"should add and remove an observer", ^{
 	expect([operation rac_removeObserverWithIdentifier:identifier]).to.beTruthy();
 });
 
-describe(@"automatically stopping KVO when the target deallocates", ^{
-	__block Class targetClass = nil;
-
-	after(^{
+it(@"automatically stops KVO on subclasses when the target deallocates", ^{
+	void (^testKVOOnSubclass)(Class targetClass) = ^(Class targetClass) {
 		__weak id weakTarget = nil;
 		__weak id identifier = nil;
 
@@ -58,15 +56,10 @@ describe(@"automatically stopping KVO when the target deallocates", ^{
 
 		expect(weakTarget).to.beNil();
 		expect(identifier).to.beNil();
-	});
+	};
 
-	it(@"with an NSObject subclass", ^{
-		targetClass = [NSOperation class];
-	});
-
-	it(@"with a subclass of an NSObject subclass", ^{
-		targetClass = [RACTestOperation class];
-	});
+	testKVOOnSubclass(NSOperation.class);
+	testKVOOnSubclass(RACTestOperation.class);
 });
 
 it(@"should automatically stop KVO when the observer deallocates", ^{

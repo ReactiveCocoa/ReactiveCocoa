@@ -44,9 +44,15 @@ describe(@"RACObservablePropertySubject", ^{
 		[signal subscribe:[RACObservablePropertySubject propertyWithTarget:testObject keyPath:keyPath]];
 	};
 	
-	itShouldBehaveLike(RACPropertySignalExamples, @{ RACPropertySignalExamplesSetupBlock: setupBlock }, nil);
+	itShouldBehaveLike(RACPropertySignalExamples, ^{
+		return @{ RACPropertySignalExamplesSetupBlock: setupBlock };
+	});
 	
-	itShouldBehaveLike(RACPropertySubjectExamples, [^{ return [RACObservablePropertySubject propertyWithTarget:object keyPath:@keypath(object.name)]; } copy], nil);
+	itShouldBehaveLike(RACPropertySubjectExamples, ^{
+		return @{
+			RACPropertySubjectExampleGetPropertyBlock: [^{ return [RACObservablePropertySubject propertyWithTarget:object keyPath:@keypath(object.name)]; } copy]
+		};
+	});
 	
 	it(@"should send the object's current value when subscribed to", ^{
 		__block id receivedValue = @"received value should not be this";

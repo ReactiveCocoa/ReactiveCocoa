@@ -13,7 +13,7 @@
 #import "RACSubscriber.h"
 
 NSString * const RACSubscriberExamples = @"RACSubscriberExamples";
-NSString * const RACSubscriberExampleGetSubscriberBlock = @"RACSubscriberExampleGetSubscriberBlock";
+NSString * const RACSubscriberExampleSubscriber = @"RACSubscriberExampleSubscriber";
 NSString * const RACSubscriberExampleValuesReceivedBlock = @"RACSubscriberExampleValuesReceivedBlock";
 NSString * const RACSubscriberExampleErrorReceivedBlock = @"RACSubscriberExampleErrorReceivedBlock";
 NSString * const RACSubscriberExampleSuccessBlock = @"RACSubscriberExampleSuccessBlock";
@@ -21,18 +21,16 @@ NSString * const RACSubscriberExampleSuccessBlock = @"RACSubscriberExampleSucces
 SharedExampleGroupsBegin(RACSubscriberExamples)
 
 sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
-	__block id<RACSubscriber> (^getSubscriber)(void);
 	__block NSArray * (^valuesReceived)(void);
 	__block NSError * (^errorReceived)(void);
 	__block BOOL (^success)(void);
 	__block id<RACSubscriber> subscriber;
 	
 	beforeEach(^{
-		getSubscriber = data[RACSubscriberExampleGetSubscriberBlock];
 		valuesReceived = data[RACSubscriberExampleValuesReceivedBlock];
 		errorReceived = data[RACSubscriberExampleErrorReceivedBlock];
 		success = data[RACSubscriberExampleSuccessBlock];
-		subscriber = getSubscriber();
+		subscriber = data[RACSubscriberExampleSubscriber];
 		expect(subscriber).notTo.beNil();
 	});
 

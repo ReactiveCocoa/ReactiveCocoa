@@ -45,7 +45,7 @@ describe(@"RACSubject", ^{
 
 	itShouldBehaveLike(RACSubscriberExamples, ^{
 		return @{
-			RACSubscriberExampleGetSubscriberBlock: [^{ return subject; } copy],
+			RACSubscriberExampleSubscriber: subject,
 			RACSubscriberExampleValuesReceivedBlock: [^{ return [values copy]; } copy],
 			RACSubscriberExampleErrorReceivedBlock: [^{ return error; } copy],
 			RACSubscriberExampleSuccessBlock: [^{ return success; } copy]
@@ -144,7 +144,7 @@ describe(@"RACReplaySubject", ^{
 
 		itShouldBehaveLike(RACSubscriberExamples, ^{
 			return @{
-				RACSubscriberExampleGetSubscriberBlock: [^{ return subject; } copy],
+				RACSubscriberExampleSubscriber: subject,
 				RACSubscriberExampleValuesReceivedBlock: [^{
 					NSMutableArray *values = [NSMutableArray array];
 

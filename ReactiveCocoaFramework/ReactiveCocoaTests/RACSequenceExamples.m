@@ -13,8 +13,8 @@
 #import "RACSignal+Operations.h"
 
 NSString * const RACSequenceExamples = @"RACSequenceExamples";
-NSString * const RACSequenceExampleGetSequenceBlock = @"RACSequenceExampleGetSequenceBlock";
-NSString * const RACSequenceExampleGetExpectedValuesBlock = @"RACSequenceExampleGetExpectedValuesBlock";
+NSString * const RACSequenceExampleSequence = @"RACSequenceExampleSequence";
+NSString * const RACSequenceExampleExpectedValues = @"RACSequenceExampleExpectedValues";
 
 SharedExampleGroupsBegin(RACSequenceExamples);
 
@@ -23,10 +23,8 @@ sharedExamplesFor(RACSequenceExamples, ^(NSDictionary *data) {
 	__block NSArray *values;
 	
 	beforeEach(^{
-		RACSequence * (^getSequence)(void) = data[RACSequenceExampleGetSequenceBlock];
-		NSArray * (^getExpectedValues)(void) = data[RACSequenceExampleGetExpectedValuesBlock];
-		sequence = getSequence();
-		values = [getExpectedValues() copy];
+		sequence = data[RACSequenceExampleSequence];
+		values = [data[RACSequenceExampleExpectedValues] copy];
 	});
 
 	it(@"should implement <NSFastEnumeration>", ^{

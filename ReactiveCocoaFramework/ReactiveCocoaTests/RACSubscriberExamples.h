@@ -9,9 +9,8 @@
 // The name of the shared examples for implementors of <RACSubscriber>.
 extern NSString * const RACSubscriberExamples;
 
-// A block of type `id<RACSubscriber> (^)(void)`, which should return a
-// <RACSubscriber>.
-extern NSString * const RACSubscriberExampleGetSubscriberBlock;
+// id<RACSubscriber>
+extern NSString * const RACSubscriberExampleSubscriber;
 
 // A block which returns an NSArray of the values received so far.
 extern NSString * const RACSubscriberExampleValuesReceivedBlock;

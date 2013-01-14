@@ -84,8 +84,8 @@ describe(@"+sequenceWithHeadBlock:tailBlock:", ^{
 	after(^{
 		itShouldBehaveLike(RACSequenceExamples, ^{
 			return @{
-				RACSequenceExampleGetSequenceBlock: [^{ return sequence; } copy],
-				RACSequenceExampleGetExpectedValuesBlock: ^{ return @[ @0, @1 ]; }
+				RACSequenceExampleSequence: sequence,
+				RACSequenceExampleExpectedValues: @[ @0, @1 ]
 			};
 		});
 	});
@@ -94,8 +94,8 @@ describe(@"+sequenceWithHeadBlock:tailBlock:", ^{
 describe(@"empty sequences", ^{
 	itShouldBehaveLike(RACSequenceExamples, ^{
 		return @{
-			RACSequenceExampleGetSequenceBlock: [^{ return [RACSequence empty]; } copy],
-			RACSequenceExampleGetExpectedValuesBlock: ^{ return @[]; }
+			RACSequenceExampleSequence: [RACSequence empty],
+			RACSequenceExampleExpectedValues: @[]
 		};
 	});
 });
@@ -103,8 +103,8 @@ describe(@"empty sequences", ^{
 describe(@"non-empty sequences", ^{
 	itShouldBehaveLike(RACSequenceExamples, ^{
 		return @{
-			RACSequenceExampleGetSequenceBlock: ^{ return [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]]; },
-			RACSequenceExampleGetExpectedValuesBlock: ^{ return @[ @0, @1, @2 ]; }
+			RACSequenceExampleSequence: [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]],
+			RACSequenceExampleExpectedValues: @[ @0, @1, @2 ]
 		};
 	});
 });
@@ -133,8 +133,8 @@ describe(@"eager sequences", ^{
 	
 	itShouldBehaveLike(RACSequenceExamples, ^{
 		return @{
-			RACSequenceExampleGetSequenceBlock: [^{ return lazySequence.eagerSequence; } copy],
-			RACSequenceExampleGetExpectedValuesBlock: [^{ return values; } copy]
+			RACSequenceExampleSequence: lazySequence.eagerSequence,
+			RACSequenceExampleExpectedValues: values
 		};
 	});
 	

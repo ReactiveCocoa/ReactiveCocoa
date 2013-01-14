@@ -9,8 +9,8 @@
 // The name of the shared examples for RACSequence instances.
 extern NSString * const RACSequenceExamples;
 
-// RACSequence * (^getSequence)(void)
-extern NSString * const RACSequenceExampleGetSequenceBlock;
+// RACSequence *
+extern NSString * const RACSequenceExampleSequence;
 
-// NSArray * (^getExpectedValues)(void)
-extern NSString * const RACSequenceExampleGetExpectedValuesBlock;
+// NSArray *
+extern NSString * const RACSequenceExampleExpectedValues;

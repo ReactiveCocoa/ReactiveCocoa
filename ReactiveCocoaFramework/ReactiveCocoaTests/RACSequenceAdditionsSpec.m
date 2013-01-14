@@ -31,8 +31,8 @@ describe(@"NSArray sequences", ^{
 
 	itShouldBehaveLike(RACSequenceExamples, ^{
 		return @{
-			RACSequenceExampleGetSequenceBlock: [^{ return sequence; } copy],
-			RACSequenceExampleGetExpectedValuesBlock: [^{ return values; } copy]
+			RACSequenceExampleSequence: sequence,
+			RACSequenceExampleExpectedValues: values
 		};
 	});
 
@@ -46,8 +46,8 @@ describe(@"NSArray sequences", ^{
 
 		itShouldBehaveLike(RACSequenceExamples, ^{
 			return @{
-				RACSequenceExampleGetSequenceBlock: [^{ return sequence; } copy],
-				RACSequenceExampleGetExpectedValuesBlock: [^{ return unchangedValues; } copy]
+				RACSequenceExampleSequence: sequence,
+				RACSequenceExampleExpectedValues: unchangedValues
 			};
 		});
 	});
@@ -92,22 +92,22 @@ describe(@"NSDictionary sequences", ^{
 
 	itShouldBehaveLike(RACSequenceExamples, ^{
 		return @{
-			RACSequenceExampleGetSequenceBlock: [^{ return tupleSequence; } copy],
-			RACSequenceExampleGetExpectedValuesBlock: [^{ return tuples; } copy]
+			RACSequenceExampleSequence: tupleSequence,
+			RACSequenceExampleExpectedValues: tuples
 		};
 	});
 
 	itShouldBehaveLike(RACSequenceExamples, ^{
 		return @{
-			RACSequenceExampleGetSequenceBlock: [^{ return keySequence; } copy],
-			RACSequenceExampleGetExpectedValuesBlock: [^{ return keys; } copy]
+			RACSequenceExampleSequence: keySequence,
+			RACSequenceExampleExpectedValues: keys
 		};
 	});
 
 	itShouldBehaveLike(RACSequenceExamples, ^{
 		return @{
-			RACSequenceExampleGetSequenceBlock: [^{ return valueSequence; } copy],
-			RACSequenceExampleGetExpectedValuesBlock: [^{ return values; } copy]
+			RACSequenceExampleSequence: valueSequence,
+			RACSequenceExampleExpectedValues: values
 		};
 	});
 
@@ -119,22 +119,22 @@ describe(@"NSDictionary sequences", ^{
 
 		itShouldBehaveLike(RACSequenceExamples, ^{
 			return @{
-				RACSequenceExampleGetSequenceBlock: [^{ return tupleSequence; } copy],
-				RACSequenceExampleGetExpectedValuesBlock: [^{ return tuples; } copy]
+				RACSequenceExampleSequence: tupleSequence,
+				RACSequenceExampleExpectedValues: tuples
 			};
 		});
 
 		itShouldBehaveLike(RACSequenceExamples, ^{
 			return @{
-				RACSequenceExampleGetSequenceBlock: [^{ return keySequence; } copy],
-				RACSequenceExampleGetExpectedValuesBlock: [^{ return keys; } copy]
+				RACSequenceExampleSequence: keySequence,
+				RACSequenceExampleExpectedValues: keys
 			};
 		});
 
 		itShouldBehaveLike(RACSequenceExamples, ^{
 			return @{
-				RACSequenceExampleGetSequenceBlock: [^{ return valueSequence; } copy],
-				RACSequenceExampleGetExpectedValuesBlock: [^{ return values; } copy]
+				RACSequenceExampleSequence: valueSequence,
+				RACSequenceExampleExpectedValues: values
 			};
 		});
 	});
@@ -152,8 +152,8 @@ describe(@"NSOrderedSet sequences", ^{
 
 	itShouldBehaveLike(RACSequenceExamples, ^{
 		return @{
-			RACSequenceExampleGetSequenceBlock: [^{ return sequence; } copy],
-			RACSequenceExampleGetExpectedValuesBlock: [^{ return values.array; } copy]
+			RACSequenceExampleSequence: sequence,
+			RACSequenceExampleExpectedValues: values.array
 		};
 	});
 
@@ -167,8 +167,8 @@ describe(@"NSOrderedSet sequences", ^{
 
 		itShouldBehaveLike(RACSequenceExamples, ^{
 			return @{
-				RACSequenceExampleGetSequenceBlock: [^{ return sequence; } copy],
-				RACSequenceExampleGetExpectedValuesBlock: [^{ return unchangedValues; } copy]
+				RACSequenceExampleSequence: sequence,
+				RACSequenceExampleExpectedValues: unchangedValues
 			};
 		});
 	});
@@ -186,8 +186,8 @@ describe(@"NSSet sequences", ^{
 
 	itShouldBehaveLike(RACSequenceExamples, ^{
 		return @{
-			RACSequenceExampleGetSequenceBlock: [^{ return sequence; } copy],
-			RACSequenceExampleGetExpectedValuesBlock: [^{ return values.allObjects; } copy]
+			RACSequenceExampleSequence: sequence,
+			RACSequenceExampleExpectedValues: values.allObjects
 		};
 	});
 
@@ -201,8 +201,8 @@ describe(@"NSSet sequences", ^{
 
 		itShouldBehaveLike(RACSequenceExamples, ^{
 			return @{
-				RACSequenceExampleGetSequenceBlock: [^{ return sequence; } copy],
-				RACSequenceExampleGetExpectedValuesBlock: [^{ return unchangedValues; } copy]
+				RACSequenceExampleSequence: sequence,
+				RACSequenceExampleExpectedValues: unchangedValues
 			};
 		});
 	});
@@ -222,8 +222,8 @@ describe(@"NSString sequences", ^{
 
 	itShouldBehaveLike(RACSequenceExamples, ^{
 		return @{
-			RACSequenceExampleGetSequenceBlock: [^{ return sequence; } copy],
-			RACSequenceExampleGetExpectedValuesBlock: [^{ return values; } copy]
+			RACSequenceExampleSequence: sequence,
+			RACSequenceExampleExpectedValues: values
 		};
 	});
 
@@ -234,8 +234,8 @@ describe(@"NSString sequences", ^{
 
 		itShouldBehaveLike(RACSequenceExamples, ^{
 			return @{
-				RACSequenceExampleGetSequenceBlock: [^{ return sequence; } copy],
-				RACSequenceExampleGetExpectedValuesBlock: [^{ return values; } copy]
+				RACSequenceExampleSequence: sequence,
+				RACSequenceExampleExpectedValues: values
 			};
 		});
 	});

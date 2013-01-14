@@ -15,7 +15,11 @@
 SpecBegin(RACPropertySubject)
 
 describe(@"RACPropertySubject", ^{
-	itShouldBehaveLike(RACPropertySubjectExamples, [^{ return [RACPropertySubject property]; } copy], nil);
+	itShouldBehaveLike(RACPropertySubjectExamples, ^{
+		return @{
+			RACPropertySubjectExampleGetPropertyBlock: [^{ return [RACPropertySubject property]; } copy]
+		};
+	});
 });
 
 SpecEnd

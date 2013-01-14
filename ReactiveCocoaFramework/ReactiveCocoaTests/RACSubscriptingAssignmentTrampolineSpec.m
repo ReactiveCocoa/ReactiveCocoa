@@ -17,7 +17,9 @@ id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, RACSignal *signa
 	[RACSubscriptingAssignmentTrampoline trampoline][ [[RACSubscriptingAssignmentObjectKeyPathPair alloc] initWithObject:testObject keyPath:keyPath] ] = signal;
 };
 
-itShouldBehaveLike(RACPropertySignalExamples, @{ RACPropertySignalExamplesSetupBlock: setupBlock }, nil);
+itShouldBehaveLike(RACPropertySignalExamples, ^{
+	return @{ RACPropertySignalExamplesSetupBlock: setupBlock };
+});
 
 it(@"should expand the RAC macro properly", ^{
 	RACSubject *subject = [RACSubject subject];

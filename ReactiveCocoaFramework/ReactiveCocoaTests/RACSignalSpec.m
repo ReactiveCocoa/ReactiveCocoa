@@ -103,11 +103,13 @@ describe(@"RACStream", ^{
 		}];
 	}];
 
-	itShouldBehaveLike(RACStreamExamples, @{
-		RACStreamExamplesClass: RACSignal.class,
-		RACStreamExamplesVerifyValuesBlock: verifyValues,
-		RACStreamExamplesInfiniteStream: infiniteSignal
-	}, nil);
+	itShouldBehaveLike(RACStreamExamples, ^{
+		return @{
+			RACStreamExamplesClass: RACSignal.class,
+			RACStreamExamplesVerifyValuesBlock: verifyValues,
+			RACStreamExamplesInfiniteStream: infiniteSignal
+		};
+	});
 });
 
 describe(@"subscribing", ^{
@@ -836,7 +838,9 @@ describe(@"-toProperty:onObject:", ^{
 		[signal toProperty:keyPath onObject:testObject];
 	};
 
-	itShouldBehaveLike(RACPropertySignalExamples, @{ RACPropertySignalExamplesSetupBlock: setupBlock }, nil);
+	itShouldBehaveLike(RACPropertySignalExamples, ^{
+		return @{ RACPropertySignalExamplesSetupBlock: setupBlock };
+	});
 
 	it(@"shouldn't send values to dealloc'd objects", ^{
 		RACSubject *subject = [RACSubject subject];
@@ -1200,7 +1204,7 @@ describe(@"-flatten:", ^{
 			expect(values).to.equal(expected);
 		});
 
-		itShouldBehaveLike(RACSignalMergeConcurrentCompletionExampleGroup, @{ RACSignalMaxConcurrent: @0 }, nil);
+		itShouldBehaveLike(RACSignalMergeConcurrentCompletionExampleGroup, @{ RACSignalMaxConcurrent: @0 });
 	});
 
 	describe(@"when its max is > 0", ^{
@@ -1251,7 +1255,7 @@ describe(@"-flatten:", ^{
 			expect(values).to.equal(expected);
 		});
 
-		itShouldBehaveLike(RACSignalMergeConcurrentCompletionExampleGroup, @{ RACSignalMaxConcurrent: @1 }, nil);
+		itShouldBehaveLike(RACSignalMergeConcurrentCompletionExampleGroup, @{ RACSignalMaxConcurrent: @1 });
 	});
 
 	it(@"shouldn't create a retain cycle", ^{
@@ -1748,7 +1752,12 @@ describe(@"-sequence", ^{
 		return nil;
 	}];
 
-	itShouldBehaveLike(RACSequenceExamples, [^{ return signal.sequence; } copy], ^{ return @[ @1, @2, @3, @4 ]; }, nil);
+	itShouldBehaveLike(RACSequenceExamples, ^{
+		return @{
+			RACSequenceExampleSequence: signal.sequence,
+			RACSequenceExampleExpectedValues: @[ @1, @2, @3, @4 ]
+		};
+	});
 });
 
 it(@"should complete take: even if the original signal doesn't", ^{

@@ -744,30 +744,32 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 
 - (RACSignal *)takeUntil:(RACSignal *)signalTrigger {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		__block RACDisposable *selfDisposable = nil;
-		__block void (^triggerCompletion)() = ^(){
-			[selfDisposable dispose], selfDisposable = nil;
+		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+		void (^triggerCompletion)(void) = ^{
+			[disposable dispose];
 			[subscriber sendCompleted];
 		};
-		__block RACDisposable *triggerDisposable = [signalTrigger subscribeNext:^(id x) {
+
+		RACDisposable *triggerDisposable = [signalTrigger subscribeNext:^(id _) {
 			triggerCompletion();
 		} completed:^{
 			triggerCompletion();
 		}];
-		
-		selfDisposable = [self subscribeNext:^(id x) {
+
+		if (triggerDisposable != nil) [disposable addDisposable:triggerDisposable];
+
+		RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
-			[triggerDisposable dispose];
+			[disposable dispose];
 			[subscriber sendCompleted];
 		}];
-		
-		return [RACDisposable disposableWithBlock:^{
-			[triggerDisposable dispose];
-			[selfDisposable dispose];
-		}];
+
+		if (selfDisposable != nil) [disposable addDisposable:selfDisposable];
+
+		return disposable;
 	}] setNameWithFormat:@"[%@] -takeUntil: %@", self.name, signalTrigger];
 }
 

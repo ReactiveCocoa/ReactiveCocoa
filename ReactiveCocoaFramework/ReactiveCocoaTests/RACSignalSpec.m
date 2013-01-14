@@ -1754,8 +1754,8 @@ describe(@"-sequence", ^{
 
 	itShouldBehaveLike(RACSequenceExamples, ^{
 		return @{
-			RACSequenceExampleGetSequenceBlock: [^{ return signal.sequence; } copy],
-			RACSequenceExampleGetExpectedValuesBlock: ^{ return @[ @1, @2, @3, @4 ]; }
+			RACSequenceExampleSequence: signal.sequence,
+			RACSequenceExampleExpectedValues: @[ @1, @2, @3, @4 ]
 		};
 	});
 });

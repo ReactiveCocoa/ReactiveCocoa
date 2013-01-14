@@ -7,15 +7,18 @@
 //
 
 #import "NSNotificationCenter+RACSupport.h"
+#import "EXTScope.h"
 
 @implementation NSNotificationCenter (RACSupport)
 
 - (RACSignal *)rac_addObserverForName:(NSString *)notificationName object:(id)object {
+	@unsafeify(object);
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		@strongify(object);
 		id observer = [self addObserverForName:notificationName object:object queue:nil usingBlock:^(NSNotification *note) {
 			[subscriber sendNext:note];
 		}];
-		
+
 		return [RACDisposable disposableWithBlock:^{
 			[NSNotificationCenter.defaultCenter removeObserver:observer];
 		}];

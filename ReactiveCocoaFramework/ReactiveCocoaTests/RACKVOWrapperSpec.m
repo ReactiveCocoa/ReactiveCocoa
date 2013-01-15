@@ -16,7 +16,7 @@ it(@"should add and remove an observer", ^{
 	expect(operation).notTo.beNil();
 
 	__block BOOL notified = NO;
-	RACKVOTrampoline *trampoline = [operation rac_addObserver:self forKeyPath:@"isFinished" options:NSKeyValueObservingOptionNew block:^(id target, id observer, NSDictionary *change){
+	RACKVOTrampoline *trampoline = [operation rac_addObserver:self forKeyPath:@"isFinished" options:NSKeyValueObservingOptionNew block:^(id target, id observer, NSDictionary *change) {
 		expect(observer).to.equal(self);
 		expect([change objectForKey:NSKeyValueChangeNewKey]).to.equal(@YES);
 

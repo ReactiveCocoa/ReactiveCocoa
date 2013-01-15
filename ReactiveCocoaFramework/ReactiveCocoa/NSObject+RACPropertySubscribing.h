@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <ReactiveCocoa/EXTKeyPathCoding.h>
 #import <ReactiveCocoa/metamacros.h>
+#import "RACPropertyChange.h"
 
 // Creates a signal which observes the given key path for changes.
 //
@@ -33,10 +34,12 @@
 // Returns a signal which sends a value every time the value at the given key
 // path changes, and sends completed if self is deallocated (no matter which
 // variant of RACAble was used).
-#define RACAble(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))(_RACAbleObject(self, __VA_ARGS__))(_RACAbleObject(__VA_ARGS__))
+#define RACAble(...) _RACAble(__VA_ARGS__, ForKeyPath:)
+#define RACAbleChanges(...) _RACAble(__VA_ARGS__, WithChangesForKeyPath:)
 
 // Do not use this directly. Use RACAble above.
-#define _RACAbleObject(object, property) [object rac_signalForKeyPath:@keypath(object, property) onObject:self]
+#define _RACAble(...) metamacro_if_eq(2, metamacro_argcount(__VA_ARGS__))(_RACAbleObject(self, __VA_ARGS__))(_RACAbleObject(__VA_ARGS__))
+#define _RACAbleObject(object, property, keyPathSel) [object rac_signal ## keyPathSel @keypath(object, property) onObject:self]
 
 // Same as RACAble, but the signal also starts with the current value of the
 // property.
@@ -52,10 +55,11 @@
 
 // Creates a signal for observing on the given object the key path of the source
 // object.
-+ (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath onObject:(NSObject *)onObject;
++ (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath onObject:(NSObject *)onObject withChangeOptions:(NSKeyValueObservingOptions)options;
 
 // Creates a value from observing the value at the given keypath.
 - (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath onObject:(NSObject *)object;
+- (RACSignal *)rac_signalWithChangesForKeyPath:(NSString *)keyPath onObject:(NSObject *)object;
 
 // Keeps the value of the KVC-compliant keypath up-to-date with the latest value
 // sent by the signal.

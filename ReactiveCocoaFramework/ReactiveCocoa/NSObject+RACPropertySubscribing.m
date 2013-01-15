@@ -17,7 +17,7 @@ static const void *RACObjectDisposables = &RACObjectDisposables;
 
 @implementation NSObject (RACPropertySubscribing)
 
-+ (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath onObject:(NSObject *)onObject {
++ (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath onObject:(NSObject *)onObject withChangeOptions:(NSKeyValueObservingOptions)options {
 	RACReplaySubject *subject = [RACReplaySubject replaySubjectWithCapacity:1];
 	[subject setNameWithFormat:@"RACAble(%@, %@)", object, keyPath];
 
@@ -26,16 +26,20 @@ static const void *RACObjectDisposables = &RACObjectDisposables;
 	}]];
 	
 	__unsafe_unretained NSObject *weakObject = object;
-	[object rac_addObserver:onObject forKeyPath:keyPath options:0 queue:[NSOperationQueue mainQueue] block:^(id target, NSDictionary *change) {
+	[object rac_addObserver:onObject forKeyPath:keyPath options:options queue:[NSOperationQueue mainQueue] block:^(id target, NSDictionary *change) {
 		NSObject *strongObject = weakObject;
-		[subject sendNext:[strongObject valueForKeyPath:keyPath]];
+		[subject sendNext:options ? [RACPropertyChangeBase propertyChangeForDictionary:change] : [strongObject valueForKeyPath:keyPath]];
 	}];
 	
 	return subject;
 }
 
 - (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath onObject:(NSObject *)object {
-	return [self.class rac_signalFor:self keyPath:keyPath onObject:object];
+	return [self.class rac_signalFor:self keyPath:keyPath onObject:object withChangeOptions:0];
+}
+
+- (RACSignal *)rac_signalWithChangesForKeyPath:(NSString *)keyPath onObject:(NSObject *)object{
+	return [self.class rac_signalFor:self keyPath:keyPath onObject:object withChangeOptions:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld | NSKeyValueObservingOptionInitial];
 }
 
 - (RACDisposable *)rac_deriveProperty:(NSString *)keyPath from:(RACSignal *)signal {

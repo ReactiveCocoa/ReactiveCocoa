@@ -67,7 +67,7 @@ static NSMutableSet *swizzledClasses() {
 
 	@synchronized (self) {
 		if (self.RACKVOTrampolines == nil) {
-			self.RACKVOTrampolines = [NSMutableSet setWithObject:trampoline];
+			self.RACKVOTrampolines = [NSMutableArray arrayWithObject:trampoline];
 		} else {
 			[self.RACKVOTrampolines addObject:trampoline];
 		}
@@ -80,11 +80,11 @@ static NSMutableSet *swizzledClasses() {
 	}
 }
 
-- (NSMutableSet *)RACKVOTrampolines {
+- (NSMutableArray *)RACKVOTrampolines {
 	return objc_getAssociatedObject(self, RACKVOTrampolinesKey);
 }
 
-- (void)setRACKVOTrampolines:(NSMutableSet *)set {
+- (void)setRACKVOTrampolines:(NSMutableArray *)set {
 	objc_setAssociatedObject(self, RACKVOTrampolinesKey, set, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 

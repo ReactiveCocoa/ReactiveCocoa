@@ -10,8 +10,8 @@
 
 @interface NSObject (RACKVOWrapperPrivate)
 
-// This set should only be manipulated while synchronized on the receiver.
-@property (nonatomic, strong) NSMutableSet *RACKVOTrampolines;
+// Should only be manipulated while synchronized on the receiver.
+@property (nonatomic, strong) NSMutableArray *RACKVOTrampolines;
 
 // Remove the trampoline from the receiver.
 //

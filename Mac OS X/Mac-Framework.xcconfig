@@ -14,7 +14,8 @@ DEAD_CODE_STRIPPING = NO
 // disabled for library code)
 GCC_DYNAMIC_NO_PIC = NO
 
-// Enables and requires the framework to be included in an application bundle
-// (inside the "Frameworks" folder)
+// Enables the framework to be included from any location as long as the
+// loader’s runpath search paths includes it. For example from an application
+// bundle (inside the "Frameworks" folder) or shared folder
 INSTALL_PATH = @rpath
 LD_DYLIB_INSTALL_NAME = @rpath/$(PRODUCT_NAME).$(WRAPPER_EXTENSION)/$(PRODUCT_NAME)

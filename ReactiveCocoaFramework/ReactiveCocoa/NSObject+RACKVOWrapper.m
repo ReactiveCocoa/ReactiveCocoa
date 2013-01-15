@@ -67,10 +67,10 @@ static NSMutableSet *swizzledClasses() {
 
 	@synchronized (self) {
 		if (self.RACKVOTrampolines == nil) {
-			self.RACKVOTrampolines = [NSMutableArray arrayWithObject:trampoline];
-		} else {
-			[self.RACKVOTrampolines addObject:trampoline];
+			self.RACKVOTrampolines = [NSMutableArray array];
 		}
+
+		[self.RACKVOTrampolines addObject:trampoline];
 	}
 }
 

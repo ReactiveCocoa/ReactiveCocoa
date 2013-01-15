@@ -16,8 +16,8 @@ describe(@"-rac_sequence", ^{
 	NSArray *values = @[ @0, @1, @2, @3, @4 ];
 	itShouldBehaveLike(RACSequenceExamples, ^{
 		return @{
-			RACSequenceExampleGetSequenceBlock: [^{ return values.objectEnumerator.rac_sequence; } copy],
-			RACSequenceExampleGetExpectedValuesBlock: [^{ return values; } copy]
+			RACSequenceExampleSequence: values.objectEnumerator.rac_sequence,
+			RACSequenceExampleExpectedValues: values
 		};
 	});
 });

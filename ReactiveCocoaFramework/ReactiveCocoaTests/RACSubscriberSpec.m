@@ -45,7 +45,7 @@ beforeEach(^{
 
 itShouldBehaveLike(RACSubscriberExamples, ^{
 	return @{
-		RACSubscriberExampleGetSubscriberBlock: [^{ return subscriber; } copy],
+		RACSubscriberExampleSubscriber: subscriber,
 		RACSubscriberExampleValuesReceivedBlock: [^{ return [values copy]; } copy],
 		RACSubscriberExampleErrorReceivedBlock: [^{ return error; } copy],
 		RACSubscriberExampleSuccessBlock: [^{ return success; } copy]

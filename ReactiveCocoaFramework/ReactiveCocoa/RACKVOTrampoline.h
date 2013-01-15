@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "NSObject+RACKVOWrapper.h"
 
-// The KVO trampoline object.
+// The KVO trampoline object. Represents a KVO observation.
 @interface RACKVOTrampoline : NSObject
 
 // Initializes the receiver with the given parameters.

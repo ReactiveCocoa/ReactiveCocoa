@@ -8,7 +8,13 @@
 
 #import <Foundation/Foundation.h>
 
-typedef void (^RACKVOBlock)(id, id, NSDictionary *);
+// The block called when the KVO notification fires.
+//
+// target   - The object being observed.
+// observer - The object doing the observing.
+// change   - The KVO change dictionary, as given to
+//            -observeValueForKeyPath:ofObject:change:context:.
+typedef void (^RACKVOBlock)(id target, id observer, NSDictionary *change);
 
 @class RACKVOTrampoline;
 

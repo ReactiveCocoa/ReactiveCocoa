@@ -32,7 +32,7 @@ describe(@"-rac_addDeallocDisposable:", ^{
 describe(@"+rac_signalFor:keyPath:onObject:", ^{
 	it(@"should stop observing when disposed", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
-		RACSignal *signal = [object.class rac_signalFor:object keyPath:@keypath(object, objectValue) onObject:self];
+		RACSignal *signal = [object.class rac_signalFor:object keyPath:@keypath(object, objectValue) observer:self];
 		NSMutableArray *values = [NSMutableArray array];
 		RACDisposable *disposable = [signal subscribeNext:^(id x) {
 			[values addObject:x];
@@ -43,6 +43,33 @@ describe(@"+rac_signalFor:keyPath:onObject:", ^{
 		expect(values).to.equal(expected);
 
 		[disposable dispose];
+		object.objectValue = @2;
+		expect(values).to.equal(expected);
+	});
+
+	it(@"shouldn't send any more values after the observer is gone", ^{
+		__block BOOL observerDealloced = NO;
+		RACTestObject *object = [[RACTestObject alloc] init];
+		NSMutableArray *values = [NSMutableArray array];
+		@autoreleasepool {
+			RACTestObject *observer __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
+			[observer rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				observerDealloced = YES;
+			}]];
+
+			RACSignal *signal = [object.class rac_signalFor:object keyPath:@keypath(object, objectValue) observer:observer];
+			[signal subscribeNext:^(id x) {
+				[values addObject:x];
+			}];
+
+			object.objectValue = @1;
+		}
+
+		expect(observerDealloced).to.beTruthy();
+
+		NSArray *expected = @[ @1 ];
+		expect(values).to.equal(expected);
+
 		object.objectValue = @2;
 		expect(values).to.equal(expected);
 	});
@@ -60,21 +87,21 @@ describe(@"+rac_signalFor:keyPath:onObject:", ^{
 				scopeObjectDealloced = YES;
 			}]];
 			
-			RACSignal *signal = [object.class rac_signalFor:object keyPath:@keypath(object, objectValue) onObject:scopeObject];
+			RACSignal *signal = [object.class rac_signalFor:object keyPath:@keypath(object, objectValue) observer:scopeObject];
 			[signal subscribeNext:^(id _) {
 
 			}];
 		}
 
-		expect(objectDealloced).will.beTruthy();
-		expect(scopeObjectDealloced).will.beTruthy();
+		expect(objectDealloced).to.beTruthy();
+		expect(scopeObjectDealloced).to.beTruthy();
 	});
 
 	it(@"shouldn't crash when the value is changed on a different queue", ^{
 		__block id value;
 		@autoreleasepool {
 			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			RACSignal *signal = [NSObject rac_signalFor:object keyPath:@"objectValue" onObject:self];
+			RACSignal *signal = [NSObject rac_signalFor:object keyPath:@keypath(object, objectValue) observer:self];
 			[signal subscribeNext:^(id x) {
 				value = x;
 			}];

@@ -7,6 +7,7 @@
 //
 
 #import "NSObject+RACKVOWrapper.h"
+#import "RACKVOTrampoline.h"
 
 SpecBegin(RACKVOWrapper)
 
@@ -15,21 +16,20 @@ it(@"should add and remove an observer", ^{
 	expect(operation).notTo.beNil();
 
 	__block BOOL notified = NO;
-	id identifier = [operation rac_addObserver:self forKeyPath:@"isFinished" options:NSKeyValueObservingOptionNew queue:nil block:^(id target, NSDictionary *change){
-		expect(target).to.equal(self);
+	RACKVOTrampoline *trampoline = [operation rac_addObserver:self forKeyPath:@"isFinished" options:NSKeyValueObservingOptionNew block:^(id target, id observer, NSDictionary *change){
+		expect(observer).to.equal(self);
 		expect([change objectForKey:NSKeyValueChangeNewKey]).to.equal(@YES);
 
 		expect(notified).to.beFalsy();
 		notified = YES;
 	}];
 
-	expect(identifier).notTo.beNil();
+	expect(trampoline).notTo.beNil();
 
 	[operation start];
 	[operation waitUntilFinished];
 
 	expect(notified).will.beTruthy();
-	expect([operation rac_removeObserverWithIdentifier:identifier]).to.beTruthy();
 });
 
 it(@"should automatically stop KVO when the target deallocates", ^{
@@ -44,7 +44,7 @@ it(@"should automatically stop KVO when the target deallocates", ^{
 		weakTarget = (__bridge id)target;
 		expect(weakTarget).notTo.beNil();
 
-		identifier = [(__bridge id)target rac_addObserver:self forKeyPath:@"isFinished" options:0 queue:nil block:^(id target, NSDictionary *change){}];
+		identifier = [(__bridge id)target rac_addObserver:self forKeyPath:@"isFinished" options:0 block:^(id target, id observer, NSDictionary *change){}];
 		expect(identifier).notTo.beNil();
 
 		CFRelease(target);
@@ -68,7 +68,7 @@ it(@"should automatically stop KVO when the observer deallocates", ^{
 		weakObserver = (__bridge id)observer;
 		expect(weakObserver).notTo.beNil();
 
-		identifier = [operation rac_addObserver:(__bridge id)observer forKeyPath:@"isFinished" options:0 queue:nil block:^(id observer, NSDictionary *change){}];
+		identifier = [operation rac_addObserver:(__bridge id)observer forKeyPath:@"isFinished" options:0 block:^(id target, id observer, NSDictionary *change){}];
 		expect(identifier).notTo.beNil();
 
 		CFRelease(observer);
@@ -82,13 +82,13 @@ it(@"should stop KVO when the observer is removed", ^{
 	NSOperationQueue *queue = [[NSOperationQueue alloc] init];
 	__block NSString *name = nil;
 	
-	id identifier = [queue rac_addObserver:self forKeyPath:@"name" options:0 queue:nil block:^(id observer, NSDictionary *change) {
+	RACKVOTrampoline *trampoline = [queue rac_addObserver:self forKeyPath:@"name" options:0 block:^(id target, id observer, NSDictionary *change) {
 		name = queue.name;
 	}];
 	
 	queue.name = @"1";
 	expect(name).to.equal(@"1");
-	[queue rac_removeObserverWithIdentifier:identifier];
+	[trampoline stopObserving];
 	queue.name = @"2";
 	expect(name).to.equal(@"1");
 });
@@ -98,17 +98,17 @@ it(@"should distinguish between observers being removed", ^{
 	__block NSString *name1 = nil;
 	__block NSString *name2 = nil;
 	
-	id identifier1 = [queue rac_addObserver:self forKeyPath:@"name" options:0 queue:nil block:^(id observer, NSDictionary *change) {
+	RACKVOTrampoline *trampoline = [queue rac_addObserver:self forKeyPath:@"name" options:0 block:^(id target, id observer, NSDictionary *change) {
 		name1 = queue.name;
 	}];
-	[queue rac_addObserver:self forKeyPath:@"name" options:0 queue:nil block:^(id observer, NSDictionary *change) {
+	[queue rac_addObserver:self forKeyPath:@"name" options:0 block:^(id target, id observer, NSDictionary *change) {
 		name2 = queue.name;
 	}];
 	
 	queue.name = @"1";
 	expect(name1).to.equal(@"1");
 	expect(name2).to.equal(@"1");
-	[queue rac_removeObserverWithIdentifier:identifier1];
+	[trampoline stopObserving];
 	queue.name = @"2";
 	expect(name1).to.equal(@"1");
 	expect(name2).to.equal(@"2");

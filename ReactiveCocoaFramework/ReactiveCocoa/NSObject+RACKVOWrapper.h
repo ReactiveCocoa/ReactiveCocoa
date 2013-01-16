@@ -8,6 +8,15 @@
 
 #import <Foundation/Foundation.h>
 
+// The block called when the KVO notification fires.
+//
+// target   - The object being observed.
+// observer - The object doing the observing.
+// change   - The KVO change dictionary, as given to
+//            -observeValueForKeyPath:ofObject:change:context:.
+typedef void (^RACKVOBlock)(id target, id observer, NSDictionary *change);
+
+@class RACKVOTrampoline;
 
 @interface NSObject (RACKVOWrapper)
 
@@ -22,23 +31,9 @@
 //
 // options - the key-value observing options
 //
-// queue - the queue in which the callback block should be performed. Passing
-// nil means the block will be performed in whatever queue the observer callback
-// came in on.
-//
 // block - the block called when the value at the key path changes.
 //
-// Returns an identifier that can be used to remove the observer.
-- (id)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options queue:(NSOperationQueue *)queue block:(void (^)(id observer, NSDictionary *change))block;
-
-// Remove the observer represented by the identifier.
-//
-// identifier - the identifier to removed. This should be an object previously
-// returned by a called to -addObserverForKeyPath:options:queue:block:.
-//
-// Returns whether the removal was successful. The only reason for failure would
-// be if the identifier doesn't represent anything currently being observed by
-// the object, or if the identifier is nil.
-- (BOOL)rac_removeObserverWithIdentifier:(id)identifier;
+// Returns the KVO trampoline that can be used to stop the observation.
+- (RACKVOTrampoline *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(RACKVOBlock)block;
 
 @end

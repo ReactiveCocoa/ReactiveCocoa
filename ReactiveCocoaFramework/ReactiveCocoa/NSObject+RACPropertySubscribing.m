@@ -26,9 +26,9 @@ static const void *RACObjectDisposables = &RACObjectDisposables;
 	}]];
 	
 	__unsafe_unretained NSObject *weakObject = object;
-	[object rac_addObserver:onObject forKeyPath:keyPath options:options queue:[NSOperationQueue mainQueue] block:^(id target, NSDictionary *change) {
+	[object rac_addObserver:onObject forKeyPath:keyPath options:options queue:[NSOperationQueue mainQueue] block:^(id target, NSDictionary *changes) {
 		NSObject *strongObject = weakObject;
-		[subject sendNext:options ? [RACPropertyChangeBase propertyChangeForDictionary:change] : [strongObject valueForKeyPath:keyPath]];
+		[subject sendNext:options ? [[RACPropertyChanges alloc] initWithChangeDictionary:changes] : [strongObject valueForKeyPath:keyPath]];
 	}];
 	
 	return subject;

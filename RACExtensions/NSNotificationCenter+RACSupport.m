@@ -7,7 +7,7 @@
 //
 
 #import "NSNotificationCenter+RACSupport.h"
-#import "EXTScope.h"
+#import <ReactiveCocoa/EXTScope.h>
 
 @implementation NSNotificationCenter (RACSupport)
 

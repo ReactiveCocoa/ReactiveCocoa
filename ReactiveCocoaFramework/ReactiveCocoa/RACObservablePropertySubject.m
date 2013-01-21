@@ -16,6 +16,7 @@
 #import "NSObject+RACKVOWrapper.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "EXTScope.h"
+#import "RACKVOTrampoline.h"
 
 // Name of exceptions thrown by RACKVOBinding when an object calls
 // -didChangeValueForKey: without a corresponding -willChangeValueForKey:.
@@ -70,7 +71,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 @property (nonatomic, readonly, strong) RACSubject *exposedSubscriberSubject;
 
 // The identifier of the internal KVO observer.
-@property (nonatomic, readonly, strong) id observer;
+@property (nonatomic, readonly, strong) RACKVOTrampoline *observer;
 
 // Whether the binding has been disposed or not. Should only be accessed while
 // synchronized on self.
@@ -145,7 +146,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 		[binding.target setValue:x forKeyPath:binding.keyPath];
 	}];
 	
-	binding->_observer = [target rac_addObserver:binding forKeyPath:keyPath options:NSKeyValueObservingOptionPrior queue:nil block:^(id observer, NSDictionary *change) {
+	binding->_observer = [target rac_addObserver:binding forKeyPath:keyPath options:NSKeyValueObservingOptionPrior block:^(id target, id observer, NSDictionary *change) {
 		@strongify(binding);
 		if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
 			[binding targetWillChangeValue];
@@ -182,7 +183,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 		self.disposed = YES;
 		[self.exposedSignalSubject sendCompleted];
 		[self.exposedSubscriberSubject sendCompleted];
-		[self.target rac_removeObserverWithIdentifier:self.observer];
+		[self.observer stopObserving];
 	}
 }
 
@@ -227,7 +228,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 	property->_exposedSignal = [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		@strongify(property);
 		[subscriber sendNext:[property.target valueForKeyPath:keyPath]];
-		return [[property.target rac_signalForKeyPath:property.keyPath onObject:property] subscribe:subscriber];
+		return [[property.target rac_signalForKeyPath:property.keyPath observer:property] subscribe:subscriber];
 	}] setNameWithFormat:@"+propertyWithTarget: %@ keyPath: %@", target, keyPath];
 	property->_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
 		@strongify(property);

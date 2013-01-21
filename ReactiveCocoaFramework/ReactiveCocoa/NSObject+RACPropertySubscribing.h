@@ -36,7 +36,7 @@
 #define RACAble(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))(_RACAbleObject(self, __VA_ARGS__))(_RACAbleObject(__VA_ARGS__))
 
 // Do not use this directly. Use RACAble above.
-#define _RACAbleObject(object, property) [object rac_signalForKeyPath:@keypath(object, property) onObject:self]
+#define _RACAbleObject(object, property) [object rac_signalForKeyPath:@keypath(object, property) observer:self]
 
 // Same as RACAble, but the signal also starts with the current value of the
 // property.
@@ -52,10 +52,10 @@
 
 // Creates a signal for observing on the given object the key path of the source
 // object.
-+ (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath onObject:(NSObject *)onObject;
++ (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer;
 
 // Creates a value from observing the value at the given keypath.
-- (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath onObject:(NSObject *)object;
+- (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath observer:(NSObject *)observer;
 
 // Keeps the value of the KVC-compliant keypath up-to-date with the latest value
 // sent by the signal.

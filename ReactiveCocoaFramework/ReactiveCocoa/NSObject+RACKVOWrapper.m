@@ -168,7 +168,12 @@ static NSMutableSet *swizzledClasses() {
 			originalDealloc(self, deallocSelector);
 		};
 
-		class_replaceMethod(classToSwizzle, deallocSelector, imp_implementationWithBlock(newDealloc), "v@:");
+		Method deallocMethod = class_getInstanceMethod(classToSwizzle, deallocSelector);
+		class_replaceMethod(classToSwizzle,
+			deallocSelector,
+			imp_implementationWithBlock(newDealloc),
+			method_getTypeEncoding(deallocMethod));
+
 		[swizzledClasses() addObject:className];
 	};
 

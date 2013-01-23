@@ -32,7 +32,9 @@ static NSMutableSet *swizzledClasses() {
 		if ([swizzledClasses() containsObject:className]) return;
 
 		SEL deallocSelector = sel_registerName("dealloc");
-		void (*originalDealloc)(id, SEL) = (__typeof__(originalDealloc))class_getMethodImplementation(classToSwizzle, deallocSelector);
+
+		Method deallocMethod = class_getInstanceMethod(classToSwizzle, deallocSelector);
+		void (*originalDealloc)(id, SEL) = (__typeof__(originalDealloc))method_getImplementation(deallocMethod);
 
 		id newDealloc = ^(__unsafe_unretained NSObject *self) {
 			NSSet *trampolines;
@@ -48,11 +50,7 @@ static NSMutableSet *swizzledClasses() {
 			originalDealloc(self, deallocSelector);
 		};
 
-		Method deallocMethod = class_getInstanceMethod(classToSwizzle, deallocSelector);
-		class_replaceMethod(classToSwizzle,
-			deallocSelector,
-			imp_implementationWithBlock(newDealloc),
-			method_getTypeEncoding(deallocMethod));
+		class_replaceMethod(classToSwizzle, deallocSelector, imp_implementationWithBlock(newDealloc), method_getTypeEncoding(deallocMethod));
 
 		[swizzledClasses() addObject:className];
 	};

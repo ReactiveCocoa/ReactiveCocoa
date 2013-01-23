@@ -44,7 +44,10 @@ static NSMutableSet *swizzledClasses() {
 				self.RACKVOTrampolines = nil;
 			}
 
-			// If we're currently delivering a KVO callback then niling the trampoline set might not dealloc the trampoline and therefore make them be dealloc'd. So we need to manually stop observing on all of them as well.
+			// If we're currently delivering a KVO callback then niling
+			// the trampoline set might not dealloc the trampoline and
+			// therefore make them be dealloc'd. So we need to manually
+			// stop observing on all of them as well.
 			[trampolines makeObjectsPerformSelector:@selector(stopObserving)];
 
 			originalDealloc(self, deallocSelector);

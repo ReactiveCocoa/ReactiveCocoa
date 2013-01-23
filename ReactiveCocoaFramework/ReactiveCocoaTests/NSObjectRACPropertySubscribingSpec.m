@@ -97,6 +97,31 @@ describe(@"+rac_signalFor:keyPath:onObject:", ^{
 		expect(scopeObjectDealloced).to.beTruthy();
 	});
 
+	it(@"shouldn't keep the signal alive past the lifetime of the object", ^{
+		__block BOOL objectDealloced = NO;
+		__block BOOL signalDealloced = NO;
+		@autoreleasepool {
+			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
+			[object rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				objectDealloced = YES;
+			}]];
+
+			RACSignal *signal = [[object.class rac_signalFor:object keyPath:@keypath(object, objectValue) observer:self] map:^(id value) {
+				return value;
+			}];
+			[signal rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				signalDealloced = YES;
+			}]];
+			
+			[signal subscribeNext:^(id _) {
+
+			}];
+		}
+
+		expect(signalDealloced).will.beTruthy();
+		expect(objectDealloced).to.beTruthy();
+	});
+
 	it(@"shouldn't crash when the value is changed on a different queue", ^{
 		__block id value;
 		@autoreleasepool {

@@ -26,10 +26,18 @@ static const void *RACObjectDisposables = &RACObjectDisposables;
 		RACKVOTrampoline *KVOTrampoline = [object rac_addObserver:observer forKeyPath:keyPath options:0 block:^(id target, id observer, NSDictionary *change) {
 			[subscriber sendNext:[target valueForKeyPath:keyPath]];
 		}];
-		
-		return [RACDisposable disposableWithBlock:^{
+
+		RACDisposable *KVODisposable = [RACDisposable disposableWithBlock:^{
 			[KVOTrampoline stopObserving];
 		}];
+		RACDisposable *deallocDisposable = [RACDisposable disposableWithBlock:^{
+			[KVODisposable dispose];
+			[subscriber sendCompleted];
+		}];
+		[observer rac_addDeallocDisposable:deallocDisposable];
+		[object rac_addDeallocDisposable:deallocDisposable];
+		
+		return KVODisposable;
 	}] setNameWithFormat:@"RACAble(%@, %@)", object, keyPath];
 }
 

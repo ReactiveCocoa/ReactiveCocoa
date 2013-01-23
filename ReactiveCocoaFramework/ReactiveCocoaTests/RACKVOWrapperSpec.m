@@ -58,8 +58,13 @@ it(@"automatically stops KVO on subclasses when the target deallocates", ^{
 		expect(identifier).to.beNil();
 	};
 
-	testKVOOnSubclass(NSOperation.class);
-	testKVOOnSubclass(RACTestOperation.class);
+	it (@"stops KVO on NSObject subclasses ", ^{
+		testKVOOnSubclass(NSOperation.class);
+	});
+
+	it(@"stops KVO on subclasses of NSObject subclasses", ^{
+		testKVOOnSubclass(RACTestOperation.class);
+	});
 });
 
 it(@"should automatically stop KVO when the observer deallocates", ^{

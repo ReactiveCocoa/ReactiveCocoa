@@ -97,7 +97,7 @@ describe(@"+rac_signalFor:keyPath:onObject:", ^{
 		expect(scopeObjectDealloced).to.beTruthy();
 	});
 
-	it(@"shouldn't keep the signal alive past the liftime of the object", ^{
+	it(@"shouldn't keep the signal alive past the lifetime of the object", ^{
 		__block BOOL objectDealloced = NO;
 		__block BOOL signalDealloced = NO;
 		@autoreleasepool {

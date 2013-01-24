@@ -26,28 +26,35 @@ static NSMutableSet *swizzledClasses() {
 
 @implementation NSObject (RACKVOWrapper)
 
-- (void)rac_customDealloc {
-	NSSet *trampolines;
-	
-	@synchronized (self) {
-		trampolines = [self.RACKVOTrampolines copy];
-		self.RACKVOTrampolines = nil;
-	}
-
-	// If we're currently delivering a KVO callback then niling the trampoline
-	// set might not dealloc the trampoline and therefore make them be
-	// dealloc'd. So we need to manually stop observing on all of them as well.
-	[trampolines makeObjectsPerformSelector:@selector(stopObserving)];
-
-	[self rac_customDealloc];
-}
-
 - (RACKVOTrampoline *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(RACKVOBlock)block {
 	void (^swizzle)(Class) = ^(Class classToSwizzle){
 		NSString *className = NSStringFromClass(classToSwizzle);
 		if ([swizzledClasses() containsObject:className]) return;
 
-		RACSwizzle(classToSwizzle, NSSelectorFromString(@"dealloc"), @selector(rac_customDealloc));
+		SEL deallocSelector = sel_registerName("dealloc");
+
+		Method deallocMethod = class_getInstanceMethod(classToSwizzle, deallocSelector);
+		void (*originalDealloc)(id, SEL) = (__typeof__(originalDealloc))method_getImplementation(deallocMethod);
+
+		id newDealloc = ^(__unsafe_unretained NSObject *self) {
+			NSSet *trampolines;
+
+			@synchronized (self) {
+				trampolines = [self.RACKVOTrampolines copy];
+				self.RACKVOTrampolines = nil;
+			}
+
+			// If we're currently delivering a KVO callback then niling
+			// the trampoline set might not dealloc the trampoline and
+			// therefore make them be dealloc'd. So we need to manually
+			// stop observing on all of them as well.
+			[trampolines makeObjectsPerformSelector:@selector(stopObserving)];
+
+			originalDealloc(self, deallocSelector);
+		};
+
+		class_replaceMethod(classToSwizzle, deallocSelector, imp_implementationWithBlock(newDealloc), method_getTypeEncoding(deallocMethod));
+
 		[swizzledClasses() addObject:className];
 	};
 

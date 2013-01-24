@@ -9,6 +9,9 @@
 #import "NSObject+RACKVOWrapper.h"
 #import "RACKVOTrampoline.h"
 
+@interface RACTestOperation : NSOperation
+@end
+
 SpecBegin(RACKVOWrapper)
 
 it(@"should add and remove an observer", ^{
@@ -32,26 +35,36 @@ it(@"should add and remove an observer", ^{
 	expect(notified).will.beTruthy();
 });
 
-it(@"should automatically stop KVO when the target deallocates", ^{
-	__weak id weakTarget = nil;
-	__weak id identifier = nil;
+it(@"automatically stops KVO on subclasses when the target deallocates", ^{
+	void (^testKVOOnSubclass)(Class targetClass) = ^(Class targetClass) {
+		__weak id weakTarget = nil;
+		__weak id identifier = nil;
 
-	@autoreleasepool {
-		// Create an observable target that we control the memory management of.
-		CFTypeRef target = CFBridgingRetain([[NSOperation alloc] init]);
-		expect(target).notTo.beNil();
+		@autoreleasepool {
+			// Create an observable target that we control the memory management of.
+			CFTypeRef target = CFBridgingRetain([[targetClass alloc] init]);
+			expect(target).notTo.beNil();
 
-		weakTarget = (__bridge id)target;
-		expect(weakTarget).notTo.beNil();
+			weakTarget = (__bridge id)target;
+			expect(weakTarget).notTo.beNil();
 
-		identifier = [(__bridge id)target rac_addObserver:self forKeyPath:@"isFinished" options:0 block:^(id target, id observer, NSDictionary *change){}];
-		expect(identifier).notTo.beNil();
+			identifier = [(__bridge id)target rac_addObserver:self forKeyPath:@"isFinished" options:0 block:^(id target, id observer, NSDictionary *change){}];
+			expect(identifier).notTo.beNil();
 
-		CFRelease(target);
-	}
+			CFRelease(target);
+		}
 
-	expect(weakTarget).to.beNil();
-	expect(identifier).to.beNil();
+		expect(weakTarget).to.beNil();
+		expect(identifier).to.beNil();
+	};
+
+	it (@"stops KVO on NSObject subclasses", ^{
+		testKVOOnSubclass(NSOperation.class);
+	});
+
+	it(@"stops KVO on subclasses of already-swizzled classes", ^{
+		testKVOOnSubclass(RACTestOperation.class);
+	});
 });
 
 it(@"should automatically stop KVO when the observer deallocates", ^{
@@ -115,3 +128,6 @@ it(@"should distinguish between observers being removed", ^{
 });
 
 SpecEnd
+
+@implementation RACTestOperation
+@end

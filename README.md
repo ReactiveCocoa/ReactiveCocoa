@@ -175,7 +175,7 @@ ReactiveCocoa is available under the MIT License.
 ## More Info
 ReactiveCocoa is based on .NET's [Reactive Extensions][] (Rx). Most of the principles of Rx apply to RAC as well. There are some really good Rx resources out there:
 
-* [Reactive Extensions MSDN entry](http://msdn.microsoft.com/en-us/library/hh242985(v=vs.103).aspx)
+* [Reactive Extensions MSDN entry](http://msdn.microsoft.com/en-us/library/hh242985.aspx)
 * [Reactive Extensions for .NET Introduction](http://leecampbell.blogspot.com/2010/08/reactive-extensions-for-net.html)
 * [Rx - Channel 9 videos](http://channel9.msdn.com/tags/Rx/)
 * [Reactive Extensions wiki](http://rxwiki.wikidot.com/)

@@ -29,7 +29,7 @@ ReactiveCocoa (RAC) provides `RACSignal`, which represents the signal concept fr
 
 Applications that are built with RAC use signals to propagate change. It works much like KVO, but using blocks instead of overriding `-observeValueForKeyPath:ofObject:change:context:`. Here's a simple example:
 ```objc
-// When self.username changes, log the new name to the console
+// When self.username changes, log the new name to the console.
 // RACAble(self.username) creates a new RACSignal that sends
 // a new value whenever the username changes.
 [RACAble(self.username) subscribeNext:^(NSString *newName) {
@@ -39,7 +39,7 @@ Applications that are built with RAC use signals to propagate change. It works m
 
 But unlike KVO notifications, signals can be chained together and operated on:
 ```objc
-// Only log names that start with "j"
+// Only log names that start with "j".
 // -filter returns a new RACSignal that only sends a new
 // value when its block returns YES.
 [[RACAble(self.username)
@@ -56,7 +56,8 @@ Unlike KVO, Signals aren't limited to notifications that a property has changed.
 // Log a message whenever the button is pressed.
 // RACCommand is a RACSignal subclass that makes it easy to
 // write custom signals. -rac_command is an addition to
-// NSButton that will send the button whenever it's pressed.
+// NSButton; the button will send itself on that command 
+// whenever it's pressed.
 self.button.rac_command = [RACCommand command];
 [self.button.rac_command subscribeNext:^(id _) {
     NSLog(@"button was pressed!");
@@ -68,11 +69,11 @@ Or asynchronous network operations:
 // Hook up a "Log in" button to log in over the network and
 // log a message when it was successful.
 // self.loginCommand does the actual work of logging in.
-// self.loginResult sends a value whenever the async work is done
+// self.loginResult sends a value whenever the async work is done.
 self.loginCommand = [RACAsyncCommand command];
 self.loginResult  = [[[self.loginCommand 
     addAsyncBlock:^(id _) {
-        // returns YES when logging in was successfully
+        // returns YES when logging in was successful
         return [client login];
     }]
     asMaybes] // Wrap up errors so they don't close the signal

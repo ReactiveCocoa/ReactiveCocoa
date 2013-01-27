@@ -71,16 +71,19 @@ Or asynchronous network operations:
 // self.loginCommand does the actual work of logging in.
 // self.loginResult sends a value whenever the async work is done.
 self.loginCommand = [RACAsyncCommand command];
-self.loginResult  = [[[self.loginCommand 
-    addAsyncBlock:^(id _) {
-        // returns YES when logging in was successful
-        return [client login];
-    }]
-    asMaybes] // Wrap up errors so they don't close the signal
-    repeat];  // Continue listening to the loginCommand after failures
+self.loginResult  = [self.loginCommand sequenceMany:^{
+    // -login returns a signal that sends a value when the network request finishes.
+    // -materialize wraps up values, completions, and errors in RACEvents so errors won't
+    // close the login result signal.
+    // This block will execute whenever the login command sends a value. -sequenceMany: will
+    // return a signal that represents the combination of all the signals returned from this
+    // block. In this case, the login result will send a value whenever a login attempt sends
+    // a value, completes, or errors out.
+    return [[client login] materialize];
+}];
 [[self.loginResult 
-    // Filter out failed login attempts
-    filter:^(id x) { return [x hasObject]; }]
+    // Filter out everything but successful logins
+    filter:^(RACEvent *x) { return x.eventType == RACEventTypeCompleted; }]
     subscribeNext:^(id _) {
         NSLog(@"Logged in successfully!");
     }];

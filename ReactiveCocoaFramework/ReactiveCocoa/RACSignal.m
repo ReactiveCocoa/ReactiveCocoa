@@ -319,7 +319,7 @@ static NSMutableSet *activeSignals() {
 					if ([completedBySignal containsIndex:i]) {
 						[subscriber sendCompleted];
 					}
-					return;
+					continue;
 				}
 			}
 		};

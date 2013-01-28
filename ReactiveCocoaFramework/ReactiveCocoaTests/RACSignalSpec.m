@@ -1840,6 +1840,11 @@ describe(@"+zip:reduce:", ^{
 		expect(hasSentCompleted).to.beTruthy();
 	});
 	
+    it(@"outcome should not be dependent on order of signals", ^{
+        [subject2 sendCompleted];
+        expect(hasSentCompleted).to.beTruthy();
+    });
+    
 	it(@"should forward errors sent earlier than (time-wise) and before (position-wise) a complete", ^{
 		send2NextAndErrorTo1();
 		send3NextAndCompletedTo2();

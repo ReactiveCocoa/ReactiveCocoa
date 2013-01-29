@@ -19,15 +19,15 @@ Signals can also represent asynchronous operations, much like [futures and promi
 
 One of the major advantages of FRP is that it provides a single, unified approach to dealing with different types of reactive, asynchronous behaviors.
 
-Resources for learning more about FRP:
+Here are some resources for learning more about FRP:
 
 * [What is FRP? - Elm Language](http://elm-lang.org/learn/What-is-FRP.elm)
 * [What is Functional Reactive Programming - Stack Overflow](http://stackoverflow.com/questions/1028250/what-is-functional-reactive-programming/1030631#1030631)
 
 ## FRP with ReactiveCocoa
-ReactiveCocoa (RAC) provides `RACSignal`, which represents the signal concept from Functional Reactive Programming that was introduced above. Signals are streams of values that can be observed.
+Signals in ReactiveCocoa (RAC) are represented using `RACSignal`. Signals are streams of values that can be observed and transformed.
 
-Applications that are built with RAC use signals to propagate change. It works much like KVO, but using blocks instead of overriding `-observeValueForKeyPath:ofObject:change:context:`. Here's a simple example:
+Applications that are built with RAC use signals to propagate changes. It works much like KVO, but with blocks instead of overriding `-observeValueForKeyPath:ofObject:change:context:`. Here's a simple example:
 ```objc
 // When self.username changes, log the new name to the console.
 // RACAble(self.username) creates a new RACSignal that sends
@@ -51,7 +51,7 @@ But unlike KVO notifications, signals can be chained together and operated on:
   }];
 ```
 
-Unlike KVO, Signals aren't limited to notifications that a property has changed. They can represent button presses:
+Signals can be built on any stream of values over time, not just KVO. For example, they can also represent button presses:
 ```objc
 // Log a message whenever the button is pressed.
 // RACCommand is a RACSignal subclass that makes it easy to
@@ -177,7 +177,7 @@ You can find them in [RACExtensions][]. To use them, simply add them directly to
 ReactiveCocoa is available under the MIT License.
 
 ## More Info
-ReactiveCocoa is based on .NET's [Reactive Extensions][] (Rx). Most of the principles of Rx apply to RAC as well. There are some really good Rx resources out there:
+ReactiveCocoa is based on .NET's [Reactive Extensions](http://msdn.microsoft.com/en-us/data/gg577609) (Rx). Most of the principles of Rx apply to RAC as well. There are some really good Rx resources out there:
 
 * [Reactive Extensions MSDN entry](http://msdn.microsoft.com/en-us/library/hh242985.aspx)
 * [Reactive Extensions for .NET Introduction](http://leecampbell.blogspot.com/2010/08/reactive-extensions-for-net.html)
@@ -186,4 +186,3 @@ ReactiveCocoa is based on .NET's [Reactive Extensions][] (Rx). Most of the princ
 * [101 Rx Samples](http://rxwiki.wikidot.com/101samples)
 * [Programming Reactive Extensions and LINQ](http://www.amazon.com/Programming-Reactive-Extensions-Jesse-Liberty/dp/1430237473)
 
-[Reactive Extensions]: http://msdn.microsoft.com/en-us/data/gg577609

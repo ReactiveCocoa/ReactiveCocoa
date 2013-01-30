@@ -7,7 +7,7 @@ Check out the [announcement blog post](https://github.com/blog/1107-reactivecoco
 ## Getting Started
 RAC uses some submodules. Once you've cloned the repository, be sure to run `git submodule update --recursive --init` to pull them all down.
 
-Then checkout the [Mac](https://github.com/github/ReactiveCocoa/tree/master/GHAPIDemo) or [iOS](https://github.com/github/ReactiveCocoa/tree/master/RACiOSDemo) demos.
+Then checkout the [Mac](https://github.com/ReactiveCocoa/ReactiveCocoa/tree/master/GHAPIDemo) or [iOS](https://github.com/ReactiveCocoa/ReactiveCocoa/tree/master/RACiOSDemo) demos.
 
 ## Examples
 Observe changes to properties:
@@ -78,7 +78,7 @@ RAC(self.imageView.image) = [[[[client
 ## Foundation Support
 There are a number of categories that provide RAC-based bridges to standard Foundation classes. They're not included as part of the framework proper in order to keep the framework size down.
 
-You can find them in [RACExtensions](https://github.com/github/ReactiveCocoa/tree/master/RACExtensions). To use them, simply add them directly to your project as needed.
+You can find them in [RACExtensions](https://github.com/ReactiveCocoa/ReactiveCocoa/tree/master/RACExtensions). To use them, simply add them directly to your project as needed.
 
 ## License
 MIT License

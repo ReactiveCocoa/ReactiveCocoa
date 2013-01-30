@@ -7,7 +7,8 @@ Check out the [announcement blog post](https://github.com/blog/1107-reactivecoco
 ## Getting Started
 RAC uses some submodules. Once you've cloned the repository, be sure to run `git submodule update --recursive --init` to pull them all down.
 
-Then checkout the [Mac](https://github.com/ReactiveCocoa/ReactiveCocoa/tree/master/GHAPIDemo) or [iOS](https://github.com/ReactiveCocoa/ReactiveCocoa/tree/master/RACiOSDemo) demos.
+Then checkout the [Mac](https://github.com/ReactiveCocoa/GHAPIDemo) or
+[iOS](https://github.com/ReactiveCocoa/RACiOSDemo) demos.
 
 ## Examples
 Observe changes to properties:

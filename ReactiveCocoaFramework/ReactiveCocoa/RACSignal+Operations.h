@@ -156,6 +156,10 @@ extern const NSInteger RACSignalErrorTimedOut;
 // Sending an error on the signal is considered undefined behavior, and will
 // generate an assertion failure in Debug builds.
 //
+// A given object property should only have one active signal bound to it at any
+// given time. Binding more than one signal to the same property is considered
+// undefined behavior.
+//
 // keyPath - The key path to update with `next`s from the receiver.
 // object  - The object that `keyPath` is relative to.
 //

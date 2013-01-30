@@ -76,7 +76,7 @@
 
 - (RACDisposable *)bindTo:(RACBinding *)binding {
 	RACDisposable *bindingDisposable = [binding subscribe:self];
-	RACDisposable *selfDisposable = [self subscribe:binding];
+	RACDisposable *selfDisposable = [[self skip:1] subscribe:binding];
 	return [RACDisposable disposableWithBlock:^{
 		[bindingDisposable dispose];
 		[selfDisposable dispose];

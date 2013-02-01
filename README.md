@@ -32,6 +32,8 @@ Applications that are built with RAC use signals to propagate changes. It works 
 // When self.username changes, log the new name to the console.
 // RACAble(self.username) creates a new RACSignal that sends
 // a new value whenever the username changes.
+// -subscribeNext: will execute the block whenever the signal
+// sends a value.
 [RACAble(self.username) subscribeNext:^(NSString *newName) {
     NSLog(@"%@", newName);
 }];
@@ -44,11 +46,28 @@ But unlike KVO notifications, signals can be chained together and operated on:
 // value when its block returns YES.
 [[RACAble(self.username)
   filter:^(NSString *newName) {
-      return [newUsername hasPrefix:@"j"];
+      return [newName hasPrefix:@"j"];
   }]
   subscribeNext:^(NSString *newName) {
       NSLog(@"%@", newName);
   }];
+```
+
+Signals can also be used to derived state, which is a key component of FRP. Instead of observing properties and setting other properties in response to the new values, RAC makes it possible to express properties in terms of signals and operations:
+```objc
+// Create a one-way binding so that self.createEnabled will be
+// true whenever self.password and self.passwordConfirmation
+// are equal.
+// RAC() is a macro that makes the binding look nicer.
+// +combineLatest:reduce: takes an array of signals, executes
+// the block with the latest value from each signal whenever any
+// of them changes, and returns a new RACSignal that sends the
+// return value of that block as values.
+RAC(self.createEnabled) = [RACSignal 
+    combineLatest:@[ RACAble(self.password), RACAble(self.passwordConfirmation) ] 
+    reduce:^(NSString *password, NSString *passwordConfirm) {
+        return @([passwordConfirm isEqualToString:password]);
+    }];
 ```
 
 Signals can be built on any stream of values over time, not just KVO. For example, they can also represent button presses:
@@ -93,45 +112,15 @@ self.loginButton.rac_command = self.loginCommand;
 
 Or UI events, timers, or anything else that changes over time.
 
-That demonstrates some of what RAC can do, but it doesn't demonstrate why RAC is so powerful. It's hard to appreciate RAC from README-sized examples, but it makes it possible to write code with less state, less boilerplate, better code locality, and better expression of intent.
-
-For more information, check out the other examples below or the [Mac][GHAPIDemo] or [iOS][RACiOSDemo] demos.
-
-[GHAPIDemo]: https://github.com/github/ReactiveCocoa/tree/master/GHAPIDemo
-[RACiOSDemo]: https://github.com/github/ReactiveCocoa/tree/master/RACiOSDemo
-
-## Examples
-Observe changes to properties:
+Using signals for asynchronous operations makes it possible to build up more complex behavior by chaining and transforming those signals. Work can easily be trigged after a group of operations completes:
 ```objc
-[RACAble(self.username) subscribeNext:^(NSString *newName) {
-    NSLog(@"%@", newName);
-}];
-```
-
-Filter changes:
-```objc
-[[[[RACAble(self.username) 
-    distinctUntilChanged] 
-    take:3] 
-    filter:^(NSString *newUsername) {
-        return [newUsername isEqualToString:@"joshaber"];
-    }] 
-    subscribeNext:^(id _) {
-        NSLog(@"Hi me!");
-    }];
-```
-
-Derive properties:
-```objc
-RAC(self.createEnabled) = [RACSignal 
-    combineLatest:@[ RACAble(self.password), RACAble(self.passwordConfirmation) ] 
-    reduce:^(NSString *password, NSString *passwordConfirm) {
-        return @([passwordConfirm isEqualToString:password]);
-    }];
-```
-
-Chain asynchronous calls:
-```objc
+// Perform 2 network operations and log a message to the console
+// when they are both completed.
+// +merge: takes an array of signals and returns a new RACSignal
+// that passes through the values of all of the signals and
+// completes when all of the signals complete.
+// -subscribeCompleted: will execute the block when the signal
+// completes.
 [[RACSignal 
     merge:@[ [client fetchUserRepos], [client fetchOrgRepos] ]] 
     subscribeCompleted:^{
@@ -139,13 +128,23 @@ Chain asynchronous calls:
     }];
 ```
 
+Signals can be chained to sequentially execute asynchronous operations, instead of nesting callbacks with blocks. (This usage of signals is similar to futures and promises.)
 ```objc
+// Login the user, then load any cached messages, then fetch the
+// remaining messages from the server. After that's all done,
+// log a message to the console.
+// -loginUser returns a signal that completes after logging in.
+// -flattenMap: will execute its block whenever the signal sends
+// a value and return a new RACSignal that merges all of the 
+// signals returned from the block into a single signal.
 [[[[client 
     loginUser] 
     flattenMap:^(User *user) {
+        // Return a signal that loads cached messages for the user
         return [client loadCachedMessagesForUser:user];
     }]
     flattenMap:^(NSArray *messages) {
+				// Return a signal that fetches any remaining messages
         return [client fetchMessagesAfterMessage:messages.lastObject];
     }]
     subscribeCompleted:^{
@@ -153,25 +152,40 @@ Chain asynchronous calls:
     }];
 ```
 
-Easily move between different queues:
+RAC even makes it easy to bind to the result of an asynchronous operation.
 ```objc
+// Create a one-way binding so that self.imageView.image
+// will be set the user's avatar as soon as it's downloaded.
+// -fetchUserWithUsername: returns a signal that fetches the user.
+// -deliverOn: creates new signals that will do their work on other
+// queues. In this, it's used to move work to a background queue and
+// then back to the main thread.
+// -map: calls its block with each user that's fetched and returns
+// a new RACSignal that sends values returned from the block.
 RAC(self.imageView.image) = [[[[client 
-    fetchUserWithUsername:@"joshaber"] 
+    fetchUserWithUsername:@"joshaber"]
     deliverOn:[RACScheduler scheduler]]
     map:^(User *user) {
-        // This is on a background queue.
+        // Download the avatar (this is done on a background queue).
         return [[NSImage alloc] initWithContentsOfURL:user.avatarURL];
     }]
     // Now the assignment will be done on the main thread.
     deliverOn:RACScheduler.mainThreadScheduler]
 ```
 
+That demonstrates some of what RAC can do, but it doesn't demonstrate why RAC is so powerful. It's hard to appreciate RAC from README-sized examples, but it makes it possible to write code with less state, less boilerplate, better code locality, and better expression of intent.
+
+For more information, check out the [Mac][GHAPIDemo] or [iOS][RACiOSDemo] demos.
+
+[GHAPIDemo]:  https://github.com/ReactiveCocoa/GHAPIDemo
+[RACiOSDemo]: https://github.com/ReactiveCocoa/RACiOSDemo
+
 ## Foundation Support
 There are a number of categories that provide RAC-based bridges to standard Foundation classes. They're not included as part of the framework proper in order to keep the framework size down.
 
 You can find them in [RACExtensions][]. To use them, simply add them directly to your project as needed.
 
-[RACExtensions]: https://github.com/github/ReactiveCocoa/tree/master/RACExtensions
+[RACExtensions]: https://github.com/ReactiveCocoa/ReactiveCocoa/tree/master/RACExtensions
 
 ## License
 ReactiveCocoa is available under the MIT License.

@@ -102,4 +102,20 @@ it(@"should send on signalBlockSignal", ^{
 	expect(gotNext).to.beTruthy();
 });
 
+it(@"should be executing until the returned signal completes", ^{
+	RACSubject *subject = [RACSubject subject];
+	RACSignalCommand *command = [RACSignalCommand commandWithSignalBlock:^(id sender) {
+		return subject;
+	}];
+
+	expect([command execute:nil]).to.beTruthy();
+	expect(command.executing).to.beTruthy();
+
+	[subject sendNext:RACUnit.defaultUnit];
+	expect(command.executing).to.beTruthy();
+
+	[subject sendCompleted];
+	expect(command.executing).to.beFalsy();
+});
+
 SpecEnd

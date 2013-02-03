@@ -87,4 +87,19 @@ it(@"should forward errors from the returned signal", ^{
 	expect(command.canExecute).to.beTruthy();
 });
 
+it(@"should send on signalBlockSignal", ^{
+	RACSignalCommand *command = [RACSignalCommand commandWithSignalBlock:^(id sender) {
+		return [RACSignal empty];
+	}];
+
+	__block BOOL gotNext = NO;
+	[command.signalBlockSignal subscribeNext:^(RACSignal *signal) {
+		expect(signal).to.beKindOf(RACSignal.class);
+		gotNext = YES;
+	}];
+
+	expect([command execute:nil]).to.beTruthy();
+	expect(gotNext).to.beTruthy();
+});
+
 SpecEnd

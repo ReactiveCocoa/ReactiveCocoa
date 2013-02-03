@@ -40,7 +40,7 @@
 	return self;
 }
 
-- (id)initWithCanExecuteSignal:(RACSignal *)canExecuteSignal signalBlock:(RACSignal * (^)(id sender))signalBlock {
+- (id)initWithCanExecuteSignal:(RACSignal *)canExecuteSignal block:(void (^)(id sender))block {
 	canExecuteSignal = (canExecuteSignal == nil ? [RACSignal return:@YES] : [canExecuteSignal startWith:@YES]);
 
 	RACSignal *combinedCanExecuteSignal = [RACSignal combineLatest:@[
@@ -50,7 +50,11 @@
 		return @(!executing.boolValue && canExecute.boolValue);
 	}];
 
-	self = [self initWithCanExecuteSignal:combinedCanExecuteSignal block:nil];
+	return [super initWithCanExecuteSignal:combinedCanExecuteSignal block:block];
+}
+
+- (id)initWithCanExecuteSignal:(RACSignal *)canExecuteSignal signalBlock:(RACSignal * (^)(id sender))signalBlock {
+	self = [self initWithCanExecuteSignal:canExecuteSignal block:nil];
 	if (self == nil) return nil;
 
 	_signalBlock = [signalBlock copy];

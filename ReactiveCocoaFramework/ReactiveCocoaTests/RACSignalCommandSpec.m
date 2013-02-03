@@ -7,6 +7,7 @@
 //
 
 #import "RACSignalCommand.h"
+#import "RACSignal+Operations.h"
 #import "RACCommandExamples.h"
 
 SpecBegin(RACSignalCommand)
@@ -33,6 +34,16 @@ describe(@"without a signal block", ^{
 		expect([command execute:nil]).to.beTruthy();
 		expect(command.executing).to.beFalsy();
 		expect(command.canExecute).to.beTruthy();
+	});
+
+	it(@"should not send on signalBlockSignal", ^{
+		__block BOOL gotEvent = NO;
+		[[command.signalBlockSignal materialize] subscribeNext:^(id x) {
+			gotEvent = YES;
+		}];
+
+		expect([command execute:nil]).to.beTruthy();
+		expect(gotEvent).to.beFalsy();
 	});
 });
 

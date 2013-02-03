@@ -6,4 +6,11 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#include <stdio.h>
+#import "RACSignalCommand.h"
+#import "RACCommandExamples.h"
+
+SpecBegin(RACSignalCommand)
+
+itShouldBehaveLike(RACCommandExamples, @{ RACCommandExamplesClass: RACSignalCommand.class });
+
+SpecEnd

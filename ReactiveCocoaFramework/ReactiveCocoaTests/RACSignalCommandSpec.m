@@ -6,9 +6,11 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import "RACCommandExamples.h"
+
 #import "RACSignalCommand.h"
 #import "RACSignal+Operations.h"
-#import "RACCommandExamples.h"
+#import "RACUnit.h"
 
 SpecBegin(RACSignalCommand)
 
@@ -45,6 +47,44 @@ describe(@"without a signal block", ^{
 		expect([command execute:nil]).to.beTruthy();
 		expect(gotEvent).to.beFalsy();
 	});
+});
+
+it(@"should forward nexts from the returned signal", ^{
+	RACSignalCommand *command = [RACSignalCommand commandWithSignalBlock:^(id sender) {
+		return [[RACSignal return:sender] concat:[RACSignal return:RACUnit.defaultUnit]];
+	}];
+
+	NSMutableArray *valuesReceived = [NSMutableArray array];
+	[command subscribeNext:^(id x) {
+		[valuesReceived addObject:x ?: NSNull.null];
+	}];
+
+	expect([command execute:nil]).to.beTruthy();
+
+	NSArray *expected = @[ NSNull.null, RACUnit.defaultUnit ];
+	expect(valuesReceived).to.equal(expected);
+
+	expect([command execute:@"foobar"]).to.beTruthy();
+
+	expected = @[ NSNull.null, RACUnit.defaultUnit, @"foobar", RACUnit.defaultUnit ];
+	expect(valuesReceived).to.equal(expected);
+});
+
+it(@"should forward errors from the returned signal", ^{
+	RACSignalCommand *command = [RACSignalCommand commandWithSignalBlock:^(id sender) {
+		return [RACSignal error:nil];
+	}];
+
+	__block BOOL gotError = NO;
+	[command subscribeError:^(NSError *error) {
+		gotError = YES;
+	}];
+
+	expect([command execute:nil]).to.beTruthy();
+	expect(gotError).to.beTruthy();
+
+	// The command should still be able to execute again.
+	expect(command.canExecute).to.beTruthy();
 });
 
 SpecEnd

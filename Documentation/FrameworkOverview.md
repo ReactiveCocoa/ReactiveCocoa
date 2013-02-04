@@ -87,7 +87,7 @@ a [stream](#streams):
    a stream for those times when more meaningful data doesn't exist.
  * **[RACEvent][]** represents any [signal event](#signals) as a single value.
    It is primarily used by the `-materialize` method of
-   [RACSignal][RACSignal+Operations).
+   [RACSignal][RACSignal+Operations].
 
 ## Schedulers
 

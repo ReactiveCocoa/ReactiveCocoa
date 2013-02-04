@@ -351,6 +351,50 @@ RAC(self.value) = bookkeepingSignal;
 ```
 
 ### Share the side effects of a signal by multicasting
+
+[Side effects occur for each
+subscription](#side-effects-occur-for-each-subscription) by default, but there
+are certain situations where side effects should only occur once – for example,
+a network request typically should not be repeated when a new subscriber is
+added.
+
+The `-publish` and `-multicast:` operators of [RACSignal][RACSignal+Operations]
+allow a single subscription to be shared to any number of subscribers using
+a [RACMulticastConnection][]:
+
+```objc
+// This signal starts a new request on each subscription.
+RACSignal *networkRequest = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+    AFHTTPRequestOperation *operation = [client
+        HTTPRequestOperationWithRequest:request
+        success:^(AFHTTPRequestOperation *operation, id response) {
+            [subscriber sendNext:response];
+            [subscriber sendCompleted];
+        }
+        failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+            [subscriber sendError:error];
+        }];
+
+    [client enqueueHTTPRequestOperation:operation];
+    return [RACDisposable disposableWithBlock:^{
+        [operation cancel];
+    }];
+}];
+
+// Starts a single request, no matter how many subscriptions `connection.signal`
+// gets. This is equivalent to the -replay operator.
+RACMulticastConnection *connection = [networkRequest multicast:[RACReplaySubject subject]];
+[connection connect];
+
+[connection.signal subscribeNext:^(id response) {
+    NSLog(@"subscriber one: %@", response);
+}];
+
+[connection.signal subscribeNext:^(id response) {
+    NSLog(@"subscriber two: %@", response);
+}];
+```
+
 ### Debug streams by giving them names
 
 ## Implementing new operators
@@ -367,6 +411,7 @@ RAC(self.value) = bookkeepingSignal;
 [RACAble]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACPropertySubscribing.h
 [RACDisposable]: ../ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
 [RACEvent]: ../ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h
+[RACMulticastConnection]: ../ReactiveCocoaFramework/ReactiveCocoa/RACMulticastConnection.h
 [RACScheduler]: ../ReactiveCocoaFramework/ReactiveCocoa/RACScheduler.h
 [RACSequence]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSequence.h
 [RACSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h

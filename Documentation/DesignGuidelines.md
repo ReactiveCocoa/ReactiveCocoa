@@ -150,6 +150,7 @@ dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         databaseObjects = [databaseClient fetchObjectsMatchingPredicate:predicate];
         if (fileContents != nil) {
             [self finishProcessingDatabaseObjects:databaseObjects fileContents:fileContents];
+            NSLog(@"Done processing");
         }
     }
 });
@@ -164,6 +165,7 @@ dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         fileContents = [filesInProgress copy];
         if (databaseObjects != nil) {
             [self finishProcessingDatabaseObjects:databaseObjects fileContents:fileContents];
+            NSLog(@"Done processing");
         }
     }
 });
@@ -185,10 +187,13 @@ RACSignal *fileSignal = [RACSignal start:^(BOOL *success, NSError **error) {
     return [filesInProgress copy];
 }];
 
-[RACSignal
+[[RACSignal
     combineLatest:@[ databaseSignal, fileSignal ]
     reduce:^(NSArray *databaseObjects, NSArray *fileContents) {
         [self finishProcessingDatabaseObjects:databaseObjects fileContents:fileContents];
+    }]
+    subscribeCompleted:^{
+        NSLog(@"Done processing");
     }];
 ```
 

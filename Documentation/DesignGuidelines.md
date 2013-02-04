@@ -237,7 +237,23 @@ RACSequence *results = [[strings.rac_sequence
 ### Resources are cleaned up on disposal
 
 ## Best practices
+
+The following recommendations are intended to help keep RAC-based code
+predictable, understandable, and performant.
+
+They are, however, only guidelines. Use best judgement when determining whether
+to apply the recommendations here to a given piece of code.
+
 ### Use the same type for all the values of a stream
+
+[RACStream][] (and, by extension, [RACSignal][] and [RACSequence][]) allows
+streams to be composed of heterogenous objects, just like Cocoa collections do.
+However, using different object types within the same stream complicates the use
+of operators (because they must be careful to only invoke supported methods) and
+puts an additional burden on any consumers of that stream.
+
+Whenever possible, streams should only contain objects of the same type.
+
 ### Avoid retaining streams and disposables directly
 ### Process only as much of a stream as you need
 ### Deliver signal results onto a known scheduler
@@ -261,3 +277,4 @@ RACSequence *results = [[strings.rac_sequence
 [RACSequence]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSequence.h
 [RACSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h
 [RACSignal+Operations]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h
+[RACStream]: ../ReactiveCocoaFramework/ReactiveCocoa/RACStream.h

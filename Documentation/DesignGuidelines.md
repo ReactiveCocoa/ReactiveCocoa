@@ -179,19 +179,20 @@ RACSignal *databaseSignal = [[databaseClient
     fetchObjectsMatchingPredicate:predicate]
     subscribeOn:[RACScheduler schedulerWithPriority:RACSchedulerPriorityDefault]];
 
-RACSignal *fileSignal = [RACSignal startWithScheduler:[RACScheduler scheduler] subjectBlock:^(RACSubject *subject) {
+RACSignal *fileSignal = [RACSignal start:^(BOOL *success, NSError **error) {
     NSMutableArray *filesInProgress = [NSMutableArray array];
     for (NSString *path in files) {
         [filesInProgress addObject:[NSData dataWithContentsOfFile:path]];
     }
 
-    [subject sendNext:[filesInProgress copy]];
-    [subject sendCompleted];
+    return [filesInProgress copy];
 }];
 
-[RACSignal combineLatest:@[ databaseSignal, fileSignal ] reduce:^(NSArray *databaseObjects, NSArray *fileContents) {
-    [self finishProcessingDatabaseObjects:databaseObjects fileContents:fileContents];
-}];
+[RACSignal
+    combineLatest:@[ databaseSignal, fileSignal ]
+    reduce:^(NSArray *databaseObjects, NSArray *fileContents) {
+        [self finishProcessingDatabaseObjects:databaseObjects fileContents:fileContents];
+    }];
 ```
 
 ### Simplifying collection transformations

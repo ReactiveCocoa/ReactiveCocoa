@@ -20,6 +20,37 @@ Guidelines](http://blogs.msdn.com/b/rxteam/archive/2010/10/28/rx-design-guidelin
 ### Event delivery may occur on any thread by default
 ### Errors are propagated immediately
 ### Side effects occur again for each subscription
+Uppon subscription, a `RACSignal` will call its subscribe block each time. This means that side effects inside a `RACSignal` subscribe block will happen as many time as subscriptions to the signal itself.
+Consider this example:
+```objc
+RACSignal *aSignal = [[RACSignal createSignal:^ RACDisposable *(id<RACSubscriber> subscriber) {
+	NSLog(@"!!!side effect 1");
+	[subscriber sendNext:@(1)];
+	[subscriber sendCompleted];
+	return nil;
+}] map:^(NSNumber *value) {
+	NSLog(@"!!!side effect 2");
+	return @(value.integerValue + 1);
+}];
+
+[aSignal subscribeNext:^(id x) {
+	NSLog(@"+++receiving %@", x);
+}];
+
+[aSignal subscribeNext:^(id x) {
+	NSLog(@"---receiving %@", x);
+}];
+```
+The console ouput will resemble the following:
+```
+!!!side effect 1
+!!!side effect 2
++++receiving 2
+!!!side effect 1
+!!!side effect 2
+---receiving 2
+```
+Side effects are repeated for each subscription. To modify this behaviour, refer to [share the side effects of a signal by multicasting](#share-the-side-effects-of-a-signal-by-multicasting).
 ### Subscriptions are automatically disposed upon completion or error
 ### Outstanding work is cancelled on disposal
 ### Resources are cleaned up on disposal

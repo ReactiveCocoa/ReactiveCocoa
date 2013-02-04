@@ -61,8 +61,8 @@ any object that conforms to the [RACSubscriber][] protocol.
 
 In common usage, a **subscription** is created through any call to
 [-subscribeNext:error:completed:][RACSignal] (or one of its corresponding
-convenience methods). Technically, most [stream][RACStream] or
-[signal][RACSignal+Operations] operations create subscriptions as well, but
+convenience methods). Technically, most [RACStream][] or
+[RACSignal][RACSignal+Operations] operators create subscriptions as well, but
 these intermediate subscriptions are usually an implementation detail.
 
 Subscriptions [retain their signals][Memory Management], and are automatically
@@ -70,6 +70,17 @@ disposed of when the signal completes or errors. Subscriptions can also be
 [disposed of manually](#disposables).
 
 ### Disposables
+
+The **[RACDisposable][]** class is used for cancellation and resource cleanup.
+
+Disposables are most commonly used to [unsubscribe](#subscription) from
+a [signal](#signals). When a subscription is disposed, the corresponding
+subscriber will not receive _any_ further events from the signal. Additionally,
+any work associated with the subscription (background processing, a network
+request, etc.) will be cancelled, since its result is no longer needed.
+
+For more information about cancellation, see the RAC [Design Guidelines][].
+
 ### Subjects
 ### Commands
 ### Connections
@@ -115,6 +126,7 @@ a [stream](#streams):
 [monads]: http://en.wikipedia.org/wiki/Monad_(functional_programming)
 [MonadPlus]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Control-Monad.html#t:MonadPlus
 [MonadZip]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Control-Monad-Zip.html#t:MonadZip
+[RACDisposable]: ../ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
 [RACEvent]: ../ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h
 [RACSequence]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSequence.h
 [RACSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h

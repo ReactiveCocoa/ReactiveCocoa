@@ -310,6 +310,15 @@ operator should be used to force a signal's events to arrive on a specific
 [RACScheduler][].
 
 ### Switch schedulers in as few places as possible
+
+Notwithstanding the above, events should only be delivered to a specific
+[scheduler][RACScheduler] when absolutely necessary. Switching schedulers can
+introduce unnecessary delays and cause an increase in CPU load.
+
+Generally, the use of [-deliverOn:][RACSignal+Operations] should be restricted
+to the end of a signal chain – e.g., before subscription, or before the values
+are bound to a property.
+
 ### Make side effects explicit
 ### Share the side effects of a signal by multicasting
 ### Debug streams by giving them names

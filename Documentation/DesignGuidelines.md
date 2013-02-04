@@ -399,8 +399,8 @@ RACMulticastConnection *connection = [networkRequest multicast:[RACReplaySubject
 
 Every [RACStream][] has a `name` property to assist with debugging. A stream's
 `-description` includes its name, and all operators provided by RAC will
-automatically add to the name making it possible to identify a stream from its
-default name alone.
+automatically add to the name. This usually makes it possible to identify
+a stream from its default name alone.
 
 For example, this snippet:
 

@@ -18,14 +18,11 @@ sequentially. There is no way to retrieve the second value of a stream without
 evaluating or waiting for the first value.
 
 Streams are
-[monads](http://en.wikipedia.org/wiki/Monad_(functional_programming)), which,
+[monads][], which,
 among other things, allows complex operations to be built on a few basic
-primitives (of which `-[RACStream bind:]` is the most notable). For anyone
-familiar with Haskell, [RACStream][] also implements the equivalent of the
-[MonadPlus](http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Control-Monad.html#t:MonadPlus)
-and
-[MonadZip](http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Control-Monad-Zip.html#t:MonadZip)
-typeclasses.
+primitives (most notably, `-bind:`). For anyone familiar with Haskell,
+[RACStream][] also implements the equivalent of the [MonadPlus][] and
+[MonadZip][] typeclasses.
 
 [RACStream][] isn't terribly useful on its own. Most streams are treated as
 [signals](#Signals) or [sequences](#Sequences) instead.
@@ -64,7 +61,10 @@ by one `error` or `completed` event (but not both).
 
 ## Value types
 
-[RACSequence]: [../ReactiveCocoaFramework/ReactiveCocoa/RACSequence.h]
-[RACSignal]: [../ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h]
-[RACSignal+Operations]: [../ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h]
-[RACStream]: [../ReactiveCocoaFramework/ReactiveCocoa/RACStream.h]
+[monads]: http://en.wikipedia.org/wiki/Monad_(functional_programming)
+[MonadPlus]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Control-Monad.html#t:MonadPlus
+[MonadZip]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Control-Monad-Zip.html#t:MonadZip
+[RACSequence]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSequence.h
+[RACSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h
+[RACSignal+Operations]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h
+[RACStream]: ../ReactiveCocoaFramework/ReactiveCocoa/RACStream.h

@@ -27,12 +27,12 @@ primitives (most notably, `-bind:`). For anyone familiar with Haskell,
 [RACStream][] isn't terribly useful on its own. Most streams are treated as
 [signals](#signals) or [sequences](#sequences) instead.
 
-### Signals
+## Signals
 
 A **signal**, represented by the [RACSignal][] class, is a _push-based_ stream.
 
 Signals generally represent an asynchronous computation or data request. As work
-is performed or data is received, values are _sent on_ the signal, which pushes
+is performed or data is received, values are _sent_ on the signal, which pushes
 them out to any subscribers. Users must _subscribe_ to a signal in order to
 access its values.
 
@@ -50,12 +50,12 @@ Signals send three different types of events to their subscribers:
 Thus, the lifetime of a signal consists of any number of `next` events, followed
 by one `error` or `completed` event (but not both).
 
-#### Subscribers
-#### Disposables
-#### Subjects
-#### Commands
+### Subscribers
+### Disposables
+### Subjects
+### Commands
 
-### Sequences
+## Sequences
 
 ## Schedulers
 

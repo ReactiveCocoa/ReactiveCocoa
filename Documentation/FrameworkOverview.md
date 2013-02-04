@@ -25,7 +25,7 @@ primitives (most notably, `-bind:`). For anyone familiar with Haskell,
 [MonadZip][] typeclasses.
 
 [RACStream][] isn't terribly useful on its own. Most streams are treated as
-[signals](#Signals) or [sequences](#Sequences) instead.
+[signals](#signals) or [sequences](#sequences) instead.
 
 ### Signals
 

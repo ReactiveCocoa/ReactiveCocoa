@@ -80,22 +80,19 @@ For example, the following pseudo-code:
             return @(username.length > 0 && password.length > 0 && !loggingIn.boolValue && !loggedIn.boolValue);
         }];
 
-    [[self.logInButton rac_signalForControlEvents:UIControlEventTouchUpInside]
-        flattenMap:^(UIButton *sender) {
-            RACSignal *loginSignal = [[LoginManager sharedManager]
-                logInWithUsername:self.usernameTextField.text
-                password:self.passwordTextField.text];
+    [[self.logInButton rac_signalForControlEvents:UIControlEventTouchUpInside] subscribeNext:^(UIButton *sender) {
+        RACSignal *loginSignal = [[LoginManager sharedManager]
+            logInWithUsername:self.usernameTextField.text
+            password:self.passwordTextField.text];
 
-            return [[loginSignal
-                doCompleted:^{
-                    @strongify(self);
-                    self.loggedIn = YES;
-                }]
-                catch:^(NSError *error) {
-                    @strongify(self);
-                    [self presentError:error];
-                }];
+        [loginSignal subscribeError:^(NSError *error) {
+            @strongify(self);
+            [self presentError:error];
+        } completed:{
+            @strongify(self);
+            self.loggedIn = YES;
         }];
+    }];
 }
 ```
 

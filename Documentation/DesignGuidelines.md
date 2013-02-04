@@ -9,7 +9,7 @@ Guidelines](http://blogs.msdn.com/b/rxteam/archive/2010/10/28/rx-design-guidelin
 Upon first glance, ReactiveCocoa is very abstract, and it can be difficult to
 understand how to apply it to concrete problems.
 
-Here are some use cases that RAC excels at.
+Here are some of the use cases that RAC excels at.
 
 ### Handling asynchronous or event-driven data sources
 
@@ -196,6 +196,34 @@ RACSignal *fileSignal = [RACSignal start:^(BOOL *success, NSError **error) {
 ```
 
 ### Simplifying collection transformations
+
+Higher-order functions like `map`, `filter`, `fold`/`reduce` are sorely missing
+from Foundation, leading to loop-focused code like this:
+
+```objc
+NSMutableArray *results = [NSMutableArray array];
+for (NSString *str in strings) {
+    if (str.length < 2) {
+        continue;
+    }
+
+    NSString *newString = [str stringByAppendingString:@"foobar"];
+    [results addObject:newString];
+}
+```
+
+[RACSequence][] allows any Cocoa collection to be manipulated in a uniform and
+declarative way:
+
+```objc
+RACSequence *results = [[strings.rac_sequence
+    filter:^ BOOL (NSString *str) {
+        return str.length >= 2;
+    }]
+    map:^(NSString *str) {
+        return [str stringByAppendingString:@"foobar"];
+    }];
+```
 
 ## The RACSequence contract
 ### Evaluation occurs lazily by default

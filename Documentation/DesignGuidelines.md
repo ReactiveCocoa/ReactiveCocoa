@@ -255,6 +255,23 @@ puts an additional burden on any consumers of that stream.
 Whenever possible, streams should only contain objects of the same type.
 
 ### Avoid retaining streams and disposables directly
+
+Retaining any [RACStream][] longer than it's needed will cause any dependencies
+to be retained as well, potentially keeping memory usage much higher than it
+would be otherwise.
+
+A [RACSequence][] should be retained only for as long as the `head` of the
+sequence is needed. If the head will no longer be used, retain the `tail` of the
+node instead of the node itself.
+
+It's usually unnecessary to directly retain a [RACDisposable][] or
+a [RACSignal][], because there are often higher-level patterns that can be used
+instead of manual lifetime management. For instance,
+[-rac_liftSelector:][NSObject+RACLifting] or the [RAC()][RAC] macro can often
+replace [-subscribeNext:error:completed:][RACSignal].
+
+See the [Memory Management][] guide for more information.
+
 ### Process only as much of a stream as you need
 ### Deliver signal results onto a known scheduler
 ### Switch schedulers in as few places as possible
@@ -271,6 +288,9 @@ Whenever possible, streams should only contain objects of the same type.
 ### Avoid stack overflow from deep recursion
 
 [Memory Management]: MemoryManagement.md
+[NSObject+RACLifting]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACLifting.h
+[RAC]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h
+[RACAble]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACPropertySubscribing.h
 [RACDisposable]: ../ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
 [RACEvent]: ../ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h
 [RACScheduler]: ../ReactiveCocoaFramework/ReactiveCocoa/RACScheduler.h

@@ -232,7 +232,7 @@ RACSequence *results = [[strings.rac_sequence
 
 ## The RACSignal contract
 ### Signal events are serialized
-### Event delivery may occur on any thread by default
+### Subscription will always occur on a scheduler
 ### Errors are propagated immediately
 ### Side effects occur for each subscription
 ### Subscriptions are automatically disposed upon completion or error

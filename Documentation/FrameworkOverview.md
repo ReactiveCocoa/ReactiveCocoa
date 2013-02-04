@@ -20,9 +20,9 @@ evaluating or waiting for the first value.
 Streams are
 [monads][], which,
 among other things, allows complex operations to be built on a few basic
-primitives (most notably, `-bind:`). For anyone familiar with Haskell,
-[RACStream][] also implements the equivalent of the [MonadPlus][] and
-[MonadZip][] typeclasses.
+primitives (most notably, `-bind:`). [RACStream][] also implements the
+equivalent of the [MonadPlus][] and [MonadZip][] typeclasses from
+[Haskell][].
 
 [RACStream][] isn't terribly useful on its own. Most streams are treated as
 [signals](#signals) or [sequences](#sequences) instead.
@@ -60,10 +60,28 @@ by one `error` or `completed` event (but not both).
 
 ## Sequences
 
+A **sequence**, represented by the [RACSequence][] class, is a _pull-driven_
+[stream](#streams).
+
+Sequences are a kind of collection, similar in purpose to `NSArray`. Unlike
+an array, the values in a sequence are evaluated _lazily_ (i.e., only when they
+are needed) by default, potentially improving performance if only part of
+a sequence is used. Just like Cocoa collections, sequences cannot contain `nil`.
+
+Sequences are similar to [Clojure sequences][] ([lazy-seq][] in particular), or
+the [List][] type in [Haskell][].
+
+RAC adds a `-rac_sequence` method to most of Cocoa's collection classes,
+allowing them to be used as [RACSequences][RACSequence] instead.
+
 ## Schedulers
 
 ## Value types
 
+[Clojure sequences]: http://clojure.org/sequences
+[Haskell]: http://www.haskell.org
+[lazy-seq]: http://clojure.github.com/clojure/clojure.core-api.html#clojure.core/lazy-seq
+[List]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Data-List.html
 [monads]: http://en.wikipedia.org/wiki/Monad_(functional_programming)
 [MonadPlus]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Control-Monad.html#t:MonadPlus
 [MonadZip]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Control-Monad-Zip.html#t:MonadZip

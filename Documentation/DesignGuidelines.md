@@ -319,7 +319,37 @@ Generally, the use of [-deliverOn:][RACSignal+Operations] should be restricted
 to the end of a signal chain – e.g., before subscription, or before the values
 are bound to a property.
 
-### Make side effects explicit
+### Make the side effects of a signal explicit
+
+As much as possible, [RACSignal][] side effects should be avoided, because
+subscribers may find the [behavior of side
+effects](#side-effects-occur-for-each-subscription) unexpected.
+
+However, because Cocoa is predominantly imperative, it is sometimes useful to
+perform side effects when signal events occur. Although most [RACStream][] and
+[RACSignal][RACSignal+Operations] operators accept arbitrary blocks (which can
+contain side effects), the use of `-doNext:`, `-doError:`, and `-doCompleted:`
+will make side effects more explicit and self-documenting:
+
+```objc
+NSMutableArray *nexts = [NSMutableArray array];
+__block NSError *receivedError = nil;
+__block BOOL success = NO;
+
+RACSignal *bookkeepingSignal = [[[valueSignal
+    doNext:^(id x) {
+        [nexts addObject:x];
+    }]
+    doError:^(NSError *error) {
+        receivedError = error;
+    }]
+    doCompleted:^{
+        success = YES;
+    }];
+
+RAC(self.value) = bookkeepingSignal;
+```
+
 ### Share the side effects of a signal by multicasting
 ### Debug streams by giving them names
 

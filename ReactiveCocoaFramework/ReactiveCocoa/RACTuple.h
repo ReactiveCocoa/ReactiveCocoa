@@ -11,8 +11,6 @@
 
 @class RACSequence;
 
-// Creates a new RACTuple.
-//
 // Creates a new tuple with the given values. At least one value must be given.
 // Values can be nil.
 #define RACTuplePack(...) \

@@ -58,7 +58,7 @@
 }
 
 - (NSString *)description {
-	return [NSString stringWithFormat:@"<%@: %p> %@", NSStringFromClass(self.class), self, self.allObjects];
+	return [NSString stringWithFormat:@"<%@: %p> %@", self.class, self, self.allObjects];
 }
 
 - (BOOL)isEqual:(RACTuple *)object {

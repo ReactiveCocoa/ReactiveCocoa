@@ -46,17 +46,20 @@ describe(@"RACTupleUnpack", ^{
 
 describe(@"RACTuplePack", ^{
 	it(@"should pack a single value", ^{
-		expect(RACTuplePack(RACUnit.defaultUnit)).to.equal(([RACTuple tupleWithObjects:RACUnit.defaultUnit, nil]));
+		RACTuple *tuple = [RACTuple tupleWithObjects:RACUnit.defaultUnit, nil];
+		expect(RACTuplePack(RACUnit.defaultUnit)).to.equal(tuple);
 	});
 	
 	it(@"should translate nil", ^{
-		expect(RACTuplePack(nil)).to.equal(([RACTuple tupleWithObjects:RACTupleNil.tupleNil, nil]));
+		RACTuple *tuple = [RACTuple tupleWithObjects:RACTupleNil.tupleNil, nil];
+		expect(RACTuplePack(nil)).to.equal(tuple);
 	});
 	
 	it(@"should pack multiple values", ^{
 		NSString *string = @"foobar";
 		NSNumber *number = @5;
-		expect(RACTuplePack(string, number)).to.equal(([RACTuple tupleWithObjects:string, number, nil]));
+		RACTuple *tuple = [RACTuple tupleWithObjects:string, number, nil];
+		expect(RACTuplePack(string, number)).to.equal(tuple);
 	});
 });
 

@@ -140,7 +140,7 @@ an array, the values in a sequence are evaluated _lazily_ (i.e., only when they
 are needed) by default, potentially improving performance if only part of
 a sequence is used. Just like Cocoa collections, sequences cannot contain `nil`.
 
-Sequences are similar to [Clojure's sequences][] ([lazy-seq][] in particular), or
+Sequences are similar to [Clojure's sequences][seq] ([lazy-seq][] in particular), or
 the [List][] type in [Haskell][].
 
 RAC adds a `-rac_sequence` method to most of Cocoa's collection classes,
@@ -174,7 +174,6 @@ the use of [signal operators][RACSignal+Operations] instead of blocking work.
 [RACScheduler][] is also somewhat similar to `NSOperationQueue`, but schedulers
 do not allow tasks to be reordered, or to depend on one another.
 
-[Clojure sequences]: http://clojure.org/sequences
 [Design Guidelines]: DesignGuidelines.md
 [Haskell]: http://www.haskell.org
 [lazy-seq]: http://clojure.github.com/clojure/clojure.core-api.html#clojure.core/lazy-seq
@@ -199,3 +198,4 @@ do not allow tasks to be reordered, or to depend on one another.
 [RACTuple]: ../ReactiveCocoaFramework/ReactiveCocoa/RACTuple.h
 [RACUnit]: ../ReactiveCocoaFramework/ReactiveCocoa/RACUnit.h
 [README]: ../README.md
+[seq]: http://clojure.org/sequences

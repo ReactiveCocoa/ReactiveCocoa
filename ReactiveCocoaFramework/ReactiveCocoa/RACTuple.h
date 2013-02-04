@@ -106,7 +106,7 @@
 //
 // See RACTuplePack() and RACTupleUnpack() instead.
 #define RACTuplePack_(...) \
-    ([RACTuple tupleWithObjects:metamacro_foreach(RACTuplePack_object_or_ractuplenil,, __VA_ARGS__) nil])
+    ([RACTuple tupleWithObjectsFromArray:@[ metamacro_foreach(RACTuplePack_object_or_ractuplenil,, __VA_ARGS__) ]])
 
 #define RACTuplePack_object_or_ractuplenil(INDEX, ARG) \
     (ARG) ?: RACTupleNil.tupleNil,

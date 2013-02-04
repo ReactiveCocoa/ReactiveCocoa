@@ -163,6 +163,18 @@ a [stream](#streams):
 
 ## Schedulers
 
+A **scheduler**, represented by the [RACScheduler][] class, is a serial
+execution queue for [signals](#signals) to perform work or deliver their results upon.
+
+Schedulers are similar to Grand Central Dispatch queues, but schedulers support
+cancellation (via [disposables](#disposables)), and always execute serially.
+With the exception of the [+immediateScheduler][RACScheduler], schedulers also
+do not offer synchronous execution. This helps avoid deadlocks and encourages
+the use of [signal operators][RACSignal+Operations] instead of blocking work.
+
+[RACScheduler][] is also somewhat similar to `NSOperationQueue`, but schedulers
+do not allow tasks to be reordered, or to depend on one another.
+
 [Clojure sequences]: http://clojure.org/sequences
 [Design Guidelines]: DesignGuidelines.md
 [Haskell]: http://www.haskell.org
@@ -178,6 +190,7 @@ a [stream](#streams):
 [RACEvent]: ../ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h
 [RACMulticastConnection]: ../ReactiveCocoaFramework/ReactiveCocoa/RACMulticastConnection.h
 [RACReplaySubject]: ../ReactiveCocoaFramework/ReactiveCocoa/RACReplaySubject.h
+[RACScheduler]: ../ReactiveCocoaFramework/ReactiveCocoa/RACScheduler.h
 [RACSequence]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSequence.h
 [RACSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h
 [RACSignal+Operations]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h

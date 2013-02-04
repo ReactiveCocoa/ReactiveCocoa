@@ -67,18 +67,6 @@ Subscriptions [retain their signals][Memory Management], and are automatically
 disposed of when the signal completes or errors. Subscriptions can also be
 [disposed of manually](#disposables).
 
-### Disposables
-
-The **[RACDisposable][]** class is used for cancellation and resource cleanup.
-
-Disposables are most commonly used to unsubscribe from a [signal](#signals).
-When a [subscription](#subscription) is disposed, the corresponding subscriber
-will not receive _any_ further events from the signal. Additionally, any work
-associated with the subscription (background processing, network requests, etc.)
-will be cancelled, since the results are no longer needed.
-
-For more information about cancellation, see the RAC [Design Guidelines][].
-
 ### Subjects
 
 A **subject**, represented by the [RACSubject][] class, is a [signal](#signals)
@@ -160,6 +148,18 @@ a [stream](#streams):
    It is primarily used by the `-materialize` method of
    [RACSignal][RACSignal+Operations].
 
+## Disposables
+
+The **[RACDisposable][]** class is used for cancellation and resource cleanup.
+
+Disposables are most commonly used to unsubscribe from a [signal](#signals).
+When a [subscription](#subscription) is disposed, the corresponding subscriber
+will not receive _any_ further events from the signal. Additionally, any work
+associated with the subscription (background processing, network requests, etc.)
+will be cancelled, since the results are no longer needed.
+
+For more information about cancellation, see the RAC [Design Guidelines][].
+
 ## Schedulers
 
 A **scheduler**, represented by the [RACScheduler][] class, is a serial
@@ -167,12 +167,12 @@ execution queue for [signals](#signals) to perform work or deliver their results
 
 Schedulers are similar to Grand Central Dispatch queues, but schedulers support
 cancellation (via [disposables](#disposables)), and always execute serially.
-With the exception of the [+immediateScheduler][RACScheduler], schedulers also
-do not offer synchronous execution. This helps avoid deadlocks, and encourages
-the use of [signal operators][RACSignal+Operations] instead of blocking work.
+With the exception of the [+immediateScheduler][RACScheduler], schedulers do not
+offer synchronous execution. This helps avoid deadlocks, and encourages the use
+of [signal operators][RACSignal+Operations] instead of blocking work.
 
 [RACScheduler][] is also somewhat similar to `NSOperationQueue`, but schedulers
-do not allow tasks to be reordered, or to depend on one another.
+do not allow tasks to be reordered or depend on one another.
 
 [Design Guidelines]: DesignGuidelines.md
 [Haskell]: http://www.haskell.org

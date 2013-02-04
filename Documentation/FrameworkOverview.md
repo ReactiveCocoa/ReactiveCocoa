@@ -57,6 +57,7 @@ by one `error` or `completed` event (but not both).
 ### Disposables
 ### Subjects
 ### Commands
+### Connections
 
 ## Sequences
 
@@ -74,9 +75,21 @@ the [List][] type in [Haskell][].
 RAC adds a `-rac_sequence` method to most of Cocoa's collection classes,
 allowing them to be used as [RACSequences][RACSequence] instead.
 
-## Schedulers
-
 ## Value types
+
+RAC offers a few miscellaneous classes for conveniently representing values in
+a [stream](#streams):
+
+ * **[RACTuple][]** is a small, constant-sized collection that can contain
+   `nil` (represented by `RACTupleNil`). It is generally used to represent
+   the combined values of multiple streams.
+ * **[RACUnit][]** is a singleton "empty" value. It is used as a value in
+   a stream for those times when more meaningful data doesn't exist.
+ * **[RACEvent][]** represents any [signal event](#signals) as a single value.
+   It is primarily used by the `-materialize` method of
+   [RACSignal][RACSignal+Operations).
+
+## Schedulers
 
 [Clojure sequences]: http://clojure.org/sequences
 [Haskell]: http://www.haskell.org
@@ -85,7 +98,10 @@ allowing them to be used as [RACSequences][RACSequence] instead.
 [monads]: http://en.wikipedia.org/wiki/Monad_(functional_programming)
 [MonadPlus]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Control-Monad.html#t:MonadPlus
 [MonadZip]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Control-Monad-Zip.html#t:MonadZip
+[RACEvent]: ../ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h
 [RACSequence]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSequence.h
 [RACSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h
 [RACSignal+Operations]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h
 [RACStream]: ../ReactiveCocoaFramework/ReactiveCocoa/RACStream.h
+[RACTuple]: ../ReactiveCocoaFramework/ReactiveCocoa/RACTuple.h
+[RACUnit]: ../ReactiveCocoaFramework/ReactiveCocoa/RACUnit.h

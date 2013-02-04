@@ -100,6 +100,44 @@ For example, the following pseudo-code:
 ```
 
 ### Chaining dependent operations
+
+Dependencies are most often found in network requests, where you need a previous
+request to the server to complete before you can construct the next one, and so
+on:
+
+```objc
+[client logInWithSuccess:^{
+    [client loadCachedMessagesWithSuccess:^(NSArray *messages) {
+        [client fetchMessagesAfterMessage:messages.lastObject success:^(NSArray *nextMessages) {
+            NSLog(@"Fetched all messages.");
+        } failure:^(NSError *error) {
+            [self presentError:error];
+        }];
+    } failure:^(NSError *error) {
+        [self presentError:error];
+    }];
+} failure:^(NSError *error) {
+    [self presentError:error];
+}];
+```
+
+ReactiveCocoa makes this pattern particularly easy:
+
+```objc
+[[[[client logIn]
+    sequenceNext:^{
+        return [client loadCachedMessages];
+    }]
+    flattenMap:^(NSArray *messages) {
+        return [client fetchMessagesAfterMessage:messages.lastObject];
+    }]
+    subscribeError:^(NSError *error) {
+        [self presentError:error];
+    } completed:^{
+        NSLog(@"Fetched all messages.");
+    }];
+```
+
 ### Parallelizing independent work
 ### Simplifying collection transformations
 

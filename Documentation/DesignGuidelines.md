@@ -359,7 +359,7 @@ a network request typically should not be repeated when a new subscriber is
 added.
 
 The `-publish` and `-multicast:` operators of [RACSignal][RACSignal+Operations]
-allow a single subscription to be shared to any number of subscribers using
+allow a single subscription to be shared to any number of subscribers by using
 a [RACMulticastConnection][]:
 
 ```objc
@@ -396,6 +396,34 @@ RACMulticastConnection *connection = [networkRequest multicast:[RACReplaySubject
 ```
 
 ### Debug streams by giving them names
+
+Every [RACStream][] has a `name` property to assist with debugging. A stream's
+`-description` includes its name, and all operators provided by RAC will
+automatically add to the name making it possible to identify a stream from its
+default name alone.
+
+For example, this snippet:
+
+```objc
+RACSignal *signal = [[[RACAble(self.username) 
+    distinctUntilChanged] 
+    take:3] 
+    filter:^(NSString *newUsername) {
+        return [newUsername isEqualToString:@"joshaber"];
+    }];
+
+NSLog(@"%@", signal);
+```
+
+… would log a name similar to `[[[RACAble(self.username)] -distinctUntilChanged]
+-take: 3] -filter:`.
+
+Names can also be manually applied by using [-setNameWithFormat:][RACStream].
+
+For named signals in particular, [RACSignal][] offers `-logNext`, `-logError`,
+`-logCompleted`, and `-logAll` methods, which will automatically log signal
+events as they occur, and include the name of the signal in the messages. This
+can be used to conveniently inspect a signal in real-time.
 
 ## Implementing new operators
 ### Prefer building on RACStream methods

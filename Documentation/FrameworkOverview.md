@@ -29,7 +29,8 @@ primitives (most notably, `-bind:`). For anyone familiar with Haskell,
 
 ## Signals
 
-A **signal**, represented by the [RACSignal][] class, is a _push-based_ stream.
+A **signal**, represented by the [RACSignal][] class, is a _push-driven_
+[stream](#streams).
 
 Signals generally represent an asynchronous computation or data request. As work
 is performed or data is received, values are _sent_ on the signal, which pushes
@@ -39,9 +40,11 @@ access its values.
 Signals send three different types of events to their subscribers:
 
  * The **next** event provides a new value from the stream. [RACStream][]
-   methods only operate on events of this type.
+   methods only operate on events of this type. Unlike Cocoa collections, it is
+   completely valid for a signal to include `nil`.
  * The **error** event indicates that an error occurred before the signal could
-   finish. Errors must be handled specially – they are not included in the
+   finish. The event may include an `NSError` object that indicates what went
+   wrong. Errors must be handled specially – they are not included in the
    stream's values.
  * The **completed** event indicates that the signal finished successfully, and
    that no more values will be added to the stream. Completion must be handled

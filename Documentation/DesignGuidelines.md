@@ -11,6 +11,7 @@ Guidelines](http://blogs.msdn.com/b/rxteam/archive/2010/10/28/rx-design-guidelin
 ## Best practices
 ### Memory management
 ### Concurrency
+#### Replaying events
 ### Cancellation
 ### Side effects
 

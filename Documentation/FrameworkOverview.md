@@ -82,6 +82,24 @@ request, etc.) will be cancelled, since its result is no longer needed.
 For more information about cancellation, see the RAC [Design Guidelines][].
 
 ### Subjects
+
+A **subject**, represented by the [RACSubject][] class, is a [signal](#signals)
+that can be manually controlled.
+
+Subjects can be thought of as the "mutable" variant of a signal, much like
+`NSMutableArray` is for `NSArray`. They are extremely useful for bridging
+non-RAC code into the world of signals.
+
+For example, instead of handling application logic in block callbacks, the
+blocks can simply send [events](#signals) on a shared subject instead. The
+subject can then be returned as a [RACSignal][], hiding the implementation
+detail of the callbacks.
+
+Some subjects offer additional behaviors as well. In particular,
+[RACReplaySubject][] can be used to buffer events for future
+[subscribers](#subscription), like when a network request finishes before
+anything is ready to handle the result.
+
 ### Commands
 ### Connections
 
@@ -128,10 +146,12 @@ a [stream](#streams):
 [MonadZip]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Control-Monad-Zip.html#t:MonadZip
 [RACDisposable]: ../ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
 [RACEvent]: ../ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h
+[RACReplaySubject]: ../ReactiveCocoaFramework/ReactiveCocoa/RACReplaySubject.h
 [RACSequence]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSequence.h
 [RACSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h
 [RACSignal+Operations]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h
 [RACStream]: ../ReactiveCocoaFramework/ReactiveCocoa/RACStream.h
+[RACSubject]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubject.h
 [RACSubscriber]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubscriber.h
 [RACTuple]: ../ReactiveCocoaFramework/ReactiveCocoa/RACTuple.h
 [RACUnit]: ../ReactiveCocoaFramework/ReactiveCocoa/RACUnit.h

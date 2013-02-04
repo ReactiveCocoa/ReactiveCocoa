@@ -101,6 +101,18 @@ Some subjects offer additional behaviors as well. In particular,
 anything is ready to handle the result.
 
 ### Commands
+
+A **command**, represented by the [RACCommand][] class, is a [signal](#signals)
+that is triggered in response to some action.
+
+Usually the action triggering a command is UI-driven, like when a button is
+clicked. Commands can also be automatically disabled based on a signal, and this
+disabled state can be represented in a UI by disabling any controls associated
+with the command.
+
+On OS X, RAC adds a [rac_command property][NSButton+RACCommandSupport] to
+`NSButton` for setting up these behaviors automatically.
+
 ### Connections
 
 ## Sequences
@@ -144,6 +156,8 @@ a [stream](#streams):
 [monads]: http://en.wikipedia.org/wiki/Monad_(functional_programming)
 [MonadPlus]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Control-Monad.html#t:MonadPlus
 [MonadZip]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Control-Monad-Zip.html#t:MonadZip
+[NSButton+RACCommandSupport]: ../ReactiveCocoaFramework/ReactiveCocoa/NSButton+RACCommandSupport.h
+[RACCommand]: ../ReactiveCocoaFramework/ReactiveCocoa/RACCommand.h
 [RACDisposable]: ../ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
 [RACEvent]: ../ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h
 [RACReplaySubject]: ../ReactiveCocoaFramework/ReactiveCocoa/RACReplaySubject.h

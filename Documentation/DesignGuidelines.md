@@ -19,7 +19,7 @@ Guidelines](http://blogs.msdn.com/b/rxteam/archive/2010/10/28/rx-design-guidelin
 ### Signal events are serialized
 ### Event delivery may occur on any thread by default
 ### Errors are propagated immediately
-### Side effects occur again for each subscription
+### Side effects occur for each subscription
 ### Subscriptions are automatically disposed upon completion or error
 ### Outstanding work is cancelled on disposal
 ### Resources are cleaned up on disposal

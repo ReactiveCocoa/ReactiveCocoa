@@ -139,6 +139,61 @@ ReactiveCocoa makes this pattern particularly easy:
 ```
 
 ### Parallelizing independent work
+
+Working with independent data sets in parallel and then combining them into
+a final result is non-trivial in Cocoa, and often involves a lot of
+synchronization:
+
+```objc
+__block NSArray *databaseObjects;
+__block NSArray *fileContents;
+
+dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    @synchronized (self) {
+        databaseObjects = [databaseClient fetchObjectsMatchingPredicate:predicate];
+        if (fileContents != nil) {
+            [self finishProcessingDatabaseObjects:databaseObjects fileContents:fileContents];
+        }
+    }
+});
+
+dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    NSMutableArray *filesInProgress = [NSMutableArray array];
+    for (NSString *path in files) {
+        [filesInProgress addObject:[NSData dataWithContentsOfFile:path]];
+    }
+    
+    @synchronized (self) {
+        fileContents = [filesInProgress copy];
+        if (databaseObjects != nil) {
+            [self finishProcessingDatabaseObjects:databaseObjects fileContents:fileContents];
+        }
+    }
+});
+```
+
+The above code can be cleaned up and optimized by simply composing signals:
+
+```objc
+RACSignal *databaseSignal = [[databaseClient
+    fetchObjectsMatchingPredicate:predicate]
+    subscribeOn:[RACScheduler schedulerWithPriority:RACSchedulerPriorityDefault]];
+
+RACSignal *fileSignal = [RACSignal startWithScheduler:[RACScheduler scheduler] subjectBlock:^(RACSubject *subject) {
+    NSMutableArray *filesInProgress = [NSMutableArray array];
+    for (NSString *path in files) {
+        [filesInProgress addObject:[NSData dataWithContentsOfFile:path]];
+    }
+
+    [subject sendNext:[filesInProgress copy]];
+    [subject sendCompleted];
+}];
+
+[RACSignal combineLatest:@[ databaseSignal, fileSignal ] reduce:^(NSArray *databaseObjects, NSArray *fileContents) {
+    [self finishProcessingDatabaseObjects:databaseObjects fileContents:fileContents];
+}];
+```
+
 ### Simplifying collection transformations
 
 ## The RACSequence contract

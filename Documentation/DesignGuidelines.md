@@ -298,6 +298,17 @@ dependencies will be terminated too, potentially saving a significant amount of
 work.
 
 ### Deliver signal results onto a known scheduler
+
+When a signal is returned from a method, or combined with such a signal, it can
+be difficult to know which thread results will be delivered upon. Although
+events are [guaranteed to be serial](#signal-events-are-serialized), sometimes
+stronger guarantees are needed, like when performing UI updates (which must
+occur on the main thread).
+
+Whenever such a guarantee is important, the [-deliverOn:][RACSignal+Operations]
+operator should be used to force a signal's events to arrive on a specific
+[RACScheduler][].
+
 ### Switch schedulers in as few places as possible
 ### Make side effects explicit
 ### Share the side effects of a signal by multicasting

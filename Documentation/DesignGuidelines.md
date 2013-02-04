@@ -32,6 +32,7 @@ Guidelines](http://blogs.msdn.com/b/rxteam/archive/2010/10/28/rx-design-guidelin
 ### Switch schedulers in as few places as possible
 ### Make side effects explicit
 ### Share the side effects of a signal by multicasting
+### Debug streams by giving them names
 
 ## Implementing new operators
 ### Prefer building on RACStream methods

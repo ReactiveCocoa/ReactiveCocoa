@@ -109,7 +109,7 @@
     ([RACTuple tupleWithObjects:metamacro_foreach(RACTuplePack_object_or_ractuplenil,, __VA_ARGS__) nil])
 
 #define RACTuplePack_object_or_ractuplenil(INDEX, ARG) \
-    ARG ?: RACTupleNil.tupleNil,
+    (ARG) ?: RACTupleNil.tupleNil,
 
 #define RACTupleUnpack_(...) \
     metamacro_foreach(RACTupleUnpack_decl,, __VA_ARGS__) \

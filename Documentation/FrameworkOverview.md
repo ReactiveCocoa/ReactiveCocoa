@@ -31,6 +31,28 @@ typeclasses.
 [signals](#Signals) or [sequences](#Sequences) instead.
 
 ### Signals
+
+A **signal**, represented by the [RACSignal][] class, is a _push-based_ stream.
+
+Signals generally represent an asynchronous computation or data request. As work
+is performed or data is received, values are _sent on_ the signal, which pushes
+them out to any subscribers. Users must _subscribe_ to a signal in order to
+access its values.
+
+Signals send three different types of events to their subscribers:
+
+ * The **next** event provides a new value from the stream. [RACStream][]
+   methods only operate on events of this type.
+ * The **error** event indicates that an error occurred before the signal could
+   finish. Errors must be handled specially – they are not included in the
+   stream's values.
+ * The **completed** event indicates that the signal finished successfully, and
+   that no more values will be added to the stream. Completion must be handled
+   specially – it is not included in the stream of values.
+
+Thus, the lifetime of a signal consists of any number of `next` events, followed
+by one `error` or `completed` event (but not both).
+
 #### Subscribers
 #### Disposables
 #### Subjects

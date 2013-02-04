@@ -44,4 +44,20 @@ describe(@"RACTupleUnpack", ^{
 	});
 });
 
+describe(@"RACTuplePack", ^{
+	it(@"should pack a single value", ^{
+		expect(RACTuplePack(RACUnit.defaultUnit)).to.equal(([RACTuple tupleWithObjects:RACUnit.defaultUnit, nil]));
+	});
+	
+	it(@"should translate nil", ^{
+		expect(RACTuplePack(nil)).to.equal(([RACTuple tupleWithObjects:RACTupleNil.tupleNil, nil]));
+	});
+	
+	it(@"should pack multiple values", ^{
+		NSString *string = @"foobar";
+		NSNumber *number = @5;
+		expect(RACTuplePack(string, number)).to.equal(([RACTuple tupleWithObjects:string, number, nil]));
+	});
+});
+
 SpecEnd

@@ -30,7 +30,7 @@ implements the equivalent of the [MonadPlus][] and [MonadZip][] typeclasses from
 A **signal**, represented by the [RACSignal][] class, is a _push-driven_
 [stream](#streams).
 
-Signals generally represent asynchronous computations or data requests. As work
+Signals generally represent data that will be delivered in the future. As work
 is performed or data is received, values are _sent_ on the signal, which pushes
 them out to any subscribers. Users must [subscribe](#subscription) to a signal
 in order to access its values.

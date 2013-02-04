@@ -115,6 +115,22 @@ On OS X, RAC adds a [rac_command property][NSButton+RACCommandSupport] to
 
 ### Connections
 
+A **connection**, represented by the [RACMulticastConnection][] class, is
+a [subscription](#subscription) that is shared between any number of
+subscribers.
+
+[Signals](#signals) generally start doing work _each_ time a new subscription
+is added. This behavior (known as a _cold_ signal) is usually desirable, because
+it means that data will be freshly recalculated for each subscriber, but it can
+be problematic if the signal has side effects or the work is expensive (for
+example, sending a network request).
+
+A connection is created through the `-publish` or `-multicast:` methods on
+[RACSignal][RACSignal+Operations], and ensures that only one underlying
+subscription is created, no matter how many times the connection is subscribed
+to. Once connected, the underlying subscription will remain active (_hot_) until
+_all_ subscriptions to the connection are [disposed of](#disposables).
+
 ## Sequences
 
 A **sequence**, represented by the [RACSequence][] class, is a _pull-driven_
@@ -160,6 +176,7 @@ a [stream](#streams):
 [RACCommand]: ../ReactiveCocoaFramework/ReactiveCocoa/RACCommand.h
 [RACDisposable]: ../ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
 [RACEvent]: ../ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h
+[RACMulticastConnection]: ../ReactiveCocoaFramework/ReactiveCocoa/RACMulticastConnection.h
 [RACReplaySubject]: ../ReactiveCocoaFramework/ReactiveCocoa/RACReplaySubject.h
 [RACSequence]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSequence.h
 [RACSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h

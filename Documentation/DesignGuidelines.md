@@ -235,37 +235,47 @@ RACSequence *results = [[strings.rac_sequence
 ### Subscription will always occur on a scheduler
 ### Errors are propagated immediately
 ### Side effects occur for each subscription
-Uppon subscription, a `RACSignal` will call its subscribe block each time. This means that side effects inside a `RACSignal` subscribe block will happen as many time as subscriptions to the signal itself.
+
+If a [RACSignal][] is created using `+createSignal:`, the given block will be
+called once for each new subscription. This means that side effects inside a
+[RACSignal][] subscribe block will happen as many time as subscriptions to the
+signal itself.
+
 Consider this example:
 ```objc
-RACSignal *aSignal = [[RACSignal createSignal:^ RACDisposable *(id<RACSubscriber> subscriber) {
-	NSLog(@"!!!side effect 1");
+__block int aNumber = 0;
+RACSignal *aSignal = [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+	aNumber++;
 	[subscriber sendNext:@(1)];
 	[subscriber sendCompleted];
 	return nil;
 }] map:^(NSNumber *value) {
-	NSLog(@"!!!side effect 2");
-	return @(value.integerValue + 1);
+	aNumber++;
+	return @(value.integerValue + aNumber);
 }];
 
 [aSignal subscribeNext:^(id x) {
-	NSLog(@"+++receiving %@", x);
+	NSLog(@"First we get 1 + %d = %@", aNumber, x);
 }];
 
 [aSignal subscribeNext:^(id x) {
-	NSLog(@"---receiving %@", x);
+	NSLog(@"Then we get 1 + %d = %@", aNumber, x);
 }];
 ```
-The console ouput will resemble the following:
+
+The console output will resemble the following:
 ```
-!!!side effect 1
-!!!side effect 2
-+++receiving 2
-!!!side effect 1
-!!!side effect 2
----receiving 2
+First we get 1 + 2 = 3
+Then we get 1 + 4 = 5
 ```
-Side effects are repeated for each subscription. To modify this behaviour, refer to [share the side effects of a signal by multicasting](#share-the-side-effects-of-a-signal-by-multicasting).
+
+Side effects are repeated for each subscription. To suppress this behavior, a
+subscription can be [multicasted](#share-the-side-effects-of-a-signal-by-multicasting).
+
+Side effects can be insidious and produce problems that are difficult to
+diagnose. For this reason it is suggested to 
+[make side effects explicit](#make-side-effects-explicit) when possible.
+
 ### Subscriptions are automatically disposed upon completion or error
 ### Outstanding work is cancelled on disposal
 ### Resources are cleaned up on disposal

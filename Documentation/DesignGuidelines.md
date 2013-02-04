@@ -98,8 +98,8 @@ For example, the following pseudo-code:
 
 ### Chaining dependent operations
 
-Dependencies are most often found in network requests, where you need a previous
-request to the server to complete before you can construct the next one, and so
+Dependencies are most often found in network requests, where a previous request
+to the server needs to complete before the next one can be constructed, and so
 on:
 
 ```objc
@@ -267,12 +267,31 @@ node instead of the node itself.
 It's usually unnecessary to directly retain a [RACDisposable][] or
 a [RACSignal][], because there are often higher-level patterns that can be used
 instead of manual lifetime management. For instance,
-[-rac_liftSelector:][NSObject+RACLifting] or the [RAC()][RAC] macro can often
-replace [-subscribeNext:error:completed:][RACSignal].
+[-rac_liftSelector:withObjects:][NSObject+RACLifting] or the [RAC()][RAC] macro
+can often replace [-subscribeNext:error:completed:][RACSignal].
 
 See the [Memory Management][] guide for more information.
 
-### Process only as much of a stream as you need
+### Process only as much of a stream as needed
+
+As well as [consuming additional
+memory](#avoid-retaining-streams-and-disposables-directly), unnecessarily
+keeping a stream or [RACSignal][] subscription alive can result in increased CPU
+usage, as unnecessary work is performed for results that will never be used.
+
+If only a certain number of values are needed from a stream, the
+[-take:][RACStream] operator can be used to retrieve only that many values, and
+then automatically terminate the stream immediately thereafter.
+
+Similarly, [-takeUntil:][RACSignal+Operations] can be used to automatically
+dispose of a [RACSignal][] subscription when an event occurs (like a "Cancel"
+button being pressed in the UI).
+
+Operators like `-take:` and `-takeUntil:` automatically propagate cancellation
+up the stack as well. If nothing else needs the rest of the values, any
+dependencies will be terminated too, potentially saving a significant amount of
+work.
+
 ### Deliver signal results onto a known scheduler
 ### Switch schedulers in as few places as possible
 ### Make side effects explicit

@@ -5,8 +5,8 @@ within the ReactiveCocoa framework, and an attempt to explain how they work
 together and divide responsibilities. This is meant to be a starting point for
 learning about new modules and finding more specific documentation.
 
-For examples and understanding how to use RAC, see the [README](../README.md) or
-the [Design Guidelines](DesignGuidelines.md).
+For examples and understanding how to use RAC, see the [README][] or
+the [Design Guidelines][].
 
 ## Streams
 
@@ -34,8 +34,8 @@ A **signal**, represented by the [RACSignal][] class, is a _push-driven_
 
 Signals generally represent an asynchronous computation or data request. As work
 is performed or data is received, values are _sent_ on the signal, which pushes
-them out to any subscribers. Users must _subscribe_ to a signal in order to
-access its values.
+them out to any subscribers. Users must [subscribe](#subscription) to a signal
+in order to access its values.
 
 Signals send three different types of events to their subscribers:
 
@@ -50,10 +50,25 @@ Signals send three different types of events to their subscribers:
    that no more values will be added to the stream. Completion must be handled
    specially – it is not included in the stream of values.
 
-Thus, the lifetime of a signal consists of any number of `next` events, followed
-by one `error` or `completed` event (but not both).
+The lifetime of a signal consists of any number of `next` events, followed by
+one `error` or `completed` event (but not both).
 
-### Subscribers
+### Subscription
+
+Abstractly, a **subscriber** is anything that is waiting or capable of waiting
+for events from a [signal](#signals). Within RAC, a subscriber is represented as
+any object that conforms to the [RACSubscriber][] protocol.
+
+In common usage, a **subscription** is created through any call to
+[-subscribeNext:error:completed:][RACSignal] (or one of its corresponding
+convenience methods). Technically, most [stream][RACStream] or
+[signal][RACSignal+Operations] operations create subscriptions as well, but
+these intermediate subscriptions are usually an implementation detail.
+
+Subscriptions [retain their signals][Memory Management], and are automatically
+disposed of when the signal completes or errors. Subscriptions can also be
+[disposed of manually](#disposables).
+
 ### Disposables
 ### Subjects
 ### Commands
@@ -92,9 +107,11 @@ a [stream](#streams):
 ## Schedulers
 
 [Clojure sequences]: http://clojure.org/sequences
+[Design Guidelines]: DesignGuidelines.md
 [Haskell]: http://www.haskell.org
 [lazy-seq]: http://clojure.github.com/clojure/clojure.core-api.html#clojure.core/lazy-seq
 [List]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Data-List.html
+[Memory Management]: MemoryManagement.md
 [monads]: http://en.wikipedia.org/wiki/Monad_(functional_programming)
 [MonadPlus]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Control-Monad.html#t:MonadPlus
 [MonadZip]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Control-Monad-Zip.html#t:MonadZip
@@ -103,5 +120,7 @@ a [stream](#streams):
 [RACSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h
 [RACSignal+Operations]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h
 [RACStream]: ../ReactiveCocoaFramework/ReactiveCocoa/RACStream.h
+[RACSubscriber]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubscriber.h
 [RACTuple]: ../ReactiveCocoaFramework/ReactiveCocoa/RACTuple.h
 [RACUnit]: ../ReactiveCocoaFramework/ReactiveCocoa/RACUnit.h
+[README]: ../README.md

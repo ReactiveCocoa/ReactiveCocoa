@@ -5,7 +5,7 @@ within the ReactiveCocoa framework, and an attempt to explain how they work
 together and divide responsibilities. This is meant to be a starting point for
 learning about new modules and finding more specific documentation.
 
-For examples and understanding how to use RAC, see the [README][] or
+For examples and help understanding how to use RAC, see the [README][] or
 the [Design Guidelines][].
 
 ## Streams
@@ -17,11 +17,9 @@ Values may be available immediately or in the future, but must be retrieved
 sequentially. There is no way to retrieve the second value of a stream without
 evaluating or waiting for the first value.
 
-Streams are
-[monads][], which,
-among other things, allows complex operations to be built on a few basic
-primitives (most notably, `-bind:`). [RACStream][] also implements the
-equivalent of the [MonadPlus][] and [MonadZip][] typeclasses from
+Streams are [monads][]. Among other things, this allows complex operations to be
+built on a few basic primitives (`-bind:` in particular). [RACStream][] also
+implements the equivalent of the [MonadPlus][] and [MonadZip][] typeclasses from
 [Haskell][].
 
 [RACStream][] isn't terribly useful on its own. Most streams are treated as
@@ -32,7 +30,7 @@ equivalent of the [MonadPlus][] and [MonadZip][] typeclasses from
 A **signal**, represented by the [RACSignal][] class, is a _push-driven_
 [stream](#streams).
 
-Signals generally represent an asynchronous computation or data request. As work
+Signals generally represent asynchronous computations or data requests. As work
 is performed or data is received, values are _sent_ on the signal, which pushes
 them out to any subscribers. Users must [subscribe](#subscription) to a signal
 in order to access its values.
@@ -55,13 +53,13 @@ one `error` or `completed` event (but not both).
 
 ### Subscription
 
-Abstractly, a **subscriber** is anything that is waiting or capable of waiting
-for events from a [signal](#signals). Within RAC, a subscriber is represented as
-any object that conforms to the [RACSubscriber][] protocol.
+A **subscriber** is anything that is waiting or capable of waiting for events
+from a [signal](#signals). Within RAC, a subscriber is represented as any object
+that conforms to the [RACSubscriber][] protocol.
 
-In common usage, a **subscription** is created through any call to
-[-subscribeNext:error:completed:][RACSignal] (or one of its corresponding
-convenience methods). Technically, most [RACStream][] or
+A **subscription** is created through any call to
+[-subscribeNext:error:completed:][RACSignal], or one of the corresponding
+convenience methods. Technically, most [RACStream][] and
 [RACSignal][RACSignal+Operations] operators create subscriptions as well, but
 these intermediate subscriptions are usually an implementation detail.
 
@@ -73,11 +71,11 @@ disposed of when the signal completes or errors. Subscriptions can also be
 
 The **[RACDisposable][]** class is used for cancellation and resource cleanup.
 
-Disposables are most commonly used to [unsubscribe](#subscription) from
-a [signal](#signals). When a subscription is disposed, the corresponding
-subscriber will not receive _any_ further events from the signal. Additionally,
-any work associated with the subscription (background processing, a network
-request, etc.) will be cancelled, since its result is no longer needed.
+Disposables are most commonly used to unsubscribe from a [signal](#signals).
+When a [subscription](#subscription) is disposed, the corresponding subscriber
+will not receive _any_ further events from the signal. Additionally, any work
+associated with the subscription (background processing, network requests, etc.)
+will be cancelled, since the results are no longer needed.
 
 For more information about cancellation, see the RAC [Design Guidelines][].
 
@@ -91,9 +89,9 @@ Subjects can be thought of as the "mutable" variant of a signal, much like
 non-RAC code into the world of signals.
 
 For example, instead of handling application logic in block callbacks, the
-blocks can simply send [events](#signals) on a shared subject instead. The
-subject can then be returned as a [RACSignal][], hiding the implementation
-detail of the callbacks.
+blocks can simply send events to a shared subject instead. The subject can then
+be returned as a [RACSignal][], hiding the implementation detail of the
+callbacks.
 
 Some subjects offer additional behaviors as well. In particular,
 [RACReplaySubject][] can be used to buffer events for future
@@ -110,8 +108,9 @@ clicked. Commands can also be automatically disabled based on a signal, and this
 disabled state can be represented in a UI by disabling any controls associated
 with the command.
 
-On OS X, RAC adds a [rac_command property][NSButton+RACCommandSupport] to
-`NSButton` for setting up these behaviors automatically.
+On OS X, RAC adds a `rac_command` property to
+[NSButton][NSButton+RACCommandSupport] for setting up these behaviors
+automatically.
 
 ### Connections
 
@@ -129,7 +128,7 @@ A connection is created through the `-publish` or `-multicast:` methods on
 [RACSignal][RACSignal+Operations], and ensures that only one underlying
 subscription is created, no matter how many times the connection is subscribed
 to. Once connected, the underlying subscription will remain active (_hot_) until
-_all_ subscriptions to the connection are [disposed of](#disposables).
+_all_ subscriptions to the connection are [disposed](#disposables).
 
 ## Sequences
 
@@ -141,7 +140,7 @@ an array, the values in a sequence are evaluated _lazily_ (i.e., only when they
 are needed) by default, potentially improving performance if only part of
 a sequence is used. Just like Cocoa collections, sequences cannot contain `nil`.
 
-Sequences are similar to [Clojure sequences][] ([lazy-seq][] in particular), or
+Sequences are similar to [Clojure's sequences][] ([lazy-seq][] in particular), or
 the [List][] type in [Haskell][].
 
 RAC adds a `-rac_sequence` method to most of Cocoa's collection classes,
@@ -169,7 +168,7 @@ execution queue for [signals](#signals) to perform work or deliver their results
 Schedulers are similar to Grand Central Dispatch queues, but schedulers support
 cancellation (via [disposables](#disposables)), and always execute serially.
 With the exception of the [+immediateScheduler][RACScheduler], schedulers also
-do not offer synchronous execution. This helps avoid deadlocks and encourages
+do not offer synchronous execution. This helps avoid deadlocks, and encourages
 the use of [signal operators][RACSignal+Operations] instead of blocking work.
 
 [RACScheduler][] is also somewhat similar to `NSOperationQueue`, but schedulers

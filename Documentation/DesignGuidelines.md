@@ -493,6 +493,36 @@ should:
 This helps fulfill [the RACSignal contract](#the-racsignal-contract).
 
 ### Do not block in an operator
+
+Stream operators should return a new stream more-or-less immediately. Any work
+that the operator needs to perform should be part of evaluating the new stream,
+_not_ part of the operator invocation itself.
+
+```objc
+// WRONG!
+- (RACSequence *)map:(id (^)(id))block {
+    RACSequence *result = [RACSequence empty];
+    for (id obj in self) {
+        id mappedObj = block(obj);
+        result = [result concat:[RACSequence return:mappedObj]];
+    }
+
+    return result;
+}
+
+// Right!
+- (RACSequence *)map:(id (^)(id))block {
+    return [self flattenMap:^(id obj) {
+        id mappedObj = block(obj);
+        return [RACSequence return:mappedObj];
+    }];
+}
+```
+
+This guideline can be safely ignored when the purpose of an operator is to
+synchronously retrieve one or more values from a stream (like
+[-first][RACSignal+Operations]).
+
 ### Avoid stack overflow from deep recursion
 
 [Memory Management]: MemoryManagement.md

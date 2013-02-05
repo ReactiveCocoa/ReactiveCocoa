@@ -468,6 +468,16 @@ possible in a custom operator implementation. Generally, there should be very
 little code written from scratch.
 
 ### Avoid introducing concurrency
+
+Concurrency is an extremely common source of bugs in programming. To minimize
+the potential for deadlocks and race conditions, operators should not
+concurrently perform their work.
+
+Callers always have the ability to subscribe or deliver events on a specific
+[RACScheduler][], and RAC offers powerful ways to [parallelize
+work](#parallelizing-independent-work) without making operators unnecessarily
+complex.
+
 ### Cancel work and clean up all resources in a disposable
 ### Do not block in an operator
 ### Avoid stack overflow from deep recursion

@@ -426,12 +426,160 @@ events as they occur, and include the name of the signal in the messages. This
 can be used to conveniently inspect a signal in real-time.
 
 ## Implementing new operators
+
+RAC provides a long list of built-in operators for [streams][RACStream] and
+[signals][RACSignal+Operations] that should cover most use cases; however, RAC
+is not a closed system. It's entirely valid to implement additional operators
+for specialized uses, or for consideration in ReactiveCocoa itself.
+
+Implementing a new operator requires a careful attention to detail and a focus
+on simplicity, to avoid introducing bugs into the calling code.
+
+These guidelines cover some of the common pitfalls and help preserve the
+expected API contracts.
+
 ### Prefer building on RACStream methods
+
+[RACStream][] offers a simpler interface than [RACSequence][] and [RACSignal][],
+and all stream operators are automatically applicable to sequences and signals
+as well.
+
+For these reasons, new operators should be implemented using only [RACStream][]
+methods whenever possible. The minimal required methods of the class, including
+`-bind:`, `+zip:reduce:`, and `-concat:`, are quite powerful, and many tasks can
+be accomplished without needing anything else.
+
+If a new [RACSignal][] operator needs to handle `error` and `completed` events,
+consider using the [-materialize][RACSignal+Operations] method to bring the
+events into the stream. All of the events of a materialized signal can be
+manipulated by stream operators, which helps minimize the use of non-stream
+operators.
+
 ### Compose existing operators when possible
+
+Considerable thought has been put into the operators provided by RAC, and they
+have been validated through automated tests and through their real world use in
+other projects. An operator that has been written from scratch may not be as
+robust, or might not handle a special case that the built-in operators are aware
+of.
+
+To minimize duplication and possible bugs, use the provided operators as much as
+possible in a custom operator implementation. Generally, there should be very
+little code written from scratch.
+
 ### Avoid introducing concurrency
+
+Concurrency is an extremely common source of bugs in programming. To minimize
+the potential for deadlocks and race conditions, operators should not
+concurrently perform their work.
+
+Callers always have the ability to subscribe or deliver events on a specific
+[RACScheduler][], and RAC offers powerful ways to [parallelize
+work](#parallelizing-independent-work) without making operators unnecessarily
+complex.
+
 ### Cancel work and clean up all resources in a disposable
+
+When implementing a signal with the [+createSignal:][RACSignal] method, the
+provided block is expected to return a [RACDisposable][]. This disposable
+should:
+
+ * As soon as it is convenient, gracefully cancel any in-progress work that was
+   started by the signal.
+ * Immediately dispose of any subscriptions to other signals, thus triggering
+   their cancellation and cleanup code as well.
+ * Release any memory or other resources that were allocated by the signal.
+
+This helps fulfill [the RACSignal contract](#the-racsignal-contract).
+
 ### Do not block in an operator
+
+Stream operators should return a new stream more-or-less immediately. Any work
+that the operator needs to perform should be part of evaluating the new stream,
+_not_ part of the operator invocation itself.
+
+```objc
+// WRONG!
+- (RACSequence *)map:(id (^)(id))block {
+    RACSequence *result = [RACSequence empty];
+    for (id obj in self) {
+        id mappedObj = block(obj);
+        result = [result concat:[RACSequence return:mappedObj]];
+    }
+
+    return result;
+}
+
+// Right!
+- (RACSequence *)map:(id (^)(id))block {
+    return [self flattenMap:^(id obj) {
+        id mappedObj = block(obj);
+        return [RACSequence return:mappedObj];
+    }];
+}
+```
+
+This guideline can be safely ignored when the purpose of an operator is to
+synchronously retrieve one or more values from a stream (like
+[-first][RACSignal+Operations]).
+
 ### Avoid stack overflow from deep recursion
+
+Any operator that might recurse indefinitely should use the
+`-scheduleRecursiveBlock:` method of [RACScheduler][]. This method will
+transform recursion into iteration instead, preventing a stack overflow.
+
+For example, this would be an incorrect implementation of
+[-repeat][RACSignal+Operations], due to its potential to overflow the call stack
+and cause a crash:
+
+```objc
+- (RACSignal *)repeat {
+    return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+        RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposable];
+
+        __block void (^resubscribe)(void) = ^{
+            RACDisposable *disposable = [self subscribeNext:^(id x) {
+                [subscriber sendNext:x];
+            } error:^(NSError *error) {
+                [subscriber sendError:error];
+            } completed:^{
+                resubscribe();
+            }];
+
+            if (disposable != nil) [compoundDisposable addDisposable:disposable];
+        };
+
+        return compoundDisposable;
+    }];
+}
+```
+
+By contrast, this version will avoid a stack overflow:
+
+```objc
+- (RACSignal *)repeat {
+    return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+        RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposable];
+
+        RACScheduler *scheduler = RACScheduler.currentScheduler ?: [RACScheduler scheduler];
+        RACDisposable *disposable = [scheduler scheduleRecursiveBlock:^(void (^reschedule)(void)) {
+            RACDisposable *disposable = [self subscribeNext:^(id x) {
+                [subscriber sendNext:x];
+            } error:^(NSError *error) {
+                [subscriber sendError:error];
+            } completed:^{
+                reschedule();
+            }];
+
+            if (disposable != nil) [compoundDisposable addDisposable:disposable];
+        }];
+
+        if (disposable != nil) [compoundDisposable addDisposable:disposable];
+        return compoundDisposable;
+    }];
+}
+```
 
 [Memory Management]: MemoryManagement.md
 [NSObject+RACLifting]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACLifting.h

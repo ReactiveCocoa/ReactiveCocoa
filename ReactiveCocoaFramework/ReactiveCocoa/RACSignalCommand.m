@@ -54,6 +54,8 @@
 }
 
 - (id)initWithCanExecuteSignal:(RACSignal *)canExecuteSignal signalBlock:(RACSignal * (^)(id sender))signalBlock {
+	NSParameterAssert(signalBlock != nil);
+
 	self = [self initWithCanExecuteSignal:canExecuteSignal block:nil];
 	if (self == nil) return nil;
 

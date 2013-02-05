@@ -50,7 +50,7 @@
 //                    return a signal which performs additional work. The signal
 //                    will be subscribed to immediately, but can perform its
 //                    work asynchronously. The `sender` argument will be the
-//                    object passed to -execute:. This argument may be nil.
+//                    object passed to -execute:. This argument must not be nil.
 //
 // Returns the initialized command.
 - (id)initWithCanExecuteSignal:(RACSignal *)canExecuteSignal signalBlock:(RACSignal * (^)(id sender))signalBlock;

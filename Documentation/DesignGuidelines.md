@@ -525,6 +525,62 @@ synchronously retrieve one or more values from a stream (like
 
 ### Avoid stack overflow from deep recursion
 
+Any operator that might recurse indefinitely should use the
+`-scheduleRecursiveBlock:` method of [RACScheduler][]. This method will
+transform recursion into iteration instead, preventing a stack overflow.
+
+For example, this would be an incorrect implementation of
+[-repeat][RACSignal+Operations], due to its potential to overflow the call stack
+and cause a crash:
+
+```objc
+- (RACSignal *)repeat {
+    return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+        RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposable];
+
+        __block void (^resubscribe)(void) = ^{
+            RACDisposable *disposable = [self subscribeNext:^(id x) {
+                [subscriber sendNext:x];
+            } error:^(NSError *error) {
+                [subscriber sendError:error];
+            } completed:^{
+                resubscribe();
+            }];
+
+            if (disposable != nil) [compoundDisposable addDisposable:disposable];
+        };
+
+        return compoundDisposable;
+    }];
+}
+```
+
+By contrast, this version will avoid a stack overflow:
+
+```objc
+- (RACSignal *)repeat {
+    return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+        RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposable];
+
+		RACScheduler *scheduler = RACScheduler.currentScheduler ?: [RACScheduler scheduler];
+        RACDisposable *disposable = [scheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
+            RACDisposable *disposable = [self subscribeNext:^(id x) {
+                [subscriber sendNext:x];
+            } error:^(NSError *error) {
+                [subscriber sendError:error];
+            } completed:^{
+                recurse();
+            }];
+
+            if (disposable != nil) [compoundDisposable addDisposable:disposable];
+        }];
+
+        if (disposable != nil) [compoundDisposable addDisposable:disposable];
+        return compoundDisposable;
+    }];
+}
+```
+
 [Memory Management]: MemoryManagement.md
 [NSObject+RACLifting]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACLifting.h
 [RAC]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h

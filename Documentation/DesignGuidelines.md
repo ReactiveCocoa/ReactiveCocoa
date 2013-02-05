@@ -562,7 +562,7 @@ By contrast, this version will avoid a stack overflow:
     return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
         RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposable];
 
-		RACScheduler *scheduler = RACScheduler.currentScheduler ?: [RACScheduler scheduler];
+        RACScheduler *scheduler = RACScheduler.currentScheduler ?: [RACScheduler scheduler];
         RACDisposable *disposable = [scheduler scheduleRecursiveBlock:^(void (^reschedule)(void)) {
             RACDisposable *disposable = [self subscribeNext:^(id x) {
                 [subscriber sendNext:x];

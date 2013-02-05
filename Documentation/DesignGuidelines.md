@@ -456,6 +456,17 @@ signal can be manipulated by stream operators, which can help minimize the use
 of non-stream operators.
 
 ### Compose existing operators when possible
+
+Considerable thought has been put into the operators provided by RAC, and they
+have been validated through automated tests and through their real world use in
+other projects. An operator that has been written from scratch may not be as
+robust, or might not handle a special case that the built-in operators are aware
+of.
+
+To minimize duplication and possible bugs, use the provided operators as much as
+possible in a custom operator implementation. Generally, there should be very
+little code written from scratch.
+
 ### Avoid introducing concurrency
 ### Cancel work and clean up all resources in a disposable
 ### Do not block in an operator

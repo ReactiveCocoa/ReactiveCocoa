@@ -426,6 +426,18 @@ events as they occur, and include the name of the signal in the messages. This
 can be used to conveniently inspect a signal in real-time.
 
 ## Implementing new operators
+
+RAC provides a long list of built-in operators for [streams][RACStream] and
+[signals][RACSignal+Operations] that should cover most use cases; however, RAC
+is not a closed system. It's entirely valid to implement additional operators
+for specialized uses, or for consideration in ReactiveCocoa itself.
+
+Implementing a new operator requires a careful attention to detail and a focus
+on simplicity, to avoid introducing bugs into the calling code.
+
+These guidelines cover some of the common pitfalls and help preserve the
+expected API contracts.
+
 ### Prefer building on RACStream methods
 ### Compose existing operators when possible
 ### Avoid introducing concurrency

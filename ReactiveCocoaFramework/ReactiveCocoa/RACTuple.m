@@ -50,7 +50,7 @@
 
 - (instancetype)init {
 	self = [super init];
-	if(self == nil) return nil;
+	if (self == nil) return nil;
 	
 	self.backingArray = [NSArray array];
 	
@@ -58,13 +58,13 @@
 }
 
 - (NSString *)description {
-	return [NSString stringWithFormat:@"<%@: %p> %@", NSStringFromClass([self class]), self, [self allObjects]];
+	return [NSString stringWithFormat:@"<%@: %p> %@", self.class, self, self.allObjects];
 }
 
 - (BOOL)isEqual:(RACTuple *)object {
 	if (object == self) return YES;
 	if (![object isKindOfClass:self.class]) return NO;
-
+	
 	return [self.backingArray isEqual:object.backingArray];
 }
 
@@ -93,7 +93,7 @@
 - (id)initWithCoder:(NSCoder *)coder {
 	self = [self init];
 	if (self == nil) return nil;
-
+	
 	self.backingArray = [coder decodeObjectForKey:@keypath(self.backingArray)];
 	return self;
 }
@@ -112,10 +112,10 @@
 + (instancetype)tupleWithObjectsFromArray:(NSArray *)array convertNullsToNils:(BOOL)convert {
 	RACTuple *tuple = [[self alloc] init];
 	
-	if(convert) {
+	if (convert) {
 		NSMutableArray *newArray = [NSMutableArray arrayWithCapacity:array.count];
-		for(id object in array) {
-			[newArray addObject:[object isKindOfClass:[NSNull class]] ? [RACTupleNil tupleNil] : object];
+		for (id object in array) {
+			[newArray addObject:[object isKindOfClass:NSNull.class] ? RACTupleNil.tupleNil : object];
 		}
 		
 		tuple.backingArray = [newArray copy];
@@ -132,11 +132,11 @@
 	NSMutableArray *objects = [NSMutableArray array];
 	
 	va_list args;
-    va_start(args, object);
-    for(id currentObject = object; currentObject != nil; currentObject = va_arg(args, id)) {
-        [objects addObject:currentObject];
-    }
-    va_end(args);
+	va_start(args, object);
+	for (id currentObject = object; currentObject != nil; currentObject = va_arg(args, id)) {
+		[objects addObject:currentObject];
+	}
+	va_end(args);
 	
 	tuple.backingArray = [objects copy];
 	
@@ -144,16 +144,16 @@
 }
 
 - (id)objectAtIndex:(NSUInteger)index {
-	if(index >= self.count) return nil;
+	if (index >= self.count) return nil;
 	
 	id object = [self.backingArray objectAtIndex:index];
-	return [object isKindOfClass:[RACTupleNil class]] ? nil : object;
+	return [object isKindOfClass:RACTupleNil.class] ? nil : object;
 }
 
 - (NSArray *)allObjects {
 	NSMutableArray *newArray = [NSMutableArray arrayWithCapacity:self.backingArray.count];
-	for(id object in self.backingArray) {
-		[newArray addObject:[object isKindOfClass:[RACTupleNil class]] ? [NSNull null] : object];
+	for (id object in self.backingArray) {
+		[newArray addObject:[object isKindOfClass:RACTupleNil.class] ? NSNull.null : object];
 	}
 	
 	return newArray;
@@ -201,7 +201,7 @@
 @implementation RACTuple (ObjectSubscripting)
 
 - (id)objectAtIndexedSubscript:(NSUInteger)idx {
-    return [self objectAtIndex:idx];
+	return [self objectAtIndex:idx];
 }
 
 @end
@@ -217,13 +217,13 @@
 	dispatch_once(&onceToken, ^{
 		trampoline = [[self alloc] init];
 	});
-
+	
 	return trampoline;
 }
 
 - (void)setObject:(RACTuple *)tuple forKeyedSubscript:(NSArray *)variables {
 	NSParameterAssert(variables != nil);
-
+	
 	[variables enumerateObjectsUsingBlock:^(NSValue *value, NSUInteger index, BOOL *stop) {
 		__autoreleasing id *ptr = (__autoreleasing id *)value.pointerValue;
 		*ptr = tuple[index];

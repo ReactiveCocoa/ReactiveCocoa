@@ -11,6 +11,11 @@
 
 @class RACSequence;
 
+// Creates a new tuple with the given values. At least one value must be given.
+// Values can be nil.
+#define RACTuplePack(...) \
+    RACTuplePack_(__VA_ARGS__)
+
 // Declares new object variables and unpacks a RACTuple into them.
 //
 // This macro should be used on the left side of an assignment, with the
@@ -99,7 +104,13 @@
 
 // This and everything below is for internal use only.
 //
-// See RACTupleUnpack() instead.
+// See RACTuplePack() and RACTupleUnpack() instead.
+#define RACTuplePack_(...) \
+    ([RACTuple tupleWithObjectsFromArray:@[ metamacro_foreach(RACTuplePack_object_or_ractuplenil,, __VA_ARGS__) ]])
+
+#define RACTuplePack_object_or_ractuplenil(INDEX, ARG) \
+    (ARG) ?: RACTupleNil.tupleNil,
+
 #define RACTupleUnpack_(...) \
     metamacro_foreach(RACTupleUnpack_decl,, __VA_ARGS__) \
     \

@@ -449,11 +449,11 @@ methods whenever possible. The minimal required methods of the class, including
 `-bind:`, `+zip:reduce:`, and `-concat:`, are quite powerful, and many tasks can
 be accomplished without needing anything else.
 
-If a new signal operator needs to handle `error` and `completed` events in
-addition to values, consider using the [-materialize][RACSignal+Operations]
-method to bring the events into the stream. All of the events of a materialized
-signal can be manipulated by stream operators, which can help minimize the use
-of non-stream operators.
+If a new [RACSignal][] operator needs to handle `error` and `completed` events,
+consider using the [-materialize][RACSignal+Operations] method to bring the
+events into the stream. All of the events of a materialized signal can be
+manipulated by stream operators, which helps minimize the use of non-stream
+operators.
 
 ### Compose existing operators when possible
 
@@ -479,6 +479,19 @@ work](#parallelizing-independent-work) without making operators unnecessarily
 complex.
 
 ### Cancel work and clean up all resources in a disposable
+
+When implementing a signal with the [+createSignal:][RACSignal] method, the
+provided block is expected to return a [RACDisposable][]. This disposable
+should:
+
+ * As soon as it is convenient, gracefully cancel any in-progress work that was
+   started by the signal.
+ * Immediately dispose of any subscriptions to other signals, thus triggering
+   their cancellation and cleanup code as well.
+ * Release any memory or other resources that were allocated by the signal.
+
+This helps fulfill [the RACSignal contract](#the-racsignal-contract).
+
 ### Do not block in an operator
 ### Avoid stack overflow from deep recursion
 

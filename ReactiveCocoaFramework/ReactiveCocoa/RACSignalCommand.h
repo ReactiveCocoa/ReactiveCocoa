@@ -25,7 +25,7 @@
 // `signalBlock`.
 //
 // It is unspecified which thread this signal delivers its events on.
-@property (atomic, strong, readonly) RACSignal *signalBlockSignal;
+@property (nonatomic, strong, readonly) RACSignal *signalBlockSignal;
 
 // Invokes +commandWithCanExecuteSignal:signalBlock: with a nil
 // `canExecuteSignal`.

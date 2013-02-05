@@ -563,13 +563,13 @@ By contrast, this version will avoid a stack overflow:
         RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposable];
 
 		RACScheduler *scheduler = RACScheduler.currentScheduler ?: [RACScheduler scheduler];
-        RACDisposable *disposable = [scheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
+        RACDisposable *disposable = [scheduler scheduleRecursiveBlock:^(void (^reschedule)(void)) {
             RACDisposable *disposable = [self subscribeNext:^(id x) {
                 [subscriber sendNext:x];
             } error:^(NSError *error) {
                 [subscriber sendError:error];
             } completed:^{
-                recurse();
+                reschedule();
             }];
 
             if (disposable != nil) [compoundDisposable addDisposable:disposable];

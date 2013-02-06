@@ -441,6 +441,36 @@ predictable, understandable, and performant.
 They are, however, only guidelines. Use best judgement when determining whether
 to apply the recommendations here to a given piece of code.
 
+### Use descriptive declarations for methods and properties that return a signal
+
+When a method or property has a return type of [RACSignal][], it can be
+difficult to understand the signal's semantics at a glance.
+
+There are three key questions that can inform a declaration:
+
+ 1. Is the signal _hot_ (already activated by the time it's returned to the
+    caller) or _cold_ (activated when subscribed to)?
+ 1. Will the signal include zero, one, or more values?
+ 1. Does the signal have side effects?
+
+**Hot signals without side effects** should typically be properties instead of
+methods. The use of a property indicates that no initialization is needed before
+subscribing to the signal's events, and that additional subscribers will not
+change the semantics. Signal properties should usually be named after events
+(e.g., `textChanged`).
+
+**Cold signals without side effects** should be returned from methods that have
+noun-like names (e.g., `-currentText`). A method declaration indicates that the
+signal might not be kept around, hinting that work is performed at the time of
+subscription. If the signal sends multiple values, the noun should be pluralized
+(e.g., `-currentModels`).
+
+**Signals with side effects** should be returned from methods that have
+verb-like names (e.g., `-logIn`). The verb indicates that the method is not
+idempotent and that callers must be careful to call it only when the side
+effects are desired. If the signal will send one or more values, include a noun
+that describes them (e.g., `-loadConfiguration`, `-fetchLatestEvents`).
+
 ### Use the same type for all the values of a stream
 
 [RACStream][] (and, by extension, [RACSignal][] and [RACSequence][]) allows

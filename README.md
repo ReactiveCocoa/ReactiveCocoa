@@ -263,7 +263,7 @@ You can find them in [RACExtensions][]. To use them, simply add them directly to
 your project as needed.
 
 ## License
-ReactiveCocoa is available under the MIT License.
+ReactiveCocoa is available under the [MIT License](LICENSE.md).
 
 ## More Info
 ReactiveCocoa is based on .NET's [Reactive

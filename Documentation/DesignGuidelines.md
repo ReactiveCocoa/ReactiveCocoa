@@ -309,9 +309,9 @@ NSString *concatB3 = derivedSequence.tail.head;
 ### Errors are propagated immediately
 ### Side effects occur for each subscription
 
-When a [RACSignal][] is subscribed to, its subscribe block will be called once
-for each new subscription. This means that side effects inside a [RACSignal][]
-subscribe block will happen as many times as subscriptions to the signal itself.
+Each new subscription to a [RACSignal][] will trigger its side effects. This
+means that any side effects will happen as many times as subscriptions to the
+signal itself.
 
 Consider this example:
 ```objc

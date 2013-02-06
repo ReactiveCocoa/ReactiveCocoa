@@ -308,6 +308,69 @@ NSString *concatB3 = derivedSequence.tail.head;
 ### Subscription will always occur on a scheduler
 ### Errors are propagated immediately
 ### Side effects occur for each subscription
+
+Each new subscription to a [RACSignal][] will trigger its side effects. This
+means that any side effects will happen as many times as subscriptions to the
+signal itself.
+
+Consider this example:
+```objc
+__block int aNumber = 0;
+
+// Signal that will have the side effect of incrementing `aNumber` block 
+// variable for each subscription before sending it.
+RACSignal *aSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+	aNumber++;
+	[subscriber sendNext:@(aNumber)];
+	[subscriber sendCompleted];
+	return nil;
+}];
+
+// This will print "subscriber one: 1"
+[aSignal subscribeNext:^(id x) {
+	NSLog(@"subscriber one: %@", x);
+}];
+
+// This will print "subscriber two: 2"
+[aSignal subscribeNext:^(id x) {
+	NSLog(@"subscriber two: %@", x);
+}];
+```
+
+Side effects are repeated for each subscription. The same applies to
+[stream][RACStream] and [signal][RACSignal+Operations] operators:
+
+```objc
+__block int missilesToLaunch = 0;
+
+// Signal that will have the side effect of changing `missilesToLaunch` on
+// subscription.
+RACSignal *processedSignal = [[RACSignal return:@"missiles"]
+	map:^(id x) {
+		missilesToLaunch++;
+		return [NSString stringWithFormat:@"will launch %d %@", missilesToLaunch, x];
+	}];
+
+// This will print "First will launch 1 missiles"
+[processedSignal subscribeNext:^(id x) {
+	NSLog(@"First %@", x);
+}];
+
+// This will print "Second will launch 2 missiles"
+[processedSignal subscribeNext:^(id x) {
+	NSLog(@"Second %@", x);
+}];
+```
+
+To suppress this behavior and have multiple subscriptions to a signal execute
+its side effects only once, a signal can be 
+[multicasted](#share-the-side-effects-of-a-signal-by-multicasting).
+
+Side effects can be insidious and produce problems that are difficult to
+diagnose. For this reason it is suggested to 
+[make side effects explicit](#make-the-side-effects-of-a-signal-explicit) when 
+possible.
+
 ### Subscriptions are automatically disposed upon completion or error
 ### Outstanding work is cancelled on disposal
 ### Resources are cleaned up on disposal

@@ -277,7 +277,7 @@ subscription. If the signal sends multiple values, the noun should be pluralized
 verb-like names (e.g., `-logIn`). The verb indicates that the method is not
 idempotent and that callers must be careful to call it only when the side
 effects are desired. If the signal will send one or more values, include a noun
-that describes it (e.g., `-loadConfiguration`, `-fetchLatestEvents`).
+that describes them (e.g., `-loadConfiguration`, `-fetchLatestEvents`).
 
 ### Use the same type for all the values of a stream
 

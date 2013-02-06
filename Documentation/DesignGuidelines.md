@@ -277,6 +277,14 @@ obviously not subject to this rule.
 
 ### Side effects occur for each subscription
 ### Subscriptions are automatically disposed upon completion or error
+
+When a [subscriber][RACSubscriber] is sent a `completed` or `error` event, the
+associated subscription will automatically be disposed. This behavior usually
+eliminates the need to manually dispose of subscriptions.
+
+See the [Memory Management][] document for more information about signal
+lifetime.
+
 ### Outstanding work is cancelled on disposal
 ### Resources are cleaned up on disposal
 
@@ -633,3 +641,4 @@ By contrast, this version will avoid a stack overflow:
 [RACSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h
 [RACSignal+Operations]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h
 [RACStream]: ../ReactiveCocoaFramework/ReactiveCocoa/RACStream.h
+[RACSubscriber]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubscriber.h

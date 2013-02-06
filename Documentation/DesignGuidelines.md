@@ -9,10 +9,12 @@ Guidelines](http://blogs.msdn.com/b/rxteam/archive/2010/10/28/rx-design-guidelin
     1. [Chaining dependent operations](#chaining-dependent-operations)
     1. [Parallelizing independent work](#parallelizing-independent-work)
     1. [Simplifying collection transformations](#simplifying-collection-transformations)
+
 - **[The RACSequence contract](#the-racsequence-contract)**
     1. [Evaluation occurs lazily by default](#evaluation-occurs-lazily-by-default)
     1. [Evaluation blocks the caller](#evaluation-blocks-the-caller)
     1. [Side effects occur only once](#side-effects-occur-only-once)
+
 - **[The RACSignal contract](#the-racsignal-contract)**
     1. [Signal events are serialized](#signal-events-are-serialized)
     1. [Subscription will always occur on a scheduler](#subscription-will-always-occur-on-a-scheduler)
@@ -20,6 +22,7 @@ Guidelines](http://blogs.msdn.com/b/rxteam/archive/2010/10/28/rx-design-guidelin
     1. [Side effects occur for each subscription](#side-effects-occur-for-each-subscription)
     1. [Subscriptions are automatically disposed upon completion or error](#subscriptions-are-automatically-disposed-upon-completion-or-error)
     1. [Disposal cancels in-progress work and cleans up resources](#disposal-cancels-in-progress-work-and-cleans-up-resources)
+
 - **[Best practices](#best-practices)**
     1. [Use descriptive declarations for methods and properties that return a signal](#use-descriptive-declarations-for-methods-and-properties-that-return-a-signal)
     1. [Use the same type for all the values of a stream](#use-the-same-type-for-all-the-values-of-a-stream)
@@ -30,6 +33,7 @@ Guidelines](http://blogs.msdn.com/b/rxteam/archive/2010/10/28/rx-design-guidelin
     1. [Make the side effects of a signal explicit](#make-the-side-effects-of-a-signal-explicit)
     1. [Share the side effects of a signal by multicasting](#share-the-side-effects-of-a-signal-by-multicasting)
     1. [Debug streams by giving them names](#debug-streams-by-giving-them-names)
+
 - **[Implementing new operators](#implementing-new-operators)**
     1. [Prefer building on RACStream methods](#prefer-building-on-racstream-methods)
     1. [Compose existing operators when possible](#compose-existing-operators-when-possible)

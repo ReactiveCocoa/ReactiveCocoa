@@ -341,14 +341,14 @@ Side effects are repeated for each subscription. The same applies to
 [stream][RACStream] and [signal][RACSignal+Operations] operators:
 
 ```objc
-__block int misslesToLaunch = 0;
+__block int missilesToLaunch = 0;
 
 // Signal that will have the side effect of changing `missilesToLaunch` on
 // subscription.
 RACSignal *processedSignal = [[RACSignal return:@"missiles"]
 	map:^(id x) {
-		misslesToLaunch++;
-		return [NSString stringWithFormat:@"will launch %d %@", misslesToLaunch, x];
+		missilesToLaunch++;
+		return [NSString stringWithFormat:@"will launch %d %@", missilesToLaunch, x];
 	}];
 
 // This will print "First will launch 1 missiles"
@@ -363,12 +363,13 @@ RACSignal *processedSignal = [[RACSignal return:@"missiles"]
 ```
 
 To suppress this behavior and have multiple subscriptions to a signal execute
-the subscribe blocks only once, a signal can be 
+its side effects only once, a signal can be 
 [multicasted](#share-the-side-effects-of-a-signal-by-multicasting).
 
 Side effects can be insidious and produce problems that are difficult to
 diagnose. For this reason it is suggested to 
-[make side effects explicit](#make-side-effects-explicit) when possible.
+[make side effects explicit](#make-the-side-effects-of-a-signal-explicit) when 
+possible.
 
 ### Subscriptions are automatically disposed upon completion or error
 ### Outstanding work is cancelled on disposal

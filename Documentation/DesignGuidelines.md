@@ -267,7 +267,7 @@ RACSignal *aSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber
 ```
 
 Side effects are repeated for each subscription. The same applies to
-[streams][RACStream] and [signals][RACSignal+Operations] operators so that, for
+[stream][RACStream] and [signal][RACSignal+Operations] operators so that, for
 example, a side effect inside a [-map:][RACStream] block will be repeated for
 each new subscription to the signal containing that map.
 

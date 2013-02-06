@@ -263,6 +263,15 @@ is more important than avoiding unnecessary work – the
 sequences derived from it afterward) to evaluate eagerly.
 
 ### Evaluation blocks the caller
+
+Regardless of whether a sequence is lazy or eager, evaluation of any part of
+a sequence will block the calling thread until completed. This is necessary
+because values must be synchronously retrieved from a sequence.
+
+If evaluating a sequence is expensive enough that it might block the thread for
+a significant amount of time, consider creating a signal with
+[-signalWithScheduler:][RACSequence] and using that instead.
+
 ### Side effects occur only once
 
 ## The RACSignal contract

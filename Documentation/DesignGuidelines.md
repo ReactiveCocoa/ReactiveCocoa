@@ -256,8 +256,8 @@ difficult to understand the signal's semantics at a glance.
 
 There are three key questions that can inform a declaration:
 
- 1. Is the signal hot (already activated by the time it's returned to the
-    caller) or cold (activated when subscribed to)?
+ 1. Is the signal _hot_ (already activated by the time it's returned to the
+    caller) or _cold_ (activated when subscribed to)?
  1. Will the signal include zero, one, or more values?
  1. Does the signal have side effects?
 

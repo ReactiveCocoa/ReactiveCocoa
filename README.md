@@ -3,8 +3,6 @@ ReactiveCocoa (RAC) is an Objective-C framework for [Functional Reactive
 Programming][]. It provides APIs for **composing and transforming streams of
 values**.
 
-[Functional Reactive Programming]: http://en.wikipedia.org/wiki/Functional_reactive_programming
-
 ## Getting Started
 RAC uses some submodules. Once you've cloned the repository, be sure to run `git
 submodule update --recursive --init` to pull them all down.
@@ -26,8 +24,6 @@ additional code that watches the clock and updates the text field every second.
 Signals can also represent asynchronous operations, much like [futures and
 promises][]. This greatly simplifies asynchronous software, including networking
 code.
-
-[futures and promises]: http://en.wikipedia.org/wiki/Futures_and_promises
 
 One of the major advantages of FRP is that it provides a single, unified
 approach to dealing with different types of reactive, asynchronous behaviors.
@@ -174,7 +170,7 @@ trigged after a group of operations completes:
 ```
 
 Signals can be chained to sequentially execute asynchronous operations, instead
-of nesting callbacks with blocks. This is similar to how futures and promises
+of nesting callbacks with blocks. This is similar to how [futures and promises][]
 are usually used:
 
 ```objc
@@ -234,9 +230,7 @@ makes it possible to write code with less state, less boilerplate, better code
 locality, and better expression of intent.
 
 For more sample code, check out the [Mac][GHAPIDemo] or [iOS][RACiOSDemo] demos.
-
-[GHAPIDemo]:  https://github.com/ReactiveCocoa/GHAPIDemo
-[RACiOSDemo]: https://github.com/ReactiveCocoa/RACiOSDemo
+Additional information about RAC can be found in the [Documentation][] folder.
 
 ## Foundation Support
 There are a number of categories that provide RAC-based bridges to standard
@@ -245,8 +239,6 @@ order to keep the framework size down.
 
 You can find them in [RACExtensions][]. To use them, simply add them directly to
 your project as needed.
-
-[RACExtensions]: https://github.com/ReactiveCocoa/ReactiveCocoa/tree/master/RACExtensions
 
 ## License
 ReactiveCocoa is available under the MIT License.
@@ -263,3 +255,10 @@ out there:
 * [Reactive Extensions wiki](http://rxwiki.wikidot.com/)
 * [101 Rx Samples](http://rxwiki.wikidot.com/101samples)
 * [Programming Reactive Extensions and LINQ](http://www.amazon.com/Programming-Reactive-Extensions-Jesse-Liberty/dp/1430237473)
+
+[Documentation]: Documentation
+[Functional Reactive Programming]: http://en.wikipedia.org/wiki/Functional_reactive_programming
+[futures and promises]: http://en.wikipedia.org/wiki/Futures_and_promises
+[GHAPIDemo]:  https://github.com/ReactiveCocoa/GHAPIDemo
+[RACiOSDemo]: https://github.com/ReactiveCocoa/RACiOSDemo
+[RACExtensions]: RACExtensions

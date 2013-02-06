@@ -276,9 +276,7 @@ a significant amount of time, consider creating a signal with
 
 When the block passed to a sequence operator involves side effects, it is
 important to realize that those side effects will only occur once per value
-– namely, when the value is evaluated.
-
-For example:
+– namely, when the value is evaluated:
 
 ```objc
 NSArray *strings = @[ @"A", @"B", @"C" ];

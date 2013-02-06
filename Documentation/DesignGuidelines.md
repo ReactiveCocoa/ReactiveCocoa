@@ -285,8 +285,16 @@ eliminates the need to manually dispose of subscriptions.
 See the [Memory Management][] document for more information about signal
 lifetime.
 
-### Outstanding work is cancelled on disposal
-### Resources are cleaned up on disposal
+### Disposal cancels in-progress work and cleans up resources
+
+When a subscription is disposed, manually or automatically, any in-progress or
+outstanding work associated with that subscription is gracefully cancelled as
+soon as possible, and any resources associated with the subscription are cleaned
+up.
+
+Disposing of the subscription to a signal representing a file upload, for
+example, would cancel any in-flight network request, and free the file data from
+memory.
 
 ## Best practices
 
@@ -537,7 +545,8 @@ should:
    their cancellation and cleanup code as well.
  * Release any memory or other resources that were allocated by the signal.
 
-This helps fulfill [the RACSignal contract](#the-racsignal-contract).
+This helps fulfill [the RACSignal
+contract](#disposal-cancels-in-progress-work-and-cleans-up-resources).
 
 ### Do not block in an operator
 

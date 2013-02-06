@@ -106,17 +106,18 @@ A **connection**, represented by the [RACMulticastConnection][] class, is
 a [subscription](#subscription) that is shared between any number of
 subscribers.
 
-[Signals](#signals) generally start doing work _each_ time a new subscription
-is added. This behavior (known as a _cold_ signal) is usually desirable, because
-it means that data will be freshly recalculated for each subscriber, but it can
-be problematic if the signal has side effects or the work is expensive (for
-example, sending a network request).
+[Signals](#signals) are _cold_ by default, meaning that they start doing work
+_each_ time a new subscription is added. This behavior is usually desirable,
+because it means that data will be freshly recalculated for each subscriber, but
+it can be problematic if the signal has side effects or the work is expensive
+(for example, sending a network request).
 
 A connection is created through the `-publish` or `-multicast:` methods on
 [RACSignal][RACSignal+Operations], and ensures that only one underlying
 subscription is created, no matter how many times the connection is subscribed
-to. Once connected, the underlying subscription will remain active (_hot_) until
-_all_ subscriptions to the connection are [disposed](#disposables).
+to. Once connected, the connection's signal is said to be _hot_, and the
+underlying subscription will remain active until _all_ subscriptions to the
+connection are [disposed](#disposables).
 
 ## Sequences
 

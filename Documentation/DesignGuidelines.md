@@ -8,12 +8,12 @@ Guidelines](http://blogs.msdn.com/b/rxteam/archive/2010/10/28/rx-design-guidelin
     1. [Handling asynchronous or event-driven data sources](#handling-asynchronous-or-event-driven-data-sources)
     1. [Chaining dependent operations](#chaining-dependent-operations)
     1. [Parallelizing independent work](#parallelizing-independent-work)
-    1. [Simplifying collection transformations](#simplifying-collection-transformations)
+    1. [Simplifying collection transformations](#simplifying-collection-transformations)  
 
 1. **[The RACSequence contract](#the-racsequence-contract)**
     1. [Evaluation occurs lazily by default](#evaluation-occurs-lazily-by-default)
     1. [Evaluation blocks the caller](#evaluation-blocks-the-caller)
-    1. [Side effects occur only once](#side-effects-occur-only-once)
+    1. [Side effects occur only once](#side-effects-occur-only-once)  
 
 1. **[The RACSignal contract](#the-racsignal-contract)**
     1. [Signal events are serialized](#signal-events-are-serialized)
@@ -21,7 +21,7 @@ Guidelines](http://blogs.msdn.com/b/rxteam/archive/2010/10/28/rx-design-guidelin
     1. [Errors are propagated immediately](#errors-are-propagated-immediately)
     1. [Side effects occur for each subscription](#side-effects-occur-for-each-subscription)
     1. [Subscriptions are automatically disposed upon completion or error](#subscriptions-are-automatically-disposed-upon-completion-or-error)
-    1. [Disposal cancels in-progress work and cleans up resources](#disposal-cancels-in-progress-work-and-cleans-up-resources)
+    1. [Disposal cancels in-progress work and cleans up resources](#disposal-cancels-in-progress-work-and-cleans-up-resources)  
 
 1. **[Best practices](#best-practices)**
     1. [Use descriptive declarations for methods and properties that return a signal](#use-descriptive-declarations-for-methods-and-properties-that-return-a-signal)
@@ -32,7 +32,7 @@ Guidelines](http://blogs.msdn.com/b/rxteam/archive/2010/10/28/rx-design-guidelin
     1. [Switch schedulers in as few places as possible](#switch-schedulers-in-as-few-places-as-possible)
     1. [Make the side effects of a signal explicit](#make-the-side-effects-of-a-signal-explicit)
     1. [Share the side effects of a signal by multicasting](#share-the-side-effects-of-a-signal-by-multicasting)
-    1. [Debug streams by giving them names](#debug-streams-by-giving-them-names)
+    1. [Debug streams by giving them names](#debug-streams-by-giving-them-names)  
 
 1. **[Implementing new operators](#implementing-new-operators)**
     1. [Prefer building on RACStream methods](#prefer-building-on-racstream-methods)

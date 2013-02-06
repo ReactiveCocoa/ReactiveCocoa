@@ -274,6 +274,37 @@ a significant amount of time, consider creating a signal with
 
 ### Side effects occur only once
 
+When the block passed to a sequence operator involves side effects, it is
+important to realize that those side effects will only occur once per value
+– namely, when the value is evaluated.
+
+For example:
+
+```objc
+NSArray *strings = @[ @"A", @"B", @"C" ];
+RACSequence *sequence = [strings.rac_sequence map:^(NSString *str) {
+    NSLog(@"%@", str);
+    return [str stringByAppendingString:@"_"];
+}];
+
+// Logs "A" during this call.
+NSString *concatA = sequence.head;
+
+// Logs "B" during this call.
+NSString *concatB = sequence.tail.head;
+
+// Does not log anything.
+NSString *concatB2 = sequence.tail.head;
+
+RACSequence *derivedSequence = [sequence map:^(NSString *str) {
+    return [@"_" stringByAppendingString:str];
+}];
+
+// Still does not log anything, because "B_" was already evaluated, and the log
+// statement associated with it will never be re-executed.
+NSString *concatB3 = derivedSequence.tail.head;
+```
+
 ## The RACSignal contract
 ### Signal events are serialized
 ### Subscription will always occur on a scheduler

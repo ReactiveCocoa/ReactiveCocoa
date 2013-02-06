@@ -269,7 +269,7 @@ change the semantics. Signal properties should usually be named after events
 
 **Cold signals without side effects** should be returned from methods that have
 noun-like names (e.g., `-currentText`). A method declaration indicates that the
-signal might not kept around, which hints that work is performed at the time of
+signal might not be kept around, hinting that work is performed at the time of
 subscription. If the signal sends multiple values, the noun should be pluralized
 (e.g., `currentViewModels`).
 

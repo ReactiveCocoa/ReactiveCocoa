@@ -255,6 +255,16 @@ Most notably, this means that the blocks passed to
 respect to each other, because they will never be invoked simultaneously.
 
 ### Subscription will always occur on a scheduler
+
+To ensure consistent behavior for the `+createSignal:` and `-subscribe:`
+methods, each [RACSignal][] subscription is guaranteed to take place on
+a valid [RACScheduler][].
+
+If the subscriber's thread already has a [+currentScheduler][RACScheduler],
+scheduling takes place immediately; otherwise, scheduling occurs as soon as
+possible on a background scheduler. See the documentation for
+[-subscribe:][RACSignal] for more information.
+
 ### Errors are propagated immediately
 ### Side effects occur for each subscription
 ### Subscriptions are automatically disposed upon completion or error

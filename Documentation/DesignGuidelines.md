@@ -338,11 +338,32 @@ RACSignal *aSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber
 ```
 
 Side effects are repeated for each subscription. The same applies to
-[stream][RACStream] and [signal][RACSignal+Operations] operators so that, for
-example, a side effect inside a [-map:][RACStream] block will be repeated for
-each new subscription to the signal containing that map.
+[stream][RACStream] and [signal][RACSignal+Operations] operators:
 
-To suppress this behavior, a subscription can be 
+```objc
+__block int misslesToLaunch = 0;
+
+// Signal that will have the side effect of changing `missilesToLaunch` on
+// subscription.
+RACSignal *processedSignal = [[RACSignal return:@"missiles"]
+	map:^(id x) {
+		misslesToLaunch++;
+		return [NSString stringWithFormat:@"will launch %d %@", misslesToLaunch, x];
+	}];
+
+// This will print "First will launch 1 missiles"
+[processedSignal subscribeNext:^(id x) {
+	NSLog(@"First %@", x);
+}];
+
+// This will print "Second will launch 2 missiles"
+[processedSignal subscribeNext:^(id x) {
+	NSLog(@"Second %@", x);
+}];
+```
+
+To suppress this behavior and have multiple subscriptions to a signal execute
+the subscribing blocks only once, a subscription can be 
 [multicasted](#share-the-side-effects-of-a-signal-by-multicasting).
 
 Side effects can be insidious and produce problems that are difficult to

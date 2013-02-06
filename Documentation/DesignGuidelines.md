@@ -239,6 +239,21 @@ delivery through _subscriptions_. For more information about signals and
 subscriptions, see the [Framework Overview][].
 
 ### Signal events are serialized
+
+A signal may choose to deliver its events on any thread. Consecutive events are
+even allowed to arrive on different threads or schedulers, unless explicitly
+[delivered onto a particular
+scheduler](#deliver-signal-events-onto-a-known-scheduler).
+
+However, RAC guarantees that no two signal events will ever arrive concurrently.
+While an event is being processed, no other events will be delivered. The
+senders of any other events will be forced to wait until the current event has
+been handled.
+
+Most notably, this means that the blocks passed to
+[-subscribeNext:error:completed:][RACSignal] do not need to be synchronized with
+respect to each other, because they will never be invoked simultaneously.
+
 ### Subscription will always occur on a scheduler
 ### Errors are propagated immediately
 ### Side effects occur for each subscription

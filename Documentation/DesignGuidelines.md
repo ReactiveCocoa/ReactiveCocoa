@@ -4,18 +4,18 @@ This document contains guidelines for projects that want to make use of
 ReactiveCocoa. The content here is heavily inspired by the [Rx Design
 Guidelines](http://blogs.msdn.com/b/rxteam/archive/2010/10/28/rx-design-guidelines.aspx).
 
-- **[When to use RAC](#when-to-use-rac)**
+1. **[When to use RAC](#when-to-use-rac)**
     - [Handling asynchronous or event-driven data sources](#handling-asynchronous-or-event-driven-data-sources)
     - [Chaining dependent operations](#chaining-dependent-operations)
     - [Parallelizing independent work](#parallelizing-independent-work)
     - [Simplifying collection transformations](#simplifying-collection-transformations)  
 
-- **[The RACSequence contract](#the-racsequence-contract)**
+1. **[The RACSequence contract](#the-racsequence-contract)**
     - [Evaluation occurs lazily by default](#evaluation-occurs-lazily-by-default)
     - [Evaluation blocks the caller](#evaluation-blocks-the-caller)
     - [Side effects occur only once](#side-effects-occur-only-once)  
 
-- **[The RACSignal contract](#the-racsignal-contract)**
+1. **[The RACSignal contract](#the-racsignal-contract)**
     - [Signal events are serialized](#signal-events-are-serialized)
     - [Subscription will always occur on a scheduler](#subscription-will-always-occur-on-a-scheduler)
     - [Errors are propagated immediately](#errors-are-propagated-immediately)
@@ -23,7 +23,7 @@ Guidelines](http://blogs.msdn.com/b/rxteam/archive/2010/10/28/rx-design-guidelin
     - [Subscriptions are automatically disposed upon completion or error](#subscriptions-are-automatically-disposed-upon-completion-or-error)
     - [Disposal cancels in-progress work and cleans up resources](#disposal-cancels-in-progress-work-and-cleans-up-resources)  
 
-- **[Best practices](#best-practices)**
+1. **[Best practices](#best-practices)**
     - [Use descriptive declarations for methods and properties that return a signal](#use-descriptive-declarations-for-methods-and-properties-that-return-a-signal)
     - [Use the same type for all the values of a stream](#use-the-same-type-for-all-the-values-of-a-stream)
     - [Avoid retaining streams and disposables directly](#avoid-retaining-streams-and-disposables-directly)
@@ -34,7 +34,7 @@ Guidelines](http://blogs.msdn.com/b/rxteam/archive/2010/10/28/rx-design-guidelin
     - [Share the side effects of a signal by multicasting](#share-the-side-effects-of-a-signal-by-multicasting)
     - [Debug streams by giving them names](#debug-streams-by-giving-them-names)  
 
-- **[Implementing new operators](#implementing-new-operators)**
+1. **[Implementing new operators](#implementing-new-operators)**
     - [Prefer building on RACStream methods](#prefer-building-on-racstream-methods)
     - [Compose existing operators when possible](#compose-existing-operators-when-possible)
     - [Avoid introducing concurrency](#avoid-introducing-concurrency)

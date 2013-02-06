@@ -238,10 +238,9 @@ RACSequence *results = [[strings.rac_sequence
 ### Errors are propagated immediately
 ### Side effects occur for each subscription
 
-If a [RACSignal][] is created using `+createSignal:`, the given block will be
-called once for each new subscription. This means that side effects inside a
-[RACSignal][] subscribe block will happen as many times as subscriptions to the
-signal itself.
+When a [RACSignal][] is subscribed to, its subscribe block will be called once
+for each new subscription. This means that side effects inside a [RACSignal][]
+subscribe block will happen as many times as subscriptions to the signal itself.
 
 Consider this example:
 ```objc
@@ -267,7 +266,7 @@ RACSignal *aSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber
 }];
 ```
 
-Side effects are repeated for each subscription. The same apply to
+Side effects are repeated for each subscription. The same applies to
 [streams][RACStream] and [signals][RACSignal+Operations] operators so that, for
 example, a side effect inside a [-map:][RACStream] block will be repeated for
 each new subscription to the signal containing that map.

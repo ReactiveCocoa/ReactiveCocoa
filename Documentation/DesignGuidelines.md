@@ -228,7 +228,40 @@ RACSequence *results = [[strings.rac_sequence
 ```
 
 ## The RACSequence contract
+
+[RACSequence][] is a _pull-driven_ stream. Sequences behave similarly to
+built-in collections, but with a few unique twists.
+
 ### Evaluation occurs lazily by default
+
+Sequences are evaluated lazily by default. For example, in this sequence:
+
+```objc
+NSArray *strings = @[ @"A", @"B", @"C" ];
+RACSequence *sequence = [strings.rac_sequence map:^(NSString *str) {
+    return [str stringByAppendingString:@"_"];
+}];
+```
+
+… no string appending is actually performed until the values of the sequence are
+needed. Accessing `sequence.head` will perform the concatenation of `A_`,
+accessing `sequence.tail.head` will perform the concatenation of `B_`, and so
+on.
+
+This generally avoids performing unnecessary work (since values that are never
+used are never calculated), but means that sequence processing [should be
+limited only to what's actually
+needed](#process-only-as-much-of-a-stream-as-needed).
+
+Once evaluated, the values in a sequence are memoized and do not need to be
+recalculated. Accessing `sequence.head` multiple times will only do the work of
+one string concatenation.
+
+If lazy evaluation is undesirable – for instance, because limiting memory usage
+is more important than avoiding unnecessary work – the
+[eagerSequence][RACSequence] property can be used to force a sequence (and any
+sequences derived from it afterward) to evaluate eagerly.
+
 ### Evaluation blocks the caller
 ### Side effects occur only once
 

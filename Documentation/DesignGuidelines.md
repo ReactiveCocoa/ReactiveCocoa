@@ -266,6 +266,15 @@ possible on a background scheduler. See the documentation for
 [-subscribe:][RACSignal] for more information.
 
 ### Errors are propagated immediately
+
+In RAC, `error` events have exception semantics. When an error is sent on
+a signal, it will be immediately forwarded to all dependent signals, causing the
+entire chain to terminate.
+
+[Operators][RACSignal+Operations] whose primary purpose is to change
+error-handling behavior – like `-catch:`, `-catchTo:`, or `-materialize` – are
+obviously not subject to this rule.
+
 ### Side effects occur for each subscription
 ### Subscriptions are automatically disposed upon completion or error
 ### Outstanding work is cancelled on disposal

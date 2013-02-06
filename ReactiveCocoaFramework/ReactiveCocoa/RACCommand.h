@@ -48,6 +48,8 @@
 
 // Initializes a command that can be executed conditionally.
 //
+// This is the designated initializer for this class.
+//
 // canExecuteSignal - A signal of BOOLs which indicate whether the command
 //                    should be enabled. `canExecute` will be based the latest
 //                    value sent from this signal. Before any values are sent,
@@ -66,7 +68,7 @@
 //               or errors. This argument must not be nil.
 //
 // Returns a signal of the signals returned from successive invocations of
-// `signalBlock`.
+// `signalBlock`. Each individual signal will be multicast to a replay subject.
 - (RACSignal *)addAsyncSignalBlock:(RACSignal * (^)(id sender))signalBlock;
 
 // If `canExecute` is YES, this method will:
@@ -75,8 +77,8 @@
 // - Send `sender` to the receiver's subscribers.
 // - Execute each block added with -addAsyncSignalBlock: and subscribe to all of
 //   the returned signals.
-// - Once all the signals returned from the `signalBlock`s have completed, set
-//   `executing` back to NO.
+// - Once all the signals returned from the `signalBlock`s have completed or
+//   errored, set `executing` back to NO.
 //
 // Returns whether the command executed (i.e., whether `canExecute` was YES).
 - (BOOL)execute:(id)sender;

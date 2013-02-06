@@ -240,39 +240,38 @@ RACSequence *results = [[strings.rac_sequence
 
 If a [RACSignal][] is created using `+createSignal:`, the given block will be
 called once for each new subscription. This means that side effects inside a
-[RACSignal][] subscribe block will happen as many time as subscriptions to the
+[RACSignal][] subscribe block will happen as many times as subscriptions to the
 signal itself.
 
 Consider this example:
 ```objc
 __block int aNumber = 0;
-RACSignal *aSignal = [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+
+// Signal that will have the side effect of incrementing `aNumber` block 
+// variable for each subscription before sending it.
+RACSignal *aSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 	aNumber++;
-	[subscriber sendNext:@(1)];
+	[subscriber sendNext:@(aNumber)];
 	[subscriber sendCompleted];
 	return nil;
-}] map:^(NSNumber *value) {
-	aNumber++;
-	return @(value.integerValue + aNumber);
 }];
 
+// This will print "subscriber one: 1"
 [aSignal subscribeNext:^(id x) {
-	NSLog(@"First we get 1 + %d = %@", aNumber, x);
+	NSLog(@"subscriber one: %@", x);
 }];
 
+// This will print "subscriber two: 2"
 [aSignal subscribeNext:^(id x) {
-	NSLog(@"Then we get 1 + %d = %@", aNumber, x);
+	NSLog(@"subscriber two: %@", x);
 }];
 ```
 
-The console output will resemble the following:
-```
-First we get 1 + 2 = 3
-Then we get 1 + 4 = 5
-```
+Side effects are repeated for each subscription. The same apply to 
+[streams][RACStream] and [signals][RACSignal+Operations] operators.
 
-Side effects are repeated for each subscription. To suppress this behavior, a
-subscription can be [multicasted](#share-the-side-effects-of-a-signal-by-multicasting).
+To suppress this behavior, a subscription can be 
+[multicasted](#share-the-side-effects-of-a-signal-by-multicasting).
 
 Side effects can be insidious and produce problems that are difficult to
 diagnose. For this reason it is suggested to 

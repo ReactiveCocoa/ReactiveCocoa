@@ -267,8 +267,10 @@ RACSignal *aSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber
 }];
 ```
 
-Side effects are repeated for each subscription. The same apply to 
-[streams][RACStream] and [signals][RACSignal+Operations] operators.
+Side effects are repeated for each subscription. The same apply to
+[streams][RACStream] and [signals][RACSignal+Operations] operators so that, for
+example, a side effect inside a [-map:][RACStream] block will be repeated for
+each new subscription to the signal containing that map.
 
 To suppress this behavior, a subscription can be 
 [multicasted](#share-the-side-effects-of-a-signal-by-multicasting).

@@ -363,7 +363,7 @@ RACSignal *processedSignal = [[RACSignal return:@"missiles"]
 ```
 
 To suppress this behavior and have multiple subscriptions to a signal execute
-the subscribing blocks only once, a subscription can be 
+the subscribe blocks only once, a signal can be 
 [multicasted](#share-the-side-effects-of-a-signal-by-multicasting).
 
 Side effects can be insidious and produce problems that are difficult to

@@ -700,8 +700,33 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 		// Log the error if we're running with assertions disabled.
 		NSLog(@"Received error from %@ in binding for key path \"%@\" on %@: %@", self, keyPath, object, error);
 	}];
+
+	#if DEBUG
+	static void *bindingsKey = &bindingsKey;
+	NSMutableDictionary *bindings;
+
+	@synchronized (object) {
+		bindings = objc_getAssociatedObject(object, bindingsKey);
+		if (bindings == nil) {
+			bindings = [NSMutableDictionary dictionary];
+			objc_setAssociatedObject(object, bindingsKey, bindings, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+		}
+	}
+
+	@synchronized (bindings) {
+		NSAssert(bindings[keyPath] == nil, @"Signal %@ is already bound to key path \"%@\" on object %@, adding signal %@ is undefined behavior", [bindings[keyPath] nonretainedObjectValue], keyPath, object, self);
+
+		bindings[keyPath] = [NSValue valueWithNonretainedObject:self];
+	}
+	#endif
 	
 	RACDisposable *disposable = [RACDisposable disposableWithBlock:^{
+		#if DEBUG
+		@synchronized (bindings) {
+			[bindings removeObjectForKey:keyPath];
+		}
+		#endif
+
 		while (YES) {
 			void *ptr = objectPtr;
 			if (OSAtomicCompareAndSwapPtrBarrier(ptr, NULL, &objectPtr)) {

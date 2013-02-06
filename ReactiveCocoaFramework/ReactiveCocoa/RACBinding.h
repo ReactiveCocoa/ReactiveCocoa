@@ -22,6 +22,9 @@
 // Binds the receiver to `binding` by subscribing each one to the other's
 // changes.
 //
+// When called, `binding`s current value will be sent to the receiver and the
+// receiver's current value will be discarded.
+//
 // Returns a disposable that can be used to stop the binding.
 - (RACDisposable *)bindTo:(RACBinding *)binding;
 

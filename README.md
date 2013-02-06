@@ -4,8 +4,30 @@ Programming][]. It provides APIs for **composing and transforming streams of
 values**.
 
 ## Getting Started
-RAC uses some submodules. Once you've cloned the repository, be sure to run `git
-submodule update --recursive --init` to pull them all down.
+
+To add RAC to your application:
+
+ 1. Add the ReactiveCocoa repository as a submodule of your application's
+    repository.
+ 1. Drag and drop `ReactiveCocoaFramework/ReactiveCocoa.xcodeproj` into your
+    application's Xcode project or workspace.
+ 1. On the "Build Phases" tab of your application target, add RAC to the "Link
+    Binary With Libraries" phase.
+    * **On iOS**, add `libReactiveCocoa-iOS.a`.
+    * **On OS X**, add `ReactiveCocoa.framework`. RAC must also be added to any
+      "Copy Frameworks" build phase. If you don't already have one, simply add
+      a "Copy Files" build phase and target the "Frameworks" destination.
+ 1. **If you added RAC to a project (not a workspace)**, you will also need to
+    add the appropriate RAC target to the "Target Dependencies" of your
+    application.
+
+If you would prefer to use [CocoaPods](http://cocoapods.org), there are some
+[ReactiveCocoa
+podspecs](https://github.com/CocoaPods/Specs/tree/master/ReactiveCocoa) that
+have been generously contributed by third parties.
+
+To see a project already set up with RAC, check out the [Mac][GHAPIDemo] or
+[iOS][RACiOSDemo] demos.
 
 ## Functional Reactive Programming
 Functional Reactive Programming (FRP) is a programming paradigm for writing

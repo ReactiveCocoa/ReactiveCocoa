@@ -319,7 +319,6 @@ static NSMutableSet *activeSignals() {
 					if ([completedBySignal containsIndex:i]) {
 						[subscriber sendCompleted];
 					}
-					return;
 				}
 			}
 		};
@@ -483,21 +482,21 @@ static NSMutableSet *activeSignals() {
 }
 
 - (RACSignal *)logNext {
-	return [self doNext:^(id x) {
+	return [[self doNext:^(id x) {
 		NSLog(@"%@ next: %@", self, x);
-	}];
+	}] setNameWithFormat:@"%@", self.name];
 }
 
 - (RACSignal *)logError {
-	return [self doError:^(NSError *error) {
+	return [[self doError:^(NSError *error) {
 		NSLog(@"%@ error: %@", self, error);
-	}];
+	}] setNameWithFormat:@"%@", self.name];
 }
 
 - (RACSignal *)logCompleted {
-	return [self doCompleted:^{
+	return [[self doCompleted:^{
 		NSLog(@"%@ completed", self);
-	}];
+	}] setNameWithFormat:@"%@", self.name];
 }
 
 @end

@@ -228,9 +228,80 @@ RACSequence *results = [[strings.rac_sequence
 ```
 
 ## The RACSequence contract
+
+[RACSequence][] is a _pull-driven_ stream. Sequences behave similarly to
+built-in collections, but with a few unique twists.
+
 ### Evaluation occurs lazily by default
+
+Sequences are evaluated lazily by default. For example, in this sequence:
+
+```objc
+NSArray *strings = @[ @"A", @"B", @"C" ];
+RACSequence *sequence = [strings.rac_sequence map:^(NSString *str) {
+    return [str stringByAppendingString:@"_"];
+}];
+```
+
+… no string appending is actually performed until the values of the sequence are
+needed. Accessing `sequence.head` will perform the concatenation of `A_`,
+accessing `sequence.tail.head` will perform the concatenation of `B_`, and so
+on.
+
+This generally avoids performing unnecessary work (since values that are never
+used are never calculated), but means that sequence processing [should be
+limited only to what's actually
+needed](#process-only-as-much-of-a-stream-as-needed).
+
+Once evaluated, the values in a sequence are memoized and do not need to be
+recalculated. Accessing `sequence.head` multiple times will only do the work of
+one string concatenation.
+
+If lazy evaluation is undesirable – for instance, because limiting memory usage
+is more important than avoiding unnecessary work – the
+[eagerSequence][RACSequence] property can be used to force a sequence (and any
+sequences derived from it afterward) to evaluate eagerly.
+
 ### Evaluation blocks the caller
+
+Regardless of whether a sequence is lazy or eager, evaluation of any part of
+a sequence will block the calling thread until completed. This is necessary
+because values must be synchronously retrieved from a sequence.
+
+If evaluating a sequence is expensive enough that it might block the thread for
+a significant amount of time, consider creating a signal with
+[-signalWithScheduler:][RACSequence] and using that instead.
+
 ### Side effects occur only once
+
+When the block passed to a sequence operator involves side effects, it is
+important to realize that those side effects will only occur once per value
+– namely, when the value is evaluated:
+
+```objc
+NSArray *strings = @[ @"A", @"B", @"C" ];
+RACSequence *sequence = [strings.rac_sequence map:^(NSString *str) {
+    NSLog(@"%@", str);
+    return [str stringByAppendingString:@"_"];
+}];
+
+// Logs "A" during this call.
+NSString *concatA = sequence.head;
+
+// Logs "B" during this call.
+NSString *concatB = sequence.tail.head;
+
+// Does not log anything.
+NSString *concatB2 = sequence.tail.head;
+
+RACSequence *derivedSequence = [sequence map:^(NSString *str) {
+    return [@"_" stringByAppendingString:str];
+}];
+
+// Still does not log anything, because "B_" was already evaluated, and the log
+// statement associated with it will never be re-executed.
+NSString *concatB3 = derivedSequence.tail.head;
+```
 
 ## The RACSignal contract
 ### Signal events are serialized

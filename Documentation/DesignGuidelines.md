@@ -304,9 +304,51 @@ NSString *concatB3 = derivedSequence.tail.head;
 ```
 
 ## The RACSignal contract
+
+[RACSignal][] is a _push-driven_ stream with a focus on asynchronous event
+delivery through _subscriptions_. For more information about signals and
+subscriptions, see the [Framework Overview][].
+
 ### Signal events are serialized
+
+A signal may choose to deliver its events on any thread. Consecutive events are
+even allowed to arrive on different threads or schedulers, unless explicitly
+[delivered onto a particular
+scheduler](#deliver-signal-events-onto-a-known-scheduler).
+
+However, RAC guarantees that no two signal events will ever arrive concurrently.
+While an event is being processed, no other events will be delivered. The
+senders of any other events will be forced to wait until the current event has
+been handled.
+
+Most notably, this means that the blocks passed to
+[-subscribeNext:error:completed:][RACSignal] do not need to be synchronized with
+respect to each other, because they will never be invoked simultaneously.
+
 ### Subscription will always occur on a scheduler
+
+To ensure consistent behavior for the `+createSignal:` and `-subscribe:`
+methods, each [RACSignal][] subscription is guaranteed to take place on
+a valid [RACScheduler][].
+
+If the subscriber's thread already has a [+currentScheduler][RACScheduler],
+scheduling takes place immediately; otherwise, scheduling occurs as soon as
+possible on a background scheduler. Note that the main thread is always
+associated with the [+mainThreadScheduler][RACScheduler], so subscription will
+always be immediate there.
+
+See the documentation for [-subscribe:][RACSignal] for more information.
+
 ### Errors are propagated immediately
+
+In RAC, `error` events have exception semantics. When an error is sent on
+a signal, it will be immediately forwarded to all dependent signals, causing the
+entire chain to terminate.
+
+[Operators][RACSignal+Operations] whose primary purpose is to change
+error-handling behavior – like `-catch:`, `-catchTo:`, or `-materialize` – are
+obviously not subject to this rule.
+
 ### Side effects occur for each subscription
 
 Each new subscription to a [RACSignal][] will trigger its side effects. This
@@ -372,8 +414,24 @@ diagnose. For this reason it is suggested to
 possible.
 
 ### Subscriptions are automatically disposed upon completion or error
-### Outstanding work is cancelled on disposal
-### Resources are cleaned up on disposal
+
+When a [subscriber][RACSubscriber] is sent a `completed` or `error` event, the
+associated subscription will automatically be disposed. This behavior usually
+eliminates the need to manually dispose of subscriptions.
+
+See the [Memory Management][] document for more information about signal
+lifetime.
+
+### Disposal cancels in-progress work and cleans up resources
+
+When a subscription is disposed, manually or automatically, any in-progress or
+outstanding work associated with that subscription is gracefully cancelled as
+soon as possible, and any resources associated with the subscription are cleaned
+up.
+
+Disposing of the subscription to a signal representing a file upload, for
+example, would cancel any in-flight network request, and free the file data from
+memory.
 
 ## Best practices
 
@@ -431,10 +489,10 @@ up the stack as well. If nothing else needs the rest of the values, any
 dependencies will be terminated too, potentially saving a significant amount of
 work.
 
-### Deliver signal results onto a known scheduler
+### Deliver signal events onto a known scheduler
 
 When a signal is returned from a method, or combined with such a signal, it can
-be difficult to know which thread results will be delivered upon. Although
+be difficult to know which thread events will be delivered upon. Although
 events are [guaranteed to be serial](#signal-events-are-serialized), sometimes
 stronger guarantees are needed, like when performing UI updates (which must
 occur on the main thread).
@@ -624,7 +682,8 @@ should:
    their cancellation and cleanup code as well.
  * Release any memory or other resources that were allocated by the signal.
 
-This helps fulfill [the RACSignal contract](#the-racsignal-contract).
+This helps fulfill [the RACSignal
+contract](#disposal-cancels-in-progress-work-and-cleans-up-resources).
 
 ### Do not block in an operator
 
@@ -715,6 +774,7 @@ By contrast, this version will avoid a stack overflow:
 }
 ```
 
+[Framework Overview]: FrameworkOverview.md
 [Memory Management]: MemoryManagement.md
 [NSObject+RACLifting]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACLifting.h
 [RAC]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h
@@ -727,3 +787,4 @@ By contrast, this version will avoid a stack overflow:
 [RACSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h
 [RACSignal+Operations]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h
 [RACStream]: ../ReactiveCocoaFramework/ReactiveCocoa/RACStream.h
+[RACSubscriber]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubscriber.h

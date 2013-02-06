@@ -302,10 +302,10 @@ up the stack as well. If nothing else needs the rest of the values, any
 dependencies will be terminated too, potentially saving a significant amount of
 work.
 
-### Deliver signal results onto a known scheduler
+### Deliver signal events onto a known scheduler
 
 When a signal is returned from a method, or combined with such a signal, it can
-be difficult to know which thread results will be delivered upon. Although
+be difficult to know which thread events will be delivered upon. Although
 events are [guaranteed to be serial](#signal-events-are-serialized), sometimes
 stronger guarantees are needed, like when performing UI updates (which must
 occur on the main thread).

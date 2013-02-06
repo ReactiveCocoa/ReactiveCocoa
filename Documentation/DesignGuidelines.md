@@ -271,7 +271,7 @@ change the semantics. Signal properties should usually be named after events
 noun-like names (e.g., `-currentText`). A method declaration indicates that the
 signal might not be kept around, hinting that work is performed at the time of
 subscription. If the signal sends multiple values, the noun should be pluralized
-(e.g., `currentViewModels`).
+(e.g., `-currentViewModels`).
 
 **Signals with side effects** should be returned from methods that have
 verb-like names (e.g., `-logIn`). The verb indicates that the method is not

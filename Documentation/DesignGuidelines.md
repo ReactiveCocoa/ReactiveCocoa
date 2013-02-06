@@ -233,6 +233,11 @@ RACSequence *results = [[strings.rac_sequence
 ### Side effects occur only once
 
 ## The RACSignal contract
+
+[RACSignal][] is a _push-driven_ stream with a focus on asynchronous event
+delivery through _subscriptions_. For more information about signals and
+subscriptions, see the [Framework Overview][].
+
 ### Signal events are serialized
 ### Subscription will always occur on a scheduler
 ### Errors are propagated immediately
@@ -581,6 +586,7 @@ By contrast, this version will avoid a stack overflow:
 }
 ```
 
+[Framework Overview]: FrameworkOverview.md
 [Memory Management]: MemoryManagement.md
 [NSObject+RACLifting]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACLifting.h
 [RAC]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h

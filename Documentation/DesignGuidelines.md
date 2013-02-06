@@ -262,8 +262,11 @@ a valid [RACScheduler][].
 
 If the subscriber's thread already has a [+currentScheduler][RACScheduler],
 scheduling takes place immediately; otherwise, scheduling occurs as soon as
-possible on a background scheduler. See the documentation for
-[-subscribe:][RACSignal] for more information.
+possible on a background scheduler. Note that the main thread is always
+associated with the [+mainThreadScheduler][RACScheduler], so subscription will
+always be immediate there.
+
+See the documentation for [-subscribe:][RACSignal] for more information.
 
 ### Errors are propagated immediately
 

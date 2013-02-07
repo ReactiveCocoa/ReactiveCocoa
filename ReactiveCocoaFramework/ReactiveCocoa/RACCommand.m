@@ -14,8 +14,7 @@
 #import <libkern/OSAtomic.h>
 
 @interface RACCommand () {
-	// Indicates how many -execute: calls and asynchronous signals are currently
-	// in-flight.
+	// Indicates how many -execute: calls and signals are currently in-flight.
 	//
 	// This variable can be read at any time, but must be modified through
 	// -incrementItemsInFlight and -decrementItemsInFlight.
@@ -95,7 +94,7 @@
 
 #pragma mark Execution
 
-- (RACSignal *)addAsyncSignalBlock:(RACSignal * (^)(id sender))signalBlock {
+- (RACSignal *)addSignalBlock:(RACSignal * (^)(id sender))signalBlock {
 	NSParameterAssert(signalBlock != nil);
 
 	@weakify(self);
@@ -109,8 +108,7 @@
 			RACSignal *signal = signalBlock(sender);
 			NSAssert(signal != nil, @"signalBlock returned a nil signal");
 
-			return [[[signal
-				subscribeOn:[RACScheduler scheduler]]
+			return [[signal
 				finally:^{
 					@strongify(self);
 					[self decrementItemsInFlight];
@@ -118,7 +116,7 @@
 				replay];
 		}]
 		replayLast]
-		setNameWithFormat:@"[%@] -addAsyncSignalBlock:", self.name];
+		setNameWithFormat:@"[%@] -addSignalBlock:", self.name];
 }
 
 - (BOOL)execute:(id)sender {

@@ -37,7 +37,7 @@
 // Whether the command is currently executing.
 //
 // This will be YES while any thread is running the -execute: method, or while
-// any signal returned from -addAsyncSignalBlock: has not yet finished.
+// any signal returned from -addSignalBlock: has not yet finished.
 @property (atomic, getter = isExecuting, readonly) BOOL executing;
 
 // Creates a command that can always be executed.
@@ -61,21 +61,20 @@
 
 // Adds a block to invoke each time the receiver is executed.
 //
-// signalBlock - A block that returns a signal. The returned signal will be
-//               subscribed to on a background scheduler, and must not be nil.
-//               The block itself will be executed synchronously from -execute:.
+// signalBlock - A block that returns a signal. The returned signal must not be
+//               nil, and will be subscribed to synchronously from -execute:.
 //               `executing` will remain YES until the returned signal completes
 //               or errors. This argument must not be nil.
 //
 // Returns a signal of the signals returned from successive invocations of
 // `signalBlock`. Each individual signal will be multicast to a replay subject.
-- (RACSignal *)addAsyncSignalBlock:(RACSignal * (^)(id sender))signalBlock;
+- (RACSignal *)addSignalBlock:(RACSignal * (^)(id sender))signalBlock;
 
 // If `canExecute` is YES, this method will:
 //
 // - Set `executing` to YES.
 // - Send `sender` to the receiver's subscribers.
-// - Execute each block added with -addAsyncSignalBlock: and subscribe to all of
+// - Execute each block added with -addSignalBlock: and subscribe to all of
 //   the returned signals.
 // - Once all the signals returned from the `signalBlock`s have completed or
 //   errored, set `executing` back to NO.

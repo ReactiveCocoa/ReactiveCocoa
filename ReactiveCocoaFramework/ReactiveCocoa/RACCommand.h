@@ -51,7 +51,7 @@
 // This is the designated initializer for this class.
 //
 // canExecuteSignal - A signal of BOOLs which indicate whether the command
-//                    should be enabled. `canExecute` will be based the latest
+//                    should be enabled. `canExecute` will be based on the latest
 //                    value sent from this signal. Before any values are sent,
 //                    `canExecute` will default to YES. This argument may be
 //                    nil.

@@ -1778,7 +1778,7 @@ it(@"should complete take: even if the original signal doesn't", ^{
 	expect(completed).to.beTruthy();
 });
 
-describe(@"+zip:reduce:", ^{
+describe(@"+zip:", ^{
 	__block RACSubject *subject1 = nil;
 	__block RACSubject *subject2 = nil;
 	__block BOOL hasSentError = NO;
@@ -1816,7 +1816,7 @@ describe(@"+zip:reduce:", ^{
 		subject2 = [RACSubject subject];
 		hasSentError = NO;
 		hasSentCompleted = NO;
-		disposable = [[RACSignal zip:@[ subject1, subject2 ] reduce:nil] subscribeError:^(NSError *error) {
+		disposable = [[RACSignal zip:@[ subject1, subject2 ]] subscribeError:^(NSError *error) {
 			hasSentError = YES;
 		} completed:^{
 			hasSentCompleted = YES;

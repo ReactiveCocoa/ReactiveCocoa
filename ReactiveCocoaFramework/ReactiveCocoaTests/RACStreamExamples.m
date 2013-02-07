@@ -390,16 +390,11 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 		
 		describe(@"+zip:reduce:", ^{
-			it(@"should reduce values if a block is given", ^{
+			it(@"should reduce values", ^{
 				RACStream *stream = [streamClass zip:threeStreams reduce:^ NSString * (id x, id y, id z) {
 					return [NSString stringWithFormat:@"%@ %@ %@", x, y, z];
 				}];
 				verifyValues(stream, @[ @"Ada eats fish", @"Bob cooks bear", @"Dea jumps rock" ]);
-			});
-			
-			it(@"should make a stream of tuples if no block is given", ^{
-				RACStream *stream = [streamClass zip:threeStreams reduce:nil];
-				verifyValues(stream, threeStreamTuples);
 			});
 			
 			it(@"should truncate streams", ^{

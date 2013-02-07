@@ -44,10 +44,6 @@
 	return nil;
 }
 
-+ (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id)reduceBlock {
-	return nil;
-}
-
 #pragma mark Naming
 
 - (instancetype)setNameWithFormat:(NSString *)format, ... {
@@ -187,7 +183,38 @@
 }
 
 + (instancetype)zip:(id<NSFastEnumeration>)streams {
-	return [[self zip:streams reduce:nil] setNameWithFormat:@"+zip: %@", streams];
+	RACStream *current = nil;
+	BOOL flattenTuples = NO;
+
+	for (RACStream *stream in streams) {
+		if (current == nil) {
+			current = stream;
+			continue;
+		}
+		
+		// After the first iteration, the new stream will look like (x, y). We
+		// don't need to do anything else.
+		current = [current zipWith:stream];
+		if (!flattenTuples) {
+			flattenTuples = YES;
+			continue;
+		}
+
+		// After a previous result is zipped with a new stream, the values will
+		// look like ((x, y, …), z). We want it to be (x, y, …, z).
+		current = [current map:^(RACTuple *twoTuple) {
+			RACTuple *previousTuple = twoTuple[0];
+			return [previousTuple tupleByAddingObject:twoTuple[1]];
+		}];
+	}
+
+	if (current == nil) return [self empty];
+	return [current setNameWithFormat:@"+zip: %@", streams];
+}
+
++ (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id)reduceBlock {
+	NSParameterAssert(reduceBlock != nil);
+	return [[self zip:streams] reduceEach:reduceBlock];
 }
 
 + (instancetype)concat:(id<NSFastEnumeration>)streams {

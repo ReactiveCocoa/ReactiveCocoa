@@ -64,27 +64,9 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 // stream - The stream to zip with. This must be an instance of the same
 //          concrete class as the receiver, and should not be `nil`.
 //
-// Returns a new stream of RACTuples, representing the combined values of the
+// Returns a new stream of RACTuples, representing the zipped values of the
 // two streams.
 - (instancetype)zipWith:(RACStream *)stream;
-
-// Combines the values in `streams` using `reduceBlock`. `reduceBlock` will be
-// called with the first value of each stream, then with the second value of
-// each stream, and so forth until at least one of the streams is exhausted.
-//
-// streams       - The streams to combine. These must all be instances of the
-//                 same concrete class implementing the protocol. If this
-//                 collection is empty, the returned stream will be empty.
-// reduceBlock   - The block which reduces the values from all the streams
-//                 into one value. It should take as many arguments as the
-//                 number of streams given. Each argument will be an object
-//                 argument, wrapped as needed. If nil, the returned stream
-//                 will contain a RACTuple of the values.
-//
-// Returns a new stream containing the return values of `reduceBlock` applied to
-// the values contained in the input streams, or if `reduceBlock` is nil, tuples
-// of the same values
-+ (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id)reduceBlock;
 
 @end
 
@@ -197,8 +179,34 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 // of `block`.
 - (instancetype)sequenceMany:(RACStream * (^)(void))block;
 
-// Invokes +zip:reduce: with a nil `reduceBlock`.
+// Zips the values in the given streams to create RACTuples.
+//
+// The first value of each stream will be combined, then the second value, and
+// so forth, until at least one of the streams is exhausted.
+//
+// streams - The streams to combine. These must all be instances of the same
+//           concrete class implementing the protocol. If this collection is
+//           empty, the returned stream will be empty.
+//
+// Returns a new stream containing RACTuples of the zipped values from the
+// streams.
 + (instancetype)zip:(id<NSFastEnumeration>)streams;
+
+// Combines the values in `streams` using `reduceBlock`. `reduceBlock` will be
+// called with the first value of each stream, then with the second value of
+// each stream, and so forth until at least one of the streams is exhausted.
+//
+// streams       - The streams to combine. These must all be instances of the
+//                 same concrete class implementing the protocol. If this
+//                 collection is empty, the returned stream will be empty.
+// reduceBlock   - The block which reduces the values from all the streams
+//                 into one value. It should take as many arguments as the
+//                 number of streams given. Each argument will be an object
+//                 argument, wrapped as needed. This argument must not be nil.
+//
+// Returns a new stream containing the return values of `reduceBlock` applied to
+// the values contained in the input streams.
++ (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id)reduceBlock;
 
 // Returns a stream obtained by concatenating `streams` in order.
 + (instancetype)concat:(id<NSFastEnumeration>)streams;

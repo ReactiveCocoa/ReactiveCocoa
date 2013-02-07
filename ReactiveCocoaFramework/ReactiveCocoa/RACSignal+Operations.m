@@ -502,64 +502,47 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	}] setNameWithFormat:@"[%@] -combineLatestWith: %@", self.name, signal];
 }
 
-+ (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock {
-	NSMutableArray *signalsArray = [NSMutableArray array];
++ (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals {
+	RACSignal *current = nil;
+	BOOL flattenTuples = NO;
+
 	for (RACSignal *signal in signals) {
-		[signalsArray addObject:signal];
+		if (current == nil) {
+			current = signal;
+			continue;
+		}
+		
+		// After the first iteration, the new signal will look like (x, y). We
+		// don't need to do anything else.
+		current = [current combineLatestWith:signal];
+		if (!flattenTuples) {
+			flattenTuples = YES;
+			continue;
+		}
+
+		// After a previous result is combined with a new signal, the values will
+		// look like ((x, y, …), z). We want it to be (x, y, …, z).
+		current = [current map:^(RACTuple *twoTuple) {
+			RACTuple *previousTuple = twoTuple[0];
+			return [previousTuple tupleByAddingObject:twoTuple[1]];
+		}];
 	}
-	if (signalsArray.count == 0) return [self empty];
-	
-	return [[RACSignal createSignal:^(id<RACSubscriber> outerSubscriber) {
-		NSMutableArray *subscriberIDs = [NSMutableArray arrayWithCapacity:signalsArray.count];
-		NSMutableSet *disposables = [NSMutableSet setWithCapacity:signalsArray.count];
-		NSMutableSet *completedSignals = [NSMutableSet setWithCapacity:signalsArray.count];
-		NSMutableDictionary *lastValues = [NSMutableDictionary dictionaryWithCapacity:signalsArray.count];
-		[signalsArray enumerateObjectsUsingBlock:^(RACSignal *signal, NSUInteger idx, BOOL *stop) {
-			NSNumber *subscriberID = @(idx);
-			[subscriberIDs addObject:subscriberID];
 
-			RACDisposable *disposable = [signal subscribeNext:^(id x) {
-				@synchronized(lastValues) {
-					lastValues[subscriberID] = x ?: RACTupleNil.tupleNil;
-
-					if (lastValues.count == signalsArray.count) {
-						NSMutableArray *orderedValues = [NSMutableArray arrayWithCapacity:signalsArray.count];
-						for (NSObject *subscriberID in subscriberIDs) {
-							[orderedValues addObject:lastValues[subscriberID]];
-						}
-
-						RACTuple *tuple = [RACTuple tupleWithObjectsFromArray:orderedValues];
-						if (reduceBlock == NULL) {
-							[outerSubscriber sendNext:tuple];
-						} else {
-							[outerSubscriber sendNext:[RACBlockTrampoline invokeBlock:reduceBlock withArguments:tuple]];
-						}
-					}
-				}
-			} error:^(NSError *error) {
-				[outerSubscriber sendError:error];
-			} completed:^{
-				@synchronized(completedSignals) {
-					[completedSignals addObject:signal];
-					if(completedSignals.count == signalsArray.count) {
-						[outerSubscriber sendCompleted];
-					}
-				}
-			}];
-
-			if (disposable != nil) {
-				[disposables addObject:disposable];
-			}
-		}];
-
-		return [RACDisposable disposableWithBlock:^{
-			[disposables makeObjectsPerformSelector:@selector(dispose)];
-		}];
-	}] setNameWithFormat:@"+combineLatest: %@ reduce:", signalsArray];
+	if (current == nil) return [self empty];
+	return [current setNameWithFormat:@"+combineLatest: %@", signals];
 }
 
-+ (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals {
-	return [[self combineLatest:signals reduce:nil] setNameWithFormat:@"+combineLatest: %@", signals];
++ (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock {
+	NSParameterAssert(reduceBlock != nil);
+
+	RACSignal *result = [self combineLatest:signals];
+
+	// Although we assert this condition above, older versions of this method
+	// supported this argument being nil. Avoid crashing Release builds of
+	// apps that depended on that.
+	if (reduceBlock != nil) result = [result reduceEach:reduceBlock];
+
+	return [result setNameWithFormat:@"+combineLatest: %@ reduce:", signals];
 }
 
 + (RACSignal *)merge:(id<NSFastEnumeration>)signals {

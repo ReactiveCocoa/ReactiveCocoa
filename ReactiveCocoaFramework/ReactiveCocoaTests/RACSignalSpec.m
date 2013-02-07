@@ -626,21 +626,6 @@ describe(@"+combineLatest:reduce:", ^{
 		subject2 = [RACSubject subject];
 	});
 
-	it(@"should send a RACTuple when given a nil reduce block", ^{
-		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2 ] reduce:nil];
-
-		__block id received;
-		[combined subscribeNext:^(id x) {
-			received = x;
-		}];
-
-		[subject1 sendNext:@1];
-		[subject2 sendNext:@2];
-
-		RACTuple *expected = [RACTuple tupleWithObjects:@1, @2, nil];
-		expect(received).to.equal(expected);
-	});
-
 	it(@"should send nils for nil values", ^{
 		__block id receivedVal1;
 		__block id receivedVal2;
@@ -680,7 +665,7 @@ describe(@"+combineLatest:reduce:", ^{
 	});
 
 	it(@"should only complete after all its signals complete", ^{
-		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2 ] reduce:nil];
+		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2 ]];
 
 		__block BOOL completed = NO;
 		[combined subscribeCompleted:^{

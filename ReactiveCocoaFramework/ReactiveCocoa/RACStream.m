@@ -214,7 +214,15 @@
 
 + (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id)reduceBlock {
 	NSParameterAssert(reduceBlock != nil);
-	return [[self zip:streams] reduceEach:reduceBlock];
+
+	RACStream *result = [self zip:streams];
+
+	// Although we assert this condition above, older versions of this method
+	// supported this argument being nil. Avoid crashing Release builds of
+	// apps that depended on that.
+	if (reduceBlock != nil) result = [result reduceEach:reduceBlock];
+
+	return [result setNameWithFormat:@"+zip: %@ reduce:", streams];
 }
 
 + (instancetype)concat:(id<NSFastEnumeration>)streams {

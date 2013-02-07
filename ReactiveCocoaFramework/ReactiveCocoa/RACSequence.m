@@ -147,6 +147,22 @@
 		setNameWithFormat:@"[%@] -concat: %@", self.name, stream];
 }
 
+- (instancetype)zipWith:(RACSequence *)sequence {
+	NSParameterAssert(sequence != nil);
+
+	return [[RACSequence
+		sequenceWithHeadBlock:^ id {
+			if (self.head == nil || sequence.head == nil) return nil;
+			return RACTuplePack(self.head, sequence.head);
+		} tailBlock:^ id {
+			if (self.tail == nil || self.tail == [RACSequence empty]) return nil;
+			if (sequence.tail == nil || sequence.tail == [RACSequence empty]) return nil;
+
+			return [self.tail zipWith:sequence.tail];
+		}]
+		setNameWithFormat:@"[%@] -zipWith: %@", self.name, sequence];
+}
+
 + (instancetype)zip:(id<NSFastEnumeration>)sequences reduce:(id)reduceBlock {
 	NSMutableArray *sequencesArray = [NSMutableArray array];
 	for (RACSequence *sequence in sequences) {

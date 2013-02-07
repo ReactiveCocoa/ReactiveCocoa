@@ -19,7 +19,7 @@ evaluating or waiting for the first value.
 
 Streams are [monads][]. Among other things, this allows complex operations to be
 built on a few basic primitives (`-bind:` in particular). [RACStream][] also
-implements the equivalent of the [MonadPlus][] and [MonadZip][] typeclasses from
+implements the equivalent of the [Monoid][] and [MonadZip][] typeclasses from
 [Haskell][].
 
 [RACStream][] isn't terribly useful on its own. Most streams are treated as
@@ -181,7 +181,7 @@ do not allow tasks to be reordered or depend on one another.
 [List]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Data-List.html
 [Memory Management]: MemoryManagement.md
 [monads]: http://en.wikipedia.org/wiki/Monad_(functional_programming)
-[MonadPlus]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Control-Monad.html#t:MonadPlus
+[Monoid]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Data-Monoid.html#t:Monoid
 [MonadZip]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Control-Monad-Zip.html#t:MonadZip
 [NSButton+RACCommandSupport]: ../ReactiveCocoaFramework/ReactiveCocoa/NSButton+RACCommandSupport.h
 [RACCommand]: ../ReactiveCocoaFramework/ReactiveCocoa/RACCommand.h

@@ -296,6 +296,80 @@ static NSMutableSet *activeSignals() {
 	}] setNameWithFormat:@"[%@] -concat: %@", self.name, signal];
 }
 
+- (RACSignal *)zipWith:(RACSignal *)signal {
+	NSParameterAssert(signal != nil);
+
+	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+
+		__block BOOL selfCompleted = NO;
+		NSMutableArray *selfValues = [NSMutableArray array];
+
+		__block BOOL otherCompleted = NO;
+		NSMutableArray *otherValues = [NSMutableArray array];
+
+		void (^sendCompletedIfNecessary)(void) = ^{
+			@synchronized (disposable) {
+				BOOL selfEmpty = (selfCompleted && selfValues.count == 0);
+				BOOL otherEmpty = (otherCompleted && otherValues.count == 0);
+				if (selfEmpty || otherEmpty) [subscriber sendCompleted];
+			}
+		};
+
+		void (^sendNext)(void) = ^{
+			@synchronized (disposable) {
+				if (selfValues.count == 0) return;
+				if (otherValues.count == 0) return;
+
+				RACTuple *tuple = [RACTuple tupleWithObjects:selfValues[0], otherValues[0], nil];
+				[selfValues removeObjectAtIndex:0];
+				[otherValues removeObjectAtIndex:0];
+
+				[subscriber sendNext:tuple];
+				sendCompletedIfNecessary();
+			}
+		};
+
+		{
+			RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
+				@synchronized (disposable) {
+					[selfValues addObject:(x ?: RACTupleNil.tupleNil)];
+					sendNext();
+				}
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				@synchronized (disposable) {
+					selfCompleted = YES;
+					sendCompletedIfNecessary();
+				}
+			}];
+
+			if (selfDisposable != nil) [disposable addDisposable:selfDisposable];
+		}
+
+		{
+			RACDisposable *otherDisposable = [signal subscribeNext:^(id x) {
+				@synchronized (disposable) {
+					[otherValues addObject:(x ?: RACTupleNil.tupleNil)];
+					sendNext();
+				}
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				@synchronized (disposable) {
+					otherCompleted = YES;
+					sendCompletedIfNecessary();
+				}
+			}];
+
+			if (otherDisposable != nil) [disposable addDisposable:otherDisposable];
+		}
+
+		return disposable;
+	}] setNameWithFormat:@"[%@] -zipWith: %@", self.name, signal];
+}
+
 + (RACSignal *)zip:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock {
 	NSMutableArray *signalsArray = [NSMutableArray array];
 	for (RACSignal *signal in signals) {

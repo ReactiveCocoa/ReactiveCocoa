@@ -87,6 +87,13 @@
 // Returns an array of all the objects. RACTupleNils are converted to NSNulls.
 - (NSArray *)allObjects;
 
+// Appends `obj` to the receiver.
+//
+// obj - The object to add to the tuple. This argument may be nil.
+//
+// Returns a new tuple.
+- (instancetype)tupleByAddingObject:(id)obj;
+
 @end
 
 @interface RACTuple (RACSequenceAdditions)

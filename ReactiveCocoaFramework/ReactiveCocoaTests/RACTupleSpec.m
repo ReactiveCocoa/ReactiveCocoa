@@ -63,4 +63,30 @@ describe(@"RACTuplePack", ^{
 	});
 });
 
+describe(@"-tupleByAddingObject:", ^{
+	__block RACTuple *tuple;
+
+	beforeEach(^{
+		tuple = RACTuplePack(@"foo", nil, @"bar");
+	});
+
+	it(@"should add a non-nil object", ^{
+		RACTuple *newTuple = [tuple tupleByAddingObject:@"buzz"];
+		expect(newTuple.count).to.equal(4);
+		expect(newTuple[0]).to.equal(@"foo");
+		expect(newTuple[1]).to.beNil();
+		expect(newTuple[2]).to.equal(@"bar");
+		expect(newTuple[3]).to.equal(@"buzz");
+	});
+
+	it(@"should add a nil object", ^{
+		RACTuple *newTuple = [tuple tupleByAddingObject:nil];
+		expect(newTuple.count).to.equal(4);
+		expect(newTuple[0]).to.equal(@"foo");
+		expect(newTuple[1]).to.beNil();
+		expect(newTuple[2]).to.equal(@"bar");
+		expect(newTuple[3]).to.beNil();
+	});
+});
+
 SpecEnd

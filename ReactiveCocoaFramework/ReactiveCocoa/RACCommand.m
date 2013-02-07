@@ -56,7 +56,7 @@
 - (void)decrementItemsInFlight {
 	[self willChangeValueForKey:@keypath(self.executing)];
 
-	int64_t newValue = OSAtomicDecrement64Barrier(&_itemsInFlight);
+	int64_t newValue __attribute__((unused)) = OSAtomicDecrement64Barrier(&_itemsInFlight);
 	NSAssert(newValue >= 0, @"Unbalanced decrement of _itemsInFlight");
 
 	[self didChangeValueForKey:@keypath(self.executing)];

@@ -150,6 +150,16 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 // Returns a new stream with only those values that passed.
 - (instancetype)filter:(BOOL (^)(id value))block;
 
+// Unpacks each RACTuple in the receiver and maps the values to a new value.
+//
+// reduceBlock - The block which reduces each RACTuple's values into one value.
+//               It should take as many arguments as the number of tuple
+//               elements to process. Each argument will be an object argument,
+//               wrapped as needed. This argument cannot be nil.
+//
+// Returns a new stream of reduced tuple values.
+- (instancetype)reduceEach:(id)reduceBlock;
+
 // Returns a stream consisting of `value`, followed by the values in the
 // receiver.
 - (instancetype)startWith:(id)value;

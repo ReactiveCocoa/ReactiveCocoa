@@ -583,6 +583,20 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			expect(stream.name).to.equal(@"foo 5 bar");
 		});
 	});
+
+	it(@"should reduce tuples", ^{
+		RACStream *stream = streamWithValues(@[
+			RACTuplePack(@"foo", @"bar"),
+			RACTuplePack(@"buzz", @"baz"),
+			RACTuplePack(@"", @"_")
+		]);
+
+		RACStream *reduced = [stream reduceEach:^(NSString *a, NSString *b) {
+			return [a stringByAppendingString:b];
+		}];
+
+		verifyValues(reduced, @[ @"foobar", @"buzzbaz", @"_" ]);
+	});
 });
 
 SharedExampleGroupsEnd

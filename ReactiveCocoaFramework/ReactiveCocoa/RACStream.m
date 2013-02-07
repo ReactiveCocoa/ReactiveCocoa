@@ -7,6 +7,7 @@
 //
 
 #import "RACStream.h"
+#import "RACBlockTrampoline.h"
 #import "RACTuple.h"
 
 @implementation RACStream
@@ -123,6 +124,16 @@
 			return class.empty;
 		}
 	}] setNameWithFormat:@"[%@] -filter:", self.name];
+}
+
+- (instancetype)reduceEach:(id)reduceBlock {
+	NSParameterAssert(reduceBlock != nil);
+
+	__weak RACStream *stream __attribute__((unused)) = self;
+	return [[self map:^(RACTuple *t) {
+		NSAssert([t isKindOfClass:RACTuple.class], @"Value from stream %@ is not a tuple: %@", stream, t);
+		return [RACBlockTrampoline invokeBlock:reduceBlock withArguments:t];
+	}] setNameWithFormat:@"[%@] -reduceEach:", self.name];
 }
 
 - (instancetype)startWith:(id)value {

@@ -163,10 +163,12 @@
 			}
 			[heads addObject:head];
 		}
+
+		RACTuple *tuple = [RACTuple tupleWithObjectsFromArray:heads];
 		if (reduceBlock == NULL) {
-			return [RACTuple tupleWithObjectsFromArray:heads];
+			return tuple;
 		} else {
-			return [RACBlockTrampoline invokeBlock:reduceBlock withArguments:heads];
+			return [RACBlockTrampoline invokeBlock:reduceBlock withArguments:tuple];
 		}
 	} tailBlock:^ RACSequence * {
 		NSMutableArray *tails = [NSMutableArray arrayWithCapacity:sequencesArray.count];

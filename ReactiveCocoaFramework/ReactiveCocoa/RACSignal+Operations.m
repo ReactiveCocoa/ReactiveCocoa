@@ -469,10 +469,11 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 							[orderedValues addObject:lastValues[subscriberID]];
 						}
 
+						RACTuple *tuple = [RACTuple tupleWithObjectsFromArray:orderedValues];
 						if (reduceBlock == NULL) {
-							[outerSubscriber sendNext:[RACTuple tupleWithObjectsFromArray:orderedValues]];
+							[outerSubscriber sendNext:tuple];
 						} else {
-							[outerSubscriber sendNext:[RACBlockTrampoline invokeBlock:reduceBlock withArguments:orderedValues]];
+							[outerSubscriber sendNext:[RACBlockTrampoline invokeBlock:reduceBlock withArguments:tuple]];
 						}
 					}
 				}

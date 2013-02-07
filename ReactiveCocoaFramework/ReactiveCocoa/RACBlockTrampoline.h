@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class RACTuple;
+
 // Allows a limited type of dynamic block invocation.
 @interface RACBlockTrampoline : NSObject
 
@@ -23,6 +25,6 @@
 //             be passed as nils.
 //
 // Returns the return value of invoking the block.
-+ (id)invokeBlock:(id)block withArguments:(NSArray *)arguments;
++ (id)invokeBlock:(id)block withArguments:(RACTuple *)arguments;
 
 @end

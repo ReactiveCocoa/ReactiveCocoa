@@ -106,7 +106,7 @@
 	va_end(args);
 
 	if (signals.count < 1) {
-		return [RACBlockTrampoline invokeBlock:block withArguments:arguments];
+		return [RACBlockTrampoline invokeBlock:block withArguments:[RACTuple tupleWithObjectsFromArray:arguments]];
 	} else {
 		return [self rac_liftSignals:signals withReducingInvocation:^(RACTuple *xs) {
 			for (NSUInteger i = 0; i < xs.count; i++) {
@@ -115,7 +115,7 @@
 				[arguments replaceObjectAtIndex:argIndex withObject:xs[i]];
 			}
 
-			return [RACBlockTrampoline invokeBlock:block withArguments:arguments];
+			return [RACBlockTrampoline invokeBlock:block withArguments:[RACTuple tupleWithObjectsFromArray:arguments]];
 		}];
 	}
 }

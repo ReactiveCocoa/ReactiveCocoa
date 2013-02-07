@@ -345,10 +345,11 @@ static NSMutableSet *activeSignals() {
 							[nexts removeObjectAtIndex:0];
 						}
 						
+						RACTuple *tuple = [RACTuple tupleWithObjectsFromArray:earliestValues];
 						if (reduceBlock == NULL) {
-							[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:earliestValues]];
+							[subscriber sendNext:tuple];
 						} else {
-							[subscriber sendNext:[RACBlockTrampoline invokeBlock:reduceBlock withArguments:earliestValues]];
+							[subscriber sendNext:[RACBlockTrampoline invokeBlock:reduceBlock withArguments:tuple]];
 						}
 					}
 					

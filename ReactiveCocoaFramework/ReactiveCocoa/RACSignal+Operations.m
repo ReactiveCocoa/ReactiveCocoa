@@ -504,25 +504,19 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 
 + (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals {
 	RACSignal *current = nil;
-	BOOL flattenTuples = NO;
 
 	for (RACSignal *signal in signals) {
 		if (current == nil) {
-			current = signal;
+			current = [signal map:^(id x) {
+				return RACTuplePack(x);
+			}];
+
 			continue;
 		}
 		
-		// After the first iteration, the new signal will look like (x, y). We
-		// don't need to do anything else.
-		current = [current combineLatestWith:signal];
-		if (!flattenTuples) {
-			flattenTuples = YES;
-			continue;
-		}
-
 		// After a previous result is combined with a new signal, the values will
 		// look like ((x, y, …), z). We want it to be (x, y, …, z).
-		current = [current map:^(RACTuple *twoTuple) {
+		current = [[current combineLatestWith:signal] map:^(RACTuple *twoTuple) {
 			RACTuple *previousTuple = twoTuple[0];
 			return [previousTuple tupleByAddingObject:twoTuple[1]];
 		}];

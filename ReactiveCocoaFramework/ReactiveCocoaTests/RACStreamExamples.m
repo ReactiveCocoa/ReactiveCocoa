@@ -328,6 +328,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		__block RACStream *streamThree;
 		__block NSArray *threeStreams;
 
+		__block NSArray *oneStreamTuples;
 		__block NSArray *twoStreamTuples;
 		__block NSArray *threeStreamTuples;
 		
@@ -340,6 +341,12 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			streamTwo = streamWithValues(valuesTwo);
 			streamThree = streamWithValues(valuesThree);
 			threeStreams = @[ streamOne, streamTwo, streamThree ];
+
+			oneStreamTuples = @[
+				RACTuplePack(valuesOne[0]),
+				RACTuplePack(valuesOne[1]),
+				RACTuplePack(valuesOne[2]),
+			];
 
 			twoStreamTuples = @[
 				RACTuplePack(valuesOne[0], valuesTwo[0]),
@@ -424,6 +431,11 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 		
 		describe(@"+zip:", ^{
+			it(@"should make a stream of tuples out of single value", ^{
+				RACStream *stream = [streamClass zip:@[ streamOne ]];
+				verifyValues(stream, oneStreamTuples);
+			});
+
 			it(@"should make a stream of tuples out of an array of streams", ^{
 				RACStream *stream = [streamClass zip:threeStreams];
 				verifyValues(stream, threeStreamTuples);

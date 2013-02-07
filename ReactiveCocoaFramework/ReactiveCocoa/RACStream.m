@@ -184,25 +184,19 @@
 
 + (instancetype)zip:(id<NSFastEnumeration>)streams {
 	RACStream *current = nil;
-	BOOL flattenTuples = NO;
 
 	for (RACStream *stream in streams) {
 		if (current == nil) {
-			current = stream;
+			current = [stream map:^(id x) {
+				return RACTuplePack(x);
+			}];
+
 			continue;
 		}
 		
-		// After the first iteration, the new stream will look like (x, y). We
-		// don't need to do anything else.
-		current = [current zipWith:stream];
-		if (!flattenTuples) {
-			flattenTuples = YES;
-			continue;
-		}
-
 		// After a previous result is zipped with a new stream, the values will
 		// look like ((x, y, …), z). We want it to be (x, y, …, z).
-		current = [current map:^(RACTuple *twoTuple) {
+		current = [[current zipWith:stream] map:^(RACTuple *twoTuple) {
 			RACTuple *previousTuple = twoTuple[0];
 			return [previousTuple tupleByAddingObject:twoTuple[1]];
 		}];

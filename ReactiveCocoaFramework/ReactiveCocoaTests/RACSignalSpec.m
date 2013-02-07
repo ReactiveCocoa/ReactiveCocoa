@@ -478,6 +478,17 @@ describe(@"+combineLatest:", ^{
 		}],
 		combined = [RACSignal combineLatest:@[ signal1, signal2 ].objectEnumerator];
 	});
+
+	it(@"should return tuples even when only combining one signal", ^{
+		__block RACTuple *tuple;
+		
+		[[RACSignal combineLatest:@[ signal1 ]] subscribeNext:^(id x) {
+			tuple = x;
+		}];
+
+		[subscriber1 sendNext:@"foo"];
+		expect(tuple).to.equal(RACTuplePack(@"foo"));
+	});
 	
 	it(@"should yield when all sources yield", ^{
 		__block id result;

@@ -154,8 +154,8 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 //
 // reduceBlock - The block which reduces each RACTuple's values into one value.
 //               It should take as many arguments as the number of tuple
-//               elements to process. Each argument will be an object argument,
-//               wrapped as needed. This argument cannot be nil.
+//               elements to process. Each argument will be an object argument.
+//               This argument cannot be nil.
 //
 // Returns a new stream of reduced tuple values.
 - (instancetype)reduceEach:(id)reduceBlock;

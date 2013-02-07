@@ -55,6 +55,19 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 // Returns a new stream representing the receiver followed by `stream`.
 - (instancetype)concat:(RACStream *)stream;
 
+// Zips the values in the receiver with those of the given stream to create
+// RACTuples.
+//
+// The first value of each stream will be combined, then the second value, and
+// so forth, until at least one of the streams is exhausted.
+//
+// stream - The stream to zip with. This must be an instance of the same
+//          concrete class as the receiver, and should not be `nil`.
+//
+// Returns a new stream of RACTuples, representing the combined values of the
+// two streams.
+- (instancetype)zipWith:(RACStream *)stream;
+
 // Combines the values in `streams` using `reduceBlock`. `reduceBlock` will be
 // called with the first value of each stream, then with the second value of
 // each stream, and so forth until at least one of the streams is exhausted.

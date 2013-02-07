@@ -40,6 +40,10 @@
 	return nil;
 }
 
+- (instancetype)zipWith:(RACStream *)stream {
+	return nil;
+}
+
 + (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id)reduceBlock {
 	return nil;
 }

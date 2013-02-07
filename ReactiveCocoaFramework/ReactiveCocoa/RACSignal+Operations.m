@@ -443,6 +443,65 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	}] setNameWithFormat:@"[%@] -takeLast: %lu", self.name, (unsigned long)count];
 }
 
+- (RACSignal *)combineLatestWith:(RACSignal *)signal {
+	NSParameterAssert(signal != nil);
+
+	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+
+		__block id lastSelfValue = nil;
+		__block BOOL selfCompleted = NO;
+
+		__block id lastOtherValue = nil;
+		__block BOOL otherCompleted = NO;
+
+		void (^sendNext)(void) = ^{
+			@synchronized (disposable) {
+				if (lastSelfValue == nil || lastOtherValue == nil) return;
+				[subscriber sendNext:[RACTuple tupleWithObjects:lastSelfValue, lastOtherValue, nil]];
+			}
+		};
+
+		{
+			RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
+				@synchronized (disposable) {
+					lastSelfValue = x ?: RACTupleNil.tupleNil;
+					sendNext();
+				}
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				@synchronized (disposable) {
+					selfCompleted = YES;
+					if (otherCompleted) [subscriber sendCompleted];
+				}
+			}];
+
+			if (selfDisposable != nil) [disposable addDisposable:selfDisposable];
+		}
+
+		{
+			RACDisposable *otherDisposable = [signal subscribeNext:^(id x) {
+				@synchronized (disposable) {
+					lastOtherValue = x ?: RACTupleNil.tupleNil;
+					sendNext();
+				}
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				@synchronized (disposable) {
+					otherCompleted = YES;
+					if (selfCompleted) [subscriber sendCompleted];
+				}
+			}];
+
+			if (otherDisposable != nil) [disposable addDisposable:otherDisposable];
+		}
+
+		return disposable;
+	}] setNameWithFormat:@"[%@] -combineLatestWith: %@", self.name, signal];
+}
+
 + (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock {
 	NSMutableArray *signalsArray = [NSMutableArray array];
 	for (RACSignal *signal in signals) {

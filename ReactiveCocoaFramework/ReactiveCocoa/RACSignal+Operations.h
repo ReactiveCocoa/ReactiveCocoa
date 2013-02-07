@@ -90,6 +90,19 @@ extern const NSInteger RACSignalErrorTimedOut;
 // Takes the last `count` `next`s after the receiving signal completes.
 - (RACSignal *)takeLast:(NSUInteger)count;
 
+// Combines the latest values from the receiver and the given signal into
+// a RACTuple, once both have sent at least one `next`.
+//
+// Any additional `next`s will result in a new RACTuple with the latest values
+// from both signals.
+//
+// signal - The signal to combine with. This argument must not be nil.
+//
+// Returns a signal which sends RACTuples of the combined values, forwards any
+// `error` events, and completes when both input signals complete. If either
+// input signal is empty, the returned signal will be empty as well.
+- (RACSignal *)combineLatestWith:(RACSignal *)signal;
+
 // Invokes +combineLatest:reduce: with a nil `reduceBlock`.
 + (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals;
 

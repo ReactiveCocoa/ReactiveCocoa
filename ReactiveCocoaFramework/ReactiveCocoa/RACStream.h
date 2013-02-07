@@ -192,20 +192,25 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 // streams.
 + (instancetype)zip:(id<NSFastEnumeration>)streams;
 
-// Combines the values in `streams` using `reduceBlock`. `reduceBlock` will be
-// called with the first value of each stream, then with the second value of
-// each stream, and so forth until at least one of the streams is exhausted.
+// Zips streams using +zip:, then reduces the resulting tuples into a single
+// value using -reduceEach:
 //
-// streams       - The streams to combine. These must all be instances of the
-//                 same concrete class implementing the protocol. If this
-//                 collection is empty, the returned stream will be empty.
-// reduceBlock   - The block which reduces the values from all the streams
-//                 into one value. It should take as many arguments as the
-//                 number of streams given. Each argument will be an object
-//                 argument, wrapped as needed. This argument must not be nil.
+// streams     - The streams to combine. These must all be instances of the
+//               same concrete class implementing the protocol. If this
+//               collection is empty, the returned stream will be empty.
+// reduceBlock - The block which reduces the values from all the streams
+//               into one value. It should take as many arguments as the
+//               number of streams given. Each argument will be an object
+//               argument. This argument must not be nil.
 //
-// Returns a new stream containing the return values of `reduceBlock` applied to
-// the values contained in the input streams.
+// Example:
+//
+//   [RACStream zip:@[ stringSignal, intSignal ] reduce:^(NSString *string, NSNumber *number) {
+//       return [NSString stringWithFormat:@"%@: %@", string, number];
+//   }];
+//
+// Returns a new stream containing the results from each invocation of
+// `reduceBlock`.
 + (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id)reduceBlock;
 
 // Returns a stream obtained by concatenating `streams` in order.

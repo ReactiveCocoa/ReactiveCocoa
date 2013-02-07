@@ -129,8 +129,8 @@ extern const NSInteger RACSignalErrorTimedOut;
 //
 // Example:
 //
-//   [RACSignal combineLatest:@[ stringSignal, intSignal ] reduce:^(NSString *string, NSNumber *wrappedInt) {
-//       return [NSString stringWithFormat:@"%@: %@", string, wrappedInt];
+//   [RACSignal combineLatest:@[ stringSignal, intSignal ] reduce:^(NSString *string, NSNumber *number) {
+//       return [NSString stringWithFormat:@"%@: %@", string, number];
 //   }];
 //
 // Returns a signal which sends the results from each invocation of

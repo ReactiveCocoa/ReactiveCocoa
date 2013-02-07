@@ -17,11 +17,11 @@
 
 // Whether or not this command can currently execute.
 //
-// This property will be NO only if:
+// This property will be NO if:
 //
-// - If the command was created with a `canExecuteSignal`, and the latest value
-//   sent on the signal was NO.
-// - If `allowsConcurrentExecution` is NO and `executing` is YES.
+// - The command was created with a `canExecuteSignal`, and the latest value
+//   sent on the signal was NO, or
+// - `allowsConcurrentExecution` is NO and `executing` is YES.
 //
 // It will be YES in all other cases.
 //

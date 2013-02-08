@@ -185,7 +185,11 @@
 + (instancetype)zip:(id<NSFastEnumeration>)streams {
 	RACStream *current = nil;
 
+	// Creates streams of successively larger tuples by combining the input
+	// streams one-by-one.
 	for (RACStream *stream in streams) {
+		// For the first stream, just wrap its values in a RACTuple. That way,
+		// if only one stream is given, the result is still a stream of tuples.
 		if (current == nil) {
 			current = [stream map:^(id x) {
 				return RACTuplePack(x);
@@ -193,9 +197,24 @@
 
 			continue;
 		}
+
+		// `zipped` will contain tuples of:
+		//
+		//   ((current value), stream value)
+		RACStream *zipped = [current zipWith:stream];
 		
-		// After a previous result is zipped with a new stream, the values will
-		// look like ((x, y, …), z). We want it to be (x, y, …, z).
+		// Then, because `current` itself contained tuples of the previous
+		// streams, we need to flatten each value into a new tuple.
+		//
+		// In other words, this transforms a stream of:
+		//
+		//	 ((s1, s2, …), sN)
+		//
+		// … into a stream of:
+		//
+		//	 (s1, s2, …, sN)
+		//
+		// … by expanding the inner tuple.
 		current = [[current zipWith:stream] map:^(RACTuple *twoTuple) {
 			RACTuple *previousTuple = twoTuple[0];
 			return [previousTuple tupleByAddingObject:twoTuple[1]];

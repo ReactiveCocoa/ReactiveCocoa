@@ -501,6 +501,8 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 + (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals {
 	RACSignal *current = nil;
 
+	// The logic here matches that of +[RACStream zip:]. See that implementation
+	// for more information about what's going on here.
 	for (RACSignal *signal in signals) {
 		if (current == nil) {
 			current = [signal map:^(id x) {
@@ -509,9 +511,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 
 			continue;
 		}
-		
-		// After a previous result is combined with a new signal, the values will
-		// look like ((x, y, …), z). We want it to be (x, y, …, z).
+
 		current = [[current combineLatestWith:signal] map:^(RACTuple *twoTuple) {
 			RACTuple *previousTuple = twoTuple[0];
 			return [previousTuple tupleByAddingObject:twoTuple[1]];

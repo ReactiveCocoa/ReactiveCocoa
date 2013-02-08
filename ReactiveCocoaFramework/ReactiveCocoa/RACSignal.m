@@ -330,41 +330,37 @@ static NSMutableSet *activeSignals() {
 			}
 		};
 
-		{
-			RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
-				@synchronized (disposable) {
-					[selfValues addObject:(x ?: RACTupleNil.tupleNil)];
-					sendNext();
-				}
-			} error:^(NSError *error) {
-				[subscriber sendError:error];
-			} completed:^{
-				@synchronized (disposable) {
-					selfCompleted = YES;
-					sendCompletedIfNecessary();
-				}
-			}];
+		RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
+			@synchronized (disposable) {
+				[selfValues addObject:(x ?: RACTupleNil.tupleNil)];
+				sendNext();
+			}
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			@synchronized (disposable) {
+				selfCompleted = YES;
+				sendCompletedIfNecessary();
+			}
+		}];
 
-			if (selfDisposable != nil) [disposable addDisposable:selfDisposable];
-		}
+		if (selfDisposable != nil) [disposable addDisposable:selfDisposable];
 
-		{
-			RACDisposable *otherDisposable = [signal subscribeNext:^(id x) {
-				@synchronized (disposable) {
-					[otherValues addObject:(x ?: RACTupleNil.tupleNil)];
-					sendNext();
-				}
-			} error:^(NSError *error) {
-				[subscriber sendError:error];
-			} completed:^{
-				@synchronized (disposable) {
-					otherCompleted = YES;
-					sendCompletedIfNecessary();
-				}
-			}];
+		RACDisposable *otherDisposable = [signal subscribeNext:^(id x) {
+			@synchronized (disposable) {
+				[otherValues addObject:(x ?: RACTupleNil.tupleNil)];
+				sendNext();
+			}
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			@synchronized (disposable) {
+				otherCompleted = YES;
+				sendCompletedIfNecessary();
+			}
+		}];
 
-			if (otherDisposable != nil) [disposable addDisposable:otherDisposable];
-		}
+		if (otherDisposable != nil) [disposable addDisposable:otherDisposable];
 
 		return disposable;
 	}] setNameWithFormat:@"[%@] -zipWith: %@", self.name, signal];

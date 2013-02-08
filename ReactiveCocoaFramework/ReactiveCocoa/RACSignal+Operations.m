@@ -462,41 +462,37 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 			}
 		};
 
-		{
-			RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
-				@synchronized (disposable) {
-					lastSelfValue = x ?: RACTupleNil.tupleNil;
-					sendNext();
-				}
-			} error:^(NSError *error) {
-				[subscriber sendError:error];
-			} completed:^{
-				@synchronized (disposable) {
-					selfCompleted = YES;
-					if (otherCompleted) [subscriber sendCompleted];
-				}
-			}];
+		RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
+			@synchronized (disposable) {
+				lastSelfValue = x ?: RACTupleNil.tupleNil;
+				sendNext();
+			}
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			@synchronized (disposable) {
+				selfCompleted = YES;
+				if (otherCompleted) [subscriber sendCompleted];
+			}
+		}];
 
-			if (selfDisposable != nil) [disposable addDisposable:selfDisposable];
-		}
+		if (selfDisposable != nil) [disposable addDisposable:selfDisposable];
 
-		{
-			RACDisposable *otherDisposable = [signal subscribeNext:^(id x) {
-				@synchronized (disposable) {
-					lastOtherValue = x ?: RACTupleNil.tupleNil;
-					sendNext();
-				}
-			} error:^(NSError *error) {
-				[subscriber sendError:error];
-			} completed:^{
-				@synchronized (disposable) {
-					otherCompleted = YES;
-					if (selfCompleted) [subscriber sendCompleted];
-				}
-			}];
+		RACDisposable *otherDisposable = [signal subscribeNext:^(id x) {
+			@synchronized (disposable) {
+				lastOtherValue = x ?: RACTupleNil.tupleNil;
+				sendNext();
+			}
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			@synchronized (disposable) {
+				otherCompleted = YES;
+				if (selfCompleted) [subscriber sendCompleted];
+			}
+		}];
 
-			if (otherDisposable != nil) [disposable addDisposable:otherDisposable];
-		}
+		if (otherDisposable != nil) [disposable addDisposable:otherDisposable];
 
 		return disposable;
 	}] setNameWithFormat:@"[%@] -combineLatestWith: %@", self.name, signal];

@@ -155,8 +155,8 @@
 			if (self.head == nil || sequence.head == nil) return nil;
 			return RACTuplePack(self.head, sequence.head);
 		} tailBlock:^ id {
-			if (self.tail == nil || self.tail == [RACSequence empty]) return nil;
-			if (sequence.tail == nil || sequence.tail == [RACSequence empty]) return nil;
+			if (self.tail == nil || [[RACSequence empty] isEqual:self.tail]) return nil;
+			if (sequence.tail == nil || [[RACSequence empty] isEqual:sequence.tail]) return nil;
 
 			return [self.tail zipWith:sequence.tail];
 		}]

@@ -26,14 +26,14 @@
 	return self;
 }
 
-+ (id)invokeBlock:(id)block withArguments:(NSArray *)arguments {
++ (id)invokeBlock:(id)block withArguments:(RACTuple *)arguments {
 	NSParameterAssert(block != NULL);
 
 	RACBlockTrampoline *trampoline = [[self alloc] initWithBlock:block];
 	return [trampoline invokeWithArguments:arguments];
 }
 
-- (id)invokeWithArguments:(NSArray *)arguments {
+- (id)invokeWithArguments:(RACTuple *)arguments {
 	SEL selector = [self selectorForArgumentCount:arguments.count];
 	NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:selector]];
 	invocation.selector = selector;
@@ -41,10 +41,6 @@
 
 	for (NSUInteger i = 0; i < arguments.count; i++) {
 		id arg = arguments[i];
-		if ([arg isKindOfClass:RACTupleNil.class]) {
-			arg = nil;
-		}
-
 		NSInteger argIndex = (NSInteger)(i + 2);
 		[invocation setArgument:&arg atIndex:argIndex];
 	}

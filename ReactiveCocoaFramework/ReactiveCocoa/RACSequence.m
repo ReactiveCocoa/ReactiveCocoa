@@ -147,40 +147,20 @@
 		setNameWithFormat:@"[%@] -concat: %@", self.name, stream];
 }
 
-+ (instancetype)zip:(id<NSFastEnumeration>)sequences reduce:(id)reduceBlock {
-	NSMutableArray *sequencesArray = [NSMutableArray array];
-	for (RACSequence *sequence in sequences) {
-		[sequencesArray addObject:sequence];
-	}
-	if (sequencesArray.count == 0) return self.empty;
+- (instancetype)zipWith:(RACSequence *)sequence {
+	NSParameterAssert(sequence != nil);
 
-	RACSequence *sequence = [RACSequence sequenceWithHeadBlock:^ id {
-		NSMutableArray *heads = [NSMutableArray arrayWithCapacity:sequencesArray.count];
-		for (RACSequence *sequence in sequencesArray) {
-			id head = sequence.head;
-			if (head == nil) {
-				return nil;
-			}
-			[heads addObject:head];
-		}
-		if (reduceBlock == NULL) {
-			return [RACTuple tupleWithObjectsFromArray:heads];
-		} else {
-			return [RACBlockTrampoline invokeBlock:reduceBlock withArguments:heads];
-		}
-	} tailBlock:^ RACSequence * {
-		NSMutableArray *tails = [NSMutableArray arrayWithCapacity:sequencesArray.count];
-		for (RACSequence *sequence in sequencesArray) {
-			RACSequence *tail = sequence.tail;
-			if (tail == nil || tail == RACSequence.empty) {
-				return tail;
-			}
-			[tails addObject:tail];
-		}
-		return [RACSequence zip:tails reduce:reduceBlock];
-	}];
+	return [[RACSequence
+		sequenceWithHeadBlock:^ id {
+			if (self.head == nil || sequence.head == nil) return nil;
+			return RACTuplePack(self.head, sequence.head);
+		} tailBlock:^ id {
+			if (self.tail == nil || [[RACSequence empty] isEqual:self.tail]) return nil;
+			if (sequence.tail == nil || [[RACSequence empty] isEqual:sequence.tail]) return nil;
 
-	return [sequence setNameWithFormat:@"+zip: %@ reduce:", sequencesArray];
+			return [self.tail zipWith:sequence.tail];
+		}]
+		setNameWithFormat:@"[%@] -zipWith: %@", self.name, sequence];
 }
 
 #pragma mark Extended methods

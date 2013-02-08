@@ -7,6 +7,7 @@
 //
 
 #import "RACStream.h"
+#import "RACBlockTrampoline.h"
 #import "RACTuple.h"
 
 @implementation RACStream
@@ -39,7 +40,7 @@
 	return nil;
 }
 
-+ (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id)reduceBlock {
+- (instancetype)zipWith:(RACStream *)stream {
 	return nil;
 }
 
@@ -125,6 +126,16 @@
 	}] setNameWithFormat:@"[%@] -filter:", self.name];
 }
 
+- (instancetype)reduceEach:(id)reduceBlock {
+	NSParameterAssert(reduceBlock != nil);
+
+	__weak RACStream *stream __attribute__((unused)) = self;
+	return [[self map:^(RACTuple *t) {
+		NSAssert([t isKindOfClass:RACTuple.class], @"Value from stream %@ is not a tuple: %@", stream, t);
+		return [RACBlockTrampoline invokeBlock:reduceBlock withArguments:t];
+	}] setNameWithFormat:@"[%@] -reduceEach:", self.name];
+}
+
 - (instancetype)startWith:(id)value {
 	return [[[self.class return:value]
 		concat:self]
@@ -172,7 +183,59 @@
 }
 
 + (instancetype)zip:(id<NSFastEnumeration>)streams {
-	return [[self zip:streams reduce:nil] setNameWithFormat:@"+zip: %@", streams];
+	RACStream *current = nil;
+
+	// Creates streams of successively larger tuples by combining the input
+	// streams one-by-one.
+	for (RACStream *stream in streams) {
+		// For the first stream, just wrap its values in a RACTuple. That way,
+		// if only one stream is given, the result is still a stream of tuples.
+		if (current == nil) {
+			current = [stream map:^(id x) {
+				return RACTuplePack(x);
+			}];
+
+			continue;
+		}
+
+		// `zipped` will contain tuples of:
+		//
+		//   ((current value), stream value)
+		RACStream *zipped = [current zipWith:stream];
+		
+		// Then, because `current` itself contained tuples of the previous
+		// streams, we need to flatten each value into a new tuple.
+		//
+		// In other words, this transforms a stream of:
+		//
+		//	 ((s1, s2, …), sN)
+		//
+		// … into a stream of:
+		//
+		//	 (s1, s2, …, sN)
+		//
+		// … by expanding the inner tuple.
+		current = [zipped map:^(RACTuple *twoTuple) {
+			RACTuple *previousTuple = twoTuple[0];
+			return [previousTuple tupleByAddingObject:twoTuple[1]];
+		}];
+	}
+
+	if (current == nil) return [self empty];
+	return [current setNameWithFormat:@"+zip: %@", streams];
+}
+
++ (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id)reduceBlock {
+	NSParameterAssert(reduceBlock != nil);
+
+	RACStream *result = [self zip:streams];
+
+	// Although we assert this condition above, older versions of this method
+	// supported this argument being nil. Avoid crashing Release builds of
+	// apps that depended on that.
+	if (reduceBlock != nil) result = [result reduceEach:reduceBlock];
+
+	return [result setNameWithFormat:@"+zip: %@ reduce:", streams];
 }
 
 + (instancetype)concat:(id<NSFastEnumeration>)streams {

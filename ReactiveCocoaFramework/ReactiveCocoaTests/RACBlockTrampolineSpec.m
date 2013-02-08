@@ -20,7 +20,7 @@ it(@"should invoke the block with the given arguments", ^{
 		return nil;
 	};
 
-	[RACBlockTrampoline invokeBlock:block withArguments:@[ @"hi", @1 ]];
+	[RACBlockTrampoline invokeBlock:block withArguments:RACTuplePack(@"hi", @1)];
 	expect(stringArg).to.equal(@"hi");
 	expect(numberArg).to.equal(@1);
 });
@@ -30,7 +30,7 @@ it(@"should return the result of the block invocation", ^{
 		return string.uppercaseString;
 	};
 
-	NSString *result = [RACBlockTrampoline invokeBlock:block withArguments:@[ @"hi" ]];
+	NSString *result = [RACBlockTrampoline invokeBlock:block withArguments:RACTuplePack(@"hi")];
 	expect(result).to.equal(@"HI");
 });
 
@@ -41,7 +41,7 @@ it(@"should pass RACTupleNils as nil", ^{
 		return nil;
 	};
 
-	[RACBlockTrampoline invokeBlock:block withArguments:@[ RACTupleNil.tupleNil ]];
+	[RACBlockTrampoline invokeBlock:block withArguments:RACTuplePack(nil)];
 	expect(arg).to.beNil();
 });
 

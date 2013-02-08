@@ -215,7 +215,7 @@
 		//	 (s1, s2, …, sN)
 		//
 		// … by expanding the inner tuple.
-		current = [[current zipWith:stream] map:^(RACTuple *twoTuple) {
+		current = [zipped map:^(RACTuple *twoTuple) {
 			RACTuple *previousTuple = twoTuple[0];
 			return [previousTuple tupleByAddingObject:twoTuple[1]];
 		}];

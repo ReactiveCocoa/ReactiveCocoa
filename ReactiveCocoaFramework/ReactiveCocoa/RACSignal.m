@@ -332,7 +332,7 @@ static NSMutableSet *activeSignals() {
 
 		RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
 			@synchronized (disposable) {
-				[selfValues addObject:(x ?: RACTupleNil.tupleNil)];
+				[selfValues addObject:x ?: RACTupleNil.tupleNil];
 				sendNext();
 			}
 		} error:^(NSError *error) {
@@ -348,7 +348,7 @@ static NSMutableSet *activeSignals() {
 
 		RACDisposable *otherDisposable = [signal subscribeNext:^(id x) {
 			@synchronized (disposable) {
-				[otherValues addObject:(x ?: RACTupleNil.tupleNil)];
+				[otherValues addObject:x ?: RACTupleNil.tupleNil];
 				sendNext();
 			}
 		} error:^(NSError *error) {

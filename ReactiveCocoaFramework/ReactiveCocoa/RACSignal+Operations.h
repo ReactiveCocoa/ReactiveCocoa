@@ -90,28 +90,51 @@ extern const NSInteger RACSignalErrorTimedOut;
 // Takes the last `count` `next`s after the receiving signal completes.
 - (RACSignal *)takeLast:(NSUInteger)count;
 
-// Invokes +combineLatest:reduce: with a nil `reduceBlock`.
+// Combines the latest values from the receiver and the given signal into
+// RACTuples, once both have sent at least one `next`.
+//
+// Any additional `next`s will result in a new RACTuple with the latest values
+// from both signals.
+//
+// signal - The signal to combine with. This argument must not be nil.
+//
+// Returns a signal which sends RACTuples of the combined values, forwards any
+// `error` events, and completes when both input signals complete. If either
+// input signal is empty, the returned signal will complete immediately.
+- (RACSignal *)combineLatestWith:(RACSignal *)signal;
+
+// Combines the latest values from the given signals into RACTuples, once all
+// the signals have sent at least one `next`.
+//
+// Any additional `next`s will result in a new RACTuple with the latest values
+// from all signals.
+//
+// signals - The signals to combine. If this collection is empty, the returned
+//           signal will immediately complete upon subscription.
+//
+// Returns a signal which sends RACTuples of the combined values, forwards any
+// `error` events, and completes when all input signals complete. If any input
+// signal is empty, the returned signal will complete immediately.
 + (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals;
 
-// Combine the latest values from each of the signals once all the signals have
-// sent a `next`. Any additional `next`s will result in a new reduced value
-// based on all the latest values from all the signals.
+// Combines signals using +combineLatest:, then reduces the resulting tuples
+// into a single value using -reduceEach:.
 //
-// The `next` of the returned signal will be the return value of the
-// `reduceBlock`.
-//
-// signals     - The signals to combine. If empty or `nil`, the returned signal
-//               will immediately complete upon subscription.
+// signals     - The signals to combine. If this collection is empty, the
+//               returned signal will immediately complete upon subscription.
 // reduceBlock - The block which reduces the latest values from all the
 //               signals into one value. It should take as many arguments as the
 //               number of signals given. Each argument will be an object
-//               argument, wrapped as needed. If nil, the returned signal will
-//               send a RACTuple of all the latest values.
+//               argument. This argument must not be nil.
 //
 // Example:
-//   [RACSignal combineLatest:@[ stringSignal, intSignal ] reduce:^(NSString *string, NSNumber *wrappedInt) {
-//       return [NSString stringWithFormat:@"%@: %@", string, wrappedInt];
+//
+//   [RACSignal combineLatest:@[ stringSignal, intSignal ] reduce:^(NSString *string, NSNumber *number) {
+//       return [NSString stringWithFormat:@"%@: %@", string, number];
 //   }];
+//
+// Returns a signal which sends the results from each invocation of
+// `reduceBlock`.
 + (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock;
 
 // Sends the latest `next` from any of the signals.

@@ -80,21 +80,18 @@
 // Subscribes to `signal` when the source signal completes.
 - (RACSignal *)concat:(RACSignal *)signal;
 
-// Combine values from each of the signals using `reduceBlock`.
+// Zips the values in the receiver with those of the given signal to create
+// RACTuples.
 //
-// `reduceBlock` will be called with the first `next` of each signal, then with
-// the second `next` of each signal, and so forth. If any of the signals sent
-// `complete` or `error` after the nth `next`, then the resulting signal will
-// also complete or error after the nth `next`.
+// The first `next` of each stream will be combined, then the second `next`, and
+// so forth, until either signal completes or errors.
 //
-// signals     - The signals to combine. If the collection is empty, the
-//               returned signal will immediately complete upon subscription.
-// reduceBlock - The block which reduces the latest values from all the signals
-//               into one value. It should take as many arguments as the number
-//               of signals given. Each argument will be an object argument,
-//               wrapped as needed. If nil, the returned signal will send a
-//               RACTuple of all the latest values.
-+ (RACSignal *)zip:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock;
+// signal - The signal to zip with. This must not be `nil`.
+//
+// Returns a new signal of RACTuples, representing the combined values of the
+// two signals. Any error from one of the original signals will be forwarded on
+// the returned signal.
+- (RACSignal *)zipWith:(RACSignal *)signal;
 
 @end
 

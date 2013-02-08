@@ -460,142 +460,80 @@ describe(@"continuation", ^{
 	});
 });
 
-describe(@"+combineLatest:", ^{
-	__block id<RACSubscriber> subscriber1 = nil;
-	__block id<RACSubscriber> subscriber2 = nil;
-	__block RACSignal *signal1 = nil;
-	__block RACSignal *signal2 = nil;
+describe(@"+combineLatestWith:", ^{
+	__block RACSubject *subject1 = nil;
+	__block RACSubject *subject2 = nil;
 	__block RACSignal *combined = nil;
 	
 	beforeEach(^{
-		signal1 = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			subscriber1 = subscriber;
-			return nil;
-		}],
-		signal2 = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			subscriber2 = subscriber;
-			return nil;
-		}],
-		combined = [RACSignal combineLatest:@[ signal1, signal2 ].objectEnumerator];
+		subject1 = [RACSubject subject];
+		subject2 = [RACSubject subject];
+		combined = [RACSignal combineLatest:@[ subject1, subject2 ]];
 	});
 	
-	it(@"should yield when all sources yield", ^{
-		__block id result;
+	it(@"should send next only once both signals send next", ^{
+		__block RACTuple *tuple;
 		
 		[combined subscribeNext:^(id x) {
-			result = x;
+			tuple = x;
 		}];
 		
-		[subscriber1 sendNext:@"1"];
-		[subscriber2 sendNext:@"2"];
-		
-		expect(result).to.beKindOf([RACTuple class]);
-		RACTuple *tuple = result;
-		expect(tuple.first).to.equal(@"1");
-		expect(tuple.second).to.equal(@"2");
+		expect(tuple).to.beNil();
+
+		[subject1 sendNext:@"1"];
+		expect(tuple).to.beNil();
+
+		[subject2 sendNext:@"2"];
+		expect(tuple).to.equal(RACTuplePack(@"1", @"2"));
 	});
 	
-	it(@"should not yield when some sources have not yielded", ^{
-		__block id result;
-		
-		[combined subscribeNext:^(id x) {
-			result = x;
-		}];
-		
-		[subscriber1 sendNext:@"1"];
-		
-		expect(result).to.beNil();
-	});
-	
-	it(@"should yield multiple times when any sources yield multiple times", ^{
+	it(@"should send nexts when either signal sends multiple times", ^{
 		NSMutableArray *results = [NSMutableArray array];
 		[combined subscribeNext:^(id x) {
 			[results addObject:x];
 		}];
 		
-		[subscriber1 sendNext:@"1"];
-		[subscriber2 sendNext:@"2"];
+		[subject1 sendNext:@"1"];
+		[subject2 sendNext:@"2"];
 		
-		[subscriber1 sendNext:@"3"];
-		[subscriber2 sendNext:@"4"];
+		[subject1 sendNext:@"3"];
+		[subject2 sendNext:@"4"];
 		
-		RACTuple *result1 = [results objectAtIndex:0];
-		expect(result1.first).to.equal(@"1");
-		expect(result1.second).to.equal(@"2");
-		
-		RACTuple *result2 = [results objectAtIndex:1];
-		expect(result2.first).to.equal(@"3");
-		expect(result2.second).to.equal(@"2");
-		
-		RACTuple *result3 = [results objectAtIndex:2];
-		expect(result3.first).to.equal(@"3");
-		expect(result3.second).to.equal(@"4");
+		expect(results[0]).to.equal(RACTuplePack(@"1", @"2"));
+		expect(results[1]).to.equal(RACTuplePack(@"3", @"2"));
+		expect(results[2]).to.equal(RACTuplePack(@"3", @"4"));
 	});
 	
-	it(@"should complete when all sources complete", ^{
+	it(@"should complete when only both signals complete", ^{
 		__block BOOL completed = NO;
 		
 		[combined subscribeCompleted:^{
 			completed = YES;
 		}];
-		
-		[subscriber1 sendCompleted];
-		[subscriber2 sendCompleted];
-		
-		expect(completed).to.beTruthy();
-	});
-	
-	it(@"should not complete when some sources are not complete", ^{
-		__block BOOL completed = NO;
-		
-		[combined subscribeCompleted:^{
-			completed = YES;
-		}];
-		
-		[subscriber1 sendCompleted];
-		
+
 		expect(completed).to.beFalsy();
-	});
-	
-	it(@"should error when a source errors", ^{
-		__block BOOL gotError = NO;
 		
-		[combined subscribeError:^(NSError *error) {
-			gotError = YES;
-		}];
-		
-		[subscriber1 sendError:RACSignalTestError];
-		
-		expect(gotError).to.beTruthy();
-	});
-	
-	it(@"should error only once when multiple sources error", ^{
-		__block int errorCount = 0;
-		
-		[combined subscribeError:^(NSError *error) {
-			errorCount++;
-		}];
-		
-		[subscriber1 sendError:RACSignalTestError];
-		[subscriber2 sendError:RACSignalTestError];
-		
-		expect(errorCount).to.equal(1);
-	});
+		[subject1 sendCompleted];
+		expect(completed).to.beFalsy();
 
-	it(@"should complete immediately when not given any signals", ^{
-		RACSignal *signal = [RACSignal combineLatest:@[].objectEnumerator];
-
-		__block BOOL completed = NO;
-		[signal subscribeCompleted:^{
-			completed = YES;
-		}];
-
+		[subject2 sendCompleted];
 		expect(completed).to.beTruthy();
+	});
+	
+	it(@"should error when either signal errors", ^{
+		__block NSError *receivedError = nil;
+		[combined subscribeError:^(NSError *error) {
+			receivedError = error;
+		}];
+		
+		[subject1 sendError:RACSignalTestError];
+		expect(receivedError).to.equal(RACSignalTestError);
 	});
 
 	it(@"shouldn't create a retain cycle", ^{
 		__block BOOL subjectDeallocd = NO;
 		__block BOOL signalDeallocd = NO;
+
 		@autoreleasepool {
 			RACSubject *subject __attribute__((objc_precise_lifetime)) = [RACSubject subject];
 			[subject rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
@@ -608,45 +546,119 @@ describe(@"+combineLatest:", ^{
 			}]];
 
 			[signal subscribeCompleted:^{}];
-
 			[subject sendCompleted];
 		}
 
 		expect(subjectDeallocd).will.beTruthy();
 		expect(signalDeallocd).will.beTruthy();
 	});
+
+	it(@"should combine the same signal", ^{
+		RACSignal *combined = [subject1 combineLatestWith:subject1];
+
+		__block RACTuple *tuple;
+		[combined subscribeNext:^(id x) {
+			tuple = x;
+		}];
+		
+		[subject1 sendNext:@"foo"];
+		expect(tuple).to.equal(RACTuplePack(@"foo", @"foo"));
+		
+		[subject1 sendNext:@"bar"];
+		expect(tuple).to.equal(RACTuplePack(@"bar", @"bar"));
+	});
+    
+	it(@"should combine the same side-effecting signal", ^{
+		__block NSUInteger counter = 0;
+		RACSignal *sideEffectingSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@(++counter)];
+			[subscriber sendCompleted];
+			return nil;
+		}];
+
+		RACSignal *combined = [sideEffectingSignal combineLatestWith:sideEffectingSignal];
+		expect(counter).to.equal(0);
+
+		NSMutableArray *receivedValues = [NSMutableArray array];
+		[combined subscribeNext:^(id x) {
+			[receivedValues addObject:x];
+		}];
+		
+		expect(counter).to.equal(2);
+
+		NSArray *expected = @[ RACTuplePack(@1, @2) ];
+		expect(receivedValues).to.equal(expected);
+	});
+});
+
+describe(@"+combineLatest:", ^{
+	it(@"should return tuples even when only combining one signal", ^{
+		RACSubject *subject = [RACSubject subject];
+
+		__block RACTuple *tuple;
+		[[RACSignal combineLatest:@[ subject ]] subscribeNext:^(id x) {
+			tuple = x;
+		}];
+
+		[subject sendNext:@"foo"];
+		expect(tuple).to.equal(RACTuplePack(@"foo"));
+	});
+
+	it(@"should complete immediately when not given any signals", ^{
+		RACSignal *signal = [RACSignal combineLatest:@[]];
+
+		__block BOOL completed = NO;
+		[signal subscribeCompleted:^{
+			completed = YES;
+		}];
+
+		expect(completed).to.beTruthy();
+	});
+
+	it(@"should only complete after all its signals complete", ^{
+		RACSubject *subject1 = [RACSubject subject];
+		RACSubject *subject2 = [RACSubject subject];
+		RACSubject *subject3 = [RACSubject subject];
+		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2, subject3 ]];
+
+		__block BOOL completed = NO;
+		[combined subscribeCompleted:^{
+			completed = YES;
+		}];
+
+		expect(completed).to.beFalsy();
+
+		[subject1 sendCompleted];
+		expect(completed).to.beFalsy();
+
+		[subject2 sendCompleted];
+		expect(completed).to.beFalsy();
+
+		[subject3 sendCompleted];
+		expect(completed).to.beTruthy();
+	});
 });
 
 describe(@"+combineLatest:reduce:", ^{
 	__block RACSubject *subject1;
 	__block RACSubject *subject2;
+	__block RACSubject *subject3;
 
 	beforeEach(^{
 		subject1 = [RACSubject subject];
 		subject2 = [RACSubject subject];
-	});
-
-	it(@"should send a RACTuple when given a nil reduce block", ^{
-		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2 ] reduce:nil];
-
-		__block id received;
-		[combined subscribeNext:^(id x) {
-			received = x;
-		}];
-
-		[subject1 sendNext:@1];
-		[subject2 sendNext:@2];
-
-		RACTuple *expected = [RACTuple tupleWithObjects:@1, @2, nil];
-		expect(received).to.equal(expected);
+		subject3 = [RACSubject subject];
 	});
 
 	it(@"should send nils for nil values", ^{
 		__block id receivedVal1;
 		__block id receivedVal2;
-		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2 ] reduce:^(id val1, id val2) {
+		__block id receivedVal3;
+
+		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2, subject3 ] reduce:^(id val1, id val2, id val3) {
 			receivedVal1 = val1;
 			receivedVal2 = val2;
+			receivedVal3 = val3;
 			return nil;
 		}];
 
@@ -657,15 +669,17 @@ describe(@"+combineLatest:reduce:", ^{
 
 		[subject1 sendNext:nil];
 		[subject2 sendNext:nil];
+		[subject3 sendNext:nil];
 
 		expect(gotValue).to.beTruthy();
 		expect(receivedVal1).to.beNil();
 		expect(receivedVal2).to.beNil();
+		expect(receivedVal3).to.beNil();
 	});
 
 	it(@"should send the return result of the reduce block", ^{
-		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2 ] reduce:^(NSString *string1, NSString *string2) {
-			return [NSString stringWithFormat:@"%@: %@", string1, string2];
+		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2, subject3 ] reduce:^(NSString *string1, NSString *string2, NSString *string3) {
+			return [NSString stringWithFormat:@"%@: %@%@", string1, string2, string3];
 		}];
 
 		__block id received;
@@ -675,36 +689,13 @@ describe(@"+combineLatest:reduce:", ^{
 
 		[subject1 sendNext:@"hello"];
 		[subject2 sendNext:@"world"];
+		[subject3 sendNext:@"!!1"];
 
-		expect(received).to.equal(@"hello: world");
-	});
-
-	it(@"should only complete after all its signals complete", ^{
-		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2 ] reduce:nil];
-
-		__block BOOL completed = NO;
-		[combined subscribeCompleted:^{
-			completed = YES;
-		}];
-
-		expect(completed).to.beFalsy();
-
-		[subject1 sendNext:@1];
-		[subject2 sendNext:@2];
-
-		expect(completed).to.beFalsy();
-
-		[subject1 sendCompleted];
-
-		expect(completed).to.beFalsy();
-
-		[subject2 sendCompleted];
-
-		expect(completed).will.beTruthy();
+		expect(received).to.equal(@"hello: world!!1");
 	});
 	
 	it(@"should handle multiples of the same signals", ^{
-		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2, subject1, subject2 ] reduce:^ NSString * (NSString *string1, NSString *string2, NSString *string3, NSString *string4) {
+		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2, subject1, subject3 ] reduce:^(NSString *string1, NSString *string2, NSString *string3, NSString *string4) {
 			return [NSString stringWithFormat:@"%@ : %@ = %@ : %@", string1, string2, string3, string4];
 		}];
 		
@@ -718,34 +709,36 @@ describe(@"+combineLatest:reduce:", ^{
 		expect(receivedValues.lastObject).to.beNil();
 		
 		[subject2 sendNext:@"oranges"];
-		expect(receivedValues.lastObject).to.equal(@"apples : oranges = apples : oranges");
+		expect(receivedValues.lastObject).to.beNil();
+
+		[subject3 sendNext:@"cattle"];
+		expect(receivedValues.lastObject).to.equal(@"apples : oranges = apples : cattle");
 		
 		[subject1 sendNext:@"horses"];
-		[subject2 sendNext:@"cattle"];
-		expect(receivedValues.lastObject).to.equal(@"horses : cattle = horses : cattle");
+		expect(receivedValues.lastObject).to.equal(@"horses : oranges = horses : cattle");
 	});
     
 	it(@"should handle multiples of the same side-effecting signal", ^{
 		__block NSUInteger counter = 0;
-		RACSignal *sideEffectingSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			++counter;
-			[subscriber sendNext:@1];
+		RACSignal *sideEffectingSignal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@(++counter)];
 			[subscriber sendCompleted];
 			return nil;
 		}];
-		RACSignal *combined = [RACSignal combineLatest:@[ sideEffectingSignal, sideEffectingSignal ] reduce:^ NSString * (id x, id y) {
-			return [NSString stringWithFormat:@"%@%@", x, y];
+
+		RACSignal *combined = [RACSignal combineLatest:@[ sideEffectingSignal, sideEffectingSignal, sideEffectingSignal ] reduce:^(id x, id y, id z) {
+			return [NSString stringWithFormat:@"%@%@%@", x, y, z];
 		}];
-		NSMutableArray *receivedValues = NSMutableArray.array;
-		
+
+		NSMutableArray *receivedValues = [NSMutableArray array];
 		expect(counter).to.equal(0);
 		
 		[combined subscribeNext:^(id x) {
 			[receivedValues addObject:x];
 		}];
 		
-		expect(counter).to.equal(2);
-		expect(receivedValues).to.equal(@[ @"11" ]);
+		expect(counter).to.equal(3);
+		expect(receivedValues).to.equal(@[ @"123" ]);
 	});
 });
 
@@ -1778,7 +1771,7 @@ it(@"should complete take: even if the original signal doesn't", ^{
 	expect(completed).to.beTruthy();
 });
 
-describe(@"+zip:reduce:", ^{
+describe(@"+zip:", ^{
 	__block RACSubject *subject1 = nil;
 	__block RACSubject *subject2 = nil;
 	__block BOOL hasSentError = NO;
@@ -1816,7 +1809,7 @@ describe(@"+zip:reduce:", ^{
 		subject2 = [RACSubject subject];
 		hasSentError = NO;
 		hasSentCompleted = NO;
-		disposable = [[RACSignal zip:@[ subject1, subject2 ] reduce:nil] subscribeError:^(NSError *error) {
+		disposable = [[RACSignal zip:@[ subject1, subject2 ]] subscribeError:^(NSError *error) {
 			hasSentError = YES;
 		} completed:^{
 			hasSentCompleted = YES;

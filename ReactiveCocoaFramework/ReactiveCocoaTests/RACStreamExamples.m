@@ -321,37 +321,87 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 	});
   
 	describe(@"zip stream creation methods", ^{
-		__block NSArray *threeStreams;
-		__block NSArray *threeTuples;
+		__block NSArray *valuesOne;
+
 		__block RACStream *streamOne;
 		__block RACStream *streamTwo;
 		__block RACStream *streamThree;
+		__block NSArray *threeStreams;
+
+		__block NSArray *oneStreamTuples;
+		__block NSArray *twoStreamTuples;
+		__block NSArray *threeStreamTuples;
 		
 		before(^{
-			NSArray *valuesOne = @[ @"Ada", @"Bob", @"Dea" ];
+			valuesOne = @[ @"Ada", @"Bob", @"Dea" ];
 			NSArray *valuesTwo = @[ @"eats", @"cooks", @"jumps" ];
 			NSArray *valuesThree = @[ @"fish", @"bear", @"rock" ];
+
 			streamOne = streamWithValues(valuesOne);
 			streamTwo = streamWithValues(valuesTwo);
 			streamThree = streamWithValues(valuesThree);
 			threeStreams = @[ streamOne, streamTwo, streamThree ];
-			RACTuple *tupleOne = [RACTuple tupleWithObjectsFromArray:@[ valuesOne[0], valuesTwo[0], valuesThree[0] ]];
-			RACTuple *tupleTwo = [RACTuple tupleWithObjectsFromArray:@[ valuesOne[1], valuesTwo[1], valuesThree[1] ]];
-			RACTuple *tupleThree = [RACTuple tupleWithObjectsFromArray:@[ valuesOne[2], valuesTwo[2], valuesThree[2] ]];
-			threeTuples = @[ tupleOne, tupleTwo, tupleThree ];
+
+			oneStreamTuples = @[
+				RACTuplePack(valuesOne[0]),
+				RACTuplePack(valuesOne[1]),
+				RACTuplePack(valuesOne[2]),
+			];
+
+			twoStreamTuples = @[
+				RACTuplePack(valuesOne[0], valuesTwo[0]),
+				RACTuplePack(valuesOne[1], valuesTwo[1]),
+				RACTuplePack(valuesOne[2], valuesTwo[2]),
+			];
+
+			threeStreamTuples = @[
+				RACTuplePack(valuesOne[0], valuesTwo[0], valuesThree[0]),
+				RACTuplePack(valuesOne[1], valuesTwo[1], valuesThree[1]),
+				RACTuplePack(valuesOne[2], valuesTwo[2], valuesThree[2]),
+			];
+		});
+
+		describe(@"-zipWith:", ^{
+			it(@"should make a stream of tuples", ^{
+				RACStream *stream = [streamOne zipWith:streamTwo];
+				verifyValues(stream, twoStreamTuples);
+			});
+			
+			it(@"should truncate streams", ^{
+				RACStream *shortStream = streamWithValues(@[ @"now", @"later" ]);
+				RACStream *stream = [streamOne zipWith:shortStream];
+
+				verifyValues(stream, @[
+					RACTuplePack(valuesOne[0], @"now"),
+					RACTuplePack(valuesOne[1], @"later")
+				]);
+			});
+			
+			it(@"should work on infinite streams", ^{
+				RACStream *stream = [streamOne zipWith:infiniteStream];
+				verifyValues(stream, @[
+					RACTuplePack(valuesOne[0], RACUnit.defaultUnit),
+					RACTuplePack(valuesOne[1], RACUnit.defaultUnit),
+					RACTuplePack(valuesOne[2], RACUnit.defaultUnit)
+				]);
+			});
+			
+			it(@"should handle multiples of the same stream", ^{
+				RACStream *stream = [streamOne zipWith:streamOne];
+				verifyValues(stream, @[
+					RACTuplePack(valuesOne[0], valuesOne[0]),
+					RACTuplePack(valuesOne[1], valuesOne[1]),
+					RACTuplePack(valuesOne[2], valuesOne[2]),
+				]);
+			});
 		});
 		
 		describe(@"+zip:reduce:", ^{
-			it(@"should reduce values if a block is given", ^{
+			it(@"should reduce values", ^{
 				RACStream *stream = [streamClass zip:threeStreams reduce:^ NSString * (id x, id y, id z) {
 					return [NSString stringWithFormat:@"%@ %@ %@", x, y, z];
 				}];
 				verifyValues(stream, @[ @"Ada eats fish", @"Bob cooks bear", @"Dea jumps rock" ]);
-			});
-			
-			it(@"should make a stream of tuples if no block is given", ^{
-				RACStream *stream = [streamClass zip:threeStreams reduce:nil];
-				verifyValues(stream, threeTuples);
 			});
 			
 			it(@"should truncate streams", ^{
@@ -381,9 +431,14 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 		
 		describe(@"+zip:", ^{
+			it(@"should make a stream of tuples out of single value", ^{
+				RACStream *stream = [streamClass zip:@[ streamOne ]];
+				verifyValues(stream, oneStreamTuples);
+			});
+
 			it(@"should make a stream of tuples out of an array of streams", ^{
 				RACStream *stream = [streamClass zip:threeStreams];
-				verifyValues(stream, threeTuples);
+				verifyValues(stream, threeStreamTuples);
 			});
 
 			it(@"should make an empty stream if given an empty array", ^{
@@ -393,7 +448,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			
 			it(@"should make a stream of tuples out of an enumerator of streams", ^{
 				RACStream *stream = [streamClass zip:threeStreams.objectEnumerator];
-				verifyValues(stream, threeTuples);
+				verifyValues(stream, threeStreamTuples);
 			});
 			
 			it(@"should make an empty stream if given an empty enumerator", ^{
@@ -582,6 +637,20 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			expect(result).to.beIdenticalTo(stream);
 			expect(stream.name).to.equal(@"foo 5 bar");
 		});
+	});
+
+	it(@"should reduce tuples", ^{
+		RACStream *stream = streamWithValues(@[
+			RACTuplePack(@"foo", @"bar"),
+			RACTuplePack(@"buzz", @"baz"),
+			RACTuplePack(@"", @"_")
+		]);
+
+		RACStream *reduced = [stream reduceEach:^(NSString *a, NSString *b) {
+			return [a stringByAppendingString:b];
+		}];
+
+		verifyValues(reduced, @[ @"foobar", @"buzzbaz", @"_" ]);
 	});
 });
 

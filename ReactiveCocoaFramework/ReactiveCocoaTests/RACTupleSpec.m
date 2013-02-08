@@ -79,13 +79,22 @@ describe(@"-tupleByAddingObject:", ^{
 		expect(newTuple[3]).to.equal(@"buzz");
 	});
 
-	it(@"should add a nil object", ^{
+	it(@"should add nil", ^{
 		RACTuple *newTuple = [tuple tupleByAddingObject:nil];
 		expect(newTuple.count).to.equal(4);
 		expect(newTuple[0]).to.equal(@"foo");
 		expect(newTuple[1]).to.beNil();
 		expect(newTuple[2]).to.equal(@"bar");
 		expect(newTuple[3]).to.beNil();
+	});
+
+	it(@"should add NSNull", ^{
+		RACTuple *newTuple = [tuple tupleByAddingObject:NSNull.null];
+		expect(newTuple.count).to.equal(4);
+		expect(newTuple[0]).to.equal(@"foo");
+		expect(newTuple[1]).to.beNil();
+		expect(newTuple[2]).to.equal(@"bar");
+		expect(newTuple[3]).to.equal(NSNull.null);
 	});
 });
 

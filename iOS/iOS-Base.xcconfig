@@ -7,6 +7,9 @@
 // Architectures to build
 ARCHS = $(ARCHS_STANDARD_32_BIT)
 
+// Whether to only build the active architecture (overridden from Debug/Profile)
+ONLY_ACTIVE_ARCH = NO
+
 // The base SDK to use (if no version is specified, the latest version is
 // assumed)
 SDKROOT = iphoneos

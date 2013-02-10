@@ -70,7 +70,7 @@ responses, and KVO notifications, actually have a lot in common. [RACSignal][]
 unifies all these different APIs so that they can be composed together and
 manipulated in the same way.
 
-For example, the following pseudo-code:
+For example, the following code:
 
 ```objc
 - (void)viewDidLoad {

@@ -692,7 +692,7 @@ NSLog(@"%@", signal);
 
 Names can also be manually applied by using [-setNameWithFormat:][RACStream].
 
-For named signals in particular, [RACSignal][] offers `-logNext`, `-logError`,
+[RACSignal][] also offers `-logNext`, `-logError`,
 `-logCompleted`, and `-logAll` methods, which will automatically log signal
 events as they occur, and include the name of the signal in the messages. This
 can be used to conveniently inspect a signal in real-time.

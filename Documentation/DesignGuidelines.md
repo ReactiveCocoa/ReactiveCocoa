@@ -128,6 +128,8 @@ For example, the following pseudo-code:
         }];
 
     [[self.logInButton rac_signalForControlEvents:UIControlEventTouchUpInside] subscribeNext:^(UIButton *sender) {
+        @strongify(self);
+        
         RACSignal *loginSignal = [[LoginManager sharedManager]
             logInWithUsername:self.usernameTextField.text
             password:self.passwordTextField.text];

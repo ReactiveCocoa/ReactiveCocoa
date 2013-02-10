@@ -525,8 +525,9 @@ that describes them (e.g., `-loadConfiguration`, `-fetchLatestEvents`).
 [RACStream][] (and, by extension, [RACSignal][] and [RACSequence][]) allows
 streams to be composed of heterogenous objects, just like Cocoa collections do.
 However, using different object types within the same stream complicates the use
-of operators (because they must be careful to only invoke supported methods) and
-puts an additional burden on any consumers of that stream.
+of operators and
+puts an additional burden on any consumers of that stream, who must be careful to
+only invoke supported methods.
 
 Whenever possible, streams should only contain objects of the same type.
 

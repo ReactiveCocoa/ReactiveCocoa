@@ -122,14 +122,12 @@
     metamacro_foreach(RACTupleUnpack_decl,, __VA_ARGS__) \
     \
     int RACTupleUnpack_state = 0; \
-    goto RACTupleUnpack_loop; \
     \
     RACTupleUnpack_after: \
         ; \
         metamacro_foreach(RACTupleUnpack_assign,, __VA_ARGS__) \
-        RACTupleUnpack_state = 2; \
-    \
-    RACTupleUnpack_loop: \
+        if (RACTupleUnpack_state != 0) RACTupleUnpack_state = 2; \
+        \
         while (RACTupleUnpack_state != 2) \
             if (RACTupleUnpack_state == 1) { \
                 goto RACTupleUnpack_after; \
@@ -145,10 +143,10 @@
     metamacro_concat(metamacro_concat(RACTupleUnpack, __LINE__), metamacro_concat(_var, INDEX))
 
 #define RACTupleUnpack_decl(INDEX, ARG) \
-    __autoreleasing id RACTupleUnpack_decl_name(INDEX);
+    __strong id RACTupleUnpack_decl_name(INDEX);
 
 #define RACTupleUnpack_assign(INDEX, ARG) \
-    __unsafe_unretained ARG = RACTupleUnpack_decl_name(INDEX);
+    __strong ARG = RACTupleUnpack_decl_name(INDEX);
 
 #define RACTupleUnpack_value(INDEX, ARG) \
     [NSValue valueWithPointer:&RACTupleUnpack_decl_name(INDEX)],

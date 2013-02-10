@@ -70,7 +70,7 @@ responses, and KVO notifications, actually have a lot in common. [RACSignal][]
 unifies all these different APIs so that they can be composed together and
 manipulated in the same way.
 
-For example, the following pseudo-code:
+For example, the following code:
 
 ```objc
 - (void)viewDidLoad {
@@ -128,6 +128,8 @@ For example, the following pseudo-code:
         }];
 
     [[self.logInButton rac_signalForControlEvents:UIControlEventTouchUpInside] subscribeNext:^(UIButton *sender) {
+        @strongify(self);
+        
         RACSignal *loginSignal = [[LoginManager sharedManager]
             logInWithUsername:self.usernameTextField.text
             password:self.passwordTextField.text];
@@ -523,8 +525,9 @@ that describes them (e.g., `-loadConfiguration`, `-fetchLatestEvents`).
 [RACStream][] (and, by extension, [RACSignal][] and [RACSequence][]) allows
 streams to be composed of heterogenous objects, just like Cocoa collections do.
 However, using different object types within the same stream complicates the use
-of operators (because they must be careful to only invoke supported methods) and
-puts an additional burden on any consumers of that stream.
+of operators and
+puts an additional burden on any consumers of that stream, who must be careful to
+only invoke supported methods.
 
 Whenever possible, streams should only contain objects of the same type.
 
@@ -689,7 +692,7 @@ NSLog(@"%@", signal);
 
 Names can also be manually applied by using [-setNameWithFormat:][RACStream].
 
-For named signals in particular, [RACSignal][] offers `-logNext`, `-logError`,
+[RACSignal][] also offers `-logNext`, `-logError`,
 `-logCompleted`, and `-logAll` methods, which will automatically log signal
 events as they occur, and include the name of the signal in the messages. This
 can be used to conveniently inspect a signal in real-time.
@@ -715,7 +718,7 @@ as well.
 
 For these reasons, new operators should be implemented using only [RACStream][]
 methods whenever possible. The minimal required methods of the class, including
-`-bind:`, `+zip:reduce:`, and `-concat:`, are quite powerful, and many tasks can
+`-bind:`, `+zipWith:`, and `-concat:`, are quite powerful, and many tasks can
 be accomplished without needing anything else.
 
 If a new [RACSignal][] operator needs to handle `error` and `completed` events,

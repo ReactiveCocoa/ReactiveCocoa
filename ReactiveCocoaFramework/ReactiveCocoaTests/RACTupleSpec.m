@@ -42,6 +42,25 @@ describe(@"RACTupleUnpack", ^{
 		expect(str).to.equal(@"foobar");
 		expect(num).to.equal(@5);
 	});
+
+	it(@"should keep an unpacked value alive when captured in a block", ^{
+		__weak id weakPtr = nil;
+		id (^block)(void) = nil;
+
+		@autoreleasepool {
+			RACTupleUnpack(NSString *str) = [RACTuple tupleWithObjects:[[NSMutableString alloc] init], nil];
+
+			weakPtr = str;
+			expect(weakPtr).notTo.beNil();
+
+			block = [^{
+				return str;
+			} copy];
+		}
+
+		expect(weakPtr).notTo.beNil();
+		expect(block()).to.equal(weakPtr);
+	});
 });
 
 describe(@"RACTuplePack", ^{

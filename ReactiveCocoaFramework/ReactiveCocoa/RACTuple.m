@@ -230,7 +230,7 @@
 	NSParameterAssert(variables != nil);
 	
 	[variables enumerateObjectsUsingBlock:^(NSValue *value, NSUInteger index, BOOL *stop) {
-		__autoreleasing id *ptr = (__autoreleasing id *)value.pointerValue;
+		__strong id *ptr = (__strong id *)value.pointerValue;
 		*ptr = tuple[index];
 	}];
 }

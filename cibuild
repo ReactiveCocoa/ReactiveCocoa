@@ -1,0 +1,101 @@
+#!/bin/bash
+
+set -o errexit
+
+SCRIPT_DIR=$(dirname "$0")
+cd "$SCRIPT_DIR/.."
+
+##
+## Configuration Variables
+##
+
+# The build configuration to use.
+# variable.
+if [ -z "$CONFIGURATION" ]
+then
+    CONFIGURATION="Release"
+fi
+
+# The workspace to build.
+#
+# If not set and no workspace is found, the -workspace flag will not be passed
+# to xcodebuild.
+if [ -z "$WORKSPACE" ]
+then
+    WORKSPACE=*.xcworkspace
+fi
+
+# The schemes or targets to build.
+#
+# If not set, all targets without "Tests" in their name will be built.
+SCHEMES=( "$@" )
+
+# A bootstrap script to run before building.
+#
+# If this file does not exist, it is not considered an error.
+BOOTSTRAP="$SCRIPT_DIR/bootstrap"
+
+##
+## Target lookup
+##
+
+# Consider all input to be newline-separated.
+IFS="$(printf '\n')"
+
+if [ -z "$SCHEMES" ]
+then
+    SCHEMES=( $(xcodebuild -list | awk -f "$SCRIPT_DIR/targets.awk" | awk '!/Tests/') )
+    if [ -z "$SCHEMES" ]
+    then
+        echo "Could not find any schemes to build."
+        exit 1
+    fi
+fi
+
+##
+## Build Process
+##
+
+if [ -f "$BOOTSTRAP" ]
+then
+    echo "*** Bootstrapping…"
+    bash "$BOOTSTRAP"
+fi
+
+echo "*** Cleaning all targets…"
+xcodebuild -alltargets clean
+
+set +o errexit
+
+build_scheme ()
+{
+    local scheme=$1
+    local action=$2
+
+    if [ -n "$WORKSPACE" ]
+    then
+        xcodebuild -workspace "$WORKSPACE" -scheme "$scheme" -configuration "$CONFIGURATION" "$action" OBJROOT="build" SYMROOT="build"
+    else
+        xcodebuild -target "$scheme" -configuration "$CONFIGURATION" "$action" OBJROOT="build" SYMROOT="build"
+    fi
+
+    return $?
+}
+
+echo "*** Building…"
+for scheme in "${schemes[@]}"
+do
+    STATUS=build_scheme "$scheme" "test"
+
+    if [ "$STATUS" -eq "65" ]
+    then
+        # This probably means the 'test' action isn't supported. Try again with
+        # 'build'.
+        STATUS=build_scheme "$scheme" "build"
+    fi
+
+    if [ "$STATUS" -ne "0" ]
+    then
+        exit $STATUS
+    fi
+done

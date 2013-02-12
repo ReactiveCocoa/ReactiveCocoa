@@ -718,10 +718,12 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	NSParameterAssert(keyPath != nil);
 	NSParameterAssert(object != nil);
 
+	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+
 	// Purposely not retaining 'object', since we want to tear down the binding
 	// when it deallocates normally.
 	__block void * volatile objectPtr = (__bridge void *)object;
-	
+
 	RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
 		NSObject *object = (__bridge id)objectPtr;
 		[object setValue:x forKeyPath:keyPath];
@@ -732,7 +734,13 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 
 		// Log the error if we're running with assertions disabled.
 		NSLog(@"Received error from %@ in binding for key path \"%@\" on %@: %@", self, keyPath, object, error);
+
+		[disposable dispose];
+	} completed:^{
+		[disposable dispose];
 	}];
+
+	if (subscriptionDisposable != nil) [disposable addDisposable:subscriptionDisposable];
 
 	#if DEBUG
 	static void *bindingsKey = &bindingsKey;
@@ -752,8 +760,8 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 		bindings[keyPath] = [NSValue valueWithNonretainedObject:self];
 	}
 	#endif
-	
-	RACDisposable *disposable = [RACDisposable disposableWithBlock:^{
+
+	RACDisposable *clearPointerDisposable = [RACDisposable disposableWithBlock:^{
 		#if DEBUG
 		@synchronized (bindings) {
 			[bindings removeObjectForKey:keyPath];
@@ -766,9 +774,9 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 				break;
 			}
 		}
-
-		[subscriptionDisposable dispose];
 	}];
+
+	[disposable addDisposable:clearPointerDisposable];
 
 	[object rac_addDeallocDisposable:disposable];
 

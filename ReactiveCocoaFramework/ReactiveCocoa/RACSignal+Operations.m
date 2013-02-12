@@ -742,7 +742,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 
 	if (subscriptionDisposable != nil) [disposable addDisposable:subscriptionDisposable];
 
-#if DEBUG
+	#if DEBUG
 	static void *bindingsKey = &bindingsKey;
 	NSMutableDictionary *bindings;
 
@@ -759,14 +759,14 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 
 		bindings[keyPath] = [NSValue valueWithNonretainedObject:self];
 	}
-#endif
+	#endif
 
 	RACDisposable *clearPointerDisposable = [RACDisposable disposableWithBlock:^{
-#if DEBUG
+		#if DEBUG
 		@synchronized (bindings) {
 			[bindings removeObjectForKey:keyPath];
 		}
-#endif
+		#endif
 
 		while (YES) {
 			void *ptr = objectPtr;

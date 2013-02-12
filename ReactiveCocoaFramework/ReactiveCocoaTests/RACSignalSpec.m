@@ -852,6 +852,18 @@ describe(@"-toProperty:onObject:", ^{
 		// This shouldn't do anything.
 		[subject sendNext:@3];
 	});
+
+	it(@"should allow a new derivation after the signal's completed", ^{
+		RACSubject *subject1 = [RACSubject subject];
+		RACTestObject *testObject = [[RACTestObject alloc] init];
+		[subject1 toProperty:@keypath(testObject.objectValue) onObject:testObject];
+		[subject1 sendCompleted];
+
+		RACSubject *subject2 = [RACSubject subject];
+		// This will assert if the previous completion didn't dispose of the
+		// subscription.
+		[subject2 toProperty:@keypath(testObject.objectValue) onObject:testObject];
+	});
 });
 
 describe(@"memory management", ^{

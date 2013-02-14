@@ -2306,4 +2306,16 @@ describe(@"-dematerialize", ^{
 	});
 });
 
+describe(@"-not", ^{
+	it(@"should invert every BOOL sent", ^{
+		RACSubject *subject = [RACReplaySubject subject];
+		[subject sendNext:@NO];
+		[subject sendNext:@YES];
+		[subject sendCompleted];
+		NSArray *results = [[subject not] toArray];
+		NSArray *expected = @[ @YES, @NO ];
+		expect(results).to.equal(expected);
+	});
+});
+
 SpecEnd

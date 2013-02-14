@@ -1325,4 +1325,12 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	}] setNameWithFormat:@"[%@] -dematerialize", self.name];
 }
 
+- (RACSignal *)not {
+	return [[self map:^(NSNumber *value) {
+		NSAssert([value isKindOfClass:NSNumber.class], @"-not must only be used on a signal of NSNumbers. Instead, got: %@", value);
+
+		return @(!value.boolValue);
+	}] setNameWithFormat:@"[%@] -not", self.name];
+}
+
 @end

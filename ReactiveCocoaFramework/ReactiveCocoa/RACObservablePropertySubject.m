@@ -29,7 +29,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 @interface RACObservablePropertySubject ()
 
 // The object whose key path the RACObservablePropertySubject is wrapping.
-@property (nonatomic, readonly, weak) id target;
+@property (nonatomic, readonly, unsafe_unretained) id target;
 
 // The key path the RACObservablePropertySubject is wrapping.
 @property (nonatomic, readonly, copy) NSString *keyPath;
@@ -51,7 +51,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 + (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath;
 
 // The object whose key path the binding is wrapping.
-@property (nonatomic, readonly, weak) id target;
+@property (nonatomic, readonly, unsafe_unretained) id target;
 
 // The key path the binding is wrapping.
 @property (nonatomic, readonly, copy) NSString *keyPath;
@@ -128,7 +128,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 	RACKVOBinding *binding = [[self alloc] init];
 	if (binding == nil) return nil;
 	
-	@weakify(binding);
+	@unsafeify(binding);
 	binding->_target = target;
 	binding->_keyPath = [keyPath copy];
 	
@@ -224,7 +224,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 	property->_target = target;
 	property->_keyPath = [keyPath copy];
 	
-	@weakify(property);
+	@unsafeify(property);
 	property->_exposedSignal = [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		@strongify(property);
 		[subscriber sendNext:[property.target valueForKeyPath:keyPath]];

@@ -10,6 +10,7 @@
 #import "RACDisposable.h"
 #import "RACScheduler+Private.h"
 #import <libkern/OSAtomic.h>
+#import <dlfcn.h>
 
 @interface RACQueueScheduler ()
 @property (nonatomic, readonly) dispatch_queue_t queue;
@@ -42,10 +43,18 @@ static void currentSchedulerRelease(void *context) {
 
 - (void)performAsCurrentScheduler:(void (^)(void))block {
 	NSParameterAssert(block != NULL);
-
-	dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, (void *)CFBridgingRetain(self), currentSchedulerRelease);
-	block();
-	dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, nil, currentSchedulerRelease);
+    
+    if (dlsym(NULL, "dispatch_queue_set_specific")) {
+        dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, (void *)CFBridgingRetain(self), currentSchedulerRelease);
+        block();
+        dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, nil, currentSchedulerRelease);
+    }else{
+        if (dispatch_get_current_queue() == self.queue) {
+            block();
+        }else{
+            dispatch_sync(self.queue, block);
+        }
+    }
 }
 
 #pragma mark RACScheduler

@@ -55,7 +55,7 @@
 	self = [super init];
 	if (self == nil) return nil;
 	
-	@weakify(self);
+	@unsafeify(self);
 	_exposedSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block BOOL isFirstNext = YES;
 		return [signal subscribeNext:^(RACTuple *x) {

@@ -40,7 +40,7 @@
 	self = [super init];
 	if (self == nil) return nil;
 
-	@weakify(self);
+	@unsafeify(self);
 
 	RACDisposable *selfDisposable = [RACDisposable disposableWithBlock:^{
 		@strongify(self);

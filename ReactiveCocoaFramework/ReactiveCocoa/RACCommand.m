@@ -97,7 +97,7 @@
 - (RACSignal *)addSignalBlock:(RACSignal * (^)(id sender))signalBlock {
 	NSParameterAssert(signalBlock != nil);
 
-	@weakify(self);
+	@unsafeify(self);
 
 	return [[[[self
 		doNext:^(id _) {

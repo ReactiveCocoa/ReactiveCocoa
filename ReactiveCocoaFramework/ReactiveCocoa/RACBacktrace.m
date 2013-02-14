@@ -9,6 +9,7 @@
 #import <execinfo.h>
 #import <pthread.h>
 #import "RACBacktrace+Private.h"
+#import <dlfcn.h>
 
 #define RAC_BACKTRACE_MAX_CALL_STACK_FRAMES 128
 
@@ -61,9 +62,18 @@ static dispatch_block_t RACBacktraceBlock (dispatch_queue_t queue, dispatch_bloc
 	RACBacktrace *backtrace = [RACBacktrace captureBacktrace];
 
 	return [^{
-		dispatch_queue_set_specific(queue, (void *)pthread_self(), (void *)CFBridgingRetain(backtrace), (dispatch_function_t)&CFBridgingRelease);
-		block();
-		dispatch_queue_set_specific(queue, (void *)pthread_self(), NULL, NULL);
+
+        if (dlsym(NULL, "dispatch_queue_set_specific")) {
+            dispatch_queue_set_specific(queue, (void *)pthread_self(), (void *)CFBridgingRetain(backtrace), (dispatch_function_t)&CFBridgingRelease);
+            block();
+            dispatch_queue_set_specific(queue, (void *)pthread_self(), NULL, NULL);
+        }else{
+            if (dispatch_get_current_queue() == queue) {
+                block();
+            }else{
+                dispatch_sync(queue, block);
+            }
+        }
 	} copy];
 }
 
@@ -107,17 +117,17 @@ __attribute__((used)) static struct { const void *replacement; const void *repla
 	{ (const void *)&rac_dispatch_after_f, (const void *)&dispatch_after_f },
 };
 
-static void RACSignalHandler (int sig) {
-	[RACBacktrace printBacktrace];
+//static void RACSignalHandler (int sig) {
+//	[RACBacktrace printBacktrace];
+//
+//	// Restore the default action and raise the signal again.
+//	signal(sig, SIG_DFL);
+//	raise(sig);
+//}
 
-	// Restore the default action and raise the signal again.
-	signal(sig, SIG_DFL);
-	raise(sig);
-}
-
-static void RACExceptionHandler (NSException *ex) {
-	[RACBacktrace printBacktrace];
-}
+//static void RACExceptionHandler (NSException *ex) {
+//	[RACBacktrace printBacktrace];
+//}
 
 @implementation RACBacktrace
 
@@ -140,28 +150,28 @@ static void RACExceptionHandler (NSException *ex) {
 
 #pragma mark Initialization
 
-+ (void)load {
-	@autoreleasepool {
-		NSString *libraries = [[[NSProcessInfo processInfo] environment] objectForKey:@"DYLD_INSERT_LIBRARIES"];
-
-		// Don't install our handlers if we're not actually intercepting function
-		// calls.
-		if ([libraries rangeOfString:@"ReactiveCocoa"].length == 0) return;
-
-		NSLog(@"*** Enabling asynchronous backtraces");
-
-		NSSetUncaughtExceptionHandler(&RACExceptionHandler);
-	}
-
-	signal(SIGILL, &RACSignalHandler);
-	signal(SIGTRAP, &RACSignalHandler);
-	signal(SIGABRT, &RACSignalHandler);
-	signal(SIGFPE, &RACSignalHandler);
-	signal(SIGBUS, &RACSignalHandler);
-	signal(SIGSEGV, &RACSignalHandler);
-	signal(SIGSYS, &RACSignalHandler);
-	signal(SIGPIPE, &RACSignalHandler);
-}
+//+ (void)load {
+//	@autoreleasepool {
+//		NSString *libraries = [[[NSProcessInfo processInfo] environment] objectForKey:@"DYLD_INSERT_LIBRARIES"];
+//
+//		// Don't install our handlers if we're not actually intercepting function
+//		// calls.
+//		if ([libraries rangeOfString:@"ReactiveCocoa"].length == 0) return;
+//
+//		NSLog(@"*** Enabling asynchronous backtraces");
+//
+//		NSSetUncaughtExceptionHandler(&RACExceptionHandler);
+//	}
+//
+//	signal(SIGILL, &RACSignalHandler);
+//	signal(SIGTRAP, &RACSignalHandler);
+//	signal(SIGABRT, &RACSignalHandler);
+//	signal(SIGFPE, &RACSignalHandler);
+//	signal(SIGBUS, &RACSignalHandler);
+//	signal(SIGSEGV, &RACSignalHandler);
+//	signal(SIGSYS, &RACSignalHandler);
+//	signal(SIGPIPE, &RACSignalHandler);
+//}
 
 #pragma mark Backtraces
 

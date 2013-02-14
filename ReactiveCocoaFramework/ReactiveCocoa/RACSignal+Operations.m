@@ -48,7 +48,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		RACCompoundDisposable *selfDisposable = [RACCompoundDisposable compoundDisposable];
 		[compoundDisposable addDisposable:selfDisposable];
 
-		__weak RACDisposable *weakSelfDisposable = selfDisposable;
+		__unsafe_unretained RACDisposable *weakSelfDisposable = selfDisposable;
 
 		RACDisposable *subscriptionDisposable = [signal subscribeNext:next error:^(NSError *e) {
 			@autoreleasepool {

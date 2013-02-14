@@ -226,7 +226,7 @@ static NSMutableSet *activeSignals() {
 			RACCompoundDisposable *selfDisposable = [RACCompoundDisposable compoundDisposable];
 			[compoundDisposable addDisposable:selfDisposable];
 
-			__weak RACDisposable *weakSelfDisposable = selfDisposable;
+			__unsafe_unretained RACDisposable *weakSelfDisposable = selfDisposable;
 
 			RACDisposable *disposable = [signal subscribeNext:^(id x) {
 				[subscriber sendNext:x];
@@ -246,7 +246,7 @@ static NSMutableSet *activeSignals() {
 			RACCompoundDisposable *selfDisposable = [RACCompoundDisposable compoundDisposable];
 			[compoundDisposable addDisposable:selfDisposable];
 
-			__weak RACDisposable *weakSelfDisposable = selfDisposable;
+			__unsafe_unretained RACDisposable *weakSelfDisposable = selfDisposable;
 
 			RACDisposable *bindingDisposable = [self subscribeNext:^(id x) {
 				BOOL stop = NO;
@@ -377,7 +377,7 @@ static NSMutableSet *activeSignals() {
 		[self.subscribers addObject:subscriber];
 	}
 	
-	@weakify(self, subscriber);
+	@unsafeify(self, subscriber);
 	RACDisposable *defaultDisposable = [RACDisposable disposableWithBlock:^{
 		@strongify(self, subscriber);
 

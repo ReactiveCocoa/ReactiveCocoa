@@ -126,7 +126,7 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 		RACCompoundDisposable *selfDisposable = [RACCompoundDisposable compoundDisposable];
 		[disposable addDisposable:selfDisposable];
 
-		__weak RACDisposable *weakSelfDisposable = selfDisposable;
+		__unsafe_unretained RACDisposable *weakSelfDisposable = selfDisposable;
 
 		RACDisposable *schedulingDisposable = [self schedule:^{
 			@autoreleasepool {

@@ -59,7 +59,7 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 - (RACSignal *)rac_runWithScheduler:(RACScheduler *)scheduler {
 	NSParameterAssert(scheduler != nil);
 	
-	@weakify(self);
+	@unsafeify(self);
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block uint32_t volatile canceled = 0;
 		RACDisposable *disposable = [[self rac_launchWithScheduler:scheduler cancelationToken:&canceled] subscribe:subscriber];

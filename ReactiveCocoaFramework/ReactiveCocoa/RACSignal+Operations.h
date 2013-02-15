@@ -403,4 +403,10 @@ extern const NSInteger RACSignalErrorTimedOut;
 // error RACEvent, and `completed` for each completed RACEvent.
 - (RACSignal *)dematerialize;
 
+// Inverts each NSNumber-wrapped BOOL sent by the receiver. It will assert if
+// the receiver sends anything other than NSNumbers.
+//
+// Returns a signal of inverted NSNumber-wrapped BOOLs.
+- (RACSignal *)not;
+
 @end

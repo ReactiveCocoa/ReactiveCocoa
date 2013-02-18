@@ -7,6 +7,8 @@ If you're already familiar with functional reactive programming or know the basi
 premise of ReactiveCocoa, check out the [Documentation][] folder for a framework
 overview and more in-depth information about how it all works in practice.
 
+**Table of Contents**
+
  1. [Functional Reactive Programming](#functional-reactive-programming)
  1. [FRP with ReactiveCocoa](#frp-with-reactivecocoa)
  1. [Getting Started](#getting-started)

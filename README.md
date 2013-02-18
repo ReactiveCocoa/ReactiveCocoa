@@ -12,7 +12,6 @@ overview and more in-depth information about how it all works in practice.
  1. [Functional Reactive Programming](#functional-reactive-programming)
  1. [FRP with ReactiveCocoa](#frp-with-reactivecocoa)
  1. [Getting Started](#getting-started)
- 1. [Foundation Support](#foundation-support)
  1. [License](#license)
  1. [More Info](#more-info)
 

@@ -7,42 +7,12 @@ If you're already familiar with functional reactive programming or know the basi
 premise of ReactiveCocoa, check out the [Documentation][] folder for a framework
 overview and more in-depth information about how it all works in practice.
 
- 1. [Getting Started](#getting-started)
  1. [Functional Reactive Programming](#functional-reactive-programming)
  1. [FRP with ReactiveCocoa](#frp-with-reactivecocoa)
+ 1. [Getting Started](#getting-started)
  1. [Foundation Support](#foundation-support)
  1. [License](#license)
  1. [More Info](#more-info)
-
-## Getting Started
-
-To add RAC to your application:
-
- 1. Add the ReactiveCocoa repository as a submodule of your application's
-    repository. Make sure to update the submodules within with `git submodule update
-    -i --recursive`
- 1. Drag and drop `ReactiveCocoaFramework/ReactiveCocoa.xcodeproj` into your
-    application's Xcode project or workspace.
- 1. On the "Build Phases" tab of your application target, add RAC to the "Link
-    Binary With Libraries" phase.
-    * **On iOS**, add `libReactiveCocoa-iOS.a`.
-    * **On OS X**, add `ReactiveCocoa.framework`. RAC must also be added to any
-      "Copy Frameworks" build phase. If you don't already have one, simply add
-      a "Copy Files" build phase and target the "Frameworks" destination.
- 1. Add `$(BUILD_ROOT)/../IntermediateBuildFilesPath/UninstalledProducts/include
-    $(inherited)` to the "Header Search Paths" build setting (this is only
-		necessary for archive builds, but it has no negative effect otherwise).
- 1. **If you added RAC to a project (not a workspace)**, you will also need to
-    add the appropriate RAC target to the "Target Dependencies" of your
-    application.
-
-If you would prefer to use [CocoaPods](http://cocoapods.org), there are some
-[ReactiveCocoa
-podspecs](https://github.com/CocoaPods/Specs/tree/master/ReactiveCocoa) that
-have been generously contributed by third parties.
-
-To see a project already set up with RAC, check out the [Mac][GHAPIDemo] or
-[iOS][RACiOSDemo] demos.
 
 ## Functional Reactive Programming
 Functional Reactive Programming (FRP) is a programming paradigm for writing
@@ -260,6 +230,36 @@ locality, and better expression of intent.
 
 For more sample code, check out the [Mac][GHAPIDemo] or [iOS][RACiOSDemo] demos.
 Additional information about RAC can be found in the [Documentation][] folder.
+
+## Getting Started
+
+To add RAC to your application:
+
+ 1. Add the ReactiveCocoa repository as a submodule of your application's
+    repository. Make sure to update the submodules within with `git submodule update
+    -i --recursive`
+ 1. Drag and drop `ReactiveCocoaFramework/ReactiveCocoa.xcodeproj` into your
+    application's Xcode project or workspace.
+ 1. On the "Build Phases" tab of your application target, add RAC to the "Link
+    Binary With Libraries" phase.
+    * **On iOS**, add `libReactiveCocoa-iOS.a`.
+    * **On OS X**, add `ReactiveCocoa.framework`. RAC must also be added to any
+      "Copy Frameworks" build phase. If you don't already have one, simply add
+      a "Copy Files" build phase and target the "Frameworks" destination.
+ 1. Add `$(BUILD_ROOT)/../IntermediateBuildFilesPath/UninstalledProducts/include
+    $(inherited)` to the "Header Search Paths" build setting (this is only
+		necessary for archive builds, but it has no negative effect otherwise).
+ 1. **If you added RAC to a project (not a workspace)**, you will also need to
+    add the appropriate RAC target to the "Target Dependencies" of your
+    application.
+
+If you would prefer to use [CocoaPods](http://cocoapods.org), there are some
+[ReactiveCocoa
+podspecs](https://github.com/CocoaPods/Specs/tree/master/ReactiveCocoa) that
+have been generously contributed by third parties.
+
+To see a project already set up with RAC, check out the [Mac][GHAPIDemo] or
+[iOS][RACiOSDemo] demos.
 
 ## Foundation Support
 There are a number of categories that provide RAC-based bridges to standard

@@ -33,6 +33,7 @@ resource for getting up to speed on the functionality provided by RAC.
 **[Best practices](#best-practices)**
 
  1. [Use descriptive declarations for methods and properties that return a signal](#use-descriptive-declarations-for-methods-and-properties-that-return-a-signal)
+ 1. [Indent stream operations consistently](#indent-stream-operations-consistently)
  1. [Use the same type for all the values of a stream](#use-the-same-type-for-all-the-values-of-a-stream)
  1. [Avoid retaining streams and disposables directly](#avoid-retaining-streams-and-disposables-directly)
  1. [Process only as much of a stream as needed](#process-only-as-much-of-a-stream-as-needed)
@@ -519,6 +520,64 @@ verb-like names (e.g., `-logIn`). The verb indicates that the method is not
 idempotent and that callers must be careful to call it only when the side
 effects are desired. If the signal will send one or more values, include a noun
 that describes them (e.g., `-loadConfiguration`, `-fetchLatestEvents`).
+
+### Indent stream operations consistently
+
+It's easy for stream-heavy code to become very dense and confusing if not
+properly formatted. Use consistent indentation to highlight where chains of
+streams begin and end.
+
+When invoking a single method upon a stream, no additional indentation is
+necessary (block arguments aside):
+
+```objc
+RACStream *result = [stream startWith:@0];
+
+RACStream *result2 = [stream map:^(NSNumber *value) {
+    return @(value.integerValue + 1);
+}];
+```
+
+When transforming the same stream multiple times, ensure that all of the
+steps are aligned. Complex operators like [+zip:reduce:][RACStream] or
+[+combineLatest:reduce:][RACSignal+Operations] may be split over multiple lines
+for readability:
+
+```objc
+RACStream *result = [[[RACStream
+    zip:@[ firstStream, secondStream ]
+    reduce:^(NSNumber *first, NSNumber *second) {
+        return @(first.integerValue + second.integerValue);
+    }]
+    filter:^ BOOL (NSNumber *value) {
+        return value.integerValue >= 0;
+    }]
+    map:^(NSNumber *value) {
+        return @(value.integerValue + 1);
+    }];
+```
+
+Of course, streams nested within block arguments should start at the natural
+indentation of the block:
+
+```objc
+[[signal
+    sequenceNext:^{
+        @strongify(self);
+
+        return [[self
+            doSomethingElse]
+            catch:^(NSError *error) {
+                @strongify(self);
+                [self presentError:error];
+
+                return [RACSignal empty];
+            }];
+    }]
+    subscribeCompleted:^{
+        NSLog(@"All done.");
+    }];
+```
 
 ### Use the same type for all the values of a stream
 

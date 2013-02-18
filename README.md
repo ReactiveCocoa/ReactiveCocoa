@@ -10,14 +10,13 @@ overview and more in-depth information about how it all works in practice.
 
 **Table of Contents**
 
- 1. [Functional Reactive Programming](#functional-reactive-programming)
+ 1. [Functional reactive programming](#functional-reactive-programming)
  1. [FRP with ReactiveCocoa](#frp-with-reactivecocoa)
- 1. [When to Use RAC](#when-to-use-rac)
- 1. [Getting Started](#getting-started)
- 1. [License](#license)
+ 1. [When to use ReactiveCocoa](#when-to-use-reactivecocoa)
+ 1. [Importing ReactiveCocoa](#importing-reactivecocoa)
  1. [More Info](#more-info)
 
-## Functional Reactive Programming
+## Functional reactive programming
 
 Functional Reactive Programming (FRP) is a programming paradigm for writing
 software that reacts to change.
@@ -236,7 +235,7 @@ locality, and better expression of intent.
 For more sample code, check out the [Mac][GHAPIDemo] or [iOS][RACiOSDemo] demos.
 Additional information about RAC can be found in the [Documentation][] folder.
 
-## When to Use RAC
+## When to use ReactiveCocoa
 
 Upon first glance, ReactiveCocoa is very abstract, and it can be difficult to
 understand how to apply it to concrete problems.
@@ -461,7 +460,7 @@ RACSequence *results = [[strings.rac_sequence
     }];
 ```
 
-## Getting Started
+## Importing ReactiveCocoa
 
 To add RAC to your application:
 
@@ -490,10 +489,6 @@ have been generously contributed by third parties.
 
 To see a project already set up with RAC, check out the [Mac][GHAPIDemo] or
 [iOS][RACiOSDemo] demos.
-
-## License
-
-ReactiveCocoa is available under the [MIT License](LICENSE.md).
 
 ## More Info
 

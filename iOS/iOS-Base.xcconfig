@@ -17,6 +17,9 @@ SDKROOT = iphoneos
 // Don't try to install iOS binaries
 SKIP_INSTALL = YES
 
+// Xcode needs this to find archived headers if SKIP_INSTALL is set
+HEADER_SEARCH_PATHS = $(OBJROOT)/UninstalledProducts/include
+
 // Supported SDK platforms
 SUPPORTED_PLATFORMS = iphonesimulator iphoneos
 

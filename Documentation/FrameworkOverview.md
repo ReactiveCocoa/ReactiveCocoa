@@ -135,20 +135,6 @@ the [List][] type in [Haskell][].
 RAC adds a `-rac_sequence` method to most of Cocoa's collection classes,
 allowing them to be used as [RACSequences][RACSequence] instead.
 
-## Value types
-
-RAC offers a few miscellaneous classes for conveniently representing values in
-a [stream](#streams):
-
- * **[RACTuple][]** is a small, constant-sized collection that can contain
-   `nil` (represented by `RACTupleNil`). It is generally used to represent
-   the combined values of multiple streams.
- * **[RACUnit][]** is a singleton "empty" value. It is used as a value in
-   a stream for those times when more meaningful data doesn't exist.
- * **[RACEvent][]** represents any [signal event](#signals) as a single value.
-   It is primarily used by the `-materialize` method of
-   [RACSignal][RACSignal+Operations].
-
 ## Disposables
 
 The **[RACDisposable][]** class is used for cancellation and resource cleanup.
@@ -175,6 +161,29 @@ of [signal operators][RACSignal+Operations] instead of blocking work.
 [RACScheduler][] is also somewhat similar to `NSOperationQueue`, but schedulers
 do not allow tasks to be reordered or depend on one another.
 
+## Value types
+
+RAC offers a few miscellaneous classes for conveniently representing values in
+a [stream](#streams):
+
+ * **[RACTuple][]** is a small, constant-sized collection that can contain
+   `nil` (represented by `RACTupleNil`). It is generally used to represent
+   the combined values of multiple streams.
+ * **[RACUnit][]** is a singleton "empty" value. It is used as a value in
+   a stream for those times when more meaningful data doesn't exist.
+ * **[RACEvent][]** represents any [signal event](#signals) as a single value.
+   It is primarily used by the `-materialize` method of
+   [RACSignal][RACSignal+Operations].
+
+## Foundation Support
+
+There are a number of categories that provide RAC-based bridges to standard
+Foundation classes. They're not included as part of the framework proper in
+order to keep the framework size down.
+
+You can find them in [RACExtensions][]. To use them, simply add them directly to
+your project as needed.
+
 [Design Guidelines]: DesignGuidelines.md
 [Haskell]: http://www.haskell.org
 [lazy-seq]: http://clojure.github.com/clojure/clojure.core-api.html#clojure.core/lazy-seq
@@ -187,6 +196,7 @@ do not allow tasks to be reordered or depend on one another.
 [RACCommand]: ../ReactiveCocoaFramework/ReactiveCocoa/RACCommand.h
 [RACDisposable]: ../ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
 [RACEvent]: ../ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h
+[RACExtensions]: ../RACExtensions
 [RACMulticastConnection]: ../ReactiveCocoaFramework/ReactiveCocoa/RACMulticastConnection.h
 [RACReplaySubject]: ../ReactiveCocoaFramework/ReactiveCocoa/RACReplaySubject.h
 [RACScheduler]: ../ReactiveCocoaFramework/ReactiveCocoa/RACScheduler.h

@@ -141,38 +141,30 @@ self.button.rac_command = [RACCommand command];
 Or asynchronous network operations:
 
 ```objc
-// Hook up a "Log in" button to log in over the network and log a message when
-// it was successful.
+// Hook up a "Log in" button to log in over the network.
 //
-// loginCommand does the actual work of logging in. loginResult sends a value
-// whenever the async work is done.
-self.loginCommand = [RACAsyncCommand command];
+// loginCommand sends a value whenever it is executed.
+self.loginCommand = [RACCommand command];
 
-// This block will execute whenever the login command sends a value.
+// This block will execute whenever the login command sends a value, starting
+// the login process.
 //
-// -sequenceMany: will return a signal that represents the combination of all
-// the signals returned from this block. In this case, the login result will
-// send a value whenever a login attempt sends a value, completes, or errors
-// out.
-self.loginResult  = [self.loginCommand sequenceMany:^{
+// -addSignalBlock: will return a signal that includes the signals returned from
+// this block, one for each time the command is executed.
+self.loginSignals = [self.loginCommand addSignalBlock:^(id sender) {
     // The hypothetical -logIn method returns a signal that sends a value when
     // the network request finishes.
-    //
-    // -materialize wraps up values, completions, and errors in RACEvents so errors won't
-    // close the login result signal.
-    return [[client logIn] materialize];
+    return [client logIn];
 }];
 
-[[self.loginResult 
-    // Filter out everything but successful logins.
-    filter:^(RACEvent *x) {
-        return x.eventType == RACEventTypeCompleted;
-    }]
-    subscribeNext:^(id _) {
+// Log a message whenever we log in successfully.
+[self.loginSignals subscribeNext:^(RACSignal *loginSignal) {
+    [loginSignal subscribeCompleted:^(id _) {
         NSLog(@"Logged in successfully!");
     }];
+}];
 
-// Execute the login command when the button is pressed
+// Execute the login command when the button is pressed.
 self.loginButton.rac_command = self.loginCommand;
 ```
 

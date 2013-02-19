@@ -508,12 +508,16 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 	[[self
 		timeout:RACSignalAsynchronousWaitTimeout]
 		subscribeNext:^(id x) {
-			result = x;
-			done = YES;
+			if (!done) {
+				result = x;
+				done = YES;
+			}
 		} error:^(NSError *e) {
-			if (error != NULL) *error = e;
-			if (success != NULL) *success = NO;
-			done = YES;
+			if (!done) {
+				if (error != NULL) *error = e;
+				if (success != NULL) *success = NO;
+				done = YES;
+			}
 		} completed:^{
 			done = YES;
 		}];

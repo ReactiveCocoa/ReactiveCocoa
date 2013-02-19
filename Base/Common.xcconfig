@@ -135,3 +135,6 @@ TEST_AFTER_BUILD = NO
 
 // Disable GCC compatibility warnings
 WARNING_CFLAGS = -Wno-gcc-compat
+
+// Disable legacy-compatible header searching
+ALWAYS_SEARCH_USER_PATHS = NO

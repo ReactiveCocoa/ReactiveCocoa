@@ -409,6 +409,46 @@ describe(@"querying", ^{
 		expect([signal waitUntilCompleted:&error]).to.beFalsy();
 		expect(error).to.equal(RACSignalTestError);
 	});
+
+	it(@"should return a delayed value from -asynchronousFirstOrDefault:success:error:", ^{
+		RACSignal *signal = [[RACSignal return:RACUnit.defaultUnit] delay:0.01];
+
+		__block BOOL scheduledBlockRan = NO;
+		[RACScheduler.mainThreadScheduler schedule:^{
+			scheduledBlockRan = YES;
+		}];
+
+		expect(scheduledBlockRan).to.beFalsy();
+
+		BOOL success = NO;
+		NSError *error = nil;
+		id value = [signal asynchronousFirstOrDefault:nil success:&success error:&error];
+
+		expect(scheduledBlockRan).to.beTruthy();
+
+		expect(value).to.equal(RACUnit.defaultUnit);
+		expect(success).to.beTruthy();
+		expect(error).to.beNil();
+	});
+
+	it(@"should return a delayed success from -asynchronouslyWaitUntilCompleted:", ^{
+		RACSignal *signal = [[RACSignal return:RACUnit.defaultUnit] delay:0.01];
+
+		__block BOOL scheduledBlockRan = NO;
+		[RACScheduler.mainThreadScheduler schedule:^{
+			scheduledBlockRan = YES;
+		}];
+
+		expect(scheduledBlockRan).to.beFalsy();
+
+		NSError *error = nil;
+		BOOL success = [signal asynchronouslyWaitUntilCompleted:&error];
+
+		expect(scheduledBlockRan).to.beTruthy();
+
+		expect(success).to.beTruthy();
+		expect(error).to.beNil();
+	});
 });
 
 describe(@"continuation", ^{

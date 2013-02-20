@@ -202,6 +202,17 @@
 	}] setNameWithFormat:@"[%@] -signalWithScheduler:", self.name];
 }
 
+- (id)foldr:(id (^)(id, RACSequence*))combine start:(id)start {
+    if (!combine || self.head == nil) return start;
+
+    __block RACSequence *sequence = self;
+    RACSequence *rest = [RACSequence sequenceWithHeadBlock:^id{
+        return [sequence.tail foldr:combine start:start];
+    } tailBlock:nil];
+
+    return combine(self.head, rest);
+}
+
 - (RACSequence *)eagerSequence {
 	return [RACEagerSequence sequenceWithArray:self.array offset:0];
 }

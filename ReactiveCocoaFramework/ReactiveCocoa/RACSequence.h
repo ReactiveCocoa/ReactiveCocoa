@@ -70,6 +70,16 @@
 // they're evaluated.
 - (RACSignal *)signalWithScheduler:(RACScheduler *)scheduler;
 
+// Applies a foldr to the sequence.
+//
+// Each RACSequence is folded from the right. This is identical to a foldr in
+// haskell including laziness. Laziness is maintained by wrapping the rest of
+// the computation in a RACSequence. The value of the computation can be accessed
+// using the head call. The start value is used for the last element to fold with.
+//
+// Returns a reduced value.
+- (id)foldr:(id (^)(id first, RACSequence* rest))combine start:(id)start;
+
 // Creates a sequence that dynamically generates its values.
 //
 // headBlock - Invoked the first time -head is accessed.

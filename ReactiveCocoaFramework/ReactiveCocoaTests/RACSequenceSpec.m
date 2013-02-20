@@ -317,4 +317,35 @@ it(@"shouldn't overflow the stack when deallocated on a background queue", ^{
 	Expecta.asynchronousTestTimeout = oldTimeout;
 });
 
+describe(@"-foldr", ^{
+    __block BOOL headInvoked = NO;
+    __block BOOL tailInvoked = NO;
+    __block RACSequence *sequence;
+
+    it(@"should be lazy", ^{
+        sequence = [RACSequence sequenceWithHeadBlock:^{
+            headInvoked = YES;
+            return @0;
+        } tailBlock:^{
+            tailInvoked = YES;
+            return [RACSequence return:@1];
+        }];
+
+        id result = [sequence foldr:^id (id first, RACSequence *rest) {
+            return first;
+        } start:@2];
+
+        expect(result).to.equal(@0);
+        expect(headInvoked).to.beTruthy();
+        expect(tailInvoked).to.beFalsy();
+    });
+
+    it(@"should combine with start last", ^{
+        sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
+        id result = [sequence foldr:^RACSequence *(id first, RACSequence *rest) {
+            return rest.head;
+        } start:@3];
+        expect(result).to.equal(@3);
+    });
+});
 SpecEnd

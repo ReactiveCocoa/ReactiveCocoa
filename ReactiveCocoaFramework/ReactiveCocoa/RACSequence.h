@@ -80,6 +80,11 @@
 // Returns a reduced value.
 - (id)foldr:(id (^)(id first, RACSequence* rest))combine start:(id)start;
 
+// Check if any value in sequence passes the block.
+//
+// Returns a boolean indiciating if any value in the sequence passed.
+- (BOOL)any:(BOOL (^)(id value))block;
+
 // Creates a sequence that dynamically generates its values.
 //
 // headBlock - Invoked the first time -head is accessed.

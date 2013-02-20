@@ -348,4 +348,23 @@ describe(@"-foldr", ^{
         expect(result).to.equal(@3);
     });
 });
+
+describe(@"-any", ^{
+    __block RACSequence *sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
+
+    it(@"should return true when at least one exists", ^{
+        BOOL result = [sequence any:^BOOL(id value) {
+            return [value integerValue] > 0;
+        }];
+        expect(result).to.beTruthy();
+    });
+
+    it(@"should return false when no such thing exists", ^{
+        BOOL result = [sequence any:^BOOL(id value) {
+            return [value integerValue] == 3;
+        }];
+        expect(result).to.beFalsy();
+    });
+});
+
 SpecEnd

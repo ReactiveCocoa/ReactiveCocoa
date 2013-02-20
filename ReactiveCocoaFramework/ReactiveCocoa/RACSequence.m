@@ -213,6 +213,17 @@
     return combine(self.head, rest);
 }
 
+- (BOOL)any:(BOOL (^)(id))block {
+    if (!block) return NO;
+
+    id result = [self foldr:^id (id first, RACSequence *rest) {
+        if (block(first)) return @YES;
+        return rest.head;
+    } start:NO];
+
+    return [result boolValue];
+}
+
 - (RACSequence *)eagerSequence {
 	return [RACEagerSequence sequenceWithArray:self.array offset:0];
 }

@@ -18,7 +18,7 @@
 	//
 	// This variable can be read at any time, but must be modified through
 	// -incrementItemsInFlight and -decrementItemsInFlight.
-	volatile int64_t _itemsInFlight;
+	volatile int32_t _itemsInFlight;
 }
 
 @property (atomic, readwrite) BOOL canExecute;
@@ -48,14 +48,14 @@
 
 - (void)incrementItemsInFlight {
 	[self willChangeValueForKey:@keypath(self.executing)];
-	OSAtomicIncrement64Barrier(&_itemsInFlight);
+	OSAtomicIncrement32Barrier(&_itemsInFlight);
 	[self didChangeValueForKey:@keypath(self.executing)];
 }
 
 - (void)decrementItemsInFlight {
 	[self willChangeValueForKey:@keypath(self.executing)];
 
-	int64_t newValue __attribute__((unused)) = OSAtomicDecrement64Barrier(&_itemsInFlight);
+	int32_t newValue __attribute__((unused)) = OSAtomicDecrement32Barrier(&_itemsInFlight);
 	NSAssert(newValue >= 0, @"Unbalanced decrement of _itemsInFlight");
 
 	[self didChangeValueForKey:@keypath(self.executing)];

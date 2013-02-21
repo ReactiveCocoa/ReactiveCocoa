@@ -173,6 +173,9 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 
 // Invokes the given `block` for each value in the receiver.
 //
+// This method is equivalent to a -flattenMap: that simply ignores the input
+// values.
+//
 // block - A block which returns a new instance of the receiver's class.
 //
 // Returns a new stream which represents the combined result of all invocations

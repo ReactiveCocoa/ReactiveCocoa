@@ -331,9 +331,9 @@ describe(@"-foldr", ^{
             return [RACSequence return:@1];
         }];
 
-        id result = [sequence foldr:^id (id first, RACSequence *rest) {
+        id result = [sequence foldRightWithStart:@2 combine:^id (id first, RACSequence *rest) {
             return first;
-        } start:@2];
+        }];
 
         expect(result).to.equal(@0);
         expect(headInvoked).to.beTruthy();
@@ -342,9 +342,9 @@ describe(@"-foldr", ^{
 
     it(@"should combine with start last", ^{
         sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
-        id result = [sequence foldr:^RACSequence *(id first, RACSequence *rest) {
+        id result = [sequence foldRightWithStart:@3 combine:^RACSequence *(id first, RACSequence *rest) {
             return rest.head;
-        } start:@3];
+        }];
         expect(result).to.equal(@3);
     });
 });

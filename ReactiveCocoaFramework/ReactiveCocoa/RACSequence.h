@@ -78,7 +78,7 @@
 // using the head call. The start value is used for the last element to fold with.
 //
 // Returns a reduced value.
-- (id)foldr:(id (^)(id first, RACSequence* rest))combine start:(id)start;
+- (id)foldRightWithStart:(id)start combine:(id (^)(id first, RACSequence* rest))combine;
 
 // Check if any value in sequence passes the block.
 //

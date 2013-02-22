@@ -530,25 +530,8 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 }
 
 - (BOOL)asynchronouslyWaitUntilCompleted:(NSError **)error {
-	NSAssert([NSThread isMainThread], @"%s should only be used from the main thread", __func__);
-
-	__block BOOL success = NO;
-	__block BOOL done = NO;
-
-	[[self
-		timeout:RACSignalAsynchronousWaitTimeout]
-		subscribeError:^(NSError *e) {
-			if (error != NULL) *error = e;
-			done = YES;
-		} completed:^{
-			success = YES;
-			done = YES;
-		}];
-	
-	do {
-		[NSRunLoop.mainRunLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
-	} while (!done);
-
+	BOOL success = NO;
+	[[self ignoreElements] asynchronousFirstOrDefault:nil success:&success error:error];
 	return success;
 }
 

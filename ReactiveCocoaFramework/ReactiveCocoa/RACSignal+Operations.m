@@ -942,6 +942,17 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	return value;
 }
 
+- (BOOL)waitUntilCompleted:(NSError **)error {
+	BOOL success = NO;
+
+	[[[self
+		ignoreElements]
+		setNameWithFormat:@"[%@] -waitUntilCompleted:", self.name]
+		firstOrDefault:nil success:&success error:error];
+	
+	return success;
+}
+
 + (RACSignal *)defer:(RACSignal * (^)(void))block {
 	NSParameterAssert(block != NULL);
 	

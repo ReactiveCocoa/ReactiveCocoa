@@ -240,6 +240,14 @@ extern const NSInteger RACSignalErrorTimedOut;
 // Both success and error may be NULL.
 - (id)firstOrDefault:(id)defaultValue success:(BOOL *)success error:(NSError **)error;
 
+// Blocks the caller and waits for the signal to complete.
+//
+// error - If not NULL, set to any error that occurs.
+//
+// Returns whether the signal completed successfully. If NO, `error` will be set
+// to the error that occurred.
+- (BOOL)waitUntilCompleted:(NSError **)error;
+
 // Defer creation of a signal until the signal's actually subscribed to.
 //
 // This can be used to effectively turn a hot signal into a cold signal.

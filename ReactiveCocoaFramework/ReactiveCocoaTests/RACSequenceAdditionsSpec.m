@@ -239,6 +239,12 @@ describe(@"NSString sequences", ^{
 			};
 		});
 	});
+
+	it(@"should work with composed characters", ^{
+		NSString  *string = @"\u2665\uFE0F\u2666\uFE0F";
+		NSArray *expectedSequence = @[ @"\u2665\uFE0F", @"\u2666\uFE0F" ];
+		expect(string.rac_sequence.array).to.equal(expectedSequence);
+	});
 });
 
 SpecEnd

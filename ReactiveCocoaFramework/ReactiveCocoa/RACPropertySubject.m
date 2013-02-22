@@ -35,6 +35,14 @@
 
 @implementation RACPropertySubject
 
+#pragma mark NSObject
+
+- (id)init {
+	RACReplaySubject *backing = [RACReplaySubject replaySubjectWithCapacity:1];
+	[backing sendNext:[RACTuple tupleWithObjects:RACTupleNil.tupleNil, RACTupleNil.tupleNil, nil]];
+	return [self initWithSignal:backing subscriber:backing];
+}
+
 #pragma mark RACSignal
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
@@ -86,9 +94,7 @@
 }
 
 + (instancetype)property {
-	RACReplaySubject *backing = [RACReplaySubject replaySubjectWithCapacity:1];
-	[backing sendNext:[RACTuple tupleWithObjects:RACTupleNil.tupleNil, RACTupleNil.tupleNil, nil]];
-	return [[self alloc] initWithSignal:backing subscriber:backing];
+	return [self subject];
 }
 
 - (RACBinding *)binding {

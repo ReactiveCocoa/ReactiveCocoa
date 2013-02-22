@@ -678,6 +678,7 @@
 				88CDF7BC15000FCE00163A9F /* Products */,
 			);
 			sourceTree = "<group>";
+			usesTabs = 1;
 		};
 		88CDF7BC15000FCE00163A9F /* Products */ = {
 			isa = PBXGroup;

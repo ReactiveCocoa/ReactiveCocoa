@@ -15,6 +15,7 @@
 #import "RACScheduler.h"
 #import "RACSubject.h"
 #import "RACSignal.h"
+#import "RACProxy.h"
 #import "RACTuple.h"
 #import "RACBlockTrampoline.h"
 #import <libkern/OSAtomic.h>
@@ -202,13 +203,13 @@
 	}] setNameWithFormat:@"[%@] -signalWithScheduler:", self.name];
 }
 
-- (id)foldRightWithStart:(id)start combine:(id (^)(id, RACSequence *))combine {
+- (id)foldRightWithStart:(id)start combine:(id (^)(id, id))combine {
     if (!combine || self.head == nil) return start;
 
     __block RACSequence *sequence = self;
-    RACSequence *rest = [RACSequence sequenceWithHeadBlock:^id {
+    RACProxy *rest = [RACProxy return:^id {
         return [sequence.tail foldRightWithStart:start combine:combine];
-    } tailBlock:nil];
+    }];
 
     return combine(self.head, rest);
 }
@@ -216,9 +217,9 @@
 - (BOOL)any:(BOOL (^)(id))block {
     if (!block) return NO;
 
-    id result = [self foldRightWithStart:NO combine:^id (id first, RACSequence *rest) {
+    id result = [self foldRightWithStart:@NO combine:^id (id first, RACSequence *rest) {
         if (block(first)) return @YES;
-        return rest.head;
+        return rest;
     }];
 
     return [result boolValue];

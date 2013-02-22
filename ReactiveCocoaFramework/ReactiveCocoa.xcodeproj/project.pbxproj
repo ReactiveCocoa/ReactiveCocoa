@@ -245,6 +245,10 @@
 		D0EE284D164D906B006954A4 /* RACSignalSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EE284A164D906B006954A4 /* RACSignalSequence.m */; };
 		D0EE284E164D906B006954A4 /* RACSignalSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EE284A164D906B006954A4 /* RACSignalSequence.m */; };
 		D0FA57E3162CFED200AC6F42 /* EXTKeyPathCoding.h in Headers */ = {isa = PBXBuildFile; fileRef = D0FA57E2162CFED200AC6F42 /* EXTKeyPathCoding.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FD678BB516D7294C00DE7777 /* RACProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = FD678BB316D7294B00DE7777 /* RACProxy.h */; };
+		FD678BB616D7294C00DE7777 /* RACProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = FD678BB316D7294B00DE7777 /* RACProxy.h */; };
+		FD678BB716D7294C00DE7777 /* RACProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = FD678BB416D7294B00DE7777 /* RACProxy.m */; };
+		FD678BB816D7294C00DE7777 /* RACProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = FD678BB416D7294B00DE7777 /* RACProxy.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -541,6 +545,8 @@
 		D0EE2849164D906B006954A4 /* RACSignalSequence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACSignalSequence.h; sourceTree = "<group>"; };
 		D0EE284A164D906B006954A4 /* RACSignalSequence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSignalSequence.m; sourceTree = "<group>"; };
 		D0FA57E2162CFED200AC6F42 /* EXTKeyPathCoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EXTKeyPathCoding.h; path = extobjc/EXTKeyPathCoding.h; sourceTree = "<group>"; };
+		FD678BB316D7294B00DE7777 /* RACProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACProxy.h; sourceTree = "<group>"; };
+		FD678BB416D7294B00DE7777 /* RACProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACProxy.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1027,6 +1033,8 @@
 				D0E9676A1641EF9C00FCFF06 /* RACStringSequence.m */,
 				D0EE2849164D906B006954A4 /* RACSignalSequence.h */,
 				D0EE284A164D906B006954A4 /* RACSignalSequence.m */,
+				FD678BB316D7294B00DE7777 /* RACProxy.h */,
+				FD678BB416D7294B00DE7777 /* RACProxy.m */,
 			);
 			name = Sequences;
 			sourceTree = "<group>";
@@ -1083,6 +1091,7 @@
 				5F773DEA169B46670023069D /* NSEnumerator+RACSequenceAdditions.h in Headers */,
 				D077A16D169B740200057BB1 /* RACEvent.h in Headers */,
 				8837EA1616A5A33300FC3CDF /* RACKVOTrampoline.h in Headers */,
+				FD678BB516D7294C00DE7777 /* RACProxy.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1135,6 +1144,7 @@
 				5F773DEB169B46670023069D /* NSEnumerator+RACSequenceAdditions.h in Headers */,
 				D077A16E169B740200057BB1 /* RACEvent.h in Headers */,
 				D099E819169E05D00000A975 /* NSObject+RACObservablePropertySubject.h in Headers */,
+				FD678BB616D7294C00DE7777 /* RACProxy.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1387,6 +1397,7 @@
 				5F773DEC169B46670023069D /* NSEnumerator+RACSequenceAdditions.m in Sources */,
 				D077A16F169B740200057BB1 /* RACEvent.m in Sources */,
 				8837EA1816A5A33300FC3CDF /* RACKVOTrampoline.m in Sources */,
+				FD678BB716D7294C00DE7777 /* RACProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1488,6 +1499,7 @@
 				5F773DED169B46670023069D /* NSEnumerator+RACSequenceAdditions.m in Sources */,
 				D077A170169B740200057BB1 /* RACEvent.m in Sources */,
 				8837EA1916A5A33300FC3CDF /* RACKVOTrampoline.m in Sources */,
+				FD678BB816D7294C00DE7777 /* RACProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

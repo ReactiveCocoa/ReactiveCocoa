@@ -17,8 +17,16 @@ SpecBegin(RACPropertySubject)
 describe(@"RACPropertySubject", ^{
 	itShouldBehaveLike(RACPropertySubjectExamples, ^{
 		return @{
-			RACPropertySubjectExampleGetPropertyBlock: [^{ return [RACPropertySubject subject]; } copy]
+			RACPropertySubjectExampleGetPropertyBlock: [^{ return [RACPropertySubject property]; } copy]
 		};
+	});
+	
+	describe(@"created with +subject", ^{
+		itShouldBehaveLike(RACPropertySubjectExamples, ^{
+			return @{
+				RACPropertySubjectExampleGetPropertyBlock: [^{ return [RACPropertySubject subject]; } copy]
+			};
+		});
 	});
 });
 

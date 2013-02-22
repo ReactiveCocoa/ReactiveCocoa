@@ -16,9 +16,10 @@
 // Values sent to a RACPropertySubject are also sent to it's bindings'
 // subscribers. Values sent to a RACProperty's bindings are also sent to the
 // RACPropertySubject.
-//
-// Newly created property subjects start with a nil value.
 @interface RACPropertySubject : RACSubject
+
+// Returns a new RACPropertySubject with a starting value of `nil`.
++ (instancetype)property;
 
 // Returns a new binding of the RACPropertySubject.
 - (RACBinding *)binding;

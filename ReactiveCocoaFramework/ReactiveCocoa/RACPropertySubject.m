@@ -93,6 +93,10 @@
 	return self;
 }
 
++ (instancetype)property {
+	return [self subject];
+}
+
 - (RACBinding *)binding {
 	return [[RACBinding alloc] initWithSignal:self.signal subscriber:self.subscriber];
 }

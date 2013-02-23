@@ -80,7 +80,7 @@ sharedExamplesFor(RACSignalSwitchToLatestExamples, ^(NSDictionary *data) {
 	
 	beforeEach(^{
 		subject = data[RACSignalSwitchToLatestSubject];
-		RACSignal *(^signalBlock)(RACSubject *) = data[RACSignalSwitchToLatestSignalBlock];
+		RACSignal * (^signalBlock)(RACSubject *) = data[RACSignalSwitchToLatestSignalBlock];
 		RACSignal *signal = signalBlock(subject);
 		
 		values = [NSMutableArray array];
@@ -1411,6 +1411,40 @@ describe(@"-switchToLatest", ^{
 		[subject sendCompleted];
 		expect(completed).to.beTruthy();
 	});	
+});
+
+describe(@"-flattenLatest", ^{
+	__block RACSubject *subject;
+	__block BOOL completed = NO;
+	
+	beforeEach(^{
+		subject = [RACSubject subject];
+		completed = NO;
+	});
+	
+	beforeEach(^{
+		[[subject flattenLatest] subscribeCompleted:^{
+			expect(completed).to.beFalsy();
+			completed = YES;
+		}];
+	});
+	
+	itShouldBehaveLike(RACSignalSwitchToLatestExamples, ^{
+		return @{ RACSignalSwitchToLatestSubject: subject, RACSignalSwitchToLatestSignalBlock: ^(RACSubject *subject) {
+			return [subject flattenLatest];
+		} };
+	});
+	
+	it(@"should not completed when the switching signal completes but the last sent signal doesn't", ^{
+		[subject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			return nil;
+		}]];
+		
+		expect(completed).to.beFalsy();
+		
+		[subject sendCompleted];
+		expect(completed).to.beFalsy();
+	});
 });
 
 describe(@"+if:then:else", ^{

@@ -66,6 +66,98 @@ sharedExamplesFor(RACSignalMergeConcurrentCompletionExampleGroup, ^(NSDictionary
 
 SharedExampleGroupsEnd
 
+static NSString * const RACSignalSwitchToLatestExamples = @"RACSignalSwitchToLatestExamples";
+static NSString * const RACSignalSwitchToLatestSubject = @"RACSignalSwitchToLatestSubject";
+static NSString * const RACSignalSwitchToLatestSignalBlock = @"RACSignalSwitchToLatestSignalBlock";
+SharedExampleGroupsBegin(RACSignalSwitchToLatestExamples)
+
+sharedExamplesFor(RACSignalSwitchToLatestExamples, ^(NSDictionary *data) {
+	__block RACSubject *subject;
+	
+	__block NSMutableArray *values;
+	__block NSError *lastError = nil;
+	__block BOOL completed = NO;
+	
+	beforeEach(^{
+		subject = data[RACSignalSwitchToLatestSubject];
+		RACSignal *(^signalBlock)(RACSubject *) = data[RACSignalSwitchToLatestSignalBlock];
+		RACSignal *signal = signalBlock(subject);
+		
+		values = [NSMutableArray array];
+		lastError = nil;
+		completed = NO;
+		
+		[signal subscribeNext:^(id x) {
+			expect(lastError).to.beNil();
+			expect(completed).to.beFalsy();
+			
+			[values addObject:x];
+		} error:^(NSError *error) {
+			expect(lastError).to.beNil();
+			expect(completed).to.beFalsy();
+			
+			lastError = error;
+		} completed:^{
+			expect(lastError).to.beNil();
+			expect(completed).to.beFalsy();
+			
+			completed = YES;
+		}];
+	});
+	
+	it(@"should send values from the most recent signal", ^{
+		[subject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendNext:@2];
+			return nil;
+		}]];
+		
+		[subject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@3];
+			[subscriber sendNext:@4];
+			return nil;
+		}]];
+		
+		NSArray *expected = @[ @1, @2, @3, @4 ];
+		expect(values).to.equal(expected);
+	});
+	
+	it(@"should send errors from the most recent signal", ^{
+		[subject sendNext:[RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
+			return nil;
+		}]];
+		
+		expect(lastError).notTo.beNil();
+	});
+	
+	it(@"should accept nil signals", ^{
+		[subject sendNext:nil];
+		[subject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendNext:@2];
+			return nil;
+		}]];
+		
+		NSArray *expected = @[ @1, @2 ];
+		expect(values).to.equal(expected);
+	});
+	
+	it(@"should send completed when the switching signal completes and the last sent signal does", ^{
+		[subject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[subscriber sendCompleted];
+			return nil;
+		}]];
+		
+		expect(completed).to.beFalsy();
+		
+		[subject sendCompleted];
+		expect(completed).to.beTruthy();
+	});
+});
+
+SharedExampleGroupsEnd
+
 SpecBegin(RACSignal)
 
 describe(@"RACStream", ^{
@@ -1289,85 +1381,36 @@ describe(@"-flatten:", ^{
 
 describe(@"-switchToLatest", ^{
 	__block RACSubject *subject;
-
-	__block NSMutableArray *values;
-	__block NSError *lastError = nil;
 	__block BOOL completed = NO;
-
+	
 	beforeEach(^{
 		subject = [RACSubject subject];
-
-		values = [NSMutableArray array];
-		lastError = nil;
 		completed = NO;
+	});
 
-		[[subject switchToLatest] subscribeNext:^(id x) {
-			expect(lastError).to.beNil();
+	beforeEach(^{
+		[[subject switchToLatest] subscribeCompleted:^{
 			expect(completed).to.beFalsy();
-
-			[values addObject:x];
-		} error:^(NSError *error) {
-			expect(lastError).to.beNil();
-			expect(completed).to.beFalsy();
-
-			lastError = error;
-		} completed:^{
-			expect(lastError).to.beNil();
-			expect(completed).to.beFalsy();
-
 			completed = YES;
 		}];
 	});
-
-	it(@"should send values from the most recent signal", ^{
-		[subject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendNext:@1];
-			[subscriber sendNext:@2];
-			return nil;
-		}]];
-
-		[subject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendNext:@3];
-			[subscriber sendNext:@4];
-			return nil;
-		}]];
-
-		NSArray *expected = @[ @1, @2, @3, @4 ];
-		expect(values).to.equal(expected);
+	
+	itShouldBehaveLike(RACSignalSwitchToLatestExamples, ^{
+		return @{ RACSignalSwitchToLatestSubject: subject, RACSignalSwitchToLatestSignalBlock: ^(RACSubject *subject) {
+			return [subject switchToLatest];
+		} };
 	});
-
-	it(@"should send errors from the most recent signal", ^{
-		[subject sendNext:[RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
-			[subscriber sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
-			return nil;
-		}]];
-
-		expect(lastError).notTo.beNil();
-	});
-
-	it(@"should send completed only when the switching signal completes", ^{
+		
+	it(@"should send completed when the switching signal completes but the last sent signal doesn't", ^{
 		[subject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendCompleted];
 			return nil;
 		}]];
-
+		
 		expect(completed).to.beFalsy();
-
+		
 		[subject sendCompleted];
 		expect(completed).to.beTruthy();
-	});
-
-	it(@"should accept nil signals", ^{
-		[subject sendNext:nil];
-		[subject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendNext:@1];
-			[subscriber sendNext:@2];
-			return nil;
-		}]];
-
-		NSArray *expected = @[ @1, @2 ];
-		expect(values).to.equal(expected);
-	});
+	});	
 });
 
 describe(@"+if:then:else", ^{

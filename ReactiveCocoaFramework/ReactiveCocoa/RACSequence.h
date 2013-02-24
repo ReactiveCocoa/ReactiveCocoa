@@ -70,12 +70,19 @@
 // they're evaluated.
 - (RACSignal *)signalWithScheduler:(RACScheduler *)scheduler;
 
+// Applies a right fold to the sequence.
+//
+// A right fold is equivalent to recursion on the list. The block is evaluated
+// from the right to the left in list.
+//
+// Returns a reduced value.
+- (id)foldRightWithStart:(id)start combine:(id (^)(id first, id rest))combine;
+
 // Applies a foldr to the sequence.
 //
-// Each RACSequence is folded from the right. This is identical to a foldr in
-// haskell including laziness. Laziness is maintained by wrapping the rest of
-// the computation in a RACSequence. The value of the computation can be accessed
-// using the head call. The start value is used for the last element to fold with.
+// Same a regular foldr except the value of rest can be retrieved lazily. This
+// allows you to prevent unnecessary computation. To access the value of rest
+// you simply access rest.head.
 //
 // Returns a reduced value.
 - (id)foldRightLazilyWithStart:(id)start combine:(id (^)(id first, RACSequence* rest))combine;

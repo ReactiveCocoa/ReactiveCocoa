@@ -317,6 +317,27 @@ it(@"shouldn't overflow the stack when deallocated on a background queue", ^{
 	Expecta.asynchronousTestTimeout = oldTimeout;
 });
 
+describe(@"-foldRightWithStart:combine:", ^{
+	__block RACSequence *sequence;
+
+	it(@"should combine with start last", ^{
+		sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
+        id result = [sequence foldRightWithStart:@3 combine:^id (id first, id rest) {
+            return rest;
+        }];
+        expect(result).to.equal(@3);
+	});
+
+	it(@"should be right associative", ^{
+		sequence = [[[RACSequence return:@1] concat:[RACSequence return:@2]] concat:[RACSequence return:@3]];
+		id result = [sequence foldRightWithStart:@0 combine:^id(id first, id rest) {
+			int difference = [first intValue] - [rest intValue];
+			return [NSNumber numberWithInt:difference];
+		}];
+		expect(result).to.equal(@2);
+	});
+});
+
 describe(@"-foldRightLazilyWithStart:combine:", ^{
     __block BOOL headInvoked = NO;
     __block BOOL tailInvoked = NO;
@@ -342,7 +363,7 @@ describe(@"-foldRightLazilyWithStart:combine:", ^{
 
     it(@"should combine with start last", ^{
         sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
-        id result = [sequence foldRightLazilyWithStart:@3 combine:^RACSequence *(id first, RACSequence *rest) {
+        id result = [sequence foldRightLazilyWithStart:@3 combine:^id (id first, RACSequence *rest) {
             return rest.head;
         }];
         expect(result).to.equal(@3);

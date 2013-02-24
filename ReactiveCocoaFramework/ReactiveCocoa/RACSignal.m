@@ -503,6 +503,11 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 	__block id result = nil;
 	__block BOOL done = NO;
 
+	// Ensures that any received error does not get autoreleased before being
+	// passed back by-reference (for example, because we crossed a thread
+	// boundary).
+	__block NSError *localError = nil;
+
 	if (success != NULL) *success = YES;
 
 	[[self
@@ -514,8 +519,8 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 			}
 		} error:^(NSError *e) {
 			if (!done) {
-				if (error != NULL) *error = e;
 				if (success != NULL) *success = NO;
+				localError = e;
 				done = YES;
 			}
 		} completed:^{
@@ -525,6 +530,8 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 	do {
 		[NSRunLoop.mainRunLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
 	} while (!done);
+
+	if (error != NULL) *error = localError;
 
 	return result;
 }

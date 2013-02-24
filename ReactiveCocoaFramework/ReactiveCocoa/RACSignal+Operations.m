@@ -897,6 +897,10 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	// Protects against setting 'value' multiple times (e.g. to the second value
 	// instead of the first).
 	__block BOOL done = NO;
+
+	// Ensures that any received error does not get autoreleased before being
+	// passed back by-reference (for example, because we crossed a thread
+	// boundary).
 	__block NSError *localError;
 
 	__block RACDisposable *disposable = [self subscribeNext:^(id x) {

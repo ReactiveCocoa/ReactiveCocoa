@@ -331,7 +331,7 @@ describe(@"-foldr", ^{
             return [RACSequence return:@1];
         }];
 
-        id result = [sequence foldRightWithStart:@2 combine:^id (id first, id rest) {
+        id result = [sequence foldRightWithStart:@2 combine:^id (id first, RACSequence *rest) {
             return first;
         }];
 
@@ -342,10 +342,10 @@ describe(@"-foldr", ^{
 
     it(@"should combine with start last", ^{
         sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
-        id result = [sequence foldRightWithStart:@3 combine:^id (id first, id rest) {
-            return rest;
+        id result = [sequence foldRightWithStart:@3 combine:^RACSequence *(id first, RACSequence *rest) {
+            return rest.head;
         }];
-        expect([result intValue]).to.equal(3);
+        expect(result).to.equal(@3);
     });
 });
 

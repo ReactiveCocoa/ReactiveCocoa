@@ -317,7 +317,7 @@ it(@"shouldn't overflow the stack when deallocated on a background queue", ^{
 	Expecta.asynchronousTestTimeout = oldTimeout;
 });
 
-describe(@"-foldr", ^{
+describe(@"-foldRightLazilyWithStart:combine:", ^{
     __block BOOL headInvoked = NO;
     __block BOOL tailInvoked = NO;
     __block RACSequence *sequence;
@@ -331,7 +331,7 @@ describe(@"-foldr", ^{
             return [RACSequence return:@1];
         }];
 
-        id result = [sequence foldRightWithStart:@2 combine:^id (id first, RACSequence *rest) {
+        id result = [sequence foldRightLazilyWithStart:@2 combine:^id (id first, RACSequence *rest) {
             return first;
         }];
 
@@ -342,7 +342,7 @@ describe(@"-foldr", ^{
 
     it(@"should combine with start last", ^{
         sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
-        id result = [sequence foldRightWithStart:@3 combine:^RACSequence *(id first, RACSequence *rest) {
+        id result = [sequence foldRightLazilyWithStart:@3 combine:^RACSequence *(id first, RACSequence *rest) {
             return rest.head;
         }];
         expect(result).to.equal(@3);

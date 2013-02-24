@@ -202,6 +202,15 @@
 	}] setNameWithFormat:@"[%@] -signalWithScheduler:", self.name];
 }
 
+- (id)foldLeftWithStart:(id)start combine:(id (^)(id, id))combine {
+	if (!combine || self.head == nil) return start;
+	
+	for (id value in self) {
+		start = combine(start, value);
+	}
+	return start;
+}
+
 - (id)foldRightWithStart:(id)start combine:(id (^)(id, id))combine {
 	if (!combine || self.head == nil) return start;
 	

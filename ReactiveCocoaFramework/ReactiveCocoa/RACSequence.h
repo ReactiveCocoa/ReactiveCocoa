@@ -70,6 +70,14 @@
 // they're evaluated.
 - (RACSignal *)signalWithScheduler:(RACScheduler *)scheduler;
 
+// Applies a left fold to the sequence.
+//
+// This is the same as iterating the sequence along with a provided start value.
+// This uses a constant amount of memory.
+//
+// Returns a reduced value.
+- (id)foldLeftWithStart:(id)start combine:(id (^)(id first, id rest))combine;
+
 // Applies a right fold to the sequence.
 //
 // A right fold is equivalent to recursion on the list. The block is evaluated

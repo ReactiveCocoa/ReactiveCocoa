@@ -317,6 +317,27 @@ it(@"shouldn't overflow the stack when deallocated on a background queue", ^{
 	Expecta.asynchronousTestTimeout = oldTimeout;
 });
 
+describe(@"-foldLeftWithStart:combine:", ^{
+	__block RACSequence *sequence;
+
+	it(@"should combine with start first", ^{
+		sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
+		id result = [sequence foldLeftWithStart:@3 combine:^RACSequence *(id first, id rest) {
+            return first;
+        }];
+        expect(result).to.equal(@3);
+	});
+
+	it(@"should be left associative", ^{
+		sequence = [[[RACSequence return:@1] concat:[RACSequence return:@2]] concat:[RACSequence return:@3]];
+		id result = [sequence foldLeftWithStart:@0 combine:^id(id first, id rest) {
+			int difference = [first intValue] - [rest intValue];
+			return [NSNumber numberWithInt:difference];
+		}];
+		expect(result).to.equal(@-6);
+	});
+});
+
 describe(@"-foldRightWithStart:combine:", ^{
 	__block RACSequence *sequence;
 

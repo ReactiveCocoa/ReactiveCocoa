@@ -431,6 +431,23 @@ describe(@"querying", ^{
 		expect(error).to.beNil();
 	});
 
+	it(@"should return a delayed error from -asynchronousFirstOrDefault:success:error:", ^{
+		RACSignal *signal = [[RACSignal
+			createSignal:^(id<RACSubscriber> subscriber) {
+				return [[RACScheduler scheduler] schedule:^{
+					[subscriber sendError:RACSignalTestError];
+				}];
+			}]
+			deliverOn:RACScheduler.mainThreadScheduler];
+
+		__block NSError *error = nil;
+		__block BOOL success = NO;
+		expect([signal asynchronousFirstOrDefault:nil success:&success error:&error]).to.beNil();
+
+		expect(success).to.beFalsy();
+		expect(error).to.equal(RACSignalTestError);
+	});
+
 	it(@"should return a delayed success from -asynchronouslyWaitUntilCompleted:", ^{
 		RACSignal *signal = [[RACSignal return:RACUnit.defaultUnit] delay:0.01];
 

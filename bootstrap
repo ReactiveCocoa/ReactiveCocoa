@@ -1,0 +1,9 @@
+#!/bin/bash
+
+SCRIPT_DIR=$(dirname "$0")
+cd "$SCRIPT_DIR/.."
+
+echo "*** Updating submodules…"
+git submodule sync --quiet || exit $?
+git submodule update --init || exit $?
+git submodule foreach --recursive --quiet "git submodule sync --quiet && git submodule update --init" || exit $?

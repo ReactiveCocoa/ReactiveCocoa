@@ -102,8 +102,12 @@ test_or_build ()
         # If Xcode thinks it succeeded, let's double-check the build log.
         #
         # If grep exits with anything other than 1 (no matches), consider it an
-        # error.
-        status=[ $(grep -E '(BUILD|TEST) FAILED' -q "$output_file") -ne "1" ]
+        # error (EX_SOFTWARE).
+        grep -E '(BUILD|TEST) FAILED' -q "$output_file"
+        if [ "$?" -ne "1" ]
+        then
+            return 70
+        fi
     fi
 
     return $status

@@ -19,7 +19,7 @@ fi
 # to xcodebuild.
 if [ -z "$XCWORKSPACE" ]
 then
-    XCWORKSPACE=$(ls -d *.xcworkspace | head -n 1)
+    XCWORKSPACE=$(ls -d *.xcworkspace 2>/dev/null | head -n 1)
 fi
 
 # A bootstrap script to run before building.

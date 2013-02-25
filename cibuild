@@ -86,7 +86,7 @@ test_or_build ()
     fi
 
     # Then xcodebuild.
-    status=$PIPESTATUS[0]
+    status=${PIPESTATUS[0]}
 
     if [ "$status" -eq "65" ]
     then

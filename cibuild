@@ -77,34 +77,30 @@ test_or_build ()
     local scheme=$1
 
     build_scheme "$scheme" "test" 2>&1 | awk -f "$SCRIPT_DIR/xcodebuild.awk"
-    local status=$?
 
-    # Test the exit status of the awk script first.
-    if [ "$status" -ne "0" ]
+    local awkstatus=$?
+    local xcstatus=${PIPESTATUS[0]}
+
+    if [ "$awkstatus" -ne "0" ]
     then
-        return $status
+        return $awkstatus
     fi
 
-    # Then xcodebuild.
-    status=${PIPESTATUS[0]}
-
-    if [ "$status" -eq "65" ]
+    if [ "$xcstatus" -eq "65" ]
     then
         # This probably means the 'test' action isn't supported. Try again with
         # 'build'.
         build_scheme "$scheme" "build"
-        status=$?
+        xcstatus=$?
     fi
 
-    if [ "$status" -eq "65" ]
+    if [ "$xcstatus" -eq "65" ]
     then
-        # This probably means that there's no scheme by that name. Give up and
-        # go on.
+        # This probably means that there's no scheme by that name. Give up.
         echo "*** Error building scheme $scheme -- perhaps it doesn't exist"
-        return 0
     fi
 
-    return $status
+    return $xcstatus
 }
 
 echo "*** Building…"

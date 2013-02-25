@@ -385,6 +385,30 @@ describe(@"querying", ^{
 		expect(success).to.beFalsy();
 		expect(error).to.equal(RACSignalTestError);
 	});
+
+	it(@"should return YES from -waitUntilCompleted: when successful", ^{
+		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:RACUnit.defaultUnit];
+			[subscriber sendCompleted];
+			return nil;
+		}];
+
+		__block NSError *error = nil;
+		expect([signal waitUntilCompleted:&error]).to.beTruthy();
+		expect(error).to.beNil();
+	});
+
+	it(@"should return NO from -waitUntilCompleted: upon error", ^{
+		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:RACUnit.defaultUnit];
+			[subscriber sendError:RACSignalTestError];
+			return nil;
+		}];
+
+		__block NSError *error = nil;
+		expect([signal waitUntilCompleted:&error]).to.beFalsy();
+		expect(error).to.equal(RACSignalTestError);
+	});
 });
 
 describe(@"continuation", ^{

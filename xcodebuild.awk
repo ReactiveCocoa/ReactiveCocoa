@@ -8,7 +8,7 @@
 }
 
 /(TEST|BUILD) FAILED/ {
-    print "\n", errors
+    print "\n" errors
     fflush(stdout)
 
     # SYS_SOFTWARE

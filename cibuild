@@ -22,35 +22,13 @@ fi
 # to xcodebuild.
 if [ -z "$WORKSPACE" ]
 then
-    WORKSPACE=*.xcworkspace
+    WORKSPACE=$(ls *.xcworkspace | head -n 1)
 fi
-
-# The schemes or targets to build.
-#
-# If not set, all targets without "Tests" in their name will be built.
-SCHEMES=( "$@" )
 
 # A bootstrap script to run before building.
 #
 # If this file does not exist, it is not considered an error.
 BOOTSTRAP="$SCRIPT_DIR/bootstrap"
-
-##
-## Target lookup
-##
-
-# Consider all input to be newline-separated.
-IFS="$(printf '\n')"
-
-if [ -z "$SCHEMES" ]
-then
-    SCHEMES=( $(xcodebuild -list | awk -f "$SCRIPT_DIR/targets.awk" | awk '!/Tests/') )
-    if [ -z "$SCHEMES" ]
-    then
-        echo "Could not find any schemes to build."
-        exit 1
-    fi
-fi
 
 ##
 ## Build Process
@@ -65,37 +43,66 @@ fi
 echo "*** Cleaning all targets…"
 xcodebuild -alltargets clean
 
-set +o errexit
-
 build_scheme ()
 {
     local scheme=$1
     local action=$2
 
+    set +o errexit
+
     if [ -n "$WORKSPACE" ]
     then
-        xcodebuild -workspace "$WORKSPACE" -scheme "$scheme" -configuration "$CONFIGURATION" "$action" OBJROOT="build" SYMROOT="build"
+        xcodebuild -workspace "$WORKSPACE" -scheme "$scheme" -configuration "$CONFIGURATION" "$action"
     else
-        xcodebuild -target "$scheme" -configuration "$CONFIGURATION" "$action" OBJROOT="build" SYMROOT="build"
+        xcodebuild -scheme "$scheme" -configuration "$CONFIGURATION" "$action"
     fi
 
-    return $?
+    local status=$?
+
+    set -o errexit
+
+    return $status
 }
 
-echo "*** Building…"
-for scheme in "${schemes[@]}"
-do
-    STATUS=build_scheme "$scheme" "test"
+test_or_build ()
+{
+    local scheme=$1
 
-    if [ "$STATUS" -eq "65" ]
+    build_scheme "$scheme" "test"
+    local status=$?
+
+    if [ "$status" -eq "65" ]
     then
         # This probably means the 'test' action isn't supported. Try again with
         # 'build'.
-        STATUS=build_scheme "$scheme" "build"
+        build_scheme "$scheme" "build"
+        status=$?
     fi
 
-    if [ "$STATUS" -ne "0" ]
+    if [ "$status" -eq "65" ]
     then
-        exit $STATUS
+        # This probably means that there's no scheme by that name. Give up and
+        # go on.
+        echo "*** Error building scheme $scheme -- perhaps it doesn't exist"
+        return 0
     fi
-done
+
+    return $status
+}
+
+echo "*** Building…"
+
+if [ -z "$@" ]
+then
+    xcodebuild -list | awk -f "$SCRIPT_DIR/targets.awk" | (
+        while read scheme
+        do
+            test_or_build "$scheme" || exit $?
+        done
+    )
+else
+    for scheme in "$@"
+    do
+        test_or_build "$scheme"
+    done
+fi

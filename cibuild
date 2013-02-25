@@ -32,11 +32,20 @@ BOOTSTRAP="$SCRIPT_DIR/bootstrap"
 ## Build Process
 ##
 
+if [ -z "$*" ]
+then
+    # lol recursive shell script
+    xcodebuild -list | awk -f "$SCRIPT_DIR/targets.awk" | xargs "$SCRIPT_DIR/cibuild"
+    exit $?
+fi
+
 if [ -f "$BOOTSTRAP" ]
 then
     echo "*** Bootstrapping…"
     bash "$BOOTSTRAP"
 fi
+
+echo "*** The following targets will be built:" "$@"
 
 echo "*** Cleaning all targets…"
 xcodebuild -alltargets clean
@@ -95,17 +104,7 @@ test_or_build ()
 
 echo "*** Building…"
 
-if [ -z "$@" ]
-then
-    xcodebuild -list | awk -f "$SCRIPT_DIR/targets.awk" | (
-        while read scheme
-        do
-            test_or_build "$scheme" || exit $?
-        done
-    )
-else
-    for scheme in "$@"
-    do
-        test_or_build "$scheme" || exit $?
-    done
-fi
+for scheme in "$@"
+do
+    test_or_build "$scheme" || exit $?
+done

@@ -18,9 +18,9 @@ fi
 #
 # If not set and no workspace is found, the -workspace flag will not be passed
 # to xcodebuild.
-if [ -z "$WORKSPACE" ]
+if [ -z "$XCWORKSPACE" ]
 then
-    WORKSPACE=$(ls -d *.xcworkspace | head -n 1)
+    XCWORKSPACE=$(ls -d *.xcworkspace | head -n 1)
 fi
 
 # A bootstrap script to run before building.
@@ -55,9 +55,9 @@ build_scheme ()
     local scheme=$1
     local action=$2
 
-    if [ -n "$WORKSPACE" ]
+    if [ -n "$XCWORKSPACE" ]
     then
-        xcodebuild -workspace "$WORKSPACE" -scheme "$scheme" -configuration "$CONFIGURATION" "$action"
+        xcodebuild -workspace "$XCWORKSPACE" -scheme "$scheme" -configuration "$CONFIGURATION" "$action"
     else
         xcodebuild -scheme "$scheme" -configuration "$CONFIGURATION" "$action"
     fi

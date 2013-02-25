@@ -28,7 +28,7 @@ fi
 # to xcodebuild.
 if [ -z "$WORKSPACE" ]
 then
-    WORKSPACE=$(ls *.xcworkspace | head -n 1)
+    WORKSPACE=$(ls -d *.xcworkspace | head -n 1)
 fi
 
 # A bootstrap script to run before building.

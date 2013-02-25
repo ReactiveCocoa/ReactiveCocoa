@@ -73,15 +73,18 @@ build_scheme ()
 test_or_build ()
 {
     local scheme=$1
-    local output_file=$(mktemp -t xcodebuild.XXX)
 
-    tail -f "$output_file" &
-    build_scheme "$scheme" "test" 2>&1 > "$output_file"
-
+    build_scheme "$scheme" "test" 2>&1 | awk -f "$SCRIPT_DIR/xcodebuild.awk"
     local status=$?
 
-    # Kill the tail -f.
-    kill %1
+    # Test the exit status of the awk script first.
+    if [ "$status" -ne "0" ]
+    then
+        return $status
+    fi
+
+    # Then xcodebuild.
+    status=$PIPESTATUS[0]
 
     if [ "$status" -eq "65" ]
     then
@@ -95,19 +98,6 @@ test_or_build ()
     then
         # This probably means that there's no scheme by that name.
         echo "*** Error building scheme $scheme (perhaps it doesn't exist)"
-    fi
-
-    if [ "$status" -eq "0" ]
-    then
-        # If Xcode thinks it succeeded, let's double-check the build log.
-        #
-        # If grep exits with anything other than 1 (no matches), consider it an
-        # error (EX_SOFTWARE).
-        grep -E '(BUILD|TEST) FAILED' -q "$output_file"
-        if [ "$?" -ne "1" ]
-        then
-            return 70
-        fi
     fi
 
     return $status

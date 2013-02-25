@@ -1,19 +1,19 @@
 {
-    print
-    fflush(stdout)
+    print;
+    fflush(stdout);
 }
 
 /[0-9]+: (error|warning):/ {
-    errors = errors $0 "\n"
+    errors = errors $0 "\n";
 }
 
 /(TEST|BUILD) FAILED/ {
     if (length(errors) > 0) {
-        print "\n*** All errors:\n" errors
+        print "\n*** All errors:\n" errors;
     }
 
-    fflush(stdout)
+    fflush(stdout);
 
     # SYS_SOFTWARE
-    exit 70
+    exit 70;
 }

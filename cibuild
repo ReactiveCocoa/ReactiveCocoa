@@ -40,7 +40,7 @@ fi
 
 if [ -f "$BOOTSTRAP" ]
 then
-    echo "*** Bootstrapping…"
+    echo "*** Bootstrapping..."
     bash "$BOOTSTRAP"
 fi
 
@@ -51,7 +51,7 @@ do
     echo "$target"
 done
 
-echo "*** Cleaning all targets…"
+echo "*** Cleaning all targets..."
 xcodebuild -alltargets clean
 
 build_scheme ()
@@ -102,7 +102,7 @@ test_or_build ()
     return $xcstatus
 }
 
-echo "*** Building…"
+echo "*** Building..."
 
 for scheme in "$@"
 do

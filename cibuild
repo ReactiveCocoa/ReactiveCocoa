@@ -7,8 +7,6 @@
 # The "test" action will be used by default, with the script falling back to
 # "build" if testing is not supported.
 
-set -o errexit
-
 SCRIPT_DIR=$(dirname "$0")
 cd "$SCRIPT_DIR/.."
 
@@ -54,8 +52,6 @@ build_scheme ()
     local scheme=$1
     local action=$2
 
-    set +o errexit
-
     if [ -n "$WORKSPACE" ]
     then
         xcodebuild -workspace "$WORKSPACE" -scheme "$scheme" -configuration "$CONFIGURATION" "$action"
@@ -64,8 +60,6 @@ build_scheme ()
     fi
 
     local status=$?
-
-    set -o errexit
 
     return $status
 }
@@ -107,5 +101,5 @@ echo "*** Building…"
 
 for scheme in "$@"
 do
-    test_or_build "$scheme"
+    test_or_build "$scheme" || exit $?
 done

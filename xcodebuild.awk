@@ -4,6 +4,10 @@
 # 1 - Build or test failure. Errors will be logged automatically.
 # 2 - Untestable target. Retry with the "build" action.
 
+BEGIN {
+    status = 0;
+}
+
 {
     print;
     fflush(stdout);
@@ -15,13 +19,18 @@
 
 /[0-9]+: (error|warning):/ {
     errors = errors $0 "\n";
+    status = 1;
 }
 
 /(TEST|BUILD) FAILED/ {
+    status = 1;
+}
+
+END {
     if (length(errors) > 0) {
         print "\n*** All errors:\n" errors;
     }
 
     fflush(stdout);
-    exit 1;
+    exit status;
 }

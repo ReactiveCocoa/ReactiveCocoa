@@ -45,7 +45,12 @@ then
     bash "$BOOTSTRAP"
 fi
 
-echo "*** The following targets will be built:" "$@"
+echo "*** The following targets will be built:"
+
+for target in "$@"
+do
+    echo "$target"
+done
 
 echo "*** Cleaning all targets…"
 xcodebuild -alltargets clean

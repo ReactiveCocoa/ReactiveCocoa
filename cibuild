@@ -80,12 +80,12 @@ test_or_build ()
     local awkstatus=$?
     local xcstatus=${PIPESTATUS[0]}
 
-    if [ "$awkstatus" -ne "0" ]
+    if [ "$awkstatus" -eq "1" ]
     then
         return $awkstatus
     fi
 
-    if [ "$xcstatus" -eq "65" ]
+    if [ "$xcstatus" -eq "65" -o "$awkstatus" -eq "2" ]
     then
         # This probably means the 'test' action isn't supported. Try again with
         # 'build'.

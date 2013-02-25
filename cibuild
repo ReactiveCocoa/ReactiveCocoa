@@ -1,11 +1,4 @@
 #!/bin/bash
-#
-# Run this script with the targets/schemes that should be built. For example:
-#
-# script/cibuild MyApp-iOS MyApp-Mac
-#
-# The "test" action will be used by default, with the script falling back to
-# "build" if testing is not supported.
 
 SCRIPT_DIR=$(dirname "$0")
 cd "$SCRIPT_DIR/.."
@@ -15,6 +8,7 @@ cd "$SCRIPT_DIR/.."
 ##
 
 # The build configuration to use.
+# variable.
 if [ -z "$CONFIGURATION" ]
 then
     CONFIGURATION="Release"
@@ -90,8 +84,10 @@ test_or_build ()
 
     if [ "$status" -eq "65" ]
     then
-        # This probably means that there's no scheme by that name.
-        echo "*** Error building scheme $scheme (perhaps it doesn't exist)"
+        # This probably means that there's no scheme by that name. Give up and
+        # go on.
+        echo "*** Error building scheme $scheme -- perhaps it doesn't exist"
+        return 0
     fi
 
     return $status
@@ -99,7 +95,17 @@ test_or_build ()
 
 echo "*** Building…"
 
-for scheme in "$@"
-do
-    test_or_build "$scheme" || exit $?
-done
+if [ -z "$@" ]
+then
+    xcodebuild -list | awk -f "$SCRIPT_DIR/targets.awk" | (
+        while read scheme
+        do
+            test_or_build "$scheme" || exit $?
+        done
+    )
+else
+    for scheme in "$@"
+    do
+        test_or_build "$scheme" || exit $?
+    done
+fi

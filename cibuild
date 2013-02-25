@@ -27,6 +27,12 @@ fi
 # If this file does not exist, it is not considered an error.
 BOOTSTRAP="$SCRIPT_DIR/bootstrap"
 
+# A whitespace-separated list of default targets or schemes to build, if none
+# are specified on the command line.
+#
+# Individual names can be quoted to avoid word splitting.
+DEFAULT_TARGETS=
+
 ##
 ## Build Process
 ##
@@ -34,7 +40,13 @@ BOOTSTRAP="$SCRIPT_DIR/bootstrap"
 if [ -z "$*" ]
 then
     # lol recursive shell script
-    xcodebuild -list | awk -f "$SCRIPT_DIR/targets.awk" | xargs "$SCRIPT_DIR/cibuild"
+    if [ -n "$DEFAULT_TARGETS" ]
+    then
+        echo "$DEFAULT_TARGETS" | xargs "$SCRIPT_DIR/cibuild"
+    else
+        xcodebuild -list | awk -f "$SCRIPT_DIR/targets.awk" | xargs "$SCRIPT_DIR/cibuild"
+    fi
+
     exit $?
 fi
 

@@ -8,8 +8,11 @@ $ git fetch objc-build-scripts
 $ git read-tree --prefix=script/ -u objc-build-scripts/master
 ```
 
-Then, you can freely tweak the scripts for your specific project's needs. To
-bring in upstream changes later:
+Then commit the changes to incorporate the scripts into your own repository's
+history. You can also freely tweak the scripts for your specific project's
+needs.
+
+To bring in upstream changes later:
 
 ```
 $ git fetch -p objc-build-scripts

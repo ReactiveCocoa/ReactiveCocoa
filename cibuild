@@ -101,8 +101,9 @@ test_or_build ()
     then
         # This probably means the 'test' action isn't supported. Try again with
         # 'build'.
-        build_scheme "$scheme" "build"
-        xcstatus=$?
+        build_scheme "$scheme" "build" 2>&1 | awk -f "$SCRIPT_DIR/xcodebuild.awk"
+        awkstatus=$?
+        xcstatus=${PIPESTATUS[0]}
     fi
 
     if [ "$xcstatus" -eq "65" ]

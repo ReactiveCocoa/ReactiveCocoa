@@ -66,16 +66,15 @@ done
 echo "*** Cleaning all targets..."
 xcodebuild -alltargets clean
 
-build_scheme ()
+run_xcodebuild ()
 {
     local scheme=$1
-    local action=$2
 
     if [ -n "$XCWORKSPACE" ]
     then
-        xcodebuild -workspace "$XCWORKSPACE" -scheme "$scheme" -configuration "$XCCONFIGURATION" "$action"
+        xcodebuild -workspace "$XCWORKSPACE" -scheme "$scheme" -configuration "$XCCONFIGURATION" build TEST_AFTER_BUILD=YES
     else
-        xcodebuild -scheme "$scheme" -configuration "$XCCONFIGURATION" "$action"
+        xcodebuild -scheme "$scheme" -configuration "$XCCONFIGURATION" build TEST_AFTER_BUILD=YES
     fi
 
     local status=$?
@@ -83,23 +82,14 @@ build_scheme ()
     return $status
 }
 
-test_or_build ()
+build_scheme ()
 {
     local scheme=$1
 
-    build_scheme "$scheme" "test" 2>&1 | awk -f "$SCRIPT_DIR/xcodebuild.awk"
+    run_xcodebuild "$scheme" 2>&1 | awk -f "$SCRIPT_DIR/xcodebuild.awk"
 
     local awkstatus=$?
     local xcstatus=${PIPESTATUS[0]}
-
-    if [ "$xcstatus" -eq "65" -o "$awkstatus" -eq "2" ]
-    then
-        # This probably means the 'test' action isn't supported. Try again with
-        # 'build'.
-        build_scheme "$scheme" "build" 2>&1 | awk -f "$SCRIPT_DIR/xcodebuild.awk"
-        awkstatus=$?
-        xcstatus=${PIPESTATUS[0]}
-    fi
 
     if [ "$xcstatus" -eq "65" ]
     then
@@ -117,5 +107,5 @@ echo "*** Building..."
 
 for scheme in "$@"
 do
-    test_or_build "$scheme" || exit $?
+    build_scheme "$scheme" || exit $?
 done

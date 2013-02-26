@@ -67,7 +67,7 @@ do
 done
 
 echo "*** Cleaning all targets..."
-xcodebuild -alltargets clean $XCODEBUILD_SETTINGS
+xcodebuild -alltargets clean OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS
 
 run_xcodebuild ()
 {
@@ -75,9 +75,9 @@ run_xcodebuild ()
 
     if [ -n "$XCWORKSPACE" ]
     then
-        xcodebuild -workspace "$XCWORKSPACE" -scheme "$scheme" -configuration "$XCCONFIGURATION" build $XCODEBUILD_SETTINGS
+        xcodebuild -workspace "$XCWORKSPACE" -scheme "$scheme" -configuration "$XCCONFIGURATION" build OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS
     else
-        xcodebuild -scheme "$scheme" -configuration "$XCCONFIGURATION" build $XCODEBUILD_SETTINGS
+        xcodebuild -scheme "$scheme" -configuration "$XCCONFIGURATION" build OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS
     fi
 
     local status=$?

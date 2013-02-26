@@ -33,6 +33,9 @@ BOOTSTRAP="$SCRIPT_DIR/bootstrap"
 # Individual names can be quoted to avoid word splitting.
 DEFAULT_TARGETS=
 
+# Extra build settings to pass to xcodebuild.
+XCODEBUILD_SETTINGS="TEST_AFTER_BUILD=YES"
+
 ##
 ## Build Process
 ##
@@ -64,7 +67,7 @@ do
 done
 
 echo "*** Cleaning all targets..."
-xcodebuild -alltargets clean
+xcodebuild -alltargets clean $XCODEBUILD_SETTINGS
 
 run_xcodebuild ()
 {
@@ -72,9 +75,9 @@ run_xcodebuild ()
 
     if [ -n "$XCWORKSPACE" ]
     then
-        xcodebuild -workspace "$XCWORKSPACE" -scheme "$scheme" -configuration "$XCCONFIGURATION" build TEST_AFTER_BUILD=YES
+        xcodebuild -workspace "$XCWORKSPACE" -scheme "$scheme" -configuration "$XCCONFIGURATION" build $XCODEBUILD_SETTINGS
     else
-        xcodebuild -scheme "$scheme" -configuration "$XCCONFIGURATION" build TEST_AFTER_BUILD=YES
+        xcodebuild -scheme "$scheme" -configuration "$XCCONFIGURATION" build $XCODEBUILD_SETTINGS
     fi
 
     local status=$?

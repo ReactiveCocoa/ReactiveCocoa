@@ -19,7 +19,6 @@ BEGIN {
 
 /[0-9]+: (error|warning):/ {
     errors = errors $0 "\n";
-    status = 1;
 }
 
 /(TEST|BUILD) FAILED/ {

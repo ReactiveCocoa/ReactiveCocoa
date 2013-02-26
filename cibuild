@@ -92,11 +92,6 @@ test_or_build ()
     local awkstatus=$?
     local xcstatus=${PIPESTATUS[0]}
 
-    if [ "$awkstatus" -eq "1" ]
-    then
-        return $awkstatus
-    fi
-
     if [ "$xcstatus" -eq "65" -o "$awkstatus" -eq "2" ]
     then
         # This probably means the 'test' action isn't supported. Try again with
@@ -110,6 +105,9 @@ test_or_build ()
     then
         # This probably means that there's no scheme by that name. Give up.
         echo "*** Error building scheme $scheme -- perhaps it doesn't exist"
+    elif [ "$awkstatus" -eq "1" ]
+    then
+        return $awkstatus
     fi
 
     return $xcstatus

@@ -11,6 +11,7 @@
 #import "RACScheduler.h"
 #import "RACSequence.h"
 #import "RACSignal+Operations.h"
+#import "RACUnit.h"
 
 SpecBegin(RACCommand)
 
@@ -149,6 +150,27 @@ describe(@"with a signal block", ^{
 
 		expected = @[ firstError, secondError ];
 		expect(receivedErrors).will.equal(expected);
+	});
+
+	it(@"should not forward other events onto 'errors'", ^{
+		__block BOOL receivedEvent = NO;
+		[command.errors subscribeNext:^(id _) {
+			receivedEvent = YES;
+		}];
+
+		RACSubject *subject = [RACSubject subject];
+		[command addSignalBlock:^(id _) {
+			return subject;
+		}];
+
+		expect([command execute:nil]).to.beTruthy();
+		expect(command.executing).to.beTruthy();
+
+		[subject sendNext:RACUnit.defaultUnit];
+		[subject sendCompleted];
+
+		expect(command.executing).to.beFalsy();
+		expect(receivedEvent).to.beFalsy();
 	});
 });
 

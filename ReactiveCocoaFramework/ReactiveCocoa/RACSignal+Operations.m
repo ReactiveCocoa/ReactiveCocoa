@@ -865,6 +865,52 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	}] setNameWithFormat:@"[%@] -switchToLatest", self.name];
 }
 
+- (RACSignal *)flattenLatest {
+	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		__block RACDisposable *innerDisposable = nil;
+		__block BOOL parentSignalHasCompleted = NO;
+		__block BOOL latestChildSignalHasCompleted = NO;
+		id synchronizationToken = [[NSObject alloc] init];
+		
+		RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
+			NSAssert([x isKindOfClass:RACSignal.class] || x == nil, @"-switchToLatest requires that the source signal (%@) send signals. Instead we got: %@", self, x);
+			
+			[innerDisposable dispose], innerDisposable = nil;
+			
+			@synchronized(synchronizationToken) {
+				latestChildSignalHasCompleted = NO;
+			}
+			
+			innerDisposable = [x subscribeNext:^(id x) {
+				[subscriber sendNext:x];
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				@synchronized(synchronizationToken) {
+					latestChildSignalHasCompleted = YES;
+					if (parentSignalHasCompleted && latestChildSignalHasCompleted) {
+						[subscriber sendCompleted];
+					}
+				}
+			}];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			@synchronized(synchronizationToken) {
+				parentSignalHasCompleted = YES;
+				if (parentSignalHasCompleted && latestChildSignalHasCompleted) {
+					[subscriber sendCompleted];
+				}
+			}
+		}];
+		
+		return [RACDisposable disposableWithBlock:^{
+			[innerDisposable dispose];
+			[selfDisposable dispose];
+		}];
+	}] setNameWithFormat:@"[%@] -flattenLatest", self.name];
+}
+
 + (RACSignal *)if:(RACSignal *)boolSignal then:(RACSignal *)trueSignal else:(RACSignal *)falseSignal {
 	NSParameterAssert(boolSignal != nil);
 	NSParameterAssert(trueSignal != nil);

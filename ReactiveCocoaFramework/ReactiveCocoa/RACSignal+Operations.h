@@ -257,14 +257,25 @@ extern const NSInteger RACSignalErrorTimedOut;
 // previous `next`.
 - (RACSignal *)distinctUntilChanged;
 
-// Every time the receiver sends a new RACSignal, subscribes and sends `next`s and
-// `error`s only for that signal.
+// Every time the receiver sends a new RACSignal, subscribes and sends `next`s
+// and `error`s only for that signal.
 //
 // The receiver must be a signal of signals.
 //
 // Returns a signal which passes through `next`s and `error`s from the latest
-// signal sent by the receiver, and sends `completed` when the receiver completes.
+// signal sent by the receiver, and sends `completed` when the receiver
+// completes.
 - (RACSignal *)switchToLatest;
+
+// Every time the receiver sends a new RACSignal, subscribes and sends `next`s
+// and `error`s only for that signal.
+//
+// The receiver must be a signal of signals.
+//
+// Returns a signal which passes through `next`s and `error`s from the latest
+// signal sent by the receiver, and sends `completed` when the receiver and the
+// latest sent signal complete.
+- (RACSignal *)flattenLatest;
 
 // Switches between `trueSignal` and `falseSignal` based on the latest value
 // sent by `boolSignal`.

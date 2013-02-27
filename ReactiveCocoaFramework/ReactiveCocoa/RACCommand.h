@@ -41,7 +41,7 @@
 @property (atomic, getter = isExecuting, readonly) BOOL executing;
 
 // A signal of NSErrors received from all of the signals returned from
-// -addSignalBlock:, delivered onto main thread.
+// -addSignalBlock:, delivered onto the main thread.
 //
 // Note that the NSErrors on this signal are sent as `next` events, _not_
 // `error` events (which would terminate any subscriptions).

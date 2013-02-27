@@ -25,7 +25,7 @@ beforeEach(^{
 	expect(command.executing).to.beFalsy();
 });
 
-it(@"should pass the sender along to subscribers", ^{
+it(@"should pass the value along to subscribers", ^{
 	__block id valueReceived = nil;
 	[command subscribeNext:^(id value) {
 		valueReceived = value;

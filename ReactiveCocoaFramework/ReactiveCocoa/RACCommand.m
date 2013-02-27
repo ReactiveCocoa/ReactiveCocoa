@@ -113,13 +113,11 @@
 			NSAssert(signal != nil, @"signalBlock returned a nil signal");
 
 			return [[[signal
-				catch:^(NSError *error) {
-					@strongify(self);
+				doError:^(NSError *error) {
 					[RACScheduler.mainThreadScheduler schedule:^{
-						[self->_errors sendNext:error];
+						@strongify(self);
+						if (self != nil) [self->_errors sendNext:error];
 					}];
-
-					return [RACSignal error:error];
 				}]
 				finally:^{
 					@strongify(self);

@@ -37,6 +37,16 @@ it(@"should pass the value along to subscribers", ^{
 	expect(valueReceived).to.equal(sentValue);
 });
 
+it(@"should not send anything on 'errors' by default", ^{
+	__block BOOL receivedError = NO;
+	[command.errors subscribeNext:^(id _) {
+		receivedError = YES;
+	}];
+	
+	expect([command execute:nil]).to.beTruthy();
+	expect(receivedError).to.beFalsy();
+});
+
 it(@"should be executing from within the -execute: method", ^{
 	[command subscribeNext:^(id _) {
 		expect(command.executing).to.beTruthy();
@@ -104,6 +114,41 @@ describe(@"with a signal block", ^{
 
 		[second sendCompleted];
 		expect(command.executing).to.beFalsy();
+	});
+
+	it(@"should forward errors onto 'errors'", ^{
+		NSError *firstError = [NSError errorWithDomain:@"" code:1 userInfo:nil];
+		NSError *secondError = [NSError errorWithDomain:@"" code:2 userInfo:nil];
+		
+		NSMutableArray *receivedErrors = [NSMutableArray array];
+		[command.errors subscribeNext:^(NSError *error) {
+			[receivedErrors addObject:error];
+		}];
+
+		RACSubject *firstSubject = [RACSubject subject];
+		[command addSignalBlock:^(id _) {
+			return firstSubject;
+		}];
+
+		RACSubject *secondSubject = [RACSubject subject];
+		[command addSignalBlock:^(id _) {
+			return secondSubject;
+		}];
+
+		expect([command execute:nil]).to.beTruthy();
+		expect(command.executing).to.beTruthy();
+
+		[firstSubject sendError:firstError];
+		expect(command.executing).to.beTruthy();
+
+		NSArray *expected = @[ firstError ];
+		expect(receivedErrors).will.equal(expected);
+
+		[secondSubject sendError:secondError];
+		expect(command.executing).to.beFalsy();
+
+		expected = @[ firstError, secondError ];
+		expect(receivedErrors).will.equal(expected);
 	});
 });
 

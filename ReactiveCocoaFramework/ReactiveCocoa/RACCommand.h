@@ -40,6 +40,16 @@
 // any signal returned from -addSignalBlock: has not yet finished.
 @property (atomic, getter = isExecuting, readonly) BOOL executing;
 
+// A signal of NSErrors received from all of the signals returned from
+// -addSignalBlock:, delivered onto main thread.
+//
+// Note that the NSErrors on this signal are sent as `next` events, _not_
+// `error` events (which would terminate any subscriptions).
+//
+// This can be used, for example, to show an alert whenever an error occurs in
+// the asynchronous work triggered by the command.
+@property (nonatomic, strong, readonly) RACSignal *errors;
+
 // Creates a command that can always be executed.
 + (instancetype)command;
 
@@ -62,9 +72,11 @@
 // Adds a block to invoke each time the receiver is executed.
 //
 // signalBlock - A block that returns a signal. The returned signal must not be
-//               nil, and will be subscribed to synchronously from -execute:.
-//               `executing` will remain YES until the returned signal completes
-//               or errors. This argument must not be nil.
+//               nil, and will be subscribed to synchronously from -execute:. If
+//               the returned signal errors out, the `NSError` will be sent as
+//               a value on `errors`. `executing` will remain YES until the
+//               returned signal completes or errors. This argument must not be
+//               nil.
 //
 // Returns a signal of the signals returned from successive invocations of
 // `signalBlock`. Each individual signal will be multicast to a replay subject.

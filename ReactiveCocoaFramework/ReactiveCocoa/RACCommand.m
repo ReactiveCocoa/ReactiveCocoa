@@ -14,6 +14,8 @@
 #import <libkern/OSAtomic.h>
 
 @interface RACCommand () {
+	RACSubject *_errors;
+
 	// Indicates how many -execute: calls and signals are currently in-flight.
 	//
 	// This variable can be read at any time, but must be modified through
@@ -79,6 +81,8 @@
 	self = [super init];
 	if (self == nil) return nil;
 
+	_errors = [RACSubject subject];
+
 	RAC(self.canExecute) = [RACSignal
 		combineLatest:@[
 			[canExecuteSignal startWith:@YES] ?: [RACSignal return:@YES],
@@ -108,7 +112,15 @@
 			RACSignal *signal = signalBlock(value);
 			NSAssert(signal != nil, @"signalBlock returned a nil signal");
 
-			return [[signal
+			return [[[signal
+				catch:^(NSError *error) {
+					@strongify(self);
+					[RACScheduler.mainThreadScheduler schedule:^{
+						[self->_errors sendNext:error];
+					}];
+
+					return [RACSignal error:error];
+				}]
 				finally:^{
 					@strongify(self);
 					[self decrementItemsInFlight];

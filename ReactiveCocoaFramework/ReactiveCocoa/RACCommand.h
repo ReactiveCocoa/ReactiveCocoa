@@ -12,7 +12,7 @@
 // A command is a signal triggered in response to some action, typically
 // UI-related.
 //
-// Each `next` sent by a RACCommand is the sender which triggered it.
+// Each `next` sent by a RACCommand corresponds to a value passed to -execute:.
 @interface RACCommand : RACSubject
 
 // Whether or not this command can currently execute.
@@ -40,6 +40,16 @@
 // any signal returned from -addSignalBlock: has not yet finished.
 @property (atomic, getter = isExecuting, readonly) BOOL executing;
 
+// A signal of NSErrors received from all of the signals returned from
+// -addSignalBlock:, delivered onto the main thread.
+//
+// Note that the NSErrors on this signal are sent as `next` events, _not_
+// `error` events (which would terminate any subscriptions).
+//
+// This can be used, for example, to show an alert whenever an error occurs in
+// the asynchronous work triggered by the command.
+@property (nonatomic, strong, readonly) RACSignal *errors;
+
 // Creates a command that can always be executed.
 + (instancetype)command;
 
@@ -62,24 +72,26 @@
 // Adds a block to invoke each time the receiver is executed.
 //
 // signalBlock - A block that returns a signal. The returned signal must not be
-//               nil, and will be subscribed to synchronously from -execute:.
-//               `executing` will remain YES until the returned signal completes
-//               or errors. This argument must not be nil.
+//               nil, and will be subscribed to synchronously from -execute:. If
+//               the returned signal errors out, the `NSError` will be sent as
+//               a value on `errors`. `executing` will remain YES until the
+//               returned signal completes or errors. This argument must not be
+//               nil.
 //
 // Returns a signal of the signals returned from successive invocations of
 // `signalBlock`. Each individual signal will be multicast to a replay subject.
-- (RACSignal *)addSignalBlock:(RACSignal * (^)(id sender))signalBlock;
+- (RACSignal *)addSignalBlock:(RACSignal * (^)(id value))signalBlock;
 
 // If `canExecute` is YES, this method will:
 //
 // - Set `executing` to YES.
-// - Send `sender` to the receiver's subscribers.
+// - Send `value` to the receiver's subscribers.
 // - Execute each block added with -addSignalBlock: and subscribe to all of
 //   the returned signals.
 // - Once all the signals returned from the `signalBlock`s have completed or
 //   errored, set `executing` back to NO.
 //
 // Returns whether the command executed (i.e., whether `canExecute` was YES).
-- (BOOL)execute:(id)sender;
+- (BOOL)execute:(id)value;
 
 @end

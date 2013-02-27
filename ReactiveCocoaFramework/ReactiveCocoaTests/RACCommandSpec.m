@@ -11,6 +11,7 @@
 #import "RACScheduler.h"
 #import "RACSequence.h"
 #import "RACSignal+Operations.h"
+#import "RACUnit.h"
 
 SpecBegin(RACCommand)
 
@@ -25,7 +26,7 @@ beforeEach(^{
 	expect(command.executing).to.beFalsy();
 });
 
-it(@"should pass the sender along to subscribers", ^{
+it(@"should pass the value along to subscribers", ^{
 	__block id valueReceived = nil;
 	[command subscribeNext:^(id value) {
 		valueReceived = value;
@@ -35,6 +36,16 @@ it(@"should pass the sender along to subscribers", ^{
 	expect([command execute:sentValue]).to.beTruthy();
 	
 	expect(valueReceived).to.equal(sentValue);
+});
+
+it(@"should not send anything on 'errors' by default", ^{
+	__block BOOL receivedError = NO;
+	[command.errors subscribeNext:^(id _) {
+		receivedError = YES;
+	}];
+	
+	expect([command execute:nil]).to.beTruthy();
+	expect(receivedError).to.beFalsy();
 });
 
 it(@"should be executing from within the -execute: method", ^{
@@ -104,6 +115,62 @@ describe(@"with a signal block", ^{
 
 		[second sendCompleted];
 		expect(command.executing).to.beFalsy();
+	});
+
+	it(@"should forward errors onto 'errors'", ^{
+		NSError *firstError = [NSError errorWithDomain:@"" code:1 userInfo:nil];
+		NSError *secondError = [NSError errorWithDomain:@"" code:2 userInfo:nil];
+		
+		NSMutableArray *receivedErrors = [NSMutableArray array];
+		[command.errors subscribeNext:^(NSError *error) {
+			[receivedErrors addObject:error];
+		}];
+
+		RACSubject *firstSubject = [RACSubject subject];
+		[command addSignalBlock:^(id _) {
+			return firstSubject;
+		}];
+
+		RACSubject *secondSubject = [RACSubject subject];
+		[command addSignalBlock:^(id _) {
+			return secondSubject;
+		}];
+
+		expect([command execute:nil]).to.beTruthy();
+		expect(command.executing).to.beTruthy();
+
+		[firstSubject sendError:firstError];
+		expect(command.executing).to.beTruthy();
+
+		NSArray *expected = @[ firstError ];
+		expect(receivedErrors).will.equal(expected);
+
+		[secondSubject sendError:secondError];
+		expect(command.executing).to.beFalsy();
+
+		expected = @[ firstError, secondError ];
+		expect(receivedErrors).will.equal(expected);
+	});
+
+	it(@"should not forward other events onto 'errors'", ^{
+		__block BOOL receivedEvent = NO;
+		[command.errors subscribeNext:^(id _) {
+			receivedEvent = YES;
+		}];
+
+		RACSubject *subject = [RACSubject subject];
+		[command addSignalBlock:^(id _) {
+			return subject;
+		}];
+
+		expect([command execute:nil]).to.beTruthy();
+		expect(command.executing).to.beTruthy();
+
+		[subject sendNext:RACUnit.defaultUnit];
+		[subject sendCompleted];
+
+		expect(command.executing).to.beFalsy();
+		expect(receivedEvent).to.beFalsy();
 	});
 });
 

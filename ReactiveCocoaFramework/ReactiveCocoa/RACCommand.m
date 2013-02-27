@@ -14,6 +14,8 @@
 #import <libkern/OSAtomic.h>
 
 @interface RACCommand () {
+	RACSubject *_errors;
+
 	// Indicates how many -execute: calls and signals are currently in-flight.
 	//
 	// This variable can be read at any time, but must be modified through
@@ -79,6 +81,8 @@
 	self = [super init];
 	if (self == nil) return nil;
 
+	_errors = [RACSubject subject];
+
 	RAC(self.canExecute) = [RACSignal
 		combineLatest:@[
 			[canExecuteSignal startWith:@YES] ?: [RACSignal return:@YES],
@@ -94,7 +98,7 @@
 
 #pragma mark Execution
 
-- (RACSignal *)addSignalBlock:(RACSignal * (^)(id sender))signalBlock {
+- (RACSignal *)addSignalBlock:(RACSignal * (^)(id value))signalBlock {
 	NSParameterAssert(signalBlock != nil);
 
 	@weakify(self);
@@ -104,11 +108,17 @@
 			@strongify(self);
 			[self incrementItemsInFlight];
 		}]
-		map:^(id sender) {
-			RACSignal *signal = signalBlock(sender);
+		map:^(id value) {
+			RACSignal *signal = signalBlock(value);
 			NSAssert(signal != nil, @"signalBlock returned a nil signal");
 
-			return [[signal
+			return [[[signal
+				doError:^(NSError *error) {
+					[RACScheduler.mainThreadScheduler schedule:^{
+						@strongify(self);
+						if (self != nil) [self->_errors sendNext:error];
+					}];
+				}]
 				finally:^{
 					@strongify(self);
 					[self decrementItemsInFlight];
@@ -119,7 +129,7 @@
 		setNameWithFormat:@"[%@] -addSignalBlock:", self.name];
 }
 
-- (BOOL)execute:(id)sender {
+- (BOOL)execute:(id)value {
 	@synchronized (self) {
 		// Because itemsInFlight informs canExecute, we need to ensure that the
 		// latter is tested and set atomically to avoid race conditions. This is
@@ -128,7 +138,7 @@
 		[self incrementItemsInFlight];
 	}
 	
-	[self sendNext:sender];
+	[self sendNext:value];
 	[self decrementItemsInFlight];
 
 	return YES;

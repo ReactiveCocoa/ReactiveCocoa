@@ -1369,14 +1369,25 @@ describe(@"-switchToLatest", ^{
 		expect(lastError).notTo.beNil();
 	});
 
-	it(@"should send completed only when the switching signal completes", ^{
+	it(@"should not send completed if only the switching signal completes", ^{
 		[subject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendCompleted];
 			return nil;
 		}]];
 
 		expect(completed).to.beFalsy();
 
+		[subject sendCompleted];
+		expect(completed).to.beFalsy();
+	});
+	
+	it(@"should send completed when the switching signal completes and the last sent signal does", ^{
+		[subject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[subscriber sendCompleted];
+			return nil;
+		}]];
+		
+		expect(completed).to.beFalsy();
+		
 		[subject sendCompleted];
 		expect(completed).to.beTruthy();
 	});

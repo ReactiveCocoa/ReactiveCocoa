@@ -1480,9 +1480,19 @@ describe(@"+if:then:else", ^{
 		expect(lastError).notTo.beNil();
 	});
 
-	it(@"should send completed when the BOOL signal completes", ^{
+	it(@"should not send completed when only the BOOL signal completes", ^{
 		[boolSubject sendNext:@YES];
 		[trueSubject sendNext:@"foo"];
+		[boolSubject sendCompleted];
+		
+		expect(values).to.equal(@[ @"foo" ]);
+		expect(completed).to.beFalsy();
+	});
+
+	it(@"should send completed when the BOOL signal and the latest sent signal complete", ^{
+		[boolSubject sendNext:@YES];
+		[trueSubject sendNext:@"foo"];
+		[trueSubject sendCompleted];
 		[boolSubject sendCompleted];
 
 		expect(values).to.equal(@[ @"foo" ]);

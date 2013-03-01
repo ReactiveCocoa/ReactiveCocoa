@@ -1370,9 +1370,7 @@ describe(@"-switchToLatest", ^{
 	});
 
 	it(@"should not send completed if only the switching signal completes", ^{
-		[subject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			return nil;
-		}]];
+		[subject sendNext:RACSignal.never];
 
 		expect(completed).to.beFalsy();
 
@@ -1381,10 +1379,7 @@ describe(@"-switchToLatest", ^{
 	});
 	
 	it(@"should send completed when the switching signal completes and the last sent signal does", ^{
-		[subject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendCompleted];
-			return nil;
-		}]];
+		[subject sendNext:RACSignal.empty];
 		
 		expect(completed).to.beFalsy();
 		

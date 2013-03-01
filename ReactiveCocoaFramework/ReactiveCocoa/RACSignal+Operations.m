@@ -843,16 +843,17 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *innerDisposable = nil;
 		__block BOOL parentSignalHasCompleted = NO;
-		__block BOOL latestChildSignalHasCompleted = NO;
-		id synchronizationToken = [[NSObject alloc] init];
+		__block volatile uint32_t latestChildSignalHasCompleted = 0;
+		__block volatile int32_t partialCompletionCount = 0;
 		
 		RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
 			NSAssert([x isKindOfClass:RACSignal.class] || x == nil, @"-switchToLatest requires that the source signal (%@) send signals. Instead we got: %@", self, x);
 			
 			[innerDisposable dispose], innerDisposable = nil;
 			
-			@synchronized(synchronizationToken) {
-				latestChildSignalHasCompleted = NO;
+			int32_t previousChildSignalHadCompleted = OSAtomicAnd32OrigBarrier(0, &latestChildSignalHasCompleted);
+			if (previousChildSignalHadCompleted == 1) {
+				OSAtomicAdd32Barrier(-1, &partialCompletionCount);
 			}
 			
 			innerDisposable = [x subscribeNext:^(id x) {
@@ -860,22 +861,22 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 			} error:^(NSError *error) {
 				[subscriber sendError:error];
 			} completed:^{
-				@synchronized(synchronizationToken) {
-					latestChildSignalHasCompleted = YES;
-					if (parentSignalHasCompleted && latestChildSignalHasCompleted) {
-						[subscriber sendCompleted];
-					}
-				}
+				OSAtomicOr32OrigBarrier(1, &latestChildSignalHasCompleted);
+				
+				int32_t currentPartialCompletionCount = OSAtomicAdd32Barrier(1, &partialCompletionCount);
+				if (currentPartialCompletionCount != 2) return;
+				
+				[subscriber sendCompleted];
 			}];
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
-			@synchronized(synchronizationToken) {
-				parentSignalHasCompleted = YES;
-				if (parentSignalHasCompleted && latestChildSignalHasCompleted) {
-					[subscriber sendCompleted];
-				}
-			}
+			parentSignalHasCompleted = YES;
+			
+			int32_t currentPartialCompletionCount = OSAtomicAdd32Barrier(1, &partialCompletionCount);
+			if (currentPartialCompletionCount != 2) return;
+			
+			[subscriber sendCompleted];
 		}];
 		
 		return [RACDisposable disposableWithBlock:^{

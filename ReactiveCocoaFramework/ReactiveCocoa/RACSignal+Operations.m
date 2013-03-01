@@ -842,7 +842,6 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 - (RACSignal *)switchToLatest {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *innerDisposable = nil;
-		__block BOOL parentSignalHasCompleted = NO;
 		__block volatile uint32_t latestChildSignalHasCompleted = 0;
 		__block volatile int32_t partialCompletionCount = 0;
 		
@@ -853,7 +852,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 			
 			int32_t previousChildSignalHadCompleted = OSAtomicAnd32OrigBarrier(0, &latestChildSignalHasCompleted);
 			if (previousChildSignalHadCompleted == 1) {
-				OSAtomicAdd32Barrier(-1, &partialCompletionCount);
+				OSAtomicDecrement32Barrier(&partialCompletionCount);
 			}
 			
 			innerDisposable = [x subscribeNext:^(id x) {
@@ -863,7 +862,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 			} completed:^{
 				OSAtomicOr32Barrier(1, &latestChildSignalHasCompleted);
 				
-				int32_t currentPartialCompletionCount = OSAtomicAdd32Barrier(1, &partialCompletionCount);
+				int32_t currentPartialCompletionCount = OSAtomicIncrement32Barrier(&partialCompletionCount);
 				if (currentPartialCompletionCount == 2) {
 					[subscriber sendCompleted];
 				}
@@ -871,8 +870,6 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
-			parentSignalHasCompleted = YES;
-			
 			int32_t currentPartialCompletionCount = OSAtomicAdd32Barrier(1, &partialCompletionCount);
 			if (currentPartialCompletionCount == 2) {
 				[subscriber sendCompleted];

@@ -861,7 +861,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 			} error:^(NSError *error) {
 				[subscriber sendError:error];
 			} completed:^{
-				OSAtomicOr32OrigBarrier(1, &latestChildSignalHasCompleted);
+				OSAtomicOr32Barrier(1, &latestChildSignalHasCompleted);
 				
 				int32_t currentPartialCompletionCount = OSAtomicAdd32Barrier(1, &partialCompletionCount);
 				if (currentPartialCompletionCount != 2) return;

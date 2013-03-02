@@ -211,32 +211,25 @@
 	return start;
 }
 
-- (id)foldRightWithStart:(id)start combine:(id (^)(id, id))combine {
-	if (!combine || self.head == nil) return start;
-	
-	id rest = [self.tail foldRightWithStart:start combine:combine];
-	return combine(self.head, rest);
-}
-
-- (id)foldRightLazilyWithStart:(id)start combine:(id (^)(id, RACSequence *))combine {
+- (id)foldRightWithStart:(id)start combine:(id (^)(id, RACSequence *))combine {
     if (!combine || self.head == nil) return start;
-
+	
     __block RACSequence *sequence = self;
     RACSequence *rest = [RACSequence sequenceWithHeadBlock:^id {
-        return [sequence.tail foldRightLazilyWithStart:start combine:combine];
+        return [sequence.tail foldRightWithStart:start combine:combine];
     } tailBlock:nil];
-
+	
     return combine(self.head, rest);
 }
 
 - (BOOL)any:(BOOL (^)(id))block {
     if (!block) return NO;
-
-    id result = [self foldRightLazilyWithStart:NO combine:^id (id first, RACSequence *rest) {
+	
+    id result = [self foldRightWithStart:NO combine:^id (id first, RACSequence *rest) {
         if (block(first)) return @YES;
         return rest.head;
     }];
-
+	
     return [result boolValue];
 }
 

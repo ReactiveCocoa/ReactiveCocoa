@@ -225,9 +225,8 @@
 - (BOOL)any:(BOOL (^)(id))block {
     if (!block) return NO;
 	
-    id result = [self foldRightWithStart:NO combine:^id (id first, RACSequence *rest) {
-        if (block(first)) return @YES;
-        return rest.head;
+    id result = [self foldLeftWithStart:NO combine:^id (id accumulator, id value) {
+        return [NSNumber numberWithBool:block(value) || [accumulator boolValue]];
     }];
 	
     return [result boolValue];

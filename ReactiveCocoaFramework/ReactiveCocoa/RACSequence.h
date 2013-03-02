@@ -78,7 +78,7 @@
 //		combine(combine(combine(start, 1), 2), 3)
 //
 // Returns a reduced value.
-- (id)foldLeftWithStart:(id)start combine:(id (^)(id first, id rest))combine;
+- (id)foldLeftWithStart:(id)start combine:(id (^)(id accumulator, id value))combine;
 
 // Applies a right fold to the sequence.
 //

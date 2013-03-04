@@ -510,9 +510,10 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 
 	if (success != NULL) *success = YES;
 
-	[[[self
+	[[[[self
 		take:1]
 		timeout:RACSignalAsynchronousWaitTimeout]
+		deliverOn:RACScheduler.mainThreadScheduler]
 		subscribeNext:^(id x) {
 			result = x;
 			done = YES;

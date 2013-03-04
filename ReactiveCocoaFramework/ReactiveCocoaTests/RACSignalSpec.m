@@ -481,7 +481,7 @@ describe(@"querying", ^{
 		expect(disposed).to.beFalsy();
 
 		expect([signal asynchronousFirstOrDefault:nil success:NULL error:NULL]).to.equal(RACUnit.defaultUnit);
-		expect(disposed).to.beTruthy();
+		expect(disposed).will.beTruthy();
 	});
 
 	it(@"should return a delayed success from -asynchronouslyWaitUntilCompleted:", ^{

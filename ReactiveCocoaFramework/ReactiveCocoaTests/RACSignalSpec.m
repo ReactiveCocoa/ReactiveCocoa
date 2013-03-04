@@ -1462,14 +1462,20 @@ describe(@"-switchToLatest", ^{
 		expect(lastError).notTo.beNil();
 	});
 
-	it(@"should send completed only when the switching signal completes", ^{
-		[subject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendCompleted];
-			return nil;
-		}]];
+	it(@"should not send completed if only the switching signal completes", ^{
+		[subject sendNext:RACSignal.never];
 
 		expect(completed).to.beFalsy();
 
+		[subject sendCompleted];
+		expect(completed).to.beFalsy();
+	});
+	
+	it(@"should send completed when the switching signal completes and the last sent signal does", ^{
+		[subject sendNext:RACSignal.empty];
+		
+		expect(completed).to.beFalsy();
+		
 		[subject sendCompleted];
 		expect(completed).to.beTruthy();
 	});
@@ -1562,9 +1568,19 @@ describe(@"+if:then:else", ^{
 		expect(lastError).notTo.beNil();
 	});
 
-	it(@"should send completed when the BOOL signal completes", ^{
+	it(@"should not send completed when only the BOOL signal completes", ^{
 		[boolSubject sendNext:@YES];
 		[trueSubject sendNext:@"foo"];
+		[boolSubject sendCompleted];
+		
+		expect(values).to.equal(@[ @"foo" ]);
+		expect(completed).to.beFalsy();
+	});
+
+	it(@"should send completed when the BOOL signal and the latest sent signal complete", ^{
+		[boolSubject sendNext:@YES];
+		[trueSubject sendNext:@"foo"];
+		[trueSubject sendCompleted];
 		[boolSubject sendCompleted];
 
 		expect(values).to.equal(@[ @"foo" ]);

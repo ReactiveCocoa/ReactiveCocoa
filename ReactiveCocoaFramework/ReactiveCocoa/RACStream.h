@@ -97,10 +97,27 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 
 // Maps `block` across the values in the receiver and flattens the result.
 //
+// Note that operators applied _after_ -flattenMap: behave differently from
+// operators _within_ -flattenMap:. See the Examples section below.
+//
 // This corresponds to the `SelectMany` method in Rx.
 //
 // block - A block which accepts the values in the receiver and returns a new
 //         instance of the receiver's class. This block should not return `nil`.
+//
+// Examples
+//
+//   [signal flattenMap:^(id x) {
+//       // Logs each time a returned signal completes.
+//       return [[RACSignal return:x] logCompleted];
+//   }];
+//
+//   [[signal
+//       flattenMap:^(id x) {
+//           return [RACSignal return:x];
+//       }]
+//       // Logs only once, when all of the signals complete.
+//       logCompleted];
 //
 // Returns a new stream which represents the combined streams resulting from
 // mapping `block`.
@@ -172,6 +189,9 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 - (instancetype)take:(NSUInteger)count;
 
 // Invokes the given `block` for each value in the receiver.
+//
+// This method is equivalent to a -flattenMap: that simply ignores the input
+// values.
 //
 // block - A block which returns a new instance of the receiver's class.
 //

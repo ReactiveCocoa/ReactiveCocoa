@@ -386,6 +386,23 @@ describe(@"querying", ^{
 		expect(error).to.equal(RACSignalTestError);
 	});
 
+	it(@"should terminate the subscription after returning from -firstOrDefault:success:error:", ^{
+		__block BOOL disposed = NO;
+		RACSignal *signal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			[subscriber sendNext:RACUnit.defaultUnit];
+
+			return [RACDisposable disposableWithBlock:^{
+				disposed = YES;
+			}];
+		}];
+
+		expect(signal).notTo.beNil();
+		expect(disposed).to.beFalsy();
+
+		expect([signal firstOrDefault:nil success:NULL error:NULL]).to.equal(RACUnit.defaultUnit);
+		expect(disposed).to.beTruthy();
+	});
+
 	it(@"should return YES from -waitUntilCompleted: when successful", ^{
 		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:RACUnit.defaultUnit];
@@ -408,6 +425,82 @@ describe(@"querying", ^{
 		__block NSError *error = nil;
 		expect([signal waitUntilCompleted:&error]).to.beFalsy();
 		expect(error).to.equal(RACSignalTestError);
+	});
+
+	it(@"should return a delayed value from -asynchronousFirstOrDefault:success:error:", ^{
+		RACSignal *signal = [[RACSignal return:RACUnit.defaultUnit] delay:0.01];
+
+		__block BOOL scheduledBlockRan = NO;
+		[RACScheduler.mainThreadScheduler schedule:^{
+			scheduledBlockRan = YES;
+		}];
+
+		expect(scheduledBlockRan).to.beFalsy();
+
+		BOOL success = NO;
+		NSError *error = nil;
+		id value = [signal asynchronousFirstOrDefault:nil success:&success error:&error];
+
+		expect(scheduledBlockRan).to.beTruthy();
+
+		expect(value).to.equal(RACUnit.defaultUnit);
+		expect(success).to.beTruthy();
+		expect(error).to.beNil();
+	});
+
+	it(@"should return a delayed error from -asynchronousFirstOrDefault:success:error:", ^{
+		RACSignal *signal = [[RACSignal
+			createSignal:^(id<RACSubscriber> subscriber) {
+				return [[RACScheduler scheduler] schedule:^{
+					[subscriber sendError:RACSignalTestError];
+				}];
+			}]
+			deliverOn:RACScheduler.mainThreadScheduler];
+
+		__block NSError *error = nil;
+		__block BOOL success = NO;
+		expect([signal asynchronousFirstOrDefault:nil success:&success error:&error]).to.beNil();
+
+		expect(success).to.beFalsy();
+		expect(error).to.equal(RACSignalTestError);
+	});
+
+	it(@"should terminate the subscription after returning from -asynchronousFirstOrDefault:success:error:", ^{
+		__block BOOL disposed = NO;
+		RACSignal *signal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			[[RACScheduler scheduler] schedule:^{
+				[subscriber sendNext:RACUnit.defaultUnit];
+			}];
+
+			return [RACDisposable disposableWithBlock:^{
+				disposed = YES;
+			}];
+		}];
+
+		expect(signal).notTo.beNil();
+		expect(disposed).to.beFalsy();
+
+		expect([signal asynchronousFirstOrDefault:nil success:NULL error:NULL]).to.equal(RACUnit.defaultUnit);
+		expect(disposed).will.beTruthy();
+	});
+
+	it(@"should return a delayed success from -asynchronouslyWaitUntilCompleted:", ^{
+		RACSignal *signal = [[RACSignal return:RACUnit.defaultUnit] delay:0.01];
+
+		__block BOOL scheduledBlockRan = NO;
+		[RACScheduler.mainThreadScheduler schedule:^{
+			scheduledBlockRan = YES;
+		}];
+
+		expect(scheduledBlockRan).to.beFalsy();
+
+		NSError *error = nil;
+		BOOL success = [signal asynchronouslyWaitUntilCompleted:&error];
+
+		expect(scheduledBlockRan).to.beTruthy();
+
+		expect(success).to.beTruthy();
+		expect(error).to.beNil();
 	});
 });
 

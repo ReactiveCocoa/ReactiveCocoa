@@ -492,3 +492,54 @@ static NSMutableSet *activeSignals() {
 }
 
 @end
+
+@implementation RACSignal (Testing)
+
+static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
+
+- (id)asynchronousFirstOrDefault:(id)defaultValue success:(BOOL *)success error:(NSError **)error {
+	NSAssert([NSThread isMainThread], @"%s should only be used from the main thread", __func__);
+
+	__block id result = nil;
+	__block BOOL done = NO;
+
+	// Ensures that any received error does not get autoreleased before being
+	// passed back by-reference (for example, because we crossed a thread
+	// boundary).
+	__block NSError *localError = nil;
+
+	if (success != NULL) *success = YES;
+
+	[[[[self
+		take:1]
+		timeout:RACSignalAsynchronousWaitTimeout]
+		deliverOn:RACScheduler.mainThreadScheduler]
+		subscribeNext:^(id x) {
+			result = x;
+			done = YES;
+		} error:^(NSError *e) {
+			if (!done) {
+				if (success != NULL) *success = NO;
+				localError = e;
+				done = YES;
+			}
+		} completed:^{
+			done = YES;
+		}];
+	
+	do {
+		[NSRunLoop.mainRunLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+	} while (!done);
+
+	if (error != NULL) *error = localError;
+
+	return result;
+}
+
+- (BOOL)asynchronouslyWaitUntilCompleted:(NSError **)error {
+	BOOL success = NO;
+	[[self ignoreElements] asynchronousFirstOrDefault:nil success:&success error:error];
+	return success;
+}
+
+@end

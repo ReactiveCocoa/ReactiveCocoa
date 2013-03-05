@@ -911,38 +911,38 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	condition.name = [NSString stringWithFormat:@"[%@] -firstOrDefault: %@ success:error:", self.name, defaultValue];
 
 	__block id value = defaultValue;
-
-	// Protects against setting 'value' multiple times (e.g. to the second value
-	// instead of the first).
 	__block BOOL done = NO;
+
+	// Ensures that any received error does not get autoreleased before being
+	// passed back by-reference (for example, because we crossed a thread
+	// boundary).
 	__block NSError *localError;
 
-	__block RACDisposable *disposable = [self subscribeNext:^(id x) {
+	[[self take:1] subscribeNext:^(id x) {
 		[condition lock];
 
-		if (!done) {
-			value = x;
-			if(success != NULL) *success = YES;
-			
-			done = YES;
-			[disposable dispose];
-			[condition broadcast];
-		}
-
+		value = x;
+		if (success != NULL) *success = YES;
+		
+		done = YES;
+		[condition broadcast];
 		[condition unlock];
 	} error:^(NSError *e) {
 		[condition lock];
 
-		if(success != NULL) *success = NO;
-		localError = e;
+		if (!done) {
+			if (success != NULL) *success = NO;
+			localError = e;
 
-		done = YES;
-		[condition broadcast];
+			done = YES;
+			[condition broadcast];
+		}
+
 		[condition unlock];
 	} completed:^{
 		[condition lock];
 
-		if(success != NULL) *success = YES;
+		if (success != NULL) *success = YES;
 
 		done = YES;
 		[condition broadcast];

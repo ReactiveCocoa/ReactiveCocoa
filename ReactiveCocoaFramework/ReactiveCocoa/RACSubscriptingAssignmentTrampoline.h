@@ -35,7 +35,6 @@
 @interface RACSubscriptingAssignmentTrampoline : NSObject
 
 + (instancetype)trampoline;
-
-- (void)setObject:(id)obj forKeyedSubscript:(id<NSCopying>)key;
+- (void)setObject:(RACSignal *)signal forKeyedSubscript:(id<NSCopying>)key;
 
 @end

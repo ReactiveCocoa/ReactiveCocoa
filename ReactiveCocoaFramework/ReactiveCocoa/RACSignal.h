@@ -142,26 +142,53 @@
 
 @end
 
+// Additional methods to assist with debugging.
 @interface RACSignal (Debugging)
 
 // Logs all events that the receiver sends.
-//
-// This method should only be used for debugging.
 - (RACSignal *)logAll;
 
 // Logs each `next` that the receiver sends.
-//
-// This method should only be used for debugging.
 - (RACSignal *)logNext;
 
 // Logs any error that the receiver sends.
-//
-// This method should only be used for debugging.
 - (RACSignal *)logError;
 
 // Logs any `completed` event that the receiver sends.
-//
-// This method should only be used for debugging.
 - (RACSignal *)logCompleted;
+
+@end
+
+// Additional methods to assist with unit testing.
+//
+// **These methods should never ship in production code.**
+@interface RACSignal (Testing)
+
+// Spins the main run loop for a short while, waiting for the receiver to send a `next`.
+//
+// **Because this method executes the run loop recursively, it should only be used
+// on the main thread, and only from a unit test.**
+//
+// defaultValue - Returned if the receiver completes or errors before sending
+//                a `next`, or if the method times out. This argument may be
+//                nil.
+// success      - If not NULL, set to whether the receiver completed
+//                successfully.
+// error        - If not NULL, set to any error that occurred.
+//
+// Returns the first value received, or `defaultValue` if no value is received
+// before the signal finishes or the method times out.
+- (id)asynchronousFirstOrDefault:(id)defaultValue success:(BOOL *)success error:(NSError **)error;
+
+// Spins the main run loop for a short while, waiting for the receiver to complete.
+//
+// **Because this method executes the run loop recursively, it should only be used
+// on the main thread, and only from a unit test.**
+//
+// error - If not NULL, set to any error that occurs.
+//
+// Returns whether the signal completed successfully before timing out. If NO,
+// `error` will be set to any error that occurred.
+- (BOOL)asynchronouslyWaitUntilCompleted:(NSError **)error;
 
 @end

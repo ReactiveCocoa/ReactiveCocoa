@@ -274,25 +274,19 @@ static NSMutableSet *activeSignals() {
 
 - (RACSignal *)concat:(RACSignal *)signal {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		__block RACDisposable *concattedDisposable = nil;
+		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+
 		RACDisposable *sourceDisposable = [self subscribeNext:^(id x) {
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
-			concattedDisposable = [signal subscribe:[RACSubscriber subscriberWithNext:^(id x) {
-				[subscriber sendNext:x];
-			} error:^(NSError *error) {
-				[subscriber sendError:error];
-			} completed:^{
-				[subscriber sendCompleted];
-			}]];
+			RACDisposable *concattedDisposable = [signal subscribe:subscriber];
+			if (concattedDisposable != nil) [disposable addDisposable:concattedDisposable];
 		}];
-		
-		return [RACDisposable disposableWithBlock:^{
-			[sourceDisposable dispose];
-			[concattedDisposable dispose];
-		}];
+
+		if (sourceDisposable != nil) [disposable addDisposable:sourceDisposable];
+		return disposable;
 	}] setNameWithFormat:@"[%@] -concat: %@", self.name, signal];
 }
 

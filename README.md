@@ -216,7 +216,7 @@ RAC even makes it easy to bind to the result of an asynchronous operation:
 //
 // -map: calls its block with each user that's fetched and returns a new
 // RACSignal that sends values returned from the block.
-RAC(self.imageView.image) = [[[[client 
+RAC(self.imageView, image) = [[[[client 
     fetchUserWithUsername:@"joshaber"]
     deliverOn:[RACScheduler scheduler]]
     map:^(User *user) {
@@ -301,7 +301,7 @@ For example, the following code:
 
     @weakify(self);
 
-    RAC(self.logInButton.enabled) = [RACSignal
+    RAC(self.logInButton, enabled) = [RACSignal
         combineLatest:@[
             self.usernameTextField.rac_textSignal,
             self.passwordTextField.rac_textSignal,

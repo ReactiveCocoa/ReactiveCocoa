@@ -53,7 +53,7 @@
 
 // The compound disposable which will be disposed of when the receiver is
 // deallocated.
-@property (nonatomic, readonly, strong) RACCompoundDisposable *rac_deallocDisposable;
+@property (atomic, readonly, strong) RACCompoundDisposable *rac_deallocDisposable;
 
 // Creates a signal for observing on the given object the key path of the source
 // object.

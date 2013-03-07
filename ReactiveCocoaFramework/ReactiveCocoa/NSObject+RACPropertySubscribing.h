@@ -46,9 +46,14 @@
 #define _RACAbleWithStartValue(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))([self valueForKeyPath:@keypath(self, __VA_ARGS__)])([metamacro_at0(__VA_ARGS__) valueForKeyPath:@keypath(__VA_ARGS__)])
 
 @class RACDisposable;
+@class RACCompoundDisposable;
 @class RACSignal;
 
 @interface NSObject (RACPropertySubscribing)
+
+// The compound disposable which will be disposed of when the receiver is
+// deallocated.
+@property (atomic, readonly, strong) RACCompoundDisposable *rac_deallocDisposable;
 
 // Creates a signal for observing on the given object the key path of the source
 // object.

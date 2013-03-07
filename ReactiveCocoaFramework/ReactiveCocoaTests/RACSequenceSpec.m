@@ -318,83 +318,84 @@ it(@"shouldn't overflow the stack when deallocated on a background queue", ^{
 });
 
 describe(@"-foldLeftWithStart:combine:", ^{
-	__block RACSequence *sequence;
-
 	it(@"should combine with start first", ^{
-		sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
-		id result = [sequence foldLeftWithStart:@3 combine:^id (id first, id rest) {
-            return first;
-        }];
-        expect(result).to.equal(@3);
+		RACSequence *sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
+		NSNumber *result = [sequence foldLeftWithStart:@3 combine:^(NSNumber *first, NSNumber *rest) {
+			return first;
+		}];
+		expect(result).to.equal(@3);
 	});
 
 	it(@"should be left associative", ^{
-		sequence = [[[RACSequence return:@1] concat:[RACSequence return:@2]] concat:[RACSequence return:@3]];
-		id result = [sequence foldLeftWithStart:@0 combine:^id (id first, id rest) {
-			int difference = [first intValue] - [rest intValue];
-			return [NSNumber numberWithInt:difference];
+		RACSequence *sequence = [[[RACSequence return:@1] concat:[RACSequence return:@2]] concat:[RACSequence return:@3]];
+		NSNumber *result = [sequence foldLeftWithStart:@0 combine:^(NSNumber *first, NSNumber *rest) {
+			int difference = first.intValue - rest.intValue;
+			return @(difference);
 		}];
 		expect(result).to.equal(@-6);
 	});
 });
 
 describe(@"-foldRightWithStart:combine:", ^{
-    __block BOOL headInvoked = NO;
-    __block BOOL tailInvoked = NO;
-    __block RACSequence *sequence;
+	__block BOOL headInvoked = NO;
+	__block BOOL tailInvoked = NO;
+	__block RACSequence *sequence;
 	
-    it(@"should be lazy", ^{
-        sequence = [RACSequence sequenceWithHeadBlock:^{
-            headInvoked = YES;
-            return @0;
-        } tailBlock:^{
-            tailInvoked = YES;
-            return [RACSequence return:@1];
+	it(@"should be lazy", ^{
+		sequence = [RACSequence sequenceWithHeadBlock:^{
+			headInvoked = YES;
+			return @0;
+		} tailBlock:^{
+			tailInvoked = YES;
+			return [RACSequence return:@1];
+		}];
+		
+		NSNumber *result = [sequence foldRightWithStart:@2 combine:^(NSNumber *first, RACSequence *rest) {
+			return first;
         }];
 		
-        id result = [sequence foldRightWithStart:@2 combine:^id (id first, RACSequence *rest) {
-            return first;
-        }];
-		
-        expect(result).to.equal(@0);
-        expect(headInvoked).to.beTruthy();
-        expect(tailInvoked).to.beFalsy();
-    });
+		expect(result).to.equal(@0);
+		expect(headInvoked).to.beTruthy();
+		expect(tailInvoked).to.beFalsy();
+	});
 	
-    it(@"should combine with start last", ^{
-        sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
-        id result = [sequence foldRightWithStart:@3 combine:^id (id first, RACSequence *rest) {
-            return rest.head;
-        }];
-        expect(result).to.equal(@3);
-    });
+	it(@"should combine with start last", ^{
+		sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
+		NSNumber *result = [sequence foldRightWithStart:@3 combine:^(NSNumber *first, RACSequence *rest) {
+			return rest.head;
+		}];
+		expect(result).to.equal(@3);
+	});
 	
 	it(@"should be right associative", ^{
 		sequence = [[[RACSequence return:@1] concat:[RACSequence return:@2]] concat:[RACSequence return:@3]];
-		id result = [sequence foldRightWithStart:@0 combine:^id (id first, RACSequence *rest) {
-			int difference = [first intValue] - [rest.head intValue];
-			return [NSNumber numberWithInt:difference];
+		NSNumber *result = [sequence foldRightWithStart:@0 combine:^(NSNumber *first, RACSequence *rest) {
+			int difference = first.intValue - [rest.head intValue];
+			return @(difference);
 		}];
 		expect(result).to.equal(@2);
 	});
 });
 
 describe(@"-any", ^{
-    __block RACSequence *sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
+	__block RACSequence *sequence;
+	beforeEach(^{
+		sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
+	});
 	
-    it(@"should return true when at least one exists", ^{
-        BOOL result = [sequence any:^BOOL(id value) {
-            return [value integerValue] > 0;
-        }];
-        expect(result).to.beTruthy();
-    });
+	it(@"should return true when at least one exists", ^{
+		BOOL result = [sequence any:^ BOOL (NSNumber *value) {
+			return value.integerValue > 0;
+		}];
+		expect(result).to.beTruthy();
+	});
 	
-    it(@"should return false when no such thing exists", ^{
-        BOOL result = [sequence any:^BOOL(id value) {
-            return [value integerValue] == 3;
-        }];
-        expect(result).to.beFalsy();
-    });
+	it(@"should return false when no such thing exists", ^{
+		BOOL result = [sequence any:^ BOOL (NSNumber *value) {
+			return value.integerValue == 3;
+		}];
+		expect(result).to.beFalsy();
+	});
 });
 
 SpecEnd

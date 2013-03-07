@@ -108,17 +108,17 @@ sharedExamplesFor(RACSequenceExamples, ^(NSDictionary *data) {
 	});
 	
 	it(@"should fold right", ^{
-		id result = [sequence foldRightWithStart:[RACSequence empty] combine:^id(id first, RACSequence *rest) {
+		RACSequence *result = [sequence foldRightWithStart:[RACSequence empty] combine:^(id first, RACSequence *rest) {
 			return [[RACSequence return:first] concat:rest.head];
 		}];
-	   expect([result array]).to.equal(values);
+	   expect(result.array).to.equal(values);
 	});
 	
 	it(@"should fold left", ^{
-		id result = [sequence foldLeftWithStart:[RACSequence empty] combine:^id(id first, id rest) {
-			return [(RACSequence *)first concat:[RACSequence return:rest]];
+		RACSequence *result = [sequence foldLeftWithStart:[RACSequence empty] combine:^(RACSequence *first, id rest) {
+			return [first concat:[RACSequence return:rest]];
 		}];
-		expect([result array]).to.equal(values);
+		expect(result.array).to.equal(values);
 	});
 });
 

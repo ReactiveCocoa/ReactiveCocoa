@@ -777,9 +777,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	[object rac_addDeallocDisposable:disposable];
 	
 	RACCompoundDisposable *objectDisposable = object.rac_deallocDisposable;
-	@weakify(objectDisposable);
 	return [RACDisposable disposableWithBlock:^{
-		@strongify(objectDisposable);
 		[objectDisposable removeDisposable:disposable];
 		[disposable dispose];
 	}];

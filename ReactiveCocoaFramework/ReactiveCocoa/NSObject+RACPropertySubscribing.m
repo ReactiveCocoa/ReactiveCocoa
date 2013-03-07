@@ -45,9 +45,7 @@ static const void *RACObjectScopedDisposable = &RACObjectScopedDisposable;
 
 		RACCompoundDisposable *observerDisposable = observer.rac_deallocDisposable;
 		RACCompoundDisposable *objectDisposable = object.rac_deallocDisposable;
-		@weakify(observerDisposable, objectDisposable, deallocDisposable);
 		return [RACDisposable disposableWithBlock:^{
-			@strongify(observerDisposable, objectDisposable, deallocDisposable);
 			[observerDisposable removeDisposable:deallocDisposable];
 			[objectDisposable removeDisposable:deallocDisposable];
 			[KVODisposable dispose];

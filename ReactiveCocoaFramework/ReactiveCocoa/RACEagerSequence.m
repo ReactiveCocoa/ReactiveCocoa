@@ -53,7 +53,7 @@
 }
 
 - (id)foldRightWithStart:(id)start combine:(id (^)(id, RACSequence *rest))combine {
-	return [super foldRightWithStart:start combine:^id (id first, RACSequence *rest) {
+	return [super foldRightWithStart:start combine:^(id first, RACSequence *rest) {
 		return combine(first, rest.eagerSequence);
 	}];
 }

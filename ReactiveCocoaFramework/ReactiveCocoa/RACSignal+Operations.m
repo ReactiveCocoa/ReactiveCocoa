@@ -913,16 +913,15 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	__block id value = defaultValue;
 	__block BOOL done = NO;
 
-	// Ensures that any received error does not get autoreleased before being
-	// passed back by-reference (for example, because we crossed a thread
-	// boundary).
+	// Ensures that we don't pass values across thread boundaries by reference.
 	__block NSError *localError;
+	__block BOOL localSuccess;
 
 	[[self take:1] subscribeNext:^(id x) {
 		[condition lock];
 
 		value = x;
-		if (success != NULL) *success = YES;
+		localSuccess = YES;
 		
 		done = YES;
 		[condition broadcast];
@@ -931,7 +930,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 		[condition lock];
 
 		if (!done) {
-			if (success != NULL) *success = NO;
+			localSuccess = NO;
 			localError = e;
 
 			done = YES;
@@ -942,7 +941,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	} completed:^{
 		[condition lock];
 
-		if (success != NULL) *success = YES;
+		localSuccess = YES;
 
 		done = YES;
 		[condition broadcast];
@@ -954,6 +953,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 		[condition wait];
 	}
 
+	if (success != NULL) *success = localSuccess;
 	if (error != NULL) *error = localError;
 
 	[condition unlock];

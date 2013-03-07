@@ -203,33 +203,38 @@
 }
 
 - (id)foldLeftWithStart:(id)start combine:(id (^)(id, id))combine {
-	if (!combine || self.head == nil) return start;
+	NSParameterAssert(combine != NULL);
+
+	if (self.head == nil) return start;
 	
-	for (id value in self) {
+	for (id value in self.objectEnumerator) {
 		start = combine(start, value);
 	}
+	
 	return start;
 }
 
 - (id)foldRightWithStart:(id)start combine:(id (^)(id, RACSequence *))combine {
-    if (!combine || self.head == nil) return start;
+	NSParameterAssert(combine != NULL);
+
+	if (self.head == nil) return start;
 	
-    __block RACSequence *sequence = self;
-    RACSequence *rest = [RACSequence sequenceWithHeadBlock:^id {
-        return [sequence.tail foldRightWithStart:start combine:combine];
-    } tailBlock:nil];
+	RACSequence *sequence = self;
+	RACSequence *rest = [RACSequence sequenceWithHeadBlock:^{
+		return [sequence.tail foldRightWithStart:start combine:combine];
+	} tailBlock:nil];
 	
-    return combine(self.head, rest);
+	return combine(self.head, rest);
 }
 
 - (BOOL)any:(BOOL (^)(id))block {
-    if (!block) return NO;
+	NSParameterAssert(block != NULL);
 	
-    id result = [self foldLeftWithStart:NO combine:^id (id accumulator, id value) {
-        return [NSNumber numberWithBool:block(value) || [accumulator boolValue]];
-    }];
+	NSNumber *result = [self foldLeftWithStart:@NO combine:^(NSNumber *accumulator, id value) {
+		return @(block(value) || accumulator.boolValue);
+	}];
 	
-    return [result boolValue];
+	return result.boolValue;
 }
 
 - (RACSequence *)eagerSequence {

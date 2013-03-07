@@ -70,6 +70,35 @@
 // they're evaluated.
 - (RACSignal *)signalWithScheduler:(RACScheduler *)scheduler;
 
+// Applies a left fold to the sequence.
+//
+// This is the same as iterating the sequence along with a provided start value.
+// This uses a constant amount of memory. A left fold is left-associative so in
+// the sequence [1,2,3] the block would applied in the following order:
+//		combine(combine(combine(start, 1), 2), 3)
+//
+// Returns a reduced value.
+- (id)foldLeftWithStart:(id)start combine:(id (^)(id accumulator, id value))combine;
+
+// Applies a right fold to the sequence.
+//
+// A right fold is equivalent to recursion on the list. The block is evaluated
+// from the right to the left in list. In the block, rest represents the value of
+// the rest of the computation (result of the recursion). This is computed when you
+// retrieve its value using rest.head. This allows you to prevent unnecessary
+// computation by not accessing rest.head if you don't need to. A right fold is right
+// associative so it's applied to the rightmost elements first. For example, inn the
+// sequence [1,2,3] the block is applied in the order:
+//		combine(1, combine(2, combine(3, start)))
+//
+// Returns a reduced value.
+- (id)foldRightWithStart:(id)start combine:(id (^)(id first, RACSequence *rest))combine;
+
+// Check if any value in sequence passes the block.
+//
+// Returns a boolean indiciating if any value in the sequence passed.
+- (BOOL)any:(BOOL (^)(id value))block;
+
 // Creates a sequence that dynamically generates its values.
 //
 // headBlock - Invoked the first time -head is accessed.

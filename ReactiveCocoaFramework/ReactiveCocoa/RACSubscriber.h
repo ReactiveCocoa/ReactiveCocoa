@@ -17,7 +17,8 @@
 // for most uses.
 //
 // Implementors of this protocol may receive messages and values from multiple
-// threads simultaneously, and so should be thread-safe.
+// threads simultaneously, and so should be thread-safe. Subscribers will also
+// be weakly referenced so implementations must allow that.
 @protocol RACSubscriber <NSObject>
 @required
 

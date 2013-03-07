@@ -106,6 +106,8 @@
 
 // Check if any value in sequence passes the block.
 //
+// block - The block predicate used to check each item. Cannot be nil.
+//
 // Returns a boolean indiciating if any value in the sequence passed.
 - (BOOL)any:(BOOL (^)(id value))block;
 

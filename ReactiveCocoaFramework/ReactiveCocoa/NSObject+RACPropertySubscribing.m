@@ -30,7 +30,10 @@ static const void *RACObjectDisposables = &RACObjectDisposables;
 		RACDisposable *KVODisposable = [RACDisposable disposableWithBlock:^{
 			[KVOTrampoline stopObserving];
 		}];
+
+		@weakify(subscriber);
 		RACDisposable *deallocDisposable = [RACDisposable disposableWithBlock:^{
+			@strongify(subscriber);
 			[KVODisposable dispose];
 			[subscriber sendCompleted];
 		}];

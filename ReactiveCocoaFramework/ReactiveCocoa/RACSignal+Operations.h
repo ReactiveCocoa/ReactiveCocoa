@@ -21,6 +21,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 @class RACSequence;
 @class RACSubject;
 @class RACTuple;
+@class RACCommand;
 @protocol RACSubscriber;
 
 @interface RACSignal (Operations)
@@ -416,5 +417,12 @@ extern const NSInteger RACSignalErrorTimedOut;
 //
 // Returns a signal of inverted NSNumber-wrapped BOOLs.
 - (RACSignal *)not;
+
+// Subscribes to the receiver and executes the command with each `next`.
+//
+// command - The command to execute. Cannot be nil.
+//
+// Returns the disposable for the underlying subscription.
+- (RACDisposable *)execute:(RACCommand *)command;
 
 @end

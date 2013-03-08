@@ -23,6 +23,7 @@
 #import "RACTestObject.h"
 #import "RACTuple.h"
 #import "RACUnit.h"
+#import "RACCommand.h"
 
 #define RACSignalTestError [NSError errorWithDomain:@"foo" code:100 userInfo:nil]
 
@@ -2448,6 +2449,21 @@ describe(@"-not", ^{
 		NSArray *results = [[subject not] toArray];
 		NSArray *expected = @[ @YES, @NO ];
 		expect(results).to.equal(expected);
+	});
+});
+
+describe(@"-execute:", ^{
+	it(@"should execute the command with each next", ^{
+		RACCommand *command = [RACCommand command];
+
+		__block id value;
+		[command subscribeNext:^(id x) {
+			value = x;
+		}];
+
+		[[RACSignal return:@1] execute:command];
+
+		expect(value).to.equal(@1);
 	});
 });
 

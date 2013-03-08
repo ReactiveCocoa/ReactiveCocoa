@@ -202,6 +202,40 @@
 	}] setNameWithFormat:@"[%@] -signalWithScheduler:", self.name];
 }
 
+- (id)foldLeftWithStart:(id)start combine:(id (^)(id, id))combine {
+	NSParameterAssert(combine != NULL);
+
+	if (self.head == nil) return start;
+	
+	for (id value in self.objectEnumerator) {
+		start = combine(start, value);
+	}
+	
+	return start;
+}
+
+- (id)foldRightWithStart:(id)start combine:(id (^)(id, RACSequence *))combine {
+	NSParameterAssert(combine != NULL);
+
+	if (self.head == nil) return start;
+	
+	RACSequence *rest = [RACSequence sequenceWithHeadBlock:^{
+		return [self.tail foldRightWithStart:start combine:combine];
+	} tailBlock:nil];
+	
+	return combine(self.head, rest);
+}
+
+- (BOOL)any:(BOOL (^)(id))block {
+	NSParameterAssert(block != NULL);
+	
+	NSNumber *result = [self foldLeftWithStart:@NO combine:^(NSNumber *accumulator, id value) {
+		return @(accumulator.boolValue || block(value));
+	}];
+	
+	return result.boolValue;
+}
+
 - (RACSequence *)eagerSequence {
 	return [RACEagerSequence sequenceWithArray:self.array offset:0];
 }

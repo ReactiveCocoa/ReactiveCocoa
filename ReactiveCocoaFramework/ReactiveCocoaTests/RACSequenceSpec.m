@@ -317,4 +317,83 @@ it(@"shouldn't overflow the stack when deallocated on a background queue", ^{
 	Expecta.asynchronousTestTimeout = oldTimeout;
 });
 
+describe(@"-foldLeftWithStart:combine:", ^{
+	it(@"should combine with start first", ^{
+		RACSequence *sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
+		NSNumber *result = [sequence foldLeftWithStart:@3 combine:^(NSNumber *first, NSNumber *rest) {
+			return first;
+		}];
+		expect(result).to.equal(@3);
+	});
+
+	it(@"should be left associative", ^{
+		RACSequence *sequence = [[[RACSequence return:@1] concat:[RACSequence return:@2]] concat:[RACSequence return:@3]];
+		NSNumber *result = [sequence foldLeftWithStart:@0 combine:^(NSNumber *first, NSNumber *rest) {
+			int difference = first.intValue - rest.intValue;
+			return @(difference);
+		}];
+		expect(result).to.equal(@-6);
+	});
+});
+
+describe(@"-foldRightWithStart:combine:", ^{
+	it(@"should be lazy", ^{
+		__block BOOL headInvoked = NO;
+		__block BOOL tailInvoked = NO;
+		RACSequence *sequence = [RACSequence sequenceWithHeadBlock:^{
+			headInvoked = YES;
+			return @0;
+		} tailBlock:^{
+			tailInvoked = YES;
+			return [RACSequence return:@1];
+		}];
+		
+		NSNumber *result = [sequence foldRightWithStart:@2 combine:^(NSNumber *first, RACSequence *rest) {
+			return first;
+		}];
+		
+		expect(result).to.equal(@0);
+		expect(headInvoked).to.beTruthy();
+		expect(tailInvoked).to.beFalsy();
+	});
+	
+	it(@"should combine with start last", ^{
+		RACSequence *sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
+		NSNumber *result = [sequence foldRightWithStart:@3 combine:^(NSNumber *first, RACSequence *rest) {
+			return rest.head;
+		}];
+		expect(result).to.equal(@3);
+	});
+	
+	it(@"should be right associative", ^{
+		RACSequence *sequence = [[[RACSequence return:@1] concat:[RACSequence return:@2]] concat:[RACSequence return:@3]];
+		NSNumber *result = [sequence foldRightWithStart:@0 combine:^(NSNumber *first, RACSequence *rest) {
+			int difference = first.intValue - [rest.head intValue];
+			return @(difference);
+		}];
+		expect(result).to.equal(@2);
+	});
+});
+
+describe(@"-any", ^{
+	__block RACSequence *sequence;
+	beforeEach(^{
+		sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
+	});
+	
+	it(@"should return true when at least one exists", ^{
+		BOOL result = [sequence any:^ BOOL (NSNumber *value) {
+			return value.integerValue > 0;
+		}];
+		expect(result).to.beTruthy();
+	});
+	
+	it(@"should return false when no such thing exists", ^{
+		BOOL result = [sequence any:^ BOOL (NSNumber *value) {
+			return value.integerValue == 3;
+		}];
+		expect(result).to.beFalsy();
+	});
+});
+
 SpecEnd

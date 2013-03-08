@@ -52,6 +52,12 @@
 	return [RACArraySequence sequenceWithArray:self.array offset:0];
 }
 
+- (id)foldRightWithStart:(id)start combine:(id (^)(id, RACSequence *rest))combine {
+	return [super foldRightWithStart:start combine:^(id first, RACSequence *rest) {
+		return combine(first, rest.eagerSequence);
+	}];
+}
+
 #pragma mark NSFastEnumeration
 
 - (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(__unsafe_unretained id [])buffer count:(NSUInteger)len {

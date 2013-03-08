@@ -7,6 +7,7 @@
 //
 
 #import "NSControl+RACCommandSupport.h"
+#import "NSControl+RACTextSignalSupport.h"
 #import "RACCommand.h"
 
 SpecBegin(NSControlRACSupport)
@@ -57,6 +58,9 @@ describe(@"NSTextField", ^{
 		expect(window).notTo.beNil();
 
 		[window.contentView addSubview:field];
+
+		expect([window makeFirstResponder:field]).to.beTruthy();
+		expect(window.firstResponder).notTo.equal(window);
 	});
 
 	it(@"should bind the text field's enabledness to the command's canExecute", ^{
@@ -68,9 +72,6 @@ describe(@"NSTextField", ^{
 	});
 
 	it(@"should execute the text field's command when editing ends", ^{
-		expect([window makeFirstResponder:field]).to.beTruthy();
-		expect(window.firstResponder).notTo.equal(window);
-
 		RACCommand *command = [RACCommand command];
 
 		__block BOOL executed = NO;
@@ -84,6 +85,23 @@ describe(@"NSTextField", ^{
 		expect(window.firstResponder).to.equal(window);
 		
 		expect(executed).to.beTruthy();
+	});
+
+	it(@"should send changes on rac_textSignal", ^{
+		NSMutableArray *strings = [NSMutableArray array];
+		[field.rac_textSignal subscribeNext:^(NSString *str) {
+			[strings addObject:str];
+		}];
+
+		NSText *fieldEditor = (id)window.firstResponder;
+		expect(fieldEditor).to.beKindOf(NSText.class);
+
+		[fieldEditor insertText:@"f"];
+		[fieldEditor insertText:@"o"];
+		[fieldEditor insertText:@"b"];
+
+		NSArray *expected = @[ @"f", @"fo", @"fob" ];
+		expect(strings).to.equal(expected);
 	});
 });
 

@@ -201,6 +201,8 @@
 		D0A0B01516EAA3D100C47593 /* NSText+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D0A0B01316EAA3D100C47593 /* NSText+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D0A0B01616EAA3D100C47593 /* NSText+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D0A0B01416EAA3D100C47593 /* NSText+RACSignalSupport.m */; };
 		D0A0B01816EAA5CC00C47593 /* NSTextRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D0A0B01716EAA5CC00C47593 /* NSTextRACSupportSpec.m */; };
+		D0A0B03B16EAA9AC00C47593 /* NSControl+RACTextSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D0A0B03916EAA9AC00C47593 /* NSControl+RACTextSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D0A0B03C16EAA9AC00C47593 /* NSControl+RACTextSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D0A0B03A16EAA9AC00C47593 /* NSControl+RACTextSignalSupport.m */; };
 		D0C70EC616659333005AAD03 /* RACSubscriberExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C70EC516659333005AAD03 /* RACSubscriberExamples.m */; };
 		D0C70EC8166595AD005AAD03 /* RACSubscriberSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C70EC7166595AD005AAD03 /* RACSubscriberSpec.m */; };
 		D0C70F90164337A2007027B4 /* RACSequenceAdditionsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C70F8F164337A2007027B4 /* RACSequenceAdditionsSpec.m */; };
@@ -508,6 +510,8 @@
 		D0A0B01316EAA3D100C47593 /* NSText+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSText+RACSignalSupport.h"; sourceTree = "<group>"; };
 		D0A0B01416EAA3D100C47593 /* NSText+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSText+RACSignalSupport.m"; sourceTree = "<group>"; };
 		D0A0B01716EAA5CC00C47593 /* NSTextRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextRACSupportSpec.m; sourceTree = "<group>"; };
+		D0A0B03916EAA9AC00C47593 /* NSControl+RACTextSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSControl+RACTextSignalSupport.h"; sourceTree = "<group>"; };
+		D0A0B03A16EAA9AC00C47593 /* NSControl+RACTextSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSControl+RACTextSignalSupport.m"; sourceTree = "<group>"; };
 		D0C70EC416659333005AAD03 /* RACSubscriberExamples.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACSubscriberExamples.h; sourceTree = "<group>"; };
 		D0C70EC516659333005AAD03 /* RACSubscriberExamples.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSubscriberExamples.m; sourceTree = "<group>"; };
 		D0C70EC7166595AD005AAD03 /* RACSubscriberSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSubscriberSpec.m; sourceTree = "<group>"; };
@@ -837,6 +841,8 @@
 			children = (
 				882093E61501E6CB00796685 /* NSControl+RACCommandSupport.h */,
 				882093E71501E6CB00796685 /* NSControl+RACCommandSupport.m */,
+				D0A0B03916EAA9AC00C47593 /* NSControl+RACTextSignalSupport.h */,
+				D0A0B03A16EAA9AC00C47593 /* NSControl+RACTextSignalSupport.m */,
 				88F440D1153DADEA0097B4C3 /* NSObject+RACAppKitBindings.h */,
 				88F440D2153DADEA0097B4C3 /* NSObject+RACAppKitBindings.m */,
 				D0A0B01316EAA3D100C47593 /* NSText+RACSignalSupport.h */,
@@ -1093,6 +1099,7 @@
 				D077A16D169B740200057BB1 /* RACEvent.h in Headers */,
 				8837EA1616A5A33300FC3CDF /* RACKVOTrampoline.h in Headers */,
 				D0A0B01516EAA3D100C47593 /* NSText+RACSignalSupport.h in Headers */,
+				D0A0B03B16EAA9AC00C47593 /* NSControl+RACTextSignalSupport.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1398,6 +1405,7 @@
 				D077A16F169B740200057BB1 /* RACEvent.m in Sources */,
 				8837EA1816A5A33300FC3CDF /* RACKVOTrampoline.m in Sources */,
 				D0A0B01616EAA3D100C47593 /* NSText+RACSignalSupport.m in Sources */,
+				D0A0B03C16EAA9AC00C47593 /* NSControl+RACTextSignalSupport.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

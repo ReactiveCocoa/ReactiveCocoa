@@ -337,12 +337,10 @@ describe(@"-foldLeftWithStart:combine:", ^{
 });
 
 describe(@"-foldRightWithStart:combine:", ^{
-	__block BOOL headInvoked = NO;
-	__block BOOL tailInvoked = NO;
-	__block RACSequence *sequence;
-	
 	it(@"should be lazy", ^{
-		sequence = [RACSequence sequenceWithHeadBlock:^{
+		__block BOOL headInvoked = NO;
+		__block BOOL tailInvoked = NO;
+		RACSequence *sequence = [RACSequence sequenceWithHeadBlock:^{
 			headInvoked = YES;
 			return @0;
 		} tailBlock:^{
@@ -352,7 +350,7 @@ describe(@"-foldRightWithStart:combine:", ^{
 		
 		NSNumber *result = [sequence foldRightWithStart:@2 combine:^(NSNumber *first, RACSequence *rest) {
 			return first;
-        }];
+		}];
 		
 		expect(result).to.equal(@0);
 		expect(headInvoked).to.beTruthy();
@@ -360,7 +358,7 @@ describe(@"-foldRightWithStart:combine:", ^{
 	});
 	
 	it(@"should combine with start last", ^{
-		sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
+		RACSequence *sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
 		NSNumber *result = [sequence foldRightWithStart:@3 combine:^(NSNumber *first, RACSequence *rest) {
 			return rest.head;
 		}];
@@ -368,7 +366,7 @@ describe(@"-foldRightWithStart:combine:", ^{
 	});
 	
 	it(@"should be right associative", ^{
-		sequence = [[[RACSequence return:@1] concat:[RACSequence return:@2]] concat:[RACSequence return:@3]];
+		RACSequence *sequence = [[[RACSequence return:@1] concat:[RACSequence return:@2]] concat:[RACSequence return:@3]];
 		NSNumber *result = [sequence foldRightWithStart:@0 combine:^(NSNumber *first, RACSequence *rest) {
 			int difference = first.intValue - [rest.head intValue];
 			return @(difference);

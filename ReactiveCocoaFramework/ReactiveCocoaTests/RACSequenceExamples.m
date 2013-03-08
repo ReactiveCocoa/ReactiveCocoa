@@ -109,9 +109,9 @@ sharedExamplesFor(RACSequenceExamples, ^(NSDictionary *data) {
 	
 	it(@"should fold right", ^{
 		RACSequence *result = [sequence foldRightWithStart:[RACSequence empty] combine:^(id first, RACSequence *rest) {
-			return [[RACSequence return:first] concat:rest.head];
+			return [rest.head startWith:first];
 		}];
-	   expect(result.array).to.equal(values);
+		expect(result.array).to.equal(values);
 	});
 	
 	it(@"should fold left", ^{

@@ -97,9 +97,9 @@
 // combine - The block used to combine the accumulated value and the next head.
 //           The block is given the accumulated value and the value of the rest
 //           of the computation (result of the recursion). This is computed when
-//           you retrieve its value using rest.head. This allows you to prevent
-//           unnecessary computation by not accessing rest.head if you don't
-//           need to.
+//           you retrieve its value using `rest.head`. This allows you to
+//           prevent unnecessary computation by not accessing `rest.head` if you
+//           don't need to.
 //
 // Returns a reduced value.
 - (id)foldRightWithStart:(id)start combine:(id (^)(id first, RACSequence *rest))combine;

@@ -219,9 +219,8 @@
 
 	if (self.head == nil) return start;
 	
-	RACSequence *sequence = self;
 	RACSequence *rest = [RACSequence sequenceWithHeadBlock:^{
-		return [sequence.tail foldRightWithStart:start combine:combine];
+		return [self.tail foldRightWithStart:start combine:combine];
 	} tailBlock:nil];
 	
 	return combine(self.head, rest);
@@ -231,7 +230,7 @@
 	NSParameterAssert(block != NULL);
 	
 	NSNumber *result = [self foldLeftWithStart:@NO combine:^(NSNumber *accumulator, id value) {
-		return @(block(value) || accumulator.boolValue);
+		return @(accumulator.boolValue || block(value));
 	}];
 	
 	return result.boolValue;

@@ -1,26 +1,26 @@
 //
-//  NSButton+RACCommandSupport.m
+//  NSControl+RACCommandSupport.m
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 3/3/12.
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "NSButton+RACCommandSupport.h"
+#import "NSControl+RACCommandSupport.h"
 #import "RACCommand.h"
 
 #import <objc/runtime.h>
 
-static void * NSButtonRACCommandKey = &NSButtonRACCommandKey;
+static void * NSControlRACCommandKey = &NSControlRACCommandKey;
 
-@implementation NSButton (RACCommandSupport)
+@implementation NSControl (RACCommandSupport)
 
 - (RACCommand *)rac_command {
-	return objc_getAssociatedObject(self, NSButtonRACCommandKey);
+	return objc_getAssociatedObject(self, NSControlRACCommandKey);
 }
 
 - (void)setRac_command:(RACCommand *)command {
-	objc_setAssociatedObject(self, NSButtonRACCommandKey, command, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	objc_setAssociatedObject(self, NSControlRACCommandKey, command, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
 	[self unbind:NSEnabledBinding];
 	self.enabled = command != nil ? command.canExecute : YES;
@@ -36,7 +36,7 @@ static void * NSButtonRACCommandKey = &NSButtonRACCommandKey;
 	SEL hijackSelector = @selector(rac_commandPerformAction:);
 	if (self.target == self && self.action == hijackSelector) return;
 	
-	if (self.target != nil) NSLog(@"WARNING: -[NSButton rac_setCommand:] hijacks the button's existing target and action.");
+	if (self.target != nil) NSLog(@"WARNING: -[NSControl rac_setCommand:] hijacks the control's existing target and action.");
 	
 	self.target = self;
 	self.action = hijackSelector;

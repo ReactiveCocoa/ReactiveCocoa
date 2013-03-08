@@ -734,6 +734,10 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 
 		// Log the error if we're running with assertions disabled.
 		NSLog(@"Received error from %@ in binding for key path \"%@\" on %@: %@", self, keyPath, object, error);
+
+		[disposable dispose];
+	} completed:^{
+		[disposable dispose];
 	}];
 
 	if (subscriptionDisposable != nil) [disposable addDisposable:subscriptionDisposable];

@@ -25,6 +25,7 @@
 #import "RACUnit.h"
 #import "RACMulticastConnection+Private.h"
 #import "RACReplaySubject.h"
+#import "RACCommand.h"
 #import <libkern/OSAtomic.h>
 #import <objc/runtime.h>
 
@@ -1364,6 +1365,14 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 
 		return @(!value.boolValue);
 	}] setNameWithFormat:@"[%@] -not", self.name];
+}
+
+- (RACDisposable *)executeCommand:(RACCommand *)command {
+	NSParameterAssert(command != nil);
+
+	return [self subscribeNext:^(id x) {
+		[command execute:x];
+	}];
 }
 
 @end

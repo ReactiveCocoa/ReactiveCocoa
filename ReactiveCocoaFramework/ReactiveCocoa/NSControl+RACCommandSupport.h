@@ -10,7 +10,6 @@
 
 @class RACCommand;
 
-
 @interface NSControl (RACCommandSupport)
 
 // Sets the control's command. When the control is clicked, the command is

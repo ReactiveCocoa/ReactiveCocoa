@@ -36,7 +36,7 @@ static void * NSControlRACCommandKey = &NSControlRACCommandKey;
 	SEL hijackSelector = @selector(rac_commandPerformAction:);
 	if (self.target == self && self.action == hijackSelector) return;
 	
-	if (self.target != nil) NSLog(@"WARNING: -[NSControl rac_setCommand:] hijacks the control's existing target and action.");
+	if (self.target != nil) NSLog(@"WARNING: NSControl.rac_command hijacks the control's existing target and action.");
 	
 	self.target = self;
 	self.action = hijackSelector;

@@ -2452,7 +2452,7 @@ describe(@"-not", ^{
 	});
 });
 
-describe(@"-execute:", ^{
+describe(@"-executeCommand:", ^{
 	it(@"should execute the command with each next", ^{
 		RACCommand *command = [RACCommand command];
 
@@ -2461,7 +2461,7 @@ describe(@"-execute:", ^{
 			value = x;
 		}];
 
-		[[RACSignal return:@1] execute:command];
+		[[RACSignal return:@1] executeCommand:command];
 
 		expect(value).to.equal(@1);
 	});

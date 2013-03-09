@@ -423,6 +423,6 @@ extern const NSInteger RACSignalErrorTimedOut;
 // command - The command to execute. Cannot be nil.
 //
 // Returns the disposable for the underlying subscription.
-- (RACDisposable *)execute:(RACCommand *)command;
+- (RACDisposable *)executeCommand:(RACCommand *)command;
 
 @end

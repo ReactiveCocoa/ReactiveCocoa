@@ -1367,7 +1367,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	}] setNameWithFormat:@"[%@] -not", self.name];
 }
 
-- (RACDisposable *)execute:(RACCommand *)command {
+- (RACDisposable *)executeCommand:(RACCommand *)command {
 	NSParameterAssert(command != nil);
 
 	return [self subscribeNext:^(id x) {

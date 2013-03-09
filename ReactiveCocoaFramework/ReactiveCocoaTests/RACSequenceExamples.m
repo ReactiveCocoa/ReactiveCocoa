@@ -106,6 +106,20 @@ sharedExamplesFor(RACSequenceExamples, ^(NSDictionary *data) {
 		RACSequence *unarchived = [NSKeyedUnarchiver unarchiveObjectWithData:data];
 		expect(unarchived).to.equal(sequence);
 	});
+	
+	it(@"should fold right", ^{
+		RACSequence *result = [sequence foldRightWithStart:[RACSequence empty] combine:^(id first, RACSequence *rest) {
+			return [rest.head startWith:first];
+		}];
+		expect(result.array).to.equal(values);
+	});
+	
+	it(@"should fold left", ^{
+		RACSequence *result = [sequence foldLeftWithStart:[RACSequence empty] combine:^(RACSequence *first, id rest) {
+			return [first concat:[RACSequence return:rest]];
+		}];
+		expect(result.array).to.equal(values);
+	});
 });
 
 SharedExampleGroupsEnd

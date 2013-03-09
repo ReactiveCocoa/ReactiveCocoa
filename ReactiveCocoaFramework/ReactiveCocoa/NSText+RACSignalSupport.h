@@ -12,8 +12,8 @@
 
 @interface NSText (RACSignalSupport)
 
-// Returns a signal which sends the `string` of the receiver each time it
-// changes.
+// Returns a signal which current `string` of the receiver, then the new
+// value any time it changes.
 - (RACSignal *)rac_textSignal;
 
 @end

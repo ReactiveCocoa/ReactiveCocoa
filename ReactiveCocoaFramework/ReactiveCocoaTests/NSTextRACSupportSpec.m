@@ -20,11 +20,13 @@ it(@"NSTextView should send changes on rac_textSignal", ^{
 		[strings addObject:str];
 	}];
 
+	expect(strings).to.equal(@[ @"" ]);
+
 	[textView insertText:@"f"];
 	[textView insertText:@"o"];
 	[textView insertText:@"b"];
 
-	NSArray *expected = @[ @"f", @"fo", @"fob" ];
+	NSArray *expected = @[ @"", @"f", @"fo", @"fob" ];
 	expect(strings).to.equal(expected);
 });
 

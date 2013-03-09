@@ -17,8 +17,8 @@
 // Using this method on a control without editable text is considered undefined
 // behavior.
 //
-// Returns a signal which sends the string value of the receiver each time it
-// changes.
+// Returns a signal which current string value of the receiver, then the new
+// value any time it changes.
 - (RACSignal *)rac_textSignal;
 
 @end

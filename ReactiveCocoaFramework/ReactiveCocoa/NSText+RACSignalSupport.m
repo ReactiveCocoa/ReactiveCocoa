@@ -16,7 +16,7 @@
 
 - (RACSignal *)rac_textSignal {
 	@unsafeify(self);
-	return [[[RACSignal
+	return [[[[RACSignal
 		createSignal:^(id<RACSubscriber> subscriber) {
 			@strongify(self);
 			id observer = [NSNotificationCenter.defaultCenter addObserverForName:NSTextDidChangeNotification object:self queue:nil usingBlock:^(NSNotification *note) {
@@ -27,6 +27,7 @@
 				[NSNotificationCenter.defaultCenter removeObserver:observer];
 			}];
 		}]
+		startWith:self]
 		map:^(NSText *text) {
 			return [text.string copy];
 		}]

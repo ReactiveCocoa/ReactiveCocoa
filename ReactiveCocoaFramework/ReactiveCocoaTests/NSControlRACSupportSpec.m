@@ -93,6 +93,8 @@ describe(@"NSTextField", ^{
 			[strings addObject:str];
 		}];
 
+		expect(strings).to.equal(@[ @"" ]);
+
 		NSText *fieldEditor = (id)window.firstResponder;
 		expect(fieldEditor).to.beKindOf(NSText.class);
 
@@ -100,7 +102,7 @@ describe(@"NSTextField", ^{
 		[fieldEditor insertText:@"o"];
 		[fieldEditor insertText:@"b"];
 
-		NSArray *expected = @[ @"f", @"fo", @"fob" ];
+		NSArray *expected = @[ @"", @"f", @"fo", @"fob" ];
 		expect(strings).to.equal(expected);
 	});
 });

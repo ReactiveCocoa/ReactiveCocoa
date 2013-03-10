@@ -187,7 +187,7 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 // Returns a stream of the first `count` values in the receiver. If `count` is
 // greater than or equal to the number of values in the stream, a stream
 // equivalent to the receiver is returned.
-- (instancetype)take:(NSUInteger)count;
+- (instancetype)streamWithObjectsUntilIndex:(NSUInteger)count;
 
 // Invokes the given `block` for each value in the receiver.
 //
@@ -198,7 +198,7 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 //
 // Returns a new stream which represents the combined result of all invocations
 // of `block`.
-- (instancetype)sequenceMany:(RACStream * (^)(void))block;
+- (instancetype)streamByCombiningStreamsWithIterationBlock:(RACStream * (^)(void))block;
 
 // Zips the values in the given streams to create RACTuples.
 //
@@ -211,7 +211,7 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 //
 // Returns a new stream containing RACTuples of the zipped values from the
 // streams.
-+ (instancetype)zip:(id<NSFastEnumeration>)streams;
++ (instancetype)streamByZippingAndCombiningStreams:(id<NSFastEnumeration>)streams;
 
 // Zips streams using +zip:, then reduces the resulting tuples into a single
 // value using -reduceEach:
@@ -232,7 +232,8 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 //
 // Returns a new stream containing the results from each invocation of
 // `reduceBlock`.
-+ (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id)reduceBlock;
++ (instancetype)streamByZippingStreams:(id<NSFastEnumeration>)streams
+andReducingObjectsWithIterationHandler:(id)reduceBlock;
 
 // Returns a stream obtained by concatenating `streams` in order.
 + (instancetype)streamByAppendingStreams:(id<NSFastEnumeration>)streams;
@@ -256,7 +257,8 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 //
 // Returns a new stream that consists of each application of `block`. If the
 // receiver is empty, an empty stream is returned.
-- (instancetype)scanWithStart:(id)startingValue combine:(id (^)(id running, id next))block;
+- (instancetype)scanWithStart:(id)startingValue
+					  combine:(id (^)(id running, id next))block;
 
 // Takes values until the given block returns `YES`.
 //

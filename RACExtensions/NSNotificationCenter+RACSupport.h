@@ -12,6 +12,7 @@
 @interface NSNotificationCenter (RACSupport)
 
 // Sends the NSNotification every time the notification is posted.
-- (RACSignal *)rac_addObserverForName:(NSString *)notificationName object:(id)object;
+- (RACSignal *)rac_addObserverForName:(NSString *)notificationName
+							   object:(id)object;
 
 @end

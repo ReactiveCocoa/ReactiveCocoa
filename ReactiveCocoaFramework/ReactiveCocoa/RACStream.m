@@ -157,7 +157,7 @@
 	}] setNameWithFormat:@"[%@] -skip: %lu", self.name, (unsigned long)skipCount];
 }
 
-- (instancetype)take:(NSUInteger)count {
+- (instancetype)streamWithObjectsUntilIndex:(NSUInteger)count {
 	Class class = self.class;
 	
 	return [[self bind:^{
@@ -174,7 +174,7 @@
 	}] setNameWithFormat:@"[%@] -take: %lu", self.name, (unsigned long)count];
 }
 
-- (instancetype)sequenceMany:(RACStream * (^)(void))block {
+- (instancetype)streamByCombiningStreamsWithIterationBlock:(RACStream * (^)(void))block {
 	NSParameterAssert(block != NULL);
 
 	return [[self streamByCombiningStreamsFromSignalHandler:^(id _) {
@@ -182,7 +182,7 @@
 	}] setNameWithFormat:@"[%@] -sequenceMany:", self.name];
 }
 
-+ (instancetype)zip:(id<NSFastEnumeration>)streams {
++ (instancetype)streamByZippingAndCombiningStreams:(id<NSFastEnumeration>)streams {
 	RACStream *current = nil;
 
 	// Creates streams of successively larger tuples by combining the input
@@ -225,10 +225,11 @@
 	return [current setNameWithFormat:@"+zip: %@", streams];
 }
 
-+ (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id)reduceBlock {
++ (instancetype)streamByZippingStreams:(id<NSFastEnumeration>)streams
+andReducingObjectsWithIterationHandler:(id)reduceBlock {
 	NSParameterAssert(reduceBlock != nil);
 
-	RACStream *result = [self zip:streams];
+	RACStream *result = [self streamByZippingAndCombiningStreams:streams];
 
 	// Although we assert this condition above, older versions of this method
 	// supported this argument being nil. Avoid crashing Release builds of
@@ -247,7 +248,8 @@
 	return [result setNameWithFormat:@"+concat: %@", streams];
 }
 
-- (instancetype)scanWithStart:(id)startingValue combine:(id (^)(id running, id next))block {
+- (instancetype)scanWithStart:(id)startingValue
+					  combine:(id (^)(id running, id next))block {
 	NSParameterAssert(block != nil);
 
 	Class class = self.class;

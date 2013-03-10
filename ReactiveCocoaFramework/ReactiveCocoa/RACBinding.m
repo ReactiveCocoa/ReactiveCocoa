@@ -74,7 +74,7 @@
 	return self;
 }
 
-- (RACDisposable *)bindTo:(RACBinding *)binding {
+- (RACDisposable *)disposableWithBinding:(RACBinding *)binding {
 	RACDisposable *bindingDisposable = [binding subscribe:self];
 	RACDisposable *selfDisposable = [[self streamByRemovingObjectsBeforeIndex:1] subscribe:binding];
 	return [RACDisposable disposableWithBlock:^{

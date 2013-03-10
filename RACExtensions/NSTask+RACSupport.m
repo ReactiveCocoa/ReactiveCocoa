@@ -48,7 +48,7 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 - (RACSignal *)rac_completion {
 	return [[[[NSNotificationCenter.defaultCenter rac_addObserverForName:NSTaskDidTerminateNotification object:self]
 		any]
-		mapReplace:RACUnit.defaultUnit]
+		streamByReplacingValuesWithObject:RACUnit.defaultUnit]
 		setNameWithFormat:@"%@ -rac_completion", self];
 }
 
@@ -106,7 +106,7 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 
 				if (self.terminationStatus == 0) {
 					[subject didUpdateWithNewValue:outputData];
-					[subject sendCompleted];
+					[subject terminateSubscription];
 				} else {
 					NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
 					if (outputData != nil) {
@@ -126,7 +126,7 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 					if (self.arguments != nil) userInfo[NSTaskRACSupportTaskArguments] = self.arguments;
 
 					userInfo[NSTaskRACSupportTask] = self;
-					[subject sendError:[NSError errorWithDomain:NSTaskRACSupportErrorDomain code:NSTaskRACSupportNonZeroTerminationStatus userInfo:userInfo]];
+					[subject didReceiveErrorWithError:[NSError errorWithDomain:NSTaskRACSupportErrorDomain code:NSTaskRACSupportNonZeroTerminationStatus userInfo:userInfo]];
 				}
 			}];
 		}];

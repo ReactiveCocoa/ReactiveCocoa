@@ -76,7 +76,7 @@ describe(@"+mainThreadScheduler", ^{
 	it(@"should schedule future blocks", ^{
 		__block BOOL done = NO;
 
-		[RACScheduler.mainThreadScheduler after:DISPATCH_TIME_NOW schedule:^{
+		[RACScheduler.mainThreadScheduler disposableWithDelay:DISPATCH_TIME_NOW andBlock:^{
 			done = YES;
 		}];
 
@@ -88,13 +88,13 @@ describe(@"+mainThreadScheduler", ^{
 		__block BOOL firstBlockRan = NO;
 		__block BOOL secondBlockRan = NO;
 
-		RACDisposable *disposable = [RACScheduler.mainThreadScheduler after:DISPATCH_TIME_NOW schedule:^{
+		RACDisposable *disposable = [RACScheduler.mainThreadScheduler disposableWithDelay:DISPATCH_TIME_NOW andBlock:^{
 			firstBlockRan = YES;
 		}];
 
 		expect(disposable).notTo.beNil();
 
-		[RACScheduler.mainThreadScheduler after:DISPATCH_TIME_NOW schedule:^{
+		[RACScheduler.mainThreadScheduler disposableWithDelay:DISPATCH_TIME_NOW andBlock:^{
 			secondBlockRan = YES;
 		}];
 
@@ -145,7 +145,7 @@ describe(@"+scheduler", ^{
 	it(@"should schedule future blocks", ^{
 		__block BOOL done = NO;
 
-		[scheduler after:futureTime() schedule:^{
+		[scheduler disposableWithDelay:futureTime() andBlock:^{
 			done = YES;
 		}];
 
@@ -159,14 +159,14 @@ describe(@"+scheduler", ^{
 
 		dispatch_time_t time = futureTime();
 
-		RACDisposable *disposable = [scheduler after:time schedule:^{
+		RACDisposable *disposable = [scheduler disposableWithDelay:time andBlock:^{
 			firstBlockRan = YES;
 		}];
 
 		expect(disposable).notTo.beNil();
 		[disposable dispose];
 
-		[scheduler after:time schedule:^{
+		[scheduler disposableWithDelay:time andBlock:^{
 			secondBlockRan = YES;
 		}];
 
@@ -247,7 +247,7 @@ describe(@"+immediateScheduler", ^{
 
 	it(@"should block for future scheduled blocks", ^{
 		__block BOOL executed = NO;
-		RACDisposable *disposable = [RACScheduler.immediateScheduler after:dispatch_time(DISPATCH_TIME_NOW, 1000) schedule:^{
+		RACDisposable *disposable = [RACScheduler.immediateScheduler disposableWithDelay:dispatch_time(DISPATCH_TIME_NOW, 1000) andBlock:^{
 			executed = YES;
 		}];
 
@@ -260,7 +260,7 @@ describe(@"-scheduleRecursiveBlock:", ^{
 	describe(@"with a synchronous scheduler", ^{
 		it(@"should behave like a normal block when it doesn't invoke itself", ^{
 			__block BOOL executed = NO;
-			[RACScheduler.immediateScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
+			[RACScheduler.immediateScheduler disposableWithScheduledRecursiveBlock:^(void (^recurse)(void)) {
 				expect(executed).to.beFalsy();
 				executed = YES;
 			}];
@@ -270,7 +270,7 @@ describe(@"-scheduleRecursiveBlock:", ^{
 
 		it(@"should reschedule itself after the caller completes", ^{
 			__block NSUInteger count = 0;
-			[RACScheduler.immediateScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
+			[RACScheduler.immediateScheduler disposableWithScheduledRecursiveBlock:^(void (^recurse)(void)) {
 				NSUInteger thisCount = ++count;
 				if (thisCount < 3) {
 					recurse();
@@ -288,7 +288,7 @@ describe(@"-scheduleRecursiveBlock:", ^{
 	describe(@"with an asynchronous scheduler", ^{
 		it(@"should behave like a normal block when it doesn't invoke itself", ^{
 			__block BOOL executed = NO;
-			[RACScheduler.mainThreadScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
+			[RACScheduler.mainThreadScheduler disposableWithScheduledRecursiveBlock:^(void (^recurse)(void)) {
 				expect(executed).to.beFalsy();
 				executed = YES;
 			}];
@@ -298,7 +298,7 @@ describe(@"-scheduleRecursiveBlock:", ^{
 
 		it(@"should reschedule itself after the caller completes", ^{
 			__block NSUInteger count = 0;
-			[RACScheduler.mainThreadScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
+			[RACScheduler.mainThreadScheduler disposableWithScheduledRecursiveBlock:^(void (^recurse)(void)) {
 				NSUInteger thisCount = ++count;
 				if (thisCount < 3) {
 					recurse();
@@ -314,7 +314,7 @@ describe(@"-scheduleRecursiveBlock:", ^{
 
 		it(@"shouldn't reschedule itself when disposed", ^{
 			__block NSUInteger count = 0;
-			__block RACDisposable *disposable = [RACScheduler.mainThreadScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
+			__block RACDisposable *disposable = [RACScheduler.mainThreadScheduler disposableWithScheduledRecursiveBlock:^(void (^recurse)(void)) {
 				++count;
 
 				expect(disposable).notTo.beNil();

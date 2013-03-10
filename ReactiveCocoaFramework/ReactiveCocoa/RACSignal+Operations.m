@@ -75,7 +75,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	recursiveBlock(^{
 		RACScheduler *recursiveScheduler = RACScheduler.currentScheduler ?: [RACScheduler scheduler];
 
-		RACDisposable *schedulingDisposable = [recursiveScheduler scheduleRecursiveBlock:recursiveBlock];
+		RACDisposable *schedulingDisposable = [recursiveScheduler disposableWithScheduledRecursiveBlock:recursiveBlock];
 		if (schedulingDisposable != nil) [compoundDisposable addDisposable:schedulingDisposable];
 	});
 
@@ -176,7 +176,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 			dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(interval * NSEC_PER_SEC));
 			RACScheduler *delayScheduler = RACScheduler.currentScheduler ?: scheduler;
 
-			RACDisposable *nextDisposable = [delayScheduler after:time schedule:^{
+			RACDisposable *nextDisposable = [delayScheduler disposableWithDelay:time andBlock:^{
 				[subscriber didUpdateWithNewValue:x];
 			}];
 
@@ -216,7 +216,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 			dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(interval * NSEC_PER_SEC));
 			RACScheduler *delayScheduler = RACScheduler.currentScheduler ?: scheduler;
 
-			RACDisposable *schedulerDisposable = [delayScheduler after:time schedule:block];
+			RACDisposable *schedulerDisposable = [delayScheduler disposableWithDelay:time andBlock:block];
 			if (schedulerDisposable != nil) [disposable addDisposable:schedulerDisposable];
 		};
 
@@ -393,7 +393,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 
 		__block RACDisposable *innerDisposable = nil;
 		RACDisposable *outerDisposable = [[self windowWithStart:self close:^(RACSignal *start) {
-			return [[[RACSignal interval:interval] take:1] doNext:^(id x) {
+			return [[[RACSignal interval:interval] streamWithObjectsUntilIndex:1] doNext:^(id x) {
 				[subscriber didUpdateWithNewValue:[RACTuple tupleWithObjectsFromArray:values convertNullsToNils:NO]];
 				[values removeAllObjects];
 			}];
@@ -922,7 +922,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	__block NSError *localError;
 	__block BOOL localSuccess;
 
-	[[self take:1] subscribeNext:^(id x) {
+	[[self streamWithObjectsUntilIndex:1] subscribeNext:^(id x) {
 		[condition lock];
 
 		value = x;
@@ -1074,7 +1074,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 
-		RACDisposable *timeoutDisposable = [[[RACSignal interval:interval] take:1] subscribeNext:^(id _) {
+		RACDisposable *timeoutDisposable = [[[RACSignal interval:interval] streamWithObjectsUntilIndex:1] subscribeNext:^(id _) {
 			[disposable dispose];
 			[subscriber didReceiveErrorWithError:[NSError errorWithDomain:RACSignalErrorDomain code:RACSignalErrorTimedOut userInfo:nil]];
 		}];

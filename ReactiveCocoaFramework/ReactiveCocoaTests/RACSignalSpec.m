@@ -567,7 +567,7 @@ describe(@"continuation", ^{
 		NSMutableArray *values = [NSMutableArray array];
 
 		__block BOOL completed = NO;
-		[[[signal repeat] take:1] subscribeNext:^(id x) {
+		[[[signal repeat] streamWithObjectsUntilIndex:1] subscribeNext:^(id x) {
 			[values addObject:x];
 		} completed:^{
 			completed = YES;
@@ -1601,7 +1601,7 @@ describe(@"+interval: and +interval:withLeeway:", ^{
 		testTimer = [^(RACSignal *timer, RACScheduler *scheduler, NSNumber *minInterval, NSNumber *leeway) {
 			__block NSUInteger nextsReceived = 0;
 			[scheduler schedule:^{
-				RACSignal *finalSignal = [[timer take:3] deliverOn:RACScheduler.mainThreadScheduler];
+				RACSignal *finalSignal = [[timer streamWithObjectsUntilIndex:3] deliverOn:RACScheduler.mainThreadScheduler];
 
 				NSTimeInterval startTime = NSDate.timeIntervalSinceReferenceDate;
 				[finalSignal subscribeNext:^(NSDate *date) {
@@ -1703,7 +1703,7 @@ describe(@"-timeout:", ^{
 		}];
 
 		__block BOOL done = NO;
-		[[[RACSignal interval:0.1] take:1] subscribeNext:^(id _) {
+		[[[RACSignal interval:0.1] streamWithObjectsUntilIndex:1] subscribeNext:^(id _) {
 			done = YES;
 		}];
 
@@ -1764,7 +1764,7 @@ describe(@"-delay:", ^{
 		[subject didUpdateWithNewValue:@"foo"];
 
 		__block BOOL done = NO;
-		[RACScheduler.mainThreadScheduler after:dispatch_time(DISPATCH_TIME_NOW, 1) schedule:^{
+		[RACScheduler.mainThreadScheduler disposableWithDelay:dispatch_time(DISPATCH_TIME_NOW, 1) andBlock:^{
 			done = YES;
 		}];
 
@@ -1833,7 +1833,7 @@ describe(@"-throttle:", ^{
 		[subject didUpdateWithNewValue:@"foo"];
 
 		__block BOOL done = NO;
-		[RACScheduler.mainThreadScheduler after:dispatch_time(DISPATCH_TIME_NOW, 1) schedule:^{
+		[RACScheduler.mainThreadScheduler disposableWithDelay:dispatch_time(DISPATCH_TIME_NOW, 1) andBlock:^{
 			done = YES;
 		}];
 
@@ -1907,7 +1907,7 @@ it(@"should complete take: even if the original signal doesn't", ^{
 
 	__block id value = nil;
 	__block BOOL completed = NO;
-	[[sendOne take:1] subscribeNext:^(id received) {
+	[[sendOne streamWithObjectsUntilIndex:1] subscribeNext:^(id received) {
 		value = received;
 	} completed:^{
 		completed = YES;
@@ -1955,7 +1955,7 @@ describe(@"+zip:", ^{
 		subject2 = [RACSubject subject];
 		hasSentError = NO;
 		hasSentCompleted = NO;
-		disposable = [[RACSignal zip:@[ subject1, subject2 ]] subscribeError:^(NSError *error) {
+		disposable = [[RACSignal streamByZippingAndCombiningStreams:@[ subject1, subject2 ]] subscribeError:^(NSError *error) {
 			hasSentError = YES;
 		} completed:^{
 			hasSentCompleted = YES;
@@ -2023,7 +2023,7 @@ describe(@"+zip:", ^{
 		NSMutableArray *receivedValues = NSMutableArray.array;
 		NSArray *expectedValues = nil;
 		
-		[[RACSignal zip:@[ a, b, c ] reduce:^(NSNumber *a, NSNumber *b, NSNumber *c) {
+		[[RACSignal streamByZippingStreams:@[ a, b, c ] andReducingObjectsWithIterationHandler:^(NSNumber *a, NSNumber *b, NSNumber *c) {
 			return [NSString stringWithFormat:@"%@%@%@", a, b, c];
 		}] subscribeNext:^(id x) {
 			[receivedValues addObject:x];
@@ -2102,7 +2102,7 @@ describe(@"+zip:", ^{
 			[subscriber terminateSubscription];
 			return nil;
 		}];
-		RACSignal *combined = [RACSignal zip:@[ sideEffectingSignal, sideEffectingSignal ] reduce:^ NSString * (id x, id y) {
+		RACSignal *combined = [RACSignal streamByZippingStreams:@[ sideEffectingSignal, sideEffectingSignal ] andReducingObjectsWithIterationHandler:^ NSString * (id x, id y) {
 			return [NSString stringWithFormat:@"%@%@", x, y];
 		}];
 		NSMutableArray *receivedValues = NSMutableArray.array;

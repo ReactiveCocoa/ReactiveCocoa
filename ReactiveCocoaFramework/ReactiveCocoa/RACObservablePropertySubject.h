@@ -41,7 +41,8 @@
 
 // Returns a new RACPropertySubject wrapper for `keyPath` on `target` with a
 // starting value equal to the value of `keyPath` on `target`.
-+ (instancetype)propertyWithTarget:(id)target keyPath:(NSString *)keyPath;
++ (instancetype)propertyWithTarget:(id)target
+						   keyPath:(NSString *)keyPath;
 
 @end
 
@@ -49,6 +50,7 @@
 @interface RACObservablePropertySubject (RACBind)
 
 - (id)objectForKeyedSubscript:(id)key;
-- (void)setObject:(id)obj forKeyedSubscript:(id)key;
+- (void)setObject:(id)obj
+forKeyedSubscript:(id)key;
 
 @end

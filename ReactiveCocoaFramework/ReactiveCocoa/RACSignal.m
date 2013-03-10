@@ -502,7 +502,7 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 	__block BOOL localSuccess = YES;
 
 	[[[[self
-		take:1]
+		streamWithObjectsUntilIndex:1]
 		timeout:RACSignalAsynchronousWaitTimeout]
 		deliverOn:RACScheduler.mainThreadScheduler]
 		subscribeNext:^(id x) {

@@ -17,7 +17,8 @@
     NSMutableSet *trampolines;
 }
 
-+ (instancetype)proxyWithProtocol:(Protocol *)protocol andDelegator:(NSObject *)delegator;
++ (instancetype)proxyWithProtocol:(Protocol *)protocol
+					 andDelegator:(NSObject *)delegator;
 - (void)addTrampoline:(RACEventTrampoline *)trampoline;
 
 @property (nonatomic, strong) Protocol *protocol;

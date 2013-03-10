@@ -24,6 +24,7 @@
 //              property is changed. The first element will be the new value,
 //              the second element will be the binding that triggered the change
 //              or nil if the change was triggered by the property itself.
-- (instancetype)initWithSignal:(RACSignal *)signal subscriber:(id<RACSubscriber>)subscriber;
+- (instancetype)initWithSignal:(RACSignal *)signal
+					subscriber:(id<RACSubscriber>)subscriber;
 
 @end

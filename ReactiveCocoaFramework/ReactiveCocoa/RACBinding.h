@@ -26,6 +26,6 @@
 // receiver's current value will be discarded.
 //
 // Returns a disposable that can be used to stop the binding.
-- (RACDisposable *)bindTo:(RACBinding *)binding;
+- (RACDisposable *)disposableWithBinding:(RACBinding *)binding;
 
 @end

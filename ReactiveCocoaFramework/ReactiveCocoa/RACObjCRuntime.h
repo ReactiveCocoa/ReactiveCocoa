@@ -11,8 +11,12 @@
 
 @interface RACObjCRuntime : NSObject
 
-+ (void)findMethod:(SEL)method inProtocol:(Protocol *)protocol outMethod:(struct objc_method_description *)outMethod;
-+ (const char *)getMethodTypesForMethod:(SEL)method inProtocol:(Protocol *)protocol;
-+ (BOOL)method:(SEL)method existsInProtocol:(Protocol *)protocol;
++ (void)findMethod:(SEL)method
+		inProtocol:(Protocol *)protocol
+		 outMethod:(struct objc_method_description *)outMethod;
++ (const char *)getMethodTypesForMethod:(SEL)method
+							 inProtocol:(Protocol *)protocol;
++ (BOOL)  method:(SEL)method
+existsInProtocol:(Protocol *)protocol;
 
 @end

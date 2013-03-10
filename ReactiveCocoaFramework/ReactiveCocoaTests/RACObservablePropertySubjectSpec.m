@@ -56,13 +56,13 @@ describe(@"RACObservablePropertySubject", ^{
 	
 	it(@"should send the object's current value when subscribed to", ^{
 		__block id receivedValue = @"received value should not be this";
-		[[property take:1] subscribeNext:^(id x) {
+		[[property streamWithObjectsUntilIndex:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
 		expect(receivedValue).to.beNil();
 		
 		object.name = value1;
-		[[property take:1] subscribeNext:^(id x) {
+		[[property streamWithObjectsUntilIndex:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
 		expect(receivedValue).to.equal(value1);
@@ -226,7 +226,7 @@ describe(@"RACObservablePropertySubject bindings", ^{
 	});
 	
 	it(@"should stop binding when disposed", ^{
-		RACDisposable *disposable = [RACBind(a, name) bindTo:RACBind(b, name)];
+		RACDisposable *disposable = [RACBind(a, name) disposableWithBinding:RACBind(b, name)];
 		a.name = testName1;
 		expect(a.name).to.equal(testName1);
 		expect(b.name).to.equal(testName1);

@@ -69,7 +69,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 	});
 
 	it(@"should flatten", ^{
-		RACStream *stream = [[streamClass return:[streamClass return:RACUnit.defaultUnit]] flatten];
+		RACStream *stream = [[streamClass return:[streamClass return:RACUnit.defaultUnit]] flattened];
 		verifyValues(stream, @[ RACUnit.defaultUnit ]);
 	});
 
@@ -174,7 +174,8 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			// Just so +zip:reduce: thinks this is a unique stream.
 			RACStream *anotherStream = [[streamClass empty] streamByAppendingStream:countingStream];
 
-			RACStream *zipped = [streamClass zip:@[ countingStream, anotherStream ] reduce:^(NSNumber *v1, NSNumber *v2) {
+			RACStream *zipped = [streamClass streamByZippingStreams:@[ countingStream, anotherStream ]
+							 andReducingObjectsWithIterationHandler:^(NSNumber *v1, NSNumber *v2) {
 				return @(v1.integerValue + v2.integerValue);
 			}];
 
@@ -217,7 +218,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 
 	describe(@"-sequenceMany:", ^{
 		it(@"should return the result of sequencing a single value", ^{
-			RACStream *stream = [[streamClass return:@0] sequenceMany:^{
+			RACStream *stream = [[streamClass return:@0] streamByCombiningStreamsWithIterationBlock:^{
 				return [streamClass return:@10];
 			}];
 
@@ -228,7 +229,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			RACStream *baseStream = streamWithValues(@[ @0, @1 ]);
 
 			__block NSUInteger value = 10;
-			RACStream *stream = [baseStream sequenceMany:^{
+			RACStream *stream = [baseStream streamByCombiningStreamsWithIterationBlock:^{
 				return [streamClass return:@(value++)];
 			}];
 
@@ -247,7 +248,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 
 	it(@"should map and replace", ^{
 		RACStream *baseStream = streamWithValues(@[ @0, @1, @2 ]);
-		RACStream *stream = [baseStream mapReplace:RACUnit.defaultUnit];
+		RACStream *stream = [baseStream streamByReplacingValuesWithObject:RACUnit.defaultUnit];
 
 		verifyValues(stream, @[ RACUnit.defaultUnit, RACUnit.defaultUnit, RACUnit.defaultUnit ]);
 	});
@@ -298,25 +299,25 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 
 			it(@"should take any valid number of values", ^{
 				for (NSUInteger i = 0; i < values.count; i++) {
-					verifyValues([stream take:i], [values subarrayWithRange:NSMakeRange(0, i)]);
+					verifyValues([stream streamWithObjectsUntilIndex:i], [values subarrayWithRange:NSMakeRange(0, i)]);
 				}
 			});
 
 			it(@"should return the same stream when taking too many values", ^{
-				verifyValues([stream take:4], values);
+				verifyValues([stream streamWithObjectsUntilIndex:4], values);
 			});
 		});
 
 		it(@"should take and terminate from an infinite stream", ^{
-			verifyValues([infiniteStream take:0], @[]);
-			verifyValues([infiniteStream take:1], @[ RACUnit.defaultUnit ]);
-			verifyValues([infiniteStream take:2], @[ RACUnit.defaultUnit, RACUnit.defaultUnit ]);
+			verifyValues([infiniteStream streamWithObjectsUntilIndex:0], @[]);
+			verifyValues([infiniteStream streamWithObjectsUntilIndex:1], @[ RACUnit.defaultUnit ]);
+			verifyValues([infiniteStream streamWithObjectsUntilIndex:2], @[ RACUnit.defaultUnit, RACUnit.defaultUnit ]);
 		});
 
 		it(@"should take and terminate from a single-item stream", ^{
 			NSArray *values = @[ RACUnit.defaultUnit ];
 			RACStream *stream = streamWithValues(values);
-			verifyValues([stream take:1], values);
+			verifyValues([stream streamWithObjectsUntilIndex:1], values);
 		});
 	});
   
@@ -398,7 +399,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		
 		describe(@"+zip:reduce:", ^{
 			it(@"should reduce values", ^{
-				RACStream *stream = [streamClass zip:threeStreams reduce:^ NSString * (id x, id y, id z) {
+				RACStream *stream = [streamClass streamByZippingStreams:threeStreams andReducingObjectsWithIterationHandler:^ NSString * (id x, id y, id z) {
 					return [NSString stringWithFormat:@"%@ %@ %@", x, y, z];
 				}];
 				verifyValues(stream, @[ @"Ada eats fish", @"Bob cooks bear", @"Dea jumps rock" ]);
@@ -407,7 +408,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			it(@"should truncate streams", ^{
 				RACStream *shortStream = streamWithValues(@[ @"now", @"later" ]);
 				NSArray *streams = [threeStreams arrayByAddingObject:shortStream];
-				RACStream *stream = [streamClass zip:streams reduce:^ NSString * (id w, id x, id y, id z) {
+				RACStream *stream = [streamClass streamByZippingStreams:streams andReducingObjectsWithIterationHandler:^ NSString * (id w, id x, id y, id z) {
 					return [NSString stringWithFormat:@"%@ %@ %@ %@", w, x, y, z];
 				}];
 				verifyValues(stream, @[ @"Ada eats fish now", @"Bob cooks bear later" ]);
@@ -415,7 +416,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			
 			it(@"should work on infinite streams", ^{
 				NSArray *streams = [threeStreams arrayByAddingObject:infiniteStream];
-				RACStream *stream = [streamClass zip:streams reduce:^ NSString * (id w, id x, id y, id z) {
+				RACStream *stream = [streamClass streamByZippingStreams:streams andReducingObjectsWithIterationHandler:^ NSString * (id w, id x, id y, id z) {
 					return [NSString stringWithFormat:@"%@ %@ %@", w, x, y];
 				}];
 				verifyValues(stream, @[ @"Ada eats fish", @"Bob cooks bear", @"Dea jumps rock" ]);
@@ -423,7 +424,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			
 			it(@"should handle multiples of the same stream", ^{
 				NSArray *streams = @[ streamOne, streamOne, streamTwo, streamThree, streamTwo, streamThree ];
-				RACStream *stream = [streamClass zip:streams reduce:^ NSString * (id x1, id x2, id y1, id z1, id y2, id z2) {
+				RACStream *stream = [streamClass streamByZippingStreams:streams andReducingObjectsWithIterationHandler:^ NSString * (id x1, id x2, id y1, id z1, id y2, id z2) {
 					return [NSString stringWithFormat:@"%@ %@ %@ %@ %@ %@", x1, x2, y1, z1, y2, z2];
 				}];
 				verifyValues(stream, @[ @"Ada Ada eats fish eats fish", @"Bob Bob cooks bear cooks bear", @"Dea Dea jumps rock jumps rock" ]);
@@ -432,27 +433,27 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		
 		describe(@"+zip:", ^{
 			it(@"should make a stream of tuples out of single value", ^{
-				RACStream *stream = [streamClass zip:@[ streamOne ]];
+				RACStream *stream = [streamClass streamByZippingAndCombiningStreams:@[ streamOne ]];
 				verifyValues(stream, oneStreamTuples);
 			});
 
 			it(@"should make a stream of tuples out of an array of streams", ^{
-				RACStream *stream = [streamClass zip:threeStreams];
+				RACStream *stream = [streamClass streamByZippingAndCombiningStreams:threeStreams];
 				verifyValues(stream, threeStreamTuples);
 			});
 
 			it(@"should make an empty stream if given an empty array", ^{
-				RACStream *stream = [streamClass zip:@[]];
+				RACStream *stream = [streamClass streamByZippingAndCombiningStreams:@[]];
 				verifyValues(stream, @[]);
 			});
 			
 			it(@"should make a stream of tuples out of an enumerator of streams", ^{
-				RACStream *stream = [streamClass zip:threeStreams.objectEnumerator];
+				RACStream *stream = [streamClass streamByZippingAndCombiningStreams:threeStreams.objectEnumerator];
 				verifyValues(stream, threeStreamTuples);
 			});
 			
 			it(@"should make an empty stream if given an empty enumerator", ^{
-				RACStream *stream = [streamClass zip:@[].objectEnumerator];
+				RACStream *stream = [streamClass streamByZippingAndCombiningStreams:@[].objectEnumerator];
 				verifyValues(stream, @[]);
 			});
 		});
@@ -476,12 +477,12 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 		
 		it(@"should concatenate an array of streams", ^{
-			RACStream *stream = [streamClass concat:streams];
+			RACStream *stream = [streamClass streamByAppendingStreams:streams];
 			verifyValues(stream, result);
 		});
 		
 		it(@"should concatenate an enumerator of streams", ^{
-			RACStream *stream = [streamClass concat:streams.objectEnumerator];
+			RACStream *stream = [streamClass streamByAppendingStreams:streams.objectEnumerator];
 			verifyValues(stream, result);
 		});
 	});

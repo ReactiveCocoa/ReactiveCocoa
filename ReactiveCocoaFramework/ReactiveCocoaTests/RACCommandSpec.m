@@ -218,7 +218,7 @@ describe(@"canExecute property", ^{
 		command.allowsConcurrentExecution = YES;
 
 		// Prevent infinite recursion by only responding to the first value.
-		[[command take:1] subscribeNext:^(id _) {
+		[[command streamWithObjectsUntilIndex:1] subscribeNext:^(id _) {
 			expect(command.executing).to.beTruthy();
 			expect(command.canExecute).to.beTruthy();
 			expect([command execute:nil]).to.beTruthy();

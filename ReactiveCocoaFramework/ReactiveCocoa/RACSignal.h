@@ -118,32 +118,34 @@
 // Convenience method to subscribe to the `next` event.
 //
 // This corresponds to `IObserver<T>.OnNext` in Rx.
-- (RACDisposable *)observerWithUpdateHandler:(void (^)(id x))nextBlock;
+- (RACDisposable *)observeWithUpdateHandler:(void (^)(id x))nextBlock;
 
 // Convenience method to subscribe to the `next` and `completed` events.
 - (RACDisposable *)observerWithUpdateHandler:(void (^)(id x))nextBlock
 						   completionHandler:(void (^)(void))completedBlock;
 
 // Convenience method to subscribe to the `next`, `completed`, and `error` events.
-- (RACDisposable *)disposableWithUpdateHandler:(void (^)(id x))nextBlock
-						   errorHandler:(void (^)(NSError *error))errorBlock
-					   deallocationHandler:(void (^)(void))completedBlock;
+- (RACDisposable *)observeWithUpdateHandler:(void (^)(id x))nextBlock
+							   errorHandler:(void (^)(NSError *error))errorBlock
+						deallocationHandler:(void (^)(void))completedBlock;
 
 // Convenience method to subscribe to `error` events.
 //
 // This corresponds to the `IObserver<T>.OnError` in Rx.
-- (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock;
+- (RACDisposable *)observeWithErrorHandler:(void (^)(NSError *error))errorBlock;
 
 // Convenience method to subscribe to `completed` events.
 //
 // This corresponds to the `IObserver<T>.OnCompleted` in Rx.
-- (RACDisposable *)subscribeCompleted:(void (^)(void))completedBlock;
+- (RACDisposable *)observeWithDeallocationHandler:(void (^)(void))completedBlock;
 
 // Convenience method to subscribe to `next` and `error` events.
-- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock;
+- (RACDisposable *)observeWithUpdateHandler:(void (^)(id x))nextBlock
+							   errorHandler:(void (^)(NSError *error))errorBlock;
 
 // Convenience method to subscribe to `error` and `completed` events.
-- (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
+- (RACDisposable *)observeWithErrorHandler:(void (^)(NSError *error))errorBlock
+						 deallocationError:(void (^)(void))completedBlock;
 
 @end
 
@@ -183,7 +185,9 @@
 //
 // Returns the first value received, or `defaultValue` if no value is received
 // before the signal finishes or the method times out.
-- (id)asynchronousFirstOrDefault:(id)defaultValue success:(BOOL *)success error:(NSError **)error;
+- (id)asynchronousFirstOrDefault:(id)defaultValue
+						 success:(BOOL *)success
+						   error:(NSError **)error;
 
 // Spins the main run loop for a short while, waiting for the receiver to complete.
 //

@@ -56,13 +56,13 @@ describe(@"RACObservablePropertySubject", ^{
 	
 	it(@"should send the object's current value when subscribed to", ^{
 		__block id receivedValue = @"received value should not be this";
-		[[property streamWithObjectsUntilIndex:1] observerWithUpdateHandler:^(id x) {
+		[[property streamWithObjectsUntilIndex:1] observeWithUpdateHandler:^(id x) {
 			receivedValue = x;
 		}];
 		expect(receivedValue).to.beNil();
 		
 		object.name = value1;
-		[[property streamWithObjectsUntilIndex:1] observerWithUpdateHandler:^(id x) {
+		[[property streamWithObjectsUntilIndex:1] observeWithUpdateHandler:^(id x) {
 			receivedValue = x;
 		}];
 		expect(receivedValue).to.equal(value1);
@@ -71,7 +71,7 @@ describe(@"RACObservablePropertySubject", ^{
 	it(@"should send the object's new value when it's changed", ^{
 		object.name = value1;
 		NSMutableArray *receivedValues = [NSMutableArray array];
-		[property observerWithUpdateHandler:^(id x) {
+		[property observeWithUpdateHandler:^(id x) {
 			[receivedValues addObject:x];
 		}];
 		object.name = value2;

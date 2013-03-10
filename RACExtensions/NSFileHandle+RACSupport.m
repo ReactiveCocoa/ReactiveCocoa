@@ -19,7 +19,7 @@
 		return [note.userInfo objectForKey:NSFileHandleNotificationDataItem];
 	}];
 	
-	__block RACDisposable *subscription = [dataNotification observerWithUpdateHandler:^(NSData *data) {
+	__block RACDisposable *subscription = [dataNotification observeWithUpdateHandler:^(NSData *data) {
 		if(data.length > 0) {
 			[subject didUpdateWithNewValue:data];
 			[self readInBackgroundAndNotify];

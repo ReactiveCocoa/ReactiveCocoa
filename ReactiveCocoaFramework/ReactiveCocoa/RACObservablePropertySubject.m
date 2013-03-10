@@ -140,7 +140,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 	binding->_exposedSignalSubject = [RACSubject subject];
 	
 	binding->_exposedSubscriberSubject = [RACSubject subject];
-	[binding->_exposedSubscriberSubject observerWithUpdateHandler:^(id x) {
+	[binding->_exposedSubscriberSubject observeWithUpdateHandler:^(id x) {
 		@strongify(binding);
 		binding.ignoreNextUpdate = YES;
 		[binding.target setValue:x forKeyPath:binding.keyPath];

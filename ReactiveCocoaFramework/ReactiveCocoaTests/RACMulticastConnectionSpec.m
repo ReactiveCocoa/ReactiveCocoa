@@ -65,15 +65,15 @@ describe(@"-autoconnect", ^{
 	it(@"should subscribe to the multicasted signal on the first subscription", ^{
 		expect(subscriptionCount).to.equal(0);
 		
-		[autoconnectedSignal observerWithUpdateHandler:^(id x) {}];
+		[autoconnectedSignal observeWithUpdateHandler:^(id x) {}];
 		expect(subscriptionCount).to.equal(1);
 
-		[autoconnectedSignal observerWithUpdateHandler:^(id x) {}];
+		[autoconnectedSignal observeWithUpdateHandler:^(id x) {}];
 		expect(subscriptionCount).to.equal(1);
 	});
 
 	it(@"should dispose of the multicasted subscription when the signal has no subscribers", ^{
-		RACDisposable *disposable = [autoconnectedSignal observerWithUpdateHandler:^(id x) {}];
+		RACDisposable *disposable = [autoconnectedSignal observeWithUpdateHandler:^(id x) {}];
 
 		expect(disposed).to.beFalsy();
 		[disposable dispose];
@@ -81,11 +81,11 @@ describe(@"-autoconnect", ^{
 	});
 
 	it(@"shouldn't reconnect after disposal", ^{
-		RACDisposable *disposable = [autoconnectedSignal observerWithUpdateHandler:^(id x) {}];
+		RACDisposable *disposable = [autoconnectedSignal observeWithUpdateHandler:^(id x) {}];
 		expect(subscriptionCount).to.equal(1);
 		[disposable dispose];
 
-		disposable = [autoconnectedSignal observerWithUpdateHandler:^(id x) {}];
+		disposable = [autoconnectedSignal observeWithUpdateHandler:^(id x) {}];
 		expect(subscriptionCount).to.equal(1);
 		[disposable dispose];
 	});
@@ -95,7 +95,7 @@ describe(@"-autoconnect", ^{
 		RACSignal *signal = [[subject multicast:[RACReplaySubject subject]] autoconnect];
 
 		NSMutableArray *results1 = [NSMutableArray array];
-		RACDisposable *disposable = [signal observerWithUpdateHandler:^(id x) {
+		RACDisposable *disposable = [signal observeWithUpdateHandler:^(id x) {
 			[results1 addObject:x];
 		}];
 
@@ -106,7 +106,7 @@ describe(@"-autoconnect", ^{
 		[disposable dispose];
 
 		NSMutableArray *results2 = [NSMutableArray array];
-		[signal observerWithUpdateHandler:^(id x) {
+		[signal observeWithUpdateHandler:^(id x) {
 			[results2 addObject:x];
 		}];
 		expect(results2).will.equal((@[ @1, @2 ]));

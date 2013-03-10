@@ -33,13 +33,13 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 	it(@"should send it's current value on subscription", ^{
 		__block id receivedValue = nil;
 		[property didUpdateWithNewValue:value1];
-		[[property streamWithObjectsUntilIndex:1] observerWithUpdateHandler:^(id x) {
+		[[property streamWithObjectsUntilIndex:1] observeWithUpdateHandler:^(id x) {
 			receivedValue = x;
 		}];
 		expect(receivedValue).to.equal(value1);
 		
 		[property didUpdateWithNewValue:value2];
-		[[property streamWithObjectsUntilIndex:1] observerWithUpdateHandler:^(id x) {
+		[[property streamWithObjectsUntilIndex:1] observeWithUpdateHandler:^(id x) {
 			receivedValue = x;
 		}];
 		expect(receivedValue).to.equal(value2);
@@ -48,7 +48,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 	it(@"should send it's value as it changes", ^{
 		[property didUpdateWithNewValue:value1];
 		NSMutableArray *receivedValues = [NSMutableArray array];
-		[property observerWithUpdateHandler:^(id x) {
+		[property observeWithUpdateHandler:^(id x) {
 			[receivedValues addObject:x];
 		}];
 		[property didUpdateWithNewValue:value2];
@@ -65,7 +65,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 				[property rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd = YES;
 				}]];
-				disposable = [property observerWithUpdateHandler:^(id x) {}];
+				disposable = [property observeWithUpdateHandler:^(id x) {}];
 			}
 			[disposable dispose];
 			expect(deallocd).will.beTruthy();
@@ -93,7 +93,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 				[property rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd = YES;
 				}]];
-				disposable = [[property binding] observerWithUpdateHandler:^(id x) {}];
+				disposable = [[property binding] observeWithUpdateHandler:^(id x) {}];
 			}
 			[disposable dispose];
 			expect(deallocd).will.beTruthy();
@@ -146,13 +146,13 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 		it(@"should send the property's current value on subscription", ^{
 			__block id receivedValue = nil;
 			[property didUpdateWithNewValue:value1];
-			[[binding1 streamWithObjectsUntilIndex:1] observerWithUpdateHandler:^(id x) {
+			[[binding1 streamWithObjectsUntilIndex:1] observeWithUpdateHandler:^(id x) {
 				receivedValue = x;
 			}];
 			expect(receivedValue).to.equal(value1);
 			
 			[property didUpdateWithNewValue:value2];
-			[[binding1 streamWithObjectsUntilIndex:1] observerWithUpdateHandler:^(id x) {
+			[[binding1 streamWithObjectsUntilIndex:1] observeWithUpdateHandler:^(id x) {
 				receivedValue = x;
 			}];
 			expect(receivedValue).to.equal(value2);
@@ -161,13 +161,13 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 		it(@"should send the current value on subscription even if it was set by itself", ^{
 			__block id receivedValue = nil;
 			[binding1 didUpdateWithNewValue:value1];
-			[[binding1 streamWithObjectsUntilIndex:1] observerWithUpdateHandler:^(id x) {
+			[[binding1 streamWithObjectsUntilIndex:1] observeWithUpdateHandler:^(id x) {
 				receivedValue = x;
 			}];
 			expect(receivedValue).to.equal(value1);
 			
 			[binding1 didUpdateWithNewValue:value2];
-			[[binding1 streamWithObjectsUntilIndex:1] observerWithUpdateHandler:^(id x) {
+			[[binding1 streamWithObjectsUntilIndex:1] observeWithUpdateHandler:^(id x) {
 				receivedValue = x;
 			}];
 			expect(receivedValue).to.equal(value2);
@@ -176,7 +176,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 		it(@"should send the property's value as it changes if it was set by the property", ^{
 			[property didUpdateWithNewValue:value1];
 			NSMutableArray *receivedValues = [NSMutableArray array];
-			[binding1 observerWithUpdateHandler:^(id x) {
+			[binding1 observeWithUpdateHandler:^(id x) {
 				[receivedValues addObject:x];
 			}];
 			[property didUpdateWithNewValue:value2];
@@ -187,7 +187,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 		it(@"should not send the property's value as it changes if it was set by itself", ^{
 			[property didUpdateWithNewValue:value1];
 			NSMutableArray *receivedValues = [NSMutableArray array];
-			[binding1 observerWithUpdateHandler:^(id x) {
+			[binding1 observeWithUpdateHandler:^(id x) {
 				[receivedValues addObject:x];
 			}];
 			[binding1 didUpdateWithNewValue:value2];
@@ -198,11 +198,11 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 		it(@"should send the property's value as it changes if it was set by another binding", ^{
 			[property didUpdateWithNewValue:value1];
 			NSMutableArray *receivedValues1 = [NSMutableArray array];
-			[binding1 observerWithUpdateHandler:^(id x) {
+			[binding1 observeWithUpdateHandler:^(id x) {
 				[receivedValues1 addObject:x];
 			}];
 			NSMutableArray *receivedValues2 = [NSMutableArray array];
-			[binding2 observerWithUpdateHandler:^(id x) {
+			[binding2 observeWithUpdateHandler:^(id x) {
 				[receivedValues2 addObject:x];
 			}];
 			[binding1 didUpdateWithNewValue:value2];
@@ -216,13 +216,13 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 		it(@"should set the property's value to values it's sent", ^{
 			__block id receivedValue = nil;
 			[binding1 didUpdateWithNewValue:value1];
-			[[property streamWithObjectsUntilIndex:1] observerWithUpdateHandler:^(id x) {
+			[[property streamWithObjectsUntilIndex:1] observeWithUpdateHandler:^(id x) {
 				receivedValue = x;
 			}];
 			expect(receivedValue).to.equal(value1);
 			
 			[binding1 didUpdateWithNewValue:value2];
-			[[property streamWithObjectsUntilIndex:1] observerWithUpdateHandler:^(id x) {
+			[[property streamWithObjectsUntilIndex:1] observeWithUpdateHandler:^(id x) {
 				receivedValue = x;
 			}];
 			expect(receivedValue).to.equal(value2);

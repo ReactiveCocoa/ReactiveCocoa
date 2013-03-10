@@ -228,7 +228,7 @@ static NSMutableSet *activeSignals() {
 
 			__weak RACDisposable *weakSelfDisposable = selfDisposable;
 
-			RACDisposable *disposable = [signal disposableWithUpdateHandler:^(id x) {
+			RACDisposable *disposable = [signal observeWithUpdateHandler:^(id x) {
 				[subscriber didUpdateWithNewValue:x];
 			} errorHandler:^(NSError *error) {
 				[compoundDisposable dispose];
@@ -248,7 +248,7 @@ static NSMutableSet *activeSignals() {
 
 			__weak RACDisposable *weakSelfDisposable = selfDisposable;
 
-			RACDisposable *bindingDisposable = [self disposableWithUpdateHandler:^(id x) {
+			RACDisposable *bindingDisposable = [self observeWithUpdateHandler:^(id x) {
 				BOOL stop = NO;
 				id signal = bindingBlock(x, &stop);
 
@@ -276,7 +276,7 @@ static NSMutableSet *activeSignals() {
 	return [[RACSignal signalWithSubscriptionHandler:^(id<RACSubscriber> subscriber) {
 		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 
-		RACDisposable *sourceDisposable = [self disposableWithUpdateHandler:^(id x) {
+		RACDisposable *sourceDisposable = [self observeWithUpdateHandler:^(id x) {
 			[subscriber didUpdateWithNewValue:x];
 		} errorHandler:^(NSError *error) {
 			[subscriber didReceiveErrorWithError:error];
@@ -324,7 +324,7 @@ static NSMutableSet *activeSignals() {
 			}
 		};
 
-		RACDisposable *selfDisposable = [self disposableWithUpdateHandler:^(id x) {
+		RACDisposable *selfDisposable = [self observeWithUpdateHandler:^(id x) {
 			@synchronized (disposable) {
 				[selfValues addObject:x ?: RACTupleNil.tupleNil];
 				sendNext();
@@ -340,7 +340,7 @@ static NSMutableSet *activeSignals() {
 
 		if (selfDisposable != nil) [disposable addDisposable:selfDisposable];
 
-		RACDisposable *otherDisposable = [signal disposableWithUpdateHandler:^(id x) {
+		RACDisposable *otherDisposable = [signal observeWithUpdateHandler:^(id x) {
 			@synchronized (disposable) {
 				[otherValues addObject:x ?: RACTupleNil.tupleNil];
 				sendNext();
@@ -405,7 +405,7 @@ static NSMutableSet *activeSignals() {
 	return disposable;
 }
 
-- (RACDisposable *)observerWithUpdateHandler:(void (^)(id x))nextBlock {
+- (RACDisposable *)observeWithUpdateHandler:(void (^)(id x))nextBlock {
 	NSParameterAssert(nextBlock != NULL);
 	
 	RACSubscriber *o = [RACSubscriber subscriberWithUpdateHandler:nextBlock errorHandler:NULL completionHandler:NULL];
@@ -420,7 +420,7 @@ static NSMutableSet *activeSignals() {
 	return [self subscribe:o];
 }
 
-- (RACDisposable *)disposableWithUpdateHandler:(void (^)(id x))nextBlock errorHandler:(void (^)(NSError *error))errorBlock deallocationHandler:(void (^)(void))completedBlock {
+- (RACDisposable *)observeWithUpdateHandler:(void (^)(id x))nextBlock errorHandler:(void (^)(NSError *error))errorBlock deallocationHandler:(void (^)(void))completedBlock {
 	NSParameterAssert(nextBlock != NULL);
 	NSParameterAssert(errorBlock != NULL);
 	NSParameterAssert(completedBlock != NULL);
@@ -429,21 +429,21 @@ static NSMutableSet *activeSignals() {
 	return [self subscribe:o];
 }
 
-- (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock {
+- (RACDisposable *)observeWithErrorHandler:(void (^)(NSError *error))errorBlock {
 	NSParameterAssert(errorBlock != NULL);
 	
 	RACSubscriber *o = [RACSubscriber subscriberWithUpdateHandler:NULL errorHandler:errorBlock completionHandler:NULL];
 	return [self subscribe:o];
 }
 
-- (RACDisposable *)subscribeCompleted:(void (^)(void))completedBlock {
+- (RACDisposable *)observeWithDeallocationHandler:(void (^)(void))completedBlock {
 	NSParameterAssert(completedBlock != NULL);
 	
 	RACSubscriber *o = [RACSubscriber subscriberWithUpdateHandler:NULL errorHandler:NULL completionHandler:completedBlock];
 	return [self subscribe:o];
 }
 
-- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock {
+- (RACDisposable *)observeWithUpdateHandler:(void (^)(id x))nextBlock errorHandler:(void (^)(NSError *error))errorBlock {
 	NSParameterAssert(nextBlock != NULL);
 	NSParameterAssert(errorBlock != NULL);
 	
@@ -451,7 +451,7 @@ static NSMutableSet *activeSignals() {
 	return [self subscribe:o];
 }
 
-- (RACDisposable *)subscribeError:(void (^)(NSError *))errorBlock completed:(void (^)(void))completedBlock {
+- (RACDisposable *)observeWithErrorHandler:(void (^)(NSError *))errorBlock deallocationError:(void (^)(void))completedBlock {
 	NSParameterAssert(completedBlock != NULL);
 	NSParameterAssert(errorBlock != NULL);
 	
@@ -505,7 +505,7 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 		streamWithObjectsUntilIndex:1]
 		timeout:RACSignalAsynchronousWaitTimeout]
 		deliverOn:RACScheduler.mainThreadScheduler]
-		disposableWithUpdateHandler:^(id x) {
+		observeWithUpdateHandler:^(id x) {
 			result = x;
 			done = YES;
 		} errorHandler:^(NSError *e) {

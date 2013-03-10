@@ -85,13 +85,13 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 		// TODO: should we aggregate the data on the given scheduler too?
 		RACMulticastConnection *outputConnection = [[self.rac_standardOutput aggregateWithStart:[NSMutableData data] combine:aggregateData] publish];
 		__block NSData *outputData = nil;
-		[outputConnection.signal observerWithUpdateHandler:^(NSData *accumulatedData) {
+		[outputConnection.signal observeWithUpdateHandler:^(NSData *accumulatedData) {
 			outputData = accumulatedData;
 		}];
 
 		RACMulticastConnection *errorConnection = [[self.rac_standardError aggregateWithStart:[NSMutableData data] combine:aggregateData] publish];
 		__block NSData *errorData = nil;
-		[errorConnection.signal observerWithUpdateHandler:^(NSData *accumulatedData) {
+		[errorConnection.signal observeWithUpdateHandler:^(NSData *accumulatedData) {
 			errorData = accumulatedData;
 		}];
 

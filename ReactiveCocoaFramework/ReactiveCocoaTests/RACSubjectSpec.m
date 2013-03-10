@@ -33,7 +33,7 @@ describe(@"RACSubject", ^{
 		success = YES;
 		error = nil;
 
-		[subject disposableWithUpdateHandler:^(id value) {
+		[subject observeWithUpdateHandler:^(id value) {
 			[values addObject:value];
 		} errorHandler:^(NSError *e) {
 			error = e;
@@ -69,7 +69,7 @@ describe(@"RACReplaySubject", ^{
 			[subject didUpdateWithNewValue:secondValue];
 			
 			__block id valueReceived = nil;
-			[subject observerWithUpdateHandler:^(id x) {
+			[subject observeWithUpdateHandler:^(id x) {
 				valueReceived = x;
 			}];
 			
@@ -91,7 +91,7 @@ describe(@"RACReplaySubject", ^{
 			
 			[subject terminateSubscription];
 			
-			[subject observerWithUpdateHandler:^(id x) {
+			[subject observeWithUpdateHandler:^(id x) {
 				valueReceived = x;
 				nextsReceived++;
 			}];
@@ -104,7 +104,7 @@ describe(@"RACReplaySubject", ^{
 			[subject terminateSubscription];
 
 			__block BOOL nextInvoked = NO;
-			[subject observerWithUpdateHandler:^(id x) {
+			[subject observeWithUpdateHandler:^(id x) {
 				nextInvoked = YES;
 			}];
 
@@ -116,7 +116,7 @@ describe(@"RACReplaySubject", ^{
 			[subject didReceiveErrorWithError:error];
 
 			__block BOOL errorSent = NO;
-			[subject subscribeError:^(NSError *sentError) {
+			[subject observeWithErrorHandler:^(NSError *sentError) {
 				expect(sentError).to.equal(error);
 				errorSent = YES;
 			}];
@@ -128,7 +128,7 @@ describe(@"RACReplaySubject", ^{
 			[subject didReceiveErrorWithError:nil];
 
 			__block BOOL errorSent = NO;
-			[subject subscribeError:^(NSError *sentError) {
+			[subject observeWithErrorHandler:^(NSError *sentError) {
 				expect(sentError).to.beNil();
 				errorSent = YES;
 			}];
@@ -150,7 +150,7 @@ describe(@"RACReplaySubject", ^{
 
 					// This subscription should synchronously dump all values already
 					// received into 'values'.
-					[subject observerWithUpdateHandler:^(id value) {
+					[subject observeWithUpdateHandler:^(id value) {
 						[values addObject:value];
 					}];
 
@@ -159,7 +159,7 @@ describe(@"RACReplaySubject", ^{
 				RACSubscriberExampleErrorReceivedBlock: [^{
 					__block NSError *error = nil;
 
-					[subject subscribeError:^(NSError *x) {
+					[subject observeWithErrorHandler:^(NSError *x) {
 						error = x;
 					}];
 
@@ -168,7 +168,7 @@ describe(@"RACReplaySubject", ^{
 				RACSubscriberExampleSuccessBlock: [^{
 					__block BOOL success = YES;
 
-					[subject subscribeError:^(NSError *x) {
+					[subject observeWithErrorHandler:^(NSError *x) {
 						success = NO;
 					}];
 
@@ -206,7 +206,7 @@ describe(@"RACReplaySubject", ^{
 			__unsafe_unretained volatile id *values = (__unsafe_unretained id *)calloc(count, sizeof(*values));
 			__block volatile int32_t nextIndex = 0;
 
-			[subject observerWithUpdateHandler:^(NSNumber *value) {
+			[subject observeWithUpdateHandler:^(NSNumber *value) {
 				int32_t indexPlusOne = OSAtomicIncrement32(&nextIndex);
 				values[indexPlusOne - 1] = value;
 			}];
@@ -249,7 +249,7 @@ describe(@"RACReplaySubject", ^{
 			[subject didUpdateWithNewValue:RACUnit.defaultUnit];
 
 			__block RACScheduler *currentScheduler;
-			[subject observerWithUpdateHandler:^(id x) {
+			[subject observeWithUpdateHandler:^(id x) {
 				currentScheduler = RACScheduler.currentScheduler;
 			}];
 
@@ -257,7 +257,7 @@ describe(@"RACReplaySubject", ^{
 
 			currentScheduler = nil;
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-				[subject observerWithUpdateHandler:^(id x) {
+				[subject observeWithUpdateHandler:^(id x) {
 					currentScheduler = RACScheduler.currentScheduler;
 				}];
 			});
@@ -272,7 +272,7 @@ describe(@"RACReplaySubject", ^{
 			[subject didUpdateWithNewValue:@1];
 
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-				__block RACDisposable *disposable = [subject observerWithUpdateHandler:^(id x) {
+				__block RACDisposable *disposable = [subject observeWithUpdateHandler:^(id x) {
 					expect(disposable).notTo.beNil();
 
 					[values addObject:x];
@@ -288,7 +288,7 @@ describe(@"RACReplaySubject", ^{
 
 			__block id received;
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-				[subject observerWithUpdateHandler:^(id x) {
+				[subject observeWithUpdateHandler:^(id x) {
 					received = x;
 				}];
 
@@ -303,7 +303,7 @@ describe(@"RACReplaySubject", ^{
 
 			__block id received;
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-				[subject observerWithUpdateHandler:^(id x) {
+				[subject observeWithUpdateHandler:^(id x) {
 					received = x;
 				}];
 
@@ -318,7 +318,7 @@ describe(@"RACReplaySubject", ^{
 
 			NSMutableArray *received = [NSMutableArray array];
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-				[subject observerWithUpdateHandler:^(id x) {
+				[subject observeWithUpdateHandler:^(id x) {
 					[received addObject:x];
 				}];
 

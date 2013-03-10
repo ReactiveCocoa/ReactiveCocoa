@@ -24,7 +24,7 @@ it(@"should send the notification when posted by any object", ^{
 	RACSignal *signal = [notificationCenter rac_addObserverForName:TestNotification object:nil];
 
 	__block NSUInteger count = 0;
-	[signal observerWithUpdateHandler:^(NSNotification *notification) {
+	[signal observeWithUpdateHandler:^(NSNotification *notification) {
 		++count;
 
 		expect(notification).to.beKindOf(NSNotification.class);
@@ -44,7 +44,7 @@ it(@"should send the notification when posted by a specific object", ^{
 	RACSignal *signal = [notificationCenter rac_addObserverForName:TestNotification object:self];
 
 	__block NSUInteger count = 0;
-	[signal observerWithUpdateHandler:^(NSNotification *notification) {
+	[signal observeWithUpdateHandler:^(NSNotification *notification) {
 		++count;
 
 		expect(notification).to.beKindOf(NSNotification.class);

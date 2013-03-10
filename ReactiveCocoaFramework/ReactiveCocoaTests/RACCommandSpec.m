@@ -28,7 +28,7 @@ beforeEach(^{
 
 it(@"should pass the value along to subscribers", ^{
 	__block id valueReceived = nil;
-	[command observerWithUpdateHandler:^(id value) {
+	[command observeWithUpdateHandler:^(id value) {
 		valueReceived = value;
 	}];
 	
@@ -40,7 +40,7 @@ it(@"should pass the value along to subscribers", ^{
 
 it(@"should not send anything on 'errors' by default", ^{
 	__block BOOL receivedError = NO;
-	[command.errors observerWithUpdateHandler:^(id _) {
+	[command.errors observeWithUpdateHandler:^(id _) {
 		receivedError = YES;
 	}];
 	
@@ -49,7 +49,7 @@ it(@"should not send anything on 'errors' by default", ^{
 });
 
 it(@"should be executing from within the -execute: method", ^{
-	[command observerWithUpdateHandler:^(id _) {
+	[command observeWithUpdateHandler:^(id _) {
 		expect(command.executing).to.beTruthy();
 	}];
 
@@ -79,7 +79,7 @@ describe(@"with a signal block", ^{
 				return [seq signalWithScheduler:RACScheduler.immediateScheduler];
 			}]
 			concat]
-			observerWithUpdateHandler:^(id x) {
+			observeWithUpdateHandler:^(id x) {
 				[valuesReceived addObject:x];
 			}];
 
@@ -122,7 +122,7 @@ describe(@"with a signal block", ^{
 		NSError *secondError = [NSError errorWithDomain:@"" code:2 userInfo:nil];
 		
 		NSMutableArray *receivedErrors = [NSMutableArray array];
-		[command.errors observerWithUpdateHandler:^(NSError *error) {
+		[command.errors observeWithUpdateHandler:^(NSError *error) {
 			[receivedErrors addObject:error];
 		}];
 
@@ -154,7 +154,7 @@ describe(@"with a signal block", ^{
 
 	it(@"should not forward other events onto 'errors'", ^{
 		__block BOOL receivedEvent = NO;
-		[command.errors observerWithUpdateHandler:^(id _) {
+		[command.errors observeWithUpdateHandler:^(id _) {
 			receivedEvent = YES;
 		}];
 
@@ -204,7 +204,7 @@ describe(@"canExecute property", ^{
 	});
 
 	it(@"should be NO while executing is YES and allowsConcurrentExecution is NO", ^{
-		[command observerWithUpdateHandler:^(id _) {
+		[command observeWithUpdateHandler:^(id _) {
 			expect(command.executing).to.beTruthy();
 			expect(command.canExecute).to.beFalsy();
 		}];
@@ -218,7 +218,7 @@ describe(@"canExecute property", ^{
 		command.allowsConcurrentExecution = YES;
 
 		// Prevent infinite recursion by only responding to the first value.
-		[[command streamWithObjectsUntilIndex:1] observerWithUpdateHandler:^(id _) {
+		[[command streamWithObjectsUntilIndex:1] observeWithUpdateHandler:^(id _) {
 			expect(command.executing).to.beTruthy();
 			expect(command.canExecute).to.beTruthy();
 			expect([command execute:nil]).to.beTruthy();

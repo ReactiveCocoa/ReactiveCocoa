@@ -58,7 +58,7 @@
 	@weakify(self);
 	_exposedSignal = [RACSignal signalWithSubscriptionHandler:^(id<RACSubscriber> subscriber) {
 		__block BOOL isFirstNext = YES;
-		return [signal observerWithUpdateHandler:^(RACTuple *x) {
+		return [signal observeWithUpdateHandler:^(RACTuple *x) {
 			@strongify(self);
 			if (isFirstNext || ![x.second isEqual:self]) {
 				isFirstNext = NO;

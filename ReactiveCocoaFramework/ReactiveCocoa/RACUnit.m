@@ -14,7 +14,7 @@
 
 #pragma mark API
 
-+ (RACUnit *)sharedInstance {
++ (RACUnit *)defaultUnit {
 	static dispatch_once_t onceToken;
 	static RACUnit *defaultUnit = nil;
 	dispatch_once(&onceToken, ^{
@@ -22,10 +22,6 @@
 	});
 	
 	return defaultUnit;
-}
-
-+ (RACUnit *)defaultUnit {
-	return [RACUnit defaultUnit];
 }
 
 @end

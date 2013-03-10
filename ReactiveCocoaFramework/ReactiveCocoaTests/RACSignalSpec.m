@@ -39,7 +39,7 @@ sharedExamplesFor(RACSignalMergeConcurrentCompletionExampleGroup, ^(NSDictionary
 
 		RACSubject *signalsSubject = [RACSubject subject];
 		__block BOOL completed = NO;
-		[[signalsSubject flatten:[data[RACSignalMaxConcurrent] unsignedIntegerValue]] subscribeCompleted:^{
+		[[signalsSubject flatten:[data[RACSignalMaxConcurrent] unsignedIntegerValue]] observeWithDeallocationHandler:^{
 			completed = YES;
 		}];
 
@@ -77,7 +77,7 @@ describe(@"RACStream", ^{
 
 		__block BOOL success = NO;
 		__block NSError *error = nil;
-		[signal disposableWithUpdateHandler:^(id value) {
+		[signal observeWithUpdateHandler:^(id value) {
 			[collectedValues addObject:value];
 		} errorHandler:^(NSError *receivedError) {
 			error = receivedError;
@@ -127,7 +127,7 @@ describe(@"subscribing", ^{
 	
 	it(@"should get next values", ^{
 		__block id nextValueReceived = nil;
-		[signal disposableWithUpdateHandler:^(id x) {
+		[signal observeWithUpdateHandler:^(id x) {
 			nextValueReceived = x;
 		} errorHandler:^(NSError *error) {
 			
@@ -140,7 +140,7 @@ describe(@"subscribing", ^{
 	
 	it(@"should get completed", ^{
 		__block BOOL didGetCompleted = NO;
-		[signal disposableWithUpdateHandler:^(id x) {
+		[signal observeWithUpdateHandler:^(id x) {
 			
 		} errorHandler:^(NSError *error) {
 			
@@ -153,7 +153,7 @@ describe(@"subscribing", ^{
 	
 	it(@"should not get an error", ^{
 		__block BOOL didGetError = NO;
-		[signal disposableWithUpdateHandler:^(id x) {
+		[signal observeWithUpdateHandler:^(id x) {
 			
 		} errorHandler:^(NSError *error) {
 			didGetError = YES;
@@ -167,7 +167,7 @@ describe(@"subscribing", ^{
 	it(@"shouldn't get anything after dispose", ^{
 		__block BOOL shouldBeGettingItems = YES;
 		RACSubject *subject = [RACSubject subject];
-		RACDisposable *disposable = [subject observerWithUpdateHandler:^(id x) {
+		RACDisposable *disposable = [subject observeWithUpdateHandler:^(id x) {
 			expect(shouldBeGettingItems).to.beTruthy();
 		}];
 		
@@ -189,12 +189,12 @@ describe(@"subscribing", ^{
 			return nil;
 		}];
 
-		[signal observerWithUpdateHandler:^(id x) {}];
+		[signal observeWithUpdateHandler:^(id x) {}];
 		expect(currentScheduler).notTo.beNil();
 
 		currentScheduler = nil;
 		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-			[signal observerWithUpdateHandler:^(id x) {}];
+			[signal observeWithUpdateHandler:^(id x) {}];
 		});
 		expect(currentScheduler).willNot.beNil();
 	});
@@ -203,7 +203,7 @@ describe(@"subscribing", ^{
 		__block BOOL shouldBeGettingItems = YES;
 		RACSubject *subject = [RACSubject subject];
 		RACSubject *cutOffSubject = [RACSubject subject];
-		[[subject takeUntil:cutOffSubject] observerWithUpdateHandler:^(id x) {
+		[[subject takeUntil:cutOffSubject] observeWithUpdateHandler:^(id x) {
 			expect(shouldBeGettingItems).to.beTruthy();
 		}];
 
@@ -221,7 +221,7 @@ describe(@"subscribing", ^{
 		__block BOOL shouldBeGettingItems = YES;
 		RACSubject *subject = [RACSubject subject];
 		RACSubject *cutOffSubject = [RACSubject subject];
-		[[subject takeUntil:cutOffSubject] observerWithUpdateHandler:^(id x) {
+		[[subject takeUntil:cutOffSubject] observeWithUpdateHandler:^(id x) {
 			expect(shouldBeGettingItems).to.beTruthy();
 		}];
         
@@ -243,7 +243,7 @@ describe(@"disposal", ^{
 
 		expect(innerDisposed).to.beFalsy();
 
-		RACDisposable *disposable = [signal observerWithUpdateHandler:^(id x) {}];
+		RACDisposable *disposable = [signal observeWithUpdateHandler:^(id x) {}];
 		expect(disposable).notTo.beNil();
 
 		[disposable dispose];
@@ -259,7 +259,7 @@ describe(@"disposal", ^{
 		}];
 
 		[[RACScheduler scheduler] schedule:^{
-			RACDisposable *disposable = [signal observerWithUpdateHandler:^(id x) {}];
+			RACDisposable *disposable = [signal observeWithUpdateHandler:^(id x) {}];
 			[disposable dispose];
 		}];
 
@@ -300,8 +300,8 @@ describe(@"querying", ^{
 			return closeSubject;
 		}];
 				
-		[window disposableWithUpdateHandler:^(id x) {			
-			[x disposableWithUpdateHandler:^(id x) {
+		[window observeWithUpdateHandler:^(id x) {			
+			[x observeWithUpdateHandler:^(id x) {
 				valuesReceived++;
 				NSLog(@"got: %@", x);
 				
@@ -524,7 +524,7 @@ describe(@"continuation", ^{
 		
 		__block NSUInteger nextCount = 0;
 		__block BOOL gotCompleted = NO;
-		[[signal repeat] disposableWithUpdateHandler:^(id x) {
+		[[signal repeat] observeWithUpdateHandler:^(id x) {
 			nextCount++;
 		} errorHandler:^(NSError *error) {
 			
@@ -592,7 +592,7 @@ describe(@"+combineLatestWith:", ^{
 	it(@"should send next only once both signals send next", ^{
 		__block RACTuple *tuple;
 		
-		[combined observerWithUpdateHandler:^(id x) {
+		[combined observeWithUpdateHandler:^(id x) {
 			tuple = x;
 		}];
 		
@@ -607,7 +607,7 @@ describe(@"+combineLatestWith:", ^{
 	
 	it(@"should send nexts when either signal sends multiple times", ^{
 		NSMutableArray *results = [NSMutableArray array];
-		[combined observerWithUpdateHandler:^(id x) {
+		[combined observeWithUpdateHandler:^(id x) {
 			[results addObject:x];
 		}];
 		
@@ -625,7 +625,7 @@ describe(@"+combineLatestWith:", ^{
 	it(@"should complete when only both signals complete", ^{
 		__block BOOL completed = NO;
 		
-		[combined subscribeCompleted:^{
+		[combined observeWithDeallocationHandler:^{
 			completed = YES;
 		}];
 
@@ -640,7 +640,7 @@ describe(@"+combineLatestWith:", ^{
 	
 	it(@"should error when either signal errors", ^{
 		__block NSError *receivedError = nil;
-		[combined subscribeError:^(NSError *error) {
+		[combined observeWithErrorHandler:^(NSError *error) {
 			receivedError = error;
 		}];
 		
@@ -663,7 +663,7 @@ describe(@"+combineLatestWith:", ^{
 				signalDeallocd = YES;
 			}]];
 
-			[signal subscribeCompleted:^{}];
+			[signal observeWithDeallocationHandler:^{}];
 			[subject terminateSubscription];
 		}
 
@@ -675,7 +675,7 @@ describe(@"+combineLatestWith:", ^{
 		RACSignal *combined = [subject1 combineLatestWith:subject1];
 
 		__block RACTuple *tuple;
-		[combined observerWithUpdateHandler:^(id x) {
+		[combined observeWithUpdateHandler:^(id x) {
 			tuple = x;
 		}];
 		
@@ -698,7 +698,7 @@ describe(@"+combineLatestWith:", ^{
 		expect(counter).to.equal(0);
 
 		NSMutableArray *receivedValues = [NSMutableArray array];
-		[combined observerWithUpdateHandler:^(id x) {
+		[combined observeWithUpdateHandler:^(id x) {
 			[receivedValues addObject:x];
 		}];
 		
@@ -714,7 +714,7 @@ describe(@"+combineLatest:", ^{
 		RACSubject *subject = [RACSubject subject];
 
 		__block RACTuple *tuple;
-		[[RACSignal combineLatest:@[ subject ]] observerWithUpdateHandler:^(id x) {
+		[[RACSignal combineLatest:@[ subject ]] observeWithUpdateHandler:^(id x) {
 			tuple = x;
 		}];
 
@@ -726,7 +726,7 @@ describe(@"+combineLatest:", ^{
 		RACSignal *signal = [RACSignal combineLatest:@[]];
 
 		__block BOOL completed = NO;
-		[signal subscribeCompleted:^{
+		[signal observeWithDeallocationHandler:^{
 			completed = YES;
 		}];
 
@@ -740,7 +740,7 @@ describe(@"+combineLatest:", ^{
 		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2, subject3 ]];
 
 		__block BOOL completed = NO;
-		[combined subscribeCompleted:^{
+		[combined observeWithDeallocationHandler:^{
 			completed = YES;
 		}];
 
@@ -781,7 +781,7 @@ describe(@"+combineLatest:reduce:", ^{
 		}];
 
 		__block BOOL gotValue = NO;
-		[combined observerWithUpdateHandler:^(id x) {
+		[combined observeWithUpdateHandler:^(id x) {
 			gotValue = YES;
 		}];
 
@@ -801,7 +801,7 @@ describe(@"+combineLatest:reduce:", ^{
 		}];
 
 		__block id received;
-		[combined observerWithUpdateHandler:^(id x) {
+		[combined observeWithUpdateHandler:^(id x) {
 			received = x;
 		}];
 
@@ -819,7 +819,7 @@ describe(@"+combineLatest:reduce:", ^{
 		
 		NSMutableArray *receivedValues = NSMutableArray.array;
 		
-		[combined observerWithUpdateHandler:^(id x) {
+		[combined observeWithUpdateHandler:^(id x) {
 			[receivedValues addObject:x];
 		}];
 		
@@ -851,7 +851,7 @@ describe(@"+combineLatest:reduce:", ^{
 		NSMutableArray *receivedValues = [NSMutableArray array];
 		expect(counter).to.equal(0);
 		
-		[combined observerWithUpdateHandler:^(id x) {
+		[combined observeWithUpdateHandler:^(id x) {
 			[receivedValues addObject:x];
 		}];
 		
@@ -920,7 +920,7 @@ describe(@"RACAbleWithStart", ^{
 		testObject.objectValue = expected[0];
 
 		NSMutableArray *valuesReceived = [NSMutableArray array];
-		[RACAbleWithStart(testObject, objectValue) observerWithUpdateHandler:^(id x) {
+		[RACAbleWithStart(testObject, objectValue) observeWithUpdateHandler:^(id x) {
 			[valuesReceived addObject:x];
 		}];
 
@@ -934,7 +934,7 @@ describe(@"RACAbleWithStart", ^{
 		testObject.integerValue = [expected[0] integerValue];
 
 		NSMutableArray *valuesReceived = [NSMutableArray array];
-		[RACAbleWithStart(testObject, integerValue) observerWithUpdateHandler:^(id x) {
+		[RACAbleWithStart(testObject, integerValue) observeWithUpdateHandler:^(id x) {
 			[valuesReceived addObject:x];
 		}];
 
@@ -1031,7 +1031,7 @@ describe(@"memory management", ^{
 				deallocd = YES;
 			}]];
 
-			[signal subscribeCompleted:^{
+			[signal observeWithDeallocationHandler:^{
 				done = YES;
 			}];
 
@@ -1052,7 +1052,7 @@ describe(@"memory management", ^{
 				deallocd = YES;
 			}]];
 
-			[subject subscribeCompleted:^{
+			[subject observeWithDeallocationHandler:^{
 				completed = YES;
 			}];
 		}
@@ -1076,7 +1076,7 @@ describe(@"memory management", ^{
 					deallocd = YES;
 				}]];
 
-				[signal subscribeCompleted:^{
+				[signal observeWithDeallocationHandler:^{
 					completed = YES;
 				}];
 			}];
@@ -1129,7 +1129,7 @@ describe(@"memory management", ^{
 					deallocd = YES;
 				}]];
 
-				disposable = [signal subscribeCompleted:^{}];
+				disposable = [signal observeWithDeallocationHandler:^{}];
 			}
 
 			// Spin the run loop to account for RAC magic that retains the
@@ -1160,7 +1160,7 @@ describe(@"memory management", ^{
 
 				expect(intermediateSignal).notTo.beNil();
 
-				disposable = [intermediateSignal subscribeCompleted:^{
+				disposable = [intermediateSignal observeWithDeallocationHandler:^{
 					completed = YES;
 				}];
 			}
@@ -1192,7 +1192,7 @@ describe(@"+merge:", ^{
 
 	it(@"should send all values from both signals", ^{
 		NSMutableArray *values = [NSMutableArray array];
-		[merged observerWithUpdateHandler:^(id x) {
+		[merged observeWithUpdateHandler:^(id x) {
 			[values addObject:x];
 		}];
 
@@ -1207,7 +1207,7 @@ describe(@"+merge:", ^{
 
 	it(@"should send an error if one occurs", ^{
 		__block NSError *errorReceived;
-		[merged subscribeError:^(NSError *error) {
+		[merged observeWithErrorHandler:^(NSError *error) {
 			errorReceived = error;
 		}];
 
@@ -1242,7 +1242,7 @@ describe(@"+merge:", ^{
 		RACSignal *signal = [RACSignal merge:@[].objectEnumerator];
 
 		__block BOOL completed = NO;
-		[signal subscribeCompleted:^{
+		[signal observeWithDeallocationHandler:^{
 			completed = YES;
 		}];
 
@@ -1292,7 +1292,7 @@ describe(@"-flatten:", ^{
 
 	describe(@"when its max is 0", ^{
 		it(@"should merge all the signals concurrently", ^{
-			[[signalsSubject flatten:0] observerWithUpdateHandler:^(id x) {
+			[[signalsSubject flatten:0] observeWithUpdateHandler:^(id x) {
 				[values addObject:x];
 			}];
 
@@ -1332,7 +1332,7 @@ describe(@"-flatten:", ^{
 
 	describe(@"when its max is > 0", ^{
 		it(@"should merge only the given number at a time", ^{
-			[[signalsSubject flatten:1] observerWithUpdateHandler:^(id x) {
+			[[signalsSubject flatten:1] observeWithUpdateHandler:^(id x) {
 				[values addObject:x];
 			}];
 
@@ -1395,7 +1395,7 @@ describe(@"-flatten:", ^{
 				signalDeallocd = YES;
 			}]];
 
-			[signal subscribeCompleted:^{}];
+			[signal observeWithDeallocationHandler:^{}];
 
 			[subject terminateSubscription];
 		}
@@ -1419,7 +1419,7 @@ describe(@"-switchToLatest", ^{
 		lastError = nil;
 		completed = NO;
 
-		[[subject switchToLatest] disposableWithUpdateHandler:^(id x) {
+		[[subject switchToLatest] observeWithUpdateHandler:^(id x) {
 			expect(lastError).to.beNil();
 			expect(completed).to.beFalsy();
 
@@ -1512,7 +1512,7 @@ describe(@"+if:then:else", ^{
 		lastError = nil;
 		completed = NO;
 
-		[[RACSignal if:boolSubject then:trueSubject else:falseSubject] disposableWithUpdateHandler:^(id x) {
+		[[RACSignal if:boolSubject then:trueSubject else:falseSubject] observeWithUpdateHandler:^(id x) {
 			expect(lastError).to.beNil();
 			expect(completed).to.beFalsy();
 
@@ -1604,7 +1604,7 @@ describe(@"+interval: and +interval:withLeeway:", ^{
 				RACSignal *finalSignal = [[timer streamWithObjectsUntilIndex:3] deliverOn:RACScheduler.mainThreadScheduler];
 
 				NSTimeInterval startTime = NSDate.timeIntervalSinceReferenceDate;
-				[finalSignal observerWithUpdateHandler:^(NSDate *date) {
+				[finalSignal observeWithUpdateHandler:^(NSDate *date) {
 					++nextsReceived;
 
 					NSTimeInterval currentTime = date.timeIntervalSinceReferenceDate;
@@ -1671,7 +1671,7 @@ describe(@"-timeout:", ^{
 
 	it(@"should time out", ^{
 		__block NSError *receivedError = nil;
-		[[subject timeout:0.0001] subscribeError:^(NSError *e) {
+		[[subject timeout:0.0001] observeWithErrorHandler:^(NSError *e) {
 			receivedError = e;
 		}];
 
@@ -1698,12 +1698,12 @@ describe(@"-timeout:", ^{
 
 	it(@"should not time out after disposal", ^{
 		__block NSError *receivedError = nil;
-		RACDisposable *disposable = [[subject timeout:0.01] subscribeError:^(NSError *e) {
+		RACDisposable *disposable = [[subject timeout:0.01] observeWithErrorHandler:^(NSError *e) {
 			receivedError = e;
 		}];
 
 		__block BOOL done = NO;
-		[[[RACSignal interval:0.1] streamWithObjectsUntilIndex:1] observerWithUpdateHandler:^(id _) {
+		[[[RACSignal interval:0.1] streamWithObjectsUntilIndex:1] observeWithUpdateHandler:^(id _) {
 			done = YES;
 		}];
 
@@ -1725,7 +1725,7 @@ describe(@"-delay:", ^{
 
 	it(@"should delay nexts", ^{
 		__block id next = nil;
-		[delayedSignal observerWithUpdateHandler:^(id x) {
+		[delayedSignal observeWithUpdateHandler:^(id x) {
 			next = x;
 		}];
 
@@ -1736,7 +1736,7 @@ describe(@"-delay:", ^{
 
 	it(@"should delay completed", ^{
 		__block BOOL completed = NO;
-		[delayedSignal subscribeCompleted:^{
+		[delayedSignal observeWithDeallocationHandler:^{
 			completed = YES;
 		}];
 
@@ -1747,7 +1747,7 @@ describe(@"-delay:", ^{
 
 	it(@"should not delay errors", ^{
 		__block NSError *error = nil;
-		[delayedSignal subscribeError:^(NSError *e) {
+		[delayedSignal observeWithErrorHandler:^(NSError *e) {
 			error = e;
 		}];
 
@@ -1757,7 +1757,7 @@ describe(@"-delay:", ^{
 
 	it(@"should cancel delayed events when disposed", ^{
 		__block id next = nil;
-		RACDisposable *disposable = [delayedSignal observerWithUpdateHandler:^(id x) {
+		RACDisposable *disposable = [delayedSignal observeWithUpdateHandler:^(id x) {
 			next = x;
 		}];
 
@@ -1786,7 +1786,7 @@ describe(@"-throttle:", ^{
 
 	it(@"should throttle nexts", ^{
 		NSMutableArray *valuesReceived = [NSMutableArray array];
-		[throttledSignal observerWithUpdateHandler:^(id x) {
+		[throttledSignal observeWithUpdateHandler:^(id x) {
 			[valuesReceived addObject:x];
 		}];
 
@@ -1806,7 +1806,7 @@ describe(@"-throttle:", ^{
 
 	it(@"should forward completed immediately", ^{
 		__block BOOL completed = NO;
-		[throttledSignal subscribeCompleted:^{
+		[throttledSignal observeWithDeallocationHandler:^{
 			completed = YES;
 		}];
 
@@ -1816,7 +1816,7 @@ describe(@"-throttle:", ^{
 
 	it(@"should forward errors immediately", ^{
 		__block NSError *error = nil;
-		[throttledSignal subscribeError:^(NSError *e) {
+		[throttledSignal observeWithErrorHandler:^(NSError *e) {
 			error = e;
 		}];
 
@@ -1826,7 +1826,7 @@ describe(@"-throttle:", ^{
 
 	it(@"should cancel future nexts when disposed", ^{
 		__block id next = nil;
-		RACDisposable *disposable = [throttledSignal observerWithUpdateHandler:^(id x) {
+		RACDisposable *disposable = [throttledSignal observeWithUpdateHandler:^(id x) {
 			next = x;
 		}];
 
@@ -1851,7 +1851,7 @@ describe(@"-sequenceNext:", ^{
 		__block id value = nil;
 		[[subject sequenceNext:^{
 			return [RACSignal return:@2];
-		}] observerWithUpdateHandler:^(id x) {
+		}] observeWithUpdateHandler:^(id x) {
 			value = x;
 		}];
 
@@ -1871,7 +1871,7 @@ describe(@"-sequenceNext:", ^{
 		__block id value = nil;
 		[[subject sequenceNext:^{
 			return [RACSignal return:RACUnit.defaultUnit];
-		}] observerWithUpdateHandler:^(id x) {
+		}] observeWithUpdateHandler:^(id x) {
 			value = x;
 		}];
 
@@ -1955,9 +1955,9 @@ describe(@"+streamByZippingStreams:", ^{
 		subject2 = [RACSubject subject];
 		hasSentError = NO;
 		hasSentCompleted = NO;
-		disposable = [[RACSignal streamByZippingAndCombiningStreams:@[ subject1, subject2 ]] subscribeError:^(NSError *error) {
+		disposable = [[RACSignal streamByZippingAndCombiningStreams:@[ subject1, subject2 ]] observeWithErrorHandler:^(NSError *error) {
 			hasSentError = YES;
-		} completed:^{
+		} deallocationError:^{
 			hasSentCompleted = YES;
 		}];
 	});
@@ -2025,7 +2025,7 @@ describe(@"+streamByZippingStreams:", ^{
 		
 		[[RACSignal streamByZippingStreams:@[ a, b, c ] andReducingObjectsWithIterationHandler:^(NSNumber *a, NSNumber *b, NSNumber *c) {
 			return [NSString stringWithFormat:@"%@%@%@", a, b, c];
-		}] disposableWithUpdateHandler:^(id x) {
+		}] observeWithUpdateHandler:^(id x) {
 			[receivedValues addObject:x];
 		} errorHandler:^(NSError *error) {
 			receivedError = error;
@@ -2109,7 +2109,7 @@ describe(@"+streamByZippingStreams:", ^{
 		
 		expect(counter).to.equal(0);
 		
-		[combined observerWithUpdateHandler:^(id x) {
+		[combined observeWithUpdateHandler:^(id x) {
 			[receivedValues addObject:x];
 		}];
 		
@@ -2124,7 +2124,7 @@ describe(@"-sample:", ^{
 		RACSubject *sampleSubject = [RACSubject subject];
 		RACSignal *sampled = [subject sample:sampleSubject];
 		NSMutableArray *values = [NSMutableArray array];
-		[sampled observerWithUpdateHandler:^(id x) {
+		[sampled observeWithUpdateHandler:^(id x) {
 			[values addObject:x];
 		}];
 		
@@ -2183,7 +2183,7 @@ describe(@"-bufferWithTime:", ^{
 		
 		__block NSArray *received = nil;
 		
-		[bufferedInput observerWithUpdateHandler:^(RACTuple *x) {
+		[bufferedInput observeWithUpdateHandler:^(RACTuple *x) {
 			received = [x allObjects];
 		}];
 		
@@ -2210,7 +2210,7 @@ describe(@"-buffer:", ^{
 
 		__block NSArray *received = nil;
 		
-		[bufferedInput observerWithUpdateHandler:^(RACTuple *x) {
+		[bufferedInput observeWithUpdateHandler:^(RACTuple *x) {
 			received = [x allObjects];
 		}];
 
@@ -2260,7 +2260,7 @@ describe(@"-concat", ^{
 		[subject didUpdateWithNewValue:threeSignal];
 
 		NSMutableArray *values = [NSMutableArray array];
-		[[subject concat] observerWithUpdateHandler:^(id x) {
+		[[subject concat] observeWithUpdateHandler:^(id x) {
 			[values addObject:x];
 		}];
 
@@ -2316,7 +2316,7 @@ describe(@"-finally:", ^{
 		__block RACDisposable *disposable;
 
 		beforeEach(^{
-			disposable = [signal subscribeCompleted:^{}];
+			disposable = [signal observeWithDeallocationHandler:^{}];
 		});
 		
 		afterEach(^{
@@ -2354,7 +2354,7 @@ describe(@"-ignoreElements", ^{
 		gotCompleted = NO;
 		receivedError = nil;
 
-		[[subject ignoreElements] disposableWithUpdateHandler:^(id _) {
+		[[subject ignoreElements] observeWithUpdateHandler:^(id _) {
 			gotNext = YES;
 		} errorHandler:^(NSError *error) {
 			receivedError = error;
@@ -2457,7 +2457,7 @@ describe(@"-executeCommand:", ^{
 		RACCommand *command = [RACCommand command];
 
 		__block id value;
-		[command observerWithUpdateHandler:^(id x) {
+		[command observeWithUpdateHandler:^(id x) {
 			value = x;
 		}];
 

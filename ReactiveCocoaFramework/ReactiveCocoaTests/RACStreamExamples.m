@@ -51,7 +51,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		verifyValues(stream, @[ RACUnit.defaultUnit ]);
 	});
 
-	describe(@"-concat:", ^{
+	describe(@"-streamByAppendingStream:", ^{
 		it(@"should concatenate two streams", ^{
 			RACStream *stream = [[streamClass return:@0] streamByAppendingStream:[streamClass return:@1]];
 			verifyValues(stream, @[ @0, @1 ]);
@@ -171,7 +171,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 				};
 			}];
 
-			// Just so +zip:reduce: thinks this is a unique stream.
+			// Just so +streamByZippingStreams:andReducingObjectsWithIterationHandler: thinks this is a unique stream.
 			RACStream *anotherStream = [[streamClass empty] streamByAppendingStream:countingStream];
 
 			RACStream *zipped = [streamClass streamByZippingStreams:@[ countingStream, anotherStream ]
@@ -183,7 +183,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 	});
 
-	describe(@"-flattenMap:", ^{
+	describe(@"-streamByCombiningStreamsFromSignalHandler:", ^{
 		it(@"should return a single mapped result", ^{
 			RACStream *stream = [[streamClass return:@0] streamByCombiningStreamsFromSignalHandler:^(NSNumber *value) {
 				NSNumber *newValue = @(value.integerValue + 1);
@@ -216,7 +216,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 	});
 
-	describe(@"-sequenceMany:", ^{
+	describe(@"-streamByCombiningStreamsWithIterationBlock:", ^{
 		it(@"should return the result of sequencing a single value", ^{
 			RACStream *stream = [[streamClass return:@0] streamByCombiningStreamsWithIterationBlock:^{
 				return [streamClass return:@10];
@@ -267,7 +267,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		verifyValues(stream, @[ @0, @1 ]);
 	});
 
-	describe(@"-skip:", ^{
+	describe(@"-streamByRemovingObjectsBeforeIndex:", ^{
 		__block NSArray *values;
 		__block RACStream *stream;
 
@@ -362,7 +362,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			];
 		});
 
-		describe(@"-zipWith:", ^{
+		describe(@"-zippedStreamByCombiningWithStream:", ^{
 			it(@"should make a stream of tuples", ^{
 				RACStream *stream = [streamOne zippedStreamByCombiningWithStream:streamTwo];
 				verifyValues(stream, twoStreamTuples);
@@ -397,7 +397,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			});
 		});
 		
-		describe(@"+zip:reduce:", ^{
+		describe(@"+streamByZippingStreams:andReducingObjectsWithIterationHandler:", ^{
 			it(@"should reduce values", ^{
 				RACStream *stream = [streamClass streamByZippingStreams:threeStreams andReducingObjectsWithIterationHandler:^ NSString * (id x, id y, id z) {
 					return [NSString stringWithFormat:@"%@ %@ %@", x, y, z];
@@ -431,7 +431,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			});
 		});
 		
-		describe(@"+zip:", ^{
+		describe(@"+streamByZippingStreams:", ^{
 			it(@"should make a stream of tuples out of single value", ^{
 				RACStream *stream = [streamClass streamByZippingAndCombiningStreams:@[ streamOne ]];
 				verifyValues(stream, oneStreamTuples);
@@ -459,7 +459,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 	});
 
-	describe(@"+concat:", ^{
+	describe(@"+streamByAppendingStream:", ^{
 		__block NSArray *streams = nil;
 		__block NSArray *result = nil;
 		
@@ -506,7 +506,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 
 		it(@"should take until a predicate is true", ^{
-			RACStream *taken = [stream streamByCombiningObjectsInStreamUntilPredicate:^ BOOL (NSNumber *x) {
+			RACStream *taken = [stream streamByCombiningObjectsUntilPredicate:^ BOOL (NSNumber *x) {
 				return x.integerValue >= 3;
 			}];
 
@@ -514,7 +514,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 
 		it(@"should take while a predicate is true", ^{
-			RACStream *taken = [stream takeWhileBlock:^ BOOL (NSNumber *x) {
+			RACStream *taken = [stream streamByCombiningObjectsWhilePredicate:^ BOOL (NSNumber *x) {
 				return x.integerValue <= 1;
 			}];
 
@@ -522,7 +522,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 
 		it(@"should take a full stream", ^{
-			RACStream *taken = [stream takeWhileBlock:^ BOOL (NSNumber *x) {
+			RACStream *taken = [stream streamByCombiningObjectsWhilePredicate:^ BOOL (NSNumber *x) {
 				return x.integerValue <= 10;
 			}];
 
@@ -530,7 +530,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 
 		it(@"should return an empty stream", ^{
-			RACStream *taken = [stream takeWhileBlock:^ BOOL (NSNumber *x) {
+			RACStream *taken = [stream streamByCombiningObjectsWhilePredicate:^ BOOL (NSNumber *x) {
 				return x.integerValue < 0;
 			}];
 
@@ -542,7 +542,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 				return @(running.unsignedIntegerValue + 1);
 			}];
 
-			RACStream *taken = [infiniteCounter takeWhileBlock:^ BOOL (NSNumber *x) {
+			RACStream *taken = [infiniteCounter streamByCombiningObjectsWhilePredicate:^ BOOL (NSNumber *x) {
 				return x.integerValue <= 5;
 			}];
 
@@ -560,7 +560,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 
 		it(@"should skip until a predicate is true", ^{
-			RACStream *taken = [stream streamByCombiningObjectsAfterPredicate:^ BOOL (NSNumber *x) {
+			RACStream *taken = [stream streamByRemovingObjectsUntilPredicate:^ BOOL (NSNumber *x) {
 				return x.integerValue >= 3;
 			}];
 
@@ -568,7 +568,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 
 		it(@"should skip while a predicate is true", ^{
-			RACStream *taken = [stream skipWhileBlock:^ BOOL (NSNumber *x) {
+			RACStream *taken = [stream streamByRemovingObjectsWhilePredicate:^ BOOL (NSNumber *x) {
 				return x.integerValue <= 1;
 			}];
 
@@ -576,7 +576,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 
 		it(@"should skip a full stream", ^{
-			RACStream *taken = [stream skipWhileBlock:^ BOOL (NSNumber *x) {
+			RACStream *taken = [stream streamByRemovingObjectsWhilePredicate:^ BOOL (NSNumber *x) {
 				return x.integerValue <= 10;
 			}];
 
@@ -584,7 +584,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 
 		it(@"should finish skipping immediately", ^{
-			RACStream *taken = [stream skipWhileBlock:^ BOOL (NSNumber *x) {
+			RACStream *taken = [stream streamByRemovingObjectsWhilePredicate:^ BOOL (NSNumber *x) {
 				return x.integerValue < 0;
 			}];
 
@@ -592,7 +592,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 	});
 
-	describe(@"-mapPreviousWithStart:combine:", ^{
+	describe(@"-streamByCombiningPreviousObjects:andCurrentObjectsWithCombinationHandler:", ^{
 		NSArray *values = @[ @1, @2, @3 ];
 		__block RACStream *stream;
 		beforeEach(^{

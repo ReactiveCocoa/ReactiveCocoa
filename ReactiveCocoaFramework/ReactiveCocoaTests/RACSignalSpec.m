@@ -1917,7 +1917,7 @@ it(@"should complete take: even if the original signal doesn't", ^{
 	expect(completed).to.beTruthy();
 });
 
-describe(@"+zip:", ^{
+describe(@"+streamByZippingStreams:", ^{
 	__block RACSubject *subject1 = nil;
 	__block RACSubject *subject2 = nil;
 	__block BOOL hasSentError = NO;

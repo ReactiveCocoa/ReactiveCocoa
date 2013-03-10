@@ -29,14 +29,14 @@
 //
 // Examples
 //
-//   [button rac_liftSelector:@selector(setTitleColor:forState:) withObjects:textColorSignal, @(UIControlStateNormal)];
+//   [button signalWithCompletionSelector:@selector(setTitleColor:forState:) andObjects:textColorSignal, @(UIControlStateNormal)];
 //
 // Returns a signal which sends the return value from each invocation of the
 // selector. If the selector returns void, it instead sends RACUnit.defaultUnit.
 // It completes only after all the signal arguments complete.
-- (RACSignal *)signalWithCompletionSelector:(SEL)selector andArguments:(id)arg, ...;
+- (RACSignal *)signalWithCompletionSelector:(SEL)selector andObjects:(id)arg, ...;
 
-// Like -rac_liftSelector:withObjects: but invokes the block instead of a selector.
+// Like -signalWithCompletionSelector:withObjects: but invokes the block instead of a selector.
 //
 // It will replay the most recently sent value to new subscribers.
 //
@@ -47,6 +47,7 @@
 //
 // Returns a signal which sends the return value from each invocation of the
 // block. It completes only after all the signal arguments complete.
-- (RACSignal *)signalWithCompletionBlock:(id)block andArguments:(id)arg, ... NS_REQUIRES_NIL_TERMINATION;
+- (RACSignal *)signalWithCompletionBlock:(id)block
+							  andObjects:(id)arg, ... NS_REQUIRES_NIL_TERMINATION;
 
 @end

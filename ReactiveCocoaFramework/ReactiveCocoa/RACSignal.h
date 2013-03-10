@@ -32,7 +32,7 @@
 //
 // didSubscribe - Called when the signal is subscribed to. The new subscriber is
 //                passed in. You can then manually control the <RACSubscriber> by
-//                sending it -didUpdateWithNewValue:, -sendError:, and -sendCompleted,
+//                sending it -didUpdateWithNewValue:, -didReceiveErrorWithError:, and -terminateSubscription,
 //                as defined by the operation you're implementing. This block
 //                should return a RACDisposable which cancels any ongoing work
 //                triggered by the subscription, and cleans up any resources or

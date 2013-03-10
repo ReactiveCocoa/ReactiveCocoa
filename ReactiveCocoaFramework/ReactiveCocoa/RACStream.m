@@ -71,7 +71,7 @@
 		return ^(id value, BOOL *stop) {
 			return block(value);
 		};
-	}] setNameWithFormat:@"[%@] -flattenMap:", self.name];
+	}] setNameWithFormat:@"[%@] -streamByCombiningStreamsFromSignalHandler:", self.name];
 }
 
 - (instancetype)flattened {
@@ -89,13 +89,13 @@
 	
 	return [[self streamByCombiningStreamsFromSignalHandler:^(id value) {
 		return [class return:block(value)];
-	}] setNameWithFormat:@"[%@] -map:", self.name];
+	}] setNameWithFormat:@"[%@] -streamWithMappedValuesFromBlock:", self.name];
 }
 
 - (instancetype)streamByReplacingValuesWithObject:(id)object {
 	return [[self streamWithMappedValuesFromBlock:^(id _) {
 		return object;
-	}] setNameWithFormat:@"[%@] -mapReplace: %@", self.name, object];
+	}] setNameWithFormat:@"[%@] -streamByReplacingValuesWithObject: %@", self.name, object];
 }
 
 - (instancetype)streamByCombiningPreviousObjects:(id)start andCurrentObjectsWithCombinationHandler:(id (^)(id previous, id next))combineBlock {
@@ -109,7 +109,7 @@
 		streamWithMappedValuesFromBlock:^(RACTuple *tuple) {
 			return tuple[1];
 		}]
-		setNameWithFormat:@"[%@] -mapPreviousWithStart: %@ combine:", self.name, start];
+		setNameWithFormat:@"[%@] -streamByCombiningPreviousObjects: %@ andCurrentObjectsWithCombinationHandler:", self.name, start];
 }
 
 - (instancetype)streamByFilteringInObjectsWithValidationHandler:(BOOL (^)(id value))block {
@@ -123,7 +123,7 @@
 		} else {
 			return class.empty;
 		}
-	}] setNameWithFormat:@"[%@] -filter:", self.name];
+	}] setNameWithFormat:@"[%@] -streamByFilteringInObjectsWithValidationHandler:", self.name];
 }
 
 - (instancetype)streamByReducingObjectsWithIterationHandler:(id)reduceBlock {
@@ -133,7 +133,7 @@
 	return [[self streamWithMappedValuesFromBlock:^(RACTuple *t) {
 		NSAssert([t isKindOfClass:RACTuple.class], @"Value from stream %@ is not a tuple: %@", stream, t);
 		return [RACBlockTrampoline invokeBlock:reduceBlock withArguments:t];
-	}] setNameWithFormat:@"[%@] -reduceEach:", self.name];
+	}] setNameWithFormat:@"[%@] -streamByReducingObjectsWithIterationHandler:", self.name];
 }
 
 - (instancetype)streamByPrependingValue:(id)value {
@@ -154,7 +154,7 @@
 			skipped++;
 			return class.empty;
 		};
-	}] setNameWithFormat:@"[%@] -skip: %lu", self.name, (unsigned long)skipCount];
+	}] setNameWithFormat:@"[%@] -streamByRemovingObjectsBeforeIndex: %lu", self.name, (unsigned long)skipCount];
 }
 
 - (instancetype)streamWithObjectsUntilIndex:(NSUInteger)count {
@@ -179,7 +179,7 @@
 
 	return [[self streamByCombiningStreamsFromSignalHandler:^(id _) {
 		return block();
-	}] setNameWithFormat:@"[%@] -sequenceMany:", self.name];
+	}] setNameWithFormat:@"[%@] -streamByCombiningStreamsWithIterationBlock:", self.name];
 }
 
 + (instancetype)streamByZippingAndCombiningStreams:(id<NSFastEnumeration>)streams {
@@ -222,7 +222,7 @@
 	}
 
 	if (current == nil) return [self empty];
-	return [current setNameWithFormat:@"+zip: %@", streams];
+	return [current setNameWithFormat:@"+streamByZippingStreams: %@", streams];
 }
 
 + (instancetype)streamByZippingStreams:(id<NSFastEnumeration>)streams
@@ -236,7 +236,7 @@ andReducingObjectsWithIterationHandler:(id)reduceBlock {
 	// apps that depended on that.
 	if (reduceBlock != nil) result = [result streamByReducingObjectsWithIterationHandler:reduceBlock];
 
-	return [result setNameWithFormat:@"+zip: %@ reduce:", streams];
+	return [result setNameWithFormat:@"+streamByZippingStreams: %@ andReducingObjectsWithIterationHandler:", streams];
 }
 
 + (instancetype)streamByAppendingStreams:(id<NSFastEnumeration>)streams {
@@ -245,7 +245,7 @@ andReducingObjectsWithIterationHandler:(id)reduceBlock {
 		result = [result streamByAppendingStream:stream];
 	}
 
-	return [result setNameWithFormat:@"+concat: %@", streams];
+	return [result setNameWithFormat:@"+streamByAppendingStream: %@", streams];
 }
 
 - (instancetype)scanWithStart:(id)startingValue
@@ -264,7 +264,7 @@ andReducingObjectsWithIterationHandler:(id)reduceBlock {
 	}] setNameWithFormat:@"[%@] -scanWithStart: %@ combine:", self.name, startingValue];
 }
 
-- (instancetype)streamByCombiningObjectsInStreamUntilPredicate:(BOOL (^)(id x))predicate {
+- (instancetype)streamByCombiningObjectsUntilPredicate:(BOOL (^)(id x))predicate {
 	NSParameterAssert(predicate != nil);
 
 	Class class = self.class;
@@ -275,18 +275,18 @@ andReducingObjectsWithIterationHandler:(id)reduceBlock {
 
 			return [class return:value];
 		};
-	}] setNameWithFormat:@"[%@] -takeUntilBlock:", self.name];
+	}] setNameWithFormat:@"[%@] -streamByCombiningObjectsUntilPredicate:", self.name];
 }
 
-- (instancetype)takeWhileBlock:(BOOL (^)(id x))predicate {
+- (instancetype)streamByCombiningObjectsWhilePredicate:(BOOL (^)(id x))predicate {
 	NSParameterAssert(predicate != nil);
 
-	return [[self streamByCombiningObjectsInStreamUntilPredicate:^ BOOL (id x) {
+	return [[self streamByCombiningObjectsUntilPredicate:^ BOOL (id x) {
 		return !predicate(x);
-	}] setNameWithFormat:@"[%@] -takeWhileBlock:", self.name];
+	}] setNameWithFormat:@"[%@] -streamByCombiningObjectsUntilPredicate:", self.name];
 }
 
-- (instancetype)streamByCombiningObjectsAfterPredicate:(BOOL (^)(id x))predicate {
+- (instancetype)streamByRemovingObjectsUntilPredicate:(BOOL (^)(id x))predicate {
 	NSParameterAssert(predicate != nil);
 
 	Class class = self.class;
@@ -305,15 +305,15 @@ andReducingObjectsWithIterationHandler:(id)reduceBlock {
 
 			return [class return:value];
 		};
-	}] setNameWithFormat:@"[%@] -skipUntilBlock:", self.name];
+	}] setNameWithFormat:@"[%@] -streamByRemovingObjectsUntilPredicate:", self.name];
 }
 
-- (instancetype)skipWhileBlock:(BOOL (^)(id x))predicate {
+- (instancetype)streamByRemovingObjectsWhilePredicate:(BOOL (^)(id x))predicate {
 	NSParameterAssert(predicate != nil);
 
-	return [[self streamByCombiningObjectsAfterPredicate:^ BOOL (id x) {
+	return [[self streamByRemovingObjectsUntilPredicate:^ BOOL (id x) {
 		return !predicate(x);
-	}] setNameWithFormat:@"[%@] -skipUntilBlock:", self.name];
+	}] setNameWithFormat:@"[%@] -streamByRemovingObjectsUntilPredicate:", self.name];
 }
 
 @end

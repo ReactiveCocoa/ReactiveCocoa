@@ -37,7 +37,7 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 // Lazily binds a block to the values in the receiver.
 //
 // This should only be used if you need to terminate the bind early, or close
-// over some state. -flattenMap: is more appropriate for all other cases.
+// over some state. -streamByCombiningStreamsFromSignalHandler: is more appropriate for all other cases.
 //
 // block - A block returning a RACStreamBindBlock. This block will be invoked
 //         each time the bound stream is re-evaluated. This block must not be
@@ -97,8 +97,8 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 
 // Maps `block` across the values in the receiver and flattens the result.
 //
-// Note that operators applied _after_ -flattenMap: behave differently from
-// operators _within_ -flattenMap:. See the Examples section below.
+// Note that operators applied _after_ -streamByCombiningStreamsFromSignalHandler: behave differently from
+// operators _within_ -streamByCombiningStreamsFromSignalHandler:. See the Examples section below.
 //
 // This corresponds to the `SelectMany` method in Rx.
 //
@@ -107,13 +107,13 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 //
 // Examples
 //
-//   [signal flattenMap:^(id x) {
+//   [signal streamByCombiningStreamsFromSignalHandler:^(id x) {
 //       // Logs each time a returned signal completes.
 //       return [[RACSignal return:x] logCompleted];
 //   }];
 //
 //   [[signal
-//       flattenMap:^(id x) {
+//       streamByCombiningStreamsFromSignalHandler:^(id x) {
 //           return [RACSignal return:x];
 //       }]
 //       // Logs only once, when all of the signals complete.
@@ -191,7 +191,7 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 
 // Invokes the given `block` for each value in the receiver.
 //
-// This method is equivalent to a -flattenMap: that simply ignores the input
+// This method is equivalent to a -streamByCombiningStreamsFromSignalHandler: that simply ignores the input
 // values.
 //
 // block - A block which returns a new instance of the receiver's class.
@@ -213,8 +213,8 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 // streams.
 + (instancetype)streamByZippingAndCombiningStreams:(id<NSFastEnumeration>)streams;
 
-// Zips streams using +zip:, then reduces the resulting tuples into a single
-// value using -reduceEach:
+// Zips streams using +streamByZippingStreams:, then reduces the resulting tuples into a single
+// value using -streamByReducingObjectsWithIterationHandler:
 //
 // streams     - The streams to combine. These must all be instances of the
 //               same concrete class implementing the protocol. If this
@@ -226,7 +226,7 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 //
 // Example:
 //
-//   [RACStream zip:@[ stringSignal, intSignal ] reduce:^(NSString *string, NSNumber *number) {
+//   [RACStream streamByZippingStreams:@[ stringSignal, intSignal ] andReducingObjectsWithIterationHandler:^(NSString *string, NSNumber *number) {
 //       return [NSString stringWithFormat:@"%@: %@", string, number];
 //   }];
 //
@@ -265,27 +265,27 @@ andReducingObjectsWithIterationHandler:(id)reduceBlock;
 // Returns a stream of the initial values in the receiver that fail `predicate`.
 // If `predicate` never returns `YES`, a stream equivalent to the receiver is
 // returned.
-- (instancetype)streamByCombiningObjectsInStreamUntilPredicate:(BOOL (^)(id x))predicate;
+- (instancetype)streamByCombiningObjectsUntilPredicate:(BOOL (^)(id x))predicate;
 
 // Takes values until the given block returns `NO`.
 //
 // Returns a stream of the initial values in the receiver that pass `predicate`.
 // If `predicate` never returns `NO`, a stream equivalent to the receiver is
 // returned.
-- (instancetype)takeWhileBlock:(BOOL (^)(id x))predicate;
+- (instancetype)streamByCombiningObjectsWhilePredicate:(BOOL (^)(id x))predicate;
 
 // Skips values until the given block returns `YES`.
 //
 // Returns a stream containing the values of the receiver that follow any
 // initial values failing `predicate`. If `predicate` never returns `YES`,
 // an empty stream is returned.
-- (instancetype)streamByCombiningObjectsAfterPredicate:(BOOL (^)(id x))predicate;
+- (instancetype)streamByRemovingObjectsUntilPredicate:(BOOL (^)(id x))predicate;
 
 // Skips values until the given block returns `NO`.
 //
 // Returns a stream containing the values of the receiver that follow any
 // initial values passing `predicate`. If `predicate` never returns `NO`, an
 // empty stream is returned.
-- (instancetype)skipWhileBlock:(BOOL (^)(id x))predicate;
+- (instancetype)streamByRemovingObjectsWhilePredicate:(BOOL (^)(id x))predicate;
 
 @end

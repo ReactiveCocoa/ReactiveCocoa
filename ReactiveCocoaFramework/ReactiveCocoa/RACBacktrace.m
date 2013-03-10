@@ -58,7 +58,7 @@ static void RACTraceDispatch (void *ptr) {
 // Always inline this function, for consistency in backtraces.
 __attribute__((always_inline))
 static dispatch_block_t RACBacktraceBlock (dispatch_queue_t queue, dispatch_block_t block) {
-	RACBacktrace *backtrace = [RACBacktrace captureBacktrace];
+	RACBacktrace *backtrace = [RACBacktrace capturedBacktrace];
 
 	return [^{
 		dispatch_queue_set_specific(queue, (void *)pthread_self(), (void *)CFBridgingRetain(backtrace), (dispatch_function_t)&CFBridgingRelease);
@@ -165,11 +165,11 @@ static void RACExceptionHandler (NSException *ex) {
 
 #pragma mark Backtraces
 
-+ (instancetype)captureBacktrace {
-	return [self captureBacktraceIgnoringFrames:1];
++ (instancetype)capturedBacktrace {
+	return [self capturedBacktraceByRemovingFrames:1];
 }
 
-+ (instancetype)captureBacktraceIgnoringFrames:(NSUInteger)ignoreCount {
++ (instancetype)capturedBacktraceByRemovingFrames:(NSUInteger)ignoreCount {
 	@autoreleasepool {
 		RACBacktrace *oldBacktrace = (__bridge id)dispatch_get_specific((void *)pthread_self());
 
@@ -192,7 +192,7 @@ static void RACExceptionHandler (NSException *ex) {
 
 + (void)printBacktrace {
 	@autoreleasepool {
-		NSLog(@"Backtrace: %@", [self captureBacktraceIgnoringFrames:1]);
+		NSLog(@"Backtrace: %@", [self capturedBacktraceByRemovingFrames:1]);
 		fflush(stdout);
 	}
 }
@@ -222,7 +222,7 @@ static void RACExceptionHandler (NSException *ex) {
 		self = [super init];
 		if (self == nil) return nil;
 
-		_backtrace = [RACBacktrace captureBacktraceIgnoringFrames:1];
+		_backtrace = [RACBacktrace capturedBacktraceByRemovingFrames:1];
 
 		dispatch_retain(queue);
 		_queue = queue;

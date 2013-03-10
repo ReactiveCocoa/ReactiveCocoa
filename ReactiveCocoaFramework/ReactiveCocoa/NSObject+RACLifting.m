@@ -28,7 +28,7 @@
 	return connection.signal;
 }
 
-- (RACSignal *)signalWithCompletionSelector:(SEL)selector andArguments:(id)arg, ... {
+- (RACSignal *)signalWithCompletionSelector:(SEL)selector andObjects:(id)arg, ... {
 	NSMethodSignature *methodSignature = [self methodSignatureForSelector:selector];
 	NSAssert(methodSignature != nil, @"%@ does not respond to %@", self, NSStringFromSelector(selector));
 
@@ -82,7 +82,7 @@
 	}
 }
 
-- (RACSignal *)signalWithCompletionBlock:(id)block andArguments:(id)arg, ... {
+- (RACSignal *)signalWithCompletionBlock:(id)block andObjects:(id)arg, ... {
 	NSParameterAssert(block != nil);
 
 	NSMutableArray *arguments = [NSMutableArray array];

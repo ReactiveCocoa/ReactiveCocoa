@@ -39,7 +39,7 @@
 	NSParameterAssert([sequence isKindOfClass:RACSequence.class]);
 
 	NSArray *array = [self.array arrayByAddingObjectsFromArray:sequence.array];
-	return [[self.class sequenceWithArray:array offset:0] setNameWithFormat:@"[%@] -concat: %@", self.name, sequence];
+	return [[self.class sequenceWithArray:array offset:0] setNameWithFormat:@"[%@] -streamByAppendingStream: %@", self.name, sequence];
 }
 
 #pragma mark Extended methods

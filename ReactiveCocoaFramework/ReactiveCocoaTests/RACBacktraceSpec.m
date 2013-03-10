@@ -14,7 +14,7 @@
 static RACBacktrace *previousBacktrace;
 
 static void capturePreviousBacktrace(void *context) {
-	previousBacktrace = [RACBacktrace captureBacktrace].previousThreadBacktrace;
+	previousBacktrace = [RACBacktrace capturedBacktrace].previousThreadBacktrace;
 }
 
 SpecBegin(RACBacktrace)
@@ -22,7 +22,7 @@ SpecBegin(RACBacktrace)
 __block dispatch_block_t block;
 
 beforeEach(^{
-	expect([RACBacktrace captureBacktrace].previousThreadBacktrace).to.beNil();
+	expect([RACBacktrace capturedBacktrace].previousThreadBacktrace).to.beNil();
 	previousBacktrace = nil;
 
 	block = ^{
@@ -31,7 +31,7 @@ beforeEach(^{
 });
 
 it(@"should capture the current backtrace", ^{
-	RACBacktrace *backtrace = [RACBacktrace captureBacktrace];
+	RACBacktrace *backtrace = [RACBacktrace capturedBacktrace];
 	expect(backtrace).notTo.beNil();
 });
 

@@ -502,7 +502,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 + (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals {
 	RACSignal *current = nil;
 
-	// The logic here matches that of +[RACStream zip:]. See that implementation
+	// The logic here matches that of +[RACStream streamByZippingStreams:]. See that implementation
 	// for more information about what's going on here.
 	for (RACSignal *signal in signals) {
 		if (current == nil) {

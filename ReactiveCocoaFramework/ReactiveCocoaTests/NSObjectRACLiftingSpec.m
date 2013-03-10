@@ -15,7 +15,7 @@
 
 SpecBegin(NSObjectRACLiftingSpec)
 
-describe(@"-rac_liftSelector:withObjects:", ^{
+describe(@"-signalWithCompletionSelector:withObjects:", ^{
 	__block RACTestObject *object;
 
 	beforeEach(^{
@@ -24,7 +24,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 
 	it(@"should call the selector with the value of the signal", ^{
 		RACSubject *subject = [RACSubject subject];
-		[object signalWithCompletionSelector:@selector(setObjectValue:) andArguments:subject];
+		[object signalWithCompletionSelector:@selector(setObjectValue:) andObjects:subject];
 
 		expect(object.objectValue).to.beNil();
 
@@ -37,7 +37,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 
 	it(@"should call the selector with the value of the signal unboxed", ^{
 		RACSubject *subject = [RACSubject subject];
-		[object signalWithCompletionSelector:@selector(setIntegerValue:) andArguments:subject];
+		[object signalWithCompletionSelector:@selector(setIntegerValue:) andObjects:subject];
 
 		expect(object.integerValue).to.equal(0);
 
@@ -51,7 +51,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 	it(@"should work with multiple arguments", ^{
 		RACSubject *objectValueSubject = [RACSubject subject];
 		RACSubject *integerValueSubject = [RACSubject subject];
-		[object signalWithCompletionSelector:@selector(setObjectValue:andIntegerValue:) andArguments:objectValueSubject, integerValueSubject];
+		[object signalWithCompletionSelector:@selector(setObjectValue:andIntegerValue:) andObjects:objectValueSubject, integerValueSubject];
 
 		expect(object.hasInvokedSetObjectValueAndIntegerValue).to.beFalsy();
 		expect(object.objectValue).to.beNil();
@@ -70,7 +70,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 
 	it(@"should work with signals that immediately start with a value", ^{
 		RACSubject *subject = [RACSubject subject];
-		[object signalWithCompletionSelector:@selector(setObjectValue:) andArguments:[subject streamByPrependingValue:@42]];
+		[object signalWithCompletionSelector:@selector(setObjectValue:) andObjects:[subject streamByPrependingValue:@42]];
 
 		expect(object.objectValue).to.equal(@42);
 
@@ -79,14 +79,14 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 	});
 
 	it(@"should immediately invoke the selector when it isn't given any signal arguments", ^{
-		[object signalWithCompletionSelector:@selector(setObjectValue:) andArguments:@42];
+		[object signalWithCompletionSelector:@selector(setObjectValue:) andObjects:@42];
 
 		expect(object.objectValue).to.equal(@42);
 	});
 
 	it(@"should work with class objects", ^{
 		RACSubject *subject = [RACSubject subject];
-		[object signalWithCompletionSelector:@selector(setObjectValue:) andArguments:subject];
+		[object signalWithCompletionSelector:@selector(setObjectValue:) andObjects:subject];
 
 		expect(object.objectValue).to.equal(nil);
 
@@ -96,7 +96,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 
 	it(@"should work for char pointer", ^{
 		RACSubject *subject = [RACSubject subject];
-		[object signalWithCompletionSelector:@selector(setCharPointerValue:) andArguments:subject];
+		[object signalWithCompletionSelector:@selector(setCharPointerValue:) andObjects:subject];
 
 		expect(object.charPointerValue).to.equal(NULL);
 
@@ -107,7 +107,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 
 	it(@"should work for CGRect", ^{
 		RACSubject *subject = [RACSubject subject];
-		[object signalWithCompletionSelector:@selector(setRectValue:) andArguments:subject];
+		[object signalWithCompletionSelector:@selector(setRectValue:) andObjects:subject];
 
 		expect(object.rectValue).to.equal(CGRectZero);
 
@@ -118,7 +118,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 
 	it(@"should work for CGSize", ^{
 		RACSubject *subject = [RACSubject subject];
-		[object signalWithCompletionSelector:@selector(setSizeValue:) andArguments:subject];
+		[object signalWithCompletionSelector:@selector(setSizeValue:) andObjects:subject];
 
 		expect(object.sizeValue).to.equal(CGSizeZero);
 
@@ -129,7 +129,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 
 	it(@"should work for CGPoint", ^{
 		RACSubject *subject = [RACSubject subject];
-		[object signalWithCompletionSelector:@selector(setPointValue:) andArguments:subject];
+		[object signalWithCompletionSelector:@selector(setPointValue:) andObjects:subject];
 
 		expect(object.pointValue).to.equal(CGPointZero);
 
@@ -140,7 +140,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 
 	it(@"should send the latest value of the signal as the right argument", ^{
 		RACSubject *subject = [RACSubject subject];
-		[object signalWithCompletionSelector:@selector(setObjectValue:andIntegerValue:) andArguments:@"object", subject];
+		[object signalWithCompletionSelector:@selector(setObjectValue:andIntegerValue:) andObjects:@"object", subject];
 		[subject didUpdateWithNewValue:@1];
 
 		expect(object.objectValue).to.equal(@"object");
@@ -151,7 +151,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		it(@"should send the return value of the method invocation", ^{
 			RACSubject *objectSubject = [RACSubject subject];
 			RACSubject *integerSubject = [RACSubject subject];
-			RACSignal *signal = [object signalWithCompletionSelector:@selector(combineObjectValue:andIntegerValue:) andArguments:objectSubject, integerSubject];
+			RACSignal *signal = [object signalWithCompletionSelector:@selector(combineObjectValue:andIntegerValue:) andObjects:objectSubject, integerSubject];
 
 			__block NSString *result;
 			[signal subscribeNext:^(id x) {
@@ -167,7 +167,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 
 		it(@"should send RACUnit.defaultUnit for void-returning methods", ^{
 			RACSubject *subject = [RACSubject subject];
-			RACSignal *signal = [object signalWithCompletionSelector:@selector(setObjectValue:) andArguments:subject];
+			RACSignal *signal = [object signalWithCompletionSelector:@selector(setObjectValue:) andObjects:subject];
 
 			__block id result;
 			[signal subscribeNext:^(id x) {
@@ -182,7 +182,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		it(@"should replay the last value", ^{
 			RACSubject *objectSubject = [RACSubject subject];
 			RACSubject *integerSubject = [RACSubject subject];
-			RACSignal *signal = [object signalWithCompletionSelector:@selector(combineObjectValue:andIntegerValue:) andArguments:objectSubject, integerSubject];
+			RACSignal *signal = [object signalWithCompletionSelector:@selector(combineObjectValue:andIntegerValue:) andObjects:objectSubject, integerSubject];
 
 			[objectSubject didUpdateWithNewValue:@"Magic number"];
 			[integerSubject didUpdateWithNewValue:@42];
@@ -206,7 +206,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 			}]];
 
 			RACSubject *subject = [RACSubject subject];
-			[testObject signalWithCompletionSelector:@selector(setObjectValue:) andArguments:subject];
+			[testObject signalWithCompletionSelector:@selector(setObjectValue:) andObjects:subject];
 			[subject didUpdateWithNewValue:@1];
 		}
 
@@ -214,7 +214,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 	});
 });
 
-describe(@"-rac_liftBlock:withObjects:", ^{
+describe(@"-signalWithCompletionBlock:withObjects:", ^{
 	it(@"should invoke the block with the latest value from the signals", ^{
 		RACSubject *subject1 = [RACSubject subject];
 		RACSubject *subject2 = [RACSubject subject];
@@ -225,7 +225,7 @@ describe(@"-rac_liftBlock:withObjects:", ^{
 			received1 = arg1;
 			received2 = arg2;
 			return @(arg1.unsignedIntegerValue + arg2.unsignedIntegerValue);
-		} andArguments:subject1, subject2, nil];
+		} andObjects:subject1, subject2, nil];
 
 		[subject1 didUpdateWithNewValue:@1];
 		expect(received1).to.beNil();
@@ -251,7 +251,7 @@ describe(@"-rac_liftBlock:withObjects:", ^{
 			received1 = object1;
 			received2 = object2;
 			return nil;
-		} andArguments:@"object", subject, nil];
+		} andObjects:@"object", subject, nil];
 		
 		[subject didUpdateWithNewValue:@1];
 

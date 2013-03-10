@@ -287,7 +287,7 @@ static NSMutableSet *activeSignals() {
 
 		if (sourceDisposable != nil) [disposable addDisposable:sourceDisposable];
 		return disposable;
-	}] setNameWithFormat:@"[%@] -concat: %@", self.name, signal];
+	}] setNameWithFormat:@"[%@] -streamByAppendingStream: %@", self.name, signal];
 }
 
 - (RACSignal *)zippedStreamByCombiningWithStream:(RACSignal *)signal {
@@ -357,7 +357,7 @@ static NSMutableSet *activeSignals() {
 		if (otherDisposable != nil) [disposable addDisposable:otherDisposable];
 
 		return disposable;
-	}] setNameWithFormat:@"[%@] -zipWith: %@", self.name, signal];
+	}] setNameWithFormat:@"[%@] -zippedStreamByCombiningWithStream: %@", self.name, signal];
 }
 
 @end

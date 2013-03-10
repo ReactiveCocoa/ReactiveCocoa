@@ -144,7 +144,7 @@
 
 	return [[[RACArraySequence sequenceWithArray:@[ self, stream ] offset:0]
 		flattened]
-		setNameWithFormat:@"[%@] -concat: %@", self.name, stream];
+		setNameWithFormat:@"[%@] -streamByAppendingStream: %@", self.name, stream];
 }
 
 - (instancetype)zippedStreamByCombiningWithStream:(RACSequence *)sequence {
@@ -160,7 +160,7 @@
 
 			return [self.tail zippedStreamByCombiningWithStream:sequence.tail];
 		}]
-		setNameWithFormat:@"[%@] -zipWith: %@", self.name, sequence];
+		setNameWithFormat:@"[%@] -zippedStreamByCombiningWithStream: %@", self.name, sequence];
 }
 
 #pragma mark Extended methods

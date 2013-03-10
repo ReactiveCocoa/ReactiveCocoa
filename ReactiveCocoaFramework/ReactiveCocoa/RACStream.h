@@ -53,7 +53,7 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 //          concrete class as the receiver, and should not be `nil`.
 //
 // Returns a new stream representing the receiver followed by `stream`.
-- (instancetype)concat:(RACStream *)stream;
+- (instancetype)streamByAppendingStream:(RACStream *)stream;
 
 // Zips the values in the receiver with those of the given stream to create
 // RACTuples.
@@ -66,7 +66,7 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 //
 // Returns a new stream of RACTuples, representing the zipped values of the
 // two streams.
-- (instancetype)zipWith:(RACStream *)stream;
+- (instancetype)zippedStreamByCombiningWithStream:(RACStream *)stream;
 
 @end
 
@@ -121,7 +121,7 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 //
 // Returns a new stream which represents the combined streams resulting from
 // mapping `block`.
-- (instancetype)flattenMap:(RACStream * (^)(id value))block;
+- (instancetype)streamByCombiningStreamsFromSignalHandler:(RACStream * (^)(id value))block;
 
 // Flattens a stream of streams.
 //
@@ -129,20 +129,20 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 //
 // Returns a stream consisting of the combined streams obtained from the
 // receiver.
-- (instancetype)flatten;
+- (instancetype)flattened;
 
 // Maps `block` across the values in the receiver.
 //
 // This corresponds to the `Select` method in Rx.
 //
 // Returns a new stream with the mapped values.
-- (instancetype)map:(id (^)(id value))block;
+- (instancetype)streamWithMappedValuesFromBlock:(id (^)(id value))block;
 
 // Replace each value in the receiver with the given object.
 //
 // Returns a new stream which includes the given object once for each value in
 // the receiver.
-- (instancetype)mapReplace:(id)object;
+- (instancetype)streamByReplacingValuesWithObject:(id)object;
 
 // Maps the combination of the previous and current objects to one object.
 //
@@ -153,14 +153,15 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 //
 // Returns a new stream consisting of the return values from each application of
 // `combineBlock`.
-- (instancetype)mapPreviousWithStart:(id)start combine:(id (^)(id previous, id current))combineBlock;
+- (instancetype)streamByCombiningPreviousObjects:(id)start
+		 andCurrentObjectsWithCombinationHandler:(id (^)(id previous, id current))combineBlock;
 
 // Filters out values in the receiver that don't pass the given test.
 //
 // This corresponds to the `Where` method in Rx.
 //
 // Returns a new stream with only those values that passed.
-- (instancetype)filter:(BOOL (^)(id value))block;
+- (instancetype)streamByFilteringInObjectsWithValidationHandler:(BOOL (^)(id value))block;
 
 // Unpacks each RACTuple in the receiver and maps the values to a new value.
 //
@@ -170,18 +171,18 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 //               This argument cannot be nil.
 //
 // Returns a new stream of reduced tuple values.
-- (instancetype)reduceEach:(id)reduceBlock;
+- (instancetype)streamByReducingObjectsWithIterationHandler:(id)reduceBlock;
 
 // Returns a stream consisting of `value`, followed by the values in the
 // receiver.
-- (instancetype)startWith:(id)value;
+- (instancetype)streamByPrependingValue:(id)value;
 
 // Skips the first `skipCount` values in the receiver.
 //
 // Returns the receiver after skipping the first `skipCount` values. If
 // `skipCount` is greater than the number of values in the stream, an empty
 // stream is returned.
-- (instancetype)skip:(NSUInteger)skipCount;
+- (instancetype)streamByRemovingObjectsBeforeIndex:(NSUInteger)skipCount;
 
 // Returns a stream of the first `count` values in the receiver. If `count` is
 // greater than or equal to the number of values in the stream, a stream
@@ -234,7 +235,7 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 + (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id)reduceBlock;
 
 // Returns a stream obtained by concatenating `streams` in order.
-+ (instancetype)concat:(id<NSFastEnumeration>)streams;
++ (instancetype)streamByAppendingStreams:(id<NSFastEnumeration>)streams;
 
 // Combines values in the receiver from left to right using the given block.
 //
@@ -262,7 +263,7 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 // Returns a stream of the initial values in the receiver that fail `predicate`.
 // If `predicate` never returns `YES`, a stream equivalent to the receiver is
 // returned.
-- (instancetype)takeUntilBlock:(BOOL (^)(id x))predicate;
+- (instancetype)streamByCombiningObjectsInStreamUntilPredicate:(BOOL (^)(id x))predicate;
 
 // Takes values until the given block returns `NO`.
 //
@@ -276,7 +277,7 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 // Returns a stream containing the values of the receiver that follow any
 // initial values failing `predicate`. If `predicate` never returns `YES`,
 // an empty stream is returned.
-- (instancetype)skipUntilBlock:(BOOL (^)(id x))predicate;
+- (instancetype)streamByCombiningObjectsAfterPredicate:(BOOL (^)(id x))predicate;
 
 // Skips values until the given block returns `NO`.
 //

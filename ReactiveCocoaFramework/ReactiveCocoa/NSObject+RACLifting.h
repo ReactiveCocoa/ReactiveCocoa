@@ -34,7 +34,7 @@
 // Returns a signal which sends the return value from each invocation of the
 // selector. If the selector returns void, it instead sends RACUnit.defaultUnit.
 // It completes only after all the signal arguments complete.
-- (RACSignal *)rac_liftSelector:(SEL)selector withObjects:(id)arg, ...;
+- (RACSignal *)signalWithCompletionSelector:(SEL)selector andArguments:(id)arg, ...;
 
 // Like -rac_liftSelector:withObjects: but invokes the block instead of a selector.
 //
@@ -47,6 +47,6 @@
 //
 // Returns a signal which sends the return value from each invocation of the
 // block. It completes only after all the signal arguments complete.
-- (RACSignal *)rac_liftBlock:(id)block withArguments:(id)arg, ... NS_REQUIRES_NIL_TERMINATION;
+- (RACSignal *)signalWithCompletionBlock:(id)block andArguments:(id)arg, ... NS_REQUIRES_NIL_TERMINATION;
 
 @end

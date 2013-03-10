@@ -139,15 +139,15 @@
 	return sequence;
 }
 
-- (instancetype)concat:(RACStream *)stream {
+- (instancetype)streamByAppendingStream:(RACStream *)stream {
 	NSParameterAssert(stream != nil);
 
 	return [[[RACArraySequence sequenceWithArray:@[ self, stream ] offset:0]
-		flatten]
+		flattened]
 		setNameWithFormat:@"[%@] -concat: %@", self.name, stream];
 }
 
-- (instancetype)zipWith:(RACSequence *)sequence {
+- (instancetype)zippedStreamByCombiningWithStream:(RACSequence *)sequence {
 	NSParameterAssert(sequence != nil);
 
 	return [[RACSequence
@@ -158,7 +158,7 @@
 			if (self.tail == nil || [[RACSequence empty] isEqual:self.tail]) return nil;
 			if (sequence.tail == nil || [[RACSequence empty] isEqual:sequence.tail]) return nil;
 
-			return [self.tail zipWith:sequence.tail];
+			return [self.tail zippedStreamByCombiningWithStream:sequence.tail];
 		}]
 		setNameWithFormat:@"[%@] -zipWith: %@", self.name, sequence];
 }
@@ -190,11 +190,11 @@
 
 		return [scheduler scheduleRecursiveBlock:^(void (^reschedule)(void)) {
 			if (sequence.head == nil) {
-				[subscriber sendCompleted];
+				[subscriber terminateSubscription];
 				return;
 			}
 
-			[subscriber sendNext:sequence.head];
+			[subscriber didUpdateWithNewValue:sequence.head];
 
 			sequence = sequence.tail;
 			reschedule();

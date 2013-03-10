@@ -32,13 +32,13 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 	
 	it(@"should send it's current value on subscription", ^{
 		__block id receivedValue = nil;
-		[property sendNext:value1];
+		[property didUpdateWithNewValue:value1];
 		[[property take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
 		expect(receivedValue).to.equal(value1);
 		
-		[property sendNext:value2];
+		[property didUpdateWithNewValue:value2];
 		[[property take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
@@ -46,13 +46,13 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 	});
 	
 	it(@"should send it's value as it changes", ^{
-		[property sendNext:value1];
+		[property didUpdateWithNewValue:value1];
 		NSMutableArray *receivedValues = [NSMutableArray array];
 		[property subscribeNext:^(id x) {
 			[receivedValues addObject:x];
 		}];
-		[property sendNext:value2];
-		[property sendNext:value3];
+		[property didUpdateWithNewValue:value2];
+		[property didUpdateWithNewValue:value3];
 		expect(receivedValues).to.equal(values);
 	});
 	
@@ -145,13 +145,13 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 		
 		it(@"should send the property's current value on subscription", ^{
 			__block id receivedValue = nil;
-			[property sendNext:value1];
+			[property didUpdateWithNewValue:value1];
 			[[binding1 take:1] subscribeNext:^(id x) {
 				receivedValue = x;
 			}];
 			expect(receivedValue).to.equal(value1);
 			
-			[property sendNext:value2];
+			[property didUpdateWithNewValue:value2];
 			[[binding1 take:1] subscribeNext:^(id x) {
 				receivedValue = x;
 			}];
@@ -160,13 +160,13 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 		
 		it(@"should send the current value on subscription even if it was set by itself", ^{
 			__block id receivedValue = nil;
-			[binding1 sendNext:value1];
+			[binding1 didUpdateWithNewValue:value1];
 			[[binding1 take:1] subscribeNext:^(id x) {
 				receivedValue = x;
 			}];
 			expect(receivedValue).to.equal(value1);
 			
-			[binding1 sendNext:value2];
+			[binding1 didUpdateWithNewValue:value2];
 			[[binding1 take:1] subscribeNext:^(id x) {
 				receivedValue = x;
 			}];
@@ -174,29 +174,29 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 		});
 		
 		it(@"should send the property's value as it changes if it was set by the property", ^{
-			[property sendNext:value1];
+			[property didUpdateWithNewValue:value1];
 			NSMutableArray *receivedValues = [NSMutableArray array];
 			[binding1 subscribeNext:^(id x) {
 				[receivedValues addObject:x];
 			}];
-			[property sendNext:value2];
-			[property sendNext:value3];
+			[property didUpdateWithNewValue:value2];
+			[property didUpdateWithNewValue:value3];
 			expect(receivedValues).to.equal(values);
 		});
 		
 		it(@"should not send the property's value as it changes if it was set by itself", ^{
-			[property sendNext:value1];
+			[property didUpdateWithNewValue:value1];
 			NSMutableArray *receivedValues = [NSMutableArray array];
 			[binding1 subscribeNext:^(id x) {
 				[receivedValues addObject:x];
 			}];
-			[binding1 sendNext:value2];
-			[binding1 sendNext:value3];
+			[binding1 didUpdateWithNewValue:value2];
+			[binding1 didUpdateWithNewValue:value3];
 			expect(receivedValues).to.equal(@[ value1 ]);
 		});
 		
 		it(@"should send the property's value as it changes if it was set by another binding", ^{
-			[property sendNext:value1];
+			[property didUpdateWithNewValue:value1];
 			NSMutableArray *receivedValues1 = [NSMutableArray array];
 			[binding1 subscribeNext:^(id x) {
 				[receivedValues1 addObject:x];
@@ -205,8 +205,8 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 			[binding2 subscribeNext:^(id x) {
 				[receivedValues2 addObject:x];
 			}];
-			[binding1 sendNext:value2];
-			[binding2 sendNext:value3];
+			[binding1 didUpdateWithNewValue:value2];
+			[binding2 didUpdateWithNewValue:value3];
 			NSArray *expectedValues1 = @[ value1, value3 ];
 			NSArray *expectedValues2 = @[ value1, value2 ];
 			expect(receivedValues1).to.equal(expectedValues1);
@@ -215,13 +215,13 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 
 		it(@"should set the property's value to values it's sent", ^{
 			__block id receivedValue = nil;
-			[binding1 sendNext:value1];
+			[binding1 didUpdateWithNewValue:value1];
 			[[property take:1] subscribeNext:^(id x) {
 				receivedValue = x;
 			}];
 			expect(receivedValue).to.equal(value1);
 			
-			[binding1 sendNext:value2];
+			[binding1 didUpdateWithNewValue:value2];
 			[[property take:1] subscribeNext:^(id x) {
 				receivedValue = x;
 			}];

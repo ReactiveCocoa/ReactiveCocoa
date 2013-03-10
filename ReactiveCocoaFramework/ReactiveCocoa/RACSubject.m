@@ -40,25 +40,25 @@
 
 #pragma mark RACSubscriber
 
-- (void)sendNext:(id)value {
+- (void)didUpdateWithNewValue:(id)value {
 	[self performBlockOnEachSubscriber:^(id<RACSubscriber> subscriber) {
-		[subscriber sendNext:value];
+		[subscriber didUpdateWithNewValue:value];
 	}];
 }
 
-- (void)sendError:(NSError *)error {
+- (void)didReceiveErrorWithError:(NSError *)error {
 	[self.disposable dispose];
 	
 	[self performBlockOnEachSubscriber:^(id<RACSubscriber> subscriber) {
-		[subscriber sendError:error];
+		[subscriber didReceiveErrorWithError:error];
 	}];
 }
 
-- (void)sendCompleted {
+- (void)terminateSubscription {
 	[self.disposable dispose];
 	
 	[self performBlockOnEachSubscriber:^(id<RACSubscriber> subscriber) {
-		[subscriber sendCompleted];
+		[subscriber terminateSubscription];
 	}];
 }
 

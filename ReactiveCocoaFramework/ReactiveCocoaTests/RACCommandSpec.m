@@ -107,13 +107,13 @@ describe(@"with a signal block", ^{
 		expect([command execute:nil]).to.beTruthy();
 		expect(command.executing).to.beTruthy();
 
-		[first sendError:nil];
+		[first didReceiveErrorWithError:nil];
 		expect(command.executing).to.beTruthy();
 
-		[second sendNext:nil];
+		[second didUpdateWithNewValue:nil];
 		expect(command.executing).to.beTruthy();
 
-		[second sendCompleted];
+		[second terminateSubscription];
 		expect(command.executing).to.beFalsy();
 	});
 
@@ -139,13 +139,13 @@ describe(@"with a signal block", ^{
 		expect([command execute:nil]).to.beTruthy();
 		expect(command.executing).to.beTruthy();
 
-		[firstSubject sendError:firstError];
+		[firstSubject didReceiveErrorWithError:firstError];
 		expect(command.executing).to.beTruthy();
 
 		NSArray *expected = @[ firstError ];
 		expect(receivedErrors).will.equal(expected);
 
-		[secondSubject sendError:secondError];
+		[secondSubject didReceiveErrorWithError:secondError];
 		expect(command.executing).to.beFalsy();
 
 		expected = @[ firstError, secondError ];
@@ -166,8 +166,8 @@ describe(@"with a signal block", ^{
 		expect([command execute:nil]).to.beTruthy();
 		expect(command.executing).to.beTruthy();
 
-		[subject sendNext:RACUnit.defaultUnit];
-		[subject sendCompleted];
+		[subject didUpdateWithNewValue:RACUnit.defaultUnit];
+		[subject terminateSubscription];
 
 		expect(command.executing).to.beFalsy();
 		expect(receivedEvent).to.beFalsy();
@@ -181,8 +181,8 @@ describe(@"canExecute property", ^{
 		expect(command.canExecute).to.beFalsy();
 		
 		command = [RACCommand commandWithCanExecuteSignal:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendNext:@YES];
-			[subscriber sendNext:@NO];
+			[subscriber didUpdateWithNewValue:@YES];
+			[subscriber didUpdateWithNewValue:@NO];
 			return nil;
 		}]];
 		
@@ -195,8 +195,8 @@ describe(@"canExecute property", ^{
 		expect(command.canExecute).to.beTruthy();
 		
 		command = [RACCommand commandWithCanExecuteSignal:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendNext:@NO];
-			[subscriber sendNext:@YES];
+			[subscriber didUpdateWithNewValue:@NO];
+			[subscriber didUpdateWithNewValue:@YES];
 			return nil;
 		}]];
 		

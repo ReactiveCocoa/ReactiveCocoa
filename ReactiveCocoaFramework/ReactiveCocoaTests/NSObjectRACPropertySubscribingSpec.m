@@ -106,7 +106,7 @@ describe(@"+rac_signalFor:keyPath:onObject:", ^{
 				objectDealloced = YES;
 			}]];
 
-			RACSignal *signal = [[object.class rac_signalFor:object keyPath:@keypath(object, objectValue) observer:self] map:^(id value) {
+			RACSignal *signal = [[object.class rac_signalFor:object keyPath:@keypath(object, objectValue) observer:self] streamWithMappedValuesFromBlock:^(id value) {
 				return value;
 			}];
 			[signal rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{

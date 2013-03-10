@@ -25,6 +25,7 @@
 //             be passed as nils.
 //
 // Returns the return value of invoking the block.
-+ (id)invokeBlock:(id)block withArguments:(RACTuple *)arguments;
++ (id)invokeBlock:(id)block
+	withArguments:(RACTuple *)arguments;
 
 @end

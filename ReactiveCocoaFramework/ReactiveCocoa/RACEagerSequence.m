@@ -34,7 +34,7 @@
 	return [[self.class sequenceWithArray:resultArray offset:0] setNameWithFormat:@"[%@] -bind:", self.name];
 }
 
-- (instancetype)concat:(RACSequence *)sequence {
+- (instancetype)streamByAppendingStream:(RACSequence *)sequence {
 	NSParameterAssert(sequence != nil);
 	NSParameterAssert([sequence isKindOfClass:RACSequence.class]);
 

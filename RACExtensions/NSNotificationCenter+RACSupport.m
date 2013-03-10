@@ -16,7 +16,7 @@
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		@strongify(object);
 		id observer = [self addObserverForName:notificationName object:object queue:nil usingBlock:^(NSNotification *note) {
-			[subscriber sendNext:note];
+			[subscriber didUpdateWithNewValue:note];
 		}];
 
 		return [RACDisposable disposableWithBlock:^{

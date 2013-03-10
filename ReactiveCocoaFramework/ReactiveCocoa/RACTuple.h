@@ -73,7 +73,8 @@
 
 // Creates a new tuple out of the array. If `convert` is YES, it also converts
 // every NSNull to RACTupleNil.
-+ (instancetype)tupleWithObjectsFromArray:(NSArray *)array convertNullsToNils:(BOOL)convert;
++ (instancetype)tupleWithObjectsFromArray:(NSArray *)array
+					   convertNullsToNils:(BOOL)convert;
 
 // Creates a new tuple with the given objects. Use RACTupleNil to represent
 // nils.

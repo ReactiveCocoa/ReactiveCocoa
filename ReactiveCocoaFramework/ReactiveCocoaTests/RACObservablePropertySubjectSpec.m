@@ -81,9 +81,9 @@ describe(@"RACObservablePropertySubject", ^{
 	
 	it(@"should set values it's sent", ^{
 		expect(object.name).to.beNil();
-		[property sendNext:value1];
+		[property didUpdateWithNewValue:value1];
 		expect(object.name).to.equal(value1);
-		[property sendNext:value2];
+		[property didUpdateWithNewValue:value2];
 		expect(object.name).to.equal(value2);
 	});
 	
@@ -93,9 +93,9 @@ describe(@"RACObservablePropertySubject", ^{
 			[receivedValues addObject:change[NSKeyValueChangeNewKey]];
 		}];
 		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendNext:value1];
-			[subscriber sendNext:value2];
-			[subscriber sendNext:value3];
+			[subscriber didUpdateWithNewValue:value1];
+			[subscriber didUpdateWithNewValue:value2];
+			[subscriber didUpdateWithNewValue:value3];
 			return nil;
 		}];
 		[signal subscribe:property];

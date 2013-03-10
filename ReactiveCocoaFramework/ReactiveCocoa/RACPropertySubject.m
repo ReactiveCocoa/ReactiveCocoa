@@ -39,7 +39,7 @@
 
 - (id)init {
 	RACReplaySubject *backing = [RACReplaySubject replaySubjectWithCapacity:1];
-	[backing sendNext:[RACTuple tupleWithObjects:RACTupleNil.tupleNil, RACTupleNil.tupleNil, nil]];
+	[backing didUpdateWithNewValue:[RACTuple tupleWithObjects:RACTupleNil.tupleNil, RACTupleNil.tupleNil, nil]];
 	return [self initWithSignal:backing subscriber:backing];
 }
 
@@ -51,16 +51,16 @@
 
 #pragma mark <RACSubscriber>
 
-- (void)sendNext:(id)value {
-	[self.exposedSubscriber sendNext:value];
+- (void)didUpdateWithNewValue:(id)value {
+	[self.exposedSubscriber didUpdateWithNewValue:value];
 }
 
-- (void)sendError:(NSError *)error {
-	[self.exposedSubscriber sendError:error];
+- (void)didReceiveErrorWithError:(NSError *)error {
+	[self.exposedSubscriber didReceiveErrorWithError:error];
 }
 
-- (void)sendCompleted {
-	[self.exposedSubscriber sendCompleted];
+- (void)terminateSubscription {
+	[self.exposedSubscriber terminateSubscription];
 }
 
 - (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
@@ -77,18 +77,18 @@
 	_subscriber = subscriber;
 	
 	@weakify(self);
-	_exposedSignal = [_signal map:^(RACTuple *value) {
+	_exposedSignal = [_signal streamWithMappedValuesFromBlock:^(RACTuple *value) {
 		return value.first;
 	}];
-	_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
-		[subscriber sendNext:[RACTuple tupleWithObjects:x, RACTupleNil.tupleNil, nil]];
-	} error:^(NSError *error) {
+	_exposedSubscriber = [RACSubscriber subscriberWithUpdateHandler:^(id x) {
+		[subscriber didUpdateWithNewValue:[RACTuple tupleWithObjects:x, RACTupleNil.tupleNil, nil]];
+	} errorHandler:^(NSError *error) {
 		@strongify(self);
 		NSAssert(NO, @"Received error in RACPropertySubject %@: %@", self, error);
 		
 		// Log the error if we're running with assertions disabled.
 		NSLog(@"Received error in RACPropertySubject %@: %@", self, error);
-	} completed:nil];
+	} completionHandler:nil];
 	
 	return self;
 }

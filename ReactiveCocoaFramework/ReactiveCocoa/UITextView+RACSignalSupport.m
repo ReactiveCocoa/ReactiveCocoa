@@ -29,8 +29,8 @@
 
 - (RACSignal *)rac_textSignal {
 	return [[[[self rac_signalForDelegateMethod:@selector(textViewDidChange:)]
-		startWith:self]
-		map:^(UITextView *x) {
+		streamByPrependingValue:self]
+		streamWithMappedValuesFromBlock:^(UITextView *x) {
 			return x.text;
 		}]
 		setNameWithFormat:@"%@ -rac_textSignal", self];

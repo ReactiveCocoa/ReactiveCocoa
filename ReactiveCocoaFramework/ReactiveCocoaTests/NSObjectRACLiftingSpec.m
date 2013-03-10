@@ -24,45 +24,45 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 
 	it(@"should call the selector with the value of the signal", ^{
 		RACSubject *subject = [RACSubject subject];
-		[object rac_liftSelector:@selector(setObjectValue:) withObjects:subject];
+		[object signalWithCompletionSelector:@selector(setObjectValue:) andArguments:subject];
 
 		expect(object.objectValue).to.beNil();
 
-		[subject sendNext:@1];
+		[subject didUpdateWithNewValue:@1];
 		expect(object.objectValue).to.equal(@1);
 
-		[subject sendNext:@42];
+		[subject didUpdateWithNewValue:@42];
 		expect(object.objectValue).to.equal(@42);
 	});
 
 	it(@"should call the selector with the value of the signal unboxed", ^{
 		RACSubject *subject = [RACSubject subject];
-		[object rac_liftSelector:@selector(setIntegerValue:) withObjects:subject];
+		[object signalWithCompletionSelector:@selector(setIntegerValue:) andArguments:subject];
 
 		expect(object.integerValue).to.equal(0);
 
-		[subject sendNext:@1];
+		[subject didUpdateWithNewValue:@1];
 		expect(object.integerValue).to.equal(1);
 
-		[subject sendNext:@42];
+		[subject didUpdateWithNewValue:@42];
 		expect(object.integerValue).to.equal(42);
 	});
 
 	it(@"should work with multiple arguments", ^{
 		RACSubject *objectValueSubject = [RACSubject subject];
 		RACSubject *integerValueSubject = [RACSubject subject];
-		[object rac_liftSelector:@selector(setObjectValue:andIntegerValue:) withObjects:objectValueSubject, integerValueSubject];
+		[object signalWithCompletionSelector:@selector(setObjectValue:andIntegerValue:) andArguments:objectValueSubject, integerValueSubject];
 
 		expect(object.hasInvokedSetObjectValueAndIntegerValue).to.beFalsy();
 		expect(object.objectValue).to.beNil();
 		expect(object.integerValue).to.equal(0);
 
-		[objectValueSubject sendNext:@1];
+		[objectValueSubject didUpdateWithNewValue:@1];
 		expect(object.hasInvokedSetObjectValueAndIntegerValue).to.beFalsy();
 		expect(object.objectValue).to.beNil();
 		expect(object.integerValue).to.equal(0);
 
-		[integerValueSubject sendNext:@42];
+		[integerValueSubject didUpdateWithNewValue:@42];
 		expect(object.hasInvokedSetObjectValueAndIntegerValue).to.beTruthy();
 		expect(object.objectValue).to.equal(@1);
 		expect(object.integerValue).to.equal(42);
@@ -70,78 +70,78 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 
 	it(@"should work with signals that immediately start with a value", ^{
 		RACSubject *subject = [RACSubject subject];
-		[object rac_liftSelector:@selector(setObjectValue:) withObjects:[subject startWith:@42]];
+		[object signalWithCompletionSelector:@selector(setObjectValue:) andArguments:[subject streamByPrependingValue:@42]];
 
 		expect(object.objectValue).to.equal(@42);
 
-		[subject sendNext:@1];
+		[subject didUpdateWithNewValue:@1];
 		expect(object.objectValue).to.equal(@1);
 	});
 
 	it(@"should immediately invoke the selector when it isn't given any signal arguments", ^{
-		[object rac_liftSelector:@selector(setObjectValue:) withObjects:@42];
+		[object signalWithCompletionSelector:@selector(setObjectValue:) andArguments:@42];
 
 		expect(object.objectValue).to.equal(@42);
 	});
 
 	it(@"should work with class objects", ^{
 		RACSubject *subject = [RACSubject subject];
-		[object rac_liftSelector:@selector(setObjectValue:) withObjects:subject];
+		[object signalWithCompletionSelector:@selector(setObjectValue:) andArguments:subject];
 
 		expect(object.objectValue).to.equal(nil);
 
-		[subject sendNext:self.class];
+		[subject didUpdateWithNewValue:self.class];
 		expect(object.objectValue).to.equal(self.class);
 	});
 
 	it(@"should work for char pointer", ^{
 		RACSubject *subject = [RACSubject subject];
-		[object rac_liftSelector:@selector(setCharPointerValue:) withObjects:subject];
+		[object signalWithCompletionSelector:@selector(setCharPointerValue:) andArguments:subject];
 
 		expect(object.charPointerValue).to.equal(NULL);
 
 		const char *string = "blah blah blah";
-		[subject sendNext:@(string)];
+		[subject didUpdateWithNewValue:@(string)];
 		expect(strcmp(object.charPointerValue, string) == 0).to.beTruthy();
 	});
 
 	it(@"should work for CGRect", ^{
 		RACSubject *subject = [RACSubject subject];
-		[object rac_liftSelector:@selector(setRectValue:) withObjects:subject];
+		[object signalWithCompletionSelector:@selector(setRectValue:) andArguments:subject];
 
 		expect(object.rectValue).to.equal(CGRectZero);
 
 		CGRect value = CGRectMake(10, 20, 30, 40);
-		[subject sendNext:[NSValue valueWithRect:value]];
+		[subject didUpdateWithNewValue:[NSValue valueWithRect:value]];
 		expect(object.rectValue).to.equal(value);
 	});
 
 	it(@"should work for CGSize", ^{
 		RACSubject *subject = [RACSubject subject];
-		[object rac_liftSelector:@selector(setSizeValue:) withObjects:subject];
+		[object signalWithCompletionSelector:@selector(setSizeValue:) andArguments:subject];
 
 		expect(object.sizeValue).to.equal(CGSizeZero);
 
 		CGSize value = CGSizeMake(10, 20);
-		[subject sendNext:[NSValue valueWithSize:value]];
+		[subject didUpdateWithNewValue:[NSValue valueWithSize:value]];
 		expect(object.sizeValue).to.equal(value);
 	});
 
 	it(@"should work for CGPoint", ^{
 		RACSubject *subject = [RACSubject subject];
-		[object rac_liftSelector:@selector(setPointValue:) withObjects:subject];
+		[object signalWithCompletionSelector:@selector(setPointValue:) andArguments:subject];
 
 		expect(object.pointValue).to.equal(CGPointZero);
 
 		CGPoint value = CGPointMake(10, 20);
-		[subject sendNext:[NSValue valueWithPoint:value]];
+		[subject didUpdateWithNewValue:[NSValue valueWithPoint:value]];
 		expect(object.pointValue).to.equal(value);
 	});
 
 	it(@"should send the latest value of the signal as the right argument", ^{
 		RACSubject *subject = [RACSubject subject];
-		[object rac_liftSelector:@selector(setObjectValue:andIntegerValue:) withObjects:@"object", subject];
-		[subject sendNext:@1];
+		[object signalWithCompletionSelector:@selector(setObjectValue:andIntegerValue:) andArguments:@"object", subject];
+		[subject didUpdateWithNewValue:@1];
 
 		expect(object.objectValue).to.equal(@"object");
 		expect(object.integerValue).to.equal(1);
@@ -151,30 +151,30 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		it(@"should send the return value of the method invocation", ^{
 			RACSubject *objectSubject = [RACSubject subject];
 			RACSubject *integerSubject = [RACSubject subject];
-			RACSignal *signal = [object rac_liftSelector:@selector(combineObjectValue:andIntegerValue:) withObjects:objectSubject, integerSubject];
+			RACSignal *signal = [object signalWithCompletionSelector:@selector(combineObjectValue:andIntegerValue:) andArguments:objectSubject, integerSubject];
 
 			__block NSString *result;
 			[signal subscribeNext:^(id x) {
 				result = x;
 			}];
 
-			[objectSubject sendNext:@"Magic number"];
+			[objectSubject didUpdateWithNewValue:@"Magic number"];
 			expect(result).to.beNil();
 			
-			[integerSubject sendNext:@42];
+			[integerSubject didUpdateWithNewValue:@42];
 			expect(result).to.equal(@"Magic number: 42");
 		});
 
 		it(@"should send RACUnit.defaultUnit for void-returning methods", ^{
 			RACSubject *subject = [RACSubject subject];
-			RACSignal *signal = [object rac_liftSelector:@selector(setObjectValue:) withObjects:subject];
+			RACSignal *signal = [object signalWithCompletionSelector:@selector(setObjectValue:) andArguments:subject];
 
 			__block id result;
 			[signal subscribeNext:^(id x) {
 				result = x;
 			}];
 
-			[subject sendNext:@1];
+			[subject didUpdateWithNewValue:@1];
 
 			expect(result).to.equal(RACUnit.defaultUnit);
 		});
@@ -182,11 +182,11 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		it(@"should replay the last value", ^{
 			RACSubject *objectSubject = [RACSubject subject];
 			RACSubject *integerSubject = [RACSubject subject];
-			RACSignal *signal = [object rac_liftSelector:@selector(combineObjectValue:andIntegerValue:) withObjects:objectSubject, integerSubject];
+			RACSignal *signal = [object signalWithCompletionSelector:@selector(combineObjectValue:andIntegerValue:) andArguments:objectSubject, integerSubject];
 
-			[objectSubject sendNext:@"Magic number"];
-			[integerSubject sendNext:@42];
-			[integerSubject sendNext:@43];
+			[objectSubject didUpdateWithNewValue:@"Magic number"];
+			[integerSubject didUpdateWithNewValue:@42];
+			[integerSubject didUpdateWithNewValue:@43];
 
 			__block NSString *result;
 			[signal subscribeNext:^(id x) {
@@ -206,8 +206,8 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 			}]];
 
 			RACSubject *subject = [RACSubject subject];
-			[testObject rac_liftSelector:@selector(setObjectValue:) withObjects:subject];
-			[subject sendNext:@1];
+			[testObject signalWithCompletionSelector:@selector(setObjectValue:) andArguments:subject];
+			[subject didUpdateWithNewValue:@1];
 		}
 
 		expect(dealloced).to.beTruthy();
@@ -221,17 +221,17 @@ describe(@"-rac_liftBlock:withObjects:", ^{
 
 		__block id received1;
 		__block id received2;
-		RACSignal *signal = [self rac_liftBlock:^(NSNumber *arg1, NSNumber *arg2) {
+		RACSignal *signal = [self signalWithCompletionBlock:^(NSNumber *arg1, NSNumber *arg2) {
 			received1 = arg1;
 			received2 = arg2;
 			return @(arg1.unsignedIntegerValue + arg2.unsignedIntegerValue);
-		} withArguments:subject1, subject2, nil];
+		} andArguments:subject1, subject2, nil];
 
-		[subject1 sendNext:@1];
+		[subject1 didUpdateWithNewValue:@1];
 		expect(received1).to.beNil();
 		expect(received2).to.beNil();
 
-		[subject2 sendNext:@2];
+		[subject2 didUpdateWithNewValue:@2];
 		expect(received1).to.equal(@1);
 		expect(received2).to.equal(@2);
 
@@ -247,13 +247,13 @@ describe(@"-rac_liftBlock:withObjects:", ^{
 		RACSubject *subject = [RACSubject subject];
 		__block id received1;
 		__block id received2;
-		[self rac_liftBlock:^(id object1, id object2) {
+		[self signalWithCompletionBlock:^(id object1, id object2) {
 			received1 = object1;
 			received2 = object2;
 			return nil;
-		} withArguments:@"object", subject, nil];
+		} andArguments:@"object", subject, nil];
 		
-		[subject sendNext:@1];
+		[subject didUpdateWithNewValue:@1];
 
 		expect(received1).to.equal(@"object");
 		expect(received2).to.equal(1);

@@ -66,15 +66,15 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
 			for (id value in self.valuesReceived) {
 				if (disposed != 0) return;
 
-				[subscriber sendNext:([value isKindOfClass:RACTupleNil.class] ? nil : value)];
+				[subscriber didUpdateWithNewValue:([value isKindOfClass:RACTupleNil.class] ? nil : value)];
 			}
 
 			if (disposed != 0) return;
 
 			if (self.hasCompleted) {
-				[subscriber sendCompleted];
+				[subscriber terminateSubscription];
 			} else if (self.hasError) {
-				[subscriber sendError:self.error];
+				[subscriber didReceiveErrorWithError:self.error];
 			} else {
 				RACDisposable *subscriptionDisposable = [super subscribe:subscriber];
 				[compoundDisposable addDisposable:subscriptionDisposable];
@@ -89,10 +89,10 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
 
 #pragma mark RACSubscriber
 
-- (void)sendNext:(id)value {
+- (void)didUpdateWithNewValue:(id)value {
 	@synchronized (self) {
 		[self.valuesReceived addObject:value ?: RACTupleNil.tupleNil];
-		[super sendNext:value];
+		[super didUpdateWithNewValue:value];
 		
 		if (self.capacity != RACReplaySubjectUnlimitedCapacity && self.valuesReceived.count > self.capacity) {
 			[self.valuesReceived removeObjectsInRange:NSMakeRange(0, self.valuesReceived.count - self.capacity)];
@@ -100,18 +100,18 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
 	}
 }
 
-- (void)sendCompleted {
+- (void)terminateSubscription {
 	@synchronized (self) {
 		self.hasCompleted = YES;
-		[super sendCompleted];
+		[super terminateSubscription];
 	}
 }
 
-- (void)sendError:(NSError *)e {
+- (void)didReceiveErrorWithError:(NSError *)e {
 	@synchronized (self) {
 		self.hasError = YES;
 		self.error = e;
-		[super sendError:e];
+		[super didReceiveErrorWithError:e];
 	}
 }
 

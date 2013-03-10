@@ -25,7 +25,7 @@
 // Send the next value to subscribers.
 //
 // value - The value to send. This can be `nil`.
-- (void)sendNext:(id)value;
+- (void)didUpdateWithNewValue:(id)value;
 
 // Send the error to subscribers.
 //
@@ -33,13 +33,13 @@
 //
 // This terminates the subscription, and invalidates the subscriber (such that
 // it cannot subscribe to anything else in the future).
-- (void)sendError:(NSError *)error;
+- (void)didReceiveErrorWithError:(NSError *)error;
 
 // Send completed to subscribers.
 //
 // This terminates the subscription, and invalidates the subscriber (such that
 // it cannot subscribe to anything else in the future).
-- (void)sendCompleted;
+- (void)terminateSubscription;
 
 // Sends the subscriber a disposable that represents one of its subscriptions.
 //
@@ -57,6 +57,8 @@
 @interface RACSubscriber : NSObject <RACSubscriber>
 
 // Creates a new subscriber with the given blocks.
-+ (instancetype)subscriberWithNext:(void (^)(id x))next error:(void (^)(NSError *error))error completed:(void (^)(void))completed;
++ (instancetype)subscriberWithUpdateHandler:(void (^)(id x))next
+							   errorHandler:(void (^)(NSError *error))error
+						  completionHandler:(void (^)(void))completed;
 
 @end

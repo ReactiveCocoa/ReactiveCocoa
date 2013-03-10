@@ -105,7 +105,7 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 				if (*cancelationToken == 1) return;
 
 				if (self.terminationStatus == 0) {
-					[subject sendNext:outputData];
+					[subject didUpdateWithNewValue:outputData];
 					[subject sendCompleted];
 				} else {
 					NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];

@@ -31,14 +31,14 @@ beforeEach(^{
 	success = YES;
 	error = nil;
 
-	subscriber = [RACSubscriber subscriberWithNext:^(id value) {
+	subscriber = [RACSubscriber subscriberWithUpdateHandler:^(id value) {
 		if (finished) OSAtomicIncrement32Barrier(&nextsAfterFinished);
 
 		[values addObject:value];
-	} error:^(NSError *e) {
+	} errorHandler:^(NSError *e) {
 		error = e;
 		success = NO;
-	} completed:^{
+	} completionHandler:^{
 		success = YES;
 	}];
 });
@@ -71,7 +71,7 @@ describe(@"finishing", ^{
 		sendValues = [^{
 			for (NSUInteger i = 0; i < 15; i++) {
 				dispatch_group_async(dispatchGroup, concurrentQueue, ^{
-					[subscriber sendNext:@(i)];
+					[subscriber didUpdateWithNewValue:@(i)];
 				});
 			}
 		} copy];
@@ -107,7 +107,7 @@ describe(@"finishing", ^{
 		expectedSuccess = YES;
 
 		dispatch_group_async(dispatchGroup, concurrentQueue, ^{
-			[subscriber sendCompleted];
+			[subscriber terminateSubscription];
 
 			finished = YES;
 			OSMemoryBarrier();
@@ -118,7 +118,7 @@ describe(@"finishing", ^{
 		expectedSuccess = NO;
 
 		dispatch_group_async(dispatchGroup, concurrentQueue, ^{
-			[subscriber sendError:nil];
+			[subscriber didReceiveErrorWithError:nil];
 
 			finished = YES;
 			OSMemoryBarrier();

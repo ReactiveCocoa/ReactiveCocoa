@@ -27,11 +27,11 @@
 
 	RACReplaySubject *subject = [RACReplaySubject subject];
 	[signal subscribeNext:^(id value) {
-		[subject sendNext:value];
+		[subject didUpdateWithNewValue:value];
 	} error:^(NSError *error) {
-		[subject sendError:error];
+		[subject didReceiveErrorWithError:error];
 	} completed:^{
-		[subject sendCompleted];
+		[subject terminateSubscription];
 	}];
 
 	seq->_subject = subject;
@@ -51,7 +51,7 @@
 }
 
 - (RACSequence *)tail {
-	RACSequence *sequence = [self.class sequenceWithSignal:[self.subject skip:1]];
+	RACSequence *sequence = [self.class sequenceWithSignal:[self.subject streamByRemovingObjectsBeforeIndex:1]];
 	sequence.name = self.name;
 	return sequence;
 }

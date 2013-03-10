@@ -65,8 +65,8 @@ describe(@"RACReplaySubject", ^{
 			id firstValue = @"blah";
 			id secondValue = @"more blah";
 			
-			[subject sendNext:firstValue];
-			[subject sendNext:secondValue];
+			[subject didUpdateWithNewValue:firstValue];
+			[subject didUpdateWithNewValue:secondValue];
 			
 			__block id valueReceived = nil;
 			[subject subscribeNext:^(id x) {
@@ -83,13 +83,13 @@ describe(@"RACReplaySubject", ^{
 			__block id valueReceived = nil;
 			__block NSUInteger nextsReceived = 0;
 			
-			[subject sendNext:firstValue];
-			[subject sendNext:secondValue];
+			[subject didUpdateWithNewValue:firstValue];
+			[subject didUpdateWithNewValue:secondValue];
 			
 			expect(nextsReceived).to.equal(0);
 			expect(valueReceived).to.beNil();
 			
-			[subject sendCompleted];
+			[subject terminateSubscription];
 			
 			[subject subscribeNext:^(id x) {
 				valueReceived = x;
@@ -101,7 +101,7 @@ describe(@"RACReplaySubject", ^{
 		});
 
 		it(@"should not send any values to new subscribers if none were sent originally", ^{
-			[subject sendCompleted];
+			[subject terminateSubscription];
 
 			__block BOOL nextInvoked = NO;
 			[subject subscribeNext:^(id x) {
@@ -113,7 +113,7 @@ describe(@"RACReplaySubject", ^{
 
 		it(@"should resend errors", ^{
 			NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
-			[subject sendError:error];
+			[subject didReceiveErrorWithError:error];
 
 			__block BOOL errorSent = NO;
 			[subject subscribeError:^(NSError *sentError) {
@@ -125,7 +125,7 @@ describe(@"RACReplaySubject", ^{
 		});
 
 		it(@"should resend nil errors", ^{
-			[subject sendError:nil];
+			[subject didReceiveErrorWithError:nil];
 
 			__block BOOL errorSent = NO;
 			[subject subscribeError:^(NSError *sentError) {
@@ -181,9 +181,9 @@ describe(@"RACReplaySubject", ^{
 			id firstValue = @"blah";
 			id secondValue = @"more blah";
 			
-			[subject sendNext:firstValue];
-			[subject sendNext:secondValue];
-			[subject sendCompleted];
+			[subject didUpdateWithNewValue:firstValue];
+			[subject didUpdateWithNewValue:secondValue];
+			[subject terminateSubscription];
 			
 			__block BOOL completed = NO;
 			NSMutableArray *valuesReceived = [NSMutableArray array];
@@ -220,13 +220,13 @@ describe(@"RACReplaySubject", ^{
 			
 			for (NSUInteger i = 0; i < count; i++) {
 				dispatch_async(queue, ^{
-					[subject sendNext:@(i)];
+					[subject didUpdateWithNewValue:@(i)];
 				});
 			}
 
 			dispatch_resume(queue);
 			dispatch_barrier_sync(queue, ^{
-				[subject sendCompleted];
+				[subject terminateSubscription];
 			});
 
 			OSMemoryBarrier();
@@ -246,7 +246,7 @@ describe(@"RACReplaySubject", ^{
 		});
 
 		it(@"should have a current scheduler when replaying", ^{
-			[subject sendNext:RACUnit.defaultUnit];
+			[subject didUpdateWithNewValue:RACUnit.defaultUnit];
 
 			__block RACScheduler *currentScheduler;
 			[subject subscribeNext:^(id x) {
@@ -268,8 +268,8 @@ describe(@"RACReplaySubject", ^{
 		it(@"should stop replaying when the subscription is disposed", ^{
 			NSMutableArray *values = [NSMutableArray array];
 
-			[subject sendNext:@0];
-			[subject sendNext:@1];
+			[subject didUpdateWithNewValue:@0];
+			[subject didUpdateWithNewValue:@1];
 
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 				__block RACDisposable *disposable = [subject subscribeNext:^(id x) {
@@ -284,7 +284,7 @@ describe(@"RACReplaySubject", ^{
 		});
 
 		it(@"should finish replaying before completing", ^{
-			[subject sendNext:@1];
+			[subject didUpdateWithNewValue:@1];
 
 			__block id received;
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -292,14 +292,14 @@ describe(@"RACReplaySubject", ^{
 					received = x;
 				}];
 
-				[subject sendCompleted];
+				[subject terminateSubscription];
 			});
 
 			expect(received).will.equal(@1);
 		});
 
 		it(@"should finish replaying before erroring", ^{
-			[subject sendNext:@1];
+			[subject didUpdateWithNewValue:@1];
 
 			__block id received;
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -307,14 +307,14 @@ describe(@"RACReplaySubject", ^{
 					received = x;
 				}];
 
-				[subject sendError:[NSError errorWithDomain:@"blah" code:-99 userInfo:nil]];
+				[subject didReceiveErrorWithError:[NSError errorWithDomain:@"blah" code:-99 userInfo:nil]];
 			});
 
 			expect(received).will.equal(@1);
 		});
 
 		it(@"should finish replaying before sending new values", ^{
-			[subject sendNext:@1];
+			[subject didUpdateWithNewValue:@1];
 
 			NSMutableArray *received = [NSMutableArray array];
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -322,7 +322,7 @@ describe(@"RACReplaySubject", ^{
 					[received addObject:x];
 				}];
 
-				[subject sendNext:@2];
+				[subject didUpdateWithNewValue:@2];
 			});
 
 			NSArray *expected = @[ @1, @2 ];

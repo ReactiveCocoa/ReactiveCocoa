@@ -99,8 +99,8 @@ describe(@"-autoconnect", ^{
 			[results1 addObject:x];
 		}];
 
-		[subject sendNext:@1];
-		[subject sendNext:@2];
+		[subject didUpdateWithNewValue:@1];
+		[subject didUpdateWithNewValue:@2];
 		
 		expect(results1).to.equal((@[ @1, @2 ]));
 		[disposable dispose];

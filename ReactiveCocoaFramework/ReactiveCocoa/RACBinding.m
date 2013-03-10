@@ -33,16 +33,16 @@
 
 #pragma mark <RACSubscriber>
 
-- (void)sendNext:(id)value {
-	[self.exposedSubscriber sendNext:value];
+- (void)didUpdateWithNewValue:(id)value {
+	[self.exposedSubscriber didUpdateWithNewValue:value];
 }
 
-- (void)sendError:(NSError *)error {
-	[self.exposedSubscriber sendError:error];
+- (void)didReceiveErrorWithError:(NSError *)error {
+	[self.exposedSubscriber didReceiveErrorWithError:error];
 }
 
-- (void)sendCompleted {
-	[self.exposedSubscriber sendCompleted];
+- (void)terminateSubscription {
+	[self.exposedSubscriber terminateSubscription];
 }
 
 - (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
@@ -62,21 +62,21 @@
 			@strongify(self);
 			if (isFirstNext || ![x.second isEqual:self]) {
 				isFirstNext = NO;
-				[subscriber sendNext:x.first];
+				[subscriber didUpdateWithNewValue:x.first];
 			}
 		}];
 	}];
-	_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
+	_exposedSubscriber = [RACSubscriber subscriberWithUpdateHandler:^(id x) {
 		@strongify(self);
-		[subscriber sendNext:[RACTuple tupleWithObjects:x ?: RACTupleNil.tupleNil, self ?: RACTupleNil.tupleNil, nil]];
-	} error:nil completed:nil];
+		[subscriber didUpdateWithNewValue:[RACTuple tupleWithObjects:x ?: RACTupleNil.tupleNil, self ?: RACTupleNil.tupleNil, nil]];
+	} errorHandler:nil completionHandler:nil];
 	
 	return self;
 }
 
 - (RACDisposable *)bindTo:(RACBinding *)binding {
 	RACDisposable *bindingDisposable = [binding subscribe:self];
-	RACDisposable *selfDisposable = [[self skip:1] subscribe:binding];
+	RACDisposable *selfDisposable = [[self streamByRemovingObjectsBeforeIndex:1] subscribe:binding];
 	return [RACDisposable disposableWithBlock:^{
 		[bindingDisposable dispose];
 		[selfDisposable dispose];

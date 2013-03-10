@@ -32,7 +32,7 @@
 //
 // didSubscribe - Called when the signal is subscribed to. The new subscriber is
 //                passed in. You can then manually control the <RACSubscriber> by
-//                sending it -sendNext:, -sendError:, and -sendCompleted,
+//                sending it -didUpdateWithNewValue:, -sendError:, and -sendCompleted,
 //                as defined by the operation you're implementing. This block
 //                should return a RACDisposable which cancels any ongoing work
 //                triggered by the subscription, and cleans up any resources or
@@ -78,7 +78,7 @@
 + (RACSignal *)empty;
 
 // Subscribes to `signal` when the source signal completes.
-- (RACSignal *)concat:(RACSignal *)signal;
+- (RACSignal *)streamByAppendingStream:(RACSignal *)signal;
 
 // Zips the values in the receiver with those of the given signal to create
 // RACTuples.
@@ -91,7 +91,7 @@
 // Returns a new signal of RACTuples, representing the combined values of the
 // two signals. Any error from one of the original signals will be forwarded on
 // the returned signal.
-- (RACSignal *)zipWith:(RACSignal *)signal;
+- (RACSignal *)zippedStreamByCombiningWithStream:(RACSignal *)signal;
 
 @end
 

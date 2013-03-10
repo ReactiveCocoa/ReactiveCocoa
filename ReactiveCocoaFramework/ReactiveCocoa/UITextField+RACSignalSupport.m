@@ -14,8 +14,8 @@
 
 - (RACSignal *)rac_textSignal {
 	return [[[[self rac_signalForControlEvents:UIControlEventEditingChanged]
-		startWith:self]
-		map:^(UITextField *x) {
+		streamByPrependingValue:self]
+		streamWithMappedValuesFromBlock:^(UITextField *x) {
 			return x.text;
 		}]
 		setNameWithFormat:@"%@ -rac_textSignal", self];

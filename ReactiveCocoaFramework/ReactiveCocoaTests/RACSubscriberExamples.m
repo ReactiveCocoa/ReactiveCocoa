@@ -35,7 +35,7 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 	});
 
 	it(@"should accept a nil error", ^{
-		[subscriber sendError:nil];
+		[subscriber didReceiveErrorWithError:nil];
 
 		expect(success()).to.beFalsy();
 		expect(errorReceived()).to.beNil();
@@ -57,7 +57,7 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 		it(@"should send nexts serially, even when delivered from multiple threads", ^{
 			NSArray *allValues = values.allObjects;
 			dispatch_apply(allValues.count, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), [^(size_t index) {
-				[subscriber sendNext:allValues[index]];
+				[subscriber didUpdateWithNewValue:allValues[index]];
 			} copy]);
 
 			expect(success()).to.beTruthy();
@@ -81,10 +81,10 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 		});
 
 		it(@"should send values from all subscriptions", ^{
-			[first sendNext:@"foo"];
-			[second sendNext:@"bar"];
-			[first sendNext:@"buzz"];
-			[second sendNext:@"baz"];
+			[first didUpdateWithNewValue:@"foo"];
+			[second didUpdateWithNewValue:@"bar"];
+			[first didUpdateWithNewValue:@"buzz"];
+			[second didUpdateWithNewValue:@"baz"];
 
 			expect(success()).to.beTruthy();
 			expect(errorReceived()).to.beNil();
@@ -96,9 +96,9 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 		it(@"should terminate after the first error from any subscription", ^{
 			NSError *error = [NSError errorWithDomain:@"" code:-1 userInfo:nil];
 
-			[first sendNext:@"foo"];
-			[second sendError:error];
-			[first sendNext:@"buzz"];
+			[first didUpdateWithNewValue:@"foo"];
+			[second didReceiveErrorWithError:error];
+			[first didUpdateWithNewValue:@"buzz"];
 
 			expect(success()).to.beFalsy();
 			expect(errorReceived()).to.equal(error);
@@ -108,10 +108,10 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 		});
 
 		it(@"should terminate after the first completed from any subscription", ^{
-			[first sendNext:@"foo"];
-			[second sendNext:@"bar"];
-			[first sendCompleted];
-			[second sendNext:@"baz"];
+			[first didUpdateWithNewValue:@"foo"];
+			[second didUpdateWithNewValue:@"bar"];
+			[first terminateSubscription];
+			[second didUpdateWithNewValue:@"baz"];
 
 			expect(success()).to.beTruthy();
 			expect(errorReceived()).to.beNil();
@@ -141,7 +141,7 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 			expect(firstDisposed).to.beFalsy();
 			expect(secondDisposed).to.beFalsy();
 
-			[first sendCompleted];
+			[first terminateSubscription];
 
 			expect(firstDisposed).to.beTruthy();
 			expect(secondDisposed).to.beTruthy();
@@ -155,7 +155,7 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 				}];
 			}];
 
-			[first sendCompleted];
+			[first terminateSubscription];
 			expect(disposed).to.beFalsy();
 
 			[disposableSignal subscribe:subscriber];

@@ -132,7 +132,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 	binding->_target = target;
 	binding->_keyPath = [keyPath copy];
 	
-	binding->_exposedSignal = [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	binding->_exposedSignal = [[RACSignal signalWithSubscriptionHandler:^(id<RACSubscriber> subscriber) {
 		@strongify(binding);
 		[subscriber didUpdateWithNewValue:[binding.target valueForKeyPath:binding.keyPath]];
 		return [binding.exposedSignalSubject subscribe:subscriber];
@@ -140,7 +140,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 	binding->_exposedSignalSubject = [RACSubject subject];
 	
 	binding->_exposedSubscriberSubject = [RACSubject subject];
-	[binding->_exposedSubscriberSubject subscribeNext:^(id x) {
+	[binding->_exposedSubscriberSubject observerWithUpdateHandler:^(id x) {
 		@strongify(binding);
 		binding.ignoreNextUpdate = YES;
 		[binding.target setValue:x forKeyPath:binding.keyPath];
@@ -225,7 +225,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 	property->_keyPath = [keyPath copy];
 	
 	@weakify(property);
-	property->_exposedSignal = [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	property->_exposedSignal = [[RACSignal signalWithSubscriptionHandler:^(id<RACSubscriber> subscriber) {
 		@strongify(property);
 		[subscriber didUpdateWithNewValue:[property.target valueForKeyPath:keyPath]];
 		return [[property.target rac_signalForKeyPath:property.keyPath observer:property] subscribe:subscriber];

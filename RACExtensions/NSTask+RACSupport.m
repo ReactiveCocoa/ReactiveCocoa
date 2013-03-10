@@ -60,7 +60,7 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 	NSParameterAssert(scheduler != nil);
 	
 	@weakify(self);
-	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	return [[RACSignal signalWithSubscriptionHandler:^(id<RACSubscriber> subscriber) {
 		__block uint32_t volatile canceled = 0;
 		RACDisposable *disposable = [[self rac_launchWithScheduler:scheduler cancelationToken:&canceled] subscribe:subscriber];
 		return [RACDisposable disposableWithBlock:^{
@@ -85,20 +85,20 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 		// TODO: should we aggregate the data on the given scheduler too?
 		RACMulticastConnection *outputConnection = [[self.rac_standardOutput aggregateWithStart:[NSMutableData data] combine:aggregateData] publish];
 		__block NSData *outputData = nil;
-		[outputConnection.signal subscribeNext:^(NSData *accumulatedData) {
+		[outputConnection.signal observerWithUpdateHandler:^(NSData *accumulatedData) {
 			outputData = accumulatedData;
 		}];
 
 		RACMulticastConnection *errorConnection = [[self.rac_standardError aggregateWithStart:[NSMutableData data] combine:aggregateData] publish];
 		__block NSData *errorData = nil;
-		[errorConnection.signal subscribeNext:^(NSData *accumulatedData) {
+		[errorConnection.signal observerWithUpdateHandler:^(NSData *accumulatedData) {
 			errorData = accumulatedData;
 		}];
 
 		// wait until termination's signaled and output and error are done
-		[[RACSignal merge:@[ outputConnection.signal, errorConnection.signal, self.rac_completion ]] subscribeNext:^(id _) {
+		[[RACSignal merge:@[ outputConnection.signal, errorConnection.signal, self.rac_completion ]] observerWithUpdateHandler:^(id _) {
 			// nothing
-		} completed:^{
+		} completionHandler:^{
 			if (*cancelationToken == 1) return;
 
 			[scheduler schedule:^{

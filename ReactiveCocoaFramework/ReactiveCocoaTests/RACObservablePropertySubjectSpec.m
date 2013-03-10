@@ -56,13 +56,13 @@ describe(@"RACObservablePropertySubject", ^{
 	
 	it(@"should send the object's current value when subscribed to", ^{
 		__block id receivedValue = @"received value should not be this";
-		[[property streamWithObjectsUntilIndex:1] subscribeNext:^(id x) {
+		[[property streamWithObjectsUntilIndex:1] observerWithUpdateHandler:^(id x) {
 			receivedValue = x;
 		}];
 		expect(receivedValue).to.beNil();
 		
 		object.name = value1;
-		[[property streamWithObjectsUntilIndex:1] subscribeNext:^(id x) {
+		[[property streamWithObjectsUntilIndex:1] observerWithUpdateHandler:^(id x) {
 			receivedValue = x;
 		}];
 		expect(receivedValue).to.equal(value1);
@@ -71,7 +71,7 @@ describe(@"RACObservablePropertySubject", ^{
 	it(@"should send the object's new value when it's changed", ^{
 		object.name = value1;
 		NSMutableArray *receivedValues = [NSMutableArray array];
-		[property subscribeNext:^(id x) {
+		[property observerWithUpdateHandler:^(id x) {
 			[receivedValues addObject:x];
 		}];
 		object.name = value2;
@@ -92,7 +92,7 @@ describe(@"RACObservablePropertySubject", ^{
 		[object rac_addObserver:self forKeyPath:@keypath(object.name) options:NSKeyValueObservingOptionNew block:^(id target, id observer, NSDictionary *change) {
 			[receivedValues addObject:change[NSKeyValueChangeNewKey]];
 		}];
-		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		RACSignal *signal = [RACSignal signalWithSubscriptionHandler:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber didUpdateWithNewValue:value1];
 			[subscriber didUpdateWithNewValue:value2];
 			[subscriber didUpdateWithNewValue:value3];

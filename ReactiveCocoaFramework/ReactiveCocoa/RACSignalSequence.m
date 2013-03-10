@@ -26,11 +26,11 @@
 	RACSignalSequence *seq = [[self alloc] init];
 
 	RACReplaySubject *subject = [RACReplaySubject subject];
-	[signal subscribeNext:^(id value) {
+	[signal disposableWithUpdateHandler:^(id value) {
 		[subject didUpdateWithNewValue:value];
-	} error:^(NSError *error) {
+	} errorHandler:^(NSError *error) {
 		[subject didReceiveErrorWithError:error];
-	} completed:^{
+	} deallocationHandler:^{
 		[subject terminateSubscription];
 	}];
 
@@ -65,7 +65,7 @@
 - (NSString *)description {
 	// Synchronously accumulate the values that have been sent so far.
 	NSMutableArray *values = [NSMutableArray array];
-	RACDisposable *disposable = [self.subject subscribeNext:^(id value) {
+	RACDisposable *disposable = [self.subject observerWithUpdateHandler:^(id value) {
 		@synchronized (values) {
 			[values addObject:value ?: NSNull.null];
 		}

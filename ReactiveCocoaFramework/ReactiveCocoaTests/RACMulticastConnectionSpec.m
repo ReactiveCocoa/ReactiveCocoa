@@ -21,7 +21,7 @@ __block BOOL disposed = NO;
 beforeEach(^{
 	subscriptionCount = 0;
 	disposed = NO;
-	connection = [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	connection = [[RACSignal signalWithSubscriptionHandler:^(id<RACSubscriber> subscriber) {
 		subscriptionCount++;
 		return [RACDisposable disposableWithBlock:^{
 			disposed = YES;
@@ -65,15 +65,15 @@ describe(@"-autoconnect", ^{
 	it(@"should subscribe to the multicasted signal on the first subscription", ^{
 		expect(subscriptionCount).to.equal(0);
 		
-		[autoconnectedSignal subscribeNext:^(id x) {}];
+		[autoconnectedSignal observerWithUpdateHandler:^(id x) {}];
 		expect(subscriptionCount).to.equal(1);
 
-		[autoconnectedSignal subscribeNext:^(id x) {}];
+		[autoconnectedSignal observerWithUpdateHandler:^(id x) {}];
 		expect(subscriptionCount).to.equal(1);
 	});
 
 	it(@"should dispose of the multicasted subscription when the signal has no subscribers", ^{
-		RACDisposable *disposable = [autoconnectedSignal subscribeNext:^(id x) {}];
+		RACDisposable *disposable = [autoconnectedSignal observerWithUpdateHandler:^(id x) {}];
 
 		expect(disposed).to.beFalsy();
 		[disposable dispose];
@@ -81,11 +81,11 @@ describe(@"-autoconnect", ^{
 	});
 
 	it(@"shouldn't reconnect after disposal", ^{
-		RACDisposable *disposable = [autoconnectedSignal subscribeNext:^(id x) {}];
+		RACDisposable *disposable = [autoconnectedSignal observerWithUpdateHandler:^(id x) {}];
 		expect(subscriptionCount).to.equal(1);
 		[disposable dispose];
 
-		disposable = [autoconnectedSignal subscribeNext:^(id x) {}];
+		disposable = [autoconnectedSignal observerWithUpdateHandler:^(id x) {}];
 		expect(subscriptionCount).to.equal(1);
 		[disposable dispose];
 	});
@@ -95,7 +95,7 @@ describe(@"-autoconnect", ^{
 		RACSignal *signal = [[subject multicast:[RACReplaySubject subject]] autoconnect];
 
 		NSMutableArray *results1 = [NSMutableArray array];
-		RACDisposable *disposable = [signal subscribeNext:^(id x) {
+		RACDisposable *disposable = [signal observerWithUpdateHandler:^(id x) {
 			[results1 addObject:x];
 		}];
 
@@ -106,7 +106,7 @@ describe(@"-autoconnect", ^{
 		[disposable dispose];
 
 		NSMutableArray *results2 = [NSMutableArray array];
-		[signal subscribeNext:^(id x) {
+		[signal observerWithUpdateHandler:^(id x) {
 			[results2 addObject:x];
 		}];
 		expect(results2).will.equal((@[ @1, @2 ]));

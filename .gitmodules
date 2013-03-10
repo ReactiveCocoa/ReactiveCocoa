@@ -10,3 +10,6 @@
 [submodule "ReactiveCocoaFramework/ReactiveCocoa/libextobjc"]
 	path = ReactiveCocoaFramework/ReactiveCocoa/libextobjc
 	url = git://github.com/jspahrsummers/libextobjc.git
+[submodule "ReactiveCocoa"]
+	path = ReactiveCocoa
+	url = /Users/Brian/Documents/ReactiveCocoa

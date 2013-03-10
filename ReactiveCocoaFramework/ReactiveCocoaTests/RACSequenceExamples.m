@@ -56,7 +56,7 @@ sharedExamplesFor(RACSequenceExamples, ^(NSDictionary *data) {
 
 			__block BOOL flag = YES;
 			__block BOOL completed = NO;
-			[signal subscribeNext:^(id x) {
+			[signal observerWithUpdateHandler:^(id x) {
 				expect(flag).to.beTruthy();
 				flag = NO;
 
@@ -65,7 +65,7 @@ sharedExamplesFor(RACSequenceExamples, ^(NSDictionary *data) {
 					// verifies that it's YES).
 					flag = YES;
 				}];
-			} completed:^{
+			} completionHandler:^{
 				completed = YES;
 			}];
 

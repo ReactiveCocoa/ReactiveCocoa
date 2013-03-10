@@ -33,12 +33,12 @@ describe(@"RACSubject", ^{
 		success = YES;
 		error = nil;
 
-		[subject subscribeNext:^(id value) {
+		[subject disposableWithUpdateHandler:^(id value) {
 			[values addObject:value];
-		} error:^(NSError *e) {
+		} errorHandler:^(NSError *e) {
 			error = e;
 			success = NO;
-		} completed:^{
+		} deallocationHandler:^{
 			success = YES;
 		}];
 	});
@@ -69,7 +69,7 @@ describe(@"RACReplaySubject", ^{
 			[subject didUpdateWithNewValue:secondValue];
 			
 			__block id valueReceived = nil;
-			[subject subscribeNext:^(id x) {
+			[subject observerWithUpdateHandler:^(id x) {
 				valueReceived = x;
 			}];
 			
@@ -91,7 +91,7 @@ describe(@"RACReplaySubject", ^{
 			
 			[subject terminateSubscription];
 			
-			[subject subscribeNext:^(id x) {
+			[subject observerWithUpdateHandler:^(id x) {
 				valueReceived = x;
 				nextsReceived++;
 			}];
@@ -104,7 +104,7 @@ describe(@"RACReplaySubject", ^{
 			[subject terminateSubscription];
 
 			__block BOOL nextInvoked = NO;
-			[subject subscribeNext:^(id x) {
+			[subject observerWithUpdateHandler:^(id x) {
 				nextInvoked = YES;
 			}];
 
@@ -150,7 +150,7 @@ describe(@"RACReplaySubject", ^{
 
 					// This subscription should synchronously dump all values already
 					// received into 'values'.
-					[subject subscribeNext:^(id value) {
+					[subject observerWithUpdateHandler:^(id value) {
 						[values addObject:value];
 					}];
 
@@ -187,9 +187,9 @@ describe(@"RACReplaySubject", ^{
 			
 			__block BOOL completed = NO;
 			NSMutableArray *valuesReceived = [NSMutableArray array];
-			[subject subscribeNext:^(id x) {
+			[subject observerWithUpdateHandler:^(id x) {
 				[valuesReceived addObject:x];
-			} completed:^{
+			} completionHandler:^{
 				completed = YES;
 			}];
 			
@@ -206,7 +206,7 @@ describe(@"RACReplaySubject", ^{
 			__unsafe_unretained volatile id *values = (__unsafe_unretained id *)calloc(count, sizeof(*values));
 			__block volatile int32_t nextIndex = 0;
 
-			[subject subscribeNext:^(NSNumber *value) {
+			[subject observerWithUpdateHandler:^(NSNumber *value) {
 				int32_t indexPlusOne = OSAtomicIncrement32(&nextIndex);
 				values[indexPlusOne - 1] = value;
 			}];
@@ -249,7 +249,7 @@ describe(@"RACReplaySubject", ^{
 			[subject didUpdateWithNewValue:RACUnit.defaultUnit];
 
 			__block RACScheduler *currentScheduler;
-			[subject subscribeNext:^(id x) {
+			[subject observerWithUpdateHandler:^(id x) {
 				currentScheduler = RACScheduler.currentScheduler;
 			}];
 
@@ -257,7 +257,7 @@ describe(@"RACReplaySubject", ^{
 
 			currentScheduler = nil;
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-				[subject subscribeNext:^(id x) {
+				[subject observerWithUpdateHandler:^(id x) {
 					currentScheduler = RACScheduler.currentScheduler;
 				}];
 			});
@@ -272,7 +272,7 @@ describe(@"RACReplaySubject", ^{
 			[subject didUpdateWithNewValue:@1];
 
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-				__block RACDisposable *disposable = [subject subscribeNext:^(id x) {
+				__block RACDisposable *disposable = [subject observerWithUpdateHandler:^(id x) {
 					expect(disposable).notTo.beNil();
 
 					[values addObject:x];
@@ -288,7 +288,7 @@ describe(@"RACReplaySubject", ^{
 
 			__block id received;
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-				[subject subscribeNext:^(id x) {
+				[subject observerWithUpdateHandler:^(id x) {
 					received = x;
 				}];
 
@@ -303,7 +303,7 @@ describe(@"RACReplaySubject", ^{
 
 			__block id received;
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-				[subject subscribeNext:^(id x) {
+				[subject observerWithUpdateHandler:^(id x) {
 					received = x;
 				}];
 
@@ -318,7 +318,7 @@ describe(@"RACReplaySubject", ^{
 
 			NSMutableArray *received = [NSMutableArray array];
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-				[subject subscribeNext:^(id x) {
+				[subject observerWithUpdateHandler:^(id x) {
 					[received addObject:x];
 				}];
 

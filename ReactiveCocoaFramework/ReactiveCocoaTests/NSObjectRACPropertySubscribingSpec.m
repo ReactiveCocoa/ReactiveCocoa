@@ -34,7 +34,7 @@ describe(@"+rac_signalFor:keyPath:onObject:", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		RACSignal *signal = [object.class rac_signalFor:object keyPath:@keypath(object, objectValue) observer:self];
 		NSMutableArray *values = [NSMutableArray array];
-		RACDisposable *disposable = [signal subscribeNext:^(id x) {
+		RACDisposable *disposable = [signal observerWithUpdateHandler:^(id x) {
 			[values addObject:x];
 		}];
 
@@ -58,7 +58,7 @@ describe(@"+rac_signalFor:keyPath:onObject:", ^{
 			}]];
 
 			RACSignal *signal = [object.class rac_signalFor:object keyPath:@keypath(object, objectValue) observer:observer];
-			[signal subscribeNext:^(id x) {
+			[signal observerWithUpdateHandler:^(id x) {
 				[values addObject:x];
 			}];
 
@@ -88,7 +88,7 @@ describe(@"+rac_signalFor:keyPath:onObject:", ^{
 			}]];
 			
 			RACSignal *signal = [object.class rac_signalFor:object keyPath:@keypath(object, objectValue) observer:scopeObject];
-			[signal subscribeNext:^(id _) {
+			[signal observerWithUpdateHandler:^(id _) {
 
 			}];
 		}
@@ -113,7 +113,7 @@ describe(@"+rac_signalFor:keyPath:onObject:", ^{
 				signalDealloced = YES;
 			}]];
 			
-			[signal subscribeNext:^(id _) {
+			[signal observerWithUpdateHandler:^(id _) {
 
 			}];
 		}
@@ -127,7 +127,7 @@ describe(@"+rac_signalFor:keyPath:onObject:", ^{
 		@autoreleasepool {
 			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
 			RACSignal *signal = [NSObject rac_signalFor:object keyPath:@keypath(object, objectValue) observer:self];
-			[signal subscribeNext:^(id x) {
+			[signal observerWithUpdateHandler:^(id x) {
 				value = x;
 			}];
 

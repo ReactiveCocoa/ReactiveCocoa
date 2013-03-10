@@ -13,7 +13,7 @@
 // Represents any object which can directly receive values from a RACSignal.
 //
 // You generally shouldn't need to implement this protocol. +[RACSignal
-// createSignal:], RACSignal's subscription methods, or RACSubject should work
+// signalWithSubscriptionHandler:], RACSignal's subscription methods, or RACSubject should work
 // for most uses.
 //
 // Implementors of this protocol may receive messages and values from multiple

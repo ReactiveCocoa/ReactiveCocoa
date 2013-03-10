@@ -154,7 +154,7 @@ describe(@"-signalWithCompletionSelector:withObjects:", ^{
 			RACSignal *signal = [object signalWithCompletionSelector:@selector(combineObjectValue:andIntegerValue:) andObjects:objectSubject, integerSubject];
 
 			__block NSString *result;
-			[signal subscribeNext:^(id x) {
+			[signal observerWithUpdateHandler:^(id x) {
 				result = x;
 			}];
 
@@ -170,7 +170,7 @@ describe(@"-signalWithCompletionSelector:withObjects:", ^{
 			RACSignal *signal = [object signalWithCompletionSelector:@selector(setObjectValue:) andObjects:subject];
 
 			__block id result;
-			[signal subscribeNext:^(id x) {
+			[signal observerWithUpdateHandler:^(id x) {
 				result = x;
 			}];
 
@@ -189,7 +189,7 @@ describe(@"-signalWithCompletionSelector:withObjects:", ^{
 			[integerSubject didUpdateWithNewValue:@43];
 
 			__block NSString *result;
-			[signal subscribeNext:^(id x) {
+			[signal observerWithUpdateHandler:^(id x) {
 				result = x;
 			}];
 
@@ -236,7 +236,7 @@ describe(@"-signalWithCompletionBlock:withObjects:", ^{
 		expect(received2).to.equal(@2);
 
 		__block id received;
-		[signal subscribeNext:^(id x) {
+		[signal observerWithUpdateHandler:^(id x) {
 			received = x;
 		}];
 

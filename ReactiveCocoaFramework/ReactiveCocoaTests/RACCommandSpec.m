@@ -28,7 +28,7 @@ beforeEach(^{
 
 it(@"should pass the value along to subscribers", ^{
 	__block id valueReceived = nil;
-	[command subscribeNext:^(id value) {
+	[command observerWithUpdateHandler:^(id value) {
 		valueReceived = value;
 	}];
 	
@@ -40,7 +40,7 @@ it(@"should pass the value along to subscribers", ^{
 
 it(@"should not send anything on 'errors' by default", ^{
 	__block BOOL receivedError = NO;
-	[command.errors subscribeNext:^(id _) {
+	[command.errors observerWithUpdateHandler:^(id _) {
 		receivedError = YES;
 	}];
 	
@@ -49,7 +49,7 @@ it(@"should not send anything on 'errors' by default", ^{
 });
 
 it(@"should be executing from within the -execute: method", ^{
-	[command subscribeNext:^(id _) {
+	[command observerWithUpdateHandler:^(id _) {
 		expect(command.executing).to.beTruthy();
 	}];
 
@@ -79,7 +79,7 @@ describe(@"with a signal block", ^{
 				return [seq signalWithScheduler:RACScheduler.immediateScheduler];
 			}]
 			concat]
-			subscribeNext:^(id x) {
+			observerWithUpdateHandler:^(id x) {
 				[valuesReceived addObject:x];
 			}];
 
@@ -122,7 +122,7 @@ describe(@"with a signal block", ^{
 		NSError *secondError = [NSError errorWithDomain:@"" code:2 userInfo:nil];
 		
 		NSMutableArray *receivedErrors = [NSMutableArray array];
-		[command.errors subscribeNext:^(NSError *error) {
+		[command.errors observerWithUpdateHandler:^(NSError *error) {
 			[receivedErrors addObject:error];
 		}];
 
@@ -154,7 +154,7 @@ describe(@"with a signal block", ^{
 
 	it(@"should not forward other events onto 'errors'", ^{
 		__block BOOL receivedEvent = NO;
-		[command.errors subscribeNext:^(id _) {
+		[command.errors observerWithUpdateHandler:^(id _) {
 			receivedEvent = YES;
 		}];
 
@@ -180,7 +180,7 @@ describe(@"canExecute property", ^{
 		expect(command).notTo.beNil();
 		expect(command.canExecute).to.beFalsy();
 		
-		command = [RACCommand commandWithCanExecuteSignal:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		command = [RACCommand commandWithCanExecuteSignal:[RACSignal signalWithSubscriptionHandler:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber didUpdateWithNewValue:@YES];
 			[subscriber didUpdateWithNewValue:@NO];
 			return nil;
@@ -194,7 +194,7 @@ describe(@"canExecute property", ^{
 		expect(command).notTo.beNil();
 		expect(command.canExecute).to.beTruthy();
 		
-		command = [RACCommand commandWithCanExecuteSignal:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		command = [RACCommand commandWithCanExecuteSignal:[RACSignal signalWithSubscriptionHandler:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber didUpdateWithNewValue:@NO];
 			[subscriber didUpdateWithNewValue:@YES];
 			return nil;
@@ -204,7 +204,7 @@ describe(@"canExecute property", ^{
 	});
 
 	it(@"should be NO while executing is YES and allowsConcurrentExecution is NO", ^{
-		[command subscribeNext:^(id _) {
+		[command observerWithUpdateHandler:^(id _) {
 			expect(command.executing).to.beTruthy();
 			expect(command.canExecute).to.beFalsy();
 		}];
@@ -218,7 +218,7 @@ describe(@"canExecute property", ^{
 		command.allowsConcurrentExecution = YES;
 
 		// Prevent infinite recursion by only responding to the first value.
-		[[command streamWithObjectsUntilIndex:1] subscribeNext:^(id _) {
+		[[command streamWithObjectsUntilIndex:1] observerWithUpdateHandler:^(id _) {
 			expect(command.executing).to.beTruthy();
 			expect(command.canExecute).to.beTruthy();
 			expect([command execute:nil]).to.beTruthy();

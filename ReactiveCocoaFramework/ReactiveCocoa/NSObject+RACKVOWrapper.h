@@ -34,9 +34,6 @@ typedef void (^RACKVOBlock)(id target, id observer, NSDictionary *change);
 // block - the block called when the value at the key path changes.
 //
 // Returns the KVO trampoline that can be used to stop the observation.
-- (RACKVOTrampoline *)rac_addObserver:(NSObject *)observer
-						   forKeyPath:(NSString *)keyPath
-							  options:(NSKeyValueObservingOptions)options
-								block:(RACKVOBlock)block;
+- (RACKVOTrampoline *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(RACKVOBlock)block;
 
 @end

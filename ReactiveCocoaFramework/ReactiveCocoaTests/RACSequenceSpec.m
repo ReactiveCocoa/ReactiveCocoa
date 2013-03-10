@@ -146,8 +146,8 @@ describe(@"eager sequences", ^{
 	});
 });
 
-describe(@"-take:", ^{
-	it(@"should complete take: without needing the head of the second item in the sequence", ^{
+describe(@"-streamWithObjectsUntilIndex:", ^{
+	it(@"should complete streamWithObjectsUntilIndex: without needing the head of the second item in the sequence", ^{
 		__block NSUInteger valuesTaken = 0;
 
 		__block RACSequence *sequence = [RACSequence sequenceWithHeadBlock:^{

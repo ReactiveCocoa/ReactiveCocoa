@@ -83,8 +83,7 @@
 //           Cannot be nil.
 //
 // Returns a reduced value.
-- (id)foldLeftWithStart:(id)start
-				combine:(id (^)(id accumulator, id value))combine;
+- (id)foldLeftWithStart:(id)start combine:(id (^)(id accumulator, id value))combine;
 
 // Applies a right fold to the sequence.
 //

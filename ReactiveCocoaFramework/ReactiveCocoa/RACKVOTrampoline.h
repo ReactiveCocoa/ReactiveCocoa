@@ -23,11 +23,7 @@
 //            Cannot be nil.
 //
 // Returns the initialized object.
-- (id)initWithTarget:(NSObject *)target
-			observer:(NSObject *)observer
-			 keyPath:(NSString *)keyPath
-			 options:(NSKeyValueObservingOptions)options
-			   block:(RACKVOBlock)block;
+- (id)initWithTarget:(NSObject *)target observer:(NSObject *)observer keyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(RACKVOBlock)block;
 
 // Stop the KVO observation.
 - (void)stopObserving;

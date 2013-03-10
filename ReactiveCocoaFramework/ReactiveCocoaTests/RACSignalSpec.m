@@ -557,7 +557,7 @@ describe(@"continuation", ^{
 		expect(completed).to.beFalsy();
 	});
 
-	it(@"should stop repeating when disposed by -take:", ^{
+	it(@"should stop repeating when disposed by -streamWithObjectsUntilIndex:", ^{
 		RACSignal *signal = [RACSignal signalWithSubscriptionHandler:^ id (id<RACSubscriber> subscriber) {
 			[subscriber didUpdateWithNewValue:@1];
 			[subscriber terminateSubscription];
@@ -1899,7 +1899,7 @@ describe(@"-sequence", ^{
 	});
 });
 
-it(@"should complete take: even if the original signal doesn't", ^{
+it(@"should complete streamWithObjectsUntilIndex: even if the original signal doesn't", ^{
 	RACSignal *sendOne = [RACSignal signalWithSubscriptionHandler:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		[subscriber didUpdateWithNewValue:RACUnit.defaultUnit];
 		return nil;

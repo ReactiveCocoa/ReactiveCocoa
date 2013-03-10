@@ -53,12 +53,10 @@
 // A simple block-based subscriber.
 //
 // You shouldn't need to interact with this class directly. Use
-// -[RACSignal subscribeNext:error:completed:] instead.
+// -[RACSignal observeWithUpdateHandler:errorHandler:completionHandler:] instead.
 @interface RACSubscriber : NSObject <RACSubscriber>
 
 // Creates a new subscriber with the given blocks.
-+ (instancetype)subscriberWithUpdateHandler:(void (^)(id x))next
-							   errorHandler:(void (^)(NSError *error))error
-						  completionHandler:(void (^)(void))completed;
++ (instancetype)subscriberWithUpdateHandler:(void (^)(id x))next errorHandler:(void (^)(NSError *error))error completionHandler:(void (^)(void))completed;
 
 @end

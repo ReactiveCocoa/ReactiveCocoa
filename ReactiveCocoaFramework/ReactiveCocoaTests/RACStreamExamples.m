@@ -287,7 +287,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 	});
 
-	describe(@"-take:", ^{
+	describe(@"-streamWithObjectsUntilIndex:", ^{
 		describe(@"with three values", ^{
 			__block NSArray *values;
 			__block RACStream *stream;

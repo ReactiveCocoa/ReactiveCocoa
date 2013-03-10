@@ -47,7 +47,6 @@
 //
 // Returns a signal which sends the return value from each invocation of the
 // block. It completes only after all the signal arguments complete.
-- (RACSignal *)signalWithCompletionBlock:(id)block
-							  andObjects:(id)arg, ... NS_REQUIRES_NIL_TERMINATION;
+- (RACSignal *)signalWithCompletionBlock:(id)block andObjects:(id)arg, ... NS_REQUIRES_NIL_TERMINATION;
 
 @end

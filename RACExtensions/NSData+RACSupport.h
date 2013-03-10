@@ -15,8 +15,6 @@
 // Sends the data or the error.
 //
 // scheduler - cannot be nil.
-+ (RACSignal *)rac_readContentsOfURL:(NSURL *)URL
-							 options:(NSDataReadingOptions)options
-						   scheduler:(RACScheduler *)scheduler;
++ (RACSignal *)rac_readContentsOfURL:(NSURL *)URL options:(NSDataReadingOptions)options scheduler:(RACScheduler *)scheduler;
 
 @end

@@ -153,8 +153,7 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 //
 // Returns a new stream consisting of the return values from each application of
 // `combineBlock`.
-- (instancetype)streamByCombiningPreviousObjects:(id)start
-		 andCurrentObjectsWithCombinationHandler:(id (^)(id previous, id current))combineBlock;
+- (instancetype)streamByCombiningPreviousObjects:(id)start andCurrentObjectsWithCombinationHandler:(id (^)(id previous, id current))combineBlock;
 
 // Filters out values in the receiver that don't pass the given test.
 //
@@ -232,8 +231,7 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 //
 // Returns a new stream containing the results from each invocation of
 // `reduceBlock`.
-+ (instancetype)streamByZippingStreams:(id<NSFastEnumeration>)streams
-andReducingObjectsWithIterationHandler:(id)reduceBlock;
++ (instancetype)streamByZippingStreams:(id<NSFastEnumeration>)streams andReducingObjectsWithIterationHandler:(id)reduceBlock;
 
 // Returns a stream obtained by concatenating `streams` in order.
 + (instancetype)streamByAppendingStreams:(id<NSFastEnumeration>)streams;
@@ -257,8 +255,7 @@ andReducingObjectsWithIterationHandler:(id)reduceBlock;
 //
 // Returns a new stream that consists of each application of `block`. If the
 // receiver is empty, an empty stream is returned.
-- (instancetype)scanWithStart:(id)startingValue
-					  combine:(id (^)(id running, id next))block;
+- (instancetype)scanWithStart:(id)startingValue combine:(id (^)(id running, id next))block;
 
 // Takes values until the given block returns `YES`.
 //

@@ -28,15 +28,13 @@
 
 @interface RACSubscriptingAssignmentObjectKeyPathPair : NSObject <NSCopying>
 
-- (id)initWithObject:(NSObject *)object
-			 keyPath:(NSString *)keyPath;
+- (id)initWithObject:(NSObject *)object keyPath:(NSString *)keyPath;
 
 @end
 
 @interface RACSubscriptingAssignmentTrampoline : NSObject
 
 + (instancetype)trampoline;
-- (void)setObject:(RACSignal *)signal
-forKeyedSubscript:(id<NSCopying>)key;
+- (void)setObject:(RACSignal *)signal forKeyedSubscript:(id<NSCopying>)key;
 
 @end

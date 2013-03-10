@@ -23,7 +23,6 @@
 //              value, the second element will be the `RACBinding` that
 //              triggered the change or nil if the change was triggered by the
 //              property itself.
-- (instancetype)initWithSignal:(RACSignal *)signal
-					subscriber:(id<RACSubscriber>)subscriber;
+- (instancetype)initWithSignal:(RACSignal *)signal subscriber:(id<RACSubscriber>)subscriber;
 
 @end

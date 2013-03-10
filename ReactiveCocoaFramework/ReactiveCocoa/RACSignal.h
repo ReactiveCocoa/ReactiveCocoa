@@ -60,14 +60,12 @@
 // Returns a signal that calls the block with the given scheduler. The
 // block's success is YES by default. If the block sets success = NO, the
 // signal sends error with the error passed in by reference.
-+ (RACSignal *)signalWithScheduler:(RACScheduler *)scheduler
-				 andScheduledBlock:(id (^)(BOOL *success, NSError **error))block;
++ (RACSignal *)signalWithScheduler:(RACScheduler *)scheduler andScheduledBlock:(id (^)(BOOL *success, NSError **error))block;
 
 // Starts and returns an async signal. It calls the block with the given
 // scheduler and gives the block the subject that was returned from the method.
 // The block can send events using the subject.
-+ (RACSignal *)signalWithScheduler:(RACScheduler *)scheduler
-				 andSubjectHandler:(void (^)(RACSubject *subject))block;
++ (RACSignal *)signalWithScheduler:(RACScheduler *)scheduler andSubjectHandler:(void (^)(RACSubject *subject))block;
 
 @end
 
@@ -121,13 +119,10 @@
 - (RACDisposable *)observeWithUpdateHandler:(void (^)(id x))nextBlock;
 
 // Convenience method to subscribe to the `next` and `completed` events.
-- (RACDisposable *)observerWithUpdateHandler:(void (^)(id x))nextBlock
-						   completionHandler:(void (^)(void))completedBlock;
+- (RACDisposable *)observerWithUpdateHandler:(void (^)(id x))nextBlock completionHandler:(void (^)(void))completedBlock;
 
 // Convenience method to subscribe to the `next`, `completed`, and `error` events.
-- (RACDisposable *)observeWithUpdateHandler:(void (^)(id x))nextBlock
-							   errorHandler:(void (^)(NSError *error))errorBlock
-						deallocationHandler:(void (^)(void))completedBlock;
+- (RACDisposable *)observeWithUpdateHandler:(void (^)(id x))nextBlock errorHandler:(void (^)(NSError *error))errorBlock deallocationHandler:(void (^)(void))completedBlock;
 
 // Convenience method to subscribe to `error` events.
 //
@@ -140,12 +135,10 @@
 - (RACDisposable *)observeWithDeallocationHandler:(void (^)(void))completedBlock;
 
 // Convenience method to subscribe to `next` and `error` events.
-- (RACDisposable *)observeWithUpdateHandler:(void (^)(id x))nextBlock
-							   errorHandler:(void (^)(NSError *error))errorBlock;
+- (RACDisposable *)observeWithUpdateHandler:(void (^)(id x))nextBlock errorHandler:(void (^)(NSError *error))errorBlock;
 
 // Convenience method to subscribe to `error` and `completed` events.
-- (RACDisposable *)observeWithErrorHandler:(void (^)(NSError *error))errorBlock
-						 deallocationError:(void (^)(void))completedBlock;
+- (RACDisposable *)observeWithErrorHandler:(void (^)(NSError *error))errorBlock deallocationError:(void (^)(void))completedBlock;
 
 @end
 

@@ -18,10 +18,8 @@ extern const char *RACEventTrampolinesKey;
     RACDelegateProxy *proxy;
 }
 
-+ (instancetype)trampolineForControl:(UIControl *)control
-					   controlEvents:(UIControlEvents)controlEvents;
-+ (instancetype)trampolineForTextView:(UITextView *)textView
-					   delegateMethod:(SEL)method;
++ (instancetype)trampolineForControl:(UIControl *)control controlEvents:(UIControlEvents)controlEvents;
++ (instancetype)trampolineForTextView:(UITextView *)textView delegateMethod:(SEL)method;
 
 - (void)didGetControlEvent:(id)sender;
 - (void)didGetDelegateEvent:(SEL)delegateMethod sender:(id)sender;

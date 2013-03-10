@@ -171,7 +171,7 @@
 
 			return result;
 		};
-	}] setNameWithFormat:@"[%@] -take: %lu", self.name, (unsigned long)count];
+	}] setNameWithFormat:@"[%@] -streamWithObjectsUntilIndex: %lu", self.name, (unsigned long)count];
 }
 
 - (instancetype)streamByCombiningStreamsWithIterationBlock:(RACStream * (^)(void))block {

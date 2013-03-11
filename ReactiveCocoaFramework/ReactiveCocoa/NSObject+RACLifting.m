@@ -20,7 +20,7 @@
 @implementation NSObject (RACLifting)
 
 - (RACSignal *)rac_liftSignals:(NSArray *)signals withReducingInvocation:(id (^)(RACTuple *))reduceBlock {
-	RACMulticastConnection *connection = [[[RACSignal combineLatest:signals] map:reduceBlock] multicast:[RACReplaySubject replaySubjectWithCapacity:1]];
+	RACMulticastConnection *connection = [[[RACSignal combineLatest:signals] streamWithMappedValuesFromBlock:reduceBlock] multicast:[RACReplaySubject replaySubjectWithCapacity:1]];
 
 	RACDisposable *disposable = [connection connect];
 	[self rac_addDeallocDisposable:disposable];
@@ -28,7 +28,7 @@
 	return connection.signal;
 }
 
-- (RACSignal *)rac_liftSelector:(SEL)selector withObjects:(id)arg, ... {
+- (RACSignal *)signalWithCompletionSelector:(SEL)selector andObjects:(id)arg, ... {
 	NSMethodSignature *methodSignature = [self methodSignatureForSelector:selector];
 	NSAssert(methodSignature != nil, @"%@ does not respond to %@", self, NSStringFromSelector(selector));
 
@@ -61,7 +61,7 @@
 		}
 
 		[invocation invokeWithTarget:target];
-		return [invocation rac_returnValue];
+		return [invocation returnValue];
 	} copy];
 
 	if (signals.count < 1) {
@@ -82,7 +82,7 @@
 	}
 }
 
-- (RACSignal *)rac_liftBlock:(id)block withArguments:(id)arg, ... {
+- (RACSignal *)signalWithCompletionBlock:(id)block andObjects:(id)arg, ... {
 	NSParameterAssert(block != nil);
 
 	NSMutableArray *arguments = [NSMutableArray array];

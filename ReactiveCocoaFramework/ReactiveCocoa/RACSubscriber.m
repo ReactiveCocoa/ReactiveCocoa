@@ -26,7 +26,9 @@
 
 #pragma mark Lifecycle
 
-+ (instancetype)subscriberWithNext:(void (^)(id x))next error:(void (^)(NSError *error))error completed:(void (^)(void))completed {
++ (instancetype)subscriberWithUpdateHandler:(void (^)(id x))next
+							   errorHandler:(void (^)(NSError *error))error
+						  completionHandler:(void (^)(void))completed {
 	RACSubscriber *subscriber = [[self alloc] init];
 
 	subscriber->_next = [next copy];
@@ -61,7 +63,7 @@
 
 #pragma mark RACSubscriber
 
-- (void)sendNext:(id)value {
+- (void)didUpdateWithNewValue:(id)value {
 	if (self.next == NULL) return;
 
 	@synchronized (self) {
@@ -70,7 +72,7 @@
 	}
 }
 
-- (void)sendError:(NSError *)e {
+- (void)didReceiveErrorWithError:(NSError *)e {
 	@synchronized (self) {
 		if (self.disposed) return;
 
@@ -79,7 +81,7 @@
 	}
 }
 
-- (void)sendCompleted {
+- (void)terminateSubscription {
 	@synchronized (self) {
 		if (self.disposed) return;
 

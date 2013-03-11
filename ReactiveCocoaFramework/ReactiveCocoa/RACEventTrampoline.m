@@ -93,7 +93,7 @@ static NSMutableDictionary *swizzledClasses() {
 }
 
 - (void)didGetControlEvent:(id)sender {
-	[self.subject sendNext:sender];
+	[self.subject didUpdateWithNewValue:sender];
 }
 
 - (void)didGetDelegateEvent:(SEL)receivedEvent sender:(id)sender {

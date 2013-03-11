@@ -34,7 +34,7 @@
 
 	RACDisposable *schedulingDisposable = [RACScheduler.subscriptionScheduler schedule:^{
 		@synchronized (self) {
-			[subscriber sendNext:self.currentValue];
+			[subscriber didUpdateWithNewValue:self.currentValue];
 		}
 	}];
 	
@@ -46,10 +46,10 @@
 
 #pragma mark RACSubscriber
 
-- (void)sendNext:(id)value {
+- (void)didUpdateWithNewValue:(id)value {
 	@synchronized (self) {
 		self.currentValue = value;
-		[super sendNext:value];
+		[super didUpdateWithNewValue:value];
 	}
 }
 

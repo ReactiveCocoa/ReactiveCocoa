@@ -15,16 +15,16 @@
 	RACReplaySubject *subject = [RACReplaySubject subject];
 	[subject setNameWithFormat:@"%@ -rac_readInBackground", self];
 
-	RACSignal *dataNotification = [[[NSNotificationCenter defaultCenter] rac_addObserverForName:NSFileHandleReadCompletionNotification object:self] map:^(NSNotification *note) {
+	RACSignal *dataNotification = [[[NSNotificationCenter defaultCenter] rac_addObserverForName:NSFileHandleReadCompletionNotification object:self] streamWithMappedValuesFromBlock:^(NSNotification *note) {
 		return [note.userInfo objectForKey:NSFileHandleNotificationDataItem];
 	}];
 	
-	__block RACDisposable *subscription = [dataNotification subscribeNext:^(NSData *data) {
+	__block RACDisposable *subscription = [dataNotification observeWithUpdateHandler:^(NSData *data) {
 		if(data.length > 0) {
-			[subject sendNext:data];
+			[subject didUpdateWithNewValue:data];
 			[self readInBackgroundAndNotify];
 		} else {
-			[subject sendCompleted];
+			[subject terminateSubscription];
 			[subscription dispose];
 		}
 	}];

@@ -28,6 +28,6 @@
 //
 // Returns the return value of the invocation, wrapped in an object. Voids are
 // returned as `RACUnit.defaultUnit`.
-- (id)rac_returnValue;
+- (id)returnValue;
 
 @end

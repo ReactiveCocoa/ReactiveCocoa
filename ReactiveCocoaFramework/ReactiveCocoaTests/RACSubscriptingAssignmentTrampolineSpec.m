@@ -26,7 +26,7 @@ it(@"should expand the RAC macro properly", ^{
 	RACTestObject *testObject = [[RACTestObject alloc] init];
 	RAC(testObject, objectValue) = subject;
 
-	[subject sendNext:@1];
+	[subject didUpdateWithNewValue:@1];
 	expect(testObject.objectValue).to.equal(@1);
 });
 

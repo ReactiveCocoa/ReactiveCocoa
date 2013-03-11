@@ -102,7 +102,8 @@
 //           don't need to.
 //
 // Returns a reduced value.
-- (id)foldRightWithStart:(id)start combine:(id (^)(id first, RACSequence *rest))combine;
+- (id)foldRightWithStart:(id)start
+				 combine:(id (^)(id first, RACSequence *rest))combine;
 
 // Check if any value in sequence passes the block.
 //
@@ -128,6 +129,7 @@
 //
 // Returns a sequence that lazily invokes the given blocks to provide head and
 // tail. `headBlock` must not be nil.
-+ (RACSequence *)sequenceWithHeadBlock:(id (^)(void))headBlock tailBlock:(RACSequence *(^)(void))tailBlock;
++ (RACSequence *)sequenceWithHeadBlock:(id (^)(void))headBlock
+							 tailBlock:(RACSequence *(^)(void))tailBlock;
 
 @end

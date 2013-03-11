@@ -85,7 +85,7 @@
 
 	RAC(self.canExecute) = [RACSignal
 		combineLatest:@[
-			[canExecuteSignal startWith:@YES] ?: [RACSignal return:@YES],
+			[canExecuteSignal streamByPrependingValue:@YES] ?: [RACSignal return:@YES],
 			RACAbleWithStart(self.allowsConcurrentExecution),
 			RACAbleWithStart(self.executing)
 		] reduce:^(NSNumber *canExecute, NSNumber *allowsConcurrency, NSNumber *executing) {
@@ -108,7 +108,7 @@
 			@strongify(self);
 			[self incrementItemsInFlight];
 		}]
-		map:^(id value) {
+		streamWithMappedValuesFromBlock:^(id value) {
 			RACSignal *signal = signalBlock(value);
 			NSAssert(signal != nil, @"signalBlock returned a nil signal");
 
@@ -116,7 +116,7 @@
 				doError:^(NSError *error) {
 					[RACScheduler.mainThreadScheduler schedule:^{
 						@strongify(self);
-						if (self != nil) [self->_errors sendNext:error];
+						if (self != nil) [self->_errors didUpdateWithNewValue:error];
 					}];
 				}]
 				finally:^{
@@ -138,7 +138,7 @@
 		[self incrementItemsInFlight];
 	}
 	
-	[self sendNext:value];
+	[self didUpdateWithNewValue:value];
 	[self decrementItemsInFlight];
 
 	return YES;

@@ -119,7 +119,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 + (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals;
 
 // Combines signals using +combineLatest:, then reduces the resulting tuples
-// into a single value using -reduceEach:.
+// into a single value using -streamByReducingObjectsWithIterationHandler:.
 //
 // signals     - The signals to combine. If this collection is empty, the
 //               returned signal will immediately complete upon subscription.

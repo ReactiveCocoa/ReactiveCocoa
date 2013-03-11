@@ -32,13 +32,13 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 		setupBlock(testObject, @keypath(testObject.objectValue), subject);
 		expect(testObject.objectValue).to.beNil();
 
-		[subject sendNext:@1];
+		[subject didUpdateWithNewValue:@1];
 		expect(testObject.objectValue).to.equal(@1);
 
-		[subject sendNext:@2];
+		[subject didUpdateWithNewValue:@2];
 		expect(testObject.objectValue).to.equal(@2);
 
-		[subject sendNext:nil];
+		[subject didUpdateWithNewValue:nil];
 		expect(testObject.objectValue).to.beNil();
 	});
 
@@ -47,16 +47,16 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 		setupBlock(testObject, @keypath(testObject.integerValue), subject);
 		expect(testObject.integerValue).to.equal(0);
 
-		[subject sendNext:@1];
+		[subject didUpdateWithNewValue:@1];
 		expect(testObject.integerValue).to.equal(1);
 
-		[subject sendNext:@2];
+		[subject didUpdateWithNewValue:@2];
 		expect(testObject.integerValue).to.equal(2);
 
-		[subject sendNext:@0];
+		[subject didUpdateWithNewValue:@0];
 		expect(testObject.integerValue).to.equal(0);
 
-		[subject sendNext:nil];
+		[subject didUpdateWithNewValue:nil];
 		expect(testObject.integerValue).to.equal(0);
 	});
 
@@ -68,7 +68,7 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 
 		@autoreleasepool {
 			@autoreleasepool {
-				RACSignal *intermediateSignal = [subject map:^(NSNumber *num) {
+				RACSignal *intermediateSignal = [subject streamWithMappedValuesFromBlock:^(NSNumber *num) {
 					return @(num.integerValue + 1);
 				}];
 
@@ -88,14 +88,14 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 
 		expect(deallocd).to.beFalsy();
 
-		[subject sendNext:@5];
+		[subject didUpdateWithNewValue:@5];
 		expect(testObject.integerValue).to.equal(6);
 
-		[subject sendNext:@6];
+		[subject didUpdateWithNewValue:@6];
 		expect(testObject.integerValue).to.equal(7);
 
 		expect(deallocd).to.beFalsy();
-		[subject sendCompleted];
+		[subject terminateSubscription];
 
 		// Can't test deallocd again, because it's legal for the chain to be
 		// retained until the object or the original signal is destroyed.

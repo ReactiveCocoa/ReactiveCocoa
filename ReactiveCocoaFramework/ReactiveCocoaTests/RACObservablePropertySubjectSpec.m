@@ -56,13 +56,13 @@ describe(@"RACObservablePropertySubject", ^{
 	
 	it(@"should send the object's current value when subscribed to", ^{
 		__block id receivedValue = @"received value should not be this";
-		[[property take:1] subscribeNext:^(id x) {
+		[[property streamWithObjectsUntilIndex:1] observeWithUpdateHandler:^(id x) {
 			receivedValue = x;
 		}];
 		expect(receivedValue).to.beNil();
 		
 		object.name = value1;
-		[[property take:1] subscribeNext:^(id x) {
+		[[property streamWithObjectsUntilIndex:1] observeWithUpdateHandler:^(id x) {
 			receivedValue = x;
 		}];
 		expect(receivedValue).to.equal(value1);
@@ -71,7 +71,7 @@ describe(@"RACObservablePropertySubject", ^{
 	it(@"should send the object's new value when it's changed", ^{
 		object.name = value1;
 		NSMutableArray *receivedValues = [NSMutableArray array];
-		[property subscribeNext:^(id x) {
+		[property observeWithUpdateHandler:^(id x) {
 			[receivedValues addObject:x];
 		}];
 		object.name = value2;
@@ -81,9 +81,9 @@ describe(@"RACObservablePropertySubject", ^{
 	
 	it(@"should set values it's sent", ^{
 		expect(object.name).to.beNil();
-		[property sendNext:value1];
+		[property didUpdateWithNewValue:value1];
 		expect(object.name).to.equal(value1);
-		[property sendNext:value2];
+		[property didUpdateWithNewValue:value2];
 		expect(object.name).to.equal(value2);
 	});
 	
@@ -92,10 +92,10 @@ describe(@"RACObservablePropertySubject", ^{
 		[object rac_addObserver:self forKeyPath:@keypath(object.name) options:NSKeyValueObservingOptionNew block:^(id target, id observer, NSDictionary *change) {
 			[receivedValues addObject:change[NSKeyValueChangeNewKey]];
 		}];
-		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendNext:value1];
-			[subscriber sendNext:value2];
-			[subscriber sendNext:value3];
+		RACSignal *signal = [RACSignal signalWithSubscriptionHandler:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[subscriber didUpdateWithNewValue:value1];
+			[subscriber didUpdateWithNewValue:value2];
+			[subscriber didUpdateWithNewValue:value3];
 			return nil;
 		}];
 		[signal subscribe:property];
@@ -226,7 +226,7 @@ describe(@"RACObservablePropertySubject bindings", ^{
 	});
 	
 	it(@"should stop binding when disposed", ^{
-		RACDisposable *disposable = [RACBind(a, name) bindTo:RACBind(b, name)];
+		RACDisposable *disposable = [RACBind(a, name) disposableWithBinding:RACBind(b, name)];
 		a.name = testName1;
 		expect(a.name).to.equal(testName1);
 		expect(b.name).to.equal(testName1);

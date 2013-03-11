@@ -71,7 +71,7 @@
 #undef PULL_AND_SET_STRUCT
 }
 
-- (id)rac_returnValue {
+- (id)returnValue {
 #define WRAP_AND_RETURN(type) \
 	do { \
 		type val = 0; \

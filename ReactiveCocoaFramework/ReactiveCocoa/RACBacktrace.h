@@ -19,11 +19,11 @@
 
 // Captures the current thread's backtrace, appending it to any backtrace from
 // a previous thread.
-+ (instancetype)captureBacktrace;
++ (instancetype)capturedBacktrace;
 
-// Same as +captureBacktrace, but omits the specified number of frames at the
+// Same as +capturedBacktrace, but omits the specified number of frames at the
 // top of the stack (in addition to this method itself).
-+ (instancetype)captureBacktraceIgnoringFrames:(NSUInteger)ignoreCount;
++ (instancetype)capturedBacktraceByRemovingFrames:(NSUInteger)ignoreCount;
 
 // Prints the backtrace of the current thread, appended to that of any previous
 // threads.

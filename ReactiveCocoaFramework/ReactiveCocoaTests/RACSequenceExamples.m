@@ -56,7 +56,7 @@ sharedExamplesFor(RACSequenceExamples, ^(NSDictionary *data) {
 
 			__block BOOL flag = YES;
 			__block BOOL completed = NO;
-			[signal subscribeNext:^(id x) {
+			[signal observerWithUpdateHandler:^(id x) {
 				expect(flag).to.beTruthy();
 				flag = NO;
 
@@ -65,7 +65,7 @@ sharedExamplesFor(RACSequenceExamples, ^(NSDictionary *data) {
 					// verifies that it's YES).
 					flag = YES;
 				}];
-			} completed:^{
+			} completionHandler:^{
 				completed = YES;
 			}];
 
@@ -83,7 +83,7 @@ sharedExamplesFor(RACSequenceExamples, ^(NSDictionary *data) {
 			RACSequence *valueSeq = [RACSequence return:value];
 			expect(valueSeq).notTo.beNil();
 
-			newSequence = [newSequence concat:valueSeq];
+			newSequence = [newSequence streamByAppendingStream:valueSeq];
 		}
 		
 		expect(sequence).to.equal(newSequence);
@@ -109,14 +109,14 @@ sharedExamplesFor(RACSequenceExamples, ^(NSDictionary *data) {
 	
 	it(@"should fold right", ^{
 		RACSequence *result = [sequence foldRightWithStart:[RACSequence empty] combine:^(id first, RACSequence *rest) {
-			return [rest.head startWith:first];
+			return [rest.head streamByPrependingValue:first];
 		}];
 		expect(result.array).to.equal(values);
 	});
 	
 	it(@"should fold left", ^{
 		RACSequence *result = [sequence foldLeftWithStart:[RACSequence empty] combine:^(RACSequence *first, id rest) {
-			return [first concat:[RACSequence return:rest]];
+			return [first streamByAppendingStream:[RACSequence return:rest]];
 		}];
 		expect(result.array).to.equal(values);
 	});

@@ -59,7 +59,7 @@
 }
 
 - (RACSignal *)autoconnect {
-	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	return [[RACSignal signalWithSubscriptionHandler:^(id<RACSubscriber> subscriber) {
 		RACDisposable *subscriptionDisposable = [self.signal subscribe:subscriber];
 		[self connect];
 

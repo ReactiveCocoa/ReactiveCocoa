@@ -106,16 +106,16 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 
 #pragma mark <RACSubscriber>
 
-- (void)sendNext:(id)value {
-	[self.exposedSubscriberSubject sendNext:value];
+- (void)didUpdateWithNewValue:(id)value {
+	[self.exposedSubscriberSubject didUpdateWithNewValue:value];
 }
 
-- (void)sendError:(NSError *)error {
-	[self.exposedSubscriberSubject sendError:error];
+- (void)didReceiveErrorWithError:(NSError *)error {
+	[self.exposedSubscriberSubject didReceiveErrorWithError:error];
 }
 
-- (void)sendCompleted {
-	[self.exposedSubscriberSubject sendCompleted];
+- (void)terminateSubscription {
+	[self.exposedSubscriberSubject terminateSubscription];
 }
 
 - (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
@@ -132,15 +132,15 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 	binding->_target = target;
 	binding->_keyPath = [keyPath copy];
 	
-	binding->_exposedSignal = [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	binding->_exposedSignal = [[RACSignal signalWithSubscriptionHandler:^(id<RACSubscriber> subscriber) {
 		@strongify(binding);
-		[subscriber sendNext:[binding.target valueForKeyPath:binding.keyPath]];
+		[subscriber didUpdateWithNewValue:[binding.target valueForKeyPath:binding.keyPath]];
 		return [binding.exposedSignalSubject subscribe:subscriber];
 	}] setNameWithFormat:@"[+propertyWithTarget: %@ keyPath: %@] -binding", target, keyPath];
 	binding->_exposedSignalSubject = [RACSubject subject];
 	
 	binding->_exposedSubscriberSubject = [RACSubject subject];
-	[binding->_exposedSubscriberSubject subscribeNext:^(id x) {
+	[binding->_exposedSubscriberSubject observeWithUpdateHandler:^(id x) {
 		@strongify(binding);
 		binding.ignoreNextUpdate = YES;
 		[binding.target setValue:x forKeyPath:binding.keyPath];
@@ -174,15 +174,15 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 		return;
 	}
 	id value = [self.target valueForKeyPath:self.keyPath];
-	[self.exposedSignalSubject sendNext:value];
+	[self.exposedSignalSubject didUpdateWithNewValue:value];
 }
 
 - (void)dispose {
 	@synchronized(self) {
 		if (self.disposed) return;
 		self.disposed = YES;
-		[self.exposedSignalSubject sendCompleted];
-		[self.exposedSubscriberSubject sendCompleted];
+		[self.exposedSignalSubject terminateSubscription];
+		[self.exposedSubscriberSubject terminateSubscription];
 		[self.observer stopObserving];
 	}
 }
@@ -199,16 +199,16 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 
 #pragma mark <RACSubscriber>
 
-- (void)sendNext:(id)value {
-	[self.exposedSubscriber sendNext:value];
+- (void)didUpdateWithNewValue:(id)value {
+	[self.exposedSubscriber didUpdateWithNewValue:value];
 }
 
-- (void)sendError:(NSError *)error {
-	[self.exposedSubscriber sendError:error];
+- (void)didReceiveErrorWithError:(NSError *)error {
+	[self.exposedSubscriber didReceiveErrorWithError:error];
 }
 
-- (void)sendCompleted {
-	[self.exposedSubscriber sendCompleted];
+- (void)terminateSubscription {
+	[self.exposedSubscriber terminateSubscription];
 }
 
 - (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
@@ -225,21 +225,21 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 	property->_keyPath = [keyPath copy];
 	
 	@weakify(property);
-	property->_exposedSignal = [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	property->_exposedSignal = [[RACSignal signalWithSubscriptionHandler:^(id<RACSubscriber> subscriber) {
 		@strongify(property);
-		[subscriber sendNext:[property.target valueForKeyPath:keyPath]];
+		[subscriber didUpdateWithNewValue:[property.target valueForKeyPath:keyPath]];
 		return [[property.target rac_signalForKeyPath:property.keyPath observer:property] subscribe:subscriber];
 	}] setNameWithFormat:@"+propertyWithTarget: %@ keyPath: %@", target, keyPath];
-	property->_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
+	property->_exposedSubscriber = [RACSubscriber subscriberWithUpdateHandler:^(id x) {
 		@strongify(property);
 		[property.target setValue:x forKeyPath:property.keyPath];
-	} error:^(NSError *error) {
+	} errorHandler:^(NSError *error) {
 		@strongify(property);
 		NSAssert(NO, @"Received error in RACObservablePropertySubject for key path \"%@\" on %@: %@", property.keyPath, property.target, error);
 		
 		// Log the error if we're running with assertions disabled.
 		NSLog(@"Received error in binding for key path \"%@\" on %@: %@", property.keyPath, property.target, error);
-	} completed:nil];
+	} completionHandler:nil];
 	
 	return property;
 }
@@ -257,7 +257,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 }
 
 - (void)setObject:(id)obj forKeyedSubscript:(id)key {
-	[[self valueForKey:key] bindTo:obj];
+	[[self valueForKey:key] disposableWithBinding:obj];
 }
 
 @end

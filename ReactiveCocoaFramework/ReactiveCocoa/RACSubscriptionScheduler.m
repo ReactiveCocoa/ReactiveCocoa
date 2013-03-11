@@ -41,9 +41,9 @@
 	return nil;
 }
 
-- (RACDisposable *)after:(dispatch_time_t)when schedule:(void (^)(void))block {
+- (RACDisposable *)disposableWithDelay:(dispatch_time_t)when andBlock:(void (^)(void))block {
 	RACScheduler *scheduler = RACScheduler.currentScheduler ?: self.backgroundScheduler;
-	return [scheduler after:when schedule:block];
+	return [scheduler disposableWithDelay:when andBlock:block];
 }
 
 @end

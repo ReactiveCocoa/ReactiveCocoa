@@ -13,7 +13,7 @@
 // Represents any object which can directly receive values from a RACSignal.
 //
 // You generally shouldn't need to implement this protocol. +[RACSignal
-// createSignal:], RACSignal's subscription methods, or RACSubject should work
+// signalWithSubscriptionHandler:], RACSignal's subscription methods, or RACSubject should work
 // for most uses.
 //
 // Implementors of this protocol may receive messages and values from multiple
@@ -25,7 +25,7 @@
 // Send the next value to subscribers.
 //
 // value - The value to send. This can be `nil`.
-- (void)sendNext:(id)value;
+- (void)didUpdateWithNewValue:(id)value;
 
 // Send the error to subscribers.
 //
@@ -33,13 +33,13 @@
 //
 // This terminates the subscription, and invalidates the subscriber (such that
 // it cannot subscribe to anything else in the future).
-- (void)sendError:(NSError *)error;
+- (void)didReceiveErrorWithError:(NSError *)error;
 
 // Send completed to subscribers.
 //
 // This terminates the subscription, and invalidates the subscriber (such that
 // it cannot subscribe to anything else in the future).
-- (void)sendCompleted;
+- (void)terminateSubscription;
 
 // Sends the subscriber a disposable that represents one of its subscriptions.
 //
@@ -53,10 +53,10 @@
 // A simple block-based subscriber.
 //
 // You shouldn't need to interact with this class directly. Use
-// -[RACSignal subscribeNext:error:completed:] instead.
+// -[RACSignal observeWithUpdateHandler:errorHandler:completionHandler:] instead.
 @interface RACSubscriber : NSObject <RACSubscriber>
 
 // Creates a new subscriber with the given blocks.
-+ (instancetype)subscriberWithNext:(void (^)(id x))next error:(void (^)(NSError *error))error completed:(void (^)(void))completed;
++ (instancetype)subscriberWithUpdateHandler:(void (^)(id x))next errorHandler:(void (^)(NSError *error))error completionHandler:(void (^)(void))completed;
 
 @end

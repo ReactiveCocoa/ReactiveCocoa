@@ -17,7 +17,7 @@
 	NSDictionary *immutableDict = [self copy];
 
 	// TODO: First class support for dictionary sequences.
-	return [immutableDict.allKeys.rac_sequence map:^(id key) {
+	return [immutableDict.allKeys.rac_sequence streamWithMappedValuesFromBlock:^(id key) {
 		id value = immutableDict[key];
 		return [RACTuple tupleWithObjects:key, value, nil];
 	}];

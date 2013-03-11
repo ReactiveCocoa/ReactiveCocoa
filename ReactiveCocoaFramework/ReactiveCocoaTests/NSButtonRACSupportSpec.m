@@ -25,7 +25,7 @@ it(@"should execute the button's command when clicked", ^{
 	RACCommand *command = [RACCommand command];
 
 	__block BOOL executed = NO;
-	[command subscribeNext:^(id sender) {
+	[command observeWithUpdateHandler:^(id sender) {
 		expect(sender).to.equal(button);
 		executed = YES;
 	}];

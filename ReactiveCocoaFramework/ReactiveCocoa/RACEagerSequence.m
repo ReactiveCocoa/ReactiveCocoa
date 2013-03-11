@@ -34,12 +34,12 @@
 	return [[self.class sequenceWithArray:resultArray offset:0] setNameWithFormat:@"[%@] -bind:", self.name];
 }
 
-- (instancetype)concat:(RACSequence *)sequence {
+- (instancetype)streamByAppendingStream:(RACSequence *)sequence {
 	NSParameterAssert(sequence != nil);
 	NSParameterAssert([sequence isKindOfClass:RACSequence.class]);
 
 	NSArray *array = [self.array arrayByAddingObjectsFromArray:sequence.array];
-	return [[self.class sequenceWithArray:array offset:0] setNameWithFormat:@"[%@] -concat: %@", self.name, sequence];
+	return [[self.class sequenceWithArray:array offset:0] setNameWithFormat:@"[%@] -streamByAppendingStream: %@", self.name, sequence];
 }
 
 #pragma mark Extended methods

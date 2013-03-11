@@ -80,7 +80,8 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 //
 // Returns a disposable which can be used to cancel the scheduled block before
 // it begins executing, or nil if cancellation is not supported.
-- (RACDisposable *)after:(dispatch_time_t)when schedule:(void (^)(void))block;
+- (RACDisposable *)disposableWithDelay:(dispatch_time_t)when
+							  andBlock:(void (^)(void))block;
 
 // Schedule the given recursive block for execution on the scheduler. The
 // scheduler will automatically flatten any recursive scheduling into iteration
@@ -99,6 +100,6 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 // Returns a disposable which can be used to cancel the scheduled block before
 // it begins executing, or to stop it from rescheduling if it's already begun
 // execution.
-- (RACDisposable *)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock;
+- (RACDisposable *)disposableWithScheduledRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock;
 
 @end

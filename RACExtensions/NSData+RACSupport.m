@@ -20,10 +20,10 @@
 		NSError *error = nil;
 		NSData *data = [[NSData alloc] initWithContentsOfURL:URL options:options error:&error];
 		if(data == nil) {
-			[subject sendError:error];
+			[subject didReceiveErrorWithError:error];
 		} else {
-			[subject sendNext:data];
-			[subject sendCompleted];
+			[subject didUpdateWithNewValue:data];
+			[subject terminateSubscription];
 		}
 	}];
 	

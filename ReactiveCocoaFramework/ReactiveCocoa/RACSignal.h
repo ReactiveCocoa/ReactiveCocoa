@@ -32,7 +32,7 @@
 //
 // didSubscribe - Called when the signal is subscribed to. The new subscriber is
 //                passed in. You can then manually control the <RACSubscriber> by
-//                sending it -sendNext:, -sendError:, and -sendCompleted,
+//                sending it -didUpdateWithNewValue:, -didReceiveErrorWithError:, and -terminateSubscription,
 //                as defined by the operation you're implementing. This block
 //                should return a RACDisposable which cancels any ongoing work
 //                triggered by the subscription, and cleans up any resources or
@@ -44,28 +44,28 @@
 // subscribes. Any side effects within the block will thus execute once for each
 // subscription, not necessarily on one thread, and possibly even
 // simultaneously!
-+ (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe;
++ (RACSignal *)signalWithSubscriptionHandler:(RACDisposable * (^)(id<RACSubscriber> subscriber))subscriptionHandler;
 
 // Returns a signal that immediately sends the given error.
-+ (RACSignal *)error:(NSError *)error;
++ (RACSignal *)signalWithError:(NSError *)error;
 
 // Returns a signal that never completes.
-+ (RACSignal *)never;
++ (RACSignal *)signalWithoutSubscriptionHandler;
 
 // Returns a signal that calls the block in a background queue. The
 // block's success is YES by default. If the block sets success = NO, the
 // signal sends error with the error passed in by reference.
-+ (RACSignal *)start:(id (^)(BOOL *success, NSError **error))block;
++ (RACSignal *)signalWithInitiationHandler:(id (^)(BOOL *success, NSError **error))block;
 
 // Returns a signal that calls the block with the given scheduler. The
 // block's success is YES by default. If the block sets success = NO, the
 // signal sends error with the error passed in by reference.
-+ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block;
++ (RACSignal *)signalWithScheduler:(RACScheduler *)scheduler andScheduledBlock:(id (^)(BOOL *success, NSError **error))block;
 
 // Starts and returns an async signal. It calls the block with the given
 // scheduler and gives the block the subject that was returned from the method.
 // The block can send events using the subject.
-+ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block;
++ (RACSignal *)signalWithScheduler:(RACScheduler *)scheduler andSubjectHandler:(void (^)(RACSubject *subject))block;
 
 @end
 
@@ -78,7 +78,7 @@
 + (RACSignal *)empty;
 
 // Subscribes to `signal` when the source signal completes.
-- (RACSignal *)concat:(RACSignal *)signal;
+- (RACSignal *)streamByAppendingStream:(RACSignal *)signal;
 
 // Zips the values in the receiver with those of the given signal to create
 // RACTuples.
@@ -91,7 +91,7 @@
 // Returns a new signal of RACTuples, representing the combined values of the
 // two signals. Any error from one of the original signals will be forwarded on
 // the returned signal.
-- (RACSignal *)zipWith:(RACSignal *)signal;
+- (RACSignal *)zippedStreamByCombiningWithStream:(RACSignal *)signal;
 
 @end
 
@@ -116,29 +116,29 @@
 // Convenience method to subscribe to the `next` event.
 //
 // This corresponds to `IObserver<T>.OnNext` in Rx.
-- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock;
+- (RACDisposable *)observeWithUpdateHandler:(void (^)(id x))nextBlock;
 
 // Convenience method to subscribe to the `next` and `completed` events.
-- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock;
+- (RACDisposable *)observerWithUpdateHandler:(void (^)(id x))nextBlock completionHandler:(void (^)(void))completedBlock;
 
 // Convenience method to subscribe to the `next`, `completed`, and `error` events.
-- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
+- (RACDisposable *)observeWithUpdateHandler:(void (^)(id x))nextBlock errorHandler:(void (^)(NSError *error))errorBlock deallocationHandler:(void (^)(void))completedBlock;
 
 // Convenience method to subscribe to `error` events.
 //
 // This corresponds to the `IObserver<T>.OnError` in Rx.
-- (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock;
+- (RACDisposable *)observeWithErrorHandler:(void (^)(NSError *error))errorBlock;
 
 // Convenience method to subscribe to `completed` events.
 //
 // This corresponds to the `IObserver<T>.OnCompleted` in Rx.
-- (RACDisposable *)subscribeCompleted:(void (^)(void))completedBlock;
+- (RACDisposable *)observeWithDeallocationHandler:(void (^)(void))completedBlock;
 
 // Convenience method to subscribe to `next` and `error` events.
-- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock;
+- (RACDisposable *)observeWithUpdateHandler:(void (^)(id x))nextBlock errorHandler:(void (^)(NSError *error))errorBlock;
 
 // Convenience method to subscribe to `error` and `completed` events.
-- (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
+- (RACDisposable *)observeWithErrorHandler:(void (^)(NSError *error))errorBlock deallocationError:(void (^)(void))completedBlock;
 
 @end
 
@@ -178,7 +178,9 @@
 //
 // Returns the first value received, or `defaultValue` if no value is received
 // before the signal finishes or the method times out.
-- (id)asynchronousFirstOrDefault:(id)defaultValue success:(BOOL *)success error:(NSError **)error;
+- (id)asynchronousFirstOrDefault:(id)defaultValue
+						 success:(BOOL *)success
+						   error:(NSError **)error;
 
 // Spins the main run loop for a short while, waiting for the receiver to complete.
 //

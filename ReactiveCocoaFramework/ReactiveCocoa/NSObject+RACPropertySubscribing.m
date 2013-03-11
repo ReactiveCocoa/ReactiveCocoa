@@ -23,10 +23,10 @@ static const void *RACObjectScopedDisposable = &RACObjectScopedDisposable;
 
 + (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer {
 	@unsafeify(observer, object);
-	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	return [[RACSignal signalWithSubscriptionHandler:^(id<RACSubscriber> subscriber) {
 		@strongify(observer, object);
 		RACKVOTrampoline *KVOTrampoline = [object rac_addObserver:observer forKeyPath:keyPath options:0 block:^(id target, id observer, NSDictionary *change) {
-			[subscriber sendNext:[target valueForKeyPath:keyPath]];
+			[subscriber didUpdateWithNewValue:[target valueForKeyPath:keyPath]];
 		}];
 
 		RACDisposable *KVODisposable = [RACDisposable disposableWithBlock:^{
@@ -37,7 +37,7 @@ static const void *RACObjectScopedDisposable = &RACObjectScopedDisposable;
 		RACDisposable *deallocDisposable = [RACDisposable disposableWithBlock:^{
 			@strongify(subscriber);
 			[KVODisposable dispose];
-			[subscriber sendCompleted];
+			[subscriber terminateSubscription];
 		}];
 
 		[observer rac_addDeallocDisposable:deallocDisposable];

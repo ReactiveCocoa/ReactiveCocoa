@@ -100,12 +100,12 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 	return nil;
 }
 
-- (RACDisposable *)after:(dispatch_time_t)when schedule:(void (^)(void))block {
-	NSAssert(NO, @"-after:schedule: must be implemented by subclasses.");
+- (RACDisposable *)disposableWithDelay:(dispatch_time_t)when andBlock:(void (^)(void))block {
+	NSAssert(NO, @"-disposableWithDelay:andBlock: must be implemented by subclasses.");
 	return nil;
 }
 
-- (RACDisposable *)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock {
+- (RACDisposable *)disposableWithScheduledRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock {
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 
 	__block volatile uint32_t disposed = 0;

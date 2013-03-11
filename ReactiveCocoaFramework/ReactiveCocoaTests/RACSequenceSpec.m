@@ -103,7 +103,7 @@ describe(@"empty sequences", ^{
 describe(@"non-empty sequences", ^{
 	itShouldBehaveLike(RACSequenceExamples, ^{
 		return @{
-			RACSequenceExampleSequence: [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]],
+			RACSequenceExampleSequence: [[[RACSequence return:@0] streamByAppendingStream:[RACSequence return:@1]] streamByAppendingStream:[RACSequence return:@2]],
 			RACSequenceExampleExpectedValues: @[ @0, @1, @2 ]
 		};
 	});
@@ -146,8 +146,8 @@ describe(@"eager sequences", ^{
 	});
 });
 
-describe(@"-take:", ^{
-	it(@"should complete take: without needing the head of the second item in the sequence", ^{
+describe(@"-streamWithObjectsUntilIndex:", ^{
+	it(@"should complete streamWithObjectsUntilIndex: without needing the head of the second item in the sequence", ^{
 		__block NSUInteger valuesTaken = 0;
 
 		__block RACSequence *sequence = [RACSequence sequenceWithHeadBlock:^{
@@ -157,7 +157,7 @@ describe(@"-take:", ^{
 			return sequence;
 		}];
 
-		NSArray *values = [sequence take:1].array;
+		NSArray *values = [sequence streamWithObjectsUntilIndex:1].array;
 		expect(values).to.equal(@[ RACUnit.defaultUnit ]);
 		expect(valuesTaken).to.equal(1);
 	});
@@ -303,7 +303,7 @@ it(@"shouldn't overflow the stack when deallocated on a background queue", ^{
 	__block BOOL finished = NO;
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 		@autoreleasepool {
-			[[values.rac_sequence map:^(id value) {
+			[[values.rac_sequence streamWithMappedValuesFromBlock:^(id value) {
 				return value;
 			}] array];
 		}
@@ -319,7 +319,7 @@ it(@"shouldn't overflow the stack when deallocated on a background queue", ^{
 
 describe(@"-foldLeftWithStart:combine:", ^{
 	it(@"should combine with start first", ^{
-		RACSequence *sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
+		RACSequence *sequence = [[[RACSequence return:@0] streamByAppendingStream:[RACSequence return:@1]] streamByAppendingStream:[RACSequence return:@2]];
 		NSNumber *result = [sequence foldLeftWithStart:@3 combine:^(NSNumber *first, NSNumber *rest) {
 			return first;
 		}];
@@ -327,7 +327,7 @@ describe(@"-foldLeftWithStart:combine:", ^{
 	});
 
 	it(@"should be left associative", ^{
-		RACSequence *sequence = [[[RACSequence return:@1] concat:[RACSequence return:@2]] concat:[RACSequence return:@3]];
+		RACSequence *sequence = [[[RACSequence return:@1] streamByAppendingStream:[RACSequence return:@2]] streamByAppendingStream:[RACSequence return:@3]];
 		NSNumber *result = [sequence foldLeftWithStart:@0 combine:^(NSNumber *first, NSNumber *rest) {
 			int difference = first.intValue - rest.intValue;
 			return @(difference);
@@ -358,7 +358,7 @@ describe(@"-foldRightWithStart:combine:", ^{
 	});
 	
 	it(@"should combine with start last", ^{
-		RACSequence *sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
+		RACSequence *sequence = [[[RACSequence return:@0] streamByAppendingStream:[RACSequence return:@1]] streamByAppendingStream:[RACSequence return:@2]];
 		NSNumber *result = [sequence foldRightWithStart:@3 combine:^(NSNumber *first, RACSequence *rest) {
 			return rest.head;
 		}];
@@ -366,7 +366,7 @@ describe(@"-foldRightWithStart:combine:", ^{
 	});
 	
 	it(@"should be right associative", ^{
-		RACSequence *sequence = [[[RACSequence return:@1] concat:[RACSequence return:@2]] concat:[RACSequence return:@3]];
+		RACSequence *sequence = [[[RACSequence return:@1] streamByAppendingStream:[RACSequence return:@2]] streamByAppendingStream:[RACSequence return:@3]];
 		NSNumber *result = [sequence foldRightWithStart:@0 combine:^(NSNumber *first, RACSequence *rest) {
 			int difference = first.intValue - [rest.head intValue];
 			return @(difference);
@@ -378,7 +378,7 @@ describe(@"-foldRightWithStart:combine:", ^{
 describe(@"-any", ^{
 	__block RACSequence *sequence;
 	beforeEach(^{
-		sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
+		sequence = [[[RACSequence return:@0] streamByAppendingStream:[RACSequence return:@1]] streamByAppendingStream:[RACSequence return:@2]];
 	});
 	
 	it(@"should return true when at least one exists", ^{

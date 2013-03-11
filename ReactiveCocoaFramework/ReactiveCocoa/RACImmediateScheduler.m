@@ -27,7 +27,7 @@
 	return nil;
 }
 
-- (RACDisposable *)after:(dispatch_time_t)when schedule:(void (^)(void))block {
+- (RACDisposable *)disposableWithDelay:(dispatch_time_t)when andBlock:(void (^)(void))block {
 	NSParameterAssert(block != NULL);
 
 	// Use a temporary semaphore to block the current thread until a specific

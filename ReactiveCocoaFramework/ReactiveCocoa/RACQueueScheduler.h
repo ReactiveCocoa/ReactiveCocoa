@@ -19,6 +19,7 @@
 // targetQueue - The queue which the scheduler should target. Cannot be NULL.
 //
 // Returns the initialized object.
-- (id)initWithName:(NSString *)name targetQueue:(dispatch_queue_t)targetQueue;
+- (id)initWithName:(NSString *)name
+	   targetQueue:(dispatch_queue_t)targetQueue;
 
 @end

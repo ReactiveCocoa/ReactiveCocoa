@@ -20,7 +20,7 @@
 		}];
 
 		return [RACDisposable disposableWithBlock:^{
-			[NSNotificationCenter.defaultCenter removeObserver:observer];
+			[self removeObserver:observer];
 		}];
 	}] setNameWithFormat:@"-rac_addObserverForName: %@ object: %@", notificationName, object];
 }

@@ -43,6 +43,8 @@ Here are some resources for learning more about FRP:
 * [What is FRP? - Elm Language](http://elm-lang.org/learn/What-is-FRP.elm)
 * [What is Functional Reactive Programming - Stack Overflow](http://stackoverflow.com/questions/1028250/what-is-functional-reactive-programming/1030631#1030631)
 
+[Josh Abernathy](https://github.com/joshaber) also has [a blog post about FRP](http://blog.maybeapps.com/post/42894317939/input-and-output).
+
 ## FRP with ReactiveCocoa
 
 Signals in ReactiveCocoa (RAC) are represented using `RACSignal`. Signals are

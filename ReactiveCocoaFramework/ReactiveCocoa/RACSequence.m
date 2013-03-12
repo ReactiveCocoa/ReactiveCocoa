@@ -239,7 +239,7 @@
 - (BOOL)all:(BOOL (^)(id))block {
 	NSParameterAssert(block != NULL);
 	
-	NSNumber *result = [self foldLeftWithStart:@YES combine:^id(NSNumber *accumulator, id value) {
+	NSNumber *result = [self foldLeftWithStart:@YES combine:^(NSNumber *accumulator, id value) {
 		return @(accumulator.boolValue && block(value));
 	}];
 	

@@ -1100,11 +1100,8 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 
-		void (^schedule)(dispatch_block_t) = [^(dispatch_block_t block) {
-			__block RACDisposable *schedulingDisposable = [scheduler schedule:^{
-				[disposable removeDisposable:schedulingDisposable];
-				block();
-			}];
+		void (^schedule)(id) = [^(id block) {
+			RACDisposable *schedulingDisposable = [scheduler schedule:block];
 			if (schedulingDisposable != nil) [disposable addDisposable:schedulingDisposable];
 		} copy];
 

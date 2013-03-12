@@ -136,18 +136,43 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 
 			if (isDisposed()) return;
 
+			void (^reallyReschedule)(void) = ^{
+				if (isDisposed()) return;
+				[self scheduleRecursiveBlock:recursiveBlock addingToDisposable:disposable isDisposedBlock:isDisposed];
+			};
+
+			// Protects the variables below.
+			//
+			// This doesn't actually need to be __block qualified, but Clang
+			// complains otherwise. :C
+			__block NSLock *lock = [[NSLock alloc] init];
+			lock.name = [NSString stringWithFormat:@"%@ %@", self, NSStringFromSelector(_cmd)];
+
 			__block NSUInteger rescheduleCount = 0;
+
+			// Set to YES once synchronous execution has finished. Further
+			// rescheduling should occur immediately (rather than being
+			// flattened).
+			__block BOOL rescheduleImmediately = NO;
 
 			@autoreleasepool {
 				recursiveBlock(^{
-					++rescheduleCount;
+					[lock lock];
+					BOOL immediate = rescheduleImmediately;
+					if (!immediate) ++rescheduleCount;
+					[lock unlock];
+
+					if (immediate) reallyReschedule();
 				});
 			}
 
-			for (NSUInteger i = 0; i < rescheduleCount; i++) {
-				if (isDisposed()) return;
+			[lock lock];
+			NSUInteger synchronousCount = rescheduleCount;
+			rescheduleImmediately = YES;
+			[lock unlock];
 
-				[self scheduleRecursiveBlock:recursiveBlock addingToDisposable:disposable isDisposedBlock:isDisposed];
+			for (NSUInteger i = 0; i < synchronousCount; i++) {
+				reallyReschedule();
 			}
 		}];
 

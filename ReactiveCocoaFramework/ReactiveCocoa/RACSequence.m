@@ -236,6 +236,16 @@
 	return result.boolValue;
 }
 
+- (BOOL)all:(BOOL (^)(id))block {
+	NSParameterAssert(block != NULL);
+	
+	NSNumber *result = [self foldLeftWithStart:@YES combine:^id(NSNumber *accumulator, id value) {
+		return @(accumulator.boolValue && block(value));
+	}];
+	
+	return result.boolValue;
+}
+
 - (RACSequence *)eagerSequence {
 	return [RACEagerSequence sequenceWithArray:self.array offset:0];
 }

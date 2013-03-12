@@ -1098,29 +1098,19 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 
 - (RACSignal *)deliverOn:(RACScheduler *)scheduler {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
-
-		void (^schedule)(id) = [^(id block) {
-			RACDisposable *schedulingDisposable = [scheduler schedule:block];
-			if (schedulingDisposable != nil) [disposable addDisposable:schedulingDisposable];
-		} copy];
-
-		RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
-			schedule(^{
+		return [self subscribeNext:^(id x) {
+			[scheduler schedule:^{
 				[subscriber sendNext:x];
-			});
+			}];
 		} error:^(NSError *error) {
-			schedule(^{
+			[scheduler schedule:^{
 				[subscriber sendError:error];
-			});
+			}];
 		} completed:^{
-			schedule(^{
+			[scheduler schedule:^{
 				[subscriber sendCompleted];
-			});
+			}];
 		}];
-
-		if (subscriptionDisposable != nil) [disposable addDisposable:subscriptionDisposable];
-		return disposable;
 	}] setNameWithFormat:@"[%@] -deliverOn: %@", self.name, scheduler];
 }
 

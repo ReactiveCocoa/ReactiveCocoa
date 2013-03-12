@@ -312,6 +312,28 @@ describe(@"-scheduleRecursiveBlock:", ^{
 			expect(count).will.equal(3);
 		});
 
+		it(@"should reschedule when invoked asynchronously", ^{
+			__block NSUInteger count = 0;
+
+			RACScheduler *asynchronousScheduler = [RACScheduler scheduler];
+			[RACScheduler.immediateScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
+				dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC));
+
+				[asynchronousScheduler after:delay schedule:^{
+					NSUInteger thisCount = ++count;
+					if (thisCount < 3) {
+						recurse();
+
+						// The block shouldn't have been invoked again yet, only
+						// scheduled.
+						expect(count).to.equal(thisCount);
+					}
+				}];
+			}];
+
+			expect(count).will.equal(3);
+		});
+
 		it(@"shouldn't reschedule itself when disposed", ^{
 			__block NSUInteger count = 0;
 			__block RACDisposable *disposable = [RACScheduler.mainThreadScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {

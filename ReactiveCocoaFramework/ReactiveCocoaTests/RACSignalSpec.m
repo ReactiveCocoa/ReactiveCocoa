@@ -508,18 +508,21 @@ describe(@"querying", ^{
 describe(@"continuation", ^{
 	it(@"should repeat after completion", ^{
 		__block NSUInteger numberOfSubscriptions = 0;
+		RACScheduler *scheduler = [RACScheduler scheduler];
+
 		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			if(numberOfSubscriptions > 2) {
+			return [scheduler schedule:^{
+				if (numberOfSubscriptions == 3) {
+					[subscriber sendError:RACSignalTestError];
+					return;
+				}
+				
+				numberOfSubscriptions++;
+				
+				[subscriber sendNext:@"1"];
+				[subscriber sendCompleted];
 				[subscriber sendError:RACSignalTestError];
-				return nil;
-			}
-			
-			numberOfSubscriptions++;
-			
-			[subscriber sendNext:@"1"];
-			[subscriber sendCompleted];
-			[subscriber sendError:RACSignalTestError];
-			return nil;
+			}];
 		}];
 		
 		__block NSUInteger nextCount = 0;
@@ -532,7 +535,7 @@ describe(@"continuation", ^{
 			gotCompleted = YES;
 		}];
 		
-		expect(nextCount).will.beGreaterThan(1);
+		expect(nextCount).will.equal(3);
 		expect(gotCompleted).to.beFalsy();
 	});
 

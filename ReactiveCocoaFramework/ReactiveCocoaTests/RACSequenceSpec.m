@@ -396,4 +396,25 @@ describe(@"-any", ^{
 	});
 });
 
+describe(@"-all", ^{
+	__block RACSequence *sequence;
+	beforeEach(^{
+		sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
+	});
+	
+	it(@"should return true when all values pass", ^{
+		BOOL result = [sequence all:^ BOOL (NSNumber *value) {
+			return value.integerValue >= 0;
+		}];
+		expect(result).to.beTruthy();
+	});
+	
+	it(@"should return false when at least one value fails", ^{
+		BOOL result = [sequence all:^ BOOL (NSNumber *value) {
+			return value.integerValue < 2;
+		}];
+		expect(result).to.beFalsy();
+	});
+});
+
 SpecEnd

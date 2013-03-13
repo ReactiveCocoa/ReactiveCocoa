@@ -8,6 +8,8 @@
 
 #import "RACCommand.h"
 #import "NSArray+RACSequenceAdditions.h"
+#import "NSObject+RACPropertySubscribing.h"
+#import "RACDisposable.h"
 #import "RACScheduler.h"
 #import "RACSequence.h"
 #import "RACSignal+Operations.h"
@@ -56,6 +58,19 @@ it(@"should be executing from within the -execute: method", ^{
 
 	expect([command execute:nil]).to.beTruthy();
 	expect(command.executing).to.beFalsy();
+});
+
+it(@"should dealloc without subscribers", ^{
+	__block BOOL disposed = NO;
+
+	@autoreleasepool {
+		RACCommand *command __attribute__((objc_precise_lifetime)) = [[RACCommand alloc] initWithCanExecuteSignal:nil];
+		[command rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			disposed = YES;
+		}]];
+	}
+
+	expect(disposed).will.beTruthy();
 });
 
 describe(@"with a signal block", ^{
@@ -172,6 +187,24 @@ describe(@"with a signal block", ^{
 
 		expect(command.executing).to.beFalsy();
 		expect(receivedEvent).to.beFalsy();
+	});
+
+	it(@"should dealloc without subscribers", ^{
+		__block BOOL disposed = NO;
+
+		@autoreleasepool {
+			RACCommand *command __attribute__((objc_precise_lifetime)) = [[RACCommand alloc] initWithCanExecuteSignal:nil];
+
+			[command addSignalBlock:^(id x) {
+				return [RACSignal empty];
+			}];
+
+			[command rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				disposed = YES;
+			}]];
+		}
+
+		expect(disposed).will.beTruthy();
 	});
 });
 

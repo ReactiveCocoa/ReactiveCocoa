@@ -7,13 +7,13 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <ReactiveCocoa/RACSubject.h>
+#import <ReactiveCocoa/RACSignal.h>
 
 // A command is a signal triggered in response to some action, typically
 // UI-related.
 //
 // Each `next` sent by a RACCommand corresponds to a value passed to -execute:.
-@interface RACCommand : RACSubject
+@interface RACCommand : RACSignal
 
 // Whether or not this command can currently execute.
 //
@@ -93,5 +93,15 @@
 //
 // Returns whether the command executed (i.e., whether `canExecute` was YES).
 - (BOOL)execute:(id)value;
+
+@end
+
+@interface RACCommand (Deprecated)
+
+- (void)sendNext:(id)value __attribute__((deprecated("Commands should not be manually controlled")));
+- (void)sendError:(NSError *)error __attribute__((deprecated("Commands should not be manually controlled")));
+- (void)sendCompleted __attribute__((deprecated("Commands should not be manually controlled")));
+- (void)didSubscribeWithDisposable:(RACDisposable *)disposable __attribute__((deprecated("Commands should not be manually controlled")));
++ (instancetype)subject __attribute__((deprecated("Use +command instead")));
 
 @end

@@ -11,6 +11,7 @@
 #import "RACScheduler.h"
 #import "RACSequence.h"
 #import "RACSignal+Operations.h"
+#import "RACSubject.h"
 #import "RACUnit.h"
 
 SpecBegin(RACCommand)

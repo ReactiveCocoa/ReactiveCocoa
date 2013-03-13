@@ -10,6 +10,7 @@
 #import "EXTScope.h"
 #import "RACScheduler.h"
 #import "RACSignal+Operations.h"
+#import "RACSubject.h"
 #import "RACSubscriptingAssignmentTrampoline.h"
 #import <libkern/OSAtomic.h>
 
@@ -24,6 +25,11 @@
 }
 
 @property (atomic, readwrite) BOOL canExecute;
+
+// A signal of the values passed to -execute:.
+//
+// Subscriptions to the receiver will actually be redirected to this subject.
+@property (nonatomic, strong, readonly) RACSubject *values;
 
 // Improves the performance of KVO on the receiver.
 //
@@ -63,6 +69,14 @@
 	[self didChangeValueForKey:@keypath(self.executing)];
 }
 
+- (NSString *)name {
+	return self.values.name;
+}
+
+- (void)setName:(NSString *)name {
+	self.values.name = name;
+}
+
 #pragma mark Lifecycle
 
 + (instancetype)command {
@@ -81,6 +95,7 @@
 	self = [super init];
 	if (self == nil) return nil;
 
+	_values = [RACSubject subject];
 	_errors = [RACSubject subject];
 
 	RAC(self.canExecute) = [RACSignal
@@ -103,7 +118,7 @@
 
 	@weakify(self);
 
-	return [[[[self
+	return [[[[self.values
 		doNext:^(id _) {
 			@strongify(self);
 			[self incrementItemsInFlight];
@@ -138,10 +153,16 @@
 		[self incrementItemsInFlight];
 	}
 	
-	[self sendNext:value];
+	[self.values sendNext:value];
 	[self decrementItemsInFlight];
 
 	return YES;
+}
+
+#pragma mark RACSignal
+
+- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
+	return [self.values subscribe:subscriber];
 }
 
 #pragma mark NSKeyValueObserving
@@ -152,5 +173,34 @@
 
 	return [super automaticallyNotifiesObserversForKey:key];
 }
+
+@end
+
+@implementation RACCommand (Deprecated)
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
+- (void)sendNext:(id)value {
+	[self.values sendNext:value];
+}
+
+- (void)sendError:(NSError *)error {
+	[self.values sendError:error];
+}
+
+- (void)sendCompleted {
+	[self.values sendCompleted];
+}
+
+- (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
+	[self.values didSubscribeWithDisposable:disposable];
+}
+
++ (instancetype)subject {
+	return [self command];
+}
+
+#pragma clang diagnostic pop
 
 @end

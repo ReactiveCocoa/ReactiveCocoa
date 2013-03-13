@@ -111,6 +111,13 @@
 // Returns a boolean indiciating if any value in the sequence passed.
 - (BOOL)any:(BOOL (^)(id value))block;
 
+// Check if all values in the sequence pass the block.
+//
+// block - The block predicate used to check each item. Cannot be nil.
+//
+// Returns a boolean indicating if all values in the sequence passed.
+- (BOOL)all:(BOOL (^)(id value))block;
+
 // Creates a sequence that dynamically generates its values.
 //
 // headBlock - Invoked the first time -head is accessed.

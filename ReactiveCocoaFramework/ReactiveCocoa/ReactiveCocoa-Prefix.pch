@@ -6,3 +6,6 @@
 	#import <Foundation/Foundation.h>
 	#import "RACBacktrace+Private.h"
 #endif
+
+#undef NSAssert
+#define NSAssert NSCAssert

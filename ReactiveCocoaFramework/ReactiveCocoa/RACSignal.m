@@ -129,16 +129,6 @@ static NSMutableSet *activeSignals() {
 	}];
 }
 
-- (void)tearDown {
-	self.tearingDown = YES;
-	
-	@synchronized (self.subscribers) {
-		[self.subscribers removeAllObjects];
-	}
-	
-	[self invalidateGlobalRef];
-}
-
 #pragma mark Managing Subscribers
 
 - (void)performBlockOnEachSubscriber:(void (^)(id<RACSubscriber> subscriber))block {

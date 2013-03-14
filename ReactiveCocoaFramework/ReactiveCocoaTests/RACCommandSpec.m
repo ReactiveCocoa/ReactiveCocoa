@@ -73,6 +73,32 @@ it(@"should dealloc without subscribers", ^{
 	expect(disposed).will.beTruthy();
 });
 
+it(@"should complete when deallocated", ^{
+	__block BOOL completed = NO;
+
+	@autoreleasepool {
+		RACCommand *command __attribute__((objc_precise_lifetime)) = [[RACCommand alloc] initWithCanExecuteSignal:nil];
+		[command subscribeCompleted:^{
+			completed = YES;
+		}];
+	}
+
+	expect(completed).will.beTruthy();
+});
+
+it(@"should complete errors when deallocated", ^{
+	__block BOOL completed = NO;
+
+	@autoreleasepool {
+		RACCommand *command __attribute__((objc_precise_lifetime)) = [[RACCommand alloc] initWithCanExecuteSignal:nil];
+		[command.errors subscribeCompleted:^{
+			completed = YES;
+		}];
+	}
+
+	expect(completed).will.beTruthy();
+});
+
 describe(@"with a signal block", ^{
 	it(@"should invoke the signalBlock once per execution", ^{
 		NSMutableArray *valuesReceived = [NSMutableArray array];

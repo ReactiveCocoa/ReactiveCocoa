@@ -48,11 +48,6 @@
 
 @implementation RACCommand
 
-- (void)dealloc {
-	[_values sendCompleted];
-	[_errors sendCompleted];
-}
-
 #pragma mark Properties
 
 - (BOOL)isExecuting {
@@ -83,6 +78,11 @@
 }
 
 #pragma mark Lifecycle
+
+- (void)dealloc {
+	[_values sendCompleted];
+	[_errors sendCompleted];
+}
 
 + (instancetype)command {
 	return [self commandWithCanExecuteSignal:nil];

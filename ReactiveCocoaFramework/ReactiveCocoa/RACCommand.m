@@ -48,6 +48,11 @@
 
 @implementation RACCommand
 
+- (void)dealloc {
+	[_values sendCompleted];
+	[_errors sendCompleted];
+}
+
 #pragma mark Properties
 
 - (BOOL)isExecuting {

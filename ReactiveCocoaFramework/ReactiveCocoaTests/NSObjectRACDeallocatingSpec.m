@@ -38,25 +38,6 @@ describe(@"-rac_didDeallocSignal", ^{
 		expect(valueReceived).to.beFalsy();
 		expect(completed).to.beTruthy();
 	});
-
-	it(@"should not receive anything", ^{
-		__block id valueReceived = nil;
-		__block BOOL completed = NO;
-		RACSignal *infinite = [[RACSignal return:@123] repeat];
-		@autoreleasepool {
-			id tmp = [[RACTestObject alloc] init];
-			infinite = [infinite takeUntil:[[tmp rac_didDeallocSignal] replayLast]];
-		}
-		[infinite subscribeNext:^(id x) {
-			valueReceived = x;
-		}
-		completed:^{
-			completed = YES;
-		}];
-
-		expect(valueReceived).to.beNil();
-		expect(completed).to.beTruthy();
-	});
 });
 
 SpecEnd

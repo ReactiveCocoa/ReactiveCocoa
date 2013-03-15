@@ -12,6 +12,7 @@
 
 @interface NSObject (RACDeallocating)
 
+// Returns a signal that will complete after the receiver has been deallocated.
 - (RACSignal *)rac_didDeallocSignal;
 
 @end

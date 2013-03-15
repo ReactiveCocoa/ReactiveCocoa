@@ -16,9 +16,7 @@ describe(@"-rac_didDeallocSignal", ^{
 	it(@"should complete on dealloc", ^{
 		__block BOOL completed = NO;
 		@autoreleasepool {
-			[[[[RACTestObject alloc] init]
-			rac_didDeallocSignal]
-			subscribeCompleted:^{
+			[[[[RACTestObject alloc] init] rac_didDeallocSignal] subscribeCompleted:^{
 				completed = YES;
 			}];
 		}
@@ -27,20 +25,17 @@ describe(@"-rac_didDeallocSignal", ^{
 	});
 
 	it(@"should not send anything", ^{
-		__block id valueReceived = nil;
+		__block BOOL valueReceived = NO;
 		__block BOOL completed = NO;
 		@autoreleasepool {
-			[[[[RACTestObject alloc] init]
-			rac_didDeallocSignal]
-			subscribeNext:^(id x) {
-				valueReceived = @YES;
-			}
-			completed:^{
+			[[[[RACTestObject alloc] init] rac_didDeallocSignal] subscribeNext:^(id x) {
+				valueReceived = YES;
+			} completed:^{
 				completed = YES;
 			}];
 		}
 
-		expect(valueReceived).to.beNil();
+		expect(valueReceived).to.beFalsy();
 		expect(completed).to.beTruthy();
 	});
 

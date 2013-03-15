@@ -46,7 +46,6 @@ static NSMutableDictionary *swizzledClasses() {
 
 @implementation RACEventTrampoline
 
-@synthesize subject;
 @synthesize proxy;
 @synthesize delegateMethod;
 
@@ -81,6 +80,10 @@ static NSMutableDictionary *swizzledClasses() {
     }
     
     return trampoline;
+}
+
+- (void)dealloc {
+	[_subject sendCompleted];
 }
 
 - (id)init {

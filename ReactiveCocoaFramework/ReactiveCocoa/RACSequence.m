@@ -250,9 +250,13 @@
 	NSParameterAssert(block != NULL);
 	
 	return [self foldLeftWithStart:nil combine:^ id (id accumulator, id value) {
-		if (accumulator != nil) return accumulator;
-		else if (block(value)) return value;
-		else return nil;
+		if (accumulator != nil) {
+			return accumulator;
+		} else if (block(value)) {
+			return value;
+		} else {
+			return nil;
+		}
 	}];
 }
 

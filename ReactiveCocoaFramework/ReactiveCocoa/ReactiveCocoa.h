@@ -30,6 +30,7 @@
 #import <ReactiveCocoa/RACSignal+Operations.h>
 #import <ReactiveCocoa/RACSubscriber.h>
 #import <ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h>
+#import <ReactiveCocoa/NSObject+RACDeallocating.h>
 #import <ReactiveCocoa/NSObject+RACLifting.h>
 #import <ReactiveCocoa/RACTuple.h>
 #import <ReactiveCocoa/RACUnit.h>

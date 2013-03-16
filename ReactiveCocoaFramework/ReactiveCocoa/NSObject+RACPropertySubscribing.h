@@ -69,7 +69,13 @@ typedef enum _RACAbleType : NSInteger {
 
 // Creates a signal for observing on the given object the key path of the source
 // object.
+// Calls `+rac_signalWithChangesFor:keyPath:observer:` and filters a maps the
+// result according to the given type.
 + (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer type:(RACAbleType)type;
+
+// Creates a signal for observing on the given object the key path of the source
+// object. The signal returns change dictionary.
++ (RACSignal *)rac_signalWithChangesFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer;
 
 // Creates a signal for observing the value at the given keypath with given
 // type. For more, see documentation of RACAbleType.

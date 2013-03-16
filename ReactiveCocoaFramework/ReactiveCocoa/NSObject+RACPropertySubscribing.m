@@ -21,7 +21,7 @@ static const void *RACObjectScopedDisposable = &RACObjectScopedDisposable;
 
 @implementation NSObject (RACPropertySubscribing)
 
-+ (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer {
++ (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer changeKind:(NSKeyValueChange)kind option:(NSKeyValueObservingOptions)singleOption {
 	@unsafeify(observer, object);
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		@strongify(observer, object);
@@ -53,8 +53,8 @@ static const void *RACObjectScopedDisposable = &RACObjectScopedDisposable;
 	}] setNameWithFormat:@"RACAble(%@, %@)", object, keyPath];
 }
 
-- (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
-	return [self.class rac_signalFor:self keyPath:keyPath observer:observer];
+- (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath observer:(NSObject *)observer changeKind:(NSKeyValueChange)kind option:(NSKeyValueObservingOptions)singleOption {
+	return [self.class rac_signalFor:self keyPath:keyPath observer:observer changeKind:kind option:singleOption];
 }
 
 - (RACDisposable *)rac_deriveProperty:(NSString *)keyPath from:(RACSignal *)signal {

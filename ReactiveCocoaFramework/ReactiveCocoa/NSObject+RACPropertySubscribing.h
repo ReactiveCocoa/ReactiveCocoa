@@ -33,10 +33,10 @@
 // Returns a signal which sends a value every time the value at the given key
 // path changes, and sends completed if self is deallocated (no matter which
 // variant of RACAble was used).
-#define RACAble(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))(_RACAbleObject(self, __VA_ARGS__))(_RACAbleObject(__VA_ARGS__))
+#define RACAble(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))(_RACAbleObject(0, 0, self, __VA_ARGS__))(_RACAbleObject(0, 0, __VA_ARGS__))
 
 // Do not use this directly. Use RACAble above.
-#define _RACAbleObject(object, property) [object rac_signalForKeyPath:@keypath(object, property) observer:self]
+#define _RACAbleObject(kind, observingOption, object, property) [object rac_signalForKeyPath:@keypath(object, property) observer:self changeKind:kind option:observingOption]
 
 // Same as RACAble, but the signal also starts with the current value of the
 // property.
@@ -57,10 +57,28 @@
 
 // Creates a signal for observing on the given object the key path of the source
 // object.
-+ (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer;
++ (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer changeKind:(NSKeyValueChange)kind option:(NSKeyValueObservingOptions)singleOption;
 
-// Creates a value from observing the value at the given keypath.
-- (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath observer:(NSObject *)observer;
+// Creates a signal for observing the value at the given keypath with given
+// change kind and a single option.
+//
+// Possible change kinds:
+//  - 0 or kNilOptions - all events below
+//  - NSKeyValueChangeSetting
+//  - NSKeyValueChangeInsertion
+//  - NSKeyValueChangeRemoval
+//  - NSKeyValueChangeReplacement
+//
+// Possible options in case of NSKeyValueChangeSetting:
+//  - 0 - no options
+//  - NSKeyValueObservingOptionInitial
+//  - NSKeyValueObservingOptionOld
+//  - NSKeyValueObservingOptionPrior
+//
+// Only one option can be specified, in case of multiple options they are
+// checked in the order shown above. Options are ignored for change kinds other
+// than NSKeyValueChangeSetting.
+- (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath observer:(NSObject *)observer changeKind:(NSKeyValueChange)kind option:(NSKeyValueObservingOptions)singleOption;
 
 // Keeps the value of the KVC-compliant keypath up-to-date with the latest value
 // sent by the signal.

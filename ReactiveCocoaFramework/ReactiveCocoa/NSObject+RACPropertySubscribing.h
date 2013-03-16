@@ -18,7 +18,7 @@ typedef enum _RACAbleType : NSInteger {
 	RACAbleTypePrior,						// RACAblePrior(...), sends current value before setting
 	RACAbleTypeInsert,						// RACAbleInsert(...), sends inserted objects and their new indexes in tuple after insertion
 	RACAbleTypeRemove,						// RACAbleRemove(...), sends removed objects and their old indexes in tuple after removal
-	RACAbleTypeReplacement,					// RACAbleInsert(...), sends replaced objects, their replacements and indexes in tuple after replacement
+	RACAbleTypeReplace,						// RACAbleInsert(...), sends replaced objects, their replacements and indexes in tuple after replacement
 } RACAbleType;
 
 // Creates a signal which observes the given key path for changes.

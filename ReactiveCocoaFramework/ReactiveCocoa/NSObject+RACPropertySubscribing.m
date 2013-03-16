@@ -33,7 +33,7 @@ static const void *RACObjectScopedDisposable = &RACObjectScopedDisposable;
 			case RACAbleTypeCurrentWithPrevious:
 			case RACAbleTypeInsert:
 			case RACAbleTypeRemove:
-			case RACAbleTypeReplacement:
+			case RACAbleTypeReplace:
 				return ( ! isInitial && ! isPrior);
 			case RACAbleTypeInitialCurrent:
 			case RACAbleTypeInitialCurrentWithPrevious:
@@ -56,7 +56,7 @@ static const void *RACObjectScopedDisposable = &RACObjectScopedDisposable;
 				return (kind == NSKeyValueChangeInsertion);
 			case RACAbleTypeRemove:
 				return (kind == NSKeyValueChangeRemoval);
-			case RACAbleTypeReplacement:
+			case RACAbleTypeReplace:
 				return (kind == NSKeyValueChangeReplacement);
 		}
 	}];
@@ -79,7 +79,7 @@ static const void *RACObjectScopedDisposable = &RACObjectScopedDisposable;
 				return RACTuplePackWithNils(new, indexes);
 			case RACAbleTypeRemove:
 				return RACTuplePackWithNils(old, indexes);
-			case RACAbleTypeReplacement:
+			case RACAbleTypeReplace:
 				return RACTuplePackWithNils(old, new, indexes);
 		}
 	}];

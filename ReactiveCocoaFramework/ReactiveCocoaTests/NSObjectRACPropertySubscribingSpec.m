@@ -29,10 +29,10 @@ describe(@"-rac_addDeallocDisposable:", ^{
 	});
 });
 
-describe(@"+rac_signalFor:keyPath:onObject:changeKind:option:", ^{
+describe(@"+rac_signalFor:keyPath:onObject:type:", ^{
 	it(@"should stop observing when disposed", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
-		RACSignal *signal = [object.class rac_signalFor:object keyPath:@keypath(object, objectValue) observer:self changeKind:0 option:0];
+		RACSignal *signal = [object.class rac_signalFor:object keyPath:@keypath(object, objectValue) observer:self type:RACAbleTypeCurrent];
 		NSMutableArray *values = [NSMutableArray array];
 		RACDisposable *disposable = [signal subscribeNext:^(id x) {
 			[values addObject:x];
@@ -57,7 +57,7 @@ describe(@"+rac_signalFor:keyPath:onObject:changeKind:option:", ^{
 				observerDealloced = YES;
 			}]];
 
-			RACSignal *signal = [object.class rac_signalFor:object keyPath:@keypath(object, objectValue) observer:observer changeKind:0 option:0];
+			RACSignal *signal = [object.class rac_signalFor:object keyPath:@keypath(object, objectValue) observer:observer type:RACAbleTypeCurrent];
 			[signal subscribeNext:^(id x) {
 				[values addObject:x];
 			}];
@@ -87,7 +87,7 @@ describe(@"+rac_signalFor:keyPath:onObject:changeKind:option:", ^{
 				scopeObjectDealloced = YES;
 			}]];
 			
-			RACSignal *signal = [object.class rac_signalFor:object keyPath:@keypath(object, objectValue) observer:scopeObject changeKind:0 option:0];
+			RACSignal *signal = [object.class rac_signalFor:object keyPath:@keypath(object, objectValue) observer:scopeObject type:RACAbleTypeCurrent];
 			[signal subscribeNext:^(id _) {
 
 			}];
@@ -106,7 +106,7 @@ describe(@"+rac_signalFor:keyPath:onObject:changeKind:option:", ^{
 				objectDealloced = YES;
 			}]];
 
-			RACSignal *signal = [[object.class rac_signalFor:object keyPath:@keypath(object, objectValue) observer:self changeKind:0 option:0] map:^(id value) {
+			RACSignal *signal = [[object.class rac_signalFor:object keyPath:@keypath(object, objectValue) observer:self type:RACAbleTypeCurrent] map:^(id value) {
 				return value;
 			}];
 			[signal rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
@@ -126,7 +126,7 @@ describe(@"+rac_signalFor:keyPath:onObject:changeKind:option:", ^{
 		__block id value;
 		@autoreleasepool {
 			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			RACSignal *signal = [NSObject rac_signalFor:object keyPath:@keypath(object, objectValue) observer:self changeKind:0 option:0];
+			RACSignal *signal = [NSObject rac_signalFor:object keyPath:@keypath(object, objectValue) observer:self type:RACAbleTypeCurrent];
 			[signal subscribeNext:^(id x) {
 				value = x;
 			}];

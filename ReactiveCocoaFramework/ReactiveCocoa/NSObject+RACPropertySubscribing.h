@@ -10,6 +10,17 @@
 #import <ReactiveCocoa/EXTKeyPathCoding.h>
 #import <ReactiveCocoa/metamacros.h>
 
+typedef enum _RACAbleType : NSInteger {
+	RACAbleTypeCurrent,						// RACAble(...), sends current value after any change
+	RACAbleTypeCurrentWithPrevious,			// RACAblePrevious(...), sends previous and current values in tuple after setting
+	RACAbleTypeInitialCurrent,				// RACAbleWithStart(...), sends current value after any change and begins immediately
+	RACAbleTypeInitialCurrentWithPrevious,	// RACAblePreviousWithStart(...), sends previous and current values in tuple after setting and begins immediately
+	RACAbleTypePrior,						// RACAblePrior(...), sends current value before setting
+	RACAbleTypeInsert,						// RACAbleInsert(...), sends inserted objects and their new indexes in tuple after insertion
+	RACAbleTypeRemove,						// RACAbleRemove(...), sends removed objects and their old indexes in tuple after removal
+	RACAbleTypeReplace,						// RACAbleInsert(...), sends replaced objects, their replacements and indexes in tuple after replacement
+} RACAbleType;
+
 // Creates a signal which observes the given key path for changes.
 //
 // If given one argument, the key path is assumed to be relative to self.
@@ -33,17 +44,18 @@
 // Returns a signal which sends a value every time the value at the given key
 // path changes, and sends completed if self is deallocated (no matter which
 // variant of RACAble was used).
-#define RACAble(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))(_RACAbleObject(self, __VA_ARGS__))(_RACAbleObject(__VA_ARGS__))
+#define RACAble(...)					_RACAbleOfType(RACAbleTypeCurrent, __VA_ARGS__)
+#define RACAblePrevious(...)			_RACAbleOfType(RACAbleTypeCurrentWithPrevious, __VA_ARGS__)
+#define RACAbleWithStart(...)			_RACAbleOfType(RACAbleTypeInitialCurrent, __VA_ARGS__)
+#define RACAblePreviousWithStart(...)	_RACAbleOfType(RACAbleTypeInitialCurrentWithPrevious, __VA_ARGS__)
+#define RACAblePrior(...)				_RACAbleOfType(RACAbleTypePrior, __VA_ARGS__)
+#define RACAbleInsert(...)				_RACAbleOfType(RACAbleTypeInsert, __VA_ARGS__)
+#define RACAbleRemove(...)				_RACAbleOfType(RACAbleTypeRemove, __VA_ARGS__)
+#define RACAbleReplace(...)				_RACAbleOfType(RACAbleTypeReplace, __VA_ARGS__)
 
-// Do not use this directly. Use RACAble above.
-#define _RACAbleObject(object, property) [object rac_signalForKeyPath:@keypath(object, property) observer:self]
-
-// Same as RACAble, but the signal also starts with the current value of the
-// property.
-#define RACAbleWithStart(...) [RACAble(__VA_ARGS__) startWith:_RACAbleWithStartValue(__VA_ARGS__)]
-
-// Do not use this directly. Use RACAbleWithStart above.
-#define _RACAbleWithStartValue(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))([self valueForKeyPath:@keypath(self, __VA_ARGS__)])([metamacro_at0(__VA_ARGS__) valueForKeyPath:@keypath(__VA_ARGS__)])
+// Do not use these directly. Use RACAbles above.
+#define _RACAbleOfType(type, ...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))(_RACAbleObject(type, self, __VA_ARGS__))(_RACAbleObject(type, __VA_ARGS__))
+#define _RACAbleObject(theType, object, property) [object rac_signalForKeyPath:@keypath(object, property) observer:self type:theType]
 
 @class RACDisposable;
 @class RACCompoundDisposable;
@@ -57,10 +69,17 @@
 
 // Creates a signal for observing on the given object the key path of the source
 // object.
-+ (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer;
+// Calls `+rac_signalWithChangesFor:keyPath:observer:` and filters a maps the
+// result according to the given type.
++ (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer type:(RACAbleType)type;
 
-// Creates a value from observing the value at the given keypath.
-- (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath observer:(NSObject *)observer;
+// Creates a signal for observing on the given object the key path of the source
+// object. The signal returns change dictionary.
++ (RACSignal *)rac_signalWithChangesFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer;
+
+// Creates a signal for observing the value at the given keypath with given
+// type. For more, see documentation of RACAbleType.
+- (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath observer:(NSObject *)observer type:(RACAbleType)type;
 
 // Keeps the value of the KVC-compliant keypath up-to-date with the latest value
 // sent by the signal.

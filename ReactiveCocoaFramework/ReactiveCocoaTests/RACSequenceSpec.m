@@ -417,4 +417,25 @@ describe(@"-all", ^{
 	});
 });
 
+describe(@"-objectPassingTest:", ^{
+	__block RACSequence *sequence;
+	beforeEach(^{
+		sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
+	});
+	
+	it(@"should return leftmost object that passes the test", ^{
+		NSNumber *result = [sequence objectPassingTest:^ BOOL (NSNumber *value) {
+			return value.intValue > 0;
+		}];
+		expect(result).to.equal(@1);
+	});
+	
+	it(@"should return nil if no objects pass the test", ^{
+		NSNumber *result = [sequence objectPassingTest:^ BOOL (NSNumber *value) {
+			return value.intValue < 0;
+		}];
+		expect(result).to.beNil();
+	});
+});
+
 SpecEnd

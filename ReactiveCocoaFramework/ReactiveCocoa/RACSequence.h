@@ -118,6 +118,13 @@
 // Returns a boolean indicating if all values in the sequence passed.
 - (BOOL)all:(BOOL (^)(id value))block;
 
+// Returns the first object that passes the block.
+//
+// block - The block predicate used to check each item. Cannot be nil.
+//
+// Returns an object that passes the block or nil if no objects passed.
+- (id)objectPassingTest:(BOOL (^)(id value))block;
+
 // Creates a sequence that dynamically generates its values.
 //
 // headBlock - Invoked the first time -head is accessed.

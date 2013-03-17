@@ -26,7 +26,8 @@ static const void *RACObjectScopedDisposable = &RACObjectScopedDisposable;
 	RACSignal *signal =  [self rac_signalWithChangesFor:object keyPath:keyPath observer:observer];
 	
 	signal = [signal filter:^BOOL(NSDictionary *change) {
-		BOOL isInitial = [change objectForKey:NSKeyValueChangeOldKey] == nil;
+		NSKeyValueChange kind = (NSKeyValueChange)[[change objectForKey:NSKeyValueChangeKindKey] integerValue];
+		BOOL isInitial = (kind == NSKeyValueChangeSetting && [change objectForKey:NSKeyValueChangeOldKey] == nil);
 		BOOL isPrior = [[change objectForKey:NSKeyValueChangeNotificationIsPriorKey] boolValue];
 		switch (type) {
 			case RACAbleTypeCurrent:

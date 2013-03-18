@@ -24,4 +24,8 @@
 	return [NSString stringWithFormat:@"%@: %ld", objectValue, (long)integerValue];
 }
 
+- (void)lifeIsGood:(id)sender {
+	
+}
+
 @end

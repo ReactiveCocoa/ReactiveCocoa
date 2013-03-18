@@ -15,6 +15,7 @@
 #import "RACKVOTrampoline.h"
 #import "RACCompoundDisposable.h"
 #import <objc/runtime.h>
+#import "RACSwizzling.h"
 
 static const void *RACObjectCompoundDisposable = &RACObjectCompoundDisposable;
 static const void *RACObjectScopedDisposable = &RACObjectScopedDisposable;

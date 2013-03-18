@@ -25,4 +25,6 @@
 // Returns a string of the form "objectValue: integerValue".
 - (NSString *)combineObjectValue:(id)objectValue andIntegerValue:(NSInteger)integerValue;
 
+- (void)lifeIsGood:(id)sender;
+
 @end

@@ -13,10 +13,8 @@
 @interface NSObject (RACSelectorSignal)
 
 // Adds an implementation of `selector` to the receiver which will send the
-// receiver each time it is invoked.
-//
-// `selector` shouldn't already be implemented on the receiver. It will not
-// swizzle an existing implementation.
+// receiver each time it is invoked. `selector` shouldn't already be implemented
+// on the receiver. It will not swizzle or replace any existing implementation.
 //
 // This is most useful for implementing a method which is called to communicate
 // events to the receiver. For example, in an NSView:

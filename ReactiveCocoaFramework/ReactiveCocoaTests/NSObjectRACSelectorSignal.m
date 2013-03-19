@@ -27,9 +27,20 @@ it(@"should send the receiver for each invocation", ^{
 
 it(@"shouldn't swizzle an existing method", ^{
 	RACTestObject *object = [[RACTestObject alloc] init];
+#ifndef NS_BLOCK_ASSERTIONS
 	expect(^{
 		[object rac_signalForSelector:@selector(lifeIsGood:)];
 	}).to.raiseAny();
+#else
+	__block id value;
+	[[object rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(id x) {
+		value = x;
+	}];
+
+	[object lifeIsGood:@42];
+
+	expect(value).to.beNil();
+#endif
 });
 
 SpecEnd

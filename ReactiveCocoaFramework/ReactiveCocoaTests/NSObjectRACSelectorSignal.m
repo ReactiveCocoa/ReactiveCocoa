@@ -22,7 +22,7 @@ it(@"should send the receiver for each invocation", ^{
 
 	[object lifeIsGood:@42];
 
-	expect(value).to.equal(object);
+	expect(value).to.equal(@42);
 });
 
 it(@"shouldn't swizzle an existing method", ^{

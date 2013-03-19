@@ -13,7 +13,7 @@
 @interface NSObject (RACSelectorSignal)
 
 // Adds an implementation of `selector` to the receiver which will send the
-// receiver each time it is invoked. The receiver shouldn't have an existing
+// argument each time it is invoked. The receiver shouldn't have an existing
 // implementation of `selector`. It will not swizzle or replace any existing
 // implementation.
 //
@@ -26,7 +26,7 @@
 //            the type:
 //              - (void)selector:(id)argument
 //
-// Returns a signal which will send the receiver on each invocation.
+// Returns a signal which will send the argument on each invocation.
 - (RACSignal *)rac_signalForSelector:(SEL)selector;
 
 @end

@@ -31,8 +31,8 @@ static const void *RACObjectSelectorSignals = &RACObjectSelectorSignals;
 		if (subject != nil) return subject;
 
 		subject = [RACSubject subject];
-		IMP imp = imp_implementationWithBlock(^(id self, id _) {
-			[subject sendNext:self];
+		IMP imp = imp_implementationWithBlock(^(id self, id arg) {
+			[subject sendNext:arg];
 		});
 
 		BOOL success = class_addMethod(self.class, selector, imp, "v@:");

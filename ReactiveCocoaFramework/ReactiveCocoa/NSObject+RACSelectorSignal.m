@@ -35,7 +35,7 @@ static const void *RACObjectSelectorSignals = &RACObjectSelectorSignals;
 			[subject sendNext:arg];
 		});
 
-		BOOL success = class_addMethod(self.class, selector, imp, "v@:");
+		BOOL success = class_addMethod(self.class, selector, imp, "v@:@");
 		NSAssert(success, @"%@ is already implemented on %@. %@ will not replace the existing implementation.", NSStringFromSelector(selector), self, NSStringFromSelector(_cmd));
 
 		selectorSignals[key] = subject;

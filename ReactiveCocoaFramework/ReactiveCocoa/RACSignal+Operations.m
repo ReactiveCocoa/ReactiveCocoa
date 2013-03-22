@@ -1178,8 +1178,12 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 			[groupSubject sendNext:transformBlock != NULL ? transformBlock(x) : x];
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
+
+			[groups.allValues makeObjectsPerformSelector:@selector(sendError:) withObject:error];
 		} completed:^{
 			[subscriber sendCompleted];
+
+			[groups.allValues makeObjectsPerformSelector:@selector(sendCompleted)];
 		}];
 	}] setNameWithFormat:@"[%@] -groupBy:transform:", self.name];
 }

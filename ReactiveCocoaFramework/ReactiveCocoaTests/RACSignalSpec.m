@@ -2475,15 +2475,15 @@ describe(@"-groupBy:", ^{
 	it(@"should send completed to all grouped signals.", ^{
 		RACSubject *subject = [RACReplaySubject subject];
 
-		__block NSNumber *groupedSignalCount = @0;
-		__block NSNumber *completedGroupedSignalCount = @0;
-		[[subject groupBy:^NSNumber *(NSNumber *number) {
+		__block NSUInteger groupedSignalCount = 0;
+		__block NSUInteger completedGroupedSignalCount = 0;
+		[[subject groupBy:^(NSNumber *number) {
 			return @(floorf(number.floatValue));
 		}] subscribeNext:^(RACGroupedSignal *groupedSignal) {
-			groupedSignalCount = @(groupedSignalCount.intValue + 1);
+			++groupedSignalCount;
 
 			[groupedSignal subscribeCompleted:^{
-				completedGroupedSignalCount = @(completedGroupedSignalCount.intValue + 1);
+				++completedGroupedSignalCount;
 			}];
 		}];
 
@@ -2497,15 +2497,15 @@ describe(@"-groupBy:", ^{
 	it(@"should send error to all grouped signals.", ^{
 		RACSubject *subject = [RACReplaySubject subject];
 
-		__block NSNumber *groupedSignalCount = @0;
-		__block NSNumber *erroneousGroupedSignalCount = @0;
-		[[subject groupBy:^NSNumber *(NSNumber *number) {
+		__block NSUInteger groupedSignalCount = 0;
+		__block NSUInteger erroneousGroupedSignalCount = 0;
+		[[subject groupBy:^(NSNumber *number) {
 			return @(floorf(number.floatValue));
 		}] subscribeNext:^(RACGroupedSignal *groupedSignal) {
-			groupedSignalCount = @(groupedSignalCount.intValue + 1);
+			++groupedSignalCount;
 
 			[groupedSignal subscribeError:^(NSError *error) {
-				erroneousGroupedSignalCount = @(erroneousGroupedSignalCount.intValue + 1);
+				++erroneousGroupedSignalCount;
 
 				expect(error.domain).to.equal(@"TestDomain");
 				expect(error.code).to.equal(123);

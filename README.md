@@ -199,7 +199,10 @@ are usually used:
         // Return a signal that fetches any remaining messages.
         return [client fetchMessagesAfterMessage:messages.lastObject];
     }]
-    subscribeCompleted:^{
+    subscribeNext:(NSArray *newMessages) {
+        NSLog(@"New messages: %@", newMessages);
+    } 
+    completed:^{
         NSLog(@"Fetched all messages.");
     }];
 ```

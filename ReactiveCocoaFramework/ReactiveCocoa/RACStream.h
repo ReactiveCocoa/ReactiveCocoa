@@ -155,15 +155,21 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 // `combineBlock`.
 - (instancetype)mapPreviousWithStart:(id)start combine:(id (^)(id previous, id current))combineBlock;
 
+// Calls `-includePrevious:` with nil placeholder.
+- (instancetype)includePrevious:(NSUInteger)count;
+
 // Maps the combination of the previous and current objects to one object.
 //
 // count        - Number of previous values to be combined with the latest to
-//                the final value. Note that the number fo combined objects will
-//                be `count + 1`, because of the latest value.
+//                the final RACTuple. Note that the number of combined objects 
+//                will be `count + 1`, because of the latest value.
+// placeholder  - Object to be used for first `count` combined values as
+//                placeholder. Since the values are packed in RACTuple, NSNull
+//                will be converted to nil.
 //
-// Returns a new stream consisting of the return values combined of lastest
-// value and previous values.
-- (instancetype)includePrevious:(NSUInteger)count;
+// Returns a new stream consisting of RACTuples with previous and latest values.
+// The latest value is always the last in tuple.
+- (instancetype)includePrevious:(NSUInteger)count withStart:(id)placeholder;
 
 // Filters out values in the receiver that don't pass the given test.
 //

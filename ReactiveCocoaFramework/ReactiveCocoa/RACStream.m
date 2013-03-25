@@ -113,9 +113,13 @@
 }
 
 - (instancetype)includePrevious:(NSUInteger)count {
+	return [self includePrevious:count withStart:nil];
+}
+
+- (instancetype)includePrevious:(NSUInteger)count withStart:(id)placeholder {
 	NSMutableArray *stack = [NSMutableArray arrayWithCapacity:count+1];
 	for (NSUInteger index = 0; index <= count; index++) {
-		[stack addObject:[NSNull null]];
+		[stack addObject:(placeholder ?: [NSNull null])];
 	}
 	return [[self map:^ id (id value) {
 		[stack removeObjectAtIndex:count];

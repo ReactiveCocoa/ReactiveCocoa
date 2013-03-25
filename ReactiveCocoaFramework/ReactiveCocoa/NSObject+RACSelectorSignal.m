@@ -16,7 +16,7 @@ static const void *RACObjectSelectorSignals = &RACObjectSelectorSignals;
 
 @implementation NSObject (RACSelectorSignal)
 
-static RACSignal * NSObjectRACSignalForSelector(id self, SEL _cmd, SEL selector) {
+static RACSignal *NSObjectRACSignalForSelector(id self, SEL _cmd, SEL selector) {
 	NSParameterAssert([NSStringFromSelector(selector) componentsSeparatedByString:@":"].count == 2);
 
 	@synchronized(self) {

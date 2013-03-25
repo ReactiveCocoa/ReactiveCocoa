@@ -215,6 +215,27 @@ describe(@"with a signal block", ^{
 		expect(receivedEvent).to.beFalsy();
 	});
 
+	it(@"should catch all errors", ^{
+		RACSignal *result = [command addSignalBlock:^(id _) {
+			return [RACSignal error:[NSError errorWithDomain:@""code:-1 userInfo:nil]];
+		}];
+
+		__block BOOL errorsGotError = NO;
+		[command.errors subscribeNext:^(id _) {
+			errorsGotError = YES;
+		}];
+
+		__block BOOL resultGotError = NO;
+		[[result switchToLatest] subscribeError:^(id _) {
+			resultGotError = YES;
+		}];
+
+		[command execute:nil];
+
+		expect(errorsGotError).will.beTruthy();
+		expect(resultGotError).to.beFalsy();
+	});
+
 	it(@"should dealloc without subscribers", ^{
 		__block BOOL disposed = NO;
 

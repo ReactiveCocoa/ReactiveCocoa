@@ -121,7 +121,7 @@ describe(@"RACObservablePropertySubject bindings", ^{
 	});
 	
 	it(@"should keep objects' properties in sync", ^{
-		RACBind(a, name) = RACBind(b, name);
+		RAC(a, name) = RAC(b, name);
 		expect(a.name).to.beNil();
 		expect(b.name).to.beNil();
 		
@@ -139,7 +139,7 @@ describe(@"RACObservablePropertySubject bindings", ^{
 	});
 	
 	it(@"should keep properties identified by keypaths in sync", ^{
-		RACBind(a, relatedObject.name) = RACBind(b, relatedObject.name);
+		RAC(a, relatedObject.name) = RAC(b, relatedObject.name);
 		a.relatedObject = [[TestClass alloc] init];
 		b.relatedObject = [[TestClass alloc] init];
 		
@@ -161,7 +161,7 @@ describe(@"RACObservablePropertySubject bindings", ^{
 	it(@"should take the value of the object being bound to at the start", ^{
 		a.name = testName1;
 		b.name = testName2;
-		RACBind(a, name) = RACBind(b, name);
+		RAC(a, name) = RAC(b, name);
 		expect(a.name).to.equal(testName2);
 		expect(b.name).to.equal(testName2);
 	});
@@ -169,7 +169,7 @@ describe(@"RACObservablePropertySubject bindings", ^{
 	it(@"should update the value even if it's the same value the object had before it was bound", ^{
 		a.name = testName1;
 		b.name = testName2;
-		RACBind(a, name) = RACBind(b, name);
+		RAC(a, name) = RAC(b, name);
 		expect(a.name).to.equal(testName2);
 		expect(b.name).to.equal(testName2);
 		
@@ -182,8 +182,8 @@ describe(@"RACObservablePropertySubject bindings", ^{
 		a.name = testName1;
 		b.name = testName2;
 		c.name = testName3;
-		RACBind(a, name) = RACBind(b, name);
-		RACBind(b, name) = RACBind(c, name);
+		RAC(a, name) = RAC(b, name);
+		RAC(b, name) = RAC(c, name);
 		expect(a.name).to.equal(testName3);
 		expect(b.name).to.equal(testName3);
 		expect(c.name).to.equal(testName3);
@@ -206,27 +206,27 @@ describe(@"RACObservablePropertySubject bindings", ^{
 	
 	it(@"should bind changes made by KVC on arrays", ^{
 		b.array = @[];
-		RACBind(a, array) = RACBind(b, array);
+		RAC(a, array) = RAC(b, array);
 		[[b mutableArrayValueForKeyPath:@keypath(b.array)] addObject:@1];
 		expect(a.array).to.equal(b.array);
 	});
 	
 	it(@"should bind changes made by KVC on sets", ^{
 		b.set = [NSSet set];
-		RACBind(a, set) = RACBind(b, set);
+		RAC(a, set) = RAC(b, set);
 		[[b mutableSetValueForKeyPath:@keypath(b.set)] addObject:@1];
 		expect(a.set).to.equal(b.set);
 	});
 	
 	it(@"should bind changes made by KVC on ordered sets", ^{
 		b.orderedSet = [NSOrderedSet orderedSet];
-		RACBind(a, orderedSet) = RACBind(b, orderedSet);
+		RAC(a, orderedSet) = RAC(b, orderedSet);
 		[[b mutableOrderedSetValueForKeyPath:@keypath(b.orderedSet)] addObject:@1];
 		expect(a.orderedSet).to.equal(b.orderedSet);
 	});
 	
 	it(@"should stop binding when disposed", ^{
-		RACDisposable *disposable = [RACBind(a, name) bindTo:RACBind(b, name)];
+		RACDisposable *disposable = [RAC(a, name) bindTo:RAC(b, name)];
 		a.name = testName1;
 		expect(a.name).to.equal(testName1);
 		expect(b.name).to.equal(testName1);

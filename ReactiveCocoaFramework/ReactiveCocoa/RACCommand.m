@@ -11,7 +11,8 @@
 #import "RACScheduler.h"
 #import "RACSignal+Operations.h"
 #import "RACSubject.h"
-#import "RACSubscriptingAssignmentTrampoline.h"
+#import "NSObject+RACPropertySubscribing.h"
+#import "RACObservablePropertySubject.h"
 #import <libkern/OSAtomic.h>
 
 @interface RACCommand () {

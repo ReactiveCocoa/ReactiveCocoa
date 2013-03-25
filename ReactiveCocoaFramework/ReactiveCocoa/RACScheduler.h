@@ -82,6 +82,11 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 // it begins executing, or nil if cancellation is not supported.
 - (RACDisposable *)after:(dispatch_time_t)when schedule:(void (^)(void))block;
 
+// Schedule the given block for execution on the scheduler after the delay.
+//
+// Converts seconds to nanoseconds and calls `-after:schedule:`.
+- (RACDisposable *)afterDelay:(NSTimeInterval)delay schedule:(void (^)(void))block;
+
 // Schedule the given recursive block for execution on the scheduler. The
 // scheduler will automatically flatten any recursive scheduling into iteration
 // instead, so this can be used without issue for blocks that may keep invoking

@@ -122,8 +122,8 @@
 		[stack addObject:(placeholder ?: [NSNull null])];
 	}
 	return [[self map:^ id (id value) {
-		[stack removeObjectAtIndex:count];
-		[stack insertObject:(value ?: [NSNull null]) atIndex:0];
+		[stack removeObjectAtIndex:0];
+		[stack insertObject:(value ?: [NSNull null]) atIndex:count];
 		return [RACTuple tupleWithObjectsFromArray:[stack copy] convertNullsToNils:YES];
 	}] setNameWithFormat:@"[%@] -includePrevious: %u", self.name, count];
 }

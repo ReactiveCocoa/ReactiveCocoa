@@ -105,6 +105,11 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 	return nil;
 }
 
+- (RACDisposable *)afterDelay:(NSTimeInterval)delay schedule:(void (^)(void))block {
+	dispatch_time_t when = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC));
+	return [self after:when schedule:block];
+}
+
 - (RACDisposable *)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock {
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 

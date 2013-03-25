@@ -155,6 +155,16 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 // `combineBlock`.
 - (instancetype)mapPreviousWithStart:(id)start combine:(id (^)(id previous, id current))combineBlock;
 
+// Maps the combination of the previous and current objects to one object.
+//
+// count        - Number of previous values to be combined with the latest to
+//                the final value. Note that the number fo combined objects will
+//                be `count + 1`, because of the latest value.
+//
+// Returns a new stream consisting of the return values combined of lastest
+// value and previous values.
+- (instancetype)includePrevious:(NSUInteger)count;
+
 // Filters out values in the receiver that don't pass the given test.
 //
 // This corresponds to the `Where` method in Rx.

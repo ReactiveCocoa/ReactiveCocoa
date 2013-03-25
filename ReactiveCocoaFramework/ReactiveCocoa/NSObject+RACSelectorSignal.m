@@ -16,7 +16,7 @@ static const void *RACObjectSelectorSignals = &RACObjectSelectorSignals;
 
 @implementation NSObject (RACSelectorSignal)
 
-- (RACSignal *)rac_signalForSelector:(SEL)selector {
+static RACSignal * NSObjectRACSignalForSelector(id self, SEL _cmd, SEL selector) {
 	NSParameterAssert([NSStringFromSelector(selector) componentsSeparatedByString:@":"].count == 2);
 
 	@synchronized(self) {
@@ -35,7 +35,7 @@ static const void *RACObjectSelectorSignals = &RACObjectSelectorSignals;
 			[subject sendNext:arg];
 		});
 
-		BOOL success = class_addMethod(self.class, selector, imp, "v@:@");
+		BOOL success = class_addMethod(object_getClass(self), selector, imp, "v@:@");
 		NSAssert(success, @"%@ is already implemented on %@. %@ will not replace the existing implementation.", NSStringFromSelector(selector), self, NSStringFromSelector(_cmd));
 		if (!success) return nil;
 
@@ -47,6 +47,14 @@ static const void *RACObjectSelectorSignals = &RACObjectSelectorSignals;
 
 		return subject;
 	}
+}
+
+- (RACSignal *)rac_signalForSelector:(SEL)selector {
+	return NSObjectRACSignalForSelector(self, _cmd, selector);
+}
+
++ (RACSignal *)rac_signalForSelector:(SEL)selector {
+	return NSObjectRACSignalForSelector(self, _cmd, selector);
 }
 
 @end

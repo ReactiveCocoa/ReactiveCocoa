@@ -27,4 +27,6 @@
 
 - (void)lifeIsGood:(id)sender;
 
++ (void)lifeIsGood:(id)sender;
+
 @end

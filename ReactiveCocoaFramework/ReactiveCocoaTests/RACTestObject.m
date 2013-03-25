@@ -28,4 +28,8 @@
 	
 }
 
++ (void)lifeIsGood:(id)sender {
+	
+}
+
 @end

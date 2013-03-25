@@ -30,4 +30,7 @@
 // Returns a signal which will send the argument on each invocation.
 - (RACSignal *)rac_signalForSelector:(SEL)selector;
 
+// The same as -rac_signalForSelector: but with class methods.
++ (RACSignal *)rac_signalForSelector:(SEL)selector;
+
 @end

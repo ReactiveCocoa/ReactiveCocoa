@@ -26,7 +26,7 @@ static const void *RACObjectSelectorSignals = &RACObjectSelectorSignals;
 			objc_setAssociatedObject(self, RACObjectSelectorSignals, selectorSignals, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 		}
 
-		NSString *key = [NSString stringWithFormat:@"%@ -> %@", NSStringFromSelector(_cmd), NSStringFromSelector(selector)];
+		NSString *key = NSStringFromSelector(selector);
 		RACSubject *subject = selectorSignals[key];
 		if (subject != nil) return subject;
 

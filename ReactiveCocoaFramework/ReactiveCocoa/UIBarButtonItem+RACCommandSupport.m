@@ -10,10 +10,13 @@
 #import <ReactiveCocoa/RACCommand.h>
 #import <ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h>
 #import <ReactiveCocoa/NSObject+RACPropertySubscribing.h>
+#import <ReactiveCocoa/RACSignal+Operations.h>
+#import <ReactiveCocoa/RACDisposable.h>
 
 #import <objc/runtime.h>
 
 static void * UIControlRACCommandKey = &UIControlRACCommandKey;
+static void * UIControlRACCommandSignalKey = &UIControlRACCommandSignalKey;
 
 @implementation UIBarButtonItem (RACCommandSupport)
 
@@ -24,11 +27,17 @@ static void * UIControlRACCommandKey = &UIControlRACCommandKey;
 - (void)setRac_command:(RACCommand *)command {
 	objc_setAssociatedObject(self, UIControlRACCommandKey, command, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
-	self.enabled = command != nil ? command.canExecute : YES;
-	
 	if (command == nil) return;
 	
-	RAC(self.enabled) = RACAbleWithStart(command, canExecute);
+	// Check for stored signal
+	RACDisposable *existingSignal = objc_getAssociatedObject(self, UIControlRACCommandSignalKey);
+	if (existingSignal != nil) {
+		// Remove the old signal to add a new one
+		[existingSignal dispose];
+	}
+	
+	RACDisposable *newSignal = [RACAbleWithStart(command, canExecute) toProperty:@"enabled" onObject:self];
+	objc_setAssociatedObject(self, UIControlRACCommandSignalKey, newSignal, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
 	[self rac_hijackActionAndTargetIfNeeded];
 }

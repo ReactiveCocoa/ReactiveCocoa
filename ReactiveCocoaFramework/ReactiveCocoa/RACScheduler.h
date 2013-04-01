@@ -41,7 +41,7 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 + (instancetype)mainThreadScheduler;
 
 // Creates and returns a new background scheduler with the given priority and
-// name.
+// name. The name is for debug and instrumentation purposes only.
 //
 // Scheduler creation is cheap. It's unnecessary to save the result of this
 // method call unless you want to serialize some actions on the same background

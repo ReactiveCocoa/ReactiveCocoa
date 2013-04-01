@@ -40,11 +40,15 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 // A singleton scheduler that executes blocks in the main thread.
 + (instancetype)mainThreadScheduler;
 
-// Creates and returns a new background scheduler with the given priority.
+// Creates and returns a new background scheduler with the given priority and
+// name.
 //
 // Scheduler creation is cheap. It's unnecessary to save the result of this
 // method call unless you want to serialize some actions on the same background
 // scheduler.
++ (instancetype)schedulerWithPriority:(RACSchedulerPriority)priority name:(NSString *)name;
+
+// Invokes +schedulerWithPriority:name: with a default name.
 + (instancetype)schedulerWithPriority:(RACSchedulerPriority)priority;
 
 // Invokes +schedulerWithPriority: with RACSchedulerPriorityDefault.

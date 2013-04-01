@@ -16,20 +16,25 @@
 // If given two, the first argument is the object to which the keypath is
 // relative and the second is the keypath.
 //
-// If RACBind() is used as an lvalue (an assignee), the named property is bound
-// to the RACBinding provided on the right-hand side of the assignment. The
-// binding property's value is set to the value of the property being bound to,
-// then any changes to one property will be reflected on the other.
+// If RAC() is used as an lvalue (an assignee) and the right-hand side of the
+// assignment is a RACBinding, the named property is bound to it. The binding
+// property's value is set to the value of the property being bound to, then any
+// changes to one property will be reflected on the other.
 //
-// If RACBind() is used as an rvalue, a RACBinding is returned.
+// If RAC() is used as an lvalue (an assignee) and the right-hand side of the
+// assignment is not a RACBinding, but is a RACSignal, the named property is
+// updated with the values sent by the signal.
+//
+// If RAC() is used as an rvalue, a RACBinding is returned.
 //
 // Examples:
-// RACBinding *binding = RACBind(self.property);
-// RACBind(self.property) = RACBind(otherObject, property);
-#define RACBind(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))(_RACBindObject(self, __VA_ARGS__))(_RACBindObject(__VA_ARGS__))
+// RACBinding *binding = RAC(self.property);
+// RAC(self.property) = RAC(otherObject, property);
+// RAC(self.anotherProperty) = [RAC(otherObject, anotherProperty) map:block];
+#define RAC(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))(_RACObject(self, __VA_ARGS__))(_RACObject(__VA_ARGS__))
 
 // Do not use this directly. Use the RACBind macro above.
-#define _RACBindObject(OBJ, KEYPATH) [RACObservablePropertySubject propertyWithTarget:OBJ keyPath:@keypath(OBJ, KEYPATH)][ @"binding" ]
+#define _RACObject(OBJ, KEYPATH) [RACObservablePropertySubject propertyWithTarget:OBJ keyPath:@keypath(OBJ, KEYPATH)][ @"binding" ]
 
 // A RACPropertySubject wrapper for KVO compliant key paths.
 //
@@ -50,5 +55,15 @@
 
 - (id)objectForKeyedSubscript:(id)key;
 - (void)setObject:(id)obj forKeyedSubscript:(id)key;
+
+@end
+
+// The following declarations are for legacy support only, do not use them
+#define RACBind(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))(_RACBindObject(self, __VA_ARGS__))(_RACBindObject(__VA_ARGS__))
+#define _RACBindObject(OBJ, KEYPATH) [RACDeprecatedMacroTrampoline propertyWithTarget:OBJ keyPath:@keypath(OBJ, KEYPATH)][ @"binding" ]
+
+@interface RACDeprecatedMacroTrampoline : NSObject
+
++ (RACObservablePropertySubject *)propertyWithTarget:(id)target keyPath:(NSString *)keyPath __attribute__((deprecated("RACBind() is deprecated, use RAC() instead")));
 
 @end

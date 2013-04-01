@@ -257,7 +257,24 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 }
 
 - (void)setObject:(id)obj forKeyedSubscript:(id)key {
-	[[self valueForKey:key] bindTo:obj];
+	if ([obj isKindOfClass:RACBinding.class]) {
+		[[self valueForKey:key] bindTo:obj];
+	} else if ([obj isKindOfClass:RACSignal.class]) {
+		[obj subscribe:[self valueForKey:key]];
+	} else {
+		[NSException raise:NSInvalidArgumentException format:@"Attempt to assign non-signal object to RAC(): %@", obj];
+	}
 }
+
+@end
+
+@implementation RACDeprecatedMacroTrampoline
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
++ (RACObservablePropertySubject *)propertyWithTarget:(id)target keyPath:(NSString *)keyPath {
+	return [RACObservablePropertySubject propertyWithTarget:target keyPath:keyPath];
+}
+#pragma clang diagnostic pop
 
 @end

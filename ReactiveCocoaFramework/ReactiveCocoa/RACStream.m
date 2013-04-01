@@ -112,6 +112,22 @@
 		setNameWithFormat:@"[%@] -mapPreviousWithStart: %@ combine:", self.name, start];
 }
 
+- (instancetype)includePrevious:(NSUInteger)count {
+	return [self includePrevious:count withStart:nil];
+}
+
+- (instancetype)includePrevious:(NSUInteger)count withStart:(id)placeholder {
+	NSMutableArray *stack = [NSMutableArray arrayWithCapacity:count+1];
+	for (NSUInteger index = 0; index <= count; index++) {
+		[stack addObject:(placeholder ?: [NSNull null])];
+	}
+	return [[self map:^ id (id value) {
+		[stack removeObjectAtIndex:0];
+		[stack insertObject:(value ?: [NSNull null]) atIndex:count];
+		return [RACTuple tupleWithObjectsFromArray:[stack copy] convertNullsToNils:YES];
+	}] setNameWithFormat:@"[%@] -includePrevious: %u", self.name, count];
+}
+
 - (instancetype)filter:(BOOL (^)(id value))block {
 	NSParameterAssert(block != nil);
 

@@ -56,7 +56,7 @@ fi
 if [ -f "$BOOTSTRAP" ]
 then
     echo "*** Bootstrapping..."
-    bash "$BOOTSTRAP"
+    bash "$BOOTSTRAP" || exit $?
 fi
 
 echo "*** The following targets will be built:"

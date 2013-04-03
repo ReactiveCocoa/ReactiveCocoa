@@ -29,10 +29,10 @@
 
 - (RACSignal *)rac_textSignal {
 	return [[[[self rac_signalForDelegateMethod:@selector(textViewDidChange:)]
-		startWith:self]
 		map:^(UITextView *x) {
 			return x.text;
 		}]
+		startWith:self.text]
 		setNameWithFormat:@"%@ -rac_textSignal", self];
 }
 

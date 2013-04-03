@@ -14,10 +14,10 @@
 
 - (RACSignal *)rac_textSignal {
 	return [[[[self rac_signalForControlEvents:UIControlEventEditingChanged]
-		startWith:self]
 		map:^(UITextField *x) {
 			return x.text;
 		}]
+		startWith:self.text]
 		setNameWithFormat:@"%@ -rac_textSignal", self];
 }
 

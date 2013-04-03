@@ -10,7 +10,11 @@
 #import "RACObjCRuntime.h"
 #import "RACEventTrampoline.h"
 
-@interface RACDelegateProxy (Private)
+@interface RACDelegateProxy ()
+
+@property (nonatomic, strong) Protocol *protocol;
+@property (nonatomic, weak) NSObject *delegator;
+@property (nonatomic, readonly, strong) NSMutableSet *trampolines;
 
 - (BOOL)trampolinesRespondToSelector:(SEL)aSelector;
 
@@ -18,65 +22,60 @@
 
 @implementation RACDelegateProxy
 
-@synthesize protocol;
-@synthesize delegator;
-@synthesize actualDelegate;
-
 + (instancetype)proxyWithProtocol:(Protocol *)protocol andDelegator:(NSObject *)delegator {
-    if (![self conformsToProtocol:protocol]) {
-        class_addProtocol([self class], protocol);
-    }
+	if (![self conformsToProtocol:protocol]) {
+		class_addProtocol(self.class, protocol);
+	}
     
-    RACDelegateProxy *proxy = [[self alloc] init];
-    [proxy setProtocol:protocol];
-    [proxy setDelegator:delegator];
-    return proxy;
+	RACDelegateProxy *proxy = [[self alloc] init];
+	proxy.protocol = protocol;
+	proxy.delegator = delegator;
+	return proxy;
 }
 
 - (instancetype)init {
-    if (self = [super init]) {
-        trampolines = [[NSMutableSet alloc] init];
-    }
-    return self;
+	self = [super init];
+	if (self == nil) return nil;
+
+	_trampolines = [[NSMutableSet alloc] init];
+
+	return self;
 }
 
-- (BOOL)respondsToSelector:(SEL)aSelector {
-    if ([actualDelegate respondsToSelector:aSelector] || [self trampolinesRespondToSelector:aSelector])
-        return YES;
+- (BOOL)respondsToSelector:(SEL)selector {
+	if ([self.actualDelegate respondsToSelector:selector] || [self trampolinesRespondToSelector:selector]) return YES;
     
-    return [super respondsToSelector:aSelector];
+	return [super respondsToSelector:selector];
 }
 
-- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
-    return [NSMethodSignature signatureWithObjCTypes:
-            [RACObjCRuntime getMethodTypesForMethod:aSelector inProtocol:protocol]];
+- (NSMethodSignature *)methodSignatureForSelector:(SEL)selector {
+	return [NSMethodSignature signatureWithObjCTypes:[RACObjCRuntime getMethodTypesForMethod:selector inProtocol:self.protocol]];
 }
 
-- (void)forwardInvocation:(NSInvocation *)anInvocation {
-    SEL selector = anInvocation.selector;
-    
-    for (RACEventTrampoline *trampoline in trampolines) {
-        [trampoline didGetDelegateEvent:selector sender:delegator];
-    }
-    
-    if ([actualDelegate respondsToSelector:selector]) {
-        [anInvocation invokeWithTarget:actualDelegate];
-    }
+- (void)forwardInvocation:(NSInvocation *)invocation {
+	SEL selector = invocation.selector;
+	for (RACEventTrampoline *trampoline in self.trampolines) {
+		[trampoline didGetDelegateEvent:selector sender:self.delegator];
+	}
+
+	if ([self.actualDelegate respondsToSelector:selector]) {
+		[invocation invokeWithTarget:self.actualDelegate];
+	}
 }
 
 - (void)addTrampoline:(RACEventTrampoline *)trampoline {
-    [trampoline setProxy:self];
-    [trampolines addObject:trampoline];
+	trampoline.proxy = self;
+	[self.trampolines addObject:trampoline];
 }
 
-- (BOOL)trampolinesRespondToSelector:(SEL)aSelector {
-    for (RACEventTrampoline *trampoline in trampolines) {
-        if (trampoline.delegateMethod == aSelector) {
-            return YES;
-        }
-    }
+- (BOOL)trampolinesRespondToSelector:(SEL)selector {
+	for (RACEventTrampoline *trampoline in self.trampolines) {
+		if (trampoline.delegateMethod == selector) {
+			return YES;
+		}
+	}
     
-    return NO;
+	return NO;
 }
 
 @end

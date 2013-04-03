@@ -27,10 +27,10 @@
 				[NSNotificationCenter.defaultCenter removeObserver:observer];
 			}];
 		}]
-		startWith:self]
 		map:^(NSText *text) {
 			return [text.string copy];
 		}]
+		startWith:[self.string copy]]
 		setNameWithFormat:@"%@ -rac_textSignal", self];
 }
 

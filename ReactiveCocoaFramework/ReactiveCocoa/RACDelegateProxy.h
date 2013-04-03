@@ -10,18 +10,12 @@
 
 @class RACEventTrampoline;
 
-@interface RACDelegateProxy : NSObject {
-    Protocol *protocol;
-    NSObject *delegator;
-    id actualDelegate;
-    NSMutableSet *trampolines;
-}
+@interface RACDelegateProxy : NSObject
+
+@property (nonatomic, strong) id actualDelegate;
 
 + (instancetype)proxyWithProtocol:(Protocol *)protocol andDelegator:(NSObject *)delegator;
-- (void)addTrampoline:(RACEventTrampoline *)trampoline;
 
-@property (nonatomic, strong) Protocol *protocol;
-@property (nonatomic, strong) NSObject *delegator;
-@property (nonatomic, strong) id actualDelegate;
+- (void)addTrampoline:(RACEventTrampoline *)trampoline;
 
 @end

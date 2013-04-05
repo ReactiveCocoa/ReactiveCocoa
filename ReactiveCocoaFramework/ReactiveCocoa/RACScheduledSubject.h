@@ -13,12 +13,12 @@
 // A subject whose events will always be scheduled on the given scheduler.
 @interface RACScheduledSubject : RACSubject
 
-// Initializes the receiver with the given scheduler.
+// Creates and returns a new scheduled subject.
 //
 // scheduler - The scheduler on which all events should be scheduled. Cannot be
 //             nil.
 //
-// Returns the initialized object.
-- (id)initWithScheduler:(RACScheduler *)scheduler;
+// Returns the new object.
++ (instancetype)subjectWithScheduler:(RACScheduler *)scheduler;
 
 @end

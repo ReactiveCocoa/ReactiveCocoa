@@ -16,7 +16,7 @@ __block RACScheduler *scheduler;
 
 beforeEach(^{
 	scheduler = [RACScheduler scheduler];
-	subject = [[RACScheduledSubject alloc] initWithScheduler:scheduler];
+	subject = [RACScheduledSubject subjectWithScheduler:scheduler];
 });
 
 it(@"should send nexts on the given scheduler", ^{

@@ -19,6 +19,10 @@
 
 #pragma mark Lifecycle
 
++ (instancetype)subjectWithScheduler:(RACScheduler *)scheduler {
+	return [[self alloc] initWithScheduler:scheduler];
+}
+
 - (id)initWithScheduler:(RACScheduler *)scheduler {
 	NSParameterAssert(scheduler != nil);
 

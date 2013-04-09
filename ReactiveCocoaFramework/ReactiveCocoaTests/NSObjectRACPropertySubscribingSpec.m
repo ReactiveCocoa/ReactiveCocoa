@@ -236,7 +236,7 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 			}];
 
 			object.objectValue = @1;
-			
+
 			expect(values[0]).will.beKindOf(NSDictionary.class);
 		});
 
@@ -248,7 +248,7 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 			}];
 
 			object.objectValue = @1;
-			
+
 			expect(values[0]).will.beTruthy();
 		});
 
@@ -309,7 +309,7 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 			}];
 
 			object.objectValue = @1;
-			
+
 			NSOrderedSet *expected = [NSOrderedSet orderedSetWithObject:@1];
 			expect(values[0]).to.equal(expected);
 		});
@@ -320,7 +320,7 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 			[signal subscribeNext:^(id x) {
 				[values addObject:x[NSKeyValueChangeNewKey]];
 			}];
-			
+
 			NSArray *expected = [NSOrderedSet orderedSetWithObject:@1];
 			expect(values[0]).to.equal(expected);
 		});

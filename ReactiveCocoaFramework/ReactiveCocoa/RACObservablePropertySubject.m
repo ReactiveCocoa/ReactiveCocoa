@@ -228,7 +228,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 	property->_exposedSignal = [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		@strongify(property);
 		[subscriber sendNext:[property.target valueForKeyPath:keyPath]];
-		return [[property.target rac_signalForKeyPath:property.keyPath observer:property type:RACAbleTypeCurrent] subscribe:subscriber];
+		return [[property.target rac_signalForKeyPath:property.keyPath observer:property] subscribe:subscriber];
 	}] setNameWithFormat:@"+propertyWithTarget: %@ keyPath: %@", target, keyPath];
 	property->_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
 		@strongify(property);

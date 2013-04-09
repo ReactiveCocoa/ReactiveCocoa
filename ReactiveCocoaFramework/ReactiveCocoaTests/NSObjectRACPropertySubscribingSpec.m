@@ -92,7 +92,7 @@ sharedExamples(@"RACPropertySubscribingExamples", ^(NSDictionary *data) {
 			[scopeObject rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 				scopeObjectDealloced = YES;
 			}]];
-
+			
 			RACSignal *signal = signalBlock(object, @keypath(object, objectValue), scopeObject);
 
 			[signal subscribeNext:^(id _) {

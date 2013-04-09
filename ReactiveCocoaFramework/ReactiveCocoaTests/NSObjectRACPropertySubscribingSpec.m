@@ -151,6 +151,89 @@ sharedExamples(@"RACPropertySubscribingExamples", ^(NSDictionary *data) {
 
 		expect(value).will.equal(@1);
 	});
+
+	it(@"sends an array when removing values from an observed value", ^{
+		RACTestObject *object = [[RACTestObject alloc] init];
+		__block NSMutableArray *values = [NSMutableArray new];
+
+		object.objectValue = [@[ @1 ] mutableCopy];
+
+		RACSignal *signal = signalBlock(object, @keypath(object, objectValue), self);
+		[signal subscribeNext:^(NSArray *_) {
+			[values addObject:_];
+		}];
+
+		NSMutableArray *mutableArray = [object mutableArrayValueForKey:@"objectValue"];
+		[mutableArray removeObject:object.objectValue];
+
+		NSArray *expected = @[ ];
+		expect(values).will.equal(expected);
+	});
+
+});
+
+describe(@"+rac_signalFor:keyPath:observer:", ^{
+	itShouldBehaveLike(@"RACPropertySubscribingExamples", @{
+		@"signal": ^(RACTestObject *object, NSString *keyPath, id observer) {
+			return [object.class rac_signalFor:object keyPath:keyPath observer:observer];
+		}
+	});
+
+	describe(@"KVO options argument", ^{
+		it(@"sends the newest set when inserting values into an observed value", ^{
+			RACTestObject *object = [[RACTestObject alloc] init];
+			__block NSMutableOrderedSet *values;
+
+			object.objectValue = [NSMutableOrderedSet orderedSetWithObject:@1];
+
+			RACSignal *signal = [object.class rac_signalFor:object keyPath:@keypath(object, objectValue) observer:self];
+			[signal subscribeNext:^(NSMutableOrderedSet *_) {
+				values = _;
+			}];
+
+			NSMutableOrderedSet *mutableSet = [object mutableOrderedSetValueForKey:@"objectValue"];
+			[mutableSet addObject:@2];
+
+			NSMutableOrderedSet *expected = [NSMutableOrderedSet orderedSetWithObjects: @1, @2, nil];
+			expect(values).will.equal(expected);
+		});
+
+		it(@"sends the newest set when removing values in an observed value", ^{
+			RACTestObject *object = [[RACTestObject alloc] init];
+			__block NSMutableOrderedSet *values;
+
+			object.objectValue = [NSMutableOrderedSet orderedSetWithObject:@1];
+
+			RACSignal *signal = [object.class rac_signalFor:object keyPath:@keypath(object, objectValue) observer:self];
+			[signal subscribeNext:^(NSMutableOrderedSet *_) {
+				values = _;
+			}];
+
+			NSMutableOrderedSet *mutableSet = [object mutableOrderedSetValueForKey:@"objectValue"];
+			[mutableSet removeAllObjects];
+
+			NSMutableOrderedSet *expected = [NSMutableOrderedSet orderedSet];
+			expect(values).will.equal(expected);
+		});
+
+		it(@"sends the newest set when replacing values in an observed value", ^{
+			RACTestObject *object = [[RACTestObject alloc] init];
+			__block NSMutableOrderedSet *values;
+
+			object.objectValue = [NSMutableOrderedSet orderedSetWithObject:@1];
+
+			RACSignal *signal = [object.class rac_signalFor:object keyPath:@keypath(object, objectValue) observer:self];
+			[signal subscribeNext:^(NSMutableOrderedSet *_) {
+				values = _;
+			}];
+
+			NSMutableOrderedSet *mutableSet = [object mutableOrderedSetValueForKey:@"objectValue"];
+			[mutableSet replaceObjectAtIndex:0 withObject:@2];
+
+			NSMutableOrderedSet *expected = [NSMutableOrderedSet orderedSetWithObjects: @2, nil];
+			expect(values).will.equal(expected);
+		});
+	});
 });
 
 describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
@@ -169,21 +252,117 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 			RACTestObject *object = [[RACTestObject alloc] init];
 			__block id actualValue;
 
-			RACSignal *signal = [object.class rac_signalWithChangesFor:object keyPath:keyPath options:0 observer:self];
+			RACSignal *signal = [object.class rac_signalWithChangesFor:object keyPath:@keypath(object, objectValue) options:0 observer:self];
 			[signal subscribeNext:^(id x) {
 				actualValue = x;
 			}];
 
+			object.objectValue = @1;
+			
 			expect(actualValue).will.beKindOf(NSDictionary.class);
 		});
-	});
-});
 
-describe(@"+rac_signalFor:keyPath:onObject:", ^{
-	itShouldBehaveLike(@"RACPropertySubscribingExamples", @{
-		@"signal": ^(RACTestObject *object, NSString *keyPath, id observer) {
-			return [object.class rac_signalFor:object keyPath:keyPath observer:observer];
-		}
+		it(@"sends a kind key by default", ^{
+			RACTestObject *object = [[RACTestObject alloc] init];
+			__block NSString *kindKey;
+
+			RACSignal *signal = [object.class rac_signalWithChangesFor:object keyPath:@keypath(object, objectValue) options:0 observer:self];
+			[signal subscribeNext:^(NSDictionary *_) {
+				kindKey = _[NSKeyValueChangeKindKey];
+			}];
+
+			object.objectValue = @1;
+			
+			expect(kindKey).will.beTruthy();
+		});
+
+		it(@"sends the newest changes with NSKeyValueObservingOptionNew", ^{
+			RACTestObject *object = [[RACTestObject alloc] init];
+			__block NSMutableOrderedSet *values = [NSMutableOrderedSet new];
+
+			RACSignal *signal = [object.class rac_signalWithChangesFor:object keyPath:@"objectValue" options:NSKeyValueObservingOptionNew observer:self];
+			[signal subscribeNext:^(NSNumber *value) {
+				[values addObject:value];
+			}];
+
+			object.objectValue = @1;
+			object.objectValue = @2;
+
+			NSArray *expected = [NSOrderedSet orderedSetWithObjects:@1, @2, nil];
+			expect([values valueForKeyPath:NSKeyValueChangeNewKey]).will.equal(expected);
+		});
+
+		it(@"sends an additional change value with NSKeyValueObservingOptionPrior", ^{
+			RACTestObject *object = [[RACTestObject alloc] init];
+			__block NSMutableOrderedSet *values = [NSMutableOrderedSet new];
+			RACSignal *signal = [object.class rac_signalWithChangesFor:object keyPath:@"objectValue" options:NSKeyValueObservingOptionPrior observer:self];
+
+			[signal subscribeNext:^(NSDictionary *change) {
+				[values addObject:@([change[NSKeyValueChangeNotificationIsPriorKey] boolValue])];
+			}];
+
+			object.objectValue = [NSMutableOrderedSet orderedSetWithObject:@1];
+
+			NSMutableOrderedSet *array = [object mutableOrderedSetValueForKey:@"objectValue"];
+			[array addObject:@2];
+
+			NSMutableOrderedSet *expected = [NSMutableOrderedSet orderedSetWithObjects:@(YES), @(NO), nil];
+			expect(values).will.equal(expected);
+		});
+
+		it(@"sends changes when adding, inserting or removing a value from an observed object", ^{
+
+			RACTestObject *object = [[RACTestObject alloc] init];
+			__block NSMutableOrderedSet *values = [NSMutableOrderedSet new];
+
+			object.objectValue = [NSMutableOrderedSet orderedSetWithObject:@1];
+
+			RACSignal *signal = [object.class rac_signalWithChangesFor:object keyPath:@"objectValue" options:0 observer:self];
+
+			[signal subscribeNext:^(NSDictionary *change) {
+				[values addObject:@(change[NSKeyValueChangeIndexesKey] != nil)];
+			}];
+
+			NSMutableOrderedSet *array = [object mutableOrderedSetValueForKey:@"objectValue"];
+			[array addObject:@2];
+
+			[array replaceObjectAtIndex:0 withObject:@3];
+
+			[array removeObject:@2];
+
+			NSMutableOrderedSet *expected = [NSMutableOrderedSet orderedSetWithObjects:@(YES), @(YES), @(YES), nil];
+			expect(values).will.equal(expected);
+		});
+
+		it(@"also sends the previous value with NSKeyValueObservingOptionOld", ^{
+			RACTestObject *object = [[RACTestObject alloc] init];
+			__block NSMutableArray *values = [NSMutableArray new];
+
+			RACSignal *signal = [object.class rac_signalWithChangesFor:object keyPath:@keypath(object, objectValue) options:NSKeyValueObservingOptionOld observer:self];
+			
+			[signal subscribeNext:^(id x) {
+				[values addObject:x[NSKeyValueChangeOldKey]];
+			}];
+
+			object.objectValue = @1;
+			
+			NSArray *expected = @[ NSNull.null ];
+			expect(values).to.equal(expected);
+		});
+
+		it(@"also sends the initial value with NSKeyValueObservingOptionInitial", ^{
+			RACTestObject *object = [[RACTestObject alloc] init];
+			__block NSMutableArray *values = [NSMutableArray new];
+
+			RACSignal *signal = [object.class rac_signalWithChangesFor:object keyPath:@keypath(object, objectValue) options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew observer:self];
+
+			[signal subscribeNext:^(id x) {
+				[values addObject:x[NSKeyValueChangeNewKey]];
+			}];
+			
+			NSArray *expected = @[ NSNull.null ];
+			expect(values).to.equal(expected);
+		});
 	});
 });
 

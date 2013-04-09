@@ -22,10 +22,14 @@ static const void *RACObjectScopedDisposable = &RACObjectScopedDisposable;
 @implementation NSObject (RACPropertySubscribing)
 
 + (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer {
+	@unsafeify(object, keyPath);
 	return [[self
 		rac_signalWithChangesFor:object keyPath:keyPath options:NSKeyValueObservingOptionNew observer:observer]
-		map:^(id _) {
-			return _[NSKeyValueChangeNewKey];
+		map:^(NSDictionary *_) {
+			@strongify(object, keyPath);
+			NSKeyValueChange key = [_[NSKeyValueChangeKindKey] unsignedIntegerValue];
+
+			return (key == NSKeyValueChangeSetting) ? _[NSKeyValueChangeNewKey] : [object valueForKeyPath:keyPath];
 		}];
 }
 

@@ -12,7 +12,7 @@
 #import <ReactiveCocoa/NSObject+RACPropertySubscribing.h>
 #import <ReactiveCocoa/RACSignal+Operations.h>
 #import <ReactiveCocoa/RACDisposable.h>
-
+#import <ReactiveCocoa/EXTKeyPathCoding.h>
 #import <objc/runtime.h>
 
 static void * UIControlRACCommandKey = &UIControlRACCommandKey;
@@ -29,14 +29,11 @@ static void * UIControlRACCommandSignalKey = &UIControlRACCommandSignalKey;
 	
 	if (command == nil) return;
 	
-	// Check for stored signal
+	// Check for stored signal in order to remove it and add a new one
 	RACDisposable *existingSignal = objc_getAssociatedObject(self, UIControlRACCommandSignalKey);
-	if (existingSignal != nil) {
-		// Remove the old signal to add a new one
-		[existingSignal dispose];
-	}
+	[existingSignal dispose];
 	
-	RACDisposable *newSignal = [RACAbleWithStart(command, canExecute) toProperty:@"enabled" onObject:self];
+	RACDisposable *newSignal = [RACAbleWithStart(command, canExecute) toProperty:@keypath(self.enabled) onObject:self];
 	objc_setAssociatedObject(self, UIControlRACCommandSignalKey, newSignal, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
 	[self rac_hijackActionAndTargetIfNeeded];

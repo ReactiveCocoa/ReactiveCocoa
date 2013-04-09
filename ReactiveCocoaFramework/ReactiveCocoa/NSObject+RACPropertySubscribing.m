@@ -22,79 +22,18 @@ static const void *RACObjectScopedDisposable = &RACObjectScopedDisposable;
 
 @implementation NSObject (RACPropertySubscribing)
 
-+ (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer type:(RACAbleType)type {
-	RACSignal *signal =  [self rac_signalWithChangesFor:object keyPath:keyPath observer:observer];
-	
-	signal = [signal filter:^BOOL(NSDictionary *change) {
-		NSKeyValueChange kind = (NSKeyValueChange)[[change objectForKey:NSKeyValueChangeKindKey] integerValue];
-		BOOL isInitial = (kind == NSKeyValueChangeSetting && [change objectForKey:NSKeyValueChangeOldKey] == nil);
-		BOOL isPrior = [[change objectForKey:NSKeyValueChangeNotificationIsPriorKey] boolValue];
-		switch (type) {
-			case RACAbleTypeCurrent:
-			case RACAbleTypeCurrentWithPrevious:
-			case RACAbleTypeInsert:
-			case RACAbleTypeRemove:
-			case RACAbleTypeReplace:
-				return ( ! isInitial && ! isPrior);
-			case RACAbleTypeInitialCurrent:
-			case RACAbleTypeInitialCurrentWithPrevious:
-				return ( ! isPrior);
-			case RACAbleTypePrior:
-				return ( ! isInitial && isPrior);
-		}
-	}];
-	signal = [signal filter:^BOOL(NSDictionary *change) {
-		NSKeyValueChange kind = (NSKeyValueChange)[[change objectForKey:NSKeyValueChangeKindKey] integerValue];
-		switch (type) {
-			case RACAbleTypeCurrent:
-			case RACAbleTypeInitialCurrent:
-				return YES;
-			case RACAbleTypeCurrentWithPrevious:
-			case RACAbleTypeInitialCurrentWithPrevious:
-			case RACAbleTypePrior:
-				return (kind == NSKeyValueChangeSetting);
-			case RACAbleTypeInsert:
-				return (kind == NSKeyValueChangeInsertion);
-			case RACAbleTypeRemove:
-				return (kind == NSKeyValueChangeRemoval);
-			case RACAbleTypeReplace:
-				return (kind == NSKeyValueChangeReplacement);
-		}
-	}];
-	@unsafeify(object);
-	signal = [signal map:^id(NSDictionary *change) {
-		@strongify(object);
-		id old = [change objectForKey:NSKeyValueChangeOldKey];
-		id new = [change objectForKey:NSKeyValueChangeNewKey];
-		NSIndexSet *indexes = [change objectForKey:NSKeyValueChangeIndexesKey];
-		id currentValue = [object valueForKeyPath:keyPath];
-		switch (type) {
-			case RACAbleTypeCurrent:
-			case RACAbleTypeInitialCurrent:
-			case RACAbleTypePrior:
-				return currentValue;
-			case RACAbleTypeCurrentWithPrevious:
-			case RACAbleTypeInitialCurrentWithPrevious:
-				return RACTuplePackWithNils(old, new);
-			case RACAbleTypeInsert:
-				return RACTuplePackWithNils(new, indexes);
-			case RACAbleTypeRemove:
-				return RACTuplePackWithNils(old, indexes);
-			case RACAbleTypeReplace:
-				return RACTuplePackWithNils(old, new, indexes);
-		}
-	}];
-	
-	return signal;
++ (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer {
+	return [[self
+		rac_signalWithChangesFor:object keyPath:keyPath options:NSKeyValueObservingOptionNew observer:observer]
+		map:^(id _) {
+			return _[NSKeyValueChangeNewKey];
+		}];
 }
 
-+ (RACSignal *)rac_signalWithChangesFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer {
++ (RACSignal *)rac_signalWithChangesFor:(NSObject *)object keyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer {
 	@unsafeify(observer, object);
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		NSKeyValueObservingOptions options = (NSKeyValueObservingOptionNew
-											  | NSKeyValueObservingOptionOld
-											  | NSKeyValueObservingOptionInitial
-											  | NSKeyValueObservingOptionPrior);
+
 		@strongify(observer, object);
 		RACKVOTrampoline *KVOTrampoline = [object rac_addObserver:observer forKeyPath:keyPath options:options block:^(id target, id observer, NSDictionary *change) {
 			[subscriber sendNext:change];
@@ -124,8 +63,12 @@ static const void *RACObjectScopedDisposable = &RACObjectScopedDisposable;
 	}] setNameWithFormat:@"RACAble(%@, %@)", object, keyPath];
 }
 
-- (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath observer:(NSObject *)observer type:(RACAbleType)type {
-	return [self.class rac_signalFor:self keyPath:keyPath observer:observer type:type];
+- (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
+	return [self rac_signalFor:self keyPath:keyPath observer:observer];
+}
+
+- (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer {
+	return [self.class rac_signalFor:object keyPath:keyPath observer:observer];
 }
 
 - (RACDisposable *)rac_deriveProperty:(NSString *)keyPath from:(RACSignal *)signal {

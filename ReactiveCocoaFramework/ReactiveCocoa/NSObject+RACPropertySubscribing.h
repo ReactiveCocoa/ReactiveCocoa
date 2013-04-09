@@ -67,19 +67,16 @@ typedef enum _RACAbleType : NSInteger {
 // deallocated.
 @property (atomic, readonly, strong) RACCompoundDisposable *rac_deallocDisposable;
 
-// Creates a signal for observing on the given object the key path of the source
+// Creates a signal for observing the value at the given keypath.
+- (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath observer:(NSObject *)observer;
+
+// Creates a signal for observing the value at the given keypath on the source
 // object.
-// Calls `+rac_signalWithChangesFor:keyPath:observer:` and filters a maps the
-// result according to the given type.
-+ (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer type:(RACAbleType)type;
+- (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer;
 
-// Creates a signal for observing on the given object the key path of the source
-// object. The signal returns change dictionary.
-+ (RACSignal *)rac_signalWithChangesFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer;
-
-// Creates a signal for observing the value at the given keypath with given
-// type. For more, see documentation of RACAbleType.
-- (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath observer:(NSObject *)observer type:(RACAbleType)type;
+// Creates a signal for observing the value at the given keypath on the source
+// object. The signal returns a change dictionary.
++ (RACSignal *)rac_signalWithChangesFor:(NSObject *)object keyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer;
 
 // Keeps the value of the KVC-compliant keypath up-to-date with the latest value
 // sent by the signal.

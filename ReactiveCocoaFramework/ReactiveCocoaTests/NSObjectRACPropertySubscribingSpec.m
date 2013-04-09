@@ -163,6 +163,20 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 				}];
 		}
 	});
+
+	describe(@"KVO options argument", ^{
+		it(@"sends a KVO dictionary", ^{
+			RACTestObject *object = [[RACTestObject alloc] init];
+			__block id actualValue;
+
+			RACSignal *signal = [object.class rac_signalWithChangesFor:object keyPath:keyPath options:0 observer:self];
+			[signal subscribeNext:^(id x) {
+				actualValue = x;
+			}];
+
+			expect(actualValue).will.beKindOf(NSDictionary.class);
+		});
+	});
 });
 
 describe(@"+rac_signalFor:keyPath:onObject:", ^{

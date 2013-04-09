@@ -64,11 +64,7 @@ static const void *RACObjectScopedDisposable = &RACObjectScopedDisposable;
 }
 
 - (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
-	return [self rac_signalFor:self keyPath:keyPath observer:observer];
-}
-
-- (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer {
-	return [self.class rac_signalFor:object keyPath:keyPath observer:observer];
+	return [self.class rac_signalFor:self keyPath:keyPath observer:observer];
 }
 
 - (RACDisposable *)rac_deriveProperty:(NSString *)keyPath from:(RACSignal *)signal {

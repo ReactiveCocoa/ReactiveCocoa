@@ -17,6 +17,10 @@
 #import "RACTuple.h"
 #import "RACUnit.h"
 
+@interface RACLiftProxy : NSProxy
+- (id)initWithTarget:(NSObject *)target;
+@end
+
 @implementation NSObject (RACLifting)
 
 - (RACSignal *)rac_liftSignals:(NSArray *)signals withReducingInvocation:(id (^)(RACTuple *))reduceBlock {
@@ -28,29 +32,23 @@
 	return connection.signal;
 }
 
-- (RACSignal *)rac_liftSelector:(SEL)selector withObjects:(id)arg, ... {
+- (RACSignal *)rac_liftSelector:(SEL)selector withObjectsArray:(NSArray *)objects {
 	NSMethodSignature *methodSignature = [self methodSignatureForSelector:selector];
 	NSAssert(methodSignature != nil, @"%@ does not respond to %@", self, NSStringFromSelector(selector));
 
+	NSMutableArray *arguments = [objects mutableCopy];
 	NSMutableArray *signals = [NSMutableArray arrayWithCapacity:methodSignature.numberOfArguments - 2];
-	NSMutableArray *arguments = [NSMutableArray arrayWithCapacity:methodSignature.numberOfArguments - 2];
 	NSMutableDictionary *argIndexesBySignal = [NSMutableDictionary dictionaryWithCapacity:methodSignature.numberOfArguments - 2];
 
-	va_list args;
-	va_start(args, arg);
 	id currentObject = nil;
 	// First two arguments are self and selector.
 	for (NSUInteger i = 2; i < methodSignature.numberOfArguments; i++) {
-		currentObject = (i == 2 ? arg : va_arg(args, id));
-
-		[arguments addObject:currentObject ?: RACTupleNil.tupleNil];
-
+		currentObject = arguments[i - 2];
 		if ([currentObject isKindOfClass:RACSignal.class]) {
 			argIndexesBySignal[[NSValue valueWithNonretainedObject:currentObject]] = @(i - 2);
 			[signals addObject:currentObject];
 		}
 	}
-	va_end(args);
 
 	id (^invokeWithTarget)(id) = [^(id target) {
 		NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
@@ -80,6 +78,26 @@
 			return invokeWithTarget(self);
 		}];
 	}
+}
+
+- (RACSignal *)rac_liftSelector:(SEL)selector withObjects:(id)arg, ... {
+	NSMethodSignature *methodSignature = [self methodSignatureForSelector:selector];
+	NSAssert(methodSignature != nil, @"%@ does not respond to %@", self, NSStringFromSelector(selector));
+
+	NSMutableArray *arguments = [NSMutableArray arrayWithCapacity:methodSignature.numberOfArguments - 2];
+
+	va_list args;
+	va_start(args, arg);
+	id currentObject = nil;
+	// First two arguments are self and selector.
+	for (NSUInteger i = 2; i < methodSignature.numberOfArguments; i++) {
+		currentObject = (i == 2 ? arg : va_arg(args, id));
+		[arguments addObject:currentObject ?: RACTupleNil.tupleNil];
+	}
+
+	va_end(args);
+
+	return [self rac_liftSelector:selector withObjectsArray:arguments];
 }
 
 - (RACSignal *)rac_liftBlock:(id)block withArguments:(id)arg, ... {
@@ -117,6 +135,45 @@
 
 			return [RACBlockTrampoline invokeBlock:block withArguments:[RACTuple tupleWithObjectsFromArray:arguments]];
 		}];
+	}
+}
+
+- (instancetype)rac_lift {
+	return (id)[[RACLiftProxy alloc] initWithTarget:self];
+}
+
+@end
+
+@implementation RACLiftProxy {
+	NSObject *_target;
+}
+
+- (id)initWithTarget:(id)target {
+	_target = target;
+	return self;
+}
+
+- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
+	return [_target methodSignatureForSelector:aSelector] ?: [super methodSignatureForSelector:aSelector];
+}
+
+- (void)forwardInvocation:(NSInvocation *)anInvocation {
+	NSMethodSignature *signature = anInvocation.methodSignature;
+	NSUInteger argumentsCount = signature.numberOfArguments - 2;
+
+	NSMutableArray *arguments = [NSMutableArray arrayWithCapacity:argumentsCount];
+
+	// First two arguments are self and selector.
+	for (NSUInteger i = 2; i < signature.numberOfArguments; i++) {
+		id argument = [anInvocation rac_argumentAtIndex:i];
+		[arguments addObject:argument ?: RACTupleNil.tupleNil];
+	}
+
+	__autoreleasing id returnValue = [_target rac_liftSelector:anInvocation.selector withObjectsArray:arguments];
+
+	const char *returnType = signature.methodReturnType;
+	if (strcmp(returnType, "@") == 0 || strcmp(returnType, "#") == 0) {
+		[anInvocation setReturnValue:&returnValue];
 	}
 }
 

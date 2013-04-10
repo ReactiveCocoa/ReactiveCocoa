@@ -49,4 +49,19 @@
 // block. It completes only after all the signal arguments complete.
 - (RACSignal *)rac_liftBlock:(id)block withArguments:(id)arg, ... NS_REQUIRES_NIL_TERMINATION;
 
+// Like -rac_liftSelector:withObjects: but uses higher order messaging instead of
+// a selector and argument list.
+//
+// Signals are only supported as message arguments where the method signature
+// expects an argument of object type.
+//
+// Examples
+//
+//     [button.rac_lift setTitleColor:textColorSignal forState:UIControlStateNormal];
+//     RAC(self.textField.textColor) = [self.rac_lift colorForString:self.field.rac_textSignal];
+//
+// Returns a signal that replays the most recently sent value to new subscribers
+// for messages that return an object; otherwise, returns `void`.
+- (instancetype)rac_lift;
+
 @end

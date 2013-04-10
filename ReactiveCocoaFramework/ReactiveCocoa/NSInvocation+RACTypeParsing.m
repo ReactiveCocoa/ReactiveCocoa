@@ -71,6 +71,74 @@
 #undef PULL_AND_SET_STRUCT
 }
 
+- (id)rac_argumentAtIndex:(NSUInteger)index {
+#define WRAP_AND_RETURN(type) \
+	do { \
+		type val = 0; \
+		[self getArgument:&val atIndex:(NSInteger)index]; \
+		return @(val); \
+	} while (0)
+
+#define WRAP_AND_RETURN_STRUCT(type) \
+	do { \
+		type val; \
+		[self getArgument:&val atIndex:(NSInteger)index]; \
+		return [NSValue valueWithBytes:&val objCType:@encode(type)]; \
+	} while (0)
+
+	const char *typeSignature = [self.methodSignature getArgumentTypeAtIndex:index];
+	if (strcmp(typeSignature, "@") == 0 || strcmp(typeSignature, "#") == 0) {
+		__autoreleasing id returnObj;
+		[self getArgument:&returnObj atIndex:(NSInteger)index];
+		return returnObj;
+	} else if (strcmp(typeSignature, "c") == 0) {
+		WRAP_AND_RETURN(char);
+	} else if (strcmp(typeSignature, "i") == 0) {
+		WRAP_AND_RETURN(int);
+	} else if (strcmp(typeSignature, "s") == 0) {
+		WRAP_AND_RETURN(short);
+	} else if (strcmp(typeSignature, "l") == 0) {
+		WRAP_AND_RETURN(long);
+	} else if (strcmp(typeSignature, "q") == 0) {
+		WRAP_AND_RETURN(long long);
+	} else if (strcmp(typeSignature, "C") == 0) {
+		WRAP_AND_RETURN(unsigned char);
+	} else if (strcmp(typeSignature, "I") == 0) {
+		WRAP_AND_RETURN(unsigned int);
+	} else if (strcmp(typeSignature, "C") == 0) {
+		WRAP_AND_RETURN(unsigned short);
+	} else if (strcmp(typeSignature, "L") == 0) {
+		WRAP_AND_RETURN(unsigned long);
+	} else if (strcmp(typeSignature, "Q") == 0) {
+		WRAP_AND_RETURN(unsigned long long);
+	} else if (strcmp(typeSignature, "f") == 0) {
+		WRAP_AND_RETURN(float);
+	} else if (strcmp(typeSignature, "d") == 0) {
+		WRAP_AND_RETURN(double);
+	} else if (strcmp(typeSignature, "*") == 0) {
+		WRAP_AND_RETURN(const char *);
+	} else if (strcmp(typeSignature, "v") == 0) {
+		return RACUnit.defaultUnit;
+	} else if (typeSignature[0] == '^') {
+		const void *pointer = NULL;
+		[self getReturnValue:&pointer];
+		return [NSValue valueWithPointer:pointer];
+	} else if (strcmp(typeSignature, @encode(CGRect)) == 0) {
+		WRAP_AND_RETURN_STRUCT(CGRect);
+	} else if (strcmp(typeSignature, @encode(CGSize)) == 0) {
+		WRAP_AND_RETURN_STRUCT(CGSize);
+	} else if (strcmp(typeSignature, @encode(CGPoint)) == 0) {
+		WRAP_AND_RETURN_STRUCT(CGPoint);
+	} else {
+		NSAssert(NO, @"Unknown return type signature %s", typeSignature);
+	}
+
+	return nil;
+
+#undef WRAP_AND_RETURN
+#undef WRAP_AND_RETURN_STRUCT
+}
+
 - (id)rac_returnValue {
 #define WRAP_AND_RETURN(type) \
 	do { \

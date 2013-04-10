@@ -20,6 +20,12 @@
 	self.integerValue = integerValue;
 }
 
+- (void)setObjectValue:(id)objectValue andSecondObjectValue:(id)secondObjectValue {
+	self.hasInvokedSetObjectValueAndSecondObjectValue = YES;
+	self.objectValue = objectValue;
+	self.secondObjectValue = secondObjectValue;
+}
+
 - (NSString *)combineObjectValue:(id)objectValue andIntegerValue:(NSInteger)integerValue {
 	return [NSString stringWithFormat:@"%@: %ld", objectValue, (long)integerValue];
 }

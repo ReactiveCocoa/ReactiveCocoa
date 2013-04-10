@@ -260,4 +260,140 @@ describe(@"-rac_liftBlock:withObjects:", ^{
 	});
 });
 
+describe(@"-rac_lift", ^{
+	__block RACTestObject *object;
+
+	beforeEach(^{
+		object = [[RACTestObject alloc] init];
+	});
+
+	it(@"should call the selector with the value of the signal", ^{
+		RACSubject *subject = [RACSubject subject];
+		object.rac_lift.objectValue = subject;
+
+		expect(object.objectValue).to.beNil();
+
+		[subject sendNext:@1];
+		expect(object.objectValue).to.equal(@1);
+
+		[subject sendNext:@42];
+		expect(object.objectValue).to.equal(@42);
+	});
+
+	it(@"should work with multiple arguments", ^{
+		RACSubject *objectValueSubject = [RACSubject subject];
+		RACSubject *objectValueSubject2 = [RACSubject subject];
+
+		[object.rac_lift setObjectValue:objectValueSubject andSecondObjectValue:objectValueSubject2];
+
+		expect(object.hasInvokedSetObjectValueAndSecondObjectValue).to.beFalsy();
+		expect(object.objectValue).to.beNil();
+		expect(object.secondObjectValue).to.beNil();
+
+		[objectValueSubject sendNext:@1];
+		expect(object.hasInvokedSetObjectValueAndSecondObjectValue).to.beFalsy();
+		expect(object.objectValue).to.beNil();
+		expect(object.secondObjectValue).to.beNil();
+
+		[objectValueSubject2 sendNext:@42];
+		expect(object.hasInvokedSetObjectValueAndSecondObjectValue).to.beTruthy();
+		expect(object.objectValue).to.equal(@1);
+		expect(object.secondObjectValue).to.equal(@42);
+	});
+
+	it(@"should work with signals that immediately start with a value", ^{
+		RACSubject *subject = [RACSubject subject];
+		object.rac_lift.objectValue = [subject startWith:@42];
+
+		expect(object.objectValue).to.equal(@42);
+
+		[subject sendNext:@1];
+		expect(object.objectValue).to.equal(@1);
+	});
+
+	it(@"should immediately invoke the selector when it isn't given any signal arguments", ^{
+		object.rac_lift.objectValue = @42;
+		expect(object.objectValue).to.equal(@42);
+	});
+
+	it(@"should work with mixed signal / non-signal arguments", ^{
+		RACSubject *objectValueSubject = [RACSubject subject];
+		[object.rac_lift setObjectValue:objectValueSubject andIntegerValue:42];
+
+		expect(object.hasInvokedSetObjectValueAndIntegerValue).to.beFalsy();
+		expect(object.objectValue).to.beNil();
+		expect(object.integerValue).to.equal(0);
+
+		[objectValueSubject sendNext:@1];
+		expect(object.hasInvokedSetObjectValueAndIntegerValue).to.beTruthy();
+		expect(object.objectValue).to.equal(@1);
+		expect(object.integerValue).to.equal(42);
+	});
+
+	it(@"should work with class objects", ^{
+		RACSubject *subject = [RACSubject subject];
+		object.rac_lift.objectValue = subject;
+
+		expect(object.objectValue).to.equal(nil);
+
+		[subject sendNext:self.class];
+		expect(object.objectValue).to.equal(self.class);
+	});
+
+	it(@"should send the latest value of the signal as the right argument", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object.rac_lift setObjectValue:@"object" andSecondObjectValue:subject];
+		[subject sendNext:@1];
+
+		expect(object.objectValue).to.equal(@"object");
+		expect(object.secondObjectValue).to.equal(@1);
+	});
+
+	describe(@"the returned signal", ^{
+		it(@"should send the return value of the method invocation", ^{
+			RACSubject *objectSubject = [RACSubject subject];
+			RACSignal *signal = (id)[object.rac_lift combineObjectValue:objectSubject andIntegerValue:42];
+
+			__block NSString *result;
+			[signal subscribeNext:^(id x) {
+				result = x;
+			}];
+
+			[objectSubject sendNext:@"Magic number"];
+			expect(result).to.equal(@"Magic number: 42");
+		});
+
+		it(@"should replay the last value", ^{
+			RACSubject *objectSubject = [RACSubject subject];
+			RACSignal *signal = (id)[object.rac_lift combineObjectValue:objectSubject andIntegerValue:42];
+
+			[objectSubject sendNext:@"Magickkk number"];
+			[objectSubject sendNext:@"Magic number"];
+
+			__block NSString *result;
+			[signal subscribeNext:^(id x) {
+				result = x;
+			}];
+
+			expect(result).to.equal(@"Magic number: 42");
+		});
+	});
+
+	it(@"shouldn't strongly capture the receiver", ^{
+		__block BOOL dealloced = NO;
+		@autoreleasepool {
+			RACTestObject *testObject __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
+			[testObject rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				dealloced = YES;
+			}]];
+
+			RACSubject *subject = [RACSubject subject];
+			testObject.rac_lift.objectValue = subject;
+			[subject sendNext:@1];
+		}
+		
+		expect(dealloced).to.beTruthy();
+	});
+});
+
 SpecEnd

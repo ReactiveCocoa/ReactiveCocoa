@@ -121,7 +121,7 @@
 		return RACUnit.defaultUnit;
 	} else if (typeSignature[0] == '^') {
 		const void *pointer = NULL;
-		[self getReturnValue:&pointer];
+		[self getArgument:&pointer atIndex:(NSInteger)index];
 		return [NSValue valueWithPointer:pointer];
 	} else if (strcmp(typeSignature, @encode(CGRect)) == 0) {
 		WRAP_AND_RETURN_STRUCT(CGRect);

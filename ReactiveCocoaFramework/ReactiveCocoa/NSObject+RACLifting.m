@@ -172,8 +172,12 @@
 	__autoreleasing id returnValue = [_target rac_liftSelector:anInvocation.selector withObjectsArray:arguments];
 
 	const char *returnType = signature.methodReturnType;
-	if (strcmp(returnType, "@") == 0 || strcmp(returnType, "#") == 0) {
-		[anInvocation setReturnValue:&returnValue];
+	if (signature.methodReturnLength > 0) {
+		if (strcmp(returnType, "@") == 0 || strcmp(returnType, "#") == 0) {
+			[anInvocation setReturnValue:&returnValue];
+		} else {
+			[anInvocation setReturnValue:&(void *){ NULL }];
+		}
 	}
 }
 

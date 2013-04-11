@@ -107,8 +107,8 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 		});
 
 		it(@"sends a KVO dictionary", ^{
-			[objectValueSignal(0) subscribeNext:^(id _) {
-				actual = _;
+			[objectValueSignal(0) subscribeNext:^(NSDictionary *x) {
+				actual = x;
 			}];
 
 			object.objectValue = @1;
@@ -140,6 +140,7 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 
 		it(@"sends an additional change value with NSKeyValueObservingOptionPrior", ^{
 			NSMutableOrderedSet *values = [NSMutableOrderedSet orderedSet];
+			NSMutableOrderedSet *expected = [NSMutableOrderedSet orderedSetWithObjects:@(YES), @(NO), nil];
 
 			[objectValueSignal(NSKeyValueObservingOptionPrior) subscribeNext:^(NSDictionary *x) {
 				BOOL isPrior = [x[NSKeyValueChangeNotificationIsPriorKey] boolValue];
@@ -147,8 +148,6 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 			}];
 
 			object.objectValue = [NSMutableOrderedSet orderedSetWithObject:@1];
-
-			NSMutableOrderedSet *expected = [NSMutableOrderedSet orderedSetWithObjects:@(YES), @(NO), nil];
 
 			expect(values).to.equal(expected);
 		});

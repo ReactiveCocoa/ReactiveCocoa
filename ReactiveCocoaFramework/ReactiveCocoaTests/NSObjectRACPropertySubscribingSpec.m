@@ -112,7 +112,7 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 
 			object.objectValue = @1;
 
-			expect(actual).to.beTruthy();
+			expect(actual).notTo.beNil();
 		});
 
 		it(@"sends the newest changes with NSKeyValueObservingOptionNew", ^{

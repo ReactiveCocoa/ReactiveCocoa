@@ -128,15 +128,15 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 		});
 
 		it(@"sends an additional change value with NSKeyValueObservingOptionPrior", ^{
-			NSMutableOrderedSet *values = [NSMutableOrderedSet orderedSet];
-			NSMutableOrderedSet *expected = [NSMutableOrderedSet orderedSetWithObjects:@(YES), @(NO), nil];
+			NSMutableArray *values = [NSMutableArray new];
+			NSArray *expected = @[ @(YES), @(NO) ];
 
 			[objectValueSignal(NSKeyValueObservingOptionPrior) subscribeNext:^(NSDictionary *x) {
 				BOOL isPrior = [x[NSKeyValueChangeNotificationIsPriorKey] boolValue];
 				[values addObject:@(isPrior)];
 			}];
 
-			object.objectValue = [NSMutableOrderedSet orderedSetWithObject:@1];
+			object.objectValue = @[ @1 ];
 
 			expect(values).to.equal(expected);
 		});

@@ -28,7 +28,7 @@ static const void *RACObjectScopedDisposable = &RACObjectScopedDisposable;
 		map:^(NSDictionary *change) {
 			@strongify(object);
 
-			return [object valueForKeyPath:keyPath];
+			return [object valueForKeyPath:[keyPath copy]];
 		}];
 }
 

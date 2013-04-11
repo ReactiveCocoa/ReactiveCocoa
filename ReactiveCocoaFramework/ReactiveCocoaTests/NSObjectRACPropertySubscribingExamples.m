@@ -18,7 +18,6 @@ NSString * const RACPropertySubscribingExamplesSetupBlock = @"RACPropertySubscri
 SharedExamplesBegin(NSObjectRACPropertySubscribingExamples)
 
 sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
-
 	__block RACSignal *(^signalBlock)(RACTestObject *object, NSString *keyPath, id observer);
 
 	before(^{

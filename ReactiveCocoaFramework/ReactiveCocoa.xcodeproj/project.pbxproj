@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1E893381171647A5009071B0 /* NSObjectRACPropertySubscribingExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E893380171647A5009071B0 /* NSObjectRACPropertySubscribingExamples.m */; };
 		5F244771167E5EDE0062180C /* RACPropertySubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F24476F167E5EDE0062180C /* RACPropertySubject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5F244772167E5EDE0062180C /* RACPropertySubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F24476F167E5EDE0062180C /* RACPropertySubject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5F244773167E5EDE0062180C /* RACPropertySubject.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F244770167E5EDE0062180C /* RACPropertySubject.m */; };
@@ -351,6 +352,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1E89337F171647A5009071B0 /* NSObjectRACPropertySubscribingExamples.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSObjectRACPropertySubscribingExamples.h; sourceTree = "<group>"; };
+		1E893380171647A5009071B0 /* NSObjectRACPropertySubscribingExamples.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSObjectRACPropertySubscribingExamples.m; sourceTree = "<group>"; };
 		5F24476F167E5EDE0062180C /* RACPropertySubject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACPropertySubject.h; sourceTree = "<group>"; };
 		5F244770167E5EDE0062180C /* RACPropertySubject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACPropertySubject.m; sourceTree = "<group>"; };
 		5F2447AC167E87C50062180C /* RACObservablePropertySubjectSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACObservablePropertySubjectSpec.m; sourceTree = "<group>"; };

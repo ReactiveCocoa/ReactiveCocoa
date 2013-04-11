@@ -24,6 +24,7 @@
 #import "RACTuple.h"
 #import "RACUnit.h"
 #import "RACCommand.h"
+#import "RACGroupedSignal.h"
 
 #define RACSignalTestError [NSError errorWithDomain:@"foo" code:100 userInfo:nil]
 
@@ -2467,6 +2468,55 @@ describe(@"-executeCommand:", ^{
 		[[RACSignal return:@1] executeCommand:command];
 
 		expect(value).to.equal(@1);
+	});
+});
+
+describe(@"-groupBy:", ^{
+	it(@"should send completed to all grouped signals.", ^{
+		RACSubject *subject = [RACReplaySubject subject];
+
+		__block NSUInteger groupedSignalCount = 0;
+		__block NSUInteger completedGroupedSignalCount = 0;
+		[[subject groupBy:^(NSNumber *number) {
+			return @(floorf(number.floatValue));
+		}] subscribeNext:^(RACGroupedSignal *groupedSignal) {
+			++groupedSignalCount;
+
+			[groupedSignal subscribeCompleted:^{
+				++completedGroupedSignalCount;
+			}];
+		}];
+
+		[subject sendNext:@1];
+		[subject sendNext:@2];
+		[subject sendCompleted];
+
+		expect(completedGroupedSignalCount).to.equal(groupedSignalCount);
+	});
+
+	it(@"should send error to all grouped signals.", ^{
+		RACSubject *subject = [RACReplaySubject subject];
+
+		__block NSUInteger groupedSignalCount = 0;
+		__block NSUInteger erroneousGroupedSignalCount = 0;
+		[[subject groupBy:^(NSNumber *number) {
+			return @(floorf(number.floatValue));
+		}] subscribeNext:^(RACGroupedSignal *groupedSignal) {
+			++groupedSignalCount;
+
+			[groupedSignal subscribeError:^(NSError *error) {
+				++erroneousGroupedSignalCount;
+
+				expect(error.domain).to.equal(@"TestDomain");
+				expect(error.code).to.equal(123);
+			}];
+		}];
+
+		[subject sendNext:@1];
+		[subject sendNext:@2];
+		[subject sendError:[NSError errorWithDomain:@"TestDomain" code:123 userInfo:nil]];
+
+		expect(erroneousGroupedSignalCount).to.equal(groupedSignalCount);
 	});
 });
 

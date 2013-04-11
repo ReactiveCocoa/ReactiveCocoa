@@ -246,6 +246,20 @@
 	return result.boolValue;
 }
 
+- (id)objectPassingTest:(BOOL (^)(id))block {
+	NSParameterAssert(block != NULL);
+	
+	return [self foldLeftWithStart:nil combine:^ id (id accumulator, id value) {
+		if (accumulator != nil) {
+			return accumulator;
+		} else if (block(value)) {
+			return value;
+		} else {
+			return nil;
+		}
+	}];
+}
+
 - (RACSequence *)eagerSequence {
 	return [RACEagerSequence sequenceWithArray:self.array offset:0];
 }

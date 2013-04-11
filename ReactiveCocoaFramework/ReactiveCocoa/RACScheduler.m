@@ -63,8 +63,12 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 	return mainThreadScheduler;
 }
 
++ (instancetype)schedulerWithPriority:(RACSchedulerPriority)priority name:(NSString *)name {
+	return [[RACQueueScheduler alloc] initWithName:name targetQueue:dispatch_get_global_queue(priority, 0)];
+}
+
 + (instancetype)schedulerWithPriority:(RACSchedulerPriority)priority {
-	return [[RACQueueScheduler alloc] initWithName:@"com.ReactiveCocoa.RACScheduler.backgroundScheduler" targetQueue:dispatch_get_global_queue(priority, 0)];
+	return [self schedulerWithPriority:priority name:@"com.ReactiveCocoa.RACScheduler.backgroundScheduler"];
 }
 
 + (instancetype)scheduler {
@@ -103,6 +107,11 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 - (RACDisposable *)after:(dispatch_time_t)when schedule:(void (^)(void))block {
 	NSAssert(NO, @"-after:schedule: must be implemented by subclasses.");
 	return nil;
+}
+
+- (RACDisposable *)afterDelay:(NSTimeInterval)delay schedule:(void (^)(void))block {
+	dispatch_time_t when = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC));
+	return [self after:when schedule:block];
 }
 
 - (RACDisposable *)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock {

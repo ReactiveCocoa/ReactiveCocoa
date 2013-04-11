@@ -199,7 +199,10 @@ are usually used:
         // Return a signal that fetches any remaining messages.
         return [client fetchMessagesAfterMessage:messages.lastObject];
     }]
-    subscribeCompleted:^{
+    subscribeNext:(NSArray *newMessages) {
+        NSLog(@"New messages: %@", newMessages);
+    } 
+    completed:^{
         NSLog(@"Fetched all messages.");
     }];
 ```
@@ -379,31 +382,31 @@ synchronization:
 ```objc
 __block NSArray *databaseObjects;
 __block NSArray *fileContents;
-
-dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    @synchronized (self) {
-        databaseObjects = [databaseClient fetchObjectsMatchingPredicate:predicate];
-        if (fileContents != nil) {
-            [self finishProcessingDatabaseObjects:databaseObjects fileContents:fileContents];
-            NSLog(@"Done processing");
-        }
-    }
-});
-
-dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+ 
+NSOperationQueue *backgroundQueue = [[NSOperationQueue alloc] init];
+NSBlockOperation *databaseOperation = [NSBlockOperation blockOperationWithBlock:^{
+    databaseObjects = [databaseClient fetchObjectsMatchingPredicate:predicate];
+}];
+ 
+NSBlockOperation *filesOperation = [NSBlockOperation blockOperationWithBlock:^{
     NSMutableArray *filesInProgress = [NSMutableArray array];
     for (NSString *path in files) {
         [filesInProgress addObject:[NSData dataWithContentsOfFile:path]];
     }
-    
-    @synchronized (self) {
-        fileContents = [filesInProgress copy];
-        if (databaseObjects != nil) {
-            [self finishProcessingDatabaseObjects:databaseObjects fileContents:fileContents];
-            NSLog(@"Done processing");
-        }
-    }
-});
+ 
+    fileContents = [filesInProgress copy];
+}];
+ 
+NSBlockOperation *finishOperation = [NSBlockOperation blockOperationWithBlock:^{
+    [self finishProcessingDatabaseObjects:databaseObjects fileContents:fileContents];
+    NSLog(@"Done processing");
+}];
+ 
+[finishOperation addDependency:databaseOperation];
+[finishOperation addDependency:filesOperation];
+[backgroundQueue addOperation:databaseOperation];
+[backgroundQueue addOperation:filesOperation];
+[backgroundQueue addOperation:finishOperation];
 ```
 
 The above code can be cleaned up and optimized by simply composing signals:
@@ -426,6 +429,7 @@ RACSignal *fileSignal = [RACSignal start:^(BOOL *success, NSError **error) {
     combineLatest:@[ databaseSignal, fileSignal ]
     reduce:^(NSArray *databaseObjects, NSArray *fileContents) {
         [self finishProcessingDatabaseObjects:databaseObjects fileContents:fileContents];
+        return nil;
     }]
     subscribeCompleted:^{
         NSLog(@"Done processing");
@@ -479,7 +483,8 @@ To add RAC to your application:
       a "Copy Files" build phase and target the "Frameworks" destination.
  1. Add `$(BUILD_ROOT)/../IntermediateBuildFilesPath/UninstalledProducts/include
     $(inherited)` to the "Header Search Paths" build setting (this is only
-		necessary for archive builds, but it has no negative effect otherwise).
+    necessary for archive builds, but it has no negative effect otherwise).
+ 1. **For iOS targets**, add `-ObjC` to the "Other Linker Flags" build setting.
  1. **If you added RAC to a project (not a workspace)**, you will also need to
     add the appropriate RAC target to the "Target Dependencies" of your
     application.

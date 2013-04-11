@@ -30,6 +30,7 @@
 #import <ReactiveCocoa/RACSignal+Operations.h>
 #import <ReactiveCocoa/RACSubscriber.h>
 #import <ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h>
+#import <ReactiveCocoa/NSObject+RACDeallocating.h>
 #import <ReactiveCocoa/NSObject+RACLifting.h>
 #import <ReactiveCocoa/RACTuple.h>
 #import <ReactiveCocoa/RACUnit.h>
@@ -37,12 +38,14 @@
 #import <ReactiveCocoa/RACPropertySubject.h>
 #import <ReactiveCocoa/RACBinding.h>
 #import <ReactiveCocoa/RACObservablePropertySubject.h>
+#import <ReactiveCocoa/NSObject+RACSelectorSignal.h>
 
 #ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
 #import <ReactiveCocoa/EXTKeyPathCoding.h>
 #import <ReactiveCocoa/UIControl+RACSignalSupport.h>
 #import <ReactiveCocoa/UITextField+RACSignalSupport.h>
 #import <ReactiveCocoa/UITextView+RACSignalSupport.h>
+#import <ReactiveCocoa/UIBarButtonItem+RACCommandSupport.h>
 #elif TARGET_OS_MAC
 #import <ReactiveCocoa/EXTKeyPathCoding.h>
 #import <ReactiveCocoa/NSControl+RACCommandSupport.h>

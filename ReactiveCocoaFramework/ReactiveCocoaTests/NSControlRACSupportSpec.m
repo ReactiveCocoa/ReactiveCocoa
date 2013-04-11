@@ -9,6 +9,8 @@
 #import "NSControl+RACCommandSupport.h"
 #import "NSControl+RACTextSignalSupport.h"
 #import "RACCommand.h"
+#import "NSObject+RACPropertySubscribing.h"
+#import "RACDisposable.h"
 
 SpecBegin(NSControlRACSupport)
 
@@ -87,23 +89,40 @@ describe(@"NSTextField", ^{
 		expect(executed).to.beTruthy();
 	});
 
-	it(@"should send changes on rac_textSignal", ^{
-		NSMutableArray *strings = [NSMutableArray array];
-		[field.rac_textSignal subscribeNext:^(NSString *str) {
-			[strings addObject:str];
-		}];
+	describe(@"-rac_textSignal", ^{
+		it(@"should send changes", ^{
+			NSMutableArray *strings = [NSMutableArray array];
+			[field.rac_textSignal subscribeNext:^(NSString *str) {
+				[strings addObject:str];
+			}];
 
-		expect(strings).to.equal(@[ @"" ]);
+			expect(strings).to.equal(@[ @"" ]);
 
-		NSText *fieldEditor = (id)window.firstResponder;
-		expect(fieldEditor).to.beKindOf(NSText.class);
+			NSText *fieldEditor = (id)window.firstResponder;
+			expect(fieldEditor).to.beKindOf(NSText.class);
 
-		[fieldEditor insertText:@"f"];
-		[fieldEditor insertText:@"o"];
-		[fieldEditor insertText:@"b"];
+			[fieldEditor insertText:@"f"];
+			[fieldEditor insertText:@"o"];
+			[fieldEditor insertText:@"b"];
 
-		NSArray *expected = @[ @"", @"f", @"fo", @"fob" ];
-		expect(strings).to.equal(expected);
+			NSArray *expected = @[ @"", @"f", @"fo", @"fob" ];
+			expect(strings).to.equal(expected);
+		});
+
+		it(@"shouldn't give the text field eternal life", ^{
+			__block BOOL dealloced = NO;
+			@autoreleasepool {
+				NSTextField *field __attribute__((objc_precise_lifetime)) = [[NSTextField alloc] initWithFrame:CGRectZero];
+				[field rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+					dealloced = YES;
+				}]];
+				[field.rac_textSignal subscribeNext:^(id x) {
+
+				}];
+			}
+
+			expect(dealloced).will.beTruthy();
+		});
 	});
 });
 

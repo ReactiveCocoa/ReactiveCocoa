@@ -82,17 +82,6 @@ describe(@"+rac_signalFor:keyPath:observer:", ^{
 });
 
 describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
-	itShouldBehaveLike(RACPropertySubscribingExamples, @{
-		RACPropertySubscribingExamplesSetupBlock: ^(RACTestObject *object, NSString *keyPath, id observer) {
-
-			return [[object.class
-				rac_signalWithChangesFor:object keyPath:keyPath options:NSKeyValueObservingOptionNew observer:observer]
-				map:^(NSDictionary *change) {
-					return change[NSKeyValueChangeNewKey];
-				}];
-		}
-	});
-
 	describe(@"KVO options argument", ^{
 		__block RACTestObject *object;
 		__block id actual;

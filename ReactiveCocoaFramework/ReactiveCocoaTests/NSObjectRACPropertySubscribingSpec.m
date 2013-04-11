@@ -51,8 +51,8 @@ describe(@"+rac_signalFor:keyPath:observer:", ^{
 
 			NSString *keyPath = @keypath(object, objectValue);
 
-			[setupBlock(object, keyPath, self) subscribeNext:^(NSMutableOrderedSet *_) {
-				lastValue = _;
+			[setupBlock(object, keyPath, self) subscribeNext:^(NSMutableOrderedSet *x) {
+				lastValue = x;
 			}];
 
 			proxySet = [object mutableOrderedSetValueForKey:keyPath];

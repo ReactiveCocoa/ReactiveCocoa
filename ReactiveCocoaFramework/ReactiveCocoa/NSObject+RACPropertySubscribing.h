@@ -57,13 +57,19 @@
 
 // Creates a signal to observe the value at the given keypath on the source
 // object.
+//
+// Returns a signal that sends the object's value at the given keypath.
 + (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer;
 
 // Creates a signal to observe the value at the given keypath on the source
-// object. Sends a change dictionary.
+// object.
+//
+// Returns a signal that sends the value's change dictionary.
 + (RACSignal *)rac_signalWithChangesFor:(NSObject *)object keyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer;
 
 // Creates a signal to observe the value at the given keypath.
+//
+// Returns a signal that sends the receiver's value at the given keypath.
 - (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath observer:(NSObject *)observer;
 
 // Keeps the value of the KVC-compliant keypath up-to-date with the latest value

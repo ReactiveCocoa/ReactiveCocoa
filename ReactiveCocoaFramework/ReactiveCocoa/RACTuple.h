@@ -14,7 +14,10 @@
 // Creates a new tuple with the given values. At least one value must be given.
 // Values can be nil.
 #define RACTuplePack(...) \
-    RACTuplePack_(__VA_ARGS__)
+    RACTuplePack_(NO, __VA_ARGS__)
+
+#define RACTuplePackWithNils(...) \
+	RACTuplePack_(YES, __VA_ARGS__)
 
 // Declares new object variables and unpacks a RACTuple into them.
 //
@@ -112,8 +115,8 @@
 // This and everything below is for internal use only.
 //
 // See RACTuplePack() and RACTupleUnpack() instead.
-#define RACTuplePack_(...) \
-    ([RACTuple tupleWithObjectsFromArray:@[ metamacro_foreach(RACTuplePack_object_or_ractuplenil,, __VA_ARGS__) ]])
+#define RACTuplePack_(withNils, ...) \
+    ([RACTuple tupleWithObjectsFromArray:@[ metamacro_foreach(RACTuplePack_object_or_ractuplenil,, __VA_ARGS__) ] convertNullsToNils:withNils])
 
 #define RACTuplePack_object_or_ractuplenil(INDEX, ARG) \
     (ARG) ?: RACTupleNil.tupleNil,

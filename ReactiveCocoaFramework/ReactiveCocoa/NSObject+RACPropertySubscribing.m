@@ -22,11 +22,23 @@ static const void *RACObjectScopedDisposable = &RACObjectScopedDisposable;
 @implementation NSObject (RACPropertySubscribing)
 
 + (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer {
+	@unsafeify(object);
+	return [[self
+		rac_signalWithChangesFor:object keyPath:keyPath options:0 observer:observer]
+		map:^(NSDictionary *change) {
+			@strongify(object);
+
+			return [object valueForKeyPath:[keyPath copy]];
+		}];
+}
+
++ (RACSignal *)rac_signalWithChangesFor:(NSObject *)object keyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer {
 	@unsafeify(observer, object);
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+
 		@strongify(observer, object);
-		RACKVOTrampoline *KVOTrampoline = [object rac_addObserver:observer forKeyPath:keyPath options:0 block:^(id target, id observer, NSDictionary *change) {
-			[subscriber sendNext:[target valueForKeyPath:keyPath]];
+		RACKVOTrampoline *KVOTrampoline = [object rac_addObserver:observer forKeyPath:keyPath options:options block:^(id target, id observer, NSDictionary *change) {
+			[subscriber sendNext:change];
 		}];
 
 		RACDisposable *KVODisposable = [RACDisposable disposableWithBlock:^{

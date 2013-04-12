@@ -30,6 +30,10 @@
 	return [NSString stringWithFormat:@"%@: %ld", objectValue, (long)integerValue];
 }
 
+- (NSString *)combineObjectValue:(id)objectValue andSecondObjectValue:(id)secondObjectValue {
+	return [NSString stringWithFormat:@"%@: %@", objectValue, secondObjectValue];
+}
+
 - (void)lifeIsGood:(id)sender {
 	
 }

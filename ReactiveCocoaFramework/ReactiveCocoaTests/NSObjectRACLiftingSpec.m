@@ -155,7 +155,7 @@ sharedExamplesFor(@"RACLifting", ^(NSDictionary *data) {
 	it(@"shouldn't strongly capture the receiver", ^{
 		__block BOOL dealloced = NO;
 		@autoreleasepool {
-			RACTestObject *testObject __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
+			RACTestObject *testObject __attribute__((objc_precise_lifetime)) = [RACTestObject new];
 			[testObject rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 				dealloced = YES;
 			}]];
@@ -213,10 +213,10 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 	__block RACTestObject *object;
 
 	beforeEach(^{
-		object = [[RACTestObject alloc] init];
+		object = [RACTestObject new];
 	});
 
-	itShouldBehaveLike(@"RACLifting", @{ kRACLiftingTestRigClass : [RACLiftingSelectorTestRig class] });
+	itShouldBehaveLike(@"RACLifting", @{ kRACLiftingTestRigClass : RACLiftingSelectorTestRig.class });
 
 	it(@"should work for char pointer", ^{
 		RACSubject *subject = [RACSubject subject];
@@ -329,10 +329,10 @@ describe(@"-rac_lift", ^{
 	__block RACTestObject *object;
 
 	beforeEach(^{
-		object = [[RACTestObject alloc] init];
+		object = [RACTestObject new];
 	});
 
-	itShouldBehaveLike(@"RACLifting", @{ kRACLiftingTestRigClass: [RACLiftingHOMTestRig class ] });
+	itShouldBehaveLike(@"RACLifting", @{ kRACLiftingTestRigClass: RACLiftingHOMTestRig.class });
 
 	it(@"should work with mixed signal / non-signal arguments", ^{
 		RACSubject *objectValueSubject = [RACSubject subject];

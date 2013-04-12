@@ -7,6 +7,7 @@
 //
 
 #import "NSObject+RACPropertySubscribing.h"
+#import "NSObjectRACPropertySubscribingExamples.h"
 #import "RACDisposable.h"
 #import "RACTestObject.h"
 #import "RACSignal.h"
@@ -29,117 +30,120 @@ describe(@"-rac_addDeallocDisposable:", ^{
 	});
 });
 
-describe(@"+rac_signalFor:keyPath:onObject:", ^{
-	it(@"should stop observing when disposed", ^{
-		RACTestObject *object = [[RACTestObject alloc] init];
-		RACSignal *signal = [object.class rac_signalFor:object keyPath:@keypath(object, objectValue) observer:self];
-		NSMutableArray *values = [NSMutableArray array];
-		RACDisposable *disposable = [signal subscribeNext:^(id x) {
-			[values addObject:x];
-		}];
+describe(@"+rac_signalFor:keyPath:observer:", ^{
+	id (^setupBlock)(id, id, id) = ^(RACTestObject *object, NSString *keyPath, id observer) {
+		return [object.class rac_signalFor:object keyPath:keyPath observer:observer];
+	};
 
-		object.objectValue = @1;
-		NSArray *expected = @[ @1 ];
-		expect(values).to.equal(expected);
-
-		[disposable dispose];
-		object.objectValue = @2;
-		expect(values).to.equal(expected);
+	itShouldBehaveLike(RACPropertySubscribingExamples, ^{
+		return @{ RACPropertySubscribingExamplesSetupBlock: setupBlock };
 	});
 
-	it(@"shouldn't send any more values after the observer is gone", ^{
-		__block BOOL observerDealloced = NO;
-		RACTestObject *object = [[RACTestObject alloc] init];
-		NSMutableArray *values = [NSMutableArray array];
-		@autoreleasepool {
-			RACTestObject *observer __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			[observer rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
-				observerDealloced = YES;
-			}]];
+});
 
-			RACSignal *signal = [object.class rac_signalFor:object keyPath:@keypath(object, objectValue) observer:observer];
-			[signal subscribeNext:^(id x) {
-				[values addObject:x];
+describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
+	describe(@"KVO options argument", ^{
+		__block RACTestObject *object;
+		__block id actual;
+		__block RACSignal *(^objectValueSignal)(NSKeyValueObservingOptions);
+
+		before(^{
+			object = [[RACTestObject alloc] init];
+
+			objectValueSignal = ^(NSKeyValueObservingOptions options) {
+				return [object.class rac_signalWithChangesFor:object keyPath:@keypath(object, objectValue) options:options observer:self];
+			};
+		});
+
+		it(@"sends a KVO dictionary", ^{
+			[objectValueSignal(0) subscribeNext:^(NSDictionary *x) {
+				actual = x;
 			}];
 
 			object.objectValue = @1;
-		}
 
-		expect(observerDealloced).to.beTruthy();
+			expect(actual).to.beKindOf(NSDictionary.class);
+		});
 
-		NSArray *expected = @[ @1 ];
-		expect(values).to.equal(expected);
-
-		object.objectValue = @2;
-		expect(values).to.equal(expected);
-	});
-
-	it(@"shouldn't keep either object alive unnaturally long", ^{
-		__block BOOL objectDealloced = NO;
-		__block BOOL scopeObjectDealloced = NO;
-		@autoreleasepool {
-			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			[object rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
-				objectDealloced = YES;
-			}]];
-			RACTestObject *scopeObject __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			[scopeObject rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
-				scopeObjectDealloced = YES;
-			}]];
-			
-			RACSignal *signal = [object.class rac_signalFor:object keyPath:@keypath(object, objectValue) observer:scopeObject];
-			[signal subscribeNext:^(id _) {
-
-			}];
-		}
-
-		expect(objectDealloced).to.beTruthy();
-		expect(scopeObjectDealloced).to.beTruthy();
-	});
-
-	it(@"shouldn't keep the signal alive past the lifetime of the object", ^{
-		__block BOOL objectDealloced = NO;
-		__block BOOL signalDealloced = NO;
-		@autoreleasepool {
-			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			[object rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
-				objectDealloced = YES;
-			}]];
-
-			RACSignal *signal = [[object.class rac_signalFor:object keyPath:@keypath(object, objectValue) observer:self] map:^(id value) {
-				return value;
-			}];
-			[signal rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
-				signalDealloced = YES;
-			}]];
-			
-			[signal subscribeNext:^(id _) {
-
-			}];
-		}
-
-		expect(signalDealloced).will.beTruthy();
-		expect(objectDealloced).to.beTruthy();
-	});
-
-	it(@"shouldn't crash when the value is changed on a different queue", ^{
-		__block id value;
-		@autoreleasepool {
-			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			RACSignal *signal = [NSObject rac_signalFor:object keyPath:@keypath(object, objectValue) observer:self];
-			[signal subscribeNext:^(id x) {
-				value = x;
+		it(@"sends a kind key by default", ^{
+			[objectValueSignal(0) subscribeNext:^(NSDictionary *x) {
+				actual = x[NSKeyValueChangeKindKey];
 			}];
 
-			NSOperationQueue *queue = [[NSOperationQueue alloc] init];
-			[queue addOperationWithBlock:^{
-				object.objectValue = @1;
+			object.objectValue = @1;
+
+			expect(actual).notTo.beNil();
+		});
+
+		it(@"sends the newest changes with NSKeyValueObservingOptionNew", ^{
+			[objectValueSignal(NSKeyValueObservingOptionNew) subscribeNext:^(NSDictionary *x) {
+				actual = x[NSKeyValueChangeNewKey];
 			}];
 
-			[queue waitUntilAllOperationsAreFinished];
-		}
+			object.objectValue = @1;
+			expect(actual).to.equal(@1);
 
-		expect(value).will.equal(@1);
+			object.objectValue = @2;
+			expect(actual).to.equal(@2);
+		});
+
+		it(@"sends an additional change value with NSKeyValueObservingOptionPrior", ^{
+			NSMutableArray *values = [NSMutableArray new];
+			NSArray *expected = @[ @(YES), @(NO) ];
+
+			[objectValueSignal(NSKeyValueObservingOptionPrior) subscribeNext:^(NSDictionary *x) {
+				BOOL isPrior = [x[NSKeyValueChangeNotificationIsPriorKey] boolValue];
+				[values addObject:@(isPrior)];
+			}];
+
+			object.objectValue = @[ @1 ];
+
+			expect(values).to.equal(expected);
+		});
+
+		it(@"sends index changes when adding, inserting or removing a value from an observed object", ^{
+			__block NSUInteger hasIndexesCount = 0;
+
+			[objectValueSignal(0) subscribeNext:^(NSDictionary *x) {
+				if (x[NSKeyValueChangeIndexesKey] != nil) {
+					hasIndexesCount += 1;
+				}
+			}];
+
+			object.objectValue = [NSMutableOrderedSet orderedSet];
+			expect(hasIndexesCount).to.equal(0);
+
+			NSMutableOrderedSet *objectValue = [object mutableOrderedSetValueForKey:@"objectValue"];
+
+			[objectValue addObject:@1];
+			expect(hasIndexesCount).to.equal(1);
+
+			[objectValue replaceObjectAtIndex:0 withObject:@2];
+			expect(hasIndexesCount).to.equal(2);
+
+			[objectValue removeObject:@2];
+			expect(hasIndexesCount).to.equal(3);
+		});
+
+		it(@"sends the previous value with NSKeyValueObservingOptionOld", ^{
+			[objectValueSignal(NSKeyValueObservingOptionOld) subscribeNext:^(NSDictionary *x) {
+				actual = x[NSKeyValueChangeOldKey];
+			}];
+
+			object.objectValue = @1;
+			expect(actual).to.equal(NSNull.null);
+
+			object.objectValue = @2;
+			expect(actual).to.equal(@1);
+		});
+
+		it(@"sends the initial value with NSKeyValueObservingOptionInitial", ^{
+			[objectValueSignal(NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew) subscribeNext:^(NSDictionary *x) {
+				actual = x[NSKeyValueChangeNewKey];
+			}];
+
+			expect(actual).to.equal(NSNull.null);
+		});
 	});
 });
 

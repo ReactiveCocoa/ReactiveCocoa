@@ -20,7 +20,7 @@
 @property (weak) RACTestObject *target;
 - (void)setObjectValue:(id)objectValue;
 - (void)setObjectValue:(id)objectValue andSecondObjectValue:(id)secondObjectValue;
-- (RACSignal *)combineObjectValue:(id)objectValue withObjectValue:(id)secondObjectValue;
+- (RACSignal *)combineObjectValue:(id)objectValue andObjectValue:(id)secondObjectValue;
 @optional
 - (void)setIntegerValue:(id)integerValue;
 - (void)setObjectValue:(id)objectValue andIntegerValue:(id)integerValue;
@@ -175,7 +175,7 @@ sharedExamplesFor(@"RACLifting", ^(NSDictionary *data) {
 		it(@"should send the return value of the method invocation", ^{
 			RACSubject *objectSubject = [RACSubject subject];
 			RACSubject *objectSubject2 = [RACSubject subject];
-			RACSignal *signal = [testRig combineObjectValue:objectSubject withObjectValue:objectSubject2];
+			RACSignal *signal = [testRig combineObjectValue:objectSubject andObjectValue:objectSubject2];
 
 			__block NSString *result;
 			[signal subscribeNext:^(id x) {
@@ -193,7 +193,7 @@ sharedExamplesFor(@"RACLifting", ^(NSDictionary *data) {
 		it(@"should replay the last value", ^{
 			RACSubject *objectSubject = [RACSubject subject];
 			RACSubject *objectSubject2 = [RACSubject subject];
-			RACSignal *signal = [testRig combineObjectValue:objectSubject withObjectValue:objectSubject2];
+			RACSignal *signal = [testRig combineObjectValue:objectSubject andObjectValue:objectSubject2];
 
 			[objectSubject sendNext:@"Magic number"];
 			[objectSubject2 sendNext:@42];
@@ -362,7 +362,7 @@ SpecEnd
 	[_target.rac_lift setObjectValue:objectValue andSecondObjectValue:secondObjectValue];
 }
 
-- (RACSignal *)combineObjectValue:(id)objectValue withObjectValue:(id)secondObjectValue {
+- (RACSignal *)combineObjectValue:(id)objectValue andObjectValue:(id)secondObjectValue {
 	return (id)[_target.rac_lift combineObjectValue:objectValue andSecondObjectValue:secondObjectValue];
 }
 
@@ -387,7 +387,7 @@ SpecEnd
 	[_target rac_liftSelector:@selector(setObjectValue:andSecondObjectValue:) withObjects:objectValue, secondObjectValue];
 }
 
-- (RACSignal *)combineObjectValue:(id)objectValue withObjectValue:(id)secondObjectValue {
+- (RACSignal *)combineObjectValue:(id)objectValue andObjectValue:(id)secondObjectValue {
 	return [_target rac_liftSelector:@selector(combineObjectValue:andSecondObjectValue:) withObjects:objectValue, secondObjectValue];
 }
 

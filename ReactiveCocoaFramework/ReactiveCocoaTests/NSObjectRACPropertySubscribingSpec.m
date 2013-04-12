@@ -40,45 +40,6 @@ describe(@"+rac_signalFor:keyPath:observer:", ^{
 		return @{ RACPropertySubscribingExamplesSetupBlock: setupBlock };
 	});
 
-	describe(@"mutating collections", ^{
-		__block RACTestObject *object;
-		__block NSMutableOrderedSet *lastValue;
-		__block NSMutableOrderedSet *proxySet;
-
-		before(^{
-			object = [[RACTestObject alloc] init];
-			object.objectValue = [NSMutableOrderedSet orderedSetWithObject:@1];
-
-			NSString *keyPath = @keypath(object, objectValue);
-
-			[setupBlock(object, keyPath, self) subscribeNext:^(NSMutableOrderedSet *x) {
-				lastValue = x;
-			}];
-
-			proxySet = [object mutableOrderedSetValueForKey:keyPath];
-		});
-
-		it(@"sends the newest object when inserting values into an observed object", ^{
-			NSMutableOrderedSet *expected = [NSMutableOrderedSet orderedSetWithObjects: @1, @2, nil];
-
-			[proxySet addObject:@2];
-			expect(lastValue).to.equal(expected);
-		});
-
-		it(@"sends the newest object when removing values in an observed object", ^{
-			NSMutableOrderedSet *expected = [NSMutableOrderedSet orderedSet];
-
-			[proxySet removeAllObjects];
-			expect(lastValue).to.equal(expected);
-		});
-
-		it(@"sends the newest object when replacing values in an observed object", ^{
-			NSMutableOrderedSet *expected = [NSMutableOrderedSet orderedSetWithObjects: @2, nil];
-
-			[proxySet replaceObjectAtIndex:0 withObject:@2];
-			expect(lastValue).to.equal(expected);
-		});
-	});
 });
 
 describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{

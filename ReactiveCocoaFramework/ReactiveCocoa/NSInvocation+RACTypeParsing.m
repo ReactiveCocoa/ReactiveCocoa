@@ -117,8 +117,6 @@
 		WRAP_AND_RETURN(double);
 	} else if (strcmp(typeSignature, "*") == 0) {
 		WRAP_AND_RETURN(const char *);
-	} else if (strcmp(typeSignature, "v") == 0) {
-		return RACUnit.defaultUnit;
 	} else if (typeSignature[0] == '^') {
 		const void *pointer = NULL;
 		[self getArgument:&pointer atIndex:(NSInteger)index];

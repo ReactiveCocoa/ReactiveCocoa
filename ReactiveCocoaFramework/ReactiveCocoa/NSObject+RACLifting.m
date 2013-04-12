@@ -180,7 +180,7 @@
 		if (strcmp(returnType, "@") == 0 || strcmp(returnType, "#") == 0) {
 			[anInvocation setReturnValue:&returnValue];
 		} else {
-			NSAssert(NO, @"-raf_lift may only lift messages which return void or object types; %@ returns %s", NSStringFromSelector(anInvocation.selector), returnType);
+			NSAssert(NO, @"-rac_lift may only lift messages which return void or object types; %@ returns %s", NSStringFromSelector(anInvocation.selector), returnType);
 		}
 	}
 }

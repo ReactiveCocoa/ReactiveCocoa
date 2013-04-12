@@ -30,6 +30,7 @@
 // Returns a string of the form "objectValue: integerValue".
 - (NSString *)combineObjectValue:(id)objectValue andIntegerValue:(NSInteger)integerValue;
 - (NSString *)combineObjectValue:(id)objectValue andSecondObjectValue:(id)secondObjectValue;
+- (BOOL)setSizeValueFromDictionary:(NSDictionary *)dictionary;
 
 - (void)lifeIsGood:(id)sender;
 

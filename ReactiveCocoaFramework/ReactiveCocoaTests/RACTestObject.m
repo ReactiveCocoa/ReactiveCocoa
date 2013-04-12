@@ -34,6 +34,13 @@
 	return [NSString stringWithFormat:@"%@: %@", objectValue, secondObjectValue];
 }
 
+- (BOOL)setSizeValueFromDictionary:(NSDictionary *)dictionary {
+	CGSize size;
+	BOOL success = CGSizeMakeWithDictionaryRepresentation((__bridge CFDictionaryRef)(dictionary), &size);
+	self.sizeValue = size;
+	return success;
+}
+
 - (void)lifeIsGood:(id)sender {
 	
 }

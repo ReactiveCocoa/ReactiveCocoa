@@ -16,6 +16,9 @@
 // <RACLiftingTestRig> specifies the basic behavior necessary for testing
 // different techniques of message lifting (namely -rac_lift and
 // -liftSelect:withObjects:).
+//
+// The implementation of each method in this protocol should perform the
+// corresponding lifted operation on its `target`.
 @protocol RACLiftingTestRig <NSObject>
 @property (weak) RACTestObject *target;
 - (void)setObjectValue:(id)objectValue;

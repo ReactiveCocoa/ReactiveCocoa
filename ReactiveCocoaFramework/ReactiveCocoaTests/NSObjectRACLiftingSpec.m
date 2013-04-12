@@ -347,20 +347,6 @@ describe(@"-rac_lift", ^{
 		expect(object.objectValue).to.equal(@1);
 		expect(object.integerValue).to.equal(42);
 	});
-
-	it(@"should fail with messages that return primitive types", ^{
-		BOOL didFail = NO;
-		@try {
-			CGSize size = CGSizeZero;
-			NSDictionary *dictionaryRep = (__bridge NSDictionary *)(CGSizeCreateDictionaryRepresentation(size));
-			[object.rac_lift setSizeValueFromDictionary:dictionaryRep];
-		}
-		@catch (NSException *exception) {
-			didFail = YES;
-		}
-
-	   expect(didFail).to.equal(YES);
-	});
 });
 
 SpecEnd

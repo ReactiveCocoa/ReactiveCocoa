@@ -31,7 +31,6 @@ describe(@"-rac_addDeallocDisposable:", ^{
 });
 
 describe(@"+rac_signalFor:keyPath:observer:", ^{
-
 	id (^setupBlock)(id, id, id) = ^(RACTestObject *object, NSString *keyPath, id observer) {
 		return [object.class rac_signalFor:object keyPath:keyPath observer:observer];
 	};

@@ -60,8 +60,11 @@
 //     [button.rac_lift setTitleColor:textColorSignal forState:UIControlStateNormal];
 //     RAC(self.textField.textColor) = [self.rac_lift colorForString:self.field.rac_textSignal];
 //
-// Returns a signal that replays the most recently sent value to new subscribers
-// for messages that return an object; otherwise, returns `void`.
+// Returns a proxy object that lifts messages into the reactive world and
+// forwards them to its receiver. Messages which have an object return type will
+// return a signal that replays the most recently sent value to new subscribers;
+// messages with void return type will return void. All other messages (such as
+// those with primitive return type) are disallowed.
 - (instancetype)rac_lift;
 
 @end

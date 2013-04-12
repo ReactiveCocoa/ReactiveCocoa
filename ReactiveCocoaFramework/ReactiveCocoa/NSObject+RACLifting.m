@@ -17,6 +17,10 @@
 #import "RACTuple.h"
 #import "RACUnit.h"
 
+// A proxy object that lifts messages to its target to operate on signals.
+// Messages sent to an RACLiftProxy object will be lifted according to the same
+// rules as -rac_liftSelector:withObjects:, with the exception that messages
+// returning a non-object type are not possible.
 @interface RACLiftProxy : NSProxy
 - (id)initWithTarget:(NSObject *)target;
 @end

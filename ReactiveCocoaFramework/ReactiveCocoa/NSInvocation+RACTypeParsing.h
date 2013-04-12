@@ -27,7 +27,7 @@
 // This does not support C array, union, or struct types other than CGRect,
 // CGSize, and CGPoint.
 //
-// index  - The index of the argument to set.
+// index  - The index of the argument to get.
 //
 // Returns the argument of the invocation, wrapped in an object.
 - (id)rac_argumentAtIndex:(NSUInteger)index;

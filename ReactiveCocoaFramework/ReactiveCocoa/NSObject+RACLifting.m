@@ -32,25 +32,39 @@
 	NSMethodSignature *methodSignature = [self methodSignatureForSelector:selector];
 	NSAssert(methodSignature != nil, @"%@ does not respond to %@", self, NSStringFromSelector(selector));
 
+	NSMutableArray *arguments = [NSMutableArray arrayWithCapacity:methodSignature.numberOfArguments - 2];
+
+	va_list args;
+	va_start(args, arg);
+	// First two arguments are self and selector.
+	for (NSUInteger i = 2; i < methodSignature.numberOfArguments; i++) {
+		id currentObject = (i == 2 ? arg : va_arg(args, id));
+		[arguments addObject:currentObject ?: RACTupleNil.tupleNil];
+	}
+	va_end(args);
+
+	return [self rac_liftSelector:selector withObjectsFromArray:arguments];
+}
+
+- (RACSignal *)rac_liftSelector:(SEL)selector withObjectsFromArray:(NSArray *)args {
+	NSMethodSignature *methodSignature = [self methodSignatureForSelector:selector];
+	NSAssert(methodSignature != nil, @"%@ does not respond to %@", self, NSStringFromSelector(selector));
+
 	NSMutableArray *signals = [NSMutableArray arrayWithCapacity:methodSignature.numberOfArguments - 2];
 	NSMutableArray *arguments = [NSMutableArray arrayWithCapacity:methodSignature.numberOfArguments - 2];
 	NSMutableDictionary *argIndexesBySignal = [NSMutableDictionary dictionaryWithCapacity:methodSignature.numberOfArguments - 2];
 
-	va_list args;
-	va_start(args, arg);
-	id currentObject = nil;
 	// First two arguments are self and selector.
-	for (NSUInteger i = 2; i < methodSignature.numberOfArguments; i++) {
-		currentObject = (i == 2 ? arg : va_arg(args, id));
+	for (NSUInteger i = 0; i < methodSignature.numberOfArguments - 2; i++) {
+		id currentObject = args[i];
 
-		[arguments addObject:currentObject ?: RACTupleNil.tupleNil];
+		[arguments addObject:currentObject];
 
 		if ([currentObject isKindOfClass:RACSignal.class]) {
-			argIndexesBySignal[[NSValue valueWithNonretainedObject:currentObject]] = @(i - 2);
+			argIndexesBySignal[[NSValue valueWithNonretainedObject:currentObject]] = @(i);
 			[signals addObject:currentObject];
 		}
 	}
-	va_end(args);
 
 	id (^invokeWithTarget)(id) = [^(id target) {
 		NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];

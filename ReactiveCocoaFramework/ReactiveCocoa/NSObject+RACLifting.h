@@ -36,6 +36,8 @@
 // It completes only after all the signal arguments complete.
 - (RACSignal *)rac_liftSelector:(SEL)selector withObjects:(id)arg, ...;
 
+- (RACSignal *)rac_liftSelector:(SEL)selector withObjectsFromArray:(NSArray *)args;
+
 // Like -rac_liftSelector:withObjects: but invokes the block instead of a selector.
 //
 // It will replay the most recently sent value to new subscribers.

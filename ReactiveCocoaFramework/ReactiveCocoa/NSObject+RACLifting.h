@@ -51,4 +51,6 @@
 // block. It completes only after all the signal arguments complete.
 - (RACSignal *)rac_liftBlock:(id)block withArguments:(id)arg, ... NS_REQUIRES_NIL_TERMINATION;
 
+- (RACSignal *)rac_liftBlock:(id)block withArgumentsFromArray:(NSArray *)args;
+
 @end

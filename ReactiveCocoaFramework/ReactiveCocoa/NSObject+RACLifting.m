@@ -100,24 +100,31 @@
 	NSParameterAssert(block != nil);
 
 	NSMutableArray *arguments = [NSMutableArray array];
-	NSMutableArray *signals = [NSMutableArray array];
-	NSMutableDictionary *argIndexesBySignal = [NSMutableDictionary dictionary];
 
 	va_list args;
 	va_start(args, arg);
-	NSUInteger i = 0;
 	for (id currentObject = arg; currentObject != nil; currentObject = va_arg(args, id)) {
-		if ([currentObject isKindOfClass:RACSignal.class]) {
-			[arguments addObject:RACTupleNil.tupleNil];
-			[signals addObject:currentObject];
-			argIndexesBySignal[[NSValue valueWithNonretainedObject:currentObject]] = @(i);
-		} else {
-			[arguments addObject:currentObject];
-		}
-
-		i++;
+		[arguments addObject:currentObject];
 	}
 	va_end(args);
+
+	return [self rac_liftBlock:block withArgumentsFromArray:arguments];
+}
+
+- (RACSignal *)rac_liftBlock:(id)block withArgumentsFromArray:(NSArray *)args {
+	NSParameterAssert(block != nil);
+
+	NSMutableArray *arguments = [args mutableCopy];
+	NSMutableArray *signals = [NSMutableArray array];
+	NSMutableDictionary *argIndexesBySignal = [NSMutableDictionary dictionary];
+
+	for (NSUInteger i = 0; i < args.count; i++) {
+		id currentObject = args[i];
+		if ([currentObject isKindOfClass:RACSignal.class]) {
+			[signals addObject:currentObject];
+			argIndexesBySignal[[NSValue valueWithNonretainedObject:currentObject]] = @(i);
+		}
+	}
 
 	if (signals.count < 1) {
 		return [RACBlockTrampoline invokeBlock:block withArguments:[RACTuple tupleWithObjectsFromArray:arguments]];

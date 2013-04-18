@@ -17,6 +17,8 @@
 #import "RACTuple.h"
 #import "RACUnit.h"
 
+static RACSignal *RACLiftAndCallBlock(id object, NSArray *args, RACSignal * (^block)(NSArray *));
+
 @implementation NSObject (RACLifting)
 
 - (RACSignal *)rac_liftSignals:(NSArray *)signals withReducingInvocation:(id (^)(RACTuple *))reduceBlock {
@@ -50,23 +52,9 @@
 	NSMethodSignature *methodSignature = [self methodSignatureForSelector:selector];
 	NSAssert(methodSignature != nil, @"%@ does not respond to %@", self, NSStringFromSelector(selector));
 
-	NSMutableArray *signals = [NSMutableArray arrayWithCapacity:methodSignature.numberOfArguments - 2];
-	NSMutableArray *arguments = [NSMutableArray arrayWithCapacity:methodSignature.numberOfArguments - 2];
-	NSMutableDictionary *argIndexesBySignal = [NSMutableDictionary dictionaryWithCapacity:methodSignature.numberOfArguments - 2];
-
-	// First two arguments are self and selector.
-	for (NSUInteger i = 0; i < methodSignature.numberOfArguments - 2; i++) {
-		id currentObject = args[i];
-
-		[arguments addObject:currentObject];
-
-		if ([currentObject isKindOfClass:RACSignal.class]) {
-			argIndexesBySignal[[NSValue valueWithNonretainedObject:currentObject]] = @(i);
-			[signals addObject:currentObject];
-		}
-	}
-
-	id (^invokeWithTarget)(id) = [^(id target) {
+	@weakify(self);
+	return RACLiftAndCallBlock(self, args, ^(NSArray *arguments) {
+		@strongify(self);
 		NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
 		invocation.selector = selector;
 
@@ -74,26 +62,9 @@
 			[invocation rac_setArgument:[arguments[i] isKindOfClass:RACTupleNil.class] ? nil : arguments[i] atIndex:i + 2];
 		}
 
-		[invocation invokeWithTarget:target];
+		[invocation invokeWithTarget:self];
 		return [invocation rac_returnValue];
-	} copy];
-
-	if (signals.count < 1) {
-		return invokeWithTarget(self);
-	} else {
-		@unsafeify(self);
-		return [self rac_liftSignals:signals withReducingInvocation:^(RACTuple *xs) {
-			@strongify(self);
-
-			for (NSUInteger i = 0; i < xs.count; i++) {
-				RACSignal *signal = signals[i];
-				NSUInteger argIndex = [argIndexesBySignal[[NSValue valueWithNonretainedObject:signal]] unsignedIntegerValue];
-				[arguments replaceObjectAtIndex:argIndex withObject:xs[i] ?: RACTupleNil.tupleNil];
-			}
-
-			return invokeWithTarget(self);
-		}];
-	}
+	});
 }
 
 - (RACSignal *)rac_liftBlock:(id)block withArguments:(id)arg, ... {
@@ -114,9 +85,18 @@
 - (RACSignal *)rac_liftBlock:(id)block withArgumentsFromArray:(NSArray *)args {
 	NSParameterAssert(block != nil);
 
-	NSMutableArray *arguments = [args mutableCopy];
-	NSMutableArray *signals = [NSMutableArray array];
-	NSMutableDictionary *argIndexesBySignal = [NSMutableDictionary dictionary];
+	return RACLiftAndCallBlock(self, args, ^(NSArray *arguments) {
+		return [RACBlockTrampoline invokeBlock:block withArguments:[RACTuple tupleWithObjectsFromArray:arguments]];
+	});
+}
+
+@end
+
+static RACSignal *RACLiftAndCallBlock(id object, NSArray *args, RACSignal * (^block)(NSArray *)) {
+	NSParameterAssert(block != nil);
+
+	NSMutableArray *signals = [NSMutableArray arrayWithCapacity:args.count];
+	NSMutableDictionary *argIndexesBySignal = [NSMutableDictionary dictionaryWithCapacity:args.count];
 
 	for (NSUInteger i = 0; i < args.count; i++) {
 		id currentObject = args[i];
@@ -127,18 +107,17 @@
 	}
 
 	if (signals.count < 1) {
-		return [RACBlockTrampoline invokeBlock:block withArguments:[RACTuple tupleWithObjectsFromArray:arguments]];
+		return block(args);
 	} else {
-		return [self rac_liftSignals:signals withReducingInvocation:^(RACTuple *xs) {
+		return [object rac_liftSignals:signals withReducingInvocation:^(RACTuple *xs) {
+			NSMutableArray *arguments = [args mutableCopy];
 			for (NSUInteger i = 0; i < xs.count; i++) {
 				RACSignal *signal = signals[i];
 				NSUInteger argIndex = [argIndexesBySignal[[NSValue valueWithNonretainedObject:signal]] unsignedIntegerValue];
-				[arguments replaceObjectAtIndex:argIndex withObject:xs[i]];
+				[arguments replaceObjectAtIndex:argIndex withObject:xs[i] ?: RACTupleNil.tupleNil];
 			}
 
-			return [RACBlockTrampoline invokeBlock:block withArguments:[RACTuple tupleWithObjectsFromArray:arguments]];
+			return block(arguments);
 		}];
 	}
 }
-
-@end

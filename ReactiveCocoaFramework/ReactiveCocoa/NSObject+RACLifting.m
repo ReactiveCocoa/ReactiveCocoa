@@ -53,7 +53,7 @@ static RACSignal *RACLiftAndCallBlock(id object, NSArray *args, RACSignal * (^bl
 	NSAssert(methodSignature != nil, @"%@ does not respond to %@", self, NSStringFromSelector(selector));
 
 	NSUInteger numberOfArguments = methodSignature.numberOfArguments - 2;
-	NSAssert(numberOfArguments == args.count, @"wrong number of args for -%s, expecting %@, received %@", sel_getName(selector), @(numberOfArguments), @(args.count));
+	NSAssert(numberOfArguments == args.count, @"wrong number of args for -%s, expecting %lu, received %lu", sel_getName(selector), (unsigned long)numberOfArguments, (unsigned long)args.count);
 
 	@unsafeify(self);
 	return RACLiftAndCallBlock(self, args, ^(NSArray *arguments) {

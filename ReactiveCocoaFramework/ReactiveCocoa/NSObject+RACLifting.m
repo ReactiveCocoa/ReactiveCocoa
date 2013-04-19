@@ -55,7 +55,7 @@ static RACSignal *RACLiftAndCallBlock(id object, NSArray *args, RACSignal * (^bl
 	NSUInteger numberOfArguments = methodSignature.numberOfArguments - 2;
 	NSAssert(numberOfArguments == args.count, @"wrong number of args for -%s, expecting %@, received %@", sel_getName(selector), @(numberOfArguments), @(args.count));
 
-	@weakify(self);
+	@unsafeify(self);
 	return RACLiftAndCallBlock(self, args, ^(NSArray *arguments) {
 		@strongify(self);
 		NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];

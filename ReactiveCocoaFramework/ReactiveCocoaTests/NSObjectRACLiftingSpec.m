@@ -12,6 +12,7 @@
 #import "RACUnit.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACDisposable.h"
+#import "RACTuple.h"
 
 SpecBegin(NSObjectRACLiftingSpec)
 
@@ -82,6 +83,23 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		[object rac_liftSelector:@selector(setObjectValue:) withObjects:@42];
 
 		expect(object.objectValue).to.equal(@42);
+	});
+
+	it(@"should work with nil arguments", ^{
+		[object rac_liftSelector:@selector(setObjectValue:) withObjects:nil];
+
+		expect(object.objectValue).to.equal(nil);
+	});
+
+	it(@"should work with signals that send nil", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setObjectValue:) withObjects:subject];
+
+		[subject sendNext:nil];
+		expect(object.objectValue).to.equal(nil);
+
+		[subject sendNext:RACTupleNil.tupleNil];
+		expect(object.objectValue).to.equal(nil);
 	});
 
 	it(@"should work with class objects", ^{
@@ -281,6 +299,23 @@ describe(@"-rac_liftSelector:withObjectsFromArray:", ^{
 		[object rac_liftSelector:@selector(setObjectValue:) withObjectsFromArray:@[@42]];
 
 		expect(object.objectValue).to.equal(@42);
+	});
+
+	it(@"should work with nil tuple arguments", ^{
+		[object rac_liftSelector:@selector(setObjectValue:) withObjectsFromArray:@[RACTupleNil.tupleNil]];
+
+		expect(object.objectValue).to.equal(nil);
+	});
+
+	it(@"should work with signals that send nil", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setObjectValue:) withObjectsFromArray:@[subject]];
+
+		[subject sendNext:nil];
+		expect(object.objectValue).to.equal(nil);
+
+		[subject sendNext:RACTupleNil.tupleNil];
+		expect(object.objectValue).to.equal(nil);
 	});
 
 	it(@"should work with class objects", ^{

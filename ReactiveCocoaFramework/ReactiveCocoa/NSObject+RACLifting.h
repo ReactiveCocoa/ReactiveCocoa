@@ -36,6 +36,14 @@
 // It completes only after all the signal arguments complete.
 - (RACSignal *)rac_liftSelector:(SEL)selector withObjects:(id)arg, ...;
 
+// Like -rac_liftSelector:withObjects: but differs by taking the arguments in
+// array form. As a consequence of using an array, nil argument values must be
+// represented by RACTupleNil.
+//
+// selector - The selector on self to invoke.
+// args     - The arguments array.
+//
+// See -rac_liftSelector:withObjects:
 - (RACSignal *)rac_liftSelector:(SEL)selector withObjectsFromArray:(NSArray *)args;
 
 // Like -rac_liftSelector:withObjects: but invokes the block instead of a selector.
@@ -51,6 +59,16 @@
 // block. It completes only after all the signal arguments complete.
 - (RACSignal *)rac_liftBlock:(id)block withArguments:(id)arg, ... NS_REQUIRES_NIL_TERMINATION;
 
+// Like -rac_liftBlock:withArguments: but differs by taking the arguments in
+// array form. As a consequence of using an array, nil argument values must be
+// represented by RACTupleNil.
+//
+// block - The block to invoke. All its arguments must be objects. Cannot return
+//         void. Cannot be nil. This currently only supports block of up to 15
+//         arguments. If you need any more, you need to reconsider your life.
+// args  - The arguments array.
+//
+// See -rac_liftSelector:withArguments:
 - (RACSignal *)rac_liftBlock:(id)block withArgumentsFromArray:(NSArray *)args;
 
 @end

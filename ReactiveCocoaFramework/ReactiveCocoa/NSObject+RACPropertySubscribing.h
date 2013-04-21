@@ -43,13 +43,13 @@
 
 // Same as RACAble, but the signal also starts with the current value of the
 // property.
-#define RACAbleWithStart(...) [RACAble(__VA_ARGS__) startWith:_RACAbleWithStartValue(__VA_ARGS__)]
+#define RACAbleWithStart(...) \
+    metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__)) \
+        (_RACAbleWithStartObject(self, __VA_ARGS__)) \
+        (_RACAbleWithStartObject(__VA_ARGS__))
 
 // Do not use this directly. Use RACAbleWithStart above.
-#define _RACAbleWithStartValue(...) \
-    metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__)) \
-        ([self valueForKeyPath:@keypath(self, __VA_ARGS__)]) \
-        ([metamacro_at0(__VA_ARGS__) valueForKeyPath:@keypath(__VA_ARGS__)])
+#define _RACAbleWithStartObject(object, property) [object rac_signalWithStartingValueForKeyPath:@keypath(object, property) observer:self]
 
 @class RACDisposable;
 @class RACCompoundDisposable;

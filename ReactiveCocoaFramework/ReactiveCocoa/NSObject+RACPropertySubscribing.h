@@ -33,7 +33,10 @@
 // Returns a signal which sends a value every time the value at the given key
 // path changes, and sends completed if self is deallocated (no matter which
 // variant of RACAble was used).
-#define RACAble(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))(_RACAbleObject(self, __VA_ARGS__))(_RACAbleObject(__VA_ARGS__))
+#define RACAble(...) \
+    metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__)) \
+        (_RACAbleObject(self, __VA_ARGS__)) \
+        (_RACAbleObject(__VA_ARGS__))
 
 // Do not use this directly. Use RACAble above.
 #define _RACAbleObject(object, property) [object rac_signalForKeyPath:@keypath(object, property) observer:self]
@@ -43,7 +46,10 @@
 #define RACAbleWithStart(...) [RACAble(__VA_ARGS__) startWith:_RACAbleWithStartValue(__VA_ARGS__)]
 
 // Do not use this directly. Use RACAbleWithStart above.
-#define _RACAbleWithStartValue(...) metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))([self valueForKeyPath:@keypath(self, __VA_ARGS__)])([metamacro_at0(__VA_ARGS__) valueForKeyPath:@keypath(__VA_ARGS__)])
+#define _RACAbleWithStartValue(...) \
+    metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__)) \
+        ([self valueForKeyPath:@keypath(self, __VA_ARGS__)]) \
+        ([metamacro_at0(__VA_ARGS__) valueForKeyPath:@keypath(__VA_ARGS__)])
 
 @class RACDisposable;
 @class RACCompoundDisposable;

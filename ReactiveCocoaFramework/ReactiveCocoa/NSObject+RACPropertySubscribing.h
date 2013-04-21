@@ -64,19 +64,32 @@
 // Creates a signal to observe the value at the given keypath on the source
 // object.
 //
-// Returns a signal that sends the object's value at the given keypath.
+// Returns a signal that sends future changes to the object's value at the given keypath.
 + (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer;
 
 // Creates a signal to observe the value at the given keypath on the source
 // object.
 //
-// Returns a signal that sends the value's change dictionary.
+// Returns a signal that immediately sends the object's current value at the
+// given keypath, then any changes thereafter.
++ (RACSignal *)rac_signalWithStartingValueFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer;
+
+// Creates a signal to observe the value at the given keypath on the source
+// object.
+//
+// Returns a signal that sends the change dictionary for each KVO callback.
 + (RACSignal *)rac_signalWithChangesFor:(NSObject *)object keyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer;
 
 // Creates a signal to observe the value at the given keypath.
 //
-// Returns a signal that sends the receiver's value at the given keypath.
+// Returns a signal that sends future changes to the receiver's value at the given keypath.
 - (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath observer:(NSObject *)observer;
+
+// Creates a signal to observe the value at the given keypath.
+//
+// Returns a signal that immediately sends the receiver's current value at the
+// given keypath, then any changes thereafter.
+- (RACSignal *)rac_signalWithStartingValueForKeyPath:(NSString *)keyPath observer:(NSObject *)observer;
 
 // Keeps the value of the KVC-compliant keypath up-to-date with the latest value
 // sent by the signal.

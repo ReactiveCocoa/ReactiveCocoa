@@ -181,7 +181,7 @@ static void RACExceptionHandler (NSException *ex) {
 		// Omit this method plus however many others from the backtrace.
 		++ignoreCount;
 		if ((NSUInteger)size > ignoreCount) {
-			memmove(newBacktrace->_callStackAddresses, newBacktrace->_callStackAddresses + ignoreCount, (NSUInteger)size - ignoreCount);
+			memmove(newBacktrace->_callStackAddresses, newBacktrace->_callStackAddresses + ignoreCount, ((NSUInteger)size - ignoreCount) * sizeof(char *));
 			size -= (int)ignoreCount;
 		}
 

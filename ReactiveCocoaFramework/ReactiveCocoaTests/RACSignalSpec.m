@@ -946,6 +946,15 @@ describe(@"RACAbleWithStart", ^{
 
 		expect(valuesReceived).to.equal(expected);
 	});
+
+	it(@"should read the initial value upon subscription", ^{
+		testObject.objectValue = @"foo";
+
+		RACSignal *signal = RACAbleWithStart(testObject, objectValue);
+		testObject.objectValue = @"bar";
+
+		expect([signal first]).to.equal(@"bar");
+	});
 });
 
 describe(@"-toProperty:onObject:", ^{

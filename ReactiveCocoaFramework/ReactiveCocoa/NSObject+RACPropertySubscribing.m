@@ -19,17 +19,31 @@
 static const void *RACObjectCompoundDisposable = &RACObjectCompoundDisposable;
 static const void *RACObjectScopedDisposable = &RACObjectScopedDisposable;
 
+static RACSignal *signalWithoutChangesFor(Class class, NSObject *object, NSString *keyPath, NSKeyValueObservingOptions options, NSObject *observer) {
+	NSCParameterAssert(object != nil);
+	NSCParameterAssert(keyPath != nil);
+	NSCParameterAssert(observer != nil);
+
+	keyPath = [keyPath copy];
+
+	@unsafeify(object);
+
+	return [[class
+		rac_signalWithChangesFor:object keyPath:keyPath options:options observer:observer]
+		map:^(NSDictionary *change) {
+			@strongify(object);
+			return [object valueForKeyPath:keyPath];
+		}];
+}
+
 @implementation NSObject (RACPropertySubscribing)
 
 + (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer {
-	@unsafeify(object);
-	return [[self
-		rac_signalWithChangesFor:object keyPath:keyPath options:0 observer:observer]
-		map:^(NSDictionary *change) {
-			@strongify(object);
+	return signalWithoutChangesFor(self, object, keyPath, 0, observer);
+}
 
-			return [object valueForKeyPath:[keyPath copy]];
-		}];
++ (RACSignal *)rac_signalWithStartingValueFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer {
+	return signalWithoutChangesFor(self, object, keyPath, NSKeyValueObservingOptionInitial, observer);
 }
 
 + (RACSignal *)rac_signalWithChangesFor:(NSObject *)object keyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer {
@@ -67,6 +81,10 @@ static const void *RACObjectScopedDisposable = &RACObjectScopedDisposable;
 
 - (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
 	return [self.class rac_signalFor:self keyPath:keyPath observer:observer];
+}
+
+- (RACSignal *)rac_signalWithStartingValueForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
+	return [self.class rac_signalWithStartingValueFor:self keyPath:keyPath observer:observer];
 }
 
 - (RACDisposable *)rac_deriveProperty:(NSString *)keyPath from:(RACSignal *)signal {

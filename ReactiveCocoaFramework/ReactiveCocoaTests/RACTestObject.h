@@ -11,6 +11,7 @@
 @interface RACTestObject : NSObject
 
 @property (nonatomic, strong) id objectValue;
+@property (nonatomic, strong) id secondObjectValue;
 @property (nonatomic, assign) NSInteger integerValue;
 @property (nonatomic, assign) char *charPointerValue;
 @property (nonatomic, assign) CGRect rectValue;
@@ -20,10 +21,15 @@
 // Has -setObjectValue:andIntegerValue: been called?
 @property (nonatomic, assign) BOOL hasInvokedSetObjectValueAndIntegerValue;
 
+// Has -setObjectValue:andSecondObjectValue: been called?
+@property (nonatomic, assign) BOOL hasInvokedSetObjectValueAndSecondObjectValue;
+
 - (void)setObjectValue:(id)objectValue andIntegerValue:(NSInteger)integerValue;
+- (void)setObjectValue:(id)objectValue andSecondObjectValue:(id)secondObjectValue;
 
 // Returns a string of the form "objectValue: integerValue".
 - (NSString *)combineObjectValue:(id)objectValue andIntegerValue:(NSInteger)integerValue;
+- (NSString *)combineObjectValue:(id)objectValue andSecondObjectValue:(id)secondObjectValue;
 
 - (void)lifeIsGood:(id)sender;
 

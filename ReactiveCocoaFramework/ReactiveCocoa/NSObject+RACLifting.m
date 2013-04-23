@@ -125,8 +125,8 @@ static RACSignal *RACLiftAndCallBlock(id object, NSArray *args, RACSignal * (^bl
 	if (signals.count < 1) {
 		return block(args);
 	} else {
+		NSMutableArray *arguments = [args mutableCopy];
 		return [object rac_liftSignals:signals withReducingInvocation:^(RACTuple *xs) {
-			NSMutableArray *arguments = [args mutableCopy];
 			for (NSUInteger i = 0; i < xs.count; i++) {
 				RACSignal *signal = signals[i];
 				NSUInteger argIndex = [argIndexesBySignal[[NSValue valueWithNonretainedObject:signal]] unsignedIntegerValue];

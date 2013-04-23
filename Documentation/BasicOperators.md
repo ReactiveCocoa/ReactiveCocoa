@@ -26,7 +26,7 @@ To iterate through the values in any stream we can use code like this:
 
 ## Linear operators
 
-The first group of operators is used to merge and transform linear streams of values.
+This group of operators is used to merge and transform linear streams of values.
 
 ### Merge
 

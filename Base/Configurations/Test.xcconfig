@@ -5,4 +5,6 @@
 
 #include "Debug.xcconfig"
 
-CODE_SIGN_ENTITLEMENTS = ""
+// Sandboxed apps can't be unit tested since they can't load some random 
+// external bundle. So we disable sandboxing for testing.
+CODE_SIGN_ENTITLEMENTS = 

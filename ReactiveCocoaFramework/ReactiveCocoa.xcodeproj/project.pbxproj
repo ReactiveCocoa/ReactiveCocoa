@@ -443,6 +443,7 @@
 		884848B515F658B800B11BD0 /* NSControlRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSControlRACSupportSpec.m; sourceTree = "<group>"; };
 		8851A38A16161D500050D47F /* NSObjectRACPropertySubscribingSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSObjectRACPropertySubscribingSpec.m; sourceTree = "<group>"; };
 		8857BB81152A27A9009804CC /* NSObject+RACKVOWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACKVOWrapper.h"; sourceTree = "<group>"; };
+		8857CEE11729C1F0003C7A12 /* Test.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Test.xcconfig; sourceTree = "<group>"; };
 		886678701518DCD800DE77EC /* NSObject+RACPropertySubscribing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACPropertySubscribing.m"; sourceTree = "<group>"; };
 		8867D5F7152BDAC300321BD5 /* RACSwizzling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACSwizzling.h; sourceTree = "<group>"; };
 		8867D5F8152BDAC300321BD5 /* RACSwizzling.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSwizzling.m; sourceTree = "<group>"; };
@@ -978,6 +979,7 @@
 				D095BDC015CB2E4B00E9BB13 /* Debug.xcconfig */,
 				D095BDC115CB2E4B00E9BB13 /* Profile.xcconfig */,
 				D095BDC215CB2E4B00E9BB13 /* Release.xcconfig */,
+				8857CEE11729C1F0003C7A12 /* Test.xcconfig */,
 			);
 			path = Configurations;
 			sourceTree = "<group>";
@@ -1636,6 +1638,68 @@
 			};
 			name = Release;
 		};
+		88997CAA1728912B00C569A6 /* Test */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8857CEE11729C1F0003C7A12 /* Test.xcconfig */;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_STRICT_SELECTOR_MATCH = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				SDKROOT = macosx;
+				VALID_ARCHS = x86_64;
+				WARNING_CFLAGS = (
+					"-Werror",
+					"-Wall",
+				);
+			};
+			name = Test;
+		};
+		88997CAB1728912B00C569A6 /* Test */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D095BDCE15CB2E4B00E9BB13 /* Mac-Framework.xcconfig */;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
+				INFOPLIST_FILE = "ReactiveCocoa/ReactiveCocoa-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Test;
+		};
+		88997CAC1728912B00C569A6 /* Test */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D095BDC915CB2E4B00E9BB13 /* iOS-StaticLibrary.xcconfig */;
+			buildSettings = {
+				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PUBLIC_HEADERS_FOLDER_PATH = include/ReactiveCocoa;
+			};
+			name = Test;
+		};
+		88997CAD1728912B00C569A6 /* Test */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D095BDCB15CB2E4B00E9BB13 /* Mac-Application.xcconfig */;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"\"$(PROJECT_DIR)/../external/specta/src\"",
+					"\"$(PROJECT_DIR)/../external/expecta/src\"/**",
+				);
+				INFOPLIST_FILE = "ReactiveCocoaTests/ReactiveCocoaTests-Info.plist";
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = ReactiveCocoaTests;
+				VALID_ARCHS = x86_64;
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Test;
+		};
 		88CDF7EB15000FCF00163A9F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D095BDC015CB2E4B00E9BB13 /* Debug.xcconfig */;
@@ -1801,6 +1865,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				88037F9015056328001A5B19 /* Debug */,
+				88997CAB1728912B00C569A6 /* Test */,
 				88037F9115056328001A5B19 /* Release */,
 				D095BDD215CB2F9D00E9BB13 /* Profile */,
 			);
@@ -1811,6 +1876,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				88CDF7EB15000FCF00163A9F /* Debug */,
+				88997CAA1728912B00C569A6 /* Test */,
 				88CDF7EC15000FCF00163A9F /* Release */,
 				D095BDD115CB2F9D00E9BB13 /* Profile */,
 			);
@@ -1821,6 +1887,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				88CDF7F115000FCF00163A9F /* Debug */,
+				88997CAD1728912B00C569A6 /* Test */,
 				88CDF7F215000FCF00163A9F /* Release */,
 				D095BDD415CB2F9D00E9BB13 /* Profile */,
 			);
@@ -1831,6 +1898,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				88F440B4153DAC820097B4C3 /* Debug */,
+				88997CAC1728912B00C569A6 /* Test */,
 				88F440B5153DAC820097B4C3 /* Release */,
 				D095BDD315CB2F9D00E9BB13 /* Profile */,
 			);

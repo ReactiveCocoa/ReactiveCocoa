@@ -4,3 +4,5 @@
 //
 
 #include "Debug.xcconfig"
+
+CODE_SIGN_ENTITLEMENTS = ""

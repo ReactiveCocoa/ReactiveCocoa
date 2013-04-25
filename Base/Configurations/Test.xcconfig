@@ -3,34 +3,4 @@
 // This should be set at the project level for the Test configuration.
 //
 
-#include "../Common.xcconfig"
-
-// Whether to strip debugging symbols when copying resources (like included
-// binaries)
-COPY_PHASE_STRIP = NO
-
-// Whether to generate debugging symbols
-GCC_GENERATE_DEBUGGING_SYMBOLS = YES
-
-// The optimization level (0, 1, 2, 3, s) for the produced binary
-GCC_OPTIMIZATION_LEVEL = 0
-
-// Preproccessor definitions to apply to each file compiled
-GCC_PREPROCESSOR_DEFINITIONS = DEBUG=1
-
-// Whether to enable link-time optimizations (such as inlining across translation
-// units)
-LLVM_LTO = NO
-
-// Whether to only build the active architecture
-ONLY_ACTIVE_ARCH = YES
-
-// Other compiler flags
-// 
-// These settings catch some errors in integer arithmetic and some instances of
-// undefined behavior
-OTHER_CFLAGS = -ftrapv -fcatch-undefined-behavior
-
-// Whether to strip debugging symbols when copying the built product to its
-// final installation location
-STRIP_INSTALLED_PRODUCT = NO
+#include "Debug.xcconfig"

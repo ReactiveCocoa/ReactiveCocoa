@@ -127,7 +127,7 @@ Another way to think of this is that `-flatten` behaves like `+merge:` over all 
 
 ### Flatten Map
 
-The method `-flattenMap:` allows to transform values passed from the flattened signal. Consider it a shorthand for `-map:` followed by `-flatten`.
+The method `-flattenMap:` allows to transform values passed from the flattened signal. Consider it a shorthand for `-map:` followed by `-flatten`:
 
 ```objective-c
 RACSignal *flattenMapSignal = [signalsSignal flattenMap:^RACStream *(RACStream *s) {
@@ -145,7 +145,7 @@ RACSignal *flattenMapSignal = [signalsSignal flattenMap:^RACStream *(RACStream *
 }];
 ```
 
-However, usually we do not handle a stream of streams with `-flattenMap:`. It can be used on any stream. The key is that the block has to return a new stream (usually based on the input value), and all of those results will be flattened.
+However, usually we do not handle a stream of streams with `-flattenMap:`. It can be used on any stream. The key is that the block has to return a new stream (usually based on the input value), and all of those results will be flattened:
 
 ```objective-c
 // Output: A A B B C C D D E E F F G G H H I I
@@ -160,32 +160,48 @@ However, usually we do not handle a stream of streams with `-flattenMap:`. It ca
 
 ### Combine Latest
 
-```objective-c
-RACSignal *combineSignal = [RACSignal combineLatest:@[ letterSignal, numberSignal ]];
+With help of the method `+combineLatest:` you can keep track of the latest changes in the number of streams:
 
-// Output 1: A7 A8 B8 B9 C9 D9 E9 F9 G9 H9 I9
-// Output 2: A4 A5 A6 B6 B7 C7 C8 C9 D9 E9 F9 G9 H9 I9
-// …
+```objective-c
+RACSubject *letterSubject = [RACSubject subject];
+RACSubject *numberSubject = [RACSubject subject];
+RACSignal *combineSignal = [RACSignal combineLatest:@[ letterSubject, numberSubject ]];
+
+// Output: A1 B1 C1 C2
+//
 [combineSignal subscribeNext:^(RACTuple *tuple) {
     NSLog(@"%@", [tuple.allObjects componentsJoinedByString:@""]);
 }];
+
+[letterSubject sendNext:@"A"];
+[numberSubject sendNext:@"1"];
+[letterSubject sendNext:@"B"];
+[letterSubject sendNext:@"C"];
+[numberSubject sendNext:@"2"];
 ```
 
-With help of the function `combineLatest:` you can keep track of the latest changes in the number of streams.
+Please note that the signal returned from `+combineLatest:` will only send its first value once all of the inputs have sent at least once, and then will send again whenever any of the inputs send a new value.
 
 ### Combine Reduce
 
 ```objective-c
-RACSignal *combineReduceSignal = [RACSignal combineLatest:@[ letterSignal, numberSignal ] reduce:^(NSString *letter, NSString *number) {
-    return [letter stringByAppendingString:number];
-}];
-
-// Output 1: A3 A4 B4 B5 C5 C6 D6 D7 E7 E8 E9 F9 G9 H9 I9
-// Output 2: A4 A5 B5 B6 C6 C7 C8 D8 D9 E9 F9 G9 H9 I9
-// …
-[combineReduceSignal subscribeNext:^(NSString *x) {
+RACSubject *letterSubject = [RACSubject subject];
+RACSubject *numberSubject = [RACSubject subject];
+RACSignal *combineSignal = [RACSignal combineLatest:@[ letterSubject, numberSubject ]
+                                             reduce:^(NSString *letter, NSString *number) {
+                                                 return [letter stringByAppendingString:number];
+                                             }];
+// Output: A1 B1 C1 C2
+//
+[combineSignal subscribeNext:^(id x) {
     NSLog(@"%@", x);
 }];
+
+[letterSubject sendNext:@"A"];
+[numberSubject sendNext:@"1"];
+[letterSubject sendNext:@"B"];
+[letterSubject sendNext:@"C"];
+[numberSubject sendNext:@"2"];
 ```
 
-Functionally this is just a syntactic sugar for `-combineLatest:` followed by `-map:`. However, it is `combineLatest:reduce:` that you use most of the time.
+Basically this is just a syntactic sugar for `-combineLatest:` followed by the smarter `-map:`. You can pass a block to combine multiple values into the single one.

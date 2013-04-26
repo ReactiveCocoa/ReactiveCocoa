@@ -49,21 +49,21 @@ RACSignal *mapSignal = [letterSignal map:^NSString *(NSString *value) {
 The `+merge:` method will forward the values from many streams into the single stream as soon as those values arrive:
 
 ```objective-c
-RACSubject *letterStream = [RACSubject subject];
-RACSubject *numberStream = [RACSubject subject];
-RACSignal *mergedStream = [RACSignal merge:@[ letterStream, numberStream ]];
+RACSubject *letterSubject = [RACSubject subject];
+RACSubject *numberSubject = [RACSubject subject];
+RACSignal *mergedSubjects = [RACSignal merge:@[ letterSubject, numberSubject ]];
 
 // Output: A 1 B C 2
 //
-[mergedStream subscribeNext:^(NSString *x) {
+[mergedSubjects subscribeNext:^(NSString *x) {
     NSLog(@"%@", x);
 }];
 
-[letterStream sendNext:@"A"];
-[numberStream sendNext:@"1"];
-[letterStream sendNext:@"B"];
-[letterStream sendNext:@"C"];
-[numberStream sendNext:@"2"];
+[letterSubject sendNext:@"A"];
+[numberSubject sendNext:@"1"];
+[letterSubject sendNext:@"B"];
+[letterSubject sendNext:@"C"];
+[numberSubject sendNext:@"2"];
 ```
 
 ### Filter
@@ -72,7 +72,7 @@ The `-filter:` method uses a block to test each value and only then forwards it 
 
 ```objective-c
 RACSignal *filterSignal = [numberSignal filter:^BOOL(NSString *value) {
-    return ([value intValue] % 2) == 0;
+    return (value.intValue % 2) == 0;
 }];
 
 // Output: 0 2 4 6 8
@@ -96,18 +96,20 @@ RACSignal *concatSignal = [RACSignal concat:@[ letterSignal, numberSignal ]];
 }];
 ```
 
-## Stream of Streams
+## Signal of Signals
 
-In some cases, you have to deal with a signal of signals:
+In some cases, you have to handle a signal of multiple signals:
 
 ```objective-c
 NSArray *signals = @[ letterSignal, numberSignal ];
 RACSignal *signalsSignal = signals.rac_sequence.signal;
 ```
 
-ReactiveCocoa has more advanced operators for this.
+ReactiveCocoa has more advanced operators to help with this.
 
 ### Flatten
+
+The `-flatten:` operator will forward all values from many signals into the new flattened signal:
 
 ```objective-c
 RACSignal *flattenSignal = [signalsSignal flatten];
@@ -121,9 +123,11 @@ RACSignal *flattenSignal = [signalsSignal flatten];
 }];
 ```
 
-The `flatten` operator will “redirect” all values from many streams into the new “flattened” stream.
+Another way to think of this is that `-flatten` behaves like `+merge:` over all of the inside streams.
 
 ### Flatten Map
+
+The method `-flattenMap:` allows to transform values passed from the flattened signal. Consider it a shorthand for `-map:` followed by `-flatten`.
 
 ```objective-c
 RACSignal *flattenMapSignal = [signalsSignal flattenMap:^RACStream *(RACStream *s) {
@@ -141,7 +145,18 @@ RACSignal *flattenMapSignal = [signalsSignal flattenMap:^RACStream *(RACStream *
 }];
 ```
 
-The method `flattenMap:` allows to transform values passed from the “flattened” stream. Consider it a shorthand for `-map:` followed by `-flatten`.
+However, usually we do not handle a stream of streams with `-flattenMap:`. It can be used on any stream. The key is that the block has to return a new stream (usually based on the input value), and all of those results will be flattened.
+
+```objective-c
+// Output: A A B B C C D D E E F F G G H H I I
+//
+[[letterSignal flattenMap:^RACStream *(id value) {
+    NSLog(@"%@", value);
+    return [RACSignal return:value];
+}] subscribeNext:^(id x) {
+    NSLog(@"%@", x);
+}];
+```
 
 ### Combine Latest
 

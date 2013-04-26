@@ -1,6 +1,6 @@
 # Basic operators
 
-This post may be useful if you cannot immediately understand all the magic behind operators like `flattenMap:` and `merge:`. Example by example, we will overview the most popular functions in RAC.
+This post may be useful if you cannot immediately understand all the magic behind operators like `-flattenMap:` and `+merge:`. Example by example, we will overview the most popular functions in RAC.
 
 ## Sample Signals
 
@@ -28,21 +28,25 @@ To iterate through the values in any stream we can use code like this:
 
 This group of operators is used to merge and transform linear streams of values.
 
-### Merge
+### Map
+
+The `-map:` method is used to transform the values in a stream, and create a new stream with the results:
 
 ```objective-c
-RACSignal *mergeSignal = [RACSignal merge:@[ letterSignal, numberSignal ]];
+RACSignal *mapSignal = [letterSignal map:^NSString *(NSString *value) {
+    return [value stringByAppendingString:value];
+}];
 
-// Output 1: A 1 2 B 3 C 4 5 D 6 7 E 8 9 F G H I
-// Output 2: A 1 B 2 3 C 4 D E 5 F 6 7 G 8 H I 9
-// ...
+// Output: AA BB CC DD EE FF GG HH II
 //
-[mergeSignal subscribeNext:^(NSString *x) {
+[mapSignal subscribeNext:^(NSString *x) {
     NSLog(@"%@", x);
 }];
 ```
 
-As you can see, `merge:` “redirects” values from many streams into the single stream. Please note that the order of values in the merged stream is totally unpredictable. Here is another example of `merge:` in action:
+### Merge
+
+The `+merge:` method will forward the values from many streams into the single stream as soon as those values arrive:
 
 ```objective-c
 RACSubject *letterStream = [RACSubject subject];
@@ -62,39 +66,25 @@ RACSignal *mergedStream = [RACSignal merge:@[ letterStream, numberStream ]];
 [numberStream sendNext:@"2"];
 ```
 
-### Map
-
-```objective-c
-RACSignal *mapSignal = [letterSignal map:^NSString *(NSString *value) {
-    return [value stringByAppendingString:value];
-}];
-
-// Output: AA BB CC DD EE FF GG HH II
-//
-[mapSignal subscribeNext:^(NSString *x) {
-    NSLog(@"%@", x);
-}];
-```
-
-The method `map:` is used to transform stream values and “redirect” them to another stream.
-
 ### Filter
 
+The `-filter:` method uses a block to test each value and only then forwards it into resulting stream:
+
 ```objective-c
-RACSignal *filterSignal = [letterSignal filter:^BOOL(NSString *value) {
-    return ![value isEqualToString:@"A"];
+RACSignal *filterSignal = [numberSignal filter:^BOOL(NSString *value) {
+    return ([value intValue] % 2) == 0;
 }];
 
-// Output: B C D E F G H I
+// Output: 0 2 4 6 8
 //
 [filterSignal subscribeNext:^(NSString *x) {
     NSLog(@"%@", x);
 }];
 ```
 
-The `filter:` method uses a block to test each value and only then “redirect” it to another stream.
-
 ### Concat
+
+The `-concat:` method allows to combine many streams into one while preserving the order:
 
 ```objective-c
 RACSignal *concatSignal = [RACSignal concat:@[ letterSignal, numberSignal ]];
@@ -105,8 +95,6 @@ RACSignal *concatSignal = [RACSignal concat:@[ letterSignal, numberSignal ]];
     NSLog(@"%@", x);
 }];
 ```
-
-The method `concat:` allows to combine many streams into one while preserving the order.
 
 ## Stream of Streams
 

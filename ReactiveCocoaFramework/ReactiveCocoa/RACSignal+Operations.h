@@ -343,9 +343,17 @@ extern const NSInteger RACSignalErrorTimedOut;
 // This corresponds to the `ObserveOn` method in Rx.
 - (RACSignal *)deliverOn:(RACScheduler *)scheduler;
 
+// Convenience method to return a signal that delivers it's callbacks on
+// the main thread.
+- (RACSignal *)deliverOnMainThread;
+
 // Creates and returns a signal whose `didSubscribe` block is scheduled with the
 // given scheduler.
 - (RACSignal *)subscribeOn:(RACScheduler *)scheduler;
+
+// Convenience method to return a signal `didSubscribe` block is scheduled on
+// the main thread.
+- (RACSignal *)subscribeOnMainThread;
 
 // Creates a shared signal which is passed into the let block. The let block
 // then returns a signal derived from that shared signal.

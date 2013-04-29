@@ -127,34 +127,17 @@ Another way to think of this is that `-flatten` behaves like `+merge:` over all 
 
 ### Flatten Map
 
-The method `-flattenMap:` allows to transform values passed from the flattened signal. Consider it a shorthand for `-map:` followed by `-flatten`:
+The method `-flattenMap:` is a shortcut for `-map:` followed by `-flatten`. It can be used on any stream. The key is that the block has to return a new stream, usually based on the input value, and all of those results will be flattened:
 
 ```objective-c
-RACSignal *flattenMapSignal = [signalsSignal flattenMap:^RACStream *(RACStream *s) {
-    return [s map:^NSString *(NSString *value) {
-        return [value stringByAppendingString:value];
-    }];
-}];
-
-// Output 1: 11 22 AA BB CC 33 44 55 DD 66 EE 77 88 FF GG HH II 99
-// Output 2: 11 AA 22 33 BB 44 CC 55 66 DD 77 EE 88 99 FF GG HH II
-// ...
+// Output with one second delay: A... B... C... D... E... F... G... H... I...
 //
-[flattenMapSignal subscribeNext:^(NSString *x) {
-    NSLog(@"%@", x);
-}];
-```
-
-However, usually we do not handle a stream of streams with `-flattenMap:`. It can be used on any stream. The key is that the block has to return a new stream (usually based on the input value), and all of those results will be flattened:
-
-```objective-c
-// Output: A A B B C C D D E E F F G G H H I I
-//
-[[letterSignal flattenMap:^RACStream *(id value) {
-    NSLog(@"%@", value);
-    return [RACSignal return:value];
-}] subscribeNext:^(id x) {
-    NSLog(@"%@", x);
+NSTimeInterval __block delay = 0.0;
+[[letterSignal flattenMap:^RACStream *(NSString *letter) {
+    delay += 1.0;
+    return [[RACSignal return:letter] delay:delay];
+}] subscribeNext:^(NSString *letter) {
+    NSLog(@"%@", letter);
 }];
 ```
 

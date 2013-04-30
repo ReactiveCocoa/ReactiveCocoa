@@ -29,7 +29,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 @interface RACObservablePropertySubject ()
 
 // The object whose key path the RACObservablePropertySubject is wrapping.
-@property (nonatomic, readonly, weak) id target;
+@property (atomic, unsafe_unretained) id target;
 
 // The key path the RACObservablePropertySubject is wrapping.
 @property (nonatomic, readonly, copy) NSString *keyPath;
@@ -51,7 +51,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 + (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath;
 
 // The object whose key path the binding is wrapping.
-@property (nonatomic, readonly, weak) id target;
+@property (atomic, unsafe_unretained) id target;
 
 // The key path the binding is wrapping.
 @property (nonatomic, readonly, copy) NSString *keyPath;
@@ -154,7 +154,9 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 			[binding targetDidChangeValue];
 		}
 	}];
+
 	[target rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+		@strongify(binding);
 		[binding dispose];
 	}]];
 	
@@ -178,6 +180,8 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 }
 
 - (void)dispose {
+	self.target = nil;
+
 	@synchronized(self) {
 		if (self.disposed) return;
 		self.disposed = YES;
@@ -240,6 +244,11 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 		// Log the error if we're running with assertions disabled.
 		NSLog(@"Received error in binding for key path \"%@\" on %@: %@", property.keyPath, property.target, error);
 	} completed:nil];
+
+	[target rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+		@strongify(property);
+		property.target = nil;
+	}]];
 	
 	return property;
 }

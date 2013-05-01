@@ -247,4 +247,23 @@ describe(@"NSString sequences", ^{
 	});
 });
 
+describe(@"RACTuple sequences", ^{
+	__block RACTuple *tuple;
+	__block RACSequence *sequence;
+	
+	beforeEach(^{
+		tuple = RACTuplePack(@"foo", nil, @"bar", NSNull.null, RACTupleNil.tupleNil);
+
+		sequence = tuple.rac_sequence;
+		expect(sequence).notTo.beNil();
+	});
+
+	itShouldBehaveLike(RACSequenceExamples, ^{
+		return @{
+			RACSequenceExampleSequence: sequence,
+			RACSequenceExampleExpectedValues: @[ @"foo", NSNull.null, @"bar", NSNull.null, NSNull.null ]
+		};
+	});
+});
+
 SpecEnd

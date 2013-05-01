@@ -128,18 +128,32 @@
 
 + (instancetype)tupleWithObjects:(id)object, ... {
 	RACTuple *tuple = [[self alloc] init];
-	
-	NSMutableArray *objects = [NSMutableArray array];
-	
+
 	va_list args;
+	va_start(args, object);
+
+	NSUInteger count = 0;
+	for (id currentObject = object; currentObject != nil; currentObject = va_arg(args, id)) {
+		++count;
+	}
+
+	va_end(args);
+
+	if (count == 0) {
+		tuple.backingArray = @[];
+		return tuple;
+	}
+	
+	NSMutableArray *objects = [[NSMutableArray alloc] initWithCapacity:count];
+	
 	va_start(args, object);
 	for (id currentObject = object; currentObject != nil; currentObject = va_arg(args, id)) {
 		[objects addObject:currentObject];
 	}
+
 	va_end(args);
 	
-	tuple.backingArray = [objects copy];
-	
+	tuple.backingArray = objects;
 	return tuple;
 }
 

@@ -9,6 +9,7 @@
 #import "RACTuple.h"
 #import "EXTKeyPathCoding.h"
 #import "NSArray+RACSequenceAdditions.h"
+#import "RACTupleSequence.h"
 
 @implementation RACTupleNil
 
@@ -115,10 +116,10 @@
 	if (convert) {
 		NSMutableArray *newArray = [NSMutableArray arrayWithCapacity:array.count];
 		for (id object in array) {
-			[newArray addObject:[object isKindOfClass:NSNull.class] ? RACTupleNil.tupleNil : object];
+			[newArray addObject:(object == NSNull.null ? RACTupleNil.tupleNil : object)];
 		}
 		
-		tuple.backingArray = [newArray copy];
+		tuple.backingArray = newArray;
 	} else {
 		tuple.backingArray = [array copy];
 	}
@@ -128,18 +129,32 @@
 
 + (instancetype)tupleWithObjects:(id)object, ... {
 	RACTuple *tuple = [[self alloc] init];
-	
-	NSMutableArray *objects = [NSMutableArray array];
-	
+
 	va_list args;
+	va_start(args, object);
+
+	NSUInteger count = 0;
+	for (id currentObject = object; currentObject != nil; currentObject = va_arg(args, id)) {
+		++count;
+	}
+
+	va_end(args);
+
+	if (count == 0) {
+		tuple.backingArray = @[];
+		return tuple;
+	}
+	
+	NSMutableArray *objects = [[NSMutableArray alloc] initWithCapacity:count];
+	
 	va_start(args, object);
 	for (id currentObject = object; currentObject != nil; currentObject = va_arg(args, id)) {
 		[objects addObject:currentObject];
 	}
+
 	va_end(args);
 	
-	tuple.backingArray = [objects copy];
-	
+	tuple.backingArray = objects;
 	return tuple;
 }
 
@@ -147,13 +162,13 @@
 	if (index >= self.count) return nil;
 	
 	id object = [self.backingArray objectAtIndex:index];
-	return [object isKindOfClass:RACTupleNil.class] ? nil : object;
+	return (object == RACTupleNil.tupleNil ? nil : object);
 }
 
 - (NSArray *)allObjects {
 	NSMutableArray *newArray = [NSMutableArray arrayWithCapacity:self.backingArray.count];
 	for (id object in self.backingArray) {
-		[newArray addObject:[object isKindOfClass:RACTupleNil.class] ? NSNull.null : object];
+		[newArray addObject:(object == RACTupleNil.tupleNil ? NSNull.null : object)];
 	}
 	
 	return newArray;
@@ -198,7 +213,7 @@
 @implementation RACTuple (RACSequenceAdditions)
 
 - (RACSequence *)rac_sequence {
-	return self.allObjects.rac_sequence;
+	return [RACTupleSequence sequenceWithTupleBackingArray:self.backingArray offset:0];
 }
 
 @end

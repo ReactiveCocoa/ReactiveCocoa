@@ -7,6 +7,7 @@
 //
 
 #import "RACDynamicSequence.h"
+#import <libkern/OSAtomic.h>
 
 // Determines how RACDynamicSequences will be deallocated before the next one is
 // shifted onto the autorelease pool.

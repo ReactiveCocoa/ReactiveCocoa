@@ -24,19 +24,49 @@
 	//
 	// This ivar should only be accessed while synchronized on self.
 	RACSequence *_tail;
+
+	// The result of an evaluated `dependencyBlock`.
+	//
+	// This ivar is valid any time `hasDependency` is YES and `dependencyBlock`
+	// is nil.
+	//
+	// This ivar should only be accessed while synchronized on self.
+	id _dependency;
 }
 
-// A block used to evaluate head. This should be set to nil after _head has been
+// A block used to evaluate head. This should be set to nil after `_head` has been
 // initialized.
 //
+// The signature of this block varies based on the value of `hasDependency`:
+//
+//  - If YES, this block is of type `id (^)(id)`.
+//  - If NO, this block is of type `id (^)(void)`.
+//
 // This property should only be accessed while synchronized on self.
-@property (nonatomic, copy) id (^headBlock)(void);
+@property (nonatomic, copy) id headBlock;
 
-// A block used to evaluate tail. This should be set to nil after _tail has been
+// A block used to evaluate tail. This should be set to nil after `_tail` has been
 // initialized.
 //
+// The signature of this block varies based on the value of `hasDependency`:
+//
+//  - If YES, this block is of type `RACSequence * (^)(id)`.
+//  - If NO, this block is of type `RACSequence * (^)(void)`.
+//
 // This property should only be accessed while synchronized on self.
-@property (nonatomic, copy) RACSequence *(^tailBlock)(void);
+@property (nonatomic, copy) id tailBlock;
+
+// Whether the receiver was initialized with a `dependencyBlock`.
+//
+// This property should only be accessed while synchronized on self.
+@property (nonatomic, assign) BOOL hasDependency;
+
+// A dependency which must be evaluated before `headBlock` and `tailBlock`. This
+// should be set to nil after `_dependency` and `dependencyBlockExecuted` have
+// been set.
+//
+// This property should only be accessed while synchronized on self.
+@property (nonatomic, copy) id (^dependencyBlock)(void);
 
 @end
 
@@ -48,8 +78,9 @@
 	NSParameterAssert(headBlock != nil);
 
 	RACDynamicSequence *seq = [[RACDynamicSequence alloc] init];
-	seq.headBlock = [headBlock copy];
-	seq.tailBlock = [tailBlock copy];
+	seq.headBlock = headBlock;
+	seq.tailBlock = tailBlock;
+	seq.hasDependency = NO;
 	return seq;
 }
 
@@ -57,28 +88,12 @@
 	NSParameterAssert(dependencyBlock != nil);
 	NSParameterAssert(headBlock != nil);
 
-	NSLock *lock = [[NSLock alloc] init];
-
-	__block id dependency = nil;
-	__block BOOL dependencyBlockExecuted = NO;
-
-	id (^evaluateDependency)(void) = [^{
-		[lock lock];
-		if (!dependencyBlockExecuted) {
-			dependency = dependencyBlock();
-			dependencyBlockExecuted = YES;
-		}
-		[lock unlock];
-
-		return dependency;
-	} copy];
-
-	return [self sequenceWithHeadBlock:^{
-		return headBlock(evaluateDependency());
-	} tailBlock:^ id {
-		if (tailBlock == nil) return nil;
-		return tailBlock(evaluateDependency());
-	}];
+	RACDynamicSequence *seq = [[RACDynamicSequence alloc] init];
+	seq.headBlock = headBlock;
+	seq.tailBlock = tailBlock;
+	seq.dependencyBlock = dependencyBlock;
+	seq.hasDependency = YES;
+	return seq;
 }
 
 - (void)dealloc {
@@ -92,24 +107,48 @@
 
 - (id)head {
 	@synchronized (self) {
-		if (self.headBlock != nil) {
-			_head = self.headBlock();
-			self.headBlock = nil;
+		id untypedHeadBlock = self.headBlock;
+		if (untypedHeadBlock == nil) return _head;
+
+		if (self.hasDependency) {
+			if (self.dependencyBlock != nil) {
+				_dependency = self.dependencyBlock();
+				self.dependencyBlock = nil;
+			}
+
+			id (^headBlock)(id) = untypedHeadBlock;
+			_head = headBlock(_dependency);
+		} else {
+			id (^headBlock)(void) = untypedHeadBlock;
+			_head = headBlock();
 		}
 
+		self.headBlock = nil;
 		return _head;
 	}
 }
 
 - (RACSequence *)tail {
 	@synchronized (self) {
-		if (self.tailBlock != nil) {
-			_tail = self.tailBlock();
-			if (_tail.name == nil) _tail.name = self.name;
+		id untypedTailBlock = self.tailBlock;
+		if (untypedTailBlock == nil) return _tail;
 
-			self.tailBlock = nil;
+		if (self.hasDependency) {
+			if (self.dependencyBlock != nil) {
+				_dependency = self.dependencyBlock();
+				self.dependencyBlock = nil;
+			}
+
+			RACSequence * (^tailBlock)(id) = untypedTailBlock;
+			_tail = tailBlock(_dependency);
+		} else {
+			RACSequence * (^tailBlock)(void) = untypedTailBlock;
+			_tail = tailBlock();
 		}
 
+		if (_tail.name == nil) _tail.name = self.name;
+
+		self.tailBlock = nil;
 		return _tail;
 	}
 }

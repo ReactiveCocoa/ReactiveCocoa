@@ -27,7 +27,11 @@
 		BOOL stop = NO;
 		RACSequence *boundValue = (id)bindBlock(value, &stop);
 		if (boundValue == nil) break;
-		[resultArray addObjectsFromArray:boundValue.array];
+
+		for (id x in boundValue) {
+			[resultArray addObject:x];
+		}
+
 		if (stop) break;
 	}
 	

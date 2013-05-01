@@ -38,7 +38,7 @@
 
 - (id)head {
 	id object = [self.tupleBackingArray objectAtIndex:self.offset];
-	return ([RACTupleNil.tupleNil isEqual:object] ? NSNull.null : object);
+	return (object == RACTupleNil.tupleNil ? NSNull.null : object);
 }
 
 - (RACSequence *)tail {
@@ -52,7 +52,7 @@
 	NSMutableArray *array = [[NSMutableArray alloc] initWithCapacity:range.length];
 
 	[self.tupleBackingArray enumerateObjectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:range] options:0 usingBlock:^(id object, NSUInteger index, BOOL *stop) {
-		id mappedObject = ([RACTupleNil.tupleNil isEqual:object] ? NSNull.null : object);
+		id mappedObject = (object == RACTupleNil.tupleNil ? NSNull.null : object);
 		[array addObject:mappedObject];
 	}];
 

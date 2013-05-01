@@ -116,7 +116,7 @@
 	if (convert) {
 		NSMutableArray *newArray = [NSMutableArray arrayWithCapacity:array.count];
 		for (id object in array) {
-			[newArray addObject:[NSNull.null isEqual:object] ? RACTupleNil.tupleNil : object];
+			[newArray addObject:(object == NSNull.null ? RACTupleNil.tupleNil : object)];
 		}
 		
 		tuple.backingArray = newArray;
@@ -162,13 +162,13 @@
 	if (index >= self.count) return nil;
 	
 	id object = [self.backingArray objectAtIndex:index];
-	return [RACTupleNil.tupleNil isEqual:object] ? nil : object;
+	return (object == RACTupleNil.tupleNil ? nil : object);
 }
 
 - (NSArray *)allObjects {
 	NSMutableArray *newArray = [NSMutableArray arrayWithCapacity:self.backingArray.count];
 	for (id object in self.backingArray) {
-		[newArray addObject:[RACTupleNil.tupleNil isEqual:object] ? NSNull.null : object];
+		[newArray addObject:(object == RACTupleNil.tupleNil ? NSNull.null : object)];
 	}
 	
 	return newArray;

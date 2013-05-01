@@ -9,6 +9,7 @@
 #import "RACTuple.h"
 #import "EXTKeyPathCoding.h"
 #import "NSArray+RACSequenceAdditions.h"
+#import "RACTupleSequence.h"
 
 @implementation RACTupleNil
 
@@ -212,7 +213,7 @@
 @implementation RACTuple (RACSequenceAdditions)
 
 - (RACSequence *)rac_sequence {
-	return self.allObjects.rac_sequence;
+	return [RACTupleSequence sequenceWithTupleBackingArray:self.backingArray offset:0];
 }
 
 @end

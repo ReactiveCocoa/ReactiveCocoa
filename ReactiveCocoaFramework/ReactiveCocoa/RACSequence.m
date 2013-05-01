@@ -209,7 +209,7 @@
 
 	if (self.head == nil) return start;
 	
-	for (id value in self.objectEnumerator) {
+	for (id value in self) {
 		start = combine(start, value);
 	}
 	

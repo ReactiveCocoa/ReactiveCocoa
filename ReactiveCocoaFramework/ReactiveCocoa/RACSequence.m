@@ -8,15 +8,16 @@
 
 #import "RACSequence.h"
 #import "RACArraySequence.h"
+#import "RACBlockTrampoline.h"
 #import "RACDisposable.h"
 #import "RACDynamicSequence.h"
 #import "RACEagerSequence.h"
 #import "RACEmptySequence.h"
 #import "RACScheduler.h"
-#import "RACSubject.h"
 #import "RACSignal.h"
+#import "RACSubject.h"
 #import "RACTuple.h"
-#import "RACBlockTrampoline.h"
+#import "RACUnarySequence.h"
 #import <libkern/OSAtomic.h>
 
 // An enumerator over sequences.
@@ -84,11 +85,7 @@
 }
 
 + (instancetype)return:(id)value {
-	RACSequence *sequence = [RACDynamicSequence sequenceWithHeadBlock:^{
-		return value;
-	} tailBlock:nil];
-
-	return [sequence setNameWithFormat:@"+return: %@", value];
+	return [RACUnarySequence return:value];
 }
 
 - (instancetype)bind:(RACStreamBindBlock (^)(void))block {

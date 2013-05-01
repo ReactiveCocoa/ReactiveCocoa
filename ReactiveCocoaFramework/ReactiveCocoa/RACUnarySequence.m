@@ -36,6 +36,14 @@
 	return nil;
 }
 
+- (instancetype)bind:(RACStreamBindBlock (^)(void))block {
+	RACStreamBindBlock bindBlock = block();
+	BOOL stop = NO;
+
+	RACSequence *result = (id)[bindBlock(self.head, &stop) setNameWithFormat:@"[%@] -bind:", self.name];
+	return result ?: self.class.empty;
+}
+
 #pragma mark NSCoding
 
 - (Class)classForCoder {

@@ -12,7 +12,7 @@
 
 @interface RACDelegateProxy : NSObject
 
-@property (nonatomic, strong) id actualDelegate;
+@property (nonatomic, weak) id actualDelegate;
 
 + (instancetype)proxyWithProtocol:(Protocol *)protocol andDelegator:(NSObject *)delegator;
 

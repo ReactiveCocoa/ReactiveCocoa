@@ -118,7 +118,7 @@
 			[newArray addObject:[NSNull.null isEqual:object] ? RACTupleNil.tupleNil : object];
 		}
 		
-		tuple.backingArray = [newArray copy];
+		tuple.backingArray = newArray;
 	} else {
 		tuple.backingArray = [array copy];
 	}

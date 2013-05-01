@@ -33,6 +33,10 @@
 	return nil;
 }
 
+- (RACSequence *)bind:(RACStreamBindBlock)bindBlock passingThroughValuesFromSequence:(RACSequence *)passthroughSequence {
+	return passthroughSequence ?: self;
+}
+
 #pragma mark NSCoding
 
 - (Class)classForCoder {

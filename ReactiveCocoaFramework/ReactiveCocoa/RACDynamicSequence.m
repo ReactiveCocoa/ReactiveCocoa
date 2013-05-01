@@ -8,6 +8,13 @@
 
 #import "RACDynamicSequence.h"
 
+// Determines how RACDynamicSequences will be deallocated before the next one is
+// shifted onto the autorelease pool.
+//
+// This avoids stack overflows when deallocating long chains of dynamic
+// sequences.
+#define DEALLOC_OVERFLOW_GUARD 100
+
 @interface RACDynamicSequence () {
 	// The value for the "head" property, if it's been evaluated already.
 	//
@@ -97,10 +104,17 @@
 }
 
 - (void)dealloc {
-	// Prevents overflowing the stack when deallocating a long chain of dynamic
-	// sequences (which results in a lot of nested calls to -dealloc). This is
-	// obviously not ideal performance-wise, but is safer.
-	__autoreleasing RACSequence *tail __attribute__((unused)) = _tail;
+	static volatile int32_t directDeallocCount = 0;
+
+	if (OSAtomicIncrement32(&directDeallocCount) >= DEALLOC_OVERFLOW_GUARD) {
+		OSAtomicAdd32(-DEALLOC_OVERFLOW_GUARD, &directDeallocCount);
+
+		// Put this sequence's tail onto the autorelease pool so we stop
+		// recursing.
+		__autoreleasing RACSequence *tail __attribute__((unused)) = _tail;
+	}
+	
+	_tail = nil;
 }
 
 #pragma mark RACSequence

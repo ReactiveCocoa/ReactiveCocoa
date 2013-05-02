@@ -551,7 +551,7 @@ quickly lead to complexity when overused.
 Since they can be manipulated from anywhere, at any time, subjects often break
 the linear flow of stream processing and make logic much harder to follow. They
 also don't support meaningful
-[disposal][#disposal-cancels-in-progress-work-and-cleans-up-resources], which
+[disposal](#disposal-cancels-in-progress-work-and-cleans-up-resources), which
 can result in unnecessary work.
 
 Subjects can often be replaced with other patterns from ReactiveCocoa:

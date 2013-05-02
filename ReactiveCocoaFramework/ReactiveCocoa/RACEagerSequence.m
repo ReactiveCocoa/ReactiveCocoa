@@ -27,7 +27,11 @@
 		BOOL stop = NO;
 		RACSequence *boundValue = (id)bindBlock(value, &stop);
 		if (boundValue == nil) break;
-		[resultArray addObjectsFromArray:boundValue.array];
+
+		for (id x in boundValue) {
+			[resultArray addObject:x];
+		}
+
 		if (stop) break;
 	}
 	
@@ -56,12 +60,6 @@
 	return [super foldRightWithStart:start combine:^(id first, RACSequence *rest) {
 		return combine(first, rest.eagerSequence);
 	}];
-}
-
-#pragma mark NSFastEnumeration
-
-- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(__unsafe_unretained id [])buffer count:(NSUInteger)len {
-	return [self.array countByEnumeratingWithState:state objects:buffer count:len];
 }
 
 @end

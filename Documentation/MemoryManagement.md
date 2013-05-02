@@ -136,4 +136,4 @@ This could backfire if the run loop is spun recursively (like in a modal event
 loop on OS X), but it makes the life of the framework consumer much easier for
 most or all other cases.
 
-[avoid-explicit-subscriptions-and-disposal]: FrameworkOverview.md#avoid-explicit-subscriptions-and-disposal
+[avoid-explicit-subscriptions-and-disposal]: DesignGuidelines.md#avoid-explicit-subscriptions-and-disposal

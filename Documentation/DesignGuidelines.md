@@ -544,7 +544,7 @@ error-prone code than replicating the same behaviors in a subscription callback.
 
 ### Avoid using subjects when possible
 
-[Subjects][Framework Overview] are a powerful tool for bridging imperative code
+[Subjects][] are a powerful tool for bridging imperative code
 into the world of signals, but, as the "mutable variables" of RAC, they can
 quickly lead to complexity when overused.
 
@@ -742,3 +742,4 @@ By contrast, this version will avoid a stack overflow:
 [RACSignal+Operations]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h
 [RACStream]: ../ReactiveCocoaFramework/ReactiveCocoa/RACStream.h
 [RACSubscriber]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubscriber.h
+[Subjects]: FrameworkOverview.md#subjects

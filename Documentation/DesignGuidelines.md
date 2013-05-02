@@ -568,6 +568,9 @@ Subjects can often be replaced with other patterns from ReactiveCocoa:
    a [command][RACCommand] or
    [-rac_signalForSelector:][NSObject+RACSelectorSignal] instead.
 
+When subjects _are_ necessary, they should almost always be the "base" input
+for a signal chain, not used in the middle of one.
+
 ## Implementing new operators
 
 RAC provides a long list of built-in operators for [streams][RACStream] and

@@ -519,7 +519,7 @@ can be used to conveniently inspect a signal in real-time.
 ### Avoid explicit subscriptions and disposal
 
 Although [-subscribeNext:error:completed:][RACSignal] and its variants are the
-most basic way to process a signal, their use can also code more complex by
+most basic way to process a signal, their use can complicate code by
 being less declarative, encouraging the use of side effects, and potentially
 duplicating built-in functionality.
 

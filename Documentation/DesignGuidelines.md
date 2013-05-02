@@ -36,6 +36,7 @@ resource for getting up to speed on the functionality provided by RAC.
  1. [Share the side effects of a signal by multicasting](#share-the-side-effects-of-a-signal-by-multicasting)
  1. [Debug streams by giving them names](#debug-streams-by-giving-them-names)
  1. [Avoid explicit subscriptions and disposables](#avoid-explicit-subscriptions-and-disposables)
+ 1. [Avoid using subjects when possible](#avoid-using-subjects-when-possible)
 
 **[Implementing new operators](#implementing-new-operators)**
 
@@ -540,6 +541,29 @@ subscriptions and disposal:
 Generally, the use of built-in [stream][RACStream] and
 [signal][RACSignal+Operations] operators will lead to simpler and less
 error-prone code than replicating the same behaviors in a subscription callback.
+
+### Avoid using subjects when possible
+
+[Subjects][Framework Overview] are a powerful tool for bridging imperative code
+into the world of signals, but, as the "mutable variables" of RAC, they can
+quickly lead to complexity when overused.
+
+Since they can be manipulated from anywhere, at any time, subjects often break
+the linear flow of stream processing and make logic much harder to follow. They
+also don't support meaningful
+[disposal][#disposal-cancels-in-progress-work-and-cleans-up-resources], which
+can result in unnecessary work.
+
+Instead of feeding initial values into a subject, consider generating the values
+in a [+createSignal:][RACSignal] block instead.
+
+Instead of delivering intermediate results to a subject, try combining the
+output of multiple signals with operators like
+[+combineLatest:][RACSignal+Operations] or [+zip:][RACStream].
+
+Instead of using subjects to share results with multiple subscribers,
+[multicast](#share-the-side-effects-of-a-signal-by-multicasting) a base signal
+instead.
 
 ## Implementing new operators
 

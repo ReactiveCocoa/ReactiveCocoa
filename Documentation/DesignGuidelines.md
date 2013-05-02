@@ -554,7 +554,7 @@ also don't support meaningful
 [disposal](#disposal-cancels-in-progress-work-and-cleans-up-resources), which
 can result in unnecessary work.
 
-Subjects can often be replaced with other patterns from ReactiveCocoa:
+Subjects can usually be replaced with other patterns from ReactiveCocoa:
 
  * Instead of feeding initial values into a subject, consider generating the
    values in a [+createSignal:][RACSignal] block instead.

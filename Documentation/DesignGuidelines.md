@@ -35,7 +35,7 @@ resource for getting up to speed on the functionality provided by RAC.
  1. [Make the side effects of a signal explicit](#make-the-side-effects-of-a-signal-explicit)
  1. [Share the side effects of a signal by multicasting](#share-the-side-effects-of-a-signal-by-multicasting)
  1. [Debug streams by giving them names](#debug-streams-by-giving-them-names)
- 1. [Avoid explicit subscriptions and disposables](#avoid-explicit-subscriptions-and-disposables)
+ 1. [Avoid explicit subscriptions and disposal](#avoid-explicit-subscriptions-and-disposal)
  1. [Avoid using subjects when possible](#avoid-using-subjects-when-possible)
 
 **[Implementing new operators](#implementing-new-operators)**
@@ -516,7 +516,7 @@ Names can also be manually applied by using [-setNameWithFormat:][RACStream].
 events as they occur, and include the name of the signal in the messages. This
 can be used to conveniently inspect a signal in real-time.
 
-### Avoid explicit subscriptions and disposables
+### Avoid explicit subscriptions and disposal
 
 Although [-subscribeNext:error:completed:][RACSignal] and its variants are the
 most basic way to process a signal, their use can also code more complex by

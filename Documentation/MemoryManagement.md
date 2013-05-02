@@ -54,7 +54,7 @@ subscriber, it's just as if the signal had completed or errored, except no final
 event is sent on the signal. All other subscribers will remain intact.
 
 However, as a general rule of thumb, if you have to manually manage
-a subscription's lifecycle, [there's probably a better way to do what you want][avoid-explicit-subscriptions-and-disposables].
+a subscription's lifecycle, [there's probably a better way to do what you want][avoid-explicit-subscriptions-and-disposal].
 
 ## Signals Derived from `self`
 
@@ -90,7 +90,7 @@ header:
 _(Replace `__weak` or `@weakify` with `__unsafe_unretained` or `@unsafeify`,
 respectively, if the object doesn't support weak references.)_
 
-However, [there's probably a better pattern you could use instead][avoid-explicit-subscriptions-and-disposables]. For
+However, [there's probably a better pattern you could use instead][avoid-explicit-subscriptions-and-disposal]. For
 example, the above sample could perhaps be written like:
 
 ```objc
@@ -136,4 +136,4 @@ This could backfire if the run loop is spun recursively (like in a modal event
 loop on OS X), but it makes the life of the framework consumer much easier for
 most or all other cases.
 
-[avoid-explicit-subscriptions-and-disposables]: FrameworkOverview.md#avoid-explicit-subscriptions-and-disposables
+[avoid-explicit-subscriptions-and-disposal]: FrameworkOverview.md#avoid-explicit-subscriptions-and-disposal

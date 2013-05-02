@@ -554,16 +554,19 @@ also don't support meaningful
 [disposal][#disposal-cancels-in-progress-work-and-cleans-up-resources], which
 can result in unnecessary work.
 
-Instead of feeding initial values into a subject, consider generating the values
-in a [+createSignal:][RACSignal] block instead.
+Subjects can often be replaced with other patterns from ReactiveCocoa:
 
-Instead of delivering intermediate results to a subject, try combining the
-output of multiple signals with operators like
-[+combineLatest:][RACSignal+Operations] or [+zip:][RACStream].
-
-Instead of using subjects to share results with multiple subscribers,
-[multicast](#share-the-side-effects-of-a-signal-by-multicasting) a base signal
-instead.
+ * Instead of feeding initial values into a subject, consider generating the
+   values in a [+createSignal:][RACSignal] block instead.
+ * Instead of delivering intermediate results to a subject, try combining the
+   output of multiple signals with operators like
+   [+combineLatest:][RACSignal+Operations] or [+zip:][RACStream].
+ * Instead of using subjects to share results with multiple subscribers,
+   [multicast](#share-the-side-effects-of-a-signal-by-multicasting) a base
+   signal instead.
+ * Instead of implementing an action method which simply controls a subject, use
+   a [command][RACCommand] or
+   [-rac_signalForSelector:][NSObject+RACSelectorSignal] instead.
 
 ## Implementing new operators
 
@@ -725,9 +728,11 @@ By contrast, this version will avoid a stack overflow:
 [Framework Overview]: FrameworkOverview.md
 [Memory Management]: MemoryManagement.md
 [NSObject+RACLifting]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACLifting.h
+[NSObject+RACSelectorSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACSelectorSignal.h
 [RAC]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h
 [RACAble]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACPropertySubscribing.h
 [RACBind]: ../ReactiveCocoaFramework/ReactiveCocoa/RACObservablePropertySubject.h
+[RACCommand]: ../ReactiveCocoaFramework/ReactiveCocoa/RACCommand.h
 [RACDisposable]: ../ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
 [RACEvent]: ../ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h
 [RACMulticastConnection]: ../ReactiveCocoaFramework/ReactiveCocoa/RACMulticastConnection.h

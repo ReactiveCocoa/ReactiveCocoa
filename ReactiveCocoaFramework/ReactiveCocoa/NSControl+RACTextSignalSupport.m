@@ -11,12 +11,14 @@
 #import "RACDisposable.h"
 #import "RACSignal.h"
 #import "RACSubscriber.h"
+#import "NSObject+RACPropertySubscribing.h"
+#import "RACSignal+Operations.h"
 
 @implementation NSControl (RACTextSignalSupport)
 
 - (RACSignal *)rac_textSignal {
 	@weakify(self);
-	return [[[[RACSignal
+	return [[[RACSignal merge:@[[[RACSignal
 		createSignal:^(id<RACSubscriber> subscriber) {
 			@strongify(self);
 			id observer = [NSNotificationCenter.defaultCenter addObserverForName:NSControlTextDidChangeNotification object:self queue:nil usingBlock:^(NSNotification *note) {
@@ -28,9 +30,11 @@
 			}];
 		}]
 		map:^(NSControl *control) {
-			return [control.stringValue copy];
+			return control.stringValue;
+		}], RACAbleWithStart(self.stringValue)]]
+		map:^(NSString *value){
+		 return [value copy];
 		}]
-		startWith:[self.stringValue copy]]
 		setNameWithFormat:@"%@ -rac_textSignal", self];
 }
 

@@ -164,7 +164,7 @@ These operators combine multiple signals into a single new [RACSignal][].
 
 ### Sequencing
 
-The [-sequenceNext:][RACSignal+Operators] method starts the original signal,
+The [-sequenceNext:][RACSignal+Operations] method starts the original signal,
 waits for it to complete, and then only forwards the values from a new signal:
 
 ```objc
@@ -186,7 +186,7 @@ starting another, and only returning the second signal's values.
 
 ### Merging
 
-The [+merge:][RACSignal+Operators] method will forward the values from many
+The [+merge:][RACSignal+Operations] method will forward the values from many
 signals into a single stream, as soon as those values arrive:
 
 ```objc
@@ -208,7 +208,7 @@ RACSignal *merged = [RACSignal merge:@[ letters, numbers ]];
 
 ### Combining latest values
 
-The [+combineLatest:][RACSignal+Operators] and `+combineLatest:reduce:` methods
+The [+combineLatest:][RACSignal+Operations] and `+combineLatest:reduce:` methods
 will watch multiple signals for changes, and then send the latest values from
 _all_ of them when a change occurs:
 

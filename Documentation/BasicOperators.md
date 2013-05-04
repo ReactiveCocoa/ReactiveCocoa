@@ -121,9 +121,9 @@ how it works is important for [-flattenMap:][RACStream].
 
 `-flattenMap:` is used to transform each of a stream's values into _a new
 stream_. Then, all of the streams returned will be flattened down into a single
-stream.
+stream. In other words, it's [-map:](#mapping) followed by [-flatten](#flattening).
 
-For example, this can be used to extend or edit sequences:
+This can be used to extend or edit sequences:
 
 ```objc
 RACSequence *numbers = [@"1 2 3 4 5 6 7 8 9" componentsSeparatedByString:@" "].rac_sequence;

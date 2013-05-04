@@ -255,15 +255,15 @@ RACSignal *switched = [signalOfSignals switchToLatest];
     NSLog(@"%@", x);
 }];
 
-[switched sendNext:letters];
+[signalOfSignals sendNext:letters];
 [letters sendNext:@"A"];
 [letters sendNext:@"B"];
 
-[switched sendNext:numbers];
+[signalOfSignals sendNext:numbers];
 [letters sendNext:@"C"];
 [numbers sendNext:@"1"];
 
-[switched sendNext:letters];
+[signalOfSignals sendNext:letters];
 [numbers sendNext:@"2"];
 [letters sendNext:@"D"];
 ```

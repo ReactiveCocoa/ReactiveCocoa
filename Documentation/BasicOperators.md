@@ -1,190 +1,249 @@
-# Basic operators
+# Basic Operators
 
-This post may be useful if you cannot immediately understand all the magic behind operators like `-flattenMap:` and `+merge:`. Example by example, we will overview the most popular functions in RAC.
+This document explains some of the most common operators used in ReactiveCocoa,
+and includes examples demonstrating their use.
 
-## Sample Signals
+Operators that apply to [sequences][Sequences] _and_ [signals][Signals] are
+known as [stream][Streams] operators.
 
-To explain all basic methods we will need two streams of values. Here they are:
+**[Transforming streams](#transforming-streams)**
 
-```objective-c
-NSArray *letters = [@"A B C D E F G H I" componentsSeparatedByString:@" "];
-NSArray *numbers = [@"1 2 3 4 5 6 7 8 9" componentsSeparatedByString:@" "];
+ 1. [Mapping](#mapping)
+ 1. [Filtering](#filtering)
 
-RACSignal *letterSignal = letters.rac_sequence.signal;
-RACSignal *numberSignal = numbers.rac_sequence.signal;
-```
+**[Combining streams](#combining-streams)**
 
-To iterate through the values in any stream we can use code like this:
+ 1. [Concatenating](#concatenating)
+ 1. [Flattening](#flattening)
+ 1. [Mapping and flattening](#mapping-and-flattening)
 
-```objective-c
-// Output: A B C D E F G H I
-//
-[letters subscribeNext:^(NSString *x) {
-    NSLog(@"%@", x);
-}];
-```
+**[Combining signals](#combining-signals)**
 
-## Linear operators
+ 1. [Sequencing](#sequencing)
+ 1. [Merging](#merging)
+ 1. [Combining latest values](#combining-latest-values)
+ 1. [Switching](#switching)
 
-This group of operators is used to merge and transform linear streams of values.
+## Transforming streams
 
-### Map
+These operators transform a single stream into a new stream.
 
-The `-map:` method is used to transform the values in a stream, and create a new stream with the results:
+### Mapping
 
-```objective-c
-RACSignal *mapSignal = [letterSignal map:^NSString *(NSString *value) {
+The [-map:][RACStream] method is used to transform the values in a stream, and
+create a new stream with the results:
+
+```objc
+RACSequence *letters = [@"A B C D E F G H I" componentsSeparatedByString:@" "].rac_sequence;
+
+// Contains: AA BB CC DD EE FF GG HH II
+RACSequence *mapped = [letters map:^(NSString *value) {
     return [value stringByAppendingString:value];
 }];
-
-// Output: AA BB CC DD EE FF GG HH II
-//
-[mapSignal subscribeNext:^(NSString *x) {
-    NSLog(@"%@", x);
-}];
 ```
 
-### Merge
+### Filtering
 
-The `+merge:` method will forward the values from many streams into the single stream as soon as those values arrive:
+The [-filter:][RACStream] method uses a block to test each value, including it
+into the resulting stream only if the test passes:
 
-```objective-c
-RACSubject *letterSubject = [RACSubject subject];
-RACSubject *numberSubject = [RACSubject subject];
-RACSignal *mergedSubjects = [RACSignal merge:@[ letterSubject, numberSubject ]];
+```objc
+RACSequence *numbers = [@"1 2 3 4 5 6 7 8 9" componentsSeparatedByString:@" "].rac_sequence;
 
-// Output: A 1 B C 2
-//
-[mergedSubjects subscribeNext:^(NSString *x) {
-    NSLog(@"%@", x);
-}];
-
-[letterSubject sendNext:@"A"];
-[numberSubject sendNext:@"1"];
-[letterSubject sendNext:@"B"];
-[letterSubject sendNext:@"C"];
-[numberSubject sendNext:@"2"];
-```
-
-### Filter
-
-The `-filter:` method uses a block to test each value and only then forwards it into resulting stream:
-
-```objective-c
-RACSignal *filterSignal = [numberSignal filter:^BOOL(NSString *value) {
+// Contains: 2 4 6 8
+RACSequence *filtered = [numbers filter:^ BOOL (NSString *value) {
     return (value.intValue % 2) == 0;
 }];
-
-// Output: 0 2 4 6 8
-//
-[filterSignal subscribeNext:^(NSString *x) {
-    NSLog(@"%@", x);
-}];
 ```
 
-### Concat
+## Combining streams
 
-The `-concat:` method allows to combine many streams into one while preserving the order:
+These operators combine multiple streams into a single new stream.
 
-```objective-c
-RACSignal *concatSignal = [RACSignal concat:@[ letterSignal, numberSignal ]];
+### Concatenating
 
-// Output: A B C D E F G H I 1 2 3 4 5 6 7 8 9
-//
-[concatSignal subscribeNext:^(NSString *x) {
-    NSLog(@"%@", x);
-}];
+The [-concat:][RACStream] method appends one stream's values to another:
+
+```objc
+RACSequence *letters = [@"A B C D E F G H I" componentsSeparatedByString:@" "].rac_sequence;
+RACSequence *numbers = [@"1 2 3 4 5 6 7 8 9" componentsSeparatedByString:@" "].rac_sequence;
+
+// Contains: A B C D E F G H I 1 2 3 4 5 6 7 8 9
+RACSequence *concatenated = [letters concat:numbers];
 ```
 
-## Signal of Signals
+### Flattening
 
-In some cases, you have to handle a signal of multiple signals:
+The [-flatten][RACStream] operator is applied to a stream-of-streams, and
+combines their values into a single new stream.
 
-```objective-c
-NSArray *signals = @[ letterSignal, numberSignal ];
-RACSignal *signalsSignal = signals.rac_sequence.signal;
+Sequences are [concatenated](#concatenating):
+
+```objc
+RACSequence *letters = [@"A B C D E F G H I" componentsSeparatedByString:@" "].rac_sequence;
+RACSequence *numbers = [@"1 2 3 4 5 6 7 8 9" componentsSeparatedByString:@" "].rac_sequence;
+RACSequence *sequenceOfSequences = @[ letters, numbers ].rac_sequence;
+
+// Contains: A B C D E F G H I 1 2 3 4 5 6 7 8 9
+RACSequence *flattened = [sequenceOfSequences flatten];
 ```
 
-ReactiveCocoa has more advanced operators to help with this.
+Signals are [merged](#merging):
 
-### Flatten
-
-The `-flatten:` operator will forward all values from many signals into the new flattened signal:
-
-```objective-c
-RACSignal *flattenSignal = [signalsSignal flatten];
-
-// Output 1: 1 A 2 3 B 4 C 5 6 D 7 E 8 9 F G H I
-// Output 2: 1 2 A B C 3 4 5 D 6 E 7 8 F G H I 9
-// ...
-//
-[flattenSignal subscribeNext:^(NSString *x) {
-    NSLog(@"%@", x);
-}];
-```
-
-Another way to think of this is that `-flatten` behaves like `+merge:` over all of the inside streams.
-
-### Flatten Map
-
-The method `-flattenMap:` is a shortcut for `-map:` followed by `-flatten`. It can be used on any stream. The key is that the block has to return a new stream, usually based on the input value, and all of those results will be flattened:
-
-```objective-c
-// Output with one second delay: A... B... C... D... E... F... G... H... I...
-//
-NSTimeInterval __block delay = 0.0;
-[[letterSignal flattenMap:^RACStream *(NSString *letter) {
-    delay += 1.0;
-    return [[RACSignal return:letter] delay:delay];
-}] subscribeNext:^(NSString *letter) {
-    NSLog(@"%@", letter);
-}];
-```
-
-### Combine Latest
-
-With help of the method `+combineLatest:` you can keep track of the latest changes in the number of streams:
-
-```objective-c
-RACSubject *letterSubject = [RACSubject subject];
-RACSubject *numberSubject = [RACSubject subject];
-RACSignal *combineSignal = [RACSignal combineLatest:@[ letterSubject, numberSubject ]];
-
-// Output: A1 B1 C1 C2
-//
-[combineSignal subscribeNext:^(RACTuple *tuple) {
-    NSLog(@"%@", [tuple.allObjects componentsJoinedByString:@""]);
+```objc
+RACSubject *letters = [RACSubject subject];
+RACSubject *numbers = [RACSubject subject];
+RACSignal *signalOfSignals = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+    [subscriber sendNext:letters];
+    [subscriber sendNext:numbers];
+    [subscriber sendCompleted];
+    return nil;
 }];
 
-[letterSubject sendNext:@"A"];
-[numberSubject sendNext:@"1"];
-[letterSubject sendNext:@"B"];
-[letterSubject sendNext:@"C"];
-[numberSubject sendNext:@"2"];
-```
+RACSignal *flattened = [signalOfSignals flatten];
 
-Please note that the signal returned from `+combineLatest:` will only send its first value once all of the inputs have sent at least once, and then will send again whenever any of the inputs send a new value.
-
-### Combine Reduce
-
-```objective-c
-RACSubject *letterSubject = [RACSubject subject];
-RACSubject *numberSubject = [RACSubject subject];
-RACSignal *combineSignal = [RACSignal combineLatest:@[ letterSubject, numberSubject ]
-                                             reduce:^(NSString *letter, NSString *number) {
-                                                 return [letter stringByAppendingString:number];
-                                             }];
-// Output: A1 B1 C1 C2
-//
-[combineSignal subscribeNext:^(id x) {
+// Outputs: A 1 B C 2
+[flattened subscribeNext:^(NSString *x) {
     NSLog(@"%@", x);
 }];
 
-[letterSubject sendNext:@"A"];
-[numberSubject sendNext:@"1"];
-[letterSubject sendNext:@"B"];
-[letterSubject sendNext:@"C"];
-[numberSubject sendNext:@"2"];
+[letters sendNext:@"A"];
+[numbers sendNext:@"1"];
+[letters sendNext:@"B"];
+[letters sendNext:@"C"];
+[numbers sendNext:@"2"];
 ```
 
-Basically this is just a syntactic sugar for `-combineLatest:` followed by the smarter `-map:`. You can pass a block to combine multiple values into the single one.
+### Mapping and flattening
+
+[Flattening](#flattening) isn't that interesting on its own, but understanding
+how it works is important for [-flattenMap:][RACStream].
+
+`-flattenMap:` is used to transform each of a stream's values into _a new
+stream_. Then, all of the streams returned will be flattened down into a single
+stream.
+
+For example, this can be used to extend or edit sequences:
+
+```objc
+RACSequence *numbers = [@"1 2 3 4 5 6 7 8 9" componentsSeparatedByString:@" "].rac_sequence;
+
+// Contains: 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9
+RACSequence *extended = [numbers flattenMap:^(NSString *num) {
+    return @[ num, num ].rac_sequence;
+}];
+
+// Contains: 2_ 4_ 6_ 8_
+RACSequence *edited = [numbers flattenMap:^(NSString *num) {
+    if (num.intValue % 2 == 0) {
+        return [RACSequence empty];
+    } else {
+        NSString *newNum = [num stringByAppendingString:@"_"];
+        return [RACSequence return:newNum]; 
+    }
+}];
+```
+
+Or create multiple signals of work which are automatically recombined:
+
+```objc
+RACSignal *letters = [@"A B C D E F G H I" componentsSeparatedByString:@" "].rac_sequence.signal;
+
+[[letters
+    flattenMap:^(NSString *letter) {
+        return [database saveEntriesForLetter:letter];
+    }]
+    subscribeCompleted:^{
+        NSLog(@"All database entries saved successfully.");
+    }];
+```
+
+## Combining signals
+
+These operators combine multiple signals into a single new [RACSignal][].
+
+### Sequencing
+
+The [-sequenceNext:][RACSignal+Operators] method starts the original signal,
+waits for it to complete, and then only forwards the values from a new signal:
+
+```objc
+RACSignal *letters = [@"A B C D E F G H I" componentsSeparatedByString:@" "].rac_sequence.signal;
+RACSignal *numbers = [@"1 2 3 4 5 6 7 8 9" componentsSeparatedByString:@" "].rac_sequence.signal;
+
+// The new signal only contains: 1 2 3 4 5 6 7 8 9
+//
+// But when subscribed to, it also outputs: A B C D E F G H I
+RACSignal *sequenced = [[letters
+    doNext:^(NSString *letter) {
+        NSLog(@"%@", letter);
+    }]
+    sequenceNext:numbers];
+```
+
+This is most useful for executing all the side effects of one signal, then
+starting another, and only returning the second signal's values.
+
+### Merging
+
+The [+merge:][RACSignal+Operators] method will forward the values from many
+signals into a single stream, as soon as those values arrive:
+
+```objc
+RACSubject *letters = [RACSubject subject];
+RACSubject *numbers = [RACSubject subject];
+RACSignal *merged = [RACSignal merge:@[ letters, numbers ]];
+
+// Outputs: A 1 B C 2
+[merged subscribeNext:^(NSString *x) {
+    NSLog(@"%@", x);
+}];
+
+[letters sendNext:@"A"];
+[numbers sendNext:@"1"];
+[letters sendNext:@"B"];
+[letters sendNext:@"C"];
+[numbers sendNext:@"2"];
+```
+
+### Combining latest values
+
+The [+combineLatest:][RACSignal+Operators] and `+combineLatest:reduce:` methods
+will watch multiple signals for changes, and then send the latest values from
+_all_ of them when a change occurs:
+
+```objc
+RACSubject *letters = [RACSubject subject];
+RACSubject *numbers = [RACSubject subject];
+RACSignal *combined = [RACSignal
+    combineLatest:@[ letters, numbers ]
+    reduce:^(NSString *letter, NSString *number) {
+        return [letter stringByAppendingString:number];
+    }];
+
+// Outputs: B1 B2 C2 C3
+[combined subscribeNext:^(id x) {
+    NSLog(@"%@", x);
+}];
+
+[letters sendNext:@"A"];
+[letters sendNext:@"B"];
+[numbers sendNext:@"1"];
+[numbers sendNext:@"2"];
+[letters sendNext:@"C"];
+[numbers sendNext:@"3"];
+```
+
+Note that the combined signal will only send its first value when all of the
+inputs have sent at least one. In the example above, `@"A"` was never
+forwarded because `numbers` had not sent a value yet.
+
+### Switching
+
+[RACSequence]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSequence.h
+[RACSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h
+[RACSignal+Operations]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h
+[RACStream]: ../ReactiveCocoaFramework/ReactiveCocoa/RACStream.h
+[Sequences]: FrameworkOverview.md#sequences
+[Signals]: FrameworkOverview.md#signals
+[Streams]: FrameworkOverview.md#streams

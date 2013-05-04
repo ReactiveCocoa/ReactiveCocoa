@@ -43,7 +43,10 @@
 }
 
 - (BOOL)respondsToSelector:(SEL)selector {
-	if ([self.actualDelegate respondsToSelector:selector] || [self trampolinesRespondToSelector:selector]) return YES;
+	// Add the original delegate to the autorelease pool, so it doesn't get
+	// deallocated between this method call and -forwardInvocation:.
+	__autoreleasing id actual = self.actualDelegate;
+	if ([actual respondsToSelector:selector] || [self trampolinesRespondToSelector:selector]) return YES;
     
 	return [super respondsToSelector:selector];
 }
@@ -58,8 +61,9 @@
 		[trampoline didGetDelegateEvent:selector sender:self.delegator];
 	}
 
-	if ([self.actualDelegate respondsToSelector:selector]) {
-		[invocation invokeWithTarget:self.actualDelegate];
+	id actual = self.actualDelegate;
+	if ([actual respondsToSelector:selector]) {
+		[invocation invokeWithTarget:actual];
 	}
 }
 

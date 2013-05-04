@@ -240,6 +240,34 @@ forwarded because `numbers` had not sent a value yet.
 
 ### Switching
 
+The [-switchToLatest][RACSignal+Operations] operator is applied to
+a signal-of-signals, and always forwards the values from the latest signal:
+
+```objc
+RACSubject *letters = [RACSubject subject];
+RACSubject *numbers = [RACSubject subject];
+RACSubject *signalOfSignals = [RACSubject subject];
+
+RACSignal *switched = [signalOfSignals switchToLatest];
+
+// Outputs: A B 1 D
+[switched subscribeNext:^(NSString *x) {
+    NSLog(@"%@", x);
+}];
+
+[switched sendNext:letters];
+[letters sendNext:@"A"];
+[letters sendNext:@"B"];
+
+[switched sendNext:numbers];
+[letters sendNext:@"C"];
+[numbers sendNext:@"1"];
+
+[switched sendNext:letters];
+[numbers sendNext:@"2"];
+[letters sendNext:@"D"];
+```
+
 [RACSequence]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSequence.h
 [RACSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h
 [RACSignal+Operations]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h

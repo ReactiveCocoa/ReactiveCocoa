@@ -10,6 +10,7 @@
 #import "RACBinding.h"
 #import "RACDisposable.h"
 #import "NSObject+RACKVOWrapper.h"
+#import "NSObject+RACPropertySubscribing.h"
 #import "RACTestObject.h"
 #import "RACPropertySignalExamples.h"
 #import "RACPropertySubjectExamples.h"
@@ -17,6 +18,7 @@
 @interface TestClass : NSObject
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic, strong) TestClass *relatedObject;
+@property (nonatomic, weak) TestClass *weakRelatedObject;
 @property (nonatomic, strong) NSArray *array;
 @property (nonatomic, strong) NSSet *set;
 @property (nonatomic, strong) NSOrderedSet *orderedSet;
@@ -223,6 +225,28 @@ describe(@"RACObservablePropertySubject bindings", ^{
 		RACBind(a, orderedSet) = RACBind(b, orderedSet);
 		[[b mutableOrderedSetValueForKeyPath:@keypath(b.orderedSet)] addObject:@1];
 		expect(a.orderedSet).to.equal(b.orderedSet);
+	});
+	
+	it(@"should handle deallocation of intermediate objects correctly even without support from KVO", ^{
+		__block BOOL wasDisposed = NO;
+		RACBind(a, weakRelatedObject.name) = RACBind(b, relatedObject.name);
+		b.relatedObject = [[TestClass alloc] init];
+		@autoreleasepool {
+			TestClass *object = [[TestClass alloc] init];
+			[object rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				wasDisposed = YES;
+			}]];
+			
+			a.weakRelatedObject = object;
+			object.name = testName1;
+			
+			expect(wasDisposed).to.beFalsy();
+			
+			expect(b.relatedObject.name).to.equal(testName1);
+		}
+		
+		expect(wasDisposed).will.beTruthy();
+		expect(b.relatedObject.name).to.beNil();
 	});
 	
 	it(@"should stop binding when disposed", ^{

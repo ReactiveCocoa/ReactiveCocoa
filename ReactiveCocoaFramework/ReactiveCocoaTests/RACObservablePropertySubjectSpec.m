@@ -227,7 +227,7 @@ describe(@"RACObservablePropertySubject bindings", ^{
 		expect(a.orderedSet).to.equal(b.orderedSet);
 	});
 	
-	it(@"should handle deallocation of intermediate objects gracefully", ^{
+	it(@"should handle deallocation of intermediate objects correctly even without support from KVO", ^{
 		__block BOOL wasDisposed = NO;
 		RACBind(a, weakRelatedObject.name) = RACBind(b, relatedObject.name);
 		b.relatedObject = [[TestClass alloc] init];
@@ -237,8 +237,8 @@ describe(@"RACObservablePropertySubject bindings", ^{
 				wasDisposed = YES;
 			}]];
 			
-			object.name = testName1;
 			a.weakRelatedObject = object;
+			object.name = testName1;
 			
 			expect(wasDisposed).to.beFalsy();
 			

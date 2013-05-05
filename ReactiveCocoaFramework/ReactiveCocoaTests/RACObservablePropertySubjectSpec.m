@@ -158,6 +158,28 @@ describe(@"RACObservablePropertySubject bindings", ^{
 		expect(a.relatedObject).notTo.equal(b.relatedObject);
 	});
 	
+	it(@"should update properties identified by keypaths when the intermediate values change", ^{
+		RACBind(a, relatedObject.name) = RACBind(b, relatedObject.name);
+		a.relatedObject = [[TestClass alloc] init];
+		b.relatedObject = [[TestClass alloc] init];
+		c.name = testName1;
+		b.relatedObject = c;
+		
+		expect(a.relatedObject.name).to.equal(testName1);
+		expect(a.relatedObject).notTo.equal(b.relatedObject);
+	});
+	
+	it(@"should update properties identified by keypaths when the binding was created when one of the two objects had an intermediate nil value", ^{
+		RACBind(a, relatedObject.name) = RACBind(b, relatedObject.name);
+		b.relatedObject = [[TestClass alloc] init];
+		c.name = testName1;
+		a.relatedObject = c;
+		
+		expect(a.relatedObject.name).to.equal(testName1);
+		expect(b.relatedObject.name).to.equal(testName1);
+		expect(a.relatedObject).notTo.equal(b.relatedObject);
+	});
+	
 	it(@"should take the value of the object being bound to at the start", ^{
 		a.name = testName1;
 		b.name = testName2;

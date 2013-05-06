@@ -169,7 +169,6 @@ waits for it to complete, and then only forwards the values from a new signal:
 
 ```objc
 RACSignal *letters = [@"A B C D E F G H I" componentsSeparatedByString:@" "].rac_sequence.signal;
-RACSignal *numbers = [@"1 2 3 4 5 6 7 8 9" componentsSeparatedByString:@" "].rac_sequence.signal;
 
 // The new signal only contains: 1 2 3 4 5 6 7 8 9
 //
@@ -178,7 +177,9 @@ RACSignal *sequenced = [[letters
     doNext:^(NSString *letter) {
         NSLog(@"%@", letter);
     }]
-    sequenceNext:numbers];
+    sequenceNext:^{
+        return [@"1 2 3 4 5 6 7 8 9" componentsSeparatedByString:@" "].rac_sequence.signal;
+    }];
 ```
 
 This is most useful for executing all the side effects of one signal, then

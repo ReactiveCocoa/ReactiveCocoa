@@ -8,8 +8,16 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class RACBinding;
 
 @interface NSObject (RACAppKitBindings)
+
+// Returns a RACBinding to an App Kit Binding.
+- (RACBinding *)rac_bind:(NSString *)binding;
+
+// Returns a RACBinding to an App Kit Binding, however you may use
+// a different value for nil, such as @"" for a NSTextField's value.
+- (RACBinding *)rac_bind:(NSString *)binding nilValue:(id)nilValue;
 
 // Calls -[NSObject bind:binding toObject:object withKeyPath:keyPath options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nil]]
 - (void)rac_bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath;

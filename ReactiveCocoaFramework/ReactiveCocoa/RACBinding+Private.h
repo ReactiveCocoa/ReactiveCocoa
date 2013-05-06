@@ -25,4 +25,8 @@
 //              property itself.
 - (instancetype)initWithSignal:(RACSignal *)signal subscriber:(id<RACSubscriber>)subscriber;
 
+// Like initWithSignal, but with only the first elements of the RACTuples.
+// This also means we don't need to ignore the first value.
+- (instancetype)initWithValueSignal:(RACSignal *)signal subscriber:(id<RACSubscriber>)subscriber;
+
 @end

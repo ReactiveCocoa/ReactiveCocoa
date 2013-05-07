@@ -22,6 +22,7 @@
 @interface RACBindingProxy : NSObject
 
 @property (nonatomic, strong) id value;
+@property (nonatomic, strong) id nilValue;
 @property (nonatomic, weak) id subscriber;
 
 @end
@@ -32,8 +33,12 @@
 
 - (void)setValue:(id)value {
 	// Need to keep the value around, for initial value.
-	_value = value;
-	[_subscriber sendNext:value];
+	if (value == nil) {
+		_value = _nilValue;
+	} else {
+		_value = value;
+	}
+	[_subscriber sendNext:_value];
 }
 
 - (id)value {
@@ -45,20 +50,26 @@
 @implementation NSObject (RACAppKitBindings)
 
 - (RACBinding *)rac_bind:(NSString *)binding {
-	return [self rac_bind:binding nilValue:nil];
+	return [self rac_bind:binding options:@{NSContinuouslyUpdatesValueBindingOption : @YES, NSNullPlaceholderBindingOption : (id)nil}];
 }
 
+
 - (RACBinding *)rac_bind:(NSString *)binding nilValue:(id)nilValue {
+	return [self rac_bind:binding options:@{NSContinuouslyUpdatesValueBindingOption : @YES, NSNullPlaceholderBindingOption : nilValue}];
+}
+
+- (RACBinding *)rac_bind:(NSString *)binding options:(NSDictionary *)options {
 	__block RACBindingProxy *proxy = [[RACBindingProxy alloc] init];
-	[self bind:binding toObject:proxy withKeyPath:@keypath(proxy, value) options:@{NSContinuouslyUpdatesValueBindingOption : @YES, NSNullPlaceholderBindingOption : nilValue}];
+	proxy.nilValue = options[NSNullPlaceholderBindingOption];
+	[self bind:binding toObject:proxy withKeyPath:@keypath(proxy, value) options:options];
 	
-	RACSignal *signal = [[[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+	RACSignal *signal = [[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
 		proxy.subscriber = subscriber;
 		return [RACDisposable disposableWithBlock:^{
 			[self unbind:binding];
 		}];
 		
-	}] startWith:[nilValue copy]]
+	}] 
 	setNameWithFormat:@"%@ -rac_bind", self];
 	
 	RACSubscriber *subscriber = [RACSubscriber subscriberWithNext:^(id x) {

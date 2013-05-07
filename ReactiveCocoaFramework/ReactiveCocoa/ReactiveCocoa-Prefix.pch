@@ -9,3 +9,6 @@
 
 #undef NSAssert
 #define NSAssert NSCAssert
+
+#undef NSParameterAssert
+#define NSParameterAssert NSCParameterAssert

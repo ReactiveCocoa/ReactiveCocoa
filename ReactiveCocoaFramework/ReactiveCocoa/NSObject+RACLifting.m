@@ -109,7 +109,7 @@ static RACSignal *RACLiftAndCallBlock(id object, NSArray *args, RACSignal * (^bl
 @end
 
 static RACSignal *RACLiftAndCallBlock(id object, NSArray *args, RACSignal * (^block)(NSArray *)) {
-	NSCParameterAssert(block != nil);
+	NSParameterAssert(block != nil);
 
 	NSMutableArray *signals = [NSMutableArray arrayWithCapacity:args.count];
 	NSMutableDictionary *argIndexesBySignal = [NSMutableDictionary dictionaryWithCapacity:args.count];

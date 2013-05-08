@@ -28,13 +28,15 @@ resource for getting up to speed on the functionality provided by RAC.
  1. [Use descriptive declarations for methods and properties that return a signal](#use-descriptive-declarations-for-methods-and-properties-that-return-a-signal)
  1. [Indent stream operations consistently](#indent-stream-operations-consistently)
  1. [Use the same type for all the values of a stream](#use-the-same-type-for-all-the-values-of-a-stream)
- 1. [Avoid retaining streams and disposables directly](#avoid-retaining-streams-and-disposables-directly)
+ 1. [Avoid retaining streams for too long](#avoid-retaining-streams-for-too-long)
  1. [Process only as much of a stream as needed](#process-only-as-much-of-a-stream-as-needed)
  1. [Deliver signal events onto a known scheduler](#deliver-signal-events-onto-a-known-scheduler)
  1. [Switch schedulers in as few places as possible](#switch-schedulers-in-as-few-places-as-possible)
  1. [Make the side effects of a signal explicit](#make-the-side-effects-of-a-signal-explicit)
  1. [Share the side effects of a signal by multicasting](#share-the-side-effects-of-a-signal-by-multicasting)
  1. [Debug streams by giving them names](#debug-streams-by-giving-them-names)
+ 1. [Avoid explicit subscriptions and disposal](#avoid-explicit-subscriptions-and-disposal)
+ 1. [Avoid using subjects when possible](#avoid-using-subjects-when-possible)
 
 **[Implementing new operators](#implementing-new-operators)**
 
@@ -358,7 +360,7 @@ only invoke supported methods.
 
 Whenever possible, streams should only contain objects of the same type.
 
-### Avoid retaining streams and disposables directly
+### Avoid retaining streams for too long
 
 Retaining any [RACStream][] longer than it's needed will cause any dependencies
 to be retained as well, potentially keeping memory usage much higher than it
@@ -368,18 +370,12 @@ A [RACSequence][] should be retained only for as long as the `head` of the
 sequence is needed. If the head will no longer be used, retain the `tail` of the
 node instead of the node itself.
 
-It's usually unnecessary to directly retain a [RACDisposable][] or
-a [RACSignal][], because there are often higher-level patterns that can be used
-instead of manual lifetime management. For instance,
-[-rac_liftSelector:withObjects:][NSObject+RACLifting] or the [RAC()][RAC] macro
-can often replace [-subscribeNext:error:completed:][RACSignal].
-
-See the [Memory Management][] guide for more information.
+See the [Memory Management][] guide for more information on object lifetime.
 
 ### Process only as much of a stream as needed
 
 As well as [consuming additional
-memory](#avoid-retaining-streams-and-disposables-directly), unnecessarily
+memory](#avoid-retaining-streams-for-too-long), unnecessarily
 keeping a stream or [RACSignal][] subscription alive can result in increased CPU
 usage, as unnecessary work is performed for results that will never be used.
 
@@ -387,11 +383,7 @@ If only a certain number of values are needed from a stream, the
 [-take:][RACStream] operator can be used to retrieve only that many values, and
 then automatically terminate the stream immediately thereafter.
 
-Similarly, [-takeUntil:][RACSignal+Operations] can be used to automatically
-dispose of a [RACSignal][] subscription when an event occurs (like a "Cancel"
-button being pressed in the UI).
-
-Operators like `-take:` and `-takeUntil:` automatically propagate cancellation
+Operators like `-take:` and [-takeUntil:][RACSignal+Operations] automatically propagate cancellation
 up the stack as well. If nothing else needs the rest of the values, any
 dependencies will be terminated too, potentially saving a significant amount of
 work.
@@ -523,6 +515,61 @@ Names can also be manually applied by using [-setNameWithFormat:][RACStream].
 `-logCompleted`, and `-logAll` methods, which will automatically log signal
 events as they occur, and include the name of the signal in the messages. This
 can be used to conveniently inspect a signal in real-time.
+
+### Avoid explicit subscriptions and disposal
+
+Although [-subscribeNext:error:completed:][RACSignal] and its variants are the
+most basic way to process a signal, their use can complicate code by
+being less declarative, encouraging the use of side effects, and potentially
+duplicating built-in functionality.
+
+Likewise, explicit use of the [RACDisposable][] class can quickly lead to
+a rat's nest of resource management and cleanup code.
+
+There are almost always higher-level patterns that can be used instead of manual
+subscriptions and disposal:
+
+ * The [RAC()][RAC] or [RACBind()][RACBind] macros can be used to bind a signal
+   to a property, instead of performing manual updates when changes occur.
+ * The [-rac_liftSelector:withObjects:][NSObject+RACLifting] or
+   [-rac_lift][NSObject+RACLifting] methods can be used to automatically invoke
+   a selector when one or more signals fire.
+ * Operators like [-takeUntil:][RACSignal+Operations] can be used to
+   automatically dispose of a subscription when an event occurs (like a "Cancel"
+   button being pressed in the UI).
+
+Generally, the use of built-in [stream][RACStream] and
+[signal][RACSignal+Operations] operators will lead to simpler and less
+error-prone code than replicating the same behaviors in a subscription callback.
+
+### Avoid using subjects when possible
+
+[Subjects][] are a powerful tool for bridging imperative code
+into the world of signals, but, as the "mutable variables" of RAC, they can
+quickly lead to complexity when overused.
+
+Since they can be manipulated from anywhere, at any time, subjects often break
+the linear flow of stream processing and make logic much harder to follow. They
+also don't support meaningful
+[disposal](#disposal-cancels-in-progress-work-and-cleans-up-resources), which
+can result in unnecessary work.
+
+Subjects can usually be replaced with other patterns from ReactiveCocoa:
+
+ * Instead of feeding initial values into a subject, consider generating the
+   values in a [+createSignal:][RACSignal] block instead.
+ * Instead of delivering intermediate results to a subject, try combining the
+   output of multiple signals with operators like
+   [+combineLatest:][RACSignal+Operations] or [+zip:][RACStream].
+ * Instead of using subjects to share results with multiple subscribers,
+   [multicast](#share-the-side-effects-of-a-signal-by-multicasting) a base
+   signal instead.
+ * Instead of implementing an action method which simply controls a subject, use
+   a [command][RACCommand] or
+   [-rac_signalForSelector:][NSObject+RACSelectorSignal] instead.
+
+When subjects _are_ necessary, they should almost always be the "base" input
+for a signal chain, not used in the middle of one.
 
 ## Implementing new operators
 
@@ -684,8 +731,11 @@ By contrast, this version will avoid a stack overflow:
 [Framework Overview]: FrameworkOverview.md
 [Memory Management]: MemoryManagement.md
 [NSObject+RACLifting]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACLifting.h
+[NSObject+RACSelectorSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACSelectorSignal.h
 [RAC]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h
 [RACAble]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACPropertySubscribing.h
+[RACBind]: ../ReactiveCocoaFramework/ReactiveCocoa/RACObservablePropertySubject.h
+[RACCommand]: ../ReactiveCocoaFramework/ReactiveCocoa/RACCommand.h
 [RACDisposable]: ../ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
 [RACEvent]: ../ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h
 [RACMulticastConnection]: ../ReactiveCocoaFramework/ReactiveCocoa/RACMulticastConnection.h
@@ -695,3 +745,4 @@ By contrast, this version will avoid a stack overflow:
 [RACSignal+Operations]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h
 [RACStream]: ../ReactiveCocoaFramework/ReactiveCocoa/RACStream.h
 [RACSubscriber]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubscriber.h
+[Subjects]: FrameworkOverview.md#subjects

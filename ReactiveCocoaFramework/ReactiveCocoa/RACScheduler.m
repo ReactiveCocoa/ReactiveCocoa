@@ -75,6 +75,12 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 	return [self schedulerWithPriority:RACSchedulerPriorityDefault];
 }
 
++ (instancetype)schedulerWithQueue:(dispatch_queue_t)queue name:(NSString *)name {
+	NSParameterAssert(queue != NULL);
+
+	return [[RACQueueScheduler alloc] initWithName:name targetQueue:queue];
+}
+
 + (instancetype)subscriptionScheduler {
 	static dispatch_once_t onceToken;
 	static RACScheduler *subscriptionScheduler;

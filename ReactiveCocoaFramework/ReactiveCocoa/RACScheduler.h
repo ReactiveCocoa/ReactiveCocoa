@@ -54,16 +54,17 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 // Invokes +schedulerWithPriority: with RACSchedulerPriorityDefault.
 + (instancetype)scheduler;
 
-// Creates a new scheduler with the given queue and name. The name is for debug
-// and instrumentation purposes only.
+// Creates a new scheduler with the given queue and name.
 //
 // Note that the scheduler can only ensure the serial execution of blocks
-// scheduled through the scheduler and not blocks enqueued directly on the given
-// queue. If the queue allows for concurrent execution, scheduled blocks may run
-// concurrently with blocks directly enqueued.
+// scheduled through this scheduler and not blocks enqueued directly on the
+// given queue, or even blocks scheduled on the same queue through a different
+// scheduler. If the queue allows for concurrent execution, scheduled blocks may
+// run concurrently with blocks directly enqueued.
 //
 // queue - The queue which the scheduler should target. Cannot be NULL.
-// name  - The name for the scheduler. May be nil.
+// name  - The name for the scheduler, to be used for debug or instrumentation
+//         purposes only. May be nil.
 //
 // Returns the created scheduler.
 + (instancetype)schedulerWithQueue:(dispatch_queue_t)queue name:(NSString *)name;

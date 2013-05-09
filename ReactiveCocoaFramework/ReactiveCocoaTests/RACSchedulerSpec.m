@@ -264,7 +264,6 @@ describe(@"+schedulerWithQueue:name:", ^{
 		}];
 
 		expect(startedCount).will.equal(1);
-		expect(startedCount).willNot.equal(2);
 
 		OSAtomicAnd32Barrier(0, &waitInFirst);
 

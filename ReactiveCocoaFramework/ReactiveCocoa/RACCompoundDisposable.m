@@ -54,8 +54,8 @@
 #pragma mark Compound
 
 - (void)addDisposable:(RACDisposable *)disposable {
-	NSParameterAssert(disposable != nil);
-	NSParameterAssert(disposable != self);
+	NSCParameterAssert(disposable != nil);
+	NSCParameterAssert(disposable != self);
 
 	BOOL shouldDispose = NO;
 

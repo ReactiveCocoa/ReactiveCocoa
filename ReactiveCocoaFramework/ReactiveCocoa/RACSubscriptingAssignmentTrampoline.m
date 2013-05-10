@@ -50,7 +50,7 @@
 }
 
 - (void)setObject:(RACSignal *)signal forKeyedSubscript:(RACSubscriptingAssignmentObjectKeyPathPair *)pair {
-	NSParameterAssert([pair isKindOfClass:RACSubscriptingAssignmentObjectKeyPathPair.class]);
+	NSCParameterAssert([pair isKindOfClass:RACSubscriptingAssignmentObjectKeyPathPair.class]);
 
 	[pair.object rac_deriveProperty:pair.keyPath from:signal];
 }

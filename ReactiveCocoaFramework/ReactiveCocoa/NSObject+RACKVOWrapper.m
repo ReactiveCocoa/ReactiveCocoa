@@ -70,7 +70,7 @@ static NSMutableSet *swizzledClasses() {
 }
 
 - (void)rac_addKVOTrampoline:(RACKVOTrampoline *)trampoline {
-	NSParameterAssert(trampoline != nil);
+	NSCParameterAssert(trampoline != nil);
 
 	@synchronized (self) {
 		if (self.RACKVOTrampolines == nil) {

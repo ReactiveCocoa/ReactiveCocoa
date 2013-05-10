@@ -32,7 +32,7 @@
 @synthesize transformBlock;
 
 + (instancetype)transformerWithBlock:(id (^)(id value))block {
-	NSParameterAssert(block != NULL);
+	NSCParameterAssert(block != NULL);
 	
 	RACValueTransformer *transformer = [[self alloc] init];
 	transformer.transformBlock = block;

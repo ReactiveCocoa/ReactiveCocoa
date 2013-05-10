@@ -27,7 +27,7 @@
 }
 
 + (id)invokeBlock:(id)block withArguments:(RACTuple *)arguments {
-	NSParameterAssert(block != NULL);
+	NSCParameterAssert(block != NULL);
 
 	RACBlockTrampoline *trampoline = [[self alloc] initWithBlock:block];
 	return [trampoline invokeWithArguments:arguments];
@@ -53,7 +53,7 @@
 }
 
 - (SEL)selectorForArgumentCount:(NSUInteger)count {
-	NSParameterAssert(count > 0);
+	NSCParameterAssert(count > 0);
 
 	NSMutableString *selectorString = [NSMutableString stringWithString:@"performWith"];
 	for (NSUInteger i = 0; i < count; i++) {
@@ -61,7 +61,7 @@
 	}
 
 	SEL selector = NSSelectorFromString(selectorString);
-	NSAssert([self respondsToSelector:selector], @"The argument count is too damn high! Only blocks of up to 15 arguments are currently supported.");
+	NSCAssert([self respondsToSelector:selector], @"The argument count is too damn high! Only blocks of up to 15 arguments are currently supported.");
 	return selector;
 }
 

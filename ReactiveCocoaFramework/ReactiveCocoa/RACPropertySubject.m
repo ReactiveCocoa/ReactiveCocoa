@@ -84,7 +84,7 @@
 		[subscriber sendNext:[RACTuple tupleWithObjects:x, RACTupleNil.tupleNil, nil]];
 	} error:^(NSError *error) {
 		@strongify(self);
-		NSAssert(NO, @"Received error in RACPropertySubject %@: %@", self, error);
+		NSCAssert(NO, @"Received error in RACPropertySubject %@: %@", self, error);
 		
 		// Log the error if we're running with assertions disabled.
 		NSLog(@"Received error in RACPropertySubject %@: %@", self, error);

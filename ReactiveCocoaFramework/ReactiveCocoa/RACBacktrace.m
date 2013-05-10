@@ -216,8 +216,8 @@ static void RACExceptionHandler (NSException *ex) {
 
 - (id)initWithQueue:(dispatch_queue_t)queue function:(dispatch_function_t)function context:(void *)context {
 	@autoreleasepool {
-		NSParameterAssert(queue != NULL);
-		NSParameterAssert(function != NULL);
+		NSCParameterAssert(queue != NULL);
+		NSCParameterAssert(function != NULL);
 
 		self = [super init];
 		if (self == nil) return nil;

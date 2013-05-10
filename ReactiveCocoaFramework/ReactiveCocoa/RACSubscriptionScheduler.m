@@ -33,7 +33,7 @@
 #pragma mark RACScheduler
 
 - (RACDisposable *)schedule:(void (^)(void))block {
-	NSParameterAssert(block != NULL);
+	NSCParameterAssert(block != NULL);
 
 	if (RACScheduler.currentScheduler == nil) return [self.backgroundScheduler schedule:block];
 

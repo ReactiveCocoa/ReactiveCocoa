@@ -7,10 +7,85 @@
 //
 
 #import "NSObject+RACAppKitBindings.h"
+
+#import "EXTKeyPathCoding.h"
+#import "EXTScope.h"
+
+#import "RACSubscriber.h"
+#import "RACSignal.h"
+#import "RACDisposable.h"
+#import "RACBinding+Private.h"
 #import "RACValueTransformer.h"
 
+// A class for the RACAppKitBindings to bind to.
+// In turn, it sends the subscriber values.
+@interface RACBindingProxy : NSObject
+
+@property (nonatomic, strong) id value;
+@property (nonatomic, strong) id nilValue;
+@property (nonatomic, weak) id subscriber;
+
+@end
+
+@implementation RACBindingProxy
+
+@synthesize value = _value;
+
+- (void)setValue:(id)value {
+	// Need to keep the value around, for initial value.
+	if (value == nil) {
+		_value = _nilValue;
+	} else {
+		_value = value;
+	}
+	[_subscriber sendNext:_value];
+}
+
+- (id)value {
+	return _value;
+}
+
+@end
 
 @implementation NSObject (RACAppKitBindings)
+
+- (RACBinding *)rac_bind:(NSString *)binding {
+	return [self rac_bind:binding options:@{NSContinuouslyUpdatesValueBindingOption : @YES, NSNullPlaceholderBindingOption : (id)nil}];
+}
+
+
+- (RACBinding *)rac_bind:(NSString *)binding nilValue:(id)nilValue {
+	return [self rac_bind:binding options:@{NSContinuouslyUpdatesValueBindingOption : @YES, NSNullPlaceholderBindingOption : nilValue}];
+}
+
+- (RACBinding *)rac_bind:(NSString *)binding options:(NSDictionary *)options {
+	__block RACBindingProxy *proxy = [[RACBindingProxy alloc] init];
+	proxy.nilValue = options[NSNullPlaceholderBindingOption];
+	[self bind:binding toObject:proxy withKeyPath:@keypath(proxy, value) options:options];
+	
+	RACSignal *signal = [[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+		proxy.subscriber = subscriber;
+		return [RACDisposable disposableWithBlock:^{
+			[self unbind:binding];
+		}];
+		
+	}] 
+	setNameWithFormat:@"%@ -rac_bind", self];
+	
+	RACSubscriber *subscriber = [RACSubscriber subscriberWithNext:^(id x) {
+		[proxy setValue:x];
+	} error:^(NSError *error) {
+		NSAssert(NO, @"Received error in RACAppKitBindings %@: %@", self, error);
+
+		NSLog(@"Received error in RACAppKitBindings %@: %@", self, error);
+	} completed:nil];
+	
+	return [[RACBinding alloc] initWithValueSignal:signal subscriber:subscriber];
+}
+
+
+#pragma mark - deprecated NSObject+RACAppKitBindings 
+// See issue #361
 
 - (void)rac_bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath {
 	[self rac_bind:binding toObject:object withKeyPath:keyPath nilValue:nil];

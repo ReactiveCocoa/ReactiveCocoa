@@ -74,6 +74,22 @@
 	return self;
 }
 
+- (instancetype)initWithValueSignal:(RACSignal *)signal subscriber:(id<RACSubscriber>)subscriber {
+	self = [super init];
+	if (self == nil) return nil;
+	
+	_exposedSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		return [signal subscribeNext:^(id x) {
+			[subscriber sendNext:x];
+		}];
+	}];
+	_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
+		[subscriber sendNext:x];
+	} error:nil completed:nil];
+	
+	return self;
+}
+
 - (RACDisposable *)bindTo:(RACBinding *)binding {
 	RACDisposable *bindingDisposable = [binding subscribe:self];
 	RACDisposable *selfDisposable = [[self skip:1] subscribe:binding];

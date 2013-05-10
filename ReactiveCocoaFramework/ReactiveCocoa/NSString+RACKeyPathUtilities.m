@@ -10,14 +10,14 @@
 
 @implementation NSString (RACKeyPathUtilities)
 
-- (NSArray *)keyPathComponents {
+- (NSArray *)rac_keyPathComponents {
 	if (self.length == 0) {
 		return nil;
 	}
 	return [self componentsSeparatedByString:@"."];
 }
 
-- (NSString *)keyPathByDeletingLastKeyPathComponent {
+- (NSString *)rac_keyPathByDeletingLastKeyPathComponent {
 	NSUInteger lastDotIndex = [self rangeOfString:@"." options:NSBackwardsSearch].location;
 	if (lastDotIndex == NSNotFound) {
 		return nil;

@@ -143,7 +143,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 	binding->_exposedSubscriberSubject = [RACSubject subject];
 	[binding->_exposedSubscriberSubject subscribeNext:^(id x) {
 		@strongify(binding);
-		if (binding.keyPath.keyPathComponents.count > 1 && [binding.target valueForKeyPath:binding.keyPath.keyPathByDeletingLastKeyPathComponent] == nil) {
+		if (binding.keyPath.rac_keyPathComponents.count > 1 && [binding.target valueForKeyPath:binding.keyPath.rac_keyPathByDeletingLastKeyPathComponent] == nil) {
 			return;
 		}
 		binding.ignoreNextUpdate = YES;

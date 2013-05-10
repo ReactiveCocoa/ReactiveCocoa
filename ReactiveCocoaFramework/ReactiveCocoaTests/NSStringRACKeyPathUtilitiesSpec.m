@@ -12,25 +12,25 @@ SpecBegin(NSStringRACKeyPathUtilities)
 
 describe(@"-keyPathComponents", ^{
 	it(@"should return components in the key path", ^{
-		expect(@"self.test.key.path".keyPathComponents).to.equal((@[@"self", @"test", @"key", @"path"]));
+		expect(@"self.test.key.path".rac_keyPathComponents).to.equal((@[@"self", @"test", @"key", @"path"]));
 	});
 	
 	it(@"should return nil if given an empty string", ^{
-		expect(@"".keyPathComponents).to.beNil();
+		expect(@"".rac_keyPathComponents).to.beNil();
 	});
 });
 
 describe(@"-keyPathByDeletingLastKeyPathComponent", ^{
 	it(@"should return the parent key path", ^{
-		expect(@"grandparent.parent.child".keyPathByDeletingLastKeyPathComponent).to.equal(@"grandparent.parent");
+		expect(@"grandparent.parent.child".rac_keyPathByDeletingLastKeyPathComponent).to.equal(@"grandparent.parent");
 	});
 	
 	it(@"should return nil if given an empty string", ^{
-		expect(@"".keyPathByDeletingLastKeyPathComponent).to.beNil();
+		expect(@"".rac_keyPathByDeletingLastKeyPathComponent).to.beNil();
 	});
 	
 	it(@"should return nil if given a key path with only one component", ^{
-		expect(@"self".keyPathByDeletingLastKeyPathComponent).to.beNil();
+		expect(@"self".rac_keyPathByDeletingLastKeyPathComponent).to.beNil();
 	});
 });
 

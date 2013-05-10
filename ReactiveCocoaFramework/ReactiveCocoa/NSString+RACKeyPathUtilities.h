@@ -10,14 +10,13 @@
 
 @interface NSString (RACKeyPathUtilities)
 
-// Returns an array of the components of the receiver.
-// Returns nil if the receiver is not a valid key path.
-- (NSArray *)keyPathComponents;
+// Returns an array of the components of the receiver, or nil if the receiver is
+// not a valid key path.
+- (NSArray *)rac_keyPathComponents;
 
 // Returns a key path with all the components of the receiver except for the
-// last one.
-// Returns nil if the receiver is not a valid key path, or has only one
+// last one or nil if the receiver is not a valid key path, or has only one
 // component.
-- (NSString *)keyPathByDeletingLastKeyPathComponent;
+- (NSString *)rac_keyPathByDeletingLastKeyPathComponent;
 
 @end

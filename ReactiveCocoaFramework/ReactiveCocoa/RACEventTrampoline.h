@@ -21,6 +21,10 @@ extern const char *RACEventTrampolinesKey;
 + (instancetype)trampolineForControl:(UIControl *)control controlEvents:(UIControlEvents)controlEvents;
 + (instancetype)trampolineForTextView:(UITextView *)textView delegateMethod:(SEL)method;
 
+// Returns an event trampoline for the given gesture.
++ (instancetype)trampolineForGestureRecognizer:(UIGestureRecognizer *)gesture;
+
+
 - (void)didGetControlEvent:(id)sender;
 - (void)didGetDelegateEvent:(SEL)delegateMethod sender:(id)sender;
 

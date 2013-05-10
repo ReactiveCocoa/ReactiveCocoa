@@ -63,6 +63,8 @@
 		PULL_AND_SET_STRUCT(CGSize);
 	} else if (strcmp(argType, @encode(CGPoint)) == 0) {
 		PULL_AND_SET_STRUCT(CGPoint);
+	} else if (strcmp(argType, @encode(NSRange)) == 0) {
+		PULL_AND_SET_STRUCT(NSRange);
 	} else {
 		NSAssert(NO, @"Unknown argument type %s", argType);
 	}
@@ -127,6 +129,8 @@
 		WRAP_AND_RETURN_STRUCT(CGSize);
 	} else if (strcmp(typeSignature, @encode(CGPoint)) == 0) {
 		WRAP_AND_RETURN_STRUCT(CGPoint);
+	} else if (strcmp(typeSignature, @encode(NSRange)) == 0) {
+		WRAP_AND_RETURN_STRUCT(NSRange);
 	} else {
 		NSAssert(NO, @"Unknown return type signature %s", typeSignature);
 	}

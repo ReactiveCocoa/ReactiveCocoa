@@ -79,7 +79,7 @@ static NSMutableSet *activeSignals() {
 }
 
 + (RACSignal *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block {
-	NSParameterAssert(block != NULL);
+	NSCParameterAssert(block != NULL);
 
 	RACReplaySubject *subject = [[RACReplaySubject subject] setNameWithFormat:@"+startWithScheduler:subjectBlock:"];
 
@@ -132,7 +132,7 @@ static NSMutableSet *activeSignals() {
 #pragma mark Managing Subscribers
 
 - (void)performBlockOnEachSubscriber:(void (^)(id<RACSubscriber> subscriber))block {
-	NSParameterAssert(block != NULL);
+	NSCParameterAssert(block != NULL);
 
 	NSArray *currentSubscribers = nil;
 	@synchronized (self.subscribers) {
@@ -170,7 +170,7 @@ static NSMutableSet *activeSignals() {
 }
 
 - (RACSignal *)bind:(RACStreamBindBlock (^)(void))block {
-	NSParameterAssert(block != NULL);
+	NSCParameterAssert(block != NULL);
 
 	/*
 	 * -bind: should:
@@ -281,7 +281,7 @@ static NSMutableSet *activeSignals() {
 }
 
 - (RACSignal *)zipWith:(RACSignal *)signal {
-	NSParameterAssert(signal != nil);
+	NSCParameterAssert(signal != nil);
 
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
@@ -355,7 +355,7 @@ static NSMutableSet *activeSignals() {
 @implementation RACSignal (Subscription)
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	NSParameterAssert(subscriber != nil);
+	NSCParameterAssert(subscriber != nil);
 	
 	@synchronized (self.subscribers) {
 		[self.subscribers addObject:subscriber];
@@ -396,54 +396,54 @@ static NSMutableSet *activeSignals() {
 }
 
 - (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock {
-	NSParameterAssert(nextBlock != NULL);
+	NSCParameterAssert(nextBlock != NULL);
 	
 	RACSubscriber *o = [RACSubscriber subscriberWithNext:nextBlock error:NULL completed:NULL];
 	return [self subscribe:o];
 }
 
 - (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock {
-	NSParameterAssert(nextBlock != NULL);
-	NSParameterAssert(completedBlock != NULL);
+	NSCParameterAssert(nextBlock != NULL);
+	NSCParameterAssert(completedBlock != NULL);
 	
 	RACSubscriber *o = [RACSubscriber subscriberWithNext:nextBlock error:NULL completed:completedBlock];
 	return [self subscribe:o];
 }
 
 - (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock {
-	NSParameterAssert(nextBlock != NULL);
-	NSParameterAssert(errorBlock != NULL);
-	NSParameterAssert(completedBlock != NULL);
+	NSCParameterAssert(nextBlock != NULL);
+	NSCParameterAssert(errorBlock != NULL);
+	NSCParameterAssert(completedBlock != NULL);
 	
 	RACSubscriber *o = [RACSubscriber subscriberWithNext:nextBlock error:errorBlock completed:completedBlock];
 	return [self subscribe:o];
 }
 
 - (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock {
-	NSParameterAssert(errorBlock != NULL);
+	NSCParameterAssert(errorBlock != NULL);
 	
 	RACSubscriber *o = [RACSubscriber subscriberWithNext:NULL error:errorBlock completed:NULL];
 	return [self subscribe:o];
 }
 
 - (RACDisposable *)subscribeCompleted:(void (^)(void))completedBlock {
-	NSParameterAssert(completedBlock != NULL);
+	NSCParameterAssert(completedBlock != NULL);
 	
 	RACSubscriber *o = [RACSubscriber subscriberWithNext:NULL error:NULL completed:completedBlock];
 	return [self subscribe:o];
 }
 
 - (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock {
-	NSParameterAssert(nextBlock != NULL);
-	NSParameterAssert(errorBlock != NULL);
+	NSCParameterAssert(nextBlock != NULL);
+	NSCParameterAssert(errorBlock != NULL);
 	
 	RACSubscriber *o = [RACSubscriber subscriberWithNext:nextBlock error:errorBlock completed:NULL];
 	return [self subscribe:o];
 }
 
 - (RACDisposable *)subscribeError:(void (^)(NSError *))errorBlock completed:(void (^)(void))completedBlock {
-	NSParameterAssert(completedBlock != NULL);
-	NSParameterAssert(errorBlock != NULL);
+	NSCParameterAssert(completedBlock != NULL);
+	NSCParameterAssert(errorBlock != NULL);
 	
 	RACSubscriber *o = [RACSubscriber subscriberWithNext:NULL error:errorBlock completed:completedBlock];
 	return [self subscribe:o];
@@ -482,7 +482,7 @@ static NSMutableSet *activeSignals() {
 static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 
 - (id)asynchronousFirstOrDefault:(id)defaultValue success:(BOOL *)success error:(NSError **)error {
-	NSAssert([NSThread isMainThread], @"%s should only be used from the main thread", __func__);
+	NSCAssert([NSThread isMainThread], @"%s should only be used from the main thread", __func__);
 
 	__block id result = nil;
 	__block BOOL done = NO;

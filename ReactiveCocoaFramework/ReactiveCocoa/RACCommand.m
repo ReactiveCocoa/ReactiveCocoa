@@ -64,7 +64,7 @@
 	[self willChangeValueForKey:@keypath(self.executing)];
 
 	int32_t newValue __attribute__((unused)) = OSAtomicDecrement32Barrier(&_itemsInFlight);
-	NSAssert(newValue >= 0, @"Unbalanced decrement of _itemsInFlight");
+	NSCAssert(newValue >= 0, @"Unbalanced decrement of _itemsInFlight");
 
 	[self didChangeValueForKey:@keypath(self.executing)];
 }
@@ -119,7 +119,7 @@
 #pragma mark Execution
 
 - (RACSignal *)addSignalBlock:(RACSignal * (^)(id value))signalBlock {
-	NSParameterAssert(signalBlock != nil);
+	NSCParameterAssert(signalBlock != nil);
 
 	@weakify(self);
 
@@ -130,7 +130,7 @@
 		}]
 		map:^(id value) {
 			RACSignal *signal = signalBlock(value);
-			NSAssert(signal != nil, @"signalBlock returned a nil signal");
+			NSCAssert(signal != nil, @"signalBlock returned a nil signal");
 
 			return [[[signal
 				doError:^(NSError *error) {

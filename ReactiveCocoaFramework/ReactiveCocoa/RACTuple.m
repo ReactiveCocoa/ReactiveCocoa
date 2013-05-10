@@ -242,7 +242,7 @@
 }
 
 - (void)setObject:(RACTuple *)tuple forKeyedSubscript:(NSArray *)variables {
-	NSParameterAssert(variables != nil);
+	NSCParameterAssert(variables != nil);
 	
 	[variables enumerateObjectsUsingBlock:^(NSValue *value, NSUInteger index, BOOL *stop) {
 		__strong id *ptr = (__strong id *)value.pointerValue;

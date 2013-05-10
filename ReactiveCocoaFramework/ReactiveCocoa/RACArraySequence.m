@@ -27,7 +27,7 @@
 #pragma mark Lifecycle
 
 + (instancetype)sequenceWithArray:(NSArray *)array offset:(NSUInteger)offset {
-	NSParameterAssert(offset <= array.count);
+	NSCParameterAssert(offset <= array.count);
 
 	if (offset == array.count) return self.empty;
 

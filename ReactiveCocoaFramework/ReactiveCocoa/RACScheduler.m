@@ -76,7 +76,7 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 }
 
 + (instancetype)schedulerWithQueue:(dispatch_queue_t)queue name:(NSString *)name {
-	NSParameterAssert(queue != NULL);
+	NSCParameterAssert(queue != NULL);
 
 	return [[RACQueueScheduler alloc] initWithName:name targetQueue:queue];
 }
@@ -106,12 +106,12 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 #pragma mark Scheduling
 
 - (RACDisposable *)schedule:(void (^)(void))block {
-	NSAssert(NO, @"-schedule: must be implemented by subclasses.");
+	NSCAssert(NO, @"-schedule: must be implemented by subclasses.");
 	return nil;
 }
 
 - (RACDisposable *)after:(dispatch_time_t)when schedule:(void (^)(void))block {
-	NSAssert(NO, @"-after:schedule: must be implemented by subclasses.");
+	NSCAssert(NO, @"-after:schedule: must be implemented by subclasses.");
 	return nil;
 }
 

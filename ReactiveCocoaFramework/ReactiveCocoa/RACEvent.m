@@ -91,7 +91,7 @@
 			break;
 
 		default:
-			NSAssert(NO, @"Unrecognized event type: %i", (int)self.eventType);
+			NSCAssert(NO, @"Unrecognized event type: %i", (int)self.eventType);
 	}
 
 	return [NSString stringWithFormat:@"<%@: %p>{ %@ }", self.class, self, eventDescription];

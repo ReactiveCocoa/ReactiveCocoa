@@ -11,7 +11,7 @@
 @implementation NSString (RACSupport)
 
 + (RACSignal *)rac_readContentsOfURL:(NSURL *)URL usedEncoding:(NSStringEncoding *)encoding scheduler:(RACScheduler *)scheduler {
-	NSParameterAssert(scheduler != nil);
+	NSCParameterAssert(scheduler != nil);
 	
 	RACReplaySubject *subject = [RACReplaySubject subject];
 	[subject setNameWithFormat:@"+rac_readContentsOfURL: %@ usedEncoding:scheduler: %@", URL, scheduler];

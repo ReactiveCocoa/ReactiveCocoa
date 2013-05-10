@@ -27,5 +27,4 @@
 	return trampoline.subject;
 }
 
-
 @end

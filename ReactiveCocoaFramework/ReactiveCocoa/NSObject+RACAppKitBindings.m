@@ -16,6 +16,7 @@
 #import "RACDisposable.h"
 #import "RACBinding+Private.h"
 #import "RACValueTransformer.h"
+#import "RACTuple.h"
 
 // A class for the RACAppKitBindings to bind to.
 // In turn, it sends the subscriber values.
@@ -24,6 +25,7 @@
 @property (nonatomic, strong) id value;
 @property (nonatomic, strong) id nilValue;
 @property (nonatomic, weak) id subscriber;
+@property (nonatomic, weak) RACBinding *binder;
 
 @end
 
@@ -38,7 +40,8 @@
 	} else {
 		_value = value;
 	}
-	[_subscriber sendNext:_value];
+	
+	[_subscriber sendNext:[RACTuple tupleWithObjects:_value, _binder, nil]];
 }
 
 - (id)value {
@@ -61,10 +64,12 @@
 - (RACBinding *)rac_bind:(NSString *)binding options:(NSDictionary *)options {
 	__block RACBindingProxy *proxy = [[RACBindingProxy alloc] init];
 	proxy.nilValue = options[NSNullPlaceholderBindingOption];
+	
 	[self bind:binding toObject:proxy withKeyPath:@keypath(proxy, value) options:options];
 	
 	RACSignal *signal = [[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
 		proxy.subscriber = subscriber;
+		
 		return [RACDisposable disposableWithBlock:^{
 			[self unbind:binding];
 		}];
@@ -72,15 +77,18 @@
 	}] 
 	setNameWithFormat:@"%@ -rac_bind", self];
 	
-	RACSubscriber *subscriber = [RACSubscriber subscriberWithNext:^(id x) {
-		[proxy setValue:x];
+	RACSubscriber *subscriber = [RACSubscriber subscriberWithNext:^(RACTuple *x) {
+		[proxy setValue:x.first];
+		
 	} error:^(NSError *error) {
 		NSAssert(NO, @"Received error in RACAppKitBindings %@: %@", self, error);
 
 		NSLog(@"Received error in RACAppKitBindings %@: %@", self, error);
 	} completed:nil];
 	
-	return [[RACBinding alloc] initWithValueSignal:signal subscriber:subscriber];
+	RACBinding *bind = [[RACBinding alloc] initWithSignal:signal subscriber:subscriber];
+	proxy.binder = bind;
+	return bind;
 }
 
 

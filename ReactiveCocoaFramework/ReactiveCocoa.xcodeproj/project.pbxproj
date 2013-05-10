@@ -908,20 +908,20 @@
 		88F44257153DC0100097B4C3 /* UIKit Support */ = {
 			isa = PBXGroup;
 			children = (
-				1EC06B15173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.h */,
-				1EC06B16173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.m */,
 				A1FCC3761567DED0008C9686 /* RACDelegateProxy.h */,
 				A1FCC3771567DED0008C9686 /* RACDelegateProxy.m */,
 				A1FCC36B15673FA3008C9686 /* RACEventTrampoline.h */,
 				A1FCC36C15673FA3008C9686 /* RACEventTrampoline.m */,
+				27A887C71703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.h */,
+				27A887C81703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.m */,
 				88F4425F153DC0450097B4C3 /* UIControl+RACSignalSupport.h */,
 				88F44260153DC0450097B4C3 /* UIControl+RACSignalSupport.m */,
+				1EC06B15173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.h */,
+				1EC06B16173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.m */,
 				88F44264153DCAC50097B4C3 /* UITextField+RACSignalSupport.h */,
 				88F44265153DCAC50097B4C3 /* UITextField+RACSignalSupport.m */,
 				A1FCC27215666AA3008C9686 /* UITextView+RACSignalSupport.h */,
 				A1FCC27315666AA3008C9686 /* UITextView+RACSignalSupport.m */,
-				27A887C71703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.h */,
-				27A887C81703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.m */,
 			);
 			name = "UIKit Support";
 			sourceTree = "<group>";

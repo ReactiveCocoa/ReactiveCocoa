@@ -24,7 +24,7 @@
 #pragma mark Lifecycle
 
 + (RACSequence *)sequenceWithString:(NSString *)string offset:(NSUInteger)offset {
-	NSParameterAssert(offset <= string.length);
+	NSCParameterAssert(offset <= string.length);
 
 	if (offset == string.length) return self.empty;
 

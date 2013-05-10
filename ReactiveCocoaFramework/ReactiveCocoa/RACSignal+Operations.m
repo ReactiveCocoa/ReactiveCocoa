@@ -118,7 +118,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 @implementation RACSignal (Operations)
 
 - (RACSignal *)doNext:(void (^)(id x))block {
-	NSParameterAssert(block != NULL);
+	NSCParameterAssert(block != NULL);
 
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		return [self subscribeNext:^(id x) {
@@ -133,7 +133,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 - (RACSignal *)doError:(void (^)(NSError *error))block {
-	NSParameterAssert(block != NULL);
+	NSCParameterAssert(block != NULL);
 	
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		return [self subscribeNext:^(id x) {
@@ -148,7 +148,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 - (RACSignal *)doCompleted:(void (^)(void))block {
-	NSParameterAssert(block != NULL);
+	NSCParameterAssert(block != NULL);
 	
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		return [self subscribeNext:^(id x) {
@@ -254,7 +254,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 - (RACSignal *)catch:(RACSignal * (^)(NSError *error))catchBlock {
-	NSParameterAssert(catchBlock != NULL);
+	NSCParameterAssert(catchBlock != NULL);
 		
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACDisposable *innerDisposable = nil;
@@ -288,7 +288,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 - (RACSignal *)finally:(void (^)(void))block {
-	NSParameterAssert(block != NULL);
+	NSCParameterAssert(block != NULL);
 	
 	return [[[self
 		doError:^(NSError *error) {
@@ -301,8 +301,8 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 - (RACSignal *)windowWithStart:(RACSignal *)openSignal close:(RACSignal * (^)(RACSignal *start))closeBlock {
-	NSParameterAssert(openSignal != nil);
-	NSParameterAssert(closeBlock != NULL);
+	NSCParameterAssert(openSignal != nil);
+	NSCParameterAssert(closeBlock != NULL);
 	
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block RACSubject *currentWindow = nil;
@@ -353,7 +353,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 - (RACSignal *)buffer:(NSUInteger)bufferCount {
-	NSParameterAssert(bufferCount > 0);
+	NSCParameterAssert(bufferCount > 0);
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		NSMutableArray *values = [NSMutableArray arrayWithCapacity:bufferCount];
 		RACSubject *windowCloseSubject = [RACSubject subject];
@@ -445,7 +445,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 - (RACSignal *)combineLatestWith:(RACSignal *)signal {
-	NSParameterAssert(signal != nil);
+	NSCParameterAssert(signal != nil);
 
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
@@ -524,7 +524,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 + (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock {
-	NSParameterAssert(reduceBlock != nil);
+	NSCParameterAssert(reduceBlock != nil);
 
 	RACSignal *result = [self combineLatest:signals];
 
@@ -611,7 +611,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 		};
 
 		RACDisposable *disposable = [self subscribeNext:^(id x) {
-			NSAssert([x isKindOfClass:RACSignal.class], @"The source must be a signal of signals. Instead, got %@", x);
+			NSCAssert([x isKindOfClass:RACSignal.class], @"The source must be a signal of signals. Instead, got %@", x);
 
 			RACSignal *innerSignal = x;
 			@synchronized(queuedSignals) {
@@ -638,7 +638,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 - (RACSignal *)sequenceNext:(RACSignal * (^)(void))block {
-	NSParameterAssert(block != nil);
+	NSCParameterAssert(block != nil);
 
 	return [[[self materialize] flattenMap:^(RACEvent *event) {
 		switch (event.eventType) {
@@ -652,7 +652,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 				return [RACSignal empty];
 
 			default:
-				NSAssert(NO, @"Unrecognized event type: %i", (int)event.eventType);
+				NSCAssert(NO, @"Unrecognized event type: %i", (int)event.eventType);
 		}
 	}] setNameWithFormat:@"[%@] -sequenceNext:", self.name];
 }
@@ -666,7 +666,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 		__block RACSignal *currentSignal = nil;
 
 		RACDisposable *subscriptionDisposable = [self subscribeNext:^(RACSignal *signal) {
-			NSAssert([signal isKindOfClass:RACSignal.class], @"%@ must be a signal of signals. Instead, got %@", self, signal);
+			NSCAssert([signal isKindOfClass:RACSignal.class], @"%@ must be a signal of signals. Instead, got %@", self, signal);
 
 			@synchronized (signals) {
 				[signals addObject:signal];
@@ -691,8 +691,8 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 - (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock {
-	NSParameterAssert(startFactory != NULL);
-	NSParameterAssert(combineBlock != NULL);
+	NSCParameterAssert(startFactory != NULL);
+	NSCParameterAssert(combineBlock != NULL);
 	
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block id runningValue = startFactory();
@@ -716,8 +716,8 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 - (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object {
-	NSParameterAssert(keyPath != nil);
-	NSParameterAssert(object != nil);
+	NSCParameterAssert(keyPath != nil);
+	NSCParameterAssert(object != nil);
 
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 
@@ -731,7 +731,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	} error:^(NSError *error) {
 		NSObject *object = (__bridge id)objectPtr;
 
-		NSAssert(NO, @"Received error from %@ in binding for key path \"%@\" on %@: %@", self, keyPath, object, error);
+		NSCAssert(NO, @"Received error from %@ in binding for key path \"%@\" on %@: %@", self, keyPath, object, error);
 
 		// Log the error if we're running with assertions disabled.
 		NSLog(@"Received error from %@ in binding for key path \"%@\" on %@: %@", self, keyPath, object, error);
@@ -756,7 +756,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	}
 
 	@synchronized (bindings) {
-		NSAssert(bindings[keyPath] == nil, @"Signal %@ is already bound to key path \"%@\" on object %@, adding signal %@ is undefined behavior", [bindings[keyPath] nonretainedObjectValue], keyPath, object, self);
+		NSCAssert(bindings[keyPath] == nil, @"Signal %@ is already bound to key path \"%@\" on object %@, adding signal %@ is undefined behavior", [bindings[keyPath] nonretainedObjectValue], keyPath, object, self);
 
 		bindings[keyPath] = [NSValue valueWithNonretainedObject:self];
 	}
@@ -793,8 +793,8 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 + (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway {
-	NSParameterAssert(interval > 0.0 && interval < INT64_MAX / NSEC_PER_SEC);
-	NSParameterAssert(leeway >= 0.0 && leeway < INT64_MAX / NSEC_PER_SEC);
+	NSCParameterAssert(interval > 0.0 && interval < INT64_MAX / NSEC_PER_SEC);
+	NSCParameterAssert(leeway >= 0.0 && leeway < INT64_MAX / NSEC_PER_SEC);
 
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		int64_t intervalInNanoSecs = (int64_t)(interval * NSEC_PER_SEC);
@@ -851,7 +851,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 		__block volatile int32_t partialCompletionCount = 0;
 		
 		RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
-			NSAssert([x isKindOfClass:RACSignal.class] || x == nil, @"-switchToLatest requires that the source signal (%@) send signals. Instead we got: %@", self, x);
+			NSCAssert([x isKindOfClass:RACSignal.class] || x == nil, @"-switchToLatest requires that the source signal (%@) send signals. Instead we got: %@", self, x);
 			
 			[innerDisposable dispose], innerDisposable = nil;
 			
@@ -889,13 +889,13 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 + (RACSignal *)if:(RACSignal *)boolSignal then:(RACSignal *)trueSignal else:(RACSignal *)falseSignal {
-	NSParameterAssert(boolSignal != nil);
-	NSParameterAssert(trueSignal != nil);
-	NSParameterAssert(falseSignal != nil);
+	NSCParameterAssert(boolSignal != nil);
+	NSCParameterAssert(trueSignal != nil);
+	NSCParameterAssert(falseSignal != nil);
 
 	return [[[boolSignal
 		map:^(NSNumber *value) {
-			NSAssert([value isKindOfClass:NSNumber.class], @"Expected %@ to send BOOLs, not %@", boolSignal, value);
+			NSCAssert([value isKindOfClass:NSNumber.class], @"Expected %@ to send BOOLs, not %@", boolSignal, value);
 			
 			return (value.boolValue ? trueSignal : falseSignal);
 		}]
@@ -977,7 +977,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 + (RACSignal *)defer:(RACSignal * (^)(void))block {
-	NSParameterAssert(block != NULL);
+	NSCParameterAssert(block != NULL);
 	
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		return [block() subscribe:subscriber];
@@ -1136,7 +1136,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 - (RACSignal *)let:(RACSignal * (^)(RACSignal *sharedSignal))letBlock {
-	NSParameterAssert(letBlock != NULL);
+	NSCParameterAssert(letBlock != NULL);
 	
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		RACMulticastConnection *connection = [self publish];
@@ -1158,7 +1158,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 - (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock transform:(id (^)(id object))transformBlock {
-	NSParameterAssert(keyBlock != NULL);
+	NSCParameterAssert(keyBlock != NULL);
 
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		NSMutableDictionary *groups = [NSMutableDictionary dictionary];
@@ -1199,7 +1199,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 - (RACSignal *)any:(BOOL (^)(id object))predicateBlock {
-	NSParameterAssert(predicateBlock != NULL);
+	NSCParameterAssert(predicateBlock != NULL);
 	
 	return [[[self materialize] bind:^{
 		return ^(RACEvent *event, BOOL *stop) {
@@ -1219,7 +1219,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 - (RACSignal *)all:(BOOL (^)(id object))predicateBlock {
-	NSParameterAssert(predicateBlock != NULL);
+	NSCParameterAssert(predicateBlock != NULL);
 	
 	return [[[self materialize] bind:^{
 		return ^(RACEvent *event, BOOL *stop) {
@@ -1267,7 +1267,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 - (RACSignal *)sample:(RACSignal *)sampler {
-	NSParameterAssert(sampler != nil);
+	NSCParameterAssert(sampler != nil);
 
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		NSLock *lock = [[NSLock alloc] init];
@@ -1355,14 +1355,14 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 
 - (RACSignal *)not {
 	return [[self map:^(NSNumber *value) {
-		NSAssert([value isKindOfClass:NSNumber.class], @"-not must only be used on a signal of NSNumbers. Instead, got: %@", value);
+		NSCAssert([value isKindOfClass:NSNumber.class], @"-not must only be used on a signal of NSNumbers. Instead, got: %@", value);
 
 		return @(!value.boolValue);
 	}] setNameWithFormat:@"[%@] -not", self.name];
 }
 
 - (RACDisposable *)executeCommand:(RACCommand *)command {
-	NSParameterAssert(command != nil);
+	NSCParameterAssert(command != nil);
 
 	return [self subscribeNext:^(id x) {
 		[command execute:x];

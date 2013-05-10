@@ -30,9 +30,9 @@ static void *RACKVOWrapperContext = &RACKVOWrapperContext;
 #pragma mark Lifecycle
 
 - (id)initWithTarget:(NSObject *)target observer:(NSObject *)observer keyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(RACKVOBlock)block {
-	NSParameterAssert(target != nil);
-	NSParameterAssert(keyPath != nil);
-	NSParameterAssert(block != nil);
+	NSCParameterAssert(target != nil);
+	NSCParameterAssert(keyPath != nil);
+	NSCParameterAssert(block != nil);
 
 	self = [super init];
 	if (self == nil) return nil;

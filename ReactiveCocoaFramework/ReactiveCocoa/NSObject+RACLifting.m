@@ -40,10 +40,10 @@ static RACSignal *RACLiftAndCallBlock(id object, NSArray *args, RACSignal * (^bl
 
 - (RACSignal *)rac_liftSelector:(SEL)selector withObjectsFromArray:(NSArray *)args {
 	NSMethodSignature *methodSignature = [self methodSignatureForSelector:selector];
-	NSAssert(methodSignature != nil, @"%@ does not respond to %@", self, NSStringFromSelector(selector));
+	NSCAssert(methodSignature != nil, @"%@ does not respond to %@", self, NSStringFromSelector(selector));
 
 	NSUInteger numberOfArguments __attribute__((unused)) = methodSignature.numberOfArguments - 2;
-	NSAssert(numberOfArguments == args.count, @"wrong number of args for -%@, expecting %lu, received %lu", NSStringFromSelector(selector), (unsigned long)numberOfArguments, (unsigned long)args.count);
+	NSCAssert(numberOfArguments == args.count, @"wrong number of args for -%@, expecting %lu, received %lu", NSStringFromSelector(selector), (unsigned long)numberOfArguments, (unsigned long)args.count);
 
 	@unsafeify(self);
 	return RACLiftAndCallBlock(self, args, ^(NSArray *arguments) {
@@ -62,7 +62,7 @@ static RACSignal *RACLiftAndCallBlock(id object, NSArray *args, RACSignal * (^bl
 
 - (RACSignal *)rac_liftSelector:(SEL)selector withObjects:(id)arg, ... {
 	NSMethodSignature *methodSignature = [self methodSignatureForSelector:selector];
-	NSAssert(methodSignature != nil, @"%@ does not respond to %@", self, NSStringFromSelector(selector));
+	NSCAssert(methodSignature != nil, @"%@ does not respond to %@", self, NSStringFromSelector(selector));
 
 	NSMutableArray *arguments = [NSMutableArray arrayWithCapacity:methodSignature.numberOfArguments - 2];
 
@@ -80,7 +80,7 @@ static RACSignal *RACLiftAndCallBlock(id object, NSArray *args, RACSignal * (^bl
 }
 
 - (RACSignal *)rac_liftBlock:(id)block withArguments:(id)arg, ... {
-	NSParameterAssert(block != nil);
+	NSCParameterAssert(block != nil);
 
 	NSMutableArray *arguments = [NSMutableArray array];
 
@@ -95,7 +95,7 @@ static RACSignal *RACLiftAndCallBlock(id object, NSArray *args, RACSignal * (^bl
 }
 
 - (RACSignal *)rac_liftBlock:(id)block withArgumentsFromArray:(NSArray *)args {
-	NSParameterAssert(block != nil);
+	NSCParameterAssert(block != nil);
 
 	return RACLiftAndCallBlock(self, args, ^(NSArray *arguments) {
 		return [RACBlockTrampoline invokeBlock:block withArguments:[RACTuple tupleWithObjectsFromArray:arguments]];
@@ -109,7 +109,7 @@ static RACSignal *RACLiftAndCallBlock(id object, NSArray *args, RACSignal * (^bl
 @end
 
 static RACSignal *RACLiftAndCallBlock(id object, NSArray *args, RACSignal * (^block)(NSArray *)) {
-	NSParameterAssert(block != nil);
+	NSCParameterAssert(block != nil);
 
 	NSMutableArray *signals = [NSMutableArray arrayWithCapacity:args.count];
 	NSMutableDictionary *argIndexesBySignal = [NSMutableDictionary dictionaryWithCapacity:args.count];
@@ -170,7 +170,7 @@ static RACSignal *RACLiftAndCallBlock(id object, NSArray *args, RACSignal * (^bl
 		if (strcmp(returnType, "@") == 0 || strcmp(returnType, "#") == 0) {
 			[anInvocation setReturnValue:&returnValue];
 		} else {
-			NSAssert(NO, @"-rac_lift may only lift messages which return void or object types; %@ returns %s", NSStringFromSelector(anInvocation.selector), returnType);
+			NSCAssert(NO, @"-rac_lift may only lift messages which return void or object types; %@ returns %s", NSStringFromSelector(anInvocation.selector), returnType);
 		}
 	}
 }

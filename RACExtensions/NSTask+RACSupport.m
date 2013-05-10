@@ -57,7 +57,7 @@ const NSInteger NSTaskRACSupportNonZeroTerminationStatus = 123456;
 }
 
 - (RACSignal *)rac_runWithScheduler:(RACScheduler *)scheduler {
-	NSParameterAssert(scheduler != nil);
+	NSCParameterAssert(scheduler != nil);
 	
 	@weakify(self);
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {

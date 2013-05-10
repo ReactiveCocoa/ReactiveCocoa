@@ -69,12 +69,12 @@
 #pragma mark Class cluster primitives
 
 - (id)head {
-	NSAssert(NO, @"%s must be overridden by subclasses", __func__);
+	NSCAssert(NO, @"%s must be overridden by subclasses", __func__);
 	return nil;
 }
 
 - (RACSequence *)tail {
-	NSAssert(NO, @"%s must be overridden by subclasses", __func__);
+	NSCAssert(NO, @"%s must be overridden by subclasses", __func__);
 	return nil;
 }
 
@@ -127,7 +127,7 @@
 			valuesSeq = valuesSeq.tail;
 		}
 
-		NSAssert([current isKindOfClass:RACSequence.class], @"-bind: block returned an object that is not a sequence: %@", current);
+		NSCAssert([current isKindOfClass:RACSequence.class], @"-bind: block returned an object that is not a sequence: %@", current);
 		return nil;
 	} headBlock:^(id _) {
 		return current.head;
@@ -142,7 +142,7 @@
 }
 
 - (instancetype)concat:(RACStream *)stream {
-	NSParameterAssert(stream != nil);
+	NSCParameterAssert(stream != nil);
 
 	return [[[RACArraySequence sequenceWithArray:@[ self, stream ] offset:0]
 		flatten]
@@ -150,7 +150,7 @@
 }
 
 - (instancetype)zipWith:(RACSequence *)sequence {
-	NSParameterAssert(sequence != nil);
+	NSCParameterAssert(sequence != nil);
 
 	return [[RACSequence
 		sequenceWithHeadBlock:^ id {
@@ -205,7 +205,7 @@
 }
 
 - (id)foldLeftWithStart:(id)start combine:(id (^)(id, id))combine {
-	NSParameterAssert(combine != NULL);
+	NSCParameterAssert(combine != NULL);
 
 	if (self.head == nil) return start;
 	
@@ -217,7 +217,7 @@
 }
 
 - (id)foldRightWithStart:(id)start combine:(id (^)(id, RACSequence *))combine {
-	NSParameterAssert(combine != NULL);
+	NSCParameterAssert(combine != NULL);
 
 	if (self.head == nil) return start;
 	
@@ -229,7 +229,7 @@
 }
 
 - (BOOL)any:(BOOL (^)(id))block {
-	NSParameterAssert(block != NULL);
+	NSCParameterAssert(block != NULL);
 	
 	NSNumber *result = [self foldLeftWithStart:@NO combine:^(NSNumber *accumulator, id value) {
 		return @(accumulator.boolValue || block(value));
@@ -239,7 +239,7 @@
 }
 
 - (BOOL)all:(BOOL (^)(id))block {
-	NSParameterAssert(block != NULL);
+	NSCParameterAssert(block != NULL);
 	
 	NSNumber *result = [self foldLeftWithStart:@YES combine:^(NSNumber *accumulator, id value) {
 		return @(accumulator.boolValue && block(value));
@@ -249,7 +249,7 @@
 }
 
 - (id)objectPassingTest:(BOOL (^)(id))block {
-	NSParameterAssert(block != NULL);
+	NSCParameterAssert(block != NULL);
 	
 	return [self foldLeftWithStart:nil combine:^ id (id accumulator, id value) {
 		if (accumulator != nil) {

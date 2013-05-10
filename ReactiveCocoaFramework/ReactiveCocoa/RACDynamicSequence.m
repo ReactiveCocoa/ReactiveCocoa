@@ -83,7 +83,7 @@
 #pragma mark Lifecycle
 
 + (RACSequence *)sequenceWithHeadBlock:(id (^)(void))headBlock tailBlock:(RACSequence *(^)(void))tailBlock {
-	NSParameterAssert(headBlock != nil);
+	NSCParameterAssert(headBlock != nil);
 
 	RACDynamicSequence *seq = [[RACDynamicSequence alloc] init];
 	seq.headBlock = headBlock;
@@ -93,8 +93,8 @@
 }
 
 + (RACSequence *)sequenceWithLazyDependency:(id (^)(void))dependencyBlock headBlock:(id (^)(id dependency))headBlock tailBlock:(RACSequence *(^)(id dependency))tailBlock {
-	NSParameterAssert(dependencyBlock != nil);
-	NSParameterAssert(headBlock != nil);
+	NSCParameterAssert(dependencyBlock != nil);
+	NSCParameterAssert(headBlock != nil);
 
 	RACDynamicSequence *seq = [[RACDynamicSequence alloc] init];
 	seq.headBlock = headBlock;

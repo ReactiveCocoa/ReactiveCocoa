@@ -17,6 +17,7 @@
 #import "NSObject+RACPropertySubscribing.h"
 #import "EXTScope.h"
 #import "RACKVOTrampoline.h"
+#import "NSString+RACKeyPathUtilities.h"
 
 // Name of exceptions thrown by RACKVOBinding when an object calls
 // -didChangeValueForKey: without a corresponding -willChangeValueForKey:.
@@ -142,6 +143,9 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 	binding->_exposedSubscriberSubject = [RACSubject subject];
 	[binding->_exposedSubscriberSubject subscribeNext:^(id x) {
 		@strongify(binding);
+		if (binding.keyPath.rac_keyPathComponents.count > 1 && [binding.target valueForKeyPath:binding.keyPath.rac_keyPathByDeletingLastKeyPathComponent] == nil) {
+			return;
+		}
 		binding.ignoreNextUpdate = YES;
 		[binding.target setValue:x forKeyPath:binding.keyPath];
 	}];

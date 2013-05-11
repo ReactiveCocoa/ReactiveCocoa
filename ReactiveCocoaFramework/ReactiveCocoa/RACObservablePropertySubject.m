@@ -132,19 +132,6 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 
 @end
 
-// Given a key path, returns a tuple of the first key in the key path, and the
-// remaining key path, if any.
-static RACTuple *keyAndRemainderForKeyPath(NSString *keyPath) {
-	NSRange firstDot = [keyPath rangeOfString:@"."];
-	if (firstDot.location == NSNotFound) {
-		return [RACTuple tupleWithObjects:keyPath, nil];
-	} else {
-		NSString *key = [keyPath substringToIndex:firstDot.location];
-		NSString *remainder = [keyPath substringFromIndex:NSMaxRange(firstDot)];
-		return [RACTuple tupleWithObjects:key, remainder, nil];
-	}
-}
-
 @implementation RACKVOBinding
 
 #pragma mark RACSignal
@@ -173,7 +160,8 @@ static RACTuple *keyAndRemainderForKeyPath(NSString *keyPath) {
 
 #pragma mark API
 + (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath {
-	if (keyAndRemainderForKeyPath(keyPath).second != nil) {
+	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
+	if (keyPath.rac_keyPathComponents.count > 1) {
 		return [RACRemainderKVOBinding bindingWithTarget:target keyPath:keyPath];
 	} else {
 		return [RACKeyKVOBinding bindingWithTarget:target keyPath:keyPath];
@@ -238,7 +226,7 @@ static RACTuple *keyAndRemainderForKeyPath(NSString *keyPath) {
 @implementation RACKeyKVOBinding
 
 + (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath {
-	NSCParameterAssert(keyAndRemainderForKeyPath(keyPath).second == nil);
+	NSCParameterAssert(keyPath.rac_keyPathComponents.count == 1);
 	RACSignal *signal = [[RACSignal alloc] init];
 	RACKeyKVOBinding *binding = [[self alloc] initWithTarget:target key:keyPath exposedSignal:signal];
 	if (binding == nil) return nil;
@@ -282,8 +270,9 @@ static RACTuple *keyAndRemainderForKeyPath(NSString *keyPath) {
 @implementation RACRemainderKVOBinding
 
 + (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath {
-	RACTupleUnpack(NSString *key, NSString *remainder) = keyAndRemainderForKeyPath(keyPath);
-	NSCParameterAssert(remainder != nil);
+	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 1);
+	NSString *key = keyPath.rac_keyPathComponents[0];
+	NSString *remainder = keyPath.rac_keyPathByDeletingFirstKeyPathComponent;
 	RACSignal *signal = [[RACSignal alloc] init];
 	RACRemainderKVOBinding *binding = [[self alloc] initWithTarget:target key:key exposedSignal:signal];
 	if (binding == nil) return nil;

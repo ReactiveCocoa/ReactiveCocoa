@@ -19,4 +19,9 @@
 // component.
 - (NSString *)rac_keyPathByDeletingLastKeyPathComponent;
 
+// Returns a key path with all the components of the receiver expect for the
+// first one or nil if the receiver is not a valid key path, or has only one
+// component.
+- (NSString *)rac_keyPathByDeletingFirstKeyPathComponent;
+
 @end

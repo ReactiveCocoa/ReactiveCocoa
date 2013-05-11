@@ -53,9 +53,9 @@
 		PULL_AND_SET(float, floatValue);
 	} else if (strcmp(argType, "d") == 0) {
 		PULL_AND_SET(double, doubleValue);
-	} else if (strcmp(argType, @encode(char *)) == 0 || strcmp(argType, @encode(const char *)) == 0) {
+	} else if (strcmp(argType, "*") == 0) {
 		PULL_AND_SET(const char *, UTF8String);
-	} else if (argType[0] == '^' || (/* const pointer */ argType[0] == 'r' && argType[1] == '^')) {
+	} else if (argType[0] == '^') {
 		PULL_AND_SET(void *, pointerValue);
 	} else if (strcmp(argType, @encode(CGRect)) == 0) {
 		PULL_AND_SET_STRUCT(CGRect);
@@ -117,9 +117,9 @@
 		WRAP_AND_RETURN(float);
 	} else if (strcmp(typeSignature, "d") == 0) {
 		WRAP_AND_RETURN(double);
-	} else if (strcmp(typeSignature, @encode(char *)) == 0 || strcmp(typeSignature, @encode(const char *)) == 0) {
+	} else if (strcmp(typeSignature, "*") == 0) {
 		WRAP_AND_RETURN(const char *);
-	} else if (typeSignature[0] == '^' || (/* const pointer */ typeSignature[0] == 'r' && typeSignature[1] == '^')) {
+	} else if (typeSignature[0] == '^') {
 		const void *pointer = NULL;
 		[self getArgument:&pointer atIndex:(NSInteger)index];
 		return [NSValue valueWithPointer:pointer];

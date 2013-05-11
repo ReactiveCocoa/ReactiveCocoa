@@ -840,6 +840,8 @@
 				880D7A6716F7BCC7004A3361 /* RACSubclassObject.h */,
 				880D7A6816F7BCC7004A3361 /* RACSubclassObject.m */,
 				5902BC2D1737EEA800F4D5C6 /* RACAppKitBindingsSpec.m */,
+				595743D8173E0F8100C7092E /* RACBindingExamples.h */,
+				595743D6173E0C3F00C7092E /* RACBindingExamples.m */,
 			);
 			path = ReactiveCocoaTests;
 			sourceTree = "<group>";
@@ -1521,6 +1523,7 @@
 				880D7A6616F7BB1A004A3361 /* NSObjectRACSelectorSignal.m in Sources */,
 				880D7A6916F7BCC7004A3361 /* RACSubclassObject.m in Sources */,
 				5902BC2E1737EEA800F4D5C6 /* RACAppKitBindingsSpec.m in Sources */,
+				595743D7173E0C4000C7092E /* RACBindingExamples.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

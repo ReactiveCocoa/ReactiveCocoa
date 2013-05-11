@@ -6,43 +6,29 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#import "NSObject+RACAppKitBindings.h"
+#import "RACPropertySubject.h"
+#import "RACBindingExamples.h"
 #import "RACBinding.h"
-#import "RACTestObject.h"
+#import "RACDisposable.h"
+#import "NSObject+RACAppKitBindings.h"
 
 SpecBegin(RACAppKitBindings)
 
 describe(@"RACAppKitBindings", ^{
+	__block NSTextField *textField;
 	
-	id value1 = @"test value 1";
-	
-	it(@"should send binding values", ^{
-		__block id receivedValue = nil;
-		NSTextField *textField = [[NSTextField alloc] initWithFrame:NSZeroRect];
-		RACBinding *binding = [textField rac_bind:NSValueBinding nilValue:@""];
-		
-		[textField setStringValue:value1];
-		[[binding take:1] subscribeNext:^(id x) {
-			receivedValue = x;
-		}];
-		expect(receivedValue).to.equal(value1);
-		
+	before(^{
+		textField = [[NSTextField alloc] initWithFrame:NSZeroRect];
 	});
 	
-	it(@"should receive values and bind them", ^{
-		__block id receivedValue = nil;
-		NSTextField *textField = [[NSTextField alloc] initWithFrame:NSZeroRect];
-		RACBinding *binding = [textField rac_bind:NSValueBinding];
-		
-		[binding sendNext:value1];
-		
-		expect(textField.stringValue).to.equal(value1);
-
-	});
-	
-	it(@"should bind RACBindings together", ^{
-		expect(@"Alas, it does not").to.equal(YES);
+	itShouldBehaveLike(RACBindingExamples, ^{
+		return @{
+			RACBindingExamplesGetBindingBlock1: [^{ return [textField rac_bind:NSValueBinding]; } copy],
+			RACBindingExamplesGetBindingBlock2: [^{ return [textField rac_bind:NSValueBinding]; } copy],
+			RACBindingExamplesGetProperty: [^{ return [textField rac_bind:NSValueBinding]; } copy]
+	 };
 	});
 });
 
 SpecEnd
+

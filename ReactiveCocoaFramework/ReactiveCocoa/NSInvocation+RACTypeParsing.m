@@ -43,7 +43,7 @@
 		PULL_AND_SET(unsigned char, unsignedCharValue);
 	} else if (strcmp(argType, "I") == 0) {
 		PULL_AND_SET(unsigned int, unsignedIntValue);
-	} else if (strcmp(argType, "C") == 0) {
+	} else if (strcmp(argType, "S") == 0) {
 		PULL_AND_SET(unsigned short, unsignedShortValue);
 	} else if (strcmp(argType, "L") == 0) {
 		PULL_AND_SET(unsigned long, unsignedLongValue);
@@ -107,7 +107,7 @@
 		WRAP_AND_RETURN(unsigned char);
 	} else if (strcmp(typeSignature, "I") == 0) {
 		WRAP_AND_RETURN(unsigned int);
-	} else if (strcmp(typeSignature, "C") == 0) {
+	} else if (strcmp(typeSignature, "S") == 0) {
 		WRAP_AND_RETURN(unsigned short);
 	} else if (strcmp(typeSignature, "L") == 0) {
 		WRAP_AND_RETURN(unsigned long);

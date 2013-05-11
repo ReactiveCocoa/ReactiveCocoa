@@ -167,6 +167,11 @@
 	} while (0)
 
 	const char *typeSignature = self.methodSignature.methodReturnType;
+	// Skip const type qualifier.
+	if (typeSignature[0] == 'r') {
+		typeSignature++;
+	}
+
 	if (strcmp(typeSignature, "@") == 0 || strcmp(typeSignature, "#") == 0) {
 		__autoreleasing id returnObj;
 		[self getReturnValue:&returnObj];

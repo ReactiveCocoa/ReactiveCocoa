@@ -181,7 +181,7 @@ static RACTuple *keyAndRemainderForKeyPath(NSString *keyPath) {
 }
 
 - (instancetype)initWithTarget:(id)target key:(NSString *)key exposedSignal:(RACSignal *)exposedSignal {
-	NSParameterAssert(exposedSignal != nil);
+	NSCParameterAssert(exposedSignal != nil);
 	self = [super init];
 	if (self == nil || target == nil || key == nil) return nil;
 	
@@ -212,15 +212,15 @@ static RACTuple *keyAndRemainderForKeyPath(NSString *keyPath) {
 }
 
 - (void)targetWillChangeValue {
-	NSAssert(NO, @"%s must be overridden by subclasses", __func__);
+	NSCAssert(NO, @"%s must be overridden by subclasses", __func__);
 }
 
 - (void)targetDidChangeValue {
-	NSAssert(NO, @"%s must be overridden by subclasses", __func__);
+	NSCAssert(NO, @"%s must be overridden by subclasses", __func__);
 }
 
 - (void)sendBindingValue:(id)value sender:(id)sender {
-	NSAssert(NO, @"%s must be overridden by subclasses", __func__);
+	NSCAssert(NO, @"%s must be overridden by subclasses", __func__);
 }
 
 - (void)dispose {
@@ -238,7 +238,7 @@ static RACTuple *keyAndRemainderForKeyPath(NSString *keyPath) {
 @implementation RACKeyKVOBinding
 
 + (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath {
-	NSParameterAssert(keyAndRemainderForKeyPath(keyPath).second == nil);
+	NSCParameterAssert(keyAndRemainderForKeyPath(keyPath).second == nil);
 	RACSignal *signal = [[RACSignal alloc] init];
 	RACKeyKVOBinding *binding = [[self alloc] initWithTarget:target key:keyPath exposedSignal:signal];
 	if (binding == nil) return nil;
@@ -251,7 +251,7 @@ static RACTuple *keyAndRemainderForKeyPath(NSString *keyPath) {
 	};
 	[binding.exposedSubscriberSubject subscribeNext:^(id x) {
 		@strongify(binding);
-		if (binding.keyPath.rac_keyPathComponents.count > 1 && [binding.target valueForKeyPath:binding.keyPath.rac_keyPathByDeletingLastKeyPathComponent] == nil) {
+		if (binding.key.rac_keyPathComponents.count > 1 && [binding.target valueForKeyPath:binding.key.rac_keyPathByDeletingLastKeyPathComponent] == nil) {
 			return;
 		}
 		binding.ignoreNextUpdate = YES;
@@ -283,7 +283,7 @@ static RACTuple *keyAndRemainderForKeyPath(NSString *keyPath) {
 
 + (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath {
 	RACTupleUnpack(NSString *key, NSString *remainder) = keyAndRemainderForKeyPath(keyPath);
-	NSParameterAssert(remainder != nil);
+	NSCParameterAssert(remainder != nil);
 	RACSignal *signal = [[RACSignal alloc] init];
 	RACRemainderKVOBinding *binding = [[self alloc] initWithTarget:target key:key exposedSignal:signal];
 	if (binding == nil) return nil;

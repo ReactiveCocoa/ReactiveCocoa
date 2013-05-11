@@ -27,6 +27,11 @@
 	} while (0)
 
 	const char *argType = [self.methodSignature getArgumentTypeAtIndex:index];
+	// Skip const type qualifier.
+	if (argType[0] == 'r') {
+		argType++;
+	}
+
 	if (strcmp(argType, "@") == 0 || strcmp(argType, "#") == 0) {
 		[self setArgument:&object atIndex:(NSInteger)index];
 	} else if (strcmp(argType, "c") == 0) {
@@ -89,6 +94,11 @@
 	} while (0)
 
 	const char *typeSignature = [self.methodSignature getArgumentTypeAtIndex:index];
+	// Skip const type qualifier.
+	if (typeSignature[0] == 'r') {
+		typeSignature++;
+	}
+
 	if (strcmp(typeSignature, "@") == 0 || strcmp(typeSignature, "#") == 0) {
 		__autoreleasing id returnObj;
 		[self getArgument:&returnObj atIndex:(NSInteger)index];

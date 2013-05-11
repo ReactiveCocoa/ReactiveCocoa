@@ -53,7 +53,7 @@
 @implementation NSObject (RACAppKitBindings)
 
 - (RACBinding *)rac_bind:(NSString *)binding {
-	return [self rac_bind:binding options:@{NSContinuouslyUpdatesValueBindingOption : @YES, NSNullPlaceholderBindingOption : (id)nil}];
+	return [self rac_bind:binding options:@{NSContinuouslyUpdatesValueBindingOption : @YES, NSNullPlaceholderBindingOption : [NSNull null]}];
 }
 
 

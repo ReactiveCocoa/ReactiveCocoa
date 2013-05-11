@@ -17,6 +17,7 @@
 #import "NSObject+RACPropertySubscribing.h"
 #import "EXTScope.h"
 #import "RACKVOTrampoline.h"
+#import "NSString+RACKeyPathUtilities.h"
 
 // Name of exceptions thrown by RACKVOBinding when an object calls
 // -didChangeValueForKey: without a corresponding -willChangeValueForKey:.
@@ -250,6 +251,9 @@ static RACTuple *keyAndRemainderForKeyPath(NSString *keyPath) {
 	};
 	[binding.exposedSubscriberSubject subscribeNext:^(id x) {
 		@strongify(binding);
+		if (binding.keyPath.rac_keyPathComponents.count > 1 && [binding.target valueForKeyPath:binding.keyPath.rac_keyPathByDeletingLastKeyPathComponent] == nil) {
+			return;
+		}
 		binding.ignoreNextUpdate = YES;
 		[binding.target setValue:x forKey:binding.key];
 	}];
@@ -383,7 +387,7 @@ static RACTuple *keyAndRemainderForKeyPath(NSString *keyPath) {
 		[property.target setValue:x forKeyPath:property.keyPath];
 	} error:^(NSError *error) {
 		@strongify(property);
-		NSAssert(NO, @"Received error in RACObservablePropertySubject for key path \"%@\" on %@: %@", property.keyPath, property.target, error);
+		NSCAssert(NO, @"Received error in RACObservablePropertySubject for key path \"%@\" on %@: %@", property.keyPath, property.target, error);
 		
 		// Log the error if we're running with assertions disabled.
 		NSLog(@"Received error in binding for key path \"%@\" on %@: %@", property.keyPath, property.target, error);

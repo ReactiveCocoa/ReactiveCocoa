@@ -75,6 +75,12 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 	return [self schedulerWithPriority:RACSchedulerPriorityDefault];
 }
 
++ (instancetype)schedulerWithQueue:(dispatch_queue_t)queue name:(NSString *)name {
+	NSCParameterAssert(queue != NULL);
+
+	return [[RACQueueScheduler alloc] initWithName:name targetQueue:queue];
+}
+
 + (instancetype)subscriptionScheduler {
 	static dispatch_once_t onceToken;
 	static RACScheduler *subscriptionScheduler;
@@ -100,12 +106,12 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 #pragma mark Scheduling
 
 - (RACDisposable *)schedule:(void (^)(void))block {
-	NSAssert(NO, @"-schedule: must be implemented by subclasses.");
+	NSCAssert(NO, @"-schedule: must be implemented by subclasses.");
 	return nil;
 }
 
 - (RACDisposable *)after:(dispatch_time_t)when schedule:(void (^)(void))block {
-	NSAssert(NO, @"-after:schedule: must be implemented by subclasses.");
+	NSCAssert(NO, @"-after:schedule: must be implemented by subclasses.");
 	return nil;
 }
 

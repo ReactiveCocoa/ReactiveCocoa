@@ -17,6 +17,7 @@
 @property (nonatomic, assign) CGRect rectValue;
 @property (nonatomic, assign) CGSize sizeValue;
 @property (nonatomic, assign) CGPoint pointValue;
+@property (nonatomic, assign) NSRange rangeValue;
 
 // Has -setObjectValue:andIntegerValue: been called?
 @property (nonatomic, assign) BOOL hasInvokedSetObjectValueAndIntegerValue;

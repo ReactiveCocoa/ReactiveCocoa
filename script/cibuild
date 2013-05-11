@@ -1,0 +1,39 @@
+#!/bin/bash
+
+cd "$(dirname "$0")/../ReactiveCocoaFramework"
+SCRIPT_DIR=../script
+
+##
+## Configuration Variables
+##
+
+# The build configuration to use.
+if [ -z "$XCCONFIGURATION" ]
+then
+    XCCONFIGURATION="Release"
+fi
+
+# A bootstrap script to run before building.
+#
+# If this file does not exist, it is not considered an error.
+BOOTSTRAP="$SCRIPT_DIR/bootstrap"
+
+# Extra build settings to pass to xcodebuild.
+XCODEBUILD_SETTINGS=
+
+##
+## Build Process
+##
+
+if [ -f "$BOOTSTRAP" ]
+then
+    echo "*** Bootstrapping..."
+    bash "$BOOTSTRAP" || exit $?
+fi
+
+echo "*** Cleaning all targets..."
+xcodebuild -alltargets clean OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS
+
+echo "*** Building..."
+xcodebuild -configuration "$XCCONFIGURATION" -scheme ReactiveCocoa test OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS || exit $?
+xcodebuild -configuration "$XCCONFIGURATION" -scheme ReactiveCocoa-iOS build OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS || exit $?

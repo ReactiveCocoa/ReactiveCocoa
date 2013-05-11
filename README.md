@@ -471,8 +471,8 @@ RACSequence *results = [[strings.rac_sequence
 To add RAC to your application:
 
  1. Add the ReactiveCocoa repository as a submodule of your application's
-    repository. Make sure to update the submodules within with `git submodule update
-    -i --recursive`
+    repository.
+ 1. Run `script/bootstrap` from within the ReactiveCocoa folder.
  1. Drag and drop `ReactiveCocoaFramework/ReactiveCocoa.xcodeproj` into your
     application's Xcode project or workspace.
  1. On the "Build Phases" tab of your application target, add RAC to the "Link

@@ -28,8 +28,8 @@
 #pragma mark Lifecycle
 
 - (id)initWithSourceSignal:(RACSignal *)source subject:(RACSubject *)subject {
-	NSParameterAssert(source != nil);
-	NSParameterAssert(subject != nil);
+	NSCParameterAssert(source != nil);
+	NSCParameterAssert(subject != nil);
 
 	self = [super init];
 	if (self == nil) return nil;

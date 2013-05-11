@@ -250,6 +250,17 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		expect(strcmp(object.charPointerValue, string) == 0).to.beTruthy();
 	});
 
+	it(@"should work for const char pointer", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setConstCharPointerValue:) withObjects:subject];
+
+		expect(object.constCharPointerValue).to.equal(NULL);
+
+		const char *string = "blah blah blah";
+		[subject sendNext:@(string)];
+		expect(strcmp(object.constCharPointerValue, string) == 0).to.beTruthy();
+	});
+
 	it(@"should work for CGRect", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setRectValue:) withObjects:subject];
@@ -416,6 +427,17 @@ describe(@"-rac_liftSelector:withObjectsFromArray:", ^{
 		const char *string = "blah blah blah";
 		[subject sendNext:@(string)];
 		expect(strcmp(object.charPointerValue, string) == 0).to.beTruthy();
+	});
+
+	it(@"should work for const char pointer", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setConstCharPointerValue:) withObjectsFromArray:@[ subject ]];
+
+		expect(object.constCharPointerValue).to.equal(NULL);
+
+		const char *string = "blah blah blah";
+		[subject sendNext:@(string)];
+		expect(strcmp(object.constCharPointerValue, string) == 0).to.beTruthy();
 	});
 
 	it(@"should work for CGRect", ^{

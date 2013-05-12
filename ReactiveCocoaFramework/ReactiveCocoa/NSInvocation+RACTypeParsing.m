@@ -190,7 +190,7 @@
 		WRAP_AND_RETURN(unsigned char);
 	} else if (strcmp(typeSignature, "I") == 0) {
 		WRAP_AND_RETURN(unsigned int);
-	} else if (strcmp(typeSignature, "C") == 0) {
+	} else if (strcmp(typeSignature, "S") == 0) {
 		WRAP_AND_RETURN(unsigned short);
 	} else if (strcmp(typeSignature, "L") == 0) {
 		WRAP_AND_RETURN(unsigned long);

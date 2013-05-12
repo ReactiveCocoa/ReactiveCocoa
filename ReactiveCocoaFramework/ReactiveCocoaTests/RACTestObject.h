@@ -14,6 +14,7 @@
 @property (nonatomic, strong) id secondObjectValue;
 @property (nonatomic, assign) NSInteger integerValue;
 @property (nonatomic, assign) char *charPointerValue;
+@property (nonatomic, assign) const char *constCharPointerValue;
 @property (nonatomic, assign) CGRect rectValue;
 @property (nonatomic, assign) CGSize sizeValue;
 @property (nonatomic, assign) CGPoint pointValue;

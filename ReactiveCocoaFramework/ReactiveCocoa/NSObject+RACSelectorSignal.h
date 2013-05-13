@@ -33,4 +33,16 @@
 // The same as -rac_signalForSelector: but with class methods.
 + (RACSignal *)rac_signalForSelector:(SEL)selector;
 
+// Wrap an implementation of `selector` up to the receiver.
+// The receiver itself should have an existing implementation of `selector`.
+// It will replace existing implementation.
+//
+// selector - The selector for which an implementation should be wrapped.
+//
+// Returns a signal which will send the argument on each invocation.
+- (RACSignal *)rac_signalForSelectorInvocation:(SEL)selector;
+
+// The same as -rac_signalForSelectorInvocation: but with class methods.
++ (RACSignal *)rac_signalForSelectorInvocation:(SEL)selector;
+
 @end

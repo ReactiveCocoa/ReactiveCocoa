@@ -34,6 +34,7 @@
 - (NSString *)combineObjectValue:(id)objectValue andSecondObjectValue:(id)secondObjectValue;
 
 - (void)lifeIsGood:(id)sender;
+- (void)lifeIsGood;
 
 + (void)lifeIsGood:(id)sender;
 

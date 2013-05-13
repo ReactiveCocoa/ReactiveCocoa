@@ -38,6 +38,10 @@
 	
 }
 
+- (void)lifeIsGood {
+
+}
+
 + (void)lifeIsGood:(id)sender {
 	
 }

@@ -27,6 +27,11 @@
 	} while (0)
 
 	const char *argType = [self.methodSignature getArgumentTypeAtIndex:index];
+	// Skip const type qualifier.
+	if (argType[0] == 'r') {
+		argType++;
+	}
+
 	if (strcmp(argType, "@") == 0 || strcmp(argType, "#") == 0) {
 		[self setArgument:&object atIndex:(NSInteger)index];
 	} else if (strcmp(argType, "c") == 0) {
@@ -43,7 +48,7 @@
 		PULL_AND_SET(unsigned char, unsignedCharValue);
 	} else if (strcmp(argType, "I") == 0) {
 		PULL_AND_SET(unsigned int, unsignedIntValue);
-	} else if (strcmp(argType, "C") == 0) {
+	} else if (strcmp(argType, "S") == 0) {
 		PULL_AND_SET(unsigned short, unsignedShortValue);
 	} else if (strcmp(argType, "L") == 0) {
 		PULL_AND_SET(unsigned long, unsignedLongValue);
@@ -63,8 +68,10 @@
 		PULL_AND_SET_STRUCT(CGSize);
 	} else if (strcmp(argType, @encode(CGPoint)) == 0) {
 		PULL_AND_SET_STRUCT(CGPoint);
+	} else if (strcmp(argType, @encode(NSRange)) == 0) {
+		PULL_AND_SET_STRUCT(NSRange);
 	} else {
-		NSAssert(NO, @"Unknown argument type %s", argType);
+		NSCAssert(NO, @"Unknown argument type %s", argType);
 	}
 
 #undef PULL_AND_SET
@@ -87,6 +94,11 @@
 	} while (0)
 
 	const char *typeSignature = [self.methodSignature getArgumentTypeAtIndex:index];
+	// Skip const type qualifier.
+	if (typeSignature[0] == 'r') {
+		typeSignature++;
+	}
+
 	if (strcmp(typeSignature, "@") == 0 || strcmp(typeSignature, "#") == 0) {
 		__autoreleasing id returnObj;
 		[self getArgument:&returnObj atIndex:(NSInteger)index];
@@ -105,7 +117,7 @@
 		WRAP_AND_RETURN(unsigned char);
 	} else if (strcmp(typeSignature, "I") == 0) {
 		WRAP_AND_RETURN(unsigned int);
-	} else if (strcmp(typeSignature, "C") == 0) {
+	} else if (strcmp(typeSignature, "S") == 0) {
 		WRAP_AND_RETURN(unsigned short);
 	} else if (strcmp(typeSignature, "L") == 0) {
 		WRAP_AND_RETURN(unsigned long);
@@ -127,8 +139,10 @@
 		WRAP_AND_RETURN_STRUCT(CGSize);
 	} else if (strcmp(typeSignature, @encode(CGPoint)) == 0) {
 		WRAP_AND_RETURN_STRUCT(CGPoint);
+	} else if (strcmp(typeSignature, @encode(NSRange)) == 0) {
+		WRAP_AND_RETURN_STRUCT(NSRange);
 	} else {
-		NSAssert(NO, @"Unknown return type signature %s", typeSignature);
+		NSCAssert(NO, @"Unknown return type signature %s", typeSignature);
 	}
 
 	return nil;
@@ -153,6 +167,11 @@
 	} while (0)
 
 	const char *typeSignature = self.methodSignature.methodReturnType;
+	// Skip const type qualifier.
+	if (typeSignature[0] == 'r') {
+		typeSignature++;
+	}
+
 	if (strcmp(typeSignature, "@") == 0 || strcmp(typeSignature, "#") == 0) {
 		__autoreleasing id returnObj;
 		[self getReturnValue:&returnObj];
@@ -171,7 +190,7 @@
 		WRAP_AND_RETURN(unsigned char);
 	} else if (strcmp(typeSignature, "I") == 0) {
 		WRAP_AND_RETURN(unsigned int);
-	} else if (strcmp(typeSignature, "C") == 0) {
+	} else if (strcmp(typeSignature, "S") == 0) {
 		WRAP_AND_RETURN(unsigned short);
 	} else if (strcmp(typeSignature, "L") == 0) {
 		WRAP_AND_RETURN(unsigned long);
@@ -196,7 +215,7 @@
 	} else if (strcmp(typeSignature, @encode(CGPoint)) == 0) {
 		WRAP_AND_RETURN_STRUCT(CGPoint);
 	} else {
-		NSAssert(NO, @"Unknown return type signature %s", typeSignature);
+		NSCAssert(NO, @"Unknown return type signature %s", typeSignature);
 	}
 
 	return nil;

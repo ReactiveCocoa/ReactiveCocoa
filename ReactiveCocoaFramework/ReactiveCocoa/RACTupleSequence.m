@@ -24,7 +24,7 @@
 #pragma mark Lifecycle
 
 + (instancetype)sequenceWithTupleBackingArray:(NSArray *)backingArray offset:(NSUInteger)offset {
-	NSParameterAssert(offset <= backingArray.count);
+	NSCParameterAssert(offset <= backingArray.count);
 
 	if (offset == backingArray.count) return self.empty;
 

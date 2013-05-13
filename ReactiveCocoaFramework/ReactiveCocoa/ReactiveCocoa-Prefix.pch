@@ -8,7 +8,7 @@
 #endif
 
 #undef NSAssert
-#define NSAssert NSCAssert
-
 #undef NSParameterAssert
-#define NSParameterAssert NSCParameterAssert
+
+extern void NSAssert(int condition, ...) __attribute__((unavailable("Use NSCAssert instead.")));
+extern void NSParameterAssert(int condition, ...) __attribute__((unavailable("Use NSCParameterAssert instead.")));

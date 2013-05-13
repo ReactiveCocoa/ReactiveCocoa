@@ -21,14 +21,14 @@
 #pragma mark RACScheduler
 
 - (RACDisposable *)schedule:(void (^)(void))block {
-	NSParameterAssert(block != NULL);
+	NSCParameterAssert(block != NULL);
 
 	block();
 	return nil;
 }
 
 - (RACDisposable *)after:(dispatch_time_t)when schedule:(void (^)(void))block {
-	NSParameterAssert(block != NULL);
+	NSCParameterAssert(block != NULL);
 
 	// Use a temporary semaphore to block the current thread until a specific
 	// dispatch_time_t.

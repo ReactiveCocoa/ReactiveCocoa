@@ -250,6 +250,17 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		expect(strcmp(object.charPointerValue, string) == 0).to.beTruthy();
 	});
 
+	it(@"should work for const char pointer", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setConstCharPointerValue:) withObjects:subject];
+
+		expect(object.constCharPointerValue).to.equal(NULL);
+
+		const char *string = "blah blah blah";
+		[subject sendNext:@(string)];
+		expect(strcmp(object.constCharPointerValue, string) == 0).to.beTruthy();
+	});
+
 	it(@"should work for CGRect", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setRectValue:) withObjects:subject];
@@ -281,6 +292,17 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		CGPoint value = CGPointMake(10, 20);
 		[subject sendNext:[NSValue valueWithPoint:value]];
 		expect(object.pointValue).to.equal(value);
+	});
+
+	it(@"should work for NSRange", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setRangeValue:) withObjects:subject];
+
+		expect(NSEqualRanges(object.rangeValue, NSMakeRange(0, 0))).to.beTruthy();
+
+		NSRange value = NSMakeRange(10, 20);
+		[subject sendNext:[NSValue valueWithRange:value]];
+		expect(NSEqualRanges(object.rangeValue, value)).to.beTruthy();
 	});
 
 	describe(@"the returned signal", ^{
@@ -407,6 +429,17 @@ describe(@"-rac_liftSelector:withObjectsFromArray:", ^{
 		expect(strcmp(object.charPointerValue, string) == 0).to.beTruthy();
 	});
 
+	it(@"should work for const char pointer", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setConstCharPointerValue:) withObjectsFromArray:@[ subject ]];
+
+		expect(object.constCharPointerValue).to.equal(NULL);
+
+		const char *string = "blah blah blah";
+		[subject sendNext:@(string)];
+		expect(strcmp(object.constCharPointerValue, string) == 0).to.beTruthy();
+	});
+
 	it(@"should work for CGRect", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setRectValue:) withObjectsFromArray:@[ subject ]];
@@ -438,6 +471,17 @@ describe(@"-rac_liftSelector:withObjectsFromArray:", ^{
 		CGPoint value = CGPointMake(10, 20);
 		[subject sendNext:[NSValue valueWithPoint:value]];
 		expect(object.pointValue).to.equal(value);
+	});
+
+	it(@"should work for NSRange", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setRangeValue:) withObjectsFromArray:@[ subject ]];
+
+		expect(NSEqualRanges(object.rangeValue, NSMakeRange(0, 0))).to.beTruthy();
+
+		NSRange value = NSMakeRange(10, 20);
+		[subject sendNext:[NSValue valueWithRange:value]];
+		expect(NSEqualRanges(object.rangeValue, value)).to.beTruthy();
 	});
 
 	it(@"should send the latest value of the signal as the right argument", ^{

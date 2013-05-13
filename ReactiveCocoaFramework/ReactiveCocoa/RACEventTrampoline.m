@@ -55,6 +55,13 @@ static NSMutableDictionary *swizzledClasses() {
 	return trampoline;
 }
 
++ (instancetype)trampolineForGestureRecognizer:(UIGestureRecognizer *)gesture {
+	RACEventTrampoline *trampoline = [[self alloc] init];
+	[gesture addTarget:trampoline action:@selector(didGetControlEvent:)];
+
+	return trampoline;
+}
+
 + (instancetype)trampolineForTextView:(UITextView *)textView delegateMethod:(SEL)method {
     RACEventTrampoline *trampoline = [[self alloc] init];
     [trampoline setDelegateMethod:method];

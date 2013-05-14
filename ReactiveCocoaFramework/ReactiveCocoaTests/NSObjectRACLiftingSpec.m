@@ -325,7 +325,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 			RACSubject *subject2 = [RACSubject subject];
 			RACSignal *signal = [object rac_liftSelector:@selector(returnRangeValueWithObjectValue:andIntegerValue:) withObjects:subject, subject2];
 
-			__block id result;
+			__block NSValue *result;
 			[signal subscribeNext:^(id x) {
 				result = x;
 			}];
@@ -334,8 +334,8 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 			expect(result).to.beNil();
 
 			[subject2 sendNext:@42];
-			expect(@([result objCType])).to.equal(@(@encode(NSRange)));
-			expect(NSEqualRanges([result rangeValue], NSMakeRange(1, 42))).to.beTruthy();
+			expect(@(result.objCType)).to.equal(@(@encode(NSRange)));
+			expect(NSEqualRanges(result.rangeValue, NSMakeRange(1, 42))).to.beTruthy();
 		});
 	});
 });

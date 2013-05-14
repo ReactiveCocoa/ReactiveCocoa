@@ -7,17 +7,18 @@
 //
 
 #import "RACObservablePropertySubject.h"
+#import "EXTScope.h"
+#import "NSObject+RACDescription.h"
+#import "NSObject+RACKVOWrapper.h"
+#import "NSObject+RACPropertySubscribing.h"
+#import "NSString+RACKeyPathUtilities.h"
 #import "RACBinding.h"
 #import "RACDisposable.h"
+#import "RACKVOTrampoline.h"
 #import "RACSignal+Private.h"
 #import "RACSubject.h"
 #import "RACSwizzling.h"
 #import "RACTuple.h"
-#import "NSObject+RACKVOWrapper.h"
-#import "NSObject+RACPropertySubscribing.h"
-#import "EXTScope.h"
-#import "RACKVOTrampoline.h"
-#import "NSString+RACKeyPathUtilities.h"
 
 // Name of exceptions thrown by RACKVOBinding when an object calls
 // -didChangeValueForKey: without a corresponding -willChangeValueForKey:.
@@ -137,7 +138,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 		@strongify(binding);
 		[subscriber sendNext:[binding.target valueForKeyPath:binding.keyPath]];
 		return [binding.exposedSignalSubject subscribe:subscriber];
-	}] setNameWithFormat:@"[+propertyWithTarget: %@ keyPath: %@] -binding", target, keyPath];
+	}] setNameWithFormat:@"[+propertyWithTarget: %@ keyPath: %@] -binding", [target rac_description], keyPath];
 	binding->_exposedSignalSubject = [RACSubject subject];
 	
 	binding->_exposedSubscriberSubject = [RACSubject subject];
@@ -233,11 +234,13 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 	property->_keyPath = [keyPath copy];
 	
 	@weakify(property);
+
 	property->_exposedSignal = [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		@strongify(property);
 		[subscriber sendNext:[property.target valueForKeyPath:keyPath]];
 		return [[property.target rac_signalForKeyPath:property.keyPath observer:property] subscribe:subscriber];
-	}] setNameWithFormat:@"+propertyWithTarget: %@ keyPath: %@", target, keyPath];
+	}] setNameWithFormat:@"+propertyWithTarget: %@ keyPath: %@", [target rac_description], keyPath];
+
 	property->_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
 		@strongify(property);
 		[property.target setValue:x forKeyPath:property.keyPath];

@@ -7,6 +7,7 @@
 //
 
 #import "NSObject+RACPropertySubscribing.h"
+#import "NSObject+RACDescription.h"
 #import "NSObject+RACKVOWrapper.h"
 #import "RACDisposable.h"
 #import "RACReplaySubject.h"
@@ -76,7 +77,7 @@ static RACSignal *signalWithoutChangesFor(Class class, NSObject *object, NSStrin
 			[objectDisposable removeDisposable:deallocDisposable];
 			[KVODisposable dispose];
 		}];
-	}] setNameWithFormat:@"RACAble(%@, %@)", object, keyPath];
+	}] setNameWithFormat:@"RACAble(%@, %@)", object.rac_description, keyPath];
 }
 
 - (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {

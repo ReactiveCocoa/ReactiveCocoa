@@ -7,6 +7,7 @@
 //
 
 #import "RACSignal.h"
+#import "NSObject+RACDescription.h"
 #import "EXTScope.h"
 #import "RACBehaviorSubject.h"
 #import "RACBlockTrampoline.h"
@@ -166,7 +167,7 @@ static NSMutableSet *activeSignals() {
 		[subscriber sendNext:value];
 		[subscriber sendCompleted];
 		return nil;
-	}] setNameWithFormat:@"+return: %@", value];
+	}] setNameWithFormat:@"+return: %@", [value rac_description]];
 }
 
 - (RACSignal *)bind:(RACStreamBindBlock (^)(void))block {

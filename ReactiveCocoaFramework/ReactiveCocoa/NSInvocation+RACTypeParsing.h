@@ -14,7 +14,7 @@
 // object based on the type signature of the argument.
 //
 // This does not support C array, union, or struct types other than CGRect,
-// CGSize, and CGPoint.
+// CGSize, CGPoint, and NSRange.
 //
 // object - The object to unbox and set as the argument.
 // index  - The index of the argument to set.
@@ -25,7 +25,7 @@
 // object type.
 //
 // This does not support C array, union, or struct types other than CGRect,
-// CGSize, and CGPoint.
+// CGSize, CGPoint, and NSRange.
 //
 // index  - The index of the argument to get.
 //
@@ -36,7 +36,7 @@
 // signature. The value is then wrapped in the appropriate object type.
 //
 // This does not support C array, union, or struct types other than CGRect,
-// CGSize, and CGPoint.
+// CGSize, CGPoint, and NSRange.
 //
 // Returns the return value of the invocation, wrapped in an object. Voids are
 // returned as `RACUnit.defaultUnit`.

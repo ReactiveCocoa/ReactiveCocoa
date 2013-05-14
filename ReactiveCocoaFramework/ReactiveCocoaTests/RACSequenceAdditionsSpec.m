@@ -18,13 +18,23 @@
 
 SpecBegin(RACSequenceAdditions)
 
+__block NSArray *numbers;
+
+beforeEach(^{
+	NSMutableArray *mutableNumbers = [NSMutableArray array];
+	for (NSUInteger i = 0; i < 100; i++) {
+		[mutableNumbers addObject:@(i)];
+	}
+
+	numbers = [mutableNumbers copy];
+});
+
 describe(@"NSArray sequences", ^{
 	__block NSMutableArray *values;
 	__block RACSequence *sequence;
 	
 	beforeEach(^{
-		values = [@[ @0, @1, @2, @3, @4, @5 ] mutableCopy];
-
+		values = [numbers mutableCopy];
 		sequence = values.rac_sequence;
 		expect(sequence).notTo.beNil();
 	});
@@ -145,7 +155,7 @@ describe(@"NSOrderedSet sequences", ^{
 	__block RACSequence *sequence;
 
 	beforeEach(^{
-		values = [NSMutableOrderedSet orderedSetWithArray:@[ @0, @1, @2, @3, @4, @5 ]];
+		values = [NSMutableOrderedSet orderedSetWithArray:numbers];
 		sequence = values.rac_sequence;
 		expect(sequence).notTo.beNil();
 	});
@@ -179,7 +189,7 @@ describe(@"NSSet sequences", ^{
 	__block RACSequence *sequence;
 
 	beforeEach(^{
-		values = [NSMutableSet setWithArray:@[ @0, @1, @2, @3, @4, @5 ]];
+		values = [NSMutableSet setWithArray:numbers];
 		sequence = values.rac_sequence;
 		expect(sequence).notTo.beNil();
 	});

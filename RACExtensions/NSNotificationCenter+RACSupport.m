@@ -22,7 +22,7 @@
 		return [RACDisposable disposableWithBlock:^{
 			[self removeObserver:observer];
 		}];
-	}] setNameWithFormat:@"-rac_addObserverForName: %@ object: %@", notificationName, object];
+	}] setNameWithFormat:@"-rac_addObserverForName: %@ object: <%@: %p>", notificationName, [object class], object];
 }
 
 @end

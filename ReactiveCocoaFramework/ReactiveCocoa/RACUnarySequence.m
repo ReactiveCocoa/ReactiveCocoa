@@ -8,6 +8,7 @@
 
 #import "RACUnarySequence.h"
 #import "EXTKeyPathCoding.h"
+#import "NSObject+RACDescription.h"
 
 @interface RACUnarySequence ()
 
@@ -27,7 +28,7 @@
 + (instancetype)return:(id)value {
 	RACUnarySequence *sequence = [[self alloc] init];
 	sequence.head = value;
-	return [sequence setNameWithFormat:@"+return: %@", value];
+	return [sequence setNameWithFormat:@"+return: %@", [value rac_description]];
 }
 
 #pragma mark RACSequence
@@ -63,7 +64,7 @@
 #pragma mark NSObject
 
 - (NSString *)description {
-	return [NSString stringWithFormat:@"<%@: %p>{ name = %@, head = %@ }", self.class, self, self.name, self.head];
+	return [NSString stringWithFormat:@"<%@: %p>{ name = %@, head = %@ }", self.class, self, self.name, [self.head rac_description]];
 }
 
 - (NSUInteger)hash {

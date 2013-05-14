@@ -52,6 +52,8 @@
 #pragma mark NSFastEnumeration
 
 - (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(__unsafe_unretained id[])stackbuf count:(NSUInteger)len {
+	NSCParameterAssert(len > 0);
+
 	if (state->state >= self.backingArray.count) {
 		// Enumeration has completed.
 		return 0;
@@ -76,6 +78,7 @@
 		if (index >= startIndex) stackbuf[index - startIndex] = value;
 
 		++index;
+		if (index - startIndex >= len) break;
 	}
 
 	state->state = index;

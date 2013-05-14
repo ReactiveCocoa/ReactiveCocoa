@@ -75,11 +75,18 @@
 	for (id value in self.backingArray) {
 		// Constructing an index set for -enumerateObjectsAtIndexes: can actually be
 		// slower than just skipping the items we don't care about.
-		if (index >= startIndex) stackbuf[index - startIndex] = value;
+		if (index < startIndex) {
+			++index;
+			continue;
+		}
+
+		stackbuf[index - startIndex] = value;
 
 		++index;
 		if (index - startIndex >= len) break;
 	}
+
+	NSCAssert(index > startIndex, @"Final index (%lu) should be greater than start index (%lu)", (unsigned long)index, (unsigned long)startIndex);
 
 	state->state = index;
 	return index - startIndex;

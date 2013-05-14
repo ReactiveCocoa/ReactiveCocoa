@@ -37,4 +37,6 @@
 
 + (void)lifeIsGood:(id)sender;
 
+- (NSRange)returnRangeValueWithObjectValue:(id)objectValue andIntegerValue:(NSInteger)integerValue;
+
 @end

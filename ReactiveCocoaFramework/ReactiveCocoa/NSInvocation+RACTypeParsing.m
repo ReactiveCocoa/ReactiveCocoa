@@ -214,6 +214,8 @@
 		WRAP_AND_RETURN_STRUCT(CGSize);
 	} else if (strcmp(typeSignature, @encode(CGPoint)) == 0) {
 		WRAP_AND_RETURN_STRUCT(CGPoint);
+	} else if (strcmp(typeSignature, @encode(NSRange)) == 0) {
+		WRAP_AND_RETURN_STRUCT(NSRange);
 	} else {
 		NSCAssert(NO, @"Unknown return type signature %s", typeSignature);
 	}

@@ -160,7 +160,8 @@ extern const NSInteger RACSignalErrorTimedOut;
 //                 signals.
 - (RACSignal *)flatten:(NSUInteger)maxConcurrent;
 
-// Gets a new signal to subscribe to after the receiver completes.
+// Ignores all `next`s from the receiver, and after the receiver completes, gets
+// a new signal to subscribe to.
 - (RACSignal *)sequenceNext:(RACSignal * (^)(void))block;
 
 // Concats the inner signals of a signal of signals.

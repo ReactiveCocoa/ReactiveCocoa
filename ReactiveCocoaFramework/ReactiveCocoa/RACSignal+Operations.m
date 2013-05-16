@@ -9,6 +9,7 @@
 #import "RACSignal+Operations.h"
 #import "EXTScope.h"
 #import "NSArray+RACSequenceAdditions.h"
+#import "NSObject+RACDescription.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACBehaviorSubject.h"
 #import "RACBlockTrampoline.h"
@@ -640,21 +641,10 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 - (RACSignal *)sequenceNext:(RACSignal * (^)(void))block {
 	NSCParameterAssert(block != nil);
 
-	return [[[self materialize] flattenMap:^(RACEvent *event) {
-		switch (event.eventType) {
-			case RACEventTypeCompleted:
-				return block();
-
-			case RACEventTypeError:
-				return [RACSignal error:event.error];
-
-			case RACEventTypeNext:
-				return [RACSignal empty];
-
-			default:
-				NSCAssert(NO, @"Unrecognized event type: %i", (int)event.eventType);
-		}
-	}] setNameWithFormat:@"[%@] -sequenceNext:", self.name];
+	return [[[self
+		ignoreElements]
+		concat:[RACSignal defer:block]]
+		setNameWithFormat:@"[%@] -sequenceNext:", self.name];
 }
 
 - (RACSignal *)concat {
@@ -712,7 +702,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 		return start;
 	} combine:combineBlock];
 
-	return [signal setNameWithFormat:@"[%@] -aggregateWithStart: %@ combine:", self.name, start];
+	return [signal setNameWithFormat:@"[%@] -aggregateWithStart: %@ combine:", self.name, [start rac_description]];
 }
 
 - (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object {

@@ -42,4 +42,8 @@
 	
 }
 
+- (NSRange)returnRangeValueWithObjectValue:(id)objectValue andIntegerValue:(NSInteger)integerValue {
+	return NSMakeRange((NSUInteger)[objectValue integerValue], (NSUInteger)integerValue);
+}
+
 @end

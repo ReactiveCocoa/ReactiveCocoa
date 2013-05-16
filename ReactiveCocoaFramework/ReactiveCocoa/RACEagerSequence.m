@@ -7,6 +7,7 @@
 //
 
 #import "RACEagerSequence.h"
+#import "NSObject+RACDescription.h"
 #import "RACArraySequence.h"
 
 @implementation RACEagerSequence
@@ -14,7 +15,7 @@
 #pragma mark RACStream
 
 + (instancetype)return:(id)value {
-	return [[self sequenceWithArray:@[ value ] offset:0] setNameWithFormat:@"+return: %@", value];
+	return [[self sequenceWithArray:@[ value ] offset:0] setNameWithFormat:@"+return: %@", [value rac_description]];
 }
 
 - (instancetype)bind:(RACStreamBindBlock (^)(void))block {

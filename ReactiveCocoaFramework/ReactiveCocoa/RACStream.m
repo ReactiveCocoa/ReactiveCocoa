@@ -7,6 +7,7 @@
 //
 
 #import "RACStream.h"
+#import "NSObject+RACDescription.h"
 #import "RACBlockTrampoline.h"
 #import "RACTuple.h"
 
@@ -95,7 +96,7 @@
 - (instancetype)mapReplace:(id)object {
 	return [[self map:^(id _) {
 		return object;
-	}] setNameWithFormat:@"[%@] -mapReplace: %@", self.name, object];
+	}] setNameWithFormat:@"[%@] -mapReplace: %@", self.name, [object rac_description]];
 }
 
 - (instancetype)mapPreviousWithStart:(id)start combine:(id (^)(id previous, id next))combineBlock {
@@ -109,7 +110,7 @@
 		map:^(RACTuple *tuple) {
 			return tuple[1];
 		}]
-		setNameWithFormat:@"[%@] -mapPreviousWithStart: %@ combine:", self.name, start];
+		setNameWithFormat:@"[%@] -mapPreviousWithStart: %@ combine:", self.name, [start rac_description]];
 }
 
 - (instancetype)filter:(BOOL (^)(id value))block {
@@ -139,7 +140,7 @@
 - (instancetype)startWith:(id)value {
 	return [[[self.class return:value]
 		concat:self]
-		setNameWithFormat:@"[%@] -startWith: %@", self.name, value];
+		setNameWithFormat:@"[%@] -startWith: %@", self.name, [value rac_description]];
 }
 
 - (instancetype)skip:(NSUInteger)skipCount {
@@ -259,7 +260,7 @@
 			running = block(running, value);
 			return [class return:running];
 		};
-	}] setNameWithFormat:@"[%@] -scanWithStart: %@ combine:", self.name, startingValue];
+	}] setNameWithFormat:@"[%@] -scanWithStart: %@ combine:", self.name, [startingValue rac_description]];
 }
 
 - (instancetype)takeUntilBlock:(BOOL (^)(id x))predicate {

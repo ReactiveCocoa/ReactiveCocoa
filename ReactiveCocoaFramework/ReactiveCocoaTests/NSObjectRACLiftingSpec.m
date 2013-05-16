@@ -250,6 +250,17 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		expect(strcmp(object.charPointerValue, string) == 0).to.beTruthy();
 	});
 
+	it(@"should work for const char pointer", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setConstCharPointerValue:) withObjects:subject];
+
+		expect(object.constCharPointerValue).to.equal(NULL);
+
+		const char *string = "blah blah blah";
+		[subject sendNext:@(string)];
+		expect(strcmp(object.constCharPointerValue, string) == 0).to.beTruthy();
+	});
+
 	it(@"should work for CGRect", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setRectValue:) withObjects:subject];
@@ -307,6 +318,24 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 			[subject sendNext:@1];
 
 			expect(result).to.equal(RACUnit.defaultUnit);
+		});
+
+		it(@"should send boxed NSRange", ^{
+			RACSubject *subject = [RACSubject subject];
+			RACSubject *subject2 = [RACSubject subject];
+			RACSignal *signal = [object rac_liftSelector:@selector(returnRangeValueWithObjectValue:andIntegerValue:) withObjects:subject, subject2];
+
+			__block NSValue *result;
+			[signal subscribeNext:^(id x) {
+				result = x;
+			}];
+
+			[subject sendNext:@1];
+			expect(result).to.beNil();
+
+			[subject2 sendNext:@42];
+			expect(@(result.objCType)).to.equal(@(@encode(NSRange)));
+			expect(NSEqualRanges(result.rangeValue, NSMakeRange(1, 42))).to.beTruthy();
 		});
 	});
 });
@@ -416,6 +445,17 @@ describe(@"-rac_liftSelector:withObjectsFromArray:", ^{
 		const char *string = "blah blah blah";
 		[subject sendNext:@(string)];
 		expect(strcmp(object.charPointerValue, string) == 0).to.beTruthy();
+	});
+
+	it(@"should work for const char pointer", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setConstCharPointerValue:) withObjectsFromArray:@[ subject ]];
+
+		expect(object.constCharPointerValue).to.equal(NULL);
+
+		const char *string = "blah blah blah";
+		[subject sendNext:@(string)];
+		expect(strcmp(object.constCharPointerValue, string) == 0).to.beTruthy();
 	});
 
 	it(@"should work for CGRect", ^{

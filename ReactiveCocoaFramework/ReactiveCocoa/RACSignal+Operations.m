@@ -419,7 +419,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	return [[self aggregateWithStartFactory:^{
 		return [[NSMutableArray alloc] init];
 	} combine:^(NSMutableArray *collectedValues, id x) {
-		[collectedValues addObject:(x ?: RACTupleNil.tupleNil)];
+		[collectedValues addObject:(x ?: NSNull.null)];
 		return collectedValues;
 	}] setNameWithFormat:@"[%@] -collect", self.name];
 }
@@ -1001,33 +1001,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 }
 
 - (NSArray *)toArray {
-	NSCondition *condition = [[NSCondition alloc] init];
-	condition.name = [NSString stringWithFormat:@"[%@] -toArray", self.name];
-
-	NSMutableArray *values = [NSMutableArray array];
-	__block BOOL done = NO;
-	[self subscribeNext:^(id x) {
-		[values addObject:x ? : [NSNull null]];
-	} error:^(NSError *error) {
-		[condition lock];
-		done = YES;
-		[condition broadcast];
-		[condition unlock];
-	} completed:^{
-		[condition lock];
-		done = YES;
-		[condition broadcast];
-		[condition unlock];
-	}];
-
-	[condition lock];
-	while (!done) {
-		[condition wait];
-	}
-
-	[condition unlock];
-
-	return [values copy];
+	return [[[self collect] first] copy];
 }
 
 - (RACSequence *)sequence {

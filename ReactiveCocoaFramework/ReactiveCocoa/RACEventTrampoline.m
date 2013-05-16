@@ -56,6 +56,12 @@ static NSMutableDictionary *swizzledClasses() {
 	return trampoline;
 }
 
++ (instancetype)trampolineForGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer {
+    RACEventTrampoline *trampoline = [[self alloc] init];
+    [gestureRecognizer addTarget:trampoline action:@selector(didRecognizeGesture:)];
+    return trampoline;
+}
+
 + (instancetype)trampolineForTextView:(UITextView *)textView delegateMethod:(SEL)method {
     RACEventTrampoline *trampoline = [[self alloc] init];
     [trampoline setDelegateMethod:method];
@@ -90,6 +96,10 @@ static NSMutableDictionary *swizzledClasses() {
 	self.subject = [RACSubject subject];
 	
 	return self;
+}
+
+- (void)didRecognizeGesture:(id)sender {
+    [self.subject sendNext:sender];
 }
 
 - (void)didGetControlEvent:(id)sender {

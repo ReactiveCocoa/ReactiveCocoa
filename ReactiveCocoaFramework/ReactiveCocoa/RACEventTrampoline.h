@@ -19,10 +19,12 @@ extern const char *RACEventTrampolinesKey;
 }
 
 + (instancetype)trampolineForControl:(UIControl *)control controlEvents:(UIControlEvents)controlEvents;
++ (instancetype)trampolineForGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer;
 + (instancetype)trampolineForTextView:(UITextView *)textView delegateMethod:(SEL)method;
 
 - (void)didGetControlEvent:(id)sender;
 - (void)didGetDelegateEvent:(SEL)delegateMethod sender:(id)sender;
+- (void)didRecognizeGesture:(id)sender;
 
 @property (nonatomic, strong) RACSubject *subject;
 @property (nonatomic, strong) RACDelegateProxy *proxy;

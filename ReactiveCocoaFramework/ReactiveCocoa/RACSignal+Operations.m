@@ -641,21 +641,10 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 - (RACSignal *)sequenceNext:(RACSignal * (^)(void))block {
 	NSCParameterAssert(block != nil);
 
-	return [[[self materialize] flattenMap:^(RACEvent *event) {
-		switch (event.eventType) {
-			case RACEventTypeCompleted:
-				return block();
-
-			case RACEventTypeError:
-				return [RACSignal error:event.error];
-
-			case RACEventTypeNext:
-				return [RACSignal empty];
-
-			default:
-				NSCAssert(NO, @"Unrecognized event type: %i", (int)event.eventType);
-		}
-	}] setNameWithFormat:@"[%@] -sequenceNext:", self.name];
+	return [[[self
+		ignoreElements]
+		concat:[RACSignal defer:block]]
+		setNameWithFormat:@"[%@] -sequenceNext:", self.name];
 }
 
 - (RACSignal *)concat {

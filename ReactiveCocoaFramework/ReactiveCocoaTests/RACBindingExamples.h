@@ -13,7 +13,3 @@ extern NSString * const RACBindingExamples;
 // RACBinding.
 extern NSString * const RACBindingExamplesGetBindingBlock1;
 extern NSString * const RACBindingExamplesGetBindingBlock2;
-
-// A block of type `RACSignal <RACSubscriber> *(^)(void)`, which should
-// return a new RACSignal <RACSubscriber> * object.
-extern NSString * const RACBindingExamplesGetProperty;

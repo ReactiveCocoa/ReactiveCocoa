@@ -17,7 +17,6 @@
 #import "RACBinding+Private.h"
 #import "RACValueTransformer.h"
 #import "RACTuple.h"
-#import "RACReplaySubject.h"
 
 // A class for the RACAppKitBindings to bind to.
 // In turn, it sends the subscriber values.
@@ -37,12 +36,12 @@
 - (void)setValue:(id)value {
 	// Need to keep the value around, for initial value.
 	if (value == nil) {
-		_value = _nilValue;
+		_value = self.nilValue;
 	} else {
 		_value = value;
 	}
 	
-	[_subscriber sendNext:[RACTuple tupleWithObjects:_value, _binder, nil]];
+	[self.subscriber sendNext:[RACTuple tupleWithObjects:_value, self.binder, nil]];
 }
 
 - (id)value {
@@ -65,21 +64,15 @@
 - (RACBinding *)rac_bind:(NSString *)binding options:(NSDictionary *)options {
 	__block RACBindingProxy *proxy = [[RACBindingProxy alloc] init];
 	proxy.nilValue = options[NSNullPlaceholderBindingOption];
-	
-	// Subject for replaying signals
-	RACReplaySubject *backing = [RACReplaySubject replaySubjectWithCapacity:1];
-	proxy.subscriber = backing;
 
 	[self bind:binding toObject:proxy withKeyPath:@keypath(proxy, value) options:options];
 	
 	RACSignal *signal = [[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
-		// Give back the subject
-		[backing subscribe:subscriber];
+		[subscriber sendNext:[RACTuple tupleWithObjects:proxy.value, RACTupleNil.tupleNil, nil]];
 		
 		return [RACDisposable disposableWithBlock:^{
 			[self unbind:binding];
 		}];
-		
 	}] 
 	setNameWithFormat:@"%@ -rac_bind", self];
 	

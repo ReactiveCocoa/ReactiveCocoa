@@ -2551,4 +2551,36 @@ describe(@"-groupBy:", ^{
 	});
 });
 
+describe(@"-toArray", ^{
+	__block RACSubject *subject;
+	
+	beforeEach(^{
+		subject = [RACReplaySubject subject];
+	});
+	
+	it(@"should return an array which contains NSNulls for nil values", ^{
+		NSArray *expected = @[ NSNull.null, @1, NSNull.null ];
+		
+		[subject sendNext:nil];
+		[subject sendNext:@1];
+		[subject sendNext:nil];
+		[subject sendCompleted];
+		
+		expect([subject toArray]).to.equal(expected);
+	});
+
+	it(@"should return nil upon error", ^{
+		[subject sendError:nil];
+		expect([subject toArray]).to.beNil();
+	});
+
+	it(@"should return nil upon error even if some nexts were sent", ^{
+		[subject sendNext:@1];
+		[subject sendNext:@2];
+		[subject sendError:nil];
+		
+		expect([subject toArray]).to.beNil();
+	});
+});
+
 SpecEnd

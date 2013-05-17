@@ -2163,25 +2163,47 @@ describe(@"-sample:", ^{
 });
 
 describe(@"-collect", ^{
-	it(@"should send a single array when the original signal completes", ^{
-		RACSubject *subject = [RACSubject subject];
-		RACSignal *collected = [subject collect];
+	__block RACSubject *subject;
+	__block RACSignal *collected;
 
-		NSArray *expected = @[ @1, @2, @3 ];
-		__block id value = nil;
-		__block BOOL hasCompleted = NO;
+	__block id value;
+	__block BOOL hasCompleted;
 
+	beforeEach(^{
+		subject = [RACSubject subject];
+		collected = [subject collect];
+		
+		value = nil;
+		hasCompleted = NO;
+		
 		[collected subscribeNext:^(id x) {
 			value = x;
 		} completed:^{
 			hasCompleted = YES;
 		}];
+	});
+	
+	it(@"should send a single array when the original signal completes", ^{
+		NSArray *expected = @[ @1, @2, @3 ];
 
 		[subject sendNext:@1];
 		[subject sendNext:@2];
 		[subject sendNext:@3];
 		expect(value).to.beNil();
 
+		[subject sendCompleted];
+		expect(value).to.equal(expected);
+		expect(hasCompleted).to.beTruthy();
+	});
+
+	it(@"should add NSNull to an array for nil values", ^{
+		NSArray *expected = @[ NSNull.null, @1, NSNull.null ];
+		
+		[subject sendNext:nil];
+		[subject sendNext:@1];
+		[subject sendNext:nil];
+		expect(value).to.beNil();
+		
 		[subject sendCompleted];
 		expect(value).to.equal(expected);
 		expect(hasCompleted).to.beTruthy();

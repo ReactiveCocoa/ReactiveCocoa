@@ -2529,4 +2529,52 @@ describe(@"-groupBy:", ^{
 	});
 });
 
+describe(@"-once:", ^{
+	__block NSUInteger invokedCount = 0;
+	__block BOOL disposed = NO;
+	__block RACSignal *signal;
+
+	beforeEach(^{
+		invokedCount = 0;
+		disposed = NO;
+		signal = [RACSignal once:^{
+			invokedCount++;
+			return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+				[subscriber sendNext:@42];
+				return [RACDisposable disposableWithBlock:^{
+					disposed = YES;
+				}];
+			}];
+		}];
+	});
+
+	it(@"should send values from the returned signal", ^{
+		NSNumber *value = [signal first];
+		expect(value).to.equal(@42);
+	});
+
+	it(@"should only invoke the block on subscription", ^{
+		expect(invokedCount).to.equal(0);
+		[signal subscribe:[RACSubscriber subscriberWithNext:nil error:nil completed:nil]];
+		expect(invokedCount).to.equal(1);
+	});
+
+	it(@"should only invoke the block once", ^{
+		expect(invokedCount).to.equal(0);
+		[signal subscribe:[RACSubscriber subscriberWithNext:nil error:nil completed:nil]];
+		expect(invokedCount).to.equal(1);
+		[signal subscribe:[RACSubscriber subscriberWithNext:nil error:nil completed:nil]];
+		expect(invokedCount).to.equal(1);
+		[signal subscribe:[RACSubscriber subscriberWithNext:nil error:nil completed:nil]];
+		expect(invokedCount).to.equal(1);
+	});
+
+	it(@"shouldn't dispose of the underlying subscription", ^{
+		expect(disposed).to.beFalsy();
+		RACDisposable *disposable = [signal subscribe:[RACSubscriber subscriberWithNext:nil error:nil completed:nil]];
+		[disposable dispose];
+		expect(disposed).to.beFalsy();
+	});
+});
+
 SpecEnd

@@ -432,8 +432,8 @@ extern const NSInteger RACSignalErrorTimedOut;
 
 // Invokes the given block only on the first subscription. The signal returned
 // from the block is multicasted to a RACReplaySubject with a capacity of 1.
-// This means subsequent subscribers will get the most recent value sent, but
-// will not cause the signal returned from the block to be re-subscribed to.
+// This means subsequent subscribers will get the most recent value sent and
+// will not cause a new subscription to the signal returned from `block`.
 //
 // block - The block to invoke on the first subscription. Cannot be NULL.
 //

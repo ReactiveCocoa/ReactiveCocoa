@@ -81,11 +81,13 @@ extern const NSInteger RACSignalErrorTimedOut;
 // will be a RACTuple of values.
 - (RACSignal *)bufferWithTime:(NSTimeInterval)interval;
 
-// Collect all receiver's `next`s into a NSArray.
+// Collect all receiver's `next`s into a NSArray. nil values will be converted
+// to NSNull.
 //
 // This corresponds to the `ToArray` method in Rx.
 //
-// Returns a signal which sends a single NSArray when the receiver completes.
+// Returns a signal which sends a single NSArray when the receiver completes
+// successfully.
 - (RACSignal *)collect;
 
 // Takes the last `count` `next`s after the receiving signal completes.
@@ -287,6 +289,8 @@ extern const NSInteger RACSignalErrorTimedOut;
 //
 // **This is not the same as the `ToArray` method in Rx.** See -collect for
 // that behavior instead.
+//
+// Returns the array of `next` values, or nil if an error occurs.
 - (NSArray *)toArray;
 
 // Add every `next` to a sequence. Nils are represented by NSNulls.

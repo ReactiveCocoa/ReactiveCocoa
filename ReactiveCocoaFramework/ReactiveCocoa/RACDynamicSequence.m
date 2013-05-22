@@ -51,7 +51,7 @@
 //  - If NO, this block is of type `id (^)(void)`.
 //
 // This property should only be accessed while synchronized on self.
-@property (nonatomic, copy) id headBlock;
+@property (nonatomic, strong) id headBlock;
 
 // A block used to evaluate tail. This should be set to nil after `_tail` has been
 // initialized.
@@ -62,7 +62,7 @@
 //  - If NO, this block is of type `RACSequence * (^)(void)`.
 //
 // This property should only be accessed while synchronized on self.
-@property (nonatomic, copy) id tailBlock;
+@property (nonatomic, strong) id tailBlock;
 
 // Whether the receiver was initialized with a `dependencyBlock`.
 //
@@ -74,7 +74,7 @@
 // been set.
 //
 // This property should only be accessed while synchronized on self.
-@property (nonatomic, copy) id (^dependencyBlock)(void);
+@property (nonatomic, strong) id dependencyBlock;
 
 @end
 
@@ -86,8 +86,8 @@
 	NSCParameterAssert(headBlock != nil);
 
 	RACDynamicSequence *seq = [[RACDynamicSequence alloc] init];
-	seq.headBlock = headBlock;
-	seq.tailBlock = tailBlock;
+	seq.headBlock = [headBlock copy];
+	seq.tailBlock = [tailBlock copy];
 	seq.hasDependency = NO;
 	return seq;
 }
@@ -97,9 +97,9 @@
 	NSCParameterAssert(headBlock != nil);
 
 	RACDynamicSequence *seq = [[RACDynamicSequence alloc] init];
-	seq.headBlock = headBlock;
-	seq.tailBlock = tailBlock;
-	seq.dependencyBlock = dependencyBlock;
+	seq.headBlock = [headBlock copy];
+	seq.tailBlock = [tailBlock copy];
+	seq.dependencyBlock = [dependencyBlock copy];
 	seq.hasDependency = YES;
 	return seq;
 }
@@ -127,7 +127,8 @@
 
 		if (self.hasDependency) {
 			if (self.dependencyBlock != nil) {
-				_dependency = self.dependencyBlock();
+				id (^dependencyBlock)(void) = self.dependencyBlock;
+				_dependency = dependencyBlock();
 				self.dependencyBlock = nil;
 			}
 
@@ -150,7 +151,8 @@
 
 		if (self.hasDependency) {
 			if (self.dependencyBlock != nil) {
-				_dependency = self.dependencyBlock();
+				id (^dependencyBlock)(void) = self.dependencyBlock;
+				_dependency = dependencyBlock();
 				self.dependencyBlock = nil;
 			}
 

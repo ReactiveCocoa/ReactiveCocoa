@@ -2529,10 +2529,11 @@ describe(@"-groupBy:", ^{
 	});
 });
 
-describe(@"-once:", ^{
+describe(@"+once:", ^{
 	__block NSUInteger invokedCount = 0;
 	__block BOOL disposed = NO;
 	__block RACSignal *signal;
+	__block void (^subscribe)(void);
 
 	beforeEach(^{
 		invokedCount = 0;
@@ -2541,31 +2542,42 @@ describe(@"-once:", ^{
 			invokedCount++;
 			return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 				[subscriber sendNext:@42];
+				[subscriber sendNext:@43];
 				return [RACDisposable disposableWithBlock:^{
 					disposed = YES;
 				}];
 			}];
 		}];
+
+		subscribe = [^{
+			[signal subscribe:[RACSubscriber subscriberWithNext:nil error:nil completed:nil]];
+		} copy];
 	});
 
 	it(@"should send values from the returned signal", ^{
 		NSNumber *value = [signal first];
-		expect(value).to.equal(@42);
+		expect(value).to.equal(@43);
+	});
+
+	it(@"should replay the latest value", ^{
+		subscribe();
+		id value = [signal first];
+		expect(value).to.equal(@43);
 	});
 
 	it(@"should only invoke the block on subscription", ^{
 		expect(invokedCount).to.equal(0);
-		[signal subscribe:[RACSubscriber subscriberWithNext:nil error:nil completed:nil]];
+		subscribe();
 		expect(invokedCount).to.equal(1);
 	});
 
 	it(@"should only invoke the block once", ^{
 		expect(invokedCount).to.equal(0);
-		[signal subscribe:[RACSubscriber subscriberWithNext:nil error:nil completed:nil]];
+		subscribe();
 		expect(invokedCount).to.equal(1);
-		[signal subscribe:[RACSubscriber subscriberWithNext:nil error:nil completed:nil]];
+		subscribe();
 		expect(invokedCount).to.equal(1);
-		[signal subscribe:[RACSubscriber subscriberWithNext:nil error:nil completed:nil]];
+		subscribe();
 		expect(invokedCount).to.equal(1);
 	});
 

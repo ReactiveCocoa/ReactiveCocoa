@@ -74,7 +74,7 @@
 // been set.
 //
 // This property should only be accessed while synchronized on self.
-@property (nonatomic, strong) id dependencyBlock;
+@property (nonatomic, strong) id (^dependencyBlock)(void);
 
 @end
 
@@ -127,8 +127,7 @@
 
 		if (self.hasDependency) {
 			if (self.dependencyBlock != nil) {
-				id (^dependencyBlock)(void) = self.dependencyBlock;
-				_dependency = dependencyBlock();
+				_dependency = self.dependencyBlock();
 				self.dependencyBlock = nil;
 			}
 
@@ -151,8 +150,7 @@
 
 		if (self.hasDependency) {
 			if (self.dependencyBlock != nil) {
-				id (^dependencyBlock)(void) = self.dependencyBlock;
-				_dependency = dependencyBlock();
+				_dependency = self.dependencyBlock();
 				self.dependencyBlock = nil;
 			}
 

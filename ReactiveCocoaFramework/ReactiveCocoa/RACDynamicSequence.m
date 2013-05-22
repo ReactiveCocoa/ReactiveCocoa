@@ -45,6 +45,9 @@
 // A block used to evaluate head. This should be set to nil after `_head` has been
 // initialized.
 //
+// This is marked `strong` instead of `copy` because of some bizarre block
+// copying bug. See https://github.com/ReactiveCocoa/ReactiveCocoa/pull/506.
+//
 // The signature of this block varies based on the value of `hasDependency`:
 //
 //  - If YES, this block is of type `id (^)(id)`.
@@ -55,6 +58,9 @@
 
 // A block used to evaluate tail. This should be set to nil after `_tail` has been
 // initialized.
+//
+// This is marked `strong` instead of `copy` because of some bizarre block
+// copying bug. See https://github.com/ReactiveCocoa/ReactiveCocoa/pull/506.
 //
 // The signature of this block varies based on the value of `hasDependency`:
 //
@@ -72,6 +78,9 @@
 // A dependency which must be evaluated before `headBlock` and `tailBlock`. This
 // should be set to nil after `_dependency` and `dependencyBlockExecuted` have
 // been set.
+//
+// This is marked `strong` instead of `copy` because of some bizarre block
+// copying bug. See https://github.com/ReactiveCocoa/ReactiveCocoa/pull/506.
 //
 // This property should only be accessed while synchronized on self.
 @property (nonatomic, strong) id (^dependencyBlock)(void);

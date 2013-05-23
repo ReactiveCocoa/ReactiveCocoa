@@ -10,6 +10,7 @@
 #import "RACSequenceExamples.h"
 #import "RACStreamExamples.h"
 
+#import <libkern/OSAtomic.h>
 #import "EXTKeyPathCoding.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACBehaviorSubject.h"

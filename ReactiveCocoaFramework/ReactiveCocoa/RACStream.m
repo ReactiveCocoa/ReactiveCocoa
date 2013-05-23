@@ -127,6 +127,13 @@
 	}] setNameWithFormat:@"[%@] -filter:", self.name];
 }
 
+- (instancetype)filterOutNil
+{
+	return [self filter:^BOOL(id value) {
+		return (value != nil);
+	}];
+}
+
 - (instancetype)reduceEach:(id)reduceBlock {
 	NSCParameterAssert(reduceBlock != nil);
 

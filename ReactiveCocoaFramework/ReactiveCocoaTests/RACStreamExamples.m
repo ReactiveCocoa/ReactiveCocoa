@@ -261,6 +261,16 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		verifyValues(stream, @[ @0, @2, @4, @6 ]);
 	});
 
+    it(@"should filter out nils", ^{
+        RACStream *baseStream = [streamWithValues(@[ @0, @1, @2, @3] ) map:^ id (NSNumber *value) {
+			return ([value intValue] < 2) ? value : nil;
+		}];
+
+		RACStream *stream = [baseStream filterOutNil];
+
+		verifyValues(stream, @[ @0, @1]);
+    });
+
 	it(@"should start with a value", ^{
 		RACStream *stream = [[streamClass return:@1] startWith:@0];
 		verifyValues(stream, @[ @0, @1 ]);

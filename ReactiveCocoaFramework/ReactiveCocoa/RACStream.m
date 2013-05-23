@@ -127,8 +127,7 @@
 	}] setNameWithFormat:@"[%@] -filter:", self.name];
 }
 
-- (instancetype)filterOutNil
-{
+- (instancetype)filterOutNil {
 	return [self filter:^ BOOL (id value) {
 		return (value != nil);
 	}];

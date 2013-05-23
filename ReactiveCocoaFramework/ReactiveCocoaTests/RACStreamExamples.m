@@ -262,7 +262,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 	});
 
     it(@"should filter out nils", ^{
-        RACStream *baseStream = [streamWithValues(@[ @0, @1, @2, @3] ) map:^ id (NSNumber *value) {
+		RACStream *baseStream = [streamWithValues(@[ @0, @1, @2, @3] ) map:^ id (NSNumber *value) {
 			return ([value intValue] < 2) ? value : nil;
 		}];
 

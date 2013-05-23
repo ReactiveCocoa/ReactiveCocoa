@@ -129,7 +129,7 @@
 
 - (instancetype)filterOutNil
 {
-	return [self filter:^BOOL(id value) {
+	return [self filter:^ BOOL (id value) {
 		return (value != nil);
 	}];
 }

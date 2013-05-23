@@ -12,7 +12,7 @@
 #import "RACSubject.h"
 #import <UIKit/UIGeometry.h>
 
-SpecBegin(NSObjectRACLiftingiOSSpec)
+SpecBegin(NSObjectRACLiftingiOS)
 
 describe(@"-rac_liftSelector:withObjects:", ^{
 	__block RACTestObject *object;

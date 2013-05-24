@@ -93,7 +93,7 @@ it(@"should trace across a RACScheduler", ^{
 
 // Tracing across NSOperationQueue only works on OS X because it depends on
 // interposing through dynamic linking
-#if !TARGET_OS_IPHONE
+#ifndef __IPHONE_OS_VERSION_MIN_REQUIRED
 	it(@"should trace across an NSOperationQueue", ^{
 		NSOperationQueue *queue = [[NSOperationQueue alloc] init];
 		[queue addOperationWithBlock:block];

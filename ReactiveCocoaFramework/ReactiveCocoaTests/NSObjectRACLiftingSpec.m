@@ -245,9 +245,9 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 
 		expect(object.charPointerValue).to.equal(NULL);
 
-		const char *string = "blah blah blah";
-		[subject sendNext:@(string)];
-		expect(strcmp(object.charPointerValue, string) == 0).to.beTruthy();
+		NSString *string = @"blah blah blah";
+		[subject sendNext:string];
+		expect(@(object.charPointerValue)).to.equal(string);
 	});
 
 	it(@"should work for const char pointer", ^{
@@ -256,9 +256,9 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 
 		expect(object.constCharPointerValue).to.equal(NULL);
 
-		const char *string = "blah blah blah";
-		[subject sendNext:@(string)];
-		expect(strcmp(object.constCharPointerValue, string) == 0).to.beTruthy();
+		NSString *string = @"blah blah blah";
+		[subject sendNext:string];
+		expect(@(object.constCharPointerValue)).to.equal(string);
 	});
 
 	it(@"should work for CGRect", ^{
@@ -442,9 +442,9 @@ describe(@"-rac_liftSelector:withObjectsFromArray:", ^{
 
 		expect(object.charPointerValue).to.equal(NULL);
 
-		const char *string = "blah blah blah";
-		[subject sendNext:@(string)];
-		expect(strcmp(object.charPointerValue, string) == 0).to.beTruthy();
+		NSString *string = @"blah blah blah";
+		[subject sendNext:string];
+		expect(@(object.charPointerValue)).to.equal(string);
 	});
 
 	it(@"should work for const char pointer", ^{
@@ -453,9 +453,9 @@ describe(@"-rac_liftSelector:withObjectsFromArray:", ^{
 
 		expect(object.constCharPointerValue).to.equal(NULL);
 
-		const char *string = "blah blah blah";
-		[subject sendNext:@(string)];
-		expect(strcmp(object.constCharPointerValue, string) == 0).to.beTruthy();
+		NSString *string = @"blah blah blah";
+		[subject sendNext:string];
+		expect(@(object.constCharPointerValue)).to.equal(string);
 	});
 
 	it(@"should work for CGRect", ^{

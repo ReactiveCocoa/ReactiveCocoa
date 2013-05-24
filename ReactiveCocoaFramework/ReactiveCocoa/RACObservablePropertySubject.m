@@ -14,6 +14,7 @@
 #import "NSString+RACKeyPathUtilities.h"
 #import "RACBinding.h"
 #import "RACDisposable.h"
+#import "RACCompoundDisposable.h"
 #import "RACKVOTrampoline.h"
 #import "RACSignal+Private.h"
 #import "RACSubject.h"
@@ -130,6 +131,12 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 
 // The binding to `remainder` on the object value of `key`.
 @property (nonatomic, strong) RACKVOBinding *remainderBinding;
+
+// The disposable added to the value of `key`.
+@property (nonatomic, weak) RACDisposable *remainderDeallocDisposable;
+
+// Called when the current value of `key` is deallocated.
+- (void)remainderDidDealloc;
 
 @end
 
@@ -280,7 +287,13 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 	
 	@weakify(binding);
 	binding->_remainder = remainder;
-	binding.remainderBinding = [RACKVOBinding bindingWithTarget:[target valueForKey:key] keyPath:remainder];
+	id remainderTarget = [target valueForKey:key];
+	binding.remainderBinding = [RACKVOBinding bindingWithTarget:remainderTarget keyPath:remainder];
+	binding.remainderDeallocDisposable = [RACDisposable disposableWithBlock:^{
+		@strongify(binding);
+		[binding remainderDidDealloc];
+	}];
+	[remainderTarget rac_addDeallocDisposable:binding.remainderDeallocDisposable];
 	signal.didSubscribe = ^(id<RACSubscriber> subscriber) {
 		@strongify(binding);
 		[subscriber sendNext:[[binding.target valueForKey:key] valueForKeyPath:binding.remainder]];
@@ -295,6 +308,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 }
 
 - (void)targetWillChangeValue {
+	[[[self.target valueForKey:self.key] rac_deallocDisposable] removeDisposable:self.remainderDeallocDisposable];
 	self.remainderBinding = nil;
 	[self.remainderBinding dispose];
 }
@@ -305,7 +319,14 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 		self.remainderBinding = nil;
 		[self.exposedSignalSubject sendNext:nil];
 	}
+
+	@weakify(self);
 	self.remainderBinding = [RACKVOBinding bindingWithTarget:remainderTarget keyPath:self.remainder];
+	self.remainderDeallocDisposable = [RACDisposable disposableWithBlock:^{
+		@strongify(self);
+		[self remainderDidDealloc];
+	}];
+	[remainderTarget rac_addDeallocDisposable:self.remainderDeallocDisposable];
 }
 
 - (void)dispose {
@@ -327,6 +348,10 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 		@strongify(self);
 		[self.exposedSignalSubject sendNext:x];
 	}];
+}
+
+- (void)remainderDidDealloc {
+	[self.exposedSignalSubject sendNext:nil];
 }
 
 @end

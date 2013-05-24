@@ -1132,28 +1132,29 @@ describe(@"memory management", ^{
 		__block BOOL deallocd = NO;
 
 		RACDisposable *disposable;
-
 		@autoreleasepool {
 			@autoreleasepool {
-				RACSignal *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
-					return nil;
-				}];
-
-				[signal rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
-					deallocd = YES;
-				}]];
-
-				disposable = [signal subscribeCompleted:^{}];
+				@autoreleasepool {
+					RACSignal *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+						return nil;
+					}];
+					
+					[signal rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+						deallocd = YES;
+					}]];
+					
+					disposable = [signal subscribeCompleted:^{}];
+				}
+				
+				// Spin the run loop to account for RAC magic that retains the
+				// signal for a single iteration.
+				[NSRunLoop.mainRunLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate date]];
 			}
-
-			// Spin the run loop to account for RAC magic that retains the
-			// signal for a single iteration.
-			[NSRunLoop.mainRunLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate date]];
+			
+			expect(deallocd).to.beFalsy();
+			
+			[disposable dispose];
 		}
-
-		expect(deallocd).to.beFalsy();
-
-		[disposable dispose];
 		expect(deallocd).will.beTruthy();
 	});
 

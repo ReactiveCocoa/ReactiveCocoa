@@ -76,14 +76,10 @@
 		5FAF5263174D500400CAC810 /* libExpecta-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8803805515056ACB001A5B19 /* libExpecta-iOS.a */; };
 		5FAF5264174D500900CAC810 /* libSpecta-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8803806815056AD7001A5B19 /* libSpecta-iOS.a */; };
 		5FAF5265174D500D00CAC810 /* libReactiveCocoa-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 88F440AB153DAC820097B4C3 /* libReactiveCocoa-iOS.a */; };
-		5FAF526A174D562500CAC810 /* NSObjectRACLiftingOSXSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FAF5269174D562500CAC810 /* NSObjectRACLiftingOSXSpec.m */; };
 		5FAF526B174D574700CAC810 /* NSData+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 88442C8816090C1500636B49 /* NSData+RACSupport.m */; };
 		5FAF526C174D574700CAC810 /* NSFileHandle+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 88442C8A16090C1500636B49 /* NSFileHandle+RACSupport.m */; };
 		5FAF526D174D574700CAC810 /* NSNotificationCenter+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 88442C8C16090C1500636B49 /* NSNotificationCenter+RACSupport.m */; };
 		5FAF526E174D574700CAC810 /* NSString+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 88442C8E16090C1500636B49 /* NSString+RACSupport.m */; };
-		5FAF5272174D599A00CAC810 /* NSObjectRACLiftingExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FAF5271174D599A00CAC810 /* NSObjectRACLiftingExamples.m */; };
-		5FAF5273174D599A00CAC810 /* NSObjectRACLiftingExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FAF5271174D599A00CAC810 /* NSObjectRACLiftingExamples.m */; };
-		5FAF5287174E9B2800CAC810 /* NSObjectRACLiftingiOSSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FAF5286174E9B2800CAC810 /* NSObjectRACLiftingiOSSpec.m */; };
 		5FAF5289174E9CD300CAC810 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FAF5288174E9CD200CAC810 /* CoreGraphics.framework */; };
 		5FDC35051736F54700792E52 /* NSString+RACKeyPathUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FDC35021736F54700792E52 /* NSString+RACKeyPathUtilities.m */; };
 		5FDC35061736F54700792E52 /* NSString+RACKeyPathUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FDC35021736F54700792E52 /* NSString+RACKeyPathUtilities.m */; };
@@ -449,10 +445,6 @@
 		5FAF5225174D4C2000CAC810 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		5FAF5227174D4C2000CAC810 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		5FAF5261174D4D8E00CAC810 /* UIBarButtonItemRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIBarButtonItemRACSupportSpec.m; sourceTree = "<group>"; };
-		5FAF5269174D562500CAC810 /* NSObjectRACLiftingOSXSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSObjectRACLiftingOSXSpec.m; sourceTree = "<group>"; };
-		5FAF5270174D599A00CAC810 /* NSObjectRACLiftingExamples.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSObjectRACLiftingExamples.h; sourceTree = "<group>"; };
-		5FAF5271174D599A00CAC810 /* NSObjectRACLiftingExamples.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSObjectRACLiftingExamples.m; sourceTree = "<group>"; };
-		5FAF5286174E9B2800CAC810 /* NSObjectRACLiftingiOSSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSObjectRACLiftingiOSSpec.m; sourceTree = "<group>"; };
 		5FAF5288174E9CD200CAC810 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = DEVELOPER_DIR; };
 		5FDC35011736F54600792E52 /* NSString+RACKeyPathUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RACKeyPathUtilities.h"; sourceTree = "<group>"; };
 		5FDC35021736F54700792E52 /* NSString+RACKeyPathUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+RACKeyPathUtilities.m"; sourceTree = "<group>"; };
@@ -710,7 +702,6 @@
 			children = (
 				884848B515F658B800B11BD0 /* NSControlRACSupportSpec.m */,
 				D0A0B01716EAA5CC00C47593 /* NSTextRACSupportSpec.m */,
-				5FAF5269174D562500CAC810 /* NSObjectRACLiftingOSXSpec.m */,
 			);
 			name = "OS X";
 			sourceTree = "<group>";
@@ -719,7 +710,6 @@
 			isa = PBXGroup;
 			children = (
 				5FAF5261174D4D8E00CAC810 /* UIBarButtonItemRACSupportSpec.m */,
-				5FAF5286174E9B2800CAC810 /* NSObjectRACLiftingiOSSpec.m */,
 			);
 			name = iOS;
 			sourceTree = "<group>";
@@ -907,8 +897,6 @@
 				D0700F4B1672994D00D7CD30 /* NSNotificationCenterRACSupportSpec.m */,
 				6E58405E16F3414200F588A6 /* NSObjectRACDeallocatingSpec.m */,
 				8801E7501644BDE200A155FE /* NSObjectRACLiftingSpec.m */,
-				5FAF5270174D599A00CAC810 /* NSObjectRACLiftingExamples.h */,
-				5FAF5271174D599A00CAC810 /* NSObjectRACLiftingExamples.m */,
 				1E89337F171647A5009071B0 /* NSObjectRACPropertySubscribingExamples.h */,
 				1E893380171647A5009071B0 /* NSObjectRACPropertySubscribingExamples.m */,
 				8851A38A16161D500050D47F /* NSObjectRACPropertySubscribingSpec.m */,
@@ -1608,8 +1596,6 @@
 				5FAF526C174D574700CAC810 /* NSFileHandle+RACSupport.m in Sources */,
 				5FAF526D174D574700CAC810 /* NSNotificationCenter+RACSupport.m in Sources */,
 				5FAF526E174D574700CAC810 /* NSString+RACSupport.m in Sources */,
-				5FAF5273174D599A00CAC810 /* NSObjectRACLiftingExamples.m in Sources */,
-				5FAF5287174E9B2800CAC810 /* NSObjectRACLiftingiOSSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1723,8 +1709,6 @@
 				880D7A6616F7BB1A004A3361 /* NSObjectRACSelectorSignal.m in Sources */,
 				880D7A6916F7BCC7004A3361 /* RACSubclassObject.m in Sources */,
 				5FDC350F1736F81900792E52 /* NSStringRACKeyPathUtilitiesSpec.m in Sources */,
-				5FAF526A174D562500CAC810 /* NSObjectRACLiftingOSXSpec.m in Sources */,
-				5FAF5272174D599A00CAC810 /* NSObjectRACLiftingExamples.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

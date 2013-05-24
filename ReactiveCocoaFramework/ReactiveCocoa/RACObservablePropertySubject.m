@@ -186,11 +186,6 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 	_exposedSignal = [exposedSignal setNameWithFormat:@"[+propertyWithTarget: %@ keyPath: %@] -binding", [target rac_description], key];
 	_exposedSignalSubject = [RACSubject subject];
 	_exposedSubscriberSubject = [RACSubject subject];
-	// This KVO observer doesn't do anything, but we have to add it or
-	// `-willChangeValueForKey:` and `-didChangeValueForKey:` might not get
-	// called.
-	// The observer is then removed when the binding is disposed, or when either
-	// the target or the binding deallocate.
 	@weakify(self);
 	_observer = [_target rac_addObserver:self forKeyPath:key options:NSKeyValueObservingOptionPrior block:^(id _, id __, NSDictionary *change) {
 		@strongify(self);

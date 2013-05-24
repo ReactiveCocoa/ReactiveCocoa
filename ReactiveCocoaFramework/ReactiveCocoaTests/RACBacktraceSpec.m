@@ -91,6 +91,12 @@ it(@"should trace across a RACScheduler", ^{
 	expect(previousBacktrace).willNot.beNil();
 });
 
+it(@"should trace across an NSOperationQueue", ^{
+	NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+	[queue addOperationWithBlock:block];
+	expect(previousBacktrace).willNot.beNil();
+});
+
 SpecEnd
 
 #endif

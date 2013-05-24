@@ -85,7 +85,6 @@
 		5FAF5273174D599A00CAC810 /* NSObjectRACLiftingExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FAF5271174D599A00CAC810 /* NSObjectRACLiftingExamples.m */; };
 		5FAF5287174E9B2800CAC810 /* NSObjectRACLiftingiOSSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FAF5286174E9B2800CAC810 /* NSObjectRACLiftingiOSSpec.m */; };
 		5FAF5289174E9CD300CAC810 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FAF5288174E9CD200CAC810 /* CoreGraphics.framework */; };
-		5FAF528C174EA5B600CAC810 /* RACBacktraceOSXSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FAF528B174EA5B600CAC810 /* RACBacktraceOSXSpec.m */; };
 		5FDC35051736F54700792E52 /* NSString+RACKeyPathUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FDC35021736F54700792E52 /* NSString+RACKeyPathUtilities.m */; };
 		5FDC35061736F54700792E52 /* NSString+RACKeyPathUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FDC35021736F54700792E52 /* NSString+RACKeyPathUtilities.m */; };
 		5FDC350F1736F81900792E52 /* NSStringRACKeyPathUtilitiesSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FDC350E1736F81800792E52 /* NSStringRACKeyPathUtilitiesSpec.m */; };
@@ -455,7 +454,6 @@
 		5FAF5271174D599A00CAC810 /* NSObjectRACLiftingExamples.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSObjectRACLiftingExamples.m; sourceTree = "<group>"; };
 		5FAF5286174E9B2800CAC810 /* NSObjectRACLiftingiOSSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSObjectRACLiftingiOSSpec.m; sourceTree = "<group>"; };
 		5FAF5288174E9CD200CAC810 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = DEVELOPER_DIR; };
-		5FAF528B174EA5B600CAC810 /* RACBacktraceOSXSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACBacktraceOSXSpec.m; sourceTree = "<group>"; };
 		5FDC35011736F54600792E52 /* NSString+RACKeyPathUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RACKeyPathUtilities.h"; sourceTree = "<group>"; };
 		5FDC35021736F54700792E52 /* NSString+RACKeyPathUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+RACKeyPathUtilities.m"; sourceTree = "<group>"; };
 		5FDC350E1736F81800792E52 /* NSStringRACKeyPathUtilitiesSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringRACKeyPathUtilitiesSpec.m; sourceTree = "<group>"; };
@@ -713,7 +711,6 @@
 				884848B515F658B800B11BD0 /* NSControlRACSupportSpec.m */,
 				D0A0B01716EAA5CC00C47593 /* NSTextRACSupportSpec.m */,
 				5FAF5269174D562500CAC810 /* NSObjectRACLiftingOSXSpec.m */,
-				5FAF528B174EA5B600CAC810 /* RACBacktraceOSXSpec.m */,
 			);
 			name = "OS X";
 			sourceTree = "<group>";
@@ -1728,7 +1725,6 @@
 				5FDC350F1736F81900792E52 /* NSStringRACKeyPathUtilitiesSpec.m in Sources */,
 				5FAF526A174D562500CAC810 /* NSObjectRACLiftingOSXSpec.m in Sources */,
 				5FAF5272174D599A00CAC810 /* NSObjectRACLiftingExamples.m in Sources */,
-				5FAF528C174EA5B600CAC810 /* RACBacktraceOSXSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

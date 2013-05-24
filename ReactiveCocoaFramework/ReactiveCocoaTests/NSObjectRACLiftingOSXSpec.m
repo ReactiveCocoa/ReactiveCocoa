@@ -11,7 +11,7 @@
 #import "RACTestObject.h"
 #import "RACSubject.h"
 
-SpecBegin(NSObjectRACLiftingOSX)
+SpecBegin(NSObjectRACLiftingOSXSpec)
 
 describe(@"-rac_liftSelector:withObjects:", ^{
 	__block RACTestObject *object;

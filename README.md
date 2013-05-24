@@ -326,7 +326,7 @@ For example, the following code:
         [loginSignal subscribeError:^(NSError *error) {
             @strongify(self);
             [self presentError:error];
-        } completed:{
+        } completed:^{
             @strongify(self);
             self.loggedIn = YES;
         }];

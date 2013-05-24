@@ -13,7 +13,8 @@
 @interface UITextField (RACSignalSupport)
 
 // Creates and returns a signal for the text of the field. It always starts with
-// the current text.
+// the current text. The signal sends next when the UIControlEventEditingChanged
+// control event is fired on the control.
 - (RACSignal *)rac_textSignal;
 
 @end

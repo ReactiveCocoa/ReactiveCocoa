@@ -400,6 +400,27 @@
 			remoteGlobalIDString = E9ACDF0B13B2DD520010F4D7;
 			remoteInfo = Expecta;
 		};
+		D0ED9DB517501806003859A6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 88CDF7B215000FCE00163A9F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 88F440AA153DAC820097B4C3;
+			remoteInfo = "ReactiveCocoa-iOS";
+		};
+		D0ED9DBD1750180B003859A6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8803805B15056AD7001A5B19 /* Specta.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = E9B777A314BA294B00D8DC76;
+			remoteInfo = "Specta-iOS";
+		};
+		D0ED9DBF1750180B003859A6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8803804815056ACA001A5B19 /* Expecta.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = E93067CD13B2E6D100EA26FF;
+			remoteInfo = "Expecta-iOS";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -1336,6 +1357,9 @@
 			buildRules = (
 			);
 			dependencies = (
+				D0ED9DBE1750180B003859A6 /* PBXTargetDependency */,
+				D0ED9DC01750180B003859A6 /* PBXTargetDependency */,
+				D0ED9DB617501806003859A6 /* PBXTargetDependency */,
 			);
 			name = "ReactiveCocoaTests-iOS";
 			productName = "ReactiveCocoaTests-iOS";
@@ -1796,6 +1820,21 @@
 			isa = PBXTargetDependency;
 			name = Expecta;
 			targetProxy = 8803806F15056B1B001A5B19 /* PBXContainerItemProxy */;
+		};
+		D0ED9DB617501806003859A6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 88F440AA153DAC820097B4C3 /* ReactiveCocoa-iOS */;
+			targetProxy = D0ED9DB517501806003859A6 /* PBXContainerItemProxy */;
+		};
+		D0ED9DBE1750180B003859A6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "Specta-iOS";
+			targetProxy = D0ED9DBD1750180B003859A6 /* PBXContainerItemProxy */;
+		};
+		D0ED9DC01750180B003859A6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "Expecta-iOS";
+			targetProxy = D0ED9DBF1750180B003859A6 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

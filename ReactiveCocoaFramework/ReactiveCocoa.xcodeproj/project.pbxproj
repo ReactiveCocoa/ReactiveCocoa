@@ -38,8 +38,6 @@
 		5F9743F91694A2460024EB82 /* RACEagerSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F9743F61694A2460024EB82 /* RACEagerSequence.m */; };
 		5F9743FA1694A2460024EB82 /* RACEagerSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F9743F61694A2460024EB82 /* RACEagerSequence.m */; };
 		5FAF5224174D4C2000CAC810 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7DD15000FCF00163A9F /* SenTestingKit.framework */; };
-		5FAF5226174D4C2000CAC810 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FAF5225174D4C2000CAC810 /* UIKit.framework */; };
-		5FAF5228174D4C2000CAC810 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FAF5227174D4C2000CAC810 /* Foundation.framework */; };
 		5FAF523E174D4D3200CAC810 /* NSEnumeratorRACSequenceAdditionsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F773DEF169B48830023069D /* NSEnumeratorRACSequenceAdditionsSpec.m */; };
 		5FAF523F174D4D3600CAC810 /* NSNotificationCenterRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D0700F4B1672994D00D7CD30 /* NSNotificationCenterRACSupportSpec.m */; };
 		5FAF5240174D4D5600CAC810 /* NSObjectRACDeallocatingSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E58405E16F3414200F588A6 /* NSObjectRACDeallocatingSpec.m */; };
@@ -81,6 +79,10 @@
 		5FAF526D174D574700CAC810 /* NSNotificationCenter+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 88442C8C16090C1500636B49 /* NSNotificationCenter+RACSupport.m */; };
 		5FAF526E174D574700CAC810 /* NSString+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 88442C8E16090C1500636B49 /* NSString+RACSupport.m */; };
 		5FAF5289174E9CD300CAC810 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FAF5288174E9CD200CAC810 /* CoreGraphics.framework */; };
+		5FD7DC79174F9EAE008710B4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7C415000FCE00163A9F /* Foundation.framework */; };
+		5FD7DC7A174F9EAF008710B4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7C415000FCE00163A9F /* Foundation.framework */; };
+		5FD7DC7C174F9EEB008710B4 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FD7DC7B174F9EEB008710B4 /* UIKit.framework */; };
+		5FD7DC7F174F9FC8008710B4 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FD7DC7B174F9EEB008710B4 /* UIKit.framework */; };
 		5FDC35051736F54700792E52 /* NSString+RACKeyPathUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FDC35021736F54700792E52 /* NSString+RACKeyPathUtilities.m */; };
 		5FDC35061736F54700792E52 /* NSString+RACKeyPathUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FDC35021736F54700792E52 /* NSString+RACKeyPathUtilities.m */; };
 		5FDC350F1736F81900792E52 /* NSStringRACKeyPathUtilitiesSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FDC350E1736F81800792E52 /* NSStringRACKeyPathUtilitiesSpec.m */; };
@@ -177,7 +179,6 @@
 		88DA309815071CBA00C19D0F /* RACValueTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 88DA309615071CBA00C19D0F /* RACValueTransformer.m */; };
 		88E2C6B4153C771C00C7493C /* RACScheduler.h in Headers */ = {isa = PBXBuildFile; fileRef = 88E2C6B2153C771C00C7493C /* RACScheduler.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88E2C6B5153C771C00C7493C /* RACScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 88E2C6B3153C771C00C7493C /* RACScheduler.m */; };
-		88F440AC153DAC820097B4C3 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7BF15000FCE00163A9F /* Cocoa.framework */; };
 		88F440B7153DAD320097B4C3 /* RACSwizzling.m in Sources */ = {isa = PBXBuildFile; fileRef = 8867D5F8152BDAC300321BD5 /* RACSwizzling.m */; };
 		88F440BA153DAD570097B4C3 /* RACCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 882093EA1501E6EE00796685 /* RACCommand.m */; };
 		88F440BC153DAD5A0097B4C3 /* RACSubscriber.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF7FB150019CA00163A9F /* RACSubscriber.m */; };
@@ -442,10 +443,9 @@
 		5F9743F51694A2460024EB82 /* RACEagerSequence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACEagerSequence.h; sourceTree = "<group>"; };
 		5F9743F61694A2460024EB82 /* RACEagerSequence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACEagerSequence.m; sourceTree = "<group>"; };
 		5FAF5223174D4C2000CAC810 /* ReactiveCocoaTests-iOS.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ReactiveCocoaTests-iOS.octest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		5FAF5225174D4C2000CAC810 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
-		5FAF5227174D4C2000CAC810 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		5FAF5261174D4D8E00CAC810 /* UIBarButtonItemRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIBarButtonItemRACSupportSpec.m; sourceTree = "<group>"; };
 		5FAF5288174E9CD200CAC810 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = DEVELOPER_DIR; };
+		5FD7DC7B174F9EEB008710B4 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		5FDC35011736F54600792E52 /* NSString+RACKeyPathUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RACKeyPathUtilities.h"; sourceTree = "<group>"; };
 		5FDC35021736F54700792E52 /* NSString+RACKeyPathUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+RACKeyPathUtilities.m"; sourceTree = "<group>"; };
 		5FDC350E1736F81800792E52 /* NSStringRACKeyPathUtilitiesSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringRACKeyPathUtilitiesSpec.m; sourceTree = "<group>"; };
@@ -531,7 +531,6 @@
 		88C5A025169246140045EF05 /* RACMulticastConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACMulticastConnection.m; sourceTree = "<group>"; };
 		88C5A02816924BFC0045EF05 /* RACMulticastConnectionSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACMulticastConnectionSpec.m; sourceTree = "<group>"; };
 		88CDF7BF15000FCE00163A9F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
-		88CDF7C215000FCE00163A9F /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		88CDF7C315000FCE00163A9F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		88CDF7C415000FCE00163A9F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		88CDF7C715000FCE00163A9F /* ReactiveCocoa-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "ReactiveCocoa-Info.plist"; sourceTree = "<group>"; };
@@ -656,13 +655,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5FD7DC7C174F9EEB008710B4 /* UIKit.framework in Frameworks */,
 				5FAF5289174E9CD300CAC810 /* CoreGraphics.framework in Frameworks */,
 				5FAF5265174D500D00CAC810 /* libReactiveCocoa-iOS.a in Frameworks */,
 				5FAF5264174D500900CAC810 /* libSpecta-iOS.a in Frameworks */,
 				5FAF5263174D500400CAC810 /* libExpecta-iOS.a in Frameworks */,
 				5FAF5224174D4C2000CAC810 /* SenTestingKit.framework in Frameworks */,
-				5FAF5226174D4C2000CAC810 /* UIKit.framework in Frameworks */,
-				5FAF5228174D4C2000CAC810 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -671,6 +669,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				88037F8415056328001A5B19 /* Cocoa.framework in Frameworks */,
+				5FD7DC79174F9EAE008710B4 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -690,7 +689,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				88F440AC153DAC820097B4C3 /* Cocoa.framework in Frameworks */,
+				5FD7DC7A174F9EAF008710B4 /* Foundation.framework in Frameworks */,
+				5FD7DC7F174F9FC8008710B4 /* UIKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -816,7 +816,6 @@
 		88CDF7B015000FCE00163A9F = {
 			isa = PBXGroup;
 			children = (
-				5FAF5288174E9CD200CAC810 /* CoreGraphics.framework */,
 				88CDF7C515000FCE00163A9F /* ReactiveCocoa */,
 				88CDF7E215000FCF00163A9F /* ReactiveCocoaTests */,
 				88CDF7BE15000FCE00163A9F /* Frameworks */,
@@ -842,10 +841,6 @@
 			children = (
 				8809D6EB15B1F1E4007E32AA /* JRSwizzle */,
 				D026A03F15F69FD00052F7FE /* libextobjc */,
-				88CDF7BF15000FCE00163A9F /* Cocoa.framework */,
-				88CDF7DD15000FCF00163A9F /* SenTestingKit.framework */,
-				5FAF5225174D4C2000CAC810 /* UIKit.framework */,
-				5FAF5227174D4C2000CAC810 /* Foundation.framework */,
 				88CDF7C115000FCE00163A9F /* Other Frameworks */,
 			);
 			name = Frameworks;
@@ -854,9 +849,12 @@
 		88CDF7C115000FCE00163A9F /* Other Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				88CDF7C215000FCE00163A9F /* AppKit.framework */,
+				88CDF7BF15000FCE00163A9F /* Cocoa.framework */,
 				88CDF7C315000FCE00163A9F /* CoreData.framework */,
+				5FAF5288174E9CD200CAC810 /* CoreGraphics.framework */,
 				88CDF7C415000FCE00163A9F /* Foundation.framework */,
+				88CDF7DD15000FCF00163A9F /* SenTestingKit.framework */,
+				5FD7DC7B174F9EEB008710B4 /* UIKit.framework */,
 			);
 			name = "Other Frameworks";
 			sourceTree = "<group>";

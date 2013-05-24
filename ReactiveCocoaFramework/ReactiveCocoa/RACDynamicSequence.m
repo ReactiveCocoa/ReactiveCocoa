@@ -45,16 +45,22 @@
 // A block used to evaluate head. This should be set to nil after `_head` has been
 // initialized.
 //
+// This is marked `strong` instead of `copy` because of some bizarre block
+// copying bug. See https://github.com/ReactiveCocoa/ReactiveCocoa/pull/506.
+//
 // The signature of this block varies based on the value of `hasDependency`:
 //
 //  - If YES, this block is of type `id (^)(id)`.
 //  - If NO, this block is of type `id (^)(void)`.
 //
 // This property should only be accessed while synchronized on self.
-@property (nonatomic, copy) id headBlock;
+@property (nonatomic, strong) id headBlock;
 
 // A block used to evaluate tail. This should be set to nil after `_tail` has been
 // initialized.
+//
+// This is marked `strong` instead of `copy` because of some bizarre block
+// copying bug. See https://github.com/ReactiveCocoa/ReactiveCocoa/pull/506.
 //
 // The signature of this block varies based on the value of `hasDependency`:
 //
@@ -62,7 +68,7 @@
 //  - If NO, this block is of type `RACSequence * (^)(void)`.
 //
 // This property should only be accessed while synchronized on self.
-@property (nonatomic, copy) id tailBlock;
+@property (nonatomic, strong) id tailBlock;
 
 // Whether the receiver was initialized with a `dependencyBlock`.
 //
@@ -73,8 +79,11 @@
 // should be set to nil after `_dependency` and `dependencyBlockExecuted` have
 // been set.
 //
+// This is marked `strong` instead of `copy` because of some bizarre block
+// copying bug. See https://github.com/ReactiveCocoa/ReactiveCocoa/pull/506.
+//
 // This property should only be accessed while synchronized on self.
-@property (nonatomic, copy) id (^dependencyBlock)(void);
+@property (nonatomic, strong) id (^dependencyBlock)(void);
 
 @end
 
@@ -86,8 +95,8 @@
 	NSCParameterAssert(headBlock != nil);
 
 	RACDynamicSequence *seq = [[RACDynamicSequence alloc] init];
-	seq.headBlock = headBlock;
-	seq.tailBlock = tailBlock;
+	seq.headBlock = [headBlock copy];
+	seq.tailBlock = [tailBlock copy];
 	seq.hasDependency = NO;
 	return seq;
 }
@@ -97,9 +106,9 @@
 	NSCParameterAssert(headBlock != nil);
 
 	RACDynamicSequence *seq = [[RACDynamicSequence alloc] init];
-	seq.headBlock = headBlock;
-	seq.tailBlock = tailBlock;
-	seq.dependencyBlock = dependencyBlock;
+	seq.headBlock = [headBlock copy];
+	seq.tailBlock = [tailBlock copy];
+	seq.dependencyBlock = [dependencyBlock copy];
 	seq.hasDependency = YES;
 	return seq;
 }

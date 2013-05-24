@@ -91,11 +91,15 @@ it(@"should trace across a RACScheduler", ^{
 	expect(previousBacktrace).willNot.beNil();
 });
 
-it(@"should trace across an NSOperationQueue", ^{
-	NSOperationQueue *queue = [[NSOperationQueue alloc] init];
-	[queue addOperationWithBlock:block];
-	expect(previousBacktrace).willNot.beNil();
-});
+// Tracing across NSOperationQueue only works on OS X because it depends on
+// interposing through dynamic linking
+#if !TARGET_OS_IPHONE
+	it(@"should trace across an NSOperationQueue", ^{
+		NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+		[queue addOperationWithBlock:block];
+		expect(previousBacktrace).willNot.beNil();
+	});
+#endif
 
 SpecEnd
 

@@ -27,7 +27,8 @@
 #import "RACCommand.h"
 #import "RACGroupedSignal.h"
 
-#define RACSignalTestError [NSError errorWithDomain:@"foo" code:100 userInfo:nil]
+// Set in a beforeAll below.
+static NSError *RACSignalTestError;
 
 static NSString * const RACSignalMergeConcurrentCompletionExampleGroup = @"RACSignalMergeConcurrentCompletionExampleGroup";
 static NSString * const RACSignalMaxConcurrent = @"RACSignalMaxConcurrent";
@@ -70,6 +71,12 @@ sharedExamplesFor(RACSignalMergeConcurrentCompletionExampleGroup, ^(NSDictionary
 SharedExampleGroupsEnd
 
 SpecBegin(RACSignal)
+
+beforeAll(^{
+	// We do this instead of a macro to ensure that to.equal() will work
+	// correctly (by matching identity), even if -[NSError isEqual:] is broken.
+	RACSignalTestError = [NSError errorWithDomain:@"foo" code:100 userInfo:nil];
+});
 
 describe(@"RACStream", ^{
 	id verifyValues = ^(RACSignal *signal, NSArray *expectedValues) {

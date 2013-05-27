@@ -2551,24 +2551,18 @@ describe(@"-groupBy:", ^{
 	});
 });
 
-describe(@"+once:", ^{
+describe(@"+startLazilyWithScheduler:block:", ^{
 	__block NSUInteger invokedCount = 0;
-	__block BOOL disposed = NO;
 	__block RACSignal *signal;
 	__block void (^subscribe)(void);
 
 	beforeEach(^{
 		invokedCount = 0;
-		disposed = NO;
-		signal = [RACSignal once:^{
+		signal = [RACSignal startLazilyWithScheduler:[RACScheduler immediateScheduler] block:^(id<RACSubscriber> subscriber) {
 			invokedCount++;
-			return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-				[subscriber sendNext:@42];
-				[subscriber sendNext:@43];
-				return [RACDisposable disposableWithBlock:^{
-					disposed = YES;
-				}];
-			}];
+			[subscriber sendNext:@42];
+			[subscriber sendNext:@43];
+			[subscriber sendCompleted];
 		}];
 
 		subscribe = [^{
@@ -2578,13 +2572,14 @@ describe(@"+once:", ^{
 
 	it(@"should send values from the returned signal", ^{
 		NSNumber *value = [signal first];
-		expect(value).to.equal(@43);
+		expect(value).to.equal(@42);
 	});
 
-	it(@"should replay the latest value", ^{
+	it(@"should replay all values", ^{
 		subscribe();
-		id value = [signal first];
-		expect(value).to.equal(@43);
+		NSArray *value = [[signal collect] first];
+		NSArray *expected = @[ @42, @43 ];
+		expect(value).to.equal(expected);
 	});
 
 	it(@"should only invoke the block on subscription", ^{
@@ -2601,13 +2596,6 @@ describe(@"+once:", ^{
 		expect(invokedCount).to.equal(1);
 		subscribe();
 		expect(invokedCount).to.equal(1);
-	});
-
-	it(@"shouldn't dispose of the underlying subscription", ^{
-		expect(disposed).to.beFalsy();
-		RACDisposable *disposable = [signal subscribe:[RACSubscriber subscriberWithNext:nil error:nil completed:nil]];
-		[disposable dispose];
-		expect(disposed).to.beFalsy();
 	});
 });
 

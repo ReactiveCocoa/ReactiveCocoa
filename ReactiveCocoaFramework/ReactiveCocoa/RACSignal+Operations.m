@@ -1333,17 +1333,4 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	}];
 }
 
-+ (RACSignal *)once:(RACSignal * (^)(void))block {
-	NSCParameterAssert(block != NULL);
-
-	RACMulticastConnection *connection = [[RACSignal
-		defer:block]
-		multicast:[RACReplaySubject replaySubjectWithCapacity:1]];
-	
-	return [RACSignal defer:^{
-		[connection connect];
-		return connection.signal;
-	}];
-}
-
 @end

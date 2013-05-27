@@ -434,19 +434,4 @@ extern const NSInteger RACSignalErrorTimedOut;
 // Returns the disposable for the underlying subscription.
 - (RACDisposable *)executeCommand:(RACCommand *)command;
 
-// Invokes the given block only on the first subscription. The signal returned
-// from the block is multicasted to a RACReplaySubject with a capacity of 1.
-//
-// Since the signal is multicasted, subscribers will get the most recent value
-// sent and subsequent subscriptions will *not* cause a new subscription to the
-// signal. This also means the underlying subscription will not and cannot be
-// disposed of. The block should not return an infinite signal since there will
-// not be any way for consumers to stop the subscription.
-//
-// block - The block to invoke on the first subscription. Cannot be NULL.
-//
-// Returns a signal which will pass through the events sent by the signal
-// returned from `block`.
-+ (RACSignal *)once:(RACSignal * (^)(void))block;
-
 @end

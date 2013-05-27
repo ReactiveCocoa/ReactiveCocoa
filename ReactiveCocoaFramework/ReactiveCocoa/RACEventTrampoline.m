@@ -14,6 +14,16 @@
 
 const char *RACEventTrampolinesKey = "RACEventTrampolinesKey";
 
+void RACAddEventTrampoline(id object, RACEventTrampoline *trampoline) {
+	NSMutableSet *eventTrampolines = objc_getAssociatedObject(object, RACEventTrampolinesKey);
+	if (eventTrampolines == nil) {
+		eventTrampolines = [NSMutableSet set];
+		objc_setAssociatedObject(object, RACEventTrampolinesKey, eventTrampolines, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	}
+
+	[eventTrampolines addObject:trampoline];
+}
+
 static NSMutableDictionary *swizzledClasses() {
 	static dispatch_once_t onceToken;
 	static NSMutableDictionary *swizzledClasses = nil;

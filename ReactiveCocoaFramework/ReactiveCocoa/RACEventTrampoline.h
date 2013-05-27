@@ -11,7 +11,10 @@
 
 extern const char *RACEventTrampolinesKey;
 
+@class RACEventTrampoline;
 @class RACDelegateProxy;
+
+void RACAddEventTrampoline(id object, RACEventTrampoline *trampoline);
 
 @interface RACEventTrampoline : NSObject {
     SEL delegateMethod;

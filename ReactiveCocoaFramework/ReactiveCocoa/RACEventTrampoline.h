@@ -14,6 +14,8 @@ extern const char *RACEventTrampolinesKey;
 @class RACEventTrampoline;
 @class RACDelegateProxy;
 
+// Associates a RACEventTrampoline with the given object in order to retain the
+// trampoline for the lifetime of the object.
 void RACAddEventTrampoline(id object, RACEventTrampoline *trampoline);
 
 @interface RACEventTrampoline : NSObject {

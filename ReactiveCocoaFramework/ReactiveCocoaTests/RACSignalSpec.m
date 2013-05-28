@@ -2597,6 +2597,49 @@ describe(@"+startLazilyWithScheduler:block:", ^{
 		subscribe();
 		expect(invokedCount).to.equal(1);
 	});
+
+	describe(@"scheduler behavior", ^{
+		RACScheduler *scheduler = [RACScheduler scheduler];
+		__block RACScheduler *schedulerInSubscribe;
+		__block RACScheduler * (^subscribe)(void);
+
+		beforeEach(^{
+			RACSignal *signal = [RACSignal startLazilyWithScheduler:scheduler block:^(id<RACSubscriber> subscriber) {
+				schedulerInSubscribe = RACScheduler.currentScheduler;
+				[subscriber sendNext:@42];
+				[subscriber sendCompleted];
+			}];
+
+			subscribe = [^{
+				__block RACScheduler *schedulerInDelivery;
+				[signal subscribeNext:^(id _) {
+					schedulerInDelivery = RACScheduler.currentScheduler;
+				}];
+
+				expect(schedulerInDelivery).willNot.beNil();
+				return schedulerInDelivery;
+			} copy];
+		});
+
+		it(@"should call the block on the given scheduler", ^{
+			subscribe();
+			expect(schedulerInSubscribe).will.equal(scheduler);
+		});
+
+		it(@"should deliver the original results on the given scheduler", ^{
+			RACScheduler *currentScheduler = subscribe();
+			expect(currentScheduler).to.equal(scheduler);
+		});
+
+		it(@"should deliver replayed results on the given scheduler", ^{
+			// Force a subscription so that we get replayed results on the
+			// tested subscription.
+			subscribe();
+
+			RACScheduler *currentScheduler = subscribe();
+			expect(currentScheduler).to.equal(scheduler);
+		});
+	});
 });
 
 describe(@"-toArray", ^{

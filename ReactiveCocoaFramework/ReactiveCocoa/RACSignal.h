@@ -76,8 +76,9 @@
 // be disposed of. Because of this, `block` should never return an infinite
 // signal since there would be no way of ending it.
 //
-// scheduler - The scheduler on which the block should be scheduled. Cannot be
-//             nil.
+// scheduler - The scheduler on which the block should be scheduled. Note that 
+//             if given +[RACScheduler immediateScheduler], the block will be
+//             invoked synchronously on the first subscription. Cannot be nil.
 // block     - The block to invoke on the first subscription. Cannot be NULL.
 //
 // Returns a signal which will pass through the events sent to the subscriber

@@ -245,9 +245,9 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 
 		expect(object.charPointerValue).to.equal(NULL);
 
-		const char *string = "blah blah blah";
-		[subject sendNext:@(string)];
-		expect(strcmp(object.charPointerValue, string) == 0).to.beTruthy();
+		NSString *string = @"blah blah blah";
+		[subject sendNext:string];
+		expect(@(object.charPointerValue)).to.equal(string);
 	});
 
 	it(@"should work for const char pointer", ^{
@@ -256,9 +256,9 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 
 		expect(object.constCharPointerValue).to.equal(NULL);
 
-		const char *string = "blah blah blah";
-		[subject sendNext:@(string)];
-		expect(strcmp(object.constCharPointerValue, string) == 0).to.beTruthy();
+		NSString *string = @"blah blah blah";
+		[subject sendNext:string];
+		expect(@(object.constCharPointerValue)).to.equal(string);
 	});
 
 	it(@"should work for CGRect", ^{
@@ -268,7 +268,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		expect(object.rectValue).to.equal(CGRectZero);
 
 		CGRect value = CGRectMake(10, 20, 30, 40);
-		[subject sendNext:[NSValue valueWithRect:value]];
+		[subject sendNext:[NSValue valueWithBytes:&value objCType:@encode(CGRect)]];
 		expect(object.rectValue).to.equal(value);
 	});
 
@@ -279,7 +279,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		expect(object.sizeValue).to.equal(CGSizeZero);
 
 		CGSize value = CGSizeMake(10, 20);
-		[subject sendNext:[NSValue valueWithSize:value]];
+		[subject sendNext:[NSValue valueWithBytes:&value objCType:@encode(CGSize)]];
 		expect(object.sizeValue).to.equal(value);
 	});
 
@@ -290,7 +290,7 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 		expect(object.pointValue).to.equal(CGPointZero);
 
 		CGPoint value = CGPointMake(10, 20);
-		[subject sendNext:[NSValue valueWithPoint:value]];
+		[subject sendNext:[NSValue valueWithBytes:&value objCType:@encode(CGPoint)]];
 		expect(object.pointValue).to.equal(value);
 	});
 
@@ -442,9 +442,9 @@ describe(@"-rac_liftSelector:withObjectsFromArray:", ^{
 
 		expect(object.charPointerValue).to.equal(NULL);
 
-		const char *string = "blah blah blah";
-		[subject sendNext:@(string)];
-		expect(strcmp(object.charPointerValue, string) == 0).to.beTruthy();
+		NSString *string = @"blah blah blah";
+		[subject sendNext:string];
+		expect(@(object.charPointerValue)).to.equal(string);
 	});
 
 	it(@"should work for const char pointer", ^{
@@ -453,9 +453,9 @@ describe(@"-rac_liftSelector:withObjectsFromArray:", ^{
 
 		expect(object.constCharPointerValue).to.equal(NULL);
 
-		const char *string = "blah blah blah";
-		[subject sendNext:@(string)];
-		expect(strcmp(object.constCharPointerValue, string) == 0).to.beTruthy();
+		NSString *string = @"blah blah blah";
+		[subject sendNext:string];
+		expect(@(object.constCharPointerValue)).to.equal(string);
 	});
 
 	it(@"should work for CGRect", ^{
@@ -465,7 +465,7 @@ describe(@"-rac_liftSelector:withObjectsFromArray:", ^{
 		expect(object.rectValue).to.equal(CGRectZero);
 
 		CGRect value = CGRectMake(10, 20, 30, 40);
-		[subject sendNext:[NSValue valueWithRect:value]];
+		[subject sendNext:[NSValue valueWithBytes:&value objCType:@encode(CGRect)]];
 		expect(object.rectValue).to.equal(value);
 	});
 
@@ -476,7 +476,7 @@ describe(@"-rac_liftSelector:withObjectsFromArray:", ^{
 		expect(object.sizeValue).to.equal(CGSizeZero);
 
 		CGSize value = CGSizeMake(10, 20);
-		[subject sendNext:[NSValue valueWithSize:value]];
+		[subject sendNext:[NSValue valueWithBytes:&value objCType:@encode(CGSize)]];
 		expect(object.sizeValue).to.equal(value);
 	});
 
@@ -487,7 +487,7 @@ describe(@"-rac_liftSelector:withObjectsFromArray:", ^{
 		expect(object.pointValue).to.equal(CGPointZero);
 
 		CGPoint value = CGPointMake(10, 20);
-		[subject sendNext:[NSValue valueWithPoint:value]];
+		[subject sendNext:[NSValue valueWithBytes:&value objCType:@encode(CGPoint)]];
 		expect(object.pointValue).to.equal(value);
 	});
 

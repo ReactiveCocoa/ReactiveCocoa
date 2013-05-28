@@ -10,6 +10,7 @@
 #import "RACSequenceExamples.h"
 #import "RACStreamExamples.h"
 
+#import <libkern/OSAtomic.h>
 #import "EXTKeyPathCoding.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACBehaviorSubject.h"
@@ -26,7 +27,8 @@
 #import "RACCommand.h"
 #import "RACGroupedSignal.h"
 
-#define RACSignalTestError [NSError errorWithDomain:@"foo" code:100 userInfo:nil]
+// Set in a beforeAll below.
+static NSError *RACSignalTestError;
 
 static NSString * const RACSignalMergeConcurrentCompletionExampleGroup = @"RACSignalMergeConcurrentCompletionExampleGroup";
 static NSString * const RACSignalMaxConcurrent = @"RACSignalMaxConcurrent";
@@ -69,6 +71,12 @@ sharedExamplesFor(RACSignalMergeConcurrentCompletionExampleGroup, ^(NSDictionary
 SharedExampleGroupsEnd
 
 SpecBegin(RACSignal)
+
+beforeAll(^{
+	// We do this instead of a macro to ensure that to.equal() will work
+	// correctly (by matching identity), even if -[NSError isEqual:] is broken.
+	RACSignalTestError = [NSError errorWithDomain:@"foo" code:100 userInfo:nil];
+});
 
 describe(@"RACStream", ^{
 	id verifyValues = ^(RACSignal *signal, NSArray *expectedValues) {
@@ -1131,28 +1139,29 @@ describe(@"memory management", ^{
 		__block BOOL deallocd = NO;
 
 		RACDisposable *disposable;
-
 		@autoreleasepool {
 			@autoreleasepool {
-				RACSignal *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
-					return nil;
-				}];
-
-				[signal rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
-					deallocd = YES;
-				}]];
-
-				disposable = [signal subscribeCompleted:^{}];
+				@autoreleasepool {
+					RACSignal *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+						return nil;
+					}];
+					
+					[signal rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+						deallocd = YES;
+					}]];
+					
+					disposable = [signal subscribeCompleted:^{}];
+				}
+				
+				// Spin the run loop to account for RAC magic that retains the
+				// signal for a single iteration.
+				[NSRunLoop.mainRunLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate date]];
 			}
-
-			// Spin the run loop to account for RAC magic that retains the
-			// signal for a single iteration.
-			[NSRunLoop.mainRunLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate date]];
+			
+			expect(deallocd).to.beFalsy();
+			
+			[disposable dispose];
 		}
-
-		expect(deallocd).to.beFalsy();
-
-		[disposable dispose];
 		expect(deallocd).will.beTruthy();
 	});
 

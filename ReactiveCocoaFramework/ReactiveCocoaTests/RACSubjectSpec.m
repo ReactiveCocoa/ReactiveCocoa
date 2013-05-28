@@ -8,6 +8,7 @@
 
 #import "RACSubscriberExamples.h"
 
+#import <libkern/OSAtomic.h>
 #import "EXTScope.h"
 #import "RACBehaviorSubject.h"
 #import "RACDisposable.h"

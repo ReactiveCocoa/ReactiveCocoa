@@ -19,7 +19,7 @@ fi
 BOOTSTRAP="$SCRIPT_DIR/bootstrap"
 
 # Extra build settings to pass to xcodebuild.
-XCODEBUILD_SETTINGS=
+XCODEBUILD_SETTINGS="TEST_AFTER_BUILD=YES"
 
 ##
 ## Build Process
@@ -35,5 +35,5 @@ echo "*** Cleaning all targets..."
 xcodebuild -alltargets clean OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS
 
 echo "*** Building..."
-xcodebuild -configuration "$XCCONFIGURATION" -scheme ReactiveCocoa test OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS || exit $?
-xcodebuild -configuration "$XCCONFIGURATION" -scheme ReactiveCocoa-iOS build OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS || exit $?
+xcodebuild -configuration "$XCCONFIGURATION" -scheme ReactiveCocoa build OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS || exit $?
+xcodebuild -configuration "$XCCONFIGURATION" -sdk iphonesimulator -scheme ReactiveCocoa-iOS build OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS || exit $?

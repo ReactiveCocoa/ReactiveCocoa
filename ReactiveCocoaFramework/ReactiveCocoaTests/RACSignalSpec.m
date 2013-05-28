@@ -2583,4 +2583,26 @@ describe(@"-toArray", ^{
 	});
 });
 
+describe(@"-[RACStream ignore:nil]", ^{
+	it(@"should ignore nil", ^{
+		RACSignal *subject = [[RACSignal
+			createSignal:^ RACDisposable *(id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendNext:nil];
+			[subscriber sendNext:@3];
+			[subscriber sendNext:@4];
+			[subscriber sendNext:nil];
+
+			[subscriber sendCompleted];
+
+			return nil;
+		}]
+			ignore:nil];
+		
+		NSArray *expected = @[ @1, @3, @4 ];
+
+		expect([subject toArray]).to.equal(expected);
+	});
+});
+
 SpecEnd

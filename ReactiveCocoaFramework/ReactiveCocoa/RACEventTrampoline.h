@@ -9,8 +9,6 @@
 #import <UIKit/UIKit.h>
 #import <ReactiveCocoa/RACSubject.h>
 
-extern const char *RACEventTrampolinesKey;
-
 @class RACEventTrampoline;
 @class RACDelegateProxy;
 

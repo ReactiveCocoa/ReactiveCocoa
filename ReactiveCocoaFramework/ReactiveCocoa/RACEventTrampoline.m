@@ -12,7 +12,7 @@
 #import "RACDelegateProxy.h"
 #import <objc/runtime.h>
 
-const char *RACEventTrampolinesKey = "RACEventTrampolinesKey";
+static void *RACEventTrampolinesKey = &RACEventTrampolinesKey;
 
 void RACAddEventTrampoline(id object, RACEventTrampoline *trampoline) {
 	NSMutableSet *eventTrampolines = objc_getAssociatedObject(object, RACEventTrampolinesKey);

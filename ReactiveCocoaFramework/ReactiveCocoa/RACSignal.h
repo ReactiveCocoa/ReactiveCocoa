@@ -80,8 +80,8 @@
 //             nil.
 // block     - The block to invoke on the first subscription. Cannot be NULL.
 //
-// Returns a signal which will pass through the events sent by the signal
-// returned from `block` and replay any missed events to new subscribers.
+// Returns a signal which will pass through the events sent to the subscriber
+// given to `block` and replay any missed events to new subscribers.
 + (RACSignal *)startLazilyWithScheduler:(RACScheduler *)scheduler block:(void (^)(id<RACSubscriber> subscriber))block;
 
 @end

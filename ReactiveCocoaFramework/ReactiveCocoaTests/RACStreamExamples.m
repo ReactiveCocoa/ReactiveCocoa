@@ -271,9 +271,11 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 
 		it(@"should ignore nil", ^{
 			RACStream *baseStream = streamWithValues(@[ @0, @1, @2, @3, @4, @5, @6 ]);
-			RACStream *stream = [[baseStream map:^ id (NSNumber *value) {
-				return (value.intValue < 3) ? value : nil;
-			}] ignore:nil];
+			RACStream *stream = [[baseStream
+				map:^ id (NSNumber *value) {
+					return (value.intValue < 3) ? value : nil;
+				}]
+				ignore:nil];
 
 			verifyValues(stream, @[ @0, @1, @2 ]);
 		});

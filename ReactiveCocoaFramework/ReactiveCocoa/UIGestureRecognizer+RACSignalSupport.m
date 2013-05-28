@@ -8,7 +8,6 @@
 
 #import "UIGestureRecognizer+RACSignalSupport.h"
 #import "RACEventTrampoline.h"
-#import <objc/runtime.h>
 
 @implementation UIGestureRecognizer (RACSignalSupport)
 

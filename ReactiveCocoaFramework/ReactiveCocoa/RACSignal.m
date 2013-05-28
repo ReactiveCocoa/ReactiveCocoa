@@ -110,7 +110,7 @@ static NSMutableSet *activeSignals() {
 			return nil;
 		}]
 		subscribeOn:scheduler]
-		setNameWithFormat:@"+startLazily:"];
+		setNameWithFormat:@"+startLazilyWithScheduler:block:"];
 }
 
 - (instancetype)init {

@@ -261,6 +261,24 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		verifyValues(stream, @[ @0, @2, @4, @6 ]);
 	});
 
+	describe(@"-ignore:", ^{
+		it(@"should ignore value", ^{
+			RACStream *baseStream = streamWithValues(@[ @0, @1, @2, @3, @4, @5, @6 ]);
+			RACStream *stream = [baseStream ignore:@1];
+
+			verifyValues(stream, @[ @0, @2, @3, @4, @5, @6 ]);
+		});
+
+		it(@"should ignore nil", ^{
+			RACStream *baseStream = streamWithValues(@[ @0, @1, @2, @3, @4, @5, @6 ]);
+			RACStream *stream = [[baseStream map:^ id (NSNumber *value) {
+				return (value.intValue < 3) ? value : nil;
+			}] ignore:nil];
+
+			verifyValues(stream, @[ @0, @1, @2 ]);
+		});
+	});
+
 	it(@"should start with a value", ^{
 		RACStream *stream = [[streamClass return:@1] startWith:@0];
 		verifyValues(stream, @[ @0, @1 ]);

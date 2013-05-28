@@ -2599,11 +2599,12 @@ describe(@"+startLazilyWithScheduler:block:", ^{
 	});
 
 	describe(@"scheduler behavior", ^{
-		RACScheduler *scheduler = [RACScheduler scheduler];
+		__block RACScheduler *scheduler;
 		__block RACScheduler *schedulerInSubscribe;
 		__block RACScheduler * (^subscribe)(void);
 
 		beforeEach(^{
+			scheduler = [RACScheduler scheduler];
 			RACSignal *signal = [RACSignal startLazilyWithScheduler:scheduler block:^(id<RACSubscriber> subscriber) {
 				schedulerInSubscribe = RACScheduler.currentScheduler;
 				[subscriber sendNext:@42];

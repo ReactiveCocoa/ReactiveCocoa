@@ -8,22 +8,14 @@
 
 #import "UIGestureRecognizer+RACSignalSupport.h"
 #import "RACEventTrampoline.h"
-#import <objc/runtime.h>
 
 @implementation UIGestureRecognizer (RACSignalSupport)
 
 - (RACSignal *)rac_gestureSignal {
 	RACEventTrampoline *trampoline = [RACEventTrampoline trampolineForGestureRecognizer:self];
 	[trampoline.subject setNameWithFormat:@"%@ -rac_gestureSignal", self];
+	RACAddEventTrampoline(self, trampoline);
 
-	NSMutableSet *controlEventTrampolines = objc_getAssociatedObject(self, RACEventTrampolinesKey);
-	if (controlEventTrampolines == nil) {
-		controlEventTrampolines = [NSMutableSet set];
-		objc_setAssociatedObject(self, RACEventTrampolinesKey, controlEventTrampolines, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-	}
-	
-	[controlEventTrampolines addObject:trampoline];
-	
 	return trampoline.subject;
 }
 

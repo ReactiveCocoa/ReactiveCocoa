@@ -21,6 +21,7 @@
 #import "RACSubject.h"
 #import "RACSubscriber.h"
 #import "RACTuple.h"
+#import "RACMulticastConnection.h"
 #import <libkern/OSAtomic.h>
 
 static NSMutableSet *activeSignals() {
@@ -89,6 +90,27 @@ static NSMutableSet *activeSignals() {
 	}];
 	
 	return subject;
+}
+
++ (RACSignal *)startLazilyWithScheduler:(RACScheduler *)scheduler block:(void (^)(id<RACSubscriber> subscriber))block {
+	NSCParameterAssert(scheduler != nil);
+	NSCParameterAssert(block != NULL);
+
+	RACMulticastConnection *connection = [[RACSignal
+		createSignal:^ id (id<RACSubscriber> subscriber) {
+			block(subscriber);
+			return nil;
+		}]
+		multicast:[RACReplaySubject subject]];
+	
+	return [[[RACSignal
+		createSignal:^ id (id<RACSubscriber> subscriber) {
+			[connection.signal subscribe:subscriber];
+			[connection connect];
+			return nil;
+		}]
+		subscribeOn:scheduler]
+		setNameWithFormat:@"+startLazilyWithScheduler:%@ block:", scheduler];
 }
 
 - (instancetype)init {

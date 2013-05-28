@@ -2560,6 +2560,98 @@ describe(@"-groupBy:", ^{
 	});
 });
 
+describe(@"+startLazilyWithScheduler:block:", ^{
+	__block NSUInteger invokedCount = 0;
+	__block RACSignal *signal;
+	__block void (^subscribe)(void);
+
+	beforeEach(^{
+		invokedCount = 0;
+		signal = [RACSignal startLazilyWithScheduler:[RACScheduler immediateScheduler] block:^(id<RACSubscriber> subscriber) {
+			invokedCount++;
+			[subscriber sendNext:@42];
+			[subscriber sendNext:@43];
+			[subscriber sendCompleted];
+		}];
+
+		subscribe = [^{
+			[signal subscribe:[RACSubscriber subscriberWithNext:nil error:nil completed:nil]];
+		} copy];
+	});
+
+	it(@"should send values from the returned signal", ^{
+		NSNumber *value = [signal first];
+		expect(value).to.equal(@42);
+	});
+
+	it(@"should replay all values", ^{
+		subscribe();
+		NSArray *value = [[signal collect] first];
+		NSArray *expected = @[ @42, @43 ];
+		expect(value).to.equal(expected);
+	});
+
+	it(@"should only invoke the block on subscription", ^{
+		expect(invokedCount).to.equal(0);
+		subscribe();
+		expect(invokedCount).to.equal(1);
+	});
+
+	it(@"should only invoke the block once", ^{
+		expect(invokedCount).to.equal(0);
+		subscribe();
+		expect(invokedCount).to.equal(1);
+		subscribe();
+		expect(invokedCount).to.equal(1);
+		subscribe();
+		expect(invokedCount).to.equal(1);
+	});
+
+	describe(@"scheduler behavior", ^{
+		__block RACScheduler *scheduler;
+		__block RACScheduler *schedulerInSubscribe;
+		__block RACScheduler * (^subscribe)(void);
+
+		beforeEach(^{
+			scheduler = [RACScheduler scheduler];
+			RACSignal *signal = [RACSignal startLazilyWithScheduler:scheduler block:^(id<RACSubscriber> subscriber) {
+				schedulerInSubscribe = RACScheduler.currentScheduler;
+				[subscriber sendNext:@42];
+				[subscriber sendCompleted];
+			}];
+
+			subscribe = [^{
+				__block RACScheduler *schedulerInDelivery;
+				[signal subscribeNext:^(id _) {
+					schedulerInDelivery = RACScheduler.currentScheduler;
+				}];
+
+				expect(schedulerInDelivery).willNot.beNil();
+				return schedulerInDelivery;
+			} copy];
+		});
+
+		it(@"should call the block on the given scheduler", ^{
+			subscribe();
+			expect(schedulerInSubscribe).will.equal(scheduler);
+		});
+
+		it(@"should deliver the original results on the given scheduler", ^{
+			RACScheduler *currentScheduler = subscribe();
+			expect(currentScheduler).to.equal(scheduler);
+		});
+
+		it(@"should deliver replayed results on the given scheduler", ^{
+			// Force a subscription so that we get replayed results on the
+			// tested subscription.
+			subscribe();
+
+			RACScheduler *currentScheduler = subscribe();
+			expect(currentScheduler).to.equal(scheduler);
+		});
+	});
+});
+
 describe(@"-toArray", ^{
 	__block RACSubject *subject;
 	

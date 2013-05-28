@@ -164,6 +164,8 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 
 // Filters out values in the receiver that equal (via -isEqual:) the provided value.
 //
+// value		- The value can be nil, in which case it ignores nil values.
+//
 // Returns a new stream with only those values that passed.
 - (instancetype)ignore:(id)value;
 

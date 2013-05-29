@@ -10,6 +10,7 @@
 #import "NSArray+RACSequenceAdditions.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACDisposable.h"
+#import "RACEvent.h"
 #import "RACScheduler.h"
 #import "RACSequence.h"
 #import "RACSignal+Operations.h"
@@ -102,7 +103,7 @@ it(@"should complete errors when deallocated", ^{
 describe(@"with a signal block", ^{
 	it(@"should invoke the signalBlock once per execution", ^{
 		NSMutableArray *valuesReceived = [NSMutableArray array];
-		[command addSignalBlock:^(id x) {
+		[command addActionBlock:^(id x) {
 			[valuesReceived addObject:x];
 			return [RACSignal empty];
 		}];
@@ -114,10 +115,10 @@ describe(@"with a signal block", ^{
 		expect(valuesReceived).to.equal(expectedValues);
 	});
 
-	it(@"should return a signal of signals from -addSignalBlock:", ^{
+	it(@"should return a signal of signals from -addActionBlock:", ^{
 		NSMutableArray *valuesReceived = [NSMutableArray array];
 		[[[command
-			addSignalBlock:^(RACSequence *seq) {
+			addActionBlock:^(RACSequence *seq) {
 				return [seq signalWithScheduler:RACScheduler.immediateScheduler];
 			}]
 			concat]
@@ -137,12 +138,12 @@ describe(@"with a signal block", ^{
 
 	it(@"should wait for all signals to complete or error before executing is set to NO", ^{
 		RACSubject *first = [RACSubject subject];
-		[command addSignalBlock:^(id x) {
+		[command addActionBlock:^(id x) {
 			return first;
 		}];
 
 		RACSubject *second = [RACSubject subject];
-		[command addSignalBlock:^(id x) {
+		[command addActionBlock:^(id x) {
 			return second;
 		}];
 
@@ -169,12 +170,12 @@ describe(@"with a signal block", ^{
 		}];
 
 		RACSubject *firstSubject = [RACSubject subject];
-		[command addSignalBlock:^(id _) {
+		[command addActionBlock:^(id _) {
 			return firstSubject;
 		}];
 
 		RACSubject *secondSubject = [RACSubject subject];
-		[command addSignalBlock:^(id _) {
+		[command addActionBlock:^(id _) {
 			return secondSubject;
 		}];
 
@@ -201,7 +202,7 @@ describe(@"with a signal block", ^{
 		}];
 
 		RACSubject *subject = [RACSubject subject];
-		[command addSignalBlock:^(id _) {
+		[command addActionBlock:^(id _) {
 			return subject;
 		}];
 
@@ -215,13 +216,49 @@ describe(@"with a signal block", ^{
 		expect(receivedEvent).to.beFalsy();
 	});
 
+	it(@"should not deliver errors to subscribers", ^{
+		RACSubject *subject = [RACSubject subject];
+		NSMutableArray *receivedEvents = [NSMutableArray array];
+
+		[[[[command
+			addActionBlock:^(id value) {
+				return subject;
+			}]
+			flatten]
+			materialize]
+			subscribeNext:^(RACEvent *event) {
+				[receivedEvents addObject:event];
+			}];
+
+		expect([command execute:nil]).to.beTruthy();
+		expect(command.executing).to.beTruthy();
+
+		[subject sendNext:RACUnit.defaultUnit];
+
+		NSArray *expectedEvents = @[ [RACEvent eventWithValue:RACUnit.defaultUnit] ];
+		expect(receivedEvents).to.equal(expectedEvents);
+		expect(command.executing).to.beTruthy();
+
+		[subject sendNext:@"foo"];
+
+		expectedEvents = @[ [RACEvent eventWithValue:RACUnit.defaultUnit], [RACEvent eventWithValue:@"foo"] ];
+		expect(receivedEvents).to.equal(expectedEvents);
+		expect(command.executing).to.beTruthy();
+
+		NSError *error = [NSError errorWithDomain:@"" code:1 userInfo:nil];
+		[subject sendError:error];
+
+		expect(receivedEvents).to.equal(expectedEvents);
+		expect(command.executing).to.beFalsy();
+	});
+
 	it(@"should dealloc without subscribers", ^{
 		__block BOOL disposed = NO;
 
 		@autoreleasepool {
 			RACCommand *command __attribute__((objc_precise_lifetime)) = [[RACCommand alloc] initWithCanExecuteSignal:nil];
 
-			[command addSignalBlock:^(id x) {
+			[command addActionBlock:^(id x) {
 				return [RACSignal empty];
 			}];
 

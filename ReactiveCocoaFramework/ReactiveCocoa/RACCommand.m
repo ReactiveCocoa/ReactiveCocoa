@@ -192,26 +192,6 @@
 	return [self addActionBlock:signalBlock];
 }
 
-- (void)sendNext:(id)value {
-	[self.values sendNext:value];
-}
-
-- (void)sendError:(NSError *)error {
-	[self.values sendError:error];
-}
-
-- (void)sendCompleted {
-	[self.values sendCompleted];
-}
-
-- (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
-	[self.values didSubscribeWithDisposable:disposable];
-}
-
-+ (instancetype)subject {
-	return [self command];
-}
-
 #pragma clang diagnostic pop
 
 @end

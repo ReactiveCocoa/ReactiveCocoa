@@ -162,6 +162,14 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 // Returns a new stream with only those values that passed.
 - (instancetype)filter:(BOOL (^)(id value))block;
 
+// Filters out values in the receiver that equal (via -isEqual:) the provided value.
+//
+// value - The value can be `nil`, in which case it ignores `nil` values.
+//
+// Returns a new stream containing only the values which did not compare equal
+// to `value`.
+- (instancetype)ignore:(id)value;
+
 // Unpacks each RACTuple in the receiver and maps the values to a new value.
 //
 // reduceBlock - The block which reduces each RACTuple's values into one value.

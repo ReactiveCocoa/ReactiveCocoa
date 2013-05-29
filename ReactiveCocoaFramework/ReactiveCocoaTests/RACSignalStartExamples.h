@@ -1,5 +1,5 @@
 //
-//  RACSignalStartSpec.h
+//  RACSignalStartExamples.h
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 5/29/13.

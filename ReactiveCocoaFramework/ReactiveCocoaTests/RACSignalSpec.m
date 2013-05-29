@@ -26,7 +26,7 @@
 #import "RACUnit.h"
 #import "RACCommand.h"
 #import "RACGroupedSignal.h"
-#import "RACSignalStartSpec.h"
+#import "RACSignalStartExamples.h"
 #import "RACMulticastConnection.h"
 
 // Set in a beforeAll below.

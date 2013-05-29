@@ -1,11 +1,12 @@
 //
-//  RACSignalStartSpec.m
+//  RACSignalStartExamples.m
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 5/29/13.
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import "RACSignalStartExamples.h"
 #import "RACSignal.h"
 #import "RACSignal+Operations.h"
 #import "RACScheduler.h"

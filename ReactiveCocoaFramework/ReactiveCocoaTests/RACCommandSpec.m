@@ -10,6 +10,7 @@
 #import "NSArray+RACSequenceAdditions.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACDisposable.h"
+#import "RACEvent.h"
 #import "RACScheduler.h"
 #import "RACSequence.h"
 #import "RACSignal+Operations.h"
@@ -213,6 +214,42 @@ describe(@"with a signal block", ^{
 
 		expect(command.executing).to.beFalsy();
 		expect(receivedEvent).to.beFalsy();
+	});
+
+	it(@"should not deliver errors to subscribers", ^{
+		RACSubject *subject = [RACSubject subject];
+		NSMutableArray *receivedEvents = [NSMutableArray array];
+
+		[[[[command
+			addDeferredSignal:^(id value) {
+				return subject;
+			}]
+			flatten]
+			materialize]
+			subscribeNext:^(RACEvent *event) {
+				[receivedEvents addObject:event];
+			}];
+
+		expect([command execute:nil]).to.beTruthy();
+		expect(command.executing).to.beTruthy();
+
+		[subject sendNext:RACUnit.defaultUnit];
+
+		NSArray *expectedEvents = @[ [RACEvent eventWithValue:RACUnit.defaultUnit] ];
+		expect(receivedEvents).to.equal(expectedEvents);
+		expect(command.executing).to.beTruthy();
+
+		[subject sendNext:@"foo"];
+
+		expectedEvents = @[ [RACEvent eventWithValue:RACUnit.defaultUnit], [RACEvent eventWithValue:@"foo"] ];
+		expect(receivedEvents).to.equal(expectedEvents);
+		expect(command.executing).to.beTruthy();
+
+		NSError *error = [NSError errorWithDomain:@"" code:1 userInfo:nil];
+		[subject sendError:error];
+
+		expect(receivedEvents).to.equal(expectedEvents);
+		expect(command.executing).to.beFalsy();
 	});
 
 	it(@"should dealloc without subscribers", ^{

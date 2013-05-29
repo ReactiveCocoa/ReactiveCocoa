@@ -69,7 +69,7 @@
 // Returns the initialized command.
 - (id)initWithCanExecuteSignal:(RACSignal *)canExecuteSignal;
 
-// Adds a block to invoke each time the receiver is executed.
+// Creates and subscribes to a new signal each time the receiver is executed.
 //
 // signalBlock - A block that returns a signal. The returned signal must not be
 //               nil, and will be subscribed to synchronously from -execute:. If
@@ -79,7 +79,9 @@
 //               nil.
 //
 // Returns a signal of the signals returned from successive invocations of
-// `signalBlock`. Each individual signal will be multicast to a replay subject.
+// `signalBlock`. Each individual signal will be multicast to a replay subject,
+// and any errors will be caught and redirected to the `errors` signal (instead
+// of being delivered to the individual signal's subscribers).
 - (RACSignal *)addDeferredSignal:(RACSignal * (^)(id value))signalBlock;
 
 // If `canExecute` is YES, this method will:

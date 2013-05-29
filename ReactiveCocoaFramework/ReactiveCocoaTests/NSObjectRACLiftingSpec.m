@@ -239,28 +239,6 @@ describe(@"-rac_liftSelector:withObjects:", ^{
 
 	itShouldBehaveLike(@"RACLifting", @{ kRACLiftingTestRigClass : RACLiftingSelectorTestRig.class });
 
-	it(@"should work for char pointer", ^{
-		RACSubject *subject = [RACSubject subject];
-		[object rac_liftSelector:@selector(setCharPointerValue:) withObjects:subject];
-
-		expect(object.charPointerValue).to.equal(NULL);
-
-		NSString *string = @"blah blah blah";
-		[subject sendNext:string];
-		expect(@(object.charPointerValue)).to.equal(string);
-	});
-
-	it(@"should work for const char pointer", ^{
-		RACSubject *subject = [RACSubject subject];
-		[object rac_liftSelector:@selector(setConstCharPointerValue:) withObjects:subject];
-
-		expect(object.constCharPointerValue).to.equal(NULL);
-
-		NSString *string = @"blah blah blah";
-		[subject sendNext:string];
-		expect(@(object.constCharPointerValue)).to.equal(string);
-	});
-
 	it(@"should work for CGRect", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setRectValue:) withObjects:subject];
@@ -434,28 +412,6 @@ describe(@"-rac_liftSelector:withObjectsFromArray:", ^{
 
 		[subject sendNext:self.class];
 		expect(object.objectValue).to.equal(self.class);
-	});
-
-	it(@"should work for char pointer", ^{
-		RACSubject *subject = [RACSubject subject];
-		[object rac_liftSelector:@selector(setCharPointerValue:) withObjectsFromArray:@[ subject ]];
-
-		expect(object.charPointerValue).to.equal(NULL);
-
-		NSString *string = @"blah blah blah";
-		[subject sendNext:string];
-		expect(@(object.charPointerValue)).to.equal(string);
-	});
-
-	it(@"should work for const char pointer", ^{
-		RACSubject *subject = [RACSubject subject];
-		[object rac_liftSelector:@selector(setConstCharPointerValue:) withObjectsFromArray:@[ subject ]];
-
-		expect(object.constCharPointerValue).to.equal(NULL);
-
-		NSString *string = @"blah blah blah";
-		[subject sendNext:string];
-		expect(@(object.constCharPointerValue)).to.equal(string);
 	});
 
 	it(@"should work for CGRect", ^{

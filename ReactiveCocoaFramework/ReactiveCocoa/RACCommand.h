@@ -37,11 +37,11 @@
 // Whether the command is currently executing.
 //
 // This will be YES while any thread is running the -execute: method, or while
-// any signal returned from -addDeferredSignal: has not yet finished.
+// any signal returned from -addActionBlock: has not yet finished.
 @property (atomic, getter = isExecuting, readonly) BOOL executing;
 
 // A signal of NSErrors received from all of the signals returned from
-// -addDeferredSignal:, delivered onto the main thread.
+// -addActionBlock:, delivered onto the main thread.
 //
 // Note that the NSErrors on this signal are sent as `next` events, _not_
 // `error` events (which would terminate any subscriptions).
@@ -82,13 +82,13 @@
 // `signalBlock`. Each individual signal will be multicast to a replay subject,
 // and any errors will be caught and redirected to the `errors` signal (instead
 // of being delivered to the individual signal's subscribers).
-- (RACSignal *)addDeferredSignal:(RACSignal * (^)(id value))signalBlock;
+- (RACSignal *)addActionBlock:(RACSignal * (^)(id value))signalBlock;
 
 // If `canExecute` is YES, this method will:
 //
 // - Set `executing` to YES.
 // - Send `value` to the receiver's subscribers.
-// - Execute each block added with -addDeferredSignal: and subscribe to all of
+// - Execute each block added with -addActionBlock: and subscribe to all of
 //   the returned signals.
 // - Once all the signals returned from the `signalBlock`s have completed or
 //   errored, set `executing` back to NO.
@@ -100,7 +100,7 @@
 
 @interface RACCommand (Deprecated)
 
-- (RACSignal *)addSignalBlock:(RACSignal * (^)(id value))signalBlock __attribute__((deprecated("Use -addDeferredSignal: instead")));
+- (RACSignal *)addSignalBlock:(RACSignal * (^)(id value))signalBlock __attribute__((deprecated("Use -addActionBlock: instead")));
 
 - (void)sendNext:(id)value __attribute__((deprecated("Commands should not be manually controlled")));
 - (void)sendError:(NSError *)error __attribute__((deprecated("Commands should not be manually controlled")));

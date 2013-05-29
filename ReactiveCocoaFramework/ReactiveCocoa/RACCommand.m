@@ -118,7 +118,7 @@
 
 #pragma mark Execution
 
-- (RACSignal *)addDeferredSignal:(RACSignal * (^)(id value))signalBlock {
+- (RACSignal *)addActionBlock:(RACSignal * (^)(id value))signalBlock {
 	NSCParameterAssert(signalBlock != nil);
 
 	@weakify(self);
@@ -148,7 +148,7 @@
 				replay];
 		}]
 		replayLast]
-		setNameWithFormat:@"[%@] -addDeferredSignal:", self.name];
+		setNameWithFormat:@"[%@] -addActionBlock:", self.name];
 }
 
 - (BOOL)execute:(id)value {
@@ -189,7 +189,7 @@
 #pragma clang diagnostic ignored "-Wdeprecated-implementations"
 
 - (RACSignal *)addSignalBlock:(RACSignal * (^)(id value))signalBlock {
-	return [self addDeferredSignal:signalBlock];
+	return [self addActionBlock:signalBlock];
 }
 
 - (void)sendNext:(id)value {

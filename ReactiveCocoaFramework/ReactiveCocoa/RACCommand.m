@@ -118,7 +118,7 @@
 
 #pragma mark Execution
 
-- (RACSignal *)addSignalBlock:(RACSignal * (^)(id value))signalBlock {
+- (RACSignal *)addActionBlock:(RACSignal * (^)(id value))signalBlock {
 	NSCParameterAssert(signalBlock != nil);
 
 	@weakify(self);
@@ -133,11 +133,13 @@
 			NSCAssert(signal != nil, @"signalBlock returned a nil signal");
 
 			return [[[signal
-				doError:^(NSError *error) {
+				catch:^(NSError *error) {
 					[RACScheduler.mainThreadScheduler schedule:^{
 						@strongify(self);
 						if (self != nil) [self->_errors sendNext:error];
 					}];
+
+					return [RACSignal empty];
 				}]
 				finally:^{
 					@strongify(self);
@@ -146,7 +148,7 @@
 				replay];
 		}]
 		replayLast]
-		setNameWithFormat:@"[%@] -addSignalBlock:", self.name];
+		setNameWithFormat:@"[%@] -addActionBlock:", self.name];
 }
 
 - (BOOL)execute:(id)value {
@@ -178,5 +180,18 @@
 
 	return [super automaticallyNotifiesObserversForKey:key];
 }
+
+@end
+
+@implementation RACCommand (Deprecated)
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
+- (RACSignal *)addSignalBlock:(RACSignal * (^)(id value))signalBlock {
+	return [self addActionBlock:signalBlock];
+}
+
+#pragma clang diagnostic pop
 
 @end

@@ -262,7 +262,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 	});
 
 	describe(@"-ignore:", ^{
-		it(@"should ignore value", ^{
+		it(@"should ignore a value", ^{
 			RACStream *baseStream = streamWithValues(@[ @0, @1, @2, @3, @4, @5, @6 ]);
 			RACStream *stream = [baseStream ignore:@1];
 
@@ -273,10 +273,10 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			RACStream *baseStream = streamWithValues(@[ @"0", @"1", @"2", @"3", @"4", @"5", @"6" ]);
 
 			NSMutableString *valueToIgnore = [[NSMutableString alloc] init];
-			[valueToIgnore appendFormat:@"1"];
+			[valueToIgnore appendString:@"1"];
 			RACStream *stream = [baseStream ignore:valueToIgnore];
 
-			verifyValues(stream, @[ @"0", @"2", @"3", @"4", @"5", @"6"]);
+			verifyValues(stream, @[ @"0", @"2", @"3", @"4", @"5", @"6" ]);
 		});
 	});
 

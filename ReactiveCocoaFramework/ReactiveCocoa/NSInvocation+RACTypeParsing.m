@@ -27,6 +27,7 @@
 	} while (0)
 
 	const char *argType = [self.methodSignature getArgumentTypeAtIndex:index];
+
 	// Skip const type qualifier.
 	if (argType[0] == 'r') {
 		argType++;
@@ -59,7 +60,10 @@
 	} else if (strcmp(argType, "d") == 0) {
 		PULL_AND_SET(double, doubleValue);
 	} else if (strcmp(argType, "*") == 0) {
-		PULL_AND_SET(const char *, UTF8String);
+		// Ensure that the string is immutable, because the C string might do
+		// weird things if not.
+		const char *cString = [[object copy] UTF8String];
+		[self setArgument:&cString atIndex:(NSInteger)index];
 	} else if (argType[0] == '^') {
 		PULL_AND_SET(void *, pointerValue);
 	} else if (strcmp(argType, @encode(CGRect)) == 0) {

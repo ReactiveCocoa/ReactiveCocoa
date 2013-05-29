@@ -102,7 +102,7 @@ it(@"should complete errors when deallocated", ^{
 describe(@"with a signal block", ^{
 	it(@"should invoke the signalBlock once per execution", ^{
 		NSMutableArray *valuesReceived = [NSMutableArray array];
-		[command addSignalBlock:^(id x) {
+		[command addDeferredSignal:^(id x) {
 			[valuesReceived addObject:x];
 			return [RACSignal empty];
 		}];
@@ -114,10 +114,10 @@ describe(@"with a signal block", ^{
 		expect(valuesReceived).to.equal(expectedValues);
 	});
 
-	it(@"should return a signal of signals from -addSignalBlock:", ^{
+	it(@"should return a signal of signals from -addDeferredSignal:", ^{
 		NSMutableArray *valuesReceived = [NSMutableArray array];
 		[[[command
-			addSignalBlock:^(RACSequence *seq) {
+			addDeferredSignal:^(RACSequence *seq) {
 				return [seq signalWithScheduler:RACScheduler.immediateScheduler];
 			}]
 			concat]
@@ -137,12 +137,12 @@ describe(@"with a signal block", ^{
 
 	it(@"should wait for all signals to complete or error before executing is set to NO", ^{
 		RACSubject *first = [RACSubject subject];
-		[command addSignalBlock:^(id x) {
+		[command addDeferredSignal:^(id x) {
 			return first;
 		}];
 
 		RACSubject *second = [RACSubject subject];
-		[command addSignalBlock:^(id x) {
+		[command addDeferredSignal:^(id x) {
 			return second;
 		}];
 
@@ -169,12 +169,12 @@ describe(@"with a signal block", ^{
 		}];
 
 		RACSubject *firstSubject = [RACSubject subject];
-		[command addSignalBlock:^(id _) {
+		[command addDeferredSignal:^(id _) {
 			return firstSubject;
 		}];
 
 		RACSubject *secondSubject = [RACSubject subject];
-		[command addSignalBlock:^(id _) {
+		[command addDeferredSignal:^(id _) {
 			return secondSubject;
 		}];
 
@@ -201,7 +201,7 @@ describe(@"with a signal block", ^{
 		}];
 
 		RACSubject *subject = [RACSubject subject];
-		[command addSignalBlock:^(id _) {
+		[command addDeferredSignal:^(id _) {
 			return subject;
 		}];
 
@@ -221,7 +221,7 @@ describe(@"with a signal block", ^{
 		@autoreleasepool {
 			RACCommand *command __attribute__((objc_precise_lifetime)) = [[RACCommand alloc] initWithCanExecuteSignal:nil];
 
-			[command addSignalBlock:^(id x) {
+			[command addDeferredSignal:^(id x) {
 				return [RACSignal empty];
 			}];
 

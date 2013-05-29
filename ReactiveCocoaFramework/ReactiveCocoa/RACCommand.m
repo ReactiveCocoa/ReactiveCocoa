@@ -118,7 +118,7 @@
 
 #pragma mark Execution
 
-- (RACSignal *)addSignalBlock:(RACSignal * (^)(id value))signalBlock {
+- (RACSignal *)addDeferredSignal:(RACSignal * (^)(id value))signalBlock {
 	NSCParameterAssert(signalBlock != nil);
 
 	@weakify(self);
@@ -146,7 +146,7 @@
 				replay];
 		}]
 		replayLast]
-		setNameWithFormat:@"[%@] -addSignalBlock:", self.name];
+		setNameWithFormat:@"[%@] -addDeferredSignal:", self.name];
 }
 
 - (BOOL)execute:(id)value {

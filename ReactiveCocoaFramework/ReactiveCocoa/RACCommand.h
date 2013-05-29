@@ -37,11 +37,11 @@
 // Whether the command is currently executing.
 //
 // This will be YES while any thread is running the -execute: method, or while
-// any signal returned from -addSignalBlock: has not yet finished.
+// any signal returned from -addDeferredSignal: has not yet finished.
 @property (atomic, getter = isExecuting, readonly) BOOL executing;
 
 // A signal of NSErrors received from all of the signals returned from
-// -addSignalBlock:, delivered onto the main thread.
+// -addDeferredSignal:, delivered onto the main thread.
 //
 // Note that the NSErrors on this signal are sent as `next` events, _not_
 // `error` events (which would terminate any subscriptions).
@@ -80,13 +80,13 @@
 //
 // Returns a signal of the signals returned from successive invocations of
 // `signalBlock`. Each individual signal will be multicast to a replay subject.
-- (RACSignal *)addSignalBlock:(RACSignal * (^)(id value))signalBlock;
+- (RACSignal *)addDeferredSignal:(RACSignal * (^)(id value))signalBlock;
 
 // If `canExecute` is YES, this method will:
 //
 // - Set `executing` to YES.
 // - Send `value` to the receiver's subscribers.
-// - Execute each block added with -addSignalBlock: and subscribe to all of
+// - Execute each block added with -addDeferredSignal: and subscribe to all of
 //   the returned signals.
 // - Once all the signals returned from the `signalBlock`s have completed or
 //   errored, set `executing` back to NO.

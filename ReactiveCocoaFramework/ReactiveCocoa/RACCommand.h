@@ -98,6 +98,8 @@
 
 @interface RACCommand (Deprecated)
 
+- (RACSignal *)addSignalBlock:(RACSignal * (^)(id value))signalBlock __attribute__((deprecated("Use -addDeferredSignal: instead")));
+
 - (void)sendNext:(id)value __attribute__((deprecated("Commands should not be manually controlled")));
 - (void)sendError:(NSError *)error __attribute__((deprecated("Commands should not be manually controlled")));
 - (void)sendCompleted __attribute__((deprecated("Commands should not be manually controlled")));

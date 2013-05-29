@@ -186,6 +186,10 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-implementations"
 
+- (RACSignal *)addSignalBlock:(RACSignal * (^)(id value))signalBlock {
+	return [self addDeferredSignal:signalBlock];
+}
+
 - (void)sendNext:(id)value {
 	[self.values sendNext:value];
 }

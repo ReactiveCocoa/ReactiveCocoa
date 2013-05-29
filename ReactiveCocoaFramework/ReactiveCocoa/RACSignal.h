@@ -55,7 +55,7 @@
 // Immediately schedules the given block on the given scheduler. The block is
 // given a subscriber to which it can send events.
 //
-// scheduler - The scheduler on which `block` will be scheduler and results
+// scheduler - The scheduler on which `block` will be scheduled and results
 //             delivered. Cannot be nil.
 // block     - The block to invoke. Cannot be NULL.
 //
@@ -210,19 +210,10 @@
 
 @interface RACSignal (Deprecated)
 
-// Starts and returns an async signal. It calls the block with the given
-// scheduler and gives the block the subject that was returned from the method.
-// The block can send events using the subject.
-+ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block __attribute__((deprecated("Use +startWithScheduler:subscriberBlock: instead")));
++ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block __attribute__((deprecated("Use +startEagerlyWithScheduler:block: instead")));
 
-// Returns a signal that calls the block in a background queue. The
-// block's success is YES by default. If the block sets success = NO, the
-// signal sends error with the error passed in by reference.
-+ (RACSignal *)start:(id (^)(BOOL *success, NSError **error))block __attribute__((deprecated("Use +startWithScheduler:subscriberBlock: instead")));
++ (RACSignal *)start:(id (^)(BOOL *success, NSError **error))block __attribute__((deprecated("Use +startEagerlyWithScheduler:block: instead")));
 
-// Returns a signal that calls the block with the given scheduler. The
-// block's success is YES by default. If the block sets success = NO, the
-// signal sends error with the error passed in by reference.
-+ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block __attribute__((deprecated("Use +startWithScheduler:subscriberBlock: instead")));
++ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block __attribute__((deprecated("Use +startEagerlyWithScheduler:block: instead")));
 
 @end

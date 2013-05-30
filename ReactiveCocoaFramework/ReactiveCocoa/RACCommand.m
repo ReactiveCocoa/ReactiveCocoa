@@ -76,6 +76,11 @@
 	self.values.name = name;
 }
 
+- (void)setAllowsConcurrentExecution:(BOOL)allowed {
+	NSCParameterAssert(RACScheduler.currentScheduler == RACScheduler.mainThreadScheduler);
+	_allowsConcurrentExecution = allowed;
+}
+
 #pragma mark Lifecycle
 
 - (void)dealloc {
@@ -166,6 +171,8 @@
 }
 
 - (BOOL)execute:(id)value {
+	NSCParameterAssert(RACScheduler.currentScheduler == RACScheduler.mainThreadScheduler);
+
 	if (!self.canExecute) return NO;
 
 	[self incrementItemsInFlight];

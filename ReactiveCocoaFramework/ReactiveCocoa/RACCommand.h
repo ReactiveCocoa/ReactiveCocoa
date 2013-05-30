@@ -43,7 +43,7 @@
 // This will be YES while any thread is running the -execute: method, or while
 // any signal returned from -addActionBlock: has not yet finished.
 //
-// This property is KVO-compliant, and will only change on the main thread.
+// This property is KVO-compliant, and must only be read from the main thread.
 @property (nonatomic, getter = isExecuting, readonly) BOOL executing;
 
 // A signal of NSErrors received from all of the signals returned from
@@ -100,7 +100,7 @@
 //   errored, schedule a block on +[RACScheduler mainThreadScheduler] to set
 //   `executing` back to NO.
 //
-// This method must be invoked from the main thread.
+// This method must only be invoked from the main thread.
 //
 // Returns whether the command executed (i.e., whether `canExecute` was YES).
 - (BOOL)execute:(id)value;

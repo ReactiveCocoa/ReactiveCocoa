@@ -2653,6 +2653,21 @@ describe(@"starting signals", ^{
 			expect(blockInvoked).will.beTruthy();
 		});
 
+		it(@"should only invoke the block once", ^{
+			__block NSUInteger invokedCount = 0;
+			RACSignal *signal = [RACSignal startEagerlyWithScheduler:RACScheduler.immediateScheduler block:^(id<RACSubscriber> subscriber) {
+				invokedCount++;
+			}];
+
+			expect(invokedCount).to.equal(1);
+
+			[[signal publish] connect];
+			expect(invokedCount).to.equal(1);
+
+			[[signal publish] connect];
+			expect(invokedCount).to.equal(1);
+		});
+
 		it(@"should invoke the block on the given scheduler", ^{
 			RACScheduler *scheduler = [RACScheduler scheduler];
 			__block RACScheduler *currentScheduler;

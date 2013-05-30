@@ -7,16 +7,17 @@
 //
 
 #import "UIBarButtonItem+RACCommandSupport.h"
-#import <ReactiveCocoa/RACCommand.h>
-#import <ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h>
-#import <ReactiveCocoa/NSObject+RACPropertySubscribing.h>
-#import <ReactiveCocoa/RACSignal+Operations.h>
-#import <ReactiveCocoa/RACDisposable.h>
 #import <ReactiveCocoa/EXTKeyPathCoding.h>
+#import <ReactiveCocoa/NSObject+RACPropertySubscribing.h>
+#import <ReactiveCocoa/RACCommand.h>
+#import <ReactiveCocoa/RACDisposable.h>
+#import <ReactiveCocoa/RACScheduler.h>
+#import <ReactiveCocoa/RACSignal+Operations.h>
+#import <ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h>
 #import <objc/runtime.h>
 
-static void * UIControlRACCommandKey = &UIControlRACCommandKey;
-static void * UIControlRACCommandSignalKey = &UIControlRACCommandSignalKey;
+static void *UIControlRACCommandKey = &UIControlRACCommandKey;
+static void *UIControlCanExecuteDisposableKey = &UIControlCanExecuteDisposableKey;
 
 @implementation UIBarButtonItem (RACCommandSupport)
 
@@ -30,11 +31,15 @@ static void * UIControlRACCommandSignalKey = &UIControlRACCommandSignalKey;
 	if (command == nil) return;
 	
 	// Check for stored signal in order to remove it and add a new one
-	RACDisposable *existingSignal = objc_getAssociatedObject(self, UIControlRACCommandSignalKey);
-	[existingSignal dispose];
+	RACDisposable *disposable = objc_getAssociatedObject(self, UIControlCanExecuteDisposableKey);
+	[disposable dispose];
 	
-	RACDisposable *newSignal = [RACAbleWithStart(command, canExecute) toProperty:@keypath(self.enabled) onObject:self];
-	objc_setAssociatedObject(self, UIControlRACCommandSignalKey, newSignal, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	disposable = [[[RACAble(command, canExecute)
+		deliverOn:RACScheduler.mainThreadScheduler]
+		startWith:@(command.canExecute)]
+		toProperty:@keypath(self.enabled) onObject:self];
+
+	objc_setAssociatedObject(self, UIControlCanExecuteDisposableKey, disposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
 	[self rac_hijackActionAndTargetIfNeeded];
 }

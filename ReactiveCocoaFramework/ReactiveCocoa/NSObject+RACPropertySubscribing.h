@@ -20,6 +20,12 @@
 // is deallocated. No intermediate objects along the key path should be
 // deallocated while the observation exists.
 //
+// Make sure to `@strongify(self)` when using this macro within a block! The
+// macro will _always_ reference `self`, which can silently introduce a retain
+// cycle within a block. As a result, you should make sure that `self` is a weak
+// reference (e.g., created by `@weakify` and `@strongify`) before the
+// expression that uses `RACAble` or `RACAbleWithStart`.
+//
 // Examples
 //
 //   // Observes self, and doesn't stop until self is deallocated. The array

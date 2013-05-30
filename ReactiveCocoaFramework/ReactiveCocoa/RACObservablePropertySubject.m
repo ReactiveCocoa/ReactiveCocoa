@@ -210,10 +210,6 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 	NSCAssert(NO, @"%s must be overridden by subclasses", __func__);
 }
 
-- (void)sendBindingValue:(id)value sender:(id)sender {
-	NSCAssert(NO, @"%s must be overridden by subclasses", __func__);
-}
-
 - (void)dispose {
 	@synchronized(self) {
 		if (self.disposed) return;
@@ -242,9 +238,6 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 	};
 	[binding.exposedSubscriberSubject subscribeNext:^(id x) {
 		@strongify(binding);
-		if (binding.key.rac_keyPathComponents.count > 1 && [binding.target valueForKeyPath:binding.key.rac_keyPathByDeletingLastKeyPathComponent] == nil) {
-			return;
-		}
 		binding.ignoreNextUpdate = YES;
 		[binding.target setValue:x forKey:binding.key];
 	}];

@@ -109,7 +109,7 @@ describe(@"with a signal block", ^{
 		}];
 
 		expect([command execute:@"foo"]).to.beTruthy();
-		expect([command execute:@"bar"]).to.beTruthy();
+		expect([command execute:@"bar"]).will.beTruthy();
 
 		NSArray *expectedValues = @[ @"foo", @"bar" ];
 		expect(valuesReceived).to.equal(expectedValues);
@@ -130,7 +130,7 @@ describe(@"with a signal block", ^{
 		expect([command execute:first]).to.beTruthy();
 
 		RACSequence *second = @[ @"buzz", @"baz" ].rac_sequence;
-		expect([command execute:second]).to.beTruthy();
+		expect([command execute:second]).will.beTruthy();
 
 		NSArray *expectedValues = @[ @"foo", @"bar", @"buzz", @"baz" ];
 		expect(valuesReceived).to.equal(expectedValues);
@@ -157,7 +157,7 @@ describe(@"with a signal block", ^{
 		expect(command.executing).to.beTruthy();
 
 		[second sendCompleted];
-		expect(command.executing).to.beFalsy();
+		expect(command.executing).will.beFalsy();
 	});
 
 	it(@"should forward errors onto 'errors'", ^{
@@ -189,7 +189,7 @@ describe(@"with a signal block", ^{
 		expect(receivedErrors).will.equal(expected);
 
 		[secondSubject sendError:secondError];
-		expect(command.executing).to.beFalsy();
+		expect(command.executing).will.beFalsy();
 
 		expected = @[ firstError, secondError ];
 		expect(receivedErrors).will.equal(expected);
@@ -212,7 +212,7 @@ describe(@"with a signal block", ^{
 		[subject sendNext:RACUnit.defaultUnit];
 		[subject sendCompleted];
 
-		expect(command.executing).to.beFalsy();
+		expect(command.executing).will.beFalsy();
 		expect(receivedEvent).to.beFalsy();
 	});
 
@@ -247,9 +247,9 @@ describe(@"with a signal block", ^{
 
 		NSError *error = [NSError errorWithDomain:@"" code:1 userInfo:nil];
 		[subject sendError:error];
-
+		
+		expect(command.executing).will.beFalsy();
 		expect(receivedEvents).to.equal(expectedEvents);
-		expect(command.executing).to.beFalsy();
 	});
 
 	it(@"should dealloc without subscribers", ^{

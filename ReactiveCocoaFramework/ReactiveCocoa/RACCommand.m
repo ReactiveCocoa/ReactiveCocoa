@@ -8,6 +8,8 @@
 
 #import "RACCommand.h"
 #import "EXTScope.h"
+#import "RACMulticastConnection.h"
+#import "RACReplaySubject.h"
 #import "RACScheduler.h"
 #import "RACSignal+Operations.h"
 #import "RACSubject.h"
@@ -17,14 +19,12 @@
 @interface RACCommand () {
 	RACSubject *_errors;
 
-	// Indicates how many -execute: calls and signals are currently in-flight.
+	// How many -execute: calls and signals are currently in-flight.
 	//
-	// This variable can be read at any time, but must be modified through
-	// -incrementItemsInFlight and -decrementItemsInFlight.
-	volatile int32_t _itemsInFlight;
+	// This variable must only be read from the main thread, and should only be
+	// modified through -incrementItemsInFlight and -decrementItemsInFlight.
+	NSUInteger _itemsInFlight;
 }
-
-@property (atomic, readwrite) BOOL canExecute;
 
 // A signal of the values passed to -execute:.
 //
@@ -36,13 +36,17 @@
 // See the documentation for <NSKeyValueObserving> for more information.
 @property (atomic) void *observationInfo;
 
-// Increments _itemsInFlight atomically and generates a KVO notification for the
+// Increments _itemsInFlight and generates a KVO notification for the
 // `executing` property.
 - (void)incrementItemsInFlight;
 
-// Decrements _itemsInFlight atomically and generates a KVO notification for the
+// Decrements _itemsInFlight and generates a KVO notification for the
 // `executing` property.
 - (void)decrementItemsInFlight;
+
+// Executes the given block on the main thread. If the calling code is already
+// running on the main thread, the block is executed directly.
+- (void)runOnMainThread:(void (^)(void))block;
 
 @end
 
@@ -56,16 +60,15 @@
 
 - (void)incrementItemsInFlight {
 	[self willChangeValueForKey:@keypath(self.executing)];
-	OSAtomicIncrement32Barrier(&_itemsInFlight);
+	_itemsInFlight++;
 	[self didChangeValueForKey:@keypath(self.executing)];
 }
 
 - (void)decrementItemsInFlight {
+	NSCAssert(_itemsInFlight > 0, @"Unbalanced decrement of itemsInFlight");
+
 	[self willChangeValueForKey:@keypath(self.executing)];
-
-	int32_t newValue __attribute__((unused)) = OSAtomicDecrement32Barrier(&_itemsInFlight);
-	NSCAssert(newValue >= 0, @"Unbalanced decrement of _itemsInFlight");
-
+	_itemsInFlight--;
 	[self didChangeValueForKey:@keypath(self.executing)];
 }
 
@@ -77,11 +80,23 @@
 	self.values.name = name;
 }
 
+- (void)setAllowsConcurrentExecution:(BOOL)allowed {
+	NSCParameterAssert(RACScheduler.currentScheduler == RACScheduler.mainThreadScheduler);
+	_allowsConcurrentExecution = allowed;
+}
+
 #pragma mark Lifecycle
 
 - (void)dealloc {
-	[_values sendCompleted];
-	[_errors sendCompleted];
+	RACSubject *valuesSubject = _values;
+	RACSubject *errorsSubject = _errors;
+
+	// Make sure that all signal events are on the main thread, even if -dealloc
+	// is called in the background.
+	[self runOnMainThread:^{
+		[valuesSubject sendCompleted];
+		[errorsSubject sendCompleted];
+	}];
 }
 
 + (instancetype)command {
@@ -103,16 +118,46 @@
 	_values = [RACSubject subject];
 	_errors = [RACSubject subject];
 
+	if (canExecuteSignal == nil) {
+		canExecuteSignal = [RACSignal return:@YES];
+	} else {
+		@weakify(self);
+
+		RACSignal *mainThreadSignal = [[RACSignal
+			createSignal:^(id<RACSubscriber> subscriber) {
+				return [canExecuteSignal subscribeNext:^(id x) {
+					@strongify(self);
+					[self runOnMainThread:^{
+						[subscriber sendNext:x];
+					}];
+				} error:^(NSError *error) {
+					@strongify(self);
+					[self runOnMainThread:^{
+						[subscriber sendError:error];
+					}];
+				} completed:^{
+					@strongify(self);
+					[self runOnMainThread:^{
+						[subscriber sendCompleted];
+					}];
+				}];
+			}]
+			setNameWithFormat:@"[%@] -deliverOn: %@", canExecuteSignal.name, RACScheduler.mainThreadScheduler];
+
+		canExecuteSignal = [mainThreadSignal startWith:@YES];
+	}
+
 	RAC(self.canExecute) = [RACSignal
 		combineLatest:@[
-			[canExecuteSignal startWith:@YES] ?: [RACSignal return:@YES],
+			// All of these signals deliver onto the main thread.
+			canExecuteSignal,
 			RACAbleWithStart(self.allowsConcurrentExecution),
 			RACAbleWithStart(self.executing)
 		] reduce:^(NSNumber *canExecute, NSNumber *allowsConcurrency, NSNumber *executing) {
 			BOOL blocking = !allowsConcurrency.boolValue && executing.boolValue;
 			return @(canExecute.boolValue && !blocking);
 		}];
-	
+
 	return self;
 }
 
@@ -132,38 +177,49 @@
 			RACSignal *signal = signalBlock(value);
 			NSCAssert(signal != nil, @"signalBlock returned a nil signal");
 
-			return [[[signal
-				catch:^(NSError *error) {
-					[RACScheduler.mainThreadScheduler schedule:^{
-						@strongify(self);
-						if (self != nil) [self->_errors sendNext:error];
-					}];
+			RACMulticastConnection *connection = [signal multicast:[RACReplaySubject subject]];
+			[connection connect];
 
-					return [RACSignal empty];
-				}]
+			// Handle completion and error on the main thread.
+			[[[connection.signal
+				deliverOn:RACScheduler.mainThreadScheduler]
 				finally:^{
 					@strongify(self);
 					[self decrementItemsInFlight];
 				}]
-				replay];
+				subscribeError:^(NSError *error) {
+					@strongify(self);
+					if (self != nil) [self->_errors sendNext:error];
+				}];
+
+			return [connection.signal catchTo:[RACSignal empty]];
 		}]
 		replayLast]
 		setNameWithFormat:@"[%@] -addActionBlock:", self.name];
 }
 
 - (BOOL)execute:(id)value {
-	@synchronized (self) {
-		// Because itemsInFlight informs canExecute, we need to ensure that the
-		// latter is tested and set atomically to avoid race conditions. This is
-		// only necessary for incrementing, not decrementing.
-		if (!self.canExecute) return NO;
-		[self incrementItemsInFlight];
-	}
-	
-	[self.values sendNext:value];
-	[self decrementItemsInFlight];
+	NSCParameterAssert(RACScheduler.currentScheduler == RACScheduler.mainThreadScheduler);
 
+	if (!self.canExecute) return NO;
+
+	[self incrementItemsInFlight];
+	@onExit {
+		[self decrementItemsInFlight];
+	};
+
+	[self.values sendNext:value];
 	return YES;
+}
+
+- (void)runOnMainThread:(void (^)(void))block {
+	NSCParameterAssert(block != nil);
+
+	if (RACScheduler.currentScheduler == RACScheduler.mainThreadScheduler) {
+		block();
+	} else {
+		[RACScheduler.mainThreadScheduler schedule:block];
+	}
 }
 
 #pragma mark RACSignal

@@ -40,7 +40,6 @@
 //    RACSignal *signal3 = [anotherSignal flattenMap:^(NSArrayController *arrayController) {
 //        // Avoids a retain cycle.
 //        @strongify(self);
-//
 //        return RACAble(arrayController, items);
 //    }];
 //

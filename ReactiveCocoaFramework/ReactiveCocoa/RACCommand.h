@@ -25,20 +25,24 @@
 //
 // It will be YES in all other cases.
 //
-// This property is both KVO- and KVC-compliant.
-@property (atomic, readonly) BOOL canExecute;
+// This property is KVO-compliant, and must only be read from the main thread.
+@property (nonatomic, assign, readonly) BOOL canExecute;
 
 // Whether the command allows multiple invocations of -execute: to proceed
 // concurrently.
 //
 // The default value for this property is NO.
-@property (atomic) BOOL allowsConcurrentExecution;
+//
+// This property must only be used from the main thread.
+@property (nonatomic, assign) BOOL allowsConcurrentExecution;
 
 // Whether the command is currently executing.
 //
 // This will be YES while any thread is running the -execute: method, or while
 // any signal returned from -addActionBlock: has not yet finished.
-@property (atomic, getter = isExecuting, readonly) BOOL executing;
+//
+// This property is KVO-compliant, and must only be read from the main thread.
+@property (nonatomic, getter = isExecuting, readonly) BOOL executing;
 
 // A signal of NSErrors received from all of the signals returned from
 // -addActionBlock:, delivered onto the main thread.
@@ -90,8 +94,11 @@
 // - Send `value` to the receiver's subscribers.
 // - Execute each block added with -addActionBlock: and subscribe to all of
 //   the returned signals.
-// - Once all the signals returned from the `signalBlock`s have completed or
-//   errored, set `executing` back to NO.
+// - After all the signals returned from the `signalBlock`s have completed or
+//   errored, schedule a block on +[RACScheduler mainThreadScheduler] to set
+//   `executing` back to NO.
+//
+// This method must only be invoked from the main thread.
 //
 // Returns whether the command executed (i.e., whether `canExecute` was YES).
 - (BOOL)execute:(id)value;

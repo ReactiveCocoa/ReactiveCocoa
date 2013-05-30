@@ -28,13 +28,21 @@
 //
 // Examples
 //
-//   // Observes self, and doesn't stop until self is deallocated. The array
-//   // controller should not be deallocated during this time.
-//   RACSignal *signal1 = RACAble(self.arrayController.items);
+//    // Observes self, and doesn't stop until self is deallocated. The array
+//    // controller should not be deallocated during this time.
+//    RACSignal *signal1 = RACAble(self.arrayController.items);
 //
-//   // Observes obj.arrayController, and stops when _self_ or the array
-//   // controller is deallocated.
-//   RACSignal *signal2 = RACAble(obj.arrayController, items);
+//    // Observes obj.arrayController, and stops when _self_ or the array
+//    // controller is deallocated.
+//    RACSignal *signal2 = RACAble(obj.arrayController, items);
+//
+//    @weakify(self);
+//    RACSignal *signal3 = [anotherSignal flattenMap:^(NSArrayController *arrayController) {
+//        // Avoids a retain cycle.
+//        @strongify(self);
+//
+//        return RACAble(arrayController, items);
+//    }];
 //
 // Returns a signal which sends a value every time the value at the given key
 // path changes, and sends completed if self is deallocated (no matter which

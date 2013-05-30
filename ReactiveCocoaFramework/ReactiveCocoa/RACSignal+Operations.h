@@ -342,14 +342,22 @@ extern const NSInteger RACSignalErrorTimedOut;
 // indeterminate scheduler, until the stream finishes or times out.
 - (RACSignal *)timeout:(NSTimeInterval)interval;
 
-// Creates and returns a signal that delivers its callbacks using the given
-// scheduler.
+// Creates and returns a signal that delivers its events on the given scheduler.
+// Any side effects of the receiver will still be performed on the original
+// thread.
+//
+// This is ideal when the signal already performs its work on the desired
+// thread, but you want to handle its events elsewhere.
 //
 // This corresponds to the `ObserveOn` method in Rx.
 - (RACSignal *)deliverOn:(RACScheduler *)scheduler;
 
-// Creates and returns a signal whose `didSubscribe` block is scheduled with the
-// given scheduler.
+// Creates and returns a signal that executes its side effects and delivers its
+// events on the given scheduler.
+//
+// Use of this operator should be avoided whenever possible, because the
+// receiver's side effects may not be safe to run on another thread. If you just
+// want to receive the signal's events on `scheduler`, use -deliverOn: instead.
 - (RACSignal *)subscribeOn:(RACScheduler *)scheduler;
 
 // Creates a shared signal which is passed into the let block. The let block

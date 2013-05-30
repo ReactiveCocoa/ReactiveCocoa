@@ -2616,9 +2616,12 @@ describe(@"starting signals", ^{
 		it(@"should invoke the block on the given scheduler", ^{
 			RACScheduler *scheduler = [RACScheduler scheduler];
 			__block RACScheduler *currentScheduler;
-			[[[RACSignal startLazilyWithScheduler:scheduler block:^(id<RACSubscriber> subscriber) {
-				currentScheduler = RACScheduler.currentScheduler;
-			}] publish] connect];
+			[[[RACSignal
+				startLazilyWithScheduler:scheduler block:^(id<RACSubscriber> subscriber) {
+					currentScheduler = RACScheduler.currentScheduler;
+				}]
+				publish]
+				connect];
 
 			expect(currentScheduler).will.equal(scheduler);
 		});

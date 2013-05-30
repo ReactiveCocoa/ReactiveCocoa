@@ -36,10 +36,12 @@
 // See the documentation for <NSKeyValueObserving> for more information.
 @property (atomic) void *observationInfo;
 
-// Increments _itemsInFlight.
+// Increments _itemsInFlight and generates a KVO notification for the
+// `executing` property.
 - (void)incrementItemsInFlight;
 
-// Decrements _itemsInFlight.
+// Decrements _itemsInFlight and generates a KVO notification for the
+// `executing` property.
 - (void)decrementItemsInFlight;
 
 // Executes the given block on the main thread. If the calling code is already

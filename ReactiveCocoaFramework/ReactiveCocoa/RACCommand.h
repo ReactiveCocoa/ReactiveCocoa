@@ -88,7 +88,7 @@
 // of being delivered to the individual signal's subscribers).
 - (RACSignal *)addActionBlock:(RACSignal * (^)(id value))signalBlock;
 
-// If `canExecute` is currently YES, this method will:
+// If `canExecute` is YES, this method will:
 //
 // - Set `executing` to YES.
 // - Send `value` to the receiver's subscribers.

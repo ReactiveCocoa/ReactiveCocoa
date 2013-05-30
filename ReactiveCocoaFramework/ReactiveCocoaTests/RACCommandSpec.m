@@ -325,6 +325,26 @@ describe(@"canExecute property", ^{
 		expect([command execute:nil]).to.beTruthy();
 		expect(command.canExecute).to.beTruthy();
 	});
+
+	it(@"should always update on the main thread", ^{
+		RACSubject *subject = [RACSubject subject];
+
+		command = [RACCommand commandWithCanExecuteSignal:subject];
+		expect(command.canExecute).to.beTruthy();
+
+		__block RACScheduler *updatedScheduler = nil;
+		[RACAble(command, canExecute) subscribeNext:^(id _) {
+			updatedScheduler = RACScheduler.currentScheduler;
+		}];
+
+		[[RACScheduler scheduler] schedule:^{
+			[subject sendNext:@NO];
+		}];
+
+		expect(command.canExecute).to.beTruthy();
+		expect(command.canExecute).will.beFalsy();
+		expect(updatedScheduler).to.equal(RACScheduler.mainThreadScheduler);
+	});
 });
 
 SpecEnd

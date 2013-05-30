@@ -26,8 +26,6 @@
 	NSUInteger _itemsInFlight;
 }
 
-@property (atomic, assign, readwrite) BOOL canExecute;
-
 // A signal of the values passed to -execute:.
 //
 // Subscriptions to the receiver will actually be redirected to this subject.
@@ -43,6 +41,10 @@
 
 // Decrements _itemsInFlight.
 - (void)decrementItemsInFlight;
+
+// Executes the given block on the main thread. If the calling code is already
+// running on the main thread, the block is executed directly.
+- (void)runOnMainThread:(void (^)(void))block;
 
 @end
 
@@ -87,18 +89,12 @@
 	RACSubject *valuesSubject = _values;
 	RACSubject *errorsSubject = _errors;
 
-	void (^sendCompleted)() = ^{
-		[valuesSubject sendCompleted];
-		[errorsSubject sendCompleted];
-	};
-
 	// Make sure that all signal events are on the main thread, even if -dealloc
 	// is called in the background.
-	if (RACScheduler.currentScheduler == RACScheduler.mainThreadScheduler) {
-		sendCompleted();
-	} else {
-		[RACScheduler.mainThreadScheduler schedule:sendCompleted];
-	}
+	[self runOnMainThread:^{
+		[valuesSubject sendCompleted];
+		[errorsSubject sendCompleted];
+	}];
 }
 
 + (instancetype)command {
@@ -120,9 +116,39 @@
 	_values = [RACSubject subject];
 	_errors = [RACSubject subject];
 
+	if (canExecuteSignal == nil) {
+		canExecuteSignal = [RACSignal return:@YES];
+	} else {
+		@weakify(self);
+
+		RACSignal *mainThreadSignal = [[RACSignal
+			createSignal:^(id<RACSubscriber> subscriber) {
+				return [canExecuteSignal subscribeNext:^(id x) {
+					@strongify(self);
+					[self runOnMainThread:^{
+						[subscriber sendNext:x];
+					}];
+				} error:^(NSError *error) {
+					@strongify(self);
+					[self runOnMainThread:^{
+						[subscriber sendError:error];
+					}];
+				} completed:^{
+					@strongify(self);
+					[self runOnMainThread:^{
+						[subscriber sendCompleted];
+					}];
+				}];
+			}]
+			setNameWithFormat:@"[%@] -deliverOn: %@", canExecuteSignal.name, RACScheduler.mainThreadScheduler];
+
+		canExecuteSignal = [mainThreadSignal startWith:@YES];
+	}
+
 	RAC(self.canExecute) = [RACSignal
 		combineLatest:@[
-			[canExecuteSignal startWith:@YES] ?: [RACSignal return:@YES],
+			// All of these signals deliver onto the main thread.
+			canExecuteSignal,
 			RACAbleWithStart(self.allowsConcurrentExecution),
 			RACAbleWithStart(self.executing)
 		] reduce:^(NSNumber *canExecute, NSNumber *allowsConcurrency, NSNumber *executing) {
@@ -182,6 +208,16 @@
 
 	[self.values sendNext:value];
 	return YES;
+}
+
+- (void)runOnMainThread:(void (^)(void))block {
+	NSCParameterAssert(block != nil);
+
+	if (RACScheduler.currentScheduler == RACScheduler.mainThreadScheduler) {
+		block();
+	} else {
+		[RACScheduler.mainThreadScheduler schedule:block];
+	}
 }
 
 #pragma mark RACSignal

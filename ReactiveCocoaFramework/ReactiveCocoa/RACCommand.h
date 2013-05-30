@@ -25,10 +25,8 @@
 //
 // It will be YES in all other cases.
 //
-// This property is KVO-compliant. However, it may change from any thread, so
-// observers must be careful to deliver changes to the main thread when
-// necessary.
-@property (atomic, assign, readonly) BOOL canExecute;
+// This property is KVO-compliant, and must only be read from the main thread.
+@property (nonatomic, assign, readonly) BOOL canExecute;
 
 // Whether the command allows multiple invocations of -execute: to proceed
 // concurrently.

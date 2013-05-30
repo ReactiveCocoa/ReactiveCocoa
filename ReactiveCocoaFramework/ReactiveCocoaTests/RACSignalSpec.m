@@ -26,6 +26,8 @@
 #import "RACUnit.h"
 #import "RACCommand.h"
 #import "RACGroupedSignal.h"
+#import "RACSignalStartExamples.h"
+#import "RACMulticastConnection.h"
 
 // Set in a beforeAll below.
 static NSError *RACSignalTestError;
@@ -2560,94 +2562,120 @@ describe(@"-groupBy:", ^{
 	});
 });
 
-describe(@"+startLazilyWithScheduler:block:", ^{
-	__block NSUInteger invokedCount = 0;
-	__block RACSignal *signal;
-	__block void (^subscribe)(void);
+describe(@"starting signals", ^{
+	describe(@"+startLazilyWithScheduler:block:", ^{
+		itBehavesLike(RACSignalStartSharedExamplesName, ^{
+			NSArray *expectedValues = @[ @42, @43 ];
+			RACScheduler *scheduler = [RACScheduler scheduler];
+			RACSignal *signal = [RACSignal startLazilyWithScheduler:scheduler block:^(id<RACSubscriber> subscriber) {
+				for (id value in expectedValues) {
+					[subscriber sendNext:value];
+				}
+				[subscriber sendCompleted];
+			}];
+			return @{
+				RACSignalStartSignal: signal,
+				RACSignalStartExpectedValues: expectedValues,
+				RACSignalStartExpectedScheduler: scheduler,
+			};
+		});
 
-	beforeEach(^{
-		invokedCount = 0;
-		signal = [RACSignal startLazilyWithScheduler:[RACScheduler immediateScheduler] block:^(id<RACSubscriber> subscriber) {
-			invokedCount++;
-			[subscriber sendNext:@42];
-			[subscriber sendNext:@43];
-			[subscriber sendCompleted];
-		}];
-
-		subscribe = [^{
-			[signal subscribe:[RACSubscriber subscriberWithNext:nil error:nil completed:nil]];
-		} copy];
-	});
-
-	it(@"should send values from the returned signal", ^{
-		NSNumber *value = [signal first];
-		expect(value).to.equal(@42);
-	});
-
-	it(@"should replay all values", ^{
-		subscribe();
-		NSArray *value = [[signal collect] first];
-		NSArray *expected = @[ @42, @43 ];
-		expect(value).to.equal(expected);
-	});
-
-	it(@"should only invoke the block on subscription", ^{
-		expect(invokedCount).to.equal(0);
-		subscribe();
-		expect(invokedCount).to.equal(1);
-	});
-
-	it(@"should only invoke the block once", ^{
-		expect(invokedCount).to.equal(0);
-		subscribe();
-		expect(invokedCount).to.equal(1);
-		subscribe();
-		expect(invokedCount).to.equal(1);
-		subscribe();
-		expect(invokedCount).to.equal(1);
-	});
-
-	describe(@"scheduler behavior", ^{
-		__block RACScheduler *scheduler;
-		__block RACScheduler *schedulerInSubscribe;
-		__block RACScheduler * (^subscribe)(void);
+		__block NSUInteger invokedCount = 0;
+		__block void (^subscribe)(void);
 
 		beforeEach(^{
-			scheduler = [RACScheduler scheduler];
-			RACSignal *signal = [RACSignal startLazilyWithScheduler:scheduler block:^(id<RACSubscriber> subscriber) {
-				schedulerInSubscribe = RACScheduler.currentScheduler;
+			invokedCount = 0;
+
+			RACSignal *signal = [RACSignal startLazilyWithScheduler:RACScheduler.immediateScheduler block:^(id<RACSubscriber> subscriber) {
+				invokedCount++;
 				[subscriber sendNext:@42];
 				[subscriber sendCompleted];
 			}];
 
 			subscribe = [^{
-				__block RACScheduler *schedulerInDelivery;
-				[signal subscribeNext:^(id _) {
-					schedulerInDelivery = RACScheduler.currentScheduler;
-				}];
-
-				expect(schedulerInDelivery).willNot.beNil();
-				return schedulerInDelivery;
+				[signal subscribe:[RACSubscriber subscriberWithNext:nil error:nil completed:nil]];
 			} copy];
 		});
 
-		it(@"should call the block on the given scheduler", ^{
+		it(@"should only invoke the block on subscription", ^{
+			expect(invokedCount).to.equal(0);
 			subscribe();
-			expect(schedulerInSubscribe).will.equal(scheduler);
+			expect(invokedCount).to.equal(1);
 		});
 
-		it(@"should deliver the original results on the given scheduler", ^{
-			RACScheduler *currentScheduler = subscribe();
-			expect(currentScheduler).to.equal(scheduler);
+		it(@"should only invoke the block once", ^{
+			expect(invokedCount).to.equal(0);
+			subscribe();
+			expect(invokedCount).to.equal(1);
+			subscribe();
+			expect(invokedCount).to.equal(1);
+			subscribe();
+			expect(invokedCount).to.equal(1);
 		});
 
-		it(@"should deliver replayed results on the given scheduler", ^{
-			// Force a subscription so that we get replayed results on the
-			// tested subscription.
-			subscribe();
+		it(@"should invoke the block on the given scheduler", ^{
+			RACScheduler *scheduler = [RACScheduler scheduler];
+			__block RACScheduler *currentScheduler;
+			[[[RACSignal
+				startLazilyWithScheduler:scheduler block:^(id<RACSubscriber> subscriber) {
+					currentScheduler = RACScheduler.currentScheduler;
+				}]
+				publish]
+				connect];
 
-			RACScheduler *currentScheduler = subscribe();
-			expect(currentScheduler).to.equal(scheduler);
+			expect(currentScheduler).will.equal(scheduler);
+		});
+	});
+
+	describe(@"+startEagerlyWithScheduler:block:", ^{
+		itBehavesLike(RACSignalStartSharedExamplesName, ^{
+			NSArray *expectedValues = @[ @42, @43 ];
+			RACScheduler *scheduler = [RACScheduler scheduler];
+			RACSignal *signal = [RACSignal startEagerlyWithScheduler:scheduler block:^(id<RACSubscriber> subscriber) {
+				for (id value in expectedValues) {
+					[subscriber sendNext:value];
+				}
+				[subscriber sendCompleted];
+			}];
+			return @{
+				RACSignalStartSignal: signal,
+				RACSignalStartExpectedValues: expectedValues,
+				RACSignalStartExpectedScheduler: scheduler,
+			};
+		});
+
+		it(@"should immediately invoke the block", ^{
+			__block BOOL blockInvoked = NO;
+			[RACSignal startEagerlyWithScheduler:[RACScheduler scheduler] block:^(id<RACSubscriber> subscriber) {
+				blockInvoked = YES;
+			}];
+
+			expect(blockInvoked).will.beTruthy();
+		});
+
+		it(@"should only invoke the block once", ^{
+			__block NSUInteger invokedCount = 0;
+			RACSignal *signal = [RACSignal startEagerlyWithScheduler:RACScheduler.immediateScheduler block:^(id<RACSubscriber> subscriber) {
+				invokedCount++;
+			}];
+
+			expect(invokedCount).to.equal(1);
+
+			[[signal publish] connect];
+			expect(invokedCount).to.equal(1);
+
+			[[signal publish] connect];
+			expect(invokedCount).to.equal(1);
+		});
+
+		it(@"should invoke the block on the given scheduler", ^{
+			RACScheduler *scheduler = [RACScheduler scheduler];
+			__block RACScheduler *currentScheduler;
+			[RACSignal startEagerlyWithScheduler:scheduler block:^(id<RACSubscriber> subscriber) {
+				currentScheduler = RACScheduler.currentScheduler;
+			}];
+
+			expect(currentScheduler).will.equal(scheduler);
 		});
 	});
 });

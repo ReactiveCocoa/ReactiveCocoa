@@ -7,11 +7,16 @@
 //
 
 #import "NSControl+RACCommandSupport.h"
+#import "EXTScope.h"
+#import "NSObject+RACPropertySubscribing.h"
 #import "RACCommand.h"
-
+#import "RACScheduler.h"
+#import "RACScopedDisposable.h"
+#import "RACSignal+Operations.h"
 #import <objc/runtime.h>
 
-static void * NSControlRACCommandKey = &NSControlRACCommandKey;
+static void *NSControlRACCommandKey = &NSControlRACCommandKey;
+static void *NSControlCanExecuteDisposableKey = &NSControlCanExecuteDisposableKey;
 
 @implementation NSControl (RACCommandSupport)
 
@@ -21,15 +26,30 @@ static void * NSControlRACCommandKey = &NSControlRACCommandKey;
 
 - (void)setRac_command:(RACCommand *)command {
 	objc_setAssociatedObject(self, NSControlRACCommandKey, command, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-	
-	[self unbind:NSEnabledBinding];
-	self.enabled = command != nil ? command.canExecute : YES;
-	
-	if (command == nil) return;
-	
-	[self bind:NSEnabledBinding toObject:self.rac_command withKeyPath:@"canExecute" options:nil];
+
+	// Tear down any previous binding before setting up our new one, or else we
+	// might get assertion failures.
+	objc_setAssociatedObject(self, NSControlCanExecuteDisposableKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+
+	if (command == nil) {
+		self.enabled = YES;
+		return;
+	}
 	
 	[self rac_hijackActionAndTargetIfNeeded];
+
+	@weakify(self);
+
+	RACScopedDisposable *disposable = [[[[RACAble(command, canExecute)
+		deliverOn:RACScheduler.mainThreadScheduler]
+		startWith:@(command.canExecute)]
+		subscribeNext:^(NSNumber *canExecute) {
+			@strongify(self);
+			self.enabled = canExecute.boolValue;
+		}]
+		asScopedDisposable];
+
+	objc_setAssociatedObject(self, NSControlCanExecuteDisposableKey, disposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (void)rac_hijackActionAndTargetIfNeeded {

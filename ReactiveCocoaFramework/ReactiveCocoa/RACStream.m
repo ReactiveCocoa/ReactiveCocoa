@@ -127,6 +127,12 @@
 	}] setNameWithFormat:@"[%@] -filter:", self.name];
 }
 
+- (instancetype)ignore:(id)value {
+	return [[self filter:^ BOOL (id innerValue) {
+		return innerValue != value && ![innerValue isEqual:value];
+	}] setNameWithFormat:@"[%@] -ignore: %@", self.name, [value rac_description]];
+}
+
 - (instancetype)reduceEach:(id)reduceBlock {
 	NSCParameterAssert(reduceBlock != nil);
 

@@ -67,6 +67,24 @@
 // The block can send events using the subject.
 + (RACSignal *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block;
 
+// Invokes the given block only on the first subscription. The block is given a
+// subscriber to which it can send events.
+//
+// Note that disposing of the subscription to the returned signal will *not*
+// dispose of the underlying subscription. If you need that behavior, see
+// -[RACMulticastConnection autoconnect]. The underlying subscription will never
+// be disposed of. Because of this, `block` should never return an infinite
+// signal since there would be no way of ending it.
+//
+// scheduler - The scheduler on which the block should be scheduled. Note that 
+//             if given +[RACScheduler immediateScheduler], the block will be
+//             invoked synchronously on the first subscription. Cannot be nil.
+// block     - The block to invoke on the first subscription. Cannot be NULL.
+//
+// Returns a signal which will pass through the events sent to the subscriber
+// given to `block` and replay any missed events to new subscribers.
++ (RACSignal *)startLazilyWithScheduler:(RACScheduler *)scheduler block:(void (^)(id<RACSubscriber> subscriber))block;
+
 @end
 
 @interface RACSignal (RACStream)

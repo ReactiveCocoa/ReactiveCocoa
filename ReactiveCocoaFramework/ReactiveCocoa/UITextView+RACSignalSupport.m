@@ -8,22 +8,14 @@
 
 #import "UITextView+RACSignalSupport.h"
 #import "RACEventTrampoline.h"
-#import <objc/runtime.h>
 
 @implementation UITextView (RACSignalSupport)
 
 - (RACSignal *)rac_signalForDelegateMethod:(SEL)method {
     RACEventTrampoline *trampoline = [RACEventTrampoline trampolineForTextView:self delegateMethod:method];
 	[trampoline.subject setNameWithFormat:@"%@ -rac_signalForDelegateMethod: (%@)", self, NSStringFromSelector(method)];
-    
-	NSMutableSet *controlEventTrampolines = objc_getAssociatedObject(self, RACEventTrampolinesKey);
-	if (controlEventTrampolines == nil) {
-		controlEventTrampolines = [NSMutableSet set];
-		objc_setAssociatedObject(self, RACEventTrampolinesKey, controlEventTrampolines, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-	}
-	
-	[controlEventTrampolines addObject:trampoline];
-	
+	RACAddEventTrampoline(self, trampoline);
+
 	return trampoline.subject;
 }
 

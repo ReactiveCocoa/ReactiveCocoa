@@ -261,6 +261,25 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		verifyValues(stream, @[ @0, @2, @4, @6 ]);
 	});
 
+	describe(@"-ignore:", ^{
+		it(@"should ignore a value", ^{
+			RACStream *baseStream = streamWithValues(@[ @0, @1, @2, @3, @4, @5, @6 ]);
+			RACStream *stream = [baseStream ignore:@1];
+
+			verifyValues(stream, @[ @0, @2, @3, @4, @5, @6 ]);
+		});
+
+		it(@"should ignore based on object equality", ^{
+			RACStream *baseStream = streamWithValues(@[ @"0", @"1", @"2", @"3", @"4", @"5", @"6" ]);
+
+			NSMutableString *valueToIgnore = [[NSMutableString alloc] init];
+			[valueToIgnore appendString:@"1"];
+			RACStream *stream = [baseStream ignore:valueToIgnore];
+
+			verifyValues(stream, @[ @"0", @"2", @"3", @"4", @"5", @"6" ]);
+		});
+	});
+
 	it(@"should start with a value", ^{
 		RACStream *stream = [[streamClass return:@1] startWith:@0];
 		verifyValues(stream, @[ @0, @1 ]);
@@ -617,25 +636,6 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			}];
 
 			verifyValues(mapped, @[ @"1 - 1", @"1 - 2", @"2 - 3" ]);
-		});
-	});
-
-	describe(@"naming", ^{
-		__block RACStream *stream;
-		
-		beforeEach(^{
-			stream = streamWithValues(@[]);
-		});
-
-		it(@"should have a name property", ^{
-			stream.name = @"foo";
-			expect(stream.name).to.equal(@"foo");
-		});
-
-		it(@"should set a formatted name", ^{
-			RACStream *result = [stream setNameWithFormat:@"foo %i %@", 5, @"bar"];
-			expect(result).to.beIdenticalTo(stream);
-			expect(stream.name).to.equal(@"foo 5 bar");
 		});
 	});
 

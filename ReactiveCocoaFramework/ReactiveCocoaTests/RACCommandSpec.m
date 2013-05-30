@@ -74,30 +74,36 @@ it(@"should dealloc without subscribers", ^{
 	expect(disposed).will.beTruthy();
 });
 
-it(@"should complete when deallocated", ^{
-	__block BOOL completed = NO;
+it(@"should complete on the main thread when deallocated", ^{
+	__block RACScheduler *completionScheduler = nil;
 
-	@autoreleasepool {
-		RACCommand *command __attribute__((objc_precise_lifetime)) = [[RACCommand alloc] initWithCanExecuteSignal:nil];
-		[command subscribeCompleted:^{
-			completed = YES;
-		}];
-	}
+	[[RACScheduler scheduler] schedule:^{
+		@autoreleasepool {
+			RACCommand *command __attribute__((objc_precise_lifetime)) = [[RACCommand alloc] initWithCanExecuteSignal:nil];
+			[command subscribeCompleted:^{
+				completionScheduler = RACScheduler.currentScheduler;
+			}];
+		}
+	}];
 
-	expect(completed).will.beTruthy();
+	expect(completionScheduler).to.beNil();
+	expect(completionScheduler).will.equal(RACScheduler.mainThreadScheduler);
 });
 
-it(@"should complete errors when deallocated", ^{
-	__block BOOL completed = NO;
+it(@"should complete errors on the main thread when deallocated", ^{
+	__block RACScheduler *completionScheduler = nil;
 
-	@autoreleasepool {
-		RACCommand *command __attribute__((objc_precise_lifetime)) = [[RACCommand alloc] initWithCanExecuteSignal:nil];
-		[command.errors subscribeCompleted:^{
-			completed = YES;
-		}];
-	}
+	[[RACScheduler scheduler] schedule:^{
+		@autoreleasepool {
+			RACCommand *command __attribute__((objc_precise_lifetime)) = [[RACCommand alloc] initWithCanExecuteSignal:nil];
+			[command.errors subscribeCompleted:^{
+				completionScheduler = RACScheduler.currentScheduler;
+			}];
+		}
+	}];
 
-	expect(completed).will.beTruthy();
+	expect(completionScheduler).to.beNil();
+	expect(completionScheduler).will.equal(RACScheduler.mainThreadScheduler);
 });
 
 describe(@"with a signal block", ^{

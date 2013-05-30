@@ -44,16 +44,16 @@ sharedExamples(RACSignalStartSharedExamplesName, ^(NSDictionary *data) {
 	});
 
 	it(@"should send values from the returned signal", ^{
-		NSNumber *value = [[signal collect] first];
-		expect(value).to.equal(expectedValues);
+		NSArray *values = [signal toArray];
+		expect(values).to.equal(expectedValues);
 	});
 
 	it(@"should replay all values", ^{
 		// Force a subscription so that we get replayed results.
 		[[signal publish] connect];
 		
-		NSArray *value = [[signal collect] first];
-		expect(value).to.equal(expectedValues);
+		NSArray *values = [signal toArray];
+		expect(values).to.equal(expectedValues);
 	});
 
 	it(@"should deliver the original results on the given scheduler", ^{

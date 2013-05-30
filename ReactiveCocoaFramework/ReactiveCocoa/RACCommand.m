@@ -189,7 +189,34 @@
 #pragma clang diagnostic ignored "-Wdeprecated-implementations"
 
 - (RACSignal *)addSignalBlock:(RACSignal * (^)(id value))signalBlock {
-	return [self addActionBlock:signalBlock];
+	NSCParameterAssert(signalBlock != nil);
+
+	@weakify(self);
+
+	return [[[[self.values
+		doNext:^(id _) {
+			@strongify(self);
+			[self incrementItemsInFlight];
+		}]
+		map:^(id value) {
+			RACSignal *signal = signalBlock(value);
+			NSCAssert(signal != nil, @"signalBlock returned a nil signal");
+
+			return [[[signal
+				doError:^(NSError *error) {
+					[RACScheduler.mainThreadScheduler schedule:^{
+						@strongify(self);
+						if (self != nil) [self->_errors sendNext:error];
+					}];
+				}]
+				finally:^{
+					@strongify(self);
+					[self decrementItemsInFlight];
+				}]
+				replay];
+		}]
+		replayLast]
+		setNameWithFormat:@"[%@] -addSignalBlock:", self.name];
 }
 
 #pragma clang diagnostic pop

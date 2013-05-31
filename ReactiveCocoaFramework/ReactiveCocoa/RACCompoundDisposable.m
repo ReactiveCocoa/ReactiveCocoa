@@ -79,19 +79,15 @@
 
 	BOOL shouldDispose = NO;
 
-	{
-		OSSpinLockLock(&_spinLock);
-
-		// Ensures exception safety.
-		@onExit {
-			OSSpinLockUnlock(&_spinLock);
-		};
-
+	OSSpinLockLock(&_spinLock);
+	@try {
 		if (self.disposed) {
 			shouldDispose = YES;
 		} else {
 			CFArrayAppendValue(_disposables, (__bridge void *)disposable);
 		}
+	} @finally {
+		OSSpinLockUnlock(&_spinLock);
 	}
 
 	// Performed outside of the lock in case the compound disposable is used
@@ -103,20 +99,18 @@
 	if (disposable == nil) return;
 
 	OSSpinLockLock(&_spinLock);
+	@try {
+		if (self.disposed) return;
 
-	// Ensures exception safety.
-	@onExit {
-		OSSpinLockUnlock(&_spinLock);
-	};
-
-	if (self.disposed) return;
-
-	CFIndex count = CFArrayGetCount(_disposables);
-	for (CFIndex i = count - 1; i >= 0; i--) {
-		const void *item = CFArrayGetValueAtIndex(_disposables, i);
-		if (item == (__bridge void *)disposable) {
-			CFArrayRemoveValueAtIndex(_disposables, i);
+		CFIndex count = CFArrayGetCount(_disposables);
+		for (CFIndex i = count - 1; i >= 0; i--) {
+			const void *item = CFArrayGetValueAtIndex(_disposables, i);
+			if (item == (__bridge void *)disposable) {
+				CFArrayRemoveValueAtIndex(_disposables, i);
+			}
 		}
+	} @finally {
+		OSSpinLockUnlock(&_spinLock);
 	}
 }
 
@@ -130,18 +124,14 @@ static void disposeEach(const void *value, void *context) {
 - (void)dispose {
 	CFArrayRef allDisposables = NULL;
 
-	{
-		OSSpinLockLock(&_spinLock);
-
-		// Ensures exception safety.
-		@onExit {
-			OSSpinLockUnlock(&_spinLock);
-		};
-
+	OSSpinLockLock(&_spinLock);
+	@try {
 		self.disposed = YES;
 
 		allDisposables = _disposables;
 		_disposables = NULL;
+	} @finally {
+		OSSpinLockUnlock(&_spinLock);
 	}
 
 	if (allDisposables == NULL) return;

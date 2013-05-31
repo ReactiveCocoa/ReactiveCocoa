@@ -13,10 +13,17 @@
 @interface RACCompoundDisposable () {
 	// Used for synchronization.
 	OSSpinLock _spinLock;
+
+	// Contains the receiver's disposables.
+	//
+	// This array should only be manipulated while _spinLock is held. If
+	// `disposed` is YES, this may be NULL.
+	CFMutableArrayRef _disposables;
 }
 
-// These properties should only be accessed while _spinLock is held.
-@property (nonatomic, strong) NSMutableArray *disposables;
+// Whether the receiver has already been disposed.
+//
+// This property should only be accessed while _spinLock is held.
 @property (nonatomic, assign, getter = isDisposed) BOOL disposed;
 
 @end
@@ -37,18 +44,31 @@
 	self = [super init];
 	if (self == nil) return nil;
 
-	_disposables = [NSMutableArray array];
+	// Use a CFArray for speed, and compare values using only pointer equality.
+	CFArrayCallBacks callbacks = kCFTypeArrayCallBacks;
+	callbacks.equal = NULL;
+
+	_disposables = CFArrayCreateMutable(NULL, 0, &callbacks);
 
 	return self;
 }
 
-- (id)initWithDisposables:(NSArray *)disposables {
+- (id)initWithDisposables:(NSArray *)otherDisposables {
 	self = [self init];
 	if (self == nil) return nil;
 
-	if (disposables != nil) [self.disposables addObjectsFromArray:disposables];
+	if (otherDisposables != nil) {
+		CFArrayAppendArray(_disposables, (__bridge CFArrayRef)otherDisposables, CFRangeMake(0, (CFIndex)otherDisposables.count));
+	}
 
 	return self;
+}
+
+- (void)dealloc {
+	if (_disposables != NULL) {
+		CFRelease(_disposables);
+		_disposables = NULL;
+	}
 }
 
 #pragma mark Compound
@@ -70,7 +90,7 @@
 		if (self.disposed) {
 			shouldDispose = YES;
 		} else {
-			[self.disposables addObject:disposable];
+			CFArrayAppendValue(_disposables, (__bridge void *)disposable);
 		}
 	}
 
@@ -89,13 +109,26 @@
 		OSSpinLockUnlock(&_spinLock);
 	};
 
-	[self.disposables removeObjectIdenticalTo:disposable];
+	if (self.disposed) return;
+
+	CFIndex count = CFArrayGetCount(_disposables);
+	for (CFIndex i = count - 1; i >= 0; i--) {
+		const void *item = CFArrayGetValueAtIndex(_disposables, i);
+		if (item == (__bridge void *)disposable) {
+			CFArrayRemoveValueAtIndex(_disposables, i);
+		}
+	}
 }
 
 #pragma mark RACDisposable
 
+static void disposeEach(const void *value, void *context) {
+	RACDisposable *disposable = (__bridge id)value;
+	[disposable dispose];
+}
+
 - (void)dispose {
-	NSArray *disposables = nil;
+	CFArrayRef allDisposables = NULL;
 
 	{
 		OSSpinLockLock(&_spinLock);
@@ -107,13 +140,17 @@
 
 		self.disposed = YES;
 
-		disposables = self.disposables;
-		self.disposables = nil;
+		allDisposables = _disposables;
+		_disposables = NULL;
 	}
+
+	if (allDisposables == NULL) return;
 
 	// Performed outside of the lock in case the compound disposable is used
 	// recursively.
-	[disposables makeObjectsPerformSelector:@selector(dispose)];
+	CFIndex count = CFArrayGetCount(allDisposables);
+	CFArrayApplyFunction(allDisposables, CFRangeMake(0, count), &disposeEach, NULL);
+	CFRelease(allDisposables);
 }
 
 @end

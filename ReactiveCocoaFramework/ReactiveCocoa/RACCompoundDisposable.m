@@ -80,15 +80,14 @@
 	BOOL shouldDispose = NO;
 
 	OSSpinLockLock(&_spinLock);
-	@try {
+	{
 		if (self.disposed) {
 			shouldDispose = YES;
 		} else {
 			CFArrayAppendValue(_disposables, (__bridge void *)disposable);
 		}
-	} @finally {
-		OSSpinLockUnlock(&_spinLock);
 	}
+	OSSpinLockUnlock(&_spinLock);
 
 	// Performed outside of the lock in case the compound disposable is used
 	// recursively.
@@ -99,22 +98,21 @@
 	if (disposable == nil) return;
 
 	OSSpinLockLock(&_spinLock);
-	@try {
-		if (self.disposed) return;
+	{
+		if (!self.disposed) {
+			CFIndex count = CFArrayGetCount(_disposables);
 
-		CFIndex count = CFArrayGetCount(_disposables);
+			const void *items[count];
+			CFArrayGetValues(_disposables, CFRangeMake(0, count), items);
 
-		const void *items[count];
-		CFArrayGetValues(_disposables, CFRangeMake(0, count), items);
-
-		for (CFIndex i = count - 1; i >= 0; i--) {
-			if (items[i] == (__bridge void *)disposable) {
-				CFArrayRemoveValueAtIndex(_disposables, i);
+			for (CFIndex i = count - 1; i >= 0; i--) {
+				if (items[i] == (__bridge void *)disposable) {
+					CFArrayRemoveValueAtIndex(_disposables, i);
+				}
 			}
 		}
-	} @finally {
-		OSSpinLockUnlock(&_spinLock);
 	}
+	OSSpinLockUnlock(&_spinLock);
 }
 
 #pragma mark RACDisposable
@@ -123,14 +121,13 @@
 	CFArrayRef allDisposables = NULL;
 
 	OSSpinLockLock(&_spinLock);
-	@try {
+	{
 		self.disposed = YES;
 
 		allDisposables = _disposables;
 		_disposables = NULL;
-	} @finally {
-		OSSpinLockUnlock(&_spinLock);
 	}
+	OSSpinLockUnlock(&_spinLock);
 
 	if (allDisposables == NULL) return;
 

@@ -33,7 +33,6 @@ static NSMutableSet *RACActiveSignals = nil;
 static NSLock *RACActiveSignalsLock = nil;
 
 @interface RACSignal ()
-@property (assign, getter = isTearingDown) BOOL tearingDown;
 @end
 
 @implementation RACSignal
@@ -129,7 +128,6 @@ static NSLock *RACActiveSignalsLock = nil;
 	[RACActiveSignals addObject:self];
 	[RACActiveSignalsLock unlock];
 	
-	self.tearingDown = NO;
 	self.subscribers = [NSMutableArray array];
 	
 	// As soon as we're created we're already trying to be released. Such is life.
@@ -394,10 +392,6 @@ static NSLock *RACActiveSignalsLock = nil;
 	@weakify(self, subscriber);
 	RACDisposable *defaultDisposable = [RACDisposable disposableWithBlock:^{
 		@strongify(self, subscriber);
-
-		// If the disposal is happening because the signal's being torn down, we
-		// don't need to duplicate the invalidation.
-		if (self.tearingDown) return;
 
 		BOOL stillHasSubscribers = YES;
 		@synchronized (self.subscribers) {

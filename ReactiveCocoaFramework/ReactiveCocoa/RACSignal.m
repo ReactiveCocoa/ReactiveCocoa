@@ -42,6 +42,8 @@ static NSLock *RACActiveSignalsLock = nil;
 	OSSpinLock _subscribersLock;
 }
 
+@property (nonatomic, copy) RACDisposable * (^didSubscribe)(id<RACSubscriber> subscriber);
+
 @end
 
 @implementation RACSignal

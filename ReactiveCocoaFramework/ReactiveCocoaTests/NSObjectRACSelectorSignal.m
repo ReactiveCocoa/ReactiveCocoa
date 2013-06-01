@@ -10,6 +10,7 @@
 #import "RACSubclassObject.h"
 #import "NSObject+RACSelectorSignal.h"
 #import "RACSignal.h"
+#import "RACTuple.h"
 
 SpecBegin(NSObjectRACSelectorSignal)
 
@@ -17,8 +18,8 @@ describe(@"with an instance method", ^{
 	it(@"should send the argument for each invocation", ^{
 		RACSubclassObject *object = [[RACSubclassObject alloc] init];
 		__block id value;
-		[[object rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(id x) {
-			value = x;
+		[[object rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(RACTuple *x) {
+			value = x.first;
 		}];
 
 		[object lifeIsGood:@42];
@@ -26,52 +27,44 @@ describe(@"with an instance method", ^{
 		expect(value).to.equal(@42);
 	});
 
-	it(@"shouldn't swizzle an existing method", ^{
-		RACTestObject *object = [[RACTestObject alloc] init];
-#ifndef NS_BLOCK_ASSERTIONS
-		expect(^{
-			[object rac_signalForSelector:@selector(lifeIsGood:)];
-		}).to.raiseAny();
-#else
-		__block id value;
-		[[object rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(id x) {
-			value = x;
+	it(@"should send all arguments for each invocation", ^{
+		RACSubclassObject *object = [[RACSubclassObject alloc] init];
+		__block id value1;
+		__block id value2;
+		[[object rac_signalForSelector:@selector(combineObjectValue:andSecondObjectValue:)] subscribeNext:^(RACTuple *x) {
+			value1 = x.first;
+			value2 = x.second;
 		}];
 
-		[object lifeIsGood:@42];
+		[object combineObjectValue:@42 andSecondObjectValue:@"foo"];
 
-		expect(value).to.beNil();
-#endif
+		expect(value1).to.equal(@42);
+		expect(value2).to.equal(@"foo");
+	});
+
+	it(@"should create method where non-existant", ^{
+		RACSubclassObject *object = [[RACSubclassObject alloc] init];
+		__block id value;
+		[[object rac_signalForSelector:@selector(setDelegate:)] subscribeNext:^(RACTuple *x) {
+			value = x.first;
+		}];
+
+		[object performSelector:@selector(setDelegate:) withObject:@[ @YES ]];
+
+		expect(value).to.equal(@[ @YES ]);
 	});
 });
 
 describe(@"with a class method", ^{
 	it(@"should send the argument for each invocation", ^{
 		__block id value;
-		[[RACSubclassObject rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(id x) {
-			value = x;
+		[[RACSubclassObject rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(RACTuple *x) {
+			value = x.first;
 		}];
 
 		[RACSubclassObject lifeIsGood:@42];
 
 		expect(value).to.equal(@42);
-	});
-
-	it(@"shouldn't swizzle an existing method", ^{
-#ifndef NS_BLOCK_ASSERTIONS
-		expect(^{
-			[RACTestObject rac_signalForSelector:@selector(lifeIsGood:)];
-		}).to.raiseAny();
-#else
-		__block id value;
-		[[RACTestObject rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(id x) {
-			value = x;
-		}];
-
-		[RACTestObject lifeIsGood:@42];
-
-		expect(value).to.beNil();
-#endif
 	});
 });
 

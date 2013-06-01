@@ -10,15 +10,17 @@
 #import "RACSubject.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACDisposable.h"
+#import "NSInvocation+RACTypeParsing.h"
+#import "RACTuple.h"
 #import <objc/runtime.h>
+#import <objc/message.h>
 
 static const void *RACObjectSelectorSignals = &RACObjectSelectorSignals;
 
 @implementation NSObject (RACSelectorSignal)
 
 static RACSignal *NSObjectRACSignalForSelector(id self, SEL _cmd, SEL selector) {
-	NSCParameterAssert([NSStringFromSelector(selector) componentsSeparatedByString:@":"].count == 2);
-
+	// ???: Should self's class be synchronized?
 	@synchronized(self) {
 		NSMutableDictionary *selectorSignals = objc_getAssociatedObject(self, RACObjectSelectorSignals);
 		if (selectorSignals == nil) {
@@ -26,20 +28,48 @@ static RACSignal *NSObjectRACSignalForSelector(id self, SEL _cmd, SEL selector) 
 			objc_setAssociatedObject(self, RACObjectSelectorSignals, selectorSignals, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 		}
 
-		NSString *key = NSStringFromSelector(selector);
-		RACSubject *subject = selectorSignals[key];
+		NSString *selectorName = NSStringFromSelector(selector);
+		RACSubject *subject = selectorSignals[selectorName];
 		if (subject != nil) return subject;
 
-		subject = [RACSubject subject];
-		IMP imp = imp_implementationWithBlock(^(id self, id arg) {
-			[subject sendNext:arg];
+		subject = selectorSignals[selectorName] = [RACSubject subject];
+
+		Class class = object_getClass(self);
+		SEL reservedSelector = NSSelectorFromString([@"rac_" stringByAppendingString:selectorName]);
+		if ([class instancesRespondToSelector:reservedSelector]) {
+			NSCAssert(NO, @"%@ is already implemented on %@. %@ will not replace the existing implementation.", NSStringFromSelector(reservedSelector), self, NSStringFromSelector(_cmd));
+		}
+
+		Method method = class_getInstanceMethod(class, selector);
+		if (method != NULL) {
+			// Alias the existing method to reservedSelector.
+			class_addMethod(class, reservedSelector, method_getImplementation(method), method_getTypeEncoding(method));
+			// Redefine the selector to call -forwardInvocation:
+			method_setImplementation(method, _objc_msgForward);
+		} else {
+			// Define the selector to call -forwardInvocation:
+			class_addMethod(class, selector, _objc_msgForward, "v@:@");
+		}
+
+		IMP imp = imp_implementationWithBlock(^(id self, NSInvocation *invocation) {
+			NSMutableDictionary *selectorSignals = objc_getAssociatedObject(self, RACObjectSelectorSignals);
+			if (selectorSignals != nil) {
+				RACSubject *subject = selectorSignals[selectorName];
+				if (subject != nil) {
+					RACTuple *argumentsTuple = [RACTuple tupleWithObjectsFromArray:invocation.rac_allArguments];
+					[subject sendNext:argumentsTuple];
+				}
+			}
+
+			// ???: Consider methods that return non-void.
+			if ([invocation.target respondsToSelector:reservedSelector]) {
+				invocation.selector = reservedSelector;
+				[invocation invoke];
+			}
 		});
 
-		BOOL success = class_addMethod(object_getClass(self), selector, imp, "v@:@");
-		NSCAssert(success, @"%@ is already implemented on %@. %@ will not replace the existing implementation.", NSStringFromSelector(selector), self, NSStringFromSelector(_cmd));
-		if (!success) return nil;
-
-		selectorSignals[key] = subject;
+		// TODO: Handle case where -forwardInvocation: exists.
+		class_replaceMethod(class, @selector(forwardInvocation:), imp, "v@:@");
 
 		[self rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 			[subject sendCompleted];

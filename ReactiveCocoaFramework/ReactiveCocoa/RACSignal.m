@@ -32,7 +32,16 @@ static NSMutableSet *RACActiveSignals = nil;
 // Protects access to `RACActiveSignals`.
 static NSLock *RACActiveSignalsLock = nil;
 
-@interface RACSignal ()
+@interface RACSignal () {
+	// Contains all subscribers to the receiver.
+	//
+	// All access to this array must be synchronized using `_subscribersLock`.
+	NSMutableArray *_subscribers;
+
+	// Synchronizes access to `_subscribers`.
+	OSSpinLock _subscribersLock;
+}
+
 @end
 
 @implementation RACSignal
@@ -128,7 +137,7 @@ static NSLock *RACActiveSignalsLock = nil;
 	[RACActiveSignals addObject:self];
 	[RACActiveSignalsLock unlock];
 	
-	self.subscribers = [NSMutableArray array];
+	_subscribers = [[NSMutableArray alloc] init];
 	
 	// As soon as we're created we're already trying to be released. Such is life.
 	[self invalidateGlobalRefIfNoNewSubscribersShowUp];
@@ -145,27 +154,30 @@ static NSLock *RACActiveSignalsLock = nil;
 - (void)invalidateGlobalRefIfNoNewSubscribersShowUp {
 	// If no one subscribed in one pass of the main run loop, then we're free to
 	// go. It's up to the caller to keep us alive if they still want us.
-	[RACScheduler.mainThreadScheduler schedule:^{
-		BOOL hasSubscribers = YES;
-		@synchronized(self.subscribers) {
-			hasSubscribers = self.subscribers.count > 0;
-		}
-
-		if (!hasSubscribers) {
+	dispatch_async(dispatch_get_main_queue(), ^{
+		if (self.subscriberCount == 0) {
 			[self invalidateGlobalRef];
 		}
-	}];
+	});
 }
 
 #pragma mark Managing Subscribers
+
+- (NSUInteger)subscriberCount {
+	OSSpinLockLock(&_subscribersLock);
+	NSUInteger count = _subscribers.count;
+	OSSpinLockUnlock(&_subscribersLock);
+
+	return count;
+}
 
 - (void)performBlockOnEachSubscriber:(void (^)(id<RACSubscriber> subscriber))block {
 	NSCParameterAssert(block != NULL);
 
 	NSArray *currentSubscribers = nil;
-	@synchronized (self.subscribers) {
-		currentSubscribers = [self.subscribers copy];
-	}
+	OSSpinLockLock(&_subscribersLock);
+	currentSubscribers = [_subscribers copy];
+	OSSpinLockUnlock(&_subscribersLock);
 	
 	for (id<RACSubscriber> subscriber in currentSubscribers) {
 		block(subscriber);
@@ -385,19 +397,21 @@ static NSLock *RACActiveSignalsLock = nil;
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
 	NSCParameterAssert(subscriber != nil);
 	
-	@synchronized (self.subscribers) {
-		[self.subscribers addObject:subscriber];
-	}
+	OSSpinLockLock(&_subscribersLock);
+	[_subscribers addObject:subscriber];
+	OSSpinLockUnlock(&_subscribersLock);
 	
 	@weakify(self, subscriber);
 	RACDisposable *defaultDisposable = [RACDisposable disposableWithBlock:^{
 		@strongify(self, subscriber);
+		if (self == nil) return;
 
 		BOOL stillHasSubscribers = YES;
-		@synchronized (self.subscribers) {
-			[self.subscribers removeObject:subscriber];
-			stillHasSubscribers = self.subscribers.count > 0;
-		}
+
+		OSSpinLockLock(&_subscribersLock);
+		[_subscribers removeObjectIdenticalTo:subscriber];
+		stillHasSubscribers = _subscribers.count > 0;
+		OSSpinLockUnlock(&_subscribersLock);
 		
 		if (!stillHasSubscribers) {
 			[self invalidateGlobalRefIfNoNewSubscribersShowUp];

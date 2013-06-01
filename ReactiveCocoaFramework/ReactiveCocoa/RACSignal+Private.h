@@ -13,9 +13,7 @@
 @interface RACSignal ()
 
 @property (nonatomic, copy) RACDisposable * (^didSubscribe)(id<RACSubscriber> subscriber);
-
-// All access to this must be synchronized.
-@property (nonatomic, strong) NSMutableArray *subscribers;
+@property (atomic, assign, readonly) NSUInteger subscriberCount;
 
 - (void)performBlockOnEachSubscriber:(void (^)(id<RACSubscriber> subscriber))block;
 

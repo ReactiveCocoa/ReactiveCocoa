@@ -24,15 +24,13 @@
 #import "RACMulticastConnection.h"
 #import <libkern/OSAtomic.h>
 
-static NSMutableSet *activeSignals() {
-	static dispatch_once_t onceToken;
-	static NSMutableSet *activeSignal = nil;
-	dispatch_once(&onceToken, ^{
-		activeSignal = [[NSMutableSet alloc] init];
-	});
-	
-	return activeSignal;
-}
+// Retains signals while they wait for subscriptions.
+//
+// This set must only be used while synchronized on `RACActiveSignalsLock`.
+static NSMutableSet *RACActiveSignals = nil;
+
+// Protects access to `RACActiveSignals`.
+static NSLock *RACActiveSignalsLock = nil;
 
 @interface RACSignal ()
 @property (assign, getter = isTearingDown) BOOL tearingDown;
@@ -41,6 +39,15 @@ static NSMutableSet *activeSignals() {
 @implementation RACSignal
 
 #pragma mark Lifecycle
+
++ (void)initialize {
+	if (self != RACSignal.class) return;
+
+	RACActiveSignalsLock = [[NSLock alloc] init];
+	RACActiveSignalsLock.name = @"RACActiveSignalsLock";
+
+	RACActiveSignals = [[NSMutableSet alloc] init];
+}
 
 + (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
 	RACSignal *signal = [[RACSignal alloc] init];
@@ -118,9 +125,9 @@ static NSMutableSet *activeSignals() {
 	if (self == nil) return nil;
 	
 	// We want to keep the signal around until all its subscribers are done
-	@synchronized (activeSignals()) {
-		[activeSignals() addObject:self];
-	}
+	[RACActiveSignalsLock lock];
+	[RACActiveSignals addObject:self];
+	[RACActiveSignalsLock unlock];
 	
 	self.tearingDown = NO;
 	self.subscribers = [NSMutableArray array];
@@ -132,9 +139,9 @@ static NSMutableSet *activeSignals() {
 }
 
 - (void)invalidateGlobalRef {
-	@synchronized (activeSignals()) {
-		[activeSignals() removeObject:self];
-	}
+	[RACActiveSignalsLock lock];
+	[RACActiveSignals removeObject:self];
+	[RACActiveSignalsLock unlock];
 }
 
 - (void)invalidateGlobalRefIfNoNewSubscribersShowUp {

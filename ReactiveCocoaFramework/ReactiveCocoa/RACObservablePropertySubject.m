@@ -21,18 +21,10 @@
 #import "RACSwizzling.h"
 #import "RACTuple.h"
 
-// Name of exceptions thrown by RACKVOBinding when an object calls
-// -didChangeValueForKey: without a corresponding -willChangeValueForKey:.
-static NSString * const RACKVOBindingExceptionName = @"RACKVOBinding exception";
-
-// Name of the key associated with the instance that threw the exception in the
-// userInfo dictionary in exceptions thrown by RACKVOBinding, if applicable.
-static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExceptionBindingKey";
-
 @interface RACObservablePropertySubject ()
 
 // The object whose key path the RACObservablePropertySubject is wrapping.
-@property (atomic, unsafe_unretained) id target;
+@property (atomic, unsafe_unretained) NSObject *target;
 
 // The key path the RACObservablePropertySubject is wrapping.
 @property (nonatomic, readonly, copy) NSString *keyPath;
@@ -47,300 +39,50 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 
 @end
 
-// A binding to a KVO compliant key path on an object.
-//
-// This class is not meant to be instanced directly, but only subclassed. Call
-// `+bindingWithTarget:keyPath:` to get an instance of the appropriate subclass.
-@interface RACKVOBinding : RACBinding
+// A binding to a key path on an object.
+@interface RACObservablePropertyBinding : RACBinding
 
 // Create a new binding for `keyPath` on `target`.
 + (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath;
 
-// Designated initializer.
-//
-// This should only be called from subclass initializers.
-//
-// target        - The object whose key path the binding is wrapping.
-// key           - The first key of the key path the binding is wrapping.
-// exposedSignal - The signal exposed to callers. The binding will behave like
-//                 this signal towards it's subscribers. Must send the current
-//                 value of the wrapped key path on subscription, then forward
-//                 values sent to `exposedSignalSubject`.
-- (instancetype)initWithTarget:(id)target key:(NSString *)key exposedSignal:(RACSignal *)exposedSignal;
-
 // The object whose key path the binding is wrapping.
-@property (atomic, unsafe_unretained) id target;
+@property (atomic, unsafe_unretained) NSObject *target;
 
-// The first key of the key path the binding is wrapping.
-@property (nonatomic, readonly, copy) NSString *key;
+// The key path the binding is wrapping.
+@property (nonatomic, readonly, copy) NSString *keyPath;
 
 // The signal exposed to callers. The binding will behave like this signal
 // towards it's subscribers.
 @property (nonatomic, readonly, strong) RACSignal *exposedSignal;
 
-// The backing subject for the binding's outgoing changes. Any time the value of
-// the key path the binding is wrapping is changed, the new value must be sent
-// to this subject.
-@property (nonatomic, readonly, strong) RACSubject *exposedSignalSubject;
-
-// The backing subject for the binding's incoming changes. Any time a value is
-// sent to this subject, the key path the binding is wrapping must be set to
-// that value.
-@property (nonatomic, readonly, strong) RACSubject *exposedSubscriberSubject;
-
-// The identifier of the internal KVO observer.
-@property (nonatomic, readonly, strong) RACKVOTrampoline *observer;
-
-// Whether the binding has been disposed or not. Should only be accessed while
-// synchronized on self. Subclasses must not change it's value, they should call
-// the superclass implementation of `-dispose` instead.
-@property (nonatomic, getter = isDisposed) BOOL disposed;
-
-// This method is called when the `target`'s `key` will change. Subclasses must
-// override this method, and not call the superclass implementation in it.
-- (void)targetWillChangeValue;
-
-// This method is called when the `target`'s `key` did change. Subclasses must
-// override this method, and not call the superclass implementation in it.
-- (void)targetDidChangeValue;
-
-// Dispose the binding, removing it from the `target`. Also terminates all
-// subscriptions to and by the binding.
-- (void)dispose;
+// The subscriber exposed to callers. The binding will behave like this
+// subscriber towards the signals it's subscribed to.
+@property (nonatomic, readonly, strong) id<RACSubscriber> exposedSubscriber;
 
 @end
 
-// A binding to a KVO compliant property on an object.
-@interface RACKeyKVOBinding : RACKVOBinding
+@interface NSObject (RACObservablePropertyObserving)
 
-// Current depth of the willChangeValueForKey:/didChangeValueForKey: call stack.
-@property (nonatomic) NSUInteger stackDepth;
-
-// Whether the next change of the property that occurs while `stackDepth` is 0
-// should be ignored.
-@property (nonatomic) BOOL ignoreNextUpdate;
-
-@end
-
-// A binding to a KVO compliant key path on an object. The key path must have at
-// least two keys.
-@interface RACRemainderKVOBinding : RACKVOBinding
-
-// The key path the binding is wrapping minus the first key.
-@property (nonatomic, readonly, copy) NSString *remainder;
-
-// The binding to `remainder` on the object value of `key`.
-@property (nonatomic, strong) RACKVOBinding *remainderBinding;
-
-// The disposable added to the value of `key`.
-@property (nonatomic, weak) RACDisposable *remainderDeallocDisposable;
-
-// Called when the current value of `key` is deallocated.
-- (void)remainderDidDealloc;
-
-@end
-
-@implementation RACKVOBinding
-
-#pragma mark RACSignal
-
-- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	return [self.exposedSignal subscribe:subscriber];
-}
-
-#pragma mark <RACSubscriber>
-
-- (void)sendNext:(id)value {
-	[self.exposedSubscriberSubject sendNext:value];
-}
-
-- (void)sendError:(NSError *)error {
-	[self.exposedSubscriberSubject sendError:error];
-}
-
-- (void)sendCompleted {
-	[self.exposedSubscriberSubject sendCompleted];
-}
-
-- (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
-	[self.exposedSubscriberSubject didSubscribeWithDisposable:disposable];
-}
-
-#pragma mark API
-+ (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath {
-	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
-	if (keyPath.rac_keyPathComponents.count > 1) {
-		return [RACRemainderKVOBinding bindingWithTarget:target keyPath:keyPath];
-	} else {
-		return [RACKeyKVOBinding bindingWithTarget:target keyPath:keyPath];
-	}
-}
-
-- (instancetype)initWithTarget:(id)target key:(NSString *)key exposedSignal:(RACSignal *)exposedSignal {
-	NSCParameterAssert(exposedSignal != nil);
-	self = [super init];
-	if (self == nil || target == nil || key == nil) return nil;
-	
-	_target = target;
-	_key = [key copy];
-	_exposedSignal = [exposedSignal setNameWithFormat:@"[+propertyWithTarget: %@ keyPath: %@] -binding", [target rac_description], key];
-	_exposedSignalSubject = [RACSubject subject];
-	_exposedSubscriberSubject = [RACSubject subject];
-	@weakify(self);
-	_observer = [_target rac_addObserver:self forKeyPath:key options:NSKeyValueObservingOptionPrior block:^(id _, id __, NSDictionary *change) {
-		@strongify(self);
-		if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
-			[self targetWillChangeValue];
-		} else {
-			[self targetDidChangeValue];
-		}
-	}];
-	[_target rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
-		[self dispose];
-	}]];
-	
-	return self;
-}
-
-- (void)targetWillChangeValue {
-	NSCAssert(NO, @"%s must be overridden by subclasses", __func__);
-}
-
-- (void)targetDidChangeValue {
-	NSCAssert(NO, @"%s must be overridden by subclasses", __func__);
-}
-
-- (void)dispose {
-	@synchronized(self) {
-		if (self.disposed) return;
-		self.disposed = YES;
-		[self.exposedSignalSubject sendCompleted];
-		[self.exposedSubscriberSubject sendCompleted];
-		[self.observer stopObserving];
-	}
-}
-
-@end
-
-@implementation RACKeyKVOBinding
-
-+ (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath {
-	NSCParameterAssert(keyPath.rac_keyPathComponents.count == 1);
-	RACSignal *signal = [[RACSignal alloc] init];
-	RACKeyKVOBinding *binding = [[self alloc] initWithTarget:target key:keyPath exposedSignal:signal];
-	if (binding == nil) return nil;
-	
-	@weakify(binding);
-	signal.didSubscribe = ^(id<RACSubscriber> subscriber) {
-		@strongify(binding);
-		[subscriber sendNext:[binding.target valueForKey:binding.key]];
-		return [binding.exposedSignalSubject subscribe:subscriber];
-	};
-	[binding.exposedSubscriberSubject subscribeNext:^(id x) {
-		@strongify(binding);
-		binding.ignoreNextUpdate = YES;
-		[binding.target setValue:x forKey:binding.key];
-	}];
-	
-	return binding;
-}
-
-- (void)targetWillChangeValue {
-	++self.stackDepth;
-}
-
-- (void)targetDidChangeValue {
-	--self.stackDepth;
-	if (self.stackDepth == NSUIntegerMax) @throw [NSException exceptionWithName:RACKVOBindingExceptionName reason:@"Receiver called -didChangeValueForKey: without corresponding -willChangeValueForKey:" userInfo:@{ RACKVOBindingExceptionBindingKey : self }];
-	if (self.stackDepth != 0) return;
-	if (self.ignoreNextUpdate) {
-		self.ignoreNextUpdate = NO;
-		return;
-	}
-	id value = [self.target valueForKey:self.key];
-	[self.exposedSignalSubject sendNext:value];
-}
-
-@end
-
-@implementation RACRemainderKVOBinding
-
-+ (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath {
-	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 1);
-	NSString *key = keyPath.rac_keyPathComponents[0];
-	NSString *remainder = keyPath.rac_keyPathByDeletingFirstKeyPathComponent;
-	RACSignal *signal = [[RACSignal alloc] init];
-	RACRemainderKVOBinding *binding = [[self alloc] initWithTarget:target key:key exposedSignal:signal];
-	if (binding == nil) return nil;
-	
-	@weakify(binding);
-	binding->_remainder = remainder;
-	id remainderTarget = [target valueForKey:key];
-	binding.remainderBinding = [RACKVOBinding bindingWithTarget:remainderTarget keyPath:remainder];
-	binding.remainderDeallocDisposable = [RACDisposable disposableWithBlock:^{
-		@strongify(binding);
-		[binding remainderDidDealloc];
-	}];
-	[remainderTarget rac_addDeallocDisposable:binding.remainderDeallocDisposable];
-	signal.didSubscribe = ^(id<RACSubscriber> subscriber) {
-		@strongify(binding);
-		[subscriber sendNext:[[binding.target valueForKey:key] valueForKeyPath:binding.remainder]];
-		return [binding.exposedSignalSubject subscribe:subscriber];
-	};
-	[binding.exposedSubscriberSubject subscribeNext:^(id x) {
-		@strongify(binding);
-		[binding.remainderBinding.exposedSubscriberSubject sendNext:x];
-	}];
-	
-	return binding;
-}
-
-- (void)targetWillChangeValue {
-	[[[self.target valueForKey:self.key] rac_deallocDisposable] removeDisposable:self.remainderDeallocDisposable];
-	self.remainderBinding = nil;
-	[self.remainderBinding dispose];
-}
-
-- (void)targetDidChangeValue {
-	id remainderTarget = [self.target valueForKey:self.key];
-	if (remainderTarget == nil) {
-		self.remainderBinding = nil;
-		[self.exposedSignalSubject sendNext:nil];
-	}
-
-	@weakify(self);
-	self.remainderBinding = [RACKVOBinding bindingWithTarget:remainderTarget keyPath:self.remainder];
-	self.remainderDeallocDisposable = [RACDisposable disposableWithBlock:^{
-		@strongify(self);
-		[self remainderDidDealloc];
-	}];
-	[remainderTarget rac_addDeallocDisposable:self.remainderDeallocDisposable];
-}
-
-- (void)dispose {
-	self.target = nil;
-
-	@synchronized(self) {
-		if (self.disposed) return;
-		[super dispose];
-		[self.remainderBinding dispose];
-	}
-}
-
-- (void)setRemainderBinding:(RACKVOBinding *)remainderBinding {
-	if (remainderBinding == _remainderBinding) return;
-	[_remainderBinding dispose];
-	_remainderBinding = remainderBinding;
-	@weakify(self);
-	[_remainderBinding subscribeNext:^(id x) {
-		@strongify(self);
-		[self.exposedSignalSubject sendNext:x];
-	}];
-}
-
-- (void)remainderDidDealloc {
-	[self.exposedSignalSubject sendNext:nil];
-}
+// Adds the given blocks as the callbacks for when the key path changes and
+// calls them immediately. Unlike direct KVO observation this handles
+// deallocation of intermediate objects.
+//
+// The blocks are passed whether the change was triggered by last key path
+// component or by the deallocation or change of an intermediate key path
+// component, and the new value of the key path if applicable. The observer does
+// not need to be explicitly removed. It will be removed when the observer or
+// the receiver deallocate.
+//
+// observer  - the object that requested the observation.
+//
+// keyPath   - the key path to observe.
+//
+// willBlock - the block called before the value at the key path changes.
+//
+// didBlock  - the block called after the value at the key path changes.
+//
+// Returns a disposable that can be used to stop the observation.
+- (RACDisposable *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath willBlock:(void(^)(BOOL triggeredByLastKeyPathComponent))willBlock didBlock:(void(^)(BOOL triggeredByLastKeyPathComponent, id value))didBlock;
 
 @end
 
@@ -372,21 +114,22 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 
 #pragma mark API
 
-+ (instancetype)propertyWithTarget:(id)target keyPath:(NSString *)keyPath {
++ (instancetype)propertyWithTarget:(NSObject *)target keyPath:(NSString *)keyPath {
+	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
 	RACObservablePropertySubject *property = [[self alloc] init];
-	if (property == nil) return nil;
+	if (property == nil || target == nil) return nil;
 	
 	property->_target = target;
 	property->_keyPath = [keyPath copy];
 	
 	@weakify(property);
-
+	
 	property->_exposedSignal = [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		@strongify(property);
 		[subscriber sendNext:[property.target valueForKeyPath:keyPath]];
 		return [[property.target rac_signalForKeyPath:property.keyPath observer:property] subscribe:subscriber];
 	}] setNameWithFormat:@"+propertyWithTarget: %@ keyPath: %@", [target rac_description], keyPath];
-
+	
 	property->_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
 		@strongify(property);
 		[property.target setValue:x forKeyPath:property.keyPath];
@@ -395,9 +138,9 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 		NSCAssert(NO, @"Received error in RACObservablePropertySubject for key path \"%@\" on %@: %@", property.keyPath, property.target, error);
 		
 		// Log the error if we're running with assertions disabled.
-		NSLog(@"Received error in binding for key path \"%@\" on %@: %@", property.keyPath, property.target, error);
+		NSLog(@"Received error in RACObservablePropertySubject for key path \"%@\" on %@: %@", property.keyPath, property.target, error);
 	} completed:nil];
-
+	
 	[target rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 		@strongify(property);
 		property.target = nil;
@@ -407,7 +150,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 }
 
 - (RACBinding *)binding {
-	return [RACKVOBinding bindingWithTarget:self.target keyPath:self.keyPath];
+	return [RACObservablePropertyBinding bindingWithTarget:self.target keyPath:self.keyPath];
 }
 
 @end
@@ -420,6 +163,153 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 
 - (void)setObject:(id)obj forKeyedSubscript:(id)key {
 	[[self valueForKey:key] bindTo:obj];
+}
+
+@end
+
+@implementation RACObservablePropertyBinding
+
+#pragma mark RACSignal
+
+- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
+	return [self.exposedSignal subscribe:subscriber];
+}
+
+#pragma mark <RACSubscriber>
+
+- (void)sendNext:(id)value {
+	[self.exposedSubscriber sendNext:value];
+}
+
+- (void)sendError:(NSError *)error {
+	[self.exposedSubscriber sendError:error];
+}
+
+- (void)sendCompleted {
+	[self.exposedSubscriber sendCompleted];
+}
+
+- (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
+	[self.exposedSubscriber didSubscribeWithDisposable:disposable];
+}
+
+#pragma mark API
+
++ (instancetype)bindingWithTarget:(NSObject *)target keyPath:(NSString *)keyPath {
+	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
+	RACObservablePropertyBinding *binding = [[self alloc] init];
+	if (binding == nil || target == nil) return nil;
+	
+	binding->_target = target;
+	binding->_keyPath = [keyPath copy];
+	
+	@weakify(binding);
+	__block BOOL ignoreNextUpdate = NO;
+	__block NSUInteger stackDepth = 0;
+	RACSubject *updatesSubject = [RACSubject subject];
+	
+	[target rac_addObserver:binding forKeyPath:keyPath willBlock:^(BOOL triggeredByLastKeyPathComponent){
+		if (!triggeredByLastKeyPathComponent) return;
+		++stackDepth;
+	} didBlock:^(BOOL triggeredByLastKeyPathComponent, id value){
+		if (!triggeredByLastKeyPathComponent) {
+			[updatesSubject sendNext:value];
+			return;
+		}
+		if (stackDepth > 0) --stackDepth;
+		if (stackDepth == 0 && ignoreNextUpdate) {
+			ignoreNextUpdate = NO;
+			return;
+		}
+		[updatesSubject sendNext:value];
+	}];
+	
+	binding->_exposedSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		@strongify(binding);
+		[subscriber sendNext:[binding.target valueForKeyPath:binding.keyPath]];
+		return [updatesSubject subscribe:subscriber];
+	}];
+	
+	NSString *keyPathByDeletingLastKeyPathComponent = keyPath.rac_keyPathByDeletingLastKeyPathComponent;
+	NSString *lastKeyPathComponent = keyPath.rac_keyPathComponents.lastObject;
+	
+	binding->_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
+		@strongify(binding);
+		NSObject *object = (keyPath.rac_keyPathComponents.count > 1 ? [binding.target valueForKeyPath:keyPathByDeletingLastKeyPathComponent] : binding.target);
+		if (object == nil) return;
+		ignoreNextUpdate = YES;
+		[object setValue:x forKey:lastKeyPathComponent];
+	} error:^(NSError *error) {
+		@strongify(binding);
+		NSCAssert(NO, @"Received error in -[RACObservablePropertySubject binding] for key path \"%@\" on %@: %@", binding.keyPath, binding.target, error);
+		
+		// Log the error if we're running with assertions disabled.
+		NSLog(@"Received error in -[RACObservablePropertySubject binding] for key path \"%@\" on %@: %@", binding.keyPath, binding.target, error);
+	} completed:nil];
+	
+	[target rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+		@strongify(binding);
+		binding.target = nil;
+	}]];
+	
+	return binding;
+}
+
+@end
+
+@implementation NSObject (RACObservablePropertyObserving)
+
+- (RACDisposable *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath willBlock:(void (^)(BOOL))willBlock didBlock:(void (^)(BOOL, id))didBlock {
+	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
+	NSUInteger keyPathComponentsCount = keyPath.rac_keyPathComponents.count;
+	NSString *firstKeyPathComponent = keyPath.rac_keyPathComponents[0];
+	NSString *keyPathByDeletingFirstKeyPathComponent = keyPath.rac_keyPathByDeletingFirstKeyPathComponent;
+	
+	__unsafe_unretained NSObject *unsafeObserver = observer;
+	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+	__block RACCompoundDisposable *childDisposable = nil;
+	
+	RACKVOTrampoline *trampoline = [self rac_addObserver:observer forKeyPath:firstKeyPathComponent options:NSKeyValueObservingOptionPrior | NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew block:^(id target, id observer, NSDictionary *change) {
+		
+		if (keyPathComponentsCount > 1) {
+			
+			NSObject *value = [target valueForKey:firstKeyPathComponent];
+			if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
+				[childDisposable dispose];
+				[disposable removeDisposable:childDisposable];
+				if (value == nil) willBlock(NO);
+			} else {
+				if (value != nil) {
+					childDisposable = [RACCompoundDisposable compoundDisposable];
+					[childDisposable addDisposable:[value rac_addObserver:unsafeObserver forKeyPath:keyPathByDeletingFirstKeyPathComponent willBlock:willBlock didBlock:didBlock]];
+					
+					RACCompoundDisposable *valueDisposable = value.rac_deallocDisposable;
+					RACDisposable *deallocDisposable = [RACDisposable disposableWithBlock:^{
+						didBlock(NO, nil);
+					}];
+					[valueDisposable addDisposable:deallocDisposable];
+					[childDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+						[valueDisposable removeDisposable:deallocDisposable];
+					}]];
+					
+					[disposable addDisposable:childDisposable];
+				} else {
+					didBlock(NO, nil);
+				}
+			}
+		} else {
+			if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
+				willBlock(YES);
+			} else {
+				didBlock(YES, [target valueForKey:firstKeyPathComponent]);
+			}
+		}
+	}];
+	
+	[disposable addDisposable:[RACDisposable disposableWithBlock:^{
+		[trampoline stopObserving];
+	}]];
+	return disposable;
 }
 
 @end

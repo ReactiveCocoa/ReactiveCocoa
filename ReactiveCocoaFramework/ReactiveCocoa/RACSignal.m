@@ -420,7 +420,9 @@ static NSLock *RACActiveSignalsLock = nil;
 		}
 	}];
 
-	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposableWithDisposables:@[ defaultDisposable ]];
+	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+	[disposable addDisposable:defaultDisposable];
+
 	if (self.didSubscribe != NULL) {
 		RACDisposable *schedulingDisposable = [RACScheduler.subscriptionScheduler schedule:^{
 			RACDisposable *innerDisposable = self.didSubscribe(subscriber);

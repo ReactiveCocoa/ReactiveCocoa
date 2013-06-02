@@ -36,8 +36,8 @@ static RACSignal *NSObjectRACSignalForSelector(id self, SEL _cmd, SEL selector) 
 
 		Class class = object_getClass(self);
 		SEL reservedSelector = NSSelectorFromString([@"rac_" stringByAppendingString:selectorName]);
-		if ([class instancesRespondToSelector:reservedSelector]) {
-			NSCAssert(NO, @"%@ is already implemented on %@. %@ will not replace the existing implementation.", NSStringFromSelector(reservedSelector), self, NSStringFromSelector(_cmd));
+		if ([class instancesRespondToSelector:reservedSelector] && class_getMethodImplementation(class, selector) == _objc_msgForward) {
+			return subject;
 		}
 
 		Method method = class_getInstanceMethod(class, selector);

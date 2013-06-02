@@ -27,6 +27,26 @@ describe(@"with an instance method", ^{
 		expect(value).to.equal(@42);
 	});
 
+	it(@"should send the argument for each invocation to the associated signal", ^{
+		RACSubclassObject *object1 = [[RACSubclassObject alloc] init];
+		__block id value1;
+		[[object1 rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(RACTuple *x) {
+			value1 = x.first;
+		}];
+
+		RACSubclassObject *object2 = [[RACSubclassObject alloc] init];
+		__block id value2;
+		[[object2 rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(RACTuple *x) {
+			value2 = x.first;
+		}];
+
+		[object1 lifeIsGood:@42];
+		[object2 lifeIsGood:@"Carpe diem"];
+
+		expect(value1).to.equal(@42);
+		expect(value2).to.equal(@"Carpe diem");
+	});
+
 	it(@"should send all arguments for each invocation", ^{
 		RACSubclassObject *object = [[RACSubclassObject alloc] init];
 		__block id value1;

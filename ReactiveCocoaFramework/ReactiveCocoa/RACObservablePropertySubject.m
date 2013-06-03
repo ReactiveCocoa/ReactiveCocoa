@@ -73,13 +73,13 @@
 // not need to be explicitly removed. It will be removed when the observer or
 // the receiver deallocate.
 //
-// observer  - The object that requested the observation.
-// keyPath   - The key path to observe.
-// willBlock - The block called before the value at the key path changes.
-// didBlock  - The block called after the value at the key path changes.
+// observer        - The object that requested the observation.
+// keyPath         - The key path to observe.
+// willChangeBlock - The block called before the value at the key path changes.
+// didChangeBlock  - The block called after the value at the key path changes.
 //
 // Returns a disposable that can be used to stop the observation.
-- (RACDisposable *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath willBlock:(void(^)(BOOL triggeredByLastKeyPathComponent))willBlock didBlock:(void(^)(BOOL triggeredByLastKeyPathComponent, id value))didBlock;
+- (RACDisposable *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath willChangeBlock:(void(^)(BOOL triggeredByLastKeyPathComponent))willChangeBlock didChangeBlock:(void(^)(BOOL triggeredByLastKeyPathComponent, id value))didChangeBlock;
 
 @end
 
@@ -205,10 +205,10 @@
 	__block NSUInteger stackDepth = 0;
 	RACSubject *updatesSubject = [RACSubject subject];
 	
-	[target rac_addObserver:binding forKeyPath:keyPath willBlock:^(BOOL triggeredByLastKeyPathComponent){
+	[target rac_addObserver:binding forKeyPath:keyPath willChangeBlock:^(BOOL triggeredByLastKeyPathComponent){
 		if (!triggeredByLastKeyPathComponent) return;
 		++stackDepth;
-	} didBlock:^(BOOL triggeredByLastKeyPathComponent, id value){
+	} didChangeBlock:^(BOOL triggeredByLastKeyPathComponent, id value){
 		if (!triggeredByLastKeyPathComponent) {
 			[updatesSubject sendNext:value];
 			return;
@@ -256,7 +256,7 @@
 
 @implementation NSObject (RACObservablePropertyObserving)
 
-- (RACDisposable *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath willBlock:(void (^)(BOOL))willBlock didBlock:(void (^)(BOOL, id))didBlock {
+- (RACDisposable *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath willChangeBlock:(void (^)(BOOL))willChangeBlock didChangeBlock:(void (^)(BOOL, id))didChangeBlock {
 	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
 	NSUInteger keyPathComponentsCount = keyPath.rac_keyPathComponents.count;
 	NSString *firstKeyPathComponent = keyPath.rac_keyPathComponents[0];
@@ -274,15 +274,15 @@
 			if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
 				[childDisposable dispose];
 				[disposable removeDisposable:childDisposable];
-				if (value == nil) willBlock(NO);
+				if (value == nil) willChangeBlock(NO);
 			} else {
 				if (value != nil) {
 					childDisposable = [RACCompoundDisposable compoundDisposable];
-					[childDisposable addDisposable:[value rac_addObserver:unsafeObserver forKeyPath:keyPathByDeletingFirstKeyPathComponent willBlock:willBlock didBlock:didBlock]];
+					[childDisposable addDisposable:[value rac_addObserver:unsafeObserver forKeyPath:keyPathByDeletingFirstKeyPathComponent willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock]];
 					
 					RACCompoundDisposable *valueDisposable = value.rac_deallocDisposable;
 					RACDisposable *deallocDisposable = [RACDisposable disposableWithBlock:^{
-						didBlock(NO, nil);
+						didChangeBlock(NO, nil);
 					}];
 					[valueDisposable addDisposable:deallocDisposable];
 					[childDisposable addDisposable:[RACDisposable disposableWithBlock:^{
@@ -291,14 +291,14 @@
 					
 					[disposable addDisposable:childDisposable];
 				} else {
-					didBlock(NO, nil);
+					didChangeBlock(NO, nil);
 				}
 			}
 		} else {
 			if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
-				willBlock(YES);
+				willChangeBlock(YES);
 			} else {
-				didBlock(YES, [target valueForKey:firstKeyPathComponent]);
+				didChangeBlock(YES, [target valueForKey:firstKeyPathComponent]);
 			}
 		}
 	}];

@@ -260,8 +260,9 @@
 
 - (RACDisposable *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath willChangeBlock:(void (^)(BOOL))willChangeBlock didChangeBlock:(void (^)(BOOL, id))didChangeBlock {
 	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
-	NSUInteger keyPathComponentsCount = keyPath.rac_keyPathComponents.count;
-	NSString *firstKeyPathComponent = keyPath.rac_keyPathComponents[0];
+	NSArray *keyPathComponents = keyPath.rac_keyPathComponents;
+	NSUInteger keyPathComponentsCount = keyPathComponents.count;
+	NSString *firstKeyPathComponent = keyPathComponents[0];
 	NSString *keyPathByDeletingFirstKeyPathComponent = keyPath.rac_keyPathByDeletingFirstKeyPathComponent;
 	
 	__unsafe_unretained NSObject *unsafeObserver = observer;

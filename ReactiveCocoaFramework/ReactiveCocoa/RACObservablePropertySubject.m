@@ -73,13 +73,10 @@
 // not need to be explicitly removed. It will be removed when the observer or
 // the receiver deallocate.
 //
-// observer  - the object that requested the observation.
-//
-// keyPath   - the key path to observe.
-//
-// willBlock - the block called before the value at the key path changes.
-//
-// didBlock  - the block called after the value at the key path changes.
+// observer  - The object that requested the observation.
+// keyPath   - The key path to observe.
+// willBlock - The block called before the value at the key path changes.
+// didBlock  - The block called after the value at the key path changes.
 //
 // Returns a disposable that can be used to stop the observation.
 - (RACDisposable *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath willBlock:(void(^)(BOOL triggeredByLastKeyPathComponent))willBlock didBlock:(void(^)(BOOL triggeredByLastKeyPathComponent, id value))didBlock;

@@ -10,9 +10,6 @@
 
 @interface NSObject (RACKVOWrapperPrivate)
 
-// Should only be manipulated while synchronized on the receiver.
-@property (nonatomic, strong) NSMutableArray *RACKVOTrampolines;
-
 // Remove the trampoline from the receiver.
 //
 // trampoline - The trampoline to add. Cannot be nil.

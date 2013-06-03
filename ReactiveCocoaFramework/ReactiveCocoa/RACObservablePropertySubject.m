@@ -205,10 +205,10 @@
 	__block NSUInteger stackDepth = 0;
 	RACSubject *updatesSubject = [RACSubject subject];
 	
-	[target rac_addObserver:binding forKeyPath:keyPath willChangeBlock:^(BOOL triggeredByLastKeyPathComponent){
+	[target rac_addObserver:binding forKeyPath:keyPath willChangeBlock:^(BOOL triggeredByLastKeyPathComponent) {
 		if (!triggeredByLastKeyPathComponent) return;
 		++stackDepth;
-	} didChangeBlock:^(BOOL triggeredByLastKeyPathComponent, id value){
+	} didChangeBlock:^(BOOL triggeredByLastKeyPathComponent, id value) {
 		if (!triggeredByLastKeyPathComponent) {
 			[updatesSubject sendNext:value];
 			return;
@@ -228,11 +228,13 @@
 	}];
 	
 	NSString *keyPathByDeletingLastKeyPathComponent = keyPath.rac_keyPathByDeletingLastKeyPathComponent;
-	NSString *lastKeyPathComponent = keyPath.rac_keyPathComponents.lastObject;
+	NSArray *keyPathComponents = keyPath.rac_keyPathComponents;
+	NSUInteger keyPathComponentsCount = keyPathComponents.count;
+	NSString *lastKeyPathComponent = keyPathComponents.lastObject;
 	
 	binding->_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
 		@strongify(binding);
-		NSObject *object = (keyPath.rac_keyPathComponents.count > 1 ? [binding.target valueForKeyPath:keyPathByDeletingLastKeyPathComponent] : binding.target);
+		NSObject *object = (keyPathComponentsCount > 1 ? [binding.target valueForKeyPath:keyPathByDeletingLastKeyPathComponent] : binding.target);
 		if (object == nil) return;
 		ignoreNextUpdate = YES;
 		[object setValue:x forKey:lastKeyPathComponent];
@@ -266,7 +268,7 @@
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 	__block RACCompoundDisposable *childDisposable = nil;
 	
-	RACKVOTrampoline *trampoline = [self rac_addObserver:observer forKeyPath:firstKeyPathComponent options:NSKeyValueObservingOptionPrior | NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew block:^(id target, id observer, NSDictionary *change) {
+	RACKVOTrampoline *trampoline = [self rac_addObserver:observer forKeyPath:firstKeyPathComponent options:NSKeyValueObservingOptionPrior | NSKeyValueObservingOptionInitial block:^(id target, id observer, NSDictionary *change) {
 		
 		if (keyPathComponentsCount > 1) {
 			

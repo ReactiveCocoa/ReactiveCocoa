@@ -35,7 +35,7 @@ static RACSignal *NSObjectRACSignalForSelector(id self, SEL _cmd, SEL selector) 
 		subject = selectorSignals[selectorName] = [RACSubject subject];
 
 		Class class = object_getClass(self);
-		SEL reservedSelector = NSSelectorFromString([@"rac_" stringByAppendingString:selectorName]);
+		SEL reservedSelector = NSSelectorFromString([@"rac_forward_" stringByAppendingString:selectorName]);
 		if ([class instancesRespondToSelector:reservedSelector] && class_getMethodImplementation(class, selector) == _objc_msgForward) {
 			return subject;
 		}

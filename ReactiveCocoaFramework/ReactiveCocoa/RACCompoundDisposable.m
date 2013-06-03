@@ -101,12 +101,9 @@
 	{
 		if (!self.disposed) {
 			CFIndex count = CFArrayGetCount(_disposables);
-
-			const void *items[count];
-			CFArrayGetValues(_disposables, CFRangeMake(0, count), items);
-
 			for (CFIndex i = count - 1; i >= 0; i--) {
-				if (items[i] == (__bridge void *)disposable) {
+				const void *item = CFArrayGetValueAtIndex(_disposables, i);
+				if (item == (__bridge void *)disposable) {
 					CFArrayRemoveValueAtIndex(_disposables, i);
 				}
 			}
@@ -116,6 +113,11 @@
 }
 
 #pragma mark RACDisposable
+
+static void disposeEach(const void *value, void *context) {
+	RACDisposable *disposable = (__bridge id)value;
+	[disposable dispose];
+}
 
 - (void)dispose {
 	CFArrayRef allDisposables = NULL;
@@ -134,15 +136,7 @@
 	// Performed outside of the lock in case the compound disposable is used
 	// recursively.
 	CFIndex count = CFArrayGetCount(allDisposables);
-
-	const void *items[count];
-	CFArrayGetValues(allDisposables, CFRangeMake(0, count), items);
-
-	for (CFIndex i = 0; i < count; i++) {
-		__unsafe_unretained RACDisposable *disposable = (__bridge id)items[i];
-		[disposable dispose];
-	}
-
+	CFArrayApplyFunction(allDisposables, CFRangeMake(0, count), &disposeEach, NULL);
 	CFRelease(allDisposables);
 }
 

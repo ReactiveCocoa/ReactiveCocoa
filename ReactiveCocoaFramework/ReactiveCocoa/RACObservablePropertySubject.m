@@ -277,8 +277,6 @@
 		if (keyPathComponentsCount > 1) {
 			NSObject *value = [trampolineTarget valueForKey:firstKeyPathComponent];
 			if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
-				[childDisposable dispose];
-				[disposable removeDisposable:childDisposable];
 				if (value == nil) {
 					@synchronized (observer) {
 						willChangeBlock(NO);
@@ -292,7 +290,12 @@
 				}
 				return;
 			}
-			childDisposable = [RACCompoundDisposable compoundDisposable];
+			@synchronized (disposable) {
+				[childDisposable dispose];
+				[disposable removeDisposable:childDisposable];
+				childDisposable = [RACCompoundDisposable compoundDisposable];
+				[disposable addDisposable:childDisposable];
+			}
 			[childDisposable addDisposable:[value rac_addObserver:observer forKeyPath:keyPathByDeletingFirstKeyPathComponent willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock]];
 			
 			RACCompoundDisposable *valueDisposable = value.rac_deallocDisposable;
@@ -307,7 +310,6 @@
 				[valueDisposable removeDisposable:deallocDisposable];
 			}]];
 			
-			[disposable addDisposable:childDisposable];
 			return;
 		}
 		if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {

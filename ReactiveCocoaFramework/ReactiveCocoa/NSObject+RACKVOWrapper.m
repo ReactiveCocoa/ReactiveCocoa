@@ -37,11 +37,11 @@ static NSMutableSet *swizzledClasses() {
 		void (*originalDealloc)(id, SEL) = (__typeof__(originalDealloc))method_getImplementation(deallocMethod);
 
 		id newDealloc = ^(__unsafe_unretained NSObject *self) {
-			NSSet *trampolines;
+			NSArray *trampolines;
 
 			@synchronized (self) {
-				trampolines = [self.RACKVOTrampolines copy];
-				self.RACKVOTrampolines = nil;
+				trampolines = objc_getAssociatedObject(self, RACKVOTrampolinesKey);
+				objc_setAssociatedObject(self, RACKVOTrampolinesKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 			}
 
 			// If we're currently delivering a KVO callback then niling
@@ -73,26 +73,21 @@ static NSMutableSet *swizzledClasses() {
 	NSCParameterAssert(trampoline != nil);
 
 	@synchronized (self) {
-		if (self.RACKVOTrampolines == nil) {
-			self.RACKVOTrampolines = [NSMutableArray array];
+		NSMutableArray *trampolines = objc_getAssociatedObject(self, RACKVOTrampolinesKey);
+		if (trampolines == nil) {
+			trampolines = [[NSMutableArray alloc] init];
+			objc_setAssociatedObject(self, RACKVOTrampolinesKey, trampolines, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 		}
 
-		[self.RACKVOTrampolines addObject:trampoline];
+		[trampolines addObject:trampoline];
 	}
 }
 
 - (void)rac_removeKVOTrampoline:(RACKVOTrampoline *)trampoline {
 	@synchronized (self) {
-		[self.RACKVOTrampolines removeObject:trampoline];
+		NSMutableArray *trampolines = objc_getAssociatedObject(self, RACKVOTrampolinesKey);
+		[trampolines removeObjectIdenticalTo:trampoline];
 	}
-}
-
-- (NSMutableArray *)RACKVOTrampolines {
-	return objc_getAssociatedObject(self, RACKVOTrampolinesKey);
-}
-
-- (void)setRACKVOTrampolines:(NSMutableArray *)set {
-	objc_setAssociatedObject(self, RACKVOTrampolinesKey, set, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 @end

@@ -50,7 +50,8 @@
 		}
 	}];
 
-	_disposable = [RACCompoundDisposable compoundDisposableWithDisposables:@[ selfDisposable ]];
+	_disposable = [RACCompoundDisposable compoundDisposable];
+	[_disposable addDisposable:selfDisposable];
 	
 	return self;
 }

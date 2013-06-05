@@ -64,14 +64,17 @@ describe(@"with an instance method", ^{
 
 	it(@"should create method where non-existant", ^{
 		RACSubclassObject *object = [[RACSubclassObject alloc] init];
+		__block id key;
 		__block id value;
-		[[object rac_signalForSelector:@selector(setDelegate:)] subscribeNext:^(RACTuple *x) {
+		[[object rac_signalForSelector:@selector(setObject:forKey:)] subscribeNext:^(RACTuple *x) {
 			value = x.first;
+			key = x.second;
 		}];
 
-		[object performSelector:@selector(setDelegate:) withObject:@[ @YES ]];
+		[object performSelector:@selector(setObject:forKey:) withObject:@YES withObject:@"Winner"];
 
-		expect(value).to.equal(@[ @YES ]);
+		expect(value).to.equal(@YES);
+		expect(key).to.equal(@"Winner");
 	});
 });
 

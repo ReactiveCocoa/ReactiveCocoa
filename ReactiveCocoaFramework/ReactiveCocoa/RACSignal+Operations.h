@@ -433,13 +433,13 @@ extern const NSInteger RACSignalErrorTimedOut;
 
 @end
 
+@interface RACSignal (OperationsDeprecated)
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-implementations"
 
-@interface RACSignal (OperationsDeprecated)
-
-- (RACSignal *)let:(RACSignal * (^)(RACSignal *sharedSignal))letBlock __attribute__((deprecated));
-
-@end
+- (RACSignal *)let:(RACSignal * (^)(RACSignal *sharedSignal))letBlock __attribute__((deprecated("Use -publish instead")));
 
 #pragma clang diagnostic pop
+
+@end

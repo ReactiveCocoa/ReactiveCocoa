@@ -354,7 +354,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 
 // Creates a shared signal which is passed into the let block. The let block
 // then returns a signal derived from that shared signal.
-- (RACSignal *)let:(RACSignal * (^)(RACSignal *sharedSignal))letBlock;
+- (RACSignal *)let:(RACSignal * (^)(RACSignal *sharedSignal))letBlock __attribute__((deprecated));
 
 // Groups each received object into a group, as determined by calling `keyBlock`
 // with that object. The object sent is transformed by calling `transformBlock`

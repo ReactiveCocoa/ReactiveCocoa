@@ -77,7 +77,11 @@ static RACSignal *NSObjectRACSignalForSelector(id self, SEL selector) {
 				method_setImplementation(method, _objc_msgForward);
 			} else {
 				// Define the selector to call -forwardInvocation:
-				class_replaceMethod(proxySubclass, selector, _objc_msgForward, "v@:@");
+				NSMutableString *signature = [NSMutableString stringWithString:@"v@:"];
+				for (NSUInteger i = [selectorName componentsSeparatedByString:@":"].count; i > 1; --i) {
+					[signature appendString:@"@"];
+				}
+				class_replaceMethod(proxySubclass, selector, _objc_msgForward, signature.UTF8String);
 			}
 		}
 

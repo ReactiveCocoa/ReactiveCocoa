@@ -302,6 +302,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 // block.
 @property (nonatomic, strong, readonly) RACSequence *sequence;
 
+
 // Creates and returns a multicast connection. This allows you to share a single
 // subscription to the underlying signal.
 - (RACMulticastConnection *)publish;
@@ -351,10 +352,6 @@ extern const NSInteger RACSignalErrorTimedOut;
 // Creates and returns a signal whose `didSubscribe` block is scheduled with the
 // given scheduler.
 - (RACSignal *)subscribeOn:(RACScheduler *)scheduler;
-
-// Creates a shared signal which is passed into the let block. The let block
-// then returns a signal derived from that shared signal.
-- (RACSignal *)let:(RACSignal * (^)(RACSignal *sharedSignal))letBlock __attribute__((deprecated));
 
 // Groups each received object into a group, as determined by calling `keyBlock`
 // with that object. The object sent is transformed by calling `transformBlock`
@@ -435,3 +432,14 @@ extern const NSInteger RACSignalErrorTimedOut;
 - (RACDisposable *)executeCommand:(RACCommand *)command;
 
 @end
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
+@interface RACSignal (OperationsDeprecated)
+
+- (RACSignal *)let:(RACSignal * (^)(RACSignal *sharedSignal))letBlock __attribute__((deprecated));
+
+@end
+
+#pragma clang diagnostic pop

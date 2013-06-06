@@ -8,9 +8,6 @@
 
 #import <ReactiveCocoa/RACScheduler.h>
 
-// The queue-specific current scheduler key.
-extern const void *RACSchedulerCurrentSchedulerKey;
-
 // A private interface for internal RAC use only.
 @interface RACScheduler ()
 

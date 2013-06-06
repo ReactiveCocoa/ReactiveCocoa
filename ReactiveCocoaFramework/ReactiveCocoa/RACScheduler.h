@@ -8,6 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
+// The key for the queue-specific current scheduler. RACScheduler subclasses
+// must set this to themselves when they are performing work within the
+// scheduler.
+extern const void *RACSchedulerCurrentSchedulerKey;
+
 // The priority for the scheduler.
 //
 // RACSchedulerPriorityHigh       - High priority.

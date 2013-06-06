@@ -12,6 +12,9 @@
 		1EC06B18173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EC06B16173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.m */; };
 		27A887D11703DC6800040001 /* UIBarButtonItem+RACCommandSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 27A887C81703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.m */; };
 		27A887D21703DDEB00040001 /* UIBarButtonItem+RACCommandSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 27A887C71703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5EE9A7931760D61300EAF5A2 /* UIButton+RACCommandSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 5EE9A7911760D61300EAF5A2 /* UIButton+RACCommandSupport.h */; };
+		5EE9A7941760D61300EAF5A2 /* UIButton+RACCommandSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 5EE9A7921760D61300EAF5A2 /* UIButton+RACCommandSupport.m */; };
+		5EE9A79B1760D88500EAF5A2 /* UIButtonRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5EE9A79A1760D88500EAF5A2 /* UIButtonRACSupportSpec.m */; };
 		5F244771167E5EDE0062180C /* RACPropertySubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F24476F167E5EDE0062180C /* RACPropertySubject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5F244772167E5EDE0062180C /* RACPropertySubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F24476F167E5EDE0062180C /* RACPropertySubject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5F244773167E5EDE0062180C /* RACPropertySubject.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F244770167E5EDE0062180C /* RACPropertySubject.m */; };
@@ -446,6 +449,9 @@
 		1EC06B16173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIGestureRecognizer+RACSignalSupport.m"; sourceTree = "<group>"; };
 		27A887C71703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIBarButtonItem+RACCommandSupport.h"; sourceTree = "<group>"; };
 		27A887C81703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIBarButtonItem+RACCommandSupport.m"; sourceTree = "<group>"; };
+		5EE9A7911760D61300EAF5A2 /* UIButton+RACCommandSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIButton+RACCommandSupport.h"; sourceTree = "<group>"; };
+		5EE9A7921760D61300EAF5A2 /* UIButton+RACCommandSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIButton+RACCommandSupport.m"; sourceTree = "<group>"; };
+		5EE9A79A1760D88500EAF5A2 /* UIButtonRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIButtonRACSupportSpec.m; sourceTree = "<group>"; };
 		5F24476F167E5EDE0062180C /* RACPropertySubject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACPropertySubject.h; sourceTree = "<group>"; };
 		5F244770167E5EDE0062180C /* RACPropertySubject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACPropertySubject.m; sourceTree = "<group>"; };
 		5F2447AC167E87C50062180C /* RACObservablePropertySubjectSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACObservablePropertySubjectSpec.m; sourceTree = "<group>"; };
@@ -735,6 +741,7 @@
 			isa = PBXGroup;
 			children = (
 				5FAF5261174D4D8E00CAC810 /* UIBarButtonItemRACSupportSpec.m */,
+				5EE9A79A1760D88500EAF5A2 /* UIButtonRACSupportSpec.m */,
 			);
 			name = iOS;
 			sourceTree = "<group>";
@@ -1038,6 +1045,8 @@
 				A1FCC36C15673FA3008C9686 /* RACEventTrampoline.m */,
 				27A887C71703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.h */,
 				27A887C81703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.m */,
+				5EE9A7911760D61300EAF5A2 /* UIButton+RACCommandSupport.h */,
+				5EE9A7921760D61300EAF5A2 /* UIButton+RACCommandSupport.m */,
 				88F4425F153DC0450097B4C3 /* UIControl+RACSignalSupport.h */,
 				88F44260153DC0450097B4C3 /* UIControl+RACSignalSupport.m */,
 				1EC06B15173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.h */,
@@ -1345,6 +1354,7 @@
 				27A887D21703DDEB00040001 /* UIBarButtonItem+RACCommandSupport.h in Headers */,
 				D0307EE71731AAF800D83211 /* RACArraySequence.h in Headers */,
 				1EC06B17173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.h in Headers */,
+				5EE9A7931760D61300EAF5A2 /* UIButton+RACCommandSupport.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1625,6 +1635,7 @@
 				5FAF526D174D574700CAC810 /* NSNotificationCenter+RACSupport.m in Sources */,
 				5FAF526E174D574700CAC810 /* NSString+RACSupport.m in Sources */,
 				8884DD6B1756B65300F6C379 /* RACSignalStartExamples.m in Sources */,
+				5EE9A79B1760D88500EAF5A2 /* UIButtonRACSupportSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1808,6 +1819,7 @@
 				1EC06B18173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.m in Sources */,
 				5FDC35061736F54700792E52 /* NSString+RACKeyPathUtilities.m in Sources */,
 				D0D243BE1741FA13004359C6 /* NSObject+RACDescription.m in Sources */,
+				5EE9A7941760D61300EAF5A2 /* UIButton+RACCommandSupport.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

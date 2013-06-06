@@ -302,7 +302,6 @@ extern const NSInteger RACSignalErrorTimedOut;
 // block.
 @property (nonatomic, strong, readonly) RACSequence *sequence;
 
-
 // Creates and returns a multicast connection. This allows you to share a single
 // subscription to the underlying signal.
 - (RACMulticastConnection *)publish;
@@ -435,11 +434,6 @@ extern const NSInteger RACSignalErrorTimedOut;
 
 @interface RACSignal (OperationsDeprecated)
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-
 - (RACSignal *)let:(RACSignal * (^)(RACSignal *sharedSignal))letBlock __attribute__((deprecated("Use -publish instead")));
-
-#pragma clang diagnostic pop
 
 @end

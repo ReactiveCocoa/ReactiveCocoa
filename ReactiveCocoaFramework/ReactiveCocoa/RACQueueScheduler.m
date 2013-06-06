@@ -11,8 +11,10 @@
 #import "RACScheduler+Private.h"
 #import <libkern/OSAtomic.h>
 
-@interface RACQueueScheduler ()
-@property (nonatomic, readonly) dispatch_queue_t queue;
+@interface RACQueueScheduler () {
+	int32_t _performCount;
+}
+
 @end
 
 @implementation RACQueueScheduler
@@ -23,15 +25,16 @@
 	dispatch_release(_queue);
 }
 
-- (id)initWithName:(NSString *)name targetQueue:(dispatch_queue_t)targetQueue {
-	NSCParameterAssert(targetQueue != NULL);
+- (id)initWithQueue:(dispatch_queue_t)queue {
+	NSCParameterAssert(queue != NULL);
 
-	_queue = dispatch_queue_create(name.UTF8String, DISPATCH_QUEUE_SERIAL);
-	if (_queue == nil) return nil;
+	self = [super init];
+	if (self == nil) return nil;
 
-	dispatch_set_target_queue(_queue, targetQueue);
-	
-	return [super initWithName:name];
+	dispatch_retain(queue);
+	_queue = queue;
+
+	return self;
 }
 
 #pragma mark Current Scheduler
@@ -43,41 +46,15 @@ static void currentSchedulerRelease(void *context) {
 - (void)performAsCurrentScheduler:(void (^)(void))block {
 	NSCParameterAssert(block != NULL);
 
+	OSAtomicIncrement32Barrier(&_performCount);
+
 	dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, (void *)CFBridgingRetain(self), currentSchedulerRelease);
 	block();
-	dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, nil, currentSchedulerRelease);
-}
 
-#pragma mark RACScheduler
-
-- (RACDisposable *)schedule:(void (^)(void))block {
-	NSCParameterAssert(block != NULL);
-
-	__block volatile uint32_t disposed = 0;
-
-	dispatch_async(self.queue, ^{
-		if (disposed != 0) return;
-		[self performAsCurrentScheduler:block];
-	});
-
-	return [RACDisposable disposableWithBlock:^{
-		OSAtomicOr32Barrier(1, &disposed);
-	}];
-}
-
-- (RACDisposable *)after:(dispatch_time_t)when schedule:(void (^)(void))block {
-	NSCParameterAssert(block != NULL);
-
-	__block volatile uint32_t disposed = 0;
-
-	dispatch_after(when, self.queue, ^{
-		if (disposed != 0) return;
-		[self performAsCurrentScheduler:block];
-	});
-
-	return [RACDisposable disposableWithBlock:^{
-		OSAtomicOr32Barrier(1, &disposed);
-	}];
+	int32_t count = OSAtomicDecrement32Barrier(&_performCount);
+	if (count == 0) {
+		dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, nil, currentSchedulerRelease);
+	}
 }
 
 @end

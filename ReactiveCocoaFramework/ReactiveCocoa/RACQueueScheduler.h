@@ -12,13 +12,15 @@
 // Central Dispatch queue.
 @interface RACQueueScheduler : RACScheduler
 
+// The queue on which blocks are enqueued.
+@property (nonatomic, readonly) dispatch_queue_t queue;
+
 // Initializes the receiver with the name of the scheduler and the queue which
-// the scheduler should target.
+// the scheduler should use.
 //
-// name        - The name of the scheduler.
-// targetQueue - The queue which the scheduler should target. Cannot be NULL.
+// queue - The queue which the scheduler should use. Cannot be NULL.
 //
 // Returns the initialized object.
-- (id)initWithName:(NSString *)name targetQueue:(dispatch_queue_t)targetQueue;
+- (id)initWithQueue:(dispatch_queue_t)queue;
 
 @end

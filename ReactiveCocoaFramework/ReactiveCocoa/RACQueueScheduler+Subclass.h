@@ -1,5 +1,5 @@
 //
-//  RACQueueScheduler_Subclass.h
+//  RACQueueScheduler+Subclass.h
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 6/6/13.

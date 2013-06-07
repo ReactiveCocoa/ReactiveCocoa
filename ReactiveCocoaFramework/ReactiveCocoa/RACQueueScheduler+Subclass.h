@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#import "RACQueueScheduler.h"
+#import <ReactiveCocoa/RACQueueScheduler.h>
 
 // An interface for use by subclasses.
 //

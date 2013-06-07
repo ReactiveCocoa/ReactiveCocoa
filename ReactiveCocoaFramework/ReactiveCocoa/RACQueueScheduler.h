@@ -8,8 +8,8 @@
 
 #import <ReactiveCocoa/RACScheduler.h>
 
-// A scheduler which asynchronously enqueues all its work to a private Grand
-// Central Dispatch queue.
+// A scheduler which asynchronously enqueues all its work to a Grand Central
+// Dispatch queue.
 //
 // RACQueueScheduler may be subclassed. See `RACQueueScheduler+Subclass.h`.
 @interface RACQueueScheduler : RACScheduler

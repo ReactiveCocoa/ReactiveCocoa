@@ -14,9 +14,6 @@
 // RACQueueScheduler may be subclassed. See `RACQueueScheduler+Subclass.h`.
 @interface RACQueueScheduler : RACScheduler
 
-// The queue on which blocks are enqueued.
-@property (nonatomic, readonly) dispatch_queue_t queue;
-
 // Initializes the receiver with the name of the scheduler and the queue which
 // the scheduler should use.
 //

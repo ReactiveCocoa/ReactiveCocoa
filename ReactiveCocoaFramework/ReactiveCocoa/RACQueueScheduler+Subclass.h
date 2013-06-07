@@ -12,7 +12,10 @@
 //
 // Subclasses should use `-performAsCurrentScheduler:` to do the actual block
 // invocation so that +[RACScheduler currentScheduler] behaves as expected.
-@interface RACQueueScheduler (Subclass)
+@interface RACQueueScheduler ()
+
+// The queue on which blocks are enqueued.
+@property (nonatomic, readonly) dispatch_queue_t queue;
 
 // Performs the given block with the receiver as the current scheduler. This
 // should only be used by subclasses to perform scheduled blocks.

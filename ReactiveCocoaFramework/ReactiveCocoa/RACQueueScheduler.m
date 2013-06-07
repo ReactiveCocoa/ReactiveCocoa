@@ -70,10 +70,6 @@
 	}];
 }
 
-@end
-
-@implementation RACQueueScheduler (Subclass)
-
 static void currentSchedulerRelease(void *context) {
 	CFBridgingRelease(context);
 }

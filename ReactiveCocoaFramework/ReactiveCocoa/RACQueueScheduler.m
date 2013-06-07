@@ -80,13 +80,16 @@ static void currentSchedulerRelease(void *context) {
 	// If we're using a concurrent queue, we could end up in here concurrently,
 	// in which case we *don't* want to clear the current scheduler immediately
 	// after our block is done executing, but only after our performs are done.
-	OSAtomicIncrement32Barrier(&_performCount);
+	int32_t original = OSAtomicIncrement32Barrier(&_performCount);
 
-	dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, (void *)CFBridgingRetain(self), currentSchedulerRelease);
+	if (original == 1) {
+		dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, (void *)CFBridgingRetain(self), currentSchedulerRelease);
+	}
+
 	block();
 
-	int32_t count = OSAtomicDecrement32Barrier(&_performCount);
-	if (count == 0) {
+	original = OSAtomicDecrement32Barrier(&_performCount);
+	if (original == 0) {
 		dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, nil, currentSchedulerRelease);
 	}
 }

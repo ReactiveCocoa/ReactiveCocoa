@@ -11,13 +11,30 @@
 #import "RACCommand.h"
 #import "RACDisposable.h"
 
+@interface RACTestingButton : UIButton
+
+@end
+
+@implementation RACTestingButton
+
+// Required for unit testing – buttons don't work normally
+// outside of normal apps. 
+-(void)sendAction:(SEL)action to:(id)target forEvent:(UIEvent *)event {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+	[target performSelector:action withObject:self];
+#pragma clang diagnostic pop
+}
+
+@end
+
 SpecBegin(UIButtonRACSupport)
 
 describe(@"UIButton", ^{
 	__block UIButton *button;
 	
 	beforeEach(^{
-		button = [UIButton buttonWithType:UIButtonTypeCustom];
+		button = [RACTestingButton buttonWithType:UIButtonTypeCustom];
 		button.frame = CGRectMake(0, 0, 100, 100);
 		expect(button).notTo.beNil();
 	});

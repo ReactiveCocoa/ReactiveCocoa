@@ -13,7 +13,7 @@
 #import <libkern/OSAtomic.h>
 
 @interface RACQueueScheduler () {
-	int32_t _performCount;
+	volatile int32_t _performCount;
 }
 
 @end

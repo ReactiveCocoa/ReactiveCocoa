@@ -11,7 +11,8 @@
 // A scheduler which asynchronously enqueues all its work to a Grand Central
 // Dispatch queue.
 //
-// RACQueueScheduler may be subclassed. See `RACQueueScheduler+Subclass.h`.
+// RACQueueScheduler may be subclassed. To subclass, import
+// `RACQueueScheduler+Subclass.h` explicitly.
 @interface RACQueueScheduler : RACScheduler
 
 // Initializes the receiver with the name of the scheduler and the queue which

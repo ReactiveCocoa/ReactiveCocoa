@@ -43,14 +43,11 @@ static void *UIButtonCanExecuteDisposableKey = &UIButtonCanExecuteDisposableKey;
 - (void)rac_hijackActionAndTargetIfNeeded {
 	SEL hijackSelector = @selector(rac_commandPerformAction:);
 	
-	BOOL found = NO;
 	for (NSString *selector in [self actionsForTarget:self forControlEvent:UIControlEventTouchUpInside]) {
-		if ([NSStringFromSelector(hijackSelector) isEqualToString:selector]) {
-			found = YES;
+		if (hijackSelector == NSSelectorFromString(selector)) {
+			return;
 		}
 	}
-	
-	if (found) return;
 	
 	[self addTarget:self action:hijackSelector forControlEvents:UIControlEventTouchUpInside];
 }

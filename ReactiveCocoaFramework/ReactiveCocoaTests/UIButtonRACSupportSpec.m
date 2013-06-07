@@ -20,10 +20,15 @@
 // Required for unit testing – buttons don't work normally
 // outside of normal apps. 
 -(void)sendAction:(SEL)action to:(id)target forEvent:(UIEvent *)event {
+	if (target == self) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-	[target performSelector:action withObject:self];
+		[target performSelector:action withObject:self];
 #pragma clang diagnostic pop
+	}
+	else {
+		[super sendAction:action to:target forEvent:event];
+	}
 }
 
 @end
@@ -41,10 +46,10 @@ describe(@"UIButton", ^{
 	
 	it(@"should bind the button's enabledness to the command's canExecute", ^{
 		button.rac_command = [RACCommand commandWithCanExecuteSignal:[RACSignal return:@NO]];
-		expect([button isEnabled]).to.beFalsy();
+		expect(button.enabled).to.beFalsy();
 		
 		button.rac_command = [RACCommand commandWithCanExecuteSignal:[RACSignal return:@YES]];
-		expect([button isEnabled]).to.beTruthy();
+		expect(button.enabled).to.beTruthy();
 	});
 	
 	it(@"should execute the button's command when touched", ^{

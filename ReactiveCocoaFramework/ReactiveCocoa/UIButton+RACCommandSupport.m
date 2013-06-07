@@ -16,26 +16,26 @@
 #import <ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h>
 #import <objc/runtime.h>
 
-static void *UIControlRACCommandKey = &UIControlRACCommandKey;
-static void *UIControlCanExecuteDisposableKey = &UIControlCanExecuteDisposableKey;
+static void *UIButtonRACCommandKey = &UIButtonRACCommandKey;
+static void *UIButtonCanExecuteDisposableKey = &UIButtonCanExecuteDisposableKey;
 
 @implementation UIButton (RACCommandSupport)
 
 - (RACCommand *)rac_command {
-	return objc_getAssociatedObject(self, UIControlRACCommandKey);
+	return objc_getAssociatedObject(self, UIButtonRACCommandKey);
 }
 
 - (void)setRac_command:(RACCommand *)command {
-	objc_setAssociatedObject(self, UIControlRACCommandKey, command, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	objc_setAssociatedObject(self, UIButtonRACCommandKey, command, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	
+	// Check for stored signal in order to remove it and add a new one
+	RACDisposable *disposable = objc_getAssociatedObject(self, UIButtonCanExecuteDisposableKey);
+	[disposable dispose];
 	
 	if (command == nil) return;
 	
-	// Check for stored signal in order to remove it and add a new one
-	RACDisposable *disposable = objc_getAssociatedObject(self, UIControlCanExecuteDisposableKey);
-	[disposable dispose];
-	
 	disposable = [RACAbleWithStart(command, canExecute) toProperty:@keypath(self.enabled) onObject:self];
-	objc_setAssociatedObject(self, UIControlCanExecuteDisposableKey, disposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	objc_setAssociatedObject(self, UIButtonCanExecuteDisposableKey, disposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
 	[self rac_hijackActionAndTargetIfNeeded];
 }
@@ -43,10 +43,14 @@ static void *UIControlCanExecuteDisposableKey = &UIControlCanExecuteDisposableKe
 - (void)rac_hijackActionAndTargetIfNeeded {
 	SEL hijackSelector = @selector(rac_commandPerformAction:);
 	
-	NSSet *targets = [self allTargets];
-	SEL action = NSSelectorFromString([[self actionsForTarget:self forControlEvent:UIControlEventTouchUpInside] lastObject]);
+	BOOL found = NO;
+	for (NSString *selector in [self actionsForTarget:self forControlEvent:UIControlEventTouchUpInside]) {
+		if ([NSStringFromSelector(hijackSelector) isEqualToString:selector]) {
+			found = YES;
+		}
+	}
 	
-	if ([targets containsObject:self] && action == hijackSelector) return;
+	if (found) return;
 	
 	[self addTarget:self action:hijackSelector forControlEvents:UIControlEventTouchUpInside];
 }

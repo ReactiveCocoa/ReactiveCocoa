@@ -28,11 +28,11 @@ static void *UIControlCanExecuteDisposableKey = &UIControlCanExecuteDisposableKe
 - (void)setRac_command:(RACCommand *)command {
 	objc_setAssociatedObject(self, UIControlRACCommandKey, command, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
-	if (command == nil) return;
-	
 	// Check for stored signal in order to remove it and add a new one
 	RACDisposable *disposable = objc_getAssociatedObject(self, UIControlCanExecuteDisposableKey);
 	[disposable dispose];
+	
+	if (command == nil) return;
 	
 	disposable = [RACAbleWithStart(command, canExecute) toProperty:@keypath(self.enabled) onObject:self];
 	objc_setAssociatedObject(self, UIControlCanExecuteDisposableKey, disposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);

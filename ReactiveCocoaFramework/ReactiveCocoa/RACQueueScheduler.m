@@ -9,6 +9,7 @@
 #import "RACQueueScheduler.h"
 #import "RACDisposable.h"
 #import "RACScheduler+Private.h"
+#import "RACQueueScheduler+Subclass.h"
 #import <libkern/OSAtomic.h>
 
 @interface RACQueueScheduler () {
@@ -37,7 +38,9 @@
 	return self;
 }
 
-#pragma mark Current Scheduler
+@end
+
+@implementation RACQueueScheduler (Subclass)
 
 static void currentSchedulerRelease(void *context) {
 	CFBridgingRelease(context);
@@ -46,6 +49,9 @@ static void currentSchedulerRelease(void *context) {
 - (void)performAsCurrentScheduler:(void (^)(void))block {
 	NSCParameterAssert(block != NULL);
 
+	// If we're using a concurrent queue, we could end up in here concurrently,
+	// in which case we *don't* want to clear the current scheduler immediately
+	// after our block is done executing, but only after our performs are done.
 	OSAtomicIncrement32Barrier(&_performCount);
 
 	dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, (void *)CFBridgingRetain(self), currentSchedulerRelease);

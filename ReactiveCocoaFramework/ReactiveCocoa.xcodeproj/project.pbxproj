@@ -142,6 +142,8 @@
 		88302BFE1762A9E6003633BD /* RACTestExampleScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 88302BFC1762A9E6003633BD /* RACTestExampleScheduler.m */; };
 		88302C2E1762C180003633BD /* RACTargetQueueSchedulerSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 88302C2D1762C180003633BD /* RACTargetQueueSchedulerSpec.m */; };
 		88302C2F1762C180003633BD /* RACTargetQueueSchedulerSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 88302C2D1762C180003633BD /* RACTargetQueueSchedulerSpec.m */; };
+		88302C961762EC79003633BD /* RACQueueScheduler.h in Headers */ = {isa = PBXBuildFile; fileRef = 881E87AA16695C5600667F7B /* RACQueueScheduler.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		88302C9B1762EC7E003633BD /* RACQueueScheduler+Subclass.h in Headers */ = {isa = PBXBuildFile; fileRef = 882D07201761521B009EDA69 /* RACQueueScheduler+Subclass.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		8837EA1616A5A33300FC3CDF /* RACKVOTrampoline.h in Headers */ = {isa = PBXBuildFile; fileRef = 8837EA1416A5A33300FC3CDF /* RACKVOTrampoline.h */; };
 		8837EA1816A5A33300FC3CDF /* RACKVOTrampoline.m in Sources */ = {isa = PBXBuildFile; fileRef = 8837EA1516A5A33300FC3CDF /* RACKVOTrampoline.m */; };
 		8837EA1916A5A33300FC3CDF /* RACKVOTrampoline.m in Sources */ = {isa = PBXBuildFile; fileRef = 8837EA1516A5A33300FC3CDF /* RACKVOTrampoline.m */; };
@@ -1356,6 +1358,8 @@
 				27A887D21703DDEB00040001 /* UIBarButtonItem+RACCommandSupport.h in Headers */,
 				D0307EE71731AAF800D83211 /* RACArraySequence.h in Headers */,
 				1EC06B17173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.h in Headers */,
+				88302C961762EC79003633BD /* RACQueueScheduler.h in Headers */,
+				88302C9B1762EC7E003633BD /* RACQueueScheduler+Subclass.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -36,7 +36,11 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 	self = [super init];
 	if (self == nil) return nil;
 
-	_name = [name ?: @"com.ReactiveCocoa.RACScheduler.anonymousScheduler" copy];
+	if (name == nil) {
+		_name = [NSString stringWithFormat:@"com.ReactiveCocoa.%@.anonymousScheduler", self.class];
+	} else {
+		_name = [name copy];
+	}
 
 	return self;
 }

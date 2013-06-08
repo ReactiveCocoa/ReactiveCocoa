@@ -8,13 +8,14 @@
 
 #import <ReactiveCocoa/RACQueueScheduler.h>
 
-// A scheduler which enqueues blocks on a serial queue which targets a queue.
+// A scheduler that enqueues blocks on a private serial queue, targeting an
+// arbitrary GCD queue.
 @interface RACTargetQueueScheduler : RACQueueScheduler
 
-// Initializes a scheduler with a name and a queue which targets the given
-// target queue.
+// Initializes the receiver with a serial queue that will target the given
+// `targetQueue`.
 //
-// name        - The name of the queue which will target `targetQueue`.
+// name        - The name of the scheduler. If nil, a default name will be used.
 // targetQueue - The queue to target. Cannot be NULL.
 //
 // Returns the initialized object.

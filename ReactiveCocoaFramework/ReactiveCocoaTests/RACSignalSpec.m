@@ -2333,6 +2333,69 @@ describe(@"-concat", ^{
 		[[subject concat] firstOrDefault:nil success:NULL error:&error];
 		expect(error).to.equal(RACSignalTestError);
 	});
+
+	it(@"should concat signals sent later", ^{
+		[subject sendNext:oneSignal];
+
+		NSMutableArray *values = [NSMutableArray array];
+		[[subject concat] subscribeNext:^(id x) {
+			[values addObject:x];
+		}];
+
+		NSArray *expected = @[ @1 ];
+		expect(values).to.equal(expected);
+
+		[subject sendNext:[twoSignal delay:0]];
+
+		expected = @[ @1, @2 ];
+		expect(values).will.equal(expected);
+
+		[subject sendNext:threeSignal];
+
+		expected = @[ @1, @2, @3 ];
+		expect(values).to.equal(expected);
+	});
+
+	it(@"should dispose the current signal", ^{
+		__block BOOL disposed = NO;
+		RACSignal *innerSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			return [RACDisposable disposableWithBlock:^{
+				disposed = YES;
+			}];
+		}];
+
+		RACDisposable *concatDisposable = [[subject concat] subscribeCompleted:^{}];
+		
+		[subject sendNext:innerSignal];
+		expect(disposed).notTo.beTruthy();
+
+		[concatDisposable dispose];
+		expect(disposed).to.beTruthy();
+	});
+
+	it(@"should dispose later signals", ^{
+		__block BOOL disposed = NO;
+		RACSignal *laterSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			return [RACDisposable disposableWithBlock:^{
+				disposed = YES;
+			}];
+		}];
+
+		RACSubject *firstSignal = [RACSubject subject];
+		RACSignal *outerSignal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:firstSignal];
+			[subscriber sendNext:laterSignal];
+			return nil;
+		}];
+
+		RACDisposable *concatDisposable = [[outerSignal concat] subscribeCompleted:^{}];
+
+		[firstSignal sendCompleted];
+		expect(disposed).notTo.beTruthy();
+
+		[concatDisposable dispose];
+		expect(disposed).to.beTruthy();
+	});
 });
 
 

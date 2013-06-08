@@ -282,44 +282,43 @@
 						willChangeBlock(NO);
 					}
 				}
-				return;
-			}
-			if (value == nil) {
-				@synchronized (observer) {
-					didChangeBlock(NO, nil);
+			} else {
+				if (value != nil) {
+					@synchronized (disposable) {
+						[childDisposable dispose];
+						[disposable removeDisposable:childDisposable];
+						childDisposable = [RACCompoundDisposable compoundDisposable];
+						[disposable addDisposable:childDisposable];
+					}
+					[childDisposable addDisposable:[value rac_addObserver:observer forKeyPath:keyPathByDeletingFirstKeyPathComponent willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock]];
+					
+					RACCompoundDisposable *valueDisposable = value.rac_deallocDisposable;
+					RACDisposable *deallocDisposable = [RACDisposable disposableWithBlock:^{
+						@strongify(observer);
+						@synchronized (observer) {
+							didChangeBlock(NO, nil);
+						}
+					}];
+					[valueDisposable addDisposable:deallocDisposable];
+					[childDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+						[valueDisposable removeDisposable:deallocDisposable];
+					}]];
+				} else {
+					@synchronized (observer) {
+						didChangeBlock(NO, nil);
+					}
 				}
-				return;
 			}
-			@synchronized (disposable) {
-				[childDisposable dispose];
-				[disposable removeDisposable:childDisposable];
-				childDisposable = [RACCompoundDisposable compoundDisposable];
-				[disposable addDisposable:childDisposable];
-			}
-			[childDisposable addDisposable:[value rac_addObserver:observer forKeyPath:keyPathByDeletingFirstKeyPathComponent willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock]];
-			
-			RACCompoundDisposable *valueDisposable = value.rac_deallocDisposable;
-			RACDisposable *deallocDisposable = [RACDisposable disposableWithBlock:^{
-				@strongify(observer);
+		} else {
+			if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
 				@synchronized (observer) {
-					didChangeBlock(NO, nil);
+					willChangeBlock(YES);
 				}
-			}];
-			[valueDisposable addDisposable:deallocDisposable];
-			[childDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-				[valueDisposable removeDisposable:deallocDisposable];
-			}]];
-			
-			return;
-		}
-		if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
-			@synchronized (observer) {
-				willChangeBlock(YES);
+			} else {
+				@synchronized (observer) {
+					didChangeBlock(YES, [trampolineTarget valueForKey:firstKeyPathComponent]);
+				}
 			}
-			return;
-		}
-		@synchronized (observer) {
-			didChangeBlock(YES, [trampolineTarget valueForKey:firstKeyPathComponent]);
 		}
 	}];
 	

@@ -10,18 +10,6 @@
 #import "RACDisposable.h"
 #import "RACScheduler+Private.h"
 #import "RACQueueScheduler+Subclass.h"
-#import <libkern/OSAtomic.h>
-
-@interface RACQueueScheduler () {
-	// The current number of performs occurring with this as the current
-	// scheduler. It should only be used when `_currentSchedulerLock` is locked.
-	NSUInteger _performCount;
-
-	// The lock for the current scheduler.
-	OSSpinLock _currentSchedulerLock;
-}
-
-@end
 
 @implementation RACQueueScheduler
 
@@ -75,10 +63,6 @@
 	}];
 }
 
-static void currentSchedulerRelease(void *context) {
-	CFBridgingRelease(context);
-}
-
 - (void)performAsCurrentScheduler:(void (^)(void))block {
 	NSCParameterAssert(block != NULL);
 
@@ -86,25 +70,17 @@ static void currentSchedulerRelease(void *context) {
 	// in which case we *don't* want to clear the current scheduler immediately
 	// after our block is done executing, but only *after* all our concurrent
 	// invocations are done.
-	OSSpinLockLock(&_currentSchedulerLock);
-	{
-		_performCount++;
-		if (_performCount == 1) {
-			dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, (void *)CFBridgingRetain(self), currentSchedulerRelease);
-		}
-	}
-	OSSpinLockUnlock(&_currentSchedulerLock);
+
+	RACScheduler *previousScheduler = RACScheduler.currentScheduler;
+	NSThread.currentThread.threadDictionary[RACSchedulerCurrentSchedulerKey] = self;
 
 	block();
 
-	OSSpinLockLock(&_currentSchedulerLock);
-	{
-		_performCount--;
-		if (_performCount == 0) {
-			dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, nil, currentSchedulerRelease);
-		}
+	if (previousScheduler != nil) {
+		NSThread.currentThread.threadDictionary[RACSchedulerCurrentSchedulerKey] = previousScheduler;
+	} else {
+		[NSThread.currentThread.threadDictionary removeObjectForKey:RACSchedulerCurrentSchedulerKey];
 	}
-	OSSpinLockUnlock(&_currentSchedulerLock);
 }
 
 @end

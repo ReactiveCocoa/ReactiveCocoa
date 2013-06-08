@@ -17,8 +17,9 @@
 // The queue on which blocks are enqueued.
 @property (nonatomic, readonly) dispatch_queue_t queue;
 
-// Performs the given block with the receiver as the current scheduler. This
-// should only be called by subclasses to perform scheduled blocks.
+// Performs the given block with the receiver as the current scheduler for
+// `queue`. This should only be called by subclasses to perform scheduled blocks
+// on their queue.
 //
 // block - The block to execute. Cannot be NULL.
 - (void)performAsCurrentScheduler:(void (^)(void))block;

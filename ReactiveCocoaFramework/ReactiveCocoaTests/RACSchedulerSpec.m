@@ -8,8 +8,10 @@
 
 #import "RACScheduler.h"
 #import "RACScheduler+Private.h"
+#import "RACQueueScheduler+Subclass.h"
 #import "RACDisposable.h"
 #import "EXTScope.h"
+#import "RACTestExampleScheduler.h"
 #import <libkern/OSAtomic.h>
 
 // This shouldn't be used directly. Use the `expectCurrentSchedulers` block
@@ -386,6 +388,41 @@ describe(@"-scheduleRecursiveBlock:", ^{
 
 			expect(count).will.equal(1);
 		});
+	});
+});
+
+describe(@"subclassing", ^{
+	__block RACTestExampleScheduler *scheduler;
+
+	beforeEach(^{
+		scheduler = [[RACTestExampleScheduler alloc] initWithQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
+	});
+
+	it(@"should invoke blocks scheduled with -schedule:", ^{
+		__block BOOL invoked = NO;
+		[scheduler schedule:^{
+			invoked = YES;
+		}];
+
+		expect(invoked).will.beTruthy();
+	});
+
+	it(@"should invoke blocks scheduled with -after:schedule:", ^{
+		__block BOOL invoked = NO;
+		[scheduler after:1 schedule:^{
+			invoked = YES;
+		}];
+		
+		expect(invoked).will.beTruthy();
+	});
+
+	it(@"should set a valid current scheduler", ^{
+		__block RACScheduler *currentScheduler;
+		[scheduler schedule:^{
+			currentScheduler = RACScheduler.currentScheduler;
+		}];
+
+		expect(currentScheduler).will.equal(scheduler);
 	});
 });
 

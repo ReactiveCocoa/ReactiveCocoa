@@ -84,7 +84,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 }
 
 // Used from within -concat to pop the next signal to concatenate to.
-static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDonePtr, id<RACSubscriber> subscriber, RACSignal **currentSignalPtr) {
+static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDonePtr, id<RACSubscriber> subscriber, __strong RACSignal **currentSignalPtr) {
 	NSCParameterAssert(signals != nil);
 	NSCParameterAssert(currentSignalPtr != NULL);
 

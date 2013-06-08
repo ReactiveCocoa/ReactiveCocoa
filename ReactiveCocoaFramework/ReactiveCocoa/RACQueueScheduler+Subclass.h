@@ -24,11 +24,12 @@
 // Initializes the receiver with the name of the scheduler and the queue which
 // the scheduler should use.
 //
+// name  - The name of the scheduler. If nil, a default name will be used.
 // queue - The queue upon which the receiver should enqueue scheduled blocks.
 //         This argument must not be NULL.
 //
 // Returns the initialized object.
-- (id)initWithQueue:(dispatch_queue_t)queue;
+- (id)initWithName:(NSString *)name queue:(dispatch_queue_t)queue;
 
 // Performs the given block with the receiver as the current scheduler for
 // `queue`. This should only be called by subclasses to perform scheduled blocks

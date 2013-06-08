@@ -20,7 +20,7 @@
 
 	dispatch_set_target_queue(queue, targetQueue);
 
-	self = [super initWithQueue:queue];
+	self = [super initWithName:name queue:queue];
 	if (self == nil) return nil;
 
 	dispatch_release(queue);

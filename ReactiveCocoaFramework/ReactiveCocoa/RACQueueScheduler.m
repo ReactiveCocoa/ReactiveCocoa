@@ -31,10 +31,10 @@
 	dispatch_release(_queue);
 }
 
-- (id)initWithQueue:(dispatch_queue_t)queue {
+- (id)initWithName:(NSString *)name queue:(dispatch_queue_t)queue {
 	NSCParameterAssert(queue != NULL);
 
-	self = [super init];
+	self = [super initWithName:name];
 	if (self == nil) return nil;
 
 	dispatch_retain(queue);

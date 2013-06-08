@@ -1,5 +1,5 @@
 //
-//  RACTargetedQueueScheduler.h
+//  RACTargetQueueScheduler.h
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 6/6/13.
@@ -9,7 +9,7 @@
 #import <ReactiveCocoa/RACQueueScheduler.h>
 
 // A scheduler which enqueues blocks on a serial queue which targets a queue.
-@interface RACTargetedQueueScheduler : RACQueueScheduler
+@interface RACTargetQueueScheduler : RACQueueScheduler
 
 // Initializes a scheduler with a name and a queue which targets the given
 // target queue.

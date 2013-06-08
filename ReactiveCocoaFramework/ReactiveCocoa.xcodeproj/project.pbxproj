@@ -134,9 +134,9 @@
 		881E87C71669636000667F7B /* RACSubscriptionScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 881E87C31669636000667F7B /* RACSubscriptionScheduler.m */; };
 		8820937C1501C8A600796685 /* RACSignalSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 8820937B1501C8A600796685 /* RACSignalSpec.m */; };
 		882CCA1E15F1564D00937D6E /* RACCommandSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 882CCA1D15F1564D00937D6E /* RACCommandSpec.m */; };
-		882D071917614FA7009EDA69 /* RACTargetedQueueScheduler.h in Headers */ = {isa = PBXBuildFile; fileRef = 882D071717614FA7009EDA69 /* RACTargetedQueueScheduler.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		882D071A17614FA7009EDA69 /* RACTargetedQueueScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 882D071817614FA7009EDA69 /* RACTargetedQueueScheduler.m */; };
-		882D071F17615139009EDA69 /* RACTargetedQueueScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 882D071817614FA7009EDA69 /* RACTargetedQueueScheduler.m */; };
+		882D071917614FA7009EDA69 /* RACTargetQueueScheduler.h in Headers */ = {isa = PBXBuildFile; fileRef = 882D071717614FA7009EDA69 /* RACTargetQueueScheduler.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		882D071A17614FA7009EDA69 /* RACTargetQueueScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 882D071817614FA7009EDA69 /* RACTargetQueueScheduler.m */; };
+		882D071F17615139009EDA69 /* RACTargetQueueScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 882D071817614FA7009EDA69 /* RACTargetQueueScheduler.m */; };
 		882D072117615381009EDA69 /* RACQueueScheduler+Subclass.h in Headers */ = {isa = PBXBuildFile; fileRef = 882D07201761521B009EDA69 /* RACQueueScheduler+Subclass.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88302BFD1762A9E6003633BD /* RACTestExampleScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 88302BFC1762A9E6003633BD /* RACTestExampleScheduler.m */; };
 		88302BFE1762A9E6003633BD /* RACTestExampleScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 88302BFC1762A9E6003633BD /* RACTestExampleScheduler.m */; };
@@ -511,8 +511,8 @@
 		882093E91501E6EE00796685 /* RACCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = RACCommand.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		882093EA1501E6EE00796685 /* RACCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = RACCommand.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		882CCA1D15F1564D00937D6E /* RACCommandSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACCommandSpec.m; sourceTree = "<group>"; };
-		882D071717614FA7009EDA69 /* RACTargetedQueueScheduler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACTargetedQueueScheduler.h; sourceTree = "<group>"; };
-		882D071817614FA7009EDA69 /* RACTargetedQueueScheduler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACTargetedQueueScheduler.m; sourceTree = "<group>"; };
+		882D071717614FA7009EDA69 /* RACTargetQueueScheduler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACTargetQueueScheduler.h; sourceTree = "<group>"; };
+		882D071817614FA7009EDA69 /* RACTargetQueueScheduler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACTargetQueueScheduler.m; sourceTree = "<group>"; };
 		882D07201761521B009EDA69 /* RACQueueScheduler+Subclass.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACQueueScheduler+Subclass.h"; sourceTree = "<group>"; };
 		88302BFB1762A9E6003633BD /* RACTestExampleScheduler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACTestExampleScheduler.h; sourceTree = "<group>"; };
 		88302BFC1762A9E6003633BD /* RACTestExampleScheduler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACTestExampleScheduler.m; sourceTree = "<group>"; };
@@ -1071,8 +1071,8 @@
 				881E87AA16695C5600667F7B /* RACQueueScheduler.h */,
 				882D07201761521B009EDA69 /* RACQueueScheduler+Subclass.h */,
 				881E87AB16695C5600667F7B /* RACQueueScheduler.m */,
-				882D071717614FA7009EDA69 /* RACTargetedQueueScheduler.h */,
-				882D071817614FA7009EDA69 /* RACTargetedQueueScheduler.m */,
+				882D071717614FA7009EDA69 /* RACTargetQueueScheduler.h */,
+				882D071817614FA7009EDA69 /* RACTargetQueueScheduler.m */,
 				881E87B016695EDF00667F7B /* RACImmediateScheduler.h */,
 				881E87B116695EDF00667F7B /* RACImmediateScheduler.m */,
 				881E87C21669635F00667F7B /* RACSubscriptionScheduler.h */,
@@ -1244,7 +1244,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				882D071917614FA7009EDA69 /* RACTargetedQueueScheduler.h in Headers */,
+				882D071917614FA7009EDA69 /* RACTargetQueueScheduler.h in Headers */,
 				881E87AC16695C5600667F7B /* RACQueueScheduler.h in Headers */,
 				88037FB81505645C001A5B19 /* ReactiveCocoa.h in Headers */,
 				88037FBB1505646C001A5B19 /* NSObject+RACPropertySubscribing.h in Headers */,
@@ -1698,7 +1698,7 @@
 				D07CD7181731BA3900DE2394 /* RACUnarySequence.m in Sources */,
 				5FDC35051736F54700792E52 /* NSString+RACKeyPathUtilities.m in Sources */,
 				D0D243BD1741FA13004359C6 /* NSObject+RACDescription.m in Sources */,
-				882D071A17614FA7009EDA69 /* RACTargetedQueueScheduler.m in Sources */,
+				882D071A17614FA7009EDA69 /* RACTargetQueueScheduler.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1815,7 +1815,7 @@
 				1EC06B18173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.m in Sources */,
 				5FDC35061736F54700792E52 /* NSString+RACKeyPathUtilities.m in Sources */,
 				D0D243BE1741FA13004359C6 /* NSObject+RACDescription.m in Sources */,
-				882D071F17615139009EDA69 /* RACTargetedQueueScheduler.m in Sources */,
+				882D071F17615139009EDA69 /* RACTargetQueueScheduler.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

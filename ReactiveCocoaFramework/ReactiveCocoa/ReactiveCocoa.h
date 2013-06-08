@@ -40,7 +40,7 @@
 #import <ReactiveCocoa/RACObservablePropertySubject.h>
 #import <ReactiveCocoa/NSObject+RACSelectorSignal.h>
 #import <ReactiveCocoa/RACQueueScheduler.h>
-#import <ReactiveCocoa/RACTargetedQueueScheduler.h>
+#import <ReactiveCocoa/RACTargetQueueScheduler.h>
 
 #ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
 #import <ReactiveCocoa/EXTKeyPathCoding.h>

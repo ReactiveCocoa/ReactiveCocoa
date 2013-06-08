@@ -1,14 +1,14 @@
 //
-//  RACTargetedQueueScheduler.m
+//  RACTargetQueueScheduler.m
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 6/6/13.
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#import "RACTargetedQueueScheduler.h"
+#import "RACTargetQueueScheduler.h"
 
-@implementation RACTargetedQueueScheduler
+@implementation RACTargetQueueScheduler
 
 #pragma mark Lifecycle
 

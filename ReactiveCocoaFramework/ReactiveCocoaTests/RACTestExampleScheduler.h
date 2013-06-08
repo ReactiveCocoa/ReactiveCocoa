@@ -10,4 +10,6 @@
 
 @interface RACTestExampleScheduler : RACQueueScheduler
 
+- (id)initWithQueue:(dispatch_queue_t)queue;
+
 @end

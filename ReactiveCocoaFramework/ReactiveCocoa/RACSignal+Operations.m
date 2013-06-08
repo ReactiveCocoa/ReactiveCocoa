@@ -84,7 +84,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 }
 
 // Used from within -concat to pop the next signal to concatenate to.
-static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDonePtr, id<RACSubscriber> subscriber, __strong RACSignal **currentSignalPtr) {
+static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *compoundDisposable, BOOL *outerDonePtr, id<RACSubscriber> subscriber, __strong RACSignal **currentSignalPtr) {
 	NSCParameterAssert(signals != nil);
 	NSCParameterAssert(currentSignalPtr != NULL);
 
@@ -93,10 +93,10 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 	@synchronized (signals) {
 		if (*outerDonePtr && signals.count == 0 && *currentSignalPtr == nil) {
 			[subscriber sendCompleted];
-			return nil;
+			return;
 		}
 
-		if (signals.count == 0 || *currentSignalPtr != nil) return nil;
+		if (signals.count == 0 || *currentSignalPtr != nil) return;
 
 		signal = signals[0];
 		[signals removeObjectAtIndex:0];
@@ -104,16 +104,26 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 		*currentSignalPtr = signal;
 	}
 
-	return [signal subscribeNext:^(id x) {
+	__block RACDisposable *subscriptionDisposable = nil;
+	
+	RACDisposable *disposable = [signal subscribeNext:^(id x) {
 		[subscriber sendNext:x];
 	} error:^(NSError *error) {
 		[subscriber sendError:error];
 	} completed:^{
 		@synchronized (signals) {
+			if (subscriptionDisposable != nil) [compoundDisposable removeDisposable:subscriptionDisposable];
+
 			*currentSignalPtr = nil;
-			concatPopNextSignal(signals, outerDonePtr, subscriber, currentSignalPtr);
+			concatPopNextSignal(signals, compoundDisposable, outerDonePtr, subscriber, currentSignalPtr);
 		}
 	}];
+
+	@synchronized (signals) {
+		subscriptionDisposable = disposable;
+	}
+
+	if (disposable != nil) [compoundDisposable addDisposable:disposable];
 }
 
 @implementation RACSignal (Operations)
@@ -650,7 +660,7 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 - (RACSignal *)concat {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		NSMutableArray *signals = [NSMutableArray array];
-		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+		RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposable];
 
 		__block BOOL outerDone = NO;
 		__block RACSignal *currentSignal = nil;
@@ -660,23 +670,19 @@ static RACDisposable *concatPopNextSignal(NSMutableArray *signals, BOOL *outerDo
 
 			@synchronized (signals) {
 				[signals addObject:signal];
-
-				RACDisposable *nextDisposable = concatPopNextSignal(signals, &outerDone, subscriber, &currentSignal);
-				if (nextDisposable != nil) [disposable addDisposable:nextDisposable];
+				concatPopNextSignal(signals, compoundDisposable, &outerDone, subscriber, &currentSignal);
 			}
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
 			@synchronized (signals) {
 				outerDone = YES;
-
-				RACDisposable *nextDisposable = concatPopNextSignal(signals, &outerDone, subscriber, &currentSignal);
-				if (nextDisposable != nil) [disposable addDisposable:nextDisposable];
+				concatPopNextSignal(signals, compoundDisposable, &outerDone, subscriber, &currentSignal);
 			}
 		}];
 
-		if (subscriptionDisposable != nil) [disposable addDisposable:subscriptionDisposable];
-		return disposable;
+		if (subscriptionDisposable != nil) [compoundDisposable addDisposable:subscriptionDisposable];
+		return compoundDisposable;
 	}] setNameWithFormat:@"[%@] -concat", self.name];
 }
 

@@ -15,8 +15,8 @@
 #import "RACSubscriptionScheduler.h"
 #import <libkern/OSAtomic.h>
 
-// The key for the queue-specific current scheduler.
-const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
+// The key for the thread-specific current scheduler.
+NSString * const RACSchedulerCurrentSchedulerKey = @"RACSchedulerCurrentSchedulerKey";
 
 @interface RACScheduler ()
 @property (nonatomic, readonly, copy) NSString *name;
@@ -94,7 +94,7 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 }
 
 + (instancetype)currentScheduler {
-	RACScheduler *scheduler = (__bridge id)dispatch_get_specific(RACSchedulerCurrentSchedulerKey);
+	RACScheduler *scheduler = NSThread.currentThread.threadDictionary[RACSchedulerCurrentSchedulerKey];
 	if (scheduler != nil) return scheduler;
 	if ([self.class isOnMainThread]) return RACScheduler.mainThreadScheduler;
 

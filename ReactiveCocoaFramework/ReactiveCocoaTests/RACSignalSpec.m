@@ -2355,6 +2355,47 @@ describe(@"-concat", ^{
 		expected = @[ @1, @2, @3 ];
 		expect(values).to.equal(expected);
 	});
+
+	it(@"should dispose the current signal", ^{
+		__block BOOL disposed = NO;
+		RACSignal *innerSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			return [RACDisposable disposableWithBlock:^{
+				disposed = YES;
+			}];
+		}];
+
+		RACDisposable *concatDisposable = [[subject concat] subscribeCompleted:^{}];
+		
+		[subject sendNext:innerSignal];
+		expect(disposed).notTo.beTruthy();
+
+		[concatDisposable dispose];
+		expect(disposed).to.beTruthy();
+	});
+
+	it(@"should dispose later signals", ^{
+		__block BOOL disposed = NO;
+		RACSignal *laterSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			return [RACDisposable disposableWithBlock:^{
+				disposed = YES;
+			}];
+		}];
+
+		RACSubject *firstSignal = [RACSubject subject];
+		RACSignal *outerSignal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:firstSignal];
+			[subscriber sendNext:laterSignal];
+			return nil;
+		}];
+
+		RACDisposable *concatDisposable = [[outerSignal concat] subscribeCompleted:^{}];
+
+		[firstSignal sendCompleted];
+		expect(disposed).notTo.beTruthy();
+
+		[concatDisposable dispose];
+		expect(disposed).to.beTruthy();
+	});
 });
 
 

@@ -2333,6 +2333,28 @@ describe(@"-concat", ^{
 		[[subject concat] firstOrDefault:nil success:NULL error:&error];
 		expect(error).to.equal(RACSignalTestError);
 	});
+
+	it(@"should concat signals sent later", ^{
+		[subject sendNext:oneSignal];
+
+		NSMutableArray *values = [NSMutableArray array];
+		[[subject concat] subscribeNext:^(id x) {
+			[values addObject:x];
+		}];
+
+		NSArray *expected = @[ @1 ];
+		expect(values).to.equal(expected);
+
+		[subject sendNext:[twoSignal delay:0]];
+
+		expected = @[ @1, @2 ];
+		expect(values).will.equal(expected);
+
+		[subject sendNext:threeSignal];
+
+		expected = @[ @1, @2, @3 ];
+		expect(values).to.equal(expected);
+	});
 });
 
 

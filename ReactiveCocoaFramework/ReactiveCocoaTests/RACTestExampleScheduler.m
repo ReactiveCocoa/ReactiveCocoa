@@ -11,6 +11,12 @@
 
 @implementation RACTestExampleScheduler
 
+#pragma mark Lifecycle
+
+- (id)initWithQueue:(dispatch_queue_t)queue {
+	return [super initWithName:nil queue:queue];
+}
+
 #pragma mark RACScheduler
 
 - (RACDisposable *)schedule:(void (^)(void))block {

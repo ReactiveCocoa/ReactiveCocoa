@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#import "RACQueueScheduler.h"
+#import <ReactiveCocoa/RACQueueScheduler.h>
 
 // A scheduler which enqueues blocks on a serial queue which targets a queue.
 @interface RACTargetedQueueScheduler : RACQueueScheduler

@@ -12,7 +12,10 @@
 // Dispatch queue.
 //
 // RACQueueScheduler may be subclassed. To subclass, import
-// `RACQueueScheduler+Subclass.h` explicitly.
+// `RACQueueScheduler+Subclass.h` explicitly. Note that RACScheduler-scheduled
+// blocks are expected to run serially within the same scheduler. Subclasses
+// must maintain that. See `RACTargetQueueScheduler` for a queue-based scheduler
+// which will enforce the serialization guarantee.
 @interface RACQueueScheduler : RACScheduler
 
 // Initializes the receiver with the name of the scheduler and the queue which

@@ -78,35 +78,14 @@ static NSLock *RACActiveSignalsLock = nil;
 	}] setNameWithFormat:@"+never"];
 }
 
-+ (RACSignal *)start:(id (^)(BOOL *success, NSError **error))block {
-	return [[self startWithScheduler:[RACScheduler scheduler] block:block] setNameWithFormat:@"+start:"];
-}
-
-+ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block {
-	return [[self startWithScheduler:scheduler subjectBlock:^(RACSubject *subject) {
-		BOOL success = YES;
-		NSError *error = nil;
-		id returned = block(&success, &error);
-		
-		if (!success) {
-			[subject sendError:error];
-		} else {
-			[subject sendNext:returned];
-			[subject sendCompleted];
-		}
-	}] setNameWithFormat:@"+startWithScheduler:block:"];
-}
-
-+ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block {
++ (RACSignal *)startEagerlyWithScheduler:(RACScheduler *)scheduler block:(void (^)(id<RACSubscriber> subscriber))block {
+	NSCParameterAssert(scheduler != nil);
 	NSCParameterAssert(block != NULL);
 
-	RACReplaySubject *subject = [[RACReplaySubject subject] setNameWithFormat:@"+startWithScheduler:subjectBlock:"];
-
-	[scheduler schedule:^{
-		block(subject);
-	}];
-	
-	return subject;
+	RACSignal *signal = [self startLazilyWithScheduler:scheduler block:block];
+	// Subscribe to force the lazy signal to call its block.
+	[[signal publish] connect];
+	return [signal setNameWithFormat:@"+startEagerlyWithScheduler:%@ block:", scheduler];
 }
 
 + (RACSignal *)startLazilyWithScheduler:(RACScheduler *)scheduler block:(void (^)(id<RACSubscriber> subscriber))block {
@@ -565,5 +544,45 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 	[[self ignoreElements] asynchronousFirstOrDefault:nil success:&success error:error];
 	return success;
 }
+
+@end
+
+@implementation RACSignal (Deprecated)
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
++ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block {
+	NSCParameterAssert(block != NULL);
+
+	RACReplaySubject *subject = [[RACReplaySubject subject] setNameWithFormat:@"+startWithScheduler:subjectBlock:"];
+
+	[scheduler schedule:^{
+		block(subject);
+	}];
+
+	return subject;
+}
+
++ (RACSignal *)start:(id (^)(BOOL *success, NSError **error))block {
+	return [[self startWithScheduler:[RACScheduler scheduler] block:block] setNameWithFormat:@"+start:"];
+}
+
++ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block {
+	return [[self startWithScheduler:scheduler subjectBlock:^(id<RACSubscriber> subscriber) {
+		BOOL success = YES;
+		NSError *error = nil;
+		id returned = block(&success, &error);
+
+		if (!success) {
+			[subscriber sendError:error];
+		} else {
+			[subscriber sendNext:returned];
+			[subscriber sendCompleted];
+		}
+	}] setNameWithFormat:@"+startWithScheduler:block:"];
+}
+
+#pragma clang diagnostic pop
 
 @end

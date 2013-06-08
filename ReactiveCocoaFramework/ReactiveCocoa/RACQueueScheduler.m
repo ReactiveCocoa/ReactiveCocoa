@@ -9,10 +9,18 @@
 #import "RACQueueScheduler.h"
 #import "RACDisposable.h"
 #import "RACScheduler+Private.h"
+#import "RACQueueScheduler+Subclass.h"
 #import <libkern/OSAtomic.h>
 
-@interface RACQueueScheduler ()
-@property (nonatomic, readonly) dispatch_queue_t queue;
+@interface RACQueueScheduler () {
+	// The current number of performs occurring with this as the current
+	// scheduler. It should only be used when `_currentSchedulerLock` is locked.
+	NSUInteger _performCount;
+
+	// The lock for the current scheduler.
+	OSSpinLock _currentSchedulerLock;
+}
+
 @end
 
 @implementation RACQueueScheduler
@@ -23,29 +31,16 @@
 	dispatch_release(_queue);
 }
 
-- (id)initWithName:(NSString *)name targetQueue:(dispatch_queue_t)targetQueue {
-	NSCParameterAssert(targetQueue != NULL);
+- (id)initWithQueue:(dispatch_queue_t)queue {
+	NSCParameterAssert(queue != NULL);
 
-	_queue = dispatch_queue_create(name.UTF8String, DISPATCH_QUEUE_SERIAL);
-	if (_queue == nil) return nil;
+	self = [super init];
+	if (self == nil) return nil;
 
-	dispatch_set_target_queue(_queue, targetQueue);
-	
-	return [super initWithName:name];
-}
+	dispatch_retain(queue);
+	_queue = queue;
 
-#pragma mark Current Scheduler
-
-static void currentSchedulerRelease(void *context) {
-	CFBridgingRelease(context);
-}
-
-- (void)performAsCurrentScheduler:(void (^)(void))block {
-	NSCParameterAssert(block != NULL);
-
-	dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, (void *)CFBridgingRetain(self), currentSchedulerRelease);
-	block();
-	dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, nil, currentSchedulerRelease);
+	return self;
 }
 
 #pragma mark RACScheduler
@@ -78,6 +73,38 @@ static void currentSchedulerRelease(void *context) {
 	return [RACDisposable disposableWithBlock:^{
 		OSAtomicOr32Barrier(1, &disposed);
 	}];
+}
+
+static void currentSchedulerRelease(void *context) {
+	CFBridgingRelease(context);
+}
+
+- (void)performAsCurrentScheduler:(void (^)(void))block {
+	NSCParameterAssert(block != NULL);
+
+	// If we're using a concurrent queue, we could end up in here concurrently,
+	// in which case we *don't* want to clear the current scheduler immediately
+	// after our block is done executing, but only *after* all our concurrent
+	// invocations are done.
+	OSSpinLockLock(&_currentSchedulerLock);
+	{
+		_performCount++;
+		if (_performCount == 1) {
+			dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, (void *)CFBridgingRetain(self), currentSchedulerRelease);
+		}
+	}
+	OSSpinLockUnlock(&_currentSchedulerLock);
+
+	block();
+
+	OSSpinLockLock(&_currentSchedulerLock);
+	{
+		_performCount--;
+		if (_performCount == 0) {
+			dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, nil, currentSchedulerRelease);
+		}
+	}
+	OSSpinLockUnlock(&_currentSchedulerLock);
 }
 
 @end

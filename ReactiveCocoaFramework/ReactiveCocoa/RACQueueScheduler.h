@@ -8,17 +8,19 @@
 
 #import <ReactiveCocoa/RACScheduler.h>
 
-// A scheduler which asynchronously enqueues all its work to a private Grand
-// Central Dispatch queue.
+// A scheduler which asynchronously enqueues all its work to a Grand Central
+// Dispatch queue.
+//
+// RACQueueScheduler may be subclassed. To subclass, import
+// `RACQueueScheduler+Subclass.h` explicitly.
 @interface RACQueueScheduler : RACScheduler
 
 // Initializes the receiver with the name of the scheduler and the queue which
-// the scheduler should target.
+// the scheduler should use.
 //
-// name        - The name of the scheduler.
-// targetQueue - The queue which the scheduler should target. Cannot be NULL.
+// queue - The queue which the scheduler should use. Cannot be NULL.
 //
 // Returns the initialized object.
-- (id)initWithName:(NSString *)name targetQueue:(dispatch_queue_t)targetQueue;
+- (id)initWithQueue:(dispatch_queue_t)queue;
 
 @end

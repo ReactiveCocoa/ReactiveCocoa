@@ -39,10 +39,7 @@ static void *NSControlCanExecuteDisposableKey = &NSControlCanExecuteDisposableKe
 	[self rac_hijackActionAndTargetIfNeeded];
 
 	@weakify(self);
-
-	RACScopedDisposable *disposable = [[[[RACAble(command, canExecute)
-		deliverOn:RACScheduler.mainThreadScheduler]
-		startWith:@(command.canExecute)]
+	RACScopedDisposable *disposable = [[RACAbleWithStart(command, canExecute)
 		subscribeNext:^(NSNumber *canExecute) {
 			@strongify(self);
 			self.enabled = canExecute.boolValue;

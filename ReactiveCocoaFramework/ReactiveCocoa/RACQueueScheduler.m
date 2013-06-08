@@ -15,10 +15,10 @@
 @interface RACQueueScheduler () {
 	// The current number of performs occurring with this as the current
 	// scheduler. It should only be used when `_currentSchedulerLock` is locked.
-	volatile int32_t _performCount;
+	NSUInteger _performCount;
 
 	// The lock for the current scheduler.
-	volatile OSSpinLock _currentSchedulerLock;
+	OSSpinLock _currentSchedulerLock;
 }
 
 @end
@@ -88,8 +88,8 @@ static void currentSchedulerRelease(void *context) {
 	// invocations are done.
 	OSSpinLockLock(&_currentSchedulerLock);
 	{
-		int32_t newValue = OSAtomicIncrement32Barrier(&_performCount);
-		if (newValue == 1) {
+		_performCount++;
+		if (_performCount == 1) {
 			dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, (void *)CFBridgingRetain(self), currentSchedulerRelease);
 		}
 	}
@@ -99,8 +99,8 @@ static void currentSchedulerRelease(void *context) {
 
 	OSSpinLockLock(&_currentSchedulerLock);
 	{
-		int32_t newValue = OSAtomicDecrement32Barrier(&_performCount);
-		if (newValue == 0) {
+		_performCount--;
+		if (_performCount == 0) {
 			dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, nil, currentSchedulerRelease);
 		}
 	}

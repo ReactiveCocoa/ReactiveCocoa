@@ -140,6 +140,8 @@
 		882D072117615381009EDA69 /* RACQueueScheduler+Subclass.h in Headers */ = {isa = PBXBuildFile; fileRef = 882D07201761521B009EDA69 /* RACQueueScheduler+Subclass.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88302BFD1762A9E6003633BD /* RACTestExampleScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 88302BFC1762A9E6003633BD /* RACTestExampleScheduler.m */; };
 		88302BFE1762A9E6003633BD /* RACTestExampleScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 88302BFC1762A9E6003633BD /* RACTestExampleScheduler.m */; };
+		88302C2E1762C180003633BD /* RACTargetQueueSchedulerSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 88302C2D1762C180003633BD /* RACTargetQueueSchedulerSpec.m */; };
+		88302C2F1762C180003633BD /* RACTargetQueueSchedulerSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 88302C2D1762C180003633BD /* RACTargetQueueSchedulerSpec.m */; };
 		8837EA1616A5A33300FC3CDF /* RACKVOTrampoline.h in Headers */ = {isa = PBXBuildFile; fileRef = 8837EA1416A5A33300FC3CDF /* RACKVOTrampoline.h */; };
 		8837EA1816A5A33300FC3CDF /* RACKVOTrampoline.m in Sources */ = {isa = PBXBuildFile; fileRef = 8837EA1516A5A33300FC3CDF /* RACKVOTrampoline.m */; };
 		8837EA1916A5A33300FC3CDF /* RACKVOTrampoline.m in Sources */ = {isa = PBXBuildFile; fileRef = 8837EA1516A5A33300FC3CDF /* RACKVOTrampoline.m */; };
@@ -517,6 +519,7 @@
 		882D07201761521B009EDA69 /* RACQueueScheduler+Subclass.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACQueueScheduler+Subclass.h"; sourceTree = "<group>"; };
 		88302BFB1762A9E6003633BD /* RACTestExampleScheduler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACTestExampleScheduler.h; sourceTree = "<group>"; };
 		88302BFC1762A9E6003633BD /* RACTestExampleScheduler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACTestExampleScheduler.m; sourceTree = "<group>"; };
+		88302C2D1762C180003633BD /* RACTargetQueueSchedulerSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACTargetQueueSchedulerSpec.m; sourceTree = "<group>"; };
 		8837EA1416A5A33300FC3CDF /* RACKVOTrampoline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACKVOTrampoline.h; sourceTree = "<group>"; };
 		8837EA1516A5A33300FC3CDF /* RACKVOTrampoline.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOTrampoline.m; sourceTree = "<group>"; };
 		8837EA1A16A5A38600FC3CDF /* NSObject+RACKVOWrapperPrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACKVOWrapperPrivate.h"; sourceTree = "<group>"; };
@@ -962,6 +965,7 @@
 				88442A331608A9AD00636B49 /* RACTestObject.m */,
 				D02221611678910900DBD031 /* RACTupleSpec.m */,
 				8803C010166732BA00C36839 /* RACSchedulerSpec.m */,
+				88302C2D1762C180003633BD /* RACTargetQueueSchedulerSpec.m */,
 				88302BFB1762A9E6003633BD /* RACTestExampleScheduler.h */,
 				88302BFC1762A9E6003633BD /* RACTestExampleScheduler.m */,
 				880D7A6516F7BB1A004A3361 /* NSObjectRACSelectorSignal.m */,
@@ -1633,6 +1637,7 @@
 				5FAF526E174D574700CAC810 /* NSString+RACSupport.m in Sources */,
 				88302BFE1762A9E6003633BD /* RACTestExampleScheduler.m in Sources */,
 				8884DD6B1756B65300F6C379 /* RACSignalStartExamples.m in Sources */,
+				88302C2F1762C180003633BD /* RACTargetQueueSchedulerSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1748,6 +1753,7 @@
 				5FDC350F1736F81900792E52 /* NSStringRACKeyPathUtilitiesSpec.m in Sources */,
 				88302BFD1762A9E6003633BD /* RACTestExampleScheduler.m in Sources */,
 				8884DD651756ACF600F6C379 /* RACSignalStartExamples.m in Sources */,
+				88302C2E1762C180003633BD /* RACTargetQueueSchedulerSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

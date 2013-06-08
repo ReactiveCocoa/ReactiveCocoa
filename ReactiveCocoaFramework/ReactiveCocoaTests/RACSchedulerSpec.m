@@ -237,44 +237,6 @@ describe(@"+subscriptionScheduler", ^{
 	});
 });
 
-describe(@"+schedulerWithQueue:name:", ^{
-	it(@"should have a valid current scheduler", ^{
-		dispatch_queue_t queue = dispatch_queue_create("test-queue", DISPATCH_QUEUE_SERIAL);
-		RACScheduler *scheduler = [RACScheduler schedulerWithQueue:queue name:@"test-scheduler"];
-		__block RACScheduler *currentScheduler;
-		[scheduler schedule:^{
-			currentScheduler = RACScheduler.currentScheduler;
-		}];
-
-		expect(currentScheduler).will.equal(scheduler);
-
-		dispatch_release(queue);
-	});
-
-	it(@"should schedule blocks FIFO even when given a concurrent queue", ^{
-		dispatch_queue_t queue = dispatch_queue_create("test-queue", DISPATCH_QUEUE_CONCURRENT);
-		RACScheduler *scheduler = [RACScheduler schedulerWithQueue:queue name:@"test-scheduler"];
-		__block volatile int32_t startedCount = 0;
-		__block volatile uint32_t waitInFirst = 1;
-		[scheduler schedule:^{
-			OSAtomicIncrement32Barrier(&startedCount);
-			while (waitInFirst == 1) ;
-		}];
-
-		[scheduler schedule:^{
-			OSAtomicIncrement32Barrier(&startedCount);
-		}];
-
-		expect(startedCount).will.equal(1);
-
-		OSAtomicAnd32Barrier(0, &waitInFirst);
-
-		expect(startedCount).will.equal(2);
-
-		dispatch_release(queue);
-	});
-});
-
 describe(@"+immediateScheduler", ^{
 	it(@"should immediately execute scheduled blocks", ^{
 		__block BOOL executed = NO;

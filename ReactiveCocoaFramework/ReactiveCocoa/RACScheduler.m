@@ -10,7 +10,7 @@
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACImmediateScheduler.h"
-#import "RACTargetedQueueScheduler.h"
+#import "RACTargetQueueScheduler.h"
 #import "RACScheduler+Private.h"
 #import "RACSubscriptionScheduler.h"
 #import <libkern/OSAtomic.h>
@@ -57,14 +57,14 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 	static dispatch_once_t onceToken;
 	static RACScheduler *mainThreadScheduler;
 	dispatch_once(&onceToken, ^{
-		mainThreadScheduler = [[RACTargetedQueueScheduler alloc] initWithName:@"com.ReactiveCocoa.RACScheduler.mainThreadScheduler" targetQueue:dispatch_get_main_queue()];
+		mainThreadScheduler = [[RACTargetQueueScheduler alloc] initWithName:@"com.ReactiveCocoa.RACScheduler.mainThreadScheduler" targetQueue:dispatch_get_main_queue()];
 	});
 	
 	return mainThreadScheduler;
 }
 
 + (instancetype)schedulerWithPriority:(RACSchedulerPriority)priority name:(NSString *)name {
-	return [[RACTargetedQueueScheduler alloc] initWithName:name targetQueue:dispatch_get_global_queue(priority, 0)];
+	return [[RACTargetQueueScheduler alloc] initWithName:name targetQueue:dispatch_get_global_queue(priority, 0)];
 }
 
 + (instancetype)schedulerWithPriority:(RACSchedulerPriority)priority {
@@ -73,12 +73,6 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 
 + (instancetype)scheduler {
 	return [self schedulerWithPriority:RACSchedulerPriorityDefault];
-}
-
-+ (instancetype)schedulerWithQueue:(dispatch_queue_t)queue name:(NSString *)name {
-	NSCParameterAssert(queue != NULL);
-
-	return [[RACTargetedQueueScheduler alloc] initWithName:name targetQueue:queue];
 }
 
 + (instancetype)subscriptionScheduler {
@@ -193,6 +187,16 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 
 		if (schedulingDisposable != nil) [selfDisposable addDisposable:schedulingDisposable];
 	}
+}
+
+@end
+
+@implementation RACScheduler (Deprecated)
+
++ (instancetype)schedulerWithQueue:(dispatch_queue_t)queue name:(NSString *)name {
+	NSCParameterAssert(queue != NULL);
+
+	return [[RACTargetQueueScheduler alloc] initWithName:name targetQueue:queue];
 }
 
 @end

@@ -13,7 +13,12 @@
 #import <libkern/OSAtomic.h>
 
 @interface RACQueueScheduler () {
+	// The current number of performs occurring with this as the current
+	// scheduler. It should only be used when `_currentSchedulerLock` is locked.
 	volatile int32_t _performCount;
+
+	// The lock for the current scheduler.
+	volatile OSSpinLock _currentSchedulerLock;
 }
 
 @end
@@ -79,18 +84,27 @@ static void currentSchedulerRelease(void *context) {
 
 	// If we're using a concurrent queue, we could end up in here concurrently,
 	// in which case we *don't* want to clear the current scheduler immediately
-	// after our block is done executing, but only after our performs are done.
-	int32_t newValue = OSAtomicIncrement32Barrier(&_performCount);
-	if (newValue == 1) {
-		dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, (void *)CFBridgingRetain(self), currentSchedulerRelease);
+	// after our block is done executing, but only *after* all our concurrent
+	// invocations are done.
+	OSSpinLockLock(&_currentSchedulerLock);
+	{
+		int32_t newValue = OSAtomicIncrement32Barrier(&_performCount);
+		if (newValue == 1) {
+			dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, (void *)CFBridgingRetain(self), currentSchedulerRelease);
+		}
 	}
+	OSSpinLockUnlock(&_currentSchedulerLock);
 
 	block();
 
-	newValue = OSAtomicDecrement32Barrier(&_performCount);
-	if (newValue == 0) {
-		dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, nil, currentSchedulerRelease);
+	OSSpinLockLock(&_currentSchedulerLock);
+	{
+		int32_t newValue = OSAtomicDecrement32Barrier(&_performCount);
+		if (newValue == 0) {
+			dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, nil, currentSchedulerRelease);
+		}
 	}
+	OSSpinLockUnlock(&_currentSchedulerLock);
 }
 
 @end

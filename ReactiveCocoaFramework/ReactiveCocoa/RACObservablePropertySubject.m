@@ -9,19 +9,13 @@
 #import "RACObservablePropertySubject.h"
 #import "EXTScope.h"
 #import "NSObject+RACDescription.h"
-#import "NSObject+RACKVOWrapper.h"
 #import "NSObject+RACObservablePropertyObserving.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "NSString+RACKeyPathUtilities.h"
 #import "RACBinding.h"
-#import "RACDisposable.h"
 #import "RACCompoundDisposable.h"
-#import "RACKVOTrampoline.h"
-#import "RACSignal+Private.h"
+#import "RACDisposable.h"
 #import "RACSubject.h"
-#import "RACSwizzling.h"
-#import "RACTuple.h"
-#import <libkern/OSAtomic.h>
 
 @interface RACObservablePropertySubject ()
 

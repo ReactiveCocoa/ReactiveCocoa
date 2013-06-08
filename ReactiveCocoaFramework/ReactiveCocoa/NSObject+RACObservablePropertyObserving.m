@@ -10,6 +10,7 @@
 #import "EXTScope.h"
 #import "NSString+RACKeyPathUtilities.h"
 #import "RACCompoundDisposable.h"
+#import "RACDisposable.h"
 #import "RACKVOTrampoline.h"
 #import "NSObject+RACPropertySubscribing.h"
 

@@ -83,6 +83,8 @@
 		5FD7DC7A174F9EAF008710B4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7C415000FCE00163A9F /* Foundation.framework */; };
 		5FD7DC7C174F9EEB008710B4 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FD7DC7B174F9EEB008710B4 /* UIKit.framework */; };
 		5FD7DC7F174F9FC8008710B4 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FD7DC7B174F9EEB008710B4 /* UIKit.framework */; };
+		5FD7DCF117636C59008710B4 /* NSObject+RACObservablePropertyObserving.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FD7DCEE17636C59008710B4 /* NSObject+RACObservablePropertyObserving.m */; };
+		5FD7DCF217636C59008710B4 /* NSObject+RACObservablePropertyObserving.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FD7DCEE17636C59008710B4 /* NSObject+RACObservablePropertyObserving.m */; };
 		5FDC35051736F54700792E52 /* NSString+RACKeyPathUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FDC35021736F54700792E52 /* NSString+RACKeyPathUtilities.m */; };
 		5FDC35061736F54700792E52 /* NSString+RACKeyPathUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FDC35021736F54700792E52 /* NSString+RACKeyPathUtilities.m */; };
 		5FDC350F1736F81900792E52 /* NSStringRACKeyPathUtilitiesSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FDC350E1736F81800792E52 /* NSStringRACKeyPathUtilitiesSpec.m */; };
@@ -467,6 +469,8 @@
 		5FAF5261174D4D8E00CAC810 /* UIBarButtonItemRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIBarButtonItemRACSupportSpec.m; sourceTree = "<group>"; };
 		5FAF5288174E9CD200CAC810 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = DEVELOPER_DIR; };
 		5FD7DC7B174F9EEB008710B4 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		5FD7DCED17636C59008710B4 /* NSObject+RACObservablePropertyObserving.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACObservablePropertyObserving.h"; sourceTree = "<group>"; };
+		5FD7DCEE17636C59008710B4 /* NSObject+RACObservablePropertyObserving.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACObservablePropertyObserving.m"; sourceTree = "<group>"; };
 		5FDC35011736F54600792E52 /* NSString+RACKeyPathUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RACKeyPathUtilities.h"; sourceTree = "<group>"; };
 		5FDC35021736F54700792E52 /* NSString+RACKeyPathUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+RACKeyPathUtilities.m"; sourceTree = "<group>"; };
 		5FDC350E1736F81800792E52 /* NSStringRACKeyPathUtilitiesSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringRACKeyPathUtilitiesSpec.m; sourceTree = "<group>"; };
@@ -794,6 +798,8 @@
 				5F6FE8521692568A00A8D7A6 /* RACBinding.m */,
 				5F45A883168CFA3E00B58A2B /* RACObservablePropertySubject.h */,
 				5F45A884168CFA3E00B58A2B /* RACObservablePropertySubject.m */,
+				5FD7DCED17636C59008710B4 /* NSObject+RACObservablePropertyObserving.h */,
+				5FD7DCEE17636C59008710B4 /* NSObject+RACObservablePropertyObserving.m */,
 				5F6FE84B169251E900A8D7A6 /* NSObject+RACObservablePropertySubject.h */,
 				5F6FE84E1692524B00A8D7A6 /* NSObject+RACObservablePropertySubject.m */,
 				8857BB81152A27A9009804CC /* NSObject+RACKVOWrapper.h */,
@@ -1679,6 +1685,7 @@
 				D07CD7181731BA3900DE2394 /* RACUnarySequence.m in Sources */,
 				5FDC35051736F54700792E52 /* NSString+RACKeyPathUtilities.m in Sources */,
 				D0D243BD1741FA13004359C6 /* NSObject+RACDescription.m in Sources */,
+				5FD7DCF117636C59008710B4 /* NSObject+RACObservablePropertyObserving.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1794,6 +1801,7 @@
 				1EC06B18173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.m in Sources */,
 				5FDC35061736F54700792E52 /* NSString+RACKeyPathUtilities.m in Sources */,
 				D0D243BE1741FA13004359C6 /* NSObject+RACDescription.m in Sources */,
+				5FD7DCF217636C59008710B4 /* NSObject+RACObservablePropertyObserving.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

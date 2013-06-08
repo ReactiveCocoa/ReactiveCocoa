@@ -10,6 +10,7 @@
 #import "EXTScope.h"
 #import "NSObject+RACDescription.h"
 #import "NSObject+RACKVOWrapper.h"
+#import "NSObject+RACObservablePropertyObserving.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "NSString+RACKeyPathUtilities.h"
 #import "RACBinding.h"
@@ -59,29 +60,6 @@
 // The subscriber exposed to callers. The binding will behave like this
 // subscriber towards the signals it's subscribed to.
 @property (nonatomic, readonly, strong) id<RACSubscriber> exposedSubscriber;
-
-@end
-
-@interface NSObject (RACObservablePropertyObserving)
-
-// Adds the given blocks as the callbacks for when the key path changes and
-// calls them immediately. Unlike direct KVO observation this handles
-// deallocation of intermediate objects.
-//
-// The blocks are passed whether the change was triggered by last key path
-// component or by the deallocation or change of an intermediate key path
-// component, and the new value of the key path if applicable. The observer does
-// not need to be explicitly removed. It will be removed when the observer or
-// the receiver deallocate. The blocks can be called on different threads, but
-// will not be called concurrently.
-//
-// observer        - The object that requested the observation.
-// keyPath         - The key path to observe.
-// willChangeBlock - The block called before the value at the key path changes.
-// didChangeBlock  - The block called after the value at the key path changes.
-//
-// Returns a disposable that can be used to stop the observation.
-- (RACDisposable *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath willChangeBlock:(void(^)(BOOL triggeredByLastKeyPathComponent))willChangeBlock didChangeBlock:(void(^)(BOOL triggeredByLastKeyPathComponent, id value))didChangeBlock;
 
 @end
 
@@ -254,78 +232,6 @@
 	}]];
 	
 	return binding;
-}
-
-@end
-
-@implementation NSObject (RACObservablePropertyObserving)
-
-- (RACDisposable *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath willChangeBlock:(void (^)(BOOL))willChangeBlock didChangeBlock:(void (^)(BOOL, id))didChangeBlock {
-	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
-	NSArray *keyPathComponents = keyPath.rac_keyPathComponents;
-	NSUInteger keyPathComponentsCount = keyPathComponents.count;
-	NSString *firstKeyPathComponent = keyPathComponents[0];
-	NSString *keyPathByDeletingFirstKeyPathComponent = keyPath.rac_keyPathByDeletingFirstKeyPathComponent;
-	
-	@unsafeify(observer);
-	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
-	__block RACCompoundDisposable *childDisposable = nil;
-	
-	RACKVOTrampoline *trampoline = [self rac_addObserver:observer forKeyPath:firstKeyPathComponent options:NSKeyValueObservingOptionPrior | NSKeyValueObservingOptionInitial block:^(id trampolineTarget, id trampolineObserver, NSDictionary *change) {
-		@strongify(observer);
-		
-		if (keyPathComponentsCount > 1) {
-			NSObject *value = [trampolineTarget valueForKey:firstKeyPathComponent];
-			if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
-				if (value == nil) {
-					@synchronized (observer) {
-						willChangeBlock(NO);
-					}
-				}
-			} else {
-				if (value != nil) {
-					@synchronized (disposable) {
-						[childDisposable dispose];
-						[disposable removeDisposable:childDisposable];
-						childDisposable = [RACCompoundDisposable compoundDisposable];
-						[disposable addDisposable:childDisposable];
-					}
-					[childDisposable addDisposable:[value rac_addObserver:observer forKeyPath:keyPathByDeletingFirstKeyPathComponent willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock]];
-					
-					RACCompoundDisposable *valueDisposable = value.rac_deallocDisposable;
-					RACDisposable *deallocDisposable = [RACDisposable disposableWithBlock:^{
-						@strongify(observer);
-						@synchronized (observer) {
-							didChangeBlock(NO, nil);
-						}
-					}];
-					[valueDisposable addDisposable:deallocDisposable];
-					[childDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-						[valueDisposable removeDisposable:deallocDisposable];
-					}]];
-				} else {
-					@synchronized (observer) {
-						didChangeBlock(NO, nil);
-					}
-				}
-			}
-		} else {
-			if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
-				@synchronized (observer) {
-					willChangeBlock(YES);
-				}
-			} else {
-				@synchronized (observer) {
-					didChangeBlock(YES, [trampolineTarget valueForKey:firstKeyPathComponent]);
-				}
-			}
-		}
-	}];
-	
-	[disposable addDisposable:[RACDisposable disposableWithBlock:^{
-		[trampoline stopObserving];
-	}]];
-	return disposable;
 }
 
 @end

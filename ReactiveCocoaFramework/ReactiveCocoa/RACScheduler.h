@@ -114,6 +114,6 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 
 @interface RACScheduler (Deprecated)
 
-+ (instancetype)schedulerWithQueue:(dispatch_queue_t)queue name:(NSString *)name __attribute__((deprecated("Use -[RACTargetQueueScheduler initWithQueue:] instead.")));
++ (instancetype)schedulerWithQueue:(dispatch_queue_t)queue name:(NSString *)name __attribute__((deprecated("Use -[RACTargetQueueScheduler initWithName:targetQueue:] instead.")));
 
 @end

@@ -23,6 +23,7 @@ void RACAddEventTrampoline(id object, RACEventTrampoline *trampoline);
 
 + (instancetype)trampolineForControl:(UIControl *)control controlEvents:(UIControlEvents)controlEvents;
 + (instancetype)trampolineForTextView:(UITextView *)textView delegateMethod:(SEL)method;
++ (instancetype)trampolineForTextField:(UITextField *)textField delegateMethod:(SEL)method;
 
 // Returns an event trampoline for the given gesture.
 + (instancetype)trampolineForGestureRecognizer:(UIGestureRecognizer *)gesture;

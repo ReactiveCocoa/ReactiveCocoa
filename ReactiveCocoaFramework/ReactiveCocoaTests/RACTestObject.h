@@ -12,6 +12,8 @@
 
 @property (nonatomic, strong) id objectValue;
 @property (nonatomic, strong) id secondObjectValue;
+@property (nonatomic, strong) RACTestObject *strongTestObjectValue;
+@property (nonatomic, weak) RACTestObject *weakTestObjectValue;
 @property (nonatomic, assign) NSInteger integerValue;
 @property (nonatomic, assign) char *charPointerValue;
 @property (nonatomic, assign) const char *constCharPointerValue;
@@ -19,6 +21,10 @@
 @property (nonatomic, assign) CGSize sizeValue;
 @property (nonatomic, assign) CGPoint pointValue;
 @property (nonatomic, assign) NSRange rangeValue;
+@property (nonatomic, copy) NSString *stringValue;
+@property (nonatomic, copy) NSArray *arrayValue;
+@property (nonatomic, copy) NSSet *setValue;
+@property (nonatomic, copy) NSOrderedSet *orderedSetValue;
 
 // Has -setObjectValue:andIntegerValue: been called?
 @property (nonatomic, assign) BOOL hasInvokedSetObjectValueAndIntegerValue;

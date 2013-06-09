@@ -59,6 +59,9 @@
 					[childDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 						[valueDisposable removeDisposable:deallocDisposable];
 					}]];
+					[observer rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+						[valueDisposable removeDisposable:deallocDisposable];
+					}]];
 				} else {
 					@synchronized (observer) {
 						didChangeBlock(NO, nil);

@@ -35,6 +35,13 @@ it(@"should add and remove an observer", ^{
 	expect(notified).will.beTruthy();
 });
 
+it(@"should accept a nil observer", ^{
+	NSBlockOperation *operation = [NSBlockOperation blockOperationWithBlock:^{}];
+	RACKVOTrampoline *trampoline = [operation rac_addObserver:nil forKeyPath:@"isFinished" options:NSKeyValueObservingOptionNew block:^(id target, id observer, NSDictionary *change) {
+	}];
+	expect(trampoline).notTo.beNil();
+});
+
 it(@"automatically stops KVO on subclasses when the target deallocates", ^{
 	void (^testKVOOnSubclass)(Class targetClass) = ^(Class targetClass) {
 		__weak id weakTarget = nil;

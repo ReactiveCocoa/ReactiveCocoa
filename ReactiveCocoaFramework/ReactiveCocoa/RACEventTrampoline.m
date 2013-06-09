@@ -99,6 +99,33 @@ static NSMutableDictionary *swizzledClasses() {
     return trampoline;
 }
 
++ (instancetype)trampolineForTextField:(UITextField *)textField delegateMethod:(SEL)method {
+    RACEventTrampoline *trampoline = [[self alloc] init];
+    [trampoline setDelegateMethod:method];
+    
+    @synchronized(swizzledClasses()) {
+        Class class = [textField class];
+		NSString *keyName = NSStringFromClass(class);
+		if ([swizzledClasses() objectForKey:keyName] == nil) {
+			RACSwizzle(class, @selector(setDelegate:), @selector(rac_setDelegate:));
+			[swizzledClasses() setObject:[NSNull null] forKey:keyName];
+		}
+    }
+    
+    if ([[textField delegate] isKindOfClass:[RACDelegateProxy class]]) {
+        [(RACDelegateProxy *)textField.delegate addTrampoline:trampoline];
+    } else {
+        Protocol *protocol = @protocol(UITextFieldDelegate);
+        
+        RACDelegateProxy *proxy = [RACDelegateProxy proxyWithProtocol:protocol andDelegator:textField];
+        [proxy addTrampoline:trampoline];
+        
+        [textField setDelegate:(id<UITextFieldDelegate>)proxy];
+    }
+    
+    return trampoline;
+}
+
 - (void)dealloc {
 	[_subject sendCompleted];
 }

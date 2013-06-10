@@ -125,7 +125,7 @@ sharedExamplesFor(RACObservablePropertyObservingExamples, ^(NSDictionary *data) 
 		expect(didChangeBlockCallCount).to.equal(0);
 	});
 	
-	it(@"should call only didChangeBlock once when the value is deallocated", ^{
+	it(@"should call only didChangeBlock at least once when the value is deallocated", ^{
 		__block BOOL valueDidDealloc = NO;
 
 		[target rac_addObserver:nil forKeyPath:keyPath willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
@@ -143,8 +143,7 @@ sharedExamplesFor(RACObservablePropertyObservingExamples, ^(NSDictionary *data) 
 		
 		expect(valueDidDealloc).to.beTruthy();
 		expect(willChangeBlockCallCount).to.equal(0);
-		expect(didChangeBlockCallCount).to.equal(1);
-		expect(didChangeBlockTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
+		expect(didChangeBlockCallCount).to.beGreaterThanOrEqualTo(1);
 	});
 });
 

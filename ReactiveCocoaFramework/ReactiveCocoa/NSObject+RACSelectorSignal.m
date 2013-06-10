@@ -56,13 +56,18 @@ static RACSignal *NSObjectRACSignalForSelector(id self, SEL selector) {
 		}]];
 
 		Class class = object_getClass(self);
-		NSString *subclassSuffix = class_isMetaClass(class) ? @"_RACClassProxy" : @"_RACObjectProxy";
-		NSString *proxySubclassName = [[class description] stringByAppendingString:subclassSuffix];
-		Class proxySubclass = NSClassFromString(proxySubclassName);
+		Class proxySubclass = NULL;
+		if (strncmp(class_getName(class), "NSKVONotifying_", 15) == 0) {
+			proxySubclass = class;
+		} else {
+			NSString *subclassSuffix = class_isMetaClass(class) ? @"_RACClassProxy" : @"_RACObjectProxy";
+			NSString *proxySubclassName = [[class description] stringByAppendingString:subclassSuffix];
+			proxySubclass = NSClassFromString(proxySubclassName);
 
-		if (proxySubclass == nil) {
-			proxySubclass = objc_allocateClassPair(class, proxySubclassName.UTF8String, 0);
-			objc_registerClassPair(proxySubclass);
+			if (proxySubclass == nil) {
+				proxySubclass = objc_allocateClassPair(class, proxySubclassName.UTF8String, 0);
+				objc_registerClassPair(proxySubclass);
+			}
 		}
 
 		class_replaceMethod(proxySubclass, @selector(forwardInvocation:), (IMP)RACSignalForSelectorForwardingIMP, "v@:@");

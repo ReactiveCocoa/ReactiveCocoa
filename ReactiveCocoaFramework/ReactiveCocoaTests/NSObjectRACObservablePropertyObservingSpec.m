@@ -47,6 +47,8 @@ sharedExamplesFor(RACObservablePropertyObservingExamples, ^(NSDictionary *data) 
 	
 	__block NSUInteger willChangeBlockCallCount = 0;
 	__block NSUInteger didChangeBlockCallCount = 0;
+	__block BOOL willChangeBlockTriggeredByLastKeyPathComponent = NO;
+	__block BOOL didChangeBlockTriggeredByLastKeyPathComponent = NO;
 	__block void(^willChangeBlock)(BOOL) = nil;
 	__block void(^didChangeBlock)(BOOL, id) = nil;
 	
@@ -61,19 +63,31 @@ sharedExamplesFor(RACObservablePropertyObservingExamples, ^(NSDictionary *data) 
 		didChangeBlockCallCount = 0;
 		
 		willChangeBlock = [^(BOOL triggeredByLastKeyPathComponent) {
-			expect(triggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
+			willChangeBlockTriggeredByLastKeyPathComponent = triggeredByLastKeyPathComponent;
 			++willChangeBlockCallCount;
 		} copy];
 		didChangeBlock = [^(BOOL triggeredByLastKeyPathComponent, id value) {
-			expect(triggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
+			didChangeBlockTriggeredByLastKeyPathComponent = triggeredByLastKeyPathComponent;
 			++didChangeBlockCallCount;
 		} copy];
 	});
-	
+
+	afterEach(^{
+		target = nil;
+		keyPath = nil;
+		changeBlock = nil;
+		valueBlock = nil;
+		changesValueDirectly = NO;
+
+		willChangeBlock = nil;
+		didChangeBlock = nil;
+	});
+
 	it(@"should call only didChangeBlock once on add", ^{
 		[target rac_addObserver:nil forKeyPath:keyPath willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
 		expect(willChangeBlockCallCount).to.equal(0);
 		expect(didChangeBlockCallCount).to.equal(1);
+		expect(didChangeBlockTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
 	});
 	
 	it(@"should call willChangeBlock and didChangeBlock once per change", ^{
@@ -85,11 +99,15 @@ sharedExamplesFor(RACObservablePropertyObservingExamples, ^(NSDictionary *data) 
 		changeBlock(target, value1);
 		expect(willChangeBlockCallCount).to.equal(1);
 		expect(didChangeBlockCallCount).to.equal(1);
-		
+		expect(willChangeBlockTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
+		expect(didChangeBlockTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
+
 		id value2 = valueBlock();
 		changeBlock(target, value2);
 		expect(willChangeBlockCallCount).to.equal(2);
 		expect(didChangeBlockCallCount).to.equal(2);
+		expect(willChangeBlockTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
+		expect(didChangeBlockTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
 	});
 	
 	it(@"should not call willChangeBlock and didChangeBlock after it's been disposed", ^{
@@ -109,7 +127,7 @@ sharedExamplesFor(RACObservablePropertyObservingExamples, ^(NSDictionary *data) 
 	
 	it(@"should call only didChangeBlock once when the value is deallocated", ^{
 		__block BOOL valueDidDealloc = NO;
-		
+
 		[target rac_addObserver:nil forKeyPath:keyPath willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
 		
 		@autoreleasepool {
@@ -126,6 +144,7 @@ sharedExamplesFor(RACObservablePropertyObservingExamples, ^(NSDictionary *data) 
 		expect(valueDidDealloc).to.beTruthy();
 		expect(willChangeBlockCallCount).to.equal(0);
 		expect(didChangeBlockCallCount).to.equal(1);
+		expect(didChangeBlockTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
 	});
 });
 

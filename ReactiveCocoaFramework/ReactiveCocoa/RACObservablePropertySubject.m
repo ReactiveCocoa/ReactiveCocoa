@@ -187,7 +187,8 @@
 			[updatesSubject sendNext:value];
 			return;
 		}
-		if (stackDepth > 0) --stackDepth;
+		--stackDepth;
+		NSCAssert(stackDepth != NSUIntegerMax, @"%@ called didChangeValueForKey: without corresponding willChangeValueForKey:", keyPath);
 		if (stackDepth == 0 && ignoreNextUpdate) {
 			ignoreNextUpdate = NO;
 			return;

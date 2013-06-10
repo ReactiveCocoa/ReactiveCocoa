@@ -43,7 +43,7 @@ it(@"should accept a nil observer", ^{
 });
 
 it(@"automatically stops KVO on subclasses when the target deallocates", ^{
-	void (^testKVOOnSubclass)(Class targetClass) = ^(Class targetClass) {
+	void (^testKVOOnSubclass)(Class targetClass, id observer) = ^(Class targetClass, id observer) {
 		__weak id weakTarget = nil;
 		__weak id identifier = nil;
 
@@ -55,7 +55,7 @@ it(@"automatically stops KVO on subclasses when the target deallocates", ^{
 			weakTarget = (__bridge id)target;
 			expect(weakTarget).notTo.beNil();
 
-			identifier = [(__bridge id)target rac_addObserver:self forKeyPath:@"isFinished" options:0 block:^(id target, id observer, NSDictionary *change){}];
+			identifier = [(__bridge id)target rac_addObserver:observer forKeyPath:@"isFinished" options:0 block:^(id target, id observer, NSDictionary *change){}];
 			expect(identifier).notTo.beNil();
 
 			CFRelease(target);
@@ -66,11 +66,19 @@ it(@"automatically stops KVO on subclasses when the target deallocates", ^{
 	};
 
 	it (@"stops KVO on NSObject subclasses", ^{
-		testKVOOnSubclass(NSOperation.class);
+		testKVOOnSubclass(NSOperation.class, self);
 	});
 
 	it(@"stops KVO on subclasses of already-swizzled classes", ^{
-		testKVOOnSubclass(RACTestOperation.class);
+		testKVOOnSubclass(RACTestOperation.class, self);
+	});
+
+	it (@"stops KVO on NSObject subclasses even with a nil observer", ^{
+		testKVOOnSubclass(NSOperation.class, nil);
+	});
+
+	it(@"stops KVO on subclasses of already-swizzled classes even with a nil observer", ^{
+		testKVOOnSubclass(RACTestOperation.class, nil);
 	});
 });
 

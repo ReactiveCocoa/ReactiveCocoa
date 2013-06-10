@@ -29,7 +29,7 @@ static NSMutableSet *swizzledClasses() {
 - (RACKVOTrampoline *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(RACKVOBlock)block {
 	void (^swizzle)(Class) = ^(Class classToSwizzle){
 		NSString *className = NSStringFromClass(classToSwizzle);
-		NSCAssert(![className isEqual:@"NSObject"], @"NSObject's dealloc must not be swizzled.");
+		NSCAssert(![classToSwizzle isEqual:NSObject.class], @"NSObject's dealloc must not be swizzled.");
 		if (className == nil) return;
 		if ([swizzledClasses() containsObject:className]) return;
 

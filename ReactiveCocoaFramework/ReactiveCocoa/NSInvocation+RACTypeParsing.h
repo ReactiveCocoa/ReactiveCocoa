@@ -32,6 +32,8 @@
 // Returns the argument of the invocation, wrapped in an object.
 - (id)rac_argumentAtIndex:(NSUInteger)index;
 
+- (NSArray *)rac_allArguments;
+
 // Gets the return value from the invocation based on the invocation's method
 // signature. The value is then wrapped in the appropriate object type.
 //

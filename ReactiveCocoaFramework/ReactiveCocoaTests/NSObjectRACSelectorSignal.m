@@ -11,6 +11,8 @@
 #import "NSObject+RACSelectorSignal.h"
 #import "RACSignal.h"
 #import "RACTuple.h"
+#import "NSObject+RACPropertySubscribing.h"
+#import "RACSignal+Operations.h"
 
 SpecBegin(NSObjectRACSelectorSignal)
 
@@ -72,6 +74,42 @@ describe(@"with an instance method", ^{
 		}];
 
 		[object performSelector:@selector(setObject:forKey:) withObject:@YES withObject:@"Winner"];
+
+		expect(value).to.equal(@YES);
+		expect(key).to.equal(@"Winner");
+	});
+
+	it(@"should work on KVO'd receiver", ^{
+		RACSubclassObject *object = [[RACSubclassObject alloc] init];
+
+		[RACAble(object, objectValue) replayLast];
+
+		__block id key;
+		__block id value;
+		[[object rac_signalForSelector:@selector(setObjectValue:andSecondObjectValue:)] subscribeNext:^(RACTuple *x) {
+			value = x.first;
+			key = x.second;
+		}];
+
+		[object setObjectValue:@YES andSecondObjectValue:@"Winner"];
+
+		expect(value).to.equal(@YES);
+		expect(key).to.equal(@"Winner");
+	});
+
+	it(@"should work when receiver is subsequently KVO'd", ^{
+		RACSubclassObject *object = [[RACSubclassObject alloc] init];
+
+		__block id key;
+		__block id value;
+		[[object rac_signalForSelector:@selector(setObjectValue:andSecondObjectValue:)] subscribeNext:^(RACTuple *x) {
+			value = x.first;
+			key = x.second;
+		}];
+
+		[RACAble(object, objectValue) replayLast];
+
+		[object setObjectValue:@YES andSecondObjectValue:@"Winner"];
 
 		expect(value).to.equal(@YES);
 		expect(key).to.equal(@"Winner");

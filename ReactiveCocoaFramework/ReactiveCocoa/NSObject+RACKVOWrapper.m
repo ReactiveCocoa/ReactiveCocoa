@@ -29,6 +29,9 @@ static NSMutableSet *swizzledClasses() {
 - (RACKVOTrampoline *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(RACKVOBlock)block {
 	void (^swizzle)(Class) = ^(Class classToSwizzle){
 		NSString *className = NSStringFromClass(classToSwizzle);
+		NSCAssert(![classToSwizzle isEqual:NSObject.class], @"Swizzling -[NSObject dealloc] is unsafe, use a subclass instead.");
+
+		if (className == nil) return;
 		if ([swizzledClasses() containsObject:className]) return;
 
 		SEL deallocSelector = sel_registerName("dealloc");

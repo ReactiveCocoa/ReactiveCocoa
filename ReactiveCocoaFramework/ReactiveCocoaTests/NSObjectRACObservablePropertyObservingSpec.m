@@ -49,8 +49,9 @@ sharedExamplesFor(RACObservablePropertyObservingExamples, ^(NSDictionary *data) 
 	__block NSUInteger didChangeBlockCallCount = 0;
 	__block BOOL willChangeBlockTriggeredByLastKeyPathComponent = NO;
 	__block BOOL didChangeBlockTriggeredByLastKeyPathComponent = NO;
+	__block BOOL didChangeBlockTriggeredByDeallocation = NO;
 	__block void(^willChangeBlock)(BOOL) = nil;
-	__block void(^didChangeBlock)(BOOL, id) = nil;
+	__block void(^didChangeBlock)(BOOL, BOOL, id) = nil;
 	
 	beforeEach(^{
 		target = ((NSObject *(^)(void))data[RACObservablePropertyObservingExamplesTargetBlock])();
@@ -66,8 +67,9 @@ sharedExamplesFor(RACObservablePropertyObservingExamples, ^(NSDictionary *data) 
 			willChangeBlockTriggeredByLastKeyPathComponent = triggeredByLastKeyPathComponent;
 			++willChangeBlockCallCount;
 		} copy];
-		didChangeBlock = [^(BOOL triggeredByLastKeyPathComponent, id value) {
+		didChangeBlock = [^(BOOL triggeredByLastKeyPathComponent, BOOL triggeredByDeallocation, id value) {
 			didChangeBlockTriggeredByLastKeyPathComponent = triggeredByLastKeyPathComponent;
+			didChangeBlockTriggeredByDeallocation = triggeredByDeallocation;
 			++didChangeBlockCallCount;
 		} copy];
 	});
@@ -83,11 +85,10 @@ sharedExamplesFor(RACObservablePropertyObservingExamples, ^(NSDictionary *data) 
 		didChangeBlock = nil;
 	});
 
-	it(@"should call only didChangeBlock once on add", ^{
+	it(@"should not call willChangeBlock or didChangeBlock on add", ^{
 		[target rac_addObserver:nil forKeyPath:keyPath willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
 		expect(willChangeBlockCallCount).to.equal(0);
-		expect(didChangeBlockCallCount).to.equal(1);
-		expect(didChangeBlockTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
+		expect(didChangeBlockCallCount).to.equal(0);
 	});
 	
 	it(@"should call willChangeBlock and didChangeBlock once per change", ^{
@@ -101,6 +102,7 @@ sharedExamplesFor(RACObservablePropertyObservingExamples, ^(NSDictionary *data) 
 		expect(didChangeBlockCallCount).to.equal(1);
 		expect(willChangeBlockTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
 		expect(didChangeBlockTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
+		expect(didChangeBlockTriggeredByDeallocation).to.beFalsy();
 
 		id value2 = valueBlock();
 		changeBlock(target, value2);
@@ -108,6 +110,7 @@ sharedExamplesFor(RACObservablePropertyObservingExamples, ^(NSDictionary *data) 
 		expect(didChangeBlockCallCount).to.equal(2);
 		expect(willChangeBlockTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
 		expect(didChangeBlockTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
+		expect(didChangeBlockTriggeredByDeallocation).to.beFalsy();
 	});
 	
 	it(@"should not call willChangeBlock and didChangeBlock after it's been disposed", ^{
@@ -144,6 +147,7 @@ sharedExamplesFor(RACObservablePropertyObservingExamples, ^(NSDictionary *data) 
 		expect(valueDidDealloc).to.beTruthy();
 		expect(willChangeBlockCallCount).to.equal(0);
 		expect(didChangeBlockCallCount).to.beGreaterThanOrEqualTo(1);
+		expect(didChangeBlockTriggeredByDeallocation).to.beTruthy();
 	});
 });
 
@@ -219,7 +223,7 @@ describe(@"-rac_addObserver:forKeyPath:willChangeBlock:didChangeBlock:", ^{
 				RACObservablePropertyObservingExamplesKeyPath: @keypath([[RACTestObject alloc] init], weakTestObjectValue.strongTestObjectValue),
 				RACObservablePropertyObservingExamplesChangeBlock: changeBlock,
 				RACObservablePropertyObservingExamplesValueBlock: valueBlock,
-				RACObservablePropertyObservingExamplesChangesValueDirectly: @YES
+				RACObservablePropertyObservingExamplesChangesValueDirectly: @NO
 			});
 		});
 	});

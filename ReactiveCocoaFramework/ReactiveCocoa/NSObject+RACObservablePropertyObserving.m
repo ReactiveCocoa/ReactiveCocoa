@@ -16,7 +16,7 @@
 
 @implementation NSObject (RACObservablePropertyObserving)
 
-- (RACDisposable *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath willChangeBlock:(void (^)(BOOL))willChangeBlock didChangeBlock:(void (^)(BOOL, id))didChangeBlock {
+- (RACDisposable *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath willChangeBlock:(void (^)(BOOL))willChangeBlock didChangeBlock:(void (^)(BOOL, BOOL, id))didChangeBlock {
 	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
 	NSCParameterAssert(willChangeBlock != nil || didChangeBlock != nil);
 	id synchronizationToken = willChangeBlock;
@@ -27,9 +27,29 @@
 	NSString *keyPathByDeletingFirstKeyPathComponent = keyPath.rac_keyPathByDeletingFirstKeyPathComponent;
 
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
-	__block RACCompoundDisposable *childDisposable = nil;
-	
-	RACKVOTrampoline *trampoline = [self rac_addObserver:observer forKeyPath:firstKeyPathComponent options:NSKeyValueObservingOptionPrior | NSKeyValueObservingOptionInitial block:^(id trampolineTarget, id trampolineObserver, NSDictionary *change) {
+	__block RACCompoundDisposable *childDisposable = [RACCompoundDisposable compoundDisposable];
+	[disposable addDisposable:childDisposable];
+
+	void (^addDeallocObserverToValue)(NSObject *) = ^(NSObject *value) {
+		if (didChangeBlock != nil) {
+			RACCompoundDisposable *valueDisposable = value.rac_deallocDisposable;
+			RACDisposable *deallocDisposable = [RACDisposable disposableWithBlock:^{
+				@synchronized (synchronizationToken) {
+					didChangeBlock(keyPathComponentsCount == 1, YES, nil);
+				}
+			}];
+			[valueDisposable addDisposable:deallocDisposable];
+			[childDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				[valueDisposable removeDisposable:deallocDisposable];
+			}]];
+		}
+	};
+
+	void (^addObserverToValue)(NSObject *) = ^(NSObject *value) {
+		[childDisposable addDisposable:[value rac_addObserver:observer forKeyPath:keyPathByDeletingFirstKeyPathComponent willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock]];
+	};
+
+	RACKVOTrampoline *trampoline = [self rac_addObserver:observer forKeyPath:firstKeyPathComponent options:NSKeyValueObservingOptionPrior block:^(id trampolineTarget, id trampolineObserver, NSDictionary *change) {
 		
 		NSObject *value = [trampolineTarget valueForKey:firstKeyPathComponent];
 
@@ -54,38 +74,38 @@
 		if (value == nil) {
 			if (didChangeBlock != nil) {
 				@synchronized (synchronizationToken) {
-					didChangeBlock(keyPathComponentsCount == 1, nil);
+					didChangeBlock(keyPathComponentsCount == 1, NO, nil);
 				}
 			}
 			return;
 		}
 
-		if (didChangeBlock != nil) {
-			RACCompoundDisposable *valueDisposable = value.rac_deallocDisposable;
-			RACDisposable *deallocDisposable = [RACDisposable disposableWithBlock:^{
-				@synchronized (synchronizationToken) {
-					didChangeBlock(keyPathComponentsCount == 1, nil);
-				}
-			}];
-			[valueDisposable addDisposable:deallocDisposable];
-			[childDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-				[valueDisposable removeDisposable:deallocDisposable];
-			}]];
-		}
+		addDeallocObserverToValue(value);
 
 		if (keyPathComponentsCount == 1) {
 			if (didChangeBlock != nil) {
-				didChangeBlock(YES, value);
+				didChangeBlock(YES, NO, value);
 			}
 			return;
 		}
 
-		[childDisposable addDisposable:[value rac_addObserver:observer forKeyPath:keyPathByDeletingFirstKeyPathComponent willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock]];
+		addObserverToValue(value);
+		if (didChangeBlock != nil) {
+			didChangeBlock(NO, NO, [value valueForKeyPath:keyPathByDeletingFirstKeyPathComponent]);
+		}
 	}];
 	
 	[disposable addDisposable:[RACDisposable disposableWithBlock:^{
 		[trampoline stopObserving];
 	}]];
+
+	if (keyPathComponentsCount > 1) {
+		NSObject *value = [self valueForKey:firstKeyPathComponent];
+		if (value != nil) {
+			addDeallocObserverToValue(value);
+			addObserverToValue(value);
+		}
+	}
 
 	[observer rac_addDeallocDisposable:disposable];
 	[self rac_addDeallocDisposable:disposable];

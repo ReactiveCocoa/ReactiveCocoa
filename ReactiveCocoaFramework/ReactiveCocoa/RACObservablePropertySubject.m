@@ -182,8 +182,8 @@
 	[target rac_addObserver:binding forKeyPath:keyPath willChangeBlock:^(BOOL triggeredByLastKeyPathComponent) {
 		if (!triggeredByLastKeyPathComponent) return;
 		++stackDepth;
-	} didChangeBlock:^(BOOL triggeredByLastKeyPathComponent, id value) {
-		if (!triggeredByLastKeyPathComponent) {
+	} didChangeBlock:^(BOOL triggeredByLastKeyPathComponent, BOOL triggeredByDeallocation, id value) {
+		if (!triggeredByLastKeyPathComponent || triggeredByDeallocation) {
 			[updatesSubject sendNext:value];
 			return;
 		}

@@ -175,27 +175,51 @@
 	binding->_keyPath = [keyPath copy];
 	
 	@weakify(binding);
+
+	// The flag used to ignore updates the binding itself has triggered.
 	__block BOOL ignoreNextUpdate = NO;
+
+	// The depth of the current -willChangeValueForKey: / -didChangeValueForKey:
+	// call stack.
 	__block NSUInteger stackDepth = 0;
+
+	// The subject used to multicast changes to the property to the binding's
+	// subscribers.
 	RACSubject *updatesSubject = [RACSubject subject];
-	
+
+	// Observe the key path on target for changes. Update the value of stackDepth
+	// accordingly and forward the changes to updatesSubject.
 	[target rac_addObserver:binding forKeyPath:keyPath willChangeBlock:^(BOOL triggeredByLastKeyPathComponent) {
+		// The binding only triggers changes to the last path component, no need to
+		// track the stack depth if this is not the case.
 		if (!triggeredByLastKeyPathComponent) return;
 		++stackDepth;
 	} didChangeBlock:^(BOOL triggeredByLastKeyPathComponent, BOOL triggeredByDeallocation, id value) {
+		// The binding only triggers changes to the last path component, if the
+		// change wasn't triggered by the last path component, or was triggered by
+		// a deallocation, it definitely wasn't triggered by this binding, so just
+		// forward it.
 		if (!triggeredByLastKeyPathComponent || triggeredByDeallocation) {
 			[updatesSubject sendNext:value];
 			return;
 		}
+
 		--stackDepth;
 		NSCAssert(stackDepth != NSUIntegerMax, @"%@ called didChangeValueForKey: without corresponding willChangeValueForKey:", keyPath);
+		// If the current stackDepth is greater than 0, then the change was
+		// triggered by a callback on -willChangeValueForKey:, and not by the
+		// binding itself. If however the stackDepth is 0, and ignoreNextUpdate is
+		// set, the changes was triggered by this binding and should not be
+		// forwarded.
 		if (stackDepth == 0 && ignoreNextUpdate) {
 			ignoreNextUpdate = NO;
 			return;
 		}
 		[updatesSubject sendNext:value];
 	}];
-	
+
+	// On subscription first send the property's current value then subscribe the
+	// subscriber to the updatesSubject for new values when they change.
 	binding->_exposedSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		@strongify(binding);
 		[subscriber sendNext:[binding.target valueForKeyPath:binding.keyPath]];
@@ -206,11 +230,20 @@
 	NSArray *keyPathComponents = keyPath.rac_keyPathComponents;
 	NSUInteger keyPathComponentsCount = keyPathComponents.count;
 	NSString *lastKeyPathComponent = keyPathComponents.lastObject;
-	
+
+	// Update the value of the property with the values received.
 	binding->_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
 		@strongify(binding);
+
+		// Check the value of the second to last key path component. Since the
+		// binding can only update the value of a property on an object, and not
+		// update intermediate objects, it can only update the value of the whole
+		// key path if this object is not nil.
 		NSObject *object = (keyPathComponentsCount > 1 ? [binding.target valueForKeyPath:keyPathByDeletingLastKeyPathComponent] : binding.target);
 		if (object == nil) return;
+
+		// Set the ignoreNextUpdate flag before setting the value so this binding
+		// ignores the value in the subsequent -didChangeValueForKey: callback.
 		ignoreNextUpdate = YES;
 		[object setValue:x forKey:lastKeyPathComponent];
 	} error:^(NSError *error) {

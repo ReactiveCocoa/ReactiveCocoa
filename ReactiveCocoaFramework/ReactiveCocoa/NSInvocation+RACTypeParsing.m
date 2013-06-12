@@ -147,6 +147,16 @@
 #undef WRAP_AND_RETURN_STRUCT
 }
 
+- (NSArray *)rac_allArguments {
+	NSUInteger numberOfArguments = self.methodSignature.numberOfArguments;
+	NSMutableArray* argumentsArray = [NSMutableArray arrayWithCapacity:(numberOfArguments - 2)];
+	for (NSUInteger index = 2; index < numberOfArguments; ++index) {
+		[argumentsArray addObject:[self rac_argumentAtIndex:index]];
+	}
+
+	return argumentsArray;
+}
+
 - (id)rac_returnValue {
 #define WRAP_AND_RETURN(type) \
 	do { \

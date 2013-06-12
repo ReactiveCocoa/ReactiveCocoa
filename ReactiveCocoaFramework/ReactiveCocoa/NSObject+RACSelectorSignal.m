@@ -56,41 +56,28 @@ static RACSignal *NSObjectRACSignalForSelector(id self, SEL selector) {
 		}]];
 
 		Class class = object_getClass(self);
-		Class proxySubclass = NULL;
-		if (strncmp(class_getName(class), "NSKVONotifying_", 15) == 0) {
-			proxySubclass = class;
-		} else {
-			NSString *subclassSuffix = class_isMetaClass(class) ? @"_RACClassProxy" : @"_RACObjectProxy";
-			NSString *proxySubclassName = [[class description] stringByAppendingString:subclassSuffix];
-			proxySubclass = NSClassFromString(proxySubclassName);
+		Method method = class_getInstanceMethod(class, selector);
 
-			if (proxySubclass == nil) {
-				proxySubclass = objc_allocateClassPair(class, proxySubclassName.UTF8String, 0);
-				objc_registerClassPair(proxySubclass);
-			}
-		}
+		class_replaceMethod(class, @selector(forwardInvocation:), (IMP)RACSignalForSelectorForwardingIMP, "v@:@");
 
-		class_replaceMethod(proxySubclass, @selector(forwardInvocation:), (IMP)RACSignalForSelectorForwardingIMP, "v@:@");
+		if (method_getImplementation(method) == _objc_msgForward) return subject;
 
-		Method method = class_getInstanceMethod(proxySubclass, selector);
-		if (method_getImplementation(method) != _objc_msgForward) {
+		if (method != NULL) {
+			// Alias the existing method to reservedSelector.
 			SEL reservedSelector = NSSelectorFromString([@"rac_forward_" stringByAppendingString:selectorName]);
-			if (method != NULL) {
-				// Alias the existing method to reservedSelector.
-				class_addMethod(proxySubclass, reservedSelector, method_getImplementation(method), method_getTypeEncoding(method));
-				// Redefine the selector to call -forwardInvocation:
-				method_setImplementation(method, _objc_msgForward);
-			} else {
-				// Define the selector to call -forwardInvocation:
-				NSMutableString *signature = [NSMutableString stringWithString:@"v@:"];
-				for (NSUInteger i = [selectorName componentsSeparatedByString:@":"].count; i > 1; --i) {
-					[signature appendString:@"@"];
-				}
-				class_replaceMethod(proxySubclass, selector, _objc_msgForward, signature.UTF8String);
-			}
-		}
+			class_addMethod(class, reservedSelector, method_getImplementation(method), method_getTypeEncoding(method));
 
-		object_setClass(self, proxySubclass);
+			// Redefine the selector to call -forwardInvocation:
+			method_setImplementation(method, _objc_msgForward);
+		} else {
+			NSMutableString *signature = [NSMutableString stringWithString:@"v@:"];
+			for (NSUInteger i = [selectorName componentsSeparatedByString:@":"].count; i > 1; --i) {
+				[signature appendString:@"@"];
+			}
+
+			// Define the selector to call -forwardInvocation:
+			class_replaceMethod(class, selector, _objc_msgForward, signature.UTF8String);
+		}
 
 		return subject;
 	}

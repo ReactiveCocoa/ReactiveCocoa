@@ -49,6 +49,8 @@
 #import <ReactiveCocoa/UITextView+RACSignalSupport.h>
 #import <ReactiveCocoa/UIBarButtonItem+RACCommandSupport.h>
 #import <ReactiveCocoa/UIGestureRecognizer+RACSignalSupport.h>
+#import <ReactiveCocoa/RACEventTrampoline.h>
+#import <ReactiveCocoa/RACDelegateProxy.h>
 #elif TARGET_OS_MAC
 #import <ReactiveCocoa/EXTKeyPathCoding.h>
 #import <ReactiveCocoa/NSControl+RACCommandSupport.h>

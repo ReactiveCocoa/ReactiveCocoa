@@ -505,7 +505,6 @@
 		882CCA1D15F1564D00937D6E /* RACCommandSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACCommandSpec.m; sourceTree = "<group>"; };
 		8837EA1416A5A33300FC3CDF /* RACKVOTrampoline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACKVOTrampoline.h; sourceTree = "<group>"; };
 		8837EA1516A5A33300FC3CDF /* RACKVOTrampoline.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOTrampoline.m; sourceTree = "<group>"; };
-		8837EA1A16A5A38600FC3CDF /* NSObject+RACKVOWrapperPrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACKVOWrapperPrivate.h"; sourceTree = "<group>"; };
 		883A84D81513964B006DB4C7 /* RACBehaviorSubject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACBehaviorSubject.h; sourceTree = "<group>"; };
 		883A84D91513964B006DB4C7 /* RACBehaviorSubject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = RACBehaviorSubject.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		883A84DD1513B5EC006DB4C7 /* RACDisposable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACDisposable.h; sourceTree = "<group>"; };
@@ -795,7 +794,6 @@
 				5F6FE84B169251E900A8D7A6 /* NSObject+RACObservablePropertySubject.h */,
 				5F6FE84E1692524B00A8D7A6 /* NSObject+RACObservablePropertySubject.m */,
 				8857BB81152A27A9009804CC /* NSObject+RACKVOWrapper.h */,
-				8837EA1A16A5A38600FC3CDF /* NSObject+RACKVOWrapperPrivate.h */,
 				88CDF82915008BB900163A9F /* NSObject+RACKVOWrapper.m */,
 				5FDC35011736F54600792E52 /* NSString+RACKeyPathUtilities.h */,
 				5FDC35021736F54700792E52 /* NSString+RACKeyPathUtilities.m */,

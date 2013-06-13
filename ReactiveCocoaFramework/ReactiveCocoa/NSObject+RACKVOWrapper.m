@@ -7,7 +7,6 @@
 //
 
 #import "NSObject+RACKVOWrapper.h"
-#import "NSObject+RACKVOWrapperPrivate.h"
 #import "RACKVOTrampoline.h"
 #import <objc/runtime.h>
 
@@ -66,27 +65,6 @@ static NSMutableSet *swizzledClasses() {
 	}
 	
 	return [[RACKVOTrampoline alloc] initWithTarget:self observer:observer keyPath:keyPath options:options block:block];
-}
-
-- (void)rac_addKVOTrampoline:(RACKVOTrampoline *)trampoline {
-	NSCParameterAssert(trampoline != nil);
-
-	@synchronized (self) {
-		NSMutableArray *trampolines = objc_getAssociatedObject(self, RACKVOTrampolinesKey);
-		if (trampolines == nil) {
-			trampolines = [[NSMutableArray alloc] init];
-			objc_setAssociatedObject(self, RACKVOTrampolinesKey, trampolines, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-		}
-
-		[trampolines addObject:trampoline];
-	}
-}
-
-- (void)rac_removeKVOTrampoline:(RACKVOTrampoline *)trampoline {
-	@synchronized (self) {
-		NSMutableArray *trampolines = objc_getAssociatedObject(self, RACKVOTrampolinesKey);
-		[trampolines removeObjectIdenticalTo:trampoline];
-	}
 }
 
 @end

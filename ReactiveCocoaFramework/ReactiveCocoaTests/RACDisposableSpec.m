@@ -11,6 +11,15 @@
 
 SpecBegin(RACDisposable)
 
+it(@"should initialize without a block", ^{
+	RACDisposable *disposable = [[RACDisposable alloc] init];
+	expect(disposable).notTo.beNil();
+	expect(disposable.disposed).to.beFalsy();
+
+	[disposable dispose];
+	expect(disposable.disposed).to.beTruthy();
+});
+
 it(@"should execute a block upon disposal", ^{
 	__block BOOL disposed = NO;
 	RACDisposable *disposable = [RACDisposable disposableWithBlock:^{

@@ -8,7 +8,6 @@
 
 #import "NSObject+RACKVOWrapper.h"
 #import "NSObject+RACKVOWrapperPrivate.h"
-#import "RACSwizzling.h"
 #import "RACKVOTrampoline.h"
 #import <objc/runtime.h>
 

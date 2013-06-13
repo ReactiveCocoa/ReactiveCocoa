@@ -30,12 +30,11 @@ static RACSignal *RACLiftAndCallBlock(id object, NSArray *args, RACSignal * (^bl
 @implementation NSObject (RACLifting)
 
 - (RACSignal *)rac_liftSignals:(NSArray *)signals withReducingInvocation:(id (^)(RACTuple *))reduceBlock {
-	RACMulticastConnection *connection = [[[RACSignal combineLatest:signals] map:reduceBlock] multicast:[RACReplaySubject replaySubjectWithCapacity:1]];
-
-	RACDisposable *disposable = [connection connect];
-	[self rac_addDeallocDisposable:disposable];
-
-	return connection.signal;
+	return [[[[RACSignal
+		combineLatest:signals]
+		takeUntil:self.rac_willDeallocSignal]
+		map:reduceBlock]
+		replayLast];
 }
 
 - (RACSignal *)rac_liftSelector:(SEL)selector withObjectsFromArray:(NSArray *)args {

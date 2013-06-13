@@ -13,7 +13,38 @@
 #import <objc/runtime.h>
 
 static const void *RACObjectCompoundDisposable = &RACObjectCompoundDisposable;
-static const void *RACObjectScopedDisposable = &RACObjectScopedDisposable;
+
+static NSMutableSet *swizzledClasses() {
+	static dispatch_once_t onceToken;
+	static NSMutableSet *swizzledClasses = nil;
+	dispatch_once(&onceToken, ^{
+		swizzledClasses = [[NSMutableSet alloc] init];
+	});
+	
+	return swizzledClasses;
+}
+
+static void swizzleDeallocIfNeeded(Class classToSwizzle) {
+	@synchronized (swizzledClasses()) {
+		NSString *className = NSStringFromClass(classToSwizzle);
+		if ([swizzledClasses() containsObject:className]) return;
+
+		SEL deallocSelector = sel_registerName("dealloc");
+
+		Method deallocMethod = class_getInstanceMethod(classToSwizzle, deallocSelector);
+		void (*originalDealloc)(__unsafe_unretained id, SEL) = (__typeof__(originalDealloc))method_getImplementation(deallocMethod);
+
+		id newDealloc = ^(__unsafe_unretained id self) {
+			RACCompoundDisposable *compoundDisposable = objc_getAssociatedObject(self, RACObjectCompoundDisposable);
+			[compoundDisposable dispose];
+
+			originalDealloc(self, deallocSelector);
+		};
+
+		class_replaceMethod(classToSwizzle, deallocSelector, imp_implementationWithBlock(newDealloc), method_getTypeEncoding(deallocMethod));
+		[swizzledClasses() addObject:className];
+	}
+}
 
 @implementation NSObject (RACDeallocating)
 
@@ -28,13 +59,14 @@ static const void *RACObjectScopedDisposable = &RACObjectScopedDisposable;
 }
 
 - (RACCompoundDisposable *)rac_deallocDisposable {
-	@synchronized(self) {
+	@synchronized (self) {
 		RACCompoundDisposable *compoundDisposable = objc_getAssociatedObject(self, RACObjectCompoundDisposable);
-		if (compoundDisposable == nil) {
-			compoundDisposable = [RACCompoundDisposable compoundDisposable];
-			objc_setAssociatedObject(self, RACObjectCompoundDisposable, compoundDisposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-			objc_setAssociatedObject(self, RACObjectScopedDisposable, compoundDisposable.asScopedDisposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-		}
+		if (compoundDisposable != nil) return compoundDisposable;
+
+		swizzleDeallocIfNeeded(self.class);
+
+		compoundDisposable = [RACCompoundDisposable compoundDisposable];
+		objc_setAssociatedObject(self, RACObjectCompoundDisposable, compoundDisposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
 		return compoundDisposable;
 	}

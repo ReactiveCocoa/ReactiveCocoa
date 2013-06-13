@@ -19,9 +19,11 @@ it(@"should execute a block upon disposal", ^{
 
 	expect(disposable).notTo.beNil();
 	expect(disposed).to.beFalsy();
+	expect(disposable.disposed).to.beFalsy();
 
 	[disposable dispose];
 	expect(disposed).to.beTruthy();
+	expect(disposable.disposed).to.beTruthy();
 });
 
 it(@"should not dispose upon deallocation", ^{

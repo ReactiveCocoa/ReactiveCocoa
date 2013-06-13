@@ -22,6 +22,12 @@
 
 @implementation RACDisposable
 
+#pragma mark Properties
+
+- (BOOL)isDisposed {
+	return _disposeBlock == NULL;
+}
+
 #pragma mark Lifecycle
 
 + (instancetype)disposableWithBlock:(void (^)(void))block {

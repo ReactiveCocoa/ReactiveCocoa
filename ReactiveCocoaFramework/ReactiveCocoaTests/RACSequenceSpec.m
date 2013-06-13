@@ -9,11 +9,12 @@
 #import "RACSequenceExamples.h"
 #import "RACStreamExamples.h"
 
+#import "NSArray+RACSequenceAdditions.h"
+#import "NSObject+RACDeallocating.h"
+#import "NSObject+RACPropertySubscribing.h"
 #import "RACDisposable.h"
 #import "RACSequence.h"
 #import "RACUnit.h"
-#import "NSArray+RACSequenceAdditions.h"
-#import "NSObject+RACPropertySubscribing.h"
 
 SpecBegin(RACSequence)
 

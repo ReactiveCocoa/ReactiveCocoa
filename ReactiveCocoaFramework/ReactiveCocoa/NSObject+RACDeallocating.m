@@ -7,9 +7,13 @@
 //
 
 #import "NSObject+RACDeallocating.h"
-#import "NSObject+RACPropertySubscribing.h"
+#import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSubject.h"
+#import <objc/runtime.h>
+
+static const void *RACObjectCompoundDisposable = &RACObjectCompoundDisposable;
+static const void *RACObjectScopedDisposable = &RACObjectScopedDisposable;
 
 @implementation NSObject (RACDeallocating)
 
@@ -21,6 +25,23 @@
 	}]];
 
 	return subject;
+}
+
+- (RACCompoundDisposable *)rac_deallocDisposable {
+	@synchronized(self) {
+		RACCompoundDisposable *compoundDisposable = objc_getAssociatedObject(self, RACObjectCompoundDisposable);
+		if (compoundDisposable == nil) {
+			compoundDisposable = [RACCompoundDisposable compoundDisposable];
+			objc_setAssociatedObject(self, RACObjectCompoundDisposable, compoundDisposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+			objc_setAssociatedObject(self, RACObjectScopedDisposable, compoundDisposable.asScopedDisposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+		}
+
+		return compoundDisposable;
+	}
+}
+
+- (void)rac_addDeallocDisposable:(RACDisposable *)disposable {
+	[self.rac_deallocDisposable addDisposable:disposable];
 }
 
 @end

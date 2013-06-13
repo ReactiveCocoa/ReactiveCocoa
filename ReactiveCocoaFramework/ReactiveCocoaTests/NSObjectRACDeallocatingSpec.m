@@ -28,6 +28,22 @@ describe(@"-rac_addDeallocDisposable:", ^{
 
 		expect(wasDisposed).to.beTruthy();
 	});
+
+	it(@"should be able to use the object during disposal", ^{
+		@autoreleasepool {
+			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
+
+			@autoreleasepool {
+				object.objectValue = [@"foo" mutableCopy];
+			}
+
+			__unsafe_unretained RACTestObject *weakObject = object;
+
+			[object rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				expect(weakObject.objectValue).to.equal(@"foo");
+			}]];
+		}
+	});
 });
 
 describe(@"-rac_didDeallocSignal", ^{

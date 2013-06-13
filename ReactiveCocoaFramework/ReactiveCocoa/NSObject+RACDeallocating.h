@@ -18,6 +18,9 @@
 // deallocated.
 @property (atomic, readonly, strong) RACCompoundDisposable *rac_deallocDisposable;
 
+// Returns a signal that will complete immediately before the receiver is fully deallocated.
+- (RACSignal *)rac_willDeallocSignal;
+
 // Returns a signal that will complete after the receiver has been deallocated.
 - (RACSignal *)rac_didDeallocSignal;
 

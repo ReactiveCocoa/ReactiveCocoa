@@ -48,13 +48,26 @@ static void swizzleDeallocIfNeeded(Class classToSwizzle) {
 
 @implementation NSObject (RACDeallocating)
 
-- (RACSignal *)rac_didDeallocSignal {
+- (RACSignal *)rac_willDeallocSignal {
 	RACSubject *subject = [RACSubject subject];
 
 	[self rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 		[subject sendCompleted];
 	}]];
 
+	return subject;
+}
+
+- (RACSignal *)rac_didDeallocSignal {
+	RACSubject *subject = [RACSubject subject];
+
+	RACScopedDisposable *disposable = [[RACDisposable
+		disposableWithBlock:^{
+			[subject sendCompleted];
+		}]
+		asScopedDisposable];
+	
+	objc_setAssociatedObject(self, (__bridge void *)disposable, disposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	return subject;
 }
 

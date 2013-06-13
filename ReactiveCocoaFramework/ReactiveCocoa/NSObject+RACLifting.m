@@ -9,7 +9,7 @@
 #import "NSObject+RACLifting.h"
 #import "EXTScope.h"
 #import "NSInvocation+RACTypeParsing.h"
-#import "NSObject+RACPropertySubscribing.h"
+#import "NSObject+RACDeallocating.h"
 #import "RACBlockTrampoline.h"
 #import "RACMulticastConnection.h"
 #import "RACReplaySubject.h"

@@ -51,12 +51,12 @@ static void *RACKVOWrapperContext = &RACKVOWrapperContext;
 }
 
 - (void)dealloc {
-	[self stopObserving];
+	[self dispose];
 }
 
 #pragma mark Observation
 
-- (void)stopObserving {
+- (void)dispose {
 	NSObject *target;
 	NSObject *observer;
 

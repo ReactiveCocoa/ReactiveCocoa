@@ -47,7 +47,7 @@ static NSMutableSet *swizzledClasses() {
 			// the trampoline set might not dealloc the trampoline and
 			// therefore make them be dealloc'd. So we need to manually
 			// stop observing on all of them as well.
-			[trampolines makeObjectsPerformSelector:@selector(stopObserving)];
+			[trampolines makeObjectsPerformSelector:@selector(dispose)];
 
 			originalDealloc(self, deallocSelector);
 		};

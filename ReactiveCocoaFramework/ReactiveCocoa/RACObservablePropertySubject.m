@@ -193,7 +193,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 		self.disposed = YES;
 		[self.exposedSignalSubject sendCompleted];
 		[self.exposedSubscriberSubject sendCompleted];
-		[self.observer stopObserving];
+		[self.observer dispose];
 	}
 }
 

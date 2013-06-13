@@ -53,14 +53,10 @@ static RACSignal *signalWithoutChangesFor(Class class, NSObject *object, NSStrin
 			[subscriber sendNext:change];
 		}];
 
-		RACDisposable *KVODisposable = [RACDisposable disposableWithBlock:^{
-			[KVOTrampoline stopObserving];
-		}];
-
 		@weakify(subscriber);
 		RACDisposable *deallocDisposable = [RACDisposable disposableWithBlock:^{
 			@strongify(subscriber);
-			[KVODisposable dispose];
+			[KVOTrampoline dispose];
 			[subscriber sendCompleted];
 		}];
 
@@ -72,7 +68,7 @@ static RACSignal *signalWithoutChangesFor(Class class, NSObject *object, NSStrin
 		return [RACDisposable disposableWithBlock:^{
 			[observerDisposable removeDisposable:deallocDisposable];
 			[objectDisposable removeDisposable:deallocDisposable];
-			[KVODisposable dispose];
+			[KVOTrampoline dispose];
 		}];
 	}] setNameWithFormat:@"RACAble(%@, %@)", object.rac_description, keyPath];
 }

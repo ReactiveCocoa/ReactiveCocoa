@@ -54,22 +54,17 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
 #pragma mark RACSignal
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	__block volatile uint32_t disposed = 0;
+	RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposable];
 
-	RACDisposable *stopDisposable = [RACDisposable disposableWithBlock:^{
-		OSAtomicOr32Barrier(1, &disposed);
-	}];
-	
-	RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposableWithDisposables:@[ stopDisposable ]];
 	RACDisposable *schedulingDisposable = [RACScheduler.subscriptionScheduler schedule:^{
 		@synchronized (self) {
 			for (id value in self.valuesReceived) {
-				if (disposed != 0) return;
+				if (compoundDisposable.disposed) return;
 
 				[subscriber sendNext:([value isKindOfClass:RACTupleNil.class] ? nil : value)];
 			}
 
-			if (disposed != 0) return;
+			if (compoundDisposable.disposed) return;
 
 			if (self.hasCompleted) {
 				[subscriber sendCompleted];

@@ -342,9 +342,12 @@ extern const NSInteger RACSignalErrorTimedOut;
 // The error will be in the RACSignalErrorDomain and have a code of
 // RACSignalErrorTimedOut.
 //
-// Returns a signal that passes through the receiver's events on an
-// indeterminate scheduler, until the stream finishes or times out.
-- (RACSignal *)timeout:(NSTimeInterval)interval;
+// interval  - The number of seconds after which the signal should error out.
+// scheduler - The scheduler upon which any timeout error should be sent.
+//
+// Returns a signal that passes through the receiver's events, until the stream
+// finishes or times out, at which point an error will be sent on `scheduler`.
+- (RACSignal *)timeout:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler;
 
 // Creates and returns a signal that delivers its events on the given scheduler.
 // Any side effects of the receiver will still be performed on the original
@@ -452,5 +455,6 @@ extern const NSInteger RACSignalErrorTimedOut;
 
 + (RACSignal *)interval:(NSTimeInterval)interval __attribute__((deprecated("Use +interval:onScheduler: instead")));
 + (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway __attribute__((deprecated("Use +interval:onScheduler:withLeeway: instead")));
+- (RACSignal *)timeout:(NSTimeInterval)interval __attribute__((deprecated("Use -timeout:onScheduler: instead")));
 
 @end

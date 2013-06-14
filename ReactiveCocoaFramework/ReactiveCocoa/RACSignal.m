@@ -517,7 +517,7 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 
 	[[[[self
 		take:1]
-		timeout:RACSignalAsynchronousWaitTimeout]
+		timeout:RACSignalAsynchronousWaitTimeout onScheduler:[RACScheduler scheduler]]
 		deliverOn:RACScheduler.mainThreadScheduler]
 		subscribeNext:^(id x) {
 			result = x;

@@ -1676,7 +1676,7 @@ describe(@"+interval:onScheduler: and +interval:onScheduler:withLeeway:", ^{
 	});
 });
 
-describe(@"-timeout:", ^{
+describe(@"-timeout:onScheduler:", ^{
 	__block RACSubject *subject;
 
 	beforeEach(^{
@@ -1685,7 +1685,7 @@ describe(@"-timeout:", ^{
 
 	it(@"should time out", ^{
 		__block NSError *receivedError = nil;
-		[[subject timeout:0.0001] subscribeError:^(NSError *e) {
+		[[subject timeout:0.0001 onScheduler:RACScheduler.mainThreadScheduler] subscribeError:^(NSError *e) {
 			receivedError = e;
 		}];
 
@@ -1697,7 +1697,7 @@ describe(@"-timeout:", ^{
 	it(@"should pass through events while not timed out", ^{
 		__block id next = nil;
 		__block BOOL completed = NO;
-		[[subject timeout:1] subscribeNext:^(id x) {
+		[[subject timeout:1 onScheduler:RACScheduler.mainThreadScheduler] subscribeNext:^(id x) {
 			next = x;
 		} completed:^{
 			completed = YES;
@@ -1712,7 +1712,7 @@ describe(@"-timeout:", ^{
 
 	it(@"should not time out after disposal", ^{
 		__block NSError *receivedError = nil;
-		RACDisposable *disposable = [[subject timeout:0.01] subscribeError:^(NSError *e) {
+		RACDisposable *disposable = [[subject timeout:0.01 onScheduler:RACScheduler.mainThreadScheduler] subscribeError:^(NSError *e) {
 			receivedError = e;
 		}];
 

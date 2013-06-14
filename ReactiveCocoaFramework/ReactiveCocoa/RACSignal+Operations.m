@@ -1032,14 +1032,17 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 		setNameWithFormat:@"[%@] -replayLazily", self.name];
 }
 
-- (RACSignal *)timeout:(NSTimeInterval)interval {
+- (RACSignal *)timeout:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 
-		RACDisposable *timeoutDisposable = [[[RACSignal interval:interval onScheduler:[RACScheduler schedulerWithPriority:RACSchedulerPriorityHigh]] take:1] subscribeNext:^(id _) {
-			[disposable dispose];
-			[subscriber sendError:[NSError errorWithDomain:RACSignalErrorDomain code:RACSignalErrorTimedOut userInfo:nil]];
-		}];
+		RACDisposable *timeoutDisposable = [[[RACSignal
+			interval:interval onScheduler:scheduler]
+			take:1]
+			subscribeNext:^(id _) {
+				[disposable dispose];
+				[subscriber sendError:[NSError errorWithDomain:RACSignalErrorDomain code:RACSignalErrorTimedOut userInfo:nil]];
+			}];
 
 		if (timeoutDisposable != nil) [disposable addDisposable:timeoutDisposable];
 		
@@ -1344,6 +1347,10 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 
 + (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway {
 	return [RACSignal interval:interval onScheduler:[RACScheduler schedulerWithPriority:RACSchedulerPriorityHigh] withLeeway:leeway];
+}
+
+- (RACSignal *)timeout:(NSTimeInterval)interval {
+	return [self timeout:interval onScheduler:[RACScheduler schedulerWithPriority:RACSchedulerPriorityHigh]];
 }
 
 #pragma clang diagnostic pop

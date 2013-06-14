@@ -691,6 +691,7 @@
 		D0EE2849164D906B006954A4 /* RACSignalSequence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACSignalSequence.h; sourceTree = "<group>"; };
 		D0EE284A164D906B006954A4 /* RACSignalSequence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSignalSequence.m; sourceTree = "<group>"; };
 		D0FA57E2162CFED200AC6F42 /* EXTKeyPathCoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EXTKeyPathCoding.h; path = extobjc/EXTKeyPathCoding.h; sourceTree = "<group>"; };
+		D0FAEC02176AEEE600D3C1A7 /* RACSubscriber+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACSubscriber+Private.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -998,6 +999,7 @@
 			isa = PBXGroup;
 			children = (
 				88CDF7FA150019CA00163A9F /* RACSubscriber.h */,
+				D0FAEC02176AEEE600D3C1A7 /* RACSubscriber+Private.h */,
 				88CDF7FB150019CA00163A9F /* RACSubscriber.m */,
 				D0A0E22C176A8CD6007273ED /* RACPassthroughSubscriber.h */,
 				D0A0E22D176A8CD6007273ED /* RACPassthroughSubscriber.m */,

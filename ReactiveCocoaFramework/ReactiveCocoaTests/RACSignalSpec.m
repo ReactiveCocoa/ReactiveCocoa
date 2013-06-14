@@ -15,6 +15,7 @@
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACBehaviorSubject.h"
 #import "RACCommand.h"
+#import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACEvent.h"
 #import "RACGroupedSignal.h"
@@ -678,12 +679,12 @@ describe(@"+combineLatestWith:", ^{
 
 		@autoreleasepool {
 			RACSubject *subject __attribute__((objc_precise_lifetime)) = [RACSubject subject];
-			[subject rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[subject.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				subjectDeallocd = YES;
 			}]];
 			
 			RACSignal *signal __attribute__((objc_precise_lifetime)) = [RACSignal combineLatest:@[ subject ]];
-			[signal rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[signal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				signalDeallocd = YES;
 			}]];
 
@@ -1025,7 +1026,7 @@ describe(@"memory management", ^{
 				return nil;
 			}];
 
-			[signal rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[signal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				deallocd = YES;
 			}]];
 		}
@@ -1041,7 +1042,7 @@ describe(@"memory management", ^{
 				return nil;
 			}];
 
-			[signal rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[signal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				deallocd = YES;
 			}]];
 		}
@@ -1060,7 +1061,7 @@ describe(@"memory management", ^{
 				return nil;
 			}];
 
-			[signal rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[signal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				deallocd = YES;
 			}]];
 
@@ -1081,7 +1082,7 @@ describe(@"memory management", ^{
 			RACReplaySubject *subject __attribute__((objc_precise_lifetime)) = [RACReplaySubject subject];
 			[subject sendCompleted];
 
-			[subject rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[subject.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				deallocd = YES;
 			}]];
 
@@ -1105,7 +1106,7 @@ describe(@"memory management", ^{
 					return nil;
 				}];
 
-				[signal rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				[signal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd = YES;
 				}]];
 
@@ -1128,7 +1129,7 @@ describe(@"memory management", ^{
 					return nil;
 				}];
 
-				[signal rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				[signal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd = YES;
 				}]];
 
@@ -1158,7 +1159,7 @@ describe(@"memory management", ^{
 						return nil;
 					}];
 					
-					[signal rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+					[signal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 						deallocd = YES;
 					}]];
 					
@@ -1420,12 +1421,12 @@ describe(@"-flatten:", ^{
 		__block BOOL signalDeallocd = NO;
 		@autoreleasepool {
 			RACSubject *subject __attribute__((objc_precise_lifetime)) = [RACSubject subject];
-			[subject rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[subject.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				subjectDeallocd = YES;
 			}]];
 
 			RACSignal *signal __attribute__((objc_precise_lifetime)) = [subject flatten];
-			[signal rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[signal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				signalDeallocd = YES;
 			}]];
 

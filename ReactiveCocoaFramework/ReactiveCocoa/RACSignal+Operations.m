@@ -775,7 +775,7 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 
 	[disposable addDisposable:clearPointerDisposable];
 
-	[object rac_addDeallocDisposable:disposable];
+	[object.rac_deallocDisposable addDisposable:disposable];
 	
 	RACCompoundDisposable *objectDisposable = object.rac_deallocDisposable;
 	return [RACDisposable disposableWithBlock:^{

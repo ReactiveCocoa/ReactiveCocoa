@@ -8,8 +8,9 @@
 
 #import "NSControl+RACCommandSupport.h"
 #import "NSControl+RACTextSignalSupport.h"
-#import "RACCommand.h"
+#import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
+#import "RACCommand.h"
 #import "RACDisposable.h"
 
 SpecBegin(NSControlRACSupport)

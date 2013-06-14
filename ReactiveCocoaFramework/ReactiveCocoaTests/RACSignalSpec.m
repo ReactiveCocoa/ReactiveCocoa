@@ -10,12 +10,14 @@
 #import "RACSequenceExamples.h"
 #import "RACStreamExamples.h"
 
-#import <libkern/OSAtomic.h>
 #import "EXTKeyPathCoding.h"
+#import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACBehaviorSubject.h"
+#import "RACCommand.h"
 #import "RACDisposable.h"
 #import "RACEvent.h"
+#import "RACGroupedSignal.h"
 #import "RACReplaySubject.h"
 #import "RACScheduler.h"
 #import "RACSignal+Operations.h"
@@ -24,8 +26,7 @@
 #import "RACTestObject.h"
 #import "RACTuple.h"
 #import "RACUnit.h"
-#import "RACCommand.h"
-#import "RACGroupedSignal.h"
+#import <libkern/OSAtomic.h>
 
 // Set in a beforeAll below.
 static NSError *RACSignalTestError;

@@ -91,7 +91,7 @@ it(@"should automatically stop KVO when the observer deallocates", ^{
 	expect(identifier).to.beNil();
 });
 
-it(@"should stop KVO when the observer is removed", ^{
+it(@"should stop KVO when the observer is disposed", ^{
 	NSOperationQueue *queue = [[NSOperationQueue alloc] init];
 	__block NSString *name = nil;
 	
@@ -101,12 +101,12 @@ it(@"should stop KVO when the observer is removed", ^{
 	
 	queue.name = @"1";
 	expect(name).to.equal(@"1");
-	[trampoline stopObserving];
+	[trampoline dispose];
 	queue.name = @"2";
 	expect(name).to.equal(@"1");
 });
 
-it(@"should distinguish between observers being removed", ^{
+it(@"should distinguish between observers being disposed", ^{
 	NSOperationQueue *queue = [[NSOperationQueue alloc] init];
 	__block NSString *name1 = nil;
 	__block NSString *name2 = nil;
@@ -121,7 +121,7 @@ it(@"should distinguish between observers being removed", ^{
 	queue.name = @"1";
 	expect(name1).to.equal(@"1");
 	expect(name2).to.equal(@"1");
-	[trampoline stopObserving];
+	[trampoline dispose];
 	queue.name = @"2";
 	expect(name1).to.equal(@"1");
 	expect(name2).to.equal(@"2");

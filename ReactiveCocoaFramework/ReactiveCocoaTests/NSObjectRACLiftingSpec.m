@@ -6,13 +6,15 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "NSObject+RACLifting.h"
 #import "RACTestObject.h"
-#import "RACSubject.h"
-#import "RACUnit.h"
+
+#import "NSObject+RACLifting.h"
+#import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACDisposable.h"
+#import "RACSubject.h"
 #import "RACTuple.h"
+#import "RACUnit.h"
 
 // <RACLiftingTestRig> specifies the basic behavior necessary for testing
 // different techniques of message lifting (namely -rac_lift and

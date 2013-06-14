@@ -7,9 +7,10 @@
 //
 
 #import "RACBinding.h"
-#import "RACDisposable.h"
-#import "RACTuple.h"
 #import "EXTScope.h"
+#import "RACDisposable.h"
+#import "RACSubscriber+Private.h"
+#import "RACTuple.h"
 
 @interface RACBinding ()
 

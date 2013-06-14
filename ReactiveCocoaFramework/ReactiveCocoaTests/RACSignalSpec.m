@@ -24,6 +24,7 @@
 #import "RACSignal+Operations.h"
 #import "RACSignalStartExamples.h"
 #import "RACSubject.h"
+#import "RACSubscriber+Private.h"
 #import "RACSubscriber.h"
 #import "RACTestObject.h"
 #import "RACTuple.h"

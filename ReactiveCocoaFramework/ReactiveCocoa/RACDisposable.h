@@ -15,6 +15,14 @@
 // subscription.
 @interface RACDisposable : NSObject
 
+// Whether the receiver has been disposed.
+//
+// Use of this property is discouraged, since it may be set to `YES`
+// concurrently at any time.
+//
+// This property is not KVO-compliant.
+@property (atomic, assign, getter = isDisposed, readonly) BOOL disposed;
+
 + (instancetype)disposableWithBlock:(void (^)(void))block;
 
 // Performs the disposal work. Can be called multiple times, though sebsequent

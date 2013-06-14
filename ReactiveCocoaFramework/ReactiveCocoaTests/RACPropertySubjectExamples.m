@@ -7,10 +7,12 @@
 //
 
 #import "RACPropertySubjectExamples.h"
+
+#import "NSObject+RACDeallocating.h"
+#import "NSObject+RACPropertySubscribing.h"
+#import "RACBinding.h"
 #import "RACDisposable.h"
 #import "RACPropertySubject.h"
-#import "RACBinding.h"
-#import "NSObject+RACPropertySubscribing.h"
 
 NSString * const RACPropertySubjectExamples = @"RACPropertySubjectExamples";
 NSString * const RACPropertySubjectExampleGetPropertyBlock = @"RACPropertySubjectExampleGetPropertyBlock";

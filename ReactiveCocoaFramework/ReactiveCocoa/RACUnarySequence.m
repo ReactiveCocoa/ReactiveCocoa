@@ -64,7 +64,7 @@
 #pragma mark NSObject
 
 - (NSString *)description {
-	return [NSString stringWithFormat:@"<%@: %p>{ name = %@, head = %@ }", self.class, self, self.name, [self.head rac_description]];
+	return [NSString stringWithFormat:@"<%@: %p>{ name = %@, head = %@ }", self.class, self, self.name, self.head];
 }
 
 - (NSUInteger)hash {

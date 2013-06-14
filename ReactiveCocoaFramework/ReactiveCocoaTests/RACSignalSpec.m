@@ -10,24 +10,25 @@
 #import "RACSequenceExamples.h"
 #import "RACStreamExamples.h"
 
-#import <libkern/OSAtomic.h>
 #import "EXTKeyPathCoding.h"
+#import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACBehaviorSubject.h"
+#import "RACCommand.h"
 #import "RACDisposable.h"
 #import "RACEvent.h"
+#import "RACGroupedSignal.h"
+#import "RACMulticastConnection.h"
 #import "RACReplaySubject.h"
 #import "RACScheduler.h"
 #import "RACSignal+Operations.h"
+#import "RACSignalStartExamples.h"
 #import "RACSubject.h"
 #import "RACSubscriber.h"
 #import "RACTestObject.h"
 #import "RACTuple.h"
 #import "RACUnit.h"
-#import "RACCommand.h"
-#import "RACGroupedSignal.h"
-#import "RACSignalStartExamples.h"
-#import "RACMulticastConnection.h"
+#import <libkern/OSAtomic.h>
 
 // Set in a beforeAll below.
 static NSError *RACSignalTestError;
@@ -176,20 +177,29 @@ describe(@"subscribing", ^{
 	});
 	
 	it(@"shouldn't get anything after dispose", ^{
-		__block BOOL shouldBeGettingItems = YES;
-		RACSubject *subject = [RACSubject subject];
-		RACDisposable *disposable = [subject subscribeNext:^(id x) {
-			expect(shouldBeGettingItems).to.beTruthy();
+		NSMutableArray *receivedValues = [NSMutableArray array];
+
+		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@0];
+
+			[RACScheduler.currentScheduler afterDelay:0 schedule:^{
+				[subscriber sendNext:@1];
+			}];
+
+			return nil;
 		}];
-		
-		shouldBeGettingItems = YES;
-		[subject sendNext:@"test 1"];
-		[subject sendNext:@"test 2"];
+
+		RACDisposable *disposable = [signal subscribeNext:^(id x) {
+			[receivedValues addObject:x];
+		}];
+
+		NSArray *expectedValues = @[ @0 ];
+		expect(receivedValues).to.equal(expectedValues);
 		
 		[disposable dispose];
+		[NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.01]];
 		
-		shouldBeGettingItems = NO;
-		[subject sendNext:@"test 3"];
+		expect(receivedValues).to.equal(expectedValues);
 	});
 
 	it(@"should have a current scheduler in didSubscribe block", ^{
@@ -2334,6 +2344,69 @@ describe(@"-concat", ^{
 		NSError *error = nil;
 		[[subject concat] firstOrDefault:nil success:NULL error:&error];
 		expect(error).to.equal(RACSignalTestError);
+	});
+
+	it(@"should concat signals sent later", ^{
+		[subject sendNext:oneSignal];
+
+		NSMutableArray *values = [NSMutableArray array];
+		[[subject concat] subscribeNext:^(id x) {
+			[values addObject:x];
+		}];
+
+		NSArray *expected = @[ @1 ];
+		expect(values).to.equal(expected);
+
+		[subject sendNext:[twoSignal delay:0]];
+
+		expected = @[ @1, @2 ];
+		expect(values).will.equal(expected);
+
+		[subject sendNext:threeSignal];
+
+		expected = @[ @1, @2, @3 ];
+		expect(values).to.equal(expected);
+	});
+
+	it(@"should dispose the current signal", ^{
+		__block BOOL disposed = NO;
+		RACSignal *innerSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			return [RACDisposable disposableWithBlock:^{
+				disposed = YES;
+			}];
+		}];
+
+		RACDisposable *concatDisposable = [[subject concat] subscribeCompleted:^{}];
+		
+		[subject sendNext:innerSignal];
+		expect(disposed).notTo.beTruthy();
+
+		[concatDisposable dispose];
+		expect(disposed).to.beTruthy();
+	});
+
+	it(@"should dispose later signals", ^{
+		__block BOOL disposed = NO;
+		RACSignal *laterSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			return [RACDisposable disposableWithBlock:^{
+				disposed = YES;
+			}];
+		}];
+
+		RACSubject *firstSignal = [RACSubject subject];
+		RACSignal *outerSignal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:firstSignal];
+			[subscriber sendNext:laterSignal];
+			return nil;
+		}];
+
+		RACDisposable *concatDisposable = [[outerSignal concat] subscribeCompleted:^{}];
+
+		[firstSignal sendCompleted];
+		expect(disposed).notTo.beTruthy();
+
+		[concatDisposable dispose];
+		expect(disposed).to.beTruthy();
 	});
 });
 

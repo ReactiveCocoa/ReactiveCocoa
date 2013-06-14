@@ -6,9 +6,11 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#import "NSObjectRACPropertySubscribingExamples.h"
-#import "NSObject+RACPropertySubscribing.h"
 #import "RACTestObject.h"
+
+#import "NSObjectRACPropertySubscribingExamples.h"
+#import "NSObject+RACDeallocating.h"
+#import "NSObject+RACPropertySubscribing.h"
 #import "RACDisposable.h"
 #import "RACSignal.h"
 

@@ -10,13 +10,13 @@
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACImmediateScheduler.h"
-#import "RACQueueScheduler.h"
+#import "RACTargetQueueScheduler.h"
 #import "RACScheduler+Private.h"
 #import "RACSubscriptionScheduler.h"
 #import <libkern/OSAtomic.h>
 
-// The key for the queue-specific current scheduler.
-const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
+// The key for the thread-specific current scheduler.
+NSString * const RACSchedulerCurrentSchedulerKey = @"RACSchedulerCurrentSchedulerKey";
 
 @interface RACScheduler ()
 @property (nonatomic, readonly, copy) NSString *name;
@@ -36,7 +36,11 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 	self = [super init];
 	if (self == nil) return nil;
 
-	_name = [name ?: @"com.ReactiveCocoa.RACScheduler.anonymousScheduler" copy];
+	if (name == nil) {
+		_name = [NSString stringWithFormat:@"com.ReactiveCocoa.%@.anonymousScheduler", self.class];
+	} else {
+		_name = [name copy];
+	}
 
 	return self;
 }
@@ -57,14 +61,14 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 	static dispatch_once_t onceToken;
 	static RACScheduler *mainThreadScheduler;
 	dispatch_once(&onceToken, ^{
-		mainThreadScheduler = [[RACQueueScheduler alloc] initWithName:@"com.ReactiveCocoa.RACScheduler.mainThreadScheduler" targetQueue:dispatch_get_main_queue()];
+		mainThreadScheduler = [[RACTargetQueueScheduler alloc] initWithName:@"com.ReactiveCocoa.RACScheduler.mainThreadScheduler" targetQueue:dispatch_get_main_queue()];
 	});
 	
 	return mainThreadScheduler;
 }
 
 + (instancetype)schedulerWithPriority:(RACSchedulerPriority)priority name:(NSString *)name {
-	return [[RACQueueScheduler alloc] initWithName:name targetQueue:dispatch_get_global_queue(priority, 0)];
+	return [[RACTargetQueueScheduler alloc] initWithName:name targetQueue:dispatch_get_global_queue(priority, 0)];
 }
 
 + (instancetype)schedulerWithPriority:(RACSchedulerPriority)priority {
@@ -73,12 +77,6 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 
 + (instancetype)scheduler {
 	return [self schedulerWithPriority:RACSchedulerPriorityDefault];
-}
-
-+ (instancetype)schedulerWithQueue:(dispatch_queue_t)queue name:(NSString *)name {
-	NSCParameterAssert(queue != NULL);
-
-	return [[RACQueueScheduler alloc] initWithName:name targetQueue:queue];
 }
 
 + (instancetype)subscriptionScheduler {
@@ -96,7 +94,7 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 }
 
 + (instancetype)currentScheduler {
-	RACScheduler *scheduler = (__bridge id)dispatch_get_specific(RACSchedulerCurrentSchedulerKey);
+	RACScheduler *scheduler = NSThread.currentThread.threadDictionary[RACSchedulerCurrentSchedulerKey];
 	if (scheduler != nil) return scheduler;
 	if ([self.class isOnMainThread]) return RACScheduler.mainThreadScheduler;
 
@@ -123,20 +121,11 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 - (RACDisposable *)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock {
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 
-	__block volatile uint32_t disposed = 0;
-	BOOL (^isDisposed)(void) = [^{
-		return disposed != 0;
-	} copy];
-
-	[disposable addDisposable:[RACDisposable disposableWithBlock:^{
-		OSAtomicOr32Barrier(1, &disposed);
-	}]];
-
-	[self scheduleRecursiveBlock:[recursiveBlock copy] addingToDisposable:disposable isDisposedBlock:isDisposed];
+	[self scheduleRecursiveBlock:[recursiveBlock copy] addingToDisposable:disposable];
 	return disposable;
 }
 
-- (void)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock addingToDisposable:(RACCompoundDisposable *)disposable isDisposedBlock:(BOOL (^)(void))isDisposed {
+- (void)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock addingToDisposable:(RACCompoundDisposable *)disposable {
 	@autoreleasepool {
 		RACCompoundDisposable *selfDisposable = [RACCompoundDisposable compoundDisposable];
 		[disposable addDisposable:selfDisposable];
@@ -149,11 +138,11 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 				[disposable removeDisposable:weakSelfDisposable];
 			}
 
-			if (isDisposed()) return;
+			if (disposable.disposed) return;
 
 			void (^reallyReschedule)(void) = ^{
-				if (isDisposed()) return;
-				[self scheduleRecursiveBlock:recursiveBlock addingToDisposable:disposable isDisposedBlock:isDisposed];
+				if (disposable.disposed) return;
+				[self scheduleRecursiveBlock:recursiveBlock addingToDisposable:disposable];
 			};
 
 			// Protects the variables below.
@@ -194,5 +183,20 @@ const void *RACSchedulerCurrentSchedulerKey = &RACSchedulerCurrentSchedulerKey;
 		if (schedulingDisposable != nil) [selfDisposable addDisposable:schedulingDisposable];
 	}
 }
+
+@end
+
+@implementation RACScheduler (Deprecated)
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
++ (instancetype)schedulerWithQueue:(dispatch_queue_t)queue name:(NSString *)name {
+	NSCParameterAssert(queue != NULL);
+
+	return [[RACTargetQueueScheduler alloc] initWithName:name targetQueue:queue];
+}
+
+#pragma clang diagnostic pop
 
 @end

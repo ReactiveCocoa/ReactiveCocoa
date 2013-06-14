@@ -398,25 +398,30 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 	}] setNameWithFormat:@"[%@] -buffer: %lu", self.name, (unsigned long)bufferCount];
 }
 
-- (RACSignal *)bufferWithTime:(NSTimeInterval)interval {
+- (RACSignal *)bufferWithTime:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		NSMutableArray *values = [NSMutableArray array];
 
 		__block RACDisposable *innerDisposable = nil;
-		RACDisposable *outerDisposable = [[self windowWithStart:self close:^(RACSignal *start) {
-			return [[[RACSignal interval:interval onScheduler:[RACScheduler schedulerWithPriority:RACSchedulerPriorityHigh]] take:1] doNext:^(id x) {
-				[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:values convertNullsToNils:NO]];
-				[values removeAllObjects];
+		RACDisposable *outerDisposable = [[self
+			windowWithStart:self close:^(RACSignal *start) {
+				return [[[RACSignal
+					interval:interval onScheduler:scheduler]
+					take:1]
+					doNext:^(id x) {
+						[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:values convertNullsToNils:NO]];
+						[values removeAllObjects];
+					}];
+			}]
+			subscribeNext:^(id x) {
+				innerDisposable = [x subscribeNext:^(id x) {
+					[values addObject:x ?: RACTupleNil.tupleNil];
+				}];
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				[subscriber sendCompleted];
 			}];
-		}] subscribeNext:^(id x) {
-			innerDisposable = [x subscribeNext:^(id x) {
-				[values addObject:x ? : [RACTupleNil tupleNil]];
-			}];
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendCompleted];
-		}];
 
 		return [RACDisposable disposableWithBlock:^{
 			[innerDisposable dispose];
@@ -1351,6 +1356,10 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 
 - (RACSignal *)timeout:(NSTimeInterval)interval {
 	return [self timeout:interval onScheduler:[RACScheduler schedulerWithPriority:RACSchedulerPriorityHigh]];
+}
+
+- (RACSignal *)bufferWithTime:(NSTimeInterval)interval {
+	return [self bufferWithTime:interval onScheduler:[RACScheduler schedulerWithPriority:RACSchedulerPriorityHigh]];
 }
 
 #pragma clang diagnostic pop

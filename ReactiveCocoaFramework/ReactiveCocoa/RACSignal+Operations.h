@@ -77,9 +77,16 @@ extern const NSInteger RACSignalErrorTimedOut;
 // will be a RACTuple of values.
 - (RACSignal *)buffer:(NSUInteger)bufferCount;
 
-// Divide the `next`s into buffers delivery every `interval` seconds. The `next`
-// will be a RACTuple of values.
-- (RACSignal *)bufferWithTime:(NSTimeInterval)interval;
+// Divides the receiver's `next`s into buffers which deliver every `interval`
+// seconds.
+//
+// interval  - The interval in which values are grouped into one buffer.
+// scheduler - The scheduler upon which the returned signal will deliver its
+//             values.
+//
+// Returns a signal which sends RACTuples of the buffered values at each
+// interval on `scheduler`.
+- (RACSignal *)bufferWithTime:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler;
 
 // Collect all receiver's `next`s into a NSArray. nil values will be converted
 // to NSNull.
@@ -455,6 +462,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 
 + (RACSignal *)interval:(NSTimeInterval)interval __attribute__((deprecated("Use +interval:onScheduler: instead")));
 + (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway __attribute__((deprecated("Use +interval:onScheduler:withLeeway: instead")));
+- (RACSignal *)bufferWithTime:(NSTimeInterval)interval __attribute__((deprecated("Use -bufferWithTime:onScheduler: instead")));
 - (RACSignal *)timeout:(NSTimeInterval)interval __attribute__((deprecated("Use -timeout:onScheduler: instead")));
 
 @end

@@ -2214,8 +2214,7 @@ describe(@"-collect", ^{
 describe(@"-bufferWithTime:", ^{
 	it(@"should buffer nexts and restart buffering if new next arrives", ^{
 		RACSubject *input = [RACSubject subject];
-		
-		RACSignal *bufferedInput = [input bufferWithTime:0.1];
+		RACSignal *bufferedInput = [input bufferWithTime:0.1 onScheduler:RACScheduler.mainThreadScheduler];
 		
 		__block NSArray *received = nil;
 		

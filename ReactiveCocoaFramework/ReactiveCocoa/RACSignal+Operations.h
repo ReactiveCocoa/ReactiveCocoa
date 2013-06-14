@@ -195,11 +195,13 @@ extern const NSInteger RACSignalErrorTimedOut;
 
 // Sends NSDate.date every `interval` seconds.
 //
-// interval - The time interval in seconds at which the current time is sent.
+// interval  - The time interval in seconds at which the current time is sent.
+// scheduler - The scheduler upon which the current NSDate should be sent. This
+//             must not be nil or +[RACScheduler immediateScheduler].
 //
-// Returns a signal that sends the current date/time every `interval` on the
-// global concurrent high priority queue.
-+ (RACSignal *)interval:(NSTimeInterval)interval;
+// Returns a signal that sends the current date/time every `interval` on
+// `scheduler`.
++ (RACSignal *)interval:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler;
 
 // Sends NSDate.date at intervals of at least `interval` seconds, up to
 // approximately `interval` + `leeway` seconds.
@@ -209,13 +211,15 @@ extern const NSInteger RACSignalErrorTimedOut;
 // interest of performance or power consumption. Note that some additional
 // latency is to be expected, even when specifying a `leeway` of 0.
 //
-// interval - The base interval between `next`s.
-// leeway   - The maximum amount of additional time the `next` can be deferred.
+// interval  - The base interval between `next`s.
+// scheduler - The scheduler upon which the current NSDate should be sent. This
+//             must not be nil or +[RACScheduler immediateScheduler].
+// leeway    - The maximum amount of additional time the `next` can be deferred.
 //
 // Returns a signal that sends the current date/time at intervals of at least
-// `interval seconds` up to approximately `interval` + `leeway` seconds on the
-// global concurrent high priority queue.
-+ (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway;
+// `interval seconds` up to approximately `interval` + `leeway` seconds on
+// `scheduler`.
++ (RACSignal *)interval:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler withLeeway:(NSTimeInterval)leeway;
 
 // Take `next`s until the `signalTrigger` sends `next` or `completed`.
 //
@@ -441,5 +445,12 @@ extern const NSInteger RACSignalErrorTimedOut;
 //
 // Returns the disposable for the underlying subscription.
 - (RACDisposable *)executeCommand:(RACCommand *)command;
+
+@end
+
+@interface RACSignal (OperationsDeprecated)
+
++ (RACSignal *)interval:(NSTimeInterval)interval __attribute__((deprecated("Use +interval:onScheduler: instead")));
++ (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway __attribute__((deprecated("Use +interval:onScheduler:withLeeway: instead")));
 
 @end

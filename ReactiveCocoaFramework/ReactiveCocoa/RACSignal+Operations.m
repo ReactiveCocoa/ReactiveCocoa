@@ -404,7 +404,7 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 
 		__block RACDisposable *innerDisposable = nil;
 		RACDisposable *outerDisposable = [[self windowWithStart:self close:^(RACSignal *start) {
-			return [[[RACSignal interval:interval] take:1] doNext:^(id x) {
+			return [[[RACSignal interval:interval onScheduler:[RACScheduler schedulerWithPriority:RACSchedulerPriorityHigh]] take:1] doNext:^(id x) {
 				[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:values convertNullsToNils:NO]];
 				[values removeAllObjects];
 			}];
@@ -784,29 +784,21 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 	}];
 }
 
-+ (RACSignal *)interval:(NSTimeInterval)interval {
-	return [[RACSignal interval:interval withLeeway:0.0] setNameWithFormat:@"+interval: %f", (double)interval];
++ (RACSignal *)interval:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler {
+	return [[RACSignal interval:interval onScheduler:scheduler withLeeway:0.0] setNameWithFormat:@"+interval: %f onScheduler: %@", (double)interval, scheduler];
 }
 
-+ (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway {
-	NSCParameterAssert(interval > 0.0 && interval < INT64_MAX / NSEC_PER_SEC);
-	NSCParameterAssert(leeway >= 0.0 && leeway < INT64_MAX / NSEC_PER_SEC);
++ (RACSignal *)interval:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler withLeeway:(NSTimeInterval)leeway {
+	NSCParameterAssert(scheduler != nil);
+	NSCParameterAssert(scheduler != RACScheduler.immediateScheduler);
+
+	int64_t intervalInNanoSecs = (int64_t)(interval * NSEC_PER_SEC);
 
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		int64_t intervalInNanoSecs = (int64_t)(interval * NSEC_PER_SEC);
-		int64_t leewayInNanoSecs = (int64_t)(leeway * NSEC_PER_SEC);
-		dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0));
-		dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, intervalInNanoSecs), (uint64_t)intervalInNanoSecs, (uint64_t)leewayInNanoSecs);
-		dispatch_source_set_event_handler(timer, ^{
+		return [scheduler every:interval withLeeway:leeway startingAt:dispatch_time(DISPATCH_TIME_NOW, intervalInNanoSecs) schedule:^{
 			[subscriber sendNext:[NSDate date]];
-		});
-		dispatch_resume(timer);
-
-		return [RACDisposable disposableWithBlock:^{
-			dispatch_source_cancel(timer);
-			dispatch_release(timer);
 		}];
-	}] setNameWithFormat:@"+interval: %f withLeeway: %f", (double)interval, (double)leeway];
+	}] setNameWithFormat:@"+interval: %f onScheduler: %@ withLeeway: %f", (double)interval, scheduler, (double)leeway];
 }
 
 - (RACSignal *)takeUntil:(RACSignal *)signalTrigger {
@@ -1044,7 +1036,7 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 
-		RACDisposable *timeoutDisposable = [[[RACSignal interval:interval] take:1] subscribeNext:^(id _) {
+		RACDisposable *timeoutDisposable = [[[RACSignal interval:interval onScheduler:[RACScheduler schedulerWithPriority:RACSchedulerPriorityHigh]] take:1] subscribeNext:^(id _) {
 			[disposable dispose];
 			[subscriber sendError:[NSError errorWithDomain:RACSignalErrorDomain code:RACSignalErrorTimedOut userInfo:nil]];
 		}];
@@ -1338,5 +1330,22 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 		[command execute:x];
 	}];
 }
+
+@end
+
+@implementation RACSignal (OperationsDeprecated)
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
++ (RACSignal *)interval:(NSTimeInterval)interval {
+	return [RACSignal interval:interval onScheduler:[RACScheduler schedulerWithPriority:RACSchedulerPriorityHigh]];
+}
+
++ (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway {
+	return [RACSignal interval:interval onScheduler:[RACScheduler schedulerWithPriority:RACSchedulerPriorityHigh] withLeeway:leeway];
+}
+
+#pragma clang diagnostic pop
 
 @end

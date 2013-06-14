@@ -1623,75 +1623,55 @@ describe(@"+if:then:else", ^{
 	});
 });
 
-describe(@"+interval: and +interval:withLeeway:", ^{
+describe(@"+interval:onScheduler: and +interval:onScheduler:withLeeway:", ^{
 	static const NSTimeInterval interval = 0.1;
 	static const NSTimeInterval leeway = 0.2;
 	static const NSTimeInterval marginOfError = 0.01;
-	__block RACSignal *timer = nil;
 	
-	__block void (^testTimer)(RACSignal *, RACScheduler *, NSNumber *, NSNumber *) = nil;
+	__block void (^testTimer)(RACSignal *, NSNumber *, NSNumber *) = nil;
 	
 	before(^{
-		testTimer = [^(RACSignal *timer, RACScheduler *scheduler, NSNumber *minInterval, NSNumber *leeway) {
+		testTimer = [^(RACSignal *timer, NSNumber *minInterval, NSNumber *leeway) {
 			__block NSUInteger nextsReceived = 0;
-			[scheduler schedule:^{
-				RACSignal *finalSignal = [[timer take:3] deliverOn:RACScheduler.mainThreadScheduler];
 
-				NSTimeInterval startTime = NSDate.timeIntervalSinceReferenceDate;
-				[finalSignal subscribeNext:^(NSDate *date) {
-					++nextsReceived;
+			NSTimeInterval startTime = NSDate.timeIntervalSinceReferenceDate;
+			[[timer take:3] subscribeNext:^(NSDate *date) {
+				++nextsReceived;
 
-					NSTimeInterval currentTime = date.timeIntervalSinceReferenceDate;
+				NSTimeInterval currentTime = date.timeIntervalSinceReferenceDate;
 
-					// Uniformly distribute the expected interval for all
-					// received values. We do this instead of saving a timestamp
-					// because a delayed interval may cause the _next_ value to
-					// send sooner than the interval.
-					NSTimeInterval expectedMinInterval = minInterval.doubleValue * nextsReceived;
-					NSTimeInterval expectedMaxInterval = expectedMinInterval + leeway.doubleValue;
+				// Uniformly distribute the expected interval for all
+				// received values. We do this instead of saving a timestamp
+				// because a delayed interval may cause the _next_ value to
+				// send sooner than the interval.
+				NSTimeInterval expectedMinInterval = minInterval.doubleValue * nextsReceived;
+				NSTimeInterval expectedMaxInterval = expectedMinInterval + leeway.doubleValue;
 
-					expect(currentTime - startTime).beGreaterThanOrEqualTo(expectedMinInterval - marginOfError);
-					expect(currentTime - startTime).beLessThanOrEqualTo(expectedMaxInterval + marginOfError);
-				}];
+				expect(currentTime - startTime).beGreaterThanOrEqualTo(expectedMinInterval - marginOfError);
+				expect(currentTime - startTime).beLessThanOrEqualTo(expectedMaxInterval + marginOfError);
 			}];
 			
 			expect(nextsReceived).will.equal(3);
 		} copy];
 	});
 	
-	describe(@"+interval", ^{
-		before(^{
-			timer = [RACSignal interval:interval];
-		});
-		
-		it(@"should fire repeatedly at every interval", ^{
-			testTimer(timer, RACScheduler.immediateScheduler, @(interval), @0);
-		});
-		
+	describe(@"+interval:onScheduler:", ^{
 		it(@"should work on the main thread scheduler", ^{
-			testTimer(timer, RACScheduler.mainThreadScheduler, @(interval), @0);
+			testTimer([RACSignal interval:interval onScheduler:RACScheduler.mainThreadScheduler], @(interval), @0);
 		});
 		
 		it(@"should work on a background scheduler", ^{
-			testTimer(timer, [RACScheduler scheduler], @(interval), @0);
+			testTimer([RACSignal interval:interval onScheduler:[RACScheduler scheduler]], @(interval), @0);
 		});
 	});
 	
-	describe(@"+interval:withLeeway:", ^{
-		before(^{
-			timer = [RACSignal interval:interval withLeeway:leeway];
-		});
-		
-		it(@"should fire repeatedly at every interval", ^{
-			testTimer(timer, RACScheduler.immediateScheduler, @(interval), @(leeway));
-		});
-		
+	describe(@"+interval:onScheduler:withLeeway:", ^{
 		it(@"should work on the main thread scheduler", ^{
-			testTimer(timer, RACScheduler.mainThreadScheduler, @(interval), @(leeway));
+			testTimer([RACSignal interval:interval onScheduler:RACScheduler.mainThreadScheduler withLeeway:leeway], @(interval), @(leeway));
 		});
 		
 		it(@"should work on a background scheduler", ^{
-			testTimer(timer, [RACScheduler scheduler], @(interval), @(leeway));
+			testTimer([RACSignal interval:interval onScheduler:[RACScheduler scheduler] withLeeway:leeway], @(interval), @(leeway));
 		});
 	});
 });
@@ -1737,7 +1717,7 @@ describe(@"-timeout:", ^{
 		}];
 
 		__block BOOL done = NO;
-		[[[RACSignal interval:0.1] take:1] subscribeNext:^(id _) {
+		[[[RACSignal interval:0.1 onScheduler:RACScheduler.mainThreadScheduler] take:1] subscribeNext:^(id _) {
 			done = YES;
 		}];
 

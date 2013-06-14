@@ -7,11 +7,12 @@
 //
 
 #import "RACPropertySubject+Private.h"
+#import "EXTScope.h"
 #import "RACBinding+Private.h"
 #import "RACDisposable.h"
 #import "RACReplaySubject.h"
+#import "RACSubscriber+Private.h"
 #import "RACTuple.h"
-#import "EXTScope.h"
 
 @interface RACPropertySubject ()
 

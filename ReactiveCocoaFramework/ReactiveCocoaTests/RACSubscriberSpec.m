@@ -9,6 +9,7 @@
 #import "RACSubscriberExamples.h"
 
 #import "RACSubscriber.h"
+#import "RACSubscriber+Private.h"
 #import <libkern/OSAtomic.h>
 
 SpecBegin(RACSubscriber)

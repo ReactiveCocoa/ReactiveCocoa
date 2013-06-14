@@ -24,6 +24,7 @@
 #import "RACScheduler.h"
 #import "RACSignalSequence.h"
 #import "RACSubject.h"
+#import "RACSubscriber+Private.h"
 #import "RACSubscriber.h"
 #import "RACTuple.h"
 #import "RACUnit.h"
@@ -780,7 +781,7 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 
 	[disposable addDisposable:clearPointerDisposable];
 
-	[object rac_addDeallocDisposable:disposable];
+	[object.rac_deallocDisposable addDisposable:disposable];
 	
 	RACCompoundDisposable *objectDisposable = object.rac_deallocDisposable;
 	return [RACDisposable disposableWithBlock:^{

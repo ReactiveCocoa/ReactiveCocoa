@@ -44,8 +44,8 @@ static void *RACKVOWrapperContext = &RACKVOWrapperContext;
 	_observer = observer;
 
 	[self.target addObserver:self forKeyPath:self.keyPath options:options context:&RACKVOWrapperContext];
-	[self.target rac_addDeallocDisposable:self];
-	[self.observer rac_addDeallocDisposable:self];
+	[self.target.rac_deallocDisposable addDisposable:self];
+	[self.observer.rac_deallocDisposable addDisposable:self];
 
 	return self;
 }

@@ -12,6 +12,7 @@
 #import "NSArray+RACSequenceAdditions.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
+#import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSequence.h"
 #import "RACUnit.h"
@@ -248,7 +249,7 @@ describe(@"-objectEnumerator", ^{
 			} tailBlock:^RACSequence *{
 				return RACSequence.empty;
 			}];
-			[thirdSequence rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[thirdSequence.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				thirdSequenceDeallocd = YES;
 			}]];
 			
@@ -257,7 +258,7 @@ describe(@"-objectEnumerator", ^{
 			} tailBlock:^RACSequence *{
 				return thirdSequence;
 			}];
-			[secondSequence rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[secondSequence.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				secondSequenceDeallocd = YES;
 			}]];
 			
@@ -266,7 +267,7 @@ describe(@"-objectEnumerator", ^{
 			} tailBlock:^RACSequence *{
 				return secondSequence;
 			}];
-			[firstSequence rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[firstSequence.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				firstSequenceDeallocd = YES;
 			}]];
 			

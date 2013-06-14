@@ -11,6 +11,7 @@
 #import "NSInvocation+RACTypeParsing.h"
 #import "NSObject+RACDeallocating.h"
 #import "RACBlockTrampoline.h"
+#import "RACCompoundDisposable.h"
 #import "RACMulticastConnection.h"
 #import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"
@@ -33,7 +34,7 @@ static RACSignal *RACLiftAndCallBlock(id object, NSArray *args, RACSignal * (^bl
 	RACMulticastConnection *connection = [[[RACSignal combineLatest:signals] map:reduceBlock] multicast:[RACReplaySubject replaySubjectWithCapacity:1]];
 
 	RACDisposable *disposable = [connection connect];
-	[self rac_addDeallocDisposable:disposable];
+	[self.rac_deallocDisposable addDisposable:disposable];
 
 	return connection.signal;
 }

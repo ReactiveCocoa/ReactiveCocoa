@@ -40,4 +40,9 @@
 	return nil;
 }
 
+- (RACDisposable *)every:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway startingAt:(dispatch_time_t)when schedule:(void (^)(void))block {
+	NSCAssert(NO, @"+[RACScheduler immediateScheduler] does not support %@.", NSStringFromSelector(_cmd));
+	return nil;
+}
+
 @end

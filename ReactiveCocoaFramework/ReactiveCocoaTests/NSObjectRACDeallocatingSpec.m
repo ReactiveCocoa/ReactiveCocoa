@@ -9,17 +9,18 @@
 #import "RACTestObject.h"
 
 #import "NSObject+RACDeallocating.h"
+#import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSignal+Operations.h"
 
 SpecBegin(NSObjectRACDeallocatingSpec)
 
-describe(@"-rac_addDeallocDisposable:", ^{
+describe(@"-rac_deallocDisposable", ^{
 	it(@"should dispose of the disposable when it is dealloc'd", ^{
 		__block BOOL wasDisposed = NO;
 		@autoreleasepool {
 			NSObject *object __attribute__((objc_precise_lifetime)) = [[NSObject alloc] init];
-			[object rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[object.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				wasDisposed = YES;
 			}]];
 
@@ -39,7 +40,7 @@ describe(@"-rac_addDeallocDisposable:", ^{
 
 			__unsafe_unretained RACTestObject *weakObject = object;
 
-			[object rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[object.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				expect(weakObject.objectValue).to.equal(@"foo");
 			}]];
 		}

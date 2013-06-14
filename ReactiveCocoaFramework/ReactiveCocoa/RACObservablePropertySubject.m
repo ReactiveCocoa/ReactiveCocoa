@@ -18,6 +18,7 @@
 #import "RACKVOTrampoline.h"
 #import "RACSignal+Private.h"
 #import "RACSubject.h"
+#import "RACSubscriber+Private.h"
 #import "RACSwizzling.h"
 #import "RACTuple.h"
 

@@ -21,13 +21,12 @@
 // Returns a signal that will complete immediately before the receiver is fully deallocated.
 - (RACSignal *)rac_willDeallocSignal;
 
-// Adds a disposable which will be disposed when the receiver deallocates.
-- (void)rac_addDeallocDisposable:(RACDisposable *)disposable;
-
 @end
 
 @interface NSObject (RACDeallocatingDeprecated)
 
 - (RACSignal *)rac_didDeallocSignal __attribute__((deprecated("Use -rac_willDeallocSignal")));
+
+- (void)rac_addDeallocDisposable:(RACDisposable *)disposable __attribute__((deprecated("Add disposables to -rac_deallocDisposable instead")));
 
 @end

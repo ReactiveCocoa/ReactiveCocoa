@@ -51,7 +51,7 @@ static void swizzleDeallocIfNeeded(Class classToSwizzle) {
 - (RACSignal *)rac_willDeallocSignal {
 	RACSubject *subject = [RACSubject subject];
 
-	[self rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+	[self.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 		[subject sendCompleted];
 	}]];
 
@@ -72,10 +72,6 @@ static void swizzleDeallocIfNeeded(Class classToSwizzle) {
 	}
 }
 
-- (void)rac_addDeallocDisposable:(RACDisposable *)disposable {
-	[self.rac_deallocDisposable addDisposable:disposable];
-}
-
 @end
 
 @implementation NSObject (RACDeallocatingDeprecated)
@@ -94,6 +90,10 @@ static void swizzleDeallocIfNeeded(Class classToSwizzle) {
 	
 	objc_setAssociatedObject(self, (__bridge void *)disposable, disposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	return subject;
+}
+
+- (void)rac_addDeallocDisposable:(RACDisposable *)disposable {
+	[self.rac_deallocDisposable addDisposable:disposable];
 }
 
 #pragma clang diagnostic pop

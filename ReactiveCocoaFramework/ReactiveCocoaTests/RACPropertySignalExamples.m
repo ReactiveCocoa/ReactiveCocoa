@@ -11,6 +11,7 @@
 #import "EXTKeyPathCoding.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
+#import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSubject.h"
 
@@ -75,7 +76,7 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 
 				expect(intermediateSignal).notTo.beNil();
 
-				[intermediateSignal rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				[intermediateSignal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd = YES;
 				}]];
 

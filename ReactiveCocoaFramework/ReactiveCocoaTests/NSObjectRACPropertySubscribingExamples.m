@@ -11,6 +11,7 @@
 #import "NSObjectRACPropertySubscribingExamples.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
+#import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSignal.h"
 
@@ -49,7 +50,7 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 		NSMutableArray *values = [NSMutableArray array];
 		@autoreleasepool {
 			RACTestObject *observer __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			[observer rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[observer.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				observerDealloced = YES;
 			}]];
 
@@ -75,11 +76,11 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 		__block BOOL scopeObjectDealloced = NO;
 		@autoreleasepool {
 			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			[object rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[object.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				objectDealloced = YES;
 			}]];
 			RACTestObject *scopeObject __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			[scopeObject rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[scopeObject.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				scopeObjectDealloced = YES;
 			}]];
 
@@ -99,7 +100,7 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 		__block BOOL signalDealloced = NO;
 		@autoreleasepool {
 			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			[object rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[object.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				objectDealloced = YES;
 			}]];
 
@@ -107,7 +108,7 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 				return value;
 			}];
 
-			[signal rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[signal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				signalDealloced = YES;
 			}]];
 

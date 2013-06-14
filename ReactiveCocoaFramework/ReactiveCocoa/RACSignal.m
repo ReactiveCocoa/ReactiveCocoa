@@ -13,6 +13,7 @@
 #import "RACBlockTrampoline.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
+#import "RACPassthroughSubscriber.h"
 #import "RACReplaySubject.h"
 #import "RACScheduler+Private.h"
 #import "RACScheduler.h"
@@ -377,6 +378,9 @@ static NSLock *RACActiveSignalsLock = nil;
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
 	NSCParameterAssert(subscriber != nil);
+
+	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+	subscriber = [[RACPassthroughSubscriber alloc] initWithSubscriber:subscriber disposable:disposable];
 	
 	OSSpinLockLock(&_subscribersLock);
 	[_subscribers addObject:subscriber];
@@ -399,7 +403,6 @@ static NSLock *RACActiveSignalsLock = nil;
 		}
 	}];
 
-	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 	[disposable addDisposable:defaultDisposable];
 
 	if (self.didSubscribe != NULL) {

@@ -9,6 +9,7 @@
 #import "RACTestObject.h"
 
 #import "EXTKeyPathCoding.h"
+#import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACDisposable.h"
 #import "RACSubject.h"

@@ -37,31 +37,27 @@
 - (RACDisposable *)schedule:(void (^)(void))block {
 	NSCParameterAssert(block != NULL);
 
-	__block volatile uint32_t disposed = 0;
+	RACDisposable *disposable = [[RACDisposable alloc] init];
 
 	dispatch_async(self.queue, ^{
-		if (disposed != 0) return;
+		if (disposable.disposed) return;
 		[self performAsCurrentScheduler:block];
 	});
 
-	return [RACDisposable disposableWithBlock:^{
-		OSAtomicOr32Barrier(1, &disposed);
-	}];
+	return disposable;
 }
 
 - (RACDisposable *)after:(dispatch_time_t)when schedule:(void (^)(void))block {
 	NSCParameterAssert(block != NULL);
 
-	__block volatile uint32_t disposed = 0;
+	RACDisposable *disposable = [[RACDisposable alloc] init];
 
 	dispatch_after(when, self.queue, ^{
-		if (disposed != 0) return;
+		if (disposable.disposed) return;
 		[self performAsCurrentScheduler:block];
 	});
 
-	return [RACDisposable disposableWithBlock:^{
-		OSAtomicOr32Barrier(1, &disposed);
-	}];
+	return disposable;
 }
 
 - (void)performAsCurrentScheduler:(void (^)(void))block {

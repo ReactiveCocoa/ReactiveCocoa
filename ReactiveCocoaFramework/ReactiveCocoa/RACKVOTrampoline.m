@@ -7,8 +7,8 @@
 //
 
 #import "RACKVOTrampoline.h"
-#import "NSObject+RACKVOWrapper.h"
-#import "NSObject+RACKVOWrapperPrivate.h"
+#import "NSObject+RACDeallocating.h"
+#import "RACCompoundDisposable.h"
 
 static void *RACKVOWrapperContext = &RACKVOWrapperContext;
 
@@ -44,19 +44,19 @@ static void *RACKVOWrapperContext = &RACKVOWrapperContext;
 	_observer = observer;
 
 	[self.target addObserver:self forKeyPath:self.keyPath options:options context:&RACKVOWrapperContext];
-	[self.target rac_addKVOTrampoline:self];
-	[self.observer rac_addKVOTrampoline:self];
+	[self.target rac_addDeallocDisposable:self];
+	[self.observer rac_addDeallocDisposable:self];
 
 	return self;
 }
 
 - (void)dealloc {
-	[self stopObserving];
+	[self dispose];
 }
 
 #pragma mark Observation
 
-- (void)stopObserving {
+- (void)dispose {
 	NSObject *target;
 	NSObject *observer;
 
@@ -70,8 +70,8 @@ static void *RACKVOWrapperContext = &RACKVOWrapperContext;
 		_observer = nil;
 	}
 
-	[target rac_removeKVOTrampoline:self];
-	[observer rac_removeKVOTrampoline:self];
+	[target.rac_deallocDisposable removeDisposable:self];
+	[observer.rac_deallocDisposable removeDisposable:self];
 
 	[target removeObserver:self forKeyPath:self.keyPath context:&RACKVOWrapperContext];
 }

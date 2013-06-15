@@ -1106,6 +1106,10 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 	}] setNameWithFormat:@"[%@] -subscribeOn: %@", self.name, scheduler];
 }
 
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
 - (RACSignal *)let:(RACSignal * (^)(RACSignal *sharedSignal))letBlock {
 	NSCParameterAssert(letBlock != NULL);
 	
@@ -1127,6 +1131,8 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 		}];
 	}] setNameWithFormat:@"[%@] -let:", self.name];
 }
+
+#pragma clang diagnostic pop
 
 - (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock transform:(id (^)(id object))transformBlock {
 	NSCParameterAssert(keyBlock != NULL);

@@ -360,10 +360,6 @@ extern const NSInteger RACSignalErrorTimedOut;
 // want to receive the signal's events on `scheduler`, use -deliverOn: instead.
 - (RACSignal *)subscribeOn:(RACScheduler *)scheduler;
 
-// Creates a shared signal which is passed into the let block. The let block
-// then returns a signal derived from that shared signal.
-- (RACSignal *)let:(RACSignal * (^)(RACSignal *sharedSignal))letBlock;
-
 // Groups each received object into a group, as determined by calling `keyBlock`
 // with that object. The object sent is transformed by calling `transformBlock`
 // with the object. If `transformBlock` is nil, it sends the original object.
@@ -441,5 +437,11 @@ extern const NSInteger RACSignalErrorTimedOut;
 //
 // Returns the disposable for the underlying subscription.
 - (RACDisposable *)executeCommand:(RACCommand *)command;
+
+@end
+
+@interface RACSignal (OperationsDeprecated)
+
+- (RACSignal *)let:(RACSignal * (^)(RACSignal *sharedSignal))letBlock __attribute__((deprecated("Use -publish instead")));
 
 @end

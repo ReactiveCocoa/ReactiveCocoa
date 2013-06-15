@@ -12,20 +12,17 @@
 
 @interface NSObject (RACSelectorSignal)
 
-// Adds an implementation of `selector` to the receiver which will send the
-// argument each time it is invoked. The receiver itself shouldn't have an
-// existing implementation of `selector`. It will not swizzle or replace any
-// existing implementation. Superclass implementations are allowed but they
-// won't be called.
+// Creates a signal associated with the receiver which will send a tuple of the
+// arguments each time the given selector is invoked. Applicable whether the
+// selector exists or not. When the selector does not exists, a method will be
+// defined whose argument types are all objects and returns void.
 //
-// This is most useful for implementing a method which is called to communicate
+// This is useful for implementing a method which is called to communicate
 // events to the receiver. For example, in an NSView:
 //   [someSignal takeUntil:[self rac_signalForSelector:@selector(mouseDown:)]];
 //
-// selector - The selector for which an implementation should be added. It
-//            shouldn't already be implemented on the receiver. It must be of
-//            the type:
-//              - (void)selector:(id)argument
+// selector - The selector for whose invocations are to be observed. If it
+//            doesn't exist, it'll be defined to return void and take objects.
 //
 // Returns a signal which will send the argument on each invocation.
 - (RACSignal *)rac_signalForSelector:(SEL)selector;

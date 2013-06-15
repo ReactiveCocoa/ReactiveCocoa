@@ -6,29 +6,14 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "NSObject+RACPropertySubscribing.h"
 #import "NSObjectRACPropertySubscribingExamples.h"
-#import "RACDisposable.h"
 #import "RACTestObject.h"
+
+#import "NSObject+RACPropertySubscribing.h"
+#import "RACDisposable.h"
 #import "RACSignal.h"
 
 SpecBegin(NSObjectRACPropertySubscribing)
-
-describe(@"-rac_addDeallocDisposable:", ^{
-	it(@"should dispose of the disposable when it is dealloc'd", ^{
-		__block BOOL wasDisposed = NO;
-		@autoreleasepool {
-			NSObject *object __attribute__((objc_precise_lifetime)) = [[NSObject alloc] init];
-			[object rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
-				wasDisposed = YES;
-			}]];
-
-			expect(wasDisposed).to.beFalsy();
-		}
-
-		expect(wasDisposed).to.beTruthy();
-	});
-});
 
 describe(@"+rac_signalFor:keyPath:observer:", ^{
 	id (^setupBlock)(id, id, id) = ^(RACTestObject *object, NSString *keyPath, id observer) {

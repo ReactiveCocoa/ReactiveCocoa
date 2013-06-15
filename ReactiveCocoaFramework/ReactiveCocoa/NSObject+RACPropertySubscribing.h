@@ -65,14 +65,9 @@
 #define _RACAbleWithStartObject(object, property) [object rac_signalWithStartingValueForKeyPath:@keypath(object, property) observer:self]
 
 @class RACDisposable;
-@class RACCompoundDisposable;
 @class RACSignal;
 
 @interface NSObject (RACPropertySubscribing)
-
-// The compound disposable which will be disposed of when the receiver is
-// deallocated.
-@property (atomic, readonly, strong) RACCompoundDisposable *rac_deallocDisposable;
 
 // Creates a signal to observe the value at the given keypath on the source
 // object.
@@ -107,8 +102,5 @@
 // Keeps the value of the KVC-compliant keypath up-to-date with the latest value
 // sent by the signal.
 - (RACDisposable *)rac_deriveProperty:(NSString *)keyPath from:(RACSignal *)signal;
-
-// Adds a disposable which will be disposed when the receiver deallocs.
-- (void)rac_addDeallocDisposable:(RACDisposable *)disposable;
 
 @end

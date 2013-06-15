@@ -7,11 +7,11 @@
 //
 
 #import "NSObject+RACSelectorSignal.h"
-#import "RACSubject.h"
-#import "NSObject+RACPropertySubscribing.h"
+#import "NSObject+RACDeallocating.h"
 #import "RACDisposable.h"
 #import "NSInvocation+RACTypeParsing.h"
 #import "RACTuple.h"
+#import "RACSubject.h"
 #import <objc/runtime.h>
 #import <objc/message.h>
 

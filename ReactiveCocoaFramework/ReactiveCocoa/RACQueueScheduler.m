@@ -37,30 +37,45 @@
 - (RACDisposable *)schedule:(void (^)(void))block {
 	NSCParameterAssert(block != NULL);
 
-	__block volatile uint32_t disposed = 0;
+	RACDisposable *disposable = [[RACDisposable alloc] init];
 
 	dispatch_async(self.queue, ^{
-		if (disposed != 0) return;
+		if (disposable.disposed) return;
 		[self performAsCurrentScheduler:block];
 	});
 
-	return [RACDisposable disposableWithBlock:^{
-		OSAtomicOr32Barrier(1, &disposed);
-	}];
+	return disposable;
 }
 
 - (RACDisposable *)after:(dispatch_time_t)when schedule:(void (^)(void))block {
 	NSCParameterAssert(block != NULL);
 
-	__block volatile uint32_t disposed = 0;
+	RACDisposable *disposable = [[RACDisposable alloc] init];
 
 	dispatch_after(when, self.queue, ^{
-		if (disposed != 0) return;
+		if (disposable.disposed) return;
 		[self performAsCurrentScheduler:block];
 	});
 
+	return disposable;
+}
+
+- (RACDisposable *)after:(dispatch_time_t)when repeatingEvery:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway schedule:(void (^)(void))block {
+	NSCParameterAssert(block != NULL);
+	NSCParameterAssert(interval > 0.0 && interval < INT64_MAX / NSEC_PER_SEC);
+	NSCParameterAssert(leeway >= 0.0 && leeway < INT64_MAX / NSEC_PER_SEC);
+
+	uint64_t intervalInNanoSecs = (uint64_t)(interval * NSEC_PER_SEC);
+	uint64_t leewayInNanoSecs = (uint64_t)(leeway * NSEC_PER_SEC);
+
+	dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, self.queue);
+	dispatch_source_set_timer(timer, when, intervalInNanoSecs, leewayInNanoSecs);
+	dispatch_source_set_event_handler(timer, block);
+	dispatch_resume(timer);
+
 	return [RACDisposable disposableWithBlock:^{
-		OSAtomicOr32Barrier(1, &disposed);
+		dispatch_source_cancel(timer);
+		dispatch_release(timer);
 	}];
 }
 

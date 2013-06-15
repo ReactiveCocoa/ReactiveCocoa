@@ -107,6 +107,24 @@ describe(@"+mainThreadScheduler", ^{
 		expect(secondBlockRan).will.beTruthy();
 		expect(firstBlockRan).to.beFalsy();
 	});
+
+	it(@"should schedule recurring blocks", ^{
+		__block NSUInteger count = 0;
+
+		RACDisposable *disposable = [RACScheduler.mainThreadScheduler after:DISPATCH_TIME_NOW repeatingEvery:0.05 withLeeway:0 schedule:^{
+			count++;
+		}];
+
+		expect(count).to.equal(0);
+		expect(count).will.equal(1);
+		expect(count).will.equal(2);
+		expect(count).will.equal(3);
+
+		[disposable dispose];
+		[NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+
+		expect(count).to.equal(3);
+	});
 });
 
 describe(@"+scheduler", ^{
@@ -176,6 +194,24 @@ describe(@"+scheduler", ^{
 		expect(secondBlockRan).to.beFalsy();
 		expect(secondBlockRan).will.beTruthy();
 		expect(firstBlockRan).to.beFalsy();
+	});
+
+	it(@"should schedule recurring blocks", ^{
+		__block NSUInteger count = 0;
+
+		RACDisposable *disposable = [scheduler after:DISPATCH_TIME_NOW repeatingEvery:0.05 withLeeway:0 schedule:^{
+			count++;
+		}];
+
+		expect(count).to.equal(0);
+		expect(count).will.equal(1);
+		expect(count).will.equal(2);
+		expect(count).will.equal(3);
+
+		[disposable dispose];
+		[NSThread sleepForTimeInterval:0.1];
+
+		expect(count).to.equal(3);
 	});
 });
 

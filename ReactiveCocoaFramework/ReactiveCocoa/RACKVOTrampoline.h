@@ -8,9 +8,12 @@
 
 #import <Foundation/Foundation.h>
 #import "NSObject+RACKVOWrapper.h"
+#import "RACDisposable.h"
 
 // The KVO trampoline object. Represents a KVO observation.
-@interface RACKVOTrampoline : NSObject
+//
+// Disposing of the trampoline will stop observation.
+@interface RACKVOTrampoline : RACDisposable
 
 // Initializes the receiver with the given parameters.
 //
@@ -24,8 +27,5 @@
 //
 // Returns the initialized object.
 - (id)initWithTarget:(NSObject *)target observer:(NSObject *)observer keyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(RACKVOBlock)block;
-
-// Stop the KVO observation.
-- (void)stopObserving;
 
 @end

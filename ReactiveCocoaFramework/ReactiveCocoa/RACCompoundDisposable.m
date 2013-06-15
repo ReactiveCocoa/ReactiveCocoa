@@ -17,18 +17,28 @@
 	// Contains the receiver's disposables.
 	//
 	// This array should only be manipulated while _spinLock is held. If
-	// `disposed` is YES, this may be NULL.
+	// `_disposed` is YES, this may be NULL.
 	CFMutableArrayRef _disposables;
-}
 
-// Whether the receiver has already been disposed.
-//
-// This property should only be accessed while _spinLock is held.
-@property (nonatomic, assign, getter = isDisposed) BOOL disposed;
+	// Whether the receiver has already been disposed.
+	//
+	// This ivar should only be accessed while _spinLock is held.
+	BOOL _disposed;
+}
 
 @end
 
 @implementation RACCompoundDisposable
+
+#pragma mark Properties
+
+- (BOOL)isDisposed {
+	OSSpinLockLock(&_spinLock);
+	BOOL disposed = _disposed;
+	OSSpinLockUnlock(&_spinLock);
+
+	return disposed;
+}
 
 #pragma mark Initializers
 
@@ -81,7 +91,7 @@
 
 	OSSpinLockLock(&_spinLock);
 	{
-		if (self.disposed) {
+		if (_disposed) {
 			shouldDispose = YES;
 		} else {
 			CFArrayAppendValue(_disposables, (__bridge void *)disposable);
@@ -99,7 +109,7 @@
 
 	OSSpinLockLock(&_spinLock);
 	{
-		if (!self.disposed) {
+		if (!_disposed) {
 			CFIndex count = CFArrayGetCount(_disposables);
 			for (CFIndex i = count - 1; i >= 0; i--) {
 				const void *item = CFArrayGetValueAtIndex(_disposables, i);
@@ -124,7 +134,7 @@ static void disposeEach(const void *value, void *context) {
 
 	OSSpinLockLock(&_spinLock);
 	{
-		self.disposed = YES;
+		_disposed = YES;
 
 		allDisposables = _disposables;
 		_disposables = NULL;

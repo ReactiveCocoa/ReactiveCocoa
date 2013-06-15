@@ -7,21 +7,23 @@
 //
 
 #import "RACSignal.h"
-#import "NSObject+RACDescription.h"
 #import "EXTScope.h"
+#import "NSObject+RACDescription.h"
 #import "RACBehaviorSubject.h"
 #import "RACBlockTrampoline.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
+#import "RACMulticastConnection.h"
+#import "RACPassthroughSubscriber.h"
 #import "RACReplaySubject.h"
 #import "RACScheduler+Private.h"
 #import "RACScheduler.h"
 #import "RACSignal+Operations.h"
 #import "RACSignal+Private.h"
 #import "RACSubject.h"
+#import "RACSubscriber+Private.h"
 #import "RACSubscriber.h"
 #import "RACTuple.h"
-#import "RACMulticastConnection.h"
 #import <libkern/OSAtomic.h>
 
 // Retains signals while they wait for subscriptions.
@@ -377,6 +379,9 @@ static NSLock *RACActiveSignalsLock = nil;
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
 	NSCParameterAssert(subscriber != nil);
+
+	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+	subscriber = [[RACPassthroughSubscriber alloc] initWithSubscriber:subscriber disposable:disposable];
 	
 	OSSpinLockLock(&_subscribersLock);
 	[_subscribers addObject:subscriber];
@@ -399,7 +404,6 @@ static NSLock *RACActiveSignalsLock = nil;
 		}
 	}];
 
-	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 	[disposable addDisposable:defaultDisposable];
 
 	if (self.didSubscribe != NULL) {
@@ -514,7 +518,7 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 
 	[[[[self
 		take:1]
-		timeout:RACSignalAsynchronousWaitTimeout]
+		timeout:RACSignalAsynchronousWaitTimeout onScheduler:[RACScheduler scheduler]]
 		deliverOn:RACScheduler.mainThreadScheduler]
 		subscribeNext:^(id x) {
 			result = x;

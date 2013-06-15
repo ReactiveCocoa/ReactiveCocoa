@@ -6,13 +6,16 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "NSObject+RACLifting.h"
 #import "RACTestObject.h"
-#import "RACSubject.h"
-#import "RACUnit.h"
+
+#import "NSObject+RACLifting.h"
+#import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
+#import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
+#import "RACSubject.h"
 #import "RACTuple.h"
+#import "RACUnit.h"
 
 // <RACLiftingTestRig> specifies the basic behavior necessary for testing
 // different techniques of message lifting (namely -rac_lift and
@@ -177,7 +180,7 @@ sharedExamplesFor(@"RACLifting", ^(NSDictionary *data) {
 		__block BOOL dealloced = NO;
 		@autoreleasepool {
 			RACTestObject *testObject __attribute__((objc_precise_lifetime)) = [RACTestObject new];
-			[testObject rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[testObject.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				dealloced = YES;
 			}]];
 
@@ -521,7 +524,7 @@ describe(@"-rac_liftSelector:withObjectsFromArray:", ^{
 		__block BOOL dealloced = NO;
 		@autoreleasepool {
 			RACTestObject *testObject __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			[testObject rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[testObject.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				dealloced = YES;
 			}]];
 

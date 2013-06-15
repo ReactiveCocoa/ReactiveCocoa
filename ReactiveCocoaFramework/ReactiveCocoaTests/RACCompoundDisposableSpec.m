@@ -28,28 +28,29 @@ it(@"should dispose of all its contained disposables", ^{
 
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposableWithDisposables:@[ d1, d2 ]];
 	[disposable addDisposable:d3];
+
 	expect(d1Disposed).to.beFalsy();
 	expect(d2Disposed).to.beFalsy();
 	expect(d3Disposed).to.beFalsy();
+	expect(disposable.disposed).to.beFalsy();
 
 	[disposable dispose];
+
 	expect(d1Disposed).to.beTruthy();
 	expect(d2Disposed).to.beTruthy();
 	expect(d3Disposed).to.beTruthy();
+	expect(disposable.disposed).to.beTruthy();
 });
 
 it(@"should dispose of any added disposables immediately if it's already been disposed", ^{
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 	[disposable dispose];
 
-	__block BOOL disposed = NO;
-	RACDisposable *d = [RACDisposable disposableWithBlock:^{
-		disposed = YES;
-	}];
+	RACDisposable *d = [RACDisposable disposableWithBlock:^{}];
 
-	expect(disposed).to.beFalsy();
+	expect(d.disposed).to.beFalsy();
 	[disposable addDisposable:d];
-	expect(disposed).to.beTruthy();
+	expect(d.disposed).to.beTruthy();
 });
 
 it(@"should work when initialized with -init", ^{
@@ -69,17 +70,13 @@ it(@"should work when initialized with -init", ^{
 
 it(@"should allow disposables to be removed", ^{
 	RACCompoundDisposable *disposable = [[RACCompoundDisposable alloc] init];
-
-	__block BOOL disposed = NO;
-	RACDisposable *d = [RACDisposable disposableWithBlock:^{
-		disposed = YES;
-	}];
+	RACDisposable *d = [RACDisposable disposableWithBlock:^{}];
 
 	[disposable addDisposable:d];
 	[disposable removeDisposable:d];
 
 	[disposable dispose];
-	expect(disposed).to.beFalsy();
+	expect(d.disposed).to.beFalsy();
 });
 
 SpecEnd

@@ -91,6 +91,36 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 // Converts seconds to nanoseconds and calls `-after:schedule:`.
 - (RACDisposable *)afterDelay:(NSTimeInterval)delay schedule:(void (^)(void))block;
 
+// Reschedule the given block at a particular interval, starting at a specific
+// time, and with a given leeway for deferral.
+//
+// Note that blocks scheduled for a certain time will not preempt any other
+// scheduled work that is executing at the time.
+//
+// Regardless of the value of `leeway`, the given block may not execute exactly
+// at `when` or exactly on successive intervals, whether due to system load or
+// because another block is currently being run on the scheduler.
+//
+// It is considered undefined behavior to invoke this method on the
+// +immediateScheduler.
+//
+// when     - The earliest time at which `block` should begin executing. If this
+//            time is `DISPATCH_TIME_NOW` or created using dispatch_time(), the
+//            default system clock (which does not advance while the computer is
+//            asleep) is used for determining when to fire. When
+//            dispatch_walltime() is used, the wall clock time is used for
+//            determining when to fire.
+// interval - The interval at which the block should be rescheduled, starting
+//            from `when`.
+// leeway   - A hint to the system indicating the number of seconds that each
+//            scheduling can be deferred. Note that this is just a hint, and
+//            there may be some additional latency no matter what.
+// block    - The block to repeatedly schedule for execution. Cannot be nil.
+//
+// Returns a disposable which can be used to cancel the automatic scheduling and
+// rescheduling, or nil if cancellation is not supported.
+- (RACDisposable *)after:(dispatch_time_t)when repeatingEvery:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway schedule:(void (^)(void))block;
+
 // Schedule the given recursive block for execution on the scheduler. The
 // scheduler will automatically flatten any recursive scheduling into iteration
 // instead, so this can be used without issue for blocks that may keep invoking

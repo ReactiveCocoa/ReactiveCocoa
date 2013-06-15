@@ -804,7 +804,7 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 	int64_t intervalInNanoSecs = (int64_t)(interval * NSEC_PER_SEC);
 
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		return [scheduler every:interval withLeeway:leeway startingAt:dispatch_time(DISPATCH_TIME_NOW, intervalInNanoSecs) schedule:^{
+		return [scheduler after:dispatch_time(DISPATCH_TIME_NOW, intervalInNanoSecs) repeatingEvery:interval withLeeway:leeway schedule:^{
 			[subscriber sendNext:[NSDate date]];
 		}];
 	}] setNameWithFormat:@"+interval: %f onScheduler: %@ withLeeway: %f", (double)interval, scheduler, (double)leeway];

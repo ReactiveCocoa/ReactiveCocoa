@@ -100,19 +100,19 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 // It is considered undefined behavior to invoke this method on the
 // +immediateScheduler.
 //
+// when     - The earliest time at which `block` should begin executing. The block
+//            may not execute immediately at this time, whether due to system load
+//            or another block on the scheduler currently being run.
 // interval - The interval at which the block should be rescheduled, starting
 //            from `when`.
 // leeway   - A hint to the system indicating the number of seconds that each
 //            scheduling can be deferred. Note that this is just a hint, and
 //            there may be some additional latency no matter what.
-// when     - The earliest time at which `block` should begin executing. The block
-//            may not execute immediately at this time, whether due to system load
-//            or another block on the scheduler currently being run.
 // block    - The block to repeatedly schedule for execution. Cannot be nil.
 //
 // Returns a disposable which can be used to cancel the automatic scheduling and
 // rescheduling, or nil if cancellation is not supported.
-- (RACDisposable *)every:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway startingAt:(dispatch_time_t)when schedule:(void (^)(void))block;
+- (RACDisposable *)after:(dispatch_time_t)when repeatingEvery:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway schedule:(void (^)(void))block;
 
 // Schedule the given recursive block for execution on the scheduler. The
 // scheduler will automatically flatten any recursive scheduling into iteration

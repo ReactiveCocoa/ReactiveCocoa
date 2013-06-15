@@ -60,7 +60,7 @@
 	return disposable;
 }
 
-- (RACDisposable *)every:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway startingAt:(dispatch_time_t)when schedule:(void (^)(void))block {
+- (RACDisposable *)after:(dispatch_time_t)when repeatingEvery:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway schedule:(void (^)(void))block {
 	NSCParameterAssert(block != NULL);
 	NSCParameterAssert(interval > 0.0 && interval < INT64_MAX / NSEC_PER_SEC);
 	NSCParameterAssert(leeway >= 0.0 && leeway < INT64_MAX / NSEC_PER_SEC);

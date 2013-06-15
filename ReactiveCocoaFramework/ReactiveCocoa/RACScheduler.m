@@ -118,7 +118,7 @@ NSString * const RACSchedulerCurrentSchedulerKey = @"RACSchedulerCurrentSchedule
 	return [self after:when schedule:block];
 }
 
-- (RACDisposable *)every:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway startingAt:(dispatch_time_t)when schedule:(void (^)(void))block {
+- (RACDisposable *)after:(dispatch_time_t)when repeatingEvery:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway schedule:(void (^)(void))block {
 	NSCAssert(NO, @"%@ must be implemented by subclasses.", NSStringFromSelector(_cmd));
 	return nil;
 }

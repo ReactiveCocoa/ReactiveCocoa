@@ -111,7 +111,7 @@ describe(@"+mainThreadScheduler", ^{
 	it(@"should schedule recurring blocks", ^{
 		__block NSUInteger count = 0;
 
-		RACDisposable *disposable = [RACScheduler.mainThreadScheduler every:0.05 withLeeway:0 startingAt:DISPATCH_TIME_NOW schedule:^{
+		RACDisposable *disposable = [RACScheduler.mainThreadScheduler after:DISPATCH_TIME_NOW repeatingEvery:0.05 withLeeway:0 schedule:^{
 			count++;
 		}];
 
@@ -199,7 +199,7 @@ describe(@"+scheduler", ^{
 	it(@"should schedule recurring blocks", ^{
 		__block NSUInteger count = 0;
 
-		RACDisposable *disposable = [scheduler every:0.05 withLeeway:0 startingAt:DISPATCH_TIME_NOW schedule:^{
+		RACDisposable *disposable = [scheduler after:DISPATCH_TIME_NOW repeatingEvery:0.05 withLeeway:0 schedule:^{
 			count++;
 		}];
 

@@ -400,6 +400,9 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 }
 
 - (RACSignal *)bufferWithTime:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler {
+	NSCParameterAssert(scheduler != nil);
+	NSCParameterAssert(scheduler != RACScheduler.immediateScheduler);
+
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		NSMutableArray *values = [NSMutableArray array];
 
@@ -1039,6 +1042,9 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 }
 
 - (RACSignal *)timeout:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler {
+	NSCParameterAssert(scheduler != nil);
+	NSCParameterAssert(scheduler != RACScheduler.immediateScheduler);
+
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 

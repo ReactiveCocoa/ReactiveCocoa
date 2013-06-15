@@ -82,7 +82,8 @@ extern const NSInteger RACSignalErrorTimedOut;
 //
 // interval  - The interval in which values are grouped into one buffer.
 // scheduler - The scheduler upon which the returned signal will deliver its
-//             values.
+//             values. This must not be nil or +[RACScheduler
+//             immediateScheduler].
 //
 // Returns a signal which sends RACTuples of the buffered values at each
 // interval on `scheduler`.
@@ -350,7 +351,8 @@ extern const NSInteger RACSignalErrorTimedOut;
 // RACSignalErrorTimedOut.
 //
 // interval  - The number of seconds after which the signal should error out.
-// scheduler - The scheduler upon which any timeout error should be sent.
+// scheduler - The scheduler upon which any timeout error should be sent. This
+//             must not be nil or +[RACScheduler immediateScheduler].
 //
 // Returns a signal that passes through the receiver's events, until the stream
 // finishes or times out, at which point an error will be sent on `scheduler`.

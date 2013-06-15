@@ -97,12 +97,19 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 // Note that blocks scheduled for a certain time will not preempt any other
 // scheduled work that is executing at the time.
 //
+// Regardless of the value of `leeway`, the given block may not execute exactly
+// at `when` or exactly on successive intervals, whether due to system load or
+// because another block is currently being run on the scheduler.
+//
 // It is considered undefined behavior to invoke this method on the
 // +immediateScheduler.
 //
-// when     - The earliest time at which `block` should begin executing. The block
-//            may not execute immediately at this time, whether due to system load
-//            or another block on the scheduler currently being run.
+// when     - The earliest time at which `block` should begin executing. If this
+//            time is `DISPATCH_TIME_NOW` or created using dispatch_time(), the
+//            default system clock (which does not advance while the computer is
+//            asleep) is used for determining when to fire. When
+//            dispatch_walltime() is used, the wall clock time is used for
+//            determining when to fire.
 // interval - The interval at which the block should be rescheduled, starting
 //            from `when`.
 // leeway   - A hint to the system indicating the number of seconds that each

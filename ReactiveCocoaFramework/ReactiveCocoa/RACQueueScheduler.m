@@ -60,6 +60,25 @@
 	return disposable;
 }
 
+- (RACDisposable *)after:(dispatch_time_t)when repeatingEvery:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway schedule:(void (^)(void))block {
+	NSCParameterAssert(block != NULL);
+	NSCParameterAssert(interval > 0.0 && interval < INT64_MAX / NSEC_PER_SEC);
+	NSCParameterAssert(leeway >= 0.0 && leeway < INT64_MAX / NSEC_PER_SEC);
+
+	uint64_t intervalInNanoSecs = (uint64_t)(interval * NSEC_PER_SEC);
+	uint64_t leewayInNanoSecs = (uint64_t)(leeway * NSEC_PER_SEC);
+
+	dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, self.queue);
+	dispatch_source_set_timer(timer, when, intervalInNanoSecs, leewayInNanoSecs);
+	dispatch_source_set_event_handler(timer, block);
+	dispatch_resume(timer);
+
+	return [RACDisposable disposableWithBlock:^{
+		dispatch_source_cancel(timer);
+		dispatch_release(timer);
+	}];
+}
+
 - (void)performAsCurrentScheduler:(void (^)(void))block {
 	NSCParameterAssert(block != NULL);
 

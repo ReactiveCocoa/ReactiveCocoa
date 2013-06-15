@@ -104,18 +104,23 @@ NSString * const RACSchedulerCurrentSchedulerKey = @"RACSchedulerCurrentSchedule
 #pragma mark Scheduling
 
 - (RACDisposable *)schedule:(void (^)(void))block {
-	NSCAssert(NO, @"-schedule: must be implemented by subclasses.");
+	NSCAssert(NO, @"%@ must be implemented by subclasses.", NSStringFromSelector(_cmd));
 	return nil;
 }
 
 - (RACDisposable *)after:(dispatch_time_t)when schedule:(void (^)(void))block {
-	NSCAssert(NO, @"-after:schedule: must be implemented by subclasses.");
+	NSCAssert(NO, @"%@ must be implemented by subclasses.", NSStringFromSelector(_cmd));
 	return nil;
 }
 
 - (RACDisposable *)afterDelay:(NSTimeInterval)delay schedule:(void (^)(void))block {
 	dispatch_time_t when = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC));
 	return [self after:when schedule:block];
+}
+
+- (RACDisposable *)after:(dispatch_time_t)when repeatingEvery:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway schedule:(void (^)(void))block {
+	NSCAssert(NO, @"%@ must be implemented by subclasses.", NSStringFromSelector(_cmd));
+	return nil;
 }
 
 - (RACDisposable *)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock {

@@ -60,13 +60,8 @@ static RACSignal *NSObjectRACSignalForSelector(id self, SEL selector) {
 			// Redefine the selector to call -forwardInvocation:
 			method_setImplementation(method, _objc_msgForward);
 		} else {
-			NSMutableString *signature = [NSMutableString stringWithString:@"v@:"];
-			for (NSUInteger i = [NSStringFromSelector(selector) componentsSeparatedByString:@":"].count; i > 1; --i) {
-				[signature appendString:@"@"];
-			}
-
 			// Define the selector to call -forwardInvocation:
-			class_replaceMethod(class, selector, _objc_msgForward, signature.UTF8String);
+			class_replaceMethod(class, selector, _objc_msgForward, RACSignatureForUndefinedSelector(selector).UTF8String);
 		}
 
 		return subject;
@@ -93,6 +88,14 @@ static RACSubject *RACCreateSubjectForSignal(id object, SEL selector) {
 static SEL RACAliasForSelector(SEL originalSelector) {
 	NSString *selectorName = NSStringFromSelector(originalSelector);
 	return NSSelectorFromString([RACSignalForSelectorAliasPrefix stringByAppendingString:selectorName]);
+}
+
+static NSString *RACSignatureForUndefinedSelector(SEL selector) {
+	NSMutableString *signature = [NSMutableString stringWithString:@"v@:"];
+	for (NSUInteger i = [NSStringFromSelector(selector) componentsSeparatedByString:@":"].count; i > 1; --i) {
+		[signature appendString:@"@"];
+	}
+	return signature;
 }
 
 - (RACSignal *)rac_signalForSelector:(SEL)selector {

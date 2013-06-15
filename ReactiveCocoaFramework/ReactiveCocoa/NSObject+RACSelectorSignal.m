@@ -16,22 +16,18 @@
 #import <objc/message.h>
 
 static const void *RACObjectSelectorSignals = &RACObjectSelectorSignals;
+static NSString * const RACSignalForSelectorAliasPrefix = @"rac_alias_";
 
 @implementation NSObject (RACSelectorSignal)
 
 static void RACSignalForSelectorForwardingIMP(id self, SEL _cmd, NSInvocation *invocation) {
-	NSString *selectorName = NSStringFromSelector(invocation.selector);
-
-	NSMutableDictionary *selectorSignals = objc_getAssociatedObject(self, RACObjectSelectorSignals);
-	if (selectorSignals != nil) {
-		RACSubject *subject = selectorSignals[selectorName];
-		if (subject != nil) {
-			RACTuple *argumentsTuple = [RACTuple tupleWithObjectsFromArray:invocation.rac_allArguments];
-			[subject sendNext:argumentsTuple];
-		}
+	RACSubject *subject = RACSubjectForSelector(self, invocation.selector);
+	if (subject != nil) {
+		RACTuple *argumentsTuple = [RACTuple tupleWithObjectsFromArray:invocation.rac_allArguments];
+		[subject sendNext:argumentsTuple];
 	}
 
-	SEL reservedSelector = NSSelectorFromString([@"rac_forward_" stringByAppendingString:selectorName]);
+	SEL reservedSelector = RACAliasForSelector(invocation.selector);
 	if ([invocation.target respondsToSelector:reservedSelector]) {
 		invocation.selector = reservedSelector;
 		[invocation invoke];
@@ -40,17 +36,10 @@ static void RACSignalForSelectorForwardingIMP(id self, SEL _cmd, NSInvocation *i
 
 static RACSignal *NSObjectRACSignalForSelector(id self, SEL selector) {
 	@synchronized(self) {
-		NSMutableDictionary *selectorSignals = objc_getAssociatedObject(self, RACObjectSelectorSignals);
-		if (selectorSignals == nil) {
-			selectorSignals = [NSMutableDictionary dictionary];
-			objc_setAssociatedObject(self, RACObjectSelectorSignals, selectorSignals, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-		}
-
-		NSString *selectorName = NSStringFromSelector(selector);
-		RACSubject *subject = selectorSignals[selectorName];
+		RACSubject *subject = RACSubjectForSelector(self, selector);
 		if (subject != nil) return subject;
 
-		subject = selectorSignals[selectorName] = [RACSubject subject];
+		subject = RACCreateSubjectForSignal(self, selector);
 		[self rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
 			[subject sendCompleted];
 		}]];
@@ -60,18 +49,19 @@ static RACSignal *NSObjectRACSignalForSelector(id self, SEL selector) {
 
 		class_replaceMethod(class, @selector(forwardInvocation:), (IMP)RACSignalForSelectorForwardingIMP, "v@:@");
 
+		// If this class has previously had -rac_signalForSelector: applied to
+		// it, just return the new subject for this instance.
 		if (method_getImplementation(method) == _objc_msgForward) return subject;
 
 		if (method != NULL) {
-			// Alias the existing method to reservedSelector.
-			SEL reservedSelector = NSSelectorFromString([@"rac_forward_" stringByAppendingString:selectorName]);
-			class_addMethod(class, reservedSelector, method_getImplementation(method), method_getTypeEncoding(method));
+			// Make a method alias for the existing method implementation.
+			class_addMethod(class, RACAliasForSelector(selector), method_getImplementation(method), method_getTypeEncoding(method));
 
 			// Redefine the selector to call -forwardInvocation:
 			method_setImplementation(method, _objc_msgForward);
 		} else {
 			NSMutableString *signature = [NSMutableString stringWithString:@"v@:"];
-			for (NSUInteger i = [selectorName componentsSeparatedByString:@":"].count; i > 1; --i) {
+			for (NSUInteger i = [NSStringFromSelector(selector) componentsSeparatedByString:@":"].count; i > 1; --i) {
 				[signature appendString:@"@"];
 			}
 
@@ -81,6 +71,28 @@ static RACSignal *NSObjectRACSignalForSelector(id self, SEL selector) {
 
 		return subject;
 	}
+}
+
+static RACSubject *RACSubjectForSelector(id object, SEL selector) {
+	NSMutableDictionary *selectorSignals = objc_getAssociatedObject(object, RACObjectSelectorSignals);
+	if (selectorSignals == nil) return nil;
+
+	return selectorSignals[NSStringFromSelector(selector)];
+}
+
+static RACSubject *RACCreateSubjectForSignal(id object, SEL selector) {
+	NSMutableDictionary *selectorSignals = objc_getAssociatedObject(object, RACObjectSelectorSignals);
+	if (selectorSignals == nil) {
+		selectorSignals = [NSMutableDictionary dictionary];
+		objc_setAssociatedObject(object, RACObjectSelectorSignals, selectorSignals, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	}
+
+	return selectorSignals[NSStringFromSelector(selector)] = [RACSubject subject];
+}
+
+static SEL RACAliasForSelector(SEL originalSelector) {
+	NSString *selectorName = NSStringFromSelector(originalSelector);
+	return NSSelectorFromString([RACSignalForSelectorAliasPrefix stringByAppendingString:selectorName]);
 }
 
 - (RACSignal *)rac_signalForSelector:(SEL)selector {

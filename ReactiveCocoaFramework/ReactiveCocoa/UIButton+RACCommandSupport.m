@@ -1,12 +1,12 @@
 //
-//  UIBarButtonItem+RACCommandSupport.m
+//  UIButton+RACCommandSupport.m
 //  ReactiveCocoa
 //
-//  Created by Kyle LeNeau on 3/27/13.
+//  Created by Ash Furrow on 2013-06-06.
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#import "UIBarButtonItem+RACCommandSupport.h"
+#import "UIButton+RACCommandSupport.h"
 #import <ReactiveCocoa/EXTKeyPathCoding.h>
 #import <ReactiveCocoa/NSObject+RACPropertySubscribing.h>
 #import <ReactiveCocoa/RACCommand.h>
@@ -16,38 +16,40 @@
 #import <ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h>
 #import <objc/runtime.h>
 
-static void *UIControlRACCommandKey = &UIControlRACCommandKey;
-static void *UIControlCanExecuteDisposableKey = &UIControlCanExecuteDisposableKey;
+static void *UIButtonRACCommandKey = &UIButtonRACCommandKey;
+static void *UIButtonCanExecuteDisposableKey = &UIButtonCanExecuteDisposableKey;
 
-@implementation UIBarButtonItem (RACCommandSupport)
+@implementation UIButton (RACCommandSupport)
 
 - (RACCommand *)rac_command {
-	return objc_getAssociatedObject(self, UIControlRACCommandKey);
+	return objc_getAssociatedObject(self, UIButtonRACCommandKey);
 }
 
 - (void)setRac_command:(RACCommand *)command {
-	objc_setAssociatedObject(self, UIControlRACCommandKey, command, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	objc_setAssociatedObject(self, UIButtonRACCommandKey, command, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
 	// Check for stored signal in order to remove it and add a new one
-	RACDisposable *disposable = objc_getAssociatedObject(self, UIControlCanExecuteDisposableKey);
+	RACDisposable *disposable = objc_getAssociatedObject(self, UIButtonCanExecuteDisposableKey);
 	[disposable dispose];
 	
 	if (command == nil) return;
 	
 	disposable = [RACAbleWithStart(command, canExecute) toProperty:@keypath(self.enabled) onObject:self];
-	objc_setAssociatedObject(self, UIControlCanExecuteDisposableKey, disposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	objc_setAssociatedObject(self, UIButtonCanExecuteDisposableKey, disposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
 	[self rac_hijackActionAndTargetIfNeeded];
 }
 
 - (void)rac_hijackActionAndTargetIfNeeded {
 	SEL hijackSelector = @selector(rac_commandPerformAction:);
-	if (self.target == self && self.action == hijackSelector) return;
 	
-	if (self.target != nil) NSLog(@"WARNING: UIBarButtonItem.rac_command hijacks the control's existing target and action.");
+	for (NSString *selector in [self actionsForTarget:self forControlEvent:UIControlEventTouchUpInside]) {
+		if (hijackSelector == NSSelectorFromString(selector)) {
+			return;
+		}
+	}
 	
-	self.target = self;
-	self.action = hijackSelector;
+	[self addTarget:self action:hijackSelector forControlEvents:UIControlEventTouchUpInside];
 }
 
 - (void)rac_commandPerformAction:(id)sender {

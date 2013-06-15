@@ -29,7 +29,7 @@ describe(@"with an instance method", ^{
 		expect(value).to.equal(@42);
 	});
 
-	it(@"should send the argument for each invocation to the associated signal", ^{
+	it(@"should send the argument for each invocation to the instance's own signal", ^{
 		RACSubclassObject *object1 = [[RACSubclassObject alloc] init];
 		__block id value1;
 		[[object1 rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(RACTuple *x) {
@@ -49,7 +49,7 @@ describe(@"with an instance method", ^{
 		expect(value2).to.equal(@"Carpe diem");
 	});
 
-	it(@"should send all arguments for each invocation", ^{
+	it(@"should send multiple arguments for each invocation", ^{
 		RACSubclassObject *object = [[RACSubclassObject alloc] init];
 		__block id value1;
 		__block id value2;
@@ -64,7 +64,7 @@ describe(@"with an instance method", ^{
 		expect(value2).to.equal(@"foo");
 	});
 
-	it(@"should create method where non-existant", ^{
+	it(@"should send arguments for invocation of non-existant methods", ^{
 		RACSubclassObject *object = [[RACSubclassObject alloc] init];
 		__block id key;
 		__block id value;
@@ -79,7 +79,7 @@ describe(@"with an instance method", ^{
 		expect(key).to.equal(@"Winner");
 	});
 
-	it(@"should work on KVO'd receiver", ^{
+	it(@"should send arguments for invocation on previously KVO'd receiver", ^{
 		RACSubclassObject *object = [[RACSubclassObject alloc] init];
 
 		[RACAble(object, objectValue) replayLast];
@@ -97,7 +97,7 @@ describe(@"with an instance method", ^{
 		expect(key).to.equal(@"Winner");
 	});
 
-	it(@"should work when receiver is subsequently KVO'd", ^{
+	it(@"should send arguments for invocation when receiver is subsequently KVO'd", ^{
 		RACSubclassObject *object = [[RACSubclassObject alloc] init];
 
 		__block id key;

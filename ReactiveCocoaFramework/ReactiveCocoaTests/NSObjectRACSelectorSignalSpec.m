@@ -1,5 +1,5 @@
 //
-//  NSObjectRACSelectorSignal.m
+//  NSObjectRACSelectorSignalSpec.m
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 3/18/13.
@@ -8,11 +8,12 @@
 
 #import "RACTestObject.h"
 #import "RACSubclassObject.h"
+
+#import "NSObject+RACPropertySubscribing.h"
 #import "NSObject+RACSelectorSignal.h"
+#import "RACSignal+Operations.h"
 #import "RACSignal.h"
 #import "RACTuple.h"
-#import "NSObject+RACPropertySubscribing.h"
-#import "RACSignal+Operations.h"
 
 SpecBegin(NSObjectRACSelectorSignal)
 

@@ -71,7 +71,7 @@
 		5FAF525A174D4D5600CAC810 /* RACSubscriptingAssignmentTrampolineSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FC735A16114FFB00F8A774 /* RACSubscriptingAssignmentTrampolineSpec.m */; };
 		5FAF525B174D4D5600CAC810 /* RACTestObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 88442A331608A9AD00636B49 /* RACTestObject.m */; };
 		5FAF525C174D4D5600CAC810 /* RACTupleSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D02221611678910900DBD031 /* RACTupleSpec.m */; };
-		5FAF525D174D4D5600CAC810 /* NSObjectRACSelectorSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 880D7A6516F7BB1A004A3361 /* NSObjectRACSelectorSignal.m */; };
+		5FAF525D174D4D5600CAC810 /* NSObjectRACSelectorSignalSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 880D7A6516F7BB1A004A3361 /* NSObjectRACSelectorSignalSpec.m */; };
 		5FAF525E174D4D5600CAC810 /* RACSubclassObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 880D7A6816F7BCC7004A3361 /* RACSubclassObject.m */; };
 		5FAF5262174D4D8F00CAC810 /* UIBarButtonItemRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FAF5261174D4D8E00CAC810 /* UIBarButtonItemRACSupportSpec.m */; };
 		5FAF5263174D500400CAC810 /* libExpecta-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8803805515056ACB001A5B19 /* libExpecta-iOS.a */; };
@@ -117,7 +117,7 @@
 		880D7A5B16F7B351004A3361 /* NSObject+RACSelectorSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = 880D7A5816F7B351004A3361 /* NSObject+RACSelectorSignal.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		880D7A5C16F7B351004A3361 /* NSObject+RACSelectorSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 880D7A5916F7B351004A3361 /* NSObject+RACSelectorSignal.m */; };
 		880D7A5D16F7B351004A3361 /* NSObject+RACSelectorSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 880D7A5916F7B351004A3361 /* NSObject+RACSelectorSignal.m */; };
-		880D7A6616F7BB1A004A3361 /* NSObjectRACSelectorSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 880D7A6516F7BB1A004A3361 /* NSObjectRACSelectorSignal.m */; };
+		880D7A6616F7BB1A004A3361 /* NSObjectRACSelectorSignalSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 880D7A6516F7BB1A004A3361 /* NSObjectRACSelectorSignalSpec.m */; };
 		880D7A6916F7BCC7004A3361 /* RACSubclassObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 880D7A6816F7BCC7004A3361 /* RACSubclassObject.m */; };
 		881B37CC152260BF0079220B /* RACUnit.h in Headers */ = {isa = PBXBuildFile; fileRef = 881B37CA152260BF0079220B /* RACUnit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		881B37CD152260BF0079220B /* RACUnit.m in Sources */ = {isa = PBXBuildFile; fileRef = 881B37CB152260BF0079220B /* RACUnit.m */; };
@@ -505,7 +505,7 @@
 		880B9175150B09190008488E /* RACSubject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSubject.m; sourceTree = "<group>"; };
 		880D7A5816F7B351004A3361 /* NSObject+RACSelectorSignal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACSelectorSignal.h"; sourceTree = "<group>"; };
 		880D7A5916F7B351004A3361 /* NSObject+RACSelectorSignal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACSelectorSignal.m"; sourceTree = "<group>"; };
-		880D7A6516F7BB1A004A3361 /* NSObjectRACSelectorSignal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSObjectRACSelectorSignal.m; sourceTree = "<group>"; };
+		880D7A6516F7BB1A004A3361 /* NSObjectRACSelectorSignalSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSObjectRACSelectorSignalSpec.m; sourceTree = "<group>"; };
 		880D7A6716F7BCC7004A3361 /* RACSubclassObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACSubclassObject.h; sourceTree = "<group>"; };
 		880D7A6816F7BCC7004A3361 /* RACSubclassObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSubclassObject.m; sourceTree = "<group>"; };
 		881B37CA152260BF0079220B /* RACUnit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACUnit.h; sourceTree = "<group>"; };
@@ -982,7 +982,7 @@
 				88302C2D1762C180003633BD /* RACTargetQueueSchedulerSpec.m */,
 				88302BFB1762A9E6003633BD /* RACTestExampleScheduler.h */,
 				88302BFC1762A9E6003633BD /* RACTestExampleScheduler.m */,
-				880D7A6516F7BB1A004A3361 /* NSObjectRACSelectorSignal.m */,
+				880D7A6516F7BB1A004A3361 /* NSObjectRACSelectorSignalSpec.m */,
 				880D7A6716F7BCC7004A3361 /* RACSubclassObject.h */,
 				880D7A6816F7BCC7004A3361 /* RACSubclassObject.m */,
 				D0A0E225176A84DA007273ED /* RACDisposableSpec.m */,
@@ -1652,7 +1652,7 @@
 				5FAF525A174D4D5600CAC810 /* RACSubscriptingAssignmentTrampolineSpec.m in Sources */,
 				5FAF525B174D4D5600CAC810 /* RACTestObject.m in Sources */,
 				5FAF525C174D4D5600CAC810 /* RACTupleSpec.m in Sources */,
-				5FAF525D174D4D5600CAC810 /* NSObjectRACSelectorSignal.m in Sources */,
+				5FAF525D174D4D5600CAC810 /* NSObjectRACSelectorSignalSpec.m in Sources */,
 				5FAF525E174D4D5600CAC810 /* RACSubclassObject.m in Sources */,
 				5FAF5262174D4D8F00CAC810 /* UIBarButtonItemRACSupportSpec.m in Sources */,
 				5FAF526B174D574700CAC810 /* NSData+RACSupport.m in Sources */,
@@ -1773,7 +1773,7 @@
 				D0A0B01816EAA5CC00C47593 /* NSTextRACSupportSpec.m in Sources */,
 				6E58405F16F3414200F588A6 /* NSObjectRACDeallocatingSpec.m in Sources */,
 				1E893381171647A5009071B0 /* NSObjectRACPropertySubscribingExamples.m in Sources */,
-				880D7A6616F7BB1A004A3361 /* NSObjectRACSelectorSignal.m in Sources */,
+				880D7A6616F7BB1A004A3361 /* NSObjectRACSelectorSignalSpec.m in Sources */,
 				880D7A6916F7BCC7004A3361 /* RACSubclassObject.m in Sources */,
 				5FDC350F1736F81900792E52 /* NSStringRACKeyPathUtilitiesSpec.m in Sources */,
 				88302BFD1762A9E6003633BD /* RACTestExampleScheduler.m in Sources */,

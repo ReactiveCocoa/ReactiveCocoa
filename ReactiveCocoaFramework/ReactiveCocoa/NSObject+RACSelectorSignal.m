@@ -7,82 +7,113 @@
 //
 
 #import "NSObject+RACSelectorSignal.h"
-#import "NSObject+RACDeallocating.h"
-#import "RACDisposable.h"
 #import "NSInvocation+RACTypeParsing.h"
-#import "RACTuple.h"
+#import "NSObject+RACDeallocating.h"
+#import "RACCompoundDisposable.h"
+#import "RACDisposable.h"
 #import "RACSubject.h"
-#import <objc/runtime.h>
+#import "RACTuple.h"
 #import <objc/message.h>
+#import <objc/runtime.h>
 
 static const void *RACObjectSelectorSignals = &RACObjectSelectorSignals;
 static NSString * const RACSignalForSelectorAliasPrefix = @"rac_alias_";
 
 @implementation NSObject (RACSelectorSignal)
 
-static void RACSignalForSelectorForwardingIMP(id self, SEL _cmd, NSInvocation *invocation) {
-	RACSubject *subject = RACSubjectForSelector(self, invocation.selector);
-	if (subject != nil) {
-		RACTuple *argumentsTuple = [RACTuple tupleWithObjectsFromArray:invocation.rac_allArguments];
-		[subject sendNext:argumentsTuple];
-	}
+static BOOL RACForwardInvocation(id self, NSInvocation *invocation) {
+	SEL aliasSelector = RACAliasForSelector(invocation.selector);
 
-	SEL reservedSelector = RACAliasForSelector(invocation.selector);
-	if ([invocation.target respondsToSelector:reservedSelector]) {
-		invocation.selector = reservedSelector;
+	BOOL (^invokeOriginal)() = ^{
+		if (![invocation.target respondsToSelector:aliasSelector]) return NO;
+
+		invocation.selector = aliasSelector;
 		[invocation invoke];
-	}
+		return YES;
+	};
+
+	RACSubject *subject = objc_getAssociatedObject(self, aliasSelector);
+	if (subject == nil) return invokeOriginal();
+
+	NSArray *arguments = invocation.rac_allArguments;
+	invokeOriginal();
+
+	RACTuple *argumentsTuple = [RACTuple tupleWithObjectsFromArray:arguments];
+	[subject sendNext:argumentsTuple];
+	return YES;
 }
 
 static RACSignal *NSObjectRACSignalForSelector(id self, SEL selector) {
-	@synchronized(self) {
-		RACSubject *subject = RACSubjectForSelector(self, selector);
+	SEL aliasSelector = RACAliasForSelector(selector);
+
+	@synchronized (self) {
+		RACSubject *subject = objc_getAssociatedObject(self, aliasSelector);
 		if (subject != nil) return subject;
 
-		subject = RACCreateSubjectForSignal(self, selector);
-		[self rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+		subject = [RACSubject subject];
+		objc_setAssociatedObject(self, aliasSelector, subject, OBJC_ASSOCIATION_RETAIN);
+
+		[[self rac_deallocDisposable] addDisposable:[RACDisposable disposableWithBlock:^{
 			[subject sendCompleted];
 		}]];
 
 		Class class = object_getClass(self);
-		Method method = class_getInstanceMethod(class, selector);
-
-		class_replaceMethod(class, @selector(forwardInvocation:), (IMP)RACSignalForSelectorForwardingIMP, "v@:@");
+		Method targetMethod = class_getInstanceMethod(class, selector);
 
 		// If this class has previously had -rac_signalForSelector: applied to
 		// it, just return the new subject for this instance.
-		if (method_getImplementation(method) == _objc_msgForward) return subject;
+		if (targetMethod != NULL && method_getImplementation(targetMethod) == _objc_msgForward) return subject;
 
-		if (method != NULL) {
-			// Make a method alias for the existing method implementation.
-			class_addMethod(class, RACAliasForSelector(selector), method_getImplementation(method), method_getTypeEncoding(method));
+		SEL forwardInvocationSEL = @selector(forwardInvocation:);
+		Method forwardInvocationMethod = class_getInstanceMethod(class, forwardInvocationSEL);
 
-			// Redefine the selector to call -forwardInvocation:
-			method_setImplementation(method, _objc_msgForward);
+		// Preserve any existing implementation of -forwardInvocation:.
+		void (*originalForwardInvocation)(id, SEL, NSInvocation *) = NULL;
+		if (forwardInvocationMethod != NULL) {
+			originalForwardInvocation = (__typeof__(originalForwardInvocation))method_getImplementation(forwardInvocationMethod);
+		}
+
+		// Set up a new version of -forwardInvocation:.
+		//
+		// If the selector has been passed to -rac_signalForSelector:, invoke
+		// the aliased method, and forward the arguments to any attached signals.
+		//
+		// If the selector has not been passed to -rac_signalForSelector:,
+		// invoke any existing implementation of -forwardInvocation:. If there
+		// was no existing implementation, throw an unrecognized selector
+		// exception.
+		id newForwardInvocation = ^(id self, NSInvocation *invocation) {
+			BOOL matched = RACForwardInvocation(self, invocation);
+			if (matched) return;
+
+			if (originalForwardInvocation == NULL) {
+				[self doesNotRecognizeSelector:invocation.selector];
+			} else {
+				originalForwardInvocation(self, forwardInvocationSEL, invocation);
+			}
+		};
+
+		class_replaceMethod(class, @selector(forwardInvocation:), imp_implementationWithBlock(newForwardInvocation), "v@:@");
+
+		if (targetMethod == NULL) {
+			// Define the selector to call -forwardInvocation:.
+			if (!class_addMethod(class, selector, _objc_msgForward, RACSignatureForUndefinedSelector(selector))) {
+				NSLog(@"*** Could not add forwarding for %@ on class %@", NSStringFromSelector(selector), class);
+				return nil;
+			}
 		} else {
-			// Define the selector to call -forwardInvocation:
-			class_replaceMethod(class, selector, _objc_msgForward, RACSignatureForUndefinedSelector(selector).UTF8String);
+			// Make a method alias for the existing method implementation.
+			if (!class_addMethod(class, aliasSelector, method_getImplementation(targetMethod), method_getTypeEncoding(targetMethod))) {
+				NSLog(@"*** Could not alias %@ to %@ on class %@", NSStringFromSelector(selector), NSStringFromSelector(aliasSelector), class);
+				return nil;
+			}
+
+			// Redefine the selector to call -forwardInvocation:.
+			class_replaceMethod(class, selector, _objc_msgForward, method_getTypeEncoding(targetMethod));
 		}
 
 		return subject;
 	}
-}
-
-static RACSubject *RACSubjectForSelector(id object, SEL selector) {
-	NSMutableDictionary *selectorSignals = objc_getAssociatedObject(object, RACObjectSelectorSignals);
-	if (selectorSignals == nil) return nil;
-
-	return selectorSignals[NSStringFromSelector(selector)];
-}
-
-static RACSubject *RACCreateSubjectForSignal(id object, SEL selector) {
-	NSMutableDictionary *selectorSignals = objc_getAssociatedObject(object, RACObjectSelectorSignals);
-	if (selectorSignals == nil) {
-		selectorSignals = [NSMutableDictionary dictionary];
-		objc_setAssociatedObject(object, RACObjectSelectorSignals, selectorSignals, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-	}
-
-	return selectorSignals[NSStringFromSelector(selector)] = [RACSubject subject];
 }
 
 static SEL RACAliasForSelector(SEL originalSelector) {
@@ -90,12 +121,16 @@ static SEL RACAliasForSelector(SEL originalSelector) {
 	return NSSelectorFromString([RACSignalForSelectorAliasPrefix stringByAppendingString:selectorName]);
 }
 
-static NSString *RACSignatureForUndefinedSelector(SEL selector) {
+static const char *RACSignatureForUndefinedSelector(SEL selector) {
+	const char *name = sel_getName(selector);
 	NSMutableString *signature = [NSMutableString stringWithString:@"v@:"];
-	for (NSUInteger i = [NSStringFromSelector(selector) componentsSeparatedByString:@":"].count; i > 1; --i) {
+
+	while ((name = strchr(name, ':')) != NULL) {
 		[signature appendString:@"@"];
+		name++;
 	}
-	return signature;
+
+	return signature.UTF8String;
 }
 
 - (RACSignal *)rac_signalForSelector:(SEL)selector {

@@ -12,7 +12,8 @@
 
 @interface RACDisposable () {
 	// A copied block of type void (^)(void) containing the logic for disposal,
-	// or NULL if the receiver is already disposed.
+	// a pointer to `self` if no logic should be performed upon disposal, or
+	// NULL if the receiver is already disposed.
 	//
 	// This should only be used atomically.
 	void * volatile _disposeBlock;
@@ -22,25 +23,45 @@
 
 @implementation RACDisposable
 
+#pragma mark Properties
+
+- (BOOL)isDisposed {
+	return _disposeBlock == NULL;
+}
+
 #pragma mark Lifecycle
 
-+ (instancetype)disposableWithBlock:(void (^)(void))block {
-	RACDisposable *disposable = [[self alloc] init];
+- (id)init {
+	self = [super init];
+	if (self == nil) return nil;
 
-	id copiedBlock = [block copy];
-	disposable->_disposeBlock = (void *)CFBridgingRetain(copiedBlock);
-
-	// Force the store to _disposeBlock to complete.
+	_disposeBlock = (__bridge void *)self;
 	OSMemoryBarrier();
 
-	return disposable;
+	return self;
+}
+
+- (id)initWithBlock:(void (^)(void))block {
+	NSCParameterAssert(block != nil);
+
+	self = [super init];
+	if (self == nil) return nil;
+
+	_disposeBlock = (void *)CFBridgingRetain([block copy]); 
+	OSMemoryBarrier();
+
+	return self;
+}
+
++ (instancetype)disposableWithBlock:(void (^)(void))block {
+	return [[self alloc] initWithBlock:block];
 }
 
 - (void)dealloc {
-	if (_disposeBlock != NULL) {
-		CFRelease(_disposeBlock);
-		_disposeBlock = NULL;
-	}
+	if (_disposeBlock == NULL || _disposeBlock == (__bridge void *)self) return;
+
+	CFRelease(_disposeBlock);
+	_disposeBlock = NULL;
 }
 
 #pragma mark Disposal
@@ -51,7 +72,10 @@
 	while (YES) {
 		void *blockPtr = _disposeBlock;
 		if (OSAtomicCompareAndSwapPtrBarrier(blockPtr, NULL, &_disposeBlock)) {
-			disposeBlock = CFBridgingRelease(blockPtr);
+			if (blockPtr != (__bridge void *)self) {
+				disposeBlock = CFBridgingRelease(blockPtr);
+			}
+
 			break;
 		}
 	}

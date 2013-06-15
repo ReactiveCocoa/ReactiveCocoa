@@ -7,6 +7,7 @@
 //
 
 #import "RACSubscriber.h"
+#import "RACSubscriber+Private.h"
 #import "EXTScope.h"
 #import "RACCompoundDisposable.h"
 
@@ -50,7 +51,8 @@
 		}
 	}];
 
-	_disposable = [RACCompoundDisposable compoundDisposableWithDisposables:@[ selfDisposable ]];
+	_disposable = [RACCompoundDisposable compoundDisposable];
+	[_disposable addDisposable:selfDisposable];
 	
 	return self;
 }

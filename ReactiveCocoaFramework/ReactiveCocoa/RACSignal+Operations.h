@@ -77,9 +77,17 @@ extern const NSInteger RACSignalErrorTimedOut;
 // will be a RACTuple of values.
 - (RACSignal *)buffer:(NSUInteger)bufferCount;
 
-// Divide the `next`s into buffers delivery every `interval` seconds. The `next`
-// will be a RACTuple of values.
-- (RACSignal *)bufferWithTime:(NSTimeInterval)interval;
+// Divides the receiver's `next`s into buffers which deliver every `interval`
+// seconds.
+//
+// interval  - The interval in which values are grouped into one buffer.
+// scheduler - The scheduler upon which the returned signal will deliver its
+//             values. This must not be nil or +[RACScheduler
+//             immediateScheduler].
+//
+// Returns a signal which sends RACTuples of the buffered values at each
+// interval on `scheduler`.
+- (RACSignal *)bufferWithTime:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler;
 
 // Collect all receiver's `next`s into a NSArray. nil values will be converted
 // to NSNull.
@@ -195,11 +203,13 @@ extern const NSInteger RACSignalErrorTimedOut;
 
 // Sends NSDate.date every `interval` seconds.
 //
-// interval - The time interval in seconds at which the current time is sent.
+// interval  - The time interval in seconds at which the current time is sent.
+// scheduler - The scheduler upon which the current NSDate should be sent. This
+//             must not be nil or +[RACScheduler immediateScheduler].
 //
-// Returns a signal that sends the current date/time every `interval` on the
-// global concurrent high priority queue.
-+ (RACSignal *)interval:(NSTimeInterval)interval;
+// Returns a signal that sends the current date/time every `interval` on
+// `scheduler`.
++ (RACSignal *)interval:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler;
 
 // Sends NSDate.date at intervals of at least `interval` seconds, up to
 // approximately `interval` + `leeway` seconds.
@@ -209,13 +219,15 @@ extern const NSInteger RACSignalErrorTimedOut;
 // interest of performance or power consumption. Note that some additional
 // latency is to be expected, even when specifying a `leeway` of 0.
 //
-// interval - The base interval between `next`s.
-// leeway   - The maximum amount of additional time the `next` can be deferred.
+// interval  - The base interval between `next`s.
+// scheduler - The scheduler upon which the current NSDate should be sent. This
+//             must not be nil or +[RACScheduler immediateScheduler].
+// leeway    - The maximum amount of additional time the `next` can be deferred.
 //
 // Returns a signal that sends the current date/time at intervals of at least
-// `interval seconds` up to approximately `interval` + `leeway` seconds on the
-// global concurrent high priority queue.
-+ (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway;
+// `interval seconds` up to approximately `interval` + `leeway` seconds on
+// `scheduler`.
++ (RACSignal *)interval:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler withLeeway:(NSTimeInterval)leeway;
 
 // Take `next`s until the `signalTrigger` sends `next` or `completed`.
 //
@@ -338,18 +350,30 @@ extern const NSInteger RACSignalErrorTimedOut;
 // The error will be in the RACSignalErrorDomain and have a code of
 // RACSignalErrorTimedOut.
 //
-// Returns a signal that passes through the receiver's events on an
-// indeterminate scheduler, until the stream finishes or times out.
-- (RACSignal *)timeout:(NSTimeInterval)interval;
+// interval  - The number of seconds after which the signal should error out.
+// scheduler - The scheduler upon which any timeout error should be sent. This
+//             must not be nil or +[RACScheduler immediateScheduler].
+//
+// Returns a signal that passes through the receiver's events, until the stream
+// finishes or times out, at which point an error will be sent on `scheduler`.
+- (RACSignal *)timeout:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler;
 
-// Creates and returns a signal that delivers its callbacks using the given
-// scheduler.
+// Creates and returns a signal that delivers its events on the given scheduler.
+// Any side effects of the receiver will still be performed on the original
+// thread.
+//
+// This is ideal when the signal already performs its work on the desired
+// thread, but you want to handle its events elsewhere.
 //
 // This corresponds to the `ObserveOn` method in Rx.
 - (RACSignal *)deliverOn:(RACScheduler *)scheduler;
 
-// Creates and returns a signal whose `didSubscribe` block is scheduled with the
-// given scheduler.
+// Creates and returns a signal that executes its side effects and delivers its
+// events on the given scheduler.
+//
+// Use of this operator should be avoided whenever possible, because the
+// receiver's side effects may not be safe to run on another thread. If you just
+// want to receive the signal's events on `scheduler`, use -deliverOn: instead.
 - (RACSignal *)subscribeOn:(RACScheduler *)scheduler;
 
 // Groups each received object into a group, as determined by calling `keyBlock`
@@ -435,5 +459,9 @@ extern const NSInteger RACSignalErrorTimedOut;
 @interface RACSignal (OperationsDeprecated)
 
 - (RACSignal *)let:(RACSignal * (^)(RACSignal *sharedSignal))letBlock __attribute__((deprecated("Use -publish instead")));
++ (RACSignal *)interval:(NSTimeInterval)interval __attribute__((deprecated("Use +interval:onScheduler: instead")));
++ (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway __attribute__((deprecated("Use +interval:onScheduler:withLeeway: instead")));
+- (RACSignal *)bufferWithTime:(NSTimeInterval)interval __attribute__((deprecated("Use -bufferWithTime:onScheduler: instead")));
+- (RACSignal *)timeout:(NSTimeInterval)interval __attribute__((deprecated("Use -timeout:onScheduler: instead")));
 
 @end

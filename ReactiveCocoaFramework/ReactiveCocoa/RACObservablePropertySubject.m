@@ -8,6 +8,7 @@
 
 #import "RACObservablePropertySubject.h"
 #import "EXTScope.h"
+#import "NSObject+RACDeallocating.h"
 #import "NSObject+RACDescription.h"
 #import "NSObject+RACKVOWrapper.h"
 #import "NSObject+RACPropertySubscribing.h"
@@ -17,6 +18,7 @@
 #import "RACKVOTrampoline.h"
 #import "RACSignal+Private.h"
 #import "RACSubject.h"
+#import "RACSubscriber+Private.h"
 #import "RACSwizzling.h"
 #import "RACTuple.h"
 
@@ -192,7 +194,7 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 		self.disposed = YES;
 		[self.exposedSignalSubject sendCompleted];
 		[self.exposedSubscriberSubject sendCompleted];
-		[self.observer stopObserving];
+		[self.observer dispose];
 	}
 }
 

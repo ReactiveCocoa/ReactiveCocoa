@@ -6,9 +6,11 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACCommand.h"
 #import "NSArray+RACSequenceAdditions.h"
+#import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
+#import "RACCommand.h"
+#import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACEvent.h"
 #import "RACScheduler.h"
@@ -66,7 +68,7 @@ it(@"should dealloc without subscribers", ^{
 
 	@autoreleasepool {
 		RACCommand *command __attribute__((objc_precise_lifetime)) = [[RACCommand alloc] initWithCanExecuteSignal:nil];
-		[command rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+		[command.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 			disposed = YES;
 		}]];
 	}
@@ -268,7 +270,7 @@ describe(@"with a signal block", ^{
 				return [RACSignal empty];
 			}];
 
-			[command rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[command.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				disposed = YES;
 			}]];
 		}

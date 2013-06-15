@@ -8,8 +8,10 @@
 
 #import "RACScheduler.h"
 #import "RACScheduler+Private.h"
+#import "RACQueueScheduler+Subclass.h"
 #import "RACDisposable.h"
 #import "EXTScope.h"
+#import "RACTestExampleScheduler.h"
 #import <libkern/OSAtomic.h>
 
 // This shouldn't be used directly. Use the `expectCurrentSchedulers` block
@@ -105,6 +107,24 @@ describe(@"+mainThreadScheduler", ^{
 		expect(secondBlockRan).will.beTruthy();
 		expect(firstBlockRan).to.beFalsy();
 	});
+
+	it(@"should schedule recurring blocks", ^{
+		__block NSUInteger count = 0;
+
+		RACDisposable *disposable = [RACScheduler.mainThreadScheduler after:DISPATCH_TIME_NOW repeatingEvery:0.05 withLeeway:0 schedule:^{
+			count++;
+		}];
+
+		expect(count).to.equal(0);
+		expect(count).will.equal(1);
+		expect(count).will.equal(2);
+		expect(count).will.equal(3);
+
+		[disposable dispose];
+		[NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+
+		expect(count).to.equal(3);
+	});
 });
 
 describe(@"+scheduler", ^{
@@ -175,6 +195,24 @@ describe(@"+scheduler", ^{
 		expect(secondBlockRan).will.beTruthy();
 		expect(firstBlockRan).to.beFalsy();
 	});
+
+	it(@"should schedule recurring blocks", ^{
+		__block NSUInteger count = 0;
+
+		RACDisposable *disposable = [scheduler after:DISPATCH_TIME_NOW repeatingEvery:0.05 withLeeway:0 schedule:^{
+			count++;
+		}];
+
+		expect(count).to.equal(0);
+		expect(count).will.equal(1);
+		expect(count).will.equal(2);
+		expect(count).will.equal(3);
+
+		[disposable dispose];
+		[NSThread sleepForTimeInterval:0.1];
+
+		expect(count).to.equal(3);
+	});
 });
 
 describe(@"+subscriptionScheduler", ^{
@@ -232,44 +270,6 @@ describe(@"+subscriptionScheduler", ^{
 
 		expect(done).will.beTruthy();
 		expect(executedImmediately).to.beTruthy();
-	});
-});
-
-describe(@"+schedulerWithQueue:name:", ^{
-	it(@"should have a valid current scheduler", ^{
-		dispatch_queue_t queue = dispatch_queue_create("test-queue", DISPATCH_QUEUE_SERIAL);
-		RACScheduler *scheduler = [RACScheduler schedulerWithQueue:queue name:@"test-scheduler"];
-		__block RACScheduler *currentScheduler;
-		[scheduler schedule:^{
-			currentScheduler = RACScheduler.currentScheduler;
-		}];
-
-		expect(currentScheduler).will.equal(scheduler);
-
-		dispatch_release(queue);
-	});
-
-	it(@"should schedule blocks FIFO even when given a concurrent queue", ^{
-		dispatch_queue_t queue = dispatch_queue_create("test-queue", DISPATCH_QUEUE_CONCURRENT);
-		RACScheduler *scheduler = [RACScheduler schedulerWithQueue:queue name:@"test-scheduler"];
-		__block volatile int32_t startedCount = 0;
-		__block volatile uint32_t waitInFirst = 1;
-		[scheduler schedule:^{
-			OSAtomicIncrement32Barrier(&startedCount);
-			while (waitInFirst == 1) ;
-		}];
-
-		[scheduler schedule:^{
-			OSAtomicIncrement32Barrier(&startedCount);
-		}];
-
-		expect(startedCount).will.equal(1);
-
-		OSAtomicAnd32Barrier(0, &waitInFirst);
-
-		expect(startedCount).will.equal(2);
-
-		dispatch_release(queue);
 	});
 });
 
@@ -386,6 +386,41 @@ describe(@"-scheduleRecursiveBlock:", ^{
 
 			expect(count).will.equal(1);
 		});
+	});
+});
+
+describe(@"subclassing", ^{
+	__block RACTestExampleScheduler *scheduler;
+
+	beforeEach(^{
+		scheduler = [[RACTestExampleScheduler alloc] initWithQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
+	});
+
+	it(@"should invoke blocks scheduled with -schedule:", ^{
+		__block BOOL invoked = NO;
+		[scheduler schedule:^{
+			invoked = YES;
+		}];
+
+		expect(invoked).will.beTruthy();
+	});
+
+	it(@"should invoke blocks scheduled with -after:schedule:", ^{
+		__block BOOL invoked = NO;
+		[scheduler after:1 schedule:^{
+			invoked = YES;
+		}];
+		
+		expect(invoked).will.beTruthy();
+	});
+
+	it(@"should set a valid current scheduler", ^{
+		__block RACScheduler *currentScheduler;
+		[scheduler schedule:^{
+			currentScheduler = RACScheduler.currentScheduler;
+		}];
+
+		expect(currentScheduler).will.equal(scheduler);
 	});
 });
 

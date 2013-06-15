@@ -7,9 +7,9 @@
 //
 
 #import "NSObject+RACSelectorSignal.h"
-#import "RACSubject.h"
-#import "NSObject+RACPropertySubscribing.h"
+#import "NSObject+RACDeallocating.h"
 #import "RACDisposable.h"
+#import "RACSubject.h"
 #import <objc/runtime.h>
 
 static const void *RACObjectSelectorSignals = &RACObjectSelectorSignals;

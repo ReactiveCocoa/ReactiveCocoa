@@ -7,10 +7,13 @@
 //
 
 #import "RACPropertySubjectExamples.h"
+
+#import "NSObject+RACDeallocating.h"
+#import "NSObject+RACPropertySubscribing.h"
+#import "RACBinding.h"
+#import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACPropertySubject.h"
-#import "RACBinding.h"
-#import "NSObject+RACPropertySubscribing.h"
 
 NSString * const RACPropertySubjectExamples = @"RACPropertySubjectExamples";
 NSString * const RACPropertySubjectExampleGetPropertyBlock = @"RACPropertySubjectExampleGetPropertyBlock";
@@ -62,7 +65,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 			__block BOOL deallocd = NO;
 			@autoreleasepool {
 				RACPropertySubject *property __attribute__((objc_precise_lifetime)) = getProperty();
-				[property rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				[property.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd = YES;
 				}]];
 				disposable = [property subscribeNext:^(id x) {}];
@@ -76,7 +79,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 			__block BOOL deallocd = NO;
 			@autoreleasepool {
 				RACPropertySubject *property __attribute__((objc_precise_lifetime)) = getProperty();
-				[property rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				[property.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd = YES;
 				}]];
 				disposable = [RACSignal.never subscribe:property];
@@ -90,7 +93,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 			__block BOOL deallocd = NO;
 			@autoreleasepool {
 				RACPropertySubject *property __attribute__((objc_precise_lifetime)) = getProperty();
-				[property rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				[property.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd = YES;
 				}]];
 				disposable = [[property binding] subscribeNext:^(id x) {}];
@@ -104,7 +107,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 			__block BOOL deallocd = NO;
 			@autoreleasepool {
 				RACPropertySubject *property __attribute__((objc_precise_lifetime)) = getProperty();
-				[property rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				[property.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd = YES;
 				}]];
 				disposable = [RACSignal.never subscribe:[property binding]];
@@ -120,10 +123,10 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 			@autoreleasepool {
 				RACPropertySubject *property1 __attribute__((objc_precise_lifetime)) = getProperty();
 				RACPropertySubject *property2 __attribute__((objc_precise_lifetime)) = getProperty();
-				[property1 rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				[property1.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd1 = YES;
 				}]];
-				[property2 rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				[property2.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd2 = YES;
 				}]];
 				disposable = [[property1 binding] bindTo:[property2 binding]];

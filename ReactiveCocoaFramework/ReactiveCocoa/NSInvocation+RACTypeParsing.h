@@ -34,9 +34,10 @@
 
 // Gets an array of the arguments for the invocation.
 //
-// See -rac_argumentAtIndex:
+// See -rac_argumentAtIndex: for a description of the behavior.
 //
-// Returns an array containing the arguments of the invocation.
+// Returns an array containing the arguments of the invocation, except `self`
+// and `_cmd`.
 - (NSArray *)rac_allArguments;
 
 // Gets the return value from the invocation based on the invocation's method

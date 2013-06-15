@@ -12,19 +12,30 @@
 
 @interface NSObject (RACSelectorSignal)
 
-// Creates a signal associated with the receiver which will send a tuple of the
-// arguments each time the given selector is invoked. Applicable whether the
-// selector exists or not. When the selector does not exists, a method will be
-// defined whose argument types are all objects and returns void.
+// Creates a signal associated with the receiver, which will send a tuple of the
+// method's arguments each time the given selector is invoked.
 //
-// This is useful for implementing a method which is called to communicate
-// events to the receiver. For example, in an NSView:
-//   [someSignal takeUntil:[self rac_signalForSelector:@selector(mouseDown:)]];
+// If the selector is already implemented on the receiver, the existing
+// implementation will be invoked _before_ the signal fires.
+//
+// If the selector is not yet implemented on the receiver, the injected
+// implementation will have a `void` return type and accept only object
+// arguments. Invoking the added implementation with non-object values, or
+// expecting a return value, will result in undefined behavior.
+//
+// This is useful for changing an event or delegate callback into a signal. For
+// example, on an NSView:
+//
+//     [[view rac_signalForSelector:@selector(mouseDown:)] subscribeNext:^(NSEvent *event) {
+//         NSLog(@"mouse button pressed: %@", event);
+//     }];
 //
 // selector - The selector for whose invocations are to be observed. If it
-//            doesn't exist, it'll be defined to return void and take objects.
+//            doesn't exist, it will be implemented to accept object arguments
+//            and return void.
 //
-// Returns a signal which will send the argument on each invocation.
+// Returns a signal which will send a tuple of arguments on each invocation of
+// the selector.
 - (RACSignal *)rac_signalForSelector:(SEL)selector;
 
 // The same as -rac_signalForSelector: but with class methods.

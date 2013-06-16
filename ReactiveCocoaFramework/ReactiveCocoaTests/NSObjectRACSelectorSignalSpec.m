@@ -89,6 +89,7 @@ describe(@"with an instance method", ^{
 
 	it(@"should send multiple arguments for each invocation", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
+
 		__block id value1;
 		__block id value2;
 		[[object rac_signalForSelector:@selector(combineObjectValue:andSecondObjectValue:)] subscribeNext:^(RACTuple *x) {
@@ -96,8 +97,7 @@ describe(@"with an instance method", ^{
 			value2 = x.second;
 		}];
 
-		[object combineObjectValue:@42 andSecondObjectValue:@"foo"];
-
+		expect([object combineObjectValue:@42 andSecondObjectValue:@"foo"]).to.equal(@"42: foo");
 		expect(value1).to.equal(@42);
 		expect(value2).to.equal(@"foo");
 	});

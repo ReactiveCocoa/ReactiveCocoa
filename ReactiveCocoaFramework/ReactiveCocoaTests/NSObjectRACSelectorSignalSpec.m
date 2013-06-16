@@ -9,8 +9,11 @@
 #import "RACTestObject.h"
 #import "RACSubclassObject.h"
 
+#import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "NSObject+RACSelectorSignal.h"
+#import "RACCompoundDisposable.h"
+#import "RACDisposable.h"
 #import "RACSignal+Operations.h"
 #import "RACSignal.h"
 #import "RACTuple.h"
@@ -28,6 +31,29 @@ describe(@"with an instance method", ^{
 		[object lifeIsGood:@42];
 
 		expect(value).to.equal(@42);
+	});
+
+	it(@"should send completed on deallocation", ^{
+		__block BOOL completed = NO;
+		__block BOOL deallocated = NO;
+
+		@autoreleasepool {
+			RACSubclassObject *object __attribute__((objc_precise_lifetime)) = [[RACSubclassObject alloc] init];
+
+			[object.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				deallocated = YES;
+			}]];
+
+			[[object rac_signalForSelector:@selector(lifeIsGood:)] subscribeCompleted:^{
+				completed = YES;
+			}];
+
+			expect(deallocated).to.beFalsy();
+			expect(completed).to.beFalsy();
+		}
+
+		expect(deallocated).to.beTruthy();
+		expect(completed).to.beTruthy();
 	});
 
 	it(@"should send the argument for each invocation to the instance's own signal", ^{

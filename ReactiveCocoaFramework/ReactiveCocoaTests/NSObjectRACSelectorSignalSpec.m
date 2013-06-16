@@ -7,7 +7,6 @@
 //
 
 #import "RACTestObject.h"
-#import "RACSubclassObject.h"
 
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
@@ -22,7 +21,7 @@ SpecBegin(NSObjectRACSelectorSignal)
 
 describe(@"with an instance method", ^{
 	it(@"should send the argument for each invocation", ^{
-		RACSubclassObject *object = [[RACSubclassObject alloc] init];
+		RACTestObject *object = [[RACTestObject alloc] init];
 		__block id value;
 		[[object rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(RACTuple *x) {
 			value = x.first;
@@ -38,7 +37,7 @@ describe(@"with an instance method", ^{
 		__block BOOL deallocated = NO;
 
 		@autoreleasepool {
-			RACSubclassObject *object __attribute__((objc_precise_lifetime)) = [[RACSubclassObject alloc] init];
+			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
 
 			[object.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				deallocated = YES;
@@ -57,7 +56,7 @@ describe(@"with an instance method", ^{
 	});
 
 	it(@"should send for a zero-argument method", ^{
-		RACSubclassObject *object = [[RACSubclassObject alloc] init];
+		RACTestObject *object = [[RACTestObject alloc] init];
 
 		__block RACTuple *value;
 		[[object rac_signalForSelector:@selector(objectValue)] subscribeNext:^(RACTuple *x) {
@@ -69,13 +68,13 @@ describe(@"with an instance method", ^{
 	});
 
 	it(@"should send the argument for each invocation to the instance's own signal", ^{
-		RACSubclassObject *object1 = [[RACSubclassObject alloc] init];
+		RACTestObject *object1 = [[RACTestObject alloc] init];
 		__block id value1;
 		[[object1 rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(RACTuple *x) {
 			value1 = x.first;
 		}];
 
-		RACSubclassObject *object2 = [[RACSubclassObject alloc] init];
+		RACTestObject *object2 = [[RACTestObject alloc] init];
 		__block id value2;
 		[[object2 rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(RACTuple *x) {
 			value2 = x.first;
@@ -89,7 +88,7 @@ describe(@"with an instance method", ^{
 	});
 
 	it(@"should send multiple arguments for each invocation", ^{
-		RACSubclassObject *object = [[RACSubclassObject alloc] init];
+		RACTestObject *object = [[RACTestObject alloc] init];
 		__block id value1;
 		__block id value2;
 		[[object rac_signalForSelector:@selector(combineObjectValue:andSecondObjectValue:)] subscribeNext:^(RACTuple *x) {
@@ -104,7 +103,7 @@ describe(@"with an instance method", ^{
 	});
 
 	it(@"should send arguments for invocation of non-existant methods", ^{
-		RACSubclassObject *object = [[RACSubclassObject alloc] init];
+		RACTestObject *object = [[RACTestObject alloc] init];
 		__block id key;
 		__block id value;
 		[[object rac_signalForSelector:@selector(setObject:forKey:)] subscribeNext:^(RACTuple *x) {
@@ -119,7 +118,7 @@ describe(@"with an instance method", ^{
 	});
 
 	it(@"should send arguments for invocation on previously KVO'd receiver", ^{
-		RACSubclassObject *object = [[RACSubclassObject alloc] init];
+		RACTestObject *object = [[RACTestObject alloc] init];
 
 		[RACAble(object, objectValue) replayLast];
 
@@ -137,7 +136,7 @@ describe(@"with an instance method", ^{
 	});
 
 	it(@"should send arguments for invocation when receiver is subsequently KVO'd", ^{
-		RACSubclassObject *object = [[RACSubclassObject alloc] init];
+		RACTestObject *object = [[RACTestObject alloc] init];
 
 		__block id key;
 		__block id value;
@@ -158,11 +157,11 @@ describe(@"with an instance method", ^{
 describe(@"with a class method", ^{
 	it(@"should send the argument for each invocation", ^{
 		__block id value;
-		[[RACSubclassObject rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(RACTuple *x) {
+		[[RACTestObject rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(RACTuple *x) {
 			value = x.first;
 		}];
 
-		[RACSubclassObject lifeIsGood:@42];
+		[RACTestObject lifeIsGood:@42];
 
 		expect(value).to.equal(@42);
 	});

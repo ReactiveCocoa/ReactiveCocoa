@@ -43,6 +43,39 @@ static BOOL RACForwardInvocation(id self, NSInvocation *invocation) {
 	return YES;
 }
 
+static void RACSwizzleForwardInvocation(Class class) {
+	SEL forwardInvocationSEL = @selector(forwardInvocation:);
+	Method forwardInvocationMethod = class_getInstanceMethod(class, forwardInvocationSEL);
+
+	// Preserve any existing implementation of -forwardInvocation:.
+	void (*originalForwardInvocation)(id, SEL, NSInvocation *) = NULL;
+	if (forwardInvocationMethod != NULL) {
+		originalForwardInvocation = (__typeof__(originalForwardInvocation))method_getImplementation(forwardInvocationMethod);
+	}
+
+	// Set up a new version of -forwardInvocation:.
+	//
+	// If the selector has been passed to -rac_signalForSelector:, invoke
+	// the aliased method, and forward the arguments to any attached signals.
+	//
+	// If the selector has not been passed to -rac_signalForSelector:,
+	// invoke any existing implementation of -forwardInvocation:. If there
+	// was no existing implementation, throw an unrecognized selector
+	// exception.
+	id newForwardInvocation = ^(id self, NSInvocation *invocation) {
+		BOOL matched = RACForwardInvocation(self, invocation);
+		if (matched) return;
+
+		if (originalForwardInvocation == NULL) {
+			[self doesNotRecognizeSelector:invocation.selector];
+		} else {
+			originalForwardInvocation(self, forwardInvocationSEL, invocation);
+		}
+	};
+
+	class_replaceMethod(class, forwardInvocationSEL, imp_implementationWithBlock(newForwardInvocation), "v@:@");
+}
+
 static RACSignal *NSObjectRACSignalForSelector(id self, SEL selector) {
 	SEL aliasSelector = RACAliasForSelector(selector);
 
@@ -64,36 +97,7 @@ static RACSignal *NSObjectRACSignalForSelector(id self, SEL selector) {
 		// it, just return the new subject for this instance.
 		if (targetMethod != NULL && method_getImplementation(targetMethod) == _objc_msgForward) return subject;
 
-		SEL forwardInvocationSEL = @selector(forwardInvocation:);
-		Method forwardInvocationMethod = class_getInstanceMethod(class, forwardInvocationSEL);
-
-		// Preserve any existing implementation of -forwardInvocation:.
-		void (*originalForwardInvocation)(id, SEL, NSInvocation *) = NULL;
-		if (forwardInvocationMethod != NULL) {
-			originalForwardInvocation = (__typeof__(originalForwardInvocation))method_getImplementation(forwardInvocationMethod);
-		}
-
-		// Set up a new version of -forwardInvocation:.
-		//
-		// If the selector has been passed to -rac_signalForSelector:, invoke
-		// the aliased method, and forward the arguments to any attached signals.
-		//
-		// If the selector has not been passed to -rac_signalForSelector:,
-		// invoke any existing implementation of -forwardInvocation:. If there
-		// was no existing implementation, throw an unrecognized selector
-		// exception.
-		id newForwardInvocation = ^(id self, NSInvocation *invocation) {
-			BOOL matched = RACForwardInvocation(self, invocation);
-			if (matched) return;
-
-			if (originalForwardInvocation == NULL) {
-				[self doesNotRecognizeSelector:invocation.selector];
-			} else {
-				originalForwardInvocation(self, forwardInvocationSEL, invocation);
-			}
-		};
-
-		class_replaceMethod(class, @selector(forwardInvocation:), imp_implementationWithBlock(newForwardInvocation), "v@:@");
+		RACSwizzleForwardInvocation(class);
 
 		if (targetMethod == NULL) {
 			// Define the selector to call -forwardInvocation:.

@@ -56,6 +56,18 @@ describe(@"with an instance method", ^{
 		expect(completed).to.beTruthy();
 	});
 
+	it(@"should send for a zero-argument method", ^{
+		RACSubclassObject *object = [[RACSubclassObject alloc] init];
+
+		__block RACTuple *value;
+		[[object rac_signalForSelector:@selector(objectValue)] subscribeNext:^(RACTuple *x) {
+			value = x;
+		}];
+
+		[object objectValue];
+		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
+	});
+
 	it(@"should send the argument for each invocation to the instance's own signal", ^{
 		RACSubclassObject *object1 = [[RACSubclassObject alloc] init];
 		__block id value1;

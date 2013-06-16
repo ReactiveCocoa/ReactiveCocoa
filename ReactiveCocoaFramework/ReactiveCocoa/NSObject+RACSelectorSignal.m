@@ -23,22 +23,17 @@ static NSString * const RACSignalForSelectorAliasPrefix = @"rac_alias_";
 
 static BOOL RACForwardInvocation(id self, NSInvocation *invocation) {
 	SEL aliasSelector = RACAliasForSelector(invocation.selector);
+	RACSubject *subject = objc_getAssociatedObject(self, aliasSelector);
 
-	BOOL (^invokeOriginal)() = ^{
-		if (![invocation.target respondsToSelector:aliasSelector]) return NO;
-
+	BOOL respondsToAlias = [invocation.target respondsToSelector:aliasSelector];
+	if (respondsToAlias) {
 		invocation.selector = aliasSelector;
 		[invocation invoke];
-		return YES;
-	};
+	}
 
-	RACSubject *subject = objc_getAssociatedObject(self, aliasSelector);
-	if (subject == nil) return invokeOriginal();
+	if (subject == nil) return respondsToAlias;
 
-	NSArray *arguments = invocation.rac_allArguments;
-	invokeOriginal();
-
-	RACTuple *argumentsTuple = [RACTuple tupleWithObjectsFromArray:arguments];
+	RACTuple *argumentsTuple = [RACTuple tupleWithObjectsFromArray:invocation.rac_allArguments];
 	[subject sendNext:argumentsTuple];
 	return YES;
 }

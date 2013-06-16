@@ -19,7 +19,7 @@
 
 SpecBegin(NSObjectRACSelectorSignal)
 
-describe(@"with an instance method", ^{
+describe(@"with a RACTestObject instance method", ^{
 	it(@"should send the argument for each invocation", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		__block id value;
@@ -154,7 +154,7 @@ describe(@"with an instance method", ^{
 	});
 });
 
-describe(@"with a class method", ^{
+describe(@"with a RACTestObject class method", ^{
 	it(@"should send the argument for each invocation", ^{
 		__block id value;
 		[[RACTestObject rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(RACTuple *x) {
@@ -165,6 +165,18 @@ describe(@"with a class method", ^{
 
 		expect(value).to.equal(@42);
 	});
+});
+
+it(@"should swizzle an NSObject instance method", ^{
+	NSObject *object = [[NSObject alloc] init];
+
+	__block RACTuple *value;
+	[[object rac_signalForSelector:@selector(description)] subscribeNext:^(RACTuple *x) {
+		value = x;
+	}];
+
+	expect([object description]).notTo.beNil();
+	expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
 });
 
 SpecEnd

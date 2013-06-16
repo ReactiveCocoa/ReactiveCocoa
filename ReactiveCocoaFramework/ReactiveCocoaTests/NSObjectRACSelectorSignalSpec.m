@@ -7,6 +7,7 @@
 //
 
 #import "RACTestObject.h"
+#import "RACSubclassObject.h"
 
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
@@ -177,6 +178,34 @@ it(@"should swizzle an NSObject instance method", ^{
 
 	expect([object description]).notTo.beNil();
 	expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
+});
+
+it(@"should work for two classes in the same hierarchy", ^{
+	RACTestObject *superclassObj = [[RACTestObject alloc] init];
+	expect(superclassObj).notTo.beNil();
+
+	__block RACTuple *superclassTuple;
+	[[superclassObj rac_signalForSelector:@selector(combineObjectValue:andIntegerValue:)] subscribeNext:^(RACTuple *t) {
+		superclassTuple = t;
+	}];
+
+	RACSubclassObject *subclassObj = [[RACSubclassObject alloc] init];
+	expect(subclassObj).notTo.beNil();
+
+	__block RACTuple *subclassTuple;
+	[[subclassObj rac_signalForSelector:@selector(combineObjectValue:andIntegerValue:)] subscribeNext:^(RACTuple *t) {
+		subclassTuple = t;
+	}];
+
+	expect([superclassObj combineObjectValue:@"foo" andIntegerValue:42]).to.equal(@"foo: 42");
+
+	NSArray *expectedValues = @[ @"foo", @42 ];
+	expect(superclassTuple.allObjects).to.equal(expectedValues);
+
+	expect([subclassObj combineObjectValue:@"foo" andIntegerValue:42]).to.equal(@"fooSUBCLASS: 42");
+
+	expectedValues = @[ @"foo", @42 ];
+	expect(subclassTuple.allObjects).to.equal(expectedValues);
 });
 
 SpecEnd

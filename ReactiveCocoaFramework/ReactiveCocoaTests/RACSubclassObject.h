@@ -10,4 +10,8 @@
 
 @interface RACSubclassObject : RACTestObject
 
+// Invokes the superclass implementation with `objectValue` concatenated to
+// "SUBCLASS".
+- (NSString *)combineObjectValue:(id)objectValue andIntegerValue:(NSInteger)integerValue;
+
 @end

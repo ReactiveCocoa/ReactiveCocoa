@@ -10,4 +10,9 @@
 
 @implementation RACSubclassObject
 
+- (NSString *)combineObjectValue:(id)objectValue andIntegerValue:(NSInteger)integerValue {
+	NSString *appended = [[objectValue description] stringByAppendingString:@"SUBCLASS"];
+	return [super combineObjectValue:appended andIntegerValue:integerValue];
+}
+
 @end

@@ -16,6 +16,9 @@
 #import <objc/message.h>
 #import <objc/runtime.h>
 
+NSString * const RACSelectorSignalErrorDomain = @"RACSelectorSignalErrorDomain";
+const NSInteger RACSelectorSignalErrorMethodSwizzlingRace = 1;
+
 static const void *RACObjectSelectorSignals = &RACObjectSelectorSignals;
 static NSString * const RACSignalForSelectorAliasPrefix = @"rac_alias_";
 
@@ -97,15 +100,17 @@ static RACSignal *NSObjectRACSignalForSelector(id self, SEL selector) {
 		if (targetMethod == NULL) {
 			// Define the selector to call -forwardInvocation:.
 			if (!class_addMethod(class, selector, _objc_msgForward, RACSignatureForUndefinedSelector(selector))) {
-				NSLog(@"*** Could not add forwarding for %@ on class %@", NSStringFromSelector(selector), class);
-				return nil;
+				NSDictionary *userInfo = @{
+					NSLocalizedDescriptionKey: [NSString stringWithFormat:NSLocalizedString(@"A race condition occurred implementing %@ on class %@", nil), NSStringFromSelector(selector), class],
+					NSLocalizedRecoverySuggestionErrorKey: NSLocalizedString(@"Invoke -rac_signalForSelector: again to override the implementation.", nil)
+				};
+
+				return [RACSignal error:[NSError errorWithDomain:RACSelectorSignalErrorDomain code:RACSelectorSignalErrorMethodSwizzlingRace userInfo:userInfo]];
 			}
 		} else {
 			// Make a method alias for the existing method implementation.
-			if (!class_addMethod(class, aliasSelector, method_getImplementation(targetMethod), method_getTypeEncoding(targetMethod))) {
-				NSLog(@"*** Could not alias %@ to %@ on class %@", NSStringFromSelector(selector), NSStringFromSelector(aliasSelector), class);
-				return nil;
-			}
+			BOOL addedAlias __attribute__((unused)) = class_addMethod(class, aliasSelector, method_getImplementation(targetMethod), method_getTypeEncoding(targetMethod));
+			NSCAssert(addedAlias, @"Original implementation for %@ is already copied to %@ on %@", NSStringFromSelector(selector), NSStringFromSelector(aliasSelector), class);
 
 			// Redefine the selector to call -forwardInvocation:.
 			class_replaceMethod(class, selector, _objc_msgForward, method_getTypeEncoding(targetMethod));

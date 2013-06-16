@@ -10,6 +10,16 @@
 
 @class RACSignal;
 
+// The domain for any errors originating from -rac_signalForSelector:.
+extern NSString * const RACSelectorSignalErrorDomain;
+
+// -rac_signalForSelector: was going to add a new method implementation for
+// `selector`, but another thread added an implementation before it was able to.
+//
+// This will _not_ occur for cases where a method implementation exists before
+// -rac_signalForSelector: is invoked.
+extern const NSInteger RACSelectorSignalErrorMethodSwizzlingRace;
+
 @interface NSObject (RACSelectorSignal)
 
 // Creates a signal associated with the receiver, which will send a tuple of the
@@ -35,7 +45,8 @@
 //            and return void.
 //
 // Returns a signal which will send a tuple of arguments on each invocation of
-// the selector.
+// the selector, or an error in RACSelectorSignalErrorDomain if a runtime
+// call fails.
 - (RACSignal *)rac_signalForSelector:(SEL)selector;
 
 // The same as -rac_signalForSelector: but with class methods.

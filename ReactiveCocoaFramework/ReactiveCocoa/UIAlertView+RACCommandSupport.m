@@ -20,9 +20,7 @@ static void *UIAlertViewDelegateKey = &UIAlertViewDelegateKey;
 @implementation RACUIAlertViewDelegate
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-	if (alertView.rac_command) {
-		[alertView.rac_command execute:@(buttonIndex)];
-	}
+	[alertView.rac_command execute:@(buttonIndex)];
 }
 
 @end
@@ -40,6 +38,8 @@ static void *UIAlertViewDelegateKey = &UIAlertViewDelegateKey;
 
 	RACUIAlertViewDelegate *delegate = [[RACUIAlertViewDelegate alloc] init];
 	objc_setAssociatedObject(self, UIAlertViewDelegateKey, delegate, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+
+	if (self.delegate != nil) NSLog(@"WARNING: UIAlertView.rac_command hijacks the alert view's existing delegate.");
 
 	self.delegate = delegate;
 }

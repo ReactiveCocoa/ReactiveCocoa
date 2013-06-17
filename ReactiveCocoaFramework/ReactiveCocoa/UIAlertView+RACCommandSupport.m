@@ -35,6 +35,7 @@ static void *UIAlertViewDelegateKey = &UIAlertViewDelegateKey;
 	objc_setAssociatedObject(self, UIAlertViewRACCommandKey, command, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
 	if (command == nil) {
+		objc_setAssociatedObject(self, UIAlertViewDelegateKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 		self.delegate = nil;
 	} else {
 		RACUIAlertViewDelegate *delegate = [[RACUIAlertViewDelegate alloc] init];

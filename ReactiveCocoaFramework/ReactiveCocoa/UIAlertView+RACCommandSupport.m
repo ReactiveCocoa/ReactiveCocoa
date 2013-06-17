@@ -34,14 +34,17 @@ static void *UIAlertViewDelegateKey = &UIAlertViewDelegateKey;
 - (void)setRac_command:(RACCommand *)command {
 	objc_setAssociatedObject(self, UIAlertViewRACCommandKey, command, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
-	if (command == nil) return;
+	if (command == nil) {
+		self.delegate = nil;
+	} else {
+		RACUIAlertViewDelegate *delegate = [[RACUIAlertViewDelegate alloc] init];
+		objc_setAssociatedObject(self, UIAlertViewDelegateKey, delegate, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
-	RACUIAlertViewDelegate *delegate = [[RACUIAlertViewDelegate alloc] init];
-	objc_setAssociatedObject(self, UIAlertViewDelegateKey, delegate, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+		if (self.delegate != nil) NSLog(@"WARNING: UIAlertView.rac_command hijacks the alert view's existing delegate.");
 
-	if (self.delegate != nil) NSLog(@"WARNING: UIAlertView.rac_command hijacks the alert view's existing delegate.");
+		self.delegate = delegate;
+	}
 
-	self.delegate = delegate;
 }
 
 @end

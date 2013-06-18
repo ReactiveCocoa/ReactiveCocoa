@@ -8,6 +8,7 @@
 
 #import "RACObservablePropertySubject.h"
 #import "EXTScope.h"
+#import "NSObject+RACDeallocating.h"
 #import "NSObject+RACDescription.h"
 #import "NSObject+RACObservablePropertyObserving.h"
 #import "NSObject+RACPropertySubscribing.h"

@@ -7,18 +7,15 @@
 //
 
 #import "NSObject+RACPropertySubscribing.h"
+#import "EXTScope.h"
+#import "NSObject+RACDeallocating.h"
 #import "NSObject+RACDescription.h"
 #import "NSObject+RACKVOWrapper.h"
+#import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
+#import "RACKVOTrampoline.h"
 #import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"
-#import "EXTScope.h"
-#import "RACKVOTrampoline.h"
-#import "RACCompoundDisposable.h"
-#import <objc/runtime.h>
-
-static const void *RACObjectCompoundDisposable = &RACObjectCompoundDisposable;
-static const void *RACObjectScopedDisposable = &RACObjectScopedDisposable;
 
 static RACSignal *signalWithoutChangesFor(Class class, NSObject *object, NSString *keyPath, NSKeyValueObservingOptions options, NSObject *observer) {
 	NSCParameterAssert(object != nil);
@@ -56,14 +53,10 @@ static RACSignal *signalWithoutChangesFor(Class class, NSObject *object, NSStrin
 			[subscriber sendNext:change];
 		}];
 
-		RACDisposable *KVODisposable = [RACDisposable disposableWithBlock:^{
-			[KVOTrampoline stopObserving];
-		}];
-
 		@weakify(subscriber);
 		RACDisposable *deallocDisposable = [RACDisposable disposableWithBlock:^{
 			@strongify(subscriber);
-			[KVODisposable dispose];
+			[KVOTrampoline dispose];
 			[subscriber sendCompleted];
 		}];
 
@@ -75,7 +68,7 @@ static RACSignal *signalWithoutChangesFor(Class class, NSObject *object, NSStrin
 		return [RACDisposable disposableWithBlock:^{
 			[observerDisposable removeDisposable:deallocDisposable];
 			[objectDisposable removeDisposable:deallocDisposable];
-			[KVODisposable dispose];
+			[KVOTrampoline dispose];
 		}];
 	}] setNameWithFormat:@"RACAble(%@, %@)", object.rac_description, keyPath];
 }
@@ -90,23 +83,6 @@ static RACSignal *signalWithoutChangesFor(Class class, NSObject *object, NSStrin
 
 - (RACDisposable *)rac_deriveProperty:(NSString *)keyPath from:(RACSignal *)signal {
 	return [signal toProperty:keyPath onObject:self];
-}
-
-- (RACCompoundDisposable *)rac_deallocDisposable {
-	@synchronized(self) {
-		RACCompoundDisposable *compoundDisposable = objc_getAssociatedObject(self, RACObjectCompoundDisposable);
-		if (compoundDisposable == nil) {
-			compoundDisposable = [RACCompoundDisposable compoundDisposable];
-			objc_setAssociatedObject(self, RACObjectCompoundDisposable, compoundDisposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-			objc_setAssociatedObject(self, RACObjectScopedDisposable, compoundDisposable.asScopedDisposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-		}
-
-		return compoundDisposable;
-	}
-}
-
-- (void)rac_addDeallocDisposable:(RACDisposable *)disposable {
-	[self.rac_deallocDisposable addDisposable:disposable];
 }
 
 @end

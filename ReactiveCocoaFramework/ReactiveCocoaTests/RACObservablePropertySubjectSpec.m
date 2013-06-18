@@ -6,14 +6,16 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACObservablePropertySubject.h"
-#import "RACBinding.h"
-#import "RACDisposable.h"
-#import "NSObject+RACKVOWrapper.h"
-#import "NSObject+RACPropertySubscribing.h"
 #import "RACTestObject.h"
 #import "RACPropertySignalExamples.h"
 #import "RACPropertySubjectExamples.h"
+
+#import "NSObject+RACDeallocating.h"
+#import "NSObject+RACKVOWrapper.h"
+#import "RACBinding.h"
+#import "RACCompoundDisposable.h"
+#import "RACDisposable.h"
+#import "RACObservablePropertySubject.h"
 
 SpecBegin(RACObservablePropertySubject)
 
@@ -243,7 +245,7 @@ describe(@"RACObservablePropertySubject bindings", ^{
 		b.strongTestObjectValue = [[RACTestObject alloc] init];
 		@autoreleasepool {
 			RACTestObject *object = [[RACTestObject alloc] init];
-			[object rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[object.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				wasDisposed = YES;
 			}]];
 			

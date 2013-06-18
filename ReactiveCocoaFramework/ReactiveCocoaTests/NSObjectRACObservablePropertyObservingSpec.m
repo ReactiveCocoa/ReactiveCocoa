@@ -6,10 +6,13 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#import "NSObject+RACObservablePropertyObserving.h"
-#import "NSObject+RACPropertySubscribing.h"
-#import "RACDisposable.h"
 #import "RACTestObject.h"
+
+#import "EXTKeyPathCoding.h"
+#import "NSObject+RACDeallocating.h"
+#import "NSObject+RACObservablePropertyObserving.h"
+#import "RACCompoundDisposable.h"
+#import "RACDisposable.h"
 
 // The name of the examples.
 static NSString * const RACObservablePropertyObservingExamples = @"RACObservablePropertyObservingExamples";
@@ -134,8 +137,8 @@ sharedExamplesFor(RACObservablePropertyObservingExamples, ^(NSDictionary *data) 
 		[target rac_addObserver:nil forKeyPath:keyPath willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
 		
 		@autoreleasepool {
-			id value __attribute__((objc_precise_lifetime)) = valueBlock();
-			[value rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			NSObject *value __attribute__((objc_precise_lifetime)) = valueBlock();
+			[value.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				valueDidDealloc = YES;
 			}]];
 			

@@ -10,12 +10,14 @@
 #import "RACSequenceExamples.h"
 #import "RACStreamExamples.h"
 
-#import <libkern/OSAtomic.h>
 #import "EXTKeyPathCoding.h"
+#import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACBehaviorSubject.h"
+#import "RACCommand.h"
 #import "RACDisposable.h"
 #import "RACEvent.h"
+#import "RACGroupedSignal.h"
 #import "RACReplaySubject.h"
 #import "RACScheduler.h"
 #import "RACSignal+Operations.h"
@@ -24,8 +26,7 @@
 #import "RACTestObject.h"
 #import "RACTuple.h"
 #import "RACUnit.h"
-#import "RACCommand.h"
-#import "RACGroupedSignal.h"
+#import <libkern/OSAtomic.h>
 
 // Set in a beforeAll below.
 static NSError *RACSignalTestError;
@@ -174,20 +175,29 @@ describe(@"subscribing", ^{
 	});
 	
 	it(@"shouldn't get anything after dispose", ^{
-		__block BOOL shouldBeGettingItems = YES;
-		RACSubject *subject = [RACSubject subject];
-		RACDisposable *disposable = [subject subscribeNext:^(id x) {
-			expect(shouldBeGettingItems).to.beTruthy();
+		NSMutableArray *receivedValues = [NSMutableArray array];
+
+		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@0];
+
+			[RACScheduler.currentScheduler afterDelay:0 schedule:^{
+				[subscriber sendNext:@1];
+			}];
+
+			return nil;
 		}];
-		
-		shouldBeGettingItems = YES;
-		[subject sendNext:@"test 1"];
-		[subject sendNext:@"test 2"];
+
+		RACDisposable *disposable = [signal subscribeNext:^(id x) {
+			[receivedValues addObject:x];
+		}];
+
+		NSArray *expectedValues = @[ @0 ];
+		expect(receivedValues).to.equal(expectedValues);
 		
 		[disposable dispose];
+		[NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.01]];
 		
-		shouldBeGettingItems = NO;
-		[subject sendNext:@"test 3"];
+		expect(receivedValues).to.equal(expectedValues);
 	});
 
 	it(@"should have a current scheduler in didSubscribe block", ^{

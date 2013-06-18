@@ -8,11 +8,11 @@
 
 #import "NSObject+RACObservablePropertyObserving.h"
 #import "EXTScope.h"
+#import "NSObject+RACDeallocating.h"
 #import "NSString+RACKeyPathUtilities.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACKVOTrampoline.h"
-#import "NSObject+RACPropertySubscribing.h"
 
 @implementation NSObject (RACObservablePropertyObserving)
 
@@ -131,9 +131,7 @@
 	}];
 
 	// Stop the KVO observation when this one is disposed of.
-	[disposable addDisposable:[RACDisposable disposableWithBlock:^{
-		[trampoline stopObserving];
-	}]];
+	[disposable addDisposable:trampoline];
 
 	// Add the callbacks to the initial value if needed.
 	if (keyPathComponentsCount > 1) {

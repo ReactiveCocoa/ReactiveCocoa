@@ -26,9 +26,9 @@
 	// path component triggered them.
 	id synchronizationToken = willChangeBlock;
 	if (synchronizationToken == nil) synchronizationToken = didChangeBlock;
-
+	
 	NSArray *keyPathComponents = keyPath.rac_keyPathComponents;
-	NSUInteger keyPathComponentsCount = keyPathComponents.count;
+	BOOL keyPathHasOneComponent = keyPathComponents.count == 1;
 	NSString *firstKeyPathComponent = keyPathComponents[0];
 	NSString *keyPathByDeletingFirstKeyPathComponent = keyPath.rac_keyPathByDeletingFirstKeyPathComponent;
 
@@ -36,30 +36,30 @@
 
 	// The disposable that groups all disposal necessary when the value of the
 	// first key path component changes.
-	__block RACCompoundDisposable *childDisposable = [RACCompoundDisposable compoundDisposable];
-	[disposable addDisposable:childDisposable];
+	__block RACCompoundDisposable *firstComponentDisposable = [RACCompoundDisposable compoundDisposable];
+	[disposable addDisposable:firstComponentDisposable];
 
 	// Adds didChangeBlock as a callback on the value's deallocation. Also adds
-	// the logic to clean up the callback to childDisposable.
+	// the logic to clean up the callback to firstComponentDisposable.
 	void (^addDeallocObserverToValue)(NSObject *) = ^(NSObject *value) {
 		if (didChangeBlock == nil) return;
 		RACCompoundDisposable *valueDisposable = value.rac_deallocDisposable;
 		RACDisposable *deallocDisposable = [RACDisposable disposableWithBlock:^{
 			@synchronized (synchronizationToken) {
-				didChangeBlock(keyPathComponentsCount == 1, YES, nil);
+				didChangeBlock(keyPathHasOneComponent, YES, nil);
 			}
 		}];
 		[valueDisposable addDisposable:deallocDisposable];
-		[childDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+		[firstComponentDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 			[valueDisposable removeDisposable:deallocDisposable];
 		}]];
 	};
 
 	// Adds willChangeBlock and didChangeBlock as callbacks for changes to the
 	// remaining path components on the value. Also adds the logic to clean up the
-	// callbacks to childDisposable.
+	// callbacks to firstComponentDisposable.
 	void (^addObserverToValue)(NSObject *) = ^(NSObject *value) {
-		[childDisposable addDisposable:[value rac_addObserver:observer forKeyPath:keyPathByDeletingFirstKeyPathComponent willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock]];
+		[firstComponentDisposable addDisposable:[value rac_addObserver:observer forKeyPath:keyPathByDeletingFirstKeyPathComponent willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock]];
 	};
 
 	// Observe only the first key path component, when the value changes clean up
@@ -76,13 +76,13 @@
 		@synchronized (disposable) {
 			// The value just changed or will change, clean up all the callbacks
 			// installed on the previous value.
-			[childDisposable dispose];
-			[disposable removeDisposable:childDisposable];
+			[firstComponentDisposable dispose];
+			[disposable removeDisposable:firstComponentDisposable];
 			// If the value already did change, and the new value is non-nil, prepare
-			// a new childDisposable.
+			// a new firstComponentDisposable.
 			if (![change[NSKeyValueChangeNotificationIsPriorKey] boolValue] && value != nil) {
-				childDisposable = [RACCompoundDisposable compoundDisposable];
-				[disposable addDisposable:childDisposable];
+				firstComponentDisposable = [RACCompoundDisposable compoundDisposable];
+				[disposable addDisposable:firstComponentDisposable];
 			}
 		}
 
@@ -91,7 +91,7 @@
 		if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
 			if (willChangeBlock != nil) {
 				@synchronized (synchronizationToken) {
-					willChangeBlock(keyPathComponentsCount == 1);
+					willChangeBlock(keyPathHasOneComponent);
 				}
 			}
 			return;
@@ -102,7 +102,7 @@
 		if (value == nil) {
 			if (didChangeBlock != nil) {
 				@synchronized (synchronizationToken) {
-					didChangeBlock(keyPathComponentsCount == 1, NO, nil);
+					didChangeBlock(keyPathHasOneComponent, NO, nil);
 				}
 			}
 			return;
@@ -113,7 +113,7 @@
 
 		// If there are no further key path components, there is no need to add the
 		// other callbacks, just call didChangeBlock with the value itself.
-		if (keyPathComponentsCount == 1) {
+		if (keyPathHasOneComponent) {
 			if (didChangeBlock != nil) {
 				didChangeBlock(YES, NO, value);
 			}
@@ -134,7 +134,7 @@
 	[disposable addDisposable:trampoline];
 
 	// Add the callbacks to the initial value if needed.
-	if (keyPathComponentsCount > 1) {
+	if (!keyPathHasOneComponent) {
 		NSObject *value = [self valueForKey:firstKeyPathComponent];
 		if (value != nil) {
 			addDeallocObserverToValue(value);

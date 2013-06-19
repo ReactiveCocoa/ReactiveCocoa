@@ -46,16 +46,21 @@
 			didChangeBlock(keyPathHasOneComponent, YES, nil);
 		}];
 		[valueDisposable addDisposable:deallocDisposable];
-		[firstComponentDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-			[valueDisposable removeDisposable:deallocDisposable];
-		}]];
+		@synchronized(disposable) {
+			[firstComponentDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				[valueDisposable removeDisposable:deallocDisposable];
+			}]];
+		}
 	};
 
 	// Adds willChangeBlock and didChangeBlock as callbacks for changes to the
 	// remaining path components on the value. Also adds the logic to clean up the
 	// callbacks to firstComponentDisposable.
 	void (^addObserverToValue)(NSObject *) = ^(NSObject *value) {
-		[firstComponentDisposable addDisposable:[value rac_addObserver:observer forKeyPath:keyPathByDeletingFirstKeyPathComponent serializationLock:serializationLock willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock]];
+		RACDisposable *observerDisposable = [value rac_addObserver:observer forKeyPath:keyPathByDeletingFirstKeyPathComponent serializationLock:serializationLock willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
+		@synchronized(disposable) {
+			[firstComponentDisposable addDisposable:observerDisposable];
+		}
 	};
 
 	// Observe only the first key path component, when the value changes clean up
@@ -71,8 +76,10 @@
 		// previous value and call willChangeBlock. Everything else is deferred
 		// until after we get the notification after the change.
 		if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
-			[firstComponentDisposable dispose];
-			[disposable removeDisposable:firstComponentDisposable];
+			@synchronized(disposable) {
+				[firstComponentDisposable dispose];
+				[disposable removeDisposable:firstComponentDisposable];
+			}
 			if (willChangeBlock != nil) {
 				[serializationLock lock];
 				@onExit {
@@ -100,7 +107,12 @@
 		}
 
 		// From here the notification is not prior and the value is not nil.
+
+		// Create a new firstComponentDisposable while getting rid of the old one at
+		// the same time, in case this is being called concurrently.
 		@synchronized (disposable) {
+			[firstComponentDisposable dispose];
+			[disposable removeDisposable:firstComponentDisposable];
 			firstComponentDisposable = [RACCompoundDisposable compoundDisposable];
 			[disposable addDisposable:firstComponentDisposable];
 		}

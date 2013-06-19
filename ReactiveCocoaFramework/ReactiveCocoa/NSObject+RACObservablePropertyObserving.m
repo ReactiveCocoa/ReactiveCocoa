@@ -146,8 +146,8 @@
 	}
 
 	// Dispose of this observation if the target or the observer deallocate.
-	[observer rac_addDeallocDisposable:disposable];
-	[self rac_addDeallocDisposable:disposable];
+	[observer.rac_deallocDisposable addDisposable:disposable];
+	[self.rac_deallocDisposable addDisposable:disposable];
 
 	return disposable;
 }

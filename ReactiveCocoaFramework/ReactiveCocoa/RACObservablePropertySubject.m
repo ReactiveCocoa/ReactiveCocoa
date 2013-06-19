@@ -113,7 +113,7 @@
 		NSLog(@"Received error in RACObservablePropertySubject for key path \"%@\" on %@: %@", property.keyPath, property.target, error);
 	} completed:nil];
 	
-	[target rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+	[target.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 		@strongify(property);
 		property.target = nil;
 	}]];
@@ -255,7 +255,7 @@
 		NSLog(@"Received error in -[RACObservablePropertySubject binding] for key path \"%@\" on %@: %@", binding.keyPath, binding.target, error);
 	} completed:nil];
 	
-	[target rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+	[target.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 		@strongify(binding);
 		binding.target = nil;
 	}]];

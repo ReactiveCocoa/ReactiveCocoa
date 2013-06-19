@@ -190,7 +190,7 @@
 
 	// Observe the key path on target for changes. Update the value of stackDepth
 	// accordingly and forward the changes to updatesSubject.
-	[target rac_addObserver:binding forKeyPath:keyPath willChangeBlock:^(BOOL triggeredByLastKeyPathComponent) {
+	[target rac_addObserver:binding forKeyPath:keyPath serializationLock:nil willChangeBlock:^(BOOL triggeredByLastKeyPathComponent) {
 		// The binding only triggers changes to the last path component, no need to
 		// track the stack depth if this is not the case.
 		if (!triggeredByLastKeyPathComponent) return;

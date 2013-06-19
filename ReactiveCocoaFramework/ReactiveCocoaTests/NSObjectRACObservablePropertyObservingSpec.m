@@ -89,13 +89,13 @@ sharedExamplesFor(RACObservablePropertyObservingExamples, ^(NSDictionary *data) 
 	});
 
 	it(@"should not call willChangeBlock or didChangeBlock on add", ^{
-		[target rac_addObserver:nil forKeyPath:keyPath willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
+		[target rac_addObserver:nil forKeyPath:keyPath serializationLock:nil willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
 		expect(willChangeBlockCallCount).to.equal(0);
 		expect(didChangeBlockCallCount).to.equal(0);
 	});
 	
 	it(@"should call willChangeBlock and didChangeBlock once per change", ^{
-		[target rac_addObserver:nil forKeyPath:keyPath willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
+		[target rac_addObserver:nil forKeyPath:keyPath serializationLock:nil willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
 		willChangeBlockCallCount = 0;
 		didChangeBlockCallCount = 0;
 		
@@ -117,7 +117,7 @@ sharedExamplesFor(RACObservablePropertyObservingExamples, ^(NSDictionary *data) 
 	});
 	
 	it(@"should not call willChangeBlock and didChangeBlock after it's been disposed", ^{
-		RACDisposable *disposable = [target rac_addObserver:nil forKeyPath:keyPath willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
+		RACDisposable *disposable = [target rac_addObserver:nil forKeyPath:keyPath serializationLock:nil willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
 		willChangeBlockCallCount = 0;
 		didChangeBlockCallCount = 0;
 		
@@ -134,7 +134,7 @@ sharedExamplesFor(RACObservablePropertyObservingExamples, ^(NSDictionary *data) 
 	it(@"should call only didChangeBlock at least once when the value is deallocated", ^{
 		__block BOOL valueDidDealloc = NO;
 
-		[target rac_addObserver:nil forKeyPath:keyPath willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
+		[target rac_addObserver:nil forKeyPath:keyPath serializationLock:nil willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
 		
 		@autoreleasepool {
 			NSObject *value __attribute__((objc_precise_lifetime)) = valueBlock();

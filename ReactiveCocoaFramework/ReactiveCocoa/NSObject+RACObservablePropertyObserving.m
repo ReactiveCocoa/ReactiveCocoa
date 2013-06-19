@@ -28,8 +28,8 @@
 
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 
-	// The disposable that groups all disposal necessary when the value of the
-	// first key path component changes.
+	// The disposable that groups all disposal necessary to clean up the callbacks
+	// added to the value of the first key path component.
 	__block RACCompoundDisposable *firstComponentDisposable = [RACCompoundDisposable compoundDisposable];
 	[disposable addDisposable:firstComponentDisposable];
 
@@ -59,7 +59,7 @@
 	};
 
 	// Observe only the first key path component, when the value changes clean up
-	// the callbacks on the old value, install them on the new value and call
+	// the callbacks on the old value, add callbacks to the new value and call
 	// willChangeBlock and didChangeBlock as needed.
 	//
 	// Note this does not use NSKeyValueObservingOptionInitial so this only
@@ -67,24 +67,12 @@
 	// separately.
 	RACKVOTrampoline *trampoline = [self rac_addObserver:observer forKeyPath:firstKeyPathComponent options:NSKeyValueObservingOptionPrior block:^(id trampolineTarget, id trampolineObserver, NSDictionary *change) {
 
-		NSObject *value = [trampolineTarget valueForKey:firstKeyPathComponent];
-
-		@synchronized (disposable) {
-			// The value just changed or will change, clean up all the callbacks
-			// installed on the previous value.
+		// If this is a prior notification, clean up all the callbacks added to the
+		// previous value and call willChangeBlock. Everything else is deferred
+		// until after we get the notification after the change.
+		if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
 			[firstComponentDisposable dispose];
 			[disposable removeDisposable:firstComponentDisposable];
-			// If the value already did change, and the new value is non-nil, prepare
-			// a new firstComponentDisposable.
-			if (![change[NSKeyValueChangeNotificationIsPriorKey] boolValue] && value != nil) {
-				firstComponentDisposable = [RACCompoundDisposable compoundDisposable];
-				[disposable addDisposable:firstComponentDisposable];
-			}
-		}
-
-		// If this is a prior notification, only call willChangeBlock. Everything
-		// else is deferred for when we get the notification after the change.
-		if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
 			if (willChangeBlock != nil) {
 				[serializationLock lock];
 				@onExit {
@@ -94,6 +82,9 @@
 			}
 			return;
 		}
+
+		// From here the notification is not prior.
+		NSObject *value = [trampolineTarget valueForKey:firstKeyPathComponent];
 
 		// If the value has changed but is nil, there is no need to add callbacks to
 		// it, just call didChangeBlock.
@@ -108,7 +99,11 @@
 			return;
 		}
 
-		// The value has changed and is not nil, add the dealloc callback.
+		// From here the notification is not prior and the value is not nil.
+		@synchronized (disposable) {
+			firstComponentDisposable = [RACCompoundDisposable compoundDisposable];
+			[disposable addDisposable:firstComponentDisposable];
+		}
 		addDeallocObserverToValue(value);
 
 		// If there are no further key path components, there is no need to add the

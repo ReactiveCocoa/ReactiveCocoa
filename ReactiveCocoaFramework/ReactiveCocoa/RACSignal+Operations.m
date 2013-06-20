@@ -174,44 +174,8 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 }
 
 - (RACSignal *)throttle:(NSTimeInterval)interval {
-	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		// We may never use this scheduler, but we need to set it up ahead of
-		// time so that our scheduled blocks are run serially if we do.
-		RACScheduler *scheduler = [RACScheduler scheduler];
-
-		__block RACDisposable *lastDisposable = nil;
-
-		RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
-			[lastDisposable dispose];
-
-			dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(interval * NSEC_PER_SEC));
-			RACScheduler *delayScheduler = RACScheduler.currentScheduler ?: scheduler;
-
-			RACDisposable *nextDisposable = [delayScheduler after:time schedule:^{
-				[subscriber sendNext:x];
-			}];
-
-			@synchronized (scheduler) {
-				// This assignment only needs to be synchronized with the
-				// disposable returned from -throttle:. The subscriber blocks
-				// are already serialized.
-				lastDisposable = nextDisposable;
-			}
-		} error:^(NSError *error) {
-			[lastDisposable dispose];
-			[subscriber sendError:error];
-		} completed:^{
-			[lastDisposable dispose];
-			[subscriber sendCompleted];
-		}];
-
-		return [RACDisposable disposableWithBlock:^{
-			[subscriptionDisposable dispose];
-
-			@synchronized (scheduler) {
-				[lastDisposable dispose];
-			}
-		}];
+	return [[self throttle:interval valuesPassingTest:^(id _) {
+		return YES;
 	}] setNameWithFormat:@"[%@] -throttle: %f", self.name, (double)interval];
 }
 

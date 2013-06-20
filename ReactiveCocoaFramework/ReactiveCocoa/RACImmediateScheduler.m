@@ -7,7 +7,6 @@
 //
 
 #import "RACImmediateScheduler.h"
-#import "EXTScope.h"
 #import "RACScheduler+Private.h"
 
 @implementation RACImmediateScheduler

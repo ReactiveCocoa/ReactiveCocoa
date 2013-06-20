@@ -14,7 +14,7 @@
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACKVOTrampoline.h"
-#import "RACReplaySubject.h"
+#import "RACSubscriber.h"
 #import "RACSignal+Operations.h"
 
 static RACSignal *signalWithoutChangesFor(Class class, NSObject *object, NSString *keyPath, NSKeyValueObservingOptions options, NSObject *observer) {

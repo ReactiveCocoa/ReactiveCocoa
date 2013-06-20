@@ -45,7 +45,7 @@ CLANG_WARN_IMPLICIT_SIGN_CONVERSION = NO
 
 // Warn about implicit conversions between pointers and integers.
 // For example, this can catch issues when one incorrectly intermixes using NSNumbers and raw integers.
-CLANG_WARN_INT_CONVERSION = YES;
+CLANG_WARN_INT_CONVERSION = YES
 
 // Warn about repeatedly using a weak reference without assigning the weak reference to a strong reference.
 CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = YES

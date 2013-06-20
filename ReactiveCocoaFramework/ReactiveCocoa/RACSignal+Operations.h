@@ -52,6 +52,31 @@ extern const NSInteger RACSignalErrorTimedOut;
 // and errors are always forwarded immediately.
 - (RACSignal *)throttle:(NSTimeInterval)interval;
 
+// Throttles `next`s for which `predicate` returns YES.
+//
+// When `predicate` returns YES for a `next`:
+//
+//  1. If another `next` is received before `interval` seconds have passed, the
+//     prior value is discarded. This happens regardless of whether the new
+//     value will be throttled.
+//  2. After `interval` seconds have passed since the value was originally
+//     received, it will be forwarded on the scheduler that it was received
+//     upon. If +[RACScheduler currentScheduler] was nil at the time, a private
+//     background scheduler is used.
+//
+// When `predicate` returns NO for a `next`, it is forwarded immediately,
+// without any throttling.
+//
+// interval  - The number of seconds for which to buffer the latest value that
+//             passes `predicate`.
+// predicate - Passed each `next` from the receiver, this block returns
+//             whether the given value should be throttled. This argument must
+//             not be nil.
+//
+// Returns a signal which sends `next` events, throttled when `predicate`
+// returns YES. Completion and errors are always forwarded immediately.
+- (RACSignal *)throttle:(NSTimeInterval)interval valuesPassingTest:(BOOL (^)(id next))predicate;
+
 // Forwards `next` and `completed` events after delaying for `interval` seconds
 // on the current scheduler (on which the events were delivered).
 //

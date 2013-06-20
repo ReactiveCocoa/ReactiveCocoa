@@ -215,6 +215,66 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 	}] setNameWithFormat:@"[%@] -throttle: %f", self.name, (double)interval];
 }
 
+- (RACSignal *)throttle:(NSTimeInterval)interval valuesPassingTest:(BOOL (^)(id next))predicate {
+	NSCParameterAssert(interval >= 0);
+	NSCParameterAssert(predicate != nil);
+
+	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposable];
+
+		// We may never use this scheduler, but we need to set it up ahead of
+		// time so that our scheduled blocks are run serially if we do.
+		RACScheduler *scheduler = [RACScheduler scheduler];
+
+		// Information about any currently-buffered `next` event.
+		__block id nextValue = nil;
+		__block BOOL hasNextValue = NO;
+		__block RACDisposable *nextDisposable = nil;
+
+		void (^flushNext)(BOOL send) = ^(BOOL send) {
+			@synchronized (compoundDisposable) {
+				[nextDisposable dispose];
+				[compoundDisposable removeDisposable:nextDisposable];
+
+				if (!hasNextValue) return;
+				if (send) [subscriber sendNext:nextValue];
+
+				nextValue = nil;
+				hasNextValue = NO;
+			}
+		};
+
+		RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
+			flushNext(NO);
+
+			if (!predicate(x)) {
+				// No throttling, send immediately.
+				[subscriber sendNext:x];
+				return;
+			}
+
+			RACScheduler *delayScheduler = RACScheduler.currentScheduler ?: scheduler;
+
+			nextValue = x;
+			hasNextValue = YES;
+			nextDisposable = [delayScheduler afterDelay:interval schedule:^{
+				[subscriber sendNext:x];
+			}];
+
+			if (nextDisposable != nil) [compoundDisposable addDisposable:nextDisposable];
+		} error:^(NSError *error) {
+			[compoundDisposable dispose];
+			[subscriber sendError:error];
+		} completed:^{
+			flushNext(YES);
+			[subscriber sendCompleted];
+		}];
+
+		if (subscriptionDisposable != nil) [compoundDisposable addDisposable:subscriptionDisposable];
+		return compoundDisposable;
+	}] setNameWithFormat:@"[%@] -throttle: %f valuesPassingTest:", self.name, (double)interval];
+}
+
 - (RACSignal *)delay:(NSTimeInterval)interval {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];

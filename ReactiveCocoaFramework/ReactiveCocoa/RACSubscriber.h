@@ -49,14 +49,3 @@
 - (void)didSubscribeWithDisposable:(RACDisposable *)disposable;
 
 @end
-
-// A simple block-based subscriber.
-//
-// You shouldn't need to interact with this class directly. Use
-// -[RACSignal subscribeNext:error:completed:] instead.
-@interface RACSubscriber : NSObject <RACSubscriber>
-
-// Creates a new subscriber with the given blocks.
-+ (instancetype)subscriberWithNext:(void (^)(id x))next error:(void (^)(NSError *error))error completed:(void (^)(void))completed;
-
-@end

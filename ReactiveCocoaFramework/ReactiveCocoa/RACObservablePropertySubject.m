@@ -16,6 +16,7 @@
 #import "RACBinding.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
+#import "RACSubscriber+Private.h"
 #import "RACSubject.h"
 
 @interface RACObservablePropertySubject ()

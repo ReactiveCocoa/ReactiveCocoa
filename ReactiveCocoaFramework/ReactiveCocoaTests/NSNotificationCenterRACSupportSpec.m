@@ -66,7 +66,7 @@ it(@"shouldn't strongly capture the notification object", ^{
 	__block BOOL dealloced = NO;
 	@autoreleasepool {
 		NSObject *notificationObject = [[NSObject alloc] init];
-		[notificationObject rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+		[notificationObject.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 			dealloced = YES;
 		}]];
 		signal = [notificationCenter rac_addObserverForName:TestNotification object:notificationObject];

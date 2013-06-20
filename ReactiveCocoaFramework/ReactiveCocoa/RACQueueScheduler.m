@@ -9,11 +9,8 @@
 #import "RACQueueScheduler.h"
 #import "RACDisposable.h"
 #import "RACScheduler+Private.h"
+#import "RACQueueScheduler+Subclass.h"
 #import <libkern/OSAtomic.h>
-
-@interface RACQueueScheduler ()
-@property (nonatomic, readonly) dispatch_queue_t queue;
-@end
 
 @implementation RACQueueScheduler
 
@@ -23,29 +20,16 @@
 	dispatch_release(_queue);
 }
 
-- (id)initWithName:(NSString *)name targetQueue:(dispatch_queue_t)targetQueue {
-	NSCParameterAssert(targetQueue != NULL);
+- (id)initWithName:(NSString *)name queue:(dispatch_queue_t)queue {
+	NSCParameterAssert(queue != NULL);
 
-	_queue = dispatch_queue_create(name.UTF8String, DISPATCH_QUEUE_SERIAL);
-	if (_queue == nil) return nil;
+	self = [super initWithName:name];
+	if (self == nil) return nil;
 
-	dispatch_set_target_queue(_queue, targetQueue);
-	
-	return [super initWithName:name];
-}
+	dispatch_retain(queue);
+	_queue = queue;
 
-#pragma mark Current Scheduler
-
-static void currentSchedulerRelease(void *context) {
-	CFBridgingRelease(context);
-}
-
-- (void)performAsCurrentScheduler:(void (^)(void))block {
-	NSCParameterAssert(block != NULL);
-
-	dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, (void *)CFBridgingRetain(self), currentSchedulerRelease);
-	block();
-	dispatch_queue_set_specific(self.queue, RACSchedulerCurrentSchedulerKey, nil, currentSchedulerRelease);
+	return self;
 }
 
 #pragma mark RACScheduler
@@ -74,6 +58,45 @@ static void currentSchedulerRelease(void *context) {
 	});
 
 	return disposable;
+}
+
+- (RACDisposable *)after:(dispatch_time_t)when repeatingEvery:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway schedule:(void (^)(void))block {
+	NSCParameterAssert(block != NULL);
+	NSCParameterAssert(interval > 0.0 && interval < INT64_MAX / NSEC_PER_SEC);
+	NSCParameterAssert(leeway >= 0.0 && leeway < INT64_MAX / NSEC_PER_SEC);
+
+	uint64_t intervalInNanoSecs = (uint64_t)(interval * NSEC_PER_SEC);
+	uint64_t leewayInNanoSecs = (uint64_t)(leeway * NSEC_PER_SEC);
+
+	dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, self.queue);
+	dispatch_source_set_timer(timer, when, intervalInNanoSecs, leewayInNanoSecs);
+	dispatch_source_set_event_handler(timer, block);
+	dispatch_resume(timer);
+
+	return [RACDisposable disposableWithBlock:^{
+		dispatch_source_cancel(timer);
+		dispatch_release(timer);
+	}];
+}
+
+- (void)performAsCurrentScheduler:(void (^)(void))block {
+	NSCParameterAssert(block != NULL);
+
+	// If we're using a concurrent queue, we could end up in here concurrently,
+	// in which case we *don't* want to clear the current scheduler immediately
+	// after our block is done executing, but only *after* all our concurrent
+	// invocations are done.
+
+	RACScheduler *previousScheduler = RACScheduler.currentScheduler;
+	NSThread.currentThread.threadDictionary[RACSchedulerCurrentSchedulerKey] = self;
+
+	block();
+
+	if (previousScheduler != nil) {
+		NSThread.currentThread.threadDictionary[RACSchedulerCurrentSchedulerKey] = previousScheduler;
+	} else {
+		[NSThread.currentThread.threadDictionary removeObjectForKey:RACSchedulerCurrentSchedulerKey];
+	}
 }
 
 @end

@@ -27,6 +27,7 @@
 #import <ReactiveCocoa/RACMulticastConnection.h>
 #import <ReactiveCocoa/RACObservablePropertySubject.h>
 #import <ReactiveCocoa/RACPropertySubject.h>
+#import <ReactiveCocoa/RACQueueScheduler.h>
 #import <ReactiveCocoa/RACReplaySubject.h>
 #import <ReactiveCocoa/RACScheduler.h>
 #import <ReactiveCocoa/RACScopedDisposable.h>
@@ -37,6 +38,7 @@
 #import <ReactiveCocoa/RACSubject.h>
 #import <ReactiveCocoa/RACSubscriber.h>
 #import <ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h>
+#import <ReactiveCocoa/RACTargetQueueScheduler.h>
 #import <ReactiveCocoa/RACTuple.h>
 #import <ReactiveCocoa/RACUnit.h>
 
@@ -46,6 +48,7 @@
 #import <ReactiveCocoa/UITextField+RACSignalSupport.h>
 #import <ReactiveCocoa/UITextView+RACSignalSupport.h>
 #import <ReactiveCocoa/UIBarButtonItem+RACCommandSupport.h>
+#import <ReactiveCocoa/UIButton+RACCommandSupport.h>
 #import <ReactiveCocoa/UIGestureRecognizer+RACSignalSupport.h>
 #elif TARGET_OS_MAC
 #import <ReactiveCocoa/EXTKeyPathCoding.h>

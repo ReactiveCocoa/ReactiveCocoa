@@ -60,8 +60,8 @@ static RACSignal *signalWithoutChangesFor(Class class, NSObject *object, NSStrin
 			[subscriber sendCompleted];
 		}];
 
-		[observer rac_addDeallocDisposable:deallocDisposable];
-		[object rac_addDeallocDisposable:deallocDisposable];
+		[observer.rac_deallocDisposable addDisposable:deallocDisposable];
+		[object.rac_deallocDisposable addDisposable:deallocDisposable];
 
 		RACCompoundDisposable *observerDisposable = observer.rac_deallocDisposable;
 		RACCompoundDisposable *objectDisposable = object.rac_deallocDisposable;

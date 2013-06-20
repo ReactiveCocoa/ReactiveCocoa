@@ -25,23 +25,27 @@
 //
 // It will be YES in all other cases.
 //
-// This property is both KVO- and KVC-compliant.
-@property (atomic, readonly) BOOL canExecute;
+// This property is KVO-compliant, and must only be read from the main thread.
+@property (nonatomic, assign, readonly) BOOL canExecute;
 
 // Whether the command allows multiple invocations of -execute: to proceed
 // concurrently.
 //
 // The default value for this property is NO.
-@property (atomic) BOOL allowsConcurrentExecution;
+//
+// This property must only be used from the main thread.
+@property (nonatomic, assign) BOOL allowsConcurrentExecution;
 
 // Whether the command is currently executing.
 //
 // This will be YES while any thread is running the -execute: method, or while
-// any signal returned from -addSignalBlock: has not yet finished.
-@property (atomic, getter = isExecuting, readonly) BOOL executing;
+// any signal returned from -addActionBlock: has not yet finished.
+//
+// This property is KVO-compliant, and must only be read from the main thread.
+@property (nonatomic, getter = isExecuting, readonly) BOOL executing;
 
 // A signal of NSErrors received from all of the signals returned from
-// -addSignalBlock:, delivered onto the main thread.
+// -addActionBlock:, delivered onto the main thread.
 //
 // Note that the NSErrors on this signal are sent as `next` events, _not_
 // `error` events (which would terminate any subscriptions).
@@ -69,7 +73,7 @@
 // Returns the initialized command.
 - (id)initWithCanExecuteSignal:(RACSignal *)canExecuteSignal;
 
-// Adds a block to invoke each time the receiver is executed.
+// Creates and subscribes to a new signal each time the receiver is executed.
 //
 // signalBlock - A block that returns a signal. The returned signal must not be
 //               nil, and will be subscribed to synchronously from -execute:. If
@@ -79,17 +83,22 @@
 //               nil.
 //
 // Returns a signal of the signals returned from successive invocations of
-// `signalBlock`. Each individual signal will be multicast to a replay subject.
-- (RACSignal *)addSignalBlock:(RACSignal * (^)(id value))signalBlock;
+// `signalBlock`. Each individual signal will be multicast to a replay subject,
+// and any errors will be caught and redirected to the `errors` signal (instead
+// of being delivered to the individual signal's subscribers).
+- (RACSignal *)addActionBlock:(RACSignal * (^)(id value))signalBlock;
 
 // If `canExecute` is YES, this method will:
 //
 // - Set `executing` to YES.
 // - Send `value` to the receiver's subscribers.
-// - Execute each block added with -addSignalBlock: and subscribe to all of
+// - Execute each block added with -addActionBlock: and subscribe to all of
 //   the returned signals.
-// - Once all the signals returned from the `signalBlock`s have completed or
-//   errored, set `executing` back to NO.
+// - After all the signals returned from the `signalBlock`s have completed or
+//   errored, schedule a block on +[RACScheduler mainThreadScheduler] to set
+//   `executing` back to NO.
+//
+// This method must only be invoked from the main thread.
 //
 // Returns whether the command executed (i.e., whether `canExecute` was YES).
 - (BOOL)execute:(id)value;
@@ -98,10 +107,6 @@
 
 @interface RACCommand (Deprecated)
 
-- (void)sendNext:(id)value __attribute__((deprecated("Commands should not be manually controlled")));
-- (void)sendError:(NSError *)error __attribute__((deprecated("Commands should not be manually controlled")));
-- (void)sendCompleted __attribute__((deprecated("Commands should not be manually controlled")));
-- (void)didSubscribeWithDisposable:(RACDisposable *)disposable __attribute__((deprecated("Commands should not be manually controlled")));
-+ (instancetype)subject __attribute__((deprecated("Use +command instead")));
+- (RACSignal *)addSignalBlock:(RACSignal * (^)(id value))signalBlock __attribute__((deprecated("Use -addActionBlock: instead")));
 
 @end

@@ -116,6 +116,23 @@ sharedExamplesFor(RACObservablePropertyObservingExamples, ^(NSDictionary *data) 
 		expect(didChangeBlockTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
 		expect(didChangeBlockTriggeredByDeallocation).to.beFalsy();
 	});
+
+	it(@"should call willChangeBlock before didChangeBlock when the value is changed", ^{
+		__block BOOL willChangeBlockCalled = NO;
+		__block BOOL didChangeBlockCalled = NO;
+		[target rac_addObserver:nil forKeyPath:keyPath willChangeBlock:^(BOOL triggeredByLastKeyPathComponent) {
+			willChangeBlockCalled = YES;
+			expect(didChangeBlockCalled).to.beFalsy();
+		} didChangeBlock:^(BOOL triggeredByLastKeyPathComponent, BOOL triggeredByDeallocation, id value) {
+			didChangeBlockCalled = YES;
+			expect(willChangeBlockCalled).to.beTruthy();
+		}];
+
+		id value = valueBlock();
+		changeBlock(target, value);
+		expect(willChangeBlockCalled).to.beTruthy();
+		expect(didChangeBlockCalled).to.beTruthy();
+	});
 	
 	it(@"should not call willChangeBlock and didChangeBlock after it's been disposed", ^{
 		RACDisposable *disposable = [target rac_addObserver:nil forKeyPath:keyPath willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];

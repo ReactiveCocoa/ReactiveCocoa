@@ -67,7 +67,6 @@ static RACDisposable *addObserverToTargetForKeyPathWillChangeBlockDidChangeBlock
 		if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
 			@synchronized (disposable) {
 				[firstComponentDisposable dispose];
-				[disposable removeDisposable:firstComponentDisposable];
 			}
 			if (willChangeBlock != nil) {
 				willChangeBlock(keyPathHasOneComponent);

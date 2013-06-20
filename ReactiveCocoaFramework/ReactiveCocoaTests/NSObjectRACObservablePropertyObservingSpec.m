@@ -53,11 +53,12 @@ sharedExamplesFor(RACObservablePropertyObservingExamples, ^(NSDictionary *data) 
 	__block BOOL willChangeBlockTriggeredByLastKeyPathComponent = NO;
 	__block BOOL didChangeBlockTriggeredByLastKeyPathComponent = NO;
 	__block BOOL didChangeBlockTriggeredByDeallocation = NO;
-	__block void(^willChangeBlock)(BOOL) = nil;
-	__block void(^didChangeBlock)(BOOL, BOOL, id) = nil;
+	__block void (^willChangeBlock)(BOOL) = nil;
+	__block void (^didChangeBlock)(BOOL, BOOL, id) = nil;
 	
 	beforeEach(^{
-		target = ((NSObject *(^)(void))data[RACObservablePropertyObservingExamplesTargetBlock])();
+		NSObject * (^targetBlock)(void) = data[RACObservablePropertyObservingExamplesTargetBlock];
+		target = targetBlock();
 		keyPath = data[RACObservablePropertyObservingExamplesKeyPath];
 		changeBlock = data[RACObservablePropertyObservingExamplesChangeBlock];
 		valueBlock = data[RACObservablePropertyObservingExamplesValueBlock];
@@ -131,7 +132,7 @@ sharedExamplesFor(RACObservablePropertyObservingExamples, ^(NSDictionary *data) 
 		expect(didChangeBlockCallCount).to.equal(0);
 	});
 	
-	it(@"should call only didChangeBlock at least once when the value is deallocated", ^{
+	it(@"should call only didChangeBlock when the value is deallocated", ^{
 		__block BOOL valueDidDealloc = NO;
 
 		[target rac_addObserver:nil forKeyPath:keyPath willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
@@ -149,7 +150,7 @@ sharedExamplesFor(RACObservablePropertyObservingExamples, ^(NSDictionary *data) 
 		
 		expect(valueDidDealloc).to.beTruthy();
 		expect(willChangeBlockCallCount).to.equal(0);
-		expect(didChangeBlockCallCount).to.beGreaterThanOrEqualTo(1);
+		expect(didChangeBlockCallCount).to.equal(1);
 		expect(didChangeBlockTriggeredByDeallocation).to.beTruthy();
 	});
 });
@@ -160,7 +161,7 @@ SpecBegin(RACObservablePropertyObserving)
 
 describe(@"-rac_addObserver:forKeyPath:willChangeBlock:didChangeBlock:", ^{
 	describe(@"on simple keys", ^{
-		NSObject *(^targetBlock)(void) = ^{
+		NSObject * (^targetBlock)(void) = ^{
 			return [[RACTestObject alloc] init];
 		};
 		
@@ -174,7 +175,7 @@ describe(@"-rac_addObserver:forKeyPath:willChangeBlock:didChangeBlock:", ^{
 		
 		itShouldBehaveLike(RACObservablePropertyObservingExamples, @{
 			RACObservablePropertyObservingExamplesTargetBlock: targetBlock,
-			RACObservablePropertyObservingExamplesKeyPath: @keypath([[RACTestObject alloc] init], weakTestObjectValue),
+			RACObservablePropertyObservingExamplesKeyPath: @keypath(RACTestObject.new, weakTestObjectValue),
 			RACObservablePropertyObservingExamplesChangeBlock: changeBlock,
 			RACObservablePropertyObservingExamplesValueBlock: valueBlock,
 			RACObservablePropertyObservingExamplesChangesValueDirectly: @YES
@@ -199,7 +200,7 @@ describe(@"-rac_addObserver:forKeyPath:willChangeBlock:didChangeBlock:", ^{
 			
 			itShouldBehaveLike(RACObservablePropertyObservingExamples, @{
 				RACObservablePropertyObservingExamplesTargetBlock: targetBlock,
-				RACObservablePropertyObservingExamplesKeyPath: @keypath([[RACTestObject alloc] init], strongTestObjectValue.weakTestObjectValue),
+				RACObservablePropertyObservingExamplesKeyPath: @keypath(RACTestObject.new, strongTestObjectValue.weakTestObjectValue),
 				RACObservablePropertyObservingExamplesChangeBlock: changeBlock,
 				RACObservablePropertyObservingExamplesValueBlock: valueBlock,
 				RACObservablePropertyObservingExamplesChangesValueDirectly: @YES

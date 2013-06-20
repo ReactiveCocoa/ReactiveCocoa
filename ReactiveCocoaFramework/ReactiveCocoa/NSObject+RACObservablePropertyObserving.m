@@ -15,6 +15,7 @@
 #import "RACKVOTrampoline.h"
 
 static RACDisposable *addObserverToTargetForKeyPathWillChangeBlockDidChangeBlock(NSObject *observer, NSObject *target, NSString *keyPath, void(^willChangeBlock)(BOOL), void(^didChangeBlock)(BOOL, BOOL, id)) {
+	@unsafeify(observer);
 	NSArray *keyPathComponents = keyPath.rac_keyPathComponents;
 	BOOL keyPathHasOneComponent = (keyPathComponents.count == 1);
 	NSString *firstKeyPathComponent = keyPathComponents[0];
@@ -47,6 +48,7 @@ static RACDisposable *addObserverToTargetForKeyPathWillChangeBlockDidChangeBlock
 	// remaining path components on the value. Also adds the logic to clean up the
 	// callbacks to firstComponentDisposable.
 	void (^addObserverToValue)(NSObject *) = ^(NSObject *value) {
+		@strongify(observer);
 		RACDisposable *observerDisposable = [value rac_addObserver:observer forKeyPath:keyPathByDeletingFirstKeyPathComponent willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
 		@synchronized (disposable) {
 			[firstComponentDisposable addDisposable:observerDisposable];

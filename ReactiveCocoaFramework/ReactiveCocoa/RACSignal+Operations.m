@@ -209,23 +209,24 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 		};
 
 		RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
-			flushNext(NO);
-
-			if (!predicate(x)) {
-				// No throttling, send immediately.
-				[subscriber sendNext:x];
-				return;
-			}
-
 			RACScheduler *delayScheduler = RACScheduler.currentScheduler ?: scheduler;
+			BOOL shouldThrottle = predicate(x);
 
-			nextValue = x;
-			hasNextValue = YES;
-			nextDisposable = [delayScheduler afterDelay:interval schedule:^{
-				[subscriber sendNext:x];
-			}];
+			@synchronized (compoundDisposable) {
+				flushNext(NO);
+				if (!shouldThrottle) {
+					[subscriber sendNext:x];
+					return;
+				}
 
-			if (nextDisposable != nil) [compoundDisposable addDisposable:nextDisposable];
+				nextValue = x;
+				hasNextValue = YES;
+				nextDisposable = [delayScheduler afterDelay:interval schedule:^{
+					flushNext(YES);
+				}];
+
+				if (nextDisposable != nil) [compoundDisposable addDisposable:nextDisposable];
+			}
 		} error:^(NSError *error) {
 			[compoundDisposable dispose];
 			[subscriber sendError:error];

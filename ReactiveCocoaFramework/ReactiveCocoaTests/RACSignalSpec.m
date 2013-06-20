@@ -1960,6 +1960,15 @@ describe(@"throttling", ^{
 				[expected addObject:@"baz"];
 				expect(valuesReceived).will.equal(expected);
 			});
+
+			it(@"should not be resent upon completion", ^{
+				[subject sendNext:@"bar"];
+				[expected addObject:@"bar"];
+				expect(valuesReceived).will.equal(expected);
+
+				[subject sendCompleted];
+				expect(valuesReceived).to.equal(expected);
+			});
 		});
 
 		it(@"should forward completed immediately", ^{

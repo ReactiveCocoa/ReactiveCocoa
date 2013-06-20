@@ -14,15 +14,9 @@
 #import "RACDisposable.h"
 #import "RACKVOTrampoline.h"
 
-@implementation NSObject (RACObservablePropertyObserving)
-
-- (RACDisposable *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath serializationLock:(NSRecursiveLock *)serializationLock willChangeBlock:(void (^)(BOOL))willChangeBlock didChangeBlock:(void (^)(BOOL, BOOL, id))didChangeBlock {
-	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
-
-	if (serializationLock == nil) serializationLock = [[NSRecursiveLock alloc] init];
-
+static RACDisposable *addObserverToTargetForKeyPathWillChangeBlockDidChangeBlock(NSObject *observer, NSObject *target, NSString *keyPath, void(^willChangeBlock)(BOOL), void(^didChangeBlock)(BOOL, BOOL, id)) {
 	NSArray *keyPathComponents = keyPath.rac_keyPathComponents;
-	BOOL keyPathHasOneComponent = keyPathComponents.count == 1;
+	BOOL keyPathHasOneComponent = (keyPathComponents.count == 1);
 	NSString *firstKeyPathComponent = keyPathComponents[0];
 	NSString *keyPathByDeletingFirstKeyPathComponent = keyPath.rac_keyPathByDeletingFirstKeyPathComponent;
 
@@ -39,14 +33,10 @@
 		if (didChangeBlock == nil) return;
 		RACCompoundDisposable *valueDisposable = value.rac_deallocDisposable;
 		RACDisposable *deallocDisposable = [RACDisposable disposableWithBlock:^{
-			[serializationLock lock];
-			@onExit {
-				[serializationLock unlock];
-			};
 			didChangeBlock(keyPathHasOneComponent, YES, nil);
 		}];
 		[valueDisposable addDisposable:deallocDisposable];
-		@synchronized(disposable) {
+		@synchronized (disposable) {
 			[firstComponentDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				[valueDisposable removeDisposable:deallocDisposable];
 			}]];
@@ -57,8 +47,8 @@
 	// remaining path components on the value. Also adds the logic to clean up the
 	// callbacks to firstComponentDisposable.
 	void (^addObserverToValue)(NSObject *) = ^(NSObject *value) {
-		RACDisposable *observerDisposable = [value rac_addObserver:observer forKeyPath:keyPathByDeletingFirstKeyPathComponent serializationLock:serializationLock willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
-		@synchronized(disposable) {
+		RACDisposable *observerDisposable = [value rac_addObserver:observer forKeyPath:keyPathByDeletingFirstKeyPathComponent willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
+		@synchronized (disposable) {
 			[firstComponentDisposable addDisposable:observerDisposable];
 		}
 	};
@@ -70,21 +60,16 @@
 	// Note this does not use NSKeyValueObservingOptionInitial so this only
 	// handles changes to the value, callbacks to the initial value must be added
 	// separately.
-	RACKVOTrampoline *trampoline = [self rac_addObserver:observer forKeyPath:firstKeyPathComponent options:NSKeyValueObservingOptionPrior block:^(id trampolineTarget, id trampolineObserver, NSDictionary *change) {
-
+	RACKVOTrampoline *trampoline = [target rac_addObserver:observer forKeyPath:firstKeyPathComponent options:NSKeyValueObservingOptionPrior block:^(id trampolineTarget, id trampolineObserver, NSDictionary *change) {
 		// If this is a prior notification, clean up all the callbacks added to the
 		// previous value and call willChangeBlock. Everything else is deferred
 		// until after we get the notification after the change.
 		if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
-			@synchronized(disposable) {
+			@synchronized (disposable) {
 				[firstComponentDisposable dispose];
 				[disposable removeDisposable:firstComponentDisposable];
 			}
 			if (willChangeBlock != nil) {
-				[serializationLock lock];
-				@onExit {
-					[serializationLock unlock];
-				};
 				willChangeBlock(keyPathHasOneComponent);
 			}
 			return;
@@ -97,10 +82,6 @@
 		// it, just call didChangeBlock.
 		if (value == nil) {
 			if (didChangeBlock != nil) {
-				[serializationLock lock];
-				@onExit {
-					[serializationLock unlock];
-				};
 				didChangeBlock(keyPathHasOneComponent, NO, nil);
 			}
 			return;
@@ -122,10 +103,6 @@
 		// other callbacks, just call didChangeBlock with the value itself.
 		if (keyPathHasOneComponent) {
 			if (didChangeBlock != nil) {
-				[serializationLock lock];
-				@onExit {
-					[serializationLock unlock];
-				};
 				didChangeBlock(YES, NO, value);
 			}
 			return;
@@ -137,10 +114,6 @@
 		// key path.
 		addObserverToValue(value);
 		if (didChangeBlock != nil) {
-			[serializationLock lock];
-			@onExit {
-				[serializationLock unlock];
-			};
 			didChangeBlock(NO, NO, [value valueForKeyPath:keyPathByDeletingFirstKeyPathComponent]);
 		}
 	}];
@@ -150,7 +123,7 @@
 
 	// Add the callbacks to the initial value if needed.
 	if (!keyPathHasOneComponent) {
-		NSObject *value = [self valueForKey:firstKeyPathComponent];
+		NSObject *value = [target valueForKey:firstKeyPathComponent];
 		if (value != nil) {
 			addDeallocObserverToValue(value);
 			addObserverToValue(value);
@@ -159,9 +132,42 @@
 
 	// Dispose of this observation if the target or the observer deallocate.
 	[observer.rac_deallocDisposable addDisposable:disposable];
-	[self.rac_deallocDisposable addDisposable:disposable];
-
+	[target.rac_deallocDisposable addDisposable:disposable];
+	
 	return disposable;
+}
+
+@implementation NSObject (RACObservablePropertyObserving)
+
+- (RACDisposable *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath willChangeBlock:(void (^)(BOOL))willChangeBlock didChangeBlock:(void (^)(BOOL, BOOL, id))didChangeBlock {
+	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
+
+	NSRecursiveLock *serializationLock = [[NSRecursiveLock alloc] init];
+	serializationLock.name = @"RACObservablePropertyObservingSerializationLock";
+
+	void (^serializingWillChangeBlock)(BOOL) = nil;
+	if (willChangeBlock != nil) {
+		serializingWillChangeBlock = ^ (BOOL triggeredByLastKeyPathComponent) {
+			[serializationLock lock];
+			@onExit {
+				[serializationLock unlock];
+			};
+			willChangeBlock(triggeredByLastKeyPathComponent);
+		};
+	}
+
+	void (^serializingDidChangeBlock)(BOOL, BOOL, id) = nil;
+	if (didChangeBlock != nil) {
+		serializingDidChangeBlock = ^ (BOOL triggeredByLastKeyPathComponent, BOOL triggeredByDeallocation, id value) {
+			[serializationLock lock];
+			@onExit {
+				[serializationLock unlock];
+			};
+			didChangeBlock(triggeredByLastKeyPathComponent, triggeredByDeallocation, value);
+		};
+	}
+
+	return addObserverToTargetForKeyPathWillChangeBlockDidChangeBlock(observer, self, keyPath, willChangeBlock, didChangeBlock);
 }
 
 @end

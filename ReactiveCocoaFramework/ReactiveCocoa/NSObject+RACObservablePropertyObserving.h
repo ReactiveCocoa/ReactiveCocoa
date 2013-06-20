@@ -21,8 +21,6 @@
 //
 // observer          - The object that requested the observation.
 // keyPath           - The key path to observe.
-// serializationLock - The lock used to serialize calls to willChangeBlock and
-//                     didChangeBlock. If not provided, one will be created.
 // willChangeBlock   - The block called before the value at the key path
 //                     changes. It is passed whether the key path component
 //                     whose value will be changed explicitly is the last one or
@@ -35,6 +33,6 @@
 //                     path.
 //
 // Returns a disposable that can be used to stop the observation.
-- (RACDisposable *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath serializationLock:(NSRecursiveLock *)serializationLock willChangeBlock:(void(^)(BOOL triggeredByLastKeyPathComponent))willChangeBlock didChangeBlock:(void(^)(BOOL triggeredByLastKeyPathComponent, BOOL triggeredByDeallocation, id value))didChangeBlock;
+- (RACDisposable *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath willChangeBlock:(void(^)(BOOL triggeredByLastKeyPathComponent))willChangeBlock didChangeBlock:(void(^)(BOOL triggeredByLastKeyPathComponent, BOOL triggeredByDeallocation, id value))didChangeBlock;
 
 @end

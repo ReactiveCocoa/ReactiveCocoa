@@ -75,6 +75,13 @@
 	return self;
 }
 
+@end
+
+@implementation RACBinding (Deprecated)
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
 - (RACDisposable *)bindTo:(RACBinding *)binding {
 	RACDisposable *bindingDisposable = [binding subscribe:self];
 	RACDisposable *selfDisposable = [[self skip:1] subscribe:binding];
@@ -83,5 +90,7 @@
 		[selfDisposable dispose];
 	}];
 }
+
+#pragma clang diagnostic pop
 
 @end

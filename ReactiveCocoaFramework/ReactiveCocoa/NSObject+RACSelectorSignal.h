@@ -49,7 +49,4 @@ extern const NSInteger RACSelectorSignalErrorMethodSwizzlingRace;
 // call fails.
 - (RACSignal *)rac_signalForSelector:(SEL)selector;
 
-// The same as -rac_signalForSelector: but with class methods.
-+ (RACSignal *)rac_signalForSelector:(SEL)selector;
-
 @end

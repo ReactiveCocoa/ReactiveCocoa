@@ -7,6 +7,7 @@
 //
 
 #import "NSInvocation+RACTypeParsing.h"
+#import "RACTuple.h"
 #import "RACUnit.h"
 #import <CoreGraphics/CoreGraphics.h>
 
@@ -151,7 +152,7 @@
 	NSUInteger numberOfArguments = self.methodSignature.numberOfArguments;
 	NSMutableArray *argumentsArray = [NSMutableArray arrayWithCapacity:numberOfArguments - 2];
 	for (NSUInteger index = 2; index < numberOfArguments; index++) {
-		[argumentsArray addObject:[self rac_argumentAtIndex:index]];
+		[argumentsArray addObject:[self rac_argumentAtIndex:index] ?: RACTupleNil.tupleNil];
 	}
 
 	return argumentsArray;

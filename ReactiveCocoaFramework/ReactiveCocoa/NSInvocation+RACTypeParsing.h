@@ -37,7 +37,7 @@
 // See -rac_argumentAtIndex: for a description of the behavior.
 //
 // Returns an array containing the arguments of the invocation, except `self`
-// and `_cmd`.
+// and `_cmd`. Nil arguments will be replaced with RACTupleNil.
 - (NSArray *)rac_allArguments;
 
 // Gets the return value from the invocation based on the invocation's method

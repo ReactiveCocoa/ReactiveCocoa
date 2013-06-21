@@ -55,30 +55,14 @@
 - (SEL)selectorForArgumentCount:(NSUInteger)count {
 	NSCParameterAssert(count > 0);
 
-	switch (count) {
-		case  1: return @selector(performWith:);
-		case  2: return @selector(performWith::);
-		case  3: return @selector(performWith:::);
-		case  4: return @selector(performWith::::);
-		case  5: return @selector(performWith:::::);
-		case  6: return @selector(performWith::::::);
-		case  7: return @selector(performWith:::::::);
-		case  8: return @selector(performWith::::::::);
-		case  9: return @selector(performWith:::::::::);
-		case 10: return @selector(performWith::::::::::);
-		case 11: return @selector(performWith:::::::::::);
-		case 12: return @selector(performWith::::::::::::);
-		case 13: return @selector(performWith:::::::::::::);
-		case 14: return @selector(performWith::::::::::::::);
-		case 15: return @selector(performWith:::::::::::::::);
-	}
+	const char selectorPrefix[] = "performWith";
+	size_t prefixLength = sizeof(selectorPrefix) - 1;
+	char selectorName[prefixLength + count + 1];
+	memcpy(selectorName, selectorPrefix, prefixLength);
+	memset(selectorName + prefixLength, ':', count);
+	selectorName[prefixLength + count] = '\0';
 
-	NSMutableString *selectorString = [NSMutableString stringWithString:@"performWith"];
-	for (NSUInteger i = 0; i < count; i++) {
-		[selectorString appendString:@":"];
-	}
-
-	SEL selector = NSSelectorFromString(selectorString);
+	SEL selector = sel_registerName(selectorName);
 	NSCAssert([self respondsToSelector:selector], @"The argument count is too damn high! Only blocks of up to 15 arguments are currently supported.");
 	return selector;
 }

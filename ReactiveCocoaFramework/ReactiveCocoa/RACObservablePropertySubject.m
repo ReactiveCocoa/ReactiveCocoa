@@ -275,7 +275,9 @@ static NSString * const RACKVOBindingExceptionBindingKey = @"RACKVOBindingExcept
 }
 
 - (void)setObject:(id)obj forKeyedSubscript:(id)key {
-	[[self valueForKey:key] bindTo:obj];
+	RACBinding *binding = [self valueForKey:key];
+	[obj subscribe:binding];
+	[[binding skip:1] subscribe:obj];
 }
 
 @end

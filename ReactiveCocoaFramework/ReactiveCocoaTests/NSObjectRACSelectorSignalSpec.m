@@ -191,32 +191,63 @@ it(@"should swizzle an NSObject method", ^{
 	expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
 });
 
-it(@"should work for two classes in the same hierarchy", ^{
-	RACTestObject *superclassObj = [[RACTestObject alloc] init];
-	expect(superclassObj).notTo.beNil();
-
+describe(@"two classes in the same hierarchy", ^{
+	__block RACTestObject *superclassObj;
 	__block RACTuple *superclassTuple;
-	[[superclassObj rac_signalForSelector:@selector(combineObjectValue:andIntegerValue:)] subscribeNext:^(RACTuple *t) {
-		superclassTuple = t;
-	}];
 
-	RACSubclassObject *subclassObj = [[RACSubclassObject alloc] init];
-	expect(subclassObj).notTo.beNil();
-
+	__block RACSubclassObject *subclassObj;
 	__block RACTuple *subclassTuple;
-	[[subclassObj rac_signalForSelector:@selector(combineObjectValue:andIntegerValue:)] subscribeNext:^(RACTuple *t) {
-		subclassTuple = t;
-	}];
 
-	expect([superclassObj combineObjectValue:@"foo" andIntegerValue:42]).to.equal(@"foo: 42");
+	beforeEach(^{
+		superclassObj = [[RACTestObject alloc] init];
+		expect(superclassObj).notTo.beNil();
 
-	NSArray *expectedValues = @[ @"foo", @42 ];
-	expect(superclassTuple.allObjects).to.equal(expectedValues);
+		subclassObj = [[RACSubclassObject alloc] init];
+		expect(subclassObj).notTo.beNil();
+	});
 
-	expect([subclassObj combineObjectValue:@"foo" andIntegerValue:42]).to.equal(@"fooSUBCLASS: 42");
+	it(@"should not collide", ^{
+		[[superclassObj rac_signalForSelector:@selector(combineObjectValue:andIntegerValue:)] subscribeNext:^(RACTuple *t) {
+			superclassTuple = t;
+		}];
 
-	expectedValues = @[ @"foo", @42 ];
-	expect(subclassTuple.allObjects).to.equal(expectedValues);
+		[[subclassObj rac_signalForSelector:@selector(combineObjectValue:andIntegerValue:)] subscribeNext:^(RACTuple *t) {
+			subclassTuple = t;
+		}];
+
+		expect([superclassObj combineObjectValue:@"foo" andIntegerValue:42]).to.equal(@"foo: 42");
+
+		NSArray *expectedValues = @[ @"foo", @42 ];
+		expect(superclassTuple.allObjects).to.equal(expectedValues);
+
+		expect([subclassObj combineObjectValue:@"foo" andIntegerValue:42]).to.equal(@"fooSUBCLASS: 42");
+
+		expectedValues = @[ @"foo", @42 ];
+		expect(subclassTuple.allObjects).to.equal(expectedValues);
+	});
+
+	it(@"should not collide when the superclass is invoked asynchronously", ^{
+		[[superclassObj rac_signalForSelector:@selector(setObjectValue:andSecondObjectValue:)] subscribeNext:^(RACTuple *t) {
+			superclassTuple = t;
+		}];
+
+		[[subclassObj rac_signalForSelector:@selector(setObjectValue:andSecondObjectValue:)] subscribeNext:^(RACTuple *t) {
+			subclassTuple = t;
+		}];
+
+		[superclassObj setObjectValue:@"foo" andSecondObjectValue:@"42"];
+		expect(superclassObj.hasInvokedSetObjectValueAndSecondObjectValue).to.beTruthy();
+
+		NSArray *expectedValues = @[ @"foo", @"42" ];
+		expect(superclassTuple.allObjects).to.equal(expectedValues);
+
+		[subclassObj setObjectValue:@"foo" andSecondObjectValue:@"42"];
+		expect(subclassObj.hasInvokedSetObjectValueAndSecondObjectValue).to.beFalsy();
+		expect(subclassObj.hasInvokedSetObjectValueAndSecondObjectValue).will.beTruthy();
+
+		expectedValues = @[ @"foo", @"42" ];
+		expect(subclassTuple.allObjects).to.equal(expectedValues);
+	});
 });
 
 SpecEnd

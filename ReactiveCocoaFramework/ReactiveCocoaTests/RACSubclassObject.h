@@ -14,4 +14,7 @@
 // "SUBCLASS".
 - (NSString *)combineObjectValue:(id)objectValue andIntegerValue:(NSInteger)integerValue;
 
+// Asynchronously invokes the superclass implementation on the current scheduler.
+- (void)setObjectValue:(id)objectValue andSecondObjectValue:(id)secondObjectValue;
+
 @end

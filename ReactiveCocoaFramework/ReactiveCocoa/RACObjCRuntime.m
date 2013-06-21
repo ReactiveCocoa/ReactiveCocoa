@@ -8,6 +8,10 @@
 
 #import "RACObjCRuntime.h"
 
+#if __has_feature(objc_arc)
+#error "This file must be compiled without ARC."
+#endif
+
 @implementation RACObjCRuntime
 
 + (void)findMethod:(SEL)method inProtocol:(Protocol *)protocol outMethod:(struct objc_method_description *)outMethod {
@@ -29,6 +33,10 @@
     struct objc_method_description desc;
     [self findMethod:method inProtocol:protocol outMethod:&desc];
     return desc.name != NULL;
+}
+
++ (Class)createClass:(const char *)className inheritingFromClass:(Class)superclass {
+	return objc_allocateClassPair(superclass, className, 0);
 }
 
 @end

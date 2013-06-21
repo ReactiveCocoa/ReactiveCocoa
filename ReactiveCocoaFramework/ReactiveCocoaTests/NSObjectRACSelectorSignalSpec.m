@@ -153,6 +153,18 @@ describe(@"RACTestObject", ^{
 		expect(value).to.equal(@YES);
 		expect(key).to.equal(@"Winner");
 	});
+
+	it(@"should send non-object arguments", ^{
+		RACTestObject *object = [[RACTestObject alloc] init];
+
+		__block id value;
+		[[object rac_signalForSelector:@selector(setIntegerValue:)] subscribeNext:^(RACTuple *x) {
+			value = x.first;
+		}];
+
+		object.integerValue = 42;
+		expect(value).to.equal(@42);
+	});
 });
 
 it(@"should swizzle an NSObject method", ^{

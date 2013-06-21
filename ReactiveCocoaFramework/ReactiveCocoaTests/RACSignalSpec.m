@@ -1646,10 +1646,10 @@ describe(@"+interval:onScheduler: and +interval:onScheduler:withLeeway:", ^{
 				// because a delayed interval may cause the _next_ value to
 				// send sooner than the interval.
 				NSTimeInterval expectedMinInterval = minInterval.doubleValue * nextsReceived;
-				NSTimeInterval expectedMaxInterval = expectedMinInterval + leeway.doubleValue;
+				NSTimeInterval expectedMaxInterval = expectedMinInterval + leeway.doubleValue * 3 + 0.05;
 
 				expect(currentTime - startTime).beGreaterThanOrEqualTo(expectedMinInterval);
-				expect(currentTime - startTime).beLessThanOrEqualTo(expectedMaxInterval + leeway.doubleValue / 2 + 0.05);
+				expect(currentTime - startTime).beLessThanOrEqualTo(expectedMaxInterval);
 			}];
 			
 			expect(nextsReceived).will.equal(3);

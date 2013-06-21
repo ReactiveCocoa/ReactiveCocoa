@@ -165,6 +165,18 @@ describe(@"RACTestObject", ^{
 		object.integerValue = 42;
 		expect(value).to.equal(@42);
 	});
+
+	it(@"should send on signal after the original method is invoked", ^{
+		RACTestObject *object = [[RACTestObject alloc] init];
+
+		__block BOOL invokedMethodBefore = NO;
+		[[object rac_signalForSelector:@selector(setObjectValue:andSecondObjectValue:)] subscribeNext:^(RACTuple *x) {
+			invokedMethodBefore = object.hasInvokedSetObjectValueAndSecondObjectValue;
+		}];
+		
+		[object setObjectValue:@YES andSecondObjectValue:@"Winner"];
+		expect(invokedMethodBefore).to.beTruthy();
+	});
 });
 
 it(@"should swizzle an NSObject method", ^{

@@ -191,6 +191,25 @@ it(@"should swizzle an NSObject method", ^{
 	expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
 });
 
+it(@"should work on a class that already overrides -forwardInvocation:", ^{
+	RACSubclassObject *object = [[RACSubclassObject alloc] init];
+
+	__block id value;
+	[[object rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(RACTuple *x) {
+		value = x.first;
+	}];
+
+	[object lifeIsGood:@42];
+	expect(value).to.equal(@42);
+
+	expect(object.forwardedSelector).to.beNil();
+
+	[object performSelector:@selector(allObjects)];
+
+	expect(value).to.equal(@42);
+	expect(object.forwardedSelector).to.equal(@selector(allObjects));
+});
+
 describe(@"two classes in the same hierarchy", ^{
 	__block RACTestObject *superclassObj;
 	__block RACTuple *superclassTuple;

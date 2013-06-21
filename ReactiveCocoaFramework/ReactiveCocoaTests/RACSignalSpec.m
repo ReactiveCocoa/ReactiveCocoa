@@ -1791,72 +1791,208 @@ describe(@"-delay:", ^{
 	});
 });
 
-describe(@"-throttle:", ^{
+describe(@"throttling", ^{
 	__block RACSubject *subject;
-	__block RACSignal *throttledSignal;
 
 	beforeEach(^{
 		subject = [RACSubject subject];
-		throttledSignal = [subject throttle:0];
 	});
 
-	it(@"should throttle nexts", ^{
-		NSMutableArray *valuesReceived = [NSMutableArray array];
-		[throttledSignal subscribeNext:^(id x) {
-			[valuesReceived addObject:x];
-		}];
+	describe(@"-throttle:", ^{
+		__block RACSignal *throttledSignal;
 
-		[subject sendNext:@"foo"];
-		[subject sendNext:@"bar"];
-		expect(valuesReceived).to.equal(@[]);
+		beforeEach(^{
+			throttledSignal = [subject throttle:0];
+		});
 
-		NSArray *expected = @[ @"bar" ];
-		expect(valuesReceived).will.equal(expected);
+		it(@"should throttle nexts", ^{
+			NSMutableArray *valuesReceived = [NSMutableArray array];
+			[throttledSignal subscribeNext:^(id x) {
+				[valuesReceived addObject:x];
+			}];
 
-		[subject sendNext:@"buzz"];
-		expect(valuesReceived).to.equal(expected);
+			[subject sendNext:@"foo"];
+			[subject sendNext:@"bar"];
+			expect(valuesReceived).to.equal(@[]);
 
-		expected = @[ @"bar", @"buzz" ];
-		expect(valuesReceived).will.equal(expected);
+			NSArray *expected = @[ @"bar" ];
+			expect(valuesReceived).will.equal(expected);
+
+			[subject sendNext:@"buzz"];
+			expect(valuesReceived).to.equal(expected);
+
+			expected = @[ @"bar", @"buzz" ];
+			expect(valuesReceived).will.equal(expected);
+		});
+
+		it(@"should forward completed immediately", ^{
+			__block BOOL completed = NO;
+			[throttledSignal subscribeCompleted:^{
+				completed = YES;
+			}];
+
+			[subject sendCompleted];
+			expect(completed).to.beTruthy();
+		});
+
+		it(@"should forward errors immediately", ^{
+			__block NSError *error = nil;
+			[throttledSignal subscribeError:^(NSError *e) {
+				error = e;
+			}];
+
+			[subject sendError:RACSignalTestError];
+			expect(error).to.equal(RACSignalTestError);
+		});
+
+		it(@"should cancel future nexts when disposed", ^{
+			__block id next = nil;
+			RACDisposable *disposable = [throttledSignal subscribeNext:^(id x) {
+				next = x;
+			}];
+
+			[subject sendNext:@"foo"];
+
+			__block BOOL done = NO;
+			[RACScheduler.mainThreadScheduler after:dispatch_time(DISPATCH_TIME_NOW, 1) schedule:^{
+				done = YES;
+			}];
+
+			[disposable dispose];
+
+			expect(done).will.beTruthy();
+			expect(next).to.beNil();
+		});
 	});
 
-	it(@"should forward completed immediately", ^{
-		__block BOOL completed = NO;
-		[throttledSignal subscribeCompleted:^{
-			completed = YES;
-		}];
+	describe(@"-throttle:valuesPassingTest:", ^{
+		__block RACSignal *throttledSignal;
+		__block BOOL shouldThrottle;
 
-		[subject sendCompleted];
-		expect(completed).to.beTruthy();
-	});
+		beforeEach(^{
+			shouldThrottle = YES;
 
-	it(@"should forward errors immediately", ^{
-		__block NSError *error = nil;
-		[throttledSignal subscribeError:^(NSError *e) {
-			error = e;
-		}];
+			__block id value = nil;
+			throttledSignal = [[subject
+				doNext:^(id x) {
+					value = x;
+				}]
+				throttle:0 valuesPassingTest:^(id x) {
+					// Make sure that we're given the latest value.
+					expect(x).to.beIdenticalTo(value);
 
-		[subject sendError:RACSignalTestError];
-		expect(error).to.equal(RACSignalTestError);
-	});
+					return shouldThrottle;
+				}];
 
-	it(@"should cancel future nexts when disposed", ^{
-		__block id next = nil;
-		RACDisposable *disposable = [throttledSignal subscribeNext:^(id x) {
-			next = x;
-		}];
+			expect(throttledSignal).notTo.beNil();
+		});
 
-		[subject sendNext:@"foo"];
+		describe(@"nexts", ^{
+			__block NSMutableArray *valuesReceived;
+			__block NSMutableArray *expected;
 
-		__block BOOL done = NO;
-		[RACScheduler.mainThreadScheduler after:dispatch_time(DISPATCH_TIME_NOW, 1) schedule:^{
-			done = YES;
-		}];
+			beforeEach(^{
+				expected = [[NSMutableArray alloc] init];
+				valuesReceived = [[NSMutableArray alloc] init];
 
-		[disposable dispose];
+				[throttledSignal subscribeNext:^(id x) {
+					[valuesReceived addObject:x];
+				}];
+			});
 
-		expect(done).will.beTruthy();
-		expect(next).to.beNil();
+			it(@"should forward unthrottled values immediately", ^{
+				shouldThrottle = NO;
+				[subject sendNext:@"foo"];
+
+				[expected addObject:@"foo"];
+				expect(valuesReceived).to.equal(expected);
+			});
+
+			it(@"should delay throttled values", ^{
+				[subject sendNext:@"bar"];
+				expect(valuesReceived).to.equal(expected);
+
+				[expected addObject:@"bar"];
+				expect(valuesReceived).will.equal(expected);
+			});
+
+			it(@"should drop buffered values when a throttled value arrives", ^{
+				[subject sendNext:@"foo"];
+				[subject sendNext:@"bar"];
+				[subject sendNext:@"buzz"];
+				expect(valuesReceived).to.equal(expected);
+
+				[expected addObject:@"buzz"];
+				expect(valuesReceived).will.equal(expected);
+			});
+
+			it(@"should drop buffered values when an immediate value arrives", ^{
+				[subject sendNext:@"foo"];
+				[subject sendNext:@"bar"];
+
+				shouldThrottle = NO;
+				[subject sendNext:@"buzz"];
+				[expected addObject:@"buzz"];
+				expect(valuesReceived).to.equal(expected);
+
+				// Make sure that nothing weird happens when sending another
+				// throttled value.
+				shouldThrottle = YES;
+				[subject sendNext:@"baz"];
+				expect(valuesReceived).to.equal(expected);
+
+				[expected addObject:@"baz"];
+				expect(valuesReceived).will.equal(expected);
+			});
+
+			it(@"should not be resent upon completion", ^{
+				[subject sendNext:@"bar"];
+				[expected addObject:@"bar"];
+				expect(valuesReceived).will.equal(expected);
+
+				[subject sendCompleted];
+				expect(valuesReceived).to.equal(expected);
+			});
+		});
+
+		it(@"should forward completed immediately", ^{
+			__block BOOL completed = NO;
+			[throttledSignal subscribeCompleted:^{
+				completed = YES;
+			}];
+
+			[subject sendCompleted];
+			expect(completed).to.beTruthy();
+		});
+
+		it(@"should forward errors immediately", ^{
+			__block NSError *error = nil;
+			[throttledSignal subscribeError:^(NSError *e) {
+				error = e;
+			}];
+
+			[subject sendError:RACSignalTestError];
+			expect(error).to.equal(RACSignalTestError);
+		});
+
+		it(@"should cancel future nexts when disposed", ^{
+			__block id next = nil;
+			RACDisposable *disposable = [throttledSignal subscribeNext:^(id x) {
+				next = x;
+			}];
+
+			[subject sendNext:@"foo"];
+
+			__block BOOL done = NO;
+			[RACScheduler.mainThreadScheduler after:dispatch_time(DISPATCH_TIME_NOW, 1) schedule:^{
+				done = YES;
+			}];
+
+			[disposable dispose];
+
+			expect(done).will.beTruthy();
+			expect(next).to.beNil();
+		});
 	});
 });
 

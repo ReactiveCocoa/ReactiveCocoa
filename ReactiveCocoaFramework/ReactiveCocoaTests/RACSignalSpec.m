@@ -1628,7 +1628,6 @@ describe(@"+if:then:else", ^{
 describe(@"+interval:onScheduler: and +interval:onScheduler:withLeeway:", ^{
 	static const NSTimeInterval interval = 0.1;
 	static const NSTimeInterval leeway = 0.2;
-	static const NSTimeInterval marginOfError = 0.05;
 	
 	__block void (^testTimer)(RACSignal *, NSNumber *, NSNumber *) = nil;
 	
@@ -1649,8 +1648,8 @@ describe(@"+interval:onScheduler: and +interval:onScheduler:withLeeway:", ^{
 				NSTimeInterval expectedMinInterval = minInterval.doubleValue * nextsReceived;
 				NSTimeInterval expectedMaxInterval = expectedMinInterval + leeway.doubleValue;
 
-				expect(currentTime - startTime).beGreaterThanOrEqualTo(expectedMinInterval - marginOfError);
-				expect(currentTime - startTime).beLessThanOrEqualTo(expectedMaxInterval + marginOfError);
+				expect(currentTime - startTime).beGreaterThanOrEqualTo(expectedMinInterval);
+				expect(currentTime - startTime).beLessThanOrEqualTo(expectedMaxInterval + leeway.doubleValue / 2 + 0.05);
 			}];
 			
 			expect(nextsReceived).will.equal(3);

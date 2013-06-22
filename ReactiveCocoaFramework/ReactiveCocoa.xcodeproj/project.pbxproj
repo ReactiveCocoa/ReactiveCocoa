@@ -1945,7 +1945,6 @@
 				INFOPLIST_FILE = "ReactiveCocoaTests/ReactiveCocoaTests-Info.plist";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
 				WRAPPER_EXTENSION = octest;
 			};
 			name = Debug;
@@ -1967,7 +1966,6 @@
 				INFOPLIST_FILE = "ReactiveCocoaTests/ReactiveCocoaTests-Info.plist";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
 				WRAPPER_EXTENSION = octest;
 			};
 			name = Test;
@@ -1989,7 +1987,6 @@
 				INFOPLIST_FILE = "ReactiveCocoaTests/ReactiveCocoaTests-Info.plist";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
 				WRAPPER_EXTENSION = octest;
 			};
 			name = Release;
@@ -2011,7 +2008,6 @@
 				INFOPLIST_FILE = "ReactiveCocoaTests/ReactiveCocoaTests-Info.plist";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
 				WRAPPER_EXTENSION = octest;
 			};
 			name = Profile;

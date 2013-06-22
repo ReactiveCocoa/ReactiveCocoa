@@ -49,4 +49,27 @@ extern const NSInteger RACSelectorSignalErrorMethodSwizzlingRace;
 // call fails.
 - (RACSignal *)rac_signalForSelector:(SEL)selector;
 
+// Behaves like -rac_signalForSelector:, but if the selector is not yet
+// implemented on the receiver, its method signature is looked up within
+// `protocol`, and may accept non-object arguments.
+//
+// If the selector is not yet implemented and has a return value, the injected
+// method will return all zero bits (equal to `nil`, `NULL`, 0, 0.0f, etc.).
+//
+// selector - The selector for whose invocations are to be observed. If it
+//            doesn't exist, it will be implemented using information from
+//            `protocol`, and may accept non-object arguments and return
+//            a value. The full range of supported argument and return types is
+//            specified in the documentation for -[NSInvocation
+//            rac_argumentAtIndex:] and -[NSInvocation rac_returnValue].
+// protocol - The protocol in which `selector` is declared. This will be used
+//            for type information if the selector is not already implemented on
+//            the receiver. This must not be `NULL`, and `selector` must exist
+//            in this protocol.
+//
+// Returns a signal which will send a tuple of arguments on each invocation of
+// the selector, or an error in RACSelectorSignalErrorDomain if a runtime
+// call fails.
+- (RACSignal *)rac_signalForSelector:(SEL)selector fromProtocol:(Protocol *)protocol;
+
 @end

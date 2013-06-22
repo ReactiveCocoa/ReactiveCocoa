@@ -73,14 +73,8 @@
 		case 15: return @selector(performWith:::::::::::::::);
 	}
 
-	NSMutableString *selectorString = [NSMutableString stringWithString:@"performWith"];
-	for (NSUInteger i = 0; i < count; i++) {
-		[selectorString appendString:@":"];
-	}
-
-	SEL selector = NSSelectorFromString(selectorString);
-	NSCAssert([self respondsToSelector:selector], @"The argument count is too damn high! Only blocks of up to 15 arguments are currently supported.");
-	return selector;
+	NSCAssert(count <= 15, @"The argument count is too damn high! Only blocks of up to 15 arguments are currently supported.");
+	return NULL;
 }
 
 - (id)performWith:(id)obj1 {

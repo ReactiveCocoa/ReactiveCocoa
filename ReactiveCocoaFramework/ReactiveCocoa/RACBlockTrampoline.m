@@ -15,41 +15,6 @@
 
 @implementation RACBlockTrampoline
 
-#pragma mark Internal Selector Table
-
-static SEL selectorForArgumentCount(NSUInteger count) {
-	NSCParameterAssert(count > 0);
-
-	// ArgumentCount to SEL table.
-	static SEL selectorsForArgumentCount[16];
-
-	SEL *selectors = selectorsForArgumentCount;
-	size_t length = sizeof(selectorsForArgumentCount) / sizeof(selectorsForArgumentCount[0]);
-
-	static dispatch_once_t onceToken;
-	dispatch_once(&onceToken, ^{
-		initializeSelectorsForArgumentCount(selectors, length);
-	});
-
-	return (count < length) ? selectors[count] : NULL;
-}
-
-static void initializeSelectorsForArgumentCount(SEL *selectors, size_t length) {
-	for (size_t count = 0; count < length; ++count) {
-		selectors[count] = makeSelectorForArgumentCount(count);
-	}
-}
-
-static SEL makeSelectorForArgumentCount(NSUInteger count) {
-	const char selectorPrefix[] = "performWith";
-	size_t prefixLength = sizeof(selectorPrefix) - 1;
-	char selectorName[prefixLength + count + 1];
-	memcpy(selectorName, selectorPrefix, prefixLength);
-	memset(selectorName + prefixLength, ':', count);
-	selectorName[prefixLength + count] = '\0';
-	return sel_registerName(selectorName);
-};
-
 #pragma mark API
 
 - (id)initWithBlock:(id)block {
@@ -69,8 +34,7 @@ static SEL makeSelectorForArgumentCount(NSUInteger count) {
 }
 
 - (id)invokeWithArguments:(RACTuple *)arguments {
-	SEL selector = selectorForArgumentCount(arguments.count);
-	NSCAssert([self respondsToSelector:selector], @"The argument count is too damn high! Only blocks of up to 15 arguments are currently supported.");
+	SEL selector = [self selectorForArgumentCount:arguments.count];
 	NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:selector]];
 	invocation.selector = selector;
 	invocation.target = self;
@@ -86,6 +50,21 @@ static SEL makeSelectorForArgumentCount(NSUInteger count) {
 	__unsafe_unretained id returnVal;
 	[invocation getReturnValue:&returnVal];
 	return returnVal;
+}
+
+- (SEL)selectorForArgumentCount:(NSUInteger)count {
+	NSCParameterAssert(count > 0);
+
+	const char selectorPrefix[] = "performWith";
+	size_t prefixLength = sizeof(selectorPrefix) - 1;
+	char selectorName[prefixLength + count + 1];
+	memcpy(selectorName, selectorPrefix, prefixLength);
+	memset(selectorName + prefixLength, ':', count);
+	selectorName[prefixLength + count] = '\0';
+
+	SEL selector = sel_registerName(selectorName);
+	NSCAssert([self respondsToSelector:selector], @"The argument count is too damn high! Only blocks of up to 15 arguments are currently supported.");
+	return selector;
 }
 
 - (id)performWith:(id)obj1 {

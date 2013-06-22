@@ -152,27 +152,27 @@ static RACDisposable *addObserverToTargetForKeyPathWillChangeBlockDidChangeBlock
 
 	void (^serializingWillChangeBlock)(BOOL) = nil;
 	if (willChangeBlock != nil) {
-		serializingWillChangeBlock = ^ (BOOL triggeredByLastKeyPathComponent) {
+		serializingWillChangeBlock = [^(BOOL triggeredByLastKeyPathComponent) {
 			[serializationLock lock];
 			@onExit {
 				[serializationLock unlock];
 			};
 			willChangeBlock(triggeredByLastKeyPathComponent);
-		};
+		} copy];
 	}
 
 	void (^serializingDidChangeBlock)(BOOL, BOOL, id) = nil;
 	if (didChangeBlock != nil) {
-		serializingDidChangeBlock = ^ (BOOL triggeredByLastKeyPathComponent, BOOL triggeredByDeallocation, id value) {
+		serializingDidChangeBlock = [^(BOOL triggeredByLastKeyPathComponent, BOOL triggeredByDeallocation, id value) {
 			[serializationLock lock];
 			@onExit {
 				[serializationLock unlock];
 			};
 			didChangeBlock(triggeredByLastKeyPathComponent, triggeredByDeallocation, value);
-		};
+		} copy];
 	}
 
-	return addObserverToTargetForKeyPathWillChangeBlockDidChangeBlock(observer, self, keyPath, willChangeBlock, didChangeBlock);
+	return addObserverToTargetForKeyPathWillChangeBlockDidChangeBlock(observer, self, keyPath, serializingWillChangeBlock, serializingDidChangeBlock);
 }
 
 @end

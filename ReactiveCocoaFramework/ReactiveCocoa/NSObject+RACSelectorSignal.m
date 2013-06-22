@@ -177,16 +177,6 @@ static Class RACSwizzleClass(NSObject *self) {
 		if (subclass == nil) return nil;
 
 		RACSwizzleForwardInvocation(subclass);
-
-		SEL respondsToSelectorSEL = @selector(respondsToSelector:);
-		Method respondsToSelectorMethod = class_getInstanceMethod(subclass, respondsToSelectorSEL);
-		BOOL (*originalRespondsToSelectorIMP)(id, SEL, SEL) = (__typeof__(originalRespondsToSelectorIMP))method_getImplementation(respondsToSelectorMethod);
-
-		IMP respondsToSelectorIMP = imp_implementationWithBlock(^(id self, SEL selector) {
-			return class_respondsToSelector(object_getClass(self), selector) || originalRespondsToSelectorIMP(self, respondsToSelectorSEL, selector);
-		});
-
-		class_addMethod(subclass, respondsToSelectorSEL, respondsToSelectorIMP, method_getTypeEncoding(respondsToSelectorMethod));
 		objc_registerClassPair(subclass);
 	}
 

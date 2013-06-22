@@ -215,7 +215,6 @@
 		88FC735816114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FC735416114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.m */; };
 		88FC735B16114FFB00F8A774 /* RACSubscriptingAssignmentTrampolineSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FC735A16114FFB00F8A774 /* RACSubscriptingAssignmentTrampolineSpec.m */; };
 		A1FCC27715666AA3008C9686 /* UITextView+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = A1FCC27315666AA3008C9686 /* UITextView+RACSignalSupport.m */; };
-		A1FCC36E15673FA3008C9686 /* RACEventTrampoline.m in Sources */ = {isa = PBXBuildFile; fileRef = A1FCC36C15673FA3008C9686 /* RACEventTrampoline.m */; };
 		A1FCC374156754A7008C9686 /* RACObjCRuntime.m in Sources */ = {isa = PBXBuildFile; fileRef = A1FCC371156754A7008C9686 /* RACObjCRuntime.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		A1FCC375156754A7008C9686 /* RACObjCRuntime.m in Sources */ = {isa = PBXBuildFile; fileRef = A1FCC371156754A7008C9686 /* RACObjCRuntime.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		A1FCC37B1567DED0008C9686 /* RACDelegateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = A1FCC3771567DED0008C9686 /* RACDelegateProxy.m */; };
@@ -616,8 +615,6 @@
 		88FC735A16114FFB00F8A774 /* RACSubscriptingAssignmentTrampolineSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSubscriptingAssignmentTrampolineSpec.m; sourceTree = "<group>"; };
 		A1FCC27215666AA3008C9686 /* UITextView+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITextView+RACSignalSupport.h"; sourceTree = "<group>"; };
 		A1FCC27315666AA3008C9686 /* UITextView+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITextView+RACSignalSupport.m"; sourceTree = "<group>"; };
-		A1FCC36B15673FA3008C9686 /* RACEventTrampoline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACEventTrampoline.h; sourceTree = "<group>"; };
-		A1FCC36C15673FA3008C9686 /* RACEventTrampoline.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = RACEventTrampoline.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1FCC370156754A7008C9686 /* RACObjCRuntime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACObjCRuntime.h; sourceTree = "<group>"; };
 		A1FCC371156754A7008C9686 /* RACObjCRuntime.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACObjCRuntime.m; sourceTree = "<group>"; };
 		A1FCC3761567DED0008C9686 /* RACDelegateProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACDelegateProxy.h; sourceTree = "<group>"; };
@@ -1076,8 +1073,6 @@
 			children = (
 				A1FCC3761567DED0008C9686 /* RACDelegateProxy.h */,
 				A1FCC3771567DED0008C9686 /* RACDelegateProxy.m */,
-				A1FCC36B15673FA3008C9686 /* RACEventTrampoline.h */,
-				A1FCC36C15673FA3008C9686 /* RACEventTrampoline.m */,
 				27A887C71703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.h */,
 				27A887C81703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.m */,
 				5EE9A7911760D61300EAF5A2 /* UIButton+RACCommandSupport.h */,
@@ -1831,7 +1826,6 @@
 				886F702C1551CF9D0045D68B /* RACGroupedSignal.m in Sources */,
 				88F44267153DCAC50097B4C3 /* UITextField+RACSignalSupport.m in Sources */,
 				A1FCC27715666AA3008C9686 /* UITextView+RACSignalSupport.m in Sources */,
-				A1FCC36E15673FA3008C9686 /* RACEventTrampoline.m in Sources */,
 				A1FCC375156754A7008C9686 /* RACObjCRuntime.m in Sources */,
 				A1FCC37B1567DED0008C9686 /* RACDelegateProxy.m in Sources */,
 				8809D6F115B1F1EE007E32AA /* JRSwizzle.m in Sources */,

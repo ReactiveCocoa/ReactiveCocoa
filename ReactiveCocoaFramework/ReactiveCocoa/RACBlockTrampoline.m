@@ -20,23 +20,12 @@
 static SEL selectorForArgumentCount(NSUInteger count) {
 	NSCParameterAssert(count > 0);
 
-	// ArgumentCount to SEL table.
-	static SEL selectorsForArgumentCount[16];
-
-	SEL *selectors = selectorsForArgumentCount;
-	size_t length = sizeof(selectorsForArgumentCount) / sizeof(selectorsForArgumentCount[0]);
-
-	static dispatch_once_t onceToken;
-	dispatch_once(&onceToken, ^{
-		initializeSelectorsForArgumentCount(selectors, length);
-	});
-
-	return (count < length) ? selectors[count] : NULL;
-}
-
-static void initializeSelectorsForArgumentCount(SEL *selectors, size_t length) {
-	for (size_t count = 0; count < length; ++count) {
-		selectors[count] = makeSelectorForArgumentCount(count);
+	switch (count) {
+		case 1: return @selector(performWith:);
+		case 2: return @selector(performWith::);
+		case 3: return @selector(performWith:::);
+		case 4: return @selector(performWith::::);
+		default: return (count <= 15) ? makeSelectorForArgumentCount(count) : NULL;
 	}
 }
 

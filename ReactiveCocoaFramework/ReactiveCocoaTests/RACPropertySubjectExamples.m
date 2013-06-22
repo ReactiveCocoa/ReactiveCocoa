@@ -117,7 +117,8 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 		});
 		
 		it(@"should dealloc if it's binding with other properties is disposed", ^{
-			RACDisposable *disposable = nil;
+			RACDisposable *disposable1 = nil;
+			RACDisposable *disposable2 = nil;
 			__block BOOL deallocd1 = NO;
 			__block BOOL deallocd2 = NO;
 			@autoreleasepool {
@@ -129,9 +130,13 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 				[property2.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd2 = YES;
 				}]];
-				disposable = [[property1 binding] bindTo:[property2 binding]];
+				RACBinding *property1Binding = [property1 binding];
+				RACBinding *property2Binding = [property2 binding];
+				disposable1 = [property2Binding subscribe:property1Binding];
+				disposable2 = [property1Binding subscribe:property2Binding];
 			}
-			[disposable dispose];
+			[disposable1 dispose];
+			[disposable2 dispose];
 			expect(deallocd1).will.beTruthy();
 			expect(deallocd2).will.beTruthy();
 		});

@@ -10,18 +10,17 @@
 #import "EXTKeyPathCoding.h"
 #import "metamacros.h"
 
-// Convenience macro for creating bindings and binding them.
+// Creates a binding to the given key path.
 //
-// If given just one argument, it's assumed to be a keypath or property on self.
-// If given two, the first argument is the object to which the keypath is
-// relative and the second is the keypath.
+// If given one argument, it's assumed to be a key path or property on self.
+// If given two arguments, the first argument is the object to which the key
+// path is relative to and the second one is the key path.
 //
-// If RACBind() is used as an lvalue (an assignee), the named property is bound
-// to the RACBinding provided on the right-hand side of the assignment. The
-// binding property's value is set to the value of the property being bound to,
-// then any changes to one property will be reflected on the other.
-//
-// If RACBind() is used as an rvalue, a RACBinding is returned.
+// If RACBind() is used on the left-hand side of an assignment and there is a
+// RACBinding on the right-hand side of the assignment the two are subscribed to
+// one another: the left-hand side property's value is set to the value of the
+// property on the right-hand side and subsequent changes to one property will
+// be reflected on the other.
 //
 // Examples:
 // RACBinding *binding = RACBind(self.property);

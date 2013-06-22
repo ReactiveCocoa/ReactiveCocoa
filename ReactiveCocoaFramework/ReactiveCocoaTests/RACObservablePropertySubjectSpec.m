@@ -262,11 +262,18 @@ describe(@"RACObservablePropertySubject bindings", ^{
 	});
 	
 	it(@"should stop binding when disposed", ^{
-		RACDisposable *disposable = [RACBind(a, stringValue) bindTo:RACBind(b, stringValue)];
+		RACBinding *aBinding = RACBind(a, stringValue);
+		RACBinding *bBinding = RACBind(b, stringValue);
+		RACDisposable *aDisposable = [bBinding subscribe:aBinding];
+		RACDisposable *bDisposable = [aBinding subscribe:bBinding];
+
 		a.stringValue = testName1;
 		expect(a.stringValue).to.equal(testName1);
 		expect(b.stringValue).to.equal(testName1);
-		[disposable dispose];
+
+		[aDisposable dispose];
+		[bDisposable dispose];
+
 		a.stringValue = testName2;
 		expect(a.stringValue).to.equal(testName2);
 		expect(b.stringValue).to.equal(testName1);

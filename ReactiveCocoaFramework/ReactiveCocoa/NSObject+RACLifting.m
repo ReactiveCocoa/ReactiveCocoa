@@ -20,14 +20,6 @@
 
 static RACSignal *RACLiftAndCallBlock(id object, NSArray *args, RACSignal * (^block)(NSArray *));
 
-// A proxy object that lifts messages to its target to operate on signals.
-// Messages sent to an RACLiftProxy object will be lifted according to the same
-// rules as -rac_liftSelector:withObjects:, with the exception that messages
-// returning a non-object type are not possible.
-@interface RACLiftProxy : NSProxy
-- (id)initWithTarget:(NSObject *)target;
-@end
-
 @implementation NSObject (RACLifting)
 
 - (RACSignal *)rac_liftSignals:(NSArray *)signals withReducingInvocation:(id (^)(RACTuple *))reduceBlock {
@@ -103,10 +95,6 @@ static RACSignal *RACLiftAndCallBlock(id object, NSArray *args, RACSignal * (^bl
 	});
 }
 
-- (instancetype)rac_lift {
-	return (id)[[RACLiftProxy alloc] initWithTarget:self];
-}
-
 @end
 
 static RACSignal *RACLiftAndCallBlock(id object, NSArray *args, RACSignal * (^block)(NSArray *)) {
@@ -138,42 +126,3 @@ static RACSignal *RACLiftAndCallBlock(id object, NSArray *args, RACSignal * (^bl
 		}];
 	}
 }
-
-@implementation RACLiftProxy {
-	NSObject *_target;
-}
-
-- (id)initWithTarget:(id)target {
-	_target = target;
-	return self;
-}
-
-- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
-	return [_target methodSignatureForSelector:aSelector] ?: [super methodSignatureForSelector:aSelector];
-}
-
-- (void)forwardInvocation:(NSInvocation *)anInvocation {
-	NSMethodSignature *signature = anInvocation.methodSignature;
-	NSUInteger argumentsCount = signature.numberOfArguments - 2;
-
-	NSMutableArray *arguments = [NSMutableArray arrayWithCapacity:argumentsCount];
-
-	// First two arguments are self and selector.
-	for (NSUInteger i = 2; i < signature.numberOfArguments; i++) {
-		id argument = [anInvocation rac_argumentAtIndex:i];
-		[arguments addObject:argument ?: RACTupleNil.tupleNil];
-	}
-
-	__autoreleasing id returnValue = [_target rac_liftSelector:anInvocation.selector withObjectsFromArray:arguments];
-
-	const char *returnType = signature.methodReturnType;
-	if (signature.methodReturnLength > 0) {
-		if (strcmp(returnType, "@") == 0 || strcmp(returnType, "#") == 0) {
-			[anInvocation setReturnValue:&returnValue];
-		} else {
-			NSCAssert(NO, @"-rac_lift may only lift messages which return void or object types; %@ returns %s", NSStringFromSelector(anInvocation.selector), returnType);
-		}
-	}
-}
-
-@end

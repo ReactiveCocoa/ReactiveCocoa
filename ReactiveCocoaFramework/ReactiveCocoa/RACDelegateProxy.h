@@ -8,14 +8,15 @@
 
 #import <Foundation/Foundation.h>
 
-@class RACEventTrampoline;
-
+// A delegate object suitable for using -rac_signalForSelector:fromProtocol:
+// upon.
 @interface RACDelegateProxy : NSObject
 
-@property (nonatomic, weak) id actualDelegate;
+// The delegate to which messages should be forwarded if not handled by
+// any -rac_signalForSelector:fromProtocol: applications.
+@property (nonatomic, weak) id rac_proxiedDelegate;
 
-+ (instancetype)proxyWithProtocol:(Protocol *)protocol andDelegator:(NSObject *)delegator;
-
-- (void)addTrampoline:(RACEventTrampoline *)trampoline;
+// Creates a delegate proxy which will respond to selectors from `protocol`.
+- (instancetype)initWithProtocol:(Protocol *)protocol;
 
 @end

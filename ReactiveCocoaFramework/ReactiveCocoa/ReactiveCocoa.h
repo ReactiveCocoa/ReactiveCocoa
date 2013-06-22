@@ -6,6 +6,7 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import <ReactiveCocoa/EXTKeyPathCoding.h>
 #import <ReactiveCocoa/NSArray+RACSequenceAdditions.h>
 #import <ReactiveCocoa/NSDictionary+RACSequenceAdditions.h>
 #import <ReactiveCocoa/NSEnumerator+RACSequenceAdditions.h>
@@ -43,17 +44,16 @@
 #import <ReactiveCocoa/RACUnit.h>
 
 #ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
-#import <ReactiveCocoa/EXTKeyPathCoding.h>
-#import <ReactiveCocoa/UIControl+RACSignalSupport.h>
-#import <ReactiveCocoa/UITextField+RACSignalSupport.h>
-#import <ReactiveCocoa/UITextView+RACSignalSupport.h>
-#import <ReactiveCocoa/UIBarButtonItem+RACCommandSupport.h>
-#import <ReactiveCocoa/UIButton+RACCommandSupport.h>
-#import <ReactiveCocoa/UIGestureRecognizer+RACSignalSupport.h>
+	#import <ReactiveCocoa/RACDelegateProxy.h>
+	#import <ReactiveCocoa/UIBarButtonItem+RACCommandSupport.h>
+	#import <ReactiveCocoa/UIButton+RACCommandSupport.h>
+	#import <ReactiveCocoa/UIControl+RACSignalSupport.h>
+	#import <ReactiveCocoa/UIGestureRecognizer+RACSignalSupport.h>
+	#import <ReactiveCocoa/UITextField+RACSignalSupport.h>
+	#import <ReactiveCocoa/UITextView+RACSignalSupport.h>
 #elif TARGET_OS_MAC
-#import <ReactiveCocoa/EXTKeyPathCoding.h>
-#import <ReactiveCocoa/NSControl+RACCommandSupport.h>
-#import <ReactiveCocoa/NSControl+RACTextSignalSupport.h>
-#import <ReactiveCocoa/NSObject+RACAppKitBindings.h>
-#import <ReactiveCocoa/NSText+RACSignalSupport.h>
+	#import <ReactiveCocoa/NSControl+RACCommandSupport.h>
+	#import <ReactiveCocoa/NSControl+RACTextSignalSupport.h>
+	#import <ReactiveCocoa/NSObject+RACAppKitBindings.h>
+	#import <ReactiveCocoa/NSText+RACSignalSupport.h>
 #endif

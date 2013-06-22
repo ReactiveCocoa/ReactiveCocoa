@@ -21,7 +21,6 @@ static SEL selectorForArgumentCount(NSUInteger count) {
 	NSCParameterAssert(count > 0);
 
 	switch (count) {
-		case 0: return NULL;
 		case 1: return @selector(performWith:);
 		case 2: return @selector(performWith::);
 		case 3: return @selector(performWith:::);

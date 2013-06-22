@@ -64,6 +64,48 @@
 // Do not use this directly. Use RACAbleWithStart above.
 #define _RACAbleWithStartObject(object, property) [object rac_signalWithStartingValueForKeyPath:@keypath(object, property) observer:self]
 
+// Creates a signal which observes the given key path for changes.
+//
+// If given one argument, the key path is assumed to be relative to self.
+// If given two arguments, the first argument is the object to observe, and the
+// second argument is the key path to observe upon it.
+//
+// In either case, the observation continues until the observed object _or self_
+// is deallocated. If any intermediate object is deallocated instead, it will be
+// assumed to have been set to nil.
+//
+// Make sure to `@strongify(self)` when using this macro within a block! The
+// macro will _always_ reference `self`, which can silently introduce a retain
+// cycle within a block. As a result, you should make sure that `self` is a weak
+// reference (e.g., created by `@weakify` and `@strongify`) before the
+// expression that uses `RACObserve`.
+//
+// Examples
+//
+//    // Observes self, and doesn't stop until self is deallocated.
+//    RACSignal *signal1 = RACObserve(self.arrayController.items);
+//
+//    // Observes obj.arrayController, and stops when _self_ or the array
+//    // controller is deallocated.
+//    RACSignal *signal2 = RACObserve(obj.arrayController, items);
+//
+//    @weakify(self);
+//    RACSignal *signal3 = [anotherSignal flattenMap:^(NSArrayController *arrayController) {
+//        // Avoids a retain cycle.
+//        @strongify(self);
+//        return RACObserve(arrayController, items);
+//    }];
+//
+// Returns a signal which sends a value every time the value at the given key
+// path changes, and sends completed if self is deallocated.
+#define RACObserve(...) \
+    metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__)) \
+        (_RACObserveObject(self, __VA_ARGS__)) \
+        (_RACObserveObject(__VA_ARGS__))
+
+// Do not use this directly. Use RACAble above.
+#define _RACObserveObject(object, property) [object rac_valuesForKeyPath:@keypath(object, property) observer:self]
+
 @class RACDisposable;
 @class RACSignal;
 
@@ -88,6 +130,13 @@
 // Returns a signal that sends the change dictionary for each KVO callback.
 + (RACSignal *)rac_signalWithChangesFor:(NSObject *)object keyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer;
 
+// Creates a signal to observe the value at the given keypath on the source
+// object.
+//
+// Returns a signal that immediately sends the object's current value at the
+// given keypath, then any changes thereafter.
++ (RACSignal *)rac_valuesFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer;
+
 // Creates a signal to observe the value at the given keypath.
 //
 // Returns a signal that sends future changes to the receiver's value at the given keypath.
@@ -98,6 +147,12 @@
 // Returns a signal that immediately sends the receiver's current value at the
 // given keypath, then any changes thereafter.
 - (RACSignal *)rac_signalWithStartingValueForKeyPath:(NSString *)keyPath observer:(NSObject *)observer;
+
+// Creates a signal to observe the value at the given keypath.
+//
+// Returns a signal that immediately sends the receiver's current value at the
+// given keypath, then any changes thereafter.
+- (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer;
 
 // Keeps the value of the KVC-compliant keypath up-to-date with the latest value
 // sent by the signal.

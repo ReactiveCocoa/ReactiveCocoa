@@ -97,21 +97,10 @@
 	
 	@weakify(property);
 
-	// The subject used to multicast changes to the property to the property
-	// subject's subscribers.
-//	RACSubject *updatesSubject = [RACSubject subject];
-
-	// Observe the key path on target for changes and forward them to
-	// updatesSubject.
-	[target rac_addObserver:property forKeyPath:keyPath willChangeBlock:nil didChangeBlock:^(BOOL triggeredByLastKeyPathComponent, BOOL triggeredByDeallocation, id value) {
-//		[updatesSubject sendNext:value];
-	}];
-
 	property->_exposedSignal = [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		@strongify(property);
 		[subscriber sendNext:[property.target valueForKeyPath:keyPath]];
-//		return [updatesSubject subscribe:subscriber];
-		return [[property.target rac_signalForKeyPath:property.keyPath observer:property] subscribe:subscriber];
+		return [[property.target rac_valuesForKeyPath:property.keyPath observer:property] subscribe:subscriber];
 	}] setNameWithFormat:@"+propertyWithTarget: %@ keyPath: %@", [target rac_description], keyPath];
 	
 	property->_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {

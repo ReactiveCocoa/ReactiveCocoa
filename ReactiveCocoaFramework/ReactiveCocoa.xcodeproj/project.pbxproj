@@ -278,8 +278,6 @@
 		D094E44A17775AF200906BF7 /* EXTKeyPathCoding.h in Headers */ = {isa = PBXBuildFile; fileRef = D094E44517775AF200906BF7 /* EXTKeyPathCoding.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D094E44B17775AF200906BF7 /* EXTScope.h in Headers */ = {isa = PBXBuildFile; fileRef = D094E44617775AF200906BF7 /* EXTScope.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D094E44C17775AF200906BF7 /* EXTScope.h in Headers */ = {isa = PBXBuildFile; fileRef = D094E44617775AF200906BF7 /* EXTScope.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D094E44D17775AF200906BF7 /* EXTScope.m in Sources */ = {isa = PBXBuildFile; fileRef = D094E44717775AF200906BF7 /* EXTScope.m */; };
-		D094E44E17775AF200906BF7 /* EXTScope.m in Sources */ = {isa = PBXBuildFile; fileRef = D094E44717775AF200906BF7 /* EXTScope.m */; };
 		D094E44F17775AF200906BF7 /* metamacros.h in Headers */ = {isa = PBXBuildFile; fileRef = D094E44817775AF200906BF7 /* metamacros.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D094E45017775AF200906BF7 /* metamacros.h in Headers */ = {isa = PBXBuildFile; fileRef = D094E44817775AF200906BF7 /* metamacros.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D099E819169E05D00000A975 /* NSObject+RACObservablePropertySubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F6FE84B169251E900A8D7A6 /* NSObject+RACObservablePropertySubject.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -633,7 +631,6 @@
 		D0870D0B1688522E00D0E11D /* RACBacktrace+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACBacktrace+Private.h"; sourceTree = "<group>"; };
 		D094E44517775AF200906BF7 /* EXTKeyPathCoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXTKeyPathCoding.h; sourceTree = "<group>"; };
 		D094E44617775AF200906BF7 /* EXTScope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXTScope.h; sourceTree = "<group>"; };
-		D094E44717775AF200906BF7 /* EXTScope.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EXTScope.m; sourceTree = "<group>"; };
 		D094E44817775AF200906BF7 /* metamacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = metamacros.h; sourceTree = "<group>"; };
 		D094E45317775B1000906BF7 /* Common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Common.xcconfig; sourceTree = "<group>"; };
 		D094E45517775B1000906BF7 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
@@ -1111,7 +1108,6 @@
 			children = (
 				D094E44517775AF200906BF7 /* EXTKeyPathCoding.h */,
 				D094E44617775AF200906BF7 /* EXTScope.h */,
-				D094E44717775AF200906BF7 /* EXTScope.m */,
 				D094E44817775AF200906BF7 /* metamacros.h */,
 			);
 			name = libextobjc;
@@ -1730,7 +1726,6 @@
 				D0D243BD1741FA13004359C6 /* NSObject+RACDescription.m in Sources */,
 				882D071A17614FA7009EDA69 /* RACTargetQueueScheduler.m in Sources */,
 				D0A0E230176A8CD6007273ED /* RACPassthroughSubscriber.m in Sources */,
-				D094E44D17775AF200906BF7 /* EXTScope.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1851,7 +1846,6 @@
 				5EE9A7941760D61300EAF5A2 /* UIButton+RACCommandSupport.m in Sources */,
 				882D071F17615139009EDA69 /* RACTargetQueueScheduler.m in Sources */,
 				D0A0E231176A8CD6007273ED /* RACPassthroughSubscriber.m in Sources */,
-				D094E44E17775AF200906BF7 /* EXTScope.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

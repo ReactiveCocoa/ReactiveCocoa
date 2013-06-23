@@ -14,7 +14,15 @@
 #import "RACDisposable.h"
 #import "RACKVOTrampoline.h"
 
-static RACDisposable *addObserverToTargetForKeyPathWillChangeBlockDidChangeBlock(NSObject *observer, NSObject *target, NSString *keyPath, void(^willChangeBlock)(BOOL), void(^didChangeBlock)(BOOL, BOOL, id)) {
+@implementation NSObject (RACKVOWrapper)
+
+- (RACKVOTrampoline *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(RACKVOBlock)block {
+	return [[RACKVOTrampoline alloc] initWithTarget:self observer:observer keyPath:keyPath options:options block:block];
+}
+
+- (RACDisposable *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath willChangeBlock:(void (^)(BOOL))willChangeBlock didChangeBlock:(void (^)(BOOL, BOOL, id))didChangeBlock {
+	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
+
 	@unsafeify(observer);
 	NSArray *keyPathComponents = keyPath.rac_keyPathComponents;
 	BOOL keyPathHasOneComponent = (keyPathComponents.count == 1);
@@ -62,7 +70,7 @@ static RACDisposable *addObserverToTargetForKeyPathWillChangeBlockDidChangeBlock
 	// Note this does not use NSKeyValueObservingOptionInitial so this only
 	// handles changes to the value, callbacks to the initial value must be added
 	// separately.
-	RACKVOTrampoline *trampoline = [target rac_addObserver:observer forKeyPath:firstKeyPathComponent options:NSKeyValueObservingOptionPrior block:^(id trampolineTarget, id trampolineObserver, NSDictionary *change) {
+	RACKVOTrampoline *trampoline = [self rac_addObserver:observer forKeyPath:firstKeyPathComponent options:NSKeyValueObservingOptionPrior block:^(id trampolineTarget, id trampolineObserver, NSDictionary *change) {
 		// If this is a prior notification, clean up all the callbacks added to the
 		// previous value and call willChangeBlock. Everything else is deferred
 		// until after we get the notification after the change.
@@ -124,55 +132,18 @@ static RACDisposable *addObserverToTargetForKeyPathWillChangeBlockDidChangeBlock
 
 	// Add the callbacks to the initial value if needed.
 	if (!keyPathHasOneComponent) {
-		NSObject *value = [target valueForKey:firstKeyPathComponent];
+		NSObject *value = [self valueForKey:firstKeyPathComponent];
 		if (value != nil) {
 			addDeallocObserverToValue(value);
 			addObserverToValue(value);
 		}
 	}
 
-	// Dispose of this observation if the target or the observer deallocate.
+	// Dispose of this observation if the receiver or the observer deallocate.
 	[observer.rac_deallocDisposable addDisposable:disposable];
-	[target.rac_deallocDisposable addDisposable:disposable];
-
+	[self.rac_deallocDisposable addDisposable:disposable];
+	
 	return disposable;
-}
-
-@implementation NSObject (RACKVOWrapper)
-
-- (RACKVOTrampoline *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(RACKVOBlock)block {
-	return [[RACKVOTrampoline alloc] initWithTarget:self observer:observer keyPath:keyPath options:options block:block];
-}
-
-- (RACDisposable *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath willChangeBlock:(void (^)(BOOL))willChangeBlock didChangeBlock:(void (^)(BOOL, BOOL, id))didChangeBlock {
-	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
-
-	NSRecursiveLock *serializationLock = [[NSRecursiveLock alloc] init];
-	serializationLock.name = @"RACObservablePropertyObservingSerializationLock";
-
-	void (^serializingWillChangeBlock)(BOOL) = nil;
-	if (willChangeBlock != nil) {
-		serializingWillChangeBlock = [^(BOOL triggeredByLastKeyPathComponent) {
-			[serializationLock lock];
-			@onExit {
-				[serializationLock unlock];
-			};
-			willChangeBlock(triggeredByLastKeyPathComponent);
-		} copy];
-	}
-
-	void (^serializingDidChangeBlock)(BOOL, BOOL, id) = nil;
-	if (didChangeBlock != nil) {
-		serializingDidChangeBlock = [^(BOOL triggeredByLastKeyPathComponent, BOOL triggeredByDeallocation, id value) {
-			[serializationLock lock];
-			@onExit {
-				[serializationLock unlock];
-			};
-			didChangeBlock(triggeredByLastKeyPathComponent, triggeredByDeallocation, value);
-		} copy];
-	}
-
-	return addObserverToTargetForKeyPathWillChangeBlockDidChangeBlock(observer, self, keyPath, serializingWillChangeBlock, serializingDidChangeBlock);
 }
 
 @end

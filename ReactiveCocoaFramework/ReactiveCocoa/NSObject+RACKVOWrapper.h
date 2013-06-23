@@ -40,8 +40,7 @@ typedef void (^RACKVOBlock)(id target, id observer, NSDictionary *change);
 // direct KVO observation this handles deallocation of intermediate objects.
 //
 // The observation does not need to be explicitly removed. It will be removed
-// when the observer or the receiver deallocate. The blocks can be called on
-// different threads, but will not be called concurrently.
+// when the observer or the receiver deallocate.
 //
 // observer          - The object that requested the observation.
 // keyPath           - The key path to observe.

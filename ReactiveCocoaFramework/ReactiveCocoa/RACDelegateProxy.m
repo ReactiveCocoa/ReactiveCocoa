@@ -7,10 +7,14 @@
 //
 
 #import "RACDelegateProxy.h"
+#import "RACSignal+Operations.h"
+#import "NSObject+RACSelectorSignal.h"
+#import "NSObject+RACDeallocating.h"
 #import <objc/runtime.h>
 
 @interface RACDelegateProxy () {
 	// Declared as an ivar to avoid method naming conflicts.
+	__weak NSObject *_delegator;
 	Protocol *_protocol;
 }
 
@@ -20,16 +24,38 @@
 
 #pragma mark Lifecycle
 
-- (instancetype)initWithProtocol:(Protocol *)protocol {
+- (instancetype)initWithDelegator:(NSObject *)delegator protocol:(Protocol *)protocol {
+	NSCParameterAssert(delegator != nil);
 	NSCParameterAssert(protocol != NULL);
 
 	self = [super init];
 	if (self == nil) return nil;
 
 	class_addProtocol(self.class, protocol);
+
+	_delegator = delegator;
 	_protocol = protocol;
+	self.delegateKey = @"delegate";
 
 	return self;
+}
+
+#pragma mark API
+
+- (RACSignal *)signalForSelector:(SEL)selector {
+	[self useDelegateProxy];
+
+	return [[self
+		rac_signalForSelector:selector fromProtocol:_protocol]
+		takeUntil:_delegator.rac_willDeallocSignal];
+}
+
+- (void)useDelegateProxy {
+	id currentDelegate = [_delegator valueForKey:self.delegateKey];
+	if (currentDelegate != self) {
+		self.rac_proxiedDelegate = currentDelegate;
+		[_delegator setValue:self forKey:self.delegateKey];
+	}
 }
 
 #pragma mark NSObject

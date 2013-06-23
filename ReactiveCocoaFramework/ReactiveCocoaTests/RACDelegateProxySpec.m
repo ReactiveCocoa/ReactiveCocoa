@@ -10,10 +10,18 @@
 #import "RACDelegateProxy.h"
 #import "RACSignal.h"
 #import "RACTuple.h"
+#import "RACCompoundDisposable.h"
+#import "NSObject+RACDeallocating.h"
 
 @protocol TestDelegateProtocol
 - (NSUInteger)lengthOfString:(NSString *)str;
 @end
+
+@interface TestDelegator : NSObject
+@property (nonatomic, weak) id<TestDelegateProtocol> delegate;
+@end
+
+@implementation TestDelegator @end
 
 @interface TestDelegate : NSObject <TestDelegateProtocol>
 @property (nonatomic, assign) BOOL lengthOfStringInvoked;
@@ -23,13 +31,17 @@ SpecBegin(RACDelegateProxy)
 
 __block id proxy;
 __block TestDelegate *delegate;
+__block TestDelegator *delegator;
 __block Protocol *protocol;
 
 beforeEach(^{
 	protocol = @protocol(TestDelegateProtocol);
 	expect(protocol).notTo.beNil();
 
-	proxy = [[RACDelegateProxy alloc] initWithProtocol:protocol];
+	delegator = [TestDelegator new];
+	expect(delegator).notTo.beNil();
+
+	proxy = [[RACDelegateProxy alloc] initWithDelegator:delegator protocol:protocol];
 	expect(proxy).notTo.beNil();
 	expect([proxy rac_proxiedDelegate]).to.beNil();
 
@@ -43,13 +55,39 @@ it(@"should not respond to selectors at first", ^{
 
 it(@"should send on a signal for a protocol method", ^{
 	__block RACTuple *tuple;
-	[[proxy rac_signalForSelector:@selector(lengthOfString:) fromProtocol:protocol] subscribeNext:^(RACTuple *t) {
+	[[proxy signalForSelector:@selector(lengthOfString:)] subscribeNext:^(RACTuple *t) {
 		tuple = t;
 	}];
 
 	expect([proxy respondsToSelector:@selector(lengthOfString:)]).to.beTruthy();
 	expect([proxy lengthOfString:@"foo"]).to.equal(0);
 	expect(tuple).to.equal(RACTuplePack(@"foo"));
+});
+
+it(@"should send completed when the delegator is deallocated", ^{
+	__block BOOL completed = NO;
+	__block BOOL deallocated = NO;
+
+	@autoreleasepool {
+		TestDelegator *delegator __attribute__((objc_precise_lifetime)) = [TestDelegator new];
+		id proxy = [[RACDelegateProxy alloc] initWithDelegator:delegator protocol:protocol];
+
+		[delegator.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+			deallocated = YES;
+		}]];
+
+		[[proxy
+			signalForSelector:@selector(lengthOfString:)]
+			subscribeCompleted:^{
+				completed = YES;
+			}];
+
+		expect(deallocated).to.beFalsy();
+		expect(completed).to.beFalsy();
+	}
+
+	expect(deallocated).to.beTruthy();
+	expect(completed).to.beTruthy();
 });
 
 it(@"should forward to the proxied delegate", ^{
@@ -64,7 +102,7 @@ it(@"should not send to the delegate when signals are applied", ^{
 	[proxy setRac_proxiedDelegate:delegate];
 
 	__block RACTuple *tuple;
-	[[proxy rac_signalForSelector:@selector(lengthOfString:) fromProtocol:protocol] subscribeNext:^(RACTuple *t) {
+	[[proxy signalForSelector:@selector(lengthOfString:)] subscribeNext:^(RACTuple *t) {
 		tuple = t;
 	}];
 

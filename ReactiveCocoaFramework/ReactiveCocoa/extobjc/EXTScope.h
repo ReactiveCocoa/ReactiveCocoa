@@ -30,7 +30,7 @@
  */
 #define onExit \
     try {} @finally {} \
-    __strong ext_cleanupBlock_t metamacro_concat(ext_exitBlock_, __LINE__) __attribute__((cleanup(rac_executeCleanupBlock), unused)) = ^
+    __strong rac_cleanupBlock_t metamacro_concat(rac_exitBlock_, __LINE__) __attribute__((cleanup(rac_executeCleanupBlock), unused)) = ^
 
 /**
  * Creates \c __weak shadow variables for each of the variables provided as
@@ -44,7 +44,7 @@
  */
 #define weakify(...) \
     try {} @finally {} \
-    metamacro_foreach_cxt(ext_weakify_,, __weak, __VA_ARGS__)
+    metamacro_foreach_cxt(rac_weakify_,, __weak, __VA_ARGS__)
 
 /**
  * Like #weakify, but uses \c __unsafe_unretained instead, for targets or
@@ -52,7 +52,7 @@
  */
 #define unsafeify(...) \
     try {} @finally {} \
-    metamacro_foreach_cxt(ext_weakify_,, __unsafe_unretained, __VA_ARGS__)
+    metamacro_foreach_cxt(rac_weakify_,, __unsafe_unretained, __VA_ARGS__)
 
 /**
  * Strongly references each of the variables provided as arguments, which must
@@ -84,18 +84,18 @@
     try {} @finally {} \
     _Pragma("clang diagnostic push") \
     _Pragma("clang diagnostic ignored \"-Wshadow\"") \
-    metamacro_foreach(ext_strongify_,, __VA_ARGS__) \
+    metamacro_foreach(rac_strongify_,, __VA_ARGS__) \
     _Pragma("clang diagnostic pop")
 
 /*** implementation details follow ***/
-typedef void (^ext_cleanupBlock_t)();
+typedef void (^rac_cleanupBlock_t)();
 
-static inline void rac_executeCleanupBlock (__strong ext_cleanupBlock_t *block) {
+static inline void rac_executeCleanupBlock (__strong rac_cleanupBlock_t *block) {
     (*block)();
 }
 
-#define ext_weakify_(INDEX, CONTEXT, VAR) \
+#define rac_weakify_(INDEX, CONTEXT, VAR) \
     CONTEXT __typeof__(VAR) metamacro_concat(VAR, _weak_) = (VAR);
 
-#define ext_strongify_(INDEX, VAR) \
+#define rac_strongify_(INDEX, VAR) \
     __strong __typeof__(VAR) VAR = metamacro_concat(VAR, _weak_);

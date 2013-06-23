@@ -16,7 +16,6 @@
 #import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"
 #import "RACTuple.h"
-#import "RACUnit.h"
 
 static RACSignal *RACLiftAndCallBlock(id object, NSArray *args, RACSignal * (^block)(NSArray *));
 

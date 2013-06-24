@@ -19,3 +19,8 @@ GCC_DYNAMIC_NO_PIC = NO
 // bundle (inside the "Frameworks" folder) or shared folder
 INSTALL_PATH = @rpath
 LD_DYLIB_INSTALL_NAME = @rpath/$(PRODUCT_NAME).$(WRAPPER_EXTENSION)/$(PRODUCT_NAME)
+
+// When compiling this library, look for imports (written with quotes) in the
+// library's own folder first. This avoids conflicts from other headers in the
+// build folder.
+USER_HEADER_SEARCH_PATHS = ./**

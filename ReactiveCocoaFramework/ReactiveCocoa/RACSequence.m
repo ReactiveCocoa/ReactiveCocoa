@@ -8,17 +8,14 @@
 
 #import "RACSequence.h"
 #import "RACArraySequence.h"
-#import "RACBlockTrampoline.h"
-#import "RACDisposable.h"
 #import "RACDynamicSequence.h"
 #import "RACEagerSequence.h"
 #import "RACEmptySequence.h"
 #import "RACScheduler.h"
 #import "RACSignal.h"
-#import "RACSubject.h"
+#import "RACSubscriber.h"
 #import "RACTuple.h"
 #import "RACUnarySequence.h"
-#import <libkern/OSAtomic.h>
 
 // An enumerator over sequences.
 @interface RACSequenceEnumerator : NSEnumerator

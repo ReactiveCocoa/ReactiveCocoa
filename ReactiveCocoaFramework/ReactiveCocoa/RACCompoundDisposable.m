@@ -7,7 +7,6 @@
 //
 
 #import "RACCompoundDisposable.h"
-#import "EXTScope.h"
 #import <libkern/OSAtomic.h>
 
 @interface RACCompoundDisposable () {

@@ -11,9 +11,7 @@
 #import <ReactiveCocoa/NSObject+RACPropertySubscribing.h>
 #import <ReactiveCocoa/RACCommand.h>
 #import <ReactiveCocoa/RACDisposable.h>
-#import <ReactiveCocoa/RACScheduler.h>
 #import <ReactiveCocoa/RACSignal+Operations.h>
-#import <ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h>
 #import <objc/runtime.h>
 
 static void *UIControlRACCommandKey = &UIControlRACCommandKey;

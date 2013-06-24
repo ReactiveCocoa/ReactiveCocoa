@@ -9,8 +9,6 @@
 #import "RACSignal.h"
 #import "EXTScope.h"
 #import "NSObject+RACDescription.h"
-#import "RACBehaviorSubject.h"
-#import "RACBlockTrampoline.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACMulticastConnection.h"

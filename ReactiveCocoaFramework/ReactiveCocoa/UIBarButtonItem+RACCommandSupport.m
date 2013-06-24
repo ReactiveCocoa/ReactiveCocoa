@@ -7,11 +7,11 @@
 //
 
 #import "UIBarButtonItem+RACCommandSupport.h"
-#import <ReactiveCocoa/EXTKeyPathCoding.h>
-#import <ReactiveCocoa/NSObject+RACPropertySubscribing.h>
-#import <ReactiveCocoa/RACCommand.h>
-#import <ReactiveCocoa/RACDisposable.h>
-#import <ReactiveCocoa/RACSignal+Operations.h>
+#import "EXTKeyPathCoding.h"
+#import "NSObject+RACPropertySubscribing.h"
+#import "RACCommand.h"
+#import "RACDisposable.h"
+#import "RACSignal+Operations.h"
 #import <objc/runtime.h>
 
 static void *UIControlRACCommandKey = &UIControlRACCommandKey;

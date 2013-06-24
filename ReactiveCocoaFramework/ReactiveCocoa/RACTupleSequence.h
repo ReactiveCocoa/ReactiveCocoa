@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#import <ReactiveCocoa/RACSequence.h>
+#import "RACSequence.h"
 
 // Private class that adapts a RACTuple to the RACSequence interface.
 @interface RACTupleSequence : RACSequence

@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import <ReactiveCocoa/RACScheduler.h>
+#import "RACScheduler.h"
 
 // A scheduler which immediately executes its scheduled blocks.
 @interface RACImmediateScheduler : RACScheduler

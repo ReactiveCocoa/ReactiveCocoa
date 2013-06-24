@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <ReactiveCocoa/RACStream.h>
+#import "RACStream.h"
 
 @class RACDisposable;
 @class RACScheduler;

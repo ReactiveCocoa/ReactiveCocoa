@@ -11,11 +11,12 @@ DEAD_CODE_STRIPPING = NO
 // disabled for library code)
 GCC_DYNAMIC_NO_PIC = NO
 
-// When compiling this library, look for imports in the library's own folder
-// first. This avoids conflicts from other headers in the build folder.
-HEADER_SEARCH_PATHS = ./**
-
 // Copy headers to "include/LibraryName" in the build folder by default. This
 // lets consumers use #import <LibraryName/LibraryName.h> syntax even for static
 // libraries
 PUBLIC_HEADERS_FOLDER_PATH = include/$PRODUCT_NAME
+
+// When compiling this library, look for imports (written with quotes) in the
+// library's own folder first. This avoids conflicts from other headers in the
+// build folder.
+USER_HEADER_SEARCH_PATHS = ./**

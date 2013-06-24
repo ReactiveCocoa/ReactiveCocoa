@@ -14,7 +14,6 @@
 #import "RACSignal+Operations.h"
 #import "RACSubject.h"
 #import "RACSubscriptingAssignmentTrampoline.h"
-#import <libkern/OSAtomic.h>
 
 @interface RACCommand () {
 	RACSubject *_errors;

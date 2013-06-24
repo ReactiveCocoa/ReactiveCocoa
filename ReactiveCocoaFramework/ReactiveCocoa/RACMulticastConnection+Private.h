@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import <ReactiveCocoa/RACMulticastConnection.h>
+#import "RACMulticastConnection.h"
 
 @class RACSubject;
 

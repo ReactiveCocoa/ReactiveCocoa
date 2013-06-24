@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import <ReactiveCocoa/RACBacktrace.h>
+#import "RACBacktrace.h"
 
 // When this header is imported in RAC sources, any uses of GCD dispatches (in
 // Debug builds) will automatically use the backtrace-logging overrides instead.

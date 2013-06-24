@@ -45,9 +45,10 @@ extern const NSInteger RACSelectorSignalErrorMethodSwizzlingRace;
 //            and return void.
 //
 // Returns a signal which will send a tuple of arguments upon each invocation of
-// the selector, or an error in RACSelectorSignalErrorDomain if a runtime
-// call fails. `next` events will be sent synchronously from the thread that
-// invoked the method.
+// the selector, then completes when the receiver is deallocated. `next` events
+// will be sent synchronously from the thread that invoked the method. If
+// a runtime call fails, the signal will send an error in the
+// RACSelectorSignalErrorDomain.
 - (RACSignal *)rac_signalForSelector:(SEL)selector;
 
 @end

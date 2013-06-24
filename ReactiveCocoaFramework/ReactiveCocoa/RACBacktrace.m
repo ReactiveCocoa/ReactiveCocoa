@@ -8,7 +8,7 @@
 
 #import <execinfo.h>
 #import <pthread.h>
-#import "RACBacktrace+Private.h"
+#import "RACBacktrace.h"
 
 #define RAC_BACKTRACE_MAX_CALL_STACK_FRAMES 128
 

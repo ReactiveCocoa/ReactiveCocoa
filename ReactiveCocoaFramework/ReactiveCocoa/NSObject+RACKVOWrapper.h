@@ -16,6 +16,16 @@
 //            -observeValueForKeyPath:ofObject:change:context:.
 typedef void (^RACKVOBlock)(id target, id observer, NSDictionary *change);
 
+// Additional KVO change dictionary keys.
+//
+// RACKeyValueChangeDeallocation      - Will be @YES if the change was caused by
+//                                      the value at the key path or an
+//                                      intermediate value deallocating.
+// RACKeyValueChangeLastPathComponent - Will be @YES if the change only affected
+//                                      the value of the last key path component.
+extern NSString * const RACKeyValueChangeDeallocation;
+extern NSString * const RACKeyValueChangeLastPathComponent;
+
 @class RACDisposable, RACKVOTrampoline;
 
 @interface NSObject (RACKVOWrapper)
@@ -37,7 +47,8 @@ typedef void (^RACKVOBlock)(id target, id observer, NSDictionary *change);
 - (RACKVOTrampoline *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(RACKVOBlock)block;
 
 // Adds the given blocks as the callbacks for when the key path changes. Unlike
-// direct KVO observation this handles deallocation of intermediate objects.
+// direct KVO observation this handles deallocation of intermediate objects by
+// generating an appropriate notification.
 //
 // The observation does not need to be explicitly removed. It will be removed
 // when the observer or the receiver deallocate.
@@ -45,17 +56,13 @@ typedef void (^RACKVOBlock)(id target, id observer, NSDictionary *change);
 // observer          - The object that requested the observation.
 // keyPath           - The key path to observe.
 // willChangeBlock   - The block called before the value at the key path
-//                     changes. It is passed whether the key path component
-//                     whose value will be changed explicitly is the last one or
-//                     an intermediate one.
+//                     changes. It is passed the old value and the extended KVO
+//                     change dictionary including RAC-specific keys and values.
 // didChangeBlock    - The block called after the value at the key path changes.
-//                     It is passed whether the key path component whose value
-//                     was changed explicitly was the last one or an
-//                     intermediate one, whether the change was caused by the
-//                     deallocation of a value, and the new value of the key
-//                     path.
+//                     It is passed the old value and the extended KVO
+//                     change dictionary including RAC-specific keys and values.
 //
 // Returns a disposable that can be used to stop the observation.
-- (RACDisposable *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath willChangeBlock:(void(^)(BOOL triggeredByLastKeyPathComponent))willChangeBlock didChangeBlock:(void(^)(BOOL triggeredByLastKeyPathComponent, BOOL triggeredByDeallocation, id value))didChangeBlock;
+- (RACDisposable *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath willChangeBlock:(void(^)(id value, NSDictionary *change))willChangeBlock didChangeBlock:(void(^)(id value, NSDictionary *change))didChangeBlock;
 
 @end

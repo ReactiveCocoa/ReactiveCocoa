@@ -193,17 +193,17 @@
 
 	// Observe the key path on target for changes. Update the value of stackDepth
 	// accordingly and forward the changes to updatesSubject.
-	[target rac_addObserver:binding forKeyPath:keyPath willChangeBlock:^(BOOL triggeredByLastKeyPathComponent) {
+	[target rac_addObserver:binding forKeyPath:keyPath willChangeBlock:^(id value, NSDictionary *change) {
 		// The binding only triggers changes to the last path component, no need to
 		// track the stack depth if this is not the case.
-		if (!triggeredByLastKeyPathComponent) return;
+		if (![change[RACKeyValueChangeLastPathComponent] boolValue]) return;
 		++stackDepth;
-	} didChangeBlock:^(BOOL triggeredByLastKeyPathComponent, BOOL triggeredByDeallocation, id value) {
+	} didChangeBlock:^(id value, NSDictionary *change) {
 		// The binding only triggers changes to the last path component, if the
 		// change wasn't triggered by the last path component, or was triggered by
 		// a deallocation, it definitely wasn't triggered by this binding, so just
 		// forward it.
-		if (!triggeredByLastKeyPathComponent || triggeredByDeallocation) {
+		if (![change[RACKeyValueChangeLastPathComponent] boolValue] || [change[RACKeyValueChangeDeallocation] boolValue]) {
 			[updatesSubject sendNext:value];
 			return;
 		}

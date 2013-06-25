@@ -14,15 +14,17 @@
 #import "RACDisposable.h"
 #import "RACKVOTrampoline.h"
 
+NSString * const RACKeyValueChangeDeallocation = @"RACKeyValueChangeDeallocation";
+NSString * const RACKeyValueChangeLastPathComponent = @"RACKeyValueChangeLastPathComponent";
+
 @implementation NSObject (RACKVOWrapper)
 
 - (RACKVOTrampoline *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(RACKVOBlock)block {
 	return [[RACKVOTrampoline alloc] initWithTarget:self observer:observer keyPath:keyPath options:options block:block];
 }
 
-- (RACDisposable *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath willChangeBlock:(void (^)(BOOL))willChangeBlock didChangeBlock:(void (^)(BOOL, BOOL, id))didChangeBlock {
+- (RACDisposable *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath willChangeBlock:(void (^)(id, NSDictionary *))willChangeBlock didChangeBlock:(void (^)(id, NSDictionary *))didChangeBlock {
 	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
-
 	@unsafeify(observer);
 	NSArray *keyPathComponents = keyPath.rac_keyPathComponents;
 	BOOL keyPathHasOneComponent = (keyPathComponents.count == 1);
@@ -40,9 +42,15 @@
 	// the logic to clean up the callback to firstComponentDisposable.
 	void (^addDeallocObserverToValue)(NSObject *) = ^(NSObject *value) {
 		if (didChangeBlock == nil) return;
+		NSDictionary *change = @{
+			NSKeyValueChangeKindKey: @(NSKeyValueChangeSetting),
+			NSKeyValueChangeNewKey: NSNull.null,
+			RACKeyValueChangeDeallocation: @YES,
+			RACKeyValueChangeLastPathComponent: (keyPathHasOneComponent ? @YES : @NO)
+		};
 		RACCompoundDisposable *valueDisposable = value.rac_deallocDisposable;
 		RACDisposable *deallocDisposable = [RACDisposable disposableWithBlock:^{
-			didChangeBlock(keyPathHasOneComponent, YES, nil);
+			didChangeBlock(nil, change);
 		}];
 		[valueDisposable addDisposable:deallocDisposable];
 		@synchronized (disposable) {
@@ -71,6 +79,13 @@
 	// handles changes to the value, callbacks to the initial value must be added
 	// separately.
 	RACKVOTrampoline *trampoline = [self rac_addObserver:observer forKeyPath:firstKeyPathComponent options:NSKeyValueObservingOptionPrior block:^(id trampolineTarget, id trampolineObserver, NSDictionary *change) {
+		// Prepare the change dictionary by adding the RAC specific keys
+		{
+			NSMutableDictionary *newChange = [change mutableCopy];
+			newChange[RACKeyValueChangeLastPathComponent] = @(keyPathHasOneComponent);
+			change = newChange.copy;
+		}
+
 		// If this is a prior notification, clean up all the callbacks added to the
 		// previous value and call willChangeBlock. Everything else is deferred
 		// until after we get the notification after the change.
@@ -79,7 +94,7 @@
 				[firstComponentDisposable dispose];
 			}
 			if (willChangeBlock != nil) {
-				willChangeBlock(keyPathHasOneComponent);
+				willChangeBlock([trampolineTarget valueForKeyPath:keyPath], change);
 			}
 			return;
 		}
@@ -91,7 +106,7 @@
 		// it, just call didChangeBlock.
 		if (value == nil) {
 			if (didChangeBlock != nil) {
-				didChangeBlock(keyPathHasOneComponent, NO, nil);
+				didChangeBlock(nil, change);
 			}
 			return;
 		}
@@ -112,7 +127,7 @@
 		// other callbacks, just call didChangeBlock with the value itself.
 		if (keyPathHasOneComponent) {
 			if (didChangeBlock != nil) {
-				didChangeBlock(YES, NO, value);
+				didChangeBlock(value, change);
 			}
 			return;
 		}
@@ -123,7 +138,7 @@
 		// key path.
 		addObserverToValue(value);
 		if (didChangeBlock != nil) {
-			didChangeBlock(NO, NO, [value valueForKeyPath:keyPathByDeletingFirstKeyPathComponent]);
+			didChangeBlock([value valueForKeyPath:keyPathByDeletingFirstKeyPathComponent], change);
 		}
 	}];
 

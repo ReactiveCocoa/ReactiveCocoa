@@ -57,8 +57,8 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 	__block BOOL willChangeBlockTriggeredByLastKeyPathComponent = NO;
 	__block BOOL didChangeBlockTriggeredByLastKeyPathComponent = NO;
 	__block BOOL didChangeBlockTriggeredByDeallocation = NO;
-	__block void (^willChangeBlock)(BOOL) = nil;
-	__block void (^didChangeBlock)(BOOL, BOOL, id) = nil;
+	__block void (^willChangeBlock)(id, NSDictionary *) = nil;
+	__block void (^didChangeBlock)(id, NSDictionary *) = nil;
 
 	beforeEach(^{
 		NSObject * (^targetBlock)(void) = data[RACKVOWrapperExamplesTargetBlock];
@@ -71,13 +71,13 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 		willChangeBlockCallCount = 0;
 		didChangeBlockCallCount = 0;
 
-		willChangeBlock = [^(BOOL triggeredByLastKeyPathComponent) {
-			willChangeBlockTriggeredByLastKeyPathComponent = triggeredByLastKeyPathComponent;
+		willChangeBlock = [^(id value, NSDictionary *change) {
+			willChangeBlockTriggeredByLastKeyPathComponent = [change[RACKeyValueChangeLastPathComponent] boolValue];
 			++willChangeBlockCallCount;
 		} copy];
-		didChangeBlock = [^(BOOL triggeredByLastKeyPathComponent, BOOL triggeredByDeallocation, id value) {
-			didChangeBlockTriggeredByLastKeyPathComponent = triggeredByLastKeyPathComponent;
-			didChangeBlockTriggeredByDeallocation = triggeredByDeallocation;
+		didChangeBlock = [^(id value, NSDictionary *change) {
+			didChangeBlockTriggeredByLastKeyPathComponent = [change[RACKeyValueChangeLastPathComponent] boolValue];
+			didChangeBlockTriggeredByDeallocation = [change[RACKeyValueChangeDeallocation] boolValue];
 			++didChangeBlockCallCount;
 		} copy];
 	});
@@ -124,10 +124,10 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 	it(@"should call willChangeBlock before didChangeBlock when the value is changed", ^{
 		__block BOOL willChangeBlockCalled = NO;
 		__block BOOL didChangeBlockCalled = NO;
-		[target rac_addObserver:nil forKeyPath:keyPath willChangeBlock:^(BOOL triggeredByLastKeyPathComponent) {
+		[target rac_addObserver:nil forKeyPath:keyPath willChangeBlock:^(id value, NSDictionary *change) {
 			willChangeBlockCalled = YES;
 			expect(didChangeBlockCalled).to.beFalsy();
-		} didChangeBlock:^(BOOL triggeredByLastKeyPathComponent, BOOL triggeredByDeallocation, id value) {
+		} didChangeBlock:^(id value, NSDictionary *change) {
 			didChangeBlockCalled = YES;
 			expect(willChangeBlockCalled).to.beTruthy();
 		}];

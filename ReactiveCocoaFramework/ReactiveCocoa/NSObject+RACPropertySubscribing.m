@@ -77,7 +77,7 @@ static RACSignal *signalWithoutChangesFor(Class class, NSObject *object, NSStrin
 	@unsafeify(object, observer);
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		@strongify(object, observer);
-		RACDisposable *observationDisposable = [object rac_addObserver:observer forKeyPath:keyPath willChangeBlock:nil didChangeBlock:^(BOOL triggeredByLastKeyPathComponent, BOOL triggeredByDeallocation, id value) {
+		RACDisposable *observationDisposable = [object rac_addObserver:observer forKeyPath:keyPath willChangeBlock:nil didChangeBlock:^(id value, NSDictionary *change) {
 			[subscriber sendNext:value];
 		}];
 

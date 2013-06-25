@@ -14,7 +14,7 @@
 
 @interface RACDelegateProxy () {
 	// Declared as an ivar to avoid method naming conflicts.
-	__weak NSObject *_delegator;
+	__unsafe_unretained NSObject *_delegator;
 	Protocol *_protocol;
 }
 

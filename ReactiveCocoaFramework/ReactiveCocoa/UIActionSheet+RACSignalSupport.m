@@ -29,8 +29,8 @@
 
 	return [[[self.rac_delegateProxy
 		signalForSelector:@selector(actionSheet:clickedButtonAtIndex:)]
-		map:^(RACTuple *arguments) {
-			return arguments.second; // button index
+		reduceEach:^(UIActionSheet *actionSheet, NSNumber *buttonIndex) {
+			return buttonIndex;
 		}]
 		setNameWithFormat:@"%@ -rac_buttonClickedSignal", self];
 }

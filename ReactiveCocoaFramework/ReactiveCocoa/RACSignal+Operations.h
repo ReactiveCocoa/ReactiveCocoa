@@ -216,7 +216,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 // Sending an error on the signal is considered undefined behavior, and will
 // generate an assertion failure in Debug builds.
 //
-// A given object property should only have one active signal bound to it at any
+// A given key on an object should only have one active signal bound to it at any
 // given time. Binding more than one signal to the same property is considered
 // undefined behavior.
 //
@@ -224,7 +224,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 // object  - The object that `keyPath` is relative to.
 //
 // Returns a disposable which can be used to terminate the binding.
-- (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object;
+- (RACDisposable *)setKeyPath:(NSString *)keyPath onObject:(NSObject *)object;
 
 // Sends NSDate.date every `interval` seconds.
 //
@@ -488,5 +488,6 @@ extern const NSInteger RACSignalErrorTimedOut;
 + (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway __attribute__((deprecated("Use +interval:onScheduler:withLeeway: instead")));
 - (RACSignal *)bufferWithTime:(NSTimeInterval)interval __attribute__((deprecated("Use -bufferWithTime:onScheduler: instead")));
 - (RACSignal *)timeout:(NSTimeInterval)interval __attribute__((deprecated("Use -timeout:onScheduler: instead")));
+- (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object __attribute__((deprecated("Renamed to -setKeyPath:onObject:")));
 
 @end

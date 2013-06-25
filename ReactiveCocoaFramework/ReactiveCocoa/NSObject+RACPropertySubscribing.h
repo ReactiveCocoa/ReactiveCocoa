@@ -99,8 +99,10 @@
 // given keypath, then any changes thereafter.
 - (RACSignal *)rac_signalWithStartingValueForKeyPath:(NSString *)keyPath observer:(NSObject *)observer;
 
-// Keeps the value of the KVC-compliant keypath up-to-date with the latest value
-// sent by the signal.
-- (RACDisposable *)rac_deriveProperty:(NSString *)keyPath from:(RACSignal *)signal;
+@end
+
+@interface NSObject (RACPropertySubscribingDeprecated)
+
+- (RACDisposable *)rac_deriveProperty:(NSString *)keyPath from:(RACSignal *)signal __attribute__((deprecated("Use -[RACSignal setKeyPath:onObject:] instead")));
 
 @end

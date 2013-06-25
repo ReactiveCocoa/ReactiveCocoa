@@ -81,8 +81,17 @@ static RACSignal *signalWithoutChangesFor(Class class, NSObject *object, NSStrin
 	return [self.class rac_signalWithStartingValueFor:self keyPath:keyPath observer:observer];
 }
 
+@end
+
+@implementation NSObject (RACPropertySubscribingDeprecated)
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
 - (RACDisposable *)rac_deriveProperty:(NSString *)keyPath from:(RACSignal *)signal {
-	return [signal toProperty:keyPath onObject:self];
+	return [signal setKeyPath:keyPath onObject:self];
 }
+
+#pragma clang diagnostic pop
 
 @end

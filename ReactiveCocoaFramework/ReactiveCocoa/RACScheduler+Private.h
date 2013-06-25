@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import <ReactiveCocoa/RACScheduler.h>
+#import "RACScheduler.h"
 
 // The thread-specific current scheduler key.
 extern NSString * const RACSchedulerCurrentSchedulerKey;

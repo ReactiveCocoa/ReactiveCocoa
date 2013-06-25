@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import <ReactiveCocoa/RACScheduler.h>
+#import "RACScheduler.h"
 
 // A private scheduler used only for subscriptions. See the private
 // +[RACScheduler subscriptionScheduler] method for more information.

@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <ReactiveCocoa/RACSubject.h>
+#import "RACSubject.h"
 
 @class RACEventTrampoline;
 @class RACDelegateProxy;

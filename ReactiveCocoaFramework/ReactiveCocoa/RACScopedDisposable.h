@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import <ReactiveCocoa/RACDisposable.h>
+#import "RACDisposable.h"
 
 
 // A disposable that calls its own -dispose when it is dealloc'd.

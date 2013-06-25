@@ -38,35 +38,14 @@
 // a variadic list of arguments.
 - (RACSignal *)rac_liftSelector:(SEL)selector withSignalsFromArray:(NSArray *)signals;
 
-// Like -rac_liftSelector:withSignals: but invokes a block instead of a selector.
-//
-// This currently only supports block of up to 15 arguments. If you need any
-// more, you need to reconsider your life.
-//
-// block         - The block to invoke. All arguments must be signals, and the block
-//                 must return an object. The block must not be nil.
-// firstSignal   - The signal corresponding to the first block argument. This
-//                 must not be nil.
-// ...           - A list of RACSignals corresponding to the remaining
-//                 arguments. There must be a non-nil signal for each block
-//                 argument.
-//
-// Returns a signal which sends the return value from each invocation of the
-// block. It completes only after all the signal arguments complete.
-- (RACSignal *)rac_liftBlock:(id)block withSignals:(RACSignal *)firstSignal, ... NS_REQUIRES_NIL_TERMINATION;
-
-// Like -rac_liftBlock:withSignals:, but accepts an array instead of
-// a variadic list of arguments.
-- (RACSignal *)rac_liftBlock:(id)block withSignalsFromArray:(NSArray *)signals;
-
 @end
 
 @interface NSObject (RACLiftingDeprecated)
 
 - (RACSignal *)rac_liftSelector:(SEL)selector withObjects:(id)arg, ... __attribute__((deprecated("Use -rac_liftSelector:withSignals: instead")));
 - (RACSignal *)rac_liftSelector:(SEL)selector withObjectsFromArray:(NSArray *)args __attribute__((deprecated("Use -rac_liftSelector:withSignalsFromArray: instead")));
-- (RACSignal *)rac_liftBlock:(id)block withArguments:(id)arg, ... NS_REQUIRES_NIL_TERMINATION __attribute__((deprecated("Use -rac_liftBlock:withSignals: instead")));
-- (RACSignal *)rac_liftBlock:(id)block withArgumentsFromArray:(NSArray *)args __attribute__((deprecated("Use -rac_liftBlock:withSignalsFromArray: instead")));
+- (RACSignal *)rac_liftBlock:(id)block withArguments:(id)arg, ... NS_REQUIRES_NIL_TERMINATION __attribute__((deprecated("Use +combineLatest:reduce: instead")));
+- (RACSignal *)rac_liftBlock:(id)block withArgumentsFromArray:(NSArray *)args __attribute__((deprecated("Use +combineLatest:reduce: instead")));
 
 @end
 

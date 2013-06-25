@@ -338,33 +338,47 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 	NSCParameterAssert(scheduler != RACScheduler.immediateScheduler);
 
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+		__block RACDisposable *timerDisposable = nil;
+
 		NSMutableArray *values = [NSMutableArray array];
+		void (^flushValues)() = ^{
+			@synchronized (values) {
+				[timerDisposable dispose];
+				[disposable removeDisposable:timerDisposable];
 
-		__block RACDisposable *innerDisposable = nil;
-		RACDisposable *outerDisposable = [[self
-			windowWithStart:self close:^(RACSignal *start) {
-				return [[[RACSignal
-					interval:interval onScheduler:scheduler]
-					take:1]
-					doNext:^(id x) {
-						[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:values convertNullsToNils:NO]];
-						[values removeAllObjects];
-					}];
-			}]
-			subscribeNext:^(id x) {
-				innerDisposable = [x subscribeNext:^(id x) {
-					[values addObject:x ?: RACTupleNil.tupleNil];
-				}];
-			} error:^(NSError *error) {
-				[subscriber sendError:error];
-			} completed:^{
-				[subscriber sendCompleted];
-			}];
+				if (values.count == 0) return;
 
-		return [RACDisposable disposableWithBlock:^{
-			[innerDisposable dispose];
-			[outerDisposable dispose];
+				RACTuple *tuple = [RACTuple tupleWithObjectsFromArray:values convertNullsToNils:NO];
+				[values removeAllObjects];
+				[subscriber sendNext:tuple];
+			}
+		};
+
+		RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
+			@synchronized (values) {
+				if (values.count == 0) {
+					timerDisposable = [[[RACSignal
+						interval:interval onScheduler:scheduler]
+						take:1]
+						subscribeNext:^(id _) {
+							flushValues();
+						}];
+
+					if (timerDisposable != nil) [disposable addDisposable:timerDisposable];
+				}
+
+				[values addObject:x];
+			}
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			flushValues();
+			[subscriber sendCompleted];
 		}];
+
+		if (selfDisposable != nil) [disposable addDisposable:selfDisposable];
+		return disposable;
 	}] setNameWithFormat:@"[%@] -bufferWithTime: %f", self.name, (double)interval];
 }
 

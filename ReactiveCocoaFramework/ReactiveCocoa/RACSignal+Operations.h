@@ -102,7 +102,8 @@ extern const NSInteger RACSignalErrorTimedOut;
 //             immediateScheduler].
 //
 // Returns a signal which sends RACTuples of the buffered values at each
-// interval on `scheduler`.
+// interval on `scheduler`. When the receiver completes, any currently-buffered
+// values will be sent immediately.
 - (RACSignal *)bufferWithTime:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler;
 
 // Collect all receiver's `next`s into a NSArray. nil values will be converted

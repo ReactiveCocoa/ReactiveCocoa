@@ -938,9 +938,9 @@ describe(@"RACAbleWithStart", ^{
 	});
 });
 
-describe(@"-toProperty:onObject:", ^{
+describe(@"-setKeyPath:onObject:", ^{
 	id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, RACSignal *signal) {
-		[signal toProperty:keyPath onObject:testObject];
+		[signal setKeyPath:keyPath onObject:testObject];
 	};
 
 	itShouldBehaveLike(RACPropertySignalExamples, ^{
@@ -951,7 +951,7 @@ describe(@"-toProperty:onObject:", ^{
 		RACSubject *subject = [RACSubject subject];
 		@autoreleasepool {
 			RACTestObject *testObject __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			[subject toProperty:@keypath(testObject.objectValue) onObject:testObject];
+			[subject setKeyPath:@keypath(testObject.objectValue) onObject:testObject];
 			expect(testObject.objectValue).to.beNil();
 
 			[subject sendNext:@1];
@@ -968,13 +968,13 @@ describe(@"-toProperty:onObject:", ^{
 	it(@"should allow a new derivation after the signal's completed", ^{
 		RACSubject *subject1 = [RACSubject subject];
 		RACTestObject *testObject = [[RACTestObject alloc] init];
-		[subject1 toProperty:@keypath(testObject.objectValue) onObject:testObject];
+		[subject1 setKeyPath:@keypath(testObject.objectValue) onObject:testObject];
 		[subject1 sendCompleted];
 
 		RACSubject *subject2 = [RACSubject subject];
 		// This will assert if the previous completion didn't dispose of the
 		// subscription.
-		[subject2 toProperty:@keypath(testObject.objectValue) onObject:testObject];
+		[subject2 setKeyPath:@keypath(testObject.objectValue) onObject:testObject];
 	});
 });
 

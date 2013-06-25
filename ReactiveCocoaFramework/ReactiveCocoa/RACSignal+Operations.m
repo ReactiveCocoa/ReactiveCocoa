@@ -668,7 +668,7 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 	return [signal setNameWithFormat:@"[%@] -aggregateWithStart: %@ combine:", self.name, [start rac_description]];
 }
 
-- (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object {
+- (RACDisposable *)setKeyPath:(NSString *)keyPath onObject:(NSObject *)object {
 	NSCParameterAssert(keyPath != nil);
 	NSCParameterAssert(object != nil);
 
@@ -1402,6 +1402,10 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 
 - (RACSignal *)bufferWithTime:(NSTimeInterval)interval {
 	return [self bufferWithTime:interval onScheduler:[RACScheduler schedulerWithPriority:RACSchedulerPriorityHigh]];
+}
+
+- (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object {
+	return [self setKeyPath:keyPath onObject:object];
 }
 
 #pragma clang diagnostic pop

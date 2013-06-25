@@ -2308,28 +2308,53 @@ describe(@"-collect", ^{
 });
 
 describe(@"-bufferWithTime:", ^{
-	it(@"should buffer nexts and restart buffering if new next arrives", ^{
-		RACSubject *input = [RACSubject subject];
-		RACSignal *bufferedInput = [input bufferWithTime:0.1 onScheduler:RACScheduler.mainThreadScheduler];
-		
-		__block NSArray *received = nil;
-		
+	NSTimeInterval interval = 0.01;
+
+	__block RACSubject *input;
+	__block RACSignal *bufferedInput;
+	__block RACTuple *latestValue;
+
+	beforeEach(^{
+		input = [RACSubject subject];
+		bufferedInput = [input bufferWithTime:interval onScheduler:RACScheduler.mainThreadScheduler];
+		latestValue = nil;
+
 		[bufferedInput subscribeNext:^(RACTuple *x) {
-			received = [x allObjects];
+			latestValue = x;
 		}];
-		
+	});
+
+	it(@"should buffer nexts", ^{
 		[input sendNext:@1];
 		[input sendNext:@2];
-		
-		expect(received).will.equal((@[ @1, @2 ]));
+		expect(latestValue).will.equal(RACTuplePack(@1, @2));
 		
 		[input sendNext:@3];
-		// NSNull should not be converted
+		[input sendNext:@4];
 		[input sendNext:NSNull.null];
 		
-		expect(received).will.equal((@[ @3, NSNull.null ]));
+		// NSNull should not be converted
+		expect(latestValue).will.equal(RACTuplePack(@3, @4, NSNull.null));
 	});
-	
+
+	it(@"should not perform buffering until a value is sent", ^{
+		[input sendNext:@1];
+		[input sendNext:@2];
+		expect(latestValue).will.equal(RACTuplePack(@1, @2));
+
+		[NSThread sleepForTimeInterval:interval];
+		expect(latestValue).to.equal(RACTuplePack(@1, @2));
+		
+		[input sendNext:@3];
+		[input sendNext:@4];
+		expect(latestValue).will.equal(RACTuplePack(@3, @4));
+	});
+
+	it(@"should flush any buffered nexts upon completion", ^{
+		[input sendNext:@1];
+		[input sendCompleted];
+		expect(latestValue).to.equal(RACTuplePack(@1));
+	});
 });
 
 describe(@"-concat", ^{

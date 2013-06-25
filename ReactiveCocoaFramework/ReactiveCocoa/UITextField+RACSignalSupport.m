@@ -7,17 +7,25 @@
 //
 
 #import "UITextField+RACSignalSupport.h"
-#import "RACSignal.h"
+#import "EXTScope.h"
+#import "NSObject+RACDeallocating.h"
+#import "RACSignal+Operations.h"
 #import "UIControl+RACSignalSupport.h"
 
 @implementation UITextField (RACSignalSupport)
 
 - (RACSignal *)rac_textSignal {
-	return [[[[self rac_signalForControlEvents:UIControlEventEditingChanged]
+	@weakify(self);
+	return [[[[[RACSignal
+		defer:^{
+			@strongify(self);
+			return [RACSignal return:self];
+		}]
+		concat:[self rac_signalForControlEvents:UIControlEventEditingChanged]]
 		map:^(UITextField *x) {
 			return x.text;
 		}]
-		startWith:self.text]
+		takeUntil:self.rac_willDeallocSignal]
 		setNameWithFormat:@"%@ -rac_textSignal", self];
 }
 

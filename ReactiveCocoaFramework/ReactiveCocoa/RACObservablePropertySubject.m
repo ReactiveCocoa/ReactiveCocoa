@@ -18,6 +18,7 @@
 #import "RACKVOTrampoline.h"
 #import "RACSubject.h"
 #import "RACSubscriber+Private.h"
+#import "RACTuple.h"
 
 // Name of exceptions thrown by RACKVOBinding when an object calls
 // -didChangeValueForKey: without a corresponding -willChangeValueForKey:.

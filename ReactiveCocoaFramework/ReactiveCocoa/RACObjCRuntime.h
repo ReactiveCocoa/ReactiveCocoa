@@ -15,4 +15,7 @@
 + (const char *)getMethodTypesForMethod:(SEL)method inProtocol:(Protocol *)protocol;
 + (BOOL)method:(SEL)method existsInProtocol:(Protocol *)protocol;
 
+// Invokes objc_allocateClassPair(). Can be called from ARC code.
++ (Class)createClass:(const char *)className inheritingFromClass:(Class)superclass;
+
 @end

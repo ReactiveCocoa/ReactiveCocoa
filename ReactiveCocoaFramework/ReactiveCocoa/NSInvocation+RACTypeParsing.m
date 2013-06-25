@@ -7,6 +7,7 @@
 //
 
 #import "NSInvocation+RACTypeParsing.h"
+#import "RACTuple.h"
 #import "RACUnit.h"
 #import <CoreGraphics/CoreGraphics.h>
 
@@ -145,6 +146,16 @@
 
 #undef WRAP_AND_RETURN
 #undef WRAP_AND_RETURN_STRUCT
+}
+
+- (NSArray *)rac_allArguments {
+	NSUInteger numberOfArguments = self.methodSignature.numberOfArguments;
+	NSMutableArray *argumentsArray = [NSMutableArray arrayWithCapacity:numberOfArguments - 2];
+	for (NSUInteger index = 2; index < numberOfArguments; index++) {
+		[argumentsArray addObject:[self rac_argumentAtIndex:index] ?: RACTupleNil.tupleNil];
+	}
+
+	return argumentsArray;
 }
 
 - (id)rac_returnValue {

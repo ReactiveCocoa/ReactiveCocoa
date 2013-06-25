@@ -1628,7 +1628,6 @@ describe(@"+if:then:else", ^{
 describe(@"+interval:onScheduler: and +interval:onScheduler:withLeeway:", ^{
 	static const NSTimeInterval interval = 0.1;
 	static const NSTimeInterval leeway = 0.2;
-	static const NSTimeInterval marginOfError = 0.01;
 	
 	__block void (^testTimer)(RACSignal *, NSNumber *, NSNumber *) = nil;
 	
@@ -1647,10 +1646,10 @@ describe(@"+interval:onScheduler: and +interval:onScheduler:withLeeway:", ^{
 				// because a delayed interval may cause the _next_ value to
 				// send sooner than the interval.
 				NSTimeInterval expectedMinInterval = minInterval.doubleValue * nextsReceived;
-				NSTimeInterval expectedMaxInterval = expectedMinInterval + leeway.doubleValue;
+				NSTimeInterval expectedMaxInterval = expectedMinInterval + leeway.doubleValue * 3 + 0.05;
 
-				expect(currentTime - startTime).beGreaterThanOrEqualTo(expectedMinInterval - marginOfError);
-				expect(currentTime - startTime).beLessThanOrEqualTo(expectedMaxInterval + marginOfError);
+				expect(currentTime - startTime).beGreaterThanOrEqualTo(expectedMinInterval);
+				expect(currentTime - startTime).beLessThanOrEqualTo(expectedMaxInterval);
 			}];
 			
 			expect(nextsReceived).will.equal(3);

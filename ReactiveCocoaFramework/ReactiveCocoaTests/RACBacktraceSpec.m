@@ -6,8 +6,15 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACBacktrace+Private.h"
+#import "RACBacktrace.h"
 #import "RACScheduler.h"
+
+extern void rac_dispatch_async(dispatch_queue_t queue, dispatch_block_t block);
+extern void rac_dispatch_barrier_async(dispatch_queue_t queue, dispatch_block_t block);
+extern void rac_dispatch_after(dispatch_time_t time, dispatch_queue_t queue, dispatch_block_t block);
+extern void rac_dispatch_async_f(dispatch_queue_t queue, void *context, dispatch_function_t function);
+extern void rac_dispatch_barrier_async_f(dispatch_queue_t queue, void *context, dispatch_function_t function);
+extern void rac_dispatch_after_f(dispatch_time_t time, dispatch_queue_t queue, void *context, dispatch_function_t function);
 
 #ifdef DEBUG
 
@@ -48,40 +55,40 @@ describe(@"with a GCD queue", ^{
 	});
 
 	it(@"should trace across dispatch_async", ^{
-		dispatch_async(queue, block);
+		rac_dispatch_async(queue, block);
 		expect(previousBacktrace).willNot.beNil();
 	});
 
 	it(@"should trace across dispatch_async to the main thread", ^{
-		dispatch_async(queue, ^{
-			dispatch_async(dispatch_get_main_queue(), block);
+		rac_dispatch_async(queue, ^{
+			rac_dispatch_async(dispatch_get_main_queue(), block);
 		});
 
 		expect(previousBacktrace).willNot.beNil();
 	});
 
 	it(@"should trace across dispatch_async_f", ^{
-		dispatch_async_f(queue, NULL, &capturePreviousBacktrace);
+		rac_dispatch_async_f(queue, NULL, &capturePreviousBacktrace);
 		expect(previousBacktrace).willNot.beNil();
 	});
 
 	it(@"should trace across dispatch_barrier_async", ^{
-		dispatch_barrier_async(queue, block);
+		rac_dispatch_barrier_async(queue, block);
 		expect(previousBacktrace).willNot.beNil();
 	});
 
 	it(@"should trace across dispatch_barrier_async_f", ^{
-		dispatch_barrier_async_f(queue, NULL, &capturePreviousBacktrace);
+		rac_dispatch_barrier_async_f(queue, NULL, &capturePreviousBacktrace);
 		expect(previousBacktrace).willNot.beNil();
 	});
 
 	it(@"should trace across dispatch_after", ^{
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1), queue, block);
+		rac_dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1), queue, block);
 		expect(previousBacktrace).willNot.beNil();
 	});
 
 	it(@"should trace across dispatch_after_f", ^{
-		dispatch_after_f(dispatch_time(DISPATCH_TIME_NOW, 1), queue, NULL, &capturePreviousBacktrace);
+		rac_dispatch_after_f(dispatch_time(DISPATCH_TIME_NOW, 1), queue, NULL, &capturePreviousBacktrace);
 		expect(previousBacktrace).willNot.beNil();
 	});
 });

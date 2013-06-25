@@ -218,7 +218,6 @@
 		A1FCC37B1567DED0008C9686 /* RACDelegateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = A1FCC3771567DED0008C9686 /* RACDelegateProxy.m */; };
 		D005A259169A3B7D00A9D2DB /* RACBacktrace.h in Headers */ = {isa = PBXBuildFile; fileRef = D02538A115E2D7FB005BACB8 /* RACBacktrace.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D02221621678910900DBD031 /* RACTupleSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D02221611678910900DBD031 /* RACTupleSpec.m */; };
-		D026A04D15F69FE70052F7FE /* metamacros.h in Headers */ = {isa = PBXBuildFile; fileRef = D026A04415F69FE70052F7FE /* metamacros.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D0307EDF1731AAE100D83211 /* RACTupleSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D0307EDC1731AAE100D83211 /* RACTupleSequence.m */; };
 		D0307EE01731AAE100D83211 /* RACTupleSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D0307EDC1731AAE100D83211 /* RACTupleSequence.m */; };
 		D0307EE71731AAF800D83211 /* RACArraySequence.h in Headers */ = {isa = PBXBuildFile; fileRef = D0E967611641EF9C00FCFF06 /* RACArraySequence.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -274,9 +273,12 @@
 		D08FF286169A333400743C6D /* UITextField+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 88F44264153DCAC50097B4C3 /* UITextField+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D08FF287169A333400743C6D /* UITextView+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = A1FCC27215666AA3008C9686 /* UITextView+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D08FF289169A333400743C6D /* NSObject+RACPropertySubscribing.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CDF82C15008C0500163A9F /* NSObject+RACPropertySubscribing.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D08FF28C169A337000743C6D /* EXTKeyPathCoding.h in Headers */ = {isa = PBXBuildFile; fileRef = D0FA57E2162CFED200AC6F42 /* EXTKeyPathCoding.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D08FF28E169A337000743C6D /* EXTScope.h in Headers */ = {isa = PBXBuildFile; fileRef = D0E967931641F07900FCFF06 /* EXTScope.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D08FF28F169A337000743C6D /* metamacros.h in Headers */ = {isa = PBXBuildFile; fileRef = D026A04415F69FE70052F7FE /* metamacros.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D094E44917775AF200906BF7 /* EXTKeyPathCoding.h in Headers */ = {isa = PBXBuildFile; fileRef = D094E44517775AF200906BF7 /* EXTKeyPathCoding.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D094E44A17775AF200906BF7 /* EXTKeyPathCoding.h in Headers */ = {isa = PBXBuildFile; fileRef = D094E44517775AF200906BF7 /* EXTKeyPathCoding.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D094E44B17775AF200906BF7 /* EXTScope.h in Headers */ = {isa = PBXBuildFile; fileRef = D094E44617775AF200906BF7 /* EXTScope.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D094E44C17775AF200906BF7 /* EXTScope.h in Headers */ = {isa = PBXBuildFile; fileRef = D094E44617775AF200906BF7 /* EXTScope.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D094E44F17775AF200906BF7 /* metamacros.h in Headers */ = {isa = PBXBuildFile; fileRef = D094E44817775AF200906BF7 /* metamacros.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D094E45017775AF200906BF7 /* metamacros.h in Headers */ = {isa = PBXBuildFile; fileRef = D094E44817775AF200906BF7 /* metamacros.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D099E819169E05D00000A975 /* NSObject+RACObservablePropertySubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F6FE84B169251E900A8D7A6 /* NSObject+RACObservablePropertySubject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D0A0B01516EAA3D100C47593 /* NSText+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D0A0B01316EAA3D100C47593 /* NSText+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D0A0B01616EAA3D100C47593 /* NSText+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D0A0B01416EAA3D100C47593 /* NSText+RACSignalSupport.m */; };
@@ -333,13 +335,9 @@
 		D0E9678E1641EF9C00FCFF06 /* RACSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D0E967681641EF9C00FCFF06 /* RACSequence.m */; };
 		D0E967911641EF9C00FCFF06 /* RACStringSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D0E9676A1641EF9C00FCFF06 /* RACStringSequence.m */; };
 		D0E967921641EF9C00FCFF06 /* RACStringSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D0E9676A1641EF9C00FCFF06 /* RACStringSequence.m */; };
-		D0E967951641F07900FCFF06 /* EXTScope.h in Headers */ = {isa = PBXBuildFile; fileRef = D0E967931641F07900FCFF06 /* EXTScope.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D0E967971641F07900FCFF06 /* EXTScope.m in Sources */ = {isa = PBXBuildFile; fileRef = D0E967941641F07900FCFF06 /* EXTScope.m */; };
-		D0E967981641F07900FCFF06 /* EXTScope.m in Sources */ = {isa = PBXBuildFile; fileRef = D0E967941641F07900FCFF06 /* EXTScope.m */; };
 		D0EDE76716968AB10072A780 /* RACPropertySignalExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EDE76616968AB10072A780 /* RACPropertySignalExamples.m */; };
 		D0EE284D164D906B006954A4 /* RACSignalSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EE284A164D906B006954A4 /* RACSignalSequence.m */; };
 		D0EE284E164D906B006954A4 /* RACSignalSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EE284A164D906B006954A4 /* RACSignalSequence.m */; };
-		D0FA57E3162CFED200AC6F42 /* EXTKeyPathCoding.h in Headers */ = {isa = PBXBuildFile; fileRef = D0FA57E2162CFED200AC6F42 /* EXTKeyPathCoding.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -553,7 +551,6 @@
 		884848B515F658B800B11BD0 /* NSControlRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSControlRACSupportSpec.m; sourceTree = "<group>"; };
 		8851A38A16161D500050D47F /* NSObjectRACPropertySubscribingSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSObjectRACPropertySubscribingSpec.m; sourceTree = "<group>"; };
 		8857BB81152A27A9009804CC /* NSObject+RACKVOWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACKVOWrapper.h"; sourceTree = "<group>"; };
-		8857CEE11729C1F0003C7A12 /* Test.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Test.xcconfig; sourceTree = "<group>"; };
 		886678701518DCD800DE77EC /* NSObject+RACPropertySubscribing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACPropertySubscribing.m"; sourceTree = "<group>"; };
 		886CEACC163DE669007632D1 /* RACBlockTrampolineSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACBlockTrampolineSpec.m; sourceTree = "<group>"; };
 		886CEAE0163DE942007632D1 /* NSObject+RACLifting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACLifting.h"; sourceTree = "<group>"; };
@@ -616,7 +613,6 @@
 		D01DB9AE166819B9003E8F7F /* ReactiveCocoaTests-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ReactiveCocoaTests-Prefix.pch"; sourceTree = "<group>"; };
 		D02221611678910900DBD031 /* RACTupleSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACTupleSpec.m; sourceTree = "<group>"; };
 		D02538A115E2D7FB005BACB8 /* RACBacktrace.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RACBacktrace.h; sourceTree = "<group>"; };
-		D026A04415F69FE70052F7FE /* metamacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = metamacros.h; path = extobjc/metamacros.h; sourceTree = "<group>"; };
 		D0307EDB1731AAE100D83211 /* RACTupleSequence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACTupleSequence.h; sourceTree = "<group>"; };
 		D0307EDC1731AAE100D83211 /* RACTupleSequence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACTupleSequence.m; sourceTree = "<group>"; };
 		D041376815D2281C004BBF80 /* RACKVOWrapperSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOWrapperSpec.m; sourceTree = "<group>"; };
@@ -632,22 +628,25 @@
 		D07CD7141731BA3900DE2394 /* RACUnarySequence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACUnarySequence.h; sourceTree = "<group>"; };
 		D07CD7151731BA3900DE2394 /* RACUnarySequence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACUnarySequence.m; sourceTree = "<group>"; };
 		D0870C6E16884A0600D0E11D /* RACBacktraceSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACBacktraceSpec.m; sourceTree = "<group>"; };
-		D0870D0B1688522E00D0E11D /* RACBacktrace+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACBacktrace+Private.h"; sourceTree = "<group>"; };
-		D095BDBE15CB2E4B00E9BB13 /* Common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Common.xcconfig; sourceTree = "<group>"; };
-		D095BDC015CB2E4B00E9BB13 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
-		D095BDC115CB2E4B00E9BB13 /* Profile.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Profile.xcconfig; sourceTree = "<group>"; };
-		D095BDC215CB2E4B00E9BB13 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
-		D095BDC415CB2E4B00E9BB13 /* Application.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Application.xcconfig; sourceTree = "<group>"; };
-		D095BDC515CB2E4B00E9BB13 /* StaticLibrary.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = StaticLibrary.xcconfig; sourceTree = "<group>"; };
-		D095BDC715CB2E4B00E9BB13 /* iOS-Application.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "iOS-Application.xcconfig"; sourceTree = "<group>"; };
-		D095BDC815CB2E4B00E9BB13 /* iOS-Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "iOS-Base.xcconfig"; sourceTree = "<group>"; };
-		D095BDC915CB2E4B00E9BB13 /* iOS-StaticLibrary.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "iOS-StaticLibrary.xcconfig"; sourceTree = "<group>"; };
-		D095BDCB15CB2E4B00E9BB13 /* Mac-Application.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Mac-Application.xcconfig"; sourceTree = "<group>"; };
-		D095BDCC15CB2E4B00E9BB13 /* Mac-Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Mac-Base.xcconfig"; sourceTree = "<group>"; };
-		D095BDCD15CB2E4B00E9BB13 /* Mac-DynamicLibrary.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Mac-DynamicLibrary.xcconfig"; sourceTree = "<group>"; };
-		D095BDCE15CB2E4B00E9BB13 /* Mac-Framework.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Mac-Framework.xcconfig"; sourceTree = "<group>"; };
-		D095BDCF15CB2E4B00E9BB13 /* Mac-StaticLibrary.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Mac-StaticLibrary.xcconfig"; sourceTree = "<group>"; };
-		D095BDD015CB2E4B00E9BB13 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
+		D094E44517775AF200906BF7 /* EXTKeyPathCoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXTKeyPathCoding.h; sourceTree = "<group>"; };
+		D094E44617775AF200906BF7 /* EXTScope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXTScope.h; sourceTree = "<group>"; };
+		D094E44817775AF200906BF7 /* metamacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = metamacros.h; sourceTree = "<group>"; };
+		D094E45317775B1000906BF7 /* Common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Common.xcconfig; sourceTree = "<group>"; };
+		D094E45517775B1000906BF7 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
+		D094E45617775B1000906BF7 /* Profile.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Profile.xcconfig; sourceTree = "<group>"; };
+		D094E45717775B1000906BF7 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
+		D094E45817775B1000906BF7 /* Test.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Test.xcconfig; sourceTree = "<group>"; };
+		D094E45A17775B1000906BF7 /* Application.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Application.xcconfig; sourceTree = "<group>"; };
+		D094E45B17775B1000906BF7 /* StaticLibrary.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = StaticLibrary.xcconfig; sourceTree = "<group>"; };
+		D094E45D17775B1000906BF7 /* iOS-Application.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "iOS-Application.xcconfig"; sourceTree = "<group>"; };
+		D094E45E17775B1000906BF7 /* iOS-Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "iOS-Base.xcconfig"; sourceTree = "<group>"; };
+		D094E45F17775B1000906BF7 /* iOS-StaticLibrary.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "iOS-StaticLibrary.xcconfig"; sourceTree = "<group>"; };
+		D094E46117775B1000906BF7 /* Mac-Application.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Mac-Application.xcconfig"; sourceTree = "<group>"; };
+		D094E46217775B1000906BF7 /* Mac-Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Mac-Base.xcconfig"; sourceTree = "<group>"; };
+		D094E46317775B1000906BF7 /* Mac-DynamicLibrary.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Mac-DynamicLibrary.xcconfig"; sourceTree = "<group>"; };
+		D094E46417775B1000906BF7 /* Mac-Framework.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Mac-Framework.xcconfig"; sourceTree = "<group>"; };
+		D094E46517775B1000906BF7 /* Mac-StaticLibrary.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Mac-StaticLibrary.xcconfig"; sourceTree = "<group>"; };
+		D094E46617775B1000906BF7 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
 		D0A0B01316EAA3D100C47593 /* NSText+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSText+RACSignalSupport.h"; sourceTree = "<group>"; };
 		D0A0B01416EAA3D100C47593 /* NSText+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSText+RACSignalSupport.m"; sourceTree = "<group>"; };
 		D0A0B01716EAA5CC00C47593 /* NSTextRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextRACSupportSpec.m; sourceTree = "<group>"; };
@@ -693,13 +692,10 @@
 		D0E967681641EF9C00FCFF06 /* RACSequence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSequence.m; sourceTree = "<group>"; };
 		D0E967691641EF9C00FCFF06 /* RACStringSequence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACStringSequence.h; sourceTree = "<group>"; };
 		D0E9676A1641EF9C00FCFF06 /* RACStringSequence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACStringSequence.m; sourceTree = "<group>"; };
-		D0E967931641F07900FCFF06 /* EXTScope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EXTScope.h; path = extobjc/EXTScope.h; sourceTree = "<group>"; };
-		D0E967941641F07900FCFF06 /* EXTScope.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EXTScope.m; path = extobjc/EXTScope.m; sourceTree = "<group>"; };
 		D0EDE76516968AB10072A780 /* RACPropertySignalExamples.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACPropertySignalExamples.h; sourceTree = "<group>"; };
 		D0EDE76616968AB10072A780 /* RACPropertySignalExamples.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACPropertySignalExamples.m; sourceTree = "<group>"; };
 		D0EE2849164D906B006954A4 /* RACSignalSequence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACSignalSequence.h; sourceTree = "<group>"; };
 		D0EE284A164D906B006954A4 /* RACSignalSequence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSignalSequence.m; sourceTree = "<group>"; };
-		D0FA57E2162CFED200AC6F42 /* EXTKeyPathCoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EXTKeyPathCoding.h; path = extobjc/EXTKeyPathCoding.h; sourceTree = "<group>"; };
 		D0FAEC02176AEEE600D3C1A7 /* RACSubscriber+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACSubscriber+Private.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -867,7 +863,7 @@
 				88CDF7C515000FCE00163A9F /* ReactiveCocoa */,
 				88CDF7E215000FCF00163A9F /* ReactiveCocoaTests */,
 				88CDF7BE15000FCE00163A9F /* Frameworks */,
-				D095BDBC15CB2E4B00E9BB13 /* Configuration */,
+				D094E45117775B1000906BF7 /* Configuration */,
 				88CDF7BC15000FCE00163A9F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -887,7 +883,7 @@
 		88CDF7BE15000FCE00163A9F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				D026A03F15F69FD00052F7FE /* libextobjc */,
+				D094E44417775ACD00906BF7 /* libextobjc */,
 				88CDF7C115000FCE00163A9F /* Other Frameworks */,
 			);
 			name = Frameworks;
@@ -1016,7 +1012,6 @@
 				88B76F8C153726B00053EAE2 /* RACTuple.h */,
 				88B76F8D153726B00053EAE2 /* RACTuple.m */,
 				D02538A115E2D7FB005BACB8 /* RACBacktrace.h */,
-				D0870D0B1688522E00D0E11D /* RACBacktrace+Private.h */,
 				D0DFBCCD15DD6D40009DADB3 /* RACBacktrace.m */,
 				88FC735316114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.h */,
 				88FC735416114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.m */,
@@ -1101,78 +1096,77 @@
 			name = Schedulers;
 			sourceTree = "<group>";
 		};
-		D026A03F15F69FD00052F7FE /* libextobjc */ = {
+		D094E44417775ACD00906BF7 /* libextobjc */ = {
 			isa = PBXGroup;
 			children = (
-				D0FA57E2162CFED200AC6F42 /* EXTKeyPathCoding.h */,
-				D0E967931641F07900FCFF06 /* EXTScope.h */,
-				D0E967941641F07900FCFF06 /* EXTScope.m */,
-				D026A04415F69FE70052F7FE /* metamacros.h */,
+				D094E44517775AF200906BF7 /* EXTKeyPathCoding.h */,
+				D094E44617775AF200906BF7 /* EXTScope.h */,
+				D094E44817775AF200906BF7 /* metamacros.h */,
 			);
 			name = libextobjc;
-			path = ReactiveCocoa/libextobjc;
+			path = ReactiveCocoa/extobjc;
 			sourceTree = "<group>";
 		};
-		D095BDBC15CB2E4B00E9BB13 /* Configuration */ = {
+		D094E45117775B1000906BF7 /* Configuration */ = {
 			isa = PBXGroup;
 			children = (
-				D095BDBD15CB2E4B00E9BB13 /* Base */,
-				D095BDC615CB2E4B00E9BB13 /* iOS */,
-				D095BDCA15CB2E4B00E9BB13 /* Mac OS X */,
-				D095BDD015CB2E4B00E9BB13 /* README.md */,
+				D094E45217775B1000906BF7 /* Base */,
+				D094E45C17775B1000906BF7 /* iOS */,
+				D094E46017775B1000906BF7 /* Mac OS X */,
+				D094E46617775B1000906BF7 /* README.md */,
 			);
 			name = Configuration;
-			path = ReactiveCocoa/libextobjc/Configuration;
+			path = ../external/xcconfigs;
 			sourceTree = "<group>";
 		};
-		D095BDBD15CB2E4B00E9BB13 /* Base */ = {
+		D094E45217775B1000906BF7 /* Base */ = {
 			isa = PBXGroup;
 			children = (
-				D095BDBE15CB2E4B00E9BB13 /* Common.xcconfig */,
-				D095BDBF15CB2E4B00E9BB13 /* Configurations */,
-				D095BDC315CB2E4B00E9BB13 /* Targets */,
+				D094E45317775B1000906BF7 /* Common.xcconfig */,
+				D094E45417775B1000906BF7 /* Configurations */,
+				D094E45917775B1000906BF7 /* Targets */,
 			);
 			path = Base;
 			sourceTree = "<group>";
 		};
-		D095BDBF15CB2E4B00E9BB13 /* Configurations */ = {
+		D094E45417775B1000906BF7 /* Configurations */ = {
 			isa = PBXGroup;
 			children = (
-				D095BDC015CB2E4B00E9BB13 /* Debug.xcconfig */,
-				D095BDC115CB2E4B00E9BB13 /* Profile.xcconfig */,
-				D095BDC215CB2E4B00E9BB13 /* Release.xcconfig */,
-				8857CEE11729C1F0003C7A12 /* Test.xcconfig */,
+				D094E45517775B1000906BF7 /* Debug.xcconfig */,
+				D094E45617775B1000906BF7 /* Profile.xcconfig */,
+				D094E45717775B1000906BF7 /* Release.xcconfig */,
+				D094E45817775B1000906BF7 /* Test.xcconfig */,
 			);
 			path = Configurations;
 			sourceTree = "<group>";
 		};
-		D095BDC315CB2E4B00E9BB13 /* Targets */ = {
+		D094E45917775B1000906BF7 /* Targets */ = {
 			isa = PBXGroup;
 			children = (
-				D095BDC415CB2E4B00E9BB13 /* Application.xcconfig */,
-				D095BDC515CB2E4B00E9BB13 /* StaticLibrary.xcconfig */,
+				D094E45A17775B1000906BF7 /* Application.xcconfig */,
+				D094E45B17775B1000906BF7 /* StaticLibrary.xcconfig */,
 			);
 			path = Targets;
 			sourceTree = "<group>";
 		};
-		D095BDC615CB2E4B00E9BB13 /* iOS */ = {
+		D094E45C17775B1000906BF7 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
-				D095BDC715CB2E4B00E9BB13 /* iOS-Application.xcconfig */,
-				D095BDC815CB2E4B00E9BB13 /* iOS-Base.xcconfig */,
-				D095BDC915CB2E4B00E9BB13 /* iOS-StaticLibrary.xcconfig */,
+				D094E45D17775B1000906BF7 /* iOS-Application.xcconfig */,
+				D094E45E17775B1000906BF7 /* iOS-Base.xcconfig */,
+				D094E45F17775B1000906BF7 /* iOS-StaticLibrary.xcconfig */,
 			);
 			path = iOS;
 			sourceTree = "<group>";
 		};
-		D095BDCA15CB2E4B00E9BB13 /* Mac OS X */ = {
+		D094E46017775B1000906BF7 /* Mac OS X */ = {
 			isa = PBXGroup;
 			children = (
-				D095BDCB15CB2E4B00E9BB13 /* Mac-Application.xcconfig */,
-				D095BDCC15CB2E4B00E9BB13 /* Mac-Base.xcconfig */,
-				D095BDCD15CB2E4B00E9BB13 /* Mac-DynamicLibrary.xcconfig */,
-				D095BDCE15CB2E4B00E9BB13 /* Mac-Framework.xcconfig */,
-				D095BDCF15CB2E4B00E9BB13 /* Mac-StaticLibrary.xcconfig */,
+				D094E46117775B1000906BF7 /* Mac-Application.xcconfig */,
+				D094E46217775B1000906BF7 /* Mac-Base.xcconfig */,
+				D094E46317775B1000906BF7 /* Mac-DynamicLibrary.xcconfig */,
+				D094E46417775B1000906BF7 /* Mac-Framework.xcconfig */,
+				D094E46517775B1000906BF7 /* Mac-StaticLibrary.xcconfig */,
 			);
 			path = "Mac OS X";
 			sourceTree = "<group>";
@@ -1283,16 +1277,13 @@
 				88E2C6B4153C771C00C7493C /* RACScheduler.h in Headers */,
 				88B76F8E153726B00053EAE2 /* RACTuple.h in Headers */,
 				886CEAE2163DE942007632D1 /* NSObject+RACLifting.h in Headers */,
-				D026A04D15F69FE70052F7FE /* metamacros.h in Headers */,
 				D0D910CE15F915BD00AD2DDA /* RACSignal+Operations.h in Headers */,
-				D0FA57E3162CFED200AC6F42 /* EXTKeyPathCoding.h in Headers */,
 				D0E9676B1641EF9C00FCFF06 /* NSArray+RACSequenceAdditions.h in Headers */,
 				D0E9676F1641EF9C00FCFF06 /* NSDictionary+RACSequenceAdditions.h in Headers */,
 				D0E967731641EF9C00FCFF06 /* NSOrderedSet+RACSequenceAdditions.h in Headers */,
 				D0E967771641EF9C00FCFF06 /* NSSet+RACSequenceAdditions.h in Headers */,
 				D0E9677B1641EF9C00FCFF06 /* NSString+RACSequenceAdditions.h in Headers */,
 				D0E9678B1641EF9C00FCFF06 /* RACSequence.h in Headers */,
-				D0E967951641F07900FCFF06 /* EXTScope.h in Headers */,
 				88A0B6D3165B2B77005DE8F3 /* RACSubscriptingAssignmentTrampoline.h in Headers */,
 				D0D487011642550100DD7605 /* RACStream.h in Headers */,
 				88C5A0241692460A0045EF05 /* RACMulticastConnection.h in Headers */,
@@ -1315,6 +1306,9 @@
 				8837EA1616A5A33300FC3CDF /* RACKVOTrampoline.h in Headers */,
 				D0A0B01516EAA3D100C47593 /* NSText+RACSignalSupport.h in Headers */,
 				D0A0B03B16EAA9AC00C47593 /* NSControl+RACTextSignalSupport.h in Headers */,
+				D094E44917775AF200906BF7 /* EXTKeyPathCoding.h in Headers */,
+				D094E44B17775AF200906BF7 /* EXTScope.h in Headers */,
+				D094E44F17775AF200906BF7 /* metamacros.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1361,9 +1355,6 @@
 				D08FF286169A333400743C6D /* UITextField+RACSignalSupport.h in Headers */,
 				D08FF287169A333400743C6D /* UITextView+RACSignalSupport.h in Headers */,
 				D08FF289169A333400743C6D /* NSObject+RACPropertySubscribing.h in Headers */,
-				D08FF28C169A337000743C6D /* EXTKeyPathCoding.h in Headers */,
-				D08FF28E169A337000743C6D /* EXTScope.h in Headers */,
-				D08FF28F169A337000743C6D /* metamacros.h in Headers */,
 				5F773DEB169B46670023069D /* NSEnumerator+RACSequenceAdditions.h in Headers */,
 				D077A16E169B740200057BB1 /* RACEvent.h in Headers */,
 				D099E819169E05D00000A975 /* NSObject+RACObservablePropertySubject.h in Headers */,
@@ -1376,6 +1367,9 @@
 				88302C9B1762EC7E003633BD /* RACQueueScheduler+Subclass.h in Headers */,
 				88302CA21762F62D003633BD /* RACTargetQueueScheduler.h in Headers */,
 				D0C55CE017758EDC008CDDCA /* RACDelegateProxy.h in Headers */,
+				D094E44A17775AF200906BF7 /* EXTKeyPathCoding.h in Headers */,
+				D094E44C17775AF200906BF7 /* EXTScope.h in Headers */,
+				D094E45017775AF200906BF7 /* metamacros.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1706,7 +1700,6 @@
 				D0E967891641EF9C00FCFF06 /* RACEmptySequence.m in Sources */,
 				D0E9678D1641EF9C00FCFF06 /* RACSequence.m in Sources */,
 				D0E967911641EF9C00FCFF06 /* RACStringSequence.m in Sources */,
-				D0E967971641F07900FCFF06 /* EXTScope.m in Sources */,
 				D0D487031642550100DD7605 /* RACStream.m in Sources */,
 				D0EE284D164D906B006954A4 /* RACSignalSequence.m in Sources */,
 				881E86A41669304800667F7B /* RACCompoundDisposable.m in Sources */,
@@ -1824,7 +1817,6 @@
 				D0E9678A1641EF9C00FCFF06 /* RACEmptySequence.m in Sources */,
 				D0E9678E1641EF9C00FCFF06 /* RACSequence.m in Sources */,
 				D0E967921641EF9C00FCFF06 /* RACStringSequence.m in Sources */,
-				D0E967981641F07900FCFF06 /* EXTScope.m in Sources */,
 				D0D487041642550100DD7605 /* RACStream.m in Sources */,
 				D0EE284E164D906B006954A4 /* RACSignalSequence.m in Sources */,
 				881E86A51669304800667F7B /* RACCompoundDisposable.m in Sources */,
@@ -1910,7 +1902,7 @@
 /* Begin XCBuildConfiguration section */
 		5FAF5233174D4C2000CAC810 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D095BDC715CB2E4B00E9BB13 /* iOS-Application.xcconfig */;
+			baseConfigurationReference = D094E45D17775B1000906BF7 /* iOS-Application.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
@@ -1931,7 +1923,7 @@
 		};
 		5FAF5234174D4C2000CAC810 /* Test */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D095BDC715CB2E4B00E9BB13 /* iOS-Application.xcconfig */;
+			baseConfigurationReference = D094E45D17775B1000906BF7 /* iOS-Application.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
@@ -1952,7 +1944,7 @@
 		};
 		5FAF5235174D4C2000CAC810 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D095BDC715CB2E4B00E9BB13 /* iOS-Application.xcconfig */;
+			baseConfigurationReference = D094E45D17775B1000906BF7 /* iOS-Application.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
@@ -1973,7 +1965,7 @@
 		};
 		5FAF5236174D4C2000CAC810 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D095BDC715CB2E4B00E9BB13 /* iOS-Application.xcconfig */;
+			baseConfigurationReference = D094E45D17775B1000906BF7 /* iOS-Application.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
@@ -1994,7 +1986,7 @@
 		};
 		88037F9015056328001A5B19 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D095BDCE15CB2E4B00E9BB13 /* Mac-Framework.xcconfig */;
+			baseConfigurationReference = D094E46417775B1000906BF7 /* Mac-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2008,7 +2000,7 @@
 		};
 		88037F9115056328001A5B19 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D095BDCE15CB2E4B00E9BB13 /* Mac-Framework.xcconfig */;
+			baseConfigurationReference = D094E46417775B1000906BF7 /* Mac-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2022,7 +2014,7 @@
 		};
 		88997CAA1728912B00C569A6 /* Test */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8857CEE11729C1F0003C7A12 /* Test.xcconfig */;
+			baseConfigurationReference = D094E45817775B1000906BF7 /* Test.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
@@ -2042,7 +2034,7 @@
 		};
 		88997CAB1728912B00C569A6 /* Test */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D095BDCE15CB2E4B00E9BB13 /* Mac-Framework.xcconfig */;
+			baseConfigurationReference = D094E46417775B1000906BF7 /* Mac-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2056,7 +2048,7 @@
 		};
 		88997CAC1728912B00C569A6 /* Test */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D095BDC915CB2E4B00E9BB13 /* iOS-StaticLibrary.xcconfig */;
+			baseConfigurationReference = D094E45F17775B1000906BF7 /* iOS-StaticLibrary.xcconfig */;
 			buildSettings = {
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2066,7 +2058,7 @@
 		};
 		88997CAD1728912B00C569A6 /* Test */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D095BDCB15CB2E4B00E9BB13 /* Mac-Application.xcconfig */;
+			baseConfigurationReference = D094E46117775B1000906BF7 /* Mac-Application.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
@@ -2084,7 +2076,7 @@
 		};
 		88CDF7EB15000FCF00163A9F /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D095BDC015CB2E4B00E9BB13 /* Debug.xcconfig */;
+			baseConfigurationReference = D094E45517775B1000906BF7 /* Debug.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
@@ -2104,7 +2096,7 @@
 		};
 		88CDF7EC15000FCF00163A9F /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D095BDC215CB2E4B00E9BB13 /* Release.xcconfig */;
+			baseConfigurationReference = D094E45717775B1000906BF7 /* Release.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
@@ -2124,7 +2116,7 @@
 		};
 		88CDF7F115000FCF00163A9F /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D095BDCB15CB2E4B00E9BB13 /* Mac-Application.xcconfig */;
+			baseConfigurationReference = D094E46117775B1000906BF7 /* Mac-Application.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
@@ -2142,7 +2134,7 @@
 		};
 		88CDF7F215000FCF00163A9F /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D095BDCB15CB2E4B00E9BB13 /* Mac-Application.xcconfig */;
+			baseConfigurationReference = D094E46117775B1000906BF7 /* Mac-Application.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
@@ -2160,7 +2152,7 @@
 		};
 		88F440B4153DAC820097B4C3 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D095BDC915CB2E4B00E9BB13 /* iOS-StaticLibrary.xcconfig */;
+			baseConfigurationReference = D094E45F17775B1000906BF7 /* iOS-StaticLibrary.xcconfig */;
 			buildSettings = {
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2170,7 +2162,7 @@
 		};
 		88F440B5153DAC820097B4C3 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D095BDC915CB2E4B00E9BB13 /* iOS-StaticLibrary.xcconfig */;
+			baseConfigurationReference = D094E45F17775B1000906BF7 /* iOS-StaticLibrary.xcconfig */;
 			buildSettings = {
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2180,7 +2172,7 @@
 		};
 		D095BDD115CB2F9D00E9BB13 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D095BDC115CB2E4B00E9BB13 /* Profile.xcconfig */;
+			baseConfigurationReference = D094E45617775B1000906BF7 /* Profile.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
@@ -2200,7 +2192,7 @@
 		};
 		D095BDD215CB2F9D00E9BB13 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D095BDCE15CB2E4B00E9BB13 /* Mac-Framework.xcconfig */;
+			baseConfigurationReference = D094E46417775B1000906BF7 /* Mac-Framework.xcconfig */;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2214,7 +2206,7 @@
 		};
 		D095BDD315CB2F9D00E9BB13 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D095BDC915CB2E4B00E9BB13 /* iOS-StaticLibrary.xcconfig */;
+			baseConfigurationReference = D094E45F17775B1000906BF7 /* iOS-StaticLibrary.xcconfig */;
 			buildSettings = {
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2224,7 +2216,7 @@
 		};
 		D095BDD415CB2F9D00E9BB13 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D095BDCB15CB2E4B00E9BB13 /* Mac-Application.xcconfig */;
+			baseConfigurationReference = D094E46117775B1000906BF7 /* Mac-Application.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";

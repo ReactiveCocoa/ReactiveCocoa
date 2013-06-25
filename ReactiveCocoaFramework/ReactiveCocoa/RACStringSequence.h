@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 GitHub. All rights reserved.
 //
 
-#import <ReactiveCocoa/RACSequence.h>
+#import "RACSequence.h"
 
 // Private class that adapts a string to the RACSequence interface.
 @interface RACStringSequence : RACSequence

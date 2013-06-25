@@ -7,12 +7,8 @@
 //
 
 #import "RACSignal+Operations.h"
-#import "EXTScope.h"
-#import "NSArray+RACSequenceAdditions.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACDescription.h"
-#import "RACBehaviorSubject.h"
-#import "RACBlockTrampoline.h"
 #import "RACCommand.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"

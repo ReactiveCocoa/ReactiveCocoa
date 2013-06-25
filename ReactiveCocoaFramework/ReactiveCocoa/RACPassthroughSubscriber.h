@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <ReactiveCocoa/RACSubscriber.h>
+#import "RACSubscriber.h"
 
 // Passes through all events to another subscriber while not disposed.
 @interface RACPassthroughSubscriber : NSObject <RACSubscriber>

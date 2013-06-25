@@ -303,47 +303,6 @@ describe(@"querying", ^{
 		}];
 	});
 	
-	it(@"should support window", ^{
-		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendNext:@"1"];
-			[subscriber sendNext:@"2"];
-			[subscriber sendNext:@"3"];
-			[subscriber sendNext:@"4"];
-			[subscriber sendNext:@"5"];
-			[subscriber sendCompleted];
-			return nil;
-		}];
-		
-		RACBehaviorSubject *windowOpen = [RACBehaviorSubject behaviorSubjectWithDefaultValue:@""];
-		
-		RACSubject *closeSubject = [RACSubject subject];
-		__block NSUInteger valuesReceived = 0;
-		
-		RACSignal *window = [signal windowWithStart:windowOpen close:^(RACSignal *start) {
-			return closeSubject;
-		}];
-				
-		[window subscribeNext:^(id x) {			
-			[x subscribeNext:^(id x) {
-				valuesReceived++;
-				NSLog(@"got: %@", x);
-				
-				if(valuesReceived % 2 == 0) {
-					[closeSubject sendNext:x];
-					[windowOpen sendNext:@""];
-				}
-			} error:^(NSError *error) {
-				
-			} completed:^{
-				
-			}];
-		} error:^(NSError *error) {
-			
-		} completed:^{
-			NSLog(@"completed");
-		}];
-	});
-	
 	it(@"should return first 'next' value with -firstOrDefault:success:error:", ^{
 		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
@@ -2371,37 +2330,6 @@ describe(@"-bufferWithTime:", ^{
 		expect(received).will.equal((@[ @3, NSNull.null ]));
 	});
 	
-});
-
-
-describe(@"-buffer:", ^{
-	it(@"should buffer nexts and restart buffering if new next arrives", ^{
-		RACSubject *input = [RACSubject subject];
-		
-		RACSignal *bufferedInput = [input buffer:2];
-
-		__block NSArray *received = nil;
-		
-		[bufferedInput subscribeNext:^(RACTuple *x) {
-			received = [x allObjects];
-		}];
-
-		[input sendNext:@1];
-		[input sendNext:@2];
-		
-		expect(received).to.equal((@[ @1, @2 ]));
-		
-		[input sendNext:@3];
-		[input sendNext:@4];
-		[input sendNext:@5];
-		
-		expect(received).to.equal((@[ @3, @4 ]));
-
-		// NSNull should not be converted
-		[input sendNext:NSNull.null];
-		
-		expect(received).to.equal((@[ @5, NSNull.null ]));
-	});
 });
 
 describe(@"-concat", ^{

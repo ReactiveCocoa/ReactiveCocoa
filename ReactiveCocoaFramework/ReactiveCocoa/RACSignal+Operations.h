@@ -93,15 +93,6 @@ extern const NSInteger RACSignalErrorTimedOut;
 // Execute the given block when the signal completes or errors.
 - (RACSignal *)finally:(void (^)(void))block;
 
-// Divide the `next`s of the signal into windows. When `openSignal` sends a
-// next, a window is opened and the `closeBlock` is asked for a close
-// signal. The window is closed when the close signal sends a `next`.
-- (RACSignal *)windowWithStart:(RACSignal *)openSignal close:(RACSignal * (^)(RACSignal *start))closeBlock;
-
-// Divide the `next`s into buffers with `bufferCount` items each. The `next`
-// will be a RACTuple of values.
-- (RACSignal *)buffer:(NSUInteger)bufferCount;
-
 // Divides the receiver's `next`s into buffers which deliver every `interval`
 // seconds.
 //
@@ -483,6 +474,8 @@ extern const NSInteger RACSignalErrorTimedOut;
 
 @interface RACSignal (OperationsDeprecated)
 
+- (RACSignal *)windowWithStart:(RACSignal *)openSignal close:(RACSignal * (^)(RACSignal *start))closeBlock __attribute__((deprecated("See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/587")));
+- (RACSignal *)buffer:(NSUInteger)bufferCount __attribute__((deprecated("See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/587")));
 - (RACSignal *)let:(RACSignal * (^)(RACSignal *sharedSignal))letBlock __attribute__((deprecated("Use -publish instead")));
 + (RACSignal *)interval:(NSTimeInterval)interval __attribute__((deprecated("Use +interval:onScheduler: instead")));
 + (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway __attribute__((deprecated("Use +interval:onScheduler:withLeeway: instead")));

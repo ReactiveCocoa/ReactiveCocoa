@@ -26,6 +26,8 @@
 }
 
 - (RACSignal *)rac_textSignal {
+	[self.rac_delegateProxy assignAsDelegate];
+
 	@weakify(self);
 	return [[[[RACSignal
 		defer:^{

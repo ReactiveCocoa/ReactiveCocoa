@@ -18,13 +18,17 @@
 // any -signalForSelector: applications.
 @property (nonatomic, weak) id rac_proxiedDelegate;
 
-// The KVC key determining the delegator's delegate property.
-// Defaults to @"delegate".
-@property (nonatomic, copy) NSString *delegateKey;
-
 // Creates a delegate proxy for the delegator, which will respond to selectors
 // from `protocol`.
 - (instancetype)initWithDelegator:(NSObject *)delegator protocol:(Protocol *)protocol;
+
+// Assign this proxy to the named delegate property of the delegator specified
+// during initialziation.
+- (void)assignAsDelegateForKey:(NSString *)delegateKey;
+
+// Assign this proxy as the `delegate` of the delegator specified during
+// initialization.
+- (void)assignAsDelegate;
 
 // Calls -rac_signalForSelector:fromProtocol: using the `protocol` specified
 // during initialization, and scopes the signal to the lifetime of the delegator.

@@ -35,7 +35,6 @@
 
 	_delegator = delegator;
 	_protocol = protocol;
-	self.delegateKey = @"delegate";
 
 	return self;
 }
@@ -43,18 +42,20 @@
 #pragma mark API
 
 - (RACSignal *)signalForSelector:(SEL)selector {
-	[self useDelegateProxy];
-
 	return [[self
 		rac_signalForSelector:selector fromProtocol:_protocol]
 		takeUntil:_delegator.rac_willDeallocSignal];
 }
 
-- (void)useDelegateProxy {
-	id currentDelegate = [_delegator valueForKey:self.delegateKey];
+- (void)assignAsDelegate {
+	[self assignAsDelegateForKey:@"delegate"];
+}
+
+- (void)assignAsDelegateForKey:(NSString *)delegateKey {
+	id currentDelegate = [_delegator valueForKey:delegateKey];
 	if (currentDelegate != self) {
 		self.rac_proxiedDelegate = currentDelegate;
-		[_delegator setValue:self forKey:self.delegateKey];
+		[_delegator setValue:self forKey:delegateKey];
 	}
 }
 

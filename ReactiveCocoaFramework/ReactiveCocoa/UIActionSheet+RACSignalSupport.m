@@ -25,6 +25,8 @@
 }
 
 - (RACSignal *)rac_buttonClickedSignal {
+	[self.rac_delegateProxy assignAsDelegate];
+
 	return [[[self.rac_delegateProxy
 		signalForSelector:@selector(actionSheet:clickedButtonAtIndex:)]
 		map:^(RACTuple *arguments) {

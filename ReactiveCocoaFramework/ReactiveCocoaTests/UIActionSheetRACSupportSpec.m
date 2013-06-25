@@ -19,6 +19,7 @@ pending(@"-rac_buttonClickedSignal", ^{
 	beforeEach(^{
 		actionSheet = [[UIActionSheet alloc] init];
 		[actionSheet addButtonWithTitle:@"Button 0"];
+		[actionSheet addButtonWithTitle:@"Button 1"];
 		expect(actionSheet).notTo.beNil();
 	});
 
@@ -28,9 +29,9 @@ pending(@"-rac_buttonClickedSignal", ^{
 			index = i;
 		}];
 
-		[actionSheet dismissWithClickedButtonIndex:0 animated:NO];
+		[actionSheet dismissWithClickedButtonIndex:1 animated:NO];
 
-		expect(index).to.equal(@0);
+		expect(index).to.equal(@1);
 	});
 });
 

@@ -13,7 +13,6 @@
 #import "RACTargetQueueScheduler.h"
 #import "RACScheduler+Private.h"
 #import "RACSubscriptionScheduler.h"
-#import <libkern/OSAtomic.h>
 
 // The key for the thread-specific current scheduler.
 NSString * const RACSchedulerCurrentSchedulerKey = @"RACSchedulerCurrentSchedulerKey";

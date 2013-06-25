@@ -16,7 +16,6 @@
 #import "RACBinding.h"
 #import "RACDisposable.h"
 #import "RACKVOTrampoline.h"
-#import "RACSignal+Private.h"
 #import "RACSubject.h"
 #import "RACSubscriber+Private.h"
 #import "RACTuple.h"

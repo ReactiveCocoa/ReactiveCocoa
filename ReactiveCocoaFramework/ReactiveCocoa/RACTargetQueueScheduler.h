@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#import <ReactiveCocoa/RACQueueScheduler.h>
+#import "RACQueueScheduler.h"
 
 // A scheduler that enqueues blocks on a private serial queue, targeting an
 // arbitrary GCD queue.

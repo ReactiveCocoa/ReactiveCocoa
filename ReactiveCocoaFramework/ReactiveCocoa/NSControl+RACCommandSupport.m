@@ -10,9 +10,7 @@
 #import "EXTScope.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACCommand.h"
-#import "RACScheduler.h"
 #import "RACScopedDisposable.h"
-#import "RACSignal+Operations.h"
 #import <objc/runtime.h>
 
 static void *NSControlRACCommandKey = &NSControlRACCommandKey;

@@ -19,74 +19,59 @@
 // This does not support C strings, arrays, unions, or structs other than
 // CGRect, CGSize, CGPoint, and NSRange.
 //
-// If it is not given any signal arguments, it will immediately invoke the
-// selector with the arguments.
-//
-// selector - The selector on self to invoke.
-// arg      - The variadic list of arguments. Doesn't need to be nil-terminated
-//            since we can figure out the number of arguments from the selector's
-//            method signature.
+// selector    - The selector on self to invoke.
+// firstSignal - The signal corresponding to the first method argument. This
+//               must not be nil.
+// ...         - A list of RACSignals corresponding to the remaining arguments.
+//               There must be a non-nil signal for each method argument.
 //
 // Examples
 //
-//   [button rac_liftSelector:@selector(setTitleColor:forState:) withObjects:textColorSignal, @(UIControlStateNormal)];
+//   [button rac_liftSelector:@selector(setTitleColor:forState:) withSignals:textColorSignal, [RACSignal return:@(UIControlStateNormal)]];
 //
 // Returns a signal which sends the return value from each invocation of the
 // selector. If the selector returns void, it instead sends RACUnit.defaultUnit.
 // It completes only after all the signal arguments complete.
-- (RACSignal *)rac_liftSelector:(SEL)selector withObjects:(id)arg, ...;
+- (RACSignal *)rac_liftSelector:(SEL)selector withSignals:(RACSignal *)firstSignal, ... NS_REQUIRES_NIL_TERMINATION;
 
-// Like -rac_liftSelector:withObjects: but differs by taking the arguments in
-// array form. As a consequence of using an array, nil argument values must be
-// represented by RACTupleNil.
-//
-// selector - The selector on self to invoke.
-// args     - The arguments array.
-//
-// See -rac_liftSelector:withObjects:
-- (RACSignal *)rac_liftSelector:(SEL)selector withObjectsFromArray:(NSArray *)args;
+// Like -rac_liftSelector:withSignals:, but accepts an array instead of
+// a variadic list of arguments.
+- (RACSignal *)rac_liftSelector:(SEL)selector withSignalsFromArray:(NSArray *)signals;
 
-// Like -rac_liftSelector:withObjects: but invokes the block instead of a selector.
+// Like -rac_liftSelector:withSignals: but invokes a block instead of a selector.
 //
-// It will replay the most recently sent value to new subscribers.
+// This currently only supports block of up to 15 arguments. If you need any
+// more, you need to reconsider your life.
 //
-// block - The block to invoke. All its arguments must be objects. Cannot return
-//         void. Cannot be nil. This currently only supports block of up to 15
-//         arguments. If you need any more, you need to reconsider your life.
-// arg   - The variadic, nil-terminated list of arguments.
+// block         - The block to invoke. All arguments must be signals, and the block
+//                 must return an object. The block must not be nil.
+// firstSignal   - The signal corresponding to the first block argument. This
+//                 must not be nil.
+// ...           - A list of RACSignals corresponding to the remaining
+//                 arguments. There must be a non-nil signal for each block
+//                 argument.
 //
 // Returns a signal which sends the return value from each invocation of the
 // block. It completes only after all the signal arguments complete.
-- (RACSignal *)rac_liftBlock:(id)block withArguments:(id)arg, ... NS_REQUIRES_NIL_TERMINATION;
+- (RACSignal *)rac_liftBlock:(id)block withSignals:(RACSignal *)firstSignal, ... NS_REQUIRES_NIL_TERMINATION;
 
-// Like -rac_liftBlock:withArguments: but differs by taking the arguments in
-// array form. As a consequence of using an array, nil argument values must be
-// represented by RACTupleNil.
-//
-// block - The block to invoke. All its arguments must be objects. Cannot return
-//         void. Cannot be nil. This currently only supports block of up to 15
-//         arguments. If you need any more, you need to reconsider your life.
-// args  - The arguments array.
-//
-// See -rac_liftSelector:withArguments:
-- (RACSignal *)rac_liftBlock:(id)block withArgumentsFromArray:(NSArray *)args;
+// Like -rac_liftBlock:withSignals:, but accepts an array instead of
+// a variadic list of arguments.
+- (RACSignal *)rac_liftBlock:(id)block withSignalsFromArray:(NSArray *)signals;
 
-// Like -rac_liftSelector:withObjects: but uses higher order messaging instead of
-// a selector and argument list.
-//
-// Signals are only supported as message arguments where the method signature
-// expects an argument of object type.
-//
-// Examples
-//
-//     [button.rac_lift setTitleColor:textColorSignal forState:UIControlStateNormal];
-//     RAC(self.textField.textColor) = [self.rac_lift colorForString:self.field.rac_textSignal];
-//
-// Returns a proxy object that lifts messages into the reactive world and
-// forwards them to its receiver. Messages which have an object return type will
-// return a signal that replays the most recently sent value to new subscribers;
-// messages with void return type will return void. All other messages (such as
-// those with primitive return type) are disallowed.
-- (instancetype)rac_lift;
+@end
+
+@interface NSObject (RACLiftingDeprecated)
+
+- (RACSignal *)rac_liftSelector:(SEL)selector withObjects:(id)arg, ... __attribute__((deprecated("Use -rac_liftSelector:withSignals: instead")));
+- (RACSignal *)rac_liftSelector:(SEL)selector withObjectsFromArray:(NSArray *)args __attribute__((deprecated("Use -rac_liftSelector:withSignalsFromArray: instead")));
+- (RACSignal *)rac_liftBlock:(id)block withArguments:(id)arg, ... NS_REQUIRES_NIL_TERMINATION __attribute__((deprecated("Use -rac_liftBlock:withSignals: instead")));
+- (RACSignal *)rac_liftBlock:(id)block withArgumentsFromArray:(NSArray *)args __attribute__((deprecated("Use -rac_liftBlock:withSignalsFromArray: instead")));
+
+@end
+
+@interface NSObject (RACLiftingUnavailable)
+
+- (instancetype)rac_lift __attribute__((unavailable("Use -rac_liftSelector:withSignals: instead")));
 
 @end

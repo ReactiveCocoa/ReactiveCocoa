@@ -7,6 +7,7 @@
 //
 
 #import "RACSubscriptingAssignmentTrampoline.h"
+#import "RACSignal+Operations.h"
 
 @interface RACSubscriptingAssignmentObjectKeyPathPair ()
 @property (nonatomic, readonly, strong) NSObject *object;
@@ -52,7 +53,7 @@
 - (void)setObject:(RACSignal *)signal forKeyedSubscript:(RACSubscriptingAssignmentObjectKeyPathPair *)pair {
 	NSCParameterAssert([pair isKindOfClass:RACSubscriptingAssignmentObjectKeyPathPair.class]);
 
-	[pair.object rac_deriveProperty:pair.keyPath from:signal];
+	[signal setKeyPath:pair.keyPath onObject:pair.object];
 }
 
 @end

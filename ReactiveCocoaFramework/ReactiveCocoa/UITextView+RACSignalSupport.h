@@ -22,7 +22,8 @@
 // When this method is invoked, the `rac_delegateProxy` will become the
 // receiver's delegate. Any previous delegate will become the -[RACDelegateProxy
 // rac_proxiedDelegate], so that it receives any messages that the proxy doesn't
-// know how to handle.
+// know how to handle. Setting the receiver's `delegate` afterward is
+// considered undefined behavior.
 //
 // Returns a signal which will send the current text upon subscription, then
 // again whenever the receiver's text is changed. The signal will complete when

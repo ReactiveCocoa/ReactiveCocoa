@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import <ReactiveCocoa/RACSubject.h>
+#import "RACSubject.h"
 
 
 // A behavior subject sends the last value it received when it is subscribed to.

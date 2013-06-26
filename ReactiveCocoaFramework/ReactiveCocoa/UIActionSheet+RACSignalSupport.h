@@ -19,9 +19,11 @@
 
 // Creates a signal for button clicks on the receiver.
 //
-// When this method is invoked, the receiver's `delegate` will be set to
-// the `rac_delegateProxy` if it is not already. Any existing delegate will be
-// set as the proxy's `rac_proxiedDelegate`.
+// When this method is invoked, the `rac_delegateProxy` will become the
+// receiver's delegate. Any previous delegate will become the -[RACDelegateProxy
+// rac_proxiedDelegate], so that it receives any messages that the proxy doesn't
+// know how to handle. Setting the receiver's `delegate` afterward is
+// considered undefined behavior.
 //
 // Returns a signal which will send the index of the specific button clicked.
 // The signal will complete when the receiver is deallocated.

@@ -32,7 +32,7 @@ static void *UIButtonCanExecuteDisposableKey = &UIButtonCanExecuteDisposableKey;
 	
 	if (command == nil) return;
 	
-	disposable = [RACAbleWithStart(command, canExecute) toProperty:@keypath(self.enabled) onObject:self];
+	disposable = [RACAbleWithStart(command, canExecute) setKeyPath:@keypath(self.enabled) onObject:self];
 	objc_setAssociatedObject(self, UIButtonCanExecuteDisposableKey, disposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
 	[self rac_hijackActionAndTargetIfNeeded];

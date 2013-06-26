@@ -93,15 +93,6 @@ extern const NSInteger RACSignalErrorTimedOut;
 // Execute the given block when the signal completes or errors.
 - (RACSignal *)finally:(void (^)(void))block;
 
-// Divide the `next`s of the signal into windows. When `openSignal` sends a
-// next, a window is opened and the `closeBlock` is asked for a close
-// signal. The window is closed when the close signal sends a `next`.
-- (RACSignal *)windowWithStart:(RACSignal *)openSignal close:(RACSignal * (^)(RACSignal *start))closeBlock;
-
-// Divide the `next`s into buffers with `bufferCount` items each. The `next`
-// will be a RACTuple of values.
-- (RACSignal *)buffer:(NSUInteger)bufferCount;
-
 // Divides the receiver's `next`s into buffers which deliver every `interval`
 // seconds.
 //
@@ -111,7 +102,8 @@ extern const NSInteger RACSignalErrorTimedOut;
 //             immediateScheduler].
 //
 // Returns a signal which sends RACTuples of the buffered values at each
-// interval on `scheduler`.
+// interval on `scheduler`. When the receiver completes, any currently-buffered
+// values will be sent immediately.
 - (RACSignal *)bufferWithTime:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler;
 
 // Collect all receiver's `next`s into a NSArray. nil values will be converted
@@ -216,7 +208,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 // Sending an error on the signal is considered undefined behavior, and will
 // generate an assertion failure in Debug builds.
 //
-// A given object property should only have one active signal bound to it at any
+// A given key on an object should only have one active signal bound to it at any
 // given time. Binding more than one signal to the same property is considered
 // undefined behavior.
 //
@@ -224,7 +216,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 // object  - The object that `keyPath` is relative to.
 //
 // Returns a disposable which can be used to terminate the binding.
-- (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object;
+- (RACDisposable *)setKeyPath:(NSString *)keyPath onObject:(NSObject *)object;
 
 // Sends NSDate.date every `interval` seconds.
 //
@@ -483,10 +475,13 @@ extern const NSInteger RACSignalErrorTimedOut;
 
 @interface RACSignal (OperationsDeprecated)
 
+- (RACSignal *)windowWithStart:(RACSignal *)openSignal close:(RACSignal * (^)(RACSignal *start))closeBlock __attribute__((deprecated("See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/587")));
+- (RACSignal *)buffer:(NSUInteger)bufferCount __attribute__((deprecated("See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/587")));
 - (RACSignal *)let:(RACSignal * (^)(RACSignal *sharedSignal))letBlock __attribute__((deprecated("Use -publish instead")));
 + (RACSignal *)interval:(NSTimeInterval)interval __attribute__((deprecated("Use +interval:onScheduler: instead")));
 + (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway __attribute__((deprecated("Use +interval:onScheduler:withLeeway: instead")));
 - (RACSignal *)bufferWithTime:(NSTimeInterval)interval __attribute__((deprecated("Use -bufferWithTime:onScheduler: instead")));
 - (RACSignal *)timeout:(NSTimeInterval)interval __attribute__((deprecated("Use -timeout:onScheduler: instead")));
+- (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object __attribute__((deprecated("Renamed to -setKeyPath:onObject:")));
 
 @end

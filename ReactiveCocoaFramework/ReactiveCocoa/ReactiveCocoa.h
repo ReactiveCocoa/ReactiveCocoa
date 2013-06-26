@@ -6,6 +6,7 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import "EXTKeyPathCoding.h"
 #import "NSArray+RACSequenceAdditions.h"
 #import "NSDictionary+RACSequenceAdditions.h"
 #import "NSEnumerator+RACSequenceAdditions.h"
@@ -43,17 +44,16 @@
 #import "RACUnit.h"
 
 #ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
-#import "EXTKeyPathCoding.h"
-#import "UIControl+RACSignalSupport.h"
-#import "UITextField+RACSignalSupport.h"
-#import "UITextView+RACSignalSupport.h"
-#import "UIBarButtonItem+RACCommandSupport.h"
-#import "UIButton+RACCommandSupport.h"
-#import "UIGestureRecognizer+RACSignalSupport.h"
+	#import "RACDelegateProxy.h"
+	#import "UIControl+RACSignalSupport.h"
+	#import "UITextField+RACSignalSupport.h"
+	#import "UITextView+RACSignalSupport.h"
+	#import "UIBarButtonItem+RACCommandSupport.h"
+	#import "UIButton+RACCommandSupport.h"
+	#import "UIGestureRecognizer+RACSignalSupport.h"
 #elif TARGET_OS_MAC
-#import "EXTKeyPathCoding.h"
-#import "NSControl+RACCommandSupport.h"
-#import "NSControl+RACTextSignalSupport.h"
-#import "NSObject+RACAppKitBindings.h"
-#import "NSText+RACSignalSupport.h"
+	#import "NSControl+RACCommandSupport.h"
+	#import "NSControl+RACTextSignalSupport.h"
+	#import "NSObject+RACAppKitBindings.h"
+	#import "NSText+RACSignalSupport.h"
 #endif

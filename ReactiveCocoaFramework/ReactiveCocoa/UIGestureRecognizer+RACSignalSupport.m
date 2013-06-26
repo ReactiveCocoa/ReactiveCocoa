@@ -7,16 +7,33 @@
 //
 
 #import "UIGestureRecognizer+RACSignalSupport.h"
-#import "RACEventTrampoline.h"
+#import "EXTScope.h"
+#import "NSObject+RACDeallocating.h"
+#import "RACCompoundDisposable.h"
+#import "RACDisposable.h"
+#import "RACSignal.h"
+#import "RACSubscriber.h"
 
 @implementation UIGestureRecognizer (RACSignalSupport)
 
 - (RACSignal *)rac_gestureSignal {
-	RACEventTrampoline *trampoline = [RACEventTrampoline trampolineForGestureRecognizer:self];
-	[trampoline.subject setNameWithFormat:@"%@ -rac_gestureSignal", self];
-	RACAddEventTrampoline(self, trampoline);
+	@weakify(self);
 
-	return trampoline.subject;
+	return [[RACSignal
+		createSignal:^(id<RACSubscriber> subscriber) {
+			@strongify(self);
+
+			[self addTarget:subscriber action:@selector(sendNext:)];
+			[self.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				[subscriber sendCompleted];
+			}]];
+
+			return [RACDisposable disposableWithBlock:^{
+				@strongify(self);
+				[self removeTarget:subscriber action:@selector(sendNext:)];
+			}];
+		}]
+		setNameWithFormat:@"%@ -rac_gestureSignal", self];
 }
 
 @end

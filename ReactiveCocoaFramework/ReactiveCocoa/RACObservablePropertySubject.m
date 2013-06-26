@@ -99,7 +99,6 @@
 
 	property->_exposedSignal = [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		@strongify(property);
-		[subscriber sendNext:[property.target valueForKeyPath:keyPath]];
 		return [[property.target rac_valuesForKeyPath:property.keyPath observer:property] subscribe:subscriber];
 	}] setNameWithFormat:@"+propertyWithTarget: %@ keyPath: %@", [target rac_description], keyPath];
 	

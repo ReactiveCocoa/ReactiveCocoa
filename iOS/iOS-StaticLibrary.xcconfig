@@ -13,3 +13,9 @@
 // Supported device families (1 is iPhone, 2 is iPad)
 TARGETED_DEVICE_FAMILY = 1,2
 
+// reenable generation of debug symbols, and disable stripping, so symbols
+// are available when linking the final application and in the apps dSYM 
+// (was disabled by Release/Profile settings)
+GCC_GENERATE_DEBUGGING_SYMBOLS = YES
+COPY_PHASE_STRIP = NO
+

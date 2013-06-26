@@ -64,32 +64,6 @@ it(@"should send on a signal for a protocol method", ^{
 	expect(tuple).to.equal(RACTuplePack(@"foo"));
 });
 
-it(@"should send completed when the delegator is deallocated", ^{
-	__block BOOL completed = NO;
-	__block BOOL deallocated = NO;
-
-	@autoreleasepool {
-		TestDelegator *delegator __attribute__((objc_precise_lifetime)) = [TestDelegator new];
-		id proxy = [[RACDelegateProxy alloc] initWithDelegator:delegator protocol:protocol];
-
-		[delegator.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-			deallocated = YES;
-		}]];
-
-		[[proxy
-			signalForSelector:@selector(lengthOfString:)]
-			subscribeCompleted:^{
-				completed = YES;
-			}];
-
-		expect(deallocated).to.beFalsy();
-		expect(completed).to.beFalsy();
-	}
-
-	expect(deallocated).to.beTruthy();
-	expect(completed).to.beTruthy();
-});
-
 it(@"should forward to the proxied delegate", ^{
 	[proxy setRac_proxiedDelegate:delegate];
 

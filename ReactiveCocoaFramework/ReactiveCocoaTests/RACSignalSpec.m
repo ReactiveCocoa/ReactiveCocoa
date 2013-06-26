@@ -905,7 +905,7 @@ describe(@"RACAbleWithStart", ^{
 		testObject.objectValue = expected[0];
 
 		NSMutableArray *valuesReceived = [NSMutableArray array];
-		[RACAbleWithStart(testObject, objectValue) subscribeNext:^(id x) {
+		[RACObserve(testObject, objectValue) subscribeNext:^(id x) {
 			[valuesReceived addObject:x];
 		}];
 
@@ -919,7 +919,7 @@ describe(@"RACAbleWithStart", ^{
 		testObject.integerValue = [expected[0] integerValue];
 
 		NSMutableArray *valuesReceived = [NSMutableArray array];
-		[RACAbleWithStart(testObject, integerValue) subscribeNext:^(id x) {
+		[RACObserve(testObject, integerValue) subscribeNext:^(id x) {
 			[valuesReceived addObject:x];
 		}];
 
@@ -931,7 +931,7 @@ describe(@"RACAbleWithStart", ^{
 	it(@"should read the initial value upon subscription", ^{
 		testObject.objectValue = @"foo";
 
-		RACSignal *signal = RACAbleWithStart(testObject, objectValue);
+		RACSignal *signal = RACObserve(testObject, objectValue);
 		testObject.objectValue = @"bar";
 
 		expect([signal first]).to.equal(@"bar");

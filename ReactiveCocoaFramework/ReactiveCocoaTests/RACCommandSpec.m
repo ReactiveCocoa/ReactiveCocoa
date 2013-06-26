@@ -341,7 +341,7 @@ describe(@"canExecute property", ^{
 		expect(command.canExecute).to.beTruthy();
 
 		__block RACScheduler *updatedScheduler = nil;
-		[RACAble(command, canExecute) subscribeNext:^(id _) {
+		[[RACObserve(command, canExecute) skip:1] subscribeNext:^(id _) {
 			updatedScheduler = RACScheduler.currentScheduler;
 		}];
 

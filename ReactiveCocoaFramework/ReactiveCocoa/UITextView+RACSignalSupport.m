@@ -35,7 +35,7 @@
 			return [RACSignal return:self];
 		}]
 		concat:[self.rac_delegateProxy signalForSelector:@selector(textViewDidChange:)]]
-		map:^(UITextView *x) {
+		reduceEach:^(UITextView *x) {
 			return x.text;
 		}]
 		setNameWithFormat:@"%@ -rac_textSignal", self];

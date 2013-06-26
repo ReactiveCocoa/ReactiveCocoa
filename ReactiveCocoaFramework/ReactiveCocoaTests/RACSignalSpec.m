@@ -303,47 +303,6 @@ describe(@"querying", ^{
 		}];
 	});
 	
-	it(@"should support window", ^{
-		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendNext:@"1"];
-			[subscriber sendNext:@"2"];
-			[subscriber sendNext:@"3"];
-			[subscriber sendNext:@"4"];
-			[subscriber sendNext:@"5"];
-			[subscriber sendCompleted];
-			return nil;
-		}];
-		
-		RACBehaviorSubject *windowOpen = [RACBehaviorSubject behaviorSubjectWithDefaultValue:@""];
-		
-		RACSubject *closeSubject = [RACSubject subject];
-		__block NSUInteger valuesReceived = 0;
-		
-		RACSignal *window = [signal windowWithStart:windowOpen close:^(RACSignal *start) {
-			return closeSubject;
-		}];
-				
-		[window subscribeNext:^(id x) {			
-			[x subscribeNext:^(id x) {
-				valuesReceived++;
-				NSLog(@"got: %@", x);
-				
-				if(valuesReceived % 2 == 0) {
-					[closeSubject sendNext:x];
-					[windowOpen sendNext:@""];
-				}
-			} error:^(NSError *error) {
-				
-			} completed:^{
-				
-			}];
-		} error:^(NSError *error) {
-			
-		} completed:^{
-			NSLog(@"completed");
-		}];
-	});
-	
 	it(@"should return first 'next' value with -firstOrDefault:success:error:", ^{
 		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
@@ -979,9 +938,9 @@ describe(@"RACAbleWithStart", ^{
 	});
 });
 
-describe(@"-toProperty:onObject:", ^{
+describe(@"-setKeyPath:onObject:", ^{
 	id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, RACSignal *signal) {
-		[signal toProperty:keyPath onObject:testObject];
+		[signal setKeyPath:keyPath onObject:testObject];
 	};
 
 	itShouldBehaveLike(RACPropertySignalExamples, ^{
@@ -992,7 +951,7 @@ describe(@"-toProperty:onObject:", ^{
 		RACSubject *subject = [RACSubject subject];
 		@autoreleasepool {
 			RACTestObject *testObject __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			[subject toProperty:@keypath(testObject.objectValue) onObject:testObject];
+			[subject setKeyPath:@keypath(testObject.objectValue) onObject:testObject];
 			expect(testObject.objectValue).to.beNil();
 
 			[subject sendNext:@1];
@@ -1009,13 +968,13 @@ describe(@"-toProperty:onObject:", ^{
 	it(@"should allow a new derivation after the signal's completed", ^{
 		RACSubject *subject1 = [RACSubject subject];
 		RACTestObject *testObject = [[RACTestObject alloc] init];
-		[subject1 toProperty:@keypath(testObject.objectValue) onObject:testObject];
+		[subject1 setKeyPath:@keypath(testObject.objectValue) onObject:testObject];
 		[subject1 sendCompleted];
 
 		RACSubject *subject2 = [RACSubject subject];
 		// This will assert if the previous completion didn't dispose of the
 		// subscription.
-		[subject2 toProperty:@keypath(testObject.objectValue) onObject:testObject];
+		[subject2 setKeyPath:@keypath(testObject.objectValue) onObject:testObject];
 	});
 });
 
@@ -2349,58 +2308,52 @@ describe(@"-collect", ^{
 });
 
 describe(@"-bufferWithTime:", ^{
-	it(@"should buffer nexts and restart buffering if new next arrives", ^{
-		RACSubject *input = [RACSubject subject];
-		RACSignal *bufferedInput = [input bufferWithTime:0.1 onScheduler:RACScheduler.mainThreadScheduler];
-		
-		__block NSArray *received = nil;
-		
+	NSTimeInterval interval = 0.01;
+
+	__block RACSubject *input;
+	__block RACSignal *bufferedInput;
+	__block RACTuple *latestValue;
+
+	beforeEach(^{
+		input = [RACSubject subject];
+		bufferedInput = [input bufferWithTime:interval onScheduler:RACScheduler.mainThreadScheduler];
+		latestValue = nil;
+
 		[bufferedInput subscribeNext:^(RACTuple *x) {
-			received = [x allObjects];
+			latestValue = x;
 		}];
-		
-		[input sendNext:@1];
-		[input sendNext:@2];
-		
-		expect(received).will.equal((@[ @1, @2 ]));
-		
-		[input sendNext:@3];
-		// NSNull should not be converted
-		[input sendNext:NSNull.null];
-		
-		expect(received).will.equal((@[ @3, NSNull.null ]));
 	});
-	
-});
 
-
-describe(@"-buffer:", ^{
-	it(@"should buffer nexts and restart buffering if new next arrives", ^{
-		RACSubject *input = [RACSubject subject];
-		
-		RACSignal *bufferedInput = [input buffer:2];
-
-		__block NSArray *received = nil;
-		
-		[bufferedInput subscribeNext:^(RACTuple *x) {
-			received = [x allObjects];
-		}];
-
+	it(@"should buffer nexts", ^{
 		[input sendNext:@1];
 		[input sendNext:@2];
-		
-		expect(received).to.equal((@[ @1, @2 ]));
+		expect(latestValue).will.equal(RACTuplePack(@1, @2));
 		
 		[input sendNext:@3];
 		[input sendNext:@4];
-		[input sendNext:@5];
-		
-		expect(received).to.equal((@[ @3, @4 ]));
-
-		// NSNull should not be converted
 		[input sendNext:NSNull.null];
 		
-		expect(received).to.equal((@[ @5, NSNull.null ]));
+		// NSNull should not be converted
+		expect(latestValue).will.equal(RACTuplePack(@3, @4, NSNull.null));
+	});
+
+	it(@"should not perform buffering until a value is sent", ^{
+		[input sendNext:@1];
+		[input sendNext:@2];
+		expect(latestValue).will.equal(RACTuplePack(@1, @2));
+
+		[NSThread sleepForTimeInterval:interval];
+		expect(latestValue).to.equal(RACTuplePack(@1, @2));
+		
+		[input sendNext:@3];
+		[input sendNext:@4];
+		expect(latestValue).will.equal(RACTuplePack(@3, @4));
+	});
+
+	it(@"should flush any buffered nexts upon completion", ^{
+		[input sendNext:@1];
+		[input sendCompleted];
+		expect(latestValue).to.equal(RACTuplePack(@1));
 	});
 });
 

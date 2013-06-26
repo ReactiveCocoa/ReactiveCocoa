@@ -8,6 +8,7 @@
 
 #import "RACCommand.h"
 #import "EXTScope.h"
+#import "NSObject+RACPropertySubscribing.h"
 #import "RACMulticastConnection.h"
 #import "RACReplaySubject.h"
 #import "RACScheduler.h"

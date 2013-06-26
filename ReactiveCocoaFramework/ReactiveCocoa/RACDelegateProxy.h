@@ -16,7 +16,7 @@
 
 // The delegate to which messages should be forwarded if not handled by
 // any -signalForSelector: applications.
-@property (nonatomic, weak) id rac_proxiedDelegate;
+@property (nonatomic, unsafe_unretained) id rac_proxiedDelegate;
 
 // Creates a delegate proxy for the delegator, which will respond to selectors
 // from `protocol`.

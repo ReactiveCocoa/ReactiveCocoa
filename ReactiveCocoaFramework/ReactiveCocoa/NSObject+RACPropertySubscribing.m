@@ -37,14 +37,6 @@ static RACSignal *signalWithoutChangesFor(Class class, NSObject *object, NSStrin
 
 @implementation NSObject (RACPropertySubscribing)
 
-+ (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer {
-	return signalWithoutChangesFor(self, object, keyPath, 0, observer);
-}
-
-+ (RACSignal *)rac_signalWithStartingValueFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer {
-	return signalWithoutChangesFor(self, object, keyPath, NSKeyValueObservingOptionInitial, observer);
-}
-
 + (RACSignal *)rac_signalWithChangesFor:(NSObject *)object keyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer {
 	@unsafeify(observer, object);
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
@@ -72,14 +64,6 @@ static RACSignal *signalWithoutChangesFor(Class class, NSObject *object, NSStrin
 			[KVOTrampoline dispose];
 		}];
 	}] setNameWithFormat:@"RACAble(%@, %@)", object.rac_description, keyPath];
-}
-
-- (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
-	return [self.class rac_signalFor:self keyPath:keyPath observer:observer];
-}
-
-- (RACSignal *)rac_signalWithStartingValueForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
-	return [self.class rac_signalWithStartingValueFor:self keyPath:keyPath observer:observer];
 }
 
 - (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
@@ -131,6 +115,22 @@ static RACSignal *signalWithoutChangesFor(Class class, NSObject *object, NSStrin
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
++ (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer {
+	return signalWithoutChangesFor(self, object, keyPath, 0, observer);
+}
+
++ (RACSignal *)rac_signalWithStartingValueFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer {
+	return signalWithoutChangesFor(self, object, keyPath, NSKeyValueObservingOptionInitial, observer);
+}
+
+- (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
+	return [self.class rac_signalFor:self keyPath:keyPath observer:observer];
+}
+
+- (RACSignal *)rac_signalWithStartingValueForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
+	return [self.class rac_signalWithStartingValueFor:self keyPath:keyPath observer:observer];
+}
 
 - (RACDisposable *)rac_deriveProperty:(NSString *)keyPath from:(RACSignal *)signal {
 	return [signal setKeyPath:keyPath onObject:self];

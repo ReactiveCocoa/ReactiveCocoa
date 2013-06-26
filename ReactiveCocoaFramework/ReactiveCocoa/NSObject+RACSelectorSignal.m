@@ -86,7 +86,7 @@ static void RACSwizzleForwardInvocation(Class class) {
 	class_replaceMethod(class, forwardInvocationSEL, imp_implementationWithBlock(newForwardInvocation), "v@:@");
 }
 
-static RACSignal *NSObjectRACSignalForSelector(NSObject *self, SEL selector) {
+static RACSignal *NSObjectRACSignalForSelector(NSObject *self, SEL selector, Protocol *protocol) {
 	SEL aliasSelector = RACAliasForSelector(selector);
 
 	@synchronized (self) {
@@ -105,8 +105,25 @@ static RACSignal *NSObjectRACSignalForSelector(NSObject *self, SEL selector) {
 
 		Method targetMethod = class_getInstanceMethod(class, selector);
 		if (targetMethod == NULL) {
+			const char *typeEncoding;
+			if (protocol == NULL) {
+				typeEncoding = RACSignatureForUndefinedSelector(selector);
+			} else {
+				// Look for the selector as an optional instance method.
+				struct objc_method_description methodDescription = protocol_getMethodDescription(protocol, selector, NO, YES);
+
+				if (methodDescription.name == NULL) {
+					// Then fall back to looking for a required instance
+					// method.
+					methodDescription = protocol_getMethodDescription(protocol, selector, YES, YES);
+					NSCAssert(methodDescription.name != NULL, @"Selector %@ does not exist in <%s>", NSStringFromSelector(selector), protocol_getName(protocol));
+				}
+
+				typeEncoding = methodDescription.types;
+			}
+
 			// Define the selector to call -forwardInvocation:.
-			if (!class_addMethod(class, selector, _objc_msgForward, RACSignatureForUndefinedSelector(selector))) {
+			if (!class_addMethod(class, selector, _objc_msgForward, typeEncoding)) {
 				NSDictionary *userInfo = @{
 					NSLocalizedDescriptionKey: [NSString stringWithFormat:NSLocalizedString(@"A race condition occurred implementing %@ on class %@", nil), NSStringFromSelector(selector), class],
 					NSLocalizedRecoverySuggestionErrorKey: NSLocalizedString(@"Invoke -rac_signalForSelector: again to override the implementation.", nil)
@@ -185,7 +202,16 @@ static Class RACSwizzleClass(NSObject *self) {
 }
 
 - (RACSignal *)rac_signalForSelector:(SEL)selector {
-	return NSObjectRACSignalForSelector(self, selector);
+	NSCParameterAssert(selector != NULL);
+
+	return NSObjectRACSignalForSelector(self, selector, NULL);
+}
+
+- (RACSignal *)rac_signalForSelector:(SEL)selector fromProtocol:(Protocol *)protocol {
+	NSCParameterAssert(selector != NULL);
+	NSCParameterAssert(protocol != NULL);
+
+	return NSObjectRACSignalForSelector(self, selector, protocol);
 }
 
 @end

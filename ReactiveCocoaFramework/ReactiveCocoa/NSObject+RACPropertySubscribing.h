@@ -96,14 +96,15 @@
 //        return RACObserve(arrayController, items);
 //    }];
 //
-// Returns a signal which sends a value every time the value at the given key
-// path changes, and sends completed if self is deallocated.
+// Returns a signal which sends the current value of the key path on
+// subscription, then sends the new value every time it changes, and sends
+// completed if self or observer is deallocated.
 #define RACObserve(...) \
     metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__)) \
         (_RACObserveObject(self, __VA_ARGS__)) \
         (_RACObserveObject(__VA_ARGS__))
 
-// Do not use this directly. Use RACAble above.
+// Do not use this directly. Use RACObserve above.
 #define _RACObserveObject(object, property) [object rac_valuesForKeyPath:@keypath(object, property) observer:self]
 
 @class RACDisposable;

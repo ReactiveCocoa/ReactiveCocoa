@@ -17,7 +17,7 @@ SpecBegin(NSObjectRACPropertySubscribing)
 
 describe(@"-rac_valuesForKeyPath:observer:", ^{
 	id (^setupBlock)(id, id, id) = ^(RACTestObject *object, NSString *keyPath, id observer) {
-		return [[object rac_valuesForKeyPath:keyPath observer:observer] skip:1];
+		return [object rac_valuesForKeyPath:keyPath observer:observer];
 	};
 
 	itShouldBehaveLike(RACPropertySubscribingExamples, ^{

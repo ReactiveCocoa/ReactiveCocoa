@@ -27,16 +27,48 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 		signalBlock = data[RACPropertySubscribingExamplesSetupBlock];
 	});
 
+	it(@"should send the current value once on subscription", ^{
+		RACTestObject *object = [[RACTestObject alloc] init];
+		RACSignal *signal = signalBlock(object, @keypath(object, objectValue), self);
+		NSMutableArray *values = [NSMutableArray array];
+
+		object.objectValue = @0;
+		[signal subscribeNext:^(id x) {
+			[values addObject:x];
+		}];
+
+		expect(values).to.equal((@[ @0 ]));
+	});
+
+	it(@"should send the new value when it changes", ^{
+		RACTestObject *object = [[RACTestObject alloc] init];
+		RACSignal *signal = signalBlock(object, @keypath(object, objectValue), self);
+		NSMutableArray *values = [NSMutableArray array];
+
+		object.objectValue = @0;
+		[signal subscribeNext:^(id x) {
+			[values addObject:x];
+		}];
+
+		expect(values).to.equal((@[ @0 ]));
+
+		object.objectValue = @1;
+		expect(values).to.equal((@[ @0, @1 ]));
+
+	});
+
 	it(@"should stop observing when disposed", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		RACSignal *signal = signalBlock(object, @keypath(object, objectValue), self);
 		NSMutableArray *values = [NSMutableArray array];
+
+		object.objectValue = @0;
 		RACDisposable *disposable = [signal subscribeNext:^(id x) {
 			[values addObject:x];
 		}];
 
 		object.objectValue = @1;
-		NSArray *expected = @[ @1 ];
+		NSArray *expected = @[ @0, @1 ];
 		expect(values).to.equal(expected);
 
 		[disposable dispose];
@@ -55,11 +87,10 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 			}]];
 
 			RACSignal *signal = signalBlock(object, @keypath(object, objectValue), observer);
+			object.objectValue = @1;
 			[signal subscribeNext:^(id x) {
 				[values addObject:x];
 			}];
-
-			object.objectValue = @1;
 		}
 
 		expect(observerDealloced).to.beTruthy();

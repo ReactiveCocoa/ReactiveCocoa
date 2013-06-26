@@ -26,8 +26,8 @@
 	@unsafeify(observer);
 	NSArray *keyPathComponents = keyPath.rac_keyPathComponents;
 	BOOL keyPathHasOneComponent = (keyPathComponents.count == 1);
-	NSString *firstKeyPathComponent = keyPathComponents[0];
-	NSString *keyPathByDeletingFirstKeyPathComponent = keyPath.rac_keyPathByDeletingFirstKeyPathComponent;
+	NSString *keyPathHead = keyPathComponents[0];
+	NSString *keyPathTail = keyPath.rac_keyPathByDeletingFirstKeyPathComponent;
 
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 
@@ -57,7 +57,7 @@
 	// callbacks to firstComponentDisposable.
 	void (^addObserverToValue)(NSObject *) = ^(NSObject *value) {
 		@strongify(observer);
-		RACDisposable *observerDisposable = [value rac_addObserver:observer forKeyPath:keyPathByDeletingFirstKeyPathComponent willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
+		RACDisposable *observerDisposable = [value rac_addObserver:observer forKeyPath:keyPathTail willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
 		@synchronized (disposable) {
 			[firstComponentDisposable addDisposable:observerDisposable];
 		}
@@ -70,7 +70,7 @@
 	// Note this does not use NSKeyValueObservingOptionInitial so this only
 	// handles changes to the value, callbacks to the initial value must be added
 	// separately.
-	RACKVOTrampoline *trampoline = [self rac_addObserver:observer forKeyPath:firstKeyPathComponent options:NSKeyValueObservingOptionPrior block:^(id trampolineTarget, id trampolineObserver, NSDictionary *change) {
+	RACKVOTrampoline *trampoline = [self rac_addObserver:observer forKeyPath:keyPathHead options:NSKeyValueObservingOptionPrior block:^(id trampolineTarget, id trampolineObserver, NSDictionary *change) {
 		// If this is a prior notification, clean up all the callbacks added to the
 		// previous value and call willChangeBlock. Everything else is deferred
 		// until after we get the notification after the change.
@@ -85,7 +85,7 @@
 		}
 
 		// From here the notification is not prior.
-		NSObject *value = [trampolineTarget valueForKey:firstKeyPathComponent];
+		NSObject *value = [trampolineTarget valueForKey:keyPathHead];
 
 		// If the value has changed but is nil, there is no need to add callbacks to
 		// it, just call didChangeBlock.
@@ -123,7 +123,7 @@
 		// key path.
 		addObserverToValue(value);
 		if (didChangeBlock != nil) {
-			didChangeBlock(NO, NO, [value valueForKeyPath:keyPathByDeletingFirstKeyPathComponent]);
+			didChangeBlock(NO, NO, [value valueForKeyPath:keyPathTail]);
 		}
 	}];
 
@@ -132,7 +132,7 @@
 
 	// Add the callbacks to the initial value if needed.
 	if (!keyPathHasOneComponent) {
-		NSObject *value = [self valueForKey:firstKeyPathComponent];
+		NSObject *value = [self valueForKey:keyPathHead];
 		if (value != nil) {
 			addDeallocObserverToValue(value);
 			addObserverToValue(value);

@@ -100,6 +100,7 @@ static RACSignal *signalWithoutChangesFor(Class class, NSObject *object, NSStrin
 			return nil;
 		}
 
+		[subscriber sendNext:[self valueForKeyPath:keyPath]];
 		RACDisposable *observationDisposable = [self rac_addObserver:observer forKeyPath:keyPath willChangeBlock:nil didChangeBlock:^(BOOL triggeredByLastKeyPathComponent, BOOL triggeredByDeallocation, id value) {
 			[subscriber sendNext:value];
 		}];

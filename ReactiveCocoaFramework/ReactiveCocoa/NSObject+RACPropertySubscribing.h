@@ -131,13 +131,6 @@
 // Returns a signal that sends the change dictionary for each KVO callback.
 + (RACSignal *)rac_signalWithChangesFor:(NSObject *)object keyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer;
 
-// Creates a signal to observe the value at the given keypath on the source
-// object.
-//
-// Returns a signal that immediately sends the object's current value at the
-// given keypath, then any changes thereafter.
-+ (RACSignal *)rac_valuesFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer;
-
 // Creates a signal to observe the value at the given keypath.
 //
 // Returns a signal that sends future changes to the receiver's value at the given keypath.

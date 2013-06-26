@@ -29,7 +29,7 @@
 	[self.rac_delegateProxy assignAsDelegate];
 
 	@weakify(self);
-	return [[[[RACSignal
+	return [[[[[RACSignal
 		defer:^{
 			@strongify(self);
 			return [RACSignal return:self];
@@ -38,6 +38,7 @@
 		reduceEach:^(UITextView *x) {
 			return x.text;
 		}]
+		takeUntil:self.rac_willDeallocSignal]
 		setNameWithFormat:@"%@ -rac_textSignal", self];
 }
 

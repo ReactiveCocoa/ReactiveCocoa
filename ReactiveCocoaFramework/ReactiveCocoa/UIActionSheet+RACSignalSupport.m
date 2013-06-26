@@ -8,7 +8,8 @@
 
 #import "UIActionSheet+RACSignalSupport.h"
 #import "RACDelegateProxy.h"
-#import "RACSignal.h"
+#import "RACSignal+Operations.h"
+#import "NSObject+RACDeallocating.h"
 #import "RACTuple.h"
 #import <objc/runtime.h>
 
@@ -27,11 +28,12 @@
 - (RACSignal *)rac_buttonClickedSignal {
 	[self.rac_delegateProxy assignAsDelegate];
 
-	return [[[self.rac_delegateProxy
+	return [[[[self.rac_delegateProxy
 		signalForSelector:@selector(actionSheet:clickedButtonAtIndex:)]
 		reduceEach:^(UIActionSheet *actionSheet, NSNumber *buttonIndex) {
 			return buttonIndex;
 		}]
+		takeUntil:self.rac_willDeallocSignal]
 		setNameWithFormat:@"%@ -rac_buttonClickedSignal", self];
 }
 

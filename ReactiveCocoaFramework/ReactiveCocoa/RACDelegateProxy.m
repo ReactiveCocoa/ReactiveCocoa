@@ -42,9 +42,7 @@
 #pragma mark API
 
 - (RACSignal *)signalForSelector:(SEL)selector {
-	return [[self
-		rac_signalForSelector:selector fromProtocol:_protocol]
-		takeUntil:_delegator.rac_willDeallocSignal];
+	return [self rac_signalForSelector:selector fromProtocol:_protocol];
 }
 
 - (void)assignAsDelegate {

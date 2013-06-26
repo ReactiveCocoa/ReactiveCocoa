@@ -31,7 +31,7 @@
 - (void)assignAsDelegate;
 
 // Calls -rac_signalForSelector:fromProtocol: using the `protocol` specified
-// during initialization, and scopes the signal to the lifetime of the delegator.
+// during initialization.
 - (RACSignal *)signalForSelector:(SEL)selector;
 
 @end

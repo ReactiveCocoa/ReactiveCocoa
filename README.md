@@ -416,7 +416,7 @@ RACSignal *databaseSignal = [[databaseClient
     fetchObjectsMatchingPredicate:predicate]
     subscribeOn:[RACScheduler schedulerWithPriority:RACSchedulerPriorityDefault]];
 
-RACSignal *fileSignal = [RACSignal start:^(BOOL *success, NSError **error) {
+RACSignal *fileSignal = [RACSignal start:^id(BOOL *success, NSError *__autoreleasing *error) {
     NSMutableArray *filesInProgress = [NSMutableArray array];
     for (NSString *path in files) {
         [filesInProgress addObject:[NSData dataWithContentsOfFile:path]];

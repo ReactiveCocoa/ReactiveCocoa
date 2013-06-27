@@ -10,14 +10,5 @@
 // Apply common settings specific to iOS
 #include "iOS-Base.xcconfig"
 
-// Whether to strip debugging symbols when copying resources (like included
-// binaries)
-// overwrite from Release.xcconfig
-COPY_PHASE_STRIP = NO
-
-// Whether to generate debugging symbols
-// overwrite from Release.xcconfig
-GCC_GENERATE_DEBUGGING_SYMBOLS = YES
-
 // Supported device families (1 is iPhone, 2 is iPad)
 TARGETED_DEVICE_FAMILY = 1,2

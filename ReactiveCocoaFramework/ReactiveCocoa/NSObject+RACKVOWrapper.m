@@ -78,7 +78,7 @@ NSString * const RACKeyValueChangeLastPathComponent = @"RACKeyValueChangeLastPat
 	// Note this does not use NSKeyValueObservingOptionInitial so this only
 	// handles changes to the value, callbacks to the initial value must be added
 	// separately.
-	RACKVOTrampoline *trampoline = [self rac_addObserver:observer forKeyPath:keyPathHead options:NSKeyValueObservingOptionPrior block:^(id trampolineTarget, id trampolineObserver, NSDictionary *change) {
+	RACKVOTrampoline *trampoline = [self rac_addObserver:observer forKeyPath:keyPathHead options:NSKeyValueObservingOptionPrior | NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld block:^(id trampolineTarget, id trampolineObserver, NSDictionary *change) {
 		// Prepare the change dictionary by adding the RAC specific keys
 		{
 			NSMutableDictionary *newChange = [change mutableCopy];

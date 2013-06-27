@@ -253,11 +253,11 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 //  2. The result of the invocation is added to the returned stream.
 //  3. The result of the invocation (`running`) and the next element of the
 //  receiver (`next`) is passed into `block`.
-//  4. Steps 2 and 3 are repeated until all elements have been processed.
+//  4. Steps 2 and 3 are repeated until all values have been processed.
 //
 // startingValue - The value to be combined with the first element of the
 //                 receiver. This value may be `nil`.
-// block         - A block that describes how to combine elements of the
+// block         - A block that describes how to combine values of the
 //                 receiver. If the receiver is empty, this block will never be
 //                 invoked.
 //

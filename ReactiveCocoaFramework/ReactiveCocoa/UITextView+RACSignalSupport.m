@@ -12,6 +12,7 @@
 #import "NSObject+RACSelectorSignal.h"
 #import "RACDelegateProxy.h"
 #import "RACSignal+Operations.h"
+#import "RACTuple.h"
 #import <objc/runtime.h>
 
 static void RACUseDelegateProxy(UITextView *self) {
@@ -40,7 +41,7 @@ static void RACUseDelegateProxy(UITextView *self) {
 	return [[[[[RACSignal
 		defer:^{
 			@strongify(self);
-			return [RACSignal return:self];
+			return [RACSignal return:RACTuplePack(self)];
 		}]
 		concat:[self.rac_delegateProxy rac_signalForSelector:@selector(textViewDidChange:) fromProtocol:@protocol(UITextViewDelegate)]]
 		reduceEach:^(UITextView *x) {

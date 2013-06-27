@@ -18,6 +18,18 @@
 #import "RACSignal.h"
 #import "RACTuple.h"
 
+@protocol TestProtocol
+
+@required
+- (BOOL)requiredMethod:(NSUInteger)number;
+- (void)lifeIsGood:(id)sender;
+
+@optional
+- (NSUInteger)optionalMethodWithObject:(id)object flag:(BOOL)flag;
+- (id)objectValue;
+
+@end
+
 SpecBegin(NSObjectRACSelectorSignal)
 
 describe(@"RACTestObject", ^{
@@ -121,7 +133,7 @@ describe(@"RACTestObject", ^{
 	it(@"should send arguments for invocation on previously KVO'd receiver", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 
-		[RACAble(object, objectValue) replayLast];
+		[RACObserve(object, objectValue) replayLast];
 
 		__block id key;
 		__block id value;
@@ -146,7 +158,7 @@ describe(@"RACTestObject", ^{
 			key = x.second;
 		}];
 
-		[RACAble(object, objectValue) replayLast];
+		[RACObserve(object, objectValue) replayLast];
 
 		[object setObjectValue:@YES andSecondObjectValue:@"Winner"];
 
@@ -266,6 +278,61 @@ describe(@"two classes in the same hierarchy", ^{
 
 		expectedValues = @[ @"foo", @"42" ];
 		expect(subclassTuple.allObjects).to.equal(expectedValues);
+	});
+});
+
+describe(@"-rac_signalForSelector:fromProtocol", ^{
+	__block RACTestObject<TestProtocol> *object;
+	__block Protocol *protocol;
+	
+	beforeEach(^{
+		object = (id)[[RACTestObject alloc] init];
+		expect(object).notTo.beNil();
+
+		protocol = @protocol(TestProtocol);
+		expect(protocol).notTo.beNil();
+	});
+
+	it(@"should not clobber a required method already implemented", ^{
+		__block id value;
+		[[object rac_signalForSelector:@selector(lifeIsGood:) fromProtocol:protocol] subscribeNext:^(RACTuple *x) {
+			value = x.first;
+		}];
+
+		[object lifeIsGood:@42];
+		expect(value).to.equal(@42);
+	});
+
+	it(@"should not clobber an optional method already implemented", ^{
+		object.objectValue = @"foo";
+
+		__block id value;
+		[[object rac_signalForSelector:@selector(objectValue) fromProtocol:protocol] subscribeNext:^(RACTuple *x) {
+			value = x;
+		}];
+
+		expect([object objectValue]).to.equal(@"foo");
+		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
+	});
+
+	it(@"should inject a required method", ^{
+		__block id value;
+		[[object rac_signalForSelector:@selector(requiredMethod:) fromProtocol:protocol] subscribeNext:^(RACTuple *x) {
+			value = x.first;
+		}];
+
+		expect([object requiredMethod:42]).to.beFalsy();
+		expect(value).to.equal(42);
+	});
+
+	it(@"should inject an optional method", ^{
+		__block id value;
+		[[object rac_signalForSelector:@selector(optionalMethodWithObject:flag:) fromProtocol:protocol] subscribeNext:^(RACTuple *x) {
+			value = x;
+		}];
+
+		expect([object optionalMethodWithObject:@"foo" flag:YES]).to.equal(0);
+		expect(value).to.equal(RACTuplePack(@"foo", @YES));
 	});
 });
 

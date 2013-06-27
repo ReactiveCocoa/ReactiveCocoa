@@ -77,29 +77,6 @@
 	return [self rac_liftSelector:selector withSignalsFromArray:arguments];
 }
 
-- (RACSignal *)rac_liftBlock:(id)block withSignals:(RACSignal *)firstSignal, ... {
-	NSCParameterAssert(firstSignal != nil);
-
-	NSMutableArray *arguments = [NSMutableArray array];
-
-	va_list args;
-	va_start(args, firstSignal);
-	for (id currentObject = firstSignal; currentObject != nil; currentObject = va_arg(args, id)) {
-		[arguments addObject:currentObject];
-	}
-
-	va_end(args);
-	return [self rac_liftBlock:block withSignalsFromArray:arguments];
-}
-
-- (RACSignal *)rac_liftBlock:(id)block withSignalsFromArray:(NSArray *)signals {
-	NSCParameterAssert(block != nil);
-
-	return [self rac_liftSignals:signals withReducingInvocation:^(RACTuple *arguments) {
-		return [RACBlockTrampoline invokeBlock:block withArguments:arguments];
-	}];
-}
-
 @end
 
 @implementation NSObject (RACLiftingDeprecated)
@@ -155,7 +132,11 @@ static NSArray *RACMapArgumentsToSignals(NSArray *args) {
 }
 
 - (RACSignal *)rac_liftBlock:(id)block withArgumentsFromArray:(NSArray *)args {
-	return [self rac_liftBlock:block withSignalsFromArray:RACMapArgumentsToSignals(args)];
+	return [[[[RACSignal
+		combineLatest:RACMapArgumentsToSignals(args)]
+		reduceEach:block]
+		takeUntil:self.rac_willDeallocSignal]
+		replayLast];
 }
 
 #pragma clang diagnostic pop

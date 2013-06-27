@@ -483,5 +483,6 @@ extern const NSInteger RACSignalErrorTimedOut;
 - (RACSignal *)bufferWithTime:(NSTimeInterval)interval __attribute__((deprecated("Use -bufferWithTime:onScheduler: instead")));
 - (RACSignal *)timeout:(NSTimeInterval)interval __attribute__((deprecated("Use -timeout:onScheduler: instead")));
 - (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object __attribute__((deprecated("Renamed to -setKeyPath:onObject:")));
+- (RACSignal *)ignoreElements __attribute__((deprecated("Renamed to -ignoreValues")));
 
 @end

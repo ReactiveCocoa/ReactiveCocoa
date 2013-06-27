@@ -1408,6 +1408,10 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 	return [self setKeyPath:keyPath onObject:object];
 }
 
+- (RACSignal *)ignoreElements {
+	return [self ignoreValues];
+}
+
 #pragma clang diagnostic pop
 
 @end

@@ -12,7 +12,7 @@
 		1EC06B18173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EC06B16173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.m */; };
 		27A887D11703DC6800040001 /* UIBarButtonItem+RACCommandSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 27A887C81703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.m */; };
 		27A887D21703DDEB00040001 /* UIBarButtonItem+RACCommandSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 27A887C71703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		557A4B5A177648C7008EF796 /* UIActionSheet+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 557A4B58177648C7008EF796 /* UIActionSheet+RACSignalSupport.h */; };
+		557A4B5A177648C7008EF796 /* UIActionSheet+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 557A4B58177648C7008EF796 /* UIActionSheet+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		557A4B5B177648C7008EF796 /* UIActionSheet+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 557A4B59177648C7008EF796 /* UIActionSheet+RACSignalSupport.m */; };
 		557A4B5C177648C7008EF796 /* UIActionSheet+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 557A4B59177648C7008EF796 /* UIActionSheet+RACSignalSupport.m */; };
 		557A4B631776C06B008EF796 /* UIActionSheetRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 557A4B621776C06B008EF796 /* UIActionSheetRACSupportSpec.m */; };

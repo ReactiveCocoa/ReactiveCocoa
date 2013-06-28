@@ -7,6 +7,9 @@
 //
 
 #import "RACDelegateProxy.h"
+#import "RACSignal+Operations.h"
+#import "NSObject+RACSelectorSignal.h"
+#import "NSObject+RACDeallocating.h"
 #import <objc/runtime.h>
 
 @interface RACDelegateProxy () {
@@ -27,9 +30,16 @@
 	if (self == nil) return nil;
 
 	class_addProtocol(self.class, protocol);
+
 	_protocol = protocol;
 
 	return self;
+}
+
+#pragma mark API
+
+- (RACSignal *)signalForSelector:(SEL)selector {
+	return [self rac_signalForSelector:selector fromProtocol:_protocol];
 }
 
 #pragma mark NSObject

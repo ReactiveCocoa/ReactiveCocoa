@@ -6,29 +6,21 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACObservablePropertySubject.h"
-#import "RACBinding.h"
-#import "RACDisposable.h"
-#import "NSObject+RACKVOWrapper.h"
 #import "RACTestObject.h"
 #import "RACPropertySignalExamples.h"
 #import "RACPropertySubjectExamples.h"
 
-@interface TestClass : NSObject
-@property (nonatomic, strong) NSString *name;
-@property (nonatomic, strong) TestClass *relatedObject;
-@property (nonatomic, strong) NSArray *array;
-@property (nonatomic, strong) NSSet *set;
-@property (nonatomic, strong) NSOrderedSet *orderedSet;
-@end
-
-@implementation TestClass
-@end
+#import "NSObject+RACDeallocating.h"
+#import "NSObject+RACKVOWrapper.h"
+#import "RACBinding.h"
+#import "RACCompoundDisposable.h"
+#import "RACDisposable.h"
+#import "RACObservablePropertySubject.h"
 
 SpecBegin(RACObservablePropertySubject)
 
 describe(@"RACObservablePropertySubject", ^{
-	__block TestClass *object;
+	__block RACTestObject *object;
 	__block RACObservablePropertySubject *property;
 	id value1 = @"test value 1";
 	id value2 = @"test value 2";
@@ -36,8 +28,8 @@ describe(@"RACObservablePropertySubject", ^{
 	NSArray *values = @[ value1, value2, value3 ];
 	
 	before(^{
-		object = [[TestClass alloc] init];
-		property = [RACObservablePropertySubject propertyWithTarget:object keyPath:@keypath(object.name)];
+		object = [[RACTestObject alloc] init];
+		property = [RACObservablePropertySubject propertyWithTarget:object keyPath:@keypath(object.stringValue)];
 	});
 	
 	id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, RACSignal *signal) {
@@ -50,7 +42,7 @@ describe(@"RACObservablePropertySubject", ^{
 	
 	itShouldBehaveLike(RACPropertySubjectExamples, ^{
 		return @{
-			RACPropertySubjectExampleGetPropertyBlock: [^{ return [RACObservablePropertySubject propertyWithTarget:object keyPath:@keypath(object.name)]; } copy]
+			RACPropertySubjectExampleGetPropertyBlock: [^{ return [RACObservablePropertySubject propertyWithTarget:object keyPath:@keypath(object.stringValue)]; } copy]
 		};
 	});
 	
@@ -61,7 +53,7 @@ describe(@"RACObservablePropertySubject", ^{
 		}];
 		expect(receivedValue).to.beNil();
 		
-		object.name = value1;
+		object.stringValue = value1;
 		[[property take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
@@ -69,27 +61,27 @@ describe(@"RACObservablePropertySubject", ^{
 	});
 	
 	it(@"should send the object's new value when it's changed", ^{
-		object.name = value1;
+		object.stringValue = value1;
 		NSMutableArray *receivedValues = [NSMutableArray array];
 		[property subscribeNext:^(id x) {
 			[receivedValues addObject:x];
 		}];
-		object.name = value2;
-		object.name = value3;
+		object.stringValue = value2;
+		object.stringValue = value3;
 		expect(receivedValues).to.equal(values);
 	});
 	
 	it(@"should set values it's sent", ^{
-		expect(object.name).to.beNil();
+		expect(object.stringValue).to.beNil();
 		[property sendNext:value1];
-		expect(object.name).to.equal(value1);
+		expect(object.stringValue).to.equal(value1);
 		[property sendNext:value2];
-		expect(object.name).to.equal(value2);
+		expect(object.stringValue).to.equal(value2);
 	});
 	
 	it(@"should be able to subscribe to signals", ^{
 		NSMutableArray *receivedValues = [NSMutableArray array];
-		[object rac_addObserver:self forKeyPath:@keypath(object.name) options:NSKeyValueObservingOptionNew block:^(id target, id observer, NSDictionary *change) {
+		[object rac_addObserver:self forKeyPath:@keypath(object.stringValue) options:NSKeyValueObservingOptionNew block:^(id target, id observer, NSDictionary *change) {
 			[receivedValues addObject:change[NSKeyValueChangeNewKey]];
 		}];
 		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
@@ -104,165 +96,187 @@ describe(@"RACObservablePropertySubject", ^{
 });
 
 describe(@"RACObservablePropertySubject bindings", ^{
-	__block TestClass *a;
-	__block TestClass *b;
-	__block TestClass *c;
+	__block RACTestObject *a;
+	__block RACTestObject *b;
+	__block RACTestObject *c;
 	__block NSString *testName1;
 	__block NSString *testName2;
 	__block NSString *testName3;
 	
 	before(^{
-		a = [[TestClass alloc] init];
-		b = [[TestClass alloc] init];
-		c = [[TestClass alloc] init];
+		a = [[RACTestObject alloc] init];
+		b = [[RACTestObject alloc] init];
+		c = [[RACTestObject alloc] init];
 		testName1 = @"sync it!";
 		testName2 = @"sync it again!";
 		testName3 = @"sync it once more!";
 	});
 	
 	it(@"should keep objects' properties in sync", ^{
-		RACBind(a, name) = RACBind(b, name);
-		expect(a.name).to.beNil();
-		expect(b.name).to.beNil();
+		RACBind(a, stringValue) = RACBind(b, stringValue);
+		expect(a.stringValue).to.beNil();
+		expect(b.stringValue).to.beNil();
 		
-		a.name = testName1;
-		expect(a.name).to.equal(testName1);
-		expect(b.name).to.equal(testName1);
+		a.stringValue = testName1;
+		expect(a.stringValue).to.equal(testName1);
+		expect(b.stringValue).to.equal(testName1);
 		
-		b.name = testName2;
-		expect(a.name).to.equal(testName2);
-		expect(b.name).to.equal(testName2);
+		b.stringValue = testName2;
+		expect(a.stringValue).to.equal(testName2);
+		expect(b.stringValue).to.equal(testName2);
 		
-		a.name = nil;
-		expect(a.name).to.beNil();
-		expect(b.name).to.beNil();
+		a.stringValue = nil;
+		expect(a.stringValue).to.beNil();
+		expect(b.stringValue).to.beNil();
 	});
 	
 	it(@"should keep properties identified by keypaths in sync", ^{
-		RACBind(a, relatedObject.name) = RACBind(b, relatedObject.name);
-		a.relatedObject = [[TestClass alloc] init];
-		b.relatedObject = [[TestClass alloc] init];
+		RACBind(a, strongTestObjectValue.stringValue) = RACBind(b, strongTestObjectValue.stringValue);
+		a.strongTestObjectValue = [[RACTestObject alloc] init];
+		b.strongTestObjectValue = [[RACTestObject alloc] init];
 		
-		a.relatedObject.name = testName1;
-		expect(a.relatedObject.name).to.equal(testName1);
-		expect(b.relatedObject.name).to.equal(testName1);
-		expect(a.relatedObject).notTo.equal(b.relatedObject);
+		a.strongTestObjectValue.stringValue = testName1;
+		expect(a.strongTestObjectValue.stringValue).to.equal(testName1);
+		expect(b.strongTestObjectValue.stringValue).to.equal(testName1);
+		expect(a.strongTestObjectValue).notTo.equal(b.strongTestObjectValue);
 		
-		b.relatedObject = nil;
-		expect(a.relatedObject.name).to.beNil();
+		b.strongTestObjectValue = nil;
+		expect(a.strongTestObjectValue.stringValue).to.beNil();
 		
-		c.name = testName2;
-		b.relatedObject = c;
-		expect(a.relatedObject.name).to.equal(testName2);
-		expect(b.relatedObject.name).to.equal(testName2);
-		expect(a.relatedObject).notTo.equal(b.relatedObject);
+		c.stringValue = testName2;
+		b.strongTestObjectValue = c;
+		expect(a.strongTestObjectValue.stringValue).to.equal(testName2);
+		expect(b.strongTestObjectValue.stringValue).to.equal(testName2);
+		expect(a.strongTestObjectValue).notTo.equal(b.strongTestObjectValue);
 	});
 	
 	it(@"should update properties identified by keypaths when the intermediate values change", ^{
-		RACBind(a, relatedObject.name) = RACBind(b, relatedObject.name);
-		a.relatedObject = [[TestClass alloc] init];
-		b.relatedObject = [[TestClass alloc] init];
-		c.name = testName1;
-		b.relatedObject = c;
+		RACBind(a, strongTestObjectValue.stringValue) = RACBind(b, strongTestObjectValue.stringValue);
+		a.strongTestObjectValue = [[RACTestObject alloc] init];
+		b.strongTestObjectValue = [[RACTestObject alloc] init];
+		c.stringValue = testName1;
+		b.strongTestObjectValue = c;
 		
-		expect(a.relatedObject.name).to.equal(testName1);
-		expect(a.relatedObject).notTo.equal(b.relatedObject);
+		expect(a.strongTestObjectValue.stringValue).to.equal(testName1);
+		expect(a.strongTestObjectValue).notTo.equal(b.strongTestObjectValue);
 	});
 	
 	it(@"should update properties identified by keypaths when the binding was created when one of the two objects had an intermediate nil value", ^{
-		RACBind(a, relatedObject.name) = RACBind(b, relatedObject.name);
-		b.relatedObject = [[TestClass alloc] init];
-		c.name = testName1;
-		a.relatedObject = c;
+		RACBind(a, strongTestObjectValue.stringValue) = RACBind(b, strongTestObjectValue.stringValue);
+		b.strongTestObjectValue = [[RACTestObject alloc] init];
+		c.stringValue = testName1;
+		a.strongTestObjectValue = c;
 		
-		expect(a.relatedObject.name).to.equal(testName1);
-		expect(b.relatedObject.name).to.equal(testName1);
-		expect(a.relatedObject).notTo.equal(b.relatedObject);
+		expect(a.strongTestObjectValue.stringValue).to.equal(testName1);
+		expect(b.strongTestObjectValue.stringValue).to.equal(testName1);
+		expect(a.strongTestObjectValue).notTo.equal(b.strongTestObjectValue);
 	});
 	
 	it(@"should take the value of the object being bound to at the start", ^{
-		a.name = testName1;
-		b.name = testName2;
-		RACBind(a, name) = RACBind(b, name);
-		expect(a.name).to.equal(testName2);
-		expect(b.name).to.equal(testName2);
+		a.stringValue = testName1;
+		b.stringValue = testName2;
+		RACBind(a, stringValue) = RACBind(b, stringValue);
+		expect(a.stringValue).to.equal(testName2);
+		expect(b.stringValue).to.equal(testName2);
 	});
 	
 	it(@"should update the value even if it's the same value the object had before it was bound", ^{
-		a.name = testName1;
-		b.name = testName2;
-		RACBind(a, name) = RACBind(b, name);
-		expect(a.name).to.equal(testName2);
-		expect(b.name).to.equal(testName2);
+		a.stringValue = testName1;
+		b.stringValue = testName2;
+		RACBind(a, stringValue) = RACBind(b, stringValue);
+		expect(a.stringValue).to.equal(testName2);
+		expect(b.stringValue).to.equal(testName2);
 		
-		b.name = testName1;
-		expect(a.name).to.equal(testName1);
-		expect(b.name).to.equal(testName1);
+		b.stringValue = testName1;
+		expect(a.stringValue).to.equal(testName1);
+		expect(b.stringValue).to.equal(testName1);
 	});
 	
 	it(@"should bind transitively", ^{
-		a.name = testName1;
-		b.name = testName2;
-		c.name = testName3;
-		RACBind(a, name) = RACBind(b, name);
-		RACBind(b, name) = RACBind(c, name);
-		expect(a.name).to.equal(testName3);
-		expect(b.name).to.equal(testName3);
-		expect(c.name).to.equal(testName3);
+		a.stringValue = testName1;
+		b.stringValue = testName2;
+		c.stringValue = testName3;
+		RACBind(a, stringValue) = RACBind(b, stringValue);
+		RACBind(b, stringValue) = RACBind(c, stringValue);
+		expect(a.stringValue).to.equal(testName3);
+		expect(b.stringValue).to.equal(testName3);
+		expect(c.stringValue).to.equal(testName3);
 		
-		c.name = testName1;
-		expect(a.name).to.equal(testName1);
-		expect(b.name).to.equal(testName1);
-		expect(c.name).to.equal(testName1);
+		c.stringValue = testName1;
+		expect(a.stringValue).to.equal(testName1);
+		expect(b.stringValue).to.equal(testName1);
+		expect(c.stringValue).to.equal(testName1);
 		
-		b.name = testName2;
-		expect(a.name).to.equal(testName2);
-		expect(b.name).to.equal(testName2);
-		expect(c.name).to.equal(testName2);
+		b.stringValue = testName2;
+		expect(a.stringValue).to.equal(testName2);
+		expect(b.stringValue).to.equal(testName2);
+		expect(c.stringValue).to.equal(testName2);
 		
-		a.name = testName3;
-		expect(a.name).to.equal(testName3);
-		expect(b.name).to.equal(testName3);
-		expect(c.name).to.equal(testName3);
+		a.stringValue = testName3;
+		expect(a.stringValue).to.equal(testName3);
+		expect(b.stringValue).to.equal(testName3);
+		expect(c.stringValue).to.equal(testName3);
 	});
 	
 	it(@"should bind changes made by KVC on arrays", ^{
-		b.array = @[];
-		RACBind(a, array) = RACBind(b, array);
-		[[b mutableArrayValueForKeyPath:@keypath(b.array)] addObject:@1];
-		expect(a.array).to.equal(b.array);
+		b.arrayValue = @[];
+		RACBind(a, arrayValue) = RACBind(b, arrayValue);
+		[[b mutableArrayValueForKeyPath:@keypath(b.arrayValue)] addObject:@1];
+		expect(a.arrayValue).to.equal(b.arrayValue);
 	});
 	
 	it(@"should bind changes made by KVC on sets", ^{
-		b.set = [NSSet set];
-		RACBind(a, set) = RACBind(b, set);
-		[[b mutableSetValueForKeyPath:@keypath(b.set)] addObject:@1];
-		expect(a.set).to.equal(b.set);
+		b.setValue = [NSSet set];
+		RACBind(a, setValue) = RACBind(b, setValue);
+		[[b mutableSetValueForKeyPath:@keypath(b.setValue)] addObject:@1];
+		expect(a.setValue).to.equal(b.setValue);
 	});
 	
 	it(@"should bind changes made by KVC on ordered sets", ^{
-		b.orderedSet = [NSOrderedSet orderedSet];
-		RACBind(a, orderedSet) = RACBind(b, orderedSet);
-		[[b mutableOrderedSetValueForKeyPath:@keypath(b.orderedSet)] addObject:@1];
-		expect(a.orderedSet).to.equal(b.orderedSet);
+		b.orderedSetValue = [NSOrderedSet orderedSet];
+		RACBind(a, orderedSetValue) = RACBind(b, orderedSetValue);
+		[[b mutableOrderedSetValueForKeyPath:@keypath(b.orderedSetValue)] addObject:@1];
+		expect(a.orderedSetValue).to.equal(b.orderedSetValue);
+	});
+	
+	it(@"should handle deallocation of intermediate objects correctly even without support from KVO", ^{
+		__block BOOL wasDisposed = NO;
+		RACBind(a, weakTestObjectValue.stringValue) = RACBind(b, strongTestObjectValue.stringValue);
+		b.strongTestObjectValue = [[RACTestObject alloc] init];
+		@autoreleasepool {
+			RACTestObject *object = [[RACTestObject alloc] init];
+			[object.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				wasDisposed = YES;
+			}]];
+			
+			a.weakTestObjectValue = object;
+			object.stringValue = testName1;
+			
+			expect(wasDisposed).to.beFalsy();
+			
+			expect(b.strongTestObjectValue.stringValue).to.equal(testName1);
+		}
+		
+		expect(wasDisposed).will.beTruthy();
+		expect(b.strongTestObjectValue.stringValue).to.beNil();
 	});
 	
 	it(@"should stop binding when disposed", ^{
-		RACBinding *aBinding = RACBind(a, name);
-		RACBinding *bBinding = RACBind(b, name);
+		RACBinding *aBinding = RACBind(a, stringValue);
+		RACBinding *bBinding = RACBind(b, stringValue);
 		RACDisposable *aDisposable = [bBinding subscribe:aBinding];
 		RACDisposable *bDisposable = [aBinding subscribe:bBinding];
 
-		a.name = testName1;
-		expect(a.name).to.equal(testName1);
-		expect(b.name).to.equal(testName1);
+		a.stringValue = testName1;
+		expect(a.stringValue).to.equal(testName1);
+		expect(b.stringValue).to.equal(testName1);
 
 		[aDisposable dispose];
 		[bDisposable dispose];
 
-		a.name = testName2;
-		expect(a.name).to.equal(testName2);
-		expect(b.name).to.equal(testName1);
+		a.stringValue = testName2;
+		expect(a.stringValue).to.equal(testName2);
+		expect(b.stringValue).to.equal(testName1);
 	});
 });
 

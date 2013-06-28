@@ -609,7 +609,7 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 	NSCParameterAssert(block != nil);
 
 	return [[[self
-		ignoreElements]
+		ignoreValues]
 		concat:[RACSignal defer:block]]
 		setNameWithFormat:@"[%@] -sequenceNext:", self.name];
 }
@@ -914,7 +914,7 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 	BOOL success = NO;
 
 	[[[self
-		ignoreElements]
+		ignoreValues]
 		setNameWithFormat:@"[%@] -waitUntilCompleted:", self.name]
 		firstOrDefault:nil success:&success error:error];
 	
@@ -1217,10 +1217,10 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 	}] setNameWithFormat:@"[%@] -sample: %@", self.name, sampler];
 }
 
-- (RACSignal *)ignoreElements {
+- (RACSignal *)ignoreValues {
 	return [[self filter:^(id _) {
 		return NO;
-	}] setNameWithFormat:@"[%@] -ignoreElements", self.name];
+	}] setNameWithFormat:@"[%@] -ignoreValues", self.name];
 }
 
 - (RACSignal *)materialize {
@@ -1406,6 +1406,10 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 
 - (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object {
 	return [self setKeyPath:keyPath onObject:object];
+}
+
+- (RACSignal *)ignoreElements {
+	return [self ignoreValues];
 }
 
 #pragma clang diagnostic pop

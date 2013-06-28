@@ -2528,7 +2528,7 @@ describe(@"-finally:", ^{
 	});
 });
 
-describe(@"-ignoreElements", ^{
+describe(@"-ignoreValues", ^{
 	__block RACSubject *subject;
 
 	__block BOOL gotNext;
@@ -2542,7 +2542,7 @@ describe(@"-ignoreElements", ^{
 		gotCompleted = NO;
 		receivedError = nil;
 
-		[[subject ignoreElements] subscribeNext:^(id _) {
+		[[subject ignoreValues] subscribeNext:^(id _) {
 			gotNext = YES;
 		} error:^(NSError *error) {
 			receivedError = error;

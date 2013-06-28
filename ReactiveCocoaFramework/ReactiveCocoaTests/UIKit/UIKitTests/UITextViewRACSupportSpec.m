@@ -12,8 +12,7 @@
 
 SpecBegin(UITextViewRACSupport)
 
-// This test crashes when running, because lol UIKit and unit testing.
-pending(@"-rac_textSignal", ^{
+describe(@"-rac_textSignal", ^{
 	__block UITextView *textView;
 
 	beforeEach(^{

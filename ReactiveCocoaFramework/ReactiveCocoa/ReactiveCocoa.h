@@ -51,6 +51,7 @@
 	#import "UIBarButtonItem+RACCommandSupport.h"
 	#import "UIButton+RACCommandSupport.h"
 	#import "UIGestureRecognizer+RACSignalSupport.h"
+	#import "UIActionSheet+RACSignalSupport.h"
 #elif TARGET_OS_MAC
 	#import "NSControl+RACCommandSupport.h"
 	#import "NSControl+RACTextSignalSupport.h"

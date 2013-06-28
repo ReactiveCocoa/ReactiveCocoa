@@ -10,6 +10,8 @@
 #import "RACDelegateProxy.h"
 #import "RACSignal.h"
 #import "RACTuple.h"
+#import "RACCompoundDisposable.h"
+#import "NSObject+RACDeallocating.h"
 
 @protocol TestDelegateProtocol
 - (NSUInteger)lengthOfString:(NSString *)str;
@@ -43,7 +45,7 @@ it(@"should not respond to selectors at first", ^{
 
 it(@"should send on a signal for a protocol method", ^{
 	__block RACTuple *tuple;
-	[[proxy rac_signalForSelector:@selector(lengthOfString:) fromProtocol:protocol] subscribeNext:^(RACTuple *t) {
+	[[proxy signalForSelector:@selector(lengthOfString:)] subscribeNext:^(RACTuple *t) {
 		tuple = t;
 	}];
 
@@ -64,7 +66,7 @@ it(@"should not send to the delegate when signals are applied", ^{
 	[proxy setRac_proxiedDelegate:delegate];
 
 	__block RACTuple *tuple;
-	[[proxy rac_signalForSelector:@selector(lengthOfString:) fromProtocol:protocol] subscribeNext:^(RACTuple *t) {
+	[[proxy signalForSelector:@selector(lengthOfString:)] subscribeNext:^(RACTuple *t) {
 		tuple = t;
 	}];
 

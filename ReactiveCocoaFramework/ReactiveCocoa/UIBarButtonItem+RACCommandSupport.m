@@ -32,7 +32,7 @@ static void *UIControlCanExecuteDisposableKey = &UIControlCanExecuteDisposableKe
 	
 	if (command == nil) return;
 	
-	disposable = [RACAbleWithStart(command, canExecute) setKeyPath:@keypath(self.enabled) onObject:self];
+	disposable = [RACObserve(command, canExecute) setKeyPath:@keypath(self.enabled) onObject:self];
 	objc_setAssociatedObject(self, UIControlCanExecuteDisposableKey, disposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
 	[self rac_hijackActionAndTargetIfNeeded];

@@ -893,7 +893,7 @@ describe(@"distinctUntilChanged", ^{
 	});
 });
 
-describe(@"RACAbleWithStart", ^{
+describe(@"RACObserve", ^{
 	__block RACTestObject *testObject;
 
 	beforeEach(^{

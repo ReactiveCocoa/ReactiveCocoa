@@ -34,4 +34,18 @@ describe(@"-keyPathByDeletingLastKeyPathComponent", ^{
 	});
 });
 
+describe(@"-keyPathByDeletingFirstKeyPathComponent", ^{
+	it(@"should return the remaining key path", ^{
+		expect(@"first.second.third".rac_keyPathByDeletingFirstKeyPathComponent).to.equal(@"second.third");
+	});
+	
+	it(@"should return nil if given an empty string", ^{
+		expect(@"".rac_keyPathByDeletingFirstKeyPathComponent).to.beNil();
+	});
+	
+	it(@"should return nil if given a key path with only one component", ^{
+		expect(@"self".rac_keyPathByDeletingFirstKeyPathComponent).to.beNil();
+	});
+});
+
 SpecEnd

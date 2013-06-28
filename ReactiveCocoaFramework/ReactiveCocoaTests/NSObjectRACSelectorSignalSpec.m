@@ -133,7 +133,7 @@ describe(@"RACTestObject", ^{
 	it(@"should send arguments for invocation on previously KVO'd receiver", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 
-		[RACAble(object, objectValue) replayLast];
+		[RACObserve(object, objectValue) replayLast];
 
 		__block id key;
 		__block id value;
@@ -158,7 +158,7 @@ describe(@"RACTestObject", ^{
 			key = x.second;
 		}];
 
-		[RACAble(object, objectValue) replayLast];
+		[RACObserve(object, objectValue) replayLast];
 
 		[object setObjectValue:@YES andSecondObjectValue:@"Winner"];
 

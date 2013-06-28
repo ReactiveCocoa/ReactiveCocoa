@@ -9,19 +9,18 @@
 #import "UITextView+RACSignalSupport.h"
 #import "EXTScope.h"
 #import "NSObject+RACDeallocating.h"
-#import "NSObject+RACSelectorSignal.h"
 #import "RACDelegateProxy.h"
 #import "RACSignal+Operations.h"
 #import <objc/runtime.h>
 
-static void RACUseDelegateProxy(UITextView *self) {
-	if (self.delegate == self.rac_delegateProxy) return;
-
-	self.rac_delegateProxy.rac_proxiedDelegate = self.delegate;
-	self.delegate = (id)self.rac_delegateProxy;
-}
-
 @implementation UITextView (RACSignalSupport)
+
+static void RACUseDelegateProxy(UITextView *self) {
+    if (self.delegate == self.rac_delegateProxy) return;
+
+    self.rac_delegateProxy.rac_proxiedDelegate = self.delegate;
+    self.delegate = (id)self.rac_delegateProxy;
+}
 
 - (RACDelegateProxy *)rac_delegateProxy {
 	RACDelegateProxy *proxy = objc_getAssociatedObject(self, _cmd);
@@ -42,7 +41,7 @@ static void RACUseDelegateProxy(UITextView *self) {
 			@strongify(self);
 			return [RACSignal return:self];
 		}]
-		concat:[self.rac_delegateProxy rac_signalForSelector:@selector(textViewDidChange:) fromProtocol:@protocol(UITextViewDelegate)]]
+		concat:[self.rac_delegateProxy signalForSelector:@selector(textViewDidChange:)]]
 		reduceEach:^(UITextView *x) {
 			return x.text;
 		}]

@@ -14,7 +14,6 @@
 
 @interface RACDelegateProxy () {
 	// Declared as an ivar to avoid method naming conflicts.
-	__unsafe_unretained NSObject *_delegator;
 	Protocol *_protocol;
 }
 
@@ -24,8 +23,7 @@
 
 #pragma mark Lifecycle
 
-- (instancetype)initWithDelegator:(NSObject *)delegator protocol:(Protocol *)protocol {
-	NSCParameterAssert(delegator != nil);
+- (instancetype)initWithProtocol:(Protocol *)protocol {
 	NSCParameterAssert(protocol != NULL);
 
 	self = [super init];
@@ -33,7 +31,6 @@
 
 	class_addProtocol(self.class, protocol);
 
-	_delegator = delegator;
 	_protocol = protocol;
 
 	return self;
@@ -43,18 +40,6 @@
 
 - (RACSignal *)signalForSelector:(SEL)selector {
 	return [self rac_signalForSelector:selector fromProtocol:_protocol];
-}
-
-- (void)assignAsDelegate {
-	[self assignAsDelegateForKey:@"delegate"];
-}
-
-- (void)assignAsDelegateForKey:(NSString *)delegateKey {
-	id currentDelegate = [_delegator valueForKey:delegateKey];
-	if (currentDelegate != self) {
-		self.rac_proxiedDelegate = currentDelegate;
-		[_delegator setValue:self forKey:delegateKey];
-	}
 }
 
 #pragma mark NSObject

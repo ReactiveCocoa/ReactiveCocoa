@@ -18,17 +18,8 @@
 // any -signalForSelector: applications.
 @property (nonatomic, unsafe_unretained) id rac_proxiedDelegate;
 
-// Creates a delegate proxy for the delegator, which will respond to selectors
-// from `protocol`.
-- (instancetype)initWithDelegator:(NSObject *)delegator protocol:(Protocol *)protocol;
-
-// Assign this proxy to the named delegate property of the delegator specified
-// during initialziation.
-- (void)assignAsDelegateForKey:(NSString *)delegateKey;
-
-// Assign this proxy as the `delegate` of the delegator specified during
-// initialization.
-- (void)assignAsDelegate;
+// Creates a delegate proxy capable of responding to selectors from `protocol`.
+- (instancetype)initWithProtocol:(Protocol *)protocol;
 
 // Calls -rac_signalForSelector:fromProtocol: using the `protocol` specified
 // during initialization.

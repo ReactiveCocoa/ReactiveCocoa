@@ -15,10 +15,17 @@
 
 @implementation UIActionSheet (RACSignalSupport)
 
+static void RACUseDelegateProxy(UIActionSheet *self) {
+    if (self.delegate == self.rac_delegateProxy) return;
+
+    self.rac_delegateProxy.rac_proxiedDelegate = self.delegate;
+    self.delegate = (id)self.rac_delegateProxy;
+}
+
 - (RACDelegateProxy *)rac_delegateProxy {
 	RACDelegateProxy *proxy = objc_getAssociatedObject(self, _cmd);
 	if (proxy == nil) {
-		proxy = [[RACDelegateProxy alloc] initWithDelegator:self protocol:@protocol(UIActionSheetDelegate)];
+		proxy = [[RACDelegateProxy alloc] initWithProtocol:@protocol(UIActionSheetDelegate)];
 		objc_setAssociatedObject(self, _cmd, proxy, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	}
 
@@ -26,7 +33,7 @@
 }
 
 - (RACSignal *)rac_buttonClickedSignal {
-	[self.rac_delegateProxy assignAsDelegate];
+	RACUseDelegateProxy(self);
 
 	return [[[[self.rac_delegateProxy
 		signalForSelector:@selector(actionSheet:clickedButtonAtIndex:)]

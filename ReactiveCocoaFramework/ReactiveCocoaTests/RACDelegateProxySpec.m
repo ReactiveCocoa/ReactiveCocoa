@@ -17,12 +17,6 @@
 - (NSUInteger)lengthOfString:(NSString *)str;
 @end
 
-@interface TestDelegator : NSObject
-@property (nonatomic, weak) id<TestDelegateProtocol> delegate;
-@end
-
-@implementation TestDelegator @end
-
 @interface TestDelegate : NSObject <TestDelegateProtocol>
 @property (nonatomic, assign) BOOL lengthOfStringInvoked;
 @end
@@ -31,17 +25,13 @@ SpecBegin(RACDelegateProxy)
 
 __block id proxy;
 __block TestDelegate *delegate;
-__block TestDelegator *delegator;
 __block Protocol *protocol;
 
 beforeEach(^{
 	protocol = @protocol(TestDelegateProtocol);
 	expect(protocol).notTo.beNil();
 
-	delegator = [TestDelegator new];
-	expect(delegator).notTo.beNil();
-
-	proxy = [[RACDelegateProxy alloc] initWithDelegator:delegator protocol:protocol];
+	proxy = [[RACDelegateProxy alloc] initWithProtocol:protocol];
 	expect(proxy).notTo.beNil();
 	expect([proxy rac_proxiedDelegate]).to.beNil();
 

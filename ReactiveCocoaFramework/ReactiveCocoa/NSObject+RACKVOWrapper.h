@@ -46,23 +46,21 @@ extern NSString * const RACKeyValueChangeLastPathComponent;
 // Returns the KVO trampoline that can be used to stop the observation.
 - (RACKVOTrampoline *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(RACKVOBlock)block;
 
-// Adds the given blocks as the callbacks for when the key path changes. Unlike
+// Adds the given block as the callbacks for when the key path changes. Unlike
 // direct KVO observation this handles deallocation of intermediate objects by
 // generating an appropriate notification.
 //
 // The observation does not need to be explicitly removed. It will be removed
 // when the observer or the receiver deallocate.
 //
-// observer          - The object that requested the observation.
-// keyPath           - The key path to observe.
-// willChangeBlock   - The block called before the value at the key path
-//                     changes. It is passed the old value and the extended KVO
-//                     change dictionary including RAC-specific keys and values.
-// didChangeBlock    - The block called after the value at the key path changes.
-//                     It is passed the old value and the extended KVO
-//                     change dictionary including RAC-specific keys and values.
+// keyPath  - The key path to observe.
+// options  - The KVO observation options.
+// observer - The object that requested the observation.
+// block    - The block called when the value at the key path changes. It is
+//            passed the current value of the key path and the extended KVO
+//            change dictionary including RAC-specific keys and values.
 //
 // Returns a disposable that can be used to stop the observation.
-- (RACDisposable *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath willChangeBlock:(void(^)(id value, NSDictionary *change))willChangeBlock didChangeBlock:(void(^)(id value, NSDictionary *change))didChangeBlock;
+- (RACDisposable *)rac_observeKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer block:(void(^)(id value, NSDictionary *change))block;
 
 @end

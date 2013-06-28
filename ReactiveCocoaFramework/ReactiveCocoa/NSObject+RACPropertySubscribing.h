@@ -66,8 +66,9 @@
 
 // Creates a signal to observe the changes of the given key path.
 //
-// Returns a signal that sends the change dictionary for each KVO callback.
-- (RACSignal *)rac_changesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer;
+// Returns a signal that sends tuples containing the value and the change
+// dictionary for each KVO callback.
+- (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer;
 
 @end
 

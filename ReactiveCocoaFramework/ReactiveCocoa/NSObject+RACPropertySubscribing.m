@@ -16,31 +16,18 @@
 #import "RACKVOTrampoline.h"
 #import "RACSubscriber.h"
 #import "RACSignal+Operations.h"
+#import "RACTuple.h"
 #import <libkern/OSAtomic.h>
-
-@interface NSObject (RACPropertySubscribingPrivate)
-
-// Creates a signal that calls block every time the key path changes, and sends
-// the returns value to it's subscribers.
-- (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath observer:(NSObject *)observer block:(id(^)(id value, NSDictionary *change))block;
-
-@end
 
 @implementation NSObject (RACPropertySubscribing)
 
 - (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
-  return [[self rac_signalForKeyPath:keyPath observer:observer block:^id(id value, NSDictionary *change) {
+	return [[self rac_valuesAndChangesForKeyPath:keyPath options:NSKeyValueObservingOptionInitial observer:observer] reduceEach:^(id value, NSDictionary *change) {
 		return value;
-	}] setNameWithFormat:@"RACObserve(%@, %@)", self.rac_description, keyPath];
+	}];
 }
 
-- (RACSignal *)rac_changesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
-  return [[self rac_signalForKeyPath:keyPath observer:observer block:^id(id value, NSDictionary *change) {
-		return change;
-	}] setNameWithFormat:@"-[%@ rac_changesForKeyPath:%@]", self.rac_description, keyPath];
-}
-
-- (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath observer:(NSObject *)observer block:(id (^)(id, NSDictionary *))block {
+- (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer {
 	__block volatile uint32_t deallocFlag = 0;
 	RACDisposable *deallocFlagDisposable = [RACDisposable disposableWithBlock:^{
 		OSAtomicOr32Barrier(1, &deallocFlag);
@@ -53,22 +40,18 @@
 	@unsafeify(self, observer);
 	return [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		@strongify(self, observer);
+		@weakify(subscriber);
+
 		if (deallocFlag == 1) {
 			[subscriber sendCompleted];
 			return nil;
 		}
 
-		id initialValue = [self valueForKeyPath:keyPath];
-		NSDictionary *initialChange = @{
-			NSKeyValueChangeKindKey: @(NSKeyValueChangeSetting),
-			NSKeyValueChangeNewKey: initialValue ?: NSNull.null
-		};
-		[subscriber sendNext:block(initialValue, initialChange)];
-		RACDisposable *observationDisposable = [self rac_addObserver:observer forKeyPath:keyPath willChangeBlock:nil didChangeBlock:^(id value, NSDictionary *change) {
-			[subscriber sendNext:block(value, change)];
+		RACDisposable *observationDisposable = [self rac_observeKeyPath:keyPath options:options observer:observer block:^(id value, NSDictionary *change) {
+			@strongify(subscriber);
+			[subscriber sendNext:RACTuplePack(value, change)];
 		}];
 
-		@weakify(subscriber);
 		RACDisposable *deallocDisposable = [RACDisposable disposableWithBlock:^{
 			@strongify(subscriber);
 			[observationDisposable dispose];

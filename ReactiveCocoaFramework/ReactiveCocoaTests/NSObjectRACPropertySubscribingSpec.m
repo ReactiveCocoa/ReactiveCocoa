@@ -26,20 +26,24 @@ describe(@"-rac_valuesForKeyPath:observer:", ^{
 
 });
 
-describe(@"-rac_changesForKeyPath:observer:", ^{
+describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 	describe(@"KVO options argument", ^{
 		__block RACTestObject *object;
 		__block id actual;
-		__block RACSignal *objectValueSignal;
+		__block RACSignal *(^objectValueSignal)(NSKeyValueObservingOptions);
 
 		before(^{
 			object = [[RACTestObject alloc] init];
 
-			objectValueSignal = [object rac_changesForKeyPath:@keypath(object, objectValue) observer:self];
+			objectValueSignal = ^(NSKeyValueObservingOptions options) {
+				return [[object rac_valuesAndChangesForKeyPath:@keypath(object, objectValue) options:options observer:self] reduceEach:^(id value, NSDictionary *change) {
+					return change;
+				}];
+			};
 		});
 
 		it(@"sends a KVO dictionary", ^{
-			[objectValueSignal subscribeNext:^(NSDictionary *x) {
+			[objectValueSignal(0) subscribeNext:^(NSDictionary *x) {
 				actual = x;
 			}];
 
@@ -49,7 +53,7 @@ describe(@"-rac_changesForKeyPath:observer:", ^{
 		});
 
 		it(@"sends a kind key by default", ^{
-			[objectValueSignal subscribeNext:^(NSDictionary *x) {
+			[objectValueSignal(0) subscribeNext:^(NSDictionary *x) {
 				actual = x[NSKeyValueChangeKindKey];
 			}];
 
@@ -58,8 +62,8 @@ describe(@"-rac_changesForKeyPath:observer:", ^{
 			expect(actual).notTo.beNil();
 		});
 
-		it(@"sends the newest changes", ^{
-			[objectValueSignal subscribeNext:^(NSDictionary *x) {
+		it(@"sends the newest changes with NSKeyValueObservingOptionNew", ^{
+			[objectValueSignal(NSKeyValueObservingOptionNew) subscribeNext:^(NSDictionary *x) {
 				actual = x[NSKeyValueChangeNewKey];
 			}];
 
@@ -70,10 +74,24 @@ describe(@"-rac_changesForKeyPath:observer:", ^{
 			expect(actual).to.equal(@2);
 		});
 
+		it(@"sends an additional change value with NSKeyValueObservingOptionPrior", ^{
+			NSMutableArray *values = [NSMutableArray new];
+			NSArray *expected = @[ @(YES), @(NO) ];
+
+			[objectValueSignal(NSKeyValueObservingOptionPrior) subscribeNext:^(NSDictionary *x) {
+				BOOL isPrior = [x[NSKeyValueChangeNotificationIsPriorKey] boolValue];
+				[values addObject:@(isPrior)];
+			}];
+
+			object.objectValue = @[ @1 ];
+
+			expect(values).to.equal(expected);
+		});
+
 		it(@"sends index changes when adding, inserting or removing a value from an observed object", ^{
 			__block NSUInteger hasIndexesCount = 0;
 
-			[objectValueSignal subscribeNext:^(NSDictionary *x) {
+			[objectValueSignal(0) subscribeNext:^(NSDictionary *x) {
 				if (x[NSKeyValueChangeIndexesKey] != nil) {
 					hasIndexesCount += 1;
 				}
@@ -94,8 +112,8 @@ describe(@"-rac_changesForKeyPath:observer:", ^{
 			expect(hasIndexesCount).to.equal(3);
 		});
 
-		it(@"sends the previous value", ^{
-			[objectValueSignal subscribeNext:^(NSDictionary *x) {
+		it(@"sends the previous value with NSKeyValueObservingOptionOld", ^{
+			[objectValueSignal(NSKeyValueObservingOptionOld) subscribeNext:^(NSDictionary *x) {
 				actual = x[NSKeyValueChangeOldKey];
 			}];
 
@@ -106,11 +124,11 @@ describe(@"-rac_changesForKeyPath:observer:", ^{
 			expect(actual).to.equal(@1);
 		});
 
-		it(@"sends the initial value", ^{
-			[objectValueSignal subscribeNext:^(NSDictionary *x) {
+		it(@"sends the initial value with NSKeyValueObservingOptionInitial", ^{
+			[objectValueSignal(NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew) subscribeNext:^(NSDictionary *x) {
 				actual = x[NSKeyValueChangeNewKey];
 			}];
-
+			
 			expect(actual).to.equal(NSNull.null);
 		});
 	});

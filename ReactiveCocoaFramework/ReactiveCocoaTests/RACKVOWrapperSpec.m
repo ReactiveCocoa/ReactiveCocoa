@@ -52,13 +52,12 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 	__block id (^valueBlock)(void) = nil;
 	__block BOOL changesValueDirectly = NO;
 
-	__block NSUInteger willChangeBlockCallCount = 0;
-	__block NSUInteger didChangeBlockCallCount = 0;
-	__block BOOL willChangeBlockTriggeredByLastKeyPathComponent = NO;
-	__block BOOL didChangeBlockTriggeredByLastKeyPathComponent = NO;
-	__block BOOL didChangeBlockTriggeredByDeallocation = NO;
-	__block void (^willChangeBlock)(id, NSDictionary *) = nil;
-	__block void (^didChangeBlock)(id, NSDictionary *) = nil;
+	__block NSUInteger priorCallCount = 0;
+	__block NSUInteger posteriorCallCount = 0;
+	__block BOOL priorTriggeredByLastKeyPathComponent = NO;
+	__block BOOL posteriorTriggeredByLastKeyPathComponent = NO;
+	__block BOOL posteriorTriggeredByDeallocation = NO;
+	__block void (^callbackBlock)(id, NSDictionary *) = nil;
 
 	beforeEach(^{
 		NSObject * (^targetBlock)(void) = data[RACKVOWrapperExamplesTargetBlock];
@@ -68,17 +67,18 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 		valueBlock = data[RACKVOWrapperExamplesValueBlock];
 		changesValueDirectly = [data[RACKVOWrapperExamplesChangesValueDirectly] boolValue];
 
-		willChangeBlockCallCount = 0;
-		didChangeBlockCallCount = 0;
+		priorCallCount = 0;
+		posteriorCallCount = 0;
 
-		willChangeBlock = [^(id value, NSDictionary *change) {
-			willChangeBlockTriggeredByLastKeyPathComponent = [change[RACKeyValueChangeLastPathComponent] boolValue];
-			++willChangeBlockCallCount;
-		} copy];
-		didChangeBlock = [^(id value, NSDictionary *change) {
-			didChangeBlockTriggeredByLastKeyPathComponent = [change[RACKeyValueChangeLastPathComponent] boolValue];
-			didChangeBlockTriggeredByDeallocation = [change[RACKeyValueChangeDeallocation] boolValue];
-			++didChangeBlockCallCount;
+		callbackBlock = [^(id value, NSDictionary *change) {
+			if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
+				priorTriggeredByLastKeyPathComponent = [change[RACKeyValueChangeLastPathComponent] boolValue];
+				++priorCallCount;
+				return;
+			}
+			posteriorTriggeredByLastKeyPathComponent = [change[RACKeyValueChangeLastPathComponent] boolValue];
+			posteriorTriggeredByDeallocation = [change[RACKeyValueChangeDeallocation] boolValue];
+			++posteriorCallCount;
 		} copy];
 	});
 
@@ -89,74 +89,84 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 		valueBlock = nil;
 		changesValueDirectly = NO;
 
-		willChangeBlock = nil;
-		didChangeBlock = nil;
+		callbackBlock = nil;
 	});
 
-	it(@"should not call willChangeBlock or didChangeBlock on add", ^{
-		[target rac_addObserver:nil forKeyPath:keyPath willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
-		expect(willChangeBlockCallCount).to.equal(0);
-		expect(didChangeBlockCallCount).to.equal(0);
+	it(@"should not call the callback block on add", ^{
+		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior observer:nil block:callbackBlock];
+		expect(priorCallCount).to.equal(0);
+		expect(posteriorCallCount).to.equal(0);
 	});
 
-	it(@"should call willChangeBlock and didChangeBlock once per change", ^{
-		[target rac_addObserver:nil forKeyPath:keyPath willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
-		willChangeBlockCallCount = 0;
-		didChangeBlockCallCount = 0;
+	it(@"should call the callback block twice per change, once prior and once posterior", ^{
+		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior observer:nil block:callbackBlock];
+		priorCallCount = 0;
+		posteriorCallCount = 0;
 
 		id value1 = valueBlock();
 		changeBlock(target, value1);
-		expect(willChangeBlockCallCount).to.equal(1);
-		expect(didChangeBlockCallCount).to.equal(1);
-		expect(willChangeBlockTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
-		expect(didChangeBlockTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
-		expect(didChangeBlockTriggeredByDeallocation).to.beFalsy();
+		expect(priorCallCount).to.equal(1);
+		expect(posteriorCallCount).to.equal(1);
+		expect(priorTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
+		expect(posteriorTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
+		expect(posteriorTriggeredByDeallocation).to.beFalsy();
 
 		id value2 = valueBlock();
 		changeBlock(target, value2);
-		expect(willChangeBlockCallCount).to.equal(2);
-		expect(didChangeBlockCallCount).to.equal(2);
-		expect(willChangeBlockTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
-		expect(didChangeBlockTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
-		expect(didChangeBlockTriggeredByDeallocation).to.beFalsy();
+		expect(priorCallCount).to.equal(2);
+		expect(posteriorCallCount).to.equal(2);
+		expect(priorTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
+		expect(posteriorTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
+		expect(posteriorTriggeredByDeallocation).to.beFalsy();
 	});
 
-	it(@"should call willChangeBlock before didChangeBlock when the value is changed", ^{
-		__block BOOL willChangeBlockCalled = NO;
-		__block BOOL didChangeBlockCalled = NO;
-		[target rac_addObserver:nil forKeyPath:keyPath willChangeBlock:^(id value, NSDictionary *change) {
-			willChangeBlockCalled = YES;
-			expect(didChangeBlockCalled).to.beFalsy();
-		} didChangeBlock:^(id value, NSDictionary *change) {
-			didChangeBlockCalled = YES;
-			expect(willChangeBlockCalled).to.beTruthy();
+	it(@"should call the callback block with NSKeyValueChangeNotificationIsPriorKey set before the value is changed, and not set after the value is changed", ^{
+		__block BOOL priorCalled = NO;
+		__block BOOL posteriorCalled = NO;
+		__block id priorValue = nil;
+		__block id posteriorValue = nil;
+
+		id value1 = valueBlock();
+		changeBlock(target, value1);
+		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior observer:nil block:^(id value, NSDictionary *change) {
+			if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
+				priorCalled = YES;
+				priorValue = value;
+				expect(posteriorCalled).to.beFalsy();
+				return;
+			}
+			posteriorCalled = YES;
+			posteriorValue = value;
+			expect(priorCalled).to.beTruthy();
 		}];
 
-		id value = valueBlock();
-		changeBlock(target, value);
-		expect(willChangeBlockCalled).to.beTruthy();
-		expect(didChangeBlockCalled).to.beTruthy();
+		id value2 = valueBlock();
+		changeBlock(target, value2);
+		expect(priorCalled).to.beTruthy();
+		expect(priorValue).to.equal(value1);
+		expect(posteriorCalled).to.beTruthy();
+		expect(posteriorValue).to.equal(value2);
 	});
 
-	it(@"should not call willChangeBlock and didChangeBlock after it's been disposed", ^{
-		RACDisposable *disposable = [target rac_addObserver:nil forKeyPath:keyPath willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
-		willChangeBlockCallCount = 0;
-		didChangeBlockCallCount = 0;
+	it(@"should not call the callback block after it's been disposed", ^{
+		RACDisposable *disposable = [target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior observer:nil block:callbackBlock];
+		priorCallCount = 0;
+		posteriorCallCount = 0;
 
 		[disposable dispose];
-		expect(willChangeBlockCallCount).to.equal(0);
-		expect(didChangeBlockCallCount).to.equal(0);
+		expect(priorCallCount).to.equal(0);
+		expect(posteriorCallCount).to.equal(0);
 
 		id value = valueBlock();
 		changeBlock(target, value);
-		expect(willChangeBlockCallCount).to.equal(0);
-		expect(didChangeBlockCallCount).to.equal(0);
+		expect(priorCallCount).to.equal(0);
+		expect(posteriorCallCount).to.equal(0);
 	});
 
-	it(@"should call only didChangeBlock when the value is deallocated", ^{
+	it(@"should call the callback block only once with NSKeyValueChangeNotificationIsPriorKey not set when the value is deallocated", ^{
 		__block BOOL valueDidDealloc = NO;
 
-		[target rac_addObserver:nil forKeyPath:keyPath willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
+		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior observer:nil block:callbackBlock];
 
 		@autoreleasepool {
 			NSObject *value __attribute__((objc_precise_lifetime)) = valueBlock();
@@ -165,14 +175,14 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 			}]];
 
 			changeBlock(target, value);
-			willChangeBlockCallCount = 0;
-			didChangeBlockCallCount = 0;
+			priorCallCount = 0;
+			posteriorCallCount = 0;
 		}
 
 		expect(valueDidDealloc).to.beTruthy();
-		expect(willChangeBlockCallCount).to.equal(0);
-		expect(didChangeBlockCallCount).to.equal(1);
-		expect(didChangeBlockTriggeredByDeallocation).to.beTruthy();
+		expect(priorCallCount).to.equal(0);
+		expect(posteriorCallCount).to.equal(1);
+		expect(posteriorTriggeredByDeallocation).to.beTruthy();
 	});
 });
 
@@ -180,7 +190,7 @@ SharedExampleGroupsEnd
 
 SpecBegin(RACKVOWrapper)
 
-describe(@"-rac_addObserver:forKeyPath:willChangeBlock:didChangeBlock:", ^{
+describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 	describe(@"on simple keys", ^{
 		NSObject * (^targetBlock)(void) = ^{
 			return [[RACTestObject alloc] init];

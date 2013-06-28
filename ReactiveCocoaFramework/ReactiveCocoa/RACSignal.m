@@ -543,7 +543,7 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 
 - (BOOL)asynchronouslyWaitUntilCompleted:(NSError **)error {
 	BOOL success = NO;
-	[[self ignoreElements] asynchronousFirstOrDefault:nil success:&success error:error];
+	[[self ignoreValues] asynchronousFirstOrDefault:nil success:&success error:error];
 	return success;
 }
 

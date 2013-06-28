@@ -440,7 +440,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 //
 // Returns a signal which only passes through `error` or `completed` events from
 // the receiver.
-- (RACSignal *)ignoreElements;
+- (RACSignal *)ignoreValues;
 
 // Converts each of the receiver's events into a RACEvent object.
 //
@@ -483,5 +483,6 @@ extern const NSInteger RACSignalErrorTimedOut;
 - (RACSignal *)bufferWithTime:(NSTimeInterval)interval __attribute__((deprecated("Use -bufferWithTime:onScheduler: instead")));
 - (RACSignal *)timeout:(NSTimeInterval)interval __attribute__((deprecated("Use -timeout:onScheduler: instead")));
 - (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object __attribute__((deprecated("Renamed to -setKeyPath:onObject:")));
+- (RACSignal *)ignoreElements __attribute__((deprecated("Renamed to -ignoreValues")));
 
 @end

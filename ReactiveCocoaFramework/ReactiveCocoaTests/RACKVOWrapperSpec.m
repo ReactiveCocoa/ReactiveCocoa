@@ -128,6 +128,8 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 
 		id value1 = valueBlock();
 		changeBlock(target, value1);
+		id oldValue = [target valueForKeyPath:keyPath];
+
 		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior observer:nil block:^(id value, NSDictionary *change) {
 			if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
 				priorCalled = YES;
@@ -142,10 +144,11 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 
 		id value2 = valueBlock();
 		changeBlock(target, value2);
+		id newValue = [target valueForKeyPath:keyPath];
 		expect(priorCalled).to.beTruthy();
-		expect(priorValue).to.equal(value1);
+		expect(priorValue).to.equal(oldValue);
 		expect(posteriorCalled).to.beTruthy();
-		expect(posteriorValue).to.equal(value2);
+		expect(posteriorValue).to.equal(newValue);
 	});
 
 	it(@"should not call the callback block after it's been disposed", ^{

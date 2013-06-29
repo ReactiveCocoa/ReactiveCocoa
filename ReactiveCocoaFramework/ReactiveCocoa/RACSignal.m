@@ -507,7 +507,7 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 - (id)asynchronousFirstOrDefault:(id)defaultValue success:(BOOL *)success error:(NSError **)error {
 	NSCAssert([NSThread isMainThread], @"%s should only be used from the main thread", __func__);
 
-	__block id result = nil;
+	__block id result = defaultValue;
 	__block BOOL done = NO;
 
 	// Ensures that we don't pass values across thread boundaries by reference.

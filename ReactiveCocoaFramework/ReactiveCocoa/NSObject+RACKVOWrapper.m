@@ -156,9 +156,19 @@ NSString * const RACKeyValueChangeLastPathComponent = @"RACKeyValueChangeLastPat
 	}
 
 
+	RACCompoundDisposable *observerDisposable = observer.rac_deallocDisposable;
+	RACCompoundDisposable *selfDisposable = self.rac_deallocDisposable;
 	// Dispose of this observation if the receiver or the observer deallocate.
-	[observer.rac_deallocDisposable addDisposable:disposable];
-	[self.rac_deallocDisposable addDisposable:disposable];
+	[observerDisposable addDisposable:disposable];
+	[selfDisposable addDisposable:disposable];
+
+	// Remove the disposable from the observer and target if it's disposed.
+	@weakify(disposable, observerDisposable, selfDisposable);
+	[disposable addDisposable:[RACDisposable disposableWithBlock:^{
+		@strongify(disposable, observerDisposable, selfDisposable);
+		[observerDisposable removeDisposable:disposable];
+		[selfDisposable removeDisposable:disposable];
+	}]];
 	
 	return disposable;
 }

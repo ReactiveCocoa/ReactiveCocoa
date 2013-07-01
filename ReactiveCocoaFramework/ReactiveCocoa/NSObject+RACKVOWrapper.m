@@ -39,8 +39,15 @@
 	// Adds didChangeBlock as a callback on the value's deallocation. Also adds
 	// the logic to clean up the callback to firstComponentDisposable.
 	void (^addDeallocObserverToValue)(NSObject *) = ^(NSObject *value) {
+		if (didChangeBlock == nil) return;
+
+		// If a key path value is the observer, commonly when a key path begins
+		// with "self", we prevent deallocation triggered didChangeBlock
+		// callbacks for any such key path components. Thus, the observer's
+		// deallocation is not considered a change to the key path.
 		@strongify(observer);
-		if (didChangeBlock == nil || value == observer) return;
+		if (value == observer) return;
+
 		RACCompoundDisposable *valueDisposable = value.rac_deallocDisposable;
 		RACDisposable *deallocDisposable = [RACDisposable disposableWithBlock:^{
 			didChangeBlock(keyPathHasOneComponent, YES, nil);

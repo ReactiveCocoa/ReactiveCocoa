@@ -288,6 +288,27 @@ describe(@"-rac_addObserver:forKeyPath:willChangeBlock:didChangeBlock:", ^{
 		expect(targetDisposed).to.beTruthy();
 		expect(targetDeallocationTriggeredChange).to.beTruthy();
 	});
+
+	it(@"should call didChangeBlock for deallocation of single key key paths", ^{
+		RACTestObject *target = [RACTestObject new];
+		__block BOOL objectDisposed = NO;
+		__block BOOL objectDeallocationTriggeredChange = NO;
+
+		@autoreleasepool {
+			RACTestObject *object __attribute__((objc_precise_lifetime)) = [RACTestObject new];
+			target.weakTestObjectValue = object;
+			[object.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				objectDisposed = YES;
+			}]];
+
+			[target rac_addObserver:target forKeyPath:@keypath(target.weakTestObjectValue) willChangeBlock:nil didChangeBlock:^(BOOL _, BOOL __, id ___) {
+				objectDeallocationTriggeredChange = YES;
+			}];
+		}
+
+		expect(objectDisposed).to.beTruthy();
+		expect(objectDeallocationTriggeredChange).to.beTruthy();
+	});
 });
 
 describe(@"rac_addObserver:forKeyPath:options:block:", ^{

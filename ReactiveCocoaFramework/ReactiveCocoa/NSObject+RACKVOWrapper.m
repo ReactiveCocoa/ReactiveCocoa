@@ -132,10 +132,10 @@
 	[disposable addDisposable:trampoline];
 
 	// Add the callbacks to the initial value if needed.
-	if (!keyPathHasOneComponent) {
-		NSObject *value = [self valueForKey:keyPathHead];
-		if (value != nil) {
-			addDeallocObserverToValue(value);
+	NSObject *value = [self valueForKey:keyPathHead];
+	if (value != nil) {
+		addDeallocObserverToValue(value);
+		if (!keyPathHasOneComponent) {
 			addObserverToValue(value);
 		}
 	}

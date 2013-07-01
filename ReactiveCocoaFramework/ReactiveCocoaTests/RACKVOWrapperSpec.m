@@ -289,7 +289,7 @@ describe(@"-rac_addObserver:forKeyPath:willChangeBlock:didChangeBlock:", ^{
 		expect(targetDeallocationTriggeredChange).to.beTruthy();
 	});
 
-	it(@"should call didChangeBlock for deallocation of single key key paths", ^{
+	it(@"should call didChangeBlock for deallocation of the initial value of a single-key key path", ^{
 		RACTestObject *target = [RACTestObject new];
 		__block BOOL objectDisposed = NO;
 		__block BOOL objectDeallocationTriggeredChange = NO;

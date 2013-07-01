@@ -173,12 +173,12 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 // Unpacks each RACTuple in the receiver and maps the values to a new value.
 //
 // reduceBlock - The block which reduces each RACTuple's values into one value.
-//               It should take as many arguments as the number of tuple
-//               elements to process. Each argument will be an object argument.
-//               This argument cannot be nil.
+//               It must take as many arguments as the number of tuple elements
+//               to process. Each argument will be an object argument. The
+//               return value must be an object. This argument cannot be nil.
 //
 // Returns a new stream of reduced tuple values.
-- (instancetype)reduceEach:(id)reduceBlock;
+- (instancetype)reduceEach:(id (^)())reduceBlock;
 
 // Returns a stream consisting of `value`, followed by the values in the
 // receiver.
@@ -227,9 +227,10 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 //               same concrete class implementing the protocol. If this
 //               collection is empty, the returned stream will be empty.
 // reduceBlock - The block which reduces the values from all the streams
-//               into one value. It should take as many arguments as the
+//               into one value. It must take as many arguments as the
 //               number of streams given. Each argument will be an object
-//               argument. This argument must not be nil.
+//               argument. The return value must be an object. This argument
+//               must not be nil.
 //
 // Example:
 //
@@ -239,7 +240,7 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 //
 // Returns a new stream containing the results from each invocation of
 // `reduceBlock`.
-+ (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id)reduceBlock;
++ (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id (^)())reduceBlock;
 
 // Returns a stream obtained by concatenating `streams` in order.
 + (instancetype)concat:(id<NSFastEnumeration>)streams;

@@ -196,17 +196,6 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 // equivalent to the receiver is returned.
 - (instancetype)take:(NSUInteger)count;
 
-// Invokes the given `block` for each value in the receiver.
-//
-// This method is equivalent to a -flattenMap: that simply ignores the input
-// values.
-//
-// block - A block which returns a new instance of the receiver's class.
-//
-// Returns a new stream which represents the combined result of all invocations
-// of `block`.
-- (instancetype)sequenceMany:(RACStream * (^)(void))block;
-
 // Zips the values in the given streams to create RACTuples.
 //
 // The first value of each stream will be combined, then the second value, and
@@ -292,5 +281,11 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 // initial values passing `predicate`. If `predicate` never returns `NO`, an
 // empty stream is returned.
 - (instancetype)skipWhileBlock:(BOOL (^)(id x))predicate;
+
+@end
+
+@interface RACStream (Deprecated)
+
+- (instancetype)sequenceMany:(RACStream * (^)(void))block __attribute__((deprecated("Use -flattenMap: instead")));
 
 @end

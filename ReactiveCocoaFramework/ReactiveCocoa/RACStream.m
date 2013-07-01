@@ -181,14 +181,6 @@
 	}] setNameWithFormat:@"[%@] -take: %lu", self.name, (unsigned long)count];
 }
 
-- (instancetype)sequenceMany:(RACStream * (^)(void))block {
-	NSCParameterAssert(block != NULL);
-
-	return [[self flattenMap:^(id _) {
-		return block();
-	}] setNameWithFormat:@"[%@] -sequenceMany:", self.name];
-}
-
 + (instancetype)zip:(id<NSFastEnumeration>)streams {
 	RACStream *current = nil;
 
@@ -320,5 +312,22 @@
 		return !predicate(x);
 	}] setNameWithFormat:@"[%@] -skipUntilBlock:", self.name];
 }
+
+@end
+
+@implementation RACStream (Deprecated)
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
+- (instancetype)sequenceMany:(RACStream * (^)(void))block {
+	NSCParameterAssert(block != NULL);
+
+	return [[self flattenMap:^(id _) {
+		return block();
+	}] setNameWithFormat:@"[%@] -sequenceMany:", self.name];
+}
+
+#pragma clang diagnostic pop
 
 @end

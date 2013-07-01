@@ -252,6 +252,42 @@ describe(@"-rac_addObserver:forKeyPath:willChangeBlock:didChangeBlock:", ^{
 												 });
 		});
 	});
+
+	it(@"should not call didChangeBlock when the value is the observer", ^{
+		__block BOOL observerDisposed = NO;
+		__block BOOL observerDeallocationTriggeredChange = NO;
+		__block BOOL targetDisposed = NO;
+		__block BOOL targetDeallocationTriggeredChange = NO;
+
+		@autoreleasepool {
+			NSObject *observer __attribute__((objc_precise_lifetime)) = [RACTestObject new];
+			[observer.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				observerDisposed = YES;
+			}]];
+
+			NSObject *target __attribute__((objc_precise_lifetime)) = [RACTestObject new];
+			[target.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				targetDisposed = YES;
+			}]];
+
+			// These observations can only result in dealloc triggered callbacks.
+			// Specifically, they do not perform any actions that would trigger
+			// a KVO change for the key "self".
+			[observer rac_addObserver:observer forKeyPath:@keypath(observer.self) willChangeBlock:nil didChangeBlock:^(BOOL _, BOOL __, id ___) {
+				observerDeallocationTriggeredChange = YES;
+			}];
+
+			[target rac_addObserver:observer forKeyPath:@keypath(observer.self) willChangeBlock:nil didChangeBlock:^(BOOL _, BOOL __, id ___) {
+				targetDeallocationTriggeredChange = YES;
+			}];
+		}
+
+		expect(observerDisposed).to.beTruthy();
+		expect(observerDeallocationTriggeredChange).to.beFalsy();
+
+		expect(targetDisposed).to.beTruthy();
+		expect(targetDeallocationTriggeredChange).to.beTruthy();
+	});
 });
 
 describe(@"rac_addObserver:forKeyPath:options:block:", ^{

@@ -758,7 +758,7 @@ describe(@"+combineLatest:reduce:", ^{
 		__block id receivedVal2;
 		__block id receivedVal3;
 
-		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2, subject3 ] reduce:^(id val1, id val2, id val3) {
+		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2, subject3 ] reduce:^ id (id val1, id val2, id val3) {
 			receivedVal1 = val1;
 			receivedVal2 = val2;
 			receivedVal3 = val3;

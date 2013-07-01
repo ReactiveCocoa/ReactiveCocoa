@@ -491,7 +491,7 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 	return [current setNameWithFormat:@"+combineLatest: %@", signals];
 }
 
-+ (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock {
++ (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals reduce:(id (^)())reduceBlock {
 	NSCParameterAssert(reduceBlock != nil);
 
 	RACSignal *result = [self combineLatest:signals];

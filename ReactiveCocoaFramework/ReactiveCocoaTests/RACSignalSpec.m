@@ -217,8 +217,10 @@ describe(@"subscribing", ^{
 		});
 		expect(currentScheduler).willNot.beNil();
 	});
+});
 
-	it(@"should support -takeUntil:", ^{
+describe(@"-takeUntil:", ^{
+	it(@"should support value as trigger", ^{
 		__block BOOL shouldBeGettingItems = YES;
 		RACSubject *subject = [RACSubject subject];
 		RACSubject *cutOffSubject = [RACSubject subject];
@@ -236,7 +238,7 @@ describe(@"subscribing", ^{
 		[subject sendNext:@"test 3"];
 	});
     
-	it(@"should support -takeUntil: with completion as trigger", ^{
+	it(@"should support completion as trigger", ^{
 		__block BOOL shouldBeGettingItems = YES;
 		RACSubject *subject = [RACSubject subject];
 		RACSubject *cutOffSubject = [RACSubject subject];
@@ -248,6 +250,23 @@ describe(@"subscribing", ^{
         
 		shouldBeGettingItems = NO;
 		[subject sendNext:@"should not go through"];
+	});
+
+	it(@"should squelch any values sent immediately upon subscription", ^{
+		RACSignal *valueSignal = [RACSignal return:RACUnit.defaultUnit];
+		RACSignal *cutOffSignal = [RACSignal empty];
+
+		__block BOOL gotNext = NO;
+		__block BOOL completed = NO;
+
+		[[valueSignal takeUntil:cutOffSignal] subscribeNext:^(id _) {
+			gotNext = YES;
+		} completed:^{
+			completed = YES;
+		}];
+
+		expect(gotNext).to.beFalsy();
+		expect(completed).to.beTruthy();
 	});
 });
 

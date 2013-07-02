@@ -153,11 +153,13 @@
 	RACBinding *viewBinding = [RACBind(self.value) setNameWithFormat:@"%@ -viewBinding", self];
 	_modelBinding = [[propertySubject binding] setNameWithFormat:@"%@ -modelBinding", self];
 
-	RACDisposable *modelToViewDisposable = [self.modelBinding subscribe:viewBinding];
-	if (modelToViewDisposable != nil) [_disposable addDisposable:modelToViewDisposable];
-
-	RACDisposable *viewToModelDisposable = [[viewBinding skip:1] subscribe:self.modelBinding];
+	RACDisposable *viewToModelDisposable = [viewBinding subscribe:self.modelBinding];
 	if (viewToModelDisposable != nil) [_disposable addDisposable:viewToModelDisposable];
+
+	// It might seem backwards to skip the model's first value, but nothing's
+	// been connected to it yet, so we'll start with whatever the view has.
+	RACDisposable *modelToViewDisposable = [[self.modelBinding skip:1] subscribe:viewBinding];
+	if (modelToViewDisposable != nil) [_disposable addDisposable:modelToViewDisposable];
 	
 	return self;
 }

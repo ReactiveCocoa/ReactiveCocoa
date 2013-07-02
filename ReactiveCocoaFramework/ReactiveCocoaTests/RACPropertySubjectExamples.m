@@ -235,6 +235,16 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 			}];
 			expect(receivedValue).to.equal(value2);
 		});
+
+		it(@"should complete when the property completes", ^{
+			__block BOOL completed = NO;
+			[binding1 subscribeCompleted:^{
+				completed = YES;
+			}];
+
+			[property sendCompleted];
+			expect(completed).to.beTruthy();
+		});
 	});
 });
 

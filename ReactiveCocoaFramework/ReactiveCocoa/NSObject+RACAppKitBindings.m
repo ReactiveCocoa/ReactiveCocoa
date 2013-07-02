@@ -120,27 +120,23 @@
 
 	@weakify(self);
 
+	void (^cleanUp)() = ^{
+		@strongify(self);
+
+		id target = self.target;
+		if (target == nil) return;
+
+		self.target = nil;
+
+		[target unbind:bindingName];
+		objc_setAssociatedObject(target, (__bridge void *)self, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	};
+
 	// When the property subject terminates (from anything), tear down this
 	// proxy.
-	[[self.propertySubject
-		finally:^{
-			@strongify(self);
-
-			id target = self.target;
-			if (target == nil) return;
-
-			self.target = nil;
-
-			[target unbind:bindingName];
-			objc_setAssociatedObject(target, (__bridge void *)self, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-		}]
-		subscribeError:^(NSError *error) {
-			@strongify(self);
-			NSCAssert(NO, @"Received error on binding proxy %@: %@", self, error);
-
-			// And in case assertions are disabled...
-			NSLog(@"*** Received error on binding proxy %@: %@", self, error);
-		}];
+	[self.propertySubject subscribeError:^(NSError *error) {
+		cleanUp();
+	} completed:cleanUp];
 
 	[self.target bind:bindingName toObject:self withKeyPath:@keypath(self.value) options:options];
 

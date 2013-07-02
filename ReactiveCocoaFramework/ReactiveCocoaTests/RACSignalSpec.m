@@ -1975,12 +1975,12 @@ describe(@"throttling", ^{
 	});
 });
 
-describe(@"-sequenceNext:", ^{
+describe(@"-then:", ^{
 	it(@"should continue onto returned signal", ^{
 		RACSubject *subject = [RACSubject subject];
 
 		__block id value = nil;
-		[[subject sequenceNext:^{
+		[[subject then:^{
 			return [RACSignal return:@2];
 		}] subscribeNext:^(id x) {
 			value = x;
@@ -2000,7 +2000,7 @@ describe(@"-sequenceNext:", ^{
 		RACSubject *subject = [RACSubject subject];
 
 		__block id value = nil;
-		[[subject sequenceNext:^{
+		[[subject then:^{
 			return [RACSignal return:RACUnit.defaultUnit];
 		}] subscribeNext:^(id x) {
 			value = x;

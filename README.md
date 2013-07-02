@@ -8,13 +8,21 @@ If you're already familiar with functional reactive programming or know the basi
 premise of ReactiveCocoa, check out the [Documentation][] folder for a framework
 overview and more in-depth information about how it all works in practice.
 
-**Table of Contents**
+## New to ReactiveCocoa?
+
+ReactiveCocoa is documented like crazy, and there's a wealth of introductory
+material available to explain what RAC is and how you can use it.
+
+If you want to learn more, we recommend these resources, roughly in order:
 
  1. [Introduction](#introduction)
  1. [When to use ReactiveCocoa](#when-to-use-reactivecocoa)
- 1. [Functional reactive programming](#functional-reactive-programming)
- 1. [Importing ReactiveCocoa](#importing-reactivecocoa)
- 1. [More Info](#more-info)
+ 1. [Framework Overview][]
+ 1. [Basic Operators][]
+ 1. [Header documentation](ReactiveCocoaFramework/ReactiveCocoa)
+ 1. Previously answered [Stack Overflow](https://github.com/ReactiveCocoa/ReactiveCocoa/wiki)
+    questions and [GitHub issues](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?labels=question&state=closed)
+ 1. The rest of the [Documentation][] folder
 
 ## Introduction
 
@@ -515,6 +523,7 @@ out there:
 * [101 Rx Samples](http://rxwiki.wikidot.com/101samples)
 * [Programming Reactive Extensions and LINQ](http://www.amazon.com/Programming-Reactive-Extensions-Jesse-Liberty/dp/1430237473)
 
+[Basic Operators]: Documentation/BasicOperators.md
 [Documentation]: Documentation
 [Framework Overview]: Documentation/FrameworkOverview.md
 [Functional Reactive Programming]: http://en.wikipedia.org/wiki/Functional_reactive_programming

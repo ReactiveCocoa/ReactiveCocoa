@@ -78,6 +78,16 @@ it(@"should not echo changes back to the binding", ^{
 	expect(receivedCount).to.equal(2);
 });
 
+it(@"should complete manually", ^{
+	__block BOOL completed = NO;
+	[valueBinding subscribeCompleted:^{
+		completed = YES;
+	}];
+
+	[valueBinding sendCompleted];
+	expect(completed).to.beTruthy();
+});
+
 it(@"should complete when the view deallocates", ^{
 	__block BOOL deallocated = NO;
 	__block BOOL completed = NO;

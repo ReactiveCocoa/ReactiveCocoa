@@ -506,6 +506,80 @@ describe(@"querying", ^{
 		expect(success).to.beTruthy();
 		expect(error).to.beNil();
 	});
+
+	it(@"should terminate the subscription after returning from -asynchronouslySubscribeNext:error:completed", ^{
+		__block BOOL disposed = NO;
+		RACSignal *signal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			[[RACScheduler scheduler] schedule:^{
+				[subscriber sendNext:RACUnit.defaultUnit];
+				[subscriber sendCompleted];
+			}];
+
+			return [RACDisposable disposableWithBlock:^{
+				disposed = YES;
+			}];
+		}];
+
+		expect(signal).notTo.beNil();
+		expect(disposed).to.beFalsy();
+
+		BOOL success = [signal asynchronouslySubscribeNext:nil error:nil completed:nil];
+
+		expect(success).to.beTruthy();
+		expect(disposed).will.beTruthy();
+	});
+
+	it(@"should return a delayed success from -asynchronouslySubscribeNext:error:completed", ^{
+		RACSignal *signal = [[RACSignal return:RACUnit.defaultUnit] delay:0.01];
+
+		BOOL success = [signal asynchronouslySubscribeNext:nil error:nil completed:nil];
+
+		expect(success).to.beTruthy();
+	});
+
+	it(@"should return a delayed value from -asynchronouslySubscribeNext:error:completed", ^{
+		RACSignal *signal = [[RACSignal return:RACUnit.defaultUnit] delay:0.01];
+
+		__block id value = nil;
+		BOOL success = [signal asynchronouslySubscribeNext:^(id x){
+			value = x;
+		} error:nil completed:nil];
+
+		expect(success).to.beTruthy();
+		expect(value).to.equal(RACUnit.defaultUnit);
+	});
+
+	it(@"should return a delayed error from -asynchronouslySubscribeNext:error:completed", ^{
+		RACSignal *signal = [[RACSignal error:RACSignalTestError] delay:0.01];
+
+		__block NSError *error = nil;
+		BOOL success = [signal asynchronouslySubscribeNext:nil error:^(NSError *e){
+			error = e;
+		} completed:nil];
+
+		expect(success).to.beTruthy();
+		expect(error).to.equal(RACSignalTestError);
+	});
+
+	it(@"should return a delayed completed from -asynchronouslySubscribeNext:error:completed", ^{
+		RACSignal *signal = [[RACSignal empty] delay:0.01];
+
+		__block BOOL completed = NO;
+		BOOL success = [signal asynchronouslySubscribeNext:nil error:nil completed:^{
+			completed = YES;
+		}];
+
+		expect(success).to.beTruthy();
+		expect(completed).to.beTruthy();
+	});
+
+	it(@"should fail if a signal never completes from -asynchronouslySubscribeNext:error:completed", ^{
+		RACSignal *signal = [[RACSignal never] delay:0.01];
+
+		BOOL success = [signal asynchronouslySubscribeNext:nil error:nil completed:nil];
+
+		expect(success).to.beFalsy();
+	});
 });
 
 describe(@"continuation", ^{

@@ -504,9 +504,31 @@ static NSLock *RACActiveSignalsLock = nil;
 
 static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 
-- (id)asynchronousFirstOrDefault:(id)defaultValue success:(BOOL *)success error:(NSError **)error {
+- (BOOL)asynchronouslySubscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock
+{
 	NSCAssert([NSThread isMainThread], @"%s should only be used from the main thread", __func__);
 
+	__block BOOL done = NO;
+
+	[self subscribeNext:^(id x) {
+		if (nextBlock) nextBlock(x);
+	} error:^(NSError *error) {
+		if (errorBlock) errorBlock(error);
+		done = YES;
+	} completed:^{
+		if (completedBlock) completedBlock();
+		done = YES;
+	}];
+
+	NSDate *endDate = [[NSDate date] dateByAddingTimeInterval:RACSignalAsynchronousWaitTimeout];
+	do {
+		[NSRunLoop.mainRunLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+	} while (!done && ([[NSDate date] compare:endDate] == NSOrderedAscending));
+
+	return done;
+}
+
+- (id)asynchronousFirstOrDefault:(id)defaultValue success:(BOOL *)success error:(NSError **)error {
 	__block id result = defaultValue;
 	__block BOOL done = NO;
 
@@ -514,26 +536,18 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 	__block NSError *localError;
 	__block BOOL localSuccess = YES;
 
-	[[[[self
-		take:1]
-		timeout:RACSignalAsynchronousWaitTimeout onScheduler:[RACScheduler scheduler]]
-		deliverOn:RACScheduler.mainThreadScheduler]
-		subscribeNext:^(id x) {
-			result = x;
+	[[self take:1] asynchronouslySubscribeNext:^(id x) {
+		result = x;
+		done = YES;
+	} error:^(NSError *e) {
+		if (!done) {
+			localSuccess = NO;
+			localError = e;
 			done = YES;
-		} error:^(NSError *e) {
-			if (!done) {
-				localSuccess = NO;
-				localError = e;
-				done = YES;
-			}
-		} completed:^{
-			done = YES;
-		}];
-	
-	do {
-		[NSRunLoop.mainRunLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
-	} while (!done);
+		}
+	} completed:^{
+		done = YES;
+	}];
 
 	if (success != NULL) *success = localSuccess;
 	if (error != NULL) *error = localError;

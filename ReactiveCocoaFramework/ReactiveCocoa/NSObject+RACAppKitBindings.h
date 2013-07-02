@@ -18,6 +18,9 @@
 // Applies a Cocoa binding to the receiver which will send and receive values
 // upon the returned RACBinding.
 //
+// Creating two of the same bindings on the same object will result in undefined
+// behavior.
+//
 // binding - The name of the binding. This must not be nil.
 // options - Any options to pass to Cocoa Bindings. This may be nil.
 //

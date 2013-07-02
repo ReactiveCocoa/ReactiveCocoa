@@ -14,32 +14,41 @@
 SpecBegin(NSObjectRACAppKitBindings)
 
 __block NSTextField *textField;
+__block void (^setText)(NSString *);
+
 __block RACBinding *valueBinding;
 
 beforeEach(^{
 	textField = [[NSTextField alloc] initWithFrame:NSZeroRect];
 	expect(textField).notTo.beNil();
 
-	textField.stringValue = @"foobar";
+	setText = [^(NSString *text) {
+		textField.stringValue = text;
+
+		// Bindings don't actually trigger from programmatic modification. Do it
+		// manually.
+		NSDictionary *bindingInfo = [textField infoForBinding:NSValueBinding];
+		[bindingInfo[NSObservedObjectKey] setValue:text forKeyPath:bindingInfo[NSObservedKeyPathKey]];
+	} copy];
 
 	valueBinding = [textField rac_bind:NSValueBinding];
 	expect(valueBinding).notTo.beNil();
 });
 
-it(@"should start with the value of the text view", ^{
-	expect([valueBinding first]).to.equal(@"foobar");
+it(@"should start with nil", ^{
+	expect([valueBinding first]).to.beNil();
 });
 
-it(@"should send text view changes", ^{
+it(@"should send view changes", ^{
 	__block NSString *received;
 	[valueBinding subscribeNext:^(id x) {
 		received = x;
 	}];
 
-	textField.stringValue = @"fuzz";
+	setText(@"fuzz");
 	expect(received).to.equal(@"fuzz");
 
-	textField.stringValue = @"buzz";
+	setText(@"buzz");
 	expect(received).to.equal(@"buzz");
 });
 
@@ -62,7 +71,7 @@ it(@"should not echo changes back to the binding", ^{
 	[valueBinding sendNext:@"fuzz"];
 	expect(receivedCount).to.equal(1);
 
-	textField.stringValue = @"buzz";
+	setText(@"buzz");
 	expect(receivedCount).to.equal(2);
 });
 

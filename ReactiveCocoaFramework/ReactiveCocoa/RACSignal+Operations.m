@@ -605,13 +605,13 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 	}] setNameWithFormat:@"[%@] -flatten: %lu", self.name, (unsigned long)maxConcurrent];
 }
 
-- (RACSignal *)sequenceNext:(RACSignal * (^)(void))block {
+- (RACSignal *)then:(RACSignal * (^)(void))block {
 	NSCParameterAssert(block != nil);
 
 	return [[[self
 		ignoreValues]
 		concat:[RACSignal defer:block]]
-		setNameWithFormat:@"[%@] -sequenceNext:", self.name];
+		setNameWithFormat:@"[%@] -then:", self.name];
 }
 
 - (RACSignal *)concat {
@@ -1410,6 +1410,10 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 
 - (RACSignal *)ignoreElements {
 	return [self ignoreValues];
+}
+
+- (RACSignal *)sequenceNext:(RACSignal * (^)(void))block {
+	return [self then:block];
 }
 
 #pragma clang diagnostic pop

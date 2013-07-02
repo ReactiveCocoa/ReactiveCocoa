@@ -10,42 +10,13 @@ overview and more in-depth information about how it all works in practice.
 
 **Table of Contents**
 
+ 1. [Introduction](#introduction)
  1. [Functional reactive programming](#functional-reactive-programming)
- 1. [FRP with ReactiveCocoa](#frp-with-reactivecocoa)
  1. [When to use ReactiveCocoa](#when-to-use-reactivecocoa)
  1. [Importing ReactiveCocoa](#importing-reactivecocoa)
  1. [More Info](#more-info)
 
-## Functional reactive programming
-
-Functional Reactive Programming (FRP) is a programming paradigm for writing
-software that reacts to change.
-
-FRP is built on the abstraction of values over time. Rather than capturing
-a value at a particular time, FRP provides signals that capture the past,
-present, and future value. These signals can be reasoned about, chained,
-composed, and reacted to.
-
-By combining signals, software can be written declaratively, without the need
-for code that continually observes and updates values. A text field can be
-directly set to always show the current timestamp, for example, instead of using
-additional code that watches the clock and updates the text field every second.
-
-Signals can also represent asynchronous operations, much like [futures and
-promises][]. This greatly simplifies asynchronous software, including networking
-code.
-
-One of the major advantages of FRP is that it provides a single, unified
-approach to dealing with different types of reactive, asynchronous behaviors.
-
-Here are some resources for learning more about FRP:
-
-* [What is FRP? - Elm Language](http://elm-lang.org/learn/What-is-FRP.elm)
-* [What is Functional Reactive Programming - Stack Overflow](http://stackoverflow.com/questions/1028250/what-is-functional-reactive-programming/1030631#1030631)
-
-[Josh Abernathy](https://github.com/joshaber) also has [a blog post about FRP](http://blog.maybeapps.com/post/42894317939/input-and-output).
-
-## FRP with ReactiveCocoa
+## Introduction
 
 Signals in ReactiveCocoa (RAC) are represented using `RACSignal`. Signals are
 streams of values that can be observed and transformed.
@@ -239,6 +210,35 @@ locality, and better expression of intent.
 
 For more sample code, check out the [Mac][GHAPIDemo] or [iOS][RACiOSDemo] demos.
 Additional information about RAC can be found in the [Documentation][] folder.
+
+## Functional reactive programming
+
+Functional Reactive Programming (FRP) is a programming paradigm for writing
+software that reacts to change.
+
+FRP is built on the abstraction of values over time. Rather than capturing
+a value at a particular time, FRP provides signals that capture the past,
+present, and future value. These signals can be reasoned about, chained,
+composed, and reacted to.
+
+By combining signals, software can be written declaratively, without the need
+for code that continually observes and updates values. A text field can be
+directly set to always show the current timestamp, for example, instead of using
+additional code that watches the clock and updates the text field every second.
+
+Signals can also represent asynchronous operations, much like [futures and
+promises][]. This greatly simplifies asynchronous software, including networking
+code.
+
+One of the major advantages of FRP is that it provides a single, unified
+approach to dealing with different types of reactive, asynchronous behaviors.
+
+Here are some resources for learning more about FRP:
+
+* [What is FRP? - Elm Language](http://elm-lang.org/learn/What-is-FRP.elm)
+* [What is Functional Reactive Programming - Stack Overflow](http://stackoverflow.com/questions/1028250/what-is-functional-reactive-programming/1030631#1030631)
+
+[Josh Abernathy](https://github.com/joshaber) also has [a blog post about FRP](http://blog.maybeapps.com/post/42894317939/input-and-output).
 
 ## When to use ReactiveCocoa
 

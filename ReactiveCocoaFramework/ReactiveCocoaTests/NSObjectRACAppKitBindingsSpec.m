@@ -8,7 +8,10 @@
 
 #import <Cocoa/Cocoa.h>
 #import "NSObject+RACAppKitBindings.h"
+#import "NSObject+RACDeallocating.h"
 #import "RACBinding.h"
+#import "RACCompoundDisposable.h"
+#import "RACDisposable.h"
 #import "RACSignal+Operations.h"
 
 SpecBegin(NSObjectRACAppKitBindings)
@@ -73,6 +76,51 @@ it(@"should not echo changes back to the binding", ^{
 
 	setText(@"buzz");
 	expect(receivedCount).to.equal(2);
+});
+
+it(@"should complete when the view deallocates", ^{
+	__block BOOL deallocated = NO;
+	__block BOOL completed = NO;
+
+	@autoreleasepool {
+		NSTextField *view __attribute__((objc_precise_lifetime)) = [[NSTextField alloc] initWithFrame:NSZeroRect];
+		[view.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+			deallocated = YES;
+		}]];
+
+		[[view rac_bind:NSValueBinding] subscribeCompleted:^{
+			completed = YES;
+		}];
+
+		expect(deallocated).to.beFalsy();
+		expect(completed).to.beFalsy();
+	}
+
+	expect(deallocated).to.beTruthy();
+	expect(completed).to.beTruthy();
+});
+
+it(@"should deallocate after the view deallocates", ^{
+	__block BOOL viewDeallocated = NO;
+	__block BOOL bindingDeallocated = NO;
+
+	@autoreleasepool {
+		NSTextField *view __attribute__((objc_precise_lifetime)) = [[NSTextField alloc] initWithFrame:NSZeroRect];
+		[view.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+			viewDeallocated = YES;
+		}]];
+
+		RACBinding *binding = [view rac_bind:NSValueBinding];
+		[binding.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+			bindingDeallocated = YES;
+		}]];
+
+		expect(viewDeallocated).to.beFalsy();
+		expect(bindingDeallocated).to.beFalsy();
+	}
+
+	expect(viewDeallocated).to.beTruthy();
+	expect(bindingDeallocated).will.beTruthy();
 });
 
 SpecEnd

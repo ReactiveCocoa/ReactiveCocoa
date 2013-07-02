@@ -58,6 +58,16 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 		[property sendNext:value3];
 		expect(receivedValues).to.equal(values);
 	});
+
+	it(@"should complete manually", ^{
+		__block BOOL completed = NO;
+		[property subscribeCompleted:^{
+			completed = YES;
+		}];
+
+		[property sendCompleted];
+		expect(completed).to.beTruthy();
+	});
 	
 	describe(@"memory management", ^{
 		it(@"should dealloc when it's subscribers are disposed", ^{
@@ -243,6 +253,26 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 			}];
 
 			[property sendCompleted];
+			expect(completed).to.beTruthy();
+		});
+
+		it(@"should complete manually", ^{
+			__block BOOL completed = NO;
+			[binding1 subscribeCompleted:^{
+				completed = YES;
+			}];
+
+			[binding1 sendCompleted];
+			expect(completed).to.beTruthy();
+		});
+
+		it(@"should complete its property", ^{
+			__block BOOL completed = NO;
+			[property subscribeCompleted:^{
+				completed = YES;
+			}];
+
+			[binding1 sendCompleted];
 			expect(completed).to.beTruthy();
 		});
 	});

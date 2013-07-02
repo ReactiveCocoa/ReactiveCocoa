@@ -16,6 +16,7 @@
 #import "RACBinding.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
+#import "RACReplaySubject.h"
 #import "RACSubscriber+Private.h"
 #import "RACSubject.h"
 
@@ -97,11 +98,10 @@
 	
 	@weakify(property);
 
-	property->_exposedSignal = [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		@strongify(property);
-		return [[property.target rac_valuesForKeyPath:property.keyPath observer:property] subscribe:subscriber];
-	}] setNameWithFormat:@"+propertyWithTarget: %@ keyPath: %@", [target rac_description], keyPath];
-	
+	RACReplaySubject *subject = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"+propertyWithTarget: %@ keyPath: %@", [target rac_description], keyPath];
+	RACDisposable *observationDisposable = [[property.target rac_valuesForKeyPath:property.keyPath observer:property] subscribe:subject];
+
+	property->_exposedSignal = subject;
 	property->_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
 		@strongify(property);
 		[property.target setValue:x forKeyPath:property.keyPath];
@@ -111,9 +111,17 @@
 		
 		// Log the error if we're running with assertions disabled.
 		NSLog(@"Received error in RACObservablePropertySubject for key path \"%@\" on %@: %@", property.keyPath, property.target, error);
-	} completed:nil];
+
+		[observationDisposable dispose];
+		[subject sendError:error];
+	} completed:^{
+		[observationDisposable dispose];
+		[subject sendCompleted];
+	}];
 	
 	[target.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+		[observationDisposable dispose];
+
 		@strongify(property);
 		property.target = nil;
 	}]];

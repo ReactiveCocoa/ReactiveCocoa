@@ -65,8 +65,11 @@
 				isFirstNext = NO;
 				[subscriber sendNext:x.first];
 			}
+		} completed:^{
+			[subscriber sendCompleted];
 		}];
 	}];
+
 	_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
 		@strongify(self);
 		[subscriber sendNext:[RACTuple tupleWithObjects:x ?: RACTupleNil.tupleNil, self ?: RACTupleNil.tupleNil, nil]];

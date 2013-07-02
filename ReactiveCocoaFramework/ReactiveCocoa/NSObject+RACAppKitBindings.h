@@ -12,20 +12,6 @@
 
 @interface NSObject (RACAppKitBindings)
 
-// Calls -[NSObject bind:binding toObject:object withKeyPath:keyPath options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nil]]
-- (void)rac_bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath;
-
-// Calls -[NSObject bind:binding toObject:object withKeyPath:keyPath options:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nilValue, NSNullPlaceholderBindingOption, nil]];
-- (void)rac_bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath nilValue:(id)nilValue;
-
-// Same as `-[NSObject bind:toObject:withKeyPath:] but also transforms values
-// using the given transform block.
-- (void)rac_bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath transform:(id (^)(id value))transformBlock;
-
-// Same as `-[NSObject bind:toObject:withKeyPath:] but the value is transformed
-// by negating it.
-- (void)rac_bind:(NSString *)binding toObject:(id)object withNegatedKeyPath:(NSString *)keyPath;
-
 // Invokes -rac_bind:options: without any options.
 - (RACBinding *)rac_bind:(NSString *)binding;
 
@@ -39,5 +25,14 @@
 // subscribers, and pass received values along to the binding (to be set on the
 // receiver).
 - (RACBinding *)rac_bind:(NSString *)binding options:(NSDictionary *)options;
+
+@end
+
+@interface NSObject (RACAppKitBindingsDeprecated)
+
+- (void)rac_bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath __attribute__((deprecated("Use -rac_bind:options: instead")));
+- (void)rac_bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath nilValue:(id)nilValue __attribute__((deprecated("Use -rac_bind:options: instead")));
+- (void)rac_bind:(NSString *)binding toObject:(id)object withKeyPath:(NSString *)keyPath transform:(id (^)(id value))transformBlock __attribute__((deprecated("Use -rac_bind:options: instead")));
+- (void)rac_bind:(NSString *)binding toObject:(id)object withNegatedKeyPath:(NSString *)keyPath __attribute__((deprecated("Use -rac_bind:options: instead")));
 
 @end

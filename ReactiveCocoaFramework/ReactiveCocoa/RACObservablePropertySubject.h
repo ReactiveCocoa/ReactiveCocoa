@@ -36,6 +36,14 @@
 // bindings' subscribers. `keyPath` will be updated with values sent to the
 // wrapper or it's bindings. Subscribers of the wrapper or it's bindings will be
 // sent the current value of `keyPath`.
+//
+// `completed` events sent to a RACObservablePropertySubject are also sent to
+// its bindings' subscribers. `completed` events sent to
+// a RACObservablePropertySubject's bindings are also sent to the
+// RACObservablePropertySubject.
+//
+// It is considered undefined behavior to send `error` to
+// a RACObservablePropertySubject or its bindings.
 @interface RACObservablePropertySubject : RACPropertySubject
 
 // Returns a new RACPropertySubject wrapper for `keyPath` on `target` with a

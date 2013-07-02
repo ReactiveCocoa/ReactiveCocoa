@@ -179,6 +179,15 @@
 // **These methods should never ship in production code.**
 @interface RACSignal (Testing)
 
+// Spins the main run loop for a short while, waiting for the receiver to complete and
+// subscribes to `next`, `error` and `completed` events.
+//
+// **Because this method executes the run loop recursively, it should only be used
+// on the main thread, and only from a unit test.**
+//
+// Returns whether the signal sent `complete` or `error` to the receiver before timing out.
+- (BOOL)asynchronouslySubscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
+
 // Spins the main run loop for a short while, waiting for the receiver to send a `next`.
 //
 // **Because this method executes the run loop recursively, it should only be used

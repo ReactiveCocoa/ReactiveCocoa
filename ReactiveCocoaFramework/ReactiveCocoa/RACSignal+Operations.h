@@ -151,9 +151,10 @@ extern const NSInteger RACSignalErrorTimedOut;
 // signals     - The signals to combine. If this collection is empty, the
 //               returned signal will immediately complete upon subscription.
 // reduceBlock - The block which reduces the latest values from all the
-//               signals into one value. It should take as many arguments as the
+//               signals into one value. It must take as many arguments as the
 //               number of signals given. Each argument will be an object
-//               argument. This argument must not be nil.
+//               argument. The return value must be an object. This argument
+//               must not be nil.
 //
 // Example:
 //
@@ -163,7 +164,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 //
 // Returns a signal which sends the results from each invocation of
 // `reduceBlock`.
-+ (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock;
++ (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals reduce:(id (^)())reduceBlock;
 
 // Sends the latest `next` from any of the signals.
 //

@@ -13,17 +13,19 @@
 #import "RACBinding.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
+#import "RACMulticastConnection.h"
 #import "RACObservablePropertySubject.h"
 #import "RACPropertySubject.h"
+#import "RACSignal+Operations.h"
 #import "RACValueTransformer.h"
 #import <objc/runtime.h>
 
 // Used as an object to bind to, so we can hide the object creation and just
 // expose a RACBinding instead.
-@interface RACBindingProxy : NSObject {
-	// Disposes of all the subscriptions related to the binding.
-	RACCompoundDisposable *_disposable;
-}
+@interface RACBindingProxy : NSObject
+
+// The subject from which the receiver's RACBindings will be derived.
+@property (nonatomic, strong, readonly) RACPropertySubject *propertySubject;
 
 // The binding to expose to the caller (typically a model, view model, or
 // controller object).
@@ -110,63 +112,53 @@
 	self = [super init];
 	if (self == nil) return nil;
 
-	_disposable = [RACCompoundDisposable compoundDisposable];
 	_target = target;
 	_bindingName = [bindingName copy];
 
+	_propertySubject = [[RACPropertySubject property] setNameWithFormat:@"%@ -propertySubject", self];
+	_modelBinding = [[self.propertySubject binding] setNameWithFormat:@"%@ -modelBinding", self];
+
 	@weakify(self);
 
+	// When the property subject terminates (from anything), tear down this
+	// proxy.
+	[[self.propertySubject
+		finally:^{
+			@strongify(self);
+
+			id target = self.target;
+			if (target == nil) return;
+
+			self.target = nil;
+
+			[target unbind:bindingName];
+			objc_setAssociatedObject(target, (__bridge void *)self, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+		}]
+		subscribeError:^(NSError *error) {
+			@strongify(self);
+			NSCAssert(NO, @"Received error on binding proxy %@: %@", self, error);
+
+			// And in case assertions are disabled...
+			NSLog(@"*** Received error on binding proxy %@: %@", self, error);
+		}];
+
 	[self.target bind:bindingName toObject:self withKeyPath:@keypath(self.value) options:options];
+
+	// Keep the proxy alive as long as the target, or until the property subject
+	// terminates.
 	objc_setAssociatedObject(self.target, (__bridge void *)self, self, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
-	[_disposable addDisposable:[RACDisposable disposableWithBlock:^{
+	[[self.target rac_deallocDisposable] addDisposable:[RACDisposable disposableWithBlock:^{
 		@strongify(self);
-		if (self == nil) return;
-		
-		id target = self.target;
-		self.target = nil;
-
-		[target unbind:bindingName];
-		objc_setAssociatedObject(target, (__bridge void *)self, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+		[self.propertySubject sendCompleted];
 	}]];
 
-	RACPropertySubject *propertySubject = [[RACPropertySubject property] setNameWithFormat:@"%@ -propertySubject", self];
-	[self.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-		[propertySubject sendCompleted];
-	}]];
-
-	// When the property subject terminates (from anything), tear down this
-	// proxy and all of its disposables.
-	[propertySubject subscribeError:^(NSError *error) {
-		@strongify(self);
-		NSCAssert(NO, @"Received error on binding proxy %@: %@", self, error);
-
-		// And in case assertions are disabled...
-		NSLog(@"*** Received error on binding proxy %@: %@", self, error);
-
-		if (self != nil) [self->_disposable dispose];
-	} completed:^{
-		@strongify(self);
-		if (self != nil) [self->_disposable dispose];
-	}];
-
-	RACBinding *viewBinding = [RACBind(self.value) setNameWithFormat:@"%@ -viewBinding", self];
-	_modelBinding = [[propertySubject binding] setNameWithFormat:@"%@ -modelBinding", self];
-
-	RACDisposable *viewToModelDisposable = [viewBinding subscribe:self.modelBinding];
-	if (viewToModelDisposable != nil) [_disposable addDisposable:viewToModelDisposable];
-
-	// It might seem backwards to skip the model's first value, but nothing's
-	// been connected to it yet, so we'll start with whatever the view has.
-	RACDisposable *modelToViewDisposable = [[self.modelBinding skip:1] subscribe:viewBinding];
-	if (modelToViewDisposable != nil) [_disposable addDisposable:modelToViewDisposable];
-	
+	RACBind(self.value) = [self.propertySubject binding];
 	return self;
 }
 
 - (void)dealloc {
-	[_disposable dispose];
-	_disposable = nil;
+	[self.propertySubject sendCompleted];
 }
 
 #pragma mark NSObject
@@ -178,8 +170,8 @@
 #pragma mark NSKeyValueObserving
 
 + (BOOL)automaticallyNotifiesObserversForKey:(NSString *)key {
-	// Generating manual notifications for `value` is simpler than having KVO
-	// swizzle our class and add its own logic.
+	// Generating manual notifications for `value` is simpler and more
+	// performant than having KVO swizzle our class and add its own logic.
 	return NO;
 }
 

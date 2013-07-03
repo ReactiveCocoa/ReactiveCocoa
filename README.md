@@ -30,11 +30,11 @@ ReactiveCocoa is an implementation of [functional reactive
 programming](http://blog.maybeapps.com/post/42894317939/input-and-output).
 Rather than using mutable variables which are replaced and modified in-place,
 RAC provides signals (represented by `RACSignal`) that capture present and
-future values. These signals can be reasoned about, chained, composed, and
-reacted to.
+future values.
 
-By combining signals, software can be written declaratively, without the need
-for code that continually observes and updates values.
+By chaining, combining, and reacting to signals, software can be written
+declaratively, without the need for code that continually observes and updates
+values.
 
 For example, a text field can be bound to the latest time, even as it changes,
 instead of using additional code that watches the clock and updates the

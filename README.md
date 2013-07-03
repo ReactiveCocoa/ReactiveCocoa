@@ -45,7 +45,8 @@ promises][]. This greatly simplifies asynchronous software, including networking
 code.
 
 One of the major advantages of RAC is that it provides a single, unified
-approach to dealing with different types of reactive, asynchronous behaviors.
+approach to dealing with asynchronous behaviors, including delegate methods,
+callback blocks, target-action mechanisms, notifications, and KVO.
 
 Here's a simple example:
 

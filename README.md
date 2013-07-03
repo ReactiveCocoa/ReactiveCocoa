@@ -76,10 +76,9 @@ But unlike KVO notifications, signals can be chained together and operated on:
    }];
 ```
 
-Signals can also be used to derive state, which is a key component of FRP.
-Instead of observing properties and setting other properties in response to the
-new values, RAC makes it possible to express properties in terms of signals and
-operations:
+Signals can also be used to derive state. Instead of observing properties and
+setting other properties in response to the new values, RAC makes it possible to
+express properties in terms of signals and operations:
 
 ```objc
 // Create a one-way binding so that self.createEnabled will be

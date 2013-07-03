@@ -8,51 +8,46 @@ If you're already familiar with functional reactive programming or know the basi
 premise of ReactiveCocoa, check out the [Documentation][] folder for a framework
 overview and more in-depth information about how it all works in practice.
 
-**Table of Contents**
+## New to ReactiveCocoa?
 
- 1. [Functional reactive programming](#functional-reactive-programming)
- 1. [FRP with ReactiveCocoa](#frp-with-reactivecocoa)
+ReactiveCocoa is documented like crazy, and there's a wealth of introductory
+material available to explain what RAC is and how you can use it.
+
+If you want to learn more, we recommend these resources, roughly in order:
+
+ 1. [Introduction](#introduction)
  1. [When to use ReactiveCocoa](#when-to-use-reactivecocoa)
- 1. [Importing ReactiveCocoa](#importing-reactivecocoa)
- 1. [More Info](#more-info)
+ 1. [Framework Overview][]
+ 1. [Basic Operators][]
+ 1. [Header documentation](ReactiveCocoaFramework/ReactiveCocoa)
+ 1. Previously answered [Stack Overflow](https://github.com/ReactiveCocoa/ReactiveCocoa/wiki)
+    questions and [GitHub issues](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?labels=question&state=closed)
+ 1. The rest of the [Documentation][] folder
 
-## Functional reactive programming
+## Introduction
 
-Functional Reactive Programming (FRP) is a programming paradigm for writing
-software that reacts to change.
+ReactiveCocoa is an implementation of [functional reactive
+programming](http://blog.maybeapps.com/post/42894317939/input-and-output).
+Rather than using mutable variables which are replaced and modified in-place,
+RAC provides signals (represented by `RACSignal`) that capture present and
+future values.
 
-FRP is built on the abstraction of values over time. Rather than capturing
-a value at a particular time, FRP provides signals that capture the past,
-present, and future value. These signals can be reasoned about, chained,
-composed, and reacted to.
+By chaining, combining, and reacting to signals, software can be written
+declaratively, without the need for code that continually observes and updates
+values.
 
-By combining signals, software can be written declaratively, without the need
-for code that continually observes and updates values. A text field can be
-directly set to always show the current timestamp, for example, instead of using
-additional code that watches the clock and updates the text field every second.
+For example, a text field can be bound to the latest time, even as it changes,
+instead of using additional code that watches the clock and updates the
+text field every second.  It works much like KVO, but with blocks instead of
+overriding `-observeValueForKeyPath:ofObject:change:context:`.
 
 Signals can also represent asynchronous operations, much like [futures and
 promises][]. This greatly simplifies asynchronous software, including networking
 code.
 
-One of the major advantages of FRP is that it provides a single, unified
-approach to dealing with different types of reactive, asynchronous behaviors.
-
-Here are some resources for learning more about FRP:
-
-* [What is FRP? - Elm Language](http://elm-lang.org/learn/What-is-FRP.elm)
-* [What is Functional Reactive Programming - Stack Overflow](http://stackoverflow.com/questions/1028250/what-is-functional-reactive-programming/1030631#1030631)
-
-[Josh Abernathy](https://github.com/joshaber) also has [a blog post about FRP](http://blog.maybeapps.com/post/42894317939/input-and-output).
-
-## FRP with ReactiveCocoa
-
-Signals in ReactiveCocoa (RAC) are represented using `RACSignal`. Signals are
-streams of values that can be observed and transformed.
-
-Applications that are built with RAC use signals to propagate changes. It works
-much like KVO, but with blocks instead of overriding
-`-observeValueForKeyPath:ofObject:change:context:`.
+One of the major advantages of RAC is that it provides a single, unified
+approach to dealing with asynchronous behaviors, including delegate methods,
+callback blocks, target-action mechanisms, notifications, and KVO.
 
 Here's a simple example:
 
@@ -83,10 +78,9 @@ But unlike KVO notifications, signals can be chained together and operated on:
    }];
 ```
 
-Signals can also be used to derive state, which is a key component of FRP.
-Instead of observing properties and setting other properties in response to the
-new values, RAC makes it possible to express properties in terms of signals and
-operations:
+Signals can also be used to derive state. Instead of observing properties and
+setting other properties in response to the new values, RAC makes it possible to
+express properties in terms of signals and operations:
 
 ```objc
 // Create a one-way binding so that self.createEnabled will be
@@ -515,6 +509,13 @@ out there:
 * [101 Rx Samples](http://rxwiki.wikidot.com/101samples)
 * [Programming Reactive Extensions and LINQ](http://www.amazon.com/Programming-Reactive-Extensions-Jesse-Liberty/dp/1430237473)
 
+RAC and Rx are both implementations of functional reactive programming. Here are
+some more resources for learning about FRP:
+
+* [What is FRP? - Elm Language](http://elm-lang.org/learn/What-is-FRP.elm)
+* [What is Functional Reactive Programming - Stack Overflow](http://stackoverflow.com/questions/1028250/what-is-functional-reactive-programming/1030631#1030631)
+
+[Basic Operators]: Documentation/BasicOperators.md
 [Documentation]: Documentation
 [Framework Overview]: Documentation/FrameworkOverview.md
 [Functional Reactive Programming]: http://en.wikipedia.org/wiki/Functional_reactive_programming

@@ -36,8 +36,8 @@ reacted to.
 By combining signals, software can be written declaratively, without the need
 for code that continually observes and updates values.
 
-A text field can be directly set to always show the current timestamp, for
-example, instead of using additional code that watches the clock and updates the
+For example, a text field can be bound to the latest time, even as it changes,
+instead of using additional code that watches the clock and updates the
 text field every second.  It works much like KVO, but with blocks instead of
 overriding `-observeValueForKeyPath:ofObject:change:context:`.
 

@@ -83,49 +83,6 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	return compoundDisposable;
 }
 
-// Used from within -concat to pop the next signal to concatenate to.
-static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *compoundDisposable, BOOL *outerDonePtr, id<RACSubscriber> subscriber, __strong RACSignal **currentSignalPtr) {
-	NSCParameterAssert(signals != nil);
-	NSCParameterAssert(currentSignalPtr != NULL);
-
-	RACSignal *signal;
-
-	@synchronized (signals) {
-		if (*outerDonePtr && signals.count == 0 && *currentSignalPtr == nil) {
-			[subscriber sendCompleted];
-			return;
-		}
-
-		if (signals.count == 0 || *currentSignalPtr != nil) return;
-
-		signal = signals[0];
-		[signals removeObjectAtIndex:0];
-
-		*currentSignalPtr = signal;
-	}
-
-	__block RACDisposable *subscriptionDisposable = nil;
-	
-	RACDisposable *disposable = [signal subscribeNext:^(id x) {
-		[subscriber sendNext:x];
-	} error:^(NSError *error) {
-		[subscriber sendError:error];
-	} completed:^{
-		@synchronized (signals) {
-			if (subscriptionDisposable != nil) [compoundDisposable removeDisposable:subscriptionDisposable];
-
-			*currentSignalPtr = nil;
-			concatPopNextSignal(signals, compoundDisposable, outerDonePtr, subscriber, currentSignalPtr);
-		}
-	}];
-
-	@synchronized (signals) {
-		subscriptionDisposable = disposable;
-	}
-
-	if (disposable != nil) [compoundDisposable addDisposable:disposable];
-}
-
 @implementation RACSignal (Operations)
 
 - (RACSignal *)doNext:(void (^)(id x))block {
@@ -683,32 +640,7 @@ static void concatPopNextSignal(NSMutableArray *signals, RACCompoundDisposable *
 }
 
 - (RACSignal *)concat {
-	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		NSMutableArray *signals = [NSMutableArray array];
-		RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposable];
-
-		__block BOOL outerDone = NO;
-		__block RACSignal *currentSignal = nil;
-
-		RACDisposable *subscriptionDisposable = [self subscribeNext:^(RACSignal *signal) {
-			NSCAssert([signal isKindOfClass:RACSignal.class], @"%@ must be a signal of signals. Instead, got %@", self, signal);
-
-			@synchronized (signals) {
-				[signals addObject:signal];
-				concatPopNextSignal(signals, compoundDisposable, &outerDone, subscriber, &currentSignal);
-			}
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			@synchronized (signals) {
-				outerDone = YES;
-				concatPopNextSignal(signals, compoundDisposable, &outerDone, subscriber, &currentSignal);
-			}
-		}];
-
-		if (subscriptionDisposable != nil) [compoundDisposable addDisposable:subscriptionDisposable];
-		return compoundDisposable;
-	}] setNameWithFormat:@"[%@] -concat", self.name];
+	return [[self flatten:1] setNameWithFormat:@"[%@] -concat", self.name];
 }
 
 - (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock {

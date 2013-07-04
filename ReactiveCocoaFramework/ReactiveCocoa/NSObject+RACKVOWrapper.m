@@ -87,6 +87,7 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 		// Prepare the change dictionary by adding the RAC specific keys
 		{
 			NSMutableDictionary *newChange = [change mutableCopy];
+			newChange[RACKeyValueChangeCausedByDeallocationKey] = @NO;
 			newChange[RACKeyValueChangeAffectedOnlyLastComponentKey] = @(keyPathHasOneComponent);
 			change = newChange.copy;
 		}
@@ -98,7 +99,7 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 			@synchronized (disposable) {
 				[firstComponentDisposable dispose];
 			}
-			if (options & NSKeyValueObservingOptionPrior) {
+			if ((options & NSKeyValueObservingOptionPrior) != 0) {
 				block([trampolineTarget valueForKeyPath:keyPath], change);
 			}
 			return;
@@ -154,11 +155,13 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 	}
 
 	// Call the block with the initial value if needed.
-	if (options & NSKeyValueObservingOptionInitial) {
+	if ((options & NSKeyValueObservingOptionInitial) != 0) {
 		id initialValue = [self valueForKeyPath:keyPath];
 		NSDictionary *initialChange = @{
 			NSKeyValueChangeKindKey: @(NSKeyValueChangeSetting),
-			NSKeyValueChangeNewKey: initialValue ?: NSNull.null
+			NSKeyValueChangeNewKey: initialValue ?: NSNull.null,
+			RACKeyValueChangeCausedByDeallocationKey: @NO,
+			RACKeyValueChangeAffectedOnlyLastComponentKey: @NO
 		};
 		block(initialValue, initialChange);
 	}

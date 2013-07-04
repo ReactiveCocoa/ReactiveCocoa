@@ -151,9 +151,10 @@ extern const NSInteger RACSignalErrorTimedOut;
 // signals     - The signals to combine. If this collection is empty, the
 //               returned signal will immediately complete upon subscription.
 // reduceBlock - The block which reduces the latest values from all the
-//               signals into one value. It should take as many arguments as the
+//               signals into one value. It must take as many arguments as the
 //               number of signals given. Each argument will be an object
-//               argument. This argument must not be nil.
+//               argument. The return value must be an object. This argument
+//               must not be nil.
 //
 // Example:
 //
@@ -163,7 +164,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 //
 // Returns a signal which sends the results from each invocation of
 // `reduceBlock`.
-+ (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock;
++ (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals reduce:(id (^)())reduceBlock;
 
 // Sends the latest `next` from any of the signals.
 //
@@ -187,9 +188,16 @@ extern const NSInteger RACSignalErrorTimedOut;
 //                 signals.
 - (RACSignal *)flatten:(NSUInteger)maxConcurrent;
 
-// Ignores all `next`s from the receiver, and after the receiver completes, gets
-// a new signal to subscribe to.
-- (RACSignal *)sequenceNext:(RACSignal * (^)(void))block;
+// Ignores all `next`s from the receiver, waits for the receiver to complete,
+// then subscribes to a new signal.
+//
+// block - A block which will create or obtain a new signal to subscribe to,
+//         executed only after the receiver completes. This block must not be
+//         nil, and it must not return a nil signal.
+//
+// Returns a signal which will pass through the events of the signal created in
+// `block`. If the receiver errors out, the returned signal will error as well.
+- (RACSignal *)then:(RACSignal * (^)(void))block;
 
 // Concats the inner signals of a signal of signals.
 - (RACSignal *)concat;
@@ -484,5 +492,6 @@ extern const NSInteger RACSignalErrorTimedOut;
 - (RACSignal *)timeout:(NSTimeInterval)interval __attribute__((deprecated("Use -timeout:onScheduler: instead")));
 - (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object __attribute__((deprecated("Renamed to -setKeyPath:onObject:")));
 - (RACSignal *)ignoreElements __attribute__((deprecated("Renamed to -ignoreValues")));
+- (RACSignal *)sequenceNext:(RACSignal * (^)(void))block __attribute__((deprecated("Renamed to -then:")));
 
 @end

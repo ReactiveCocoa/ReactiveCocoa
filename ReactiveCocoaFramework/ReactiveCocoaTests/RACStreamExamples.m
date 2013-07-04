@@ -215,27 +215,6 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 	});
 
-	describe(@"-sequenceMany:", ^{
-		it(@"should return the result of sequencing a single value", ^{
-			RACStream *stream = [[streamClass return:@0] sequenceMany:^{
-				return [streamClass return:@10];
-			}];
-
-			verifyValues(stream, @[ @10 ]);
-		});
-
-		it(@"should concatenate the result of sequencing multiple values", ^{
-			RACStream *baseStream = streamWithValues(@[ @0, @1 ]);
-
-			__block NSUInteger value = 10;
-			RACStream *stream = [baseStream sequenceMany:^{
-				return [streamClass return:@(value++)];
-			}];
-
-			verifyValues(stream, @[ @10, @11 ]);
-		});
-	});
-
 	it(@"should map", ^{
 		RACStream *baseStream = streamWithValues(@[ @0, @1, @2 ]);
 		RACStream *stream = [baseStream map:^(NSNumber *value) {

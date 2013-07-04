@@ -6,6 +6,11 @@ and includes examples demonstrating their use.
 Operators that apply to [sequences][Sequences] _and_ [signals][Signals] are
 known as [stream][Streams] operators.
 
+**[Performing side effects with signals](#performing-side-effects-with-signals)**
+
+ 1. [Subscription](#subscription)
+ 1. [Injecting effects](#injecting-effects)
+
 **[Transforming streams](#transforming-streams)**
 
  1. [Mapping](#mapping)
@@ -23,6 +28,85 @@ known as [stream][Streams] operators.
  1. [Merging](#merging)
  1. [Combining latest values](#combining-latest-values)
  1. [Switching](#switching)
+
+## Performing side effects with signals
+
+Most signals start out "cold," which means that they will not do any work until
+[subscription](#subscription).
+
+Upon subscription, a signal or its [subscribers][Subscription] can perform _side
+effects_, like logging to the console, making a network request, updating the
+user interface, etc.
+
+Side effects can also be [injected](#injecting-effects) into a signal, where
+they won't be performed immediately, but will instead take effect with each
+subscription later.
+
+### Subscription
+
+The [-subscribe…][RACSignal] methods give you access to the current and future values in a signal:
+
+```objc
+RACSignal *letters = [@"A B C D E F G H I" componentsSeparatedByString:@" "].rac_sequence.signal;
+
+// Outputs: A B C D
+[letters subscribeNext:^(NSString *x) {
+    NSLog(@"%@", x);
+}];
+```
+
+For a cold signal, side effects will be performed once _per subscription_:
+
+```objc
+__block unsigned subscriptions = 0;
+
+RACSignal *loggingSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+    subscriptions++;
+    [subscriber sendCompleted];
+    return nil;
+}];
+
+// Outputs:
+// subscription 1
+[loggingSignal subscribeCompleted:^{
+    NSLog(@"subscription %u", subscriptions);
+}];
+
+// Outputs:
+// subscription 2
+[loggingSignal subscribeCompleted:^{
+    NSLog(@"subscription %u", subscriptions);
+}];
+```
+
+This behavior can be changed using a [connection][Connections].
+
+### Injecting effects
+
+The [-do…][RACSignal+Operations] methods add side effects to a signal without actually
+subscribing to it:
+
+```objc
+__block unsigned subscriptions = 0;
+
+RACSignal *loggingSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+    subscriptions++;
+    [subscriber sendCompleted];
+    return nil;
+}];
+
+// Does not output anything yet
+loggingSignal = [loggingSignal doCompleted:^{
+    NSLog(@"about to complete subscription %u", subscriptions);
+}];
+
+// Outputs:
+// about to complete subscription 1
+// subscription 1
+[loggingSignal subscribeCompleted:^{
+    NSLog(@"subscription %u", subscriptions);
+}];
+```
 
 ## Transforming streams
 
@@ -269,6 +353,7 @@ RACSignal *switched = [signalOfSignals switchToLatest];
 [letters sendNext:@"D"];
 ```
 
+[Connections]: FrameworkOverview.md#connections
 [RACSequence]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSequence.h
 [RACSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h
 [RACSignal+Operations]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h
@@ -276,3 +361,4 @@ RACSignal *switched = [signalOfSignals switchToLatest];
 [Sequences]: FrameworkOverview.md#sequences
 [Signals]: FrameworkOverview.md#signals
 [Streams]: FrameworkOverview.md#streams
+[Subscription]: FrameworkOverview.md#subscription

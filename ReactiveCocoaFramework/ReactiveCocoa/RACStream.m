@@ -133,7 +133,7 @@
 	}] setNameWithFormat:@"[%@] -ignore: %@", self.name, [value rac_description]];
 }
 
-- (instancetype)reduceEach:(id)reduceBlock {
+- (instancetype)reduceEach:(id (^)())reduceBlock {
 	NSCParameterAssert(reduceBlock != nil);
 
 	__weak RACStream *stream __attribute__((unused)) = self;
@@ -181,14 +181,6 @@
 	}] setNameWithFormat:@"[%@] -take: %lu", self.name, (unsigned long)count];
 }
 
-- (instancetype)sequenceMany:(RACStream * (^)(void))block {
-	NSCParameterAssert(block != NULL);
-
-	return [[self flattenMap:^(id _) {
-		return block();
-	}] setNameWithFormat:@"[%@] -sequenceMany:", self.name];
-}
-
 + (instancetype)zip:(id<NSFastEnumeration>)streams {
 	RACStream *current = nil;
 
@@ -232,7 +224,7 @@
 	return [current setNameWithFormat:@"+zip: %@", streams];
 }
 
-+ (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id)reduceBlock {
++ (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id (^)())reduceBlock {
 	NSCParameterAssert(reduceBlock != nil);
 
 	RACStream *result = [self zip:streams];
@@ -320,5 +312,22 @@
 		return !predicate(x);
 	}] setNameWithFormat:@"[%@] -skipUntilBlock:", self.name];
 }
+
+@end
+
+@implementation RACStream (Deprecated)
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
+- (instancetype)sequenceMany:(RACStream * (^)(void))block {
+	NSCParameterAssert(block != NULL);
+
+	return [[self flattenMap:^(id _) {
+		return block();
+	}] setNameWithFormat:@"[%@] -sequenceMany:", self.name];
+}
+
+#pragma clang diagnostic pop
 
 @end

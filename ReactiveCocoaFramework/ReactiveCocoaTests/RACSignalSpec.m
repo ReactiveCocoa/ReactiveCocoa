@@ -221,8 +221,10 @@ describe(@"subscribing", ^{
 		});
 		expect(currentScheduler).willNot.beNil();
 	});
+});
 
-	it(@"should support -takeUntil:", ^{
+describe(@"-takeUntil:", ^{
+	it(@"should support value as trigger", ^{
 		__block BOOL shouldBeGettingItems = YES;
 		RACSubject *subject = [RACSubject subject];
 		RACSubject *cutOffSubject = [RACSubject subject];
@@ -240,7 +242,7 @@ describe(@"subscribing", ^{
 		[subject sendNext:@"test 3"];
 	});
     
-	it(@"should support -takeUntil: with completion as trigger", ^{
+	it(@"should support completion as trigger", ^{
 		__block BOOL shouldBeGettingItems = YES;
 		RACSubject *subject = [RACSubject subject];
 		RACSubject *cutOffSubject = [RACSubject subject];
@@ -252,6 +254,23 @@ describe(@"subscribing", ^{
         
 		shouldBeGettingItems = NO;
 		[subject sendNext:@"should not go through"];
+	});
+
+	it(@"should squelch any values sent immediately upon subscription", ^{
+		RACSignal *valueSignal = [RACSignal return:RACUnit.defaultUnit];
+		RACSignal *cutOffSignal = [RACSignal empty];
+
+		__block BOOL gotNext = NO;
+		__block BOOL completed = NO;
+
+		[[valueSignal takeUntil:cutOffSignal] subscribeNext:^(id _) {
+			gotNext = YES;
+		} completed:^{
+			completed = YES;
+		}];
+
+		expect(gotNext).to.beFalsy();
+		expect(completed).to.beTruthy();
 	});
 });
 
@@ -429,6 +448,27 @@ describe(@"querying", ^{
 		expect(value).to.equal(RACUnit.defaultUnit);
 		expect(success).to.beTruthy();
 		expect(error).to.beNil();
+	});
+
+	it(@"should return a default value from -asynchronousFirstOrDefault:success:error:", ^{
+		RACSignal *signal = [[RACSignal error:RACSignalTestError] delay:0.01];
+
+		__block BOOL scheduledBlockRan = NO;
+		[RACScheduler.mainThreadScheduler schedule:^{
+			scheduledBlockRan = YES;
+		}];
+
+		expect(scheduledBlockRan).to.beFalsy();
+
+		BOOL success = NO;
+		NSError *error = nil;
+		id value = [signal asynchronousFirstOrDefault:RACUnit.defaultUnit success:&success error:&error];
+
+		expect(scheduledBlockRan).to.beTruthy();
+
+		expect(value).to.equal(RACUnit.defaultUnit);
+		expect(success).to.beFalsy();
+		expect(error).to.equal(RACSignalTestError);
 	});
 
 	it(@"should return a delayed error from -asynchronousFirstOrDefault:success:error:", ^{
@@ -758,7 +798,7 @@ describe(@"+combineLatest:reduce:", ^{
 		__block id receivedVal2;
 		__block id receivedVal3;
 
-		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2, subject3 ] reduce:^(id val1, id val2, id val3) {
+		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2, subject3 ] reduce:^ id (id val1, id val2, id val3) {
 			receivedVal1 = val1;
 			receivedVal2 = val2;
 			receivedVal3 = val3;
@@ -1954,12 +1994,12 @@ describe(@"throttling", ^{
 	});
 });
 
-describe(@"-sequenceNext:", ^{
+describe(@"-then:", ^{
 	it(@"should continue onto returned signal", ^{
 		RACSubject *subject = [RACSubject subject];
 
 		__block id value = nil;
-		[[subject sequenceNext:^{
+		[[subject then:^{
 			return [RACSignal return:@2];
 		}] subscribeNext:^(id x) {
 			value = x;
@@ -1979,7 +2019,7 @@ describe(@"-sequenceNext:", ^{
 		RACSubject *subject = [RACSubject subject];
 
 		__block id value = nil;
-		[[subject sequenceNext:^{
+		[[subject then:^{
 			return [RACSignal return:RACUnit.defaultUnit];
 		}] subscribeNext:^(id x) {
 			value = x;

@@ -265,7 +265,66 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 												 });
 		});
 	});
-	
+
+	it(@"should not call didChangeBlock when the value is the observer", ^{
+		__block BOOL observerDisposed = NO;
+		__block BOOL observerDeallocationTriggeredChange = NO;
+		__block BOOL targetDisposed = NO;
+		__block BOOL targetDeallocationTriggeredChange = NO;
+
+		@autoreleasepool {
+			NSObject *observer __attribute__((objc_precise_lifetime)) = [RACTestObject new];
+			[observer.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				observerDisposed = YES;
+			}]];
+
+			NSObject *target __attribute__((objc_precise_lifetime)) = [RACTestObject new];
+			[target.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				targetDisposed = YES;
+			}]];
+
+			// These observations can only result in dealloc triggered callbacks.
+			// Specifically, they do not perform any actions that would trigger
+			// a KVO change for the key "self".
+			[observer rac_observeKeyPath:@keypath(observer.self) options:0 observer:observer block:^(id _, NSDictionary *__) {
+				observerDeallocationTriggeredChange = YES;
+			}];
+
+			[target rac_observeKeyPath:@keypath(observer.self) options:0 observer:observer block:^(id _, NSDictionary *__) {
+				targetDeallocationTriggeredChange = YES;
+			}];
+		}
+
+		expect(observerDisposed).to.beTruthy();
+		expect(observerDeallocationTriggeredChange).to.beFalsy();
+
+		expect(targetDisposed).to.beTruthy();
+		expect(targetDeallocationTriggeredChange).to.beTruthy();
+	});
+
+	it(@"should call didChangeBlock for deallocation of the initial value of a single-key key path", ^{
+		RACTestObject *target = [RACTestObject new];
+		__block BOOL objectDisposed = NO;
+		__block BOOL objectDeallocationTriggeredChange = NO;
+
+		@autoreleasepool {
+			RACTestObject *object __attribute__((objc_precise_lifetime)) = [RACTestObject new];
+			target.weakTestObjectValue = object;
+			[object.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				objectDisposed = YES;
+			}]];
+
+			[target rac_observeKeyPath:@keypath(target.weakTestObjectValue) options:0 observer:target block:^(id _, NSDictionary *__) {
+				objectDeallocationTriggeredChange = YES;
+			}];
+		}
+
+		expect(objectDisposed).to.beTruthy();
+		expect(objectDeallocationTriggeredChange).to.beTruthy();
+	});
+});
+
+describe(@"rac_addObserver:forKeyPath:options:block:", ^{
 	it(@"should add and remove an observer", ^{
 		NSBlockOperation *operation = [NSBlockOperation blockOperationWithBlock:^{}];
 		expect(operation).notTo.beNil();

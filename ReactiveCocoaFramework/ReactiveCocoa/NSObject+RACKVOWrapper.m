@@ -14,8 +14,8 @@
 #import "RACDisposable.h"
 #import "RACKVOTrampoline.h"
 
-NSString * const RACKeyValueChangeDeallocation = @"RACKeyValueChangeDeallocation";
-NSString * const RACKeyValueChangeLastPathComponent = @"RACKeyValueChangeLastPathComponent";
+NSString * const RACKeyValueChangeCausedByDeallocationKey = @"RACKeyValueChangeCausedByDeallocationKey";
+NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueChangeAffectedOnlyLastComponentKey";
 
 @implementation NSObject (RACKVOWrapper)
 
@@ -41,8 +41,8 @@ NSString * const RACKeyValueChangeLastPathComponent = @"RACKeyValueChangeLastPat
 		NSDictionary *change = @{
 			NSKeyValueChangeKindKey: @(NSKeyValueChangeSetting),
 			NSKeyValueChangeNewKey: NSNull.null,
-			RACKeyValueChangeDeallocation: @YES,
-			RACKeyValueChangeLastPathComponent: (keyPathHasOneComponent ? @YES : @NO)
+			RACKeyValueChangeCausedByDeallocationKey: @YES,
+			RACKeyValueChangeAffectedOnlyLastComponentKey: @(keyPathHasOneComponent)
 		};
 
 		// If a key path value is the observer, commonly when a key path begins
@@ -87,7 +87,7 @@ NSString * const RACKeyValueChangeLastPathComponent = @"RACKeyValueChangeLastPat
 		// Prepare the change dictionary by adding the RAC specific keys
 		{
 			NSMutableDictionary *newChange = [change mutableCopy];
-			newChange[RACKeyValueChangeLastPathComponent] = @(keyPathHasOneComponent);
+			newChange[RACKeyValueChangeAffectedOnlyLastComponentKey] = @(keyPathHasOneComponent);
 			change = newChange.copy;
 		}
 

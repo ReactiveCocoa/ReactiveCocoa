@@ -196,7 +196,7 @@
 		// If the change is prior we only increase the stack depth if it was
 		// triggered by the last path component, we don't do anything otherwise.
 		if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
-			if ([change[RACKeyValueChangeLastPathComponent] boolValue]) ++stackDepth;
+			if ([change[RACKeyValueChangeAffectedOnlyLastComponentKey] boolValue]) ++stackDepth;
 			return;
 		}
 		// From here the change isn't prior.
@@ -205,7 +205,7 @@
 		// change wasn't triggered by the last path component, or was triggered by
 		// a deallocation, it definitely wasn't triggered by this binding, so just
 		// forward it.
-		if (![change[RACKeyValueChangeLastPathComponent] boolValue] || [change[RACKeyValueChangeDeallocation] boolValue]) {
+		if (![change[RACKeyValueChangeAffectedOnlyLastComponentKey] boolValue] || [change[RACKeyValueChangeCausedByDeallocationKey] boolValue]) {
 			[updatesSubject sendNext:value];
 			return;
 		}

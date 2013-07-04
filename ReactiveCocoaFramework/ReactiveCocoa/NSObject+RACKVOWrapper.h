@@ -15,8 +15,8 @@
 //                                      intermediate value deallocating.
 // RACKeyValueChangeLastPathComponent - Will be @YES if the change only affected
 //                                      the value of the last key path component.
-extern NSString * const RACKeyValueChangeDeallocation;
-extern NSString * const RACKeyValueChangeLastPathComponent;
+extern NSString * const RACKeyValueChangeCausedByDeallocationKey;
+extern NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey;
 
 @class RACDisposable, RACKVOTrampoline;
 

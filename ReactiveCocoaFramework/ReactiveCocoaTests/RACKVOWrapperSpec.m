@@ -72,12 +72,12 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 
 		callbackBlock = [^(id value, NSDictionary *change) {
 			if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
-				priorTriggeredByLastKeyPathComponent = [change[RACKeyValueChangeLastPathComponent] boolValue];
+				priorTriggeredByLastKeyPathComponent = [change[RACKeyValueChangeAffectedOnlyLastComponentKey] boolValue];
 				++priorCallCount;
 				return;
 			}
-			posteriorTriggeredByLastKeyPathComponent = [change[RACKeyValueChangeLastPathComponent] boolValue];
-			posteriorTriggeredByDeallocation = [change[RACKeyValueChangeDeallocation] boolValue];
+			posteriorTriggeredByLastKeyPathComponent = [change[RACKeyValueChangeAffectedOnlyLastComponentKey] boolValue];
+			posteriorTriggeredByDeallocation = [change[RACKeyValueChangeCausedByDeallocationKey] boolValue];
 			++posteriorCallCount;
 		} copy];
 	});

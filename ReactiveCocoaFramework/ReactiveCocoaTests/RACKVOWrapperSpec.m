@@ -413,7 +413,6 @@ describe(@"rac_addObserver:forKeyPath:options:block:", ^{
 		}
 
 		expect(weakObserver).to.beNil();
-		expect(identifier).to.beNil();
 	});
 
 	it(@"should stop KVO when the observer is disposed", ^{

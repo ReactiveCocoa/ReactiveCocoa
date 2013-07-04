@@ -66,8 +66,8 @@
 
 // Creates a signal to observe the changes of the given key path.
 //
-// Returns a signal that sends tuples containing the value and the change
-// dictionary for each KVO callback.
+// Returns a signal that sends tuples containing the current value at the key
+// path and the change dictionary for each KVO callback.
 - (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer;
 
 @end
@@ -88,11 +88,11 @@
 
 @interface NSObject (RACPropertySubscribingDeprecated)
 
-+ (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer __attribute__((deprecated("Use -rac_valueForKeyPath:observer: or RACObserve() instead.")));
-+ (RACSignal *)rac_signalWithStartingValueFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer __attribute__((deprecated("Use -rac_valueForKeyPath:observer: or RACObserve() instead.")));
-+ (RACSignal *)rac_signalWithChangesFor:(NSObject *)object keyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer __attribute__((deprecated("Use -rac_changesForKeyPath:observer: instead.")));
-- (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath observer:(NSObject *)observer __attribute__((deprecated("Use -rac_valueForKeyPath:observer: or RACObserve() instead.")));
-- (RACSignal *)rac_signalWithStartingValueForKeyPath:(NSString *)keyPath observer:(NSObject *)observer __attribute__((deprecated("Use -rac_valueForKeyPath:observer: or RACObserve() instead.")));
++ (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer __attribute__((deprecated("Use -rac_valuesForKeyPath:observer: or RACObserve() instead.")));
++ (RACSignal *)rac_signalWithStartingValueFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer __attribute__((deprecated("Use -rac_valuesForKeyPath:observer: or RACObserve() instead.")));
++ (RACSignal *)rac_signalWithChangesFor:(NSObject *)object keyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer __attribute__((deprecated("Use -rac_valuesAndChangesForKeyPath:options:observer: instead.")));
+- (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath observer:(NSObject *)observer __attribute__((deprecated("Use -rac_valuesForKeyPath:observer: or RACObserve() instead.")));
+- (RACSignal *)rac_signalWithStartingValueForKeyPath:(NSString *)keyPath observer:(NSObject *)observer __attribute__((deprecated("Use -rac_valuesForKeyPath:observer: or RACObserve() instead.")));
 - (RACDisposable *)rac_deriveProperty:(NSString *)keyPath from:(RACSignal *)signal __attribute__((deprecated("Use -[RACSignal setKeyPath:onObject:] instead")));
 
 @end

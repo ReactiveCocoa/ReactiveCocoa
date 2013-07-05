@@ -65,12 +65,25 @@
 				isFirstNext = NO;
 				[subscriber sendNext:x.first];
 			}
+		} completed:^{
+			[subscriber sendCompleted];
 		}];
 	}];
+
 	_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
 		@strongify(self);
 		[subscriber sendNext:[RACTuple tupleWithObjects:x ?: RACTupleNil.tupleNil, self ?: RACTupleNil.tupleNil, nil]];
-	} error:nil completed:nil];
+	} error:^(NSError *error) {
+		@strongify(self);
+		NSCAssert(NO, @"Received error in RACBinding %@: %@", self, error);
+
+		// Log the error if we're running with assertions disabled.
+		NSLog(@"Received error in RACBinding %@: %@", self, error);
+
+		[subscriber sendError:error];
+	} completed:^{
+		[subscriber sendCompleted];
+	}];
 	
 	return self;
 }

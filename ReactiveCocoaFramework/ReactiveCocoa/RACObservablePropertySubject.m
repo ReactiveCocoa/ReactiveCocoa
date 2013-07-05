@@ -16,10 +16,15 @@
 #import "RACBinding.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
+#import "RACReplaySubject.h"
+#import "RACSignal+Operations.h"
 #import "RACSubscriber+Private.h"
 #import "RACSubject.h"
 
 @interface RACObservablePropertySubject ()
+
+// Forwards `error` and `completed` events to any bindings.
+@property (nonatomic, readonly, strong) RACSubject *terminationSubject;
 
 // The object whose key path the RACObservablePropertySubject is wrapping.
 @property (atomic, unsafe_unretained) NSObject *target;
@@ -41,7 +46,16 @@
 @interface RACObservablePropertyBinding : RACBinding
 
 // Create a new binding for `keyPath` on `target`.
-+ (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath;
+//
+// target             - The object to observe. This must not be nil.
+// keyPath            - The key path to observe, relative to the `target`. This
+//                      must not be nil.
+// terminationSubject - A subject to watch for `error` and `completed` events.
+//                      The binding will forward any such events to its
+//                      subscribers. If the binding receives an `error` or
+//                      `completed` event, it will also send it upon this
+//                      subject. This argument must not be nil.
++ (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath terminationSubject:(RACSubject *)terminationSubject;
 
 // The object whose key path the binding is wrapping.
 @property (atomic, unsafe_unretained) NSObject *target;
@@ -94,14 +108,18 @@
 	
 	property->_target = target;
 	property->_keyPath = [keyPath copy];
+	property->_terminationSubject = [RACReplaySubject replaySubjectWithCapacity:1];
 	
 	@weakify(property);
 
-	property->_exposedSignal = [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		@strongify(property);
-		return [[property.target rac_valuesForKeyPath:property.keyPath observer:property] subscribe:subscriber];
-	}] setNameWithFormat:@"+propertyWithTarget: %@ keyPath: %@", [target rac_description], keyPath];
-	
+	property->_exposedSignal = [[[RACSignal
+		defer:^{
+			@strongify(property);
+			return [property.target rac_valuesForKeyPath:property.keyPath observer:property];
+		}]
+		takeUntil:property.terminationSubject]
+		setNameWithFormat:@"+propertyWithTarget: %@ keyPath: %@", [target rac_description], keyPath];
+
 	property->_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
 		@strongify(property);
 		[property.target setValue:x forKeyPath:property.keyPath];
@@ -111,10 +129,17 @@
 		
 		// Log the error if we're running with assertions disabled.
 		NSLog(@"Received error in RACObservablePropertySubject for key path \"%@\" on %@: %@", property.keyPath, property.target, error);
-	} completed:nil];
+
+		[property.terminationSubject sendError:error];
+	} completed:^{
+		@strongify(property);
+		[property.terminationSubject sendCompleted];
+	}];
 	
 	[target.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 		@strongify(property);
+
+		[property.terminationSubject sendCompleted];
 		property.target = nil;
 	}]];
 	
@@ -122,7 +147,7 @@
 }
 
 - (RACBinding *)binding {
-	return [RACObservablePropertyBinding bindingWithTarget:self.target keyPath:self.keyPath];
+	return [RACObservablePropertyBinding bindingWithTarget:self.target keyPath:self.keyPath terminationSubject:self.terminationSubject];
 }
 
 @end
@@ -169,7 +194,7 @@
 
 #pragma mark API
 
-+ (instancetype)bindingWithTarget:(NSObject *)target keyPath:(NSString *)keyPath {
++ (instancetype)bindingWithTarget:(NSObject *)target keyPath:(NSString *)keyPath terminationSubject:(RACSubject *)terminationSubject {
 	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
 	RACObservablePropertyBinding *binding = [[self alloc] init];
 	if (binding == nil || target == nil) return nil;
@@ -192,7 +217,7 @@
 
 	// Observe the key path on target for changes. Update the value of stackDepth
 	// accordingly and forward the changes to updatesSubject.
-	[target rac_addObserver:binding forKeyPath:keyPath willChangeBlock:^(BOOL triggeredByLastKeyPathComponent) {
+	RACDisposable *observationDisposable = [target rac_addObserver:binding forKeyPath:keyPath willChangeBlock:^(BOOL triggeredByLastKeyPathComponent) {
 		// The binding only triggers changes to the last path component, no need to
 		// track the stack depth if this is not the case.
 		if (!triggeredByLastKeyPathComponent) return;
@@ -218,16 +243,25 @@
 			ignoreNextUpdate = NO;
 			return;
 		}
+
 		[updatesSubject sendNext:value];
+	}];
+
+	[terminationSubject subscribeError:^(NSError *error) {
+		[observationDisposable dispose];
+	} completed:^{
+		[observationDisposable dispose];
 	}];
 
 	// On subscription first send the property's current value then subscribe the
 	// subscriber to the updatesSubject for new values when they change.
-	binding->_exposedSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		@strongify(binding);
-		[subscriber sendNext:[binding.target valueForKeyPath:binding.keyPath]];
-		return [updatesSubject subscribe:subscriber];
-	}];
+	binding->_exposedSignal = [[[RACSignal
+		defer:^{
+			@strongify(binding);
+			return [updatesSubject startWith:[binding.target valueForKeyPath:binding.keyPath]];
+		}]
+		takeUntil:terminationSubject]
+		setNameWithFormat:@"[+propertyWithTarget: %@ keyPath: %@] -binding", [target rac_description], keyPath];
 	
 	NSString *keyPathByDeletingLastKeyPathComponent = keyPath.rac_keyPathByDeletingLastKeyPathComponent;
 	NSArray *keyPathComponents = keyPath.rac_keyPathComponents;
@@ -255,10 +289,15 @@
 		
 		// Log the error if we're running with assertions disabled.
 		NSLog(@"Received error in -[RACObservablePropertySubject binding] for key path \"%@\" on %@: %@", binding.keyPath, binding.target, error);
-	} completed:nil];
+
+		[terminationSubject sendError:error];
+	} completed:^{
+		[terminationSubject sendCompleted];
+	}];
 	
 	[target.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 		@strongify(binding);
+		[terminationSubject sendCompleted];
 		binding.target = nil;
 	}]];
 	

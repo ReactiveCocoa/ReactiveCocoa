@@ -203,10 +203,8 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		RACScheduler *scheduler = [RACScheduler scheduler];
 
 		void (^schedule)(dispatch_block_t) = ^(dispatch_block_t block) {
-			dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(interval * NSEC_PER_SEC));
 			RACScheduler *delayScheduler = RACScheduler.currentScheduler ?: scheduler;
-
-			RACDisposable *schedulerDisposable = [delayScheduler after:time schedule:block];
+			RACDisposable *schedulerDisposable = [delayScheduler afterDelay:interval schedule:block];
 			if (schedulerDisposable != nil) [disposable addDisposable:schedulerDisposable];
 		};
 
@@ -681,10 +679,8 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	NSCParameterAssert(scheduler != nil);
 	NSCParameterAssert(scheduler != RACScheduler.immediateScheduler);
 
-	int64_t intervalInNanoSecs = (int64_t)(interval * NSEC_PER_SEC);
-
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		return [scheduler after:dispatch_time(DISPATCH_TIME_NOW, intervalInNanoSecs) repeatingEvery:interval withLeeway:leeway schedule:^{
+		return [scheduler after:[NSDate dateWithTimeIntervalSinceNow:interval] repeatingEvery:interval withLeeway:leeway schedule:^{
 			[subscriber sendNext:[NSDate date]];
 		}];
 	}] setNameWithFormat:@"+interval: %f onScheduler: %@ withLeeway: %f", (double)interval, scheduler, (double)leeway];

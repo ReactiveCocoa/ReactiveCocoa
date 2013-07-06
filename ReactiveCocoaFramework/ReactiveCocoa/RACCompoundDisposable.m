@@ -76,7 +76,7 @@
 
 - (id)initWithBlock:(void (^)(void))block {
 	RACDisposable *disposable = [RACDisposable disposableWithBlock:block];
-	return [self initWithDisposables:disposable ? @[disposable] : nil];
+	return [self initWithDisposables:@[disposable]];
 }
 
 - (void)dealloc {

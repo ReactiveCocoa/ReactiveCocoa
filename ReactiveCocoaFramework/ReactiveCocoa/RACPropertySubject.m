@@ -81,6 +81,7 @@
 	_exposedSignal = [_signal map:^(RACTuple *value) {
 		return value.first;
 	}];
+
 	_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
 		[subscriber sendNext:[RACTuple tupleWithObjects:x, RACTupleNil.tupleNil, nil]];
 	} error:^(NSError *error) {
@@ -89,7 +90,9 @@
 		
 		// Log the error if we're running with assertions disabled.
 		NSLog(@"Received error in RACPropertySubject %@: %@", self, error);
-	} completed:nil];
+	} completed:^{
+		[subscriber sendCompleted];
+	}];
 	
 	return self;
 }

@@ -44,6 +44,18 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 		expect(testObject.objectValue).to.beNil();
 	});
 
+	it(@"should leave the value of the property alone after the signal completes", ^{
+		RACSubject *subject = [RACSubject subject];
+		setupBlock(testObject, @keypath(testObject.objectValue), subject);
+		expect(testObject.objectValue).to.beNil();
+
+		[subject sendNext:@1];
+		expect(testObject.objectValue).to.equal(@1);
+
+		[subject sendCompleted];
+		expect(testObject.objectValue).to.equal(@1);
+	});
+
 	it(@"should set the value of a non-object property with the latest value from the signal", ^{
 		RACSubject *subject = [RACSubject subject];
 		setupBlock(testObject, @keypath(testObject.integerValue), subject);

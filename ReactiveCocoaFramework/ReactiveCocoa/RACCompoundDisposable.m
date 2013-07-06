@@ -74,6 +74,11 @@
 	return self;
 }
 
+- (id)initWithBlock:(void (^)(void))block {
+	RACDisposable *disposable = [RACDisposable disposableWithBlock:block];
+	return [self initWithDisposables:@[ disposable ]];
+}
+
 - (void)dealloc {
 	if (_disposables != NULL) {
 		CFRelease(_disposables);

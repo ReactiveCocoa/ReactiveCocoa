@@ -31,6 +31,22 @@
 	return self;
 }
 
+#pragma mark Date Conversions
+
++ (dispatch_time_t)wallTimeWithDate:(NSDate *)date {
+	NSCParameterAssert(date != nil);
+
+	double seconds = 0;
+	double frac = modf(date.timeIntervalSince1970, &seconds);
+
+	struct timespec walltime = {
+		.tv_sec = (time_t)fmin(fmax(seconds, LONG_MIN), LONG_MAX),
+		.tv_nsec = (long)fmin(fmax(frac * NSEC_PER_SEC, LONG_MIN), LONG_MAX)
+	};
+
+	return dispatch_walltime(&walltime, 0);
+}
+
 #pragma mark RACScheduler
 
 - (RACDisposable *)schedule:(void (^)(void))block {

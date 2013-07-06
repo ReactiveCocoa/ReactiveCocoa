@@ -13,10 +13,15 @@
 
 // A binding of a RACPropertySubject.
 //
-// Values sent to the binding are sent to the binding's RACPropertySubject's
-// subscribers and subscribers of other RACBindings of the same property
-// subject, but are not sent to the receiver's subscribers. A binding's
-// subscribers will also receive values sent to the binding's property subject.
+//  - `next` events sent to the binding are sent to the binding's
+//    RACPropertySubject's subscribers, and the subscribers of other RACBindings
+//    from the same property subject, but are not sent to the receiver's
+//    subscribers.
+//  - `completed` events sent to the binding are sent to the binding's
+//    RACPropertySubject's subscribers, and the subscribers of all RACBindings from
+//    the same property subject, including the receiver.
+//
+// It is considered undefined behavior to send `error` to a RACBinding.
 @interface RACBinding : RACSignal <RACSubscriber>
 
 @end

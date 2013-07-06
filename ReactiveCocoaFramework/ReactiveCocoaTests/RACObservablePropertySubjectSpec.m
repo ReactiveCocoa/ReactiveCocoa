@@ -93,6 +93,28 @@ describe(@"RACObservablePropertySubject", ^{
 		[signal subscribe:property];
 		expect(receivedValues).to.equal(values);
 	});
+
+	it(@"should complete when the target deallocates", ^{
+		__block BOOL deallocated = NO;
+		__block BOOL completed = NO;
+
+		@autoreleasepool {
+			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
+			[object.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				deallocated = YES;
+			}]];
+
+			[[RACObservablePropertySubject propertyWithTarget:object keyPath:@keypath(object.stringValue)] subscribeCompleted:^{
+				completed = YES;
+			}];
+
+			expect(deallocated).to.beFalsy();
+			expect(completed).to.beFalsy();
+		}
+
+		expect(deallocated).to.beTruthy();
+		expect(completed).to.beTruthy();
+	});
 });
 
 describe(@"RACObservablePropertySubject bindings", ^{

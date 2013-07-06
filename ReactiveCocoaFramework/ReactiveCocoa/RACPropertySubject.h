@@ -13,9 +13,12 @@
 // A RACPropertySubject saves the last value sent to it and resends it to new
 // subscribers. It will also resend error or completion.
 //
-// Values sent to a RACPropertySubject are also sent to it's bindings'
-// subscribers. Values sent to a RACProperty's bindings are also sent to the
-// RACPropertySubject.
+// `next` and `completed` events sent to a RACPropertySubject are also sent to
+// its bindings' subscribers. `next` and `completed` events sent to
+// a RACPropertySubject's bindings are also sent to the RACPropertySubject.
+//
+// It is considered undefined behavior to send `error` to
+// a RACPropertySubject or its bindings.
 @interface RACPropertySubject : RACSubject
 
 // Returns a new RACPropertySubject with a starting value of `nil`.

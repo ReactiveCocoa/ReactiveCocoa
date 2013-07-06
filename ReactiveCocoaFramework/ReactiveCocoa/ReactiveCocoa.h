@@ -40,6 +40,7 @@
 #import "RACSubscriber.h"
 #import "RACSubscriptingAssignmentTrampoline.h"
 #import "RACTargetQueueScheduler.h"
+#import "RACTestScheduler.h"
 #import "RACTuple.h"
 #import "RACUnit.h"
 

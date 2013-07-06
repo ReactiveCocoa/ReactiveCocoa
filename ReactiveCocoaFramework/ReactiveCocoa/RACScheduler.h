@@ -77,14 +77,14 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 // When invoked on the +immediateScheduler, the calling thread **will block**
 // until the specified time.
 //
-// when  - The earliest time at which `block` should begin executing. The block
+// date  - The earliest time at which `block` should begin executing. The block
 //         may not execute immediately at this time, whether due to system load
-//         or another block on the scheduler currently being run.
+//         or another block on the scheduler currently being run. Cannot be nil.
 // block - The block to schedule for execution. Cannot be nil.
 //
 // Returns a disposable which can be used to cancel the scheduled block before
 // it begins executing, or nil if cancellation is not supported.
-- (RACDisposable *)after:(dispatch_time_t)when schedule:(void (^)(void))block;
+- (RACDisposable *)after:(NSDate *)date schedule:(void (^)(void))block;
 
 // Schedule the given block for execution on the scheduler after the delay.
 //
@@ -104,22 +104,21 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 // It is considered undefined behavior to invoke this method on the
 // +immediateScheduler.
 //
-// when     - The earliest time at which `block` should begin executing. If this
-//            time is `DISPATCH_TIME_NOW` or created using dispatch_time(), the
-//            default system clock (which does not advance while the computer is
-//            asleep) is used for determining when to fire. When
-//            dispatch_walltime() is used, the wall clock time is used for
-//            determining when to fire.
-// interval - The interval at which the block should be rescheduled, starting
-//            from `when`.
-// leeway   - A hint to the system indicating the number of seconds that each
-//            scheduling can be deferred. Note that this is just a hint, and
-//            there may be some additional latency no matter what.
-// block    - The block to repeatedly schedule for execution. Cannot be nil.
+// date         - The earliest time at which `block` should begin executing. The
+//                block may not execute immediately at this time, whether due to
+//                system load or another block on the scheduler currently being
+//                run. Cannot be nil.
+// interval     - The interval at which the block should be rescheduled, starting
+//                from `date`. This will use the system wall clock, to avoid
+//                skew when the computer goes to sleep.
+// leeway       - A hint to the system indicating the number of seconds that each
+//                scheduling can be deferred. Note that this is just a hint, and
+//                there may be some additional latency no matter what.
+// block        - The block to repeatedly schedule for execution. Cannot be nil.
 //
 // Returns a disposable which can be used to cancel the automatic scheduling and
 // rescheduling, or nil if cancellation is not supported.
-- (RACDisposable *)after:(dispatch_time_t)when repeatingEvery:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway schedule:(void (^)(void))block;
+- (RACDisposable *)after:(NSDate *)date repeatingEvery:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway schedule:(void (^)(void))block;
 
 // Schedule the given recursive block for execution on the scheduler. The
 // scheduler will automatically flatten any recursive scheduling into iteration

@@ -22,16 +22,13 @@
 @implementation NSObject (RACPropertySubscribing)
 
 - (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
-	return [[self rac_valuesAndChangesForKeyPath:keyPath options:NSKeyValueObservingOptionInitial observer:observer] reduceEach:^(id value, NSDictionary *change) {
+	return [[[self rac_valuesAndChangesForKeyPath:keyPath options:NSKeyValueObservingOptionInitial observer:observer] reduceEach:^(id value, NSDictionary *change) {
 		return value;
-	}];
+	}] setNameWithFormat:@"RACObserve(%@, %@)", self.rac_description, keyPath];
 }
 
 - (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer {
-	__block volatile uint32_t deallocFlag = 0;
-	RACDisposable *deallocFlagDisposable = [RACDisposable disposableWithBlock:^{
-		OSAtomicOr32Barrier(1, &deallocFlag);
-	}];
+	RACDisposable *deallocFlagDisposable = [RACDisposable disposableWithBlock:^{}];
 	RACCompoundDisposable *observerDisposable = observer.rac_deallocDisposable;
 	RACCompoundDisposable *objectDisposable = self.rac_deallocDisposable;
 	[observerDisposable addDisposable:deallocFlagDisposable];
@@ -40,20 +37,17 @@
 	@unsafeify(self, observer);
 	return [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 		@strongify(self, observer);
-		@weakify(subscriber);
 
-		if (deallocFlag == 1) {
+		if (deallocFlagDisposable.disposed) {
 			[subscriber sendCompleted];
 			return nil;
 		}
 
 		RACDisposable *observationDisposable = [self rac_observeKeyPath:keyPath options:options observer:observer block:^(id value, NSDictionary *change) {
-			@strongify(subscriber);
 			[subscriber sendNext:RACTuplePack(value, change)];
 		}];
 
 		RACDisposable *deallocDisposable = [RACDisposable disposableWithBlock:^{
-			@strongify(subscriber);
 			[observationDisposable dispose];
 			[subscriber sendCompleted];
 		}];
@@ -83,11 +77,11 @@ static RACSignal *signalWithoutChangesFor(Class class, NSObject *object, NSStrin
 	@unsafeify(object);
 
 	return [[class
-					 rac_signalWithChangesFor:object keyPath:keyPath options:options observer:observer]
-					map:^(NSDictionary *change) {
-						@strongify(object);
-						return [object valueForKeyPath:keyPath];
-					}];
+		rac_signalWithChangesFor:object keyPath:keyPath options:options observer:observer]
+		map:^(NSDictionary *change) {
+			@strongify(object);
+			return [object valueForKeyPath:keyPath];
+		}];
 }
 
 @implementation NSObject (RACPropertySubscribingDeprecated)

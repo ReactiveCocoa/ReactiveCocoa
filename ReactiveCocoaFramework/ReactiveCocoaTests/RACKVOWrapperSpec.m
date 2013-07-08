@@ -92,10 +92,16 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 		callbackBlock = nil;
 	});
 
-	it(@"should not call the callback block on add", ^{
+	it(@"should not call the callback block on add if called without NSKeyValueObservingOptionInitial", ^{
 		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior observer:nil block:callbackBlock];
 		expect(priorCallCount).to.equal(0);
 		expect(posteriorCallCount).to.equal(0);
+	});
+
+	it(@"should call the callback block on add if called with NSKeyValueObservingOptionInitial", ^{
+		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior | NSKeyValueObservingOptionInitial observer:nil block:callbackBlock];
+		expect(priorCallCount).to.equal(0);
+		expect(posteriorCallCount).to.equal(1);
 	});
 
 	it(@"should call the callback block twice per change, once prior and once posterior", ^{

@@ -127,8 +127,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 // signal - The signal to combine with. This argument must not be nil.
 //
 // Returns a signal which sends RACTuples of the combined values, forwards any
-// `error` events, and completes when both input signals complete. If either
-// input signal is empty, the returned signal will complete immediately.
+// `error` events, and completes when both input signals complete.
 - (RACSignal *)combineLatestWith:(RACSignal *)signal;
 
 // Combines the latest values from the given signals into RACTuples, once all
@@ -141,8 +140,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 //           signal will immediately complete upon subscription.
 //
 // Returns a signal which sends RACTuples of the combined values, forwards any
-// `error` events, and completes when all input signals complete. If any input
-// signal is empty, the returned signal will complete immediately.
+// `error` events, and completes when all input signals complete.
 + (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals;
 
 // Combines signals using +combineLatest:, then reduces the resulting tuples

@@ -273,6 +273,19 @@ sharedExamplesFor(RACKVOWrapperCollectionExamples, ^(NSDictionary *data) {
 		expect(priorChange[NSKeyValueChangeIndexesKey]).to.equal([NSIndexSet indexSetWithIndex:0]);
 		expect(posteriorChange[NSKeyValueChangeIndexesKey]).to.equal([NSIndexSet indexSetWithIndex:0]);
 	});
+
+	it(@"should support replacing elements in ordered collections", ^{
+		[mutableKeyPathProxy replaceObjectAtIndex:0 withObject:@1];
+
+		expect(priorValue).to.equal([NSOrderedSet orderedSetWithArray:@[ @0 ]]);
+		expect(posteriorValue).to.equal([NSOrderedSet orderedSetWithArray:@[ @1 ]]);
+		expect(priorChange[NSKeyValueChangeKindKey]).to.equal(NSKeyValueChangeReplacement);
+		expect(posteriorChange[NSKeyValueChangeKindKey]).to.equal(NSKeyValueChangeReplacement);
+		expect(priorChange[NSKeyValueChangeOldKey]).to.equal(@[ @0 ]);
+		expect(posteriorChange[NSKeyValueChangeNewKey]).to.equal(@[ @1 ]);
+		expect(priorChange[NSKeyValueChangeIndexesKey]).to.equal([NSIndexSet indexSetWithIndex:0]);
+		expect(posteriorChange[NSKeyValueChangeIndexesKey]).to.equal([NSIndexSet indexSetWithIndex:0]);
+	});
 });
 
 SharedExampleGroupsEnd

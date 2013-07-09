@@ -43,6 +43,17 @@ static NSString * const RACKVOWrapperExamplesValueBlock = @"RACKVOWrapperExample
 // of the last key path component in the key path directly.
 static NSString * const RACKVOWrapperExamplesChangesValueDirectly = @"RACKVOWrapperExamplesChangesValueDirectly";
 
+// The name of the examples.
+static NSString * const RACKVOWrapperCollectionExamples = @"RACKVOWrapperCollectionExamples";
+
+// A block that returns an object to observe in the examples.
+static NSString * const RACKVOWrapperCollectionExamplesTargetBlock = @"RACKVOWrapperCollectionExamplesTargetBlock";
+
+// The key path to observe in the examples.
+//
+// Must identify a property of type NSOrderedSet.
+static NSString * const RACKVOWrapperCollectionExamplesKeyPath = @"RACKVOWrapperCollectionExamplesKeyPath";
+
 SharedExampleGroupsBegin(RACKVOWrapperExamples)
 
 sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
@@ -195,6 +206,62 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 	});
 });
 
+sharedExamplesFor(RACKVOWrapperCollectionExamples, ^(NSDictionary *data) {
+	__block NSObject *target = nil;
+	__block NSString *keyPath = nil;
+	__block NSMutableOrderedSet *mutableKeyPathProxy = nil;
+	__block void (^callbackBlock)(id, NSDictionary *) = nil;
+
+	__block id priorValue = nil;
+	__block id posteriorValue = nil;
+	__block NSDictionary *priorChange = nil;
+	__block NSDictionary *posteriorChange = nil;
+
+	beforeEach(^{
+		NSObject * (^targetBlock)(void) = data[RACKVOWrapperCollectionExamplesTargetBlock];
+		target = targetBlock();
+		keyPath = data[RACKVOWrapperCollectionExamplesKeyPath];
+
+		callbackBlock = [^(id value, NSDictionary *change) {
+			if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
+				priorValue = value;
+				priorChange = change;
+				return;
+			}
+			posteriorValue = value;
+			posteriorChange = change;
+		} copy];
+
+		[target setValue:[[NSOrderedSet alloc] init] forKeyPath:keyPath];
+		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld | NSKeyValueObservingOptionPrior observer:nil block:callbackBlock];
+		mutableKeyPathProxy = [target mutableOrderedSetValueForKeyPath:keyPath];
+	});
+
+	afterEach(^{
+		target = nil;
+		keyPath = nil;
+		callbackBlock = nil;
+
+		priorValue = nil;
+		priorChange = nil;
+		posteriorValue = nil;
+		posteriorChange = nil;
+	});
+
+	it(@"it should support adding elements to ordered collections", ^{
+		[mutableKeyPathProxy insertObject:@0 atIndex:0];
+
+		expect(priorValue).to.equal([NSOrderedSet orderedSetWithArray:@[]]);
+		expect(posteriorValue).to.equal([NSOrderedSet orderedSetWithArray:@[ @0 ]]);
+		expect(priorChange[NSKeyValueChangeKindKey]).to.equal(NSKeyValueChangeInsertion);
+		expect(posteriorChange[NSKeyValueChangeKindKey]).to.equal(NSKeyValueChangeInsertion);
+		expect(priorChange[NSKeyValueChangeOldKey]).to.beNil();
+		expect(posteriorChange[NSKeyValueChangeNewKey]).to.equal(@[ @0 ]);
+		expect(priorChange[NSKeyValueChangeIndexesKey]).to.equal([NSIndexSet indexSetWithIndex:0]);
+		expect(posteriorChange[NSKeyValueChangeIndexesKey]).to.equal([NSIndexSet indexSetWithIndex:0]);
+	});
+});
+
 SharedExampleGroupsEnd
 
 SpecBegin(RACKVOWrapper)
@@ -214,12 +281,17 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 		};
 
 		itShouldBehaveLike(RACKVOWrapperExamples, @{
-											 RACKVOWrapperExamplesTargetBlock: targetBlock,
-											 RACKVOWrapperExamplesKeyPath: @keypath(RACTestObject.new, weakTestObjectValue),
-											 RACKVOWrapperExamplesChangeBlock: changeBlock,
-											 RACKVOWrapperExamplesValueBlock: valueBlock,
-											 RACKVOWrapperExamplesChangesValueDirectly: @YES
-											 });
+			RACKVOWrapperExamplesTargetBlock: targetBlock,
+			RACKVOWrapperExamplesKeyPath: @keypath(RACTestObject.new, weakTestObjectValue),
+			RACKVOWrapperExamplesChangeBlock: changeBlock,
+			RACKVOWrapperExamplesValueBlock: valueBlock,
+			RACKVOWrapperExamplesChangesValueDirectly: @YES
+		});
+
+		itShouldBehaveLike(RACKVOWrapperCollectionExamples, @{
+			RACKVOWrapperCollectionExamplesTargetBlock: targetBlock,
+			RACKVOWrapperCollectionExamplesKeyPath: @keypath(RACTestObject.new, orderedSetValue)
+		});
 	});
 
 	describe(@"on composite key paths'", ^{
@@ -239,12 +311,17 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 			};
 
 			itShouldBehaveLike(RACKVOWrapperExamples, @{
-												 RACKVOWrapperExamplesTargetBlock: targetBlock,
-												 RACKVOWrapperExamplesKeyPath: @keypath(RACTestObject.new, strongTestObjectValue.weakTestObjectValue),
-												 RACKVOWrapperExamplesChangeBlock: changeBlock,
-												 RACKVOWrapperExamplesValueBlock: valueBlock,
-												 RACKVOWrapperExamplesChangesValueDirectly: @YES
-												 });
+				RACKVOWrapperExamplesTargetBlock: targetBlock,
+				RACKVOWrapperExamplesKeyPath: @keypath(RACTestObject.new, strongTestObjectValue.weakTestObjectValue),
+				RACKVOWrapperExamplesChangeBlock: changeBlock,
+				RACKVOWrapperExamplesValueBlock: valueBlock,
+				RACKVOWrapperExamplesChangesValueDirectly: @YES
+			});
+
+			itShouldBehaveLike(RACKVOWrapperCollectionExamples, @{
+				RACKVOWrapperCollectionExamplesTargetBlock: targetBlock,
+				RACKVOWrapperCollectionExamplesKeyPath: @keypath(RACTestObject.new, strongTestObjectValue.orderedSetValue)
+			});
 		});
 
 		describe(@"intermediate key path components", ^{
@@ -263,12 +340,12 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 			};
 
 			itShouldBehaveLike(RACKVOWrapperExamples, @{
-												 RACKVOWrapperExamplesTargetBlock: targetBlock,
-												 RACKVOWrapperExamplesKeyPath: @keypath([[RACTestObject alloc] init], weakTestObjectValue.strongTestObjectValue),
-												 RACKVOWrapperExamplesChangeBlock: changeBlock,
-												 RACKVOWrapperExamplesValueBlock: valueBlock,
-												 RACKVOWrapperExamplesChangesValueDirectly: @NO
-												 });
+				RACKVOWrapperExamplesTargetBlock: targetBlock,
+				RACKVOWrapperExamplesKeyPath: @keypath([[RACTestObject alloc] init], weakTestObjectValue.strongTestObjectValue),
+				RACKVOWrapperExamplesChangeBlock: changeBlock,
+				RACKVOWrapperExamplesValueBlock: valueBlock,
+				RACKVOWrapperExamplesChangesValueDirectly: @NO
+			});
 		});
 	});
 

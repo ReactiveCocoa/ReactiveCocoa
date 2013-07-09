@@ -248,7 +248,7 @@ sharedExamplesFor(RACKVOWrapperCollectionExamples, ^(NSDictionary *data) {
 		posteriorChange = nil;
 	});
 
-	it(@"should support adding elements to ordered collections", ^{
+	it(@"should support inserting elements into ordered collections", ^{
 		[mutableKeyPathProxy insertObject:@1 atIndex:0];
 
 		expect(priorValue).to.equal([NSOrderedSet orderedSetWithArray:@[ @0 ]]);
@@ -285,6 +285,28 @@ sharedExamplesFor(RACKVOWrapperCollectionExamples, ^(NSDictionary *data) {
 		expect(posteriorChange[NSKeyValueChangeNewKey]).to.equal(@[ @1 ]);
 		expect(priorChange[NSKeyValueChangeIndexesKey]).to.equal([NSIndexSet indexSetWithIndex:0]);
 		expect(posteriorChange[NSKeyValueChangeIndexesKey]).to.equal([NSIndexSet indexSetWithIndex:0]);
+	});
+
+	it(@"should support adding elements to unordered collections", ^{
+		[mutableKeyPathProxy unionOrderedSet:[NSOrderedSet orderedSetWithObject:@1]];
+
+		expect(priorValue).to.equal([NSOrderedSet orderedSetWithArray:@[ @0 ]]);
+		expect(posteriorValue).to.equal([NSOrderedSet orderedSetWithArray:(@[ @0, @1 ])]);
+		expect(priorChange[NSKeyValueChangeKindKey]).to.equal(NSKeyValueChangeInsertion);
+		expect(posteriorChange[NSKeyValueChangeKindKey]).to.equal(NSKeyValueChangeInsertion);
+		expect(priorChange[NSKeyValueChangeOldKey]).to.beNil();
+		expect(posteriorChange[NSKeyValueChangeNewKey]).to.equal(@[ @1 ]);
+	});
+
+	it(@"should support removing elements from unordered collections", ^{
+		[mutableKeyPathProxy minusOrderedSet:[NSOrderedSet orderedSetWithObject:@0]];
+
+		expect(priorValue).to.equal([NSOrderedSet orderedSetWithArray:@[ @0 ]]);
+		expect(posteriorValue).to.equal([NSOrderedSet orderedSetWithArray:@[]]);
+		expect(priorChange[NSKeyValueChangeKindKey]).to.equal(NSKeyValueChangeRemoval);
+		expect(posteriorChange[NSKeyValueChangeKindKey]).to.equal(NSKeyValueChangeRemoval);
+		expect(priorChange[NSKeyValueChangeOldKey]).to.equal(@[ @0 ]);
+		expect(posteriorChange[NSKeyValueChangeNewKey]).to.beNil();
 	});
 });
 

@@ -864,6 +864,27 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		setNameWithFormat:@"+switch: %@ cases: %@", signal, copy];
 }
 
++ (RACSignal *)switch:(RACSignal *)signal cases:(NSDictionary *)cases default:(RACSignal *)defaultSignal
+{
+	NSCParameterAssert(signal != nil);
+	NSCParameterAssert(cases != nil);
+	NSCParameterAssert(defaultSignal != nil);
+
+	for (id key in cases) {
+		id value = cases[key];
+		NSCAssert([value isKindOfClass:RACSignal.class], @"Expected all cases to be RACSignals, %@ isn't", value);
+	}
+
+	NSDictionary *copy = [cases copy];
+
+	return [[[signal
+		map:^(id key) {
+			return copy[key] ?: defaultSignal;
+		}]
+		switchToLatest]
+		setNameWithFormat:@"+switch: %@ cases: %@ default: %@", signal, copy, defaultSignal];
+}
+
 + (RACSignal *)if:(RACSignal *)boolSignal then:(RACSignal *)trueSignal else:(RACSignal *)falseSignal {
 	NSCParameterAssert(boolSignal != nil);
 	NSCParameterAssert(trueSignal != nil);

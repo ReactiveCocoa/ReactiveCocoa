@@ -295,7 +295,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 // signal sent by the receiver, and sends `completed` when the receiver completes.
 - (RACSignal *)switchToLatest;
 
-// Switches between the signals in `cases` based on the latest value send by
+// Switches between the signals in `cases` based on the latest value sent by
 // `signal`.
 //
 // signal - A signal of objects used as keys in the `cases` dictionary.

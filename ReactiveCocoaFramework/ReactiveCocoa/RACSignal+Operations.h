@@ -304,7 +304,8 @@ extern const NSInteger RACSignalErrorTimedOut;
 //          This argument must not be nil.
 //
 // Returns a signal which passes through `next`s and `error`s from one of the
-// the signals in `cases`, and sends `completed` when `signal` completes.
+// the signals in `cases`, and sends `completed` when both `signal` and the
+// last used signal from `cases` complete.
 + (RACSignal *)switch:(RACSignal *)signal cases:(NSDictionary *)cases;
 
 // Switches between `trueSignal` and `falseSignal` based on the latest value

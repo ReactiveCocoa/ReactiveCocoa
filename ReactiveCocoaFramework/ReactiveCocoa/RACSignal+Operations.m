@@ -865,13 +865,12 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	NSCParameterAssert(trueSignal != nil);
 	NSCParameterAssert(falseSignal != nil);
 
-	return [[[boolSignal
-		map:^(NSNumber *value) {
-			NSCAssert([value isKindOfClass:NSNumber.class], @"Expected %@ to send BOOLs, not %@", boolSignal, value);
-			
-			return (value.boolValue ? trueSignal : falseSignal);
+	return [[RACSignal
+		switch:boolSignal
+		cases:@{
+			@YES: trueSignal,
+			@NO: falseSignal
 		}]
-		switchToLatest]
 		setNameWithFormat:@"+if: %@ then: %@ else: %@", boolSignal, trueSignal, falseSignal];
 }
 

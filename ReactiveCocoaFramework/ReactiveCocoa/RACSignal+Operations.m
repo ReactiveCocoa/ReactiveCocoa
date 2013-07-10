@@ -841,23 +841,27 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -switchToLatest", self.name];
 }
 
-+ (RACSignal *)switch:(RACSignal *)signal cases:(NSDictionary *)cases
-{
++ (RACSignal *)switch:(RACSignal *)signal cases:(NSDictionary *)cases {
 	NSCParameterAssert(signal != nil);
 	NSCParameterAssert(cases != nil);
 
+	for (id key in cases) {
+		id value = cases[key];
+		NSCAssert([value isKindOfClass:RACSignal.class], @"Expected all cases to be RACSignals, %@ isn't", value);
+	}
+
+	NSDictionary *copy = [cases copy];
+
 	return [[[signal
 		map:^(id key) {
-			NSCAssert([cases objectForKey:key] != nil, @"Expected %@ send by %@ to be a key in %@", key, signal, cases);
+			RACSignal *signal = copy[key];
 
-			RACSignal *signal = cases[key];
-
-			NSCAssert([signal isKindOfClass:RACSignal.class], @"The value in must be a signal, instead got %@", signal);
+			NSCAssert(signal != nil, @"Expected %@ sent by %@ to be a key in %@", key, signal, copy);
 
 			return signal;
 		}]
 		switchToLatest]
-		setNameWithFormat:@"+switch: %@ cases: %@", signal, cases];
+		setNameWithFormat:@"+switch: %@ cases: %@", signal, copy];
 }
 
 + (RACSignal *)if:(RACSignal *)boolSignal then:(RACSignal *)trueSignal else:(RACSignal *)falseSignal {

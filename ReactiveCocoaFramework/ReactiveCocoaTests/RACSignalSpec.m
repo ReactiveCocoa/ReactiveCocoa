@@ -1610,6 +1610,11 @@ describe(@"+switch:cases:default:", ^{
 		[defaultSubject sendNext:@"default"];
 
 		expect(values).to.equal(@[ @"default" ]);
+
+		[keySubject sendNext:nil];
+		[defaultSubject sendNext:@"default"];
+
+		expect(values).to.equal((@[ @"default", @"default" ]));
 	});
 });
 

@@ -9,6 +9,7 @@
 #import "RACPropertySignalExamples.h"
 #import "RACSequenceExamples.h"
 #import "RACStreamExamples.h"
+#import "RACSwitchSignalExamples.h"
 
 #import "EXTKeyPathCoding.h"
 #import "NSObject+RACDeallocating.h"
@@ -1566,216 +1567,49 @@ describe(@"-switchToLatest", ^{
 	});
 });
 
-describe(@"+switch:cases: and +switch:cases:default:", ^{
-	__block RACSubject *keySubject;
-
-	__block RACSubject *subjectZero;
-	__block RACSubject *subjectOne;
-	__block RACSubject *subjectTwo;
-
-	__block RACSubject *defaultSubject;
-
-	__block NSMutableArray *values;
-	__block NSError *lastError = nil;
-	__block BOOL completed = NO;
-
-	__block NSDictionary *cases;
-
-	beforeEach(^{
-		keySubject = [RACSubject subject];
-
-		subjectZero = [RACSubject subject];
-		subjectOne = [RACSubject subject];
-		subjectTwo = [RACSubject subject];
-
-		defaultSubject = [RACSubject subject];
-
-		cases = @{
-			@0: subjectZero,
-			@1: subjectOne,
-			@2: subjectTwo
+describe(@"+switch:cases:", ^{
+	itShouldBehaveLike(RACSwitchSignalExamples, ^{
+		return @{
+			RACSwitchSignalExamplesSetupBlock: ^(RACSignal *keySignal, NSDictionary *cases) {
+				return [RACSignal switch:keySignal cases:cases];
+			}
 		};
+	});
+});
 
-		values = [NSMutableArray array];
-		lastError = nil;
-		completed = NO;
+describe(@"+switch:cases:default:", ^{
+	itShouldBehaveLike(RACSwitchSignalExamples, ^{
+		return @{
+			RACSwitchSignalExamplesSetupBlock: ^(RACSignal *keySignal, NSDictionary *cases) {
+				return [RACSignal switch:keySignal cases:cases default:[RACSignal never]];
+			}
+		};
 	});
 
-	describe(@"+switch:cases:", ^{
-		beforeEach(^{
-			[[RACSignal switch:keySubject cases:cases] subscribeNext:^(id x) {
-				expect(lastError).to.beNil();
-				expect(completed).to.beFalsy();
+	it(@"should use the default signal if key that was sent does not have an associated signal", ^{
+		RACSubject *keySubject = [RACSubject subject];
 
+		RACSubject *subjectZero = [RACSubject subject];
+		RACSubject *subjectOne = [RACSubject subject];
+		RACSubject *defaultSubject = [RACSubject subject];
+
+		NSMutableArray *values = [NSMutableArray array];
+
+		[[RACSignal
+			switch:keySubject
+			cases:@{
+				@0: subjectZero,
+				@1: subjectOne,
+			}
+			default:defaultSubject]
+			subscribeNext:^(id x) {
 				[values addObject:x];
-			} error:^(NSError *error) {
-				expect(lastError).to.beNil();
-				expect(completed).to.beFalsy();
-
-				lastError = error;
-			} completed:^{
-				expect(lastError).to.beNil();
-				expect(completed).to.beFalsy();
-
-				completed = YES;
 			}];
-		});
 
-		it(@"should not send any values before a key is sent", ^{
-			[subjectZero sendNext:RACUnit.defaultUnit];
-			[subjectOne sendNext:RACUnit.defaultUnit];
-			[subjectTwo sendNext:RACUnit.defaultUnit];
+		[keySubject sendNext:@"not a valid key"];
+		[defaultSubject sendNext:@"default"];
 
-			expect(values).to.equal(@[]);
-			expect(lastError).to.beNil();
-			expect(completed).to.beFalsy();
-		});
-
-		it(@"should send events based on the latest key", ^{
-			[keySubject sendNext:@0];
-
-			[subjectZero sendNext:@"zero"];
-			[subjectZero sendNext:@"zero"];
-			[subjectOne sendNext:@"one"];
-			[subjectTwo sendNext:@"two"];
-
-			NSArray *expected = @[ @"zero", @"zero" ];
-			expect(values).to.equal(expected);
-
-			[keySubject sendNext:@1];
-
-			[subjectZero sendNext:@"zero"];
-			[subjectOne sendNext:@"one"];
-			[subjectTwo sendNext:@"two"];
-
-			expected = @[ @"zero", @"zero", @"one" ];
-			expect(values).to.equal(expected);
-
-			expect(lastError).to.beNil();
-			expect(completed).to.beFalsy();
-
-			[keySubject sendNext:@2];
-
-			[subjectZero sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
-			[subjectOne sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
-			expect(lastError).to.beNil();
-
-			[subjectTwo sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
-			expect(lastError).notTo.beNil();
-		});
-
-		it(@"should not send completed when only the key signal completes", ^{
-			[keySubject sendNext:@0];
-			[subjectZero sendNext:@"zero"];
-			[keySubject sendCompleted];
-
-			expect(values).to.equal(@[ @"zero" ]);
-			expect(completed).to.beFalsy();
-		});
-
-		it(@"should send completed when the key signal and the latest sent signal complete", ^{
-			[keySubject sendNext:@0];
-			[subjectZero sendNext:@"zero"];
-			[keySubject sendCompleted];
-			[subjectZero sendCompleted];
-
-			expect(values).to.equal(@[ @"zero" ]);
-			expect(completed).to.beTruthy();
-		});
-	});
-
-	describe(@"+switch:cases:default:", ^{
-		beforeEach(^{
-			[[RACSignal switch:keySubject cases:cases default:defaultSubject] subscribeNext:^(id x) {
-				expect(lastError).to.beNil();
-				expect(completed).to.beFalsy();
-
-				[values addObject:x];
-			} error:^(NSError *error) {
-				expect(lastError).to.beNil();
-				expect(completed).to.beFalsy();
-
-				lastError = error;
-			} completed:^{
-				expect(lastError).to.beNil();
-				expect(completed).to.beFalsy();
-
-				completed = YES;
-			}];
-		});
-
-		it(@"should not send any values before a key is sent", ^{
-			[subjectZero sendNext:RACUnit.defaultUnit];
-			[subjectOne sendNext:RACUnit.defaultUnit];
-			[subjectTwo sendNext:RACUnit.defaultUnit];
-			[defaultSubject sendNext:RACUnit.defaultUnit];
-
-			expect(values).to.equal(@[]);
-			expect(lastError).to.beNil();
-			expect(completed).to.beFalsy();
-		});
-
-		it(@"should send events based on the latest key", ^{
-			[keySubject sendNext:@0];
-
-			[subjectZero sendNext:@"zero"];
-			[subjectZero sendNext:@"zero"];
-			[subjectOne sendNext:@"one"];
-			[subjectTwo sendNext:@"two"];
-			[defaultSubject sendNext:@"default"];
-
-			NSArray *expected = @[ @"zero", @"zero" ];
-			expect(values).to.equal(expected);
-
-			[keySubject sendNext:@1];
-
-			[subjectZero sendNext:@"zero"];
-			[subjectOne sendNext:@"one"];
-			[subjectTwo sendNext:@"two"];
-			[defaultSubject sendNext:@"default"];
-
-			expected = @[ @"zero", @"zero", @"one" ];
-			expect(values).to.equal(expected);
-
-			expect(lastError).to.beNil();
-			expect(completed).to.beFalsy();
-
-			[keySubject sendNext:@2];
-
-			[subjectZero sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
-			[subjectOne sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
-			[defaultSubject sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
-			expect(lastError).to.beNil();
-
-			[subjectTwo sendError:[NSError errorWithDomain:@"" code:-1 userInfo:nil]];
-			expect(lastError).notTo.beNil();
-		});
-
-		it(@"should not send completed when only the key signal completes", ^{
-			[keySubject sendNext:@0];
-			[subjectZero sendNext:@"zero"];
-			[keySubject sendCompleted];
-
-			expect(values).to.equal(@[ @"zero" ]);
-			expect(completed).to.beFalsy();
-		});
-
-		it(@"should send completed when the key signal and the latest sent signal complete", ^{
-			[keySubject sendNext:@0];
-			[subjectZero sendNext:@"zero"];
-			[keySubject sendCompleted];
-			[subjectZero sendCompleted];
-
-			expect(values).to.equal(@[ @"zero" ]);
-			expect(completed).to.beTruthy();
-		});
-
-		it(@"should use the default signal if key sent does not have an associated signal", ^{
-			[keySubject sendNext:@"not a valid key"];
-			[defaultSubject sendNext:@"default"];
-
-			expect(values).to.equal(@[ @"default" ]);
-		});
+		expect(values).to.equal(@[ @"default" ]);
 	});
 });
 

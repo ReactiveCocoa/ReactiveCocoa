@@ -302,7 +302,8 @@ extern const NSInteger RACSignalErrorTimedOut;
 // The receiver must be a signal of signals.
 //
 // Returns a signal which passes through `next`s and `error`s from the latest
-// signal sent by the receiver, and sends `completed` when the receiver completes.
+// signal sent by the receiver, and sends `completed` when both the receiver and
+// the last sent signal complete.
 - (RACSignal *)switchToLatest;
 
 // Switches between `trueSignal` and `falseSignal` based on the latest value
@@ -316,7 +317,8 @@ extern const NSInteger RACSignalErrorTimedOut;
 //               argument must not be nil.
 //
 // Returns a signal which passes through `next`s and `error`s from `trueSignal`
-// and/or `falseSignal`, and sends `completed` when `boolSignal` completes.
+// and/or `falseSignal`, and sends `completed` when both `boolSignal` and the
+// last switched signal complete.
 + (RACSignal *)if:(RACSignal *)boolSignal then:(RACSignal *)trueSignal else:(RACSignal *)falseSignal;
 
 // Add every `next` to an array. Nils are represented by NSNulls. Note that this

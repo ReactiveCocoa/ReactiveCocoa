@@ -127,8 +127,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 // signal - The signal to combine with. This argument must not be nil.
 //
 // Returns a signal which sends RACTuples of the combined values, forwards any
-// `error` events, and completes when both input signals complete. If either
-// input signal is empty, the returned signal will complete immediately.
+// `error` events, and completes when both input signals complete.
 - (RACSignal *)combineLatestWith:(RACSignal *)signal;
 
 // Combines the latest values from the given signals into RACTuples, once all
@@ -141,8 +140,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 //           signal will immediately complete upon subscription.
 //
 // Returns a signal which sends RACTuples of the combined values, forwards any
-// `error` events, and completes when all input signals complete. If any input
-// signal is empty, the returned signal will complete immediately.
+// `error` events, and completes when all input signals complete.
 + (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals;
 
 // Combines signals using +combineLatest:, then reduces the resulting tuples
@@ -304,7 +302,8 @@ extern const NSInteger RACSignalErrorTimedOut;
 // The receiver must be a signal of signals.
 //
 // Returns a signal which passes through `next`s and `error`s from the latest
-// signal sent by the receiver, and sends `completed` when the receiver completes.
+// signal sent by the receiver, and sends `completed` when both the receiver and
+// the last sent signal complete.
 - (RACSignal *)switchToLatest;
 
 // Switches between `trueSignal` and `falseSignal` based on the latest value
@@ -318,7 +317,8 @@ extern const NSInteger RACSignalErrorTimedOut;
 //               argument must not be nil.
 //
 // Returns a signal which passes through `next`s and `error`s from `trueSignal`
-// and/or `falseSignal`, and sends `completed` when `boolSignal` completes.
+// and/or `falseSignal`, and sends `completed` when both `boolSignal` and the
+// last switched signal complete.
 + (RACSignal *)if:(RACSignal *)boolSignal then:(RACSignal *)trueSignal else:(RACSignal *)falseSignal;
 
 // Add every `next` to an array. Nils are represented by NSNulls. Note that this

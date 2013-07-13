@@ -7,8 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <ReactiveCocoa/EXTKeyPathCoding.h>
-#import <ReactiveCocoa/NSObject+RACPropertySubscribing.h>
+#import "EXTKeyPathCoding.h"
+
+@class RACSignal;
 
 // Lets you assign a keypath / property to a signal. The value of the keypath or
 // property is then kept up-to-date with the latest value from the signal.

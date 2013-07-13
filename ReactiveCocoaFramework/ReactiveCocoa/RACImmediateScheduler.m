@@ -7,7 +7,6 @@
 //
 
 #import "RACImmediateScheduler.h"
-#import "EXTScope.h"
 #import "RACScheduler+Private.h"
 
 @implementation RACImmediateScheduler
@@ -37,6 +36,11 @@
 	dispatch_release(semaphore);
 
 	block();
+	return nil;
+}
+
+- (RACDisposable *)after:(dispatch_time_t)when repeatingEvery:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway schedule:(void (^)(void))block {
+	NSCAssert(NO, @"+[RACScheduler immediateScheduler] does not support %@.", NSStringFromSelector(_cmd));
 	return nil;
 }
 

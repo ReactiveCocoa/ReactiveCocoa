@@ -11,6 +11,7 @@
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACCommand.h"
+#import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 
 SpecBegin(NSControlRACSupport)
@@ -114,7 +115,7 @@ describe(@"NSTextField", ^{
 			__block BOOL dealloced = NO;
 			@autoreleasepool {
 				NSTextField *field __attribute__((objc_precise_lifetime)) = [[NSTextField alloc] initWithFrame:CGRectZero];
-				[field rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				[field.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 					dealloced = YES;
 				}]];
 				[field.rac_textSignal subscribeNext:^(id x) {

@@ -12,7 +12,6 @@
 #import "RACSubscriber.h"
 #import "RACTuple.h"
 #import "RACCompoundDisposable.h"
-#import <libkern/OSAtomic.h>
 
 const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
 

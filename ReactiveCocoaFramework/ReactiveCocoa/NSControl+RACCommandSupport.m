@@ -10,9 +10,7 @@
 #import "EXTScope.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACCommand.h"
-#import "RACScheduler.h"
 #import "RACScopedDisposable.h"
-#import "RACSignal+Operations.h"
 #import <objc/runtime.h>
 
 static void *NSControlRACCommandKey = &NSControlRACCommandKey;
@@ -39,10 +37,7 @@ static void *NSControlCanExecuteDisposableKey = &NSControlCanExecuteDisposableKe
 	[self rac_hijackActionAndTargetIfNeeded];
 
 	@weakify(self);
-
-	RACScopedDisposable *disposable = [[[[RACAble(command, canExecute)
-		deliverOn:RACScheduler.mainThreadScheduler]
-		startWith:@(command.canExecute)]
+	RACScopedDisposable *disposable = [[RACObserve(command, canExecute)
 		subscribeNext:^(NSNumber *canExecute) {
 			@strongify(self);
 			self.enabled = canExecute.boolValue;

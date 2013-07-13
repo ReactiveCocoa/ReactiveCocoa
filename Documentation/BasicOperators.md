@@ -217,7 +217,7 @@ RACSequence *extended = [numbers flattenMap:^(NSString *num) {
     return @[ num, num ].rac_sequence;
 }];
 
-// Contains: 2_ 4_ 6_ 8_
+// Contains: 1_ 3_ 5_ 7_ 9_
 RACSequence *edited = [numbers flattenMap:^(NSString *num) {
     if (num.intValue % 2 == 0) {
         return [RACSequence empty];

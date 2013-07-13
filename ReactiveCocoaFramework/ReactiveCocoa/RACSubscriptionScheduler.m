@@ -46,4 +46,9 @@
 	return [scheduler after:when schedule:block];
 }
 
+- (RACDisposable *)after:(dispatch_time_t)when repeatingEvery:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway schedule:(void (^)(void))block {
+	RACScheduler *scheduler = RACScheduler.currentScheduler ?: self.backgroundScheduler;
+	return [scheduler after:when repeatingEvery:interval withLeeway:leeway schedule:block];
+}
+
 @end

@@ -4,9 +4,6 @@
 [submodule "external/expecta"]
 	path = external/expecta
 	url = git://github.com/github/expecta.git
-[submodule "external/jrswizzle"]
-	path= external/jrswizzle
-	url = git://github.com/rentzsch/jrswizzle.git
-[submodule "ReactiveCocoaFramework/ReactiveCocoa/libextobjc"]
-	path = ReactiveCocoaFramework/ReactiveCocoa/libextobjc
-	url = git://github.com/jspahrsummers/libextobjc.git
+[submodule "external/xcconfigs"]
+	path = external/xcconfigs
+	url = https://github.com/jspahrsummers/xcconfigs.git

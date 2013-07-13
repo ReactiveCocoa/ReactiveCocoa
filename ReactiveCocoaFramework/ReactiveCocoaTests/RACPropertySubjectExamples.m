@@ -11,6 +11,7 @@
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACBinding.h"
+#import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACPropertySubject.h"
 
@@ -57,6 +58,16 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 		[property sendNext:value3];
 		expect(receivedValues).to.equal(values);
 	});
+
+	it(@"should complete manually", ^{
+		__block BOOL completed = NO;
+		[property subscribeCompleted:^{
+			completed = YES;
+		}];
+
+		[property sendCompleted];
+		expect(completed).to.beTruthy();
+	});
 	
 	describe(@"memory management", ^{
 		it(@"should dealloc when it's subscribers are disposed", ^{
@@ -64,7 +75,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 			__block BOOL deallocd = NO;
 			@autoreleasepool {
 				RACPropertySubject *property __attribute__((objc_precise_lifetime)) = getProperty();
-				[property rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				[property.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd = YES;
 				}]];
 				disposable = [property subscribeNext:^(id x) {}];
@@ -78,7 +89,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 			__block BOOL deallocd = NO;
 			@autoreleasepool {
 				RACPropertySubject *property __attribute__((objc_precise_lifetime)) = getProperty();
-				[property rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				[property.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd = YES;
 				}]];
 				disposable = [RACSignal.never subscribe:property];
@@ -92,7 +103,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 			__block BOOL deallocd = NO;
 			@autoreleasepool {
 				RACPropertySubject *property __attribute__((objc_precise_lifetime)) = getProperty();
-				[property rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				[property.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd = YES;
 				}]];
 				disposable = [[property binding] subscribeNext:^(id x) {}];
@@ -106,7 +117,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 			__block BOOL deallocd = NO;
 			@autoreleasepool {
 				RACPropertySubject *property __attribute__((objc_precise_lifetime)) = getProperty();
-				[property rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				[property.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd = YES;
 				}]];
 				disposable = [RACSignal.never subscribe:[property binding]];
@@ -116,21 +127,26 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 		});
 		
 		it(@"should dealloc if it's binding with other properties is disposed", ^{
-			RACDisposable *disposable = nil;
+			RACDisposable *disposable1 = nil;
+			RACDisposable *disposable2 = nil;
 			__block BOOL deallocd1 = NO;
 			__block BOOL deallocd2 = NO;
 			@autoreleasepool {
 				RACPropertySubject *property1 __attribute__((objc_precise_lifetime)) = getProperty();
 				RACPropertySubject *property2 __attribute__((objc_precise_lifetime)) = getProperty();
-				[property1 rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				[property1.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd1 = YES;
 				}]];
-				[property2 rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				[property2.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd2 = YES;
 				}]];
-				disposable = [[property1 binding] bindTo:[property2 binding]];
+				RACBinding *property1Binding = [property1 binding];
+				RACBinding *property2Binding = [property2 binding];
+				disposable1 = [property2Binding subscribe:property1Binding];
+				disposable2 = [property1Binding subscribe:property2Binding];
 			}
-			[disposable dispose];
+			[disposable1 dispose];
+			[disposable2 dispose];
 			expect(deallocd1).will.beTruthy();
 			expect(deallocd2).will.beTruthy();
 		});
@@ -228,6 +244,36 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 				receivedValue = x;
 			}];
 			expect(receivedValue).to.equal(value2);
+		});
+
+		it(@"should complete when the property completes", ^{
+			__block BOOL completed = NO;
+			[binding1 subscribeCompleted:^{
+				completed = YES;
+			}];
+
+			[property sendCompleted];
+			expect(completed).to.beTruthy();
+		});
+
+		it(@"should complete manually", ^{
+			__block BOOL completed = NO;
+			[binding1 subscribeCompleted:^{
+				completed = YES;
+			}];
+
+			[binding1 sendCompleted];
+			expect(completed).to.beTruthy();
+		});
+
+		it(@"should complete its property", ^{
+			__block BOOL completed = NO;
+			[property subscribeCompleted:^{
+				completed = YES;
+			}];
+
+			[binding1 sendCompleted];
+			expect(completed).to.beTruthy();
 		});
 	});
 });

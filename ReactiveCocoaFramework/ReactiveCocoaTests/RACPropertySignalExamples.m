@@ -11,6 +11,7 @@
 #import "EXTKeyPathCoding.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
+#import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSubject.h"
 
@@ -41,6 +42,18 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 
 		[subject sendNext:nil];
 		expect(testObject.objectValue).to.beNil();
+	});
+
+	it(@"should leave the value of the property alone after the signal completes", ^{
+		RACSubject *subject = [RACSubject subject];
+		setupBlock(testObject, @keypath(testObject.objectValue), subject);
+		expect(testObject.objectValue).to.beNil();
+
+		[subject sendNext:@1];
+		expect(testObject.objectValue).to.equal(@1);
+
+		[subject sendCompleted];
+		expect(testObject.objectValue).to.equal(@1);
 	});
 
 	it(@"should set the value of a non-object property with the latest value from the signal", ^{
@@ -75,7 +88,7 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 
 				expect(intermediateSignal).notTo.beNil();
 
-				[intermediateSignal rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				[intermediateSignal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd = YES;
 				}]];
 

@@ -54,21 +54,6 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 // Invokes +schedulerWithPriority: with RACSchedulerPriorityDefault.
 + (instancetype)scheduler;
 
-// Creates a new scheduler with the given queue and name.
-//
-// Note that the scheduler can only ensure the serial execution of blocks
-// scheduled through this scheduler and not blocks enqueued directly on the
-// given queue, or even blocks scheduled on the same queue through a different
-// scheduler. If the queue allows for concurrent execution, scheduled blocks may
-// run concurrently with blocks directly enqueued.
-//
-// queue - The queue which the scheduler should target. Cannot be NULL.
-// name  - The name for the scheduler, to be used for debug or instrumentation
-//         purposes only. May be nil.
-//
-// Returns the created scheduler.
-+ (instancetype)schedulerWithQueue:(dispatch_queue_t)queue name:(NSString *)name;
-
 // The current scheduler. This will only be valid when used from within a
 // -[RACScheduler schedule:] block or when on the main thread.
 + (instancetype)currentScheduler;
@@ -106,6 +91,36 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 // Converts seconds to nanoseconds and calls `-after:schedule:`.
 - (RACDisposable *)afterDelay:(NSTimeInterval)delay schedule:(void (^)(void))block;
 
+// Reschedule the given block at a particular interval, starting at a specific
+// time, and with a given leeway for deferral.
+//
+// Note that blocks scheduled for a certain time will not preempt any other
+// scheduled work that is executing at the time.
+//
+// Regardless of the value of `leeway`, the given block may not execute exactly
+// at `when` or exactly on successive intervals, whether due to system load or
+// because another block is currently being run on the scheduler.
+//
+// It is considered undefined behavior to invoke this method on the
+// +immediateScheduler.
+//
+// when     - The earliest time at which `block` should begin executing. If this
+//            time is `DISPATCH_TIME_NOW` or created using dispatch_time(), the
+//            default system clock (which does not advance while the computer is
+//            asleep) is used for determining when to fire. When
+//            dispatch_walltime() is used, the wall clock time is used for
+//            determining when to fire.
+// interval - The interval at which the block should be rescheduled, starting
+//            from `when`.
+// leeway   - A hint to the system indicating the number of seconds that each
+//            scheduling can be deferred. Note that this is just a hint, and
+//            there may be some additional latency no matter what.
+// block    - The block to repeatedly schedule for execution. Cannot be nil.
+//
+// Returns a disposable which can be used to cancel the automatic scheduling and
+// rescheduling, or nil if cancellation is not supported.
+- (RACDisposable *)after:(dispatch_time_t)when repeatingEvery:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway schedule:(void (^)(void))block;
+
 // Schedule the given recursive block for execution on the scheduler. The
 // scheduler will automatically flatten any recursive scheduling into iteration
 // instead, so this can be used without issue for blocks that may keep invoking
@@ -124,5 +139,11 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 // it begins executing, or to stop it from rescheduling if it's already begun
 // execution.
 - (RACDisposable *)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock;
+
+@end
+
+@interface RACScheduler (Deprecated)
+
++ (instancetype)schedulerWithQueue:(dispatch_queue_t)queue name:(NSString *)name __attribute__((deprecated("Use -[RACTargetQueueScheduler initWithName:targetQueue:] instead.")));
 
 @end

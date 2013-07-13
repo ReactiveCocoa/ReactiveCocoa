@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import <ReactiveCocoa/RACSubject.h>
+#import "RACSubject.h"
 
 
 // A grouped signal is used by -[RACSignal groupBy:transform:].

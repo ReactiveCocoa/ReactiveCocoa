@@ -7,6 +7,7 @@
 //
 
 #import "NSInvocation+RACTypeParsing.h"
+#import "RACTuple.h"
 #import "RACUnit.h"
 #import <CoreGraphics/CoreGraphics.h>
 
@@ -58,8 +59,6 @@
 		PULL_AND_SET(float, floatValue);
 	} else if (strcmp(argType, "d") == 0) {
 		PULL_AND_SET(double, doubleValue);
-	} else if (strcmp(argType, "*") == 0) {
-		PULL_AND_SET(const char *, UTF8String);
 	} else if (argType[0] == '^') {
 		PULL_AND_SET(void *, pointerValue);
 	} else if (strcmp(argType, @encode(CGRect)) == 0) {
@@ -71,7 +70,7 @@
 	} else if (strcmp(argType, @encode(NSRange)) == 0) {
 		PULL_AND_SET_STRUCT(NSRange);
 	} else {
-		NSCAssert(NO, @"Unknown argument type %s", argType);
+		NSCAssert(NO, @"Unsupported argument type %s", argType);
 	}
 
 #undef PULL_AND_SET
@@ -127,8 +126,6 @@
 		WRAP_AND_RETURN(float);
 	} else if (strcmp(typeSignature, "d") == 0) {
 		WRAP_AND_RETURN(double);
-	} else if (strcmp(typeSignature, "*") == 0) {
-		WRAP_AND_RETURN(const char *);
 	} else if (typeSignature[0] == '^') {
 		const void *pointer = NULL;
 		[self getArgument:&pointer atIndex:(NSInteger)index];
@@ -142,13 +139,23 @@
 	} else if (strcmp(typeSignature, @encode(NSRange)) == 0) {
 		WRAP_AND_RETURN_STRUCT(NSRange);
 	} else {
-		NSCAssert(NO, @"Unknown return type signature %s", typeSignature);
+		NSCAssert(NO, @"Unsupported return type signature %s", typeSignature);
 	}
 
 	return nil;
 
 #undef WRAP_AND_RETURN
 #undef WRAP_AND_RETURN_STRUCT
+}
+
+- (NSArray *)rac_allArguments {
+	NSUInteger numberOfArguments = self.methodSignature.numberOfArguments;
+	NSMutableArray *argumentsArray = [NSMutableArray arrayWithCapacity:numberOfArguments - 2];
+	for (NSUInteger index = 2; index < numberOfArguments; index++) {
+		[argumentsArray addObject:[self rac_argumentAtIndex:index] ?: RACTupleNil.tupleNil];
+	}
+
+	return argumentsArray;
 }
 
 - (id)rac_returnValue {
@@ -200,8 +207,6 @@
 		WRAP_AND_RETURN(float);
 	} else if (strcmp(typeSignature, "d") == 0) {
 		WRAP_AND_RETURN(double);
-	} else if (strcmp(typeSignature, "*") == 0) {
-		WRAP_AND_RETURN(const char *);
 	} else if (strcmp(typeSignature, "v") == 0) {
 		return RACUnit.defaultUnit;
 	} else if (typeSignature[0] == '^') {
@@ -217,7 +222,7 @@
 	} else if (strcmp(typeSignature, @encode(NSRange)) == 0) {
 		WRAP_AND_RETURN_STRUCT(NSRange);
 	} else {
-		NSCAssert(NO, @"Unknown return type signature %s", typeSignature);
+		NSCAssert(NO, @"Unsupported return type signature %s", typeSignature);
 	}
 
 	return nil;

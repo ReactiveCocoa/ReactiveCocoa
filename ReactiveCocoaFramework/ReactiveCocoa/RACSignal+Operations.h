@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <ReactiveCocoa/RACSignal.h>
+#import "RACSignal.h"
 
 // The domain for errors originating in RACSignal operations.
 extern NSString * const RACSignalErrorDomain;
@@ -93,18 +93,18 @@ extern const NSInteger RACSignalErrorTimedOut;
 // Execute the given block when the signal completes or errors.
 - (RACSignal *)finally:(void (^)(void))block;
 
-// Divide the `next`s of the signal into windows. When `openSignal` sends a
-// next, a window is opened and the `closeBlock` is asked for a close
-// signal. The window is closed when the close signal sends a `next`.
-- (RACSignal *)windowWithStart:(RACSignal *)openSignal close:(RACSignal * (^)(RACSignal *start))closeBlock;
-
-// Divide the `next`s into buffers with `bufferCount` items each. The `next`
-// will be a RACTuple of values.
-- (RACSignal *)buffer:(NSUInteger)bufferCount;
-
-// Divide the `next`s into buffers delivery every `interval` seconds. The `next`
-// will be a RACTuple of values.
-- (RACSignal *)bufferWithTime:(NSTimeInterval)interval;
+// Divides the receiver's `next`s into buffers which deliver every `interval`
+// seconds.
+//
+// interval  - The interval in which values are grouped into one buffer.
+// scheduler - The scheduler upon which the returned signal will deliver its
+//             values. This must not be nil or +[RACScheduler
+//             immediateScheduler].
+//
+// Returns a signal which sends RACTuples of the buffered values at each
+// interval on `scheduler`. When the receiver completes, any currently-buffered
+// values will be sent immediately.
+- (RACSignal *)bufferWithTime:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler;
 
 // Collect all receiver's `next`s into a NSArray. nil values will be converted
 // to NSNull.
@@ -127,8 +127,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 // signal - The signal to combine with. This argument must not be nil.
 //
 // Returns a signal which sends RACTuples of the combined values, forwards any
-// `error` events, and completes when both input signals complete. If either
-// input signal is empty, the returned signal will complete immediately.
+// `error` events, and completes when both input signals complete.
 - (RACSignal *)combineLatestWith:(RACSignal *)signal;
 
 // Combines the latest values from the given signals into RACTuples, once all
@@ -141,8 +140,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 //           signal will immediately complete upon subscription.
 //
 // Returns a signal which sends RACTuples of the combined values, forwards any
-// `error` events, and completes when all input signals complete. If any input
-// signal is empty, the returned signal will complete immediately.
+// `error` events, and completes when all input signals complete.
 + (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals;
 
 // Combines signals using +combineLatest:, then reduces the resulting tuples
@@ -151,9 +149,10 @@ extern const NSInteger RACSignalErrorTimedOut;
 // signals     - The signals to combine. If this collection is empty, the
 //               returned signal will immediately complete upon subscription.
 // reduceBlock - The block which reduces the latest values from all the
-//               signals into one value. It should take as many arguments as the
+//               signals into one value. It must take as many arguments as the
 //               number of signals given. Each argument will be an object
-//               argument. This argument must not be nil.
+//               argument. The return value must be an object. This argument
+//               must not be nil.
 //
 // Example:
 //
@@ -163,7 +162,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 //
 // Returns a signal which sends the results from each invocation of
 // `reduceBlock`.
-+ (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock;
++ (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals reduce:(id (^)())reduceBlock;
 
 // Sends the latest `next` from any of the signals.
 //
@@ -187,9 +186,16 @@ extern const NSInteger RACSignalErrorTimedOut;
 //                 signals.
 - (RACSignal *)flatten:(NSUInteger)maxConcurrent;
 
-// Ignores all `next`s from the receiver, and after the receiver completes, gets
-// a new signal to subscribe to.
-- (RACSignal *)sequenceNext:(RACSignal * (^)(void))block;
+// Ignores all `next`s from the receiver, waits for the receiver to complete,
+// then subscribes to a new signal.
+//
+// block - A block which will create or obtain a new signal to subscribe to,
+//         executed only after the receiver completes. This block must not be
+//         nil, and it must not return a nil signal.
+//
+// Returns a signal which will pass through the events of the signal created in
+// `block`. If the receiver errors out, the returned signal will error as well.
+- (RACSignal *)then:(RACSignal * (^)(void))block;
 
 // Concats the inner signals of a signal of signals.
 - (RACSignal *)concat;
@@ -208,7 +214,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 // Sending an error on the signal is considered undefined behavior, and will
 // generate an assertion failure in Debug builds.
 //
-// A given object property should only have one active signal bound to it at any
+// A given key on an object should only have one active signal bound to it at any
 // given time. Binding more than one signal to the same property is considered
 // undefined behavior.
 //
@@ -216,15 +222,17 @@ extern const NSInteger RACSignalErrorTimedOut;
 // object  - The object that `keyPath` is relative to.
 //
 // Returns a disposable which can be used to terminate the binding.
-- (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object;
+- (RACDisposable *)setKeyPath:(NSString *)keyPath onObject:(NSObject *)object;
 
 // Sends NSDate.date every `interval` seconds.
 //
-// interval - The time interval in seconds at which the current time is sent.
+// interval  - The time interval in seconds at which the current time is sent.
+// scheduler - The scheduler upon which the current NSDate should be sent. This
+//             must not be nil or +[RACScheduler immediateScheduler].
 //
-// Returns a signal that sends the current date/time every `interval` on the
-// global concurrent high priority queue.
-+ (RACSignal *)interval:(NSTimeInterval)interval;
+// Returns a signal that sends the current date/time every `interval` on
+// `scheduler`.
++ (RACSignal *)interval:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler;
 
 // Sends NSDate.date at intervals of at least `interval` seconds, up to
 // approximately `interval` + `leeway` seconds.
@@ -234,13 +242,15 @@ extern const NSInteger RACSignalErrorTimedOut;
 // interest of performance or power consumption. Note that some additional
 // latency is to be expected, even when specifying a `leeway` of 0.
 //
-// interval - The base interval between `next`s.
-// leeway   - The maximum amount of additional time the `next` can be deferred.
+// interval  - The base interval between `next`s.
+// scheduler - The scheduler upon which the current NSDate should be sent. This
+//             must not be nil or +[RACScheduler immediateScheduler].
+// leeway    - The maximum amount of additional time the `next` can be deferred.
 //
 // Returns a signal that sends the current date/time at intervals of at least
-// `interval seconds` up to approximately `interval` + `leeway` seconds on the
-// global concurrent high priority queue.
-+ (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway;
+// `interval seconds` up to approximately `interval` + `leeway` seconds on
+// `scheduler`.
++ (RACSignal *)interval:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler withLeeway:(NSTimeInterval)leeway;
 
 // Take `next`s until the `signalTrigger` sends `next` or `completed`.
 //
@@ -292,7 +302,8 @@ extern const NSInteger RACSignalErrorTimedOut;
 // The receiver must be a signal of signals.
 //
 // Returns a signal which passes through `next`s and `error`s from the latest
-// signal sent by the receiver, and sends `completed` when the receiver completes.
+// signal sent by the receiver, and sends `completed` when both the receiver and
+// the last sent signal complete.
 - (RACSignal *)switchToLatest;
 
 // Switches between the signals in `cases` based on the latest value sent by
@@ -335,7 +346,8 @@ extern const NSInteger RACSignalErrorTimedOut;
 //               argument must not be nil.
 //
 // Returns a signal which passes through `next`s and `error`s from `trueSignal`
-// and/or `falseSignal`, and sends `completed` when `boolSignal` completes.
+// and/or `falseSignal`, and sends `completed` when both `boolSignal` and the
+// last switched signal complete.
 + (RACSignal *)if:(RACSignal *)boolSignal then:(RACSignal *)trueSignal else:(RACSignal *)falseSignal;
 
 // Add every `next` to an array. Nils are represented by NSNulls. Note that this
@@ -392,9 +404,13 @@ extern const NSInteger RACSignalErrorTimedOut;
 // The error will be in the RACSignalErrorDomain and have a code of
 // RACSignalErrorTimedOut.
 //
-// Returns a signal that passes through the receiver's events on an
-// indeterminate scheduler, until the stream finishes or times out.
-- (RACSignal *)timeout:(NSTimeInterval)interval;
+// interval  - The number of seconds after which the signal should error out.
+// scheduler - The scheduler upon which any timeout error should be sent. This
+//             must not be nil or +[RACScheduler immediateScheduler].
+//
+// Returns a signal that passes through the receiver's events, until the stream
+// finishes or times out, at which point an error will be sent on `scheduler`.
+- (RACSignal *)timeout:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler;
 
 // Creates and returns a signal that delivers its events on the given scheduler.
 // Any side effects of the receiver will still be performed on the original
@@ -413,10 +429,6 @@ extern const NSInteger RACSignalErrorTimedOut;
 // receiver's side effects may not be safe to run on another thread. If you just
 // want to receive the signal's events on `scheduler`, use -deliverOn: instead.
 - (RACSignal *)subscribeOn:(RACScheduler *)scheduler;
-
-// Creates a shared signal which is passed into the let block. The let block
-// then returns a signal derived from that shared signal.
-- (RACSignal *)let:(RACSignal * (^)(RACSignal *sharedSignal))letBlock;
 
 // Groups each received object into a group, as determined by calling `keyBlock`
 // with that object. The object sent is transformed by calling `transformBlock`
@@ -465,7 +477,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 //
 // Returns a signal which only passes through `error` or `completed` events from
 // the receiver.
-- (RACSignal *)ignoreElements;
+- (RACSignal *)ignoreValues;
 
 // Converts each of the receiver's events into a RACEvent object.
 //
@@ -495,5 +507,20 @@ extern const NSInteger RACSignalErrorTimedOut;
 //
 // Returns the disposable for the underlying subscription.
 - (RACDisposable *)executeCommand:(RACCommand *)command;
+
+@end
+
+@interface RACSignal (OperationsDeprecated)
+
+- (RACSignal *)windowWithStart:(RACSignal *)openSignal close:(RACSignal * (^)(RACSignal *start))closeBlock __attribute__((deprecated("See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/587")));
+- (RACSignal *)buffer:(NSUInteger)bufferCount __attribute__((deprecated("See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/587")));
+- (RACSignal *)let:(RACSignal * (^)(RACSignal *sharedSignal))letBlock __attribute__((deprecated("Use -publish instead")));
++ (RACSignal *)interval:(NSTimeInterval)interval __attribute__((deprecated("Use +interval:onScheduler: instead")));
++ (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway __attribute__((deprecated("Use +interval:onScheduler:withLeeway: instead")));
+- (RACSignal *)bufferWithTime:(NSTimeInterval)interval __attribute__((deprecated("Use -bufferWithTime:onScheduler: instead")));
+- (RACSignal *)timeout:(NSTimeInterval)interval __attribute__((deprecated("Use -timeout:onScheduler: instead")));
+- (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object __attribute__((deprecated("Renamed to -setKeyPath:onObject:")));
+- (RACSignal *)ignoreElements __attribute__((deprecated("Renamed to -ignoreValues")));
+- (RACSignal *)sequenceNext:(RACSignal * (^)(void))block __attribute__((deprecated("Renamed to -then:")));
 
 @end

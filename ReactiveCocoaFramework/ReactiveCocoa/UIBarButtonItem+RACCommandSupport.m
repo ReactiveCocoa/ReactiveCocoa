@@ -7,13 +7,11 @@
 //
 
 #import "UIBarButtonItem+RACCommandSupport.h"
-#import <ReactiveCocoa/EXTKeyPathCoding.h>
-#import <ReactiveCocoa/NSObject+RACPropertySubscribing.h>
-#import <ReactiveCocoa/RACCommand.h>
-#import <ReactiveCocoa/RACDisposable.h>
-#import <ReactiveCocoa/RACScheduler.h>
-#import <ReactiveCocoa/RACSignal+Operations.h>
-#import <ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h>
+#import "EXTKeyPathCoding.h"
+#import "NSObject+RACPropertySubscribing.h"
+#import "RACCommand.h"
+#import "RACDisposable.h"
+#import "RACSignal+Operations.h"
 #import <objc/runtime.h>
 
 static void *UIControlRACCommandKey = &UIControlRACCommandKey;
@@ -28,17 +26,13 @@ static void *UIControlCanExecuteDisposableKey = &UIControlCanExecuteDisposableKe
 - (void)setRac_command:(RACCommand *)command {
 	objc_setAssociatedObject(self, UIControlRACCommandKey, command, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
-	if (command == nil) return;
-	
 	// Check for stored signal in order to remove it and add a new one
 	RACDisposable *disposable = objc_getAssociatedObject(self, UIControlCanExecuteDisposableKey);
 	[disposable dispose];
 	
-	disposable = [[[RACAble(command, canExecute)
-		deliverOn:RACScheduler.mainThreadScheduler]
-		startWith:@(command.canExecute)]
-		toProperty:@keypath(self.enabled) onObject:self];
-
+	if (command == nil) return;
+	
+	disposable = [RACObserve(command, canExecute) setKeyPath:@keypath(self.enabled) onObject:self];
 	objc_setAssociatedObject(self, UIControlCanExecuteDisposableKey, disposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
 	[self rac_hijackActionAndTargetIfNeeded];

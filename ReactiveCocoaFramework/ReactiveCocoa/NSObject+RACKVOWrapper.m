@@ -35,8 +35,8 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 	__block RACCompoundDisposable *firstComponentDisposable = [RACCompoundDisposable compoundDisposable];
 	[disposable addDisposable:firstComponentDisposable];
 
-	// Adds didChangeBlock as a callback on the value's deallocation. Also adds
-	// the logic to clean up the callback to firstComponentDisposable.
+	// Adds the callback block to the value's deallocation. Also adds the logic to
+	// clean up the callback to firstComponentDisposable.
 	void (^addDeallocObserverToValue)(NSObject *) = ^(NSObject *value) {
 		NSDictionary *change = @{
 			NSKeyValueChangeKindKey: @(NSKeyValueChangeSetting),
@@ -46,9 +46,9 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 		};
 
 		// If a key path value is the observer, commonly when a key path begins
-		// with "self", we prevent deallocation triggered didChangeBlock
-		// callbacks for any such key path components. Thus, the observer's
-		// deallocation is not considered a change to the key path.
+		// with "self", we prevent deallocation triggered callbacks for any such key
+		// path components. Thus, the observer's deallocation is not considered a
+		// change to the key path.
 		@strongify(observer);
 		if (value == observer) return;
 
@@ -64,9 +64,8 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 		}
 	};
 
-	// Adds willChangeBlock and didChangeBlock as callbacks for changes to the
-	// remaining path components on the value. Also adds the logic to clean up the
-	// callbacks to firstComponentDisposable.
+	// Adds the callback block to the remaining path components on the value. Also
+	// adds the logic to clean up the callbacks to firstComponentDisposable.
 	void (^addObserverToValue)(NSObject *) = ^(NSObject *value) {
 		@strongify(observer);
 		RACDisposable *observerDisposable = [value rac_observeKeyPath:keyPathTail options:(options & ~NSKeyValueObservingOptionInitial) observer:observer block:block];
@@ -76,8 +75,8 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 	};
 
 	// Observe only the first key path component, when the value changes clean up
-	// the callbacks on the old value, add callbacks to the new value and call
-	// willChangeBlock and didChangeBlock as needed.
+	// the callbacks on the old value, add callbacks to the new value and call the
+	// callback block as needed.
 	//
 	// Note this does not use NSKeyValueObservingOptionInitial so this only
 	// handles changes to the value, callbacks to the initial value must be added
@@ -93,7 +92,7 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 		}
 
 		// If this is a prior notification, clean up all the callbacks added to the
-		// previous value and call willChangeBlock. Everything else is deferred
+		// previous value and call the callback block. Everything else is deferred
 		// until after we get the notification after the change.
 		if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
 			@synchronized (disposable) {
@@ -109,7 +108,7 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 		NSObject *value = [trampolineTarget valueForKey:keyPathHead];
 
 		// If the value has changed but is nil, there is no need to add callbacks to
-		// it, just call didChangeBlock.
+		// it, just call the callback block.
 		if (value == nil) {
 			block(nil, change);
 			return;
@@ -128,7 +127,7 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 		addDeallocObserverToValue(value);
 
 		// If there are no further key path components, there is no need to add the
-		// other callbacks, just call didChangeBlock with the value itself.
+		// other callbacks, just call the callback block with the value itself.
 		if (keyPathHasOneComponent) {
 			block(value, change);
 			return;
@@ -136,7 +135,7 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 
 		// The value has changed, is not nil, and there are more key path components
 		// to consider. Add the callbacks to the value for the remaining key path
-		// components and call didChangeBlock with the current value of the full
+		// components and call the callback block with the current value of the full
 		// key path.
 		addObserverToValue(value);
 		block([value valueForKeyPath:keyPathTail], change);

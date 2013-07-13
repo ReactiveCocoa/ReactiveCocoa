@@ -397,7 +397,7 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 		});
 	});
 
-	it(@"should not call didChangeBlock when the value is the observer", ^{
+	it(@"should not call the callback block when the value is the observer", ^{
 		__block BOOL observerDisposed = NO;
 		__block BOOL observerDeallocationTriggeredChange = NO;
 		__block BOOL targetDisposed = NO;
@@ -433,7 +433,7 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 		expect(targetDeallocationTriggeredChange).to.beTruthy();
 	});
 
-	it(@"should call didChangeBlock for deallocation of the initial value of a single-key key path", ^{
+	it(@"should call the callback block for deallocation of the initial value of a single-key key path", ^{
 		RACTestObject *target = [RACTestObject new];
 		__block BOOL objectDisposed = NO;
 		__block BOOL objectDeallocationTriggeredChange = NO;

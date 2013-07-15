@@ -9,6 +9,7 @@
 #import "RACPropertySignalExamples.h"
 #import "RACSequenceExamples.h"
 #import "RACStreamExamples.h"
+#import "RACSwitchSignalExamples.h"
 
 #import "EXTKeyPathCoding.h"
 #import "NSObject+RACDeallocating.h"
@@ -1526,6 +1527,57 @@ describe(@"-switchToLatest", ^{
 
 		NSArray *expected = @[ @1, @2 ];
 		expect(values).to.equal(expected);
+	});
+});
+
+describe(@"+switch:cases:", ^{
+	itShouldBehaveLike(RACSwitchSignalExamples, ^{
+		return @{
+			RACSwitchSignalExamplesSetupBlock: ^(RACSignal *keySignal, NSDictionary *cases) {
+				return [RACSignal switch:keySignal cases:cases];
+			}
+		};
+	});
+});
+
+describe(@"+switch:cases:default:", ^{
+	itShouldBehaveLike(RACSwitchSignalExamples, ^{
+		return @{
+			RACSwitchSignalExamplesSetupBlock: ^(RACSignal *keySignal, NSDictionary *cases) {
+				return [RACSignal switch:keySignal cases:cases default:[RACSignal never]];
+			}
+		};
+	});
+
+	it(@"should use the default signal if key that was sent does not have an associated signal", ^{
+		RACSubject *keySubject = [RACSubject subject];
+
+		RACSubject *subjectZero = [RACSubject subject];
+		RACSubject *subjectOne = [RACSubject subject];
+		RACSubject *defaultSubject = [RACSubject subject];
+
+		NSMutableArray *values = [NSMutableArray array];
+
+		[[RACSignal
+			switch:keySubject
+			cases:@{
+				@0: subjectZero,
+				@1: subjectOne,
+			}
+			default:defaultSubject]
+			subscribeNext:^(id x) {
+				[values addObject:x];
+			}];
+
+		[keySubject sendNext:@"not a valid key"];
+		[defaultSubject sendNext:@"default"];
+
+		expect(values).to.equal(@[ @"default" ]);
+
+		[keySubject sendNext:nil];
+		[defaultSubject sendNext:@"default"];
+
+		expect(values).to.equal((@[ @"default", @"default" ]));
 	});
 });
 

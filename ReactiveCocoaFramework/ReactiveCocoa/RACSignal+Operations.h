@@ -306,6 +306,35 @@ extern const NSInteger RACSignalErrorTimedOut;
 // the last sent signal complete.
 - (RACSignal *)switchToLatest;
 
+// Switches between the signals in `cases` based on the latest value sent by
+// `signal`.
+//
+// signal - A signal of objects used as keys in the `cases` dictionary.
+//          This argument must not be nil.
+// cases  - A dictionary that has signals as values.
+//          This argument must not be nil.
+//
+// Returns a signal which passes through `next`s and `error`s from one of the
+// the signals in `cases`, and sends `completed` when both `signal` and the
+// last used signal from `cases` complete.
++ (RACSignal *)switch:(RACSignal *)signal cases:(NSDictionary *)cases;
+
+// Switches between the signals in `cases` as well as `defaultSignal` based on
+// the latest value sent by `signal`.
+//
+// signal        - A signal of objects used as keys in the `cases` dictionary.
+//                 This argument must not be nil.
+// cases         - A dictionary that has signals as values.
+//                 This argument must not be nil.
+// defaultSignal - The signal to pass through after `signal` sends a value for
+//                 which `cases` does not contain a signal. This argument must
+//                 not be nil.
+//
+// Returns a signal which passes through `next`s and `error`s from one of the
+// the signals in `cases` or `defaultSignal`, and sends `completed` when both
+// `signal` and the last used signal complete.
++ (RACSignal *)switch:(RACSignal *)signal cases:(NSDictionary *)cases default:(RACSignal *)defaultSignal;
+
 // Switches between `trueSignal` and `falseSignal` based on the latest value
 // sent by `boolSignal`.
 //

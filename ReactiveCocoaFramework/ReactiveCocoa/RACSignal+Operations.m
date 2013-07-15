@@ -784,7 +784,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	if (useDefault) NSCParameterAssert(defaultSignal != nil);
 
 	for (id key in cases) {
-		id value = cases[key];
+		id value __attribute__((unused)) = cases[key];
 		NSCAssert([value isKindOfClass:RACSignal.class], @"Expected all cases to be RACSignals, %@ isn't", value);
 	}
 

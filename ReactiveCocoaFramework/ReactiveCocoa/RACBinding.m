@@ -15,7 +15,7 @@
 @interface RACBinding ()
 
 // The signal exposed to callers. The property will behave like this signal
-// towards it's subscribers.
+// towards its subscribers.
 @property (nonatomic, readonly, strong) RACSignal *exposedSignal;
 
 // The subscriber exposed to callers. The property will behave like this

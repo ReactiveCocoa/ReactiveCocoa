@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-// The name of the shared examples for RACPropertySubject and it's subclasses.
+// The name of the shared examples for RACPropertySubject and its subclasses.
 extern NSString * const RACPropertySubjectExamples;
 
 // A block of type `RACPropertySubject (^)(void)`, which should return a new

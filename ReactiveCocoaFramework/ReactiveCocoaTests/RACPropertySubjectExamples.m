@@ -33,7 +33,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 		property = getProperty();
 	});
 	
-	it(@"should send it's current value on subscription", ^{
+	it(@"should send its current value on subscription", ^{
 		__block id receivedValue = nil;
 		[property sendNext:value1];
 		[[property take:1] subscribeNext:^(id x) {
@@ -48,7 +48,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 		expect(receivedValue).to.equal(value2);
 	});
 	
-	it(@"should send it's value as it changes", ^{
+	it(@"should send its value as it changes", ^{
 		[property sendNext:value1];
 		NSMutableArray *receivedValues = [NSMutableArray array];
 		[property subscribeNext:^(id x) {
@@ -70,7 +70,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 	});
 	
 	describe(@"memory management", ^{
-		it(@"should dealloc when it's subscribers are disposed", ^{
+		it(@"should dealloc when its subscribers are disposed", ^{
 			RACDisposable *disposable = nil;
 			__block BOOL deallocd = NO;
 			@autoreleasepool {
@@ -84,7 +84,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 			expect(deallocd).will.beTruthy();
 		});
 		
-		it(@"should dealloc when it's subscriptions are disposed", ^{
+		it(@"should dealloc when its subscriptions are disposed", ^{
 			RACDisposable *disposable = nil;
 			__block BOOL deallocd = NO;
 			@autoreleasepool {
@@ -98,7 +98,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 			expect(deallocd).will.beTruthy();
 		});
 		
-		it(@"should dealloc when it's binding's subscribers are disposed", ^{
+		it(@"should dealloc when its binding's subscribers are disposed", ^{
 			RACDisposable *disposable = nil;
 			__block BOOL deallocd = NO;
 			@autoreleasepool {
@@ -112,7 +112,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 			expect(deallocd).will.beTruthy();
 		});
 		
-		it(@"should dealloc when it's binding's subscriptions are disposed", ^{
+		it(@"should dealloc when its binding's subscriptions are disposed", ^{
 			RACDisposable *disposable = nil;
 			__block BOOL deallocd = NO;
 			@autoreleasepool {
@@ -126,7 +126,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 			expect(deallocd).will.beTruthy();
 		});
 		
-		it(@"should dealloc if it's binding with other properties is disposed", ^{
+		it(@"should dealloc if its binding with other properties is disposed", ^{
 			RACDisposable *disposable1 = nil;
 			RACDisposable *disposable2 = nil;
 			__block BOOL deallocd1 = NO;

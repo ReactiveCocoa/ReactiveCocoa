@@ -761,6 +761,43 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -switchToLatest", self.name];
 }
 
++ (RACSignal *)switch:(RACSignal *)signal cases:(NSDictionary *)cases {
+	return [[RACSignal
+		switch:signal cases:cases useDefault:NO default:nil]
+		setNameWithFormat:@"+switch: %@ cases: %@", signal, cases];
+}
+
++ (RACSignal *)switch:(RACSignal *)signal cases:(NSDictionary *)cases default:(RACSignal *)defaultSignal {
+	return [[RACSignal
+		switch:signal cases:cases useDefault:YES default:defaultSignal]
+		setNameWithFormat:@"+switch: %@ cases: %@ default: %@", signal, cases, defaultSignal];
+}
+
++ (RACSignal *)switch:(RACSignal *)signal cases:(NSDictionary *)cases useDefault:(BOOL)useDefault default:(RACSignal *)defaultSignal {
+	NSCParameterAssert(signal != nil);
+	NSCParameterAssert(cases != nil);
+
+	if (useDefault) NSCParameterAssert(defaultSignal != nil);
+
+	for (id key in cases) {
+		id value __attribute__((unused)) = cases[key];
+		NSCAssert([value isKindOfClass:RACSignal.class], @"Expected all cases to be RACSignals, %@ isn't", value);
+	}
+
+	NSDictionary *copy = [cases copy];
+
+	return [[[signal
+		map:^(id key) {
+			RACSignal *signal = copy[key];
+
+			if (!useDefault) NSCAssert(signal != nil, @"Expected %@ sent by %@ to be a key in %@", key, signal, copy);
+
+			return signal ?: defaultSignal;
+		}]
+		switchToLatest]
+		setNameWithFormat:@"+switch: %@ cases: %@ useDefault: %d default: %@", signal, copy, useDefault, defaultSignal];
+}
+
 + (RACSignal *)if:(RACSignal *)boolSignal then:(RACSignal *)trueSignal else:(RACSignal *)falseSignal {
 	NSCParameterAssert(boolSignal != nil);
 	NSCParameterAssert(trueSignal != nil);

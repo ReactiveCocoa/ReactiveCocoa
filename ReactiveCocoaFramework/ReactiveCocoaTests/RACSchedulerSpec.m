@@ -79,7 +79,7 @@ describe(@"+mainThreadScheduler", ^{
 	it(@"should schedule future blocks", ^{
 		__block BOOL done = NO;
 
-		[RACScheduler.mainThreadScheduler after:DISPATCH_TIME_NOW schedule:^{
+		[RACScheduler.mainThreadScheduler after:[NSDate date] schedule:^{
 			done = YES;
 		}];
 
@@ -91,13 +91,13 @@ describe(@"+mainThreadScheduler", ^{
 		__block BOOL firstBlockRan = NO;
 		__block BOOL secondBlockRan = NO;
 
-		RACDisposable *disposable = [RACScheduler.mainThreadScheduler after:DISPATCH_TIME_NOW schedule:^{
+		RACDisposable *disposable = [RACScheduler.mainThreadScheduler after:[NSDate date] schedule:^{
 			firstBlockRan = YES;
 		}];
 
 		expect(disposable).notTo.beNil();
 
-		[RACScheduler.mainThreadScheduler after:DISPATCH_TIME_NOW schedule:^{
+		[RACScheduler.mainThreadScheduler after:[NSDate date] schedule:^{
 			secondBlockRan = YES;
 		}];
 
@@ -111,7 +111,7 @@ describe(@"+mainThreadScheduler", ^{
 	it(@"should schedule recurring blocks", ^{
 		__block NSUInteger count = 0;
 
-		RACDisposable *disposable = [RACScheduler.mainThreadScheduler after:DISPATCH_TIME_NOW repeatingEvery:0.05 withLeeway:0 schedule:^{
+		RACDisposable *disposable = [RACScheduler.mainThreadScheduler after:[NSDate date] repeatingEvery:0.05 withLeeway:0 schedule:^{
 			count++;
 		}];
 
@@ -129,13 +129,13 @@ describe(@"+mainThreadScheduler", ^{
 
 describe(@"+scheduler", ^{
 	__block RACScheduler *scheduler;
-	__block dispatch_time_t (^futureTime)(void);
+	__block NSDate * (^futureDate)(void);
 
 	beforeEach(^{
 		scheduler = [RACScheduler scheduler];
 
-		futureTime = ^{
-			return dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC));
+		futureDate = ^{
+			return [NSDate dateWithTimeIntervalSinceNow:0.01];
 		};
 	});
 
@@ -166,7 +166,7 @@ describe(@"+scheduler", ^{
 	it(@"should schedule future blocks", ^{
 		__block BOOL done = NO;
 
-		[scheduler after:futureTime() schedule:^{
+		[scheduler after:futureDate() schedule:^{
 			done = YES;
 		}];
 
@@ -178,16 +178,15 @@ describe(@"+scheduler", ^{
 		__block BOOL firstBlockRan = NO;
 		__block BOOL secondBlockRan = NO;
 
-		dispatch_time_t time = futureTime();
-
-		RACDisposable *disposable = [scheduler after:time schedule:^{
+		NSDate *date = futureDate();
+		RACDisposable *disposable = [scheduler after:date schedule:^{
 			firstBlockRan = YES;
 		}];
 
 		expect(disposable).notTo.beNil();
 		[disposable dispose];
 
-		[scheduler after:time schedule:^{
+		[scheduler after:date schedule:^{
 			secondBlockRan = YES;
 		}];
 
@@ -199,7 +198,7 @@ describe(@"+scheduler", ^{
 	it(@"should schedule recurring blocks", ^{
 		__block NSUInteger count = 0;
 
-		RACDisposable *disposable = [scheduler after:DISPATCH_TIME_NOW repeatingEvery:0.05 withLeeway:0 schedule:^{
+		RACDisposable *disposable = [scheduler after:[NSDate date] repeatingEvery:0.05 withLeeway:0 schedule:^{
 			count++;
 		}];
 
@@ -286,7 +285,7 @@ describe(@"+immediateScheduler", ^{
 
 	it(@"should block for future scheduled blocks", ^{
 		__block BOOL executed = NO;
-		RACDisposable *disposable = [RACScheduler.immediateScheduler after:dispatch_time(DISPATCH_TIME_NOW, 1000) schedule:^{
+		RACDisposable *disposable = [RACScheduler.immediateScheduler after:[NSDate dateWithTimeIntervalSinceNow:0.01] schedule:^{
 			executed = YES;
 		}];
 
@@ -356,9 +355,7 @@ describe(@"-scheduleRecursiveBlock:", ^{
 
 			RACScheduler *asynchronousScheduler = [RACScheduler scheduler];
 			[RACScheduler.immediateScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
-				dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC));
-
-				[asynchronousScheduler after:delay schedule:^{
+				[asynchronousScheduler after:[NSDate dateWithTimeIntervalSinceNow:0.01] schedule:^{
 					NSUInteger thisCount = ++count;
 					if (thisCount < 3) {
 						recurse();
@@ -407,7 +404,7 @@ describe(@"subclassing", ^{
 
 	it(@"should invoke blocks scheduled with -after:schedule:", ^{
 		__block BOOL invoked = NO;
-		[scheduler after:1 schedule:^{
+		[scheduler after:[NSDate dateWithTimeIntervalSinceNow:0.01] schedule:^{
 			invoked = YES;
 		}];
 		

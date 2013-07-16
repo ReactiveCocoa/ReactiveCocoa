@@ -207,6 +207,9 @@ extern const NSInteger RACSignalErrorTimedOut;
 // block is called to get a new start object for each subscription.
 - (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory reduce:(id (^)(id running, id next))reduceBlock;
 
+// Invokes -setKeyPath:onObject:nilValue: with `nil` for the nil value.
+- (RACDisposable *)setKeyPath:(NSString *)keyPath onObject:(NSObject *)object;
+
 // Binds the receiver to an object, automatically setting the given key path on
 // every `next`. When the signal completes, the binding is automatically
 // disposed of.
@@ -218,11 +221,16 @@ extern const NSInteger RACSignalErrorTimedOut;
 // given time. Binding more than one signal to the same property is considered
 // undefined behavior.
 //
-// keyPath - The key path to update with `next`s from the receiver.
-// object  - The object that `keyPath` is relative to.
+// keyPath  - The key path to update with `next`s from the receiver.
+// object   - The object that `keyPath` is relative to.
+// nilValue - The value to set at the key path whenever `nil` is sent by the
+//            receiver. This may be nil when binding to object properties, but
+//            an NSValue should be used for primitive properties, to avoid an
+//            exception if `nil` is sent (which might occur if an intermediate
+//            observee is set to `nil`).
 //
 // Returns a disposable which can be used to terminate the binding.
-- (RACDisposable *)setKeyPath:(NSString *)keyPath onObject:(NSObject *)object;
+- (RACDisposable *)setKeyPath:(NSString *)keyPath onObject:(NSObject *)object nilValue:(id)nilValue;
 
 // Sends NSDate.date every `interval` seconds.
 //

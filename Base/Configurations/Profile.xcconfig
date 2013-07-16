@@ -13,9 +13,6 @@
 // binaries)
 COPY_PHASE_STRIP = NO
 
-// Whether to generate debugging symbols
-GCC_GENERATE_DEBUGGING_SYMBOLS = YES
-
 // Whether to only build the active architecture
 ONLY_ACTIVE_ARCH = YES
 

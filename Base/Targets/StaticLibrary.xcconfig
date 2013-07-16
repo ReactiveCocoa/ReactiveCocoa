@@ -17,11 +17,6 @@ COPY_PHASE_STRIP = NO
 // disabled for library code)
 GCC_DYNAMIC_NO_PIC = NO
 
-// Whether to generate debugging symbols.
-//
-// Overrides Release.xcconfig when used at the target level.
-GCC_GENERATE_DEBUGGING_SYMBOLS = YES
-
 // Copy headers to "include/LibraryName" in the build folder by default. This
 // lets consumers use #import <LibraryName/LibraryName.h> syntax even for static
 // libraries

@@ -68,6 +68,9 @@ GCC_C_LANGUAGE_STANDARD = gnu99
 // Whether to enable exceptions for Objective-C
 GCC_ENABLE_OBJC_EXCEPTIONS = YES
 
+// Whether to generate debugging symbols
+GCC_GENERATE_DEBUGGING_SYMBOLS = YES
+
 // Whether to precompile the prefix header (if one is specified)
 GCC_PRECOMPILE_PREFIX_HEADER = YES
 

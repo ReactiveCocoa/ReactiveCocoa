@@ -144,17 +144,6 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 // the receiver.
 - (instancetype)mapReplace:(id)object;
 
-// Maps the combination of the previous and current objects to one object.
-//
-// start        - The value passed into `combineBlock` as `previous` for the
-//                first value.
-// combineBlock - The block that combines the previous value and the current
-//                value to create the combined value. Cannot be nil.
-//
-// Returns a new stream consisting of the return values from each application of
-// `combineBlock`.
-- (instancetype)mapPreviousWithStart:(id)start combine:(id (^)(id previous, id current))combineBlock;
-
 // Filters out values in the receiver that don't pass the given test.
 //
 // This corresponds to the `Where` method in Rx.
@@ -251,9 +240,42 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 //                 receiver. If the receiver is empty, this block will never be
 //                 invoked.
 //
+// Examples
+//
+//      RACSequence *numbers = @[ @1, @2, @3, @4 ].rac_sequence;
+//
+//      // Contains 1, 3, 6, 10
+//      RACSequence *sums = [numbers scanWithStart:@0 reduce:^(NSNumber *sum, NSNumber *next) {
+//          return @(sum.integerValue + next.integerValue);
+//      }];
+//
 // Returns a new stream that consists of each application of `block`. If the
 // receiver is empty, an empty stream is returned.
-- (instancetype)scanWithStart:(id)startingValue combine:(id (^)(id running, id next))block;
+- (instancetype)scanWithStart:(id)startingValue reduce:(id (^)(id running, id next))block;
+
+// Combines each previous and current value into one object.
+//
+// This method is similar to -scanWithStart:reduce:, but only ever operates on
+// the previous and current values (instead of the whole stream), and does not
+// pass the return value of `reduceBlock` into the next invocation of it.
+//
+// start       - The value passed into `reduceBlock` as `previous` for the
+//               first value.
+// reduceBlock - The block that combines the previous value and the current
+//               value to create the reduced value. Cannot be nil.
+//
+// Examples
+//
+//      RACSequence *numbers = @[ @1, @2, @3, @4 ].rac_sequence;
+//
+//      // Contains 1, 3, 5, 7
+//      RACSequence *sums = [numbers combinePreviousWithStart:@0 reduce:^(NSNumber *previous, NSNumber *next) {
+//          return @(previous.integerValue + next.integerValue);
+//      }];
+//
+// Returns a new stream consisting of the return values from each application of
+// `reduceBlock`.
+- (instancetype)combinePreviousWithStart:(id)start reduce:(id (^)(id previous, id current))reduceBlock;
 
 // Takes values until the given block returns `YES`.
 //
@@ -288,5 +310,7 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 @interface RACStream (Deprecated)
 
 - (instancetype)sequenceMany:(RACStream * (^)(void))block __attribute__((deprecated("Use -flattenMap: instead")));
+- (instancetype)scanWithStart:(id)startingValue combine:(id (^)(id running, id next))block __attribute__((deprecated("Renamed to -scanWithStart:reduce:")));
+- (instancetype)mapPreviousWithStart:(id)start reduce:(id (^)(id previous, id current))combineBlock __attribute__((deprecated("Renamed to -combinePreviousWithStart:reduce:")));
 
 @end

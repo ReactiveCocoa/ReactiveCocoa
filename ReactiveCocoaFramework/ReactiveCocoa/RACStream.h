@@ -255,6 +255,10 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 
 // Combines each previous and current value into one object.
 //
+// This method is similar to -scanWithStart:reduce:, but only ever operates on
+// the previous and current values (instead of the whole stream), and does not
+// pass the return value of `reduceBlock` into the next invocation of it.
+//
 // start       - The value passed into `reduceBlock` as `previous` for the
 //               first value.
 // reduceBlock - The block that combines the previous value and the current

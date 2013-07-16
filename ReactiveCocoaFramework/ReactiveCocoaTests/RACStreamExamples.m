@@ -486,7 +486,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 
 	it(@"should scan", ^{
 		RACStream *stream = streamWithValues(@[ @1, @2, @3, @4 ]);
-		RACStream *scanned = [stream scanWithStart:@0 combine:^(NSNumber *running, NSNumber *next) {
+		RACStream *scanned = [stream scanWithStart:@0 reduce:^(NSNumber *running, NSNumber *next) {
 			return @(running.integerValue + next.integerValue);
 		}];
 
@@ -535,7 +535,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 
 		it(@"should terminate an infinite stream", ^{
-			RACStream *infiniteCounter = [infiniteStream scanWithStart:@0 combine:^(NSNumber *running, id _) {
+			RACStream *infiniteCounter = [infiniteStream scanWithStart:@0 reduce:^(NSNumber *running, id _) {
 				return @(running.unsignedIntegerValue + 1);
 			}];
 

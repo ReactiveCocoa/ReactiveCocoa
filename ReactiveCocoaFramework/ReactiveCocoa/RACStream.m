@@ -246,7 +246,7 @@
 	return [result setNameWithFormat:@"+concat: %@", streams];
 }
 
-- (instancetype)scanWithStart:(id)startingValue combine:(id (^)(id running, id next))block {
+- (instancetype)scanWithStart:(id)startingValue reduce:(id (^)(id running, id next))block {
 	NSCParameterAssert(block != nil);
 
 	Class class = self.class;
@@ -258,7 +258,7 @@
 			running = block(running, value);
 			return [class return:running];
 		};
-	}] setNameWithFormat:@"[%@] -scanWithStart: %@ combine:", self.name, [startingValue rac_description]];
+	}] setNameWithFormat:@"[%@] -scanWithStart: %@ reduce:", self.name, [startingValue rac_description]];
 }
 
 - (instancetype)takeUntilBlock:(BOOL (^)(id x))predicate {
@@ -326,6 +326,10 @@
 	return [[self flattenMap:^(id _) {
 		return block();
 	}] setNameWithFormat:@"[%@] -sequenceMany:", self.name];
+}
+
+- (instancetype)scanWithStart:(id)startingValue combine:(id (^)(id running, id next))block {
+	return [self scanWithStart:startingValue reduce:block];
 }
 
 - (instancetype)mapPreviousWithStart:(id)start reduce:(id (^)(id previous, id current))combineBlock {

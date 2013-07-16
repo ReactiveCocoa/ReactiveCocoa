@@ -245,13 +245,13 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 //      RACSequence *numbers = @[ @1, @2, @3, @4 ].rac_sequence;
 //
 //      // Contains 1, 3, 6, 10
-//      RACSequence *sums = [numbers scanWithStart:@0 combine:^(NSNumber *sum, NSNumber *next) {
+//      RACSequence *sums = [numbers scanWithStart:@0 reduce:^(NSNumber *sum, NSNumber *next) {
 //          return @(sum.integerValue + next.integerValue);
 //      }];
 //
 // Returns a new stream that consists of each application of `block`. If the
 // receiver is empty, an empty stream is returned.
-- (instancetype)scanWithStart:(id)startingValue combine:(id (^)(id running, id next))block;
+- (instancetype)scanWithStart:(id)startingValue reduce:(id (^)(id running, id next))block;
 
 // Combines each previous and current value into one object.
 //
@@ -306,6 +306,7 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 @interface RACStream (Deprecated)
 
 - (instancetype)sequenceMany:(RACStream * (^)(void))block __attribute__((deprecated("Use -flattenMap: instead")));
+- (instancetype)scanWithStart:(id)startingValue combine:(id (^)(id running, id next))block __attribute__((deprecated("Renamed to -scanWithStart:reduce:")));
 - (instancetype)mapPreviousWithStart:(id)start reduce:(id (^)(id previous, id current))combineBlock __attribute__((deprecated("Renamed to -combinePreviousWithStart:reduce:")));
 
 @end

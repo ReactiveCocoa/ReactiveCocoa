@@ -589,16 +589,16 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 	});
 
-	describe(@"-mapPreviousWithStart:combine:", ^{
+	describe(@"-combinePreviousWithStart:reduce:", ^{
 		NSArray *values = @[ @1, @2, @3 ];
 		__block RACStream *stream;
 		beforeEach(^{
 			stream = streamWithValues(values);
 		});
 
-		it(@"should pass the previous next into the combine block", ^{
+		it(@"should pass the previous next into the reduce block", ^{
 			NSMutableArray *previouses = [NSMutableArray array];
-			RACStream *mapped = [stream mapPreviousWithStart:nil combine:^(id previous, id next) {
+			RACStream *mapped = [stream combinePreviousWithStart:nil reduce:^(id previous, id next) {
 				[previouses addObject:previous ?: RACTupleNil.tupleNil];
 				return next;
 			}];
@@ -610,7 +610,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 
 		it(@"should send the combined value", ^{
-			RACStream *mapped = [stream mapPreviousWithStart:@1 combine:^(NSNumber *previous, NSNumber *next) {
+			RACStream *mapped = [stream combinePreviousWithStart:@1 reduce:^(NSNumber *previous, NSNumber *next) {
 				return [NSString stringWithFormat:@"%lu - %lu", (unsigned long)previous.unsignedIntegerValue, (unsigned long)next.unsignedIntegerValue];
 			}];
 

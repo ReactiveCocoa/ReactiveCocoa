@@ -99,18 +99,18 @@
 	}] setNameWithFormat:@"[%@] -mapReplace: %@", self.name, [object rac_description]];
 }
 
-- (instancetype)mapPreviousWithStart:(id)start combine:(id (^)(id previous, id next))combineBlock {
-	NSCParameterAssert(combineBlock != NULL);
+- (instancetype)combinePreviousWithStart:(id)start reduce:(id (^)(id previous, id next))reduceBlock {
+	NSCParameterAssert(reduceBlock != NULL);
 	return [[[self
 		scanWithStart:[RACTuple tupleWithObjects:start, nil]
-		combine:^(RACTuple *previousTuple, id next) {
-			id value = combineBlock(previousTuple[0], next);
+		reduce:^(RACTuple *previousTuple, id next) {
+			id value = reduceBlock(previousTuple[0], next);
 			return [RACTuple tupleWithObjects:next ?: RACTupleNil.tupleNil, value ?: RACTupleNil.tupleNil, nil];
 		}]
 		map:^(RACTuple *tuple) {
 			return tuple[1];
 		}]
-		setNameWithFormat:@"[%@] -mapPreviousWithStart: %@ combine:", self.name, [start rac_description]];
+		setNameWithFormat:@"[%@] -combinePreviousWithStart: %@ reduce:", self.name, [start rac_description]];
 }
 
 - (instancetype)filter:(BOOL (^)(id value))block {
@@ -326,6 +326,10 @@
 	return [[self flattenMap:^(id _) {
 		return block();
 	}] setNameWithFormat:@"[%@] -sequenceMany:", self.name];
+}
+
+- (instancetype)mapPreviousWithStart:(id)start reduce:(id (^)(id previous, id current))combineBlock {
+	return [self combinePreviousWithStart:start reduce:combineBlock];
 }
 
 #pragma clang diagnostic pop

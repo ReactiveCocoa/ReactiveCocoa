@@ -9,9 +9,6 @@
 // binaries)
 COPY_PHASE_STRIP = YES
 
-// Whether to generate debugging symbols
-GCC_GENERATE_DEBUGGING_SYMBOLS = NO
-
 // The optimization level (0, 1, 2, 3, s) for the produced binary
 GCC_OPTIMIZATION_LEVEL = s
 

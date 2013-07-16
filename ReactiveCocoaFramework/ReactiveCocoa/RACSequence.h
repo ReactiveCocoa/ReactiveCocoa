@@ -52,7 +52,7 @@
 
 // Converts a sequence into a lazy sequence.
 //
-// A lazy sequence evaluates it's values on demand, as they are accessed.
+// A lazy sequence evaluates its values on demand, as they are accessed.
 // Sequences derived from a lazy sequence will also be lazy.
 //
 // Returns a new lazy sequence, or the receiver if the sequence is already lazy.

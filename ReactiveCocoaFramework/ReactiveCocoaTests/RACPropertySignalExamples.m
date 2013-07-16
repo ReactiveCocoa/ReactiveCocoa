@@ -69,9 +69,6 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 
 		[subject sendNext:@0];
 		expect(testObject.integerValue).to.equal(0);
-
-		[subject sendNext:nil];
-		expect(testObject.integerValue).to.equal(0);
 	});
 
 	it(@"should retain intermediate signals when binding", ^{

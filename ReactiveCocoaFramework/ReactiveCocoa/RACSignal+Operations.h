@@ -201,11 +201,11 @@ extern const NSInteger RACSignalErrorTimedOut;
 - (RACSignal *)concat;
 
 // Aggregate `next`s with the given start and combination.
-- (RACSignal *)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock;
+- (RACSignal *)aggregateWithStart:(id)start reduce:(id (^)(id running, id next))reduceBlock;
 
 // Aggregate `next`s with the given start and combination. The start factory 
 // block is called to get a new start object for each subscription.
-- (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock;
+- (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory reduce:(id (^)(id running, id next))reduceBlock;
 
 // Binds the receiver to an object, automatically setting the given key path on
 // every `next`. When the signal completes, the binding is automatically
@@ -522,5 +522,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 - (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object __attribute__((deprecated("Renamed to -setKeyPath:onObject:")));
 - (RACSignal *)ignoreElements __attribute__((deprecated("Renamed to -ignoreValues")));
 - (RACSignal *)sequenceNext:(RACSignal * (^)(void))block __attribute__((deprecated("Renamed to -then:")));
+- (RACSignal *)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock __attribute__((deprecated("Renamed to -aggregateWithStart:reduce:")));
+- (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock __attribute__((deprecated("Renamed to -aggregateWithStartFactory:reduce:")));
 
 @end

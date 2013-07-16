@@ -340,7 +340,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 - (RACSignal *)collect {
 	return [[self aggregateWithStartFactory:^{
 		return [[NSMutableArray alloc] init];
-	} combine:^(NSMutableArray *collectedValues, id x) {
+	} reduce:^(NSMutableArray *collectedValues, id x) {
 		[collectedValues addObject:(x ?: NSNull.null)];
 		return collectedValues;
 	}] setNameWithFormat:@"[%@] -collect", self.name];
@@ -573,29 +573,29 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	return [[self flatten:1] setNameWithFormat:@"[%@] -concat", self.name];
 }
 
-- (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock {
+- (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory reduce:(id (^)(id running, id next))reduceBlock {
 	NSCParameterAssert(startFactory != NULL);
-	NSCParameterAssert(combineBlock != NULL);
+	NSCParameterAssert(reduceBlock != NULL);
 	
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block id runningValue = startFactory();
 		return [self subscribeNext:^(id x) {
-			runningValue = combineBlock(runningValue, x);
+			runningValue = reduceBlock(runningValue, x);
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
 			[subscriber sendNext:runningValue];
 			[subscriber sendCompleted];
 		}];
-	}] setNameWithFormat:@"[%@] -aggregateWithStartFactory:combine:", self.name];
+	}] setNameWithFormat:@"[%@] -aggregateWithStartFactory:reduce:", self.name];
 }
 
-- (RACSignal *)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock {
+- (RACSignal *)aggregateWithStart:(id)start reduce:(id (^)(id running, id next))reduceBlock {
 	RACSignal *signal = [self aggregateWithStartFactory:^{
 		return start;
-	} combine:combineBlock];
+	} reduce:reduceBlock];
 
-	return [signal setNameWithFormat:@"[%@] -aggregateWithStart: %@ combine:", self.name, [start rac_description]];
+	return [signal setNameWithFormat:@"[%@] -aggregateWithStart: %@ reduce:", self.name, [start rac_description]];
 }
 
 - (RACDisposable *)setKeyPath:(NSString *)keyPath onObject:(NSObject *)object {
@@ -1379,6 +1379,14 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 - (RACSignal *)sequenceNext:(RACSignal * (^)(void))block {
 	return [self then:block];
+}
+
+- (RACSignal *)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock {
+	return [self aggregateWithStart:start reduce:combineBlock];
+}
+
+- (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock {
+	return [self aggregateWithStartFactory:startFactory reduce:combineBlock];
 }
 
 #pragma clang diagnostic pop

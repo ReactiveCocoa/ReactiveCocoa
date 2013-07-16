@@ -151,6 +151,15 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 // combineBlock - The block that combines the previous value and the current
 //                value to create the combined value. Cannot be nil.
 //
+// Examples
+//
+//      RACSequence *numbers = @[ @1, @2, @3, @4 ].rac_sequence;
+//
+//      // Contains 1, 3, 5, 7
+//      RACSequence *sums = [numbers mapPreviousWithStart:@0 combine:^(NSNumber *previous, NSNumber *next) {
+//          return @(previous.integerValue + next.integerValue);
+//      }];
+//
 // Returns a new stream consisting of the return values from each application of
 // `combineBlock`.
 - (instancetype)mapPreviousWithStart:(id)start combine:(id (^)(id previous, id current))combineBlock;
@@ -250,6 +259,15 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 // block         - A block that describes how to combine values of the
 //                 receiver. If the receiver is empty, this block will never be
 //                 invoked.
+//
+// Examples
+//
+//      RACSequence *numbers = @[ @1, @2, @3, @4 ].rac_sequence;
+//
+//      // Contains 1, 3, 6, 10
+//      RACSequence *sums = [numbers scanWithStart:@0 combine:^(NSNumber *sum, NSNumber *next) {
+//          return @(sum.integerValue + next.integerValue);
+//      }];
 //
 // Returns a new stream that consists of each application of `block`. If the
 // receiver is empty, an empty stream is returned.

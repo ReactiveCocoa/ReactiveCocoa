@@ -1830,7 +1830,7 @@ describe(@"-delay:", ^{
 		[subject sendNext:@"foo"];
 
 		__block BOOL done = NO;
-		[RACScheduler.mainThreadScheduler after:dispatch_time(DISPATCH_TIME_NOW, 1) schedule:^{
+		[RACScheduler.mainThreadScheduler after:[NSDate date] schedule:^{
 			done = YES;
 		}];
 
@@ -1904,7 +1904,7 @@ describe(@"throttling", ^{
 			[subject sendNext:@"foo"];
 
 			__block BOOL done = NO;
-			[RACScheduler.mainThreadScheduler after:dispatch_time(DISPATCH_TIME_NOW, 1) schedule:^{
+			[RACScheduler.mainThreadScheduler after:[NSDate date] schedule:^{
 				done = YES;
 			}];
 
@@ -2034,7 +2034,7 @@ describe(@"throttling", ^{
 			[subject sendNext:@"foo"];
 
 			__block BOOL done = NO;
-			[RACScheduler.mainThreadScheduler after:dispatch_time(DISPATCH_TIME_NOW, 1) schedule:^{
+			[RACScheduler.mainThreadScheduler after:[NSDate date] schedule:^{
 				done = YES;
 			}];
 

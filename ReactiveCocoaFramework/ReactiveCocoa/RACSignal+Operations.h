@@ -201,11 +201,11 @@ extern const NSInteger RACSignalErrorTimedOut;
 - (RACSignal *)concat;
 
 // Aggregate `next`s with the given start and combination.
-- (RACSignal *)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock;
+- (RACSignal *)aggregateWithStart:(id)start reduce:(id (^)(id running, id next))reduceBlock;
 
 // Aggregate `next`s with the given start and combination. The start factory 
 // block is called to get a new start object for each subscription.
-- (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock;
+- (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory reduce:(id (^)(id running, id next))reduceBlock;
 
 // Binds the receiver to an object, automatically setting the given key path on
 // every `next`. When the signal completes, the binding is automatically
@@ -305,6 +305,35 @@ extern const NSInteger RACSignalErrorTimedOut;
 // signal sent by the receiver, and sends `completed` when both the receiver and
 // the last sent signal complete.
 - (RACSignal *)switchToLatest;
+
+// Switches between the signals in `cases` based on the latest value sent by
+// `signal`.
+//
+// signal - A signal of objects used as keys in the `cases` dictionary.
+//          This argument must not be nil.
+// cases  - A dictionary that has signals as values.
+//          This argument must not be nil.
+//
+// Returns a signal which passes through `next`s and `error`s from one of the
+// the signals in `cases`, and sends `completed` when both `signal` and the
+// last used signal from `cases` complete.
++ (RACSignal *)switch:(RACSignal *)signal cases:(NSDictionary *)cases;
+
+// Switches between the signals in `cases` as well as `defaultSignal` based on
+// the latest value sent by `signal`.
+//
+// signal        - A signal of objects used as keys in the `cases` dictionary.
+//                 This argument must not be nil.
+// cases         - A dictionary that has signals as values.
+//                 This argument must not be nil.
+// defaultSignal - The signal to pass through after `signal` sends a value for
+//                 which `cases` does not contain a signal. This argument must
+//                 not be nil.
+//
+// Returns a signal which passes through `next`s and `error`s from one of the
+// the signals in `cases` or `defaultSignal`, and sends `completed` when both
+// `signal` and the last used signal complete.
++ (RACSignal *)switch:(RACSignal *)signal cases:(NSDictionary *)cases default:(RACSignal *)defaultSignal;
 
 // Switches between `trueSignal` and `falseSignal` based on the latest value
 // sent by `boolSignal`.
@@ -493,5 +522,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 - (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object __attribute__((deprecated("Renamed to -setKeyPath:onObject:")));
 - (RACSignal *)ignoreElements __attribute__((deprecated("Renamed to -ignoreValues")));
 - (RACSignal *)sequenceNext:(RACSignal * (^)(void))block __attribute__((deprecated("Renamed to -then:")));
+- (RACSignal *)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock __attribute__((deprecated("Renamed to -aggregateWithStart:reduce:")));
+- (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock __attribute__((deprecated("Renamed to -aggregateWithStartFactory:reduce:")));
 
 @end

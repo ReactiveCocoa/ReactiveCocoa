@@ -33,7 +33,7 @@
 @property (nonatomic, readonly, copy) NSString *keyPath;
 
 // The signal exposed to callers. The RACObservablePropertySubject will behave
-// like this signal towards it's subscribers.
+// like this signal towards its subscribers.
 @property (nonatomic, readonly, strong) RACSignal *exposedSignal;
 
 // The subscriber exposed to callers. The RACObservablePropertySubject will
@@ -64,7 +64,7 @@
 @property (nonatomic, readonly, copy) NSString *keyPath;
 
 // The signal exposed to callers. The binding will behave like this signal
-// towards it's subscribers.
+// towards its subscribers.
 @property (nonatomic, readonly, strong) RACSignal *exposedSignal;
 
 // The subscriber exposed to callers. The binding will behave like this

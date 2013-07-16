@@ -203,10 +203,8 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		RACScheduler *scheduler = [RACScheduler scheduler];
 
 		void (^schedule)(dispatch_block_t) = ^(dispatch_block_t block) {
-			dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(interval * NSEC_PER_SEC));
 			RACScheduler *delayScheduler = RACScheduler.currentScheduler ?: scheduler;
-
-			RACDisposable *schedulerDisposable = [delayScheduler after:time schedule:block];
+			RACDisposable *schedulerDisposable = [delayScheduler afterDelay:interval schedule:block];
 			if (schedulerDisposable != nil) [disposable addDisposable:schedulerDisposable];
 		};
 
@@ -342,7 +340,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 - (RACSignal *)collect {
 	return [[self aggregateWithStartFactory:^{
 		return [[NSMutableArray alloc] init];
-	} combine:^(NSMutableArray *collectedValues, id x) {
+	} reduce:^(NSMutableArray *collectedValues, id x) {
 		[collectedValues addObject:(x ?: NSNull.null)];
 		return collectedValues;
 	}] setNameWithFormat:@"[%@] -collect", self.name];
@@ -575,29 +573,29 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	return [[self flatten:1] setNameWithFormat:@"[%@] -concat", self.name];
 }
 
-- (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock {
+- (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory reduce:(id (^)(id running, id next))reduceBlock {
 	NSCParameterAssert(startFactory != NULL);
-	NSCParameterAssert(combineBlock != NULL);
+	NSCParameterAssert(reduceBlock != NULL);
 	
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block id runningValue = startFactory();
 		return [self subscribeNext:^(id x) {
-			runningValue = combineBlock(runningValue, x);
+			runningValue = reduceBlock(runningValue, x);
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
 			[subscriber sendNext:runningValue];
 			[subscriber sendCompleted];
 		}];
-	}] setNameWithFormat:@"[%@] -aggregateWithStartFactory:combine:", self.name];
+	}] setNameWithFormat:@"[%@] -aggregateWithStartFactory:reduce:", self.name];
 }
 
-- (RACSignal *)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock {
+- (RACSignal *)aggregateWithStart:(id)start reduce:(id (^)(id running, id next))reduceBlock {
 	RACSignal *signal = [self aggregateWithStartFactory:^{
 		return start;
-	} combine:combineBlock];
+	} reduce:reduceBlock];
 
-	return [signal setNameWithFormat:@"[%@] -aggregateWithStart: %@ combine:", self.name, [start rac_description]];
+	return [signal setNameWithFormat:@"[%@] -aggregateWithStart: %@ reduce:", self.name, [start rac_description]];
 }
 
 - (RACDisposable *)setKeyPath:(NSString *)keyPath onObject:(NSObject *)object {
@@ -681,10 +679,8 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	NSCParameterAssert(scheduler != nil);
 	NSCParameterAssert(scheduler != RACScheduler.immediateScheduler);
 
-	int64_t intervalInNanoSecs = (int64_t)(interval * NSEC_PER_SEC);
-
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		return [scheduler after:dispatch_time(DISPATCH_TIME_NOW, intervalInNanoSecs) repeatingEvery:interval withLeeway:leeway schedule:^{
+		return [scheduler after:[NSDate dateWithTimeIntervalSinceNow:interval] repeatingEvery:interval withLeeway:leeway schedule:^{
 			[subscriber sendNext:[NSDate date]];
 		}];
 	}] setNameWithFormat:@"+interval: %f onScheduler: %@ withLeeway: %f", (double)interval, scheduler, (double)leeway];
@@ -763,6 +759,43 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			[selfDisposable dispose];
 		}];
 	}] setNameWithFormat:@"[%@] -switchToLatest", self.name];
+}
+
++ (RACSignal *)switch:(RACSignal *)signal cases:(NSDictionary *)cases {
+	return [[RACSignal
+		switch:signal cases:cases useDefault:NO default:nil]
+		setNameWithFormat:@"+switch: %@ cases: %@", signal, cases];
+}
+
++ (RACSignal *)switch:(RACSignal *)signal cases:(NSDictionary *)cases default:(RACSignal *)defaultSignal {
+	return [[RACSignal
+		switch:signal cases:cases useDefault:YES default:defaultSignal]
+		setNameWithFormat:@"+switch: %@ cases: %@ default: %@", signal, cases, defaultSignal];
+}
+
++ (RACSignal *)switch:(RACSignal *)signal cases:(NSDictionary *)cases useDefault:(BOOL)useDefault default:(RACSignal *)defaultSignal {
+	NSCParameterAssert(signal != nil);
+	NSCParameterAssert(cases != nil);
+
+	if (useDefault) NSCParameterAssert(defaultSignal != nil);
+
+	for (id key in cases) {
+		id value __attribute__((unused)) = cases[key];
+		NSCAssert([value isKindOfClass:RACSignal.class], @"Expected all cases to be RACSignals, %@ isn't", value);
+	}
+
+	NSDictionary *copy = [cases copy];
+
+	return [[[signal
+		map:^(id key) {
+			RACSignal *signal = copy[key];
+
+			if (!useDefault) NSCAssert(signal != nil, @"Expected %@ sent by %@ to be a key in %@", key, signal, copy);
+
+			return signal ?: defaultSignal;
+		}]
+		switchToLatest]
+		setNameWithFormat:@"+switch: %@ cases: %@ useDefault: %d default: %@", signal, copy, useDefault, defaultSignal];
 }
 
 + (RACSignal *)if:(RACSignal *)boolSignal then:(RACSignal *)trueSignal else:(RACSignal *)falseSignal {
@@ -1346,6 +1379,14 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 - (RACSignal *)sequenceNext:(RACSignal * (^)(void))block {
 	return [self then:block];
+}
+
+- (RACSignal *)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock {
+	return [self aggregateWithStart:start reduce:combineBlock];
+}
+
+- (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock {
+	return [self aggregateWithStartFactory:startFactory reduce:combineBlock];
 }
 
 #pragma clang diagnostic pop

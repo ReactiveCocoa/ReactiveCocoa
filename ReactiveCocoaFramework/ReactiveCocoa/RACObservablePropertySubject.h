@@ -32,9 +32,9 @@
 
 // A RACPropertySubject wrapper for KVO compliant key paths.
 //
-// New values of `keyPath` will be sent to the wrapper's subscribers and it's
+// New values of `keyPath` will be sent to the wrapper's subscribers and its
 // bindings' subscribers. `keyPath` will be updated with values sent to the
-// wrapper or it's bindings. Subscribers of the wrapper or it's bindings will be
+// wrapper or its bindings. Subscribers of the wrapper or its bindings will be
 // sent the current value of `keyPath`.
 //
 // `completed` events sent to a RACObservablePropertySubject are also sent to

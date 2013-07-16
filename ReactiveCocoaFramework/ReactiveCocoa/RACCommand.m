@@ -147,7 +147,7 @@
 		canExecuteSignal = [mainThreadSignal startWith:@YES];
 	}
 
-	RAC(self.canExecute) = [RACSignal
+	RAC(self, canExecute, @NO) = [RACSignal
 		combineLatest:@[
 			// All of these signals deliver onto the main thread.
 			canExecuteSignal,

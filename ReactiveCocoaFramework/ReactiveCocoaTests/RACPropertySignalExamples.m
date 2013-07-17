@@ -22,7 +22,7 @@ SharedExampleGroupsBegin(RACPropertySignalExamples)
 
 sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 	__block RACTestObject *testObject = nil;
-	__block void (^setupBlock)(RACTestObject *, NSString *keyPath, RACSignal *);
+	__block void (^setupBlock)(RACTestObject *, NSString *keyPath, id nilValue, RACSignal *);
 
 	beforeEach(^{
 		setupBlock = data[RACPropertySignalExamplesSetupBlock];
@@ -31,7 +31,7 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 
 	it(@"should set the value of the property with the latest value from the signal", ^{
 		RACSubject *subject = [RACSubject subject];
-		setupBlock(testObject, @keypath(testObject.objectValue), subject);
+		setupBlock(testObject, @keypath(testObject.objectValue), nil, subject);
 		expect(testObject.objectValue).to.beNil();
 
 		[subject sendNext:@1];
@@ -44,9 +44,24 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 		expect(testObject.objectValue).to.beNil();
 	});
 
+	it(@"should set the given nilValue for an object property", ^{
+		RACSubject *subject = [RACSubject subject];
+		setupBlock(testObject, @keypath(testObject.objectValue), @"foo", subject);
+		expect(testObject.objectValue).to.beNil();
+
+		[subject sendNext:@1];
+		expect(testObject.objectValue).to.equal(@1);
+
+		[subject sendNext:@2];
+		expect(testObject.objectValue).to.equal(@2);
+
+		[subject sendNext:nil];
+		expect(testObject.objectValue).to.equal(@"foo");
+	});
+
 	it(@"should leave the value of the property alone after the signal completes", ^{
 		RACSubject *subject = [RACSubject subject];
-		setupBlock(testObject, @keypath(testObject.objectValue), subject);
+		setupBlock(testObject, @keypath(testObject.objectValue), nil, subject);
 		expect(testObject.objectValue).to.beNil();
 
 		[subject sendNext:@1];
@@ -58,7 +73,7 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 
 	it(@"should set the value of a non-object property with the latest value from the signal", ^{
 		RACSubject *subject = [RACSubject subject];
-		setupBlock(testObject, @keypath(testObject.integerValue), subject);
+		setupBlock(testObject, @keypath(testObject.integerValue), nil, subject);
 		expect(testObject.integerValue).to.equal(0);
 
 		[subject sendNext:@1];
@@ -69,6 +84,21 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 
 		[subject sendNext:@0];
 		expect(testObject.integerValue).to.equal(0);
+	});
+
+	it(@"should set the given nilValue for a non-object property", ^{
+		RACSubject *subject = [RACSubject subject];
+		setupBlock(testObject, @keypath(testObject.integerValue), @42, subject);
+		expect(testObject.integerValue).to.equal(0);
+
+		[subject sendNext:@1];
+		expect(testObject.integerValue).to.equal(@1);
+
+		[subject sendNext:@2];
+		expect(testObject.integerValue).to.equal(@2);
+
+		[subject sendNext:nil];
+		expect(testObject.integerValue).to.equal(@42);
 	});
 
 	it(@"should retain intermediate signals when binding", ^{
@@ -89,7 +119,7 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 					deallocd = YES;
 				}]];
 
-				setupBlock(testObject, @keypath(testObject.integerValue), intermediateSignal);
+				setupBlock(testObject, @keypath(testObject.integerValue), nil, intermediateSignal);
 			}
 
 			// Spin the run loop to account for RAC magic that retains the

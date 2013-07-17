@@ -32,8 +32,8 @@ describe(@"RACObservablePropertySubject", ^{
 		property = [RACObservablePropertySubject propertyWithTarget:object keyPath:@keypath(object.stringValue) nilValue:nil];
 	});
 	
-	id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, RACSignal *signal) {
-		[signal subscribe:[RACObservablePropertySubject propertyWithTarget:testObject keyPath:keyPath nilValue:nil]];
+	id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, id nilValue, RACSignal *signal) {
+		[signal subscribe:[RACObservablePropertySubject propertyWithTarget:testObject keyPath:keyPath nilValue:nilValue]];
 	};
 	
 	itShouldBehaveLike(RACPropertySignalExamples, ^{
@@ -77,17 +77,6 @@ describe(@"RACObservablePropertySubject", ^{
 		expect(object.stringValue).to.equal(value1);
 		[property sendNext:value2];
 		expect(object.stringValue).to.equal(value2);
-	});
-	
-	it(@"should use the nilValue when sent nil", ^{
-		property = [RACObservablePropertySubject propertyWithTarget:object keyPath:@keypath(object.integerValue) nilValue:@5];
-		expect(object.integerValue).to.equal(0);
-
-		[property sendNext:@2];
-		expect(object.integerValue).to.equal(2);
-
-		[property sendNext:nil];
-		expect(object.integerValue).to.equal(5);
 	});
 	
 	it(@"should be able to subscribe to signals", ^{

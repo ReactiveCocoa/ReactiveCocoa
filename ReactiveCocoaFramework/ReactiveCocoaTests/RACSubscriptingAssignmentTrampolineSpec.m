@@ -13,8 +13,8 @@
 
 SpecBegin(RACSubscriptingAssignmentTrampoline)
 
-id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, RACSignal *signal) {
-	[[RACSubscriptingAssignmentTrampoline alloc] initWithTarget:testObject nilValue:nil][keyPath] = signal;
+id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, id nilValue, RACSignal *signal) {
+	[[RACSubscriptingAssignmentTrampoline alloc] initWithTarget:testObject nilValue:nilValue][keyPath] = signal;
 };
 
 itShouldBehaveLike(RACPropertySignalExamples, ^{

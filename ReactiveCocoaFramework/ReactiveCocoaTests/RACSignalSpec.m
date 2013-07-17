@@ -980,8 +980,8 @@ describe(@"RACObserve", ^{
 });
 
 describe(@"-setKeyPath:onObject:", ^{
-	id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, RACSignal *signal) {
-		[signal setKeyPath:keyPath onObject:testObject];
+	id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, id nilValue, RACSignal *signal) {
+		[signal setKeyPath:keyPath onObject:testObject nilValue:nilValue];
 	};
 
 	itShouldBehaveLike(RACPropertySignalExamples, ^{

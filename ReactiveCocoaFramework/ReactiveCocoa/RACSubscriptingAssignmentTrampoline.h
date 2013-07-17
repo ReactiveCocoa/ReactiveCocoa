@@ -22,7 +22,7 @@
 //    set to `NILVALUE` instead. `NILVALUE` may itself be `nil` for object
 //    properties, but an NSValue should be used for primitive properties, to
 //    avoid an exception if `nil` is sent (which might occur if an intermediate
-//    observee is set to `nil`).
+//    object is set to `nil`).
 //  - RAC(TARGET, KEYPATH) is the same as the above, but `NILVALUE` defaults to
 //    `nil`.
 //

@@ -26,7 +26,7 @@
 //    set to `NILVALUE` instead. `NILVALUE` may itself be `nil` for object
 //    properties, but an NSValue should be used for primitive properties, to
 //    avoid an exception if `nil` is sent (which might occur if an intermediate
-//    observee is set to `nil`).
+//    object is set to `nil`).
 //  - RACBind(TARGET, KEYPATH) is the same as the above, but `NILVALUE` defaults to
 //    `nil`.
 //
@@ -71,7 +71,7 @@
 //            receiver. This may be nil when binding to object properties, but
 //            an NSValue should be used for primitive properties, to avoid an
 //            exception if `nil` is sent (which might occur if an intermediate
-//            observee is set to `nil`).
+//            object is set to `nil`).
 //
 // Returns a RACPropertySubject, or nil if an error occurs.
 + (instancetype)propertyWithTarget:(NSObject *)target keyPath:(NSString *)keyPath nilValue:(id)nilValue;

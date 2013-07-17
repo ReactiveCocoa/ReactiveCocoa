@@ -227,7 +227,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 //            receiver. This may be nil when binding to object properties, but
 //            an NSValue should be used for primitive properties, to avoid an
 //            exception if `nil` is sent (which might occur if an intermediate
-//            observee is set to `nil`).
+//            object is set to `nil`).
 //
 // Returns a disposable which can be used to terminate the binding.
 - (RACDisposable *)setKeyPath:(NSString *)keyPath onObject:(NSObject *)object nilValue:(id)nilValue;

@@ -81,8 +81,8 @@ describe(@"RACObservablePropertySubject", ^{
 	
 	it(@"should be able to subscribe to signals", ^{
 		NSMutableArray *receivedValues = [NSMutableArray array];
-		[object rac_addObserver:self forKeyPath:@keypath(object.stringValue) options:NSKeyValueObservingOptionNew block:^(id target, id observer, NSDictionary *change) {
-			[receivedValues addObject:change[NSKeyValueChangeNewKey]];
+		[object rac_observeKeyPath:@keypath(object.stringValue) options:0 observer:self block:^(id value, NSDictionary *change) {
+			[receivedValues addObject:value];
 		}];
 		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:value1];

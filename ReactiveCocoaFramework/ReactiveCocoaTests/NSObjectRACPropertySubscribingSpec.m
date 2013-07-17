@@ -36,7 +36,9 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 			object = [[RACTestObject alloc] init];
 
 			objectValueSignal = ^(NSKeyValueObservingOptions options) {
-				return [object.class rac_signalWithChangesFor:object keyPath:@keypath(object, objectValue) options:options observer:self];
+				return [[object rac_valuesAndChangesForKeyPath:@keypath(object, objectValue) options:options observer:self] reduceEach:^(id value, NSDictionary *change) {
+					return change;
+				}];
 			};
 		});
 
@@ -126,7 +128,7 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 			[objectValueSignal(NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew) subscribeNext:^(NSDictionary *x) {
 				actual = x[NSKeyValueChangeNewKey];
 			}];
-
+			
 			expect(actual).to.equal(NSNull.null);
 		});
 	});

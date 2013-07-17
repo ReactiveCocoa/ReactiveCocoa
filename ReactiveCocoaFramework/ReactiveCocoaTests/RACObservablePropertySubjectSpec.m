@@ -29,11 +29,11 @@ describe(@"RACObservablePropertySubject", ^{
 	
 	before(^{
 		object = [[RACTestObject alloc] init];
-		property = [RACObservablePropertySubject propertyWithTarget:object keyPath:@keypath(object.stringValue)];
+		property = [RACObservablePropertySubject propertyWithTarget:object keyPath:@keypath(object.stringValue) nilValue:nil];
 	});
 	
 	id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, RACSignal *signal) {
-		[signal subscribe:[RACObservablePropertySubject propertyWithTarget:testObject keyPath:keyPath]];
+		[signal subscribe:[RACObservablePropertySubject propertyWithTarget:testObject keyPath:keyPath nilValue:nil]];
 	};
 	
 	itShouldBehaveLike(RACPropertySignalExamples, ^{
@@ -42,7 +42,7 @@ describe(@"RACObservablePropertySubject", ^{
 	
 	itShouldBehaveLike(RACPropertySubjectExamples, ^{
 		return @{
-			RACPropertySubjectExampleGetPropertyBlock: [^{ return [RACObservablePropertySubject propertyWithTarget:object keyPath:@keypath(object.stringValue)]; } copy]
+			RACPropertySubjectExampleGetPropertyBlock: [^{ return [RACObservablePropertySubject propertyWithTarget:object keyPath:@keypath(object.stringValue) nilValue:nil]; } copy]
 		};
 	});
 	
@@ -79,6 +79,17 @@ describe(@"RACObservablePropertySubject", ^{
 		expect(object.stringValue).to.equal(value2);
 	});
 	
+	it(@"should use the nilValue when sent nil", ^{
+		property = [RACObservablePropertySubject propertyWithTarget:object keyPath:@keypath(object.integerValue) nilValue:@5];
+		expect(object.integerValue).to.equal(0);
+
+		[property sendNext:@2];
+		expect(object.integerValue).to.equal(2);
+
+		[property sendNext:nil];
+		expect(object.integerValue).to.equal(5);
+	});
+	
 	it(@"should be able to subscribe to signals", ^{
 		NSMutableArray *receivedValues = [NSMutableArray array];
 		[object rac_addObserver:self forKeyPath:@keypath(object.stringValue) options:NSKeyValueObservingOptionNew block:^(id target, id observer, NSDictionary *change) {
@@ -104,7 +115,7 @@ describe(@"RACObservablePropertySubject", ^{
 				deallocated = YES;
 			}]];
 
-			[[RACObservablePropertySubject propertyWithTarget:object keyPath:@keypath(object.stringValue)] subscribeCompleted:^{
+			[[RACObservablePropertySubject propertyWithTarget:object keyPath:@keypath(object.stringValue) nilValue:nil] subscribeCompleted:^{
 				completed = YES;
 			}];
 
@@ -299,6 +310,42 @@ describe(@"RACObservablePropertySubject bindings", ^{
 		a.stringValue = testName2;
 		expect(a.stringValue).to.equal(testName2);
 		expect(b.stringValue).to.equal(testName1);
+	});
+	
+	it(@"should use the nilValue when sent nil", ^{
+		RACBinding *binding = RACBind(a, integerValue, @5);
+		expect(a.integerValue).to.equal(0);
+
+		[binding sendNext:@2];
+		expect(a.integerValue).to.equal(2);
+
+		[binding sendNext:nil];
+		expect(a.integerValue).to.equal(5);
+	});
+
+	it(@"should use the nilValue when an intermediate object is nil", ^{
+		__block BOOL wasDisposed = NO;
+
+		RACBind(a, weakTestObjectValue.integerValue, @5) = RACBind(b, strongTestObjectValue.integerValue, @5);
+
+		b.strongTestObjectValue = [[RACTestObject alloc] init];
+
+		@autoreleasepool {
+			RACTestObject *object = [[RACTestObject alloc] init];
+			[object.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				wasDisposed = YES;
+			}]];
+			
+			a.weakTestObjectValue = object;
+
+			object.integerValue = 2;
+			expect(wasDisposed).to.beFalsy();
+			
+			expect(b.strongTestObjectValue.integerValue).to.equal(2);
+		}
+		
+		expect(wasDisposed).will.beTruthy();
+		expect(b.strongTestObjectValue.integerValue).to.equal(5);
 	});
 });
 

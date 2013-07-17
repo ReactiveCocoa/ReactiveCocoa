@@ -10,6 +10,10 @@
 
 @implementation RACTestObject
 
+- (void)setNilValueForKey:(NSString *)key {
+	if (!self.catchSetNilValueForKey) [super setNilValueForKey:key];
+}
+
 - (void)setObjectValue:(id)objectValue andIntegerValue:(NSInteger)integerValue {
 	self.hasInvokedSetObjectValueAndIntegerValue = YES;
 	self.objectValue = objectValue;

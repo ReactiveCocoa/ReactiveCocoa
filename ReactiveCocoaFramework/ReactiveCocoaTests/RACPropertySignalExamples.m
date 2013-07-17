@@ -11,6 +11,7 @@
 #import "EXTKeyPathCoding.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
+#import "NSObject+RACSelectorSignal.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSubject.h"
@@ -99,6 +100,39 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 
 		[subject sendNext:nil];
 		expect(testObject.integerValue).to.equal(@42);
+	});
+
+	it(@"should not invoke -setNilValueForKey: with a nilValue", ^{
+		RACSubject *subject = [RACSubject subject];
+		setupBlock(testObject, @keypath(testObject.integerValue), @42, subject);
+
+		__block BOOL setNilValueForKeyInvoked = NO;
+		[[testObject rac_signalForSelector:@selector(setNilValueForKey:)] subscribeNext:^(NSString *key) {
+			setNilValueForKeyInvoked = YES;
+		}];
+
+		[subject sendNext:nil];
+		expect(testObject.integerValue).to.equal(@42);
+		expect(setNilValueForKeyInvoked).to.beFalsy();
+	});
+
+	it(@"should invoke -setNilValueForKey: without a nilValue", ^{
+		RACSubject *subject = [RACSubject subject];
+		setupBlock(testObject, @keypath(testObject.integerValue), nil, subject);
+
+		[subject sendNext:@1];
+		expect(testObject.integerValue).to.equal(@1);
+
+		testObject.catchSetNilValueForKey = YES;
+
+		__block BOOL setNilValueForKeyInvoked = NO;
+		[[testObject rac_signalForSelector:@selector(setNilValueForKey:)] subscribeNext:^(NSString *key) {
+			setNilValueForKeyInvoked = YES;
+		}];
+
+		[subject sendNext:nil];
+		expect(testObject.integerValue).to.equal(@1);
+		expect(setNilValueForKeyInvoked).to.beTruthy();
 	});
 
 	it(@"should retain intermediate signals when binding", ^{

@@ -43,6 +43,17 @@ static NSString * const RACKVOWrapperExamplesValueBlock = @"RACKVOWrapperExample
 // of the last key path component in the key path directly.
 static NSString * const RACKVOWrapperExamplesChangesValueDirectly = @"RACKVOWrapperExamplesChangesValueDirectly";
 
+// The name of the examples.
+static NSString * const RACKVOWrapperCollectionExamples = @"RACKVOWrapperCollectionExamples";
+
+// A block that returns an object to observe in the examples.
+static NSString * const RACKVOWrapperCollectionExamplesTargetBlock = @"RACKVOWrapperCollectionExamplesTargetBlock";
+
+// The key path to observe in the examples.
+//
+// Must identify a property of type NSOrderedSet.
+static NSString * const RACKVOWrapperCollectionExamplesKeyPath = @"RACKVOWrapperCollectionExamplesKeyPath";
+
 SharedExampleGroupsBegin(RACKVOWrapperExamples)
 
 sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
@@ -52,13 +63,12 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 	__block id (^valueBlock)(void) = nil;
 	__block BOOL changesValueDirectly = NO;
 
-	__block NSUInteger willChangeBlockCallCount = 0;
-	__block NSUInteger didChangeBlockCallCount = 0;
-	__block BOOL willChangeBlockTriggeredByLastKeyPathComponent = NO;
-	__block BOOL didChangeBlockTriggeredByLastKeyPathComponent = NO;
-	__block BOOL didChangeBlockTriggeredByDeallocation = NO;
-	__block void (^willChangeBlock)(BOOL) = nil;
-	__block void (^didChangeBlock)(BOOL, BOOL, id) = nil;
+	__block NSUInteger priorCallCount = 0;
+	__block NSUInteger posteriorCallCount = 0;
+	__block BOOL priorTriggeredByLastKeyPathComponent = NO;
+	__block BOOL posteriorTriggeredByLastKeyPathComponent = NO;
+	__block BOOL posteriorTriggeredByDeallocation = NO;
+	__block void (^callbackBlock)(id, NSDictionary *) = nil;
 
 	beforeEach(^{
 		NSObject * (^targetBlock)(void) = data[RACKVOWrapperExamplesTargetBlock];
@@ -68,17 +78,18 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 		valueBlock = data[RACKVOWrapperExamplesValueBlock];
 		changesValueDirectly = [data[RACKVOWrapperExamplesChangesValueDirectly] boolValue];
 
-		willChangeBlockCallCount = 0;
-		didChangeBlockCallCount = 0;
+		priorCallCount = 0;
+		posteriorCallCount = 0;
 
-		willChangeBlock = [^(BOOL triggeredByLastKeyPathComponent) {
-			willChangeBlockTriggeredByLastKeyPathComponent = triggeredByLastKeyPathComponent;
-			++willChangeBlockCallCount;
-		} copy];
-		didChangeBlock = [^(BOOL triggeredByLastKeyPathComponent, BOOL triggeredByDeallocation, id value) {
-			didChangeBlockTriggeredByLastKeyPathComponent = triggeredByLastKeyPathComponent;
-			didChangeBlockTriggeredByDeallocation = triggeredByDeallocation;
-			++didChangeBlockCallCount;
+		callbackBlock = [^(id value, NSDictionary *change) {
+			if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
+				priorTriggeredByLastKeyPathComponent = [change[RACKeyValueChangeAffectedOnlyLastComponentKey] boolValue];
+				++priorCallCount;
+				return;
+			}
+			posteriorTriggeredByLastKeyPathComponent = [change[RACKeyValueChangeAffectedOnlyLastComponentKey] boolValue];
+			posteriorTriggeredByDeallocation = [change[RACKeyValueChangeCausedByDeallocationKey] boolValue];
+			++posteriorCallCount;
 		} copy];
 	});
 
@@ -89,74 +100,93 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 		valueBlock = nil;
 		changesValueDirectly = NO;
 
-		willChangeBlock = nil;
-		didChangeBlock = nil;
+		callbackBlock = nil;
 	});
 
-	it(@"should not call willChangeBlock or didChangeBlock on add", ^{
-		[target rac_addObserver:nil forKeyPath:keyPath willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
-		expect(willChangeBlockCallCount).to.equal(0);
-		expect(didChangeBlockCallCount).to.equal(0);
+	it(@"should not call the callback block on add if called without NSKeyValueObservingOptionInitial", ^{
+		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior observer:nil block:callbackBlock];
+		expect(priorCallCount).to.equal(0);
+		expect(posteriorCallCount).to.equal(0);
 	});
 
-	it(@"should call willChangeBlock and didChangeBlock once per change", ^{
-		[target rac_addObserver:nil forKeyPath:keyPath willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
-		willChangeBlockCallCount = 0;
-		didChangeBlockCallCount = 0;
+	it(@"should call the callback block on add if called with NSKeyValueObservingOptionInitial", ^{
+		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior | NSKeyValueObservingOptionInitial observer:nil block:callbackBlock];
+		expect(priorCallCount).to.equal(0);
+		expect(posteriorCallCount).to.equal(1);
+	});
+
+	it(@"should call the callback block twice per change, once prior and once posterior", ^{
+		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior observer:nil block:callbackBlock];
+		priorCallCount = 0;
+		posteriorCallCount = 0;
 
 		id value1 = valueBlock();
 		changeBlock(target, value1);
-		expect(willChangeBlockCallCount).to.equal(1);
-		expect(didChangeBlockCallCount).to.equal(1);
-		expect(willChangeBlockTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
-		expect(didChangeBlockTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
-		expect(didChangeBlockTriggeredByDeallocation).to.beFalsy();
+		expect(priorCallCount).to.equal(1);
+		expect(posteriorCallCount).to.equal(1);
+		expect(priorTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
+		expect(posteriorTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
+		expect(posteriorTriggeredByDeallocation).to.beFalsy();
 
 		id value2 = valueBlock();
 		changeBlock(target, value2);
-		expect(willChangeBlockCallCount).to.equal(2);
-		expect(didChangeBlockCallCount).to.equal(2);
-		expect(willChangeBlockTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
-		expect(didChangeBlockTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
-		expect(didChangeBlockTriggeredByDeallocation).to.beFalsy();
+		expect(priorCallCount).to.equal(2);
+		expect(posteriorCallCount).to.equal(2);
+		expect(priorTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
+		expect(posteriorTriggeredByLastKeyPathComponent).to.equal(changesValueDirectly);
+		expect(posteriorTriggeredByDeallocation).to.beFalsy();
 	});
 
-	it(@"should call willChangeBlock before didChangeBlock when the value is changed", ^{
-		__block BOOL willChangeBlockCalled = NO;
-		__block BOOL didChangeBlockCalled = NO;
-		[target rac_addObserver:nil forKeyPath:keyPath willChangeBlock:^(BOOL triggeredByLastKeyPathComponent) {
-			willChangeBlockCalled = YES;
-			expect(didChangeBlockCalled).to.beFalsy();
-		} didChangeBlock:^(BOOL triggeredByLastKeyPathComponent, BOOL triggeredByDeallocation, id value) {
-			didChangeBlockCalled = YES;
-			expect(willChangeBlockCalled).to.beTruthy();
+	it(@"should call the callback block with NSKeyValueChangeNotificationIsPriorKey set before the value is changed, and not set after the value is changed", ^{
+		__block BOOL priorCalled = NO;
+		__block BOOL posteriorCalled = NO;
+		__block id priorValue = nil;
+		__block id posteriorValue = nil;
+
+		id value1 = valueBlock();
+		changeBlock(target, value1);
+		id oldValue = [target valueForKeyPath:keyPath];
+
+		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior observer:nil block:^(id value, NSDictionary *change) {
+			if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
+				priorCalled = YES;
+				priorValue = value;
+				expect(posteriorCalled).to.beFalsy();
+				return;
+			}
+			posteriorCalled = YES;
+			posteriorValue = value;
+			expect(priorCalled).to.beTruthy();
 		}];
 
-		id value = valueBlock();
-		changeBlock(target, value);
-		expect(willChangeBlockCalled).to.beTruthy();
-		expect(didChangeBlockCalled).to.beTruthy();
+		id value2 = valueBlock();
+		changeBlock(target, value2);
+		id newValue = [target valueForKeyPath:keyPath];
+		expect(priorCalled).to.beTruthy();
+		expect(priorValue).to.equal(oldValue);
+		expect(posteriorCalled).to.beTruthy();
+		expect(posteriorValue).to.equal(newValue);
 	});
 
-	it(@"should not call willChangeBlock and didChangeBlock after it's been disposed", ^{
-		RACDisposable *disposable = [target rac_addObserver:nil forKeyPath:keyPath willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
-		willChangeBlockCallCount = 0;
-		didChangeBlockCallCount = 0;
+	it(@"should not call the callback block after it's been disposed", ^{
+		RACDisposable *disposable = [target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior observer:nil block:callbackBlock];
+		priorCallCount = 0;
+		posteriorCallCount = 0;
 
 		[disposable dispose];
-		expect(willChangeBlockCallCount).to.equal(0);
-		expect(didChangeBlockCallCount).to.equal(0);
+		expect(priorCallCount).to.equal(0);
+		expect(posteriorCallCount).to.equal(0);
 
 		id value = valueBlock();
 		changeBlock(target, value);
-		expect(willChangeBlockCallCount).to.equal(0);
-		expect(didChangeBlockCallCount).to.equal(0);
+		expect(priorCallCount).to.equal(0);
+		expect(posteriorCallCount).to.equal(0);
 	});
 
-	it(@"should call only didChangeBlock when the value is deallocated", ^{
+	it(@"should call the callback block only once with NSKeyValueChangeNotificationIsPriorKey not set when the value is deallocated", ^{
 		__block BOOL valueDidDealloc = NO;
 
-		[target rac_addObserver:nil forKeyPath:keyPath willChangeBlock:willChangeBlock didChangeBlock:didChangeBlock];
+		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior observer:nil block:callbackBlock];
 
 		@autoreleasepool {
 			NSObject *value __attribute__((objc_precise_lifetime)) = valueBlock();
@@ -165,14 +195,118 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 			}]];
 
 			changeBlock(target, value);
-			willChangeBlockCallCount = 0;
-			didChangeBlockCallCount = 0;
+			priorCallCount = 0;
+			posteriorCallCount = 0;
 		}
 
 		expect(valueDidDealloc).to.beTruthy();
-		expect(willChangeBlockCallCount).to.equal(0);
-		expect(didChangeBlockCallCount).to.equal(1);
-		expect(didChangeBlockTriggeredByDeallocation).to.beTruthy();
+		expect(priorCallCount).to.equal(0);
+		expect(posteriorCallCount).to.equal(1);
+		expect(posteriorTriggeredByDeallocation).to.beTruthy();
+	});
+});
+
+sharedExamplesFor(RACKVOWrapperCollectionExamples, ^(NSDictionary *data) {
+	__block NSObject *target = nil;
+	__block NSString *keyPath = nil;
+	__block NSMutableOrderedSet *mutableKeyPathProxy = nil;
+	__block void (^callbackBlock)(id, NSDictionary *) = nil;
+
+	__block id priorValue = nil;
+	__block id posteriorValue = nil;
+	__block NSDictionary *priorChange = nil;
+	__block NSDictionary *posteriorChange = nil;
+
+	beforeEach(^{
+		NSObject * (^targetBlock)(void) = data[RACKVOWrapperCollectionExamplesTargetBlock];
+		target = targetBlock();
+		keyPath = data[RACKVOWrapperCollectionExamplesKeyPath];
+
+		callbackBlock = [^(id value, NSDictionary *change) {
+			if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
+				priorValue = value;
+				priorChange = change;
+				return;
+			}
+			posteriorValue = value;
+			posteriorChange = change;
+		} copy];
+
+		[target setValue:[NSOrderedSet orderedSetWithObject:@0] forKeyPath:keyPath];
+		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld | NSKeyValueObservingOptionPrior observer:nil block:callbackBlock];
+		mutableKeyPathProxy = [target mutableOrderedSetValueForKeyPath:keyPath];
+	});
+
+	afterEach(^{
+		target = nil;
+		keyPath = nil;
+		callbackBlock = nil;
+
+		priorValue = nil;
+		priorChange = nil;
+		posteriorValue = nil;
+		posteriorChange = nil;
+	});
+
+	it(@"should support inserting elements into ordered collections", ^{
+		[mutableKeyPathProxy insertObject:@1 atIndex:0];
+
+		expect(priorValue).to.equal([NSOrderedSet orderedSetWithArray:@[ @0 ]]);
+		expect(posteriorValue).to.equal([NSOrderedSet orderedSetWithArray:(@[ @1, @0 ])]);
+		expect(priorChange[NSKeyValueChangeKindKey]).to.equal(NSKeyValueChangeInsertion);
+		expect(posteriorChange[NSKeyValueChangeKindKey]).to.equal(NSKeyValueChangeInsertion);
+		expect(priorChange[NSKeyValueChangeOldKey]).to.beNil();
+		expect(posteriorChange[NSKeyValueChangeNewKey]).to.equal(@[ @1 ]);
+		expect(priorChange[NSKeyValueChangeIndexesKey]).to.equal([NSIndexSet indexSetWithIndex:0]);
+		expect(posteriorChange[NSKeyValueChangeIndexesKey]).to.equal([NSIndexSet indexSetWithIndex:0]);
+	});
+
+	it(@"should support removing elements from ordered collections", ^{
+		[mutableKeyPathProxy removeObjectAtIndex:0];
+
+		expect(priorValue).to.equal([NSOrderedSet orderedSetWithArray:@[ @0 ]]);
+		expect(posteriorValue).to.equal([NSOrderedSet orderedSetWithArray:@[]]);
+		expect(priorChange[NSKeyValueChangeKindKey]).to.equal(NSKeyValueChangeRemoval);
+		expect(posteriorChange[NSKeyValueChangeKindKey]).to.equal(NSKeyValueChangeRemoval);
+		expect(priorChange[NSKeyValueChangeOldKey]).to.equal(@[ @0 ]);
+		expect(posteriorChange[NSKeyValueChangeNewKey]).to.beNil();
+		expect(priorChange[NSKeyValueChangeIndexesKey]).to.equal([NSIndexSet indexSetWithIndex:0]);
+		expect(posteriorChange[NSKeyValueChangeIndexesKey]).to.equal([NSIndexSet indexSetWithIndex:0]);
+	});
+
+	it(@"should support replacing elements in ordered collections", ^{
+		[mutableKeyPathProxy replaceObjectAtIndex:0 withObject:@1];
+
+		expect(priorValue).to.equal([NSOrderedSet orderedSetWithArray:@[ @0 ]]);
+		expect(posteriorValue).to.equal([NSOrderedSet orderedSetWithArray:@[ @1 ]]);
+		expect(priorChange[NSKeyValueChangeKindKey]).to.equal(NSKeyValueChangeReplacement);
+		expect(posteriorChange[NSKeyValueChangeKindKey]).to.equal(NSKeyValueChangeReplacement);
+		expect(priorChange[NSKeyValueChangeOldKey]).to.equal(@[ @0 ]);
+		expect(posteriorChange[NSKeyValueChangeNewKey]).to.equal(@[ @1 ]);
+		expect(priorChange[NSKeyValueChangeIndexesKey]).to.equal([NSIndexSet indexSetWithIndex:0]);
+		expect(posteriorChange[NSKeyValueChangeIndexesKey]).to.equal([NSIndexSet indexSetWithIndex:0]);
+	});
+
+	it(@"should support adding elements to unordered collections", ^{
+		[mutableKeyPathProxy unionOrderedSet:[NSOrderedSet orderedSetWithObject:@1]];
+
+		expect(priorValue).to.equal([NSOrderedSet orderedSetWithArray:@[ @0 ]]);
+		expect(posteriorValue).to.equal([NSOrderedSet orderedSetWithArray:(@[ @0, @1 ])]);
+		expect(priorChange[NSKeyValueChangeKindKey]).to.equal(NSKeyValueChangeInsertion);
+		expect(posteriorChange[NSKeyValueChangeKindKey]).to.equal(NSKeyValueChangeInsertion);
+		expect(priorChange[NSKeyValueChangeOldKey]).to.beNil();
+		expect(posteriorChange[NSKeyValueChangeNewKey]).to.equal(@[ @1 ]);
+	});
+
+	it(@"should support removing elements from unordered collections", ^{
+		[mutableKeyPathProxy minusOrderedSet:[NSOrderedSet orderedSetWithObject:@0]];
+
+		expect(priorValue).to.equal([NSOrderedSet orderedSetWithArray:@[ @0 ]]);
+		expect(posteriorValue).to.equal([NSOrderedSet orderedSetWithArray:@[]]);
+		expect(priorChange[NSKeyValueChangeKindKey]).to.equal(NSKeyValueChangeRemoval);
+		expect(posteriorChange[NSKeyValueChangeKindKey]).to.equal(NSKeyValueChangeRemoval);
+		expect(priorChange[NSKeyValueChangeOldKey]).to.equal(@[ @0 ]);
+		expect(posteriorChange[NSKeyValueChangeNewKey]).to.beNil();
 	});
 });
 
@@ -180,7 +314,7 @@ SharedExampleGroupsEnd
 
 SpecBegin(RACKVOWrapper)
 
-describe(@"-rac_addObserver:forKeyPath:willChangeBlock:didChangeBlock:", ^{
+describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 	describe(@"on simple keys", ^{
 		NSObject * (^targetBlock)(void) = ^{
 			return [[RACTestObject alloc] init];
@@ -195,12 +329,17 @@ describe(@"-rac_addObserver:forKeyPath:willChangeBlock:didChangeBlock:", ^{
 		};
 
 		itShouldBehaveLike(RACKVOWrapperExamples, @{
-											 RACKVOWrapperExamplesTargetBlock: targetBlock,
-											 RACKVOWrapperExamplesKeyPath: @keypath(RACTestObject.new, weakTestObjectValue),
-											 RACKVOWrapperExamplesChangeBlock: changeBlock,
-											 RACKVOWrapperExamplesValueBlock: valueBlock,
-											 RACKVOWrapperExamplesChangesValueDirectly: @YES
-											 });
+			RACKVOWrapperExamplesTargetBlock: targetBlock,
+			RACKVOWrapperExamplesKeyPath: @keypath(RACTestObject.new, weakTestObjectValue),
+			RACKVOWrapperExamplesChangeBlock: changeBlock,
+			RACKVOWrapperExamplesValueBlock: valueBlock,
+			RACKVOWrapperExamplesChangesValueDirectly: @YES
+		});
+
+		itShouldBehaveLike(RACKVOWrapperCollectionExamples, @{
+			RACKVOWrapperCollectionExamplesTargetBlock: targetBlock,
+			RACKVOWrapperCollectionExamplesKeyPath: @keypath(RACTestObject.new, orderedSetValue)
+		});
 	});
 
 	describe(@"on composite key paths'", ^{
@@ -220,12 +359,17 @@ describe(@"-rac_addObserver:forKeyPath:willChangeBlock:didChangeBlock:", ^{
 			};
 
 			itShouldBehaveLike(RACKVOWrapperExamples, @{
-												 RACKVOWrapperExamplesTargetBlock: targetBlock,
-												 RACKVOWrapperExamplesKeyPath: @keypath(RACTestObject.new, strongTestObjectValue.weakTestObjectValue),
-												 RACKVOWrapperExamplesChangeBlock: changeBlock,
-												 RACKVOWrapperExamplesValueBlock: valueBlock,
-												 RACKVOWrapperExamplesChangesValueDirectly: @YES
-												 });
+				RACKVOWrapperExamplesTargetBlock: targetBlock,
+				RACKVOWrapperExamplesKeyPath: @keypath(RACTestObject.new, strongTestObjectValue.weakTestObjectValue),
+				RACKVOWrapperExamplesChangeBlock: changeBlock,
+				RACKVOWrapperExamplesValueBlock: valueBlock,
+				RACKVOWrapperExamplesChangesValueDirectly: @YES
+			});
+
+			itShouldBehaveLike(RACKVOWrapperCollectionExamples, @{
+				RACKVOWrapperCollectionExamplesTargetBlock: targetBlock,
+				RACKVOWrapperCollectionExamplesKeyPath: @keypath(RACTestObject.new, strongTestObjectValue.orderedSetValue)
+			});
 		});
 
 		describe(@"intermediate key path components", ^{
@@ -244,16 +388,16 @@ describe(@"-rac_addObserver:forKeyPath:willChangeBlock:didChangeBlock:", ^{
 			};
 
 			itShouldBehaveLike(RACKVOWrapperExamples, @{
-												 RACKVOWrapperExamplesTargetBlock: targetBlock,
-												 RACKVOWrapperExamplesKeyPath: @keypath([[RACTestObject alloc] init], weakTestObjectValue.strongTestObjectValue),
-												 RACKVOWrapperExamplesChangeBlock: changeBlock,
-												 RACKVOWrapperExamplesValueBlock: valueBlock,
-												 RACKVOWrapperExamplesChangesValueDirectly: @NO
-												 });
+				RACKVOWrapperExamplesTargetBlock: targetBlock,
+				RACKVOWrapperExamplesKeyPath: @keypath([[RACTestObject alloc] init], weakTestObjectValue.strongTestObjectValue),
+				RACKVOWrapperExamplesChangeBlock: changeBlock,
+				RACKVOWrapperExamplesValueBlock: valueBlock,
+				RACKVOWrapperExamplesChangesValueDirectly: @NO
+			});
 		});
 	});
 
-	it(@"should not call didChangeBlock when the value is the observer", ^{
+	it(@"should not call the callback block when the value is the observer", ^{
 		__block BOOL observerDisposed = NO;
 		__block BOOL observerDeallocationTriggeredChange = NO;
 		__block BOOL targetDisposed = NO;
@@ -273,11 +417,11 @@ describe(@"-rac_addObserver:forKeyPath:willChangeBlock:didChangeBlock:", ^{
 			// These observations can only result in dealloc triggered callbacks.
 			// Specifically, they do not perform any actions that would trigger
 			// a KVO change for the key "self".
-			[observer rac_addObserver:observer forKeyPath:@keypath(observer.self) willChangeBlock:nil didChangeBlock:^(BOOL _, BOOL __, id ___) {
+			[observer rac_observeKeyPath:@keypath(observer.self) options:0 observer:observer block:^(id _, NSDictionary *__) {
 				observerDeallocationTriggeredChange = YES;
 			}];
 
-			[target rac_addObserver:observer forKeyPath:@keypath(observer.self) willChangeBlock:nil didChangeBlock:^(BOOL _, BOOL __, id ___) {
+			[target rac_observeKeyPath:@keypath(observer.self) options:0 observer:observer block:^(id _, NSDictionary *__) {
 				targetDeallocationTriggeredChange = YES;
 			}];
 		}
@@ -289,7 +433,7 @@ describe(@"-rac_addObserver:forKeyPath:willChangeBlock:didChangeBlock:", ^{
 		expect(targetDeallocationTriggeredChange).to.beTruthy();
 	});
 
-	it(@"should call didChangeBlock for deallocation of the initial value of a single-key key path", ^{
+	it(@"should call the callback block for deallocation of the initial value of a single-key key path", ^{
 		RACTestObject *target = [RACTestObject new];
 		__block BOOL objectDisposed = NO;
 		__block BOOL objectDeallocationTriggeredChange = NO;
@@ -301,7 +445,7 @@ describe(@"-rac_addObserver:forKeyPath:willChangeBlock:didChangeBlock:", ^{
 				objectDisposed = YES;
 			}]];
 
-			[target rac_addObserver:target forKeyPath:@keypath(target.weakTestObjectValue) willChangeBlock:nil didChangeBlock:^(BOOL _, BOOL __, id ___) {
+			[target rac_observeKeyPath:@keypath(target.weakTestObjectValue) options:0 observer:target block:^(id _, NSDictionary *__) {
 				objectDeallocationTriggeredChange = YES;
 			}];
 		}
@@ -317,15 +461,14 @@ describe(@"rac_addObserver:forKeyPath:options:block:", ^{
 		expect(operation).notTo.beNil();
 
 		__block BOOL notified = NO;
-		RACKVOTrampoline *trampoline = [operation rac_addObserver:self forKeyPath:@"isFinished" options:NSKeyValueObservingOptionNew block:^(id target, id observer, NSDictionary *change) {
-			expect(observer).to.equal(self);
+		RACDisposable *disposable = [operation rac_observeKeyPath:@"isFinished" options:NSKeyValueObservingOptionNew observer:self block:^(id value, NSDictionary *change) {
 			expect([change objectForKey:NSKeyValueChangeNewKey]).to.equal(@YES);
 
 			expect(notified).to.beFalsy();
 			notified = YES;
 		}];
 
-		expect(trampoline).notTo.beNil();
+		expect(disposable).notTo.beNil();
 
 		[operation start];
 		[operation waitUntilFinished];
@@ -335,9 +478,9 @@ describe(@"rac_addObserver:forKeyPath:options:block:", ^{
 
 	it(@"should accept a nil observer", ^{
 		NSBlockOperation *operation = [NSBlockOperation blockOperationWithBlock:^{}];
-		RACKVOTrampoline *trampoline = [operation rac_addObserver:nil forKeyPath:@"isFinished" options:NSKeyValueObservingOptionNew block:^(id target, id observer, NSDictionary *change) {
-		}];
-		expect(trampoline).notTo.beNil();
+		RACDisposable *disposable = [operation rac_observeKeyPath:@"isFinished" options:NSKeyValueObservingOptionNew observer:nil block:^(id value, NSDictionary *change) {}];
+
+		expect(disposable).notTo.beNil();
 	});
 
 	it(@"automatically stops KVO on subclasses when the target deallocates", ^{
@@ -353,7 +496,7 @@ describe(@"rac_addObserver:forKeyPath:options:block:", ^{
 				weakTarget = (__bridge id)target;
 				expect(weakTarget).notTo.beNil();
 
-				identifier = [(__bridge id)target rac_addObserver:observer forKeyPath:@"isFinished" options:0 block:^(id target, id observer, NSDictionary *change){}];
+				identifier = [(__bridge id)target rac_observeKeyPath:@"isFinished" options:0 observer:observer block:^(id value, NSDictionary *change) {}];
 				expect(identifier).notTo.beNil();
 
 				CFRelease(target);
@@ -394,27 +537,26 @@ describe(@"rac_addObserver:forKeyPath:options:block:", ^{
 			weakObserver = (__bridge id)observer;
 			expect(weakObserver).notTo.beNil();
 
-			identifier = [operation rac_addObserver:(__bridge id)observer forKeyPath:@"isFinished" options:0 block:^(id target, id observer, NSDictionary *change){}];
+			identifier = [operation rac_observeKeyPath:@"isFinished" options:0 observer:(__bridge id)observer block:^(id value, NSDictionary *change) {}];
 			expect(identifier).notTo.beNil();
 
 			CFRelease(observer);
 		}
 
 		expect(weakObserver).to.beNil();
-		expect(identifier).to.beNil();
 	});
 
 	it(@"should stop KVO when the observer is disposed", ^{
 		NSOperationQueue *queue = [[NSOperationQueue alloc] init];
 		__block NSString *name = nil;
-		
-		RACKVOTrampoline *trampoline = [queue rac_addObserver:self forKeyPath:@"name" options:0 block:^(id target, id observer, NSDictionary *change) {
+
+		RACDisposable *disposable = [queue rac_observeKeyPath:@"name" options:0 observer:self block:^(id value, NSDictionary *change) {
 			name = queue.name;
 		}];
-		
+
 		queue.name = @"1";
 		expect(name).to.equal(@"1");
-		[trampoline dispose];
+		[disposable dispose];
 		queue.name = @"2";
 		expect(name).to.equal(@"1");
 	});
@@ -423,18 +565,18 @@ describe(@"rac_addObserver:forKeyPath:options:block:", ^{
 		NSOperationQueue *queue = [[NSOperationQueue alloc] init];
 		__block NSString *name1 = nil;
 		__block NSString *name2 = nil;
-		
-		RACKVOTrampoline *trampoline = [queue rac_addObserver:self forKeyPath:@"name" options:0 block:^(id target, id observer, NSDictionary *change) {
+
+		RACDisposable *disposable = [queue rac_observeKeyPath:@"name" options:0 observer:self block:^(id value, NSDictionary *change) {
 			name1 = queue.name;
 		}];
-		[queue rac_addObserver:self forKeyPath:@"name" options:0 block:^(id target, id observer, NSDictionary *change) {
+		[queue rac_observeKeyPath:@"name" options:0 observer:self block:^(id value, NSDictionary *change) {
 			name2 = queue.name;
 		}];
-		
+
 		queue.name = @"1";
 		expect(name1).to.equal(@"1");
 		expect(name2).to.equal(@"1");
-		[trampoline dispose];
+		[disposable dispose];
 		queue.name = @"2";
 		expect(name1).to.equal(@"1");
 		expect(name2).to.equal(@"2");

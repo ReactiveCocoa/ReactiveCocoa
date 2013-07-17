@@ -10,14 +10,10 @@
 #import "EXTKeyPathCoding.h"
 #import "metamacros.h"
 
-// Creates a signal which observes the given key path for changes.
+// Creates a signal which observes `KEYPATH` on `TARGET` for changes.
 //
-// If given one argument, the key path is assumed to be relative to self.
-// If given two arguments, the first argument is the object to observe, and the
-// second argument is the key path to observe upon it.
-//
-// In either case, the observation continues until the observed object _or self_
-// is deallocated. If any intermediate object is deallocated instead, it will be
+// In either case, the observation continues until `TARGET` _or self_ is
+// deallocated. If any intermediate object is deallocated instead, it will be
 // assumed to have been set to nil.
 //
 // Make sure to `@strongify(self)` when using this macro within a block! The
@@ -29,15 +25,20 @@
 // Examples
 //
 //    // Observes self, and doesn't stop until self is deallocated.
-//    RACSignal *signal1 = RACObserve(self.arrayController.items);
+//    RACSignal *selfSignal = RACObserve(self, arrayController.items);
 //
-//    // Observes obj.arrayController, and stops when _self_ or the array
+//    // Observes the array controller, and stops when self _or_ the array
+//    // controller is deallocated.
+//    RACSignal *arrayControllerSignal = RACObserve(self.arrayController, items);
+//
+//    // Observes obj.arrayController, and stops when self _or_ the array
 //    // controller is deallocated.
 //    RACSignal *signal2 = RACObserve(obj.arrayController, items);
 //
 //    @weakify(self);
 //    RACSignal *signal3 = [anotherSignal flattenMap:^(NSArrayController *arrayController) {
-//        // Avoids a retain cycle.
+//        // Avoids a retain cycle because of RACObserve implicitly referencing
+//        // self.
 //        @strongify(self);
 //        return RACObserve(arrayController, items);
 //    }];
@@ -45,13 +46,8 @@
 // Returns a signal which sends the current value of the key path on
 // subscription, then sends the new value every time it changes, and sends
 // completed if self or observer is deallocated.
-#define RACObserve(...) \
-    metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__)) \
-        (_RACObserveObject(self, __VA_ARGS__)) \
-        (_RACObserveObject(__VA_ARGS__))
-
-// Do not use this directly. Use RACObserve above.
-#define _RACObserveObject(object, property) [object rac_valuesForKeyPath:@keypath(object, property) observer:self]
+#define RACObserve(TARGET, KEYPATH) \
+    [(TARGET) rac_valuesForKeyPath:@keypath(TARGET, KEYPATH) observer:self]
 
 @class RACDisposable;
 @class RACSignal;

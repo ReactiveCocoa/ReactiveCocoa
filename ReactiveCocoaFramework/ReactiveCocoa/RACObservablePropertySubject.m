@@ -21,6 +21,10 @@
 #import "RACSubscriber+Private.h"
 #import "RACSubject.h"
 
+// Key for the dictionary of RACObservablePropertyBinding's additional thread
+// local data in the thread dictionary.
+static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObservablePropertyBindingKey";
+
 @interface RACObservablePropertySubject ()
 
 // Forwards `error` and `completed` events to any bindings.
@@ -39,6 +43,17 @@
 // The subscriber exposed to callers. The RACObservablePropertySubject will
 // behave like this subscriber towards the signals it's subscribed to.
 @property (nonatomic, readonly, strong) id<RACSubscriber> exposedSubscriber;
+
+@end
+
+// Wrapper class for additional thread local data.
+@interface RACObservablePropertyBindingData : NSObject
+
+// The flag used to ignore updates the binding itself has triggered.
+@property (nonatomic, assign) BOOL ignoreNextUpdate;
+
+// The current -willChangeValueForKey:/-didChangeValueForKey: call stack depth.
+@property (nonatomic, assign) NSUInteger stackDepth;
 
 @end
 
@@ -70,6 +85,15 @@
 // The subscriber exposed to callers. The binding will behave like this
 // subscriber towards the signals it's subscribed to.
 @property (nonatomic, readonly, strong) id<RACSubscriber> exposedSubscriber;
+
+// Returns the existing thread local data container or nil if none exists.
+- (RACObservablePropertyBindingData *)currentThreadData;
+
+// Creates the thread local data container for the binding.
+- (void)createCurrentThreadData;
+
+// Destroy the thread local data container for the binding.
+- (void)destroyCurrentThreadData;
 
 @end
 
@@ -204,13 +228,6 @@
 	
 	@weakify(binding);
 
-	// The flag used to ignore updates the binding itself has triggered.
-	__block BOOL ignoreNextUpdate = NO;
-
-	// The depth of the current -willChangeValueForKey: / -didChangeValueForKey:
-	// call stack.
-	__block NSUInteger stackDepth = 0;
-
 	// The subject used to multicast changes to the property to the binding's
 	// subscribers.
 	RACSubject *updatesSubject = [RACSubject subject];
@@ -218,12 +235,20 @@
 	// Observe the key path on target for changes. Update the value of stackDepth
 	// accordingly and forward the changes to updatesSubject.
 	RACDisposable *observationDisposable = [target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior observer:binding block:^(id value, NSDictionary *change) {
+		@strongify(binding);
+		RACObservablePropertyBindingData *data = binding.currentThreadData;
+		
 		// If the change is prior we only increase the stack depth if it was
 		// triggered by the last path component, we don't do anything otherwise.
 		if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
-			if ([change[RACKeyValueChangeAffectedOnlyLastComponentKey] boolValue]) ++stackDepth;
+			if ([change[RACKeyValueChangeAffectedOnlyLastComponentKey] boolValue]) {
+				// Don't worry about the data being nil, if it is it means the binding
+				// hasn't received a value since the latest ignored one anyway.
+				++data.stackDepth;
+			}
 			return;
 		}
+		
 		// From here the change isn't prior.
 
 		// The binding only triggers changes to the last path component, if the
@@ -235,15 +260,16 @@
 			return;
 		}
 
-		--stackDepth;
-		NSCAssert(stackDepth != NSUIntegerMax, @"%@ called didChangeValueForKey: without corresponding willChangeValueForKey:", keyPath);
+		--data.stackDepth;
+		NSCAssert(data.stackDepth != NSUIntegerMax, @"%@ called didChangeValueForKey: without corresponding willChangeValueForKey:", keyPath);
+
 		// If the current stackDepth is greater than 0, then the change was
 		// triggered by a callback on -willChangeValueForKey:, and not by the
 		// binding itself. If however the stackDepth is 0, and ignoreNextUpdate is
 		// set, the changes was triggered by this binding and should not be
 		// forwarded.
-		if (stackDepth == 0 && ignoreNextUpdate) {
-			ignoreNextUpdate = NO;
+		if (data.stackDepth == 0 && data.ignoreNextUpdate) {
+			[binding destroyCurrentThreadData];
 			return;
 		}
 
@@ -284,7 +310,9 @@
 
 		// Set the ignoreNextUpdate flag before setting the value so this binding
 		// ignores the value in the subsequent -didChangeValueForKey: callback.
-		ignoreNextUpdate = YES;
+		[binding createCurrentThreadData];
+		binding.currentThreadData.ignoreNextUpdate = YES;
+
 		[object setValue:x forKey:lastKeyPathComponent];
 	} error:^(NSError *error) {
 		@strongify(binding);
@@ -306,5 +334,33 @@
 	
 	return binding;
 }
+
+- (RACObservablePropertyBindingData *)currentThreadData {
+	NSMutableDictionary *dataDictionary = NSThread.currentThread.threadDictionary[RACObservablePropertyBindingDataDictionaryKey];
+	return dataDictionary[[NSValue valueWithNonretainedObject:self]];
+}
+
+- (void)createCurrentThreadData {
+	NSMutableDictionary *dataDictionary = NSThread.currentThread.threadDictionary[RACObservablePropertyBindingDataDictionaryKey];
+	if (dataDictionary == nil) {
+		dataDictionary = [NSMutableDictionary dictionary];
+		NSThread.currentThread.threadDictionary[RACObservablePropertyBindingDataDictionaryKey] = dataDictionary;
+	}
+
+	RACObservablePropertyBindingData *data = dataDictionary[[NSValue valueWithNonretainedObject:self]];
+	if (data == nil) {
+		data = [[RACObservablePropertyBindingData alloc] init];
+		dataDictionary[[NSValue valueWithNonretainedObject:self]] = data;
+	}
+}
+
+- (void)destroyCurrentThreadData {
+	NSMutableDictionary *dataDictionary = NSThread.currentThread.threadDictionary[RACObservablePropertyBindingDataDictionaryKey];
+	[dataDictionary removeObjectForKey:[NSValue valueWithNonretainedObject:self]];
+}
+
+@end
+
+@implementation RACObservablePropertyBindingData
 
 @end

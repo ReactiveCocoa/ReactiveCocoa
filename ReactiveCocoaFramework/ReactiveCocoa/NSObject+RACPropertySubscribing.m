@@ -16,7 +16,56 @@
 #import "RACKVOTrampoline.h"
 #import "RACSubscriber.h"
 #import "RACSignal+Operations.h"
+#import "RACTuple.h"
 #import <libkern/OSAtomic.h>
+
+@implementation NSObject (RACPropertySubscribing)
+
+- (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
+	return [[[self rac_valuesAndChangesForKeyPath:keyPath options:NSKeyValueObservingOptionInitial observer:observer] reduceEach:^(id value, NSDictionary *change) {
+		return value;
+	}] setNameWithFormat:@"RACObserve(%@, %@)", self.rac_description, keyPath];
+}
+
+- (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer {
+	RACDisposable *deallocFlagDisposable = [[RACDisposable alloc] init];
+	RACCompoundDisposable *observerDisposable = observer.rac_deallocDisposable;
+	RACCompoundDisposable *objectDisposable = self.rac_deallocDisposable;
+	[observerDisposable addDisposable:deallocFlagDisposable];
+	[objectDisposable addDisposable:deallocFlagDisposable];
+
+	@unsafeify(self, observer);
+	return [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		@strongify(self, observer);
+
+		if (deallocFlagDisposable.disposed) {
+			[subscriber sendCompleted];
+			return nil;
+		}
+
+		RACDisposable *observationDisposable = [self rac_observeKeyPath:keyPath options:options observer:observer block:^(id value, NSDictionary *change) {
+			[subscriber sendNext:RACTuplePack(value, change)];
+		}];
+
+		RACDisposable *deallocDisposable = [RACDisposable disposableWithBlock:^{
+			[observationDisposable dispose];
+			[subscriber sendCompleted];
+		}];
+
+		[observer.rac_deallocDisposable addDisposable:deallocDisposable];
+		[self.rac_deallocDisposable addDisposable:deallocDisposable];
+
+		return [RACDisposable disposableWithBlock:^{
+			[observerDisposable removeDisposable:deallocFlagDisposable];
+			[objectDisposable removeDisposable:deallocFlagDisposable];
+			[observerDisposable removeDisposable:deallocDisposable];
+			[objectDisposable removeDisposable:deallocDisposable];
+			[observationDisposable dispose];
+		}];
+	}];
+}
+
+@end
 
 static RACSignal *signalWithoutChangesFor(Class class, NSObject *object, NSString *keyPath, NSKeyValueObservingOptions options, NSObject *observer) {
 	NSCParameterAssert(object != nil);
@@ -35,7 +84,18 @@ static RACSignal *signalWithoutChangesFor(Class class, NSObject *object, NSStrin
 		}];
 }
 
-@implementation NSObject (RACPropertySubscribing)
+@implementation NSObject (RACPropertySubscribingDeprecated)
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
++ (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer {
+	return signalWithoutChangesFor(self, object, keyPath, 0, observer);
+}
+
++ (RACSignal *)rac_signalWithStartingValueFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer {
+	return signalWithoutChangesFor(self, object, keyPath, NSKeyValueObservingOptionInitial, observer);
+}
 
 + (RACSignal *)rac_signalWithChangesFor:(NSObject *)object keyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer {
 	@unsafeify(observer, object);
@@ -64,64 +124,6 @@ static RACSignal *signalWithoutChangesFor(Class class, NSObject *object, NSStrin
 			[KVOTrampoline dispose];
 		}];
 	}] setNameWithFormat:@"RACAble(%@, %@)", object.rac_description, keyPath];
-}
-
-- (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
-	__block volatile uint32_t deallocFlag = 0;
-	RACDisposable *deallocFlagDisposable = [RACDisposable disposableWithBlock:^{
-		OSAtomicOr32Barrier(1, &deallocFlag);
-	}];
-	RACCompoundDisposable *observerDisposable = observer.rac_deallocDisposable;
-	RACCompoundDisposable *objectDisposable = self.rac_deallocDisposable;
-	[observerDisposable addDisposable:deallocFlagDisposable];
-	[objectDisposable addDisposable:deallocFlagDisposable];
-
-	@unsafeify(self, observer);
-	return [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-		@strongify(self, observer);
-		if (deallocFlag == 1) {
-			[subscriber sendCompleted];
-			return nil;
-		}
-
-		[subscriber sendNext:[self valueForKeyPath:keyPath]];
-		RACDisposable *observationDisposable = [self rac_addObserver:observer forKeyPath:keyPath willChangeBlock:nil didChangeBlock:^(BOOL triggeredByLastKeyPathComponent, BOOL triggeredByDeallocation, id value) {
-			[subscriber sendNext:value];
-		}];
-
-		@weakify(subscriber);
-		RACDisposable *deallocDisposable = [RACDisposable disposableWithBlock:^{
-			@strongify(subscriber);
-			[observationDisposable dispose];
-			[subscriber sendCompleted];
-		}];
-
-		[observer.rac_deallocDisposable addDisposable:deallocDisposable];
-		[self.rac_deallocDisposable addDisposable:deallocDisposable];
-
-		return [RACDisposable disposableWithBlock:^{
-			[observerDisposable removeDisposable:deallocFlagDisposable];
-			[objectDisposable removeDisposable:deallocFlagDisposable];
-			[observerDisposable removeDisposable:deallocDisposable];
-			[objectDisposable removeDisposable:deallocDisposable];
-			[observationDisposable dispose];
-		}];
-	}] setNameWithFormat:@"RACObserve(%@, %@)", self.rac_description, keyPath];
-}
-
-@end
-
-@implementation NSObject (RACPropertySubscribingDeprecated)
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-
-+ (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer {
-	return signalWithoutChangesFor(self, object, keyPath, 0, observer);
-}
-
-+ (RACSignal *)rac_signalWithStartingValueFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer {
-	return signalWithoutChangesFor(self, object, keyPath, NSKeyValueObservingOptionInitial, observer);
 }
 
 - (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {

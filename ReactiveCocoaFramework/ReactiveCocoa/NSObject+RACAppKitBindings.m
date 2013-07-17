@@ -132,7 +132,7 @@
 		[self.propertySubject sendCompleted];
 	}]];
 
-	RACBind(self.value) = [self.propertySubject binding];
+	RACBind(self, value, options[NSNullPlaceholderBindingOption]) = [self.propertySubject binding];
 	return self;
 }
 

@@ -599,6 +599,10 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 }
 
 - (RACDisposable *)setKeyPath:(NSString *)keyPath onObject:(NSObject *)object {
+	return [self setKeyPath:keyPath onObject:object nilValue:nil];
+}
+
+- (RACDisposable *)setKeyPath:(NSString *)keyPath onObject:(NSObject *)object nilValue:(id)nilValue {
 	NSCParameterAssert(keyPath != nil);
 	NSCParameterAssert(object != nil);
 
@@ -610,7 +614,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 	RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
 		NSObject *object = (__bridge id)objectPtr;
-		[object setValue:x forKeyPath:keyPath];
+		[object setValue:x ?: nilValue forKeyPath:keyPath];
 	} error:^(NSError *error) {
 		NSObject *object = (__bridge id)objectPtr;
 

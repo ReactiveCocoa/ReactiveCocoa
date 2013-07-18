@@ -1232,7 +1232,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 - (RACSignal *)reduceByAnd {
 	return [[self map:^id(RACTuple *tuple) {
 		NSCAssert([tuple isKindOfClass:RACTuple.class], @"-reduceByAnd must only be used on a signal of RACTuple with NSNumbers, got: %@", tuple);
-		return @([tuple.rac_sequence any:^BOOL(NSNumber *number) {
+		return @([tuple.rac_sequence all:^BOOL(NSNumber *number) {
 			NSCAssert([number isKindOfClass:NSNumber.class], @"-reduceByOr must only be used on a signal of RACTuple wrapped NSNumbers, tuple contains: %@", tuple);
 			return [number boolValue];
 		}]);
@@ -1242,7 +1242,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 - (RACSignal *)reduceByOr {
 	return [[self map:^id(RACTuple *tuple) {
 		NSCAssert([tuple isKindOfClass:RACTuple.class], @"-reduceByOr must only be used on a signal of RACTuple wrapped NSNumbers, got: %@", tuple);
-		return @([tuple.rac_sequence all:^BOOL(NSNumber *number) {
+		return @([tuple.rac_sequence any:^BOOL(NSNumber *number) {
 			NSCAssert([number isKindOfClass:NSNumber.class], @"-reduceByOr must only be used on a signal of RACTuple wrapped NSNumbers, tuple contains: %@", tuple);
 			return [number boolValue];
 		}]);

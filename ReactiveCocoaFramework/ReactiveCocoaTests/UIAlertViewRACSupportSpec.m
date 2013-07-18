@@ -20,17 +20,13 @@ describe(@"UIAlertView", ^{
 		expect(alertView).notTo.beNil();
 	});
 
-	it(@"should execute the alert view's command with the index when a button is touched", ^{
-		__block BOOL executed = NO;
+        it(@"sends the index of the clicked button the the buttonClickedSignal when a button is clicked", ^{
 		__block NSInteger index = -1;
 		[alertView.rac_buttonClickedSignal subscribeNext:^(NSNumber *sentIndex) {
 			index = sentIndex.integerValue;
-			executed = YES;
 		}];
 
 		[alertView.delegate alertView:alertView clickedButtonAtIndex:2];
-
-		expect(executed).to.beTruthy();
 		expect(index).to.equal(2);
 	});
 });

@@ -46,4 +46,14 @@
 	return NSMakeRange((NSUInteger)[objectValue integerValue], (NSUInteger)integerValue);
 }
 
+- (RACTestObject *)dynamicObjectProperty {
+	return [self dynamicObjectMethod];
+}
+
+- (RACTestObject *)dynamicObjectMethod {
+	RACTestObject *testObject = [[RACTestObject alloc] init];
+	testObject.integerValue = 42;
+	return testObject;
+}
+
 @end

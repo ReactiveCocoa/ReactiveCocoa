@@ -365,19 +365,16 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 		return;
 	}
 
-	RACObservablePropertyBindingData *currentThreadData = nil;
 	for (RACObservablePropertyBindingData *data in dataArray) {
-		if (data.owner == (__bridge void *)(self)) currentThreadData = data;
+		if (data.owner == (__bridge void *)self) return;
 	}
-	if (currentThreadData == nil) {
-		[dataArray addObject:[RACObservablePropertyBindingData dataForBinding:self]];
-	}
+	[dataArray addObject:[RACObservablePropertyBindingData dataForBinding:self]];
 }
 
 - (void)destroyCurrentThreadData {
 	NSMutableArray *dataArray = NSThread.currentThread.threadDictionary[RACObservablePropertyBindingDataDictionaryKey];
 	NSUInteger index = [dataArray indexOfObjectPassingTest:^ BOOL (RACObservablePropertyBindingData *data, NSUInteger idx, BOOL *stop) {
-		return data.owner == (__bridge void *)(self);
+		return data.owner == (__bridge void *)self;
 	}];
 	if (index != NSNotFound) [dataArray removeObjectAtIndex:index];
 }

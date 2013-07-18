@@ -11,7 +11,6 @@
 #import "RACDisposable.h"
 #import "RACSignal.h"
 #import "RACSubscriber.h"
-#import "NSObject+RACDescription.h"
 
 @implementation NSText (RACSignalSupport)
 
@@ -32,7 +31,7 @@
 			return [text.string copy];
 		}]
 		startWith:[self.string copy]]
-		setNameWithFormat:@"%@ -rac_textSignal", [self rac_description]];
+		setNameWithFormat:@"%@ -rac_textSignal", self];
 }
 
 @end

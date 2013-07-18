@@ -13,7 +13,6 @@
 #import "RACDisposable.h"
 #import "RACSignal.h"
 #import "RACSubscriber.h"
-#import "NSObject+RACDescription.h"
 
 @implementation UIControl (RACSignalSupport)
 
@@ -34,7 +33,7 @@
 				[self removeTarget:subscriber action:@selector(sendNext:) forControlEvents:controlEvents];
 			}];
 		}]
-		setNameWithFormat:@"%@ -rac_signalForControlEvents: %lx", [self rac_description], (unsigned long)controlEvents];
+		setNameWithFormat:@"%@ -rac_signalForControlEvents: %lx", self, (unsigned long)controlEvents];
 }
 
 @end

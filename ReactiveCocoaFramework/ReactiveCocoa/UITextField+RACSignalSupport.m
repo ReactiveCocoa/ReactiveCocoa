@@ -11,7 +11,6 @@
 #import "NSObject+RACDeallocating.h"
 #import "RACSignal+Operations.h"
 #import "UIControl+RACSignalSupport.h"
-#import "NSObject+RACDescription.h"
 
 @implementation UITextField (RACSignalSupport)
 
@@ -27,7 +26,7 @@
 			return x.text;
 		}]
 		takeUntil:self.rac_willDeallocSignal]
-		setNameWithFormat:@"%@ -rac_textSignal", [self rac_description]];
+		setNameWithFormat:@"%@ -rac_textSignal", self];
 }
 
 @end

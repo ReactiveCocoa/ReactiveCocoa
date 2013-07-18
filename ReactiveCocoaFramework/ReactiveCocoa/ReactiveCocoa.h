@@ -12,7 +12,6 @@
 #import "NSEnumerator+RACSequenceAdditions.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACLifting.h"
-#import "NSObject+RACObservablePropertySubject.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "NSObject+RACSelectorSignal.h"
 #import "NSOrderedSet+RACSequenceAdditions.h"

@@ -36,6 +36,9 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 // The key path the RACObservablePropertySubject is wrapping.
 @property (nonatomic, readonly, copy) NSString *keyPath;
 
+// The value to set when `nil` is sent to the receiver.
+@property (nonatomic, readonly, strong) id nilValue;
+
 // The signal exposed to callers. The RACObservablePropertySubject will behave
 // like this signal towards its subscribers.
 @property (nonatomic, readonly, strong) RACSignal *exposedSignal;
@@ -69,12 +72,13 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 // target             - The object to observe. This must not be nil.
 // keyPath            - The key path to observe, relative to the `target`. This
 //                      must not be nil.
+// nilValue           - The value to set when `nil` is sent to the binding.
 // terminationSubject - A subject to watch for `error` and `completed` events.
 //                      The binding will forward any such events to its
 //                      subscribers. If the binding receives an `error` or
 //                      `completed` event, it will also send it upon this
 //                      subject. This argument must not be nil.
-+ (instancetype)bindingWithTarget:(id)target keyPath:(NSString *)keyPath terminationSubject:(RACSubject *)terminationSubject;
++ (instancetype)bindingWithTarget:(NSObject *)target keyPath:(NSString *)keyPath nilValue:(id)nilValue terminationSubject:(RACSubject *)terminationSubject;
 
 // The object whose key path the binding is wrapping.
 @property (atomic, unsafe_unretained) NSObject *target;
@@ -129,13 +133,14 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 
 #pragma mark API
 
-+ (instancetype)propertyWithTarget:(NSObject *)target keyPath:(NSString *)keyPath {
++ (instancetype)propertyWithTarget:(NSObject *)target keyPath:(NSString *)keyPath nilValue:(id)nilValue {
 	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
 	RACObservablePropertySubject *property = [[self alloc] init];
 	if (property == nil || target == nil) return nil;
 	
 	property->_target = target;
 	property->_keyPath = [keyPath copy];
+	property->_nilValue = nilValue;
 	property->_terminationSubject = [RACReplaySubject replaySubjectWithCapacity:1];
 	
 	@weakify(property);
@@ -150,7 +155,7 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 
 	property->_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
 		@strongify(property);
-		[property.target setValue:x forKeyPath:property.keyPath];
+		[property.target setValue:x ?: property.nilValue forKeyPath:property.keyPath];
 	} error:^(NSError *error) {
 		@strongify(property);
 		NSCAssert(NO, @"Received error in RACObservablePropertySubject for key path \"%@\" on %@: %@", property.keyPath, property.target, error);
@@ -175,18 +180,18 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 }
 
 - (RACBinding *)binding {
-	return [RACObservablePropertyBinding bindingWithTarget:self.target keyPath:self.keyPath terminationSubject:self.terminationSubject];
+	return [RACObservablePropertyBinding bindingWithTarget:self.target keyPath:self.keyPath nilValue:self.nilValue terminationSubject:self.terminationSubject];
 }
 
 @end
 
 @implementation RACObservablePropertySubject (RACBind)
 
-- (id)objectForKeyedSubscript:(id)key {
+- (RACBinding *)objectForKeyedSubscript:(id)key {
 	return [self valueForKey:key];
 }
 
-- (void)setObject:(id)obj forKeyedSubscript:(id)key {
+- (void)setObject:(RACBinding *)obj forKeyedSubscript:(id)key {
 	RACBinding *binding = [self valueForKey:key];
 	[obj subscribe:binding];
 	[[binding skip:1] subscribe:obj];
@@ -222,7 +227,7 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 
 #pragma mark API
 
-+ (instancetype)bindingWithTarget:(NSObject *)target keyPath:(NSString *)keyPath terminationSubject:(RACSubject *)terminationSubject {
++ (instancetype)bindingWithTarget:(NSObject *)target keyPath:(NSString *)keyPath nilValue:(id)nilValue terminationSubject:(RACSubject *)terminationSubject {
 	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
 	RACObservablePropertyBinding *binding = [[self alloc] init];
 	if (binding == nil || target == nil) return nil;
@@ -317,7 +322,7 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 		[binding createCurrentThreadData];
 		binding.currentThreadData.ignoreNextUpdate = YES;
 
-		[object setValue:x forKey:lastKeyPathComponent];
+		[object setValue:x ?: nilValue forKey:lastKeyPathComponent];
 	} error:^(NSError *error) {
 		@strongify(binding);
 		NSCAssert(NO, @"Received error in -[RACObservablePropertySubject binding] for key path \"%@\" on %@: %@", binding.keyPath, binding.target, error);
@@ -375,5 +380,18 @@ static NSUInteger indexOfBindingDataForBindingInDataArray(RACObservablePropertyB
 @end
 
 @implementation RACObservablePropertyBindingData
+
+@end
+
+@implementation NSObject (RACObservablePropertySubjectDeprecated)
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
+- (RACObservablePropertySubject *)rac_propertyForKeyPath:(NSString *)keyPath {
+	return [RACObservablePropertySubject propertyWithTarget:self keyPath:keyPath nilValue:nil];
+}
+
+#pragma clang diagnostic pop
 
 @end

@@ -980,8 +980,8 @@ describe(@"RACObserve", ^{
 });
 
 describe(@"-setKeyPath:onObject:", ^{
-	id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, RACSignal *signal) {
-		[signal setKeyPath:keyPath onObject:testObject];
+	id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, id nilValue, RACSignal *signal) {
+		[signal setKeyPath:keyPath onObject:testObject nilValue:nilValue];
 	};
 
 	itShouldBehaveLike(RACPropertySignalExamples, ^{
@@ -1016,6 +1016,21 @@ describe(@"-setKeyPath:onObject:", ^{
 		// This will assert if the previous completion didn't dispose of the
 		// subscription.
 		[subject2 setKeyPath:@keypath(testObject.objectValue) onObject:testObject];
+	});
+
+	it(@"should set the given value when nil is received", ^{
+		RACSubject *subject = [RACSubject subject];
+		RACTestObject *testObject = [[RACTestObject alloc] init];
+		[subject setKeyPath:@keypath(testObject.integerValue) onObject:testObject nilValue:@5];
+
+		[subject sendNext:@1];
+		expect(testObject.integerValue).to.equal(1);
+
+		[subject sendNext:nil];
+		expect(testObject.integerValue).to.equal(5);
+
+		[subject sendCompleted];
+		expect(testObject.integerValue).to.equal(5);
 	});
 });
 

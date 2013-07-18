@@ -24,6 +24,10 @@
 @property (nonatomic, copy) NSSet *setValue;
 @property (nonatomic, copy) NSOrderedSet *orderedSetValue;
 
+// Whether to allow -setNilValueForKey: to be invoked without throwing an
+// exception.
+@property (nonatomic, assign) BOOL catchSetNilValueForKey;
+
 // Has -setObjectValue:andIntegerValue: been called?
 @property (nonatomic, assign) BOOL hasInvokedSetObjectValueAndIntegerValue;
 

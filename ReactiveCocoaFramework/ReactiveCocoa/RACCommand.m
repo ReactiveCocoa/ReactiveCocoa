@@ -147,12 +147,12 @@
 		canExecuteSignal = [mainThreadSignal startWith:@YES];
 	}
 
-	RAC(self.canExecute) = [RACSignal
+	RAC(self, canExecute, @NO) = [RACSignal
 		combineLatest:@[
 			// All of these signals deliver onto the main thread.
 			canExecuteSignal,
-			RACObserve(self.allowsConcurrentExecution),
-			RACObserve(self.executing)
+			RACObserve(self, allowsConcurrentExecution),
+			RACObserve(self, executing)
 		] reduce:^(NSNumber *canExecute, NSNumber *allowsConcurrency, NSNumber *executing) {
 			BOOL blocking = !allowsConcurrency.boolValue && executing.boolValue;
 			return @(canExecute.boolValue && !blocking);

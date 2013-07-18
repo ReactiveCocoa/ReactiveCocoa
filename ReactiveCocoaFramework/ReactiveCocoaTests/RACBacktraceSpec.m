@@ -21,7 +21,7 @@ extern void rac_dispatch_after_f(dispatch_time_t time, dispatch_queue_t queue, v
 static RACBacktrace *previousBacktrace;
 
 static void capturePreviousBacktrace(void *context) {
-	previousBacktrace = [RACBacktrace captureBacktrace].previousThreadBacktrace;
+	previousBacktrace = [RACBacktrace backtrace].previousThreadBacktrace;
 }
 
 SpecBegin(RACBacktrace)
@@ -29,7 +29,7 @@ SpecBegin(RACBacktrace)
 __block dispatch_block_t block;
 
 beforeEach(^{
-	expect([RACBacktrace captureBacktrace].previousThreadBacktrace).to.beNil();
+	expect([RACBacktrace backtrace].previousThreadBacktrace).to.beNil();
 	previousBacktrace = nil;
 
 	block = ^{
@@ -38,7 +38,7 @@ beforeEach(^{
 });
 
 it(@"should capture the current backtrace", ^{
-	RACBacktrace *backtrace = [RACBacktrace captureBacktrace];
+	RACBacktrace *backtrace = [RACBacktrace backtrace];
 	expect(backtrace).notTo.beNil();
 });
 

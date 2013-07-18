@@ -34,6 +34,7 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=3&sta
 
  1. [Commands for UIButton](#commands-for-uibutton)
  1. [Signal for UIActionSheet button clicks](#signal-for-uiactionsheet-button-clicks)
+ 1. [Better documentation for asynchronous backtraces](#better-documentation-for-asynchronous-backtraces)
  1. [Fixed libextobjc duplicated symbols](#fixed-libextobjc-duplicated-symbols)
 
 ## Breaking changes
@@ -362,6 +363,20 @@ be disabled whenever the command is unable to execute.
 `UIActionSheet` now has a [rac_buttonClickedSignal
 property](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/611), which will
 fire whenever one of the sheet's buttons is clicked.
+
+### Better documentation for asynchronous backtraces
+
+Documentation has been
+[added](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/680) to
+`RACBacktrace` explaining how to start collecting backtraces and print them out
+in the debugger.
+
+The `+captureBacktrace…` methods have been renamed to `+backtrace…`, and
+`+printBacktrace` has been removed in favor of using `po [RACBacktrace backtrace]`
+from the debugger.
+
+The `rac_` GCD functions which collect backtraces have also been exposed,
+primarily for use on iOS.
 
 ### Fixed libextobjc duplicated symbols
 

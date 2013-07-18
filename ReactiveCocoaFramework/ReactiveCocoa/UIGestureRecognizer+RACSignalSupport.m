@@ -13,6 +13,7 @@
 #import "RACDisposable.h"
 #import "RACSignal.h"
 #import "RACSubscriber.h"
+#import "NSObject+RACDescription.h"
 
 @implementation UIGestureRecognizer (RACSignalSupport)
 
@@ -33,7 +34,7 @@
 				[self removeTarget:subscriber action:@selector(sendNext:)];
 			}];
 		}]
-		setNameWithFormat:@"%@ -rac_gestureSignal", self];
+		setNameWithFormat:@"%@ -rac_gestureSignal", [self rac_description]];
 }
 
 @end

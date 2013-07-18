@@ -11,6 +11,7 @@
 #import "RACSignal+Operations.h"
 #import "NSObject+RACDeallocating.h"
 #import "RACTuple.h"
+#import "NSObject+RACDescription.h"
 #import <objc/runtime.h>
 
 @implementation UIActionSheet (RACSignalSupport)
@@ -41,7 +42,7 @@ static void RACUseDelegateProxy(UIActionSheet *self) {
 			return buttonIndex;
 		}]
 		takeUntil:self.rac_willDeallocSignal]
-		setNameWithFormat:@"%@ -rac_buttonClickedSignal", self];
+		setNameWithFormat:@"%@ -rac_buttonClickedSignal", [self rac_description]];
 }
 
 @end

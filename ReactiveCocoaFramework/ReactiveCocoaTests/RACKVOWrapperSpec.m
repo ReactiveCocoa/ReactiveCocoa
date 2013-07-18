@@ -395,6 +395,51 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 				RACKVOWrapperExamplesChangesValueDirectly: @NO
 			});
 		});
+
+		it(@"should not notice deallocation of the object returned by a dynamic final property", ^{
+			RACTestObject *object = [[RACTestObject alloc] init];
+
+			__block id lastValue = nil;
+			@autoreleasepool {
+				[object rac_observeKeyPath:@keypath(object.dynamicObjectProperty) options:NSKeyValueObservingOptionInitial observer:nil block:^(id value, NSDictionary *change) {
+					lastValue = value;
+				}];
+
+				expect(lastValue).to.beKindOf(RACTestObject.class);
+			}
+
+			expect(lastValue).to.beKindOf(RACTestObject.class);
+		});
+
+		it(@"should not notice deallocation of the object returned by a dynamic intermediate property", ^{
+			RACTestObject *object = [[RACTestObject alloc] init];
+
+			__block id lastValue = nil;
+			@autoreleasepool {
+				[object rac_observeKeyPath:@keypath(object.dynamicObjectProperty.integerValue) options:NSKeyValueObservingOptionInitial observer:nil block:^(id value, NSDictionary *change) {
+					lastValue = value;
+				}];
+
+				expect(lastValue).to.equal(@42);
+			}
+
+			expect(lastValue).to.equal(@42);
+		});
+
+		it(@"should not notice deallocation of the object returned by a dynamic method", ^{
+			RACTestObject *object = [[RACTestObject alloc] init];
+
+			__block id lastValue = nil;
+			@autoreleasepool {
+				[object rac_observeKeyPath:@keypath(object.dynamicObjectMethod) options:NSKeyValueObservingOptionInitial observer:nil block:^(id value, NSDictionary *change) {
+					lastValue = value;
+				}];
+
+				expect(lastValue).to.beKindOf(RACTestObject.class);
+			}
+
+			expect(lastValue).to.beKindOf(RACTestObject.class);
+		});
 	});
 
 	it(@"should not call the callback block when the value is the observer", ^{
@@ -404,24 +449,25 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 		__block BOOL targetDeallocationTriggeredChange = NO;
 
 		@autoreleasepool {
-			NSObject *observer __attribute__((objc_precise_lifetime)) = [RACTestObject new];
+			RACTestObject *observer __attribute__((objc_precise_lifetime)) = [RACTestObject new];
 			[observer.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				observerDisposed = YES;
 			}]];
 
-			NSObject *target __attribute__((objc_precise_lifetime)) = [RACTestObject new];
+			RACTestObject *target __attribute__((objc_precise_lifetime)) = [RACTestObject new];
 			[target.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				targetDisposed = YES;
 			}]];
 
+			observer.weakTestObjectValue = observer;
+			target.weakTestObjectValue = target;
+
 			// These observations can only result in dealloc triggered callbacks.
-			// Specifically, they do not perform any actions that would trigger
-			// a KVO change for the key "self".
-			[observer rac_observeKeyPath:@keypath(observer.self) options:0 observer:observer block:^(id _, NSDictionary *__) {
+			[observer rac_observeKeyPath:@keypath(target.weakTestObjectValue) options:0 observer:observer block:^(id _, NSDictionary *__) {
 				observerDeallocationTriggeredChange = YES;
 			}];
 
-			[target rac_observeKeyPath:@keypath(observer.self) options:0 observer:observer block:^(id _, NSDictionary *__) {
+			[target rac_observeKeyPath:@keypath(target.weakTestObjectValue) options:0 observer:observer block:^(id _, NSDictionary *__) {
 				targetDeallocationTriggeredChange = YES;
 			}];
 		}

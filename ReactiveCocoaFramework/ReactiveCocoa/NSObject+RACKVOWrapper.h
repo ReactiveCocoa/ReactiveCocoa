@@ -23,9 +23,12 @@ extern NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey;
 
 @interface NSObject (RACKVOWrapper)
 
-// Adds the given block as the callbacks for when the key path changes. Unlike
-// direct KVO observation this handles deallocation of intermediate objects by
-// generating an appropriate notification.
+// Adds the given block as the callbacks for when the key path changes.
+//
+// Unlike direct KVO observation, this handles deallocation of `weak` properties
+// by generating an appropriate notification. This will only occur if there is
+// an `@property` declaration visible in the observed class, with the `weak`
+// memory management attribute.
 //
 // The observation does not need to be explicitly removed. It will be removed
 // when the observer or the receiver deallocate.

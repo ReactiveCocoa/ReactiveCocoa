@@ -7,6 +7,7 @@
 //
 
 #import "NSObject+RACKVOWrapper.h"
+#import "EXTRuntimeExtensions.h"
 #import "EXTScope.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSString+RACKeyPathUtilities.h"
@@ -22,7 +23,9 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 - (RACDisposable *)rac_observeKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer block:(void (^)(id, NSDictionary *))block {
 	NSCParameterAssert(block != nil);
 	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
+
 	@unsafeify(observer);
+
 	NSArray *keyPathComponents = keyPath.rac_keyPathComponents;
 	BOOL keyPathHasOneComponent = (keyPathComponents.count == 1);
 	NSString *keyPathHead = keyPathComponents[0];
@@ -32,19 +35,14 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 
 	// The disposable that groups all disposal necessary to clean up the callbacks
 	// added to the value of the first key path component.
+	//
+	// This should only be modified while synchronized on `disposable`.
 	__block RACCompoundDisposable *firstComponentDisposable = [RACCompoundDisposable compoundDisposable];
 	[disposable addDisposable:firstComponentDisposable];
 
 	// Adds the callback block to the value's deallocation. Also adds the logic to
 	// clean up the callback to firstComponentDisposable.
-	void (^addDeallocObserverToValue)(NSObject *) = ^(NSObject *value) {
-		NSDictionary *change = @{
-			NSKeyValueChangeKindKey: @(NSKeyValueChangeSetting),
-			NSKeyValueChangeNewKey: NSNull.null,
-			RACKeyValueChangeCausedByDeallocationKey: @YES,
-			RACKeyValueChangeAffectedOnlyLastComponentKey: @(keyPathHasOneComponent)
-		};
-
+	void (^addDeallocObserverToPropertyValue)(NSObject *, NSString *, NSObject *) = ^(NSObject *parent, NSString *propertyKey, NSObject *value) {
 		// If a key path value is the observer, commonly when a key path begins
 		// with "self", we prevent deallocation triggered callbacks for any such key
 		// path components. Thus, the observer's deallocation is not considered a
@@ -52,11 +50,54 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 		@strongify(observer);
 		if (value == observer) return;
 
+		objc_property_t property = class_getProperty(object_getClass(parent), propertyKey.UTF8String);
+		if (property == NULL) {
+			// If we can't find an Objective-C property for this key, we assume
+			// that we don't need to observe its deallocation (thus matching
+			// vanilla KVO behavior).
+			//
+			// Even if we wanted to, there's not enough type information on
+			// ivars to figure out its memory management.
+			return;
+		}
+
+		rac_propertyAttributes *attributes = rac_copyPropertyAttributes(property);
+		if (attributes == NULL) return;
+
+		@onExit {
+			free(attributes);
+		};
+
+		if (attributes->objectClass == nil && strcmp(attributes->type, @encode(id)) != 0) {
+			// If this property isn't actually an object (or is a Class object),
+			// no point in observing the deallocation of the wrapper returned by
+			// KVC.
+			return;
+		}
+
+		if (!attributes->weak) {
+			// If this property is an object, but not declared `weak`, we
+			// don't need to watch for it spontaneously being set to nil.
+			//
+			// Attempting to observe non-weak properties will result in
+			// broken behavior for dynamic getters, so don't even try.
+			return;
+		}
+
+		NSDictionary *change = @{
+			NSKeyValueChangeKindKey: @(NSKeyValueChangeSetting),
+			NSKeyValueChangeNewKey: NSNull.null,
+			RACKeyValueChangeCausedByDeallocationKey: @YES,
+			RACKeyValueChangeAffectedOnlyLastComponentKey: @(keyPathHasOneComponent)
+		};
+
 		RACCompoundDisposable *valueDisposable = value.rac_deallocDisposable;
 		RACDisposable *deallocDisposable = [RACDisposable disposableWithBlock:^{
 			block(nil, change);
 		}];
+
 		[valueDisposable addDisposable:deallocDisposable];
+
 		@synchronized (disposable) {
 			[firstComponentDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				[valueDisposable removeDisposable:deallocDisposable];
@@ -124,7 +165,8 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 			firstComponentDisposable = [RACCompoundDisposable compoundDisposable];
 			[disposable addDisposable:firstComponentDisposable];
 		}
-		addDeallocObserverToValue(value);
+
+		addDeallocObserverToPropertyValue(trampolineTarget, keyPathHead, value);
 
 		// If there are no further key path components, there is no need to add the
 		// other callbacks, just call the callback block with the value itself.
@@ -147,7 +189,8 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 	// Add the callbacks to the initial value if needed.
 	NSObject *value = [self valueForKey:keyPathHead];
 	if (value != nil) {
-		addDeallocObserverToValue(value);
+		addDeallocObserverToPropertyValue(self, keyPathHead, value);
+
 		if (!keyPathHasOneComponent) {
 			addObserverToValue(value);
 		}

@@ -8,6 +8,7 @@
 
 #import "NSNotificationCenter+RACSupport.h"
 #import <ReactiveCocoa/EXTScope.h>
+#import "NSObject+RACDescription.h"
 
 @implementation NSNotificationCenter (RACSupport)
 
@@ -22,7 +23,7 @@
 		return [RACDisposable disposableWithBlock:^{
 			[self removeObserver:observer];
 		}];
-	}] setNameWithFormat:@"-rac_addObserverForName: %@ object: <%@: %p>", notificationName, [object class], object];
+	}] setNameWithFormat:@"-rac_addObserverForName: %@ object: %@", notificationName, [object rac_description]];
 }
 
 @end

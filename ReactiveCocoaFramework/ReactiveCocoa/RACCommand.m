@@ -8,13 +8,13 @@
 
 #import "RACCommand.h"
 #import "EXTScope.h"
+#import "NSObject+RACPropertySubscribing.h"
 #import "RACMulticastConnection.h"
 #import "RACReplaySubject.h"
 #import "RACScheduler.h"
 #import "RACSignal+Operations.h"
 #import "RACSubject.h"
 #import "RACSubscriptingAssignmentTrampoline.h"
-#import <libkern/OSAtomic.h>
 
 @interface RACCommand () {
 	RACSubject *_errors;
@@ -151,8 +151,8 @@
 		combineLatest:@[
 			// All of these signals deliver onto the main thread.
 			canExecuteSignal,
-			RACAbleWithStart(self.allowsConcurrentExecution),
-			RACAbleWithStart(self.executing)
+			RACObserve(self.allowsConcurrentExecution),
+			RACObserve(self.executing)
 		] reduce:^(NSNumber *canExecute, NSNumber *allowsConcurrency, NSNumber *executing) {
 			BOOL blocking = !allowsConcurrency.boolValue && executing.boolValue;
 			return @(canExecute.boolValue && !blocking);

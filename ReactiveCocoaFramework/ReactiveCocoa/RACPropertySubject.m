@@ -25,7 +25,7 @@
 @property (nonatomic, readonly, strong) id<RACSubscriber> subscriber;
 
 // The signal exposed to callers. The property will behave like this signal
-// towards it's subscribers.
+// towards its subscribers.
 @property (nonatomic, readonly, strong) RACSignal *exposedSignal;
 
 // The subscriber exposed to callers. The property will behave like this
@@ -81,6 +81,7 @@
 	_exposedSignal = [_signal map:^(RACTuple *value) {
 		return value.first;
 	}];
+
 	_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
 		[subscriber sendNext:[RACTuple tupleWithObjects:x, RACTupleNil.tupleNil, nil]];
 	} error:^(NSError *error) {
@@ -89,7 +90,9 @@
 		
 		// Log the error if we're running with assertions disabled.
 		NSLog(@"Received error in RACPropertySubject %@: %@", self, error);
-	} completed:nil];
+	} completed:^{
+		[subscriber sendCompleted];
+	}];
 	
 	return self;
 }

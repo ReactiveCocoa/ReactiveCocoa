@@ -6,8 +6,8 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import <ReactiveCocoa/RACSignal.h>
-#import <ReactiveCocoa/RACSubscriber.h>
+#import "RACSignal.h"
+#import "RACSubscriber.h"
 
 // A subject can be thought of as a signal that you can manually control by
 // sending next, completed, and error.

@@ -8,32 +8,45 @@
 
 #import <Foundation/Foundation.h>
 
-// The block called when the KVO notification fires.
-//
-// target   - The object being observed.
-// observer - The object doing the observing.
-// change   - The KVO change dictionary, as given to
-//            -observeValueForKeyPath:ofObject:change:context:.
-typedef void (^RACKVOBlock)(id target, id observer, NSDictionary *change);
 
-@class RACKVOTrampoline;
+// RAC-specific KVO change dictionary key: Will be @YES if the change was caused
+// by the value at the key path or an intermediate value deallocating, @NO
+// otherwise.
+extern NSString * const RACKeyValueChangeCausedByDeallocationKey;
+
+// RAC-specific KVO change dictionary key: Will be @YES if the change only
+// affected the value of the last key path component leaving the values of the
+// intermediate key path components unaltered, @NO otherwise.
+extern NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey;
+
+@class RACDisposable, RACKVOTrampoline;
 
 @interface NSObject (RACKVOWrapper)
 
-// Adds the given block as the callback for when the keyPath changes. The
-// observer does not need to be explicitly removed. It will be removed when the
-// observer or observed object is dealloc'd.
+// Adds the given block as the callbacks for when the key path changes. Unlike
+// direct KVO observation this handles deallocation of intermediate objects by
+// generating an appropriate notification.
 //
-// observer - the object to which callbacks will be delivered. This is passed back
-// into the given block.
+// The observation does not need to be explicitly removed. It will be removed
+// when the observer or the receiver deallocate.
 //
-// keyPath - the key path to observe
+// keyPath  - The key path to observe. Must not be nil.
+// options  - The KVO observation options.
+// observer - The object that requested the observation. May be nil.
+// block    - The block called when the value at the key path changes. It is
+//            passed the current value of the key path and the extended KVO
+//            change dictionary including RAC-specific keys and values. Must not
+//            be nil.
 //
-// options - the key-value observing options
-//
-// block - the block called when the value at the key path changes.
-//
-// Returns the KVO trampoline that can be used to stop the observation.
-- (RACKVOTrampoline *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(RACKVOBlock)block;
+// Returns a disposable that can be used to stop the observation.
+- (RACDisposable *)rac_observeKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer block:(void (^)(id value, NSDictionary *change))block;
+
+@end
+
+typedef void (^RACKVOBlock)(id target, id observer, NSDictionary *change);
+
+@interface NSObject (RACKVOWrapperDeprecated)
+
+- (RACKVOTrampoline *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(RACKVOBlock)block __attribute((deprecated("Use rac_observeKeyPath:options:observer:block: instead.")));
 
 @end

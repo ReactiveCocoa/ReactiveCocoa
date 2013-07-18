@@ -15,7 +15,7 @@
 @interface RACBinding ()
 
 // The signal exposed to callers. The property will behave like this signal
-// towards it's subscribers.
+// towards its subscribers.
 @property (nonatomic, readonly, strong) RACSignal *exposedSignal;
 
 // The subscriber exposed to callers. The property will behave like this
@@ -65,15 +65,35 @@
 				isFirstNext = NO;
 				[subscriber sendNext:x.first];
 			}
+		} completed:^{
+			[subscriber sendCompleted];
 		}];
 	}];
+
 	_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
 		@strongify(self);
 		[subscriber sendNext:[RACTuple tupleWithObjects:x ?: RACTupleNil.tupleNil, self ?: RACTupleNil.tupleNil, nil]];
-	} error:nil completed:nil];
+	} error:^(NSError *error) {
+		@strongify(self);
+		NSCAssert(NO, @"Received error in RACBinding %@: %@", self, error);
+
+		// Log the error if we're running with assertions disabled.
+		NSLog(@"Received error in RACBinding %@: %@", self, error);
+
+		[subscriber sendError:error];
+	} completed:^{
+		[subscriber sendCompleted];
+	}];
 	
 	return self;
 }
+
+@end
+
+@implementation RACBinding (Deprecated)
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 
 - (RACDisposable *)bindTo:(RACBinding *)binding {
 	RACDisposable *bindingDisposable = [binding subscribe:self];
@@ -83,5 +103,7 @@
 		[selfDisposable dispose];
 	}];
 }
+
+#pragma clang diagnostic pop
 
 @end

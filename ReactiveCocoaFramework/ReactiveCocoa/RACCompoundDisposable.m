@@ -7,7 +7,6 @@
 //
 
 #import "RACCompoundDisposable.h"
-#import "EXTScope.h"
 #import <libkern/OSAtomic.h>
 
 @interface RACCompoundDisposable () {
@@ -72,6 +71,11 @@
 	}
 
 	return self;
+}
+
+- (id)initWithBlock:(void (^)(void))block {
+	RACDisposable *disposable = [RACDisposable disposableWithBlock:block];
+	return [self initWithDisposables:@[ disposable ]];
 }
 
 - (void)dealloc {

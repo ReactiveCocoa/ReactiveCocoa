@@ -27,7 +27,8 @@
 	return nil;
 }
 
-- (RACDisposable *)after:(dispatch_time_t)when schedule:(void (^)(void))block {
+- (RACDisposable *)after:(NSDate *)date schedule:(void (^)(void))block {
+	dispatch_time_t when = dispatch_time(DISPATCH_TIME_NOW, (int64_t)([date timeIntervalSinceNow] * NSEC_PER_SEC));
 	dispatch_after(when, self.queue, ^{
 		[self performAsCurrentScheduler:block];
 	});

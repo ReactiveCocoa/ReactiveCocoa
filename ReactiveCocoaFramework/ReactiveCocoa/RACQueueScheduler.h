@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import <ReactiveCocoa/RACScheduler.h>
+#import "RACScheduler.h"
 
 // An abstract scheduler which asynchronously enqueues all its work to a Grand
 // Central Dispatch queue.

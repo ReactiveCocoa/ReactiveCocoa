@@ -57,9 +57,9 @@
 	return [RACArraySequence sequenceWithArray:self.array offset:0];
 }
 
-- (id)foldRightWithStart:(id)start combine:(id (^)(id, RACSequence *rest))combine {
-	return [super foldRightWithStart:start combine:^(id first, RACSequence *rest) {
-		return combine(first, rest.eagerSequence);
+- (id)foldRightWithStart:(id)start reduce:(id (^)(id, RACSequence *rest))reduce {
+	return [super foldRightWithStart:start reduce:^(id first, RACSequence *rest) {
+		return reduce(first, rest.eagerSequence);
 	}];
 }
 

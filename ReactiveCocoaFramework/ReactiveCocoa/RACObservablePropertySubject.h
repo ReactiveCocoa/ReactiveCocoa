@@ -10,18 +10,17 @@
 #import "EXTKeyPathCoding.h"
 #import "metamacros.h"
 
-// Convenience macro for creating bindings and binding them.
+// Creates a binding to the given key path.
 //
-// If given just one argument, it's assumed to be a keypath or property on self.
-// If given two, the first argument is the object to which the keypath is
-// relative and the second is the keypath.
+// If given one argument, it's assumed to be a key path or property on self.
+// If given two arguments, the first argument is the object to which the key
+// path is relative to and the second one is the key path.
 //
-// If RACBind() is used as an lvalue (an assignee), the named property is bound
-// to the RACBinding provided on the right-hand side of the assignment. The
-// binding property's value is set to the value of the property being bound to,
-// then any changes to one property will be reflected on the other.
-//
-// If RACBind() is used as an rvalue, a RACBinding is returned.
+// If RACBind() is used on the left-hand side of an assignment and there is a
+// RACBinding on the right-hand side of the assignment the two are subscribed to
+// one another: the left-hand side property's value is set to the value of the
+// property on the right-hand side and subsequent changes to one property will
+// be reflected on the other.
 //
 // Examples:
 // RACBinding *binding = RACBind(self.property);
@@ -33,19 +32,23 @@
 
 // A RACPropertySubject wrapper for KVO compliant key paths.
 //
-// New values of `keyPath` will be sent to the wrapper's subscribers and it's
+// New values of `keyPath` will be sent to the wrapper's subscribers and its
 // bindings' subscribers. `keyPath` will be updated with values sent to the
-// wrapper or it's bindings. Subscribers of the wrapper or it's bindings will be
+// wrapper or its bindings. Subscribers of the wrapper or its bindings will be
 // sent the current value of `keyPath`.
 //
-// Note: RACObservablePropertySubject is not thread-safe and should not observe
-// a property, or be bound to a RACProperty, whose value can be changed from
-// multiple threads at the same time.
+// `completed` events sent to a RACObservablePropertySubject are also sent to
+// its bindings' subscribers. `completed` events sent to
+// a RACObservablePropertySubject's bindings are also sent to the
+// RACObservablePropertySubject.
+//
+// It is considered undefined behavior to send `error` to
+// a RACObservablePropertySubject or its bindings.
 @interface RACObservablePropertySubject : RACPropertySubject
 
 // Returns a new RACPropertySubject wrapper for `keyPath` on `target` with a
 // starting value equal to the value of `keyPath` on `target`.
-+ (instancetype)propertyWithTarget:(id)target keyPath:(NSString *)keyPath;
++ (instancetype)propertyWithTarget:(NSObject *)target keyPath:(NSString *)keyPath;
 
 @end
 

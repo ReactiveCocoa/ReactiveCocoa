@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#import <ReactiveCocoa/RACQueueScheduler.h>
+#import "RACQueueScheduler.h"
 
 // An interface for use by subclasses.
 //
@@ -37,5 +37,10 @@
 //
 // block - The block to execute. Cannot be NULL.
 - (void)performAsCurrentScheduler:(void (^)(void))block;
+
+// Converts a date into a GCD time using dispatch_walltime().
+//
+// date - The date to convert. This must not be nil.
++ (dispatch_time_t)wallTimeWithDate:(NSDate *)date;
 
 @end

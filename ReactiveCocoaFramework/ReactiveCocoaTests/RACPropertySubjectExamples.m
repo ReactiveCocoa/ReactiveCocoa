@@ -33,7 +33,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 		property = getProperty();
 	});
 	
-	it(@"should send it's current value on subscription", ^{
+	it(@"should send its current value on subscription", ^{
 		__block id receivedValue = nil;
 		[property sendNext:value1];
 		[[property take:1] subscribeNext:^(id x) {
@@ -48,7 +48,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 		expect(receivedValue).to.equal(value2);
 	});
 	
-	it(@"should send it's value as it changes", ^{
+	it(@"should send its value as it changes", ^{
 		[property sendNext:value1];
 		NSMutableArray *receivedValues = [NSMutableArray array];
 		[property subscribeNext:^(id x) {
@@ -58,9 +58,19 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 		[property sendNext:value3];
 		expect(receivedValues).to.equal(values);
 	});
+
+	it(@"should complete manually", ^{
+		__block BOOL completed = NO;
+		[property subscribeCompleted:^{
+			completed = YES;
+		}];
+
+		[property sendCompleted];
+		expect(completed).to.beTruthy();
+	});
 	
 	describe(@"memory management", ^{
-		it(@"should dealloc when it's subscribers are disposed", ^{
+		it(@"should dealloc when its subscribers are disposed", ^{
 			RACDisposable *disposable = nil;
 			__block BOOL deallocd = NO;
 			@autoreleasepool {
@@ -74,7 +84,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 			expect(deallocd).will.beTruthy();
 		});
 		
-		it(@"should dealloc when it's subscriptions are disposed", ^{
+		it(@"should dealloc when its subscriptions are disposed", ^{
 			RACDisposable *disposable = nil;
 			__block BOOL deallocd = NO;
 			@autoreleasepool {
@@ -88,7 +98,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 			expect(deallocd).will.beTruthy();
 		});
 		
-		it(@"should dealloc when it's binding's subscribers are disposed", ^{
+		it(@"should dealloc when its binding's subscribers are disposed", ^{
 			RACDisposable *disposable = nil;
 			__block BOOL deallocd = NO;
 			@autoreleasepool {
@@ -102,7 +112,7 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 			expect(deallocd).will.beTruthy();
 		});
 		
-		it(@"should dealloc when it's binding's subscriptions are disposed", ^{
+		it(@"should dealloc when its binding's subscriptions are disposed", ^{
 			RACDisposable *disposable = nil;
 			__block BOOL deallocd = NO;
 			@autoreleasepool {
@@ -116,8 +126,9 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 			expect(deallocd).will.beTruthy();
 		});
 		
-		it(@"should dealloc if it's binding with other properties is disposed", ^{
-			RACDisposable *disposable = nil;
+		it(@"should dealloc if its binding with other properties is disposed", ^{
+			RACDisposable *disposable1 = nil;
+			RACDisposable *disposable2 = nil;
 			__block BOOL deallocd1 = NO;
 			__block BOOL deallocd2 = NO;
 			@autoreleasepool {
@@ -129,9 +140,13 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 				[property2.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd2 = YES;
 				}]];
-				disposable = [[property1 binding] bindTo:[property2 binding]];
+				RACBinding *property1Binding = [property1 binding];
+				RACBinding *property2Binding = [property2 binding];
+				disposable1 = [property2Binding subscribe:property1Binding];
+				disposable2 = [property1Binding subscribe:property2Binding];
 			}
-			[disposable dispose];
+			[disposable1 dispose];
+			[disposable2 dispose];
 			expect(deallocd1).will.beTruthy();
 			expect(deallocd2).will.beTruthy();
 		});
@@ -229,6 +244,36 @@ sharedExamplesFor(RACPropertySubjectExamples, ^(NSDictionary *data) {
 				receivedValue = x;
 			}];
 			expect(receivedValue).to.equal(value2);
+		});
+
+		it(@"should complete when the property completes", ^{
+			__block BOOL completed = NO;
+			[binding1 subscribeCompleted:^{
+				completed = YES;
+			}];
+
+			[property sendCompleted];
+			expect(completed).to.beTruthy();
+		});
+
+		it(@"should complete manually", ^{
+			__block BOOL completed = NO;
+			[binding1 subscribeCompleted:^{
+				completed = YES;
+			}];
+
+			[binding1 sendCompleted];
+			expect(completed).to.beTruthy();
+		});
+
+		it(@"should complete its property", ^{
+			__block BOOL completed = NO;
+			[property subscribeCompleted:^{
+				completed = YES;
+			}];
+
+			[binding1 sendCompleted];
+			expect(completed).to.beTruthy();
 		});
 	});
 });

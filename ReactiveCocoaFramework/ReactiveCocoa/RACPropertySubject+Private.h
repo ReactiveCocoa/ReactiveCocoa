@@ -19,7 +19,7 @@
 //              the property as it changes, and the second element is the
 //              binding that triggered the change, or `nil` if the change was
 //              triggered by other means. The signal must also send a `RACTuple`
-//              with the current value and it's originator on subscription.
+//              with the current value and its originator on subscription.
 // subscriber - A subscriber that will be sent a `RACTuple` every time the
 //              property is changed. The first element will be the new value,
 //              the second element will be the binding that triggered the change

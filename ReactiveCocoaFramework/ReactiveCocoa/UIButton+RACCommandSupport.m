@@ -7,13 +7,11 @@
 //
 
 #import "UIButton+RACCommandSupport.h"
-#import <ReactiveCocoa/EXTKeyPathCoding.h>
-#import <ReactiveCocoa/NSObject+RACPropertySubscribing.h>
-#import <ReactiveCocoa/RACCommand.h>
-#import <ReactiveCocoa/RACDisposable.h>
-#import <ReactiveCocoa/RACScheduler.h>
-#import <ReactiveCocoa/RACSignal+Operations.h>
-#import <ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h>
+#import "EXTKeyPathCoding.h"
+#import "NSObject+RACPropertySubscribing.h"
+#import "RACCommand.h"
+#import "RACDisposable.h"
+#import "RACSignal+Operations.h"
 #import <objc/runtime.h>
 
 static void *UIButtonRACCommandKey = &UIButtonRACCommandKey;
@@ -34,7 +32,7 @@ static void *UIButtonCanExecuteDisposableKey = &UIButtonCanExecuteDisposableKey;
 	
 	if (command == nil) return;
 	
-	disposable = [RACAbleWithStart(command, canExecute) toProperty:@keypath(self.enabled) onObject:self];
+	disposable = [RACObserve(command, canExecute) setKeyPath:@keypath(self.enabled) onObject:self];
 	objc_setAssociatedObject(self, UIButtonCanExecuteDisposableKey, disposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
 	[self rac_hijackActionAndTargetIfNeeded];

@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <ReactiveCocoa/RACSignal.h>
+#import "RACSignal.h"
 
 // A command is a signal triggered in response to some action, typically
 // UI-related.

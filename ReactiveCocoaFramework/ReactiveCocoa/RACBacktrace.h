@@ -9,6 +9,11 @@
 #ifdef DEBUG
 
 // Preserves backtraces across asynchronous calls.
+//
+// On OS X, you can enable the automatic capturing of asynchronous backtraces
+// (in Debug builds) by setting the `DYLD_INSERT_LIBRARIES` environment variable
+// to `@executable_path/../Frameworks/ReactiveCocoa.framework/ReactiveCocoa` in
+// your scheme's Run action settings.
 @interface RACBacktrace : NSObject
 
 // The backtrace from any previous thread.

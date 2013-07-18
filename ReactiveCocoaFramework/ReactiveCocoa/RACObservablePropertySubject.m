@@ -376,16 +376,10 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 
 - (void)destroyCurrentThreadData {
 	NSMutableArray *dataArray = NSThread.currentThread.threadDictionary[RACObservablePropertyBindingDataDictionaryKey];
-	BOOL found = NO;
-	NSUInteger index = 0;
-	for (RACObservablePropertyBindingData *data in dataArray) {
-		if (data.owner == (__bridge void *)(self)) {
-			found = YES;
-			break;
-		}
-		++index;
-	}
-	if (found) [dataArray removeObjectAtIndex:index];
+	NSUInteger index = [dataArray indexOfObjectPassingTest:^ BOOL (RACObservablePropertyBindingData *data, NSUInteger idx, BOOL *stop) {
+		return data.owner == (__bridge void *)(self);
+	}];
+	if (index != NSNotFound) [dataArray removeObjectAtIndex:index];
 }
 
 @end

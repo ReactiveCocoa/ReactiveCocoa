@@ -129,6 +129,23 @@ To make the sequencing and transformation operators less confusing,
    use its argument.
  * Replace uses of `-sequenceNext:` with `-then:`.
 
+### Renamed signal binding method
+
+`-toProperty:onObject:` and `-[NSObject rac_deriveProperty:from:]` have been
+[combined](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/617) into a new
+`-[RACSignal setKeyPath:onObject:nilValue:]` method.
+
+The `nilValue` parameter was added in parallel with [RAC and
+RACBind](#fallback-nil-values-for-rac-and-racbind), but the semantics are
+otherwise identical.
+
+**To update:**
+
+ * Replace `-toProperty:onObject:` and `-rac_deriveProperty:from:` with
+   `-setKeyPath:onObject:`.
+ * When binding a signal that might send nil (like a key path observation) to
+   a primitive property, provide a default value: `[signal setKeyPath:@"integerProperty" onObject:self nilValue:@5]`
+
 ### Consistent selector lifting
 
 In the interests of [parametricity](http://en.wikipedia.org/wiki/Parametricity),
@@ -176,9 +193,15 @@ instead of `RACSubject` to make it more obvious how to use the block argument.
 [-rac_willDeallocSignal](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/580),
 because most teardown should happen _before_ the object becomes invalid.
 
+`-rac_addDeallocDisposable:` has also been
+[removed](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/586) in favor of
+using the object's `rac_deallocDisposable` directly.
+
 **To update:**
 
  * Replace uses of `-rac_didDeallocSignal` with `rac_willDeallocSignal`.
+ * Replace uses of `-rac_addDeallocDisposable:` by invoking `-addDisposable:` on
+   the object's `rac_deallocDisposable` instead.
 
 ### Extensible queue-based schedulers
 
@@ -194,21 +217,16 @@ subclass replaces the `+schedulerWithQueue:name:` method.
 
  * Replace uses of `+schedulerWithQueue:name:` with `-[RACTargetQueueScheduler initWithName:targetQueue:]`.
 
-### C string lifting removed
+### GCD time values replaced with NSDate
 
-Methods with `char *` and `const char *` arguments can [no longer be
-lifted](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/535), because the
-memory management semantics make it impossible to do safely.
-
-### NSTask extension removed
-
-`NSTask+RACSupport` has been
-[removed](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/556), because it
-was buggy and unsupported.
+`NSDate` now [replaces](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/664)
+`dispatch_time_t` values in `RACScheduler`, because it's easier to use, more
+convertible to other formats, and can be used to implement a [virtualized time
+scheduler](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/171).
 
 **To update:**
 
- * Use a vanilla `NSTask`, and send events onto `RACSubject`s instead.
+ * Replace `dispatch_time_t` calculations with `NSDate`.
 
 ### Better bindings for AppKit
 
@@ -231,3 +249,67 @@ a two-way binding or treated like a one-way signal.
 **To update:**
 
  * Invoke such methods manually in a `-subscribeNext:` block.
+
+### -bindTo: removed
+
+`-[RACBinding bindTo:]` was difficult to understand, so it has been
+[removed](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/605). Explicit
+subscription is preferred instead.
+
+The special `RACBind(...) = RACBind(...)` syntax will continue to work.
+
+**To update:**
+
+Replace:
+
+```objc
+[binding1 bindTo:binding2];
+```
+
+with:
+
+```objc
+[binding2 subscribe:binding1];
+[[binding1 skip:1] subscribe:binding2];
+```
+
+### Windows and numbered buffers removed
+
+`-windowWithStart:close:` and `-buffer:` have been
+[removed](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/616) because
+they're not well-tested, and their functionality can be achieved with other
+operators.
+
+`-bufferWithTime:` is still supported.
+
+**To update:**
+
+ * Refactor uses of `-windowWithStart:close:` with different patterns.
+ * Replace uses of `-buffer:` with [take, collect, and
+   repeat](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/587).
+
+### C string lifting removed
+
+Methods with `char *` and `const char *` arguments can [no longer be
+lifted](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/535), because the
+memory management semantics make it impossible to do safely.
+
+### NSTask extension removed
+
+`NSTask+RACSupport` has been
+[removed](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/556), because it
+was buggy and unsupported.
+
+**To update:**
+
+ * Use a vanilla `NSTask`, and send events onto `RACSubject`s instead.
+
+### RACSubscriber class now private
+
+The `RACSubscriber` class (not to be confused with the protocol) should never be
+used directly, so it has been
+[hidden](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/584).
+
+**To update:**
+
+ * Replace uses of `RACSubscriber` with `RACSubject`.

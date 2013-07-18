@@ -9,13 +9,6 @@
 #import "RACBacktrace.h"
 #import "RACScheduler.h"
 
-extern void rac_dispatch_async(dispatch_queue_t queue, dispatch_block_t block);
-extern void rac_dispatch_barrier_async(dispatch_queue_t queue, dispatch_block_t block);
-extern void rac_dispatch_after(dispatch_time_t time, dispatch_queue_t queue, dispatch_block_t block);
-extern void rac_dispatch_async_f(dispatch_queue_t queue, void *context, dispatch_function_t function);
-extern void rac_dispatch_barrier_async_f(dispatch_queue_t queue, void *context, dispatch_function_t function);
-extern void rac_dispatch_after_f(dispatch_time_t time, dispatch_queue_t queue, void *context, dispatch_function_t function);
-
 #ifdef DEBUG
 
 static RACBacktrace *previousBacktrace;

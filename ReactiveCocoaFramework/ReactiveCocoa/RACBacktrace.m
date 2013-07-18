@@ -14,7 +14,7 @@
 
 #ifdef DEBUG
 
-// Undefine the private macros that hide the real GCD functions.
+// Undefine the macros that hide the real GCD functions.
 #undef dispatch_async
 #undef dispatch_barrier_async
 #undef dispatch_after

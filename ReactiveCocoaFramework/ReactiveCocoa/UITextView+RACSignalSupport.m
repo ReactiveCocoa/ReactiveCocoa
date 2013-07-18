@@ -8,6 +8,7 @@
 
 #import "UITextView+RACSignalSupport.h"
 #import "RACEventTrampoline.h"
+#import "NSObject+RACDescription.h"
 
 @implementation UITextView (RACSignalSupport)
 
@@ -25,7 +26,7 @@
 			return x.text;
 		}]
 		startWith:self.text]
-		setNameWithFormat:@"%@ -rac_textSignal", self];
+		setNameWithFormat:@"%@ -rac_textSignal", [self rac_description]];
 }
 
 @end

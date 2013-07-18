@@ -26,6 +26,13 @@ extern void rac_dispatch_after_f(dispatch_time_t time, dispatch_queue_t queue, v
 // variants of GCD functions (declared above). Unfortunately, unlike OS X, it's
 // impossible to capture backtraces inside NSOperationQueue or other code
 // outside of your project.
+//
+// Once backtraces are being captured, you can `po [RACBacktrace backtrace]` in
+// the debugger to print them out at any time. You can even set up an alias in
+// ~/.lldbinit to do so:
+//
+//    command alias racbt po [RACBacktrace backtrace]
+// 
 @interface RACBacktrace : NSObject
 
 // The backtrace from any previous thread.

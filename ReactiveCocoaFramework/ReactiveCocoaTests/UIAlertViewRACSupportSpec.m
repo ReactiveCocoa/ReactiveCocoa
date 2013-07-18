@@ -7,8 +7,8 @@
 //
 
 #import <objc/message.h>
-#import "UIAlertView+RACCommandSupport.h"
-#import "RACCommand.h"
+#import "RACSignal.h"
+#import "UIAlertView+RACSignalSupport.h"
 
 SpecBegin(UIAlertViewRACSupport)
 
@@ -21,16 +21,12 @@ describe(@"UIAlertView", ^{
 	});
 
 	it(@"should execute the alert view's command with the index when a button is touched", ^{
-		RACCommand *command = [RACCommand command];
-
 		__block BOOL executed = NO;
 		__block NSInteger index = -1;
-		[command subscribeNext:^(NSNumber *sentIndex) {
+		[alertView.rac_buttonClickedSignal subscribeNext:^(NSNumber *sentIndex) {
 			index = sentIndex.integerValue;
 			executed = YES;
 		}];
-
-		alertView.rac_command = command;
 
 		[alertView.delegate alertView:alertView clickedButtonAtIndex:2];
 

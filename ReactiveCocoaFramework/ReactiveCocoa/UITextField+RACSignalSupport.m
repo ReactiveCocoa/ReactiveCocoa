@@ -9,6 +9,7 @@
 #import "UITextField+RACSignalSupport.h"
 #import "RACSignal.h"
 #import "UIControl+RACSignalSupport.h"
+#import "NSObject+RACDescription.h"
 
 @implementation UITextField (RACSignalSupport)
 
@@ -18,7 +19,7 @@
 			return x.text;
 		}]
 		startWith:self.text]
-		setNameWithFormat:@"%@ -rac_textSignal", self];
+		setNameWithFormat:@"%@ -rac_textSignal", [self rac_description]];
 }
 
 @end

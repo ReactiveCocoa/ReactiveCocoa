@@ -497,6 +497,16 @@ extern const NSInteger RACSignalErrorTimedOut;
 // Returns a signal of inverted NSNumber-wrapped BOOLs.
 - (RACSignal *)not;
 
+// Performs a boolean OR on all of the RACTuple wrapped NSNumbers in the receiver and returns the result
+//
+// It will assert if the receiver sends anything other than a RACTuple wrapping NSNumbers
+- (RACSignal *)reduceAll;
+
+// Performs a boolean AND on all of the RACTuple wrapped NSNumbers in the receiver and returns the result
+//
+// It will assert if the receiver sends anything other than a RACTuple wrapping NSNumbers
+- (RACSignal *)reduceAny;
+
 // Subscribes to the receiver and executes the command with each `next`.
 //
 // This can be useful when you want to execute a command based off a signal:

@@ -1229,6 +1229,26 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -not", self.name];
 }
 
+- (RACSignal *)reduceAll {
+	return [[self map:^id(RACTuple *tuple) {
+		NSCAssert([tuple isKindOfClass:RACTuple.class], @"-reduceAll must only be used on a signal of RACTuple with NSNumbers, got: %@", tuple);
+		return @([tuple.rac_sequence any:^BOOL(NSNumber *number) {
+			NSCAssert([number isKindOfClass:NSNumber.class], @"-reduceAny must only be used on a signal of RACTuple wrapped NSNumbers, tuple contains: %@", tuple);
+			return [number boolValue];
+		}]);
+	}] setNameWithFormat:@"[%@] -reduceAll", self.name];
+}
+
+- (RACSignal *)reduceAny {
+	return [[self map:^id(RACTuple *tuple) {
+		NSCAssert([tuple isKindOfClass:RACTuple.class], @"-reduceAny must only be used on a signal of RACTuple wrapped NSNumbers, got: %@", tuple);
+		return @([tuple.rac_sequence all:^BOOL(NSNumber *number) {
+			NSCAssert([number isKindOfClass:NSNumber.class], @"-reduceAny must only be used on a signal of RACTuple wrapped NSNumbers, tuple contains: %@", tuple);
+			return [number boolValue];
+		}]);
+	}] setNameWithFormat:@"[%@] -reduceAll", self.name];
+}
+
 - (RACDisposable *)executeCommand:(RACCommand *)command {
 	NSCParameterAssert(command != nil);
 

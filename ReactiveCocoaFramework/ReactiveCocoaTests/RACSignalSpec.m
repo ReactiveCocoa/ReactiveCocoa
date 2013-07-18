@@ -2732,6 +2732,31 @@ describe(@"-not", ^{
 	});
 });
 
+describe(@"-reduceAll", ^{
+	it(@"should return YES for any YES values sent", ^{
+		RACSubject * subject = [RACReplaySubject subject];
+		[subject sendNext:RACTuplePack(@YES, @NO, @YES)];
+		[subject sendNext:RACTuplePack(@NO, @NO, @NO)];
+		[subject sendCompleted];
+		NSArray *results = [[subject reduceAll] toArray];
+		NSArray *expected = @[ @YES, @NO ];
+		expect(results).to.equal(expected);
+	});
+});
+
+describe(@"-reduceAny", ^{
+	it(@"should return YES if all YES values are sent", ^{
+		RACSubject * subject = [RACReplaySubject subject];
+		[subject sendNext:RACTuplePack(@YES, @NO, @YES)];
+		[subject sendNext:RACTuplePack(@NO, @NO, @NO)];
+		[subject sendNext:RACTuplePack(@YES, @YES, @YES)];
+		[subject sendCompleted];
+		NSArray *results = [[subject reduceAny] toArray];
+		NSArray *expected = @[ @NO, @NO, @YES ];
+		expect(results).to.equal(expected);
+	});
+});
+
 describe(@"-executeCommand:", ^{
 	it(@"should execute the command with each next", ^{
 		RACCommand *command = [RACCommand command];

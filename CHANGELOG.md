@@ -289,13 +289,7 @@ The special `RACBind(...) = RACBind(...)` syntax will continue to work.
 
 **To update:**
 
-Replace:
-
-```objc
-[binding1 bindTo:binding2];
-```
-
-with:
+Replace `[binding1 bindTo:binding2]` with:
 
 ```objc
 [binding2 subscribe:binding1];

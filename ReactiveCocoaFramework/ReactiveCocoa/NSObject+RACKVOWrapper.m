@@ -69,8 +69,9 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 		};
 
 		if (attributes->objectClass == nil && strcmp(attributes->type, @encode(id)) != 0) {
-			// If this property isn't actually an object, no point in
-			// observing the deallocation of the wrapper returned by KVC.
+			// If this property isn't actually an object (or is a Class object),
+			// no point in observing the deallocation of the wrapper returned by
+			// KVC.
 			return;
 		}
 

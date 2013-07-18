@@ -21,6 +21,8 @@
 #import "RACSubscriber+Private.h"
 #import "RACSubject.h"
 
+@class RACObservablePropertyBinding;
+
 // Key for the array of RACObservablePropertyBinding's additional thread local
 // data in the thread dictionary.
 static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObservablePropertyBindingKey";
@@ -61,6 +63,8 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 // A pointer to the owner of the data. Only use this for pointer comparison,
 // never as an object reference.
 @property (nonatomic, assign) void *owner;
+
++ (instancetype)dataForBinding:(RACObservablePropertyBinding *)binding;
 
 @end
 
@@ -344,16 +348,12 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 	return binding;
 }
 
-static NSUInteger indexOfBindingDataForBindingInDataArray(RACObservablePropertyBinding *binding, NSArray *dataArray) {
-	return [dataArray indexOfObjectPassingTest:^ BOOL (RACObservablePropertyBindingData *data, NSUInteger idx, BOOL *stop) {
-		return data.owner == (__bridge void *)(binding);
-	}];
-}
-
 - (RACObservablePropertyBindingData *)currentThreadData {
 	NSMutableArray *dataArray = NSThread.currentThread.threadDictionary[RACObservablePropertyBindingDataDictionaryKey];
-	NSUInteger index = indexOfBindingDataForBindingInDataArray(self, dataArray);
-	return (index != NSNotFound ? dataArray[index] : nil);
+	for (RACObservablePropertyBindingData *data in dataArray) {
+		if (data.owner == (__bridge void *)(self)) return data;
+	}
+	return nil;
 }
 
 - (void)createCurrentThreadData {
@@ -361,25 +361,42 @@ static NSUInteger indexOfBindingDataForBindingInDataArray(RACObservablePropertyB
 	if (dataArray == nil) {
 		dataArray = [NSMutableArray array];
 		NSThread.currentThread.threadDictionary[RACObservablePropertyBindingDataDictionaryKey] = dataArray;
+		[dataArray addObject:[RACObservablePropertyBindingData dataForBinding:self]];
+		return;
 	}
 
-	NSUInteger index = indexOfBindingDataForBindingInDataArray(self, dataArray);
-	if (index == NSNotFound) {
-		RACObservablePropertyBindingData *data = [[RACObservablePropertyBindingData alloc] init];
-		data.owner = (__bridge void *)(self);
-		[dataArray addObject:data];
+	RACObservablePropertyBindingData *currentThreadData = nil;
+	for (RACObservablePropertyBindingData *data in dataArray) {
+		if (data.owner == (__bridge void *)(self)) currentThreadData = data;
+	}
+	if (currentThreadData == nil) {
+		[dataArray addObject:[RACObservablePropertyBindingData dataForBinding:self]];
 	}
 }
 
 - (void)destroyCurrentThreadData {
 	NSMutableArray *dataArray = NSThread.currentThread.threadDictionary[RACObservablePropertyBindingDataDictionaryKey];
-	NSUInteger index = indexOfBindingDataForBindingInDataArray(self, dataArray);
-	if (index != NSNotFound) [dataArray removeObjectAtIndex:index];
+	BOOL found = NO;
+	NSUInteger index = 0;
+	for (RACObservablePropertyBindingData *data in dataArray) {
+		if (data.owner == (__bridge void *)(self)) {
+			found = YES;
+			break;
+		}
+		++index;
+	}
+	if (found) [dataArray removeObjectAtIndex:index];
 }
 
 @end
 
 @implementation RACObservablePropertyBindingData
+
++ (instancetype)dataForBinding:(RACObservablePropertyBinding *)binding {
+	RACObservablePropertyBindingData *data = [[self alloc] init];
+	data->_owner = (__bridge void *)(binding);
+	return data;
+}
 
 @end
 

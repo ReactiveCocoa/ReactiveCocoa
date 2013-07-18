@@ -313,3 +313,29 @@ used directly, so it has been
 **To update:**
 
  * Replace uses of `RACSubscriber` with `RACSubject`.
+
+## Additions and improvements
+
+### Commands for UIButton
+
+`UIButton` now has a [rac_command
+property](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/558).
+
+Any command set will be executed when the button is tapped, and the button will
+be disabled whenever the command is unable to execute.
+
+### Signal for UIActionSheet button clicks
+
+`UIActionSheet` now has a [rac_buttonClickedSignal
+property](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/611), which will
+fire whenever one of the sheet's buttons is clicked.
+
+### Fixed libextobjc duplicated symbols
+
+If [libextobjc](https://github.com/jspahrsummers/libextobjc) was used in
+a project that statically linked ReactiveCocoa, duplicate symbol errors could
+result.
+
+To avoid this issue, RAC now
+[renames](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/612) the
+libextobjc symbols that it uses.

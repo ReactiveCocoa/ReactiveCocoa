@@ -1,5 +1,10 @@
 # 2.0
 
+This release of ReactiveCocoa contains major breaking changes that we were
+unable to make after freezing the 1.0 API. All changes are focused on
+eliminating bad code and bad usage patterns, reducing confusion, and increasing
+flexibility in the framework.
+
 For a complete list of changes in ReactiveCocoa 2.0, see [the
 milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=3&state=closed).
 

@@ -21,8 +21,8 @@
 #import "RACSubscriber+Private.h"
 #import "RACSubject.h"
 
-// Key for the dictionary of RACObservablePropertyBinding's additional thread
-// local data in the thread dictionary.
+// Key for the array of RACObservablePropertyBinding's additional thread local
+// data in the thread dictionary.
 static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObservablePropertyBindingKey";
 
 @interface RACObservablePropertySubject ()
@@ -54,6 +54,10 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 
 // The current -willChangeValueForKey:/-didChangeValueForKey: call stack depth.
 @property (nonatomic, assign) NSUInteger stackDepth;
+
+// A pointer to the owner of the data. Only use this for pointer comparison,
+// never as an object reference.
+@property (nonatomic, assign) void *owner;
 
 @end
 
@@ -335,28 +339,37 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 	return binding;
 }
 
+static NSUInteger indexOfBindingDataForBindingInDataArray(RACObservablePropertyBinding *binding, NSArray *dataArray) {
+	return [dataArray indexOfObjectPassingTest:^ BOOL (RACObservablePropertyBindingData *data, NSUInteger idx, BOOL *stop) {
+		return data.owner == (__bridge void *)(binding);
+	}];
+}
+
 - (RACObservablePropertyBindingData *)currentThreadData {
-	NSMutableDictionary *dataDictionary = NSThread.currentThread.threadDictionary[RACObservablePropertyBindingDataDictionaryKey];
-	return dataDictionary[[NSValue valueWithNonretainedObject:self]];
+	NSMutableArray *dataArray = NSThread.currentThread.threadDictionary[RACObservablePropertyBindingDataDictionaryKey];
+	NSUInteger index = indexOfBindingDataForBindingInDataArray(self, dataArray);
+	return (index != NSNotFound ? dataArray[index] : nil);
 }
 
 - (void)createCurrentThreadData {
-	NSMutableDictionary *dataDictionary = NSThread.currentThread.threadDictionary[RACObservablePropertyBindingDataDictionaryKey];
-	if (dataDictionary == nil) {
-		dataDictionary = [NSMutableDictionary dictionary];
-		NSThread.currentThread.threadDictionary[RACObservablePropertyBindingDataDictionaryKey] = dataDictionary;
+	NSMutableArray *dataArray = NSThread.currentThread.threadDictionary[RACObservablePropertyBindingDataDictionaryKey];
+	if (dataArray == nil) {
+		dataArray = [NSMutableArray array];
+		NSThread.currentThread.threadDictionary[RACObservablePropertyBindingDataDictionaryKey] = dataArray;
 	}
 
-	RACObservablePropertyBindingData *data = dataDictionary[[NSValue valueWithNonretainedObject:self]];
-	if (data == nil) {
-		data = [[RACObservablePropertyBindingData alloc] init];
-		dataDictionary[[NSValue valueWithNonretainedObject:self]] = data;
+	NSUInteger index = indexOfBindingDataForBindingInDataArray(self, dataArray);
+	if (index == NSNotFound) {
+		RACObservablePropertyBindingData *data = [[RACObservablePropertyBindingData alloc] init];
+		data.owner = (__bridge void *)(self);
+		[dataArray addObject:data];
 	}
 }
 
 - (void)destroyCurrentThreadData {
-	NSMutableDictionary *dataDictionary = NSThread.currentThread.threadDictionary[RACObservablePropertyBindingDataDictionaryKey];
-	[dataDictionary removeObjectForKey:[NSValue valueWithNonretainedObject:self]];
+	NSMutableArray *dataArray = NSThread.currentThread.threadDictionary[RACObservablePropertyBindingDataDictionaryKey];
+	NSUInteger index = indexOfBindingDataForBindingInDataArray(self, dataArray);
+	if (index != NSNotFound) [dataArray removeObjectAtIndex:index];
 }
 
 @end

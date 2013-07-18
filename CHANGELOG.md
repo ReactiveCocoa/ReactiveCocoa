@@ -3,6 +3,34 @@
 For a complete list of changes in ReactiveCocoa 2.0, see [the
 milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=3&state=closed).
 
+**[Breaking changes](#breaking-changes)**
+
+ 1. [Simplified and safer KVO](#simplified-and-safer-kvo)
+ 1. [Fallback nil values for RAC and RACBind](#fallback-nil-values-for-rac-and-racbind)
+ 1. [Explicit schedulers for time-based operators](#explicit-schedulers-for-time-based-operators)
+ 1. [Commands must only be used on the main thread](#commands-must-only-be-used-on-the-main-thread)
+ 1. [Commands automatically catch errors](#commands-automatically-catch-errors)
+ 1. [More powerful selector signals](#more-powerful-selector-signals)
+ 1. [More obvious sequencing operator](#more-obvious-sequencing-operator)
+ 1. [Renamed signal binding method](#renamed-signal-binding-method)
+ 1. [Consistent selector lifting](#consistent-selector-lifting)
+ 1. [Renamed scheduled signal constructors](#renamed-scheduled-signal-constructors)
+ 1. [Notification immediately before object deallocation](#notification-immediately-before-object-deallocation)
+ 1. [Extensible queue-based schedulers](#extensible-queue-based-schedulers)
+ 1. [GCD time values replaced with NSDate](#gcd-time-values-replaced-with-nsdate)
+ 1. [Better bindings for AppKit](#better-bindings-for-appkit)
+ 1. [-bindTo: removed](#-bindto-removed)
+ 1. [Windows and numbered buffers removed](#windows-and-numbered-buffers-removed)
+ 1. [C string lifting removed](#c-string-lifting-removed)
+ 1. [NSTask extension removed](#nstask-extension-removed)
+ 1. [RACSubscriber class now private](#racsubscriber-class-now-private)
+
+**[Additions and improvements](#additions-and-improvements)**
+
+ 1. [Commands for UIButton](#commands-for-uibutton)
+ 1. [Signal for UIActionSheet button clicks](#signal-for-uiactionsheet-button-clicks)
+ 1. [Fixed libextobjc duplicated symbols](#fixed-libextobjc-duplicated-symbols)
+
 ## Breaking changes
 
 ### Simplified and safer KVO

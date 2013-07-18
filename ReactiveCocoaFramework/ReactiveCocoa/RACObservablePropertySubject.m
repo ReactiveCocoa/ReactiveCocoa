@@ -352,7 +352,7 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 	NSMutableArray *dataArray = NSThread.currentThread.threadDictionary[RACObservablePropertyBindingDataDictionaryKey];
 
 	for (RACObservablePropertyBindingData *data in dataArray) {
-		if (data.owner == (__bridge void *)(self)) return data;
+		if (data.owner == (__bridge void *)self) return data;
 	}
 
 	return nil;
@@ -389,7 +389,7 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 
 + (instancetype)dataForBinding:(RACObservablePropertyBinding *)binding {
 	RACObservablePropertyBindingData *data = [[self alloc] init];
-	data->_owner = (__bridge void *)(binding);
+	data->_owner = (__bridge void *)binding;
 	return data;
 }
 

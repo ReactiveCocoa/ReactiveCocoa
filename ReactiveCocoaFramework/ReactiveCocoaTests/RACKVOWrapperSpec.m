@@ -395,6 +395,51 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 				RACKVOWrapperExamplesChangesValueDirectly: @NO
 			});
 		});
+
+		it(@"should not notice deallocation of the object returned by a dynamic final property", ^{
+			RACTestObject *object = [[RACTestObject alloc] init];
+
+			__block id lastValue = nil;
+			@autoreleasepool {
+				[object rac_observeKeyPath:@keypath(object.dynamicObjectProperty) options:NSKeyValueObservingOptionInitial observer:nil block:^(id value, NSDictionary *change) {
+					lastValue = value;
+				}];
+
+				expect(lastValue).to.beKindOf(RACTestObject.class);
+			}
+
+			expect(lastValue).to.beKindOf(RACTestObject.class);
+		});
+
+		it(@"should not notice deallocation of the object returned by a dynamic intermediate property", ^{
+			RACTestObject *object = [[RACTestObject alloc] init];
+
+			__block id lastValue = nil;
+			@autoreleasepool {
+				[object rac_observeKeyPath:@keypath(object.dynamicObjectProperty.integerValue) options:NSKeyValueObservingOptionInitial observer:nil block:^(id value, NSDictionary *change) {
+					lastValue = value;
+				}];
+
+				expect(lastValue).to.equal(@42);
+			}
+
+			expect(lastValue).to.equal(@42);
+		});
+
+		it(@"should not notice deallocation of the object returned by a dynamic method", ^{
+			RACTestObject *object = [[RACTestObject alloc] init];
+
+			__block id lastValue = nil;
+			@autoreleasepool {
+				[object rac_observeKeyPath:@keypath(object.dynamicObjectMethod) options:NSKeyValueObservingOptionInitial observer:nil block:^(id value, NSDictionary *change) {
+					lastValue = value;
+				}];
+
+				expect(lastValue).to.beKindOf(RACTestObject.class);
+			}
+
+			expect(lastValue).to.beKindOf(RACTestObject.class);
+		});
 	});
 
 	it(@"should not call the callback block when the value is the observer", ^{

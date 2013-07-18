@@ -24,6 +24,12 @@
 @property (nonatomic, copy) NSSet *setValue;
 @property (nonatomic, copy) NSOrderedSet *orderedSetValue;
 
+// Returns a new object each time, with the integerValue set to 42.
+@property (nonatomic, copy, readonly) RACTestObject *dynamicObjectProperty;
+
+// Returns a new object each time, with the integerValue set to 42.
+- (RACTestObject *)dynamicObjectMethod;
+
 // Whether to allow -setNilValueForKey: to be invoked without throwing an
 // exception.
 @property (nonatomic, assign) BOOL catchSetNilValueForKey;

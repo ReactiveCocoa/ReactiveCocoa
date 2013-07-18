@@ -215,7 +215,7 @@ subclass replaces the `+schedulerWithQueue:name:` method.
 
 **To update:**
 
- * Replace uses of `+schedulerWithQueue:name:` with `-[RACTargetQueueScheduler initWithName:targetQueue:]`.
+Replace uses of `+schedulerWithQueue:name:` with `-[RACTargetQueueScheduler initWithName:targetQueue:]`.
 
 ### GCD time values replaced with NSDate
 
@@ -226,7 +226,7 @@ scheduler](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/171).
 
 **To update:**
 
- * Replace `dispatch_time_t` calculations with `NSDate`.
+Replace `dispatch_time_t` calculations with `NSDate`.
 
 ### Better bindings for AppKit
 
@@ -245,10 +245,6 @@ a two-way binding or treated like a one-way signal.
     1. `@{ NSContinuouslyUpdatesValueBindingOption: @YES, NSNullPlaceholderBindingOption: nilValue }` for `-rac_bind:toObject:withKeyPath:nilValue:`
     1. `@{ NSContinuouslyUpdatesValueBindingOption: @YES, NSValueTransformerBindingOption: valueTransformer }` for `-rac_bind:toObject:withKeyPath:transform:`
     1. `@{ NSContinuouslyUpdatesValueBindingOption: @YES, NSValueTransformerBindingOption: NSNegateBooleanTransformerName }` for `-rac_bind:toObject:withNegatedKeyPath:`
-
-**To update:**
-
- * Invoke such methods manually in a `-subscribeNext:` block.
 
 ### -bindTo: removed
 
@@ -294,6 +290,10 @@ Methods with `char *` and `const char *` arguments can [no longer be
 lifted](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/535), because the
 memory management semantics make it impossible to do safely.
 
+**To update:**
+
+Invoke such methods manually in a `-subscribeNext:` block.
+
 ### NSTask extension removed
 
 `NSTask+RACSupport` has been
@@ -302,7 +302,7 @@ was buggy and unsupported.
 
 **To update:**
 
- * Use a vanilla `NSTask`, and send events onto `RACSubject`s instead.
+Use a vanilla `NSTask`, and send events onto `RACSubject`s instead.
 
 ### RACSubscriber class now private
 
@@ -312,7 +312,7 @@ used directly, so it has been
 
 **To update:**
 
- * Replace uses of `RACSubscriber` with `RACSubject`.
+Replace uses of `RACSubscriber` with `RACSubject`.
 
 ## Additions and improvements
 

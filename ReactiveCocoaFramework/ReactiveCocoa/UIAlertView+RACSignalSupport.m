@@ -10,6 +10,7 @@
 #import "RACDelegateProxy.h"
 #import "RACSignal+Operations.h"
 #import "NSObject+RACDeallocating.h"
+#import "NSObject+RACDescription.h"
 #import "RACTuple.h"
 #import <objc/runtime.h>
 
@@ -41,7 +42,7 @@ static void RACUseDelegateProxy(UIAlertView *self) {
 			return buttonIndex;
 		}]
 		takeUntil:self.rac_willDeallocSignal]
-		setNameWithFormat:@"%@ -rac_buttonClickedSignal", self];
+		setNameWithFormat:@"%@ -rac_buttonClickedSignal", [self rac_description]];
 }
 
 @end

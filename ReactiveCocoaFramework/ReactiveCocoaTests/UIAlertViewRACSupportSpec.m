@@ -20,7 +20,7 @@ describe(@"UIAlertView", ^{
 		expect(alertView).notTo.beNil();
 	});
 
-        it(@"sends the index of the clicked button the the buttonClickedSignal when a button is clicked", ^{
+	it(@"sends the index of the clicked button to the buttonClickedSignal when a button is clicked", ^{
 		__block NSInteger index = -1;
 		[alertView.rac_buttonClickedSignal subscribeNext:^(NSNumber *sentIndex) {
 			index = sentIndex.integerValue;

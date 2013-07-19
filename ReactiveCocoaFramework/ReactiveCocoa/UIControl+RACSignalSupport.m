@@ -40,7 +40,7 @@
 		setNameWithFormat:@"%@ -rac_signalForControlEvents: %lx", [self rac_description], (unsigned long)controlEvents];
 }
 
-- (RACBinding *)rac_bindingForControlEvents:(UIControlEvents)controlEvents keyPath:(NSString *)keyPath {
+- (RACBinding *)rac_bindingForControlEvents:(UIControlEvents)controlEvents keyPath:(NSString *)keyPath nilValue:(id)nilValue {
 	@weakify(self);
 
 	RACSignal *signal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
@@ -53,7 +53,7 @@
 	}];
 
 	RACSubject *subscriber = [RACSubject subject];
-	[subscriber setKeyPath:keyPath onObject:self];
+	[subscriber setKeyPath:keyPath onObject:self nilValue:nilValue];
 
 	return [[RACBinding alloc] initWithSignal:signal subscriber:subscriber];
 }

@@ -339,7 +339,7 @@ used directly, so it has been
 
 **To update:**
 
-Replace uses of `RACSubscriber` with `RACSubject`.
+Replace uses of `RACSubscriber` with `id<RACSubscriber>` or `RACSubject`.
 
 ## Additions and improvements
 

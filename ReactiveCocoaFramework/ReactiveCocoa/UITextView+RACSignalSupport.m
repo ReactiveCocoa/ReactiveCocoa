@@ -12,6 +12,7 @@
 #import "RACDelegateProxy.h"
 #import "RACSignal+Operations.h"
 #import "RACTuple.h"
+#import "NSObject+RACDescription.h"
 #import <objc/runtime.h>
 
 @implementation UITextView (RACSignalSupport)
@@ -47,7 +48,7 @@ static void RACUseDelegateProxy(UITextView *self) {
 			return x.text;
 		}]
 		takeUntil:self.rac_willDeallocSignal]
-		setNameWithFormat:@"%@ -rac_textSignal", self];
+		setNameWithFormat:@"%@ -rac_textSignal", [self rac_description]];
 }
 
 @end

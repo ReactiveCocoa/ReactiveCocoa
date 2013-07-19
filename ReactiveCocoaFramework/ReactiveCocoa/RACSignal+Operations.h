@@ -321,7 +321,7 @@ extern const NSInteger RACSignalErrorTimedOut;
 //
 // Returns a signal that passes through events from the receiver, but with inner
 // errors being silenced.
-- (RACSignal *)trifuricate:(void (^)(RACSignal *errorsSignal, RACSignal *completionsSignal))block;
+- (RACSignal *)trifuricate:(void (^)(RACSignal *errors, RACSignal *completions))block;
 
 // Switches between the signals in `cases` based on the latest value sent by
 // `signal`.

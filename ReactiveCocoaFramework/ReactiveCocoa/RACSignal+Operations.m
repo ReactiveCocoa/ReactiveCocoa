@@ -275,6 +275,22 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -catchTo: %@", self.name, signal];
 }
 
+- (RACSignal *)initially:(void (^)(void))block {
+	NSCParameterAssert(block != NULL);
+
+	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		block();
+
+		return [self subscribeNext:^(id x) {
+			[subscriber sendNext:x];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
+	}] setNameWithFormat:@"[%@] -initially:", self.name];
+}
+
 - (RACSignal *)finally:(void (^)(void))block {
 	NSCParameterAssert(block != NULL);
 	

@@ -105,6 +105,7 @@
 		5F244773167E5EDE0062180C /* RACPropertySubject.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F244770167E5EDE0062180C /* RACPropertySubject.m */; };
 		5F244774167E5EDE0062180C /* RACPropertySubject.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F244770167E5EDE0062180C /* RACPropertySubject.m */; };
 		5F2447AD167E87C50062180C /* RACObservablePropertySubjectSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F2447AC167E87C50062180C /* RACObservablePropertySubjectSpec.m */; };
+		5F4375271799774500F8F1C0 /* EXTRuntimeExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D05F9D3417984EC000FD7982 /* EXTRuntimeExtensions.m */; };
 		5F45A885168CFA3E00B58A2B /* RACObservablePropertySubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F45A883168CFA3E00B58A2B /* RACObservablePropertySubject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5F45A886168CFA3E00B58A2B /* RACObservablePropertySubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F45A883168CFA3E00B58A2B /* RACObservablePropertySubject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5F45A887168CFA3E00B58A2B /* RACObservablePropertySubject.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F45A884168CFA3E00B58A2B /* RACObservablePropertySubject.m */; };
@@ -1968,6 +1969,7 @@
 				1860F4A5177C9ACD00C7B3C9 /* NSFileHandle+RACSupport.m in Sources */,
 				1860F4A6177C9ACD00C7B3C9 /* NSNotificationCenter+RACSupport.m in Sources */,
 				1860F4A7177C9ACD00C7B3C9 /* NSString+RACSupport.m in Sources */,
+				5F4375271799774500F8F1C0 /* EXTRuntimeExtensions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -9,9 +9,12 @@
 #import "UIControl+RACSignalSupport.h"
 #import "EXTScope.h"
 #import "NSObject+RACDeallocating.h"
+#import "RACBinding+Private.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSignal.h"
+#import "RACSignal+Operations.h"
+#import "RACSubject.h"
 #import "RACSubscriber.h"
 #import "NSObject+RACDescription.h"
 
@@ -35,6 +38,24 @@
 			}];
 		}]
 		setNameWithFormat:@"%@ -rac_signalForControlEvents: %lx", [self rac_description], (unsigned long)controlEvents];
+}
+
+- (RACBinding *)rac_bindingForControlEvents:(UIControlEvents)controlEvents keyPath:(NSString *)keyPath {
+	@weakify(self);
+
+	RACSignal *signal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		@strongify(self);
+
+		[subscriber sendNext:[self valueForKeyPath:keyPath]];
+		return [[[self rac_signalForControlEvents:controlEvents] map:^(id sender) {
+			return [sender valueForKeyPath:keyPath];
+		}] subscribe:subscriber];
+	}];
+
+	RACSubject *subscriber = [RACSubject subject];
+	[subscriber setKeyPath:keyPath onObject:self];
+
+	return [[RACBinding alloc] initWithSignal:signal subscriber:subscriber];
 }
 
 @end

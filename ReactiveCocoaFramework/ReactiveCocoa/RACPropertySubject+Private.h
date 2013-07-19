@@ -15,15 +15,10 @@
 
 // Designated initializer.
 //
-// signal     - A signal of `RACTuple`s where the first element is the value of
-//              the property as it changes, and the second element is the
-//              binding that triggered the change, or `nil` if the change was
-//              triggered by other means. The signal must also send a `RACTuple`
-//              with the current value and its originator on subscription.
-// subscriber - A subscriber that will be sent a `RACTuple` every time the
-//              property is changed. The first element will be the new value,
-//              the second element will be the binding that triggered the change
-//              or nil if the change was triggered by the property itself.
+// signal     - The property will behave like this signal towards its
+//              subscribers.
+// subscriber - The property will behave like this subscriber towards the
+//              signals it's subscribed to.
 - (instancetype)initWithSignal:(RACSignal *)signal subscriber:(id<RACSubscriber>)subscriber;
 
 @end

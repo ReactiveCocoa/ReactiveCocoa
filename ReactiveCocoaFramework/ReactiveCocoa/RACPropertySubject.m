@@ -16,13 +16,10 @@
 
 @interface RACPropertySubject ()
 
-// The signal passed to `-initWithSignal:subscriber:`. Refer to the method's
-// docs for details.
-@property (nonatomic, readonly, strong) RACSignal *signal;
-
-// The subscriber passed to `-initWithSignal:subscriber:`. Refer to the method's
-// docs for details.
-@property (nonatomic, readonly, strong) id<RACSubscriber> subscriber;
+// A subject ot tuples where the first element is a value of the property and
+// the second element is the binding the value was sent to, or nil if the value
+// was sent to the property directly.
+@property (nonatomic, readonly, strong) RACReplaySubject *backing;
 
 // The signal exposed to callers. The property will behave like this signal
 // towards its subscribers.
@@ -39,9 +36,33 @@
 #pragma mark NSObject
 
 - (id)init {
+	self = [super init];
+	if (self == nil) return nil;
+
+	@weakify(self);
+
 	RACReplaySubject *backing = [RACReplaySubject replaySubjectWithCapacity:1];
 	[backing sendNext:[RACTuple tupleWithObjects:RACTupleNil.tupleNil, RACTupleNil.tupleNil, nil]];
-	return [self initWithSignal:backing subscriber:backing];
+
+	_backing = backing;
+
+	_exposedSignal = [backing map:^(RACTuple *value) {
+		return value.first;
+	}];
+
+	_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
+		[backing sendNext:RACTuplePack(x, RACTupleNil.tupleNil)];
+	} error:^(NSError *error) {
+		@strongify(self);
+		NSCAssert(NO, @"Received error in RACPropertySubject %@: %@", self, error);
+
+		// Log the error if we're running with assertions disabled.
+		NSLog(@"Received error in RACPropertySubject %@: %@", self, error);
+	} completed:^{
+		[backing sendCompleted];
+	}];
+
+	return self;
 }
 
 #pragma mark RACSignal
@@ -74,26 +95,9 @@
 	self = [super init];
 	if (self == nil) return nil;
 	
-	_signal = signal;
-	_subscriber = subscriber;
-	
-	@weakify(self);
-	_exposedSignal = [_signal map:^(RACTuple *value) {
-		return value.first;
-	}];
-
-	_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
-		[subscriber sendNext:[RACTuple tupleWithObjects:x, RACTupleNil.tupleNil, nil]];
-	} error:^(NSError *error) {
-		@strongify(self);
-		NSCAssert(NO, @"Received error in RACPropertySubject %@: %@", self, error);
+	_exposedSignal = signal;
+	_exposedSubscriber = subscriber;
 		
-		// Log the error if we're running with assertions disabled.
-		NSLog(@"Received error in RACPropertySubject %@: %@", self, error);
-	} completed:^{
-		[subscriber sendCompleted];
-	}];
-	
 	return self;
 }
 
@@ -102,7 +106,41 @@
 }
 
 - (RACBinding *)binding {
-	return [[RACBinding alloc] initWithSignal:self.signal subscriber:self.subscriber];
+	RACReplaySubject *backing = self.backing;
+	RACBinding *binding = [RACBinding alloc];
+	@weakify(binding);
+
+	RACSignal *signal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		__block BOOL isFirstNext = YES;
+		return [backing subscribeNext:^(RACTuple *x) {
+			@strongify(binding);
+
+			if (isFirstNext || ![x.second isEqual:binding]) {
+				isFirstNext = NO;
+				[subscriber sendNext:x.first];
+			}
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
+	}];
+
+	id<RACSubscriber> subscriber = [RACSubscriber subscriberWithNext:^(id x) {
+		@strongify(binding);
+
+		[backing sendNext:RACTuplePack(x, binding)];
+	} error:^(NSError *error) {
+		@strongify(binding);
+
+		NSCAssert(NO, @"Received error in RACBinding %@: %@", binding, error);
+		// Log the error if we're running with assertions disabled.
+		NSLog(@"Received error in RACBinding %@: %@", binding, error);
+
+		[backing sendError:error];
+	} completed:^{
+		[backing sendCompleted];
+	}];
+
+	return [binding initWithSignal:signal subscriber:subscriber];
 }
 
 @end

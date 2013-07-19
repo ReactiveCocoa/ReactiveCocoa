@@ -83,14 +83,6 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 // The key path the binding is wrapping.
 @property (nonatomic, readonly, copy) NSString *keyPath;
 
-// The signal exposed to callers. The binding will behave like this signal
-// towards its subscribers.
-@property (nonatomic, readonly, strong) RACSignal *exposedSignal;
-
-// The subscriber exposed to callers. The binding will behave like this
-// subscriber towards the signals it's subscribed to.
-@property (nonatomic, readonly, strong) id<RACSubscriber> exposedSubscriber;
-
 // Returns the existing thread local data container or nil if none exists.
 - (RACObservablePropertyBindingData *)currentThreadData;
 
@@ -178,40 +170,13 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 
 @implementation RACObservablePropertyBinding
 
-#pragma mark RACSignal
-
-- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	return [self.exposedSignal subscribe:subscriber];
-}
-
-#pragma mark <RACSubscriber>
-
-- (void)sendNext:(id)value {
-	[self.exposedSubscriber sendNext:value];
-}
-
-- (void)sendError:(NSError *)error {
-	[self.exposedSubscriber sendError:error];
-}
-
-- (void)sendCompleted {
-	[self.exposedSubscriber sendCompleted];
-}
-
-- (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
-	[self.exposedSubscriber didSubscribeWithDisposable:disposable];
-}
-
 #pragma mark API
 
 + (instancetype)bindingWithTarget:(NSObject *)target keyPath:(NSString *)keyPath nilValue:(id)nilValue terminationSubject:(RACSubject *)terminationSubject {
+	if (target == nil) return nil;
 	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
-	RACObservablePropertyBinding *binding = [[self alloc] init];
-	if (binding == nil || target == nil) return nil;
-	
-	binding->_target = target;
-	binding->_keyPath = [keyPath copy];
-	
+
+	RACObservablePropertyBinding *binding = [self alloc];
 	@weakify(binding);
 
 	// The subject used to multicast changes to the property to the binding's
@@ -270,7 +235,7 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 
 	// On subscription first send the property's current value then subscribe the
 	// subscriber to the updatesSubject for new values when they change.
-	binding->_exposedSignal = [[[RACSignal
+	RACSignal *exposedSignal = [[[RACSignal
 		defer:^{
 			@strongify(binding);
 			return [updatesSubject startWith:[binding.target valueForKeyPath:binding.keyPath]];
@@ -284,7 +249,7 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 	NSString *lastKeyPathComponent = keyPathComponents.lastObject;
 
 	// Update the value of the property with the values received.
-	binding->_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
+	id<RACSubscriber> exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
 		@strongify(binding);
 
 		// Check the value of the second to last key path component. Since the
@@ -311,6 +276,12 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 	} completed:^{
 		[terminationSubject sendCompleted];
 	}];
+
+	binding = [binding initWithSignal:exposedSignal subscriber:exposedSubscriber];
+	if (binding == nil) return nil;
+
+	binding->_target = target;
+	binding->_keyPath = [keyPath copy];
 	
 	[target.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 		@strongify(binding);

@@ -500,12 +500,12 @@ extern const NSInteger RACSignalErrorTimedOut;
 // Performs a boolean AND on all of the RACTuple wrapped NSNumbers in the receiver and returns the result
 //
 // It will assert if the receiver sends anything other than a RACTuple wrapping NSNumbers
-- (RACSignal *)reduceByAnd;
+- (RACSignal *)and;
 
 // Performs a boolean OR on all of the RACTuple wrapped NSNumbers in the receiver and returns the result
 //
 // It will assert if the receiver sends anything other than a RACTuple wrapping NSNumbers
-- (RACSignal *)reduceByOr;
+- (RACSignal *)or;
 
 // Subscribes to the receiver and executes the command with each `next`.
 //

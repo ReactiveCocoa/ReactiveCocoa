@@ -13,9 +13,10 @@
 #import "NSObject+RACKVOWrapper.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "NSString+RACKeyPathUtilities.h"
-#import "RACBinding.h"
+#import "RACBinding+Private.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
+#import "RACPropertySubject+Private.h"
 #import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"
 #import "RACSubscriber+Private.h"
@@ -40,14 +41,6 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 
 // The value to set when `nil` is sent to the receiver.
 @property (nonatomic, readonly, strong) id nilValue;
-
-// The signal exposed to callers. The RACObservablePropertySubject will behave
-// like this signal towards its subscribers.
-@property (nonatomic, readonly, strong) RACSignal *exposedSignal;
-
-// The subscriber exposed to callers. The RACObservablePropertySubject will
-// behave like this subscriber towards the signals it's subscribed to.
-@property (nonatomic, readonly, strong) id<RACSubscriber> exposedSubscriber;
 
 @end
 
@@ -111,59 +104,31 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 
 @implementation RACObservablePropertySubject
 
-#pragma mark RACSignal
-
-- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	return [self.exposedSignal subscribe:subscriber];
-}
-
-#pragma mark <RACSubscriber>
-
-- (void)sendNext:(id)value {
-	[self.exposedSubscriber sendNext:value];
-}
-
-- (void)sendError:(NSError *)error {
-	[self.exposedSubscriber sendError:error];
-}
-
-- (void)sendCompleted {
-	[self.exposedSubscriber sendCompleted];
-}
-
-- (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
-	[self.exposedSubscriber didSubscribeWithDisposable:disposable];
-}
-
 #pragma mark API
 
 + (instancetype)propertyWithTarget:(NSObject *)target keyPath:(NSString *)keyPath nilValue:(id)nilValue {
+	if (target == nil) return nil;
 	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
-	RACObservablePropertySubject *property = [[self alloc] init];
-	if (property == nil || target == nil) return nil;
-	
-	property->_target = target;
-	property->_keyPath = [keyPath copy];
-	property->_nilValue = nilValue;
-	property->_terminationSubject = [RACReplaySubject replaySubjectWithCapacity:1];
-	
+
+	RACObservablePropertySubject *property = [self alloc];
+	RACReplaySubject *terminationSubject = [RACReplaySubject replaySubjectWithCapacity:1];
 	@weakify(property);
 
-	property->_exposedSignal = [[[RACSignal
+	RACSignal *exposedSignal = [[[RACSignal
 		defer:^{
 			@strongify(property);
 			return [property.target rac_valuesForKeyPath:property.keyPath observer:property];
 		}]
-		takeUntil:property.terminationSubject]
+		takeUntil:terminationSubject]
 		setNameWithFormat:@"+propertyWithTarget: %@ keyPath: %@", [target rac_description], keyPath];
 
-	property->_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
+	id<RACSubscriber> exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
 		@strongify(property);
 		[property.target setValue:x ?: property.nilValue forKeyPath:property.keyPath];
 	} error:^(NSError *error) {
 		@strongify(property);
 		NSCAssert(NO, @"Received error in RACObservablePropertySubject for key path \"%@\" on %@: %@", property.keyPath, property.target, error);
-		
+
 		// Log the error if we're running with assertions disabled.
 		NSLog(@"Received error in RACObservablePropertySubject for key path \"%@\" on %@: %@", property.keyPath, property.target, error);
 
@@ -172,6 +137,14 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 		@strongify(property);
 		[property.terminationSubject sendCompleted];
 	}];
+	
+	property = [property initWithSignal:exposedSignal subscriber:exposedSubscriber];
+	if (property == nil) return nil;
+
+	property->_target = target;
+	property->_keyPath = [keyPath copy];
+	property->_nilValue = nilValue;
+	property->_terminationSubject = terminationSubject;
 	
 	[target.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 		@strongify(property);

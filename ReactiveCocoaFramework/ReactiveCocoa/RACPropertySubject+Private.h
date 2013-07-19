@@ -8,9 +8,6 @@
 
 #import "RACPropertySubject.h"
 
-@class RACSignal;
-@protocol RACSubscriber;
-
 @interface RACPropertySubject ()
 
 // Designated initializer.

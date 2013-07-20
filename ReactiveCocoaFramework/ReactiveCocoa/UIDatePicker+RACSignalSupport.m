@@ -13,7 +13,7 @@
 @implementation UIDatePicker (RACSignalSupport)
 
 - (RACBinding *)rac_dateBindingWithNilValue:(id)nilValue {
-	return [self rac_bindingForControlEvents:UIControlEventValueChanged keyPath:@keypath(self.date) nilValue:nilValue];
+	return [self rac_bindingForControlEvents:UIControlEventValueChanged key:@keypath(self.date) primitive:NO nilValue:nilValue];
 }
 
 @end

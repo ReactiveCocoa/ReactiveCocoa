@@ -32,7 +32,7 @@
 }
 
 - (id)rac_textBindingWithNilValue:(id)nilValue {
-	return [self rac_bindingForControlEvents:UIControlEventEditingChanged keyPath:@keypath(self.text) nilValue:nilValue];
+	return [self rac_bindingForControlEvents:UIControlEventEditingChanged key:@keypath(self.text) primitive:NO nilValue:nilValue];
 }
 
 @end

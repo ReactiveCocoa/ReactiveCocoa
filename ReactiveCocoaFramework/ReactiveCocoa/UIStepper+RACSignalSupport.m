@@ -13,7 +13,7 @@
 @implementation UIStepper (RACSignalSupport)
 
 - (RACBinding *)rac_valueBindingWithNilValue:(id)nilValue {
-	return [self rac_bindingForControlEvents:UIControlEventValueChanged keyPath:@keypath(self.value) nilValue:nilValue];
+	return [self rac_bindingForControlEvents:UIControlEventValueChanged key:@keypath(self.value) primitive:YES nilValue:nilValue];
 }
 
 @end

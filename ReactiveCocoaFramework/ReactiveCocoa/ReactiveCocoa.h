@@ -48,6 +48,7 @@
 	#import "UIBarButtonItem+RACCommandSupport.h"
 	#import "UIButton+RACCommandSupport.h"
 	#import "UIControl+RACSignalSupport.h"
+	#import "UIDatePicker+RACSignalSupport.h"
 	#import "UIGestureRecognizer+RACSignalSupport.h"
 	#import "UISegmentedControl+RACSignalSupport.h"
 	#import "UISlider+RACSignalSupport.h"

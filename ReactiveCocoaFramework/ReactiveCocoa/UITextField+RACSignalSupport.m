@@ -31,8 +31,8 @@
 		setNameWithFormat:@"%@ -rac_textSignal", [self rac_description]];
 }
 
-- (id)rac_textBindingWithNilValue:(id)nilValue {
-	return [self rac_bindingForControlEvents:UIControlEventEditingChanged key:@keypath(self.text) primitive:NO nilValue:nilValue];
+- (id)rac_textBinding {
+	return [self rac_bindingForControlEvents:UIControlEventEditingChanged key:@keypath(self.text) primitive:NO nilValue:@""];
 }
 
 @end

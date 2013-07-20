@@ -1680,6 +1680,34 @@ describe(@"+switch:cases:default:", ^{
 
 		expect(values).to.equal((@[ @"default", @"default" ]));
 	});
+
+	it(@"should send an error if key that was sent does not have an associated signal and there's no default", ^{
+		[[RACSignal
+			switch:keySubject
+			cases:@{
+				@0: subjectZero,
+				@1: subjectOne,
+			}
+			default:nil]
+			subscribeNext:^(id x) {
+				[values addObject:x];
+			} error:^(NSError *error) {
+				lastError = error;
+			}];
+
+		[keySubject sendNext:@0];
+		[subjectZero sendNext:@"zero"];
+
+		expect(values).to.equal(@[ @"zero" ]);
+		expect(lastError).to.beNil();
+
+		[keySubject sendNext:nil];
+
+		expect(values).to.equal(@[ @"zero" ]);
+		expect(lastError).notTo.beNil();
+		expect(lastError.domain).to.equal(RACSignalErrorDomain);
+		expect(lastError.code).to.equal(RACSignalErrorNoMatchingCase);
+	});
 });
 
 describe(@"+if:then:else", ^{

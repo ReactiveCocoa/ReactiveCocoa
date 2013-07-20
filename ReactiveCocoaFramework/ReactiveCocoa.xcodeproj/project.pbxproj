@@ -106,6 +106,9 @@
 		5F244774167E5EDE0062180C /* RACPropertySubject.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F244770167E5EDE0062180C /* RACPropertySubject.m */; };
 		5F2447AD167E87C50062180C /* RACObservablePropertySubjectSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F2447AC167E87C50062180C /* RACObservablePropertySubjectSpec.m */; };
 		5F4375271799774500F8F1C0 /* EXTRuntimeExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D05F9D3417984EC000FD7982 /* EXTRuntimeExtensions.m */; };
+		5F4378B6179A9EB500F8F1C0 /* UISlider+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F4378B4179A9EB400F8F1C0 /* UISlider+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5F4378B7179A9EB500F8F1C0 /* UISlider+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F4378B5179A9EB400F8F1C0 /* UISlider+RACSignalSupport.m */; };
+		5F4378B8179A9EB500F8F1C0 /* UISlider+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F4378B5179A9EB400F8F1C0 /* UISlider+RACSignalSupport.m */; };
 		5F45A885168CFA3E00B58A2B /* RACObservablePropertySubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F45A883168CFA3E00B58A2B /* RACObservablePropertySubject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5F45A886168CFA3E00B58A2B /* RACObservablePropertySubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F45A883168CFA3E00B58A2B /* RACObservablePropertySubject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5F45A887168CFA3E00B58A2B /* RACObservablePropertySubject.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F45A884168CFA3E00B58A2B /* RACObservablePropertySubject.m */; };
@@ -597,6 +600,8 @@
 		5F24476F167E5EDE0062180C /* RACPropertySubject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACPropertySubject.h; sourceTree = "<group>"; };
 		5F244770167E5EDE0062180C /* RACPropertySubject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACPropertySubject.m; sourceTree = "<group>"; };
 		5F2447AC167E87C50062180C /* RACObservablePropertySubjectSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACObservablePropertySubjectSpec.m; sourceTree = "<group>"; };
+		5F4378B4179A9EB400F8F1C0 /* UISlider+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UISlider+RACSignalSupport.h"; sourceTree = "<group>"; };
+		5F4378B5179A9EB400F8F1C0 /* UISlider+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UISlider+RACSignalSupport.m"; sourceTree = "<group>"; };
 		5F45A883168CFA3E00B58A2B /* RACObservablePropertySubject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACObservablePropertySubject.h; sourceTree = "<group>"; };
 		5F45A884168CFA3E00B58A2B /* RACObservablePropertySubject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACObservablePropertySubject.m; sourceTree = "<group>"; };
 		5F6FE8511692568A00A8D7A6 /* RACBinding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACBinding.h; sourceTree = "<group>"; };
@@ -1266,6 +1271,8 @@
 			children = (
 				A1FCC3761567DED0008C9686 /* RACDelegateProxy.h */,
 				A1FCC3771567DED0008C9686 /* RACDelegateProxy.m */,
+				557A4B58177648C7008EF796 /* UIActionSheet+RACSignalSupport.h */,
+				557A4B59177648C7008EF796 /* UIActionSheet+RACSignalSupport.m */,
 				27A887C71703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.h */,
 				27A887C81703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.m */,
 				5EE9A7911760D61300EAF5A2 /* UIButton+RACCommandSupport.h */,
@@ -1274,12 +1281,12 @@
 				88F44260153DC0450097B4C3 /* UIControl+RACSignalSupport.m */,
 				1EC06B15173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.h */,
 				1EC06B16173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.m */,
+				5F4378B4179A9EB400F8F1C0 /* UISlider+RACSignalSupport.h */,
+				5F4378B5179A9EB400F8F1C0 /* UISlider+RACSignalSupport.m */,
 				88F44264153DCAC50097B4C3 /* UITextField+RACSignalSupport.h */,
 				88F44265153DCAC50097B4C3 /* UITextField+RACSignalSupport.m */,
 				A1FCC27215666AA3008C9686 /* UITextView+RACSignalSupport.h */,
 				A1FCC27315666AA3008C9686 /* UITextView+RACSignalSupport.m */,
-				557A4B58177648C7008EF796 /* UIActionSheet+RACSignalSupport.h */,
-				557A4B59177648C7008EF796 /* UIActionSheet+RACSignalSupport.m */,
 			);
 			name = "UIKit Support";
 			sourceTree = "<group>";
@@ -1588,6 +1595,7 @@
 				D094E44A17775AF200906BF7 /* EXTKeyPathCoding.h in Headers */,
 				D094E44C17775AF200906BF7 /* EXTScope.h in Headers */,
 				D094E45017775AF200906BF7 /* metamacros.h in Headers */,
+				5F4378B6179A9EB500F8F1C0 /* UISlider+RACSignalSupport.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1970,6 +1978,7 @@
 				1860F4A6177C9ACD00C7B3C9 /* NSNotificationCenter+RACSupport.m in Sources */,
 				1860F4A7177C9ACD00C7B3C9 /* NSString+RACSupport.m in Sources */,
 				5F4375271799774500F8F1C0 /* EXTRuntimeExtensions.m in Sources */,
+				5F4378B8179A9EB500F8F1C0 /* UISlider+RACSignalSupport.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2219,6 +2228,7 @@
 				D0A0E231176A8CD6007273ED /* RACPassthroughSubscriber.m in Sources */,
 				557A4B5B177648C7008EF796 /* UIActionSheet+RACSignalSupport.m in Sources */,
 				D05F9D3817984EC000FD7982 /* EXTRuntimeExtensions.m in Sources */,
+				5F4378B7179A9EB500F8F1C0 /* UISlider+RACSignalSupport.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

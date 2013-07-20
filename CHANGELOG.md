@@ -36,6 +36,7 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=3&sta
  1. [Signal for UIActionSheet button clicks](#signal-for-uiactionsheet-button-clicks)
  1. [Better documentation for asynchronous backtraces](#better-documentation-for-asynchronous-backtraces)
  1. [Fixed libextobjc duplicated symbols](#fixed-libextobjc-duplicated-symbols)
+ 1. [Bindings for UIKit classes](#bindings-for-uikit-classes)
 
 ## Breaking changes
 
@@ -381,3 +382,21 @@ result.
 To avoid this issue, RAC now
 [renames](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/612) the
 libextobjc symbols that it uses.
+
+### Bindings for UIKit classes
+
+RACBinding interfaces have been [added](https://github.com/ReactiveCocoa/pull/686)
+to many UIKit classes, greatly simplifying glue code between your models and views.
+
+For example, assuming you want to bind a `person` model's `name` property:
+
+```objc
+UITextField *nameField = ...;
+RACBinding *nameBinding = RACBind(model, name, nil);
+RACBinding *nameFieldBinding = [nameField rac_textBindingWithNilValue:@""];
+[nameBinding subscribe:nameFieldBinding];
+[[nameFieldBinding skip:1] subscribe:nameBinding];
+```
+
+You may also bind multiple controls to the same property, for example a UISlider and
+a UIStepper for more fine-grained editing.

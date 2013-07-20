@@ -16,10 +16,10 @@
 
 @interface RACPropertySubject ()
 
-// A subject ot tuples where the first element is a value of the property and
-// the second element is the binding the value was sent to, or nil if the value
-// was sent to the property directly.
-@property (nonatomic, readonly, strong) RACReplaySubject *backing;
+// A replay subject of capacity 1 that holds the current value of the property
+// and the binding that value was sent to in a tuple. The binding will be nil if
+// the value was sent to the property directly.
+@property (nonatomic, readonly, strong) RACReplaySubject *currentValueAndSender;
 
 // The signal exposed to callers. The property will behave like this signal
 // towards its subscribers.
@@ -41,17 +41,17 @@
 
 	@weakify(self);
 
-	RACReplaySubject *backing = [RACReplaySubject replaySubjectWithCapacity:1];
-	[backing sendNext:[RACTuple tupleWithObjects:RACTupleNil.tupleNil, RACTupleNil.tupleNil, nil]];
+	RACReplaySubject *currentValueAndSender = [RACReplaySubject replaySubjectWithCapacity:1];
+	[currentValueAndSender sendNext:[RACTuple tupleWithObjects:RACTupleNil.tupleNil, RACTupleNil.tupleNil, nil]];
 
-	_backing = backing;
+	_currentValueAndSender = currentValueAndSender;
 
-	_exposedSignal = [backing map:^(RACTuple *value) {
+	_exposedSignal = [currentValueAndSender map:^(RACTuple *value) {
 		return value.first;
 	}];
 
 	_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
-		[backing sendNext:RACTuplePack(x, RACTupleNil.tupleNil)];
+		[currentValueAndSender sendNext:RACTuplePack(x, RACTupleNil.tupleNil)];
 	} error:^(NSError *error) {
 		@strongify(self);
 		NSCAssert(NO, @"Received error in RACPropertySubject %@: %@", self, error);
@@ -59,7 +59,7 @@
 		// Log the error if we're running with assertions disabled.
 		NSLog(@"Received error in RACPropertySubject %@: %@", self, error);
 	} completed:^{
-		[backing sendCompleted];
+		[currentValueAndSender sendCompleted];
 	}];
 
 	return self;
@@ -106,13 +106,13 @@
 }
 
 - (RACBinding *)binding {
-	RACReplaySubject *backing = self.backing;
+	RACReplaySubject *currentValueAndSender = self.currentValueAndSender;
 	RACBinding *binding = [RACBinding alloc];
 	@weakify(binding);
 
 	RACSignal *signal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block BOOL isFirstNext = YES;
-		return [backing subscribeNext:^(RACTuple *x) {
+		return [currentValueAndSender subscribeNext:^(RACTuple *x) {
 			@strongify(binding);
 
 			if (isFirstNext || ![x.second isEqual:binding]) {
@@ -127,7 +127,7 @@
 	id<RACSubscriber> subscriber = [RACSubscriber subscriberWithNext:^(id x) {
 		@strongify(binding);
 
-		[backing sendNext:RACTuplePack(x, binding)];
+		[currentValueAndSender sendNext:RACTuplePack(x, binding)];
 	} error:^(NSError *error) {
 		@strongify(binding);
 
@@ -135,9 +135,9 @@
 		// Log the error if we're running with assertions disabled.
 		NSLog(@"Received error in RACBinding %@: %@", binding, error);
 
-		[backing sendError:error];
+		[currentValueAndSender sendError:error];
 	} completed:^{
-		[backing sendCompleted];
+		[currentValueAndSender sendCompleted];
 	}];
 
 	return [binding initWithSignal:signal subscriber:subscriber];

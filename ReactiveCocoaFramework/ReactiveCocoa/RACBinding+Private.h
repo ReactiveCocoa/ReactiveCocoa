@@ -10,12 +10,17 @@
 
 @interface RACBinding ()
 
-// Designated initializer.
+// The binding will behave like this signal towards its subscribers.
 //
-// signal     - The binding will behave like this signal towards its
-//              subscribers.
-// subscriber - The binding will behave like this subscriber towards the signals
-//              it's subscribed to.
-- (instancetype)initWithSignal:(RACSignal *)signal subscriber:(id<RACSubscriber>)subscriber;
+// This property should be set before any subscriptions are set up and should
+// not be changed afterwards to avoid race conditions.
+@property (nonatomic, strong) RACSignal *signal;
+
+// The binding will behave like this subscriber towards the signals it's
+// subscribed to.
+//
+// This property should be set before any subscriptions are set up and should
+// not be changed afterwards to avoid race conditions.
+@property (nonatomic, strong) id<RACSubscriber> subscriber;
 
 @end

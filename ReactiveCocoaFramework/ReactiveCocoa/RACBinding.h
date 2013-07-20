@@ -11,15 +11,10 @@
 
 @class RACDisposable;
 
-// A binding of a RACPropertySubject.
+// A binding to a property.
 //
-//  - `next` events sent to the binding are sent to the binding's
-//    RACPropertySubject's subscribers, and the subscribers of other RACBindings
-//    from the same property subject, but are not sent to the receiver's
-//    subscribers.
-//  - `completed` events sent to the binding are sent to the binding's
-//    RACPropertySubject's subscribers, and the subscribers of all RACBindings from
-//    the same property subject, including the receiver.
+// Refer to the documentation of subclasses and of methods returning a
+// `RACBinding` for specifics.
 //
 // It is considered undefined behavior to send `error` to a RACBinding.
 @interface RACBinding : RACSignal <RACSubscriber>

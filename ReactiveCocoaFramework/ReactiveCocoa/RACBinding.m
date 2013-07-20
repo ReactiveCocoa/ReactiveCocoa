@@ -6,60 +6,36 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#import "RACBinding.h"
+#import "RACBinding+Private.h"
 #import "EXTScope.h"
 #import "RACDisposable.h"
 #import "RACSubscriber+Private.h"
 #import "RACTuple.h"
-
-@interface RACBinding ()
-
-// The signal exposed to callers. The property will behave like this signal
-// towards its subscribers.
-@property (nonatomic, readonly, strong) RACSignal *exposedSignal;
-
-// The subscriber exposed to callers. The property will behave like this
-// subscriber towards the signals it's subscribed to.
-@property (nonatomic, readonly, strong) id<RACSubscriber> exposedSubscriber;
-
-@end
 
 @implementation RACBinding
 
 #pragma mark RACSignal
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	return [self.exposedSignal subscribe:subscriber];
+	return [self.signal subscribe:subscriber];
 }
 
 #pragma mark <RACSubscriber>
 
 - (void)sendNext:(id)value {
-	[self.exposedSubscriber sendNext:value];
+	[self.subscriber sendNext:value];
 }
 
 - (void)sendError:(NSError *)error {
-	[self.exposedSubscriber sendError:error];
+	[self.subscriber sendError:error];
 }
 
 - (void)sendCompleted {
-	[self.exposedSubscriber sendCompleted];
+	[self.subscriber sendCompleted];
 }
 
 - (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
-	[self.exposedSubscriber didSubscribeWithDisposable:disposable];
-}
-
-#pragma mark API
-
-- (instancetype)initWithSignal:(RACSignal *)signal subscriber:(id<RACSubscriber>)subscriber {
-	self = [super init];
-	if (self == nil) return nil;
-	
-	_exposedSignal = signal;
-	_exposedSubscriber = subscriber;
-	
-	return self;
+	[self.subscriber didSubscribeWithDisposable:disposable];
 }
 
 @end

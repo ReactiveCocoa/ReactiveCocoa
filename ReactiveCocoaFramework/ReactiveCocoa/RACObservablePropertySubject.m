@@ -16,7 +16,7 @@
 #import "RACBinding+Private.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
-#import "RACPropertySubject+Private.h"
+#import "RACPropertySubject.h"
 #import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"
 #import "RACSubscriber+Private.h"
@@ -102,19 +102,24 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 	if (target == nil) return nil;
 	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
 
-	RACObservablePropertySubject *property = [self alloc];
-	RACReplaySubject *terminationSubject = [RACReplaySubject replaySubjectWithCapacity:1];
+	RACObservablePropertySubject *property = [[self alloc] init];
+	if (property == nil) return nil;
 	@weakify(property);
 
-	RACSignal *exposedSignal = [[[RACSignal
+	property->_target = target;
+	property->_keyPath = [keyPath copy];
+	property->_nilValue = nilValue;
+	property->_terminationSubject = [RACReplaySubject replaySubjectWithCapacity:1];
+
+	property.signal = [[[RACSignal
 		defer:^{
 			@strongify(property);
 			return [property.target rac_valuesForKeyPath:property.keyPath observer:property];
 		}]
-		takeUntil:terminationSubject]
+		takeUntil:property.terminationSubject]
 		setNameWithFormat:@"+propertyWithTarget: %@ keyPath: %@", [target rac_description], keyPath];
 
-	id<RACSubscriber> exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
+	property.subscriber = [RACSubscriber subscriberWithNext:^(id x) {
 		@strongify(property);
 		[property.target setValue:x ?: property.nilValue forKeyPath:property.keyPath];
 	} error:^(NSError *error) {
@@ -129,14 +134,6 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 		@strongify(property);
 		[property.terminationSubject sendCompleted];
 	}];
-	
-	property = [property initWithSignal:exposedSignal subscriber:exposedSubscriber];
-	if (property == nil) return nil;
-
-	property->_target = target;
-	property->_keyPath = [keyPath copy];
-	property->_nilValue = nilValue;
-	property->_terminationSubject = terminationSubject;
 	
 	[target.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 		@strongify(property);
@@ -176,8 +173,12 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 	if (target == nil) return nil;
 	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
 
-	RACObservablePropertyBinding *binding = [self alloc];
+	RACObservablePropertyBinding *binding = [[self alloc] init];
+	if (binding == nil) return nil;
 	@weakify(binding);
+
+	binding->_target = target;
+	binding->_keyPath = [keyPath copy];
 
 	// The subject used to multicast changes to the property to the binding's
 	// subscribers.
@@ -235,7 +236,7 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 
 	// On subscription first send the property's current value then subscribe the
 	// subscriber to the updatesSubject for new values when they change.
-	RACSignal *exposedSignal = [[[RACSignal
+	binding.signal = [[[RACSignal
 		defer:^{
 			@strongify(binding);
 			return [updatesSubject startWith:[binding.target valueForKeyPath:binding.keyPath]];
@@ -249,7 +250,7 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 	NSString *lastKeyPathComponent = keyPathComponents.lastObject;
 
 	// Update the value of the property with the values received.
-	id<RACSubscriber> exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
+	binding.subscriber = [RACSubscriber subscriberWithNext:^(id x) {
 		@strongify(binding);
 
 		// Check the value of the second to last key path component. Since the
@@ -277,12 +278,6 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 		[terminationSubject sendCompleted];
 	}];
 
-	binding = [binding initWithSignal:exposedSignal subscriber:exposedSubscriber];
-	if (binding == nil) return nil;
-
-	binding->_target = target;
-	binding->_keyPath = [keyPath copy];
-	
 	[target.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 		@strongify(binding);
 		[terminationSubject sendCompleted];

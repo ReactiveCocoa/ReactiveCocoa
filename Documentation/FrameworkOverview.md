@@ -187,7 +187,7 @@ your project as needed.
 ## Asynchronous Backtraces
 
 Because RAC-based code often involves asynchronous work and queue-hopping, the
-framework supports [capturing asynchronous backtraces][] to make debugging
+framework supports [capturing asynchronous backtraces][RACBacktrace] to make debugging
 easier.
 
 On OS X, backtraces can be automatically captured from any code, including

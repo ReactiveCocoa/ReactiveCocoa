@@ -23,9 +23,10 @@ extern void rac_dispatch_after_f(dispatch_time_t time, dispatch_queue_t queue, v
 // your scheme's Run action settings.
 //
 // On iOS, you can manually capture asynchronous backtraces by using the `rac_`
-// variants of GCD functions (declared above). Unfortunately, unlike OS X, it's
-// impossible to capture backtraces inside NSOperationQueue or other code
-// outside of your project.
+// variants of GCD functions (declared above). RAC will automatically use these
+// functions for asynchronous work. Unfortunately, unlike OS X, it's impossible
+// to capture backtraces inside NSOperationQueue or other code outside of your
+// project.
 //
 // Once backtraces are being captured, you can `po [RACBacktrace backtrace]` in
 // the debugger to print them out at any time. You can even set up an alias in

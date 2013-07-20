@@ -49,6 +49,7 @@
 	#import "UIButton+RACCommandSupport.h"
 	#import "UIControl+RACSignalSupport.h"
 	#import "UIGestureRecognizer+RACSignalSupport.h"
+	#import "UISegmentedControl+RACSignalSupport.h"
 	#import "UISlider+RACSignalSupport.h"
 	#import "UITextField+RACSignalSupport.h"
 	#import "UITextView+RACSignalSupport.h"

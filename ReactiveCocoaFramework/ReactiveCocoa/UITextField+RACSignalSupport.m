@@ -7,6 +7,7 @@
 //
 
 #import "UITextField+RACSignalSupport.h"
+#import "EXTKeyPathCoding.h"
 #import "EXTScope.h"
 #import "NSObject+RACDeallocating.h"
 #import "RACSignal+Operations.h"
@@ -28,6 +29,10 @@
 		}]
 		takeUntil:self.rac_willDeallocSignal]
 		setNameWithFormat:@"%@ -rac_textSignal", [self rac_description]];
+}
+
+- (id)rac_textBindingWithNilValue:(id)nilValue {
+	return [self rac_bindingForControlEvents:UIControlEventEditingChanged keyPath:@keypath(self.text) nilValue:nilValue];
 }
 
 @end

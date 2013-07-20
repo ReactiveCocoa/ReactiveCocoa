@@ -9,19 +9,12 @@
 #import "RACBacktrace.h"
 #import "RACScheduler.h"
 
-extern void rac_dispatch_async(dispatch_queue_t queue, dispatch_block_t block);
-extern void rac_dispatch_barrier_async(dispatch_queue_t queue, dispatch_block_t block);
-extern void rac_dispatch_after(dispatch_time_t time, dispatch_queue_t queue, dispatch_block_t block);
-extern void rac_dispatch_async_f(dispatch_queue_t queue, void *context, dispatch_function_t function);
-extern void rac_dispatch_barrier_async_f(dispatch_queue_t queue, void *context, dispatch_function_t function);
-extern void rac_dispatch_after_f(dispatch_time_t time, dispatch_queue_t queue, void *context, dispatch_function_t function);
-
 #ifdef DEBUG
 
 static RACBacktrace *previousBacktrace;
 
 static void capturePreviousBacktrace(void *context) {
-	previousBacktrace = [RACBacktrace captureBacktrace].previousThreadBacktrace;
+	previousBacktrace = [RACBacktrace backtrace].previousThreadBacktrace;
 }
 
 SpecBegin(RACBacktrace)
@@ -29,7 +22,7 @@ SpecBegin(RACBacktrace)
 __block dispatch_block_t block;
 
 beforeEach(^{
-	expect([RACBacktrace captureBacktrace].previousThreadBacktrace).to.beNil();
+	expect([RACBacktrace backtrace].previousThreadBacktrace).to.beNil();
 	previousBacktrace = nil;
 
 	block = ^{
@@ -38,7 +31,7 @@ beforeEach(^{
 });
 
 it(@"should capture the current backtrace", ^{
-	RACBacktrace *backtrace = [RACBacktrace captureBacktrace];
+	RACBacktrace *backtrace = [RACBacktrace backtrace];
 	expect(backtrace).notTo.beNil();
 });
 

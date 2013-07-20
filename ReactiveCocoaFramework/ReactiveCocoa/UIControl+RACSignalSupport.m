@@ -42,7 +42,10 @@
 - (RACBinding *)rac_bindingForControlEvents:(UIControlEvents)controlEvents key:(NSString *)key primitive:(BOOL)primitive nilValue:(id)nilValue {
 	@weakify(self);
 
-	RACSignal *signal = [RACSignal
+	RACBinding *binding = [[RACBinding alloc] init];
+	if (binding == nil) return nil;
+
+	binding.signal = [RACSignal
 		createSignal:^(id<RACSubscriber> subscriber) {
 			@strongify(self);
 
@@ -63,7 +66,7 @@
 		invocation.target = self;
 	}
 
-	id<RACSubscriber> subscriber = [RACSubscriber subscriberWithNext:^(id x) {
+	binding.subscriber = [RACSubscriber subscriberWithNext:^(id x) {
 		@strongify(self);
 		if (self == nil) return;
 
@@ -99,7 +102,7 @@
 
 	} completed:nil];
 
-	return [[RACBinding alloc] initWithSignal:signal subscriber:subscriber];
+	return binding;
 }
 
 @end

@@ -17,7 +17,7 @@
 - (RACSignal *)rac_signalForControlEvents:(UIControlEvents)controlEvents;
 
 // Creates and returns a RACBinding that sends the current value of the given
-// key on subscription and whenever one of the control events is triggered and
+// key on subscription and whenever one of the control events is triggered, and
 // sets the value of the key to the values it receives. If it receives `nil`, it
 // sets the value to `nilValue` instead.
 //

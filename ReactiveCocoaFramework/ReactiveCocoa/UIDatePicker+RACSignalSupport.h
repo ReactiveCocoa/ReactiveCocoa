@@ -13,7 +13,7 @@
 @interface UIDatePicker (RACSignalSupport)
 
 // Creates and returns a RACBinding that sends the receiver's current date on
-// subscription and whenever UIControlEventValueChanged is fired and sets the
+// subscription and whenever UIControlEventValueChanged is fired, and sets the
 // date to the values it receives. If it receives `nil`, it sets the date to
 // `nilValue` instead.
 //

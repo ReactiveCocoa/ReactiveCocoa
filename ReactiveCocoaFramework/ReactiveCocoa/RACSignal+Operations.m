@@ -1246,7 +1246,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			NSCAssert([number isKindOfClass:NSNumber.class], @"-or must only be used on a signal of RACTuple wrapped NSNumbers, tuple contains: %@", tuple);
 			return number.boolValue;
 		}]);
-	}] setNameWithFormat:@"[%@] -and", self.name];
+	}] setNameWithFormat:@"[%@] -or", self.name];
 }
 
 - (RACDisposable *)executeCommand:(RACCommand *)command {

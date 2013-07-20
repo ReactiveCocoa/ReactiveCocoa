@@ -145,11 +145,11 @@ swizzling class methods is dangerous and difficult to do correctly.
 **To update:**
 
  * Most existing uses of `-rac_signalForSelector:` shouldn't require
-   any changes. However, the `super` implementation of any targeted selector will
+   any changes. However, the `super` implementation (if available) of any targeted selector will
    now be invoked, where it wasn't previously. Verify that existing uses can
    handle this case.
- * No replacement for `+rac_signalForSelector:` exists — override the desired class
-   method and send arguments onto a `RACSubject` instead.
+ * Replace uses of `+rac_signalForSelector:` by implementing the class method
+   and sending arguments onto a `RACSubject` instead.
 
 ### More obvious sequencing operator
 
@@ -217,7 +217,7 @@ instead of `RACSubject` to make it more obvious how to use the block argument.
 
  * Use `[RACScheduler scheduler]` to match the previous implicit scheduling
    behavior of `+start:`.
- * Refactor blocks that return values, and set `success`/`error`, to send events
+ * Refactor blocks that return values and set `success`/`error`, to send events
    to the given `<RACSubscriber>` instead.
 
 ### Notification immediately before object deallocation
@@ -254,7 +254,7 @@ Replace uses of `+schedulerWithQueue:name:` with `-[RACTargetQueueScheduler init
 ### GCD time values replaced with NSDate
 
 `NSDate` now [replaces](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/664)
-`dispatch_time_t` values in `RACScheduler`, because it's easier to use, more
+`dispatch_time_t` values in `RACScheduler`, because dates are easier to use, more
 convertible to other formats, and can be used to implement a [virtualized time
 scheduler](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/171).
 
@@ -290,13 +290,7 @@ The special `RACBind(...) = RACBind(...)` syntax will continue to work.
 
 **To update:**
 
-Replace:
-
-```objc
-[binding1 bindTo:binding2];
-```
-
-with:
+Replace `[binding1 bindTo:binding2]` with:
 
 ```objc
 [binding2 subscribe:binding1];
@@ -346,7 +340,7 @@ used directly, so it has been
 
 **To update:**
 
-Replace uses of `RACSubscriber` with `RACSubject`.
+Replace uses of `RACSubscriber` with `id<RACSubscriber>` or `RACSubject`.
 
 ## Additions and improvements
 

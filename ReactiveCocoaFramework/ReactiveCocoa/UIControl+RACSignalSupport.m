@@ -42,14 +42,18 @@
 - (RACBinding *)rac_bindingForControlEvents:(UIControlEvents)controlEvents key:(NSString *)key primitive:(BOOL)primitive nilValue:(id)nilValue {
 	@weakify(self);
 
-	RACSignal *signal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		@strongify(self);
+	RACSignal *signal = [RACSignal
+		createSignal:^(id<RACSubscriber> subscriber) {
+			@strongify(self);
 
-		[subscriber sendNext:[self valueForKey:key]];
-		return [[[self rac_signalForControlEvents:controlEvents] map:^(id sender) {
-			return [sender valueForKey:key];
-		}] subscribe:subscriber];
-	}];
+			[subscriber sendNext:[self valueForKey:key]];
+			return [[[self
+				rac_signalForControlEvents:controlEvents]
+				map:^(id sender) {
+					return [sender valueForKey:key];
+				}]
+				subscribe:subscriber];
+		}];
 
 	SEL selector = NSSelectorFromString([NSString stringWithFormat:@"set%@%@:animated:", [key substringToIndex:1].uppercaseString, [key substringFromIndex:1]]);
 	NSInvocation *invocation = nil;

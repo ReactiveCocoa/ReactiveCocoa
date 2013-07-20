@@ -323,8 +323,9 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 //
 // signal        - A signal of objects used as keys in the `cases` dictionary.
 //                 This argument must not be nil.
-// cases         - A dictionary that has signals as values.
-//                 This argument must not be nil.
+// cases         - A dictionary that has signals as values. This argument must
+//                 not be nil. A RACTupleNil key in this dictionary will match
+//                 nil `next` events that are received on `signal`.
 // defaultSignal - The signal to pass through after `signal` sends a value for
 //                 which `cases` does not contain a signal. If nil, any
 //                 unmatched values will result in

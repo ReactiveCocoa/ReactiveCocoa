@@ -1708,6 +1708,22 @@ describe(@"+switch:cases:default:", ^{
 		expect(lastError.domain).to.equal(RACSignalErrorDomain);
 		expect(lastError.code).to.equal(RACSignalErrorNoMatchingCase);
 	});
+
+	it(@"should match RACTupleNil case when a nil value is sent", ^{
+		[[RACSignal
+			switch:keySubject
+			cases:@{
+				RACTupleNil.tupleNil: subjectZero,
+			}
+			default:defaultSubject]
+			subscribeNext:^(id x) {
+				[values addObject:x];
+			}];
+
+		[keySubject sendNext:nil];
+		[subjectZero sendNext:@"zero"];
+		expect(values).to.equal(@[ @"zero" ]);
+	});
 });
 
 describe(@"+if:then:else", ^{

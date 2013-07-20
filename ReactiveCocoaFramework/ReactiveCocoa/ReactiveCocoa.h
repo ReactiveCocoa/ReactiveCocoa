@@ -52,6 +52,7 @@
 	#import "UIGestureRecognizer+RACSignalSupport.h"
 	#import "UISegmentedControl+RACSignalSupport.h"
 	#import "UISlider+RACSignalSupport.h"
+	#import "UIStepper+RACSignalSupport.h"
 	#import "UISwitch+RACSignalSupport.h"
 	#import "UITextField+RACSignalSupport.h"
 	#import "UITextView+RACSignalSupport.h"

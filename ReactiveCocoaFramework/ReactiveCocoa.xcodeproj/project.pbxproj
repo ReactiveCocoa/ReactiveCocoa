@@ -112,6 +112,9 @@
 		5F4378BB179AA61B00F8F1C0 /* UISegmentedControl+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F4378B9179AA61A00F8F1C0 /* UISegmentedControl+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5F4378BC179AA61B00F8F1C0 /* UISegmentedControl+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F4378BA179AA61A00F8F1C0 /* UISegmentedControl+RACSignalSupport.m */; };
 		5F4378BD179AA61B00F8F1C0 /* UISegmentedControl+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F4378BA179AA61A00F8F1C0 /* UISegmentedControl+RACSignalSupport.m */; };
+		5F4378C0179AA9B800F8F1C0 /* UISwitch+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F4378BE179AA9B600F8F1C0 /* UISwitch+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5F4378C1179AA9B800F8F1C0 /* UISwitch+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F4378BF179AA9B700F8F1C0 /* UISwitch+RACSignalSupport.m */; };
+		5F4378C2179AA9B800F8F1C0 /* UISwitch+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F4378BF179AA9B700F8F1C0 /* UISwitch+RACSignalSupport.m */; };
 		5F45A885168CFA3E00B58A2B /* RACObservablePropertySubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F45A883168CFA3E00B58A2B /* RACObservablePropertySubject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5F45A886168CFA3E00B58A2B /* RACObservablePropertySubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F45A883168CFA3E00B58A2B /* RACObservablePropertySubject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5F45A887168CFA3E00B58A2B /* RACObservablePropertySubject.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F45A884168CFA3E00B58A2B /* RACObservablePropertySubject.m */; };
@@ -607,6 +610,8 @@
 		5F4378B5179A9EB400F8F1C0 /* UISlider+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UISlider+RACSignalSupport.m"; sourceTree = "<group>"; };
 		5F4378B9179AA61A00F8F1C0 /* UISegmentedControl+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UISegmentedControl+RACSignalSupport.h"; sourceTree = "<group>"; };
 		5F4378BA179AA61A00F8F1C0 /* UISegmentedControl+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UISegmentedControl+RACSignalSupport.m"; sourceTree = "<group>"; };
+		5F4378BE179AA9B600F8F1C0 /* UISwitch+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UISwitch+RACSignalSupport.h"; sourceTree = "<group>"; };
+		5F4378BF179AA9B700F8F1C0 /* UISwitch+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UISwitch+RACSignalSupport.m"; sourceTree = "<group>"; };
 		5F45A883168CFA3E00B58A2B /* RACObservablePropertySubject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACObservablePropertySubject.h; sourceTree = "<group>"; };
 		5F45A884168CFA3E00B58A2B /* RACObservablePropertySubject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACObservablePropertySubject.m; sourceTree = "<group>"; };
 		5F6FE8511692568A00A8D7A6 /* RACBinding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACBinding.h; sourceTree = "<group>"; };
@@ -1290,6 +1295,8 @@
 				5F4378BA179AA61A00F8F1C0 /* UISegmentedControl+RACSignalSupport.m */,
 				5F4378B4179A9EB400F8F1C0 /* UISlider+RACSignalSupport.h */,
 				5F4378B5179A9EB400F8F1C0 /* UISlider+RACSignalSupport.m */,
+				5F4378BE179AA9B600F8F1C0 /* UISwitch+RACSignalSupport.h */,
+				5F4378BF179AA9B700F8F1C0 /* UISwitch+RACSignalSupport.m */,
 				88F44264153DCAC50097B4C3 /* UITextField+RACSignalSupport.h */,
 				88F44265153DCAC50097B4C3 /* UITextField+RACSignalSupport.m */,
 				A1FCC27215666AA3008C9686 /* UITextView+RACSignalSupport.h */,
@@ -1604,6 +1611,7 @@
 				D094E45017775AF200906BF7 /* metamacros.h in Headers */,
 				5F4378B6179A9EB500F8F1C0 /* UISlider+RACSignalSupport.h in Headers */,
 				5F4378BB179AA61B00F8F1C0 /* UISegmentedControl+RACSignalSupport.h in Headers */,
+				5F4378C0179AA9B800F8F1C0 /* UISwitch+RACSignalSupport.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1988,6 +1996,7 @@
 				5F4375271799774500F8F1C0 /* EXTRuntimeExtensions.m in Sources */,
 				5F4378B8179A9EB500F8F1C0 /* UISlider+RACSignalSupport.m in Sources */,
 				5F4378BD179AA61B00F8F1C0 /* UISegmentedControl+RACSignalSupport.m in Sources */,
+				5F4378C2179AA9B800F8F1C0 /* UISwitch+RACSignalSupport.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2239,6 +2248,7 @@
 				D05F9D3817984EC000FD7982 /* EXTRuntimeExtensions.m in Sources */,
 				5F4378B7179A9EB500F8F1C0 /* UISlider+RACSignalSupport.m in Sources */,
 				5F4378BC179AA61B00F8F1C0 /* UISegmentedControl+RACSignalSupport.m in Sources */,
+				5F4378C1179AA9B800F8F1C0 /* UISwitch+RACSignalSupport.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

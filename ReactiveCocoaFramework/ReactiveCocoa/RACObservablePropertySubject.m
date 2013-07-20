@@ -102,12 +102,14 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 	if (target == nil) return nil;
 	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
 
+	keyPath = [keyPath copy];
+
 	RACObservablePropertySubject *property = [[self alloc] init];
 	if (property == nil) return nil;
 	@weakify(property);
 
 	property->_target = target;
-	property->_keyPath = [keyPath copy];
+	property->_keyPath = keyPath;
 	property->_nilValue = nilValue;
 	property->_terminationSubject = [RACReplaySubject replaySubjectWithCapacity:1];
 
@@ -173,12 +175,14 @@ static NSString * const RACObservablePropertyBindingDataDictionaryKey = @"RACObs
 	if (target == nil) return nil;
 	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
 
+	keyPath = [keyPath copy];
+
 	RACObservablePropertyBinding *binding = [[self alloc] init];
 	if (binding == nil) return nil;
 	@weakify(binding);
 
 	binding->_target = target;
-	binding->_keyPath = [keyPath copy];
+	binding->_keyPath = keyPath;
 
 	// The subject used to multicast changes to the property to the binding's
 	// subscribers.

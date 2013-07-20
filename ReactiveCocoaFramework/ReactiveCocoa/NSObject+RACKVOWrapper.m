@@ -24,6 +24,8 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 	NSCParameterAssert(block != nil);
 	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
 
+	keyPath = [keyPath copy];
+
 	@unsafeify(observer);
 
 	NSArray *keyPathComponents = keyPath.rac_keyPathComponents;

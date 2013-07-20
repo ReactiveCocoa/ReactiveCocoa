@@ -28,6 +28,8 @@
 }
 
 - (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer {
+	keyPath = [keyPath copy];
+
 	RACDisposable *deallocFlagDisposable = [[RACDisposable alloc] init];
 	RACCompoundDisposable *observerDisposable = observer.rac_deallocDisposable;
 	RACCompoundDisposable *objectDisposable = self.rac_deallocDisposable;

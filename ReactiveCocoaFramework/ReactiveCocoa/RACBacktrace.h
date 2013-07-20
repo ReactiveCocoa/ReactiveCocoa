@@ -15,6 +15,13 @@ extern void rac_dispatch_async_f(dispatch_queue_t queue, void *context, dispatch
 extern void rac_dispatch_barrier_async_f(dispatch_queue_t queue, void *context, dispatch_function_t function);
 extern void rac_dispatch_after_f(dispatch_time_t time, dispatch_queue_t queue, void *context, dispatch_function_t function);
 
+#define dispatch_async rac_dispatch_async
+#define dispatch_barrier_async rac_dispatch_barrier_async
+#define dispatch_after rac_dispatch_after
+#define dispatch_async_f rac_dispatch_async_f
+#define dispatch_barrier_async_f rac_dispatch_barrier_async_f
+#define dispatch_after_f rac_dispatch_after_f
+
 // Preserves backtraces across asynchronous calls.
 //
 // On OS X, you can enable the automatic capturing of asynchronous backtraces
@@ -22,11 +29,10 @@ extern void rac_dispatch_after_f(dispatch_time_t time, dispatch_queue_t queue, v
 // to `@executable_path/../Frameworks/ReactiveCocoa.framework/ReactiveCocoa` in
 // your scheme's Run action settings.
 //
-// On iOS, you can manually capture asynchronous backtraces by using the `rac_`
-// variants of GCD functions (declared above). RAC will automatically use these
-// functions for asynchronous work. Unfortunately, unlike OS X, it's impossible
-// to capture backtraces inside NSOperationQueue or other code outside of your
-// project.
+// On iOS, your project and RAC will automatically use the `rac_` GCD functions
+// (declared above) for asynchronous work. Unfortunately, unlike OS X, it's
+// impossible to capture backtraces inside NSOperationQueue or other code
+// outside of your project.
 //
 // Once backtraces are being captured, you can `po [RACBacktrace backtrace]` in
 // the debugger to print them out at any time. You can even set up an alias in

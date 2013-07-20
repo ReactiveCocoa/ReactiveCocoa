@@ -184,6 +184,18 @@ order to keep the framework size down.
 You can find them in [RACExtensions][]. To use them, simply add them directly to
 your project as needed.
 
+## Asynchronous Backtraces
+
+Because RAC-based code often involves asynchronous work and queue-hopping, the
+framework supports [capturing asynchronous backtraces][] to make debugging
+easier.
+
+On OS X, backtraces can be automatically captured from any code, including
+system libraries.
+
+On iOS, only queue hops from within RAC and your project will be captured (but
+the information is still valuable).
+
 [Design Guidelines]: DesignGuidelines.md
 [Haskell]: http://www.haskell.org
 [lazy-seq]: http://clojure.github.com/clojure/clojure.core-api.html#clojure.core/lazy-seq
@@ -193,6 +205,7 @@ your project as needed.
 [Monoid]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Data-Monoid.html#t:Monoid
 [MonadZip]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Control-Monad-Zip.html#t:MonadZip
 [NSButton+RACCommandSupport]: ../ReactiveCocoaFramework/ReactiveCocoa/NSButton+RACCommandSupport.h
+[RACBacktrace]: ../ReactiveCocoaFramework/ReactiveCocoa/RACBacktrace.h
 [RACCommand]: ../ReactiveCocoaFramework/ReactiveCocoa/RACCommand.h
 [RACDisposable]: ../ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
 [RACEvent]: ../ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h

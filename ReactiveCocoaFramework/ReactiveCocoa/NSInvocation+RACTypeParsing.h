@@ -21,9 +21,6 @@
 // invocation's method signature. The value is then wrapped in the appropriate
 // object type.
 //
-// This does not support C strings, arrays, unions, or structs other than
-// CGRect, CGSize, CGPoint, and NSRange.
-//
 // index  - The index of the argument to get.
 //
 // Returns the argument of the invocation, wrapped in an object.

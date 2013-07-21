@@ -1,5 +1,5 @@
 //
-//  RACObservablePropertySubjectSpec.m
+//  RACKVOBindingSpec.m
 //  ReactiveCocoa
 //
 //  Created by Uri Baghin on 16/12/2012.
@@ -7,21 +7,21 @@
 //
 
 #import "RACTestObject.h"
+#import "RACBindingExamples.h"
 #import "RACPropertySignalExamples.h"
-#import "RACPropertySubjectExamples.h"
 
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACKVOWrapper.h"
-#import "RACBinding.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
-#import "RACObservablePropertySubject.h"
+#import "RACKVOBinding.h"
+#import "RACSignal+Operations.h"
 
-SpecBegin(RACObservablePropertySubject)
+SpecBegin(RACKVOBinding)
 
-describe(@"RACObservablePropertySubject", ^{
+describe(@"RACKVOBinding", ^{
 	__block RACTestObject *object;
-	__block RACObservablePropertySubject *property;
+	__block RACKVOBinding *binding;
 	id value1 = @"test value 1";
 	id value2 = @"test value 2";
 	id value3 = @"test value 3";
@@ -29,53 +29,62 @@ describe(@"RACObservablePropertySubject", ^{
 	
 	before(^{
 		object = [[RACTestObject alloc] init];
-		property = [RACObservablePropertySubject propertyWithTarget:object keyPath:@keypath(object.stringValue) nilValue:nil];
+		binding = [[RACKVOBinding alloc] initWithTarget:object keyPath:@keypath(object.stringValue) nilValue:nil];
 	});
 	
 	id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, id nilValue, RACSignal *signal) {
-		[signal subscribe:[RACObservablePropertySubject propertyWithTarget:testObject keyPath:keyPath nilValue:nilValue]];
+		// Autorelease this binding so that it stays alive until the test is
+		// finished.
+		__autoreleasing RACKVOBinding *binding = [[RACKVOBinding alloc] initWithTarget:testObject keyPath:keyPath nilValue:nilValue];
+		[signal subscribe:binding.rumorsSubscriber];
 	};
 	
 	itShouldBehaveLike(RACPropertySignalExamples, ^{
 		return @{ RACPropertySignalExamplesSetupBlock: setupBlock };
 	});
 	
-	itShouldBehaveLike(RACPropertySubjectExamples, ^{
-		return @{
-			RACPropertySubjectExampleGetPropertyBlock: [^{ return [RACObservablePropertySubject propertyWithTarget:object keyPath:@keypath(object.stringValue) nilValue:nil]; } copy]
-		};
+	itShouldBehaveLike(RACBindingExamples, @{
+		RACBindingExampleCreateBlock: [^{
+			return [[RACKVOBinding alloc] initWithTarget:object keyPath:@keypath(object.stringValue) nilValue:nil];
+		} copy]
 	});
 	
 	it(@"should send the object's current value when subscribed to", ^{
 		__block id receivedValue = @"received value should not be this";
-		[[property take:1] subscribeNext:^(id x) {
+		[[binding.factsSignal take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
+
 		expect(receivedValue).to.beNil();
 		
 		object.stringValue = value1;
-		[[property take:1] subscribeNext:^(id x) {
+		[[binding.factsSignal take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
+
 		expect(receivedValue).to.equal(value1);
 	});
 	
 	it(@"should send the object's new value when it's changed", ^{
 		object.stringValue = value1;
+
 		NSMutableArray *receivedValues = [NSMutableArray array];
-		[property subscribeNext:^(id x) {
+		[binding.factsSignal subscribeNext:^(id x) {
 			[receivedValues addObject:x];
 		}];
+
 		object.stringValue = value2;
 		object.stringValue = value3;
 		expect(receivedValues).to.equal(values);
 	});
 	
-	it(@"should set values it's sent", ^{
+	it(@"should set rumors", ^{
 		expect(object.stringValue).to.beNil();
-		[property sendNext:value1];
+
+		[binding.rumorsSubscriber sendNext:value1];
 		expect(object.stringValue).to.equal(value1);
-		[property sendNext:value2];
+
+		[binding.rumorsSubscriber sendNext:value2];
 		expect(object.stringValue).to.equal(value2);
 	});
 	
@@ -84,19 +93,23 @@ describe(@"RACObservablePropertySubject", ^{
 		[object rac_observeKeyPath:@keypath(object.stringValue) options:0 observer:self block:^(id value, NSDictionary *change) {
 			[receivedValues addObject:value];
 		}];
+
 		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:value1];
 			[subscriber sendNext:value2];
 			[subscriber sendNext:value3];
 			return nil;
 		}];
-		[signal subscribe:property];
+
+		[signal subscribe:binding.rumorsSubscriber];
 		expect(receivedValues).to.equal(values);
 	});
 
-	it(@"should complete when the target deallocates", ^{
+	it(@"should complete facts and rumors when the target deallocates", ^{
+		__block BOOL factsCompleted = NO;
+		__block BOOL rumorsCompleted = NO;
+
 		__block BOOL deallocated = NO;
-		__block BOOL completed = NO;
 
 		@autoreleasepool {
 			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
@@ -104,20 +117,50 @@ describe(@"RACObservablePropertySubject", ^{
 				deallocated = YES;
 			}]];
 
-			[[RACObservablePropertySubject propertyWithTarget:object keyPath:@keypath(object.stringValue) nilValue:nil] subscribeCompleted:^{
-				completed = YES;
+			RACKVOBinding *binding = [[RACKVOBinding alloc] initWithTarget:object keyPath:@keypath(object.stringValue) nilValue:nil];
+			[binding.rumorsSignal subscribeCompleted:^{
+				rumorsCompleted = YES;
+			}];
+
+			[binding.factsSignal subscribeCompleted:^{
+				factsCompleted = YES;
 			}];
 
 			expect(deallocated).to.beFalsy();
-			expect(completed).to.beFalsy();
+			expect(rumorsCompleted).to.beFalsy();
+			expect(factsCompleted).to.beFalsy();
 		}
 
 		expect(deallocated).to.beTruthy();
-		expect(completed).to.beTruthy();
+		expect(rumorsCompleted).to.beTruthy();
+		expect(factsCompleted).to.beTruthy();
+	});
+
+	it(@"should deallocate when the target deallocates", ^{
+		__block BOOL targetDeallocated = NO;
+		__block BOOL bindingDeallocated = NO;
+
+		@autoreleasepool {
+			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
+			[object.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				targetDeallocated = YES;
+			}]];
+
+			RACKVOBinding *binding = [[RACKVOBinding alloc] initWithTarget:object keyPath:@keypath(object.stringValue) nilValue:nil];
+			[binding.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				bindingDeallocated = YES;
+			}]];
+
+			expect(targetDeallocated).to.beFalsy();
+			expect(bindingDeallocated).to.beFalsy();
+		}
+
+		expect(targetDeallocated).to.beTruthy();
+		expect(bindingDeallocated).to.beTruthy();
 	});
 });
 
-describe(@"RACObservablePropertySubject bindings", ^{
+describe(@"RACBind", ^{
 	__block RACTestObject *a;
 	__block RACTestObject *b;
 	__block RACTestObject *c;
@@ -197,6 +240,7 @@ describe(@"RACObservablePropertySubject bindings", ^{
 	it(@"should take the value of the object being bound to at the start", ^{
 		a.stringValue = testName1;
 		b.stringValue = testName2;
+
 		RACBind(a, stringValue) = RACBind(b, stringValue);
 		expect(a.stringValue).to.equal(testName2);
 		expect(b.stringValue).to.equal(testName2);
@@ -205,6 +249,7 @@ describe(@"RACObservablePropertySubject bindings", ^{
 	it(@"should update the value even if it's the same value the object had before it was bound", ^{
 		a.stringValue = testName1;
 		b.stringValue = testName2;
+
 		RACBind(a, stringValue) = RACBind(b, stringValue);
 		expect(a.stringValue).to.equal(testName2);
 		expect(b.stringValue).to.equal(testName2);
@@ -218,6 +263,7 @@ describe(@"RACObservablePropertySubject bindings", ^{
 		a.stringValue = testName1;
 		b.stringValue = testName2;
 		c.stringValue = testName3;
+
 		RACBind(a, stringValue) = RACBind(b, stringValue);
 		RACBind(b, stringValue) = RACBind(c, stringValue);
 		expect(a.stringValue).to.equal(testName3);
@@ -243,6 +289,7 @@ describe(@"RACObservablePropertySubject bindings", ^{
 	it(@"should bind changes made by KVC on arrays", ^{
 		b.arrayValue = @[];
 		RACBind(a, arrayValue) = RACBind(b, arrayValue);
+
 		[[b mutableArrayValueForKeyPath:@keypath(b.arrayValue)] addObject:@1];
 		expect(a.arrayValue).to.equal(b.arrayValue);
 	});
@@ -250,6 +297,7 @@ describe(@"RACObservablePropertySubject bindings", ^{
 	it(@"should bind changes made by KVC on sets", ^{
 		b.setValue = [NSSet set];
 		RACBind(a, setValue) = RACBind(b, setValue);
+
 		[[b mutableSetValueForKeyPath:@keypath(b.setValue)] addObject:@1];
 		expect(a.setValue).to.equal(b.setValue);
 	});
@@ -257,14 +305,17 @@ describe(@"RACObservablePropertySubject bindings", ^{
 	it(@"should bind changes made by KVC on ordered sets", ^{
 		b.orderedSetValue = [NSOrderedSet orderedSet];
 		RACBind(a, orderedSetValue) = RACBind(b, orderedSetValue);
+
 		[[b mutableOrderedSetValueForKeyPath:@keypath(b.orderedSetValue)] addObject:@1];
 		expect(a.orderedSetValue).to.equal(b.orderedSetValue);
 	});
 	
 	it(@"should handle deallocation of intermediate objects correctly even without support from KVO", ^{
 		__block BOOL wasDisposed = NO;
+
 		RACBind(a, weakTestObjectValue.stringValue) = RACBind(b, strongTestObjectValue.stringValue);
 		b.strongTestObjectValue = [[RACTestObject alloc] init];
+
 		@autoreleasepool {
 			RACTestObject *object = [[RACTestObject alloc] init];
 			[object.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
@@ -275,7 +326,6 @@ describe(@"RACObservablePropertySubject bindings", ^{
 			object.stringValue = testName1;
 			
 			expect(wasDisposed).to.beFalsy();
-			
 			expect(b.strongTestObjectValue.stringValue).to.equal(testName1);
 		}
 		
@@ -284,17 +334,15 @@ describe(@"RACObservablePropertySubject bindings", ^{
 	});
 	
 	it(@"should stop binding when disposed", ^{
-		RACBinding *aBinding = RACBind(a, stringValue);
-		RACBinding *bBinding = RACBind(b, stringValue);
-		RACDisposable *aDisposable = [bBinding subscribe:aBinding];
-		RACDisposable *bDisposable = [aBinding subscribe:bBinding];
+		RACKVOBinding *aBinding = RACBind(a, stringValue);
+		RACKVOBinding *bBinding = RACBind(b, stringValue);
+		RACDisposable *disposable = [aBinding bindFactsFromBinding:bBinding];
 
 		a.stringValue = testName1;
 		expect(a.stringValue).to.equal(testName1);
 		expect(b.stringValue).to.equal(testName1);
 
-		[aDisposable dispose];
-		[bDisposable dispose];
+		[disposable dispose];
 
 		a.stringValue = testName2;
 		expect(a.stringValue).to.equal(testName2);
@@ -302,13 +350,13 @@ describe(@"RACObservablePropertySubject bindings", ^{
 	});
 	
 	it(@"should use the nilValue when sent nil", ^{
-		RACBinding *binding = RACBind(a, integerValue, @5);
+		RACKVOBinding *binding = RACBind(a, integerValue, @5);
 		expect(a.integerValue).to.equal(0);
 
-		[binding sendNext:@2];
+		[binding.rumorsSubscriber sendNext:@2];
 		expect(a.integerValue).to.equal(2);
 
-		[binding sendNext:nil];
+		[binding.rumorsSubscriber sendNext:nil];
 		expect(a.integerValue).to.equal(5);
 	});
 
@@ -316,7 +364,6 @@ describe(@"RACObservablePropertySubject bindings", ^{
 		__block BOOL wasDisposed = NO;
 
 		RACBind(a, weakTestObjectValue.integerValue, @5) = RACBind(b, strongTestObjectValue.integerValue, @5);
-
 		b.strongTestObjectValue = [[RACTestObject alloc] init];
 
 		@autoreleasepool {
@@ -326,10 +373,9 @@ describe(@"RACObservablePropertySubject bindings", ^{
 			}]];
 			
 			a.weakTestObjectValue = object;
-
 			object.integerValue = 2;
+
 			expect(wasDisposed).to.beFalsy();
-			
 			expect(b.strongTestObjectValue.integerValue).to.equal(2);
 		}
 		

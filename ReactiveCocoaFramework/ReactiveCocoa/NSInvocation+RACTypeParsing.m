@@ -147,13 +147,6 @@
 		return @(val); \
 	} while (0)
 
-#define WRAP_AND_RETURN_STRUCT(type) \
-	do { \
-		type val; \
-		[self getReturnValue:&val]; \
-		return [NSValue valueWithBytes:&val objCType:@encode(type)]; \
-	} while (0)
-
 	const char *argType = self.methodSignature.methodReturnType;
 	// Skip const type qualifier.
 	if (argType[0] == 'r') {
@@ -190,26 +183,20 @@
 		WRAP_AND_RETURN(double);
 	} else if (strcmp(argType, "v") == 0) {
 		return RACUnit.defaultUnit;
-	} else if (argType[0] == '^') {
-		const void *pointer = NULL;
-		[self getReturnValue:&pointer];
-		return [NSValue valueWithPointer:pointer];
-	} else if (strcmp(argType, @encode(CGRect)) == 0) {
-		WRAP_AND_RETURN_STRUCT(CGRect);
-	} else if (strcmp(argType, @encode(CGSize)) == 0) {
-		WRAP_AND_RETURN_STRUCT(CGSize);
-	} else if (strcmp(argType, @encode(CGPoint)) == 0) {
-		WRAP_AND_RETURN_STRUCT(CGPoint);
-	} else if (strcmp(argType, @encode(NSRange)) == 0) {
-		WRAP_AND_RETURN_STRUCT(NSRange);
 	} else {
-		NSCAssert(NO, @"Unsupported return type signature %s", argType);
+		void *valueBytes = NULL;
+		NSUInteger valueSize = 0;
+		NSGetSizeAndAlignment(argType, &valueSize, NULL);
+		valueBytes = malloc(valueSize);
+		[self getReturnValue:valueBytes];
+		NSValue *value = [NSValue valueWithBytes:valueBytes objCType:argType];
+		free(valueBytes);
+		return value;
 	}
 
 	return nil;
 
 #undef WRAP_AND_RETURN
-#undef WRAP_AND_RETURN_STRUCT
 }
 
 @end

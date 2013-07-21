@@ -26,7 +26,6 @@
 #import "RACGroupedSignal.h"
 #import "RACMulticastConnection.h"
 #import "RACObservablePropertySubject.h"
-#import "RACPropertySubject.h"
 #import "RACQueueScheduler.h"
 #import "RACReplaySubject.h"
 #import "RACScheduler.h"

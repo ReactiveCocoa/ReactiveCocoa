@@ -36,6 +36,7 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=3&sta
  1. [Signal for UIActionSheet button clicks](#signal-for-uiactionsheet-button-clicks)
  1. [Better documentation for asynchronous backtraces](#better-documentation-for-asynchronous-backtraces)
  1. [Fixed libextobjc duplicated symbols](#fixed-libextobjc-duplicated-symbols)
+ 1. [Additional types supported by selector lifting](#additional-types-supported-by-selector-lifting)
 
 ## Breaking changes
 
@@ -381,3 +382,9 @@ result.
 To avoid this issue, RAC now
 [renames](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/612) the
 libextobjc symbols that it uses.
+
+### Additional types supported by selector lifting
+
+Support for more primitive types' boxing and unboxing has been
+[added](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/696) to selector
+lifting, including `NSString` to `char *` null terminated strings.

@@ -14,6 +14,13 @@
 	if (!self.catchSetNilValueForKey) [super setNilValueForKey:key];
 }
 
+- (void)setCharPointerValue:(char *)charPointerValue {
+	free(_charPointerValue);
+	size_t length = strlen(charPointerValue);
+	_charPointerValue = malloc(length+1);
+	strlcpy(_charPointerValue, charPointerValue, length+1);
+}
+
 - (void)setObjectValue:(id)objectValue andIntegerValue:(NSInteger)integerValue {
 	self.hasInvokedSetObjectValueAndIntegerValue = YES;
 	self.objectValue = objectValue;

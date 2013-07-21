@@ -52,6 +52,10 @@
 		PULL_AND_SET(float, floatValue);
 	} else if (strcmp(argType, "d") == 0) {
 		PULL_AND_SET(double, doubleValue);
+	} else if (strcmp(argType, "*") == 0) {
+		const char *cString = [object UTF8String];
+		[self setArgument:&cString atIndex:(NSInteger)index];
+		[self retainArguments];
 	} else {
 		void *valueBytes = NULL;
 		NSUInteger valueSize = 0;
@@ -64,6 +68,7 @@
 		valueBytes = malloc(valueSize);
 		[object getValue:valueBytes];
 		[self setArgument:valueBytes atIndex:(NSInteger)index];
+		// Retain the arguments in case this was a c array of some type
 		[self retainArguments];
 		free(valueBytes);
 	}
@@ -113,6 +118,8 @@
 		WRAP_AND_RETURN(float);
 	} else if (strcmp(argType, "d") == 0) {
 		WRAP_AND_RETURN(double);
+	} else if (strcmp(argType, "*") == 0) {
+		WRAP_AND_RETURN(const char *);
 	} else {
 		void *valueBytes = NULL;
 		NSUInteger valueSize = 0;
@@ -181,6 +188,8 @@
 		WRAP_AND_RETURN(float);
 	} else if (strcmp(argType, "d") == 0) {
 		WRAP_AND_RETURN(double);
+	} else if (strcmp(argType, "*") == 0) {
+		WRAP_AND_RETURN(const char *);
 	} else if (strcmp(argType, "v") == 0) {
 		return RACUnit.defaultUnit;
 	} else {

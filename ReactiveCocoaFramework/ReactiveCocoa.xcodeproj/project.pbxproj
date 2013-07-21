@@ -596,7 +596,6 @@
 		5F45A884168CFA3E00B58A2B /* RACObservablePropertySubject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACObservablePropertySubject.m; sourceTree = "<group>"; };
 		5F6FE8511692568A00A8D7A6 /* RACBinding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACBinding.h; sourceTree = "<group>"; };
 		5F6FE8521692568A00A8D7A6 /* RACBinding.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACBinding.m; sourceTree = "<group>"; };
-		5F6FE8571692572600A8D7A6 /* RACBinding+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RACBinding+Private.h"; sourceTree = "<group>"; };
 		5F773DE8169B46670023069D /* NSEnumerator+RACSequenceAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSEnumerator+RACSequenceAdditions.h"; sourceTree = "<group>"; };
 		5F773DE9169B46670023069D /* NSEnumerator+RACSequenceAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSEnumerator+RACSequenceAdditions.m"; sourceTree = "<group>"; };
 		5F773DEF169B48830023069D /* NSEnumeratorRACSequenceAdditionsSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSEnumeratorRACSequenceAdditionsSpec.m; sourceTree = "<group>"; };
@@ -1017,7 +1016,6 @@
 			isa = PBXGroup;
 			children = (
 				5F6FE8511692568A00A8D7A6 /* RACBinding.h */,
-				5F6FE8571692572600A8D7A6 /* RACBinding+Private.h */,
 				5F6FE8521692568A00A8D7A6 /* RACBinding.m */,
 				5F45A883168CFA3E00B58A2B /* RACObservablePropertySubject.h */,
 				5F45A884168CFA3E00B58A2B /* RACObservablePropertySubject.m */,

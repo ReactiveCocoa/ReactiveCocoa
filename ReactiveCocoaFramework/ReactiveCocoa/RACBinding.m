@@ -7,103 +7,96 @@
 //
 
 #import "RACBinding.h"
-#import "EXTScope.h"
 #import "RACDisposable.h"
-#import "RACSubscriber+Private.h"
-#import "RACTuple.h"
+#import "RACReplaySubject.h"
+#import "RACSignal+Operations.h"
 
 @interface RACBinding ()
 
-// The signal exposed to callers. The property will behave like this signal
-// towards its subscribers.
-@property (nonatomic, readonly, strong) RACSignal *exposedSignal;
+// The signal of facts.
+@property (nonatomic, strong, readonly) RACReplaySubject *factsSubject;
 
-// The subscriber exposed to callers. The property will behave like this
-// subscriber towards the signals it's subscribed to.
-@property (nonatomic, readonly, strong) id<RACSubscriber> exposedSubscriber;
+// The signal of rumors.
+@property (nonatomic, strong, readonly) RACReplaySubject *rumorsSubject;
+
+@end
+
+@interface RACBindingEndpoint ()
+
+// Initializes this endpoint for the given binding.
+//
+// The binding must already have valid factsSubject and rumorsSubject properties.
+- (id)initWithBinding:(RACBinding *)binding;
 
 @end
 
 @implementation RACBinding
 
-#pragma mark RACSignal
-
-- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	return [self.exposedSignal subscribe:subscriber];
-}
-
-#pragma mark <RACSubscriber>
-
-- (void)sendNext:(id)value {
-	[self.exposedSubscriber sendNext:value];
-}
-
-- (void)sendError:(NSError *)error {
-	[self.exposedSubscriber sendError:error];
-}
-
-- (void)sendCompleted {
-	[self.exposedSubscriber sendCompleted];
-}
-
-- (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
-	[self.exposedSubscriber didSubscribeWithDisposable:disposable];
-}
-
-#pragma mark API
-
-- (instancetype)initWithSignal:(RACSignal *)signal subscriber:(id<RACSubscriber>)subscriber {
+- (id)init {
 	self = [super init];
 	if (self == nil) return nil;
-	
-	@weakify(self);
-	_exposedSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		__block BOOL isFirstNext = YES;
-		return [signal subscribeNext:^(RACTuple *x) {
-			@strongify(self);
-			if (isFirstNext || ![x.second isEqual:self]) {
-				isFirstNext = NO;
-				[subscriber sendNext:x.first];
-			}
-		} completed:^{
-			[subscriber sendCompleted];
-		}];
-	}];
 
-	_exposedSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
-		@strongify(self);
-		[subscriber sendNext:[RACTuple tupleWithObjects:x ?: RACTupleNil.tupleNil, self ?: RACTupleNil.tupleNil, nil]];
-	} error:^(NSError *error) {
-		@strongify(self);
-		NSCAssert(NO, @"Received error in RACBinding %@: %@", self, error);
+	_factsSubject = [RACReplaySubject replaySubjectWithCapacity:1];
+	_factsSubject.name = @"factsSubject";
 
-		// Log the error if we're running with assertions disabled.
-		NSLog(@"Received error in RACBinding %@: %@", self, error);
+	_rumorsSubject = [RACReplaySubject replaySubjectWithCapacity:1];
+	_rumorsSubject.name = @"rumorsSubject";
 
-		[subscriber sendError:error];
-	} completed:^{
-		[subscriber sendCompleted];
-	}];
-	
+	// Propagate errors and completion to everything.
+	[[self.factsSubject ignoreValues] subscribe:self.rumorsSubject];
+	[[self.rumorsSubject ignoreValues] subscribe:self.factsSubject];
+
+	_factsEndpoint = [[RACBindingFactsEndpoint alloc] initWithBinding:self];
+	_rumorsEndpoint = [[RACBindingRumorsEndpoint alloc] initWithBinding:self];
+
 	return self;
 }
 
 @end
 
-@implementation RACBinding (Deprecated)
+@implementation RACBindingEndpoint
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+#pragma mark Lifecycle
 
-- (RACDisposable *)bindTo:(RACBinding *)binding {
-	RACDisposable *bindingDisposable = [binding subscribe:self];
-	RACDisposable *selfDisposable = [[self skip:1] subscribe:binding];
-	return [RACDisposable disposableWithBlock:^{
-		[bindingDisposable dispose];
-		[selfDisposable dispose];
-	}];
+- (id)init {
+	NSCAssert(NO, @"%@ should not be instantiated directly. Create a RACBinding instead.", self.class);
+	return nil;
 }
 
-#pragma clang diagnostic pop
+- (id)initWithBinding:(RACBinding *)binding {
+	NSCParameterAssert(binding != nil);
+	NSCParameterAssert(binding.factsSubject != nil);
+	NSCParameterAssert(binding.rumorsSubject != nil);
+
+	return [super init];
+}
+
+@end
+
+@implementation RACBindingRumorsEndpoint
+
+- (id)initWithBinding:(RACBinding *)binding {
+	self = [super initWithBinding:binding];
+	if (self == nil) return nil;
+
+	_factsSignal = binding.factsSubject;
+	_rumorsSubscriber = binding.rumorsSubject;
+
+	return self;
+}
+
+@end
+
+@implementation RACBindingFactsEndpoint
+
+- (id)initWithBinding:(RACBinding *)binding {
+	self = [super initWithBinding:binding];
+	if (self == nil) return nil;
+
+	_rumorsSignal = binding.rumorsSubject;
+	_factsSubscriber = binding.factsSubject;
+
+	return self;
+}
 
 @end

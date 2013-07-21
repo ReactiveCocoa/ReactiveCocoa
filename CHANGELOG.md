@@ -406,7 +406,7 @@ For example, assuming you want to bind a `person` model's `name` property:
 ```objc
 UITextField *nameField = ...;
 RACBinding *nameBinding = RACBind(model, name, nil);
-RACBinding *nameFieldBinding = [nameField rac_textBindingWithNilValue:@""];
+RACBinding *nameFieldBinding = [nameField rac_textBinding];
 [nameBinding subscribe:nameFieldBinding];
 [[nameFieldBinding skip:1] subscribe:nameBinding];
 ```

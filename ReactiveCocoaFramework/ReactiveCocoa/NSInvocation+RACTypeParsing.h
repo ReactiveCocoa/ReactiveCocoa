@@ -13,9 +13,6 @@
 // Sets the argument for the invocation at the given index by unboxing the given
 // object based on the type signature of the argument.
 //
-// This does not support C strings, arrays, unions, or structs other than
-// CGRect, CGSize, CGPoint, and NSRange.
-//
 // object - The object to unbox and set as the argument.
 // index  - The index of the argument to set.
 - (void)rac_setArgument:(id)object atIndex:(NSUInteger)index;

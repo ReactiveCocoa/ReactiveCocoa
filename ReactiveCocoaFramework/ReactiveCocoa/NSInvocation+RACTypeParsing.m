@@ -20,13 +20,6 @@
 		[self setArgument:&val atIndex:(NSInteger)index]; \
 	} while(0)
 
-#define PULL_AND_SET_STRUCT(type) \
-	do { \
-		type val; \
-		[object getValue:&val]; \
-		[self setArgument:&val atIndex:(NSInteger)index]; \
-	} while (0)
-
 	const char *argType = [self.methodSignature getArgumentTypeAtIndex:index];
 	// Skip const type qualifier.
 	if (argType[0] == 'r') {
@@ -59,22 +52,23 @@
 		PULL_AND_SET(float, floatValue);
 	} else if (strcmp(argType, "d") == 0) {
 		PULL_AND_SET(double, doubleValue);
-	} else if (argType[0] == '^') {
-		PULL_AND_SET(void *, pointerValue);
-	} else if (strcmp(argType, @encode(CGRect)) == 0) {
-		PULL_AND_SET_STRUCT(CGRect);
-	} else if (strcmp(argType, @encode(CGSize)) == 0) {
-		PULL_AND_SET_STRUCT(CGSize);
-	} else if (strcmp(argType, @encode(CGPoint)) == 0) {
-		PULL_AND_SET_STRUCT(CGPoint);
-	} else if (strcmp(argType, @encode(NSRange)) == 0) {
-		PULL_AND_SET_STRUCT(NSRange);
 	} else {
-		NSCAssert(NO, @"Unsupported argument type %s", argType);
+		void *valueBytes = NULL;
+		NSUInteger valueSize = 0;
+		NSGetSizeAndAlignment([object objCType], &valueSize, NULL);
+#if DEBUG
+		NSUInteger argSize = 0;
+		NSGetSizeAndAlignment(argType, &argSize, NULL);
+		NSCAssert(valueSize == argSize, @"Value size does not match argument size in -rac_setArgument: %@ atIndex: %lu", object, (unsigned long)index);
+#endif
+		valueBytes = malloc(valueSize);
+		[object getValue:valueBytes];
+		[self setArgument:valueBytes atIndex:(NSInteger)index];
+		[self retainArguments];
+		free(valueBytes);
 	}
 
 #undef PULL_AND_SET
-#undef PULL_AND_SET_STRUCT
 }
 
 - (id)rac_argumentAtIndex:(NSUInteger)index {

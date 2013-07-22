@@ -788,7 +788,9 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 	return [[[signal
 		map:^(id key) {
-			RACSignal *signal = copy[key ?: RACTupleNil.tupleNil] ?: defaultSignal;
+			if (key == nil) key = RACTupleNil.tupleNil;
+
+			RACSignal *signal = copy[key] ?: defaultSignal;
 			if (signal == nil) {
 				NSString *description = [NSString stringWithFormat:NSLocalizedString(@"No matching signal found for value %@", @""), key];
 				return [RACSignal error:[NSError errorWithDomain:RACSignalErrorDomain code:RACSignalErrorNoMatchingCase userInfo:@{ NSLocalizedDescriptionKey: description }]];

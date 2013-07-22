@@ -26,6 +26,8 @@
 #import <libkern/OSAtomic.h>
 
 // Retains signals while they wait for subscriptions.
+//
+// This set must only be used on the main thread.
 static NSMutableSet *RACActiveSignals = nil;
 
 // A linked list of RACSignals, used in RACActiveSignalsToCheck.

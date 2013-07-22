@@ -73,4 +73,9 @@
 	return testObject;
 }
 
+- (void)write5ToIntPointer:(int *)intPointer {
+	NSCParameterAssert(intPointer != NULL);
+	*intPointer = 5;
+}
+
 @end

@@ -210,6 +210,18 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		expect(NSEqualRanges(object.rangeValue, value)).to.beTruthy();
 	});
 
+	it(@"should work for primitive pointers", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(write5ToIntPointer:) withSignalsFromArray:@[ subject ]];
+
+		int value = 0;
+		int *valuePointer = &value;
+		expect(value).to.equal(0);
+
+		[subject sendNext:[NSValue valueWithPointer:valuePointer]];
+		expect(value).to.equal(5);
+	});
+
 	it(@"should work for custom structs", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setStructValue:) withSignalsFromArray:@[ subject ]];

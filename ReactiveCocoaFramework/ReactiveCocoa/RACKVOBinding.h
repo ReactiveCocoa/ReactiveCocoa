@@ -14,10 +14,9 @@
 // deallocates, the binding will complete.
 //
 // If RACBind() is used on the left-hand side of an assignment, there must a
-// RACBinding on the right-hand side of the assignment. The left binding's facts
-// endpoint will be bound to the right binding's rumors endpoint, so values
-// originating from the left side are considered to be rumors, and values
-// originating from the right side are considered to be facts.
+// RACBinding on the right-hand side of the assignment. Values originating from
+// the left side are considered to be rumors, and values originating from the
+// right side are considered to be facts.
 //
 // There are two different versions of this macro:
 //

@@ -11,26 +11,37 @@
 #import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"
 
-@interface RACBinding ()
+@interface RACBinding () {
+	// Contains all of the facts.
+	RACReplaySubject *_factsSubject;
 
-// The signal of facts.
-@property (nonatomic, strong, readonly) RACReplaySubject *factsSubject;
-
-// The signal of rumors.
-@property (nonatomic, strong, readonly) RACReplaySubject *rumorsSubject;
-
-@end
-
-@interface RACBindingEndpoint ()
-
-// Initializes this endpoint for the given binding.
-//
-// The binding must already have valid factsSubject and rumorsSubject properties.
-- (id)initWithBinding:(RACBinding *)binding;
+	// Contains all of the rumors.
+	RACReplaySubject *_rumorsSubject;
+}
 
 @end
 
 @implementation RACBinding
+
+#pragma mark Properties
+
+- (RACSignal *)factsSignal {
+	return _factsSubject;
+}
+
+- (id<RACSubscriber>)factsSubscriber {
+	return _factsSubject;
+}
+
+- (RACSignal *)rumorsSignal {
+	return _rumorsSubject;
+}
+
+- (id<RACSubscriber>)rumorsSubscriber {
+	return _rumorsSubject;
+}
+
+#pragma mark Lifecycle
 
 - (id)init {
 	self = [super init];
@@ -43,58 +54,8 @@
 	_rumorsSubject.name = @"rumorsSubject";
 
 	// Propagate errors and completion to everything.
-	[[self.factsSubject ignoreValues] subscribe:self.rumorsSubject];
-	[[self.rumorsSubject ignoreValues] subscribe:self.factsSubject];
-
-	_factsEndpoint = [[RACBindingFactsEndpoint alloc] initWithBinding:self];
-	_rumorsEndpoint = [[RACBindingRumorsEndpoint alloc] initWithBinding:self];
-
-	return self;
-}
-
-@end
-
-@implementation RACBindingEndpoint
-
-#pragma mark Lifecycle
-
-- (id)init {
-	NSCAssert(NO, @"%@ should not be instantiated directly. Create a RACBinding instead.", self.class);
-	return nil;
-}
-
-- (id)initWithBinding:(RACBinding *)binding {
-	NSCParameterAssert(binding != nil);
-	NSCParameterAssert(binding.factsSubject != nil);
-	NSCParameterAssert(binding.rumorsSubject != nil);
-
-	return [super init];
-}
-
-@end
-
-@implementation RACBindingRumorsEndpoint
-
-- (id)initWithBinding:(RACBinding *)binding {
-	self = [super initWithBinding:binding];
-	if (self == nil) return nil;
-
-	_factsSignal = binding.factsSubject;
-	_rumorsSubscriber = binding.rumorsSubject;
-
-	return self;
-}
-
-@end
-
-@implementation RACBindingFactsEndpoint
-
-- (id)initWithBinding:(RACBinding *)binding {
-	self = [super initWithBinding:binding];
-	if (self == nil) return nil;
-
-	_rumorsSignal = binding.rumorsSubject;
-	_factsSubscriber = binding.factsSubject;
+	[[self.factsSignal ignoreValues] subscribe:self.rumorsSubscriber];
+	[[self.rumorsSignal ignoreValues] subscribe:self.factsSubscriber];
 
 	return self;
 }

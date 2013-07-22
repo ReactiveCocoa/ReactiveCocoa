@@ -2720,6 +2720,37 @@ describe(@"-concat", ^{
 	});
 });
 
+describe(@"-initially:", ^{
+	__block RACSubject *subject;
+
+	__block NSUInteger initiallyInvokedCount;
+	__block RACSignal *signal;
+
+	beforeEach(^{
+		subject = [RACSubject subject];
+
+		initiallyInvokedCount = 0;
+		signal = [subject initially:^{
+			++initiallyInvokedCount;
+		}];
+	});
+
+	it(@"should not run without a subscription", ^{
+		[subject sendCompleted];
+		expect(initiallyInvokedCount).to.equal(0);
+	});
+
+	it(@"should run on subscription", ^{
+		[signal subscribe:[RACSubscriber new]];
+		expect(initiallyInvokedCount).to.equal(1);
+	});
+
+	it(@"should re-run for each subscription", ^{
+		[signal subscribe:[RACSubscriber new]];
+		[signal subscribe:[RACSubscriber new]];
+		expect(initiallyInvokedCount).to.equal(2);
+	});
+});
 
 describe(@"-finally:", ^{
 	__block RACSubject *subject;

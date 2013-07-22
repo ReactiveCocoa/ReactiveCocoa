@@ -54,10 +54,10 @@ Here's a simple example:
 ```objc
 // When self.username changes, log the new name to the console.
 //
-// RACAble(self.username) creates a new RACSignal that sends a new value
-// whenever the username changes. -subscribeNext: will execute the block
-// whenever the signal sends a value.
-[RACAble(self.username) subscribeNext:^(NSString *newName) {
+// RACObserve(self, username) creates a new RACSignal that sends the current
+// value of self.username, then the new value whenever it changes.
+// -subscribeNext: will execute the block whenever the signal sends a value.
+[RACObserve(self, username) subscribeNext:^(NSString *newName) {
     NSLog(@"%@", newName);
 }];
 ```
@@ -69,7 +69,7 @@ But unlike KVO notifications, signals can be chained together and operated on:
 //
 // -filter returns a new RACSignal that only sends a new value when its block
 // returns YES.
-[[RACAble(self.username)
+[[RACObserve(self, username)
    filter:^(NSString *newName) {
        return [newName hasPrefix:@"j"];
    }]
@@ -92,8 +92,8 @@ express properties in terms of signals and operations:
 // +combineLatest:reduce: takes an array of signals, executes the block with the
 // latest value from each signal whenever any of them changes, and returns a new
 // RACSignal that sends the return value of that block as values.
-RAC(self.createEnabled) = [RACSignal 
-    combineLatest:@[ RACAble(self.password), RACAble(self.passwordConfirmation) ] 
+RAC(self, createEnabled) = [RACSignal 
+    combineLatest:@[ RACObserve(self, password), RACObserve(self, passwordConfirmation) ] 
     reduce:^(NSString *password, NSString *passwordConfirm) {
         return @([passwordConfirm isEqualToString:password]);
     }];
@@ -126,9 +126,9 @@ self.loginCommand = [RACCommand command];
 // This block will execute whenever the login command sends a value, starting
 // the login process.
 //
-// -addSignalBlock: will return a signal that includes the signals returned from
+// -addActionBlock: will return a signal that includes the signals returned from
 // this block, one for each time the command is executed.
-self.loginSignals = [self.loginCommand addSignalBlock:^(id sender) {
+self.loginSignals = [self.loginCommand addActionBlock:^(id sender) {
     // The hypothetical -logIn method returns a signal that sends a value when
     // the network request finishes.
     return [client logIn];
@@ -195,8 +195,7 @@ are usually used:
     }]
     subscribeNext:(NSArray *newMessages) {
         NSLog(@"New messages: %@", newMessages);
-    } 
-    completed:^{
+    } completed:^{
         NSLog(@"Fetched all messages.");
     }];
 ```
@@ -304,8 +303,8 @@ For example, the following code:
         combineLatest:@[
             self.usernameTextField.rac_textSignal,
             self.passwordTextField.rac_textSignal,
-            RACAbleWithStart(LoginManager.sharedManager, loggingIn),
-            RACAbleWithStart(self.loggedIn)
+            RACObserve(LoginManager.sharedManager, loggingIn),
+            RACObserve(self, loggedIn)
         ] reduce:^(NSString *username, NSString *password, NSNumber *loggingIn, NSNumber *loggedIn) {
             return @(username.length > 0 && password.length > 0 && !loggingIn.boolValue && !loggedIn.boolValue);
         }];
@@ -408,15 +407,16 @@ The above code can be cleaned up and optimized by simply composing signals:
 ```objc
 RACSignal *databaseSignal = [[databaseClient
     fetchObjectsMatchingPredicate:predicate]
-    subscribeOn:[RACScheduler schedulerWithPriority:RACSchedulerPriorityDefault]];
+    subscribeOn:[RACScheduler scheduler]];
 
-RACSignal *fileSignal = [RACSignal start:^(BOOL *success, NSError **error) {
+RACSignal *fileSignal = [RACSignal startEagerlyWithScheduler:[RACScheduler scheduler] block:^(id<RACSubscriber> subscriber) {
     NSMutableArray *filesInProgress = [NSMutableArray array];
     for (NSString *path in files) {
         [filesInProgress addObject:[NSData dataWithContentsOfFile:path]];
     }
 
-    return [filesInProgress copy];
+    [subscriber sendNext:[filesInProgress copy]];
+    [subscriber sendCompleted];
 }];
 
 [[RACSignal
@@ -522,7 +522,6 @@ some more resources for learning about FRP:
 [GHAPIDemo]:  https://github.com/ReactiveCocoa/GHAPIDemo
 [Memory Management]: Documentation/MemoryManagement.md
 [NSObject+RACLifting]: ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACLifting.h
-[RACAble]: ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACPropertySubscribing.h
 [RACDisposable]: ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
 [RACEvent]: ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h
 [RACMulticastConnection]: ReactiveCocoaFramework/ReactiveCocoa/RACMulticastConnection.h

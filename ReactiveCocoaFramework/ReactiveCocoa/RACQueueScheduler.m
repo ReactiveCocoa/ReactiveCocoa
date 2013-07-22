@@ -7,9 +7,10 @@
 //
 
 #import "RACQueueScheduler.h"
+#import "RACBacktrace.h"
 #import "RACDisposable.h"
-#import "RACScheduler+Private.h"
 #import "RACQueueScheduler+Subclass.h"
+#import "RACScheduler+Private.h"
 
 @implementation RACQueueScheduler
 

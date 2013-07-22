@@ -61,7 +61,7 @@ a subscription's lifecycle, [there's probably a better way to do what you want][
 There's still a bit of a tricky middle case here, though. Any time a signal's
 lifetime is tied to the calling scope, you'll have a much harder cycle to break.
 
-This commonly occurs when using `RACAble()` or `RACAbleWithStart()` on a key
+This commonly occurs when using `RACObserve()` on a key
 path that's relative to `self`, and then applying a block that needs to captures
 `self`.
 
@@ -69,7 +69,7 @@ The easiest answer here is just to **capture `self` weakly**:
 
 ```objc
 __weak id weakSelf = self;
-[RACAble(self.username) subscribeNext:^(NSString *username) {
+[RACObserve(self, username) subscribeNext:^(NSString *username) {
     id strongSelf = weakSelf;
     [strongSelf validateUsername];
 }];
@@ -81,7 +81,7 @@ header:
 
 ```objc
 @weakify(self);
-[RACAble(self.username) subscribeNext:^(NSString *username) {
+[RACObserve(self, username) subscribeNext:^(NSString *username) {
     @strongify(self);
     [self validateUsername];
 }];
@@ -94,13 +94,13 @@ However, [there's probably a better pattern you could use instead][avoid-explici
 example, the above sample could perhaps be written like:
 
 ```objc
-[self rac_liftSelector:@selector(validateUsername:) withObjects:RACAble(self.username)];
+[self rac_liftSelector:@selector(validateUsername:) withSignals:RACObserve(self, username), nil];
 ```
 
 or:
 
 ```objc
-RACSignal *validated = [RACAble(self.username) map:^(NSString *username) {
+RACSignal *validated = [RACObserve(self, username) map:^(NSString *username) {
     // Put validation logic here.
     return @YES;
 }];

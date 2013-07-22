@@ -33,6 +33,20 @@ static NSMutableSet *RACActiveSignals = nil;
 // Protects access to `RACActiveSignals`.
 static NSLock *RACActiveSignalsLock = nil;
 
+// A linked list of RACSignals, used in RACActiveSignalsToCheck.
+typedef struct RACSignalList {
+	CFTypeRef retainedSignal;
+	struct RACSignalList *next;
+} RACSignalList;
+
+// An atomic queue of signals to check for subscribers. If any signals with zero
+// subscribers are found in this queue, they are removed from RACActiveSignals.
+static OSQueueHead RACActiveSignalsToCheck = OS_ATOMIC_QUEUE_INIT;
+
+// Whether RACActiveSignalsToCheck will be enumerated on the next iteration on
+// the main run loop.
+static volatile uint32_t RACWillCheckActiveSignals = 0;
+
 @interface RACSignal () {
 	// Contains all subscribers to the receiver.
 	//
@@ -148,20 +162,52 @@ static NSLock *RACActiveSignalsLock = nil;
 	return self;
 }
 
-- (void)invalidateGlobalRef {
+static void RACCheckActiveSignals(void) {
+	// Clear this flag now, so another thread can re-dispatch to the main queue
+	// as needed.
+	OSAtomicAnd32Barrier(0, &RACWillCheckActiveSignals);
+
+	RACSignalList *elem;
+	NSMutableArray *signalsToRemove = nil;
+
+	while ((elem = OSAtomicDequeue(&RACActiveSignalsToCheck, offsetof(RACSignalList, next))) != NULL) {
+		RACSignal *signal = CFBridgingRelease(elem->retainedSignal);
+		free(elem);
+
+		if (signal.subscriberCount > 0) continue;
+
+		if (signalsToRemove == nil) signalsToRemove = [[NSMutableArray alloc] init];
+		[signalsToRemove addObject:signal];
+	}
+
+	if (signalsToRemove.count == 0) return;
+
 	[RACActiveSignalsLock lock];
-	[RACActiveSignals removeObject:self];
+	{
+		for (RACSignal *signal in signalsToRemove) {
+			[RACActiveSignals removeObject:signal];
+		}
+	}
 	[RACActiveSignalsLock unlock];
 }
 
 - (void)invalidateGlobalRefIfNoNewSubscribersShowUp {
-	// If no one subscribed in one pass of the main run loop, then we're free to
+	// If no one subscribes in one pass of the main run loop, then we're free to
 	// go. It's up to the caller to keep us alive if they still want us.
-	dispatch_async(dispatch_get_main_queue(), ^{
-		if (self.subscriberCount == 0) {
-			[self invalidateGlobalRef];
-		}
-	});
+	RACSignalList *elem = malloc(sizeof(*elem));
+	elem->retainedSignal = CFBridgingRetain(self);
+	OSAtomicEnqueue(&RACActiveSignalsToCheck, elem, offsetof(RACSignalList, next));
+
+	// Not using a barrier because duplicate scheduling isn't erroneous, just
+	// less optimized.
+	int32_t willCheck = OSAtomicOr32Orig(1, &RACWillCheckActiveSignals);
+
+	// Only schedule a check if RACWillCheckActiveSignals was 0 before.
+	if (willCheck == 0) {
+		dispatch_async(dispatch_get_main_queue(), ^{
+			RACCheckActiveSignals();
+		});
+	}
 }
 
 #pragma mark Managing Subscribers

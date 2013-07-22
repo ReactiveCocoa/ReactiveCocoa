@@ -23,6 +23,7 @@
 #import "RACScheduler+Private.h"
 #import "RACScheduler.h"
 #import "RACSignalSequence.h"
+#import "RACStream+Private.h"
 #import "RACSubject.h"
 #import "RACSubscriber.h"
 #import "RACTuple.h"
@@ -493,36 +494,9 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 }
 
 + (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals {
-	RACSignal *current = nil;
-
-	// The logic here matches that of +[RACStream zip:]. See that implementation
-	// for more information about what's going on here.
-	for (RACSignal *signal in signals) {
-		if (current == nil) {
-			current = [signal map:^(id x) {
-				return RACTuplePack(x);
-			}];
-
-			continue;
-		}
-
-		current = [current combineLatestWith:signal];
-	}
-
-	if (current == nil) return [self empty];
-
-	return [[current
-		map:^(RACTuple *xs) {
-			NSMutableArray *values = [[NSMutableArray alloc] init];
-
-			while (xs != nil) {
-				[values insertObject:xs.last ?: RACTupleNil.tupleNil atIndex:0];
-				xs = (xs.count > 1 ? xs.first : nil);
-			}
-
-			return [RACTuple tupleWithObjectsFromArray:values];
-		}]
-		setNameWithFormat:@"+combineLatest: %@", signals];
+	return [[self join:signals block:^(RACSignal *left, RACSignal *right) {
+		return [left combineLatestWith:right];
+	}] setNameWithFormat:@"+combineLatest: %@", signals];
 }
 
 + (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock {

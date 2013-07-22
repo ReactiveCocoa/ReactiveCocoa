@@ -189,7 +189,7 @@
 	}] setNameWithFormat:@"[%@] -sequenceMany:", self.name];
 }
 
-+ (instancetype)zip:(id<NSFastEnumeration>)streams {
++ (instancetype)join:(id<NSFastEnumeration>)streams block:(RACStream * (^)(id, id))block {
 	RACStream *current = nil;
 
 	// Creates streams of successively larger tuples by combining the input
@@ -205,28 +205,32 @@
 			continue;
 		}
 
-		current = [current zipWith:stream];
+		current = block(current, stream);
 	}
 
 	if (current == nil) return [self empty];
 
-	return [[current
-		map:^(RACTuple *xs) {
-			// Right now, each value is contained in its own tuple, sorta like:
-			//
-			// (((1), 2), 3)
-			//
-			// We need to unwrap all the layers and create a tuple out of the result.
-			NSMutableArray *values = [[NSMutableArray alloc] init];
+	return [current map:^(RACTuple *xs) {
+		// Right now, each value is contained in its own tuple, sorta like:
+		//
+		// (((1), 2), 3)
+		//
+		// We need to unwrap all the layers and create a tuple out of the result.
+		NSMutableArray *values = [[NSMutableArray alloc] init];
 
-			while (xs != nil) {
-				[values insertObject:xs.last ?: RACTupleNil.tupleNil atIndex:0];
-				xs = (xs.count > 1 ? xs.first : nil);
-			}
+		while (xs != nil) {
+			[values insertObject:xs.last ?: RACTupleNil.tupleNil atIndex:0];
+			xs = (xs.count > 1 ? xs.first : nil);
+		}
 
-			return [RACTuple tupleWithObjectsFromArray:values];
-		}]
-		setNameWithFormat:@"+zip: %@", streams];
+		return [RACTuple tupleWithObjectsFromArray:values];
+	}];
+}
+
++ (instancetype)zip:(id<NSFastEnumeration>)streams {
+	return [[self join:streams block:^(RACStream *left, RACStream *right) {
+		return [left zipWith:right];
+	}] setNameWithFormat:@"+zip: %@", streams];
 }
 
 + (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id)reduceBlock {

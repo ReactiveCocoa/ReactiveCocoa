@@ -15,8 +15,8 @@
 // Invokes -rac_bind:options: without any options.
 - (RACBinding *)rac_bind:(NSString *)binding;
 
-// Applies a Cocoa binding to the receiver which will send and receive values
-// upon the returned RACBinding.
+// Applies a Cocoa binding to the receiver, mapping it to the rumors of the
+// returned RACBinding.
 //
 // Creating two of the same bindings on the same object will result in undefined
 // behavior.
@@ -24,9 +24,9 @@
 // binding - The name of the binding. This must not be nil.
 // options - Any options to pass to Cocoa Bindings. This may be nil.
 //
-// Returns a RACBinding which will send values from the receiver to its
-// subscribers, and pass received values along to the binding (to be set on the
-// receiver).
+// Returns a RACBinding which will send values from the receiver on its
+// `rumorsSignal`, and update the receiver when values are sent on the
+// `factsSubscriber`.
 - (RACBinding *)rac_bind:(NSString *)binding options:(NSDictionary *)options;
 
 @end

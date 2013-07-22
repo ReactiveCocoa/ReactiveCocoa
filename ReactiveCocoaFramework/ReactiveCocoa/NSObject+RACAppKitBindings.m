@@ -13,9 +13,8 @@
 #import "RACBinding.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
+#import "RACKVOBinding.h"
 #import "RACMulticastConnection.h"
-#import "RACObservablePropertySubject.h"
-#import "RACPropertySubject.h"
 #import "RACSignal+Operations.h"
 #import "RACValueTransformer.h"
 #import <objc/runtime.h>
@@ -24,12 +23,8 @@
 // expose a RACBinding instead.
 @interface RACBindingProxy : NSObject
 
-// The subject from which the receiver's RACBindings will be derived.
-@property (nonatomic, strong, readonly) RACPropertySubject *propertySubject;
-
-// The binding to expose to the caller (typically a model, view model, or
-// controller object).
-@property (nonatomic, strong, readonly) RACBinding *modelBinding;
+// The binding to return.
+@property (nonatomic, strong, readonly) RACBinding *binding;
 
 // The KVC- and KVO-compliant property to be read and written by the Cocoa
 // binding.
@@ -71,7 +66,7 @@
 	NSCParameterAssert(binding != nil);
 
 	RACBindingProxy *proxy = [[RACBindingProxy alloc] initWithTarget:self bindingName:binding options:options];
-	return proxy.modelBinding;
+	return proxy.binding;
 }
 
 @end
@@ -97,9 +92,7 @@
 
 	_target = target;
 	_bindingName = [bindingName copy];
-
-	_propertySubject = [[RACPropertySubject property] setNameWithFormat:@"%@ -propertySubject", self];
-	_modelBinding = [[self.propertySubject binding] setNameWithFormat:@"%@ -modelBinding", self];
+	_binding = [[RACBinding alloc] init];
 
 	@weakify(self);
 
@@ -115,9 +108,8 @@
 		objc_setAssociatedObject(target, (__bridge void *)self, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	};
 
-	// When the property subject terminates (from anything), tear down this
-	// proxy.
-	[self.propertySubject subscribeError:^(NSError *error) {
+	// When the binding terminates, tear down this proxy.
+	[self.binding.rumorsSignal subscribeError:^(NSError *error) {
 		cleanUp();
 	} completed:cleanUp];
 
@@ -129,15 +121,21 @@
 
 	[[self.target rac_deallocDisposable] addDisposable:[RACDisposable disposableWithBlock:^{
 		@strongify(self);
-		[self.propertySubject sendCompleted];
+		[self.binding.rumorsSubscriber sendCompleted];
 	}]];
 
-	RACBind(self, value, options[NSNullPlaceholderBindingOption]) = [self.propertySubject binding];
+	RACBinding *valueBinding = RACBind(self, value, options[NSNullPlaceholderBindingOption]);
+
+	// Subscribe the bindings to each other manually, since we're passing
+	// through facts and rumors as-is.
+	[self.binding.factsSignal subscribe:valueBinding.rumorsSubscriber];
+	[valueBinding.factsSignal subscribe:self.binding.rumorsSubscriber];
+
 	return self;
 }
 
 - (void)dealloc {
-	[self.propertySubject sendCompleted];
+	[self.binding.rumorsSubscriber sendCompleted];
 }
 
 #pragma mark NSObject

@@ -43,7 +43,7 @@
 
 // Do not use this directly. Use the RACBind macro above.
 #define RACBind_(TARGET, KEYPATH, NILVALUE) \
-    [RACKVOBinding bindingWithTarget:(TARGET) keyPath:@keypath(TARGET, KEYPATH) nilValue:(NILVALUE)][@""]
+    [[RACKVOBinding alloc] initWithTarget:(TARGET) keyPath:@keypath(TARGET, KEYPATH) nilValue:(NILVALUE)][@""]
 
 // A RACBinding that observes a KVO-compliant key path for changes.
 @interface RACKVOBinding : RACBinding

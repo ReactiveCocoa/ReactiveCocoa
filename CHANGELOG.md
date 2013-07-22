@@ -381,3 +381,10 @@ result.
 To avoid this issue, RAC now
 [renames](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/612) the
 libextobjc symbols that it uses.
+
+### Signal subscription side effects
+
+`RACSignal` now has the
+[-initially:](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/685)
+operator, which executes a given block each time the signal is subscribed to.
+This is symmetric to `-finally:`.

@@ -1232,6 +1232,8 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 - (RACSignal *)and {
 	return [[self map:^(RACTuple *tuple) {
 		NSCAssert([tuple isKindOfClass:RACTuple.class], @"-and must only be used on a signal of RACTuple with NSNumbers, got: %@", tuple);
+		NSCAssert(tuple.count > 0, @"-and requires a signal of RACTuple wrapped NSNumbers, with at least 1 value in the RACTuple");
+		
 		return @([tuple.rac_sequence all:^(NSNumber *number) {
 			NSCAssert([number isKindOfClass:NSNumber.class], @"-and must only be used on a signal of RACTuple wrapped NSNumbers, tuple contains: %@", tuple);
 			return number.boolValue;
@@ -1242,6 +1244,8 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 - (RACSignal *)or {
 	return [[self map:^(RACTuple *tuple) {
 		NSCAssert([tuple isKindOfClass:RACTuple.class], @"-or must only be used on a signal of RACTuple wrapped NSNumbers, got: %@", tuple);
+		NSCAssert(tuple.count > 0, @"-or requires a signal of RACTuple wrapped NSNumbers, with at least 1 value in the RACTuple");
+		
 		return @([tuple.rac_sequence any:^(NSNumber *number) {
 			NSCAssert([number isKindOfClass:NSNumber.class], @"-or must only be used on a signal of RACTuple wrapped NSNumbers, tuple contains: %@", tuple);
 			return number.boolValue;

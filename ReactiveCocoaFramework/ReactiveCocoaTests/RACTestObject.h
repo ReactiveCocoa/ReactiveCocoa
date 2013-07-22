@@ -9,8 +9,8 @@
 #import <Foundation/Foundation.h>
 
 typedef struct {
-	int integerField;
-	float floatField;
+	long long integerField;
+	double doubleField;
 } RACTestStruct;
 
 @interface RACTestObject : NSObject

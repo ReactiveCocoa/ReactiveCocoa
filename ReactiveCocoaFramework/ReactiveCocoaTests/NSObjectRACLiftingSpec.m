@@ -215,12 +215,12 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		[object rac_liftSelector:@selector(setStructValue:) withSignalsFromArray:@[ subject ]];
 
 		expect(object.structValue.integerField).to.equal(0);
-		expect(object.structValue.floatField).to.equal(0.0);
+		expect(object.structValue.doubleField).to.equal(0.0);
 
-		RACTestStruct value = (RACTestStruct){7, 1.23f};
+		RACTestStruct value = (RACTestStruct){7, 1.23};
 		[subject sendNext:[NSValue valueWithBytes:&value objCType:@encode(typeof(value))]];
 		expect(object.structValue.integerField).to.equal(value.integerField);
-		expect(object.structValue.floatField).to.equal(value.floatField);
+		expect(object.structValue.doubleField).to.equal(value.doubleField);
 	});
 
 	it(@"should send the latest value of the signal as the right argument", ^{

@@ -161,6 +161,7 @@ static void RACCheckActiveSignals(void) {
 		free(elem);
 
 		if (signal.subscriberCount > 0) {
+			// We want to keep the signal around until all its subscribers are done
 			[RACActiveSignals addObject:signal];
 		} else {
 			[RACActiveSignals removeObject:signal];

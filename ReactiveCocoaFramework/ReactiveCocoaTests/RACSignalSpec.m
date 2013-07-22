@@ -2735,12 +2735,15 @@ describe(@"-not", ^{
 describe(@"-and", ^{
 	it(@"should return YES if all YES values are sent", ^{
 		RACSubject *subject = [RACReplaySubject subject];
+		
 		[subject sendNext:RACTuplePack(@YES, @NO, @YES)];
 		[subject sendNext:RACTuplePack(@NO, @NO, @NO)];
 		[subject sendNext:RACTuplePack(@YES, @YES, @YES)];
 		[subject sendCompleted];
+		
 		NSArray *results = [[subject and] toArray];
 		NSArray *expected = @[ @NO, @NO, @YES ];
+		
 		expect(results).to.equal(expected);
 	});
 });
@@ -2748,11 +2751,14 @@ describe(@"-and", ^{
 describe(@"-or", ^{
 	it(@"should return YES for any YES values sent", ^{
 		RACSubject *subject = [RACReplaySubject subject];
+		
 		[subject sendNext:RACTuplePack(@YES, @NO, @YES)];
 		[subject sendNext:RACTuplePack(@NO, @NO, @NO)];
 		[subject sendCompleted];
+		
 		NSArray *results = [[subject or] toArray];
 		NSArray *expected = @[ @YES, @NO ];
+		
 		expect(results).to.equal(expected);
 	});
 });

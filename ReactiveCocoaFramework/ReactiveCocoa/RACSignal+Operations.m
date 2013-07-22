@@ -1236,6 +1236,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		
 		return @([tuple.rac_sequence all:^(NSNumber *number) {
 			NSCAssert([number isKindOfClass:NSNumber.class], @"-and must only be used on a signal of RACTuples of NSNumbers. Instead, tuple contains a non-NSNumber value: %@", tuple);
+			
 			return number.boolValue;
 		}]);
 	}] setNameWithFormat:@"[%@] -and", self.name];
@@ -1248,6 +1249,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		
 		return @([tuple.rac_sequence any:^(NSNumber *number) {
 			NSCAssert([number isKindOfClass:NSNumber.class], @"-or must only be used on a signal of RACTuples of NSNumbers. Instead, tuple contains a non-NSNumber value: %@", tuple);
+			
 			return number.boolValue;
 		}]);
 	}] setNameWithFormat:@"[%@] -or", self.name];

@@ -26,7 +26,6 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=3&sta
  1. [Better bindings for AppKit](#better-bindings-for-appkit)
  1. [-bindTo: removed](#-bindto-removed)
  1. [Windows and numbered buffers removed](#windows-and-numbered-buffers-removed)
- 1. [C string lifting removed](#c-string-lifting-removed)
  1. [NSTask extension removed](#nstask-extension-removed)
  1. [RACSubscriber class now private](#racsubscriber-class-now-private)
 
@@ -311,16 +310,6 @@ operators.
  * Refactor uses of `-windowWithStart:close:` with different patterns.
  * Replace uses of `-buffer:` with [take, collect, and
    repeat](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/587).
-
-### C string lifting removed
-
-Methods with `char *` and `const char *` arguments can [no longer be
-lifted](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/535), because the
-memory management semantics make it impossible to do safely.
-
-**To update:**
-
-Invoke such methods manually in a `-subscribeNext:` block.
 
 ### NSTask extension removed
 

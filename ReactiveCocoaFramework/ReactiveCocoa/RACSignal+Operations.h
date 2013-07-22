@@ -90,6 +90,9 @@ extern const NSInteger RACSignalErrorTimedOut;
 // Resubscribes when the signal completes.
 - (RACSignal *)repeat;
 
+// Execute the given block each time a subscription is created.
+- (RACSignal *)initially:(void (^)(void))block;
+
 // Execute the given block when the signal completes or errors.
 - (RACSignal *)finally:(void (^)(void))block;
 

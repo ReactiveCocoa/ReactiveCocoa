@@ -8,6 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
+typedef struct {
+	int integerField;
+	float floatField;
+} RACTestStruct;
+
 @interface RACTestObject : NSObject
 
 @property (nonatomic, strong) id objectValue;
@@ -23,6 +28,7 @@
 @property (nonatomic, assign) CGSize sizeValue;
 @property (nonatomic, assign) CGPoint pointValue;
 @property (nonatomic, assign) NSRange rangeValue;
+@property (nonatomic, assign) RACTestStruct structValue;
 @property (nonatomic, copy) NSString *stringValue;
 @property (nonatomic, copy) NSArray *arrayValue;
 @property (nonatomic, copy) NSSet *setValue;

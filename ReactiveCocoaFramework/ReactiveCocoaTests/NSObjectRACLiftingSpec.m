@@ -114,6 +114,26 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		expect(object.objectValue).to.equal(nil);
 	});
 
+	it(@"should work with integers", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setIntegerValue:) withSignalsFromArray:@[ subject ]];
+
+		expect(object.integerValue).to.equal(0);
+
+		[subject sendNext:@1];
+		expect(object.integerValue).to.equal(@1);
+	});
+
+	it(@"should convert between numeric types", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setIntegerValue:) withSignalsFromArray:@[ subject ]];
+
+		expect(object.integerValue).to.equal(0);
+
+		[subject sendNext:@1.0];
+		expect(object.integerValue).to.equal(@1);
+	});
+	
 	it(@"should work with class objects", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setObjectValue:) withSignalsFromArray:@[ subject ]];
@@ -188,6 +208,19 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		NSRange value = NSMakeRange(10, 20);
 		[subject sendNext:[NSValue valueWithRange:value]];
 		expect(NSEqualRanges(object.rangeValue, value)).to.beTruthy();
+	});
+
+	it(@"should work for custom structs", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setStructValue:) withSignalsFromArray:@[ subject ]];
+
+		expect(object.structValue.integerField).to.equal(0);
+		expect(object.structValue.floatField).to.equal(0.0);
+
+		RACTestStruct value = (RACTestStruct){7, 1.23f};
+		[subject sendNext:[NSValue valueWithBytes:&value objCType:@encode(typeof(value))]];
+		expect(object.structValue.integerField).to.equal(value.integerField);
+		expect(object.structValue.floatField).to.equal(value.floatField);
 	});
 
 	it(@"should send the latest value of the signal as the right argument", ^{

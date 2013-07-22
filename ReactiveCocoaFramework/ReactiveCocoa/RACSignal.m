@@ -26,12 +26,7 @@
 #import <libkern/OSAtomic.h>
 
 // Retains signals while they wait for subscriptions.
-//
-// This set must only be used while synchronized on `RACActiveSignalsLock`.
 static NSMutableSet *RACActiveSignals = nil;
-
-// Protects access to `RACActiveSignals`.
-static NSLock *RACActiveSignalsLock = nil;
 
 // A linked list of RACSignals, used in RACActiveSignalsToCheck.
 typedef struct RACSignalList {
@@ -67,9 +62,6 @@ static volatile uint32_t RACWillCheckActiveSignals = 0;
 
 + (void)initialize {
 	if (self != RACSignal.class) return;
-
-	RACActiveSignalsLock = [[NSLock alloc] init];
-	RACActiveSignalsLock.name = @"RACActiveSignalsLock";
 
 	RACActiveSignals = [[NSMutableSet alloc] init];
 }
@@ -149,11 +141,6 @@ static volatile uint32_t RACWillCheckActiveSignals = 0;
 	self = [super init];
 	if (self == nil) return nil;
 	
-	// We want to keep the signal around until all its subscribers are done
-	[RACActiveSignalsLock lock];
-	[RACActiveSignals addObject:self];
-	[RACActiveSignalsLock unlock];
-	
 	// As soon as we're created we're already trying to be released. Such is life.
 	[self invalidateGlobalRefIfNoNewSubscribersShowUp];
 	
@@ -166,33 +153,35 @@ static void RACCheckActiveSignals(void) {
 	OSAtomicAnd32Barrier(0, &RACWillCheckActiveSignals);
 
 	RACSignalList *elem;
+	NSMutableArray *signalsToAdd = nil;
 	NSMutableArray *signalsToRemove = nil;
 
 	while ((elem = OSAtomicDequeue(&RACActiveSignalsToCheck, offsetof(RACSignalList, next))) != NULL) {
 		RACSignal *signal = CFBridgingRelease(elem->retainedSignal);
 		free(elem);
 
-		if (signal.subscriberCount > 0) continue;
-
-		if (signalsToRemove == nil) signalsToRemove = [[NSMutableArray alloc] init];
-		[signalsToRemove addObject:signal];
-	}
-
-	if (signalsToRemove.count == 0) return;
-
-	[RACActiveSignalsLock lock];
-	{
-		for (RACSignal *signal in signalsToRemove) {
-			[RACActiveSignals removeObject:signal];
+		if (signal.subscriberCount > 0) {
+			if (signalsToAdd == nil) signalsToAdd = [[NSMutableArray alloc] init];
+			[signalsToAdd addObject:signal];
+		} else {
+			if (signalsToRemove == nil) signalsToRemove = [[NSMutableArray alloc] init];
+			[signalsToRemove addObject:signal];
 		}
 	}
-	[RACActiveSignalsLock unlock];
+
+	if (signalsToAdd.count == 0 && signalsToRemove.count == 0) return;
+
+	[RACActiveSignals addObjectsFromArray:signalsToAdd];
+	for (RACSignal *signal in signalsToRemove) {
+		[RACActiveSignals removeObject:signal];
+	}
 }
 
 - (void)invalidateGlobalRefIfNoNewSubscribersShowUp {
 	// If no one subscribes in one pass of the main run loop, then we're free to
 	// go. It's up to the caller to keep us alive if they still want us.
 	RACSignalList *elem = malloc(sizeof(*elem));
+	// This also serves to retain the signal until the next pass.
 	elem->retainedSignal = CFBridgingRetain(self);
 	OSAtomicEnqueue(&RACActiveSignalsToCheck, elem, offsetof(RACSignalList, next));
 

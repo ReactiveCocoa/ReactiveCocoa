@@ -88,13 +88,13 @@ static NSString * const RACKVOBindingDataDictionaryKey = @"RACKVOBindingKey";
 
 	[self.factsSignal setNameWithFormat:@"[-initWithTarget: %@ keyPath: %@ nilValue: %@] factsSignal", target, keyPath, nilValue];
 	[self.rumorsSignal setNameWithFormat:@"[-initWithTarget: %@ keyPath: %@ nilValue: %@] rumorsSignal", target, keyPath, nilValue];
-	
-	@weakify(self);
 
 	// Observe the key path on target for changes. Update the value of stackDepth
 	// accordingly and forward the changes to updatesSubject.
-	RACDisposable *observationDisposable = [target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior | NSKeyValueObservingOptionInitial observer:self block:^(id value, NSDictionary *change) {
-		@strongify(self);
+	//
+	// Intentionally capturing `self` strongly in the blocks below, so the
+	// binding object stays alive while observing.
+	RACDisposable *observationDisposable = [target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior | NSKeyValueObservingOptionInitial observer:nil block:^(id value, NSDictionary *change) {
 		RACKVOBindingData *data = self.currentThreadData;
 		
 		// If the change is prior we only increase the stack depth if it was
@@ -147,8 +147,6 @@ static NSString * const RACKVOBindingDataDictionaryKey = @"RACKVOBindingKey";
 			[observationDisposable dispose];
 		}]
 		subscribeNext:^(id x) {
-			@strongify(self);
-
 			// Check the value of the second to last key path component. Since the
 			// binding can only update the value of a property on an object, and not
 			// update intermediate objects, it can only update the value of the whole
@@ -163,12 +161,15 @@ static NSString * const RACKVOBindingDataDictionaryKey = @"RACKVOBindingKey";
 
 			[object setValue:x ?: nilValue forKey:lastKeyPathComponent];
 		} error:^(NSError *error) {
-			@strongify(self);
 			NSCAssert(NO, @"Received error in %@: %@", self, error);
 			
 			// Log the error if we're running with assertions disabled.
 			NSLog(@"Received error in %@: %@", self, error);
 		}];
+	
+	// Capture `self` weakly for the target's deallocation disposable, so we can
+	// freely deallocate if we complete before then.
+	@weakify(self);
 	
 	[target.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 		@strongify(self);

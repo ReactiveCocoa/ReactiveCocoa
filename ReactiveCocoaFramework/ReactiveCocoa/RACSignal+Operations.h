@@ -15,6 +15,10 @@ extern NSString * const RACSignalErrorDomain;
 // The error code used with -timeout:.
 extern const NSInteger RACSignalErrorTimedOut;
 
+// The error code used when a value passed into +switch:cases:default: does not
+// match any of the cases, and no default was given.
+extern const NSInteger RACSignalErrorNoMatchingCase;
+
 @class RACMulticastConnection;
 @class RACDisposable;
 @class RACScheduler;
@@ -317,33 +321,23 @@ extern const NSInteger RACSignalErrorTimedOut;
 // the last sent signal complete.
 - (RACSignal *)switchToLatest;
 
-// Switches between the signals in `cases` based on the latest value sent by
-// `signal`.
-//
-// signal - A signal of objects used as keys in the `cases` dictionary.
-//          This argument must not be nil.
-// cases  - A dictionary that has signals as values.
-//          This argument must not be nil.
-//
-// Returns a signal which passes through `next`s and `error`s from one of the
-// the signals in `cases`, and sends `completed` when both `signal` and the
-// last used signal from `cases` complete.
-+ (RACSignal *)switch:(RACSignal *)signal cases:(NSDictionary *)cases;
-
 // Switches between the signals in `cases` as well as `defaultSignal` based on
 // the latest value sent by `signal`.
 //
 // signal        - A signal of objects used as keys in the `cases` dictionary.
 //                 This argument must not be nil.
-// cases         - A dictionary that has signals as values.
-//                 This argument must not be nil.
+// cases         - A dictionary that has signals as values. This argument must
+//                 not be nil. A RACTupleNil key in this dictionary will match
+//                 nil `next` events that are received on `signal`.
 // defaultSignal - The signal to pass through after `signal` sends a value for
-//                 which `cases` does not contain a signal. This argument must
-//                 not be nil.
+//                 which `cases` does not contain a signal. If nil, any
+//                 unmatched values will result in
+//                 a RACSignalErrorNoMatchingCase error.
 //
 // Returns a signal which passes through `next`s and `error`s from one of the
 // the signals in `cases` or `defaultSignal`, and sends `completed` when both
-// `signal` and the last used signal complete.
+// `signal` and the last used signal complete. If no `defaultSignal` is given,
+// an unmatched `next` will result in an error on the returned signal.
 + (RACSignal *)switch:(RACSignal *)signal cases:(NSDictionary *)cases default:(RACSignal *)defaultSignal;
 
 // Switches between `trueSignal` and `falseSignal` based on the latest value

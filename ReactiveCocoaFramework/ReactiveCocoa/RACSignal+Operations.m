@@ -774,6 +774,61 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -switchToLatest", self.name];
 }
 
+- (RACSignal *)trifuricate:(void (^)(RACSignal *errors, RACSignal *completions))block {
+	NSCParameterAssert(block != NULL);
+
+	// Ensure upstream side effects happen only once.
+	RACSignal *sharedSignal = [self replayLazily];
+
+	// Template block for creating both the errors and completions signals.
+	RACSignal * (^subscribeInner)(RACDisposable * (^)(id<RACSubscriber>, RACSignal *)) = ^(RACDisposable * (^subscribeBlock)(id<RACSubscriber>, RACSignal *)) {
+		return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			__block RACDisposable *innerDisposable = nil;
+
+			RACDisposable *selfDisposable = [sharedSignal subscribeNext:^(id x) {
+				NSCAssert([x isKindOfClass:RACSignal.class] || x == nil, @"-trifuricate: requires that the source signal (%@) send signals. Instead we got: %@", self, x);
+
+				innerDisposable = subscribeBlock(subscriber, x);
+			} completed:^{
+				[subscriber sendCompleted];
+			}];
+
+			return [RACDisposable disposableWithBlock:^{
+				[innerDisposable dispose];
+				[selfDisposable dispose];
+			}];
+		}];
+	};
+
+	RACSignal *errors = [subscribeInner(^(id<RACSubscriber> subscriber, RACSignal *innerSignal) {
+		return [innerSignal subscribeError:^(NSError *error) {
+			[subscriber sendNext:error];
+		}];
+	}) setNameWithFormat:@"[%@] -trifuricate: (errors)", self.name];
+
+	RACSignal *completions = [subscribeInner(^(id<RACSubscriber> subscriber, RACSignal *innerSignal) {
+		return [innerSignal subscribeCompleted:^{
+			[subscriber sendNext:RACUnit.defaultUnit];
+		}];
+	}) setNameWithFormat:@"[%@] -trifuricate: (completions)", self.name];
+
+	// Supply the caller with the separated signals.
+	block(errors, completions);
+
+	// Return a nearly pass through signal, except with silenced inner errors.
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		return [sharedSignal subscribeNext:^(id x) {
+			NSCAssert([x isKindOfClass:RACSignal.class] || x == nil, @"-trifuricate: requires that the source signal (%@) send signals. Instead we got: %@", self, x);
+
+			[subscriber sendNext:[x catchTo:[RACSignal empty]]];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
+	}];
+}
+
 + (RACSignal *)switch:(RACSignal *)signal cases:(NSDictionary *)cases {
 	return [[RACSignal
 		switch:signal cases:cases useDefault:NO default:nil]

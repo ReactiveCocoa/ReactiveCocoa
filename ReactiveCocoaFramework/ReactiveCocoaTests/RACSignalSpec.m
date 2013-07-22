@@ -1545,6 +1545,36 @@ describe(@"-switchToLatest", ^{
 	});
 });
 
+describe(@"-trifuricate:", ^{
+	__block RACSubject *subject;
+	__block NSError *outerError;
+	__block NSError *innerError;
+
+	beforeEach(^{
+		subject = [RACSubject subject];
+		outerError = nil;
+
+		[[subject trifuricate:^(RACSignal *errors, RACSignal *completions) {
+			[errors subscribeNext:^(id x) {
+				innerError = x;
+			}];
+		}] subscribeError:^(NSError *error) {
+			outerError = error;
+		}];
+	});
+
+	it(@"should not propagate errors sent on inner signals", ^{
+		[subject sendNext:[RACSignal error:[NSError errorWithDomain:@"" code:-1 userInfo:nil]]];
+		expect(outerError).to.beNil();
+	});
+
+	it(@"should forward errors sent on inner signals to errors signal", ^{
+		NSError *error = [NSError errorWithDomain:@"" code:-1 userInfo:nil];
+		[subject sendNext:[RACSignal error:error]];
+		expect(innerError).to.equal(error);
+	});
+});
+
 describe(@"+switch:cases:", ^{
 	itShouldBehaveLike(RACSwitchSignalExamples, ^{
 		return @{

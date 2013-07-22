@@ -317,6 +317,15 @@ extern const NSInteger RACSignalErrorTimedOut;
 // the last sent signal complete.
 - (RACSignal *)switchToLatest;
 
+// Funnels `error` and `completed` events sent on inner signals into separate
+// signals.
+//
+// The receiver must be a signal of signals.
+//
+// Returns a signal that passes through events from the receiver, but with inner
+// errors being silenced.
+- (RACSignal *)trifuricate:(void (^)(RACSignal *errors, RACSignal *completions))block;
+
 // Switches between the signals in `cases` based on the latest value sent by
 // `signal`.
 //

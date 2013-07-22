@@ -72,8 +72,6 @@
 		[object getValue:valueBytes];
 
 		[self setArgument:valueBytes atIndex:(NSInteger)index];
-		// Retain the arguments in case this was a c array of some type
-		[self retainArguments];
 	}
 
 #undef PULL_AND_SET

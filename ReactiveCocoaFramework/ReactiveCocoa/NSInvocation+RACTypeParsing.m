@@ -59,7 +59,6 @@
 	} else {
 		NSCParameterAssert([[object class] isSubclassOfClass:NSValue.class]);
 
-		void *valueBytes = NULL;
 		NSUInteger valueSize = 0;
 		NSGetSizeAndAlignment([object objCType], &valueSize, NULL);
 
@@ -69,14 +68,12 @@
 		NSCAssert(valueSize == argSize, @"Value size does not match argument size in -rac_setArgument: %@ atIndex: %lu", object, (unsigned long)index);
 #endif
 		
-		valueBytes = malloc(valueSize);
+		unsigned char valueBytes[valueSize];
 		[object getValue:valueBytes];
 
 		[self setArgument:valueBytes atIndex:(NSInteger)index];
 		// Retain the arguments in case this was a c array of some type
 		[self retainArguments];
-
-		free(valueBytes);
 	}
 
 #undef PULL_AND_SET
@@ -130,13 +127,10 @@
 		NSUInteger valueSize = 0;
 		NSGetSizeAndAlignment(argType, &valueSize, NULL);
 
-		void *valueBytes = NULL;
-		valueBytes = malloc(valueSize);
+		unsigned char valueBytes[valueSize];
 		[self getArgument:valueBytes atIndex:(NSInteger)index];
 		
 		NSValue *value = [NSValue valueWithBytes:valueBytes objCType:argType];
-
-		free(valueBytes);
 
 		return value;
 	}
@@ -206,14 +200,11 @@
 		NSUInteger valueSize = 0;
 		NSGetSizeAndAlignment(returnType, &valueSize, NULL);
 
-		void *valueBytes = NULL;
-		valueBytes = malloc(valueSize);
+		unsigned char valueBytes[valueSize];
 		[self getReturnValue:valueBytes];
 
 		NSValue *value = [NSValue valueWithBytes:valueBytes objCType:returnType];
 
-		free(valueBytes);
-		
 		return value;
 	}
 

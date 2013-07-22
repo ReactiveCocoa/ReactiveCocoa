@@ -125,9 +125,6 @@
 	}]];
 
 	RACBinding *valueBinding = RACBind(self, value, options[NSNullPlaceholderBindingOption]);
-
-	// Subscribe the bindings to each other manually, since we're passing
-	// through facts and rumors as-is.
 	[self.binding.factsSignal subscribe:valueBinding.rumorsSubscriber];
 	[valueBinding.factsSignal subscribe:self.binding.rumorsSubscriber];
 

@@ -207,7 +207,8 @@ __block int missilesToLaunch = 0;
 
 // Signal that will have the side effect of changing `missilesToLaunch` on
 // subscription.
-RACSignal *processedSignal = [[RACSignal return:@"missiles"]
+RACSignal *processedSignal = [[RACSignal
+    return:@"missiles"]
 	map:^(id x) {
 		missilesToLaunch++;
 		return [NSString stringWithFormat:@"will launch %d %@", missilesToLaunch, x];
@@ -332,7 +333,7 @@ indentation of the block:
 
 ```objc
 [[signal
-    sequenceNext:^{
+    then:^{
         @strongify(self);
 
         return [[self
@@ -438,7 +439,7 @@ RACSignal *bookkeepingSignal = [[[valueSignal
         success = YES;
     }];
 
-RAC(self.value) = bookkeepingSignal;
+RAC(self, value) = bookkeepingSignal;
 ```
 
 ### Share the side effects of a signal by multicasting
@@ -473,7 +474,8 @@ RACSignal *networkRequest = [RACSignal createSignal:^(id<RACSubscriber> subscrib
 }];
 
 // Starts a single request, no matter how many subscriptions `connection.signal`
-// gets. This is equivalent to the -replay operator.
+// gets. This is equivalent to the -replay operator, or similar to
+// +startEagerlyWithScheduler:block:.
 RACMulticastConnection *connection = [networkRequest multicast:[RACReplaySubject subject]];
 [connection connect];
 
@@ -496,7 +498,7 @@ a stream from its default name alone.
 For example, this snippet:
 
 ```objc
-RACSignal *signal = [[[RACAble(self.username) 
+RACSignal *signal = [[[RACObserve(self, username) 
     distinctUntilChanged] 
     take:3] 
     filter:^(NSString *newUsername) {
@@ -506,7 +508,7 @@ RACSignal *signal = [[[RACAble(self.username)
 NSLog(@"%@", signal);
 ```
 
-… would log a name similar to `[[[RACAble(self.username)] -distinctUntilChanged]
+… would log a name similar to `[[[RACObserve(self, username)] -distinctUntilChanged]
 -take: 3] -filter:`.
 
 Names can also be manually applied by using [-setNameWithFormat:][RACStream].
@@ -531,9 +533,8 @@ subscriptions and disposal:
 
  * The [RAC()][RAC] or [RACBind()][RACBind] macros can be used to bind a signal
    to a property, instead of performing manual updates when changes occur.
- * The [-rac_liftSelector:withObjects:][NSObject+RACLifting] or
-   [-rac_lift][NSObject+RACLifting] methods can be used to automatically invoke
-   a selector when one or more signals fire.
+ * The [-rac_liftSelector:withSignals:][NSObject+RACLifting] method can be used
+   to automatically invoke a selector when one or more signals fire.
  * Operators like [-takeUntil:][RACSignal+Operations] can be used to
    automatically dispose of a subscription when an event occurs (like a "Cancel"
    button being pressed in the UI).
@@ -733,12 +734,12 @@ By contrast, this version will avoid a stack overflow:
 [NSObject+RACLifting]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACLifting.h
 [NSObject+RACSelectorSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACSelectorSignal.h
 [RAC]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h
-[RACAble]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACPropertySubscribing.h
 [RACBind]: ../ReactiveCocoaFramework/ReactiveCocoa/RACObservablePropertySubject.h
 [RACCommand]: ../ReactiveCocoaFramework/ReactiveCocoa/RACCommand.h
 [RACDisposable]: ../ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
 [RACEvent]: ../ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h
 [RACMulticastConnection]: ../ReactiveCocoaFramework/ReactiveCocoa/RACMulticastConnection.h
+[RACObserve]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACPropertySubscribing.h
 [RACScheduler]: ../ReactiveCocoaFramework/ReactiveCocoa/RACScheduler.h
 [RACSequence]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSequence.h
 [RACSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h

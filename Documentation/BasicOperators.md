@@ -248,7 +248,7 @@ These operators combine multiple signals into a single new [RACSignal][].
 
 ### Sequencing
 
-The [-sequenceNext:][RACSignal+Operations] method starts the original signal,
+[-then:][RACSignal+Operations] starts the original signal,
 waits for it to complete, and then only forwards the values from a new signal:
 
 ```objc
@@ -261,7 +261,7 @@ RACSignal *sequenced = [[letters
     doNext:^(NSString *letter) {
         NSLog(@"%@", letter);
     }]
-    sequenceNext:^{
+    then:^{
         return [@"1 2 3 4 5 6 7 8 9" componentsSeparatedByString:@" "].rac_sequence.signal;
     }];
 ```

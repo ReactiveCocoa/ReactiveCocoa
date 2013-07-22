@@ -30,6 +30,7 @@
 NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 
 const NSInteger RACSignalErrorTimedOut = 1;
+const NSInteger RACSignalErrorNoMatchingCase = 2;
 
 // Subscribes to the given signal with the given blocks.
 //
@@ -273,6 +274,15 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	return [[self catch:^(NSError *error) {
 		return signal;
 	}] setNameWithFormat:@"[%@] -catchTo: %@", self.name, signal];
+}
+
+- (RACSignal *)initially:(void (^)(void))block {
+	NSCParameterAssert(block != NULL);
+
+	return [[RACSignal defer:^{
+		block();
+		return self;
+	}] setNameWithFormat:@"[%@] -initially:", self.name];
 }
 
 - (RACSignal *)finally:(void (^)(void))block {
@@ -765,23 +775,9 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -switchToLatest", self.name];
 }
 
-+ (RACSignal *)switch:(RACSignal *)signal cases:(NSDictionary *)cases {
-	return [[RACSignal
-		switch:signal cases:cases useDefault:NO default:nil]
-		setNameWithFormat:@"+switch: %@ cases: %@", signal, cases];
-}
-
 + (RACSignal *)switch:(RACSignal *)signal cases:(NSDictionary *)cases default:(RACSignal *)defaultSignal {
-	return [[RACSignal
-		switch:signal cases:cases useDefault:YES default:defaultSignal]
-		setNameWithFormat:@"+switch: %@ cases: %@ default: %@", signal, cases, defaultSignal];
-}
-
-+ (RACSignal *)switch:(RACSignal *)signal cases:(NSDictionary *)cases useDefault:(BOOL)useDefault default:(RACSignal *)defaultSignal {
 	NSCParameterAssert(signal != nil);
 	NSCParameterAssert(cases != nil);
-
-	if (useDefault) NSCParameterAssert(defaultSignal != nil);
 
 	for (id key in cases) {
 		id value __attribute__((unused)) = cases[key];
@@ -792,14 +788,18 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 	return [[[signal
 		map:^(id key) {
-			RACSignal *signal = copy[key];
+			if (key == nil) key = RACTupleNil.tupleNil;
 
-			if (!useDefault) NSCAssert(signal != nil, @"Expected %@ sent by %@ to be a key in %@", key, signal, copy);
+			RACSignal *signal = copy[key] ?: defaultSignal;
+			if (signal == nil) {
+				NSString *description = [NSString stringWithFormat:NSLocalizedString(@"No matching signal found for value %@", @""), key];
+				return [RACSignal error:[NSError errorWithDomain:RACSignalErrorDomain code:RACSignalErrorNoMatchingCase userInfo:@{ NSLocalizedDescriptionKey: description }]];
+			}
 
-			return signal ?: defaultSignal;
+			return signal;
 		}]
 		switchToLatest]
-		setNameWithFormat:@"+switch: %@ cases: %@ useDefault: %d default: %@", signal, copy, useDefault, defaultSignal];
+		setNameWithFormat:@"+switch: %@ cases: %@ default: %@", signal, cases, defaultSignal];
 }
 
 + (RACSignal *)if:(RACSignal *)boolSignal then:(RACSignal *)trueSignal else:(RACSignal *)falseSignal {

@@ -10,15 +10,25 @@
 
 @implementation RACTestObject
 
+- (void)dealloc {
+	free(_charPointerValue);
+	free((void *)_constCharPointerValue);
+}
+
 - (void)setNilValueForKey:(NSString *)key {
 	if (!self.catchSetNilValueForKey) [super setNilValueForKey:key];
 }
 
 - (void)setCharPointerValue:(char *)charPointerValue {
+	if (charPointerValue == _charPointerValue) return;
 	free(_charPointerValue);
-	size_t length = strlen(charPointerValue);
-	_charPointerValue = malloc(length+1);
-	strlcpy(_charPointerValue, charPointerValue, length+1);
+	_charPointerValue = strdup(charPointerValue);
+}
+
+- (void)setConstCharPointerValue:(const char *)constCharPointerValue {
+	if (constCharPointerValue == _constCharPointerValue) return;
+	free((void *)_constCharPointerValue);
+	_constCharPointerValue = strdup(constCharPointerValue);
 }
 
 - (void)setObjectValue:(id)objectValue andIntegerValue:(NSInteger)integerValue {

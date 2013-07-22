@@ -127,10 +127,23 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 	it(@"should work for char pointer", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setCharPointerValue:) withSignalsFromArray:@[ subject ]];
+		
 		expect(object.charPointerValue).to.equal(NULL);
+
 		NSString *string = @"blah blah blah";
 		[subject sendNext:string];
 		expect(@(object.charPointerValue)).to.equal(string);
+	});
+
+	it(@"should work for const char pointer", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setConstCharPointerValue:) withSignalsFromArray:@[ subject ]];
+
+		expect(object.constCharPointerValue).to.equal(NULL);
+
+		NSString *string = @"blah blah blah";
+		[subject sendNext:string];
+		expect(@(object.constCharPointerValue)).to.equal(string);
 	});
 
 	it(@"should work for CGRect", ^{

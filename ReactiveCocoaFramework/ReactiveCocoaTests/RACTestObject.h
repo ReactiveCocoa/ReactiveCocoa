@@ -17,6 +17,8 @@
 @property (nonatomic, assign) NSInteger integerValue;
 // Holds a copy of the string.
 @property (nonatomic, assign) char *charPointerValue;
+// Holds a copy of the string.
+@property (nonatomic, assign) const char *constCharPointerValue;
 @property (nonatomic, assign) CGRect rectValue;
 @property (nonatomic, assign) CGSize sizeValue;
 @property (nonatomic, assign) CGPoint pointValue;

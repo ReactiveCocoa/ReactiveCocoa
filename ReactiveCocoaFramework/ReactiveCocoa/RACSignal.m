@@ -154,8 +154,6 @@ static volatile uint32_t RACWillCheckActiveSignals = 0;
 	[RACActiveSignals addObject:self];
 	[RACActiveSignalsLock unlock];
 	
-	_subscribers = [[NSMutableArray alloc] init];
-	
 	// As soon as we're created we're already trying to be released. Such is life.
 	[self invalidateGlobalRefIfNoNewSubscribersShowUp];
 	
@@ -450,6 +448,7 @@ static void RACCheckActiveSignals(void) {
 	subscriber = [[RACPassthroughSubscriber alloc] initWithSubscriber:subscriber disposable:disposable];
 	
 	OSSpinLockLock(&_subscribersLock);
+	if (_subscribers == nil) _subscribers = [[NSMutableArray alloc] init];
 	[_subscribers addObject:subscriber];
 	OSSpinLockUnlock(&_subscribersLock);
 	

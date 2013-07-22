@@ -506,14 +506,23 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			continue;
 		}
 
-		current = [[current combineLatestWith:signal] map:^(RACTuple *twoTuple) {
-			RACTuple *previousTuple = twoTuple[0];
-			return [previousTuple tupleByAddingObject:twoTuple[1]];
-		}];
+		current = [current combineLatestWith:signal];
 	}
 
 	if (current == nil) return [self empty];
-	return [current setNameWithFormat:@"+combineLatest: %@", signals];
+
+	return [[current
+		map:^(RACTuple *xs) {
+			NSMutableArray *values = [[NSMutableArray alloc] init];
+
+			while (xs != nil) {
+				[values insertObject:xs.last ?: RACTupleNil.tupleNil atIndex:0];
+				xs = (xs.count > 1 ? xs.first : nil);
+			}
+
+			return [RACTuple tupleWithObjectsFromArray:values];
+		}]
+		setNameWithFormat:@"+combineLatest: %@", signals];
 }
 
 + (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals reduce:(id)reduceBlock {

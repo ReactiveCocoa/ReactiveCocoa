@@ -153,27 +153,16 @@ static void RACCheckActiveSignals(void) {
 	OSAtomicAnd32Barrier(0, &RACWillCheckActiveSignals);
 
 	RACSignalList *elem;
-	NSMutableArray *signalsToAdd = nil;
-	NSMutableArray *signalsToRemove = nil;
 
 	while ((elem = OSAtomicDequeue(&RACActiveSignalsToCheck, offsetof(RACSignalList, next))) != NULL) {
 		RACSignal *signal = CFBridgingRelease(elem->retainedSignal);
 		free(elem);
 
 		if (signal.subscriberCount > 0) {
-			if (signalsToAdd == nil) signalsToAdd = [[NSMutableArray alloc] init];
-			[signalsToAdd addObject:signal];
+			[RACActiveSignals addObject:signal];
 		} else {
-			if (signalsToRemove == nil) signalsToRemove = [[NSMutableArray alloc] init];
-			[signalsToRemove addObject:signal];
+			[RACActiveSignals removeObject:signal];
 		}
-	}
-
-	if (signalsToAdd.count == 0 && signalsToRemove.count == 0) return;
-
-	[RACActiveSignals addObjectsFromArray:signalsToAdd];
-	for (RACSignal *signal in signalsToRemove) {
-		[RACActiveSignals removeObject:signal];
 	}
 }
 

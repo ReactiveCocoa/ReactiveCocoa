@@ -336,13 +336,15 @@ describe(@"RACBind", ^{
 	it(@"should stop binding when disposed", ^{
 		RACKVOBinding *aBinding = RACBind(a, stringValue);
 		RACKVOBinding *bBinding = RACBind(b, stringValue);
-		RACDisposable *disposable = [aBinding bindFactsFromBinding:bBinding];
+		RACDisposable *aDisposable = [aBinding.factsSignal subscribe:bBinding.rumorsSubscriber];
+		RACDisposable *bDisposable = [[bBinding.factsSignal skip:1] subscribe:aBinding.rumorsSubscriber];
 
 		a.stringValue = testName1;
 		expect(a.stringValue).to.equal(testName1);
 		expect(b.stringValue).to.equal(testName1);
 
-		[disposable dispose];
+		[aDisposable dispose];
+		[bDisposable dispose];
 
 		a.stringValue = testName2;
 		expect(a.stringValue).to.equal(testName2);

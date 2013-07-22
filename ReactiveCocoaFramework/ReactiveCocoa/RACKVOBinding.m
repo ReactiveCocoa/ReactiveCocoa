@@ -214,8 +214,8 @@ static NSString * const RACKVOBindingDataDictionaryKey = @"RACKVOBindingKey";
 }
 
 - (void)setObject:(RACBinding *)binding forKeyedSubscript:(NSString *)unused {
-	[binding.factsSignal subscribe:self.factsSubscriber];
-	[[self.rumorsSignal skip:1] subscribe:binding.rumorsSubscriber];
+	[binding.factsSignal subscribe:self.rumorsSubscriber];
+	[[self.factsSignal skip:1] subscribe:binding.rumorsSubscriber];
 }
 
 @end

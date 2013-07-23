@@ -153,7 +153,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 		void (^flushNext)(BOOL send) = ^(BOOL send) {
 			@synchronized (compoundDisposable) {
-				[[nextDisposable swapInDisposable:nil] dispose];
+				[nextDisposable.disposable dispose];
 
 				if (!hasNextValue) return;
 				if (send) [subscriber sendNext:nextValue];
@@ -305,7 +305,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 		void (^flushValues)() = ^{
 			@synchronized (values) {
-				[[timerDisposable swapInDisposable:nil] dispose];
+				[timerDisposable.disposable dispose];
 
 				if (values.count == 0) return;
 
@@ -736,7 +736,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
 			NSCAssert([x isKindOfClass:RACSignal.class] || x == nil, @"-switchToLatest requires that the source signal (%@) send signals. Instead we got: %@", self, x);
 			
-			[[innerDisposable swapInDisposable:nil] dispose];
+			[innerDisposable.disposable dispose];
 			
 			int32_t previousChildSignalHadCompleted = OSAtomicAnd32OrigBarrier(0, &latestChildSignalHasCompleted);
 			if (previousChildSignalHadCompleted == 1) {

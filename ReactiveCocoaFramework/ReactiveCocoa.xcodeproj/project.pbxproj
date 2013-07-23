@@ -233,6 +233,7 @@
 		AC65FD52176DECB1005ED22B /* UIAlertViewRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = AC65FD51176DECB1005ED22B /* UIAlertViewRACSupportSpec.m */; };
 		ACB0EAF31797DDD400942FFC /* UIAlertView+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = ACB0EAF11797DDD400942FFC /* UIAlertView+RACSignalSupport.m */; };
 		ACB0EAF41797DDD400942FFC /* UIAlertView+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = ACB0EAF21797DDD400942FFC /* UIAlertView+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D004BC9C177E1A2B00A5B8C5 /* UIActionSheetRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D004BC9B177E1A2B00A5B8C5 /* UIActionSheetRACSupportSpec.m */; };
 		D004BC9D177E1D5900A5B8C5 /* libExpecta-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8803805515056ACB001A5B19 /* libExpecta-iOS.a */; };
 		D004BC9E177E1D5900A5B8C5 /* libSpecta-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8803806815056AD7001A5B19 /* libSpecta-iOS.a */; };
 		D005A259169A3B7D00A9D2DB /* RACBacktrace.h in Headers */ = {isa = PBXBuildFile; fileRef = D02538A115E2D7FB005BACB8 /* RACBacktrace.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -688,6 +689,7 @@
 		AC65FD51176DECB1005ED22B /* UIAlertViewRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIAlertViewRACSupportSpec.m; sourceTree = "<group>"; };
 		ACB0EAF11797DDD400942FFC /* UIAlertView+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIAlertView+RACSignalSupport.m"; sourceTree = "<group>"; };
 		ACB0EAF21797DDD400942FFC /* UIAlertView+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIAlertView+RACSignalSupport.h"; sourceTree = "<group>"; };
+		D004BC9B177E1A2B00A5B8C5 /* UIActionSheetRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = UIActionSheetRACSupportSpec.m; path = ReactiveCocoaTests/UIActionSheetRACSupportSpec.m; sourceTree = SOURCE_ROOT; };
 		D011F9CF1782AFD400EE7E38 /* NSObjectRACAppKitBindingsSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSObjectRACAppKitBindingsSpec.m; sourceTree = "<group>"; };
 		D01DB9AE166819B9003E8F7F /* ReactiveCocoaTests-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ReactiveCocoaTests-Prefix.pch"; sourceTree = "<group>"; };
 		D02221611678910900DBD031 /* RACTupleSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACTupleSpec.m; sourceTree = "<group>"; };
@@ -885,6 +887,7 @@
 			isa = PBXGroup;
 			children = (
 				D0F117CB179F0B97006CE68F /* UITableViewCellRACSupportSpec.m */,
+				D004BC9B177E1A2B00A5B8C5 /* UIActionSheetRACSupportSpec.m */,
 				D0C55CD817758A73008CDDCA /* UITextFieldRACSupportSpec.m */,
 				D0C55CDE17758C2A008CDDCA /* UITextViewRACSupportSpec.m */,
 			);
@@ -1883,6 +1886,7 @@
 				D0F117CC179F0B97006CE68F /* UITableViewCellRACSupportSpec.m in Sources */,
 				1860F44F177C958300C7B3C9 /* UITextFieldRACSupportSpec.m in Sources */,
 				1860F450177C958900C7B3C9 /* UITextViewRACSupportSpec.m in Sources */,
+				D004BC9C177E1A2B00A5B8C5 /* UIActionSheetRACSupportSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

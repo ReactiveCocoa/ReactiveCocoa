@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
+@class RACSignal;
+
 @interface UITableViewCell (RACSignalSupport)
 
 // A signal which will send a RACUnit whenever -prepareForReuse is invoked upon

@@ -31,6 +31,7 @@
 #import "RACScheduler.h"
 #import "RACScopedDisposable.h"
 #import "RACSequence.h"
+#import "RACSerialDisposable.h"
 #import "RACSignal+Operations.h"
 #import "RACSignal.h"
 #import "RACStream.h"
@@ -43,13 +44,14 @@
 
 #ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
 	#import "RACDelegateProxy.h"
-	#import "UIControl+RACSignalSupport.h"
-	#import "UITextField+RACSignalSupport.h"
-	#import "UITextView+RACSignalSupport.h"
+	#import "UIActionSheet+RACSignalSupport.h"
 	#import "UIBarButtonItem+RACCommandSupport.h"
 	#import "UIButton+RACCommandSupport.h"
+	#import "UIControl+RACSignalSupport.h"
 	#import "UIGestureRecognizer+RACSignalSupport.h"
-	#import "UIActionSheet+RACSignalSupport.h"
+	#import "UITableViewCell+RACSignalSupport.h"
+	#import "UITextField+RACSignalSupport.h"
+	#import "UITextView+RACSignalSupport.h"
 #elif TARGET_OS_MAC
 	#import "NSControl+RACCommandSupport.h"
 	#import "NSControl+RACTextSignalSupport.h"

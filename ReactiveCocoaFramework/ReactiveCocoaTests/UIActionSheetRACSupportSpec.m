@@ -12,8 +12,7 @@
 
 SpecBegin(UIActionSheetRACSupportSpec)
 
-// This test crashes because the iOS unit tests are not "application tests".
-pending(@"-rac_buttonClickedSignal", ^{
+describe(@"-rac_buttonClickedSignal", ^{
 	__block UIActionSheet *actionSheet;
 
 	beforeEach(^{
@@ -29,8 +28,7 @@ pending(@"-rac_buttonClickedSignal", ^{
 			index = i;
 		}];
 
-		[actionSheet dismissWithClickedButtonIndex:1 animated:NO];
-
+		[actionSheet.delegate actionSheet:actionSheet clickedButtonAtIndex:1];
 		expect(index).to.equal(@1);
 	});
 });

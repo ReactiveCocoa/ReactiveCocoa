@@ -14,6 +14,7 @@
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACKVOTrampoline.h"
+#import "RACSerialDisposable.h"
 
 NSString * const RACKeyValueChangeCausedByDeallocationKey = @"RACKeyValueChangeCausedByDeallocationKey";
 NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueChangeAffectedOnlyLastComponentKey";
@@ -35,13 +36,15 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 
 	// The disposable that groups all disposal necessary to clean up the callbacks
 	// added to the value of the first key path component.
-	//
-	// This should only be modified while synchronized on `disposable`.
-	__block RACCompoundDisposable *firstComponentDisposable = [RACCompoundDisposable compoundDisposable];
-	[disposable addDisposable:firstComponentDisposable];
+	RACSerialDisposable *firstComponentSerialDisposable = [RACSerialDisposable serialDisposableWithDisposable:[RACCompoundDisposable compoundDisposable]];
+	RACCompoundDisposable * (^firstComponentDisposable)(void) = ^{
+		return (RACCompoundDisposable *)firstComponentSerialDisposable.disposable;
+	};
+
+	[disposable addDisposable:firstComponentSerialDisposable];
 
 	// Adds the callback block to the value's deallocation. Also adds the logic to
-	// clean up the callback to firstComponentDisposable.
+	// clean up the callback to the firstComponentDisposable.
 	void (^addDeallocObserverToPropertyValue)(NSObject *, NSString *, NSObject *) = ^(NSObject *parent, NSString *propertyKey, NSObject *value) {
 		// If a key path value is the observer, commonly when a key path begins
 		// with "self", we prevent deallocation triggered callbacks for any such key
@@ -97,22 +100,17 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 		}];
 
 		[valueDisposable addDisposable:deallocDisposable];
-
-		@synchronized (disposable) {
-			[firstComponentDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-				[valueDisposable removeDisposable:deallocDisposable];
-			}]];
-		}
+		[firstComponentDisposable() addDisposable:[RACDisposable disposableWithBlock:^{
+			[valueDisposable removeDisposable:deallocDisposable];
+		}]];
 	};
 
 	// Adds the callback block to the remaining path components on the value. Also
-	// adds the logic to clean up the callbacks to firstComponentDisposable.
+	// adds the logic to clean up the callbacks to the firstComponentDisposable.
 	void (^addObserverToValue)(NSObject *) = ^(NSObject *value) {
 		@strongify(observer);
 		RACDisposable *observerDisposable = [value rac_observeKeyPath:keyPathTail options:(options & ~NSKeyValueObservingOptionInitial) observer:observer block:block];
-		@synchronized (disposable) {
-			[firstComponentDisposable addDisposable:observerDisposable];
-		}
+		[firstComponentDisposable() addDisposable:observerDisposable];
 	};
 
 	// Observe only the first key path component, when the value changes clean up
@@ -136,12 +134,12 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 		// previous value and call the callback block. Everything else is deferred
 		// until after we get the notification after the change.
 		if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
-			@synchronized (disposable) {
-				[firstComponentDisposable dispose];
-			}
+			[firstComponentDisposable() dispose];
+
 			if ((options & NSKeyValueObservingOptionPrior) != 0) {
 				block([trampolineTarget valueForKeyPath:keyPath], change);
 			}
+
 			return;
 		}
 
@@ -159,12 +157,8 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 
 		// Create a new firstComponentDisposable while getting rid of the old one at
 		// the same time, in case this is being called concurrently.
-		@synchronized (disposable) {
-			[firstComponentDisposable dispose];
-			[disposable removeDisposable:firstComponentDisposable];
-			firstComponentDisposable = [RACCompoundDisposable compoundDisposable];
-			[disposable addDisposable:firstComponentDisposable];
-		}
+		RACDisposable *oldFirstComponentDisposable = [firstComponentSerialDisposable swapInDisposable:[RACCompoundDisposable compoundDisposable]];
+		[oldFirstComponentDisposable dispose];
 
 		addDeallocObserverToPropertyValue(trampolineTarget, keyPathHead, value);
 

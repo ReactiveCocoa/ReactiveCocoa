@@ -63,6 +63,7 @@ typedef struct {
 
 - (NSRange)returnRangeValueWithObjectValue:(id)objectValue andIntegerValue:(NSInteger)integerValue;
 
+// Writes 5 to the int pointed to by intPointer.
 - (void)write5ToIntPointer:(int *)intPointer;
 
 @end

@@ -15,6 +15,9 @@
 //
 // This does not support C arrays or unions.
 //
+// Note that calling this on a char * or const char * argument can cause all
+// arguments to be retained.
+//
 // object - The object to unbox and set as the argument.
 // index  - The index of the argument to set.
 - (void)rac_setArgument:(id)object atIndex:(NSUInteger)index;

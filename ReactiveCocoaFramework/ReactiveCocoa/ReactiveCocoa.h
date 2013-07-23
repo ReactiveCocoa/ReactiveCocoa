@@ -32,6 +32,7 @@
 #import "RACScheduler.h"
 #import "RACScopedDisposable.h"
 #import "RACSequence.h"
+#import "RACSerialDisposable.h"
 #import "RACSignal+Operations.h"
 #import "RACSignal.h"
 #import "RACStream.h"

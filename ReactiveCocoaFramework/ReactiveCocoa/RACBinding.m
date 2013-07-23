@@ -11,53 +11,92 @@
 #import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"
 
-@interface RACBinding () {
-	// Contains all of the facts.
-	RACReplaySubject *_factsSubject;
+@interface RACBindingEndpoint ()
 
-	// Contains all of the rumors.
-	RACReplaySubject *_rumorsSubject;
-}
+// The values for this endpoint.
+@property (nonatomic, strong, readonly) RACSignal *values;
+
+// A subscriber will will send values to the other endpoint.
+@property (nonatomic, strong, readonly) id<RACSubscriber> otherEndpoint;
+
+- (id)initWithValues:(RACSignal *)values otherEndpoint:(id<RACSubscriber>)otherEndpoint;
 
 @end
 
 @implementation RACBinding
 
-#pragma mark Properties
-
-- (RACSignal *)factsSignal {
-	return _factsSubject;
-}
-
-- (id<RACSubscriber>)factsSubscriber {
-	return _factsSubject;
-}
-
-- (RACSignal *)rumorsSignal {
-	return _rumorsSubject;
-}
-
-- (id<RACSubscriber>)rumorsSubscriber {
-	return _rumorsSubject;
-}
-
-#pragma mark Lifecycle
-
 - (id)init {
 	self = [super init];
 	if (self == nil) return nil;
 
-	_factsSubject = [RACReplaySubject replaySubjectWithCapacity:1];
-	_factsSubject.name = @"factsSubject";
-
-	_rumorsSubject = [RACReplaySubject replaySubjectWithCapacity:1];
-	_rumorsSubject.name = @"rumorsSubject";
+	RACReplaySubject *factsSubject = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"factsSubject"];
+	RACReplaySubject *rumorsSubject = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"rumorsSubject"];
 
 	// Propagate errors and completion to everything.
-	[[self.factsSignal ignoreValues] subscribe:self.rumorsSubscriber];
-	[[self.rumorsSignal ignoreValues] subscribe:self.factsSubscriber];
+	[[factsSubject ignoreValues] subscribe:rumorsSubject];
+	[[rumorsSubject ignoreValues] subscribe:factsSubject];
+
+	_endpointForFacts = [[[RACBindingEndpoint alloc] initWithValues:rumorsSubject otherEndpoint:factsSubject] setNameWithFormat:@"endpointForFacts"];
+	_endpointForRumors = [[[RACBindingEndpoint alloc] initWithValues:factsSubject otherEndpoint:rumorsSubject] setNameWithFormat:@"endpointForRumors"];
 
 	return self;
+}
+
+@end
+
+@implementation RACBindingEndpoint
+
+#pragma mark Lifecycle
+
+- (id)initWithValues:(RACSignal *)values otherEndpoint:(id<RACSubscriber>)otherEndpoint {
+	NSCParameterAssert(values != nil);
+	NSCParameterAssert(otherEndpoint != nil);
+
+	self = [super init];
+	if (self == nil) return nil;
+
+	_values = values;
+	_otherEndpoint = otherEndpoint;
+
+	return self;
+}
+
+#pragma mark RACSignal
+
+- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
+	return [self.values subscribe:subscriber];
+}
+
+#pragma mark <RACSubscriber>
+
+- (void)sendNext:(id)value {
+	[self.otherEndpoint sendNext:value];
+}
+
+- (void)sendError:(NSError *)error {
+	[self.otherEndpoint sendError:error];
+}
+
+- (void)sendCompleted {
+	[self.otherEndpoint sendCompleted];
+}
+
+- (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
+	[self.otherEndpoint didSubscribeWithDisposable:disposable];
+}
+
+
+#pragma mark Binding
+
+- (RACDisposable *)bindFromEndpoint:(RACBindingEndpoint *)otherEndpoint {
+	NSCParameterAssert(otherEndpoint != nil);
+
+	RACDisposable *otherToSelf = [otherEndpoint subscribe:self];
+	RACDisposable *selfToOther = [[self skip:1] subscribe:otherEndpoint];
+	return [RACDisposable disposableWithBlock:^{
+		[otherToSelf dispose];
+		[selfToOther dispose];
+	}];
 }
 
 @end

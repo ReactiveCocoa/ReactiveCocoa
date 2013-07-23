@@ -36,7 +36,8 @@ extern const NSInteger RACSelectorSignalErrorMethodSwizzlingRace;
 // This is useful for changing an event or delegate callback into a signal. For
 // example, on an NSView:
 //
-//     [[view rac_signalForSelector:@selector(mouseDown:)] subscribeNext:^(NSEvent *event) {
+//     [[view rac_signalForSelector:@selector(mouseDown:)] subscribeNext:^(RACTuple *args) {
+//         NSEvent *event = args.first;
 //         NSLog(@"mouse button pressed: %@", event);
 //     }];
 //

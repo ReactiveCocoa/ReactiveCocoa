@@ -181,7 +181,7 @@
 	}] setNameWithFormat:@"[%@] -take: %lu", self.name, (unsigned long)count];
 }
 
-+ (instancetype)zip:(id<NSFastEnumeration>)streams {
++ (instancetype)join:(id<NSFastEnumeration>)streams block:(RACStream * (^)(id, id))block {
 	RACStream *current = nil;
 
 	// Creates streams of successively larger tuples by combining the input
@@ -197,31 +197,32 @@
 			continue;
 		}
 
-		// `zipped` will contain tuples of:
-		//
-		//   ((current value), stream value)
-		RACStream *zipped = [current zipWith:stream];
-		
-		// Then, because `current` itself contained tuples of the previous
-		// streams, we need to flatten each value into a new tuple.
-		//
-		// In other words, this transforms a stream of:
-		//
-		//	 ((s1, s2, …), sN)
-		//
-		// … into a stream of:
-		//
-		//	 (s1, s2, …, sN)
-		//
-		// … by expanding the inner tuple.
-		current = [zipped map:^(RACTuple *twoTuple) {
-			RACTuple *previousTuple = twoTuple[0];
-			return [previousTuple tupleByAddingObject:twoTuple[1]];
-		}];
+		current = block(current, stream);
 	}
 
 	if (current == nil) return [self empty];
-	return [current setNameWithFormat:@"+zip: %@", streams];
+
+	return [current map:^(RACTuple *xs) {
+		// Right now, each value is contained in its own tuple, sorta like:
+		//
+		// (((1), 2), 3)
+		//
+		// We need to unwrap all the layers and create a tuple out of the result.
+		NSMutableArray *values = [[NSMutableArray alloc] init];
+
+		while (xs != nil) {
+			[values insertObject:xs.last ?: RACTupleNil.tupleNil atIndex:0];
+			xs = (xs.count > 1 ? xs.first : nil);
+		}
+
+		return [RACTuple tupleWithObjectsFromArray:values];
+	}];
+}
+
++ (instancetype)zip:(id<NSFastEnumeration>)streams {
+	return [[self join:streams block:^(RACStream *left, RACStream *right) {
+		return [left zipWith:right];
+	}] setNameWithFormat:@"+zip: %@", streams];
 }
 
 + (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id (^)())reduceBlock {

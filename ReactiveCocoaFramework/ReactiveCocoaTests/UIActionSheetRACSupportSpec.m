@@ -28,7 +28,7 @@ describe(@"-rac_buttonClickedSignal", ^{
 			index = i;
 		}];
 
-		[actionSheet dismissWithClickedButtonIndex:1 animated:NO];
+		[actionSheet.delegate actionSheet:actionSheet clickedButtonAtIndex:1];
 		expect(index).to.equal(@1);
 	});
 });

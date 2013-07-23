@@ -39,8 +39,8 @@
 	NSMethodSignature *methodSignature = [self methodSignatureForSelector:selector];
 	NSCAssert(methodSignature != nil, @"%@ does not respond to %@", self, NSStringFromSelector(selector));
 
-	NSUInteger numberOfArguments __attribute__((unused)) = methodSignature.numberOfArguments - 2;
-	NSCAssert(numberOfArguments == signals.count, @"Wrong number of signals for %@ (expected %lu, got %lu)", NSStringFromSelector(selector), (unsigned long)numberOfArguments, (unsigned long)signals.count);
+	NSUInteger numberOfArguments = methodSignature.numberOfArguments - 2;
+	NSCAssert((numberOfArguments == 0 && signals.count == 1) || (numberOfArguments == signals.count), @"Wrong number of signals for %@ (expected %lu, got %lu)", NSStringFromSelector(selector), (unsigned long)numberOfArguments, (unsigned long)signals.count);
 
 	@unsafeify(self);
 	return [self rac_liftSignals:signals withReducingInvocation:^(RACTuple *arguments) {
@@ -49,10 +49,12 @@
 		NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
 		invocation.selector = selector;
 
-		NSUInteger index = 2;
-		for (id arg in arguments) {
-			[invocation rac_setArgument:([RACTupleNil.tupleNil isEqual:arg] ? nil : arg) atIndex:index];
-			index++;
+		if (numberOfArguments > 0) {
+			NSUInteger index = 2;
+			for (id arg in arguments) {
+				[invocation rac_setArgument:([RACTupleNil.tupleNil isEqual:arg] ? nil : arg) atIndex:index];
+				index++;
+			}
 		}
 
 		[invocation invokeWithTarget:self];

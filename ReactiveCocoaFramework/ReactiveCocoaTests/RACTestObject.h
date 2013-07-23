@@ -53,4 +53,6 @@
 
 - (NSRange)returnRangeValueWithObjectValue:(id)objectValue andIntegerValue:(NSInteger)integerValue;
 
+- (void)setIntegerValueTo5;
+
 @end

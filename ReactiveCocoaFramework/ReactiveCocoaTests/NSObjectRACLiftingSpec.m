@@ -93,6 +93,16 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		expect(object.integerValue).to.equal(42);
 	});
 
+	it(@"should work with no arguments", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setIntegerValueTo5) withSignalsFromArray:@[ subject ]];
+
+		expect(object.integerValue).to.equal(0);
+
+		[subject sendNext:RACUnit.defaultUnit];
+		expect(object.integerValue).to.equal(5);
+	});
+
 	it(@"should work with signals that immediately start with a value", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setObjectValue:) withSignalsFromArray:@[ [subject startWith:@42] ]];

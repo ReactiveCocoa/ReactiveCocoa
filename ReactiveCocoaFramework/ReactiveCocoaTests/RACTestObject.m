@@ -56,4 +56,8 @@
 	return testObject;
 }
 
+- (void)setIntegerValueTo5 {
+	self.integerValue = 5;
+}
+
 @end

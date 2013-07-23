@@ -758,6 +758,7 @@
 		D077A171169B79A900057BB1 /* RACEventSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACEventSpec.m; sourceTree = "<group>"; };
 		D07CD7141731BA3900DE2394 /* RACUnarySequence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACUnarySequence.h; sourceTree = "<group>"; };
 		D07CD7151731BA3900DE2394 /* RACUnarySequence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACUnarySequence.m; sourceTree = "<group>"; };
+		D07E9489179DD21E00A6F609 /* RACStream+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACStream+Private.h"; sourceTree = "<group>"; };
 		D0870C6E16884A0600D0E11D /* RACBacktraceSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACBacktraceSpec.m; sourceTree = "<group>"; };
 		D094E44517775AF200906BF7 /* EXTKeyPathCoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXTKeyPathCoding.h; sourceTree = "<group>"; };
 		D094E44617775AF200906BF7 /* EXTScope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXTScope.h; sourceTree = "<group>"; };
@@ -1235,6 +1236,7 @@
 				887ACDA5165878A7009190AD /* NSInvocation+RACTypeParsing.h */,
 				887ACDA6165878A7009190AD /* NSInvocation+RACTypeParsing.m */,
 				D0D486FF1642550100DD7605 /* RACStream.h */,
+				D07E9489179DD21E00A6F609 /* RACStream+Private.h */,
 				D0D487001642550100DD7605 /* RACStream.m */,
 				D0D486FB164253B600DD7605 /* Signals */,
 				D0D486FD164253D500DD7605 /* Disposables */,

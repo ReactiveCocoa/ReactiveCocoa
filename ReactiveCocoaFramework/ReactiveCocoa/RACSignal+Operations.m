@@ -1233,6 +1233,32 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -not", self.name];
 }
 
+- (RACSignal *)and {
+	return [[self map:^(RACTuple *tuple) {
+		NSCAssert([tuple isKindOfClass:RACTuple.class], @"-and must only be used on a signal of RACTuples of NSNumbers. Instead, received: %@", tuple);
+		NSCAssert(tuple.count > 0, @"-and must only be used on a signal of RACTuples of NSNumbers, with at least 1 value in the tuple");
+		
+		return @([tuple.rac_sequence all:^(NSNumber *number) {
+			NSCAssert([number isKindOfClass:NSNumber.class], @"-and must only be used on a signal of RACTuples of NSNumbers. Instead, tuple contains a non-NSNumber value: %@", tuple);
+			
+			return number.boolValue;
+		}]);
+	}] setNameWithFormat:@"[%@] -and", self.name];
+}
+
+- (RACSignal *)or {
+	return [[self map:^(RACTuple *tuple) {
+		NSCAssert([tuple isKindOfClass:RACTuple.class], @"-or must only be used on a signal of RACTuples of NSNumbers. Instead, received: %@", tuple);
+		NSCAssert(tuple.count > 0, @"-or must only be used on a signal of RACTuples of NSNumbers, with at least 1 value in the tuple");
+		
+		return @([tuple.rac_sequence any:^(NSNumber *number) {
+			NSCAssert([number isKindOfClass:NSNumber.class], @"-or must only be used on a signal of RACTuples of NSNumbers. Instead, tuple contains a non-NSNumber value: %@", tuple);
+			
+			return number.boolValue;
+		}]);
+	}] setNameWithFormat:@"[%@] -or", self.name];
+}
+
 - (RACDisposable *)executeCommand:(RACCommand *)command {
 	NSCParameterAssert(command != nil);
 

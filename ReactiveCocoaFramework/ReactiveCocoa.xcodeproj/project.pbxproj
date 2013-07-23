@@ -304,6 +304,12 @@
 		D005A259169A3B7D00A9D2DB /* RACBacktrace.h in Headers */ = {isa = PBXBuildFile; fileRef = D02538A115E2D7FB005BACB8 /* RACBacktrace.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D011F9D01782AFD400EE7E38 /* NSObjectRACAppKitBindingsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D011F9CF1782AFD400EE7E38 /* NSObjectRACAppKitBindingsSpec.m */; };
 		D02221621678910900DBD031 /* RACTupleSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D02221611678910900DBD031 /* RACTupleSpec.m */; };
+		D028DB74179E53CB00D1042F /* RACSerialDisposable.h in Headers */ = {isa = PBXBuildFile; fileRef = D028DB72179E53CB00D1042F /* RACSerialDisposable.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D028DB75179E53CB00D1042F /* RACSerialDisposable.h in Headers */ = {isa = PBXBuildFile; fileRef = D028DB72179E53CB00D1042F /* RACSerialDisposable.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D028DB76179E53CB00D1042F /* RACSerialDisposable.m in Sources */ = {isa = PBXBuildFile; fileRef = D028DB73179E53CB00D1042F /* RACSerialDisposable.m */; };
+		D028DB77179E53CB00D1042F /* RACSerialDisposable.m in Sources */ = {isa = PBXBuildFile; fileRef = D028DB73179E53CB00D1042F /* RACSerialDisposable.m */; };
+		D028DB7D179E591E00D1042F /* RACSerialDisposableSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D028DB7C179E591E00D1042F /* RACSerialDisposableSpec.m */; };
+		D028DB7E179E591E00D1042F /* RACSerialDisposableSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D028DB7C179E591E00D1042F /* RACSerialDisposableSpec.m */; };
 		D0307EDF1731AAE100D83211 /* RACTupleSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D0307EDC1731AAE100D83211 /* RACTupleSequence.m */; };
 		D0307EE01731AAE100D83211 /* RACTupleSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D0307EDC1731AAE100D83211 /* RACTupleSequence.m */; };
 		D0307EE71731AAF800D83211 /* RACArraySequence.h in Headers */ = {isa = PBXBuildFile; fileRef = D0E967611641EF9C00FCFF06 /* RACArraySequence.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -742,6 +748,9 @@
 		D01DB9AE166819B9003E8F7F /* ReactiveCocoaTests-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ReactiveCocoaTests-Prefix.pch"; sourceTree = "<group>"; };
 		D02221611678910900DBD031 /* RACTupleSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACTupleSpec.m; sourceTree = "<group>"; };
 		D02538A115E2D7FB005BACB8 /* RACBacktrace.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RACBacktrace.h; sourceTree = "<group>"; };
+		D028DB72179E53CB00D1042F /* RACSerialDisposable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACSerialDisposable.h; sourceTree = "<group>"; };
+		D028DB73179E53CB00D1042F /* RACSerialDisposable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSerialDisposable.m; sourceTree = "<group>"; };
+		D028DB7C179E591E00D1042F /* RACSerialDisposableSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSerialDisposableSpec.m; sourceTree = "<group>"; };
 		D0307EDB1731AAE100D83211 /* RACTupleSequence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACTupleSequence.h; sourceTree = "<group>"; };
 		D0307EDC1731AAE100D83211 /* RACTupleSequence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACTupleSequence.m; sourceTree = "<group>"; };
 		D041376815D2281C004BBF80 /* RACKVOWrapperSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOWrapperSpec.m; sourceTree = "<group>"; };
@@ -1194,6 +1203,7 @@
 				880D7A6716F7BCC7004A3361 /* RACSubclassObject.h */,
 				880D7A6816F7BCC7004A3361 /* RACSubclassObject.m */,
 				D0A0E225176A84DA007273ED /* RACDisposableSpec.m */,
+				D028DB7C179E591E00D1042F /* RACSerialDisposableSpec.m */,
 			);
 			path = ReactiveCocoaTests;
 			sourceTree = "<group>";
@@ -1432,6 +1442,8 @@
 				884476E3152367D100958F44 /* RACScopedDisposable.m */,
 				881E86A01669304700667F7B /* RACCompoundDisposable.h */,
 				881E86A11669304700667F7B /* RACCompoundDisposable.m */,
+				D028DB72179E53CB00D1042F /* RACSerialDisposable.h */,
+				D028DB73179E53CB00D1042F /* RACSerialDisposable.m */,
 			);
 			name = Disposables;
 			sourceTree = "<group>";
@@ -1485,6 +1497,7 @@
 				88037FBE1505646C001A5B19 /* RACSubscriber.h in Headers */,
 				88037FC11505646C001A5B19 /* RACCommand.h in Headers */,
 				88037FC21505646C001A5B19 /* NSControl+RACCommandSupport.h in Headers */,
+				D028DB74179E53CB00D1042F /* RACSerialDisposable.h in Headers */,
 				880B9176150B09190008488E /* RACSubject.h in Headers */,
 				88F440D3153DADEA0097B4C3 /* NSObject+RACAppKitBindings.h in Headers */,
 				88D4AB3E1510F6C30011494F /* RACReplaySubject.h in Headers */,
@@ -1565,6 +1578,7 @@
 				D08FF27F169A331B00743C6D /* RACScheduler.h in Headers */,
 				D08FF26B169A330000743C6D /* NSObject+RACLifting.h in Headers */,
 				D08FF280169A333400743C6D /* NSArray+RACSequenceAdditions.h in Headers */,
+				D028DB75179E53CB00D1042F /* RACSerialDisposable.h in Headers */,
 				D08FF281169A333400743C6D /* NSDictionary+RACSequenceAdditions.h in Headers */,
 				D08FF282169A333400743C6D /* NSOrderedSet+RACSequenceAdditions.h in Headers */,
 				D08FF283169A333400743C6D /* NSSet+RACSequenceAdditions.h in Headers */,
@@ -2027,6 +2041,7 @@
 				5FAF526E174D574700CAC810 /* NSString+RACSupport.m in Sources */,
 				88302BFE1762A9E6003633BD /* RACTestExampleScheduler.m in Sources */,
 				8884DD6B1756B65300F6C379 /* RACSignalStartExamples.m in Sources */,
+				D028DB7E179E591E00D1042F /* RACSerialDisposableSpec.m in Sources */,
 				5EE9A79B1760D88500EAF5A2 /* UIButtonRACSupportSpec.m in Sources */,
 				88302C2F1762C180003633BD /* RACTargetQueueSchedulerSpec.m in Sources */,
 				D0A0E227176A84DB007273ED /* RACDisposableSpec.m in Sources */,
@@ -2072,6 +2087,7 @@
 				D0E967811641EF9C00FCFF06 /* RACArraySequence.m in Sources */,
 				D0E967851641EF9C00FCFF06 /* RACDynamicSequence.m in Sources */,
 				D0E967891641EF9C00FCFF06 /* RACEmptySequence.m in Sources */,
+				D028DB76179E53CB00D1042F /* RACSerialDisposable.m in Sources */,
 				D0E9678D1641EF9C00FCFF06 /* RACSequence.m in Sources */,
 				D0E967911641EF9C00FCFF06 /* RACStringSequence.m in Sources */,
 				D0D487031642550100DD7605 /* RACStream.m in Sources */,
@@ -2109,6 +2125,7 @@
 				8820937C1501C8A600796685 /* RACSignalSpec.m in Sources */,
 				889D0A8015974B2A00F833E3 /* RACSubjectSpec.m in Sources */,
 				D041376915D2281C004BBF80 /* RACKVOWrapperSpec.m in Sources */,
+				D028DB7D179E591E00D1042F /* RACSerialDisposableSpec.m in Sources */,
 				882CCA1E15F1564D00937D6E /* RACCommandSpec.m in Sources */,
 				884848B615F658B800B11BD0 /* NSControlRACSupportSpec.m in Sources */,
 				88442A341608A9AD00636B49 /* RACTestObject.m in Sources */,
@@ -2200,6 +2217,7 @@
 				881E87B516695EDF00667F7B /* RACImmediateScheduler.m in Sources */,
 				881E87C71669636000667F7B /* RACSubscriptionScheduler.m in Sources */,
 				5F244774167E5EDE0062180C /* RACPropertySubject.m in Sources */,
+				D028DB77179E53CB00D1042F /* RACSerialDisposable.m in Sources */,
 				5F45A888168CFA3E00B58A2B /* RACObservablePropertySubject.m in Sources */,
 				5F6FE8561692568A00A8D7A6 /* RACBinding.m in Sources */,
 				88C5A027169246140045EF05 /* RACMulticastConnection.m in Sources */,

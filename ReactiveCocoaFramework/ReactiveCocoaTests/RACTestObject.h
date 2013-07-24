@@ -66,4 +66,9 @@ typedef struct {
 // Writes 5 to the int pointed to by intPointer.
 - (void)write5ToIntPointer:(int *)intPointer;
 
+- (NSInteger)doubleInteger:(NSInteger)integer;
+- (char *)doubleString:(char *)string;
+- (const char *)doubleConstString:(const char *)string;
+- (RACTestStruct)doubleStruct:(RACTestStruct)testStruct;
+
 @end

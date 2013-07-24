@@ -276,6 +276,67 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 			expect(result).to.equal(RACUnit.defaultUnit);
 		});
 
+		it(@"should support integer returning methods", ^{
+			RACSubject *subject = [RACSubject subject];
+			RACSignal *signal = [object rac_liftSelector:@selector(doubleInteger:) withSignalsFromArray:@[ subject ]];
+
+			__block id result;
+			[signal subscribeNext:^(id x) {
+				result = x;
+			}];
+
+			[subject sendNext:@1];
+
+			expect(result).to.equal(@2);
+		});
+
+		it(@"should support char * returning methods", ^{
+			RACSubject *subject = [RACSubject subject];
+			RACSignal *signal = [object rac_liftSelector:@selector(doubleString:) withSignalsFromArray:@[ subject ]];
+
+			__block id result;
+			[signal subscribeNext:^(id x) {
+				result = x;
+			}];
+
+			[subject sendNext:@"test"];
+
+			expect(result).to.equal(@"testtest");
+		});
+		
+		it(@"should support const char * returning methods", ^{
+			RACSubject *subject = [RACSubject subject];
+			RACSignal *signal = [object rac_liftSelector:@selector(doubleConstString:) withSignalsFromArray:@[ subject ]];
+
+			__block id result;
+			[signal subscribeNext:^(id x) {
+				result = x;
+			}];
+
+			[subject sendNext:@"test"];
+
+			expect(result).to.equal(@"testtest");
+		});
+		
+		it(@"should support struct returning methods", ^{
+			RACSubject *subject = [RACSubject subject];
+			RACSignal *signal = [object rac_liftSelector:@selector(doubleStruct:) withSignalsFromArray:@[ subject ]];
+
+			__block NSValue *boxedResult;
+			[signal subscribeNext:^(id x) {
+				boxedResult = x;
+			}];
+
+			RACTestStruct value = {4, 12.3};
+			NSValue *boxedValue = [NSValue valueWithBytes:&value objCType:@encode(typeof(value))];
+			[subject sendNext:boxedValue];
+
+			RACTestStruct result = {0, 0.0};
+			[boxedResult getValue:&result];
+			expect(result.integerField).to.equal(8);
+			expect(result.doubleField).to.equal(24.6);
+		});
+		
 		it(@"should replay the last value", ^{
 			RACSubject *objectSubject = [RACSubject subject];
 			RACSubject *integerSubject = [RACSubject subject];

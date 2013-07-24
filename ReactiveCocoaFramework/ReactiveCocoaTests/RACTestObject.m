@@ -78,4 +78,30 @@
 	*intPointer = 5;
 }
 
+- (NSInteger)doubleInteger:(NSInteger)integer {
+	return integer * 2;
+}
+
+- (char *)doubleString:(char *)string {
+	size_t doubledSize = strlen(string) * 2 + 1;
+	char *doubledString = malloc(sizeof(char) * doubledSize);
+	doubledString[0] = '\0';
+	strlcat(doubledString, string, doubledSize);
+	strlcat(doubledString, string, doubledSize);
+	dispatch_async(dispatch_get_main_queue(), ^{
+		free(doubledString);
+	});
+	return doubledString;
+}
+
+- (const char *)doubleConstString:(const char *)string {
+	return [self doubleString:(char *)string];
+}
+
+- (RACTestStruct)doubleStruct:(RACTestStruct)testStruct {
+	testStruct.integerField = testStruct.integerField * 2;
+	testStruct.doubleField = testStruct.doubleField * 2;
+	return testStruct;
+}
+
 @end

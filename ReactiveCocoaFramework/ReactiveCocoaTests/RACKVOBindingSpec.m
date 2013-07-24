@@ -33,10 +33,8 @@ describe(@"RACKVOBinding", ^{
 	});
 	
 	id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, id nilValue, RACSignal *signal) {
-		// Autorelease this binding so that it stays alive until the test is
-		// finished.
-		__autoreleasing RACKVOBinding *binding = [[RACKVOBinding alloc] initWithTarget:testObject keyPath:keyPath nilValue:nilValue];
-		[signal subscribe:binding.rumorsSubscriber];
+		RACKVOBinding *binding = [[RACKVOBinding alloc] initWithTarget:testObject keyPath:keyPath nilValue:nilValue];
+		[signal subscribe:binding.endpointForRumors];
 	};
 	
 	itShouldBehaveLike(RACPropertySignalExamples, ^{
@@ -49,27 +47,27 @@ describe(@"RACKVOBinding", ^{
 		} copy]
 	});
 	
-	it(@"should send the object's current value when subscribed to", ^{
+	it(@"should send the object's current value when subscribed to endpointForRumors", ^{
 		__block id receivedValue = @"received value should not be this";
-		[[binding.factsSignal take:1] subscribeNext:^(id x) {
+		[[binding.endpointForRumors take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
 
 		expect(receivedValue).to.beNil();
 		
 		object.stringValue = value1;
-		[[binding.factsSignal take:1] subscribeNext:^(id x) {
+		[[binding.endpointForRumors take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
 
 		expect(receivedValue).to.equal(value1);
 	});
 	
-	it(@"should send the object's new value when it's changed", ^{
+	it(@"should send the object's new value on endpointForRumors when it's changed", ^{
 		object.stringValue = value1;
 
 		NSMutableArray *receivedValues = [NSMutableArray array];
-		[binding.factsSignal subscribeNext:^(id x) {
+		[binding.endpointForRumors subscribeNext:^(id x) {
 			[receivedValues addObject:x];
 		}];
 
@@ -81,10 +79,10 @@ describe(@"RACKVOBinding", ^{
 	it(@"should set rumors", ^{
 		expect(object.stringValue).to.beNil();
 
-		[binding.rumorsSubscriber sendNext:value1];
+		[binding.endpointForRumors sendNext:value1];
 		expect(object.stringValue).to.equal(value1);
 
-		[binding.rumorsSubscriber sendNext:value2];
+		[binding.endpointForRumors sendNext:value2];
 		expect(object.stringValue).to.equal(value2);
 	});
 	
@@ -101,14 +99,13 @@ describe(@"RACKVOBinding", ^{
 			return nil;
 		}];
 
-		[signal subscribe:binding.rumorsSubscriber];
+		[signal subscribe:binding.endpointForRumors];
 		expect(receivedValues).to.equal(values);
 	});
 
 	it(@"should complete facts and rumors when the target deallocates", ^{
 		__block BOOL factsCompleted = NO;
 		__block BOOL rumorsCompleted = NO;
-
 		__block BOOL deallocated = NO;
 
 		@autoreleasepool {
@@ -118,22 +115,22 @@ describe(@"RACKVOBinding", ^{
 			}]];
 
 			RACKVOBinding *binding = [[RACKVOBinding alloc] initWithTarget:object keyPath:@keypath(object.stringValue) nilValue:nil];
-			[binding.rumorsSignal subscribeCompleted:^{
-				rumorsCompleted = YES;
-			}];
-
-			[binding.factsSignal subscribeCompleted:^{
+			[binding.endpointForFacts subscribeCompleted:^{
 				factsCompleted = YES;
 			}];
 
+			[binding.endpointForRumors subscribeCompleted:^{
+				rumorsCompleted = YES;
+			}];
+
 			expect(deallocated).to.beFalsy();
-			expect(rumorsCompleted).to.beFalsy();
 			expect(factsCompleted).to.beFalsy();
+			expect(rumorsCompleted).to.beFalsy();
 		}
 
 		expect(deallocated).to.beTruthy();
-		expect(rumorsCompleted).to.beTruthy();
 		expect(factsCompleted).to.beTruthy();
+		expect(rumorsCompleted).to.beTruthy();
 	});
 
 	it(@"should deallocate when the target deallocates", ^{
@@ -334,17 +331,15 @@ describe(@"RACBind", ^{
 	});
 	
 	it(@"should stop binding when disposed", ^{
-		RACKVOBinding *aBinding = RACBind(a, stringValue);
-		RACKVOBinding *bBinding = RACBind(b, stringValue);
-		RACDisposable *aDisposable = [aBinding.factsSignal subscribe:bBinding.rumorsSubscriber];
-		RACDisposable *bDisposable = [[bBinding.factsSignal skip:1] subscribe:aBinding.rumorsSubscriber];
+		RACBindingEndpoint *aEndpoint = RACBind(a, stringValue);
+		RACBindingEndpoint *bEndpoint = RACBind(b, stringValue);
+		RACDisposable *disposable = [bEndpoint bindFromEndpoint:aEndpoint];
 
 		a.stringValue = testName1;
 		expect(a.stringValue).to.equal(testName1);
 		expect(b.stringValue).to.equal(testName1);
 
-		[aDisposable dispose];
-		[bDisposable dispose];
+		[disposable dispose];
 
 		a.stringValue = testName2;
 		expect(a.stringValue).to.equal(testName2);
@@ -352,13 +347,13 @@ describe(@"RACBind", ^{
 	});
 	
 	it(@"should use the nilValue when sent nil", ^{
-		RACKVOBinding *binding = RACBind(a, integerValue, @5);
+		RACBindingEndpoint *endpoint = RACBind(a, integerValue, @5);
 		expect(a.integerValue).to.equal(0);
 
-		[binding.rumorsSubscriber sendNext:@2];
+		[endpoint sendNext:@2];
 		expect(a.integerValue).to.equal(2);
 
-		[binding.rumorsSubscriber sendNext:nil];
+		[endpoint sendNext:nil];
 		expect(a.integerValue).to.equal(5);
 	});
 

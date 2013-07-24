@@ -36,8 +36,8 @@ describe(@"RACBinding", ^{
 					deallocated = YES;
 				}]];
 
-				factsDisposable = [binding.factsSignal subscribeCompleted:^{}];
-				rumorsDisposable = [binding.rumorsSignal subscribeCompleted:^{}];
+				factsDisposable = [binding.endpointForFacts subscribeCompleted:^{}];
+				rumorsDisposable = [binding.endpointForRumors subscribeCompleted:^{}];
 			}
 
 			[factsDisposable dispose];
@@ -57,8 +57,8 @@ describe(@"RACBinding", ^{
 					deallocated = YES;
 				}]];
 
-				factsDisposable = [[RACSignal never] subscribe:binding.factsSubscriber];
-				rumorsDisposable = [[RACSignal never] subscribe:binding.rumorsSubscriber];
+				factsDisposable = [[RACSignal never] subscribe:binding.endpointForFacts];
+				rumorsDisposable = [[RACSignal never] subscribe:binding.endpointForRumors];
 			}
 
 			[factsDisposable dispose];
@@ -84,8 +84,8 @@ describe(@"RACBinding", ^{
 					deallocated2 = YES;
 				}]];
 
-				factsDisposable = [binding1.factsSignal subscribe:binding2.factsSubscriber];
-				rumorsDisposable = [binding2.rumorsSignal subscribe:binding1.rumorsSubscriber];
+				factsDisposable = [binding1.endpointForFacts subscribe:binding2.endpointForFacts];
+				rumorsDisposable = [binding2.endpointForRumors subscribe:binding1.endpointForRumors];
 			}
 
 			[factsDisposable dispose];

@@ -34,27 +34,26 @@ beforeEach(^{
 	} copy];
 });
 
-itShouldBehaveLike(RACBindingExamples, @{
-	RACBindingExampleCreateBlock: [^{
-		return [textField rac_bind:NSValueBinding];
-	} copy]
-});
-
 describe(@"value binding", ^{
-	__block RACBinding *valueBinding;
+	__block RACBindingEndpoint *valueEndpoint;
 
 	beforeEach(^{
-		valueBinding = [textField rac_bind:NSValueBinding];
-		expect(valueBinding).notTo.beNil();
+		valueEndpoint = [textField rac_bind:NSValueBinding];
+		expect(valueEndpoint).notTo.beNil();
 	});
 
-	it(@"should start with nil", ^{
-		expect([valueBinding.rumorsSignal first]).to.beNil();
+	it(@"should not have a starting value", ^{
+		__block BOOL receivedNext = NO;
+		[valueEndpoint subscribeNext:^(id x) {
+			receivedNext = YES;
+		}];
+
+		expect(receivedNext).to.beFalsy();
 	});
 
-	it(@"should send view changes as rumors", ^{
+	it(@"should send view changes", ^{
 		__block NSString *received;
-		[valueBinding.rumorsSignal subscribeNext:^(id x) {
+		[valueEndpoint subscribeNext:^(id x) {
 			received = x;
 		}];
 
@@ -65,33 +64,32 @@ describe(@"value binding", ^{
 		expect(received).to.equal(@"buzz");
 	});
 
-	it(@"should set facts on the view", ^{
-		[valueBinding.factsSubscriber sendNext:@"fuzz"];
+	it(@"should set values on the view", ^{
+		[valueEndpoint sendNext:@"fuzz"];
 		expect(textField.stringValue).to.equal(@"fuzz");
 
-		[valueBinding.factsSubscriber sendNext:@"buzz"];
+		[valueEndpoint sendNext:@"buzz"];
 		expect(textField.stringValue).to.equal(@"buzz");
 	});
 
 	it(@"should not echo changes back to the binding", ^{
 		__block NSUInteger receivedCount = 0;
-		[valueBinding.rumorsSignal subscribeNext:^(id _) {
+		[valueEndpoint subscribeNext:^(id _) {
 			receivedCount++;
 		}];
 
-		expect(receivedCount).to.equal(1);
+		expect(receivedCount).to.equal(0);
 
-		[valueBinding.factsSubscriber sendNext:@"fuzz"];
-		expect(receivedCount).to.equal(1);
+		[valueEndpoint sendNext:@"fuzz"];
+		expect(receivedCount).to.equal(0);
 
 		setText(@"buzz");
-		expect(receivedCount).to.equal(2);
+		expect(receivedCount).to.equal(1);
 	});
 
 	it(@"should complete when the view deallocates", ^{
 		__block BOOL deallocated = NO;
-		__block BOOL factsCompleted = NO;
-		__block BOOL rumorsCompleted = NO;
+		__block BOOL completed = NO;
 
 		@autoreleasepool {
 			NSTextField *view __attribute__((objc_precise_lifetime)) = [[NSTextField alloc] initWithFrame:NSZeroRect];
@@ -99,28 +97,22 @@ describe(@"value binding", ^{
 				deallocated = YES;
 			}]];
 
-			RACBinding *binding = [view rac_bind:NSValueBinding];
-			[binding.factsSignal subscribeCompleted:^{
-				factsCompleted = YES;
-			}];
-
-			[binding.rumorsSignal subscribeCompleted:^{
-				rumorsCompleted = YES;
+			RACBindingEndpoint *endpoint = [view rac_bind:NSValueBinding];
+			[endpoint subscribeCompleted:^{
+				completed = YES;
 			}];
 
 			expect(deallocated).to.beFalsy();
-			expect(factsCompleted).to.beFalsy();
-			expect(rumorsCompleted).to.beFalsy();
+			expect(completed).to.beFalsy();
 		}
 
 		expect(deallocated).to.beTruthy();
-		expect(factsCompleted).to.beTruthy();
-		expect(rumorsCompleted).to.beTruthy();
+		expect(completed).to.beTruthy();
 	});
 
 	it(@"should deallocate after the view deallocates", ^{
 		__block BOOL viewDeallocated = NO;
-		__block BOOL bindingDeallocated = NO;
+		__block BOOL endpointDeallocated = NO;
 
 		@autoreleasepool {
 			NSTextField *view __attribute__((objc_precise_lifetime)) = [[NSTextField alloc] initWithFrame:NSZeroRect];
@@ -128,17 +120,17 @@ describe(@"value binding", ^{
 				viewDeallocated = YES;
 			}]];
 
-			RACBinding *binding = [view rac_bind:NSValueBinding];
-			[binding.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-				bindingDeallocated = YES;
+			RACBindingEndpoint *endpoint = [view rac_bind:NSValueBinding];
+			[endpoint.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				endpointDeallocated = YES;
 			}]];
 
 			expect(viewDeallocated).to.beFalsy();
-			expect(bindingDeallocated).to.beFalsy();
+			expect(endpointDeallocated).to.beFalsy();
 		}
 
 		expect(viewDeallocated).to.beTruthy();
-		expect(bindingDeallocated).will.beTruthy();
+		expect(endpointDeallocated).will.beTruthy();
 	});
 });
 

@@ -37,15 +37,15 @@ sharedExamplesFor(RACBindingExamples, ^(NSDictionary *data) {
 	it(@"should send the latest rumor on subscription", ^{
 		__block id receivedValue = nil;
 
-		[binding.rumorsSubscriber sendNext:value1];
-		[[binding.rumorsSignal take:1] subscribeNext:^(id x) {
+		[binding.endpointForRumors sendNext:value1];
+		[[binding.endpointForFacts take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
 
 		expect(receivedValue).to.equal(value1);
 		
-		[binding.rumorsSubscriber sendNext:value2];
-		[[binding.rumorsSignal take:1] subscribeNext:^(id x) {
+		[binding.endpointForRumors sendNext:value2];
+		[[binding.endpointForFacts take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
 
@@ -55,15 +55,15 @@ sharedExamplesFor(RACBindingExamples, ^(NSDictionary *data) {
 	it(@"should send the latest fact on subscription", ^{
 		__block id receivedValue = nil;
 
-		[binding.factsSubscriber sendNext:value1];
-		[[binding.factsSignal take:1] subscribeNext:^(id x) {
+		[binding.endpointForFacts sendNext:value1];
+		[[binding.endpointForRumors take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
 
 		expect(receivedValue).to.equal(value1);
 		
-		[binding.factsSubscriber sendNext:value2];
-		[[binding.factsSignal take:1] subscribeNext:^(id x) {
+		[binding.endpointForFacts sendNext:value2];
+		[[binding.endpointForRumors take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
 
@@ -71,59 +71,59 @@ sharedExamplesFor(RACBindingExamples, ^(NSDictionary *data) {
 	});
 	
 	it(@"should send rumors as they change", ^{
-		[binding.rumorsSubscriber sendNext:value1];
+		[binding.endpointForRumors sendNext:value1];
 
 		NSMutableArray *receivedValues = [NSMutableArray array];
-		[binding.rumorsSignal subscribeNext:^(id x) {
+		[binding.endpointForFacts subscribeNext:^(id x) {
 			[receivedValues addObject:x];
 		}];
 
-		[binding.rumorsSubscriber sendNext:value2];
-		[binding.rumorsSubscriber sendNext:value3];
+		[binding.endpointForRumors sendNext:value2];
+		[binding.endpointForRumors sendNext:value3];
 		expect(receivedValues).to.equal(values);
 	});
 	
 	it(@"should send facts as they change", ^{
-		[binding.factsSubscriber sendNext:value1];
+		[binding.endpointForFacts sendNext:value1];
 
 		NSMutableArray *receivedValues = [NSMutableArray array];
-		[binding.factsSignal subscribeNext:^(id x) {
+		[binding.endpointForRumors subscribeNext:^(id x) {
 			[receivedValues addObject:x];
 		}];
 
-		[binding.factsSubscriber sendNext:value2];
-		[binding.factsSubscriber sendNext:value3];
+		[binding.endpointForFacts sendNext:value2];
+		[binding.endpointForFacts sendNext:value3];
 		expect(receivedValues).to.equal(values);
 	});
 
-	it(@"should complete both signals when the rumorsSubscriber is completed", ^{
+	it(@"should complete both signals when the endpointForRumors is completed", ^{
 		__block BOOL completedFacts = NO;
-		[binding.factsSignal subscribeCompleted:^{
+		[binding.endpointForRumors subscribeCompleted:^{
 			completedFacts = YES;
 		}];
 
 		__block BOOL completedRumors = NO;
-		[binding.rumorsSignal subscribeCompleted:^{
+		[binding.endpointForFacts subscribeCompleted:^{
 			completedRumors = YES;
 		}];
 
-		[binding.rumorsSubscriber sendCompleted];
+		[binding.endpointForRumors sendCompleted];
 		expect(completedFacts).to.beTruthy();
 		expect(completedRumors).to.beTruthy();
 	});
 
-	it(@"should complete both signals when the factsSubscriber is completed", ^{
+	it(@"should complete both signals when the endpointForFacts is completed", ^{
 		__block BOOL completedFacts = NO;
-		[binding.factsSignal subscribeCompleted:^{
+		[binding.endpointForRumors subscribeCompleted:^{
 			completedFacts = YES;
 		}];
 
 		__block BOOL completedRumors = NO;
-		[binding.rumorsSignal subscribeCompleted:^{
+		[binding.endpointForFacts subscribeCompleted:^{
 			completedRumors = YES;
 		}];
 
-		[binding.factsSubscriber sendCompleted];
+		[binding.endpointForFacts sendCompleted];
 		expect(completedFacts).to.beTruthy();
 		expect(completedRumors).to.beTruthy();
 	});

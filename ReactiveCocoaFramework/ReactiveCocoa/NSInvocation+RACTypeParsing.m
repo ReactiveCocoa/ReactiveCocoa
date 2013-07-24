@@ -57,7 +57,7 @@
 		[self setArgument:&cString atIndex:(NSInteger)index];
 		[self retainArguments];
 	} else {
-		NSCParameterAssert([[object class] isSubclassOfClass:NSValue.class]);
+		NSCParameterAssert([object isKindOfClass:NSValue.class]);
 
 		NSUInteger valueSize = 0;
 		NSGetSizeAndAlignment([object objCType], &valueSize, NULL);
@@ -128,9 +128,7 @@
 		unsigned char valueBytes[valueSize];
 		[self getArgument:valueBytes atIndex:(NSInteger)index];
 		
-		NSValue *value = [NSValue valueWithBytes:valueBytes objCType:argType];
-
-		return value;
+		return [NSValue valueWithBytes:valueBytes objCType:argType];
 	}
 
 	return nil;
@@ -201,9 +199,7 @@
 		unsigned char valueBytes[valueSize];
 		[self getReturnValue:valueBytes];
 
-		NSValue *value = [NSValue valueWithBytes:valueBytes objCType:returnType];
-
-		return value;
+		return [NSValue valueWithBytes:valueBytes objCType:returnType];
 	}
 
 	return nil;

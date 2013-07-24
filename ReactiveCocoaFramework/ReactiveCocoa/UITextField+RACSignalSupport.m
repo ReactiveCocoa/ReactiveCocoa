@@ -32,7 +32,7 @@
 }
 
 - (id)rac_textBinding {
-	return [self rac_bindingForControlEvents:UIControlEventEditingChanged key:@keypath(self.text) primitive:NO nilValue:@""];
+	return [self rac_bindingForControlEvents:UIControlEventEditingChanged key:@keypath(self.text) nilValue:@""];
 }
 
 @end

@@ -25,12 +25,11 @@
 // key           - The key whose value should be read and written respectively
 //                 on subscription and when a control event fires, and when a
 //                 value is sent to the RACBinding.
-// primitive     - Whether the key refers to a primitive (non-object) property.
 // nilValue      - The value to be assigned to the key when `nil` is sent to the
 //                 RACBinding.
 //
 // Note that this differs from other RACBindings as it will not react to changes
 // triggered from code regardless of what triggered the changes.
-- (RACBinding *)rac_bindingForControlEvents:(UIControlEvents)controlEvents key:(NSString *)key primitive:(BOOL)primitive nilValue:(id)nilValue;
+- (RACBinding *)rac_bindingForControlEvents:(UIControlEvents)controlEvents key:(NSString *)key nilValue:(id)nilValue;
 
 @end

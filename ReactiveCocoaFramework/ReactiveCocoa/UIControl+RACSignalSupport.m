@@ -8,13 +8,14 @@
 
 #import "UIControl+RACSignalSupport.h"
 #import "EXTScope.h"
-#import "NSObject+RACDeallocating.h"
 #import "RACBinding+Private.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSignal.h"
 #import "RACSignal+Operations.h"
 #import "RACSubscriber+Private.h"
+#import "NSInvocation+RACTypeParsing.h"
+#import "NSObject+RACDeallocating.h"
 #import "NSObject+RACDescription.h"
 
 @implementation UIControl (RACSignalSupport)
@@ -39,7 +40,7 @@
 		setNameWithFormat:@"%@ -rac_signalForControlEvents: %lx", [self rac_description], (unsigned long)controlEvents];
 }
 
-- (RACBinding *)rac_bindingForControlEvents:(UIControlEvents)controlEvents key:(NSString *)key primitive:(BOOL)primitive nilValue:(id)nilValue {
+- (RACBinding *)rac_bindingForControlEvents:(UIControlEvents)controlEvents key:(NSString *)key nilValue:(id)nilValue {
 	@weakify(self);
 
 	RACBinding *binding = [[RACBinding alloc] init];
@@ -76,23 +77,12 @@
 		}
 
 		id value = x ?: nilValue;
-		void *valueBytes = NULL;
-		if (primitive) {
-			NSUInteger size = 0;
-			NSGetSizeAndAlignment([value objCType], &size, NULL);
-			valueBytes = malloc(size);
-			[value getValue:valueBytes];
-			[invocation setArgument:valueBytes atIndex:2];
-		} else {
-			[invocation setArgument:&value atIndex:2];
-		}
+		[invocation rac_setArgument:value atIndex:2];
 
 		BOOL animated = YES;
 		[invocation setArgument:&animated atIndex:3];
 
 		[invocation invoke];
-
-		if (valueBytes != NULL) free(valueBytes);
 	} error:^(NSError *error) {
 		@strongify(self);
 

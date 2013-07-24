@@ -20,13 +20,6 @@
 		[self setArgument:&val atIndex:(NSInteger)index]; \
 	} while(0)
 
-#define PULL_AND_SET_STRUCT(type) \
-	do { \
-		type val; \
-		[object getValue:&val]; \
-		[self setArgument:&val atIndex:(NSInteger)index]; \
-	} while (0)
-
 	const char *argType = [self.methodSignature getArgumentTypeAtIndex:index];
 	// Skip const type qualifier.
 	if (argType[0] == 'r') {
@@ -59,22 +52,29 @@
 		PULL_AND_SET(float, floatValue);
 	} else if (strcmp(argType, "d") == 0) {
 		PULL_AND_SET(double, doubleValue);
-	} else if (argType[0] == '^') {
-		PULL_AND_SET(void *, pointerValue);
-	} else if (strcmp(argType, @encode(CGRect)) == 0) {
-		PULL_AND_SET_STRUCT(CGRect);
-	} else if (strcmp(argType, @encode(CGSize)) == 0) {
-		PULL_AND_SET_STRUCT(CGSize);
-	} else if (strcmp(argType, @encode(CGPoint)) == 0) {
-		PULL_AND_SET_STRUCT(CGPoint);
-	} else if (strcmp(argType, @encode(NSRange)) == 0) {
-		PULL_AND_SET_STRUCT(NSRange);
+	} else if (strcmp(argType, "*") == 0) {
+		const char *cString = [object UTF8String];
+		[self setArgument:&cString atIndex:(NSInteger)index];
+		[self retainArguments];
 	} else {
-		NSCAssert(NO, @"Unsupported argument type %s", argType);
+		NSCParameterAssert([object isKindOfClass:NSValue.class]);
+
+		NSUInteger valueSize = 0;
+		NSGetSizeAndAlignment([object objCType], &valueSize, NULL);
+
+#if DEBUG
+		NSUInteger argSize = 0;
+		NSGetSizeAndAlignment(argType, &argSize, NULL);
+		NSCAssert(valueSize == argSize, @"Value size does not match argument size in -rac_setArgument: %@ atIndex: %lu", object, (unsigned long)index);
+#endif
+		
+		unsigned char valueBytes[valueSize];
+		[object getValue:valueBytes];
+
+		[self setArgument:valueBytes atIndex:(NSInteger)index];
 	}
 
 #undef PULL_AND_SET
-#undef PULL_AND_SET_STRUCT
 }
 
 - (id)rac_argumentAtIndex:(NSUInteger)index {
@@ -85,67 +85,55 @@
 		return @(val); \
 	} while (0)
 
-#define WRAP_AND_RETURN_STRUCT(type) \
-	do { \
-		type val; \
-		[self getArgument:&val atIndex:(NSInteger)index]; \
-		return [NSValue valueWithBytes:&val objCType:@encode(type)]; \
-	} while (0)
-
-	const char *typeSignature = [self.methodSignature getArgumentTypeAtIndex:index];
+	const char *argType = [self.methodSignature getArgumentTypeAtIndex:index];
 	// Skip const type qualifier.
-	if (typeSignature[0] == 'r') {
-		typeSignature++;
+	if (argType[0] == 'r') {
+		argType++;
 	}
 
-	if (strcmp(typeSignature, "@") == 0 || strcmp(typeSignature, "#") == 0) {
+	if (strcmp(argType, "@") == 0 || strcmp(argType, "#") == 0) {
 		__autoreleasing id returnObj;
 		[self getArgument:&returnObj atIndex:(NSInteger)index];
 		return returnObj;
-	} else if (strcmp(typeSignature, "c") == 0) {
+	} else if (strcmp(argType, "c") == 0) {
 		WRAP_AND_RETURN(char);
-	} else if (strcmp(typeSignature, "i") == 0) {
+	} else if (strcmp(argType, "i") == 0) {
 		WRAP_AND_RETURN(int);
-	} else if (strcmp(typeSignature, "s") == 0) {
+	} else if (strcmp(argType, "s") == 0) {
 		WRAP_AND_RETURN(short);
-	} else if (strcmp(typeSignature, "l") == 0) {
+	} else if (strcmp(argType, "l") == 0) {
 		WRAP_AND_RETURN(long);
-	} else if (strcmp(typeSignature, "q") == 0) {
+	} else if (strcmp(argType, "q") == 0) {
 		WRAP_AND_RETURN(long long);
-	} else if (strcmp(typeSignature, "C") == 0) {
+	} else if (strcmp(argType, "C") == 0) {
 		WRAP_AND_RETURN(unsigned char);
-	} else if (strcmp(typeSignature, "I") == 0) {
+	} else if (strcmp(argType, "I") == 0) {
 		WRAP_AND_RETURN(unsigned int);
-	} else if (strcmp(typeSignature, "S") == 0) {
+	} else if (strcmp(argType, "S") == 0) {
 		WRAP_AND_RETURN(unsigned short);
-	} else if (strcmp(typeSignature, "L") == 0) {
+	} else if (strcmp(argType, "L") == 0) {
 		WRAP_AND_RETURN(unsigned long);
-	} else if (strcmp(typeSignature, "Q") == 0) {
+	} else if (strcmp(argType, "Q") == 0) {
 		WRAP_AND_RETURN(unsigned long long);
-	} else if (strcmp(typeSignature, "f") == 0) {
+	} else if (strcmp(argType, "f") == 0) {
 		WRAP_AND_RETURN(float);
-	} else if (strcmp(typeSignature, "d") == 0) {
+	} else if (strcmp(argType, "d") == 0) {
 		WRAP_AND_RETURN(double);
-	} else if (typeSignature[0] == '^') {
-		const void *pointer = NULL;
-		[self getArgument:&pointer atIndex:(NSInteger)index];
-		return [NSValue valueWithPointer:pointer];
-	} else if (strcmp(typeSignature, @encode(CGRect)) == 0) {
-		WRAP_AND_RETURN_STRUCT(CGRect);
-	} else if (strcmp(typeSignature, @encode(CGSize)) == 0) {
-		WRAP_AND_RETURN_STRUCT(CGSize);
-	} else if (strcmp(typeSignature, @encode(CGPoint)) == 0) {
-		WRAP_AND_RETURN_STRUCT(CGPoint);
-	} else if (strcmp(typeSignature, @encode(NSRange)) == 0) {
-		WRAP_AND_RETURN_STRUCT(NSRange);
+	} else if (strcmp(argType, "*") == 0) {
+		WRAP_AND_RETURN(const char *);
 	} else {
-		NSCAssert(NO, @"Unsupported return type signature %s", typeSignature);
+		NSUInteger valueSize = 0;
+		NSGetSizeAndAlignment(argType, &valueSize, NULL);
+
+		unsigned char valueBytes[valueSize];
+		[self getArgument:valueBytes atIndex:(NSInteger)index];
+		
+		return [NSValue valueWithBytes:valueBytes objCType:argType];
 	}
 
 	return nil;
 
 #undef WRAP_AND_RETURN
-#undef WRAP_AND_RETURN_STRUCT
 }
 
 - (NSArray *)rac_allArguments {
@@ -166,69 +154,57 @@
 		return @(val); \
 	} while (0)
 
-#define WRAP_AND_RETURN_STRUCT(type) \
-	do { \
-		type val; \
-		[self getReturnValue:&val]; \
-		return [NSValue valueWithBytes:&val objCType:@encode(type)]; \
-	} while (0)
-
-	const char *typeSignature = self.methodSignature.methodReturnType;
+	const char *returnType = self.methodSignature.methodReturnType;
 	// Skip const type qualifier.
-	if (typeSignature[0] == 'r') {
-		typeSignature++;
+	if (returnType[0] == 'r') {
+		returnType++;
 	}
 
-	if (strcmp(typeSignature, "@") == 0 || strcmp(typeSignature, "#") == 0) {
+	if (strcmp(returnType, "@") == 0 || strcmp(returnType, "#") == 0) {
 		__autoreleasing id returnObj;
 		[self getReturnValue:&returnObj];
 		return returnObj;
-	} else if (strcmp(typeSignature, "c") == 0) {
+	} else if (strcmp(returnType, "c") == 0) {
 		WRAP_AND_RETURN(char);
-	} else if (strcmp(typeSignature, "i") == 0) {
+	} else if (strcmp(returnType, "i") == 0) {
 		WRAP_AND_RETURN(int);
-	} else if (strcmp(typeSignature, "s") == 0) {
+	} else if (strcmp(returnType, "s") == 0) {
 		WRAP_AND_RETURN(short);
-	} else if (strcmp(typeSignature, "l") == 0) {
+	} else if (strcmp(returnType, "l") == 0) {
 		WRAP_AND_RETURN(long);
-	} else if (strcmp(typeSignature, "q") == 0) {
+	} else if (strcmp(returnType, "q") == 0) {
 		WRAP_AND_RETURN(long long);
-	} else if (strcmp(typeSignature, "C") == 0) {
+	} else if (strcmp(returnType, "C") == 0) {
 		WRAP_AND_RETURN(unsigned char);
-	} else if (strcmp(typeSignature, "I") == 0) {
+	} else if (strcmp(returnType, "I") == 0) {
 		WRAP_AND_RETURN(unsigned int);
-	} else if (strcmp(typeSignature, "S") == 0) {
+	} else if (strcmp(returnType, "S") == 0) {
 		WRAP_AND_RETURN(unsigned short);
-	} else if (strcmp(typeSignature, "L") == 0) {
+	} else if (strcmp(returnType, "L") == 0) {
 		WRAP_AND_RETURN(unsigned long);
-	} else if (strcmp(typeSignature, "Q") == 0) {
+	} else if (strcmp(returnType, "Q") == 0) {
 		WRAP_AND_RETURN(unsigned long long);
-	} else if (strcmp(typeSignature, "f") == 0) {
+	} else if (strcmp(returnType, "f") == 0) {
 		WRAP_AND_RETURN(float);
-	} else if (strcmp(typeSignature, "d") == 0) {
+	} else if (strcmp(returnType, "d") == 0) {
 		WRAP_AND_RETURN(double);
-	} else if (strcmp(typeSignature, "v") == 0) {
+	} else if (strcmp(returnType, "*") == 0) {
+		WRAP_AND_RETURN(const char *);
+	} else if (strcmp(returnType, "v") == 0) {
 		return RACUnit.defaultUnit;
-	} else if (typeSignature[0] == '^') {
-		const void *pointer = NULL;
-		[self getReturnValue:&pointer];
-		return [NSValue valueWithPointer:pointer];
-	} else if (strcmp(typeSignature, @encode(CGRect)) == 0) {
-		WRAP_AND_RETURN_STRUCT(CGRect);
-	} else if (strcmp(typeSignature, @encode(CGSize)) == 0) {
-		WRAP_AND_RETURN_STRUCT(CGSize);
-	} else if (strcmp(typeSignature, @encode(CGPoint)) == 0) {
-		WRAP_AND_RETURN_STRUCT(CGPoint);
-	} else if (strcmp(typeSignature, @encode(NSRange)) == 0) {
-		WRAP_AND_RETURN_STRUCT(NSRange);
 	} else {
-		NSCAssert(NO, @"Unsupported return type signature %s", typeSignature);
+		NSUInteger valueSize = 0;
+		NSGetSizeAndAlignment(returnType, &valueSize, NULL);
+
+		unsigned char valueBytes[valueSize];
+		[self getReturnValue:valueBytes];
+
+		return [NSValue valueWithBytes:valueBytes objCType:returnType];
 	}
 
 	return nil;
 
 #undef WRAP_AND_RETURN
-#undef WRAP_AND_RETURN_STRUCT
 }
 
 @end

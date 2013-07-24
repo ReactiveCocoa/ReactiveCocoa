@@ -8,6 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
+typedef struct {
+	long long integerField;
+	double doubleField;
+} RACTestStruct;
+
 @interface RACTestObject : NSObject
 
 @property (nonatomic, strong) id objectValue;
@@ -15,10 +20,15 @@
 @property (nonatomic, strong) RACTestObject *strongTestObjectValue;
 @property (nonatomic, weak) RACTestObject *weakTestObjectValue;
 @property (nonatomic, assign) NSInteger integerValue;
+// Holds a copy of the string.
+@property (nonatomic, assign) char *charPointerValue;
+// Holds a copy of the string.
+@property (nonatomic, assign) const char *constCharPointerValue;
 @property (nonatomic, assign) CGRect rectValue;
 @property (nonatomic, assign) CGSize sizeValue;
 @property (nonatomic, assign) CGPoint pointValue;
 @property (nonatomic, assign) NSRange rangeValue;
+@property (nonatomic, assign) RACTestStruct structValue;
 @property (nonatomic, copy) NSString *stringValue;
 @property (nonatomic, copy) NSArray *arrayValue;
 @property (nonatomic, copy) NSSet *setValue;
@@ -52,5 +62,13 @@
 + (void)lifeIsGood:(id)sender;
 
 - (NSRange)returnRangeValueWithObjectValue:(id)objectValue andIntegerValue:(NSInteger)integerValue;
+
+// Writes 5 to the int pointed to by intPointer.
+- (void)write5ToIntPointer:(int *)intPointer;
+
+- (NSInteger)doubleInteger:(NSInteger)integer;
+- (char *)doubleString:(char *)string;
+- (const char *)doubleConstString:(const char *)string;
+- (RACTestStruct)doubleStruct:(RACTestStruct)testStruct;
 
 @end

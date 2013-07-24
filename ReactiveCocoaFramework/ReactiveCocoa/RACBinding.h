@@ -15,7 +15,7 @@
 //
 // Conceptually, RACBinding can be thought of as two controllable signals that
 // work in parallel. "Facts" represent the authoritative source of data, while
-// "rumors" represent less authoritative versions of, or changes to, that data.
+// "rumors" represent less authoritative versions of (or changes to) that data.
 //
 // For example, when binding between a view and a model:
 //
@@ -66,6 +66,8 @@
 // To make it easy to terminate a RACBinding, `error` and `completed` events
 // sent to either endpoint will be received by the subscribers of _both_
 // endpoints.
+//
+// Do not instantiate this class directly. Create a RACBinding instead.
 @interface RACBindingEndpoint : RACSignal <RACSubscriber>
 
 // Subscribes the receiver and `otherEndpoint` to each other, taking the current
@@ -77,5 +79,7 @@
 //
 // Returns a disposable which can be used to cancel the mutual subscription.
 - (RACDisposable *)bindFromEndpoint:(RACBindingEndpoint *)otherEndpoint;
+
+- (id)init __attribute__((unavailable("Instantiate a RACBinding instead")));
 
 @end

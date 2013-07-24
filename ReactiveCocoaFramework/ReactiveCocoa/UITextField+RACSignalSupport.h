@@ -18,11 +18,8 @@
 - (RACSignal *)rac_textSignal;
 
 // Creates and returns a RACBinding that sends the receiver's current text on
-// subscription and whenever UIControlEventEditingChanged is fired, and sets the
-// text to the values it receives.
-//
-// Note that this differs from other RACBindings as it will not react to changes
-// triggered from code regardless of what triggered the changes.
+// subscription and whenever it changes, and sets the text to the values it
+// receives.
 - (RACBinding *)rac_textBinding;
 
 @end

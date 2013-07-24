@@ -27,7 +27,7 @@
  * A structure representing a particular intended rebinding from a symbol
  * name to its replacement
  */
-struct rebinding {
+struct rac_rebinding {
   char *name;
   void *replacement;
 };
@@ -40,4 +40,4 @@ struct rebinding {
  * rebind are added to the existing list of rebindings, and if a given symbol
  * is rebound more than once, the later rebinding will take precedence.
  */
-int rebind_symbols(struct rebinding rebindings[], size_t rebindings_nel);
+int rac_rebind_symbols(struct rac_rebinding rebindings[], size_t rebindings_nel);

@@ -176,12 +176,12 @@ static void RACExceptionHandler (NSException *ex) {
 		orig_dispatch_after_f = dlsym(RTLD_DEFAULT, "dispatch_after_f");
 
 		rac_rebind_symbols((struct rac_rebinding[]){
-			{"dispatch_async", rac_dispatch_async},
-			{"dispatch_barrier_async", rac_dispatch_barrier_async},
-			{"dispatch_after", rac_dispatch_after},
-			{"dispatch_async_f", rac_dispatch_async_f},
-			{"dispatch_barrier_async_f", rac_dispatch_barrier_async_f},
-			{"dispatch_after_f", rac_dispatch_after_f},
+			{ .name = "dispatch_async", .replacement = rac_dispatch_async},
+			{ .name = "dispatch_barrier_async", .replacement = rac_dispatch_barrier_async},
+			{ .name = "dispatch_after", .replacement = rac_dispatch_after},
+			{ .name = "dispatch_async_f", .replacement = rac_dispatch_async_f},
+			{ .name = "dispatch_barrier_async_f", .replacement = rac_dispatch_barrier_async_f},
+			{ .name = "dispatch_after_f", .replacement = rac_dispatch_after_f},
 		}, 6);
 #else
 		NSString *libraries = [[[NSProcessInfo processInfo] environment] objectForKey:@"DYLD_INSERT_LIBRARIES"];

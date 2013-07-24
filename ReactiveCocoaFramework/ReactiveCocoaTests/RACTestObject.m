@@ -101,8 +101,8 @@
 }
 
 - (RACTestStruct)doubleStruct:(RACTestStruct)testStruct {
-	testStruct.integerField = testStruct.integerField * 2;
-	testStruct.doubleField = testStruct.doubleField * 2;
+	testStruct.integerField *= 2;
+	testStruct.doubleField *= 2;
 	return testStruct;
 }
 

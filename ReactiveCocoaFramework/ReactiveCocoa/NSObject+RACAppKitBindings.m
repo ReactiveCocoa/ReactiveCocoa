@@ -23,7 +23,7 @@
 // expose a RACBinding instead.
 @interface RACBindingProxy : NSObject
 
-// The binding to return.
+// The RACBinding used for this Cocoa binding.
 @property (nonatomic, strong, readonly) RACBinding *binding;
 
 // The KVC- and KVO-compliant property to be read and written by the Cocoa
@@ -58,15 +58,15 @@
 
 @implementation NSObject (RACAppKitBindings)
 
-- (RACBinding *)rac_bind:(NSString *)binding {
+- (RACBindingEndpoint *)rac_bind:(NSString *)binding {
 	return [self rac_bind:binding options:nil];
 }
 
-- (RACBinding *)rac_bind:(NSString *)binding options:(NSDictionary *)options {
+- (RACBindingEndpoint *)rac_bind:(NSString *)binding options:(NSDictionary *)options {
 	NSCParameterAssert(binding != nil);
 
 	RACBindingProxy *proxy = [[RACBindingProxy alloc] initWithTarget:self bindingName:binding options:options];
-	return proxy.binding;
+	return proxy.binding.endpointForFacts;
 }
 
 @end
@@ -109,7 +109,7 @@
 	};
 
 	// When the binding terminates, tear down this proxy.
-	[self.binding.rumorsSignal subscribeError:^(NSError *error) {
+	[self.binding.endpointForRumors subscribeError:^(NSError *error) {
 		cleanUp();
 	} completed:cleanUp];
 
@@ -121,18 +121,15 @@
 
 	[[self.target rac_deallocDisposable] addDisposable:[RACDisposable disposableWithBlock:^{
 		@strongify(self);
-		[self.binding.rumorsSubscriber sendCompleted];
+		[self.binding.endpointForRumors sendCompleted];
 	}]];
 
-	RACBinding *valueBinding = RACBind(self, value, options[NSNullPlaceholderBindingOption]);
-	[self.binding.factsSignal subscribe:valueBinding.rumorsSubscriber];
-	[valueBinding.factsSignal subscribe:self.binding.rumorsSubscriber];
-
+	RACBind(self, value, options[NSNullPlaceholderBindingOption]) = self.binding.endpointForRumors;
 	return self;
 }
 
 - (void)dealloc {
-	[self.binding.rumorsSubscriber sendCompleted];
+	[self.binding.endpointForRumors sendCompleted];
 }
 
 #pragma mark NSObject

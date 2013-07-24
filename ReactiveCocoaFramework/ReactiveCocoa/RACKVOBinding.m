@@ -86,8 +86,8 @@ static NSString * const RACKVOBindingDataDictionaryKey = @"RACKVOBindingKey";
 	_target = target;
 	_keyPath = [keyPath copy];
 
-	[self.factsSignal setNameWithFormat:@"[-initWithTarget: %@ keyPath: %@ nilValue: %@] factsSignal", target, keyPath, nilValue];
-	[self.rumorsSignal setNameWithFormat:@"[-initWithTarget: %@ keyPath: %@ nilValue: %@] rumorsSignal", target, keyPath, nilValue];
+	[self.endpointForFacts setNameWithFormat:@"[-initWithTarget: %@ keyPath: %@ nilValue: %@] endpointForFacts", target, keyPath, nilValue];
+	[self.endpointForRumors setNameWithFormat:@"[-initWithTarget: %@ keyPath: %@ nilValue: %@] endpointForRumors", target, keyPath, nilValue];
 
 	// Observe the key path on target for changes. Update the value of stackDepth
 	// accordingly and forward the changes to updatesSubject.
@@ -116,7 +116,7 @@ static NSString * const RACKVOBindingDataDictionaryKey = @"RACKVOBindingKey";
 		// a deallocation, it definitely wasn't triggered by this binding, so just
 		// forward it.
 		if (![change[RACKeyValueChangeAffectedOnlyLastComponentKey] boolValue] || [change[RACKeyValueChangeCausedByDeallocationKey] boolValue]) {
-			[self.factsSubscriber sendNext:value];
+			[self.endpointForFacts sendNext:value];
 			return;
 		}
 
@@ -133,7 +133,7 @@ static NSString * const RACKVOBindingDataDictionaryKey = @"RACKVOBindingKey";
 			return;
 		}
 
-		[self.factsSubscriber sendNext:value];
+		[self.endpointForFacts sendNext:value];
 	}];
 	
 	NSString *keyPathByDeletingLastKeyPathComponent = keyPath.rac_keyPathByDeletingLastKeyPathComponent;
@@ -142,7 +142,7 @@ static NSString * const RACKVOBindingDataDictionaryKey = @"RACKVOBindingKey";
 	NSString *lastKeyPathComponent = keyPathComponents.lastObject;
 
 	// Update the value of the property with the values received.
-	[[self.rumorsSignal
+	[[self.endpointForFacts
 		finally:^{
 			[observationDisposable dispose];
 		}]
@@ -173,7 +173,7 @@ static NSString * const RACKVOBindingDataDictionaryKey = @"RACKVOBindingKey";
 	
 	[target.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 		@strongify(self);
-		[self.factsSubscriber sendCompleted];
+		[self.endpointForFacts sendCompleted];
 		self.target = nil;
 	}]];
 	
@@ -209,13 +209,19 @@ static NSString * const RACKVOBindingDataDictionaryKey = @"RACKVOBindingKey";
 
 @implementation RACKVOBinding (RACBind)
 
-- (instancetype)objectForKeyedSubscript:(NSString *)unused {
-	return self;
+- (RACBindingEndpoint *)objectForKeyedSubscript:(NSString *)key {
+	NSCParameterAssert(key != nil);
+
+	RACBindingEndpoint *endpoint = [self valueForKey:key];
+	NSCAssert([endpoint isKindOfClass:RACBindingEndpoint.class], @"Key \"%@\" does not identify a binding endpoint", key);
+	
+	return endpoint;
 }
 
-- (void)setObject:(RACBinding *)binding forKeyedSubscript:(NSString *)unused {
-	[binding.factsSignal subscribe:self.rumorsSubscriber];
-	[[self.factsSignal skip:1] subscribe:binding.rumorsSubscriber];
+- (void)setObject:(RACBindingEndpoint *)otherEndpoint forKeyedSubscript:(NSString *)key {
+	NSCParameterAssert(otherEndpoint != nil);
+
+	[[self objectForKeyedSubscript:key] bindFromEndpoint:otherEndpoint];
 }
 
 @end

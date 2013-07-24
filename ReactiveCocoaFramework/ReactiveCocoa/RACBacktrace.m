@@ -10,7 +10,7 @@
 #import <pthread.h>
 #import "RACBacktrace.h"
 
-#if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
+#ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
 #import <dlfcn.h>
 #import "fishhook.h"
 #endif
@@ -27,7 +27,7 @@
 #undef dispatch_barrier_async_f
 #undef dispatch_after_f
 
-#if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
+#ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
 static void (*orig_dispatch_async)(dispatch_queue_t queue, dispatch_block_t block);
 static void (*orig_dispatch_barrier_async)(dispatch_queue_t queue, dispatch_block_t block);
 static void (*orig_dispatch_after)(dispatch_time_t when, dispatch_queue_t queue, dispatch_block_t block);
@@ -167,7 +167,7 @@ static void RACExceptionHandler (NSException *ex) {
 + (void)load {
 	@autoreleasepool {
 
-#if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
+#ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
 		orig_dispatch_async = dlsym(RTLD_DEFAULT, "dispatch_async");
 		orig_dispatch_barrier_async = dlsym(RTLD_DEFAULT, "dispatch_barrier_async");
 		orig_dispatch_after = dlsym(RTLD_DEFAULT, "dispatch_after");

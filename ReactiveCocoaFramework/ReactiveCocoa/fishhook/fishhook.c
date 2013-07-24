@@ -23,6 +23,8 @@
 
 #import "fishhook.h"
 
+#ifdef DEBUG
+
 #import <dlfcn.h>
 #import <stdlib.h>
 #import <string.h>
@@ -156,3 +158,5 @@ int rebind_symbols(struct rebinding rebindings[], size_t rebindings_nel) {
   }
   return retval;
 }
+
+#endif

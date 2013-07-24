@@ -23,6 +23,8 @@
 
 #import <stddef.h>
 
+#ifdef DEBUG
+
 /*
  * A structure representing a particular intended rebinding from a symbol
  * name to its replacement
@@ -41,3 +43,5 @@ struct rebinding {
  * is rebound more than once, the later rebinding will take precedence.
  */
 int rebind_symbols(struct rebinding rebindings[], size_t rebindings_nel);
+
+#endif

@@ -100,6 +100,11 @@ void rac_dispatch_after(dispatch_time_t time, dispatch_queue_t queue, dispatch_b
 	dispatch_after(time, queue, RACBacktraceBlock(queue, block));
 }
 
+// Clang static analyzer reports a false positive memory leak warning for each
+// of the following three methods. This conditional compilation prevents the
+// static analyzer from analyzing these methods, but only for the iOS target.
+#if !defined(__clang_analyzer__) || !defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
+
 void rac_dispatch_async_f(dispatch_queue_t queue, void *context, dispatch_function_t function) {
 	RACDispatchInfo *info = [[RACDispatchInfo alloc] initWithQueue:queue function:function context:context];
 	dispatch_async_f(queue, (void *)CFBridgingRetain(info), &RACTraceDispatch);
@@ -114,6 +119,8 @@ void rac_dispatch_after_f(dispatch_time_t time, dispatch_queue_t queue, void *co
 	RACDispatchInfo *info = [[RACDispatchInfo alloc] initWithQueue:queue function:function context:context];
 	dispatch_after_f(time, queue, (void *)CFBridgingRetain(info), &RACTraceDispatch);
 }
+
+#endif
 
 // This is what actually performs the injection.
 //

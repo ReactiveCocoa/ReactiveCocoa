@@ -86,12 +86,13 @@
 	size_t doubledSize = strlen(string) * 2 + 1;
 	char *doubledString = malloc(sizeof(char) * doubledSize);
 
-	// Create an autoreleasing NSData to free the buffer eventually
-	__autoreleasing NSData *data __attribute__((unused)) = [NSData dataWithBytesNoCopy:doubledString length:doubledSize freeWhenDone:YES];
-
 	doubledString[0] = '\0';
 	strlcat(doubledString, string, doubledSize);
 	strlcat(doubledString, string, doubledSize);
+
+	dispatch_async(dispatch_get_main_queue(), ^{
+		free(doubledString);
+	});
 
 	return doubledString;
 }

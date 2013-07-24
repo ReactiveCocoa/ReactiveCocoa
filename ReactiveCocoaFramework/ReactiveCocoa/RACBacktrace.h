@@ -30,7 +30,8 @@ extern void rac_dispatch_after_f(dispatch_time_t time, dispatch_queue_t queue, v
 // your scheme's Run action settings.
 //
 // On iOS, capturing of asynchronous backtraces is performed automatically in
-// Debug builds, through the use of Fishhook.
+// Debug builds. This capability is enabled by Fishhook, see
+// https://github.com/facebook/fishhook for details.
 //
 // Once backtraces are being captured, you can `po [RACBacktrace backtrace]` in
 // the debugger to print them out at any time. You can even set up an alias in

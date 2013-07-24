@@ -35,23 +35,23 @@
 
 
 struct rebindings_entry {
-  struct rebinding *rebindings;
+  struct rac_rebinding *rebindings;
   size_t rebindings_nel;
   struct rebindings_entry *next;
 };
 
 static struct rebindings_entry *rebindings_head;
 
-static int prepend_rebindings(struct rebinding rebindings[], size_t nel) {
+static int prepend_rebindings(struct rac_rebinding rebindings[], size_t nel) {
   struct rebindings_entry *new_entry = malloc(sizeof(struct rebindings_entry));
   if (!new_entry) {
     return -1;
   }
-  new_entry->rebindings = malloc(sizeof(struct rebinding) * nel);
+  new_entry->rebindings = malloc(sizeof(struct rac_rebinding) * nel);
   if (!new_entry->rebindings) {
     return -1;
   }
-  memcpy(new_entry->rebindings, rebindings, sizeof(struct rebinding) * nel);
+  memcpy(new_entry->rebindings, rebindings, sizeof(struct rac_rebinding) * nel);
   new_entry->rebindings_nel = nel;
   new_entry->next = rebindings_head;
   rebindings_head = new_entry;
@@ -141,7 +141,7 @@ static void rebind_symbols_for_image(const struct mach_header *header,
   }
 }
 
-int rebind_symbols(struct rebinding rebindings[], size_t rebindings_nel) {
+int rac_rebind_symbols(struct rac_rebinding rebindings[], size_t rebindings_nel) {
   int retval = prepend_rebindings(rebindings, rebindings_nel);
   if (retval < 0) {
     return retval;

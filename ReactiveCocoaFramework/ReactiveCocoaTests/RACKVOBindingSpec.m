@@ -34,7 +34,7 @@ describe(@"RACKVOBinding", ^{
 	
 	id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, id nilValue, RACSignal *signal) {
 		RACKVOBinding *binding = [[RACKVOBinding alloc] initWithTarget:testObject keyPath:keyPath nilValue:nilValue];
-		[signal subscribe:binding.endpointForRumors];
+		[signal subscribe:binding.rightEndpoint];
 	};
 	
 	itShouldBehaveLike(RACPropertySignalExamples, ^{
@@ -47,27 +47,27 @@ describe(@"RACKVOBinding", ^{
 		} copy]
 	});
 	
-	it(@"should send the object's current value when subscribed to endpointForRumors", ^{
+	it(@"should send the object's current value when subscribed to rightEndpoint", ^{
 		__block id receivedValue = @"received value should not be this";
-		[[binding.endpointForRumors take:1] subscribeNext:^(id x) {
+		[[binding.rightEndpoint take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
 
 		expect(receivedValue).to.beNil();
 		
 		object.stringValue = value1;
-		[[binding.endpointForRumors take:1] subscribeNext:^(id x) {
+		[[binding.rightEndpoint take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
 
 		expect(receivedValue).to.equal(value1);
 	});
 	
-	it(@"should send the object's new value on endpointForRumors when it's changed", ^{
+	it(@"should send the object's new value on rightEndpoint when it's changed", ^{
 		object.stringValue = value1;
 
 		NSMutableArray *receivedValues = [NSMutableArray array];
-		[binding.endpointForRumors subscribeNext:^(id x) {
+		[binding.rightEndpoint subscribeNext:^(id x) {
 			[receivedValues addObject:x];
 		}];
 
@@ -76,13 +76,13 @@ describe(@"RACKVOBinding", ^{
 		expect(receivedValues).to.equal(values);
 	});
 	
-	it(@"should set rumors", ^{
+	it(@"should set right", ^{
 		expect(object.stringValue).to.beNil();
 
-		[binding.endpointForRumors sendNext:value1];
+		[binding.rightEndpoint sendNext:value1];
 		expect(object.stringValue).to.equal(value1);
 
-		[binding.endpointForRumors sendNext:value2];
+		[binding.rightEndpoint sendNext:value2];
 		expect(object.stringValue).to.equal(value2);
 	});
 	
@@ -99,13 +99,13 @@ describe(@"RACKVOBinding", ^{
 			return nil;
 		}];
 
-		[signal subscribe:binding.endpointForRumors];
+		[signal subscribe:binding.rightEndpoint];
 		expect(receivedValues).to.equal(values);
 	});
 
-	it(@"should complete facts and rumors when the target deallocates", ^{
-		__block BOOL factsCompleted = NO;
-		__block BOOL rumorsCompleted = NO;
+	it(@"should complete left and right when the target deallocates", ^{
+		__block BOOL leftCompleted = NO;
+		__block BOOL rightCompleted = NO;
 		__block BOOL deallocated = NO;
 
 		@autoreleasepool {
@@ -115,22 +115,22 @@ describe(@"RACKVOBinding", ^{
 			}]];
 
 			RACKVOBinding *binding = [[RACKVOBinding alloc] initWithTarget:object keyPath:@keypath(object.stringValue) nilValue:nil];
-			[binding.endpointForFacts subscribeCompleted:^{
-				factsCompleted = YES;
+			[binding.leftEndpoint subscribeCompleted:^{
+				leftCompleted = YES;
 			}];
 
-			[binding.endpointForRumors subscribeCompleted:^{
-				rumorsCompleted = YES;
+			[binding.rightEndpoint subscribeCompleted:^{
+				rightCompleted = YES;
 			}];
 
 			expect(deallocated).to.beFalsy();
-			expect(factsCompleted).to.beFalsy();
-			expect(rumorsCompleted).to.beFalsy();
+			expect(leftCompleted).to.beFalsy();
+			expect(rightCompleted).to.beFalsy();
 		}
 
 		expect(deallocated).to.beTruthy();
-		expect(factsCompleted).to.beTruthy();
-		expect(rumorsCompleted).to.beTruthy();
+		expect(leftCompleted).to.beTruthy();
+		expect(rightCompleted).to.beTruthy();
 	});
 
 	it(@"should deallocate when the target deallocates", ^{

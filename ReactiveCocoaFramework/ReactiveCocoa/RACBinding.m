@@ -29,15 +29,15 @@
 	self = [super init];
 	if (self == nil) return nil;
 
-	RACReplaySubject *factsSubject = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"factsSubject"];
-	RACReplaySubject *rumorsSubject = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"rumorsSubject"];
+	RACReplaySubject *leftSubject = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"leftSubject"];
+	RACReplaySubject *rightSubject = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"rightSubject"];
 
 	// Propagate errors and completion to everything.
-	[[factsSubject ignoreValues] subscribe:rumorsSubject];
-	[[rumorsSubject ignoreValues] subscribe:factsSubject];
+	[[leftSubject ignoreValues] subscribe:rightSubject];
+	[[rightSubject ignoreValues] subscribe:leftSubject];
 
-	_endpointForFacts = [[[RACBindingEndpoint alloc] initWithValues:rumorsSubject otherEndpoint:factsSubject] setNameWithFormat:@"endpointForFacts"];
-	_endpointForRumors = [[[RACBindingEndpoint alloc] initWithValues:factsSubject otherEndpoint:rumorsSubject] setNameWithFormat:@"endpointForRumors"];
+	_leftEndpoint = [[[RACBindingEndpoint alloc] initWithValues:leftSubject otherEndpoint:rightSubject] setNameWithFormat:@"leftEndpoint"];
+	_rightEndpoint = [[[RACBindingEndpoint alloc] initWithValues:rightSubject otherEndpoint:leftSubject] setNameWithFormat:@"rightEndpoint"];
 
 	return self;
 }

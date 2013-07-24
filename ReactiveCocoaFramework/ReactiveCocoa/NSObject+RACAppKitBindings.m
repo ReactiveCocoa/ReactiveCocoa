@@ -66,7 +66,7 @@
 	NSCParameterAssert(binding != nil);
 
 	RACBindingProxy *proxy = [[RACBindingProxy alloc] initWithTarget:self bindingName:binding options:options];
-	return proxy.binding.endpointForFacts;
+	return proxy.binding.rightEndpoint;
 }
 
 @end
@@ -109,7 +109,7 @@
 	};
 
 	// When the binding terminates, tear down this proxy.
-	[self.binding.endpointForRumors subscribeError:^(NSError *error) {
+	[self.binding.leftEndpoint subscribeError:^(NSError *error) {
 		cleanUp();
 	} completed:cleanUp];
 
@@ -121,15 +121,15 @@
 
 	[[self.target rac_deallocDisposable] addDisposable:[RACDisposable disposableWithBlock:^{
 		@strongify(self);
-		[self.binding.endpointForRumors sendCompleted];
+		[self.binding.leftEndpoint sendCompleted];
 	}]];
 
-	RACBind(self, value, options[NSNullPlaceholderBindingOption]) = self.binding.endpointForRumors;
+	RACBind(self, value, options[NSNullPlaceholderBindingOption]) = self.binding.leftEndpoint;
 	return self;
 }
 
 - (void)dealloc {
-	[self.binding.endpointForRumors sendCompleted];
+	[self.binding.leftEndpoint sendCompleted];
 }
 
 #pragma mark NSObject

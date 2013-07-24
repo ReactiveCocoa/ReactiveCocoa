@@ -34,98 +34,98 @@ sharedExamplesFor(RACBindingExamples, ^(NSDictionary *data) {
 		binding = getBinding();
 	});
 	
-	it(@"should send the latest rumor on subscription", ^{
+	it(@"should send the latest leftEndpoint value on subscription", ^{
 		__block id receivedValue = nil;
 
-		[binding.endpointForRumors sendNext:value1];
-		[[binding.endpointForFacts take:1] subscribeNext:^(id x) {
+		[binding.rightEndpoint sendNext:value1];
+		[[binding.leftEndpoint take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
 
 		expect(receivedValue).to.equal(value1);
 		
-		[binding.endpointForRumors sendNext:value2];
-		[[binding.endpointForFacts take:1] subscribeNext:^(id x) {
+		[binding.rightEndpoint sendNext:value2];
+		[[binding.leftEndpoint take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
 
 		expect(receivedValue).to.equal(value2);
 	});
 	
-	it(@"should send the latest fact on subscription", ^{
+	it(@"should send the latest rightEndpoint value on subscription", ^{
 		__block id receivedValue = nil;
 
-		[binding.endpointForFacts sendNext:value1];
-		[[binding.endpointForRumors take:1] subscribeNext:^(id x) {
+		[binding.leftEndpoint sendNext:value1];
+		[[binding.rightEndpoint take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
 
 		expect(receivedValue).to.equal(value1);
 		
-		[binding.endpointForFacts sendNext:value2];
-		[[binding.endpointForRumors take:1] subscribeNext:^(id x) {
+		[binding.leftEndpoint sendNext:value2];
+		[[binding.rightEndpoint take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
 
 		expect(receivedValue).to.equal(value2);
 	});
 	
-	it(@"should send rumors as they change", ^{
-		[binding.endpointForRumors sendNext:value1];
+	it(@"should send leftEndpoint values as they change", ^{
+		[binding.rightEndpoint sendNext:value1];
 
 		NSMutableArray *receivedValues = [NSMutableArray array];
-		[binding.endpointForFacts subscribeNext:^(id x) {
+		[binding.leftEndpoint subscribeNext:^(id x) {
 			[receivedValues addObject:x];
 		}];
 
-		[binding.endpointForRumors sendNext:value2];
-		[binding.endpointForRumors sendNext:value3];
+		[binding.rightEndpoint sendNext:value2];
+		[binding.rightEndpoint sendNext:value3];
 		expect(receivedValues).to.equal(values);
 	});
 	
-	it(@"should send facts as they change", ^{
-		[binding.endpointForFacts sendNext:value1];
+	it(@"should send rightEndpoint values as they change", ^{
+		[binding.leftEndpoint sendNext:value1];
 
 		NSMutableArray *receivedValues = [NSMutableArray array];
-		[binding.endpointForRumors subscribeNext:^(id x) {
+		[binding.rightEndpoint subscribeNext:^(id x) {
 			[receivedValues addObject:x];
 		}];
 
-		[binding.endpointForFacts sendNext:value2];
-		[binding.endpointForFacts sendNext:value3];
+		[binding.leftEndpoint sendNext:value2];
+		[binding.leftEndpoint sendNext:value3];
 		expect(receivedValues).to.equal(values);
 	});
 
-	it(@"should complete both signals when the endpointForRumors is completed", ^{
-		__block BOOL completedFacts = NO;
-		[binding.endpointForRumors subscribeCompleted:^{
-			completedFacts = YES;
+	it(@"should complete both signals when the leftEndpoint is completed", ^{
+		__block BOOL completedLeft = NO;
+		[binding.leftEndpoint subscribeCompleted:^{
+			completedLeft = YES;
 		}];
 
-		__block BOOL completedRumors = NO;
-		[binding.endpointForFacts subscribeCompleted:^{
-			completedRumors = YES;
+		__block BOOL completedRight = NO;
+		[binding.rightEndpoint subscribeCompleted:^{
+			completedRight = YES;
 		}];
 
-		[binding.endpointForRumors sendCompleted];
-		expect(completedFacts).to.beTruthy();
-		expect(completedRumors).to.beTruthy();
+		[binding.leftEndpoint sendCompleted];
+		expect(completedLeft).to.beTruthy();
+		expect(completedRight).to.beTruthy();
 	});
 
-	it(@"should complete both signals when the endpointForFacts is completed", ^{
-		__block BOOL completedFacts = NO;
-		[binding.endpointForRumors subscribeCompleted:^{
-			completedFacts = YES;
+	it(@"should complete both signals when the rightEndpoint is completed", ^{
+		__block BOOL completedLeft = NO;
+		[binding.leftEndpoint subscribeCompleted:^{
+			completedLeft = YES;
 		}];
 
-		__block BOOL completedRumors = NO;
-		[binding.endpointForFacts subscribeCompleted:^{
-			completedRumors = YES;
+		__block BOOL completedRight = NO;
+		[binding.rightEndpoint subscribeCompleted:^{
+			completedRight = YES;
 		}];
 
-		[binding.endpointForFacts sendCompleted];
-		expect(completedFacts).to.beTruthy();
-		expect(completedRumors).to.beTruthy();
+		[binding.rightEndpoint sendCompleted];
+		expect(completedLeft).to.beTruthy();
+		expect(completedRight).to.beTruthy();
 	});
 });
 

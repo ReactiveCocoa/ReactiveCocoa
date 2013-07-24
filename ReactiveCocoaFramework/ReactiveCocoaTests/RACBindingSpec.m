@@ -25,8 +25,8 @@ describe(@"RACBinding", ^{
 	
 	describe(@"memory management", ^{
 		it(@"should dealloc when its subscribers are disposed", ^{
-			RACDisposable *factsDisposable = nil;
-			RACDisposable *rumorsDisposable = nil;
+			RACDisposable *leftDisposable = nil;
+			RACDisposable *rightDisposable = nil;
 
 			__block BOOL deallocated = NO;
 
@@ -36,18 +36,18 @@ describe(@"RACBinding", ^{
 					deallocated = YES;
 				}]];
 
-				factsDisposable = [binding.endpointForFacts subscribeCompleted:^{}];
-				rumorsDisposable = [binding.endpointForRumors subscribeCompleted:^{}];
+				leftDisposable = [binding.leftEndpoint subscribeCompleted:^{}];
+				rightDisposable = [binding.rightEndpoint subscribeCompleted:^{}];
 			}
 
-			[factsDisposable dispose];
-			[rumorsDisposable dispose];
+			[leftDisposable dispose];
+			[rightDisposable dispose];
 			expect(deallocated).will.beTruthy();
 		});
 		
 		it(@"should dealloc when its subscriptions are disposed", ^{
-			RACDisposable *factsDisposable = nil;
-			RACDisposable *rumorsDisposable = nil;
+			RACDisposable *leftDisposable = nil;
+			RACDisposable *rightDisposable = nil;
 
 			__block BOOL deallocated = NO;
 
@@ -57,18 +57,17 @@ describe(@"RACBinding", ^{
 					deallocated = YES;
 				}]];
 
-				factsDisposable = [[RACSignal never] subscribe:binding.endpointForFacts];
-				rumorsDisposable = [[RACSignal never] subscribe:binding.endpointForRumors];
+				leftDisposable = [[RACSignal never] subscribe:binding.leftEndpoint];
+				rightDisposable = [[RACSignal never] subscribe:binding.rightEndpoint];
 			}
 
-			[factsDisposable dispose];
-			[rumorsDisposable dispose];
+			[leftDisposable dispose];
+			[rightDisposable dispose];
 			expect(deallocated).will.beTruthy();
 		});
 		
 		it(@"should dealloc when bidirectional subscriptions with other bindings are disposed", ^{
-			RACDisposable *factsDisposable = nil;
-			RACDisposable *rumorsDisposable = nil;
+			RACDisposable *disposable = nil;
 
 			__block BOOL deallocated1 = NO;
 			__block BOOL deallocated2 = NO;
@@ -84,12 +83,10 @@ describe(@"RACBinding", ^{
 					deallocated2 = YES;
 				}]];
 
-				factsDisposable = [binding1.endpointForFacts subscribe:binding2.endpointForFacts];
-				rumorsDisposable = [binding2.endpointForRumors subscribe:binding1.endpointForRumors];
+				disposable = [binding1.rightEndpoint bindFromEndpoint:binding2.leftEndpoint];
 			}
 
-			[factsDisposable dispose];
-			[rumorsDisposable dispose];
+			[disposable dispose];
 
 			expect(deallocated1).will.beTruthy();
 			expect(deallocated2).will.beTruthy();

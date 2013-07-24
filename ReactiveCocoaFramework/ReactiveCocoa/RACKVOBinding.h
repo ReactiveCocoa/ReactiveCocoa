@@ -57,15 +57,16 @@
 
 // Do not use this directly. Use the RACBind macro above.
 #define RACBind_(TARGET, KEYPATH, NILVALUE) \
-    [[RACKVOBinding alloc] initWithTarget:(TARGET) keyPath:@keypath(TARGET, KEYPATH) nilValue:(NILVALUE)][@keypath(RACKVOBinding.new, endpointForRumors)]
+    [[RACKVOBinding alloc] initWithTarget:(TARGET) keyPath:@keypath(TARGET, KEYPATH) nilValue:(NILVALUE)][@keypath(RACKVOBinding.new, rightEndpoint)]
 
 // A RACBinding that observes a KVO-compliant key path for changes.
 @interface RACKVOBinding : RACBinding
 
 // Initializes a binding that will observe the given object and key path.
 //
-// KVO notifications for the given key path will generate facts. Received rumors
-// will be set at the given key path using key-value coding.
+// KVO notifications for the given key path will be sent to subscribers of the
+// binding's `rightEndpoint`. Values sent to the `rightEndpoint` will be set at
+// the given key path using key-value coding.
 //
 // When the target object deallocates, the binding will complete. Signal errors
 // are considered undefined behavior.
@@ -73,9 +74,8 @@
 // This is the designated initializer for this class.
 //
 // target   - The object to bind to.
-// keyPath  - The key path to observe for new facts, and set when new rumors are
-//            received.
-// nilValue - The value to set at the key path whenever a `nil` rumor is
+// keyPath  - The key path to observe and set the value of.
+// nilValue - The value to set at the key path whenever a `nil` value is
 //            received. This may be nil when binding to object properties, but
 //            an NSValue should be used for primitive properties, to avoid an
 //            exception if `nil` is received (which might occur if an intermediate

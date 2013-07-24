@@ -62,9 +62,8 @@ extern const NSInteger RACSelectorSignalErrorMethodSwizzlingRace;
 // selector - The selector for whose invocations are to be observed. If it
 //            doesn't exist, it will be implemented using information from
 //            `protocol`, and may accept non-object arguments and return
-//            a value. The full range of supported argument and return types is
-//            specified in the documentation for -[NSInvocation
-//            rac_argumentAtIndex:] and -[NSInvocation rac_returnValue].
+//            a value. This cannot have C arrays or unions as arguments or
+//            return type.
 // protocol - The protocol in which `selector` is declared. This will be used
 //            for type information if the selector is not already implemented on
 //            the receiver. This must not be `NULL`, and `selector` must exist

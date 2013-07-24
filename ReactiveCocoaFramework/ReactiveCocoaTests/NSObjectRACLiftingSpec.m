@@ -17,7 +17,7 @@
 #import "RACTuple.h"
 #import "RACUnit.h"
 
-SpecBegin(NSObjectRACLiftingSpec)
+SpecBegin(NSObjectRACLifting)
 
 describe(@"-rac_liftSelector:withSignals:", ^{
 	__block RACTestObject *object;
@@ -114,6 +114,26 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		expect(object.objectValue).to.equal(nil);
 	});
 
+	it(@"should work with integers", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setIntegerValue:) withSignalsFromArray:@[ subject ]];
+
+		expect(object.integerValue).to.equal(0);
+
+		[subject sendNext:@1];
+		expect(object.integerValue).to.equal(@1);
+	});
+
+	it(@"should convert between numeric types", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setIntegerValue:) withSignalsFromArray:@[ subject ]];
+
+		expect(object.integerValue).to.equal(0);
+
+		[subject sendNext:@1.0];
+		expect(object.integerValue).to.equal(@1);
+	});
+	
 	it(@"should work with class objects", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setObjectValue:) withSignalsFromArray:@[ subject ]];
@@ -122,6 +142,28 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 
 		[subject sendNext:self.class];
 		expect(object.objectValue).to.equal(self.class);
+	});
+
+	it(@"should work for char pointer", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setCharPointerValue:) withSignalsFromArray:@[ subject ]];
+		
+		expect(object.charPointerValue).to.equal(NULL);
+
+		NSString *string = @"blah blah blah";
+		[subject sendNext:string];
+		expect(@(object.charPointerValue)).to.equal(string);
+	});
+
+	it(@"should work for const char pointer", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setConstCharPointerValue:) withSignalsFromArray:@[ subject ]];
+
+		expect(object.constCharPointerValue).to.equal(NULL);
+
+		NSString *string = @"blah blah blah";
+		[subject sendNext:string];
+		expect(@(object.constCharPointerValue)).to.equal(string);
 	});
 
 	it(@"should work for CGRect", ^{
@@ -168,6 +210,31 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		expect(NSEqualRanges(object.rangeValue, value)).to.beTruthy();
 	});
 
+	it(@"should work for primitive pointers", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(write5ToIntPointer:) withSignalsFromArray:@[ subject ]];
+
+		int value = 0;
+		int *valuePointer = &value;
+		expect(value).to.equal(0);
+
+		[subject sendNext:[NSValue valueWithPointer:valuePointer]];
+		expect(value).to.equal(5);
+	});
+
+	it(@"should work for custom structs", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setStructValue:) withSignalsFromArray:@[ subject ]];
+
+		expect(object.structValue.integerField).to.equal(0);
+		expect(object.structValue.doubleField).to.equal(0.0);
+
+		RACTestStruct value = (RACTestStruct){7, 1.23};
+		[subject sendNext:[NSValue valueWithBytes:&value objCType:@encode(typeof(value))]];
+		expect(object.structValue.integerField).to.equal(value.integerField);
+		expect(object.structValue.doubleField).to.equal(value.doubleField);
+	});
+
 	it(@"should send the latest value of the signal as the right argument", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setObjectValue:andIntegerValue:) withSignalsFromArray:@[ [RACSignal return:@"object"], subject ]];
@@ -209,6 +276,67 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 			expect(result).to.equal(RACUnit.defaultUnit);
 		});
 
+		it(@"should support integer returning methods", ^{
+			RACSubject *subject = [RACSubject subject];
+			RACSignal *signal = [object rac_liftSelector:@selector(doubleInteger:) withSignalsFromArray:@[ subject ]];
+
+			__block id result;
+			[signal subscribeNext:^(id x) {
+				result = x;
+			}];
+
+			[subject sendNext:@1];
+
+			expect(result).to.equal(@2);
+		});
+
+		it(@"should support char * returning methods", ^{
+			RACSubject *subject = [RACSubject subject];
+			RACSignal *signal = [object rac_liftSelector:@selector(doubleString:) withSignalsFromArray:@[ subject ]];
+
+			__block id result;
+			[signal subscribeNext:^(id x) {
+				result = x;
+			}];
+
+			[subject sendNext:@"test"];
+
+			expect(result).to.equal(@"testtest");
+		});
+		
+		it(@"should support const char * returning methods", ^{
+			RACSubject *subject = [RACSubject subject];
+			RACSignal *signal = [object rac_liftSelector:@selector(doubleConstString:) withSignalsFromArray:@[ subject ]];
+
+			__block id result;
+			[signal subscribeNext:^(id x) {
+				result = x;
+			}];
+
+			[subject sendNext:@"test"];
+
+			expect(result).to.equal(@"testtest");
+		});
+		
+		it(@"should support struct returning methods", ^{
+			RACSubject *subject = [RACSubject subject];
+			RACSignal *signal = [object rac_liftSelector:@selector(doubleStruct:) withSignalsFromArray:@[ subject ]];
+
+			__block NSValue *boxedResult;
+			[signal subscribeNext:^(id x) {
+				boxedResult = x;
+			}];
+
+			RACTestStruct value = {4, 12.3};
+			NSValue *boxedValue = [NSValue valueWithBytes:&value objCType:@encode(typeof(value))];
+			[subject sendNext:boxedValue];
+
+			RACTestStruct result = {0, 0.0};
+			[boxedResult getValue:&result];
+			expect(result.integerField).to.equal(8);
+			expect(result.doubleField).to.equal(24.6);
+		});
+		
 		it(@"should replay the last value", ^{
 			RACSubject *objectSubject = [RACSubject subject];
 			RACSubject *integerSubject = [RACSubject subject];

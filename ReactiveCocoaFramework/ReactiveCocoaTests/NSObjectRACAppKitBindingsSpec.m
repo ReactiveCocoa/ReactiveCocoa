@@ -8,6 +8,7 @@
 
 #import "RACBindingExamples.h"
 
+#import "EXTKeyPathCoding.h"
 #import "NSObject+RACAppKitBindings.h"
 #import "NSObject+RACDeallocating.h"
 #import "RACBinding.h"
@@ -32,6 +33,16 @@ beforeEach(^{
 		NSDictionary *bindingInfo = [textField infoForBinding:NSValueBinding];
 		[bindingInfo[NSObservedObjectKey] setValue:text forKeyPath:bindingInfo[NSObservedKeyPathKey]];
 	} copy];
+});
+	
+itShouldBehaveLike(RACViewBindingExamples, ^{
+	return @{
+		RACViewBindingExampleView: textField,
+		RACViewBindingExampleKeyPath: @keypath(textField.stringValue),
+		RACViewBindingExampleCreateEndpointBlock: ^{
+			return [textField rac_bind:NSValueBinding];
+		}
+	};
 });
 
 describe(@"value binding", ^{

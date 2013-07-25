@@ -18,6 +18,11 @@
 NSString * const RACBindingExamples = @"RACBindingExamples";
 NSString * const RACBindingExampleCreateBlock = @"RACBindingExampleCreateBlock";
 
+NSString * const RACViewBindingExamples = @"RACViewBindingExamples";
+NSString * const RACViewBindingExampleCreateEndpointBlock = @"RACViewBindingExampleCreateEndpointBlock";
+NSString * const RACViewBindingExampleView = @"RACViewBindingExampleView";
+NSString * const RACViewBindingExampleKeyPath = @"RACViewBindingExampleKeyPath";
+
 SharedExampleGroupsBegin(RACBindingExamples)
 
 sharedExamplesFor(RACBindingExamples, ^(NSDictionary *data) {
@@ -126,6 +131,59 @@ sharedExamplesFor(RACBindingExamples, ^(NSDictionary *data) {
 		[binding.rightEndpoint sendCompleted];
 		expect(completedLeft).to.beTruthy();
 		expect(completedRight).to.beTruthy();
+	});
+});
+
+SharedExampleGroupsEnd
+
+SharedExampleGroupsBegin(RACViewBindingExamples)
+
+sharedExamplesFor(RACViewBindingExamples, ^(NSDictionary *data) {
+	__block NSObject *testView;
+	__block NSString *keyPath;
+	__block RACBindingEndpoint * (^getEndpoint)(void);
+
+	__block RACBindingEndpoint *endpoint;
+
+	beforeEach(^{
+		testView = data[RACViewBindingExampleView];
+		keyPath = data[RACViewBindingExampleKeyPath];
+		getEndpoint = data[RACViewBindingExampleCreateEndpointBlock];
+
+		endpoint = getEndpoint();
+	});
+
+	it(@"should not send changes made by the binding itself", ^{
+		__block BOOL receivedNext = NO;
+		[endpoint subscribeNext:^(id x) {
+			receivedNext = YES;
+		}];
+
+		expect(receivedNext).to.beFalsy();
+
+		[endpoint sendNext:@"foo"];
+		expect(receivedNext).to.beFalsy();
+
+		[endpoint sendNext:@"bar"];
+		expect(receivedNext).to.beFalsy();
+
+		[endpoint sendCompleted];
+		expect(receivedNext).to.beFalsy();
+	});
+
+	it(@"should not send progammatic changes made to the view", ^{
+		__block BOOL receivedNext = NO;
+		[endpoint subscribeNext:^(id x) {
+			receivedNext = YES;
+		}];
+
+		expect(receivedNext).to.beFalsy();
+
+		[testView setValue:@"foo" forKeyPath:keyPath];
+		expect(receivedNext).to.beFalsy();
+
+		[testView setValue:@"bar" forKeyPath:keyPath];
+		expect(receivedNext).to.beFalsy();
 	});
 });
 

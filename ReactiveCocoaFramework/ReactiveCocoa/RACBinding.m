@@ -10,6 +10,7 @@
 #import "RACDisposable.h"
 #import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"
+#import "RACUnit.h"
 
 @interface RACBindingEndpoint ()
 
@@ -29,15 +30,21 @@
 	self = [super init];
 	if (self == nil) return nil;
 
-	RACReplaySubject *leftSubject = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"leftSubject"];
-	RACReplaySubject *rightSubject = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"rightSubject"];
+	RACReplaySubject *leadingSubject = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"leadingSubject"];
+	RACReplaySubject *followingSubject = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"followingSubject"];
 
 	// Propagate errors and completion to everything.
-	[[leftSubject ignoreValues] subscribe:rightSubject];
-	[[rightSubject ignoreValues] subscribe:leftSubject];
+	[[leadingSubject ignoreValues] subscribe:followingSubject];
+	[[followingSubject ignoreValues] subscribe:leadingSubject];
 
-	_leftEndpoint = [[[RACBindingEndpoint alloc] initWithValues:leftSubject otherEndpoint:rightSubject] setNameWithFormat:@"leftEndpoint"];
-	_rightEndpoint = [[[RACBindingEndpoint alloc] initWithValues:rightSubject otherEndpoint:leftSubject] setNameWithFormat:@"rightEndpoint"];
+	// We don't want any starting value from the leadingSubject, but we do want
+	// error and completion to be replayed, so we just start it off with a dummy
+	// value, and always skip the initial `next` event.
+	[leadingSubject sendNext:RACUnit.defaultUnit];
+	RACSignal *leadingValues = [leadingSubject skip:1];
+
+	_leadingEndpoint = [[[RACBindingEndpoint alloc] initWithValues:leadingValues otherEndpoint:followingSubject] setNameWithFormat:@"leadingEndpoint"];
+	_followingEndpoint = [[[RACBindingEndpoint alloc] initWithValues:followingSubject otherEndpoint:leadingSubject] setNameWithFormat:@"followingEndpoint"];
 
 	return self;
 }
@@ -83,20 +90,6 @@
 
 - (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
 	[self.otherEndpoint didSubscribeWithDisposable:disposable];
-}
-
-
-#pragma mark Binding
-
-- (RACDisposable *)bindFromEndpoint:(RACBindingEndpoint *)otherEndpoint {
-	NSCParameterAssert(otherEndpoint != nil);
-
-	RACDisposable *otherToSelf = [otherEndpoint subscribe:self];
-	RACDisposable *selfToOther = [[self skip:1] subscribe:otherEndpoint];
-	return [RACDisposable disposableWithBlock:^{
-		[otherToSelf dispose];
-		[selfToOther dispose];
-	}];
 }
 
 @end

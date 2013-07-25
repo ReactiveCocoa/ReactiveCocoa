@@ -34,7 +34,7 @@ describe(@"RACKVOBinding", ^{
 	
 	id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, id nilValue, RACSignal *signal) {
 		RACKVOBinding *binding = [[RACKVOBinding alloc] initWithTarget:testObject keyPath:keyPath nilValue:nilValue];
-		[signal subscribe:binding.rightEndpoint];
+		[signal subscribe:binding.followingEndpoint];
 	};
 	
 	itShouldBehaveLike(RACPropertySignalExamples, ^{
@@ -47,27 +47,27 @@ describe(@"RACKVOBinding", ^{
 		} copy]
 	});
 	
-	it(@"should send the object's current value when subscribed to rightEndpoint", ^{
+	it(@"should send the object's current value when subscribed to followingEndpoint", ^{
 		__block id receivedValue = @"received value should not be this";
-		[[binding.rightEndpoint take:1] subscribeNext:^(id x) {
+		[[binding.followingEndpoint take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
 
 		expect(receivedValue).to.beNil();
 		
 		object.stringValue = value1;
-		[[binding.rightEndpoint take:1] subscribeNext:^(id x) {
+		[[binding.followingEndpoint take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
 
 		expect(receivedValue).to.equal(value1);
 	});
 	
-	it(@"should send the object's new value on rightEndpoint when it's changed", ^{
+	it(@"should send the object's new value on followingEndpoint when it's changed", ^{
 		object.stringValue = value1;
 
 		NSMutableArray *receivedValues = [NSMutableArray array];
-		[binding.rightEndpoint subscribeNext:^(id x) {
+		[binding.followingEndpoint subscribeNext:^(id x) {
 			[receivedValues addObject:x];
 		}];
 
@@ -76,13 +76,13 @@ describe(@"RACKVOBinding", ^{
 		expect(receivedValues).to.equal(values);
 	});
 	
-	it(@"should set right", ^{
+	it(@"should set the object's value using values sent to the followingEndpoint", ^{
 		expect(object.stringValue).to.beNil();
 
-		[binding.rightEndpoint sendNext:value1];
+		[binding.followingEndpoint sendNext:value1];
 		expect(object.stringValue).to.equal(value1);
 
-		[binding.rightEndpoint sendNext:value2];
+		[binding.followingEndpoint sendNext:value2];
 		expect(object.stringValue).to.equal(value2);
 	});
 	
@@ -99,13 +99,13 @@ describe(@"RACKVOBinding", ^{
 			return nil;
 		}];
 
-		[signal subscribe:binding.rightEndpoint];
+		[signal subscribe:binding.followingEndpoint];
 		expect(receivedValues).to.equal(values);
 	});
 
-	it(@"should complete left and right when the target deallocates", ^{
-		__block BOOL leftCompleted = NO;
-		__block BOOL rightCompleted = NO;
+	it(@"should complete both endpoints when the target deallocates", ^{
+		__block BOOL leadingCompleted = NO;
+		__block BOOL followingCompleted = NO;
 		__block BOOL deallocated = NO;
 
 		@autoreleasepool {
@@ -115,22 +115,22 @@ describe(@"RACKVOBinding", ^{
 			}]];
 
 			RACKVOBinding *binding = [[RACKVOBinding alloc] initWithTarget:object keyPath:@keypath(object.stringValue) nilValue:nil];
-			[binding.leftEndpoint subscribeCompleted:^{
-				leftCompleted = YES;
+			[binding.leadingEndpoint subscribeCompleted:^{
+				leadingCompleted = YES;
 			}];
 
-			[binding.rightEndpoint subscribeCompleted:^{
-				rightCompleted = YES;
+			[binding.followingEndpoint subscribeCompleted:^{
+				followingCompleted = YES;
 			}];
 
 			expect(deallocated).to.beFalsy();
-			expect(leftCompleted).to.beFalsy();
-			expect(rightCompleted).to.beFalsy();
+			expect(leadingCompleted).to.beFalsy();
+			expect(followingCompleted).to.beFalsy();
 		}
 
 		expect(deallocated).to.beTruthy();
-		expect(leftCompleted).to.beTruthy();
-		expect(rightCompleted).to.beTruthy();
+		expect(leadingCompleted).to.beTruthy();
+		expect(followingCompleted).to.beTruthy();
 	});
 
 	it(@"should deallocate when the target deallocates", ^{
@@ -333,17 +333,22 @@ describe(@"RACBind", ^{
 	it(@"should stop binding when disposed", ^{
 		RACBindingEndpoint *aEndpoint = RACBind(a, stringValue);
 		RACBindingEndpoint *bEndpoint = RACBind(b, stringValue);
-		RACDisposable *disposable = [bEndpoint bindFromEndpoint:aEndpoint];
 
 		a.stringValue = testName1;
+		RACDisposable *disposable = [aEndpoint subscribe:bEndpoint];
+
 		expect(a.stringValue).to.equal(testName1);
 		expect(b.stringValue).to.equal(testName1);
 
-		[disposable dispose];
-
 		a.stringValue = testName2;
 		expect(a.stringValue).to.equal(testName2);
-		expect(b.stringValue).to.equal(testName1);
+		expect(b.stringValue).to.equal(testName2);
+
+		[disposable dispose];
+
+		a.stringValue = testName3;
+		expect(a.stringValue).to.equal(testName3);
+		expect(b.stringValue).to.equal(testName2);
 	});
 	
 	it(@"should use the nilValue when sent nil", ^{

@@ -58,7 +58,7 @@
 
 // Do not use this directly. Use the RACBind macro above.
 #define RACBind_(TARGET, KEYPATH, NILVALUE) \
-    [[RACKVOBinding alloc] initWithTarget:(TARGET) keyPath:@keypath(TARGET, KEYPATH) nilValue:(NILVALUE)][@keypath(RACKVOBinding.new, rightEndpoint)]
+    [[RACKVOBinding alloc] initWithTarget:(TARGET) keyPath:@keypath(TARGET, KEYPATH) nilValue:(NILVALUE)][@keypath(RACKVOBinding.new, followingEndpoint)]
 
 // A RACBinding that observes a KVO-compliant key path for changes.
 @interface RACKVOBinding : RACBinding
@@ -66,8 +66,8 @@
 // Initializes a binding that will observe the given object and key path.
 //
 // The current value of the key path, and future KVO notifications for the given
-// key path, will be sent to subscribers of the binding's `rightEndpoint`.
-// Values sent to the `rightEndpoint` will be set at the given key path using
+// key path, will be sent to subscribers of the binding's `followingEndpoint`.
+// Values sent to the `followingEndpoint` will be set at the given key path using
 // key-value coding.
 //
 // When the target object deallocates, the binding will complete. Signal errors

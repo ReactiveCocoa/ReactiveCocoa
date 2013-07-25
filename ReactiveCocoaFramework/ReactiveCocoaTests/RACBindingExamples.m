@@ -39,96 +39,108 @@ sharedExamplesFor(RACBindingExamples, ^(NSDictionary *data) {
 		binding = getBinding();
 	});
 	
-	it(@"should send the latest leftEndpoint value on subscription", ^{
+	it(@"should not send any leadingEndpoint value on subscription", ^{
 		__block id receivedValue = nil;
 
-		[binding.rightEndpoint sendNext:value1];
-		[[binding.leftEndpoint take:1] subscribeNext:^(id x) {
+		[binding.followingEndpoint sendNext:value1];
+		[binding.leadingEndpoint subscribeNext:^(id x) {
+			receivedValue = x;
+		}];
+
+		expect(receivedValue).to.beNil();
+		
+		[binding.followingEndpoint sendNext:value2];
+		expect(receivedValue).to.equal(value2);
+	});
+	
+	it(@"should send the latest followingEndpoint value on subscription", ^{
+		__block id receivedValue = nil;
+
+		[binding.leadingEndpoint sendNext:value1];
+		[[binding.followingEndpoint take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
 
 		expect(receivedValue).to.equal(value1);
 		
-		[binding.rightEndpoint sendNext:value2];
-		[[binding.leftEndpoint take:1] subscribeNext:^(id x) {
+		[binding.leadingEndpoint sendNext:value2];
+		[[binding.followingEndpoint take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
 
 		expect(receivedValue).to.equal(value2);
 	});
 	
-	it(@"should send the latest rightEndpoint value on subscription", ^{
-		__block id receivedValue = nil;
-
-		[binding.leftEndpoint sendNext:value1];
-		[[binding.rightEndpoint take:1] subscribeNext:^(id x) {
-			receivedValue = x;
-		}];
-
-		expect(receivedValue).to.equal(value1);
-		
-		[binding.leftEndpoint sendNext:value2];
-		[[binding.rightEndpoint take:1] subscribeNext:^(id x) {
-			receivedValue = x;
-		}];
-
-		expect(receivedValue).to.equal(value2);
-	});
-	
-	it(@"should send leftEndpoint values as they change", ^{
-		[binding.rightEndpoint sendNext:value1];
-
+	it(@"should send leadingEndpoint values as they change", ^{
 		NSMutableArray *receivedValues = [NSMutableArray array];
-		[binding.leftEndpoint subscribeNext:^(id x) {
+		[binding.leadingEndpoint subscribeNext:^(id x) {
 			[receivedValues addObject:x];
 		}];
 
-		[binding.rightEndpoint sendNext:value2];
-		[binding.rightEndpoint sendNext:value3];
+		[binding.followingEndpoint sendNext:value1];
+		[binding.followingEndpoint sendNext:value2];
+		[binding.followingEndpoint sendNext:value3];
 		expect(receivedValues).to.equal(values);
 	});
 	
-	it(@"should send rightEndpoint values as they change", ^{
-		[binding.leftEndpoint sendNext:value1];
+	it(@"should send followingEndpoint values as they change", ^{
+		[binding.leadingEndpoint sendNext:value1];
 
 		NSMutableArray *receivedValues = [NSMutableArray array];
-		[binding.rightEndpoint subscribeNext:^(id x) {
+		[binding.followingEndpoint subscribeNext:^(id x) {
 			[receivedValues addObject:x];
 		}];
 
-		[binding.leftEndpoint sendNext:value2];
-		[binding.leftEndpoint sendNext:value3];
+		[binding.leadingEndpoint sendNext:value2];
+		[binding.leadingEndpoint sendNext:value3];
 		expect(receivedValues).to.equal(values);
 	});
 
-	it(@"should complete both signals when the leftEndpoint is completed", ^{
+	it(@"should complete both signals when the leadingEndpoint is completed", ^{
 		__block BOOL completedLeft = NO;
-		[binding.leftEndpoint subscribeCompleted:^{
+		[binding.leadingEndpoint subscribeCompleted:^{
 			completedLeft = YES;
 		}];
 
 		__block BOOL completedRight = NO;
-		[binding.rightEndpoint subscribeCompleted:^{
+		[binding.followingEndpoint subscribeCompleted:^{
 			completedRight = YES;
 		}];
 
-		[binding.leftEndpoint sendCompleted];
+		[binding.leadingEndpoint sendCompleted];
 		expect(completedLeft).to.beTruthy();
 		expect(completedRight).to.beTruthy();
 	});
 
-	it(@"should complete both signals when the rightEndpoint is completed", ^{
+	it(@"should complete both signals when the followingEndpoint is completed", ^{
 		__block BOOL completedLeft = NO;
-		[binding.leftEndpoint subscribeCompleted:^{
+		[binding.leadingEndpoint subscribeCompleted:^{
 			completedLeft = YES;
 		}];
 
 		__block BOOL completedRight = NO;
-		[binding.rightEndpoint subscribeCompleted:^{
+		[binding.followingEndpoint subscribeCompleted:^{
 			completedRight = YES;
 		}];
 
-		[binding.rightEndpoint sendCompleted];
+		[binding.followingEndpoint sendCompleted];
+		expect(completedLeft).to.beTruthy();
+		expect(completedRight).to.beTruthy();
+	});
+
+	it(@"should replay completion to new subscribers", ^{
+		[binding.leadingEndpoint sendCompleted];
+
+		__block BOOL completedLeft = NO;
+		[binding.leadingEndpoint subscribeCompleted:^{
+			completedLeft = YES;
+		}];
+
+		__block BOOL completedRight = NO;
+		[binding.followingEndpoint subscribeCompleted:^{
+			completedRight = YES;
+		}];
+
 		expect(completedLeft).to.beTruthy();
 		expect(completedRight).to.beTruthy();
 	});

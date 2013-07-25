@@ -24,8 +24,8 @@
 // binding - The name of the binding. This must not be nil.
 // options - Any options to pass to Cocoa Bindings. This may be nil.
 //
-// Returns a RACBindingEndpoint which will send values from the receiver, and
-// update the receiver when values are sent to the endpoint.
+// Returns a RACBindingEndpoint which will send future values from the receiver,
+// and update the receiver when values are sent to the endpoint.
 - (RACBindingEndpoint *)rac_bind:(NSString *)binding options:(NSDictionary *)options;
 
 @end

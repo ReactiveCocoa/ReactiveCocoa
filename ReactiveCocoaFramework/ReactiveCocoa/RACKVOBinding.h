@@ -15,7 +15,8 @@
 //
 // If RACBind() is used as an expression, it returns a RACBindingEndpoint that
 // can be used to watch the specified property for changes, and set new values
-// for it.
+// for it. The endpoint will start with the property's current value upon
+// subscription.
 //
 // If RACBind() is used on the left-hand side of an assignment, there must a
 // RACBindingEndpoint on the right-hand side of the assignment. The two will be
@@ -64,9 +65,10 @@
 
 // Initializes a binding that will observe the given object and key path.
 //
-// KVO notifications for the given key path will be sent to subscribers of the
-// binding's `rightEndpoint`. Values sent to the `rightEndpoint` will be set at
-// the given key path using key-value coding.
+// The current value of the key path, and future KVO notifications for the given
+// key path, will be sent to subscribers of the binding's `rightEndpoint`.
+// Values sent to the `rightEndpoint` will be set at the given key path using
+// key-value coding.
 //
 // When the target object deallocates, the binding will complete. Signal errors
 // are considered undefined behavior.

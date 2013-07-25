@@ -7,7 +7,7 @@
 //
 
 #import "RACScheduler.h"
-#import "RACBacktrace.h"
+#import "RACBacktrace+Private.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACImmediateScheduler.h"

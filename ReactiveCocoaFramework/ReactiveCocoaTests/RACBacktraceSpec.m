@@ -7,6 +7,7 @@
 //
 
 #import "RACBacktrace.h"
+#import "RACBacktrace+Private.h"
 #import "RACScheduler.h"
 
 #ifdef DEBUG

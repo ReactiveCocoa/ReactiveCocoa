@@ -1866,6 +1866,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D095BDC715CB2E4B00E9BB13 /* iOS-Application.xcconfig */;
 			buildSettings = {
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
 					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
@@ -1888,6 +1889,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D095BDC715CB2E4B00E9BB13 /* iOS-Application.xcconfig */;
 			buildSettings = {
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
 					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
@@ -1910,6 +1912,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D095BDC715CB2E4B00E9BB13 /* iOS-Application.xcconfig */;
 			buildSettings = {
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
 					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
@@ -1932,6 +1935,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D095BDC715CB2E4B00E9BB13 /* iOS-Application.xcconfig */;
 			buildSettings = {
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
 					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
@@ -2026,6 +2030,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D095BDCB15CB2E4B00E9BB13 /* Mac-Application.xcconfig */;
 			buildSettings = {
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
@@ -2084,6 +2089,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D095BDCB15CB2E4B00E9BB13 /* Mac-Application.xcconfig */;
 			buildSettings = {
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
@@ -2102,6 +2108,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D095BDCB15CB2E4B00E9BB13 /* Mac-Application.xcconfig */;
 			buildSettings = {
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
@@ -2184,6 +2191,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D095BDCB15CB2E4B00E9BB13 /* Mac-Application.xcconfig */;
 			buildSettings = {
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
 				HEADER_SEARCH_PATHS = (

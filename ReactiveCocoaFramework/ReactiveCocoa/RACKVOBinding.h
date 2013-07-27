@@ -13,21 +13,21 @@
 // Creates a RACKVOBinding to the given key path. When the targeted object
 // deallocates, the binding will complete.
 //
-// If RACBind() is used as an expression, it returns a RACBindingEndpoint that
+// If RACBind() is used as an expression, it returns a RACBindingTerminal that
 // can be used to watch the specified property for changes, and set new values
-// for it. The endpoint will start with the property's current value upon
+// for it. The terminal will start with the property's current value upon
 // subscription.
 //
 // If RACBind() is used on the left-hand side of an assignment, there must a
-// RACBindingEndpoint on the right-hand side of the assignment. The two will be
+// RACBindingTerminal on the right-hand side of the assignment. The two will be
 // subscribed to one another: the property's value is immediately set to the
-// value of the binding endpoint on the right-hand side, and subsequent changes
-// to either endpoint will be reflected on the other.
+// value of the binding terminal on the right-hand side, and subsequent changes
+// to either terminal will be reflected on the other.
 //
 // There are two different versions of this macro:
 //
 //  - RACBind(TARGET, KEYPATH, NILVALUE) will create a binding to the `KEYPATH`
-//    of `TARGET`. If the endpoint is ever sent a `nil` value, the property will
+//    of `TARGET`. If the terminal is ever sent a `nil` value, the property will
 //    be set to `NILVALUE` instead. `NILVALUE` may itself be `nil` for object
 //    properties, but an NSValue should be used for primitive properties, to
 //    avoid an exception if `nil` is sent (which might occur if an intermediate
@@ -37,7 +37,7 @@
 //
 // Examples
 //
-//  RACBindingEndpoint *integerBinding = RACBind(self, integerProperty, @42);
+//  RACBindingTerminal *integerBinding = RACBind(self, integerProperty, @42);
 //
 //  // Sets self.integerProperty to 5.
 //  [integerBinding sendNext:@5];
@@ -58,7 +58,7 @@
 
 // Do not use this directly. Use the RACBind macro above.
 #define RACBind_(TARGET, KEYPATH, NILVALUE) \
-    [[RACKVOBinding alloc] initWithTarget:(TARGET) keyPath:@keypath(TARGET, KEYPATH) nilValue:(NILVALUE)][@keypath(RACKVOBinding.new, followingEndpoint)]
+    [[RACKVOBinding alloc] initWithTarget:(TARGET) keyPath:@keypath(TARGET, KEYPATH) nilValue:(NILVALUE)][@keypath(RACKVOBinding.new, followingTerminal)]
 
 // A RACBinding that observes a KVO-compliant key path for changes.
 @interface RACKVOBinding : RACBinding
@@ -66,8 +66,8 @@
 // Initializes a binding that will observe the given object and key path.
 //
 // The current value of the key path, and future KVO notifications for the given
-// key path, will be sent to subscribers of the binding's `followingEndpoint`.
-// Values sent to the `followingEndpoint` will be set at the given key path using
+// key path, will be sent to subscribers of the binding's `followingTerminal`.
+// Values sent to the `followingTerminal` will be set at the given key path using
 // key-value coding.
 //
 // When the target object deallocates, the binding will complete. Signal errors
@@ -91,7 +91,7 @@
 // Methods needed for the convenience macro. Do not call explicitly.
 @interface RACKVOBinding (RACBind)
 
-- (RACBindingEndpoint *)objectForKeyedSubscript:(NSString *)key;
-- (void)setObject:(RACBindingEndpoint *)otherEndpoint forKeyedSubscript:(NSString *)key;
+- (RACBindingTerminal *)objectForKeyedSubscript:(NSString *)key;
+- (void)setObject:(RACBindingTerminal *)otherTerminal forKeyedSubscript:(NSString *)key;
 
 @end

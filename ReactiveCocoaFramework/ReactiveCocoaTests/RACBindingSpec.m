@@ -36,8 +36,8 @@ describe(@"RACBinding", ^{
 					deallocated = YES;
 				}]];
 
-				leadingDisposable = [binding.leadingEndpoint subscribeCompleted:^{}];
-				followingDisposable = [binding.followingEndpoint subscribeCompleted:^{}];
+				leadingDisposable = [binding.leadingTerminal subscribeCompleted:^{}];
+				followingDisposable = [binding.followingTerminal subscribeCompleted:^{}];
 			}
 
 			[leadingDisposable dispose];
@@ -57,8 +57,8 @@ describe(@"RACBinding", ^{
 					deallocated = YES;
 				}]];
 
-				leadingDisposable = [[RACSignal never] subscribe:binding.leadingEndpoint];
-				followingDisposable = [[RACSignal never] subscribe:binding.followingEndpoint];
+				leadingDisposable = [[RACSignal never] subscribe:binding.leadingTerminal];
+				followingDisposable = [[RACSignal never] subscribe:binding.followingTerminal];
 			}
 
 			[leadingDisposable dispose];

@@ -34,7 +34,7 @@ describe(@"RACKVOBinding", ^{
 	
 	id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, id nilValue, RACSignal *signal) {
 		RACKVOBinding *binding = [[RACKVOBinding alloc] initWithTarget:testObject keyPath:keyPath nilValue:nilValue];
-		[signal subscribe:binding.followingEndpoint];
+		[signal subscribe:binding.followingTerminal];
 	};
 	
 	itShouldBehaveLike(RACPropertySignalExamples, ^{
@@ -47,27 +47,27 @@ describe(@"RACKVOBinding", ^{
 		} copy]
 	});
 	
-	it(@"should send the object's current value when subscribed to followingEndpoint", ^{
+	it(@"should send the object's current value when subscribed to followingTerminal", ^{
 		__block id receivedValue = @"received value should not be this";
-		[[binding.followingEndpoint take:1] subscribeNext:^(id x) {
+		[[binding.followingTerminal take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
 
 		expect(receivedValue).to.beNil();
 		
 		object.stringValue = value1;
-		[[binding.followingEndpoint take:1] subscribeNext:^(id x) {
+		[[binding.followingTerminal take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
 
 		expect(receivedValue).to.equal(value1);
 	});
 	
-	it(@"should send the object's new value on followingEndpoint when it's changed", ^{
+	it(@"should send the object's new value on followingTerminal when it's changed", ^{
 		object.stringValue = value1;
 
 		NSMutableArray *receivedValues = [NSMutableArray array];
-		[binding.followingEndpoint subscribeNext:^(id x) {
+		[binding.followingTerminal subscribeNext:^(id x) {
 			[receivedValues addObject:x];
 		}];
 
@@ -76,13 +76,13 @@ describe(@"RACKVOBinding", ^{
 		expect(receivedValues).to.equal(values);
 	});
 	
-	it(@"should set the object's value using values sent to the followingEndpoint", ^{
+	it(@"should set the object's value using values sent to the followingTerminal", ^{
 		expect(object.stringValue).to.beNil();
 
-		[binding.followingEndpoint sendNext:value1];
+		[binding.followingTerminal sendNext:value1];
 		expect(object.stringValue).to.equal(value1);
 
-		[binding.followingEndpoint sendNext:value2];
+		[binding.followingTerminal sendNext:value2];
 		expect(object.stringValue).to.equal(value2);
 	});
 	
@@ -99,11 +99,11 @@ describe(@"RACKVOBinding", ^{
 			return nil;
 		}];
 
-		[signal subscribe:binding.followingEndpoint];
+		[signal subscribe:binding.followingTerminal];
 		expect(receivedValues).to.equal(values);
 	});
 
-	it(@"should complete both endpoints when the target deallocates", ^{
+	it(@"should complete both terminals when the target deallocates", ^{
 		__block BOOL leadingCompleted = NO;
 		__block BOOL followingCompleted = NO;
 		__block BOOL deallocated = NO;
@@ -115,11 +115,11 @@ describe(@"RACKVOBinding", ^{
 			}]];
 
 			RACKVOBinding *binding = [[RACKVOBinding alloc] initWithTarget:object keyPath:@keypath(object.stringValue) nilValue:nil];
-			[binding.leadingEndpoint subscribeCompleted:^{
+			[binding.leadingTerminal subscribeCompleted:^{
 				leadingCompleted = YES;
 			}];
 
-			[binding.followingEndpoint subscribeCompleted:^{
+			[binding.followingTerminal subscribeCompleted:^{
 				followingCompleted = YES;
 			}];
 
@@ -331,11 +331,11 @@ describe(@"RACBind", ^{
 	});
 	
 	it(@"should stop binding when disposed", ^{
-		RACBindingEndpoint *aEndpoint = RACBind(a, stringValue);
-		RACBindingEndpoint *bEndpoint = RACBind(b, stringValue);
+		RACBindingTerminal *aTerminal = RACBind(a, stringValue);
+		RACBindingTerminal *bTerminal = RACBind(b, stringValue);
 
 		a.stringValue = testName1;
-		RACDisposable *disposable = [aEndpoint subscribe:bEndpoint];
+		RACDisposable *disposable = [aTerminal subscribe:bTerminal];
 
 		expect(a.stringValue).to.equal(testName1);
 		expect(b.stringValue).to.equal(testName1);
@@ -352,13 +352,13 @@ describe(@"RACBind", ^{
 	});
 	
 	it(@"should use the nilValue when sent nil", ^{
-		RACBindingEndpoint *endpoint = RACBind(a, integerValue, @5);
+		RACBindingTerminal *terminal = RACBind(a, integerValue, @5);
 		expect(a.integerValue).to.equal(0);
 
-		[endpoint sendNext:@2];
+		[terminal sendNext:@2];
 		expect(a.integerValue).to.equal(2);
 
-		[endpoint sendNext:nil];
+		[terminal sendNext:nil];
 		expect(a.integerValue).to.equal(5);
 	});
 

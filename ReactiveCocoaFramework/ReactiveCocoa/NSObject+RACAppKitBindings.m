@@ -58,15 +58,15 @@
 
 @implementation NSObject (RACAppKitBindings)
 
-- (RACBindingEndpoint *)rac_bind:(NSString *)binding {
+- (RACBindingTerminal *)rac_bind:(NSString *)binding {
 	return [self rac_bind:binding options:nil];
 }
 
-- (RACBindingEndpoint *)rac_bind:(NSString *)binding options:(NSDictionary *)options {
+- (RACBindingTerminal *)rac_bind:(NSString *)binding options:(NSDictionary *)options {
 	NSCParameterAssert(binding != nil);
 
 	RACBindingProxy *proxy = [[RACBindingProxy alloc] initWithTarget:self bindingName:binding options:options];
-	return proxy.binding.leadingEndpoint;
+	return proxy.binding.leadingTerminal;
 }
 
 @end
@@ -109,7 +109,7 @@
 	};
 
 	// When the binding terminates, tear down this proxy.
-	[self.binding.followingEndpoint subscribeError:^(NSError *error) {
+	[self.binding.followingTerminal subscribeError:^(NSError *error) {
 		cleanUp();
 	} completed:cleanUp];
 
@@ -121,15 +121,15 @@
 
 	[[self.target rac_deallocDisposable] addDisposable:[RACDisposable disposableWithBlock:^{
 		@strongify(self);
-		[self.binding.followingEndpoint sendCompleted];
+		[self.binding.followingTerminal sendCompleted];
 	}]];
 
-	RACBind(self, value, options[NSNullPlaceholderBindingOption]) = self.binding.followingEndpoint;
+	RACBind(self, value, options[NSNullPlaceholderBindingOption]) = self.binding.followingTerminal;
 	return self;
 }
 
 - (void)dealloc {
-	[self.binding.followingEndpoint sendCompleted];
+	[self.binding.followingTerminal sendCompleted];
 }
 
 #pragma mark NSObject

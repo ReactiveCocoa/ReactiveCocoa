@@ -39,23 +39,23 @@ itShouldBehaveLike(RACViewBindingExamples, ^{
 	return @{
 		RACViewBindingExampleView: textField,
 		RACViewBindingExampleKeyPath: @keypath(textField.stringValue),
-		RACViewBindingExampleCreateEndpointBlock: ^{
+		RACViewBindingExampleCreateTerminalBlock: ^{
 			return [textField rac_bind:NSValueBinding];
 		}
 	};
 });
 
 describe(@"value binding", ^{
-	__block RACBindingEndpoint *valueEndpoint;
+	__block RACBindingTerminal *valueTerminal;
 
 	beforeEach(^{
-		valueEndpoint = [textField rac_bind:NSValueBinding];
-		expect(valueEndpoint).notTo.beNil();
+		valueTerminal = [textField rac_bind:NSValueBinding];
+		expect(valueTerminal).notTo.beNil();
 	});
 
 	it(@"should not have a starting value", ^{
 		__block BOOL receivedNext = NO;
-		[valueEndpoint subscribeNext:^(id x) {
+		[valueTerminal subscribeNext:^(id x) {
 			receivedNext = YES;
 		}];
 
@@ -64,7 +64,7 @@ describe(@"value binding", ^{
 
 	it(@"should send view changes", ^{
 		__block NSString *received;
-		[valueEndpoint subscribeNext:^(id x) {
+		[valueTerminal subscribeNext:^(id x) {
 			received = x;
 		}];
 
@@ -76,22 +76,22 @@ describe(@"value binding", ^{
 	});
 
 	it(@"should set values on the view", ^{
-		[valueEndpoint sendNext:@"fuzz"];
+		[valueTerminal sendNext:@"fuzz"];
 		expect(textField.stringValue).to.equal(@"fuzz");
 
-		[valueEndpoint sendNext:@"buzz"];
+		[valueTerminal sendNext:@"buzz"];
 		expect(textField.stringValue).to.equal(@"buzz");
 	});
 
 	it(@"should not echo changes back to the binding", ^{
 		__block NSUInteger receivedCount = 0;
-		[valueEndpoint subscribeNext:^(id _) {
+		[valueTerminal subscribeNext:^(id _) {
 			receivedCount++;
 		}];
 
 		expect(receivedCount).to.equal(0);
 
-		[valueEndpoint sendNext:@"fuzz"];
+		[valueTerminal sendNext:@"fuzz"];
 		expect(receivedCount).to.equal(0);
 
 		setText(@"buzz");
@@ -108,8 +108,8 @@ describe(@"value binding", ^{
 				deallocated = YES;
 			}]];
 
-			RACBindingEndpoint *endpoint = [view rac_bind:NSValueBinding];
-			[endpoint subscribeCompleted:^{
+			RACBindingTerminal *terminal = [view rac_bind:NSValueBinding];
+			[terminal subscribeCompleted:^{
 				completed = YES;
 			}];
 
@@ -123,7 +123,7 @@ describe(@"value binding", ^{
 
 	it(@"should deallocate after the view deallocates", ^{
 		__block BOOL viewDeallocated = NO;
-		__block BOOL endpointDeallocated = NO;
+		__block BOOL terminalDeallocated = NO;
 
 		@autoreleasepool {
 			NSTextField *view __attribute__((objc_precise_lifetime)) = [[NSTextField alloc] initWithFrame:NSZeroRect];
@@ -131,17 +131,17 @@ describe(@"value binding", ^{
 				viewDeallocated = YES;
 			}]];
 
-			RACBindingEndpoint *endpoint = [view rac_bind:NSValueBinding];
-			[endpoint.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-				endpointDeallocated = YES;
+			RACBindingTerminal *terminal = [view rac_bind:NSValueBinding];
+			[terminal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				terminalDeallocated = YES;
 			}]];
 
 			expect(viewDeallocated).to.beFalsy();
-			expect(endpointDeallocated).to.beFalsy();
+			expect(terminalDeallocated).to.beFalsy();
 		}
 
 		expect(viewDeallocated).to.beTruthy();
-		expect(endpointDeallocated).will.beTruthy();
+		expect(terminalDeallocated).will.beTruthy();
 	});
 });
 

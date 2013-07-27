@@ -86,11 +86,11 @@ static NSString * const RACKVOBindingDataDictionaryKey = @"RACKVOBindingKey";
 	_target = target;
 	_keyPath = [keyPath copy];
 
-	[self.leadingEndpoint setNameWithFormat:@"[-initWithTarget: %@ keyPath: %@ nilValue: %@] -leadingEndpoint", target, keyPath, nilValue];
-	[self.followingEndpoint setNameWithFormat:@"[-initWithTarget: %@ keyPath: %@ nilValue: %@] -followingEndpoint", target, keyPath, nilValue];
+	[self.leadingTerminal setNameWithFormat:@"[-initWithTarget: %@ keyPath: %@ nilValue: %@] -leadingTerminal", target, keyPath, nilValue];
+	[self.followingTerminal setNameWithFormat:@"[-initWithTarget: %@ keyPath: %@ nilValue: %@] -followingTerminal", target, keyPath, nilValue];
 
 	// Observe the key path on target for changes. Update the value of stackDepth
-	// accordingly and forward the changes to the endpoint.
+	// accordingly and forward the changes to the terminal.
 	//
 	// Intentionally capturing `self` strongly in the blocks below, so the
 	// binding object stays alive while observing.
@@ -116,7 +116,7 @@ static NSString * const RACKVOBindingDataDictionaryKey = @"RACKVOBindingKey";
 		// a deallocation, it definitely wasn't triggered by this binding, so just
 		// forward it.
 		if (![change[RACKeyValueChangeAffectedOnlyLastComponentKey] boolValue] || [change[RACKeyValueChangeCausedByDeallocationKey] boolValue]) {
-			[self.leadingEndpoint sendNext:value];
+			[self.leadingTerminal sendNext:value];
 			return;
 		}
 
@@ -133,7 +133,7 @@ static NSString * const RACKVOBindingDataDictionaryKey = @"RACKVOBindingKey";
 			return;
 		}
 
-		[self.leadingEndpoint sendNext:value];
+		[self.leadingTerminal sendNext:value];
 	}];
 	
 	NSString *keyPathByDeletingLastKeyPathComponent = keyPath.rac_keyPathByDeletingLastKeyPathComponent;
@@ -142,7 +142,7 @@ static NSString * const RACKVOBindingDataDictionaryKey = @"RACKVOBindingKey";
 	NSString *lastKeyPathComponent = keyPathComponents.lastObject;
 
 	// Update the value of the property with the values received.
-	[[self.leadingEndpoint
+	[[self.leadingTerminal
 		finally:^{
 			[observationDisposable dispose];
 		}]
@@ -173,7 +173,7 @@ static NSString * const RACKVOBindingDataDictionaryKey = @"RACKVOBindingKey";
 	
 	[target.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 		@strongify(self);
-		[self.leadingEndpoint sendCompleted];
+		[self.leadingTerminal sendCompleted];
 		self.target = nil;
 	}]];
 	
@@ -209,21 +209,21 @@ static NSString * const RACKVOBindingDataDictionaryKey = @"RACKVOBindingKey";
 
 @implementation RACKVOBinding (RACBind)
 
-- (RACBindingEndpoint *)objectForKeyedSubscript:(NSString *)key {
+- (RACBindingTerminal *)objectForKeyedSubscript:(NSString *)key {
 	NSCParameterAssert(key != nil);
 
-	RACBindingEndpoint *endpoint = [self valueForKey:key];
-	NSCAssert([endpoint isKindOfClass:RACBindingEndpoint.class], @"Key \"%@\" does not identify a binding endpoint", key);
+	RACBindingTerminal *terminal = [self valueForKey:key];
+	NSCAssert([terminal isKindOfClass:RACBindingTerminal.class], @"Key \"%@\" does not identify a binding terminal", key);
 	
-	return endpoint;
+	return terminal;
 }
 
-- (void)setObject:(RACBindingEndpoint *)otherEndpoint forKeyedSubscript:(NSString *)key {
-	NSCParameterAssert(otherEndpoint != nil);
+- (void)setObject:(RACBindingTerminal *)otherTerminal forKeyedSubscript:(NSString *)key {
+	NSCParameterAssert(otherTerminal != nil);
 
-	RACBindingEndpoint *selfEndpoint = [self objectForKeyedSubscript:key];
-	[otherEndpoint subscribe:selfEndpoint];
-	[[selfEndpoint skip:1] subscribe:otherEndpoint];
+	RACBindingTerminal *selfTerminal = [self objectForKeyedSubscript:key];
+	[otherTerminal subscribe:selfTerminal];
+	[[selfTerminal skip:1] subscribe:otherTerminal];
 }
 
 @end

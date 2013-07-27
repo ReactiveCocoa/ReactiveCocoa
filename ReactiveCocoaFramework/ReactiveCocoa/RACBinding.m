@@ -12,15 +12,15 @@
 #import "RACSignal+Operations.h"
 #import "RACUnit.h"
 
-@interface RACBindingEndpoint ()
+@interface RACBindingTerminal ()
 
-// The values for this endpoint.
+// The values for this terminal.
 @property (nonatomic, strong, readonly) RACSignal *values;
 
-// A subscriber will will send values to the other endpoint.
-@property (nonatomic, strong, readonly) id<RACSubscriber> otherEndpoint;
+// A subscriber will will send values to the other terminal.
+@property (nonatomic, strong, readonly) id<RACSubscriber> otherTerminal;
 
-- (id)initWithValues:(RACSignal *)values otherEndpoint:(id<RACSubscriber>)otherEndpoint;
+- (id)initWithValues:(RACSignal *)values otherTerminal:(id<RACSubscriber>)otherTerminal;
 
 @end
 
@@ -43,27 +43,27 @@
 	[leadingSubject sendNext:RACUnit.defaultUnit];
 	RACSignal *leadingValues = [leadingSubject skip:1];
 
-	_leadingEndpoint = [[[RACBindingEndpoint alloc] initWithValues:leadingValues otherEndpoint:followingSubject] setNameWithFormat:@"leadingEndpoint"];
-	_followingEndpoint = [[[RACBindingEndpoint alloc] initWithValues:followingSubject otherEndpoint:leadingSubject] setNameWithFormat:@"followingEndpoint"];
+	_leadingTerminal = [[[RACBindingTerminal alloc] initWithValues:leadingValues otherTerminal:followingSubject] setNameWithFormat:@"leadingTerminal"];
+	_followingTerminal = [[[RACBindingTerminal alloc] initWithValues:followingSubject otherTerminal:leadingSubject] setNameWithFormat:@"followingTerminal"];
 
 	return self;
 }
 
 @end
 
-@implementation RACBindingEndpoint
+@implementation RACBindingTerminal
 
 #pragma mark Lifecycle
 
-- (id)initWithValues:(RACSignal *)values otherEndpoint:(id<RACSubscriber>)otherEndpoint {
+- (id)initWithValues:(RACSignal *)values otherTerminal:(id<RACSubscriber>)otherTerminal {
 	NSCParameterAssert(values != nil);
-	NSCParameterAssert(otherEndpoint != nil);
+	NSCParameterAssert(otherTerminal != nil);
 
 	self = [super init];
 	if (self == nil) return nil;
 
 	_values = values;
-	_otherEndpoint = otherEndpoint;
+	_otherTerminal = otherTerminal;
 
 	return self;
 }
@@ -77,19 +77,19 @@
 #pragma mark <RACSubscriber>
 
 - (void)sendNext:(id)value {
-	[self.otherEndpoint sendNext:value];
+	[self.otherTerminal sendNext:value];
 }
 
 - (void)sendError:(NSError *)error {
-	[self.otherEndpoint sendError:error];
+	[self.otherTerminal sendError:error];
 }
 
 - (void)sendCompleted {
-	[self.otherEndpoint sendCompleted];
+	[self.otherTerminal sendCompleted];
 }
 
 - (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
-	[self.otherEndpoint didSubscribeWithDisposable:disposable];
+	[self.otherTerminal didSubscribeWithDisposable:disposable];
 }
 
 @end

@@ -17,9 +17,9 @@ extern NSString * const RACBindingExampleCreateBlock;
 // a property.
 extern NSString * const RACViewBindingExamples;
 
-// A block of type `RACBindingEndpoint * (^)(void)`, which should create a new
-// RACBinding to the test object and return an endpoint.
-extern NSString * const RACViewBindingExampleCreateEndpointBlock;
+// A block of type `RACBindingTerminal * (^)(void)`, which should create a new
+// RACBinding to the test object and return an terminal.
+extern NSString * const RACViewBindingExampleCreateTerminalBlock;
 
 // The view being bound to in RACViewBindingExamples.
 extern NSString * const RACViewBindingExampleView;

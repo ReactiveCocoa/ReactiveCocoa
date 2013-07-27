@@ -8,12 +8,12 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class RACBindingEndpoint;
+@class RACBindingTerminal;
 
 @interface NSObject (RACAppKitBindings)
 
 // Invokes -rac_bind:options: without any options.
-- (RACBindingEndpoint *)rac_bind:(NSString *)binding;
+- (RACBindingTerminal *)rac_bind:(NSString *)binding;
 
 // Applies a Cocoa binding to the receiver, then exposes a RACBinding-based
 // interface for manipulating it.
@@ -24,9 +24,9 @@
 // binding - The name of the binding. This must not be nil.
 // options - Any options to pass to Cocoa Bindings. This may be nil.
 //
-// Returns a RACBindingEndpoint which will send future values from the receiver,
-// and update the receiver when values are sent to the endpoint.
-- (RACBindingEndpoint *)rac_bind:(NSString *)binding options:(NSDictionary *)options;
+// Returns a RACBindingTerminal which will send future values from the receiver,
+// and update the receiver when values are sent to the terminal.
+- (RACBindingTerminal *)rac_bind:(NSString *)binding options:(NSDictionary *)options;
 
 @end
 

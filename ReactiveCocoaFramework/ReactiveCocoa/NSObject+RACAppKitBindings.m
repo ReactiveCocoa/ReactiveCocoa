@@ -124,7 +124,7 @@
 		[self.channel.followingTerminal sendCompleted];
 	}]];
 
-	RACBind(self, value, options[NSNullPlaceholderBindingOption]) = self.channel.followingTerminal;
+	RACChannelTo(self, value, options[NSNullPlaceholderBindingOption]) = self.channel.followingTerminal;
 	return self;
 }
 

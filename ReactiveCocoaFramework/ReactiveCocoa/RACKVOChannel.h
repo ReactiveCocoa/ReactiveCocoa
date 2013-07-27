@@ -13,12 +13,12 @@
 // Creates a RACKVOChannel to the given key path. When the targeted object
 // deallocates, the channel will complete.
 //
-// If RACBind() is used as an expression, it returns a RACChannelTerminal that
+// If RACChannelTo() is used as an expression, it returns a RACChannelTerminal that
 // can be used to watch the specified property for changes, and set new values
 // for it. The terminal will start with the property's current value upon
 // subscription.
 //
-// If RACBind() is used on the left-hand side of an assignment, there must a
+// If RACChannelTo() is used on the left-hand side of an assignment, there must a
 // RACChannelTerminal on the right-hand side of the assignment. The two will be
 // subscribed to one another: the property's value is immediately set to the
 // value of the channel terminal on the right-hand side, and subsequent changes
@@ -26,18 +26,18 @@
 //
 // There are two different versions of this macro:
 //
-//  - RACBind(TARGET, KEYPATH, NILVALUE) will create a channel to the `KEYPATH`
+//  - RACChannelTo(TARGET, KEYPATH, NILVALUE) will create a channel to the `KEYPATH`
 //    of `TARGET`. If the terminal is ever sent a `nil` value, the property will
 //    be set to `NILVALUE` instead. `NILVALUE` may itself be `nil` for object
 //    properties, but an NSValue should be used for primitive properties, to
 //    avoid an exception if `nil` is sent (which might occur if an intermediate
 //    object is set to `nil`).
-//  - RACBind(TARGET, KEYPATH) is the same as the above, but `NILVALUE` defaults to
+//  - RACChannelTo(TARGET, KEYPATH) is the same as the above, but `NILVALUE` defaults to
 //    `nil`.
 //
 // Examples
 //
-//  RACChannelTerminal *integerChannel = RACBind(self, integerProperty, @42);
+//  RACChannelTerminal *integerChannel = RACChannelTo(self, integerProperty, @42);
 //
 //  // Sets self.integerProperty to 5.
 //  [integerChannel sendNext:@5];
@@ -49,15 +49,15 @@
 //
 //  // Binds properties to each other, taking the initial value from the right
 //  side.
-//  RACBind(view, objectProperty) = RACBind(model, objectProperty);
-//  RACBind(view, integerProperty, @2) = RACBind(model, integerProperty, @10);
-#define RACBind(TARGET, ...) \
+//  RACChannelTo(view, objectProperty) = RACChannelTo(model, objectProperty);
+//  RACChannelTo(view, integerProperty, @2) = RACChannelTo(model, integerProperty, @10);
+#define RACChannelTo(TARGET, ...) \
     metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__)) \
-        (RACBind_(TARGET, __VA_ARGS__, nil)) \
-        (RACBind_(TARGET, __VA_ARGS__))
+        (RACChannelTo_(TARGET, __VA_ARGS__, nil)) \
+        (RACChannelTo_(TARGET, __VA_ARGS__))
 
-// Do not use this directly. Use the RACBind macro above.
-#define RACBind_(TARGET, KEYPATH, NILVALUE) \
+// Do not use this directly. Use the RACChannelTo macro above.
+#define RACChannelTo_(TARGET, KEYPATH, NILVALUE) \
     [[RACKVOChannel alloc] initWithTarget:(TARGET) keyPath:@keypath(TARGET, KEYPATH) nilValue:(NILVALUE)][@keypath(RACKVOChannel.new, followingTerminal)]
 
 // A RACChannel that observes a KVO-compliant key path for changes.
@@ -89,7 +89,7 @@
 @end
 
 // Methods needed for the convenience macro. Do not call explicitly.
-@interface RACKVOChannel (RACBind)
+@interface RACKVOChannel (RACChannelTo)
 
 - (RACChannelTerminal *)objectForKeyedSubscript:(NSString *)key;
 - (void)setObject:(RACChannelTerminal *)otherTerminal forKeyedSubscript:(NSString *)key;

@@ -207,7 +207,7 @@ static NSString * const RACKVOChannelDataDictionaryKey = @"RACKVOChannelKey";
 
 @end
 
-@implementation RACKVOChannel (RACBind)
+@implementation RACKVOChannel (RACChannelTo)
 
 - (RACChannelTerminal *)objectForKeyedSubscript:(NSString *)key {
 	NSCParameterAssert(key != nil);

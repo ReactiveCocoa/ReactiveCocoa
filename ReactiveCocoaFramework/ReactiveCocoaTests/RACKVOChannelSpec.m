@@ -157,7 +157,7 @@ describe(@"RACKVOChannel", ^{
 	});
 });
 
-describe(@"RACBind", ^{
+describe(@"RACChannelTo", ^{
 	__block RACTestObject *a;
 	__block RACTestObject *b;
 	__block RACTestObject *c;
@@ -175,7 +175,7 @@ describe(@"RACBind", ^{
 	});
 	
 	it(@"should keep objects' properties in sync", ^{
-		RACBind(a, stringValue) = RACBind(b, stringValue);
+		RACChannelTo(a, stringValue) = RACChannelTo(b, stringValue);
 		expect(a.stringValue).to.beNil();
 		expect(b.stringValue).to.beNil();
 		
@@ -193,7 +193,7 @@ describe(@"RACBind", ^{
 	});
 	
 	it(@"should keep properties identified by keypaths in sync", ^{
-		RACBind(a, strongTestObjectValue.stringValue) = RACBind(b, strongTestObjectValue.stringValue);
+		RACChannelTo(a, strongTestObjectValue.stringValue) = RACChannelTo(b, strongTestObjectValue.stringValue);
 		a.strongTestObjectValue = [[RACTestObject alloc] init];
 		b.strongTestObjectValue = [[RACTestObject alloc] init];
 		
@@ -213,7 +213,7 @@ describe(@"RACBind", ^{
 	});
 	
 	it(@"should update properties identified by keypaths when the intermediate values change", ^{
-		RACBind(a, strongTestObjectValue.stringValue) = RACBind(b, strongTestObjectValue.stringValue);
+		RACChannelTo(a, strongTestObjectValue.stringValue) = RACChannelTo(b, strongTestObjectValue.stringValue);
 		a.strongTestObjectValue = [[RACTestObject alloc] init];
 		b.strongTestObjectValue = [[RACTestObject alloc] init];
 		c.stringValue = testName1;
@@ -224,7 +224,7 @@ describe(@"RACBind", ^{
 	});
 	
 	it(@"should update properties identified by keypaths when the channel was created when one of the two objects had an intermediate nil value", ^{
-		RACBind(a, strongTestObjectValue.stringValue) = RACBind(b, strongTestObjectValue.stringValue);
+		RACChannelTo(a, strongTestObjectValue.stringValue) = RACChannelTo(b, strongTestObjectValue.stringValue);
 		b.strongTestObjectValue = [[RACTestObject alloc] init];
 		c.stringValue = testName1;
 		a.strongTestObjectValue = c;
@@ -238,7 +238,7 @@ describe(@"RACBind", ^{
 		a.stringValue = testName1;
 		b.stringValue = testName2;
 
-		RACBind(a, stringValue) = RACBind(b, stringValue);
+		RACChannelTo(a, stringValue) = RACChannelTo(b, stringValue);
 		expect(a.stringValue).to.equal(testName2);
 		expect(b.stringValue).to.equal(testName2);
 	});
@@ -247,7 +247,7 @@ describe(@"RACBind", ^{
 		a.stringValue = testName1;
 		b.stringValue = testName2;
 
-		RACBind(a, stringValue) = RACBind(b, stringValue);
+		RACChannelTo(a, stringValue) = RACChannelTo(b, stringValue);
 		expect(a.stringValue).to.equal(testName2);
 		expect(b.stringValue).to.equal(testName2);
 		
@@ -261,8 +261,8 @@ describe(@"RACBind", ^{
 		b.stringValue = testName2;
 		c.stringValue = testName3;
 
-		RACBind(a, stringValue) = RACBind(b, stringValue);
-		RACBind(b, stringValue) = RACBind(c, stringValue);
+		RACChannelTo(a, stringValue) = RACChannelTo(b, stringValue);
+		RACChannelTo(b, stringValue) = RACChannelTo(c, stringValue);
 		expect(a.stringValue).to.equal(testName3);
 		expect(b.stringValue).to.equal(testName3);
 		expect(c.stringValue).to.equal(testName3);
@@ -285,7 +285,7 @@ describe(@"RACBind", ^{
 	
 	it(@"should bind changes made by KVC on arrays", ^{
 		b.arrayValue = @[];
-		RACBind(a, arrayValue) = RACBind(b, arrayValue);
+		RACChannelTo(a, arrayValue) = RACChannelTo(b, arrayValue);
 
 		[[b mutableArrayValueForKeyPath:@keypath(b.arrayValue)] addObject:@1];
 		expect(a.arrayValue).to.equal(b.arrayValue);
@@ -293,7 +293,7 @@ describe(@"RACBind", ^{
 	
 	it(@"should bind changes made by KVC on sets", ^{
 		b.setValue = [NSSet set];
-		RACBind(a, setValue) = RACBind(b, setValue);
+		RACChannelTo(a, setValue) = RACChannelTo(b, setValue);
 
 		[[b mutableSetValueForKeyPath:@keypath(b.setValue)] addObject:@1];
 		expect(a.setValue).to.equal(b.setValue);
@@ -301,7 +301,7 @@ describe(@"RACBind", ^{
 	
 	it(@"should bind changes made by KVC on ordered sets", ^{
 		b.orderedSetValue = [NSOrderedSet orderedSet];
-		RACBind(a, orderedSetValue) = RACBind(b, orderedSetValue);
+		RACChannelTo(a, orderedSetValue) = RACChannelTo(b, orderedSetValue);
 
 		[[b mutableOrderedSetValueForKeyPath:@keypath(b.orderedSetValue)] addObject:@1];
 		expect(a.orderedSetValue).to.equal(b.orderedSetValue);
@@ -310,7 +310,7 @@ describe(@"RACBind", ^{
 	it(@"should handle deallocation of intermediate objects correctly even without support from KVO", ^{
 		__block BOOL wasDisposed = NO;
 
-		RACBind(a, weakTestObjectValue.stringValue) = RACBind(b, strongTestObjectValue.stringValue);
+		RACChannelTo(a, weakTestObjectValue.stringValue) = RACChannelTo(b, strongTestObjectValue.stringValue);
 		b.strongTestObjectValue = [[RACTestObject alloc] init];
 
 		@autoreleasepool {
@@ -331,8 +331,8 @@ describe(@"RACBind", ^{
 	});
 	
 	it(@"should stop binding when disposed", ^{
-		RACChannelTerminal *aTerminal = RACBind(a, stringValue);
-		RACChannelTerminal *bTerminal = RACBind(b, stringValue);
+		RACChannelTerminal *aTerminal = RACChannelTo(a, stringValue);
+		RACChannelTerminal *bTerminal = RACChannelTo(b, stringValue);
 
 		a.stringValue = testName1;
 		RACDisposable *disposable = [aTerminal subscribe:bTerminal];
@@ -352,7 +352,7 @@ describe(@"RACBind", ^{
 	});
 	
 	it(@"should use the nilValue when sent nil", ^{
-		RACChannelTerminal *terminal = RACBind(a, integerValue, @5);
+		RACChannelTerminal *terminal = RACChannelTo(a, integerValue, @5);
 		expect(a.integerValue).to.equal(0);
 
 		[terminal sendNext:@2];
@@ -365,7 +365,7 @@ describe(@"RACBind", ^{
 	it(@"should use the nilValue when an intermediate object is nil", ^{
 		__block BOOL wasDisposed = NO;
 
-		RACBind(a, weakTestObjectValue.integerValue, @5) = RACBind(b, strongTestObjectValue.integerValue, @5);
+		RACChannelTo(a, weakTestObjectValue.integerValue, @5) = RACChannelTo(b, strongTestObjectValue.integerValue, @5);
 		b.strongTestObjectValue = [[RACTestObject alloc] init];
 
 		@autoreleasepool {

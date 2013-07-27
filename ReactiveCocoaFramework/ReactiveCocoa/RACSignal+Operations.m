@@ -575,9 +575,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		};
 
 		completeSignal = ^(RACSignal *signal) {
-			@synchronized (compoundDisposable) {
-				[activeSignals removeObject:signal];
-			}
+			[activeSignals removeObject:signal];
 
 			BOOL completed = dequeueAndSubscribeIfAllowed();
 			if (completed) {

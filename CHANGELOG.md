@@ -59,7 +59,7 @@ Unlike the previous macros, which only required one argument for key paths on
 ### Fallback nil values for RAC macro
 
 The `RAC` macro now [always
-require](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/670) two or three
+requires](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/670) two or three
 arguments:
 
  1. The object to bind to.

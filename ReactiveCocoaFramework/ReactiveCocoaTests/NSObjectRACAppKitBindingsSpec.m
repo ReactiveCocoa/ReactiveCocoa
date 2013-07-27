@@ -40,7 +40,7 @@ itShouldBehaveLike(RACViewChannelExamples, ^{
 		RACViewChannelExampleView: textField,
 		RACViewChannelExampleKeyPath: @keypath(textField.stringValue),
 		RACViewChannelExampleCreateTerminalBlock: ^{
-			return [textField rac_bind:NSValueBinding];
+			return [textField rac_channelToBinding:NSValueBinding];
 		}
 	};
 });
@@ -49,7 +49,7 @@ describe(@"value binding", ^{
 	__block RACChannelTerminal *valueTerminal;
 
 	beforeEach(^{
-		valueTerminal = [textField rac_bind:NSValueBinding];
+		valueTerminal = [textField rac_channelToBinding:NSValueBinding];
 		expect(valueTerminal).notTo.beNil();
 	});
 
@@ -108,7 +108,7 @@ describe(@"value binding", ^{
 				deallocated = YES;
 			}]];
 
-			RACChannelTerminal *terminal = [view rac_bind:NSValueBinding];
+			RACChannelTerminal *terminal = [view rac_channelToBinding:NSValueBinding];
 			[terminal subscribeCompleted:^{
 				completed = YES;
 			}];
@@ -131,7 +131,7 @@ describe(@"value binding", ^{
 				viewDeallocated = YES;
 			}]];
 
-			RACChannelTerminal *terminal = [view rac_bind:NSValueBinding];
+			RACChannelTerminal *terminal = [view rac_channelToBinding:NSValueBinding];
 			[terminal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				terminalDeallocated = YES;
 			}]];

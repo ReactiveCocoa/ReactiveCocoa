@@ -58,11 +58,11 @@
 
 @implementation NSObject (RACAppKitBindings)
 
-- (RACChannelTerminal *)rac_bind:(NSString *)binding {
-	return [self rac_bind:binding options:nil];
+- (RACChannelTerminal *)rac_channelToBinding:(NSString *)binding {
+	return [self rac_channelToBinding:binding options:nil];
 }
 
-- (RACChannelTerminal *)rac_bind:(NSString *)binding options:(NSDictionary *)options {
+- (RACChannelTerminal *)rac_channelToBinding:(NSString *)binding options:(NSDictionary *)options {
 	NSCParameterAssert(binding != nil);
 
 	RACChannelProxy *proxy = [[RACChannelProxy alloc] initWithTarget:self bindingName:binding options:options];

@@ -12,8 +12,8 @@
 
 @interface NSObject (RACAppKitBindings)
 
-// Invokes -rac_bind:options: without any options.
-- (RACChannelTerminal *)rac_bind:(NSString *)binding;
+// Invokes -rac_channelToBinding:options: without any options.
+- (RACChannelTerminal *)rac_channelToBinding:(NSString *)binding;
 
 // Applies a Cocoa binding to the receiver, then exposes a RACChannel-based
 // interface for manipulating it.
@@ -26,7 +26,7 @@
 //
 // Returns a RACChannelTerminal which will send future values from the receiver,
 // and update the receiver when values are sent to the terminal.
-- (RACChannelTerminal *)rac_bind:(NSString *)binding options:(NSDictionary *)options;
+- (RACChannelTerminal *)rac_channelToBinding:(NSString *)binding options:(NSDictionary *)options;
 
 @end
 

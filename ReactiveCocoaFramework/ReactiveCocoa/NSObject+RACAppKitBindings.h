@@ -8,14 +8,14 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class RACBindingTerminal;
+@class RACChannelTerminal;
 
 @interface NSObject (RACAppKitBindings)
 
 // Invokes -rac_bind:options: without any options.
-- (RACBindingTerminal *)rac_bind:(NSString *)binding;
+- (RACChannelTerminal *)rac_bind:(NSString *)binding;
 
-// Applies a Cocoa binding to the receiver, then exposes a RACBinding-based
+// Applies a Cocoa binding to the receiver, then exposes a RACChannel-based
 // interface for manipulating it.
 //
 // Creating two of the same bindings on the same object will result in undefined
@@ -24,9 +24,9 @@
 // binding - The name of the binding. This must not be nil.
 // options - Any options to pass to Cocoa Bindings. This may be nil.
 //
-// Returns a RACBindingTerminal which will send future values from the receiver,
+// Returns a RACChannelTerminal which will send future values from the receiver,
 // and update the receiver when values are sent to the terminal.
-- (RACBindingTerminal *)rac_bind:(NSString *)binding options:(NSDictionary *)options;
+- (RACChannelTerminal *)rac_bind:(NSString *)binding options:(NSDictionary *)options;
 
 @end
 

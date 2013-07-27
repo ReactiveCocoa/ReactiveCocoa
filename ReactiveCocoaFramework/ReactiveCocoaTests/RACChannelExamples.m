@@ -1,33 +1,33 @@
 //
-//  RACBindingExamples.m
+//  RACChannelExamples.m
 //  ReactiveCocoa
 //
 //  Created by Uri Baghin on 30/12/2012.
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACBindingExamples.h"
+#import "RACChannelExamples.h"
 
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
-#import "RACBinding.h"
+#import "RACChannel.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSignal+Operations.h"
 
-NSString * const RACBindingExamples = @"RACBindingExamples";
-NSString * const RACBindingExampleCreateBlock = @"RACBindingExampleCreateBlock";
+NSString * const RACChannelExamples = @"RACChannelExamples";
+NSString * const RACChannelExampleCreateBlock = @"RACChannelExampleCreateBlock";
 
-NSString * const RACViewBindingExamples = @"RACViewBindingExamples";
-NSString * const RACViewBindingExampleCreateTerminalBlock = @"RACViewBindingExampleCreateTerminalBlock";
-NSString * const RACViewBindingExampleView = @"RACViewBindingExampleView";
-NSString * const RACViewBindingExampleKeyPath = @"RACViewBindingExampleKeyPath";
+NSString * const RACViewChannelExamples = @"RACViewChannelExamples";
+NSString * const RACViewChannelExampleCreateTerminalBlock = @"RACViewChannelExampleCreateTerminalBlock";
+NSString * const RACViewChannelExampleView = @"RACViewChannelExampleView";
+NSString * const RACViewChannelExampleKeyPath = @"RACViewChannelExampleKeyPath";
 
-SharedExampleGroupsBegin(RACBindingExamples)
+SharedExampleGroupsBegin(RACChannelExamples)
 
-sharedExamplesFor(RACBindingExamples, ^(NSDictionary *data) {
-	__block RACBinding * (^getBinding)(void);
-	__block RACBinding *binding;
+sharedExamplesFor(RACChannelExamples, ^(NSDictionary *data) {
+	__block RACChannel * (^getChannel)(void);
+	__block RACChannel *channel;
 
 	id value1 = @"test value 1";
 	id value2 = @"test value 2";
@@ -35,36 +35,36 @@ sharedExamplesFor(RACBindingExamples, ^(NSDictionary *data) {
 	NSArray *values = @[ value1, value2, value3 ];
 	
 	before(^{
-		getBinding = data[RACBindingExampleCreateBlock];
-		binding = getBinding();
+		getChannel = data[RACChannelExampleCreateBlock];
+		channel = getChannel();
 	});
 	
 	it(@"should not send any leadingTerminal value on subscription", ^{
 		__block id receivedValue = nil;
 
-		[binding.followingTerminal sendNext:value1];
-		[binding.leadingTerminal subscribeNext:^(id x) {
+		[channel.followingTerminal sendNext:value1];
+		[channel.leadingTerminal subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
 
 		expect(receivedValue).to.beNil();
 		
-		[binding.followingTerminal sendNext:value2];
+		[channel.followingTerminal sendNext:value2];
 		expect(receivedValue).to.equal(value2);
 	});
 	
 	it(@"should send the latest followingTerminal value on subscription", ^{
 		__block id receivedValue = nil;
 
-		[binding.leadingTerminal sendNext:value1];
-		[[binding.followingTerminal take:1] subscribeNext:^(id x) {
+		[channel.leadingTerminal sendNext:value1];
+		[[channel.followingTerminal take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
 
 		expect(receivedValue).to.equal(value1);
 		
-		[binding.leadingTerminal sendNext:value2];
-		[[binding.followingTerminal take:1] subscribeNext:^(id x) {
+		[channel.leadingTerminal sendNext:value2];
+		[[channel.followingTerminal take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
 
@@ -73,71 +73,71 @@ sharedExamplesFor(RACBindingExamples, ^(NSDictionary *data) {
 	
 	it(@"should send leadingTerminal values as they change", ^{
 		NSMutableArray *receivedValues = [NSMutableArray array];
-		[binding.leadingTerminal subscribeNext:^(id x) {
+		[channel.leadingTerminal subscribeNext:^(id x) {
 			[receivedValues addObject:x];
 		}];
 
-		[binding.followingTerminal sendNext:value1];
-		[binding.followingTerminal sendNext:value2];
-		[binding.followingTerminal sendNext:value3];
+		[channel.followingTerminal sendNext:value1];
+		[channel.followingTerminal sendNext:value2];
+		[channel.followingTerminal sendNext:value3];
 		expect(receivedValues).to.equal(values);
 	});
 	
 	it(@"should send followingTerminal values as they change", ^{
-		[binding.leadingTerminal sendNext:value1];
+		[channel.leadingTerminal sendNext:value1];
 
 		NSMutableArray *receivedValues = [NSMutableArray array];
-		[binding.followingTerminal subscribeNext:^(id x) {
+		[channel.followingTerminal subscribeNext:^(id x) {
 			[receivedValues addObject:x];
 		}];
 
-		[binding.leadingTerminal sendNext:value2];
-		[binding.leadingTerminal sendNext:value3];
+		[channel.leadingTerminal sendNext:value2];
+		[channel.leadingTerminal sendNext:value3];
 		expect(receivedValues).to.equal(values);
 	});
 
 	it(@"should complete both signals when the leadingTerminal is completed", ^{
 		__block BOOL completedLeft = NO;
-		[binding.leadingTerminal subscribeCompleted:^{
+		[channel.leadingTerminal subscribeCompleted:^{
 			completedLeft = YES;
 		}];
 
 		__block BOOL completedRight = NO;
-		[binding.followingTerminal subscribeCompleted:^{
+		[channel.followingTerminal subscribeCompleted:^{
 			completedRight = YES;
 		}];
 
-		[binding.leadingTerminal sendCompleted];
+		[channel.leadingTerminal sendCompleted];
 		expect(completedLeft).to.beTruthy();
 		expect(completedRight).to.beTruthy();
 	});
 
 	it(@"should complete both signals when the followingTerminal is completed", ^{
 		__block BOOL completedLeft = NO;
-		[binding.leadingTerminal subscribeCompleted:^{
+		[channel.leadingTerminal subscribeCompleted:^{
 			completedLeft = YES;
 		}];
 
 		__block BOOL completedRight = NO;
-		[binding.followingTerminal subscribeCompleted:^{
+		[channel.followingTerminal subscribeCompleted:^{
 			completedRight = YES;
 		}];
 
-		[binding.followingTerminal sendCompleted];
+		[channel.followingTerminal sendCompleted];
 		expect(completedLeft).to.beTruthy();
 		expect(completedRight).to.beTruthy();
 	});
 
 	it(@"should replay completion to new subscribers", ^{
-		[binding.leadingTerminal sendCompleted];
+		[channel.leadingTerminal sendCompleted];
 
 		__block BOOL completedLeft = NO;
-		[binding.leadingTerminal subscribeCompleted:^{
+		[channel.leadingTerminal subscribeCompleted:^{
 			completedLeft = YES;
 		}];
 
 		__block BOOL completedRight = NO;
-		[binding.followingTerminal subscribeCompleted:^{
+		[channel.followingTerminal subscribeCompleted:^{
 			completedRight = YES;
 		}];
 
@@ -148,24 +148,24 @@ sharedExamplesFor(RACBindingExamples, ^(NSDictionary *data) {
 
 SharedExampleGroupsEnd
 
-SharedExampleGroupsBegin(RACViewBindingExamples)
+SharedExampleGroupsBegin(RACViewChannelExamples)
 
-sharedExamplesFor(RACViewBindingExamples, ^(NSDictionary *data) {
+sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
 	__block NSObject *testView;
 	__block NSString *keyPath;
-	__block RACBindingTerminal * (^getTerminal)(void);
+	__block RACChannelTerminal * (^getTerminal)(void);
 
-	__block RACBindingTerminal *endpoint;
+	__block RACChannelTerminal *endpoint;
 
 	beforeEach(^{
-		testView = data[RACViewBindingExampleView];
-		keyPath = data[RACViewBindingExampleKeyPath];
-		getTerminal = data[RACViewBindingExampleCreateTerminalBlock];
+		testView = data[RACViewChannelExampleView];
+		keyPath = data[RACViewChannelExampleKeyPath];
+		getTerminal = data[RACViewChannelExampleCreateTerminalBlock];
 
 		endpoint = getTerminal();
 	});
 
-	it(@"should not send changes made by the binding itself", ^{
+	it(@"should not send changes made by the channel itself", ^{
 		__block BOOL receivedNext = NO;
 		[endpoint subscribeNext:^(id x) {
 			receivedNext = YES;

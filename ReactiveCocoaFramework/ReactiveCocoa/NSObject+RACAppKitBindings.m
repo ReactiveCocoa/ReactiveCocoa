@@ -10,21 +10,21 @@
 #import "EXTKeyPathCoding.h"
 #import "EXTScope.h"
 #import "NSObject+RACDeallocating.h"
-#import "RACBinding.h"
+#import "RACChannel.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
-#import "RACKVOBinding.h"
+#import "RACKVOChannel.h"
 #import "RACMulticastConnection.h"
 #import "RACSignal+Operations.h"
 #import "RACValueTransformer.h"
 #import <objc/runtime.h>
 
 // Used as an object to bind to, so we can hide the object creation and just
-// expose a RACBinding instead.
-@interface RACBindingProxy : NSObject
+// expose a RACChannel instead.
+@interface RACChannelProxy : NSObject
 
-// The RACBinding used for this Cocoa binding.
-@property (nonatomic, strong, readonly) RACBinding *binding;
+// The RACChannel used for this Cocoa binding.
+@property (nonatomic, strong, readonly) RACChannel *channel;
 
 // The KVC- and KVO-compliant property to be read and written by the Cocoa
 // binding.
@@ -51,27 +51,27 @@
 // bindingName - The name of the Cocoa binding to use. This must not be nil.
 // options     - Any options to pass to the binding. This may be nil.
 //
-// Returns an initialized binding proxy.
+// Returns an initialized channel proxy.
 - (id)initWithTarget:(id)target bindingName:(NSString *)bindingName options:(NSDictionary *)options;
 
 @end
 
 @implementation NSObject (RACAppKitBindings)
 
-- (RACBindingTerminal *)rac_bind:(NSString *)binding {
+- (RACChannelTerminal *)rac_bind:(NSString *)binding {
 	return [self rac_bind:binding options:nil];
 }
 
-- (RACBindingTerminal *)rac_bind:(NSString *)binding options:(NSDictionary *)options {
+- (RACChannelTerminal *)rac_bind:(NSString *)binding options:(NSDictionary *)options {
 	NSCParameterAssert(binding != nil);
 
-	RACBindingProxy *proxy = [[RACBindingProxy alloc] initWithTarget:self bindingName:binding options:options];
-	return proxy.binding.leadingTerminal;
+	RACChannelProxy *proxy = [[RACChannelProxy alloc] initWithTarget:self bindingName:binding options:options];
+	return proxy.channel.leadingTerminal;
 }
 
 @end
 
-@implementation RACBindingProxy
+@implementation RACChannelProxy
 
 #pragma mark Properties
 
@@ -92,7 +92,7 @@
 
 	_target = target;
 	_bindingName = [bindingName copy];
-	_binding = [[RACBinding alloc] init];
+	_channel = [[RACChannel alloc] init];
 
 	@weakify(self);
 
@@ -108,8 +108,8 @@
 		objc_setAssociatedObject(target, (__bridge void *)self, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	};
 
-	// When the binding terminates, tear down this proxy.
-	[self.binding.followingTerminal subscribeError:^(NSError *error) {
+	// When the channel terminates, tear down this proxy.
+	[self.channel.followingTerminal subscribeError:^(NSError *error) {
 		cleanUp();
 	} completed:cleanUp];
 
@@ -121,15 +121,15 @@
 
 	[[self.target rac_deallocDisposable] addDisposable:[RACDisposable disposableWithBlock:^{
 		@strongify(self);
-		[self.binding.followingTerminal sendCompleted];
+		[self.channel.followingTerminal sendCompleted];
 	}]];
 
-	RACBind(self, value, options[NSNullPlaceholderBindingOption]) = self.binding.followingTerminal;
+	RACBind(self, value, options[NSNullPlaceholderBindingOption]) = self.channel.followingTerminal;
 	return self;
 }
 
 - (void)dealloc {
-	[self.binding.followingTerminal sendCompleted];
+	[self.channel.followingTerminal sendCompleted];
 }
 
 #pragma mark NSObject

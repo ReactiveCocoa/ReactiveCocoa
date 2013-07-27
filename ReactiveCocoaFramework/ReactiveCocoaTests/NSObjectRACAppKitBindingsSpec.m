@@ -6,12 +6,12 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#import "RACBindingExamples.h"
+#import "RACChannelExamples.h"
 
 #import "EXTKeyPathCoding.h"
 #import "NSObject+RACAppKitBindings.h"
 #import "NSObject+RACDeallocating.h"
-#import "RACBinding.h"
+#import "RACChannel.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSignal+Operations.h"
@@ -35,18 +35,18 @@ beforeEach(^{
 	} copy];
 });
 	
-itShouldBehaveLike(RACViewBindingExamples, ^{
+itShouldBehaveLike(RACViewChannelExamples, ^{
 	return @{
-		RACViewBindingExampleView: textField,
-		RACViewBindingExampleKeyPath: @keypath(textField.stringValue),
-		RACViewBindingExampleCreateTerminalBlock: ^{
+		RACViewChannelExampleView: textField,
+		RACViewChannelExampleKeyPath: @keypath(textField.stringValue),
+		RACViewChannelExampleCreateTerminalBlock: ^{
 			return [textField rac_bind:NSValueBinding];
 		}
 	};
 });
 
 describe(@"value binding", ^{
-	__block RACBindingTerminal *valueTerminal;
+	__block RACChannelTerminal *valueTerminal;
 
 	beforeEach(^{
 		valueTerminal = [textField rac_bind:NSValueBinding];
@@ -83,7 +83,7 @@ describe(@"value binding", ^{
 		expect(textField.stringValue).to.equal(@"buzz");
 	});
 
-	it(@"should not echo changes back to the binding", ^{
+	it(@"should not echo changes back to the channel", ^{
 		__block NSUInteger receivedCount = 0;
 		[valueTerminal subscribeNext:^(id _) {
 			receivedCount++;
@@ -108,7 +108,7 @@ describe(@"value binding", ^{
 				deallocated = YES;
 			}]];
 
-			RACBindingTerminal *terminal = [view rac_bind:NSValueBinding];
+			RACChannelTerminal *terminal = [view rac_bind:NSValueBinding];
 			[terminal subscribeCompleted:^{
 				completed = YES;
 			}];
@@ -131,7 +131,7 @@ describe(@"value binding", ^{
 				viewDeallocated = YES;
 			}]];
 
-			RACBindingTerminal *terminal = [view rac_bind:NSValueBinding];
+			RACChannelTerminal *terminal = [view rac_bind:NSValueBinding];
 			[terminal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				terminalDeallocated = YES;
 			}]];

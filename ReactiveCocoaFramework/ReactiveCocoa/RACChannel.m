@@ -1,18 +1,18 @@
 //
-//  RACBinding.m
+//  RACChannel.m
 //  ReactiveCocoa
 //
 //  Created by Uri Baghin on 01/01/2013.
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#import "RACBinding.h"
+#import "RACChannel.h"
 #import "RACDisposable.h"
 #import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"
 #import "RACUnit.h"
 
-@interface RACBindingTerminal ()
+@interface RACChannelTerminal ()
 
 // The values for this terminal.
 @property (nonatomic, strong, readonly) RACSignal *values;
@@ -24,7 +24,7 @@
 
 @end
 
-@implementation RACBinding
+@implementation RACChannel
 
 - (id)init {
 	self = [super init];
@@ -43,15 +43,15 @@
 	[leadingSubject sendNext:RACUnit.defaultUnit];
 	RACSignal *leadingValues = [leadingSubject skip:1];
 
-	_leadingTerminal = [[[RACBindingTerminal alloc] initWithValues:leadingValues otherTerminal:followingSubject] setNameWithFormat:@"leadingTerminal"];
-	_followingTerminal = [[[RACBindingTerminal alloc] initWithValues:followingSubject otherTerminal:leadingSubject] setNameWithFormat:@"followingTerminal"];
+	_leadingTerminal = [[[RACChannelTerminal alloc] initWithValues:leadingValues otherTerminal:followingSubject] setNameWithFormat:@"leadingTerminal"];
+	_followingTerminal = [[[RACChannelTerminal alloc] initWithValues:followingSubject otherTerminal:leadingSubject] setNameWithFormat:@"followingTerminal"];
 
 	return self;
 }
 
 @end
 
-@implementation RACBindingTerminal
+@implementation RACChannelTerminal
 
 #pragma mark Lifecycle
 

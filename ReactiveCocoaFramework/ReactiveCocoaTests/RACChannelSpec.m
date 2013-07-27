@@ -1,25 +1,25 @@
 //
-//  RACBindingSpec.m
+//  RACChannelSpec.m
 //  ReactiveCocoa
 //
 //  Created by Uri Baghin on 30/12/2012.
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACBindingExamples.h"
+#import "RACChannelExamples.h"
 
 #import "NSObject+RACDeallocating.h"
-#import "RACBinding.h"
+#import "RACChannel.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSignal.h"
 
-SpecBegin(RACBinding)
+SpecBegin(RACChannel)
 
-describe(@"RACBinding", ^{
-	itShouldBehaveLike(RACBindingExamples, @{
-		RACBindingExampleCreateBlock: [^{
-			return [[RACBinding alloc] init];
+describe(@"RACChannel", ^{
+	itShouldBehaveLike(RACChannelExamples, @{
+		RACChannelExampleCreateBlock: [^{
+			return [[RACChannel alloc] init];
 		} copy]
 	});
 	
@@ -31,13 +31,13 @@ describe(@"RACBinding", ^{
 			__block BOOL deallocated = NO;
 
 			@autoreleasepool {
-				RACBinding *binding __attribute__((objc_precise_lifetime)) = [[RACBinding alloc] init];
-				[binding.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				RACChannel *channel __attribute__((objc_precise_lifetime)) = [[RACChannel alloc] init];
+				[channel.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 					deallocated = YES;
 				}]];
 
-				leadingDisposable = [binding.leadingTerminal subscribeCompleted:^{}];
-				followingDisposable = [binding.followingTerminal subscribeCompleted:^{}];
+				leadingDisposable = [channel.leadingTerminal subscribeCompleted:^{}];
+				followingDisposable = [channel.followingTerminal subscribeCompleted:^{}];
 			}
 
 			[leadingDisposable dispose];
@@ -52,13 +52,13 @@ describe(@"RACBinding", ^{
 			__block BOOL deallocated = NO;
 
 			@autoreleasepool {
-				RACBinding *binding __attribute__((objc_precise_lifetime)) = [[RACBinding alloc] init];
-				[binding.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				RACChannel *channel __attribute__((objc_precise_lifetime)) = [[RACChannel alloc] init];
+				[channel.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 					deallocated = YES;
 				}]];
 
-				leadingDisposable = [[RACSignal never] subscribe:binding.leadingTerminal];
-				followingDisposable = [[RACSignal never] subscribe:binding.followingTerminal];
+				leadingDisposable = [[RACSignal never] subscribe:channel.leadingTerminal];
+				followingDisposable = [[RACSignal never] subscribe:channel.followingTerminal];
 			}
 
 			[leadingDisposable dispose];

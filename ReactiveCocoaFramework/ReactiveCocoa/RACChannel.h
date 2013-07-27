@@ -1,5 +1,5 @@
 //
-//  RACBinding.h
+//  RACChannel.h
 //  ReactiveCocoa
 //
 //  Created by Uri Baghin on 01/01/2013.
@@ -9,14 +9,14 @@
 #import "RACSignal.h"
 #import "RACSubscriber.h"
 
-@class RACBindingTerminal;
+@class RACChannelTerminal;
 
-// A two-way binding.
+// A two-way channel.
 //
-// Conceptually, RACBinding can be thought of as a bidirectional connection,
+// Conceptually, RACChannel can be thought of as a bidirectional connection,
 // composed of two controllable signals that work in parallel.
 //
-// For example, when binding between a view and a model:
+// For example, when connecting between a view and a model:
 //
 //         View         ------>       Model
 //  `followingTerminal` <------ `leadingTerminal`
@@ -28,39 +28,39 @@
 // on the `followingTerminal`, and received in the model from the
 // `leadingTerminal`. However, the initial value of the view is not received
 // from the `leadingTerminal` (only future changes).
-@interface RACBinding : NSObject
+@interface RACChannel : NSObject
 
-// The terminal which "leads" the binding, by sending its latest value
+// The terminal which "leads" the channel, by sending its latest value
 // immediately to new subscribers of the `followingTerminal`.
 //
 // New subscribers to this terminal will not receive a starting value.
-@property (nonatomic, strong, readonly) RACBindingTerminal *leadingTerminal;
+@property (nonatomic, strong, readonly) RACChannelTerminal *leadingTerminal;
 
 // The terminal which "follows" the lead of the other terminal.
 //
 // The latest value sent to the `leadingTerminal` (if any) will be sent
 // immediately to new subscribers of this terminal.
-@property (nonatomic, strong, readonly) RACBindingTerminal *followingTerminal;
+@property (nonatomic, strong, readonly) RACChannelTerminal *followingTerminal;
 
 @end
 
-// Represents one end of a RACBinding.
+// Represents one end of a RACChannel.
 //
 // An terminal is similar to a socket or pipe -- it represents one end of
-// a connection (the RACBinding, in this case). Values sent to this terminal
+// a connection (the RACChannel, in this case). Values sent to this terminal
 // will _not_ be received by its subscribers. Instead, the values will be sent
-// to the subscribers of the RACBinding's _other_ terminal.
+// to the subscribers of the RACChannel's _other_ terminal.
 //
 // For example, when using the `followingTerminal`, _sent_ values can only be
 // _received_ from the `leadingTerminal`, and vice versa.
 //
-// To make it easy to terminate a RACBinding, `error` and `completed` events
+// To make it easy to terminate a RACChannel, `error` and `completed` events
 // sent to either terminal will be received by the subscribers of _both_
 // terminals.
 //
-// Do not instantiate this class directly. Create a RACBinding instead.
-@interface RACBindingTerminal : RACSignal <RACSubscriber>
+// Do not instantiate this class directly. Create a RACChannel instead.
+@interface RACChannelTerminal : RACSignal <RACSubscriber>
 
-- (id)init __attribute__((unavailable("Instantiate a RACBinding instead")));
+- (id)init __attribute__((unavailable("Instantiate a RACChannel instead")));
 
 @end

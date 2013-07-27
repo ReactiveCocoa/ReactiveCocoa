@@ -1,19 +1,19 @@
 //
-//  RACKVOBinding.m
+//  RACKVOChannel.m
 //  ReactiveCocoa
 //
 //  Created by Uri Baghin on 27/12/2012.
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACKVOBinding.h"
+#import "RACKVOChannel.h"
 #import "EXTScope.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACDescription.h"
 #import "NSObject+RACKVOWrapper.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "NSString+RACKeyPathUtilities.h"
-#import "RACBinding.h"
+#import "RACChannel.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACReplaySubject.h"
@@ -21,14 +21,14 @@
 #import "RACSubscriber+Private.h"
 #import "RACSubject.h"
 
-// Key for the array of RACKVOBinding's additional thread local
+// Key for the array of RACKVOChannel's additional thread local
 // data in the thread dictionary.
-static NSString * const RACKVOBindingDataDictionaryKey = @"RACKVOBindingKey";
+static NSString * const RACKVOChannelDataDictionaryKey = @"RACKVOChannelKey";
 
 // Wrapper class for additional thread local data.
-@interface RACKVOBindingData : NSObject
+@interface RACKVOChannelData : NSObject
 
-// The flag used to ignore updates the binding itself has triggered.
+// The flag used to ignore updates the channel itself has triggered.
 @property (nonatomic, assign) BOOL ignoreNextUpdate;
 
 // The current -willChangeValueForKey:/-didChangeValueForKey: call stack depth.
@@ -38,37 +38,37 @@ static NSString * const RACKVOBindingDataDictionaryKey = @"RACKVOBindingKey";
 // never as an object reference.
 @property (nonatomic, assign) void *owner;
 
-+ (instancetype)dataForBinding:(RACKVOBinding *)binding;
++ (instancetype)dataForChannel:(RACKVOChannel *)channel;
 
 @end
 
-@interface RACKVOBinding ()
+@interface RACKVOChannel ()
 
-// The object whose key path the binding is wrapping.
+// The object whose key path the channel is wrapping.
 @property (atomic, unsafe_unretained) NSObject *target;
 
-// The key path the binding is wrapping.
+// The key path the channel is wrapping.
 @property (nonatomic, copy, readonly) NSString *keyPath;
 
 // Returns the existing thread local data container or nil if none exists.
-@property (nonatomic, strong, readonly) RACKVOBindingData *currentThreadData;
+@property (nonatomic, strong, readonly) RACKVOChannelData *currentThreadData;
 
-// Creates the thread local data container for the binding.
+// Creates the thread local data container for the channel.
 - (void)createCurrentThreadData;
 
-// Destroy the thread local data container for the binding.
+// Destroy the thread local data container for the channel.
 - (void)destroyCurrentThreadData;
 
 @end
 
-@implementation RACKVOBinding
+@implementation RACKVOChannel
 
 #pragma mark Properties
 
-- (RACKVOBindingData *)currentThreadData {
-	NSMutableArray *dataArray = NSThread.currentThread.threadDictionary[RACKVOBindingDataDictionaryKey];
+- (RACKVOChannelData *)currentThreadData {
+	NSMutableArray *dataArray = NSThread.currentThread.threadDictionary[RACKVOChannelDataDictionaryKey];
 
-	for (RACKVOBindingData *data in dataArray) {
+	for (RACKVOChannelData *data in dataArray) {
 		if (data.owner == (__bridge void *)self) return data;
 	}
 
@@ -93,15 +93,15 @@ static NSString * const RACKVOBindingDataDictionaryKey = @"RACKVOBindingKey";
 	// accordingly and forward the changes to the terminal.
 	//
 	// Intentionally capturing `self` strongly in the blocks below, so the
-	// binding object stays alive while observing.
+	// channel object stays alive while observing.
 	RACDisposable *observationDisposable = [target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior | NSKeyValueObservingOptionInitial observer:nil block:^(id value, NSDictionary *change) {
-		RACKVOBindingData *data = self.currentThreadData;
+		RACKVOChannelData *data = self.currentThreadData;
 		
 		// If the change is prior we only increase the stack depth if it was
 		// triggered by the last path component, we don't do anything otherwise.
 		if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
 			if ([change[RACKeyValueChangeAffectedOnlyLastComponentKey] boolValue]) {
-				// Don't worry about the data being nil, if it is it means the binding
+				// Don't worry about the data being nil, if it is it means the channel
 				// hasn't received a value since the latest ignored one anyway.
 				++data.stackDepth;
 			}
@@ -111,9 +111,9 @@ static NSString * const RACKVOBindingDataDictionaryKey = @"RACKVOBindingKey";
 		
 		// From here the change isn't prior.
 
-		// The binding only triggers changes to the last path component, if the
+		// The channel only triggers changes to the last path component, if the
 		// change wasn't triggered by the last path component, or was triggered by
-		// a deallocation, it definitely wasn't triggered by this binding, so just
+		// a deallocation, it definitely wasn't triggered by this channel, so just
 		// forward it.
 		if (![change[RACKeyValueChangeAffectedOnlyLastComponentKey] boolValue] || [change[RACKeyValueChangeCausedByDeallocationKey] boolValue]) {
 			[self.leadingTerminal sendNext:value];
@@ -125,8 +125,8 @@ static NSString * const RACKVOBindingDataDictionaryKey = @"RACKVOBindingKey";
 
 		// If the current stackDepth is greater than 0, then the change was
 		// triggered by a callback on -willChangeValueForKey:, and not by the
-		// binding itself. If however the stackDepth is 0, and ignoreNextUpdate is
-		// set, the changes was triggered by this binding and should not be
+		// channel itself. If however the stackDepth is 0, and ignoreNextUpdate is
+		// set, the changes was triggered by this channel and should not be
 		// forwarded.
 		if (data.stackDepth == 0 && data.ignoreNextUpdate) {
 			[self destroyCurrentThreadData];
@@ -148,13 +148,13 @@ static NSString * const RACKVOBindingDataDictionaryKey = @"RACKVOBindingKey";
 		}]
 		subscribeNext:^(id x) {
 			// Check the value of the second to last key path component. Since the
-			// binding can only update the value of a property on an object, and not
+			// channel can only update the value of a property on an object, and not
 			// update intermediate objects, it can only update the value of the whole
 			// key path if this object is not nil.
 			NSObject *object = (keyPathComponentsCount > 1 ? [self.target valueForKeyPath:keyPathByDeletingLastKeyPathComponent] : self.target);
 			if (object == nil) return;
 
-			// Set the ignoreNextUpdate flag before setting the value so this binding
+			// Set the ignoreNextUpdate flag before setting the value so this channel
 			// ignores the value in the subsequent -didChangeValueForKey: callback.
 			[self createCurrentThreadData];
 			self.currentThreadData.ignoreNextUpdate = YES;
@@ -181,24 +181,24 @@ static NSString * const RACKVOBindingDataDictionaryKey = @"RACKVOBindingKey";
 }
 
 - (void)createCurrentThreadData {
-	NSMutableArray *dataArray = NSThread.currentThread.threadDictionary[RACKVOBindingDataDictionaryKey];
+	NSMutableArray *dataArray = NSThread.currentThread.threadDictionary[RACKVOChannelDataDictionaryKey];
 	if (dataArray == nil) {
 		dataArray = [NSMutableArray array];
-		NSThread.currentThread.threadDictionary[RACKVOBindingDataDictionaryKey] = dataArray;
-		[dataArray addObject:[RACKVOBindingData dataForBinding:self]];
+		NSThread.currentThread.threadDictionary[RACKVOChannelDataDictionaryKey] = dataArray;
+		[dataArray addObject:[RACKVOChannelData dataForChannel:self]];
 		return;
 	}
 
-	for (RACKVOBindingData *data in dataArray) {
+	for (RACKVOChannelData *data in dataArray) {
 		if (data.owner == (__bridge void *)self) return;
 	}
 
-	[dataArray addObject:[RACKVOBindingData dataForBinding:self]];
+	[dataArray addObject:[RACKVOChannelData dataForChannel:self]];
 }
 
 - (void)destroyCurrentThreadData {
-	NSMutableArray *dataArray = NSThread.currentThread.threadDictionary[RACKVOBindingDataDictionaryKey];
-	NSUInteger index = [dataArray indexOfObjectPassingTest:^ BOOL (RACKVOBindingData *data, NSUInteger idx, BOOL *stop) {
+	NSMutableArray *dataArray = NSThread.currentThread.threadDictionary[RACKVOChannelDataDictionaryKey];
+	NSUInteger index = [dataArray indexOfObjectPassingTest:^ BOOL (RACKVOChannelData *data, NSUInteger idx, BOOL *stop) {
 		return data.owner == (__bridge void *)self;
 	}];
 
@@ -207,32 +207,32 @@ static NSString * const RACKVOBindingDataDictionaryKey = @"RACKVOBindingKey";
 
 @end
 
-@implementation RACKVOBinding (RACBind)
+@implementation RACKVOChannel (RACBind)
 
-- (RACBindingTerminal *)objectForKeyedSubscript:(NSString *)key {
+- (RACChannelTerminal *)objectForKeyedSubscript:(NSString *)key {
 	NSCParameterAssert(key != nil);
 
-	RACBindingTerminal *terminal = [self valueForKey:key];
-	NSCAssert([terminal isKindOfClass:RACBindingTerminal.class], @"Key \"%@\" does not identify a binding terminal", key);
+	RACChannelTerminal *terminal = [self valueForKey:key];
+	NSCAssert([terminal isKindOfClass:RACChannelTerminal.class], @"Key \"%@\" does not identify a channel terminal", key);
 	
 	return terminal;
 }
 
-- (void)setObject:(RACBindingTerminal *)otherTerminal forKeyedSubscript:(NSString *)key {
+- (void)setObject:(RACChannelTerminal *)otherTerminal forKeyedSubscript:(NSString *)key {
 	NSCParameterAssert(otherTerminal != nil);
 
-	RACBindingTerminal *selfTerminal = [self objectForKeyedSubscript:key];
+	RACChannelTerminal *selfTerminal = [self objectForKeyedSubscript:key];
 	[otherTerminal subscribe:selfTerminal];
 	[[selfTerminal skip:1] subscribe:otherTerminal];
 }
 
 @end
 
-@implementation RACKVOBindingData
+@implementation RACKVOChannelData
 
-+ (instancetype)dataForBinding:(RACKVOBinding *)binding {
-	RACKVOBindingData *data = [[self alloc] init];
-	data->_owner = (__bridge void *)binding;
++ (instancetype)dataForChannel:(RACKVOChannel *)channel {
+	RACKVOChannelData *data = [[self alloc] init];
+	data->_owner = (__bridge void *)channel;
 	return data;
 }
 

@@ -1475,6 +1475,19 @@ describe(@"-flatten:", ^{
 		expect(subjectDeallocd).will.beTruthy();
 		expect(signalDeallocd).will.beTruthy();
 	});
+
+	it(@"should not crash when disposing while subscribing", ^{
+		RACDisposable *disposable = [[signalsSubject flatten:0] subscribeCompleted:^{
+		}];
+
+		[signalsSubject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[disposable dispose];
+			[subscriber sendCompleted];
+			return nil;
+		}]];
+
+		[signalsSubject sendCompleted];
+	});
 });
 
 describe(@"-switchToLatest", ^{

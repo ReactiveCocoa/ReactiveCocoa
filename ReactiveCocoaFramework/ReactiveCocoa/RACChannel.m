@@ -30,20 +30,16 @@
 	self = [super init];
 	if (self == nil) return nil;
 
-	RACReplaySubject *leadingSubject = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"leadingSubject"];
+	// We don't want any starting value from the leadingSubject, but we do want
+	// error and completion to be replayed.
+	RACReplaySubject *leadingSubject = [[RACReplaySubject replaySubjectWithCapacity:0] setNameWithFormat:@"leadingSubject"];
 	RACReplaySubject *followingSubject = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"followingSubject"];
 
 	// Propagate errors and completion to everything.
 	[[leadingSubject ignoreValues] subscribe:followingSubject];
 	[[followingSubject ignoreValues] subscribe:leadingSubject];
 
-	// We don't want any starting value from the leadingSubject, but we do want
-	// error and completion to be replayed, so we just start it off with a dummy
-	// value, and always skip the initial `next` event.
-	[leadingSubject sendNext:RACUnit.defaultUnit];
-	RACSignal *leadingValues = [leadingSubject skip:1];
-
-	_leadingTerminal = [[[RACChannelTerminal alloc] initWithValues:leadingValues otherTerminal:followingSubject] setNameWithFormat:@"leadingTerminal"];
+	_leadingTerminal = [[[RACChannelTerminal alloc] initWithValues:leadingSubject otherTerminal:followingSubject] setNameWithFormat:@"leadingTerminal"];
 	_followingTerminal = [[[RACChannelTerminal alloc] initWithValues:followingSubject otherTerminal:leadingSubject] setNameWithFormat:@"followingTerminal"];
 
 	return self;

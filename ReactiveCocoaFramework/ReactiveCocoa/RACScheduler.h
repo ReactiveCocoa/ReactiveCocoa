@@ -88,7 +88,7 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 
 // Schedule the given block for execution on the scheduler after the delay.
 //
-// Converts seconds to nanoseconds and calls `-after:schedule:`.
+// Converts the delay into an NSDate, then invokes `-after:schedule:`.
 - (RACDisposable *)afterDelay:(NSTimeInterval)delay schedule:(void (^)(void))block;
 
 // Reschedule the given block at a particular interval, starting at a specific

@@ -1990,6 +1990,57 @@ describe(@"-delay:", ^{
 	});
 });
 
+describe(@"-catch:", ^{
+	it(@"should subscribe to ensuing signal on error", ^{
+		RACSubject *subject = [RACSubject subject];
+
+		RACSignal *signal = [subject catch:^(NSError *error) {
+			return [RACSignal return:@41];
+		}];
+
+		__block id value = nil;
+		[signal subscribeNext:^(id x) {
+			value = x;
+		}];
+
+		[subject sendError:RACSignalTestError];
+		expect(value).to.equal(@41);
+	});
+
+	it(@"should prevent source error from propagating", ^{
+		RACSubject *subject = [RACSubject subject];
+
+		RACSignal *signal = [subject catch:^(NSError *error) {
+			return [RACSignal empty];
+		}];
+
+		__block BOOL errorReceived = NO;
+		[signal subscribeError:^(NSError *error) {
+			errorReceived = YES;
+		}];
+
+		[subject sendError:RACSignalTestError];
+		expect(errorReceived).to.beFalsy();
+	});
+
+	it(@"should propogate error from ensuing signal", ^{
+		RACSubject *subject = [RACSubject subject];
+
+		NSError *secondaryError = [NSError errorWithDomain:@"bubs" code:41 userInfo:nil];
+		RACSignal *signal = [subject catch:^(NSError *error) {
+			return [RACSignal error:secondaryError];
+		}];
+
+		__block NSError *errorReceived = nil;
+		[signal subscribeError:^(NSError *error) {
+			errorReceived = error;
+		}];
+
+		[subject sendError:RACSignalTestError];
+		expect(errorReceived).to.equal(secondaryError);
+	});
+});
+
 describe(@"throttling", ^{
 	__block RACSubject *subject;
 

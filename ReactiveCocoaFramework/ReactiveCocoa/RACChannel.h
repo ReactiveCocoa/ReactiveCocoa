@@ -18,11 +18,12 @@
 //
 // For example, when connecting between a view and a model:
 //
-//         View         ------>       Model
-//  `followingTerminal` <------ `leadingTerminal`
+//        Model                      View
+//  `leadingTerminal` ------> `followingTerminal`
+//  `leadingTerminal` <------ `followingTerminal`
 //
 // The initial value of the model and all future changes to it are _sent on_ the
-// `leadingTerminal`, and _received from_ the `followingTerminal`.
+// `leadingTerminal`, and _received by_ subscribers of the `followingTerminal`.
 //
 // Likewise, whenever the user changes the value of the view, that value is sent
 // on the `followingTerminal`, and received in the model from the

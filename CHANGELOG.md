@@ -185,7 +185,7 @@ removed without deprecation.
 
 `-rac_bind:toObject:withKeyPath:` and related methods have been
 [replaced](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/638) with
-`-rac_channelToBinding:options:`, which returns a `RACChannel` instance that can be used as
+`-rac_channelToBinding:options:`, which returns a `RACChannelTerminal` that can be used as
 a two-way binding or a one-way signal.
 
 **To update:**

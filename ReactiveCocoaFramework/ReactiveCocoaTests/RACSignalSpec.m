@@ -2039,6 +2039,27 @@ describe(@"-catch:", ^{
 		[subject sendError:RACSignalTestError];
 		expect(errorReceived).to.equal(secondaryError);
 	});
+
+	it(@"should dispose ensuing signal", ^{
+		RACSubject *subject = [RACSubject subject];
+
+		RACSignal *signal = [subject catch:^(NSError *error) {
+			return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+				return [RACScheduler.currentScheduler afterDelay:0.1 schedule:^{
+					[subscriber sendNext:@41];
+				}];
+			}];
+		}];
+
+		__block id value = nil;
+		RACDisposable *disposable = [signal subscribeNext:^(id x) {
+			value = x;
+		}];
+
+		[subject sendError:RACSignalTestError];
+		[disposable dispose];
+		expect(value).will.beNil();
+	});
 });
 
 describe(@"throttling", ^{

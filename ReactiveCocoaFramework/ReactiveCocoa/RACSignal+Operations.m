@@ -250,7 +250,9 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
-			catchDisposable.disposable = [catchBlock(error) subscribe:subscriber];
+			RACSignal *signal = catchBlock(error);
+			NSCAssert(signal != nil, @"Expected non-nil signal from catch block on %@", self);
+			catchDisposable.disposable = [signal subscribe:subscriber];
 		} completed:^{
 			[subscriber sendCompleted];
 		}];

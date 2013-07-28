@@ -2023,7 +2023,7 @@ describe(@"-catch:", ^{
 		expect(errorReceived).to.beFalsy();
 	});
 
-	it(@"should propogate error from ensuing signal", ^{
+	it(@"should propagate error from ensuing signal", ^{
 		RACSubject *subject = [RACSubject subject];
 
 		NSError *secondaryError = [NSError errorWithDomain:@"bubs" code:41 userInfo:nil];

@@ -245,19 +245,20 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	NSCParameterAssert(catchBlock != NULL);
 
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+		RACSerialDisposable *catchDisposable = [[RACSerialDisposable alloc] init];
 
 		RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
-			RACDisposable *catchDisposable = [catchBlock(error) subscribe:subscriber];
-			if (catchDisposable != nil) [disposable addDisposable:catchDisposable];
+			catchDisposable.disposable = [catchBlock(error) subscribe:subscriber];
 		} completed:^{
 			[subscriber sendCompleted];
 		}];
 
-		if (subscriptionDisposable != nil) [disposable addDisposable:subscriptionDisposable];
-		return disposable;
+		return [RACDisposable disposableWithBlock:^{
+			[catchDisposable dispose];
+			[subscriptionDisposable dispose];
+		}];
 	}] setNameWithFormat:@"[%@] -catch:", self.name];
 }
 

@@ -35,6 +35,8 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=3&sta
  1. [Signal for UIActionSheet button clicks](#signal-for-uiactionsheet-button-clicks)
  1. [Better documentation for asynchronous backtraces](#better-documentation-for-asynchronous-backtraces)
  1. [Fixed libextobjc duplicated symbols](#fixed-libextobjc-duplicated-symbols)
+ 1. [Signal subscription side effects](#signal-subscription-side-effects)
+ 1. [Test scheduler](#test-scheduler)
 
 ## Breaking changes
 
@@ -377,3 +379,10 @@ libextobjc symbols that it uses.
 [-initially:](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/685)
 operator, which executes a given block each time the signal is subscribed to.
 This is symmetric to `-finally:`.
+
+### Test scheduler
+
+`RACTestScheduler` is a [new kind](LINK_TO_PULL_REQUEST) of scheduler that
+virtualizes time. Enqueued blocks can be stepped through at any pace, no matter
+how far in the future they're scheduled for, making it easy to test time-based
+behavior without actually waiting in unit tests.

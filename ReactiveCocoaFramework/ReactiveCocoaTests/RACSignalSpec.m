@@ -2043,22 +2043,20 @@ describe(@"-catch:", ^{
 	it(@"should dispose ensuing signal", ^{
 		RACSubject *subject = [RACSubject subject];
 
+		__block BOOL disposed = NO;
 		RACSignal *signal = [subject catch:^(NSError *error) {
 			return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-				return [RACScheduler.currentScheduler afterDelay:0.1 schedule:^{
-					[subscriber sendNext:@41];
+				return [RACDisposable disposableWithBlock:^{
+					disposed = YES;
 				}];
 			}];
 		}];
 
-		__block id value = nil;
-		RACDisposable *disposable = [signal subscribeNext:^(id x) {
-			value = x;
-		}];
-
+		RACDisposable *disposable = [signal subscribeCompleted:^{}];
 		[subject sendError:RACSignalTestError];
 		[disposable dispose];
-		expect(value).will.beNil();
+
+		expect(disposed).will.beTruthy();
 	});
 });
 

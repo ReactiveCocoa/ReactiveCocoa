@@ -243,27 +243,23 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 - (RACSignal *)catch:(RACSignal * (^)(NSError *error))catchBlock {
 	NSCParameterAssert(catchBlock != NULL);
-		
-	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		RACSerialDisposable *innerDisposable = nil;
-		RACDisposable *outerDisposable = subscribeForever(self,
-			^(id x) {
-				[subscriber sendNext:x];
-			},
-			^(NSError *error, RACDisposable *outerDisposable) {
-				[outerDisposable dispose];
 
-				RACSignal *signal = catchBlock(error);
-				innerDisposable.disposable = [signal subscribe:subscriber];
-			},
-			^(RACDisposable *outerDisposable) {
-				[outerDisposable dispose];
-				[subscriber sendCompleted];
-			});
+	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		RACSerialDisposable *catchDisposable = [[RACSerialDisposable alloc] init];
+
+		RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
+			[subscriber sendNext:x];
+		} error:^(NSError *error) {
+			RACSignal *signal = catchBlock(error);
+			NSCAssert(signal != nil, @"Expected non-nil signal from catch block on %@", self);
+			catchDisposable.disposable = [signal subscribe:subscriber];
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
 
 		return [RACDisposable disposableWithBlock:^{
-			[outerDisposable dispose];
-			[innerDisposable dispose];
+			[catchDisposable dispose];
+			[subscriptionDisposable dispose];
 		}];
 	}] setNameWithFormat:@"[%@] -catch:", self.name];
 }

@@ -382,7 +382,7 @@ This is symmetric to `-finally:`.
 
 ### Test scheduler
 
-`RACTestScheduler` is a [new kind](LINK_TO_PULL_REQUEST) of scheduler that
+`RACTestScheduler` is a [new kind](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/716) of scheduler that
 virtualizes time. Enqueued blocks can be stepped through at any pace, no matter
 how far in the future they're scheduled for, making it easy to test time-based
 behavior without actually waiting in unit tests.

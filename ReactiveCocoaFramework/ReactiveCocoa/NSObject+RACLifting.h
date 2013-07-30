@@ -27,7 +27,7 @@
 //
 // Examples
 //
-//   [button rac_liftSelector:@selector(setTitleColor:forState:) withSignals:textColorSignal, [RACSignal return:@(UIControlStateNormal)]];
+//   [button rac_liftSelector:@selector(setTitleColor:forState:) withSignals:textColorSignal, [RACSignal return:@(UIControlStateNormal)], nil];
 //
 // Returns a signal which sends the return value from each invocation of the
 // selector. If the selector returns void, it instead sends RACUnit.defaultUnit.

@@ -10,14 +10,14 @@
 #import <pthread.h>
 #import "RACBacktrace.h"
 
-#ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
-#import <dlfcn.h>
-#import "fishhook.h"
-#endif
-
 #define RAC_BACKTRACE_MAX_CALL_STACK_FRAMES 128
 
 #ifdef DEBUG
+
+#if TARGET_IPHONE_SIMULATOR
+#import <dlfcn.h>
+#import "fishhook.h"
+#endif
 
 // Undefine the macros that hide the real GCD functions.
 #undef dispatch_async
@@ -27,7 +27,7 @@
 #undef dispatch_barrier_async_f
 #undef dispatch_after_f
 
-#ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
+#if TARGET_IPHONE_SIMULATOR
 static void (*orig_dispatch_async)(dispatch_queue_t queue, dispatch_block_t block);
 static void (*orig_dispatch_barrier_async)(dispatch_queue_t queue, dispatch_block_t block);
 static void (*orig_dispatch_after)(dispatch_time_t when, dispatch_queue_t queue, dispatch_block_t block);
@@ -174,7 +174,7 @@ static void RACExceptionHandler (NSException *ex) {
 + (void)load {
 	@autoreleasepool {
 
-#ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
+#if TARGET_IPHONE_SIMULATOR
 		orig_dispatch_async = dlsym(RTLD_DEFAULT, "dispatch_async");
 		orig_dispatch_barrier_async = dlsym(RTLD_DEFAULT, "dispatch_barrier_async");
 		orig_dispatch_after = dlsym(RTLD_DEFAULT, "dispatch_after");

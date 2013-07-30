@@ -35,10 +35,10 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 // **Note:** Unlike most other schedulers, this does not set the current
 // scheduler. There may still be a valid +currentScheduler if this is used
 // within a block scheduled on a different scheduler.
-+ (instancetype)immediateScheduler;
++ (RACScheduler *)immediateScheduler;
 
 // A singleton scheduler that executes blocks in the main thread.
-+ (instancetype)mainThreadScheduler;
++ (RACScheduler *)mainThreadScheduler;
 
 // Creates and returns a new background scheduler with the given priority and
 // name. The name is for debug and instrumentation purposes only.
@@ -46,17 +46,17 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 // Scheduler creation is cheap. It's unnecessary to save the result of this
 // method call unless you want to serialize some actions on the same background
 // scheduler.
-+ (instancetype)schedulerWithPriority:(RACSchedulerPriority)priority name:(NSString *)name;
++ (RACScheduler *)schedulerWithPriority:(RACSchedulerPriority)priority name:(NSString *)name;
 
 // Invokes +schedulerWithPriority:name: with a default name.
-+ (instancetype)schedulerWithPriority:(RACSchedulerPriority)priority;
++ (RACScheduler *)schedulerWithPriority:(RACSchedulerPriority)priority;
 
 // Invokes +schedulerWithPriority: with RACSchedulerPriorityDefault.
-+ (instancetype)scheduler;
++ (RACScheduler *)scheduler;
 
 // The current scheduler. This will only be valid when used from within a
 // -[RACScheduler schedule:] block or when on the main thread.
-+ (instancetype)currentScheduler;
++ (RACScheduler *)currentScheduler;
 
 // Schedule the given block for execution on the scheduler.
 //
@@ -88,7 +88,7 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 
 // Schedule the given block for execution on the scheduler after the delay.
 //
-// Converts seconds to nanoseconds and calls `-after:schedule:`.
+// Converts the delay into an NSDate, then invokes `-after:schedule:`.
 - (RACDisposable *)afterDelay:(NSTimeInterval)delay schedule:(void (^)(void))block;
 
 // Reschedule the given block at a particular interval, starting at a specific
@@ -143,6 +143,6 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 
 @interface RACScheduler (Deprecated)
 
-+ (instancetype)schedulerWithQueue:(dispatch_queue_t)queue name:(NSString *)name __attribute__((deprecated("Use -[RACTargetQueueScheduler initWithName:targetQueue:] instead.")));
++ (RACScheduler *)schedulerWithQueue:(dispatch_queue_t)queue name:(NSString *)name __attribute__((deprecated("Use -[RACScheduler initWithName:targetQueue:] instead.")));
 
 @end

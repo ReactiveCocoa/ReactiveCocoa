@@ -2367,6 +2367,7 @@
 					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"\n\n//:configuration",
 				);
 				INFOPLIST_FILE = "ReactiveCocoaTests/UIKit/UIKitTests/ReactiveCocoa-iOS-UIKitTestHostTests-Info.plist";
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
@@ -2395,6 +2396,7 @@
 					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"\n\n//:configuration",
 				);
 				INFOPLIST_FILE = "ReactiveCocoaTests/UIKit/UIKitTests/ReactiveCocoa-iOS-UIKitTestHostTests-Info.plist";
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";

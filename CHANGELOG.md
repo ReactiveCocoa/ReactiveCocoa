@@ -390,21 +390,21 @@ libextobjc symbols that it uses.
 
 ### Bindings for UIKit classes
 
-RACBinding interfaces have been [added](https://github.com/ReactiveCocoa/pull/686)
+RACChannel interfaces have been [added](https://github.com/ReactiveCocoa/pull/686)
 to many UIKit classes, greatly simplifying glue code between your models and views.
 
 For example, assuming you want to bind a `person` model's `name` property:
 
 ```objc
 UITextField *nameField = ...;
-RACBinding *nameBinding = RACBind(model, name, nil);
-RACBinding *nameFieldBinding = [nameField rac_textBinding];
-[nameBinding subscribe:nameFieldBinding];
-[[nameFieldBinding skip:1] subscribe:nameBinding];
+RACChannelTerminal *nameTerminal = RACChannelTo(model, name, nil);
+RACChannelTerminal *nameFieldTerminal = [nameField rac_textChannel];
+[nameTerminal subscribe:nameFieldTerminal];
+[nameFieldTerminal subscribe:nameTerminal];
 ```
 
-You may also bind multiple controls to the same property, for example a UISlider and
-a UIStepper for more fine-grained editing.
+You may also bind multiple controls to the same property, for example a UISlider for
+coarse editing and a UIStepper for fine-grained editing.
 
 ### Signal subscription side effects
 

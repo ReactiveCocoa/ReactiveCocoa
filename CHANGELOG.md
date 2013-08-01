@@ -28,7 +28,6 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=3&sta
  1. [Windows and numbered buffers removed](#windows-and-numbered-buffers-removed)
  1. [NSTask extension removed](#nstask-extension-removed)
  1. [RACSubscriber class now private](#racsubscriber-class-now-private)
- 1. [RACPropertySubject class now a subclass of RACBinding](#racpropertysubject-class-now-a-subclass-of-racbinding)
 
 **[Additions and improvements](#additions-and-improvements)**
 
@@ -348,18 +347,6 @@ used directly, so it has been
 **To update:**
 
 Replace uses of `RACSubscriber` with `id<RACSubscriber>` or `RACSubject`.
-
-### RACPropertySubject class now a subclass of RACBinding
-
-The `RACPropertySubject` class is now a subclass of `RACBinding` instead of
-`RACSubject` as while it behaves similarly, it is semantically distinct and
-implemented differently.
-
-**To update:**
-
-If you have defined category methods on `RACSubject` and wish to use them on
-`RACPropertySubject` you will have to duplicate them on `RACPropertySubject`
-itself.
 
 ## Additions and improvements
 

@@ -34,13 +34,16 @@
 // The terminal which "leads" the channel, by sending its latest value
 // immediately to new subscribers of the `followingTerminal`.
 //
-// New subscribers to this terminal will not receive a starting value.
+// New subscribers to this terminal will not receive a starting value, but will
+// receive all future values that are sent to the `followingTerminal`.
 @property (nonatomic, strong, readonly) RACChannelTerminal *leadingTerminal;
 
-// The terminal which "follows" the lead of the other terminal.
+// The terminal which "follows" the lead of the other terminal, only sending
+// _future_ values to the subscribers of the `leadingTerminal`.
 //
 // The latest value sent to the `leadingTerminal` (if any) will be sent
-// immediately to new subscribers of this terminal.
+// immediately to new subscribers of this terminal, and then all future values
+// as well.
 @property (nonatomic, strong, readonly) RACChannelTerminal *followingTerminal;
 
 @end

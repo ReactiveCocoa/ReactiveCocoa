@@ -8,7 +8,7 @@
 
 #import "UIControl+RACSignalSupport.h"
 #import "EXTScope.h"
-#import "RACBinding+Private.h"
+#import "RACChannel.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSignal.h"
@@ -40,24 +40,20 @@
 		setNameWithFormat:@"%@ -rac_signalForControlEvents: %lx", [self rac_description], (unsigned long)controlEvents];
 }
 
-- (RACBinding *)rac_bindingForControlEvents:(UIControlEvents)controlEvents key:(NSString *)key nilValue:(id)nilValue {
+- (RACChannelTerminal *)rac_channelForControlEvents:(UIControlEvents)controlEvents key:(NSString *)key nilValue:(id)nilValue {
+	key = [key copy];
+	RACChannel *channel = [[RACChannel alloc] init];
+
+	[self.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+		[channel.followingTerminal sendCompleted];
+	}]];
+
 	@weakify(self);
 
-	RACBinding *binding = [[RACBinding alloc] init];
-	if (binding == nil) return nil;
-
-	binding.signal = [RACSignal
-		createSignal:^(id<RACSubscriber> subscriber) {
-			@strongify(self);
-
-			[subscriber sendNext:[self valueForKey:key]];
-			return [[[self
-				rac_signalForControlEvents:controlEvents]
-				map:^(id sender) {
-					return [sender valueForKey:key];
-				}]
-				subscribe:subscriber];
-		}];
+	[[[self rac_signalForControlEvents:controlEvents] map:^(id _) {
+		@strongify(self);
+		return [self valueForKey:key];
+	}] subscribe:channel.followingTerminal];
 
 	SEL selector = NSSelectorFromString([NSString stringWithFormat:@"set%@%@:animated:", [key substringToIndex:1].uppercaseString, [key substringFromIndex:1]]);
 	NSInvocation *invocation = nil;
@@ -67,9 +63,8 @@
 		invocation.target = self;
 	}
 
-	binding.subscriber = [RACSubscriber subscriberWithNext:^(id x) {
+	[channel.followingTerminal subscribeNext:^(id x) {
 		@strongify(self);
-		if (self == nil) return;
 
 		if (invocation == nil) {
 			[self setValue:x ?: nilValue forKey:key];
@@ -83,16 +78,7 @@
 		[invocation setArgument:&animated atIndex:3];
 
 		[invocation invoke];
-	} error:^(NSError *error) {
-		@strongify(self);
-
-		NSCAssert(NO, @"Received error from %@ in binding for control events: %lx key \"%@\": %@", self, (unsigned long)controlEvents, key, error);
-		// Log the error if we're running with assertions disabled.
-		NSLog( @"Received error from %@ in binding for control events: %lx key \"%@\": %@", self, (unsigned long)controlEvents, key, error);
-
-	} completed:nil];
-
-	return binding;
+	}];
 }
 
 @end

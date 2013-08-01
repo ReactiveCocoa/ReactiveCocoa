@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@class RACSignal, RACBinding;
+@class RACSignal, RACChannelTerminal;
 
 @interface UITextField (RACSignalSupport)
 
@@ -17,12 +17,9 @@
 // control event is fired on the control.
 - (RACSignal *)rac_textSignal;
 
-// Creates and returns a RACBinding that sends the receiver's current text on
-// subscription and whenever UIControlEventEditingChanged is fired, and sets the
-// text to the values it receives.
-//
-// Note that this differs from other RACBindings as it will not react to changes
-// triggered from code regardless of what triggered the changes.
-- (RACBinding *)rac_textBinding;
+// Creates and returns a RACChannelTerminal that sends the receiver's text
+// whenever the UIControlEventEditingChanged control event is fired, and sets
+// the text to the values it receives.
+- (RACChannelTerminal *)rac_textChannel;
 
 @end

@@ -10,6 +10,11 @@
 #import <pthread.h>
 #import "RACBacktrace.h"
 
+#ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
+#import <dlfcn.h>
+#import "fishhook.h"
+#endif
+
 #define RAC_BACKTRACE_MAX_CALL_STACK_FRAMES 128
 
 #ifdef DEBUG
@@ -21,6 +26,22 @@
 #undef dispatch_async_f
 #undef dispatch_barrier_async_f
 #undef dispatch_after_f
+
+#ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
+static void (*orig_dispatch_async)(dispatch_queue_t queue, dispatch_block_t block);
+static void (*orig_dispatch_barrier_async)(dispatch_queue_t queue, dispatch_block_t block);
+static void (*orig_dispatch_after)(dispatch_time_t when, dispatch_queue_t queue, dispatch_block_t block);
+static void (*orig_dispatch_async_f)(dispatch_queue_t queue, void *context, dispatch_function_t work);
+static void (*orig_dispatch_barrier_async_f)(dispatch_queue_t queue, void *context, dispatch_function_t work);
+static void (*orig_dispatch_after_f)(dispatch_time_t when, dispatch_queue_t queue, void *context, dispatch_function_t work);
+
+#define dispatch_async orig_dispatch_async
+#define dispatch_barrier_async orig_dispatch_barrier_async
+#define dispatch_after orig_dispatch_after
+#define dispatch_async_f orig_dispatch_async_f
+#define dispatch_barrier_async_f orig_dispatch_barrier_async_f
+#define dispatch_after_f orig_dispatch_after_f
+#endif
 
 @interface RACBacktrace () {
 	void *_callStackAddresses[RAC_BACKTRACE_MAX_CALL_STACK_FRAMES];
@@ -79,6 +100,11 @@ void rac_dispatch_after(dispatch_time_t time, dispatch_queue_t queue, dispatch_b
 	dispatch_after(time, queue, RACBacktraceBlock(queue, block));
 }
 
+// Clang static analyzer reports a false positive memory leak warning for each
+// of the following three methods. This conditional compilation prevents the
+// static analyzer from analyzing these methods, but only for the iOS target.
+#if !defined(__clang_analyzer__) || !defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
+
 void rac_dispatch_async_f(dispatch_queue_t queue, void *context, dispatch_function_t function) {
 	RACDispatchInfo *info = [[RACDispatchInfo alloc] initWithQueue:queue function:function context:context];
 	dispatch_async_f(queue, (void *)CFBridgingRetain(info), &RACTraceDispatch);
@@ -93,6 +119,8 @@ void rac_dispatch_after_f(dispatch_time_t time, dispatch_queue_t queue, void *co
 	RACDispatchInfo *info = [[RACDispatchInfo alloc] initWithQueue:queue function:function context:context];
 	dispatch_after_f(time, queue, (void *)CFBridgingRetain(info), &RACTraceDispatch);
 }
+
+#endif
 
 // This is what actually performs the injection.
 //
@@ -145,12 +173,30 @@ static void RACExceptionHandler (NSException *ex) {
 
 + (void)load {
 	@autoreleasepool {
+
+#ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
+		orig_dispatch_async = dlsym(RTLD_DEFAULT, "dispatch_async");
+		orig_dispatch_barrier_async = dlsym(RTLD_DEFAULT, "dispatch_barrier_async");
+		orig_dispatch_after = dlsym(RTLD_DEFAULT, "dispatch_after");
+		orig_dispatch_async_f = dlsym(RTLD_DEFAULT, "dispatch_async_f");
+		orig_dispatch_barrier_async_f = dlsym(RTLD_DEFAULT, "dispatch_barrier_async_f");
+		orig_dispatch_after_f = dlsym(RTLD_DEFAULT, "dispatch_after_f");
+
+		rac_rebind_symbols((struct rac_rebinding[]){
+			{ .name = "dispatch_async", .replacement = rac_dispatch_async},
+			{ .name = "dispatch_barrier_async", .replacement = rac_dispatch_barrier_async},
+			{ .name = "dispatch_after", .replacement = rac_dispatch_after},
+			{ .name = "dispatch_async_f", .replacement = rac_dispatch_async_f},
+			{ .name = "dispatch_barrier_async_f", .replacement = rac_dispatch_barrier_async_f},
+			{ .name = "dispatch_after_f", .replacement = rac_dispatch_after_f},
+		}, 6);
+#else
 		NSString *libraries = [[[NSProcessInfo processInfo] environment] objectForKey:@"DYLD_INSERT_LIBRARIES"];
 
 		// Don't install our handlers if we're not actually intercepting function
 		// calls.
 		if ([libraries rangeOfString:@"ReactiveCocoa"].length == 0) return;
-
+#endif
 		NSLog(@"*** Enabling asynchronous backtraces");
 
 		NSSetUncaughtExceptionHandler(&RACExceptionHandler);

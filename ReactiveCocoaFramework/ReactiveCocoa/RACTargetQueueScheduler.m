@@ -7,7 +7,6 @@
 //
 
 #import "RACTargetQueueScheduler.h"
-#import "RACBacktrace.h"
 #import "RACQueueScheduler+Subclass.h"
 
 @implementation RACTargetQueueScheduler

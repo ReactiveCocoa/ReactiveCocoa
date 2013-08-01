@@ -12,8 +12,8 @@
 
 @implementation UISlider (RACSignalSupport)
 
-- (RACBinding *)rac_valueBindingWithNilValue:(id)nilValue {
-	return [self rac_bindingForControlEvents:UIControlEventValueChanged key:@keypath(self.value) nilValue:nilValue];
+- (RACChannelTerminal *)rac_valueChannelWithNilValue:(id)nilValue {
+	return [self rac_channelForControlEvents:UIControlEventValueChanged key:@keypath(self.value) nilValue:nilValue];
 }
 
 @end

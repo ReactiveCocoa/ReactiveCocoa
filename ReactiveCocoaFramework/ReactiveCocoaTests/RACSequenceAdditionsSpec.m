@@ -61,6 +61,21 @@ describe(@"NSArray sequences", ^{
 			};
 		});
 	});
+
+	it(@"should fast enumerate after zipping", ^{
+		// This certain list of values causes issues, for some reason.
+		NSArray *values = @[ @0, @0, @0, @0, @0, @0, @0, @0, @0, @0, @0, @0, @0, @0, @0, @0 ];
+		RACSequence *zippedSequence = [RACSequence zip:@[ values.rac_sequence, values.rac_sequence ] reduce:^(id obj1, id obj2) {
+			return obj1;
+		}];
+
+		NSMutableArray *collectedValues = [NSMutableArray array];
+		for (id value in zippedSequence) {
+			[collectedValues addObject:value];
+		}
+
+		expect(collectedValues).to.equal(values);
+	});
 });
 
 describe(@"NSDictionary sequences", ^{

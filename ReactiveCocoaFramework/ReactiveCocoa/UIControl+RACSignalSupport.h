@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@class RACSignal, RACBinding;
+@class RACSignal, RACChannelTerminal;
 
 @interface UIControl (RACSignalSupport)
 
@@ -16,20 +16,18 @@
 // whenever one of the control events is triggered.
 - (RACSignal *)rac_signalForControlEvents:(UIControlEvents)controlEvents;
 
-// Creates and returns a RACBinding that sends the current value of the given
-// key on subscription and whenever one of the control events is triggered, and
-// sets the value of the key to the values it receives. If it receives `nil`, it
-// sets the value to `nilValue` instead.
+// Adds a RACChannel-based interface to the receiver for the given
+// UIControlEvents and exposes it.
 //
 // controlEvents - A mask of UIControlEvents on which to send new values.
-// key           - The key whose value should be read and written respectively
-//                 on subscription and when a control event fires, and when a
-//                 value is sent to the RACBinding.
+// key           - The key whose value should be read and set when a control
+//                 event fires and when a value is sent to the
+//                 RACChannelTerminal respectively.
 // nilValue      - The value to be assigned to the key when `nil` is sent to the
-//                 RACBinding.
+//                 RACChannelTerminal.
 //
-// Note that this differs from other RACBindings as it will not react to changes
-// triggered from code regardless of what triggered the changes.
-- (RACBinding *)rac_bindingForControlEvents:(UIControlEvents)controlEvents key:(NSString *)key nilValue:(id)nilValue;
+// Returns a RACChannelTerminal which will send future values from the receiver,
+// and update the receiver when values are sent to the terminal.
+- (RACChannelTerminal *)rac_channelForControlEvents:(UIControlEvents)controlEvents key:(NSString *)key nilValue:(id)nilValue;
 
 @end

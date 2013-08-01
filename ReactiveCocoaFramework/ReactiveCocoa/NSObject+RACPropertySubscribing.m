@@ -38,12 +38,12 @@
 
 	@unsafeify(self, observer);
 	return [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-		@strongify(self, observer);
-
 		if (deallocFlagDisposable.disposed) {
 			[subscriber sendCompleted];
 			return nil;
 		}
+
+		@strongify(self, observer);
 
 		RACDisposable *observationDisposable = [self rac_observeKeyPath:keyPath options:options observer:observer block:^(id value, NSDictionary *change) {
 			[subscriber sendNext:RACTuplePack(value, change)];

@@ -31,8 +31,8 @@
 		setNameWithFormat:@"%@ -rac_textSignal", [self rac_description]];
 }
 
-- (id)rac_textBinding {
-	return [self rac_bindingForControlEvents:UIControlEventEditingChanged key:@keypath(self.text) nilValue:@""];
+- (RACChannelTerminal *)rac_textChannel {
+	return [self rac_channelForControlEvents:UIControlEventEditingChanged key:@keypath(self.text) nilValue:@""];
 }
 
 @end

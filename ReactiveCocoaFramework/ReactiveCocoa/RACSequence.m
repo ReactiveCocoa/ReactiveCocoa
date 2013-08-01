@@ -312,6 +312,12 @@
 		state->state = (unsigned long)CFBridgingRetain(sequence);
 	};
 
+	void (^complete)(void) = ^{
+		// Release any stored sequence.
+		setSequence(nil);
+		state->state = ULONG_MAX;
+	};
+
 	if (state->state == 0) {
 		// Since a sequence doesn't mutate, this just needs to be set to
 		// something non-NULL.
@@ -330,14 +336,17 @@
 		// prevent them from being released until the enumerator's used them.
 		__autoreleasing id obj = seq.head;
 		if (obj == nil) {
-			// Release any stored sequence.
-			setSequence(nil);
-			state->state = ULONG_MAX;
-
+			complete();
 			break;
 		}
 
 		stackbuf[enumeratedCount++] = obj;
+
+		if (seq.tail == nil) {
+			complete();
+			break;
+		}
+
 		setSequence(seq.tail);
 	}
 

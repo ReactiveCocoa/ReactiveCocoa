@@ -11,11 +11,13 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=3&sta
 **[Breaking changes](#breaking-changes)**
 
  1. [Simplified and safer KVO](#simplified-and-safer-kvo)
- 1. [Fallback nil values for RAC and RACBind](#fallback-nil-values-for-rac-and-racbind)
+ 1. [Fallback nil value for RAC macro](#fallback-nil-values-for-rac-macro)
  1. [Explicit schedulers for time-based operators](#explicit-schedulers-for-time-based-operators)
  1. [Commands must only be used on the main thread](#commands-must-only-be-used-on-the-main-thread)
  1. [Commands automatically catch errors](#commands-automatically-catch-errors)
  1. [More powerful selector signals](#more-powerful-selector-signals)
+ 1. [Simpler two-way bindings](#simpler-two-way-bindings)
+ 1. [Better bindings for AppKit](#better-bindings-for-appkit)
  1. [More obvious sequencing operator](#more-obvious-sequencing-operator)
  1. [Renamed signal binding method](#renamed-signal-binding-method)
  1. [Consistent selector lifting](#consistent-selector-lifting)
@@ -23,10 +25,7 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=3&sta
  1. [Notification immediately before object deallocation](#notification-immediately-before-object-deallocation)
  1. [Extensible queue-based schedulers](#extensible-queue-based-schedulers)
  1. [GCD time values replaced with NSDate](#gcd-time-values-replaced-with-nsdate)
- 1. [Better bindings for AppKit](#better-bindings-for-appkit)
- 1. [-bindTo: removed](#-bindto-removed)
  1. [Windows and numbered buffers removed](#windows-and-numbered-buffers-removed)
- 1. [C string lifting removed](#c-string-lifting-removed)
  1. [NSTask extension removed](#nstask-extension-removed)
  1. [RACSubscriber class now private](#racsubscriber-class-now-private)
  1. [RACPropertySubject class now a subclass of RACBinding](#racpropertysubject-class-now-a-subclass-of-racbinding)
@@ -38,6 +37,8 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=3&sta
  1. [Better documentation for asynchronous backtraces](#better-documentation-for-asynchronous-backtraces)
  1. [Fixed libextobjc duplicated symbols](#fixed-libextobjc-duplicated-symbols)
  1. [Bindings for UIKit classes](#bindings-for-uikit-classes)
+ 1. [Signal subscription side effects](#signal-subscription-side-effects)
+ 1. [Test scheduler](#test-scheduler)
 
 ## Breaking changes
 
@@ -59,15 +60,15 @@ Unlike the previous macros, which only required one argument for key paths on
  * Replace uses of `RACAble(self.key)` with `[RACObserve(self, key) skip:1]` (if
    skipping the starting value is necessary).
 
-### Fallback nil values for RAC and RACBind
+### Fallback nil values for RAC macro
 
-`RAC` and `RACBind` now [always
-require](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/670) two or three
+The `RAC` macro now [always
+requires](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/670) two or three
 arguments:
 
  1. The object to bind to.
- 1. The key path to bind to.
- 1. (Optional) A value to set when `nil` is sent to the binding.
+ 1. The key path to set when new values are sent.
+ 1. (Optional) A value to set when `nil` is sent on the signal.
 
 This is necessary to avoid a `-setNilValueForKey:` exception when observing
 a primitive property _through_ an intermediate object which gets set to `nil`.
@@ -79,7 +80,6 @@ deallocation of `weak` properties will be considered a change to `nil`.
 **To update:**
 
  * Replace uses of `RAC(self.objectProperty)` with `RAC(self, objectProperty)`.
- * Replace uses of `RACBind(self.objectProperty)` with `RACBind(self, objectProperty)`.
  * When binding a signal that might send nil (like a key path observation) to
    a primitive property, provide a default value: `RAC(self, integerProperty, @5)`
 
@@ -153,6 +153,56 @@ swizzling class methods is dangerous and difficult to do correctly.
  * Replace uses of `+rac_signalForSelector:` by implementing the class method
    and sending arguments onto a `RACSubject` instead.
 
+### Simpler two-way bindings
+
+`RACPropertySubject` and `RACBinding` have been
+[replaced](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/695) with
+`RACChannel` and `RACChannelTerminal`. Similarly, `RACObservablePropertySubject`
+has been replaced with `RACKVOChannel`.
+
+In addition to slightly better terminology and more obvious usage, channels only
+offer two-way bindings by default, which is a simplification over the previous N-way binding
+interface.
+
+Because of the sweeping conceptual changes, the old APIs have been completely
+removed without deprecation.
+
+**To update:**
+
+ * Instead of creating a `RACPropertySubject`, create a `RACChannel`. Replace
+   N-way property subjects (where N is greater than 2) with multiple
+   `RACChannel`s.
+ * Instead of creating a `RACObservablePropertySubject`, create
+   a `RACKVOChannel` or use the `RACChannelTo` macro.
+ * Replace uses of `RACBinding` with `RACChannelTerminal`.
+ * Replace uses of `RACBind(self.objectProperty)` with `RACChannelTo(self,
+   objectProperty)`. Add a default value for primitive properties:
+   `RACChannelTo(self, integerProperty, @5)`
+ * Replace uses of `-bindTo:` with the explicit subscription of two endpoints:
+
+```objc
+[binding1.followingEndpoint subscribe:binding2.leadingEndpoint];
+[[binding2.leadingEndpoint skip:1] subscribe:binding1.followingEndpoint];
+```
+
+### Better bindings for AppKit
+
+`-rac_bind:toObject:withKeyPath:` and related methods have been
+[replaced](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/638) with
+`-rac_channelToBinding:options:`, which returns a `RACChannelTerminal` that can be used as
+a two-way binding or a one-way signal.
+
+**To update:**
+
+ * If possible, refactor code to use the new `RACChannel` interface. This
+   bridges Cocoa Bindings with the full power of ReactiveCocoa.
+ * For a direct conversion, use `-bind:toObject:withKeyPath:options:` with the
+   following options:
+    1. `@{ NSContinuouslyUpdatesValueBindingOption: @YES }` for `-rac_bind:toObject:withKeyPath:`
+    1. `@{ NSContinuouslyUpdatesValueBindingOption: @YES, NSNullPlaceholderBindingOption: nilValue }` for `-rac_bind:toObject:withKeyPath:nilValue:`
+    1. `@{ NSContinuouslyUpdatesValueBindingOption: @YES, NSValueTransformerBindingOption: valueTransformer }` for `-rac_bind:toObject:withKeyPath:transform:`
+    1. `@{ NSContinuouslyUpdatesValueBindingOption: @YES, NSValueTransformerBindingOption: NSNegateBooleanTransformerName }` for `-rac_bind:toObject:withNegatedKeyPath:`
+
 ### More obvious sequencing operator
 
 To make the sequencing and transformation operators less confusing,
@@ -171,9 +221,9 @@ To make the sequencing and transformation operators less confusing,
 [combined](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/617) into a new
 `-[RACSignal setKeyPath:onObject:nilValue:]` method.
 
-The `nilValue` parameter was added in parallel with [RAC and
-RACBind](#fallback-nil-values-for-rac-and-racbind), but the semantics are
-otherwise identical.
+The `nilValue` parameter was added in parallel with the
+[RAC](#fallback-nil-values-for-rac-macro) macro, but the semantics are otherwise
+identical.
 
 **To update:**
 
@@ -264,41 +314,6 @@ scheduler](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/171).
 
 Replace `dispatch_time_t` calculations with `NSDate`.
 
-### Better bindings for AppKit
-
-`-rac_bind:toObject:withKeyPath:` and related methods have been
-[replaced](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/638) with
-`-rac_bind:options:`, which returns a `RACBinding` instance that can be used as
-a two-way binding or treated like a one-way signal.
-
-**To update:**
-
- * If possible, refactor code to use the new `RACBinding` interface. This
-   bridges Cocoa Bindings with the full power of ReactiveCocoa.
- * For a direct conversion, use `-bind:toObject:withKeyPath:options:` with the
-   following options:
-    1. `@{ NSContinuouslyUpdatesValueBindingOption: @YES }` for `-rac_bind:toObject:withKeyPath:`
-    1. `@{ NSContinuouslyUpdatesValueBindingOption: @YES, NSNullPlaceholderBindingOption: nilValue }` for `-rac_bind:toObject:withKeyPath:nilValue:`
-    1. `@{ NSContinuouslyUpdatesValueBindingOption: @YES, NSValueTransformerBindingOption: valueTransformer }` for `-rac_bind:toObject:withKeyPath:transform:`
-    1. `@{ NSContinuouslyUpdatesValueBindingOption: @YES, NSValueTransformerBindingOption: NSNegateBooleanTransformerName }` for `-rac_bind:toObject:withNegatedKeyPath:`
-
-### -bindTo: removed
-
-`-[RACBinding bindTo:]` was difficult to understand, so it has been
-[removed](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/605). Explicit
-subscription is preferred instead.
-
-The special `RACBind(...) = RACBind(...)` syntax will continue to work.
-
-**To update:**
-
-Replace `[binding1 bindTo:binding2]` with:
-
-```objc
-[binding2 subscribe:binding1];
-[[binding1 skip:1] subscribe:binding2];
-```
-
 ### Windows and numbered buffers removed
 
 `-windowWithStart:close:` and `-buffer:` have been
@@ -313,16 +328,6 @@ operators.
  * Refactor uses of `-windowWithStart:close:` with different patterns.
  * Replace uses of `-buffer:` with [take, collect, and
    repeat](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/587).
-
-### C string lifting removed
-
-Methods with `char *` and `const char *` arguments can [no longer be
-lifted](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/535), because the
-memory management semantics make it impossible to do safely.
-
-**To update:**
-
-Invoke such methods manually in a `-subscribeNext:` block.
 
 ### NSTask extension removed
 
@@ -413,3 +418,17 @@ RACBinding *nameFieldBinding = [nameField rac_textBinding];
 
 You may also bind multiple controls to the same property, for example a UISlider and
 a UIStepper for more fine-grained editing.
+
+### Signal subscription side effects
+
+`RACSignal` now has the
+[-initially:](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/685)
+operator, which executes a given block each time the signal is subscribed to.
+This is symmetric to `-finally:`.
+
+### Test scheduler
+
+`RACTestScheduler` is a [new kind](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/716) of scheduler that
+virtualizes time. Enqueued blocks can be stepped through at any pace, no matter
+how far in the future they're scheduled for, making it easy to test time-based
+behavior without actually waiting in unit tests.

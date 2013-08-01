@@ -12,8 +12,8 @@
 
 @implementation UISwitch (RACSignalSupport)
 
-- (RACBinding *)rac_onBindingWithNilValue:(id)nilValue {
-	return [self rac_bindingForControlEvents:UIControlEventValueChanged key:@keypath(self.on) nilValue:nilValue];
+- (RACChannelTerminal *)rac_onChannelWithNilValue:(id)nilValue {
+	return [self rac_channelForControlEvents:UIControlEventValueChanged key:@keypath(self.on) nilValue:nilValue];
 }
 
 @end

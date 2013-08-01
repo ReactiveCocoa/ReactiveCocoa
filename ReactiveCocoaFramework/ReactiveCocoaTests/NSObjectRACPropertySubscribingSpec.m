@@ -134,4 +134,22 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 	});
 });
 
+describe(@"-rac_valuesAndChangesForKeyPath:options:observer:", ^{
+	it(@"should complete immediately if the receiver or observer have deallocated", ^{
+		RACSignal *signal;
+		@autoreleasepool {
+			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
+			RACTestObject *observer __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
+			signal = [object rac_valuesAndChangesForKeyPath:@keypath(object, stringValue) options:0 observer:observer];
+		}
+
+		__block BOOL completed = NO;
+		[signal subscribeCompleted:^{
+			completed = YES;
+		}];
+
+		expect(completed).to.beTruthy();
+	});
+});
+
 SpecEnd

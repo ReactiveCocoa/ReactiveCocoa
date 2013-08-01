@@ -9,6 +9,7 @@
 #import "RACPropertySignalExamples.h"
 #import "RACSequenceExamples.h"
 #import "RACStreamExamples.h"
+#import "RACTestObject.h"
 
 #import "EXTKeyPathCoding.h"
 #import "NSObject+RACDeallocating.h"
@@ -27,7 +28,7 @@
 #import "RACSubject.h"
 #import "RACSubscriber+Private.h"
 #import "RACSubscriber.h"
-#import "RACTestObject.h"
+#import "RACTestScheduler.h"
 #import "RACTuple.h"
 #import "RACUnit.h"
 #import <libkern/OSAtomic.h>
@@ -179,12 +180,13 @@ describe(@"subscribing", ^{
 	});
 	
 	it(@"shouldn't get anything after dispose", ^{
+		RACTestScheduler *scheduler = [[RACTestScheduler alloc] init];
 		NSMutableArray *receivedValues = [NSMutableArray array];
 
 		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@0];
 
-			[RACScheduler.currentScheduler afterDelay:0 schedule:^{
+			[scheduler afterDelay:0 schedule:^{
 				[subscriber sendNext:@1];
 			}];
 
@@ -199,7 +201,7 @@ describe(@"subscribing", ^{
 		expect(receivedValues).to.equal(expectedValues);
 		
 		[disposable dispose];
-		[NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.01]];
+		[scheduler stepAll];
 		
 		expect(receivedValues).to.equal(expectedValues);
 	});
@@ -430,7 +432,7 @@ describe(@"querying", ^{
 	});
 
 	it(@"should return a delayed value from -asynchronousFirstOrDefault:success:error:", ^{
-		RACSignal *signal = [[RACSignal return:RACUnit.defaultUnit] delay:0.01];
+		RACSignal *signal = [[RACSignal return:RACUnit.defaultUnit] delay:0];
 
 		__block BOOL scheduledBlockRan = NO;
 		[RACScheduler.mainThreadScheduler schedule:^{
@@ -451,7 +453,7 @@ describe(@"querying", ^{
 	});
 
 	it(@"should return a default value from -asynchronousFirstOrDefault:success:error:", ^{
-		RACSignal *signal = [[RACSignal error:RACSignalTestError] delay:0.01];
+		RACSignal *signal = [[RACSignal error:RACSignalTestError] delay:0];
 
 		__block BOOL scheduledBlockRan = NO;
 		[RACScheduler.mainThreadScheduler schedule:^{
@@ -508,7 +510,7 @@ describe(@"querying", ^{
 	});
 
 	it(@"should return a delayed success from -asynchronouslyWaitUntilCompleted:", ^{
-		RACSignal *signal = [[RACSignal return:RACUnit.defaultUnit] delay:0.01];
+		RACSignal *signal = [[RACSignal return:RACUnit.defaultUnit] delay:0];
 
 		__block BOOL scheduledBlockRan = NO;
 		[RACScheduler.mainThreadScheduler schedule:^{
@@ -1453,6 +1455,19 @@ describe(@"-flatten:", ^{
 		expect(subjectDeallocd).will.beTruthy();
 		expect(signalDeallocd).will.beTruthy();
 	});
+
+	it(@"should not crash when disposing while subscribing", ^{
+		RACDisposable *disposable = [[signalsSubject flatten:0] subscribeCompleted:^{
+		}];
+
+		[signalsSubject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[disposable dispose];
+			[subscriber sendCompleted];
+			return nil;
+		}]];
+
+		[signalsSubject sendCompleted];
+	});
 });
 
 describe(@"-switchToLatest", ^{
@@ -1885,11 +1900,16 @@ describe(@"-timeout:onScheduler:", ^{
 	});
 
 	it(@"should time out", ^{
+		RACTestScheduler *scheduler = [[RACTestScheduler alloc] init];
+
 		__block NSError *receivedError = nil;
-		[[subject timeout:0.0001 onScheduler:RACScheduler.mainThreadScheduler] subscribeError:^(NSError *e) {
+		[[subject timeout:1 onScheduler:scheduler] subscribeError:^(NSError *e) {
 			receivedError = e;
 		}];
 
+		expect(receivedError).to.beNil();
+
+		[scheduler stepAll];
 		expect(receivedError).willNot.beNil();
 		expect(receivedError.domain).to.equal(RACSignalErrorDomain);
 		expect(receivedError.code).to.equal(RACSignalErrorTimedOut);
@@ -1912,19 +1932,15 @@ describe(@"-timeout:onScheduler:", ^{
 	});
 
 	it(@"should not time out after disposal", ^{
+		RACTestScheduler *scheduler = [[RACTestScheduler alloc] init];
+
 		__block NSError *receivedError = nil;
-		RACDisposable *disposable = [[subject timeout:0.01 onScheduler:RACScheduler.mainThreadScheduler] subscribeError:^(NSError *e) {
+		RACDisposable *disposable = [[subject timeout:1 onScheduler:scheduler] subscribeError:^(NSError *e) {
 			receivedError = e;
 		}];
 
-		__block BOOL done = NO;
-		[[[RACSignal interval:0.1 onScheduler:RACScheduler.mainThreadScheduler] take:1] subscribeNext:^(id _) {
-			done = YES;
-		}];
-
 		[disposable dispose];
-
-		expect(done).will.beTruthy();
+		[scheduler stepAll];
 		expect(receivedError).to.beNil();
 	});
 });
@@ -1987,6 +2003,76 @@ describe(@"-delay:", ^{
 
 		expect(done).will.beTruthy();
 		expect(next).to.beNil();
+	});
+});
+
+describe(@"-catch:", ^{
+	it(@"should subscribe to ensuing signal on error", ^{
+		RACSubject *subject = [RACSubject subject];
+
+		RACSignal *signal = [subject catch:^(NSError *error) {
+			return [RACSignal return:@41];
+		}];
+
+		__block id value = nil;
+		[signal subscribeNext:^(id x) {
+			value = x;
+		}];
+
+		[subject sendError:RACSignalTestError];
+		expect(value).to.equal(@41);
+	});
+
+	it(@"should prevent source error from propagating", ^{
+		RACSubject *subject = [RACSubject subject];
+
+		RACSignal *signal = [subject catch:^(NSError *error) {
+			return [RACSignal empty];
+		}];
+
+		__block BOOL errorReceived = NO;
+		[signal subscribeError:^(NSError *error) {
+			errorReceived = YES;
+		}];
+
+		[subject sendError:RACSignalTestError];
+		expect(errorReceived).to.beFalsy();
+	});
+
+	it(@"should propagate error from ensuing signal", ^{
+		RACSubject *subject = [RACSubject subject];
+
+		NSError *secondaryError = [NSError errorWithDomain:@"bubs" code:41 userInfo:nil];
+		RACSignal *signal = [subject catch:^(NSError *error) {
+			return [RACSignal error:secondaryError];
+		}];
+
+		__block NSError *errorReceived = nil;
+		[signal subscribeError:^(NSError *error) {
+			errorReceived = error;
+		}];
+
+		[subject sendError:RACSignalTestError];
+		expect(errorReceived).to.equal(secondaryError);
+	});
+
+	it(@"should dispose ensuing signal", ^{
+		RACSubject *subject = [RACSubject subject];
+
+		__block BOOL disposed = NO;
+		RACSignal *signal = [subject catch:^(NSError *error) {
+			return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+				return [RACDisposable disposableWithBlock:^{
+					disposed = YES;
+				}];
+			}];
+		}];
+
+		RACDisposable *disposable = [signal subscribeCompleted:^{}];
+		[subject sendError:RACSignalTestError];
+		[disposable dispose];
+
+		expect(disposed).will.beTruthy();
 	});
 });
 
@@ -2549,15 +2635,17 @@ describe(@"-collect", ^{
 });
 
 describe(@"-bufferWithTime:", ^{
-	NSTimeInterval interval = 0.01;
+	__block RACTestScheduler *scheduler;
 
 	__block RACSubject *input;
 	__block RACSignal *bufferedInput;
 	__block RACTuple *latestValue;
 
 	beforeEach(^{
+		scheduler = [[RACTestScheduler alloc] init];
+
 		input = [RACSubject subject];
-		bufferedInput = [input bufferWithTime:interval onScheduler:RACScheduler.mainThreadScheduler];
+		bufferedInput = [input bufferWithTime:1 onScheduler:scheduler];
 		latestValue = nil;
 
 		[bufferedInput subscribeNext:^(RACTuple *x) {
@@ -2568,32 +2656,38 @@ describe(@"-bufferWithTime:", ^{
 	it(@"should buffer nexts", ^{
 		[input sendNext:@1];
 		[input sendNext:@2];
-		expect(latestValue).will.equal(RACTuplePack(@1, @2));
+
+		[scheduler stepAll];
+		expect(latestValue).to.equal(RACTuplePack(@1, @2));
 		
 		[input sendNext:@3];
 		[input sendNext:@4];
 		[input sendNext:NSNull.null];
 		
 		// NSNull should not be converted
-		expect(latestValue).will.equal(RACTuplePack(@3, @4, NSNull.null));
+		[scheduler stepAll];
+		expect(latestValue).to.equal(RACTuplePack(@3, @4, NSNull.null));
 	});
 
 	it(@"should not perform buffering until a value is sent", ^{
 		[input sendNext:@1];
 		[input sendNext:@2];
-		expect(latestValue).will.equal(RACTuplePack(@1, @2));
+		[scheduler stepAll];
+		expect(latestValue).to.equal(RACTuplePack(@1, @2));
 
-		[NSThread sleepForTimeInterval:interval];
+		[scheduler stepAll];
 		expect(latestValue).to.equal(RACTuplePack(@1, @2));
 		
 		[input sendNext:@3];
 		[input sendNext:@4];
-		expect(latestValue).will.equal(RACTuplePack(@3, @4));
+		[scheduler stepAll];
+		expect(latestValue).to.equal(RACTuplePack(@3, @4));
 	});
 
 	it(@"should flush any buffered nexts upon completion", ^{
 		[input sendNext:@1];
 		[input sendCompleted];
+		[scheduler stepAll];
 		expect(latestValue).to.equal(RACTuplePack(@1));
 	});
 });

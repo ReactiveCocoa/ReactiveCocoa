@@ -6,10 +6,12 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import "RACChannelExamples.h"
+
+#import "EXTKeyPathCoding.h"
 #import "NSObject+RACAppKitBindings.h"
 #import "NSObject+RACDeallocating.h"
-#import "RACBinding.h"
+#import "RACChannel.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSignal+Operations.h"
@@ -18,8 +20,6 @@ SpecBegin(NSObjectRACAppKitBindings)
 
 __block NSTextField *textField;
 __block void (^setText)(NSString *);
-
-__block RACBinding *valueBinding;
 
 beforeEach(^{
 	textField = [[NSTextField alloc] initWithFrame:NSZeroRect];
@@ -33,104 +33,116 @@ beforeEach(^{
 		NSDictionary *bindingInfo = [textField infoForBinding:NSValueBinding];
 		[bindingInfo[NSObservedObjectKey] setValue:text forKeyPath:bindingInfo[NSObservedKeyPathKey]];
 	} copy];
-
-	valueBinding = [textField rac_bind:NSValueBinding];
-	expect(valueBinding).notTo.beNil();
+});
+	
+itShouldBehaveLike(RACViewChannelExamples, ^{
+	return @{
+		RACViewChannelExampleView: textField,
+		RACViewChannelExampleKeyPath: @keypath(textField.stringValue),
+		RACViewChannelExampleCreateTerminalBlock: ^{
+			return [textField rac_channelToBinding:NSValueBinding];
+		}
+	};
 });
 
-it(@"should start with nil", ^{
-	expect([valueBinding first]).to.beNil();
-});
+describe(@"value binding", ^{
+	__block RACChannelTerminal *valueTerminal;
 
-it(@"should send view changes", ^{
-	__block NSString *received;
-	[valueBinding subscribeNext:^(id x) {
-		received = x;
-	}];
+	beforeEach(^{
+		valueTerminal = [textField rac_channelToBinding:NSValueBinding];
+		expect(valueTerminal).notTo.beNil();
+	});
 
-	setText(@"fuzz");
-	expect(received).to.equal(@"fuzz");
-
-	setText(@"buzz");
-	expect(received).to.equal(@"buzz");
-});
-
-it(@"should send binding changes", ^{
-	[valueBinding sendNext:@"fuzz"];
-	expect(textField.stringValue).to.equal(@"fuzz");
-
-	[valueBinding sendNext:@"buzz"];
-	expect(textField.stringValue).to.equal(@"buzz");
-});
-
-it(@"should not echo changes back to the binding", ^{
-	__block NSUInteger receivedCount = 0;
-	[valueBinding subscribeNext:^(id _) {
-		receivedCount++;
-	}];
-
-	expect(receivedCount).to.equal(1);
-
-	[valueBinding sendNext:@"fuzz"];
-	expect(receivedCount).to.equal(1);
-
-	setText(@"buzz");
-	expect(receivedCount).to.equal(2);
-});
-
-it(@"should complete manually", ^{
-	__block BOOL completed = NO;
-	[valueBinding subscribeCompleted:^{
-		completed = YES;
-	}];
-
-	[valueBinding sendCompleted];
-	expect(completed).to.beTruthy();
-});
-
-it(@"should complete when the view deallocates", ^{
-	__block BOOL deallocated = NO;
-	__block BOOL completed = NO;
-
-	@autoreleasepool {
-		NSTextField *view __attribute__((objc_precise_lifetime)) = [[NSTextField alloc] initWithFrame:NSZeroRect];
-		[view.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-			deallocated = YES;
-		}]];
-
-		[[view rac_bind:NSValueBinding] subscribeCompleted:^{
-			completed = YES;
+	it(@"should not have a starting value", ^{
+		__block BOOL receivedNext = NO;
+		[valueTerminal subscribeNext:^(id x) {
+			receivedNext = YES;
 		}];
 
-		expect(deallocated).to.beFalsy();
-		expect(completed).to.beFalsy();
-	}
+		expect(receivedNext).to.beFalsy();
+	});
 
-	expect(deallocated).to.beTruthy();
-	expect(completed).to.beTruthy();
-});
+	it(@"should send view changes", ^{
+		__block NSString *received;
+		[valueTerminal subscribeNext:^(id x) {
+			received = x;
+		}];
 
-it(@"should deallocate after the view deallocates", ^{
-	__block BOOL viewDeallocated = NO;
-	__block BOOL bindingDeallocated = NO;
+		setText(@"fuzz");
+		expect(received).to.equal(@"fuzz");
 
-	@autoreleasepool {
-		NSTextField *view __attribute__((objc_precise_lifetime)) = [[NSTextField alloc] initWithFrame:NSZeroRect];
-		[view.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-			viewDeallocated = YES;
-		}]];
+		setText(@"buzz");
+		expect(received).to.equal(@"buzz");
+	});
 
-		RACBinding *binding = [view rac_bind:NSValueBinding];
-		[binding.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-			bindingDeallocated = YES;
-		}]];
+	it(@"should set values on the view", ^{
+		[valueTerminal sendNext:@"fuzz"];
+		expect(textField.stringValue).to.equal(@"fuzz");
 
-		expect(viewDeallocated).to.beFalsy();
-		expect(bindingDeallocated).to.beFalsy();
-	}
+		[valueTerminal sendNext:@"buzz"];
+		expect(textField.stringValue).to.equal(@"buzz");
+	});
 
-	expect(viewDeallocated).to.beTruthy();
-	expect(bindingDeallocated).will.beTruthy();
+	it(@"should not echo changes back to the channel", ^{
+		__block NSUInteger receivedCount = 0;
+		[valueTerminal subscribeNext:^(id _) {
+			receivedCount++;
+		}];
+
+		expect(receivedCount).to.equal(0);
+
+		[valueTerminal sendNext:@"fuzz"];
+		expect(receivedCount).to.equal(0);
+
+		setText(@"buzz");
+		expect(receivedCount).to.equal(1);
+	});
+
+	it(@"should complete when the view deallocates", ^{
+		__block BOOL deallocated = NO;
+		__block BOOL completed = NO;
+
+		@autoreleasepool {
+			NSTextField *view __attribute__((objc_precise_lifetime)) = [[NSTextField alloc] initWithFrame:NSZeroRect];
+			[view.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				deallocated = YES;
+			}]];
+
+			RACChannelTerminal *terminal = [view rac_channelToBinding:NSValueBinding];
+			[terminal subscribeCompleted:^{
+				completed = YES;
+			}];
+
+			expect(deallocated).to.beFalsy();
+			expect(completed).to.beFalsy();
+		}
+
+		expect(deallocated).to.beTruthy();
+		expect(completed).to.beTruthy();
+	});
+
+	it(@"should deallocate after the view deallocates", ^{
+		__block BOOL viewDeallocated = NO;
+		__block BOOL terminalDeallocated = NO;
+
+		@autoreleasepool {
+			NSTextField *view __attribute__((objc_precise_lifetime)) = [[NSTextField alloc] initWithFrame:NSZeroRect];
+			[view.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				viewDeallocated = YES;
+			}]];
+
+			RACChannelTerminal *terminal = [view rac_channelToBinding:NSValueBinding];
+			[terminal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				terminalDeallocated = YES;
+			}]];
+
+			expect(viewDeallocated).to.beFalsy();
+			expect(terminalDeallocated).to.beFalsy();
+		}
+
+		expect(viewDeallocated).to.beTruthy();
+		expect(terminalDeallocated).will.beTruthy();
+	});
 });
 
 SpecEnd

@@ -1,5 +1,5 @@
 //
-//  RACObservablePropertySubjectSpec.m
+//  RACKVOChannelSpec.m
 //  ReactiveCocoa
 //
 //  Created by Uri Baghin on 16/12/2012.
@@ -7,21 +7,21 @@
 //
 
 #import "RACTestObject.h"
+#import "RACChannelExamples.h"
 #import "RACPropertySignalExamples.h"
-#import "RACPropertySubjectExamples.h"
 
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACKVOWrapper.h"
-#import "RACBinding.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
-#import "RACObservablePropertySubject.h"
+#import "RACKVOChannel.h"
+#import "RACSignal+Operations.h"
 
-SpecBegin(RACObservablePropertySubject)
+SpecBegin(RACKVOChannel)
 
-describe(@"RACObservablePropertySubject", ^{
+describe(@"RACKVOChannel", ^{
 	__block RACTestObject *object;
-	__block RACObservablePropertySubject *property;
+	__block RACKVOChannel *channel;
 	id value1 = @"test value 1";
 	id value2 = @"test value 2";
 	id value3 = @"test value 3";
@@ -29,53 +29,60 @@ describe(@"RACObservablePropertySubject", ^{
 	
 	before(^{
 		object = [[RACTestObject alloc] init];
-		property = [RACObservablePropertySubject propertyWithTarget:object keyPath:@keypath(object.stringValue) nilValue:nil];
+		channel = [[RACKVOChannel alloc] initWithTarget:object keyPath:@keypath(object.stringValue) nilValue:nil];
 	});
 	
 	id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, id nilValue, RACSignal *signal) {
-		[signal subscribe:[RACObservablePropertySubject propertyWithTarget:testObject keyPath:keyPath nilValue:nilValue]];
+		RACKVOChannel *channel = [[RACKVOChannel alloc] initWithTarget:testObject keyPath:keyPath nilValue:nilValue];
+		[signal subscribe:channel.followingTerminal];
 	};
 	
 	itShouldBehaveLike(RACPropertySignalExamples, ^{
 		return @{ RACPropertySignalExamplesSetupBlock: setupBlock };
 	});
 	
-	itShouldBehaveLike(RACPropertySubjectExamples, ^{
-		return @{
-			RACPropertySubjectExampleGetPropertyBlock: [^{ return [RACObservablePropertySubject propertyWithTarget:object keyPath:@keypath(object.stringValue) nilValue:nil]; } copy]
-		};
+	itShouldBehaveLike(RACChannelExamples, @{
+		RACChannelExampleCreateBlock: [^{
+			return [[RACKVOChannel alloc] initWithTarget:object keyPath:@keypath(object.stringValue) nilValue:nil];
+		} copy]
 	});
 	
-	it(@"should send the object's current value when subscribed to", ^{
+	it(@"should send the object's current value when subscribed to followingTerminal", ^{
 		__block id receivedValue = @"received value should not be this";
-		[[property take:1] subscribeNext:^(id x) {
+		[[channel.followingTerminal take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
+
 		expect(receivedValue).to.beNil();
 		
 		object.stringValue = value1;
-		[[property take:1] subscribeNext:^(id x) {
+		[[channel.followingTerminal take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
+
 		expect(receivedValue).to.equal(value1);
 	});
 	
-	it(@"should send the object's new value when it's changed", ^{
+	it(@"should send the object's new value on followingTerminal when it's changed", ^{
 		object.stringValue = value1;
+
 		NSMutableArray *receivedValues = [NSMutableArray array];
-		[property subscribeNext:^(id x) {
+		[channel.followingTerminal subscribeNext:^(id x) {
 			[receivedValues addObject:x];
 		}];
+
 		object.stringValue = value2;
 		object.stringValue = value3;
 		expect(receivedValues).to.equal(values);
 	});
 	
-	it(@"should set values it's sent", ^{
+	it(@"should set the object's value using values sent to the followingTerminal", ^{
 		expect(object.stringValue).to.beNil();
-		[property sendNext:value1];
+
+		[channel.followingTerminal sendNext:value1];
 		expect(object.stringValue).to.equal(value1);
-		[property sendNext:value2];
+
+		[channel.followingTerminal sendNext:value2];
 		expect(object.stringValue).to.equal(value2);
 	});
 	
@@ -84,19 +91,22 @@ describe(@"RACObservablePropertySubject", ^{
 		[object rac_observeKeyPath:@keypath(object.stringValue) options:0 observer:self block:^(id value, NSDictionary *change) {
 			[receivedValues addObject:value];
 		}];
+
 		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:value1];
 			[subscriber sendNext:value2];
 			[subscriber sendNext:value3];
 			return nil;
 		}];
-		[signal subscribe:property];
+
+		[signal subscribe:channel.followingTerminal];
 		expect(receivedValues).to.equal(values);
 	});
 
-	it(@"should complete when the target deallocates", ^{
+	it(@"should complete both terminals when the target deallocates", ^{
+		__block BOOL leadingCompleted = NO;
+		__block BOOL followingCompleted = NO;
 		__block BOOL deallocated = NO;
-		__block BOOL completed = NO;
 
 		@autoreleasepool {
 			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
@@ -104,20 +114,50 @@ describe(@"RACObservablePropertySubject", ^{
 				deallocated = YES;
 			}]];
 
-			[[RACObservablePropertySubject propertyWithTarget:object keyPath:@keypath(object.stringValue) nilValue:nil] subscribeCompleted:^{
-				completed = YES;
+			RACKVOChannel *channel = [[RACKVOChannel alloc] initWithTarget:object keyPath:@keypath(object.stringValue) nilValue:nil];
+			[channel.leadingTerminal subscribeCompleted:^{
+				leadingCompleted = YES;
+			}];
+
+			[channel.followingTerminal subscribeCompleted:^{
+				followingCompleted = YES;
 			}];
 
 			expect(deallocated).to.beFalsy();
-			expect(completed).to.beFalsy();
+			expect(leadingCompleted).to.beFalsy();
+			expect(followingCompleted).to.beFalsy();
 		}
 
 		expect(deallocated).to.beTruthy();
-		expect(completed).to.beTruthy();
+		expect(leadingCompleted).to.beTruthy();
+		expect(followingCompleted).to.beTruthy();
+	});
+
+	it(@"should deallocate when the target deallocates", ^{
+		__block BOOL targetDeallocated = NO;
+		__block BOOL channelDeallocated = NO;
+
+		@autoreleasepool {
+			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
+			[object.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				targetDeallocated = YES;
+			}]];
+
+			RACKVOChannel *channel = [[RACKVOChannel alloc] initWithTarget:object keyPath:@keypath(object.stringValue) nilValue:nil];
+			[channel.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				channelDeallocated = YES;
+			}]];
+
+			expect(targetDeallocated).to.beFalsy();
+			expect(channelDeallocated).to.beFalsy();
+		}
+
+		expect(targetDeallocated).to.beTruthy();
+		expect(channelDeallocated).to.beTruthy();
 	});
 });
 
-describe(@"RACObservablePropertySubject bindings", ^{
+describe(@"RACChannelTo", ^{
 	__block RACTestObject *a;
 	__block RACTestObject *b;
 	__block RACTestObject *c;
@@ -135,7 +175,7 @@ describe(@"RACObservablePropertySubject bindings", ^{
 	});
 	
 	it(@"should keep objects' properties in sync", ^{
-		RACBind(a, stringValue) = RACBind(b, stringValue);
+		RACChannelTo(a, stringValue) = RACChannelTo(b, stringValue);
 		expect(a.stringValue).to.beNil();
 		expect(b.stringValue).to.beNil();
 		
@@ -153,7 +193,7 @@ describe(@"RACObservablePropertySubject bindings", ^{
 	});
 	
 	it(@"should keep properties identified by keypaths in sync", ^{
-		RACBind(a, strongTestObjectValue.stringValue) = RACBind(b, strongTestObjectValue.stringValue);
+		RACChannelTo(a, strongTestObjectValue.stringValue) = RACChannelTo(b, strongTestObjectValue.stringValue);
 		a.strongTestObjectValue = [[RACTestObject alloc] init];
 		b.strongTestObjectValue = [[RACTestObject alloc] init];
 		
@@ -173,7 +213,7 @@ describe(@"RACObservablePropertySubject bindings", ^{
 	});
 	
 	it(@"should update properties identified by keypaths when the intermediate values change", ^{
-		RACBind(a, strongTestObjectValue.stringValue) = RACBind(b, strongTestObjectValue.stringValue);
+		RACChannelTo(a, strongTestObjectValue.stringValue) = RACChannelTo(b, strongTestObjectValue.stringValue);
 		a.strongTestObjectValue = [[RACTestObject alloc] init];
 		b.strongTestObjectValue = [[RACTestObject alloc] init];
 		c.stringValue = testName1;
@@ -183,8 +223,8 @@ describe(@"RACObservablePropertySubject bindings", ^{
 		expect(a.strongTestObjectValue).notTo.equal(b.strongTestObjectValue);
 	});
 	
-	it(@"should update properties identified by keypaths when the binding was created when one of the two objects had an intermediate nil value", ^{
-		RACBind(a, strongTestObjectValue.stringValue) = RACBind(b, strongTestObjectValue.stringValue);
+	it(@"should update properties identified by keypaths when the channel was created when one of the two objects had an intermediate nil value", ^{
+		RACChannelTo(a, strongTestObjectValue.stringValue) = RACChannelTo(b, strongTestObjectValue.stringValue);
 		b.strongTestObjectValue = [[RACTestObject alloc] init];
 		c.stringValue = testName1;
 		a.strongTestObjectValue = c;
@@ -197,7 +237,8 @@ describe(@"RACObservablePropertySubject bindings", ^{
 	it(@"should take the value of the object being bound to at the start", ^{
 		a.stringValue = testName1;
 		b.stringValue = testName2;
-		RACBind(a, stringValue) = RACBind(b, stringValue);
+
+		RACChannelTo(a, stringValue) = RACChannelTo(b, stringValue);
 		expect(a.stringValue).to.equal(testName2);
 		expect(b.stringValue).to.equal(testName2);
 	});
@@ -205,7 +246,8 @@ describe(@"RACObservablePropertySubject bindings", ^{
 	it(@"should update the value even if it's the same value the object had before it was bound", ^{
 		a.stringValue = testName1;
 		b.stringValue = testName2;
-		RACBind(a, stringValue) = RACBind(b, stringValue);
+
+		RACChannelTo(a, stringValue) = RACChannelTo(b, stringValue);
 		expect(a.stringValue).to.equal(testName2);
 		expect(b.stringValue).to.equal(testName2);
 		
@@ -218,8 +260,9 @@ describe(@"RACObservablePropertySubject bindings", ^{
 		a.stringValue = testName1;
 		b.stringValue = testName2;
 		c.stringValue = testName3;
-		RACBind(a, stringValue) = RACBind(b, stringValue);
-		RACBind(b, stringValue) = RACBind(c, stringValue);
+
+		RACChannelTo(a, stringValue) = RACChannelTo(b, stringValue);
+		RACChannelTo(b, stringValue) = RACChannelTo(c, stringValue);
 		expect(a.stringValue).to.equal(testName3);
 		expect(b.stringValue).to.equal(testName3);
 		expect(c.stringValue).to.equal(testName3);
@@ -242,29 +285,34 @@ describe(@"RACObservablePropertySubject bindings", ^{
 	
 	it(@"should bind changes made by KVC on arrays", ^{
 		b.arrayValue = @[];
-		RACBind(a, arrayValue) = RACBind(b, arrayValue);
+		RACChannelTo(a, arrayValue) = RACChannelTo(b, arrayValue);
+
 		[[b mutableArrayValueForKeyPath:@keypath(b.arrayValue)] addObject:@1];
 		expect(a.arrayValue).to.equal(b.arrayValue);
 	});
 	
 	it(@"should bind changes made by KVC on sets", ^{
 		b.setValue = [NSSet set];
-		RACBind(a, setValue) = RACBind(b, setValue);
+		RACChannelTo(a, setValue) = RACChannelTo(b, setValue);
+
 		[[b mutableSetValueForKeyPath:@keypath(b.setValue)] addObject:@1];
 		expect(a.setValue).to.equal(b.setValue);
 	});
 	
 	it(@"should bind changes made by KVC on ordered sets", ^{
 		b.orderedSetValue = [NSOrderedSet orderedSet];
-		RACBind(a, orderedSetValue) = RACBind(b, orderedSetValue);
+		RACChannelTo(a, orderedSetValue) = RACChannelTo(b, orderedSetValue);
+
 		[[b mutableOrderedSetValueForKeyPath:@keypath(b.orderedSetValue)] addObject:@1];
 		expect(a.orderedSetValue).to.equal(b.orderedSetValue);
 	});
 	
 	it(@"should handle deallocation of intermediate objects correctly even without support from KVO", ^{
 		__block BOOL wasDisposed = NO;
-		RACBind(a, weakTestObjectValue.stringValue) = RACBind(b, strongTestObjectValue.stringValue);
+
+		RACChannelTo(a, weakTestObjectValue.stringValue) = RACChannelTo(b, strongTestObjectValue.stringValue);
 		b.strongTestObjectValue = [[RACTestObject alloc] init];
+
 		@autoreleasepool {
 			RACTestObject *object = [[RACTestObject alloc] init];
 			[object.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
@@ -275,7 +323,6 @@ describe(@"RACObservablePropertySubject bindings", ^{
 			object.stringValue = testName1;
 			
 			expect(wasDisposed).to.beFalsy();
-			
 			expect(b.strongTestObjectValue.stringValue).to.equal(testName1);
 		}
 		
@@ -284,39 +331,41 @@ describe(@"RACObservablePropertySubject bindings", ^{
 	});
 	
 	it(@"should stop binding when disposed", ^{
-		RACBinding *aBinding = RACBind(a, stringValue);
-		RACBinding *bBinding = RACBind(b, stringValue);
-		RACDisposable *aDisposable = [bBinding subscribe:aBinding];
-		RACDisposable *bDisposable = [aBinding subscribe:bBinding];
+		RACChannelTerminal *aTerminal = RACChannelTo(a, stringValue);
+		RACChannelTerminal *bTerminal = RACChannelTo(b, stringValue);
 
 		a.stringValue = testName1;
+		RACDisposable *disposable = [aTerminal subscribe:bTerminal];
+
 		expect(a.stringValue).to.equal(testName1);
 		expect(b.stringValue).to.equal(testName1);
 
-		[aDisposable dispose];
-		[bDisposable dispose];
-
 		a.stringValue = testName2;
 		expect(a.stringValue).to.equal(testName2);
-		expect(b.stringValue).to.equal(testName1);
+		expect(b.stringValue).to.equal(testName2);
+
+		[disposable dispose];
+
+		a.stringValue = testName3;
+		expect(a.stringValue).to.equal(testName3);
+		expect(b.stringValue).to.equal(testName2);
 	});
 	
 	it(@"should use the nilValue when sent nil", ^{
-		RACBinding *binding = RACBind(a, integerValue, @5);
+		RACChannelTerminal *terminal = RACChannelTo(a, integerValue, @5);
 		expect(a.integerValue).to.equal(0);
 
-		[binding sendNext:@2];
+		[terminal sendNext:@2];
 		expect(a.integerValue).to.equal(2);
 
-		[binding sendNext:nil];
+		[terminal sendNext:nil];
 		expect(a.integerValue).to.equal(5);
 	});
 
 	it(@"should use the nilValue when an intermediate object is nil", ^{
 		__block BOOL wasDisposed = NO;
 
-		RACBind(a, weakTestObjectValue.integerValue, @5) = RACBind(b, strongTestObjectValue.integerValue, @5);
-
+		RACChannelTo(a, weakTestObjectValue.integerValue, @5) = RACChannelTo(b, strongTestObjectValue.integerValue, @5);
 		b.strongTestObjectValue = [[RACTestObject alloc] init];
 
 		@autoreleasepool {
@@ -326,10 +375,9 @@ describe(@"RACObservablePropertySubject bindings", ^{
 			}]];
 			
 			a.weakTestObjectValue = object;
-
 			object.integerValue = 2;
+
 			expect(wasDisposed).to.beFalsy();
-			
 			expect(b.strongTestObjectValue.integerValue).to.equal(2);
 		}
 		

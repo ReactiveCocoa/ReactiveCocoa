@@ -13,8 +13,12 @@
 @interface UISlider (RACSignalSupport)
 
 // Creates and returns a RACBinding that sends the receiver's current value on
-// subscription and whenever it changes, and sets the value to the values it
-// receives. If it receives `nil`, it sets the value to `nilValue` instead.
+// subscription and whenever UIControlEventValueChanged is fired, and sets the
+// value to the values it receives. If it receives `nil`, it sets the value to
+// `nilValue` instead.
+//
+// Note that this differs from other RACBindings as it will not react to changes
+// triggered from code regardless of what triggered the changes.
 - (RACBinding *)rac_valueBindingWithNilValue:(id)nilValue;
 
 @end

@@ -91,11 +91,16 @@ it(@"should trace across a RACScheduler", ^{
 	expect(previousBacktrace).willNot.beNil();
 });
 
+// For iOS builds, RACBacktrace is enabled only on the simulator, not on device.
+#if TARGET_IPHONE_SIMULATOR || !TARGET_OS_IPHONE
+
 it(@"should trace across an NSOperationQueue", ^{
 	NSOperationQueue *queue = [[NSOperationQueue alloc] init];
 	[queue addOperationWithBlock:block];
 	expect(previousBacktrace).willNot.beNil();
 });
+
+#endif
 
 SpecEnd
 

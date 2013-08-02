@@ -6,7 +6,9 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#ifdef DEBUG
+// RACBacktrace is only enabled for `DEBUG` builds, and in the case of iOS, only
+// on the simulator, not on device.
+#if defined(DEBUG) && (TARGET_IPHONE_SIMULATOR || !TARGET_OS_IPHONE)
 
 extern void rac_dispatch_async(dispatch_queue_t queue, dispatch_block_t block);
 extern void rac_dispatch_barrier_async(dispatch_queue_t queue, dispatch_block_t block);

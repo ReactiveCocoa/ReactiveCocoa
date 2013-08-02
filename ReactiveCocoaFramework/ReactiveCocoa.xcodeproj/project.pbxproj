@@ -29,8 +29,6 @@
 		27A887D21703DDEB00040001 /* UIBarButtonItem+RACCommandSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 27A887C71703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		557A4B5A177648C7008EF796 /* UIActionSheet+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 557A4B58177648C7008EF796 /* UIActionSheet+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		557A4B5B177648C7008EF796 /* UIActionSheet+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 557A4B59177648C7008EF796 /* UIActionSheet+RACSignalSupport.m */; };
-		55DC74D417A0629E00324F71 /* fishhook.c in Sources */ = {isa = PBXBuildFile; fileRef = 55DC74D017A0629E00324F71 /* fishhook.c */; settings = {COMPILER_FLAGS = "-Wno-sign-conversion -Wno-sign-compare -Wno-newline-eof"; }; };
-		55DC74D517A0629E00324F71 /* fishhook.h in Headers */ = {isa = PBXBuildFile; fileRef = 55DC74D117A0629E00324F71 /* fishhook.h */; };
 		5EE9A7931760D61300EAF5A2 /* UIButton+RACCommandSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 5EE9A7911760D61300EAF5A2 /* UIButton+RACCommandSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5EE9A7941760D61300EAF5A2 /* UIButton+RACCommandSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 5EE9A7921760D61300EAF5A2 /* UIButton+RACCommandSupport.m */; };
 		5EE9A79B1760D88500EAF5A2 /* UIButtonRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5EE9A79A1760D88500EAF5A2 /* UIButtonRACSupportSpec.m */; };
@@ -544,9 +542,6 @@
 		27A887C81703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIBarButtonItem+RACCommandSupport.m"; sourceTree = "<group>"; };
 		557A4B58177648C7008EF796 /* UIActionSheet+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIActionSheet+RACSignalSupport.h"; sourceTree = "<group>"; };
 		557A4B59177648C7008EF796 /* UIActionSheet+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIActionSheet+RACSignalSupport.m"; sourceTree = "<group>"; };
-		55DC74D017A0629E00324F71 /* fishhook.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fishhook.c; sourceTree = "<group>"; };
-		55DC74D117A0629E00324F71 /* fishhook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fishhook.h; sourceTree = "<group>"; };
-		55DC74E217A175F300324F71 /* RACBacktrace+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RACBacktrace+Private.h"; sourceTree = "<group>"; };
 		5EE9A7911760D61300EAF5A2 /* UIButton+RACCommandSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIButton+RACCommandSupport.h"; sourceTree = "<group>"; };
 		5EE9A7921760D61300EAF5A2 /* UIButton+RACCommandSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIButton+RACCommandSupport.m"; sourceTree = "<group>"; };
 		5EE9A79A1760D88500EAF5A2 /* UIButtonRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIButtonRACSupportSpec.m; sourceTree = "<group>"; };
@@ -921,16 +916,6 @@
 			path = UIKit;
 			sourceTree = "<group>";
 		};
-		55DC74CF17A0629E00324F71 /* fishhook */ = {
-			isa = PBXGroup;
-			children = (
-				55DC74D017A0629E00324F71 /* fishhook.c */,
-				55DC74D117A0629E00324F71 /* fishhook.h */,
-			);
-			name = fishhook;
-			path = ../external/fishhook;
-			sourceTree = "<group>";
-		};
 		5FAF525F174D4D6100CAC810 /* OS X */ = {
 			isa = PBXGroup;
 			children = (
@@ -1065,7 +1050,6 @@
 		88CDF7BE15000FCE00163A9F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				55DC74CF17A0629E00324F71 /* fishhook */,
 				D094E44417775ACD00906BF7 /* libextobjc */,
 				1860F413177C91B500C7B3C9 /* UIKit.framework */,
 				1860F415177C91B500C7B3C9 /* Foundation.framework */,
@@ -1201,7 +1185,6 @@
 				88B76F8C153726B00053EAE2 /* RACTuple.h */,
 				88B76F8D153726B00053EAE2 /* RACTuple.m */,
 				D02538A115E2D7FB005BACB8 /* RACBacktrace.h */,
-				55DC74E217A175F300324F71 /* RACBacktrace+Private.h */,
 				D0DFBCCD15DD6D40009DADB3 /* RACBacktrace.m */,
 				88FC735316114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.h */,
 				88FC735416114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.m */,
@@ -1575,7 +1558,6 @@
 				D094E44A17775AF200906BF7 /* EXTKeyPathCoding.h in Headers */,
 				D094E44C17775AF200906BF7 /* EXTScope.h in Headers */,
 				D094E45017775AF200906BF7 /* metamacros.h in Headers */,
-				55DC74D517A0629E00324F71 /* fishhook.h in Headers */,
 				D009307A1788AB7B00EE7E8B /* RACTestScheduler.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2150,7 +2132,6 @@
 				D0A0E231176A8CD6007273ED /* RACPassthroughSubscriber.m in Sources */,
 				557A4B5B177648C7008EF796 /* UIActionSheet+RACSignalSupport.m in Sources */,
 				D05F9D3817984EC000FD7982 /* EXTRuntimeExtensions.m in Sources */,
-				55DC74D417A0629E00324F71 /* fishhook.c in Sources */,
 				D009307C1788AB7B00EE7E8B /* RACTestScheduler.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

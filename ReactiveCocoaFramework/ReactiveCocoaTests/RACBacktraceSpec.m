@@ -48,40 +48,40 @@ describe(@"with a GCD queue", ^{
 	});
 
 	it(@"should trace across dispatch_async", ^{
-		dispatch_async(queue, block);
+		rac_dispatch_async(queue, block);
 		expect(previousBacktrace).willNot.beNil();
 	});
 
 	it(@"should trace across dispatch_async to the main thread", ^{
-		dispatch_async(queue, ^{
-			dispatch_async(dispatch_get_main_queue(), block);
+		rac_dispatch_async(queue, ^{
+			rac_dispatch_async(dispatch_get_main_queue(), block);
 		});
 
 		expect(previousBacktrace).willNot.beNil();
 	});
 
 	it(@"should trace across dispatch_async_f", ^{
-		dispatch_async_f(queue, NULL, &capturePreviousBacktrace);
+		rac_dispatch_async_f(queue, NULL, &capturePreviousBacktrace);
 		expect(previousBacktrace).willNot.beNil();
 	});
 
 	it(@"should trace across dispatch_barrier_async", ^{
-		dispatch_barrier_async(queue, block);
+		rac_dispatch_barrier_async(queue, block);
 		expect(previousBacktrace).willNot.beNil();
 	});
 
 	it(@"should trace across dispatch_barrier_async_f", ^{
-		dispatch_barrier_async_f(queue, NULL, &capturePreviousBacktrace);
+		rac_dispatch_barrier_async_f(queue, NULL, &capturePreviousBacktrace);
 		expect(previousBacktrace).willNot.beNil();
 	});
 
 	it(@"should trace across dispatch_after", ^{
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1), queue, block);
+		rac_dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1), queue, block);
 		expect(previousBacktrace).willNot.beNil();
 	});
 
 	it(@"should trace across dispatch_after_f", ^{
-		dispatch_after_f(dispatch_time(DISPATCH_TIME_NOW, 1), queue, NULL, &capturePreviousBacktrace);
+		rac_dispatch_after_f(dispatch_time(DISPATCH_TIME_NOW, 1), queue, NULL, &capturePreviousBacktrace);
 		expect(previousBacktrace).willNot.beNil();
 	});
 });
@@ -91,11 +91,15 @@ it(@"should trace across a RACScheduler", ^{
 	expect(previousBacktrace).willNot.beNil();
 });
 
-it(@"should trace across an NSOperationQueue", ^{
-	NSOperationQueue *queue = [[NSOperationQueue alloc] init];
-	[queue addOperationWithBlock:block];
-	expect(previousBacktrace).willNot.beNil();
-});
+// Tracing across NSOperationQueue only works on OS X because it depends on
+// interposing through dynamic linking
+#ifndef __IPHONE_OS_VERSION_MIN_REQUIRED
+	it(@"should trace across an NSOperationQueue", ^{
+		NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+		[queue addOperationWithBlock:block];
+		expect(previousBacktrace).willNot.beNil();
+	});
+#endif
 
 SpecEnd
 

@@ -513,15 +513,22 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 }
 
 + (RACSignal *)merge:(id<NSFastEnumeration>)signals {
-	RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-		for (RACSignal *signal in signals) {
-			[subscriber sendNext:signal];
-		}
-		[subscriber sendCompleted];
-		return nil;
-	}].flatten;
+	NSMutableArray *copiedSignals = [[NSMutableArray alloc] init];
+	for (RACSignal *signal in signals) {
+		[copiedSignals addObject:signal];
+	}
 
-	return [signal setNameWithFormat:@"+merge: %@", signals];
+	return [[[RACSignal
+		createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			for (RACSignal *signal in copiedSignals) {
+				[subscriber sendNext:signal];
+			}
+
+			[subscriber sendCompleted];
+			return nil;
+		}]
+		flatten]
+		setNameWithFormat:@"+merge: %@", copiedSignals];
 }
 
 - (RACSignal *)flatten:(NSUInteger)maxConcurrent {

@@ -1300,6 +1300,26 @@ describe(@"+merge:", ^{
 
 		expect(completed).to.beTruthy();
 	});
+
+	it(@"should complete only after both signals complete for any number of subscribers", ^{
+		__block BOOL completed1 = NO;
+		__block BOOL completed2 = NO;
+		[merged subscribeCompleted:^{
+			completed1 = YES;
+		}];
+
+		[merged subscribeCompleted:^{
+			completed2 = YES;
+		}];
+
+		expect(completed1).to.beFalsy();
+		expect(completed2).to.beFalsy();
+
+		[sub1 sendCompleted];
+		[sub2 sendCompleted];
+		expect(completed1).to.beTruthy();
+		expect(completed2).to.beTruthy();
+	});
 });
 
 describe(@"-flatten:", ^{

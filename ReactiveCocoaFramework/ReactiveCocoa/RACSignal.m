@@ -9,7 +9,7 @@
 #import "RACSignal.h"
 #import "EXTScope.h"
 #import "NSObject+RACDescription.h"
-#import "RACBacktrace+Private.h"
+#import "RACBacktrace.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACMulticastConnection.h"

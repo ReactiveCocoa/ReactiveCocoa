@@ -10,11 +10,6 @@
 
 #import "EXTKeyPathCoding.h"
 #import "NSObject+RACAppKitBindings.h"
-#import "NSObject+RACDeallocating.h"
-#import "RACChannel.h"
-#import "RACCompoundDisposable.h"
-#import "RACDisposable.h"
-#import "RACSignal+Operations.h"
 
 SpecBegin(NSObjectRACAppKitBindings)
 

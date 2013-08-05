@@ -8,18 +8,13 @@
 
 #import <Foundation/Foundation.h>
 #import "RACSignal.h"
-#import "RACSubscriber.h"
 
 // A command is a signal triggered in response to some action, typically
 // UI-related.
 //
 // RACCommand behaves like a signal of signals, by sending each non-nil signal
 // returned from -execute: to its subscribers.
-//
-// Sending a `next` event to a RACCommand is equivalent to invoking -execute:
-// and discarding the result. Any `error` or `completed` event will be forwarded
-// to the command's subscribers, and permanently disable the command.
-@interface RACCommand : RACSignal <RACSubscriber>
+@interface RACCommand : RACSignal
 
 // Whether or not this command is able to execute.
 //

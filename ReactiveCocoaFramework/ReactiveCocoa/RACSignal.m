@@ -28,7 +28,7 @@
 // Retains signals while they wait for subscriptions.
 //
 // This set must only be used on the main thread.
-static NSMutableSet *RACActiveSignals = nil;
+static CFMutableSetRef RACActiveSignals = nil;
 
 // A linked list of RACSignals, used in RACActiveSignalsToCheck.
 typedef struct RACSignalList {
@@ -65,7 +65,13 @@ static volatile uint32_t RACWillCheckActiveSignals = 0;
 + (void)initialize {
 	if (self != RACSignal.class) return;
 
-	RACActiveSignals = [[NSMutableSet alloc] init];
+	CFSetCallBacks callbacks = kCFTypeSetCallBacks;
+
+	// Use pointer equality and hashes for membership testing.
+	callbacks.equal = NULL;
+	callbacks.hash = NULL;
+
+	RACActiveSignals = CFSetCreateMutable(NULL, 0, &callbacks);
 }
 
 + (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
@@ -141,9 +147,9 @@ static void RACCheckActiveSignals(void) {
 
 		if (signal.subscriberCount > 0) {
 			// We want to keep the signal around until all its subscribers are done
-			[RACActiveSignals addObject:signal];
+			CFSetAddValue(RACActiveSignals, (__bridge void *)signal);
 		} else {
-			[RACActiveSignals removeObject:signal];
+			CFSetRemoveValue(RACActiveSignals, (__bridge void *)signal);
 		}
 	}
 }

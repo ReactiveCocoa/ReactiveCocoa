@@ -17,13 +17,18 @@ extern NSString * const RACChannelExampleCreateBlock;
 // a property.
 extern NSString * const RACViewChannelExamples;
 
-// A block of type `RACChannelTerminal * (^)(void)`, which should create a new
-// RACChannel to the test object and return an terminal.
-extern NSString * const RACViewChannelExampleCreateTerminalBlock;
+// A block of type `NSObject * (^)(void)`, which should create a new test view
+// and return it.
+extern NSString * const RACViewChannelExampleCreateViewBlock;
 
-// The view being bound to in RACViewChannelExamples.
-extern NSString * const RACViewChannelExampleView;
+// A block of type `RACChannelTerminal * (^)(NSObject *view)`, which should
+// create a new RACChannel to the given test view and return an terminal.
+extern NSString * const RACViewChannelExampleCreateTerminalBlock;
 
 // The key path that will be read/written in RACViewChannelExamples. This
 // must lead to an NSString property.
 extern NSString * const RACViewChannelExampleKeyPath;
+
+// A block of type `void (^)(NSObject *view, NSString *text)`, which should
+// change the given test view's text to the given string.
+extern NSString * const RACViewChannelExampleSetViewTextBlock;

@@ -19,9 +19,10 @@ NSString * const RACChannelExamples = @"RACChannelExamples";
 NSString * const RACChannelExampleCreateBlock = @"RACChannelExampleCreateBlock";
 
 NSString * const RACViewChannelExamples = @"RACViewChannelExamples";
+NSString * const RACViewChannelExampleCreateViewBlock = @"RACViewChannelExampleCreateViewBlock";
 NSString * const RACViewChannelExampleCreateTerminalBlock = @"RACViewChannelExampleCreateTerminalBlock";
-NSString * const RACViewChannelExampleView = @"RACViewChannelExampleView";
 NSString * const RACViewChannelExampleKeyPath = @"RACViewChannelExampleKeyPath";
+NSString * const RACViewChannelExampleSetViewTextBlock = @"RACViewChannelExampleSetViewTextBlock";
 
 SharedExampleGroupsBegin(RACChannelExamples)
 
@@ -151,18 +152,22 @@ SharedExampleGroupsEnd
 SharedExampleGroupsBegin(RACViewChannelExamples)
 
 sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
-	__block NSObject *testView;
 	__block NSString *keyPath;
-	__block RACChannelTerminal * (^getTerminal)(void);
+	__block NSObject * (^getView)(void);
+	__block RACChannelTerminal * (^getTerminal)(NSObject *);
+	__block void (^setViewText)(NSObject *view, NSString *text);
 
+	__block NSObject *testView;
 	__block RACChannelTerminal *endpoint;
 
 	beforeEach(^{
-		testView = data[RACViewChannelExampleView];
 		keyPath = data[RACViewChannelExampleKeyPath];
 		getTerminal = data[RACViewChannelExampleCreateTerminalBlock];
+		getView = data[RACViewChannelExampleCreateViewBlock];
+		setViewText = data[RACViewChannelExampleSetViewTextBlock];
 
-		endpoint = getTerminal();
+		testView = getView();
+		endpoint = getTerminal(testView);
 	});
 
 	it(@"should not send changes made by the channel itself", ^{
@@ -196,6 +201,97 @@ sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
 
 		[testView setValue:@"bar" forKeyPath:keyPath];
 		expect(receivedNext).to.beFalsy();
+	});
+
+	it(@"should not have a starting value", ^{
+		__block BOOL receivedNext = NO;
+		[endpoint subscribeNext:^(id x) {
+			receivedNext = YES;
+		}];
+
+		expect(receivedNext).to.beFalsy();
+	});
+
+	it(@"should send view changes", ^{
+		__block NSString *received;
+		[endpoint subscribeNext:^(id x) {
+			received = x;
+		}];
+
+		setViewText(testView, @"fuzz");
+		expect(received).to.equal(@"fuzz");
+
+		setViewText(testView, @"buzz");
+		expect(received).to.equal(@"buzz");
+	});
+
+	it(@"should set values on the view", ^{
+		[endpoint sendNext:@"fuzz"];
+		expect([testView valueForKeyPath:keyPath]).to.equal(@"fuzz");
+
+		[endpoint sendNext:@"buzz"];
+		expect([testView valueForKeyPath:keyPath]).to.equal(@"buzz");
+	});
+
+	it(@"should not echo changes back to the channel", ^{
+		__block NSUInteger receivedCount = 0;
+		[endpoint subscribeNext:^(id _) {
+			receivedCount++;
+		}];
+
+		expect(receivedCount).to.equal(0);
+
+		[endpoint sendNext:@"fuzz"];
+		expect(receivedCount).to.equal(0);
+
+		setViewText(testView, @"buzz");
+		expect(receivedCount).to.equal(1);
+	});
+
+	it(@"should complete when the view deallocates", ^{
+		__block BOOL deallocated = NO;
+		__block BOOL completed = NO;
+
+		@autoreleasepool {
+			NSObject *view __attribute__((objc_precise_lifetime)) = getView();
+			[view.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				deallocated = YES;
+			}]];
+
+			RACChannelTerminal *terminal = getTerminal(view);
+			[terminal subscribeCompleted:^{
+				completed = YES;
+			}];
+
+			expect(deallocated).to.beFalsy();
+			expect(completed).to.beFalsy();
+		}
+
+		expect(deallocated).to.beTruthy();
+		expect(completed).to.beTruthy();
+	});
+
+	it(@"should deallocate after the view deallocates", ^{
+		__block BOOL viewDeallocated = NO;
+		__block BOOL terminalDeallocated = NO;
+
+		@autoreleasepool {
+			NSObject *view __attribute__((objc_precise_lifetime)) = getView();
+			[view.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				viewDeallocated = YES;
+			}]];
+
+			RACChannelTerminal *terminal = getTerminal(view);
+			[terminal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				terminalDeallocated = YES;
+			}]];
+
+			expect(viewDeallocated).to.beFalsy();
+			expect(terminalDeallocated).to.beFalsy();
+		}
+
+		expect(viewDeallocated).to.beTruthy();
+		expect(terminalDeallocated).will.beTruthy();
 	});
 });
 

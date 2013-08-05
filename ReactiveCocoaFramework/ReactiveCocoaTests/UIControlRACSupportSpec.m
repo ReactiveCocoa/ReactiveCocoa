@@ -8,13 +8,35 @@
 
 #import "RACTestUIButton.h"
 
+#import "EXTKeyPathCoding.h"
 #import "NSObject+RACDeallocating.h"
+#import "RACChannelExamples.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSignal.h"
 #import "UIControl+RACSignalSupport.h"
+#import "UISlider+RACSignalSupport.h"
 
 SpecBegin(UIControlRACSupport)
+
+itShouldBehaveLike(RACViewChannelExamples, ^{
+	return @{
+		RACViewChannelExampleCreateViewBlock: ^{
+			return [[UISlider alloc] init];
+		},
+		RACViewChannelExampleCreateTerminalBlock: ^(UISlider *view) {
+			return [view rac_valueChannelWithNilValue:@0.0];
+		},
+		RACViewChannelExampleKeyPath: @keypath(UISlider.new, value),
+		RACViewChannelExampleSetViewValueBlock: ^(UISlider *view, NSNumber *value) {
+			view.value = value.floatValue;
+
+			// UIControlEvents don't trigger from programmatic modification. Do it
+			// manually.
+			[view sendActionsForControlEvents:UIControlEventAllEvents];
+		}
+	};
+});
 
 it(@"should send on the returned signal when matching actions are sent", ^{
 	UIControl *control = [RACTestUIButton button];

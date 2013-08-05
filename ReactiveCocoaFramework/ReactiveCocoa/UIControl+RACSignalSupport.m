@@ -79,6 +79,8 @@
 
 		[invocation invoke];
 	}];
+
+	return channel.leadingTerminal;
 }
 
 @end

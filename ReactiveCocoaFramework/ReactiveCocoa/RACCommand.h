@@ -11,10 +11,17 @@
 
 // A command is a signal triggered in response to some action, typically
 // UI-related.
+@interface RACCommand : NSObject
+
+// A signal of the signals returned by invocations of -execute:.
 //
-// RACCommand behaves like a signal of signals, by sending each non-nil signal
-// returned from -execute: to its subscribers.
-@interface RACCommand : RACSignal
+// The command's executing status can be observed with the -[RACSignal
+// innerExecuting] operator on this signal, and errors can be handled with the
+// -[RACSignal innerErrors] operator on this signal.
+//
+// Upon subscription, this signal will immediately send all in-flight
+// executions.
+@property (nonatomic, strong, readonly) RACSignal *executionSignals;
 
 // Whether or not this command is able to execute.
 //
@@ -49,16 +56,15 @@
 // signalBlock   - A block which will map each input value (sent to the command as
 //                 `next` events or passed to -execute:) to a signal of work.
 //                 The returned signal will be multicasted to a replay subject,
-//                 sent to the command's subscribers, then subscribed to
-//                 synchronously. Neither the block nor the returned signal may
-//                 be nil.
+//                 sent on `executionSignals`, then subscribed to synchronously.
+//                 Neither the block nor the returned signal may be nil.
 - (id)initWithEnabled:(RACSignal *)enabledSignal signalBlock:(RACSignal * (^)(id input))signalBlock;
 
 // If the receiver is enabled, this method will:
 //
 //  1. Invoke the `signalBlock` given at the time of initialization.
 //  2. Multicast the returned signal to a RACReplaySubject.
-//  3. Send the multicasted signal to the command's subscribers.
+//  3. Send the multicasted signal on `executionSignals`.
 //  4. Synchronously subscribe to the original signal.
 //
 // input - The input value to pass to the receiver's `signalBlock`. This may be

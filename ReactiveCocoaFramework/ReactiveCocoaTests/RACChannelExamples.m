@@ -22,7 +22,7 @@ NSString * const RACViewChannelExamples = @"RACViewChannelExamples";
 NSString * const RACViewChannelExampleCreateViewBlock = @"RACViewChannelExampleCreateViewBlock";
 NSString * const RACViewChannelExampleCreateTerminalBlock = @"RACViewChannelExampleCreateTerminalBlock";
 NSString * const RACViewChannelExampleKeyPath = @"RACViewChannelExampleKeyPath";
-NSString * const RACViewChannelExampleSetViewTextBlock = @"RACViewChannelExampleSetViewTextBlock";
+NSString * const RACViewChannelExampleSetViewValueBlock = @"RACViewChannelExampleSetViewValueBlock";
 
 SharedExampleGroupsBegin(RACChannelExamples)
 
@@ -155,7 +155,7 @@ sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
 	__block NSString *keyPath;
 	__block NSObject * (^getView)(void);
 	__block RACChannelTerminal * (^getTerminal)(NSObject *);
-	__block void (^setViewText)(NSObject *view, NSString *text);
+	__block void (^setViewValue)(NSObject *view, NSNumber *value);
 
 	__block NSObject *testView;
 	__block RACChannelTerminal *endpoint;
@@ -164,7 +164,7 @@ sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
 		keyPath = data[RACViewChannelExampleKeyPath];
 		getTerminal = data[RACViewChannelExampleCreateTerminalBlock];
 		getView = data[RACViewChannelExampleCreateViewBlock];
-		setViewText = data[RACViewChannelExampleSetViewTextBlock];
+		setViewValue = data[RACViewChannelExampleSetViewValueBlock];
 
 		testView = getView();
 		endpoint = getTerminal(testView);
@@ -178,10 +178,10 @@ sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
 
 		expect(receivedNext).to.beFalsy();
 
-		[endpoint sendNext:@"foo"];
+		[endpoint sendNext:@0.1];
 		expect(receivedNext).to.beFalsy();
 
-		[endpoint sendNext:@"bar"];
+		[endpoint sendNext:@0.2];
 		expect(receivedNext).to.beFalsy();
 
 		[endpoint sendCompleted];
@@ -196,10 +196,10 @@ sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
 
 		expect(receivedNext).to.beFalsy();
 
-		[testView setValue:@"foo" forKeyPath:keyPath];
+		[testView setValue:@0.1 forKeyPath:keyPath];
 		expect(receivedNext).to.beFalsy();
 
-		[testView setValue:@"bar" forKeyPath:keyPath];
+		[testView setValue:@0.2 forKeyPath:keyPath];
 		expect(receivedNext).to.beFalsy();
 	});
 
@@ -218,19 +218,19 @@ sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
 			received = x;
 		}];
 
-		setViewText(testView, @"fuzz");
-		expect(received).to.equal(@"fuzz");
+		setViewValue(testView, @0.1);
+		expect(received).to.equal(@0.1);
 
-		setViewText(testView, @"buzz");
-		expect(received).to.equal(@"buzz");
+		setViewValue(testView, @0.2);
+		expect(received).to.equal(@0.2);
 	});
 
 	it(@"should set values on the view", ^{
-		[endpoint sendNext:@"fuzz"];
-		expect([testView valueForKeyPath:keyPath]).to.equal(@"fuzz");
+		[endpoint sendNext:@0.1];
+		expect([testView valueForKeyPath:keyPath]).to.equal(@0.1);
 
-		[endpoint sendNext:@"buzz"];
-		expect([testView valueForKeyPath:keyPath]).to.equal(@"buzz");
+		[endpoint sendNext:@0.2];
+		expect([testView valueForKeyPath:keyPath]).to.equal(@0.2);
 	});
 
 	it(@"should not echo changes back to the channel", ^{
@@ -241,10 +241,10 @@ sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
 
 		expect(receivedCount).to.equal(0);
 
-		[endpoint sendNext:@"fuzz"];
+		[endpoint sendNext:@0.1];
 		expect(receivedCount).to.equal(0);
 
-		setViewText(testView, @"buzz");
+		setViewValue(testView, @0.2);
 		expect(receivedCount).to.equal(1);
 	});
 

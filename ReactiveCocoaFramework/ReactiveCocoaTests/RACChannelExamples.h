@@ -26,9 +26,9 @@ extern NSString * const RACViewChannelExampleCreateViewBlock;
 extern NSString * const RACViewChannelExampleCreateTerminalBlock;
 
 // The key path that will be read/written in RACViewChannelExamples. This
-// must lead to an NSString property.
+// must lead to an NSNumber or numeric primitive property.
 extern NSString * const RACViewChannelExampleKeyPath;
 
-// A block of type `void (^)(NSObject *view, NSString *text)`, which should
-// change the given test view's text to the given string.
-extern NSString * const RACViewChannelExampleSetViewTextBlock;
+// A block of type `void (^)(NSObject *view, NSNumber *value)`, which should
+// change the given test view's value to the given one.
+extern NSString * const RACViewChannelExampleSetViewValueBlock;

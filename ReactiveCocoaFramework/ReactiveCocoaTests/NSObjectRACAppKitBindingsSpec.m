@@ -16,19 +16,19 @@ SpecBegin(NSObjectRACAppKitBindings)
 itShouldBehaveLike(RACViewChannelExamples, ^{
 	return @{
 		RACViewChannelExampleCreateViewBlock: ^{
-			return [[NSTextField alloc] initWithFrame:NSZeroRect];
+			return [[NSSlider alloc] initWithFrame:NSZeroRect];
 		},
-		RACViewChannelExampleCreateTerminalBlock: ^(NSTextField *view) {
+		RACViewChannelExampleCreateTerminalBlock: ^(NSSlider *view) {
 			return [view rac_channelToBinding:NSValueBinding];
 		},
-		RACViewChannelExampleKeyPath: @keypath(NSTextField.new, stringValue),
-		RACViewChannelExampleSetViewTextBlock: ^(NSTextField *textField, NSString *text) {
-			textField.stringValue = text;
+		RACViewChannelExampleKeyPath: @keypath(NSSlider.new, objectValue),
+		RACViewChannelExampleSetViewValueBlock: ^(NSSlider *view, NSNumber *value) {
+			view.objectValue = value;
 
 			// Bindings don't actually trigger from programmatic modification. Do it
 			// manually.
-			NSDictionary *bindingInfo = [textField infoForBinding:NSValueBinding];
-			[bindingInfo[NSObservedObjectKey] setValue:text forKeyPath:bindingInfo[NSObservedKeyPathKey]];
+			NSDictionary *bindingInfo = [view infoForBinding:NSValueBinding];
+			[bindingInfo[NSObservedObjectKey] setValue:value forKeyPath:bindingInfo[NSObservedKeyPathKey]];
 		}
 	};
 });

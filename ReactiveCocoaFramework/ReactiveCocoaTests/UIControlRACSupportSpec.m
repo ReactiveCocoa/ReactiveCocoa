@@ -19,6 +19,24 @@
 
 SpecBegin(UIControlRACSupport)
 
+void (^setViewValueBlock)(UISlider *, NSNumber *) = ^(UISlider *view, NSNumber *value) {
+	view.value = value.floatValue;
+
+	// UIControlEvents don't trigger from programmatic modification. Do it
+	// manually.
+	for (id target in view.allTargets) {
+		// Control events are a mask, but UIControlEventAllEvents doesn't seem to
+		// match anything, 0 does.
+		for (NSString *selectorString in [view actionsForTarget:target forControlEvent:0]) {
+			SEL selector = NSSelectorFromString(selectorString);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+			[target performSelector:selector withObject:nil];
+#pragma clang diagnostic pop
+		}
+	}
+};
+
 itShouldBehaveLike(RACViewChannelExamples, ^{
 	return @{
 		RACViewChannelExampleCreateViewBlock: ^{
@@ -28,13 +46,7 @@ itShouldBehaveLike(RACViewChannelExamples, ^{
 			return [view rac_valueChannelWithNilValue:@0.0];
 		},
 		RACViewChannelExampleKeyPath: @keypath(UISlider.new, value),
-		RACViewChannelExampleSetViewValueBlock: ^(UISlider *view, NSNumber *value) {
-			view.value = value.floatValue;
-
-			// UIControlEvents don't trigger from programmatic modification. Do it
-			// manually.
-			[view sendActionsForControlEvents:UIControlEventAllEvents];
-		}
+		RACViewChannelExampleSetViewValueBlock: setViewValueBlock
 	};
 });
 

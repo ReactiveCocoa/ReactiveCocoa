@@ -195,6 +195,11 @@ static void RACExceptionHandler (NSException *ex) {
 
 #pragma mark NSObject
 
+- (void)dealloc
+{
+	_previousThreadBacktrace = nil;
+}
+
 - (NSString *)description {
 	NSString *str = [NSString stringWithFormat:@"%@", self.callStackSymbols];
 	if (self.previousThreadBacktrace != nil) {

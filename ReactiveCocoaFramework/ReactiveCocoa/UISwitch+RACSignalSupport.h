@@ -12,10 +12,11 @@
 
 @interface UISwitch (RACSignalSupport)
 
-// Creates and returns a RACChannelTerminal that sends whether the receiver is
-// on whenever the UIControlEventValueChanged control event is fired, and sets
-// it on or off when it receives @YES or @NO respectively. If it receives `nil`,
-// it sets the receiver on or off depending on `nilValue` instead.
-- (RACChannelTerminal *)rac_onChannelWithNilValue:(id)nilValue;
+// Creates a new RACChannel-based binding to the receiver.
+//
+// Returns a RACChannelTerminal that sends whether the receiver is on whenever
+// the UIControlEventValueChanged control event is fired, and sets it on or off
+// when it receives @YES or @NO respectively.
+- (RACChannelTerminal *)rac_newOnChannel;
 
 @end

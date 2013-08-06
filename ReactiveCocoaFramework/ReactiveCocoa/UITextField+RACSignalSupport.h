@@ -17,9 +17,11 @@
 // control event is fired on the control.
 - (RACSignal *)rac_textSignal;
 
-// Creates and returns a RACChannelTerminal that sends the receiver's text
-// whenever the UIControlEventEditingChanged control event is fired, and sets
-// the text to the values it receives.
-- (RACChannelTerminal *)rac_textChannel;
+// Creates a new RACChannel-based binding to the receiver.
+//
+// Returns a RACChannelTerminal that sends the receiver's text whenever the
+// UIControlEventEditingChanged control event is fired, and sets the text to the
+// values it receives.
+- (RACChannelTerminal *)rac_newTextChannel;
 
 @end

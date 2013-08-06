@@ -12,10 +12,13 @@
 
 @interface UIStepper (RACSignalSupport)
 
-// Creates and returns a RACChannelTerminal that sends the receiver's value
-// whenever the UIControlEventValueChanged control event is fired, and sets the
-// value to the values it receives. If it receives `nil`, it sets the value to
-// `nilValue` instead.
-- (RACChannelTerminal *)rac_valueChannelWithNilValue:(id)nilValue;
+// Creates a new RACChannel-based binding to the receiver.
+//
+// nilValue - The date to set when the terminal receives `nil`.
+//
+// Returns a RACChannelTerminal that sends the receiver's value whenever the
+// UIControlEventValueChanged control event is fired, and sets the value to the
+// values it receives.
+- (RACChannelTerminal *)rac_newValueChannelWithNilValue:(id)nilValue;
 
 @end

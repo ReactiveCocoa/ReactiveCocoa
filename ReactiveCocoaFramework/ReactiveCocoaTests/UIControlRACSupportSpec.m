@@ -43,7 +43,7 @@ itShouldBehaveLike(RACViewChannelExamples, ^{
 			return [[UISlider alloc] init];
 		},
 		RACViewChannelExampleCreateTerminalBlock: ^(UISlider *view) {
-			return [view rac_valueChannelWithNilValue:@0.0];
+			return [view rac_newValueChannelWithNilValue:@0.0];
 		},
 		RACViewChannelExampleKeyPath: @keypath(UISlider.new, value),
 		RACViewChannelExampleSetViewValueBlock: setViewValueBlock

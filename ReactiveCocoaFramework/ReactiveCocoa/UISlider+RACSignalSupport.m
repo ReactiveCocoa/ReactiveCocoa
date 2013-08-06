@@ -13,7 +13,7 @@
 
 @implementation UISlider (RACSignalSupport)
 
-- (RACChannelTerminal *)rac_valueChannelWithNilValue:(id)nilValue {
+- (RACChannelTerminal *)rac_newValueChannelWithNilValue:(id)nilValue {
 	return [self rac_channelForControlEvents:UIControlEventValueChanged key:@keypath(self.value) nilValue:nilValue];
 }
 

@@ -516,42 +516,6 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 // Returns a signal that applies OR to each NSNumber in the tuple.
 - (RACSignal *)or;
 
-// Sends YES whenever the receiver has sent at least one signal that has not yet
-// terminated.
-//
-// Each signal sent by the receiver will be subscribed to immediately. If the
-// inner signal has not sent `completed` or `error` by the time subscription is
-// complete, the returned signal will send YES. Once all inner signals have
-// completed or errored, the returned signal will send NO.
-//
-// This should generally only be used when the inner signals have been
-// multicasted, since `next` events will not be received.
-//
-// Returns a signal which immediately sends NO, then sends YES whenever the
-// receiver sends a signal which does not terminate immediately, and then NO
-// once all inner signals (up to the current point in time) have terminated.
-- (RACSignal *)innerExecuting;
-
-// Forwards any errors from the signals sent by the receiver.
-//
-// This should generally only be used when the inner signals have been
-// multicasted, since `next` and `completed` events will not be received.
-//
-// Returns a signal which sends a `next` event with an `NSError` value (not to be
-// confused with an `error` event) whenever a signal sent by the receiver errors
-// out.
-- (RACSignal *)innerErrors;
-
-// Maps -catch: across all of the signals sent by the receiver.
-//
-// Returns a signal of signals, with inner signals caught using `block`.
-- (RACSignal *)innerCatch:(RACSignal * (^)(NSError *error))block;
-
-// Maps -catchTo: across all of the signals sent by the receiver.
-//
-// Returns a signal of signals, with inner signals caught to `catchSignal`.
-- (RACSignal *)innerCatchTo:(RACSignal *)catchSignal;
-
 @end
 
 @interface RACSignal (OperationsDeprecated)

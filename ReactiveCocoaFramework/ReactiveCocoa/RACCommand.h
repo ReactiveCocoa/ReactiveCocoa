@@ -15,15 +15,27 @@
 
 // A signal of the signals returned by invocations of -execute:.
 //
-// The command's executing status can be observed with the -[RACSignal
-// innerExecuting] operator on this signal, and errors can be handled with the
-// -[RACSignal innerErrors] operator on this signal.
-//
 // Upon subscription, this signal will immediately send all in-flight
 // executions.
 @property (nonatomic, strong, readonly) RACSignal *executionSignals;
 
-// Whether or not this command is able to execute.
+// A signal of whether this command is currently executing.
+//
+// This will send YES whenever -execute: is invoked and the created signal does
+// not terminate synchronously. Once all executions have terminated, the signal
+// will send NO.
+//
+// This signal will immediately send YES or NO upon subscription.
+@property (nonatomic, strong, readonly) RACSignal *executing;
+
+// Forwards any errors that occur within signals returned by -execute:.
+//
+// When an error occurs on a signal returned from -execute:, this signal will
+// send the associated NSError value as a `next` event (since an `error` event
+// would terminate the stream).
+@property (nonatomic, strong, readonly) RACSignal *errors;
+
+// A signal of whether this command is able to execute.
 //
 // This will send NO if:
 //

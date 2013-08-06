@@ -10,9 +10,10 @@
 #import "EXTKeyPathCoding.h"
 #import "EXTScope.h"
 #import "NSObject+RACDeallocating.h"
+#import "NSObject+RACDescription.h"
 #import "RACSignal+Operations.h"
 #import "UIControl+RACSignalSupport.h"
-#import "NSObject+RACDescription.h"
+#import "UIControl+RACSignalSupportPrivate.h"
 
 @implementation UITextField (RACSignalSupport)
 

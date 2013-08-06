@@ -8,13 +8,11 @@
 
 #import "UIControl+RACSignalSupport.h"
 #import "EXTScope.h"
-#import "RACChannel.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSignal.h"
 #import "RACSignal+Operations.h"
 #import "RACSubscriber+Private.h"
-#import "NSInvocation+RACTypeParsing.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACDescription.h"
 
@@ -38,49 +36,6 @@
 			}];
 		}]
 		setNameWithFormat:@"%@ -rac_signalForControlEvents: %lx", [self rac_description], (unsigned long)controlEvents];
-}
-
-- (RACChannelTerminal *)rac_channelForControlEvents:(UIControlEvents)controlEvents key:(NSString *)key nilValue:(id)nilValue {
-	key = [key copy];
-	RACChannel *channel = [[RACChannel alloc] init];
-
-	[self.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-		[channel.followingTerminal sendCompleted];
-	}]];
-
-	@weakify(self);
-
-	[[[self rac_signalForControlEvents:controlEvents] map:^(id _) {
-		@strongify(self);
-		return [self valueForKey:key];
-	}] subscribe:channel.followingTerminal];
-
-	SEL selector = NSSelectorFromString([NSString stringWithFormat:@"set%@%@:animated:", [key substringToIndex:1].uppercaseString, [key substringFromIndex:1]]);
-	NSInvocation *invocation = nil;
-	if ([self respondsToSelector:selector]) {
-		invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:selector]];
-		invocation.selector = selector;
-		invocation.target = self;
-	}
-
-	[channel.followingTerminal subscribeNext:^(id x) {
-		@strongify(self);
-
-		if (invocation == nil) {
-			[self setValue:x ?: nilValue forKey:key];
-			return;
-		}
-
-		id value = x ?: nilValue;
-		[invocation rac_setArgument:value atIndex:2];
-
-		BOOL animated = YES;
-		[invocation setArgument:&animated atIndex:3];
-
-		[invocation invoke];
-	}];
-
-	return channel.leadingTerminal;
 }
 
 @end

@@ -32,6 +32,8 @@
 		5EE9A7931760D61300EAF5A2 /* UIButton+RACCommandSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 5EE9A7911760D61300EAF5A2 /* UIButton+RACCommandSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5EE9A7941760D61300EAF5A2 /* UIButton+RACCommandSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 5EE9A7921760D61300EAF5A2 /* UIButton+RACCommandSupport.m */; };
 		5EE9A79B1760D88500EAF5A2 /* UIButtonRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5EE9A79A1760D88500EAF5A2 /* UIButtonRACSupportSpec.m */; };
+		5F016DF517B10AA8002EEC69 /* UIControl+RACSignalSupportPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F016DF217B10AA8002EEC69 /* UIControl+RACSignalSupportPrivate.h */; };
+		5F016DF717B10AA8002EEC69 /* UIControl+RACSignalSupportPrivate.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F016DF317B10AA8002EEC69 /* UIControl+RACSignalSupportPrivate.m */; };
 		5F2447AD167E87C50062180C /* RACKVOChannelSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F2447AC167E87C50062180C /* RACKVOChannelSpec.m */; };
 		5F45A885168CFA3E00B58A2B /* RACKVOChannel.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F45A883168CFA3E00B58A2B /* RACKVOChannel.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5F45A886168CFA3E00B58A2B /* RACKVOChannel.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F45A883168CFA3E00B58A2B /* RACKVOChannel.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -555,6 +557,8 @@
 		5EE9A7911760D61300EAF5A2 /* UIButton+RACCommandSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIButton+RACCommandSupport.h"; sourceTree = "<group>"; };
 		5EE9A7921760D61300EAF5A2 /* UIButton+RACCommandSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIButton+RACCommandSupport.m"; sourceTree = "<group>"; };
 		5EE9A79A1760D88500EAF5A2 /* UIButtonRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIButtonRACSupportSpec.m; sourceTree = "<group>"; };
+		5F016DF217B10AA8002EEC69 /* UIControl+RACSignalSupportPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIControl+RACSignalSupportPrivate.h"; sourceTree = "<group>"; };
+		5F016DF317B10AA8002EEC69 /* UIControl+RACSignalSupportPrivate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIControl+RACSignalSupportPrivate.m"; sourceTree = "<group>"; };
 		5F2447AC167E87C50062180C /* RACKVOChannelSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOChannelSpec.m; sourceTree = "<group>"; };
 		5F45A883168CFA3E00B58A2B /* RACKVOChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACKVOChannel.h; sourceTree = "<group>"; };
 		5F45A884168CFA3E00B58A2B /* RACKVOChannel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOChannel.m; sourceTree = "<group>"; };
@@ -1256,6 +1260,8 @@
 				5EE9A7921760D61300EAF5A2 /* UIButton+RACCommandSupport.m */,
 				88F4425F153DC0450097B4C3 /* UIControl+RACSignalSupport.h */,
 				88F44260153DC0450097B4C3 /* UIControl+RACSignalSupport.m */,
+				5F016DF217B10AA8002EEC69 /* UIControl+RACSignalSupportPrivate.h */,
+				5F016DF317B10AA8002EEC69 /* UIControl+RACSignalSupportPrivate.m */,
 				5F70B2AD17AB1829009AEDF9 /* UIDatePicker+RACSignalSupport.h */,
 				5F70B2AE17AB1829009AEDF9 /* UIDatePicker+RACSignalSupport.m */,
 				1EC06B15173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.h */,
@@ -1594,6 +1600,7 @@
 				5F70B2C017AB1857009AEDF9 /* UISlider+RACSignalSupport.h in Headers */,
 				5F70B2C217AB1857009AEDF9 /* UIStepper+RACSignalSupport.h in Headers */,
 				5F70B2C417AB1857009AEDF9 /* UISwitch+RACSignalSupport.h in Headers */,
+				5F016DF517B10AA8002EEC69 /* UIControl+RACSignalSupportPrivate.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2173,6 +2180,7 @@
 				5F70B2C117AB1857009AEDF9 /* UISlider+RACSignalSupport.m in Sources */,
 				5F70B2C317AB1857009AEDF9 /* UIStepper+RACSignalSupport.m in Sources */,
 				5F70B2C517AB1857009AEDF9 /* UISwitch+RACSignalSupport.m in Sources */,
+				5F016DF717B10AA8002EEC69 /* UIControl+RACSignalSupportPrivate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

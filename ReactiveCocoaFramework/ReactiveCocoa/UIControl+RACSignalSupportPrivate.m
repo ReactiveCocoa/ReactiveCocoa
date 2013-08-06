@@ -29,35 +29,14 @@
 
 	RACSignal *eventSignal = [[self rac_signalForControlEvents:controlEvents] mapReplace:key];
 	[[self
-    rac_liftSelector:@selector(valueForKey:) withSignals:eventSignal, nil]
-	 subscribe:channel.followingTerminal];
+		rac_liftSelector:@selector(valueForKey:) withSignals:eventSignal, nil]
+		subscribe:channel.followingTerminal];
 
-	@weakify(self);
-
-	SEL selector = NSSelectorFromString([NSString stringWithFormat:@"set%@%@:animated:", [key substringToIndex:1].uppercaseString, [key substringFromIndex:1]]);
-	NSInvocation *invocation = nil;
-	if ([self respondsToSelector:selector]) {
-		invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:selector]];
-		invocation.selector = selector;
-		invocation.target = self;
-	}
-
-	[channel.followingTerminal subscribeNext:^(id x) {
-		@strongify(self);
-
-		if (invocation == nil) {
-			[self setValue:x ?: nilValue forKey:key];
-			return;
-		}
-
-		id value = x ?: nilValue;
-		[invocation rac_setArgument:value atIndex:2];
-
-		BOOL animated = YES;
-		[invocation setArgument:&animated atIndex:3];
-
-		[invocation invoke];
-	}];
+	RACSignal *valuesSignal = [channel.followingTerminal
+		map:^id(id value) {
+			return value ?: nilValue;
+		}];
+	[self rac_liftSelector:@selector(setValue:forKey:) withSignals:valuesSignal, [RACSignal return:key], nil];
 
 	return channel.leadingTerminal;
 }

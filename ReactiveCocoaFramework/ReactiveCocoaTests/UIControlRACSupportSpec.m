@@ -29,10 +29,13 @@ void (^setViewValueBlock)(UISlider *, NSNumber *) = ^(UISlider *view, NSNumber *
 		// match anything, 0 does.
 		for (NSString *selectorString in [view actionsForTarget:target forControlEvent:0]) {
 			SEL selector = NSSelectorFromString(selectorString);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-			[target performSelector:selector withObject:nil];
-#pragma clang diagnostic pop
+
+			NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[target methodSignatureForSelector:selector]];
+			invocation.selector = selector;
+			UIEvent *event = nil;
+			[invocation setArgument:&event atIndex:2];
+
+			[invocation invokeWithTarget:target];
 		}
 	}
 };

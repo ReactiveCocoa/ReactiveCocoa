@@ -598,6 +598,8 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	NSCParameterAssert(keyPath != nil);
 	NSCParameterAssert(object != nil);
 
+	keyPath = [keyPath copy];
+
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 
 	// Purposely not retaining 'object', since we want to tear down the binding

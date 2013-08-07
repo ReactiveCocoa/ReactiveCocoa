@@ -35,6 +35,7 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=3&sta
  1. [Signal for UIActionSheet button clicks](#signal-for-uiactionsheet-button-clicks)
  1. [Better documentation for asynchronous backtraces](#better-documentation-for-asynchronous-backtraces)
  1. [Fixed libextobjc duplicated symbols](#fixed-libextobjc-duplicated-symbols)
+ 1. [Bindings for UIKit classes](#bindings-for-uikit-classes)
  1. [Signal subscription side effects](#signal-subscription-side-effects)
  1. [Test scheduler](#test-scheduler)
 
@@ -386,6 +387,24 @@ result.
 To avoid this issue, RAC now
 [renames](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/612) the
 libextobjc symbols that it uses.
+
+### Bindings for UIKit classes
+
+RACChannel interfaces have been [added](https://github.com/ReactiveCocoa/pull/686)
+to many UIKit classes, greatly simplifying glue code between your models and views.
+
+For example, assuming you want to bind a `person` model's `name` property:
+
+```objc
+UITextField *nameField = ...;
+RACChannelTerminal *nameTerminal = RACChannelTo(model, name);
+RACChannelTerminal *nameFieldTerminal = [nameField rac_newTextChannel];
+[nameTerminal subscribe:nameFieldTerminal];
+[nameFieldTerminal subscribe:nameTerminal];
+```
+
+You may also bind multiple controls to the same property, for example a UISlider for
+coarse editing and a UIStepper for fine-grained editing.
 
 ### Signal subscription side effects
 

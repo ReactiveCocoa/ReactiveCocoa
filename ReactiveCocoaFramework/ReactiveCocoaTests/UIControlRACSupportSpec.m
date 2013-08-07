@@ -8,13 +8,50 @@
 
 #import "RACTestUIButton.h"
 
+#import "EXTKeyPathCoding.h"
 #import "NSObject+RACDeallocating.h"
+#import "RACChannelExamples.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSignal.h"
 #import "UIControl+RACSignalSupport.h"
+#import "UISlider+RACSignalSupport.h"
 
 SpecBegin(UIControlRACSupport)
+
+void (^setViewValueBlock)(UISlider *, NSNumber *) = ^(UISlider *view, NSNumber *value) {
+	view.value = value.floatValue;
+
+	// UIControlEvents don't trigger from programmatic modification. Do it
+	// manually.
+	for (id target in view.allTargets) {
+		// Control events are a mask, but UIControlEventAllEvents doesn't seem to
+		// match anything, 0 does.
+		for (NSString *selectorString in [view actionsForTarget:target forControlEvent:0]) {
+			SEL selector = NSSelectorFromString(selectorString);
+
+			NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[target methodSignatureForSelector:selector]];
+			invocation.selector = selector;
+			UIEvent *event = nil;
+			[invocation setArgument:&event atIndex:2];
+
+			[invocation invokeWithTarget:target];
+		}
+	}
+};
+
+itShouldBehaveLike(RACViewChannelExamples, ^{
+	return @{
+		RACViewChannelExampleCreateViewBlock: ^{
+			return [[UISlider alloc] init];
+		},
+		RACViewChannelExampleCreateTerminalBlock: ^(UISlider *view) {
+			return [view rac_newValueChannelWithNilValue:@0.0];
+		},
+		RACViewChannelExampleKeyPath: @keypath(UISlider.new, value),
+		RACViewChannelExampleSetViewValueBlock: setViewValueBlock
+	};
+});
 
 it(@"should send on the returned signal when matching actions are sent", ^{
 	UIControl *control = [RACTestUIButton button];

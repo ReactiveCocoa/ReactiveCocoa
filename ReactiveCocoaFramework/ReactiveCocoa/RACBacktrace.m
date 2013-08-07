@@ -48,9 +48,9 @@
 // backtrace onto the current queue, then call through to the original dispatch.
 static void RACTraceDispatch (void *ptr) {
 	// Balance out the retain necessary for async calls.
-	RACDispatchInfo *info = CFBridgingRelease(ptr);
+	RACDispatchInfo *info __attribute__((objc_precise_lifetime)) = CFBridgingRelease(ptr);
 
-	dispatch_queue_set_specific(info.queue, (void *)pthread_self(), (void *)CFBridgingRetain(info.backtrace), (dispatch_function_t)&CFBridgingRelease);
+	dispatch_queue_set_specific(info.queue, (void *)pthread_self(), (__bridge void *)info.backtrace, NULL);
 	info.function(info.context);
 	dispatch_queue_set_specific(info.queue, (void *)pthread_self(), NULL, NULL);
 }
@@ -61,7 +61,9 @@ static dispatch_block_t RACBacktraceBlock (dispatch_queue_t queue, dispatch_bloc
 	RACBacktrace *backtrace = [RACBacktrace captureBacktrace];
 
 	return [^{
-		dispatch_queue_set_specific(queue, (void *)pthread_self(), (void *)CFBridgingRetain(backtrace), (dispatch_function_t)&CFBridgingRelease);
+		RACBacktrace *backtraceKeptAlive __attribute__((objc_precise_lifetime)) = backtrace;
+
+		dispatch_queue_set_specific(queue, (void *)pthread_self(), (__bridge void *)backtraceKeptAlive, NULL);
 		block();
 		dispatch_queue_set_specific(queue, (void *)pthread_self(), NULL, NULL);
 	} copy];

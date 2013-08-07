@@ -397,8 +397,8 @@ For example, assuming you want to bind a `person` model's `name` property:
 
 ```objc
 UITextField *nameField = ...;
-RACChannelTerminal *nameTerminal = RACChannelTo(model, name, nil);
-RACChannelTerminal *nameFieldTerminal = [nameField rac_textChannel];
+RACChannelTerminal *nameTerminal = RACChannelTo(model, name);
+RACChannelTerminal *nameFieldTerminal = [nameField rac_newTextChannel];
 [nameTerminal subscribe:nameFieldTerminal];
 [nameFieldTerminal subscribe:nameTerminal];
 ```

@@ -14,6 +14,7 @@
 #import "RACChannel.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
+#import "RACSignal+Operations.h"
 #import "UIControl+RACSignalSupport.h"
 
 @implementation UIControl (RACSignalSupportPrivate)
@@ -27,7 +28,12 @@
 		[channel.followingTerminal sendCompleted];
 	}]];
 
-	RACSignal *eventSignal = [[self rac_signalForControlEvents:controlEvents] mapReplace:key];
+	RACSignal *eventSignal = [[[self
+		rac_signalForControlEvents:controlEvents]
+		mapReplace:key]
+		takeUntil:[[channel.followingTerminal
+			ignoreValues]
+			catchTo:RACSignal.empty]];
 	[[self
 		rac_liftSelector:@selector(valueForKey:) withSignals:eventSignal, nil]
 		subscribe:channel.followingTerminal];

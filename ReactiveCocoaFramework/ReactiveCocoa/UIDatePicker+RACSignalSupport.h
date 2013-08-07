@@ -19,6 +19,6 @@
 // Returns a RACChannelTerminal that sends the receiver's date whenever the
 // UIControlEventValueChanged control event is fired, and sets the date to the
 // values it receives.
-- (RACChannelTerminal *)rac_newDateChannelWithNilValue:(id)nilValue;
+- (RACChannelTerminal *)rac_newDateChannelWithNilValue:(NSDate *)nilValue;
 
 @end

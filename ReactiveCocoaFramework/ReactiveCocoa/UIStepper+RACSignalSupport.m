@@ -13,7 +13,7 @@
 
 @implementation UIStepper (RACSignalSupport)
 
-- (RACChannelTerminal *)rac_newValueChannelWithNilValue:(id)nilValue {
+- (RACChannelTerminal *)rac_newValueChannelWithNilValue:(NSNumber *)nilValue {
 	return [self rac_channelForControlEvents:UIControlEventValueChanged key:@keypath(self.value) nilValue:nilValue];
 }
 

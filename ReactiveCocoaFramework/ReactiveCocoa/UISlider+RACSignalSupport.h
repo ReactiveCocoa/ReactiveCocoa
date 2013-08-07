@@ -19,6 +19,6 @@
 // Returns a RACChannelTerminal that sends the receiver's value whenever the
 // UIControlEventValueChanged control event is fired, and sets the value to the
 // values it receives.
-- (RACChannelTerminal *)rac_newValueChannelWithNilValue:(id)nilValue;
+- (RACChannelTerminal *)rac_newValueChannelWithNilValue:(NSNumber *)nilValue;
 
 @end

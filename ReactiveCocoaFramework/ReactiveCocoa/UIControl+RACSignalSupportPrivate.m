@@ -39,7 +39,7 @@
 		subscribe:channel.followingTerminal];
 
 	RACSignal *valuesSignal = [channel.followingTerminal
-		map:^id(id value) {
+		map:^(id value) {
 			return value ?: nilValue;
 		}];
 	[self rac_liftSelector:@selector(setValue:forKey:) withSignals:valuesSignal, [RACSignal return:key], nil];

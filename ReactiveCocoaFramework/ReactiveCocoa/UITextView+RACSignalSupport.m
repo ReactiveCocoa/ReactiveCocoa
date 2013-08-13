@@ -35,10 +35,8 @@ static void RACUseDelegateProxy(UITextView *self) {
 }
 
 - (RACSignal *)rac_textSignal {
-	RACUseDelegateProxy(self);
-
 	@weakify(self);
-	return [[[[[RACSignal
+	RACSignal *signal = [[[[[RACSignal
 		defer:^{
 			@strongify(self);
 			return [RACSignal return:RACTuplePack(self)];
@@ -49,6 +47,10 @@ static void RACUseDelegateProxy(UITextView *self) {
 		}]
 		takeUntil:self.rac_willDeallocSignal]
 		setNameWithFormat:@"%@ -rac_textSignal", [self rac_description]];
+
+	RACUseDelegateProxy(self);
+
+	return signal;
 }
 
 @end

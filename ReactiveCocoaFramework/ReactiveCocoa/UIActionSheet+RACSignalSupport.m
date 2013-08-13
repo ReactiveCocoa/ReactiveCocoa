@@ -34,15 +34,17 @@ static void RACUseDelegateProxy(UIActionSheet *self) {
 }
 
 - (RACSignal *)rac_buttonClickedSignal {
-	RACUseDelegateProxy(self);
-
-	return [[[[self.rac_delegateProxy
+	RACSignal *signal = [[[[self.rac_delegateProxy
 		signalForSelector:@selector(actionSheet:clickedButtonAtIndex:)]
 		reduceEach:^(UIActionSheet *actionSheet, NSNumber *buttonIndex) {
 			return buttonIndex;
 		}]
 		takeUntil:self.rac_willDeallocSignal]
 		setNameWithFormat:@"%@ -rac_buttonClickedSignal", [self rac_description]];
+
+	RACUseDelegateProxy(self);
+
+	return signal;
 }
 
 @end

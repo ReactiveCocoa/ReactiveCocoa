@@ -40,13 +40,14 @@ static BOOL RACForwardInvocation(id self, NSInvocation *invocation) {
 	SEL aliasSelector = RACAliasForSelector(invocation.selector);
 	RACSubject *subject = objc_getAssociatedObject(self, aliasSelector);
 
-	BOOL respondsToAlias = [invocation.target respondsToSelector:aliasSelector];
-	if (respondsToAlias) {
+	Class class = object_getClass(invocation.target);
+	BOOL respondToAlias = [class instancesRespondToSelector:aliasSelector];
+	if (respondToAlias) {
 		invocation.selector = aliasSelector;
 		[invocation invoke];
 	}
 
-	if (subject == nil) return respondsToAlias;
+	if (subject == nil) return respondToAlias;
 
 	RACTuple *argumentsTuple = [RACTuple tupleWithObjectsFromArray:invocation.rac_allArguments];
 	[subject sendNext:argumentsTuple];

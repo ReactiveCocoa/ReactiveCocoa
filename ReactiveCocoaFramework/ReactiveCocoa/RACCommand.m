@@ -11,11 +11,11 @@
 #import "NSArray+RACSequenceAdditions.h"
 #import "NSObject+RACDescription.h"
 #import "NSObject+RACPropertySubscribing.h"
-#import "RACCompoundDisposable.h"
 #import "RACMulticastConnection.h"
 #import "RACReplaySubject.h"
 #import "RACScheduler.h"
 #import "RACSequence.h"
+#import "RACSerialDisposable.h"
 #import "RACSignal+Operations.h"
 #import <libkern/OSAtomic.h>
 
@@ -152,22 +152,43 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 
 	@weakify(self);
 
-	_executionSignals = [[RACSignal
-		defer:^{
-			@strongify(self);
-			return [[[[self
-				rac_valuesAndChangesForKeyPath:@keypath(self.activeExecutionSignals) options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial observer:nil]
-				subscribeOn:self.reentrantMainThreadScheduler]
-				reduceEach:^(id _, NSDictionary *change) {
-					if ([change[NSKeyValueChangeKindKey] unsignedIntegerValue] == NSKeyValueChangeRemoval) return [RACSignal empty];
+	_executionSignals = [[[[RACSignal
+		createSignal:^(id<RACSubscriber> subscriber) {
+			RACSerialDisposable *serialDisposable = [[RACSerialDisposable alloc] init];
 
-					NSArray *signals = change[NSKeyValueChangeNewKey];
-					if (signals == nil) return [RACSignal empty];
+			[self.reentrantMainThreadScheduler schedule:^{
+				RACSignal *KVOSignal = [self rac_valuesAndChangesForKeyPath:@keypath(self.activeExecutionSignals) options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial observer:nil];
 
-					return [signals.rac_sequence signalWithScheduler:RACScheduler.immediateScheduler];
-				}]
-				flatten];
+				serialDisposable.disposable = [KVOSignal subscribeNext:^(id value) {
+					NSCParameterAssert(RACScheduler.currentScheduler == RACScheduler.mainThreadScheduler);
+					[subscriber sendNext:value];
+				} error:^(NSError *error) {
+					@strongify(self);
+
+					// Ensure that we only terminate this and all derived
+					// signals on the main thread.
+					[self.reentrantMainThreadScheduler schedule:^{
+						[subscriber sendError:error];
+					}];
+				} completed:^{
+					@strongify(self);
+					[self.reentrantMainThreadScheduler schedule:^{
+						[subscriber sendCompleted];
+					}];
+				}];
+			}];
+
+			return serialDisposable;
 		}]
+		reduceEach:^(id _, NSDictionary *change) {
+			if ([change[NSKeyValueChangeKindKey] unsignedIntegerValue] == NSKeyValueChangeRemoval) return [RACSignal empty];
+
+			NSArray *signals = change[NSKeyValueChangeNewKey];
+			if (signals == nil) return [RACSignal empty];
+
+			return [signals.rac_sequence signalWithScheduler:RACScheduler.immediateScheduler];
+		}]
+		flatten]
 		setNameWithFormat:@"%@ -executionSignals", self];
 	
 	RACMulticastConnection *errorsConnection = [[self.executionSignals

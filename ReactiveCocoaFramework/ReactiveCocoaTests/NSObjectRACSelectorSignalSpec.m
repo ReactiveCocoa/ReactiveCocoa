@@ -130,7 +130,7 @@ describe(@"RACTestObject", ^{
 		expect(key).to.equal(@"Winner");
 	});
 
-	it(@"should send arguments for invocation on previously KVO'd receiver", ^{
+	it(@"should send arguments for invocation and invoke the original method on previously KVO'd receiver", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 
 		[RACObserve(object, objectValue) replayLast];
@@ -143,12 +143,16 @@ describe(@"RACTestObject", ^{
 		}];
 
 		[object setObjectValue:@YES andSecondObjectValue:@"Winner"];
+
+		expect(object.hasInvokedSetObjectValueAndSecondObjectValue).to.beTruthy();
+		expect(object.objectValue).to.equal(@YES);
+		expect(object.secondObjectValue).to.equal(@"Winner");
 
 		expect(value).to.equal(@YES);
 		expect(key).to.equal(@"Winner");
 	});
 
-	it(@"should send arguments for invocation when receiver is subsequently KVO'd", ^{
+	it(@"should send arguments for invocation and invoke the original method when receiver is subsequently KVO'd", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 
 		__block id key;
@@ -161,6 +165,10 @@ describe(@"RACTestObject", ^{
 		[RACObserve(object, objectValue) replayLast];
 
 		[object setObjectValue:@YES andSecondObjectValue:@"Winner"];
+
+		expect(object.hasInvokedSetObjectValueAndSecondObjectValue).to.beTruthy();
+		expect(object.objectValue).to.equal(@YES);
+		expect(object.secondObjectValue).to.equal(@"Winner");
 
 		expect(value).to.equal(@YES);
 		expect(key).to.equal(@"Winner");

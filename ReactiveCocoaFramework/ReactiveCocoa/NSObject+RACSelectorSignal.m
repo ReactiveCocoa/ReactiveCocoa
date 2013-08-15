@@ -40,7 +40,8 @@ static BOOL RACForwardInvocation(id self, NSInvocation *invocation) {
 	SEL aliasSelector = RACAliasForSelector(invocation.selector);
 	RACSubject *subject = objc_getAssociatedObject(self, aliasSelector);
 
-	BOOL respondsToAlias = [invocation.target respondsToSelector:aliasSelector];
+	Class class = object_getClass(invocation.target);
+	BOOL respondsToAlias = [class instancesRespondToSelector:aliasSelector];
 	if (respondsToAlias) {
 		invocation.selector = aliasSelector;
 		[invocation invoke];

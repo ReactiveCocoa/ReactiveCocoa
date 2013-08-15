@@ -8,11 +8,12 @@
 
 #import "UIControl+RACSignalSupport.h"
 #import "EXTScope.h"
-#import "NSObject+RACDeallocating.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSignal.h"
-#import "RACSubscriber.h"
+#import "RACSignal+Operations.h"
+#import "RACSubscriber+Private.h"
+#import "NSObject+RACDeallocating.h"
 #import "NSObject+RACDescription.h"
 
 @implementation UIControl (RACSignalSupport)

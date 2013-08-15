@@ -11,10 +11,9 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=3&sta
 **[Breaking changes](#breaking-changes)**
 
  1. [Simplified and safer KVO](#simplified-and-safer-kvo)
+ 1. [Safer commands with less state](#safer-commands-with-less-state)
  1. [Fallback nil value for RAC macro](#fallback-nil-values-for-rac-macro)
  1. [Explicit schedulers for time-based operators](#explicit-schedulers-for-time-based-operators)
- 1. [Commands must only be used on the main thread](#commands-must-only-be-used-on-the-main-thread)
- 1. [Commands automatically catch errors](#commands-automatically-catch-errors)
  1. [More powerful selector signals](#more-powerful-selector-signals)
  1. [Simpler two-way bindings](#simpler-two-way-bindings)
  1. [Better bindings for AppKit](#better-bindings-for-appkit)
@@ -59,6 +58,37 @@ Unlike the previous macros, which only required one argument for key paths on
  * Replace uses of `RACAble(self.key)` with `[RACObserve(self, key) skip:1]` (if
    skipping the starting value is necessary).
 
+### Safer commands with less state
+
+`RACCommand` has been [completely
+refactored](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/733). It is no
+longer a `RACSignal`, and the behavior of `-addSignalBlock:` has been moved to
+the initializer, making the class almost entirely immutable.
+
+Reflecting the most common use case, KVO-notifying properties have been changed
+into signals instead. During the change, `canExecute` was also renamed to
+`enabled`, which should make its purpose more obvious for binding to the UI.
+
+In addition, changes to `executing`, `errors`, and `enabled` are now guaranteed
+to fire on the main thread, so UI observers no longer [run in the background
+unexpectedly](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/533).
+
+All together, these improvements should make `RACCommand` more composable and
+less imperative, so it fits into the framework better.
+
+**To update:**
+
+ * Move execution logic from `-addSignalBlock:` or `-subscribeNext:` into the
+   `signalBlock` passed to the initializer.
+ * Instead of subscribing to the result of `-addSignalBlock:`, subscribe to
+   `executionSignals` or the result of `-execute:` instead.
+ * Replace uses of `RACAbleWithStart(command, executing)` with
+   `command.executing`.
+ * Replace uses of `RACAbleWithStart(command, canExecute)` with
+   `command.enabled`.
+ * Remove uses of `deliverOn:RACScheduler.mainThreadScheduler` on
+   `RACCommand` properties, as they are now unnecessary.
+
 ### Fallback nil values for RAC macro
 
 The `RAC` macro now [always
@@ -98,40 +128,6 @@ clear how events should be delivered.
  * If you were already using `-deliverOn:` to force one of the above operators
    to deliver onto a specific scheduler, you can eliminate that hop and pass the
    scheduler into the operator directly.
-
-### Commands must only be used on the main thread
-
-Previously, `RACCommand` did not guarantee the thread that KVO notifications
-would be generated upon, which could cause UI observers to run in the background
-unexpectedly.
-
-Now, `RACCommand` will [generate all notifications on the main
-thread](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/540), and must only
-be used there.
-
-**To update:**
-
- * Audit code using `RACCommand` to ensure that it all runs on the main thread.
- * Remove any uses of `deliverOn:RACScheduler.mainThreadScheduler` on
-   `RACCommand` properties, as they are now unnecessary.
-
-### Commands automatically catch errors
-
-`-[RACCommand addSignalBlock:]` has been renamed to `-addActionBlock:`, which
-will [automatically catch
-errors](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/530) sent by the
-created signals.
-
-`RACCommand.errors` will continue to send any errors that occur. The only change
-is that no errors will be sent by the signals in the signal returned from
-`-addActionBlock:`.
-
-**To update:**
-
- * Remove any explicit `-catch:` or `-catchTo:` on created signals, as they are
-   now unnecessary.
- * If you _want_ to receive errors from created signals, use an operator like
-   `-materialize`.
 
 ### More powerful selector signals
 

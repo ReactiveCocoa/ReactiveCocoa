@@ -204,6 +204,14 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 	
 	_errors = [errorsConnection.signal setNameWithFormat:@"%@ -errors", self];
 	[errorsConnection connect];
+	
+	_executing = [[[[RACObserve(self, activeExecutionSignals)
+		map:^(NSArray *activeSignals) {
+			return @(activeSignals.count > 0);
+		}]
+		distinctUntilChanged]
+		replayLast]
+		setNameWithFormat:@"%@ -executing", self];
 
 	RACSignal *moreExecutionsAllowed = [RACSignal
 		if:RACObserve(self, allowsConcurrentExecution)
@@ -223,14 +231,6 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 		distinctUntilChanged]
 		replayLast]
 		setNameWithFormat:@"%@ -enabled", self];
-	
-	_executing = [[[[RACObserve(self, activeExecutionSignals)
-		map:^(NSArray *activeSignals) {
-			return @(activeSignals.count > 0);
-		}]
-		distinctUntilChanged]
-		replayLast]
-		setNameWithFormat:@"%@ -executing", self];
 
 	return self;
 }

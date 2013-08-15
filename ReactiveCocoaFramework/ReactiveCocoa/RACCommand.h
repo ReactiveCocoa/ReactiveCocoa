@@ -7,7 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RACSignal.h"
+
+@class RACSignal;
 
 // The domain for errors originating within `RACCommand`.
 extern NSString * const RACCommandErrorDomain;

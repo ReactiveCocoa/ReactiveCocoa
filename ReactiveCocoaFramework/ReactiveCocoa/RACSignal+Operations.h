@@ -532,5 +532,6 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 - (RACSignal *)sequenceNext:(RACSignal * (^)(void))block __attribute__((deprecated("Renamed to -then:")));
 - (RACSignal *)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock __attribute__((deprecated("Renamed to -aggregateWithStart:reduce:")));
 - (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock __attribute__((deprecated("Renamed to -aggregateWithStartFactory:reduce:")));
+- (RACDisposable *)executeCommand:(RACCommand *)command __attribute__((deprecated("Use -flattenMap: or -subscribeNext: instead")));
 
 @end

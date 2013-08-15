@@ -1244,14 +1244,6 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -or", self.name];
 }
 
-- (RACDisposable *)executeCommand:(RACCommand *)command {
-	NSCParameterAssert(command != nil);
-
-	return [self subscribeNext:^(id x) {
-		[command execute:x];
-	}];
-}
-
 @end
 
 @implementation RACSignal (OperationsDeprecated)
@@ -1402,6 +1394,14 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 - (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock {
 	return [self aggregateWithStartFactory:startFactory reduce:combineBlock];
+}
+
+- (RACDisposable *)executeCommand:(RACCommand *)command {
+	NSCParameterAssert(command != nil);
+
+	return [self subscribeNext:^(id x) {
+		[command execute:x];
+	}];
 }
 
 #pragma clang diagnostic pop

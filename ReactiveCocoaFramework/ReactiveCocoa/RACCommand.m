@@ -154,6 +154,7 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 
 	_executionSignals = [[[[RACSignal
 		createSignal:^(id<RACSubscriber> subscriber) {
+			@strongify(self);
 			RACSerialDisposable *serialDisposable = [[RACSerialDisposable alloc] init];
 
 			[self.reentrantMainThreadScheduler schedule:^{
@@ -163,16 +164,16 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 					NSCParameterAssert(RACScheduler.currentScheduler == RACScheduler.mainThreadScheduler);
 					[subscriber sendNext:value];
 				} error:^(NSError *error) {
-					@strongify(self);
-
 					// Ensure that we only terminate this and all derived
 					// signals on the main thread.
-					[self.reentrantMainThreadScheduler schedule:^{
+					//
+					// We use the plain scheduler here, and not the property on
+					// `self`, because we've been deallocated by this point.
+					[RACScheduler.mainThreadScheduler schedule:^{
 						[subscriber sendError:error];
 					}];
 				} completed:^{
-					@strongify(self);
-					[self.reentrantMainThreadScheduler schedule:^{
+					[RACScheduler.mainThreadScheduler schedule:^{
 						[subscriber sendCompleted];
 					}];
 				}];
@@ -205,7 +206,8 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 	_errors = [errorsConnection.signal setNameWithFormat:@"%@ -errors", self];
 	[errorsConnection connect];
 	
-	_executing = [[[[RACObserve(self, activeExecutionSignals)
+	_executing = [[[[[RACObserve(self, activeExecutionSignals)
+		subscribeOn:self.reentrantMainThreadScheduler]
 		map:^(NSArray *activeSignals) {
 			return @(activeSignals.count > 0);
 		}]
@@ -238,13 +240,24 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 #pragma mark Execution
 
 - (RACSignal *)execute:(id)input {
+	RACReplaySubject *resultSignal = [[RACReplaySubject subject] setNameWithFormat:@"%@ -execute: %@", self, [input rac_description]];
+
 	@weakify(self);
-	
-	RACSignal *executionSignal = [RACSignal defer:^{
+	[self.reentrantMainThreadScheduler schedule:^{
+		NSNumber *enabled = [self.enabled first];
+		if (!enabled.boolValue) {
+			NSError *error = [NSError errorWithDomain:RACCommandErrorDomain code:RACCommandErrorNotEnabled userInfo:@{
+				NSLocalizedDescriptionKey: NSLocalizedString(@"The command is disabled and cannot be executed", nil)
+			}];
+
+			[resultSignal sendError:error];
+			return;
+		}
+
 		RACSignal *signal = self.signalBlock(input);
 		NSCAssert(signal != nil, @"nil signal returned from signal block for value: %@", input);
 
-		RACMulticastConnection *connection = [signal multicast:[RACReplaySubject subject]];
+		RACMulticastConnection *connection = [signal multicast:resultSignal];
 
 		[[self mutableArrayValueForKey:@keypath(self.activeExecutionSignals)] addObject:connection.signal];
 		[[connection.signal
@@ -255,21 +268,9 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 			subscribeCompleted:^{}];
 
 		[connection connect];
-		return connection.signal;
 	}];
 
-	RACSignal *errorSignal = [RACSignal defer:^{
-		NSError *error = [NSError errorWithDomain:RACCommandErrorDomain code:RACCommandErrorNotEnabled userInfo:@{
-			NSLocalizedDescriptionKey: NSLocalizedString(@"The command is disabled and cannot be executed", nil)
-		}];
-
-		return [RACSignal error:error];
-	}];
-
-	return [[[RACSignal
-		if:[self.enabled take:1] then:executionSignal else:errorSignal]
-		subscribeOn:self.reentrantMainThreadScheduler]
-		setNameWithFormat:@"%@ -execute: %@", self, [input rac_description]];
+	return resultSignal;
 }
 
 #pragma mark NSKeyValueObserving

@@ -47,14 +47,20 @@ describe(@"with a simple signal block", ^{
 
 	it(@"should create an execution signal", ^{
 		__block id valueReceived = nil;
+		__block BOOL completed = NO;
+
 		[command.executionSignals subscribeNext:^(RACSignal *signal) {
-			expect(signal).to.beKindOf(RACSignal.class);
-			valueReceived = [signal first];
+			[signal subscribeNext:^(id x) {
+				valueReceived = x;
+			} completed:^{
+				completed = YES;
+			}];
 		}];
 		
 		id sentValue = NSNull.null;
 		RACSignal *signal = [command execute:sentValue];
 		expect(valueReceived).to.equal(sentValue);
+		expect(completed).to.beTruthy();
 		expect([signal first]).to.equal(valueReceived);
 	});
 
@@ -69,12 +75,14 @@ describe(@"with a simple signal block", ^{
 	});
 
 	it(@"should be executing from within the -execute: method", ^{
-		[command.executionSignals subscribeNext:^(id _) {
-			expect(command.executing).to.beTruthy();
+		[command.executionSignals subscribeNext:^(RACSignal *signal) {
+			[signal subscribeNext:^(id x) {
+				expect([command.executing first]).to.equal(@YES);
+			}];
 		}];
 
 		expect([[command execute:nil] waitUntilCompleted:NULL]).to.beTruthy();
-		expect(command.executing).to.beFalsy();
+		expect([command.executing first]).to.equal(@NO);
 	});
 
 	it(@"should dealloc without subscribers", ^{
@@ -166,6 +174,8 @@ describe(@"with a signal block", ^{
 		RACCommand *command = [[RACCommand alloc] initWithSignalBlock:^(RACSignal *signal) {
 			return signal;
 		}];
+
+		command.allowsConcurrentExecution = YES;
 		
 		RACSubject *firstSubject = [RACSubject subject];
 		expect([command execute:firstSubject]).notTo.beNil();
@@ -189,6 +199,8 @@ describe(@"with a signal block", ^{
 		RACCommand *command = [[RACCommand alloc] initWithSignalBlock:^(RACSignal *signal) {
 			return signal;
 		}];
+
+		command.allowsConcurrentExecution = YES;
 		
 		RACSubject *firstSubject = [RACSubject subject];
 		expect([command execute:firstSubject]).notTo.beNil();

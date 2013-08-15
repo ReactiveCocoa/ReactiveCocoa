@@ -21,154 +21,181 @@
 
 SpecBegin(RACCommand)
 
-__block RACCommand *command;
+RACSignal * (^emptySignalBlock)(id) = ^(id _) {
+	return [RACSignal empty];
+};
 
-beforeEach(^{
-	command = [RACCommand command];
-	expect(command).notTo.beNil();
+describe(@"with a simple signal block", ^{
+	__block RACCommand *command;
 
-	expect(command.canExecute).to.beTruthy();
-	expect(command.allowsConcurrentExecution).to.beFalsy();
-	expect(command.executing).to.beFalsy();
-});
+	beforeEach(^{
+		command = [[RACCommand alloc] initWithSignalBlock:^(id value) {
+			return [RACSignal return:value];
+		}];
 
-it(@"should pass the value along to subscribers", ^{
-	__block id valueReceived = nil;
-	[command subscribeNext:^(id value) {
-		valueReceived = value;
-	}];
-	
-	id sentValue = [NSNull null];
-	expect([command execute:sentValue]).to.beTruthy();
-	
-	expect(valueReceived).to.equal(sentValue);
-});
+		expect(command).notTo.beNil();
+		expect(command.allowsConcurrentExecution).to.beFalsy();
+	});
 
-it(@"should not send anything on 'errors' by default", ^{
-	__block BOOL receivedError = NO;
-	[command.errors subscribeNext:^(id _) {
-		receivedError = YES;
-	}];
-	
-	expect([command execute:nil]).to.beTruthy();
-	expect(receivedError).to.beFalsy();
-});
+	it(@"should be enabled by default", ^{
+		expect([command.enabled first]).to.equal(@YES);
+	});
 
-it(@"should be executing from within the -execute: method", ^{
-	[command subscribeNext:^(id _) {
-		expect(command.executing).to.beTruthy();
-	}];
+	it(@"should not be executing by default", ^{
+		expect([command.executing first]).to.equal(@NO);
+	});
 
-	expect([command execute:nil]).to.beTruthy();
-	expect(command.executing).to.beFalsy();
-});
+	it(@"should create an execution signal", ^{
+		__block id valueReceived = nil;
+		[command.executionSignals subscribeNext:^(RACSignal *signal) {
+			expect(signal).to.beKindOf(RACSignal.class);
+			valueReceived = [signal first];
+		}];
+		
+		id sentValue = NSNull.null;
+		RACSignal *signal = [command execute:sentValue];
+		expect(valueReceived).to.equal(sentValue);
+		expect([signal first]).to.equal(valueReceived);
+	});
 
-it(@"should dealloc without subscribers", ^{
-	__block BOOL disposed = NO;
+	it(@"should not send anything on 'errors' by default", ^{
+		__block BOOL receivedError = NO;
+		[command.errors subscribeNext:^(id _) {
+			receivedError = YES;
+		}];
+		
+		expect([[command execute:nil] waitUntilCompleted:NULL]).to.beTruthy();
+		expect(receivedError).to.beFalsy();
+	});
 
-	@autoreleasepool {
-		RACCommand *command __attribute__((objc_precise_lifetime)) = [[RACCommand alloc] initWithCanExecuteSignal:nil];
-		[command.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-			disposed = YES;
-		}]];
-	}
+	it(@"should be executing from within the -execute: method", ^{
+		[command.executionSignals subscribeNext:^(id _) {
+			expect(command.executing).to.beTruthy();
+		}];
 
-	expect(disposed).will.beTruthy();
-});
+		expect([[command execute:nil] waitUntilCompleted:NULL]).to.beTruthy();
+		expect(command.executing).to.beFalsy();
+	});
 
-it(@"should complete on the main thread when deallocated", ^{
-	__block RACScheduler *completionScheduler = nil;
+	it(@"should dealloc without subscribers", ^{
+		__block BOOL disposed = NO;
 
-	[[RACScheduler scheduler] schedule:^{
 		@autoreleasepool {
-			RACCommand *command __attribute__((objc_precise_lifetime)) = [[RACCommand alloc] initWithCanExecuteSignal:nil];
-			[command subscribeCompleted:^{
-				completionScheduler = RACScheduler.currentScheduler;
-			}];
+			RACCommand *command __attribute__((objc_precise_lifetime)) = [[RACCommand alloc] initWithSignalBlock:emptySignalBlock];
+			[command.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				disposed = YES;
+			}]];
 		}
-	}];
 
-	expect(completionScheduler).to.beNil();
-	expect(completionScheduler).will.equal(RACScheduler.mainThreadScheduler);
-});
+		expect(disposed).will.beTruthy();
+	});
 
-it(@"should complete errors on the main thread when deallocated", ^{
-	__block RACScheduler *completionScheduler = nil;
+	it(@"should complete signals on the main thread when deallocated", ^{
+		__block RACScheduler *executionSignalsScheduler = nil;
+		__block RACScheduler *executingScheduler = nil;
+		__block RACScheduler *enabledScheduler = nil;
+		__block RACScheduler *errorsScheduler = nil;
 
-	[[RACScheduler scheduler] schedule:^{
-		@autoreleasepool {
-			RACCommand *command __attribute__((objc_precise_lifetime)) = [[RACCommand alloc] initWithCanExecuteSignal:nil];
-			[command.errors subscribeCompleted:^{
-				completionScheduler = RACScheduler.currentScheduler;
-			}];
-		}
-	}];
+		[[RACScheduler scheduler] schedule:^{
+			@autoreleasepool {
+				RACCommand *command __attribute__((objc_precise_lifetime)) = [[RACCommand alloc] initWithSignalBlock:emptySignalBlock];
 
-	expect(completionScheduler).to.beNil();
-	expect(completionScheduler).will.equal(RACScheduler.mainThreadScheduler);
+				[command.executionSignals subscribeCompleted:^{
+					executionSignalsScheduler = RACScheduler.currentScheduler;
+				}];
+
+				[command.executing subscribeCompleted:^{
+					executingScheduler = RACScheduler.currentScheduler;
+				}];
+
+				[command.enabled subscribeCompleted:^{
+					enabledScheduler = RACScheduler.currentScheduler;
+				}];
+
+				[command.errors subscribeCompleted:^{
+					errorsScheduler = RACScheduler.currentScheduler;
+				}];
+			}
+		}];
+
+		expect(executionSignalsScheduler).will.equal(RACScheduler.mainThreadScheduler);
+		expect(executingScheduler).will.equal(RACScheduler.mainThreadScheduler);
+		expect(enabledScheduler).will.equal(RACScheduler.mainThreadScheduler);
+		expect(errorsScheduler).will.equal(RACScheduler.mainThreadScheduler);
+	});
 });
 
 describe(@"with a signal block", ^{
 	it(@"should invoke the signalBlock once per execution", ^{
 		NSMutableArray *valuesReceived = [NSMutableArray array];
-		[command addActionBlock:^(id x) {
+		RACCommand *command = [[RACCommand alloc] initWithSignalBlock:^(id x) {
 			[valuesReceived addObject:x];
 			return [RACSignal empty];
 		}];
 
-		expect([command execute:@"foo"]).to.beTruthy();
-		expect([command execute:@"bar"]).will.beTruthy();
+		expect([[command execute:@"foo"] waitUntilCompleted:NULL]).to.beTruthy();
+		expect(valuesReceived).to.equal((@[ @"foo" ]));
 
-		NSArray *expectedValues = @[ @"foo", @"bar" ];
-		expect(valuesReceived).to.equal(expectedValues);
+		expect([[command execute:@"bar"] waitUntilCompleted:NULL]).to.beTruthy();
+		expect(valuesReceived).to.equal((@[ @"foo", @"bar" ]));
 	});
 
-	it(@"should return a signal of signals from -addActionBlock:", ^{
+	it(@"should send on executionSignals in order of execution", ^{
+		RACCommand *command = [[RACCommand alloc] initWithSignalBlock:^(RACSequence *seq) {
+			return [seq signalWithScheduler:RACScheduler.immediateScheduler];
+		}];
+
 		NSMutableArray *valuesReceived = [NSMutableArray array];
-		[[[command
-			addActionBlock:^(RACSequence *seq) {
-				return [seq signalWithScheduler:RACScheduler.immediateScheduler];
-			}]
+		[[command.executionSignals
 			concat]
 			subscribeNext:^(id x) {
 				[valuesReceived addObject:x];
 			}];
 
 		RACSequence *first = @[ @"foo", @"bar" ].rac_sequence;
-		expect([command execute:first]).to.beTruthy();
+		expect([[command execute:first] waitUntilCompleted:NULL]).to.beTruthy();
 
 		RACSequence *second = @[ @"buzz", @"baz" ].rac_sequence;
-		expect([command execute:second]).will.beTruthy();
+		expect([[command execute:second] waitUntilCompleted:NULL]).will.beTruthy();
 
 		NSArray *expectedValues = @[ @"foo", @"bar", @"buzz", @"baz" ];
 		expect(valuesReceived).to.equal(expectedValues);
 	});
 
-	it(@"should wait for all signals to complete or error before executing is set to NO", ^{
-		RACSubject *first = [RACSubject subject];
-		[command addActionBlock:^(id x) {
-			return first;
+	it(@"should wait for all signals to complete or error before executing sends NO", ^{
+		RACCommand *command = [[RACCommand alloc] initWithSignalBlock:^(RACSignal *signal) {
+			return signal;
 		}];
+		
+		RACSubject *firstSubject = [RACSubject subject];
+		expect([command execute:firstSubject]).notTo.beNil();
 
-		RACSubject *second = [RACSubject subject];
-		[command addActionBlock:^(id x) {
-			return second;
-		}];
+		RACSubject *secondSubject = [RACSubject subject];
+		expect([command execute:secondSubject]).notTo.beNil();
 
-		expect([command execute:nil]).to.beTruthy();
-		expect(command.executing).to.beTruthy();
+		expect([command.executing first]).to.equal(@YES);
 
-		[first sendError:nil];
-		expect(command.executing).to.beTruthy();
+		[firstSubject sendError:nil];
+		expect([command.executing first]).to.equal(@YES);
 
-		[second sendNext:nil];
-		expect(command.executing).to.beTruthy();
+		[secondSubject sendNext:nil];
+		expect([command.executing first]).to.equal(@YES);
 
-		[second sendCompleted];
-		expect(command.executing).will.beFalsy();
+		[secondSubject sendCompleted];
+		expect([command.executing first]).to.equal(@NO);
 	});
 
 	it(@"should forward errors onto 'errors'", ^{
+		RACCommand *command = [[RACCommand alloc] initWithSignalBlock:^(RACSignal *signal) {
+			return signal;
+		}];
+		
+		RACSubject *firstSubject = [RACSubject subject];
+		expect([command execute:firstSubject]).notTo.beNil();
+
+		RACSubject *secondSubject = [RACSubject subject];
+		expect([command execute:secondSubject]).notTo.beNil();
+
 		NSError *firstError = [NSError errorWithDomain:@"" code:1 userInfo:nil];
 		NSError *secondError = [NSError errorWithDomain:@"" code:2 userInfo:nil];
 		
@@ -177,180 +204,110 @@ describe(@"with a signal block", ^{
 			[receivedErrors addObject:error];
 		}];
 
-		RACSubject *firstSubject = [RACSubject subject];
-		[command addActionBlock:^(id _) {
-			return firstSubject;
-		}];
-
-		RACSubject *secondSubject = [RACSubject subject];
-		[command addActionBlock:^(id _) {
-			return secondSubject;
-		}];
-
-		expect([command execute:nil]).to.beTruthy();
-		expect(command.executing).to.beTruthy();
+		expect([command.executing first]).to.equal(@YES);
 
 		[firstSubject sendError:firstError];
-		expect(command.executing).to.beTruthy();
+		expect([command.executing first]).to.equal(@YES);
 
 		NSArray *expected = @[ firstError ];
 		expect(receivedErrors).will.equal(expected);
 
 		[secondSubject sendError:secondError];
-		expect(command.executing).will.beFalsy();
+		expect([command.executing first]).will.equal(@NO);
 
 		expected = @[ firstError, secondError ];
 		expect(receivedErrors).will.equal(expected);
 	});
 
 	it(@"should not forward other events onto 'errors'", ^{
+		RACSubject *subject = [RACSubject subject];
+		RACCommand *command = [[RACCommand alloc] initWithSignalBlock:^(id _) {
+			return subject;
+		}];
+
 		__block BOOL receivedEvent = NO;
 		[command.errors subscribeNext:^(id _) {
 			receivedEvent = YES;
 		}];
 
-		RACSubject *subject = [RACSubject subject];
-		[command addActionBlock:^(id _) {
-			return subject;
-		}];
-
-		expect([command execute:nil]).to.beTruthy();
-		expect(command.executing).to.beTruthy();
+		expect([command execute:nil]).notTo.beNil();
+		expect([command.executing first]).to.equal(@YES);
 
 		[subject sendNext:RACUnit.defaultUnit];
 		[subject sendCompleted];
 
-		expect(command.executing).will.beFalsy();
+		expect([command.executing first]).will.equal(@NO);
 		expect(receivedEvent).to.beFalsy();
-	});
-
-	it(@"should not deliver errors to subscribers", ^{
-		RACSubject *subject = [RACSubject subject];
-		NSMutableArray *receivedEvents = [NSMutableArray array];
-
-		[[[[command
-			addActionBlock:^(id value) {
-				return subject;
-			}]
-			flatten]
-			materialize]
-			subscribeNext:^(RACEvent *event) {
-				[receivedEvents addObject:event];
-			}];
-
-		expect([command execute:nil]).to.beTruthy();
-		expect(command.executing).to.beTruthy();
-
-		[subject sendNext:RACUnit.defaultUnit];
-
-		NSArray *expectedEvents = @[ [RACEvent eventWithValue:RACUnit.defaultUnit] ];
-		expect(receivedEvents).to.equal(expectedEvents);
-		expect(command.executing).to.beTruthy();
-
-		[subject sendNext:@"foo"];
-
-		expectedEvents = @[ [RACEvent eventWithValue:RACUnit.defaultUnit], [RACEvent eventWithValue:@"foo"] ];
-		expect(receivedEvents).to.equal(expectedEvents);
-		expect(command.executing).to.beTruthy();
-
-		NSError *error = [NSError errorWithDomain:@"" code:1 userInfo:nil];
-		[subject sendError:error];
-		
-		expect(command.executing).will.beFalsy();
-		expect(receivedEvents).to.equal(expectedEvents);
-	});
-
-	it(@"should dealloc without subscribers", ^{
-		__block BOOL disposed = NO;
-
-		@autoreleasepool {
-			RACCommand *command __attribute__((objc_precise_lifetime)) = [[RACCommand alloc] initWithCanExecuteSignal:nil];
-
-			[command addActionBlock:^(id x) {
-				return [RACSignal empty];
-			}];
-
-			[command.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-				disposed = YES;
-			}]];
-		}
-
-		expect(disposed).will.beTruthy();
 	});
 });
 
-describe(@"canExecute property", ^{
-	it(@"should be NO when the canExecuteSignal has sent NO most recently", ^{
-		command = [RACCommand commandWithCanExecuteSignal:[RACSignal return:@NO]];
-		expect(command).notTo.beNil();
-		expect(command.canExecute).to.beFalsy();
-		
-		command = [RACCommand commandWithCanExecuteSignal:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendNext:@YES];
-			[subscriber sendNext:@NO];
-			return nil;
-		}]];
-		
-		expect(command.canExecute).to.beFalsy();
+describe(@"enabled", ^{
+	__block RACSubject *enabledSubject;
+	__block RACCommand *command;
+
+	beforeEach(^{
+		enabledSubject = [RACSubject subject];
+		command = [[RACCommand alloc] initWithEnabled:enabledSubject signalBlock:^(id _) {
+			return [RACSignal return:RACUnit.defaultUnit];
+		}];
 	});
-	
-	it(@"should be YES when the canExecuteSignal has sent YES most recently", ^{
-		command = [RACCommand commandWithCanExecuteSignal:[RACSignal return:@YES]];
-		expect(command).notTo.beNil();
-		expect(command.canExecute).to.beTruthy();
-		
-		command = [RACCommand commandWithCanExecuteSignal:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendNext:@NO];
-			[subscriber sendNext:@YES];
-			return nil;
-		}]];
-		
-		expect(command.canExecute).to.beTruthy();
+
+	it(@"should be YES by default", ^{
+		expect([command.enabled first]).to.equal(@YES);
+	});
+
+	it(@"should be whatever the enabledSignal has sent most recently", ^{
+		[enabledSubject sendNext:@NO];
+		expect([command.enabled first]).to.equal(@NO);
+
+		[enabledSubject sendNext:@YES];
+		expect([command.enabled first]).to.equal(@YES);
+
+		[enabledSubject sendNext:@NO];
+		expect([command.enabled first]).to.equal(@NO);
 	});
 
 	it(@"should be NO while executing is YES and allowsConcurrentExecution is NO", ^{
-		[command subscribeNext:^(id _) {
-			expect(command.executing).to.beTruthy();
-			expect(command.canExecute).to.beFalsy();
+		[[command.executionSignals flatten] subscribeNext:^(id _) {
+			expect([command.executing first]).to.equal(@YES);
+			expect([command.enabled first]).to.equal(@NO);
 		}];
 
-		expect(command.canExecute).to.beTruthy();
-		expect([command execute:nil]).to.beTruthy();
-		expect(command.canExecute).to.beTruthy();
+		expect([command.enabled first]).to.equal(@YES);
+		expect([[command execute:nil] waitUntilCompleted:NULL]).to.beTruthy();
+		expect([command.enabled first]).to.equal(@YES);
 	});
 
 	it(@"should be YES while executing is YES and allowsConcurrentExecution is YES", ^{
 		command.allowsConcurrentExecution = YES;
 
 		// Prevent infinite recursion by only responding to the first value.
-		[[command take:1] subscribeNext:^(id _) {
-			expect(command.executing).to.beTruthy();
-			expect(command.canExecute).to.beTruthy();
-			expect([command execute:nil]).to.beTruthy();
-		}];
+		[[[command.executionSignals
+			take:1]
+			flatten]
+			subscribeNext:^(id _) {
+				expect([command.executing first]).to.equal(@YES);
+				expect([command.enabled first]).to.equal(@YES);
+				expect([[command execute:nil] waitUntilCompleted:NULL]).to.beTruthy();
+			}];
 
-		expect(command.canExecute).to.beTruthy();
-		expect([command execute:nil]).to.beTruthy();
-		expect(command.canExecute).to.beTruthy();
+		expect([command.enabled first]).to.equal(@YES);
+		expect([[command execute:nil] waitUntilCompleted:NULL]).to.beTruthy();
+		expect([command.enabled first]).to.equal(@YES);
 	});
 
 	it(@"should always update on the main thread", ^{
-		RACSubject *subject = [RACSubject subject];
-
-		command = [RACCommand commandWithCanExecuteSignal:subject];
-		expect(command.canExecute).to.beTruthy();
-
 		__block RACScheduler *updatedScheduler = nil;
-		[[RACObserve(command, canExecute) skip:1] subscribeNext:^(id _) {
+		[[command.enabled skip:1] subscribeNext:^(id _) {
 			updatedScheduler = RACScheduler.currentScheduler;
 		}];
 
 		[[RACScheduler scheduler] schedule:^{
-			[subject sendNext:@NO];
+			[enabledSubject sendNext:@NO];
 		}];
 
-		expect(command.canExecute).to.beTruthy();
-		expect(command.canExecute).will.beFalsy();
+		expect([command.enabled first]).to.equal(@YES);
+		expect([command.enabled first]).will.equal(@NO);
 		expect(updatedScheduler).to.equal(RACScheduler.mainThreadScheduler);
 	});
 });

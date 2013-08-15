@@ -13,8 +13,19 @@
 #import "RACCommand.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
+#import "RACSubject.h"
 
 SpecBegin(NSControlRACSupport)
+
+__block RACSubject *enabledSubject;
+__block RACCommand *command;
+
+beforeEach(^{
+	enabledSubject = [RACSubject subject];
+	command = [[RACCommand alloc] initWithEnabled:enabledSubject signalBlock:^(id sender) {
+		return [RACSignal return:sender];
+	}];
+});
 
 describe(@"NSButton", ^{
 	__block NSButton *button;
@@ -22,28 +33,28 @@ describe(@"NSButton", ^{
 	beforeEach(^{
 		button = [[NSButton alloc] initWithFrame:NSZeroRect];
 		expect(button).notTo.beNil();
+
+		button.rac_command = command;
 	});
 
 	it(@"should bind the button's enabledness to the command's canExecute", ^{
-		button.rac_command = [RACCommand commandWithCanExecuteSignal:[RACSignal return:@NO]];
+		expect([button isEnabled]).to.beTruthy();
+
+		[enabledSubject sendNext:@NO];
 		expect([button isEnabled]).to.beFalsy();
 		
-		button.rac_command = [RACCommand commandWithCanExecuteSignal:[RACSignal return:@YES]];
+		[enabledSubject sendNext:@YES];
 		expect([button isEnabled]).to.beTruthy();
 	});
 
 	it(@"should execute the button's command when clicked", ^{
-		RACCommand *command = [RACCommand command];
-
 		__block BOOL executed = NO;
-		[command subscribeNext:^(id sender) {
+		[[command.executionSignals flatten] subscribeNext:^(id sender) {
 			expect(sender).to.equal(button);
 			executed = YES;
 		}];
 		
-		button.rac_command = command;
 		[button performClick:nil];
-		
 		expect(executed).to.beTruthy();
 	});
 });
@@ -65,29 +76,29 @@ describe(@"NSTextField", ^{
 
 		expect([window makeFirstResponder:field]).to.beTruthy();
 		expect(window.firstResponder).notTo.equal(window);
+		
+		field.rac_command = command;
 	});
 
 	it(@"should bind the text field's enabledness to the command's canExecute", ^{
-		field.rac_command = [RACCommand commandWithCanExecuteSignal:[RACSignal return:@NO]];
+		expect([field isEnabled]).to.beTruthy();
+
+		[enabledSubject sendNext:@NO];
 		expect([field isEnabled]).to.beFalsy();
 		
-		field.rac_command = [RACCommand commandWithCanExecuteSignal:[RACSignal return:@YES]];
+		[enabledSubject sendNext:@YES];
 		expect([field isEnabled]).to.beTruthy();
 	});
 
 	it(@"should execute the text field's command when editing ends", ^{
-		RACCommand *command = [RACCommand command];
-
 		__block BOOL executed = NO;
-		[command subscribeNext:^(id sender) {
+		[[command.executionSignals flatten] subscribeNext:^(id sender) {
 			expect(sender).to.equal(field);
 			executed = YES;
 		}];
 		
-		field.rac_command = command;
 		expect([window makeFirstResponder:nil]).to.beTruthy();
 		expect(window.firstResponder).to.equal(window);
-		
 		expect(executed).to.beTruthy();
 	});
 

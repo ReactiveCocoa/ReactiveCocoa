@@ -3057,21 +3057,6 @@ describe(@"-or", ^{
 	});
 });
 
-describe(@"-executeCommand:", ^{
-	it(@"should execute the command with each next", ^{
-		RACCommand *command = [RACCommand command];
-
-		__block id value;
-		[command subscribeNext:^(id x) {
-			value = x;
-		}];
-
-		[[RACSignal return:@1] executeCommand:command];
-
-		expect(value).to.equal(@1);
-	});
-});
-
 describe(@"-groupBy:", ^{
 	it(@"should send completed to all grouped signals.", ^{
 		RACSubject *subject = [RACReplaySubject subject];

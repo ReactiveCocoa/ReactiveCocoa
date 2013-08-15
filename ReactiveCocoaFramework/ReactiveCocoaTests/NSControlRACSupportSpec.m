@@ -6,6 +6,8 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import "RACControlCommandExamples.h"
+
 #import "NSControl+RACCommandSupport.h"
 #import "NSControl+RACTextSignalSupport.h"
 #import "NSObject+RACDeallocating.h"
@@ -17,45 +19,21 @@
 
 SpecBegin(NSControlRACSupport)
 
-__block RACSubject *enabledSubject;
-__block RACCommand *command;
-
-beforeEach(^{
-	enabledSubject = [RACSubject subject];
-	command = [[RACCommand alloc] initWithEnabled:enabledSubject signalBlock:^(id sender) {
-		return [RACSignal return:sender];
-	}];
-});
-
 describe(@"NSButton", ^{
 	__block NSButton *button;
 
 	beforeEach(^{
 		button = [[NSButton alloc] initWithFrame:NSZeroRect];
 		expect(button).notTo.beNil();
-
-		button.rac_command = command;
 	});
 
-	it(@"should bind the button's enabledness to the command's canExecute", ^{
-		expect([button isEnabled]).to.beTruthy();
-
-		[enabledSubject sendNext:@NO];
-		expect([button isEnabled]).to.beFalsy();
-		
-		[enabledSubject sendNext:@YES];
-		expect([button isEnabled]).to.beTruthy();
-	});
-
-	it(@"should execute the button's command when clicked", ^{
-		__block BOOL executed = NO;
-		[[command.executionSignals flatten] subscribeNext:^(id sender) {
-			expect(sender).to.equal(button);
-			executed = YES;
-		}];
-		
-		[button performClick:nil];
-		expect(executed).to.beTruthy();
+	itShouldBehaveLike(RACControlCommandExamples, ^{
+		return @{
+			RACControlCommandExampleControl: button,
+			RACControlCommandExampleActivateBlock: ^(NSButton *button) {
+				[button performClick:nil];
+			}
+		};
 	});
 });
 
@@ -76,30 +54,16 @@ describe(@"NSTextField", ^{
 
 		expect([window makeFirstResponder:field]).to.beTruthy();
 		expect(window.firstResponder).notTo.equal(window);
-		
-		field.rac_command = command;
 	});
 
-	it(@"should bind the text field's enabledness to the command's canExecute", ^{
-		expect([field isEnabled]).to.beTruthy();
-
-		[enabledSubject sendNext:@NO];
-		expect([field isEnabled]).to.beFalsy();
-		
-		[enabledSubject sendNext:@YES];
-		expect([field isEnabled]).to.beTruthy();
-	});
-
-	it(@"should execute the text field's command when editing ends", ^{
-		__block BOOL executed = NO;
-		[[command.executionSignals flatten] subscribeNext:^(id sender) {
-			expect(sender).to.equal(field);
-			executed = YES;
-		}];
-		
-		expect([window makeFirstResponder:nil]).to.beTruthy();
-		expect(window.firstResponder).to.equal(window);
-		expect(executed).to.beTruthy();
+	itShouldBehaveLike(RACControlCommandExamples, ^{
+		return @{
+			RACControlCommandExampleControl: field,
+			RACControlCommandExampleActivateBlock: ^(NSTextField *field) {
+				expect([window makeFirstResponder:nil]).to.beTruthy();
+				expect(window.firstResponder).to.equal(window);
+			}
+		};
 	});
 
 	describe(@"-rac_textSignal", ^{

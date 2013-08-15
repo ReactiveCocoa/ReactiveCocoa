@@ -6,6 +6,7 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import "RACControlCommandExamples.h"
 #import "RACTestUIButton.h"
 
 #import "UIButton+RACCommandSupport.h"
@@ -21,29 +22,17 @@ describe(@"UIButton", ^{
 		button = [RACTestUIButton button];
 		expect(button).notTo.beNil();
 	});
-	
-	it(@"should bind the button's enabledness to the command's canExecute", ^{
-		button.rac_command = [RACCommand commandWithCanExecuteSignal:[RACSignal return:@NO]];
-		expect(button.enabled).to.beFalsy();
-		
-		button.rac_command = [RACCommand commandWithCanExecuteSignal:[RACSignal return:@YES]];
-		expect(button.enabled).to.beTruthy();
-	});
-	
-	it(@"should execute the button's command when touched", ^{
-		RACCommand *command = [RACCommand command];
-		
-		__block BOOL executed = NO;
-		[command subscribeNext:^(id sender) {
-			expect(sender).to.equal(button);
-			executed = YES;
-		}];
-		
-		button.rac_command = command;
-		
-		[button sendActionsForControlEvents:UIControlEventTouchUpInside];
-		
-		expect(executed).to.beTruthy();
+
+	itShouldBehaveLike(RACControlCommandExamples, ^{
+		return @{
+			RACControlCommandExampleControl: button,
+			RACControlCommandExampleActivateBlock: ^(UIButton *button) {
+				#pragma clang diagnostic push
+				#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+				[button sendActionsForControlEvents:UIControlEventTouchUpInside];
+				#pragma clang diagnostic pop
+			}
+		};
 	});
 });
 

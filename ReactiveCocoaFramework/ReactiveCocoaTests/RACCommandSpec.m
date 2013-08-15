@@ -251,6 +251,43 @@ describe(@"with a signal block", ^{
 		expect([command.executing first]).will.equal(@NO);
 		expect(receivedEvent).to.beFalsy();
 	});
+
+	it(@"should not deliver errors inside executionsSignal", ^{
+		RACSubject *subject = [RACSubject subject];
+		NSMutableArray *receivedEvents = [NSMutableArray array];
+
+		RACCommand *command = [[RACCommand alloc] initWithSignalBlock:^(id _) {
+			return subject;
+		}];
+
+		[[[command.executionSignals
+			flatten]
+			materialize]
+			subscribeNext:^(RACEvent *event) {
+				[receivedEvents addObject:event];
+			}];
+
+		expect([command execute:nil]).notTo.beNil();
+		expect([command.executing first]).to.equal(@YES);
+
+		[subject sendNext:RACUnit.defaultUnit];
+
+		NSArray *expectedEvents = @[ [RACEvent eventWithValue:RACUnit.defaultUnit] ];
+		expect(receivedEvents).to.equal(expectedEvents);
+		expect([command.executing first]).to.equal(@YES);
+
+		[subject sendNext:@"foo"];
+
+		expectedEvents = @[ [RACEvent eventWithValue:RACUnit.defaultUnit], [RACEvent eventWithValue:@"foo"] ];
+		expect(receivedEvents).to.equal(expectedEvents);
+		expect([command.executing first]).to.equal(@YES);
+
+		NSError *error = [NSError errorWithDomain:@"" code:1 userInfo:nil];
+		[subject sendError:error];
+
+		expect([command.executing first]).to.equal(@NO);
+		expect(receivedEvents).to.equal(expectedEvents);
+	});
 });
 
 describe(@"enabled", ^{

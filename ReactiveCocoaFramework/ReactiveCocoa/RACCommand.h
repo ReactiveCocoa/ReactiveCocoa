@@ -20,7 +20,12 @@ extern const NSInteger RACCommandErrorNotEnabled;
 // UI-related.
 @interface RACCommand : NSObject
 
-// A signal of the signals returned by invocations of -execute:.
+// A signal of the signals returned by successful invocations of -execute:
+// (i.e., while the receiver is `enabled`).
+//
+// Errors will be automatically caught upon the inner signals, and sent upon
+// `errors` instead. If you _want_ to receive inner errors, use -execute: or
+// -[RACSignal materialize].
 //
 // Upon subscription from the main thread, this signal will immediately send all
 // in-flight executions. On a background thread, the initial values may be

@@ -42,9 +42,9 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 // A scheduler that will enqueue work on the main thread, or perform it
 // immediately if already running on the main thread.
 //
-// Make sure that accesses to this property evaluate as often as they need to!
-// Passing this to -deliverOn: from the main thread will always skip a hop, even
-// if events are received in the background.
+// NOTE: Ensure you call this only in the context in which it'll be used! If you
+// use it from a different scope, the returned scheduler will not change even if
+// it's _used_ on another thread.
 @property (nonatomic, strong, readonly) RACScheduler *reentrantMainThreadScheduler;
 
 // Improves the performance of KVO on the receiver.

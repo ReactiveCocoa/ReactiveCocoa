@@ -516,17 +516,6 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 // Returns a signal that applies OR to each NSNumber in the tuple.
 - (RACSignal *)or;
 
-// Subscribes to the receiver and executes the command with each `next`.
-//
-// This can be useful when you want to execute a command based off a signal:
-//
-//   [[textField.rac_textSignal throttle:0.3] executeCommand:searchCommand];
-//
-// command - The command to execute. Cannot be nil.
-//
-// Returns the disposable for the underlying subscription.
-- (RACDisposable *)executeCommand:(RACCommand *)command;
-
 @end
 
 @interface RACSignal (OperationsDeprecated)
@@ -543,5 +532,6 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 - (RACSignal *)sequenceNext:(RACSignal * (^)(void))block __attribute__((deprecated("Renamed to -then:")));
 - (RACSignal *)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock __attribute__((deprecated("Renamed to -aggregateWithStart:reduce:")));
 - (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock __attribute__((deprecated("Renamed to -aggregateWithStartFactory:reduce:")));
+- (RACDisposable *)executeCommand:(RACCommand *)command __attribute__((deprecated("Use -flattenMap: or -subscribeNext: instead")));
 
 @end

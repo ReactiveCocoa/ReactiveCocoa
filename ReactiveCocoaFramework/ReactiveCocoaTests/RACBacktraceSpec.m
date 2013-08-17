@@ -8,6 +8,9 @@
 
 #import "RACBacktrace.h"
 #import "RACScheduler.h"
+#import "RACSequence.h"
+#import "NSArray+RACSequenceAdditions.h"
+#import "RACSignal.h"
 
 #ifdef DEBUG
 
@@ -89,6 +92,20 @@ describe(@"with a GCD queue", ^{
 it(@"should trace across a RACScheduler", ^{
 	[[RACScheduler scheduler] schedule:block];
 	expect(previousBacktrace).willNot.beNil();
+});
+
+it(@"shouldn't go bonkers with RACScheduler", ^{
+	NSMutableArray *a = [NSMutableArray array];
+	for (NSUInteger i = 0; i < 5000; i++) {
+		[a addObject:@(i)];
+	}
+
+	[[a.rac_sequence signalWithScheduler:[RACScheduler scheduler]]
+	 subscribeNext:^(id x) {
+
+	 } completed:^{
+
+	 }];
 });
 
 // Tracing across NSOperationQueue only works on OS X because it depends on

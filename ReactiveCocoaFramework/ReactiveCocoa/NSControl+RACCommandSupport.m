@@ -11,10 +11,11 @@
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACCommand.h"
 #import "RACScopedDisposable.h"
+#import "RACSignal+Operations.h"
 #import <objc/runtime.h>
 
 static void *NSControlRACCommandKey = &NSControlRACCommandKey;
-static void *NSControlCanExecuteDisposableKey = &NSControlCanExecuteDisposableKey;
+static void *NSControlEnabledDisposableKey = &NSControlEnabledDisposableKey;
 
 @implementation NSControl (RACCommandSupport)
 
@@ -27,7 +28,8 @@ static void *NSControlCanExecuteDisposableKey = &NSControlCanExecuteDisposableKe
 
 	// Tear down any previous binding before setting up our new one, or else we
 	// might get assertion failures.
-	objc_setAssociatedObject(self, NSControlCanExecuteDisposableKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	[objc_getAssociatedObject(self, NSControlEnabledDisposableKey) dispose];
+	objc_setAssociatedObject(self, NSControlEnabledDisposableKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
 	if (command == nil) {
 		self.enabled = YES;
@@ -36,15 +38,8 @@ static void *NSControlCanExecuteDisposableKey = &NSControlCanExecuteDisposableKe
 	
 	[self rac_hijackActionAndTargetIfNeeded];
 
-	@weakify(self);
-	RACScopedDisposable *disposable = [[RACObserve(command, canExecute)
-		subscribeNext:^(NSNumber *canExecute) {
-			@strongify(self);
-			self.enabled = canExecute.boolValue;
-		}]
-		asScopedDisposable];
-
-	objc_setAssociatedObject(self, NSControlCanExecuteDisposableKey, disposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	RACScopedDisposable *disposable = [[command.enabled setKeyPath:@"enabled" onObject:self] asScopedDisposable];
+	objc_setAssociatedObject(self, NSControlEnabledDisposableKey, disposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (void)rac_hijackActionAndTargetIfNeeded {

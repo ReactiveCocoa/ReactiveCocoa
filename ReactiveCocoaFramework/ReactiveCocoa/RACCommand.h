@@ -7,106 +7,115 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RACSignal.h"
+
+@class RACSignal;
+
+// The domain for errors originating within `RACCommand`.
+extern NSString * const RACCommandErrorDomain;
+
+// -execute: was invoked while the command was disabled.
+extern const NSInteger RACCommandErrorNotEnabled;
 
 // A command is a signal triggered in response to some action, typically
 // UI-related.
-//
-// Each `next` sent by a RACCommand corresponds to a value passed to -execute:.
-@interface RACCommand : RACSignal
+@interface RACCommand : NSObject
 
-// Whether or not this command can currently execute.
+// A signal of the signals returned by successful invocations of -execute:
+// (i.e., while the receiver is `enabled`).
 //
-// This property will be NO if:
+// Errors will be automatically caught upon the inner signals, and sent upon
+// `errors` instead. If you _want_ to receive inner errors, use -execute: or
+// -[RACSignal materialize].
 //
-// - The command was created with a `canExecuteSignal`, and the latest value
-//   sent on the signal was NO, or
-// - `allowsConcurrentExecution` is NO and `executing` is YES.
-//
-// It will be YES in all other cases.
-//
-// This property is KVO-compliant, and must only be read from the main thread.
-@property (nonatomic, assign, readonly) BOOL canExecute;
+// Upon subscription from the main thread, this signal will immediately send all
+// in-flight executions. On a background thread, the initial values may be
+// slightly delayed due to synchronization with the main thread. All future
+// values will arrive on the main thread.
+@property (nonatomic, strong, readonly) RACSignal *executionSignals;
 
-// Whether the command allows multiple invocations of -execute: to proceed
-// concurrently.
+// A signal of whether this command is currently executing.
 //
-// The default value for this property is NO.
+// This will send YES whenever -execute: is invoked and the created signal does
+// not terminate synchronously. Once all executions have terminated, the signal
+// will send NO.
 //
-// This property must only be used from the main thread.
-@property (nonatomic, assign) BOOL allowsConcurrentExecution;
+// This signal will synchronously send a value upon subscription, and then
+// future values on the main thread.
+@property (nonatomic, strong, readonly) RACSignal *executing;
 
-// Whether the command is currently executing.
+// Forwards any errors that occur within signals returned by -execute:.
 //
-// This will be YES while any thread is running the -execute: method, or while
-// any signal returned from -addActionBlock: has not yet finished.
+// When an error occurs on a signal returned from -execute:, this signal will
+// send the associated NSError value as a `next` event (since an `error` event
+// would terminate the stream).
 //
-// This property is KVO-compliant, and must only be read from the main thread.
-@property (nonatomic, getter = isExecuting, readonly) BOOL executing;
-
-// A signal of NSErrors received from all of the signals returned from
-// -addActionBlock:, delivered onto the main thread.
-//
-// Note that the NSErrors on this signal are sent as `next` events, _not_
-// `error` events (which would terminate any subscriptions).
-//
-// This can be used, for example, to show an alert whenever an error occurs in
-// the asynchronous work triggered by the command.
+// This signal will only send values on the main thread.
 @property (nonatomic, strong, readonly) RACSignal *errors;
 
-// Creates a command that can always be executed.
-+ (instancetype)command;
+// A signal of whether this command is able to execute.
+//
+// This will send NO if:
+//
+//  - The command was created with an `enabledSignal`, and NO is sent upon that
+//    signal, or
+//  - `allowsConcurrentExecution` is NO and the command has started executing.
+//
+// Once the above conditions are no longer met, the signal will send YES.
+//
+// This signal will synchronously send a value upon subscription, and then future
+// values on the main thread.
+@property (nonatomic, strong, readonly) RACSignal *enabled;
 
-// Creates a command and initializes it with -initWithCanExecuteSignal:.
-+ (instancetype)commandWithCanExecuteSignal:(RACSignal *)canExecuteSignal;
+// Whether the command allows multiple executions to proceed concurrently.
+//
+// The default value for this property is NO.
+@property (atomic, assign) BOOL allowsConcurrentExecution;
 
-// Initializes a command that can be executed conditionally.
+// Invokes -initWithSignalBlock:enabled: with a nil `enabledSignal`.
+- (id)initWithSignalBlock:(RACSignal * (^)(id input))signalBlock;
+
+// Initializes a command that is conditionally enabled.
 //
 // This is the designated initializer for this class.
 //
-// canExecuteSignal - A signal of BOOLs which indicate whether the command
-//                    should be enabled. `canExecute` will be based on the latest
-//                    value sent from this signal. Before any values are sent,
-//                    `canExecute` will default to YES. This argument may be
-//                    nil.
-//
-// Returns the initialized command.
-- (id)initWithCanExecuteSignal:(RACSignal *)canExecuteSignal;
+// enabledSignal - A signal of BOOLs which indicate whether the command should
+//                 be enabled. `enabled` will be based on the latest value sent
+//                 from this signal. Before any values are sent, `enabled` will
+//                 default to YES. This argument may be nil.
+// signalBlock   - A block which will map each input value (passed to -execute:)
+//                 to a signal of work. The returned signal will be multicasted
+//                 to a replay subject, sent on `executionSignals`, then
+//                 subscribed to synchronously. Neither the block nor the
+//                 returned signal may be nil.
+- (id)initWithEnabled:(RACSignal *)enabledSignal signalBlock:(RACSignal * (^)(id input))signalBlock;
 
-// Creates and subscribes to a new signal each time the receiver is executed.
+// If the receiver is enabled, this method will:
 //
-// signalBlock - A block that returns a signal. The returned signal must not be
-//               nil, and will be subscribed to synchronously from -execute:. If
-//               the returned signal errors out, the `NSError` will be sent as
-//               a value on `errors`. `executing` will remain YES until the
-//               returned signal completes or errors. This argument must not be
-//               nil.
+//  1. Invoke the `signalBlock` given at the time of initialization.
+//  2. Multicast the returned signal to a RACReplaySubject.
+//  3. Send the multicasted signal on `executionSignals`.
+//  4. Subscribe to the original signal.
 //
-// Returns a signal of the signals returned from successive invocations of
-// `signalBlock`. Each individual signal will be multicast to a replay subject,
-// and any errors will be caught and redirected to the `errors` signal (instead
-// of being delivered to the individual signal's subscribers).
-- (RACSignal *)addActionBlock:(RACSignal * (^)(id value))signalBlock;
-
-// If `canExecute` is YES, this method will:
+// This method will perform all of its work (including subscription) on the main
+// thread.
 //
-// - Set `executing` to YES.
-// - Send `value` to the receiver's subscribers.
-// - Execute each block added with -addActionBlock: and subscribe to all of
-//   the returned signals.
-// - After all the signals returned from the `signalBlock`s have completed or
-//   errored, schedule a block on +[RACScheduler mainThreadScheduler] to set
-//   `executing` back to NO.
+// input - The input value to pass to the receiver's `signalBlock`. This may be
+//         nil.
 //
-// This method must only be invoked from the main thread.
-//
-// Returns whether the command executed (i.e., whether `canExecute` was YES).
-- (BOOL)execute:(id)value;
+// Returns the multicasted signal, after subscription. If the receiver is not
+// enabled, returns a signal that will send an error with code
+// RACCommandErrorNotEnabled.
+- (RACSignal *)execute:(id)input;
 
 @end
 
-@interface RACCommand (Deprecated)
+@interface RACCommand (Unavailable)
 
-- (RACSignal *)addSignalBlock:(RACSignal * (^)(id value))signalBlock __attribute__((deprecated("Use -addActionBlock: instead")));
+@property (atomic, readonly) BOOL canExecute __attribute__((unavailable("Use the 'enabled' signal instead")));
+
++ (instancetype)command __attribute__((unavailable("Use -initWithSignalBlock: instead")));
++ (instancetype)commandWithCanExecuteSignal:(RACSignal *)canExecuteSignal __attribute__((unavailable("Use -initWithEnabled:signalBlock: instead")));
+- (id)initWithCanExecuteSignal:(RACSignal *)canExecuteSignal __attribute__((unavailable("Use -initWithEnabled:signalBlock: instead")));
+- (RACSignal *)addSignalBlock:(RACSignal * (^)(id value))signalBlock __attribute__((unavailable("Pass the signalBlock to -initWithSignalBlock: instead")));
 
 @end

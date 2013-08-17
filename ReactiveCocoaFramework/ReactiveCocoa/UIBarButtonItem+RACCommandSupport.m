@@ -15,7 +15,7 @@
 #import <objc/runtime.h>
 
 static void *UIControlRACCommandKey = &UIControlRACCommandKey;
-static void *UIControlCanExecuteDisposableKey = &UIControlCanExecuteDisposableKey;
+static void *UIControlEnabledDisposableKey = &UIControlEnabledDisposableKey;
 
 @implementation UIBarButtonItem (RACCommandSupport)
 
@@ -27,13 +27,13 @@ static void *UIControlCanExecuteDisposableKey = &UIControlCanExecuteDisposableKe
 	objc_setAssociatedObject(self, UIControlRACCommandKey, command, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
 	// Check for stored signal in order to remove it and add a new one
-	RACDisposable *disposable = objc_getAssociatedObject(self, UIControlCanExecuteDisposableKey);
+	RACDisposable *disposable = objc_getAssociatedObject(self, UIControlEnabledDisposableKey);
 	[disposable dispose];
 	
 	if (command == nil) return;
 	
-	disposable = [RACObserve(command, canExecute) setKeyPath:@keypath(self.enabled) onObject:self];
-	objc_setAssociatedObject(self, UIControlCanExecuteDisposableKey, disposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	disposable = [command.enabled setKeyPath:@keypath(self.enabled) onObject:self];
+	objc_setAssociatedObject(self, UIControlEnabledDisposableKey, disposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
 	[self rac_hijackActionAndTargetIfNeeded];
 }

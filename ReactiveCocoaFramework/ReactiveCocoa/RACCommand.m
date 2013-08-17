@@ -153,7 +153,7 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 	@weakify(self);
 
 	// `executionSignals`, but without errors automatically caught.
-	RACSignal *rawExecutionSignals = [[[RACSignal
+	RACMulticastConnection *rawExecutionSignals = [[[[RACSignal
 		createSignal:^(id<RACSubscriber> subscriber) {
 			@strongify(self);
 			RACSerialDisposable *serialDisposable = [[RACSerialDisposable alloc] init];
@@ -190,15 +190,16 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 
 			return [signals.rac_sequence signalWithScheduler:RACScheduler.immediateScheduler];
 		}]
-		flatten];
+		flatten]
+		publish];
 	
-	_executionSignals = [[rawExecutionSignals
+	_executionSignals = [[rawExecutionSignals.signal
 		map:^(RACSignal *signal) {
 			return [signal catchTo:[RACSignal empty]];
 		}]
 		setNameWithFormat:@"%@ -executionSignals", self];
 	
-	RACMulticastConnection *errorsConnection = [[rawExecutionSignals
+	RACMulticastConnection *errorsConnection = [[rawExecutionSignals.signal
 		flattenMap:^(RACSignal *signal) {
 			return [[signal
 				ignoreValues]
@@ -208,6 +209,8 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 				}];
 		}]
 		publish];
+	
+	[rawExecutionSignals connect];
 	
 	_errors = [errorsConnection.signal setNameWithFormat:@"%@ -errors", self];
 	[errorsConnection connect];

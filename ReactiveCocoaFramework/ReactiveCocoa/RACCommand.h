@@ -97,7 +97,7 @@ extern NSString * const RACUnderlyingCommandErrorKey;
 //  1. Invoke the `signalBlock` given at the time of initialization.
 //  2. Multicast the returned signal to a RACReplaySubject.
 //  3. Send the multicasted signal on `executionSignals`.
-//  4. subscribe (connect) to the original signal on the main thread.
+//  4. Subscribe (connect) to the original signal on the main thread.
 //
 // input - The input value to pass to the receiver's `signalBlock`. This may be
 //         nil.

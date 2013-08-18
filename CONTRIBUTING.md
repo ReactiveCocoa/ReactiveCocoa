@@ -20,4 +20,12 @@ topic), send a pull request!
 All code contributions should match our [coding
 conventions](https://github.com/github/objective-c-conventions).
 
+# Setting up your ReactiveCocoa development environment
+
+After cloning your fork, you'll need to do the following:
+
+* Run `script/bootstrap` - this will set up any submodules needed.
+* Open ReactiveCocoaFramework/ReactiveCocoa.xcodeproj and run the unit tests for both OSX and iOS targets.
+* If project compiles and the tests pass, you're good to go.
+
 Thanks for contributing! :boom::camel:

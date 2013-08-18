@@ -26,31 +26,20 @@ extern const NSInteger RACCommandErrorNotEnabled;
 // Errors will be automatically caught upon the inner signals, and sent upon
 // `errors` instead. If you _want_ to receive inner errors, use -execute: or
 // -[RACSignal materialize].
-//
-// Upon subscription from the main thread, this signal will immediately send all
-// in-flight executions. On a background thread, the initial values may be
-// slightly delayed due to synchronization with the main thread. All future
-// values will arrive on the main thread.
+// 
+// Only executions that begin _after_ subscription will be sent upon this
+// signal. All inner signals will arrive upon the main thread.
 @property (nonatomic, strong, readonly) RACSignal *executionSignals;
 
 // A signal of whether this command is currently executing.
 //
-// This will send YES whenever -execute: is invoked and the created signal does
-// not terminate synchronously. Once all executions have terminated, the signal
-// will send NO.
+// This will send YES whenever -execute: is invoked and the created signal has
+// not yet terminated. Once all executions have terminated, `executing` will
+// send NO.
 //
-// This signal will synchronously send a value upon subscription, and then
+// This signal will send its current value upon subscription, and then all
 // future values on the main thread.
 @property (nonatomic, strong, readonly) RACSignal *executing;
-
-// Forwards any errors that occur within signals returned by -execute:.
-//
-// When an error occurs on a signal returned from -execute:, this signal will
-// send the associated NSError value as a `next` event (since an `error` event
-// would terminate the stream).
-//
-// This signal will only send values on the main thread.
-@property (nonatomic, strong, readonly) RACSignal *errors;
 
 // A signal of whether this command is able to execute.
 //
@@ -62,9 +51,19 @@ extern const NSInteger RACCommandErrorNotEnabled;
 //
 // Once the above conditions are no longer met, the signal will send YES.
 //
-// This signal will synchronously send a value upon subscription, and then future
-// values on the main thread.
+// This signal will send its current value upon subscription, and then all
+// future values on the main thread.
 @property (nonatomic, strong, readonly) RACSignal *enabled;
+
+// Forwards any errors that occur within signals returned by -execute:.
+//
+// When an error occurs on a signal returned from -execute:, this signal will
+// send the associated NSError value as a `next` event (since an `error` event
+// would terminate the stream).
+//
+// After subscription, this signal will send all future errors on the main
+// thread.
+@property (nonatomic, strong, readonly) RACSignal *errors;
 
 // Whether the command allows multiple executions to proceed concurrently.
 //
@@ -94,10 +93,7 @@ extern const NSInteger RACCommandErrorNotEnabled;
 //  1. Invoke the `signalBlock` given at the time of initialization.
 //  2. Multicast the returned signal to a RACReplaySubject.
 //  3. Send the multicasted signal on `executionSignals`.
-//  4. Subscribe to the original signal.
-//
-// This method will perform all of its work (including subscription) on the main
-// thread.
+//  4. subscribe (connect) to the original signal on the main thread.
 //
 // input - The input value to pass to the receiver's `signalBlock`. This may be
 //         nil.

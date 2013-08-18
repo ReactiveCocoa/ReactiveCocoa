@@ -65,7 +65,7 @@ sharedExamplesFor(RACControlCommandExamples, ^(NSDictionary *data) {
 		}];
 		
 		activate(control);
-		expect(executed).to.beTruthy();
+		expect(executed).will.beTruthy();
 	});
 	
 	it(@"should overwrite an existing command when setting a new one", ^{

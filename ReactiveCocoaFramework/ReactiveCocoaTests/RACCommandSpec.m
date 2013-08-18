@@ -63,7 +63,7 @@ describe(@"with a simple signal block", ^{
 		expect(signalsReceived).to.equal(0);
 		
 		[command execute:value];
-		expect(signalsReceived).to.equal(1);
+		expect(signalsReceived).will.equal(1);
 		expect(completed).to.beTruthy();
 	});
 
@@ -79,7 +79,7 @@ describe(@"with a simple signal block", ^{
 				completed = YES;
 			}];
 
-		expect(completed).to.beTruthy();
+		expect(completed).will.beTruthy();
 	});
 
 	it(@"should always send executionSignals on the main thread", ^{
@@ -102,7 +102,7 @@ describe(@"with a simple signal block", ^{
 			receivedError = YES;
 		}];
 		
-		expect([[command execute:nil] waitUntilCompleted:NULL]).to.beTruthy();
+		expect([[command execute:nil] asynchronouslyWaitUntilCompleted:NULL]).to.beTruthy();
 		expect(receivedError).to.beFalsy();
 	});
 
@@ -113,7 +113,7 @@ describe(@"with a simple signal block", ^{
 			}];
 		}];
 
-		expect([[command execute:nil] waitUntilCompleted:NULL]).to.beTruthy();
+		expect([[command execute:nil] asynchronouslyWaitUntilCompleted:NULL]).to.beTruthy();
 		expect([command.executing first]).to.equal(@NO);
 	});
 
@@ -188,10 +188,10 @@ it(@"should invoke the signalBlock once per execution", ^{
 		return [RACSignal empty];
 	}];
 
-	expect([[command execute:@"foo"] waitUntilCompleted:NULL]).to.beTruthy();
+	expect([[command execute:@"foo"] asynchronouslyWaitUntilCompleted:NULL]).to.beTruthy();
 	expect(valuesReceived).to.equal((@[ @"foo" ]));
 
-	expect([[command execute:@"bar"] waitUntilCompleted:NULL]).to.beTruthy();
+	expect([[command execute:@"bar"] asynchronouslyWaitUntilCompleted:NULL]).to.beTruthy();
 	expect(valuesReceived).to.equal((@[ @"foo", @"bar" ]));
 });
 
@@ -208,10 +208,10 @@ it(@"should send on executionSignals in order of execution", ^{
 		}];
 
 	RACSequence *first = @[ @"foo", @"bar" ].rac_sequence;
-	expect([[command execute:first] waitUntilCompleted:NULL]).to.beTruthy();
+	expect([[command execute:first] asynchronouslyWaitUntilCompleted:NULL]).to.beTruthy();
 
 	RACSequence *second = @[ @"buzz", @"baz" ].rac_sequence;
-	expect([[command execute:second] waitUntilCompleted:NULL]).will.beTruthy();
+	expect([[command execute:second] asynchronouslyWaitUntilCompleted:NULL]).will.beTruthy();
 
 	NSArray *expectedValues = @[ @"foo", @"bar", @"buzz", @"baz" ];
 	expect(valuesReceived).to.equal(expectedValues);
@@ -230,7 +230,7 @@ it(@"should wait for all signals to complete or error before executing sends NO"
 	RACSubject *secondSubject = [RACSubject subject];
 	expect([command execute:secondSubject]).notTo.beNil();
 
-	expect([command.executing first]).to.equal(@YES);
+	expect([command.executing first]).will.equal(@YES);
 
 	[firstSubject sendError:nil];
 	expect([command.executing first]).to.equal(@YES);
@@ -239,7 +239,7 @@ it(@"should wait for all signals to complete or error before executing sends NO"
 	expect([command.executing first]).to.equal(@YES);
 
 	[secondSubject sendCompleted];
-	expect([command.executing first]).to.equal(@NO);
+	expect([command.executing first]).will.equal(@NO);
 });
 
 it(@"should not deliver errors from executionSignals", ^{
@@ -258,24 +258,24 @@ it(@"should not deliver errors from executionSignals", ^{
 		}];
 
 	expect([command execute:nil]).notTo.beNil();
-	expect([command.executing first]).to.equal(@YES);
+	expect([command.executing first]).will.equal(@YES);
 
 	[subject sendNext:RACUnit.defaultUnit];
 
 	NSArray *expectedEvents = @[ [RACEvent eventWithValue:RACUnit.defaultUnit] ];
-	expect(receivedEvents).to.equal(expectedEvents);
+	expect(receivedEvents).will.equal(expectedEvents);
 	expect([command.executing first]).to.equal(@YES);
 
 	[subject sendNext:@"foo"];
 
 	expectedEvents = @[ [RACEvent eventWithValue:RACUnit.defaultUnit], [RACEvent eventWithValue:@"foo"] ];
-	expect(receivedEvents).to.equal(expectedEvents);
+	expect(receivedEvents).will.equal(expectedEvents);
 	expect([command.executing first]).to.equal(@YES);
 
 	NSError *error = [NSError errorWithDomain:@"" code:1 userInfo:nil];
 	[subject sendError:error];
 
-	expect([command.executing first]).to.equal(@NO);
+	expect([command.executing first]).will.equal(@NO);
 	expect(receivedEvents).to.equal(expectedEvents);
 });
 
@@ -294,26 +294,26 @@ it(@"should deliver errors from -execute:", ^{
 			[receivedEvents addObject:event];
 		}];
 
-	expect([command.executing first]).to.equal(@YES);
+	expect([command.executing first]).will.equal(@YES);
 
 	[subject sendNext:RACUnit.defaultUnit];
 
 	NSArray *expectedEvents = @[ [RACEvent eventWithValue:RACUnit.defaultUnit] ];
-	expect(receivedEvents).to.equal(expectedEvents);
+	expect(receivedEvents).will.equal(expectedEvents);
 	expect([command.executing first]).to.equal(@YES);
 
 	[subject sendNext:@"foo"];
 
 	expectedEvents = @[ [RACEvent eventWithValue:RACUnit.defaultUnit], [RACEvent eventWithValue:@"foo"] ];
-	expect(receivedEvents).to.equal(expectedEvents);
+	expect(receivedEvents).will.equal(expectedEvents);
 	expect([command.executing first]).to.equal(@YES);
 
 	NSError *error = [NSError errorWithDomain:@"" code:1 userInfo:nil];
 	[subject sendError:error];
 
 	expectedEvents = @[ [RACEvent eventWithValue:RACUnit.defaultUnit], [RACEvent eventWithValue:@"foo"], [RACEvent eventWithError:error] ];
-	expect(receivedEvents).to.equal(expectedEvents);
-	expect([command.executing first]).to.equal(@NO);
+	expect(receivedEvents).will.equal(expectedEvents);
+	expect([command.executing first]).will.equal(@NO);
 });
 
 it(@"should deliver errors onto 'errors'", ^{
@@ -337,10 +337,10 @@ it(@"should deliver errors onto 'errors'", ^{
 		[receivedErrors addObject:error];
 	}];
 
-	expect([command.executing first]).to.equal(@YES);
+	expect([command.executing first]).will.equal(@YES);
 
 	[firstSubject sendError:firstError];
-	expect([command.executing first]).to.equal(@YES);
+	expect([command.executing first]).will.equal(@YES);
 
 	NSArray *expected = @[ firstError ];
 	expect(receivedErrors).will.equal(expected);
@@ -364,7 +364,7 @@ it(@"should not deliver non-error events onto 'errors'", ^{
 	}];
 
 	expect([command execute:nil]).notTo.beNil();
-	expect([command.executing first]).to.equal(@YES);
+	expect([command.executing first]).will.equal(@YES);
 
 	[subject sendNext:RACUnit.defaultUnit];
 	[subject sendCompleted];
@@ -413,13 +413,13 @@ describe(@"enabled property", ^{
 
 	it(@"should send whatever the enabledSignal has sent most recently", ^{
 		[enabledSubject sendNext:@NO];
-		expect([command.enabled first]).to.equal(@NO);
+		expect([command.enabled first]).will.equal(@NO);
 
 		[enabledSubject sendNext:@YES];
-		expect([command.enabled first]).to.equal(@YES);
+		expect([command.enabled first]).will.equal(@YES);
 
 		[enabledSubject sendNext:@NO];
-		expect([command.enabled first]).to.equal(@NO);
+		expect([command.enabled first]).will.equal(@NO);
 	});
 
 	it(@"should send NO while executing is YES and allowsConcurrentExecution is NO", ^{
@@ -429,41 +429,38 @@ describe(@"enabled property", ^{
 		}];
 
 		expect([command.enabled first]).to.equal(@YES);
-		expect([[command execute:nil] waitUntilCompleted:NULL]).to.beTruthy();
+		expect([[command execute:nil] asynchronouslyWaitUntilCompleted:NULL]).to.beTruthy();
 		expect([command.enabled first]).to.equal(@YES);
 	});
 
 	it(@"should send YES while executing is YES and allowsConcurrentExecution is YES", ^{
 		command.allowsConcurrentExecution = YES;
 
+		__block BOOL outerExecuted = NO;
+		__block BOOL innerExecuted = NO;
+
 		// Prevent infinite recursion by only responding to the first value.
 		[[[command.executionSignals
 			take:1]
 			flatten]
 			subscribeNext:^(id _) {
+				outerExecuted = YES;
+
 				expect([command.executing first]).to.equal(@YES);
 				expect([command.enabled first]).to.equal(@YES);
-				expect([[command execute:nil] waitUntilCompleted:NULL]).to.beTruthy();
+
+				[[command execute:nil] subscribeCompleted:^{
+					innerExecuted = YES;
+				}];
 			}];
 
 		expect([command.enabled first]).to.equal(@YES);
-		expect([[command execute:nil] waitUntilCompleted:NULL]).to.beTruthy();
-		expect([command.enabled first]).to.equal(@YES);
-	});
 
-	it(@"should send NO while executing is YES and allowsConcurrentExecution is YES if enabledSignal sent NO", ^{
-		command.allowsConcurrentExecution = YES;
-
-		[[command.executionSignals flatten] subscribeNext:^(id _) {
-			expect([command.executing first]).to.equal(@YES);
-			expect([command.enabled first]).to.equal(@YES);
-
-			[enabledSubject sendNext:@NO];
-			expect([command.enabled first]).to.equal(@NO);
-		}];
+		expect([command execute:nil]).notTo.beNil();
+		expect(outerExecuted).will.beTruthy();
+		expect(innerExecuted).will.beTruthy();
 
 		expect([command.enabled first]).to.equal(@YES);
-		expect([[command execute:nil] waitUntilCompleted:NULL]).to.beTruthy();
 	});
 
 	it(@"should send an error from -execute: when NO", ^{

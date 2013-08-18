@@ -23,46 +23,10 @@ NSString * const RACCommandErrorDomain = @"RACCommandErrorDomain";
 
 const NSInteger RACCommandErrorNotEnabled = 1;
 
-// Delivers events onto the main thread, unless they arrived on the main thread,
-// in which case they're delivered synchronously.
-static RACSignal *RACDeliverOnReentrantMainThread(RACSignal *signal) {
-	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		void (^schedule)(dispatch_block_t) = ^(dispatch_block_t block) {
-			if (RACScheduler.currentScheduler == RACScheduler.mainThreadScheduler) {
-				block();
-			} else {
-				[RACScheduler.mainThreadScheduler schedule:block];
-			}
-		};
-
-		return [signal subscribeNext:^(id x) {
-			schedule(^{
-				[subscriber sendNext:x];
-			});
-		} error:^(NSError *error) {
-			schedule(^{
-				[subscriber sendError:error];
-			});
-		} completed:^{
-			schedule(^{
-				[subscriber sendCompleted];
-			});
-		}];
-	}] setNameWithFormat:@"RACDeliverOnReentrantMainThread(%@)", signal.name];
-}
-
-// Subscribes to a signal on the main thread, unless already on the main thread,
-// in which case the subscription happens synchronously.
-static RACSignal *RACSubscribeOnReentrantMainThread(RACSignal *signal) {
-	return [[RACSignal defer:^{
-		RACScheduler *scheduler = (RACScheduler.currentScheduler == RACScheduler.mainThreadScheduler ? RACScheduler.immediateScheduler : RACScheduler.mainThreadScheduler);
-		return [signal subscribeOn:scheduler];
-	}] setNameWithFormat:@"RACSubscribeOnReentrantMainThread(%@)", signal.name];
-}
-
 @interface RACCommand () {
-	// The mutable array backing `activeExecutionSignals`. This should only be
-	// directly used from KVC mutation methods.
+	// The mutable array backing `activeExecutionSignals`.
+	//
+	// This should only be used while synchronized on `self`.
 	NSMutableArray *_activeExecutionSignals;
 
 	// Atomic backing variable for `allowsConcurrentExecution`.
@@ -72,17 +36,33 @@ static RACSignal *RACSubscribeOnReentrantMainThread(RACSignal *signal) {
 // An array of signals representing in-flight executions, in the order they
 // began.
 //
-// This array should only be used on the main thread. This property is
-// KVO-compliant, and should only be mutated using KVC.
-@property (nonatomic, strong, readonly) NSArray *activeExecutionSignals;
+// This property is KVO-compliant.
+@property (atomic, copy, readonly) NSArray *activeExecutionSignals;
+
+// `executing`, but without a hop to the main thread.
+//
+// Values from this signal may arrive on any thread.
+@property (nonatomic, strong, readonly) RACSignal *immediateExecuting;
+
+// `enabled`, but without a hop to the main thread.
+//
+// Values from this signal may arrive on any thread.
+@property (nonatomic, strong, readonly) RACSignal *immediateEnabled;
+
+// The signal block that the receiver was initialized with.
+@property (nonatomic, copy, readonly) RACSignal * (^signalBlock)(id input);
 
 // Improves the performance of KVO on the receiver.
 //
 // See the documentation for <NSKeyValueObserving> for more information.
 @property (atomic) void *observationInfo;
 
-// The signal block that the receiver was initialized with.
-@property (nonatomic, copy, readonly) RACSignal * (^signalBlock)(id input);
+// Adds a signal to `activeExecutionSignals` and generates a KVO notification.
+- (void)addActiveExecutionSignal:(RACSignal *)signal;
+
+// Removes a signal from `activeExecutionSignals` and generates a KVO
+// notification.
+- (void)removeActiveExecutionSignal:(RACSignal *)signal;
 
 @end
 
@@ -107,48 +87,41 @@ static RACSignal *RACSubscribeOnReentrantMainThread(RACSignal *signal) {
 }
 
 - (NSArray *)activeExecutionSignals {
-	NSCParameterAssert(RACScheduler.currentScheduler == RACScheduler.mainThreadScheduler);
-
-	return [_activeExecutionSignals copy];
+	@synchronized (self) {
+		return [_activeExecutionSignals copy];
+	}
 }
 
-- (void)setActiveExecutionSignals:(NSArray *)signals {
-	NSCParameterAssert(RACScheduler.currentScheduler == RACScheduler.mainThreadScheduler);
-
-	[self willChangeValueForKey:@keypath(self.activeExecutionSignals)];
-	_activeExecutionSignals.array = signals;
-	[self didChangeValueForKey:@keypath(self.activeExecutionSignals)];
-}
-
-- (NSUInteger)countOfActiveExecutionSignals {
-	NSCParameterAssert(RACScheduler.currentScheduler == RACScheduler.mainThreadScheduler);
-
-	return _activeExecutionSignals.count;
-}
-
-- (RACSignal *)objectInActiveExecutionSignalsAtIndex:(NSUInteger)index {
-	NSCParameterAssert(RACScheduler.currentScheduler == RACScheduler.mainThreadScheduler);
-
-	return _activeExecutionSignals[index];
-}
-
-- (void)insertObject:(RACSignal *)signal inActiveExecutionSignalsAtIndex:(NSUInteger)index {
-	NSCParameterAssert(RACScheduler.currentScheduler == RACScheduler.mainThreadScheduler);
+- (void)addActiveExecutionSignal:(RACSignal *)signal {
 	NSCParameterAssert([signal isKindOfClass:RACSignal.class]);
 
-	NSIndexSet *indexes = [NSIndexSet indexSetWithIndex:index];
-	[self willChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@keypath(self.activeExecutionSignals)];
-	[_activeExecutionSignals insertObject:signal atIndex:index];
-	[self didChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@keypath(self.activeExecutionSignals)];
+	@synchronized (self) {
+		// The KVO notification has to be generated while synchronized, because
+		// it depends on the index remaining consistent.
+		NSIndexSet *indexes = [NSIndexSet indexSetWithIndex:_activeExecutionSignals.count];
+		[self willChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@keypath(self.activeExecutionSignals)];
+		[_activeExecutionSignals addObject:signal];
+		[self didChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@keypath(self.activeExecutionSignals)];
+	}
 }
 
-- (void)removeObjectFromActiveExecutionSignalsAtIndex:(NSUInteger)index {
-	NSCParameterAssert(RACScheduler.currentScheduler == RACScheduler.mainThreadScheduler);
+- (void)removeActiveExecutionSignal:(RACSignal *)signal {
+	NSCParameterAssert([signal isKindOfClass:RACSignal.class]);
 
-	NSIndexSet *indexes = [NSIndexSet indexSetWithIndex:index];
-	[self willChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@keypath(self.activeExecutionSignals)];
-	[_activeExecutionSignals removeObjectAtIndex:index];
-	[self didChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@keypath(self.activeExecutionSignals)];
+	@synchronized (self) {
+		// The indexes have to be calculated and the notification generated
+		// while synchronized, because they depend on the indexes remaining
+		// consistent.
+		NSIndexSet *indexes = [_activeExecutionSignals indexesOfObjectsPassingTest:^ BOOL (RACSignal *obj, NSUInteger index, BOOL *stop) {
+			return obj == signal;
+		}];
+
+		if (indexes.count == 0) return;
+
+		[self willChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@keypath(self.activeExecutionSignals)];
+		[_activeExecutionSignals removeObjectsAtIndexes:indexes];
+		[self didChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@keypath(self.activeExecutionSignals)];
+	}
 }
 
 #pragma mark Lifecycle
@@ -171,88 +144,71 @@ static RACSignal *RACSubscribeOnReentrantMainThread(RACSignal *signal) {
 	_activeExecutionSignals = [[NSMutableArray alloc] init];
 	_signalBlock = [signalBlock copy];
 
-	@weakify(self);
-
-	// `executionSignals`, but without errors automatically caught.
-	RACSignal *rawExecutionSignals = [[[RACSignal
-		createSignal:^(id<RACSubscriber> subscriber) {
-			@strongify(self);
-			RACSignal *KVOSignal = [self rac_valuesAndChangesForKeyPath:@keypath(self.activeExecutionSignals) options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial observer:nil];
-
-			return [KVOSignal subscribeNext:^(id value) {
-				NSCParameterAssert(RACScheduler.currentScheduler == RACScheduler.mainThreadScheduler);
-				[subscriber sendNext:value];
-			} error:^(NSError *error) {
-				// Ensure that we only terminate this and all derived
-				// signals on the main thread.
-				[RACScheduler.mainThreadScheduler schedule:^{
-					[subscriber sendError:error];
-				}];
-			} completed:^{
-				[RACScheduler.mainThreadScheduler schedule:^{
-					[subscriber sendCompleted];
-				}];
-			}];
-		}]
+	// A signal of additions to `activeExecutionSignals`.
+	RACSignal *newActiveExecutionSignals = [[[self
+		rac_valuesAndChangesForKeyPath:@keypath(self.activeExecutionSignals) options:NSKeyValueObservingOptionNew observer:nil]
 		reduceEach:^(id _, NSDictionary *change) {
-			if ([change[NSKeyValueChangeKindKey] unsignedIntegerValue] == NSKeyValueChangeRemoval) return [RACSignal empty];
-
 			NSArray *signals = change[NSKeyValueChangeNewKey];
 			if (signals == nil) return [RACSignal empty];
 
 			return [signals.rac_sequence signalWithScheduler:RACScheduler.immediateScheduler];
 		}]
-		flatten];
+		concat];
 
-	RACMulticastConnection *rawExecutionSignalsConnection = [RACSubscribeOnReentrantMainThread(rawExecutionSignals) publish];
-	
-	_executionSignals = [[rawExecutionSignalsConnection.signal
+	_executionSignals = [[[newActiveExecutionSignals
 		map:^(RACSignal *signal) {
 			return [signal catchTo:[RACSignal empty]];
 		}]
+		deliverOn:RACScheduler.mainThreadScheduler]
 		setNameWithFormat:@"%@ -executionSignals", self];
 	
-	RACMulticastConnection *errorsConnection = [[rawExecutionSignalsConnection.signal
+	// `errors` needs to be multicasted so that it picks up all
+	// `activeExecutionSignals` that are added.
+	//
+	// In other words, if someone subscribes to `errors` _after_ an execution
+	// has started, it should still receive any error from that execution.
+	RACMulticastConnection *errorsConnection = [[[newActiveExecutionSignals
 		flattenMap:^(RACSignal *signal) {
-			RACSignal *onlyErrors = [[signal
+			return [[signal
 				ignoreValues]
 				catch:^(NSError *error) {
 					return [RACSignal return:error];
 				}];
-
-			return RACDeliverOnReentrantMainThread(onlyErrors);
 		}]
+		deliverOn:RACScheduler.mainThreadScheduler]
 		publish];
-	
-	[rawExecutionSignalsConnection connect];
 	
 	_errors = [errorsConnection.signal setNameWithFormat:@"%@ -errors", self];
 	[errorsConnection connect];
 
-	RACSignal *rawExecuting = [[RACSubscribeOnReentrantMainThread(RACObserve(self, activeExecutionSignals))
-		map:^(NSArray *activeSignals) {
-			return @(activeSignals.count > 0);
-		}]
-		distinctUntilChanged];
-	
-	_executing = [[RACDeliverOnReentrantMainThread(rawExecuting)
+	_immediateExecuting = [RACObserve(self, activeExecutionSignals) map:^(NSArray *activeSignals) {
+		return @(activeSignals.count > 0);
+	}];
+
+	_executing = [[[[[self.immediateExecuting
+		deliverOn:RACScheduler.mainThreadScheduler]
+		// This is useful before the first value arrives on the main thread.
+		startWith:@NO]
+		distinctUntilChanged]
 		replayLast]
 		setNameWithFormat:@"%@ -executing", self];
 
 	RACSignal *moreExecutionsAllowed = [RACSignal
 		if:RACObserve(self, allowsConcurrentExecution)
 		then:[RACSignal return:@YES]
-		else:[self.executing not]];
+		else:[self.immediateExecuting not]];
 	
-	RACSignal *rawEnabled = [[[RACSignal
-		combineLatest:@[
-			[enabledSignal ?: [RACSignal empty] startWith:@YES],
-			moreExecutionsAllowed
-		]]
-		and]
-		distinctUntilChanged];
-
-	_enabled = [[[RACDeliverOnReentrantMainThread(rawEnabled)
+	enabledSignal = [[enabledSignal ?: [RACSignal empty]
+		startWith:@YES]
+		replayLast];
+	
+	_immediateEnabled = [[RACSignal
+		combineLatest:@[ enabledSignal, moreExecutionsAllowed ]]
+		and];
+	
+	_enabled = [[[[[self.immediateEnabled
+		deliverOn:RACScheduler.mainThreadScheduler]
+		startWith:@YES]
 		distinctUntilChanged]
 		replayLast]
 		setNameWithFormat:@"%@ -enabled", self];
@@ -263,38 +219,42 @@ static RACSignal *RACSubscribeOnReentrantMainThread(RACSignal *signal) {
 #pragma mark Execution
 
 - (RACSignal *)execute:(id)input {
-	RACReplaySubject *resultSignal = [[RACReplaySubject subject] setNameWithFormat:@"%@ -execute: %@", self, [input rac_description]];
-
-	@weakify(self);
-	[[RACSubscribeOnReentrantMainThread(self.enabled)
-		take:1]
-		subscribeNext:^(NSNumber *enabled) {
-			if (!enabled.boolValue) {
-				NSError *error = [NSError errorWithDomain:RACCommandErrorDomain code:RACCommandErrorNotEnabled userInfo:@{
-					NSLocalizedDescriptionKey: NSLocalizedString(@"The command is disabled and cannot be executed", nil)
-				}];
-
-				[resultSignal sendError:error];
-				return;
-			}
-
-			RACSignal *signal = self.signalBlock(input);
-			NSCAssert(signal != nil, @"nil signal returned from signal block for value: %@", input);
-
-			RACMulticastConnection *connection = [signal multicast:resultSignal];
-
-			[[self mutableArrayValueForKey:@keypath(self.activeExecutionSignals)] addObject:connection.signal];
-			[[connection.signal
-				finally:^{
-					@strongify(self);
-					[[self mutableArrayValueForKey:@keypath(self.activeExecutionSignals)] removeObject:connection.signal];
-				}]
-				subscribeCompleted:^{}];
-
-			[connection connect];
+	// `immediateEnabled` is guaranteed to send a value upon subscription, so
+	// -first is acceptable here.
+	BOOL enabled = [[self.immediateEnabled first] boolValue];
+	if (!enabled) {
+		NSError *error = [NSError errorWithDomain:RACCommandErrorDomain code:RACCommandErrorNotEnabled userInfo:@{
+			NSLocalizedDescriptionKey: NSLocalizedString(@"The command is disabled and cannot be executed", nil)
 		}];
 
-	return resultSignal;
+		return [RACSignal error:error];
+	}
+
+	RACSignal *signal = self.signalBlock(input);
+	NSCAssert(signal != nil, @"nil signal returned from signal block for value: %@", input);
+
+	// We subscribe to the signal on the main thread so that it occurs _after_
+	// -addActiveExecutionSignal: completes below.
+	//
+	// This means that `executing` and `enabled` will send updated values before
+	// the signal actually starts performing work.
+	RACMulticastConnection *connection = [[signal
+		subscribeOn:RACScheduler.mainThreadScheduler]
+		multicast:[RACReplaySubject subject]];
+	
+	@weakify(self);
+
+	[self addActiveExecutionSignal:connection.signal];
+	[connection.signal subscribeError:^(NSError *error) {
+		@strongify(self);
+		[self removeActiveExecutionSignal:connection.signal];
+	} completed:^{
+		@strongify(self);
+		[self removeActiveExecutionSignal:connection.signal];
+	}];
+
+	[connection connect];
+	return [connection.signal setNameWithFormat:@"%@ -execute: %@", self, [input rac_description]];
 }
 
 #pragma mark NSKeyValueObserving

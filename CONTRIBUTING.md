@@ -20,7 +20,7 @@ topic), send a pull request!
 All code contributions should match our [coding
 conventions](https://github.com/github/objective-c-conventions).
 
-# Setting up your ReactiveCocoa development environment
+## Development environment setup
 
 After cloning your fork, you'll need to do the following:
 

@@ -146,7 +146,7 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 	_signalBlock = [signalBlock copy];
 
 	// A signal of additions to `activeExecutionSignals`.
-	RACSignal *newActiveExecutionSignals = [[[self
+	RACSignal *newActiveExecutionSignals = [[[[[self
 		rac_valuesAndChangesForKeyPath:@keypath(self.activeExecutionSignals) options:NSKeyValueObservingOptionNew observer:nil]
 		reduceEach:^(id _, NSDictionary *change) {
 			NSArray *signals = change[NSKeyValueChangeNewKey];
@@ -154,7 +154,9 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 
 			return [signals.rac_sequence signalWithScheduler:RACScheduler.immediateScheduler];
 		}]
-		concat];
+		concat]
+		publish]
+		autoconnect];
 
 	_executionSignals = [[[newActiveExecutionSignals
 		map:^(RACSignal *signal) {

@@ -477,6 +477,7 @@ describe(@"enabled property", ^{
 		expect(error).notTo.beNil();
 		expect(error.domain).to.equal(RACCommandErrorDomain);
 		expect(error.code).to.equal(RACCommandErrorNotEnabled);
+		expect(error.userInfo[RACUnderlyingCommandErrorKey]).to.beIdenticalTo(command);
 	});
 
 	it(@"should always update on the main thread", ^{

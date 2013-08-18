@@ -20,6 +20,7 @@
 #import <libkern/OSAtomic.h>
 
 NSString * const RACCommandErrorDomain = @"RACCommandErrorDomain";
+NSString * const RACUnderlyingCommandErrorKey = @"RACUnderlyingCommandErrorKey";
 
 const NSInteger RACCommandErrorNotEnabled = 1;
 
@@ -224,7 +225,8 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 	BOOL enabled = [[self.immediateEnabled first] boolValue];
 	if (!enabled) {
 		NSError *error = [NSError errorWithDomain:RACCommandErrorDomain code:RACCommandErrorNotEnabled userInfo:@{
-			NSLocalizedDescriptionKey: NSLocalizedString(@"The command is disabled and cannot be executed", nil)
+			NSLocalizedDescriptionKey: NSLocalizedString(@"The command is disabled and cannot be executed", nil),
+			RACUnderlyingCommandErrorKey: self
 		}];
 
 		return [RACSignal error:error];

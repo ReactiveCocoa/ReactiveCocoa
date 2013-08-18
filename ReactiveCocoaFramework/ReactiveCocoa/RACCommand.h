@@ -16,6 +16,10 @@ extern NSString * const RACCommandErrorDomain;
 // -execute: was invoked while the command was disabled.
 extern const NSInteger RACCommandErrorNotEnabled;
 
+// A `userInfo` key for an error, associated with the `RACCommand` that the
+// error originated from.
+extern NSString * const RACUnderlyingCommandErrorKey;
+
 // A command is a signal triggered in response to some action, typically
 // UI-related.
 @interface RACCommand : NSObject

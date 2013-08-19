@@ -26,7 +26,7 @@
 	if (![self conformsToProtocol:protocol]) {
 		class_addProtocol(self.class, protocol);
 	}
-    
+
 	RACDelegateProxy *proxy = [[self alloc] init];
 	proxy.protocol = protocol;
 	proxy.delegator = delegator;
@@ -47,7 +47,7 @@
 	// deallocated between this method call and -forwardInvocation:.
 	__autoreleasing id actual = self.actualDelegate;
 	if ([actual respondsToSelector:selector] || [self trampolinesRespondToSelector:selector]) return YES;
-    
+
 	return [super respondsToSelector:selector];
 }
 
@@ -57,7 +57,8 @@
 
 - (void)forwardInvocation:(NSInvocation *)invocation {
 	SEL selector = invocation.selector;
-	for (RACEventTrampoline *trampoline in self.trampolines) {
+	for (NSValue *trampolineValue in self.trampolines) {
+		RACEventTrampoline *trampoline = trampolineValue.nonretainedObjectValue;
 		[trampoline didGetDelegateEvent:selector sender:self.delegator];
 	}
 
@@ -69,16 +70,21 @@
 
 - (void)addTrampoline:(RACEventTrampoline *)trampoline {
 	trampoline.proxy = self;
-	[self.trampolines addObject:trampoline];
+
+	// the trampoline always has a strong reference to its proxy and will retain
+	// the proxy for its lifetime, so we must only have an non-retained back-reference
+	// to avoid a retain cycle.
+	[self.trampolines addObject:[NSValue valueWithNonretainedObject:trampoline]];
 }
 
 - (BOOL)trampolinesRespondToSelector:(SEL)selector {
-	for (RACEventTrampoline *trampoline in self.trampolines) {
+	for (NSValue *trampolineValue in self.trampolines) {
+		RACEventTrampoline *trampoline = trampolineValue.nonretainedObjectValue;
 		if (trampoline.delegateMethod == selector) {
 			return YES;
 		}
 	}
-    
+
 	return NO;
 }
 

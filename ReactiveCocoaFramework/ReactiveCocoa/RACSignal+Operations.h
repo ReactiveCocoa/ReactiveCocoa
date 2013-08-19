@@ -178,6 +178,16 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 // the returned signal sends `error` immediately.
 + (RACSignal *)merge:(id<NSFastEnumeration>)signals;
 
+// Sends an RACTuple containing the latest `next` from any of the signals as its
+// Nth element, where the originating signal is the Nth in the given collection.
+//
+// Each tuple sent by the returned signal contains at most one non-nil value.
+// If one of the input signals sends nil, then an all-nil tuple is sent.
+//
+// The returned signal sends `completed` when all input signals complete. If any
+// signal sends an error, then the returned signal sends `error` imemdiately.
++ (RACSignal *)oneOf:(id<NSFastEnumeration>)signals;
+
 // Merges the signals sent by the receiver into a flattened signal, but only
 // subscribes to `maxConcurrent` number of signals at a time. New signals are
 // queued and subscribed to as other signals complete.

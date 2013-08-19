@@ -1322,6 +1322,96 @@ describe(@"+merge:", ^{
 	});
 });
 
+describe(@"+oneOf:", ^{
+    __block RACSubject *subject1 = nil;
+	__block RACSubject *subject2 = nil;
+    __block RACSubject *subject3 = nil;
+	__block RACSignal *oneOf = nil;
+	
+	beforeEach(^{
+		subject1 = [RACSubject subject];
+		subject2 = [RACSubject subject];
+        subject3 = [RACSubject subject];
+        oneOf = [RACSignal oneOf:@[ subject1, subject2, subject3 ]];
+	});
+    
+    it(@"should send a tuple with exactly one non-nil value when any signal sends a non-nil value", ^{
+        NSMutableArray *results = [NSMutableArray array];
+		[oneOf subscribeNext:^(id x) {
+			[results addObject:x];
+		}];
+        
+        [subject1 sendNext:@"1"];
+        [subject3 sendNext:@"3"];
+        [subject2 sendNext:@"2"];
+        
+        expect(results[0]).to.equal(RACTuplePack(@"1", nil, nil));
+        expect(results[1]).to.equal(RACTuplePack(nil, nil, @"3"));
+        expect(results[2]).to.equal(RACTuplePack(nil, @"2", nil));
+    });
+    
+    it(@"should send tuple with all nil values when any signal sends a nil value", ^{
+        __block RACTuple *tuple;
+		[oneOf subscribeNext:^(id x) {
+			tuple = x;
+		}];
+        
+        [subject1 sendNext:nil];
+        expect(tuple).to.equal(RACTuplePack(nil, nil, nil));
+    });
+    
+    it(@"should send tuples even when only merging one signal", ^{
+		RACSubject *subject = [RACSubject subject];
+        
+		__block RACTuple *tuple;
+		[[RACSignal oneOf:@[ subject ]] subscribeNext:^(id x) {
+			tuple = x;
+		}];
+        
+		[subject sendNext:@"foo"];
+		expect(tuple).to.equal(RACTuplePack(@"foo"));
+	});
+    
+    it(@"should error when any signal errors", ^{
+		__block NSError *receivedError = nil;
+		[oneOf subscribeError:^(NSError *error) {
+			receivedError = error;
+		}];
+		
+		[subject1 sendError:RACSignalTestError];
+		expect(receivedError).to.equal(RACSignalTestError);
+	});
+    
+    it(@"should only complete after all its signals complete", ^{
+		__block BOOL completed = NO;
+		[oneOf subscribeCompleted:^{
+			completed = YES;
+		}];
+        
+		expect(completed).to.beFalsy();
+        
+		[subject1 sendCompleted];
+		expect(completed).to.beFalsy();
+        
+		[subject2 sendCompleted];
+		expect(completed).to.beFalsy();
+        
+		[subject3 sendCompleted];
+		expect(completed).to.beTruthy();
+	});
+	
+    it(@"should complete immediately when not given any signals", ^{
+		RACSignal *signal = [RACSignal oneOf:@[]];
+        
+		__block BOOL completed = NO;
+		[signal subscribeCompleted:^{
+			completed = YES;
+		}];
+        
+		expect(completed).to.beTruthy();
+	});
+});
+
 describe(@"-flatten:", ^{
 	__block BOOL subscribedTo1 = NO;
 	__block BOOL subscribedTo2 = NO;

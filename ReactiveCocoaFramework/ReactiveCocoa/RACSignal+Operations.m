@@ -719,11 +719,11 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	RACSignal *multicastedSelf = [[self publish] autoconnect];
 
 	return [[multicastedSelf flattenMap:^(RACSignal *x) {
-		if (x == nil) return RACSignal.empty;
+		if (x == nil) return [RACSignal empty];
 
 		NSCAssert([x isKindOfClass:RACSignal.class], @"-switchToLatest requires that the source signal (%@) send signals. Instead we got: %@", self, x);
 
-		return [x takeUntil:[multicastedSelf concat:RACSignal.never]];
+		return [x takeUntil:[multicastedSelf concat:[RACSignal never]]];
 	}] setNameWithFormat:@"[%@] -switchToLatest", self.name];
 }
 

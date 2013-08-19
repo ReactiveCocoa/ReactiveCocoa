@@ -718,7 +718,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 - (RACSignal *)switchToLatest {
 	RACSignal *multicastedSelf = [[self publish] autoconnect];
 
-	return [[multicastedSelf flattenMap:^(id x) {
+	return [[multicastedSelf flattenMap:^(RACSignal *x) {
 		if (x == nil) return RACSignal.empty;
 
 		NSCAssert([x isKindOfClass:RACSignal.class], @"-switchToLatest requires that the source signal (%@) send signals. Instead we got: %@", self, x);

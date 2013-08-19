@@ -723,6 +723,8 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 		NSCAssert([x isKindOfClass:RACSignal.class], @"-switchToLatest requires that the source signal (%@) send signals. Instead we got: %@", self, x);
 
+		// -concat:[RACSignal never] prevents completion of the receiver from
+		// prematurely terminating the inner signal.
 		return [x takeUntil:[multicastedSelf concat:[RACSignal never]]];
 	}] setNameWithFormat:@"[%@] -switchToLatest", self.name];
 }

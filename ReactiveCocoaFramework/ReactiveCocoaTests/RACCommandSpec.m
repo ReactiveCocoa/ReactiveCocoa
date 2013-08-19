@@ -332,6 +332,7 @@ it(@"should deliver errors onto 'errors'", ^{
 	NSError *firstError = [NSError errorWithDomain:@"" code:1 userInfo:nil];
 	NSError *secondError = [NSError errorWithDomain:@"" code:2 userInfo:nil];
 	
+	// We should receive errors from our previously-started executions.
 	NSMutableArray *receivedErrors = [NSMutableArray array];
 	[command.errors subscribeNext:^(NSError *error) {
 		[receivedErrors addObject:error];

@@ -58,7 +58,7 @@
 - (void)forwardInvocation:(NSInvocation *)invocation {
 	SEL selector = invocation.selector;
 	for (NSValue *trampolineValue in self.trampolines) {
-		RACEventTrampoline *trampoline = [trampolineValue nonretainedObjectValue];
+		RACEventTrampoline *trampoline = trampolineValue.nonretainedObjectValue;
 		[trampoline didGetDelegateEvent:selector sender:self.delegator];
 	}
 
@@ -79,7 +79,7 @@
 
 - (BOOL)trampolinesRespondToSelector:(SEL)selector {
 	for (NSValue *trampolineValue in self.trampolines) {
-		RACEventTrampoline *trampoline = [trampolineValue nonretainedObjectValue];
+		RACEventTrampoline *trampoline = trampolineValue.nonretainedObjectValue;
 		if (trampoline.delegateMethod == selector) {
 			return YES;
 		}

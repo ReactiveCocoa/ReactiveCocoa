@@ -396,7 +396,7 @@ it(@"should send errors on the main thread", ^{
 	expect(receivedScheduler).will.equal(RACScheduler.mainThreadScheduler);
 });
 
-describe(@"enabled property", ^{
+describe(@"enabled signal", ^{
 	__block RACSubject *enabledSubject;
 	__block RACCommand *command;
 

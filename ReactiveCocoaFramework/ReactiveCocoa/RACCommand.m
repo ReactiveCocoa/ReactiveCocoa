@@ -40,11 +40,6 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 // This property is KVO-compliant.
 @property (atomic, copy, readonly) NSArray *activeExecutionSignals;
 
-// `executing`, but without a hop to the main thread.
-//
-// Values from this signal may arrive on any thread.
-@property (nonatomic, strong, readonly) RACSignal *immediateExecuting;
-
 // `enabled`, but without a hop to the main thread.
 //
 // Values from this signal may arrive on any thread.
@@ -184,11 +179,11 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 	_errors = [errorsConnection.signal setNameWithFormat:@"%@ -errors", self];
 	[errorsConnection connect];
 
-	_immediateExecuting = [RACObserve(self, activeExecutionSignals) map:^(NSArray *activeSignals) {
+	RACSignal *immediateExecuting = [RACObserve(self, activeExecutionSignals) map:^(NSArray *activeSignals) {
 		return @(activeSignals.count > 0);
 	}];
 
-	_executing = [[[[[self.immediateExecuting
+	_executing = [[[[[immediateExecuting
 		deliverOn:RACScheduler.mainThreadScheduler]
 		// This is useful before the first value arrives on the main thread.
 		startWith:@NO]
@@ -199,7 +194,7 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 	RACSignal *moreExecutionsAllowed = [RACSignal
 		if:RACObserve(self, allowsConcurrentExecution)
 		then:[RACSignal return:@YES]
-		else:[self.immediateExecuting not]];
+		else:[immediateExecuting not]];
 	
 	enabledSignal = [[enabledSignal ?: [RACSignal empty]
 		startWith:@YES]

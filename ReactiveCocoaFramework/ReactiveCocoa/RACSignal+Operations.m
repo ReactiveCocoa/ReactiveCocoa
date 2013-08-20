@@ -719,7 +719,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		RACMulticastConnection *connection = [self publish];
 
-		[[connection.signal
+		RACDisposable *subscriptionDisposable = [[connection.signal
 			flattenMap:^(RACSignal *x) {
 				if (x == nil) return [RACSignal empty];
 
@@ -731,7 +731,11 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			}]
 			subscribe:subscriber];
 
-		return [connection connect];
+		RACDisposable *connectionDisposable = [connection connect];
+		return [RACDisposable disposableWithBlock:^{
+			[subscriptionDisposable dispose];
+			[connectionDisposable dispose];
+		}];
 	}] setNameWithFormat:@"[%@] -switchToLatest", self.name];
 }
 

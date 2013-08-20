@@ -9,6 +9,7 @@
 #import "RACCommand.h"
 #import "EXTScope.h"
 #import "NSArray+RACSequenceAdditions.h"
+#import "NSObject+RACDeallocating.h"
 #import "NSObject+RACDescription.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACMulticastConnection.h"
@@ -196,9 +197,14 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 		then:[RACSignal return:@YES]
 		else:[immediateExecuting not]];
 	
-	enabledSignal = [[enabledSignal ?: [RACSignal empty]
-		startWith:@YES]
-		replayLast];
+	if (enabledSignal == nil) {
+		enabledSignal = [RACSignal return:@YES];
+	} else {
+		enabledSignal = [[[enabledSignal
+			startWith:@YES]
+			takeUntil:self.rac_willDeallocSignal]
+			replayLast];
+	}
 	
 	_immediateEnabled = [[RACSignal
 		combineLatest:@[ enabledSignal, moreExecutionsAllowed ]]

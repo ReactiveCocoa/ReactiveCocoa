@@ -18,6 +18,8 @@ extern const NSInteger RACCommandErrorNotEnabled;
 
 // A `userInfo` key for an error, associated with the `RACCommand` that the
 // error originated from.
+//
+// This is included only when the error code is `RACCommandErrorNotEnabled`.
 extern NSString * const RACUnderlyingCommandErrorKey;
 
 // A command is a signal triggered in response to some action, typically

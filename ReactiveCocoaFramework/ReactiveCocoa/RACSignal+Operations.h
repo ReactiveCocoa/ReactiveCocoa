@@ -394,13 +394,13 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 // Returns the connected, multicasted signal.
 - (RACSignal *)replayLast;
 
-// Multicasts the signal to a RACReplaySubject of unlimited capacity, and calls
-// -autoconnect on the resulting RACMulticastConnection.
+// Multicasts the signal to a RACReplaySubject of unlimited capacity, and
+// lazily connects to the resulting RACMulticastConnection.
 //
 // This means the returned signal will subscribe to the multicasted signal only
 // when the former receives its first subscription.
 //
-// Returns the autoconnected, multicasted signal.
+// Returns the lazily connected, multicasted signal.
 - (RACSignal *)replayLazily;
 
 // Sends an error after `interval` seconds if the source doesn't complete

@@ -3292,4 +3292,62 @@ describe(@"-ignore:", ^{
 	});
 });
 
+describe(@"-replayLazily", ^{
+	__block NSUInteger subscriptionCount;
+	__block BOOL disposed;
+
+	__block RACSignal *signal;
+	__block RACSubject *disposeSubject;
+	__block RACSignal *replayedSignal;
+
+	beforeEach(^{
+		subscriptionCount = 0;
+		disposed = NO;
+
+		signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			subscriptionCount++;
+			[subscriber sendNext:RACUnit.defaultUnit];
+
+			RACDisposable *schedulingDisposable = [RACScheduler.mainThreadScheduler schedule:^{
+				[subscriber sendNext:RACUnit.defaultUnit];
+				[subscriber sendCompleted];
+			}];
+
+			return [RACDisposable disposableWithBlock:^{
+				[schedulingDisposable dispose];
+				disposed = YES;
+			}];
+		}];
+
+		disposeSubject = [RACSubject subject];
+		replayedSignal = [[signal takeUntil:disposeSubject] replayLazily];
+	});
+
+	it(@"should forward the input signal upon subscription", ^{
+		expect(subscriptionCount).to.equal(0);
+
+		expect([replayedSignal asynchronouslyWaitUntilCompleted:NULL]).to.beTruthy();
+		expect(subscriptionCount).to.equal(1);
+	});
+
+	it(@"should replay the input signal for future subscriptions", ^{
+		NSArray *events = [[[replayedSignal materialize] collect] asynchronousFirstOrDefault:nil success:NULL error:NULL];
+		expect(events).notTo.beNil();
+
+		expect([[[replayedSignal materialize] collect] asynchronousFirstOrDefault:nil success:NULL error:NULL]).to.equal(events);
+		expect(subscriptionCount).to.equal(1);
+	});
+
+	it(@"should replay even after disposal", ^{
+		__block NSUInteger valueCount = 0;
+		[replayedSignal subscribeNext:^(id x) {
+			valueCount++;
+		}];
+
+		[disposeSubject sendCompleted];
+		expect(valueCount).to.equal(1);
+		expect([[replayedSignal toArray] count]).to.equal(valueCount);
+	});
+});
+
 SpecEnd

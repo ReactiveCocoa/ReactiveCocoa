@@ -717,45 +717,24 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 - (RACSignal *)switchToLatest {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		RACSerialDisposable *innerDisposable = [[RACSerialDisposable alloc] init];
+		RACMulticastConnection *connection = [self publish];
 
-		__block volatile uint32_t latestChildSignalHasCompleted = 0;
-		__block volatile int32_t partialCompletionCount = 0;
-		
-		RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
-			NSCAssert([x isKindOfClass:RACSignal.class] || x == nil, @"-switchToLatest requires that the source signal (%@) send signals. Instead we got: %@", self, x);
-			
-			[innerDisposable.disposable dispose];
-			
-			int32_t previousChildSignalHadCompleted = OSAtomicAnd32OrigBarrier(0, &latestChildSignalHasCompleted);
-			if (previousChildSignalHadCompleted == 1) {
-				OSAtomicDecrement32Barrier(&partialCompletionCount);
-			}
-			
-			innerDisposable.disposable = [x subscribeNext:^(id x) {
-				[subscriber sendNext:x];
-			} error:^(NSError *error) {
-				[subscriber sendError:error];
-			} completed:^{
-				OSAtomicOr32Barrier(1, &latestChildSignalHasCompleted);
-				
-				int32_t currentPartialCompletionCount = OSAtomicIncrement32Barrier(&partialCompletionCount);
-				if (currentPartialCompletionCount == 2) {
-					[subscriber sendCompleted];
-				}
-			}];
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			int32_t currentPartialCompletionCount = OSAtomicAdd32Barrier(1, &partialCompletionCount);
-			if (currentPartialCompletionCount == 2) {
-				[subscriber sendCompleted];
-			}
-		}];
-		
+		RACDisposable *subscriptionDisposable = [[connection.signal
+			flattenMap:^(RACSignal *x) {
+				if (x == nil) return [RACSignal empty];
+
+				NSCAssert([x isKindOfClass:RACSignal.class], @"-switchToLatest requires that the source signal (%@) send signals. Instead we got: %@", self, x);
+
+				// -concat:[RACSignal never] prevents completion of the receiver from
+				// prematurely terminating the inner signal.
+				return [x takeUntil:[connection.signal concat:[RACSignal never]]];
+			}]
+			subscribe:subscriber];
+
+		RACDisposable *connectionDisposable = [connection connect];
 		return [RACDisposable disposableWithBlock:^{
-			[innerDisposable dispose];
-			[selfDisposable dispose];
+			[subscriptionDisposable dispose];
+			[connectionDisposable dispose];
 		}];
 	}] setNameWithFormat:@"[%@] -switchToLatest", self.name];
 }

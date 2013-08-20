@@ -1577,6 +1577,23 @@ describe(@"-switchToLatest", ^{
 		NSArray *expected = @[ @1, @2 ];
 		expect(values).to.equal(expected);
 	});
+
+	it(@"should return a cold signal", ^{
+		__block NSUInteger subscriptions = 0;
+		RACSignal *signalOfSignals = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			subscriptions++;
+			[subscriber sendNext:[RACSignal empty]];
+			return nil;
+		}];
+
+		RACSignal *switched = [signalOfSignals switchToLatest];
+
+		[[switched publish] connect];
+		expect(subscriptions).to.equal(1);
+
+		[[switched publish] connect];
+		expect(subscriptions).to.equal(2);
+	});
 });
 
 describe(@"+switch:cases:default:", ^{

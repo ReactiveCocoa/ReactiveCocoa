@@ -495,6 +495,25 @@ describe(@"enabled signal", ^{
 		expect([command.enabled first]).will.equal(@NO);
 		expect(updatedScheduler).to.equal(RACScheduler.mainThreadScheduler);
 	});
+
+	it(@"should complete when the command is deallocated even if the input signal hasn't", ^{
+		__block BOOL deallocated = NO;
+		__block BOOL completed = NO;
+
+		@autoreleasepool {
+			RACCommand *command __attribute__((objc_precise_lifetime)) = [[RACCommand alloc] initWithEnabled:enabledSubject signalBlock:emptySignalBlock];
+			[command.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				deallocated = YES;
+			}]];
+
+			[command.enabled subscribeCompleted:^{
+				completed = YES;
+			}];
+		}
+
+		expect(deallocated).will.beTruthy();
+		expect(completed).will.beTruthy();
+	});
 });
 
 SpecEnd

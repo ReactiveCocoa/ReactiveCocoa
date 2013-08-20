@@ -215,27 +215,6 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 	});
 
-	describe(@"-sequenceMany:", ^{
-		it(@"should return the result of sequencing a single value", ^{
-			RACStream *stream = [[streamClass return:@0] sequenceMany:^{
-				return [streamClass return:@10];
-			}];
-
-			verifyValues(stream, @[ @10 ]);
-		});
-
-		it(@"should concatenate the result of sequencing multiple values", ^{
-			RACStream *baseStream = streamWithValues(@[ @0, @1 ]);
-
-			__block NSUInteger value = 10;
-			RACStream *stream = [baseStream sequenceMany:^{
-				return [streamClass return:@(value++)];
-			}];
-
-			verifyValues(stream, @[ @10, @11 ]);
-		});
-	});
-
 	it(@"should map", ^{
 		RACStream *baseStream = streamWithValues(@[ @0, @1, @2 ]);
 		RACStream *stream = [baseStream map:^(NSNumber *value) {
@@ -507,7 +486,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 
 	it(@"should scan", ^{
 		RACStream *stream = streamWithValues(@[ @1, @2, @3, @4 ]);
-		RACStream *scanned = [stream scanWithStart:@0 combine:^(NSNumber *running, NSNumber *next) {
+		RACStream *scanned = [stream scanWithStart:@0 reduce:^(NSNumber *running, NSNumber *next) {
 			return @(running.integerValue + next.integerValue);
 		}];
 
@@ -556,7 +535,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 
 		it(@"should terminate an infinite stream", ^{
-			RACStream *infiniteCounter = [infiniteStream scanWithStart:@0 combine:^(NSNumber *running, id _) {
+			RACStream *infiniteCounter = [infiniteStream scanWithStart:@0 reduce:^(NSNumber *running, id _) {
 				return @(running.unsignedIntegerValue + 1);
 			}];
 
@@ -610,16 +589,16 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 	});
 
-	describe(@"-mapPreviousWithStart:combine:", ^{
+	describe(@"-combinePreviousWithStart:reduce:", ^{
 		NSArray *values = @[ @1, @2, @3 ];
 		__block RACStream *stream;
 		beforeEach(^{
 			stream = streamWithValues(values);
 		});
 
-		it(@"should pass the previous next into the combine block", ^{
+		it(@"should pass the previous next into the reduce block", ^{
 			NSMutableArray *previouses = [NSMutableArray array];
-			RACStream *mapped = [stream mapPreviousWithStart:nil combine:^(id previous, id next) {
+			RACStream *mapped = [stream combinePreviousWithStart:nil reduce:^(id previous, id next) {
 				[previouses addObject:previous ?: RACTupleNil.tupleNil];
 				return next;
 			}];
@@ -631,7 +610,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 
 		it(@"should send the combined value", ^{
-			RACStream *mapped = [stream mapPreviousWithStart:@1 combine:^(NSNumber *previous, NSNumber *next) {
+			RACStream *mapped = [stream combinePreviousWithStart:@1 reduce:^(NSNumber *previous, NSNumber *next) {
 				return [NSString stringWithFormat:@"%lu - %lu", (unsigned long)previous.unsignedIntegerValue, (unsigned long)next.unsignedIntegerValue];
 			}];
 

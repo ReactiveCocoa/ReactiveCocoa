@@ -6,12 +6,16 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import "RACControlCommandExamples.h"
+
 #import "NSControl+RACCommandSupport.h"
 #import "NSControl+RACTextSignalSupport.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACCommand.h"
+#import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
+#import "RACSubject.h"
 
 SpecBegin(NSControlRACSupport)
 
@@ -23,27 +27,13 @@ describe(@"NSButton", ^{
 		expect(button).notTo.beNil();
 	});
 
-	it(@"should bind the button's enabledness to the command's canExecute", ^{
-		button.rac_command = [RACCommand commandWithCanExecuteSignal:[RACSignal return:@NO]];
-		expect([button isEnabled]).to.beFalsy();
-		
-		button.rac_command = [RACCommand commandWithCanExecuteSignal:[RACSignal return:@YES]];
-		expect([button isEnabled]).to.beTruthy();
-	});
-
-	it(@"should execute the button's command when clicked", ^{
-		RACCommand *command = [RACCommand command];
-
-		__block BOOL executed = NO;
-		[command subscribeNext:^(id sender) {
-			expect(sender).to.equal(button);
-			executed = YES;
-		}];
-		
-		button.rac_command = command;
-		[button performClick:nil];
-		
-		expect(executed).to.beTruthy();
+	itShouldBehaveLike(RACControlCommandExamples, ^{
+		return @{
+			RACControlCommandExampleControl: button,
+			RACControlCommandExampleActivateBlock: ^(NSButton *button) {
+				[button performClick:nil];
+			}
+		};
 	});
 });
 
@@ -66,28 +56,14 @@ describe(@"NSTextField", ^{
 		expect(window.firstResponder).notTo.equal(window);
 	});
 
-	it(@"should bind the text field's enabledness to the command's canExecute", ^{
-		field.rac_command = [RACCommand commandWithCanExecuteSignal:[RACSignal return:@NO]];
-		expect([field isEnabled]).to.beFalsy();
-		
-		field.rac_command = [RACCommand commandWithCanExecuteSignal:[RACSignal return:@YES]];
-		expect([field isEnabled]).to.beTruthy();
-	});
-
-	it(@"should execute the text field's command when editing ends", ^{
-		RACCommand *command = [RACCommand command];
-
-		__block BOOL executed = NO;
-		[command subscribeNext:^(id sender) {
-			expect(sender).to.equal(field);
-			executed = YES;
-		}];
-		
-		field.rac_command = command;
-		expect([window makeFirstResponder:nil]).to.beTruthy();
-		expect(window.firstResponder).to.equal(window);
-		
-		expect(executed).to.beTruthy();
+	itShouldBehaveLike(RACControlCommandExamples, ^{
+		return @{
+			RACControlCommandExampleControl: field,
+			RACControlCommandExampleActivateBlock: ^(NSTextField *field) {
+				expect([window makeFirstResponder:nil]).to.beTruthy();
+				expect(window.firstResponder).to.equal(window);
+			}
+		};
 	});
 
 	describe(@"-rac_textSignal", ^{
@@ -114,7 +90,7 @@ describe(@"NSTextField", ^{
 			__block BOOL dealloced = NO;
 			@autoreleasepool {
 				NSTextField *field __attribute__((objc_precise_lifetime)) = [[NSTextField alloc] initWithFrame:CGRectZero];
-				[field rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+				[field.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 					dealloced = YES;
 				}]];
 				[field.rac_textSignal subscribeNext:^(id x) {

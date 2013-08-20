@@ -7,12 +7,10 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <objc/runtime.h>
 
 @interface RACObjCRuntime : NSObject
 
-+ (void)findMethod:(SEL)method inProtocol:(Protocol *)protocol outMethod:(struct objc_method_description *)outMethod;
-+ (const char *)getMethodTypesForMethod:(SEL)method inProtocol:(Protocol *)protocol;
-+ (BOOL)method:(SEL)method existsInProtocol:(Protocol *)protocol;
+// Invokes objc_allocateClassPair(). Can be called from ARC code.
++ (Class)createClass:(const char *)className inheritingFromClass:(Class)superclass;
 
 @end

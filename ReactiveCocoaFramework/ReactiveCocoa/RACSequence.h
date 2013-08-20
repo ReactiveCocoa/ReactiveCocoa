@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <ReactiveCocoa/RACStream.h>
+#import "RACStream.h"
 
 @class RACScheduler;
 @class RACSignal;
@@ -52,7 +52,7 @@
 
 // Converts a sequence into a lazy sequence.
 //
-// A lazy sequence evaluates it's values on demand, as they are accessed.
+// A lazy sequence evaluates its values on demand, as they are accessed.
 // Sequences derived from a lazy sequence will also be lazy.
 //
 // Returns a new lazy sequence, or the receiver if the sequence is already lazy.
@@ -75,15 +75,15 @@
 // This is the same as iterating the sequence along with a provided start value.
 // This uses a constant amount of memory. A left fold is left-associative so in
 // the sequence [1,2,3] the block would applied in the following order:
-//  combine(combine(combine(start, 1), 2), 3)
+//  reduce(reduce(reduce(start, 1), 2), 3)
 //
-// start   - The starting value for the fold. Used as `accumulator` for the
-//           first fold.
-// combine - The block used to combine the accumulated value and the next value.
-//           Cannot be nil.
+// start  - The starting value for the fold. Used as `accumulator` for the
+//          first fold.
+// reduce - The block used to combine the accumulated value and the next value.
+//          Cannot be nil.
 //
 // Returns a reduced value.
-- (id)foldLeftWithStart:(id)start combine:(id (^)(id accumulator, id value))combine;
+- (id)foldLeftWithStart:(id)start reduce:(id (^)(id accumulator, id value))reduce;
 
 // Applies a right fold to the sequence.
 //
@@ -91,18 +91,18 @@
 // from the right to the left in list. It is right associative so it's applied
 // to the rightmost elements first. For example, in the sequence [1,2,3] the
 // block is applied in the order:
-//   combine(1, combine(2, combine(3, start)))
+//   reduce(1, reduce(2, reduce(3, start)))
 //
-// start   - The starting value for the fold.
-// combine - The block used to combine the accumulated value and the next head.
-//           The block is given the accumulated value and the value of the rest
-//           of the computation (result of the recursion). This is computed when
-//           you retrieve its value using `rest.head`. This allows you to
-//           prevent unnecessary computation by not accessing `rest.head` if you
-//           don't need to.
+// start  - The starting value for the fold.
+// reduce - The block used to combine the accumulated value and the next head.
+//          The block is given the accumulated value and the value of the rest
+//          of the computation (result of the recursion). This is computed when
+//          you retrieve its value using `rest.head`. This allows you to
+//          prevent unnecessary computation by not accessing `rest.head` if you
+//          don't need to.
 //
 // Returns a reduced value.
-- (id)foldRightWithStart:(id)start combine:(id (^)(id first, RACSequence *rest))combine;
+- (id)foldRightWithStart:(id)start reduce:(id (^)(id first, RACSequence *rest))reduce;
 
 // Check if any value in sequence passes the block.
 //
@@ -143,5 +143,12 @@
 // Returns a sequence that lazily invokes the given blocks to provide head and
 // tail. `headBlock` must not be nil.
 + (RACSequence *)sequenceWithHeadBlock:(id (^)(void))headBlock tailBlock:(RACSequence *(^)(void))tailBlock;
+
+@end
+
+@interface RACSequence (Deprecated)
+
+- (id)foldLeftWithStart:(id)start combine:(id (^)(id accumulator, id value))combine __attribute__((deprecated("Renamed to -foldLeftWithStart:reduce:")));
+- (id)foldRightWithStart:(id)start combine:(id (^)(id first, RACSequence *rest))combine __attribute__((deprecated("Renamed to -foldRightWithStart:reduce:")));
 
 @end

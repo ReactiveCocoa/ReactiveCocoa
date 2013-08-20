@@ -12,6 +12,7 @@
 #import "NSArray+RACSequenceAdditions.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
+#import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSequence.h"
 #import "RACUnit.h"
@@ -248,7 +249,7 @@ describe(@"-objectEnumerator", ^{
 			} tailBlock:^RACSequence *{
 				return RACSequence.empty;
 			}];
-			[thirdSequence rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[thirdSequence.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				thirdSequenceDeallocd = YES;
 			}]];
 			
@@ -257,7 +258,7 @@ describe(@"-objectEnumerator", ^{
 			} tailBlock:^RACSequence *{
 				return thirdSequence;
 			}];
-			[secondSequence rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[secondSequence.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				secondSequenceDeallocd = YES;
 			}]];
 			
@@ -266,7 +267,7 @@ describe(@"-objectEnumerator", ^{
 			} tailBlock:^RACSequence *{
 				return secondSequence;
 			}];
-			[firstSequence rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[firstSequence.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				firstSequenceDeallocd = YES;
 			}]];
 			
@@ -318,10 +319,10 @@ it(@"shouldn't overflow the stack when deallocated on a background queue", ^{
 	Expecta.asynchronousTestTimeout = oldTimeout;
 });
 
-describe(@"-foldLeftWithStart:combine:", ^{
-	it(@"should combine with start first", ^{
+describe(@"-foldLeftWithStart:reduce:", ^{
+	it(@"should reduce with start first", ^{
 		RACSequence *sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
-		NSNumber *result = [sequence foldLeftWithStart:@3 combine:^(NSNumber *first, NSNumber *rest) {
+		NSNumber *result = [sequence foldLeftWithStart:@3 reduce:^(NSNumber *first, NSNumber *rest) {
 			return first;
 		}];
 		expect(result).to.equal(@3);
@@ -329,7 +330,7 @@ describe(@"-foldLeftWithStart:combine:", ^{
 
 	it(@"should be left associative", ^{
 		RACSequence *sequence = [[[RACSequence return:@1] concat:[RACSequence return:@2]] concat:[RACSequence return:@3]];
-		NSNumber *result = [sequence foldLeftWithStart:@0 combine:^(NSNumber *first, NSNumber *rest) {
+		NSNumber *result = [sequence foldLeftWithStart:@0 reduce:^(NSNumber *first, NSNumber *rest) {
 			int difference = first.intValue - rest.intValue;
 			return @(difference);
 		}];
@@ -337,7 +338,7 @@ describe(@"-foldLeftWithStart:combine:", ^{
 	});
 });
 
-describe(@"-foldRightWithStart:combine:", ^{
+describe(@"-foldRightWithStart:reduce:", ^{
 	it(@"should be lazy", ^{
 		__block BOOL headInvoked = NO;
 		__block BOOL tailInvoked = NO;
@@ -349,7 +350,7 @@ describe(@"-foldRightWithStart:combine:", ^{
 			return [RACSequence return:@1];
 		}];
 		
-		NSNumber *result = [sequence foldRightWithStart:@2 combine:^(NSNumber *first, RACSequence *rest) {
+		NSNumber *result = [sequence foldRightWithStart:@2 reduce:^(NSNumber *first, RACSequence *rest) {
 			return first;
 		}];
 		
@@ -358,9 +359,9 @@ describe(@"-foldRightWithStart:combine:", ^{
 		expect(tailInvoked).to.beFalsy();
 	});
 	
-	it(@"should combine with start last", ^{
+	it(@"should reduce with start last", ^{
 		RACSequence *sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
-		NSNumber *result = [sequence foldRightWithStart:@3 combine:^(NSNumber *first, RACSequence *rest) {
+		NSNumber *result = [sequence foldRightWithStart:@3 reduce:^(NSNumber *first, RACSequence *rest) {
 			return rest.head;
 		}];
 		expect(result).to.equal(@3);
@@ -368,7 +369,7 @@ describe(@"-foldRightWithStart:combine:", ^{
 	
 	it(@"should be right associative", ^{
 		RACSequence *sequence = [[[RACSequence return:@1] concat:[RACSequence return:@2]] concat:[RACSequence return:@3]];
-		NSNumber *result = [sequence foldRightWithStart:@0 combine:^(NSNumber *first, RACSequence *rest) {
+		NSNumber *result = [sequence foldRightWithStart:@0 reduce:^(NSNumber *first, RACSequence *rest) {
 			int difference = first.intValue - [rest.head intValue];
 			return @(difference);
 		}];

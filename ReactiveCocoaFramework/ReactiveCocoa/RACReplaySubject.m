@@ -12,9 +12,8 @@
 #import "RACSubscriber.h"
 #import "RACTuple.h"
 #import "RACCompoundDisposable.h"
-#import <libkern/OSAtomic.h>
 
-const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
+const NSUInteger RACReplaySubjectUnlimitedCapacity = NSUIntegerMax;
 
 @interface RACReplaySubject ()
 
@@ -46,7 +45,7 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = 0;
 	if (self == nil) return nil;
 	
 	_capacity = capacity;
-	_valuesReceived = [NSMutableArray arrayWithCapacity:capacity];
+	_valuesReceived = (capacity == RACReplaySubjectUnlimitedCapacity ? [NSMutableArray array] : [NSMutableArray arrayWithCapacity:capacity]);
 	
 	return self;
 }

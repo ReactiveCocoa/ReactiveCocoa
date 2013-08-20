@@ -15,9 +15,9 @@
 
 SpecBegin(NSObjectRACPropertySubscribing)
 
-describe(@"+rac_signalFor:keyPath:observer:", ^{
+describe(@"-rac_valuesForKeyPath:observer:", ^{
 	id (^setupBlock)(id, id, id) = ^(RACTestObject *object, NSString *keyPath, id observer) {
-		return [object.class rac_signalFor:object keyPath:keyPath observer:observer];
+		return [object rac_valuesForKeyPath:keyPath observer:observer];
 	};
 
 	itShouldBehaveLike(RACPropertySubscribingExamples, ^{
@@ -36,7 +36,9 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 			object = [[RACTestObject alloc] init];
 
 			objectValueSignal = ^(NSKeyValueObservingOptions options) {
-				return [object.class rac_signalWithChangesFor:object keyPath:@keypath(object, objectValue) options:options observer:self];
+				return [[object rac_valuesAndChangesForKeyPath:@keypath(object, objectValue) options:options observer:self] reduceEach:^(id value, NSDictionary *change) {
+					return change;
+				}];
 			};
 		});
 
@@ -126,9 +128,27 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 			[objectValueSignal(NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew) subscribeNext:^(NSDictionary *x) {
 				actual = x[NSKeyValueChangeNewKey];
 			}];
-
+			
 			expect(actual).to.equal(NSNull.null);
 		});
+	});
+});
+
+describe(@"-rac_valuesAndChangesForKeyPath:options:observer:", ^{
+	it(@"should complete immediately if the receiver or observer have deallocated", ^{
+		RACSignal *signal;
+		@autoreleasepool {
+			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
+			RACTestObject *observer __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
+			signal = [object rac_valuesAndChangesForKeyPath:@keypath(object, stringValue) options:0 observer:observer];
+		}
+
+		__block BOOL completed = NO;
+		[signal subscribeCompleted:^{
+			completed = YES;
+		}];
+
+		expect(completed).to.beTruthy();
 	});
 });
 

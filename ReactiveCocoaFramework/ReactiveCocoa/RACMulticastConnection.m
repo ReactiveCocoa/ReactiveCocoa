@@ -10,7 +10,7 @@
 #import "RACMulticastConnection+Private.h"
 #import "RACDisposable.h"
 #import "RACSubject.h"
-#import "RACSignal+Private.h"
+#import <libkern/OSAtomic.h>
 
 @interface RACMulticastConnection () {
 	RACSubject *_signal;
@@ -59,18 +59,24 @@
 }
 
 - (RACSignal *)autoconnect {
-	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		RACDisposable *subscriptionDisposable = [self.signal subscribe:subscriber];
-		[self connect];
+	__block volatile int32_t subscriberCount = 0;
 
-		return [RACDisposable disposableWithBlock:^{
-			[subscriptionDisposable dispose];
+	return [[RACSignal
+		createSignal:^(id<RACSubscriber> subscriber) {
+			OSAtomicIncrement32Barrier(&subscriberCount);
 
-			if (self.signal.subscriberCount < 1) {
-				[self.disposable dispose];
-			}
-		}];
-	}] setNameWithFormat:@"[%@] -autoconnect", self.signal.name];
+			RACDisposable *subscriptionDisposable = [self.signal subscribe:subscriber];
+			RACDisposable *connectionDisposable = [self connect];
+
+			return [RACDisposable disposableWithBlock:^{
+				[subscriptionDisposable dispose];
+
+				if (OSAtomicDecrement32Barrier(&subscriberCount) == 0) {
+					[connectionDisposable dispose];
+				}
+			}];
+		}]
+		setNameWithFormat:@"[%@] -autoconnect", self.signal.name];
 }
 
 @end

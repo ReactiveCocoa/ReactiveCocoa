@@ -8,8 +8,10 @@
 
 #import "RACScheduler.h"
 #import "RACScheduler+Private.h"
+#import "RACQueueScheduler+Subclass.h"
 #import "RACDisposable.h"
 #import "EXTScope.h"
+#import "RACTestExampleScheduler.h"
 #import <libkern/OSAtomic.h>
 
 // This shouldn't be used directly. Use the `expectCurrentSchedulers` block
@@ -77,7 +79,7 @@ describe(@"+mainThreadScheduler", ^{
 	it(@"should schedule future blocks", ^{
 		__block BOOL done = NO;
 
-		[RACScheduler.mainThreadScheduler after:DISPATCH_TIME_NOW schedule:^{
+		[RACScheduler.mainThreadScheduler after:[NSDate date] schedule:^{
 			done = YES;
 		}];
 
@@ -89,13 +91,13 @@ describe(@"+mainThreadScheduler", ^{
 		__block BOOL firstBlockRan = NO;
 		__block BOOL secondBlockRan = NO;
 
-		RACDisposable *disposable = [RACScheduler.mainThreadScheduler after:DISPATCH_TIME_NOW schedule:^{
+		RACDisposable *disposable = [RACScheduler.mainThreadScheduler after:[NSDate date] schedule:^{
 			firstBlockRan = YES;
 		}];
 
 		expect(disposable).notTo.beNil();
 
-		[RACScheduler.mainThreadScheduler after:DISPATCH_TIME_NOW schedule:^{
+		[RACScheduler.mainThreadScheduler after:[NSDate date] schedule:^{
 			secondBlockRan = YES;
 		}];
 
@@ -105,17 +107,35 @@ describe(@"+mainThreadScheduler", ^{
 		expect(secondBlockRan).will.beTruthy();
 		expect(firstBlockRan).to.beFalsy();
 	});
+
+	it(@"should schedule recurring blocks", ^{
+		__block NSUInteger count = 0;
+
+		RACDisposable *disposable = [RACScheduler.mainThreadScheduler after:[NSDate date] repeatingEvery:0.05 withLeeway:0 schedule:^{
+			count++;
+		}];
+
+		expect(count).to.equal(0);
+		expect(count).will.equal(1);
+		expect(count).will.equal(2);
+		expect(count).will.equal(3);
+
+		[disposable dispose];
+		[NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+
+		expect(count).to.equal(3);
+	});
 });
 
 describe(@"+scheduler", ^{
 	__block RACScheduler *scheduler;
-	__block dispatch_time_t (^futureTime)(void);
+	__block NSDate * (^futureDate)(void);
 
 	beforeEach(^{
 		scheduler = [RACScheduler scheduler];
 
-		futureTime = ^{
-			return dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC));
+		futureDate = ^{
+			return [NSDate dateWithTimeIntervalSinceNow:0.01];
 		};
 	});
 
@@ -146,7 +166,7 @@ describe(@"+scheduler", ^{
 	it(@"should schedule future blocks", ^{
 		__block BOOL done = NO;
 
-		[scheduler after:futureTime() schedule:^{
+		[scheduler after:futureDate() schedule:^{
 			done = YES;
 		}];
 
@@ -158,22 +178,39 @@ describe(@"+scheduler", ^{
 		__block BOOL firstBlockRan = NO;
 		__block BOOL secondBlockRan = NO;
 
-		dispatch_time_t time = futureTime();
-
-		RACDisposable *disposable = [scheduler after:time schedule:^{
+		NSDate *date = futureDate();
+		RACDisposable *disposable = [scheduler after:date schedule:^{
 			firstBlockRan = YES;
 		}];
 
 		expect(disposable).notTo.beNil();
 		[disposable dispose];
 
-		[scheduler after:time schedule:^{
+		[scheduler after:date schedule:^{
 			secondBlockRan = YES;
 		}];
 
 		expect(secondBlockRan).to.beFalsy();
 		expect(secondBlockRan).will.beTruthy();
 		expect(firstBlockRan).to.beFalsy();
+	});
+
+	it(@"should schedule recurring blocks", ^{
+		__block NSUInteger count = 0;
+
+		RACDisposable *disposable = [scheduler after:[NSDate date] repeatingEvery:0.05 withLeeway:0 schedule:^{
+			count++;
+		}];
+
+		expect(count).to.equal(0);
+		expect(count).will.equal(1);
+		expect(count).will.equal(2);
+		expect(count).will.equal(3);
+
+		[disposable dispose];
+		[NSThread sleepForTimeInterval:0.1];
+
+		expect(count).to.equal(3);
 	});
 });
 
@@ -235,44 +272,6 @@ describe(@"+subscriptionScheduler", ^{
 	});
 });
 
-describe(@"+schedulerWithQueue:name:", ^{
-	it(@"should have a valid current scheduler", ^{
-		dispatch_queue_t queue = dispatch_queue_create("test-queue", DISPATCH_QUEUE_SERIAL);
-		RACScheduler *scheduler = [RACScheduler schedulerWithQueue:queue name:@"test-scheduler"];
-		__block RACScheduler *currentScheduler;
-		[scheduler schedule:^{
-			currentScheduler = RACScheduler.currentScheduler;
-		}];
-
-		expect(currentScheduler).will.equal(scheduler);
-
-		dispatch_release(queue);
-	});
-
-	it(@"should schedule blocks FIFO even when given a concurrent queue", ^{
-		dispatch_queue_t queue = dispatch_queue_create("test-queue", DISPATCH_QUEUE_CONCURRENT);
-		RACScheduler *scheduler = [RACScheduler schedulerWithQueue:queue name:@"test-scheduler"];
-		__block volatile int32_t startedCount = 0;
-		__block volatile uint32_t waitInFirst = 1;
-		[scheduler schedule:^{
-			OSAtomicIncrement32Barrier(&startedCount);
-			while (waitInFirst == 1) ;
-		}];
-
-		[scheduler schedule:^{
-			OSAtomicIncrement32Barrier(&startedCount);
-		}];
-
-		expect(startedCount).will.equal(1);
-
-		OSAtomicAnd32Barrier(0, &waitInFirst);
-
-		expect(startedCount).will.equal(2);
-
-		dispatch_release(queue);
-	});
-});
-
 describe(@"+immediateScheduler", ^{
 	it(@"should immediately execute scheduled blocks", ^{
 		__block BOOL executed = NO;
@@ -286,7 +285,7 @@ describe(@"+immediateScheduler", ^{
 
 	it(@"should block for future scheduled blocks", ^{
 		__block BOOL executed = NO;
-		RACDisposable *disposable = [RACScheduler.immediateScheduler after:dispatch_time(DISPATCH_TIME_NOW, 1000) schedule:^{
+		RACDisposable *disposable = [RACScheduler.immediateScheduler after:[NSDate dateWithTimeIntervalSinceNow:0.01] schedule:^{
 			executed = YES;
 		}];
 
@@ -356,9 +355,7 @@ describe(@"-scheduleRecursiveBlock:", ^{
 
 			RACScheduler *asynchronousScheduler = [RACScheduler scheduler];
 			[RACScheduler.immediateScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
-				dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC));
-
-				[asynchronousScheduler after:delay schedule:^{
+				[asynchronousScheduler after:[NSDate dateWithTimeIntervalSinceNow:0.01] schedule:^{
 					NSUInteger thisCount = ++count;
 					if (thisCount < 3) {
 						recurse();
@@ -386,6 +383,41 @@ describe(@"-scheduleRecursiveBlock:", ^{
 
 			expect(count).will.equal(1);
 		});
+	});
+});
+
+describe(@"subclassing", ^{
+	__block RACTestExampleScheduler *scheduler;
+
+	beforeEach(^{
+		scheduler = [[RACTestExampleScheduler alloc] initWithQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
+	});
+
+	it(@"should invoke blocks scheduled with -schedule:", ^{
+		__block BOOL invoked = NO;
+		[scheduler schedule:^{
+			invoked = YES;
+		}];
+
+		expect(invoked).will.beTruthy();
+	});
+
+	it(@"should invoke blocks scheduled with -after:schedule:", ^{
+		__block BOOL invoked = NO;
+		[scheduler after:[NSDate dateWithTimeIntervalSinceNow:0.01] schedule:^{
+			invoked = YES;
+		}];
+		
+		expect(invoked).will.beTruthy();
+	});
+
+	it(@"should set a valid current scheduler", ^{
+		__block RACScheduler *currentScheduler;
+		[scheduler schedule:^{
+			currentScheduler = RACScheduler.currentScheduler;
+		}];
+
+		expect(currentScheduler).will.equal(scheduler);
 	});
 });
 

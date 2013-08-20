@@ -8,17 +8,14 @@
 
 #import "RACSequence.h"
 #import "RACArraySequence.h"
-#import "RACBlockTrampoline.h"
-#import "RACDisposable.h"
 #import "RACDynamicSequence.h"
 #import "RACEagerSequence.h"
 #import "RACEmptySequence.h"
 #import "RACScheduler.h"
 #import "RACSignal.h"
-#import "RACSubject.h"
+#import "RACSubscriber.h"
 #import "RACTuple.h"
 #import "RACUnarySequence.h"
-#import <libkern/OSAtomic.h>
 
 // An enumerator over sequences.
 @interface RACSequenceEnumerator : NSEnumerator
@@ -204,34 +201,34 @@
 	}] setNameWithFormat:@"[%@] -signalWithScheduler:", self.name];
 }
 
-- (id)foldLeftWithStart:(id)start combine:(id (^)(id, id))combine {
-	NSCParameterAssert(combine != NULL);
+- (id)foldLeftWithStart:(id)start reduce:(id (^)(id, id))reduce {
+	NSCParameterAssert(reduce != NULL);
 
 	if (self.head == nil) return start;
 	
 	for (id value in self) {
-		start = combine(start, value);
+		start = reduce(start, value);
 	}
 	
 	return start;
 }
 
-- (id)foldRightWithStart:(id)start combine:(id (^)(id, RACSequence *))combine {
-	NSCParameterAssert(combine != NULL);
+- (id)foldRightWithStart:(id)start reduce:(id (^)(id, RACSequence *))reduce {
+	NSCParameterAssert(reduce != NULL);
 
 	if (self.head == nil) return start;
 	
 	RACSequence *rest = [RACSequence sequenceWithHeadBlock:^{
-		return [self.tail foldRightWithStart:start combine:combine];
+		return [self.tail foldRightWithStart:start reduce:reduce];
 	} tailBlock:nil];
 	
-	return combine(self.head, rest);
+	return reduce(self.head, rest);
 }
 
 - (BOOL)any:(BOOL (^)(id))block {
 	NSCParameterAssert(block != NULL);
 	
-	NSNumber *result = [self foldLeftWithStart:@NO combine:^(NSNumber *accumulator, id value) {
+	NSNumber *result = [self foldLeftWithStart:@NO reduce:^(NSNumber *accumulator, id value) {
 		return @(accumulator.boolValue || block(value));
 	}];
 	
@@ -241,7 +238,7 @@
 - (BOOL)all:(BOOL (^)(id))block {
 	NSCParameterAssert(block != NULL);
 	
-	NSNumber *result = [self foldLeftWithStart:@YES combine:^(NSNumber *accumulator, id value) {
+	NSNumber *result = [self foldLeftWithStart:@YES reduce:^(NSNumber *accumulator, id value) {
 		return @(accumulator.boolValue && block(value));
 	}];
 	
@@ -251,7 +248,7 @@
 - (id)objectPassingTest:(BOOL (^)(id))block {
 	NSCParameterAssert(block != NULL);
 	
-	return [self foldLeftWithStart:nil combine:^ id (id accumulator, id value) {
+	return [self foldLeftWithStart:nil reduce:^ id (id accumulator, id value) {
 		if (accumulator != nil) {
 			return accumulator;
 		} else if (block(value)) {
@@ -378,5 +375,22 @@
 	// self is now depleted -- the argument should be too.
 	return (seq.head == nil);
 }
+
+@end
+
+@implementation RACSequence (Deprecated)
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
+- (id)foldLeftWithStart:(id)start combine:(id (^)(id accumulator, id value))combine {
+	return [self foldLeftWithStart:start reduce:combine];
+}
+
+- (id)foldRightWithStart:(id)start combine:(id (^)(id first, RACSequence *rest))combine {
+	return [self foldRightWithStart:start reduce:combine];
+}
+
+#pragma clang diagnostic pop
 
 @end

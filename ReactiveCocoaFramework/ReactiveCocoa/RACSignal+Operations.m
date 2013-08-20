@@ -462,6 +462,32 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		setNameWithFormat:@"+merge: %@", copiedSignals];
 }
 
++ (RACSignal *)oneOf:(id<NSFastEnumeration>)signals {
+    NSMutableArray *copiedSignals = [[NSMutableArray alloc] init];
+	for (RACSignal *signal in signals) {
+		[copiedSignals addObject:signal];
+	}
+    
+    return [[[RACSignal
+			 createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+				 NSUInteger i = 0, tupleSize = copiedSignals.count;
+				 for (RACSignal *signal in copiedSignals) {
+					 [subscriber sendNext:[signal map:^(id value) {
+						 NSMutableArray *array = [[NSMutableArray alloc] initWithCapacity:tupleSize];
+						 for (NSUInteger j = 0; j < tupleSize; j++)
+							 [array addObject: i == j && value ? value : [NSNull null]];
+						 return [RACTuple tupleWithObjectsFromArray:array
+												 convertNullsToNils:YES];
+					 }]];
+					 i++;
+				 }
+				 [subscriber sendCompleted];
+				 return nil;
+			 }]
+			flatten]
+			setNameWithFormat:@"+oneOf: %@", copiedSignals];
+}
+
 - (RACSignal *)flatten:(NSUInteger)maxConcurrent {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposable];

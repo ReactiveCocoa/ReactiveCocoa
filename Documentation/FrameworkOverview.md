@@ -88,8 +88,9 @@ anything is ready to handle the result.
 
 ### Commands
 
-A **command**, represented by the [RACCommand][] class, is a [signal](#signals)
-that is triggered in response to some action.
+A **command**, represented by the [RACCommand][] class, creates and subscribes
+to a signal in response to some action. This makes it easy to perform
+side-effecting work as the user interacts with the app.
 
 Usually the action triggering a command is UI-driven, like when a button is
 clicked. Commands can also be automatically disabled based on a signal, and this

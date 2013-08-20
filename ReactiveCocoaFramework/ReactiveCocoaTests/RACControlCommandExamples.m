@@ -48,13 +48,13 @@ sharedExamplesFor(RACControlCommandExamples, ^(NSDictionary *data) {
 	});
 
 	it(@"should bind the control's enabledness to the command", ^{
-		expect([control isEnabled]).to.beTruthy();
+		expect([control isEnabled]).will.beTruthy();
 
 		[enabledSubject sendNext:@NO];
-		expect([control isEnabled]).to.beFalsy();
+		expect([control isEnabled]).will.beFalsy();
 		
 		[enabledSubject sendNext:@YES];
-		expect([control isEnabled]).to.beTruthy();
+		expect([control isEnabled]).will.beTruthy();
 	});
 
 	it(@"should execute the control's command when activated", ^{
@@ -65,7 +65,7 @@ sharedExamplesFor(RACControlCommandExamples, ^(NSDictionary *data) {
 		}];
 		
 		activate(control);
-		expect(executed).to.beTruthy();
+		expect(executed).will.beTruthy();
 	});
 	
 	it(@"should overwrite an existing command when setting a new one", ^{

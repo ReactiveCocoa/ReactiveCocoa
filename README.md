@@ -105,7 +105,9 @@ example, they can also represent button presses:
 ```objc
 // Log a message whenever the button is pressed.
 //
-// RACCommand is a RACSignal subclass that represents UI actions.
+// RACCommand creates signals to represent UI actions. Each signal can
+// represent a button press, for example, and have additional work associated
+// with it.
 //
 // -rac_command is an addition to NSButton. The button will send itself on that
 // command whenever it's pressed.

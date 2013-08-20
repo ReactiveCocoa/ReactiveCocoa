@@ -10,8 +10,6 @@
 
 @interface RACSignal ()
 
-@property (atomic, assign, readonly) NSUInteger subscriberCount;
-
 - (void)performBlockOnEachSubscriber:(void (^)(id<RACSubscriber> subscriber))block;
 
 @end

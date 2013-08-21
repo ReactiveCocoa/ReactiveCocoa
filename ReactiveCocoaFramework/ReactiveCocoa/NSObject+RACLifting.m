@@ -51,18 +51,18 @@
 - (RACSignal *)rac_liftSelector:(SEL)selector withSignals:(RACSignal *)firstSignal, ... {
 	NSCParameterAssert(firstSignal != nil);
 
-	NSMutableArray *arguments = [NSMutableArray array];
+	NSMutableArray *signals = [NSMutableArray array];
 
 	va_list args;
 	va_start(args, firstSignal);
-	for (id currentObject = firstSignal; currentObject != nil; currentObject = va_arg(args, id)) {
-		NSCAssert([currentObject isKindOfClass:RACSignal.class], @"Argument %@ is not a RACSignal", currentObject);
+	for (id currentSignal = firstSignal; currentSignal != nil; currentSignal = va_arg(args, id)) {
+		NSCAssert([currentSignal isKindOfClass:RACSignal.class], @"Argument %@ is not a RACSignal", currentSignal);
 
-		[arguments addObject:currentObject];
+		[signals addObject:currentSignal];
 	}
-
 	va_end(args);
-	return [self rac_liftSelector:selector withSignalsFromArray:arguments];
+
+	return [self rac_liftSelector:selector withSignalsFromArray:signals];
 }
 
 @end

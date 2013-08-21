@@ -48,14 +48,9 @@
 
 		NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
 		invocation.selector = selector;
-
-		NSUInteger index = 2;
-		for (id arg in arguments) {
-			[invocation rac_setArgument:([RACTupleNil.tupleNil isEqual:arg] ? nil : arg) atIndex:index];
-			index++;
-		}
-
+		[invocation rac_setArgumentsTuple:arguments];
 		[invocation invokeWithTarget:self];
+
 		return invocation.rac_returnValue;
 	}];
 }

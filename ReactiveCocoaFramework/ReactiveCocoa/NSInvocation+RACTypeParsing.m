@@ -146,6 +146,16 @@
 	return argumentsArray;
 }
 
+- (void)rac_setArgumentsTuple:(RACTuple *)arguments {
+	NSCAssert(arguments.count == self.methodSignature.numberOfArguments - 2, @"Number of supplied arguments (%lu), does not match the number expected by the signature (%lu)", (unsigned long)arguments.count, self.methodSignature.numberOfArguments - 2);
+
+	NSUInteger index = 2;
+	for (id arg in arguments) {
+		[self rac_setArgument:(arg == RACTupleNil.tupleNil ? nil : arg) atIndex:index];
+		index++;
+	}
+}
+
 - (id)rac_returnValue {
 #define WRAP_AND_RETURN(type) \
 	do { \

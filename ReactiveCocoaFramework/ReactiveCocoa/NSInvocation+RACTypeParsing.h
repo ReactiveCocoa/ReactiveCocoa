@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class RACTuple;
+
 @interface NSInvocation (RACTypeParsing)
 
 // Sets the argument for the invocation at the given index by unboxing the given
@@ -40,6 +42,11 @@
 // Returns an array containing the arguments of the invocation, except `self`
 // and `_cmd`. Nil arguments will be replaced with RACTupleNil.
 - (NSArray *)rac_allArguments;
+
+// Sets the arguments for the invocation from a tuple of objects.
+//
+// See -rac_setArgumentAtIndex: for a description of the behavior.
+- (void)rac_setArgumentsTuple:(RACTuple *)arguments;
 
 // Gets the return value from the invocation based on the invocation's method
 // signature. The value is then wrapped in the appropriate object type.

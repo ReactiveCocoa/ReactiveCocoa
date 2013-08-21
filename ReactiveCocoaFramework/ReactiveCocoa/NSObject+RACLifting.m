@@ -16,6 +16,7 @@
 #import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"
 #import "RACTuple.h"
+#import "NSObject+RACDescription.h"
 
 @implementation NSObject (RACLifting)
 
@@ -45,7 +46,8 @@
 
 			return invocation.rac_returnValue;
 		}]
-		replayLast];
+		replayLast]
+		setNameWithFormat:@"%@ -rac_liftSelector: %@ withSignalsFromArray: %@", [self rac_description], NSStringFromSelector(selector), signals];
 }
 
 - (RACSignal *)rac_liftSelector:(SEL)selector withSignals:(RACSignal *)firstSignal, ... {
@@ -62,7 +64,9 @@
 	}
 	va_end(args);
 
-	return [self rac_liftSelector:selector withSignalsFromArray:signals];
+	return [[self
+		rac_liftSelector:selector withSignalsFromArray:signals]
+		setNameWithFormat:@"%@ -rac_liftSelector: %@ withSignals: %@", [self rac_description], NSStringFromSelector(selector), signals];
 }
 
 @end

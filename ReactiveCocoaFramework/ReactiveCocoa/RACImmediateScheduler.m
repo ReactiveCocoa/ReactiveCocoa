@@ -7,7 +7,6 @@
 //
 
 #import "RACImmediateScheduler.h"
-#import "EXTScope.h"
 #import "RACScheduler+Private.h"
 
 @implementation RACImmediateScheduler
@@ -27,16 +26,18 @@
 	return nil;
 }
 
-- (RACDisposable *)after:(dispatch_time_t)when schedule:(void (^)(void))block {
+- (RACDisposable *)after:(NSDate *)date schedule:(void (^)(void))block {
+	NSCParameterAssert(date != nil);
 	NSCParameterAssert(block != NULL);
 
-	// Use a temporary semaphore to block the current thread until a specific
-	// dispatch_time_t.
-	dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-	dispatch_semaphore_wait(semaphore, when);
-	dispatch_release(semaphore);
-
+	[NSThread sleepUntilDate:date];
 	block();
+
+	return nil;
+}
+
+- (RACDisposable *)after:(NSDate *)date repeatingEvery:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway schedule:(void (^)(void))block {
+	NSCAssert(NO, @"+[RACScheduler immediateScheduler] does not support %@.", NSStringFromSelector(_cmd));
 	return nil;
 }
 

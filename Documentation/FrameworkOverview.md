@@ -88,8 +88,9 @@ anything is ready to handle the result.
 
 ### Commands
 
-A **command**, represented by the [RACCommand][] class, is a [signal](#signals)
-that is triggered in response to some action.
+A **command**, represented by the [RACCommand][] class, creates and subscribes
+to a signal in response to some action. This makes it easy to perform
+side-effecting work as the user interacts with the app.
 
 Usually the action triggering a command is UI-driven, like when a button is
 clicked. Commands can also be automatically disabled based on a signal, and this
@@ -184,6 +185,18 @@ order to keep the framework size down.
 You can find them in [RACExtensions][]. To use them, simply add them directly to
 your project as needed.
 
+## Asynchronous Backtraces
+
+Because RAC-based code often involves asynchronous work and queue-hopping, the
+framework supports [capturing asynchronous backtraces][RACBacktrace] to make debugging
+easier.
+
+On OS X, backtraces can be automatically captured from any code, including
+system libraries.
+
+On iOS, only queue hops from within RAC and your project will be captured (but
+the information is still valuable).
+
 [Design Guidelines]: DesignGuidelines.md
 [Haskell]: http://www.haskell.org
 [lazy-seq]: http://clojure.github.com/clojure/clojure.core-api.html#clojure.core/lazy-seq
@@ -193,6 +206,7 @@ your project as needed.
 [Monoid]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Data-Monoid.html#t:Monoid
 [MonadZip]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Control-Monad-Zip.html#t:MonadZip
 [NSButton+RACCommandSupport]: ../ReactiveCocoaFramework/ReactiveCocoa/NSButton+RACCommandSupport.h
+[RACBacktrace]: ../ReactiveCocoaFramework/ReactiveCocoa/RACBacktrace.h
 [RACCommand]: ../ReactiveCocoaFramework/ReactiveCocoa/RACCommand.h
 [RACDisposable]: ../ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
 [RACEvent]: ../ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h

@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <ReactiveCocoa/RACStream.h>
+#import "RACStream.h"
 
 @class RACDisposable;
 @class RACScheduler;
@@ -52,20 +52,17 @@
 // Returns a signal that never completes.
 + (RACSignal *)never;
 
-// Returns a signal that calls the block in a background queue. The
-// block's success is YES by default. If the block sets success = NO, the
-// signal sends error with the error passed in by reference.
-+ (RACSignal *)start:(id (^)(BOOL *success, NSError **error))block;
-
-// Returns a signal that calls the block with the given scheduler. The
-// block's success is YES by default. If the block sets success = NO, the
-// signal sends error with the error passed in by reference.
-+ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block;
-
-// Starts and returns an async signal. It calls the block with the given
-// scheduler and gives the block the subject that was returned from the method.
-// The block can send events using the subject.
-+ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block;
+// Immediately schedules the given block on the given scheduler. The block is
+// given a subscriber to which it can send events.
+//
+// scheduler - The scheduler on which `block` will be scheduled and results
+//             delivered. Cannot be nil.
+// block     - The block to invoke. Cannot be NULL.
+//
+// Returns a signal which will send all events sent on the subscriber given to
+// `block`. All events will be sent on `scheduler` and it will replay any missed
+// events to new subscribers.
++ (RACSignal *)startEagerlyWithScheduler:(RACScheduler *)scheduler block:(void (^)(id<RACSubscriber> subscriber))block;
 
 // Invokes the given block only on the first subscription. The block is given a
 // subscriber to which it can send events.
@@ -208,5 +205,13 @@
 // Returns whether the signal completed successfully before timing out. If NO,
 // `error` will be set to any error that occurred.
 - (BOOL)asynchronouslyWaitUntilCompleted:(NSError **)error;
+
+@end
+
+@interface RACSignal (Deprecated)
+
++ (RACSignal *)start:(id (^)(BOOL *success, NSError **error))block __attribute__((deprecated("Use +startEagerlyWithScheduler:block: instead")));
++ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block __attribute__((deprecated("Use +startEagerlyWithScheduler:block: instead")));
++ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block __attribute__((deprecated("Use +startEagerlyWithScheduler:block: instead")));
 
 @end

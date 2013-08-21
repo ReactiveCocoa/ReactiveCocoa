@@ -41,9 +41,14 @@
 	return nil;
 }
 
-- (RACDisposable *)after:(dispatch_time_t)when schedule:(void (^)(void))block {
+- (RACDisposable *)after:(NSDate *)date schedule:(void (^)(void))block {
 	RACScheduler *scheduler = RACScheduler.currentScheduler ?: self.backgroundScheduler;
-	return [scheduler after:when schedule:block];
+	return [scheduler after:date schedule:block];
+}
+
+- (RACDisposable *)after:(NSDate *)date repeatingEvery:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway schedule:(void (^)(void))block {
+	RACScheduler *scheduler = RACScheduler.currentScheduler ?: self.backgroundScheduler;
+	return [scheduler after:date repeatingEvery:interval withLeeway:leeway schedule:block];
 }
 
 @end

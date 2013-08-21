@@ -8,13 +8,13 @@
 
 #import <execinfo.h>
 #import <pthread.h>
-#import "RACBacktrace+Private.h"
+#import "RACBacktrace.h"
 
 #define RAC_BACKTRACE_MAX_CALL_STACK_FRAMES 128
 
 #ifdef DEBUG
 
-// Undefine the private macros that hide the real GCD functions.
+// Undefine the macros that hide the real GCD functions.
 #undef dispatch_async
 #undef dispatch_barrier_async
 #undef dispatch_after
@@ -58,10 +58,10 @@ static void RACTraceDispatch (void *ptr) {
 // Always inline this function, for consistency in backtraces.
 __attribute__((always_inline))
 static dispatch_block_t RACBacktraceBlock (dispatch_queue_t queue, dispatch_block_t block) {
-	RACBacktrace *backtrace = [RACBacktrace captureBacktrace];
+	RACBacktrace *backtrace = [RACBacktrace backtrace];
 
 	return [^{
-		RACBacktrace *backtraceKeptAlive __attribute__((objc_precise_lifetime)) = backtrace;
+		__autoreleasing RACBacktrace *backtraceKeptAlive = backtrace;
 
 		dispatch_queue_set_specific(queue, (void *)pthread_self(), (__bridge void *)backtraceKeptAlive, NULL);
 		block();
@@ -110,7 +110,8 @@ __attribute__((used)) static struct { const void *replacement; const void *repla
 };
 
 static void RACSignalHandler (int sig) {
-	[RACBacktrace printBacktrace];
+	NSLog(@"Backtrace: %@", [RACBacktrace backtrace]);
+	fflush(stdout);
 
 	// Restore the default action and raise the signal again.
 	signal(sig, SIG_DFL);
@@ -118,7 +119,9 @@ static void RACSignalHandler (int sig) {
 }
 
 static void RACExceptionHandler (NSException *ex) {
-	[RACBacktrace printBacktrace];
+	NSLog(@"Uncaught exception %@", ex);
+	NSLog(@"Backtrace: %@", [RACBacktrace backtrace]);
+	fflush(stdout);
 }
 
 @implementation RACBacktrace
@@ -167,11 +170,11 @@ static void RACExceptionHandler (NSException *ex) {
 
 #pragma mark Backtraces
 
-+ (instancetype)captureBacktrace {
-	return [self captureBacktraceIgnoringFrames:1];
++ (instancetype)backtrace {
+	return [self backtraceIgnoringFrames:1];
 }
 
-+ (instancetype)captureBacktraceIgnoringFrames:(NSUInteger)ignoreCount {
++ (instancetype)backtraceIgnoringFrames:(NSUInteger)ignoreCount {
 	@autoreleasepool {
 		RACBacktrace *oldBacktrace = (__bridge id)dispatch_get_specific((void *)pthread_self());
 
@@ -189,13 +192,6 @@ static void RACExceptionHandler (NSException *ex) {
 
 		newBacktrace->_callStackSize = size;
 		return newBacktrace;
-	}
-}
-
-+ (void)printBacktrace {
-	@autoreleasepool {
-		NSLog(@"Backtrace: %@", [self captureBacktraceIgnoringFrames:1]);
-		fflush(stdout);
 	}
 }
 
@@ -224,7 +220,7 @@ static void RACExceptionHandler (NSException *ex) {
 		self = [super init];
 		if (self == nil) return nil;
 
-		_backtrace = [RACBacktrace captureBacktraceIgnoringFrames:1];
+		_backtrace = [RACBacktrace backtraceIgnoringFrames:1];
 
 		dispatch_retain(queue);
 		_queue = queue;

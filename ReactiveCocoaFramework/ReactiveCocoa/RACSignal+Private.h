@@ -6,11 +6,9 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import <ReactiveCocoa/RACSignal.h>
+#import "RACSignal.h"
 
 @interface RACSignal ()
-
-@property (atomic, assign, readonly) NSUInteger subscriberCount;
 
 - (void)performBlockOnEachSubscriber:(void (^)(id<RACSubscriber> subscriber))block;
 

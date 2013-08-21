@@ -11,6 +11,7 @@
 #import "NSObjectRACPropertySubscribingExamples.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
+#import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSignal.h"
 
@@ -26,16 +27,48 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 		signalBlock = data[RACPropertySubscribingExamplesSetupBlock];
 	});
 
+	it(@"should send the current value once on subscription", ^{
+		RACTestObject *object = [[RACTestObject alloc] init];
+		RACSignal *signal = signalBlock(object, @keypath(object, objectValue), self);
+		NSMutableArray *values = [NSMutableArray array];
+
+		object.objectValue = @0;
+		[signal subscribeNext:^(id x) {
+			[values addObject:x];
+		}];
+
+		expect(values).to.equal((@[ @0 ]));
+	});
+
+	it(@"should send the new value when it changes", ^{
+		RACTestObject *object = [[RACTestObject alloc] init];
+		RACSignal *signal = signalBlock(object, @keypath(object, objectValue), self);
+		NSMutableArray *values = [NSMutableArray array];
+
+		object.objectValue = @0;
+		[signal subscribeNext:^(id x) {
+			[values addObject:x];
+		}];
+
+		expect(values).to.equal((@[ @0 ]));
+
+		object.objectValue = @1;
+		expect(values).to.equal((@[ @0, @1 ]));
+
+	});
+
 	it(@"should stop observing when disposed", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		RACSignal *signal = signalBlock(object, @keypath(object, objectValue), self);
 		NSMutableArray *values = [NSMutableArray array];
+
+		object.objectValue = @0;
 		RACDisposable *disposable = [signal subscribeNext:^(id x) {
 			[values addObject:x];
 		}];
 
 		object.objectValue = @1;
-		NSArray *expected = @[ @1 ];
+		NSArray *expected = @[ @0, @1 ];
 		expect(values).to.equal(expected);
 
 		[disposable dispose];
@@ -49,16 +82,15 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 		NSMutableArray *values = [NSMutableArray array];
 		@autoreleasepool {
 			RACTestObject *observer __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			[observer rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[observer.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				observerDealloced = YES;
 			}]];
 
 			RACSignal *signal = signalBlock(object, @keypath(object, objectValue), observer);
+			object.objectValue = @1;
 			[signal subscribeNext:^(id x) {
 				[values addObject:x];
 			}];
-
-			object.objectValue = @1;
 		}
 
 		expect(observerDealloced).to.beTruthy();
@@ -75,11 +107,11 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 		__block BOOL scopeObjectDealloced = NO;
 		@autoreleasepool {
 			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			[object rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[object.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				objectDealloced = YES;
 			}]];
 			RACTestObject *scopeObject __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			[scopeObject rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[scopeObject.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				scopeObjectDealloced = YES;
 			}]];
 
@@ -99,7 +131,7 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 		__block BOOL signalDealloced = NO;
 		@autoreleasepool {
 			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			[object rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[object.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				objectDealloced = YES;
 			}]];
 
@@ -107,7 +139,7 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 				return value;
 			}];
 
-			[signal rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+			[signal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				signalDealloced = YES;
 			}]];
 

@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACBacktrace+Private.h"
+#import "RACBacktrace.h"
 #import "RACScheduler.h"
 #import "RACSequence.h"
 #import "NSArray+RACSequenceAdditions.h"
@@ -17,7 +17,7 @@
 static RACBacktrace *previousBacktrace;
 
 static void capturePreviousBacktrace(void *context) {
-	previousBacktrace = [RACBacktrace captureBacktrace].previousThreadBacktrace;
+	previousBacktrace = [RACBacktrace backtrace].previousThreadBacktrace;
 }
 
 SpecBegin(RACBacktrace)
@@ -25,7 +25,7 @@ SpecBegin(RACBacktrace)
 __block dispatch_block_t block;
 
 beforeEach(^{
-	expect([RACBacktrace captureBacktrace].previousThreadBacktrace).to.beNil();
+	expect([RACBacktrace backtrace].previousThreadBacktrace).to.beNil();
 	previousBacktrace = nil;
 
 	block = ^{
@@ -34,7 +34,7 @@ beforeEach(^{
 });
 
 it(@"should capture the current backtrace", ^{
-	RACBacktrace *backtrace = [RACBacktrace captureBacktrace];
+	RACBacktrace *backtrace = [RACBacktrace backtrace];
 	expect(backtrace).notTo.beNil();
 });
 
@@ -51,40 +51,40 @@ describe(@"with a GCD queue", ^{
 	});
 
 	it(@"should trace across dispatch_async", ^{
-		dispatch_async(queue, block);
+		rac_dispatch_async(queue, block);
 		expect(previousBacktrace).willNot.beNil();
 	});
 
 	it(@"should trace across dispatch_async to the main thread", ^{
-		dispatch_async(queue, ^{
-			dispatch_async(dispatch_get_main_queue(), block);
+		rac_dispatch_async(queue, ^{
+			rac_dispatch_async(dispatch_get_main_queue(), block);
 		});
 
 		expect(previousBacktrace).willNot.beNil();
 	});
 
 	it(@"should trace across dispatch_async_f", ^{
-		dispatch_async_f(queue, NULL, &capturePreviousBacktrace);
+		rac_dispatch_async_f(queue, NULL, &capturePreviousBacktrace);
 		expect(previousBacktrace).willNot.beNil();
 	});
 
 	it(@"should trace across dispatch_barrier_async", ^{
-		dispatch_barrier_async(queue, block);
+		rac_dispatch_barrier_async(queue, block);
 		expect(previousBacktrace).willNot.beNil();
 	});
 
 	it(@"should trace across dispatch_barrier_async_f", ^{
-		dispatch_barrier_async_f(queue, NULL, &capturePreviousBacktrace);
+		rac_dispatch_barrier_async_f(queue, NULL, &capturePreviousBacktrace);
 		expect(previousBacktrace).willNot.beNil();
 	});
 
 	it(@"should trace across dispatch_after", ^{
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1), queue, block);
+		rac_dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1), queue, block);
 		expect(previousBacktrace).willNot.beNil();
 	});
 
 	it(@"should trace across dispatch_after_f", ^{
-		dispatch_after_f(dispatch_time(DISPATCH_TIME_NOW, 1), queue, NULL, &capturePreviousBacktrace);
+		rac_dispatch_after_f(dispatch_time(DISPATCH_TIME_NOW, 1), queue, NULL, &capturePreviousBacktrace);
 		expect(previousBacktrace).willNot.beNil();
 	});
 });

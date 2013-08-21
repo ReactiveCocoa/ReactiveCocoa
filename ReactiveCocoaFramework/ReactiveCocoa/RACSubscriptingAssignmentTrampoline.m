@@ -7,52 +7,36 @@
 //
 
 #import "RACSubscriptingAssignmentTrampoline.h"
+#import "RACSignal+Operations.h"
 
-@interface RACSubscriptingAssignmentObjectKeyPathPair ()
-@property (nonatomic, readonly, strong) NSObject *object;
-@property (nonatomic, readonly, copy) NSString *keyPath;
-@end
+@interface RACSubscriptingAssignmentTrampoline ()
 
-@implementation RACSubscriptingAssignmentObjectKeyPathPair
+// The object to bind to.
+@property (nonatomic, strong, readonly) id target;
 
-#pragma mark NSCopying
-
-- (id)copyWithZone:(NSZone *)zone {
-	return self;
-}
-
-#pragma mark API
-
-- (id)initWithObject:(NSObject *)object keyPath:(NSString *)keyPath {
-	self = [super init];
-	if (self == nil) return nil;
-
-	_object = object;
-	_keyPath = [keyPath copy];
-
-	return self;
-}
+// A value to use when `nil` is sent on the bound signal.
+@property (nonatomic, strong, readonly) id nilValue;
 
 @end
 
 @implementation RACSubscriptingAssignmentTrampoline
 
-#pragma mark API
+- (id)initWithTarget:(id)target nilValue:(id)nilValue {
+	// This is often a programmer error, but this prevents crashes if the target
+	// object has unexpectedly deallocated.
+	if (target == nil) return nil;
 
-+ (instancetype)trampoline {
-	static dispatch_once_t onceToken;
-	static RACSubscriptingAssignmentTrampoline *trampoline = nil;
-	dispatch_once(&onceToken, ^{
-		trampoline = [[self alloc] init];
-	});
+	self = [super init];
+	if (self == nil) return nil;
 
-	return trampoline;
+	_target = target;
+	_nilValue = nilValue;
+
+	return self;
 }
 
-- (void)setObject:(RACSignal *)signal forKeyedSubscript:(RACSubscriptingAssignmentObjectKeyPathPair *)pair {
-	NSCParameterAssert([pair isKindOfClass:RACSubscriptingAssignmentObjectKeyPathPair.class]);
-
-	[pair.object rac_deriveProperty:pair.keyPath from:signal];
+- (void)setObject:(RACSignal *)signal forKeyedSubscript:(NSString *)keyPath {
+	[signal setKeyPath:keyPath onObject:self.target nilValue:self.nilValue];
 }
 
 @end

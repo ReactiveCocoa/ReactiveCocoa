@@ -62,13 +62,15 @@ it(@"should send the notification when posted by a specific object", ^{
 });
 
 it(@"shouldn't strongly capture the notification object", ^{
-	RACSignal *signal __attribute__((objc_precise_lifetime));
+	RACSignal *signal __attribute__((objc_precise_lifetime, unused));
+	
 	__block BOOL dealloced = NO;
 	@autoreleasepool {
 		NSObject *notificationObject = [[NSObject alloc] init];
-		[notificationObject rac_addDeallocDisposable:[RACDisposable disposableWithBlock:^{
+		[notificationObject.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 			dealloced = YES;
 		}]];
+		
 		signal = [notificationCenter rac_addObserverForName:TestNotification object:notificationObject];
 	}
 

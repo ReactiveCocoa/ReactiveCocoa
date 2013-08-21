@@ -19,18 +19,6 @@
 
 @implementation NSObject (RACLifting)
 
-- (RACSignal *)rac_liftSignals:(NSArray *)signals withReducingInvocation:(id (^)(RACTuple *))reduceBlock {
-	RACMulticastConnection *connection = [[[RACSignal
-		combineLatest:signals]
-		map:reduceBlock]
-		multicast:[RACReplaySubject replaySubjectWithCapacity:1]];
-
-	RACDisposable *disposable = [connection connect];
-	[self.rac_deallocDisposable addDisposable:disposable];
-
-	return connection.signal;
-}
-
 - (RACSignal *)rac_liftSelector:(SEL)selector withSignalsFromArray:(NSArray *)signals {
 	NSCParameterAssert(selector != NULL);
 	NSCParameterAssert(signals != nil);
@@ -43,16 +31,21 @@
 	NSCAssert(numberOfArguments == signals.count, @"Wrong number of signals for %@ (expected %lu, got %lu)", NSStringFromSelector(selector), (unsigned long)numberOfArguments, (unsigned long)signals.count);
 
 	@unsafeify(self);
-	return [self rac_liftSignals:signals withReducingInvocation:^(RACTuple *arguments) {
-		@strongify(self);
 
-		NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
-		invocation.selector = selector;
-		[invocation rac_setArgumentsTuple:arguments];
-		[invocation invokeWithTarget:self];
+	return [[[[[RACSignal
+		combineLatest:signals]
+		takeUntil:self.rac_willDeallocSignal]
+		map:^(RACTuple *arguments) {
+			@strongify(self);
 
-		return invocation.rac_returnValue;
-	}];
+			NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
+			invocation.selector = selector;
+			[invocation rac_setArgumentsTuple:arguments];
+			[invocation invokeWithTarget:self];
+
+			return invocation.rac_returnValue;
+		}]
+		replayLast];
 }
 
 - (RACSignal *)rac_liftSelector:(SEL)selector withSignals:(RACSignal *)firstSignal, ... {

@@ -41,7 +41,7 @@
 //
 // Returns an array containing the arguments of the invocation, except `self`
 // and `_cmd`. Nil arguments will be replaced with RACTupleNil.
-- (NSArray *)rac_allArguments;
+- (RACTuple *)rac_argumentsTuple;
 
 // Sets the arguments for the invocation from a tuple of objects.
 //

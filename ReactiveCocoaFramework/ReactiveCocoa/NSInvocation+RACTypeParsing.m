@@ -136,14 +136,14 @@
 #undef WRAP_AND_RETURN
 }
 
-- (NSArray *)rac_allArguments {
+- (RACTuple *)rac_argumentsTuple {
 	NSUInteger numberOfArguments = self.methodSignature.numberOfArguments;
 	NSMutableArray *argumentsArray = [NSMutableArray arrayWithCapacity:numberOfArguments - 2];
 	for (NSUInteger index = 2; index < numberOfArguments; index++) {
 		[argumentsArray addObject:[self rac_argumentAtIndex:index] ?: RACTupleNil.tupleNil];
 	}
 
-	return argumentsArray;
+	return [RACTuple tupleWithObjectsFromArray:argumentsArray];
 }
 
 - (void)rac_setArgumentsTuple:(RACTuple *)arguments {

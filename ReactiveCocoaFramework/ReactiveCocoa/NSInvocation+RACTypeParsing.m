@@ -146,7 +146,7 @@
 	return [RACTuple tupleWithObjectsFromArray:argumentsArray];
 }
 
-- (void)rac_setArgumentsTuple:(RACTuple *)arguments {
+- (void)setRac_argumentsTuple:(RACTuple *)arguments {
 	NSCAssert(arguments.count == self.methodSignature.numberOfArguments - 2, @"Number of supplied arguments (%lu), does not match the number expected by the signature (%lu)", (unsigned long)arguments.count, self.methodSignature.numberOfArguments - 2);
 
 	NSUInteger index = 2;

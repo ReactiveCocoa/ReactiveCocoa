@@ -41,7 +41,7 @@
 //
 // See -rac_argumentAtIndex: and -rac_setArgumentAtIndex: for further
 // description of the underlying behavior.
-@property (nonatomic, copy, setter = rac_setArgumentsTuple:) RACTuple *rac_argumentsTuple;
+@property (nonatomic, copy) RACTuple *rac_argumentsTuple;
 
 // Gets the return value from the invocation based on the invocation's method
 // signature. The value is then wrapped in the appropriate object type.

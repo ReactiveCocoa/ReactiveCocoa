@@ -49,8 +49,7 @@ static BOOL RACForwardInvocation(id self, NSInvocation *invocation) {
 
 	if (subject == nil) return respondsToAlias;
 
-	RACTuple *argumentsTuple = [RACTuple tupleWithObjectsFromArray:invocation.rac_allArguments];
-	[subject sendNext:argumentsTuple];
+	[subject sendNext:invocation.rac_argumentsTuple];
 	return YES;
 }
 

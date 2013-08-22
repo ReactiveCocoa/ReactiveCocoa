@@ -12,12 +12,11 @@
 
 // Lifts the selector on the receiver into the reactive world. The selector will
 // be invoked whenever any signal argument sends a value, but only after each
-// signal has sent a value.
+// signal has sent an initial value.
 //
 // It will replay the most recently sent value to new subscribers.
 //
-// This does not support C strings, arrays, unions, or structs other than
-// CGRect, CGSize, CGPoint, and NSRange.
+// This does not support C arrays or unions.
 //
 // selector    - The selector on self to invoke.
 // firstSignal - The signal corresponding to the first method argument. This

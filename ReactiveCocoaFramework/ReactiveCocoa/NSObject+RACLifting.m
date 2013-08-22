@@ -10,26 +10,11 @@
 #import "EXTScope.h"
 #import "NSInvocation+RACTypeParsing.h"
 #import "NSObject+RACDeallocating.h"
-#import "RACBlockTrampoline.h"
-#import "RACCompoundDisposable.h"
-#import "RACMulticastConnection.h"
-#import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"
 #import "RACTuple.h"
+#import "NSObject+RACDescription.h"
 
 @implementation NSObject (RACLifting)
-
-- (RACSignal *)rac_liftSignals:(NSArray *)signals withReducingInvocation:(id (^)(RACTuple *))reduceBlock {
-	RACMulticastConnection *connection = [[[RACSignal
-		combineLatest:signals]
-		map:reduceBlock]
-		multicast:[RACReplaySubject replaySubjectWithCapacity:1]];
-
-	RACDisposable *disposable = [connection connect];
-	[self.rac_deallocDisposable addDisposable:disposable];
-
-	return connection.signal;
-}
 
 - (RACSignal *)rac_liftSelector:(SEL)selector withSignalsFromArray:(NSArray *)signals {
 	NSCParameterAssert(selector != NULL);
@@ -43,38 +28,41 @@
 	NSCAssert(numberOfArguments == signals.count, @"Wrong number of signals for %@ (expected %lu, got %lu)", NSStringFromSelector(selector), (unsigned long)numberOfArguments, (unsigned long)signals.count);
 
 	@unsafeify(self);
-	return [self rac_liftSignals:signals withReducingInvocation:^(RACTuple *arguments) {
-		@strongify(self);
 
-		NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
-		invocation.selector = selector;
+	return [[[[[RACSignal
+		combineLatest:signals]
+		takeUntil:self.rac_willDeallocSignal]
+		map:^(RACTuple *arguments) {
+			@strongify(self);
 
-		NSUInteger index = 2;
-		for (id arg in arguments) {
-			[invocation rac_setArgument:([RACTupleNil.tupleNil isEqual:arg] ? nil : arg) atIndex:index];
-			index++;
-		}
+			NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
+			invocation.selector = selector;
+			invocation.rac_argumentsTuple = arguments;
+			[invocation invokeWithTarget:self];
 
-		[invocation invokeWithTarget:self];
-		return invocation.rac_returnValue;
-	}];
+			return invocation.rac_returnValue;
+		}]
+		replayLast]
+		setNameWithFormat:@"%@ -rac_liftSelector: %@ withSignalsFromArray: %@", [self rac_description], NSStringFromSelector(selector), signals];
 }
 
 - (RACSignal *)rac_liftSelector:(SEL)selector withSignals:(RACSignal *)firstSignal, ... {
 	NSCParameterAssert(firstSignal != nil);
 
-	NSMutableArray *arguments = [NSMutableArray array];
+	NSMutableArray *signals = [NSMutableArray array];
 
 	va_list args;
 	va_start(args, firstSignal);
-	for (id currentObject = firstSignal; currentObject != nil; currentObject = va_arg(args, id)) {
-		NSCAssert([currentObject isKindOfClass:RACSignal.class], @"Argument %@ is not a RACSignal", currentObject);
+	for (id currentSignal = firstSignal; currentSignal != nil; currentSignal = va_arg(args, id)) {
+		NSCAssert([currentSignal isKindOfClass:RACSignal.class], @"Argument %@ is not a RACSignal", currentSignal);
 
-		[arguments addObject:currentObject];
+		[signals addObject:currentSignal];
 	}
-
 	va_end(args);
-	return [self rac_liftSelector:selector withSignalsFromArray:arguments];
+
+	return [[self
+		rac_liftSelector:selector withSignalsFromArray:signals]
+		setNameWithFormat:@"%@ -rac_liftSelector: %@ withSignals: %@", [self rac_description], NSStringFromSelector(selector), signals];
 }
 
 @end

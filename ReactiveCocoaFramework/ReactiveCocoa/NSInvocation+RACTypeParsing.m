@@ -136,14 +136,24 @@
 #undef WRAP_AND_RETURN
 }
 
-- (NSArray *)rac_allArguments {
+- (RACTuple *)rac_argumentsTuple {
 	NSUInteger numberOfArguments = self.methodSignature.numberOfArguments;
 	NSMutableArray *argumentsArray = [NSMutableArray arrayWithCapacity:numberOfArguments - 2];
 	for (NSUInteger index = 2; index < numberOfArguments; index++) {
 		[argumentsArray addObject:[self rac_argumentAtIndex:index] ?: RACTupleNil.tupleNil];
 	}
 
-	return argumentsArray;
+	return [RACTuple tupleWithObjectsFromArray:argumentsArray];
+}
+
+- (void)setRac_argumentsTuple:(RACTuple *)arguments {
+	NSCAssert(arguments.count == self.methodSignature.numberOfArguments - 2, @"Number of supplied arguments (%lu), does not match the number expected by the signature (%lu)", (unsigned long)arguments.count, self.methodSignature.numberOfArguments - 2);
+
+	NSUInteger index = 2;
+	for (id arg in arguments) {
+		[self rac_setArgument:(arg == RACTupleNil.tupleNil ? nil : arg) atIndex:index];
+		index++;
+	}
 }
 
 - (id)rac_returnValue {

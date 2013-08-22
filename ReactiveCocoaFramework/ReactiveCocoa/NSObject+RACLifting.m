@@ -37,7 +37,7 @@
 
 			NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
 			invocation.selector = selector;
-			[invocation rac_setArgumentsTuple:arguments];
+			invocation.rac_argumentsTuple = arguments;
 			[invocation invokeWithTarget:self];
 
 			return invocation.rac_returnValue;

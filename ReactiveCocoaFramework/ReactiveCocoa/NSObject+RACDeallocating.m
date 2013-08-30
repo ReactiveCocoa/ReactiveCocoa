@@ -46,7 +46,7 @@ static void swizzleDeallocIfNeeded(Class classToSwizzle) {
 			RACCompoundDisposable *compoundDisposable = objc_getAssociatedObject(self, RACObjectCompoundDisposable);
 			[compoundDisposable dispose];
 
-			if (deallocMethod == NULL) {
+			if (originalDealloc == NULL) {
 				struct objc_super superInfo = {
 					.receiver = self,
 					.super_class = class_getSuperclass(classToSwizzle)

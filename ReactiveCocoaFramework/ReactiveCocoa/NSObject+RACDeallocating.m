@@ -74,7 +74,6 @@ static void swizzleDeallocIfNeeded(Class classToSwizzle) {
 			originalDealloc = (__typeof__(originalDealloc))method_setImplementation(deallocMethod, imp_implementationWithBlock(newDealloc));
 		}
 
-		class_replaceMethod(classToSwizzle, deallocSelector, imp_implementationWithBlock(newDealloc), method_getTypeEncoding(deallocMethod));
 		[swizzledClasses() addObject:className];
 	}
 }

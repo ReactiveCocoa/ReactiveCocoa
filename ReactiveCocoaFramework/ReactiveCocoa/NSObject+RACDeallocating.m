@@ -11,6 +11,7 @@
 #import "RACDisposable.h"
 #import "RACSubject.h"
 #import <objc/runtime.h>
+#import <objc/message.h>
 
 static const void *RACObjectCompoundDisposable = &RACObjectCompoundDisposable;
 
@@ -32,16 +33,31 @@ static void swizzleDeallocIfNeeded(Class classToSwizzle) {
 		SEL deallocSelector = sel_registerName("dealloc");
 
 		Method deallocMethod = class_getInstanceMethod(classToSwizzle, deallocSelector);
-		void (*originalDealloc)(__unsafe_unretained id, SEL) = (__typeof__(originalDealloc))method_getImplementation(deallocMethod);
+		__block void (*originalDealloc)(__unsafe_unretained id, SEL) = NULL;
 
 		id newDealloc = ^(__unsafe_unretained id self) {
 			RACCompoundDisposable *compoundDisposable = objc_getAssociatedObject(self, RACObjectCompoundDisposable);
 			[compoundDisposable dispose];
 
-			originalDealloc(self, deallocSelector);
-		};
+			if (originalDealloc) {
+				// Swizzled method was defined in this class
+				originalDealloc(self, deallocSelector);
+			}else{
+				// Swizzled method was defined in one of the superclasses
+				struct objc_super superInfo = {self,class_getSuperclass(classToSwizzle)};
+				objc_msgSendSuper(&superInfo, deallocSelector);
+			}
 
-		class_replaceMethod(classToSwizzle, deallocSelector, imp_implementationWithBlock(newDealloc), method_getTypeEncoding(deallocMethod));
+		};
+		
+		// Despite of the fact that we set originalDealloc right in the next line
+		// we need originalDealloc not to be NULL for the case of a race condition
+		// in which dealloc is called before originalDealloc pointer is actually set.
+		originalDealloc = (void *)method_getImplementation(deallocMethod);
+		
+		// If dealloc method does not yet exist originalDealloc will be NULL
+		// and superclasses's implementation will be used.
+		originalDealloc = (void *)class_replaceMethod(classToSwizzle, deallocSelector, imp_implementationWithBlock(newDealloc), method_getTypeEncoding(deallocMethod));
 		[swizzledClasses() addObject:className];
 	}
 }

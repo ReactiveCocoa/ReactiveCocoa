@@ -1,7 +1,14 @@
 #!/usr/bin/env python
-__author__ = 'ant'
+"""
+Converts a set of Objective-C headers commented using TomDoc to headers documented using Doxygen or Appledoc
+"""
+__author__ = 'Whirliwig'
+__license__ = "MIT"
+__version__ = "0.5"
+__email__ = "ant@dervishsoftware.com"
 
 DEBUG = False
+verbose = False
 
 import sys
 from optparse import OptionParser
@@ -129,8 +136,7 @@ class HeaderParser(object):
 
 
     def parse(self, output_file_handle, source_code_formatter):
-        if self.header_name:
-            print "Parsing {}".format(self.header_name)
+        if self.header_name and verbose: print "Parsing {}".format(self.header_name)
 
         saved_comment = ''
         for line in self.input_file_handle:
@@ -339,6 +345,11 @@ def main():
                       dest="doxygen",
                       default=False,
                       help="Generate Doxygen output", )
+    parser.add_option("-v", "--verbose",
+                      action="store_true",
+                      dest="verbose",
+                      default=False,
+                      help="Turn on verbose output", )
     (options, args) = parser.parse_args()
 
     use_stdin = False
@@ -376,6 +387,8 @@ def main():
         if not use_stdout and not path.exists(output_dir):
             makedirs(output_dir)
 
+        verbose=options.verbose
+
         for header_path in input_paths:
             if path.isdir(header_path):
                 files = glob(path.join(header_path, '*'))
@@ -394,7 +407,7 @@ def main():
 
                     with open(header_file, 'rU') as input_file_handle:
                         with open(output_file, 'w') as output_file_handle:
-                            print("Converting {} --> {}".format(header_file, output_file))
+                            if verbose: print("Converting {} --> {}".format(header_file, output_file))
                             header_parser = HeaderParser(input_file_handle, path.basename(header_file))
                             header_parser.parse(output_file_handle, source_code_formatter)
                 else:

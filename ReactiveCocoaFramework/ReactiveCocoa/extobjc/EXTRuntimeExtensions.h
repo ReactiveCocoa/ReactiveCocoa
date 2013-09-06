@@ -111,12 +111,3 @@ typedef struct {
  * obtaining information from \a property.
  */
 rac_propertyAttributes *rac_copyPropertyAttributes (objc_property_t property);
-
-/**
- * Finds the instance method named \a aSelector on \a aClass and returns it, or
- * returns \c NULL if no such instance method exists. Unlike \c
- * class_getInstanceMethod(), this does not search superclasses.
- *
- * @note To get class methods in this manner, use a metaclass for \a aClass.
- */
-Method rac_getImmediateInstanceMethod (Class aClass, SEL aSelector);

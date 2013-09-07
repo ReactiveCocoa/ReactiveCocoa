@@ -197,6 +197,50 @@ describe(@"RACTestObject", ^{
 		[object setObjectValue:@YES andSecondObjectValue:@"Winner"];
 		expect(invokedMethodBefore).to.beTruthy();
 	});
+
+	it(@"should send arguments of small struct return methods", ^{
+		RACTestObject *object = [[RACTestObject alloc] init];
+		__block id value = nil;
+		[[object rac_signalForSelector:@selector(returnSmallStruct:)] subscribeNext:^(RACTuple *x) {
+			value = x.first;
+		}];
+
+		[object returnSmallStruct:@"test"];
+		expect(value).to.equal(@"test");
+	});
+
+	it(@"should send arguments of big struct return methods", ^{
+		RACTestObject *object = [[RACTestObject alloc] init];
+		__block id value = nil;
+		[[object rac_signalForSelector:@selector(returnBigStruct:)] subscribeNext:^(RACTuple *x) {
+			value = x.first;
+		}];
+
+		[object returnBigStruct:@"test"];
+		expect(value).to.equal(@"test");
+	});
+
+	it(@"should send arguments of complex float struct return methods", ^{
+		RACTestObject *object = [[RACTestObject alloc] init];
+		__block id value = nil;
+		[[object rac_signalForSelector:@selector(returnComplexFloatStruct:)] subscribeNext:^(RACTuple *x) {
+			value = x.first;
+		}];
+
+		[object returnComplexFloatStruct:@"test"];
+		expect(value).to.equal(@"test");
+	});
+
+	it(@"should send arguments of complex double struct return methods", ^{
+		RACTestObject *object = [[RACTestObject alloc] init];
+		__block id value = nil;
+		[[object rac_signalForSelector:@selector(returnComplexDoubleStruct:)] subscribeNext:^(RACTuple *x) {
+			value = x.first;
+		}];
+
+		[object returnComplexDoubleStruct:@"test"];
+		expect(value).to.equal(@"test");
+	});
 });
 
 it(@"should swizzle an NSObject method", ^{

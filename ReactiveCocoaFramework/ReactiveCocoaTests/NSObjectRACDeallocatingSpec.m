@@ -12,8 +12,87 @@
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSignal+Operations.h"
+#import <objc/runtime.h>
+
+@interface RACDeallocSwizzlingTestClass : NSObject
+@end
+
+@implementation RACDeallocSwizzlingTestClass
+
+- (void)dealloc {
+	// Provide an empty implementation just so we can swizzle it.
+}
+
+@end
+
+@interface RACDeallocSwizzlingTestSubclass : RACDeallocSwizzlingTestClass
+@end
+
+@implementation RACDeallocSwizzlingTestSubclass
+@end
 
 SpecBegin(NSObjectRACDeallocatingSpec)
+
+describe(@"-dealloc swizzling", ^{
+	SEL selector = NSSelectorFromString(@"dealloc");
+
+	it(@"should not invoke superclass -dealloc method twice", ^{
+		__block NSUInteger superclassDeallocatedCount = 0;
+		__block BOOL subclassDeallocated = NO;
+
+		@autoreleasepool {
+			RACDeallocSwizzlingTestSubclass *object __attribute__((objc_precise_lifetime)) = [[RACDeallocSwizzlingTestSubclass alloc] init];
+
+			Method oldDeallocMethod = class_getInstanceMethod(RACDeallocSwizzlingTestClass.class, selector);
+			void (*oldDealloc)(id, SEL) = (__typeof__(oldDealloc))method_getImplementation(oldDeallocMethod);
+
+			id newDealloc = ^(__unsafe_unretained id self) {
+				superclassDeallocatedCount++;
+				oldDealloc(self, selector);
+			};
+
+			class_replaceMethod(RACDeallocSwizzlingTestClass.class, selector, imp_implementationWithBlock(newDealloc), method_getTypeEncoding(oldDeallocMethod));
+
+			[object.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				subclassDeallocated = YES;
+			}]];
+
+			expect(subclassDeallocated).to.beFalsy();
+			expect(superclassDeallocatedCount).to.equal(0);
+		}
+
+		expect(subclassDeallocated).to.beTruthy();
+		expect(superclassDeallocatedCount).to.equal(1);
+	});
+
+	it(@"should invoke superclass -dealloc method swizzled in after the subclass", ^{
+		__block BOOL superclassDeallocated = NO;
+		__block BOOL subclassDeallocated = NO;
+
+		@autoreleasepool {
+			RACDeallocSwizzlingTestSubclass *object __attribute__((objc_precise_lifetime)) = [[RACDeallocSwizzlingTestSubclass alloc] init];
+			[object.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				subclassDeallocated = YES;
+			}]];
+
+			Method oldDeallocMethod = class_getInstanceMethod(RACDeallocSwizzlingTestClass.class, selector);
+			void (*oldDealloc)(id, SEL) = (__typeof__(oldDealloc))method_getImplementation(oldDeallocMethod);
+
+			id newDealloc = ^(__unsafe_unretained id self) {
+				superclassDeallocated = YES;
+				oldDealloc(self, selector);
+			};
+
+			class_replaceMethod(RACDeallocSwizzlingTestClass.class, selector, imp_implementationWithBlock(newDealloc), method_getTypeEncoding(oldDeallocMethod));
+
+			expect(subclassDeallocated).to.beFalsy();
+			expect(superclassDeallocated).to.beFalsy();
+		}
+
+		expect(subclassDeallocated).to.beTruthy();
+		expect(superclassDeallocated).to.beTruthy();
+	});
+});
 
 describe(@"-rac_deallocDisposable", ^{
 	it(@"should dispose of the disposable when it is dealloc'd", ^{

@@ -10,6 +10,7 @@
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSubject.h"
+#import <objc/message.h>
 #import <objc/runtime.h>
 
 static const void *RACObjectCompoundDisposable = &RACObjectCompoundDisposable;
@@ -31,17 +32,39 @@ static void swizzleDeallocIfNeeded(Class classToSwizzle) {
 
 		SEL deallocSelector = sel_registerName("dealloc");
 
-		Method deallocMethod = class_getInstanceMethod(classToSwizzle, deallocSelector);
-		void (*originalDealloc)(__unsafe_unretained id, SEL) = (__typeof__(originalDealloc))method_getImplementation(deallocMethod);
+		__block void (*originalDealloc)(__unsafe_unretained id, SEL) = NULL;
 
 		id newDealloc = ^(__unsafe_unretained id self) {
 			RACCompoundDisposable *compoundDisposable = objc_getAssociatedObject(self, RACObjectCompoundDisposable);
 			[compoundDisposable dispose];
 
-			originalDealloc(self, deallocSelector);
-		};
+			if (originalDealloc == NULL) {
+				struct objc_super superInfo = {
+					.receiver = self,
+					.super_class = class_getSuperclass(classToSwizzle)
+				};
 
-		class_replaceMethod(classToSwizzle, deallocSelector, imp_implementationWithBlock(newDealloc), method_getTypeEncoding(deallocMethod));
+				void (*msgSend)(struct objc_super *, SEL) = (__typeof__(msgSend))objc_msgSendSuper;
+				msgSend(&superInfo, deallocSelector);
+			} else {
+				originalDealloc(self, deallocSelector);
+			}
+		};
+		
+		IMP newDeallocIMP = imp_implementationWithBlock(newDealloc);
+		
+		if (!class_addMethod(classToSwizzle, deallocSelector, newDeallocIMP, "v@:")) {
+			// The class already contains a method implementation.
+			Method deallocMethod = class_getInstanceMethod(classToSwizzle, deallocSelector);
+			
+			// We need to store original implementation before setting new implementation
+			// in case method is called at the time of setting.
+			originalDealloc = (__typeof__(originalDealloc))method_getImplementation(deallocMethod);
+			
+			// We need to store original implementation again, in case it just changed.
+			originalDealloc = (__typeof__(originalDealloc))method_setImplementation(deallocMethod, newDeallocIMP);
+		}
+
 		[swizzledClasses() addObject:className];
 	}
 }

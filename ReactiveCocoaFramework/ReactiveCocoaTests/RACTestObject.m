@@ -107,4 +107,20 @@
 	return testStruct;
 }
 
+- (RACTestSmallStruct)returnSmallStruct:(NSString *)argument {
+	return (RACTestSmallStruct){0, 0};
+}
+
+- (RACTestBigStruct)returnBigStruct:(NSString *)argument {
+	return (RACTestBigStruct){{0, 0.0}, {0, 0.0}};
+}
+
+- (RACTestComplexFloatStruct)returnComplexFloatStruct:(NSString *)argument {
+	return (RACTestComplexFloatStruct){0.0, 0.0};
+}
+
+- (RACTestComplexDoubleStruct)returnComplexDoubleStruct:(NSString *)argument {
+	return (RACTestComplexDoubleStruct){0.0, 0.0};
+}
+
 @end

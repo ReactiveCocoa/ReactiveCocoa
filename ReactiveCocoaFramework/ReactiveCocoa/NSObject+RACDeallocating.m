@@ -7,7 +7,6 @@
 //
 
 #import "NSObject+RACDeallocating.h"
-#import "EXTRuntimeExtensions.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSubject.h"

@@ -87,6 +87,7 @@ static void RACSwizzleForwardInvocation(Class class) {
 }
 
 static RACSignal *NSObjectRACSignalForSelector(NSObject *self, SEL selector, Protocol *protocol) {
+	NSCAssert([[[self methodSignatureForSelector:selector] debugDescription] rangeOfString:@"is special struct return? NO"].location != NSNotFound, @"struct return methods are not supported by -rac_signalForSelector: and -rac_signalForSelector:fromProtocol:");
 	SEL aliasSelector = RACAliasForSelector(selector);
 
 	@synchronized (self) {

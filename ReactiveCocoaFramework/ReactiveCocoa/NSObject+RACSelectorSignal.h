@@ -25,8 +25,8 @@ extern const NSInteger RACSelectorSignalErrorMethodSwizzlingRace;
 // Creates a signal associated with the receiver, which will send a tuple of the
 // method's arguments each time the given selector is invoked.
 //
-// The selector must have a `void` or scalar return value. Creating a signal for
-// a selector with a non-scalar return value will result in undefined behavior.
+// The selector must not have a struct return value. Creating a signal for a
+// selector with a struct return value will result in undefined behavior.
 //
 // If the selector is already implemented on the receiver, the existing
 // implementation will be invoked _before_ the signal fires.

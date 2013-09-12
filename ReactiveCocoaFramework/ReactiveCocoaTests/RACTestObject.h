@@ -72,4 +72,6 @@ typedef struct {
 - (const char *)doubleConstString:(const char *)string;
 - (RACTestStruct)doubleStruct:(RACTestStruct)testStruct;
 
+- (dispatch_block_t)wrapBlock:(dispatch_block_t)block;
+
 @end

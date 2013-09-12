@@ -352,6 +352,27 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 			expect(result.doubleField).to.equal(24.6);
 		});
 		
+		it(@"should support block arguments and returns", ^{
+			RACSubject *subject = [RACSubject subject];
+			RACSignal *signal = [object rac_liftSelector:@selector(wrapBlock:) withSignalsFromArray:@[ subject ]];
+
+			__block BOOL blockInvoked = NO;
+			dispatch_block_t testBlock = ^{
+				blockInvoked = YES;
+			};
+
+			__block dispatch_block_t result;
+			[signal subscribeNext:^(id x) {
+				result = x;
+			}];
+
+			[subject sendNext:testBlock];
+			expect(result).notTo.beNil();
+
+			result();
+			expect(blockInvoked).to.beTruthy();
+		});
+		
 		it(@"should replay the last value", ^{
 			RACSubject *objectSubject = [RACSubject subject];
 			RACSubject *integerSubject = [RACSubject subject];

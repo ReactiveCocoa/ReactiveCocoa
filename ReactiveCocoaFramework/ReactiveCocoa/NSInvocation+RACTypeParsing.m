@@ -58,7 +58,7 @@
 		const char *cString = [object UTF8String];
 		[self setArgument:&cString atIndex:(NSInteger)index];
 		[self retainArguments];
-	} else if (strcmp(argType, @encode(void (^)(void)) == 0) {
+	} else if (strcmp(argType, @encode(void (^)(void))) == 0) {
 		[self setArgument:&object atIndex:(NSInteger)index];
 	} else {
 		NSCParameterAssert([object isKindOfClass:NSValue.class]);
@@ -127,7 +127,7 @@
 		WRAP_AND_RETURN(BOOL);
 	} else if (strcmp(argType, @encode(char *)) == 0) {
 		WRAP_AND_RETURN(const char *);
-	} else if (strcmp(argType, @encode(void (^)(void)) == 0) {
+	} else if (strcmp(argType, @encode(void (^)(void))) == 0) {
 		__unsafe_unretained id block = nil;
 		[self getArgument:&block atIndex:(NSInteger)index];
 		return [block copy];
@@ -180,7 +180,7 @@
 		returnType++;
 	}
 
-	if (strcmp(returnType, @encode(id)) == 0 || strcmp(returnType, @encode(Class)) == 0 || strcmp(returnType, @encode(void (^)(void)) == 0) {
+	if (strcmp(returnType, @encode(id)) == 0 || strcmp(returnType, @encode(Class)) == 0 || strcmp(returnType, @encode(void (^)(void))) == 0) {
 		__autoreleasing id returnObj;
 		[self getReturnValue:&returnObj];
 		return returnObj;

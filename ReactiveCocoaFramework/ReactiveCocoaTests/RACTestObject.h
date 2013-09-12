@@ -29,6 +29,7 @@ typedef struct {
 @property (nonatomic, assign) CGPoint pointValue;
 @property (nonatomic, assign) NSRange rangeValue;
 @property (nonatomic, assign) RACTestStruct structValue;
+@property (nonatomic, assign) _Bool c99BoolValue;
 @property (nonatomic, copy) NSString *stringValue;
 @property (nonatomic, copy) NSArray *arrayValue;
 @property (nonatomic, copy) NSSet *setValue;

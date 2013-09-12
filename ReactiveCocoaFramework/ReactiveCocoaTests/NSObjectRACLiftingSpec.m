@@ -210,6 +210,21 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		expect(NSEqualRanges(object.rangeValue, value)).to.beTruthy();
 	});
 
+	it(@"should work for _Bool", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setC99BoolValue:) withSignalsFromArray:@[ subject ]];
+
+		expect(object.c99BoolValue).to.beFalsy();
+
+		_Bool value = true;
+		[subject sendNext:@(value)];
+		expect(object.c99BoolValue).to.beTruthy();
+
+		value = false;
+		[subject sendNext:[NSValue valueWithBytes:&value objCType:@encode(_Bool)]];
+		expect(object.c99BoolValue).to.beFalsy();
+	});
+
 	it(@"should work for primitive pointers", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(write5ToIntPointer:) withSignalsFromArray:@[ subject ]];

@@ -52,6 +52,8 @@
 		PULL_AND_SET(float, floatValue);
 	} else if (strcmp(argType, @encode(double)) == 0) {
 		PULL_AND_SET(double, doubleValue);
+	} else if (strcmp(argType, @encode(BOOL)) == 0) {
+		PULL_AND_SET(BOOL, boolValue);
 	} else if (strcmp(argType, @encode(char *)) == 0) {
 		const char *cString = [object UTF8String];
 		[self setArgument:&cString atIndex:(NSInteger)index];
@@ -119,6 +121,8 @@
 		WRAP_AND_RETURN(float);
 	} else if (strcmp(argType, @encode(double)) == 0) {
 		WRAP_AND_RETURN(double);
+	} else if (strcmp(argType, @encode(BOOL)) == 0) {
+		WRAP_AND_RETURN(BOOL);
 	} else if (strcmp(argType, @encode(char *)) == 0) {
 		WRAP_AND_RETURN(const char *);
 	} else {
@@ -198,6 +202,8 @@
 		WRAP_AND_RETURN(float);
 	} else if (strcmp(returnType, @encode(double)) == 0) {
 		WRAP_AND_RETURN(double);
+	} else if (strcmp(returnType, @encode(BOOL)) == 0) {
+		WRAP_AND_RETURN(BOOL);
 	} else if (strcmp(returnType, @encode(char *)) == 0) {
 		WRAP_AND_RETURN(const char *);
 	} else if (strcmp(returnType, @encode(void)) == 0) {

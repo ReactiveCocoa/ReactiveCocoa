@@ -10,6 +10,7 @@
 #import "NSObject+RACDescription.h"
 #import "RACBlockTrampoline.h"
 #import "RACTuple.h"
+#import "NSString+RACKeyPathUtilities.h"
 
 @implementation RACStream
 
@@ -97,6 +98,22 @@
 	return [[self map:^(id _) {
 		return object;
 	}] setNameWithFormat:@"[%@] -mapReplace: %@", self.name, [object rac_description]];
+}
+
+- (instancetype)mapToValueForKeyPath:(NSString *)keyPath {
+	NSCParameterAssert(keyPath.length > 0);
+
+	Class class = self.class;
+
+	NSString *headKey = [keyPath rac_firstKeyPathComponent];
+	NSString *tailKeyPath = [keyPath rac_keyPathByDeletingFirstKeyPathComponent];
+
+	return [[self flattenMap:^(id x) {
+		id value = [x valueForKey:headKey];
+		RACStream *stream = [value isKindOfClass:RACStream.class] ? value : [class return:value];
+
+		return tailKeyPath != nil ? [stream mapToValueForKeyPath:tailKeyPath] : stream;
+	}] setNameWithFormat:@"[%@] -mapToValueForKeyPath: %@", self.name, keyPath];
 }
 
 - (instancetype)combinePreviousWithStart:(id)start reduce:(id (^)(id previous, id next))reduceBlock {

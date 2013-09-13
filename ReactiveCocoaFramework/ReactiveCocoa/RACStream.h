@@ -144,6 +144,14 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 // the receiver.
 - (instancetype)mapReplace:(id)object;
 
+// Maps each value in the receiver to the value(s) for the given key path.
+//
+// Streams encountered along the key path will also be mapped via
+// -mapToValueForKeyPath: and the remaining key path.
+//
+// Returns a new stream with the mapped values.
+- (instancetype)mapToValueForKeyPath:(NSString *)keyPath;
+
 // Filters out values in the receiver that don't pass the given test.
 //
 // This corresponds to the `Where` method in Rx.

@@ -11,8 +11,11 @@
 #import "RACSignal.h"
 #import "RACSignalProvider.h"
 
-static const char *cleanedDTraceString(NSString *str) {
-	return [[[str stringByReplacingOccurrencesOfString:@"\n" withString:@" "] stringByReplacingOccurrencesOfString:@"\t" withString:@""] UTF8String];
+static const char *cleanedDTraceString(NSString *original) {
+	NSMutableString *str = [original mutableCopy];
+	[str replaceOccurrencesOfString:@"[\\n\\t]" withString:@" " options:NSRegularExpressionSearch range:NSMakeRange(0, str.length)];
+	[str replaceOccurrencesOfString:@" +" withString:@" " options:NSRegularExpressionSearch range:NSMakeRange(0, str.length)];
+	return str.UTF8String;
 }
 
 @interface RACPassthroughSubscriber ()

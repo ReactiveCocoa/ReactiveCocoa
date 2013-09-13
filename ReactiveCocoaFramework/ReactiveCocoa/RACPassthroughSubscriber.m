@@ -18,6 +18,17 @@ static const char *cleanedDTraceString(NSString *original) {
 	return str.UTF8String;
 }
 
+static const char *cleanedSignalDescription(RACSignal *signal) {
+	NSString *desc = signal.description;
+
+	NSRange range = [desc rangeOfString:@" name:"];
+	if (range.location != NSNotFound) {
+		desc = [desc stringByReplacingCharactersInRange:range withString:@""];
+	}
+
+	return cleanedDTraceString(desc);
+}
+
 @interface RACPassthroughSubscriber ()
 
 // The subscriber to which events should be forwarded.
@@ -59,7 +70,7 @@ static const char *cleanedDTraceString(NSString *original) {
 	if (self.disposable.disposed) return;
 
 	if (RACSIGNAL_NEXT_ENABLED()) {
-		RACSIGNAL_NEXT(cleanedDTraceString(self.signal.description), cleanedDTraceString(self.innerSubscriber.description), cleanedDTraceString([value description]));
+		RACSIGNAL_NEXT(cleanedSignalDescription(self.signal), cleanedDTraceString(self.innerSubscriber.description), cleanedDTraceString([value description]));
 	}
 
 	[self.innerSubscriber sendNext:value];
@@ -69,7 +80,7 @@ static const char *cleanedDTraceString(NSString *original) {
 	if (self.disposable.disposed) return;
 
 	if (RACSIGNAL_ERROR_ENABLED()) {
-		RACSIGNAL_ERROR(cleanedDTraceString(self.signal.description), cleanedDTraceString(self.innerSubscriber.description), cleanedDTraceString(error.description));
+		RACSIGNAL_ERROR(cleanedSignalDescription(self.signal), cleanedDTraceString(self.innerSubscriber.description), cleanedDTraceString(error.description));
 	}
 
 	[self.innerSubscriber sendError:error];
@@ -79,7 +90,7 @@ static const char *cleanedDTraceString(NSString *original) {
 	if (self.disposable.disposed) return;
 
 	if (RACSIGNAL_COMPLETED_ENABLED()) {
-		RACSIGNAL_COMPLETED(cleanedDTraceString(self.signal.description), cleanedDTraceString(self.innerSubscriber.description));
+		RACSIGNAL_COMPLETED(cleanedSignalDescription(self.signal), cleanedDTraceString(self.innerSubscriber.description));
 	}
 
 	[self.innerSubscriber sendCompleted];

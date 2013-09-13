@@ -263,6 +263,7 @@
 		D0307EE01731AAE100D83211 /* RACTupleSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D0307EDC1731AAE100D83211 /* RACTupleSequence.m */; };
 		D0307EE71731AAF800D83211 /* RACArraySequence.h in Headers */ = {isa = PBXBuildFile; fileRef = D0E967611641EF9C00FCFF06 /* RACArraySequence.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D03525D417E2EBC90099CBAB /* RACSignalProvider.d in Sources */ = {isa = PBXBuildFile; fileRef = D03525D317E2EBC90099CBAB /* RACSignalProvider.d */; };
+		D03525D917E2FAAD0099CBAB /* RACSignalProvider.d in Sources */ = {isa = PBXBuildFile; fileRef = D03525D317E2EBC90099CBAB /* RACSignalProvider.d */; };
 		D041376915D2281C004BBF80 /* RACKVOWrapperSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D041376815D2281C004BBF80 /* RACKVOWrapperSpec.m */; };
 		D0487AB3164314430085D890 /* RACStreamExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = D0487AB2164314430085D890 /* RACStreamExamples.m */; };
 		D05C5C9D16490C4300DE6D3E /* NSData+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 88442C8816090C1500636B49 /* NSData+RACSupport.m */; };
@@ -2142,6 +2143,7 @@
 				886F702C1551CF9D0045D68B /* RACGroupedSignal.m in Sources */,
 				88F44267153DCAC50097B4C3 /* UITextField+RACSignalSupport.m in Sources */,
 				A1FCC27715666AA3008C9686 /* UITextView+RACSignalSupport.m in Sources */,
+				D03525D917E2FAAD0099CBAB /* RACSignalProvider.d in Sources */,
 				A1FCC375156754A7008C9686 /* RACObjCRuntime.m in Sources */,
 				A1FCC37B1567DED0008C9686 /* RACDelegateProxy.m in Sources */,
 				D0DFBCCF15DD6D40009DADB3 /* RACBacktrace.m in Sources */,

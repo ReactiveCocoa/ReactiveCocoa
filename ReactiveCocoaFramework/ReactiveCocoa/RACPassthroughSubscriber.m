@@ -20,6 +20,13 @@ static const char *cleanedDTraceString(NSString *str) {
 // The subscriber to which events should be forwarded.
 @property (nonatomic, strong, readonly) id<RACSubscriber> innerSubscriber;
 
+// The signal sending events to this subscriber.
+//
+// This property isn't `weak` because it's only used for DTrace probes, so
+// a zeroing weak reference would incur an unnecessary performance penalty in
+// normal usage.
+@property (nonatomic, unsafe_unretained, readonly) RACSignal *signal;
+
 // A disposable representing the subscription. When disposed, no further events
 // should be sent to the `innerSubscriber`.
 @property (nonatomic, strong, readonly) RACDisposable *disposable;
@@ -30,13 +37,14 @@ static const char *cleanedDTraceString(NSString *str) {
 
 #pragma mark Lifecycle
 
-- (instancetype)initWithSubscriber:(id<RACSubscriber>)subscriber disposable:(RACDisposable *)disposable {
+- (instancetype)initWithSubscriber:(id<RACSubscriber>)subscriber signal:(RACSignal *)signal disposable:(RACDisposable *)disposable {
 	NSCParameterAssert(subscriber != nil);
 
 	self = [super init];
 	if (self == nil) return nil;
 
 	_innerSubscriber = subscriber;
+	_signal = signal;
 	_disposable = disposable;
 
 	return self;

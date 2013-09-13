@@ -19,7 +19,6 @@
 #import "RACScheduler.h"
 #import "RACSignal+Operations.h"
 #import "RACSignal+Private.h"
-#import "RACSignalProvider.h"
 #import "RACSubject.h"
 #import "RACSubscriber+Private.h"
 #import "RACSubscriber.h"
@@ -149,9 +148,7 @@ static void RACCheckActiveSignals(void) {
 		if (signal.subscriberCount > 0) {
 			// We want to keep the signal around until all its subscribers are done
 			CFSetAddValue(RACActiveSignals, (__bridge void *)signal);
-			RACSIGNAL_ACTIVATED((__bridge void *)signal, signal.name.UTF8String);
 		} else {
-			RACSIGNAL_DEACTIVATED((__bridge void *)signal, signal.name.UTF8String);
 			CFSetRemoveValue(RACActiveSignals, (__bridge void *)signal);
 		}
 	}
@@ -414,9 +411,7 @@ static void RACCheckActiveSignals(void) {
 	NSCParameterAssert(subscriber != nil);
 
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
-	RACPassthroughSubscriber *passthroughSubscriber = [[RACPassthroughSubscriber alloc] initWithSubscriber:subscriber disposable:disposable];
-	passthroughSubscriber.signal = self;
-	subscriber = passthroughSubscriber;
+	subscriber = [[RACPassthroughSubscriber alloc] initWithSubscriber:subscriber signal:self disposable:disposable];
 	
 	OSSpinLockLock(&_subscribersLock);
 	if (_subscribers == nil) _subscribers = [[NSMutableArray alloc] init];

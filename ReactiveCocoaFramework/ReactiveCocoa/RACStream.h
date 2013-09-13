@@ -144,13 +144,14 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 // the receiver.
 - (instancetype)mapReplace:(id)object;
 
-// Maps each value in the receiver to the value(s) for the given key path.
+// Maps each value in the receiver to the value for the given key.
 //
-// Streams encountered along the key path will also be mapped via
-// -mapToValueForKeyPath: and the remaining key path.
+// key - The mapping key. If key does not start with “@”, invokes -valueForKey:
+//       on each value in the receiver. If key does start with “@”, strips the
+//       “@” and invokes [super valueForKey:].
 //
 // Returns a new stream with the mapped values.
-- (instancetype)mapToValueForKeyPath:(NSString *)keyPath;
+- (instancetype)valueForKey:(NSString *)key;
 
 // Filters out values in the receiver that don't pass the given test.
 //

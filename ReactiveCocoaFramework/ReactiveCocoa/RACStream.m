@@ -100,20 +100,17 @@
 	}] setNameWithFormat:@"[%@] -mapReplace: %@", self.name, [object rac_description]];
 }
 
-- (instancetype)mapToValueForKeyPath:(NSString *)keyPath {
-	NSCParameterAssert(keyPath.length > 0);
+- (instancetype)valueForKey:(NSString *)key {
+	NSCParameterAssert(key.length > 0);
 
-	Class class = self.class;
+	if ([key characterAtIndex:0] == '@') {
+		key = [key substringFromIndex:1];
+		return [super valueForKey:key];
+	}
 
-	NSString *headKey = [keyPath rac_firstKeyPathComponent];
-	NSString *tailKeyPath = [keyPath rac_keyPathByDeletingFirstKeyPathComponent];
-
-	return [[self flattenMap:^(id x) {
-		id value = [x valueForKey:headKey];
-		RACStream *stream = [value isKindOfClass:RACStream.class] ? value : [class return:value];
-
-		return tailKeyPath != nil ? [stream mapToValueForKeyPath:tailKeyPath] : stream;
-	}] setNameWithFormat:@"[%@] -mapToValueForKeyPath: %@", self.name, keyPath];
+	return [[self map:^(id x) {
+		return [x valueForKey:key];
+	}] setNameWithFormat:@"[%@] -valueForKey: %@", self.name, key];
 }
 
 - (instancetype)combinePreviousWithStart:(id)start reduce:(id (^)(id previous, id next))reduceBlock {

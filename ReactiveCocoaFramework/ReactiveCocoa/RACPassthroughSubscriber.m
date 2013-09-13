@@ -8,6 +8,12 @@
 
 #import "RACPassthroughSubscriber.h"
 #import "RACDisposable.h"
+#import "RACSignal.h"
+#import "RACSignalProvider.h"
+
+static const char *cleanedDTraceString(NSString *str) {
+	return [[[str stringByReplacingOccurrencesOfString:@"\n" withString:@" "] stringByReplacingOccurrencesOfString:@"\t" withString:@""] UTF8String];
+}
 
 @interface RACPassthroughSubscriber ()
 
@@ -40,16 +46,37 @@
 
 - (void)sendNext:(id)value {
 	if (self.disposable.disposed) return;
+
+	if (RACSIGNAL_NEXT_ENABLED()) {
+		NSString *signalAddr = [NSString stringWithFormat:@"%p", self.signal];
+		NSString *subscriberAddr = [NSString stringWithFormat:@"%p", self.innerSubscriber];
+		RACSIGNAL_NEXT(signalAddr.UTF8String, subscriberAddr.UTF8String, cleanedDTraceString(self.signal.name), cleanedDTraceString([value description]));
+	}
+
 	[self.innerSubscriber sendNext:value];
 }
 
 - (void)sendError:(NSError *)error {
 	if (self.disposable.disposed) return;
+
+	if (RACSIGNAL_ERROR_ENABLED()) {
+		NSString *signalAddr = [NSString stringWithFormat:@"%p", self.signal];
+		NSString *subscriberAddr = [NSString stringWithFormat:@"%p", self.innerSubscriber];
+		RACSIGNAL_ERROR(signalAddr.UTF8String, subscriberAddr.UTF8String, cleanedDTraceString(self.signal.name), cleanedDTraceString(error.description));
+	}
+
 	[self.innerSubscriber sendError:error];
 }
 
 - (void)sendCompleted {
 	if (self.disposable.disposed) return;
+
+	if (RACSIGNAL_COMPLETED_ENABLED()) {
+		NSString *signalAddr = [NSString stringWithFormat:@"%p", self.signal];
+		NSString *subscriberAddr = [NSString stringWithFormat:@"%p", self.innerSubscriber];
+		RACSIGNAL_COMPLETED(signalAddr.UTF8String, subscriberAddr.UTF8String, cleanedDTraceString(self.signal.name));
+	}
+
 	[self.innerSubscriber sendCompleted];
 }
 

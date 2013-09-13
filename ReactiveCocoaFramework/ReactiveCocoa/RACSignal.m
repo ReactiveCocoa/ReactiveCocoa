@@ -414,7 +414,9 @@ static void RACCheckActiveSignals(void) {
 	NSCParameterAssert(subscriber != nil);
 
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
-	subscriber = [[RACPassthroughSubscriber alloc] initWithSubscriber:subscriber disposable:disposable];
+	RACPassthroughSubscriber *passthroughSubscriber = [[RACPassthroughSubscriber alloc] initWithSubscriber:subscriber disposable:disposable];
+	passthroughSubscriber.signal = self;
+	subscriber = passthroughSubscriber;
 	
 	OSSpinLockLock(&_subscribersLock);
 	if (_subscribers == nil) _subscribers = [[NSMutableArray alloc] init];

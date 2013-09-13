@@ -9,8 +9,12 @@
 #import <Foundation/Foundation.h>
 #import "RACSubscriber.h"
 
+@class RACSignal;
+
 // Passes through all events to another subscriber while not disposed.
 @interface RACPassthroughSubscriber : NSObject <RACSubscriber>
+
+@property (nonatomic, weak) RACSignal *signal;
 
 // Initializes the receiver to pass through events until disposed.
 //

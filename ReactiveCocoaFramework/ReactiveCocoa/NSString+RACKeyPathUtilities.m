@@ -25,6 +25,16 @@
 	return [self substringToIndex:lastDotIndex];
 }
 
+- (NSString *)rac_firstKeyPathComponent {
+	if (self.length == 0) return nil;
+
+	NSUInteger firstDotIndex = [self rangeOfString:@"."].location;
+	if (firstDotIndex == NSNotFound) {
+		return self;
+	}
+	return [self substringToIndex:firstDotIndex];
+}
+
 - (NSString *)rac_keyPathByDeletingFirstKeyPathComponent {
 	NSUInteger firstDotIndex = [self rangeOfString:@"."].location;
 	if (firstDotIndex == NSNotFound) {

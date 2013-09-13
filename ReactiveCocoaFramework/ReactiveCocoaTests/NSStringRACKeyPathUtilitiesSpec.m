@@ -34,6 +34,20 @@ describe(@"-keyPathByDeletingLastKeyPathComponent", ^{
 	});
 });
 
+describe(@"-firstKeyPathComponent", ^{
+	it(@"should return the first key in a key path", ^{
+		expect(@"key.path".rac_firstKeyPathComponent).to.equal(@"key");
+	});
+
+	it(@"should return the original string in a singular key path", ^{
+		expect(@"key".rac_firstKeyPathComponent).to.equal(@"key");
+	});
+
+	it(@"should return the nil for an empty key path", ^{
+		expect(@"".rac_firstKeyPathComponent).to.equal(nil);
+	});
+});
+
 describe(@"-keyPathByDeletingFirstKeyPathComponent", ^{
 	it(@"should return the remaining key path", ^{
 		expect(@"first.second.third".rac_keyPathByDeletingFirstKeyPathComponent).to.equal(@"second.third");

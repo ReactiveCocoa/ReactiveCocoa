@@ -7,7 +7,6 @@
 //
 
 #import "RACPassthroughSubscriber.h"
-#import "NSObject+RACDescription.h"
 #import "RACDisposable.h"
 #import "RACSignal.h"
 #import "RACSignalProvider.h"
@@ -60,7 +59,7 @@ static const char *cleanedDTraceString(NSString *original) {
 	if (self.disposable.disposed) return;
 
 	if (RACSIGNAL_NEXT_ENABLED()) {
-		RACSIGNAL_NEXT(self.signal.rac_description.UTF8String, cleanedDTraceString(self.innerSubscriber.description), cleanedDTraceString(self.signal.name), cleanedDTraceString([value description]));
+		RACSIGNAL_NEXT(cleanedDTraceString(self.signal.description), cleanedDTraceString(self.innerSubscriber.description), cleanedDTraceString([value description]));
 	}
 
 	[self.innerSubscriber sendNext:value];
@@ -70,7 +69,7 @@ static const char *cleanedDTraceString(NSString *original) {
 	if (self.disposable.disposed) return;
 
 	if (RACSIGNAL_ERROR_ENABLED()) {
-		RACSIGNAL_ERROR(self.signal.rac_description.UTF8String, cleanedDTraceString(self.innerSubscriber.description), cleanedDTraceString(self.signal.name), cleanedDTraceString(error.description));
+		RACSIGNAL_ERROR(cleanedDTraceString(self.signal.description), cleanedDTraceString(self.innerSubscriber.description), cleanedDTraceString(error.description));
 	}
 
 	[self.innerSubscriber sendError:error];
@@ -80,7 +79,7 @@ static const char *cleanedDTraceString(NSString *original) {
 	if (self.disposable.disposed) return;
 
 	if (RACSIGNAL_COMPLETED_ENABLED()) {
-		RACSIGNAL_COMPLETED(self.signal.rac_description.UTF8String, cleanedDTraceString(self.innerSubscriber.description), cleanedDTraceString(self.signal.name));
+		RACSIGNAL_COMPLETED(cleanedDTraceString(self.signal.description), cleanedDTraceString(self.innerSubscriber.description));
 	}
 
 	[self.innerSubscriber sendCompleted];

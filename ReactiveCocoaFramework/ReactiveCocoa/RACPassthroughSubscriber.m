@@ -7,6 +7,7 @@
 //
 
 #import "RACPassthroughSubscriber.h"
+#import "NSObject+RACDescription.h"
 #import "RACDisposable.h"
 #import "RACSignal.h"
 #import "RACSignalProvider.h"
@@ -21,7 +22,7 @@ static const char *cleanedDTraceString(NSString *original) {
 @interface RACPassthroughSubscriber ()
 
 // The subscriber to which events should be forwarded.
-@property (nonatomic, strong, readonly) id<RACSubscriber> innerSubscriber;
+@property (nonatomic, strong, readonly) NSObject<RACSubscriber> *innerSubscriber;
 
 // The signal sending events to this subscriber.
 //
@@ -59,9 +60,7 @@ static const char *cleanedDTraceString(NSString *original) {
 	if (self.disposable.disposed) return;
 
 	if (RACSIGNAL_NEXT_ENABLED()) {
-		NSString *signalAddr = [NSString stringWithFormat:@"%p", self.signal];
-		NSString *subscriberAddr = [NSString stringWithFormat:@"%p", self.innerSubscriber];
-		RACSIGNAL_NEXT(signalAddr.UTF8String, subscriberAddr.UTF8String, cleanedDTraceString(self.signal.name), cleanedDTraceString([value description]));
+		RACSIGNAL_NEXT(self.signal.rac_description.UTF8String, cleanedDTraceString(self.innerSubscriber.description), cleanedDTraceString(self.signal.name), cleanedDTraceString([value description]));
 	}
 
 	[self.innerSubscriber sendNext:value];
@@ -71,9 +70,7 @@ static const char *cleanedDTraceString(NSString *original) {
 	if (self.disposable.disposed) return;
 
 	if (RACSIGNAL_ERROR_ENABLED()) {
-		NSString *signalAddr = [NSString stringWithFormat:@"%p", self.signal];
-		NSString *subscriberAddr = [NSString stringWithFormat:@"%p", self.innerSubscriber];
-		RACSIGNAL_ERROR(signalAddr.UTF8String, subscriberAddr.UTF8String, cleanedDTraceString(self.signal.name), cleanedDTraceString(error.description));
+		RACSIGNAL_ERROR(self.signal.rac_description.UTF8String, cleanedDTraceString(self.innerSubscriber.description), cleanedDTraceString(self.signal.name), cleanedDTraceString(error.description));
 	}
 
 	[self.innerSubscriber sendError:error];
@@ -83,9 +80,7 @@ static const char *cleanedDTraceString(NSString *original) {
 	if (self.disposable.disposed) return;
 
 	if (RACSIGNAL_COMPLETED_ENABLED()) {
-		NSString *signalAddr = [NSString stringWithFormat:@"%p", self.signal];
-		NSString *subscriberAddr = [NSString stringWithFormat:@"%p", self.innerSubscriber];
-		RACSIGNAL_COMPLETED(signalAddr.UTF8String, subscriberAddr.UTF8String, cleanedDTraceString(self.signal.name));
+		RACSIGNAL_COMPLETED(self.signal.rac_description.UTF8String, cleanedDTraceString(self.innerSubscriber.description), cleanedDTraceString(self.signal.name));
 	}
 
 	[self.innerSubscriber sendCompleted];

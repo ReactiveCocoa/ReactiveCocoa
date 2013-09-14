@@ -11,7 +11,6 @@
 #import "RACStream.h"
 #import "RACUnit.h"
 #import "RACTuple.h"
-#import "EXTKeyPathCoding.h"
 
 NSString * const RACStreamExamples = @"RACStreamExamples";
 NSString * const RACStreamExamplesClass = @"RACStreamExamplesClass";

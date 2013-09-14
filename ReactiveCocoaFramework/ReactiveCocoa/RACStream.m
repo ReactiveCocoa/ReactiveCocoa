@@ -10,7 +10,6 @@
 #import "NSObject+RACDescription.h"
 #import "RACBlockTrampoline.h"
 #import "RACTuple.h"
-#import "NSString+RACKeyPathUtilities.h"
 
 @implementation RACStream
 

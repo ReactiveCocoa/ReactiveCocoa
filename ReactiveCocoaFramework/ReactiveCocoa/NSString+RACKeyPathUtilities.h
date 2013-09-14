@@ -23,12 +23,6 @@
 // behavior.
 - (NSString *)rac_keyPathByDeletingLastKeyPathComponent;
 
-// Returns the first key of the key path represented by the receiver.
-//
-// Calling this method on a string that isn't a key path is considered undefined
-// behavior.
-- (NSString *)rac_firstKeyPathComponent;
-
 // Returns a key path with all the components of the receiver expect for the
 // first one.
 //

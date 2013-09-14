@@ -210,6 +210,21 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		expect(NSEqualRanges(object.rangeValue, value)).to.beTruthy();
 	});
 
+	it(@"should work for _Bool", ^{
+		RACSubject *subject = [RACSubject subject];
+		[object rac_liftSelector:@selector(setC99BoolValue:) withSignalsFromArray:@[ subject ]];
+
+		expect(object.c99BoolValue).to.beFalsy();
+
+		_Bool value = true;
+		[subject sendNext:@(value)];
+		expect(object.c99BoolValue).to.beTruthy();
+
+		value = false;
+		[subject sendNext:[NSValue valueWithBytes:&value objCType:@encode(_Bool)]];
+		expect(object.c99BoolValue).to.beFalsy();
+	});
+
 	it(@"should work for primitive pointers", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(write5ToIntPointer:) withSignalsFromArray:@[ subject ]];
@@ -335,6 +350,27 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 			[boxedResult getValue:&result];
 			expect(result.integerField).to.equal(8);
 			expect(result.doubleField).to.equal(24.6);
+		});
+		
+		it(@"should support block arguments and returns", ^{
+			RACSubject *subject = [RACSubject subject];
+			RACSignal *signal = [object rac_liftSelector:@selector(wrapBlock:) withSignalsFromArray:@[ subject ]];
+
+			__block BOOL blockInvoked = NO;
+			dispatch_block_t testBlock = ^{
+				blockInvoked = YES;
+			};
+
+			__block dispatch_block_t result;
+			[signal subscribeNext:^(id x) {
+				result = x;
+			}];
+
+			[subject sendNext:testBlock];
+			expect(result).notTo.beNil();
+
+			result();
+			expect(blockInvoked).to.beTruthy();
 		});
 		
 		it(@"should replay the last value", ^{

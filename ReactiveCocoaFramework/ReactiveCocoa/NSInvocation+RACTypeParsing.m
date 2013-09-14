@@ -26,36 +26,40 @@
 		argType++;
 	}
 
-	if (strcmp(argType, "@") == 0 || strcmp(argType, "#") == 0) {
+	if (strcmp(argType, @encode(id)) == 0 || strcmp(argType, @encode(Class)) == 0) {
 		[self setArgument:&object atIndex:(NSInteger)index];
-	} else if (strcmp(argType, "c") == 0) {
+	} else if (strcmp(argType, @encode(char)) == 0) {
 		PULL_AND_SET(char, charValue);
-	} else if (strcmp(argType, "i") == 0) {
+	} else if (strcmp(argType, @encode(int)) == 0) {
 		PULL_AND_SET(int, intValue);
-	} else if (strcmp(argType, "s") == 0) {
+	} else if (strcmp(argType, @encode(short)) == 0) {
 		PULL_AND_SET(short, shortValue);
-	} else if (strcmp(argType, "l") == 0) {
+	} else if (strcmp(argType, @encode(long)) == 0) {
 		PULL_AND_SET(long, longValue);
-	} else if (strcmp(argType, "q") == 0) {
+	} else if (strcmp(argType, @encode(long long)) == 0) {
 		PULL_AND_SET(long long, longLongValue);
-	} else if (strcmp(argType, "C") == 0) {
+	} else if (strcmp(argType, @encode(unsigned char)) == 0) {
 		PULL_AND_SET(unsigned char, unsignedCharValue);
-	} else if (strcmp(argType, "I") == 0) {
+	} else if (strcmp(argType, @encode(unsigned int)) == 0) {
 		PULL_AND_SET(unsigned int, unsignedIntValue);
-	} else if (strcmp(argType, "S") == 0) {
+	} else if (strcmp(argType, @encode(unsigned short)) == 0) {
 		PULL_AND_SET(unsigned short, unsignedShortValue);
-	} else if (strcmp(argType, "L") == 0) {
+	} else if (strcmp(argType, @encode(unsigned long)) == 0) {
 		PULL_AND_SET(unsigned long, unsignedLongValue);
-	} else if (strcmp(argType, "Q") == 0) {
+	} else if (strcmp(argType, @encode(unsigned long long)) == 0) {
 		PULL_AND_SET(unsigned long long, unsignedLongLongValue);
-	} else if (strcmp(argType, "f") == 0) {
+	} else if (strcmp(argType, @encode(float)) == 0) {
 		PULL_AND_SET(float, floatValue);
-	} else if (strcmp(argType, "d") == 0) {
+	} else if (strcmp(argType, @encode(double)) == 0) {
 		PULL_AND_SET(double, doubleValue);
-	} else if (strcmp(argType, "*") == 0) {
+	} else if (strcmp(argType, @encode(BOOL)) == 0) {
+		PULL_AND_SET(BOOL, boolValue);
+	} else if (strcmp(argType, @encode(char *)) == 0) {
 		const char *cString = [object UTF8String];
 		[self setArgument:&cString atIndex:(NSInteger)index];
 		[self retainArguments];
+	} else if (strcmp(argType, @encode(void (^)(void))) == 0) {
+		[self setArgument:&object atIndex:(NSInteger)index];
 	} else {
 		NSCParameterAssert([object isKindOfClass:NSValue.class]);
 
@@ -91,36 +95,42 @@
 		argType++;
 	}
 
-	if (strcmp(argType, "@") == 0 || strcmp(argType, "#") == 0) {
+	if (strcmp(argType, @encode(id)) == 0 || strcmp(argType, @encode(Class)) == 0) {
 		__autoreleasing id returnObj;
 		[self getArgument:&returnObj atIndex:(NSInteger)index];
 		return returnObj;
-	} else if (strcmp(argType, "c") == 0) {
+	} else if (strcmp(argType, @encode(char)) == 0) {
 		WRAP_AND_RETURN(char);
-	} else if (strcmp(argType, "i") == 0) {
+	} else if (strcmp(argType, @encode(int)) == 0) {
 		WRAP_AND_RETURN(int);
-	} else if (strcmp(argType, "s") == 0) {
+	} else if (strcmp(argType, @encode(short)) == 0) {
 		WRAP_AND_RETURN(short);
-	} else if (strcmp(argType, "l") == 0) {
+	} else if (strcmp(argType, @encode(long)) == 0) {
 		WRAP_AND_RETURN(long);
-	} else if (strcmp(argType, "q") == 0) {
+	} else if (strcmp(argType, @encode(long long)) == 0) {
 		WRAP_AND_RETURN(long long);
-	} else if (strcmp(argType, "C") == 0) {
+	} else if (strcmp(argType, @encode(unsigned char)) == 0) {
 		WRAP_AND_RETURN(unsigned char);
-	} else if (strcmp(argType, "I") == 0) {
+	} else if (strcmp(argType, @encode(unsigned int)) == 0) {
 		WRAP_AND_RETURN(unsigned int);
-	} else if (strcmp(argType, "S") == 0) {
+	} else if (strcmp(argType, @encode(unsigned short)) == 0) {
 		WRAP_AND_RETURN(unsigned short);
-	} else if (strcmp(argType, "L") == 0) {
+	} else if (strcmp(argType, @encode(unsigned long)) == 0) {
 		WRAP_AND_RETURN(unsigned long);
-	} else if (strcmp(argType, "Q") == 0) {
+	} else if (strcmp(argType, @encode(unsigned long long)) == 0) {
 		WRAP_AND_RETURN(unsigned long long);
-	} else if (strcmp(argType, "f") == 0) {
+	} else if (strcmp(argType, @encode(float)) == 0) {
 		WRAP_AND_RETURN(float);
-	} else if (strcmp(argType, "d") == 0) {
+	} else if (strcmp(argType, @encode(double)) == 0) {
 		WRAP_AND_RETURN(double);
-	} else if (strcmp(argType, "*") == 0) {
+	} else if (strcmp(argType, @encode(BOOL)) == 0) {
+		WRAP_AND_RETURN(BOOL);
+	} else if (strcmp(argType, @encode(char *)) == 0) {
 		WRAP_AND_RETURN(const char *);
+	} else if (strcmp(argType, @encode(void (^)(void))) == 0) {
+		__unsafe_unretained id block = nil;
+		[self getArgument:&block atIndex:(NSInteger)index];
+		return [block copy];
 	} else {
 		NSUInteger valueSize = 0;
 		NSGetSizeAndAlignment(argType, &valueSize, NULL);
@@ -170,37 +180,39 @@
 		returnType++;
 	}
 
-	if (strcmp(returnType, "@") == 0 || strcmp(returnType, "#") == 0) {
+	if (strcmp(returnType, @encode(id)) == 0 || strcmp(returnType, @encode(Class)) == 0 || strcmp(returnType, @encode(void (^)(void))) == 0) {
 		__autoreleasing id returnObj;
 		[self getReturnValue:&returnObj];
 		return returnObj;
-	} else if (strcmp(returnType, "c") == 0) {
+	} else if (strcmp(returnType, @encode(char)) == 0) {
 		WRAP_AND_RETURN(char);
-	} else if (strcmp(returnType, "i") == 0) {
+	} else if (strcmp(returnType, @encode(int)) == 0) {
 		WRAP_AND_RETURN(int);
-	} else if (strcmp(returnType, "s") == 0) {
+	} else if (strcmp(returnType, @encode(short)) == 0) {
 		WRAP_AND_RETURN(short);
-	} else if (strcmp(returnType, "l") == 0) {
+	} else if (strcmp(returnType, @encode(long)) == 0) {
 		WRAP_AND_RETURN(long);
-	} else if (strcmp(returnType, "q") == 0) {
+	} else if (strcmp(returnType, @encode(long long)) == 0) {
 		WRAP_AND_RETURN(long long);
-	} else if (strcmp(returnType, "C") == 0) {
+	} else if (strcmp(returnType, @encode(unsigned char)) == 0) {
 		WRAP_AND_RETURN(unsigned char);
-	} else if (strcmp(returnType, "I") == 0) {
+	} else if (strcmp(returnType, @encode(unsigned int)) == 0) {
 		WRAP_AND_RETURN(unsigned int);
-	} else if (strcmp(returnType, "S") == 0) {
+	} else if (strcmp(returnType, @encode(unsigned short)) == 0) {
 		WRAP_AND_RETURN(unsigned short);
-	} else if (strcmp(returnType, "L") == 0) {
+	} else if (strcmp(returnType, @encode(unsigned long)) == 0) {
 		WRAP_AND_RETURN(unsigned long);
-	} else if (strcmp(returnType, "Q") == 0) {
+	} else if (strcmp(returnType, @encode(unsigned long long)) == 0) {
 		WRAP_AND_RETURN(unsigned long long);
-	} else if (strcmp(returnType, "f") == 0) {
+	} else if (strcmp(returnType, @encode(float)) == 0) {
 		WRAP_AND_RETURN(float);
-	} else if (strcmp(returnType, "d") == 0) {
+	} else if (strcmp(returnType, @encode(double)) == 0) {
 		WRAP_AND_RETURN(double);
-	} else if (strcmp(returnType, "*") == 0) {
+	} else if (strcmp(returnType, @encode(BOOL)) == 0) {
+		WRAP_AND_RETURN(BOOL);
+	} else if (strcmp(returnType, @encode(char *)) == 0) {
 		WRAP_AND_RETURN(const char *);
-	} else if (strcmp(returnType, "v") == 0) {
+	} else if (strcmp(returnType, @encode(void)) == 0) {
 		return RACUnit.defaultUnit;
 	} else {
 		NSUInteger valueSize = 0;

@@ -139,8 +139,4 @@
 	return (RACTestDouble4D){1.0, 2.0, 3.0, 4.0};
 }
 
-- (long double)longDoubleValue {
-	return 1.0l;
-}
-
 @end

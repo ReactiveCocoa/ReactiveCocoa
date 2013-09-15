@@ -105,6 +105,4 @@ typedef double RACTestDouble4D __attribute__ ((ext_vector_type(4)));
 - (RACTestFloat4D)floatVectorValue;
 - (RACTestDouble4D)doubleVectorValue;
 
-- (long double)longDoubleValue;
-
 @end

@@ -31,6 +31,10 @@
 - (RACTestBigStruct)optionalBigStructValue;
 - (RACTestComplexFloatStruct)optionalComplexFloatStructValue;
 - (RACTestComplexDoubleStruct)optionalComplexDoubleStructValue;
+- (_Complex float)optionalComplexFloatValue;
+- (_Complex double)optionalComplexDoubleValue;
+- (RACTestFloat4D)optionalFloatVectorValue;
+- (RACTestDouble4D)optionalDoubleVectorValue;
 
 @end
 
@@ -202,48 +206,60 @@ describe(@"RACTestObject", ^{
 		expect(invokedMethodBefore).to.beTruthy();
 	});
 
-	it(@"should send arguments of small struct return methods", ^{
+	it(@"should not return a signal for small struct return methods", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
-		__block id value = nil;
-		[[object rac_signalForSelector:@selector(smallStructValue)] subscribeNext:^(RACTuple *x) {
-			value = x;
-		}];
-
-		[object smallStructValue];
-		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
+		expect(^{
+			[object rac_signalForSelector:@selector(smallStructValue)];
+		}).to.raise(NSInvalidArgumentException);
 	});
 
-	it(@"should send arguments of big struct return methods", ^{
+	it(@"should not return a signal for big struct return methods", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
-		__block id value = nil;
-		[[object rac_signalForSelector:@selector(bigStructValue)] subscribeNext:^(RACTuple *x) {
-			value = x;
-		}];
-
-		[object bigStructValue];
-		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
+		expect(^{
+			[object rac_signalForSelector:@selector(bigStructValue)];
+		}).to.raise(NSInvalidArgumentException);
 	});
 
-	it(@"should send arguments of complex float struct return methods", ^{
+	it(@"should not return a signal for complex float struct return methods", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
-		__block id value = nil;
-		[[object rac_signalForSelector:@selector(complexFloatStructValue)] subscribeNext:^(RACTuple *x) {
-			value = x;
-		}];
-
-		[object complexFloatStructValue];
-		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
+		expect(^{
+			[object rac_signalForSelector:@selector(complexFloatStructValue)];
+		}).to.raise(NSInvalidArgumentException);
 	});
 
-	it(@"should send arguments of complex double struct return methods", ^{
+	it(@"should not return a signal for complex double struct return methods", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
-		__block id value = nil;
-		[[object rac_signalForSelector:@selector(complexDoubleStructValue)] subscribeNext:^(RACTuple *x) {
-			value = x;
-		}];
+		expect(^{
+			[object rac_signalForSelector:@selector(complexDoubleStructValue)];
+		}).to.raise(NSInvalidArgumentException);
+	});
 
-		[object complexDoubleStructValue];
-		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
+	it(@"should not return a signal for complex float return methods", ^{
+		RACTestObject *object = [[RACTestObject alloc] init];
+		expect(^{
+			[object rac_signalForSelector:@selector(complexFloatValue)];
+		}).to.raise(NSInvalidArgumentException);
+	});
+
+	it(@"should not return a signal for complex double return methods", ^{
+		RACTestObject *object = [[RACTestObject alloc] init];
+		expect(^{
+			[object rac_signalForSelector:@selector(complexDoubleValue)];
+		}).to.raise(NSInvalidArgumentException);
+	});
+
+	it(@"should not return a signal for float vector return methods", ^{
+		RACTestObject *object = [[RACTestObject alloc] init];
+		expect(^{
+			[object rac_signalForSelector:@selector(floatVectorValue)];
+		}).to.raise(NSInvalidArgumentException);
+	});
+
+	it(@"should not return a signal for double vector return methods", ^{
+		RACTestObject *object = [[RACTestObject alloc] init];
+		expect(^{
+			[object rac_signalForSelector:@selector(doubleVectorValue)];
+		}).to.raise(NSInvalidArgumentException);
 	});
 });
 
@@ -391,44 +407,28 @@ describe(@"-rac_signalForSelector:fromProtocol", ^{
 		expect(value).to.equal(RACTuplePack(@"foo", @YES));
 	});
 
-	it(@"should inject a small struct returning method", ^{
-		__block id value;
-		[[object rac_signalForSelector:@selector(optionalSmallStructValue) fromProtocol:protocol] subscribeNext:^(RACTuple *x) {
-			value = x;
-		}];
-
-		[object optionalSmallStructValue];
-		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
+	it(@"should not inject a small struct returning method", ^{
+		expect(^{
+			[object rac_signalForSelector:@selector(optionalSmallStructValue) fromProtocol:protocol];
+		}).to.raise(NSInvalidArgumentException);
 	});
 
-	it(@"should inject a big struct returning method", ^{
-		__block id value;
-		[[object rac_signalForSelector:@selector(optionalBigStructValue) fromProtocol:protocol] subscribeNext:^(RACTuple *x) {
-			value = x;
-		}];
-
-		[object optionalBigStructValue];
-		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
+	it(@"should not inject a big struct returning method", ^{
+		expect(^{
+			[object rac_signalForSelector:@selector(optionalBigStructValue) fromProtocol:protocol];
+		}).to.raise(NSInvalidArgumentException);
 	});
 
-	it(@"should inject a complex float struct returning method", ^{
-		__block id value;
-		[[object rac_signalForSelector:@selector(optionalComplexFloatStructValue) fromProtocol:protocol] subscribeNext:^(RACTuple *x) {
-			value = x;
-		}];
-
-		[object optionalComplexFloatStructValue];
-		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
+	it(@"should not inject a complex float struct returning method", ^{
+		expect(^{
+			[object rac_signalForSelector:@selector(optionalComplexFloatStructValue) fromProtocol:protocol];
+		}).to.raise(NSInvalidArgumentException);
 	});
 
-	it(@"should inject a complex double struct returning method", ^{
-		__block id value;
-		[[object rac_signalForSelector:@selector(optionalComplexDoubleStructValue) fromProtocol:protocol] subscribeNext:^(RACTuple *x) {
-			value = x;
-		}];
-
-		[object optionalComplexDoubleStructValue];
-		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
+	it(@"should not inject a complex double struct returning method", ^{
+		expect(^{
+			[object rac_signalForSelector:@selector(optionalComplexDoubleStructValue) fromProtocol:protocol];
+		}).to.raise(NSInvalidArgumentException);
 	});
 });
 

@@ -86,8 +86,20 @@ static void RACSwizzleForwardInvocation(Class class) {
 	class_replaceMethod(class, forwardInvocationSEL, imp_implementationWithBlock(newForwardInvocation), "v@:@");
 }
 
+// It's hard to tell which struct return types use _objc_msgForward, and
+// which use _objc_msgForward_stret instead, so just exclude all struct
+// return types.
+#if DEBUG
+#define CHECK_TYPE_ENCODING(TYPE_ENCODING) RACCheckTypeEncoding(TYPE_ENCODING)
+static void RACCheckTypeEncoding(const char *typeEncoding) {
+	NSMethodSignature *signature = [NSMethodSignature signatureWithObjCTypes:typeEncoding];
+	NSCAssert(strstr([signature methodReturnType], "{") == NULL, @"method return type not supported by -rac_signalForSelector: and -rac_signalForSelector:fromProtocol:");
+}
+#else
+#define CHECK_TYPE_ENCODING(TYPE_ENCODING)
+#endif
+
 static RACSignal *NSObjectRACSignalForSelector(NSObject *self, SEL selector, Protocol *protocol) {
-	NSCAssert([[[self methodSignatureForSelector:selector] debugDescription] rangeOfString:@"is special struct return? NO"].location != NSNotFound, @"struct return methods are not supported by -rac_signalForSelector: and -rac_signalForSelector:fromProtocol:");
 	SEL aliasSelector = RACAliasForSelector(selector);
 
 	@synchronized (self) {
@@ -123,6 +135,8 @@ static RACSignal *NSObjectRACSignalForSelector(NSObject *self, SEL selector, Pro
 				typeEncoding = methodDescription.types;
 			}
 
+			CHECK_TYPE_ENCODING(typeEncoding);
+
 			// Define the selector to call -forwardInvocation:.
 			if (!class_addMethod(class, selector, _objc_msgForward, typeEncoding)) {
 				NSDictionary *userInfo = @{
@@ -134,7 +148,11 @@ static RACSignal *NSObjectRACSignalForSelector(NSObject *self, SEL selector, Pro
 			}
 		} else if (method_getImplementation(targetMethod) != _objc_msgForward) {
 			// Make a method alias for the existing method implementation.
-			BOOL addedAlias __attribute__((unused)) = class_addMethod(class, aliasSelector, method_getImplementation(targetMethod), method_getTypeEncoding(targetMethod));
+			const char *typeEncoding = method_getTypeEncoding(targetMethod);
+
+			CHECK_TYPE_ENCODING(typeEncoding);
+
+			BOOL addedAlias __attribute__((unused)) = class_addMethod(class, aliasSelector, method_getImplementation(targetMethod), typeEncoding);
 			NSCAssert(addedAlias, @"Original implementation for %@ is already copied to %@ on %@", NSStringFromSelector(selector), NSStringFromSelector(aliasSelector), class);
 
 			// Redefine the selector to call -forwardInvocation:.

@@ -12,7 +12,7 @@
 #import "RACSignalProvider.h"
 
 static const char *cleanedDTraceString(NSString *original) {
-	return [original stringByReplacingOccurrencesofString:@"\\s+" withString:@" " options:NSRegularExpressionSearch range:NSMakeRange(0, original.length)].UTF8String;
+	return [original stringByReplacingOccurrencesOfString:@"\\s+" withString:@" " options:NSRegularExpressionSearch range:NSMakeRange(0, original.length)].UTF8String;
 }
 
 static const char *cleanedSignalDescription(RACSignal *signal) {

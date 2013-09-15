@@ -11,6 +11,7 @@
 #import "RACStream.h"
 #import "RACUnit.h"
 #import "RACTuple.h"
+#import "EXTKeyPathCoding.h"
 
 NSString * const RACStreamExamples = @"RACStreamExamples";
 NSString * const RACStreamExamplesClass = @"RACStreamExamplesClass";
@@ -237,7 +238,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			RACTuplePack([streamClass return:@1]),
 			RACTuplePack([streamClass return:@2]),
 		]);
-		RACStream *stream = [baseStream valueForKeyPath:@"first.@flatten.self"];
+		RACStream *stream = [baseStream flattenMap:RACMapToKeyPath(@keypath(RACTuple.new, first))];
 
 		verifyValues(stream, @[ @0, @1, @2 ]);
 	});

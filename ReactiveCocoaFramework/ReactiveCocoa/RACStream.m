@@ -99,19 +99,6 @@
 	}] setNameWithFormat:@"[%@] -mapReplace: %@", self.name, [object rac_description]];
 }
 
-- (instancetype)valueForKey:(NSString *)key {
-	NSCParameterAssert(key.length > 0);
-
-	if ([key characterAtIndex:0] == '@') {
-		key = [key substringFromIndex:1];
-		return [super valueForKey:key];
-	}
-
-	return [[self map:^(id x) {
-		return [x valueForKey:key];
-	}] setNameWithFormat:@"[%@] -valueForKey: %@", self.name, key];
-}
-
 - (instancetype)combinePreviousWithStart:(id)start reduce:(id (^)(id previous, id next))reduceBlock {
 	NSCParameterAssert(reduceBlock != NULL);
 	return [[[self

@@ -144,15 +144,6 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 // the receiver.
 - (instancetype)mapReplace:(id)object;
 
-// Maps each value in the receiver to the value for the given key.
-//
-// key - The mapping key. If key does not start with “@”, invokes -valueForKey:
-//       on each value in the receiver. If key does start with “@”, strips the
-//       “@” and invokes [super valueForKey:].
-//
-// Returns a new stream with the mapped values.
-- (instancetype)valueForKey:(NSString *)key;
-
 // Filters out values in the receiver that don't pass the given test.
 //
 // This corresponds to the `Where` method in Rx.

@@ -205,44 +205,44 @@ describe(@"RACTestObject", ^{
 	it(@"should send arguments of small struct return methods", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		__block id value = nil;
-		[[object rac_signalForSelector:@selector(returnSmallStruct)] subscribeNext:^(RACTuple *x) {
+		[[object rac_signalForSelector:@selector(smallStructValue)] subscribeNext:^(RACTuple *x) {
 			value = x;
 		}];
 
-		[object returnSmallStruct];
+		[object smallStructValue];
 		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
 	});
 
 	it(@"should send arguments of big struct return methods", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		__block id value = nil;
-		[[object rac_signalForSelector:@selector(returnBigStruct)] subscribeNext:^(RACTuple *x) {
+		[[object rac_signalForSelector:@selector(bigStructValue)] subscribeNext:^(RACTuple *x) {
 			value = x;
 		}];
 
-		[object returnBigStruct];
+		[object bigStructValue];
 		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
 	});
 
 	it(@"should send arguments of complex float struct return methods", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		__block id value = nil;
-		[[object rac_signalForSelector:@selector(returnComplexFloatStruct)] subscribeNext:^(RACTuple *x) {
+		[[object rac_signalForSelector:@selector(complexFloatStructValue)] subscribeNext:^(RACTuple *x) {
 			value = x;
 		}];
 
-		[object returnComplexFloatStruct];
+		[object complexFloatStructValue];
 		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
 	});
 
 	it(@"should send arguments of complex double struct return methods", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		__block id value = nil;
-		[[object rac_signalForSelector:@selector(returnComplexDoubleStruct)] subscribeNext:^(RACTuple *x) {
+		[[object rac_signalForSelector:@selector(complexDoubleStructValue)] subscribeNext:^(RACTuple *x) {
 			value = x;
 		}];
 
-		[object returnComplexDoubleStruct];
+		[object complexDoubleStructValue];
 		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
 	});
 });

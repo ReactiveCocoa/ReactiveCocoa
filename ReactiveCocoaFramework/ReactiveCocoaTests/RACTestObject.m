@@ -107,39 +107,39 @@
 	return testStruct;
 }
 
-- (RACTestSmallStruct)returnSmallStruct {
+- (RACTestSmallStruct)smallStructValue {
 	return (RACTestSmallStruct){0, 0};
 }
 
-- (RACTestBigStruct)returnBigStruct {
+- (RACTestBigStruct)bigStructValue {
 	return (RACTestBigStruct){{0, 0.0}, {0, 0.0}};
 }
 
-- (RACTestComplexFloatStruct)returnComplexFloatStruct {
+- (RACTestComplexFloatStruct)complexFloatStructValue {
 	return (RACTestComplexFloatStruct){0.0, 0.0};
 }
 
-- (RACTestComplexDoubleStruct)returnComplexDoubleStruct {
+- (RACTestComplexDoubleStruct)complexDoubleStructValue {
 	return (RACTestComplexDoubleStruct){0.0, 0.0};
 }
 
-- (_Complex float)returnComplexFloat {
+- (_Complex float)complexFloatValue {
 	return 1.0f * 1.0fi;
 }
 
-- (_Complex double)returnComplexDouble {
+- (_Complex double)complexDoubleValue {
 	return 1.0 * 1.0i;
 }
 
-- (RACTestFloat4D)returnFloatVector {
+- (RACTestFloat4D)floatVectorValue {
 	return (RACTestFloat4D){1.0, 2.0, 3.0, 4.0};
 }
 
-- (RACTestDouble4D)returnDoubleVector {
+- (RACTestDouble4D)doubleVectorValue {
 	return (RACTestDouble4D){1.0, 2.0, 3.0, 4.0};
 }
 
-- (long double)returnLongDouble {
+- (long double)longDoubleValue {
 	return 1.0l;
 }
 

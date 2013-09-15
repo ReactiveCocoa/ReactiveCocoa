@@ -94,17 +94,17 @@ typedef double RACTestDouble4D __attribute__ ((ext_vector_type(4)));
 - (const char *)doubleConstString:(const char *)string;
 - (RACTestStruct)doubleStruct:(RACTestStruct)testStruct;
 
-- (RACTestSmallStruct)returnSmallStruct;
-- (RACTestBigStruct)returnBigStruct;
-- (RACTestComplexFloatStruct)returnComplexFloatStruct;
-- (RACTestComplexDoubleStruct)returnComplexDoubleStruct;
+- (RACTestSmallStruct)smallStructValue;
+- (RACTestBigStruct)bigStructValue;
+- (RACTestComplexFloatStruct)complexFloatStructValue;
+- (RACTestComplexDoubleStruct)complexDoubleStructValue;
 
-- (_Complex float)returnComplexFloat;
-- (_Complex double)returnComplexDouble;
+- (_Complex float)complexFloatValue;
+- (_Complex double)complexDoubleValue;
 
-- (RACTestFloat4D)returnFloatVector;
-- (RACTestDouble4D)returnDoubleVector;
+- (RACTestFloat4D)floatVectorValue;
+- (RACTestDouble4D)doubleVectorValue;
 
-- (long double)returnLongDouble;
+- (long double)longDoubleValue;
 
 @end

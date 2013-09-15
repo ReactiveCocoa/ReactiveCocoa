@@ -33,6 +33,9 @@ typedef struct {
 	double imag;
 } RACTestComplexDoubleStruct;
 
+typedef float RACTestFloat4D __attribute__ ((ext_vector_type(4)));
+typedef double RACTestDouble4D __attribute__ ((ext_vector_type(4)));
+
 @interface RACTestObject : NSObject
 
 @property (nonatomic, strong) id objectValue;
@@ -95,5 +98,13 @@ typedef struct {
 - (RACTestBigStruct)returnBigStruct;
 - (RACTestComplexFloatStruct)returnComplexFloatStruct;
 - (RACTestComplexDoubleStruct)returnComplexDoubleStruct;
+
+- (_Complex float)returnComplexFloat;
+- (_Complex double)returnComplexDouble;
+
+- (RACTestFloat4D)returnFloatVector;
+- (RACTestDouble4D)returnDoubleVector;
+
+- (long double)returnLongDouble;
 
 @end

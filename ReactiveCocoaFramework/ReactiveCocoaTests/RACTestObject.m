@@ -123,4 +123,24 @@
 	return (RACTestComplexDoubleStruct){0.0, 0.0};
 }
 
+- (_Complex float)returnComplexFloat {
+	return 1.0f * 1.0fi;
+}
+
+- (_Complex double)returnComplexDouble {
+	return 1.0 * 1.0i;
+}
+
+- (RACTestFloat4D)returnFloatVector {
+	return (RACTestFloat4D){1.0, 2.0, 3.0, 4.0};
+}
+
+- (RACTestDouble4D)returnDoubleVector {
+	return (RACTestDouble4D){1.0, 2.0, 3.0, 4.0};
+}
+
+- (long double)returnLongDouble {
+	return 1.0l;
+}
+
 @end

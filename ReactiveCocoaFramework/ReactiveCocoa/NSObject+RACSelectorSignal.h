@@ -43,8 +43,9 @@ extern const NSInteger RACSelectorSignalErrorMethodSwizzlingRace;
 //
 // selector - The selector for whose invocations are to be observed. If it
 //            doesn't exist, it will be implemented to accept object arguments
-//            and return void. This cannot have C arrays, unions, structs,
-//            complex or vector types as return type.
+//            and return void. This cannot have C arrays or unions as arguments
+//            or C arrays, unions, structs, complex or vector types as return
+//            type.
 //
 // Returns a signal which will send a tuple of arguments upon each invocation of
 // the selector, then completes when the receiver is deallocated. `next` events

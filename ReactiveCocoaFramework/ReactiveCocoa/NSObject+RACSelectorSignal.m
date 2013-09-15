@@ -86,18 +86,46 @@ static void RACSwizzleForwardInvocation(Class class) {
 	class_replaceMethod(class, forwardInvocationSEL, imp_implementationWithBlock(newForwardInvocation), "v@:@");
 }
 
-// It's hard to tell which struct return types use _objc_msgForward, and
-// which use _objc_msgForward_stret instead, so just exclude all struct
-// return types.
 #if DEBUG
+
 #define CHECK_TYPE_ENCODING(TYPE_ENCODING) RACCheckTypeEncoding(TYPE_ENCODING)
+
+// It's hard to tell which struct return types use _objc_msgForward, and
+// which use _objc_msgForward_stret instead, so just exclude all struct, array,
+// union, complex and vector return types.
 static void RACCheckTypeEncoding(const char *typeEncoding) {
-	NSMethodSignature *signature = [NSMethodSignature signatureWithObjCTypes:typeEncoding];
-	NSCAssert(strstr([signature methodReturnType], "{") == NULL, @"method return type not supported by -rac_signalForSelector: and -rac_signalForSelector:fromProtocol:");
+	NSMethodSignature *signature = nil;
+
+	@try {
+    signature = [NSMethodSignature signatureWithObjCTypes:typeEncoding];
+	}
+	@catch (NSException *exception) {
+    // If NSMethodSignature doesn't recognize the type encoding, we don't
+		// support it.
+		if ([exception.name isEqualToString:NSInvalidArgumentException]) {
+			NSCAssert(NO, @"unknown method return type not supported");
+		}
+		@throw exception;
+	}
+
+	const char *returnType = signature.methodReturnType;
+
+	NSCAssert(strstr(returnType, "(") == NULL, @"union method return type not supported");
+	NSCAssert(strstr(returnType, "{") == NULL, @"struct method return type not supported");
+	NSCAssert(strstr(returnType, "[") == NULL, @"array method return type not supported");
+	NSCAssert(strcmp(returnType, @encode(_Complex float)) != 0, @"complex float method return type not supported");
+	NSCAssert(strcmp(returnType, @encode(_Complex double)) != 0, @"complex double method return type not supported");
+	NSCAssert(strcmp(returnType, @encode(_Complex long double)) != 0, @"complex long double method return type not supported");
+	// NSMethodSignature appears to discard anonymous return types, so check
+	// directly on the type encoding instead of the return type.
+	NSCAssert(*typeEncoding < '1' || *typeEncoding > '9', @"vector method return type not supported");
 }
+
 #else
+
 #define CHECK_TYPE_ENCODING(TYPE_ENCODING)
-#endif
+
+#endif // DEBUG
 
 static RACSignal *NSObjectRACSignalForSelector(NSObject *self, SEL selector, Protocol *protocol) {
 	SEL aliasSelector = RACAliasForSelector(selector);

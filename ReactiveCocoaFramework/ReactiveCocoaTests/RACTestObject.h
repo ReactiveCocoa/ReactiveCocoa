@@ -13,6 +13,26 @@ typedef struct {
 	double doubleField;
 } RACTestStruct;
 
+typedef struct {
+	int field1;
+	int field2;
+} RACTestSmallStruct;
+
+typedef struct {
+	RACTestStruct struct1;
+	RACTestStruct struct2;
+} RACTestBigStruct;
+
+typedef struct {
+	float real;
+	float imag;
+} RACTestComplexFloatStruct;
+
+typedef struct {
+	double real;
+	double imag;
+} RACTestComplexDoubleStruct;
+
 @interface RACTestObject : NSObject
 
 @property (nonatomic, strong) id objectValue;
@@ -70,5 +90,10 @@ typedef struct {
 - (char *)doubleString:(char *)string;
 - (const char *)doubleConstString:(const char *)string;
 - (RACTestStruct)doubleStruct:(RACTestStruct)testStruct;
+
+- (RACTestSmallStruct)returnSmallStruct:(NSString *)argument;
+- (RACTestBigStruct)returnBigStruct:(NSString *)argument;
+- (RACTestComplexFloatStruct)returnComplexFloatStruct:(NSString *)argument;
+- (RACTestComplexDoubleStruct)returnComplexDoubleStruct:(NSString *)argument;
 
 @end

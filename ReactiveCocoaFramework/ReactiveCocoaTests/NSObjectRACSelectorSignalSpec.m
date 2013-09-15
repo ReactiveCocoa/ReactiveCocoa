@@ -27,10 +27,10 @@
 @optional
 - (NSUInteger)optionalMethodWithObject:(id)object flag:(BOOL)flag;
 - (id)objectValue;
-- (RACTestSmallStruct)smallStructValue;
-- (RACTestBigStruct)bigStructValue;
-- (RACTestComplexFloatStruct)complexFloatStructValue;
-- (RACTestComplexDoubleStruct)complexDoubleStructValue;
+- (RACTestSmallStruct)optionalSmallStructValue;
+- (RACTestBigStruct)optionalBigStructValue;
+- (RACTestComplexFloatStruct)optionalComplexFloatStructValue;
+- (RACTestComplexDoubleStruct)optionalComplexDoubleStructValue;
 
 @end
 
@@ -393,41 +393,41 @@ describe(@"-rac_signalForSelector:fromProtocol", ^{
 
 	it(@"should inject a small struct returning method", ^{
 		__block id value;
-		[[object rac_signalForSelector:@selector(smallStructValue) fromProtocol:protocol] subscribeNext:^(RACTuple *x) {
+		[[object rac_signalForSelector:@selector(optionalSmallStructValue) fromProtocol:protocol] subscribeNext:^(RACTuple *x) {
 			value = x;
 		}];
 
-		[object smallStructValue];
+		[object optionalSmallStructValue];
 		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
 	});
 
 	it(@"should inject a big struct returning method", ^{
 		__block id value;
-		[[object rac_signalForSelector:@selector(bigStructValue) fromProtocol:protocol] subscribeNext:^(RACTuple *x) {
+		[[object rac_signalForSelector:@selector(optionalBigStructValue) fromProtocol:protocol] subscribeNext:^(RACTuple *x) {
 			value = x;
 		}];
 
-		[object bigStructValue];
+		[object optionalBigStructValue];
 		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
 	});
 
 	it(@"should inject a complex float struct returning method", ^{
 		__block id value;
-		[[object rac_signalForSelector:@selector(complexFloatStructValue) fromProtocol:protocol] subscribeNext:^(RACTuple *x) {
+		[[object rac_signalForSelector:@selector(optionalComplexFloatStructValue) fromProtocol:protocol] subscribeNext:^(RACTuple *x) {
 			value = x;
 		}];
 
-		[object complexFloatStructValue];
+		[object optionalComplexFloatStructValue];
 		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
 	});
 
 	it(@"should inject a complex double struct returning method", ^{
 		__block id value;
-		[[object rac_signalForSelector:@selector(complexDoubleStructValue) fromProtocol:protocol] subscribeNext:^(RACTuple *x) {
+		[[object rac_signalForSelector:@selector(optionalComplexDoubleStructValue) fromProtocol:protocol] subscribeNext:^(RACTuple *x) {
 			value = x;
 		}];
 
-		[object complexDoubleStructValue];
+		[object optionalComplexDoubleStructValue];
 		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
 	});
 });

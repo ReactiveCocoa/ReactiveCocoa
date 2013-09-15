@@ -91,9 +91,9 @@ typedef struct {
 - (const char *)doubleConstString:(const char *)string;
 - (RACTestStruct)doubleStruct:(RACTestStruct)testStruct;
 
-- (RACTestSmallStruct)returnSmallStruct:(NSString *)argument;
-- (RACTestBigStruct)returnBigStruct:(NSString *)argument;
-- (RACTestComplexFloatStruct)returnComplexFloatStruct:(NSString *)argument;
-- (RACTestComplexDoubleStruct)returnComplexDoubleStruct:(NSString *)argument;
+- (RACTestSmallStruct)returnSmallStruct;
+- (RACTestBigStruct)returnBigStruct;
+- (RACTestComplexFloatStruct)returnComplexFloatStruct;
+- (RACTestComplexDoubleStruct)returnComplexDoubleStruct;
 
 @end

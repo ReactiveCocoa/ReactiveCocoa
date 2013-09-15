@@ -205,45 +205,45 @@ describe(@"RACTestObject", ^{
 	it(@"should send arguments of small struct return methods", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		__block id value = nil;
-		[[object rac_signalForSelector:@selector(returnSmallStruct:)] subscribeNext:^(RACTuple *x) {
-			value = x.first;
+		[[object rac_signalForSelector:@selector(returnSmallStruct)] subscribeNext:^(RACTuple *x) {
+			value = x;
 		}];
 
-		[object returnSmallStruct:@"test"];
-		expect(value).to.equal(@"test");
+		[object returnSmallStruct];
+		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
 	});
 
 	it(@"should send arguments of big struct return methods", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		__block id value = nil;
-		[[object rac_signalForSelector:@selector(returnBigStruct:)] subscribeNext:^(RACTuple *x) {
-			value = x.first;
+		[[object rac_signalForSelector:@selector(returnBigStruct)] subscribeNext:^(RACTuple *x) {
+			value = x;
 		}];
 
-		[object returnBigStruct:@"test"];
-		expect(value).to.equal(@"test");
+		[object returnBigStruct];
+		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
 	});
 
 	it(@"should send arguments of complex float struct return methods", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		__block id value = nil;
-		[[object rac_signalForSelector:@selector(returnComplexFloatStruct:)] subscribeNext:^(RACTuple *x) {
-			value = x.first;
+		[[object rac_signalForSelector:@selector(returnComplexFloatStruct)] subscribeNext:^(RACTuple *x) {
+			value = x;
 		}];
 
-		[object returnComplexFloatStruct:@"test"];
-		expect(value).to.equal(@"test");
+		[object returnComplexFloatStruct];
+		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
 	});
 
 	it(@"should send arguments of complex double struct return methods", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		__block id value = nil;
-		[[object rac_signalForSelector:@selector(returnComplexDoubleStruct:)] subscribeNext:^(RACTuple *x) {
-			value = x.first;
+		[[object rac_signalForSelector:@selector(returnComplexDoubleStruct)] subscribeNext:^(RACTuple *x) {
+			value = x;
 		}];
 
-		[object returnComplexDoubleStruct:@"test"];
-		expect(value).to.equal(@"test");
+		[object returnComplexDoubleStruct];
+		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
 	});
 });
 

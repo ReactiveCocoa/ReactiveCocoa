@@ -107,19 +107,19 @@
 	return testStruct;
 }
 
-- (RACTestSmallStruct)returnSmallStruct:(NSString *)argument {
+- (RACTestSmallStruct)returnSmallStruct {
 	return (RACTestSmallStruct){0, 0};
 }
 
-- (RACTestBigStruct)returnBigStruct:(NSString *)argument {
+- (RACTestBigStruct)returnBigStruct {
 	return (RACTestBigStruct){{0, 0.0}, {0, 0.0}};
 }
 
-- (RACTestComplexFloatStruct)returnComplexFloatStruct:(NSString *)argument {
+- (RACTestComplexFloatStruct)returnComplexFloatStruct {
 	return (RACTestComplexFloatStruct){0.0, 0.0};
 }
 
-- (RACTestComplexDoubleStruct)returnComplexDoubleStruct:(NSString *)argument {
+- (RACTestComplexDoubleStruct)returnComplexDoubleStruct {
 	return (RACTestComplexDoubleStruct){0.0, 0.0};
 }
 

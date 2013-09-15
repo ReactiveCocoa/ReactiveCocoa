@@ -210,56 +210,56 @@ describe(@"RACTestObject", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		expect(^{
 			[object rac_signalForSelector:@selector(smallStructValue)];
-		}).to.raise(NSInternalInconsistencyException);
+		}).to.raise(nil);
 	});
 
 	it(@"should not return a signal for big struct return methods", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		expect(^{
 			[object rac_signalForSelector:@selector(bigStructValue)];
-		}).to.raise(NSInternalInconsistencyException);
+		}).to.raise(nil);
 	});
 
 	it(@"should not return a signal for complex float struct return methods", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		expect(^{
 			[object rac_signalForSelector:@selector(complexFloatStructValue)];
-		}).to.raise(NSInternalInconsistencyException);
+		}).to.raise(nil);
 	});
 
 	it(@"should not return a signal for complex double struct return methods", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		expect(^{
 			[object rac_signalForSelector:@selector(complexDoubleStructValue)];
-		}).to.raise(NSInternalInconsistencyException);
+		}).to.raise(nil);
 	});
 
 	it(@"should not return a signal for complex float return methods", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		expect(^{
 			[object rac_signalForSelector:@selector(complexFloatValue)];
-		}).to.raise(NSInternalInconsistencyException);
+		}).to.raise(nil);
 	});
 
 	it(@"should not return a signal for complex double return methods", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		expect(^{
 			[object rac_signalForSelector:@selector(complexDoubleValue)];
-		}).to.raise(NSInternalInconsistencyException);
+		}).to.raise(nil);
 	});
 
 	it(@"should not return a signal for float vector return methods", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		expect(^{
 			[object rac_signalForSelector:@selector(floatVectorValue)];
-		}).to.raise(NSInternalInconsistencyException);
+		}).to.raise(nil);
 	});
 
 	it(@"should not return a signal for double vector return methods", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		expect(^{
 			[object rac_signalForSelector:@selector(doubleVectorValue)];
-		}).to.raise(NSInternalInconsistencyException);
+		}).to.raise(nil);
 	});
 });
 
@@ -410,25 +410,25 @@ describe(@"-rac_signalForSelector:fromProtocol", ^{
 	it(@"should not inject a small struct returning method", ^{
 		expect(^{
 			[object rac_signalForSelector:@selector(optionalSmallStructValue) fromProtocol:protocol];
-		}).to.raise(NSInternalInconsistencyException);
+		}).to.raise(nil);
 	});
 
 	it(@"should not inject a big struct returning method", ^{
 		expect(^{
 			[object rac_signalForSelector:@selector(optionalBigStructValue) fromProtocol:protocol];
-		}).to.raise(NSInternalInconsistencyException);
+		}).to.raise(nil);
 	});
 
 	it(@"should not inject a complex float struct returning method", ^{
 		expect(^{
 			[object rac_signalForSelector:@selector(optionalComplexFloatStructValue) fromProtocol:protocol];
-		}).to.raise(NSInternalInconsistencyException);
+		}).to.raise(nil);
 	});
 
 	it(@"should not inject a complex double struct returning method", ^{
 		expect(^{
 			[object rac_signalForSelector:@selector(optionalComplexDoubleStructValue) fromProtocol:protocol];
-		}).to.raise(NSInternalInconsistencyException);
+		}).to.raise(nil);
 	});
 });
 

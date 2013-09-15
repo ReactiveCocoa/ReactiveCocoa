@@ -12,10 +12,7 @@
 #import "RACSignalProvider.h"
 
 static const char *cleanedDTraceString(NSString *original) {
-	NSMutableString *str = [original mutableCopy];
-	[str replaceOccurrencesOfString:@"[\\n\\t]" withString:@" " options:NSRegularExpressionSearch range:NSMakeRange(0, str.length)];
-	[str replaceOccurrencesOfString:@" +" withString:@" " options:NSRegularExpressionSearch range:NSMakeRange(0, str.length)];
-	return str.UTF8String;
+	return [str stringByReplacingOccurrencesofString:@"\\s+" withString:@" " options:NSRegularExpressionSearch range:NSMakeRange(0, str.length)].UTF8String;
 }
 
 static const char *cleanedSignalDescription(RACSignal *signal) {

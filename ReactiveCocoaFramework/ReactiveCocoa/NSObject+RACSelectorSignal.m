@@ -102,9 +102,9 @@ static void RACCheckTypeEncoding(const char *typeEncoding) {
 	NSCAssert(strstr(returnType, "(") == NULL, @"union method return type not supported");
 	NSCAssert(strstr(returnType, "{") == NULL, @"struct method return type not supported");
 	NSCAssert(strstr(returnType, "[") == NULL, @"array method return type not supported");
-	NSCAssert(strcmp(returnType, @encode(_Complex float)) != 0, @"complex float method return type not supported");
-	NSCAssert(strcmp(returnType, @encode(_Complex double)) != 0, @"complex double method return type not supported");
-	NSCAssert(strcmp(returnType, @encode(_Complex long double)) != 0, @"complex long double method return type not supported");
+	NSCAssert(strstr(returnType, @encode(_Complex float)) != returnType, @"complex float method return type not supported");
+	NSCAssert(strstr(returnType, @encode(_Complex double)) != returnType, @"complex double method return type not supported");
+	NSCAssert(strstr(returnType, @encode(_Complex long double)) != returnType, @"complex long double method return type not supported");
 
 	free((void *)returnType);
 #endif // !NS_BLOCK_ASSERTIONS

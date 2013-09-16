@@ -94,14 +94,19 @@ static void RACCheckTypeEncoding(const char *typeEncoding) {
 	// Some types, including vector types, are not encoded. In these cases the
 	// signature starts with the size of the argument frame.
 	NSCAssert(*typeEncoding < '1' || *typeEncoding > '9', @"unknown method return type not supported in type encoding: %s", typeEncoding);
-	
-	const char *returnType = [NSMethodSignature signatureWithObjCTypes:typeEncoding].methodReturnType;
+
+	const char *nextDataType = NSGetSizeAndAlignment(typeEncoding, NULL, NULL);
+	size_t returnTypeLength = (size_t)(nextDataType - typeEncoding);
+	const char *returnType = strndup(typeEncoding, returnTypeLength);
+
 	NSCAssert(strstr(returnType, "(") == NULL, @"union method return type not supported");
 	NSCAssert(strstr(returnType, "{") == NULL, @"struct method return type not supported");
 	NSCAssert(strstr(returnType, "[") == NULL, @"array method return type not supported");
 	NSCAssert(strcmp(returnType, @encode(_Complex float)) != 0, @"complex float method return type not supported");
 	NSCAssert(strcmp(returnType, @encode(_Complex double)) != 0, @"complex double method return type not supported");
 	NSCAssert(strcmp(returnType, @encode(_Complex long double)) != 0, @"complex long double method return type not supported");
+
+	free((void *)returnType);
 #endif // !NS_BLOCK_ASSERTIONS
 }
 

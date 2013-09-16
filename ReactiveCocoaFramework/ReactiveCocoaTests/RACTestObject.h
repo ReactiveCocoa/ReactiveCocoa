@@ -13,29 +13,6 @@ typedef struct {
 	double doubleField;
 } RACTestStruct;
 
-typedef struct {
-	int field1;
-	int field2;
-} RACTestSmallStruct;
-
-typedef struct {
-	RACTestStruct struct1;
-	RACTestStruct struct2;
-} RACTestBigStruct;
-
-typedef struct {
-	float real;
-	float imag;
-} RACTestComplexFloatStruct;
-
-typedef struct {
-	double real;
-	double imag;
-} RACTestComplexDoubleStruct;
-
-typedef float RACTestFloat4D __attribute__ ((ext_vector_type(4)));
-typedef double RACTestDouble4D __attribute__ ((ext_vector_type(4)));
-
 @interface RACTestObject : NSObject
 
 @property (nonatomic, strong) id objectValue;
@@ -93,16 +70,5 @@ typedef double RACTestDouble4D __attribute__ ((ext_vector_type(4)));
 - (char *)doubleString:(char *)string;
 - (const char *)doubleConstString:(const char *)string;
 - (RACTestStruct)doubleStruct:(RACTestStruct)testStruct;
-
-- (RACTestSmallStruct)smallStructValue;
-- (RACTestBigStruct)bigStructValue;
-- (RACTestComplexFloatStruct)complexFloatStructValue;
-- (RACTestComplexDoubleStruct)complexDoubleStructValue;
-
-- (_Complex float)complexFloatValue;
-- (_Complex double)complexDoubleValue;
-
-- (RACTestFloat4D)floatVectorValue;
-- (RACTestDouble4D)doubleVectorValue;
 
 @end

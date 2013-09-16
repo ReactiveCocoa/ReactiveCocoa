@@ -27,14 +27,6 @@
 @optional
 - (NSUInteger)optionalMethodWithObject:(id)object flag:(BOOL)flag;
 - (id)objectValue;
-- (RACTestSmallStruct)optionalSmallStructValue;
-- (RACTestBigStruct)optionalBigStructValue;
-- (RACTestComplexFloatStruct)optionalComplexFloatStructValue;
-- (RACTestComplexDoubleStruct)optionalComplexDoubleStructValue;
-- (_Complex float)optionalComplexFloatValue;
-- (_Complex double)optionalComplexDoubleValue;
-- (RACTestFloat4D)optionalFloatVectorValue;
-- (RACTestDouble4D)optionalDoubleVectorValue;
 
 @end
 
@@ -205,62 +197,6 @@ describe(@"RACTestObject", ^{
 		[object setObjectValue:@YES andSecondObjectValue:@"Winner"];
 		expect(invokedMethodBefore).to.beTruthy();
 	});
-
-	it(@"should not return a signal for small struct return methods", ^{
-		RACTestObject *object = [[RACTestObject alloc] init];
-		expect(^{
-			[object rac_signalForSelector:@selector(smallStructValue)];
-		}).to.raise(nil);
-	});
-
-	it(@"should not return a signal for big struct return methods", ^{
-		RACTestObject *object = [[RACTestObject alloc] init];
-		expect(^{
-			[object rac_signalForSelector:@selector(bigStructValue)];
-		}).to.raise(nil);
-	});
-
-	it(@"should not return a signal for complex float struct return methods", ^{
-		RACTestObject *object = [[RACTestObject alloc] init];
-		expect(^{
-			[object rac_signalForSelector:@selector(complexFloatStructValue)];
-		}).to.raise(nil);
-	});
-
-	it(@"should not return a signal for complex double struct return methods", ^{
-		RACTestObject *object = [[RACTestObject alloc] init];
-		expect(^{
-			[object rac_signalForSelector:@selector(complexDoubleStructValue)];
-		}).to.raise(nil);
-	});
-
-	it(@"should not return a signal for complex float return methods", ^{
-		RACTestObject *object = [[RACTestObject alloc] init];
-		expect(^{
-			[object rac_signalForSelector:@selector(complexFloatValue)];
-		}).to.raise(nil);
-	});
-
-	it(@"should not return a signal for complex double return methods", ^{
-		RACTestObject *object = [[RACTestObject alloc] init];
-		expect(^{
-			[object rac_signalForSelector:@selector(complexDoubleValue)];
-		}).to.raise(nil);
-	});
-
-	it(@"should not return a signal for float vector return methods", ^{
-		RACTestObject *object = [[RACTestObject alloc] init];
-		expect(^{
-			[object rac_signalForSelector:@selector(floatVectorValue)];
-		}).to.raise(nil);
-	});
-
-	it(@"should not return a signal for double vector return methods", ^{
-		RACTestObject *object = [[RACTestObject alloc] init];
-		expect(^{
-			[object rac_signalForSelector:@selector(doubleVectorValue)];
-		}).to.raise(nil);
-	});
 });
 
 it(@"should swizzle an NSObject method", ^{
@@ -405,30 +341,6 @@ describe(@"-rac_signalForSelector:fromProtocol", ^{
 
 		expect([object optionalMethodWithObject:@"foo" flag:YES]).to.equal(0);
 		expect(value).to.equal(RACTuplePack(@"foo", @YES));
-	});
-
-	it(@"should not inject a small struct returning method", ^{
-		expect(^{
-			[object rac_signalForSelector:@selector(optionalSmallStructValue) fromProtocol:protocol];
-		}).to.raise(nil);
-	});
-
-	it(@"should not inject a big struct returning method", ^{
-		expect(^{
-			[object rac_signalForSelector:@selector(optionalBigStructValue) fromProtocol:protocol];
-		}).to.raise(nil);
-	});
-
-	it(@"should not inject a complex float struct returning method", ^{
-		expect(^{
-			[object rac_signalForSelector:@selector(optionalComplexFloatStructValue) fromProtocol:protocol];
-		}).to.raise(nil);
-	});
-
-	it(@"should not inject a complex double struct returning method", ^{
-		expect(^{
-			[object rac_signalForSelector:@selector(optionalComplexDoubleStructValue) fromProtocol:protocol];
-		}).to.raise(nil);
 	});
 });
 

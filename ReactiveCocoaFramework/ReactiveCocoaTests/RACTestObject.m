@@ -107,36 +107,4 @@
 	return testStruct;
 }
 
-- (RACTestSmallStruct)smallStructValue {
-	return (RACTestSmallStruct){0, 0};
-}
-
-- (RACTestBigStruct)bigStructValue {
-	return (RACTestBigStruct){{0, 0.0}, {0, 0.0}};
-}
-
-- (RACTestComplexFloatStruct)complexFloatStructValue {
-	return (RACTestComplexFloatStruct){0.0, 0.0};
-}
-
-- (RACTestComplexDoubleStruct)complexDoubleStructValue {
-	return (RACTestComplexDoubleStruct){0.0, 0.0};
-}
-
-- (_Complex float)complexFloatValue {
-	return 1.0f * 1.0fi;
-}
-
-- (_Complex double)complexDoubleValue {
-	return 1.0 * 1.0i;
-}
-
-- (RACTestFloat4D)floatVectorValue {
-	return (RACTestFloat4D){1.0, 2.0, 3.0, 4.0};
-}
-
-- (RACTestDouble4D)doubleVectorValue {
-	return (RACTestDouble4D){1.0, 2.0, 3.0, 4.0};
-}
-
 @end

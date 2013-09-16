@@ -238,7 +238,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			RACTuplePack([streamClass return:@1]),
 			RACTuplePack([streamClass return:@2]),
 		]);
-		RACStream *stream = [baseStream flattenMap:RACMapToKeyPath(@keypath(RACTuple.new, first))];
+		RACStream *stream = [baseStream flattenMap:mapKeypath(RACTuple.new, first)];
 
 		verifyValues(stream, @[ @0, @1, @2 ]);
 	});

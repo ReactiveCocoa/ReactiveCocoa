@@ -44,6 +44,15 @@ NSString *lowercaseStringPath = @keypath(NSString.new, lowercaseString);
 #define keypath2(OBJ, PATH) \
     (((void)(NO && ((void)OBJ.PATH, NO)), # PATH))
 
+#define mapKeypath(...) \
+    metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__))(mapKeypath1(__VA_ARGS__))(mapKeypath2(__VA_ARGS__))
+
+#define mapKeypath1(PATH) \
+    ^(id x) { return [x valueForKeyPath:@keypath(PATH)]; }
+
+#define mapKeypath2(OBJ, PATH) \
+    ^(id x) { return [x valueForKeyPath:@keypath(OBJ, PATH)]; }
+
 /**
  * \@collectionKeypath allows compile-time verification of key paths across collections NSArray/NSSet etc. Given a real object
  * receiver, collection object receiver and related keypaths:

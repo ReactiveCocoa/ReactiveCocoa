@@ -86,18 +86,15 @@ static void RACSwizzleForwardInvocation(Class class) {
 	class_replaceMethod(class, forwardInvocationSEL, imp_implementationWithBlock(newForwardInvocation), "v@:@");
 }
 
-#if DEBUG
-
-#define CHECK_TYPE_ENCODING(TYPE_ENCODING) RACCheckTypeEncoding(TYPE_ENCODING)
-
 // It's hard to tell which struct return types use _objc_msgForward, and
 // which use _objc_msgForward_stret instead, so just exclude all struct, array,
 // union, complex and vector return types.
 static void RACCheckTypeEncoding(const char *typeEncoding) {
+#if !NS_BLOCK_ASSERTIONS
 	// Some types, including vector types, are not encoded. In these cases the
 	// signature starts with the size of the argument frame.
-	NSCAssert(*typeEncoding < '1' || *typeEncoding > '9', @"unknown method return type not supported");
-
+	NSCAssert(*typeEncoding < '1' || *typeEncoding > '9', @"unknown method return type not supported in type encoding: %s", typeEncoding);
+	
 	const char *returnType = [NSMethodSignature signatureWithObjCTypes:typeEncoding].methodReturnType;
 	NSCAssert(strstr(returnType, "(") == NULL, @"union method return type not supported");
 	NSCAssert(strstr(returnType, "{") == NULL, @"struct method return type not supported");
@@ -105,13 +102,8 @@ static void RACCheckTypeEncoding(const char *typeEncoding) {
 	NSCAssert(strcmp(returnType, @encode(_Complex float)) != 0, @"complex float method return type not supported");
 	NSCAssert(strcmp(returnType, @encode(_Complex double)) != 0, @"complex double method return type not supported");
 	NSCAssert(strcmp(returnType, @encode(_Complex long double)) != 0, @"complex long double method return type not supported");
+#endif // !NS_BLOCK_ASSERTIONS
 }
-
-#else
-
-#define CHECK_TYPE_ENCODING(TYPE_ENCODING)
-
-#endif // DEBUG
 
 static RACSignal *NSObjectRACSignalForSelector(NSObject *self, SEL selector, Protocol *protocol) {
 	SEL aliasSelector = RACAliasForSelector(selector);
@@ -149,7 +141,7 @@ static RACSignal *NSObjectRACSignalForSelector(NSObject *self, SEL selector, Pro
 				typeEncoding = methodDescription.types;
 			}
 
-			CHECK_TYPE_ENCODING(typeEncoding);
+			RACCheckTypeEncoding(typeEncoding);
 
 			// Define the selector to call -forwardInvocation:.
 			if (!class_addMethod(class, selector, _objc_msgForward, typeEncoding)) {
@@ -164,7 +156,7 @@ static RACSignal *NSObjectRACSignalForSelector(NSObject *self, SEL selector, Pro
 			// Make a method alias for the existing method implementation.
 			const char *typeEncoding = method_getTypeEncoding(targetMethod);
 
-			CHECK_TYPE_ENCODING(typeEncoding);
+			RACCheckTypeEncoding(typeEncoding);
 
 			BOOL addedAlias __attribute__((unused)) = class_addMethod(class, aliasSelector, method_getImplementation(targetMethod), typeEncoding);
 			NSCAssert(addedAlias, @"Original implementation for %@ is already copied to %@ on %@", NSStringFromSelector(selector), NSStringFromSelector(aliasSelector), class);

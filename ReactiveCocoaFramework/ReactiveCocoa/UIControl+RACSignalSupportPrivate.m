@@ -35,7 +35,7 @@
 			ignoreValues]
 			catchTo:RACSignal.empty]];
 	[[self
-		rac_liftSelector:@selector(valueForKey:) withSignals:eventSignal, nil]
+		rac_liftSelector:@selector(valueForKey:) withSignals:eventSignal]
 		subscribe:channel.followingTerminal];
 
 	RACSignal *valuesSignal = [channel.followingTerminal

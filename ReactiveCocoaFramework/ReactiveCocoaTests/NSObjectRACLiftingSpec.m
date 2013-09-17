@@ -28,7 +28,7 @@ describe(@"-rac_liftSelector:withSignals:", ^{
 
 	it(@"should call the selector with the value of the signal", ^{
 		RACSubject *subject = [RACSubject subject];
-		[object rac_liftSelector:@selector(setObjectValue:) withSignals:subject, nil];
+		[object rac_liftSelector:@selector(setObjectValue:) withSignals:subject];
 
 		expect(object.objectValue).to.beNil();
 

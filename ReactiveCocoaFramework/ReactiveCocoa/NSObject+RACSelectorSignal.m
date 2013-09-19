@@ -94,19 +94,13 @@ static void RACCheckTypeEncoding(const char *typeEncoding) {
 	// Some types, including vector types, are not encoded. In these cases the
 	// signature starts with the size of the argument frame.
 	NSCAssert(*typeEncoding < '1' || *typeEncoding > '9', @"unknown method return type not supported in type encoding: %s", typeEncoding);
+	NSCAssert(strstr(typeEncoding, "(") != typeEncoding, @"union method return type not supported");
+	NSCAssert(strstr(typeEncoding, "{") != typeEncoding, @"struct method return type not supported");
+	NSCAssert(strstr(typeEncoding, "[") != typeEncoding, @"array method return type not supported");
+	NSCAssert(strstr(typeEncoding, @encode(_Complex float)) != typeEncoding, @"complex float method return type not supported");
+	NSCAssert(strstr(typeEncoding, @encode(_Complex double)) != typeEncoding, @"complex double method return type not supported");
+	NSCAssert(strstr(typeEncoding, @encode(_Complex long double)) != typeEncoding, @"complex long double method return type not supported");
 
-	const char *nextDataType = NSGetSizeAndAlignment(typeEncoding, NULL, NULL);
-	size_t returnTypeLength = (size_t)(nextDataType - typeEncoding);
-	const char *returnType = strndup(typeEncoding, returnTypeLength);
-
-	NSCAssert(strstr(returnType, "(") == NULL, @"union method return type not supported");
-	NSCAssert(strstr(returnType, "{") == NULL, @"struct method return type not supported");
-	NSCAssert(strstr(returnType, "[") == NULL, @"array method return type not supported");
-	NSCAssert(strstr(returnType, @encode(_Complex float)) != returnType, @"complex float method return type not supported");
-	NSCAssert(strstr(returnType, @encode(_Complex double)) != returnType, @"complex double method return type not supported");
-	NSCAssert(strstr(returnType, @encode(_Complex long double)) != returnType, @"complex long double method return type not supported");
-
-	free((void *)returnType);
 #endif // !NS_BLOCK_ASSERTIONS
 }
 

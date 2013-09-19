@@ -24,4 +24,4 @@ HEADER_SEARCH_PATHS = $(OBJROOT)/UninstalledProducts/include
 SUPPORTED_PLATFORMS = iphonesimulator iphoneos
 
 // Supported architectures
-VALID_ARCHS = armv6 armv7 armv7s i386 x86_64
+VALID_ARCHS = armv6 armv7 armv7s arm64 i386 x86_64

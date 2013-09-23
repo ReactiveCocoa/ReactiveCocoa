@@ -322,6 +322,10 @@ For example, the following code:
             self.loggedIn = YES;
         }];
     }];
+
+    RAC(self, loggedIn) = [[NSNotificationCenter.defaultCenter
+        rac_addObserverForName:UserDidLogOutNotification object:nil]
+        mapReplace:@NO];
 }
 ```
 

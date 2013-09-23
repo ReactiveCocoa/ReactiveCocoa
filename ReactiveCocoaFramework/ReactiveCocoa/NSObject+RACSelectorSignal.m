@@ -14,6 +14,7 @@
 #import "RACObjCRuntime.h"
 #import "RACSubject.h"
 #import "RACTuple.h"
+#import "NSObject+RACDescription.h"
 #import <objc/message.h>
 #import <objc/runtime.h>
 
@@ -114,7 +115,7 @@ static RACSignal *NSObjectRACSignalForSelector(NSObject *self, SEL selector, Pro
 		Class class = RACSwizzleClass(self);
 		NSCAssert(class != nil, @"Could not swizzle class of %@", self);
 
-		subject = [RACSubject subject];
+		subject = [[RACSubject subject] setNameWithFormat:@"%@ -rac_signalForSelector: %@", self.rac_description, NSStringFromSelector(selector)];
 		objc_setAssociatedObject(self, aliasSelector, subject, OBJC_ASSOCIATION_RETAIN);
 
 		[self.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{

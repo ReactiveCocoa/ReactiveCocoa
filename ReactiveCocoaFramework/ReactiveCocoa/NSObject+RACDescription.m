@@ -7,6 +7,7 @@
 //
 
 #import "NSObject+RACDescription.h"
+#import "RACTuple.h"
 
 @implementation NSObject (RACDescription)
 
@@ -16,6 +17,30 @@
 #else
 	return @"(description skipped)";
 #endif
+}
+
+@end
+
+@implementation NSValue (RACDescription)
+
+- (NSString *)rac_description {
+	return self.description;
+}
+
+@end
+
+@implementation NSString (RACDescription)
+
+- (NSString *)rac_description {
+	return self.description;
+}
+
+@end
+
+@implementation RACTuple (RACDescription)
+
+- (NSString *)rac_description {
+	return self.allObjects.description;
 }
 
 @end

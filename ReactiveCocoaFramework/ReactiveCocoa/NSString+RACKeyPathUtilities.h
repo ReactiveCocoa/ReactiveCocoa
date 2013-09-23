@@ -10,24 +10,24 @@
 
 @interface NSString (RACKeyPathUtilities)
 
-// Returns an array of the components of the receiver.
-//
-// Calling this method on a string that isn't a key path is considered undefined
-// behavior.
+/// Returns an array of the components of the receiver.
+///
+/// Calling this method on a string that isn't a key path is considered undefined
+/// behavior.
 - (NSArray *)rac_keyPathComponents;
 
-// Returns a key path with all the components of the receiver except for the
-// last one.
-//
-// Calling this method on a string that isn't a key path is considered undefined
-// behavior.
+/// Returns a key path with all the components of the receiver except for the
+/// last one.
+///
+/// Calling this method on a string that isn't a key path is considered undefined
+/// behavior.
 - (NSString *)rac_keyPathByDeletingLastKeyPathComponent;
 
-// Returns a key path with all the components of the receiver expect for the
-// first one.
-//
-// Calling this method on a string that isn't a key path is considered undefined
-// behavior.
+/// Returns a key path with all the components of the receiver expect for the
+/// first one.
+///
+/// Calling this method on a string that isn't a key path is considered undefined
+/// behavior.
 - (NSString *)rac_keyPathByDeletingFirstKeyPathComponent;
 
 @end

@@ -36,39 +36,31 @@ static void RACUseDelegateProxy(UIWebView *self) {
 }
 
 - (RACSignal *)rac_loadedSignal {
-	@weakify(self);
 
-	RACSignal *loaded = [[[[[RACSignal
-									 defer:^{
-										 @strongify(self);
-										 return [RACSignal return:RACTuplePack(self)];
-									 }]
-									concat:[self.rac_delegateProxy signalForSelector:@selector(webViewDidFinishLoad:)]]
-								   reduceEach:^(UIWebView *x) {
-									   return x;
-								   }]
-								  takeUntil:self.rac_willDeallocSignal]
-								 setNameWithFormat:@"%@ -rac_webViewDidFinishLoad", self];
+	RACSignal *loaded = [[self.rac_delegateProxy
+		signalForSelector:@selector(webViewDidFinishLoad:)]
+		reduceEach:^(UIWebView *webview){
+			return [webview request];
+		}];
 
-	RACSignal *failed = [[[[[self.rac_delegateProxy
-							signalForSelector:@selector(webView:didFailLoadWithError:)]
-						   reduceEach:^(UIWebView *webview, NSError *error) {
-							   return error;
-						   }] filter:^BOOL(NSError *error) {
-							   // This error comes up almost every time you load html
-							   NSURL *failingURL = [error.userInfo objectForKey:@"NSErrorFailingURLKey"];
-							   return ![failingURL.absoluteString isEqualToString:@"about:blank"];
-						   }]
-						  takeUntil:self.rac_willDeallocSignal]
-						 setNameWithFormat:@"%@ -rac_webViewDidFailLoadWithError", [self rac_description]];
-
-	RACSignal *errorSignal = [failed flattenMap:^RACStream *(NSError *error) {
-		return [RACSignal error:error];
-	}];
+	RACSignal *failed = [[[[self.rac_delegateProxy
+		signalForSelector:@selector(webView:didFailLoadWithError:)]
+		reduceEach:^(UIWebView *webview, NSError *error) {
+			return error;
+		}] filter:^BOOL(NSError *error) {
+			// This error comes up almost every time you load html
+			NSURL *failingURL = [error.userInfo objectForKey:@"NSErrorFailingURLKey"];
+			return ![failingURL.absoluteString isEqualToString:@"about:blank"];
+		}]
+		flattenMap:^(NSError *error) {
+			return [RACSignal error:error];
+		}];
 
 	RACUseDelegateProxy(self);
 
-	return [RACSignal merge:@[ loaded , errorSignal ]];
+	return [[[RACSignal merge:@[ loaded , failed ]]
+		takeUntil:self.rac_willDeallocSignal]
+		setNameWithFormat:@"%@ -rac_loadedSignal", self];
 }
 
 @end

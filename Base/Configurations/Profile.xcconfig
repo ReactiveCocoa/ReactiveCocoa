@@ -22,3 +22,6 @@ STRIP_INSTALLED_PRODUCT = NO
 
 // Whether to perform App Store validation checks
 VALIDATE_PRODUCT = NO
+
+// Disable Developer ID timestamping
+OTHER_CODE_SIGN_FLAGS = --timestamp=none

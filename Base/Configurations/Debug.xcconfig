@@ -31,3 +31,6 @@ OTHER_CFLAGS = -ftrapv -fcatch-undefined-behavior
 // Whether to strip debugging symbols when copying the built product to its
 // final installation location
 STRIP_INSTALLED_PRODUCT = NO
+
+// Disable Developer ID timestamping
+OTHER_CODE_SIGN_FLAGS = --timestamp=none

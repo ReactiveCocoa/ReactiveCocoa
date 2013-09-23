@@ -29,7 +29,7 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 @interface RACPassthroughSubscriber ()
 
 // The subscriber to which events should be forwarded.
-@property (nonatomic, strong, readonly) NSObject<RACSubscriber> *innerSubscriber;
+@property (nonatomic, strong, readonly) id<RACSubscriber> innerSubscriber;
 
 // The signal sending events to this subscriber.
 //

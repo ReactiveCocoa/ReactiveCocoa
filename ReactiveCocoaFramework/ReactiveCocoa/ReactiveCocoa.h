@@ -21,6 +21,7 @@
 #import "RACChannel.h"
 #import "RACCommand.h"
 #import "RACCompoundDisposable.h"
+#import "RACDelegateProxy.h"
 #import "RACDisposable.h"
 #import "RACEvent.h"
 #import "RACGroupedSignal.h"

@@ -323,10 +323,9 @@ For example, the following code:
         }];
     }];
 
-    [[NSNotificationCenter.defaultCenter rac_addObserverForName:@"UserDidLogOutNotification" object:nil] subscribeNext:^(id _) {
-        @strongify(self);
-        self.loggedIn = NO;
-    }];
+    RAC(self, loggedIn) = [[NSNotificationCenter.defaultCenter
+        rac_addObserverForName:UserDidLogOutNotification object:nil]
+        mapReplace:@NO];
 }
 ```
 

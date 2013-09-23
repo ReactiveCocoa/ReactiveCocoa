@@ -44,7 +44,6 @@
 #import "RACUnit.h"
 
 #ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
-	#import "RACDelegateProxy.h"
 	#import "UIActionSheet+RACSignalSupport.h"
 	#import "UIAlertView+RACSignalSupport.h"
 	#import "UIBarButtonItem+RACCommandSupport.h"

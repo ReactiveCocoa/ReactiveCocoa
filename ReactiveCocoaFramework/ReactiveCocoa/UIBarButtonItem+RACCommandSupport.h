@@ -12,11 +12,11 @@
 
 @interface UIBarButtonItem (RACCommandSupport)
 
-// Sets the control's command. When the control is clicked, the command is
-// executed with the sender of the event. The control's enabledness is bound
-// to the command's `canExecute`.
-//
-// Note: this will reset the control's target and action.
+/// Sets the control's command. When the control is clicked, the command is
+/// executed with the sender of the event. The control's enabledness is bound
+/// to the command's `canExecute`.
+///
+/// Note: this will reset the control's target and action.
 @property (nonatomic, strong) RACCommand *rac_command;
 
 @end

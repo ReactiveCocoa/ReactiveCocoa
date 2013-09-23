@@ -12,7 +12,7 @@
 
 @interface UIGestureRecognizer (RACSignalSupport)
 
-// Returns a signal that sends the receiver when its gesture occurs.
+/// Returns a signal that sends the receiver when its gesture occurs.
 - (RACSignal *)rac_gestureSignal;
 
 @end

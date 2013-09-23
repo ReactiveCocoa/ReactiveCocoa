@@ -10,42 +10,42 @@
 #import "EXTKeyPathCoding.h"
 #import "metamacros.h"
 
-// Creates a signal which observes `KEYPATH` on `TARGET` for changes.
-//
-// In either case, the observation continues until `TARGET` _or self_ is
-// deallocated. If any intermediate object is deallocated instead, it will be
-// assumed to have been set to nil.
-//
-// Make sure to `@strongify(self)` when using this macro within a block! The
-// macro will _always_ reference `self`, which can silently introduce a retain
-// cycle within a block. As a result, you should make sure that `self` is a weak
-// reference (e.g., created by `@weakify` and `@strongify`) before the
-// expression that uses `RACObserve`.
-//
-// Examples
-//
-//    // Observes self, and doesn't stop until self is deallocated.
-//    RACSignal *selfSignal = RACObserve(self, arrayController.items);
-//
-//    // Observes the array controller, and stops when self _or_ the array
-//    // controller is deallocated.
-//    RACSignal *arrayControllerSignal = RACObserve(self.arrayController, items);
-//
-//    // Observes obj.arrayController, and stops when self _or_ the array
-//    // controller is deallocated.
-//    RACSignal *signal2 = RACObserve(obj.arrayController, items);
-//
-//    @weakify(self);
-//    RACSignal *signal3 = [anotherSignal flattenMap:^(NSArrayController *arrayController) {
-//        // Avoids a retain cycle because of RACObserve implicitly referencing
-//        // self.
-//        @strongify(self);
-//        return RACObserve(arrayController, items);
-//    }];
-//
-// Returns a signal which sends the current value of the key path on
-// subscription, then sends the new value every time it changes, and sends
-// completed if self or observer is deallocated.
+/// Creates a signal which observes `KEYPATH` on `TARGET` for changes.
+///
+/// In either case, the observation continues until `TARGET` _or self_ is
+/// deallocated. If any intermediate object is deallocated instead, it will be
+/// assumed to have been set to nil.
+///
+/// Make sure to `@strongify(self)` when using this macro within a block! The
+/// macro will _always_ reference `self`, which can silently introduce a retain
+/// cycle within a block. As a result, you should make sure that `self` is a weak
+/// reference (e.g., created by `@weakify` and `@strongify`) before the
+/// expression that uses `RACObserve`.
+///
+/// Examples
+///
+///    // Observes self, and doesn't stop until self is deallocated.
+///    RACSignal *selfSignal = RACObserve(self, arrayController.items);
+///
+///    // Observes the array controller, and stops when self _or_ the array
+///    // controller is deallocated.
+///    RACSignal *arrayControllerSignal = RACObserve(self.arrayController, items);
+///
+///    // Observes obj.arrayController, and stops when self _or_ the array
+///    // controller is deallocated.
+///    RACSignal *signal2 = RACObserve(obj.arrayController, items);
+///
+///    @weakify(self);
+///    RACSignal *signal3 = [anotherSignal flattenMap:^(NSArrayController *arrayController) {
+///        // Avoids a retain cycle because of RACObserve implicitly referencing
+///        // self.
+///        @strongify(self);
+///        return RACObserve(arrayController, items);
+///    }];
+///
+/// Returns a signal which sends the current value of the key path on
+/// subscription, then sends the new value every time it changes, and sends
+/// completed if self or observer is deallocated.
 #define RACObserve(TARGET, KEYPATH) \
     [(TARGET) rac_valuesForKeyPath:@keypath(TARGET, KEYPATH) observer:self]
 
@@ -54,24 +54,24 @@
 
 @interface NSObject (RACPropertySubscribing)
 
-// Creates a signal to observe the value at the given key path.
-//
-// The initial value is sent on subscription, the subsequent values are sent
-// from whichever thread the change occured on, even if it doesn't have a valid
-// scheduler.
-//
-// Returns a signal that immediately sends the receiver's current value at the
-// given keypath, then any changes thereafter.
+/// Creates a signal to observe the value at the given key path.
+///
+/// The initial value is sent on subscription, the subsequent values are sent
+/// from whichever thread the change occured on, even if it doesn't have a valid
+/// scheduler.
+///
+/// Returns a signal that immediately sends the receiver's current value at the
+/// given keypath, then any changes thereafter.
 - (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer;
 
-// Creates a signal to observe the changes of the given key path.
-//
-// The initial value is sent on subscription, the subsequent values are sent
-// from whichever thread the change occured on, even if it doesn't have a valid
-// scheduler.
-//
-// Returns a signal that sends tuples containing the current value at the key
-// path and the change dictionary for each KVO callback.
+/// Creates a signal to observe the changes of the given key path.
+///
+/// The initial value is sent on subscription, the subsequent values are sent
+/// from whichever thread the change occured on, even if it doesn't have a valid
+/// scheduler.
+///
+/// Returns a signal that sends tuples containing the current value at the key
+/// path and the change dictionary for each KVO callback.
 - (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer;
 
 @end

@@ -107,4 +107,10 @@
 	return testStruct;
 }
 
+- (dispatch_block_t)wrapBlock:(dispatch_block_t)block {
+	return ^{
+		block();
+	};
+}
+
 @end

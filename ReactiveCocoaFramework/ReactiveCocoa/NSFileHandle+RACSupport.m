@@ -8,6 +8,8 @@
 
 #import "NSFileHandle+RACSupport.h"
 #import "NSNotificationCenter+RACSupport.h"
+#import "RACReplaySubject.h"
+#import "RACDisposable.h"
 
 @implementation NSFileHandle (RACSupport)
 

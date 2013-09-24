@@ -7,6 +7,8 @@
 //
 
 #import "NSString+RACSupport.h"
+#import "RACReplaySubject.h"
+#import "RACScheduler.h"
 
 @implementation NSString (RACSupport)
 

@@ -7,6 +7,10 @@
 //
 
 #import "NSNotificationCenter+RACSupport.h"
+#import "RACSignal.h"
+#import "RACCompoundDisposable.h"
+#import "RACDisposable.h"
+#import "NSObject+RACDeallocating.h"
 
 static NSString * const TestNotification = @"TestNotification";
 

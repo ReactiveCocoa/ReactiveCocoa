@@ -7,7 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <ReactiveCocoa/ReactiveCocoa.h>
+
+@class RACSignal;
 
 @interface NSNotificationCenter (RACSupport)
 

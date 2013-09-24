@@ -7,6 +7,8 @@
 //
 
 #import "NSData+RACSupport.h"
+#import "RACReplaySubject.h"
+#import "RACScheduler.h"
 
 @implementation NSData (RACSupport)
 

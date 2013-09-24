@@ -47,7 +47,7 @@
 /// subscription, then sends the new value every time it changes, and sends
 /// completed if self or observer is deallocated.
 #define RACObserve(TARGET, KEYPATH) \
-    [(TARGET) rac_valuesForKeyPath:@keypath(TARGET, KEYPATH) observer:self]
+    [(id)(TARGET) rac_valuesForKeyPath:@keypath(TARGET, KEYPATH) observer:self]
 
 @class RACDisposable;
 @class RACSignal;

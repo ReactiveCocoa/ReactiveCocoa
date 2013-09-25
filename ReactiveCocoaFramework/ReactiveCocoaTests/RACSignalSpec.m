@@ -2881,6 +2881,20 @@ describe(@"-initially:", ^{
 		[signal subscribe:[RACSubscriber new]];
 		expect(initiallyInvokedCount).to.equal(2);
 	});
+
+	it(@"should compose top-down", ^{
+		__block NSMutableArray* scratch = [NSMutableArray array];
+		RACSignal *doubleDown = [[subject
+			initially:^{
+				[scratch addObject:@1];
+			}]
+			initially:^{
+				[scratch addObject:@2];
+			}];
+
+		[doubleDown subscribe:[RACSubscriber new]];
+		expect(scratch).to.equal((@[ @1, @2 ]));
+	});
 });
 
 describe(@"-finally:", ^{

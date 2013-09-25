@@ -273,10 +273,15 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 - (RACSignal *)initially:(void (^)(void))block {
 	NSCParameterAssert(block != NULL);
 
-	return [[RACSignal defer:^{
-		block();
-		return self;
-	}] setNameWithFormat:@"[%@] -initially:", self.name];
+	// To provide top-down composition of subscription side effects, first
+	// connect the subscriber, then perform the side effects of `block`.
+	return [[RACSignal
+		createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[self subscribe:subscriber];
+			block();
+			return nil;
+		}]
+		setNameWithFormat:@"[%@] -initially:", self.name];
 }
 
 - (RACSignal *)finally:(void (^)(void))block {

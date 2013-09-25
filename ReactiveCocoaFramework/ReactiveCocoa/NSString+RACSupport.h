@@ -7,7 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <ReactiveCocoa/ReactiveCocoa.h>
+
+@class RACSignal;
+@class RACScheduler;
 
 @interface NSString (RACSupport)
 

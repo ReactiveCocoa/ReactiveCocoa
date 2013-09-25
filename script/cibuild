@@ -36,4 +36,5 @@ xcodebuild -alltargets clean OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUI
 
 echo "*** Building..."
 xcodebuild -configuration "$XCCONFIGURATION" -scheme ReactiveCocoa build OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS || exit $?
+xcodebuild -configuration "$XCCONFIGURATION" -scheme ReactiveCocoa-Mac build OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS || exit $?
 xcodebuild -configuration "$XCCONFIGURATION" -sdk iphonesimulator -scheme ReactiveCocoa-iOS build OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS || exit $?

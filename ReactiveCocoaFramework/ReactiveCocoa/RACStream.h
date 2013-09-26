@@ -305,6 +305,10 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 /// empty stream is returned.
 - (instancetype)skipWhileBlock:(BOOL (^)(id x))predicate;
 
+/// Returns a stream of values for which -isEqual: returns NO when compared to the
+/// previous value.
+- (instancetype)distinctUntilChanged;
+
 @end
 
 @interface RACStream (Deprecated)

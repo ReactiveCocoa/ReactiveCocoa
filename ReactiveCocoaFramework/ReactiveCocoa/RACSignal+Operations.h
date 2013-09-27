@@ -109,8 +109,8 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 ///       }];
 ///
 /// Returns a signal that passes through all events of the receiver, plus
-/// inserts subscription side effects which occur prior to any subscription side
-/// effects of the receiver.
+/// introduces side effects which occur prior to any subscription side effects
+/// of the receiver.
 - (RACSignal *)initially:(void (^)(void))block;
 
 /// Execute the given block when the signal completes or errors.

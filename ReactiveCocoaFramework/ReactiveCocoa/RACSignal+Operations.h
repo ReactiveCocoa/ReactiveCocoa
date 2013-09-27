@@ -307,10 +307,6 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// This can be used to effectively turn a hot signal into a cold signal.
 + (RACSignal *)defer:(RACSignal * (^)(void))block;
 
-/// Send only `next`s for which -isEqual: returns NO when compared to the
-/// previous `next`.
-- (RACSignal *)distinctUntilChanged;
-
 /// Every time the receiver sends a new RACSignal, subscribes and sends `next`s and
 /// `error`s only for that signal.
 ///

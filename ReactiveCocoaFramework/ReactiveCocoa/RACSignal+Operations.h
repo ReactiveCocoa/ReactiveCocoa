@@ -96,10 +96,21 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 
 /// Execute the given block each time a subscription is created.
 ///
-/// block - A block which defines subscription side effects. This block is
-///         called *prior* to subscribing to the receiver. Consequentially, any
-///         subscription side effects of the receiver will happen *after* this
-///         block is called. Cannot be `nil`.
+/// block - A block which defines the subscription side effects. Cannot be `nil`.
+///
+/// Example:
+///
+///   [[updateSharedResource
+///       initially:^{
+///           [lock lock]; // <- Before updateSharedResource is subscribed to.
+///       }]
+///       finally:^{
+///           [lock unlock];
+///       }];
+///
+/// Returns a signal that passes through all events of the receiver, plus
+/// inserts subscription side effects which occur prior to any subscription side
+/// effects of the receiver.
 - (RACSignal *)initially:(void (^)(void))block;
 
 /// Execute the given block when the signal completes or errors.

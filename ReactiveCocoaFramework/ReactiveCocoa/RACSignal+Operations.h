@@ -102,7 +102,7 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 ///
 ///   [[updateSharedResource
 ///       initially:^{
-///           [lock lock]; // <- Before updateSharedResource is subscribed to.
+///           [lock lock]; // <- Before subscription side effects of updateSharedResource.
 ///       }]
 ///       finally:^{
 ///           [lock unlock];

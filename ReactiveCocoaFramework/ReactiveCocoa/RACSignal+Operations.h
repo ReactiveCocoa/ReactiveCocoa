@@ -100,12 +100,19 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 ///
 /// Example:
 ///
-///   [[updateSharedResource
+///   // Write new file, with backup.
+///   [[[[fileManager
+///       rac_createFileAtPath:path contents:data]
 ///       initially:^{
-///           [lock lock]; // <- Before subscription side effects of updateSharedResource.
+///           // 2. Second, backup current file
+///           [fileManager moveItemAtPath:path toPath:backupPath error:nil];
+///       }]
+///       initially:^{
+///           // 1. First, acquire write lock.
+///           [writeLock lock];
 ///       }]
 ///       finally:^{
-///           [lock unlock];
+///           [writeLock unlock];
 ///       }];
 ///
 /// Returns a signal that passes through all events of the receiver, plus

@@ -503,8 +503,6 @@ static void RACCheckActiveSignals(void) {
 		if (schedulingDisposable != nil) [disposable addDisposable:schedulingDisposable];
 	}
 	
-	[subscriber didSubscribeWithDisposable:disposable];
-	
 	return disposable;
 }
 

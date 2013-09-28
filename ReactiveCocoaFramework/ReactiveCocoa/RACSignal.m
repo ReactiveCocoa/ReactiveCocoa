@@ -33,7 +33,7 @@ static CFMutableSetRef RACActiveSignals = nil;
 // A linked list of RACSignals, used in RACActiveSignalsToCheck.
 typedef struct RACSignalList {
 	CFTypeRef retainedSignal;
-	struct RACSignalList *next;
+	struct RACSignalList * restrict next;
 } RACSignalList;
 
 // An atomic queue of signals to check for subscribers. If any signals with zero
@@ -44,13 +44,23 @@ static OSQueueHead RACActiveSignalsToCheck = OS_ATOMIC_QUEUE_INIT;
 // the main run loop.
 static volatile uint32_t RACWillCheckActiveSignals = 0;
 
-@interface RACSignal () {
-	// Contains all subscribers to the receiver.
-	//
-	// All access to this array must be synchronized using `_subscribersLock`.
-	NSMutableArray *_subscribers;
+// A linked list of <RACSubscriber>s to a signal.
+typedef struct RACSubscriberList {
+	CFTypeRef retainedSubscriber;
+	struct RACSubscriberList * restrict next;
+} RACSubscriberList;
 
-	// Synchronizes access to `_subscribers`.
+@interface RACSignal () {
+	// A singly-linked queue of all subscribers to the receiver.
+	//
+	// Since newer subscriptions are generally shorter-lived, subscribers are
+	// inserted at the head of the list, and the list is searched from head to
+	// tail when it's time to remove a subscriber.
+	//
+	// All access to this list must be synchronized using `_subscribersLock`.
+	RACSubscriberList *_subscriberList;
+
+	// Synchronizes access to `_subscriberList`.
 	OSSpinLock _subscribersLock;
 }
 
@@ -134,18 +144,26 @@ static volatile uint32_t RACWillCheckActiveSignals = 0;
 	return self;
 }
 
+- (void)dealloc {
+	RACSubscriberList * restrict head = _subscriberList;
+	while (head != NULL) {
+		CFRelease(head->retainedSubscriber);
+		head = head->next;
+	}
+}
+
 static void RACCheckActiveSignals(void) {
 	// Clear this flag now, so another thread can re-dispatch to the main queue
 	// as needed.
 	OSAtomicAnd32Barrier(0, &RACWillCheckActiveSignals);
 
-	RACSignalList *elem;
+	RACSignalList * restrict elem;
 
 	while ((elem = OSAtomicDequeue(&RACActiveSignalsToCheck, offsetof(RACSignalList, next))) != NULL) {
 		RACSignal *signal = CFBridgingRelease(elem->retainedSignal);
 		free(elem);
 
-		if (signal.subscriberCount > 0) {
+		if (signal.hasSubscribers) {
 			// We want to keep the signal around until all its subscribers are done
 			CFSetAddValue(RACActiveSignals, (__bridge void *)signal);
 		} else {
@@ -176,23 +194,30 @@ static void RACCheckActiveSignals(void) {
 
 #pragma mark Managing Subscribers
 
-- (NSUInteger)subscriberCount {
+- (BOOL)hasSubscribers {
 	OSSpinLockLock(&_subscribersLock);
-	NSUInteger count = _subscribers.count;
+	BOOL hasSubscribers = (_subscriberList != NULL);
 	OSSpinLockUnlock(&_subscribersLock);
 
-	return count;
+	return hasSubscribers;
 }
 
 - (void)performBlockOnEachSubscriber:(void (^)(id<RACSubscriber> subscriber))block {
 	NSCParameterAssert(block != NULL);
 
-	NSArray *currentSubscribers = nil;
+	NSMutableArray *subscribers = [[NSMutableArray alloc] initWithCapacity:1];
+
 	OSSpinLockLock(&_subscribersLock);
-	currentSubscribers = [_subscribers copy];
+	{
+		RACSubscriberList * restrict head = _subscriberList;
+		while (head != NULL) {
+			[subscribers addObject:(__bridge id)head->retainedSubscriber];
+			head = head->next;
+		}
+	}
 	OSSpinLockUnlock(&_subscribersLock);
 	
-	for (id<RACSubscriber> subscriber in currentSubscribers) {
+	for (id<RACSubscriber> subscriber in subscribers) {
 		block(subscriber);
 	}
 }
@@ -412,22 +437,54 @@ static void RACCheckActiveSignals(void) {
 
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 	subscriber = [[RACPassthroughSubscriber alloc] initWithSubscriber:subscriber signal:self disposable:disposable];
+
+	RACSubscriberList *newHead = calloc(1, sizeof(*newHead));
+	newHead->retainedSubscriber = CFBridgingRetain(subscriber);
 	
 	OSSpinLockLock(&_subscribersLock);
-	if (_subscribers == nil) _subscribers = [[NSMutableArray alloc] init];
-	[_subscribers addObject:subscriber];
+	{
+		if (_subscriberList == NULL) {
+			_subscriberList = newHead;
+		} else {
+			newHead->next = _subscriberList;
+			_subscriberList = newHead;
+		}
+	}
 	OSSpinLockUnlock(&_subscribersLock);
 	
-	@weakify(self, subscriber);
+	@weakify(self);
 	RACDisposable *defaultDisposable = [RACDisposable disposableWithBlock:^{
-		@strongify(self, subscriber);
+		@strongify(self);
 		if (self == nil) return;
 
 		BOOL stillHasSubscribers = YES;
 
 		OSSpinLockLock(&_subscribersLock);
-		[_subscribers removeObjectIdenticalTo:subscriber];
-		stillHasSubscribers = _subscribers.count > 0;
+		{
+			RACSubscriberList * restrict previous = NULL;
+			RACSubscriberList * restrict current = _subscriberList;
+			while (current != NULL) {
+				// If this is the node we allocated, remove it from the list.
+				if (current == newHead) {
+					RACSubscriberList *next = current->next;
+
+					if (previous == NULL) {
+						// This was the first node, so shift the entire list up.
+						stillHasSubscribers = (next != NULL);
+						_subscriberList = next;
+					} else {
+						previous->next = next;
+					}
+
+					CFRelease(current->retainedSubscriber);
+					free(current);
+					break;
+				}
+
+				previous = current;
+				current = current->next;
+			}
+		}
 		OSSpinLockUnlock(&_subscribersLock);
 		
 		if (!stillHasSubscribers) {

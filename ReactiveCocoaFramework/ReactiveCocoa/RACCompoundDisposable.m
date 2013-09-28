@@ -7,6 +7,7 @@
 //
 
 #import "RACCompoundDisposable.h"
+#import "RACCompoundDisposableProvider.h"
 #import <libkern/OSAtomic.h>
 
 @interface RACCompoundDisposable () {
@@ -99,6 +100,10 @@
 			shouldDispose = YES;
 		} else {
 			CFArrayAppendValue(_disposables, (__bridge void *)disposable);
+
+			if (RACCOMPOUNDDISPOSABLE_ADDED_ENABLED()) {
+				RACCOMPOUNDDISPOSABLE_ADDED(self.description.UTF8String, disposable.description.UTF8String, CFArrayGetCount(_disposables));
+			}
 		}
 	}
 	OSSpinLockUnlock(&_spinLock);
@@ -120,6 +125,10 @@
 				if (item == (__bridge void *)disposable) {
 					CFArrayRemoveValueAtIndex(_disposables, i);
 				}
+			}
+
+			if (RACCOMPOUNDDISPOSABLE_REMOVED_ENABLED()) {
+				RACCOMPOUNDDISPOSABLE_REMOVED(self.description.UTF8String, disposable.description.UTF8String, CFArrayGetCount(_disposables));
 			}
 		}
 	}

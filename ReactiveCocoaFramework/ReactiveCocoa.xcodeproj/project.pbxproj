@@ -273,6 +273,7 @@
 		D03525D917E2FAAD0099CBAB /* RACSignalProvider.d in Sources */ = {isa = PBXBuildFile; fileRef = D03525D317E2EBC90099CBAB /* RACSignalProvider.d */; };
 		D041376915D2281C004BBF80 /* RACKVOWrapperSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D041376815D2281C004BBF80 /* RACKVOWrapperSpec.m */; };
 		D0487AB3164314430085D890 /* RACStreamExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = D0487AB2164314430085D890 /* RACStreamExamples.m */; };
+		D049804217F91F42001EE042 /* EXTRuntimeExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D05F9D3417984EC000FD7982 /* EXTRuntimeExtensions.m */; };
 		D05AD39617F2D5700080895B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D05AD39517F2D5700080895B /* Cocoa.framework */; };
 		D05AD3BF17F2DA2A0080895B /* RACSubscriber.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CDF7FB150019CA00163A9F /* RACSubscriber.m */; };
 		D05AD3C017F2DA300080895B /* RACSubscriber.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CDF7FA150019CA00163A9F /* RACSubscriber.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -2454,6 +2455,7 @@
 				D05AD3D717F2DB1D0080895B /* RACEvent.m in Sources */,
 				D05AD3C117F2DB100080895B /* RACPassthroughSubscriber.m in Sources */,
 				D05AD3C617F2DB100080895B /* RACTuple.m in Sources */,
+				D049804217F91F42001EE042 /* EXTRuntimeExtensions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3215,6 +3217,7 @@
 				D05AD3B417F2D5710080895B /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

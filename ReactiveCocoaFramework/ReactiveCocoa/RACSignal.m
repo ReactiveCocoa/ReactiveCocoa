@@ -17,6 +17,7 @@
 #import "RACReplaySubject.h"
 #import "RACScheduler+Private.h"
 #import "RACScheduler.h"
+#import "RACSerialDisposable.h"
 #import "RACSignal+Operations.h"
 #import "RACSignal+Private.h"
 #import "RACSubject.h"
@@ -33,7 +34,7 @@ static CFMutableSetRef RACActiveSignals = nil;
 // A linked list of RACSignals, used in RACActiveSignalsToCheck.
 typedef struct RACSignalList {
 	CFTypeRef retainedSignal;
-	struct RACSignalList *next;
+	struct RACSignalList * restrict next;
 } RACSignalList;
 
 // An atomic queue of signals to check for subscribers. If any signals with zero
@@ -139,13 +140,13 @@ static void RACCheckActiveSignals(void) {
 	// as needed.
 	OSAtomicAnd32Barrier(0, &RACWillCheckActiveSignals);
 
-	RACSignalList *elem;
+	RACSignalList * restrict elem;
 
 	while ((elem = OSAtomicDequeue(&RACActiveSignalsToCheck, offsetof(RACSignalList, next))) != NULL) {
 		RACSignal *signal = CFBridgingRelease(elem->retainedSignal);
 		free(elem);
 
-		if (signal.subscriberCount > 0) {
+		if (signal.hasSubscribers) {
 			// We want to keep the signal around until all its subscribers are done
 			CFSetAddValue(RACActiveSignals, (__bridge void *)signal);
 		} else {
@@ -176,23 +177,24 @@ static void RACCheckActiveSignals(void) {
 
 #pragma mark Managing Subscribers
 
-- (NSUInteger)subscriberCount {
+- (BOOL)hasSubscribers {
 	OSSpinLockLock(&_subscribersLock);
-	NSUInteger count = _subscribers.count;
+	BOOL hasSubscribers = _subscribers.count > 0;
 	OSSpinLockUnlock(&_subscribersLock);
 
-	return count;
+	return hasSubscribers;
 }
 
 - (void)performBlockOnEachSubscriber:(void (^)(id<RACSubscriber> subscriber))block {
 	NSCParameterAssert(block != NULL);
 
-	NSArray *currentSubscribers = nil;
+	NSArray *subscribersCopy;
+
 	OSSpinLockLock(&_subscribersLock);
-	currentSubscribers = [_subscribers copy];
+	subscribersCopy = [_subscribers copy];
 	OSSpinLockUnlock(&_subscribersLock);
 	
-	for (id<RACSubscriber> subscriber in currentSubscribers) {
+	for (id<RACSubscriber> subscriber in subscribersCopy) {
 		block(subscriber);
 	}
 }
@@ -266,10 +268,8 @@ static void RACCheckActiveSignals(void) {
 				[signals addObject:signal];
 			}
 
-			RACCompoundDisposable *selfDisposable = [RACCompoundDisposable compoundDisposable];
+			RACSerialDisposable *selfDisposable = [[RACSerialDisposable alloc] init];
 			[compoundDisposable addDisposable:selfDisposable];
-
-			__weak RACDisposable *weakSelfDisposable = selfDisposable;
 
 			RACDisposable *disposable = [signal subscribeNext:^(id x) {
 				[subscriber sendNext:x];
@@ -278,18 +278,16 @@ static void RACCheckActiveSignals(void) {
 				[subscriber sendError:error];
 			} completed:^{
 				@autoreleasepool {
-					completeSignal(signal, weakSelfDisposable);
+					completeSignal(signal, selfDisposable);
 				}
 			}];
 
-			if (disposable != nil) [selfDisposable addDisposable:disposable];
+			selfDisposable.disposable = disposable;
 		};
 
 		@autoreleasepool {
-			RACCompoundDisposable *selfDisposable = [RACCompoundDisposable compoundDisposable];
+			RACSerialDisposable *selfDisposable = [[RACSerialDisposable alloc] init];
 			[compoundDisposable addDisposable:selfDisposable];
-
-			__weak RACDisposable *weakSelfDisposable = selfDisposable;
 
 			RACDisposable *bindingDisposable = [self subscribeNext:^(id x) {
 				BOOL stop = NO;
@@ -297,18 +295,18 @@ static void RACCheckActiveSignals(void) {
 
 				@autoreleasepool {
 					if (signal != nil) addSignal(signal);
-					if (signal == nil || stop) completeSignal(self, weakSelfDisposable);
+					if (signal == nil || stop) completeSignal(self, selfDisposable);
 				}
 			} error:^(NSError *error) {
 				[compoundDisposable dispose];
 				[subscriber sendError:error];
 			} completed:^{
 				@autoreleasepool {
-					completeSignal(self, weakSelfDisposable);
+					completeSignal(self, selfDisposable);
 				}
 			}];
 
-			if (bindingDisposable != nil) [selfDisposable addDisposable:bindingDisposable];
+			selfDisposable.disposable = bindingDisposable;
 		}
 
 		return compoundDisposable;
@@ -317,7 +315,7 @@ static void RACCheckActiveSignals(void) {
 
 - (RACSignal *)concat:(RACSignal *)signal {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+		RACSerialDisposable *serialDisposable = [[RACSerialDisposable alloc] init];
 
 		RACDisposable *sourceDisposable = [self subscribeNext:^(id x) {
 			[subscriber sendNext:x];
@@ -325,11 +323,11 @@ static void RACCheckActiveSignals(void) {
 			[subscriber sendError:error];
 		} completed:^{
 			RACDisposable *concattedDisposable = [signal subscribe:subscriber];
-			if (concattedDisposable != nil) [disposable addDisposable:concattedDisposable];
+			serialDisposable.disposable = concattedDisposable;
 		}];
 
-		if (sourceDisposable != nil) [disposable addDisposable:sourceDisposable];
-		return disposable;
+		serialDisposable.disposable = sourceDisposable;
+		return serialDisposable;
 	}] setNameWithFormat:@"[%@] -concat: %@", self.name, signal];
 }
 
@@ -337,8 +335,6 @@ static void RACCheckActiveSignals(void) {
 	NSCParameterAssert(signal != nil);
 
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
-
 		__block BOOL selfCompleted = NO;
 		NSMutableArray *selfValues = [NSMutableArray array];
 
@@ -346,7 +342,7 @@ static void RACCheckActiveSignals(void) {
 		NSMutableArray *otherValues = [NSMutableArray array];
 
 		void (^sendCompletedIfNecessary)(void) = ^{
-			@synchronized (disposable) {
+			@synchronized (selfValues) {
 				BOOL selfEmpty = (selfCompleted && selfValues.count == 0);
 				BOOL otherEmpty = (otherCompleted && otherValues.count == 0);
 				if (selfEmpty || otherEmpty) [subscriber sendCompleted];
@@ -354,7 +350,7 @@ static void RACCheckActiveSignals(void) {
 		};
 
 		void (^sendNext)(void) = ^{
-			@synchronized (disposable) {
+			@synchronized (selfValues) {
 				if (selfValues.count == 0) return;
 				if (otherValues.count == 0) return;
 
@@ -368,38 +364,37 @@ static void RACCheckActiveSignals(void) {
 		};
 
 		RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
-			@synchronized (disposable) {
+			@synchronized (selfValues) {
 				[selfValues addObject:x ?: RACTupleNil.tupleNil];
 				sendNext();
 			}
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
-			@synchronized (disposable) {
+			@synchronized (selfValues) {
 				selfCompleted = YES;
 				sendCompletedIfNecessary();
 			}
 		}];
 
-		if (selfDisposable != nil) [disposable addDisposable:selfDisposable];
-
 		RACDisposable *otherDisposable = [signal subscribeNext:^(id x) {
-			@synchronized (disposable) {
+			@synchronized (selfValues) {
 				[otherValues addObject:x ?: RACTupleNil.tupleNil];
 				sendNext();
 			}
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
-			@synchronized (disposable) {
+			@synchronized (selfValues) {
 				otherCompleted = YES;
 				sendCompletedIfNecessary();
 			}
 		}];
 
-		if (otherDisposable != nil) [disposable addDisposable:otherDisposable];
-
-		return disposable;
+		return [RACDisposable disposableWithBlock:^{
+			[selfDisposable dispose];
+			[otherDisposable dispose];
+		}];
 	}] setNameWithFormat:@"[%@] -zipWith: %@", self.name, signal];
 }
 
@@ -412,22 +407,35 @@ static void RACCheckActiveSignals(void) {
 
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 	subscriber = [[RACPassthroughSubscriber alloc] initWithSubscriber:subscriber signal:self disposable:disposable];
-	
+
 	OSSpinLockLock(&_subscribersLock);
-	if (_subscribers == nil) _subscribers = [[NSMutableArray alloc] init];
-	[_subscribers addObject:subscriber];
+	if (_subscribers == nil) {
+		_subscribers = [NSMutableArray arrayWithObject:subscriber];
+	} else {
+		[_subscribers addObject:subscriber];
+	}
 	OSSpinLockUnlock(&_subscribersLock);
 	
-	@weakify(self, subscriber);
+	@weakify(self);
 	RACDisposable *defaultDisposable = [RACDisposable disposableWithBlock:^{
-		@strongify(self, subscriber);
+		@strongify(self);
 		if (self == nil) return;
 
 		BOOL stillHasSubscribers = YES;
 
 		OSSpinLockLock(&_subscribersLock);
-		[_subscribers removeObjectIdenticalTo:subscriber];
-		stillHasSubscribers = _subscribers.count > 0;
+		{
+			// Since newer subscribers are generally shorter-lived, search
+			// starting from the end of the list.
+			NSUInteger index = [_subscribers indexOfObjectWithOptions:NSEnumerationReverse passingTest:^ BOOL (id<RACSubscriber> obj, NSUInteger index, BOOL *stop) {
+				return obj == subscriber;
+			}];
+
+			if (index != NSNotFound) {
+				[_subscribers removeObjectAtIndex:index];
+				stillHasSubscribers = _subscribers.count > 0;
+			}
+		}
 		OSSpinLockUnlock(&_subscribersLock);
 		
 		if (!stillHasSubscribers) {
@@ -445,8 +453,6 @@ static void RACCheckActiveSignals(void) {
 
 		if (schedulingDisposable != nil) [disposable addDisposable:schedulingDisposable];
 	}
-	
-	[subscriber didSubscribeWithDisposable:disposable];
 	
 	return disposable;
 }

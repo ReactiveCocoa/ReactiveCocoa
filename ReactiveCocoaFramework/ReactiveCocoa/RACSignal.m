@@ -45,23 +45,13 @@ static OSQueueHead RACActiveSignalsToCheck = OS_ATOMIC_QUEUE_INIT;
 // the main run loop.
 static volatile uint32_t RACWillCheckActiveSignals = 0;
 
-// A linked list of <RACSubscriber>s to a signal.
-typedef struct RACSubscriberList {
-	CFTypeRef retainedSubscriber;
-	struct RACSubscriberList * restrict next;
-} RACSubscriberList;
-
 @interface RACSignal () {
-	// A singly-linked queue of all subscribers to the receiver.
-	//
-	// Since newer subscriptions are generally shorter-lived, subscribers are
-	// inserted at the head of the list, and the list is searched from head to
-	// tail when it's time to remove a subscriber.
+	// Contains all subscribers to the receiver.
 	//
 	// All access to this list must be synchronized using `_subscribersLock`.
-	RACSubscriberList *_subscriberList;
+	NSMutableArray *_subscribers;
 
-	// Synchronizes access to `_subscriberList`.
+	// Synchronizes access to `_subscribers`.
 	OSSpinLock _subscribersLock;
 }
 
@@ -145,14 +135,6 @@ typedef struct RACSubscriberList {
 	return self;
 }
 
-- (void)dealloc {
-	RACSubscriberList * restrict head = _subscriberList;
-	while (head != NULL) {
-		CFRelease(head->retainedSubscriber);
-		head = head->next;
-	}
-}
-
 static void RACCheckActiveSignals(void) {
 	// Clear this flag now, so another thread can re-dispatch to the main queue
 	// as needed.
@@ -197,7 +179,7 @@ static void RACCheckActiveSignals(void) {
 
 - (BOOL)hasSubscribers {
 	OSSpinLockLock(&_subscribersLock);
-	BOOL hasSubscribers = (_subscriberList != NULL);
+	BOOL hasSubscribers = _subscribers.count > 0;
 	OSSpinLockUnlock(&_subscribersLock);
 
 	return hasSubscribers;
@@ -206,19 +188,13 @@ static void RACCheckActiveSignals(void) {
 - (void)performBlockOnEachSubscriber:(void (^)(id<RACSubscriber> subscriber))block {
 	NSCParameterAssert(block != NULL);
 
-	NSMutableArray *subscribers = [[NSMutableArray alloc] initWithCapacity:1];
+	NSArray *subscribersCopy;
 
 	OSSpinLockLock(&_subscribersLock);
-	{
-		RACSubscriberList * restrict head = _subscriberList;
-		while (head != NULL) {
-			[subscribers addObject:(__bridge id)head->retainedSubscriber];
-			head = head->next;
-		}
-	}
+	subscribersCopy = [_subscribers copy];
 	OSSpinLockUnlock(&_subscribersLock);
 	
-	for (id<RACSubscriber> subscriber in subscribers) {
+	for (id<RACSubscriber> subscriber in subscribersCopy) {
 		block(subscriber);
 	}
 }
@@ -432,17 +408,11 @@ static void RACCheckActiveSignals(void) {
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 	subscriber = [[RACPassthroughSubscriber alloc] initWithSubscriber:subscriber signal:self disposable:disposable];
 
-	RACSubscriberList *newHead = calloc(1, sizeof(*newHead));
-	newHead->retainedSubscriber = CFBridgingRetain(subscriber);
-	
 	OSSpinLockLock(&_subscribersLock);
-	{
-		if (_subscriberList == NULL) {
-			_subscriberList = newHead;
-		} else {
-			newHead->next = _subscriberList;
-			_subscriberList = newHead;
-		}
+	if (_subscribers == nil) {
+		_subscribers = [NSMutableArray arrayWithObject:subscriber];
+	} else {
+		[_subscribers addObject:subscriber];
 	}
 	OSSpinLockUnlock(&_subscribersLock);
 	
@@ -455,29 +425,13 @@ static void RACCheckActiveSignals(void) {
 
 		OSSpinLockLock(&_subscribersLock);
 		{
-			RACSubscriberList * restrict previous = NULL;
-			RACSubscriberList * restrict current = _subscriberList;
-			while (current != NULL) {
-				// If this is the node we allocated, remove it from the list.
-				if (current == newHead) {
-					RACSubscriberList *next = current->next;
+			// Since newer subscribers are generally shorter-lived, search
+			// starting from the end of the list.
+			NSUInteger index = [_subscribers indexOfObjectWithOptions:NSEnumerationReverse passingTest:^ BOOL (id<RACSubscriber> obj, NSUInteger index, BOOL *stop) {
+				return obj == subscriber;
+			}];
 
-					if (previous == NULL) {
-						// This was the first node, so shift the entire list up.
-						stillHasSubscribers = (next != NULL);
-						_subscriberList = next;
-					} else {
-						previous->next = next;
-					}
-
-					CFRelease(current->retainedSubscriber);
-					free(current);
-					break;
-				}
-
-				previous = current;
-				current = current->next;
-			}
+			if (index != NSNotFound) [_subscribers removeObjectAtIndex:index];
 		}
 		OSSpinLockUnlock(&_subscribersLock);
 		

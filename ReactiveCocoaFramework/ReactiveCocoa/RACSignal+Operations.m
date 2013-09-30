@@ -862,21 +862,6 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"+defer:"];
 }
 
-- (RACSignal *)distinctUntilChanged {
-	return [[self bind:^{
-		__block id lastValue = nil;
-		__block BOOL initial = YES;
-
-		return ^(id x, BOOL *stop) {
-			if (!initial && (lastValue == x || [x isEqual:lastValue])) return [RACSignal empty];
-
-			initial = NO;
-			lastValue = x;
-			return [RACSignal return:x];
-		};
-	}] setNameWithFormat:@"[%@] -distinctUntilChanged", self.name];
-}
-
 - (NSArray *)toArray {
 	return [[[self collect] first] copy];
 }

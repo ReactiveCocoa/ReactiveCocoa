@@ -314,6 +314,23 @@
 	}] setNameWithFormat:@"[%@] -skipUntilBlock:", self.name];
 }
 
+- (instancetype)distinctUntilChanged {
+	Class class = self.class;
+
+	return [[self bind:^{
+		__block id lastValue = nil;
+		__block BOOL initial = YES;
+
+		return ^(id x, BOOL *stop) {
+			if (!initial && (lastValue == x || [x isEqual:lastValue])) return [class empty];
+
+			initial = NO;
+			lastValue = x;
+			return [class return:x];
+		};
+	}] setNameWithFormat:@"[%@] -distinctUntilChanged", self.name];
+}
+
 @end
 
 @implementation RACStream (Deprecated)

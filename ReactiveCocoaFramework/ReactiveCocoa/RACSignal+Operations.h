@@ -95,6 +95,29 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 - (RACSignal *)repeat;
 
 /// Execute the given block each time a subscription is created.
+///
+/// block - A block which defines the subscription side effects. Cannot be `nil`.
+///
+/// Example:
+///
+///   // Write new file, with backup.
+///   [[[[fileManager
+///       rac_createFileAtPath:path contents:data]
+///       initially:^{
+///           // 2. Second, backup current file
+///           [fileManager moveItemAtPath:path toPath:backupPath error:nil];
+///       }]
+///       initially:^{
+///           // 1. First, acquire write lock.
+///           [writeLock lock];
+///       }]
+///       finally:^{
+///           [writeLock unlock];
+///       }];
+///
+/// Returns a signal that passes through all events of the receiver, plus
+/// introduces side effects which occur prior to any subscription side effects
+/// of the receiver.
 - (RACSignal *)initially:(void (^)(void))block;
 
 /// Execute the given block when the signal completes or errors.
@@ -306,10 +329,6 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 ///
 /// This can be used to effectively turn a hot signal into a cold signal.
 + (RACSignal *)defer:(RACSignal * (^)(void))block;
-
-/// Send only `next`s for which -isEqual: returns NO when compared to the
-/// previous `next`.
-- (RACSignal *)distinctUntilChanged;
 
 /// Every time the receiver sends a new RACSignal, subscribes and sends `next`s and
 /// `error`s only for that signal.

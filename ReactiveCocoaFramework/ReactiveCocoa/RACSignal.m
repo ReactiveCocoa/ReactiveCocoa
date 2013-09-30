@@ -431,7 +431,10 @@ static void RACCheckActiveSignals(void) {
 				return obj == subscriber;
 			}];
 
-			if (index != NSNotFound) [_subscribers removeObjectAtIndex:index];
+			if (index != NSNotFound) {
+				[_subscribers removeObjectAtIndex:index];
+				stillHasSubscribers = _subscribers.count > 0;
+			}
 		}
 		OSSpinLockUnlock(&_subscribersLock);
 		

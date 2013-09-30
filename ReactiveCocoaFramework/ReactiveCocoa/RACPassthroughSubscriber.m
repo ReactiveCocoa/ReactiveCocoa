@@ -58,6 +58,7 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 	_signal = signal;
 	_disposable = disposable;
 
+	[self.innerSubscriber didSubscribeWithDisposable:self.disposable];
 	return self;
 }
 
@@ -94,15 +95,6 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 }
 
 - (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
-	if (self.disposable.disposed) {
-		[disposable dispose];
-		return;
-	}
-
-	// We don't actually need to save this disposable, since the inner
-	// subscriber will take care of it. We only care about cutting off the event
-	// stream.
-	[self.innerSubscriber didSubscribeWithDisposable:disposable];
 }
 
 @end

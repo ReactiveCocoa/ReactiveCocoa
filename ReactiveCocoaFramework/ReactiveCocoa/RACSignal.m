@@ -48,7 +48,7 @@ static volatile uint32_t RACWillCheckActiveSignals = 0;
 @interface RACSignal () {
 	// Contains all subscribers to the receiver.
 	//
-	// All access to this list must be synchronized using `_subscribersLock`.
+	// All access to this array must be synchronized using `_subscribersLock`.
 	NSMutableArray *_subscribers;
 
 	// Synchronizes access to `_subscribers`.

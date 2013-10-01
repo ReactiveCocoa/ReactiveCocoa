@@ -394,6 +394,7 @@
 		D066C796176D262500C242D2 /* UIControlRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D066C795176D262500C242D2 /* UIControlRACSupportSpec.m */; };
 		D066C79D176D263D00C242D2 /* RACTestUIButton.m in Sources */ = {isa = PBXBuildFile; fileRef = D066C79C176D263D00C242D2 /* RACTestUIButton.m */; };
 		D0700F4C1672994D00D7CD30 /* NSNotificationCenterRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D0700F4B1672994D00D7CD30 /* NSNotificationCenterRACSupportSpec.m */; };
+		D070CBC517FB5E370017F121 /* RACCompoundDisposableProvider.d in Sources */ = {isa = PBXBuildFile; fileRef = D020F3DA17F6A3E40092BED2 /* RACCompoundDisposableProvider.d */; };
 		D07200251788C57200987F70 /* RACTestSchedulerSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D07200241788C57200987F70 /* RACTestSchedulerSpec.m */; };
 		D07200261788C57200987F70 /* RACTestSchedulerSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D07200241788C57200987F70 /* RACTestSchedulerSpec.m */; };
 		D075A72A17BCB7E100C24FB7 /* RACControlCommandExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = D075A72917BCB7E100C24FB7 /* RACControlCommandExamples.m */; };
@@ -2406,6 +2407,7 @@
 				D05AD3FE17F2DB5D0080895B /* RACQueueScheduler.m in Sources */,
 				D05AD42517F2DB6E0080895B /* NSText+RACSignalSupport.m in Sources */,
 				D05AD43017F2DB840080895B /* RACValueTransformer.m in Sources */,
+				D070CBC517FB5E370017F121 /* RACCompoundDisposableProvider.d in Sources */,
 				D05AD3F217F2DB4F0080895B /* RACEagerSequence.m in Sources */,
 				D05AD3F617F2DB4F0080895B /* RACTupleSequence.m in Sources */,
 				D05AD3E917F2DB230080895B /* RACSerialDisposable.m in Sources */,

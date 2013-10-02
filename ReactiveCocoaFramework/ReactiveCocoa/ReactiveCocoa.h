@@ -21,6 +21,7 @@
 #import "NSSet+RACSequenceAdditions.h"
 #import "NSString+RACSequenceAdditions.h"
 #import "NSString+RACSupport.h"
+#import "NSURLConnection+RACSupport.h"
 #import "RACBehaviorSubject.h"
 #import "RACChannel.h"
 #import "RACCommand.h"

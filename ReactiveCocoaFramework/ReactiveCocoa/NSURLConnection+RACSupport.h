@@ -12,13 +12,14 @@
 
 @interface NSURLConnection (RACSupport)
 
-// Loads data for the given request in the background.
+// Lazily loads data for the given request in the background.
 //
 // request - The URL request to load. This must not be nil.
 //
-// Returns a signal which will send a `RACTuple` of the received `NSURLResponse`
-// and downloaded `NSData`, then complete, on a background thread. If any errors
-// occur, the returned signal will error out.
+// Returns a signal which will begin loading the request upon each subscription,
+// then send a `RACTuple` of the received `NSURLResponse` and downloaded
+// `NSData`, and complete on a background thread. If any errors occur, the
+// returned signal will error out.
 + (RACSignal *)rac_sendAsynchronousRequest:(NSURLRequest *)request;
 
 @end

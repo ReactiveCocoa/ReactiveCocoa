@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1668027A17FE75E900C724B4 /* UICollectionViewCell+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 1668027817FE75E900C724B4 /* UICollectionViewCell+RACSignalSupport.h */; };
+		1646747B17FFA0610036E30B /* UICollectionViewCell+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 1668027817FE75E900C724B4 /* UICollectionViewCell+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1668028017FE75F900C724B4 /* UICollectionViewCell+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 1668027917FE75E900C724B4 /* UICollectionViewCell+RACSignalSupport.m */; };
 		1668028317FE775200C724B4 /* UICollectionViewCellRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 1668028117FE774800C724B4 /* UICollectionViewCellRACSupportSpec.m */; };
 		1860F414177C91B500C7B3C9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1860F413177C91B500C7B3C9 /* UIKit.framework */; };
@@ -1649,7 +1649,6 @@
 				88037FC11505646C001A5B19 /* RACCommand.h in Headers */,
 				88037FC21505646C001A5B19 /* NSControl+RACCommandSupport.h in Headers */,
 				D028DB74179E53CB00D1042F /* RACSerialDisposable.h in Headers */,
-				1668027A17FE75E900C724B4 /* UICollectionViewCell+RACSignalSupport.h in Headers */,
 				880B9176150B09190008488E /* RACSubject.h in Headers */,
 				D090767F17FBEADE00EB087A /* NSURLConnection+RACSupport.h in Headers */,
 				88F440D3153DADEA0097B4C3 /* NSObject+RACAppKitBindings.h in Headers */,
@@ -1731,6 +1730,7 @@
 				D08FF281169A333400743C6D /* NSDictionary+RACSequenceAdditions.h in Headers */,
 				D08FF282169A333400743C6D /* NSOrderedSet+RACSequenceAdditions.h in Headers */,
 				D028DB87179E616700D1042F /* UITableViewCell+RACSignalSupport.h in Headers */,
+				1646747B17FFA0610036E30B /* UICollectionViewCell+RACSignalSupport.h in Headers */,
 				D08FF283169A333400743C6D /* NSSet+RACSequenceAdditions.h in Headers */,
 				D08FF284169A333400743C6D /* NSString+RACSequenceAdditions.h in Headers */,
 				D08FF285169A333400743C6D /* UIControl+RACSignalSupport.h in Headers */,

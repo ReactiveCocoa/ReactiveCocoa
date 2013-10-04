@@ -10,6 +10,7 @@
 
 @class RACSignal;
 
+// This category is only applicable to iOS >= 6.0.
 @interface UICollectionViewCell (RACSignalSupport)
 
 /// A signal which will send a RACUnit whenever -prepareForReuse is invoked upon

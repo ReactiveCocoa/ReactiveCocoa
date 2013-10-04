@@ -53,7 +53,6 @@
 	#import "UIAlertView+RACSignalSupport.h"
 	#import "UIBarButtonItem+RACCommandSupport.h"
 	#import "UIButton+RACCommandSupport.h"
-	#import "UICollectionViewCell+RACSignalSupport.h"
 	#import "UIControl+RACSignalSupport.h"
 	#import "UIDatePicker+RACSignalSupport.h"
 	#import "UIGestureRecognizer+RACSignalSupport.h"

@@ -46,11 +46,27 @@ it(@"should send on rac_prepareForReuseSignal", ^{
 	
 	expect(invocationCount).to.equal(0);
 	
-	[collectionViewController.collectionView reloadData];
-	expect(invocationCount).will.equal(1);
+	// The following two expectations will fail in the iOS 7 simulator, but pass on an iPad 4th gen device running iOS7.
+	// This appears to be a known issue with the iOS 7 simulator. See http://openradar.appspot.com/14973972
+	// These tests should pass with 6.0 <= iOS < 7.
 	
-	[collectionViewController.collectionView reloadData];
-	expect(invocationCount).will.equal(2);
+	void (^expectInvocationCount)(void) = ^{
+		[collectionViewController.collectionView reloadData];
+		expect(invocationCount).will.equal(1);
+		
+		[collectionViewController.collectionView reloadData];
+		expect(invocationCount).will.equal(2);
+	};
+
+	if ([[[UIDevice currentDevice] systemVersion] compare:@"7.0" options:NSNumericSearch] == NSOrderedAscending) {
+		expectInvocationCount();
+	} else {
+#if !(TARGET_IPHONE_SIMULATOR)
+		if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+			expectInvocationCount();
+		}
+#endif
+	}
 });
 
 SpecEnd

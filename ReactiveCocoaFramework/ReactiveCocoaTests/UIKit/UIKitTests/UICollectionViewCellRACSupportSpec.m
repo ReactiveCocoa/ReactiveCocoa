@@ -28,8 +28,7 @@ beforeEach(^{
 	collectionViewController = [[TestCollectionViewController alloc] initWithCollectionViewLayout:collectionViewFlowLayout];
 	expect(collectionViewController).notTo.beNil();
 	
-	[collectionViewController.collectionView registerClass:[UICollectionViewCell class]
-								forCellWithReuseIdentifier:NSStringFromClass(collectionViewController.class)];
+	[collectionViewController.collectionView registerClass:UICollectionViewCell.class forCellWithReuseIdentifier:NSStringFromClass(collectionViewController.class)];
 	
 	RACAppDelegate.delegate.window.rootViewController = collectionViewController;
 	expect(collectionViewController.collectionView.visibleCells.count).will.beGreaterThan(0);
@@ -49,7 +48,7 @@ it(@"should send on rac_prepareForReuseSignal", ^{
 	// The following two expectations will fail in the iOS 7 simulator, but pass on an iPad 4th gen device running iOS 7.
 	// This appears to be a known issue with the iOS 7 simulator. See http://openradar.appspot.com/14973972
 	// These tests will pass with iOS 6.0 and 6.1.
-	if ([[[UIDevice currentDevice] systemVersion] compare:@"7.0" options:NSNumericSearch] == NSOrderedAscending ||
+	if ([UIDevice.currentDevice.systemVersion compare:@"7.0" options:NSNumericSearch] == NSOrderedAscending ||
 		(!TARGET_IPHONE_SIMULATOR && UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)) {
 		[collectionViewController.collectionView reloadData];
 		expect(invocationCount).will.equal(1);

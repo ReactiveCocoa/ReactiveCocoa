@@ -53,6 +53,53 @@ describe(@"-connect", ^{
 		expect(subscriptionCount).to.equal(1);
 		expect(disposable1).to.equal(disposable2);
 	});
+
+	it(@"shouldn't race when connecting", ^{
+		dispatch_group_t outerGroup = dispatch_group_create();
+		dispatch_group_t innerGroup = dispatch_group_create();
+
+		__block BOOL shouldConnect = NO;
+		NSCondition *condition = [[NSCondition alloc] init];
+
+		__block int64_t failCount = 0;
+
+		for (NSUInteger idx = 0; idx < 50; idx++) {
+			dispatch_group_enter(outerGroup);
+			dispatch_group_enter(innerGroup);
+
+			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+				[condition lock];
+
+				dispatch_group_leave(innerGroup);
+				while (!shouldConnect) {
+					[condition wait];
+				}
+
+				[condition unlock];
+
+				RACDisposable *disposable = [connection connect];
+				if (disposable == nil) OSAtomicIncrement64(&failCount);
+
+				dispatch_group_leave(outerGroup);
+			});
+		}
+
+		dispatch_group_wait(innerGroup, DISPATCH_TIME_FOREVER);
+
+		[condition lock];
+
+		shouldConnect = YES;
+		[condition broadcast];
+
+		[condition unlock];
+
+		dispatch_group_wait(outerGroup, DISPATCH_TIME_FOREVER);
+
+		expect(failCount).to.equal(0);
+
+		dispatch_release(outerGroup);
+		dispatch_release(innerGroup);
+	});
 });
 
 describe(@"-autoconnect", ^{

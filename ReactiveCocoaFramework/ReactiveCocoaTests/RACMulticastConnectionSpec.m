@@ -11,6 +11,7 @@
 #import "RACSignal+Operations.h"
 #import "RACSubscriber.h"
 #import "RACReplaySubject.h"
+#import <libkern/OSAtomic.h>
 
 SpecBegin(RACMulticastConnection)
 

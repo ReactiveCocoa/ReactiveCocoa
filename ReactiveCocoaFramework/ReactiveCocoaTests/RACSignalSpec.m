@@ -2113,6 +2113,52 @@ describe(@"-catch:", ^{
 	});
 });
 
+describe(@"passWhen:sendError:", ^{
+	it(@"should pass values that return YES from the passBlock", ^{
+		RACSubject *subject = [RACSubject subject];
+		
+		RACSignal *signal = [subject passWhen:^BOOL(id value) {
+			return YES;
+		} sendError:^NSError *(id failingValue) {
+			return [NSError errorWithDomain:RACSignalErrorDomain code:1 userInfo:@{NSLocalizedDescriptionKey : @"An Error"}];
+		}];
+		
+		__block NSError *receivedError = nil;
+		[signal subscribeError:^(NSError *error) {
+			receivedError = error;
+		}];
+		
+		[subject sendNext:@"foo"];
+		[subject sendNext:@"bar"];
+		[subject sendNext:@"baz"];
+		[subject sendNext:@"buzz"];
+		
+		expect(receivedError).to.beNil();
+	});
+	
+	it(@"should send errors for values that return NO from the passBlock", ^{
+		RACSubject *subject = [RACSubject subject];
+		
+		RACSignal *signal = [subject passWhen:^BOOL(id value) {
+			return ![value isEqualToString:@"baz"];
+		} sendError:^(id failingValue) {
+			return [NSError errorWithDomain:RACSignalErrorDomain code:1 userInfo:@{NSLocalizedDescriptionKey : @"An Error"}];
+		}];
+		
+		__block NSError *receivedError = nil;
+		[signal subscribeError:^(NSError *error) {
+			receivedError = error;
+		}];
+		
+		[subject sendNext:@"foo"];
+		[subject sendNext:@"bar"];
+		[subject sendNext:@"baz"];
+		[subject sendNext:@"buzz"];
+		
+		expect(receivedError).toNot.beNil();
+	});
+});
+
 describe(@"throttling", ^{
 	__block RACSubject *subject;
 

@@ -303,6 +303,10 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// Subscribe to the given signal when an error occurs.
 - (RACSignal *)catchTo:(RACSignal *)signal;
 
+// Passes values from the receiver when 'passBlock' returns a YES
+// Sends an error created in 'errorBlock' when 'passBlock' returns NO
+- (RACSignal *)passWhen:(BOOL (^)(id value))passBlock sendError:(NSError * (^)(id failingValue))errorBlock;
+
 /// Returns the first `next`. Note that this is a blocking call.
 - (id)first;
 

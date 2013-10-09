@@ -270,6 +270,12 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -catchTo: %@", self.name, signal];
 }
 
+- (RACSignal *)passWhen:(BOOL (^)(id value))passBlock sendError:(NSError * (^)(id failingValue))errorBlock {
+	return [[[self map:^(id value) {
+		return passBlock(value) ? [RACSignal return:value] : [RACSignal error:errorBlock(value)];
+	}] switchToLatest] setNameWithFormat:@"[%@] -passWhen:sendError:", self.name];
+}
+
 - (RACSignal *)initially:(void (^)(void))block {
 	NSCParameterAssert(block != NULL);
 

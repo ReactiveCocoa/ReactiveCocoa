@@ -43,16 +43,11 @@
 #pragma mark Connecting
 
 - (RACDisposable *)connect {
-	BOOL shouldConnect = NO;
 	@synchronized(self) {
 		if (!self.hasConnected) {
-			shouldConnect = YES;
+			self.disposable = [self.sourceSignal subscribe:_signal];
 			self.hasConnected = YES;
 		}
-	}
-
-	if (shouldConnect) {
-		self.disposable = [self.sourceSignal subscribe:_signal];
 	}
 
 	return self.disposable;

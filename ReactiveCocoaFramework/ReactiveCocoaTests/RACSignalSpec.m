@@ -2114,7 +2114,7 @@ describe(@"-catch:", ^{
 });
 
 describe(@"-try:", ^{
-	it(@"should pass values that return YES tryBlock", ^{
+	it(@"should pass values that while YES is returned in the tryBlock", ^{
 		RACSubject *subject = [RACSubject subject];
 		
 		__block NSError *receivedError = nil;
@@ -2148,7 +2148,7 @@ describe(@"-try:", ^{
 		expect(receivedValues).to.equal(expectedValues);
 	});
 	
-	it(@"should send errors for values that return NO from the passBlock", ^{
+	it(@"should pass values until an NO is returned from the tryBlock", ^{
 		RACSubject *subject = [RACSubject subject];
 		
 		__block NSError *receivedError = nil;
@@ -2184,7 +2184,7 @@ describe(@"-try:", ^{
 });
 
 describe(@"-tryMap:", ^{
-	it(@"should map values that do not set an error byref", ^{
+	it(@"should map values with the mapBlock", ^{
 		RACSubject *subject = [RACSubject subject];
 		
 		__block NSError *receivedError = nil;
@@ -2218,7 +2218,7 @@ describe(@"-tryMap:", ^{
 		expect(receivedValues).to.equal(expectedValues);
 	});
 	
-	it(@"should send an error when the map block sets an error byref", ^{
+	it(@"should map values from the mapBlock until the mapBlock sets an error byref", ^{
 		RACSubject *subject = [RACSubject subject];
 		
 		__block NSError *receivedError = nil;

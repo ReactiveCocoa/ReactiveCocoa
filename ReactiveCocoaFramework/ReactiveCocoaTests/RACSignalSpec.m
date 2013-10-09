@@ -2113,49 +2113,143 @@ describe(@"-catch:", ^{
 	});
 });
 
-describe(@"passWhen:sendError:", ^{
-	it(@"should pass values that return YES from the passBlock", ^{
+describe(@"-try:", ^{
+	it(@"should pass values that return YES tryBlock", ^{
 		RACSubject *subject = [RACSubject subject];
 		
-		RACSignal *signal = [subject passWhen:^BOOL(id value) {
-			return YES;
-		} sendError:^NSError *(id failingValue) {
-			return [NSError errorWithDomain:RACSignalErrorDomain code:1 userInfo:@{NSLocalizedDescriptionKey : @"An Error"}];
+		__block NSError *receivedError = nil;
+		RACSignal *signal = [[subject try:^(NSString *value, NSError *__autoreleasing *error) {
+			if(value)
+				return YES;
+			
+			if(error)
+				*error = [NSError errorWithDomain:RACSignalErrorDomain code:1 userInfo:@{NSLocalizedDescriptionKey : @"An Error"}];
+			
+			return NO;
+		}] doError:^(NSError *error) {
+			receivedError = error;
 		}];
 		
-		__block NSError *receivedError = nil;
-		[signal subscribeError:^(NSError *error) {
-			receivedError = error;
+		NSMutableArray *values = [NSMutableArray array];
+		[signal subscribeNext:^(id x) {
+			[values addObject:x];
 		}];
 		
 		[subject sendNext:@"foo"];
 		[subject sendNext:@"bar"];
 		[subject sendNext:@"baz"];
 		[subject sendNext:@"buzz"];
+		[subject sendCompleted];
+		
+		NSArray *receivedValues = [values copy];
+		NSArray *expectedValues = @[ @"foo", @"bar", @"baz", @"buzz" ];
 		
 		expect(receivedError).to.beNil();
+		expect(receivedValues).to.equal(expectedValues);
 	});
 	
 	it(@"should send errors for values that return NO from the passBlock", ^{
 		RACSubject *subject = [RACSubject subject];
 		
-		RACSignal *signal = [subject passWhen:^BOOL(id value) {
-			return ![value isEqualToString:@"baz"];
-		} sendError:^(id failingValue) {
-			return [NSError errorWithDomain:RACSignalErrorDomain code:1 userInfo:@{NSLocalizedDescriptionKey : @"An Error"}];
+		__block NSError *receivedError = nil;
+		RACSignal *signal = [[subject try:^(NSString *value, NSError *__autoreleasing *error) {
+			if(value)
+				return YES;
+
+			if(error)
+				*error = [NSError errorWithDomain:RACSignalErrorDomain code:1 userInfo:@{NSLocalizedDescriptionKey : @"An Error"}];
+			
+			return NO;
+		}] doError:^(NSError *error) {
+			receivedError = error;
 		}];
 		
+		NSMutableArray *values = [NSMutableArray array];
+		[signal subscribeNext:^(id x) {
+			[values addObject:x];
+		}];
+				
+		[subject sendNext:@"foo"];
+		[subject sendNext:@"bar"];
+		[subject sendNext:nil];
+		[subject sendNext:@"buzz"];
+		[subject sendCompleted];
+		
+		NSArray *receivedValues = [values copy];
+		NSArray *expectedValues = @[ @"foo", @"bar" ];
+		
+		expect(receivedError).toNot.beNil();
+		expect(receivedValues).to.equal(expectedValues);
+	});
+});
+
+describe(@"-tryMap:", ^{
+	it(@"should map values that do not set an error byref", ^{
+		RACSubject *subject = [RACSubject subject];
+		
 		__block NSError *receivedError = nil;
-		[signal subscribeError:^(NSError *error) {
+		RACSignal *signal = [[subject tryMap:^id(NSString *value, NSError *__autoreleasing *error) {
+			if(value)
+				return [NSString stringWithFormat:@"%@_a", value];
+			
+			if(error)
+				*error = [NSError errorWithDomain:RACSignalErrorDomain code:1 userInfo:@{NSLocalizedDescriptionKey : @"An Error"}];
+			
+			return value;
+		}] doError:^(NSError *error) {
 			receivedError = error;
+		}];
+		
+		NSMutableArray *values = [NSMutableArray array];
+		[signal subscribeNext:^(id x) {
+			[values addObject:x];
 		}];
 		
 		[subject sendNext:@"foo"];
 		[subject sendNext:@"bar"];
 		[subject sendNext:@"baz"];
 		[subject sendNext:@"buzz"];
+		[subject sendCompleted];
+
+		NSArray *receivedValues = [values copy];
+		NSArray *expectedValues = @[ @"foo_a", @"bar_a", @"baz_a", @"buzz_a" ];
+		
+		expect(receivedError).to.beNil();
+		expect(receivedValues).to.equal(expectedValues);
+	});
+	
+	it(@"should send an error when the map block sets an error byref", ^{
+		RACSubject *subject = [RACSubject subject];
+		
+		__block NSError *receivedError = nil;
+		RACSignal *signal = [[subject tryMap:^id(NSString *value, NSError *__autoreleasing *error) {
+			if(value)
+				return [NSString stringWithFormat:@"%@_a", value];
+			
+			if(error)
+				*error = [NSError errorWithDomain:RACSignalErrorDomain code:1 userInfo:@{NSLocalizedDescriptionKey : @"An Error"}];
+			
+			return value;
+		}] doError:^(NSError *error) {
+			receivedError = error;
+		}];
+			
+		NSMutableArray *values = [NSMutableArray array];
+		[signal subscribeNext:^(id x) {
+			[values addObject:x];
+		}];
+		
+		[subject sendNext:@"foo"];
+		[subject sendNext:@"bar"];
+		[subject sendNext:nil];
+		[subject sendNext:@"buzz"];
+		[subject sendCompleted];
+		
+		NSArray *receivedValues = [values copy];
+		NSArray *expectedValues = @[ @"foo_a", @"bar_a" ];
 		
 		expect(receivedError).toNot.beNil();
+		expect(receivedValues).to.equal(expectedValues);
 	});
 });
 

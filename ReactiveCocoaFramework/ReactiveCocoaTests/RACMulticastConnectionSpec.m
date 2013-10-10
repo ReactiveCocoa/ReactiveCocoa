@@ -11,6 +11,7 @@
 #import "RACSignal+Operations.h"
 #import "RACSubscriber.h"
 #import "RACReplaySubject.h"
+#import "RACScheduler.h"
 #import <libkern/OSAtomic.h>
 
 SpecBegin(RACMulticastConnection)
@@ -56,50 +57,27 @@ describe(@"-connect", ^{
 	});
 
 	it(@"shouldn't race when connecting", ^{
-		dispatch_group_t outerGroup = dispatch_group_create();
-		dispatch_group_t innerGroup = dispatch_group_create();
+		RACMulticastConnection *connection = [[RACSignal
+			defer:^ id {
+				[NSThread sleepForTimeInterval:0.1];
+				return nil;
+			}]
+			publish];
 
-		__block BOOL shouldConnect = NO;
-		NSCondition *condition = [[NSCondition alloc] init];
+		dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
 
-		__block int64_t failCount = 0;
+		__block RACDisposable *disposable;
+		[RACScheduler.scheduler schedule:^{
+			disposable = [connection connect];
+			dispatch_semaphore_signal(semaphore);
+		}];
 
-		for (NSUInteger idx = 0; idx < 50; idx++) {
-			dispatch_group_enter(outerGroup);
-			dispatch_group_enter(innerGroup);
+		expect([connection connect]).notTo.beNil();
 
-			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-				[condition lock];
+		dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+		expect(disposable).willNot.beNil();
 
-				dispatch_group_leave(innerGroup);
-				while (!shouldConnect) {
-					[condition wait];
-				}
-
-				[condition unlock];
-
-				RACDisposable *disposable = [connection connect];
-				if (disposable == nil) OSAtomicIncrement64(&failCount);
-
-				dispatch_group_leave(outerGroup);
-			});
-		}
-
-		dispatch_group_wait(innerGroup, DISPATCH_TIME_FOREVER);
-
-		[condition lock];
-
-		shouldConnect = YES;
-		[condition broadcast];
-
-		[condition unlock];
-
-		dispatch_group_wait(outerGroup, DISPATCH_TIME_FOREVER);
-
-		expect(failCount).to.equal(0);
-
-		dispatch_release(outerGroup);
-		dispatch_release(innerGroup);
+		dispatch_release(semaphore);
 	});
 });
 

@@ -282,7 +282,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	return [[self flattenMap:^(id value) {
 		NSError *error = nil;
 		value = mapBlock(value, &error);
-		return (value == nil ? [RACSignal error:error] : [RACSignal return:value]);
+		return (value == nil && error != nil ? [RACSignal error:error] : [RACSignal return:value]);
 	}] setNameWithFormat:@"[%@] -tryMap:", self.name];
 }
 

@@ -13,7 +13,7 @@
 @interface RACErrorSignal ()
 
 // The error to send upon subscription.
-@property (nonatomic, copy, readonly) NSError *error;
+@property (nonatomic, strong, readonly) NSError *error;
 
 @end
 
@@ -23,7 +23,7 @@
 
 + (RACSignal *)error:(NSError *)error {
 	RACErrorSignal *signal = [[self alloc] init];
-	signal->_error = [error copy];
+	signal->_error = error;
 	return [signal setNameWithFormat:@"+error: %@", error];
 }
 

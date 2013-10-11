@@ -24,7 +24,14 @@
 + (RACSignal *)error:(NSError *)error {
 	RACErrorSignal *signal = [[self alloc] init];
 	signal->_error = error;
-	return [signal setNameWithFormat:@"+error: %@", error];
+
+#ifdef DEBUG
+	[signal setNameWithFormat:@"+error: %@", error];
+#else
+	signal.name = @"+error:";
+#endif
+
+	return signal;
 }
 
 #pragma mark Subscription

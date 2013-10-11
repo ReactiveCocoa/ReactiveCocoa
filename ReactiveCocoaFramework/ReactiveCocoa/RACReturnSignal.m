@@ -24,7 +24,14 @@
 + (RACSignal *)return:(id)value {
 	RACReturnSignal *signal = [[self alloc] init];
 	signal->_value = value;
-	return [signal setNameWithFormat:@"+return: %@", value];
+
+#ifdef DEBUG
+	[signal setNameWithFormat:@"+return: %@", value];
+#else
+	signal.name = @"+return:";
+#endif
+
+	return signal;
 }
 
 #pragma mark Subscription

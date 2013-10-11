@@ -13,7 +13,7 @@
 
 @interface RACStaticSignal ()
 #ifndef DEBUG
-@property (nonatomic, copy) NSString *singletonName;
+@property (nonatomic, copy) NSString *staticName;
 #endif
 @property (nonatomic, copy, readonly) void (^subscriptionBlock)(id<RACSubscriber>);
 @end
@@ -34,7 +34,7 @@
 #ifdef DEBUG
 	return super.name;
 #else
-	return self.singletonName;
+	return self.staticName;
 #endif
 }
 
@@ -64,7 +64,7 @@
 
 	dispatch_once(&pred, ^{
 		singleton = [[self alloc] initWithSubscriptionBlock:empty];
-		singleton.singletonName = @"+empty";
+		singleton.staticName = @"+empty";
 	});
 
 	return singleton;
@@ -79,7 +79,7 @@
 #ifdef DEBUG
 	[signal setNameWithFormat:@"+error: %@", error];
 #else
-	signal.singletonName = @"+error:";
+	signal.staticName = @"+error:";
 #endif
 
 	return signal;
@@ -97,7 +97,7 @@
 				[subscriber sendNext:RACUnit.defaultUnit];
 				[subscriber sendCompleted];
 			}];
-			unitSingleton.singletonName = @"+return: RACUnit";
+			unitSingleton.staticName = @"+return: RACUnit";
 		});
 
 		return unitSingleton;
@@ -110,7 +110,7 @@
 				[subscriber sendNext:nil];
 				[subscriber sendCompleted];
 			}];
-			nilSingleton.singletonName = @"+return: nil";
+			nilSingleton.staticName = @"+return: nil";
 		});
 
 		return nilSingleton;
@@ -125,7 +125,7 @@
 #ifdef DEBUG
 	[signal setNameWithFormat:@"+return: %@", value];
 #else
-	signal.singletonName = @"+return:";
+	signal.staticName = @"+return:";
 #endif
 
 	return signal;
@@ -144,7 +144,7 @@
 
 	dispatch_once(&pred, ^{
 		singleton = [[self alloc] initWithSubscriptionBlock:never];
-		singleton.singletonName = @"+never";
+		singleton.staticName = @"+never";
 	});
 
 	return singleton;
@@ -161,7 +161,7 @@
 #ifdef DEBUG
 	[signal setNameWithFormat:@"+defer:"];
 #else
-	signal.singletonName = @"+defer:";
+	signal.staticName = @"+defer:";
 #endif
 
 	return signal;

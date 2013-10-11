@@ -151,6 +151,22 @@
 #endif
 }
 
++ (RACSignal *)defer:(RACSignal * (^)(void))block {
+	NSCParameterAssert(block != nil);
+
+	RACStaticSignal *signal = [[self alloc] initWithSubscriptionBlock:^(id<RACSubscriber> subscriber) {
+		[block() subscribe:subscriber];
+	}];
+
+#ifdef DEBUG
+	[signal setNameWithFormat:@"+defer:"];
+#else
+	signal.singletonName = @"+defer:";
+#endif
+
+	return signal;
+}
+
 #pragma mark Subscription
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {

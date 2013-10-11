@@ -26,4 +26,7 @@
 // Never sends anything to a subscriber.
 + (RACSignal *)never;
 
+// Defer creation of a signal, then send all of its events.
++ (RACSignal *)defer:(RACSignal * (^)(void))block;
+
 @end

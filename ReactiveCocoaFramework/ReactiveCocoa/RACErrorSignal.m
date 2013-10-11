@@ -7,7 +7,6 @@
 //
 
 #import "RACErrorSignal.h"
-#import "RACDisposable.h"
 #import "RACScheduler+Private.h"
 #import "RACSubscriber.h"
 

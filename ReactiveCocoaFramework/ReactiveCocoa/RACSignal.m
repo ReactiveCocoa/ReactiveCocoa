@@ -12,6 +12,7 @@
 #import "RACBacktrace.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
+#import "RACEmptySignal.h"
 #import "RACErrorSignal.h"
 #import "RACMulticastConnection.h"
 #import "RACPassthroughSubscriber.h"
@@ -208,10 +209,7 @@ static void RACCheckActiveSignals(void) {
 @implementation RACSignal (RACStream)
 
 + (RACSignal *)empty {
-	return [[self createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-		[subscriber sendCompleted];
-		return nil;
-	}] setNameWithFormat:@"+empty"];
+	return [RACEmptySignal empty];
 }
 
 + (RACSignal *)return:(id)value {

@@ -71,16 +71,14 @@ describe(@"-connect", ^{
 
 		__block RACDisposable *disposable;
 		[RACScheduler.scheduler schedule:^{
-			BOOL first = OSAtomicCompareAndSwap32Barrier(0, 1, &flag);
 			disposable = [connection connect];
-			if (!first) dispatch_group_leave(group);
+			BOOL leave = OSAtomicCompareAndSwap32Barrier(0, 1, &flag);
+			if (leave) dispatch_group_leave(group);
 		}];
 
-		BOOL first = OSAtomicCompareAndSwap32Barrier(0, 1, &flag);
 		expect([connection connect]).notTo.beNil();
-		if (!first) dispatch_group_leave(group);
-
-		dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+		BOOL leave = OSAtomicCompareAndSwap32Barrier(0, 1, &flag);
+		if (leave) dispatch_group_leave(group);
 
 		expect(disposable).willNot.beNil();
 

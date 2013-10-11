@@ -12,6 +12,7 @@
 #import "RACBacktrace.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
+#import "RACErrorSignal.h"
 #import "RACMulticastConnection.h"
 #import "RACPassthroughSubscriber.h"
 #import "RACReplaySubject.h"
@@ -82,10 +83,7 @@ static volatile uint32_t RACWillCheckActiveSignals = 0;
 }
 
 + (RACSignal *)error:(NSError *)error {
-	return [[self createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-		[subscriber sendError:error];
-		return nil;
-	}] setNameWithFormat:@"+error: %@", error];
+	return [RACErrorSignal error:error];
 }
 
 + (RACSignal *)never {

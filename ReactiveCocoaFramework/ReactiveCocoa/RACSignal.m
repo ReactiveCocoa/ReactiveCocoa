@@ -33,9 +33,7 @@
 }
 
 + (RACSignal *)never {
-	return [[self createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-		return nil;
-	}] setNameWithFormat:@"+never"];
+	return [RACStaticSignal never];
 }
 
 + (RACSignal *)startEagerlyWithScheduler:(RACScheduler *)scheduler block:(void (^)(id<RACSubscriber> subscriber))block {

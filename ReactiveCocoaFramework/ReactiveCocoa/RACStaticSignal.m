@@ -131,6 +131,26 @@
 	return signal;
 }
 
++ (RACSignal *)never {
+	void (^never)(id<RACSubscriber>) = ^(id<RACSubscriber> subscriber) {};
+
+#ifdef DEBUG
+	// Create multiple instances of this class in DEBUG so users can set custom
+	// names on each.
+	return [[[self alloc] initWithSubscriptionBlock:never] setNameWithFormat:@"+never"];
+#else
+	static id singleton;
+	static dispatch_once_t pred;
+
+	dispatch_once(&pred, ^{
+		singleton = [[self alloc] initWithSubscriptionBlock:never];
+		singleton.singletonName = @"+never";
+	});
+
+	return singleton;
+#endif
+}
+
 #pragma mark Subscription
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {

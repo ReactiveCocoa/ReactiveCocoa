@@ -23,4 +23,7 @@
 // Sends a value to any subscribers, then completes.
 + (RACSignal *)return:(id)value;
 
+// Never sends anything to a subscriber.
++ (RACSignal *)never;
+
 @end

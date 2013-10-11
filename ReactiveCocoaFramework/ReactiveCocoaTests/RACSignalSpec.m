@@ -2117,21 +2117,25 @@ describe(@"-try:", ^{
 	__block RACSubject *subject;
 	__block NSError *receivedError;
 	__block NSMutableArray *nextValues;
+	__block BOOL completed;
 	
 	beforeEach(^{
 		subject = [RACSubject subject];
-		nextValues =  [NSMutableArray array];
+		nextValues = [NSMutableArray array];
+		completed = NO;
 		
 		[[subject try:^(NSString *value, NSError *__autoreleasing *error) {
-			if(value != nil) return YES;
+			if (value != nil) return YES;
 			
-			if(error != nil) *error = RACSignalTestError;
+			if (error != nil) *error = RACSignalTestError;
 			
 			return NO;
 		}] subscribeNext:^(id x) {
 			[nextValues addObject:x];
-		}  error:^(NSError *error) {
+		} error:^(NSError *error) {
 			receivedError = error;
+		} completed:^{
+			completed = YES;
 		}];
 	});
 	
@@ -2147,6 +2151,7 @@ describe(@"-try:", ^{
 		
 		expect(receivedError).to.beNil();
 		expect(receivedValues).to.equal(expectedValues);
+		expect(completed).to.beTruthy();
 	});
 	
 	it(@"should pass values until an NO is returned from the tryBlock", ^{
@@ -2161,6 +2166,7 @@ describe(@"-try:", ^{
 		
 		expect(receivedError).to.equal(RACSignalTestError);
 		expect(receivedValues).to.equal(expectedValues);
+		expect(completed).to.beFalsy();
 	});
 });
 
@@ -2168,21 +2174,25 @@ describe(@"-tryMap:", ^{
 	__block RACSubject *subject;
 	__block NSError *receivedError;
 	__block NSMutableArray *nextValues;
+	__block BOOL completed;
 	
 	beforeEach(^{
 		subject = [RACSubject subject];
-		nextValues =  [NSMutableArray array];
+		nextValues = [NSMutableArray array];
+		completed = NO;
 		
 		[[subject tryMap:^id(NSString *value, NSError *__autoreleasing *error) {
-			if(value != nil) return [NSString stringWithFormat:@"%@_a", value];
+			if (value != nil) return [NSString stringWithFormat:@"%@_a", value];
 			
-			if(error != nil) *error = RACSignalTestError;
+			if (error != nil) *error = RACSignalTestError;
 
 			return nil;
 		}] subscribeNext:^(id x) {
 			[nextValues addObject:x];
-		}  error:^(NSError *error) {
+		} error:^(NSError *error) {
 			receivedError = error;
+		} completed:^{
+			completed = YES;
 		}];
 	});
 	
@@ -2198,6 +2208,7 @@ describe(@"-tryMap:", ^{
 		
 		expect(receivedError).to.beNil();
 		expect(receivedValues).to.equal(expectedValues);
+		expect(completed).to.beTruthy();
 	});
 	
 	it(@"should map values from the mapBlock until the mapBlock sets an error byref", ^{
@@ -2212,6 +2223,7 @@ describe(@"-tryMap:", ^{
 		
 		expect(receivedError).to.equal(RACSignalTestError);
 		expect(receivedValues).to.equal(expectedValues);
+		expect(completed).to.beFalsy();
 	});
 });
 

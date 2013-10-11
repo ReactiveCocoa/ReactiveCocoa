@@ -9,6 +9,7 @@
 #import "RACReturnSignal.h"
 #import "RACScheduler+Private.h"
 #import "RACSubscriber.h"
+#import "RACUnit.h"
 
 @interface RACReturnSignal ()
 
@@ -19,16 +20,57 @@
 
 @implementation RACReturnSignal
 
+#pragma mark Properties
+
+// Only allow this signal's name to be customized in DEBUG, since it's
+// potentially a singleton in release builds (see +return:).
+- (void)setName:(NSString *)name {
+#ifdef DEBUG
+	[super setName:name];
+#endif
+}
+
+- (NSString *)name {
+#ifdef DEBUG
+	return super.name;
+#else
+	return @"+return:";
+#endif
+}
+
 #pragma mark Lifecycle
 
 + (RACSignal *)return:(id)value {
+#ifndef DEBUG
+	// In release builds, use singletons for two very common cases.
+	if (value == RACUnit.defaultUnit) {
+		static RACReturnSignal *unitSingleton;
+		static dispatch_once_t unitPred;
+
+		dispatch_once(&unitPred, ^{
+			unitSingleton = [[self alloc] init];
+			unitSingleton->_value = RACUnit.defaultUnit;
+		});
+
+		return unitSingleton;
+	} else if (value == nil) {
+		static RACReturnSignal *nilSingleton;
+		static dispatch_once_t nilPred;
+
+		dispatch_once(&nilPred, ^{
+			nilSingleton = [[self alloc] init];
+			nilSingleton->_value = nil;
+		});
+
+		return nilSingleton;
+	}
+#endif
+
 	RACReturnSignal *signal = [[self alloc] init];
 	signal->_value = value;
 
 #ifdef DEBUG
 	[signal setNameWithFormat:@"+return: %@", value];
-#else
-	signal.name = @"+return:";
 #endif
 
 	return signal;

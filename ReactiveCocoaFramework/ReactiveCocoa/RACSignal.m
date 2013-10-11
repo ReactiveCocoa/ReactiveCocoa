@@ -10,7 +10,6 @@
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACDynamicSignal.h"
-#import "RACEmptySignal.h"
 #import "RACErrorSignal.h"
 #import "RACMulticastConnection.h"
 #import "RACReplaySubject.h"
@@ -18,6 +17,7 @@
 #import "RACScheduler.h"
 #import "RACSerialDisposable.h"
 #import "RACSignal+Operations.h"
+#import "RACStaticSignal.h"
 #import "RACSubject.h"
 #import "RACSubscriber+Private.h"
 #import "RACTuple.h"
@@ -82,7 +82,7 @@
 @implementation RACSignal (RACStream)
 
 + (RACSignal *)empty {
-	return [RACEmptySignal empty];
+	return [RACStaticSignal empty];
 }
 
 + (RACSignal *)return:(id)value {

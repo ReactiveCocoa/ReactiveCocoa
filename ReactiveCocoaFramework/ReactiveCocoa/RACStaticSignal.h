@@ -14,4 +14,7 @@
 
 - (instancetype)initWithSubscriptionBlock:(void (^)(id<RACSubscriber> subscriber))block;
 
+// Sends completed to any subscribers.
++ (RACSignal *)empty;
+
 @end

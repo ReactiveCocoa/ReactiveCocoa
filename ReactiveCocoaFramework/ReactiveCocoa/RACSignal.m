@@ -17,6 +17,7 @@
 #import "RACMulticastConnection.h"
 #import "RACPassthroughSubscriber.h"
 #import "RACReplaySubject.h"
+#import "RACReturnSignal.h"
 #import "RACScheduler+Private.h"
 #import "RACScheduler.h"
 #import "RACSerialDisposable.h"
@@ -213,11 +214,7 @@ static void RACCheckActiveSignals(void) {
 }
 
 + (RACSignal *)return:(id)value {
-	return [[self createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-		[subscriber sendNext:value];
-		[subscriber sendCompleted];
-		return nil;
-	}] setNameWithFormat:@"+return: %@", [value rac_description]];
+	return [RACReturnSignal return:value];
 }
 
 - (RACSignal *)bind:(RACStreamBindBlock (^)(void))block {

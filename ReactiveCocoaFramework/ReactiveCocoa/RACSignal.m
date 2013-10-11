@@ -12,7 +12,6 @@
 #import "RACDynamicSignal.h"
 #import "RACMulticastConnection.h"
 #import "RACReplaySubject.h"
-#import "RACReturnSignal.h"
 #import "RACScheduler.h"
 #import "RACSerialDisposable.h"
 #import "RACSignal+Operations.h"
@@ -85,7 +84,7 @@
 }
 
 + (RACSignal *)return:(id)value {
-	return [RACReturnSignal return:value];
+	return [RACStaticSignal return:value];
 }
 
 - (RACSignal *)bind:(RACStreamBindBlock (^)(void))block {

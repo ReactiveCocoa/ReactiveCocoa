@@ -20,4 +20,7 @@
 // Sends an error to any subscribers.
 + (RACSignal *)error:(NSError *)error;
 
+// Sends a value to any subscribers, then completes.
++ (RACSignal *)return:(id)value;
+
 @end

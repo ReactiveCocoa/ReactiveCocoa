@@ -9,6 +9,7 @@
 #import "RACStaticSignal.h"
 #import "RACScheduler+Private.h"
 #import "RACSubscriber.h"
+#import "RACUnit.h"
 
 @interface RACStaticSignal ()
 #ifndef DEBUG
@@ -79,6 +80,52 @@
 	[signal setNameWithFormat:@"+error: %@", error];
 #else
 	signal.singletonName = @"+error:";
+#endif
+
+	return signal;
+}
+
++ (RACSignal *)return:(id)value {
+#ifndef DEBUG
+	// In release builds, use singletons for two very common cases.
+	if (value == RACUnit.defaultUnit) {
+		static RACStaticSignal *unitSingleton;
+		static dispatch_once_t unitPred;
+
+		dispatch_once(&unitPred, ^{
+			unitSingleton = [[self alloc] initWithSubscriptionBlock:^(id<RACSubscriber> subscriber) {
+				[subscriber sendNext:RACUnit.defaultUnit];
+				[subscriber sendCompleted];
+			}];
+			unitSingleton.singletonName = @"+return: RACUnit";
+		});
+
+		return unitSingleton;
+	} else if (value == nil) {
+		static RACStaticSignal *nilSingleton;
+		static dispatch_once_t nilPred;
+
+		dispatch_once(&nilPred, ^{
+			nilSingleton = [[self alloc] initWithSubscriptionBlock:^(id<RACSubscriber> subscriber) {
+				[subscriber sendNext:nil];
+				[subscriber sendCompleted];
+			}];
+			nilSingleton.singletonName = @"+return: nil";
+		});
+
+		return nilSingleton;
+	}
+#endif
+
+	RACStaticSignal *signal = [[self alloc] initWithSubscriptionBlock:^(id<RACSubscriber> subscriber) {
+		[subscriber sendNext:value];
+		[subscriber sendCompleted];
+	}];
+
+#ifdef DEBUG
+	[signal setNameWithFormat:@"+return: %@", value];
+#else
+	signal.singletonName = @"+return:";
 #endif
 
 	return signal;

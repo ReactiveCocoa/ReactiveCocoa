@@ -25,6 +25,10 @@ BEGIN {
     status = 1;
 }
 
+/does not contain a scheme named/ {
+    status = 1;
+}
+
 END {
     if (length(errors) > 0) {
         print "\n*** All errors:\n" errors;

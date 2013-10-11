@@ -10,7 +10,6 @@
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACDynamicSignal.h"
-#import "RACErrorSignal.h"
 #import "RACMulticastConnection.h"
 #import "RACReplaySubject.h"
 #import "RACReturnSignal.h"
@@ -31,7 +30,7 @@
 }
 
 + (RACSignal *)error:(NSError *)error {
-	return [RACErrorSignal error:error];
+	return [RACStaticSignal error:error];
 }
 
 + (RACSignal *)never {

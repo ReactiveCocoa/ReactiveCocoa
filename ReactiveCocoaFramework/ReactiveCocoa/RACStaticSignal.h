@@ -17,4 +17,7 @@
 // Sends completed to any subscribers.
 + (RACSignal *)empty;
 
+// Sends an error to any subscribers.
++ (RACSignal *)error:(NSError *)error;
+
 @end

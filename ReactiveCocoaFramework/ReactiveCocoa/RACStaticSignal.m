@@ -70,6 +70,20 @@
 #endif
 }
 
++ (RACSignal *)error:(NSError *)error {
+	RACStaticSignal *signal = [[self alloc] initWithSubscriptionBlock:^(id<RACSubscriber> subscriber) {
+		[subscriber sendError:error];
+	}];
+
+#ifdef DEBUG
+	[signal setNameWithFormat:@"+error: %@", error];
+#else
+	signal.singletonName = @"+error:";
+#endif
+
+	return signal;
+}
+
 #pragma mark Subscription
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {

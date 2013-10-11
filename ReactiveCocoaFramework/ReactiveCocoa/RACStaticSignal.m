@@ -59,7 +59,7 @@
 	// names on each.
 	return [[[self alloc] initWithSubscriptionBlock:empty] setNameWithFormat:@"+empty"];
 #else
-	static id singleton;
+	static RACStaticSignal *singleton;
 	static dispatch_once_t pred;
 
 	dispatch_once(&pred, ^{
@@ -139,7 +139,7 @@
 	// names on each.
 	return [[[self alloc] initWithSubscriptionBlock:never] setNameWithFormat:@"+never"];
 #else
-	static id singleton;
+	static RACStaticSignal *singleton;
 	static dispatch_once_t pred;
 
 	dispatch_once(&pred, ^{

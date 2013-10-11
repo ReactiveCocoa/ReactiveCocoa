@@ -2124,7 +2124,7 @@ describe(@"-try:", ^{
 		nextValues = [NSMutableArray array];
 		completed = NO;
 		
-		[[subject try:^(NSString *value, NSError *__autoreleasing *error) {
+		[[subject try:^(NSString *value, NSError **error) {
 			if (value != nil) return YES;
 			
 			if (error != nil) *error = RACSignalTestError;
@@ -2181,7 +2181,7 @@ describe(@"-tryMap:", ^{
 		nextValues = [NSMutableArray array];
 		completed = NO;
 		
-		[[subject tryMap:^id(NSString *value, NSError *__autoreleasing *error) {
+		[[subject tryMap:^id(NSString *value, NSError **error) {
 			if (value != nil) return [NSString stringWithFormat:@"%@_a", value];
 			
 			if (error != nil) *error = RACSignalTestError;

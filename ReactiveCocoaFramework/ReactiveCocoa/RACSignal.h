@@ -122,6 +122,8 @@
 /// On the main thread, subscriptions will always occur immediately, with a
 /// +[RACScheduler currentScheduler] of +[RACScheduler mainThreadScheduler].
 ///
+/// This method must be overridden by any subclasses.
+///
 /// Returns nil or a disposable. You can call -[RACDisposable dispose] if you
 /// need to end your subscription before it would "naturally" end, either by
 /// completing or erroring. Once the disposable has been disposed, the subscriber

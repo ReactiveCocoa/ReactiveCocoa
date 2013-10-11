@@ -57,39 +57,34 @@ describe(@"-connect", ^{
 	});
 
 	it(@"shouldn't race when connecting", ^{
-		enum : NSInteger {
-			ConditionNone,
-			ConditionConnectionStarted,
-			ConditionConnectionContinue,
-			ConditionConnectionComplete,
-		};
-
-		NSConditionLock *condition = [[NSConditionLock alloc] initWithCondition:ConditionNone];
+		dispatch_group_t group = dispatch_group_create();
+		__block volatile int32_t flag = 0;
 
 		RACMulticastConnection *connection = [[RACSignal
 			defer:^ id {
-				[condition lock];
-				[condition unlockWithCondition:ConditionConnectionStarted];
-
-				[condition lockWhenCondition:ConditionConnectionContinue];
+				dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
 				return nil;
 			}]
 			publish];
 
+		dispatch_group_enter(group);
+
 		__block RACDisposable *disposable;
 		[RACScheduler.scheduler schedule:^{
+			BOOL first = OSAtomicCompareAndSwap32Barrier(0, 1, &flag);
 			disposable = [connection connect];
-
-			[condition unlockWithCondition:ConditionConnectionComplete];
+			if (!first) dispatch_group_leave(group);
 		}];
 
-		[condition lockWhenCondition:ConditionConnectionStarted];
+		BOOL first = OSAtomicCompareAndSwap32Barrier(0, 1, &flag);
 		expect([connection connect]).notTo.beNil();
-		[condition unlockWithCondition:ConditionConnectionContinue];
+		if (!first) dispatch_group_leave(group);
 
-		[condition lockWhenCondition:ConditionConnectionComplete];
-		expect(disposable).notTo.beNil();
-		[condition unlock];
+		dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+
+		expect(disposable).willNot.beNil();
+
+		dispatch_release(group);
 	});
 });
 

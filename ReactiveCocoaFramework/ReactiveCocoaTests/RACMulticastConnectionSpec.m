@@ -75,7 +75,7 @@ describe(@"-connect", ^{
 		expect([connection connect]).notTo.beNil();
 
 		dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-		expect(disposable).willNot.beNil();
+		expect(disposable).notTo.beNil();
 
 		dispatch_release(semaphore);
 	});

@@ -77,9 +77,9 @@
 - (void)sendError:(NSError *)e {
 	@synchronized (self) {
 		void (^errorBlock)(NSError *) = [self.error copy];
-		if (errorBlock == nil) return;
-
 		[self.disposable dispose];
+
+		if (errorBlock == nil) return;
 		errorBlock(e);
 	}
 }
@@ -87,9 +87,9 @@
 - (void)sendCompleted {
 	@synchronized (self) {
 		void (^completedBlock)(void) = [self.completed copy];
-		if (completedBlock == nil) return;
-
 		[self.disposable dispose];
+
+		if (completedBlock == nil) return;
 		completedBlock();
 	}
 }

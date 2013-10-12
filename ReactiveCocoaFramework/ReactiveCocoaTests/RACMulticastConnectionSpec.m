@@ -57,32 +57,30 @@ describe(@"-connect", ^{
 	});
 
 	it(@"shouldn't race when connecting", ^{
-		dispatch_group_t group = dispatch_group_create();
-		__block volatile int32_t flag = 0;
+		dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+		__block volatile int32_t signaled = 0;
 
 		RACMulticastConnection *connection = [[RACSignal
 			defer:^ id {
-				dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+				dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
 				return nil;
 			}]
 			publish];
 
-		dispatch_group_enter(group);
-
 		__block RACDisposable *disposable;
 		[RACScheduler.scheduler schedule:^{
 			disposable = [connection connect];
-			BOOL leave = OSAtomicCompareAndSwap32Barrier(0, 1, &flag);
-			if (leave) dispatch_group_leave(group);
+			BOOL signal = OSAtomicCompareAndSwap32Barrier(0, 1, &signaled);
+			if (signal) dispatch_semaphore_signal(semaphore);
 		}];
 
 		expect([connection connect]).notTo.beNil();
-		BOOL leave = OSAtomicCompareAndSwap32Barrier(0, 1, &flag);
-		if (leave) dispatch_group_leave(group);
+		BOOL signal = OSAtomicCompareAndSwap32Barrier(0, 1, &signaled);
+		if (signal) dispatch_semaphore_signal(semaphore);
 
 		expect(disposable).willNot.beNil();
 
-		dispatch_release(group);
+		dispatch_release(semaphore);
 	});
 });
 

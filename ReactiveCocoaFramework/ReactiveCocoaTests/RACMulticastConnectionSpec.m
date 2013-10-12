@@ -58,7 +58,6 @@ describe(@"-connect", ^{
 
 	it(@"shouldn't race when connecting", ^{
 		dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-		__block volatile int32_t signaled = 0;
 
 		RACMulticastConnection *connection = [[RACSignal
 			defer:^ id {
@@ -70,13 +69,11 @@ describe(@"-connect", ^{
 		__block RACDisposable *disposable;
 		[RACScheduler.scheduler schedule:^{
 			disposable = [connection connect];
-			BOOL signal = OSAtomicCompareAndSwap32Barrier(0, 1, &signaled);
-			if (signal) dispatch_semaphore_signal(semaphore);
+			dispatch_semaphore_signal(semaphore);
 		}];
 
 		expect([connection connect]).notTo.beNil();
-		BOOL signal = OSAtomicCompareAndSwap32Barrier(0, 1, &signaled);
-		if (signal) dispatch_semaphore_signal(semaphore);
+		dispatch_semaphore_signal(semaphore);
 
 		expect(disposable).willNot.beNil();
 

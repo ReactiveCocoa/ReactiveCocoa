@@ -136,6 +136,8 @@
 			RACSerialDisposable *selfDisposable = [[RACSerialDisposable alloc] init];
 			[compoundDisposable addDisposable:selfDisposable];
 
+			__weak RACDisposable *weakSelfDisposable = selfDisposable;
+
 			RACDisposable *disposable = [signal subscribeNext:^(id x) {
 				[subscriber sendNext:x];
 			} error:^(NSError *error) {
@@ -143,7 +145,7 @@
 				[subscriber sendError:error];
 			} completed:^{
 				@autoreleasepool {
-					completeSignal(signal, selfDisposable);
+					completeSignal(signal, weakSelfDisposable);
 				}
 			}];
 
@@ -154,13 +156,15 @@
 			RACSerialDisposable *selfDisposable = [[RACSerialDisposable alloc] init];
 			[compoundDisposable addDisposable:selfDisposable];
 
+			__weak RACDisposable *weakSelfDisposable = selfDisposable;
+
 			RACDisposable *bindingDisposable = [self subscribeNext:^(id x) {
 				BOOL stop = NO;
 				id signal = bindingBlock(x, &stop);
 
 				@autoreleasepool {
 					if (signal != nil) addSignal(signal);
-					if (signal == nil || stop) completeSignal(self, selfDisposable);
+					if (signal == nil || stop) completeSignal(self, weakSelfDisposable);
 				}
 			} error:^(NSError *error) {
 				[compoundDisposable dispose];

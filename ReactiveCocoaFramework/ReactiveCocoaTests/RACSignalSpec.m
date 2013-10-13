@@ -2211,7 +2211,7 @@ describe(@"-tryMap:", ^{
 		expect(completed).to.beTruthy();
 	});
 	
-	it(@"should map values from the mapBlock until the mapBlock sets an error byref", ^{
+	it(@"should map values from the mapBlock until the mapBlock returns nil to indicate an error has occurred", ^{
 		[subject sendNext:@"foo"];
 		[subject sendNext:@"bar"];
 		[subject sendNext:nil];

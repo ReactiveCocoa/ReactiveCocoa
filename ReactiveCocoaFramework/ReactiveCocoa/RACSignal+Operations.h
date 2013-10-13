@@ -303,12 +303,40 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// Subscribe to the given signal when an error occurs.
 - (RACSignal *)catchTo:(RACSignal *)signal;
 
-/// Tests all values in the receiver against the `tryBlock`
-/// Sends an error event with the error set byref when `tryBlock` returns YES
+/// Runs `tryBlock` against each of the receiver's values, until `tryBlock` returns NO.
+///
+/// tryBlock - An action to run against each value. The block should return YES to indicate
+/// the action was successful. This block must not be nil.
+///
+/// Example:
+///
+/// Causes the returned signal to fail if any data value cannot be written.
+/// [signal try:^(NSData *data, NSError **errorPtr) {
+/// 	return [data writeToURL:someFileURL options:NSDataWritingAtomic error:errorPtr];
+/// }];
+///
+/// Returns a signal which passes through the values of the receiver. If `tryBlock`
+/// fails for any value, the returned signal will error using any `NSError` passed
+/// out from the block.
 - (RACSignal *)try:(BOOL (^)(id value, NSError **error))tryBlock;
 
-/// Maps all values in the receiver with the `mapBlock`
-/// Sends an error event if `mapBlock` returns nil and an error is set byref
+/// Maps `mapBlock` against each of the receiver's values, propagating any error
+/// that occurs.
+///
+/// mapBlock - An block to map each of the receiver's values. The block should
+/// return a non-nil value to indicate that the action was successful.
+/// This block must not be nil.
+///
+/// Example:
+///
+/// Causes the returned signal to fail if data cannot be read from any URL.
+/// [signal tryMap:^(NSURL *url, NSError **errorPtr) {
+///		return [NSData dataWithContentsOfURL:url options:0 error:errorPtr];
+/// }];
+///
+/// Returns a signal which t the values of the receiver. If `mapBlock`
+/// fails for any value, the returned signal will error using any `NSError` passed
+/// out from the block
 - (RACSignal *)tryMap:(id (^)(id value, NSError **error))mapBlock;
 
 /// Returns the first `next`. Note that this is a blocking call.

@@ -271,6 +271,8 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 }
 
 - (RACSignal *)try:(BOOL (^)(id value, NSError **error))tryBlock {
+	NSCParameterAssert(tryBlock != NULL);
+	
 	return [[self flattenMap:^(id value) {
 		NSError *error = nil;
 		BOOL passed = tryBlock(value, &error);
@@ -279,6 +281,8 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 }
 
 - (RACSignal *)tryMap:(id (^)(id value, NSError **error))mapBlock {
+	NSCParameterAssert(mapBlock != NULL);
+	
 	return [[self flattenMap:^(id value) {
 		NSError *error = nil;
 		id mappedValue = mapBlock(value, &error);

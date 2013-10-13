@@ -318,7 +318,7 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// Returns a signal which passes through the values of the receiver. If `tryBlock`
 /// fails for any value, the returned signal will error using any `NSError` passed
 /// out from the block.
-- (RACSignal *)try:(BOOL (^)(id value, NSError **error))tryBlock;
+- (RACSignal *)try:(BOOL (^)(id value, NSError **errorPtr))tryBlock;
 
 /// Maps `mapBlock` against each of the receiver's values, propagating any error
 /// that occurs.
@@ -337,7 +337,7 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// Returns a signal which t the values of the receiver. If `mapBlock`
 /// fails for any value, the returned signal will error using any `NSError` passed
 /// out from the block
-- (RACSignal *)tryMap:(id (^)(id value, NSError **error))mapBlock;
+- (RACSignal *)tryMap:(id (^)(id value, NSError **errorPtr))mapBlock;
 
 /// Returns the first `next`. Note that this is a blocking call.
 - (id)first;

@@ -7,7 +7,7 @@
 //
 
 #import "RACPassthroughSubscriber.h"
-#import "RACDisposable.h"
+#import "RACCompoundDisposable.h"
 #import "RACSignal.h"
 #import "RACSignalProvider.h"
 
@@ -40,7 +40,7 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 
 // A disposable representing the subscription. When disposed, no further events
 // should be sent to the `innerSubscriber`.
-@property (nonatomic, strong, readonly) RACDisposable *disposable;
+@property (nonatomic, strong, readonly) RACCompoundDisposable *disposable;
 
 @end
 
@@ -48,7 +48,7 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 
 #pragma mark Lifecycle
 
-- (instancetype)initWithSubscriber:(id<RACSubscriber>)subscriber signal:(RACSignal *)signal disposable:(RACDisposable *)disposable {
+- (instancetype)initWithSubscriber:(id<RACSubscriber>)subscriber signal:(RACSignal *)signal disposable:(RACCompoundDisposable *)disposable {
 	NSCParameterAssert(subscriber != nil);
 
 	self = [super init];
@@ -95,6 +95,9 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 }
 
 - (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
+	if (disposable != nil && disposable != self.disposable) {
+		[self.disposable addDisposable:disposable];
+	}
 }
 
 @end

@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "RACSubscriber.h"
 
+@class RACCompoundDisposable;
 @class RACSignal;
 
 /// Passes through all events to another subscriber while not disposed.
@@ -22,8 +23,6 @@
 ///              forwarded. This must not be nil.
 ///
 /// Returns an initialized passthrough subscriber.
-- (instancetype)initWithSubscriber:(id<RACSubscriber>)subscriber signal:(RACSignal *)signal disposable:(RACDisposable *)disposable;
-
-- (void)didSubscribeWithDisposable:(RACDisposable *)disposable __attribute__((unavailable("Pass a disposable to -initWithSubscriber:signal:disposable: instead")));
+- (instancetype)initWithSubscriber:(id<RACSubscriber>)subscriber signal:(RACSignal *)signal disposable:(RACCompoundDisposable *)disposable;
 
 @end

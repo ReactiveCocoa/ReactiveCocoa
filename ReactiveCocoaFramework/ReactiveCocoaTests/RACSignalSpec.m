@@ -223,6 +223,28 @@ describe(@"subscribing", ^{
 		});
 		expect(currentScheduler).willNot.beNil();
 	});
+	
+	it(@"should automatically dispose of other subscriptions from +createSignal:", ^{
+		__block BOOL innerDisposed = NO;
+
+		RACSignal *innerSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			return [RACDisposable disposableWithBlock:^{
+				innerDisposed = YES;
+			}];
+		}];
+
+		RACSignal *outerSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[innerSignal subscribe:subscriber];
+			return nil;
+		}];
+
+		RACDisposable *disposable = [outerSignal subscribeCompleted:^{}];
+		expect(disposable).notTo.beNil();
+		expect(innerDisposed).to.beFalsy();
+
+		[disposable dispose];
+		expect(innerDisposed).to.beTruthy();
+	});
 });
 
 describe(@"-takeUntil:", ^{

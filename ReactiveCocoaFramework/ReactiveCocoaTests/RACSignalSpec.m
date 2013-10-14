@@ -156,40 +156,6 @@ describe(@"-bind:", ^{
 		[subject sendNext:nil];
 		expect(disposed).to.beTruthy();
 	});
-
-	it(@"should stop binding to new signals when stopped", ^{
-		RACSubject *subject = [RACSubject subject];
-
-		__block NSUInteger bindCount = 0;
-		RACSignal *signal = [subject bind:^{
-			return ^(RACSignal *x, BOOL *stop) {
-				bindCount++;
-				return x;
-			};
-		}];
-
-		__block id latestValue;
-		[signal subscribeNext:^(id x) {
-			latestValue = x;
-		}];
-
-		// Make `signal` effectively indefinite.
-		[subject sendNext:RACSignal.never];
-		expect(bindCount).to.equal(1);
-
-		// Tell the -bind: to stop.
-		[subject sendNext:nil];
-		expect(bindCount).to.equal(2);
-
-		// Try sending another signal for subscription.
-		RACSubject *latecomer = [RACSubject subject];
-		[subject sendNext:latecomer];
-		expect(bindCount).to.equal(2);
-
-		// Try sending another output value.
-		[latecomer sendNext:RACUnit.defaultUnit];
-		expect(latestValue).to.beNil();
-	});
 });
 
 describe(@"subscribing", ^{

@@ -58,7 +58,6 @@ describe(@"-connect", ^{
 
 	it(@"shouldn't race when connecting", ^{
 		dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-		__block volatile int32_t signaled = 0;
 
 		RACMulticastConnection *connection = [[RACSignal
 			defer:^ id {
@@ -67,21 +66,14 @@ describe(@"-connect", ^{
 			}]
 			publish];
 
-		// The first call to -connect will be blocking, the second non-blocking.
-		// Since the second will be the first to return from -connect, it will
-		// set `signaled` to 1 and then signal and unblock the first call to
-		// -connect.
-
 		__block RACDisposable *disposable;
 		[RACScheduler.scheduler schedule:^{
 			disposable = [connection connect];
-			BOOL signal = OSAtomicCompareAndSwap32Barrier(0, 1, &signaled);
-			if (signal) dispatch_semaphore_signal(semaphore);
+			dispatch_semaphore_signal(semaphore);
 		}];
 
 		expect([connection connect]).notTo.beNil();
-		BOOL signal = OSAtomicCompareAndSwap32Barrier(0, 1, &signaled);
-		if (signal) dispatch_semaphore_signal(semaphore);
+		dispatch_semaphore_signal(semaphore);
 
 		expect(disposable).willNot.beNil();
 

@@ -8,10 +8,10 @@
 
 #import <ReactiveCocoa/ReactiveCocoa.h>
 
-// A private `RACSignal` subclasses that implements its subscription behavior
+// A private `RACSignal` subclass that implements its subscription behavior
 // using a block.
 @interface RACDynamicSignal : RACSignal
 
-+ (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe;
++ (RACSignal *)generator:(RACSignalStepBlock (^)(id<RACSubscriber> subscriber, RACCompoundDisposable *disposable))generatorBlock;
 
 @end

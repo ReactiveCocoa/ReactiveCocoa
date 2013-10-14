@@ -43,7 +43,7 @@ static volatile uint32_t RACWillCheckActiveSignals = 0;
 }
 
 // The block to invoke for each subscriber.
-@property (nonatomic, copy, readonly) RACDisposable * (^didSubscribe)(id<RACSubscriber> subscriber);
+@property (nonatomic, copy, readonly) RACSignalStepBlock (^generator)(id<RACSubscriber> subscriber, RACCompoundDisposable *disposable);
 
 @end
 
@@ -63,10 +63,12 @@ static volatile uint32_t RACWillCheckActiveSignals = 0;
 	RACActiveSignals = CFSetCreateMutable(NULL, 0, &callbacks);
 }
 
-+ (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
++ (RACSignal *)generator:(RACSignalStepBlock (^)(id<RACSubscriber> subscriber, RACCompoundDisposable *disposable))generatorBlock {
+	NSCParameterAssert(generatorBlock != nil);
+
 	RACDynamicSignal *signal = [[self alloc] init];
-	signal->_didSubscribe = [didSubscribe copy];
-	return [signal setNameWithFormat:@"+createSignal:"];
+	signal->_generator = [generatorBlock copy];
+	return [signal setNameWithFormat:@"+generator:"];
 }
 
 - (instancetype)init {
@@ -173,14 +175,16 @@ static void RACCheckActiveSignals(void) {
 
 	[disposable addDisposable:defaultDisposable];
 
-	if (self.didSubscribe != NULL) {
-		RACDisposable *schedulingDisposable = [RACScheduler.subscriptionScheduler schedule:^{
-			RACDisposable *innerDisposable = self.didSubscribe(subscriber);
-			if (innerDisposable != nil) [disposable addDisposable:innerDisposable];
-		}];
+	RACDisposable *schedulingDisposable = [RACScheduler.subscriptionScheduler schedule:^{
+		RACSignalStepBlock stepBlock = self.generator(subscriber, disposable);
+		if (stepBlock != nil) {
+			while (!disposable.disposed) {
+				stepBlock();
+			}
+		}
+	}];
 
-		if (schedulingDisposable != nil) [disposable addDisposable:schedulingDisposable];
-	}
+	if (schedulingDisposable != nil) [disposable addDisposable:schedulingDisposable];
 	
 	return disposable;
 }

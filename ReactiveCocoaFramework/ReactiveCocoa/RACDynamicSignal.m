@@ -176,19 +176,33 @@ static void RACCheckActiveSignals(void) {
 	[disposable addDisposable:defaultDisposable];
 
 	RACDisposable *schedulingDisposable = [RACScheduler.subscriptionScheduler schedule:^{
-		RACSignalStepBlock stepBlock = self.generator(subscriber, disposable);
-		if (stepBlock == nil) return;
+		RACSignalStepBlock signalStep = self.generator(subscriber, disposable);
+		if (signalStep == nil) return;
 
-		RACDisposable *recursiveDisposable = [RACScheduler.currentScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
-			stepBlock();
-			if (!disposable.disposed) recurse();
+		RACSerialDisposable *stepDisposable = [[RACSerialDisposable alloc] init];
+		[disposable addDisposable:stepDisposable];
+
+		BOOL subscriberSupportsLaziness = [subscriber respondsToSelector:@selector(invokeWhenReady:)];
+
+		// Repeatedly schedule an action that will wait for the subscriber to be
+		// ready, then step the signal.
+		stepDisposable.disposable = [RACScheduler.currentScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
+			void (^step)(void) = ^{
+				signalStep();
+				if (!stepDisposable.disposed) recurse();
+			};
+
+			if (subscriberSupportsLaziness) {
+				stepDisposable.disposable = [subscriber invokeWhenReady:^(id<RACSubscriber> subscriber) {
+					step();
+				}];
+			} else {
+				step();
+			}
 		}];
-
-		if (recursiveDisposable != nil) [disposable addDisposable:recursiveDisposable];
 	}];
 
 	if (schedulingDisposable != nil) [disposable addDisposable:schedulingDisposable];
-	
 	return disposable;
 }
 

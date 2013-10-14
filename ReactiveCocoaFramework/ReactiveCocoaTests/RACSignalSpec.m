@@ -129,6 +129,34 @@ describe(@"RACStream", ^{
 });
 
 describe(@"-bind:", ^{
+	it(@"should dispose source signal when when stopped", ^{
+		__block BOOL disposed = NO;
+		RACSubject *subject = [RACSubject subject];
+		RACSignal *source = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			[subject subscribe:subscriber];
+
+			return [RACDisposable disposableWithBlock:^{
+				disposed = YES;
+			}];
+		}];
+
+		RACSignal *signal = [source bind:^{
+			return ^(RACSignal *x, BOOL *stop) {
+				return x;
+			};
+		}];
+
+		[signal subscribeCompleted:^{}];
+
+		// Make `signal` effectively indefinite.
+		[subject sendNext:RACSignal.never];
+		expect(disposed).to.beFalsy();
+
+		// Tell -bind: to stop.
+		[subject sendNext:nil];
+		expect(disposed).to.beTruthy();
+	});
+
 	it(@"should stop binding to new signals when stopped", ^{
 		RACSubject *subject = [RACSubject subject];
 

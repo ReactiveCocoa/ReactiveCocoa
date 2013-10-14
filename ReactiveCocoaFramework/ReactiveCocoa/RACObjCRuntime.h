@@ -10,7 +10,7 @@
 
 @interface RACObjCRuntime : NSObject
 
-// Invokes objc_allocateClassPair(). Can be called from ARC code.
+/// Invokes objc_allocateClassPair(). Can be called from ARC code.
 + (Class)createClass:(const char *)className inheritingFromClass:(Class)superclass;
 
 @end

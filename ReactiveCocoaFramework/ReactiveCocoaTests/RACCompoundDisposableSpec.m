@@ -26,12 +26,18 @@ it(@"should dispose of all its contained disposables", ^{
 		d3Disposed = YES;
 	}];
 
-	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposableWithDisposables:@[ d1, d2 ]];
-	[disposable addDisposable:d3];
+	__block BOOL d4Disposed = NO;
+	RACDisposable *d4 = [RACDisposable disposableWithBlock:^{
+		d4Disposed = YES;
+	}];
+
+	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposableWithDisposables:@[ d1, d2, d3 ]];
+	[disposable addDisposable:d4];
 
 	expect(d1Disposed).to.beFalsy();
 	expect(d2Disposed).to.beFalsy();
 	expect(d3Disposed).to.beFalsy();
+	expect(d4Disposed).to.beFalsy();
 	expect(disposable.disposed).to.beFalsy();
 
 	[disposable dispose];
@@ -39,6 +45,7 @@ it(@"should dispose of all its contained disposables", ^{
 	expect(d1Disposed).to.beTruthy();
 	expect(d2Disposed).to.beTruthy();
 	expect(d3Disposed).to.beTruthy();
+	expect(d4Disposed).to.beTruthy();
 	expect(disposable.disposed).to.beTruthy();
 });
 

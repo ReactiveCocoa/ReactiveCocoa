@@ -531,8 +531,9 @@ a rat's nest of resource management and cleanup code.
 There are almost always higher-level patterns that can be used instead of manual
 subscriptions and disposal:
 
- * The [RAC()][RAC] or [RACBind()][RACBind] macros can be used to bind a signal
-   to a property, instead of performing manual updates when changes occur.
+ * The [RAC()][RAC] or [RACChannelTo()][RACChannelTo] macros can be used to bind
+   a signal to a property, instead of performing manual updates when changes
+   occur.
  * The [-rac_liftSelector:withSignals:][NSObject+RACLifting] method can be used
    to automatically invoke a selector when one or more signals fire.
  * Operators like [-takeUntil:][RACSignal+Operations] can be used to
@@ -622,7 +623,7 @@ concurrently perform their work.
 
 Callers always have the ability to subscribe or deliver events on a specific
 [RACScheduler][], and RAC offers powerful ways to [parallelize
-work](#parallelizing-independent-work) without making operators unnecessarily
+work][Parallelizing Independent Work] without making operators unnecessarily
 complex.
 
 ### Cancel work and clean up all resources in a disposable
@@ -734,7 +735,7 @@ By contrast, this version will avoid a stack overflow:
 [NSObject+RACLifting]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACLifting.h
 [NSObject+RACSelectorSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACSelectorSignal.h
 [RAC]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h
-[RACBind]: ../ReactiveCocoaFramework/ReactiveCocoa/RACObservablePropertySubject.h
+[RACChannelTo]: ../ReactiveCocoaFramework/ReactiveCocoa/RACKVOChannel.h
 [RACCommand]: ../ReactiveCocoaFramework/ReactiveCocoa/RACCommand.h
 [RACDisposable]: ../ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
 [RACEvent]: ../ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h
@@ -747,3 +748,4 @@ By contrast, this version will avoid a stack overflow:
 [RACStream]: ../ReactiveCocoaFramework/ReactiveCocoa/RACStream.h
 [RACSubscriber]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubscriber.h
 [Subjects]: FrameworkOverview.md#subjects
+[Parallelizing Independent Work]: ../README.md#parallelizing-independent-work

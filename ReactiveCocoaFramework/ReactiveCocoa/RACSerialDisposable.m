@@ -69,24 +69,32 @@
 	return self;
 }
 
+- (void)dealloc {
+	self.disposable = nil;
+}
+
 #pragma mark Inner Disposable
 
 - (RACDisposable *)swapInDisposable:(RACDisposable *)newDisposable {
-	void *existingDisposablePtr;
+	// Only retain the new disposable if it's not `self`.
+	// Take ownership before attempting the swap so that a subsequent swap
+	// receives an owned reference.
+	void *newDisposablePtr = (void *)(newDisposable != nil ? CFBridgingRetain(newDisposable) : (__bridge CFTypeRef)self);
 
+	void *existingDisposablePtr;
 	// Keep trying while we're not disposed.
 	while ((existingDisposablePtr = _disposablePtr) != NULL) {
-		void *newDisposablePtr = (__bridge void *)(newDisposable ?: self);
-
-		if (OSAtomicCompareAndSwapPtrBarrier(existingDisposablePtr, newDisposablePtr, &_disposablePtr)) {
-			// Only retain the new disposable if it's not `self`.
-			if (newDisposable != nil) CFRetain(newDisposablePtr);
-
-			// Return nil if _disposablePtr was set to self. Otherwise, release
-			// the old value and return it as an object.
-			return (existingDisposablePtr == (__bridge void *)self ? nil : CFBridgingRelease(existingDisposablePtr));
+		if (!OSAtomicCompareAndSwapPtrBarrier(existingDisposablePtr, newDisposablePtr, &_disposablePtr)) {
+			continue;
 		}
+
+		// Return nil if _disposablePtr was set to self. Otherwise, release
+		// the old value and return it as an object.
+		return (existingDisposablePtr == (__bridge void *)self ? nil : CFBridgingRelease(existingDisposablePtr));
 	}
+
+	// Failed to swap, clean up the ownership we took prior to the swap.
+	if (newDisposablePtr != (__bridge void *)self) CFRelease(newDisposablePtr);
 
 	// At this point, we've found out that we were already disposed.
 	[newDisposable dispose];

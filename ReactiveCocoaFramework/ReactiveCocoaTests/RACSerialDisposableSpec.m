@@ -117,4 +117,21 @@ it(@"should swap inner disposables", ^{
 	expect(secondDisposed).to.beTruthy();
 });
 
+it(@"should release the inner disposable upon deallocation", ^{
+	__weak RACDisposable *weakInnerDisposable;
+	__weak RACSerialDisposable *weakSerialDisposable;
+
+	@autoreleasepool {
+		RACDisposable *innerDisposable __attribute__((objc_precise_lifetime)) = [[RACDisposable alloc] init];
+		weakInnerDisposable = innerDisposable;
+
+		RACSerialDisposable *serialDisposable __attribute__((objc_precise_lifetime)) = [[RACSerialDisposable alloc] init];
+		serialDisposable.disposable = innerDisposable;
+		weakSerialDisposable = serialDisposable;
+	}
+
+	expect(weakSerialDisposable).to.beNil();
+	expect(weakInnerDisposable).to.beNil();
+});
+
 SpecEnd

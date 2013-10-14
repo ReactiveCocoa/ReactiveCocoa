@@ -69,6 +69,10 @@
 	return self;
 }
 
+- (void)dealloc {
+	self.disposable = nil;
+}
+
 #pragma mark Inner Disposable
 
 - (RACDisposable *)swapInDisposable:(RACDisposable *)newDisposable {

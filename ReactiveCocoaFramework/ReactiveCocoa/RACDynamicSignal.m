@@ -177,11 +177,14 @@ static void RACCheckActiveSignals(void) {
 
 	RACDisposable *schedulingDisposable = [RACScheduler.subscriptionScheduler schedule:^{
 		RACSignalStepBlock stepBlock = self.generator(subscriber, disposable);
-		if (stepBlock != nil) {
-			while (!disposable.disposed) {
-				stepBlock();
-			}
-		}
+		if (stepBlock == nil) return;
+
+		RACDisposable *recursiveDisposable = [RACScheduler.currentScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
+			stepBlock();
+			if (!disposable.disposed) recurse();
+		}];
+
+		if (recursiveDisposable != nil) [disposable addDisposable:recursiveDisposable];
 	}];
 
 	if (schedulingDisposable != nil) [disposable addDisposable:schedulingDisposable];

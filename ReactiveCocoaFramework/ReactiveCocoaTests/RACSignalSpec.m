@@ -177,26 +177,24 @@ describe(@"-bind:", ^{
 		// Tell -bind: to stop by sending it a `nil` signal.
 		[signals sendNext:RACTuplePack(nil, @NO)];
 		expect(disposed).to.beTruthy();
-	});
-
-	it(@"should dispose source signal when stop flag set to YES", ^{
-		// Tell -bind: to stop by setting the stop flag to YES.
-		[signals sendNext:RACTuplePack([RACSignal return:RACUnit.defaultUnit], @YES)];
-		expect(disposed).to.beTruthy();
-
-		// Should still recieve last signal sent at the time of setting stop to YES.
-		expect(lastValue).to.equal(RACUnit.defaultUnit);
-	});
-
-	it(@"should allow bound signals to continue after being stopped", ^{
-		// Tell -bind: to stop by sending it a `nil` signal.
-		[signals sendNext:RACTuplePack(nil, @NO)];
-		expect(disposed).to.beTruthy();
 
 		// Should still receive values sent after stopping.
 		expect(lastValue).to.beNil();
 		[values sendNext:RACUnit.defaultUnit];
 		expect(lastValue).to.equal(RACUnit.defaultUnit);
+	});
+
+	it(@"should dispose source signal when stop flag set to YES", ^{
+		// Tell -bind: to stop by setting the stop flag to YES.
+		[signals sendNext:RACTuplePack([RACSignal return:@1], @YES)];
+		expect(disposed).to.beTruthy();
+
+		// Should still recieve last signal sent at the time of setting stop to YES.
+		expect(lastValue).to.equal(@1);
+
+		// Should still receive values sent after stopping.
+		[values sendNext:@2];
+		expect(lastValue).to.equal(@2);
 	});
 });
 

@@ -10,14 +10,12 @@
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACDynamicSignal.h"
-#import "RACEmptySignal.h"
-#import "RACErrorSignal.h"
 #import "RACMulticastConnection.h"
 #import "RACReplaySubject.h"
-#import "RACReturnSignal.h"
 #import "RACScheduler.h"
 #import "RACSerialDisposable.h"
 #import "RACSignal+Operations.h"
+#import "RACStaticSignal.h"
 #import "RACSubject.h"
 #import "RACSubscriber+Private.h"
 #import "RACTuple.h"
@@ -31,13 +29,11 @@
 }
 
 + (RACSignal *)error:(NSError *)error {
-	return [RACErrorSignal error:error];
+	return [RACStaticSignal error:error];
 }
 
 + (RACSignal *)never {
-	return [[self createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-		return nil;
-	}] setNameWithFormat:@"+never"];
+	return [RACStaticSignal never];
 }
 
 + (RACSignal *)startEagerlyWithScheduler:(RACScheduler *)scheduler block:(void (^)(id<RACSubscriber> subscriber))block {
@@ -82,11 +78,11 @@
 @implementation RACSignal (RACStream)
 
 + (RACSignal *)empty {
-	return [RACEmptySignal empty];
+	return [RACStaticSignal empty];
 }
 
 + (RACSignal *)return:(id)value {
-	return [RACReturnSignal return:value];
+	return [RACStaticSignal return:value];
 }
 
 - (RACSignal *)bind:(RACStreamBindBlock (^)(void))block {

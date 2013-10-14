@@ -20,6 +20,7 @@
 #import "RACScheduler.h"
 #import "RACSerialDisposable.h"
 #import "RACSignalSequence.h"
+#import "RACStaticSignal.h"
 #import "RACStream+Private.h"
 #import "RACSubject.h"
 #import "RACSubscriber+Private.h"
@@ -856,10 +857,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 + (RACSignal *)defer:(RACSignal * (^)(void))block {
 	NSCParameterAssert(block != NULL);
-	
-	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		return [block() subscribe:subscriber];
-	}] setNameWithFormat:@"+defer:"];
+	return [RACStaticSignal defer:block];
 }
 
 - (NSArray *)toArray {

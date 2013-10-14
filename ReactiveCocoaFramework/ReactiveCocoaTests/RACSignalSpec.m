@@ -3372,4 +3372,104 @@ describe(@"-replayLazily", ^{
 	});
 });
 
+fdescribe(@"+generator:", ^{
+	it(@"should run outer block upon subscription", ^{
+		__block BOOL done = NO;
+		RACSignal *signal = [RACSignal generator:^ RACSignalStepBlock (id<RACSubscriber> subscriber, RACCompoundDisposable *compoundDisposable) {
+			done = YES;
+			return nil;
+		}];
+
+		expect(done).to.beFalsy();
+
+		[signal subscribeCompleted:^{}];
+		expect(done).to.beTruthy();
+	});
+
+	it(@"should asynchronously invoke inner block until exhausted", ^{
+		RACSignal *signal = [RACSignal generator:^ RACSignalStepBlock (id<RACSubscriber> subscriber, RACCompoundDisposable *compoundDisposable) {
+			__block NSUInteger counter = 0;
+
+			return ^{
+				[subscriber sendNext:@(counter)];
+				if (++counter == 5) [subscriber sendCompleted];
+			};
+		}];
+
+		NSMutableArray *values = [NSMutableArray array];
+		__block BOOL completed = NO;
+
+		RACDisposable *disposable = [signal subscribeNext:^(NSNumber *x) {
+			[values addObject:x];
+		} completed:^{
+			completed = YES;
+		}];
+
+		expect(disposable).notTo.beNil();
+		
+		expect(completed).will.beTruthy();
+		expect(values).to.equal((@[ @0, @1, @2, @3, @4 ]));
+	});
+
+	it(@"should stop invoking inner block once disposed", ^{
+		__block BOOL disposed = NO;
+
+		RACSignal *signal = [RACSignal generator:^ RACSignalStepBlock (id<RACSubscriber> subscriber, RACCompoundDisposable *compoundDisposable) {
+			__block NSUInteger counter = 0;
+
+			return ^{
+				expect(disposed).to.beFalsy();
+
+				[subscriber sendNext:@(counter)];
+				if (++counter == 5) [subscriber sendCompleted];
+			};
+		}];
+
+		NSMutableArray *values = [NSMutableArray array];
+		__block BOOL completed = NO;
+
+		__block RACDisposable *disposable = [signal subscribeNext:^(NSNumber *x) {
+			[values addObject:x];
+
+			if (x.intValue == 2) {
+				[disposable dispose];
+				disposed = YES;
+			}
+		} completed:^{
+			completed = YES;
+		}];
+
+		expect(disposable).notTo.beNil();
+		
+		expect(values).will.equal((@[ @0, @1, @2 ]));
+		expect(completed).to.beFalsy();
+	});
+
+	it(@"should only invoke the inner block once per scheduler tick", ^{
+		RACSignal *signal = [RACSignal generator:^ RACSignalStepBlock (id<RACSubscriber> subscriber, RACCompoundDisposable *compoundDisposable) {
+			return ^{
+				[subscriber sendNext:RACUnit.defaultUnit];
+			};
+		}];
+
+		RACTestScheduler *scheduler = [[RACTestScheduler alloc] init];
+
+		__block NSUInteger count = 0;
+		[scheduler schedule:^{
+			[signal subscribeNext:^(NSNumber *x) {
+				count++;
+			}];
+		}];
+
+		[scheduler step];
+		expect(count).to.equal(0);
+
+		[scheduler step];
+		expect(count).to.equal(1);
+
+		[scheduler step:2];
+		expect(count).to.equal(3);
+	});
+});
+
 SpecEnd

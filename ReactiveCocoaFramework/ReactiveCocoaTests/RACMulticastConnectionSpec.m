@@ -67,6 +67,11 @@ describe(@"-connect", ^{
 			}]
 			publish];
 
+		// The first call to -connect will be blocking, the second non-blocking.
+		// Since the second will be the first to return from -connect, it will
+		// set `signaled` to 1 and then signal and unblock the first call to
+		// -connect.
+
 		__block RACDisposable *disposable;
 		[RACScheduler.scheduler schedule:^{
 			disposable = [connection connect];

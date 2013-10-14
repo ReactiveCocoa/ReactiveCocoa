@@ -61,7 +61,6 @@ describe(@"-connect", ^{
 			ConditionNone,
 			ConditionConnectionStarted,
 			ConditionConnectionContinue,
-			ConditionConnectionComplete,
 		};
 
 		NSConditionLock *condition = [[NSConditionLock alloc] initWithCondition:ConditionNone];
@@ -80,16 +79,14 @@ describe(@"-connect", ^{
 		[RACScheduler.scheduler schedule:^{
 			disposable = [connection connect];
 
-			[condition unlockWithCondition:ConditionConnectionComplete];
+			[condition unlockWithCondition:ConditionNone];
 		}];
 
 		[condition lockWhenCondition:ConditionConnectionStarted];
 		expect([connection connect]).notTo.beNil();
 		[condition unlockWithCondition:ConditionConnectionContinue];
 
-		[condition lockWhenCondition:ConditionConnectionComplete];
-		expect(disposable).notTo.beNil();
-		[condition unlock];
+		expect(disposable).willNot.beNil();
 	});
 });
 

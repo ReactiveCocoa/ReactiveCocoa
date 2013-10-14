@@ -135,7 +135,7 @@ describe(@"-bind:", ^{
 	__block RACSubject *values;
 
 	beforeEach(^{
-        // Tests send a (RACSignal, BOOL) pair that are assumed below in -bind:.
+		// Tests send a (RACSignal, BOOL) pair that are assumed below in -bind:.
 		signals = [RACSubject subject];
 
 		disposed = NO;
@@ -185,7 +185,7 @@ describe(@"-bind:", ^{
 		expect(disposed).to.beTruthy();
 
 		// Should still recieve last signal sent at the time of setting stop to YES.
-        expect(lastValue).to.equal(RACUnit.defaultUnit);
+		expect(lastValue).to.equal(RACUnit.defaultUnit);
 	});
 
 	it(@"should allow bound signals to continue after being stopped", ^{
@@ -194,9 +194,9 @@ describe(@"-bind:", ^{
 		expect(disposed).to.beTruthy();
 
 		// Should still receive values sent after stopping.
-        expect(lastValue).to.beNil();
+		expect(lastValue).to.beNil();
 		[values sendNext:RACUnit.defaultUnit];
-        expect(lastValue).to.equal(RACUnit.defaultUnit);
+		expect(lastValue).to.equal(RACUnit.defaultUnit);
 	});
 });
 

@@ -42,6 +42,9 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 // should be sent to the `innerSubscriber`.
 @property (nonatomic, strong, readonly) RACCompoundDisposable *disposable;
 
+// Whether `innerSubscriber` implements -invokeWhenReady:.
+@property (nonatomic, assign, readonly) BOOL subscriberSupportsLaziness;
+
 @end
 
 @implementation RACPassthroughSubscriber
@@ -57,6 +60,7 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 	_innerSubscriber = subscriber;
 	_signal = signal;
 	_disposable = disposable;
+	_subscriberSupportsLaziness = [self.innerSubscriber respondsToSelector:@selector(invokeWhenReady:)];
 
 	[self.innerSubscriber didSubscribeWithDisposable:self.disposable];
 	return self;
@@ -97,6 +101,15 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 - (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
 	if (disposable != nil && disposable != self.disposable) {
 		[self.disposable addDisposable:disposable];
+	}
+}
+
+- (RACDisposable *)invokeWhenReady:(void (^)(id<RACSubscriber>))block {
+	if (self.subscriberSupportsLaziness) {
+		return [self.innerSubscriber invokeWhenReady:block];
+	} else {
+		block(self.innerSubscriber);
+		return nil;
 	}
 }
 

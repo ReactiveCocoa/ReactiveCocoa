@@ -50,18 +50,18 @@
 
 @optional
 
-// Runs the given block once the receiver is ready to receive a new event.
-//
-// If this method is not implemented, callers should assume that the receiver is
-// always ready to receive events.
-//
-// block - A block to invoke, on an unspecified thread, when the receiver is
-//         ready. The receiver will be passed into the block, so it can be
-//         safely referenced without worrying about retain cycles. This argument
-//         must not be nil.
-//
-// Returns a disposable which can be used to cancel the execution of `block`
-// before it begins, or nil if cancellation is not supported.
+/// Runs the given block once the receiver is ready to receive a new event.
+///
+/// If this method is not implemented, callers should assume that the receiver is
+/// always ready to receive events.
+///
+/// block - A block to invoke, on an unspecified thread, when the receiver is
+///         ready. The receiver will be passed into the block, so it can be
+///         safely referenced without worrying about retain cycles. This argument
+///         must not be nil.
+///
+/// Returns a disposable which can be used to cancel the execution of `block`
+/// before it begins, or nil if cancellation is not supported.
 - (RACDisposable *)invokeWhenReady:(void (^)(id<RACSubscriber>))block;
 
 @end

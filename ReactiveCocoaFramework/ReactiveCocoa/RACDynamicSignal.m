@@ -182,24 +182,18 @@ static void RACCheckActiveSignals(void) {
 		RACSerialDisposable *stepDisposable = [[RACSerialDisposable alloc] init];
 		[disposable addDisposable:stepDisposable];
 
-		BOOL subscriberSupportsLaziness = [subscriber respondsToSelector:@selector(invokeWhenReady:)];
-
 		// Repeatedly schedule an action that will wait for the subscriber to be
 		// ready, then step the signal.
-		stepDisposable.disposable = [RACScheduler.currentScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
-			void (^step)(void) = ^{
+		RACDisposable *recursiveDisposable = [RACScheduler.currentScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
+			// Since `subscriber` is a RACPassthroughSubscriber, this method is
+			// guaranteed to be present.
+			stepDisposable.disposable = [subscriber invokeWhenReady:^(id<RACSubscriber> subscriber) {
 				signalStep();
 				if (!stepDisposable.disposed) recurse();
-			};
-
-			if (subscriberSupportsLaziness) {
-				stepDisposable.disposable = [subscriber invokeWhenReady:^(id<RACSubscriber> subscriber) {
-					step();
-				}];
-			} else {
-				step();
-			}
+			}];
 		}];
+
+		if (recursiveDisposable != nil) [disposable addDisposable:recursiveDisposable];
 	}];
 
 	if (schedulingDisposable != nil) [disposable addDisposable:schedulingDisposable];

@@ -160,7 +160,10 @@
 
 				@autoreleasepool {
 					if (signal != nil) addSignal(signal);
-					if (signal == nil || stop) completeSignal(self, selfDisposable);
+					if (signal == nil || stop) {
+						[selfDisposable dispose];
+						completeSignal(self, selfDisposable);
+					}
 				}
 			} error:^(NSError *error) {
 				[compoundDisposable dispose];

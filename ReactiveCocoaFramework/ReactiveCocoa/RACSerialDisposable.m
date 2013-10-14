@@ -75,7 +75,7 @@
 	// Only retain the new disposable if it's not `self`.
 	// Take ownership before attempting the swap so that a subsequent swap
 	// receives an owned reference.
-	void *newDisposablePtr = (void *)(newDisposable != nil ? CFRetain((__bridge CFTypeRef)newDisposable) : (__bridge CFTypeRef)self);
+	void *newDisposablePtr = (void *)(newDisposable != nil ? CFBridgingRetain(newDisposable) : (__bridge CFTypeRef)self);
 
 	void *existingDisposablePtr;
 	// Keep trying while we're not disposed.

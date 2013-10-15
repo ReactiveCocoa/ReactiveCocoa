@@ -3500,13 +3500,14 @@ fdescribe(@"+generator:", ^{
 
 	it(@"should apply backpressure within -subscribeOn:", ^{
 		__block NSUInteger invocations = 0;
-		RACSignal *signal = [[RACSignal
+		RACSignal *signal = [[[RACSignal
 			generator:^ RACSignalStepBlock (id<RACSubscriber> subscriber, RACCompoundDisposable *compoundDisposable) {
 				return ^{
 					[subscriber sendNext:@(++invocations)];
 				};
 			}]
-			subscribeOn:RACScheduler.mainThreadScheduler];
+			subscribeOn:RACScheduler.mainThreadScheduler]
+			deliverOn:RACScheduler.mainThreadScheduler];
 
 		__block NSUInteger count = 0;
 		__block BOOL completed = NO;

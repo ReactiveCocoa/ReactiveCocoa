@@ -169,6 +169,7 @@ static const int32_t RACSubscriberMinimumEventCount = INT32_MIN;
 		void (^completedBlock)(void) = [self.completed copy];
 		[self.disposable dispose];
 
+		if (completedBlock == nil) return;
 		completedBlock();
 	}
 }

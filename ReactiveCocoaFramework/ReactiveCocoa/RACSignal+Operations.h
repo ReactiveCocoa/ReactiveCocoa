@@ -311,12 +311,13 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 ///
 /// Example:
 ///
-/// The returned signal will error if data cannot be written to any URL.
-/// [signal try:^(NSData *data, NSError **errorPtr) {
-/// 	return [data writeToURL:someFileURL options:NSDataWritingAtomic error:errorPtr];
-/// }];
+///		// The returned signal will send an error if data values cannot be
+///		// written to `someFileURL`.
+///		[signal try:^(NSData *data, NSError **errorPtr) {
+///			return [data writeToURL:someFileURL options:NSDataWritingAtomic error:errorPtr];
+///		}];
 ///
-/// Returns a signal which passes through the values of the receiver. If
+/// Returns a signal which passes through all the values of the receiver. If
 /// `tryBlock` fails for any value, the returned signal will error using the
 /// `NSError` passed out from the block.
 - (RACSignal *)try:(BOOL (^)(id value, NSError **errorPtr))tryBlock;
@@ -330,14 +331,14 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 ///
 /// Example:
 ///
-/// The returned signal will error if data cannot be read from any URL.
-/// [signal tryMap:^(NSURL *url, NSError **errorPtr) {
-///		return [NSData dataWithContentsOfURL:url options:0 error:errorPtr];
-/// }];
+///		// The returned signal will error if data cannot be read from any URL.
+///		[signal tryMap:^(NSURL *url, NSError **errorPtr) {
+///			return [NSData dataWithContentsOfURL:url options:0 error:errorPtr];
+///		}];
 ///
-/// Returns a signal which transforms the values of the receiver. If `mapBlock`
-/// returns nil for any value, the returned signal will error using the
-/// `NSError` passed out from the block.
+/// Returns a signal which transforms all the values of the receiver. If
+/// `mapBlock` returns nil for any value, the returned signal will error using
+/// the `NSError` passed out from the block.
 - (RACSignal *)tryMap:(id (^)(id value, NSError **errorPtr))mapBlock;
 
 /// Returns the first `next`. Note that this is a blocking call.

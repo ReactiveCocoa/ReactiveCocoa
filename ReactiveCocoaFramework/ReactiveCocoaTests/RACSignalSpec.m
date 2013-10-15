@@ -2139,7 +2139,7 @@ describe(@"-try:", ^{
 		}];
 	});
 	
-	it(@"should pass values while YES is returned in the tryBlock", ^{
+	it(@"should pass values while YES is returned from the tryBlock", ^{
 		[subject sendNext:@"foo"];
 		[subject sendNext:@"bar"];
 		[subject sendNext:@"baz"];
@@ -2211,7 +2211,7 @@ describe(@"-tryMap:", ^{
 		expect(completed).to.beTruthy();
 	});
 	
-	it(@"should map values with the mapBlock until the mapBlock returns nil", ^{
+	it(@"should map values with the mapBlock, until the mapBlock returns nil", ^{
 		[subject sendNext:@"foo"];
 		[subject sendNext:@"bar"];
 		[subject sendNext:nil];

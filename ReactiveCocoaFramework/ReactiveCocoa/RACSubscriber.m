@@ -43,15 +43,6 @@ static const int32_t RACSubscriberMinimumEventCount = INT32_MIN;
 // Contains disposables for all of the receiver's subscriptions.
 @property (nonatomic, strong, readonly) RACCompoundDisposable *disposable;
 
-// Increments `_eventCount`, avoiding overflow.
-- (void)incrementEventCount;
-
-// Decrements `_eventCount`, avoiding underflow.
-//
-// If `_eventCount` hits zero, blocks from `dispatchBlocksWaiting` are popped
-// and run until that's no longer the case.
-- (void)decrementEventCount;
-
 @end
 
 @implementation RACSubscriber
@@ -104,7 +95,7 @@ static const int32_t RACSubscriberMinimumEventCount = INT32_MIN;
 
 #pragma mark Backpressure
 
-- (void)incrementEventCount {
+- (void)suspendSignals {
 	int32_t oldCount;
 	do {
 		oldCount = _eventCount;
@@ -115,7 +106,7 @@ static const int32_t RACSubscriberMinimumEventCount = INT32_MIN;
 	} while (!OSAtomicCompareAndSwap32Barrier(oldCount, oldCount + 1, &_eventCount));
 }
 
-- (void)decrementEventCount {
+- (void)resumeSignals {
 	int32_t oldCount;
 	do {
 		oldCount = _eventCount;
@@ -141,20 +132,24 @@ static const int32_t RACSubscriberMinimumEventCount = INT32_MIN;
 #pragma mark RACSubscriber
 
 - (void)sendNext:(id)value {
-	[self incrementEventCount];
+	[self suspendSignals];
 
 	@synchronized (self) {
+		@onExit {
+			[self resumeSignals];
+		};
+
 		void (^nextBlock)(id) = [self.next copy];
 
 		if (nextBlock == nil) return;
 		nextBlock(value);
-
-		[self decrementEventCount];
 	}
 }
 
 - (void)sendError:(NSError *)e {
-	[self incrementEventCount];
+	// This suspension is intentionally unbalanced, because we'll never be ready
+	// for another event after terminating.
+	[self suspendSignals];
 
 	@synchronized (self) {
 		void (^errorBlock)(NSError *) = [self.error copy];
@@ -162,22 +157,19 @@ static const int32_t RACSubscriberMinimumEventCount = INT32_MIN;
 
 		if (errorBlock == nil) return;
 		errorBlock(e);
-
-		[self decrementEventCount];
 	}
 }
 
 - (void)sendCompleted {
-	[self incrementEventCount];
+	// This suspension is intentionally unbalanced, because we'll never be ready
+	// for another event after terminating.
+	[self suspendSignals];
 
 	@synchronized (self) {
 		void (^completedBlock)(void) = [self.completed copy];
 		[self.disposable dispose];
 
-		if (completedBlock == nil) return;
 		completedBlock();
-
-		[self decrementEventCount];
 	}
 }
 

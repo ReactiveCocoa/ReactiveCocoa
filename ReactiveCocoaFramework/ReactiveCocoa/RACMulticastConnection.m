@@ -15,20 +15,20 @@
 
 @interface RACMulticastConnection () {
 	RACSubject *_signal;
+
+	// When connecting, a caller should attempt to atomically swap the value of this
+	// from `0` to `1`.
+	//
+	// If the swap is successful the caller is resposible for subscribing `_signal`
+	// to `sourceSignal` and storing the returned disposable in `serialDisposable`.
+	//
+	// If the swap is unsuccessful it means that `_sourceSignal` has already been
+	// connected and the caller has no action to take.
+	int32_t volatile _hasConnected;
 }
 
 @property (nonatomic, readonly, strong) RACSignal *sourceSignal;
 @property (strong) RACSerialDisposable *serialDisposable;
-
-// When connecting, a caller should attempt to atomically swap the value of this
-// from `0` to `1`.
-//
-// If the swap is successful the caller is resposible for subscribing `_signal`
-// to `sourceSignal` and storing the returned disposable in `serialDisposable`.
-//
-// If the swap is unsuccessful it means that `_sourceSignal` has already been
-// connected and the caller has no action to take.
-@property (nonatomic, assign) int32_t hasConnected;
 @end
 
 @implementation RACMulticastConnection

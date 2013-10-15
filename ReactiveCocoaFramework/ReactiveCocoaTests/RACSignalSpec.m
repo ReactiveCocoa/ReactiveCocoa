@@ -128,6 +128,76 @@ describe(@"RACStream", ^{
 	});
 });
 
+describe(@"-bind:", ^{
+	__block RACSubject *signals;
+	__block BOOL disposed;
+	__block id lastValue;
+	__block RACSubject *values;
+
+	beforeEach(^{
+		// Tests send a (RACSignal, BOOL) pair that are used below in -bind:.
+		signals = [RACSubject subject];
+
+		disposed = NO;
+		RACSignal *source = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			[signals subscribe:subscriber];
+
+			return [RACDisposable disposableWithBlock:^{
+				disposed = YES;
+			}];
+		}];
+
+		RACSignal *bind = [source bind:^{
+			return ^(RACTuple *x, BOOL *stop) {
+				RACTupleUnpack(RACSignal *signal, NSNumber *stopValue) = x;
+				*stop = stopValue.boolValue;
+				return signal;
+			};
+		}];
+
+		lastValue = nil;
+		[bind subscribeNext:^(id x) {
+			lastValue = x;
+		}];
+
+		// Send `bind` an open ended subject to subscribe to. These tests make
+		// use of this in two ways:
+		//   1. Used to test a regression bug where -bind: would not actually
+		//      stop when instructed to. This bug manifested itself only when
+		//      there were subscriptions that lived on past the point at which
+		//      -bind: was stopped. This subject represents such a subscription.
+		//   2. Test that values sent by this subject are received by `bind`'s
+		//      subscriber, even *after* -bind: has been instructed to stop.
+		values = [RACSubject subject];
+		[signals sendNext:RACTuplePack(values, @NO)];
+		expect(disposed).to.beFalsy();
+	});
+
+	it(@"should dispose source signal when stopped with nil signal", ^{
+		// Tell -bind: to stop by sending it a `nil` signal.
+		[signals sendNext:RACTuplePack(nil, @NO)];
+		expect(disposed).to.beTruthy();
+
+		// Should still receive values sent after stopping.
+		expect(lastValue).to.beNil();
+		[values sendNext:RACUnit.defaultUnit];
+		expect(lastValue).to.equal(RACUnit.defaultUnit);
+	});
+
+	it(@"should dispose source signal when stop flag set to YES", ^{
+		// Tell -bind: to stop by setting the stop flag to YES.
+		[signals sendNext:RACTuplePack([RACSignal return:@1], @YES)];
+		expect(disposed).to.beTruthy();
+
+		// Should still recieve last signal sent at the time of setting stop to YES.
+		expect(lastValue).to.equal(@1);
+
+		// Should still receive values sent after stopping.
+		[values sendNext:@2];
+		expect(lastValue).to.equal(@2);
+	});
+});
+
 describe(@"subscribing", ^{
 	__block RACSignal *signal = nil;
 	id nextValueSent = @"1";

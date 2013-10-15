@@ -135,7 +135,7 @@ describe(@"-bind:", ^{
 	__block RACSubject *values;
 
 	beforeEach(^{
-		// Tests send a (RACSignal, BOOL) pair that are assumed below in -bind:.
+		// Tests send a (RACSignal, BOOL) pair that are used below in -bind:.
 		signals = [RACSubject subject];
 
 		disposed = NO;

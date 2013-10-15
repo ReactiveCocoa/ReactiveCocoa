@@ -3372,7 +3372,7 @@ describe(@"-replayLazily", ^{
 	});
 });
 
-fdescribe(@"+generator:", ^{
+describe(@"+generator:", ^{
 	it(@"should run outer block upon subscription", ^{
 		__block BOOL done = NO;
 		RACSignal *signal = [RACSignal generator:^ RACSignalStepBlock (id<RACSubscriber> subscriber, RACCompoundDisposable *compoundDisposable) {

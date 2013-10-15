@@ -307,11 +307,11 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// until `tryBlock` returns NO, or the receiver completes.
 ///
 /// tryBlock - An action to run against each value. The block should return YES
-/// to indicate the action was successful. This block must not be nil.
+///			   to indicate the action was successful. This block must not be nil.
 ///
 /// Example:
 ///
-/// The signal to error if any data value cannot be written to someFileURL.
+/// The returned signal will error if data cannot be written to any URL.
 /// [signal try:^(NSData *data, NSError **errorPtr) {
 /// 	return [data writeToURL:someFileURL options:NSDataWritingAtomic error:errorPtr];
 /// }];
@@ -325,8 +325,8 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// `mapBlock` returns nil, or the receiver completes.
 ///
 /// mapBlock - An action to map each of the receiver's values. The block should
-/// return a non-nil value to indicate that the action was successful.
-/// This block must not be nil.
+///			   return a non-nil value to indicate that the action was successful.
+///			   This block must not be nil.
 ///
 /// Example:
 ///

@@ -2139,7 +2139,7 @@ describe(@"-try:", ^{
 		}];
 	});
 	
-	it(@"should pass values that while YES is returned in the tryBlock", ^{
+	it(@"should pass values while YES is returned in the tryBlock", ^{
 		[subject sendNext:@"foo"];
 		[subject sendNext:@"bar"];
 		[subject sendNext:@"baz"];
@@ -2154,7 +2154,7 @@ describe(@"-try:", ^{
 		expect(completed).to.beTruthy();
 	});
 	
-	it(@"should pass values until an NO is returned from the tryBlock", ^{
+	it(@"should pass values until NO is returned from the tryBlock", ^{
 		[subject sendNext:@"foo"];
 		[subject sendNext:@"bar"];
 		[subject sendNext:nil];
@@ -2181,7 +2181,7 @@ describe(@"-tryMap:", ^{
 		nextValues = [NSMutableArray array];
 		completed = NO;
 		
-		[[subject tryMap:^id(NSString *value, NSError **error) {
+		[[subject tryMap:^ id (NSString *value, NSError **error) {
 			if (value != nil) return [NSString stringWithFormat:@"%@_a", value];
 			
 			if (error != nil) *error = RACSignalTestError;
@@ -2211,7 +2211,7 @@ describe(@"-tryMap:", ^{
 		expect(completed).to.beTruthy();
 	});
 	
-	it(@"should map values from the mapBlock until the mapBlock returns nil to indicate an error has occurred", ^{
+	it(@"should map values with the mapBlock until the mapBlock returns nil", ^{
 		[subject sendNext:@"foo"];
 		[subject sendNext:@"bar"];
 		[subject sendNext:nil];

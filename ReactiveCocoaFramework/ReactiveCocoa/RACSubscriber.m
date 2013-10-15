@@ -12,23 +12,45 @@
 #import "RACCompoundDisposable.h"
 #import <libkern/OSAtomic.h>
 
-@interface RACSubscriber ()
+// The minimum value for `_eventCount`, used to indicate that no events are
+// being processed.
+static const int32_t RACSubscriberMinimumEventCount = INT32_MIN;
 
-// A private serial queue used to implement backpressure against any signals
-// that the receiver is subscribed to.
-//
-// While the receiver is processing events, the queue will be suspended. To wait
-// for the receiver to be ready, enqueue a block here.
-//
-// This queue is retained.
-@property (nonatomic, readonly) dispatch_queue_t readyQueue;
+@interface RACSubscriber () {
+	// Incremented when events are being processed or waiting to be processed.
+	//
+	// Note that this variable does not actually correspond to the _number_ of
+	// events inflight, since it starts at `RACSubscriberMinimumEventCount`.
+	//
+	// This should only be used atomically.
+	volatile int32_t _eventCount;
+}
 
-// These callbacks should only be accessed while synchronized on self.
+// Callbacks to invoke when the subscriber receives events. These should only be
+// accessed and invoked while synchronized on self.
 @property (nonatomic, copy) void (^next)(id value);
 @property (nonatomic, copy) void (^error)(NSError *error);
 @property (nonatomic, copy) void (^completed)(void);
 
+// An array of `dispatch_block_t` objects.
+//
+// While `_eventCount` is 0, blocks in this array should be popped from the end
+// and invoked.
+//
+// This should only be mutated while synchronized on the array.
+@property (nonatomic, strong, readonly) NSMutableArray *dispatchBlocksWaiting;
+
+// Contains disposables for all of the receiver's subscriptions.
 @property (nonatomic, strong, readonly) RACCompoundDisposable *disposable;
+
+// Increments `_eventCount`, avoiding overflow.
+- (void)incrementEventCount;
+
+// Decrements `_eventCount`, avoiding underflow.
+//
+// If `_eventCount` hits zero, blocks from `dispatchBlocksWaiting` are popped
+// and run until that's no longer the case.
+- (void)decrementEventCount;
 
 @end
 
@@ -50,8 +72,8 @@
 	self = [super init];
 	if (self == nil) return nil;
 
-	_readyQueue = dispatch_queue_create("com.github.ReactiveCocoa.RACSubscriber.readyQueue", DISPATCH_QUEUE_SERIAL);
-	dispatch_set_target_queue(_readyQueue, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0));
+	_dispatchBlocksWaiting = [[NSMutableArray alloc] init];
+	_eventCount = RACSubscriberMinimumEventCount;
 
 	@weakify(self);
 
@@ -64,6 +86,10 @@
 			self.error = nil;
 			self.completed = nil;
 		}
+
+		@synchronized (self.dispatchBlocksWaiting) {
+			[self.dispatchBlocksWaiting removeAllObjects];
+		}
 	}];
 
 	_disposable = [RACCompoundDisposable compoundDisposable];
@@ -74,34 +100,61 @@
 
 - (void)dealloc {
 	[self.disposable dispose];
+}
 
-	if (_readyQueue != NULL) {
-		dispatch_release(_readyQueue);
-		_readyQueue = NULL;
+#pragma mark Backpressure
+
+- (void)incrementEventCount {
+	int32_t oldCount;
+	do {
+		oldCount = _eventCount;
+		if (oldCount == INT32_MAX) {
+			// An increment would overflow, so just do nothing.
+			break;
+		}
+	} while (!OSAtomicCompareAndSwap32Barrier(oldCount, oldCount + 1, &_eventCount));
+}
+
+- (void)decrementEventCount {
+	int32_t oldCount;
+	do {
+		oldCount = _eventCount;
+		if (oldCount == RACSubscriberMinimumEventCount) {
+			// A decrement would underflow, so just bail. Although this may
+			// cause `dispatchBlocksWaiting` to be popped too early, that's not
+			// as harmful as never running any of them again.
+			break;
+		}
+	} while (!OSAtomicCompareAndSwap32Barrier(oldCount, oldCount - 1, &_eventCount));
+
+	@synchronized (self.dispatchBlocksWaiting) {
+		do {
+			dispatch_block_t block = self.dispatchBlocksWaiting.lastObject;
+			if (block == nil) break;
+
+			[self.dispatchBlocksWaiting removeLastObject];
+			block();
+		} while (_eventCount == RACSubscriberMinimumEventCount);
 	}
 }
 
 #pragma mark RACSubscriber
 
 - (void)sendNext:(id)value {
-	dispatch_suspend(self.readyQueue);
-	@onExit {
-		dispatch_resume(self.readyQueue);
-	};
+	[self incrementEventCount];
 
 	@synchronized (self) {
 		void (^nextBlock)(id) = [self.next copy];
-		if (nextBlock == nil) return;
 
+		if (nextBlock == nil) return;
 		nextBlock(value);
+
+		[self decrementEventCount];
 	}
 }
 
 - (void)sendError:(NSError *)e {
-	dispatch_suspend(self.readyQueue);
-	@onExit {
-		dispatch_resume(self.readyQueue);
-	};
+	[self incrementEventCount];
 
 	@synchronized (self) {
 		void (^errorBlock)(NSError *) = [self.error copy];
@@ -109,14 +162,13 @@
 
 		if (errorBlock == nil) return;
 		errorBlock(e);
+
+		[self decrementEventCount];
 	}
 }
 
 - (void)sendCompleted {
-	dispatch_suspend(self.readyQueue);
-	@onExit {
-		dispatch_resume(self.readyQueue);
-	};
+	[self incrementEventCount];
 
 	@synchronized (self) {
 		void (^completedBlock)(void) = [self.completed copy];
@@ -124,6 +176,8 @@
 
 		if (completedBlock == nil) return;
 		completedBlock();
+
+		[self decrementEventCount];
 	}
 }
 
@@ -132,16 +186,33 @@
 }
 
 - (RACDisposable *)invokeWhenReady:(void (^)(id<RACSubscriber>))block {
-	RACDisposable *blockDisposable = [[RACDisposable alloc] init];
-	[self.disposable addDisposable:blockDisposable];
+	NSCParameterAssert(block != nil);
+	if (self.disposable.disposed) return nil;
 
-	dispatch_async(self.readyQueue, ^{
-		if (blockDisposable.disposed) return;
+	if (_eventCount == RACSubscriberMinimumEventCount) {
+		block(self);
+		return nil;
+	}
+
+	__block RACDisposable *blockDisposable = nil;
+
+	dispatch_block_t dispatchBlock = [^{
 		[self.disposable removeDisposable:blockDisposable];
 
 		block(self);
-	});
+	} copy];
 
+	blockDisposable = [RACDisposable disposableWithBlock:^{
+		@synchronized (self.dispatchBlocksWaiting) {
+			[self.dispatchBlocksWaiting removeObject:dispatchBlock];
+		}
+	}];
+
+	@synchronized (self.dispatchBlocksWaiting) {
+		[self.dispatchBlocksWaiting insertObject:dispatchBlock atIndex:0];
+	}
+
+	[self.disposable addDisposable:blockDisposable];
 	return blockDisposable;
 }
 

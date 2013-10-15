@@ -3469,9 +3469,7 @@ fdescribe(@"+generator:", ^{
 		expect(completed).to.beFalsy();
 	});
 
-	it(@"should stop invoking inner block asynchronously once disposed", ^{
-		RACScheduler *scheduler = [RACScheduler scheduler];
-
+	it(@"should apply backpressure within -deliverOn:", ^{
 		__block NSUInteger invocations = 0;
 		RACSignal *signal = [[RACSignal
 			generator:^ RACSignalStepBlock (id<RACSubscriber> subscriber, RACCompoundDisposable *compoundDisposable) {
@@ -3479,21 +3477,46 @@ fdescribe(@"+generator:", ^{
 					[subscriber sendNext:@(++invocations)];
 				};
 			}]
-			deliverOn:scheduler];
+			deliverOn:RACScheduler.mainThreadScheduler];
 
 		__block NSUInteger count = 0;
 		__block BOOL completed = NO;
 
 		__block RACDisposable *disposable = [signal subscribeNext:^(NSNumber *x) {
-			expect(RACScheduler.currentScheduler).to.equal(scheduler);
-
 			count++;
 			if (count == 2) {
 				[disposable dispose];
 			}
 		} completed:^{
-			expect(RACScheduler.currentScheduler).to.equal(scheduler);
+			completed = YES;
+		}];
 
+		expect(disposable).notTo.beNil();
+
+		expect(count).will.equal(2);
+		expect(invocations).to.equal(count);
+		expect(completed).to.beFalsy();
+	});
+
+	it(@"should apply backpressure within -subscribeOn:", ^{
+		__block NSUInteger invocations = 0;
+		RACSignal *signal = [[RACSignal
+			generator:^ RACSignalStepBlock (id<RACSubscriber> subscriber, RACCompoundDisposable *compoundDisposable) {
+				return ^{
+					[subscriber sendNext:@(++invocations)];
+				};
+			}]
+			subscribeOn:RACScheduler.mainThreadScheduler];
+
+		__block NSUInteger count = 0;
+		__block BOOL completed = NO;
+
+		__block RACDisposable *disposable = [signal subscribeNext:^(NSNumber *x) {
+			count++;
+			if (count == 2) {
+				[disposable dispose];
+			}
+		} completed:^{
 			completed = YES;
 		}];
 

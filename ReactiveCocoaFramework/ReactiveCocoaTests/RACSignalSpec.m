@@ -2123,6 +2123,7 @@ describe(@"-try:", ^{
 		subject = [RACSubject subject];
 		nextValues = [NSMutableArray array];
 		completed = NO;
+		receivedError = nil;
 		
 		[[subject try:^(NSString *value, NSError **error) {
 			if (value != nil) return YES;
@@ -2180,6 +2181,7 @@ describe(@"-tryMap:", ^{
 		subject = [RACSubject subject];
 		nextValues = [NSMutableArray array];
 		completed = NO;
+		receivedError = nil;
 		
 		[[subject tryMap:^ id (NSString *value, NSError **error) {
 			if (value != nil) return [NSString stringWithFormat:@"%@_a", value];

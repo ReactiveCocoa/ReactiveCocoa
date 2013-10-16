@@ -2205,6 +2205,122 @@ describe(@"-catch:", ^{
 	});
 });
 
+describe(@"-try:", ^{
+	__block RACSubject *subject;
+	__block NSError *receivedError;
+	__block NSMutableArray *nextValues;
+	__block BOOL completed;
+	
+	beforeEach(^{
+		subject = [RACSubject subject];
+		nextValues = [NSMutableArray array];
+		completed = NO;
+		receivedError = nil;
+		
+		[[subject try:^(NSString *value, NSError **error) {
+			if (value != nil) return YES;
+			
+			if (error != nil) *error = RACSignalTestError;
+			
+			return NO;
+		}] subscribeNext:^(id x) {
+			[nextValues addObject:x];
+		} error:^(NSError *error) {
+			receivedError = error;
+		} completed:^{
+			completed = YES;
+		}];
+	});
+	
+	it(@"should pass values while YES is returned from the tryBlock", ^{
+		[subject sendNext:@"foo"];
+		[subject sendNext:@"bar"];
+		[subject sendNext:@"baz"];
+		[subject sendNext:@"buzz"];
+		[subject sendCompleted];
+		
+		NSArray *receivedValues = [nextValues copy];
+		NSArray *expectedValues = @[ @"foo", @"bar", @"baz", @"buzz" ];
+		
+		expect(receivedError).to.beNil();
+		expect(receivedValues).to.equal(expectedValues);
+		expect(completed).to.beTruthy();
+	});
+	
+	it(@"should pass values until NO is returned from the tryBlock", ^{
+		[subject sendNext:@"foo"];
+		[subject sendNext:@"bar"];
+		[subject sendNext:nil];
+		[subject sendNext:@"buzz"];
+		[subject sendCompleted];
+		
+		NSArray *receivedValues = [nextValues copy];
+		NSArray *expectedValues = @[ @"foo", @"bar" ];
+		
+		expect(receivedError).to.equal(RACSignalTestError);
+		expect(receivedValues).to.equal(expectedValues);
+		expect(completed).to.beFalsy();
+	});
+});
+
+describe(@"-tryMap:", ^{
+	__block RACSubject *subject;
+	__block NSError *receivedError;
+	__block NSMutableArray *nextValues;
+	__block BOOL completed;
+	
+	beforeEach(^{
+		subject = [RACSubject subject];
+		nextValues = [NSMutableArray array];
+		completed = NO;
+		receivedError = nil;
+		
+		[[subject tryMap:^ id (NSString *value, NSError **error) {
+			if (value != nil) return [NSString stringWithFormat:@"%@_a", value];
+			
+			if (error != nil) *error = RACSignalTestError;
+
+			return nil;
+		}] subscribeNext:^(id x) {
+			[nextValues addObject:x];
+		} error:^(NSError *error) {
+			receivedError = error;
+		} completed:^{
+			completed = YES;
+		}];
+	});
+	
+	it(@"should map values with the mapBlock", ^{
+		[subject sendNext:@"foo"];
+		[subject sendNext:@"bar"];
+		[subject sendNext:@"baz"];
+		[subject sendNext:@"buzz"];
+		[subject sendCompleted];
+
+		NSArray *receivedValues = [nextValues copy];
+		NSArray *expectedValues = @[ @"foo_a", @"bar_a", @"baz_a", @"buzz_a" ];
+		
+		expect(receivedError).to.beNil();
+		expect(receivedValues).to.equal(expectedValues);
+		expect(completed).to.beTruthy();
+	});
+	
+	it(@"should map values with the mapBlock, until the mapBlock returns nil", ^{
+		[subject sendNext:@"foo"];
+		[subject sendNext:@"bar"];
+		[subject sendNext:nil];
+		[subject sendNext:@"buzz"];
+		[subject sendCompleted];
+		
+		NSArray *receivedValues = [nextValues copy];
+		NSArray *expectedValues = @[ @"foo_a", @"bar_a" ];
+		
+		expect(receivedError).to.equal(RACSignalTestError);
+		expect(receivedValues).to.equal(expectedValues);
+		expect(completed).to.beFalsy();
+	});
+});
+
 describe(@"throttling", ^{
 	__block RACSubject *subject;
 

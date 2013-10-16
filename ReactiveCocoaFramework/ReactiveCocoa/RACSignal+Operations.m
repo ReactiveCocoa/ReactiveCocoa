@@ -270,6 +270,26 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -catchTo: %@", self.name, signal];
 }
 
+- (RACSignal *)try:(BOOL (^)(id value, NSError **errorPtr))tryBlock {
+	NSCParameterAssert(tryBlock != NULL);
+	
+	return [[self flattenMap:^(id value) {
+		NSError *error = nil;
+		BOOL passed = tryBlock(value, &error);
+		return (passed ? [RACSignal return:value] : [RACSignal error:error]);
+	}] setNameWithFormat:@"[%@] -try:", self.name];
+}
+
+- (RACSignal *)tryMap:(id (^)(id value, NSError **errorPtr))mapBlock {
+	NSCParameterAssert(mapBlock != NULL);
+	
+	return [[self flattenMap:^(id value) {
+		NSError *error = nil;
+		id mappedValue = mapBlock(value, &error);
+		return (mappedValue == nil ? [RACSignal error:error] : [RACSignal return:mappedValue]);
+	}] setNameWithFormat:@"[%@] -tryMap:", self.name];
+}
+
 - (RACSignal *)initially:(void (^)(void))block {
 	NSCParameterAssert(block != NULL);
 

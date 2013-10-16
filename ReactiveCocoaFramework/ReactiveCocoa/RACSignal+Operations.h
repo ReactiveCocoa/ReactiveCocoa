@@ -333,9 +333,9 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// Example:
 ///
 ///   // The returned signal will send an error if data cannot be read from
-///   // `fileUrl`.
-///   [signal tryMap:^(NSURL *fileUrl, NSError **errorPtr) {
-///       return [NSData dataWithContentsOfURL:fileUrl options:0 error:errorPtr];
+///   // `fileURL`.
+///   [signal tryMap:^(NSURL *fileURL, NSError **errorPtr) {
+///       return [NSData dataWithContentsOfURL:fileURL options:0 error:errorPtr];
 ///   }];
 ///
 /// Returns a signal which transforms all the values of the receiver. If

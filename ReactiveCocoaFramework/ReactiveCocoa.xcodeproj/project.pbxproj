@@ -32,6 +32,12 @@
 		27A887D21703DDEB00040001 /* UIBarButtonItem+RACCommandSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 27A887C71703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		550E2A93180E691F009C6462 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 550E2A92180E691F009C6462 /* CoreLocation.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		552FDC05180E69AA00594DC2 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 550E2A92180E691F009C6462 /* CoreLocation.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		552FDC08180E69FC00594DC2 /* CLLocationManager+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 552FDC06180E69FC00594DC2 /* CLLocationManager+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		552FDC09180E69FC00594DC2 /* CLLocationManager+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 552FDC06180E69FC00594DC2 /* CLLocationManager+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		552FDC0A180E69FC00594DC2 /* CLLocationManager+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 552FDC06180E69FC00594DC2 /* CLLocationManager+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		552FDC0B180E69FC00594DC2 /* CLLocationManager+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 552FDC07180E69FC00594DC2 /* CLLocationManager+RACSignalSupport.m */; };
+		552FDC0C180E69FC00594DC2 /* CLLocationManager+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 552FDC07180E69FC00594DC2 /* CLLocationManager+RACSignalSupport.m */; };
+		552FDC0D180E69FC00594DC2 /* CLLocationManager+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 552FDC07180E69FC00594DC2 /* CLLocationManager+RACSignalSupport.m */; };
 		552FDC34180F266500594DC2 /* RACDelegateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = A1FCC3771567DED0008C9686 /* RACDelegateProxy.m */; };
 		552FDC35180F266700594DC2 /* RACDelegateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = A1FCC3771567DED0008C9686 /* RACDelegateProxy.m */; };
 		557A4B5A177648C7008EF796 /* UIActionSheet+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 557A4B58177648C7008EF796 /* UIActionSheet+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -713,6 +719,8 @@
 		27A887C71703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIBarButtonItem+RACCommandSupport.h"; sourceTree = "<group>"; };
 		27A887C81703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIBarButtonItem+RACCommandSupport.m"; sourceTree = "<group>"; };
 		550E2A92180E691F009C6462 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		552FDC06180E69FC00594DC2 /* CLLocationManager+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CLLocationManager+RACSignalSupport.h"; sourceTree = "<group>"; };
+		552FDC07180E69FC00594DC2 /* CLLocationManager+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CLLocationManager+RACSignalSupport.m"; sourceTree = "<group>"; };
 		557A4B58177648C7008EF796 /* UIActionSheet+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIActionSheet+RACSignalSupport.h"; sourceTree = "<group>"; };
 		557A4B59177648C7008EF796 /* UIActionSheet+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIActionSheet+RACSignalSupport.m"; sourceTree = "<group>"; };
 		55856AB6180E698000F19072 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/System/Library/Frameworks/CoreLocation.framework; sourceTree = DEVELOPER_DIR; };
@@ -1132,6 +1140,15 @@
 			path = UIKit;
 			sourceTree = "<group>";
 		};
+		552FDC12180E797100594DC2 /* Core Frameworks Support */ = {
+			isa = PBXGroup;
+			children = (
+				552FDC06180E69FC00594DC2 /* CLLocationManager+RACSignalSupport.h */,
+				552FDC07180E69FC00594DC2 /* CLLocationManager+RACSignalSupport.m */,
+			);
+			name = "Core Frameworks Support";
+			sourceTree = "<group>";
+		};
 		5FAF525F174D4D6100CAC810 /* OS X */ = {
 			isa = PBXGroup;
 			children = (
@@ -1298,6 +1315,7 @@
 				889C04BB155DA37600F19F0C /* Foundation Support */,
 				88DA309415071C5F00C19D0F /* AppKit Support */,
 				88F44257153DC0100097B4C3 /* UIKit Support */,
+				552FDC12180E797100594DC2 /* Core Frameworks Support */,
 				88977C5915129AB200A09EC5 /* KVO + Bindings */,
 				A1FCC36F15675466008C9686 /* Objective-C Runtime */,
 				88CDF7C615000FCE00163A9F /* Supporting Files */,
@@ -1742,6 +1760,7 @@
 				D013A3E61807B7C30072B6CE /* RACReturnSignal.h in Headers */,
 				D077A16D169B740200057BB1 /* RACEvent.h in Headers */,
 				8837EA1616A5A33300FC3CDF /* RACKVOTrampoline.h in Headers */,
+				552FDC08180E69FC00594DC2 /* CLLocationManager+RACSignalSupport.h in Headers */,
 				D0A0B01516EAA3D100C47593 /* NSText+RACSignalSupport.h in Headers */,
 				D0A0B03B16EAA9AC00C47593 /* NSControl+RACTextSignalSupport.h in Headers */,
 				D094E44917775AF200906BF7 /* EXTKeyPathCoding.h in Headers */,
@@ -1802,6 +1821,7 @@
 				6EA0C08216F4AEC1006EBEB2 /* NSObject+RACDeallocating.h in Headers */,
 				27A887D21703DDEB00040001 /* UIBarButtonItem+RACCommandSupport.h in Headers */,
 				1EC06B17173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.h in Headers */,
+				552FDC09180E69FC00594DC2 /* CLLocationManager+RACSignalSupport.h in Headers */,
 				D090768017FBEADE00EB087A /* NSURLConnection+RACSupport.h in Headers */,
 				5EE9A7931760D61300EAF5A2 /* UIButton+RACCommandSupport.h in Headers */,
 				88302C961762EC79003633BD /* RACQueueScheduler.h in Headers */,
@@ -1840,6 +1860,7 @@
 				D05AD40F17F2DB6A0080895B /* NSFileHandle+RACSupport.h in Headers */,
 				D05AD40517F2DB5D0080895B /* RACTestScheduler.h in Headers */,
 				D05AD42817F2DB840080895B /* RACKVOChannel.h in Headers */,
+				552FDC0A180E69FC00594DC2 /* CLLocationManager+RACSignalSupport.h in Headers */,
 				D05AD3FF17F2DB5D0080895B /* RACTargetQueueScheduler.h in Headers */,
 				D05AD3E217F2DB230080895B /* RACDisposable.h in Headers */,
 				D05AD42617F2DB840080895B /* RACChannel.h in Headers */,
@@ -2332,6 +2353,7 @@
 				D0E967911641EF9C00FCFF06 /* RACStringSequence.m in Sources */,
 				D0D487031642550100DD7605 /* RACStream.m in Sources */,
 				D0EE284D164D906B006954A4 /* RACSignalSequence.m in Sources */,
+				552FDC0B180E69FC00594DC2 /* CLLocationManager+RACSignalSupport.m in Sources */,
 				881E86A41669304800667F7B /* RACCompoundDisposable.m in Sources */,
 				881E87AE16695C5600667F7B /* RACQueueScheduler.m in Sources */,
 				881E87B416695EDF00667F7B /* RACImmediateScheduler.m in Sources */,
@@ -2484,6 +2506,7 @@
 				D07CD7191731BA3900DE2394 /* RACUnarySequence.m in Sources */,
 				1EC06B18173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.m in Sources */,
 				5FDC35061736F54700792E52 /* NSString+RACKeyPathUtilities.m in Sources */,
+				552FDC0C180E69FC00594DC2 /* CLLocationManager+RACSignalSupport.m in Sources */,
 				D0D243BE1741FA13004359C6 /* NSObject+RACDescription.m in Sources */,
 				5EE9A7941760D61300EAF5A2 /* UIButton+RACCommandSupport.m in Sources */,
 				882D071F17615139009EDA69 /* RACTargetQueueScheduler.m in Sources */,
@@ -2551,6 +2574,7 @@
 				D05AD42917F2DB840080895B /* RACKVOChannel.m in Sources */,
 				D05AD42C17F2DB840080895B /* NSString+RACKeyPathUtilities.m in Sources */,
 				D05AD42717F2DB840080895B /* RACChannel.m in Sources */,
+				552FDC0D180E69FC00594DC2 /* CLLocationManager+RACSignalSupport.m in Sources */,
 				D05AD3FB17F2DB5D0080895B /* RACScheduler.m in Sources */,
 				D05AD3EB17F2DB270080895B /* RACCommand.m in Sources */,
 				D05AD3D117F2DB100080895B /* RACStream.m in Sources */,

@@ -57,20 +57,11 @@ describe(@"-connect", ^{
 	});
 
 	it(@"shouldn't race when connecting", ^{
-		enum : NSInteger {
-			ConditionNone,
-			ConditionConnectionStarted,
-			ConditionConnectionContinue,
-		};
-
-		NSConditionLock *condition = [[NSConditionLock alloc] initWithCondition:ConditionNone];
+		dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
 
 		RACMulticastConnection *connection = [[RACSignal
 			defer:^ id {
-				[condition lock];
-				[condition unlockWithCondition:ConditionConnectionStarted];
-
-				[condition lockWhenCondition:ConditionConnectionContinue];
+				dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
 				return nil;
 			}]
 			publish];
@@ -78,15 +69,15 @@ describe(@"-connect", ^{
 		__block RACDisposable *disposable;
 		[RACScheduler.scheduler schedule:^{
 			disposable = [connection connect];
-
-			[condition unlockWithCondition:ConditionNone];
+			dispatch_semaphore_signal(semaphore);
 		}];
 
-		[condition lockWhenCondition:ConditionConnectionStarted];
 		expect([connection connect]).notTo.beNil();
-		[condition unlockWithCondition:ConditionConnectionContinue];
+		dispatch_semaphore_signal(semaphore);
 
 		expect(disposable).willNot.beNil();
+
+		dispatch_release(semaphore);
 	});
 });
 

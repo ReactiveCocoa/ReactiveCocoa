@@ -306,9 +306,9 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// Runs `tryBlock` against each of the receiver's values, passing values
 /// until `tryBlock` returns NO, or the receiver completes.
 ///
-/// tryBlock - An action to run against each value. The block should return YES
-///			   to indicate that the action was successful.
-///			   This block must not be nil.
+/// tryBlock - An action to run against each of the receiver's values.
+///            The block should return YES to indicate that the action was
+///			   successful. This block must not be nil.
 ///
 /// Example:
 ///

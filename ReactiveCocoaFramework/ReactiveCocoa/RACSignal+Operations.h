@@ -308,15 +308,15 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 ///
 /// tryBlock - An action to run against each of the receiver's values.
 ///            The block should return YES to indicate that the action was
-///			   successful. This block must not be nil.
+///            successful. This block must not be nil.
 ///
 /// Example:
 ///
-///		// The returned signal will send an error if data values cannot be
-///		// written to `someFileURL`.
-///		[signal try:^(NSData *data, NSError **errorPtr) {
-///			return [data writeToURL:someFileURL options:NSDataWritingAtomic error:errorPtr];
-///		}];
+///   // The returned signal will send an error if data values cannot be
+///   // written to `someFileURL`.
+///   [signal try:^(NSData *data, NSError **errorPtr) {
+///       return [data writeToURL:someFileURL options:NSDataWritingAtomic error:errorPtr];
+///   }];
 ///
 /// Returns a signal which passes through all the values of the receiver. If
 /// `tryBlock` fails for any value, the returned signal will error using the
@@ -327,16 +327,16 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// `mapBlock` returns nil, or the receiver completes.
 ///
 /// mapBlock - An action to map each of the receiver's values. The block should
-///			   return a non-nil value to indicate that the action was successful.
-///			   This block must not be nil.
+///            return a non-nil value to indicate that the action was successful.
+///            This block must not be nil.
 ///
 /// Example:
 ///
-///		// The returned signal will send an error if data cannot be read from
-///     // `fileUrl`.
-///		[signal tryMap:^(NSURL *fileUrl, NSError **errorPtr) {
-///			return [NSData dataWithContentsOfURL:fileUrl options:0 error:errorPtr];
-///		}];
+///   // The returned signal will send an error if data cannot be read from
+///   // `fileUrl`.
+///   [signal tryMap:^(NSURL *fileUrl, NSError **errorPtr) {
+///       return [NSData dataWithContentsOfURL:fileUrl options:0 error:errorPtr];
+///   }];
 ///
 /// Returns a signal which transforms all the values of the receiver. If
 /// `mapBlock` returns nil for any value, the returned signal will error using

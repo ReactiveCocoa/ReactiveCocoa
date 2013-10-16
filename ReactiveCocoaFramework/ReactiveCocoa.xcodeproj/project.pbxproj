@@ -32,6 +32,8 @@
 		27A887D21703DDEB00040001 /* UIBarButtonItem+RACCommandSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 27A887C71703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		550E2A93180E691F009C6462 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 550E2A92180E691F009C6462 /* CoreLocation.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		552FDC05180E69AA00594DC2 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 550E2A92180E691F009C6462 /* CoreLocation.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		552FDC34180F266500594DC2 /* RACDelegateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = A1FCC3771567DED0008C9686 /* RACDelegateProxy.m */; };
+		552FDC35180F266700594DC2 /* RACDelegateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = A1FCC3771567DED0008C9686 /* RACDelegateProxy.m */; };
 		557A4B5A177648C7008EF796 /* UIActionSheet+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 557A4B58177648C7008EF796 /* UIActionSheet+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		557A4B5B177648C7008EF796 /* UIActionSheet+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 557A4B59177648C7008EF796 /* UIActionSheet+RACSignalSupport.m */; };
 		55856AB7180E698000F19072 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55856AB6180E698000F19072 /* CoreLocation.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -2318,6 +2320,7 @@
 				D0E9676D1641EF9C00FCFF06 /* NSArray+RACSequenceAdditions.m in Sources */,
 				D0E967711641EF9C00FCFF06 /* NSDictionary+RACSequenceAdditions.m in Sources */,
 				D0E967751641EF9C00FCFF06 /* NSOrderedSet+RACSequenceAdditions.m in Sources */,
+				552FDC34180F266500594DC2 /* RACDelegateProxy.m in Sources */,
 				D0E967791641EF9C00FCFF06 /* NSSet+RACSequenceAdditions.m in Sources */,
 				D0E9677D1641EF9C00FCFF06 /* NSString+RACSequenceAdditions.m in Sources */,
 				D0E967811641EF9C00FCFF06 /* RACArraySequence.m in Sources */,
@@ -2536,6 +2539,7 @@
 				D05AD40C17F2DB6A0080895B /* NSDictionary+RACSequenceAdditions.m in Sources */,
 				D05AD41F17F2DB6E0080895B /* NSControl+RACCommandSupport.m in Sources */,
 				D05AD41517F2DB6A0080895B /* NSObject+RACSelectorSignal.m in Sources */,
+				552FDC35180F266700594DC2 /* RACDelegateProxy.m in Sources */,
 				D05AD3C817F2DB100080895B /* RACBacktrace.m in Sources */,
 				D05AD41217F2DB6A0080895B /* NSNotificationCenter+RACSupport.m in Sources */,
 				D05AD3D917F2DB1D0080895B /* RACMulticastConnection.m in Sources */,

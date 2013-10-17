@@ -6,6 +6,7 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import "CLLocationManager+RACSignalSupport.h"
 #import "EXTKeyPathCoding.h"
 #import "NSArray+RACSequenceAdditions.h"
 #import "NSData+RACSupport.h"

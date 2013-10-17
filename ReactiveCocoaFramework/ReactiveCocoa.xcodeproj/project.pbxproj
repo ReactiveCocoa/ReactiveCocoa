@@ -33,6 +33,7 @@
 		554D9E5D181064E200F21262 /* UIRefreshControl+RACCommandSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 554D9E5B181064E200F21262 /* UIRefreshControl+RACCommandSupport.h */; };
 		554D9E5E181064E200F21262 /* UIRefreshControl+RACCommandSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 554D9E5C181064E200F21262 /* UIRefreshControl+RACCommandSupport.m */; };
 		5564537F18107203002BD2E4 /* RACControlCommandExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = D075A72917BCB7E100C24FB7 /* RACControlCommandExamples.m */; };
+		5564542418107275002BD2E4 /* UIRefreshControlRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5564542318107275002BD2E4 /* UIRefreshControlRACSupportSpec.m */; };
 		557A4B5A177648C7008EF796 /* UIActionSheet+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 557A4B58177648C7008EF796 /* UIActionSheet+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		557A4B5B177648C7008EF796 /* UIActionSheet+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 557A4B59177648C7008EF796 /* UIActionSheet+RACSignalSupport.m */; };
 		55C39DE417F1EC6E006DC60C /* NSData+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 88442C8816090C1500636B49 /* NSData+RACSupport.m */; };
@@ -712,6 +713,7 @@
 		27A887C81703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIBarButtonItem+RACCommandSupport.m"; sourceTree = "<group>"; };
 		554D9E5B181064E200F21262 /* UIRefreshControl+RACCommandSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIRefreshControl+RACCommandSupport.h"; sourceTree = "<group>"; };
 		554D9E5C181064E200F21262 /* UIRefreshControl+RACCommandSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIRefreshControl+RACCommandSupport.m"; sourceTree = "<group>"; };
+		5564542318107275002BD2E4 /* UIRefreshControlRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIRefreshControlRACSupportSpec.m; sourceTree = "<group>"; };
 		557A4B58177648C7008EF796 /* UIActionSheet+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIActionSheet+RACSignalSupport.h"; sourceTree = "<group>"; };
 		557A4B59177648C7008EF796 /* UIActionSheet+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIActionSheet+RACSignalSupport.m"; sourceTree = "<group>"; };
 		5EE9A7911760D61300EAF5A2 /* UIButton+RACCommandSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIButton+RACCommandSupport.h"; sourceTree = "<group>"; };
@@ -1148,6 +1150,7 @@
 				5FAF5261174D4D8E00CAC810 /* UIBarButtonItemRACSupportSpec.m */,
 				5EE9A79A1760D88500EAF5A2 /* UIButtonRACSupportSpec.m */,
 				D066C795176D262500C242D2 /* UIControlRACSupportSpec.m */,
+				5564542318107275002BD2E4 /* UIRefreshControlRACSupportSpec.m */,
 			);
 			name = iOS;
 			sourceTree = "<group>";
@@ -2228,6 +2231,7 @@
 				1860F44F177C958300C7B3C9 /* UITextFieldRACSupportSpec.m in Sources */,
 				1860F450177C958900C7B3C9 /* UITextViewRACSupportSpec.m in Sources */,
 				D004BC9C177E1A2B00A5B8C5 /* UIActionSheetRACSupportSpec.m in Sources */,
+				5564542418107275002BD2E4 /* UIRefreshControlRACSupportSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

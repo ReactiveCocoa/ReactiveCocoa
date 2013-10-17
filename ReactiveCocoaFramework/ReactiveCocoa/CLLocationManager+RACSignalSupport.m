@@ -21,9 +21,14 @@
 @implementation CLLocationManager (RACSignalSupport)
 
 static void RACUseDelegateProxy(CLLocationManager *self) {
-	if (self.delegate == self.rac_delegateProxy) return;
+	if (self.delegate != self.rac_delegateProxy) {
+		self.rac_delegateProxy.rac_proxiedDelegate = self.delegate;
+	}
 
-	self.rac_delegateProxy.rac_proxiedDelegate = self.delegate;
+	// Apple classes are known to pre-cache protocol compliance at the time of
+	// assigning a delegate. Every call to this method might be following the
+	// addition of a method to the delegate proxy and resetting the delegate
+	// property allows the receiver re-perform its caching.
 	self.delegate = (id)self.rac_delegateProxy;
 }
 

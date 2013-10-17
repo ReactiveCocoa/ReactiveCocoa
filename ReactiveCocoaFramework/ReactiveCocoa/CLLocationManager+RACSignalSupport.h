@@ -23,4 +23,9 @@
 /// itself when the receiver is deallocated.
 - (RACSignal *)rac_activeLocationUpdatesSignal;
 
+/// A signal which sends the application's current location authorization status.
+///
+/// See: CLAuthorizationStatus
+- (RACSignal *)rac_authorizationStatusSignal;
+
 @end

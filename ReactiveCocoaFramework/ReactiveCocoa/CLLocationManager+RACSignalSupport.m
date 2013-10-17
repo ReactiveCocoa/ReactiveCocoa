@@ -102,4 +102,20 @@ static void RACUseDelegateProxy(CLLocationManager *self) {
 		setNameWithFormat:@"%@ -rac_activeLocationUpdatesSignal", [self rac_description]];
 }
 
+- (RACSignal *)rac_authorizationStatusSignal {
+	@weakify(self);
+	return [[[RACSignal
+		defer:^{
+			@strongify(self);
+			RACUseDelegateProxy(self);
+			return [RACSignal return:@([CLLocationManager authorizationStatus])];
+		}]
+		concat:[[self.rac_delegateProxy
+			signalForSelector:@selector(locationManager:didChangeAuthorizationStatus:)]
+			reduceEach:^(CLLocationManager *manager, NSNumber *status){
+				return status;
+			}]]
+		setNameWithFormat:@"%@ -rac_authorizationStatusSignal", [self rac_description]];
+}
+
 @end

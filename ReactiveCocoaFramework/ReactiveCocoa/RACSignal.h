@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "RACDeprecated.h"
 #import "RACStream.h"
 
 @class RACDisposable;
@@ -51,36 +52,6 @@
 
 /// Returns a signal that never completes.
 + (RACSignal *)never;
-
-/// Immediately schedules the given block on the given scheduler. The block is
-/// given a subscriber to which it can send events.
-///
-/// scheduler - The scheduler on which `block` will be scheduled and results
-///             delivered. Cannot be nil.
-/// block     - The block to invoke. Cannot be NULL.
-///
-/// Returns a signal which will send all events sent on the subscriber given to
-/// `block`. All events will be sent on `scheduler` and it will replay any missed
-/// events to new subscribers.
-+ (RACSignal *)startEagerlyWithScheduler:(RACScheduler *)scheduler block:(void (^)(id<RACSubscriber> subscriber))block;
-
-/// Invokes the given block only on the first subscription. The block is given a
-/// subscriber to which it can send events.
-///
-/// Note that disposing of the subscription to the returned signal will *not*
-/// dispose of the underlying subscription. If you need that behavior, see
-/// -[RACMulticastConnection autoconnect]. The underlying subscription will never
-/// be disposed of. Because of this, `block` should never return an infinite
-/// signal since there would be no way of ending it.
-///
-/// scheduler - The scheduler on which the block should be scheduled. Note that 
-///             if given +[RACScheduler immediateScheduler], the block will be
-///             invoked synchronously on the first subscription. Cannot be nil.
-/// block     - The block to invoke on the first subscription. Cannot be NULL.
-///
-/// Returns a signal which will pass through the events sent to the subscriber
-/// given to `block` and replay any missed events to new subscribers.
-+ (RACSignal *)startLazilyWithScheduler:(RACScheduler *)scheduler block:(void (^)(id<RACSubscriber> subscriber))block;
 
 @end
 
@@ -210,10 +181,17 @@
 
 @end
 
+@interface RACSignal (Deprecated)
+
++ (RACSignal *)startEagerlyWithScheduler:(RACScheduler *)scheduler block:(void (^)(id<RACSubscriber> subscriber))block RACDeprecated("Use RACPromise instead");
++ (RACSignal *)startLazilyWithScheduler:(RACScheduler *)scheduler block:(void (^)(id<RACSubscriber> subscriber))block RACDeprecated("Use RACPromise instead");
+
+@end
+
 @interface RACSignal (Unavailable)
 
-+ (RACSignal *)start:(id (^)(BOOL *success, NSError **error))block __attribute__((unavailable("Use +startEagerlyWithScheduler:block: instead")));
-+ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block __attribute__((unavailable("Use +startEagerlyWithScheduler:block: instead")));
-+ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block __attribute__((unavailable("Use +startEagerlyWithScheduler:block: instead")));
++ (RACSignal *)start:(id (^)(BOOL *success, NSError **error))block __attribute__((unavailable("Use RACPromise instead")));
++ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block __attribute__((unavailable("Use RACPromise instead")));
++ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block __attribute__((unavailable("Use RACPromise instead")));
 
 @end

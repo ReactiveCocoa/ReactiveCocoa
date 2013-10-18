@@ -7,8 +7,10 @@
 //
 
 #import "UIRefreshControl+RACCommandSupport.h"
+#import "NSObject+RACSelectorSignal.h"
 #import "RACControlCommandExamples.h"
 #import "RACCommand.h"
+#import "RACSignal.h"
 
 SpecBegin(UIRefreshControlRACSupport)
 
@@ -27,6 +29,24 @@ describe(@"UIRefreshControl", ^{
 				[refreshControl sendActionsForControlEvents:UIControlEventValueChanged];
 			}
 		};
+	});
+
+	it(@"should call -endRefreshing", ^{
+		refreshControl.rac_command = [[RACCommand alloc] initWithSignalBlock:^(id _) {
+			return [RACSignal empty];
+		}];
+
+		// Just -rac_signalForSelector: posing as a mock, nothing to see here.
+		__block BOOL refreshingEnded = NO;
+		[[refreshControl
+			rac_signalForSelector:@selector(endRefreshing)]
+			subscribeNext:^(id _) {
+				refreshingEnded = YES;
+			}];
+
+		[refreshControl sendActionsForControlEvents:UIControlEventValueChanged];
+
+		expect(refreshingEnded).will.beTruthy();
 	});
 });
 

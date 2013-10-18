@@ -436,10 +436,16 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 
 /// Creates a promise from the receiver.
 ///
+/// scheduler - The scheduler upon which the receiver should be subscribed to,
+///             and upon which the promise should deliver its results. Use the
+///             +immediateScheduler if you want subscription and delivery to
+///             happen immediately, regardless of what scheduler the caller is
+///             running upon. This argument must not be nil.
+///
 /// Returns a promise that, once started, will subscribe to the receiver exactly
 /// once, and wait for `completed` or `error` without allowing any kind of
 /// cancellation.
-- (RACPromise *)promise;
+- (RACPromise *)promiseOnScheduler:(RACScheduler *)scheduler;
 
 /// Sends an error after `interval` seconds if the source doesn't complete
 /// before then.

@@ -11,6 +11,12 @@
 @interface RACPromise ()
 
 // Initializes a promise that will subscribe to `signal` to start work.
-- (id)initWithSignal:(RACSignal *)signal;
+//
+// signal    - The signal which will perform the work of the promise. This must
+//             not be nil.
+// scheduler - The scheduler to subscribe to `signal` upon. Use
+//             +immediateScheduler to subscribe as quickly as possible. This
+//             must not be nil.
+- (id)initWithSignal:(RACSignal *)signal scheduler:(RACScheduler *)scheduler;
 
 @end

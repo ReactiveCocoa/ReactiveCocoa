@@ -9,6 +9,7 @@
 #import "NSFileHandle+RACSupport.h"
 #import "NSNotificationCenter+RACSupport.h"
 #import "RACPromise.h"
+#import "RACScheduler.h"
 #import "RACSignal+Operations.h"
 
 @implementation NSFileHandle (RACSupport)
@@ -33,7 +34,9 @@
 					[self readInBackgroundAndNotify];
 				}];
 		}]
-		promise]
+		// -readInBackgroundAndNotify must be called on a thread with a run loop,
+		// so subscribe on the main thread.
+		promiseOnScheduler:RACScheduler.mainThreadScheduler]
 		start]
 		setNameWithFormat:@"%@ -rac_readInBackground", self];
 }

@@ -891,8 +891,8 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	return [[RACSignalSequence sequenceWithSignal:self] setNameWithFormat:@"[%@] -sequence", self.name];
 }
 
-- (RACPromise *)promise {
-	return [[RACPromise alloc] initWithSignal:self];
+- (RACPromise *)promiseOnScheduler:(RACScheduler *)scheduler {
+	return [[RACPromise alloc] initWithSignal:self scheduler:scheduler];
 }
 
 - (RACSignal *)timeout:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler {

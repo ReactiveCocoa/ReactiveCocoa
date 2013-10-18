@@ -28,6 +28,11 @@
 // The underlying signal, which must be subscribed to only once.
 @property (nonatomic, strong, readonly) RACSignal *sourceSignal;
 
+// The scheduler upon which to subscribe to `sourceSignal` and `results`.
+//
+// This must not be nil.
+@property (nonatomic, strong, readonly) RACScheduler *scheduler;
+
 // Although RACReplaySubject is deprecated for consumers, we're going to use it
 // internally for the foreseeable future. We just want to expose something
 // higher level.
@@ -45,13 +50,15 @@
 
 #pragma mark Lifecycle
 
-- (id)initWithSignal:(RACSignal *)signal {
+- (id)initWithSignal:(RACSignal *)signal scheduler:(RACScheduler *)scheduler {
 	NSCParameterAssert(signal != nil);
+	NSCParameterAssert(scheduler != nil);
 
 	self = [super init];
 	if (self == nil) return nil;
 
-	_sourceSignal = signal;
+	_sourceSignal = [signal subscribeOn:scheduler];
+	_scheduler = scheduler;
 
 	#pragma clang diagnostic push
 	#pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -66,14 +73,13 @@
 	NSCParameterAssert(block != nil);
 
 	RACSignal *signal = [[RACSignal
-		createSignal:^(id<RACSubscriber> subscriber) {
-			return [scheduler schedule:^{
-				block(subscriber);
-			}];
+		createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			block(subscriber);
+			return nil;
 		}]
 		setNameWithFormat:@"+promiseWithScheduler: %@ block:", scheduler];
 	
-	RACPromise *promise = [[self alloc] initWithSignal:signal];
+	RACPromise *promise = [[self alloc] initWithSignal:signal scheduler:scheduler];
 	promise.results.name = signal.name;
 	return promise;
 }
@@ -86,7 +92,9 @@
 		[self.sourceSignal subscribe:self.results];
 	}
 
-	return self.results;
+	return [[self.results
+		subscribeOn:self.scheduler]
+		setNameWithFormat:@"[%@] -start", self.results.name];
 }
 
 - (RACSignal *)autostart {

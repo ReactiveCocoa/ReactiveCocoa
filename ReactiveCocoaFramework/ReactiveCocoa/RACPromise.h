@@ -12,8 +12,8 @@
 @class RACSignal;
 @protocol RACSubscriber;
 
-/// Represents work that is guaranteed ("promised") to execute _exactly_ once,
-/// until success or failure occurs.
+/// Represents work that is guaranteed ("promised") to execute _exactly_ once
+/// when started, until success or failure occurs.
 ///
 /// Lazy signals can be turned into promises using -[RACSignal promise].
 @interface RACPromise : NSObject

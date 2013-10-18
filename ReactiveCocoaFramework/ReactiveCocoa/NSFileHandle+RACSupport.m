@@ -8,32 +8,34 @@
 
 #import "NSFileHandle+RACSupport.h"
 #import "NSNotificationCenter+RACSupport.h"
-#import "RACReplaySubject.h"
-#import "RACDisposable.h"
+#import "RACPromise.h"
+#import "RACSignal+Operations.h"
 
 @implementation NSFileHandle (RACSupport)
 
 - (RACSignal *)rac_readInBackground {
-	RACReplaySubject *subject = [RACReplaySubject subject];
-	[subject setNameWithFormat:@"%@ -rac_readInBackground", self];
-
-	RACSignal *dataNotification = [[[NSNotificationCenter defaultCenter] rac_addObserverForName:NSFileHandleReadCompletionNotification object:self] map:^(NSNotification *note) {
-		return [note.userInfo objectForKey:NSFileHandleNotificationDataItem];
-	}];
-	
-	__block RACDisposable *subscription = [dataNotification subscribeNext:^(NSData *data) {
-		if(data.length > 0) {
-			[subject sendNext:data];
+	return [[[[[[[[NSNotificationCenter.defaultCenter
+		rac_addObserverForName:NSFileHandleReadCompletionNotification object:self]
+		initially:^{
 			[self readInBackgroundAndNotify];
-		} else {
-			[subject sendCompleted];
-			[subscription dispose];
-		}
-	}];
-	
-	[self readInBackgroundAndNotify];
-	
-	return subject;
+		}]
+		map:^(NSNotification *note) {
+			return note.userInfo[NSFileHandleNotificationDataItem];
+		}]
+		takeUntilBlock:^ BOOL (NSData *data) {
+			return data.length == 0;
+		}]
+		flattenMap:^(NSData *data) {
+			// Deliver the data to the subscriber first, then read more.
+			return [[RACSignal
+				return:data]
+				doCompleted:^{
+					[self readInBackgroundAndNotify];
+				}];
+		}]
+		promise]
+		start]
+		setNameWithFormat:@"%@ -rac_readInBackground", self];
 }
 
 @end

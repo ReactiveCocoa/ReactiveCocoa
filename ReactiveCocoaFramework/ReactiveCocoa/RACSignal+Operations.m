@@ -15,6 +15,7 @@
 #import "RACEvent.h"
 #import "RACGroupedSignal.h"
 #import "RACMulticastConnection+Private.h"
+#import "RACPromise+Private.h"
 #import "RACReplaySubject.h"
 #import "RACScheduler+Private.h"
 #import "RACScheduler.h"
@@ -1229,6 +1230,10 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			return number.boolValue;
 		}]);
 	}] setNameWithFormat:@"[%@] -or", self.name];
+}
+
+- (RACPromise *)promise {
+	return [[RACPromise alloc] initWithSignal:self];
 }
 
 @end

@@ -21,6 +21,7 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 
 @class RACMulticastConnection;
 @class RACDisposable;
+@class RACPromise;
 @class RACScheduler;
 @class RACSequence;
 @class RACSubject;
@@ -574,6 +575,13 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// 
 /// Returns a signal that applies OR to each NSNumber in the tuple.
 - (RACSignal *)or;
+
+/// Creates a promise from the receiver.
+///
+/// Returns a promise that, once started, will subscribe to the receiver exactly
+/// once, and wait for `completed` or `error` without allowing any kind of
+/// cancellation.
+- (RACPromise *)promise;
 
 @end
 

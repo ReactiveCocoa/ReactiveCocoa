@@ -22,11 +22,13 @@
 /// to map over.
 @interface RACSignalProvider : NSObject
 
-/// Initializes the receiver with a block provider.
+/// Creates a provider that implements its behavior using a block.
 ///
 /// block - Describes how to create a signal from an input value, which may be
 ///         nil. This block must not be nil, and must not return a nil signal.
-- (id)initWithBlock:(RACSignal * (^)(id input))block;
+///
+/// Returns a `RACSignalProvider`.
++ (instancetype)providerWithBlock:(RACSignal * (^)(id input))block;
 
 /// Creates a new provider that first creates a signal using the logic of
 /// `firstProvider`, then creates _new_ signals from each of the signal's values
@@ -37,7 +39,7 @@
 ///
 /// firstProvider - The provider to apply first. This must not be nil.
 ///
-/// Returns a new signal provider that combines the logic of the two providers.
+/// Returns a new `RACSignalProvider` that combines the logic of the two providers.
 - (instancetype)pullback:(RACSignalProvider *)firstProvider;
 
 /// Creates a signal for the given value.

@@ -20,15 +20,12 @@
 
 #pragma mark Lifecycle
 
-- (id)initWithBlock:(RACSignal * (^)(id input))block {
++ (instancetype)providerWithBlock:(RACSignal * (^)(id input))block {
 	NSCParameterAssert(block != nil);
 
-	self = [super init];
-	if (self == nil) return nil;
-
-	_providerBlock = [block copy];
-
-	return self;
+	RACSignalProvider *provider = [[self alloc] init];
+	provider->_providerBlock = [block copy];
+	return provider;
 }
 
 #pragma mark Arrow composition
@@ -36,7 +33,7 @@
 - (instancetype)pullback:(RACSignalProvider *)firstProvider {
 	NSCParameterAssert(firstProvider != nil);
 
-	return [[self.class alloc] initWithBlock:^(id input) {
+	return [self.class providerWithBlock:^(id input) {
 		return [[firstProvider
 			provide:input]
 			flattenMap:^(id x) {

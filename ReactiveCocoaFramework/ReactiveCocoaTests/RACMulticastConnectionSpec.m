@@ -11,6 +11,8 @@
 #import "RACSignal+Operations.h"
 #import "RACSubscriber.h"
 #import "RACReplaySubject.h"
+#import "RACScheduler.h"
+#import <libkern/OSAtomic.h>
 
 SpecBegin(RACMulticastConnection)
 
@@ -52,6 +54,30 @@ describe(@"-connect", ^{
 		RACDisposable *disposable2 = [connection connect];
 		expect(subscriptionCount).to.equal(1);
 		expect(disposable1).to.equal(disposable2);
+	});
+
+	it(@"shouldn't race when connecting", ^{
+		dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+
+		RACMulticastConnection *connection = [[RACSignal
+			defer:^ id {
+				dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+				return nil;
+			}]
+			publish];
+
+		__block RACDisposable *disposable;
+		[RACScheduler.scheduler schedule:^{
+			disposable = [connection connect];
+			dispatch_semaphore_signal(semaphore);
+		}];
+
+		expect([connection connect]).notTo.beNil();
+		dispatch_semaphore_signal(semaphore);
+
+		expect(disposable).willNot.beNil();
+
+		dispatch_release(semaphore);
 	});
 });
 

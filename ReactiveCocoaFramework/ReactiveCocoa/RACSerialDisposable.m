@@ -93,11 +93,12 @@
 		return (existingDisposablePtr == (__bridge void *)self ? nil : CFBridgingRelease(existingDisposablePtr));
 	}
 
+	// At this point, we've found out that we were already disposed.
+	[newDisposable dispose];
+
 	// Failed to swap, clean up the ownership we took prior to the swap.
 	if (newDisposablePtr != (__bridge void *)self) CFRelease(newDisposablePtr);
 
-	// At this point, we've found out that we were already disposed.
-	[newDisposable dispose];
 	return nil;
 }
 

@@ -34,8 +34,8 @@ static const int32_t RACSubscriberMinimumEventCount = INT32_MIN;
 
 // An array of `dispatch_block_t` objects.
 //
-// While `_eventCount` is 0, blocks in this array should be popped from the end
-// and invoked.
+// While `_eventCount` is `RACSubscriberMinimumEventCount`, blocks in this array
+// should be popped from the end and invoked.
 //
 // This should only be mutated while synchronized on the array.
 @property (nonatomic, strong, readonly) NSMutableArray *dispatchBlocksWaiting;

@@ -23,12 +23,20 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 @class RACDisposable;
 @class RACScheduler;
 @class RACSequence;
+@class RACSignalProvider;
 @class RACSubject;
 @class RACTuple;
 @class RACCommand;
 @protocol RACSubscriber;
 
 @interface RACSignal (Operations)
+
+/// Behaves like -flattenMap:, except that `-[RACSignalProvider provide:]` is
+/// used instead of a mapping block.
+///
+/// Returns a new signal which represents the combined signals provided by
+/// `provider`.
+- (RACSignal *)flattenProvide:(RACSignalProvider *)provider;
 
 /// Do the given block on `next`. This should be used to inject side effects into
 /// the signal.

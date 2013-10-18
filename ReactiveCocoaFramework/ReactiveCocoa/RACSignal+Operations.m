@@ -19,6 +19,7 @@
 #import "RACScheduler+Private.h"
 #import "RACScheduler.h"
 #import "RACSerialDisposable.h"
+#import "RACSignalProvider.h"
 #import "RACSignalSequence.h"
 #import "RACStream+Private.h"
 #import "RACSubject.h"
@@ -84,6 +85,14 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 }
 
 @implementation RACSignal (Operations)
+
+- (RACSignal *)flattenProvide:(RACSignalProvider *)provider {
+	NSCParameterAssert(provider != nil);
+
+	return [[self flattenMap:^(id x) {
+		return [provider provide:x];
+	}] setNameWithFormat:@"[%@] -flattenProvide: %@", self.name, provider];
+}
 
 - (RACSignal *)doNext:(void (^)(id x))block {
 	NSCParameterAssert(block != NULL);

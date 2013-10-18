@@ -30,17 +30,17 @@
 /// Returns a `RACSignalProvider`.
 + (instancetype)providerWithBlock:(RACSignal * (^)(id input))block;
 
-/// Creates a new provider that first creates a signal using the logic of
-/// `firstProvider`, then creates _new_ signals from each of the signal's values
-/// using the logic of the receiver.
+/// Creates a new provider that first creates a signal using the logic of the
+/// receiver, then creates _new_ signals from each of the signal's values using
+/// `nextProvider`.
 ///
-/// In other words, this behaves like `firstProvider`, followed by a -flattenMap:
-/// using the receiver.
+/// In other words, this behaves like the receiver, followed by a -flattenMap:
+/// using `nextProvider`.
 ///
-/// firstProvider - The provider to apply first. This must not be nil.
+/// nextProvider - The provider to apply after the receiver. This must not be nil.
 ///
 /// Returns a new `RACSignalProvider` that combines the logic of the two providers.
-- (instancetype)pullback:(RACSignalProvider *)firstProvider;
+- (instancetype)followedBy:(RACSignalProvider *)nextProvider;
 
 /// Creates a signal for the given value.
 ///

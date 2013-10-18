@@ -30,14 +30,14 @@
 
 #pragma mark Arrow composition
 
-- (instancetype)pullback:(RACSignalProvider *)firstProvider {
-	NSCParameterAssert(firstProvider != nil);
+- (instancetype)followedBy:(RACSignalProvider *)nextProvider {
+	NSCParameterAssert(nextProvider != nil);
 
 	return [self.class providerWithBlock:^(id input) {
-		return [[firstProvider
+		return [[self
 			provide:input]
-			flattenMap:^(id x) {
-				return [self provide:x];
+			flattenMap:^(id intermediate) {
+				return [nextProvider provide:intermediate];
 			}];
 	}];
 }

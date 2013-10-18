@@ -6,12 +6,14 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#define WE_PROMISE_TO_MIGRATE_TO_REACTIVECOCOA_3_0
+
 #import "RACReplaySubject.h"
+#import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACScheduler+Private.h"
 #import "RACSubscriber.h"
 #import "RACTuple.h"
-#import "RACCompoundDisposable.h"
 
 const NSUInteger RACReplaySubjectUnlimitedCapacity = NSUIntegerMax;
 

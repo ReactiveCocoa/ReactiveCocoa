@@ -28,8 +28,16 @@
 // The underlying signal, which must be subscribed to only once.
 @property (nonatomic, strong, readonly) RACSignal *sourceSignal;
 
+// Although RACReplaySubject is deprecated for consumers, we're going to use it
+// internally for the foreseeable future. We just want to expose something
+// higher level.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 // The results of the promised work.
 @property (nonatomic, strong, readonly) RACReplaySubject *results;
+
+#pragma clang diagnostic pop
 
 @end
 
@@ -44,7 +52,11 @@
 	if (self == nil) return nil;
 
 	_sourceSignal = signal;
+
+	#pragma clang diagnostic push
+	#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 	_results = [[RACReplaySubject subject] setNameWithFormat:@"[%@] -promise", signal.name];
+	#pragma clang diagnostic pop
 
 	return self;
 }

@@ -6,6 +6,8 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#define WE_PROMISE_TO_MIGRATE_TO_REACTIVECOCOA_3_0
+
 #import "RACCommand.h"
 #import "EXTScope.h"
 #import "NSArray+RACSequenceAdditions.h"

@@ -30,7 +30,7 @@
 		1EC06B18173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EC06B16173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.m */; };
 		27A887D11703DC6800040001 /* UIBarButtonItem+RACCommandSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 27A887C81703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.m */; };
 		27A887D21703DDEB00040001 /* UIBarButtonItem+RACCommandSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 27A887C71703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		554D9E5D181064E200F21262 /* UIRefreshControl+RACCommandSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 554D9E5B181064E200F21262 /* UIRefreshControl+RACCommandSupport.h */; };
+		554D9E5D181064E200F21262 /* UIRefreshControl+RACCommandSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 554D9E5B181064E200F21262 /* UIRefreshControl+RACCommandSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		554D9E5E181064E200F21262 /* UIRefreshControl+RACCommandSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 554D9E5C181064E200F21262 /* UIRefreshControl+RACCommandSupport.m */; };
 		5564537F18107203002BD2E4 /* RACControlCommandExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = D075A72917BCB7E100C24FB7 /* RACControlCommandExamples.m */; };
 		5564542418107275002BD2E4 /* UIRefreshControlRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5564542318107275002BD2E4 /* UIRefreshControlRACSupportSpec.m */; };

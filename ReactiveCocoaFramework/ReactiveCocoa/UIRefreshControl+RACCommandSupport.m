@@ -8,7 +8,6 @@
 
 #import "UIRefreshControl+RACCommandSupport.h"
 #import "EXTKeyPathCoding.h"
-#import "EXTScope.h"
 #import "NSObject+RACSelectorSignal.h"
 #import "RACDisposable.h"
 #import "RACCommand.h"
@@ -38,12 +37,9 @@ static void *UIRefreshControlDisposableKey = &UIRefreshControlDisposableKey;
 	// Like RAC(self, enabled) = command.enabled; but with access to disposable.
 	RACDisposable *enabledDisposable = [command.enabled setKeyPath:@keypath(self.enabled) onObject:self];
 
-	@weakify(command);
 	RACDisposable *executionDisposable = [[[[self
 		rac_signalForControlEvents:UIControlEventValueChanged]
 		map:^(UIRefreshControl *x) {
-			@strongify(command);
-
 			return [[[[command
 				execute:x]
 				ignoreValues]

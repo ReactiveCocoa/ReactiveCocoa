@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "RACDeprecated.h"
 #import "RACSignal.h"
 
 /// The domain for errors originating in RACSignal operations.
@@ -433,35 +434,12 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// block.
 @property (nonatomic, strong, readonly) RACSequence *sequence;
 
-/// Creates and returns a multicast connection. This allows you to share a single
-/// subscription to the underlying signal.
-- (RACMulticastConnection *)publish;
-
-/// Creates and returns a multicast connection that pushes values into the given
-/// subject. This allows you to share a single subscription to the underlying
-/// signal.
-- (RACMulticastConnection *)multicast:(RACSubject *)subject;
-
-/// Multicasts the signal to a RACReplaySubject of unlimited capacity, and
-/// immediately connects to the resulting RACMulticastConnection.
+/// Creates a promise from the receiver.
 ///
-/// Returns the connected, multicasted signal.
-- (RACSignal *)replay;
-
-/// Multicasts the signal to a RACReplaySubject of capacity 1, and immediately
-/// connects to the resulting RACMulticastConnection.
-///
-/// Returns the connected, multicasted signal.
-- (RACSignal *)replayLast;
-
-/// Multicasts the signal to a RACReplaySubject of unlimited capacity, and
-/// lazily connects to the resulting RACMulticastConnection.
-///
-/// This means the returned signal will subscribe to the multicasted signal only
-/// when the former receives its first subscription.
-///
-/// Returns the lazily connected, multicasted signal.
-- (RACSignal *)replayLazily;
+/// Returns a promise that, once started, will subscribe to the receiver exactly
+/// once, and wait for `completed` or `error` without allowing any kind of
+/// cancellation.
+- (RACPromise *)promise;
 
 /// Sends an error after `interval` seconds if the source doesn't complete
 /// before then.
@@ -576,12 +554,15 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// Returns a signal that applies OR to each NSNumber in the tuple.
 - (RACSignal *)or;
 
-/// Creates a promise from the receiver.
-///
-/// Returns a promise that, once started, will subscribe to the receiver exactly
-/// once, and wait for `completed` or `error` without allowing any kind of
-/// cancellation.
-- (RACPromise *)promise;
+@end
+
+@interface RACSignal (DeprecatedOperations)
+
+- (RACMulticastConnection *)publish RACDeprecated("Send events to a shared RACSubject instead");
+- (RACMulticastConnection *)multicast:(RACSubject *)subject RACDeprecated("Use -promise or send events to a shared RACSubject instead");
+- (RACSignal *)replay RACDeprecated("Use -promise instead");
+- (RACSignal *)replayLast RACDeprecated("Use -promise instead");
+- (RACSignal *)replayLazily RACDeprecated("Use -promise instead");
 
 @end
 
@@ -589,7 +570,7 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 
 - (RACSignal *)windowWithStart:(RACSignal *)openSignal close:(RACSignal * (^)(RACSignal *start))closeBlock __attribute__((unavailable("See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/587")));
 - (RACSignal *)buffer:(NSUInteger)bufferCount __attribute__((unavailable("See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/587")));
-- (RACSignal *)let:(RACSignal * (^)(RACSignal *sharedSignal))letBlock __attribute__((unavailable("Use -publish instead")));
+- (RACSignal *)let:(RACSignal * (^)(RACSignal *sharedSignal))letBlock __attribute__((unavailable("Send events to a shared RACSubject instead")));
 + (RACSignal *)interval:(NSTimeInterval)interval __attribute__((unavailable("Use +interval:onScheduler: instead")));
 + (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway __attribute__((unavailable("Use +interval:onScheduler:withLeeway: instead")));
 - (RACSignal *)bufferWithTime:(NSTimeInterval)interval __attribute__((unavailable("Use -bufferWithTime:onScheduler: instead")));

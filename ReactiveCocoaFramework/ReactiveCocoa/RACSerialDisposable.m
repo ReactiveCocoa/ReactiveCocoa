@@ -98,7 +98,7 @@
 		if (existingDisposablePtr == selfPtr) {
 			return nil;
 		} else {
-			return CFBridgingRelease(newDisposablePtr);
+			return CFBridgingRelease(existingDisposablePtr);
 		}
 	}
 

@@ -175,7 +175,7 @@ static const int32_t RACSubscriberMinimumEventCount = INT32_MIN;
 }
 
 - (void)didSubscribeWithDisposable:(RACDisposable *)d {
-	if (d != nil) [self.disposable addDisposable:d];
+	[self.disposable addDisposable:d];
 }
 
 - (RACDisposable *)invokeWhenReady:(void (^)(id<RACSubscriber>))block {

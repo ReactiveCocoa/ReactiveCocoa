@@ -303,6 +303,46 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// Subscribe to the given signal when an error occurs.
 - (RACSignal *)catchTo:(RACSignal *)signal;
 
+/// Runs `tryBlock` against each of the receiver's values, passing values
+/// until `tryBlock` returns NO, or the receiver completes.
+///
+/// tryBlock - An action to run against each of the receiver's values.
+///            The block should return YES to indicate that the action was
+///            successful. This block must not be nil.
+///
+/// Example:
+///
+///   // The returned signal will send an error if data values cannot be
+///   // written to `someFileURL`.
+///   [signal try:^(NSData *data, NSError **errorPtr) {
+///       return [data writeToURL:someFileURL options:NSDataWritingAtomic error:errorPtr];
+///   }];
+///
+/// Returns a signal which passes through all the values of the receiver. If
+/// `tryBlock` fails for any value, the returned signal will error using the
+/// `NSError` passed out from the block.
+- (RACSignal *)try:(BOOL (^)(id value, NSError **errorPtr))tryBlock;
+
+/// Runs `mapBlock` against each of the receiver's values, mapping values until
+/// `mapBlock` returns nil, or the receiver completes.
+///
+/// mapBlock - An action to map each of the receiver's values. The block should
+///            return a non-nil value to indicate that the action was successful.
+///            This block must not be nil.
+///
+/// Example:
+///
+///   // The returned signal will send an error if data cannot be read from
+///   // `fileURL`.
+///   [signal tryMap:^(NSURL *fileURL, NSError **errorPtr) {
+///       return [NSData dataWithContentsOfURL:fileURL options:0 error:errorPtr];
+///   }];
+///
+/// Returns a signal which transforms all the values of the receiver. If
+/// `mapBlock` returns nil for any value, the returned signal will error using
+/// the `NSError` passed out from the block.
+- (RACSignal *)tryMap:(id (^)(id value, NSError **errorPtr))mapBlock;
+
 /// Returns the first `next`. Note that this is a blocking call.
 - (id)first;
 
@@ -537,20 +577,20 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 
 @end
 
-@interface RACSignal (OperationsDeprecated)
+@interface RACSignal (UnavailableOperations)
 
-- (RACSignal *)windowWithStart:(RACSignal *)openSignal close:(RACSignal * (^)(RACSignal *start))closeBlock __attribute__((deprecated("See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/587")));
-- (RACSignal *)buffer:(NSUInteger)bufferCount __attribute__((deprecated("See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/587")));
-- (RACSignal *)let:(RACSignal * (^)(RACSignal *sharedSignal))letBlock __attribute__((deprecated("Use -publish instead")));
-+ (RACSignal *)interval:(NSTimeInterval)interval __attribute__((deprecated("Use +interval:onScheduler: instead")));
-+ (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway __attribute__((deprecated("Use +interval:onScheduler:withLeeway: instead")));
-- (RACSignal *)bufferWithTime:(NSTimeInterval)interval __attribute__((deprecated("Use -bufferWithTime:onScheduler: instead")));
-- (RACSignal *)timeout:(NSTimeInterval)interval __attribute__((deprecated("Use -timeout:onScheduler: instead")));
-- (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object __attribute__((deprecated("Renamed to -setKeyPath:onObject:")));
-- (RACSignal *)ignoreElements __attribute__((deprecated("Renamed to -ignoreValues")));
-- (RACSignal *)sequenceNext:(RACSignal * (^)(void))block __attribute__((deprecated("Renamed to -then:")));
-- (RACSignal *)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock __attribute__((deprecated("Renamed to -aggregateWithStart:reduce:")));
-- (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock __attribute__((deprecated("Renamed to -aggregateWithStartFactory:reduce:")));
-- (RACDisposable *)executeCommand:(RACCommand *)command __attribute__((deprecated("Use -flattenMap: or -subscribeNext: instead")));
+- (RACSignal *)windowWithStart:(RACSignal *)openSignal close:(RACSignal * (^)(RACSignal *start))closeBlock __attribute__((unavailable("See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/587")));
+- (RACSignal *)buffer:(NSUInteger)bufferCount __attribute__((unavailable("See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/587")));
+- (RACSignal *)let:(RACSignal * (^)(RACSignal *sharedSignal))letBlock __attribute__((unavailable("Use -publish instead")));
++ (RACSignal *)interval:(NSTimeInterval)interval __attribute__((unavailable("Use +interval:onScheduler: instead")));
++ (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway __attribute__((unavailable("Use +interval:onScheduler:withLeeway: instead")));
+- (RACSignal *)bufferWithTime:(NSTimeInterval)interval __attribute__((unavailable("Use -bufferWithTime:onScheduler: instead")));
+- (RACSignal *)timeout:(NSTimeInterval)interval __attribute__((unavailable("Use -timeout:onScheduler: instead")));
+- (RACDisposable *)toProperty:(NSString *)keyPath onObject:(NSObject *)object __attribute__((unavailable("Renamed to -setKeyPath:onObject:")));
+- (RACSignal *)ignoreElements __attribute__((unavailable("Renamed to -ignoreValues")));
+- (RACSignal *)sequenceNext:(RACSignal * (^)(void))block __attribute__((unavailable("Renamed to -then:")));
+- (RACSignal *)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock __attribute__((unavailable("Renamed to -aggregateWithStart:reduce:")));
+- (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock __attribute__((unavailable("Renamed to -aggregateWithStartFactory:reduce:")));
+- (RACDisposable *)executeCommand:(RACCommand *)command __attribute__((unavailable("Use -flattenMap: or -subscribeNext: instead")));
 
 @end

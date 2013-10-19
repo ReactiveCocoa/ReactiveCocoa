@@ -169,7 +169,10 @@
 
 				@autoreleasepool {
 					if (signal != nil) addSignal(signal);
-					if (signal == nil || stop) completeSignal(self, selfDisposable);
+					if (signal == nil || stop) {
+						[selfDisposable dispose];
+						completeSignal(self, selfDisposable);
+					}
 				}
 			} error:^(NSError *error) {
 				[compoundDisposable dispose];
@@ -409,45 +412,5 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 	[[self ignoreValues] asynchronousFirstOrDefault:nil success:&success error:error];
 	return success;
 }
-
-@end
-
-@implementation RACSignal (Deprecated)
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-
-+ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block {
-	NSCParameterAssert(block != NULL);
-
-	RACReplaySubject *subject = [[RACReplaySubject subject] setNameWithFormat:@"+startWithScheduler:subjectBlock:"];
-
-	[scheduler schedule:^{
-		block(subject);
-	}];
-
-	return subject;
-}
-
-+ (RACSignal *)start:(id (^)(BOOL *success, NSError **error))block {
-	return [[self startWithScheduler:[RACScheduler scheduler] block:block] setNameWithFormat:@"+start:"];
-}
-
-+ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block {
-	return [[self startWithScheduler:scheduler subjectBlock:^(id<RACSubscriber> subscriber) {
-		BOOL success = YES;
-		NSError *error = nil;
-		id returned = block(&success, &error);
-
-		if (!success) {
-			[subscriber sendError:error];
-		} else {
-			[subscriber sendNext:returned];
-			[subscriber sendCompleted];
-		}
-	}] setNameWithFormat:@"+startWithScheduler:block:"];
-}
-
-#pragma clang diagnostic pop
 
 @end

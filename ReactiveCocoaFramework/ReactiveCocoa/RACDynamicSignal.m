@@ -193,10 +193,10 @@ static void RACCheckActiveSignals(void) {
 			}];
 		}];
 
-		if (recursiveDisposable != nil) [disposable addDisposable:recursiveDisposable];
+		[disposable addDisposable:recursiveDisposable];
 	}];
 
-	if (schedulingDisposable != nil) [disposable addDisposable:schedulingDisposable];
+	[disposable addDisposable:schedulingDisposable];
 	return disposable;
 }
 

@@ -76,10 +76,15 @@
 #pragma mark Inner Disposable
 
 - (RACDisposable *)swapInDisposable:(RACDisposable *)newDisposable {
+	void * const selfPtr = (__bridge void *)self;
+
 	// Only retain the new disposable if it's not `self`.
 	// Take ownership before attempting the swap so that a subsequent swap
 	// receives an owned reference.
-	void *newDisposablePtr = (void *)(newDisposable != nil ? CFBridgingRetain(newDisposable) : (__bridge CFTypeRef)self);
+	void *newDisposablePtr = selfPtr;
+	if (newDisposable != nil) {
+		newDisposablePtr = (void *)CFBridgingRetain(newDisposable);
+	}
 
 	void *existingDisposablePtr;
 	// Keep trying while we're not disposed.
@@ -90,14 +95,21 @@
 
 		// Return nil if _disposablePtr was set to self. Otherwise, release
 		// the old value and return it as an object.
-		return (existingDisposablePtr == (__bridge void *)self ? nil : CFBridgingRelease(existingDisposablePtr));
+		if (existingDisposablePtr == selfPtr) {
+			return nil;
+		} else {
+			return CFBridgingRelease(existingDisposablePtr);
+		}
 	}
-
-	// Failed to swap, clean up the ownership we took prior to the swap.
-	if (newDisposablePtr != (__bridge void *)self) CFRelease(newDisposablePtr);
 
 	// At this point, we've found out that we were already disposed.
 	[newDisposable dispose];
+
+	// Failed to swap, clean up the ownership we took prior to the swap.
+	if (newDisposable != nil) {
+		CFRelease(newDisposablePtr);
+	}
+
 	return nil;
 }
 

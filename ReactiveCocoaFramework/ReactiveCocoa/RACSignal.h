@@ -24,15 +24,19 @@ typedef void (^RACSignalStepBlock)(void);
 
 @interface RACSignal : RACStream
 
-/// Creates a signal that generates events incrementally. This is the preferred
-/// way to create a new signal operation or behavior.
+/// Creates a signal that generates events incrementally.
+///
+/// This constructor is the preferred way to create a signal that works
+/// incrementally. For an incremental, generative process, this will be more
+/// efficient than +createSignal:, since it reduces unnecessary work and working
+/// memory size.
 ///
 /// generatorBlock - Called when the signal is subscribed to, this block sets up
 ///                  any initial state for the generator, then returns a "step"
 ///                  block that will be used to incrementally generate the
 ///                  signal events. Although you can send events to `subscriber`
 ///                  from the outer block, any non-setup work should be deferred
-///                  to the inner step block instead. Add disposables to
+///                  to the inner step block when possible. Add disposables to
 ///                  `disposable` from either block when you need to clean up
 ///                  resources upon signal termination or cancelation.
 ///
@@ -45,10 +49,11 @@ typedef void (^RACSignalStepBlock)(void);
 /// is ready for more events.
 + (RACSignal *)generator:(RACSignalStepBlock (^)(id<RACSubscriber> subscriber, RACCompoundDisposable *disposable))generatorBlock;
 
-/// Creates a new signal. This is the preferred way to create a new signal
-/// operation or behavior.
-/// 
-/// Whenever possible, create signals using +generator: instead of this method.
+/// Creates a signal that sends its events as quickly as possible.
+///
+/// If the algorithm for generating the signal's values can be naturally written
+/// in an incremental way, consider using +generator: instead, as it is more
+/// efficient.
 ///
 /// Events can be sent to new subscribers immediately in the `didSubscribe`
 /// block, but the subscriber will not be able to dispose of the signal until

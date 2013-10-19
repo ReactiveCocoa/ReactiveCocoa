@@ -3558,4 +3558,120 @@ describe(@"-replayLazily", ^{
 	});
 });
 
+describe(@"-serialize", ^{
+	__block NSUInteger totalSubscriptions;
+	__block NSUInteger activeSubscriptions;
+
+	__block RACSubject *subject;
+	__block RACSignal *signal;
+
+	beforeEach(^{
+		totalSubscriptions = 0;
+		activeSubscriptions = 0;
+
+		subject = [RACSubject subject];
+		signal = [[RACSignal
+			createSignal:^(id<RACSubscriber> subscriber) {
+				totalSubscriptions++;
+				activeSubscriptions++;
+
+				[subject subscribe:subscriber];
+				return [RACDisposable disposableWithBlock:^{
+					activeSubscriptions--;
+				}];
+			}]
+			serialize];
+	});
+
+	it(@"should lazily subscribe to the underlying signal", ^{
+		expect(totalSubscriptions).to.equal(0);
+
+		__block BOOL completed = NO;
+		[signal subscribeCompleted:^{
+			completed = YES;
+		}];
+
+		expect(completed).to.beFalsy();
+		expect(totalSubscriptions).to.equal(1);
+		expect(activeSubscriptions).to.equal(1);
+
+		[subject sendCompleted];
+		expect(completed).to.beTruthy();
+		expect(activeSubscriptions).to.equal(0);
+	});
+
+	it(@"should have at most one subscription to the underlying signal", ^{
+		[signal subscribeCompleted:^{}];
+		[signal subscribeCompleted:^{}];
+		expect(totalSubscriptions).to.equal(1);
+		expect(activeSubscriptions).to.equal(1);
+
+		[subject sendCompleted];
+		expect(totalSubscriptions).to.equal(1);
+		expect(activeSubscriptions).to.equal(0);
+
+		[signal subscribeCompleted:^{}];
+		[signal subscribeCompleted:^{}];
+		expect(totalSubscriptions).to.equal(2);
+		expect(activeSubscriptions).to.equal(1);
+
+		[subject sendCompleted];
+		expect(totalSubscriptions).to.equal(2);
+		expect(activeSubscriptions).to.equal(0);
+	});
+
+	it(@"should replay already-sent values to new subscribers then share events", ^{
+		NSMutableArray *firstValues = [NSMutableArray array];
+		__block BOOL firstCompleted = NO;
+		[signal subscribeNext:^(id x) {
+			[firstValues addObject:x];
+		} completed:^{
+			firstCompleted = YES;
+		}];
+
+		[subject sendNext:@1];
+		[subject sendNext:@2];
+		expect(firstValues).to.equal((@[ @1, @2 ]));
+		expect(firstCompleted).to.beFalsy();
+
+		NSMutableArray *secondValues = [NSMutableArray array];
+		__block BOOL secondCompleted = NO;
+		[signal subscribeNext:^(id x) {
+			[secondValues addObject:x];
+		} completed:^{
+			secondCompleted = YES;
+		}];
+
+		expect(secondValues).to.equal((@[ @1, @2 ]));
+		expect(secondCompleted).to.beFalsy();
+
+		[subject sendNext:@3];
+		expect(firstValues).to.equal((@[ @1, @2, @3 ]));
+		expect(firstCompleted).to.beFalsy();
+		expect(secondValues).to.equal(firstValues);
+		expect(secondCompleted).to.beFalsy();
+
+		[subject sendCompleted];
+		expect(firstValues).to.equal((@[ @1, @2, @3 ]));
+		expect(firstCompleted).to.beTruthy();
+		expect(secondValues).to.equal(firstValues);
+		expect(secondCompleted).to.beTruthy();
+	});
+
+	it(@"should dispose of the underlying subscription when all subscribers are disposed", ^{
+		RACDisposable *firstDisposable = [signal subscribeCompleted:^{}];
+		RACDisposable *secondDisposable = [signal subscribeCompleted:^{}];
+		expect(totalSubscriptions).to.equal(1);
+		expect(activeSubscriptions).to.equal(1);
+
+		[secondDisposable dispose];
+		expect(totalSubscriptions).to.equal(1);
+		expect(activeSubscriptions).to.equal(1);
+
+		[firstDisposable dispose];
+		expect(totalSubscriptions).to.equal(1);
+		expect(activeSubscriptions).to.equal(0);
+	});
+});
+
 SpecEnd

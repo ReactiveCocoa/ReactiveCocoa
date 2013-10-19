@@ -123,8 +123,8 @@ static CFMutableArrayRef RACCreateDisposablesArray(void) {
 #pragma mark Addition and Removal
 
 - (void)addDisposable:(RACDisposable *)disposable {
-	NSCParameterAssert(disposable != nil);
 	NSCParameterAssert(disposable != self);
+	if (disposable == nil) return;
 
 	BOOL shouldDispose = NO;
 

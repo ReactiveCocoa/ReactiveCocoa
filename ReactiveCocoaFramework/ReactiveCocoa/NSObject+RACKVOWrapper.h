@@ -48,8 +48,8 @@ extern NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey;
 
 typedef void (^RACKVOBlock)(id target, id observer, NSDictionary *change);
 
-@interface NSObject (RACKVOWrapperDeprecated)
+@interface NSObject (RACUnavailableKVOWrapper)
 
-- (RACKVOTrampoline *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(RACKVOBlock)block __attribute((deprecated("Use rac_observeKeyPath:options:observer:block: instead.")));
+- (RACKVOTrampoline *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(RACKVOBlock)block __attribute((unavailable("Use rac_observeKeyPath:options:observer:block: instead.")));
 
 @end

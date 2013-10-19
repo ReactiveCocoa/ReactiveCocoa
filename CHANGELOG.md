@@ -1,3 +1,8 @@
+# 3.0
+
+For a complete list of changes in ReactiveCocoa 3.0, see [the
+milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=4state=closed).
+
 # 2.0
 
 This release of ReactiveCocoa contains major breaking changes that we were

@@ -60,6 +60,7 @@ sharedExamplesFor(RACPromiseExamples, ^(NSDictionary *data) {
 		it(@"should deliver results synchronously once automatically started", ^{
 			RACSignal *signal = [promise autostart];
 			expect(signal).notTo.beNil();
+			expect(startCount()).to.equal(0);
 
 			NSMutableArray *values = [NSMutableArray array];
 			__block BOOL completed = NO;
@@ -138,6 +139,7 @@ sharedExamplesFor(RACPromiseExamples, ^(NSDictionary *data) {
 
 		it(@"should automatically start and deliver results on a scheduler", ^{
 			RACSignal *signal = [promise autostart];
+			expect(startCount()).to.equal(0);
 
 			runOnTestScheduler(^{
 				return signal;

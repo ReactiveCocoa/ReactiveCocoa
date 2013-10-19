@@ -76,7 +76,7 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = NSUIntegerMax;
 		}
 	}];
 
-	if (schedulingDisposable != nil) [compoundDisposable addDisposable:schedulingDisposable];
+	[compoundDisposable addDisposable:schedulingDisposable];
 
 	return compoundDisposable;
 }

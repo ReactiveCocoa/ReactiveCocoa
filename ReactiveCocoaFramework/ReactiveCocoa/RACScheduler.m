@@ -184,7 +184,7 @@ NSString * const RACSchedulerCurrentSchedulerKey = @"RACSchedulerCurrentSchedule
 			}
 		}];
 
-		if (schedulingDisposable != nil) [selfDisposable addDisposable:schedulingDisposable];
+		[selfDisposable addDisposable:schedulingDisposable];
 	}
 }
 

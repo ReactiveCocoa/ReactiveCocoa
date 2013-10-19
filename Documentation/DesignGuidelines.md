@@ -696,7 +696,7 @@ and cause a crash:
                 resubscribe();
             }];
 
-            if (disposable != nil) [compoundDisposable addDisposable:disposable];
+            [compoundDisposable addDisposable:disposable];
         };
 
         return compoundDisposable;
@@ -721,10 +721,10 @@ By contrast, this version will avoid a stack overflow:
                 reschedule();
             }];
 
-            if (disposable != nil) [compoundDisposable addDisposable:disposable];
+            [compoundDisposable addDisposable:disposable];
         }];
 
-        if (disposable != nil) [compoundDisposable addDisposable:disposable];
+        [compoundDisposable addDisposable:disposable];
         return compoundDisposable;
     }];
 }

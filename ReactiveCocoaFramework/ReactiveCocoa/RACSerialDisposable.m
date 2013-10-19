@@ -106,7 +106,7 @@
 	[newDisposable dispose];
 
 	// Failed to swap, clean up the ownership we took prior to the swap.
-	if (newDisposablePtr != selfPtr) {
+	if (newDisposable != nil) {
 		CFRelease(newDisposablePtr);
 	}
 

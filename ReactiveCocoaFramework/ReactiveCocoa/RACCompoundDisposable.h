@@ -29,7 +29,8 @@
 ///
 /// This method is thread-safe.
 ///
-/// disposable - The disposable to add. Cannot be nil.
+/// disposable - The disposable to add. This may be nil, in which case nothing
+///              happens.
 - (void)addDisposable:(RACDisposable *)disposable;
 
 /// Removes the specified disposable from the compound disposable (regardless of

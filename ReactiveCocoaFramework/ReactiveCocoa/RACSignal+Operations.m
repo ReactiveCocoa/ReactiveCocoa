@@ -69,7 +69,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			recurse();
 		}];
 
-		if (subscriptionDisposable != nil) [selfDisposable addDisposable:subscriptionDisposable];
+		[selfDisposable addDisposable:subscriptionDisposable];
 	};
 	
 	// Subscribe once immediately, and then use recursive scheduling for any
@@ -78,7 +78,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		RACScheduler *recursiveScheduler = RACScheduler.currentScheduler ?: [RACScheduler scheduler];
 
 		RACDisposable *schedulingDisposable = [recursiveScheduler scheduleRecursiveBlock:recursiveBlock];
-		if (schedulingDisposable != nil) [compoundDisposable addDisposable:schedulingDisposable];
+		[compoundDisposable addDisposable:schedulingDisposable];
 	});
 
 	return compoundDisposable;
@@ -190,7 +190,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			[subscriber sendCompleted];
 		}];
 
-		if (subscriptionDisposable != nil) [compoundDisposable addDisposable:subscriptionDisposable];
+		[compoundDisposable addDisposable:subscriptionDisposable];
 		return compoundDisposable;
 	}] setNameWithFormat:@"[%@] -throttle: %f valuesPassingTest:", self.name, (double)interval];
 }
@@ -206,7 +206,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		void (^schedule)(dispatch_block_t) = ^(dispatch_block_t block) {
 			RACScheduler *delayScheduler = RACScheduler.currentScheduler ?: scheduler;
 			RACDisposable *schedulerDisposable = [delayScheduler afterDelay:interval schedule:block];
-			if (schedulerDisposable != nil) [disposable addDisposable:schedulerDisposable];
+			[disposable addDisposable:schedulerDisposable];
 		};
 
 		RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
@@ -221,7 +221,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			});
 		}];
 
-		if (subscriptionDisposable != nil) [disposable addDisposable:subscriptionDisposable];
+		[disposable addDisposable:subscriptionDisposable];
 		return disposable;
 	}] setNameWithFormat:@"[%@] -delay: %f", self.name, (double)interval];
 }
@@ -423,7 +423,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			}
 		}];
 
-		if (selfDisposable != nil) [disposable addDisposable:selfDisposable];
+		[disposable addDisposable:selfDisposable];
 
 		RACDisposable *otherDisposable = [signal subscribeNext:^(id x) {
 			@synchronized (disposable) {
@@ -439,7 +439,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			}
 		}];
 
-		if (otherDisposable != nil) [disposable addDisposable:otherDisposable];
+		[disposable addDisposable:otherDisposable];
 
 		return disposable;
 	}] setNameWithFormat:@"[%@] -combineLatestWith: %@", self.name, signal];
@@ -529,7 +529,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 				[compoundDisposable removeDisposable:disposable];
 			}];
 
-			if (disposable != nil) [compoundDisposable addDisposable:disposable];
+			[compoundDisposable addDisposable:disposable];
 			return NO;
 		};
 
@@ -568,7 +568,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			}
 		}];
 
-		if (disposable != nil) [compoundDisposable addDisposable:disposable];
+		[compoundDisposable addDisposable:disposable];
 		return compoundDisposable;
 	}] setNameWithFormat:@"[%@] -flatten: %lu", self.name, (unsigned long)maxConcurrent];
 }
@@ -643,7 +643,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		[disposable dispose];
 	}];
 
-	if (subscriptionDisposable != nil) [disposable addDisposable:subscriptionDisposable];
+	[disposable addDisposable:subscriptionDisposable];
 
 	#if DEBUG
 	static void *bindingsKey = &bindingsKey;
@@ -719,7 +719,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			triggerCompletion();
 		}];
 
-		if (triggerDisposable != nil) [disposable addDisposable:triggerDisposable];
+		[disposable addDisposable:triggerDisposable];
 
 		RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
 			[subscriber sendNext:x];
@@ -730,7 +730,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			[subscriber sendCompleted];
 		}];
 
-		if (selfDisposable != nil) [disposable addDisposable:selfDisposable];
+		[disposable addDisposable:selfDisposable];
 
 		return disposable;
 	}] setNameWithFormat:@"[%@] -takeUntil: %@", self.name, signalTrigger];
@@ -910,7 +910,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 				[subscriber sendError:[NSError errorWithDomain:RACSignalErrorDomain code:RACSignalErrorTimedOut userInfo:nil]];
 			}];
 
-		if (timeoutDisposable != nil) [disposable addDisposable:timeoutDisposable];
+		[disposable addDisposable:timeoutDisposable];
 		
 		RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
 			[subscriber sendNext:x];
@@ -922,7 +922,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			[subscriber sendCompleted];
 		}];
 
-		if (subscriptionDisposable != nil) [disposable addDisposable:subscriptionDisposable];
+		[disposable addDisposable:subscriptionDisposable];
 		return disposable;
 	}] setNameWithFormat:@"[%@] -timeout: %f", self.name, (double)interval];
 }
@@ -958,10 +958,10 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 				[subscriber sendCompleted];
 			}];
 
-			if (subscriptionDisposable != nil) [disposable addDisposable:subscriptionDisposable];
+			[disposable addDisposable:subscriptionDisposable];
 		}];
 		
-		if (schedulingDisposable != nil) [disposable addDisposable:schedulingDisposable];
+		[disposable addDisposable:schedulingDisposable];
 		return disposable;
 	}] setNameWithFormat:@"[%@] -subscribeOn: %@", self.name, scheduler];
 }

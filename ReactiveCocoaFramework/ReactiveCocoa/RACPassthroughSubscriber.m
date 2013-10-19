@@ -95,7 +95,7 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 }
 
 - (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
-	if (disposable != nil && disposable != self.disposable) {
+	if (disposable != self.disposable) {
 		[self.disposable addDisposable:disposable];
 	}
 }

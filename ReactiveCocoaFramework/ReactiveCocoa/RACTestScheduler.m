@@ -179,7 +179,7 @@ static void RACReleaseScheduledAction(CFAllocatorRef allocator, const void *ptr)
 
 			// Schedule the next interval.
 			RACDisposable *schedulingDisposable = [self after:[date dateByAddingTimeInterval:interval] repeatingEvery:interval withLeeway:leeway schedule:block];
-			if (schedulingDisposable != nil) [compoundDisposable addDisposable:schedulingDisposable];
+			[compoundDisposable addDisposable:schedulingDisposable];
 		
 			block();
 		};
@@ -188,7 +188,7 @@ static void RACReleaseScheduledAction(CFAllocatorRef allocator, const void *ptr)
 		CFBinaryHeapAddValue(self.scheduledActions, (__bridge void *)action);
 
 		thisDisposable = action.disposable;
-		if (thisDisposable != nil) [compoundDisposable addDisposable:thisDisposable];
+		[compoundDisposable addDisposable:thisDisposable];
 	}
 
 	return compoundDisposable;

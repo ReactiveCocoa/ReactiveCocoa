@@ -13,24 +13,27 @@
 SpecBegin(RACSignalProvider)
 
 __block RACSignalProvider *returnProvider;
+__block RACSignalProvider *foobarProvider;
 __block RACSignalProvider *incrementProvider;
 
 beforeEach(^{
-	returnProvider = [RACSignalProvider providerWithBlock:^(id x) {
-		return [RACSignal return:x];
-	}];
+	returnProvider = RACSignalProvider.returnProvider;
+	expect(returnProvider).notTo.beNil();
+
+	foobarProvider = [RACSignalProvider providerWithSignal:[RACSignal return:@"foobar"]];
+	expect(foobarProvider).notTo.beNil();
 
 	incrementProvider = [RACSignalProvider providerWithBlock:^(NSNumber *num) {
 		return [RACSignal return:@(num.integerValue + 1)];
 	}];
 
-	expect(returnProvider).notTo.beNil();
-	expect(returnProvider).notTo.beNil();
+	expect(incrementProvider).notTo.beNil();
 });
 
 it(@"should provide a signal for an input", ^{
-	RACSignal *signal = [returnProvider provide:@"foobar"];
-	expect([signal toArray]).to.equal((@[ @"foobar" ]));
+	expect([[returnProvider provide:@"fuzzbuzz"] toArray]).to.equal((@[ @"fuzzbuzz" ]));
+	expect([[foobarProvider provide:@"baz"] toArray]).to.equal((@[ @"foobar" ]));
+	expect([[incrementProvider provide:@10] toArray]).to.equal((@[ @11 ]));
 });
 
 it(@"should follow with another provider", ^{

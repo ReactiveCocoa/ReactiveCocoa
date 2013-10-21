@@ -28,6 +28,27 @@
 	return provider;
 }
 
++ (instancetype)providerWithSignal:(RACSignal *)signal {
+	NSCParameterAssert(signal != nil);
+
+	return [self providerWithBlock:^(id _) {
+		return signal;
+	}];
+}
+
++ (instancetype)returnProvider {
+	static id singleton;
+	static dispatch_once_t pred;
+
+	dispatch_once(&pred, ^{
+		singleton = [self providerWithBlock:^(id input) {
+			return [RACSignal return:input];
+		}];
+	});
+
+	return singleton;
+}
+
 #pragma mark Arrow composition
 
 - (instancetype)followedBy:(RACSignalProvider *)nextProvider {

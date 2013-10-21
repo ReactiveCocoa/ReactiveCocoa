@@ -26,9 +26,16 @@
 ///
 /// block - Describes how to create a signal from an input value, which may be
 ///         nil. This block must not be nil, and must not return a nil signal.
-///
-/// Returns a `RACSignalProvider`.
 + (instancetype)providerWithBlock:(RACSignal * (^)(id input))block;
+
+/// Creates a provider that always returns the same signal.
+///
+/// signal - The signal to provide. This must not be nil.
++ (instancetype)providerWithSignal:(RACSignal *)signal;
+
+/// A singleton provider that puts each value into a signal using +[RACSignal
+/// return:].
++ (instancetype)returnProvider;
 
 /// Creates a new provider that first creates a signal using the logic of the
 /// receiver, then creates _new_ signals from each of the signal's values using

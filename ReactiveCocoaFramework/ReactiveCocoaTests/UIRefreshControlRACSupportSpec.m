@@ -31,22 +31,37 @@ describe(@"UIRefreshControl", ^{
 		};
 	});
 
-	it(@"should call -endRefreshing", ^{
-		refreshControl.rac_command = [[RACCommand alloc] initWithSignalBlock:^(id _) {
-			return [RACSignal empty];
-		}];
+	describe(@"finishing", ^{
+		__block RACSignal *commandSignal;
+		__block BOOL refreshingEnded;
 
-		// Just -rac_signalForSelector: posing as a mock, nothing to see here.
-		__block BOOL refreshingEnded = NO;
-		[[refreshControl
-			rac_signalForSelector:@selector(endRefreshing)]
-			subscribeNext:^(id _) {
-				refreshingEnded = YES;
+		beforeEach(^{
+			refreshControl.rac_command = [[RACCommand alloc] initWithSignalBlock:^(id _) {
+				return commandSignal;
 			}];
 
-		[refreshControl sendActionsForControlEvents:UIControlEventValueChanged];
+			// Just -rac_signalForSelector: posing as a mock.
+			refreshingEnded = NO;
+			[[refreshControl
+				rac_signalForSelector:@selector(endRefreshing)]
+				subscribeNext:^(id _) {
+					refreshingEnded = YES;
+				}];
+		});
 
-		expect(refreshingEnded).will.beTruthy();
+		it(@"should call -endRefreshing upon completion", ^{
+			commandSignal = [RACSignal empty];
+
+			[refreshControl sendActionsForControlEvents:UIControlEventValueChanged];
+			expect(refreshingEnded).will.beTruthy();
+		});
+
+		it(@"should call -endRefreshing upon error", ^{
+			commandSignal = [RACSignal error:[NSError errorWithDomain:@"" code:1 userInfo:nil]];
+
+			[refreshControl sendActionsForControlEvents:UIControlEventValueChanged];
+			expect(refreshingEnded).will.beTruthy();
+		});
 	});
 });
 

@@ -11,7 +11,7 @@
 @class RACSignal;
 @class RACDisposable;
 
-RACDeprecated("Send events to a shared RACSubject instead")
+RACDeprecated("Use -promise or send events to a shared RACSubject instead")
 @interface RACMulticastConnection : NSObject
 
 @property (nonatomic, strong, readonly) RACSignal *signal;

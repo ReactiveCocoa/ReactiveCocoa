@@ -40,11 +40,12 @@ static void *UIRefreshControlDisposableKey = &UIRefreshControlDisposableKey;
 	RACDisposable *executionDisposable = [[[[self
 		rac_signalForControlEvents:UIControlEventValueChanged]
 		map:^(UIRefreshControl *x) {
-			return [[[[command
+			return [[[command
 				execute:x]
-				ignoreValues]
-				materialize]
-				mapReplace:x];
+				catchTo:[RACSignal empty]]
+				then:^{
+					return [RACSignal return:x];
+				}];
 		}]
 		concat]
 		subscribeNext:^(UIRefreshControl *x) {

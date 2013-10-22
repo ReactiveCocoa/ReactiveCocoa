@@ -97,12 +97,12 @@
 		setNameWithFormat:@"[%@] -start", self.results.name];
 }
 
-- (RACSignal *)autostart {
+- (RACSignal *)deferred {
 	return [[RACSignal
 		defer:^{
 			return [self start];
 		}]
-		setNameWithFormat:@"[%@] -autostart", self.results.name];
+		setNameWithFormat:@"[%@] -deferred", self.results.name];
 }
 
 @end

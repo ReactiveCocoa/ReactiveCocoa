@@ -386,7 +386,7 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 }
 
 + (RACSignal *)startLazilyWithScheduler:(RACScheduler *)scheduler block:(void (^)(id<RACSubscriber> subscriber))block {
-	return [[RACPromise promiseWithScheduler:scheduler block:block] autostart];
+	return [[RACPromise promiseWithScheduler:scheduler block:block] deferred];
 }
 
 @end

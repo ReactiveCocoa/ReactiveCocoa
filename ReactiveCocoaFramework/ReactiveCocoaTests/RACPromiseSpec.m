@@ -57,8 +57,8 @@ sharedExamplesFor(RACPromiseExamples, ^(NSDictionary *data) {
 			expect(values).to.equal((@[ @1, @2, @3 ]));
 		});
 
-		it(@"should deliver results synchronously once automatically started", ^{
-			RACSignal *signal = [promise autostart];
+		it(@"should start deferred and deliver results synchronously", ^{
+			RACSignal *signal = [promise deferred];
 			expect(signal).notTo.beNil();
 			expect(startCount()).to.equal(0);
 
@@ -85,12 +85,12 @@ sharedExamplesFor(RACPromiseExamples, ^(NSDictionary *data) {
 			expect(startCount()).to.equal(1);
 		});
 
-		it(@"should only autostart once", ^{
-			NSArray *values = [[promise autostart] toArray];
+		it(@"should only deferred once", ^{
+			NSArray *values = [[promise deferred] toArray];
 			expect(values).to.equal((@[ @1, @2, @3 ]));
 			expect(startCount()).to.equal(1);
 
-			expect([[promise autostart] toArray]).to.equal(values);
+			expect([[promise deferred] toArray]).to.equal(values);
 			expect(startCount()).to.equal(1);
 		});
 	});
@@ -137,8 +137,8 @@ sharedExamplesFor(RACPromiseExamples, ^(NSDictionary *data) {
 			expect(startCount()).to.equal(1);
 		});
 
-		it(@"should automatically start and deliver results on a scheduler", ^{
-			RACSignal *signal = [promise autostart];
+		it(@"should start deferred and deliver results on a scheduler", ^{
+			RACSignal *signal = [promise deferred];
 			expect(startCount()).to.equal(0);
 
 			runOnTestScheduler(^{
@@ -170,15 +170,15 @@ sharedExamplesFor(RACPromiseExamples, ^(NSDictionary *data) {
 			expect(startCount()).to.equal(1);
 		});
 
-		it(@"should only autostart once", ^{
+		it(@"should only deferred once", ^{
 			runOnTestScheduler(^{
-				return [promise autostart];
+				return [promise deferred];
 			});
 
 			expect(startCount()).to.equal(1);
 
 			runOnTestScheduler(^{
-				return [promise autostart];
+				return [promise deferred];
 			});
 
 			expect(startCount()).to.equal(1);

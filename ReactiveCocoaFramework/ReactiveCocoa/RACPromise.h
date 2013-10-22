@@ -40,6 +40,6 @@
 - (RACSignal *)start;
 
 /// Invokes -start when the returned signal is first subscribed to.
-- (RACSignal *)autostart;
+- (RACSignal *)deferred;
 
 @end

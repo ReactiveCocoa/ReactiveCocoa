@@ -228,7 +228,7 @@
 - (BOOL)any:(BOOL (^)(id))block {
 	NSCParameterAssert(block != NULL);
 
-    return [self objectPassingTest:block] != nil;
+	return [self objectPassingTest:block] != nil;
 }
 
 - (BOOL)all:(BOOL (^)(id))block {
@@ -244,7 +244,7 @@
 - (id)objectPassingTest:(BOOL (^)(id))block {
 	NSCParameterAssert(block != NULL);
 
-    return [self filter:block].head;
+	return [self filter:block].head;
 }
 
 - (RACSequence *)eagerSequence {

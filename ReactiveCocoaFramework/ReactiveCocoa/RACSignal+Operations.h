@@ -565,10 +565,10 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 @interface RACSignal (DeprecatedOperations)
 
 - (RACMulticastConnection *)publish RACDeprecated("Send events to a shared RACSubject instead");
-- (RACMulticastConnection *)multicast:(RACSubject *)subject RACDeprecated("Use -promise or send events to a shared RACSubject instead");
-- (RACSignal *)replay RACDeprecated("Use -promise instead");
-- (RACSignal *)replayLast RACDeprecated("Use -promise instead");
-- (RACSignal *)replayLazily RACDeprecated("Use -promise instead");
+- (RACMulticastConnection *)multicast:(RACSubject *)subject RACDeprecated("Use -promiseOnScheduler: or send events to a shared RACSubject instead");
+- (RACSignal *)replay RACDeprecated("Use -promiseOnScheduler: instead");
+- (RACSignal *)replayLast RACDeprecated("Use -promiseOnScheduler: instead");
+- (RACSignal *)replayLazily RACDeprecated("Use -promiseOnScheduler: instead");
 
 @end
 

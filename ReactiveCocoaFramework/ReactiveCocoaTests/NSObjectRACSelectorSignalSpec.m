@@ -174,6 +174,17 @@ describe(@"RACTestObject", ^{
 		expect(key).to.equal(@"Winner");
 	});
 
+	it(@"should propertly implement -respondsToSelector: when called on KVO'd receiver", ^{
+		RACTestObject *object = [[RACTestObject alloc] init];
+		[RACObserve(object, objectValue) replayLast];
+
+		SEL selector = NSSelectorFromString(@"anyOldSelector:");
+
+		// Called for side-effects.
+		[object rac_signalForSelector:selector];
+		expect([object respondsToSelector:selector]).to.beTruthy();
+	});
+
 	it(@"should send non-object arguments", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 

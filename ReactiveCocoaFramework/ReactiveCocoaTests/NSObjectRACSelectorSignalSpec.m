@@ -133,7 +133,7 @@ describe(@"RACTestObject", ^{
 	it(@"should send arguments for invocation and invoke the original method on previously KVO'd receiver", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 
-		[RACObserve(object, objectValue) replayLast];
+		[RACObserve(object, objectValue) subscribeCompleted:^{}];
 
 		__block id key;
 		__block id value;
@@ -162,7 +162,7 @@ describe(@"RACTestObject", ^{
 			key = x.second;
 		}];
 
-		[RACObserve(object, objectValue) replayLast];
+		[RACObserve(object, objectValue) subscribeCompleted:^{}];
 
 		[object setObjectValue:@YES andSecondObjectValue:@"Winner"];
 
@@ -176,7 +176,8 @@ describe(@"RACTestObject", ^{
 
 	it(@"should propertly implement -respondsToSelector: when called on KVO'd receiver", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
-		[RACObserve(object, objectValue) replayLast];
+
+		[RACObserve(object, objectValue) subscribeCompleted:^{}];
 
 		SEL selector = NSSelectorFromString(@"anyOldSelector:");
 

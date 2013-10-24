@@ -44,19 +44,4 @@ it(@"should follow with another provider", ^{
 	expect([signal toArray]).to.equal((@[ @2 ]));
 });
 
-describe(@"-flattenProvide:", ^{
-	it(@"should provide signals for each value", ^{
-		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[subscriber sendNext:@1];
-			[subscriber sendNext:@2];
-			[subscriber sendNext:@5];
-			[subscriber sendCompleted];
-			return nil;
-		}];
-		
-		RACSignal *flattened = [signal flattenProvide:incrementProvider];
-		expect([flattened toArray]).to.equal((@[ @2, @3, @6 ]));
-	});
-});
-
 SpecEnd

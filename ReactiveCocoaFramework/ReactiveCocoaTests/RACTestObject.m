@@ -31,6 +31,15 @@
 	_constCharPointerValue = strdup(constCharPointerValue);
 }
 
++ (BOOL)automaticallyNotifiesObserversOfBrokenStringValue {
+	return NO;
+}
+
+- (void)setBrokenStringValue:(NSString *)brokenStringValue {
+	_brokenStringValue = [brokenStringValue copy];
+	[self didChangeValueForKey:@"brokenStringValue"];
+}
+
 - (void)setObjectValue:(id)objectValue andIntegerValue:(NSInteger)integerValue {
 	self.hasInvokedSetObjectValueAndIntegerValue = YES;
 	self.objectValue = objectValue;

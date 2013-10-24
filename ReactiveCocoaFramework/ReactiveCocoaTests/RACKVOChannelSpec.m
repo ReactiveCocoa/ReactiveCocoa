@@ -329,7 +329,25 @@ describe(@"RACChannelTo", ^{
 		expect(wasDisposed).will.beTruthy();
 		expect(b.strongTestObjectValue.stringValue).to.beNil();
 	});
-	
+
+	it(@"should handle broken KVO implementations", ^{
+		RACChannelTo(a, brokenStringValue) = RACChannelTo(b, brokenStringValue);
+		expect(a.brokenStringValue).to.beNil();
+		expect(b.brokenStringValue).to.beNil();
+
+		a.brokenStringValue = testName1;
+		expect(a.brokenStringValue).to.equal(testName1);
+		expect(b.brokenStringValue).to.equal(testName1);
+
+		b.brokenStringValue = testName2;
+		expect(a.brokenStringValue).to.equal(testName2);
+		expect(b.brokenStringValue).to.equal(testName2);
+
+		a.brokenStringValue = nil;
+		expect(a.brokenStringValue).to.beNil();
+		expect(b.brokenStringValue).to.beNil();
+	});
+
 	it(@"should stop binding when disposed", ^{
 		RACChannelTerminal *aTerminal = RACChannelTo(a, stringValue);
 		RACChannelTerminal *bTerminal = RACChannelTo(b, stringValue);

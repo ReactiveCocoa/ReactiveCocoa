@@ -227,12 +227,8 @@
 
 - (BOOL)any:(BOOL (^)(id))block {
 	NSCParameterAssert(block != NULL);
-	
-	NSNumber *result = [self foldLeftWithStart:@NO reduce:^(NSNumber *accumulator, id value) {
-		return @(accumulator.boolValue || block(value));
-	}];
-	
-	return result.boolValue;
+
+	return [self objectPassingTest:block] != nil;
 }
 
 - (BOOL)all:(BOOL (^)(id))block {
@@ -247,16 +243,8 @@
 
 - (id)objectPassingTest:(BOOL (^)(id))block {
 	NSCParameterAssert(block != NULL);
-	
-	return [self foldLeftWithStart:nil reduce:^ id (id accumulator, id value) {
-		if (accumulator != nil) {
-			return accumulator;
-		} else if (block(value)) {
-			return value;
-		} else {
-			return nil;
-		}
-	}];
+
+	return [self filter:block].head;
 }
 
 - (RACSequence *)eagerSequence {

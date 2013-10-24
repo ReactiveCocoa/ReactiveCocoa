@@ -87,6 +87,40 @@ static void RACSwizzleForwardInvocation(Class class) {
 	class_replaceMethod(class, forwardInvocationSEL, imp_implementationWithBlock(newForwardInvocation), "v@:@");
 }
 
+static void	RACSwizzleRespondsToSelector(Class class) {
+	SEL respondsToSelectorSEL = @selector(respondsToSelector:);
+
+	// Preserve existing implementation of -respondsToSelector:.
+	Method respondsToSelectorMethod = class_getInstanceMethod(class, respondsToSelectorSEL);
+	BOOL (*originalRespondsToSelector)(id, SEL, SEL) = (__typeof__(originalRespondsToSelector))method_getImplementation(respondsToSelectorMethod);
+
+	// Set up a new version of -respondsToSelector:.
+	//
+	// If the selector has a method defined on the receiver's actual class, and
+	// if that method's implementation is _objc_msgForward, then return YES.
+	// Otherwise, call the original -respondsToSelector:.
+	id newRespondsToSelector = ^ BOOL (id self, SEL selector) {
+		Class class = object_getClass(self);
+		Method method = NULL;
+
+		unsigned int methodCount;
+		Method *methods = class_copyMethodList(class, &methodCount);
+		for (NSUInteger i = 0; i < methodCount; i++) {
+			if (sel_isEqual(method_getName(methods[i]), selector)) {
+				method = methods[i];
+				break;
+			}
+		}
+		free(methods);
+
+		if (method != NULL && method_getImplementation(method) == _objc_msgForward) return YES;
+
+		return originalRespondsToSelector(self, respondsToSelectorSEL, selector);
+	};
+
+	class_replaceMethod(class, @selector(respondsToSelector:), imp_implementationWithBlock(newRespondsToSelector), method_getTypeEncoding(respondsToSelectorMethod));
+}
+
 // It's hard to tell which struct return types use _objc_msgForward, and
 // which use _objc_msgForward_stret instead, so just exclude all struct, array,
 // union, complex and vector return types.
@@ -204,6 +238,7 @@ static Class RACSwizzleClass(NSObject *self) {
 		@synchronized (swizzledClasses()) {
 			if (![swizzledClasses() containsObject:className]) {
 				RACSwizzleForwardInvocation(baseClass);
+				RACSwizzleRespondsToSelector(baseClass);
 				[swizzledClasses() addObject:className];
 			}
 		}

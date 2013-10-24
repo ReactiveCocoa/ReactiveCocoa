@@ -56,16 +56,16 @@
 
 	return [self.class providerWithBlock:^(id input) {
 		return [[self
-			provide:input]
+			signalWithValue:input]
 			flattenMap:^(id intermediate) {
-				return [nextProvider provide:intermediate];
+				return [nextProvider signalWithValue:intermediate];
 			}];
 	}];
 }
 
 #pragma mark Running
 
-- (RACSignal *)provide:(id)input {
+- (RACSignal *)signalWithValue:(id)input {
 	return self.providerBlock(input);
 }
 

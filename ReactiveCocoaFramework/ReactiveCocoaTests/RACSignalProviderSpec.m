@@ -31,16 +31,16 @@ beforeEach(^{
 });
 
 it(@"should provide a signal for an input", ^{
-	expect([[returnProvider provide:@"fuzzbuzz"] toArray]).to.equal((@[ @"fuzzbuzz" ]));
-	expect([[foobarProvider provide:@"baz"] toArray]).to.equal((@[ @"foobar" ]));
-	expect([[incrementProvider provide:@10] toArray]).to.equal((@[ @11 ]));
+	expect([[returnProvider signalWithValue:@"fuzzbuzz"] toArray]).to.equal((@[ @"fuzzbuzz" ]));
+	expect([[foobarProvider signalWithValue:@"baz"] toArray]).to.equal((@[ @"foobar" ]));
+	expect([[incrementProvider signalWithValue:@10] toArray]).to.equal((@[ @11 ]));
 });
 
 it(@"should follow with another provider", ^{
 	RACSignalProvider *composed = [returnProvider followedBy:incrementProvider];
 	expect(composed).notTo.beNil();
 
-	RACSignal *signal = [composed provide:@1];
+	RACSignal *signal = [composed signalWithValue:@1];
 	expect([signal toArray]).to.equal((@[ @2 ]));
 });
 

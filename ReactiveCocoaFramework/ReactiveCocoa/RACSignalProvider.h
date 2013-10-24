@@ -55,6 +55,6 @@
 ///         the created signal should behave. This may be nil.
 ///
 /// Returns a new signal.
-- (RACSignal *)provide:(id)input;
+- (RACSignal *)signalWithValue:(id)input;
 
 @end

@@ -9,15 +9,51 @@
 #import <Foundation/Foundation.h>
 #import "RACStream.h"
 
+@class RACCompoundDisposable;
 @class RACDisposable;
 @class RACScheduler;
 @class RACSubject;
 @protocol RACSubscriber;
 
+/// Performs one "step" of a generator signal, sending events to the provided
+/// subscriber.
+///
+/// This block should do the minimum amount of work that will result in at least
+/// one signal event.
+typedef void (^RACSignalStepBlock)(void);
+
 @interface RACSignal : RACStream
 
-/// Creates a new signal. This is the preferred way to create a new signal
-/// operation or behavior.
+/// Creates a signal that generates events incrementally.
+///
+/// This constructor is the preferred way to create a signal that works
+/// incrementally. For an incremental, generative process, this will be more
+/// efficient than +createSignal:, since it reduces unnecessary work and working
+/// memory size.
+///
+/// generatorBlock - Called when the signal is subscribed to, this block sets up
+///                  any initial state for the generator, then returns a "step"
+///                  block that will be used to incrementally generate the
+///                  signal events. Although you can send events to `subscriber`
+///                  from the outer block, any non-setup work should be deferred
+///                  to the inner step block when possible. Add disposables to
+///                  `disposable` from either block when you need to clean up
+///                  resources upon signal termination or cancelation.
+///
+/// **Note:** `generatorBlock` is called _every time_ a new subscriber
+/// subscribes. Any side effects within the block will thus execute once for each
+/// subscription, not necessarily on one thread, and possibly even simultaneously!
+///
+/// Returns a signal which invokes `generatorBlock` once per subscription, then
+/// repeatedly invokes the returned `RACSignalStepBlock` whenever the subscriber
+/// is ready for more events.
++ (RACSignal *)generator:(RACSignalStepBlock (^)(id<RACSubscriber> subscriber, RACCompoundDisposable *disposable))generatorBlock;
+
+/// Creates a signal that sends its events as quickly as possible.
+///
+/// If the algorithm for generating the signal's values can be naturally written
+/// in an incremental way, consider using +generator: instead, as it is more
+/// efficient.
 ///
 /// Events can be sent to new subscribers immediately in the `didSubscribe`
 /// block, but the subscriber will not be able to dispose of the signal until

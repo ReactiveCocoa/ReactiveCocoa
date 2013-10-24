@@ -25,4 +25,7 @@
 /// Returns an initialized passthrough subscriber.
 - (instancetype)initWithSubscriber:(id<RACSubscriber>)subscriber signal:(RACSignal *)signal disposable:(RACCompoundDisposable *)disposable;
 
+// See <RACSubscriber>.
+- (RACDisposable *)invokeWhenReady:(void (^)(id<RACSubscriber>))block;
+
 @end

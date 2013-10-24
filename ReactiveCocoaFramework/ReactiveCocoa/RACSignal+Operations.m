@@ -964,19 +964,36 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 - (RACSignal *)deliverOn:(RACScheduler *)scheduler {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		return [self subscribeNext:^(id x) {
+		__block RACSubscriber *asyncSubscriber = nil;
+
+		void (^schedule)(dispatch_block_t) = [^(dispatch_block_t block) {
+			// Suspend event generation until the subscriber associated with
+			// the other scheduler receives it, throttling any upstream
+			// producers to the rate at which we deliver events on the new
+			// scheduler.
+			[asyncSubscriber suspendSignals];
+
 			[scheduler schedule:^{
+				block();
+				[asyncSubscriber resumeSignals];
+			}];
+		} copy];
+
+		asyncSubscriber = [RACSubscriber subscriberWithNext:^(id x) {
+			schedule(^{
 				[subscriber sendNext:x];
-			}];
+			});
 		} error:^(NSError *error) {
-			[scheduler schedule:^{
+			schedule(^{
 				[subscriber sendError:error];
-			}];
+			});
 		} completed:^{
-			[scheduler schedule:^{
+			schedule(^{
 				[subscriber sendCompleted];
-			}];
+			});
 		}];
+
+		return [self subscribe:asyncSubscriber];
 	}] setNameWithFormat:@"[%@] -deliverOn: %@", self.name, scheduler];
 }
 

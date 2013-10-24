@@ -43,7 +43,7 @@ static volatile uint32_t RACWillCheckActiveSignals = 0;
 }
 
 // The block to invoke for each subscriber.
-@property (nonatomic, copy, readonly) RACDisposable * (^didSubscribe)(id<RACSubscriber> subscriber);
+@property (nonatomic, copy, readonly) RACSignalStepBlock (^generator)(id<RACSubscriber> subscriber, RACCompoundDisposable *disposable);
 
 @end
 
@@ -63,10 +63,12 @@ static volatile uint32_t RACWillCheckActiveSignals = 0;
 	RACActiveSignals = CFSetCreateMutable(NULL, 0, &callbacks);
 }
 
-+ (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
++ (RACSignal *)generator:(RACSignalStepBlock (^)(id<RACSubscriber> subscriber, RACCompoundDisposable *disposable))generatorBlock {
+	NSCParameterAssert(generatorBlock != nil);
+
 	RACDynamicSignal *signal = [[self alloc] init];
-	signal->_didSubscribe = [didSubscribe copy];
-	return [signal setNameWithFormat:@"+createSignal:"];
+	signal->_generator = [generatorBlock copy];
+	return [signal setNameWithFormat:@"+generator:"];
 }
 
 - (instancetype)init {
@@ -173,15 +175,28 @@ static void RACCheckActiveSignals(void) {
 
 	[disposable addDisposable:defaultDisposable];
 
-	if (self.didSubscribe != NULL) {
-		RACDisposable *schedulingDisposable = [RACScheduler.subscriptionScheduler schedule:^{
-			RACDisposable *innerDisposable = self.didSubscribe(subscriber);
-			[disposable addDisposable:innerDisposable];
+	RACDisposable *schedulingDisposable = [RACScheduler.subscriptionScheduler schedule:^{
+		RACSignalStepBlock signalStep = self.generator(subscriber, disposable);
+		if (signalStep == nil) return;
+
+		RACSerialDisposable *stepDisposable = [[RACSerialDisposable alloc] init];
+		[disposable addDisposable:stepDisposable];
+
+		// Repeatedly schedule an action that will wait for the subscriber to be
+		// ready, then step the signal.
+		RACDisposable *recursiveDisposable = [RACScheduler.currentScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
+			// Since `subscriber` is a RACPassthroughSubscriber, this method is
+			// guaranteed to be present.
+			stepDisposable.disposable = [subscriber invokeWhenReady:^(id<RACSubscriber> subscriber) {
+				signalStep();
+				if (!stepDisposable.disposed) recurse();
+			}];
 		}];
 
-		[disposable addDisposable:schedulingDisposable];
-	}
-	
+		[disposable addDisposable:recursiveDisposable];
+	}];
+
+	[disposable addDisposable:schedulingDisposable];
 	return disposable;
 }
 

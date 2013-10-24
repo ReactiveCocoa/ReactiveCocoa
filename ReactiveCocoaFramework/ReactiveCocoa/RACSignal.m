@@ -26,8 +26,17 @@
 
 #pragma mark Lifecycle
 
++ (RACSignal *)generator:(RACSignalStepBlock (^)(id<RACSubscriber> subscriber, RACCompoundDisposable *disposable))generatorBlock {
+	return [RACDynamicSignal generator:generatorBlock];
+}
+
 + (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
-	return [RACDynamicSignal createSignal:didSubscribe];
+	return [[self generator:^ RACSignalStepBlock (id<RACSubscriber> subscriber, RACCompoundDisposable *compoundDisposable) {
+		RACDisposable *subscriptionDisposable = didSubscribe(subscriber);
+		if (subscriptionDisposable != nil) [compoundDisposable addDisposable:subscriptionDisposable];
+
+		return nil;
+	}] setNameWithFormat:@"+createSignal:"];
 }
 
 + (RACSignal *)error:(NSError *)error {

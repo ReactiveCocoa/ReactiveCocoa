@@ -3558,4 +3558,161 @@ describe(@"-replayLazily", ^{
 	});
 });
 
+describe(@"+generator:", ^{
+	it(@"should run outer block upon subscription", ^{
+		__block BOOL done = NO;
+		RACSignal *signal = [RACSignal generator:^ RACSignalStepBlock (id<RACSubscriber> subscriber, RACCompoundDisposable *compoundDisposable) {
+			done = YES;
+			return nil;
+		}];
+
+		expect(done).to.beFalsy();
+
+		[signal subscribeCompleted:^{}];
+		expect(done).to.beTruthy();
+	});
+
+	it(@"should asynchronously invoke inner block until exhausted", ^{
+		RACSignal *signal = [RACSignal generator:^ RACSignalStepBlock (id<RACSubscriber> subscriber, RACCompoundDisposable *compoundDisposable) {
+			__block NSUInteger counter = 0;
+
+			return ^{
+				[subscriber sendNext:@(counter)];
+				if (++counter == 5) [subscriber sendCompleted];
+			};
+		}];
+
+		NSMutableArray *values = [NSMutableArray array];
+		__block BOOL completed = NO;
+
+		RACDisposable *disposable = [signal subscribeNext:^(NSNumber *x) {
+			[values addObject:x];
+		} completed:^{
+			completed = YES;
+		}];
+
+		expect(disposable).notTo.beNil();
+		expect(completed).to.beFalsy();
+		
+		expect(completed).will.beTruthy();
+		expect(values).to.equal((@[ @0, @1, @2, @3, @4 ]));
+	});
+
+	it(@"should only invoke the inner block once per scheduler tick", ^{
+		__block NSUInteger invocations = 0;
+		RACSignal *signal = [RACSignal generator:^ RACSignalStepBlock (id<RACSubscriber> subscriber, RACCompoundDisposable *compoundDisposable) {
+			return ^{
+				[subscriber sendNext:@(++invocations)];
+			};
+		}];
+
+		RACTestScheduler *scheduler = [[RACTestScheduler alloc] init];
+
+		__block NSUInteger count = 0;
+		[scheduler schedule:^{
+			[signal subscribeNext:^(NSNumber *x) {
+				count++;
+			}];
+		}];
+
+		[scheduler step];
+		expect(count).to.equal(0);
+		expect(invocations).to.equal(count);
+
+		[scheduler step];
+		expect(count).to.equal(1);
+		expect(invocations).to.equal(count);
+
+		[scheduler step:2];
+		expect(count).to.equal(3);
+		expect(invocations).to.equal(count);
+	});
+
+	it(@"should stop invoking inner block once disposed", ^{
+		__block NSUInteger invocations = 0;
+		RACSignal *signal = [RACSignal generator:^ RACSignalStepBlock (id<RACSubscriber> subscriber, RACCompoundDisposable *compoundDisposable) {
+			return ^{
+				[subscriber sendNext:@(++invocations)];
+			};
+		}];
+
+		__block NSUInteger count = 0;
+		__block BOOL completed = NO;
+
+		__block RACDisposable *disposable = [signal subscribeNext:^(NSNumber *x) {
+			count++;
+			if (count == 2) {
+				[disposable dispose];
+			}
+		} completed:^{
+			completed = YES;
+		}];
+
+		expect(disposable).notTo.beNil();
+		
+		expect(count).will.equal(2);
+		expect(invocations).to.equal(count);
+		expect(completed).to.beFalsy();
+	});
+
+	it(@"should apply backpressure within -deliverOn:", ^{
+		__block NSUInteger invocations = 0;
+		RACSignal *signal = [[RACSignal
+			generator:^ RACSignalStepBlock (id<RACSubscriber> subscriber, RACCompoundDisposable *compoundDisposable) {
+				return ^{
+					[subscriber sendNext:@(++invocations)];
+				};
+			}]
+			deliverOn:RACScheduler.mainThreadScheduler];
+
+		__block NSUInteger count = 0;
+		__block BOOL completed = NO;
+
+		__block RACDisposable *disposable = [signal subscribeNext:^(NSNumber *x) {
+			count++;
+			if (count == 2) {
+				[disposable dispose];
+			}
+		} completed:^{
+			completed = YES;
+		}];
+
+		expect(disposable).notTo.beNil();
+
+		expect(count).will.equal(2);
+		expect(invocations).to.equal(count);
+		expect(completed).to.beFalsy();
+	});
+
+	it(@"should apply backpressure within -subscribeOn:", ^{
+		__block NSUInteger invocations = 0;
+		RACSignal *signal = [[[RACSignal
+			generator:^ RACSignalStepBlock (id<RACSubscriber> subscriber, RACCompoundDisposable *compoundDisposable) {
+				return ^{
+					[subscriber sendNext:@(++invocations)];
+				};
+			}]
+			subscribeOn:RACScheduler.mainThreadScheduler]
+			deliverOn:RACScheduler.mainThreadScheduler];
+
+		__block NSUInteger count = 0;
+		__block BOOL completed = NO;
+
+		__block RACDisposable *disposable = [signal subscribeNext:^(NSNumber *x) {
+			count++;
+			if (count == 2) {
+				[disposable dispose];
+			}
+		} completed:^{
+			completed = YES;
+		}];
+
+		expect(disposable).notTo.beNil();
+
+		expect(count).will.equal(2);
+		expect(invocations).to.equal(count);
+		expect(completed).to.beFalsy();
+	});
+});
+
 SpecEnd

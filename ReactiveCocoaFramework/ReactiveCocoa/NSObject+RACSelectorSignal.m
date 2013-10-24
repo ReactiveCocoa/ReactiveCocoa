@@ -235,6 +235,9 @@ static Class RACSwizzleClass(NSObject *self) {
 		// Just swizzle -forwardInvocation: in-place. Since the object's class
 		// was almost certainly dynamically changed, we shouldn't see another of
 		// these classes in the hierarchy.
+		//
+		// Additionally, swizzle -respondsToSelector: becuase the default
+		// implementation is ignorant of methods added to this class.
 		@synchronized (swizzledClasses()) {
 			if (![swizzledClasses() containsObject:className]) {
 				RACSwizzleForwardInvocation(baseClass);

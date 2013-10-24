@@ -57,7 +57,9 @@
 	return [self.class providerWithBlock:^(id input) {
 		return [[self
 			provide:input]
-			flattenProvide:nextProvider];
+			flattenMap:^(id intermediate) {
+				return [nextProvider provide:intermediate];
+			}];
 	}];
 }
 

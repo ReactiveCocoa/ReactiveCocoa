@@ -31,8 +31,6 @@ typedef struct {
 @property (nonatomic, assign) RACTestStruct structValue;
 @property (nonatomic, assign) _Bool c99BoolValue;
 @property (nonatomic, copy) NSString *stringValue;
-// Broken KVO implementation
-@property (nonatomic, copy) NSString *brokenStringValue;
 @property (nonatomic, copy) NSArray *arrayValue;
 @property (nonatomic, copy) NSSet *setValue;
 @property (nonatomic, copy) NSOrderedSet *orderedSetValue;

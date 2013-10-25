@@ -87,7 +87,7 @@ static void RACSwizzleForwardInvocation(Class class) {
 	class_replaceMethod(class, forwardInvocationSEL, imp_implementationWithBlock(newForwardInvocation), "v@:@");
 }
 
-static void	RACSwizzleRespondsToSelector(Class class) {
+static void RACSwizzleRespondsToSelector(Class class) {
 	SEL respondsToSelectorSEL = @selector(respondsToSelector:);
 
 	// Preserve existing implementation of -respondsToSelector:.

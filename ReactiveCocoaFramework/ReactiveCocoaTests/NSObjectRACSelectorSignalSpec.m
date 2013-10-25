@@ -174,7 +174,7 @@ describe(@"RACTestObject", ^{
 		expect(key).to.equal(@"Winner");
 	});
 
-	it(@"should propertly implement -respondsToSelector: when called on KVO'd receiver", ^{
+	it(@"should properly implement -respondsToSelector: when called on KVO'd receiver", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 
 		[RACObserve(object, objectValue) subscribeCompleted:^{}];

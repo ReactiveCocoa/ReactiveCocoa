@@ -236,7 +236,7 @@ static Class RACSwizzleClass(NSObject *self) {
 		// was almost certainly dynamically changed, we shouldn't see another of
 		// these classes in the hierarchy.
 		//
-		// Additionally, swizzle -respondsToSelector: becuase the default
+		// Additionally, swizzle -respondsToSelector: because the default
 		// implementation is ignorant of methods added to this class.
 		@synchronized (swizzledClasses()) {
 			if (![swizzledClasses() containsObject:className]) {

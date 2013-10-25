@@ -14,6 +14,7 @@
 #import "NSObject+RACSelectorSignal.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
+#import "RACMulticastConnection.h"
 #import "RACSignal+Operations.h"
 #import "RACSignal.h"
 #import "RACTuple.h"
@@ -133,7 +134,7 @@ describe(@"RACTestObject", ^{
 	it(@"should send arguments for invocation and invoke the original method on previously KVO'd receiver", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 
-		[RACObserve(object, objectValue) subscribeCompleted:^{}];
+		[[RACObserve(object, objectValue) publish] connect];
 
 		__block id key;
 		__block id value;
@@ -162,7 +163,7 @@ describe(@"RACTestObject", ^{
 			key = x.second;
 		}];
 
-		[RACObserve(object, objectValue) subscribeCompleted:^{}];
+		[[RACObserve(object, objectValue) publish] connect];
 
 		[object setObjectValue:@YES andSecondObjectValue:@"Winner"];
 
@@ -177,7 +178,7 @@ describe(@"RACTestObject", ^{
 	it(@"should properly implement -respondsToSelector: when called on KVO'd receiver", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 
-		[RACObserve(object, objectValue) subscribeCompleted:^{}];
+		[[RACObserve(object, objectValue) publish] connect];
 
 		SEL selector = NSSelectorFromString(@"anyOldSelector:");
 

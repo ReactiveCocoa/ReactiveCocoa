@@ -178,12 +178,16 @@ describe(@"RACTestObject", ^{
 	it(@"should properly implement -respondsToSelector: when called on KVO'd receiver", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 
+		// First, setup KVO on `object`, which gives us the desired side-effect
+		// of `object` taking on a KVO-custom subclass.
 		[[RACObserve(object, objectValue) publish] connect];
 
 		SEL selector = NSSelectorFromString(@"anyOldSelector:");
 
-		// Called for side-effects.
+		// With the KVO subclass in place, call -rac_signalForSelector: to
+		// implement -anyOldSelector: directly on the KVO subclass.
 		[object rac_signalForSelector:selector];
+
 		expect([object respondsToSelector:selector]).to.beTruthy();
 	});
 

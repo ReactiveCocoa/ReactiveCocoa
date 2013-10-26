@@ -214,3 +214,19 @@ errorOut:
     free(attributes);
     return NULL;
 }
+
+Method rac_getImmediateInstanceMethod (Class aClass, SEL aSelector) {
+    unsigned methodCount = 0;
+    Method *methods = class_copyMethodList(aClass, &methodCount);
+    Method foundMethod = NULL;
+
+    for (unsigned methodIndex = 0;methodIndex < methodCount;++methodIndex) {
+        if (method_getName(methods[methodIndex]) == aSelector) {
+            foundMethod = methods[methodIndex];
+            break;
+        }
+    }
+
+    free(methods);
+    return foundMethod;
+}

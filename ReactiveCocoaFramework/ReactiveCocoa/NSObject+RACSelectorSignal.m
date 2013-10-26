@@ -95,7 +95,8 @@ static void RACSwizzleRespondsToSelector(Class class) {
 	Method respondsToSelectorMethod = class_getInstanceMethod(class, respondsToSelectorSEL);
 	BOOL (*originalRespondsToSelector)(id, SEL, SEL) = (__typeof__(originalRespondsToSelector))method_getImplementation(respondsToSelectorMethod);
 
-	// Set up a new version of -respondsToSelector:.
+	// Set up a new version of -respondsToSelector: that returns YES for methods
+	// added by -rac_signalForSelector:.
 	//
 	// If the selector has a method defined on the receiver's actual class, and
 	// if that method's implementation is _objc_msgForward, then return YES.

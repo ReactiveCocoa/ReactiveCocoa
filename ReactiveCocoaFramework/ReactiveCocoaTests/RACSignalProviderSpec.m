@@ -36,8 +36,14 @@ it(@"should provide a signal for an input", ^{
 	expect([[incrementProvider signalWithValue:@10] toArray]).to.equal((@[ @11 ]));
 });
 
-it(@"should follow with another provider", ^{
-	RACSignalProvider *composed = [returnProvider followedBy:incrementProvider];
+it(@"should map signals", ^{
+	RACSignalProvider *composed = [returnProvider mapSignals:^(RACSignal *input) {
+		return [input flattenMap:^(id x) {
+			// Combine behavior with `incrementProvider`.
+			return [incrementProvider signalWithValue:x];
+		}];
+	}];
+
 	expect(composed).notTo.beNil();
 
 	RACSignal *signal = [composed signalWithValue:@1];

@@ -49,24 +49,22 @@
 	return singleton;
 }
 
-#pragma mark Arrow composition
-
-- (instancetype)followedBy:(RACSignalProvider *)nextProvider {
-	NSCParameterAssert(nextProvider != nil);
-
-	return [self.class providerWithBlock:^(id input) {
-		return [[self
-			signalWithValue:input]
-			flattenMap:^(id intermediate) {
-				return [nextProvider signalWithValue:intermediate];
-			}];
-	}];
-}
-
 #pragma mark Running
 
 - (RACSignal *)signalWithValue:(id)input {
 	return self.providerBlock(input);
+}
+
+@end
+
+@implementation RACSignalProvider (Operations)
+
+- (instancetype)mapSignals:(RACSignal * (^)(RACSignal *original))block {
+	NSCParameterAssert(block != nil);
+
+	return [self.class providerWithBlock:^(id input) {
+		return block([self signalWithValue:input]);
+	}];
 }
 
 @end

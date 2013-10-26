@@ -3558,7 +3558,7 @@ describe(@"-replayLazily", ^{
 	});
 });
 
-describe(@"-serialize", ^{
+describe(@"-shareWhileActive", ^{
 	__block NSUInteger totalSubscriptions;
 	__block NSUInteger activeSubscriptions;
 
@@ -3580,7 +3580,7 @@ describe(@"-serialize", ^{
 					activeSubscriptions--;
 				}];
 			}]
-			serialize];
+			shareWhileActive];
 	});
 
 	it(@"should lazily subscribe to the underlying signal", ^{

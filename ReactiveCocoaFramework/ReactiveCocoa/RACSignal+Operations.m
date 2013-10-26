@@ -931,9 +931,9 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		setNameWithFormat:@"[%@] -replayLazily", self.name];
 }
 
-- (RACSignal *)serialize {
+- (RACSignal *)shareWhileActive {
 	NSRecursiveLock *lock = [[NSRecursiveLock alloc] init];
-	lock.name = @"com.github.ReactiveCocoa.serialize";
+	lock.name = @"com.github.ReactiveCocoa.shareWhileActive";
 
 	// These should only be used while `lock` is held.
 	__block NSUInteger subscriberCount = 0;
@@ -973,7 +973,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 				}
 			}];
 		}]
-		setNameWithFormat:@"[%@] -serialize", self.name];
+		setNameWithFormat:@"[%@] -shareWhileActive", self.name];
 }
 
 - (RACSignal *)timeout:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler {

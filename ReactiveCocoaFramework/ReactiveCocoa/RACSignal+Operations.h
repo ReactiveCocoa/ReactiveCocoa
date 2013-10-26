@@ -462,15 +462,14 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// Returns the lazily connected, multicasted signal.
 - (RACSignal *)replayLazily;
 
-/// Serializes and deduplicates subscriptions to the receiver, ensuring that
-/// only one subscription is active at a time.
+/// Deduplicates subscriptions to the receiver, and shares results between them,
+/// ensuring that only one subscription is active at a time.
 ///
 /// This is useful to ensure that a signal's side effects are never performed
 /// multiple times _concurrently_. It _does not_ prevent a signal's side effects
 /// from being repeated multiple times serially.
 ///
-/// **This is not the same as the `Serialize` method in Rx.** This operator
-/// corresponds to the `RefCount` method in Rx.
+/// This operator corresponds to the `RefCount` method in Rx.
 ///
 /// Returns a signal that will have at most one subscription to the receiver at
 /// any time. When the returned signal gets its first subscriber, the underlying
@@ -478,7 +477,7 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// underlying subscription is disposed. Whenever an underlying subscription is
 /// already open, new subscribers to the returned signal will receive all events
 /// sent so far.
-- (RACSignal *)serialize;
+- (RACSignal *)shareWhileActive;
 
 /// Sends an error after `interval` seconds if the source doesn't complete
 /// before then.

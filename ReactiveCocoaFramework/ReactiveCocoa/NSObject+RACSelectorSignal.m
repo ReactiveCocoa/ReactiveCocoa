@@ -7,6 +7,7 @@
 //
 
 #import "NSObject+RACSelectorSignal.h"
+#import "EXTRuntimeExtensions.h"
 #import "NSInvocation+RACTypeParsing.h"
 #import "NSObject+RACDeallocating.h"
 #import "RACCompoundDisposable.h"
@@ -100,18 +101,7 @@ static void RACSwizzleRespondsToSelector(Class class) {
 	// if that method's implementation is _objc_msgForward, then return YES.
 	// Otherwise, call the original -respondsToSelector:.
 	id newRespondsToSelector = ^ BOOL (id self, SEL selector) {
-		Class class = object_getClass(self);
-		Method method = NULL;
-
-		unsigned int methodCount;
-		Method *methods = class_copyMethodList(class, &methodCount);
-		for (NSUInteger i = 0; i < methodCount; i++) {
-			if (sel_isEqual(method_getName(methods[i]), selector)) {
-				method = methods[i];
-				break;
-			}
-		}
-		free(methods);
+		Method method = rac_getImmediateInstanceMethod(object_getClass(self), selector);
 
 		if (method != NULL && method_getImplementation(method) == _objc_msgForward) return YES;
 

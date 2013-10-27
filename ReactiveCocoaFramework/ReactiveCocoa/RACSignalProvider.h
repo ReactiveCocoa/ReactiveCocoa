@@ -61,4 +61,16 @@
 /// by the receiver, then returns the resulting signal.
 - (instancetype)mapSignals:(RACSignal * (^)(RACSignal *original))block;
 
+/// Creates a new provider that first creates a signal using the logic of the
+/// receiver, then creates _new_ signals from each of the signal's values using
+/// `nextProvider`.
+///
+/// In other words, this behaves like the receiver, followed by a -flattenMap:
+/// using `nextProvider`.
+///
+/// nextProvider - The provider to apply after the receiver. This must not be nil.
+///
+/// Returns a new `RACSignalProvider` that combines the logic of the two providers.
+- (instancetype)followedBy:(RACSignalProvider *)nextProvider;
+
 @end

@@ -9,6 +9,7 @@
 #import "RACSignalProvider.h"
 #import "RACSignal+Operations.h"
 #import "RACSubscriber.h"
+#import "RACUnit.h"
 
 SpecBegin(RACSignalProvider)
 
@@ -38,12 +39,17 @@ it(@"should provide a signal for an input", ^{
 
 it(@"should map signals", ^{
 	RACSignalProvider *composed = [returnProvider mapSignals:^(RACSignal *input) {
-		return [input flattenMap:^(id x) {
-			// Combine behavior with `incrementProvider`.
-			return [incrementProvider signalWithValue:x];
-		}];
+		return [[input concat:input] startWith:RACUnit.defaultUnit];
 	}];
 
+	expect(composed).notTo.beNil();
+
+	RACSignal *signal = [composed signalWithValue:@1];
+	expect([signal toArray]).to.equal((@[ RACUnit.defaultUnit, @1, @1 ]));
+});
+
+it(@"should follow with another provider", ^{
+	RACSignalProvider *composed = [returnProvider followedBy:incrementProvider];
 	expect(composed).notTo.beNil();
 
 	RACSignal *signal = [composed signalWithValue:@1];

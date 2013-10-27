@@ -67,4 +67,14 @@
 	}];
 }
 
+- (instancetype)followedBy:(RACSignalProvider *)nextProvider {
+	NSCParameterAssert(nextProvider != nil);
+
+	return [self mapSignals:^(RACSignal *input) {
+		return [input flattenMap:^(id x) {
+			return [nextProvider signalWithValue:x];
+		}];
+	}];
+}
+
 @end

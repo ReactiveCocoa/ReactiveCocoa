@@ -20,6 +20,7 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=4stat
 
 **[Deprecations](#deprecations)**
 
+ 1. [Multicasting](#multicasting)
  1. [Behavior subjects](#behavior-subjects)
 
 ## Replacements
@@ -53,6 +54,22 @@ the same problems in a much simpler way.
  * Replace `+startLazilyWithScheduler:block:` with `+[RACPromise promiseWithScheduler:block:]` and `-[RACPromise deferred]`.
 
 ## Deprecations
+
+### Multicasting
+
+Although `RACMulticastConnection` solves an important problem (sharing side
+effects between multiple subscribers), it obfuscates what's really happening and
+frequently confuses newcomers, so it has been
+[removed](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/877) in favor of
+using subjects directly.
+
+**To update:**
+
+ * Replace `-publish` with `-subscribe:` and a `RACSubject`.
+ * Replace `-multicast:` with `-subscribe:` (for `RACSubject`) or
+   a [promise](#promises-instead-of-replaying) (for `RACReplaySubject`).
+ * Ensure that subscription occurs in the same place that the underlying signal
+   was being connected to.
 
 ### Behavior subjects
 

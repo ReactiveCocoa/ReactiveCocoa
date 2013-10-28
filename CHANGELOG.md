@@ -16,11 +16,41 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=4stat
 
 **[Replacements](#replacements)**
 
+ 1. [Promises instead of replaying](#promises-instead-of-replaying)
+
 **[Deprecations](#deprecations)**
 
  1. [Behavior subjects](#behavior-subjects)
 
 ## Replacements
+
+### Promises instead of replaying
+
+`RACReplaySubject` has been used mostly for _memoization_: doing
+something once, then saving the results. However, this has made it something of
+an odd duck next to `RACSignal` and `RACSubject`.
+
+Where `RACSignal` usually represents a "cold" signal (one that performs its side
+effects once for each subscription), and `RACSubject` represents a "hot" signal
+(one that doesn't perform any side effects upon subscription),
+`RACReplaySubject` has occupied a weird "lukewarm" middle ground.
+
+Additionally, memoization doesn't require a manually-controllable subject — only
+some way to force a side-effecting signal to run (at most) once.
+
+For these reasons, `RACReplaySubject` and its corresponding signal operators
+have been [replaced](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/877)
+with `RACPromise` and `-[RACSignal promiseOnScheduler:]`, which solve most of
+the same problems in a much simpler way.
+
+**To update:**
+
+ * Replace uses of `RACReplaySubject` with `RACPromise` or plain `RACSubject`.
+ * Replace `-replay` with `-promiseOnScheduler:` and `-[RACPromise start]`.
+ * Replace `-replayLazily` with `-promiseOnScheduler:` and `-[RACPromise deferred]`.
+ * Replace `-replayLast` with `-takeLast:`, `-promiseOnScheduler:`, and `-[RACPromise start]`.
+ * Replace `+startEagerlyWithScheduler:block:` with `+[RACPromise promiseWithScheduler:block:]` and `-[RACPromise start]`.
+ * Replace `+startLazilyWithScheduler:block:` with `+[RACPromise promiseWithScheduler:block:]` and `-[RACPromise deferred]`.
 
 ## Deprecations
 

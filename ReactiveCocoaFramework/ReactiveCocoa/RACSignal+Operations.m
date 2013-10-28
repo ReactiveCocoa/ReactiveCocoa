@@ -897,6 +897,12 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 }
 
 - (RACSignal *)shareWhileActive {
+	// Although RACReplaySubject is deprecated for consumers, we're going to use it
+	// internally for the foreseeable future. We just want to expose something
+	// higher level.
+	#pragma clang diagnostic push
+	#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 	NSRecursiveLock *lock = [[NSRecursiveLock alloc] init];
 	lock.name = @"com.github.ReactiveCocoa.shareWhileActive";
 
@@ -939,6 +945,8 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			}];
 		}]
 		setNameWithFormat:@"[%@] -shareWhileActive", self.name];
+
+	#pragma clang diagnostic pop
 }
 
 - (RACSignal *)timeout:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler {

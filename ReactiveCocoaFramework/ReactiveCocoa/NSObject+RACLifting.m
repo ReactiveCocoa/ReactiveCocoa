@@ -10,9 +10,10 @@
 #import "EXTScope.h"
 #import "NSInvocation+RACTypeParsing.h"
 #import "NSObject+RACDeallocating.h"
+#import "NSObject+RACDescription.h"
+#import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"
 #import "RACTuple.h"
-#import "NSObject+RACDescription.h"
 
 @implementation NSObject (RACLifting)
 
@@ -27,9 +28,16 @@
 	NSUInteger numberOfArguments __attribute__((unused)) = methodSignature.numberOfArguments - 2;
 	NSCAssert(numberOfArguments == signals.count, @"Wrong number of signals for %@ (expected %lu, got %lu)", NSStringFromSelector(selector), (unsigned long)numberOfArguments, (unsigned long)signals.count);
 
-	@unsafeify(self);
+	// Although RACReplaySubject is deprecated for consumers, we're going to use it
+	// internally for the foreseeable future. We just want to expose something
+	// higher level.
+	#pragma clang diagnostic push
+	#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+	RACReplaySubject *results = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"%@ -rac_liftSelector: %@ withSignalsFromArray: %@", [self rac_description], NSStringFromSelector(selector), signals];
+	#pragma clang diagnostic pop
 
-	return [[[[[RACSignal
+	@unsafeify(self);
+	[[[[RACSignal
 		combineLatest:signals]
 		takeUntil:self.rac_willDeallocSignal]
 		map:^(RACTuple *arguments) {
@@ -42,8 +50,9 @@
 
 			return invocation.rac_returnValue;
 		}]
-		replayLast]
-		setNameWithFormat:@"%@ -rac_liftSelector: %@ withSignalsFromArray: %@", [self rac_description], NSStringFromSelector(selector), signals];
+		subscribe:results];
+	
+	return results;
 }
 
 - (RACSignal *)rac_liftSelector:(SEL)selector withSignals:(RACSignal *)firstSignal, ... {

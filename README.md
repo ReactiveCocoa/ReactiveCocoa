@@ -411,15 +411,17 @@ RACSignal *databaseSignal = [[databaseClient
     fetchObjectsMatchingPredicate:predicate]
     subscribeOn:[RACScheduler scheduler]];
 
-RACSignal *fileSignal = [RACSignal startEagerlyWithScheduler:[RACScheduler scheduler] block:^(id<RACSubscriber> subscriber) {
-    NSMutableArray *filesInProgress = [NSMutableArray array];
-    for (NSString *path in files) {
-        [filesInProgress addObject:[NSData dataWithContentsOfFile:path]];
-    }
+RACSignal *fileSignal = [[RACPromise
+    promiseWithScheduler:[RACScheduler scheduler] block:^(id<RACSubscriber> subscriber) {
+        NSMutableArray *filesInProgress = [NSMutableArray array];
+        for (NSString *path in files) {
+            [filesInProgress addObject:[NSData dataWithContentsOfFile:path]];
+        }
 
-    [subscriber sendNext:[filesInProgress copy]];
-    [subscriber sendCompleted];
-}];
+        [subscriber sendNext:[filesInProgress copy]];
+        [subscriber sendCompleted];
+    }]
+    start];
 
 [[RACSignal
     combineLatest:@[ databaseSignal, fileSignal ]
@@ -527,7 +529,6 @@ some more resources for learning about FRP:
 [NSObject+RACLifting]: ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACLifting.h
 [RACDisposable]: ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
 [RACEvent]: ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h
-[RACMulticastConnection]: ReactiveCocoaFramework/ReactiveCocoa/RACMulticastConnection.h
 [RACScheduler]: ReactiveCocoaFramework/ReactiveCocoa/RACScheduler.h
 [RACSequence]: ReactiveCocoaFramework/ReactiveCocoa/RACSequence.h
 [RACSignal+Operations]: ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h

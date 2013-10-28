@@ -31,6 +31,7 @@
 #import "RACGroupedSignal.h"
 #import "RACKVOChannel.h"
 #import "RACMulticastConnection.h"
+#import "RACPromise.h"
 #import "RACQueueScheduler.h"
 #import "RACReplaySubject.h"
 #import "RACScheduler.h"

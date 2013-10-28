@@ -7,6 +7,7 @@
 //
 
 #import "RACSignal+Operations.h"
+#import "EXTScope.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACDescription.h"
 #import "RACCommand.h"
@@ -928,6 +929,51 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			return connection.signal;
 		}]
 		setNameWithFormat:@"[%@] -replayLazily", self.name];
+}
+
+- (RACSignal *)shareWhileActive {
+	NSRecursiveLock *lock = [[NSRecursiveLock alloc] init];
+	lock.name = @"com.github.ReactiveCocoa.shareWhileActive";
+
+	// These should only be used while `lock` is held.
+	__block NSUInteger subscriberCount = 0;
+	__block RACDisposable *underlyingDisposable = nil;
+	__block RACReplaySubject *inflightSubscription = nil;
+
+	return [[RACSignal
+		createSignal:^(id<RACSubscriber> subscriber) {
+			[lock lock];
+			@onExit {
+				[lock unlock];
+			};
+
+			if (subscriberCount++ == 0) {
+				// We're the first subscriber, so create the underlying
+				// subscription.
+				inflightSubscription = [RACReplaySubject subject];
+				underlyingDisposable = [self subscribe:inflightSubscription];
+			}
+
+			RACDisposable *inflightDisposable = [inflightSubscription subscribe:subscriber];
+
+			return [RACDisposable disposableWithBlock:^{
+				[inflightDisposable dispose];
+
+				[lock lock];
+				@onExit {
+					[lock unlock];
+				};
+
+				NSCAssert(subscriberCount > 0, @"Mismatched decrement of subscriberCount (%lu)", (unsigned long)subscriberCount);
+				if (--subscriberCount == 0) {
+					// We're the last subscriber, so dispose of the
+					// underlying subscription.
+					[underlyingDisposable dispose];
+					underlyingDisposable = nil;
+				}
+			}];
+		}]
+		setNameWithFormat:@"[%@] -shareWhileActive", self.name];
 }
 
 - (RACSignal *)timeout:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler {

@@ -14,7 +14,7 @@
 #import <libkern/OSAtomic.h>
 
 @interface RACPromise () {
-	// When connecting, a caller should attempt to atomically swap the value of this
+	// When starting, a caller should attempt to atomically swap the value of this
 	// from `0` to `1`.
 	//
 	// If the swap is successful the caller is responsible for subscribing

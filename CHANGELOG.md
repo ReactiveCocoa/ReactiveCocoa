@@ -1,7 +1,38 @@
 # 3.0
 
+The theme of this ReactiveCocoa release is _simplicity_: [getting rid of unused
+APIs](#deprecations), and [replacing complicated patterns with simpler
+ones](#replacements) where possible. Consequently, the changes are fairly
+significant and impactful.
+
+However, because migration is hard and time-consuming, RAC 2.x code should
+continue to work under RAC 3.0 without any changes. You _will_ see deprecation
+warnings by default, but even these can be temporarily disabled by defining
+[`WE_PROMISE_TO_MIGRATE_TO_REACTIVECOCOA_3_0`](ReactiveCocoaFramework/ReactiveCocoa/RACDeprecated.h)
+before importing any framework headers.
+
 For a complete list of changes in ReactiveCocoa 3.0, see [the
 milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=4state=closed).
+
+**[Replacements](#replacements)**
+
+**[Deprecations](#deprecations)**
+
+ 1. [Behavior subjects](#behavior-subjects)
+
+## Replacements
+
+## Deprecations
+
+### Behavior subjects
+
+`RACBehaviorSubject` has never gotten much attention, in implementation or
+usage, so it has been
+[deprecated](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/878).
+
+**To update:**
+
+Replace uses of `RACBehaviorSubject` with `RACPromise` or a plain `RACSubject`.
 
 # 2.0
 

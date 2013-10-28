@@ -55,7 +55,7 @@ RACSignal *letters = [@"A B C D E F G H I" componentsSeparatedByString:@" "].rac
 }];
 ```
 
-For a cold signal, side effects will be performed once _per subscription_:
+For most signals, side effects will be performed once _per subscription_:
 
 ```objc
 __block unsigned subscriptions = 0;
@@ -79,7 +79,9 @@ RACSignal *loggingSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubs
 }];
 ```
 
-This behavior can be changed using a [connection][Connections].
+To share the values of a signal between [subscribers][Subscription], without
+triggering its side effects multiple times, you can send them to
+a [subject][Subjects].
 
 ### Injecting effects
 
@@ -353,7 +355,6 @@ RACSignal *switched = [signalOfSignals switchToLatest];
 [letters sendNext:@"D"];
 ```
 
-[Connections]: FrameworkOverview.md#connections
 [RACSequence]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSequence.h
 [RACSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h
 [RACSignal+Operations]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h
@@ -361,4 +362,5 @@ RACSignal *switched = [signalOfSignals switchToLatest];
 [Sequences]: FrameworkOverview.md#sequences
 [Signals]: FrameworkOverview.md#signals
 [Streams]: FrameworkOverview.md#streams
+[Subjects]: FrameworkOverview.md#subjects
 [Subscription]: FrameworkOverview.md#subscription

@@ -60,7 +60,7 @@ the same problems in a much simpler way.
 Although `RACMulticastConnection` solves an important problem (sharing side
 effects between multiple subscribers), it obfuscates what's really happening and
 frequently confuses newcomers, so it has been
-[removed](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/877) in favor of
+[deprecated](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/877) in favor of
 using subjects directly.
 
 **To update:**

@@ -1,7 +1,86 @@
 # 3.0
 
+The theme of this ReactiveCocoa release is _simplicity_: [getting rid of unused
+APIs](#deprecations) and [replacing complicated patterns with simpler
+ones](#replacements) where possible. Consequently, the changes are significant
+and far-reaching.
+
+However, because migration is hard and time-consuming, RAC 2.x code will
+continue to work under RAC 3.0 without any changes. You'll see deprecation
+warnings by default, but even these can be temporarily disabled by defining
+[`WE_PROMISE_TO_MIGRATE_TO_REACTIVECOCOA_3_0`](ReactiveCocoaFramework/ReactiveCocoa/RACDeprecated.h)
+before any framework headers are imported.
+
 For a complete list of changes in ReactiveCocoa 3.0, see [the
 milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=4state=closed).
+
+**[Replacements](#replacements)**
+
+ 1. [Promises instead of replaying](#promises-instead-of-replaying)
+
+**[Deprecations](#deprecations)**
+
+ 1. [Multicasting](#multicasting)
+ 1. [Behavior subjects](#behavior-subjects)
+
+## Replacements
+
+### Promises instead of replaying
+
+`RACReplaySubject` has been used mostly for _memoization_: doing
+something once, then saving the results. However, this has made it something of
+an odd duck next to `RACSignal` and `RACSubject`.
+
+Where `RACSignal` usually represents a "cold" signal (one that performs its side
+effects once for each subscription), and `RACSubject` represents a "hot" signal
+(one that doesn't perform any side effects upon subscription),
+`RACReplaySubject` has occupied a weird "lukewarm" middle ground.
+
+Additionally, memoization doesn't require a manually-controllable subject — only
+some way to force a side-effecting signal to run (at most) once.
+
+For these reasons, `RACReplaySubject` and its corresponding signal operators
+have been [replaced](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/877)
+with `RACPromise` and `-[RACSignal promiseOnScheduler:]`, which solve most of
+the same problems in a much simpler way.
+
+**To update:**
+
+ * Replace uses of `RACReplaySubject` with `RACPromise` or plain `RACSubject`.
+ * Replace `-replay` with `-promiseOnScheduler:` and `-[RACPromise start]`.
+ * Replace `-replayLazily` with `-promiseOnScheduler:` and `-[RACPromise deferred]`.
+ * Replace `-replayLast` with `-takeLast:`, `-promiseOnScheduler:`, and `-[RACPromise start]`.
+ * Replace `+startEagerlyWithScheduler:block:` with `+[RACPromise promiseWithScheduler:block:]` and `-[RACPromise start]`.
+ * Replace `+startLazilyWithScheduler:block:` with `+[RACPromise promiseWithScheduler:block:]` and `-[RACPromise deferred]`.
+
+## Deprecations
+
+### Multicasting
+
+Although `RACMulticastConnection` solves an important problem (sharing side
+effects between multiple subscribers), it obfuscates what's really happening and
+frequently confuses newcomers, so it has been
+[deprecated](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/877) in favor of
+using subjects directly.
+
+**To update:**
+
+ * Replace `-publish` with `-subscribe:` and a `RACSubject`.
+ * Replace `-multicast:` with `-subscribe:` (for `RACSubject`) or
+   a [promise](#promises-instead-of-replaying) (for `RACReplaySubject`).
+ * Ensure that subscription occurs in the same place that the underlying signal
+   was being connected to.
+
+### Behavior subjects
+
+`RACBehaviorSubject` has never gotten much attention, in implementation or
+usage, so it has been
+[deprecated](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/878). Most of
+its semantics can be implemented with other classes or operators.
+
+**To update:**
+
+Replace uses of `RACBehaviorSubject` with `RACPromise` or a plain `RACSubject`.
 
 # 2.0
 

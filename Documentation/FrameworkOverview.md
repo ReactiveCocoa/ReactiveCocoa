@@ -51,6 +51,15 @@ Signals send three different types of events to their subscribers:
 The lifetime of a signal consists of any number of `next` events, followed by
 one `error` or `completed` event (but not both).
 
+Signals are _cold_ by default, meaning that they start doing work _each_ time
+a new subscription is added. This behavior is usually desirable, because it
+means that data will be freshly recalculated for each subscriber, but it can be
+problematic if the signal has side effects or the work is expensive (for
+example, sending a network request).
+
+To share the values of a signal without duplicating its side effects, use
+a [subject](#subjects) or a [promise](#promises).
+
 ### Subscription
 
 A **subscriber** is anything that is waiting or capable of waiting for events
@@ -81,10 +90,13 @@ blocks can simply send events to a shared subject instead. The subject can then
 be returned as a [RACSignal][], hiding the implementation detail of the
 callbacks.
 
-Some subjects offer additional behaviors as well. In particular,
-[RACReplaySubject][] can be used to buffer events for future
-[subscribers](#subscription), like when a network request finishes before
-anything is ready to handle the result.
+Subjects can also be used to share a signal's values without duplicating its
+side effects. Unlike signals (which start off "cold"), subjects are _hot_,
+meaning they don't perform any side effects upon [subscription](#subscription).
+
+Therefore, if multiple parties are interested in a signal's values — but its side
+effects shouldn't be repeated — you can forward the events to a subject (using
+[-subscribe:][RACSignal]), and have everything subscribe to the subject instead.
 
 ### Commands
 
@@ -101,24 +113,19 @@ On OS X, RAC adds a `rac_command` property to
 [NSButton][NSButton+RACCommandSupport] for setting up these behaviors
 automatically.
 
-### Connections
+## Promises
 
-A **connection**, represented by the [RACMulticastConnection][] class, is
-a [subscription](#subscription) that is shared between any number of
-subscribers.
+A **promise**, implemented as the [RACPromise][] class, represents work that
+should be performed (at most) once. This is useful for one-off tasks that should
+never be repeated, like deleting a file on disk.
 
-[Signals](#signals) are _cold_ by default, meaning that they start doing work
-_each_ time a new subscription is added. This behavior is usually desirable,
-because it means that data will be freshly recalculated for each subscriber, but
-it can be problematic if the signal has side effects or the work is expensive
-(for example, sending a network request).
+Promises can start _eagerly_ (immediately upon creation) or _lazily_ (only when
+the results are needed), and cannot be canceled once they begin executing.
 
-A connection is created through the `-publish` or `-multicast:` methods on
-[RACSignal][RACSignal+Operations], and ensures that only one underlying
-subscription is created, no matter how many times the connection is subscribed
-to. Once connected, the connection's signal is said to be _hot_, and the
-underlying subscription will remain active until _all_ subscriptions to the
-connection are [disposed](#disposables).
+In RAC, promises have a symbiotic relationship with [signals](#signals). Signals
+are used to deliver the results of a promise, and any signal can be converted
+into a promise. Consequently, which one to use should be determined entirely by
+the use case, and not by APIs.
 
 ## Sequences
 
@@ -198,6 +205,7 @@ On iOS, only queue hops from within RAC and your project will be captured (but
 the information is still valuable).
 
 [Design Guidelines]: DesignGuidelines.md
+[Futures and promises]: http://en.wikipedia.org/wiki/Futures_and_promises
 [Haskell]: http://www.haskell.org
 [lazy-seq]: http://clojure.github.com/clojure/clojure.core-api.html#clojure.core/lazy-seq
 [List]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Data-List.html
@@ -211,8 +219,7 @@ the information is still valuable).
 [RACDisposable]: ../ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
 [RACEvent]: ../ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h
 [RACExtensions]: ../RACExtensions
-[RACMulticastConnection]: ../ReactiveCocoaFramework/ReactiveCocoa/RACMulticastConnection.h
-[RACReplaySubject]: ../ReactiveCocoaFramework/ReactiveCocoa/RACReplaySubject.h
+[RACPromise]: ../ReactiveCocoaFramework/ReactiveCocoa/RACPromise.h
 [RACScheduler]: ../ReactiveCocoaFramework/ReactiveCocoa/RACScheduler.h
 [RACSequence]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSequence.h
 [RACSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h

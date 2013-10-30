@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "RACDeprecated.h"
 #import "RACSignal.h"
 
 /// The domain for errors originating in RACSignal operations.
@@ -22,6 +23,7 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 
 @class RACMulticastConnection;
 @class RACDisposable;
+@class RACPromise;
 @class RACScheduler;
 @class RACSequence;
 @class RACSubject;
@@ -433,35 +435,18 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// block.
 @property (nonatomic, strong, readonly) RACSequence *sequence;
 
-/// Creates and returns a multicast connection. This allows you to share a single
-/// subscription to the underlying signal.
-- (RACMulticastConnection *)publish;
-
-/// Creates and returns a multicast connection that pushes values into the given
-/// subject. This allows you to share a single subscription to the underlying
-/// signal.
-- (RACMulticastConnection *)multicast:(RACSubject *)subject;
-
-/// Multicasts the signal to a RACReplaySubject of unlimited capacity, and
-/// immediately connects to the resulting RACMulticastConnection.
+/// Creates a promise from the receiver.
 ///
-/// Returns the connected, multicasted signal.
-- (RACSignal *)replay;
-
-/// Multicasts the signal to a RACReplaySubject of capacity 1, and immediately
-/// connects to the resulting RACMulticastConnection.
+/// scheduler - The scheduler upon which the receiver should be subscribed to,
+///             and upon which the promise should deliver its results. Use the
+///             +immediateScheduler if you want subscription and delivery to
+///             happen immediately, regardless of what scheduler the caller is
+///             running upon. This argument must not be nil.
 ///
-/// Returns the connected, multicasted signal.
-- (RACSignal *)replayLast;
-
-/// Multicasts the signal to a RACReplaySubject of unlimited capacity, and
-/// lazily connects to the resulting RACMulticastConnection.
-///
-/// This means the returned signal will subscribe to the multicasted signal only
-/// when the former receives its first subscription.
-///
-/// Returns the lazily connected, multicasted signal.
-- (RACSignal *)replayLazily;
+/// Returns a promise that, once started, will subscribe to the receiver exactly
+/// once, and wait for `completed` or `error` without allowing any kind of
+/// cancellation.
+- (RACPromise *)promiseOnScheduler:(RACScheduler *)scheduler;
 
 /// Deduplicates subscriptions to the receiver, and shares results between them,
 /// ensuring that only one subscription is active at a time.
@@ -595,11 +580,21 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 
 @end
 
+@interface RACSignal (DeprecatedOperations)
+
+- (RACMulticastConnection *)publish RACDeprecated("Send events to a shared RACSubject instead");
+- (RACMulticastConnection *)multicast:(RACSubject *)subject RACDeprecated("Use -promiseOnScheduler: or send events to a shared RACSubject instead");
+- (RACSignal *)replay RACDeprecated("Use -promiseOnScheduler: instead");
+- (RACSignal *)replayLast RACDeprecated("Use -takeLast: and -promiseOnScheduler: instead");
+- (RACSignal *)replayLazily RACDeprecated("Use -promiseOnScheduler: instead");
+
+@end
+
 @interface RACSignal (UnavailableOperations)
 
 - (RACSignal *)windowWithStart:(RACSignal *)openSignal close:(RACSignal * (^)(RACSignal *start))closeBlock __attribute__((unavailable("See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/587")));
 - (RACSignal *)buffer:(NSUInteger)bufferCount __attribute__((unavailable("See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/587")));
-- (RACSignal *)let:(RACSignal * (^)(RACSignal *sharedSignal))letBlock __attribute__((unavailable("Use -publish instead")));
+- (RACSignal *)let:(RACSignal * (^)(RACSignal *sharedSignal))letBlock __attribute__((unavailable("Send events to a shared RACSubject instead")));
 + (RACSignal *)interval:(NSTimeInterval)interval __attribute__((unavailable("Use +interval:onScheduler: instead")));
 + (RACSignal *)interval:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway __attribute__((unavailable("Use +interval:onScheduler:withLeeway: instead")));
 - (RACSignal *)bufferWithTime:(NSTimeInterval)interval __attribute__((unavailable("Use -bufferWithTime:onScheduler: instead")));

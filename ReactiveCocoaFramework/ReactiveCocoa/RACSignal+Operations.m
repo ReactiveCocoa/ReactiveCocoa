@@ -16,6 +16,7 @@
 #import "RACEvent.h"
 #import "RACGroupedSignal.h"
 #import "RACMulticastConnection+Private.h"
+#import "RACPromise+Private.h"
 #import "RACReplaySubject.h"
 #import "RACScheduler+Private.h"
 #import "RACScheduler.h"
@@ -738,9 +739,9 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 - (RACSignal *)switchToLatest {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		RACMulticastConnection *connection = [self publish];
+		RACSubject *signals = [RACSubject subject];
 
-		RACDisposable *subscriptionDisposable = [[connection.signal
+		RACDisposable *subscriptionDisposable = [[signals
 			flattenMap:^(RACSignal *x) {
 				if (x == nil) return [RACSignal empty];
 
@@ -748,14 +749,14 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 				// -concat:[RACSignal never] prevents completion of the receiver from
 				// prematurely terminating the inner signal.
-				return [x takeUntil:[connection.signal concat:[RACSignal never]]];
+				return [x takeUntil:[signals concat:[RACSignal never]]];
 			}]
 			subscribe:subscriber];
 
-		RACDisposable *connectionDisposable = [connection connect];
+		RACDisposable *selfDisposable = [self subscribe:signals];
 		return [RACDisposable disposableWithBlock:^{
 			[subscriptionDisposable dispose];
-			[connectionDisposable dispose];
+			[selfDisposable dispose];
 		}];
 	}] setNameWithFormat:@"[%@] -switchToLatest", self.name];
 }
@@ -891,47 +892,17 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	return [[RACSignalSequence sequenceWithSignal:self] setNameWithFormat:@"[%@] -sequence", self.name];
 }
 
-- (RACMulticastConnection *)publish {
-	RACSubject *subject = [[RACSubject subject] setNameWithFormat:@"[%@] -publish", self.name];
-	RACMulticastConnection *connection = [self multicast:subject];
-	return connection;
-}
-
-- (RACMulticastConnection *)multicast:(RACSubject *)subject {
-	[subject setNameWithFormat:@"[%@] -multicast: %@", self.name, subject.name];
-	RACMulticastConnection *connection = [[RACMulticastConnection alloc] initWithSourceSignal:self subject:subject];
-	return connection;
-}
-
-- (RACSignal *)replay {
-	RACReplaySubject *subject = [[RACReplaySubject subject] setNameWithFormat:@"[%@] -replay", self.name];
-
-	RACMulticastConnection *connection = [self multicast:subject];
-	[connection connect];
-
-	return connection.signal;
-}
-
-- (RACSignal *)replayLast {
-	RACReplaySubject *subject = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"[%@] -replayLast", self.name];
-
-	RACMulticastConnection *connection = [self multicast:subject];
-	[connection connect];
-
-	return connection.signal;
-}
-
-- (RACSignal *)replayLazily {
-	RACMulticastConnection *connection = [self multicast:[RACReplaySubject subject]];
-	return [[RACSignal
-		defer:^{
-			[connection connect];
-			return connection.signal;
-		}]
-		setNameWithFormat:@"[%@] -replayLazily", self.name];
+- (RACPromise *)promiseOnScheduler:(RACScheduler *)scheduler {
+	return [[RACPromise alloc] initWithSignal:self scheduler:scheduler];
 }
 
 - (RACSignal *)shareWhileActive {
+	// Although RACReplaySubject is deprecated for consumers, we're going to use it
+	// internally for the foreseeable future. We just want to expose something
+	// higher level.
+	#pragma clang diagnostic push
+	#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 	NSRecursiveLock *lock = [[NSRecursiveLock alloc] init];
 	lock.name = @"com.github.ReactiveCocoa.shareWhileActive";
 
@@ -974,6 +945,8 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			}];
 		}]
 		setNameWithFormat:@"[%@] -shareWhileActive", self.name];
+
+	#pragma clang diagnostic pop
 }
 
 - (RACSignal *)timeout:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler {
@@ -1278,3 +1251,53 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 }
 
 @end
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
+@implementation RACSignal (DeprecatedOperations)
+
+- (RACMulticastConnection *)publish {
+	RACSubject *subject = [[RACSubject subject] setNameWithFormat:@"[%@] -publish", self.name];
+	RACMulticastConnection *connection = [self multicast:subject];
+	return connection;
+}
+
+- (RACMulticastConnection *)multicast:(RACSubject *)subject {
+	[subject setNameWithFormat:@"[%@] -multicast: %@", self.name, subject.name];
+	RACMulticastConnection *connection = [[RACMulticastConnection alloc] initWithSourceSignal:self subject:subject];
+	return connection;
+}
+
+- (RACSignal *)replay {
+	RACReplaySubject *subject = [[RACReplaySubject subject] setNameWithFormat:@"[%@] -replay", self.name];
+
+	RACMulticastConnection *connection = [self multicast:subject];
+	[connection connect];
+
+	return connection.signal;
+}
+
+- (RACSignal *)replayLast {
+	RACReplaySubject *subject = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"[%@] -replayLast", self.name];
+
+	RACMulticastConnection *connection = [self multicast:subject];
+	[connection connect];
+
+	return connection.signal;
+}
+
+- (RACSignal *)replayLazily {
+	RACMulticastConnection *connection = [self multicast:[RACReplaySubject subject]];
+	return [[RACSignal
+		defer:^{
+			[connection connect];
+			return connection.signal;
+		}]
+		setNameWithFormat:@"[%@] -replayLazily", self.name];
+}
+
+@end
+
+#pragma clang diagnostic pop

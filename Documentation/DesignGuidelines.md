@@ -33,10 +33,10 @@ resource for getting up to speed on the functionality provided by RAC.
  1. [Deliver signal events onto a known scheduler](#deliver-signal-events-onto-a-known-scheduler)
  1. [Switch schedulers in as few places as possible](#switch-schedulers-in-as-few-places-as-possible)
  1. [Make the side effects of a signal explicit](#make-the-side-effects-of-a-signal-explicit)
- 1. [Share the side effects of a signal by multicasting](#share-the-side-effects-of-a-signal-by-multicasting)
+ 1. [Share the side effects of a signal with a subject](#share-the-side-effects-of-a-signal-with-a-subject)
  1. [Debug streams by giving them names](#debug-streams-by-giving-them-names)
  1. [Avoid explicit subscriptions and disposal](#avoid-explicit-subscriptions-and-disposal)
- 1. [Avoid using subjects when possible](#avoid-using-subjects-when-possible)
+ 1. [Avoid manipulating subjects directly](#avoid-manipulating-subjects-directly)
 
 **[Implementing new operators](#implementing-new-operators)**
 
@@ -225,9 +225,8 @@ RACSignal *processedSignal = [[RACSignal
 }];
 ```
 
-To suppress this behavior and have multiple subscriptions to a signal execute
-its side effects only once, a signal can be 
-[multicasted](#share-the-side-effects-of-a-signal-by-multicasting).
+To suppress this behavior and execute a signal's side effects only once, send
+its events to a [subject](#share-the-side-effects-of-a-signal-with-a-subject).
 
 Side effects can be insidious and produce problems that are difficult to
 diagnose. For this reason it is suggested to 
@@ -442,7 +441,7 @@ RACSignal *bookkeepingSignal = [[[valueSignal
 RAC(self, value) = bookkeepingSignal;
 ```
 
-### Share the side effects of a signal by multicasting
+### Share the side effects of a signal with a subject
 
 [Side effects occur for each
 subscription](#side-effects-occur-for-each-subscription) by default, but there
@@ -450,9 +449,8 @@ are certain situations where side effects should only occur once – for exampl
 a network request typically should not be repeated when a new subscriber is
 added.
 
-The `-publish` and `-multicast:` operators of [RACSignal][RACSignal+Operations]
-allow a single subscription to be shared to any number of subscribers by using
-a [RACMulticastConnection][]:
+Instead of subscribing to the signal multiple times, forward the signal events
+to a [RACSubject][], and subscribe to the subject as many times as desired:
 
 ```objc
 // This signal starts a new request on each subscription.
@@ -473,19 +471,21 @@ RACSignal *networkRequest = [RACSignal createSignal:^(id<RACSubscriber> subscrib
     }];
 }];
 
-// Starts a single request, no matter how many subscriptions `connection.signal`
-// gets. This is equivalent to the -replay operator, or similar to
-// +startEagerlyWithScheduler:block:.
-RACMulticastConnection *connection = [networkRequest multicast:[RACReplaySubject subject]];
-[connection connect];
+// This subject will distribute the events of the `networkRequest` signal.
+RACSubject *results = [RACSubject subject];
 
-[connection.signal subscribeNext:^(id response) {
+// Set up any number of subscriptions to the subject.
+[results subscribeNext:^(id response) {
     NSLog(@"subscriber one: %@", response);
 }];
 
-[connection.signal subscribeNext:^(id response) {
+[results subscribeNext:^(id response) {
     NSLog(@"subscriber two: %@", response);
 }];
+
+// Then, actually begin the request (by subscribing once to the request signal),
+// and both subscribers will receive the same events.
+[networkRequest subscribe:results];
 ```
 
 ### Debug streams by giving them names
@@ -544,11 +544,12 @@ Generally, the use of built-in [stream][RACStream] and
 [signal][RACSignal+Operations] operators will lead to simpler and less
 error-prone code than replicating the same behaviors in a subscription callback.
 
-### Avoid using subjects when possible
+### Avoid manipulating subjects directly
 
 [Subjects][] are a powerful tool for bridging imperative code
-into the world of signals, but, as the "mutable variables" of RAC, they can
-quickly lead to complexity when overused.
+into the world of signals and [sharing side
+effects](#share-the-side-effects-of-a-signal-with-a-subject), but, as the
+"mutable variables" of RAC, they can quickly lead to complexity when overused.
 
 Since they can be manipulated from anywhere, at any time, subjects often break
 the linear flow of stream processing and make logic much harder to follow. They
@@ -563,15 +564,14 @@ Subjects can usually be replaced with other patterns from ReactiveCocoa:
  * Instead of delivering intermediate results to a subject, try combining the
    output of multiple signals with operators like
    [+combineLatest:][RACSignal+Operations] or [+zip:][RACStream].
- * Instead of using subjects to share results with multiple subscribers,
-   [multicast](#share-the-side-effects-of-a-signal-by-multicasting) a base
-   signal instead.
  * Instead of implementing an action method which simply controls a subject, use
    a [command][RACCommand] or
    [-rac_signalForSelector:][NSObject+RACSelectorSignal] instead.
 
-When subjects _are_ necessary, they should almost always be the "base" input
-for a signal chain, not used in the middle of one.
+However, subjects _are_ often necessary to [share the side effects of
+a signal](#share-the-side-effects-of-a-signal-with-a-subject). In that case, use
+`-subscribe:`, and avoid directly manipulating the subject with `-sendNext:`,
+`-sendError:`, and `-sendCompleted`.
 
 ## Implementing new operators
 
@@ -746,6 +746,7 @@ By contrast, this version will avoid a stack overflow:
 [RACSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h
 [RACSignal+Operations]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h
 [RACStream]: ../ReactiveCocoaFramework/ReactiveCocoa/RACStream.h
+[RACSubject]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubject.h
 [RACSubscriber]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubscriber.h
 [Subjects]: FrameworkOverview.md#subjects
 [Parallelizing Independent Work]: ../README.md#parallelizing-independent-work

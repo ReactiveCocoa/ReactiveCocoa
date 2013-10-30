@@ -9,7 +9,7 @@
 #import "RACPassthroughSubscriber.h"
 #import "RACCompoundDisposable.h"
 #import "RACSignal.h"
-#import "RACSignalProvider.h"
+#import "RACSignalProbeProvider.h"
 
 static const char *cleanedDTraceString(NSString *original) {
 	return [original stringByReplacingOccurrencesOfString:@"\\s+" withString:@" " options:NSRegularExpressionSearch range:NSMakeRange(0, original.length)].UTF8String;

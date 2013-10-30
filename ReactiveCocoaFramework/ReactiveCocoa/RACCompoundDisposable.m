@@ -7,7 +7,7 @@
 //
 
 #import "RACCompoundDisposable.h"
-#import "RACCompoundDisposableProvider.h"
+#import "RACCompoundDisposableProbeProvider.h"
 #import <libkern/OSAtomic.h>
 
 // The number of child disposables for which space will be reserved directly in

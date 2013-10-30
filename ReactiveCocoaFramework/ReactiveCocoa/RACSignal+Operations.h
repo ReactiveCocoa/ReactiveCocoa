@@ -13,11 +13,12 @@
 /// The domain for errors originating in RACSignal operations.
 extern NSString * const RACSignalErrorDomain;
 
-/// The error code used with -timeout:.
+/// The signal returned from -timeout:onScheduler: did not terminate before the
+/// timeout interval elapsed.
 extern const NSInteger RACSignalErrorTimedOut;
 
-/// The error code used when a value passed into +switch:cases:default: does not
-/// match any of the cases, and no default was given.
+/// A value passed into +switch:cases:default: does not match any of the cases,
+/// and no default was given.
 extern const NSInteger RACSignalErrorNoMatchingCase;
 
 @class RACMulticastConnection;

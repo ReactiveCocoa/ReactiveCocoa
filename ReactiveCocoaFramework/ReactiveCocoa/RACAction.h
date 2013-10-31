@@ -7,13 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
-
-@class RACSignal;
+#import "RACSignal.h"
 
 /// Represents a UI action which will subscribe to a signal or run a block when
 /// activated.
 ///
-/// Lazy signals can be turned into actions using -[RACSignal action].
+/// To create an action, invoke -[RACSignal action] on a lazy signal.
 @interface RACAction : NSObject
 
 /// A signal of whether this action is currently executing.
@@ -55,5 +54,15 @@
 - (RACSignal *)deferred;
 
 - (id)init __attribute__((unavailable("Use -[RACSignal action] instead")));
+
+@end
+
+@interface RACSignal (RACActionAdditions)
+
+/// Creates an action from a signal.
+///
+/// Returns a RACAction that will subscribe to the receiver on the main thread
+/// when executed.
+- (RACAction *)action;
 
 @end

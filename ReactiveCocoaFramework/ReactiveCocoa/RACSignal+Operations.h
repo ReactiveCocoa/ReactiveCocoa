@@ -435,25 +435,6 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// block.
 @property (nonatomic, strong, readonly) RACSequence *sequence;
 
-/// Creates a promise from the receiver.
-///
-/// scheduler - The scheduler upon which the receiver should be subscribed to,
-///             and upon which the promise should deliver its results. Use the
-///             +immediateScheduler if you want subscription and delivery to
-///             happen immediately, regardless of what scheduler the caller is
-///             running upon. This argument must not be nil.
-///
-/// Returns a promise that, once started, will subscribe to the receiver exactly
-/// once, and wait for `completed` or `error` without allowing any kind of
-/// cancellation.
-- (RACPromise *)promiseOnScheduler:(RACScheduler *)scheduler;
-
-/// Creates a UI action from the receiver.
-///
-/// Returns an action that will subscribe to the receiver on the main thread
-/// when executed.
-- (RACAction *)action;
-
 /// Deduplicates subscriptions to the receiver, and shares results between them,
 /// ensuring that only one subscription is active at a time.
 ///

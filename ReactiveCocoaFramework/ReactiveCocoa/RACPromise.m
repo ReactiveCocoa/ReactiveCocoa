@@ -7,7 +7,6 @@
 //
 
 #import "RACPromise.h"
-#import "RACPromise+Private.h"
 #import "RACReplaySubject.h"
 #import "RACScheduler.h"
 #import "RACSignal+Operations.h"
@@ -108,6 +107,14 @@
 			return [self start];
 		}]
 		setNameWithFormat:@"[%@] -deferred", self.results.name];
+}
+
+@end
+
+@implementation RACSignal (RACPromiseAdditions)
+
+- (RACPromise *)promiseOnScheduler:(RACScheduler *)scheduler {
+	return [[RACPromise alloc] initWithSignal:self scheduler:scheduler];
 }
 
 @end

@@ -7,7 +7,6 @@
 //
 
 #import "RACAction.h"
-#import "RACAction+Private.h"
 #import "RACReplaySubject.h"
 #import "RACScheduler.h"
 #import "RACSignal+Operations.h"
@@ -107,6 +106,14 @@
 
 - (RACSignal *)deferred {
 	return self.sharedSignal;
+}
+
+@end
+
+@implementation RACSignal (RACActionAdditions)
+
+- (RACAction *)action {
+	return [[RACAction alloc] initWithSignal:self];
 }
 
 @end

@@ -9,6 +9,7 @@
 #import "RACControlActionExamples.h"
 
 #import "RACAction.h"
+#import "RACSignal+Operations.h"
 #import "RACUnit.h"
 
 NSString * const RACControlActionExamples = @"RACControlActionExamples";
@@ -39,10 +40,12 @@ sharedExamplesFor(RACControlActionExamples, ^(NSDictionary *data) {
 		activate = [data[RACControlActionExampleActivateBlock] copy];
 
 		executed = NO;
-		action = [RACAction actionWithBlock:^(NSError **error) {
-			executed = YES;
-			return YES;
-		}];
+		action = [[[RACSignal
+			empty]
+			doCompleted:^{
+				executed = YES;
+			}]
+			action];
 
 		control.rac_action = action;
 		expect(control.rac_action).to.beIdenticalTo(action);
@@ -57,10 +60,12 @@ sharedExamplesFor(RACControlActionExamples, ^(NSDictionary *data) {
 	
 	it(@"should overwrite an existing action when setting a new one", ^{
 		__block BOOL secondExecuted = NO;
-		RACAction *secondAction = [RACAction actionWithBlock:^(NSError **error) {
-			secondExecuted = YES;
-			return YES;
-		}];
+		RACAction *secondAction = [[[RACSignal
+			empty]
+			doCompleted:^{
+				secondExecuted = YES;
+			}]
+			action];
 		
 		control.rac_action = secondAction;
 		expect(control.rac_action).to.beIdenticalTo(secondAction);

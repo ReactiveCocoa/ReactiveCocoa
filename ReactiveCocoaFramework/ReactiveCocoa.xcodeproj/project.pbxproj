@@ -935,7 +935,6 @@
 		D07E9489179DD21E00A6F609 /* RACStream+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACStream+Private.h"; sourceTree = "<group>"; };
 		D07EBA4318229196009EA5CC /* RACAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACAction.h; sourceTree = "<group>"; };
 		D07EBA4418229196009EA5CC /* RACAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACAction.m; sourceTree = "<group>"; };
-		D07EBA4918229224009EA5CC /* RACAction+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACAction+Private.h"; sourceTree = "<group>"; };
 		D0870C6E16884A0600D0E11D /* RACBacktraceSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACBacktraceSpec.m; sourceTree = "<group>"; };
 		D090767D17FBEADE00EB087A /* NSURLConnection+RACSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURLConnection+RACSupport.h"; sourceTree = "<group>"; };
 		D090767E17FBEADE00EB087A /* NSURLConnection+RACSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURLConnection+RACSupport.m"; sourceTree = "<group>"; };
@@ -985,7 +984,6 @@
 		D0DFBCCD15DD6D40009DADB3 /* RACBacktrace.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACBacktrace.m; sourceTree = "<group>"; };
 		D0E3632B1811305B007C985A /* RACPromise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACPromise.h; sourceTree = "<group>"; };
 		D0E3632C1811305B007C985A /* RACPromise.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACPromise.m; sourceTree = "<group>"; };
-		D0E363371811368B007C985A /* RACPromise+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACPromise+Private.h"; sourceTree = "<group>"; };
 		D0E967571641EF9C00FCFF06 /* NSArray+RACSequenceAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+RACSequenceAdditions.h"; sourceTree = "<group>"; };
 		D0E967581641EF9C00FCFF06 /* NSArray+RACSequenceAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+RACSequenceAdditions.m"; sourceTree = "<group>"; };
 		D0E967591641EF9C00FCFF06 /* NSDictionary+RACSequenceAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+RACSequenceAdditions.h"; sourceTree = "<group>"; };
@@ -1647,7 +1645,6 @@
 			isa = PBXGroup;
 			children = (
 				D0E3632B1811305B007C985A /* RACPromise.h */,
-				D0E363371811368B007C985A /* RACPromise+Private.h */,
 				D0E3632C1811305B007C985A /* RACPromise.m */,
 			);
 			name = Promises;
@@ -1779,7 +1776,6 @@
 			isa = PBXGroup;
 			children = (
 				D07EBA4318229196009EA5CC /* RACAction.h */,
-				D07EBA4918229224009EA5CC /* RACAction+Private.h */,
 				D07EBA4418229196009EA5CC /* RACAction.m */,
 				882093E91501E6EE00796685 /* RACCommand.h */,
 				882093EA1501E6EE00796685 /* RACCommand.m */,

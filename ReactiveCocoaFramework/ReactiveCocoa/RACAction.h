@@ -31,20 +31,6 @@
 /// This signal will send its values on the main thread.
 @property (nonatomic, strong, readonly) RACSignal *errors;
 
-/// Creates an action that will invoke the given block.
-///
-/// Under the hood, this creates a signal which will perform the work of
-/// `actionBlock` on the main thread. Whenever the receiver is executed, that
-/// signal will be subscribed to.
-///
-/// actionBlock - The block to run on the main thread. The block should return
-///               whether the action was successful, and set the provided
-///               `NSError **` parameter upon failure. This argument must not be
-///               nil.
-///
-/// Returns a new action.
-+ (instancetype)actionWithBlock:(BOOL (^)(NSError **))actionBlock;
-
 /// Asynchronously executes the receiver from the main thread.
 ///
 /// If the receiver is already executing, nothing happens.
@@ -68,6 +54,6 @@
 /// immediately, and future events will be sent on their originating thread.
 - (RACSignal *)deferred;
 
-- (id)init __attribute__((unavailable("Use +actionWithBlock: or -[RACSignal action] instead")));
+- (id)init __attribute__((unavailable("Use -[RACSignal action] instead")));
 
 @end

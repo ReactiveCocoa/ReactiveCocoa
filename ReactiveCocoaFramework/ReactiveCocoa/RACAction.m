@@ -94,22 +94,6 @@
 	return self;
 }
 
-+ (instancetype)actionWithBlock:(BOOL (^)(NSError **))actionBlock {
-	RACSignal *signal = [[RACSignal
-		defer:^{
-			NSError *error = nil;
-			BOOL success = actionBlock(&error);
-			if (success) {
-				return [RACSignal empty];
-			} else {
-				return [RACSignal error:error];
-			}
-		}]
-		setNameWithFormat:@"+actionWithBlock:"];
-	
-	return [[self alloc] initWithSignal:signal];
-}
-
 - (void)dealloc {
 	[_errors sendCompleted];
 	[_executing sendCompleted];

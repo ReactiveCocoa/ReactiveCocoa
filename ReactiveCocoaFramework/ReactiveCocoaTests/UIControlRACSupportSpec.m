@@ -14,8 +14,8 @@
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSignal.h"
-#import "UIControl+RACSignalSupport.h"
-#import "UISlider+RACSignalSupport.h"
+#import "UIControl+RACSupport.h"
+#import "UISlider+RACSupport.h"
 
 SpecBegin(UIControlRACSupport)
 

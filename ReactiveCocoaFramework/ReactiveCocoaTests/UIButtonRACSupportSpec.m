@@ -9,7 +9,7 @@
 #import "RACControlCommandExamples.h"
 #import "RACTestUIButton.h"
 
-#import "UIButton+RACCommandSupport.h"
+#import "UIButton+RACSupport.h"
 #import "RACCommand.h"
 #import "RACDisposable.h"
 

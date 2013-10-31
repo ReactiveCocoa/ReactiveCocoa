@@ -8,7 +8,7 @@
 
 #import "RACControlCommandExamples.h"
 
-#import "UIBarButtonItem+RACCommandSupport.h"
+#import "UIBarButtonItem+RACSupport.h"
 #import "RACCommand.h"
 #import "RACDisposable.h"
 

@@ -20,14 +20,15 @@ extern const NSInteger RACSignalErrorTimedOut;
 /// match any of the cases, and no default was given.
 extern const NSInteger RACSignalErrorNoMatchingCase;
 
-@class RACMulticastConnection;
+@class RACAction;
+@class RACCommand;
 @class RACDisposable;
+@class RACMulticastConnection;
 @class RACPromise;
 @class RACScheduler;
 @class RACSequence;
 @class RACSubject;
 @class RACTuple;
-@class RACCommand;
 @protocol RACSubscriber;
 
 @interface RACSignal (Operations)
@@ -446,6 +447,12 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// once, and wait for `completed` or `error` without allowing any kind of
 /// cancellation.
 - (RACPromise *)promiseOnScheduler:(RACScheduler *)scheduler;
+
+/// Creates a UI action from the receiver.
+///
+/// Returns an action that will subscribe to the receiver on the main thread
+/// when executed.
+- (RACAction *)action;
 
 /// Deduplicates subscriptions to the receiver, and shares results between them,
 /// ensuring that only one subscription is active at a time.

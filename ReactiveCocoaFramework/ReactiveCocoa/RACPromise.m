@@ -50,6 +50,11 @@
 
 #pragma mark Lifecycle
 
+- (id)init {
+	[self doesNotRecognizeSelector:_cmd];
+	return nil;
+}
+
 - (id)initWithSignal:(RACSignal *)signal scheduler:(RACScheduler *)scheduler {
 	NSCParameterAssert(signal != nil);
 	NSCParameterAssert(scheduler != nil);

@@ -7,7 +7,15 @@
 //
 
 #import "RACAction.h"
+#import "RACAction+Private.h"
 
 @implementation RACAction
+
+#pragma mark Lifecycle
+
+- (id)init {
+	[self doesNotRecognizeSelector:_cmd];
+	return nil;
+}
 
 @end

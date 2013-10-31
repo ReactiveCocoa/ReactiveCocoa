@@ -42,4 +42,6 @@
 /// Invokes -start when the returned signal is first subscribed to.
 - (RACSignal *)deferred;
 
+- (id)init __attribute__((unavailable("Use +promiseWithScheduler:block: or -[RACSignal promiseOnScheduler:] instead")));
+
 @end

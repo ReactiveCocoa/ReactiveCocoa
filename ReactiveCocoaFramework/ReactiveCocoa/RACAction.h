@@ -68,4 +68,6 @@
 /// immediately, and future events will be sent on their originating thread.
 - (RACSignal *)deferred;
 
+- (id)init __attribute__((unavailable("Use +actionWithBlock: or -[RACSignal action] instead")));
+
 @end

@@ -10,7 +10,7 @@
 #import "EXTScope.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACDescription.h"
-#import "RACCommand.h"
+#import "RACAction+Private.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACEvent.h"
@@ -894,6 +894,10 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 - (RACPromise *)promiseOnScheduler:(RACScheduler *)scheduler {
 	return [[RACPromise alloc] initWithSignal:self scheduler:scheduler];
+}
+
+- (RACAction *)action {
+	return [[RACAction alloc] initWithSignal:self];
 }
 
 - (RACSignal *)shareWhileActive {

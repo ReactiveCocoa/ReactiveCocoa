@@ -8,9 +8,21 @@
 
 #import <UIKit/UIKit.h>
 
+@class RACAction;
 @class RACCommand;
 
 @interface UIRefreshControl (RACSupport)
+
+/// Sets the control's target and action using a `RACAction`.
+///
+/// When this refresh control is activated by the user, the action will be
+/// executed. When the action completes or errors, -endRefreshing will be
+/// invoked.
+@property (nonatomic, strong) RACAction *rac_action;
+
+@end
+
+@interface UIRefreshControl (RACSupportDeprecated)
 
 /// Manipulate the RACCommand property associated with this refresh control.
 ///

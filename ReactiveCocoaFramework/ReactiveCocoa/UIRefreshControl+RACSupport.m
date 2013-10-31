@@ -9,6 +9,7 @@
 #import "UIRefreshControl+RACSupport.h"
 #import "EXTKeyPathCoding.h"
 #import "NSObject+RACSelectorSignal.h"
+#import "RACAction.h"
 #import "RACDisposable.h"
 #import "RACCommand.h"
 #import "RACCompoundDisposable.h"
@@ -17,10 +18,44 @@
 #import "UIControl+RACSupport.h"
 #import <objc/runtime.h>
 
+@implementation UIRefreshControl (RACSupport)
+
+- (RACAction *)rac_action {
+	return objc_getAssociatedObject(self, @selector(rac_action));
+}
+
+- (void)setRac_action:(RACAction *)action {
+	RACAction *previousAction = self.rac_action;
+	if (action == previousAction) return;
+
+	objc_setAssociatedObject(self, @selector(rac_action), action, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+
+	if (action == nil) {
+		[self removeTarget:self action:@selector(rac_executeAction:) forControlEvents:UIControlEventValueChanged];
+	} else {
+		[self addTarget:self action:@selector(rac_executeAction:) forControlEvents:UIControlEventValueChanged];
+	}
+}
+
+- (void)rac_executeAction:(id)sender {
+	[[[self.rac_action
+		deferred]
+		catchTo:[RACSignal empty]]
+		subscribeCompleted:^{
+			[self endRefreshing];
+		}];
+}
+
+@end
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
 static void *UIRefreshControlRACCommandKey = &UIRefreshControlRACCommandKey;
 static void *UIRefreshControlDisposableKey = &UIRefreshControlDisposableKey;
 
-@implementation UIRefreshControl (RACSupport)
+@implementation UIRefreshControl (RACSupportDeprecated)
 
 - (RACCommand *)rac_command {
 	return objc_getAssociatedObject(self, UIRefreshControlRACCommandKey);
@@ -57,3 +92,5 @@ static void *UIRefreshControlDisposableKey = &UIRefreshControlDisposableKey;
 }
 
 @end
+
+#pragma clang diagnostic pop

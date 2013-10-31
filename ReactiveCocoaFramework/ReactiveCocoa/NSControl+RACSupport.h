@@ -16,6 +16,9 @@
 @interface NSControl (RACSupport)
 
 /// Sets the control's target and action using a `RACAction`.
+///
+/// Whenever the control is activated, the -execute: method of the set action
+/// will be invoked.
 @property (nonatomic, strong) RACAction *rac_action;
 
 /// Whether the receiver is enabled.
@@ -38,6 +41,6 @@
 
 @interface NSControl (RACSupportDeprecated)
 
-@property (nonatomic, strong) RACCommand *rac_command RACDeprecated("Use -rac_action and -rac_enabled instead");
+@property (nonatomic, strong) RACCommand *rac_command RACDeprecated("Use `rac_action` and `rac_enabled` instead");
 
 @end

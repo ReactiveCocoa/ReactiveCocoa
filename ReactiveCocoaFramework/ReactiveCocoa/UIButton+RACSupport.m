@@ -14,10 +14,37 @@
 #import "RACSignal+Operations.h"
 #import <objc/runtime.h>
 
+@implementation UIButton (RACSupport)
+
+- (RACAction *)rac_action {
+	return objc_getAssociatedObject(self, @selector(rac_action));
+}
+
+- (void)setRac_action:(RACAction *)action {
+	RACAction *previousAction = self.rac_action;
+	if (action == previousAction) return;
+
+	if (previousAction != nil) {
+		[self removeTarget:previousAction action:@selector(execute:) forControlEvents:UIControlEventTouchUpInside];
+	}
+
+	objc_setAssociatedObject(self, @selector(rac_action), action, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+
+	if (action != nil) {
+		[self addTarget:action action:@selector(execute:) forControlEvents:UIControlEventTouchUpInside];
+	}
+}
+
+@end
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
 static void *UIButtonRACCommandKey = &UIButtonRACCommandKey;
 static void *UIButtonEnabledDisposableKey = &UIButtonEnabledDisposableKey;
 
-@implementation UIButton (RACSupport)
+@implementation UIButton (RACSupportDeprecated)
 
 - (RACCommand *)rac_command {
 	return objc_getAssociatedObject(self, UIButtonRACCommandKey);
@@ -55,3 +82,5 @@ static void *UIButtonEnabledDisposableKey = &UIButtonEnabledDisposableKey;
 }
 
 @end
+
+#pragma clang diagnostic pop

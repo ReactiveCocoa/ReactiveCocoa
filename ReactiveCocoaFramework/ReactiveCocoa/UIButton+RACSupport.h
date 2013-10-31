@@ -7,14 +7,23 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "RACDeprecated.h"
 
+@class RACAction;
 @class RACCommand;
 
 @interface UIButton (RACSupport)
 
-/// Sets the button's command. When the button is clicked, the command is
-/// executed with the sender of the event. The button's enabledness is bound
-/// to the command's `canExecute`.
-@property (nonatomic, strong) RACCommand *rac_command;
+/// Sets the button's target and action using a `RACAction`.
+///
+/// Whenever the button is tapped, the -execute: method of the set action
+/// will be invoked.
+@property (nonatomic, strong) RACAction *rac_action;
+
+@end
+
+@interface UIButton (RACSupportDeprecated)
+
+@property (nonatomic, strong) RACCommand *rac_command RACDeprecated("Use `rac_action` instead");
 
 @end

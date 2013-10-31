@@ -297,6 +297,8 @@
 		D028DB7E179E591E00D1042F /* RACSerialDisposableSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D028DB7C179E591E00D1042F /* RACSerialDisposableSpec.m */; };
 		D028DB87179E616700D1042F /* UITableViewCell+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D028DB85179E616700D1042F /* UITableViewCell+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D028DB88179E616700D1042F /* UITableViewCell+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D028DB86179E616700D1042F /* UITableViewCell+RACSupport.m */; };
+		D02C7C7F1822CFCD00CB20D6 /* RACAction.h in Headers */ = {isa = PBXBuildFile; fileRef = D07EBA4318229196009EA5CC /* RACAction.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D02C7C841822CFD200CB20D6 /* RACAction.m in Sources */ = {isa = PBXBuildFile; fileRef = D07EBA4418229196009EA5CC /* RACAction.m */; };
 		D0307EDF1731AAE100D83211 /* RACTupleSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D0307EDC1731AAE100D83211 /* RACTupleSequence.m */; };
 		D0307EE01731AAE100D83211 /* RACTupleSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D0307EDC1731AAE100D83211 /* RACTupleSequence.m */; };
 		D03525D417E2EBC90099CBAB /* RACSignalProvider.d in Sources */ = {isa = PBXBuildFile; fileRef = D03525D317E2EBC90099CBAB /* RACSignalProvider.d */; };
@@ -1886,6 +1888,7 @@
 				D05AD3DA17F2DB1D0080895B /* RACGroupedSignal.h in Headers */,
 				D05AD41617F2DB6A0080895B /* NSOrderedSet+RACSequenceAdditions.h in Headers */,
 				D05AD3E617F2DB230080895B /* RACCompoundDisposable.h in Headers */,
+				D02C7C7F1822CFCD00CB20D6 /* RACAction.h in Headers */,
 				D05AD40B17F2DB6A0080895B /* NSDictionary+RACSequenceAdditions.h in Headers */,
 				D05AD3D617F2DB1D0080895B /* RACEvent.h in Headers */,
 				D05AD3D017F2DB100080895B /* RACStream.h in Headers */,
@@ -2613,6 +2616,7 @@
 				D05AD42B17F2DB840080895B /* NSObject+RACKVOWrapper.m in Sources */,
 				D05AD3E117F2DB1D0080895B /* RACBehaviorSubject.m in Sources */,
 				D05AD3D717F2DB1D0080895B /* RACEvent.m in Sources */,
+				D02C7C841822CFD200CB20D6 /* RACAction.m in Sources */,
 				D05AD3C117F2DB100080895B /* RACPassthroughSubscriber.m in Sources */,
 				D0E363321811305B007C985A /* RACPromise.m in Sources */,
 				D05AD3C617F2DB100080895B /* RACTuple.m in Sources */,

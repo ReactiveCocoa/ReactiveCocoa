@@ -16,8 +16,6 @@
 #import "RACSubscriber.h"
 #import <objc/runtime.h>
 
-static void *NSControlEnabledDisposableKey = &NSControlEnabledDisposableKey;
-
 @implementation NSControl (RACSupport)
 
 - (RACAction *)rac_action {
@@ -33,23 +31,12 @@ static void *NSControlEnabledDisposableKey = &NSControlEnabledDisposableKey;
 	}
 }
 
-- (RACSignal *)rac_enabled {
-	return objc_getAssociatedObject(self, @selector(rac_enabled));
+- (BOOL)rac_isEnabled {
+	return [self isEnabled];
 }
 
-- (void)setRac_enabled:(RACSignal *)enabled {
-	// Tear down any previous binding before setting up our new one, or else we
-	// might get assertion failures.
-	[objc_getAssociatedObject(self, NSControlEnabledDisposableKey) dispose];
-	objc_setAssociatedObject(self, @selector(rac_enabled), enabled, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-
-	if (enabled == nil) {
-		self.enabled = YES;
-		return;
-	}
-
-	RACDisposable *disposable = [enabled setKeyPath:@"enabled" onObject:self];
-	objc_setAssociatedObject(self, NSControlEnabledDisposableKey, disposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+- (void)setRac_enabled:(BOOL)value {
+	self.enabled = value;
 }
 
 - (RACSignal *)rac_textSignal {
@@ -79,6 +66,7 @@ static void *NSControlEnabledDisposableKey = &NSControlEnabledDisposableKey;
 #pragma clang diagnostic ignored "-Wdeprecated-implementations"
 
 static void *NSControlRACCommandKey = &NSControlRACCommandKey;
+static void *NSControlEnabledDisposableKey = &NSControlEnabledDisposableKey;
 
 @implementation NSControl (RACSupportDeprecated)
 

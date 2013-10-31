@@ -1,0 +1,273 @@
+//
+//  RACActionSpec.m
+//  ReactiveCocoa
+//
+//  Created by Justin Spahr-Summers on 2013-10-31.
+//  Copyright (c) 2013 GitHub, Inc. All rights reserved.
+//
+
+#import "RACAction.h"
+#import "RACScheduler.h"
+#import "RACSignal+Operations.h"
+#import "RACSubject.h"
+#import "RACSubscriber.h"
+
+SpecBegin(RACAction)
+
+NSError *testError = [NSError errorWithDomain:@"foo" code:100 userInfo:nil];
+
+describe(@"with a synchronous signal", ^{
+	__block NSUInteger subscriptionCount;
+	__block RACAction *action;
+
+	beforeEach(^{
+		subscriptionCount = 0;
+		action = [[RACSignal
+			createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+				expect(RACScheduler.currentScheduler).to.equal(RACScheduler.mainThreadScheduler);
+
+				[subscriber sendNext:@(++subscriptionCount)];
+				[subscriber sendCompleted];
+				return nil;
+			}]
+			action];
+
+		expect(action).notTo.beNil();
+	});
+
+	it(@"should subscribe on the main thread", ^{
+		RACSignal *deferred = [action deferred];
+		expect(deferred).notTo.beNil();
+		expect(subscriptionCount).to.equal(0);
+
+		__block BOOL success = NO;
+		[[RACScheduler scheduler] schedule:^{
+			[deferred subscribeCompleted:^{
+				success = YES;
+			}];
+		}];
+
+		expect(success).to.beFalsy();
+		expect(success).will.beTruthy();
+		expect(subscriptionCount).to.equal(1);
+	});
+
+	it(@"should execute asynchronously on the main thread", ^{
+		[[RACScheduler scheduler] schedule:^{
+			[action execute:nil];
+		}];
+
+		expect(subscriptionCount).to.equal(0);
+		expect(subscriptionCount).will.equal(1);
+	});
+
+	it(@"should execute multiple times", ^{
+		RACSignal *deferred = [action deferred];
+		expect([deferred asynchronousFirstOrDefault:nil success:NULL error:NULL]).to.equal(@1);
+		expect([deferred asynchronousFirstOrDefault:nil success:NULL error:NULL]).to.equal(@2);
+		expect([deferred asynchronousFirstOrDefault:nil success:NULL error:NULL]).to.equal(@3);
+	});
+
+	it(@"should update executing status", ^{
+		NSMutableArray *values = [[NSMutableArray alloc] init];
+		[action.executing subscribeNext:^(NSNumber *executing) {
+			[values addObject:executing];
+		}];
+
+		expect(values).to.equal((@[ @NO ]));
+		
+		[action execute:nil];
+		expect(values).will.equal((@[ @NO, @YES, @NO ]));
+	});
+
+	it(@"should immediately send YES on executing while running", ^{
+		BOOL success = [[[[action
+			deferred]
+			initially:^{
+				expect([action.executing first]).to.equal(@NO);
+			}]
+			doNext:^(id _) {
+				expect([action.executing first]).to.equal(@YES);
+			}]
+			asynchronouslyWaitUntilCompleted:NULL];
+
+		expect(success).to.beTruthy();
+		expect([action.executing first]).will.equal(@NO);
+	});
+});
+
+describe(@"with a long-running signal", ^{
+	__block NSUInteger subscriptionCount;
+	__block RACSubject *subject;
+	__block RACAction *action;
+
+	beforeEach(^{
+		subscriptionCount = 0;
+		subject = [RACSubject subject];
+
+		action = [[RACSignal
+			defer:^{
+				expect(RACScheduler.currentScheduler).to.equal(RACScheduler.mainThreadScheduler);
+
+				subscriptionCount++;
+				return subject;
+			}]
+			action];
+
+		expect(action).notTo.beNil();
+	});
+
+	it(@"should deliver errors on the main thread", ^{
+		[action execute:nil];
+
+		expect(subscriptionCount).will.equal(1);
+		expect([action.executing first]).to.equal(@YES);
+
+		__block NSError *receivedError = nil;
+		[action.errors subscribeNext:^(NSError *e) {
+			expect(RACScheduler.currentScheduler).to.equal(RACScheduler.mainThreadScheduler);
+
+			receivedError = e;
+		}];
+
+		[[RACScheduler scheduler] schedule:^{
+			[subject sendError:testError];
+		}];
+
+		expect(receivedError).will.equal(testError);
+		expect([action.executing first]).will.equal(@NO);
+	});
+
+	it(@"should deduplicate simultaneous executions", ^{
+		RACSignal *deferred = [action deferred];
+		expect(deferred).notTo.beNil();
+
+		NSMutableArray *firstValues = [[NSMutableArray alloc] init];
+		__block BOOL firstDone = NO;
+		[deferred subscribeNext:^(id x) {
+			[firstValues addObject:x];
+		} completed:^{
+			firstDone = YES;
+		}];
+
+		expect(subscriptionCount).will.equal(1);
+		expect([action.executing first]).to.equal(@YES);
+		expect(firstValues).to.equal((@[]));
+
+		[subject sendNext:@"foo"];
+		[subject sendNext:@"bar"];
+		expect(firstValues).to.equal((@[ @"foo", @"bar" ]));
+
+		NSMutableArray *secondValues = [[NSMutableArray alloc] init];
+		__block BOOL secondDone = NO;
+		[deferred subscribeNext:^(id x) {
+			[secondValues addObject:x];
+		} completed:^{
+			secondDone = YES;
+		}];
+
+		expect(secondValues).to.equal(firstValues);
+		expect(subscriptionCount).to.equal(1);
+		expect([action.executing first]).to.equal(@YES);
+
+		[subject sendNext:@"buzz"];
+		expect(firstValues).to.equal((@[ @"foo", @"bar", @"buzz" ]));
+		expect(secondValues).to.equal(firstValues);
+
+		expect(firstDone).to.beFalsy();
+		expect(secondDone).to.beFalsy();
+
+		[subject sendCompleted];
+		expect(firstDone).to.beTruthy();
+		expect(secondDone).to.beTruthy();
+
+		expect([action.executing first]).will.equal(@NO);
+		expect(subscriptionCount).to.equal(1);
+	});
+});
+
+describe(@"with a block", ^{
+	__block NSUInteger executionCount;
+	__block BOOL shouldSucceed;
+
+	__block RACAction *action;
+
+	beforeEach(^{
+		executionCount = 0;
+		shouldSucceed = YES;
+
+		action = [RACAction actionWithBlock:^(NSError **error) {
+			expect(RACScheduler.currentScheduler).to.equal(RACScheduler.mainThreadScheduler);
+
+			executionCount++;
+			if (shouldSucceed) {
+				return YES;
+			} else {
+				if (error != NULL) *error = testError;
+				return NO;
+			}
+		}];
+
+		expect(action).notTo.beNil();
+	});
+
+	it(@"should run on the main thread when deferred", ^{
+		RACSignal *deferred = [action deferred];
+		expect(deferred).notTo.beNil();
+		expect(executionCount).to.equal(0);
+
+		__block BOOL success = NO;
+		[[RACScheduler scheduler] schedule:^{
+			[deferred subscribeCompleted:^{
+				success = YES;
+			}];
+		}];
+
+		expect(success).to.beFalsy();
+		expect(success).will.beTruthy();
+		expect(executionCount).to.equal(1);
+	});
+
+	it(@"should run on the main thread asynchronously", ^{
+		[[RACScheduler scheduler] schedule:^{
+			[action execute:nil];
+		}];
+
+		expect(executionCount).to.equal(0);
+		expect(executionCount).will.equal(1);
+	});
+
+	it(@"should execute multiple times", ^{
+		RACSignal *deferred = [action deferred];
+
+		expect([deferred asynchronouslyWaitUntilCompleted:NULL]).to.beTruthy();
+		expect(executionCount).to.equal(1);
+
+		expect([deferred asynchronouslyWaitUntilCompleted:NULL]).to.beTruthy();
+		expect(executionCount).to.equal(2);
+
+		expect([deferred asynchronouslyWaitUntilCompleted:NULL]).to.beTruthy();
+		expect(executionCount).to.equal(3);
+	});
+
+	it(@"should deliver errors on the main thread", ^{
+		shouldSucceed = NO;
+
+		RACSignal *deferred = [action deferred];
+		expect(deferred).notTo.beNil();
+		expect(executionCount).to.equal(0);
+
+		__block NSError *receivedError = nil;
+		[[RACScheduler scheduler] schedule:^{
+			[deferred subscribeError:^(NSError *e) {
+				receivedError = e;
+			}];
+		}];
+
+		expect(receivedError).to.beNil();
+		expect(receivedError).will.equal(testError);
+		expect(executionCount).to.equal(1);
+	});
+});
+
+SpecEnd

@@ -299,6 +299,8 @@
 		D02C7C841822CFD200CB20D6 /* RACAction.m in Sources */ = {isa = PBXBuildFile; fileRef = D07EBA4418229196009EA5CC /* RACAction.m */; };
 		D02C7C901822D43000CB20D6 /* RACSchedulerSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D02C7C8F1822D43000CB20D6 /* RACSchedulerSpec.m */; };
 		D02C7C911822D43000CB20D6 /* RACSchedulerSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D02C7C8F1822D43000CB20D6 /* RACSchedulerSpec.m */; };
+		D02C7C931822D44400CB20D6 /* RACActionSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D02C7C921822D44400CB20D6 /* RACActionSpec.m */; };
+		D02C7C941822D44400CB20D6 /* RACActionSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D02C7C921822D44400CB20D6 /* RACActionSpec.m */; };
 		D0307EDF1731AAE100D83211 /* RACTupleSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D0307EDC1731AAE100D83211 /* RACTupleSequence.m */; };
 		D0307EE01731AAE100D83211 /* RACTupleSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D0307EDC1731AAE100D83211 /* RACTupleSequence.m */; };
 		D03525D417E2EBC90099CBAB /* RACSignalProvider.d in Sources */ = {isa = PBXBuildFile; fileRef = D03525D317E2EBC90099CBAB /* RACSignalProvider.d */; };
@@ -903,6 +905,7 @@
 		D028DB85179E616700D1042F /* UITableViewCell+RACSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITableViewCell+RACSupport.h"; sourceTree = "<group>"; };
 		D028DB86179E616700D1042F /* UITableViewCell+RACSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITableViewCell+RACSupport.m"; sourceTree = "<group>"; };
 		D02C7C8F1822D43000CB20D6 /* RACSchedulerSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSchedulerSpec.m; sourceTree = "<group>"; };
+		D02C7C921822D44400CB20D6 /* RACActionSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACActionSpec.m; sourceTree = "<group>"; };
 		D0307EDB1731AAE100D83211 /* RACTupleSequence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACTupleSequence.h; sourceTree = "<group>"; };
 		D0307EDC1731AAE100D83211 /* RACTupleSequence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACTupleSequence.m; sourceTree = "<group>"; };
 		D03525D317E2EBC90099CBAB /* RACSignalProvider.d */ = {isa = PBXFileReference; explicitFileType = sourcecode.dtrace; fileEncoding = 4; path = RACSignalProvider.d; sourceTree = "<group>"; };
@@ -1314,6 +1317,7 @@
 				880D7A6516F7BB1A004A3361 /* NSObjectRACSelectorSignalSpec.m */,
 				5FDC350E1736F81800792E52 /* NSStringRACKeyPathUtilitiesSpec.m */,
 				D090768917FBECBF00EB087A /* NSURLConnectionRACSupportSpec.m */,
+				D02C7C921822D44400CB20D6 /* RACActionSpec.m */,
 				D0870C6E16884A0600D0E11D /* RACBacktraceSpec.m */,
 				886CEACC163DE669007632D1 /* RACBlockTrampolineSpec.m */,
 				5F7EFECC168FBC4B0037E500 /* RACChannelExamples.h */,
@@ -2393,6 +2397,7 @@
 				5EE9A79B1760D88500EAF5A2 /* UIButtonRACSupportSpec.m in Sources */,
 				88302C2F1762C180003633BD /* RACTargetQueueSchedulerSpec.m in Sources */,
 				D0A0E227176A84DB007273ED /* RACDisposableSpec.m in Sources */,
+				D02C7C941822D44400CB20D6 /* RACActionSpec.m in Sources */,
 				D066C796176D262500C242D2 /* UIControlRACSupportSpec.m in Sources */,
 				D066C79D176D263D00C242D2 /* RACTestUIButton.m in Sources */,
 				D02C7C911822D43000CB20D6 /* RACSchedulerSpec.m in Sources */,
@@ -2526,6 +2531,7 @@
 				88302BFD1762A9E6003633BD /* RACTestExampleScheduler.m in Sources */,
 				8884DD651756ACF600F6C379 /* RACSignalStartExamples.m in Sources */,
 				88302C2E1762C180003633BD /* RACTargetQueueSchedulerSpec.m in Sources */,
+				D02C7C931822D44400CB20D6 /* RACActionSpec.m in Sources */,
 				D0A0E226176A84DB007273ED /* RACDisposableSpec.m in Sources */,
 				D011F9D01782AFD400EE7E38 /* NSObjectRACAppKitBindingsSpec.m in Sources */,
 				D07200251788C57200987F70 /* RACTestSchedulerSpec.m in Sources */,

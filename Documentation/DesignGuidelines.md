@@ -564,9 +564,9 @@ Subjects can usually be replaced with other patterns from ReactiveCocoa:
  * Instead of delivering intermediate results to a subject, try combining the
    output of multiple signals with operators like
    [+combineLatest:][RACSignal+Operations] or [+zip:][RACStream].
- * Instead of implementing an action method which simply controls a subject, use
-   a [command][RACCommand] or
-   [-rac_signalForSelector:][NSObject+RACSelectorSignal] instead.
+ * Instead of implementing a control action that sends values on a subject, use
+   [RACAction][] or [-rac_signalForSelector:][NSObject+RACSelectorSignal]
+   instead.
 
 However, subjects _are_ often necessary to [share the side effects of
 a signal](#share-the-side-effects-of-a-signal-with-a-subject). In that case, use
@@ -735,8 +735,8 @@ By contrast, this version will avoid a stack overflow:
 [NSObject+RACLifting]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACLifting.h
 [NSObject+RACSelectorSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACSelectorSignal.h
 [RAC]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h
+[RACAction]: ../ReactiveCocoaFramework/ReactiveCocoa/RACAction.h
 [RACChannelTo]: ../ReactiveCocoaFramework/ReactiveCocoa/RACKVOChannel.h
-[RACCommand]: ../ReactiveCocoaFramework/ReactiveCocoa/RACCommand.h
 [RACDisposable]: ../ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
 [RACEvent]: ../ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h
 [RACMulticastConnection]: ../ReactiveCocoaFramework/ReactiveCocoa/RACMulticastConnection.h

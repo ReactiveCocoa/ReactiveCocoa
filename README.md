@@ -100,47 +100,17 @@ RAC(self, createEnabled) = [RACSignal
 ```
 
 Signals can be built on any stream of values over time, not just KVO. For
-example, they can also represent button presses:
+example, they can also represent button presses and asynchronous network
+operations:
 
 ```objc
-// Log a message whenever the button is pressed.
+// Start a network request whenever the button is pressed.
 //
-// RACCommand creates signals to represent UI actions. Each signal can
-// represent a button press, for example, and have additional work associated
-// with it.
-//
-// -rac_command is an addition to NSButton. The button will send itself on that
-// command whenever it's pressed.
-self.button.rac_command = [[RACCommand alloc] initWithSignalBlock:^(id _) {
-    NSLog(@"button was pressed!");
-    return [RACSignal empty];
-}]
-```
-
-Or asynchronous network operations:
-
-```objc
-// Hook up a "Log in" button to log in over the network.
-//
-// This block will be run whenever the login command is executed, starting
-// the login process.
-self.loginCommand = [[RACCommand alloc] initWithSignalBlock:^(id sender) {
-    // The hypothetical -logIn method returns a signal that sends a value when
-    // the network request finishes.
-    return [client logIn];
-}];
-
-// -executionSignals returns a signal that includes the signals returned from
-// the above block, one for each time the command is executed.
-[self.loginCommand.executionSignals subscribeNext:^(RACSignal *loginSignal) {
-    // Log a message whenever we log in successfully.
-    [loginSignal subscribeCompleted:^(id _) {
-        NSLog(@"Logged in successfully!");
-    }];
-}];
-
-// Execute the login command when the button is pressed.
-self.loginButton.rac_command = self.loginCommand;
+// RACAction represents work to perform when a UI action (here, a button press)
+// occurs.
+self.button.rac_action = [[NSURLConnection
+    rac_sendAsynchronousRequest:request]
+    action];
 ```
 
 Signals can also represent timers, other UI events, or anything else that

@@ -57,9 +57,7 @@ the same problems in a much simpler way.
 ### Actions instead of commands
 
 Because of its confusing API, `RACCommand` hasn't been used much, despite the
-value it offers in responding to UI events.
-
-The new `RACAction` class, which
+value it offers in responding to UI events. The new `RACAction` class, which
 [replaces](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/910)
 `RACCommand`, attempts to provide the same value in a much less confusing way.
 

@@ -10,7 +10,7 @@
 
 #import "RACSignal.h"
 #import "RACUnit.h"
-#import "UICollectionViewCell+RACSignalSupport.h"
+#import "UICollectionViewCell+RACSupport.h"
 
 @interface TestCollectionViewController : UICollectionViewController
 @end

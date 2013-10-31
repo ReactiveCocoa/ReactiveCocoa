@@ -6,10 +6,9 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#import "RACControlCommandExamples.h"
+#import "RACControlActionExamples.h"
 
 #import "UIBarButtonItem+RACSupport.h"
-#import "RACCommand.h"
 #import "RACDisposable.h"
 
 SpecBegin(UIBarButtonItemRACSupport)
@@ -22,10 +21,10 @@ describe(@"UIBarButtonItem", ^{
 		expect(button).notTo.beNil();
 	});
 
-	itShouldBehaveLike(RACControlCommandExamples, ^{
+	itShouldBehaveLike(RACControlActionExamples, ^{
 		return @{
-			RACControlCommandExampleControl: button,
-			RACControlCommandExampleActivateBlock: ^(UIBarButtonItem *button) {
+			RACControlActionExampleControl: button,
+			RACControlActionExampleActivateBlock: ^(UIBarButtonItem *button) {
 				NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[button.target methodSignatureForSelector:button.action]];
 				invocation.selector = button.action;
 

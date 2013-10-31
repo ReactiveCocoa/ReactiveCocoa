@@ -6,12 +6,11 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACControlCommandExamples.h"
+#import "RACControlActionExamples.h"
 
 #import "NSControl+RACSupport.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
-#import "RACCommand.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSubject.h"
@@ -26,10 +25,10 @@ describe(@"NSButton", ^{
 		expect(button).notTo.beNil();
 	});
 
-	itShouldBehaveLike(RACControlCommandExamples, ^{
+	itShouldBehaveLike(RACControlActionExamples, ^{
 		return @{
-			RACControlCommandExampleControl: button,
-			RACControlCommandExampleActivateBlock: ^(NSButton *button) {
+			RACControlActionExampleControl: button,
+			RACControlActionExampleActivateBlock: ^(NSButton *button) {
 				[button performClick:nil];
 			}
 		};
@@ -55,10 +54,10 @@ describe(@"NSTextField", ^{
 		expect(window.firstResponder).notTo.equal(window);
 	});
 
-	itShouldBehaveLike(RACControlCommandExamples, ^{
+	itShouldBehaveLike(RACControlActionExamples, ^{
 		return @{
-			RACControlCommandExampleControl: field,
-			RACControlCommandExampleActivateBlock: ^(NSTextField *field) {
+			RACControlActionExampleControl: field,
+			RACControlActionExampleActivateBlock: ^(NSTextField *field) {
 				expect([window makeFirstResponder:nil]).to.beTruthy();
 				expect(window.firstResponder).to.equal(window);
 			}

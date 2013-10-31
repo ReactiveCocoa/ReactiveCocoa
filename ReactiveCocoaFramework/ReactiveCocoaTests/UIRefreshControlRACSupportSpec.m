@@ -6,11 +6,13 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#import "UIRefreshControl+RACCommandSupport.h"
+#import "RACControlActionExamples.h"
+
+#import "UIRefreshControl+RACSupport.h"
 #import "NSObject+RACSelectorSignal.h"
-#import "RACControlCommandExamples.h"
-#import "RACCommand.h"
-#import "RACSignal.h"
+#import "RACAction.h"
+#import "RACSignal+Operations.h"
+#import "RACSubject.h"
 
 SpecBegin(UIRefreshControlRACSupport)
 
@@ -22,23 +24,26 @@ describe(@"UIRefreshControl", ^{
 		expect(refreshControl).notTo.beNil();
 	});
 
-	itShouldBehaveLike(RACControlCommandExamples, ^{
+	itShouldBehaveLike(RACControlActionExamples, ^{
 		return @{
-			RACControlCommandExampleControl: refreshControl,
-			RACControlCommandExampleActivateBlock: ^(UIRefreshControl *refreshControl) {
+			RACControlActionExampleControl: refreshControl,
+			RACControlActionExampleActivateBlock: ^(UIRefreshControl *refreshControl) {
 				[refreshControl sendActionsForControlEvents:UIControlEventValueChanged];
 			}
 		};
 	});
 
 	describe(@"finishing", ^{
-		__block RACSignal *commandSignal;
+		__block RACSubject *subject;
+		__block RACAction *action;
+
 		__block BOOL refreshingEnded;
 
 		beforeEach(^{
-			refreshControl.rac_command = [[RACCommand alloc] initWithSignalBlock:^(id _) {
-				return commandSignal;
-			}];
+			subject = [RACSubject subject];
+			action = [subject action];
+
+			refreshControl.rac_action = action;
 
 			// Just -rac_signalForSelector: posing as a mock.
 			refreshingEnded = NO;
@@ -50,17 +55,21 @@ describe(@"UIRefreshControl", ^{
 		});
 
 		it(@"should call -endRefreshing upon completion", ^{
-			commandSignal = [RACSignal empty];
-
 			[refreshControl sendActionsForControlEvents:UIControlEventValueChanged];
-			expect(refreshingEnded).will.beTruthy();
+			expect([action.executing first]).will.beTruthy();
+
+			[subject sendCompleted];
+			expect([action.executing first]).will.beFalsy();
+			expect(refreshingEnded).to.beTruthy();
 		});
 
 		it(@"should call -endRefreshing upon error", ^{
-			commandSignal = [RACSignal error:[NSError errorWithDomain:@"" code:1 userInfo:nil]];
-
 			[refreshControl sendActionsForControlEvents:UIControlEventValueChanged];
-			expect(refreshingEnded).will.beTruthy();
+			expect([action.executing first]).will.beTruthy();
+
+			[subject sendError:[NSError errorWithDomain:@"" code:1 userInfo:nil]];
+			expect([action.executing first]).will.beFalsy();
+			expect(refreshingEnded).to.beTruthy();
 		});
 	});
 });

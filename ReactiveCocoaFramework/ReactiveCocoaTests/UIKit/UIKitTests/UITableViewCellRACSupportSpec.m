@@ -10,7 +10,7 @@
 
 #import "RACSignal.h"
 #import "RACUnit.h"
-#import "UITableViewCell+RACSignalSupport.h"
+#import "UITableViewCell+RACSupport.h"
 
 @interface TestTableViewController : UITableViewController
 @end

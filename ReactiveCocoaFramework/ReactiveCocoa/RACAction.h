@@ -47,6 +47,9 @@
 /// Unlike -execute:, this allows you to receive errors directly, instead of via
 /// `errors`.
 ///
+/// Disposing of all deferred subscriptions will also dispose of the underlying
+/// subscription, as long as no -execute: calls are in progress either.
+///
 /// Returns a signal which will execute the receiver upon subscription, if not
 /// already executing, then forward all events. Existing events are sent
 /// immediately, and future events will be sent on their originating thread.

@@ -7,6 +7,7 @@
 //
 
 #import "RACAction.h"
+#import "RACDisposable.h"
 #import "RACScheduler.h"
 #import "RACSignal+Operations.h"
 #import "RACSubject.h"
@@ -98,19 +99,27 @@ describe(@"with a synchronous signal", ^{
 
 describe(@"with a long-running signal", ^{
 	__block NSUInteger subscriptionCount;
+	__block NSUInteger disposalCount;
+
 	__block RACSubject *subject;
 	__block RACAction *action;
 
 	beforeEach(^{
 		subscriptionCount = 0;
-		subject = [RACSubject subject];
+		disposalCount = 0;
 
+		subject = [RACSubject subject];
 		action = [[RACSignal
-			defer:^{
+			createSignal:^(id<RACSubscriber> subscriber) {
 				expect(RACScheduler.currentScheduler).to.equal(RACScheduler.mainThreadScheduler);
 
 				subscriptionCount++;
-				return subject;
+
+				RACDisposable *disposable = [subject subscribe:subscriber];
+				return [RACDisposable disposableWithBlock:^{
+					[disposable dispose];
+					disposalCount++;
+				}];
 			}]
 			action];
 
@@ -183,6 +192,64 @@ describe(@"with a long-running signal", ^{
 
 		expect([action.executing first]).will.equal(@NO);
 		expect(subscriptionCount).to.equal(1);
+	});
+
+	it(@"should dispose of the underlying subscription after all deferred subscriptions are disposed", ^{
+		RACSignal *deferred = [action deferred];
+		expect(deferred).notTo.beNil();
+
+		__block id firstValue;
+		RACDisposable *firstDisposable = [deferred subscribeNext:^(id x) {
+			firstValue = x;
+		}];
+
+		__block id secondValue;
+		RACDisposable *secondDisposable = [deferred subscribeNext:^(id x) {
+			secondValue = x;
+		}];
+
+		expect(firstDisposable).notTo.beNil();
+		expect(secondDisposable).notTo.beNil();
+
+		expect(subscriptionCount).will.equal(1);
+		expect([action.executing first]).to.equal(@YES);
+		expect(disposalCount).to.equal(0);
+
+		[subject sendNext:@"foo"];
+		expect(firstValue).to.equal(@"foo");
+		expect(secondValue).to.equal(@"foo");
+
+		[firstDisposable dispose];
+		expect([action.executing first]).to.equal(@YES);
+		expect(disposalCount).to.equal(0);
+
+		[subject sendNext:@"bar"];
+		expect(firstValue).to.equal(@"foo");
+		expect(secondValue).to.equal(@"bar");
+
+		[secondDisposable dispose];
+		expect([action.executing first]).will.equal(@NO);
+		expect(disposalCount).to.equal(1);
+	});
+
+	it(@"should not dispose of the underlying subscription when -execute: is in progress", ^{
+		RACSignal *deferred = [action deferred];
+		expect(deferred).notTo.beNil();
+
+		RACDisposable *disposable = [deferred subscribeCompleted:^{}];
+		expect(disposable).notTo.beNil();
+
+		[action execute:nil];
+		expect(subscriptionCount).will.equal(1);
+		expect([action.executing first]).to.equal(@YES);
+		expect(disposalCount).to.equal(0);
+
+		[disposable dispose];
+		expect([action.executing first]).to.equal(@YES);
+		expect(disposalCount).to.equal(0);
+
+		[subject sendCompleted];
+		expect([action.executing first]).will.equal(@NO);
 	});
 });
 

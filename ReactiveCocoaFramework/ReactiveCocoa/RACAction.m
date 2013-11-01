@@ -77,7 +77,7 @@
 			[executing sendNext:@YES];
 		}]
 		subscribeOn:RACScheduler.mainThreadScheduler]
-		finally:^{
+		doDisposed:^{
 			[RACScheduler.mainThreadScheduler schedule:^{
 				[executing sendNext:@NO];
 			}];

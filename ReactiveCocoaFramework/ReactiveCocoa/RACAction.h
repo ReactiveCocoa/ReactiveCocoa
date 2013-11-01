@@ -9,8 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "RACSignal.h"
 
-/// Represents a UI action which will subscribe to a signal or run a block when
-/// activated.
+/// Represents a UI action which will subscribe to a signal when activated.
 ///
 /// To create an action, invoke -[RACSignal action] on a lazy signal.
 @interface RACAction : NSObject

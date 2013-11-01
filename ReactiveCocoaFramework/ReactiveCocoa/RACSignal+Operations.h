@@ -45,6 +45,46 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// into the signal.
 - (RACSignal *)doCompleted:(void (^)(void))block;
 
+/// Do the given block when the subscription is disposed. This should be used to
+/// inject side effects into the signal.
+///
+/// Note that subscriptions are automatically disposed upon `error` and
+/// `completed` events, so this block will effectively run whenever the signal
+/// terminates or is cancelled through _any_ means.
+- (RACSignal *)doDisposed:(void (^)(void))block;
+
+/// Execute the given block each time a subscription is created.
+///
+/// block - A block which defines the subscription side effects. Cannot be `nil`.
+///
+/// Example:
+///
+///   // Write new file, with backup.
+///   [[[[fileManager
+///       rac_createFileAtPath:path contents:data]
+///       initially:^{
+///           // 2. Second, backup current file
+///           [fileManager moveItemAtPath:path toPath:backupPath error:nil];
+///       }]
+///       initially:^{
+///           // 1. First, acquire write lock.
+///           [writeLock lock];
+///       }]
+///       finally:^{
+///           [writeLock unlock];
+///       }];
+///
+/// Returns a signal that passes through all events of the receiver, plus
+/// introduces side effects which occur prior to any subscription side effects
+/// of the receiver.
+- (RACSignal *)initially:(void (^)(void))block;
+
+/// Execute the given block when the signal completes or errors.
+/// 
+/// See also -doDisposed:, which will execute the block upon cancellation as
+/// well.
+- (RACSignal *)finally:(void (^)(void))block;
+
 /// Send `next`s only if we don't receive another `next` in `interval` seconds.
 ///
 /// If a `next` is received, and then another `next` is received before
@@ -96,35 +136,6 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 
 /// Resubscribes when the signal completes.
 - (RACSignal *)repeat;
-
-/// Execute the given block each time a subscription is created.
-///
-/// block - A block which defines the subscription side effects. Cannot be `nil`.
-///
-/// Example:
-///
-///   // Write new file, with backup.
-///   [[[[fileManager
-///       rac_createFileAtPath:path contents:data]
-///       initially:^{
-///           // 2. Second, backup current file
-///           [fileManager moveItemAtPath:path toPath:backupPath error:nil];
-///       }]
-///       initially:^{
-///           // 1. First, acquire write lock.
-///           [writeLock lock];
-///       }]
-///       finally:^{
-///           [writeLock unlock];
-///       }];
-///
-/// Returns a signal that passes through all events of the receiver, plus
-/// introduces side effects which occur prior to any subscription side effects
-/// of the receiver.
-- (RACSignal *)initially:(void (^)(void))block;
-
-/// Execute the given block when the signal completes or errors.
-- (RACSignal *)finally:(void (^)(void))block;
 
 /// Divides the receiver's `next`s into buffers which deliver every `interval`
 /// seconds.

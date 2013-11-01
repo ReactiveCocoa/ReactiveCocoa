@@ -130,6 +130,40 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -doCompleted:", self.name];
 }
 
+- (RACSignal *)doDisposed:(void (^)(void))block {
+	NSCParameterAssert(block != NULL);
+	
+	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		RACDisposable *subscriptionDisposable = [self subscribe:subscriber];
+		return [RACDisposable disposableWithBlock:^{
+			block();
+			[subscriptionDisposable dispose];
+		}];
+	}] setNameWithFormat:@"[%@] -doDisposed:", self.name];
+}
+
+- (RACSignal *)initially:(void (^)(void))block {
+	NSCParameterAssert(block != NULL);
+
+	return [[RACSignal defer:^{
+		block();
+		return self;
+	}] setNameWithFormat:@"[%@] -initially:", self.name];
+}
+
+- (RACSignal *)finally:(void (^)(void))block {
+	NSCParameterAssert(block != NULL);
+	
+	return [[[self
+		doError:^(NSError *error) {
+			block();
+		}]
+		doCompleted:^{
+			block();
+		}]
+		setNameWithFormat:@"[%@] -finally:", self.name];
+}
+
 - (RACSignal *)throttle:(NSTimeInterval)interval {
 	return [[self throttle:interval valuesPassingTest:^(id _) {
 		return YES;
@@ -288,28 +322,6 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		id mappedValue = mapBlock(value, &error);
 		return (mappedValue == nil ? [RACSignal error:error] : [RACSignal return:mappedValue]);
 	}] setNameWithFormat:@"[%@] -tryMap:", self.name];
-}
-
-- (RACSignal *)initially:(void (^)(void))block {
-	NSCParameterAssert(block != NULL);
-
-	return [[RACSignal defer:^{
-		block();
-		return self;
-	}] setNameWithFormat:@"[%@] -initially:", self.name];
-}
-
-- (RACSignal *)finally:(void (^)(void))block {
-	NSCParameterAssert(block != NULL);
-	
-	return [[[self
-		doError:^(NSError *error) {
-			block();
-		}]
-		doCompleted:^{
-			block();
-		}]
-		setNameWithFormat:@"[%@] -finally:", self.name];
 }
 
 - (RACSignal *)bufferWithTime:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler {

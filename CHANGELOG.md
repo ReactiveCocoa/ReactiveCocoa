@@ -75,8 +75,6 @@ blocks, signals of signals, or concurrent behaviors to worry about.
  * Replace uses of `-[RACCommand initWithSignalBlock:]` with `-action`.
  * Instead of subscribing to `RACCommand.executionSignals`, try to incorporate
    that logic into the base signal.
- * Instead of initializing `RACAction` with an "enabled" signal (a la
-   `RACCommand`), expose enabledness through other means.
  * Instead of setting `RACCommand.allowsConcurrentExecution` to `YES`, use
    a plain `RACSignal` instead.
  * Replace `-[RACCommand execute:]` with `-[RACAction deferred]` when you need
@@ -85,6 +83,37 @@ blocks, signals of signals, or concurrent behaviors to worry about.
    about the results.
  * Replace `rac_command` bindings with `rac_action` (and a separate binding to
    the control's `enabled` property, if desired).
+ * Instead of initializing `RACAction` with an "enabled" signal (a la
+   `RACCommand`), expose enabledness through other means.
+
+For example, this `RACCommand` code:
+
+```objc
+// View model
+_command = [[RACCommand alloc] initWithEnabled:otherSourceOfEnabledness signalBlock:^(id _) {
+    return [self longRunningSignal];
+}];
+
+// View controller
+self.button.rac_command = viewModel.command;
+self.buttonContainerView.hidden = [viewModel.command.enabled not];
+```
+
+Would look more like this, using `RACAction`:
+
+```objc
+// View model
+_action = [[self longRunningSignal] action];
+_enabled = [[RACSignal
+    combineLatest:@[ otherSourceOfEnabledness, [action.executing not] ]]
+    and];
+
+// View controller
+self.button.rac_action = viewModel.action;
+RAC(self.button, enabled) = viewModel.enabled;
+
+self.buttonContainerView.hidden = [viewModel.enabled not];
+```
 
 ## Deprecations
 

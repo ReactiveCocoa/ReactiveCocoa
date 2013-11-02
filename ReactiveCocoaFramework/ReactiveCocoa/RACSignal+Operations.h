@@ -33,24 +33,40 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 
 @interface RACSignal (Operations)
 
-/// Do the given block on `next`. This should be used to inject side effects into
-/// the signal.
+/// Run the given block before passing through a `next` event.
+///
+/// This should be used to inject side effects into the signal.
+///
+/// Returns a signal which forwards the events of the receiver, running `block`
+/// before forwarding any `next`s.
 - (RACSignal *)doNext:(void (^)(id x))block;
 
-/// Do the given block on `error`. This should be used to inject side effects
-/// into the signal.
+/// Run the given block before passing through an `error` event.
+///
+/// This should be used to inject side effects into the signal.
+///
+/// Returns a signal which forwards the events of the receiver, running `block`
+/// before forwarding `error`.
 - (RACSignal *)doError:(void (^)(NSError *error))block;
 
-/// Do the given block on `completed`. This should be used to inject side effects
-/// into the signal.
+/// Run the given block before passing through an `completed` event.
+///
+/// This should be used to inject side effects into the signal.
+///
+/// Returns a signal which forwards the events of the receiver, running `block`
+/// before forwarding `completed`.
 - (RACSignal *)doCompleted:(void (^)(void))block;
 
-/// Do the given block when the subscription is disposed. This should be used to
-/// inject side effects into the signal.
+/// Run the given block when the subscription is disposed.
+///
+/// This should be used to inject side effects into the signal.
 ///
 /// Note that subscriptions are automatically disposed upon `error` and
 /// `completed` events, so this block will effectively run whenever the signal
 /// terminates or is cancelled through _any_ means.
+///
+/// Returns a signal which forwards the events of the receiver, running `block`
+/// upon `completed`, `error`, or cancellation.
 - (RACSignal *)doDisposed:(void (^)(void))block;
 
 /// Execute the given block each time a subscription is created.

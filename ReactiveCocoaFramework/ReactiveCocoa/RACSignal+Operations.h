@@ -57,7 +57,7 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// before forwarding `completed`.
 - (RACSignal *)doCompleted:(void (^)(void))block;
 
-/// Run the given block when the subscription is disposed.
+/// Run the given block immediately when the subscription is disposed.
 ///
 /// This should be used to inject side effects into the signal.
 ///
@@ -65,15 +65,25 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// `completed` events, so this block will effectively run whenever the signal
 /// terminates or is cancelled through _any_ means.
 ///
+/// Use -doFinished: instead, if you don't want to perform side effects upon
+/// cancellation.
+///
 /// Returns a signal which forwards the events of the receiver, running `block`
-/// upon `completed`, `error`, or cancellation.
+/// before forwarding `completed` or `error`, or immediately upon disposal.
 - (RACSignal *)doDisposed:(void (^)(void))block;
 
-/// Execute the given block when the signal completes or errors.
+/// Run the given block before passing through a `completed` or `error` event.
+///
+/// This should be used to inject side effects into the signal.
 /// 
-/// See also -doDisposed:, which will execute the block upon cancellation as
-/// well.
-- (RACSignal *)finally:(void (^)(void))block;
+/// Use -doDisposed: instead, if you also want to perform side effects upon
+/// cancellation.
+///
+/// This corresponds to the `Finally` method in Rx.
+///
+/// Returns a signal which forwards the events of the receiver, running `block`
+/// before forwarding `completed` or `error`.
+- (RACSignal *)doFinished:(void (^)(void))block;
 
 /// Send `next`s only if we don't receive another `next` in `interval` seconds.
 ///
@@ -572,6 +582,7 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 @interface RACSignal (DeprecatedOperations)
 
 - (RACSignal *)initially:(void (^)(void))block RACDeprecated("Put side effects into +defer: instead");
+- (RACSignal *)finally:(void (^)(void))block RACDeprecated("Renamed to -doFinished:");
 - (RACMulticastConnection *)publish RACDeprecated("Send events to a shared RACSubject instead");
 - (RACMulticastConnection *)multicast:(RACSubject *)subject RACDeprecated("Use -promiseOnScheduler: or send events to a shared RACSubject instead");
 - (RACSignal *)replay RACDeprecated("Use -promiseOnScheduler: instead");

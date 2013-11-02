@@ -379,6 +379,14 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// to the error that occurred.
 - (BOOL)waitUntilCompleted:(NSError **)error;
 
+/// Add every `next` to an array.
+///
+/// Note that this is a **blocking** call.
+///
+/// Returns the array of `next` values, or nil if an error occurs. Any `nil`
+/// values sent from the signal will be represented as `NSNull`s in the array.
+- (NSArray *)array;
+
 /// Defer creation of a signal until the signal's actually subscribed to.
 ///
 /// This can be used to effectively turn a hot signal into a cold signal.
@@ -427,15 +435,6 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// and/or `falseSignal`, and sends `completed` when both `boolSignal` and the
 /// last switched signal complete.
 + (RACSignal *)if:(RACSignal *)boolSignal then:(RACSignal *)trueSignal else:(RACSignal *)falseSignal;
-
-/// Add every `next` to an array. Nils are represented by NSNulls. Note that this
-/// is a blocking call.
-///
-/// **This is not the same as the `ToArray` method in Rx.** See -collect for
-/// that behavior instead.
-///
-/// Returns the array of `next` values, or nil if an error occurs.
-- (NSArray *)toArray;
 
 /// Deduplicates subscriptions to the receiver, and shares results between them,
 /// ensuring that only one subscription is active at a time.
@@ -578,6 +577,7 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 - (RACSignal *)replay RACDeprecated("Use -promiseOnScheduler: instead");
 - (RACSignal *)replayLast RACDeprecated("Use -takeLast: and -promiseOnScheduler: instead");
 - (RACSignal *)replayLazily RACDeprecated("Use -promiseOnScheduler: instead");
+- (NSArray *)toArray RACDeprecated("Renamed to -array");
 
 @end
 

@@ -886,16 +886,16 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	return success;
 }
 
+- (NSArray *)array {
+	return [[self collect] first];
+}
+
 + (RACSignal *)defer:(RACSignal * (^)(void))block {
 	NSCParameterAssert(block != NULL);
 	
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		return [block() subscribe:subscriber];
 	}] setNameWithFormat:@"+defer:"];
-}
-
-- (NSArray *)toArray {
-	return [[[self collect] first] copy];
 }
 
 - (RACSignal *)shareWhileActive {
@@ -1306,6 +1306,10 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			return connection.signal;
 		}]
 		setNameWithFormat:@"[%@] -replayLazily", self.name];
+}
+
+- (NSArray *)toArray {
+	return [self array];
 }
 
 @end

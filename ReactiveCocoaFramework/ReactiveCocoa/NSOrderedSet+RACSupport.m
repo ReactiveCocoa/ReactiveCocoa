@@ -1,15 +1,15 @@
 //
-//  NSOrderedSet+RACSequenceAdditions.m
+//  NSOrderedSet+RACSupport.m
 //  ReactiveCocoa
 //
 //  Created by Justin Spahr-Summers on 2012-10-29.
 //  Copyright (c) 2012 GitHub. All rights reserved.
 //
 
-#import "NSOrderedSet+RACSequenceAdditions.h"
-#import "NSArray+RACSequenceAdditions.h"
+#import "NSOrderedSet+RACSupport.h"
+#import "NSArray+RACSupport.h"
 
-@implementation NSOrderedSet (RACSequenceAdditions)
+@implementation NSOrderedSet (RACSupport)
 
 - (RACSequence *)rac_sequence {
 	// TODO: First class support for ordered set sequences.

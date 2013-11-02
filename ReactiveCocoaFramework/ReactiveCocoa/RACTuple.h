@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "RACDeprecated.h"
 #import "metamacros.h"
 
 @class RACSequence;
@@ -96,10 +97,9 @@
 
 @end
 
-@interface RACTuple (RACSequenceAdditions)
+@interface RACTuple (RACSignalAdditions)
 
-/// Returns a sequence of all the objects. RACTupleNils are converted to NSNulls.
-@property (nonatomic, copy, readonly) RACSequence *rac_sequence;
+@property (nonatomic, copy, readonly) RACSequence *rac_sequence RACDeprecated("Use -rac_signal instead");
 
 @end
 

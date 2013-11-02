@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "NSArray+RACSequenceAdditions.h"
+#import "NSArray+RACSupport.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACCommand.h"

@@ -9,9 +9,14 @@
 #import "NSString+RACSupport.h"
 #import "RACPromise.h"
 #import "RACSignal.h"
+#import "RACStringSequence.h"
 #import "RACSubscriber.h"
 
 @implementation NSString (RACSupport)
+
+- (RACSequence *)rac_sequence {
+	return [RACStringSequence sequenceWithString:self offset:0];
+}
 
 + (RACSignal *)rac_readContentsOfURL:(NSURL *)URL usedEncoding:(NSStringEncoding *)encoding scheduler:(RACScheduler *)scheduler {
 	NSCParameterAssert(scheduler != nil);

@@ -1,5 +1,5 @@
 //
-//  NSDictionary+RACSequenceAdditions.h
+//  NSDictionary+RACSupport.h
 //  ReactiveCocoa
 //
 //  Created by Justin Spahr-Summers on 2012-10-29.
@@ -10,7 +10,7 @@
 
 @class RACSequence;
 
-@interface NSDictionary (RACSequenceAdditions)
+@interface NSDictionary (RACSupport)
 
 /// Creates and returns a sequence of RACTuple key/value pairs. The key will be
 /// the first element in the tuple, and the value will be the second.

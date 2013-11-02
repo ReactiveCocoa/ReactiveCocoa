@@ -1,5 +1,5 @@
 //
-//  NSSet+RACSequenceAdditions.h
+//  NSSet+RACSupport.h
 //  ReactiveCocoa
 //
 //  Created by Justin Spahr-Summers on 2012-10-29.
@@ -10,7 +10,7 @@
 
 @class RACSequence;
 
-@interface NSSet (RACSequenceAdditions)
+@interface NSSet (RACSupport)
 
 /// Creates and returns a sequence corresponding to the receiver.
 ///

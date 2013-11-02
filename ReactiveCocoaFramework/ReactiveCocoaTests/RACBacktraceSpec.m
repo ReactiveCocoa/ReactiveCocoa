@@ -9,7 +9,7 @@
 #import "RACBacktrace.h"
 #import "RACScheduler.h"
 #import "RACSequence.h"
-#import "NSArray+RACSequenceAdditions.h"
+#import "NSArray+RACSupport.h"
 #import "RACSignal.h"
 
 #ifdef DEBUG

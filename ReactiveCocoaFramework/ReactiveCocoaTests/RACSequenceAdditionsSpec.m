@@ -8,11 +8,11 @@
 
 #import "RACSequenceExamples.h"
 
-#import "NSArray+RACSequenceAdditions.h"
-#import "NSDictionary+RACSequenceAdditions.h"
-#import "NSOrderedSet+RACSequenceAdditions.h"
-#import "NSSet+RACSequenceAdditions.h"
-#import "NSString+RACSequenceAdditions.h"
+#import "NSArray+RACSupport.h"
+#import "NSDictionary+RACSupport.h"
+#import "NSOrderedSet+RACSupport.h"
+#import "NSSet+RACSupport.h"
+#import "NSString+RACSupport.h"
 #import "RACSequence.h"
 #import "RACTuple.h"
 

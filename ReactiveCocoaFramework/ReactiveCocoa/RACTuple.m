@@ -208,12 +208,17 @@
 
 @end
 
-
 @implementation RACTuple (RACSequenceAdditions)
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 
 - (RACSequence *)rac_sequence {
 	return [RACTupleSequence sequenceWithTupleBackingArray:self.backingArray offset:0];
 }
+
+#pragma clang diagnostic pop
 
 @end
 

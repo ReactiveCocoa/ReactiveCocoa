@@ -1,17 +1,17 @@
 //
-//  NSDictionary+RACSequenceAdditions.m
+//  NSDictionary+RACSupport.m
 //  ReactiveCocoa
 //
 //  Created by Justin Spahr-Summers on 2012-10-29.
 //  Copyright (c) 2012 GitHub. All rights reserved.
 //
 
-#import "NSDictionary+RACSequenceAdditions.h"
-#import "NSArray+RACSequenceAdditions.h"
+#import "NSDictionary+RACSupport.h"
+#import "NSArray+RACSupport.h"
 #import "RACSequence.h"
 #import "RACTuple.h"
 
-@implementation NSDictionary (RACSequenceAdditions)
+@implementation NSDictionary (RACSupport)
 
 - (RACSequence *)rac_sequence {
 	NSDictionary *immutableDict = [self copy];

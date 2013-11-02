@@ -1,5 +1,5 @@
 //
-//  NSString+RACSequenceAdditions.h
+//  NSArray+RACSupport.h
 //  ReactiveCocoa
 //
 //  Created by Justin Spahr-Summers on 2012-10-29.
@@ -10,10 +10,9 @@
 
 @class RACSequence;
 
-@interface NSString (RACSequenceAdditions)
+@interface NSArray (RACSupport)
 
-/// Creates and returns a sequence containing strings corresponding to each
-/// composed character sequence in the receiver.
+/// Creates and returns a sequence corresponding to the receiver.
 ///
 /// Mutating the receiver will not affect the sequence after it's been created.
 @property (nonatomic, copy, readonly) RACSequence *rac_sequence;

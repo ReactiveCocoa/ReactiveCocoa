@@ -10,7 +10,7 @@
 
 #import "RACCommand.h"
 #import "EXTScope.h"
-#import "NSArray+RACSequenceAdditions.h"
+#import "NSArray+RACSupport.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACDescription.h"
 #import "NSObject+RACPropertySubscribing.h"

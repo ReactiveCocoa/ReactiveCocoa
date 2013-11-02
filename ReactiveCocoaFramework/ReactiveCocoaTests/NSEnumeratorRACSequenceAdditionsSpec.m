@@ -1,5 +1,5 @@
 //
-//  NSEnumeratorRACSequenceAdditionsSpec.m
+//  NSEnumeratorRACSupportSpec.m
 //  ReactiveCocoa
 //
 //  Created by Uri Baghin on 07/01/2013.
@@ -8,9 +8,9 @@
 
 #import "RACSequenceExamples.h"
 
-#import "NSEnumerator+RACSequenceAdditions.h"
+#import "NSEnumerator+RACSupport.h"
 
-SpecBegin(NSEnumeratorRACSequenceAdditions)
+SpecBegin(NSEnumeratorRACSupport)
 
 describe(@"-rac_sequence", ^{
 	NSArray *values = @[ @0, @1, @2, @3, @4 ];

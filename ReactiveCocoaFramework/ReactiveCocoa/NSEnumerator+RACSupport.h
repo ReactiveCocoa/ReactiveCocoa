@@ -1,5 +1,5 @@
 //
-//  NSEnumerator+RACSequenceAdditions.h
+//  NSEnumerator+RACSupport.h
 //  ReactiveCocoa
 //
 //  Created by Uri Baghin on 07/01/2013.
@@ -10,7 +10,7 @@
 
 @class RACSequence;
 
-@interface NSEnumerator (RACSequenceAdditions)
+@interface NSEnumerator (RACSupport)
 
 /// Creates and returns a sequence corresponding to the receiver.
 ///

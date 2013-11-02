@@ -9,7 +9,7 @@
 #import "RACSequenceExamples.h"
 #import "RACStreamExamples.h"
 
-#import "NSArray+RACSequenceAdditions.h"
+#import "NSArray+RACSupport.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACCompoundDisposable.h"

@@ -19,10 +19,8 @@
 ///
 /// subscriber - The subscriber to forward events to. This must not be nil.
 /// signal     - The signal that will be sending events to the receiver.
-/// disposable - When this disposable is disposed, no more events will be
-///              forwarded. This must not be nil.
 ///
 /// Returns an initialized passthrough subscriber.
-- (instancetype)initWithSubscriber:(id<RACSubscriber>)subscriber signal:(RACSignal *)signal disposable:(RACCompoundDisposable *)disposable;
+- (instancetype)initWithSubscriber:(id<RACSubscriber>)subscriber signal:(RACSignal *)signal;
 
 @end

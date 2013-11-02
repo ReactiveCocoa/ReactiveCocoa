@@ -17,7 +17,7 @@
 - (RACSignal *)rac_readInBackground {
 	return [[[[[[[[NSNotificationCenter.defaultCenter
 		rac_addObserverForName:NSFileHandleReadCompletionNotification object:self]
-		initially:^{
+		doSubscribed:^{
 			[self readInBackgroundAndNotify];
 		}]
 		map:^(NSNotification *note) {

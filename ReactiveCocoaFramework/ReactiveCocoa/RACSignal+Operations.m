@@ -313,16 +313,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -doDisposed:", self.name];
 }
 
-- (RACSignal *)initially:(void (^)(void))block {
-	NSCParameterAssert(block != NULL);
-
-	return [[RACSignal defer:^{
-		block();
-		return self;
-	}] setNameWithFormat:@"[%@] -initially:", self.name];
-}
-
-- (RACSignal *)finally:(void (^)(void))block {
+- (RACSignal *)doFinished:(void (^)(void))block {
 	NSCParameterAssert(block != NULL);
 	
 	return [[[self
@@ -332,7 +323,19 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		doCompleted:^{
 			block();
 		}]
-		setNameWithFormat:@"[%@] -finally:", self.name];
+		setNameWithFormat:@"[%@] -doFinished:", self.name];
+}
+
+- (RACSignal *)doSubscribed:(void (^)(void))block {
+	NSCParameterAssert(block != NULL);
+	
+	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		RACDisposable *subscriptionDisposable = [self subscribe:subscriber];
+
+		block();
+
+		return subscriptionDisposable;
+	}] setNameWithFormat:@"[%@] -doSubscribed:", self.name];
 }
 
 - (RACSignal *)throttle:(NSTimeInterval)interval {
@@ -1529,6 +1532,19 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 - (RACSequence *)sequence {
 	return [[RACSignalSequence sequenceWithSignal:self] setNameWithFormat:@"[%@] -sequence", self.name];
+}
+
+- (RACSignal *)initially:(void (^)(void))block {
+	NSCParameterAssert(block != NULL);
+
+	return [[RACSignal defer:^{
+		block();
+		return self;
+	}] setNameWithFormat:@"[%@] -initially:", self.name];
+}
+
+- (RACSignal *)finally:(void (^)(void))block {
+	return [self doFinished:block];
 }
 
 - (RACMulticastConnection *)publish {

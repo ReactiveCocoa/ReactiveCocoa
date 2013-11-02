@@ -3059,56 +3059,64 @@ describe(@"-concat", ^{
 	});
 });
 
-describe(@"-initially:", ^{
-	__block RACSubject *subject;
+describe(@"-doSubscribed:", ^{
+	__block RACReplaySubject *subject;
 
-	__block NSUInteger initiallyInvokedCount;
+	__block NSUInteger subscribedInvokedCount;
 	__block RACSignal *signal;
 
 	beforeEach(^{
-		subject = [RACSubject subject];
+		subject = [RACReplaySubject subject];
 
-		initiallyInvokedCount = 0;
-		signal = [subject initially:^{
-			++initiallyInvokedCount;
+		subscribedInvokedCount = 0;
+		signal = [subject doSubscribed:^{
+			++subscribedInvokedCount;
 		}];
 	});
 
 	it(@"should not run without a subscription", ^{
 		[subject sendCompleted];
-		expect(initiallyInvokedCount).to.equal(0);
+		expect(subscribedInvokedCount).to.equal(0);
 	});
 
-	it(@"should run on subscription", ^{
-		[signal subscribe:[RACSubscriber new]];
-		expect(initiallyInvokedCount).to.equal(1);
+	it(@"should run after subscription", ^{
+		[subject sendNext:RACUnit.defaultUnit];
+
+		__block BOOL receivedNext = NO;
+		[signal subscribeNext:^(id _) {
+			receivedNext = YES;
+			expect(subscribedInvokedCount).to.equal(0);
+		}];
+
+		expect(receivedNext).to.equal(1);
+		expect(subscribedInvokedCount).to.equal(1);
 	});
 
 	it(@"should re-run for each subscription", ^{
-		[signal subscribe:[RACSubscriber new]];
-		[signal subscribe:[RACSubscriber new]];
-		expect(initiallyInvokedCount).to.equal(2);
+		[signal subscribeCompleted:^{}];
+		[signal subscribeCompleted:^{}];
+		expect(subscribedInvokedCount).to.equal(2);
 	});
 });
 
-describe(@"-finally:", ^{
+describe(@"-doFinished:", ^{
 	__block RACSubject *subject;
 
-	__block BOOL finallyInvoked;
+	__block BOOL finishedInvoked;
 	__block RACSignal *signal;
 
 	beforeEach(^{
 		subject = [RACSubject subject];
 		
-		finallyInvoked = NO;
-		signal = [subject finally:^{
-			finallyInvoked = YES;
+		finishedInvoked = NO;
+		signal = [subject doFinished:^{
+			finishedInvoked = YES;
 		}];
 	});
 
-	it(@"should not run finally without a subscription", ^{
+	it(@"should not run block without a subscription", ^{
 		[subject sendCompleted];
-		expect(finallyInvoked).to.beFalsy();
+		expect(finishedInvoked).to.beFalsy();
 	});
 
 	describe(@"with a subscription", ^{
@@ -3122,19 +3130,19 @@ describe(@"-finally:", ^{
 			[disposable dispose];
 		});
 
-		it(@"should not run finally upon next", ^{
+		it(@"should not run upon next", ^{
 			[subject sendNext:RACUnit.defaultUnit];
-			expect(finallyInvoked).to.beFalsy();
+			expect(finishedInvoked).to.beFalsy();
 		});
 
-		it(@"should run finally upon completed", ^{
+		it(@"should run upon completed", ^{
 			[subject sendCompleted];
-			expect(finallyInvoked).to.beTruthy();
+			expect(finishedInvoked).to.beTruthy();
 		});
 
-		it(@"should run finally upon error", ^{
+		it(@"should run upon error", ^{
 			[subject sendError:nil];
-			expect(finallyInvoked).to.beTruthy();
+			expect(finishedInvoked).to.beTruthy();
 		});
 	});
 });

@@ -143,7 +143,7 @@ static NSString * const RACKVOChannelDataDictionaryKey = @"RACKVOChannelKey";
 
 	// Update the value of the property with the values received.
 	[[self.leadingTerminal
-		finally:^{
+		doFinished:^{
 			[observationDisposable dispose];
 		}]
 		subscribeNext:^(id x) {

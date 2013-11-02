@@ -14,7 +14,10 @@
 @class RACSignal;
 
 RACDeprecated("Use RACSignal instead")
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 @interface RACSequence : RACStream <NSCoding, NSCopying, NSFastEnumeration>
+#pragma clang diagnostic pop
 
 @property (nonatomic, strong, readonly) id head;
 @property (nonatomic, strong, readonly) RACSequence *tail;

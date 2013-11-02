@@ -39,16 +39,6 @@
 	}] setNameWithFormat:@"+never"];
 }
 
-#pragma mark NSObject
-
-- (NSString *)description {
-	return [NSString stringWithFormat:@"<%@: %p> name: %@", self.class, self, self.name];
-}
-
-@end
-
-@implementation RACSignal (RACStream)
-
 + (RACSignal *)empty {
 	return [RACEmptySignal empty];
 }
@@ -57,181 +47,10 @@
 	return [RACReturnSignal return:value];
 }
 
-- (RACSignal *)bind:(RACStreamBindBlock (^)(void))block {
-	NSCParameterAssert(block != NULL);
+#pragma mark NSObject
 
-	/*
-	 * -bind: should:
-	 * 
-	 * 1. Subscribe to the original signal of values.
-	 * 2. Any time the original signal sends a value, transform it using the binding block.
-	 * 3. If the binding block returns a signal, subscribe to it, and pass all of its values through to the subscriber as they're received.
-	 * 4. If the binding block asks the bind to terminate, complete the _original_ signal.
-	 * 5. When _all_ signals complete, send completed to the subscriber.
-	 * 
-	 * If any signal sends an error at any point, send that to the subscriber.
-	 */
-
-	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		RACStreamBindBlock bindingBlock = block();
-
-		NSMutableArray *signals = [NSMutableArray arrayWithObject:self];
-
-		RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposable];
-
-		void (^completeSignal)(RACSignal *, RACDisposable *) = ^(RACSignal *signal, RACDisposable *finishedDisposable) {
-			BOOL removeDisposable = NO;
-
-			@synchronized (signals) {
-				[signals removeObject:signal];
-
-				if (signals.count == 0) {
-					[subscriber sendCompleted];
-					[compoundDisposable dispose];
-				} else {
-					removeDisposable = YES;
-				}
-			}
-
-			if (removeDisposable) [compoundDisposable removeDisposable:finishedDisposable];
-		};
-
-		void (^addSignal)(RACSignal *) = ^(RACSignal *signal) {
-			@synchronized (signals) {
-				[signals addObject:signal];
-			}
-
-			RACSerialDisposable *selfDisposable = [[RACSerialDisposable alloc] init];
-			[compoundDisposable addDisposable:selfDisposable];
-
-			RACDisposable *disposable = [signal subscribeNext:^(id x) {
-				[subscriber sendNext:x];
-			} error:^(NSError *error) {
-				[compoundDisposable dispose];
-				[subscriber sendError:error];
-			} completed:^{
-				@autoreleasepool {
-					completeSignal(signal, selfDisposable);
-				}
-			}];
-
-			selfDisposable.disposable = disposable;
-		};
-
-		@autoreleasepool {
-			RACSerialDisposable *selfDisposable = [[RACSerialDisposable alloc] init];
-			[compoundDisposable addDisposable:selfDisposable];
-
-			RACDisposable *bindingDisposable = [self subscribeNext:^(id x) {
-				BOOL stop = NO;
-				id signal = bindingBlock(x, &stop);
-
-				@autoreleasepool {
-					if (signal != nil) addSignal(signal);
-					if (signal == nil || stop) {
-						[selfDisposable dispose];
-						completeSignal(self, selfDisposable);
-					}
-				}
-			} error:^(NSError *error) {
-				[compoundDisposable dispose];
-				[subscriber sendError:error];
-			} completed:^{
-				@autoreleasepool {
-					completeSignal(self, selfDisposable);
-				}
-			}];
-
-			selfDisposable.disposable = bindingDisposable;
-		}
-
-		return compoundDisposable;
-	}] setNameWithFormat:@"[%@] -bind:", self.name];
-}
-
-- (RACSignal *)concat:(RACSignal *)signal {
-	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		RACSerialDisposable *serialDisposable = [[RACSerialDisposable alloc] init];
-
-		RACDisposable *sourceDisposable = [self subscribeNext:^(id x) {
-			[subscriber sendNext:x];
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			RACDisposable *concattedDisposable = [signal subscribe:subscriber];
-			serialDisposable.disposable = concattedDisposable;
-		}];
-
-		serialDisposable.disposable = sourceDisposable;
-		return serialDisposable;
-	}] setNameWithFormat:@"[%@] -concat: %@", self.name, signal];
-}
-
-- (RACSignal *)zipWith:(RACSignal *)signal {
-	NSCParameterAssert(signal != nil);
-
-	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		__block BOOL selfCompleted = NO;
-		NSMutableArray *selfValues = [NSMutableArray array];
-
-		__block BOOL otherCompleted = NO;
-		NSMutableArray *otherValues = [NSMutableArray array];
-
-		void (^sendCompletedIfNecessary)(void) = ^{
-			@synchronized (selfValues) {
-				BOOL selfEmpty = (selfCompleted && selfValues.count == 0);
-				BOOL otherEmpty = (otherCompleted && otherValues.count == 0);
-				if (selfEmpty || otherEmpty) [subscriber sendCompleted];
-			}
-		};
-
-		void (^sendNext)(void) = ^{
-			@synchronized (selfValues) {
-				if (selfValues.count == 0) return;
-				if (otherValues.count == 0) return;
-
-				RACTuple *tuple = [RACTuple tupleWithObjects:selfValues[0], otherValues[0], nil];
-				[selfValues removeObjectAtIndex:0];
-				[otherValues removeObjectAtIndex:0];
-
-				[subscriber sendNext:tuple];
-				sendCompletedIfNecessary();
-			}
-		};
-
-		RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
-			@synchronized (selfValues) {
-				[selfValues addObject:x ?: RACTupleNil.tupleNil];
-				sendNext();
-			}
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			@synchronized (selfValues) {
-				selfCompleted = YES;
-				sendCompletedIfNecessary();
-			}
-		}];
-
-		RACDisposable *otherDisposable = [signal subscribeNext:^(id x) {
-			@synchronized (selfValues) {
-				[otherValues addObject:x ?: RACTupleNil.tupleNil];
-				sendNext();
-			}
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			@synchronized (selfValues) {
-				otherCompleted = YES;
-				sendCompletedIfNecessary();
-			}
-		}];
-
-		return [RACDisposable disposableWithBlock:^{
-			[selfDisposable dispose];
-			[otherDisposable dispose];
-		}];
-	}] setNameWithFormat:@"[%@] -zipWith: %@", self.name, signal];
+- (NSString *)description {
+	return [NSString stringWithFormat:@"<%@: %p> name: %@", self.class, self, self.name];
 }
 
 @end
@@ -300,6 +119,28 @@
 @end
 
 @implementation RACSignal (Debugging)
+
+@dynamic name;
+
+- (instancetype)setNameWithFormat:(NSString *)format, ... {
+	// This implementation is copied from RACStream because lolvarargs.
+	//
+	// Once RACStream is actually removed, this will be the sole implementation.
+
+#ifdef DEBUG
+	NSCParameterAssert(format != nil);
+
+	va_list args;
+	va_start(args, format);
+
+	NSString *str = [[NSString alloc] initWithFormat:format arguments:args];
+	va_end(args);
+
+	self.name = str;
+#endif
+	
+	return self;
+}
 
 - (RACSignal *)logAll {
 	return [[[self logNext] logError] logCompleted];

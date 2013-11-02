@@ -48,6 +48,12 @@
 
 @implementation RACChannelTerminal
 
+#pragma mark Properties
+
+- (RACCompoundDisposable *)disposable {
+	return self.otherTerminal.disposable;
+}
+
 #pragma mark Lifecycle
 
 - (id)initWithValues:(RACSignal *)values otherTerminal:(id<RACSubscriber>)otherTerminal {
@@ -81,10 +87,6 @@
 
 - (void)sendCompleted {
 	[self.otherTerminal sendCompleted];
-}
-
-- (void)didSubscribeWithDisposable:(RACCompoundDisposable *)disposable {
-	[self.otherTerminal didSubscribeWithDisposable:disposable];
 }
 
 @end

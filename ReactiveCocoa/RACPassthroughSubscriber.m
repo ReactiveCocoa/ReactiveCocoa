@@ -38,17 +38,17 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 // normal usage.
 @property (nonatomic, unsafe_unretained, readonly) RACSignal *signal;
 
-// A disposable representing the subscription. When disposed, no further events
-// should be sent to the `innerSubscriber`.
-@property (nonatomic, strong, readonly) RACCompoundDisposable *disposable;
-
 @end
 
 @implementation RACPassthroughSubscriber
 
+#pragma mark Properties
+
+@synthesize disposable = _disposable;
+
 #pragma mark Lifecycle
 
-- (instancetype)initWithSubscriber:(id<RACSubscriber>)subscriber signal:(RACSignal *)signal disposable:(RACCompoundDisposable *)disposable {
+- (instancetype)initWithSubscriber:(id<RACSubscriber>)subscriber signal:(RACSignal *)signal {
 	NSCParameterAssert(subscriber != nil);
 
 	self = [super init];
@@ -56,10 +56,15 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 
 	_innerSubscriber = subscriber;
 	_signal = signal;
-	_disposable = disposable;
+	_disposable = [[RACCompoundDisposable alloc] init];
 
-	[self.innerSubscriber didSubscribeWithDisposable:self.disposable];
+	[self.innerSubscriber.disposable addDisposable:self.disposable];
 	return self;
+}
+
+- (void)dealloc {
+	[self.innerSubscriber.disposable removeDisposable:self.disposable];
+	[self.disposable dispose];
 }
 
 #pragma mark RACSubscriber
@@ -92,12 +97,6 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 	}
 
 	[self.innerSubscriber sendCompleted];
-}
-
-- (void)didSubscribeWithDisposable:(RACCompoundDisposable *)disposable {
-	if (disposable != self.disposable) {
-		[self.disposable addDisposable:disposable];
-	}
 }
 
 @end

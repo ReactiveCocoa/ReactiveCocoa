@@ -18,11 +18,13 @@
 @property (nonatomic, copy) void (^error)(NSError *error);
 @property (nonatomic, copy) void (^completed)(void);
 
-@property (nonatomic, strong, readonly) RACCompoundDisposable *disposable;
-
 @end
 
 @implementation RACSubscriber
+
+#pragma mark Properties
+
+@synthesize disposable = _disposable;
 
 #pragma mark Lifecycle
 
@@ -52,9 +54,8 @@
 		}
 	}];
 
-	_disposable = [RACCompoundDisposable compoundDisposable];
-	[_disposable addDisposable:selfDisposable];
-
+	_disposable = [RACCompoundDisposable compoundDisposableWithDisposables:@[ selfDisposable ]];
+	
 	return self;
 }
 
@@ -91,22 +92,6 @@
 		if (completedBlock == nil) return;
 		completedBlock();
 	}
-}
-
-- (void)didSubscribeWithDisposable:(RACCompoundDisposable *)otherDisposable {
-	if (otherDisposable.disposed) return;
-
-	RACCompoundDisposable *selfDisposable = self.disposable;
-	[selfDisposable addDisposable:otherDisposable];
-
-	@unsafeify(otherDisposable);
-
-	// If this subscription terminates, purge its disposable to avoid unbounded
-	// memory growth.
-	[otherDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-		@strongify(otherDisposable);
-		[selfDisposable removeDisposable:otherDisposable];
-	}]];
 }
 
 @end

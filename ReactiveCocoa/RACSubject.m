@@ -18,9 +18,6 @@
 // This should only be used while synchronized on `self`.
 @property (nonatomic, strong, readonly) NSMutableArray *subscribers;
 
-// Contains all of the receiver's subscriptions to other signals.
-@property (nonatomic, strong, readonly) RACCompoundDisposable *disposable;
-
 // Enumerates over each of the receiver's `subscribers` and invokes `block` for
 // each.
 - (void)enumerateSubscribersUsingBlock:(void (^)(id<RACSubscriber> subscriber))block;
@@ -28,6 +25,10 @@
 @end
 
 @implementation RACSubject
+
+#pragma mark Properties
+
+@synthesize disposable = _disposable;
 
 #pragma mark Lifecycle
 
@@ -54,8 +55,7 @@
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
 	NSCParameterAssert(subscriber != nil);
 
-	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
-	subscriber = [[RACPassthroughSubscriber alloc] initWithSubscriber:subscriber signal:self disposable:disposable];
+	subscriber = [[RACPassthroughSubscriber alloc] initWithSubscriber:subscriber signal:self];
 
 	NSMutableArray *subscribers = self.subscribers;
 	@synchronized (subscribers) {
@@ -108,17 +108,6 @@
 	[self enumerateSubscribersUsingBlock:^(id<RACSubscriber> subscriber) {
 		[subscriber sendCompleted];
 	}];
-}
-
-- (void)didSubscribeWithDisposable:(RACCompoundDisposable *)d {
-	if (d.disposed) return;
-	[self.disposable addDisposable:d];
-
-	@weakify(self, d);
-	[d addDisposable:[RACDisposable disposableWithBlock:^{
-		@strongify(self, d);
-		[self.disposable removeDisposable:d];
-	}]];
 }
 
 @end

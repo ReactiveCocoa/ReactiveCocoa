@@ -1467,6 +1467,9 @@
 				88E2C6B2153C771C00C7493C /* RACScheduler.h */,
 				886D98581667C86D00F22541 /* RACScheduler+Private.h */,
 				88E2C6B3153C771C00C7493C /* RACScheduler.m */,
+				881E87AA16695C5600667F7B /* RACQueueScheduler.h */,
+				882D07201761521B009EDA69 /* RACQueueScheduler+Subclass.h */,
+				881E87AB16695C5600667F7B /* RACQueueScheduler.m */,
 				882D071717614FA7009EDA69 /* RACTargetQueueScheduler.h */,
 				882D071817614FA7009EDA69 /* RACTargetQueueScheduler.m */,
 				D00930771788AB7B00EE7E8B /* RACTestScheduler.h */,
@@ -1552,9 +1555,6 @@
 			children = (
 				881E87B016695EDF00667F7B /* RACImmediateScheduler.h */,
 				881E87B116695EDF00667F7B /* RACImmediateScheduler.m */,
-				881E87AA16695C5600667F7B /* RACQueueScheduler.h */,
-				882D07201761521B009EDA69 /* RACQueueScheduler+Subclass.h */,
-				881E87AB16695C5600667F7B /* RACQueueScheduler.m */,
 				881E87C21669635F00667F7B /* RACSubscriptionScheduler.h */,
 				881E87C31669636000667F7B /* RACSubscriptionScheduler.m */,
 			);

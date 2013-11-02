@@ -15,6 +15,28 @@
 @class RACSubject;
 @protocol RACSubscriber;
 
+/// Represents a push-driven stream of events.
+/// 
+/// Signals generally represent data that will be delivered in the future. As work
+/// is performed or data is received, values are _sent_ on the signal, which pushes
+/// them out to any subscribers. Users must subscribe to a signal, through
+/// a method like -subscribeNext:error:completed:, in order to access its values.
+/// 
+/// Signals send three different types of events to their subscribers:
+/// 
+///  * The **next** event provides a new value from the stream. Unlike Cocoa
+///    collections, it is completely valid for a signal to include `nil` in its
+///    values.
+///  * The **error** event indicates that an error occurred before the signal could
+///    finish. The event may include an `NSError` object that indicates what went
+///    wrong. Errors must be handled specially – they are not included in the
+///    stream's values.
+///  * The **completed** event indicates that the signal finished successfully, and
+///    that no more values will be added to the stream. Completion must be handled
+///    specially – it is not included in the stream of values.
+/// 
+/// The lifetime of a signal consists of any number of `next` events, followed by
+/// one `error` or `completed` event (but not both).
 @interface RACSignal : RACStream
 
 /// Creates a new signal. This is the preferred way to create a new signal

@@ -69,32 +69,6 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// upon `completed`, `error`, or cancellation.
 - (RACSignal *)doDisposed:(void (^)(void))block;
 
-/// Execute the given block each time a subscription is created.
-///
-/// block - A block which defines the subscription side effects. Cannot be `nil`.
-///
-/// Example:
-///
-///   // Write new file, with backup.
-///   [[[[fileManager
-///       rac_createFileAtPath:path contents:data]
-///       initially:^{
-///           // 2. Second, backup current file
-///           [fileManager moveItemAtPath:path toPath:backupPath error:nil];
-///       }]
-///       initially:^{
-///           // 1. First, acquire write lock.
-///           [writeLock lock];
-///       }]
-///       finally:^{
-///           [writeLock unlock];
-///       }];
-///
-/// Returns a signal that passes through all events of the receiver, plus
-/// introduces side effects which occur prior to any subscription side effects
-/// of the receiver.
-- (RACSignal *)initially:(void (^)(void))block;
-
 /// Execute the given block when the signal completes or errors.
 /// 
 /// See also -doDisposed:, which will execute the block upon cancellation as
@@ -397,7 +371,8 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 
 /// Defer creation of a signal until the signal's actually subscribed to.
 ///
-/// This can be used to effectively turn a hot signal into a cold signal.
+/// This can be used to effectively turn a hot signal into a cold signal, or to
+/// perform side effects before subscription.
 + (RACSignal *)defer:(RACSignal * (^)(void))block;
 
 /// Every time the receiver sends a new RACSignal, subscribes and sends `next`s and
@@ -596,6 +571,7 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 
 @interface RACSignal (DeprecatedOperations)
 
+- (RACSignal *)initially:(void (^)(void))block RACDeprecated("Put side effects into +defer: instead");
 - (RACMulticastConnection *)publish RACDeprecated("Send events to a shared RACSubject instead");
 - (RACMulticastConnection *)multicast:(RACSubject *)subject RACDeprecated("Use -promiseOnScheduler: or send events to a shared RACSubject instead");
 - (RACSignal *)replay RACDeprecated("Use -promiseOnScheduler: instead");

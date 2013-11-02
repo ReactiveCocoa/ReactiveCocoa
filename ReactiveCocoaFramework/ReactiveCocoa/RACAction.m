@@ -72,9 +72,10 @@
 	_errors = errors;
 	_executing = executing;
 
-	_sharedSignal = [[[[[[signal
-		initially:^{
+	_sharedSignal = [[[[[[RACSignal
+		defer:^{
 			[executing sendNext:@YES];
+			return signal;
 		}]
 		subscribeOn:RACScheduler.mainThreadScheduler]
 		doDisposed:^{

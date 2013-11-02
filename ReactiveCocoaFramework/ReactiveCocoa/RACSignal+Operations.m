@@ -142,15 +142,6 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -doDisposed:", self.name];
 }
 
-- (RACSignal *)initially:(void (^)(void))block {
-	NSCParameterAssert(block != NULL);
-
-	return [[RACSignal defer:^{
-		block();
-		return self;
-	}] setNameWithFormat:@"[%@] -initially:", self.name];
-}
-
 - (RACSignal *)finally:(void (^)(void))block {
 	NSCParameterAssert(block != NULL);
 	
@@ -1263,6 +1254,15 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 #pragma clang diagnostic ignored "-Wdeprecated-implementations"
 
 @implementation RACSignal (DeprecatedOperations)
+
+- (RACSignal *)initially:(void (^)(void))block {
+	NSCParameterAssert(block != NULL);
+
+	return [[RACSignal defer:^{
+		block();
+		return self;
+	}] setNameWithFormat:@"[%@] -initially:", self.name];
+}
 
 - (RACMulticastConnection *)publish {
 	RACSubject *subject = [[RACSubject subject] setNameWithFormat:@"[%@] -publish", self.name];

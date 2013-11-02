@@ -11,6 +11,7 @@
 #import "metamacros.h"
 
 @class RACSequence;
+@class RACSignal;
 
 /// Creates a new tuple with the given values. At least one value must be given.
 /// Values can be nil.
@@ -49,25 +50,37 @@
 /// It should never be necessary to create a tuple nil yourself. Just use
 /// +tupleNil.
 @interface RACTupleNil : NSObject <NSCopying, NSCoding>
-/// A singleton instance.
-+ (RACTupleNil *)tupleNil;
-@end
 
+/// A singleton instance.
++ (instancetype)tupleNil;
+
+@end
 
 /// A tuple is an ordered collection of objects. It may contain nils, represented
 /// by RACTupleNil.
 @interface RACTuple : NSObject <NSCoding, NSCopying, NSFastEnumeration>
 
+/// The number of objects in the tuple, including any nil values.
 @property (nonatomic, readonly) NSUInteger count;
 
 /// These properties all return the object at that index or nil if the number of 
 /// objects is less than the index.
-@property (nonatomic, readonly) id first;
-@property (nonatomic, readonly) id second;
-@property (nonatomic, readonly) id third;
-@property (nonatomic, readonly) id fourth;
-@property (nonatomic, readonly) id fifth;
-@property (nonatomic, readonly) id last;
+@property (nonatomic, strong, readonly) id first;
+@property (nonatomic, strong, readonly) id second;
+@property (nonatomic, strong, readonly) id third;
+@property (nonatomic, strong, readonly) id fourth;
+@property (nonatomic, strong, readonly) id fifth;
+@property (nonatomic, strong, readonly) id last;
+
+/// An array of all the objects in the tuple.
+///
+/// RACTupleNils are converted to NSNulls in the array.
+@property (nonatomic, copy, readonly) NSArray *allObjects;
+
+/// A signal that will send all of the objects in the tuple.
+///
+/// RACTupleNils will be sent as `nil` values on the signal.
+@property (nonatomic, strong, readonly) RACSignal *rac_signal;
 
 /// Creates a new tuple out of the array. Does not convert nulls to nils.
 + (instancetype)tupleWithObjectsFromArray:(NSArray *)array;
@@ -85,9 +98,6 @@
 /// past the tuple's count - 1. It will simply return nil.
 - (id)objectAtIndex:(NSUInteger)index;
 
-/// Returns an array of all the objects. RACTupleNils are converted to NSNulls.
-- (NSArray *)allObjects;
-
 /// Appends `obj` to the receiver.
 ///
 /// obj - The object to add to the tuple. This argument may be nil.
@@ -98,9 +108,11 @@
 @end
 
 @interface RACTuple (ObjectSubscripting)
+
 /// Returns the object at that index or nil if the number of objects is less
 /// than the index.
 - (id)objectAtIndexedSubscript:(NSUInteger)idx; 
+
 @end
 
 @interface RACTuple (Deprecated)

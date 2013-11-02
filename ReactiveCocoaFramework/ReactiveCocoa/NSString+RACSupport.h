@@ -15,6 +15,12 @@
 
 @interface NSString (RACSupport)
 
+/// A signal that will send NSStrings corresponding to each composed character
+/// sequence in the receiver.
+///
+/// Mutating the string will not affect the signal after it's been created.
+@property (nonatomic, strong, readonly) RACSignal *rac_signal;
+
 // Reads in the contents of the file using +[NSString stringWithContentsOfURL:usedEncoding:error:].
 // Note that encoding won't be valid until the signal completes successfully.
 //

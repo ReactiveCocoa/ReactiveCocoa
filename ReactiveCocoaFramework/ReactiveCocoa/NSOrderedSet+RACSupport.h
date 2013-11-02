@@ -10,8 +10,14 @@
 #import "RACDeprecated.h"
 
 @class RACSequence;
+@class RACSignal;
 
 @interface NSOrderedSet (RACSupport)
+
+/// A signal that will send all of the objects in the collection.
+///
+/// Mutating the collection will not affect the signal after it's been created.
+@property (nonatomic, strong, readonly) RACSignal *rac_signal;
 
 @end
 

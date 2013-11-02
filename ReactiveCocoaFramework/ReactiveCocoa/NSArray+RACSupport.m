@@ -7,9 +7,26 @@
 //
 
 #import "NSArray+RACSupport.h"
+#import "NSObject+RACDescription.h"
 #import "RACArraySequence.h"
+#import "RACSignal.h"
+#import "RACSubscriber.h"
 
 @implementation NSArray (RACSupport)
+
+- (RACSignal *)rac_signal {
+	NSArray *collection = [self copy];
+
+	return [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		for (id obj in collection) {
+			[subscriber sendNext:obj];
+		}
+
+		[subscriber sendCompleted];
+		return nil;
+	}] setNameWithFormat:@"%@ -rac_signal", self.rac_description];
+}
+
 @end
 
 #pragma clang diagnostic push

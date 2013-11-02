@@ -7,9 +7,28 @@
 //
 
 #import "NSEnumerator+RACSupport.h"
+#import "NSObject+RACDescription.h"
+#import "RACPromise.h"
+#import "RACScheduler.h"
 #import "RACSequence.h"
+#import "RACSignal+Operations.h"
+#import "RACSubscriber.h"
 
 @implementation NSEnumerator (RACSupport)
+
+- (RACPromise *)rac_promise {
+	return [[[RACSignal
+		createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			for (id obj in self) {
+				[subscriber sendNext:obj];
+			}
+
+			[subscriber sendCompleted];
+			return nil;
+		}]
+		setNameWithFormat:@"%@ -rac_promise", self.rac_description]
+		promiseOnScheduler:RACScheduler.immediateScheduler];
+}
 
 @end
 

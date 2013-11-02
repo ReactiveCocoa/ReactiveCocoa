@@ -7,12 +7,26 @@
 //
 
 #import "NSString+RACSupport.h"
+#import "NSObject+RACDescription.h"
 #import "RACPromise.h"
 #import "RACSignal.h"
 #import "RACStringSequence.h"
 #import "RACSubscriber.h"
 
 @implementation NSString (RACSupport)
+
+- (RACSignal *)rac_signal {
+	NSString *string = [self copy];
+
+	return [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		[string enumerateSubstringsInRange:NSMakeRange(0, string.length) options:NSStringEnumerationByComposedCharacterSequences usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
+			[subscriber sendNext:substring];
+        }];
+
+		[subscriber sendCompleted];
+		return nil;
+	}] setNameWithFormat:@"%@ -rac_signal", self.rac_description];
+}
 
 + (RACSignal *)rac_readContentsOfURL:(NSURL *)URL usedEncoding:(NSStringEncoding *)encoding scheduler:(RACScheduler *)scheduler {
 	NSCParameterAssert(scheduler != nil);

@@ -8,8 +8,24 @@
 
 #import "NSOrderedSet+RACSupport.h"
 #import "NSArray+RACSupport.h"
+#import "NSObject+RACDescription.h"
+#import "RACSignal.h"
+#import "RACSubscriber.h"
 
 @implementation NSOrderedSet (RACSupport)
+
+- (RACSignal *)rac_signal {
+	NSOrderedSet *collection = [self copy];
+
+	return [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		for (id obj in collection) {
+			[subscriber sendNext:obj];
+		}
+
+		[subscriber sendCompleted];
+		return nil;
+	}] setNameWithFormat:@"%@ -rac_signal", self.rac_description];
+}
 
 @end
 

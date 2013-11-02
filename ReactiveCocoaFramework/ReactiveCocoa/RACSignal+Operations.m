@@ -898,10 +898,6 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	return [[[self collect] first] copy];
 }
 
-- (RACSequence *)sequence {
-	return [[RACSignalSequence sequenceWithSignal:self] setNameWithFormat:@"[%@] -sequence", self.name];
-}
-
 - (RACSignal *)shareWhileActive {
 	// Although RACReplaySubject is deprecated for consumers, we're going to use it
 	// internally for the foreseeable future. We just want to expose something
@@ -1234,12 +1230,14 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	return [[self map:^(RACTuple *tuple) {
 		NSCAssert([tuple isKindOfClass:RACTuple.class], @"-and must only be used on a signal of RACTuples of NSNumbers. Instead, received: %@", tuple);
 		NSCAssert(tuple.count > 0, @"-and must only be used on a signal of RACTuples of NSNumbers, with at least 1 value in the tuple");
-		
-		return @([tuple.rac_sequence all:^(NSNumber *number) {
+
+		for (NSNumber *number in tuple) {
 			NSCAssert([number isKindOfClass:NSNumber.class], @"-and must only be used on a signal of RACTuples of NSNumbers. Instead, tuple contains a non-NSNumber value: %@", tuple);
 			
-			return number.boolValue;
-		}]);
+			if (!number.boolValue) return @NO;
+		}
+
+		return @YES;
 	}] setNameWithFormat:@"[%@] -and", self.name];
 }
 
@@ -1248,11 +1246,13 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		NSCAssert([tuple isKindOfClass:RACTuple.class], @"-or must only be used on a signal of RACTuples of NSNumbers. Instead, received: %@", tuple);
 		NSCAssert(tuple.count > 0, @"-or must only be used on a signal of RACTuples of NSNumbers, with at least 1 value in the tuple");
 		
-		return @([tuple.rac_sequence any:^(NSNumber *number) {
-			NSCAssert([number isKindOfClass:NSNumber.class], @"-or must only be used on a signal of RACTuples of NSNumbers. Instead, tuple contains a non-NSNumber value: %@", tuple);
-			
-			return number.boolValue;
-		}]);
+		for (NSNumber *number in tuple) {
+			NSCAssert([number isKindOfClass:NSNumber.class], @"-and must only be used on a signal of RACTuples of NSNumbers. Instead, tuple contains a non-NSNumber value: %@", tuple);
+
+			if (number.boolValue) return @YES;
+		}
+
+		return @NO;
 	}] setNameWithFormat:@"[%@] -or", self.name];
 }
 
@@ -1263,6 +1263,10 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 #pragma clang diagnostic ignored "-Wdeprecated-implementations"
 
 @implementation RACSignal (DeprecatedOperations)
+
+- (RACSequence *)sequence {
+	return [[RACSignalSequence sequenceWithSignal:self] setNameWithFormat:@"[%@] -sequence", self.name];
+}
 
 - (RACMulticastConnection *)publish {
 	RACSubject *subject = [[RACSubject subject] setNameWithFormat:@"[%@] -publish", self.name];

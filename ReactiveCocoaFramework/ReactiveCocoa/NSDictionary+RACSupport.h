@@ -7,25 +7,18 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "RACDeprecated.h"
 
 @class RACSequence;
 
 @interface NSDictionary (RACSupport)
 
-/// Creates and returns a sequence of RACTuple key/value pairs. The key will be
-/// the first element in the tuple, and the value will be the second.
-///
-/// Mutating the receiver will not affect the sequence after it's been created.
-@property (nonatomic, copy, readonly) RACSequence *rac_sequence;
+@end
 
-/// Creates and returns a sequence corresponding to the keys in the receiver.
-///
-/// Mutating the receiver will not affect the sequence after it's been created.
-@property (nonatomic, copy, readonly) RACSequence *rac_keySequence;
+@interface NSDictionary (RACSupportDeprecated)
 
-/// Creates and returns a sequence corresponding to the values in the receiver.
-///
-/// Mutating the receiver will not affect the sequence after it's been created.
-@property (nonatomic, copy, readonly) RACSequence *rac_valueSequence;
+@property (nonatomic, copy, readonly) RACSequence *rac_sequence RACDeprecated("Use -rac_signal instead");
+@property (nonatomic, copy, readonly) RACSequence *rac_keySequence RACDeprecated("Use -rac_keySignal instead");
+@property (nonatomic, copy, readonly) RACSequence *rac_valueSequence RACDeprecated("Use -rac_valueSignal instead");
 
 @end

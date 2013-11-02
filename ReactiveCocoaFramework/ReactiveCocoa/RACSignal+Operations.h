@@ -437,15 +437,6 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// Returns the array of `next` values, or nil if an error occurs.
 - (NSArray *)toArray;
 
-/// Add every `next` to a sequence. Nils are represented by NSNulls.
-///
-/// This corresponds to the `ToEnumerable` method in Rx.
-///
-/// Returns a sequence which provides values from the signal as they're sent.
-/// Trying to retrieve a value from the sequence which has not yet been sent will
-/// block.
-@property (nonatomic, strong, readonly) RACSequence *sequence;
-
 /// Deduplicates subscriptions to the receiver, and shares results between them,
 /// ensuring that only one subscription is active at a time.
 ///
@@ -579,6 +570,8 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 @end
 
 @interface RACSignal (DeprecatedOperations)
+
+@property (nonatomic, strong, readonly) RACSequence *sequence RACDeprecated("Transform the signal like a sequence instead");
 
 - (RACMulticastConnection *)publish RACDeprecated("Send events to a shared RACSubject instead");
 - (RACMulticastConnection *)multicast:(RACSubject *)subject RACDeprecated("Use -promiseOnScheduler: or send events to a shared RACSubject instead");

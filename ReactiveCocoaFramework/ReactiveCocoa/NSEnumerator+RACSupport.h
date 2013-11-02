@@ -7,14 +7,16 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "RACDeprecated.h"
 
 @class RACSequence;
 
 @interface NSEnumerator (RACSupport)
 
-/// Creates and returns a sequence corresponding to the receiver.
-///
-/// The receiver is exhausted lazily as the sequence is enumerated.
-@property (nonatomic, copy, readonly) RACSequence *rac_sequence;
+@end
+
+@interface NSEnumerator (RACSupportDeprecated)
+
+@property (nonatomic, copy, readonly) RACSequence *rac_sequence RACDeprecated("Use -rac_signal instead");
 
 @end

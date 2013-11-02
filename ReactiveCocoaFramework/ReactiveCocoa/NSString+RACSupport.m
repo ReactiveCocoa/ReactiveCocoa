@@ -14,10 +14,6 @@
 
 @implementation NSString (RACSupport)
 
-- (RACSequence *)rac_sequence {
-	return [RACStringSequence sequenceWithString:self offset:0];
-}
-
 + (RACSignal *)rac_readContentsOfURL:(NSURL *)URL usedEncoding:(NSStringEncoding *)encoding scheduler:(RACScheduler *)scheduler {
 	NSCParameterAssert(scheduler != nil);
 	
@@ -37,3 +33,17 @@
 }
 
 @end
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
+@implementation NSString (RACSupportDeprecated)
+
+- (RACSequence *)rac_sequence {
+	return [RACStringSequence sequenceWithString:self offset:0];
+}
+
+@end
+
+#pragma clang diagnostic pop

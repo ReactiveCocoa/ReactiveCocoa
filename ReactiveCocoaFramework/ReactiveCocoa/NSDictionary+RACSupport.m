@@ -13,6 +13,14 @@
 
 @implementation NSDictionary (RACSupport)
 
+@end
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
+@implementation NSDictionary (RACSupportDeprecated)
+
 - (RACSequence *)rac_sequence {
 	NSDictionary *immutableDict = [self copy];
 
@@ -32,3 +40,5 @@
 }
 
 @end
+
+#pragma clang diagnostic pop

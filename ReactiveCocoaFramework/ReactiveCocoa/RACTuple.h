@@ -97,16 +97,16 @@
 
 @end
 
-@interface RACTuple (RACSignalAdditions)
-
-@property (nonatomic, copy, readonly) RACSequence *rac_sequence RACDeprecated("Use -rac_signal instead");
-
-@end
-
 @interface RACTuple (ObjectSubscripting)
 /// Returns the object at that index or nil if the number of objects is less
 /// than the index.
 - (id)objectAtIndexedSubscript:(NSUInteger)idx; 
+@end
+
+@interface RACTuple (Deprecated)
+
+@property (nonatomic, copy, readonly) RACSequence *rac_sequence RACDeprecated("Use -rac_signal instead");
+
 @end
 
 /// This and everything below is for internal use only.

@@ -11,6 +11,14 @@
 
 @implementation NSEnumerator (RACSupport)
 
+@end
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
+@implementation NSEnumerator (RACSupportDeprecated)
+
 - (RACSequence *)rac_sequence {
 	return [RACSequence sequenceWithHeadBlock:^{
 		return [self nextObject];
@@ -20,3 +28,5 @@
 }
 
 @end
+
+#pragma clang diagnostic pop

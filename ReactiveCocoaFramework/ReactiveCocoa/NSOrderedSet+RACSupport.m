@@ -11,9 +11,19 @@
 
 @implementation NSOrderedSet (RACSupport)
 
+@end
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
+@implementation NSOrderedSet (RACSupportDeprecated)
+
 - (RACSequence *)rac_sequence {
 	// TODO: First class support for ordered set sequences.
 	return self.array.rac_sequence;
 }
 
 @end
+
+#pragma clang diagnostic pop

@@ -7,14 +7,16 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "RACDeprecated.h"
 
 @class RACSequence;
 
 @interface NSArray (RACSupport)
 
-/// Creates and returns a sequence corresponding to the receiver.
-///
-/// Mutating the receiver will not affect the sequence after it's been created.
-@property (nonatomic, copy, readonly) RACSequence *rac_sequence;
+@end
+
+@interface NSArray (RACSupportDeprecated)
+
+@property (nonatomic, copy, readonly) RACSequence *rac_sequence RACDeprecated("Use -rac_signal instead");
 
 @end

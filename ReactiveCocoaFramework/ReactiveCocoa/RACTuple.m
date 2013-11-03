@@ -9,6 +9,7 @@
 #import "RACTuple.h"
 #import "EXTKeyPathCoding.h"
 #import "NSObject+RACDescription.h"
+#import "RACCompoundDisposable.h"
 #import "RACSignal.h"
 #import "RACSubscriber.h"
 #import "RACTupleSequence.h"
@@ -64,13 +65,14 @@
 }
 
 - (RACSignal *)rac_signal {
-	return [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
 		for (id object in self.backingArray) {
 			[subscriber sendNext:(object == RACTupleNil.tupleNil ? nil : object)];
+
+			if (subscriber.disposable.disposed) return;
 		}
 
 		[subscriber sendCompleted];
-		return nil;
 	}] setNameWithFormat:@"%@ -rac_signal", self.rac_description];
 }
 

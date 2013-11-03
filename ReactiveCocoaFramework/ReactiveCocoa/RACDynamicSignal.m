@@ -42,8 +42,8 @@ static volatile uint32_t RACWillCheckActiveSignals = 0;
 	OSSpinLock _subscribersLock;
 }
 
-// The block to invoke for each subscriber.
-@property (nonatomic, copy, readonly) RACDisposable * (^didSubscribe)(id<RACSubscriber> subscriber);
+// The block to invoke for each subscription.
+@property (nonatomic, copy, readonly) void (^didSubscribe)(id<RACSubscriber> subscriber);
 
 @end
 
@@ -63,7 +63,7 @@ static volatile uint32_t RACWillCheckActiveSignals = 0;
 	RACActiveSignals = CFSetCreateMutable(NULL, 0, &callbacks);
 }
 
-+ (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
++ (RACSignal *)create:(void (^)(id<RACSubscriber> subscriber))didSubscribe {
 	RACDynamicSignal *signal = [[self alloc] init];
 	signal->_didSubscribe = [didSubscribe copy];
 	return [signal setNameWithFormat:@"+createSignal:"];
@@ -133,8 +133,7 @@ static void RACCheckActiveSignals(void) {
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
 	NSCParameterAssert(subscriber != nil);
 
-	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
-	subscriber = [[RACPassthroughSubscriber alloc] initWithSubscriber:subscriber signal:self disposable:disposable];
+	subscriber = [[RACPassthroughSubscriber alloc] initWithSubscriber:subscriber signal:self];
 
 	OSSpinLockLock(&_subscribersLock);
 	if (_subscribers == nil) {
@@ -171,18 +170,17 @@ static void RACCheckActiveSignals(void) {
 		}
 	}];
 
-	[disposable addDisposable:defaultDisposable];
+	[subscriber.disposable addDisposable:defaultDisposable];
 
 	if (self.didSubscribe != NULL) {
 		RACDisposable *schedulingDisposable = [RACScheduler.subscriptionScheduler schedule:^{
-			RACDisposable *innerDisposable = self.didSubscribe(subscriber);
-			[disposable addDisposable:innerDisposable];
+			self.didSubscribe(subscriber);
 		}];
 
-		[disposable addDisposable:schedulingDisposable];
+		[subscriber.disposable addDisposable:schedulingDisposable];
 	}
 	
-	return disposable;
+	return subscriber.disposable;
 }
 
 @end

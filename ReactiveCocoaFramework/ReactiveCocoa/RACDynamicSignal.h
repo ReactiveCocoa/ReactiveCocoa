@@ -12,6 +12,6 @@
 // using a block.
 @interface RACDynamicSignal : RACSignal
 
-+ (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe;
++ (RACSignal *)create:(void (^)(id<RACSubscriber> subscriber))didSubscribe;
 
 @end

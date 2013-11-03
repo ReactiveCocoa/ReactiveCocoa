@@ -8,6 +8,7 @@
 
 #import "NSString+RACSupport.h"
 #import "NSObject+RACDescription.h"
+#import "RACCompoundDisposable.h"
 #import "RACPromise.h"
 #import "RACSignal.h"
 #import "RACStringSequence.h"
@@ -18,13 +19,14 @@
 - (RACSignal *)rac_signal {
 	NSString *string = [self copy];
 
-	return [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
 		[string enumerateSubstringsInRange:NSMakeRange(0, string.length) options:NSStringEnumerationByComposedCharacterSequences usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
 			[subscriber sendNext:substring];
+
+			*stop = subscriber.disposable.disposed;
         }];
 
 		[subscriber sendCompleted];
-		return nil;
 	}] setNameWithFormat:@"%@ -rac_signal", self.rac_description];
 }
 

@@ -25,8 +25,8 @@
 
 #pragma mark Lifecycle
 
-+ (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
-	return [RACDynamicSignal createSignal:didSubscribe];
++ (RACSignal *)create:(void (^)(id<RACSubscriber> subscriber))didSubscribe {
+	return [RACDynamicSignal create:didSubscribe];
 }
 
 + (RACSignal *)error:(NSError *)error {
@@ -34,8 +34,9 @@
 }
 
 + (RACSignal *)never {
-	return [[self createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-		return nil;
+	return [[self create:^(id<RACSubscriber> subscriber) {
+		// Do nothing. This will cause the signal to live indefinitely unless
+		// interrupted in some way.
 	}] setNameWithFormat:@"+never"];
 }
 
@@ -219,6 +220,12 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 #pragma clang diagnostic ignored "-Wdeprecated-implementations"
 
 @implementation RACSignal (Deprecated)
+
++ (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
+	return [self create:^(id<RACSubscriber> subscriber) {
+		[subscriber.disposable addDisposable:didSubscribe(subscriber)];
+	}];
+}
 
 + (RACSignal *)startEagerlyWithScheduler:(RACScheduler *)scheduler block:(void (^)(id<RACSubscriber> subscriber))block {
 	return [[RACPromise promiseWithScheduler:scheduler block:block] start];

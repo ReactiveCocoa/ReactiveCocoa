@@ -21,7 +21,7 @@
 	@weakify(self);
 
 	return [[RACSignal
-		createSignal:^(id<RACSubscriber> subscriber) {
+		create:^(id<RACSubscriber> subscriber) {
 			@strongify(self);
 
 			[self addTarget:subscriber action:@selector(sendNext:)];
@@ -29,10 +29,10 @@
 				[subscriber sendCompleted];
 			}]];
 
-			return [RACDisposable disposableWithBlock:^{
+			[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
 				@strongify(self);
 				[self removeTarget:subscriber action:@selector(sendNext:)];
-			}];
+			}]];
 		}]
 		setNameWithFormat:@"%@ -rac_gestureSignal", [self rac_description]];
 }

@@ -9,6 +9,7 @@
 #import "NSDictionary+RACSupport.h"
 #import "NSArray+RACSupport.h"
 #import "NSObject+RACDescription.h"
+#import "RACCompoundDisposable.h"
 #import "RACSequence.h"
 #import "RACSignal.h"
 #import "RACSubscriber.h"
@@ -19,13 +20,14 @@
 - (RACSignal *)rac_signal {
 	NSDictionary *collection = [self copy];
 
-	return [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
 		[collection enumerateKeysAndObjectsUsingBlock:^(id key, id object, BOOL *stop) {
 			[subscriber sendNext:RACTuplePack(key, object)];
+
+			*stop = subscriber.disposable.disposed;
 		}];
 
 		[subscriber sendCompleted];
-		return nil;
 	}] setNameWithFormat:@"%@ -rac_signal", self.rac_description];
 }
 

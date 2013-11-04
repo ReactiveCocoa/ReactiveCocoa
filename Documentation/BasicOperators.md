@@ -49,7 +49,7 @@ The [-subscribe…][RACSignal] methods give you access to the current and future
 ```objc
 RACSignal *letters = [@"A B C D E F G H I" componentsSeparatedByString:@" "].rac_sequence.signal;
 
-// Outputs: A B C D
+// Outputs: A B C D E F G H I
 [letters subscribeNext:^(NSString *x) {
     NSLog(@"%@", x);
 }];

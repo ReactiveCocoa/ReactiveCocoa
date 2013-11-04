@@ -7,6 +7,7 @@
 //
 
 #import "NSObject+RACSelectorSignal.h"
+#import "EXTRuntimeExtensions.h"
 #import "NSInvocation+RACTypeParsing.h"
 #import "NSObject+RACDeallocating.h"
 #import "RACCompoundDisposable.h"
@@ -85,6 +86,30 @@ static void RACSwizzleForwardInvocation(Class class) {
 	};
 
 	class_replaceMethod(class, forwardInvocationSEL, imp_implementationWithBlock(newForwardInvocation), "v@:@");
+}
+
+static void RACSwizzleRespondsToSelector(Class class) {
+	SEL respondsToSelectorSEL = @selector(respondsToSelector:);
+
+	// Preserve existing implementation of -respondsToSelector:.
+	Method respondsToSelectorMethod = class_getInstanceMethod(class, respondsToSelectorSEL);
+	BOOL (*originalRespondsToSelector)(id, SEL, SEL) = (__typeof__(originalRespondsToSelector))method_getImplementation(respondsToSelectorMethod);
+
+	// Set up a new version of -respondsToSelector: that returns YES for methods
+	// added by -rac_signalForSelector:.
+	//
+	// If the selector has a method defined on the receiver's actual class, and
+	// if that method's implementation is _objc_msgForward, then return YES.
+	// Otherwise, call the original -respondsToSelector:.
+	id newRespondsToSelector = ^ BOOL (id self, SEL selector) {
+		Method method = rac_getImmediateInstanceMethod(object_getClass(self), selector);
+
+		if (method != NULL && method_getImplementation(method) == _objc_msgForward) return YES;
+
+		return originalRespondsToSelector(self, respondsToSelectorSEL, selector);
+	};
+
+	class_replaceMethod(class, @selector(respondsToSelector:), imp_implementationWithBlock(newRespondsToSelector), method_getTypeEncoding(respondsToSelectorMethod));
 }
 
 // It's hard to tell which struct return types use _objc_msgForward, and
@@ -201,9 +226,13 @@ static Class RACSwizzleClass(NSObject *self) {
 		// Just swizzle -forwardInvocation: in-place. Since the object's class
 		// was almost certainly dynamically changed, we shouldn't see another of
 		// these classes in the hierarchy.
+		//
+		// Additionally, swizzle -respondsToSelector: because the default
+		// implementation may be ignorant of methods added to this class.
 		@synchronized (swizzledClasses()) {
 			if (![swizzledClasses() containsObject:className]) {
 				RACSwizzleForwardInvocation(baseClass);
+				RACSwizzleRespondsToSelector(baseClass);
 				[swizzledClasses() addObject:className];
 			}
 		}

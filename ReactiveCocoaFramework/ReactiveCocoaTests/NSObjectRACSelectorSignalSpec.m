@@ -14,6 +14,7 @@
 #import "NSObject+RACSelectorSignal.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
+#import "RACMulticastConnection.h"
 #import "RACSignal+Operations.h"
 #import "RACSignal.h"
 #import "RACTuple.h"
@@ -133,7 +134,7 @@ describe(@"RACTestObject", ^{
 	it(@"should send arguments for invocation and invoke the original method on previously KVO'd receiver", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 
-		[RACObserve(object, objectValue) replayLast];
+		[[RACObserve(object, objectValue) publish] connect];
 
 		__block id key;
 		__block id value;
@@ -162,7 +163,7 @@ describe(@"RACTestObject", ^{
 			key = x.second;
 		}];
 
-		[RACObserve(object, objectValue) replayLast];
+		[[RACObserve(object, objectValue) publish] connect];
 
 		[object setObjectValue:@YES andSecondObjectValue:@"Winner"];
 
@@ -172,6 +173,22 @@ describe(@"RACTestObject", ^{
 
 		expect(value).to.equal(@YES);
 		expect(key).to.equal(@"Winner");
+	});
+
+	it(@"should properly implement -respondsToSelector: when called on KVO'd receiver", ^{
+		RACTestObject *object = [[RACTestObject alloc] init];
+
+		// First, setup KVO on `object`, which gives us the desired side-effect
+		// of `object` taking on a KVO-custom subclass.
+		[[RACObserve(object, objectValue) publish] connect];
+
+		SEL selector = NSSelectorFromString(@"anyOldSelector:");
+
+		// With the KVO subclass in place, call -rac_signalForSelector: to
+		// implement -anyOldSelector: directly on the KVO subclass.
+		[object rac_signalForSelector:selector];
+
+		expect([object respondsToSelector:selector]).to.beTruthy();
 	});
 
 	it(@"should send non-object arguments", ^{

@@ -7,6 +7,7 @@
 //
 
 #import "RACReturnSignal.h"
+#import "RACLiveSubscriber.h"
 #import "RACScheduler+Private.h"
 #import "RACSubscriber.h"
 #import "RACUnit.h"
@@ -78,10 +79,10 @@
 
 #pragma mark Subscription
 
-- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
+- (void)attachSubscriber:(RACLiveSubscriber *)subscriber {
 	NSCParameterAssert(subscriber != nil);
 
-	return [RACScheduler.subscriptionScheduler schedule:^{
+	[RACScheduler.subscriptionScheduler schedule:^{
 		[subscriber sendNext:self.value];
 		[subscriber sendCompleted];
 	}];

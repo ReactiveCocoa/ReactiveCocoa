@@ -9,7 +9,7 @@
 #import "RACSubject.h"
 #import "EXTScope.h"
 #import "RACCompoundDisposable.h"
-#import "RACPassthroughSubscriber.h"
+#import "RACLiveSubscriber.h"
 
 @interface RACSubject ()
 
@@ -52,17 +52,15 @@
 
 #pragma mark Subscription
 
-- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
+- (void)attachSubscriber:(RACLiveSubscriber *)subscriber {
 	NSCParameterAssert(subscriber != nil);
-
-	subscriber = [[RACPassthroughSubscriber alloc] initWithSubscriber:subscriber signal:self];
 
 	NSMutableArray *subscribers = self.subscribers;
 	@synchronized (subscribers) {
 		[subscribers addObject:subscriber];
 	}
 	
-	return [RACDisposable disposableWithBlock:^{
+	[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
 		@synchronized (subscribers) {
 			// Since newer subscribers are generally shorter-lived, search
 			// starting from the end of the list.
@@ -72,7 +70,7 @@
 
 			if (index != NSNotFound) [subscribers removeObjectAtIndex:index];
 		}
-	}];
+	}]];
 }
 
 - (void)enumerateSubscribersUsingBlock:(void (^)(id<RACSubscriber> subscriber))block {

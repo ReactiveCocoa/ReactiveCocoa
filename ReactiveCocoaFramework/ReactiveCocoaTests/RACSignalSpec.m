@@ -26,7 +26,6 @@
 #import "RACSignal+Operations.h"
 #import "RACSignalStartExamples.h"
 #import "RACSubject.h"
-#import "RACSubscriber+Private.h"
 #import "RACSubscriber.h"
 #import "RACTestScheduler.h"
 #import "RACTuple.h"
@@ -3379,7 +3378,7 @@ describe(@"starting signals", ^{
 			}];
 
 			subscribe = [^{
-				[signal subscribe:[RACSubscriber subscriberWithNext:nil error:nil completed:nil]];
+				[signal subscribeCompleted:^{}];
 			} copy];
 		});
 

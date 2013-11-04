@@ -8,7 +8,7 @@
 
 #import "RACDynamicSignal.h"
 #import "EXTScope.h"
-#import "RACPassthroughSubscriber.h"
+#import "RACLiveSubscriber.h"
 #import "RACScheduler+Private.h"
 #import "RACSubscriber.h"
 #import <libkern/OSAtomic.h>
@@ -130,10 +130,8 @@ static void RACCheckActiveSignals(void) {
 	return hasSubscribers;
 }
 
-- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
+- (void)attachSubscriber:(RACLiveSubscriber *)subscriber {
 	NSCParameterAssert(subscriber != nil);
-
-	subscriber = [[RACPassthroughSubscriber alloc] initWithSubscriber:subscriber signal:self];
 
 	OSSpinLockLock(&_subscribersLock);
 	if (_subscribers == nil) {
@@ -179,8 +177,6 @@ static void RACCheckActiveSignals(void) {
 
 		[subscriber.disposable addDisposable:schedulingDisposable];
 	}
-	
-	return subscriber.disposable;
 }
 
 @end

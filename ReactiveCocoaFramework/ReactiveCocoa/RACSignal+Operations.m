@@ -23,7 +23,6 @@
 #import "RACSignalSequence.h"
 #import "RACStream+Private.h"
 #import "RACSubject.h"
-#import "RACSubscriber+Private.h"
 #import "RACSubscriber.h"
 #import "RACTuple.h"
 #import "RACUnit.h"

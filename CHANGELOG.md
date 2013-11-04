@@ -21,6 +21,7 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=4stat
 
 **[Deprecations](#deprecations)**
 
+ 1. [Sequences](#sequences)
  1. [Multicasting](#multicasting)
  1. [Behavior subjects](#behavior-subjects)
 
@@ -116,6 +117,28 @@ self.buttonContainerView.hidden = [viewModel.enabled not];
 ```
 
 ## Deprecations
+
+### Sequences
+
+`RACSequence` was created a while ago to provide a _pull-driven_ alternative to
+the _push-driven_ signals that RAC is built around. However, it's difficult to
+convert between the two, and it leads to a lot of confusion around operator
+types, and the purpose of the `RACStream` superclass.
+
+Since most consumers end up using signals far more than sequences, and it's
+simpler to only offer one, `RACSequence` has been
+[deprecated](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/915), and all
+stream operators now appear directly on `RACSignal` for clarity.
+
+Instead of the `rac_sequence` methods that appeared on `NSArray`,
+`NSDictionary`, `NSSet`, etc., there's now a `rac_signal` method. When lazy
+evaluation is actually algorithmically important, a third-party library (like
+[RXCollections](https://github.com/robrix/RXCollections)) can be used instead.
+
+**To update:**
+
+ * Replace uses of `RACStream` and `RACSequence` with `RACSignal`.
+ * Replace uses of `rac_sequence` extension methods with `rac_signal` methods.
 
 ### Multicasting
 

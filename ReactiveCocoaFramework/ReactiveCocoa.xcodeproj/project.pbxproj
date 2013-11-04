@@ -33,6 +33,7 @@
 		554D9E5D181064E200F21262 /* UIRefreshControl+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 554D9E5B181064E200F21262 /* UIRefreshControl+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		554D9E5E181064E200F21262 /* UIRefreshControl+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 554D9E5C181064E200F21262 /* UIRefreshControl+RACSupport.m */; };
 		5564537F18107203002BD2E4 /* RACControlActionExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = D075A72917BCB7E100C24FB7 /* RACControlActionExamples.m */; };
+		4925E806181BCC71000B2FEE /* NSControllerRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 4925E805181BCC71000B2FEE /* NSControllerRACSupportSpec.m */; };
 		5564542418107275002BD2E4 /* UIRefreshControlRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5564542318107275002BD2E4 /* UIRefreshControlRACSupportSpec.m */; };
 		557A4B5A177648C7008EF796 /* UIActionSheet+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 557A4B58177648C7008EF796 /* UIActionSheet+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		557A4B5B177648C7008EF796 /* UIActionSheet+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 557A4B59177648C7008EF796 /* UIActionSheet+RACSupport.m */; };
@@ -1152,6 +1153,7 @@
 				884848B515F658B800B11BD0 /* NSControlRACSupportSpec.m */,
 				D011F9CF1782AFD400EE7E38 /* NSObjectRACAppKitBindingsSpec.m */,
 				D0A0B01716EAA5CC00C47593 /* NSTextRACSupportSpec.m */,
+				4925E805181BCC71000B2FEE /* NSControllerRACSupportSpec.m */,
 			);
 			name = "OS X";
 			sourceTree = "<group>";
@@ -2525,6 +2527,7 @@
 				5FDC350F1736F81900792E52 /* NSStringRACKeyPathUtilitiesSpec.m in Sources */,
 				D075A72A17BCB7E100C24FB7 /* RACControlActionExamples.m in Sources */,
 				88302BFD1762A9E6003633BD /* RACTestExampleScheduler.m in Sources */,
+				4925E806181BCC71000B2FEE /* NSControllerRACSupportSpec.m in Sources */,
 				8884DD651756ACF600F6C379 /* RACSignalStartExamples.m in Sources */,
 				88302C2E1762C180003633BD /* RACTargetQueueSchedulerSpec.m in Sources */,
 				D02C7C931822D44400CB20D6 /* RACActionSpec.m in Sources */,

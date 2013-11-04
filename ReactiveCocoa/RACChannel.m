@@ -8,8 +8,10 @@
 
 #import "RACChannel.h"
 #import "RACDisposable.h"
+#import "RACLiveSubscriber.h"
 #import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"
+#import "RACSignal+Private.h"
 
 @interface RACChannelTerminal ()
 
@@ -71,8 +73,8 @@
 
 #pragma mark RACSignal
 
-- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	return [self.values subscribe:subscriber];
+- (void)attachSubscriber:(RACLiveSubscriber *)subscriber {
+	[self.values attachSubscriber:subscriber];
 }
 
 #pragma mark <RACSubscriber>

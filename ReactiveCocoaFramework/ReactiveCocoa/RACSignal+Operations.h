@@ -85,14 +85,6 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// before forwarding `completed` or `error`.
 - (RACSignal *)doFinished:(void (^)(void))block;
 
-/// Run the given block after establishing a subscription.
-///
-/// This should be used to inject side effects into the signal.
-///
-/// Returns a signal which runs `block` after subscribing to the receiver, then
-/// forwards all the events of the receiver.
-- (RACSignal *)doSubscribed:(void (^)(void))block;
-
 /// Send `next`s only if we don't receive another `next` in `interval` seconds.
 ///
 /// If a `next` is received, and then another `next` is received before

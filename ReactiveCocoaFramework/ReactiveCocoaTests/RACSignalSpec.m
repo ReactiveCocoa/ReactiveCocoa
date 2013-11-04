@@ -3059,46 +3059,6 @@ describe(@"-concat", ^{
 	});
 });
 
-describe(@"-doSubscribed:", ^{
-	__block RACReplaySubject *subject;
-
-	__block NSUInteger subscribedInvokedCount;
-	__block RACSignal *signal;
-
-	beforeEach(^{
-		subject = [RACReplaySubject subject];
-
-		subscribedInvokedCount = 0;
-		signal = [subject doSubscribed:^{
-			++subscribedInvokedCount;
-		}];
-	});
-
-	it(@"should not run without a subscription", ^{
-		[subject sendCompleted];
-		expect(subscribedInvokedCount).to.equal(0);
-	});
-
-	it(@"should run after subscription", ^{
-		[subject sendNext:RACUnit.defaultUnit];
-
-		__block BOOL receivedNext = NO;
-		[signal subscribeNext:^(id _) {
-			receivedNext = YES;
-			expect(subscribedInvokedCount).to.equal(0);
-		}];
-
-		expect(receivedNext).to.equal(1);
-		expect(subscribedInvokedCount).to.equal(1);
-	});
-
-	it(@"should re-run for each subscription", ^{
-		[signal subscribeCompleted:^{}];
-		[signal subscribeCompleted:^{}];
-		expect(subscribedInvokedCount).to.equal(2);
-	});
-});
-
 describe(@"-doFinished:", ^{
 	__block RACSubject *subject;
 

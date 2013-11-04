@@ -31,9 +31,6 @@ static NSString * const RACKVOChannelDataDictionaryKey = @"RACKVOChannelKey";
 // The flag used to ignore updates the channel itself has triggered.
 @property (nonatomic, assign) BOOL ignoreNextUpdate;
 
-// The current -willChangeValueForKey:/-didChangeValueForKey: call stack depth.
-@property (nonatomic, assign) NSUInteger stackDepth;
-
 // A pointer to the owner of the data. Only use this for pointer comparison,
 // never as an object reference.
 @property (nonatomic, assign) void *owner;
@@ -89,46 +86,16 @@ static NSString * const RACKVOChannelDataDictionaryKey = @"RACKVOChannelKey";
 	[self.leadingTerminal setNameWithFormat:@"[-initWithTarget: %@ keyPath: %@ nilValue: %@] -leadingTerminal", target, keyPath, nilValue];
 	[self.followingTerminal setNameWithFormat:@"[-initWithTarget: %@ keyPath: %@ nilValue: %@] -followingTerminal", target, keyPath, nilValue];
 
-	// Observe the key path on target for changes. Update the value of stackDepth
-	// accordingly and forward the changes to the terminal.
+	// Observe the key path on target for changes and forward the changes to the
+	// terminal.
 	//
 	// Intentionally capturing `self` strongly in the blocks below, so the
 	// channel object stays alive while observing.
-	RACDisposable *observationDisposable = [target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior | NSKeyValueObservingOptionInitial observer:nil block:^(id value, NSDictionary *change) {
-		RACKVOChannelData *data = self.currentThreadData;
-		
-		// If the change is prior we only increase the stack depth if it was
-		// triggered by the last path component, we don't do anything otherwise.
-		if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
-			if ([change[RACKeyValueChangeAffectedOnlyLastComponentKey] boolValue]) {
-				// Don't worry about the data being nil, if it is it means the channel
-				// hasn't received a value since the latest ignored one anyway.
-				++data.stackDepth;
-			}
-
-			return;
-		}
-		
-		// From here the change isn't prior.
-
-		// The channel only triggers changes to the last path component, if the
-		// change wasn't triggered by the last path component, or was triggered by
-		// a deallocation, it definitely wasn't triggered by this channel, so just
-		// forward it.
-		if (![change[RACKeyValueChangeAffectedOnlyLastComponentKey] boolValue] || [change[RACKeyValueChangeCausedByDeallocationKey] boolValue]) {
-			[self.leadingTerminal sendNext:value];
-			return;
-		}
-
-		--data.stackDepth;
-		NSCAssert(data.stackDepth != NSUIntegerMax, @"%@ received -didChangeValueForKey: without corresponding -willChangeValueForKey:", self);
-
-		// If the current stackDepth is greater than 0, then the change was
-		// triggered by a callback on -willChangeValueForKey:, and not by the
-		// channel itself. If however the stackDepth is 0, and ignoreNextUpdate is
-		// set, the changes was triggered by this channel and should not be
-		// forwarded.
-		if (data.stackDepth == 0 && data.ignoreNextUpdate) {
+	RACDisposable *observationDisposable = [target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionInitial observer:nil block:^(id value, NSDictionary *change) {
+		// If the change wasn't triggered by deallocation, only affects the last
+		// path component, and ignoreNextUpdate is set, then it was triggered by
+		// this channel and should not be forwarded.
+		if (![change[RACKeyValueChangeCausedByDeallocationKey] boolValue] && [change[RACKeyValueChangeAffectedOnlyLastComponentKey] boolValue] && self.currentThreadData.ignoreNextUpdate) {
 			[self destroyCurrentThreadData];
 			return;
 		}

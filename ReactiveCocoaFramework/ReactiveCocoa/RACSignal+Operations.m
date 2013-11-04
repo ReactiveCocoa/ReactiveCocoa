@@ -313,15 +313,6 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		setNameWithFormat:@"[%@] -doFinished:", self.name];
 }
 
-- (RACSignal *)doSubscribed:(void (^)(void))block {
-	NSCParameterAssert(block != NULL);
-	
-	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		[self subscribe:subscriber];
-		block();
-	}] setNameWithFormat:@"[%@] -doSubscribed:", self.name];
-}
-
 - (RACSignal *)throttle:(NSTimeInterval)interval {
 	return [[self throttle:interval valuesPassingTest:^(id _) {
 		return YES;

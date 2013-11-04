@@ -199,7 +199,7 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 			NSKeyValueChangeKindKey: @(NSKeyValueChangeSetting),
 			NSKeyValueChangeNewKey: initialValue ?: NSNull.null,
 			RACKeyValueChangeCausedByDeallocationKey: @NO,
-			RACKeyValueChangeAffectedOnlyLastComponentKey: @NO
+			RACKeyValueChangeAffectedOnlyLastComponentKey: @(keyPathHasOneComponent)
 		};
 		block(initialValue, initialChange);
 	}

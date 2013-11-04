@@ -15,9 +15,12 @@
 @implementation NSFileHandle (RACSupport)
 
 - (RACSignal *)rac_readInBackground {
-	return [[[[[[[[NSNotificationCenter.defaultCenter
-		rac_addObserverForName:NSFileHandleReadCompletionNotification object:self]
-		doSubscribed:^{
+	return [[[[[[[RACSignal
+		create:^(id<RACSubscriber> subscriber) {
+			[[NSNotificationCenter.defaultCenter
+				rac_addObserverForName:NSFileHandleReadCompletionNotification object:self]
+				subscribe:subscriber];
+
 			[self readInBackgroundAndNotify];
 		}]
 		map:^(NSNotification *note) {

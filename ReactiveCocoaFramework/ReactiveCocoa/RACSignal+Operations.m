@@ -15,11 +15,13 @@
 #import "RACDisposable.h"
 #import "RACEvent.h"
 #import "RACGroupedSignal.h"
+#import "RACLiveSubscriber.h"
 #import "RACMulticastConnection+Private.h"
 #import "RACReplaySubject.h"
 #import "RACScheduler+Private.h"
 #import "RACScheduler.h"
 #import "RACSerialDisposable.h"
+#import "RACSignal+Private.h"
 #import "RACSignalSequence.h"
 #import "RACStream+Private.h"
 #import "RACSubject.h"
@@ -1357,25 +1359,29 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 				[signals addObject:signal];
 			}
 
-			RACSerialDisposable *selfDisposable = [[RACSerialDisposable alloc] init];
-			[subscriber.disposable addDisposable:selfDisposable];
+			RACSerialDisposable *innerDisposable = [[RACSerialDisposable alloc] init];
+			[subscriber.disposable addDisposable:innerDisposable];
 
-			selfDisposable.disposable = [signal subscribeNext:^(id x) {
+			RACLiveSubscriber *innerSubscriber = [RACLiveSubscriber subscriberWithNext:^(id x) {
 				[subscriber sendNext:x];
 			} error:^(NSError *error) {
 				[subscriber sendError:error];
 			} completed:^{
 				@autoreleasepool {
-					completeSignal(signal, selfDisposable);
+					completeSignal(signal, innerDisposable);
 				}
 			}];
+
+			innerSubscriber.signal = signal;
+			innerDisposable.disposable = innerSubscriber.disposable;
+			[signal attachSubscriber:innerSubscriber];
 		};
 
 		@autoreleasepool {
 			RACSerialDisposable *selfDisposable = [[RACSerialDisposable alloc] init];
 			[subscriber.disposable addDisposable:selfDisposable];
 
-			selfDisposable.disposable = [self subscribeNext:^(id x) {
+			RACLiveSubscriber *selfSubscriber = [RACLiveSubscriber subscriberWithNext:^(id x) {
 				BOOL stop = NO;
 				id signal = bindingBlock(x, &stop);
 
@@ -1393,6 +1399,10 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 					completeSignal(self, selfDisposable);
 				}
 			}];
+
+			selfSubscriber.signal = self;
+			selfDisposable.disposable = selfSubscriber.disposable;
+			[self attachSubscriber:selfSubscriber];
 		}
 	}] setNameWithFormat:@"[%@] -bind:", self.name];
 }

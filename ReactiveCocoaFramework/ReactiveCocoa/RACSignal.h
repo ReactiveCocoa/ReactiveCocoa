@@ -130,6 +130,27 @@
 /// Convenience method to subscribe to `error` and `completed` events.
 - (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
 
+/// Subscribes to the receiver, offering an opportunity to save the disposable
+/// before actually starting the signal.
+///
+/// This is primarily useful for signals that may be synchronous. Because the
+/// other -subscribe… methods return a disposable, it's impossible to dispose of
+/// the subscription until the signal finishes any synchronous behaviors it may
+/// have.
+///
+/// By contrast, this method allows you to save the disposable immediately,
+/// _then_ start the signal, so it can be disposed even while invoking your
+/// event handlers synchronously.
+///
+/// saveDisposableBlock - Invoked before starting the signal, this block can be
+///                       used to save the given `RACDisposable` for later use
+///                       in the event handler blocks. This block must not be
+///                       nil.
+/// nextBlock           - Invoked upon a `next` event. This block may be nil.
+/// errorBlock          - Invoked upon an `error` event. This block may be nil.
+/// completedBlock      - Invoked upon a `completed` event. This block may be nil.
+- (void)subscribeSavingDisposable:(void (^)(RACDisposable *))saveDisposableBlock next:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
+
 @end
 
 /// Additional methods to assist with debugging.

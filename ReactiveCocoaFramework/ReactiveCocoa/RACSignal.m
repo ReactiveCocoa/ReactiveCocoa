@@ -105,6 +105,16 @@
 	return [self subscribeNext:nil error:errorBlock completed:completedBlock];
 }
 
+- (void)subscribeSavingDisposable:(void (^)(RACDisposable *))saveDisposableBlock next:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock {
+	NSCParameterAssert(saveDisposableBlock != nil);
+
+	RACLiveSubscriber *subscriber = [RACLiveSubscriber subscriberWithNext:nextBlock error:errorBlock completed:completedBlock];
+	subscriber.signal = self;
+
+	saveDisposableBlock(subscriber.disposable);
+	[self attachSubscriber:subscriber];
+}
+
 @end
 
 @implementation RACSignal (Debugging)

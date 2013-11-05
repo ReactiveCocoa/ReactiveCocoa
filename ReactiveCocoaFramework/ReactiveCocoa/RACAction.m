@@ -31,19 +31,6 @@
 
 @implementation RACAction
 
-#pragma mark Properties
-
-- (RACSignal *)errors {
-	return [[_errors
-		deliverOn:RACScheduler.mainThreadScheduler]
-		setNameWithFormat:@"[%@] -errors", self.sharedSignal.name];
-}
-
-- (RACSignal *)executing {
-	return [_executing
-		setNameWithFormat:@"[%@] -executing", self.sharedSignal.name];
-}
-
 #pragma mark Lifecycle
 
 - (id)init {
@@ -59,11 +46,11 @@
 
 	// Use temporaries for these subjects so we don't have to weakly reference
 	// `self` in the signal chain below. (Weak references are expensive.)
-	RACSubject *errors = [RACSubject subject];
+	RACSubject *errors = [[RACSubject subject] setNameWithFormat:@"[%@] -errors", self.sharedSignal.name];
 
 	#pragma clang diagnostic push
 	#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-	RACReplaySubject *executing = [RACReplaySubject replaySubjectWithCapacity:1];
+	RACReplaySubject *executing = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"[%@] -executing", self.sharedSignal.name];
 	#pragma clang diagnostic pop
 
 	// Not executing by default.

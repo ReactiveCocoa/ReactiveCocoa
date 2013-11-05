@@ -1362,7 +1362,9 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			RACSerialDisposable *innerDisposable = [[RACSerialDisposable alloc] init];
 			[subscriber.disposable addDisposable:innerDisposable];
 
-			RACLiveSubscriber *innerSubscriber = [RACLiveSubscriber subscriberWithNext:^(id x) {
+			[signal subscribeSavingDisposable:^(RACDisposable *disposable) {
+				innerDisposable.disposable = disposable;
+			} next:^(id x) {
 				[subscriber sendNext:x];
 			} error:^(NSError *error) {
 				[subscriber sendError:error];
@@ -1371,17 +1373,15 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 					completeSignal(signal, innerDisposable);
 				}
 			}];
-
-			innerSubscriber.signal = signal;
-			innerDisposable.disposable = innerSubscriber.disposable;
-			[signal attachSubscriber:innerSubscriber];
 		};
 
 		@autoreleasepool {
 			RACSerialDisposable *selfDisposable = [[RACSerialDisposable alloc] init];
 			[subscriber.disposable addDisposable:selfDisposable];
 
-			RACLiveSubscriber *selfSubscriber = [RACLiveSubscriber subscriberWithNext:^(id x) {
+			[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+				selfDisposable.disposable = disposable;
+			} next:^(id x) {
 				BOOL stop = NO;
 				id signal = bindingBlock(x, &stop);
 
@@ -1399,10 +1399,6 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 					completeSignal(self, selfDisposable);
 				}
 			}];
-
-			selfSubscriber.signal = self;
-			selfDisposable.disposable = selfSubscriber.disposable;
-			[self attachSubscriber:selfSubscriber];
 		}
 	}] setNameWithFormat:@"[%@] -bind:", self.name];
 }

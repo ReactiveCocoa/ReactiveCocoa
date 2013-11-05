@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class RACCommand;
+@class RACCommand, RACSignal;
 
 @interface NSControl (RACCommandSupport)
 
@@ -18,5 +18,8 @@
 ///
 /// Note: this will reset the control's target and action.
 @property (nonatomic, strong) RACCommand *rac_command;
+
+/// Substitute another signal for the control's `enabled` value binding.
+- (void)rac_rebindEnabled:(RACSignal *)enabledSignal;
 
 @end

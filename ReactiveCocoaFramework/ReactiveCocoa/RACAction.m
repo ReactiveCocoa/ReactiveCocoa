@@ -82,8 +82,13 @@
 }
 
 - (void)dealloc {
-	[_errors sendCompleted];
-	[_executing sendCompleted];
+	RACSubject *errors = _errors;
+	RACSubject *executing = _executing;
+
+	[RACScheduler.mainThreadScheduler schedule:^{
+		[errors sendCompleted];
+		[executing sendCompleted];
+	}];
 }
 
 #pragma mark Execution

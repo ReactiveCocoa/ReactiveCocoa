@@ -26,6 +26,25 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// value. Returning `nil` will result in immediate termination.
 typedef RACSignal * (^RACSignalBindBlock)(id value, BOOL *stop);
 
+/// The policy that -flatten:withPolicy: should follow when additional signals
+/// arrive while `maxConcurrent` signals are already subscribed to.
+///
+/// RACSignalFlattenPolicyWait            - Wait until each current signal
+///                                         completes, then subscribe to the
+///                                         additional signals in the order of
+///                                         their arrival.
+/// RACSignalFlattenPolicyDisposeEarliest - Dispose of the active subscription
+///                                         to the signal that arrived earliest,
+///                                         then subscribe to the new signal.
+/// RACSignalFlattenPolicyDisposeLatest   - Dispose of the active subscription
+///                                         to the signal that arrived latest,
+///                                         then subscribe to the new signal.
+typedef enum : NSUInteger {
+	RACSignalFlattenPolicyWait,
+	RACSignalFlattenPolicyDisposeEarliest,
+	RACSignalFlattenPolicyDisposeLatest
+} RACSignalFlattenPolicy;
+
 @class RACAction;
 @class RACCommand;
 @class RACDisposable;
@@ -452,19 +471,23 @@ typedef RACSignal * (^RACSignalBindBlock)(id value, BOOL *stop);
 + (RACSignal *)merge:(id<NSFastEnumeration>)signals;
 
 /// Merges the signals sent by the receiver into a flattened signal, but only
-/// subscribes to `maxConcurrent` number of signals at a time. New signals are
-/// queued and subscribed to as other signals complete.
+/// subscribes to `maxConcurrent` number of signals at a time.
 ///
-/// If an error occurs on any of the signals, it is sent on the returned signal.
-/// It completes only after the receiver and all sent signals have completed.
+/// When the receiver sends new signals while `maxConcurrent` signals are
+/// already subscribed to, `policy` determines what the behavior should be.
 ///
 /// This corresponds to `Merge<TSource>(IObservable<IObservable<TSource>>, Int32)`
 /// in Rx.
 ///
-/// maxConcurrent - the maximum number of signals to subscribe to at a
-///                 time. If 0, it subscribes to an unlimited number of
-///                 signals.
-- (RACSignal *)flatten:(NSUInteger)maxConcurrent;
+/// maxConcurrent - The maximum number of signals to subscribe to at a
+///                 time. This must be greater than 0.
+/// policy        - Describes what to do when `maxConcurrent` is exceeded.
+///
+/// Returns a signal that forwards values from up to `maxConcurrent` signals at
+/// a time. If an error occurs on any of the signals, it is sent on the returned
+/// signal immediately. The returned signal will complete only after all input
+/// signals have completed or been disposed.
+- (RACSignal *)flatten:(NSUInteger)maxConcurrent withPolicy:(RACSignalFlattenPolicy)policy;
 
 /// Ignores all `next`s from the receiver, waits for the receiver to complete,
 /// then subscribes to a new signal.
@@ -827,6 +850,7 @@ typedef RACSignal * (^RACSignalBindBlock)(id value, BOOL *stop);
 
 - (RACSignal *)initially:(void (^)(void))block RACDeprecated("Put side effects into +defer: instead");
 - (RACSignal *)finally:(void (^)(void))block RACDeprecated("Renamed to -doFinished:");
+- (RACSignal *)flatten:(NSUInteger)maxConcurrent RACDeprecated("Use -flatten:withPolicy: instead");
 - (RACMulticastConnection *)publish RACDeprecated("Send events to a shared RACSubject instead");
 - (RACMulticastConnection *)multicast:(RACSubject *)subject RACDeprecated("Use -promiseOnScheduler: or send events to a shared RACSubject instead");
 - (RACSignal *)replay RACDeprecated("Use -promiseOnScheduler: instead");

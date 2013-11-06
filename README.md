@@ -325,7 +325,7 @@ ReactiveCocoa makes this pattern particularly easy:
 
 ```objc
 [[[[client logIn]
-    sequenceNext:^{
+    then:^{
         return [client loadCachedMessages];
     }]
     flattenMap:^(NSArray *messages) {
@@ -421,17 +421,18 @@ for (NSString *str in strings) {
 }
 ```
 
-[RACSequence][] allows any Cocoa collection to be manipulated in a uniform and
+[RACSignal][] allows any Cocoa collection to be manipulated in a uniform and
 declarative way:
 
 ```objc
-RACSequence *results = [[strings.rac_sequence
+NSArray *results = [[[strings.rac_signal
     filter:^ BOOL (NSString *str) {
         return str.length >= 2;
     }]
     map:^(NSString *str) {
         return [str stringByAppendingString:@"foobar"];
-    }];
+    }]
+    array];
 ```
 
 ## System Requirements
@@ -500,10 +501,8 @@ some more resources for learning about FRP:
 [RACDisposable]: ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
 [RACEvent]: ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h
 [RACScheduler]: ReactiveCocoaFramework/ReactiveCocoa/RACScheduler.h
-[RACSequence]: ReactiveCocoaFramework/ReactiveCocoa/RACSequence.h
 [RACSignal+Operations]: ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h
 [RACSignal]: ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h
-[RACStream]: ReactiveCocoaFramework/ReactiveCocoa/RACStream.h
 [RACSubscriber]: ReactiveCocoaFramework/ReactiveCocoa/RACSubscriber.h
 [RAC]: ReactiveCocoaFramework/ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h
 [RACiOSDemo]: https://github.com/ReactiveCocoa/RACiOSDemo

@@ -8,12 +8,6 @@ This document assumes basic familiarity
 with the features of ReactiveCocoa. The [Framework Overview][] is a better
 resource for getting up to speed on the functionality provided by RAC.
 
-**[The RACSequence contract](#the-racsequence-contract)**
-
- 1. [Evaluation occurs lazily by default](#evaluation-occurs-lazily-by-default)
- 1. [Evaluation blocks the caller](#evaluation-blocks-the-caller)
- 1. [Side effects occur only once](#side-effects-occur-only-once)
-
 **[The RACSignal contract](#the-racsignal-contract)**
 
  1. [Signal events are serialized](#signal-events-are-serialized)
@@ -26,102 +20,24 @@ resource for getting up to speed on the functionality provided by RAC.
 **[Best practices](#best-practices)**
 
  1. [Use descriptive declarations for methods and properties that return a signal](#use-descriptive-declarations-for-methods-and-properties-that-return-a-signal)
- 1. [Indent stream operations consistently](#indent-stream-operations-consistently)
- 1. [Use the same type for all the values of a stream](#use-the-same-type-for-all-the-values-of-a-stream)
- 1. [Avoid retaining streams for too long](#avoid-retaining-streams-for-too-long)
- 1. [Process only as much of a stream as needed](#process-only-as-much-of-a-stream-as-needed)
+ 1. [Indent signal operations consistently](#indent-signal-operations-consistently)
+ 1. [Use the same type for all the values of a signal](#use-the-same-type-for-all-the-values-of-a-signal)
+ 1. [Process only as much of a signal as needed](#process-only-as-much-of-a-signal-as-needed)
  1. [Deliver signal events onto a known scheduler](#deliver-signal-events-onto-a-known-scheduler)
  1. [Switch schedulers in as few places as possible](#switch-schedulers-in-as-few-places-as-possible)
  1. [Make the side effects of a signal explicit](#make-the-side-effects-of-a-signal-explicit)
  1. [Share the side effects of a signal with a subject](#share-the-side-effects-of-a-signal-with-a-subject)
- 1. [Debug streams by giving them names](#debug-streams-by-giving-them-names)
+ 1. [Debug signals by giving them names](#debug-signals-by-giving-them-names)
  1. [Avoid explicit subscriptions and disposal](#avoid-explicit-subscriptions-and-disposal)
  1. [Avoid manipulating subjects directly](#avoid-manipulating-subjects-directly)
 
 **[Implementing new operators](#implementing-new-operators)**
 
- 1. [Prefer building on RACStream methods](#prefer-building-on-racstream-methods)
  1. [Compose existing operators when possible](#compose-existing-operators-when-possible)
  1. [Avoid introducing concurrency](#avoid-introducing-concurrency)
  1. [Cancel work and clean up all resources in a disposable](#cancel-work-and-clean-up-all-resources-in-a-disposable)
  1. [Do not block in an operator](#do-not-block-in-an-operator)
  1. [Avoid stack overflow from deep recursion](#avoid-stack-overflow-from-deep-recursion)
-
-## The RACSequence contract
-
-[RACSequence][] is a _pull-driven_ stream. Sequences behave similarly to
-built-in collections, but with a few unique twists.
-
-### Evaluation occurs lazily by default
-
-Sequences are evaluated lazily by default. For example, in this sequence:
-
-```objc
-NSArray *strings = @[ @"A", @"B", @"C" ];
-RACSequence *sequence = [strings.rac_sequence map:^(NSString *str) {
-    return [str stringByAppendingString:@"_"];
-}];
-```
-
-… no string appending is actually performed until the values of the sequence are
-needed. Accessing `sequence.head` will perform the concatenation of `A_`,
-accessing `sequence.tail.head` will perform the concatenation of `B_`, and so
-on.
-
-This generally avoids performing unnecessary work (since values that are never
-used are never calculated), but means that sequence processing [should be
-limited only to what's actually
-needed](#process-only-as-much-of-a-stream-as-needed).
-
-Once evaluated, the values in a sequence are memoized and do not need to be
-recalculated. Accessing `sequence.head` multiple times will only do the work of
-one string concatenation.
-
-If lazy evaluation is undesirable – for instance, because limiting memory usage
-is more important than avoiding unnecessary work – the
-[eagerSequence][RACSequence] property can be used to force a sequence (and any
-sequences derived from it afterward) to evaluate eagerly.
-
-### Evaluation blocks the caller
-
-Regardless of whether a sequence is lazy or eager, evaluation of any part of
-a sequence will block the calling thread until completed. This is necessary
-because values must be synchronously retrieved from a sequence.
-
-If evaluating a sequence is expensive enough that it might block the thread for
-a significant amount of time, consider creating a signal with
-[-signalWithScheduler:][RACSequence] and using that instead.
-
-### Side effects occur only once
-
-When the block passed to a sequence operator involves side effects, it is
-important to realize that those side effects will only occur once per value
-– namely, when the value is evaluated:
-
-```objc
-NSArray *strings = @[ @"A", @"B", @"C" ];
-RACSequence *sequence = [strings.rac_sequence map:^(NSString *str) {
-    NSLog(@"%@", str);
-    return [str stringByAppendingString:@"_"];
-}];
-
-// Logs "A" during this call.
-NSString *concatA = sequence.head;
-
-// Logs "B" during this call.
-NSString *concatB = sequence.tail.head;
-
-// Does not log anything.
-NSString *concatB2 = sequence.tail.head;
-
-RACSequence *derivedSequence = [sequence map:^(NSString *str) {
-    return [@"_" stringByAppendingString:str];
-}];
-
-// Still does not log anything, because "B_" was already evaluated, and the log
-// statement associated with it will never be re-executed.
-NSString *concatB3 = derivedSequence.tail.head;
-```
 
 ## The RACSignal contract
 
@@ -199,8 +115,8 @@ RACSignal *aSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber
 }];
 ```
 
-Side effects are repeated for each subscription. The same applies to
-[stream][RACStream] and [signal][RACSignal+Operations] operators:
+Side effects are repeated for each subscription. The same behavior applies to
+most [operators][RACSignal+Operations]:
 
 ```objc
 __block int missilesToLaunch = 0;
@@ -291,31 +207,31 @@ idempotent and that callers must be careful to call it only when the side
 effects are desired. If the signal will send one or more values, include a noun
 that describes them (e.g., `-loadConfiguration`, `-fetchLatestEvents`).
 
-### Indent stream operations consistently
+### Indent signal operations consistently
 
-It's easy for stream-heavy code to become very dense and confusing if not
+It's easy for RAC-heavy code to become very dense and confusing if not
 properly formatted. Use consistent indentation to highlight where chains of
-streams begin and end.
+signals begin and end.
 
-When invoking a single method upon a stream, no additional indentation is
+When invoking a single method upon a signal, no additional indentation is
 necessary (block arguments aside):
 
 ```objc
-RACStream *result = [stream startWith:@0];
+RACSignal *result = [signal startWith:@0];
 
-RACStream *result2 = [stream map:^(NSNumber *value) {
+RACSignal *result2 = [signal map:^(NSNumber *value) {
     return @(value.integerValue + 1);
 }];
 ```
 
-When transforming the same stream multiple times, ensure that all of the
-steps are aligned. Complex operators like [+zip:reduce:][RACStream] or
+When transforming the same signal multiple times, ensure that all of the
+steps are aligned. Complex operators like [+zip:reduce:][RACSignal+Operations] or
 [+combineLatest:reduce:][RACSignal+Operations] may be split over multiple lines
 for readability:
 
 ```objc
-RACStream *result = [[[RACStream
-    zip:@[ firstStream, secondStream ]
+RACSignal *result = [[[RACSignal
+    zip:@[ firstSignal, secondSignal ]
     reduce:^(NSNumber *first, NSNumber *second) {
         return @(first.integerValue + second.integerValue);
     }]
@@ -327,7 +243,7 @@ RACStream *result = [[[RACStream
     }];
 ```
 
-Of course, streams nested within block arguments should start at the natural
+Of course, signals nested within block arguments should start at the natural
 indentation of the block:
 
 ```objc
@@ -349,39 +265,26 @@ indentation of the block:
     }];
 ```
 
-### Use the same type for all the values of a stream
+### Use the same type for all the values of a signal
 
-[RACStream][] (and, by extension, [RACSignal][] and [RACSequence][]) allows
-streams to be composed of heterogenous objects, just like Cocoa collections do.
-However, using different object types within the same stream complicates the use
-of operators and
-puts an additional burden on any consumers of that stream, who must be careful to
-only invoke supported methods.
+[RACSignal][] allows signals to be composed of heterogenous objects, just like
+Cocoa collections do. However, using different object types within the same
+signal complicates the use of operators and puts an additional burden on any
+consumers, who must be careful to only invoke supported methods.
 
-Whenever possible, streams should only contain objects of the same type.
+Whenever possible, signals should only contain objects of the same type.
 
-### Avoid retaining streams for too long
+### Process only as much of a signal as needed
 
-Retaining any [RACStream][] longer than it's needed will cause any dependencies
-to be retained as well, potentially keeping memory usage much higher than it
-would be otherwise.
+Unnecessarily keeping a [RACSignal][] subscription alive can result in increased
+memory and CPU usage, as unnecessary work is performed for results that will
+never be used.
 
-A [RACSequence][] should be retained only for as long as the `head` of the
-sequence is needed. If the head will no longer be used, retain the `tail` of the
-node instead of the node itself.
-
-See the [Memory Management][] guide for more information on object lifetime.
-
-### Process only as much of a stream as needed
-
-As well as [consuming additional
-memory](#avoid-retaining-streams-for-too-long), unnecessarily
-keeping a stream or [RACSignal][] subscription alive can result in increased CPU
-usage, as unnecessary work is performed for results that will never be used.
-
-If only a certain number of values are needed from a stream, the
-[-take:][RACStream] operator can be used to retrieve only that many values, and
-then automatically terminate the stream immediately thereafter.
+If only a certain number of values are needed from a signal, the
+[-take:][RACSignal+Operations] operator can be used to retrieve only that many
+values, and then automatically [dispose of the
+subscription](#disposal-cancels-in-progress-work-and-cleans-up-resources)
+immediately thereafter.
 
 Operators like `-take:` and [-takeUntil:][RACSignal+Operations] automatically propagate cancellation
 up the stack as well. If nothing else needs the rest of the values, any
@@ -417,10 +320,10 @@ subscribers may find the [behavior of side
 effects](#side-effects-occur-for-each-subscription) unexpected.
 
 However, because Cocoa is predominantly imperative, it is sometimes useful to
-perform side effects when signal events occur. Although most [RACStream][] and
-[RACSignal][RACSignal+Operations] operators accept arbitrary blocks (which can
-contain side effects), the use of `-doNext:`, `-doError:`, and `-doCompleted:`
-will make side effects more explicit and self-documenting:
+perform side effects when signal events occur. Although most
+[operators][RACSignal+Operations] accept arbitrary blocks (which can contain
+side effects), the use of `-doNext:`, `-doError:`, and `-doCompleted:` will make
+side effects more explicit and self-documenting:
 
 ```objc
 NSMutableArray *nexts = [NSMutableArray array];
@@ -488,12 +391,12 @@ RACSubject *results = [RACSubject subject];
 [networkRequest subscribe:results];
 ```
 
-### Debug streams by giving them names
+### Debug signals by giving them names
 
-Every [RACStream][] has a `name` property to assist with debugging. A stream's
+Every [RACSignal][] has a `name` property to assist with debugging. A signal's
 `-description` includes its name, and all operators provided by RAC will
 automatically add to the name. This usually makes it possible to identify
-a stream from its default name alone.
+a signal from its default name alone.
 
 For example, this snippet:
 
@@ -511,12 +414,12 @@ NSLog(@"%@", signal);
 … would log a name similar to `[[[RACObserve(self, username)] -distinctUntilChanged]
 -take: 3] -filter:`.
 
-Names can also be manually applied by using [-setNameWithFormat:][RACStream].
+Names can also be manually applied by using [-setNameWithFormat:][RACSignal].
 
-[RACSignal][] also offers `-logNext`, `-logError`,
-`-logCompleted`, and `-logAll` methods, which will automatically log signal
-events as they occur, and include the name of the signal in the messages. This
-can be used to conveniently inspect a signal in real-time.
+`RACSignal` also offers `-logNext`, `-logError`, `-logCompleted`, and `-logAll`
+methods, which will automatically log signal events as they occur, and include
+the name of the signal in the messages. This can be used to conveniently inspect
+a signal in real-time.
 
 ### Avoid explicit subscriptions and disposal
 
@@ -540,9 +443,9 @@ subscriptions and disposal:
    automatically dispose of a subscription when an event occurs (like a "Cancel"
    button being pressed in the UI).
 
-Generally, the use of built-in [stream][RACStream] and
-[signal][RACSignal+Operations] operators will lead to simpler and less
-error-prone code than replicating the same behaviors in a subscription callback.
+Generally, the use of built-in [operators][RACSignal+Operations] will lead to
+simpler and less error-prone code than replicating the same behaviors in
+a subscription callback.
 
 ### Avoid manipulating subjects directly
 
@@ -563,7 +466,7 @@ Subjects can usually be replaced with other patterns from ReactiveCocoa:
    values in a [+createSignal:][RACSignal] block instead.
  * Instead of delivering intermediate results to a subject, try combining the
    output of multiple signals with operators like
-   [+combineLatest:][RACSignal+Operations] or [+zip:][RACStream].
+   [+combineLatest:][RACSignal+Operations] or [+zip:][RACSignal+Operations].
  * Instead of implementing a control action that sends values on a subject, use
    [RACAction][] or [-rac_signalForSelector:][NSObject+RACSelectorSignal]
    instead.
@@ -575,8 +478,8 @@ a signal](#share-the-side-effects-of-a-signal-with-a-subject). In that case, use
 
 ## Implementing new operators
 
-RAC provides a long list of built-in operators for [streams][RACStream] and
-[signals][RACSignal+Operations] that should cover most use cases; however, RAC
+RAC provides a long list of built-in operators for
+[RACSignal][RACSignal+Operations] that should cover most use cases; however, RAC
 is not a closed system. It's entirely valid to implement additional operators
 for specialized uses, or for consideration in ReactiveCocoa itself.
 
@@ -585,23 +488,6 @@ on simplicity, to avoid introducing bugs into the calling code.
 
 These guidelines cover some of the common pitfalls and help preserve the
 expected API contracts.
-
-### Prefer building on RACStream methods
-
-[RACStream][] offers a simpler interface than [RACSequence][] and [RACSignal][],
-and all stream operators are automatically applicable to sequences and signals
-as well.
-
-For these reasons, new operators should be implemented using only [RACStream][]
-methods whenever possible. The minimal required methods of the class, including
-`-bind:`, `+zipWith:`, and `-concat:`, are quite powerful, and many tasks can
-be accomplished without needing anything else.
-
-If a new [RACSignal][] operator needs to handle `error` and `completed` events,
-consider using the [-materialize][RACSignal+Operations] method to bring the
-events into the stream. All of the events of a materialized signal can be
-manipulated by stream operators, which helps minimize the use of non-stream
-operators.
 
 ### Compose existing operators when possible
 
@@ -643,33 +529,33 @@ contract](#disposal-cancels-in-progress-work-and-cleans-up-resources).
 
 ### Do not block in an operator
 
-Stream operators should return a new stream more-or-less immediately. Any work
-that the operator needs to perform should be part of evaluating the new stream,
-_not_ part of the operator invocation itself.
+Signal operators should return a new signal immediately. Any work that the
+operator needs to perform should be part of subscribing to the new signal, _not_
+part of the operator invocation itself.
 
 ```objc
 // WRONG!
-- (RACSequence *)map:(id (^)(id))block {
-    RACSequence *result = [RACSequence empty];
+- (RACSignal *)map:(id (^)(id))block {
+    RACSignal *result = [RACSignal empty];
     for (id obj in self) {
         id mappedObj = block(obj);
-        result = [result concat:[RACSequence return:mappedObj]];
+        result = [result concat:[RACSignal return:mappedObj]];
     }
 
     return result;
 }
 
 // Right!
-- (RACSequence *)map:(id (^)(id))block {
+- (RACSignal *)map:(id (^)(id))block {
     return [self flattenMap:^(id obj) {
         id mappedObj = block(obj);
-        return [RACSequence return:mappedObj];
+        return [RACSignal return:mappedObj];
     }];
 }
 ```
 
 This guideline can be safely ignored when the purpose of an operator is to
-synchronously retrieve one or more values from a stream (like
+synchronously retrieve one or more values from a signal (like
 [-first][RACSignal+Operations]).
 
 ### Avoid stack overflow from deep recursion
@@ -742,10 +628,8 @@ By contrast, this version will avoid a stack overflow:
 [RACMulticastConnection]: ../ReactiveCocoaFramework/ReactiveCocoa/RACMulticastConnection.h
 [RACObserve]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACPropertySubscribing.h
 [RACScheduler]: ../ReactiveCocoaFramework/ReactiveCocoa/RACScheduler.h
-[RACSequence]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSequence.h
 [RACSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h
 [RACSignal+Operations]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h
-[RACStream]: ../ReactiveCocoaFramework/ReactiveCocoa/RACStream.h
 [RACSubject]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubject.h
 [RACSubscriber]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubscriber.h
 [Subjects]: FrameworkOverview.md#subjects

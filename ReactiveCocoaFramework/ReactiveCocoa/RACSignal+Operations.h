@@ -20,6 +20,12 @@ extern const NSInteger RACSignalErrorTimedOut;
 /// match any of the cases, and no default was given.
 extern const NSInteger RACSignalErrorNoMatchingCase;
 
+/// A block which accepts a value from a RACSignal and returns a new signal.
+///
+/// Setting `stop` to `YES` will cause the bind to terminate after the returned
+/// value. Returning `nil` will result in immediate termination.
+typedef RACSignal * (^RACSignalBindBlock)(id value, BOOL *stop);
+
 @class RACAction;
 @class RACCommand;
 @class RACDisposable;
@@ -32,6 +38,236 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 @protocol RACSubscriber;
 
 @interface RACSignal (Operations)
+
+/// Subscribes to `signal` when the source signal completes.
+- (RACSignal *)concat:(RACSignal *)signal;
+
+/// Maps `block` across the values in the receiver and flattens the result.
+///
+/// Note that operators applied _after_ -flattenMap: behave differently from
+/// operators _within_ -flattenMap:. See the Examples section below.
+///
+/// This corresponds to the `SelectMany` method in Rx.
+///
+/// block - A block which accepts the values in the receiver and returns a new
+///         signal. This block should not return `nil`.
+///
+/// Examples
+///
+///   [signal flattenMap:^(id x) {
+///       // Logs each time a returned signal completes.
+///       return [[RACSignal return:x] logCompleted];
+///   }];
+///
+///   [[signal
+///       flattenMap:^(id x) {
+///           return [RACSignal return:x];
+///       }]
+///       // Logs only once, when all of the signals complete.
+///       logCompleted];
+///
+/// Returns a new signal which represents the combination of all signals
+/// returned from `block`. The resulting signal will forward events from all of
+/// the original signals in the order that they arrive.
+- (RACSignal *)flattenMap:(RACSignal * (^)(id value))block;
+
+/// Flattens a signal of signals.
+///
+/// This corresponds to the `Merge` method in Rx.
+///
+/// Returns a signal which represents the combination of all signals sent by the
+/// receiver. The resulting signal will forward events from all of the original
+/// signals in the order that they arrive.
+- (RACSignal *)flatten;
+
+/// Maps `block` across the values in the receiver.
+///
+/// This corresponds to the `Select` method in Rx.
+///
+/// Returns a new signal with the mapped values.
+- (RACSignal *)map:(id (^)(id value))block;
+
+/// Replace each value in the receiver with the given object.
+///
+/// Returns a new signal which includes the given object once for each value in
+/// the receiver.
+- (RACSignal *)mapReplace:(id)object;
+
+/// Filters out values in the receiver that don't pass the given test.
+///
+/// This corresponds to the `Where` method in Rx.
+///
+/// Returns a new signal with only those values that passed.
+- (RACSignal *)filter:(BOOL (^)(id value))block;
+
+/// Filters out values in the receiver that equal (via -isEqual:) the provided value.
+///
+/// value - The value can be `nil`, in which case it ignores `nil` values.
+///
+/// Returns a new signal containing only the values which did not compare equal
+/// to `value`.
+- (RACSignal *)ignore:(id)value;
+
+/// Unpacks each RACTuple in the receiver and maps the values to a new value.
+///
+/// reduceBlock - The block which reduces each RACTuple's values into one value.
+///               It must take as many arguments as the number of tuple elements
+///               to process. Each argument will be an object argument. The
+///               return value must be an object. This argument cannot be nil.
+///
+/// Returns a signal which will send the return values from `reduceBlock`.
+- (RACSignal *)reduceEach:(id (^)())reduceBlock;
+
+/// Returns a new signal consisting of `value`, followed by the values in the
+/// receiver.
+- (RACSignal *)startWith:(id)value;
+
+/// Skips the first `skipCount` values in the receiver.
+///
+/// Returns the receiver after skipping the first `skipCount` values. If
+/// `skipCount` is greater than the number of values in the signal, the
+/// resulting signal will complete immediately.
+- (RACSignal *)skip:(NSUInteger)skipCount;
+
+/// Returns a signal of the first `count` values in the receiver. If `count` is
+/// greater than or equal to the number of values in the signal, a signal
+/// equivalent to the receiver is returned.
+- (RACSignal *)take:(NSUInteger)count;
+
+/// Zips the values in the receiver with those of the given signal to create
+/// RACTuples.
+///
+/// The first `next` of each signal will be combined, then the second `next`, and
+/// so forth, until either signal completes or errors.
+///
+/// signal - The signal to zip with. This must not be `nil`.
+///
+/// Returns a new signal of RACTuples, representing the combined values of the
+/// two signals. Any error from one of the original signals will be forwarded on
+/// the returned signal.
+- (RACSignal *)zipWith:(RACSignal *)signal;
+
+/// Zips the values in the given signals to create RACTuples.
+///
+/// The first `next` of each signal will be combined, then the second `next`, and
+/// so forth, until either signal completes or errors.
+///
+/// signals - The RACSignals to combine. If this collection is empty, the
+///           returned signal will complete immediately.
+///
+/// Returns a new signal containing RACTuples of the zipped values from the
+/// signals.
++ (RACSignal *)zip:(id<NSFastEnumeration>)signals;
+
+/// Zips signals using +zip:, then reduces the resulting tuples into a single
+/// value using -reduceEach:.
+///
+/// signals     - The RACSignals to combine. If this collection is empty, the
+///               returned signal will complete immediately.
+/// reduceBlock - The block which reduces the values from all the signals
+///               into one value. It must take as many arguments as the
+///               number of `signals` given. Each argument will be an object
+///               argument. The return value must be an object. This argument
+///               must not be nil.
+///
+/// Example:
+///
+///   [RACSignal zip:@[ stringSignal, intSignal ] reduce:^(NSString *string, NSNumber *number) {
+///       return [NSString stringWithFormat:@"%@: %@", string, number];
+///   }];
+///
+/// Returns a new signal containing the results from each invocation of
+/// `reduceBlock`.
++ (RACSignal *)zip:(id<NSFastEnumeration>)signals reduce:(id (^)())reduceBlock;
+
+/// Returns a signal obtained by concatenating `signals` in order.
++ (RACSignal *)concat:(id<NSFastEnumeration>)signals;
+
+/// Combines values in the receiver from left to right using the given block.
+///
+/// The algorithm proceeds as follows:
+///
+///  1. `startingValue` is passed into the block as the `running` value, and the
+///  first element of the receiver is passed into the block as the `next` value.
+///  2. The result of the invocation is sent on the returned signal.
+///  3. The result of the invocation (`running`) and the next element of the
+///  receiver (`next`) is passed into `block`.
+///  4. Steps 2 and 3 are repeated until all values have been processed.
+///
+/// startingValue - The value to be combined with the first element of the
+///                 receiver. This value may be `nil`.
+/// block         - A block that describes how to combine values of the
+///                 receiver. If the receiver is empty, this block will never be
+///                 invoked.
+///
+/// Examples
+///
+///      RACSequence *numbers = @[ @1, @2, @3, @4 ].rac_sequence;
+///
+///      // Contains 1, 3, 6, 10
+///      RACSequence *sums = [numbers scanWithStart:@0 reduce:^(NSNumber *sum, NSNumber *next) {
+///          return @(sum.integerValue + next.integerValue);
+///      }];
+///
+/// Returns a signal that will send the return values from `block`. If the
+/// receiver is empty, the resulting signal will complete immediately.
+- (RACSignal *)scanWithStart:(id)startingValue reduce:(id (^)(id running, id next))block;
+
+/// Combines each previous and current value into one object.
+///
+/// This method is similar to -scanWithStart:reduce:, but only ever operates on
+/// the previous and current values (instead of the whole signal), and does not
+/// pass the return value of `reduceBlock` into the next invocation of it.
+///
+/// start       - The value passed into `reduceBlock` as `previous` for the
+///               first value.
+/// reduceBlock - The block that combines the previous value and the current
+///               value to create the reduced value. Cannot be nil.
+///
+/// Examples
+///
+///      RACSequence *numbers = @[ @1, @2, @3, @4 ].rac_sequence;
+///
+///      // Contains 1, 3, 5, 7
+///      RACSequence *sums = [numbers combinePreviousWithStart:@0 reduce:^(NSNumber *previous, NSNumber *next) {
+///          return @(previous.integerValue + next.integerValue);
+///      }];
+///
+/// Returns a signal that will send the return values from `reduceBlock`. If the
+/// receiver is empty, the resulting signal will complete immediately.
+- (RACSignal *)combinePreviousWithStart:(id)start reduce:(id (^)(id previous, id current))reduceBlock;
+
+/// Takes values until the given block returns `YES`.
+///
+/// Returns a signal of the initial values in the receiver that fail `predicate`.
+/// If `predicate` never returns `YES`, a signal equivalent to the receiver is
+/// returned.
+- (RACSignal *)takeUntilBlock:(BOOL (^)(id x))predicate;
+
+/// Takes values until the given block returns `NO`.
+///
+/// Returns a signal of the initial values in the receiver that pass `predicate`.
+/// If `predicate` never returns `NO`, a signal equivalent to the receiver is
+/// returned.
+- (RACSignal *)takeWhileBlock:(BOOL (^)(id x))predicate;
+
+/// Skips values until the given block returns `YES`.
+///
+/// Returns a signal containing the values of the receiver that follow any
+/// initial values failing `predicate`. If `predicate` never returns `YES`,
+/// an empty signal is returned.
+- (RACSignal *)skipUntilBlock:(BOOL (^)(id x))predicate;
+
+/// Skips values until the given block returns `NO`.
+///
+/// Returns a signal containing the values of the receiver that follow any
+/// initial values passing `predicate`. If `predicate` never returns `NO`, an
+/// empty signal is returned.
+- (RACSignal *)skipWhileBlock:(BOOL (^)(id x))predicate;
+
+/// Returns a signal of values for which -isEqual: returns NO when compared to the
+/// previous value.
+- (RACSignal *)distinctUntilChanged;
 
 /// Run the given block before passing through a `next` event.
 ///
@@ -379,6 +615,14 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// to the error that occurred.
 - (BOOL)waitUntilCompleted:(NSError **)error;
 
+/// Add every `next` to an array.
+///
+/// Note that this is a **blocking** call.
+///
+/// Returns the array of `next` values, or nil if an error occurs. Any `nil`
+/// values sent from the signal will be represented as `NSNull`s in the array.
+- (NSArray *)array;
+
 /// Defer creation of a signal until the signal's actually subscribed to.
 ///
 /// This can be used to effectively turn a hot signal into a cold signal, or to
@@ -429,24 +673,6 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// last switched signal complete.
 + (RACSignal *)if:(RACSignal *)boolSignal then:(RACSignal *)trueSignal else:(RACSignal *)falseSignal;
 
-/// Add every `next` to an array. Nils are represented by NSNulls. Note that this
-/// is a blocking call.
-///
-/// **This is not the same as the `ToArray` method in Rx.** See -collect for
-/// that behavior instead.
-///
-/// Returns the array of `next` values, or nil if an error occurs.
-- (NSArray *)toArray;
-
-/// Add every `next` to a sequence. Nils are represented by NSNulls.
-///
-/// This corresponds to the `ToEnumerable` method in Rx.
-///
-/// Returns a sequence which provides values from the signal as they're sent.
-/// Trying to retrieve a value from the sequence which has not yet been sent will
-/// block.
-@property (nonatomic, strong, readonly) RACSequence *sequence;
-
 /// Deduplicates subscriptions to the receiver, and shares results between them,
 /// ensuring that only one subscription is active at a time.
 ///
@@ -474,8 +700,9 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// scheduler - The scheduler upon which any timeout error should be sent. This
 ///             must not be nil or +[RACScheduler immediateScheduler].
 ///
-/// Returns a signal that passes through the receiver's events, until the stream
-/// finishes or times out, at which point an error will be sent on `scheduler`.
+/// Returns a signal that passes through the receiver's events, until the
+/// receiver finishes or times out, at which point an error will be sent on
+/// `scheduler`.
 - (RACSignal *)timeout:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler;
 
 /// Creates and returns a signal that delivers its events on the given scheduler.
@@ -577,9 +804,26 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// Returns a signal that applies OR to each NSNumber in the tuple.
 - (RACSignal *)or;
 
+/// Lazily binds a block to the values in the receiver.
+///
+/// This should only be used if you need to terminate the bind early, or close
+/// over some state. -flattenMap: is more appropriate for all other cases.
+///
+/// block - A block returning a RACSignalBindBlock. This block will be invoked
+///         each time the signal is subscribed to. This block must not be nil or
+///         return nil.
+///
+/// Returns a new signal which represents the combination of all signals
+/// returned from the lazy applications of `block`. The resulting signal will
+/// forward events from all of the original signals in the order that they
+/// arrive.
+- (RACSignal *)bind:(RACSignalBindBlock (^)(void))block;
+
 @end
 
 @interface RACSignal (DeprecatedOperations)
+
+@property (nonatomic, strong, readonly) RACSequence *sequence RACDeprecated("Transform the signal instead");
 
 - (RACSignal *)initially:(void (^)(void))block RACDeprecated("Put side effects into +defer: instead");
 - (RACSignal *)finally:(void (^)(void))block RACDeprecated("Renamed to -doFinished:");
@@ -588,6 +832,7 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 - (RACSignal *)replay RACDeprecated("Use -promiseOnScheduler: instead");
 - (RACSignal *)replayLast RACDeprecated("Use -takeLast: and -promiseOnScheduler: instead");
 - (RACSignal *)replayLazily RACDeprecated("Use -promiseOnScheduler: instead");
+- (NSArray *)toArray RACDeprecated("Renamed to -array");
 
 @end
 

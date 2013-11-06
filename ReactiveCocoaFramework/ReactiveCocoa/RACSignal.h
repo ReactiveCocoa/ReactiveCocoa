@@ -15,7 +15,34 @@
 @class RACSubject;
 @protocol RACSubscriber;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
+/// Represents a push-driven stream of events.
+/// 
+/// Signals generally represent data that will be delivered in the future. As work
+/// is performed or data is received, values are _sent_ on the signal, which pushes
+/// them out to any subscribers. Users must subscribe to a signal, through
+/// a method like -subscribeNext:error:completed:, in order to access its values.
+/// 
+/// Signals send three different types of events to their subscribers:
+/// 
+///  * The **next** event provides a new value from the stream. Unlike Cocoa
+///    collections, it is completely valid for a signal to include `nil` in its
+///    values.
+///  * The **error** event indicates that an error occurred before the signal could
+///    finish. The event may include an `NSError` object that indicates what went
+///    wrong. Errors must be handled specially – they are not included in the
+///    stream's values.
+///  * The **completed** event indicates that the signal finished successfully, and
+///    that no more values will be added to the stream. Completion must be handled
+///    specially – it is not included in the stream of values.
+/// 
+/// The lifetime of a signal consists of any number of `next` events, followed by
+/// one `error` or `completed` event (but not both).
 @interface RACSignal : RACStream
+
+#pragma clang diagnostic pop
 
 /// Creates a new signal. This is the preferred way to create a new signal
 /// operation or behavior.
@@ -53,31 +80,11 @@
 /// Returns a signal that never completes.
 + (RACSignal *)never;
 
-@end
-
-@interface RACSignal (RACStream)
-
 /// Returns a signal that immediately sends the given value and then completes.
 + (RACSignal *)return:(id)value;
 
 /// Returns a signal that immediately completes.
 + (RACSignal *)empty;
-
-/// Subscribes to `signal` when the source signal completes.
-- (RACSignal *)concat:(RACSignal *)signal;
-
-/// Zips the values in the receiver with those of the given signal to create
-/// RACTuples.
-///
-/// The first `next` of each stream will be combined, then the second `next`, and
-/// so forth, until either signal completes or errors.
-///
-/// signal - The signal to zip with. This must not be `nil`.
-///
-/// Returns a new signal of RACTuples, representing the combined values of the
-/// two signals. Any error from one of the original signals will be forwarded on
-/// the returned signal.
-- (RACSignal *)zipWith:(RACSignal *)signal;
 
 @end
 
@@ -132,6 +139,17 @@
 
 /// Additional methods to assist with debugging.
 @interface RACSignal (Debugging)
+
+/// The name of the signal. This is for debugging/human purposes only.
+@property (copy) NSString *name;
+
+/// Sets the name of the receiver to the given format string.
+///
+/// This is for debugging purposes only, and won't do anything unless the DEBUG
+/// preprocessor macro is defined.
+///
+/// Returns the receiver, for easy method chaining.
+- (instancetype)setNameWithFormat:(NSString *)format, ... NS_FORMAT_FUNCTION(1, 2);
 
 /// Logs all events that the receiver sends.
 - (RACSignal *)logAll;

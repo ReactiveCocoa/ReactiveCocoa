@@ -109,7 +109,7 @@ sharedExamplesFor(RACSequenceExamples, ^(NSDictionary *data) {
 	
 	it(@"should fold right", ^{
 		RACSequence *result = [sequence foldRightWithStart:[RACSequence empty] reduce:^(id first, RACSequence *rest) {
-			return [rest.head startWith:first];
+			return [(RACSequence *)rest.head startWith:first];
 		}];
 		expect(result.array).to.equal(values);
 	});

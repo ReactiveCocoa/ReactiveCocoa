@@ -8,13 +8,17 @@
 
 #import "RACTuple.h"
 #import "EXTKeyPathCoding.h"
+#import "NSObject+RACDescription.h"
+#import "RACSignal.h"
+#import "RACSubscriber.h"
 #import "RACTupleSequence.h"
 
 @implementation RACTupleNil
 
-+ (RACTupleNil *)tupleNil {
++ (instancetype)tupleNil {
 	static dispatch_once_t onceToken;
 	static RACTupleNil *tupleNil = nil;
+
 	dispatch_once(&onceToken, ^{
 		tupleNil = [[self alloc] init];
 	});
@@ -40,70 +44,65 @@
 
 @end
 
-
 @interface RACTuple ()
-@property (nonatomic, strong) NSArray *backingArray;
-@end
 
+@property (nonatomic, strong) NSArray *backingArray;
+
+@end
 
 @implementation RACTuple
 
-- (instancetype)init {
-	self = [super init];
-	if (self == nil) return nil;
+#pragma mark Properties
+
+- (NSArray *)allObjects {
+	NSMutableArray *newArray = [NSMutableArray arrayWithCapacity:self.backingArray.count];
+	for (id object in self.backingArray) {
+		[newArray addObject:(object == RACTupleNil.tupleNil ? NSNull.null : object)];
+	}
 	
-	self.backingArray = [NSArray array];
-	
-	return self;
+	return newArray;
 }
 
-- (NSString *)description {
-	return [NSString stringWithFormat:@"<%@: %p> %@", self.class, self, self.allObjects];
+- (RACSignal *)rac_signal {
+	return [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		for (id object in self.backingArray) {
+			[subscriber sendNext:(object == RACTupleNil.tupleNil ? nil : object)];
+		}
+
+		[subscriber sendCompleted];
+		return nil;
+	}] setNameWithFormat:@"%@ -rac_signal", self.rac_description];
 }
 
-- (BOOL)isEqual:(RACTuple *)object {
-	if (object == self) return YES;
-	if (![object isKindOfClass:self.class]) return NO;
-	
-	return [self.backingArray isEqual:object.backingArray];
+- (NSUInteger)count {
+	return self.backingArray.count;
 }
 
-- (NSUInteger)hash {
-	return self.backingArray.hash;
+- (id)first {
+	return [self objectAtIndex:0];
 }
 
-
-#pragma mark NSFastEnumeration
-
-- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id __unsafe_unretained [])buffer count:(NSUInteger)len {
-	return [self.backingArray countByEnumeratingWithState:state objects:buffer count:len];
+- (id)second {
+	return [self objectAtIndex:1];
 }
 
-
-#pragma mark NSCopying
-
-- (instancetype)copyWithZone:(NSZone *)zone {
-	// we're immutable, bitches!
-	return self;
+- (id)third {
+	return [self objectAtIndex:2];
 }
 
-
-#pragma mark NSCoding
-
-- (id)initWithCoder:(NSCoder *)coder {
-	self = [self init];
-	if (self == nil) return nil;
-	
-	self.backingArray = [coder decodeObjectForKey:@keypath(self.backingArray)];
-	return self;
+- (id)fourth {
+	return [self objectAtIndex:3];
 }
 
-- (void)encodeWithCoder:(NSCoder *)coder {
-	if (self.backingArray != nil) [coder encodeObject:self.backingArray forKey:@keypath(self.backingArray)];
+- (id)fifth {
+	return [self objectAtIndex:4];
 }
 
+- (id)last {
+	return [self objectAtIndex:self.count - 1];
+}
 
-#pragma mark API
+#pragma mark Lifecycle
 
 + (instancetype)tupleWithObjectsFromArray:(NSArray *)array {
 	return [self tupleWithObjectsFromArray:array convertNullsToNils:NO];
@@ -157,6 +156,63 @@
 	return tuple;
 }
 
+- (instancetype)init {
+	self = [super init];
+	if (self == nil) return nil;
+	
+	self.backingArray = [NSArray array];
+	
+	return self;
+}
+
+#pragma mark NSObject
+
+- (NSString *)description {
+	return [NSString stringWithFormat:@"<%@: %p> %@", self.class, self, self.allObjects];
+}
+
+- (BOOL)isEqual:(RACTuple *)object {
+	if (object == self) return YES;
+	if (![object isKindOfClass:self.class]) return NO;
+	
+	return [self.backingArray isEqual:object.backingArray];
+}
+
+- (NSUInteger)hash {
+	return self.backingArray.hash;
+}
+
+
+#pragma mark NSFastEnumeration
+
+- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id __unsafe_unretained [])buffer count:(NSUInteger)len {
+	return [self.backingArray countByEnumeratingWithState:state objects:buffer count:len];
+}
+
+
+#pragma mark NSCopying
+
+- (instancetype)copyWithZone:(NSZone *)zone {
+	// we're immutable, bitches!
+	return self;
+}
+
+#pragma mark NSCoding
+
+- (id)initWithCoder:(NSCoder *)coder {
+	self = [self init];
+	if (self == nil) return nil;
+	
+	self.backingArray = [coder decodeObjectForKey:@keypath(self.backingArray)];
+	return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder {
+	if (self.backingArray != nil) [coder encodeObject:self.backingArray forKey:@keypath(self.backingArray)];
+}
+
+#pragma mark Indexing
+
 - (id)objectAtIndex:(NSUInteger)index {
 	if (index >= self.count) return nil;
 	
@@ -164,55 +220,11 @@
 	return (object == RACTupleNil.tupleNil ? nil : object);
 }
 
-- (NSArray *)allObjects {
-	NSMutableArray *newArray = [NSMutableArray arrayWithCapacity:self.backingArray.count];
-	for (id object in self.backingArray) {
-		[newArray addObject:(object == RACTupleNil.tupleNil ? NSNull.null : object)];
-	}
-	
-	return newArray;
-}
+#pragma mark Transformations
 
 - (instancetype)tupleByAddingObject:(id)obj {
 	NSArray *newArray = [self.backingArray arrayByAddingObject:obj ?: RACTupleNil.tupleNil];
 	return [self.class tupleWithObjectsFromArray:newArray convertNullsToNils:NO];
-}
-
-- (NSUInteger)count {
-	return self.backingArray.count;
-}
-
-- (id)first {
-	return [self objectAtIndex:0];
-}
-
-- (id)second {
-	return [self objectAtIndex:1];
-}
-
-- (id)third {
-	return [self objectAtIndex:2];
-}
-
-- (id)fourth {
-	return [self objectAtIndex:3];
-}
-
-- (id)fifth {
-	return [self objectAtIndex:4];
-}
-
-- (id)last {
-	return [self objectAtIndex:self.count - 1];
-}
-
-@end
-
-
-@implementation RACTuple (RACSequenceAdditions)
-
-- (RACSequence *)rac_sequence {
-	return [RACTupleSequence sequenceWithTupleBackingArray:self.backingArray offset:0];
 }
 
 @end
@@ -225,6 +237,19 @@
 
 @end
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
+@implementation RACTuple (Deprecated)
+
+- (RACSequence *)rac_sequence {
+	return [RACTupleSequence sequenceWithTupleBackingArray:self.backingArray offset:0];
+}
+
+@end
+
+#pragma clang diagnostic pop
 
 @implementation RACTupleUnpackingTrampoline
 

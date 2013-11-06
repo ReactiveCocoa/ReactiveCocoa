@@ -886,23 +886,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 }
 
 - (RACSignal *)switchToLatest {
-	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		RACSubject *signals = [RACSubject subject];
-
-		[[signals
-			flattenMap:^(RACSignal *x) {
-				if (x == nil) return [RACSignal empty];
-
-				NSCAssert([x isKindOfClass:RACSignal.class], @"-switchToLatest requires that the source signal (%@) send signals. Instead we got: %@", self, x);
-
-				// -concat:[RACSignal never] prevents completion of the receiver from
-				// prematurely terminating the inner signal.
-				return [x takeUntil:[signals concat:[RACSignal never]]];
-			}]
-			subscribe:subscriber];
-
-		[self subscribe:signals];
-	}] setNameWithFormat:@"[%@] -switchToLatest", self.name];
+	return [[self flatten:1 withPolicy:RACSignalFlattenPolicyDisposeEarliest] setNameWithFormat:@"[%@] -switchToLatest", self.name];
 }
 
 + (RACSignal *)switch:(RACSignal *)signal cases:(NSDictionary *)cases default:(RACSignal *)defaultSignal {

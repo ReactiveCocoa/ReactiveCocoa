@@ -7,7 +7,6 @@
 //
 
 #import "RACPromise.h"
-#import "RACPromise+Private.h"
 #import "RACReplaySubject.h"
 #import "RACScheduler.h"
 #import "RACSignal+Operations.h"
@@ -49,6 +48,11 @@
 @implementation RACPromise
 
 #pragma mark Lifecycle
+
+- (id)init {
+	[self doesNotRecognizeSelector:_cmd];
+	return nil;
+}
 
 - (id)initWithSignal:(RACSignal *)signal scheduler:(RACScheduler *)scheduler {
 	NSCParameterAssert(signal != nil);
@@ -103,6 +107,14 @@
 			return [self start];
 		}]
 		setNameWithFormat:@"[%@] -deferred", self.results.name];
+}
+
+@end
+
+@implementation RACSignal (RACPromiseAdditions)
+
+- (RACPromise *)promiseOnScheduler:(RACScheduler *)scheduler {
+	return [[RACPromise alloc] initWithSignal:self scheduler:scheduler];
 }
 
 @end

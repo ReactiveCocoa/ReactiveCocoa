@@ -3059,56 +3059,24 @@ describe(@"-concat", ^{
 	});
 });
 
-describe(@"-initially:", ^{
+describe(@"-doFinished:", ^{
 	__block RACSubject *subject;
 
-	__block NSUInteger initiallyInvokedCount;
-	__block RACSignal *signal;
-
-	beforeEach(^{
-		subject = [RACSubject subject];
-
-		initiallyInvokedCount = 0;
-		signal = [subject initially:^{
-			++initiallyInvokedCount;
-		}];
-	});
-
-	it(@"should not run without a subscription", ^{
-		[subject sendCompleted];
-		expect(initiallyInvokedCount).to.equal(0);
-	});
-
-	it(@"should run on subscription", ^{
-		[signal subscribe:[RACSubscriber new]];
-		expect(initiallyInvokedCount).to.equal(1);
-	});
-
-	it(@"should re-run for each subscription", ^{
-		[signal subscribe:[RACSubscriber new]];
-		[signal subscribe:[RACSubscriber new]];
-		expect(initiallyInvokedCount).to.equal(2);
-	});
-});
-
-describe(@"-finally:", ^{
-	__block RACSubject *subject;
-
-	__block BOOL finallyInvoked;
+	__block BOOL finishedInvoked;
 	__block RACSignal *signal;
 
 	beforeEach(^{
 		subject = [RACSubject subject];
 		
-		finallyInvoked = NO;
-		signal = [subject finally:^{
-			finallyInvoked = YES;
+		finishedInvoked = NO;
+		signal = [subject doFinished:^{
+			finishedInvoked = YES;
 		}];
 	});
 
-	it(@"should not run finally without a subscription", ^{
+	it(@"should not run block without a subscription", ^{
 		[subject sendCompleted];
-		expect(finallyInvoked).to.beFalsy();
+		expect(finishedInvoked).to.beFalsy();
 	});
 
 	describe(@"with a subscription", ^{
@@ -3122,19 +3090,68 @@ describe(@"-finally:", ^{
 			[disposable dispose];
 		});
 
-		it(@"should not run finally upon next", ^{
+		it(@"should not run upon next", ^{
 			[subject sendNext:RACUnit.defaultUnit];
-			expect(finallyInvoked).to.beFalsy();
+			expect(finishedInvoked).to.beFalsy();
 		});
 
-		it(@"should run finally upon completed", ^{
+		it(@"should run upon completed", ^{
 			[subject sendCompleted];
-			expect(finallyInvoked).to.beTruthy();
+			expect(finishedInvoked).to.beTruthy();
 		});
 
-		it(@"should run finally upon error", ^{
+		it(@"should run upon error", ^{
 			[subject sendError:nil];
-			expect(finallyInvoked).to.beTruthy();
+			expect(finishedInvoked).to.beTruthy();
+		});
+	});
+});
+
+describe(@"-doDisposed:", ^{
+	__block RACSubject *subject;
+
+	__block BOOL disposedInvoked;
+	__block RACSignal *signal;
+
+	beforeEach(^{
+		subject = [RACSubject subject];
+		
+		disposedInvoked = NO;
+		signal = [subject doDisposed:^{
+			disposedInvoked = YES;
+		}];
+	});
+
+	it(@"should not run block without a subscription", ^{
+		[subject sendCompleted];
+		expect(disposedInvoked).to.beFalsy();
+	});
+
+	describe(@"with a subscription", ^{
+		__block RACDisposable *disposable;
+
+		beforeEach(^{
+			disposable = [signal subscribeCompleted:^{}];
+		});
+
+		it(@"should not run upon next", ^{
+			[subject sendNext:RACUnit.defaultUnit];
+			expect(disposedInvoked).to.beFalsy();
+		});
+
+		it(@"should run upon completed", ^{
+			[subject sendCompleted];
+			expect(disposedInvoked).to.beTruthy();
+		});
+
+		it(@"should run upon error", ^{
+			[subject sendError:nil];
+			expect(disposedInvoked).to.beTruthy();
+		});
+
+		it(@"should run upon manual disposal", ^{
+			[disposable dispose];
+			expect(disposedInvoked).to.beTruthy();
 		});
 	});
 });

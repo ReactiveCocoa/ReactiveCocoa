@@ -10,13 +10,11 @@
 #import "EXTScope.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACDescription.h"
-#import "RACCommand.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACEvent.h"
 #import "RACGroupedSignal.h"
 #import "RACMulticastConnection+Private.h"
-#import "RACPromise+Private.h"
 #import "RACReplaySubject.h"
 #import "RACScheduler+Private.h"
 #import "RACScheduler.h"
@@ -130,6 +128,31 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			[subscriber sendCompleted];
 		}];
 	}] setNameWithFormat:@"[%@] -doCompleted:", self.name];
+}
+
+- (RACSignal *)doDisposed:(void (^)(void))block {
+	NSCParameterAssert(block != NULL);
+	
+	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		RACDisposable *subscriptionDisposable = [self subscribe:subscriber];
+		return [RACDisposable disposableWithBlock:^{
+			block();
+			[subscriptionDisposable dispose];
+		}];
+	}] setNameWithFormat:@"[%@] -doDisposed:", self.name];
+}
+
+- (RACSignal *)doFinished:(void (^)(void))block {
+	NSCParameterAssert(block != NULL);
+	
+	return [[[self
+		doError:^(NSError *error) {
+			block();
+		}]
+		doCompleted:^{
+			block();
+		}]
+		setNameWithFormat:@"[%@] -doFinished:", self.name];
 }
 
 - (RACSignal *)throttle:(NSTimeInterval)interval {
@@ -290,28 +313,6 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		id mappedValue = mapBlock(value, &error);
 		return (mappedValue == nil ? [RACSignal error:error] : [RACSignal return:mappedValue]);
 	}] setNameWithFormat:@"[%@] -tryMap:", self.name];
-}
-
-- (RACSignal *)initially:(void (^)(void))block {
-	NSCParameterAssert(block != NULL);
-
-	return [[RACSignal defer:^{
-		block();
-		return self;
-	}] setNameWithFormat:@"[%@] -initially:", self.name];
-}
-
-- (RACSignal *)finally:(void (^)(void))block {
-	NSCParameterAssert(block != NULL);
-	
-	return [[[self
-		doError:^(NSError *error) {
-			block();
-		}]
-		doCompleted:^{
-			block();
-		}]
-		setNameWithFormat:@"[%@] -finally:", self.name];
 }
 
 - (RACSignal *)bufferWithTime:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler {
@@ -892,10 +893,6 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	return [[RACSignalSequence sequenceWithSignal:self] setNameWithFormat:@"[%@] -sequence", self.name];
 }
 
-- (RACPromise *)promiseOnScheduler:(RACScheduler *)scheduler {
-	return [[RACPromise alloc] initWithSignal:self scheduler:scheduler];
-}
-
 - (RACSignal *)shareWhileActive {
 	// Although RACReplaySubject is deprecated for consumers, we're going to use it
 	// internally for the foreseeable future. We just want to expose something
@@ -1257,6 +1254,19 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 #pragma clang diagnostic ignored "-Wdeprecated-implementations"
 
 @implementation RACSignal (DeprecatedOperations)
+
+- (RACSignal *)initially:(void (^)(void))block {
+	NSCParameterAssert(block != NULL);
+
+	return [[RACSignal defer:^{
+		block();
+		return self;
+	}] setNameWithFormat:@"[%@] -initially:", self.name];
+}
+
+- (RACSignal *)finally:(void (^)(void))block {
+	return [self doFinished:block];
+}
 
 - (RACMulticastConnection *)publish {
 	RACSubject *subject = [[RACSubject subject] setNameWithFormat:@"[%@] -publish", self.name];

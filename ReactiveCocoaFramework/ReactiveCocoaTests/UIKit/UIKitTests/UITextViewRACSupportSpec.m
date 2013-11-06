@@ -8,7 +8,7 @@
 
 #import "RACSignal.h"
 #import "RACSignal+Operations.h"
-#import "UITextView+RACSignalSupport.h"
+#import "UITextView+RACSupport.h"
 
 SpecBegin(UITextViewRACSupport)
 

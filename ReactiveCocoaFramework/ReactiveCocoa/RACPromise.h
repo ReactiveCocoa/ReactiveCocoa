@@ -7,9 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "RACSignal.h"
 
 @class RACScheduler;
-@class RACSignal;
 @protocol RACSubscriber;
 
 /// Represents work that is guaranteed ("promised") to execute _exactly_ once
@@ -41,5 +41,24 @@
 
 /// Invokes -start when the returned signal is first subscribed to.
 - (RACSignal *)deferred;
+
+- (id)init __attribute__((unavailable("Use +promiseWithScheduler:block: or -[RACSignal promiseOnScheduler:] instead")));
+
+@end
+
+@interface RACSignal (RACPromiseAdditions)
+
+/// Creates a promise from the receiver.
+///
+/// scheduler - The scheduler upon which the receiver should be subscribed to,
+///             and upon which the promise should deliver its results. Use the
+///             +immediateScheduler if you want subscription and delivery to
+///             happen immediately, regardless of what scheduler the caller is
+///             running upon. This argument must not be nil.
+///
+/// Returns a promise that, once started, will subscribe to the receiver exactly
+/// once, and wait for `completed` or `error` without allowing any kind of
+/// cancellation.
+- (RACPromise *)promiseOnScheduler:(RACScheduler *)scheduler;
 
 @end

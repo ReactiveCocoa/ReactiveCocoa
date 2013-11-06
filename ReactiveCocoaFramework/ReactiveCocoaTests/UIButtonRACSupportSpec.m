@@ -6,11 +6,10 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#import "RACControlCommandExamples.h"
+#import "RACControlActionExamples.h"
 #import "RACTestUIButton.h"
 
-#import "UIButton+RACCommandSupport.h"
-#import "RACCommand.h"
+#import "UIButton+RACSupport.h"
 #import "RACDisposable.h"
 
 SpecBegin(UIButtonRACSupport)
@@ -23,14 +22,11 @@ describe(@"UIButton", ^{
 		expect(button).notTo.beNil();
 	});
 
-	itShouldBehaveLike(RACControlCommandExamples, ^{
+	itShouldBehaveLike(RACControlActionExamples, ^{
 		return @{
-			RACControlCommandExampleControl: button,
-			RACControlCommandExampleActivateBlock: ^(UIButton *button) {
-				#pragma clang diagnostic push
-				#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+			RACControlActionExampleControl: button,
+			RACControlActionExampleActivateBlock: ^(UIButton *button) {
 				[button sendActionsForControlEvents:UIControlEventTouchUpInside];
-				#pragma clang diagnostic pop
 			}
 		};
 	});

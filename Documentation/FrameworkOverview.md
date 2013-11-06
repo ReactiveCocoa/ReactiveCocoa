@@ -98,20 +98,14 @@ Therefore, if multiple parties are interested in a signal's values — but its s
 effects shouldn't be repeated — you can forward the events to a subject (using
 [-subscribe:][RACSignal]), and have everything subscribe to the subject instead.
 
-### Commands
+## Actions
 
-A **command**, represented by the [RACCommand][] class, creates and subscribes
-to a signal in response to some action. This makes it easy to perform
-side-effecting work as the user interacts with the app.
+An **action**, represented by the [RACAction][] class, subscribes to a signal in
+response to some UI action, like a button being clicked. This makes it easy to
+perform side-effecting work as the user interacts with the app.
 
-Usually the action triggering a command is UI-driven, like when a button is
-clicked. Commands can also be automatically disabled based on a signal, and this
-disabled state can be represented in a UI by disabling any controls associated
-with the command.
-
-On OS X, RAC adds a `rac_command` property to
-[NSButton][NSButton+RACCommandSupport] for setting up these behaviors
-automatically.
+RAC adds a `rac_action` property to many built-in AppKit and UIKit controls, to
+make it easy to set up these behaviors automatically.
 
 ## Promises
 
@@ -213,9 +207,8 @@ the information is still valuable).
 [monads]: http://en.wikipedia.org/wiki/Monad_(functional_programming)
 [Monoid]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Data-Monoid.html#t:Monoid
 [MonadZip]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Control-Monad-Zip.html#t:MonadZip
-[NSButton+RACCommandSupport]: ../ReactiveCocoaFramework/ReactiveCocoa/NSButton+RACCommandSupport.h
+[RACAction]: ../ReactiveCocoaFramework/ReactiveCocoa/RACAction.h
 [RACBacktrace]: ../ReactiveCocoaFramework/ReactiveCocoa/RACBacktrace.h
-[RACCommand]: ../ReactiveCocoaFramework/ReactiveCocoa/RACCommand.h
 [RACDisposable]: ../ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
 [RACEvent]: ../ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h
 [RACExtensions]: ../RACExtensions

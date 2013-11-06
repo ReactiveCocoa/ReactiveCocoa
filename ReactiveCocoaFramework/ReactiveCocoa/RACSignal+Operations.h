@@ -20,29 +20,70 @@ extern const NSInteger RACSignalErrorTimedOut;
 /// match any of the cases, and no default was given.
 extern const NSInteger RACSignalErrorNoMatchingCase;
 
-@class RACMulticastConnection;
+@class RACAction;
+@class RACCommand;
 @class RACDisposable;
+@class RACMulticastConnection;
 @class RACPromise;
 @class RACScheduler;
 @class RACSequence;
 @class RACSubject;
 @class RACTuple;
-@class RACCommand;
 @protocol RACSubscriber;
 
 @interface RACSignal (Operations)
 
-/// Do the given block on `next`. This should be used to inject side effects into
-/// the signal.
+/// Run the given block before passing through a `next` event.
+///
+/// This should be used to inject side effects into the signal.
+///
+/// Returns a signal which forwards the events of the receiver, running `block`
+/// before forwarding any `next`s.
 - (RACSignal *)doNext:(void (^)(id x))block;
 
-/// Do the given block on `error`. This should be used to inject side effects
-/// into the signal.
+/// Run the given block before passing through an `error` event.
+///
+/// This should be used to inject side effects into the signal.
+///
+/// Returns a signal which forwards the events of the receiver, running `block`
+/// before forwarding `error`.
 - (RACSignal *)doError:(void (^)(NSError *error))block;
 
-/// Do the given block on `completed`. This should be used to inject side effects
-/// into the signal.
+/// Run the given block before passing through an `completed` event.
+///
+/// This should be used to inject side effects into the signal.
+///
+/// Returns a signal which forwards the events of the receiver, running `block`
+/// before forwarding `completed`.
 - (RACSignal *)doCompleted:(void (^)(void))block;
+
+/// Run the given block immediately when the subscription is disposed.
+///
+/// This should be used to inject side effects into the signal.
+///
+/// Note that subscriptions are automatically disposed upon `error` and
+/// `completed` events, so this block will effectively run whenever the signal
+/// terminates or is cancelled through _any_ means.
+///
+/// Use -doFinished: instead, if you don't want to perform side effects upon
+/// cancellation.
+///
+/// Returns a signal which forwards the events of the receiver, running `block`
+/// before forwarding `completed` or `error`, or immediately upon disposal.
+- (RACSignal *)doDisposed:(void (^)(void))block;
+
+/// Run the given block before passing through a `completed` or `error` event.
+///
+/// This should be used to inject side effects into the signal.
+/// 
+/// Use -doDisposed: instead, if you also want to perform side effects upon
+/// cancellation.
+///
+/// This corresponds to the `Finally` method in Rx.
+///
+/// Returns a signal which forwards the events of the receiver, running `block`
+/// before forwarding `completed` or `error`.
+- (RACSignal *)doFinished:(void (^)(void))block;
 
 /// Send `next`s only if we don't receive another `next` in `interval` seconds.
 ///
@@ -95,35 +136,6 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 
 /// Resubscribes when the signal completes.
 - (RACSignal *)repeat;
-
-/// Execute the given block each time a subscription is created.
-///
-/// block - A block which defines the subscription side effects. Cannot be `nil`.
-///
-/// Example:
-///
-///   // Write new file, with backup.
-///   [[[[fileManager
-///       rac_createFileAtPath:path contents:data]
-///       initially:^{
-///           // 2. Second, backup current file
-///           [fileManager moveItemAtPath:path toPath:backupPath error:nil];
-///       }]
-///       initially:^{
-///           // 1. First, acquire write lock.
-///           [writeLock lock];
-///       }]
-///       finally:^{
-///           [writeLock unlock];
-///       }];
-///
-/// Returns a signal that passes through all events of the receiver, plus
-/// introduces side effects which occur prior to any subscription side effects
-/// of the receiver.
-- (RACSignal *)initially:(void (^)(void))block;
-
-/// Execute the given block when the signal completes or errors.
-- (RACSignal *)finally:(void (^)(void))block;
 
 /// Divides the receiver's `next`s into buffers which deliver every `interval`
 /// seconds.
@@ -369,7 +381,8 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 
 /// Defer creation of a signal until the signal's actually subscribed to.
 ///
-/// This can be used to effectively turn a hot signal into a cold signal.
+/// This can be used to effectively turn a hot signal into a cold signal, or to
+/// perform side effects before subscription.
 + (RACSignal *)defer:(RACSignal * (^)(void))block;
 
 /// Every time the receiver sends a new RACSignal, subscribes and sends `next`s and
@@ -433,19 +446,6 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// Trying to retrieve a value from the sequence which has not yet been sent will
 /// block.
 @property (nonatomic, strong, readonly) RACSequence *sequence;
-
-/// Creates a promise from the receiver.
-///
-/// scheduler - The scheduler upon which the receiver should be subscribed to,
-///             and upon which the promise should deliver its results. Use the
-///             +immediateScheduler if you want subscription and delivery to
-///             happen immediately, regardless of what scheduler the caller is
-///             running upon. This argument must not be nil.
-///
-/// Returns a promise that, once started, will subscribe to the receiver exactly
-/// once, and wait for `completed` or `error` without allowing any kind of
-/// cancellation.
-- (RACPromise *)promiseOnScheduler:(RACScheduler *)scheduler;
 
 /// Deduplicates subscriptions to the receiver, and shares results between them,
 /// ensuring that only one subscription is active at a time.
@@ -581,6 +581,8 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 
 @interface RACSignal (DeprecatedOperations)
 
+- (RACSignal *)initially:(void (^)(void))block RACDeprecated("Put side effects into +defer: instead");
+- (RACSignal *)finally:(void (^)(void))block RACDeprecated("Renamed to -doFinished:");
 - (RACMulticastConnection *)publish RACDeprecated("Send events to a shared RACSubject instead");
 - (RACMulticastConnection *)multicast:(RACSubject *)subject RACDeprecated("Use -promiseOnScheduler: or send events to a shared RACSubject instead");
 - (RACSignal *)replay RACDeprecated("Use -promiseOnScheduler: instead");

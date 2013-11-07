@@ -423,7 +423,7 @@ RACSignal *fileSignal = [RACSignal startEagerlyWithScheduler:[RACScheduler sched
 
 [[RACSignal
     combineLatest:@[ databaseSignal, fileSignal ]
-    reduce:^(NSArray *databaseObjects, NSArray *fileContents) {
+    reduce:^id(NSArray *databaseObjects, NSArray *fileContents) {
         [self finishProcessingDatabaseObjects:databaseObjects fileContents:fileContents];
         return nil;
     }]

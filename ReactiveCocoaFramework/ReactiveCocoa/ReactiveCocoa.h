@@ -35,6 +35,7 @@
 #import "RACSerialDisposable.h"
 #import "RACSignal+Operations.h"
 #import "RACSignal.h"
+#import "RACSignalGenerator.h"
 #import "RACSubject.h"
 #import "RACSubscriber.h"
 #import "RACSubscriptingAssignmentTrampoline.h"

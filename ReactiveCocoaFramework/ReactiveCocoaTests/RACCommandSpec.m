@@ -411,6 +411,13 @@ describe(@"enabled signal", ^{
 	it(@"should send YES by default", ^{
 		expect([command.enabled first]).to.equal(@YES);
 	});
+	
+	it(@"should send the last value enabledSignal sent at initialization time", ^{
+		RACCommand *command = [[RACCommand alloc] initWithEnabled:[RACSignal return:@NO] signalBlock:^(id _) {
+			return [RACSignal empty];
+		}];
+		expect([command.enabled first]).to.equal(@NO);
+	});
 
 	it(@"should send whatever the enabledSignal has sent most recently", ^{
 		[enabledSubject sendNext:@NO];

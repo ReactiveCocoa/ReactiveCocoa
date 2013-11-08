@@ -2,7 +2,8 @@
 #
 # 0 - No errors found.
 # 1 - Build or test failure. Errors will be logged automatically.
-# 2 - Untestable target. Retry with the "build" action.
+# 2 - Untestable target. Retry with the `build` action.
+# 3 - Wrong SDK. Retry with SDK `iphonesimulator`.
 
 BEGIN {
     status = 0;
@@ -13,13 +14,12 @@ BEGIN {
     fflush(stdout);
 }
 
-/is not testable/ {
-    status = 2;
-    exit;
-}
-
 /[0-9]+: (error|warning):/ {
     errors = errors $0 "\n";
+}
+
+/is not testable/ {
+    status = 2;
 }
 
 /(TEST|BUILD) FAILED/ {
@@ -28,6 +28,10 @@ BEGIN {
 
 /does not contain a scheme named/ {
     status = 1;
+}
+
+/cannot run using the selected device/ {
+    status = 3;
 }
 
 END {

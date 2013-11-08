@@ -43,9 +43,9 @@ run_xcodebuild ()
 {
     if [ -n "$XCWORKSPACE" ]
     then
-        xcodebuild -workspace "$XCWORKSPACE" -configuration "$XCCONFIGURATION" "$@" OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS
+        xcodebuild -workspace "$XCWORKSPACE" -configuration "$XCCONFIGURATION" "$@" OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS 2>&1
     else
-        xcodebuild -configuration "$XCCONFIGURATION" "$@" OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS
+        xcodebuild -configuration "$XCCONFIGURATION" "$@" OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS 2>&1
     fi
 
     local status=$?
@@ -53,17 +53,33 @@ run_xcodebuild ()
     return $status
 }
 
+parse_build ()
+{
+    awk -f "$SCRIPT_DIR/xcodebuild.awk"
+}
+
 build_scheme ()
 {
     local scheme=$1
 
-    run_xcodebuild -scheme "$scheme" test 2>&1 | awk -f "$SCRIPT_DIR/xcodebuild.awk"
+    run_xcodebuild -scheme "$scheme" test | parse_build
+
     local awkstatus=$?
+    local sdkflag=
+
+    # If this scheme targets iOS, try building for the simulator.
+    if [ "$awkstatus" -eq "3" ]
+    then
+        sdkflag="-sdk iphonesimulator"
+
+        run_xcodebuild $sdkflag -scheme "$scheme" test | parse_build
+        awkstatus=$?
+    fi
 
     # If this scheme doesn't support the `test` action, try again with `build`.
     if [ "$awkstatus" -eq "2" ]
     then
-        run_xcodebuild -scheme "$scheme" build 2>&1 | awk -f "$SCRIPT_DIR/xcodebuild.awk"
+        run_xcodebuild $sdkflag -scheme "$scheme" build | parse_build
         awkstatus=$?
     fi
 

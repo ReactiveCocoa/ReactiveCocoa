@@ -106,9 +106,6 @@ build_targets ()
         echo "$target"
     done
 
-    echo "*** Cleaning all targets..."
-    xcodebuild -alltargets -configuration "$XCCONFIGURATION" clean OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS
-
     echo "*** Building..."
 
     for scheme in "$@"
@@ -117,11 +114,16 @@ build_targets ()
     done
 }
 
+export -f build_targets
+
 if [ -f "$BOOTSTRAP" ]
 then
     echo "*** Bootstrapping..."
     bash "$BOOTSTRAP" || exit $?
 fi
+
+echo "*** Cleaning all targets..."
+xcodebuild -alltargets -configuration "$XCCONFIGURATION" clean OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS
 
 if [ "$#" -ne "0" ]
 then
@@ -130,5 +132,13 @@ elif [ -n "$DEFAULT_TARGETS" ]
 then
     build_targets $DEFAULT_TARGETS
 else
-    build_targets $(xcodebuild -list | awk -f "$SCRIPT_DIR/targets.awk")
+    targets=$(xcodebuild -list | awk -f "$SCRIPT_DIR/targets.awk")
+
+    echo -e "*** The following targets will be built:\n$targets"
+    echo "*** Building..."
+
+    echo "$targets" | while read scheme
+    do
+        build_scheme "$scheme" || exit $?
+    done
 fi

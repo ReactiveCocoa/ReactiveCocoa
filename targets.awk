@@ -7,6 +7,6 @@ BEGIN {
         if ($0 ~ /Tests/) continue;
 
         sub(/^ +/, "");
-        print "'" $0 "'";
+        print;
     }
 }

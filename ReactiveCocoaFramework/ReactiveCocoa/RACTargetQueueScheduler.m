@@ -29,8 +29,6 @@
 	self = [super initWithName:name queue:queue];
 	if (self == nil) return nil;
 
-	dispatch_release(queue);
-
 	return self;
 }
 

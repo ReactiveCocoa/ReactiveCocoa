@@ -34,7 +34,7 @@ BOOTSTRAP="$SCRIPT_DIR/bootstrap"
 DEFAULT_TARGETS=
 
 # Extra build settings to pass to xcodebuild.
-XCODEBUILD_SETTINGS="TEST_AFTER_BUILD=YES RUN_CLANG_STATIC_ANALYZER=NO"
+XCODEBUILD_SETTINGS="RUN_CLANG_STATIC_ANALYZER=NO"
 
 ##
 ## Build Process
@@ -42,13 +42,11 @@ XCODEBUILD_SETTINGS="TEST_AFTER_BUILD=YES RUN_CLANG_STATIC_ANALYZER=NO"
 
 run_xcodebuild ()
 {
-    local scheme=$1
-
     if [ -n "$XCWORKSPACE" ]
     then
-        xcodebuild -workspace "$XCWORKSPACE" -scheme "$scheme" -configuration "$XCCONFIGURATION" build OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS
+        xcodebuild -workspace "$XCWORKSPACE" -configuration "$XCCONFIGURATION" "$@" OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS
     else
-        xcodebuild -scheme "$scheme" -configuration "$XCCONFIGURATION" build OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS
+        xcodebuild -configuration "$XCCONFIGURATION" "$@" OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS
     fi
 
     local status=$?
@@ -60,7 +58,15 @@ build_scheme ()
 {
     local scheme=$1
 
-    run_xcodebuild "$scheme" 2>&1 | awk -f "$SCRIPT_DIR/xcodebuild.awk"
+    run_xcodebuild -scheme "$scheme" -n test 2>&1 1>/dev/null | awk -f "$SCRIPT_DIR/xcodebuild.awk"
+
+    # Check whether this scheme supports the `test` action.
+    if [ "$?" -eq "2" ]
+    then
+        run_xcodebuild -scheme "$scheme" build 2>&1 | awk -f "$SCRIPT_DIR/xcodebuild.awk"
+    else
+        run_xcodebuild -scheme "$scheme" test 2>&1 | awk -f "$SCRIPT_DIR/xcodebuild.awk"
+    fi
 
     local awkstatus=$?
     local xcstatus=${PIPESTATUS[0]}

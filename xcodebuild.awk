@@ -14,7 +14,8 @@ BEGIN {
 }
 
 /is not testable/ {
-    exit 2;
+    status = 2;
+    exit;
 }
 
 /[0-9]+: (error|warning):/ {

@@ -13,7 +13,7 @@ BEGIN {
     fflush(stdout);
 }
 
-/is not valid for Testing/ {
+/is not testable/ {
     exit 2;
 }
 

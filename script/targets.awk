@@ -4,9 +4,9 @@ BEGIN {
 
 /Targets:/ {
     while (getline && $0 != "") {
-        if ($0 ~ /Tests/) continue;
+        if ($0 ~ /Test/) continue;
 
         sub(/^ +/, "");
-        print "'" $0 "'";
+        print;
     }
 }

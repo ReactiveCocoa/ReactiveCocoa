@@ -26,3 +26,6 @@ PUBLIC_HEADERS_FOLDER_PATH = include/$PRODUCT_NAME
 // library's own folder first. This avoids conflicts from other headers in the
 // build folder.
 USER_HEADER_SEARCH_PATHS = ./**
+
+// Don't include in an xcarchive
+SKIP_INSTALL = YES

@@ -58,17 +58,16 @@ build_scheme ()
 {
     local scheme=$1
 
-    run_xcodebuild -scheme "$scheme" -n test 2>&1 1>/dev/null | awk -f "$SCRIPT_DIR/xcodebuild.awk"
+    run_xcodebuild -scheme "$scheme" test 2>&1 | awk -f "$SCRIPT_DIR/xcodebuild.awk"
+    local awkstatus=$?
 
-    # Check whether this scheme supports the `test` action.
-    if [ "$?" -eq "2" ]
+    # If this scheme doesn't support the `test` action, try again with `build`.
+    if [ "$awkstatus" -eq "2" ]
     then
         run_xcodebuild -scheme "$scheme" build 2>&1 | awk -f "$SCRIPT_DIR/xcodebuild.awk"
-    else
-        run_xcodebuild -scheme "$scheme" test 2>&1 | awk -f "$SCRIPT_DIR/xcodebuild.awk"
+        awkstatus=$?
     fi
 
-    local awkstatus=$?
     local xcstatus=${PIPESTATUS[0]}
 
     if [ "$xcstatus" -eq "65" ]

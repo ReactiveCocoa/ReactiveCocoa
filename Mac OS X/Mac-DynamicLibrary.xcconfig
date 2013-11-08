@@ -13,3 +13,6 @@ DEAD_CODE_STRIPPING = NO
 // Whether function calls should be position-dependent (should always be
 // disabled for library code)
 GCC_DYNAMIC_NO_PIC = NO
+
+// Don't include in an xcarchive
+SKIP_INSTALL = YES

@@ -65,25 +65,27 @@ build_scheme ()
     run_xcodebuild -scheme "$scheme" test | parse_build
 
     local awkstatus=$?
+    local xcstatus=${PIPESTATUS[0]}
     local sdkflag=
 
     # If this scheme targets iOS, try building for the simulator.
     if [ "$awkstatus" -eq "3" ]
     then
         sdkflag="-sdk iphonesimulator"
-
         run_xcodebuild $sdkflag -scheme "$scheme" test | parse_build
+
         awkstatus=$?
+        xcstatus=${PIPESTATUS[0]}
     fi
 
     # If this scheme doesn't support the `test` action, try again with `build`.
     if [ "$awkstatus" -eq "2" ]
     then
         run_xcodebuild $sdkflag -scheme "$scheme" build | parse_build
-        awkstatus=$?
-    fi
 
-    local xcstatus=${PIPESTATUS[0]}
+        awkstatus=$?
+        xcstatus=${PIPESTATUS[0]}
+    fi
 
     if [ "$xcstatus" -eq "65" ]
     then
@@ -137,8 +139,8 @@ else
     echo -e "*** The following targets will be built:\n$targets"
     echo "*** Building..."
 
-    echo "$targets" | while read scheme
+    echo "$targets" | while read line
     do
-        build_scheme "$scheme" || exit $?
+        build_scheme "$line"
     done
 fi

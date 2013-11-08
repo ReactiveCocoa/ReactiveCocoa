@@ -123,7 +123,7 @@ then
 fi
 
 echo "*** Cleaning all targets..."
-xcodebuild -alltargets -configuration "$XCCONFIGURATION" clean OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS
+xcodebuild -alltargets -configuration "$XCCONFIGURATION" clean OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS 2>&1 >/dev/null
 
 if [ "$#" -ne "0" ]
 then

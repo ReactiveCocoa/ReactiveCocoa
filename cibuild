@@ -1,7 +1,6 @@
 #!/bin/bash
 
 SCRIPT_DIR=$(dirname "$0")
-cd "$SCRIPT_DIR/.."
 
 ##
 ## Configuration Variables
@@ -34,50 +33,19 @@ BOOTSTRAP="$SCRIPT_DIR/bootstrap"
 DEFAULT_TARGETS=
 
 # Extra build settings to pass to xcodebuild.
-XCODEBUILD_SETTINGS="TEST_AFTER_BUILD=YES RUN_CLANG_STATIC_ANALYZER=NO"
+XCODEBUILD_SETTINGS="RUN_CLANG_STATIC_ANALYZER=NO"
 
 ##
 ## Build Process
 ##
 
-if [ -z "$*" ]
-then
-    # lol recursive shell script
-    if [ -n "$DEFAULT_TARGETS" ]
-    then
-        echo "$DEFAULT_TARGETS" | xargs "$SCRIPT_DIR/cibuild"
-    else
-        xcodebuild -list | awk -f "$SCRIPT_DIR/targets.awk" | xargs "$SCRIPT_DIR/cibuild"
-    fi
-
-    exit $?
-fi
-
-if [ -f "$BOOTSTRAP" ]
-then
-    echo "*** Bootstrapping..."
-    bash "$BOOTSTRAP" || exit $?
-fi
-
-echo "*** The following targets will be built:"
-
-for target in "$@"
-do
-    echo "$target"
-done
-
-echo "*** Cleaning all targets..."
-xcodebuild -alltargets -configuration "$XCCONFIGURATION" clean OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS
-
 run_xcodebuild ()
 {
-    local scheme=$1
-
     if [ -n "$XCWORKSPACE" ]
     then
-        xcodebuild -workspace "$XCWORKSPACE" -scheme "$scheme" -configuration "$XCCONFIGURATION" build OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS
+        xcodebuild -workspace "$XCWORKSPACE" -configuration "$XCCONFIGURATION" "$@" OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS 2>&1
     else
-        xcodebuild -scheme "$scheme" -configuration "$XCCONFIGURATION" build OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS
+        xcodebuild -configuration "$XCCONFIGURATION" "$@" OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS 2>&1
     fi
 
     local status=$?
@@ -85,14 +53,39 @@ run_xcodebuild ()
     return $status
 }
 
+parse_build ()
+{
+    awk -f "$SCRIPT_DIR/xcodebuild.awk"
+}
+
 build_scheme ()
 {
     local scheme=$1
 
-    run_xcodebuild "$scheme" 2>&1 | awk -f "$SCRIPT_DIR/xcodebuild.awk"
+    run_xcodebuild -scheme "$scheme" test | parse_build
 
     local awkstatus=$?
     local xcstatus=${PIPESTATUS[0]}
+    local sdkflag=
+
+    # If this scheme targets iOS, try building for the simulator.
+    if [ "$awkstatus" -eq "3" ]
+    then
+        sdkflag="-sdk iphonesimulator"
+        run_xcodebuild $sdkflag -scheme "$scheme" test | parse_build
+
+        awkstatus=$?
+        xcstatus=${PIPESTATUS[0]}
+    fi
+
+    # If this scheme doesn't support the `test` action, try again with `build`.
+    if [ "$awkstatus" -eq "2" ]
+    then
+        run_xcodebuild $sdkflag -scheme "$scheme" build | parse_build
+
+        awkstatus=$?
+        xcstatus=${PIPESTATUS[0]}
+    fi
 
     if [ "$xcstatus" -eq "65" ]
     then
@@ -106,9 +99,48 @@ build_scheme ()
     return $xcstatus
 }
 
-echo "*** Building..."
+build_targets ()
+{
+    echo "*** The following targets will be built:"
 
-for scheme in "$@"
-do
-    build_scheme "$scheme" || exit $?
-done
+    for target in "$@"
+    do
+        echo "$target"
+    done
+
+    echo "*** Building..."
+
+    for scheme in "$@"
+    do
+        build_scheme "$scheme" || exit $?
+    done
+}
+
+export -f build_targets
+
+if [ -f "$BOOTSTRAP" ]
+then
+    echo "*** Bootstrapping..."
+    bash "$BOOTSTRAP" || exit $?
+fi
+
+echo "*** Cleaning all targets..."
+xcodebuild -alltargets -configuration "$XCCONFIGURATION" clean OBJROOT="$PWD/build" SYMROOT="$PWD/build" $XCODEBUILD_SETTINGS 2>&1 >/dev/null
+
+if [ "$#" -ne "0" ]
+then
+    build_targets "$@"
+elif [ -n "$DEFAULT_TARGETS" ]
+then
+    build_targets $DEFAULT_TARGETS
+else
+    targets=$(xcodebuild -list | awk -f "$SCRIPT_DIR/targets.awk")
+
+    echo -e "*** The following targets will be built:\n$targets"
+    echo "*** Building..."
+
+    echo "$targets" | while read line
+    do
+        build_scheme "$line"
+    done
+fi

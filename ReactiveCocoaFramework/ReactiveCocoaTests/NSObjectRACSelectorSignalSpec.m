@@ -212,7 +212,6 @@ describe(@"RACTestObject", ^{
 		// This instance should not respond to the selector because of not
 		// calling -rac_signalForSelector: with the selector.
 		expect([object2 respondsToSelector:selector]).to.beFalsy();
-		expect(^{ [object2 optionalProtocolMethodWithObjectValue:@1]; }).to.raiseAny();
 	});
 
 	it(@"should send non-object arguments", ^{

@@ -98,20 +98,20 @@ static void RACSwizzleRespondsToSelector(Class class) {
 	// Set up a new version of -respondsToSelector: that returns YES for methods
 	// added by -rac_signalForSelector:.
 	//
-	// If the selector has a method defined on the receiver's actual class and
-	// if that method's implementation is _objc_msgForward, or, if the original
-	// -respondsToSelector: returns YES, then returns whether the instance has a
-	// signal for the selector. Otherwise, returns NO.
+	// If the selector has a method defined on the receiver's actual class, and
+	// if that method's implementation is _objc_msgForward, and the instance has
+	// a signal for the selector, then return YES.
+	// Otherwise, return logical AND of the original -respondsToSelector:'s
+	// return value and whether the instance has a signal for the selector.
 	id newRespondsToSelector = ^ BOOL (id self, SEL selector) {
+		SEL aliasSelector = RACAliasForSelector(selector);
+		BOOL hasSignalForSelector = objc_getAssociatedObject(self, aliasSelector) != nil;
+
 		Method method = rac_getImmediateInstanceMethod(object_getClass(self), selector);
-		BOOL hasMessageForwardingImplementation = (method != NULL && method_getImplementation(method) == _objc_msgForward);
-		
-		if (hasMessageForwardingImplementation || originalRespondsToSelector(self, respondsToSelectorSEL, selector)) {
-			SEL aliasSelector = RACAliasForSelector(selector);
-			return objc_getAssociatedObject(self, aliasSelector) != nil;
-		}
-		
-		return NO;
+
+		if (method != NULL && method_getImplementation(method) == _objc_msgForward && hasSignalForSelector) return YES;
+
+		return originalRespondsToSelector(self, respondsToSelectorSEL, selector) && hasSignalForSelector;
 	};
 
 	class_replaceMethod(class, @selector(respondsToSelector:), imp_implementationWithBlock(newRespondsToSelector), method_getTypeEncoding(respondsToSelectorMethod));

@@ -209,7 +209,7 @@ describe(@"RACTestObject", ^{
 		// -forwardInvocation:.
 		[object2 rac_signalForSelector:@selector(lifeIsGood:)];
 		
-		// This instance should not responds to the selector because of not
+		// This instance should not respond to the selector because of not
 		// calling -rac_signalForSelector: with the selector.
 		expect([object2 respondsToSelector:selector]).to.beFalsy();
 		expect(^{ [object2 optionalProtocolMethodWithObjectValue:@1]; }).to.raiseAny();

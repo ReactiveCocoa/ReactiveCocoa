@@ -196,19 +196,19 @@ describe(@"RACTestObject", ^{
 		SEL selector = @selector(optionalProtocolMethodWithObjectValue:);
 
 		RACTestObject *object1 = [[RACTestObject alloc] init];
-		
+
 		// Method implementation of the selector is added to its swizzled class.
 		[object1 rac_signalForSelector:selector fromProtocol:@protocol(RACTestProtocol)];
-		
+
 		expect([object1 respondsToSelector:selector]).to.beTruthy();
-		
+
 		RACTestObject *object2 = [[RACTestObject alloc] init];
-		
+
 		// Call -rac_signalForSelector: to swizzle this instance's class,
 		// method implementations of -respondsToSelector: and
 		// -forwardInvocation:.
 		[object2 rac_signalForSelector:@selector(lifeIsGood:)];
-		
+
 		// This instance should not respond to the selector because of not
 		// calling -rac_signalForSelector: with the selector.
 		expect([object2 respondsToSelector:selector]).to.beFalsy();

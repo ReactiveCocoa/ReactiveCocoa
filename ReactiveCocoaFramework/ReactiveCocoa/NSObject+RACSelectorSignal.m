@@ -104,12 +104,12 @@ static void RACSwizzleRespondsToSelector(Class class) {
 	// Otherwise, call the original -respondsToSelector:.
 	id newRespondsToSelector = ^ BOOL (id self, SEL selector) {
 		Method method = rac_getImmediateInstanceMethod(object_getClass(self), selector);
-		
+
 		if (method != NULL && method_getImplementation(method) == _objc_msgForward) {
 			SEL aliasSelector = RACAliasForSelector(selector);
 			return objc_getAssociatedObject(self, aliasSelector) != nil;
 		}
-		
+
 		return originalRespondsToSelector(self, respondsToSelectorSEL, selector);
 	};
 

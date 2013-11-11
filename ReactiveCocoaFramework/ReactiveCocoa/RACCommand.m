@@ -211,8 +211,8 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 		and];
 	
 	_enabled = [[[[[self.immediateEnabled
-		deliverOn:RACScheduler.mainThreadScheduler]
-		startWith:@YES]
+		take:1]
+		concat:[[self.immediateEnabled skip:1] deliverOn:RACScheduler.mainThreadScheduler]]
 		distinctUntilChanged]
 		replayLast]
 		setNameWithFormat:@"%@ -enabled", self];

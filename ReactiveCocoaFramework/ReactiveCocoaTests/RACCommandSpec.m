@@ -422,6 +422,13 @@ describe(@"enabled signal", ^{
 		[enabledSubject sendNext:@NO];
 		expect([command.enabled first]).will.equal(@NO);
 	});
+	
+	it(@"should sample enabledSignal synchronously at initialization time", ^{
+		RACCommand *command = [[RACCommand alloc] initWithEnabled:[RACSignal return:@NO] signalBlock:^(id _) {
+			return [RACSignal empty];
+		}];
+		expect([command.enabled first]).to.equal(@NO);
+	});
 
 	it(@"should send NO while executing is YES and allowsConcurrentExecution is NO", ^{
 		[[command.executionSignals flatten] subscribeNext:^(id _) {

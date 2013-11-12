@@ -17,7 +17,7 @@
 /// on the specific subclass, there may also be side effects involved in the
 /// generated signals and/or the generation algorithm itself.
 ///
-/// This class forms an arrow `a ~> Signal b`. More simply, instances of the
+/// This class represents a function `a -> Signal b`. More simply, instances of the
 /// class behave like -flattenMap:, except that they can be applied directly to
 /// values (not just existing signals).
 @interface RACSignalGenerator : NSObject

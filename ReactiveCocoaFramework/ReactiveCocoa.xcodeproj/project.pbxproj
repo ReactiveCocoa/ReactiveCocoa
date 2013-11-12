@@ -306,6 +306,9 @@
 		D0307EE01731AAE100D83211 /* RACTupleSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D0307EDC1731AAE100D83211 /* RACTupleSequence.m */; };
 		D03525D417E2EBC90099CBAB /* RACSignalProvider.d in Sources */ = {isa = PBXBuildFile; fileRef = D03525D317E2EBC90099CBAB /* RACSignalProvider.d */; };
 		D03525D917E2FAAD0099CBAB /* RACSignalProvider.d in Sources */ = {isa = PBXBuildFile; fileRef = D03525D317E2EBC90099CBAB /* RACSignalProvider.d */; };
+		D0360E111832224B00132D2F /* RACDynamicSignalGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = D0BD34D1182B163E00B324CB /* RACDynamicSignalGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D0360E121832224C00132D2F /* RACDynamicSignalGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = D0BD34D1182B163E00B324CB /* RACDynamicSignalGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D0360E131832225000132D2F /* RACDynamicSignalGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = D0BD34D1182B163E00B324CB /* RACDynamicSignalGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D041376915D2281C004BBF80 /* RACKVOWrapperSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D041376815D2281C004BBF80 /* RACKVOWrapperSpec.m */; };
 		D0487AB3164314430085D890 /* RACStreamExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = D0487AB2164314430085D890 /* RACStreamExamples.m */; };
 		D049804217F91F42001EE042 /* EXTRuntimeExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D05F9D3417984EC000FD7982 /* EXTRuntimeExtensions.m */; };
@@ -1739,18 +1742,10 @@
 			children = (
 				D0BD34C3182B159500B324CB /* RACSignalGenerator.h */,
 				D0BD34C4182B159500B324CB /* RACSignalGenerator.m */,
-				D0BD34D0182B162D00B324CB /* Private */,
-			);
-			name = "Signal Generators";
-			sourceTree = "<group>";
-		};
-		D0BD34D0182B162D00B324CB /* Private */ = {
-			isa = PBXGroup;
-			children = (
 				D0BD34D1182B163E00B324CB /* RACDynamicSignalGenerator.h */,
 				D0BD34D2182B163E00B324CB /* RACDynamicSignalGenerator.m */,
 			);
-			name = Private;
+			name = "Signal Generators";
 			sourceTree = "<group>";
 		};
 		D0D486FB164253B600DD7605 /* Signals */ = {
@@ -1863,6 +1858,7 @@
 				88C5A0241692460A0045EF05 /* RACMulticastConnection.h in Headers */,
 				881E86A21669304800667F7B /* RACCompoundDisposable.h in Headers */,
 				881E87B216695EDF00667F7B /* RACImmediateScheduler.h in Headers */,
+				D0360E111832224B00132D2F /* RACDynamicSignalGenerator.h in Headers */,
 				881E87C41669636000667F7B /* RACSubscriptionScheduler.h in Headers */,
 				5F45A885168CFA3E00B58A2B /* RACKVOChannel.h in Headers */,
 				8857BB82152A27A9009804CC /* NSObject+RACKVOWrapper.h in Headers */,
@@ -1936,6 +1932,7 @@
 				27A887D21703DDEB00040001 /* UIBarButtonItem+RACSupport.h in Headers */,
 				1EC06B17173CB04000365258 /* UIGestureRecognizer+RACSupport.h in Headers */,
 				D090768017FBEADE00EB087A /* NSURLConnection+RACSupport.h in Headers */,
+				D0360E121832224C00132D2F /* RACDynamicSignalGenerator.h in Headers */,
 				5EE9A7931760D61300EAF5A2 /* UIButton+RACSupport.h in Headers */,
 				88302C961762EC79003633BD /* RACQueueScheduler.h in Headers */,
 				88302C9B1762EC7E003633BD /* RACQueueScheduler+Subclass.h in Headers */,
@@ -2004,6 +2001,7 @@
 				D090768117FBEADE00EB087A /* NSURLConnection+RACSupport.h in Headers */,
 				D013A3E81807B7C30072B6CE /* RACReturnSignal.h in Headers */,
 				D05AD3C717F2DB100080895B /* RACBacktrace.h in Headers */,
+				D0360E131832225000132D2F /* RACDynamicSignalGenerator.h in Headers */,
 				D05AD3EE17F2DB4F0080895B /* RACSequence.h in Headers */,
 				D05AD3D217F2DB1D0080895B /* RACSignal.h in Headers */,
 				D05AD3CD17F2DB100080895B /* NSObject+RACLifting.h in Headers */,

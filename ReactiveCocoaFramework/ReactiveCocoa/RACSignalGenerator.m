@@ -7,15 +7,8 @@
 //
 
 #import "RACSignalGenerator.h"
-#import "RACDynamicSignalGenerator.h"
 
 @implementation RACSignalGenerator
-
-#pragma mark Lifecycle
-
-+ (RACSignalGenerator *)generatorWithBlock:(RACSignal * (^)(id input))block {
-	return [RACDynamicSignalGenerator generatorWithBlock:block];
-}
 
 #pragma mark Generation
 

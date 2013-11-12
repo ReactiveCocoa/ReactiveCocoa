@@ -25,6 +25,7 @@
 #import "RACChannel.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
+#import "RACDynamicSignalGenerator.h"
 #import "RACEvent.h"
 #import "RACGroupedSignal.h"
 #import "RACKVOChannel.h"

@@ -22,12 +22,6 @@
 /// values (not just existing signals).
 @interface RACSignalGenerator : NSObject
 
-/// Instantiates a generator that implements its behavior using a block.
-///
-/// block - Describes how to create a signal from an input value, which may be
-///         nil. This block must not be nil, and must not return a nil signal.
-+ (RACSignalGenerator *)generatorWithBlock:(RACSignal * (^)(id input))block;
-
 /// Creates a signal for the given value.
 ///
 /// Depending on the specific subclass, this method and/or the created signal

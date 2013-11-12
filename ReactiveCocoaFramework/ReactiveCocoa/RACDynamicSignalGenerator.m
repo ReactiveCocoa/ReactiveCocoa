@@ -18,12 +18,15 @@
 
 #pragma mark Lifecycle
 
-+ (instancetype)generatorWithBlock:(RACSignal * (^)(id input))block {
+- (id)initWithBlock:(RACSignal * (^)(id input))block {
 	NSCParameterAssert(block != nil);
 
-	RACDynamicSignalGenerator *generator = [[self alloc] init];
-	generator->_block = [block copy];
-	return generator;
+	self = [super init];
+	if (self == nil) return nil;
+
+	_block = [block copy];
+
+	return self;
 }
 
 #pragma mark RACSignalGenerator

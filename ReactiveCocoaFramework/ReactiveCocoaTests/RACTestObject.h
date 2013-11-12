@@ -13,7 +13,14 @@ typedef struct {
 	double doubleField;
 } RACTestStruct;
 
-@interface RACTestObject : NSObject
+@protocol RACTestProtocol <NSObject>
+
+@optional
+- (void)optionalProtocolMethodWithObjectValue:(id)objectValue;
+
+@end
+
+@interface RACTestObject : NSObject <RACTestProtocol>
 
 @property (nonatomic, strong) id objectValue;
 @property (nonatomic, strong) id secondObjectValue;

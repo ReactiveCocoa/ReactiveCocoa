@@ -2810,6 +2810,9 @@ describe(@"-sample:", ^{
 			[values addObject:x];
 		}];
 		
+		[sampleSubject sendNext:RACUnit.defaultUnit];
+		expect(values).to.equal(@[]);
+		
 		[subject sendNext:@1];
 		[subject sendNext:@2];
 		expect(values).to.equal(@[]);

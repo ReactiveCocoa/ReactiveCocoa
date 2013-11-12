@@ -2013,7 +2013,6 @@
 				1860F42B177C91B500C7B3C9 /* Sources */,
 				1860F42C177C91B500C7B3C9 /* Frameworks */,
 				1860F42D177C91B500C7B3C9 /* Resources */,
-				1860F42E177C91B500C7B3C9 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -2034,7 +2033,6 @@
 				5FAF521E174D4C2000CAC810 /* Sources */,
 				5FAF521F174D4C2000CAC810 /* Frameworks */,
 				5FAF5220174D4C2000CAC810 /* Resources */,
-				5FAF5221174D4C2000CAC810 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -2074,7 +2072,6 @@
 				88CDF7D815000FCF00163A9F /* Frameworks */,
 				88CDF7D915000FCF00163A9F /* Resources */,
 				8820937F1501C94E00796685 /* Copy Frameworks */,
-				88CDF7DA15000FCF00163A9F /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -2269,48 +2266,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		1860F42E177C91B500C7B3C9 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
-		};
-		5FAF5221174D4C2000CAC810 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
-		};
-		88CDF7DA15000FCF00163A9F /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		1860F40E177C91B500C7B3C9 /* Sources */ = {

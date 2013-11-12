@@ -190,6 +190,29 @@ describe(@"RACTestObject", ^{
 
 		expect([object respondsToSelector:selector]).to.beTruthy();
 	});
+	
+	it(@"should properly implement -respondsToSelector: for optional method from a protocol", ^{
+		// Selector for the targeted optional method from a protocol.
+		SEL selector = @selector(optionalProtocolMethodWithObjectValue:);
+
+		RACTestObject *object1 = [[RACTestObject alloc] init];
+
+		// Method implementation of the selector is added to its swizzled class.
+		[object1 rac_signalForSelector:selector fromProtocol:@protocol(RACTestProtocol)];
+
+		expect([object1 respondsToSelector:selector]).to.beTruthy();
+
+		RACTestObject *object2 = [[RACTestObject alloc] init];
+
+		// Call -rac_signalForSelector: to swizzle this instance's class,
+		// method implementations of -respondsToSelector: and
+		// -forwardInvocation:.
+		[object2 rac_signalForSelector:@selector(lifeIsGood:)];
+
+		// This instance should not respond to the selector because of not
+		// calling -rac_signalForSelector: with the selector.
+		expect([object2 respondsToSelector:selector]).to.beFalsy();
+	});
 
 	it(@"should send non-object arguments", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];

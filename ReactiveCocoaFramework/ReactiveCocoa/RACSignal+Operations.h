@@ -760,7 +760,8 @@ typedef RACSignal * (^RACSignalBindBlock)(id value, BOOL *stop);
 
 /// Sends the latest value from the receiver only when `sampler` sends a value.
 /// The returned signal could repeat values if `sampler` fires more often than
-/// the receiver.
+/// the receiver. Values from `sampler` are ignored before the receiver sends
+/// its first value.
 ///
 /// sampler - The signal that controls when the latest value from the receiver
 ///           is sent. Cannot be nil.

@@ -29,10 +29,10 @@ typedef RACSignal * (^RACSignalBindBlock)(id value, BOOL *stop);
 /// The policy that -flatten:withPolicy: should follow when additional signals
 /// arrive while `maxConcurrent` signals are already subscribed to.
 ///
-/// RACSignalFlattenPolicyWait            - Wait until each current signal
+/// RACSignalFlattenPolicyWait            - Wait until any current signal
 ///                                         completes, then subscribe to the
-///                                         additional signals in the order of
-///                                         their arrival.
+///                                         additional (enqueued) signal that
+///                                         arrived earliest.
 /// RACSignalFlattenPolicyDisposeEarliest - Dispose of the active subscription
 ///                                         to the signal that arrived earliest,
 ///                                         then subscribe to the new signal.

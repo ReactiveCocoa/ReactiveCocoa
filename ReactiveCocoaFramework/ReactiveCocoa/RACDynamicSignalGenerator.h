@@ -27,24 +27,24 @@
 ///
 /// Examples
 ///
-///		// Fetches users from the API, starting at the given page.
-///		RACSignalGenerator *fetchUsers = [[RACDynamicSignalGenerator alloc] initWithReflexiveBlock:^(NSNumber *pageNum, RACSignalGenerator *generator) {
-///			return [[APIClient.sharedClient
-///				fetchUsersAtPage:pageNum.intValue]
-///				flattenMap:^(Page *page) {
-///					RACSignal *moreUsers = [RACSignal empty];
+///   // Fetches users from the API, starting at the given page.
+///   RACSignalGenerator *fetchUsers = [[RACDynamicSignalGenerator alloc] initWithReflexiveBlock:^(NSNumber *pageNum, RACSignalGenerator *generator) {
+///       return [[APIClient.sharedClient
+///           fetchUsersAtPage:pageNum.intValue]
+///           flattenMap:^(Page *page) {
+///               RACSignal *moreUsers = [RACSignal empty];
 ///
-///					// Fetch the next page, if there is one.
-///					if ([page isLastPage]) {
-///						moreUsers = [generator signalWithValue:@(pageNum.intValue + 1)];
-///					}
+///               // Fetch the next page, if there is one.
+///               if ([page isLastPage]) {
+///                   moreUsers = [generator signalWithValue:@(pageNum.intValue + 1)];
+///               }
 ///
-///					// Concatenate all results.
-///					return [[RACSignal
-///						return:page]
-///						concat:moreUsers];
-///				}];
-///		}];
+///               // Concatenate all results.
+///               return [[RACSignal
+///                   return:page]
+///                   concat:moreUsers];
+///           }];
+///   }];
 - (id)initWithReflexiveBlock:(RACSignal * (^)(id input, RACDynamicSignalGenerator *generator))block;
 
 @end

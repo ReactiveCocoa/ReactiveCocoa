@@ -7,6 +7,7 @@
 //
 
 #import "RACDynamicSignalGenerator.h"
+#import "EXTScope.h"
 
 @interface RACDynamicSignalGenerator ()
 
@@ -27,6 +28,18 @@
 	_block = [block copy];
 
 	return self;
+}
+
+- (id)initWithReflexiveBlock:(RACSignal * (^)(id input, RACDynamicSignalGenerator *generator))block {
+	// We don't need a real weak reference for this, because it's basically
+	// impossible for the generator to deallocate while the block is being
+	// invoked. (Also, they're expensive.)
+	@unsafeify(self);
+
+	return [self initWithBlock:^(id input) {
+		@strongify(self);
+		return block(input, self);
+	}];
 }
 
 #pragma mark RACSignalGenerator

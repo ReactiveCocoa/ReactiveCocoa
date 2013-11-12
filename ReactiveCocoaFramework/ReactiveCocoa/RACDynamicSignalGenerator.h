@@ -35,7 +35,7 @@
 ///               RACSignal *moreUsers = [RACSignal empty];
 ///
 ///               // Fetch the next page, if there is one.
-///               if ([page isLastPage]) {
+///               if (![page isLastPage]) {
 ///                   moreUsers = [generator signalWithValue:@(pageNum.intValue + 1)];
 ///               }
 ///

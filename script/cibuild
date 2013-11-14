@@ -1,7 +1,6 @@
 #!/bin/bash
 
-cd "$(dirname "$0")/../ReactiveCocoaFramework"
-export SCRIPT_DIR=../script
+export SCRIPT_DIR=$(dirname "$0")
 
 ##
 ## Configuration Variables
@@ -18,7 +17,7 @@ config ()
     #
     # Only one of `XCWORKSPACE` and `XCODEPROJ` needs to be set. The former will
     # take precedence.
-    : ${XCWORKSPACE=$(find_pattern "*.xcworkspace")}
+    : ${XCWORKSPACE=}
 
     # The project to build.
     #
@@ -27,7 +26,7 @@ config ()
     #
     # Only one of `XCWORKSPACE` and `XCODEPROJ` needs to be set. The former will
     # take precedence.
-    : ${XCODEPROJ=$(find_pattern "*.xcodeproj")}
+    : ${XCODEPROJ="ReactiveCocoaFramework/ReactiveCocoa.xcodeproj"}
 
     # A bootstrap script to run before building.
     #
@@ -40,7 +39,7 @@ config ()
     # A whitespace-separated list of default schemes to build.
     #
     # Individual names can be quoted to avoid word splitting.
-    : ${SCHEMES:=$(xcodebuild -list 2>/dev/null | awk -f "$SCRIPT_DIR/schemes.awk")}
+    : ${SCHEMES:=$(xcodebuild -list -project "$XCODEPROJ" 2>/dev/null | awk -f "$SCRIPT_DIR/schemes.awk")}
     
     export XCWORKSPACE
     export XCODEPROJ

@@ -494,7 +494,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 						}];
 				}
 
-				[values addObject:x];
+				[values addObject:x ?: RACTupleNil.tupleNil];
 			}
 		} error:^(NSError *error) {
 			[subscriber sendError:error];

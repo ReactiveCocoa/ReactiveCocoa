@@ -2909,11 +2909,9 @@ describe(@"-bufferWithTime:", ^{
 		
 		[input sendNext:@3];
 		[input sendNext:@4];
-		[input sendNext:NSNull.null];
-		
-		// NSNull should not be converted
+
 		[scheduler stepAll];
-		expect(latestValue).to.equal(RACTuplePack(@3, @4, NSNull.null));
+		expect(latestValue).to.equal(RACTuplePack(@3, @4));
 	});
 
 	it(@"should not perform buffering until a value is sent", ^{
@@ -2936,6 +2934,18 @@ describe(@"-bufferWithTime:", ^{
 		[input sendCompleted];
 		[scheduler stepAll];
 		expect(latestValue).to.equal(RACTuplePack(@1));
+	});
+
+	it(@"should support NSNull values", ^{
+		[input sendNext:NSNull.null];
+		[scheduler stepAll];
+		expect(latestValue).to.equal(RACTuplePack(NSNull.null));
+	});
+
+	it(@"should buffer nil values", ^{
+		[input sendNext:nil];
+		[scheduler stepAll];
+		expect(latestValue).to.equal(RACTuplePack(nil));
 	});
 });
 

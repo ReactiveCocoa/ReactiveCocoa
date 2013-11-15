@@ -7,7 +7,7 @@
 // Architectures to build
 // Xcode 5 doesn't know about ARCHS_STANDARD_32_BIT
 // And Xcode 4 doesn't know about ARCHS_STANDARD
-ARCHS = armv7 armv7s
+ARCHS = armv7 armv7s arm64
 
 // Whether to only build the active architecture (overridden from Debug/Profile)
 ONLY_ACTIVE_ARCH = NO

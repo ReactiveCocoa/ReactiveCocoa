@@ -31,6 +31,9 @@
 		27A887D11703DC6800040001 /* UIBarButtonItem+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 27A887C81703DB4F00040001 /* UIBarButtonItem+RACSupport.m */; };
 		27A887D21703DDEB00040001 /* UIBarButtonItem+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 27A887C71703DB4F00040001 /* UIBarButtonItem+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4925E806181BCC71000B2FEE /* (null) in Sources */ = {isa = PBXBuildFile; };
+		4973429718359E9B005C25CB /* RACSignal+Operations.h in Headers */ = {isa = PBXBuildFile; fileRef = D0D910CC15F915BD00AD2DDA /* RACSignal+Operations.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4973429818359E9C005C25CB /* RACSignal+Operations.h in Headers */ = {isa = PBXBuildFile; fileRef = D0D910CC15F915BD00AD2DDA /* RACSignal+Operations.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4973429918359EA1005C25CB /* RACSignal+Operations.h in Headers */ = {isa = PBXBuildFile; fileRef = D0D910CC15F915BD00AD2DDA /* RACSignal+Operations.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		554D9E5D181064E200F21262 /* UIRefreshControl+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 554D9E5B181064E200F21262 /* UIRefreshControl+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		554D9E5E181064E200F21262 /* UIRefreshControl+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 554D9E5C181064E200F21262 /* UIRefreshControl+RACSupport.m */; };
 		5564537F18107203002BD2E4 /* RACControlActionExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = D075A72917BCB7E100C24FB7 /* RACControlActionExamples.m */; };
@@ -1832,6 +1835,7 @@
 				881E87C41669636000667F7B /* RACSubscriptionScheduler.h in Headers */,
 				5F45A885168CFA3E00B58A2B /* RACKVOChannel.h in Headers */,
 				8857BB82152A27A9009804CC /* NSObject+RACKVOWrapper.h in Headers */,
+				4973429718359E9B005C25CB /* RACSignal+Operations.h in Headers */,
 				880D7A5A16F7B351004A3361 /* NSObject+RACSelectorSignal.h in Headers */,
 				6E58405516F22D7500F588A6 /* NSObject+RACDeallocating.h in Headers */,
 				5F6FE8531692568A00A8D7A6 /* RACChannel.h in Headers */,
@@ -1876,6 +1880,7 @@
 				D08FF272169A331A00743C6D /* RACReplaySubject.h in Headers */,
 				D08FF273169A331A00743C6D /* RACBehaviorSubject.h in Headers */,
 				D08FF274169A331A00743C6D /* RACDisposable.h in Headers */,
+				4973429818359E9C005C25CB /* RACSignal+Operations.h in Headers */,
 				D08FF275169A331A00743C6D /* RACScopedDisposable.h in Headers */,
 				D07EBA4618229196009EA5CC /* RACAction.h in Headers */,
 				D08FF276169A331A00743C6D /* RACCompoundDisposable.h in Headers */,
@@ -1939,6 +1944,7 @@
 				D05AD40F17F2DB6A0080895B /* NSFileHandle+RACSupport.h in Headers */,
 				D05AD40517F2DB5D0080895B /* RACTestScheduler.h in Headers */,
 				D05AD42817F2DB840080895B /* RACKVOChannel.h in Headers */,
+				4973429918359EA1005C25CB /* RACSignal+Operations.h in Headers */,
 				D05AD3FF17F2DB5D0080895B /* RACTargetQueueScheduler.h in Headers */,
 				D05AD3E217F2DB230080895B /* RACDisposable.h in Headers */,
 				D05AD42617F2DB840080895B /* RACChannel.h in Headers */,

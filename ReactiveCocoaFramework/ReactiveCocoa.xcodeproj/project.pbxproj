@@ -34,6 +34,7 @@
 		4973429718359E9B005C25CB /* RACSignal+Operations.h in Headers */ = {isa = PBXBuildFile; fileRef = D0D910CC15F915BD00AD2DDA /* RACSignal+Operations.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4973429818359E9C005C25CB /* RACSignal+Operations.h in Headers */ = {isa = PBXBuildFile; fileRef = D0D910CC15F915BD00AD2DDA /* RACSignal+Operations.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4973429918359EA1005C25CB /* RACSignal+Operations.h in Headers */ = {isa = PBXBuildFile; fileRef = D0D910CC15F915BD00AD2DDA /* RACSignal+Operations.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4973429A18359EE2005C25CB /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = 88037F8C15056328001A5B19 /* ReactiveCocoa.h */; };
 		554D9E5D181064E200F21262 /* UIRefreshControl+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 554D9E5B181064E200F21262 /* UIRefreshControl+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		554D9E5E181064E200F21262 /* UIRefreshControl+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 554D9E5C181064E200F21262 /* UIRefreshControl+RACSupport.m */; };
 		5564537F18107203002BD2E4 /* RACControlActionExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = D075A72917BCB7E100C24FB7 /* RACControlActionExamples.m */; };
@@ -1966,6 +1967,7 @@
 				D05AD3D617F2DB1D0080895B /* RACEvent.h in Headers */,
 				D05AD3D017F2DB100080895B /* RACStream.h in Headers */,
 				D05AD3DC17F2DB1D0080895B /* RACSubject.h in Headers */,
+				4973429A18359EE2005C25CB /* ReactiveCocoa.h in Headers */,
 				D05AD41C17F2DB6A0080895B /* NSString+RACSupport.h in Headers */,
 				D05AD42417F2DB6E0080895B /* NSText+RACSupport.h in Headers */,
 				D05AD3C017F2DA300080895B /* RACSubscriber.h in Headers */,

@@ -24,6 +24,8 @@ NSString * const RACControlCommandExampleActivateBlock = @"RACControlCommandExam
 
 - (BOOL)isEnabled;
 
+- (void)rac_rebindEnabled:(RACSignal *)enabledSignal;
+
 @end
 
 SharedExampleGroupsBegin(RACControlCommandExamples)
@@ -54,6 +56,19 @@ sharedExamplesFor(RACControlCommandExamples, ^(NSDictionary *data) {
 		expect([control isEnabled]).will.beFalsy();
 		
 		[enabledSubject sendNext:@YES];
+		expect([control isEnabled]).will.beTruthy();
+	});
+	
+	it(@"should accept another signal for binding to enabledness", ^{
+		expect([control isEnabled]).will.beTruthy();
+			   
+		RACSubject * newEnabledSubject = [RACSubject subject];
+		[control rac_rebindEnabled:newEnabledSubject];
+		
+		[newEnabledSubject sendNext:@NO];
+		expect([control isEnabled]).will.beFalsy();
+		
+		[newEnabledSubject sendNext:@YES];
 		expect([control isEnabled]).will.beTruthy();
 	});
 

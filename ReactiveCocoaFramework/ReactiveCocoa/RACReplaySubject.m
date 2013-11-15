@@ -57,25 +57,23 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = NSUIntegerMax;
 #pragma mark RACSignal
 
 - (void)attachSubscriber:(RACLiveSubscriber *)subscriber {
-	[subscriber.disposable addDisposable:[RACScheduler.subscriptionScheduler schedule:^{
-		@synchronized (self) {
-			for (id value in self.valuesReceived) {
-				if (subscriber.disposable.disposed) return;
-
-				[subscriber sendNext:([value isKindOfClass:RACTupleNil.class] ? nil : value)];
-			}
-
+	@synchronized (self) {
+		for (id value in self.valuesReceived) {
 			if (subscriber.disposable.disposed) return;
 
-			if (self.hasCompleted) {
-				[subscriber sendCompleted];
-			} else if (self.hasError) {
-				[subscriber sendError:self.error];
-			} else {
-				[super attachSubscriber:subscriber];
-			}
+			[subscriber sendNext:([value isKindOfClass:RACTupleNil.class] ? nil : value)];
 		}
-	}]];
+
+		if (subscriber.disposable.disposed) return;
+
+		if (self.hasCompleted) {
+			[subscriber sendCompleted];
+		} else if (self.hasError) {
+			[subscriber sendError:self.error];
+		} else {
+			[super attachSubscriber:subscriber];
+		}
+	}
 }
 
 #pragma mark RACSubscriber

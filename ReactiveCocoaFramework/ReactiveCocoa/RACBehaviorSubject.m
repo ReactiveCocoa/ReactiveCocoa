@@ -36,11 +36,9 @@
 - (void)attachSubscriber:(RACLiveSubscriber *)subscriber {
 	[super attachSubscriber:subscriber];
 
-	[RACScheduler.subscriptionScheduler schedule:^{
-		@synchronized (self) {
-			[subscriber sendNext:self.currentValue];
-		}
-	}];
+	@synchronized (self) {
+		[subscriber sendNext:self.currentValue];
+	}
 }
 
 #pragma mark RACSubscriber

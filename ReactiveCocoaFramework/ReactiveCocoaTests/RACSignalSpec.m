@@ -274,24 +274,6 @@ describe(@"subscribing", ^{
 		
 		expect(receivedValues).to.equal(expectedValues);
 	});
-
-	it(@"should have a current scheduler in didSubscribe block", ^{
-		__block RACScheduler *currentScheduler;
-		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			currentScheduler = RACScheduler.currentScheduler;
-			[subscriber sendCompleted];
-			return nil;
-		}];
-
-		[signal subscribeNext:^(id x) {}];
-		expect(currentScheduler).notTo.beNil();
-
-		currentScheduler = nil;
-		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-			[signal subscribeNext:^(id x) {}];
-		});
-		expect(currentScheduler).willNot.beNil();
-	});
 	
 	it(@"should automatically dispose of other subscriptions from +createSignal:", ^{
 		__block BOOL innerDisposed = NO;

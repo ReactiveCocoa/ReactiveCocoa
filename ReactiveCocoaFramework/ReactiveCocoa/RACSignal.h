@@ -88,13 +88,6 @@
 /// Subscribes `subscriber` to changes on the receiver. The receiver defines which
 /// events it actually sends and in what situations the events are sent.
 ///
-/// Subscription will always happen on a valid RACScheduler. If the
-/// +[RACScheduler currentScheduler] cannot be determined at the time of
-/// subscription (e.g., because the calling code is running on a GCD queue or
-/// NSOperationQueue), subscription will occur on a private background scheduler.
-/// On the main thread, subscriptions will always occur immediately, with a
-/// +[RACScheduler currentScheduler] of +[RACScheduler mainThreadScheduler].
-///
 /// This method must be overridden by any subclasses.
 ///
 /// Returns nil or a disposable. You can call -[RACDisposable dispose] if you

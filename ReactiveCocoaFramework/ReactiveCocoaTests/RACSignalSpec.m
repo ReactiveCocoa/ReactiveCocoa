@@ -646,10 +646,14 @@ describe(@"continuation", ^{
 		NSMutableArray *values = [NSMutableArray array];
 
 		__block BOOL completed = NO;
-		__block RACDisposable *disposable = [[signal repeat] subscribeNext:^(id x) {
+		__block RACDisposable *disposable;
+		
+		[[signal repeat] subscribeSavingDisposable:^(RACDisposable *d) {
+			disposable = d;
+		} next:^(id x) {
 			[values addObject:x];
 			[disposable dispose];
-		} completed:^{
+		} error:nil completed:^{
 			completed = YES;
 		}];
 

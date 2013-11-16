@@ -47,26 +47,29 @@
 /// Creates a new signal. This is the preferred way to create a new signal
 /// operation or behavior.
 ///
-/// Events can be sent to new subscribers immediately in the `didSubscribe`
-/// block. To ensure that the work of the `didSubscribe` block is interruptible
-/// and cancellable, create (or obtain) a RACDisposable and add it to the
-/// `disposable` property of the `subscriber`. Alternatively, you can check the
-/// value of the compound disposable's `disposed` property to determine whether
-/// to cancel work.
+/// didSubscribe - Called **every time** a new subscriber subscribes to the
+///                signal. The new <RACSubscriber>, which represents the
+///                created subscription, is passed in.
 ///
-/// didSubscribe - Called when the signal is subscribed to. The new subscriber is
-///                passed in. You can then manually control the <RACSubscriber> by
-///                sending it -sendNext:, -sendError:, and -sendCompleted,
-///                as defined by the operation you're implementing. This block
-///                should add a RACDisposable to the `subscriber`, or watch the
-///                `disposed` flag on `subscriber.disposable`, to cancel any
-///                ongoing work triggered by the subscription, and clean up any
-///                resources or disposables created as part of it.
+///                You can manually control the <RACSubscriber> by sending it
+///                -sendNext:, -sendError:, and -sendCompleted, as defined by
+///                the operation you're implementing.
 ///
-/// **Note:** The `didSubscribe` block is called every time a new subscriber
-/// subscribes. Any side effects within the block will thus execute once for each
-/// subscription, not necessarily on one thread, and possibly even
-/// simultaneously!
+///                This block should add a RACDisposable to
+///                `subscriber.disposable`, or watch the `disposed` flag on
+///                `subscriber.disposable`, to cancel any ongoing work triggered
+///                by the subscription, and clean up any resources or
+///                disposables created as part of it.
+///
+///                Alternatively, you can attach the subscriber to _other_ signals
+///                (using -subscribe:) in this block. You do not need to save
+///                the disposable returned from -subscribe: in this case, as the
+///                <RACSubscriber> will automatically receive it and dispose of
+///                it when appropriate.
+///
+///                **Note:** Any side effects within this block will execute
+///                once for _each_ subscription, not necessarily on one thread,
+///                and possibly even concurrently!
 + (RACSignal *)create:(void (^)(id<RACSubscriber> subscriber))didSubscribe;
 
 /// Returns a signal that immediately sends the given error.

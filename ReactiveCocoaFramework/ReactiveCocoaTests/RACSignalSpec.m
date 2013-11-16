@@ -198,14 +198,20 @@ describe(@"-bind:", ^{
 });
 
 describe(@"subscribing", ^{
+	__block BOOL disposed;
 	__block RACSignal *signal = nil;
+
 	id nextValueSent = @"1";
 	
 	beforeEach(^{
-		signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		disposed = NO;
+		signal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 			[subscriber sendNext:nextValueSent];
 			[subscriber sendCompleted];
-			return nil;
+
+			return [RACDisposable disposableWithBlock:^{
+				disposed = YES;
+			}];
 		}];
 	});
 	
@@ -295,6 +301,35 @@ describe(@"subscribing", ^{
 
 		[disposable dispose];
 		expect(innerDisposed).to.beTruthy();
+	});
+
+	it(@"should save a disposable in -subscribeSavingDisposable:next:error:completed:", ^{
+		__block RACDisposable *disposable = nil;
+		__block id nextValue = nil;
+		__block BOOL completed = NO;
+
+		[signal subscribeSavingDisposable:^(RACDisposable *d) {
+			disposable = d;
+
+			expect(disposable).notTo.beNil();
+			expect(disposable.disposed).to.beFalsy();
+			expect(disposed).to.beFalsy();
+		} next:^(id x) {
+			nextValue = x;
+
+			expect(disposable).notTo.beNil();
+			expect(disposable.disposed).to.beFalsy();
+			expect(disposed).to.beFalsy();
+
+			[disposable dispose];
+		} error:nil completed:^{
+			completed = YES;
+		}];
+
+		expect(disposed).to.beTruthy();
+		expect(disposable.disposed).to.beTruthy();
+		expect(nextValue).to.equal(nextValueSent);
+		expect(completed).to.beFalsy();
 	});
 });
 

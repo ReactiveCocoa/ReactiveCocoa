@@ -73,7 +73,7 @@ used are never calculated), but means that sequence processing [should be
 limited only to what's actually
 needed](#process-only-as-much-of-a-stream-as-needed).
 
-Once evaluated, the values in a sequence are memoized and do not need to be
+Once evaluated, the values in a sequence are memorized and do not need to be
 recalculated. Accessing `sequence.head` multiple times will only do the work of
 one string concatenation.
 

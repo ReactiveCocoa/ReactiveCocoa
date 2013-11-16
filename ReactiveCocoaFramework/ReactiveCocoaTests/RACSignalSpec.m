@@ -281,18 +281,17 @@ describe(@"subscribing", ^{
 		expect(receivedValues).to.equal(expectedValues);
 	});
 	
-	it(@"should automatically dispose of other subscriptions from +createSignal:", ^{
+	it(@"should automatically dispose of other subscriptions from +create:", ^{
 		__block BOOL innerDisposed = NO;
 
-		RACSignal *innerSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-			return [RACDisposable disposableWithBlock:^{
+		RACSignal *innerSignal = [RACSignal create:^(id<RACSubscriber> subscriber) {
+			[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
 				innerDisposed = YES;
-			}];
+			}]];
 		}];
 
-		RACSignal *outerSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		RACSignal *outerSignal = [RACSignal create:^(id<RACSubscriber> subscriber) {
 			[innerSignal subscribe:subscriber];
-			return nil;
 		}];
 
 		RACDisposable *disposable = [outerSignal subscribeCompleted:^{}];

@@ -602,7 +602,7 @@ describe(@"querying", ^{
 	});
 });
 
-describe(@"continuation", ^{
+describe(@"-repeat", ^{
 	it(@"should repeat after completion", ^{
 		__block NSUInteger numberOfSubscriptions = 0;
 		RACScheduler *scheduler = [RACScheduler scheduler];
@@ -634,6 +634,26 @@ describe(@"continuation", ^{
 		
 		expect(nextCount).will.equal(3);
 		expect(gotCompleted).to.beFalsy();
+	});
+
+	it(@"should stop repeating upon error", ^{
+		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendError:RACSignalTestError];
+			return nil;
+		}];
+
+		NSMutableArray *values = [NSMutableArray array];
+		__block NSError *receivedError = nil;
+		
+		[[signal repeat] subscribeNext:^(id x) {
+			[values addObject:x];
+		} error:^(NSError *e) {
+			receivedError = e;
+		}];
+
+		expect(values).will.equal(@[ @1 ]);
+		expect(receivedError).to.equal(RACSignalTestError);
 	});
 
 	it(@"should stop repeating when disposed", ^{

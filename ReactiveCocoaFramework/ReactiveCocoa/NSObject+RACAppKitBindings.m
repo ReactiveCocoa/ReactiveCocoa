@@ -16,7 +16,6 @@
 #import "RACKVOChannel.h"
 #import "RACMulticastConnection.h"
 #import "RACSignal+Operations.h"
-#import "RACValueTransformer.h"
 #import <objc/runtime.h>
 
 // Used as an object to bind to, so we can hide the object creation and just

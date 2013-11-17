@@ -18,6 +18,7 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=4stat
 
  1. [Promises instead of replaying](#promises-instead-of-replaying)
  1. [Actions instead of commands](#actions-instead-of-commands)
+ 1. [Simplified signal creation and disposal](#simplified-signal-creation-and-disposal)
 
 **[Deprecations](#deprecations)**
 
@@ -115,6 +116,31 @@ RAC(self.button, enabled) = viewModel.enabled;
 
 self.buttonContainerView.hidden = [viewModel.enabled not];
 ```
+
+### Simplified signal creation and disposal
+
+`+[RACSignal createSignal:]` has been
+[replaced](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/917) with
+a simpler `+create:` method that no longer needs to return a disposable.
+
+In conjunction with this new constructor, `<RACSubscriber>` exposes
+a `disposable` property, to which any number of disposables can be added or
+removed, and whose `disposed` property can also be used as an early termination
+flag. Both of these capabilities reduce the need for allocating additional
+disposables.
+
+Synchronous signals can also be terminated early now, because they don't have to
+_return_ a disposable before the subscriber can act. Instead, the subscriber's
+`disposable` can be disposed of at any time.
+
+**To update:**
+
+ * Replace uses of `+createSignal:` with `+create:`.
+ * Instead of returning a disposable, attach it to the `disposable` of the
+   `<RACSubscriber>`, or figure out how to eliminate the disposable entirely.
+ * The `-didSubscribeWithDisposable:` method of `<RACSubscriber>` has been
+   removed. If, for some reason, you were using it, refactor the call points to
+   add to the subscriber's `disposable` instead.
 
 ## Deprecations
 

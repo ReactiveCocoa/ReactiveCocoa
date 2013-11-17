@@ -18,6 +18,8 @@
 /// directly, because it will not track transactions. Instead, use the
 /// initialized transaction generator.
 ///
+/// This is the designated initializer of this class.
+///
 /// generator - The generator to add transactional functionality to. This must
 ///             not be nil.
 - (id)initWithGenerator:(RACSignalGenerator *)generator;

@@ -13,6 +13,8 @@
 
 /// Initializes the receiver to generate signals using the given block.
 ///
+/// This is the designated initializer of this class.
+///
 /// block - Describes how to create a signal from an input value, which may be
 ///         nil. This block must not be nil, and must not return a nil signal.
 - (id)initWithBlock:(RACSignal * (^)(id input))block;

@@ -20,12 +20,16 @@
 /// This class represents a function `a -> Signal b`. More simply, instances of the
 /// class behave like -flattenMap:, except that they can be applied directly to
 /// values (not just existing signals).
+///
+/// Although this class is meant to be subclassed, there may be a provided
+/// subclass or an operator that already does what you need. In particular, see
+/// `RACDynamicSignalGenerator` and `RACSignalGenerator+Operations.h`.
 @interface RACSignalGenerator : NSObject
 
 /// Creates a signal for the given value.
 ///
-/// Depending on the specific subclass, this method and/or the created signal
-/// may have side effects.
+/// This method must be overridden by subclasses. Depending on the specific
+/// subclass, this method and/or the created signal may have side effects.
 ///
 /// input - The input value, used to determine how to create the signal, and how
 ///         the created signal should behave. This may be nil.

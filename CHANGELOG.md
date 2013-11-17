@@ -5,7 +5,7 @@ APIs](#deprecations) and [replacing complicated patterns with simpler
 ones](#replacements) where possible. Consequently, the changes are significant
 and far-reaching.
 
-However, because migration is hard and time-consuming, RAC 2.x code will
+However, because migration is hard and time-consuming, 99% of RAC 2.x code will
 continue to work under RAC 3.0 without any changes. You'll see deprecation
 warnings by default, but even these can be temporarily disabled by defining
 [`WE_PROMISE_TO_MIGRATE_TO_REACTIVECOCOA_3_0`](ReactiveCocoaFramework/ReactiveCocoa/RACDeprecated.h)

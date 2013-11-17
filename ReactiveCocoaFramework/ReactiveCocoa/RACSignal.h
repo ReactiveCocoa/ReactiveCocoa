@@ -130,13 +130,14 @@
 /// before actually starting the signal.
 ///
 /// This is primarily useful for signals that may be synchronous. Because the
-/// other -subscribe… methods return a disposable, it's impossible to dispose of
+/// other -subscribe… methods _return_ a disposable, it's impossible to dispose of
 /// the subscription until the signal finishes any synchronous behaviors it may
-/// have.
+/// have. This is particularly problematic with signals or operators that may
+/// run forever (e.g., -repeat).
 ///
 /// By contrast, this method allows you to save the disposable immediately,
-/// _then_ start the signal, so it can be disposed even while invoking your
-/// event handlers synchronously.
+/// _then_ start the signal, so it can be disposed from any of your event
+/// handlers, even if they're invoked synchronously.
 ///
 /// saveDisposableBlock - Invoked before starting the signal, this block can be
 ///                       used to save the given `RACDisposable` for later use

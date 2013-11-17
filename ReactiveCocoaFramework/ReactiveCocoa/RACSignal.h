@@ -61,7 +61,7 @@
 ///                by the subscription, and clean up any resources or
 ///                disposables created as part of it.
 ///
-///                Alternatively, you can attach the subscriber to _other_ signals
+///                You can also attach the subscriber to _other_ signals
 ///                (using -subscribe:) in this block. You do not need to save
 ///                the disposable returned from -subscribe: in this case, as the
 ///                <RACSubscriber> will automatically receive it and dispose of

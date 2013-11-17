@@ -32,3 +32,12 @@
 @property (nonatomic, strong, readonly) RACSignal *transactions;
 
 @end
+
+@interface RACSignalGenerator (RACTransactionSignalGeneratorAdditions)
+
+/// Decorates the receiver with transactional behavior.
+///
+/// Returns a signal generator that will track the transactions it produces.
+- (RACTransactionSignalGenerator *)asTransactionSignalGenerator;
+
+@end

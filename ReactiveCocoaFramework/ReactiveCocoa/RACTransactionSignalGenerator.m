@@ -48,3 +48,11 @@
 }
 
 @end
+
+@implementation RACSignalGenerator (RACTransactionSignalGeneratorAdditions)
+
+- (RACTransactionSignalGenerator *)asTransactionSignalGenerator {
+	return [[RACTransactionSignalGenerator alloc] initWithGenerator:self];
+}
+
+@end

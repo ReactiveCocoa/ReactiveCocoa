@@ -1,5 +1,5 @@
 //
-//  UICollectionViewCell+RACSignalSupport.h
+//  UICollectionReusableView+RACSignalSupport.h
 //  ReactiveCocoa
 //
 //  Created by Kent Wong on 2013-10-04.
@@ -11,7 +11,7 @@
 @class RACSignal;
 
 // This category is only applicable to iOS >= 6.0.
-@interface UICollectionViewCell (RACSignalSupport)
+@interface UICollectionReusableView (RACSignalSupport)
 
 /// A signal which will send a RACUnit whenever -prepareForReuse is invoked upon
 /// the receiver.

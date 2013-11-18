@@ -12,7 +12,6 @@
 #import "RACDisposable.h"
 #import "RACImmediateScheduler.h"
 #import "RACScheduler+Private.h"
-#import "RACSubscriptionScheduler.h"
 #import "RACTargetQueueScheduler.h"
 
 // The key for the thread-specific current scheduler.
@@ -77,16 +76,6 @@ NSString * const RACSchedulerCurrentSchedulerKey = @"RACSchedulerCurrentSchedule
 
 + (instancetype)scheduler {
 	return [self schedulerWithPriority:RACSchedulerPriorityDefault];
-}
-
-+ (instancetype)subscriptionScheduler {
-	static dispatch_once_t onceToken;
-	static RACScheduler *subscriptionScheduler;
-	dispatch_once(&onceToken, ^{
-		subscriptionScheduler = [[RACSubscriptionScheduler alloc] init];
-	});
-
-	return subscriptionScheduler;
 }
 
 + (BOOL)isOnMainThread {

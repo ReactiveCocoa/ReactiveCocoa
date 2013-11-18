@@ -82,10 +82,8 @@
 - (void)attachSubscriber:(RACLiveSubscriber *)subscriber {
 	NSCParameterAssert(subscriber != nil);
 
-	[RACScheduler.subscriptionScheduler schedule:^{
-		[subscriber sendNext:self.value];
-		[subscriber sendCompleted];
-	}];
+	[subscriber sendNext:self.value];
+	[subscriber sendCompleted];
 }
 
 @end

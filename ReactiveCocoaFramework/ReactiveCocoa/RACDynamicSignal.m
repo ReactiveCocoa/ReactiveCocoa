@@ -171,11 +171,7 @@ static void RACCheckActiveSignals(void) {
 	[subscriber.disposable addDisposable:defaultDisposable];
 
 	if (self.didSubscribe != NULL) {
-		RACDisposable *schedulingDisposable = [RACScheduler.subscriptionScheduler schedule:^{
-			self.didSubscribe(subscriber);
-		}];
-
-		[subscriber.disposable addDisposable:schedulingDisposable];
+		self.didSubscribe(subscriber);
 	}
 }
 

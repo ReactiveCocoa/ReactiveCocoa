@@ -36,55 +36,6 @@ NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 const NSInteger RACSignalErrorTimedOut = 1;
 const NSInteger RACSignalErrorNoMatchingCase = 2;
 
-// Subscribes to the given signal with the given blocks.
-//
-// If the signal errors or completes, the corresponding block is invoked. If the
-// disposable passed to the block is _not_ disposed, then the signal is
-// subscribed to again.
-static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), void (^error)(NSError *, RACDisposable *), void (^completed)(RACDisposable *)) {
-	next = [next copy];
-	error = [error copy];
-	completed = [completed copy];
-
-	RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposable];
-
-	RACSchedulerRecursiveBlock recursiveBlock = ^(void (^recurse)(void)) {
-		RACCompoundDisposable *selfDisposable = [RACCompoundDisposable compoundDisposable];
-		[compoundDisposable addDisposable:selfDisposable];
-
-		__weak RACDisposable *weakSelfDisposable = selfDisposable;
-
-		RACDisposable *subscriptionDisposable = [signal subscribeNext:next error:^(NSError *e) {
-			@autoreleasepool {
-				error(e, compoundDisposable);
-				[compoundDisposable removeDisposable:weakSelfDisposable];
-			}
-
-			recurse();
-		} completed:^{
-			@autoreleasepool {
-				completed(compoundDisposable);
-				[compoundDisposable removeDisposable:weakSelfDisposable];
-			}
-
-			recurse();
-		}];
-
-		[selfDisposable addDisposable:subscriptionDisposable];
-	};
-	
-	// Subscribe once immediately, and then use recursive scheduling for any
-	// further resubscriptions.
-	recursiveBlock(^{
-		RACScheduler *recursiveScheduler = RACScheduler.currentScheduler ?: [RACScheduler scheduler];
-
-		RACDisposable *schedulingDisposable = [recursiveScheduler scheduleRecursiveBlock:recursiveBlock];
-		[compoundDisposable addDisposable:schedulingDisposable];
-	});
-
-	return compoundDisposable;
-}
-
 @implementation RACSignal (Operations)
 
 - (RACSignal *)concat:(RACSignal *)signal {
@@ -403,18 +354,40 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 - (RACSignal *)repeat {
 	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		RACDisposable *disposable = subscribeForever(self,
-			^(id x) {
-				[subscriber sendNext:x];
-			},
-			^(NSError *error, RACDisposable *disposable) {
-				[subscriber sendError:error];
-			},
-			^(RACDisposable *disposable) {
-				// Resubscribe.
-			});
+		RACSerialDisposable *serialDisposable = [[RACSerialDisposable alloc] init];
+		[subscriber.disposable addDisposable:serialDisposable];
 
-		[subscriber.disposable addDisposable:disposable];
+		// A recursive block to subscribe to the receiver.
+		//
+		// This must only be accessed while synchronized on `serialDisposable`.
+		__block void (^subscribe)(void) = nil;
+
+		[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
+			@synchronized (serialDisposable) {
+				// Break the retain cycle.
+				subscribe = nil;
+			}
+		}]];
+
+		id completedBlock = ^{
+			if (serialDisposable.disposed) return;
+
+			@synchronized (serialDisposable) {
+				if (subscribe != nil) subscribe();
+			}
+		};
+
+		subscribe = ^{
+			[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+				serialDisposable.disposable = disposable;
+			} next:^(id x) {
+				[subscriber sendNext:x];
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:completedBlock];
+		};
+
+		subscribe();
 	}] setNameWithFormat:@"[%@] -repeat", self.name];
 }
 
@@ -494,7 +467,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 						}];
 				}
 
-				[values addObject:x];
+				[values addObject:x ?: RACTupleNil.tupleNil];
 			}
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
@@ -1195,29 +1168,51 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -all:", self.name];
 }
 
-- (RACSignal *)retry:(NSInteger)retryCount {
+- (RACSignal *)retry:(NSUInteger)retryCount {
 	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		__block NSInteger currentRetryCount = 0;
-		RACDisposable *disposable = subscribeForever(self,
-			^(id x) {
-				[subscriber sendNext:x];
-			},
-			^(NSError *error, RACDisposable *disposable) {
-				if (retryCount == 0 || currentRetryCount < retryCount) {
+		RACSerialDisposable *serialDisposable = [[RACSerialDisposable alloc] init];
+		[subscriber.disposable addDisposable:serialDisposable];
+
+		// A recursive block to subscribe to the receiver.
+		//
+		// This must only be accessed while synchronized on `serialDisposable`.
+		__block void (^subscribe)(void) = nil;
+
+		// How many times the signal has retried already.
+		__block NSUInteger currentRetryCount = 0;
+
+		[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
+			@synchronized (serialDisposable) {
+				// Break the retain cycle.
+				subscribe = nil;
+			}
+		}]];
+
+		id errorBlock = ^(NSError *error) {
+			if (serialDisposable.disposed) return;
+
+			@synchronized (serialDisposable) {
+				if (subscribe == nil || (retryCount > 0 && currentRetryCount >= retryCount)) {
+					[subscriber sendError:error];
+				} else {
 					// Resubscribe.
 					currentRetryCount++;
-					return;
+					subscribe();
 				}
+			}
+		};
 
-				[disposable dispose];
-				[subscriber sendError:error];
-			},
-			^(RACDisposable *disposable) {
-				[disposable dispose];
+		subscribe = ^{
+			[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+				serialDisposable.disposable = disposable;
+			} next:^(id x) {
+				[subscriber sendNext:x];
+			} error:errorBlock completed:^{
 				[subscriber sendCompleted];
-			});
+			}];
+		};
 
-		[subscriber.disposable addDisposable:disposable];
+		subscribe();
 	}] setNameWithFormat:@"[%@] -retry: %lu", self.name, (unsigned long)retryCount];
 }
 

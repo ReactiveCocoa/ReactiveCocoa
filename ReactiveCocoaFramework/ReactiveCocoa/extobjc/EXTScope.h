@@ -29,7 +29,7 @@
  * a useless construct in such a case anyways.
  */
 #define onExit \
-    try {} @finally {} \
+    autoreleasepool {} \
     __strong rac_cleanupBlock_t metamacro_concat(rac_exitBlock_, __LINE__) __attribute__((cleanup(rac_executeCleanupBlock), unused)) = ^
 
 /**
@@ -43,7 +43,7 @@
  * See #strongify for an example of usage.
  */
 #define weakify(...) \
-    try {} @finally {} \
+    autoreleasepool {} \
     metamacro_foreach_cxt(rac_weakify_,, __weak, __VA_ARGS__)
 
 /**
@@ -51,7 +51,7 @@
  * classes that do not support weak references.
  */
 #define unsafeify(...) \
-    try {} @finally {} \
+    autoreleasepool {} \
     metamacro_foreach_cxt(rac_weakify_,, __unsafe_unretained, __VA_ARGS__)
 
 /**

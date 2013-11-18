@@ -24,7 +24,7 @@
 			[subscriber sendNext:substring];
 
 			*stop = subscriber.disposable.disposed;
-        }];
+		}];
 
 		[subscriber sendCompleted];
 	}] setNameWithFormat:@"%@ -rac_signal", self.rac_description];

@@ -10,12 +10,12 @@
 
 #import "RACSignal.h"
 #import "RACUnit.h"
-#import "UICollectionViewCell+RACSupport.h"
+#import "UICollectionReusableView+RACSupport.h"
 
 @interface TestCollectionViewController : UICollectionViewController
 @end
 
-SpecBegin(UICollectionViewCellRACSupport)
+SpecBegin(UICollectionReusableViewRACSupport)
 
 __block UICollectionViewFlowLayout *collectionViewFlowLayout;
 __block TestCollectionViewController *collectionViewController;

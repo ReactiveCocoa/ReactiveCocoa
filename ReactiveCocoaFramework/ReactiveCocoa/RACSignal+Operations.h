@@ -776,7 +776,7 @@ typedef enum : NSUInteger {
 /// retried the given number of times.
 ///
 /// retryCount - if 0, it keeps retrying until it completes.
-- (RACSignal *)retry:(NSInteger)retryCount;
+- (RACSignal *)retry:(NSUInteger)retryCount;
 
 /// Resubscribes to the receiving signal if an error occurs.
 - (RACSignal *)retry;

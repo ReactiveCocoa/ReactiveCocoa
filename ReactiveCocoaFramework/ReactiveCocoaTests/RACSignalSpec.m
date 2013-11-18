@@ -198,14 +198,20 @@ describe(@"-bind:", ^{
 });
 
 describe(@"subscribing", ^{
+	__block BOOL disposed;
 	__block RACSignal *signal = nil;
+
 	id nextValueSent = @"1";
 	
 	beforeEach(^{
-		signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		disposed = NO;
+		signal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 			[subscriber sendNext:nextValueSent];
 			[subscriber sendCompleted];
-			return nil;
+
+			return [RACDisposable disposableWithBlock:^{
+				disposed = YES;
+			}];
 		}];
 	});
 	
@@ -274,37 +280,18 @@ describe(@"subscribing", ^{
 		
 		expect(receivedValues).to.equal(expectedValues);
 	});
-
-	it(@"should have a current scheduler in didSubscribe block", ^{
-		__block RACScheduler *currentScheduler;
-		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			currentScheduler = RACScheduler.currentScheduler;
-			[subscriber sendCompleted];
-			return nil;
-		}];
-
-		[signal subscribeNext:^(id x) {}];
-		expect(currentScheduler).notTo.beNil();
-
-		currentScheduler = nil;
-		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-			[signal subscribeNext:^(id x) {}];
-		});
-		expect(currentScheduler).willNot.beNil();
-	});
 	
-	it(@"should automatically dispose of other subscriptions from +createSignal:", ^{
+	it(@"should automatically dispose of other subscriptions from +create:", ^{
 		__block BOOL innerDisposed = NO;
 
-		RACSignal *innerSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-			return [RACDisposable disposableWithBlock:^{
+		RACSignal *innerSignal = [RACSignal create:^(id<RACSubscriber> subscriber) {
+			[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
 				innerDisposed = YES;
-			}];
+			}]];
 		}];
 
-		RACSignal *outerSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		RACSignal *outerSignal = [RACSignal create:^(id<RACSubscriber> subscriber) {
 			[innerSignal subscribe:subscriber];
-			return nil;
 		}];
 
 		RACDisposable *disposable = [outerSignal subscribeCompleted:^{}];
@@ -313,6 +300,35 @@ describe(@"subscribing", ^{
 
 		[disposable dispose];
 		expect(innerDisposed).to.beTruthy();
+	});
+
+	it(@"should save a disposable in -subscribeSavingDisposable:next:error:completed:", ^{
+		__block RACDisposable *disposable = nil;
+		__block id nextValue = nil;
+		__block BOOL completed = NO;
+
+		[signal subscribeSavingDisposable:^(RACDisposable *d) {
+			disposable = d;
+
+			expect(disposable).notTo.beNil();
+			expect(disposable.disposed).to.beFalsy();
+			expect(disposed).to.beFalsy();
+		} next:^(id x) {
+			nextValue = x;
+
+			expect(disposable).notTo.beNil();
+			expect(disposable.disposed).to.beFalsy();
+			expect(disposed).to.beFalsy();
+
+			[disposable dispose];
+		} error:nil completed:^{
+			completed = YES;
+		}];
+
+		expect(disposed).to.beTruthy();
+		expect(disposable.disposed).to.beTruthy();
+		expect(nextValue).to.equal(nextValueSent);
+		expect(completed).to.beFalsy();
 	});
 });
 
@@ -620,7 +636,7 @@ describe(@"querying", ^{
 	});
 });
 
-describe(@"continuation", ^{
+describe(@"-repeat", ^{
 	it(@"should repeat after completion", ^{
 		__block NSUInteger numberOfSubscriptions = 0;
 		RACScheduler *scheduler = [RACScheduler scheduler];
@@ -654,24 +670,54 @@ describe(@"continuation", ^{
 		expect(gotCompleted).to.beFalsy();
 	});
 
-	it(@"should stop repeating when disposed", ^{
+	it(@"should stop repeating upon error", ^{
 		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
-			[subscriber sendCompleted];
+			[subscriber sendError:RACSignalTestError];
 			return nil;
+		}];
+
+		NSMutableArray *values = [NSMutableArray array];
+		__block NSError *receivedError = nil;
+		
+		[[signal repeat] subscribeNext:^(id x) {
+			[values addObject:x];
+		} error:^(NSError *e) {
+			receivedError = e;
+		}];
+
+		expect(values).will.equal(@[ @1 ]);
+		expect(receivedError).to.equal(RACSignalTestError);
+	});
+
+	it(@"should stop repeating when disposed", ^{
+		__block BOOL disposed = NO;
+
+		RACSignal *signal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendCompleted];
+
+			return [RACDisposable disposableWithBlock:^{
+				disposed = YES;
+			}];
 		}];
 
 		NSMutableArray *values = [NSMutableArray array];
 
 		__block BOOL completed = NO;
-		__block RACDisposable *disposable = [[signal repeat] subscribeNext:^(id x) {
+		__block RACDisposable *disposable;
+		
+		[[signal repeat] subscribeSavingDisposable:^(RACDisposable *d) {
+			disposable = d;
+		} next:^(id x) {
 			[values addObject:x];
 			[disposable dispose];
-		} completed:^{
+		} error:nil completed:^{
 			completed = YES;
 		}];
 
-		expect(values).will.equal(@[ @1 ]);
+		expect(disposed).will.beTruthy();
+		expect(values).to.equal(@[ @1 ]);
 		expect(completed).to.beFalsy();
 	});
 
@@ -685,13 +731,99 @@ describe(@"continuation", ^{
 		NSMutableArray *values = [NSMutableArray array];
 
 		__block BOOL completed = NO;
-		[[[signal repeat] take:1] subscribeNext:^(id x) {
+		[[[signal repeat] take:2] subscribeNext:^(id x) {
 			[values addObject:x];
 		} completed:^{
 			completed = YES;
 		}];
 
-		expect(values).will.equal(@[ @1 ]);
+		expect(values).will.equal((@[ @1, @1 ]));
+		expect(completed).to.beTruthy();
+	});
+});
+
+describe(@"-retry:", ^{
+	it(@"should retry N times after error", ^{
+		RACScheduler *scheduler = [RACScheduler scheduler];
+
+		NSUInteger retryCount = 3;
+		__block NSUInteger numberOfSubscriptions = 0;
+
+		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			return [scheduler schedule:^{
+				numberOfSubscriptions++;
+				expect(numberOfSubscriptions).to.beLessThanOrEqualTo(retryCount);
+
+				[subscriber sendNext:@"1"];
+				[subscriber sendError:RACSignalTestError];
+			}];
+		}];
+		
+		__block NSUInteger nextCount = 0;
+		__block NSError *receivedError = nil;
+
+		[[signal retry:retryCount] subscribeNext:^(id x) {
+			nextCount++;
+		} error:^(NSError *error) {
+			receivedError = error;
+		}];
+		
+		expect(nextCount).will.equal(retryCount + 1);
+		expect(receivedError).to.equal(RACSignalTestError);
+	});
+
+	it(@"should stop retrying when disposed", ^{
+		__block BOOL disposed = NO;
+
+		RACSignal *signal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendError:RACSignalTestError];
+
+			return [RACDisposable disposableWithBlock:^{
+				disposed = YES;
+			}];
+		}];
+
+		NSMutableArray *values = [NSMutableArray array];
+
+		__block BOOL completed = NO;
+		__block BOOL errored = NO;
+		__block RACDisposable *disposable;
+		
+		[[signal retry] subscribeSavingDisposable:^(RACDisposable *d) {
+			disposable = d;
+		} next:^(id x) {
+			[values addObject:x];
+			[disposable dispose];
+		} error:^(NSError *e) {
+			errored = YES;
+		} completed:^{
+			completed = YES;
+		}];
+
+		expect(disposed).will.beTruthy();
+		expect(values).to.equal(@[ @1 ]);
+		expect(completed).to.beFalsy();
+		expect(errored).to.beFalsy();
+	});
+
+	it(@"should stop retrying when disposed by -take:", ^{
+		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendError:RACSignalTestError];
+			return nil;
+		}];
+
+		NSMutableArray *values = [NSMutableArray array];
+
+		__block BOOL completed = NO;
+		[[[signal retry] take:2] subscribeNext:^(id x) {
+			[values addObject:x];
+		} completed:^{
+			completed = YES;
+		}];
+
+		expect(values).will.equal((@[ @1, @1 ]));
 		expect(completed).to.beTruthy();
 	});
 });
@@ -2909,11 +3041,9 @@ describe(@"-bufferWithTime:", ^{
 		
 		[input sendNext:@3];
 		[input sendNext:@4];
-		[input sendNext:NSNull.null];
-		
-		// NSNull should not be converted
+
 		[scheduler stepAll];
-		expect(latestValue).to.equal(RACTuplePack(@3, @4, NSNull.null));
+		expect(latestValue).to.equal(RACTuplePack(@3, @4));
 	});
 
 	it(@"should not perform buffering until a value is sent", ^{
@@ -2936,6 +3066,18 @@ describe(@"-bufferWithTime:", ^{
 		[input sendCompleted];
 		[scheduler stepAll];
 		expect(latestValue).to.equal(RACTuplePack(@1));
+	});
+
+	it(@"should support NSNull values", ^{
+		[input sendNext:NSNull.null];
+		[scheduler stepAll];
+		expect(latestValue).to.equal(RACTuplePack(NSNull.null));
+	});
+
+	it(@"should buffer nil values", ^{
+		[input sendNext:nil];
+		[scheduler stepAll];
+		expect(latestValue).to.equal(RACTuplePack(nil));
 	});
 });
 

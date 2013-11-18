@@ -40,9 +40,7 @@
 - (void)attachSubscriber:(RACLiveSubscriber *)subscriber {
 	NSCParameterAssert(subscriber != nil);
 
-	[RACScheduler.subscriptionScheduler schedule:^{
-		[subscriber sendError:self.error];
-	}];
+	[subscriber sendError:self.error];
 }
 
 @end

@@ -40,6 +40,9 @@
 /// 
 /// The lifetime of a signal consists of any number of `next` events, followed by
 /// one `error` or `completed` event (but not both).
+///
+/// `RACSignal` is an opaque class, and is not meant to be subclassed outside of
+/// the framework itself.
 @interface RACSignal : RACStream
 
 #pragma clang diagnostic pop
@@ -90,8 +93,6 @@
 
 /// Subscribes `subscriber` to changes on the receiver. The receiver defines which
 /// events it actually sends and in what situations the events are sent.
-///
-/// This method must be overridden by any subclasses.
 ///
 /// Returns nil or a disposable. You can call -[RACDisposable dispose] if you
 /// need to end your subscription before it would "naturally" end, either by

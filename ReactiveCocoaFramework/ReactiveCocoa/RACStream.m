@@ -70,7 +70,10 @@
 - (instancetype)flattenMap:(RACStream * (^)(id value))block {
 	return [[self bind:^{
 		return ^(id value, BOOL *stop) {
-			return block(value);
+			id stream = block(value);
+			NSCAssert(stream != nil, @"Expected non-nil stream to be returned from -flattenMap:");
+
+			return stream;
 		};
 	}] setNameWithFormat:@"[%@] -flattenMap:", self.name];
 }

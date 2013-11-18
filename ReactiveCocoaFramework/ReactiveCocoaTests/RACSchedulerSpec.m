@@ -45,7 +45,6 @@ it(@"should know its current scheduler", ^{
 	RACScheduler *backgroundScheduler = [RACScheduler scheduler];
 
 	expectCurrentSchedulers(@[ backgroundScheduler, RACScheduler.immediateScheduler ], @[ backgroundScheduler, backgroundScheduler ]);
-	expectCurrentSchedulers(@[ backgroundScheduler, RACScheduler.subscriptionScheduler ], @[ backgroundScheduler, backgroundScheduler ]);
 
 	NSArray *mainThreadJumper = @[ RACScheduler.mainThreadScheduler, backgroundScheduler, RACScheduler.mainThreadScheduler ];
 	expectCurrentSchedulers(mainThreadJumper, mainThreadJumper);
@@ -211,64 +210,6 @@ describe(@"+scheduler", ^{
 		[NSThread sleepForTimeInterval:0.1];
 
 		expect(count).to.equal(3);
-	});
-});
-
-describe(@"+subscriptionScheduler", ^{
-	describe(@"setting +currentScheduler", ^{
-		__block RACScheduler *currentScheduler;
-
-		beforeEach(^{
-			currentScheduler = nil;
-		});
-
-		it(@"should be the +mainThreadScheduler when scheduled from the main queue", ^{
-			dispatch_async(dispatch_get_main_queue(), ^{
-				[RACScheduler.subscriptionScheduler schedule:^{
-					currentScheduler = RACScheduler.currentScheduler;
-				}];
-			});
-
-			expect(currentScheduler).will.equal(RACScheduler.mainThreadScheduler);
-		});
-
-		it(@"should be a +scheduler when scheduled from an unknown queue", ^{
-			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-				[RACScheduler.subscriptionScheduler schedule:^{
-					currentScheduler = RACScheduler.currentScheduler;
-				}];
-			});
-
-			expect(currentScheduler).willNot.beNil();
-			expect(currentScheduler).notTo.equal(RACScheduler.mainThreadScheduler);
-		});
-
-		it(@"should equal the background scheduler from which the block was scheduled", ^{
-			RACScheduler *backgroundScheduler = [RACScheduler scheduler];
-			[backgroundScheduler schedule:^{
-				[RACScheduler.subscriptionScheduler schedule:^{
-					currentScheduler = RACScheduler.currentScheduler;
-				}];
-			}];
-
-			expect(currentScheduler).will.equal(backgroundScheduler);
-		});
-	});
-
-	it(@"should execute scheduled blocks immediately if it's in a scheduler already", ^{
-		__block BOOL done = NO;
-		__block BOOL executedImmediately = NO;
-
-		[[RACScheduler scheduler] schedule:^{
-			[RACScheduler.subscriptionScheduler schedule:^{
-				executedImmediately = YES;
-			}];
-
-			done = YES;
-		}];
-
-		expect(done).will.beTruthy();
-		expect(executedImmediately).to.beTruthy();
 	});
 });
 

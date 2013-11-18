@@ -37,10 +37,10 @@
 	[objectDisposable addDisposable:deallocFlagDisposable];
 
 	@unsafeify(self, observer);
-	return [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+	return [RACSignal create:^(id<RACSubscriber> subscriber) {
 		if (deallocFlagDisposable.disposed) {
 			[subscriber sendCompleted];
-			return nil;
+			return;
 		}
 
 		@strongify(self, observer);
@@ -57,13 +57,13 @@
 		[observer.rac_deallocDisposable addDisposable:deallocDisposable];
 		[self.rac_deallocDisposable addDisposable:deallocDisposable];
 
-		return [RACDisposable disposableWithBlock:^{
+		[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
 			[observerDisposable removeDisposable:deallocFlagDisposable];
 			[objectDisposable removeDisposable:deallocFlagDisposable];
 			[observerDisposable removeDisposable:deallocDisposable];
 			[objectDisposable removeDisposable:deallocDisposable];
 			[observationDisposable dispose];
-		}];
+		}]];
 	}];
 }
 

@@ -9,6 +9,7 @@
 #import "NSArray+RACSupport.h"
 #import "NSObject+RACDescription.h"
 #import "RACArraySequence.h"
+#import "RACCompoundDisposable.h"
 #import "RACSignal.h"
 #import "RACSubscriber.h"
 
@@ -17,13 +18,14 @@
 - (RACSignal *)rac_signal {
 	NSArray *collection = [self copy];
 
-	return [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
 		for (id obj in collection) {
 			[subscriber sendNext:obj];
+
+			if (subscriber.disposable.disposed) return;
 		}
 
 		[subscriber sendCompleted];
-		return nil;
 	}] setNameWithFormat:@"%@ -rac_signal", self.rac_description];
 }
 

@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1646747B17FFA0610036E30B /* UICollectionViewCell+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 1668027817FE75E900C724B4 /* UICollectionViewCell+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		1668028017FE75F900C724B4 /* UICollectionViewCell+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 1668027917FE75E900C724B4 /* UICollectionViewCell+RACSupport.m */; };
-		1668028317FE775200C724B4 /* UICollectionViewCellRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 1668028117FE774800C724B4 /* UICollectionViewCellRACSupportSpec.m */; };
+		1646747B17FFA0610036E30B /* UICollectionReusableView+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 1668027817FE75E900C724B4 /* UICollectionReusableView+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1668028017FE75F900C724B4 /* UICollectionReusableView+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 1668027917FE75E900C724B4 /* UICollectionReusableView+RACSupport.m */; };
+		1668028317FE775200C724B4 /* UICollectionReusableViewRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 1668028117FE774800C724B4 /* UICollectionReusableViewRACSupportSpec.m */; };
 		1860F414177C91B500C7B3C9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1860F413177C91B500C7B3C9 /* UIKit.framework */; };
 		1860F416177C91B500C7B3C9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1860F415177C91B500C7B3C9 /* Foundation.framework */; };
 		1860F418177C91B500C7B3C9 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1860F417177C91B500C7B3C9 /* CoreGraphics.framework */; };
@@ -674,9 +674,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		1668027817FE75E900C724B4 /* UICollectionViewCell+RACSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UICollectionViewCell+RACSupport.h"; sourceTree = "<group>"; };
-		1668027917FE75E900C724B4 /* UICollectionViewCell+RACSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UICollectionViewCell+RACSupport.m"; sourceTree = "<group>"; };
-		1668028117FE774800C724B4 /* UICollectionViewCellRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UICollectionViewCellRACSupportSpec.m; sourceTree = "<group>"; };
+		1668027817FE75E900C724B4 /* UICollectionReusableView+RACSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UICollectionReusableView+RACSupport.h"; sourceTree = "<group>"; };
+		1668027917FE75E900C724B4 /* UICollectionReusableView+RACSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UICollectionReusableView+RACSupport.m"; sourceTree = "<group>"; };
+		1668028117FE774800C724B4 /* UICollectionReusableViewRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UICollectionReusableViewRACSupportSpec.m; sourceTree = "<group>"; };
 		1860F412177C91B500C7B3C9 /* ReactiveCocoa-iOS-UIKitTestHost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ReactiveCocoa-iOS-UIKitTestHost.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1860F413177C91B500C7B3C9 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		1860F415177C91B500C7B3C9 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
@@ -1088,7 +1088,7 @@
 			isa = PBXGroup;
 			children = (
 				D004BC9B177E1A2B00A5B8C5 /* UIActionSheetRACSupportSpec.m */,
-				1668028117FE774800C724B4 /* UICollectionViewCellRACSupportSpec.m */,
+				1668028117FE774800C724B4 /* UICollectionReusableViewRACSupportSpec.m */,
 				D0F117CB179F0B97006CE68F /* UITableViewCellRACSupportSpec.m */,
 				D0C55CD817758A73008CDDCA /* UITextFieldRACSupportSpec.m */,
 				D0C55CDE17758C2A008CDDCA /* UITextViewRACSupportSpec.m */,
@@ -1395,8 +1395,8 @@
 				27A887C81703DB4F00040001 /* UIBarButtonItem+RACSupport.m */,
 				5EE9A7911760D61300EAF5A2 /* UIButton+RACSupport.h */,
 				5EE9A7921760D61300EAF5A2 /* UIButton+RACSupport.m */,
-				1668027817FE75E900C724B4 /* UICollectionViewCell+RACSupport.h */,
-				1668027917FE75E900C724B4 /* UICollectionViewCell+RACSupport.m */,
+				1668027817FE75E900C724B4 /* UICollectionReusableView+RACSupport.h */,
+				1668027917FE75E900C724B4 /* UICollectionReusableView+RACSupport.m */,
 				88F4425F153DC0450097B4C3 /* UIControl+RACSupport.h */,
 				88F44260153DC0450097B4C3 /* UIControl+RACSupport.m */,
 				5F016DF217B10AA8002EEC69 /* UIControl+RACSupportPrivate.h */,
@@ -1857,7 +1857,7 @@
 				D08FF281169A333400743C6D /* NSDictionary+RACSupport.h in Headers */,
 				D08FF282169A333400743C6D /* NSOrderedSet+RACSupport.h in Headers */,
 				D028DB87179E616700D1042F /* UITableViewCell+RACSupport.h in Headers */,
-				1646747B17FFA0610036E30B /* UICollectionViewCell+RACSupport.h in Headers */,
+				1646747B17FFA0610036E30B /* UICollectionReusableView+RACSupport.h in Headers */,
 				D08FF283169A333400743C6D /* NSSet+RACSupport.h in Headers */,
 				D08FF285169A333400743C6D /* UIControl+RACSupport.h in Headers */,
 				D08FF286169A333400743C6D /* UITextField+RACSupport.h in Headers */,
@@ -2245,7 +2245,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1668028317FE775200C724B4 /* UICollectionViewCellRACSupportSpec.m in Sources */,
+				1668028317FE775200C724B4 /* UICollectionReusableViewRACSupportSpec.m in Sources */,
 				5564537F18107203002BD2E4 /* RACControlActionExamples.m in Sources */,
 				D0F117CC179F0B97006CE68F /* UITableViewCellRACSupportSpec.m in Sources */,
 				1860F44F177C958300C7B3C9 /* UITextFieldRACSupportSpec.m in Sources */,
@@ -2489,7 +2489,7 @@
 				881E86A51669304800667F7B /* RACCompoundDisposable.m in Sources */,
 				881E87AF16695C5600667F7B /* RACQueueScheduler.m in Sources */,
 				881E87B516695EDF00667F7B /* RACImmediateScheduler.m in Sources */,
-				1668028017FE75F900C724B4 /* UICollectionViewCell+RACSupport.m in Sources */,
+				1668028017FE75F900C724B4 /* UICollectionReusableView+RACSupport.m in Sources */,
 				5F45A888168CFA3E00B58A2B /* RACKVOChannel.m in Sources */,
 				D028DB77179E53CB00D1042F /* RACSerialDisposable.m in Sources */,
 				5F6FE8561692568A00A8D7A6 /* RACChannel.m in Sources */,

@@ -245,26 +245,6 @@ describe(@"RACReplaySubject", ^{
 				expect(liveValues[index]).to.equal(value);
 			}];
 		});
-
-		it(@"should have a current scheduler when replaying", ^{
-			[subject sendNext:RACUnit.defaultUnit];
-
-			__block RACScheduler *currentScheduler;
-			[subject subscribeNext:^(id x) {
-				currentScheduler = RACScheduler.currentScheduler;
-			}];
-
-			expect(currentScheduler).notTo.beNil();
-
-			currentScheduler = nil;
-			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-				[subject subscribeNext:^(id x) {
-					currentScheduler = RACScheduler.currentScheduler;
-				}];
-			});
-
-			expect(currentScheduler).willNot.beNil();
-		});
 		
 		it(@"should stop replaying when the subscription is disposed", ^{
 			NSMutableArray *values = [NSMutableArray array];
@@ -273,12 +253,16 @@ describe(@"RACReplaySubject", ^{
 			[subject sendNext:@1];
 
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-				__block RACDisposable *disposable = [subject subscribeNext:^(id x) {
+				__block RACDisposable *disposable;
+
+				[subject subscribeSavingDisposable:^(RACDisposable *d) {
+					disposable = d;
+				} next:^(id x) {
 					expect(disposable).notTo.beNil();
 
 					[values addObject:x];
 					[disposable dispose];
-				}];
+				} error:nil completed:nil];
 			});
 
 			expect(values).will.equal(@[ @0 ]);

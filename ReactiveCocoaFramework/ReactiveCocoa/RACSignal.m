@@ -12,21 +12,22 @@
 #import "RACDynamicSignal.h"
 #import "RACEmptySignal.h"
 #import "RACErrorSignal.h"
+#import "RACLiveSubscriber.h"
 #import "RACPromise.h"
 #import "RACReturnSignal.h"
 #import "RACScheduler.h"
 #import "RACSerialDisposable.h"
 #import "RACSignal+Operations.h"
+#import "RACSignal+Private.h"
 #import "RACSubject.h"
-#import "RACSubscriber+Private.h"
 #import "RACTuple.h"
 
 @implementation RACSignal
 
 #pragma mark Lifecycle
 
-+ (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
-	return [RACDynamicSignal createSignal:didSubscribe];
++ (RACSignal *)create:(void (^)(id<RACSubscriber> subscriber))didSubscribe {
+	return [RACDynamicSignal create:didSubscribe];
 }
 
 + (RACSignal *)error:(NSError *)error {
@@ -34,8 +35,9 @@
 }
 
 + (RACSignal *)never {
-	return [[self createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-		return nil;
+	return [[self create:^(id<RACSubscriber> subscriber) {
+		// Do nothing. This will cause the signal to live indefinitely unless
+		// interrupted in some way.
 	}] setNameWithFormat:@"+never"];
 }
 
@@ -45,6 +47,12 @@
 
 + (RACSignal *)return:(id)value {
 	return [RACReturnSignal return:value];
+}
+
+#pragma mark Subscription
+
+- (void)attachSubscriber:(RACLiveSubscriber *)subscriber {
+	NSCAssert(NO, @"This method must be overridden by subclasses.");
 }
 
 #pragma mark NSObject
@@ -58,62 +66,53 @@
 @implementation RACSignal (Subscription)
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	NSCAssert(NO, @"This method must be overridden by subclasses");
-	return nil;
+	RACLiveSubscriber *liveSubscriber = [RACLiveSubscriber subscriberForwardingToSubscriber:subscriber];
+	liveSubscriber.signal = self;
+
+	[self attachSubscriber:liveSubscriber];
+	return liveSubscriber.disposable;
 }
 
 - (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock {
-	NSCParameterAssert(nextBlock != NULL);
-	
-	RACSubscriber *o = [RACSubscriber subscriberWithNext:nextBlock error:NULL completed:NULL];
-	return [self subscribe:o];
+	return [self subscribeNext:nextBlock error:nil completed:nil];
 }
 
 - (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock {
-	NSCParameterAssert(nextBlock != NULL);
-	NSCParameterAssert(completedBlock != NULL);
-	
-	RACSubscriber *o = [RACSubscriber subscriberWithNext:nextBlock error:NULL completed:completedBlock];
-	return [self subscribe:o];
+	return [self subscribeNext:nextBlock error:nil completed:completedBlock];
 }
 
 - (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock {
-	NSCParameterAssert(nextBlock != NULL);
-	NSCParameterAssert(errorBlock != NULL);
-	NSCParameterAssert(completedBlock != NULL);
-	
-	RACSubscriber *o = [RACSubscriber subscriberWithNext:nextBlock error:errorBlock completed:completedBlock];
-	return [self subscribe:o];
+	RACLiveSubscriber *subscriber = [RACLiveSubscriber subscriberWithNext:nextBlock error:errorBlock completed:completedBlock];
+	subscriber.signal = self;
+
+	[self attachSubscriber:subscriber];
+	return subscriber.disposable;
 }
 
 - (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock {
-	NSCParameterAssert(errorBlock != NULL);
-	
-	RACSubscriber *o = [RACSubscriber subscriberWithNext:NULL error:errorBlock completed:NULL];
-	return [self subscribe:o];
+	return [self subscribeNext:nil error:errorBlock completed:nil];
 }
 
 - (RACDisposable *)subscribeCompleted:(void (^)(void))completedBlock {
-	NSCParameterAssert(completedBlock != NULL);
-	
-	RACSubscriber *o = [RACSubscriber subscriberWithNext:NULL error:NULL completed:completedBlock];
-	return [self subscribe:o];
+	return [self subscribeNext:nil error:nil completed:completedBlock];
 }
 
 - (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock {
-	NSCParameterAssert(nextBlock != NULL);
-	NSCParameterAssert(errorBlock != NULL);
-	
-	RACSubscriber *o = [RACSubscriber subscriberWithNext:nextBlock error:errorBlock completed:NULL];
-	return [self subscribe:o];
+	return [self subscribeNext:nextBlock error:errorBlock completed:nil];
 }
 
 - (RACDisposable *)subscribeError:(void (^)(NSError *))errorBlock completed:(void (^)(void))completedBlock {
-	NSCParameterAssert(completedBlock != NULL);
-	NSCParameterAssert(errorBlock != NULL);
-	
-	RACSubscriber *o = [RACSubscriber subscriberWithNext:NULL error:errorBlock completed:completedBlock];
-	return [self subscribe:o];
+	return [self subscribeNext:nil error:errorBlock completed:completedBlock];
+}
+
+- (void)subscribeSavingDisposable:(void (^)(RACDisposable *))saveDisposableBlock next:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock {
+	NSCParameterAssert(saveDisposableBlock != nil);
+
+	RACLiveSubscriber *subscriber = [RACLiveSubscriber subscriberWithNext:nextBlock error:errorBlock completed:completedBlock];
+	subscriber.signal = self;
+
+	saveDisposableBlock(subscriber.disposable);
+	[self attachSubscriber:subscriber];
 }
 
 @end
@@ -219,6 +218,12 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 #pragma clang diagnostic ignored "-Wdeprecated-implementations"
 
 @implementation RACSignal (Deprecated)
+
++ (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
+	return [self create:^(id<RACSubscriber> subscriber) {
+		[subscriber.disposable addDisposable:didSubscribe(subscriber)];
+	}];
+}
 
 + (RACSignal *)startEagerlyWithScheduler:(RACScheduler *)scheduler block:(void (^)(id<RACSubscriber> subscriber))block {
 	return [[RACPromise promiseWithScheduler:scheduler block:block] start];

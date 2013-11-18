@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class RACDisposable;
+@class RACCompoundDisposable;
 
 /// Represents any object which can directly receive values from a RACSignal.
 ///
@@ -21,6 +21,16 @@
 /// be weakly referenced so implementations must allow that.
 @protocol RACSubscriber <NSObject>
 @required
+
+/// The subscriber's disposable.
+///
+/// When the receiver is subscribed to a signal, the disposable representing
+/// that subscription should be added to this compound disposable.
+///
+/// A subscriber may receive multiple disposables if it gets subscribed to
+/// multiple signals; however, `error` or `completed` events from any
+/// subscription must terminate _all_ of them.
+@property (nonatomic, strong, readonly) RACCompoundDisposable *disposable;
 
 /// Send the next value to subscribers.
 ///
@@ -40,12 +50,5 @@
 /// This terminates the subscription, and invalidates the subscriber (such that
 /// it cannot subscribe to anything else in the future).
 - (void)sendCompleted;
-
-/// Sends the subscriber a disposable that represents one of its subscriptions.
-///
-/// A subscriber may receive multiple disposables if it gets subscribed to
-/// multiple signals; however, any error or completed events must terminate _all_
-/// subscriptions.
-- (void)didSubscribeWithDisposable:(RACDisposable *)disposable;
 
 @end

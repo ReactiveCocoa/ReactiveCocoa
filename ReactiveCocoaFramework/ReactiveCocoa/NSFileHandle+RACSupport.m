@@ -16,13 +16,12 @@
 
 - (RACSignal *)rac_readInBackground {
 	return [[[[[[[RACSignal
-		createSignal:^(id<RACSubscriber> subscriber) {
-			RACDisposable *disposable = [[NSNotificationCenter.defaultCenter
+		create:^(id<RACSubscriber> subscriber) {
+			[[NSNotificationCenter.defaultCenter
 				rac_addObserverForName:NSFileHandleReadCompletionNotification object:self]
 				subscribe:subscriber];
 
 			[self readInBackgroundAndNotify];
-			return disposable;
 		}]
 		map:^(NSNotification *note) {
 			return note.userInfo[NSFileHandleNotificationDataItem];

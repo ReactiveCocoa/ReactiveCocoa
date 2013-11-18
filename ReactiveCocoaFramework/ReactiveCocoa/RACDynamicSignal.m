@@ -8,7 +8,7 @@
 
 #import "RACDynamicSignal.h"
 #import "EXTScope.h"
-#import "RACPassthroughSubscriber.h"
+#import "RACLiveSubscriber.h"
 #import "RACScheduler+Private.h"
 #import "RACSubscriber.h"
 #import <libkern/OSAtomic.h>
@@ -42,8 +42,8 @@ static volatile uint32_t RACWillCheckActiveSignals = 0;
 	OSSpinLock _subscribersLock;
 }
 
-// The block to invoke for each subscriber.
-@property (nonatomic, copy, readonly) RACDisposable * (^didSubscribe)(id<RACSubscriber> subscriber);
+// The block to invoke for each subscription.
+@property (nonatomic, copy, readonly) void (^didSubscribe)(id<RACSubscriber> subscriber);
 
 @end
 
@@ -63,7 +63,7 @@ static volatile uint32_t RACWillCheckActiveSignals = 0;
 	RACActiveSignals = CFSetCreateMutable(NULL, 0, &callbacks);
 }
 
-+ (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
++ (RACSignal *)create:(void (^)(id<RACSubscriber> subscriber))didSubscribe {
 	RACDynamicSignal *signal = [[self alloc] init];
 	signal->_didSubscribe = [didSubscribe copy];
 	return [signal setNameWithFormat:@"+createSignal:"];
@@ -130,11 +130,8 @@ static void RACCheckActiveSignals(void) {
 	return hasSubscribers;
 }
 
-- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
+- (void)attachSubscriber:(RACLiveSubscriber *)subscriber {
 	NSCParameterAssert(subscriber != nil);
-
-	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
-	subscriber = [[RACPassthroughSubscriber alloc] initWithSubscriber:subscriber signal:self disposable:disposable];
 
 	OSSpinLockLock(&_subscribersLock);
 	if (_subscribers == nil) {
@@ -171,18 +168,11 @@ static void RACCheckActiveSignals(void) {
 		}
 	}];
 
-	[disposable addDisposable:defaultDisposable];
+	[subscriber.disposable addDisposable:defaultDisposable];
 
 	if (self.didSubscribe != NULL) {
-		RACDisposable *schedulingDisposable = [RACScheduler.subscriptionScheduler schedule:^{
-			RACDisposable *innerDisposable = self.didSubscribe(subscriber);
-			[disposable addDisposable:innerDisposable];
-		}];
-
-		[disposable addDisposable:schedulingDisposable];
+		self.didSubscribe(subscriber);
 	}
-	
-	return disposable;
 }
 
 @end

@@ -11,6 +11,7 @@
 #import "NSObject+RACDescription.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACCommand.h"
+#import "RACCompoundDisposable.h"
 #import "RACScopedDisposable.h"
 #import "RACSignal+Operations.h"
 #import "RACSubscriber.h"
@@ -42,15 +43,15 @@
 - (RACSignal *)rac_textSignal {
 	@weakify(self);
 	return [[[[RACSignal
-		createSignal:^(id<RACSubscriber> subscriber) {
+		create:^(id<RACSubscriber> subscriber) {
 			@strongify(self);
 			id observer = [NSNotificationCenter.defaultCenter addObserverForName:NSControlTextDidChangeNotification object:self queue:nil usingBlock:^(NSNotification *note) {
 				[subscriber sendNext:note.object];
 			}];
 
-			return [RACDisposable disposableWithBlock:^{
+			[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
 				[NSNotificationCenter.defaultCenter removeObserver:observer];
-			}];
+			}]];
 		}]
 		map:^(NSControl *control) {
 			return [control.stringValue copy];

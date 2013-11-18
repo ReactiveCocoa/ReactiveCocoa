@@ -8,6 +8,7 @@
 
 #import "NSEnumerator+RACSupport.h"
 #import "NSObject+RACDescription.h"
+#import "RACCompoundDisposable.h"
 #import "RACPromise.h"
 #import "RACScheduler.h"
 #import "RACSequence.h"
@@ -18,13 +19,14 @@
 
 - (RACPromise *)rac_promise {
 	return [[[RACSignal
-		createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		create:^(id<RACSubscriber> subscriber) {
 			for (id obj in self) {
 				[subscriber sendNext:obj];
+
+				if (subscriber.disposable.disposed) return;
 			}
 
 			[subscriber sendCompleted];
-			return nil;
 		}]
 		setNameWithFormat:@"%@ -rac_promise", self.rac_description]
 		promiseOnScheduler:RACScheduler.immediateScheduler];

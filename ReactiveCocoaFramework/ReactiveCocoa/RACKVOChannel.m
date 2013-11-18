@@ -18,7 +18,6 @@
 #import "RACDisposable.h"
 #import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"
-#import "RACSubscriber+Private.h"
 #import "RACSubject.h"
 
 // Key for the array of RACKVOChannel's additional thread local

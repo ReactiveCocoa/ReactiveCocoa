@@ -12,7 +12,7 @@
 #import "RACDisposable.h"
 #import "RACSignal.h"
 #import "RACSignal+Operations.h"
-#import "RACSubscriber+Private.h"
+#import "RACSubscriber.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACDescription.h"
 
@@ -22,7 +22,7 @@
 	@weakify(self);
 
 	return [[RACSignal
-		createSignal:^(id<RACSubscriber> subscriber) {
+		create:^(id<RACSubscriber> subscriber) {
 			@strongify(self);
 
 			[self addTarget:subscriber action:@selector(sendNext:) forControlEvents:controlEvents];
@@ -30,10 +30,10 @@
 				[subscriber sendCompleted];
 			}]];
 
-			return [RACDisposable disposableWithBlock:^{
+			[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
 				@strongify(self);
 				[self removeTarget:subscriber action:@selector(sendNext:) forControlEvents:controlEvents];
-			}];
+			}]];
 		}]
 		setNameWithFormat:@"%@ -rac_signalForControlEvents: %lx", [self rac_description], (unsigned long)controlEvents];
 }

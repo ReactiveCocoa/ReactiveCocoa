@@ -77,9 +77,8 @@
 	NSCParameterAssert(block != nil);
 
 	RACSignal *signal = [[RACSignal
-		createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		create:^(id<RACSubscriber> subscriber) {
 			block(subscriber);
-			return nil;
 		}]
 		setNameWithFormat:@"+promiseWithScheduler: %@ block:", scheduler];
 	

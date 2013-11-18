@@ -40,6 +40,9 @@
 /// 
 /// The lifetime of a signal consists of any number of `next` events, followed by
 /// one `error` or `completed` event (but not both).
+///
+/// `RACSignal` is an opaque class, and is not meant to be subclassed outside of
+/// the framework itself.
 @interface RACSignal : RACStream
 
 #pragma clang diagnostic pop
@@ -47,32 +50,30 @@
 /// Creates a new signal. This is the preferred way to create a new signal
 /// operation or behavior.
 ///
-/// Events can be sent to new subscribers immediately in the `didSubscribe`
-/// block, but the subscriber will not be able to dispose of the signal until
-/// a RACDisposable is returned from `didSubscribe`. In the case of infinite
-/// signals, this won't _ever_ happen if events are sent immediately.
+/// didSubscribe - A block to invoke **each time** the created signal is subscribed
+///                to. A new <RACSubscriber> object is created for the new
+///                subscription and passed into the block.
 ///
-/// To ensure that the signal is disposable, events can be scheduled on the
-/// +[RACScheduler currentScheduler] (so that they're deferred, not sent
-/// immediately), or they can be sent in the background. The RACDisposable
-/// returned by the `didSubscribe` block should cancel any such scheduling or
-/// asynchronous work.
+///                You can manually control the <RACSubscriber> by sending it
+///                -sendNext:, -sendError:, and -sendCompleted, as defined by
+///                the operation you're implementing.
 ///
-/// didSubscribe - Called when the signal is subscribed to. The new subscriber is
-///                passed in. You can then manually control the <RACSubscriber> by
-///                sending it -sendNext:, -sendError:, and -sendCompleted,
-///                as defined by the operation you're implementing. This block
-///                should return a RACDisposable which cancels any ongoing work
-///                triggered by the subscription, and cleans up any resources or
-///                disposables created as part of it. When the disposable is
-///                disposed of, the signal must not send any more events to the
-///                `subscriber`. If no cleanup is necessary, return nil.
+///                This block should add a RACDisposable to
+///                `subscriber.disposable`, or watch the `disposed` flag on
+///                `subscriber.disposable`, to cancel any ongoing work triggered
+///                by the subscription, and clean up any resources or
+///                disposables created as part of it.
 ///
-/// **Note:** The `didSubscribe` block is called every time a new subscriber
-/// subscribes. Any side effects within the block will thus execute once for each
-/// subscription, not necessarily on one thread, and possibly even
-/// simultaneously!
-+ (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe;
+///                You can also attach the subscriber to _other_ signals
+///                (using -subscribe:) in this block. You do not need to save
+///                the disposable returned from -subscribe: in this case, as the
+///                <RACSubscriber> will automatically receive it and dispose of
+///                it when appropriate.
+///
+///                **Note:** Any side effects within this block will execute
+///                once for _each_ subscription, not necessarily on one thread,
+///                and possibly even concurrently!
++ (RACSignal *)create:(void (^)(id<RACSubscriber> subscriber))didSubscribe;
 
 /// Returns a signal that immediately sends the given error.
 + (RACSignal *)error:(NSError *)error;
@@ -92,15 +93,6 @@
 
 /// Subscribes `subscriber` to changes on the receiver. The receiver defines which
 /// events it actually sends and in what situations the events are sent.
-///
-/// Subscription will always happen on a valid RACScheduler. If the
-/// +[RACScheduler currentScheduler] cannot be determined at the time of
-/// subscription (e.g., because the calling code is running on a GCD queue or
-/// NSOperationQueue), subscription will occur on a private background scheduler.
-/// On the main thread, subscriptions will always occur immediately, with a
-/// +[RACScheduler currentScheduler] of +[RACScheduler mainThreadScheduler].
-///
-/// This method must be overridden by any subclasses.
 ///
 /// Returns nil or a disposable. You can call -[RACDisposable dispose] if you
 /// need to end your subscription before it would "naturally" end, either by
@@ -134,6 +126,28 @@
 
 /// Convenience method to subscribe to `error` and `completed` events.
 - (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
+
+/// Subscribes to the receiver, offering an opportunity to save the disposable
+/// before actually starting the signal.
+///
+/// This is primarily useful for signals that may be synchronous. Because the
+/// other -subscribe… methods _return_ a disposable, it's impossible to dispose of
+/// the subscription until the signal finishes any synchronous behaviors it may
+/// have. This is particularly problematic with signals or operators that may
+/// run forever (e.g., -repeat).
+///
+/// By contrast, this method allows you to save the disposable immediately,
+/// _then_ start the signal, so it can be disposed from any of your event
+/// handlers, even if they're invoked synchronously.
+///
+/// saveDisposableBlock - Invoked before starting the signal, this block can be
+///                       used to save the given `RACDisposable` for later use
+///                       in the event handler blocks. This block must not be
+///                       nil.
+/// nextBlock           - Invoked upon a `next` event. This block may be nil.
+/// errorBlock          - Invoked upon an `error` event. This block may be nil.
+/// completedBlock      - Invoked upon a `completed` event. This block may be nil.
+- (void)subscribeSavingDisposable:(void (^)(RACDisposable *))saveDisposableBlock next:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
 
 @end
 
@@ -201,6 +215,7 @@
 
 @interface RACSignal (Deprecated)
 
++ (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe RACDeprecated("Use +create: instead");
 + (RACSignal *)startEagerlyWithScheduler:(RACScheduler *)scheduler block:(void (^)(id<RACSubscriber> subscriber))block RACDeprecated("Use RACPromise instead");
 + (RACSignal *)startLazilyWithScheduler:(RACScheduler *)scheduler block:(void (^)(id<RACSubscriber> subscriber))block RACDeprecated("Use RACPromise instead");
 

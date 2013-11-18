@@ -47,9 +47,9 @@
 /// Creates a new signal. This is the preferred way to create a new signal
 /// operation or behavior.
 ///
-/// didSubscribe - Called **every time** a new subscriber subscribes to the
-///                signal. The new <RACSubscriber>, which represents the
-///                created subscription, is passed in.
+/// didSubscribe - A block to invoke **each time** the created signal is subscribed
+///                to. A new <RACSubscriber> object is created for the new
+///                subscription and passed into the block.
 ///
 ///                You can manually control the <RACSubscriber> by sending it
 ///                -sendNext:, -sendError:, and -sendCompleted, as defined by

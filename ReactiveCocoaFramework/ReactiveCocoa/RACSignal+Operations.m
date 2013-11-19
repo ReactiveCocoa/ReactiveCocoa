@@ -275,56 +275,17 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	NSCParameterAssert(interval >= 0);
 	NSCParameterAssert(predicate != nil);
 
-	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		// We may never use this scheduler, but we need to set it up ahead of
-		// time so that our scheduled blocks are run serially if we do.
-		RACScheduler *scheduler = [RACScheduler scheduler];
-
-		// Information about any currently-buffered `next` event.
-		__block id nextValue = nil;
-		__block BOOL hasNextValue = NO;
-
-		RACSerialDisposable *nextDisposable = [[RACSerialDisposable alloc] init];
-		[subscriber.disposable addDisposable:nextDisposable];
-
-		void (^flushNext)(BOOL send) = ^(BOOL send) {
-			@synchronized (subscriber) {
-				[nextDisposable.disposable dispose];
-
-				if (!hasNextValue) return;
-				if (send) [subscriber sendNext:nextValue];
-
-				nextValue = nil;
-				hasNextValue = NO;
+	return [[[self
+		map:^(id x) {
+			RACSignal *signal = [RACSignal return:x];
+			if (predicate(x)) {
+				signal = [signal delay:interval];
 			}
-		};
 
-		RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
-			RACScheduler *delayScheduler = RACScheduler.currentScheduler ?: scheduler;
-			BOOL shouldThrottle = predicate(x);
-
-			@synchronized (subscriber) {
-				flushNext(NO);
-				if (!shouldThrottle) {
-					[subscriber sendNext:x];
-					return;
-				}
-
-				nextValue = x;
-				hasNextValue = YES;
-				nextDisposable.disposable = [delayScheduler afterDelay:interval schedule:^{
-					flushNext(YES);
-				}];
-			}
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			flushNext(YES);
-			[subscriber sendCompleted];
-		}];
-
-		[subscriber.disposable addDisposable:subscriptionDisposable];
-	}] setNameWithFormat:@"[%@] -throttle: %f valuesPassingTest:", self.name, (double)interval];
+			return signal;
+		}]
+		flatten:1 withPolicy:RACSignalFlattenPolicyDisposeEarliest]
+		setNameWithFormat:@"[%@] -throttle: %f valuesPassingTest:", self.name, (double)interval];
 }
 
 - (RACSignal *)delay:(NSTimeInterval)interval {

@@ -366,23 +366,6 @@ describe(@"-takeUntil:", ^{
 		expect(gotNext).to.beFalsy();
 		expect(completed).to.beTruthy();
 	});
-
-	it(@"should propagate disposal to the signal to which it is subscribed when it completes", ^{
-		__block BOOL disposed = NO;
-		RACSignal *upstream = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> _) {
-			return [RACDisposable disposableWithBlock:^{
-				disposed = YES;
-			}];
-		}];
-		RACSubject *trigger = [RACSubject subject];
-		RACSignal *downstream = [upstream takeUntil:trigger];
-		[downstream subscribeNext:^(id _) {}];
-		expect(disposed).to.beFalsy();
-
-		[trigger sendNext:RACUnit.defaultUnit];
-
-		expect(disposed).to.beTruthy();
-	});
 });
 
 describe(@"disposal", ^{

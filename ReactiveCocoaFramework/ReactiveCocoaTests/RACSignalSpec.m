@@ -294,7 +294,7 @@ describe(@"subscribing", ^{
 		expect(currentScheduler).willNot.beNil();
 	});
 	
-	it(@"should automatically dispose of other subscriptions from +createSignal:", ^{
+	it(@"should automatically dispose of other subscriptions from +createSignal: when disposed", ^{
 		__block BOOL innerDisposed = NO;
 
 		RACSignal *innerSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
@@ -313,6 +313,24 @@ describe(@"subscribing", ^{
 		expect(innerDisposed).to.beFalsy();
 
 		[disposable dispose];
+		expect(innerDisposed).to.beTruthy();
+	});
+	
+	it(@"should automatically dispose of other subscriptions from +createSignal: when completed", ^{
+		__block BOOL innerDisposed = NO;
+
+		RACSignal *innerSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			return [RACDisposable disposableWithBlock:^{
+				innerDisposed = YES;
+			}];
+		}];
+
+		RACSubject *subject = [RACSubject subject];
+		[innerSignal subscribe:subject];
+		[subject subscribeCompleted:^{}];
+		expect(innerDisposed).to.beFalsy();
+
+		[subject sendCompleted];
 		expect(innerDisposed).to.beTruthy();
 	});
 });

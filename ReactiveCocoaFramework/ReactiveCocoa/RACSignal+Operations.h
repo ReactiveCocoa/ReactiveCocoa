@@ -352,32 +352,18 @@ typedef enum : NSUInteger {
 ///
 /// Returns a signal which sends throttled and delayed `next` events. Completion
 /// and errors are always forwarded immediately.
-- (RACSignal *)throttle:(NSTimeInterval)interval;
+- (RACSignal *)throttleDiscardingEarliest:(NSTimeInterval)interval;
 
-/// Throttles `next`s for which `predicate` returns YES.
+/// For every `next` sent by the receiver, forward it only if there wasn't
+/// a previous value in the last `interval` seconds.
 ///
-/// When `predicate` returns YES for a `next`:
+/// If a `next` is received, and then another `next` is received before
+/// `interval` seconds have passed, the second value is discarded.
 ///
-///  1. If another `next` is received before `interval` seconds have passed, the
-///     prior value is discarded. This happens regardless of whether the new
-///     value will be throttled.
-///  2. After `interval` seconds have passed since the value was originally
-///     received, it will be forwarded on the scheduler that it was received
-///     upon. If +[RACScheduler currentScheduler] was nil at the time, a private
-///     background scheduler is used.
-///
-/// When `predicate` returns NO for a `next`, it is forwarded immediately,
-/// without any throttling.
-///
-/// interval  - The number of seconds for which to buffer the latest value that
-///             passes `predicate`.
-/// predicate - Passed each `next` from the receiver, this block returns
-///             whether the given value should be throttled. This argument must
-///             not be nil.
-///
-/// Returns a signal which sends `next` events, throttled when `predicate`
-/// returns YES. Completion and errors are always forwarded immediately.
-- (RACSignal *)throttle:(NSTimeInterval)interval valuesPassingTest:(BOOL (^)(id next))predicate;
+/// Returns a signal which sends `next` events as they're received, dropping any
+/// that arrive less than `interval` seconds since the last. Completion and
+/// errors are always forwarded immediately.
+- (RACSignal *)throttleDiscardingLatest:(NSTimeInterval)interval;
 
 /// Forwards `next` and `completed` events after delaying for `interval` seconds
 /// on the current scheduler (on which the events were delivered).
@@ -849,6 +835,8 @@ typedef enum : NSUInteger {
 
 @property (nonatomic, strong, readonly) RACSequence *sequence RACDeprecated("Transform the signal instead");
 
+- (RACSignal *)throttle:(NSTimeInterval)interval RACDeprecated("Renamed to -throttleDiscardingEarliest:");
+- (RACSignal *)throttle:(NSTimeInterval)interval valuesPassingTest:(BOOL (^)(id next))predicate RACDeprecated("Use a signal of signals and -flatten:withPolicy: instead");
 - (RACSignal *)initially:(void (^)(void))block RACDeprecated("Put side effects into +defer: instead");
 - (RACSignal *)finally:(void (^)(void))block RACDeprecated("Renamed to -doFinished:");
 - (RACSignal *)flatten:(NSUInteger)maxConcurrent RACDeprecated("Use -flatten:withPolicy: instead");

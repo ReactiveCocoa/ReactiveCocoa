@@ -265,27 +265,26 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 		setNameWithFormat:@"[%@] -doFinished:", self.name];
 }
 
-- (RACSignal *)throttle:(NSTimeInterval)interval {
-	return [[self throttle:interval valuesPassingTest:^(id _) {
-		return YES;
-	}] setNameWithFormat:@"[%@] -throttle: %f", self.name, (double)interval];
-}
-
-- (RACSignal *)throttle:(NSTimeInterval)interval valuesPassingTest:(BOOL (^)(id next))predicate {
+- (RACSignal *)throttleDiscardingEarliest:(NSTimeInterval)interval {
 	NSCParameterAssert(interval >= 0);
-	NSCParameterAssert(predicate != nil);
 
 	return [[[self
 		map:^(id x) {
-			RACSignal *signal = [RACSignal return:x];
-			if (predicate(x)) {
-				signal = [signal delay:interval];
-			}
-
-			return signal;
+			return [[RACSignal return:x] delay:interval];
 		}]
 		flatten:1 withPolicy:RACSignalFlattenPolicyDisposeEarliest]
-		setNameWithFormat:@"[%@] -throttle: %f valuesPassingTest:", self.name, (double)interval];
+		setNameWithFormat:@"[%@] -throttleDiscardingEarliest: %f", self.name, (double)interval];
+}
+
+- (RACSignal *)throttleDiscardingLatest:(NSTimeInterval)interval {
+	NSCParameterAssert(interval >= 0);
+
+	return [[[self
+		map:^(id x) {
+			return [[RACSignal return:x] delay:interval];
+		}]
+		flatten:1 withPolicy:RACSignalFlattenPolicyDisposeLatest]
+		setNameWithFormat:@"[%@] -throttleDiscardingLatest: %f", self.name, (double)interval];
 }
 
 - (RACSignal *)delay:(NSTimeInterval)interval {
@@ -1391,6 +1390,27 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 
 - (RACSequence *)sequence {
 	return [[RACSignalSequence sequenceWithSignal:self] setNameWithFormat:@"[%@] -sequence", self.name];
+}
+
+- (RACSignal *)throttle:(NSTimeInterval)interval {
+	return [self throttleDiscardingEarliest:interval];
+}
+
+- (RACSignal *)throttle:(NSTimeInterval)interval valuesPassingTest:(BOOL (^)(id next))predicate {
+	NSCParameterAssert(interval >= 0);
+	NSCParameterAssert(predicate != nil);
+
+	return [[[self
+		map:^(id x) {
+			RACSignal *signal = [RACSignal return:x];
+			if (predicate(x)) {
+				signal = [signal delay:interval];
+			}
+
+			return signal;
+		}]
+		flatten:1 withPolicy:RACSignalFlattenPolicyDisposeEarliest]
+		setNameWithFormat:@"[%@] -throttle: %f valuesPassingTest:", self.name, (double)interval];
 }
 
 - (RACSignal *)initially:(void (^)(void))block {

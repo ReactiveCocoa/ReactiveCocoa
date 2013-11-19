@@ -1412,31 +1412,6 @@ describe(@"+merge:", ^{
 		expect(completed1).to.beTruthy();
 		expect(completed2).to.beTruthy();
 	});
-
-	it(@"should dispose merged signals' disposables when it is disposed", ^{
-		__block BOOL disposed1 = NO;
-		__block BOOL disposed2 = NO;
-		RACSignal *upstream1 = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> _) {
-			return [RACDisposable disposableWithBlock:^{
-				disposed1 = YES;
-			}];
-		}];
-		RACSignal *upstream2 = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> _) {
-			return [RACDisposable disposableWithBlock:^{
-				disposed2 = YES;
-			}];
-		}];
-		RACSignal *merged = [RACSignal merge:@[upstream1, upstream2]];
-		RACDisposable *disposable = [merged subscribeNext:^(id _) {}];
-
-		expect(disposed1).to.beFalsy();
-		expect(disposed2).to.beFalsy();
-
-		[disposable dispose];
-
-		expect(disposed1).to.beTruthy();
-		expect(disposed2).to.beTruthy();
-	});
 });
 
 describe(@"-flatten:", ^{

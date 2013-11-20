@@ -390,7 +390,7 @@ describe(@"-cutOff:", ^{
 		[receiver sendNext:@3];
 		expect(receivedValues).to.equal((@[ @1, @2, @3 ]));
 
-		[receiver sendNext:@4];
+		[cutOffSubject sendNext:@4];
 		expect(receivedValues).to.equal((@[ @1, @2, @3 ]));
 	});
 

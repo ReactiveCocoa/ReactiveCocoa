@@ -297,8 +297,8 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// will send `completed`.
 - (RACSignal *)takeUntil:(RACSignal *)signalTrigger;
 
-/// Subscribes to both the receiver and `signal`, and cut off `signal` as soon
-/// as the receiver sends an event.
+/// Subscribe to both the receiver and `signal`, but cut off `signal` as soon as
+/// the receiver sends an event.
 ///
 /// signal - The signal the receiver should cut off. `next`s from this signal
 ///          will be forwarded, `error` and `completed` will be ignored. The

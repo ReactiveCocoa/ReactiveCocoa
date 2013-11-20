@@ -735,6 +735,10 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -takeUntil: %@", self.name, signalTrigger];
 }
 
+- (RACSignal *)cutOff:(RACSignal *)signal {
+	return nil;
+}
+
 - (RACSignal *)switchToLatest {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		RACMulticastConnection *connection = [self publish];

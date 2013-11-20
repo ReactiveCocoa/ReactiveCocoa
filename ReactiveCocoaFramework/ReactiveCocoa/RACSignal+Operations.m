@@ -737,43 +737,15 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 - (RACSignal *)cutOff:(RACSignal *)signal {
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		RACSerialDisposable *cutOffDisposable = [[RACSerialDisposable alloc] init];
+		RACSubject *multicastSubject = [RACReplaySubject subject];
 
-		// This should only be accessed while synchronized on subscriber
-		__block BOOL selfDidSendEventFlag = NO;
-		// This should only be called while synchronized on subscriber
-		void (^selfDidSendEventBlock)(void) = ^{
-			if (selfDidSendEventFlag == NO) {
-				selfDidSendEventFlag = YES;
-				[cutOffDisposable dispose];
-			}
-		};
-
-		RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
-			@synchronized(subscriber) {
-				selfDidSendEventBlock();
-			}
+		RACDisposable *selfDisposable = [self subscribe:multicastSubject];
+		RACDisposable *cutOffDisposable = [[signal takeUntil:multicastSubject] subscribeNext:^(id x) {
 			[subscriber sendNext:x];
-		} error:^(NSError *error) {
-			@synchronized(subscriber) {
-				selfDidSendEventBlock();
-			}
-			[subscriber sendError:error];
-		} completed:^{
-			@synchronized(subscriber) {
-				selfDidSendEventBlock();
-			}
-			[subscriber sendCompleted];
 		}];
-
-		cutOffDisposable.disposable = [signal subscribeNext:^(id x) {
-			@synchronized(subscriber) {
-				if (cutOffDisposable.disposed) return;
-				[subscriber sendNext:x];
-			}
-		}];
-
-		return [RACCompoundDisposable compoundDisposableWithDisposables:@[ selfDisposable, cutOffDisposable ]];
+		RACDisposable *subscriberDisposable = [multicastSubject subscribe:subscriber];
+		
+		return [RACCompoundDisposable compoundDisposableWithDisposables:@[ selfDisposable, cutOffDisposable, subscriberDisposable ]];
 	}];
 }
 

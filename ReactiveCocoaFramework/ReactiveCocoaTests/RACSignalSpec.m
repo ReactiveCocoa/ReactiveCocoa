@@ -368,6 +368,94 @@ describe(@"-takeUntil:", ^{
 	});
 });
 
+describe(@"-cutOff:", ^{
+	it(@"should forward values from the signal until it's cut off", ^{
+		RACSubject *receiver = [RACSubject subject];
+		RACSubject *cutOffSubject = [RACSubject subject];
+
+		NSMutableArray *receivedValues = [NSMutableArray array];
+
+		[[receiver cutOff:cutOffSubject] subscribeNext:^(id x) {
+			[receivedValues addObject:x];
+		}];
+
+		expect(receivedValues).to.equal(@[]);
+
+		[cutOffSubject sendNext:@1];
+		expect(receivedValues).to.equal(@[ @1 ]);
+
+		[cutOffSubject sendNext:@2];
+		expect(receivedValues).to.equal((@[ @1, @2 ]));
+
+		[receiver sendNext:@3];
+		expect(receivedValues).to.equal((@[ @1, @2, @3 ]));
+
+		[receiver sendNext:@4];
+		expect(receivedValues).to.equal((@[ @1, @2, @3 ]));
+	});
+
+	it(@"should not forward error from the signal", ^{
+		RACSubject *receiver = [RACSubject subject];
+		RACSubject *cutOffSubject = [RACSubject subject];
+
+		__block BOOL receivedError = NO;
+
+		[[receiver cutOff:cutOffSubject] subscribeError:^(NSError *error) {
+			receivedError = YES;
+		}];
+
+		expect(receivedError).to.beFalsy();
+
+		[cutOffSubject sendError:nil];
+		expect(receivedError).to.beFalsy();
+
+		[receiver sendError:nil];
+		expect(receivedError).to.beTruthy();
+	});
+
+	it(@"should not forward completed from the signal", ^{
+		RACSubject *receiver = [RACSubject subject];
+		RACSubject *cutOffSubject = [RACSubject subject];
+
+		__block BOOL receivedCompleted = NO;
+
+		[[receiver cutOff:cutOffSubject] subscribeCompleted: ^{
+			receivedCompleted = YES;
+		}];
+
+		expect(receivedCompleted).to.beFalsy();
+
+		[cutOffSubject sendCompleted];
+		expect(receivedCompleted).to.beFalsy();
+
+		[receiver sendCompleted];
+		expect(receivedCompleted).to.beTruthy();
+	});
+
+	it(@"should not forward values from the signal if both send synchronously", ^{
+		RACSignal *receiver = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendNext:@2];
+			[subscriber sendNext:@3];
+			return nil;
+		}];
+		RACSignal *cutOffSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@4];
+			[subscriber sendNext:@5];
+			[subscriber sendNext:@6];
+			return nil;
+		}];
+
+		NSMutableArray *receivedValues = [NSMutableArray array];
+
+		[[receiver cutOff:cutOffSignal] subscribeNext:^(id x) {
+			[receivedValues addObject:x];
+		}];
+
+		expect(receivedValues).to.equal((@[ @1, @2, @3 ]));
+	});
+});
+
 describe(@"disposal", ^{
 	it(@"should dispose of the didSubscribe disposable", ^{
 		__block BOOL innerDisposed = NO;

@@ -820,6 +820,27 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	}] setNameWithFormat:@"[%@] -takeUntil: %@", self.name, signalTrigger];
 }
 
+- (RACSignal *)skipUntil:(RACSignal *)signalTrigger
+{	
+	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+		__block RACDisposable *triggerDisposable;
+		void (^triggerSubscription)(void) = ^{
+			[triggerDisposable dispose];
+			[disposable addDisposable:[self subscribe:subscriber]];
+		};
+		
+		triggerDisposable = [signalTrigger subscribeNext:^(id _) {
+			triggerSubscription();
+		} completed:^{
+			triggerSubscription();
+		}];
+		[disposable addDisposable:triggerDisposable];
+		
+		return disposable;
+	}] setNameWithFormat:@"[%@] -skipUntil: %@", self.name, signalTrigger];
+}
+
 - (RACSignal *)switchToLatest {
 	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
 		RACSubject *signals = [RACSubject subject];

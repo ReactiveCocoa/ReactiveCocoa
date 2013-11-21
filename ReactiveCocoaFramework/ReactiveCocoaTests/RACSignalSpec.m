@@ -383,6 +383,40 @@ describe(@"-takeUntil:", ^{
 	});
 });
 
+describe(@"-skipUntil:", ^{
+	it(@"should support value as trigger", ^{
+		__block BOOL shouldBeGettingItems = NO;
+		RACSubject *subject = [RACSubject subject];
+		RACSubject *controlSubject = [RACSubject subject];
+		[[subject skipUntil:controlSubject] subscribeNext:^(id x) {
+			expect(shouldBeGettingItems).to.beTruthy();
+		}];
+		
+		shouldBeGettingItems = NO;
+		[subject sendNext:@"test 1"];
+		
+		[controlSubject sendNext:[RACUnit defaultUnit]];
+		
+		shouldBeGettingItems = YES;
+		[subject sendNext:@"test 2"];
+		[subject sendNext:@"test 3"];
+	});
+    
+	it(@"should support completion as trigger", ^{
+		__block BOOL shouldBeGettingItems = NO;
+		RACSubject *subject = [RACSubject subject];
+		RACSubject *controlSubject = [RACSubject subject];
+		[[subject skipUntil:controlSubject] subscribeNext:^(id x) {
+			expect(shouldBeGettingItems).to.beTruthy();
+		}];
+        
+		[controlSubject sendCompleted];
+        
+		shouldBeGettingItems = YES;
+		[subject sendNext:@"go through"];
+	});
+});
+
 describe(@"disposal", ^{
 	it(@"should dispose of the didSubscribe disposable", ^{
 		__block BOOL innerDisposed = NO;

@@ -454,6 +454,50 @@ describe(@"-cutOff:", ^{
 
 		expect(receivedValues).to.equal((@[ @1, @2, @3 ]));
 	});
+
+	it(@"should dispose of the receiver when it's disposed of", ^{
+		__block BOOL receiverDisposed = NO;
+		RACSignal *receiver = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			return [RACDisposable disposableWithBlock:^{
+				receiverDisposed = YES;
+			}];
+		}];
+
+		[[[receiver cutOff:RACSignal.never] subscribeCompleted:^{}] dispose];
+
+		expect(receiverDisposed).to.beTruthy();
+	});
+
+	it(@"should dispose of the signal when it's disposed of", ^{
+		__block BOOL cutOffSignalDisposed = NO;
+		RACSignal *cutOffSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			return [RACDisposable disposableWithBlock:^{
+				cutOffSignalDisposed = YES;
+			}];
+		}];
+
+		[[[RACSignal.never cutOff:cutOffSignal] subscribeCompleted:^{}] dispose];
+
+		expect(cutOffSignalDisposed).to.beTruthy();
+	});
+
+	it(@"should dispose of the signal when the receiver sends an event", ^{
+		RACSubject *receiver = [RACSubject subject];
+		__block BOOL cutOffSignalDisposed = NO;
+		RACSignal *cutOffSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			return [RACDisposable disposableWithBlock:^{
+				cutOffSignalDisposed = YES;
+			}];
+		}];
+
+		[[receiver cutOff:cutOffSignal] subscribeCompleted:^{}];
+
+		expect(cutOffSignalDisposed).to.beFalsy();
+
+		[receiver sendNext:nil];
+		
+		expect(cutOffSignalDisposed).to.beTruthy();
+	});
 });
 
 describe(@"disposal", ^{

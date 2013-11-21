@@ -740,14 +740,14 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		RACSubject *selfSubject = [RACSubject subject];
 		RACSubject *signalSubject = [RACSubject subject];
 
-		RACDisposable *selfSubscriberDisposable = [selfSubject subscribe:subscriber];
+		[selfSubject subscribe:subscriber];
 		RACDisposable *signalSubscriberDisposable = [[signalSubject takeUntil:selfSubject] subscribeNext:^(id x) {
 			[subscriber sendNext:x];
 		}];
 
 		RACDisposable *selfDisposable = [self subscribe:selfSubject];
 		RACDisposable *signalDisposable = [signal subscribe:signalSubject];
-		return [RACCompoundDisposable compoundDisposableWithDisposables:@[ selfDisposable, signalDisposable, selfSubscriberDisposable, signalSubscriberDisposable ]];
+		return [RACCompoundDisposable compoundDisposableWithDisposables:@[ selfDisposable, signalDisposable, signalSubscriberDisposable ]];
 	}];
 }
 

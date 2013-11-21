@@ -547,6 +547,12 @@ typedef RACSignal * (^RACSignalBindBlock)(id value, BOOL *stop);
 /// will send `completed`.
 - (RACSignal *)takeUntil:(RACSignal *)signalTrigger;
 
+/// Skips `next`s until the `signalTrigger` sends `next` or `completed`.
+///
+/// Returns a signal which passes through all events from the receiver until
+/// `signalTrigger` sends `next` or `completed`.
+- (RACSignal *)skipUntil:(RACSignal *)signalTrigger;
+
 /// Subscribe to the returned signal when an error occurs.
 - (RACSignal *)catch:(RACSignal * (^)(NSError *error))catchBlock;
 

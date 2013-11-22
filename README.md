@@ -253,12 +253,24 @@ manipulated in the same way.
 For example, the following code:
 
 ```objc
+
+static NSString *ObservationContext = @"ObservationContext";
+
 - (void)viewDidLoad {
     [super viewDidLoad];
+
+    [[LoginManager sharedManager] addObserver:self forKeyPath:@"loggingIn" options:NSKeyValueObservingOptionInitial context:&ObservationContext];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loggedOut:) name:UserDidLogOutNotification object:[LoginManager sharedManager]];
 
     [self.usernameTextField addTarget:self action:@selector(updateLogInButton) forControlEvents:UIControlEventEditingChanged];
     [self.passwordTextField addTarget:self action:@selector(updateLogInButton) forControlEvents:UIControlEventEditingChanged];
     [self.logInButton addTarget:self action:@selector(logInPressed:) forControlEvents:UIControlEventTouchUpInside];
+}
+
+- (void)dealloc {
+    [[LoginManager sharedManager] removeObserver:self forKeyPath:@"loggingIn" context:&ObservationContext];
+    [[NSNotificationCenter defaultCenter] removeObserver:UserDidLogOutNotification object:[LoginManager sharedManager]];
 }
 
 - (void)updateLogInButton {
@@ -283,8 +295,10 @@ For example, the following code:
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    if ([object isEqual:[LoginManager sharedManager]] && [keyPath isEqualToString:@"loggingIn"]) {
+    if (context == &ObservationContext) {
         [self updateLogInButton];
+    } else {
+      [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
 }
 ```

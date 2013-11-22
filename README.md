@@ -323,7 +323,7 @@ static NSString *ObservationContext = @"ObservationContext";
 
     [[self.logInButton rac_signalForControlEvents:UIControlEventTouchUpInside] subscribeNext:^(UIButton *sender) {
         @strongify(self);
-        
+
         RACSignal *loginSignal = [[LoginManager sharedManager]
             logInWithUsername:self.usernameTextField.text
             password:self.passwordTextField.text];
@@ -339,6 +339,7 @@ static NSString *ObservationContext = @"ObservationContext";
 
     RAC(self, loggedIn) = [[NSNotificationCenter.defaultCenter
         rac_addObserverForName:UserDidLogOutNotification object:nil]
+        takeUntil:self.rac_willDeallocSignal]
         mapReplace:@NO];
 }
 ```

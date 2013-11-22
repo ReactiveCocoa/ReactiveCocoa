@@ -355,7 +355,7 @@ ReactiveCocoa makes this pattern particularly easy:
 
 ```objc
 [[[[client logIn]
-    sequenceNext:^{
+    then:^{
         return [client loadCachedMessages];
     }]
     flattenMap:^(NSArray *messages) {

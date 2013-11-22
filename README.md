@@ -260,7 +260,6 @@ static NSString *ObservationContext = @"ObservationContext";
     [super viewDidLoad];
 
     [[LoginManager sharedManager] addObserver:self forKeyPath:@"loggingIn" options:NSKeyValueObservingOptionInitial context:&ObservationContext];
-
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loggedOut:) name:UserDidLogOutNotification object:[LoginManager sharedManager]];
 
     [self.usernameTextField addTarget:self action:@selector(updateLogInButton) forControlEvents:UIControlEventEditingChanged];

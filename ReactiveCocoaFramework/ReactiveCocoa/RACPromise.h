@@ -15,7 +15,7 @@
 /// Represents work that is guaranteed ("promised") to execute _exactly_ once
 /// when started, until success or failure occurs.
 ///
-/// Lazy signals can be turned into promises using -[RACSignal promise].
+/// Lazy signals can be turned into promises using -[RACSignal promiseOnScheduler:].
 @interface RACPromise : NSObject
 
 /// Creates a promise which will run `block` on the given scheduler.

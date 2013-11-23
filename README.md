@@ -254,7 +254,7 @@ For example, the following code:
 
 ```objc
 
-static NSString *ObservationContext = @"ObservationContext";
+static void *ObservationContext = &ObservationContext;
 
 - (void)viewDidLoad {
   [super viewDidLoad];
@@ -268,7 +268,7 @@ static NSString *ObservationContext = @"ObservationContext";
 }
 
 - (void)dealloc {
-  [LoginManager.sharedManager removeObserver:self forKeyPath:@"loggingIn" context:&ObservationContext];
+  [LoginManager.sharedManager removeObserver:self forKeyPath:@"loggingIn" context:ObservationContext];
   [NSNotificationCenter.defaultCenter removeObserver:UserDidLogOutNotification object:LoginManager.sharedManager]];
 }
 
@@ -294,7 +294,7 @@ static NSString *ObservationContext = @"ObservationContext";
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-  if (context == &ObservationContext) {
+  if (context == ObservationContext) {
     [self updateLogInButton];
   } else {
     [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];

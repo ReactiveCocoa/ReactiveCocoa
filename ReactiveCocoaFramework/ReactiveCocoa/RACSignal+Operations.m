@@ -40,13 +40,15 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 
 - (RACSignal *)concat:(RACSignal *)signal {
 	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		[subscriber.disposable addDisposable:[self subscribeNext:^(id x) {
+		[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+			[subscriber.disposable addDisposable:disposable];
+		} next:^(id x) {
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
 			[signal subscribe:subscriber];
-		}]];
+		}];
 	}] setNameWithFormat:@"[%@] -concat: %@", self.name, signal];
 }
 

@@ -402,6 +402,8 @@
 		D05AD42F17F2DB840080895B /* NSObject+RACPropertySubscribing.m in Sources */ = {isa = PBXBuildFile; fileRef = 886678701518DCD800DE77EC /* NSObject+RACPropertySubscribing.m */; };
 		D05AD43117F2DB950080895B /* RACObjCRuntime.m in Sources */ = {isa = PBXBuildFile; fileRef = A1FCC371156754A7008C9686 /* RACObjCRuntime.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		D05AD43217F2DBCA0080895B /* RACSignalProvider.d in Sources */ = {isa = PBXBuildFile; fileRef = D03525D317E2EBC90099CBAB /* RACSignalProvider.d */; };
+		D05CE1C61840A2520015A2B0 /* RACDynamicSignalGeneratorSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D05CE1C51840A2520015A2B0 /* RACDynamicSignalGeneratorSpec.m */; };
+		D05CE1C71840A2520015A2B0 /* RACDynamicSignalGeneratorSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D05CE1C51840A2520015A2B0 /* RACDynamicSignalGeneratorSpec.m */; };
 		D05F9D3717984EC000FD7982 /* EXTRuntimeExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D05F9D3417984EC000FD7982 /* EXTRuntimeExtensions.m */; };
 		D05F9D3817984EC000FD7982 /* EXTRuntimeExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D05F9D3417984EC000FD7982 /* EXTRuntimeExtensions.m */; };
 		D066C796176D262500C242D2 /* UIControlRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D066C795176D262500C242D2 /* UIControlRACSupportSpec.m */; };
@@ -907,6 +909,7 @@
 		D05AD39517F2D5700080895B /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		D05AD39717F2D5700080895B /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		D05AD3A317F2D5700080895B /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		D05CE1C51840A2520015A2B0 /* RACDynamicSignalGeneratorSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACDynamicSignalGeneratorSpec.m; sourceTree = "<group>"; };
 		D05F9D3317984EC000FD7982 /* EXTRuntimeExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXTRuntimeExtensions.h; sourceTree = "<group>"; };
 		D05F9D3417984EC000FD7982 /* EXTRuntimeExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EXTRuntimeExtensions.m; sourceTree = "<group>"; };
 		D066C795176D262500C242D2 /* UIControlRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIControlRACSupportSpec.m; sourceTree = "<group>"; };
@@ -1322,6 +1325,7 @@
 				D075A72817BCB7E100C24FB7 /* RACControlActionExamples.h */,
 				D075A72917BCB7E100C24FB7 /* RACControlActionExamples.m */,
 				D0A0E225176A84DA007273ED /* RACDisposableSpec.m */,
+				D05CE1C51840A2520015A2B0 /* RACDynamicSignalGeneratorSpec.m */,
 				D077A171169B79A900057BB1 /* RACEventSpec.m */,
 				5F2447AC167E87C50062180C /* RACKVOChannelSpec.m */,
 				D041376815D2281C004BBF80 /* RACKVOWrapperSpec.m */,
@@ -2339,6 +2343,7 @@
 				5FAF525B174D4D5600CAC810 /* RACTestObject.m in Sources */,
 				5FAF525C174D4D5600CAC810 /* RACTupleSpec.m in Sources */,
 				5FAF525D174D4D5600CAC810 /* NSObjectRACSelectorSignalSpec.m in Sources */,
+				D05CE1C71840A2520015A2B0 /* RACDynamicSignalGeneratorSpec.m in Sources */,
 				5FAF525E174D4D5600CAC810 /* RACSubclassObject.m in Sources */,
 				5FAF5262174D4D8F00CAC810 /* UIBarButtonItemRACSupportSpec.m in Sources */,
 				88302BFE1762A9E6003633BD /* RACTestExampleScheduler.m in Sources */,
@@ -2468,6 +2473,7 @@
 				88C5A02916924BFC0045EF05 /* RACMulticastConnectionSpec.m in Sources */,
 				D0EDE76716968AB10072A780 /* RACPropertySignalExamples.m in Sources */,
 				5F773DF0169B48830023069D /* NSEnumeratorRACSequenceAdditionsSpec.m in Sources */,
+				D05CE1C61840A2520015A2B0 /* RACDynamicSignalGeneratorSpec.m in Sources */,
 				D02C7C901822D43000CB20D6 /* RACSchedulerSpec.m in Sources */,
 				D077A172169B79A900057BB1 /* RACEventSpec.m in Sources */,
 				D0A0B01816EAA5CC00C47593 /* NSTextRACSupportSpec.m in Sources */,

@@ -134,7 +134,7 @@ self.loginCommand = [[RACCommand alloc] initWithSignalBlock:^(id sender) {
 // the above block, one for each time the command is executed.
 [self.loginCommand.executionSignals subscribeNext:^(RACSignal *loginSignal) {
   // Log a message whenever we log in successfully.
-  [loginSignal subscribeCompleted:^(id _) {
+  [loginSignal subscribeCompleted:^ {
     NSLog(@"Logged in successfully!");
   }];
 }];

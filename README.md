@@ -269,7 +269,7 @@ static void *ObservationContext = &ObservationContext;
 
 - (void)dealloc {
   [LoginManager.sharedManager removeObserver:self forKeyPath:@"loggingIn" context:ObservationContext];
-  [NSNotificationCenter.defaultCenter removeObserver:UserDidLogOutNotification object:LoginManager.sharedManager]];
+  [NSNotificationCenter.defaultCenter removeObserver:self];
 }
 
 - (void)updateLogInButton {

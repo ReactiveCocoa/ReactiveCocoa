@@ -369,7 +369,9 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	NSCParameterAssert(catchBlock != NULL);
 
 	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		[subscriber.disposable addDisposable:[self subscribeNext:^(id x) {
+		[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+			[subscriber.disposable addDisposable:disposable];
+		} next:^(id x) {
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
 			RACSignal *signal = catchBlock(error);
@@ -378,7 +380,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 			[signal subscribe:subscriber];
 		} completed:^{
 			[subscriber sendCompleted];
-		}]];
+		}];
 	}] setNameWithFormat:@"[%@] -catch:", self.name];
 }
 

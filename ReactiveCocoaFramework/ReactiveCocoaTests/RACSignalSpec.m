@@ -3729,7 +3729,7 @@ describe(@"-flatten:withPolicy:", ^{
 
 	describe(@"wait policy", ^{
 		it(@"should wait until a slot is available to merge new signals", ^{
-			[[signals flatten:2] subscribeNext:^(id x) {
+			[[signals flatten:2 withPolicy:RACSignalFlattenPolicyWait] subscribeNext:^(id x) {
 				[values addObject:x];
 			}];
 
@@ -3738,22 +3738,13 @@ describe(@"-flatten:withPolicy:", ^{
 			expect(subscribed3).to.beFalsy();
 
 			[signals sendNext:signal1];
-
 			expect(subscribed1).to.beTruthy();
-			expect(disposed1).to.beFalsy();
 
 			[signals sendNext:signal2];
-
 			expect(subscribed2).to.beTruthy();
-			expect(disposed1).to.beFalsy();
-			expect(disposed2).to.beFalsy();
 
 			[signals sendNext:signal3];
-
 			expect(subscribed3).to.beFalsy();
-			expect(disposed1).to.beFalsy();
-			expect(disposed2).to.beFalsy();
-			expect(disposed3).to.beFalsy();
 
 			[subject1 sendNext:@1];
 			[signals sendCompleted];
@@ -3761,16 +3752,9 @@ describe(@"-flatten:withPolicy:", ^{
 			[subject1 sendNext:@3];
 
 			expect(subscribed3).to.beFalsy();
-			expect(disposed1).to.beFalsy();
-			expect(disposed2).to.beFalsy();
-			expect(disposed3).to.beFalsy();
 
 			[subject1 sendCompleted];
-
 			expect(subscribed3).to.beTruthy();
-			expect(disposed1).to.beTruthy();
-			expect(disposed2).to.beFalsy();
-			expect(disposed3).to.beFalsy();
 
 			[subject3 sendNext:@4];
 			[subject2 sendNext:@5];
@@ -3806,9 +3790,85 @@ describe(@"-flatten:withPolicy:", ^{
 	});
 
 	describe(@"dispose earliest policy", ^{
+		it(@"should dispose of earlier signals when new ones are sent", ^{
+			[[signals flatten:2 withPolicy:RACSignalFlattenPolicyDisposeEarliest] subscribeNext:^(id x) {
+				[values addObject:x];
+			}];
+
+			expect(subscribed1).to.beFalsy();
+			expect(subscribed2).to.beFalsy();
+			expect(subscribed3).to.beFalsy();
+
+			[signals sendNext:signal1];
+			expect(subscribed1).to.beTruthy();
+
+			[subject1 sendNext:@1];
+
+			[signals sendNext:signal2];
+			expect(subscribed2).to.beTruthy();
+
+			[signals sendNext:signal3];
+			expect(subscribed3).to.beTruthy();
+			expect(disposed1).to.beTruthy();
+			expect(disposed2).to.beFalsy();
+			expect(disposed3).to.beFalsy();
+
+			[signals sendCompleted];
+
+			expect(disposed1).to.beTruthy();
+			expect(disposed2).to.beFalsy();
+			expect(disposed3).to.beFalsy();
+			
+			[subject2 sendNext:@2];
+			[subject3 sendNext:@3];
+
+			expect(disposed1).to.beTruthy();
+			expect(disposed2).to.beFalsy();
+			expect(disposed3).to.beFalsy();
+
+			expect(values).to.equal((@[ @1, @2, @3 ]));
+		});
 	});
 
 	describe(@"dispose latest policy", ^{
+		it(@"should dispose of later signals when new ones are sent", ^{
+			[[signals flatten:2 withPolicy:RACSignalFlattenPolicyDisposeLatest] subscribeNext:^(id x) {
+				[values addObject:x];
+			}];
+
+			expect(subscribed1).to.beFalsy();
+			expect(subscribed2).to.beFalsy();
+			expect(subscribed3).to.beFalsy();
+
+			[signals sendNext:signal1];
+			expect(subscribed1).to.beTruthy();
+
+			[signals sendNext:signal2];
+			expect(subscribed2).to.beTruthy();
+
+			[subject2 sendNext:@1];
+
+			[signals sendNext:signal3];
+			expect(subscribed3).to.beTruthy();
+			expect(disposed1).to.beFalsy();
+			expect(disposed2).to.beTruthy();
+			expect(disposed3).to.beFalsy();
+
+			[signals sendCompleted];
+
+			expect(disposed1).to.beFalsy();
+			expect(disposed2).to.beTruthy();
+			expect(disposed3).to.beFalsy();
+			
+			[subject1 sendNext:@2];
+			[subject3 sendNext:@3];
+
+			expect(disposed1).to.beFalsy();
+			expect(disposed2).to.beTruthy();
+			expect(disposed3).to.beFalsy();
+
+			expect(values).to.equal((@[ @1, @2, @3 ]));
+		});
 	});
 
 	it(@"shouldn't create a retain cycle", ^{

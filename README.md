@@ -338,7 +338,6 @@ static void *ObservationContext = &ObservationContext;
 
   RAC(self, loggedIn) = [[NSNotificationCenter.defaultCenter
     rac_addObserverForName:UserDidLogOutNotification object:nil]
-    takeUntil:self.rac_willDeallocSignal]
     mapReplace:@NO];
 }
 ```

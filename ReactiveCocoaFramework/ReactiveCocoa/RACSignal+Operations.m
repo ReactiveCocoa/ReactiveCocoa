@@ -1123,50 +1123,19 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)retry:(NSUInteger)retryCount {
-	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		RACSerialDisposable *serialDisposable = [[RACSerialDisposable alloc] init];
-		[subscriber.disposable addDisposable:serialDisposable];
-
-		// A recursive block to subscribe to the receiver.
-		//
-		// This must only be accessed while synchronized on `serialDisposable`.
-		__block void (^subscribe)(void) = nil;
-
-		// How many times the signal has retried already.
-		__block NSUInteger currentRetryCount = 0;
-
-		[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
-			@synchronized (serialDisposable) {
-				// Break the retain cycle.
-				subscribe = nil;
-			}
-		}]];
-
-		id errorBlock = ^(NSError *error) {
-			if (serialDisposable.disposed) return;
-
-			@synchronized (serialDisposable) {
-				if (subscribe == nil || (retryCount > 0 && currentRetryCount >= retryCount)) {
-					[subscriber sendError:error];
+	return [[RACSignal defer:^{
+		RACDynamicSignalGenerator *generator = [[RACDynamicSignalGenerator alloc] initWithReflexiveBlock:^(NSNumber *currentRetryCount, RACSignalGenerator *generator) {
+			return [self catch:^(NSError *error) {
+				if (retryCount == 0 || currentRetryCount.unsignedIntegerValue < retryCount) {
+					return [generator signalWithValue:@(currentRetryCount.unsignedIntegerValue + 1)];
 				} else {
-					// Resubscribe.
-					currentRetryCount++;
-					subscribe();
+					// We've retried enough times, so let the error propagate.
+					return [RACSignal error:error];
 				}
-			}
-		};
-
-		subscribe = ^{
-			[self subscribeSavingDisposable:^(RACDisposable *disposable) {
-				serialDisposable.disposable = disposable;
-			} next:^(id x) {
-				[subscriber sendNext:x];
-			} error:errorBlock completed:^{
-				[subscriber sendCompleted];
 			}];
-		};
+		}];
 
-		subscribe();
+		return [generator signalWithValue:@0];
 	}] setNameWithFormat:@"[%@] -retry: %lu", self.name, (unsigned long)retryCount];
 }
 

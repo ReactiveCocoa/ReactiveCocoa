@@ -735,26 +735,26 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -takeUntil: %@", self.name, signalTrigger];
 }
 
-- (RACSignal *)cutOff:(RACSignal *)signal {
+- (RACSignal *)takeUntilReplacement:(RACSignal *)replacement {
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		RACSerialDisposable *signalDisposable = [[RACSerialDisposable alloc] init];
+		RACSerialDisposable *selfDisposable = [[RACSerialDisposable alloc] init];
 
+		RACSubject *replacementSubject = [RACSubject subject];
 		RACSubject *selfSubject = [RACSubject subject];
-		RACSubject *signalSubject = [RACSubject subject];
 
-		[selfSubject subscribe:subscriber];
-		RACDisposable *signalSubscriberDisposable = [[signalSubject takeUntil:selfSubject] subscribeNext:^(id x) {
+		[replacementSubject subscribe:subscriber];
+		RACDisposable *selfSubscriberDisposable = [[selfSubject takeUntil:replacementSubject] subscribeNext:^(id x) {
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
-			[signalDisposable dispose];
+			[selfDisposable dispose];
 		} completed:^{
-			[signalDisposable dispose];
+			[selfDisposable dispose];
 		}];
 
-		RACDisposable *selfDisposable = [self subscribe:selfSubject];
-		signalDisposable.disposable = [signal subscribe:signalSubject];
+		RACDisposable *replacementDisposable = [replacement subscribe:replacementSubject];
+		selfDisposable.disposable = [self subscribe:selfSubject];
 
-		return [RACCompoundDisposable compoundDisposableWithDisposables:@[ selfDisposable, signalDisposable, signalSubscriberDisposable ]];
+		return [RACCompoundDisposable compoundDisposableWithDisposables:@[ selfDisposable, replacementDisposable, selfSubscriberDisposable ]];
 	}];
 }
 

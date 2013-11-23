@@ -259,8 +259,8 @@ static NSString *ObservationContext = @"ObservationContext";
 - (void)viewDidLoad {
   [super viewDidLoad];
 
-  [[LoginManager sharedManager] addObserver:self forKeyPath:@"loggingIn" options:NSKeyValueObservingOptionInitial context:&ObservationContext];
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loggedOut:) name:UserDidLogOutNotification object:[LoginManager sharedManager]];
+  [LoginManager.sharedManager addObserver:self forKeyPath:@"loggingIn" options:NSKeyValueObservingOptionInitial context:&ObservationContext];
+  [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(loggedOut:) name:UserDidLogOutNotification object:LoginManager.sharedManager];
 
   [self.usernameTextField addTarget:self action:@selector(updateLogInButton) forControlEvents:UIControlEventEditingChanged];
   [self.passwordTextField addTarget:self action:@selector(updateLogInButton) forControlEvents:UIControlEventEditingChanged];
@@ -268,13 +268,13 @@ static NSString *ObservationContext = @"ObservationContext";
 }
 
 - (void)dealloc {
-  [[LoginManager sharedManager] removeObserver:self forKeyPath:@"loggingIn" context:&ObservationContext];
-  [[NSNotificationCenter defaultCenter] removeObserver:UserDidLogOutNotification object:[LoginManager sharedManager]];
+  [LoginManager.sharedManager removeObserver:self forKeyPath:@"loggingIn" context:&ObservationContext];
+  [NSNotificationCenter.defaultCenter removeObserver:UserDidLogOutNotification object:LoginManager.sharedManager]];
 }
 
 - (void)updateLogInButton {
   BOOL textFieldsNonEmpty = self.usernameTextField.text.length > 0 && self.passwordTextField.text.length > 0;
-  BOOL readyToLogIn = ![[LoginManager sharedManager] isLoggingIn] && !self.loggedIn;
+  BOOL readyToLogIn = !LoginManager.sharedManager.isLoggingIn && !self.loggedIn;
   self.logInButton.enabled = textFieldsNonEmpty && readyToLogIn;
 }
 
@@ -323,7 +323,7 @@ static NSString *ObservationContext = @"ObservationContext";
   [[self.logInButton rac_signalForControlEvents:UIControlEventTouchUpInside] subscribeNext:^(UIButton *sender) {
     @strongify(self);
 
-    RACSignal *loginSignal = [[LoginManager sharedManager]
+    RACSignal *loginSignal = [LoginManager.sharedManager
       logInWithUsername:self.usernameTextField.text
       password:self.passwordTextField.text];
 

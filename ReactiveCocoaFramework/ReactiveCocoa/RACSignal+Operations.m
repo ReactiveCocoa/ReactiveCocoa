@@ -746,6 +746,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		RACDisposable *selfSubscriberDisposable = [[selfSubject takeUntil:replacementSubject] subscribeNext:^(id x) {
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
+			[subscriber sendError:error];
 			[selfDisposable dispose];
 		} completed:^{
 			[selfDisposable dispose];

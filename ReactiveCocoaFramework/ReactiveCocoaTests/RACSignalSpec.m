@@ -394,43 +394,54 @@ describe(@"-takeUntilReplacement:", ^{
 		expect(receivedValues).to.equal((@[ @1, @2, @3 ]));
 	});
 
-	it(@"should not forward error from the receiver", ^{
+	it(@"should forward error from the receiver", ^{
 		RACSubject *receiver = [RACSubject subject];
-		RACSubject *replacement = [RACSubject subject];
-
 		__block BOOL receivedError = NO;
 
-		[[receiver takeUntilReplacement:replacement] subscribeError:^(NSError *error) {
+		[[receiver takeUntilReplacement:RACSignal.never] subscribeError:^(NSError *error) {
 			receivedError = YES;
 		}];
 
-		expect(receivedError).to.beFalsy();
-
 		[receiver sendError:nil];
-		expect(receivedError).to.beFalsy();
-
-		[replacement sendError:nil];
 		expect(receivedError).to.beTruthy();
 	});
 
 	it(@"should not forward completed from the receiver", ^{
 		RACSubject *receiver = [RACSubject subject];
-		RACSubject *replacement = [RACSubject subject];
 		__block BOOL receivedCompleted = NO;
 
-		[[receiver takeUntilReplacement:replacement] subscribeCompleted: ^{
+		[[receiver takeUntilReplacement:RACSignal.never] subscribeCompleted: ^{
 			receivedCompleted = YES;
 		}];
 
-		expect(receivedCompleted).to.beFalsy();
-
 		[receiver sendCompleted];
 		expect(receivedCompleted).to.beFalsy();
+	});
+
+	it(@"should forward error from the replacement signal", ^{
+		RACSubject *replacement = [RACSubject subject];
+		__block BOOL receivedError = NO;
+
+		[[RACSignal.never takeUntilReplacement:replacement] subscribeError:^(NSError *error) {
+			receivedError = YES;
+		}];
+
+		[replacement sendError:nil];
+		expect(receivedError).to.beTruthy();
+	});
+
+	it(@"should forward completed from the replacement signal", ^{
+		RACSubject *replacement = [RACSubject subject];
+		__block BOOL receivedCompleted = NO;
+
+		[[RACSignal.never takeUntilReplacement:replacement] subscribeCompleted: ^{
+			receivedCompleted = YES;
+		}];
 
 		[replacement sendCompleted];
 		expect(receivedCompleted).to.beTruthy();
 	});
-
+	
 	it(@"should not forward values from the receiver if both send synchronously", ^{
 		RACSignal *receiver = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];

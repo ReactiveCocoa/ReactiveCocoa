@@ -392,6 +392,9 @@ describe(@"-takeUntilReplacement:", ^{
 
 		[receiver sendNext:@4];
 		expect(receivedValues).to.equal((@[ @1, @2, @3 ]));
+
+		[replacement sendNext:@5];
+		expect(receivedValues).to.equal((@[ @1, @2, @3, @5 ]));
 	});
 
 	it(@"should forward error from the receiver", ^{

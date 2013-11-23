@@ -739,23 +739,27 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		RACSerialDisposable *selfDisposable = [[RACSerialDisposable alloc] init];
 
-		RACSubject *replacementSubject = [RACSubject subject];
-		RACSubject *selfSubject = [RACSubject subject];
-
-		[replacementSubject subscribe:subscriber];
-		RACDisposable *selfSubscriberDisposable = [[selfSubject takeUntil:replacementSubject] subscribeNext:^(id x) {
+		RACDisposable *replacementDisposable = [replacement subscribeNext:^(id x) {
+			[selfDisposable dispose];
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
-			[subscriber sendError:error];
 			[selfDisposable dispose];
+			[subscriber sendError:error];
 		} completed:^{
 			[selfDisposable dispose];
+			[subscriber sendCompleted];
 		}];
 
-		RACDisposable *replacementDisposable = [replacement subscribe:replacementSubject];
-		selfDisposable.disposable = [self subscribe:selfSubject];
+		if (!selfDisposable.disposed) {
+			selfDisposable.disposable = [[self
+				concat:[RACSignal never]]
+				subscribe:subscriber];
+		}
 
-		return [RACCompoundDisposable compoundDisposableWithDisposables:@[ selfDisposable, replacementDisposable, selfSubscriberDisposable ]];
+		return [RACDisposable disposableWithBlock:^{
+			[selfDisposable dispose];
+			[replacementDisposable dispose];
+		}];
 	}];
 }
 

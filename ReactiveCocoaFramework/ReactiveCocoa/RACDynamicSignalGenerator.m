@@ -45,7 +45,10 @@
 #pragma mark RACSignalGenerator
 
 - (RACSignal *)signalWithValue:(id)input {
-	return self.block(input);
+	RACSignal *signal = self.block(input);
+	NSAssert(signal != nil, @"Generator %@ returned a nil signal", self);
+
+	return signal;
 }
 
 @end

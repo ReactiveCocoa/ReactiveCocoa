@@ -7,6 +7,8 @@
 //
 
 #import "RACDynamicSignalGenerator.h"
+#import "NSObject+RACDeallocating.h"
+#import "RACCompoundDisposable.h"
 #import "RACSignal+Operations.h"
 #import "RACSignalGenerator+Operations.h"
 
@@ -23,21 +25,56 @@ it(@"should generate signals using a block", ^{
 	expect([[generator signalWithValue:@2] array]).to.equal(@[ @4 ]);
 });
 
-it(@"should generate signals using a reflexive block", ^{
-	RACDynamicSignalGenerator *generator = [[RACDynamicSignalGenerator alloc] initWithReflexiveBlock:^(NSNumber *input, RACSignalGenerator *generator) {
+describe(@"with a reflexive block", ^{
+	it(@"should generate signals", ^{
+		RACDynamicSignalGenerator *generator = [[RACDynamicSignalGenerator alloc] initWithReflexiveBlock:^(NSNumber *input, RACSignalGenerator *generator) {
+			expect(generator).notTo.beNil();
+
+			if (input.integerValue > 5) return [RACSignal empty];
+
+			return [[RACSignal
+				return:input]
+				concat:[generator signalWithValue:@(input.integerValue + 1)]];
+		}];
+
 		expect(generator).notTo.beNil();
+		expect([[generator signalWithValue:@3] array]).to.equal((@[ @3, @4, @5 ]));
+		expect([[generator signalWithValue:@2] array]).to.equal((@[ @2, @3, @4, @5 ]));
+		expect([[generator signalWithValue:@6] array]).to.equal((@[]));
+	});
 
-		if (input.integerValue > 5) return [RACSignal empty];
+	it(@"should be released when all constructed signals are destroyed", ^{
+		__block BOOL generatorDeallocated = NO;
+		__block BOOL signalDeallocated = NO;
 
-		return [[RACSignal
-			return:input]
-			concat:[generator signalWithValue:@(input.integerValue + 1)]];
-	}];
+		@autoreleasepool {
+			RACSignalGenerator *generator __attribute__((objc_precise_lifetime)) = [[RACDynamicSignalGenerator alloc] initWithReflexiveBlock:^(NSNumber *input, RACSignalGenerator *generator) {
+				if (input.integerValue == 0) return [RACSignal empty];
 
-	expect(generator).notTo.beNil();
-	expect([[generator signalWithValue:@3] array]).to.equal((@[ @3, @4, @5 ]));
-	expect([[generator signalWithValue:@2] array]).to.equal((@[ @2, @3, @4, @5 ]));
-	expect([[generator signalWithValue:@6] array]).to.equal((@[]));
+				return [RACSignal defer:^{
+					return [generator signalWithValue:@(input.integerValue - 1)];
+				}];
+			}];
+
+			[generator.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				generatorDeallocated = YES;
+			}]];
+
+			RACSignal *signal = [generator signalWithValue:@1];
+			[signal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				signalDeallocated = YES;
+			}]];
+
+			BOOL success = [signal waitUntilCompleted:NULL];
+			expect(success).to.beTruthy();
+
+			expect(signalDeallocated).to.beFalsy();
+			expect(generatorDeallocated).to.beFalsy();
+		}
+
+		expect(signalDeallocated).will.beTruthy();
+		expect(generatorDeallocated).to.beTruthy();
+	});
 });
 
 it(@"should postcompose with another generator", ^{

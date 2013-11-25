@@ -735,6 +735,34 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -takeUntil: %@", self.name, signalTrigger];
 }
 
+- (RACSignal *)takeUntilReplacement:(RACSignal *)replacement {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		RACSerialDisposable *selfDisposable = [[RACSerialDisposable alloc] init];
+
+		RACDisposable *replacementDisposable = [replacement subscribeNext:^(id x) {
+			[selfDisposable dispose];
+			[subscriber sendNext:x];
+		} error:^(NSError *error) {
+			[selfDisposable dispose];
+			[subscriber sendError:error];
+		} completed:^{
+			[selfDisposable dispose];
+			[subscriber sendCompleted];
+		}];
+
+		if (!selfDisposable.disposed) {
+			selfDisposable.disposable = [[self
+				concat:[RACSignal never]]
+				subscribe:subscriber];
+		}
+
+		return [RACDisposable disposableWithBlock:^{
+			[selfDisposable dispose];
+			[replacementDisposable dispose];
+		}];
+	}];
+}
+
 - (RACSignal *)switchToLatest {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		RACMulticastConnection *connection = [self publish];

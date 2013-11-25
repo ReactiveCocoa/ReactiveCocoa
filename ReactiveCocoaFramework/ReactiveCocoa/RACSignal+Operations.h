@@ -297,6 +297,17 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// will send `completed`.
 - (RACSignal *)takeUntil:(RACSignal *)signalTrigger;
 
+/// Take `next`s until the `replacement` sends an event.
+///
+/// replacement - The signal which replaces the receiver as soon as it sends an
+///               event.
+///
+/// Returns a signal which passes through `next`s and `error` from the receiver
+/// until `replacement` sends an event, at which point the returned signal will
+/// send that event and switch to passing through events from `replacement`
+/// instead, regardless of whether the receiver has sent events already.
+- (RACSignal *)takeUntilReplacement:(RACSignal *)replacement;
+
 /// Subscribe to the returned signal when an error occurs.
 - (RACSignal *)catch:(RACSignal * (^)(NSError *error))catchBlock;
 

@@ -29,7 +29,7 @@ typedef RACSignal * (^RACSignalBindBlock)(id value, BOOL *stop);
 /// The policy that -flatten:withPolicy: should follow when additional signals
 /// arrive while `maxConcurrent` signals are already subscribed to.
 ///
-/// RACSignalFlattenPolicyWait            - Wait until any current signal
+/// RACSignalFlattenPolicyQueue           - Wait until any current signal
 ///                                         completes, then subscribe to the
 ///                                         additional (enqueued) signal that
 ///                                         arrived earliest.
@@ -40,7 +40,7 @@ typedef RACSignal * (^RACSignalBindBlock)(id value, BOOL *stop);
 ///                                         to the signal that arrived latest,
 ///                                         then subscribe to the new signal.
 typedef enum : NSUInteger {
-	RACSignalFlattenPolicyWait,
+	RACSignalFlattenPolicyQueue,
 	RACSignalFlattenPolicyDisposeEarliest,
 	RACSignalFlattenPolicyDisposeLatest
 } RACSignalFlattenPolicy;
@@ -839,7 +839,7 @@ typedef enum : NSUInteger {
 - (RACSignal *)throttle:(NSTimeInterval)interval valuesPassingTest:(BOOL (^)(id next))predicate RACDeprecated("Use a signal of signals and -flatten:withPolicy: with RACSignalFlattenPolicyDisposeEarliest instead");
 - (RACSignal *)initially:(void (^)(void))block RACDeprecated("Put side effects into +defer: instead");
 - (RACSignal *)finally:(void (^)(void))block RACDeprecated("Renamed to -doFinished:");
-- (RACSignal *)flatten:(NSUInteger)maxConcurrent RACDeprecated("Use -flatten:withPolicy: with RACSignalFlattenPolicyWait instead");
+- (RACSignal *)flatten:(NSUInteger)maxConcurrent RACDeprecated("Use -flatten:withPolicy: with RACSignalFlattenPolicyQueue instead");
 - (RACMulticastConnection *)publish RACDeprecated("Send events to a shared RACSubject instead");
 - (RACMulticastConnection *)multicast:(RACSubject *)subject RACDeprecated("Use -promiseOnScheduler: or send events to a shared RACSubject instead");
 - (RACSignal *)replay RACDeprecated("Use -promiseOnScheduler: instead");

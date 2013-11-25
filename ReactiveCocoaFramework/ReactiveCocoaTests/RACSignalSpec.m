@@ -3727,9 +3727,9 @@ describe(@"-flatten:withPolicy:", ^{
 			}];
 	});
 
-	describe(@"wait policy", ^{
+	describe(@"queue policy", ^{
 		it(@"should wait until a slot is available to merge new signals", ^{
-			[[signals flatten:2 withPolicy:RACSignalFlattenPolicyWait] subscribeNext:^(id x) {
+			[[signals flatten:2 withPolicy:RACSignalFlattenPolicyQueue] subscribeNext:^(id x) {
 				[values addObject:x];
 			}];
 
@@ -3764,7 +3764,7 @@ describe(@"-flatten:withPolicy:", ^{
 
 		it(@"should complete only after the source and all its signals have completed", ^{
 			__block BOOL completed = NO;
-			[[signals flatten:2 withPolicy:RACSignalFlattenPolicyWait] subscribeCompleted:^{
+			[[signals flatten:2 withPolicy:RACSignalFlattenPolicyQueue] subscribeCompleted:^{
 				completed = YES;
 			}];
 
@@ -3881,7 +3881,7 @@ describe(@"-flatten:withPolicy:", ^{
 				subjectDeallocd = YES;
 			}]];
 
-			RACSignal *signal __attribute__((objc_precise_lifetime)) = [subject flatten:1 withPolicy:RACSignalFlattenPolicyWait];
+			RACSignal *signal __attribute__((objc_precise_lifetime)) = [subject flatten:1 withPolicy:RACSignalFlattenPolicyQueue];
 			[signal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				signalDeallocd = YES;
 			}]];
@@ -3895,7 +3895,7 @@ describe(@"-flatten:withPolicy:", ^{
 	});
 
 	it(@"should not crash when disposing while subscribing", ^{
-		RACDisposable *disposable = [[signals flatten:1 withPolicy:RACSignalFlattenPolicyWait] subscribeCompleted:^{}];
+		RACDisposable *disposable = [[signals flatten:1 withPolicy:RACSignalFlattenPolicyQueue] subscribeCompleted:^{}];
 
 		[signals sendNext:[RACSignal create:^(id<RACSubscriber> subscriber) {
 			[disposable dispose];

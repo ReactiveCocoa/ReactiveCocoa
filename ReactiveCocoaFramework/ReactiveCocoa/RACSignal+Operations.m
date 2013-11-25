@@ -583,7 +583,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 		//
 		// This array should only be used while synchronized on `subscriber`.
 		NSMutableArray *queuedSignals = nil;
-		if (policy == RACSignalFlattenPolicyWait) queuedSignals = [NSMutableArray array];
+		if (policy == RACSignalFlattenPolicyQueue) queuedSignals = [NSMutableArray array];
 
 		subscribeToSignal = ^(RACSignal *signal) {
 			RACSerialDisposable *serialDisposable = [[RACSerialDisposable alloc] init];
@@ -629,7 +629,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 			@synchronized (subscriber) {
 				if (activeDisposables.count >= maxConcurrent) {
 					switch (policy) {
-						case RACSignalFlattenPolicyWait: {
+						case RACSignalFlattenPolicyQueue: {
 							[queuedSignals addObject:signal];
 
 							// If we need to wait, skip subscribing to this
@@ -682,7 +682,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)concat {
-	return [[self flatten:1 withPolicy:RACSignalFlattenPolicyWait] setNameWithFormat:@"[%@] -concat", self.name];
+	return [[self flatten:1 withPolicy:RACSignalFlattenPolicyQueue] setNameWithFormat:@"[%@] -concat", self.name];
 }
 
 - (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory reduce:(id (^)(id running, id next))reduceBlock {
@@ -1430,7 +1430,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	if (maxConcurrent == 0) {
 		return [self flatten];
 	} else {
-		return [self flatten:maxConcurrent withPolicy:RACSignalFlattenPolicyWait];
+		return [self flatten:maxConcurrent withPolicy:RACSignalFlattenPolicyQueue];
 	}
 }
 

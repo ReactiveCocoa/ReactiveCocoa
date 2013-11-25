@@ -1545,174 +1545,6 @@ describe(@"+merge:", ^{
 	});
 });
 
-describe(@"-flatten:", ^{
-	__block BOOL subscribedTo1 = NO;
-	__block BOOL subscribedTo2 = NO;
-	__block BOOL subscribedTo3 = NO;
-	__block RACSignal *sub1;
-	__block RACSignal *sub2;
-	__block RACSignal *sub3;
-	__block RACSubject *subject1;
-	__block RACSubject *subject2;
-	__block RACSubject *subject3;
-	__block RACSubject *signalsSubject;
-	__block NSMutableArray *values;
-	
-	beforeEach(^{
-		subscribedTo1 = NO;
-		subject1 = [RACSubject subject];
-		sub1 = [RACSignal defer:^{
-			subscribedTo1 = YES;
-			return subject1;
-		}];
-
-		subscribedTo2 = NO;
-		subject2 = [RACSubject subject];
-		sub2 = [RACSignal defer:^{
-			subscribedTo2 = YES;
-			return subject2;
-		}];
-
-		subscribedTo3 = NO;
-		subject3 = [RACSubject subject];
-		sub3 = [RACSignal defer:^{
-			subscribedTo3 = YES;
-			return subject3;
-		}];
-
-		signalsSubject = [RACSubject subject];
-
-		values = [NSMutableArray array];
-	});
-
-	describe(@"when its max is 0", ^{
-		it(@"should merge all the signals concurrently", ^{
-			[[signalsSubject flatten:0] subscribeNext:^(id x) {
-				[values addObject:x];
-			}];
-
-			expect(subscribedTo1).to.beFalsy();
-			expect(subscribedTo2).to.beFalsy();
-			expect(subscribedTo3).to.beFalsy();
-
-			[signalsSubject sendNext:sub1];
-			[signalsSubject sendNext:sub2];
-
-			expect(subscribedTo1).to.beTruthy();
-			expect(subscribedTo2).to.beTruthy();
-			expect(subscribedTo3).to.beFalsy();
-
-			[subject1 sendNext:@1];
-
-			[signalsSubject sendNext:sub3];
-			
-			expect(subscribedTo1).to.beTruthy();
-			expect(subscribedTo2).to.beTruthy();
-			expect(subscribedTo3).to.beTruthy();
-
-			[subject1 sendCompleted];
-
-			[subject2 sendNext:@2];
-			[subject2 sendCompleted];
-
-			[subject3 sendNext:@3];
-			[subject3 sendCompleted];
-
-			NSArray *expected = @[ @1, @2, @3 ];
-			expect(values).to.equal(expected);
-		});
-
-		itShouldBehaveLike(RACSignalMergeConcurrentCompletionExampleGroup, @{ RACSignalMaxConcurrent: @0 });
-	});
-
-	describe(@"when its max is > 0", ^{
-		it(@"should merge only the given number at a time", ^{
-			[[signalsSubject flatten:1] subscribeNext:^(id x) {
-				[values addObject:x];
-			}];
-
-			expect(subscribedTo1).to.beFalsy();
-			expect(subscribedTo2).to.beFalsy();
-			expect(subscribedTo3).to.beFalsy();
-
-			[signalsSubject sendNext:sub1];
-			[signalsSubject sendNext:sub2];
-
-			expect(subscribedTo1).to.beTruthy();
-			expect(subscribedTo2).to.beFalsy();
-			expect(subscribedTo3).to.beFalsy();
-
-			[subject1 sendNext:@1];
-
-			[signalsSubject sendNext:sub3];
-
-			expect(subscribedTo1).to.beTruthy();
-			expect(subscribedTo2).to.beFalsy();
-			expect(subscribedTo3).to.beFalsy();
-
-			[signalsSubject sendCompleted];
-
-			expect(subscribedTo1).to.beTruthy();
-			expect(subscribedTo2).to.beFalsy();
-			expect(subscribedTo3).to.beFalsy();
-
-			[subject1 sendCompleted];
-
-			expect(subscribedTo2).to.beTruthy();
-			expect(subscribedTo3).to.beFalsy();
-
-			[subject2 sendNext:@2];
-			[subject2 sendCompleted];
-
-			expect(subscribedTo3).to.beTruthy();
-
-			[subject3 sendNext:@3];
-			[subject3 sendCompleted];
-
-			NSArray *expected = @[ @1, @2, @3 ];
-			expect(values).to.equal(expected);
-		});
-
-		itShouldBehaveLike(RACSignalMergeConcurrentCompletionExampleGroup, @{ RACSignalMaxConcurrent: @1 });
-	});
-
-	it(@"shouldn't create a retain cycle", ^{
-		__block BOOL subjectDeallocd = NO;
-		__block BOOL signalDeallocd = NO;
-		@autoreleasepool {
-			RACSubject *subject __attribute__((objc_precise_lifetime)) = [RACSubject subject];
-			[subject.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-				subjectDeallocd = YES;
-			}]];
-
-			RACSignal *signal __attribute__((objc_precise_lifetime)) = [subject flatten];
-			[signal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-				signalDeallocd = YES;
-			}]];
-
-			[signal subscribeCompleted:^{}];
-
-			[subject sendCompleted];
-		}
-
-		expect(subjectDeallocd).will.beTruthy();
-		expect(signalDeallocd).will.beTruthy();
-	});
-
-	it(@"should not crash when disposing while subscribing", ^{
-		RACDisposable *disposable = [[signalsSubject flatten:0] subscribeCompleted:^{
-		}];
-
-		[signalsSubject sendNext:[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-			[disposable dispose];
-			[subscriber sendCompleted];
-			return nil;
-		}]];
-
-		[signalsSubject sendCompleted];
-	});
-});
-
 describe(@"-switchToLatest", ^{
 	__block RACSubject *subject;
 
@@ -3832,6 +3664,245 @@ describe(@"-shareWhileActive", ^{
 		[firstDisposable dispose];
 		expect(totalSubscriptions).to.equal(1);
 		expect(activeSubscriptions).to.equal(0);
+	});
+});
+
+describe(@"-flatten:withPolicy:", ^{
+	__block RACSubject *signals;
+	__block NSMutableArray *values;
+
+	__block RACSubject *subject1;
+	__block RACSubject *subject2;
+	__block RACSubject *subject3;
+
+	__block BOOL subscribed1 = NO;
+	__block BOOL subscribed2 = NO;
+	__block BOOL subscribed3 = NO;
+	__block BOOL disposed1 = NO;
+	__block BOOL disposed2 = NO;
+	__block BOOL disposed3 = NO;
+	__block RACSignal *signal1;
+	__block RACSignal *signal2;
+	__block RACSignal *signal3;
+
+	beforeEach(^{
+		signals = [RACSubject subject];
+		values = [NSMutableArray array];
+
+		subscribed1 = NO;
+		subscribed2 = NO;
+		subscribed3 = NO;
+		disposed1 = NO;
+		disposed2 = NO;
+		disposed3 = NO;
+
+		subject1 = [RACSubject subject];
+		signal1 = [[RACSignal
+			defer:^{
+				subscribed1 = YES;
+				return subject1;
+			}]
+			doDisposed:^{
+				disposed1 = YES;
+			}];
+
+		subject2 = [RACSubject subject];
+		signal2 = [[RACSignal
+			defer:^{
+				subscribed2 = YES;
+				return subject2;
+			}]
+			doDisposed:^{
+				disposed2 = YES;
+			}];
+
+		subject3 = [RACSubject subject];
+		signal3 = [[RACSignal
+			defer:^{
+				subscribed3 = YES;
+				return subject3;
+			}]
+			doDisposed:^{
+				disposed3 = YES;
+			}];
+	});
+
+	describe(@"queue policy", ^{
+		it(@"should wait until a slot is available to merge new signals", ^{
+			[[signals flatten:2 withPolicy:RACSignalFlattenPolicyQueue] subscribeNext:^(id x) {
+				[values addObject:x];
+			}];
+
+			expect(subscribed1).to.beFalsy();
+			expect(subscribed2).to.beFalsy();
+			expect(subscribed3).to.beFalsy();
+
+			[signals sendNext:signal1];
+			expect(subscribed1).to.beTruthy();
+
+			[signals sendNext:signal2];
+			expect(subscribed2).to.beTruthy();
+
+			[signals sendNext:signal3];
+			expect(subscribed3).to.beFalsy();
+
+			[subject1 sendNext:@1];
+			[signals sendCompleted];
+			[subject2 sendNext:@2];
+			[subject1 sendNext:@3];
+
+			expect(subscribed3).to.beFalsy();
+
+			[subject1 sendCompleted];
+			expect(subscribed3).to.beTruthy();
+
+			[subject3 sendNext:@4];
+			[subject2 sendNext:@5];
+
+			expect(values).to.equal((@[ @1, @2, @3, @4, @5 ]));
+		});
+
+		it(@"should complete only after the source and all its signals have completed", ^{
+			__block BOOL completed = NO;
+			[[signals flatten:2 withPolicy:RACSignalFlattenPolicyQueue] subscribeCompleted:^{
+				completed = YES;
+			}];
+
+			[signals sendNext:signal1];
+			[subject1 sendCompleted];
+
+			expect(completed).to.beFalsy();
+
+			[signals sendNext:signal2];
+			[signals sendNext:signal3];
+			[signals sendCompleted];
+
+			expect(completed).to.beFalsy();
+
+			[subject2 sendCompleted];
+
+			expect(completed).to.beFalsy();
+
+			[subject3 sendCompleted];
+
+			expect(completed).to.beTruthy();
+		});
+	});
+
+	describe(@"dispose earliest policy", ^{
+		it(@"should dispose of earlier signals when new ones are sent", ^{
+			[[signals flatten:2 withPolicy:RACSignalFlattenPolicyDisposeEarliest] subscribeNext:^(id x) {
+				[values addObject:x];
+			}];
+
+			expect(subscribed1).to.beFalsy();
+			expect(subscribed2).to.beFalsy();
+			expect(subscribed3).to.beFalsy();
+
+			[signals sendNext:signal1];
+			expect(subscribed1).to.beTruthy();
+
+			[subject1 sendNext:@1];
+
+			[signals sendNext:signal2];
+			expect(subscribed2).to.beTruthy();
+
+			[signals sendNext:signal3];
+			expect(subscribed3).to.beTruthy();
+			expect(disposed1).to.beTruthy();
+			expect(disposed2).to.beFalsy();
+			expect(disposed3).to.beFalsy();
+
+			[signals sendCompleted];
+
+			expect(disposed1).to.beTruthy();
+			expect(disposed2).to.beFalsy();
+			expect(disposed3).to.beFalsy();
+			
+			[subject2 sendNext:@2];
+			[subject3 sendNext:@3];
+
+			expect(disposed1).to.beTruthy();
+			expect(disposed2).to.beFalsy();
+			expect(disposed3).to.beFalsy();
+
+			expect(values).to.equal((@[ @1, @2, @3 ]));
+		});
+	});
+
+	describe(@"dispose latest policy", ^{
+		it(@"should dispose of later signals when new ones are sent", ^{
+			[[signals flatten:2 withPolicy:RACSignalFlattenPolicyDisposeLatest] subscribeNext:^(id x) {
+				[values addObject:x];
+			}];
+
+			expect(subscribed1).to.beFalsy();
+			expect(subscribed2).to.beFalsy();
+			expect(subscribed3).to.beFalsy();
+
+			[signals sendNext:signal1];
+			expect(subscribed1).to.beTruthy();
+
+			[signals sendNext:signal2];
+			expect(subscribed2).to.beTruthy();
+
+			[subject2 sendNext:@1];
+
+			[signals sendNext:signal3];
+			expect(subscribed3).to.beTruthy();
+			expect(disposed1).to.beFalsy();
+			expect(disposed2).to.beTruthy();
+			expect(disposed3).to.beFalsy();
+
+			[signals sendCompleted];
+
+			expect(disposed1).to.beFalsy();
+			expect(disposed2).to.beTruthy();
+			expect(disposed3).to.beFalsy();
+			
+			[subject1 sendNext:@2];
+			[subject3 sendNext:@3];
+
+			expect(disposed1).to.beFalsy();
+			expect(disposed2).to.beTruthy();
+			expect(disposed3).to.beFalsy();
+
+			expect(values).to.equal((@[ @1, @2, @3 ]));
+		});
+	});
+
+	it(@"shouldn't create a retain cycle", ^{
+		__block BOOL subjectDeallocd = NO;
+		__block BOOL signalDeallocd = NO;
+
+		@autoreleasepool {
+			RACSubject *subject __attribute__((objc_precise_lifetime)) = [RACSubject subject];
+			[subject.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				subjectDeallocd = YES;
+			}]];
+
+			RACSignal *signal __attribute__((objc_precise_lifetime)) = [subject flatten:1 withPolicy:RACSignalFlattenPolicyQueue];
+			[signal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				signalDeallocd = YES;
+			}]];
+
+			[signal subscribeCompleted:^{}];
+			[subject sendCompleted];
+		}
+
+		expect(subjectDeallocd).will.beTruthy();
+		expect(signalDeallocd).will.beTruthy();
+	});
+
+	it(@"should not crash when disposing while subscribing", ^{
+		RACDisposable *disposable = [[signals flatten:1 withPolicy:RACSignalFlattenPolicyQueue] subscribeCompleted:^{}];
+
+		[signals sendNext:[RACSignal create:^(id<RACSubscriber> subscriber) {
+			[disposable dispose];
+			[subscriber sendCompleted];
+		}]];
+
+		[signals sendCompleted];
 	});
 });
 

@@ -265,66 +265,26 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 		setNameWithFormat:@"[%@] -doFinished:", self.name];
 }
 
-- (RACSignal *)throttle:(NSTimeInterval)interval {
-	return [[self throttle:interval valuesPassingTest:^(id _) {
-		return YES;
-	}] setNameWithFormat:@"[%@] -throttle: %f", self.name, (double)interval];
+- (RACSignal *)throttleDiscardingEarliest:(NSTimeInterval)interval {
+	NSCParameterAssert(interval >= 0);
+
+	return [[[self
+		map:^(id x) {
+			return [[RACSignal return:x] delay:interval];
+		}]
+		flatten:1 withPolicy:RACSignalFlattenPolicyDisposeEarliest]
+		setNameWithFormat:@"[%@] -throttleDiscardingEarliest: %f", self.name, (double)interval];
 }
 
-- (RACSignal *)throttle:(NSTimeInterval)interval valuesPassingTest:(BOOL (^)(id next))predicate {
+- (RACSignal *)throttleDiscardingLatest:(NSTimeInterval)interval {
 	NSCParameterAssert(interval >= 0);
-	NSCParameterAssert(predicate != nil);
 
-	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		// We may never use this scheduler, but we need to set it up ahead of
-		// time so that our scheduled blocks are run serially if we do.
-		RACScheduler *scheduler = [RACScheduler scheduler];
-
-		// Information about any currently-buffered `next` event.
-		__block id nextValue = nil;
-		__block BOOL hasNextValue = NO;
-
-		RACSerialDisposable *nextDisposable = [[RACSerialDisposable alloc] init];
-		[subscriber.disposable addDisposable:nextDisposable];
-
-		void (^flushNext)(BOOL send) = ^(BOOL send) {
-			@synchronized (subscriber) {
-				[nextDisposable.disposable dispose];
-
-				if (!hasNextValue) return;
-				if (send) [subscriber sendNext:nextValue];
-
-				nextValue = nil;
-				hasNextValue = NO;
-			}
-		};
-
-		RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
-			RACScheduler *delayScheduler = RACScheduler.currentScheduler ?: scheduler;
-			BOOL shouldThrottle = predicate(x);
-
-			@synchronized (subscriber) {
-				flushNext(NO);
-				if (!shouldThrottle) {
-					[subscriber sendNext:x];
-					return;
-				}
-
-				nextValue = x;
-				hasNextValue = YES;
-				nextDisposable.disposable = [delayScheduler afterDelay:interval schedule:^{
-					flushNext(YES);
-				}];
-			}
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			flushNext(YES);
-			[subscriber sendCompleted];
-		}];
-
-		[subscriber.disposable addDisposable:subscriptionDisposable];
-	}] setNameWithFormat:@"[%@] -throttle: %f valuesPassingTest:", self.name, (double)interval];
+	return [[[self
+		map:^(id x) {
+			return [[RACSignal return:x] delay:interval];
+		}]
+		flatten:1 withPolicy:RACSignalFlattenPolicyDisposeLatest]
+		setNameWithFormat:@"[%@] -throttleDiscardingLatest: %f", self.name, (double)interval];
 }
 
 - (RACSignal *)delay:(NSTimeInterval)interval {
@@ -588,90 +548,128 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	return [[copiedSignals.rac_signal flatten] setNameWithFormat:@"+merge: %@", copiedSignals];
 }
 
-- (RACSignal *)flatten:(NSUInteger)maxConcurrent {
+- (RACSignal *)flatten:(NSUInteger)maxConcurrent withPolicy:(RACSignalFlattenPolicy)policy {
+	NSCParameterAssert(maxConcurrent > 0);
+
 	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		NSMutableSet *activeSignals = [NSMutableSet setWithObject:self];
-		NSMutableArray *queuedSignals = [NSMutableArray array];
-
-		// Marks the given signal as completed.
+		// Contains disposables for the currently active subscriptions.
 		//
-		// This block should only be accessed while synchronized on
-		// `subscriber`.
-		__block void (^completeSignal)(RACSignal *) = nil;
+		// This should only be used while synchronized on `subscriber`.
+		NSMutableArray *activeDisposables = [[NSMutableArray alloc] initWithCapacity:maxConcurrent];
 
-		// Returns whether the signal should complete.
-		BOOL (^dequeueAndSubscribeIfAllowed)(void) = ^{
-			RACSignal *signal;
+		// Whether the signal-of-signals has completed yet.
+		//
+		// This should only be used while synchronized on `subscriber`.
+		__block BOOL selfCompleted = NO;
+
+		// Subscribes to the given signal.
+		//
+		// This will be set to nil once all signals have completed (to break
+		// a retain cycle in the recursive block).
+		__block void (^subscribeToSignal)(RACSignal *);
+
+		// Sends completed to the subscriber if all signals are finished.
+		//
+		// This should only be used while synchronized on `subscriber`.
+		void (^completeIfAllowed)(void) = ^{
+			if (selfCompleted && activeDisposables.count == 0) {
+				[subscriber sendCompleted];
+				subscribeToSignal = nil;
+			}
+		};
+
+		// The signals waiting to be started. This only applies to the "wait"
+		// policy.
+		//
+		// This array should only be used while synchronized on `subscriber`.
+		NSMutableArray *queuedSignals = nil;
+		if (policy == RACSignalFlattenPolicyQueue) queuedSignals = [NSMutableArray array];
+
+		subscribeToSignal = ^(RACSignal *signal) {
+			RACSerialDisposable *serialDisposable = [[RACSerialDisposable alloc] init];
+
 			@synchronized (subscriber) {
-				BOOL completed = activeSignals.count < 1 && queuedSignals.count < 1;
-				if (completed) return YES;
-
-				// We add one to maxConcurrent since self is an active
-				// signal at the start and we don't want that to count
-				// against the max.
-				NSUInteger maxIncludingSelf = maxConcurrent + ([activeSignals containsObject:self] ? 1 : 0);
-				if (activeSignals.count >= maxIncludingSelf && maxConcurrent != 0) return NO;
-
-				if (queuedSignals.count < 1) return NO;
-
-				signal = queuedSignals[0];
-				[queuedSignals removeObjectAtIndex:0];
-
-				[activeSignals addObject:signal];
+				[subscriber.disposable addDisposable:serialDisposable];
+				[activeDisposables addObject:serialDisposable];
 			}
 
-			__block RACDisposable *disposable = [signal subscribeNext:^(id x) {
+			serialDisposable.disposable = [signal subscribeNext:^(id x) {
 				[subscriber sendNext:x];
 			} error:^(NSError *error) {
 				[subscriber sendError:error];
-				[subscriber.disposable removeDisposable:disposable];
 			} completed:^{
+				RACSignal *nextSignal;
+
 				@synchronized (subscriber) {
-					completeSignal(signal);
+					[subscriber.disposable removeDisposable:serialDisposable];
+					[activeDisposables removeObjectIdenticalTo:serialDisposable];
+
+					if (queuedSignals.count == 0) {
+						completeIfAllowed();
+						return;
+					}
+
+					nextSignal = queuedSignals[0];
+					[queuedSignals removeObjectAtIndex:0];
 				}
 
-				[subscriber.disposable removeDisposable:disposable];
+				#pragma clang diagnostic push
+				#pragma clang diagnostic ignored "-Warc-retain-cycles"
+				// This retain cycle is broken in `completeIfAllowed`.
+				subscribeToSignal(nextSignal);
+				#pragma clang diagnostic pop
 			}];
-
-			[subscriber.disposable addDisposable:disposable];
-			return NO;
 		};
 
-		completeSignal = ^(RACSignal *signal) {
-			[activeSignals removeObject:signal];
+		[subscriber.disposable addDisposable:[self subscribeNext:^(RACSignal *signal) {
+			if (signal == nil) return;
 
-			BOOL completed = dequeueAndSubscribeIfAllowed();
-			if (completed) {
-				[subscriber sendCompleted];
-			}
-		};
+			NSCAssert([signal isKindOfClass:RACSignal.class], @"Expected a RACSignal, got %@", signal);
 
-		[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
 			@synchronized (subscriber) {
-				completeSignal = ^(RACSignal *signal) {
-					// Do nothing. We're just replacing this block to break the
-					// retain cycle.
-				};
+				if (activeDisposables.count >= maxConcurrent) {
+					switch (policy) {
+						case RACSignalFlattenPolicyQueue: {
+							[queuedSignals addObject:signal];
+
+							// If we need to wait, skip subscribing to this
+							// signal.
+							return;
+						}
+
+						case RACSignalFlattenPolicyDisposeEarliest: {
+							RACDisposable *disposable = activeDisposables[0];
+
+							[activeDisposables removeObjectAtIndex:0];
+							[subscriber.disposable removeDisposable:disposable];
+
+							[disposable dispose];
+							break;
+						}
+
+						case RACSignalFlattenPolicyDisposeLatest: {
+							RACDisposable *disposable = activeDisposables.lastObject;
+
+							[activeDisposables removeLastObject];
+							[subscriber.disposable removeDisposable:disposable];
+
+							[disposable dispose];
+							break;
+						}
+					}
+				}
 			}
-		}]];
 
-		[subscriber.disposable addDisposable:[self subscribeNext:^(id x) {
-			NSCAssert([x isKindOfClass:RACSignal.class], @"The source must be a signal of signals. Instead, got %@", x);
-
-			RACSignal *innerSignal = x;
-			@synchronized (subscriber) {
-				[queuedSignals addObject:innerSignal];
-			}
-
-			dequeueAndSubscribeIfAllowed();
+			subscribeToSignal(signal);
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
 			@synchronized (subscriber) {
-				completeSignal(self);
+				selfCompleted = YES;
+				completeIfAllowed();
 			}
 		}]];
-	}] setNameWithFormat:@"[%@] -flatten: %lu", self.name, (unsigned long)maxConcurrent];
+	}] setNameWithFormat:@"[%@] -flatten: %lu withPolicy: %u", self.name, (unsigned long)maxConcurrent, (unsigned)policy];
 }
 
 - (RACSignal *)then:(RACSignal * (^)(void))block {
@@ -684,7 +682,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)concat {
-	return [[self flatten:1] setNameWithFormat:@"[%@] -concat", self.name];
+	return [[self flatten:1 withPolicy:RACSignalFlattenPolicyQueue] setNameWithFormat:@"[%@] -concat", self.name];
 }
 
 - (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory reduce:(id (^)(id running, id next))reduceBlock {
@@ -821,23 +819,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)switchToLatest {
-	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		RACSubject *signals = [RACSubject subject];
-
-		[[signals
-			flattenMap:^(RACSignal *x) {
-				if (x == nil) return [RACSignal empty];
-
-				NSCAssert([x isKindOfClass:RACSignal.class], @"-switchToLatest requires that the source signal (%@) send signals. Instead we got: %@", self, x);
-
-				// -concat:[RACSignal never] prevents completion of the receiver from
-				// prematurely terminating the inner signal.
-				return [x takeUntil:[signals concat:[RACSignal never]]];
-			}]
-			subscribe:subscriber];
-
-		[self subscribe:signals];
-	}] setNameWithFormat:@"[%@] -switchToLatest", self.name];
+	return [[self flatten:1 withPolicy:RACSignalFlattenPolicyDisposeEarliest] setNameWithFormat:@"[%@] -switchToLatest", self.name];
 }
 
 + (RACSignal *)switch:(RACSignal *)signal cases:(NSDictionary *)cases default:(RACSignal *)defaultSignal {
@@ -1410,6 +1392,27 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	return [[RACSignalSequence sequenceWithSignal:self] setNameWithFormat:@"[%@] -sequence", self.name];
 }
 
+- (RACSignal *)throttle:(NSTimeInterval)interval {
+	return [self throttleDiscardingEarliest:interval];
+}
+
+- (RACSignal *)throttle:(NSTimeInterval)interval valuesPassingTest:(BOOL (^)(id next))predicate {
+	NSCParameterAssert(interval >= 0);
+	NSCParameterAssert(predicate != nil);
+
+	return [[[self
+		map:^(id x) {
+			RACSignal *signal = [RACSignal return:x];
+			if (predicate(x)) {
+				signal = [signal delay:interval];
+			}
+
+			return signal;
+		}]
+		flatten:1 withPolicy:RACSignalFlattenPolicyDisposeEarliest]
+		setNameWithFormat:@"[%@] -throttle: %f valuesPassingTest:", self.name, (double)interval];
+}
+
 - (RACSignal *)initially:(void (^)(void))block {
 	NSCParameterAssert(block != NULL);
 
@@ -1421,6 +1424,14 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 
 - (RACSignal *)finally:(void (^)(void))block {
 	return [self doFinished:block];
+}
+
+- (RACSignal *)flatten:(NSUInteger)maxConcurrent {
+	if (maxConcurrent == 0) {
+		return [self flatten];
+	} else {
+		return [self flatten:maxConcurrent withPolicy:RACSignalFlattenPolicyQueue];
+	}
 }
 
 - (RACMulticastConnection *)publish {

@@ -26,6 +26,25 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// value. Returning `nil` will result in immediate termination.
 typedef RACSignal * (^RACSignalBindBlock)(id value, BOOL *stop);
 
+/// The policy that -flatten:withPolicy: should follow when additional signals
+/// arrive while `maxConcurrent` signals are already subscribed to.
+///
+/// RACSignalFlattenPolicyQueue           - Wait until any current signal
+///                                         completes, then subscribe to the
+///                                         additional (enqueued) signal that
+///                                         arrived earliest.
+/// RACSignalFlattenPolicyDisposeEarliest - Dispose of the active subscription
+///                                         to the signal that arrived earliest,
+///                                         then subscribe to the new signal.
+/// RACSignalFlattenPolicyDisposeLatest   - Dispose of the active subscription
+///                                         to the signal that arrived latest,
+///                                         then subscribe to the new signal.
+typedef enum : NSUInteger {
+	RACSignalFlattenPolicyQueue,
+	RACSignalFlattenPolicyDisposeEarliest,
+	RACSignalFlattenPolicyDisposeLatest
+} RACSignalFlattenPolicy;
+
 @class RACAction;
 @class RACCommand;
 @class RACDisposable;
@@ -333,32 +352,18 @@ typedef RACSignal * (^RACSignalBindBlock)(id value, BOOL *stop);
 ///
 /// Returns a signal which sends throttled and delayed `next` events. Completion
 /// and errors are always forwarded immediately.
-- (RACSignal *)throttle:(NSTimeInterval)interval;
+- (RACSignal *)throttleDiscardingEarliest:(NSTimeInterval)interval;
 
-/// Throttles `next`s for which `predicate` returns YES.
+/// For every `next` sent by the receiver, forward it only if there wasn't
+/// a previous value in the last `interval` seconds.
 ///
-/// When `predicate` returns YES for a `next`:
+/// If a `next` is received, and then another `next` is received before
+/// `interval` seconds have passed, the second value is discarded.
 ///
-///  1. If another `next` is received before `interval` seconds have passed, the
-///     prior value is discarded. This happens regardless of whether the new
-///     value will be throttled.
-///  2. After `interval` seconds have passed since the value was originally
-///     received, it will be forwarded on the scheduler that it was received
-///     upon. If +[RACScheduler currentScheduler] was nil at the time, a private
-///     background scheduler is used.
-///
-/// When `predicate` returns NO for a `next`, it is forwarded immediately,
-/// without any throttling.
-///
-/// interval  - The number of seconds for which to buffer the latest value that
-///             passes `predicate`.
-/// predicate - Passed each `next` from the receiver, this block returns
-///             whether the given value should be throttled. This argument must
-///             not be nil.
-///
-/// Returns a signal which sends `next` events, throttled when `predicate`
-/// returns YES. Completion and errors are always forwarded immediately.
-- (RACSignal *)throttle:(NSTimeInterval)interval valuesPassingTest:(BOOL (^)(id next))predicate;
+/// Returns a signal which sends `next` events as they're received, dropping any
+/// that arrive less than `interval` seconds since the last. Completion and
+/// errors are always forwarded immediately.
+- (RACSignal *)throttleDiscardingLatest:(NSTimeInterval)interval;
 
 /// Forwards `next` and `completed` events after delaying for `interval` seconds
 /// on the current scheduler (on which the events were delivered).
@@ -452,19 +457,23 @@ typedef RACSignal * (^RACSignalBindBlock)(id value, BOOL *stop);
 + (RACSignal *)merge:(id<NSFastEnumeration>)signals;
 
 /// Merges the signals sent by the receiver into a flattened signal, but only
-/// subscribes to `maxConcurrent` number of signals at a time. New signals are
-/// queued and subscribed to as other signals complete.
+/// subscribes to `maxConcurrent` number of signals at a time.
 ///
-/// If an error occurs on any of the signals, it is sent on the returned signal.
-/// It completes only after the receiver and all sent signals have completed.
+/// When the receiver sends new signals while `maxConcurrent` signals are
+/// already subscribed to, `policy` determines what the behavior should be.
 ///
 /// This corresponds to `Merge<TSource>(IObservable<IObservable<TSource>>, Int32)`
 /// in Rx.
 ///
-/// maxConcurrent - the maximum number of signals to subscribe to at a
-///                 time. If 0, it subscribes to an unlimited number of
-///                 signals.
-- (RACSignal *)flatten:(NSUInteger)maxConcurrent;
+/// maxConcurrent - The maximum number of signals to subscribe to at a
+///                 time. This must be greater than 0.
+/// policy        - Describes what to do when `maxConcurrent` is exceeded.
+///
+/// Returns a signal that forwards values from up to `maxConcurrent` signals at
+/// a time. If an error occurs on any of the signals, it is sent on the returned
+/// signal immediately. The returned signal will complete only after all input
+/// signals have completed or been disposed.
+- (RACSignal *)flatten:(NSUInteger)maxConcurrent withPolicy:(RACSignalFlattenPolicy)policy;
 
 /// Ignores all `next`s from the receiver, waits for the receiver to complete,
 /// then subscribes to a new signal.
@@ -826,8 +835,11 @@ typedef RACSignal * (^RACSignalBindBlock)(id value, BOOL *stop);
 
 @property (nonatomic, strong, readonly) RACSequence *sequence RACDeprecated("Transform the signal instead");
 
+- (RACSignal *)throttle:(NSTimeInterval)interval RACDeprecated("Renamed to -throttleDiscardingEarliest:");
+- (RACSignal *)throttle:(NSTimeInterval)interval valuesPassingTest:(BOOL (^)(id next))predicate RACDeprecated("Use a signal of signals and -flatten:withPolicy: with RACSignalFlattenPolicyDisposeEarliest instead");
 - (RACSignal *)initially:(void (^)(void))block RACDeprecated("Put side effects into +defer: instead");
 - (RACSignal *)finally:(void (^)(void))block RACDeprecated("Renamed to -doFinished:");
+- (RACSignal *)flatten:(NSUInteger)maxConcurrent RACDeprecated("Use -flatten:withPolicy: with RACSignalFlattenPolicyQueue instead");
 - (RACMulticastConnection *)publish RACDeprecated("Send events to a shared RACSubject instead");
 - (RACMulticastConnection *)multicast:(RACSubject *)subject RACDeprecated("Use -promiseOnScheduler: or send events to a shared RACSubject instead");
 - (RACSignal *)replay RACDeprecated("Use -promiseOnScheduler: instead");

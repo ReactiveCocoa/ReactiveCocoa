@@ -19,6 +19,7 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=4stat
  1. [Promises instead of replaying](#promises-instead-of-replaying)
  1. [Actions instead of commands](#actions-instead-of-commands)
  1. [Simplified signal creation and disposal](#simplified-signal-creation-and-disposal)
+ 1. [Generalized throttling](#generalized-throttling)
 
 **[Deprecations](#deprecations)**
 
@@ -141,6 +142,55 @@ _return_ a disposable before the subscriber can act. Instead, the subscriber's
  * The `-didSubscribeWithDisposable:` method of `<RACSubscriber>` has been
    removed. If, for some reason, you were using it, refactor the call points to
    add to the subscriber's `disposable` instead.
+
+### Generalized throttling
+
+`-throttle:valuesPassingTest:` and `-flatten:` have been
+[replaced](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/920) with the much
+more general `-flatten:withPolicy:` operator.
+
+The plain `-throttle:` operator has also been renamed to
+`-throttleDiscardingEarliest:`, alongside the new `-throttleDiscardingLatest:`
+operator. These new names are intended to reduce confusion about what
+"throttling" actually means in a given context.
+
+**To update:**
+
+ * Replace uses of `-flatten:` with `-flatten:withPolicy:` and
+   `RACSignalFlattenPolicyWait`.
+ * Replace uses of `-throttle:` with `-throttleDiscardingEarliest:`.
+ * Instead of using `-throttle:valuesPassingTest:`, create a signal of signals
+   where some have delays, then use `-flatten:withPolicy:` and
+   `RACSignalFlattenPolicyDisposeEarliest`.
+
+For example, this partly-throttled signal:
+
+```objc
+// Throttles even numbers from the input signal. If an odd number arrives in the
+// meantime, any even number that's queued will be discarded.
+RACSignal *throttledEvens = [numbers
+    throttle:0.2 valuesPassingTest:^ BOOL (NSNumber *number) {
+        return number.integerValue % 2 == 0;
+    }];
+```
+
+Can be replaced with this signal of signals, and then flattened:
+
+```objc
+RACSignal *throttledEvens = [[numbers
+    map:^(NSNumber *number) {
+        if (number.integerValue % 2 == 0) {
+            // Delay even numbers.
+            return [[RACSignal return:number] delay:0.2];
+        } else {
+            // Forward odd numbers immediately.
+            return [RACSignal return:number];
+        }
+    }]
+    // When a new value arrives, discard any even number waiting to be sent.
+    // Limit the queue to 1 even number.
+    flatten:1 withPolicy:RACSignalFlattenPolicyDisposeEarliest];
+```
 
 ## Deprecations
 

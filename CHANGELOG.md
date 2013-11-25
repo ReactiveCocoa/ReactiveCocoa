@@ -27,6 +27,10 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=4stat
  1. [Multicasting](#multicasting)
  1. [Behavior subjects](#behavior-subjects)
 
+**[Additions](#additions)**
+
+ 1. [Signal generators](#signal-generators)
+
 ## Replacements
 
 ### Promises instead of replaying
@@ -242,6 +246,29 @@ its semantics can be implemented with other classes or operators.
 **To update:**
 
 Replace uses of `RACBehaviorSubject` with `RACPromise` or a plain `RACSubject`.
+
+## Additions
+
+### Signal generators
+
+The [new](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/936)
+`RACSignalGenerator` class encapsulates the logic for creating a signal from
+some input value.
+
+Although similar in principle, a signal generator boasts a couple major
+advantages over a plain block of type `RACSignal * (^)(id input)`:
+
+ 1. Operators can be added to `RACSignalGenerator`. This can be used for greater
+    compositionality, like the built-in `-postcompose:` method that chains two
+    generators together.
+ 1. A signal generator's algorithm can reference itself using
+    `-[RACDynamicSignalGenerator initWithReflexiveBlock:]`, which is extremely
+    useful for creating signals of indefinite length, and much less error-prone
+    than a recursive block.
+
+See
+[RACSignal+Operations.m](ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.m)
+for examples of operators that use generators internally.
 
 # 2.0
 

@@ -794,6 +794,34 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	}] setNameWithFormat:@"[%@] -takeUntil: %@", self.name, signalTrigger];
 }
 
+- (RACSignal *)takeUntilReplacement:(RACSignal *)replacement {
+	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		RACSerialDisposable *selfDisposable = [[RACSerialDisposable alloc] init];
+
+		RACDisposable *replacementDisposable = [replacement subscribeNext:^(id x) {
+			[selfDisposable dispose];
+			[subscriber sendNext:x];
+		} error:^(NSError *error) {
+			[selfDisposable dispose];
+			[subscriber sendError:error];
+		} completed:^{
+			[selfDisposable dispose];
+			[subscriber sendCompleted];
+		}];
+
+		if (!selfDisposable.disposed) {
+			selfDisposable.disposable = [[self
+				concat:[RACSignal never]]
+				subscribe:subscriber];
+		}
+
+		return [RACDisposable disposableWithBlock:^{
+			[selfDisposable dispose];
+			[replacementDisposable dispose];
+		}];
+	}];
+}
+
 - (RACSignal *)switchToLatest {
 	return [[self flatten:1 withPolicy:RACSignalFlattenPolicyDisposeEarliest] setNameWithFormat:@"[%@] -switchToLatest", self.name];
 }

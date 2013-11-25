@@ -795,10 +795,11 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)takeUntilReplacement:(RACSignal *)replacement {
-	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	return [RACSignal create:^(id<RACSubscriber> subscriber) {
 		RACSerialDisposable *selfDisposable = [[RACSerialDisposable alloc] init];
+		[subscriber.disposable addDisposable:selfDisposable];
 
-		RACDisposable *replacementDisposable = [replacement subscribeNext:^(id x) {
+		[subscriber.disposable addDisposable:[replacement subscribeNext:^(id x) {
 			[selfDisposable dispose];
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
@@ -807,18 +808,13 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 		} completed:^{
 			[selfDisposable dispose];
 			[subscriber sendCompleted];
-		}];
+		}]];
 
 		if (!selfDisposable.disposed) {
 			selfDisposable.disposable = [[self
 				concat:[RACSignal never]]
 				subscribe:subscriber];
 		}
-
-		return [RACDisposable disposableWithBlock:^{
-			[selfDisposable dispose];
-			[replacementDisposable dispose];
-		}];
 	}];
 }
 

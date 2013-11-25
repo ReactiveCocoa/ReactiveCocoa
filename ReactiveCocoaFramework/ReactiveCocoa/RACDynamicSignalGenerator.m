@@ -46,7 +46,7 @@
 
 - (RACSignal *)signalWithValue:(id)input {
 	RACSignal *signal = self.block(input);
-	NSAssert(signal != nil, @"Generator %@ returned a nil signal", self);
+	NSCAssert(signal != nil, @"Generator %@ returned a nil signal", self);
 
 	return signal;
 }

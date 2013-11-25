@@ -147,8 +147,7 @@ _return_ a disposable before the subscriber can act. Instead, the subscriber's
 
 `-throttle:valuesPassingTest:` and `-flatten:` have been
 [replaced](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/920) with the much
-more general `-flatten:withPolicy:` operator (which, incidentally, is powerful
-enough to implement `-concat` and `-switchToLatest`).
+more general `-flatten:withPolicy:` operator.
 
 The plain `-throttle:` operator has also been renamed to
 `-throttleDiscardingEarliest:`, alongside the new `-throttleDiscardingLatest:`

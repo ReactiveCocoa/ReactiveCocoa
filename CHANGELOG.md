@@ -157,7 +157,7 @@ operator. These new names are intended to reduce confusion about what
 **To update:**
 
  * Replace uses of `-flatten:` with `-flatten:withPolicy:` and
-   `RACSignalFlattenPolicyWait`.
+   `RACSignalFlattenPolicyQueue`.
  * Replace uses of `-throttle:` with `-throttleDiscardingEarliest:`.
  * Instead of using `-throttle:valuesPassingTest:`, create a signal of signals
    where some have delays, then use `-flatten:withPolicy:` and

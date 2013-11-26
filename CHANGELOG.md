@@ -12,7 +12,7 @@ warnings by default, but even these can be temporarily disabled by defining
 before any framework headers are imported.
 
 For a complete list of changes in ReactiveCocoa 3.0, see [the
-milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=4state=closed).
+milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=4&state=closed).
 
 **[Replacements](#replacements)**
 

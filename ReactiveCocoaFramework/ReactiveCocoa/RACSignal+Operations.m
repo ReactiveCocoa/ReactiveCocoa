@@ -316,7 +316,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)repeat {
-	RACSignalGenerator *generator = [[RACDynamicSignalGenerator alloc] initWithReflexiveBlock:^(RACSignal *signal, RACSignalGenerator *generator) {
+	RACSignalGenerator *generator = [RACDynamicSignalGenerator generatorWithReflexiveBlock:^(RACSignal *signal, RACSignalGenerator *generator) {
 		return [signal concat:[RACSignal defer:^{
 			return [generator signalWithValue:signal];
 		}]];
@@ -1130,7 +1130,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 
 - (RACSignal *)retry:(NSUInteger)retryCount {
 	return [[RACSignal defer:^{
-		RACSignalGenerator *generator = [[RACDynamicSignalGenerator alloc] initWithReflexiveBlock:^(NSNumber *currentRetryCount, RACSignalGenerator *generator) {
+		RACSignalGenerator *generator = [RACDynamicSignalGenerator generatorWithReflexiveBlock:^(NSNumber *currentRetryCount, RACSignalGenerator *generator) {
 			return [self catch:^(NSError *error) {
 				if (retryCount == 0 || currentRetryCount.unsignedIntegerValue < retryCount) {
 					return [generator signalWithValue:@(currentRetryCount.unsignedIntegerValue + 1)];

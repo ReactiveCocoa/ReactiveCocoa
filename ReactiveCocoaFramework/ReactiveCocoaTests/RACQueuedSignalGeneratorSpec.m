@@ -26,8 +26,8 @@ beforeEach(^{
 	subscriptionCount = 0;
 	disposedCount = 0;
 
-	generator = [[[RACDynamicSignalGenerator alloc]
-		initWithBlock:^(RACSignal *input) {
+	generator = [[RACDynamicSignalGenerator
+		generatorWithBlock:^(RACSignal *input) {
 			generationCount++;
 
 			return [RACSignal defer:^{

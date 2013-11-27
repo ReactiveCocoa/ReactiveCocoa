@@ -16,10 +16,11 @@
 /// completed or errored.
 @interface RACQueuedSignalGenerator : RACSignalGenerator
 
-/// Initializes the receiver to create signals using the given generator.
+/// Instantiates a queued generator that will create signals using the given
+/// signal generator.
 ///
 /// generator - A generator used to create the signals that will be enqueued by
 ///             the receiver. This must not be nil.
-- (id)initWithGenerator:(RACSignalGenerator *)generator;
++ (instancetype)queuedGeneratorWithGenerator:(RACSignalGenerator *)generator;
 
 @end

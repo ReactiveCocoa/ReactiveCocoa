@@ -16,7 +16,7 @@
 - (RACSignalGenerator *)postcompose:(RACSignalGenerator *)otherGenerator {
 	NSCParameterAssert(otherGenerator != nil);
 
-	return [[RACDynamicSignalGenerator alloc] initWithBlock:^(id input) {
+	return [RACDynamicSignalGenerator generatorWithBlock:^(id input) {
 		return [[self
 			signalWithValue:input]
 			flattenMap:^(id intermediateValue) {
@@ -26,7 +26,7 @@
 }
 
 - (RACQueuedSignalGenerator *)serialize {
-	return [[RACQueuedSignalGenerator alloc] initWithGenerator:self];
+	return [RACQueuedSignalGenerator queuedGeneratorWithGenerator:self];
 }
 
 @end

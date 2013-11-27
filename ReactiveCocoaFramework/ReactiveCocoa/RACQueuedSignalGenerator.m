@@ -26,6 +26,10 @@
 
 #pragma mark Lifecycle
 
++ (instancetype)queuedGeneratorWithGenerator:(RACSignalGenerator *)generator {
+	return [[self alloc] initWithGenerator:generator];
+}
+
 - (id)initWithGenerator:(RACSignalGenerator *)generator {
 	NSCParameterAssert(generator != nil);
 

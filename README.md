@@ -337,10 +337,9 @@ on:
 ReactiveCocoa makes this pattern particularly easy:
 
 ```objc
-[[[[client logIn]
-	then:^{
-		return [client loadCachedMessages];
-	}]
+[[[[client
+	logIn]
+	concat:[client loadCachedMessages]]
 	flattenMap:^(NSArray *messages) {
 		return [client fetchMessagesAfterMessage:messages.lastObject];
 	}]

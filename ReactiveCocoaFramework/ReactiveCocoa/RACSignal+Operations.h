@@ -256,33 +256,19 @@ typedef enum : NSUInteger {
 /// receiver is empty, the resulting signal will complete immediately.
 - (RACSignal *)combinePreviousWithStart:(id)start reduce:(id (^)(id previous, id current))reduceBlock;
 
-/// Takes values until the given block returns `YES`.
-///
-/// Returns a signal of the initial values in the receiver that fail `predicate`.
-/// If `predicate` never returns `YES`, a signal equivalent to the receiver is
-/// returned.
-- (RACSignal *)takeUntilBlock:(BOOL (^)(id x))predicate;
-
 /// Takes values until the given block returns `NO`.
 ///
 /// Returns a signal of the initial values in the receiver that pass `predicate`.
 /// If `predicate` never returns `NO`, a signal equivalent to the receiver is
 /// returned.
-- (RACSignal *)takeWhileBlock:(BOOL (^)(id x))predicate;
-
-/// Skips values until the given block returns `YES`.
-///
-/// Returns a signal containing the values of the receiver that follow any
-/// initial values failing `predicate`. If `predicate` never returns `YES`,
-/// an empty signal is returned.
-- (RACSignal *)skipUntilBlock:(BOOL (^)(id x))predicate;
+- (RACSignal *)takeWhile:(BOOL (^)(id x))predicate;
 
 /// Skips values until the given block returns `NO`.
 ///
 /// Returns a signal containing the values of the receiver that follow any
 /// initial values passing `predicate`. If `predicate` never returns `NO`, an
 /// empty signal is returned.
-- (RACSignal *)skipWhileBlock:(BOOL (^)(id x))predicate;
+- (RACSignal *)skipWhile:(BOOL (^)(id x))predicate;
 
 /// Returns a signal of values for which -isEqual: returns NO when compared to the
 /// previous value.
@@ -843,6 +829,10 @@ typedef enum : NSUInteger {
 - (RACSignal *)finally:(void (^)(void))block RACDeprecated("Renamed to -doFinished:");
 - (RACSignal *)flatten:(NSUInteger)maxConcurrent RACDeprecated("Use -flatten:withPolicy: with RACSignalFlattenPolicyQueue instead");
 - (RACSignal *)sample:(RACSignal *)sampler RACDeprecated("Use +combineLatest: instead");
+- (RACSignal *)takeUntilBlock:(BOOL (^)(id x))predicate RACDeprecated("Use -takeWhile: instead");
+- (RACSignal *)takeWhileBlock:(BOOL (^)(id x))predicate RACDeprecated("Renamed to -takeWhile:");
+- (RACSignal *)skipUntilBlock:(BOOL (^)(id x))predicate RACDeprecated("Use -skipWhile: instead");
+- (RACSignal *)skipWhileBlock:(BOOL (^)(id x))predicate RACDeprecated("Renamed to -skipWhile:");
 - (RACMulticastConnection *)publish RACDeprecated("Send events to a shared RACSubject instead");
 - (RACMulticastConnection *)multicast:(RACSubject *)subject RACDeprecated("Use -promiseOnScheduler: or send events to a shared RACSubject instead");
 - (RACSignal *)replay RACDeprecated("Use -promiseOnScheduler: instead");

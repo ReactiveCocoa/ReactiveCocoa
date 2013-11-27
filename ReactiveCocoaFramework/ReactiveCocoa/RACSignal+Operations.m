@@ -181,24 +181,16 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	return [super combinePreviousWithStart:start reduce:reduceBlock];
 }
 
-- (RACSignal *)takeUntilBlock:(BOOL (^)(id x))predicate {
-	return [super takeUntilBlock:predicate];
+- (RACSignal *)distinctUntilChanged {
+	return [super distinctUntilChanged];
 }
 
-- (RACSignal *)takeWhileBlock:(BOOL (^)(id x))predicate {
+- (RACSignal *)takeWhile:(BOOL (^)(id x))predicate {
 	return [super takeWhileBlock:predicate];
 }
 
-- (RACSignal *)skipUntilBlock:(BOOL (^)(id x))predicate {
-	return [super skipUntilBlock:predicate];
-}
-
-- (RACSignal *)skipWhileBlock:(BOOL (^)(id x))predicate {
+- (RACSignal *)skipWhile:(BOOL (^)(id x))predicate {
 	return [super skipWhileBlock:predicate];
-}
-
-- (RACSignal *)distinctUntilChanged {
-	return [super distinctUntilChanged];
 }
 
 - (RACSignal *)doNext:(void (^)(id x))block {
@@ -1401,6 +1393,22 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 			[subscriber sendCompleted];
 		}]];
 	}] setNameWithFormat:@"[%@] -sample: %@", self.name, sampler];
+}
+
+- (RACSignal *)takeUntilBlock:(BOOL (^)(id x))predicate {
+	return [super takeUntilBlock:predicate];
+}
+
+- (RACSignal *)takeWhileBlock:(BOOL (^)(id x))predicate {
+	return [super takeWhileBlock:predicate];
+}
+
+- (RACSignal *)skipUntilBlock:(BOOL (^)(id x))predicate {
+	return [super skipUntilBlock:predicate];
+}
+
+- (RACSignal *)skipWhileBlock:(BOOL (^)(id x))predicate {
+	return [super skipWhileBlock:predicate];
 }
 
 - (RACMulticastConnection *)publish {

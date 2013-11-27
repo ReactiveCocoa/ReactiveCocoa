@@ -26,8 +26,8 @@
 		map:^(NSNotification *note) {
 			return note.userInfo[NSFileHandleNotificationDataItem];
 		}]
-		takeUntilBlock:^ BOOL (NSData *data) {
-			return data.length == 0;
+		takeWhile:^ BOOL (NSData *data) {
+			return data.length > 0;
 		}]
 		flattenMap:^(NSData *data) {
 			// Deliver the data to the subscriber first, then read more.

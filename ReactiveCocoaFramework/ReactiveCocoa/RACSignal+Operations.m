@@ -644,15 +644,6 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	}] setNameWithFormat:@"[%@] -flatten: %lu withPolicy: %u", self.name, (unsigned long)maxConcurrent, (unsigned)policy];
 }
 
-- (RACSignal *)then:(RACSignal * (^)(void))block {
-	NSCParameterAssert(block != nil);
-
-	return [[[self
-		ignoreValues]
-		concat:[RACSignal defer:block]]
-		setNameWithFormat:@"[%@] -then:", self.name];
-}
-
 - (RACSignal *)concat {
 	return [[self flatten:1 withPolicy:RACSignalFlattenPolicyQueue] setNameWithFormat:@"[%@] -concat", self.name];
 }
@@ -1404,6 +1395,15 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	return [RACSignal defer:^{
 		return [self aggregateWithStart:startFactory() reduce:reduceBlock];
 	}];
+}
+
+- (RACSignal *)then:(RACSignal * (^)(void))block {
+	NSCParameterAssert(block != nil);
+
+	return [[[self
+		ignoreValues]
+		concat:[RACSignal defer:block]]
+		setNameWithFormat:@"[%@] -then:", self.name];
 }
 
 - (RACMulticastConnection *)publish {

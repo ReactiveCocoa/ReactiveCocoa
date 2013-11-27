@@ -464,17 +464,6 @@ typedef enum : NSUInteger {
 /// signals have completed or been disposed.
 - (RACSignal *)flatten:(NSUInteger)maxConcurrent withPolicy:(RACSignalFlattenPolicy)policy;
 
-/// Ignores all `next`s from the receiver, waits for the receiver to complete,
-/// then subscribes to a new signal.
-///
-/// block - A block which will create or obtain a new signal to subscribe to,
-///         executed only after the receiver completes. This block must not be
-///         nil, and it must not return a nil signal.
-///
-/// Returns a signal which will pass through the events of the signal created in
-/// `block`. If the receiver errors out, the returned signal will error as well.
-- (RACSignal *)then:(RACSignal * (^)(void))block;
-
 /// Concats the inner signals of a signal of signals.
 - (RACSignal *)concat;
 
@@ -834,6 +823,7 @@ typedef enum : NSUInteger {
 - (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock transform:(id (^)(id object))transformBlock RACDeprecated("Use -map: instead");
 - (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock RACDeprecated("Use -map: instead");
 - (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory reduce:(id (^)(id running, id next))reduceBlock RACDeprecated("Use +defer: and -aggregateWithStart:reduce: instead");
+- (RACSignal *)then:(RACSignal * (^)(void))block RACDeprecated("Use -ignoreValues followed by -concat: with +defer: instead");
 - (RACMulticastConnection *)publish RACDeprecated("Send events to a shared RACSubject instead");
 - (RACMulticastConnection *)multicast:(RACSubject *)subject RACDeprecated("Use -promiseOnScheduler: or send events to a shared RACSubject instead");
 - (RACSignal *)replay RACDeprecated("Use -promiseOnScheduler: instead");

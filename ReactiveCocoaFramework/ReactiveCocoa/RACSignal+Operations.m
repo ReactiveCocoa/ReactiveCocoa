@@ -407,38 +407,42 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)collect {
-	return [[self
-		aggregateWithStartFactory:^{
-			return [[NSMutableArray alloc] init];
-		} reduce:^(NSMutableArray *collectedValues, id x) {
-			[collectedValues addObject:(x ?: NSNull.null)];
-			return collectedValues;
+	return [[RACSignal
+		defer:^{
+			return [self aggregateWithStart:[NSMutableArray array] reduce:^(NSMutableArray *values, id x) {
+				[values addObject:x ?: NSNull.null];
+				return values;
+			}];
 		}]
 		setNameWithFormat:@"[%@] -collect", self.name];
 }
 
 - (RACSignal *)takeLast:(NSUInteger)count {
-	return [[RACSignal create:^(id<RACSubscriber> subscriber) {		
-		NSMutableArray *valuesTaken = [NSMutableArray arrayWithCapacity:count];
+	return [[RACSignal
+		create:^(id<RACSubscriber> subscriber) {		
+			NSMutableArray *valuesTaken = [[NSMutableArray alloc] initWithCapacity:count];
 
-		[subscriber.disposable addDisposable:[self subscribeNext:^(id x) {
-			[valuesTaken addObject:x ? : [RACTupleNil tupleNil]];
-			
-			while (valuesTaken.count > count) {
-				[valuesTaken removeObjectAtIndex:0];
-			}
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			for (id value in valuesTaken) {
-				[subscriber sendNext:[value isKindOfClass:[RACTupleNil class]] ? nil : value];
+			[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+				[subscriber.disposable addDisposable:disposable];
+			} next:^(id x) {
+				[valuesTaken addObject:x ?: RACTupleNil.tupleNil];
+				
+				while (valuesTaken.count > count) {
+					[valuesTaken removeObjectAtIndex:0];
+				}
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				for (id value in valuesTaken) {
+					[subscriber sendNext:(value == RACTupleNil.tupleNil ? nil : value)];
 
-				if (subscriber.disposable.disposed) return;
-			}
-			
-			[subscriber sendCompleted];
-		}]];
-	}] setNameWithFormat:@"[%@] -takeLast: %lu", self.name, (unsigned long)count];
+					if (subscriber.disposable.disposed) return;
+				}
+				
+				[subscriber sendCompleted];
+			}];
+		}]
+		setNameWithFormat:@"[%@] -takeLast: %lu", self.name, (unsigned long)count];
 }
 
 - (RACSignal *)combineLatestWith:(RACSignal *)signal {
@@ -653,29 +657,14 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	return [[self flatten:1 withPolicy:RACSignalFlattenPolicyQueue] setNameWithFormat:@"[%@] -concat", self.name];
 }
 
-- (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory reduce:(id (^)(id running, id next))reduceBlock {
-	NSCParameterAssert(startFactory != NULL);
-	NSCParameterAssert(reduceBlock != NULL);
-	
-	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		__block id runningValue = startFactory();
-		[subscriber.disposable addDisposable:[self subscribeNext:^(id x) {
-			runningValue = reduceBlock(runningValue, x);
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendNext:runningValue];
-			[subscriber sendCompleted];
-		}]];
-	}] setNameWithFormat:@"[%@] -aggregateWithStartFactory:reduce:", self.name];
-}
-
 - (RACSignal *)aggregateWithStart:(id)start reduce:(id (^)(id running, id next))reduceBlock {
-	RACSignal *signal = [self aggregateWithStartFactory:^{
-		return start;
-	} reduce:reduceBlock];
+	NSCParameterAssert(start != nil);
 
-	return [signal setNameWithFormat:@"[%@] -aggregateWithStart: %@ reduce:", self.name, [start rac_description]];
+	return [[[[self
+		scanWithStart:start reduce:reduceBlock]
+		startWith:start]
+		takeLast:1]
+		setNameWithFormat:@"[%@] -aggregateWithStart: %@ reduce:", self.name, [start rac_description]];
 }
 
 - (RACDisposable *)setKeyPath:(NSString *)keyPath onObject:(NSObject *)object {
@@ -1409,6 +1398,12 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 
 - (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock {
 	return [[self groupBy:keyBlock transform:nil] setNameWithFormat:@"[%@] -groupBy:", self.name];
+}
+
+- (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory reduce:(id (^)(id running, id next))reduceBlock {
+	return [RACSignal defer:^{
+		return [self aggregateWithStart:startFactory() reduce:reduceBlock];
+	}];
 }
 
 - (RACMulticastConnection *)publish {

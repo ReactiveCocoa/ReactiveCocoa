@@ -206,12 +206,15 @@ typedef enum : NSUInteger {
 ///
 /// The algorithm proceeds as follows:
 ///
-///  1. `startingValue` is passed into the block as the `running` value, and the
-///  first element of the receiver is passed into the block as the `next` value.
+///  1. `start` is passed into the block as the `running` value, and the first
+///     element of the receiver is passed into the block as the `next` value.
 ///  2. The result of the invocation is sent on the returned signal.
 ///  3. The result of the invocation (`running`) and the next element of the
-///  receiver (`next`) is passed into `block`.
+///     receiver (`next`) is passed into `block`.
 ///  4. Steps 2 and 3 are repeated until all values have been processed.
+///
+/// This method is similar to -aggregateWithStart:reduce:, except that the
+/// result of each step is sent on the returned signal.
 ///
 /// startingValue - The value to be combined with the first element of the
 ///                 receiver. This value may be `nil`.
@@ -475,12 +478,30 @@ typedef enum : NSUInteger {
 /// Concats the inner signals of a signal of signals.
 - (RACSignal *)concat;
 
-/// Aggregate `next`s with the given start and combination.
-- (RACSignal *)aggregateWithStart:(id)start reduce:(id (^)(id running, id next))reduceBlock;
-
-/// Aggregate `next`s with the given start and combination. The start factory 
-/// block is called to get a new start object for each subscription.
-- (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory reduce:(id (^)(id running, id next))reduceBlock;
+/// Aggregates the `next` values of the receiver into a single combined value.
+///
+/// The algorithm proceeds as follows:
+///
+///  1. `start` is passed into the block as the `running` value, and the first
+///     element of the receiver is passed into the block as the `next` value.
+///  2. The result of the invocation (`running`) and the next element of the
+///     receiver (`next`) is passed into `block`.
+///  3. Steps 2 and 3 are repeated until all values have been processed.
+///  4. The last result of `block` is sent on the returned signal.
+///
+/// This method is similar to -scanWithStart:reduce:, except that only the
+/// final result is sent on the returned signal.
+///
+/// startingValue - The value to be combined with the first element of the
+///                 receiver. This value may be `nil`.
+/// block         - A block that describes how to combine values of the
+///                 receiver. If the receiver is empty, this block will never be
+///                 invoked.
+///
+/// Returns a signal that will send the aggregated value when the receiver
+/// completes, then itself complete. If the receiver never sends any values,
+/// `startingValue` will be sent instead.
+- (RACSignal *)aggregateWithStart:(id)startingValue reduce:(id (^)(id running, id next))block;
 
 /// Invokes -setKeyPath:onObject:nilValue: with `nil` for the nil value.
 - (RACDisposable *)setKeyPath:(NSString *)keyPath onObject:(NSObject *)object;
@@ -812,6 +833,7 @@ typedef enum : NSUInteger {
 - (RACSignal *)all:(BOOL (^)(id object))predicateBlock RACDeprecated("Use -flattenMap: and -take: instead");
 - (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock transform:(id (^)(id object))transformBlock RACDeprecated("Use -map: instead");
 - (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock RACDeprecated("Use -map: instead");
+- (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory reduce:(id (^)(id running, id next))reduceBlock RACDeprecated("Use +defer: and -aggregateWithStart:reduce: instead");
 - (RACMulticastConnection *)publish RACDeprecated("Send events to a shared RACSubject instead");
 - (RACMulticastConnection *)multicast:(RACSubject *)subject RACDeprecated("Use -promiseOnScheduler: or send events to a shared RACSubject instead");
 - (RACSignal *)replay RACDeprecated("Use -promiseOnScheduler: instead");

@@ -37,7 +37,7 @@
 
 	[[self.signals
 		flatten:1 withPolicy:RACSignalFlattenPolicyQueue]
-		subscribe:nil];
+		subscribeCompleted:^{}];
 
 	return self;
 }

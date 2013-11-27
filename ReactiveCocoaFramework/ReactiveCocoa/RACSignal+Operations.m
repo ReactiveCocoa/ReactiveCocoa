@@ -1039,41 +1039,6 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	}] setNameWithFormat:@"[%@] -subscribeOn: %@", self.name, scheduler];
 }
 
-- (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock transform:(id (^)(id object))transformBlock {
-	NSCParameterAssert(keyBlock != NULL);
-
-	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		NSMutableDictionary *groups = [NSMutableDictionary dictionary];
-
-		[subscriber.disposable addDisposable:[self subscribeNext:^(id x) {
-			id<NSCopying> key = keyBlock(x);
-			RACGroupedSignal *groupSubject = nil;
-
-			@synchronized (groups) {
-				groupSubject = groups[key];
-				if (groupSubject == nil) {
-					groupSubject = [RACGroupedSignal signalWithKey:key];
-					groups[key] = groupSubject;
-
-					[subscriber sendNext:groupSubject];
-				}
-			}
-
-			[groupSubject sendNext:(transformBlock != NULL ? transformBlock(x) : x)];
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-			[groups.allValues makeObjectsPerformSelector:@selector(sendError:) withObject:error];
-		} completed:^{
-			[subscriber sendCompleted];
-			[groups.allValues makeObjectsPerformSelector:@selector(sendCompleted)];
-		}]];
-	}] setNameWithFormat:@"[%@] -groupBy:transform:", self.name];
-}
-
-- (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock {
-	return [[self groupBy:keyBlock transform:nil] setNameWithFormat:@"[%@] -groupBy:", self.name];
-}
-
 - (RACSignal *)retry:(NSUInteger)retryCount {
 	return [[RACSignal defer:^{
 		RACSignalGenerator *generator = [[RACDynamicSignalGenerator alloc] initWithReflexiveBlock:^(NSNumber *currentRetryCount, RACSignalGenerator *generator) {
@@ -1409,6 +1374,41 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 			return [RACSignal empty];
 		};
 	}] setNameWithFormat:@"[%@] -all:", self.name];
+}
+
+- (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock transform:(id (^)(id object))transformBlock {
+	NSCParameterAssert(keyBlock != NULL);
+
+	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
+		NSMutableDictionary *groups = [NSMutableDictionary dictionary];
+
+		[subscriber.disposable addDisposable:[self subscribeNext:^(id x) {
+			id<NSCopying> key = keyBlock(x);
+			RACGroupedSignal *groupSubject = nil;
+
+			@synchronized (groups) {
+				groupSubject = groups[key];
+				if (groupSubject == nil) {
+					groupSubject = [RACGroupedSignal signalWithKey:key];
+					groups[key] = groupSubject;
+
+					[subscriber sendNext:groupSubject];
+				}
+			}
+
+			[groupSubject sendNext:(transformBlock != NULL ? transformBlock(x) : x)];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+			[groups.allValues makeObjectsPerformSelector:@selector(sendError:) withObject:error];
+		} completed:^{
+			[subscriber sendCompleted];
+			[groups.allValues makeObjectsPerformSelector:@selector(sendCompleted)];
+		}]];
+	}] setNameWithFormat:@"[%@] -groupBy:transform:", self.name];
+}
+
+- (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock {
+	return [[self groupBy:keyBlock transform:nil] setNameWithFormat:@"[%@] -groupBy:", self.name];
 }
 
 - (RACMulticastConnection *)publish {

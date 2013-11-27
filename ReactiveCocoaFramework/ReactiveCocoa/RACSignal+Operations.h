@@ -729,16 +729,6 @@ typedef enum : NSUInteger {
 /// want to receive the signal's events on `scheduler`, use -deliverOn: instead.
 - (RACSignal *)subscribeOn:(RACScheduler *)scheduler;
 
-/// Groups each received object into a group, as determined by calling `keyBlock`
-/// with that object. The object sent is transformed by calling `transformBlock`
-/// with the object. If `transformBlock` is nil, it sends the original object.
-///
-/// The returned signal is a signal of RACGroupedSignal.
-- (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock transform:(id (^)(id object))transformBlock;
-
-/// Calls -[RACSignal groupBy:keyBlock transform:nil].
-- (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock;
-
 /// Resubscribes to the receiving signal if an error occurs, up until it has
 /// retried the given number of times.
 ///
@@ -820,6 +810,8 @@ typedef enum : NSUInteger {
 - (RACSignal *)any RACDeprecated("Use -take: with -mapReplace: and -concat: instead");
 - (RACSignal *)any:(BOOL (^)(id object))predicateBlock RACDeprecated("Use -filter: and -take: instead");
 - (RACSignal *)all:(BOOL (^)(id object))predicateBlock RACDeprecated("Use -flattenMap: and -take: instead");
+- (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock transform:(id (^)(id object))transformBlock RACDeprecated("Use -map: instead");
+- (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock RACDeprecated("Use -map: instead");
 - (RACMulticastConnection *)publish RACDeprecated("Send events to a shared RACSubject instead");
 - (RACMulticastConnection *)multicast:(RACSubject *)subject RACDeprecated("Use -promiseOnScheduler: or send events to a shared RACSubject instead");
 - (RACSignal *)replay RACDeprecated("Use -promiseOnScheduler: instead");

@@ -1074,52 +1074,6 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	return [[self groupBy:keyBlock transform:nil] setNameWithFormat:@"[%@] -groupBy:", self.name];
 }
 
-- (RACSignal *)any {	
-	return [[self any:^(id x) {
-		return YES;
-	}] setNameWithFormat:@"[%@] -any", self.name];
-}
-
-- (RACSignal *)any:(BOOL (^)(id object))predicateBlock {
-	NSCParameterAssert(predicateBlock != NULL);
-	
-	return [[[self materialize] bind:^{
-		return ^(RACEvent *event, BOOL *stop) {
-			if (event.finished) {
-				*stop = YES;
-				return [RACSignal return:@NO];
-			}
-			
-			if (predicateBlock(event.value)) {
-				*stop = YES;
-				return [RACSignal return:@YES];
-			}
-
-			return [RACSignal empty];
-		};
-	}] setNameWithFormat:@"[%@] -any:", self.name];
-}
-
-- (RACSignal *)all:(BOOL (^)(id object))predicateBlock {
-	NSCParameterAssert(predicateBlock != NULL);
-	
-	return [[[self materialize] bind:^{
-		return ^(RACEvent *event, BOOL *stop) {
-			if (event.eventType == RACEventTypeCompleted) {
-				*stop = YES;
-				return [RACSignal return:@YES];
-			}
-			
-			if (event.eventType == RACEventTypeError || !predicateBlock(event.value)) {
-				*stop = YES;
-				return [RACSignal return:@NO];
-			}
-
-			return [RACSignal empty];
-		};
-	}] setNameWithFormat:@"[%@] -all:", self.name];
-}
-
 - (RACSignal *)retry:(NSUInteger)retryCount {
 	return [[RACSignal defer:^{
 		RACSignalGenerator *generator = [[RACDynamicSignalGenerator alloc] initWithReflexiveBlock:^(NSNumber *currentRetryCount, RACSignalGenerator *generator) {
@@ -1409,6 +1363,52 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 
 - (RACSignal *)skipWhileBlock:(BOOL (^)(id x))predicate {
 	return [super skipWhileBlock:predicate];
+}
+
+- (RACSignal *)any {	
+	return [[self any:^(id x) {
+		return YES;
+	}] setNameWithFormat:@"[%@] -any", self.name];
+}
+
+- (RACSignal *)any:(BOOL (^)(id object))predicateBlock {
+	NSCParameterAssert(predicateBlock != NULL);
+	
+	return [[[self materialize] bind:^{
+		return ^(RACEvent *event, BOOL *stop) {
+			if (event.finished) {
+				*stop = YES;
+				return [RACSignal return:@NO];
+			}
+			
+			if (predicateBlock(event.value)) {
+				*stop = YES;
+				return [RACSignal return:@YES];
+			}
+
+			return [RACSignal empty];
+		};
+	}] setNameWithFormat:@"[%@] -any:", self.name];
+}
+
+- (RACSignal *)all:(BOOL (^)(id object))predicateBlock {
+	NSCParameterAssert(predicateBlock != NULL);
+	
+	return [[[self materialize] bind:^{
+		return ^(RACEvent *event, BOOL *stop) {
+			if (event.eventType == RACEventTypeCompleted) {
+				*stop = YES;
+				return [RACSignal return:@YES];
+			}
+			
+			if (event.eventType == RACEventTypeError || !predicateBlock(event.value)) {
+				*stop = YES;
+				return [RACSignal return:@NO];
+			}
+
+			return [RACSignal empty];
+		};
+	}] setNameWithFormat:@"[%@] -all:", self.name];
 }
 
 - (RACMulticastConnection *)publish {

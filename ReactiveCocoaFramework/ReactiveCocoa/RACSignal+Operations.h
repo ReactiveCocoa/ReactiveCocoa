@@ -739,22 +739,6 @@ typedef enum : NSUInteger {
 /// Calls -[RACSignal groupBy:keyBlock transform:nil].
 - (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock;
 
-/// Sends an [NSNumber numberWithBool:YES] if the receiving signal sends any
-/// objects.
-- (RACSignal *)any;
-
-/// Sends an [NSNumber numberWithBool:YES] if the receiving signal sends any
-/// objects that pass `predicateBlock`.
-///
-/// predicateBlock - cannot be nil.
-- (RACSignal *)any:(BOOL (^)(id object))predicateBlock;
-
-/// Sends an [NSNumber numberWithBool:YES] if all the objects the receiving 
-/// signal sends pass `predicateBlock`.
-///
-/// predicateBlock - cannot be nil.
-- (RACSignal *)all:(BOOL (^)(id object))predicateBlock;
-
 /// Resubscribes to the receiving signal if an error occurs, up until it has
 /// retried the given number of times.
 ///
@@ -833,6 +817,9 @@ typedef enum : NSUInteger {
 - (RACSignal *)takeWhileBlock:(BOOL (^)(id x))predicate RACDeprecated("Renamed to -takeWhile:");
 - (RACSignal *)skipUntilBlock:(BOOL (^)(id x))predicate RACDeprecated("Use -skipWhile: instead");
 - (RACSignal *)skipWhileBlock:(BOOL (^)(id x))predicate RACDeprecated("Renamed to -skipWhile:");
+- (RACSignal *)any RACDeprecated("Use -take: with -mapReplace: and -concat: instead");
+- (RACSignal *)any:(BOOL (^)(id object))predicateBlock RACDeprecated("Use -filter: and -take: instead");
+- (RACSignal *)all:(BOOL (^)(id object))predicateBlock RACDeprecated("Use -flattenMap: and -take: instead");
 - (RACMulticastConnection *)publish RACDeprecated("Send events to a shared RACSubject instead");
 - (RACMulticastConnection *)multicast:(RACSubject *)subject RACDeprecated("Use -promiseOnScheduler: or send events to a shared RACSubject instead");
 - (RACSignal *)replay RACDeprecated("Use -promiseOnScheduler: instead");

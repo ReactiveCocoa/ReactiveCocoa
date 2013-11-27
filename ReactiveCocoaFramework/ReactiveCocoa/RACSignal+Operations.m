@@ -378,7 +378,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 
 				if (values.count == 0) return;
 
-				RACTuple *tuple = [RACTuple tupleWithObjectsFromArray:values convertNullsToNils:NO];
+				RACTuple *tuple = [RACTuple tupleWithArray:values convertNullsToNils:NO];
 				[values removeAllObjects];
 				[subscriber sendNext:tuple];
 			}

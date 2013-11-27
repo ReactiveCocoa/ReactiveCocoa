@@ -55,7 +55,7 @@
 
 #pragma mark Properties
 
-- (NSArray *)allObjects {
+- (NSArray *)array {
 	NSMutableArray *newArray = [NSMutableArray arrayWithCapacity:self.backingArray.count];
 	for (id object in self.backingArray) {
 		[newArray addObject:(object == RACTupleNil.tupleNil ? NSNull.null : object)];
@@ -80,37 +80,13 @@
 	return self.backingArray.count;
 }
 
-- (id)first {
-	return [self objectAtIndex:0];
-}
-
-- (id)second {
-	return [self objectAtIndex:1];
-}
-
-- (id)third {
-	return [self objectAtIndex:2];
-}
-
-- (id)fourth {
-	return [self objectAtIndex:3];
-}
-
-- (id)fifth {
-	return [self objectAtIndex:4];
-}
-
-- (id)last {
-	return [self objectAtIndex:self.count - 1];
-}
-
 #pragma mark Lifecycle
 
-+ (instancetype)tupleWithObjectsFromArray:(NSArray *)array {
-	return [self tupleWithObjectsFromArray:array convertNullsToNils:NO];
++ (instancetype)tupleWithArray:(NSArray *)array {
+	return [self tupleWithArray:array convertNullsToNils:NO];
 }
 
-+ (instancetype)tupleWithObjectsFromArray:(NSArray *)array convertNullsToNils:(BOOL)convert {
++ (instancetype)tupleWithArray:(NSArray *)array convertNullsToNils:(BOOL)convert {
 	RACTuple *tuple = [[self alloc] init];
 	
 	if (convert) {
@@ -170,7 +146,7 @@
 #pragma mark NSObject
 
 - (NSString *)description {
-	return [NSString stringWithFormat:@"<%@: %p> %@", self.class, self, self.allObjects];
+	return [NSString stringWithFormat:@"<%@: %p> %@", self.class, self, self.array];
 }
 
 - (BOOL)isEqual:(RACTuple *)object {
@@ -222,13 +198,6 @@
 	return (object == RACTupleNil.tupleNil ? nil : object);
 }
 
-#pragma mark Transformations
-
-- (instancetype)tupleByAddingObject:(id)obj {
-	NSArray *newArray = [self.backingArray arrayByAddingObject:obj ?: RACTupleNil.tupleNil];
-	return [self.class tupleWithObjectsFromArray:newArray convertNullsToNils:NO];
-}
-
 @end
 
 @implementation RACTuple (ObjectSubscripting)
@@ -247,6 +216,39 @@
 
 - (RACSequence *)rac_sequence {
 	return [RACTupleSequence sequenceWithTupleBackingArray:self.backingArray offset:0];
+}
+
+- (NSArray *)allObjects {
+	return self.array;
+}
+
+- (id)first {
+	return [self objectAtIndex:0];
+}
+
+- (id)second {
+	return [self objectAtIndex:1];
+}
+
+- (id)third {
+	return [self objectAtIndex:2];
+}
+
+- (id)fourth {
+	return [self objectAtIndex:3];
+}
+
+- (id)fifth {
+	return [self objectAtIndex:4];
+}
+
+- (id)last {
+	return [self objectAtIndex:self.count - 1];
+}
+
+- (instancetype)tupleByAddingObject:(id)obj {
+	NSArray *newArray = [self.backingArray arrayByAddingObject:obj ?: RACTupleNil.tupleNil];
+	return [self.class tupleWithArray:newArray convertNullsToNils:NO];
 }
 
 @end

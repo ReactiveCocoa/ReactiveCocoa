@@ -78,7 +78,7 @@ describe(@"RACTestObject", ^{
 		}];
 
 		[object objectValue];
-		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
+		expect(value).to.equal([[RACTuple alloc] init]);
 	});
 
 	it(@"should send the argument for each invocation to the instance's own signal", ^{
@@ -248,7 +248,7 @@ it(@"should swizzle an NSObject method", ^{
 	}];
 
 	expect([object description]).notTo.beNil();
-	expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
+	expect(value).to.equal([[RACTuple alloc] init]);
 });
 
 it(@"should work on a class that already overrides -forwardInvocation:", ^{
@@ -360,7 +360,7 @@ describe(@"-rac_signalForSelector:fromProtocol", ^{
 		}];
 
 		expect([object objectValue]).to.equal(@"foo");
-		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
+		expect(value).to.equal([[RACTuple alloc] init]);
 	});
 
 	it(@"should inject a required method", ^{

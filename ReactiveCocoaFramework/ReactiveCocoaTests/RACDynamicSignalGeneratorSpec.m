@@ -14,7 +14,7 @@
 SpecBegin(RACDynamicSignalGenerator)
 
 it(@"should generate signals using a block", ^{
-	RACDynamicSignalGenerator *generator = [[RACDynamicSignalGenerator alloc] initWithBlock:^(NSNumber *input) {
+	RACDynamicSignalGenerator *generator = [RACDynamicSignalGenerator generatorWithBlock:^(NSNumber *input) {
 		return [RACSignal return:@(input.integerValue * 2)];
 	}];
 
@@ -26,7 +26,7 @@ it(@"should generate signals using a block", ^{
 
 describe(@"with a reflexive block", ^{
 	it(@"should generate signals", ^{
-		RACDynamicSignalGenerator *generator = [[RACDynamicSignalGenerator alloc] initWithReflexiveBlock:^(NSNumber *input, RACSignalGenerator *generator) {
+		RACDynamicSignalGenerator *generator = [RACDynamicSignalGenerator generatorWithReflexiveBlock:^(NSNumber *input, RACSignalGenerator *generator) {
 			expect(generator).notTo.beNil();
 
 			if (input.integerValue > 5) return [RACSignal empty];
@@ -47,7 +47,7 @@ describe(@"with a reflexive block", ^{
 		__block BOOL signalDeallocated = NO;
 
 		@autoreleasepool {
-			RACSignalGenerator *generator __attribute__((objc_precise_lifetime)) = [[RACDynamicSignalGenerator alloc] initWithReflexiveBlock:^(NSNumber *input, RACSignalGenerator *generator) {
+			RACSignalGenerator *generator __attribute__((objc_precise_lifetime)) = [RACDynamicSignalGenerator generatorWithReflexiveBlock:^(NSNumber *input, RACSignalGenerator *generator) {
 				if (input.integerValue == 0) return [RACSignal empty];
 
 				return [RACSignal defer:^{
@@ -77,7 +77,7 @@ describe(@"with a reflexive block", ^{
 });
 
 it(@"should postcompose with another generator", ^{
-	RACDynamicSignalGenerator *squareEvens = [[RACDynamicSignalGenerator alloc] initWithBlock:^(NSNumber *input) {
+	RACDynamicSignalGenerator *squareEvens = [RACDynamicSignalGenerator generatorWithBlock:^(NSNumber *input) {
 		if (input.integerValue % 2 == 0) {
 			return [RACSignal return:@(input.integerValue * 2)];
 		} else {
@@ -85,7 +85,7 @@ it(@"should postcompose with another generator", ^{
 		}
 	}];
 
-	RACDynamicSignalGenerator *plusOne = [[RACDynamicSignalGenerator alloc] initWithBlock:^(NSNumber *input) {
+	RACDynamicSignalGenerator *plusOne = [RACDynamicSignalGenerator generatorWithBlock:^(NSNumber *input) {
 		return [RACSignal return:@(input.integerValue + 1)];
 	}];
 

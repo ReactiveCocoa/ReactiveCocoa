@@ -778,15 +778,6 @@ typedef enum : NSUInteger {
 /// Resubscribes to the receiving signal if an error occurs.
 - (RACSignal *)retry;
 
-/// Sends the latest value from the receiver only when `sampler` sends a value.
-/// The returned signal could repeat values if `sampler` fires more often than
-/// the receiver. Values from `sampler` are ignored before the receiver sends
-/// its first value.
-///
-/// sampler - The signal that controls when the latest value from the receiver
-///           is sent. Cannot be nil.
-- (RACSignal *)sample:(RACSignal *)sampler;
-
 /// Ignores all `next`s from the receiver.
 ///
 /// Returns a signal which only passes through `error` or `completed` events from
@@ -851,6 +842,7 @@ typedef enum : NSUInteger {
 - (RACSignal *)initially:(void (^)(void))block RACDeprecated("Put side effects into +defer: instead");
 - (RACSignal *)finally:(void (^)(void))block RACDeprecated("Renamed to -doFinished:");
 - (RACSignal *)flatten:(NSUInteger)maxConcurrent RACDeprecated("Use -flatten:withPolicy: with RACSignalFlattenPolicyQueue instead");
+- (RACSignal *)sample:(RACSignal *)sampler RACDeprecated("Use +combineLatest: instead");
 - (RACMulticastConnection *)publish RACDeprecated("Send events to a shared RACSubject instead");
 - (RACMulticastConnection *)multicast:(RACSubject *)subject RACDeprecated("Use -promiseOnScheduler: or send events to a shared RACSubject instead");
 - (RACSignal *)replay RACDeprecated("Use -promiseOnScheduler: instead");

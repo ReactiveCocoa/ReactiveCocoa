@@ -1149,45 +1149,6 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	return [[self retry:0] setNameWithFormat:@"[%@] -retry", self.name];
 }
 
-- (RACSignal *)sample:(RACSignal *)sampler {
-	NSCParameterAssert(sampler != nil);
-
-	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		NSLock *lock = [[NSLock alloc] init];
-		__block id lastValue;
-		__block BOOL hasValue = NO;
-
-		[subscriber.disposable addDisposable:[self subscribeNext:^(id x) {
-			[lock lock];
-			hasValue = YES;
-			lastValue = x;
-			[lock unlock];
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendCompleted];
-		}]];
-
-		[subscriber.disposable addDisposable:[sampler subscribeNext:^(id _) {
-			BOOL shouldSend = NO;
-			id value;
-
-			[lock lock];
-			shouldSend = hasValue;
-			value = lastValue;
-			[lock unlock];
-
-			if (shouldSend) {
-				[subscriber sendNext:value];
-			}
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendCompleted];
-		}]];
-	}] setNameWithFormat:@"[%@] -sample: %@", self.name, sampler];
-}
-
 - (RACSignal *)ignoreValues {
 	return [[self filter:^(id _) {
 		return NO;
@@ -1401,6 +1362,45 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	} else {
 		return [self flatten:maxConcurrent withPolicy:RACSignalFlattenPolicyQueue];
 	}
+}
+
+- (RACSignal *)sample:(RACSignal *)sampler {
+	NSCParameterAssert(sampler != nil);
+
+	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
+		NSLock *lock = [[NSLock alloc] init];
+		__block id lastValue;
+		__block BOOL hasValue = NO;
+
+		[subscriber.disposable addDisposable:[self subscribeNext:^(id x) {
+			[lock lock];
+			hasValue = YES;
+			lastValue = x;
+			[lock unlock];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendCompleted];
+		}]];
+
+		[subscriber.disposable addDisposable:[sampler subscribeNext:^(id _) {
+			BOOL shouldSend = NO;
+			id value;
+
+			[lock lock];
+			shouldSend = hasValue;
+			value = lastValue;
+			[lock unlock];
+
+			if (shouldSend) {
+				[subscriber sendNext:value];
+			}
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendCompleted];
+		}]];
+	}] setNameWithFormat:@"[%@] -sample: %@", self.name, sampler];
 }
 
 - (RACMulticastConnection *)publish {

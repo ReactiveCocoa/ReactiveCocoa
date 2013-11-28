@@ -587,6 +587,13 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// Returns a signal that applies OR to each NSNumber in the tuple.
 - (RACSignal *)or;
 
+/// Extracts n-th element of every RACTuple sent by the receiver.
+///
+/// Asserts if the receiver sends anything other than a RACTuple of appropriate length.
+///
+/// Returns a signal that contains of n-th elements of every tuple sent by the receiver.
+- (RACSignal *)tupleNth:(NSUInteger)index;
+
 @end
 
 @interface RACSignal (OperationsDeprecated)

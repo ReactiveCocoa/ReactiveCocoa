@@ -1259,6 +1259,16 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -or", self.name];
 }
 
+- (RACSignal *)tupleNth:(NSUInteger)index
+{
+	return [[self map:^id(RACTuple *tuple) {
+		NSCAssert(tuple == nil || [tuple isKindOfClass:RACTuple.class], @"Signal of RACTuple expected, %@ received", tuple.description);
+		NSCAssert(tuple == nil || index < tuple.count, @"Not enought elements in tuple (%lu), required index %lu", (unsigned long)tuple.count, (unsigned long)index);
+
+		return tuple[index];
+	}] setNameWithFormat:@"[%@] -tupleNth: %lu", self.name, index];
+}
+
 @end
 
 @implementation RACSignal (OperationsDeprecated)

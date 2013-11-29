@@ -589,7 +589,7 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 
 /// Extracts n-th element of every RACTuple sent by the receiver.
 ///
-/// Asserts if the receiver sends anything other than a RACTuple of appropriate length.
+/// Asserts if the receiver sends anything other than a RACTuple.
 ///
 /// Returns a signal that contains of n-th elements of every tuple sent by the receiver.
 - (RACSignal *)tupleNth:(NSUInteger)index;

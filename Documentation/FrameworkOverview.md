@@ -182,7 +182,7 @@ There are a number of categories that provide RAC-based bridges to standard
 Foundation classes. They're not included as part of the framework proper in
 order to keep the framework size down.
 
-You can find them in [RACExtensions][]. To use them, simply add them directly to
+You can find them in [ReactiveCocoaFramework/ReactiveCocoa][]. To use them, simply add them directly to
 your project as needed.
 
 ## Asynchronous Backtraces

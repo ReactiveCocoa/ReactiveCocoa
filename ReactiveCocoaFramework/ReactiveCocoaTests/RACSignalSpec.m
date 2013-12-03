@@ -3440,6 +3440,21 @@ describe(@"-or", ^{
 	});
 });
 
+describe(@"-tupleNth:", ^{
+	it(@"should return n-th element of every tuple sent by the receiver", ^{
+		RACSubject *subject = [RACReplaySubject subject];
+
+		[subject sendNext:RACTuplePack(@1, @2, @3)];
+		[subject sendNext:RACTuplePack(@4, @5, @6)];
+		[subject sendCompleted];
+
+		NSArray *results = [[subject tupleNth:2] toArray];
+		NSArray *expected = @[ @3, @6 ];
+
+		expect(results).to.equal(expected);
+	});
+});
+
 describe(@"-groupBy:", ^{
 	it(@"should send completed to all grouped signals.", ^{
 		RACSubject *subject = [RACReplaySubject subject];

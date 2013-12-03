@@ -230,18 +230,15 @@ describe(@"with a signal", ^{
 		};
 
 		id promiseBlock = ^(RACScheduler *scheduler) {
-			return [[RACSignal
-				createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-					startCount++;
-					verifyScheduler(scheduler);
+			return [RACPromise promiseWithScheduler:scheduler block:^(id<RACSubscriber> subscriber) {
+				startCount++;
+				verifyScheduler(scheduler);
 
-					[subscriber sendNext:@1];
-					[subscriber sendNext:@2];
-					[subscriber sendNext:@3];
-					[subscriber sendCompleted];
-					return nil;
-				}]
-				promiseOnScheduler:scheduler];
+				[subscriber sendNext:@1];
+				[subscriber sendNext:@2];
+				[subscriber sendNext:@3];
+				[subscriber sendCompleted];
+			}];
 		};
 
 		return @{

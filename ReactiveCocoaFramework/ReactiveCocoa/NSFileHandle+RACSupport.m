@@ -13,21 +13,31 @@
 
 @implementation NSFileHandle (RACSupport)
 
-- (RACSignal *)rac_readInBackground {
-	return [[[RACPromise
-		promiseWithScheduler:[RACScheduler scheduler] block:^(id<RACSubscriber> subscriber) {
-			self.readabilityHandler = ^(NSFileHandle *handle) {
-				NSData *data = [handle availableData];
-				if (data.length > 0) {
-					[subscriber sendNext:data];
-				} else {
-					[subscriber sendCompleted];
-					handle.readabilityHandler = nil;
-				}
-			};
-		}]
-		start]
-		setNameWithFormat:@"%@ -rac_readInBackground", self];
+- (RACPromise *)rac_availableData {
+	return [RACPromise promiseWithScheduler:[RACScheduler scheduler] block:^(id<RACSubscriber> subscriber) {
+		self.readabilityHandler = ^(NSFileHandle *handle) {
+			NSData *data = [handle availableData];
+			if (data.length > 0) {
+				[subscriber sendNext:data];
+			} else {
+				[subscriber sendCompleted];
+				handle.readabilityHandler = nil;
+			}
+		};
+	}];
 }
 
 @end
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
+@implementation NSFileHandle (RACSupportDeprecated)
+
+- (RACSignal *)rac_readInBackground {
+	return [self.rac_availableData start];
+}
+
+@end
+
+#pragma clang diagnostic pop

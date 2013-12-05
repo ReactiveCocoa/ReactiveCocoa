@@ -1729,11 +1729,11 @@ describe(@"-flatten:", ^{
 	it(@"should dispose after last synchronous signal subscription and should not crash", ^{
 
 		RACSignal *flattened = [signalsSubject flatten:1];
-		RACDisposable *flattenedSubscription = [flattened subscribeCompleted:^{}];
+		RACDisposable *flattenDisposable = [flattened subscribeCompleted:^{}];
 
-		RACSignal *syncSignal = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+		RACSignal *syncSignal = [RACSignal createSignal:^ RACDisposable *(id<RACSubscriber> subscriber) {
 			[subscriber sendCompleted];
-			expect(flattenedSubscription.disposed).to.beFalsy();
+			expect(flattenDisposable.disposed).to.beFalsy();
 			return nil;
 		}];
 
@@ -1746,7 +1746,7 @@ describe(@"-flatten:", ^{
 
 		[subject1 sendCompleted];
 
-		expect(flattenedSubscription.disposed).will.beTruthy();
+		expect(flattenDisposable.disposed).will.beTruthy();
 	});
 });
 

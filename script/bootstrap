@@ -9,7 +9,7 @@ export SCRIPT_DIR=$(dirname "$0")
 config ()
 {
     # A whitespace-separated list of executables that must be present and locatable.
-    : ${REQUIRED_TOOLS="xctool"}
+    : ${REQUIRED_TOOLS="xctool.sh"}
     
     export REQUIRED_TOOLS
 }

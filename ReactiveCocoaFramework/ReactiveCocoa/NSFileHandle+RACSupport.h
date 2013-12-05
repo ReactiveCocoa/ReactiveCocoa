@@ -7,13 +7,24 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "RACDeprecated.h"
 
+@class RACPromise;
 @class RACSignal;
 
 @interface NSFileHandle (RACSupport)
 
-// Read any available data in the background and send it. Completes when data
-// length is <= 0.
-- (RACSignal *)rac_readInBackground;
+// Reads the file handle in the background until end-of-file is reached.
+//
+// Starting this promise will replace the receiver's `readabilityHandler` with
+// a custom block. The block property must not be touched until this promise
+// terminates.
+@property (nonatomic, strong, readonly) RACPromise *rac_availableData;
+
+@end
+
+@interface NSFileHandle (RACSupportDeprecated)
+
+- (RACSignal *)rac_readInBackground RACDeprecated("Use -rac_availableData instead");
 
 @end

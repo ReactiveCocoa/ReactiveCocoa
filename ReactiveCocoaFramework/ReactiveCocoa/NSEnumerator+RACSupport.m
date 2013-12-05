@@ -18,18 +18,13 @@
 @implementation NSEnumerator (RACSupport)
 
 - (RACPromise *)rac_promise {
-	return [[[RACSignal
-		create:^(id<RACSubscriber> subscriber) {
-			for (id obj in self) {
-				[subscriber sendNext:obj];
+	return [RACPromise promiseWithScheduler:RACScheduler.immediateScheduler block:^(id<RACSubscriber> subscriber) {
+		for (id obj in self) {
+			[subscriber sendNext:obj];
+		}
 
-				if (subscriber.disposable.disposed) return;
-			}
-
-			[subscriber sendCompleted];
-		}]
-		setNameWithFormat:@"%@ -rac_promise", self.rac_description]
-		promiseOnScheduler:RACScheduler.immediateScheduler];
+		[subscriber sendCompleted];
+	}];
 }
 
 @end

@@ -66,7 +66,8 @@
 
 	#pragma clang diagnostic push
 	#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-	_results = [[RACReplaySubject subject] setNameWithFormat:@"[%@] -promiseOnScheduler: %@", signal.name, scheduler];
+	_results = [RACReplaySubject subject];
+	_results.name = signal.name;
 	#pragma clang diagnostic pop
 
 	return self;
@@ -106,14 +107,6 @@
 			return [self start];
 		}]
 		setNameWithFormat:@"[%@] -deferred", self.results.name];
-}
-
-@end
-
-@implementation RACSignal (RACPromiseAdditions)
-
-- (RACPromise *)promiseOnScheduler:(RACScheduler *)scheduler {
-	return [[RACPromise alloc] initWithSignal:self scheduler:scheduler];
 }
 
 @end

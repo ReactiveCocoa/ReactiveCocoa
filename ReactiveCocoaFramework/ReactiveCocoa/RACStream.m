@@ -218,7 +218,7 @@
 			xs = (xs.count > 1 ? xs.first : nil);
 		}
 
-		return [RACTuple tupleWithObjectsFromArray:values];
+		return [RACTuple tupleWithArray:values];
 	}];
 }
 

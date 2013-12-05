@@ -40,7 +40,7 @@
 @implementation RACTuple (RACDescription)
 
 - (NSString *)rac_description {
-	return self.allObjects.description;
+	return self.array.description;
 }
 
 @end

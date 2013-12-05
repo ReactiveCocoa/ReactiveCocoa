@@ -201,7 +201,7 @@ describe(@"RACReplaySubject", ^{
 		});
 
 		it(@"should send values in the same order live as when replaying", ^{
-			NSUInteger count = 49317;
+			NSUInteger count = 317;
 
 			// Just leak it, ain't no thang.
 			__unsafe_unretained volatile id *values = (__unsafe_unretained id *)calloc(count, sizeof(*values));

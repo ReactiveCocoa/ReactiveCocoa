@@ -111,6 +111,13 @@ NSString * const RACSchedulerCurrentSchedulerKey = @"RACSchedulerCurrentSchedule
 	return nil;
 }
 
+@end
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
+@implementation RACScheduler (Deprecated)
+
 - (RACDisposable *)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock {
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 
@@ -178,3 +185,5 @@ NSString * const RACSchedulerCurrentSchedulerKey = @"RACSchedulerCurrentSchedule
 }
 
 @end
+
+#pragma clang diagnostic pop

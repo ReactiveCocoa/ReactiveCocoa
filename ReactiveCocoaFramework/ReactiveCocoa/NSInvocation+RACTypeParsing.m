@@ -153,7 +153,7 @@
 		[argumentsArray addObject:[self rac_argumentAtIndex:index] ?: RACTupleNil.tupleNil];
 	}
 
-	return [RACTuple tupleWithObjectsFromArray:argumentsArray];
+	return [RACTuple tupleWithArray:argumentsArray];
 }
 
 - (void)setRac_argumentsTuple:(RACTuple *)arguments {

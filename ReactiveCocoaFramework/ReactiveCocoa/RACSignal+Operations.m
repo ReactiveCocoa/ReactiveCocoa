@@ -181,24 +181,16 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	return [super combinePreviousWithStart:start reduce:reduceBlock];
 }
 
-- (RACSignal *)takeUntilBlock:(BOOL (^)(id x))predicate {
-	return [super takeUntilBlock:predicate];
+- (RACSignal *)distinctUntilChanged {
+	return [super distinctUntilChanged];
 }
 
-- (RACSignal *)takeWhileBlock:(BOOL (^)(id x))predicate {
+- (RACSignal *)takeWhile:(BOOL (^)(id x))predicate {
 	return [super takeWhileBlock:predicate];
 }
 
-- (RACSignal *)skipUntilBlock:(BOOL (^)(id x))predicate {
-	return [super skipUntilBlock:predicate];
-}
-
-- (RACSignal *)skipWhileBlock:(BOOL (^)(id x))predicate {
+- (RACSignal *)skipWhile:(BOOL (^)(id x))predicate {
 	return [super skipWhileBlock:predicate];
-}
-
-- (RACSignal *)distinctUntilChanged {
-	return [super distinctUntilChanged];
 }
 
 - (RACSignal *)doNext:(void (^)(id x))block {
@@ -386,7 +378,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 
 				if (values.count == 0) return;
 
-				RACTuple *tuple = [RACTuple tupleWithObjectsFromArray:values convertNullsToNils:NO];
+				RACTuple *tuple = [RACTuple tupleWithArray:values convertNullsToNils:NO];
 				[values removeAllObjects];
 				[subscriber sendNext:tuple];
 			}
@@ -415,38 +407,42 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)collect {
-	return [[self
-		aggregateWithStartFactory:^{
-			return [[NSMutableArray alloc] init];
-		} reduce:^(NSMutableArray *collectedValues, id x) {
-			[collectedValues addObject:(x ?: NSNull.null)];
-			return collectedValues;
+	return [[RACSignal
+		defer:^{
+			return [self aggregateWithStart:[NSMutableArray array] reduce:^(NSMutableArray *values, id x) {
+				[values addObject:x ?: NSNull.null];
+				return values;
+			}];
 		}]
 		setNameWithFormat:@"[%@] -collect", self.name];
 }
 
 - (RACSignal *)takeLast:(NSUInteger)count {
-	return [[RACSignal create:^(id<RACSubscriber> subscriber) {		
-		NSMutableArray *valuesTaken = [NSMutableArray arrayWithCapacity:count];
+	return [[RACSignal
+		create:^(id<RACSubscriber> subscriber) {		
+			NSMutableArray *valuesTaken = [[NSMutableArray alloc] initWithCapacity:count];
 
-		[subscriber.disposable addDisposable:[self subscribeNext:^(id x) {
-			[valuesTaken addObject:x ? : [RACTupleNil tupleNil]];
-			
-			while (valuesTaken.count > count) {
-				[valuesTaken removeObjectAtIndex:0];
-			}
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			for (id value in valuesTaken) {
-				[subscriber sendNext:[value isKindOfClass:[RACTupleNil class]] ? nil : value];
+			[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+				[subscriber.disposable addDisposable:disposable];
+			} next:^(id x) {
+				[valuesTaken addObject:x ?: RACTupleNil.tupleNil];
+				
+				while (valuesTaken.count > count) {
+					[valuesTaken removeObjectAtIndex:0];
+				}
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				for (id value in valuesTaken) {
+					[subscriber sendNext:(value == RACTupleNil.tupleNil ? nil : value)];
 
-				if (subscriber.disposable.disposed) return;
-			}
-			
-			[subscriber sendCompleted];
-		}]];
-	}] setNameWithFormat:@"[%@] -takeLast: %lu", self.name, (unsigned long)count];
+					if (subscriber.disposable.disposed) return;
+				}
+				
+				[subscriber sendCompleted];
+			}];
+		}]
+		setNameWithFormat:@"[%@] -takeLast: %lu", self.name, (unsigned long)count];
 }
 
 - (RACSignal *)combineLatestWith:(RACSignal *)signal {
@@ -648,42 +644,18 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	}] setNameWithFormat:@"[%@] -flatten: %lu withPolicy: %u", self.name, (unsigned long)maxConcurrent, (unsigned)policy];
 }
 
-- (RACSignal *)then:(RACSignal * (^)(void))block {
-	NSCParameterAssert(block != nil);
-
-	return [[[self
-		ignoreValues]
-		concat:[RACSignal defer:block]]
-		setNameWithFormat:@"[%@] -then:", self.name];
-}
-
 - (RACSignal *)concat {
 	return [[self flatten:1 withPolicy:RACSignalFlattenPolicyQueue] setNameWithFormat:@"[%@] -concat", self.name];
 }
 
-- (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory reduce:(id (^)(id running, id next))reduceBlock {
-	NSCParameterAssert(startFactory != NULL);
-	NSCParameterAssert(reduceBlock != NULL);
-	
-	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		__block id runningValue = startFactory();
-		[subscriber.disposable addDisposable:[self subscribeNext:^(id x) {
-			runningValue = reduceBlock(runningValue, x);
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendNext:runningValue];
-			[subscriber sendCompleted];
-		}]];
-	}] setNameWithFormat:@"[%@] -aggregateWithStartFactory:reduce:", self.name];
-}
-
 - (RACSignal *)aggregateWithStart:(id)start reduce:(id (^)(id running, id next))reduceBlock {
-	RACSignal *signal = [self aggregateWithStartFactory:^{
-		return start;
-	} reduce:reduceBlock];
+	NSCParameterAssert(start != nil);
 
-	return [signal setNameWithFormat:@"[%@] -aggregateWithStart: %@ reduce:", self.name, [start rac_description]];
+	return [[[[self
+		scanWithStart:start reduce:reduceBlock]
+		startWith:start]
+		takeLast:1]
+		setNameWithFormat:@"[%@] -aggregateWithStart: %@ reduce:", self.name, [start rac_description]];
 }
 
 - (RACDisposable *)setKeyPath:(NSString *)keyPath onObject:(NSObject *)object {
@@ -1047,87 +1019,6 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	}] setNameWithFormat:@"[%@] -subscribeOn: %@", self.name, scheduler];
 }
 
-- (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock transform:(id (^)(id object))transformBlock {
-	NSCParameterAssert(keyBlock != NULL);
-
-	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		NSMutableDictionary *groups = [NSMutableDictionary dictionary];
-
-		[subscriber.disposable addDisposable:[self subscribeNext:^(id x) {
-			id<NSCopying> key = keyBlock(x);
-			RACGroupedSignal *groupSubject = nil;
-
-			@synchronized (groups) {
-				groupSubject = groups[key];
-				if (groupSubject == nil) {
-					groupSubject = [RACGroupedSignal signalWithKey:key];
-					groups[key] = groupSubject;
-
-					[subscriber sendNext:groupSubject];
-				}
-			}
-
-			[groupSubject sendNext:(transformBlock != NULL ? transformBlock(x) : x)];
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-			[groups.allValues makeObjectsPerformSelector:@selector(sendError:) withObject:error];
-		} completed:^{
-			[subscriber sendCompleted];
-			[groups.allValues makeObjectsPerformSelector:@selector(sendCompleted)];
-		}]];
-	}] setNameWithFormat:@"[%@] -groupBy:transform:", self.name];
-}
-
-- (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock {
-	return [[self groupBy:keyBlock transform:nil] setNameWithFormat:@"[%@] -groupBy:", self.name];
-}
-
-- (RACSignal *)any {	
-	return [[self any:^(id x) {
-		return YES;
-	}] setNameWithFormat:@"[%@] -any", self.name];
-}
-
-- (RACSignal *)any:(BOOL (^)(id object))predicateBlock {
-	NSCParameterAssert(predicateBlock != NULL);
-	
-	return [[[self materialize] bind:^{
-		return ^(RACEvent *event, BOOL *stop) {
-			if (event.finished) {
-				*stop = YES;
-				return [RACSignal return:@NO];
-			}
-			
-			if (predicateBlock(event.value)) {
-				*stop = YES;
-				return [RACSignal return:@YES];
-			}
-
-			return [RACSignal empty];
-		};
-	}] setNameWithFormat:@"[%@] -any:", self.name];
-}
-
-- (RACSignal *)all:(BOOL (^)(id object))predicateBlock {
-	NSCParameterAssert(predicateBlock != NULL);
-	
-	return [[[self materialize] bind:^{
-		return ^(RACEvent *event, BOOL *stop) {
-			if (event.eventType == RACEventTypeCompleted) {
-				*stop = YES;
-				return [RACSignal return:@YES];
-			}
-			
-			if (event.eventType == RACEventTypeError || !predicateBlock(event.value)) {
-				*stop = YES;
-				return [RACSignal return:@NO];
-			}
-
-			return [RACSignal empty];
-		};
-	}] setNameWithFormat:@"[%@] -all:", self.name];
-}
-
 - (RACSignal *)retry:(NSUInteger)retryCount {
 	return [[RACSignal defer:^{
 		RACSignalGenerator *generator = [[RACDynamicSignalGenerator alloc] initWithReflexiveBlock:^(NSNumber *currentRetryCount, RACSignalGenerator *generator) {
@@ -1401,6 +1292,118 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	} else {
 		return [self flatten:maxConcurrent withPolicy:RACSignalFlattenPolicyQueue];
 	}
+}
+
+- (RACSignal *)takeUntilBlock:(BOOL (^)(id x))predicate {
+	return [super takeUntilBlock:predicate];
+}
+
+- (RACSignal *)takeWhileBlock:(BOOL (^)(id x))predicate {
+	return [super takeWhileBlock:predicate];
+}
+
+- (RACSignal *)skipUntilBlock:(BOOL (^)(id x))predicate {
+	return [super skipUntilBlock:predicate];
+}
+
+- (RACSignal *)skipWhileBlock:(BOOL (^)(id x))predicate {
+	return [super skipWhileBlock:predicate];
+}
+
+- (RACSignal *)any {	
+	return [[self any:^(id x) {
+		return YES;
+	}] setNameWithFormat:@"[%@] -any", self.name];
+}
+
+- (RACSignal *)any:(BOOL (^)(id object))predicateBlock {
+	NSCParameterAssert(predicateBlock != NULL);
+	
+	return [[[self materialize] bind:^{
+		return ^(RACEvent *event, BOOL *stop) {
+			if (event.finished) {
+				*stop = YES;
+				return [RACSignal return:@NO];
+			}
+			
+			if (predicateBlock(event.value)) {
+				*stop = YES;
+				return [RACSignal return:@YES];
+			}
+
+			return [RACSignal empty];
+		};
+	}] setNameWithFormat:@"[%@] -any:", self.name];
+}
+
+- (RACSignal *)all:(BOOL (^)(id object))predicateBlock {
+	NSCParameterAssert(predicateBlock != NULL);
+	
+	return [[[self materialize] bind:^{
+		return ^(RACEvent *event, BOOL *stop) {
+			if (event.eventType == RACEventTypeCompleted) {
+				*stop = YES;
+				return [RACSignal return:@YES];
+			}
+			
+			if (event.eventType == RACEventTypeError || !predicateBlock(event.value)) {
+				*stop = YES;
+				return [RACSignal return:@NO];
+			}
+
+			return [RACSignal empty];
+		};
+	}] setNameWithFormat:@"[%@] -all:", self.name];
+}
+
+- (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock transform:(id (^)(id object))transformBlock {
+	NSCParameterAssert(keyBlock != NULL);
+
+	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
+		NSMutableDictionary *groups = [NSMutableDictionary dictionary];
+
+		[subscriber.disposable addDisposable:[self subscribeNext:^(id x) {
+			id<NSCopying> key = keyBlock(x);
+			RACGroupedSignal *groupSubject = nil;
+
+			@synchronized (groups) {
+				groupSubject = groups[key];
+				if (groupSubject == nil) {
+					groupSubject = [RACGroupedSignal signalWithKey:key];
+					groups[key] = groupSubject;
+
+					[subscriber sendNext:groupSubject];
+				}
+			}
+
+			[groupSubject sendNext:(transformBlock != NULL ? transformBlock(x) : x)];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+			[groups.allValues makeObjectsPerformSelector:@selector(sendError:) withObject:error];
+		} completed:^{
+			[subscriber sendCompleted];
+			[groups.allValues makeObjectsPerformSelector:@selector(sendCompleted)];
+		}]];
+	}] setNameWithFormat:@"[%@] -groupBy:transform:", self.name];
+}
+
+- (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock {
+	return [[self groupBy:keyBlock transform:nil] setNameWithFormat:@"[%@] -groupBy:", self.name];
+}
+
+- (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory reduce:(id (^)(id running, id next))reduceBlock {
+	return [RACSignal defer:^{
+		return [self aggregateWithStart:startFactory() reduce:reduceBlock];
+	}];
+}
+
+- (RACSignal *)then:(RACSignal * (^)(void))block {
+	NSCParameterAssert(block != nil);
+
+	return [[[self
+		ignoreValues]
+		concat:[RACSignal defer:block]]
+		setNameWithFormat:@"[%@] -then:", self.name];
 }
 
 - (RACMulticastConnection *)publish {

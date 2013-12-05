@@ -206,12 +206,15 @@ typedef enum : NSUInteger {
 ///
 /// The algorithm proceeds as follows:
 ///
-///  1. `startingValue` is passed into the block as the `running` value, and the
-///  first element of the receiver is passed into the block as the `next` value.
+///  1. `start` is passed into the block as the `running` value, and the first
+///     element of the receiver is passed into the block as the `next` value.
 ///  2. The result of the invocation is sent on the returned signal.
 ///  3. The result of the invocation (`running`) and the next element of the
-///  receiver (`next`) is passed into `block`.
+///     receiver (`next`) is passed into `block`.
 ///  4. Steps 2 and 3 are repeated until all values have been processed.
+///
+/// This method is similar to -aggregateWithStart:reduce:, except that the
+/// result of each step is sent on the returned signal.
 ///
 /// startingValue - The value to be combined with the first element of the
 ///                 receiver. This value may be `nil`.
@@ -256,33 +259,19 @@ typedef enum : NSUInteger {
 /// receiver is empty, the resulting signal will complete immediately.
 - (RACSignal *)combinePreviousWithStart:(id)start reduce:(id (^)(id previous, id current))reduceBlock;
 
-/// Takes values until the given block returns `YES`.
-///
-/// Returns a signal of the initial values in the receiver that fail `predicate`.
-/// If `predicate` never returns `YES`, a signal equivalent to the receiver is
-/// returned.
-- (RACSignal *)takeUntilBlock:(BOOL (^)(id x))predicate;
-
 /// Takes values until the given block returns `NO`.
 ///
 /// Returns a signal of the initial values in the receiver that pass `predicate`.
 /// If `predicate` never returns `NO`, a signal equivalent to the receiver is
 /// returned.
-- (RACSignal *)takeWhileBlock:(BOOL (^)(id x))predicate;
-
-/// Skips values until the given block returns `YES`.
-///
-/// Returns a signal containing the values of the receiver that follow any
-/// initial values failing `predicate`. If `predicate` never returns `YES`,
-/// an empty signal is returned.
-- (RACSignal *)skipUntilBlock:(BOOL (^)(id x))predicate;
+- (RACSignal *)takeWhile:(BOOL (^)(id x))predicate;
 
 /// Skips values until the given block returns `NO`.
 ///
 /// Returns a signal containing the values of the receiver that follow any
 /// initial values passing `predicate`. If `predicate` never returns `NO`, an
 /// empty signal is returned.
-- (RACSignal *)skipWhileBlock:(BOOL (^)(id x))predicate;
+- (RACSignal *)skipWhile:(BOOL (^)(id x))predicate;
 
 /// Returns a signal of values for which -isEqual: returns NO when compared to the
 /// previous value.
@@ -475,26 +464,33 @@ typedef enum : NSUInteger {
 /// signals have completed or been disposed.
 - (RACSignal *)flatten:(NSUInteger)maxConcurrent withPolicy:(RACSignalFlattenPolicy)policy;
 
-/// Ignores all `next`s from the receiver, waits for the receiver to complete,
-/// then subscribes to a new signal.
-///
-/// block - A block which will create or obtain a new signal to subscribe to,
-///         executed only after the receiver completes. This block must not be
-///         nil, and it must not return a nil signal.
-///
-/// Returns a signal which will pass through the events of the signal created in
-/// `block`. If the receiver errors out, the returned signal will error as well.
-- (RACSignal *)then:(RACSignal * (^)(void))block;
-
 /// Concats the inner signals of a signal of signals.
 - (RACSignal *)concat;
 
-/// Aggregate `next`s with the given start and combination.
-- (RACSignal *)aggregateWithStart:(id)start reduce:(id (^)(id running, id next))reduceBlock;
-
-/// Aggregate `next`s with the given start and combination. The start factory 
-/// block is called to get a new start object for each subscription.
-- (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory reduce:(id (^)(id running, id next))reduceBlock;
+/// Aggregates the `next` values of the receiver into a single combined value.
+///
+/// The algorithm proceeds as follows:
+///
+///  1. `start` is passed into the block as the `running` value, and the first
+///     element of the receiver is passed into the block as the `next` value.
+///  2. The result of the invocation (`running`) and the next element of the
+///     receiver (`next`) is passed into `block`.
+///  3. Steps 2 and 3 are repeated until all values have been processed.
+///  4. The last result of `block` is sent on the returned signal.
+///
+/// This method is similar to -scanWithStart:reduce:, except that only the
+/// final result is sent on the returned signal.
+///
+/// startingValue - The value to be combined with the first element of the
+///                 receiver. This value may be `nil`.
+/// block         - A block that describes how to combine values of the
+///                 receiver. If the receiver is empty, this block will never be
+///                 invoked.
+///
+/// Returns a signal that will send the aggregated value when the receiver
+/// completes, then itself complete. If the receiver never sends any values,
+/// `startingValue` will be sent instead.
+- (RACSignal *)aggregateWithStart:(id)startingValue reduce:(id (^)(id running, id next))block;
 
 /// Invokes -setKeyPath:onObject:nilValue: with `nil` for the nil value.
 - (RACDisposable *)setKeyPath:(NSString *)keyPath onObject:(NSObject *)object;
@@ -743,32 +739,6 @@ typedef enum : NSUInteger {
 /// want to receive the signal's events on `scheduler`, use -deliverOn: instead.
 - (RACSignal *)subscribeOn:(RACScheduler *)scheduler;
 
-/// Groups each received object into a group, as determined by calling `keyBlock`
-/// with that object. The object sent is transformed by calling `transformBlock`
-/// with the object. If `transformBlock` is nil, it sends the original object.
-///
-/// The returned signal is a signal of RACGroupedSignal.
-- (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock transform:(id (^)(id object))transformBlock;
-
-/// Calls -[RACSignal groupBy:keyBlock transform:nil].
-- (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock;
-
-/// Sends an [NSNumber numberWithBool:YES] if the receiving signal sends any
-/// objects.
-- (RACSignal *)any;
-
-/// Sends an [NSNumber numberWithBool:YES] if the receiving signal sends any
-/// objects that pass `predicateBlock`.
-///
-/// predicateBlock - cannot be nil.
-- (RACSignal *)any:(BOOL (^)(id object))predicateBlock;
-
-/// Sends an [NSNumber numberWithBool:YES] if all the objects the receiving 
-/// signal sends pass `predicateBlock`.
-///
-/// predicateBlock - cannot be nil.
-- (RACSignal *)all:(BOOL (^)(id object))predicateBlock;
-
 /// Resubscribes to the receiving signal if an error occurs, up until it has
 /// retried the given number of times.
 ///
@@ -851,6 +821,17 @@ typedef enum : NSUInteger {
 - (RACSignal *)initially:(void (^)(void))block RACDeprecated("Put side effects into +defer: instead");
 - (RACSignal *)finally:(void (^)(void))block RACDeprecated("Renamed to -doFinished:");
 - (RACSignal *)flatten:(NSUInteger)maxConcurrent RACDeprecated("Use -flatten:withPolicy: with RACSignalFlattenPolicyQueue instead");
+- (RACSignal *)takeUntilBlock:(BOOL (^)(id x))predicate RACDeprecated("Use -takeWhile: instead");
+- (RACSignal *)takeWhileBlock:(BOOL (^)(id x))predicate RACDeprecated("Renamed to -takeWhile:");
+- (RACSignal *)skipUntilBlock:(BOOL (^)(id x))predicate RACDeprecated("Use -skipWhile: instead");
+- (RACSignal *)skipWhileBlock:(BOOL (^)(id x))predicate RACDeprecated("Renamed to -skipWhile:");
+- (RACSignal *)any RACDeprecated("Use -take: with -mapReplace: and -concat: instead");
+- (RACSignal *)any:(BOOL (^)(id object))predicateBlock RACDeprecated("Use -filter: and -take: instead");
+- (RACSignal *)all:(BOOL (^)(id object))predicateBlock RACDeprecated("Use -flattenMap: and -take: instead");
+- (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock transform:(id (^)(id object))transformBlock RACDeprecated("Use -map: instead");
+- (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock RACDeprecated("Use -map: instead");
+- (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory reduce:(id (^)(id running, id next))reduceBlock RACDeprecated("Use +defer: and -aggregateWithStart:reduce: instead");
+- (RACSignal *)then:(RACSignal * (^)(void))block RACDeprecated("Use -ignoreValues followed by -concat: with +defer: instead");
 - (RACMulticastConnection *)publish RACDeprecated("Send events to a shared RACSubject instead");
 - (RACMulticastConnection *)multicast:(RACSubject *)subject RACDeprecated("Use -promiseOnScheduler: or send events to a shared RACSubject instead");
 - (RACSignal *)replay RACDeprecated("Use -promiseOnScheduler: instead");

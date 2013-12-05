@@ -1725,6 +1725,29 @@ describe(@"-flatten:", ^{
 
 		[signalsSubject sendCompleted];
 	});
+
+	it(@"should dispose after last synchronous signal subscription and should not crash", ^{
+
+		RACSignal *flattened = [signalsSubject flatten:1];
+		RACDisposable *flattenedSubscription = [flattened subscribeCompleted:^{}];
+
+		RACSignal *syncSignal = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+			[subscriber sendCompleted];
+			expect(flattenedSubscription.disposed).to.beFalsy();
+			return nil;
+		}];
+
+		RACSignal *asyncSignal = [sub1 delay:0];
+
+		[signalsSubject sendNext:asyncSignal];
+		[signalsSubject sendNext:syncSignal];
+
+		[signalsSubject sendCompleted];
+
+		[subject1 sendCompleted];
+
+		expect(flattenedSubscription.disposed).will.beTruthy();
+	});
 });
 
 describe(@"-switchToLatest", ^{

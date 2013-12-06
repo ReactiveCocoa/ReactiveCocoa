@@ -1732,8 +1732,9 @@ describe(@"-flatten:", ^{
 		RACDisposable *flattenDisposable = [flattened subscribeCompleted:^{}];
 
 		RACSignal *syncSignal = [RACSignal createSignal:^ RACDisposable *(id<RACSubscriber> subscriber) {
-			[subscriber sendCompleted];
 			expect(flattenDisposable.disposed).to.beFalsy();
+			[subscriber sendCompleted];
+			expect(flattenDisposable.disposed).to.beTruthy();
 			return nil;
 		}];
 

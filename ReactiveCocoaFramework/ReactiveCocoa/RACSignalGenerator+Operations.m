@@ -8,6 +8,7 @@
 
 #import "RACSignalGenerator+Operations.h"
 #import "RACDynamicSignalGenerator.h"
+#import "RACQueuedSignalGenerator.h"
 #import "RACSignal+Operations.h"
 
 @implementation RACSignalGenerator (Operations)
@@ -15,13 +16,17 @@
 - (RACSignalGenerator *)postcompose:(RACSignalGenerator *)otherGenerator {
 	NSCParameterAssert(otherGenerator != nil);
 
-	return [[RACDynamicSignalGenerator alloc] initWithBlock:^(id input) {
+	return [RACDynamicSignalGenerator generatorWithBlock:^(id input) {
 		return [[self
 			signalWithValue:input]
 			flattenMap:^(id intermediateValue) {
 				return [otherGenerator signalWithValue:intermediateValue];
 			}];
 	}];
+}
+
+- (RACQueuedSignalGenerator *)serialize {
+	return [RACQueuedSignalGenerator queuedGeneratorWithGenerator:self];
 }
 
 @end

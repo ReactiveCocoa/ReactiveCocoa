@@ -8,6 +8,8 @@
 
 #import "RACSignalGenerator.h"
 
+@class RACQueuedSignalGenerator;
+
 @interface RACSignalGenerator (Operations)
 
 /// Creates a new generator that first creates a signal using the logic of the
@@ -21,5 +23,12 @@
 /// Returns a new `RACSignalGenerator` that combines the logic of the two
 /// generators.
 - (RACSignalGenerator *)postcompose:(RACSignalGenerator *)otherGenerator;
+
+/// Creates a new generator based on the receiver that serializes its generated
+/// signals, so they can never execute in parallel.
+///
+/// Returns a new `RACQueuedSignalGenerator` that will use the receiver to
+/// generate signals.
+- (RACQueuedSignalGenerator *)serialize;
 
 @end

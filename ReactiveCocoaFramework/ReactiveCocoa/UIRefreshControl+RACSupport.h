@@ -20,8 +20,6 @@
 /// be invoked (with the sender as the argument), and the resulting signal will
 /// be subscribed to. When the signal terminates, -endRefreshing will be invoked
 /// automatically.
-///
-/// **Note:** This will replace the control's target and action when set.
 @property (nonatomic, strong) RACSignalGenerator *rac_refreshGenerator;
 
 @end

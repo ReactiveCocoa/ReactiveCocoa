@@ -6,10 +6,9 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#import "RACControlActionExamples.h"
-
 #import "UIBarButtonItem+RACSupport.h"
 #import "RACDisposable.h"
+#import "RACSignal.h"
 
 SpecBegin(UIBarButtonItemRACSupport)
 
@@ -21,18 +20,28 @@ describe(@"UIBarButtonItem", ^{
 		expect(button).notTo.beNil();
 	});
 
-	itShouldBehaveLike(RACControlActionExamples, ^{
-		return @{
-			RACControlActionExampleControl: button,
-			RACControlActionExampleActivateBlock: ^(UIBarButtonItem *button) {
-				NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[button.target methodSignatureForSelector:button.action]];
-				invocation.selector = button.action;
+	it(@"should send on rac_actionSignal", ^{
+		RACSignal *actionSignal = button.rac_actionSignal;
+		expect(button.target).to.beNil();
+		expect(button.action).to.beNil();
 
-				id target = button.target;
-				[invocation setArgument:&target atIndex:2];
-				[invocation invokeWithTarget:target];
-			}
-		};
+		__block id sender = nil;
+		[actionSignal subscribeNext:^(id x) {
+			sender = x;
+		}];
+
+		expect(button.target).notTo.beNil();
+		expect(button.action).notTo.beNil();
+		expect(sender).to.beNil();
+
+		NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[button.target methodSignatureForSelector:button.action]];
+		invocation.selector = button.action;
+
+		id expectedSender = self;
+		[invocation setArgument:&expectedSender atIndex:2];
+		[invocation invokeWithTarget:button];
+
+		expect(sender).to.beIdenticalTo(expectedSender);
 	});
 });
 

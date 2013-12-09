@@ -42,9 +42,10 @@
 
 - (RACSignal *)rac_textSignal {
 	@weakify(self);
-	return [[[[RACSignal
+	return [[[RACSignal
 		create:^(id<RACSubscriber> subscriber) {
 			@strongify(self);
+
 			id observer = [NSNotificationCenter.defaultCenter addObserverForName:NSControlTextDidChangeNotification object:self queue:nil usingBlock:^(NSNotification *note) {
 				[subscriber sendNext:note.object];
 			}];
@@ -52,11 +53,13 @@
 			[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
 				[NSNotificationCenter.defaultCenter removeObserver:observer];
 			}]];
+
+			// Start with the current value.
+			[subscriber sendNext:self];
 		}]
 		map:^(NSControl *control) {
 			return [control.stringValue copy];
 		}]
-		startWith:[self.stringValue copy]]
 		setNameWithFormat:@"%@ -rac_textSignal", [self rac_description]];
 }
 

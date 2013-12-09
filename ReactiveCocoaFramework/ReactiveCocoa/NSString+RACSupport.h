@@ -21,16 +21,20 @@
 /// Mutating the string will not affect the signal after it's been created.
 @property (nonatomic, strong, readonly) RACSignal *rac_signal;
 
-// Reads in the contents of the file using +[NSString stringWithContentsOfURL:usedEncoding:error:].
-// Note that encoding won't be valid until the signal completes successfully.
+// Reads in the contents of the given URL using +[NSString
+// stringWithContentsOfURL:usedEncoding:error:].
 //
-// scheduler - cannot be nil.
-+ (RACSignal *)rac_readContentsOfURL:(NSURL *)URL usedEncoding:(NSStringEncoding *)encoding scheduler:(RACScheduler *)scheduler;
+// Returns a signal which will send a tuple containing the `NSString` of the
+// URL's content, and an `NSNumber`-boxed `NSStringEncoding` indicating the
+// encoding used to read it, then complete.
++ (RACSignal *)rac_contentsAndEncodingOfURL:(NSURL *)URL;
 
 @end
 
 @interface NSString (RACSupportDeprecated)
 
 @property (nonatomic, copy, readonly) RACSequence *rac_sequence RACDeprecated("Use -rac_signal instead");
+
++ (RACSignal *)rac_readContentsOfURL:(NSURL *)URL usedEncoding:(NSStringEncoding *)encoding scheduler:(RACScheduler *)scheduler RACDeprecated("Use +rac_contentsAndEncodingOfURL: instead");
 
 @end

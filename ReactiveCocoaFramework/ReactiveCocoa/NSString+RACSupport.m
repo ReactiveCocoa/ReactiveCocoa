@@ -9,10 +9,11 @@
 #import "NSString+RACSupport.h"
 #import "NSObject+RACDescription.h"
 #import "RACCompoundDisposable.h"
-#import "RACPromise.h"
-#import "RACSignal.h"
+#import "RACReplaySubject.h"
+#import "RACSignal+Operations.h"
 #import "RACStringSequence.h"
 #import "RACSubscriber.h"
+#import "RACTuple.h"
 
 @implementation NSString (RACSupport)
 
@@ -30,22 +31,22 @@
 	}] setNameWithFormat:@"%@ -rac_signal", self.rac_description];
 }
 
-+ (RACSignal *)rac_readContentsOfURL:(NSURL *)URL usedEncoding:(NSStringEncoding *)encoding scheduler:(RACScheduler *)scheduler {
-	NSCParameterAssert(scheduler != nil);
-	
-	return [[[RACPromise
-		promiseWithScheduler:scheduler block:^(id<RACSubscriber> subscriber) {
++ (RACSignal *)rac_contentsAndEncodingOfURL:(NSURL *)URL {
+	NSCParameterAssert(URL != nil);
+
+	return [[RACSignal
+		create:^(id<RACSubscriber> subscriber) {
+			NSStringEncoding encoding;
 			NSError *error = nil;
-			NSString *string = [NSString stringWithContentsOfURL:URL usedEncoding:encoding error:&error];
+			NSString *string = [NSString stringWithContentsOfURL:URL usedEncoding:&encoding error:&error];
 			if (string == nil) {
 				[subscriber sendError:error];
 			} else {
-				[subscriber sendNext:string];
+				[subscriber sendNext:RACTuplePack(string, @(encoding))];
 				[subscriber sendCompleted];
 			}
 		}]
-		start]
-		setNameWithFormat:@"+rac_readContentsOfURL: %@ usedEncoding:scheduler: %@", URL, scheduler];
+		setNameWithFormat:@"+rac_contentsAndEncodingOfURL: %@", URL];
 }
 
 @end
@@ -58,6 +59,26 @@
 
 - (RACSequence *)rac_sequence {
 	return [RACStringSequence sequenceWithString:self offset:0];
+}
+
++ (RACSignal *)rac_readContentsOfURL:(NSURL *)URL usedEncoding:(NSStringEncoding *)encoding scheduler:(RACScheduler *)scheduler {
+	NSCParameterAssert(scheduler != nil);
+
+	RACReplaySubject *subject = [RACReplaySubject subject];
+	[[[[[self
+		rac_contentsAndEncodingOfURL:URL]
+		subscribeOn:scheduler]
+		doNext:^(RACTuple *contentsAndEncoding) {
+			RACTupleUnpack(NSString *contents, NSNumber *boxedEncoding) = contentsAndEncoding;
+			[subject sendNext:contents];
+
+			// lol this is so ridiculously unsafe
+			*encoding = boxedEncoding.unsignedIntegerValue;
+		}]
+		ignoreValues]
+		subscribe:subject];
+
+	return subject;
 }
 
 @end

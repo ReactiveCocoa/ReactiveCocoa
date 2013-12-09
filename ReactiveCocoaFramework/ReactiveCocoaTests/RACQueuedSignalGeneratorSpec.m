@@ -7,7 +7,8 @@
 //
 
 #import "RACQueuedSignalGenerator.h"
-#import "RACDisposable.h"
+#import "NSObject+RACDeallocating.h"
+#import "RACCompoundDisposable.h"
 #import "RACDynamicSignalGenerator.h"
 #import "RACSignal+Operations.h"
 #import "RACSignalGenerator+Operations.h"
@@ -176,6 +177,77 @@ it(@"should generate further signals as previous ones are disposed", ^{
 
 	[fourthSubject sendNext:@4];
 	expect(fourthValue).to.equal(@4);
+});
+
+fdescribe(@"executing", ^{
+	it(@"should send NO before any signals are enqueued", ^{
+		expect([generator.executing first]).to.equal(@NO);
+	});
+
+	it(@"should send YES once a generated signal is subscribed to", ^{
+		RACSignal *signal = [generator signalWithValue:[RACSubject subject]];
+		expect([generator.executing first]).to.equal(@NO);
+		
+		[signal subscribeCompleted:^{}];
+		expect([generator.executing first]).to.equal(@YES);
+	});
+
+	it(@"should send YES while subscriptions are waiting", ^{
+		NSMutableArray *executing = [NSMutableArray array];
+		[generator.executing subscribeNext:^(NSNumber *b) {
+			[executing addObject:b];
+		}];
+
+		RACSubject *firstSubject = [RACSubject subject];
+		RACSignal *firstSignal = [generator signalWithValue:firstSubject];
+		expect(firstSignal).notTo.beNil();
+
+		RACSubject *secondSubject = [RACSubject subject];
+		RACSignal *secondSignal = [generator signalWithValue:secondSubject];
+		expect(secondSignal).notTo.beNil();
+
+		expect(executing).to.equal((@[ @NO ]));
+
+		[firstSignal subscribeCompleted:^{}];
+		expect(executing).to.equal((@[ @NO, @YES ]));
+		
+		RACDisposable *secondDisposable = [secondSignal subscribeCompleted:^{}];
+		expect(executing).to.equal((@[ @NO, @YES ]));
+
+		[firstSubject sendCompleted];
+		expect(executing).to.equal((@[ @NO, @YES ]));
+
+		[secondDisposable dispose];
+		expect(executing).to.equal((@[ @NO, @YES, @NO ]));
+	});
+
+	it(@"should complete after the generator deallocates and all signals finish", ^{
+		__block BOOL deallocated = NO;
+		__block BOOL completed = NO;
+
+		@autoreleasepool {
+			RACQueuedSignalGenerator *generator __attribute__((objc_precise_lifetime)) = [[RACDynamicSignalGenerator
+				generatorWithBlock:^(RACSignal *input) {
+					return input;
+				}]
+				serialize];
+			
+			[generator.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				deallocated = YES;
+			}]];
+
+			[generator.executing subscribeCompleted:^{
+				completed = YES;
+			}];
+
+			[[generator signalWithValue:[RACSignal empty]] subscribeCompleted:^{}];
+			expect(deallocated).to.beFalsy();
+			expect(completed).to.beFalsy();
+		}
+
+		expect(deallocated).will.beTruthy();
+		expect(completed).to.beTruthy();
+	});
 });
 
 SpecEnd

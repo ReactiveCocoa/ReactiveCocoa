@@ -28,17 +28,17 @@ describe(@"NSButton", ^{
 		expect(button.target).to.beNil();
 		expect(button.action).to.beNil();
 
-		__block id sender = nil;
+		__block id value = nil;
 		[actionSignal subscribeNext:^(id x) {
-			sender = x;
+			value = x;
 		}];
 
 		expect(button.target).notTo.beNil();
 		expect(button.action).notTo.beNil();
-		expect(sender).to.beNil();
+		expect(value).to.beNil();
 
 		[button performClick:self];
-		expect(sender).notTo.beNil();
+		expect(value).to.beIdenticalTo(button);
 	});
 });
 
@@ -66,18 +66,18 @@ describe(@"NSTextField", ^{
 		expect(field.target).to.beNil();
 		expect(field.action).to.beNil();
 
-		__block id sender = nil;
+		__block id value = nil;
 		[actionSignal subscribeNext:^(id x) {
-			sender = x;
+			value = x;
 		}];
 
 		expect(field.target).notTo.beNil();
 		expect(field.action).notTo.beNil();
-		expect(sender).to.beNil();
+		expect(value).to.beNil();
 
 		expect([window makeFirstResponder:nil]).to.beTruthy();
 		expect(window.firstResponder).to.equal(window);
-		expect(sender).notTo.beNil();
+		expect(value).to.beIdenticalTo(field);
 	});
 
 	describe(@"-rac_textSignal", ^{

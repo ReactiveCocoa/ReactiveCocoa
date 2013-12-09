@@ -14,8 +14,7 @@
 
 @interface UIBarButtonItem (RACSupport)
 
-/// Sends `next` events whenever the receiver's action is invoked. Each event
-/// will include the sender of the action.
+/// Sends the receiver whenever the item's action is invoked.
 ///
 /// **Note:** Subscribing to this signal will reset the item's target and
 /// action.

@@ -14,8 +14,7 @@
 
 @interface NSControl (RACSupport)
 
-/// Sends `next` events whenever the receiver's action is invoked. Each event
-/// will include the sender of the action.
+/// Sends the receiver whenever the control's action is invoked.
 ///
 /// **Note:** Subscribing to this signal will reset the control's target and
 /// action.

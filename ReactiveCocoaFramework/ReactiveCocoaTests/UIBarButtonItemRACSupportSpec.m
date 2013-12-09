@@ -25,23 +25,23 @@ describe(@"UIBarButtonItem", ^{
 		expect(button.target).to.beNil();
 		expect(button.action).to.beNil();
 
-		__block id sender = nil;
+		__block id value = nil;
 		[actionSignal subscribeNext:^(id x) {
-			sender = x;
+			value = x;
 		}];
 
 		expect(button.target).notTo.beNil();
 		expect(button.action).notTo.beNil();
-		expect(sender).to.beNil();
+		expect(value).to.beNil();
 
 		NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[button.target methodSignatureForSelector:button.action]];
 		invocation.selector = button.action;
 
-		id expectedSender = self;
-		[invocation setArgument:&expectedSender atIndex:2];
+		id sender = self;
+		[invocation setArgument:&sender atIndex:2];
 		[invocation invokeWithTarget:button];
 
-		expect(sender).to.beIdenticalTo(expectedSender);
+		expect(value).to.beIdenticalTo(button);
 	});
 });
 

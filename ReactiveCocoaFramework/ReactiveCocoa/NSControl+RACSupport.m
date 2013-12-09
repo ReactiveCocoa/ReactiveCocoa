@@ -23,7 +23,7 @@
 
 - (void)rac_action:(id)sender {
 	RACSubject *subject = objc_getAssociatedObject(self, @selector(rac_actionSignal));
-	[subject sendNext:sender];
+	[subject sendNext:self];
 }
 
 - (RACSignal *)rac_actionSignal {

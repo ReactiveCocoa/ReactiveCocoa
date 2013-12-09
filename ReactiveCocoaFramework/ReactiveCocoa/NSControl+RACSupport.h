@@ -9,17 +9,24 @@
 #import <Cocoa/Cocoa.h>
 #import "RACDeprecated.h"
 
-@class RACAction;
 @class RACCommand;
 @class RACSignal;
 
 @interface NSControl (RACSupport)
 
-/// Sets the control's target and action using a `RACAction`.
+/// Sends `next` events whenever the receiver's action is invoked. Each event
+/// will include the sender of the action.
 ///
-/// Whenever the control is activated, the -execute: method of the set action
-/// will be invoked.
-@property (nonatomic, strong) RACAction *rac_action;
+/// **Note:** Subscribing to this signal will reset the control's target and
+/// action.
+@property (nonatomic, strong, readonly) RACSignal *rac_actionSignal;
+
+/// For a text-based control, sends the current string value of the receiver,
+/// then the new values any time it changes.
+///
+/// Using this method on a control without editable text is considered undefined
+/// behavior.
+@property (nonatomic, strong, readonly) RACSignal *rac_textSignal;
 
 /// Whether the receiver is enabled.
 ///
@@ -28,19 +35,10 @@
 /// not KVO-compliant.
 @property (nonatomic, assign, getter = rac_isEnabled) BOOL rac_enabled;
 
-/// Observes a text-based control for changes.
-///
-/// Using this method on a control without editable text is considered undefined
-/// behavior.
-///
-/// Returns a signal which sends the current string value of the receiver, then
-/// the new value any time it changes.
-- (RACSignal *)rac_textSignal;
-
 @end
 
 @interface NSControl (RACSupportDeprecated)
 
-@property (nonatomic, strong) RACCommand *rac_command RACDeprecated("Use `rac_action` and `rac_enabled` instead");
+@property (nonatomic, strong) RACCommand *rac_command RACDeprecated("Use `rac_actionSignal` and `rac_enabled` instead");
 
 @end

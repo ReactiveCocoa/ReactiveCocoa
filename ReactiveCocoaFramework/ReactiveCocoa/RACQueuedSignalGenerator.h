@@ -26,6 +26,15 @@
 /// future values on an indeterminate thread.
 @property (nonatomic, strong, readonly) RACSignal *executing;
 
+/// A signal of the signals generated via subscriptions to -signalWithValue:.
+///
+/// A new inner signal will be sent whenever the result of -signalWithValue: is
+/// subscribed to, and will begin sending events when the corresponding enqueued
+/// signal begins executing. If the subscription to -signalWithValue: is
+/// disposed before a `completed` or `error` event is received, the inner signal
+/// here will send `completed` (instead of staying alive forever).
+@property (nonatomic, strong, readonly) RACSignal *enqueuedSignals;
+
 /// Instantiates a queued generator that will create signals using the given
 /// signal generator.
 ///

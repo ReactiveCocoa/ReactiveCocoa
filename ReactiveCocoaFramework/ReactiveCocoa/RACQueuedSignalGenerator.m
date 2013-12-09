@@ -55,9 +55,6 @@
 - (RACSignal *)signalWithValue:(id)input {
 	return [[RACSignal
 		create:^(id<RACSubscriber> subscriber) {
-			RACSubject *subject = [RACSubject subject];
-			[subject subscribe:subscriber];
-
 			// Create and enqueue a signal that will start the generated signal
 			// upon subscription.
 			RACSignal *queueSignal = [RACSignal create:^(id<RACSubscriber> queueSubscriber) {
@@ -77,11 +74,11 @@
 						// of the generated signal.
 						[subscriber.disposable addDisposable:disposable];
 					} next:^(id x) {
-						[subject sendNext:x];
+						[subscriber sendNext:x];
 					} error:^(NSError *error) {
-						[subject sendError:error];
+						[subscriber sendError:error];
 					} completed:^{
-						[subject sendCompleted];
+						[subscriber sendCompleted];
 					}];
 			}];
 

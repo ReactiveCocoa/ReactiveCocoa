@@ -22,6 +22,7 @@
 #import "NSString+RACSupport.h"
 #import "NSURLConnection+RACSupport.h"
 #import "RACAction.h"
+#import "RACAggregatingSignalGenerator.h"
 #import "RACChannel.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"

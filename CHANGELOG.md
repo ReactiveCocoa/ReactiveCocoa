@@ -247,7 +247,7 @@ RACSignal *lazyFetch = [[[self
 ```
 
 Removing the `-replayLazily` doesn't alter the behavior for _one_ subscription.
-If multiple parties are interested in the results, connect them to a subject,
+If _multiple_ subscribers are interested in the results, connect them to a subject,
 and then forward the signal to that subject:
 
 ```objc

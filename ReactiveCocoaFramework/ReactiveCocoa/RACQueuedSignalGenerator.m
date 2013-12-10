@@ -26,13 +26,18 @@
 
 	// An atomic counter used to inform the `executing` signal.
 	volatile int32_t _executingCount;
+
+	RACSubject *_enqueuedSignals;
 }
 
 /// The generator used to create the signals that will be enqueued.
 @property (nonatomic, strong, readonly) RACSignalGenerator *generator;
 
 /// A signal of the enqueued signals.
-@property (nonatomic, strong, readonly) RACSubject *signals;
+///
+/// Unlike `enqueuedSignals`, the inner signals here will trigger side effects
+/// upon subscription.
+@property (nonatomic, strong, readonly) RACSubject *queue;
 
 @end
 
@@ -51,14 +56,15 @@
 	if (self == nil) return nil;
 
 	_generator = generator;
-	_signals = [[RACSubject subject] setNameWithFormat:@"signals"];
+	_queue = [[RACSubject subject] setNameWithFormat:@"queue"];
+	_enqueuedSignals = [[RACSubject subject] setNameWithFormat:@"enqueuedSignals"];
 
 	#pragma clang diagnostic push
 	#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 	_executing = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"executing"];
 	#pragma clang diagnostic pop
 
-	[[[[[self.signals
+	[[[[[self.queue
 		flatten:1 withPolicy:RACSignalFlattenPolicyQueue]
 		// Each signal of work will send the current value of `_executingCount`
 		// (as set up in -enqueueSignal:), so map that to an "executing" BOOL.
@@ -73,7 +79,8 @@
 }
 
 - (void)dealloc {
-	[self.signals sendCompleted];
+	[_enqueuedSignals sendCompleted];
+	[self.queue sendCompleted];
 }
 
 #pragma mark Generation
@@ -99,23 +106,30 @@
 				// that any existing work signals are processed first, and
 				// `_executingCount` remains non-zero while work is still
 				// enqueued.
-				[self.signals sendNext:endSignal];
+				[self.queue sendNext:endSignal];
 			}];
 	}];
 
-	[self.signals sendNext:startSignal];
+	[self.queue sendNext:startSignal];
 }
 
 - (RACSignal *)signalWithValue:(id)input {
 	return [[RACSignal
 		create:^(id<RACSubscriber> subscriber) {
+			RACSubject *subject = [[RACSubject subject] setNameWithFormat:@"%@ -enqueuedSignals (value %@)", self, [input rac_description]];
+			[subject subscribe:subscriber];
+
 			// Create and enqueue a signal that will start the generated signal
 			// upon subscription.
 			RACSignal *queueSignal = [RACSignal create:^(id<RACSubscriber> queueSubscriber) {
-				// When the subscription to the generated signal is disposed
-				// (for any reason), remove this signal from the queue.
 				[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
+					// When the subscription to the generated signal is disposed
+					// (for any reason), remove this signal from the queue.
 					[queueSubscriber sendCompleted];
+
+					// Also notify any subscribers of `enqueuedSignals`, in case
+					// the signal was canceled.
+					[subject sendCompleted];
 				}]];
 
 				if (subscriber.disposable.disposed) return;
@@ -128,15 +142,20 @@
 						// of the generated signal.
 						[subscriber.disposable addDisposable:disposable];
 					} next:^(id x) {
-						[subscriber sendNext:x];
+						[subject sendNext:x];
 					} error:^(NSError *error) {
-						[subscriber sendError:error];
+						[subject sendError:error];
 					} completed:^{
-						[subscriber sendCompleted];
+						[subject sendCompleted];
 					}];
 			}];
 
-			[self enqueueSignal:queueSignal];
+			// Ensure that signals are pushed onto `enqueuedSignals` and `queue`
+			// in the same order (without interference from other threads).
+			@synchronized (self) {
+				[_enqueuedSignals sendNext:subject];
+				[self enqueueSignal:queueSignal];
+			}
 		}]
 		setNameWithFormat:@"%@ -signalWithValue: %@", self, [input rac_description]];
 }

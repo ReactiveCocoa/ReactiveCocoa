@@ -49,7 +49,6 @@ typedef enum : NSUInteger {
 @class RACCommand;
 @class RACDisposable;
 @class RACMulticastConnection;
-@class RACPromise;
 @class RACScheduler;
 @class RACSequence;
 @class RACSubject;

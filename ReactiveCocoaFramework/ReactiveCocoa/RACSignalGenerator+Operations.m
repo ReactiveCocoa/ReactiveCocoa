@@ -25,8 +25,8 @@
 	}];
 }
 
-- (RACQueuedSignalGenerator *)serialize {
-	return [RACQueuedSignalGenerator queuedGeneratorWithGenerator:self];
+- (RACQueuedSignalGenerator *)serializeOnScheduler:(RACScheduler *)scheduler {
+	return [RACQueuedSignalGenerator queuedGeneratorWithGenerator:self scheduler:scheduler];
 }
 
 @end

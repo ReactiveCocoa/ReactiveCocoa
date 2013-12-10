@@ -8,6 +8,8 @@
 
 #import "RACSignalGenerator.h"
 
+@class RACScheduler;
+
 /// A generator that enforces serial execution across all of its generated
 /// signals.
 ///
@@ -23,16 +25,19 @@
 /// terminated, this will send NO.
 ///
 /// This signal will send its current value upon subscription, and then all
-/// future values on an indeterminate thread.
+/// future values on the scheduler the receiver was initialized with.
 @property (nonatomic, strong, readonly) RACSignal *executing;
 
 /// A signal of the signals generated via subscriptions to -signalWithValue:.
 ///
-/// A new inner signal will be sent whenever the result of -signalWithValue: is
-/// subscribed to, and will begin sending events when the corresponding enqueued
-/// signal begins executing. If the subscription to -signalWithValue: is
-/// disposed before a `completed` or `error` event is received, the inner signal
-/// here will send `completed` (instead of staying alive forever).
+/// A new inner signal will be sent (on the scheduler the receiver was
+/// initialized with) whenever the result of -signalWithValue: is subscribed to,
+/// and will begin sending events when the corresponding enqueued signal begins
+/// executing.
+///
+/// If the subscription to -signalWithValue: is disposed before a `completed` or
+/// `error` event is received, the inner signal here will send `completed`,
+/// instead of staying alive forever.
 @property (nonatomic, strong, readonly) RACSignal *enqueuedSignals;
 
 /// Instantiates a queued generator that will create signals using the given
@@ -40,6 +45,10 @@
 ///
 /// generator - A generator used to create the signals that will be enqueued by
 ///             the receiver. This must not be nil.
-+ (instancetype)queuedGeneratorWithGenerator:(RACSignalGenerator *)generator;
+/// scheduler - The scheduler upon which enqueued signals should be subscribed
+///             to. This can be `+[RACScheduler immediateScheduler]` in order to
+///             subscribe to signals as quickly as possible, without regard to
+///             the calling thread. This must not be nil.
++ (instancetype)queuedGeneratorWithGenerator:(RACSignalGenerator *)generator scheduler:(RACScheduler *)scheduler;
 
 @end

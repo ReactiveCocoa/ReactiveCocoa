@@ -11,6 +11,7 @@
 #import "NSObject+RACDescription.h"
 #import "RACCompoundDisposable.h"
 #import "RACReplaySubject.h"
+#import "RACScheduler.h"
 #import "RACSignal+Operations.h"
 #import "RACSubject.h"
 #import <libkern/OSAtomic.h>
@@ -30,14 +31,22 @@
 	RACSubject *_enqueuedSignals;
 }
 
-/// The generator used to create the signals that will be enqueued.
+// The scheduler upon which to subscribe to enqueued signals, and to use for
+// `executing` and `enqueuedSignals` events.
+@property (nonatomic, strong, readonly) RACScheduler *scheduler;
+
+// The generator used to create the signals that will be enqueued.
 @property (nonatomic, strong, readonly) RACSignalGenerator *generator;
 
-/// A signal of the enqueued signals.
-///
-/// Unlike `enqueuedSignals`, the inner signals here will trigger side effects
-/// upon subscription.
+// A signal of the enqueued signals.
+//
+// Unlike `enqueuedSignals`, the inner signals here will trigger side effects
+// upon subscription.
 @property (nonatomic, strong, readonly) RACSubject *queue;
+
+// Adds the given signal to `queue` after injecting behavior for updating
+// `_executingCount`.
+- (void)enqueueSignal:(RACSignal *)signal;
 
 @end
 
@@ -45,17 +54,20 @@
 
 #pragma mark Lifecycle
 
-+ (instancetype)queuedGeneratorWithGenerator:(RACSignalGenerator *)generator {
-	return [[self alloc] initWithGenerator:generator];
++ (instancetype)queuedGeneratorWithGenerator:(RACSignalGenerator *)generator scheduler:(RACScheduler *)scheduler {
+	return [[self alloc] initWithGenerator:generator scheduler:scheduler];
 }
 
-- (id)initWithGenerator:(RACSignalGenerator *)generator {
+- (id)initWithGenerator:(RACSignalGenerator *)generator scheduler:(RACScheduler *)scheduler {
 	NSCParameterAssert(generator != nil);
+	NSCParameterAssert(scheduler != nil);
 
 	self = [super init];
 	if (self == nil) return nil;
 
 	_generator = generator;
+	_scheduler = scheduler;
+
 	_queue = [[RACSubject subject] setNameWithFormat:@"queue"];
 	_enqueuedSignals = [[RACSubject subject] setNameWithFormat:@"enqueuedSignals"];
 
@@ -88,6 +100,8 @@
 - (void)enqueueSignal:(RACSignal *)signal {
 	NSCParameterAssert(signal != nil);
 
+	NSCAssert(self.scheduler == RACScheduler.immediateScheduler || RACScheduler.currentScheduler == self.scheduler, @"%@ must be invoked on the generator's scheduler", NSStringFromSelector(_cmd));
+
 	RACSignal *endSignal = [RACSignal defer:^{
 		int32_t newCount = OSAtomicDecrement32Barrier(&_executingCount);
 		return [RACSignal return:@(newCount)];
@@ -97,8 +111,11 @@
 		// Increment `_executingCount` before any work actually begins.
 		int32_t newCount = OSAtomicIncrement32Barrier(&_executingCount);
 		
-		return [[[signal
+		return [[[[signal
 			ignoreValues]
+			// Terminate on the correct scheduler, so the next enqueued signal
+			// is subscribed to on the right thread.
+			deliverOn:self.scheduler]
 			startWith:@(newCount)]
 			doDisposed:^{
 				// When this signal terminates, enqueue a signal that will
@@ -122,6 +139,8 @@
 			// Create and enqueue a signal that will start the generated signal
 			// upon subscription.
 			RACSignal *queueSignal = [RACSignal create:^(id<RACSubscriber> queueSubscriber) {
+				NSCAssert(self.scheduler == RACScheduler.immediateScheduler || RACScheduler.currentScheduler == self.scheduler, @"Generated signals should be subscribed to on the generator's scheduler");
+
 				// An atomic flag used to indicate whether the signal finished
 				// from a `completed` or `error` event.
 				//
@@ -160,12 +179,17 @@
 					}];
 			}];
 
-			// Ensure that signals are pushed onto `enqueuedSignals` and `queue`
-			// in the same order (without interference from other threads).
-			@synchronized (self) {
-				[_enqueuedSignals sendNext:subject];
-				[self enqueueSignal:queueSignal];
-			}
+			[subscriber.disposable addDisposable:[self.scheduler schedule:^{
+				// Ensure that signals are pushed onto `enqueuedSignals` and `queue`
+				// in the same order, without interference from other threads.
+				//
+				// This is particularly relevant when self.scheduler is just the
+				// immediate scheduler.
+				@synchronized (self) {
+					[_enqueuedSignals sendNext:subject];
+					[self enqueueSignal:queueSignal];
+				}
+			}]];
 		}]
 		setNameWithFormat:@"%@ -signalWithValue: %@", self, [input rac_description]];
 }

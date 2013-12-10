@@ -10,6 +10,7 @@
 #import "NSObject+RACDeallocating.h"
 #import "RACCompoundDisposable.h"
 #import "RACDynamicSignalGenerator.h"
+#import "RACScheduler.h"
 #import "RACSignal+Operations.h"
 #import "RACSignalGenerator+Operations.h"
 #import "RACSubject.h"
@@ -39,7 +40,7 @@ beforeEach(^{
 				}];
 			}];
 		}]
-		serialize];
+		serializeOnScheduler:RACScheduler.immediateScheduler];
 	
 	expect(generator).notTo.beNil();
 });
@@ -189,7 +190,7 @@ it(@"should complete signal properties after the generator deallocates", ^{
 			generatorWithBlock:^(RACSignal *input) {
 				return input;
 			}]
-			serialize];
+			serializeOnScheduler:RACScheduler.mainThreadScheduler];
 		
 		[generator.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 			deallocated = YES;

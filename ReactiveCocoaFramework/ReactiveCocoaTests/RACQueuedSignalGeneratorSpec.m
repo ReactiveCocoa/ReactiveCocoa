@@ -179,7 +179,42 @@ it(@"should generate further signals as previous ones are disposed", ^{
 	expect(fourthValue).to.equal(@4);
 });
 
-fdescribe(@"executing", ^{
+it(@"should complete signal properties after the generator deallocates", ^{
+	__block BOOL deallocated = NO;
+	__block BOOL executingCompleted = NO;
+	__block BOOL enqueuedSignalsCompleted = NO;
+
+	@autoreleasepool {
+		RACQueuedSignalGenerator *generator __attribute__((objc_precise_lifetime)) = [[RACDynamicSignalGenerator
+			generatorWithBlock:^(RACSignal *input) {
+				return input;
+			}]
+			serialize];
+		
+		[generator.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+			deallocated = YES;
+		}]];
+
+		[generator.executing subscribeCompleted:^{
+			executingCompleted = YES;
+		}];
+
+		[generator.enqueuedSignals subscribeCompleted:^{
+			enqueuedSignalsCompleted = YES;
+		}];
+
+		[[generator signalWithValue:[RACSignal empty]] subscribeCompleted:^{}];
+		expect(deallocated).to.beFalsy();
+		expect(executingCompleted).to.beFalsy();
+		expect(enqueuedSignalsCompleted).to.beFalsy();
+	}
+
+	expect(deallocated).will.beTruthy();
+	expect(executingCompleted).to.beTruthy();
+	expect(enqueuedSignalsCompleted).to.beTruthy();
+});
+
+describe(@"executing", ^{
 	it(@"should send NO before any signals are enqueued", ^{
 		expect([generator.executing first]).to.equal(@NO);
 	});
@@ -220,33 +255,101 @@ fdescribe(@"executing", ^{
 		[secondDisposable dispose];
 		expect(executing).to.equal((@[ @NO, @YES, @NO ]));
 	});
+});
 
-	it(@"should complete after the generator deallocates and all signals finish", ^{
-		__block BOOL deallocated = NO;
+describe(@"enqueuedSignals", ^{
+	__block RACSignal *enqueuedSignal;
+
+	beforeEach(^{
+		enqueuedSignal = nil;
+
+		[generator.enqueuedSignals subscribeNext:^(RACSignal *signal) {
+			expect(signal).notTo.beNil();
+			enqueuedSignal = signal;
+		}];
+	});
+
+	it(@"should send when a generated signal is subscribed to", ^{
+		RACSignal *signal = [generator signalWithValue:[RACSubject subject]];
+		expect(enqueuedSignal).to.beNil();
+		
+		[signal subscribeCompleted:^{}];
+		expect(enqueuedSignal).notTo.beNil();
+	});
+
+	it(@"should forward events from the generated signal without duplicating side effects", ^{
+		RACSubject *subject = [RACSubject subject];
+		RACSignal *signal = [generator signalWithValue:subject];
+
+		[signal subscribeCompleted:^{}];
+		expect(subscriptionCount).to.equal(1);
+
+		__block id value = nil;
+		__block NSError *error = nil;
+		[enqueuedSignal subscribeNext:^(id x) {
+			value = x;
+		} error:^(NSError *e) {
+			error = e;
+		}];
+
+		expect(value).to.beNil();
+		expect(error).to.beNil();
+		expect(subscriptionCount).to.equal(1);
+
+		[subject sendNext:@"foo"];
+		expect(value).to.equal(@"foo");
+
+		NSError *testError = [NSError errorWithDomain:@"RACQueuedSignalGeneratorSpec" code:1 userInfo:nil];
+		[subject sendError:testError];
+
+		expect(value).to.equal(@"foo");
+		expect(error).to.equal(testError);
+		expect(subscriptionCount).to.equal(1);
+	});
+
+	it(@"should complete the enqueued signal when the generated signal is disposed", ^{
+		RACSubject *subject = [RACSubject subject];
+		RACSignal *signal = [generator signalWithValue:subject];
+
+		RACDisposable *disposable = [signal subscribeCompleted:^{}];
+		expect(disposable).notTo.beNil();
+
 		__block BOOL completed = NO;
+		[enqueuedSignal subscribeCompleted:^{
+			completed = YES;
+		}];
 
-		@autoreleasepool {
-			RACQueuedSignalGenerator *generator __attribute__((objc_precise_lifetime)) = [[RACDynamicSignalGenerator
-				generatorWithBlock:^(RACSignal *input) {
-					return input;
-				}]
-				serialize];
-			
-			[generator.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-				deallocated = YES;
-			}]];
+		expect(completed).to.beFalsy();
 
-			[generator.executing subscribeCompleted:^{
-				completed = YES;
+		[disposable dispose];
+		expect(completed).to.beTruthy();
+	});
+
+	it(@"should send signals in the order they're enqueued", ^{
+		const size_t count = 100;
+
+		NSMutableArray *enqueuedValues = [NSMutableArray array];
+		[[generator.enqueuedSignals
+			flatten]
+			subscribeNext:^(NSNumber *num) {
+				[enqueuedValues addObject:num];
 			}];
 
-			[[generator signalWithValue:[RACSignal empty]] subscribeCompleted:^{}];
-			expect(deallocated).to.beFalsy();
-			expect(completed).to.beFalsy();
-		}
+		NSMutableArray *subscribedValues = [NSMutableArray array];
 
-		expect(deallocated).will.beTruthy();
-		expect(completed).to.beTruthy();
+		dispatch_apply(count, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(size_t index) {
+			RACSignal *signal = [generator signalWithValue:[RACSignal return:@(index)]];
+
+			[signal subscribeNext:^(NSNumber *num) {
+				@synchronized (subscribedValues) {
+					[subscribedValues addObject:num];
+				}
+			}];
+		});
+
+		expect(subscribedValues.count).to.equal(count);
+		expect(enqueuedValues.count).to.equal(count);
+		expect(enqueuedValues).to.equal(subscribedValues);
 	});
 });
 

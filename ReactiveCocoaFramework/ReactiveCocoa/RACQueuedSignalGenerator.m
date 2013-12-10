@@ -122,14 +122,22 @@
 			// Create and enqueue a signal that will start the generated signal
 			// upon subscription.
 			RACSignal *queueSignal = [RACSignal create:^(id<RACSubscriber> queueSubscriber) {
+				// An atomic flag used to indicate whether the signal finished
+				// from a `completed` or `error` event.
+				//
+				// If this is zero when the subscriber is disposed, it's safe to
+				// assume that the signal was canceled before its natural
+				// termination.
+				__block volatile int finished = 0;
+
 				[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
 					// When the subscription to the generated signal is disposed
 					// (for any reason), remove this signal from the queue.
 					[queueSubscriber sendCompleted];
 
-					// Also notify any subscribers of `enqueuedSignals`, in case
-					// the signal was canceled.
-					[subject sendCompleted];
+					// Notify any subscribers of `enqueuedSignals` when the
+					// signal is canceled.
+					if (finished == 0) [subject sendCompleted];
 				}]];
 
 				if (subscriber.disposable.disposed) return;
@@ -144,8 +152,10 @@
 					} next:^(id x) {
 						[subject sendNext:x];
 					} error:^(NSError *error) {
+						OSAtomicCompareAndSwapIntBarrier(0, 1, &finished);
 						[subject sendError:error];
 					} completed:^{
+						OSAtomicCompareAndSwapIntBarrier(0, 1, &finished);
 						[subject sendCompleted];
 					}];
 			}];

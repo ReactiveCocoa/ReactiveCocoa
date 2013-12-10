@@ -105,12 +105,19 @@ operations:
 
 ```objc
 // Start a network request whenever the button is pressed.
-//
-// RACAction represents work to perform when a UI action (here, a button press)
-// occurs.
-self.button.rac_action = [[NSURLConnection
-	rac_sendAsynchronousRequest:request]
-	action];
+[[[[self.button
+    rac_signalForControlEvents:UIControlEventTouchUpInside]
+    flattenMap:^(UIButton *button) {
+        return [NSURLConnection rac_sendAsynchronousRequest:request];
+    }]
+    reduceEach:^(NSURLResponse *response, NSData *data) {
+        // Discard the response, since we don't care about the status code or
+        // headers.
+        return data;
+    }]
+    subscribeNext:^(NSData *data) {
+        NSLog(@"Received %@", data);
+    }];
 ```
 
 Signals can also represent timers, other UI events, or anything else that

@@ -236,7 +236,7 @@ describe(@"with a long-running signal", ^{
 		RACSignal *deferred = [action deferred];
 		expect(deferred).notTo.beNil();
 
-		RACDisposable *disposable = [deferred subscribeCompleted:^{}];
+		RACDisposable *disposable = [deferred subscribe:nil];
 		expect(disposable).notTo.beNil();
 
 		[action execute:nil];

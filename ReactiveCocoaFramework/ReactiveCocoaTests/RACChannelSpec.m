@@ -36,8 +36,8 @@ describe(@"RACChannel", ^{
 					deallocated = YES;
 				}]];
 
-				leadingDisposable = [channel.leadingTerminal subscribeCompleted:^{}];
-				followingDisposable = [channel.followingTerminal subscribeCompleted:^{}];
+				leadingDisposable = [channel.leadingTerminal subscribe:nil];
+				followingDisposable = [channel.followingTerminal subscribe:nil];
 			}
 
 			[leadingDisposable dispose];

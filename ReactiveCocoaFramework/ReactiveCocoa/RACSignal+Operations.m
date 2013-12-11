@@ -545,7 +545,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			@synchronized (compoundDisposable) {
 				// Keep an autoreleasing reference to the block that still has the
 				// retain cycle so dequeueAndSubscribeIfAllowed doesn't get teared down
-				// until after everything it's done.
+				// until after everything is done.
 				__autoreleasing id oldCompleteSignal __attribute__((unused)) = completeSignal;
 				completeSignal = ^(RACSignal *signal) {
 					// Do nothing. We're just replacing this block to break the

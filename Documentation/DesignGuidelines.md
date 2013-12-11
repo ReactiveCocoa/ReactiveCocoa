@@ -468,8 +468,7 @@ Subjects can usually be replaced with other patterns from ReactiveCocoa:
    output of multiple signals with operators like
    [+combineLatest:][RACSignal+Operations] or [+zip:][RACSignal+Operations].
  * Instead of implementing a control action that sends values on a subject, use
-   [RACAction][] or [-rac_signalForSelector:][NSObject+RACSelectorSignal]
-   instead.
+   [-rac_signalForSelector:][NSObject+RACSelectorSignal] instead.
 
 However, subjects _are_ often necessary to [share the side effects of
 a signal](#share-the-side-effects-of-a-signal-with-a-subject). In that case, use
@@ -621,7 +620,6 @@ By contrast, this version will avoid a stack overflow:
 [NSObject+RACLifting]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACLifting.h
 [NSObject+RACSelectorSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACSelectorSignal.h
 [RAC]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h
-[RACAction]: ../ReactiveCocoaFramework/ReactiveCocoa/RACAction.h
 [RACChannelTo]: ../ReactiveCocoaFramework/ReactiveCocoa/RACKVOChannel.h
 [RACDisposable]: ../ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
 [RACEvent]: ../ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h

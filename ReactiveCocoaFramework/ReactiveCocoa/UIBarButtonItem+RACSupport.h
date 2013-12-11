@@ -9,21 +9,21 @@
 #import <UIKit/UIKit.h>
 #import "RACDeprecated.h"
 
-@class RACAction;
 @class RACCommand;
+@class RACSignal;
 
 @interface UIBarButtonItem (RACSupport)
 
-/// Sets the button's target and action using a `RACAction`.
+/// Sends the receiver whenever the item's action is invoked.
 ///
-/// Whenever the button is tapped, the -execute: method of the set action
-/// will be invoked.
-@property (nonatomic, strong) RACAction *rac_action;
+/// **Note:** Subscribing to this signal will reset the item's target and
+/// action.
+@property (nonatomic, strong, readonly) RACSignal *rac_actionSignal;
 
 @end
 
 @interface UIBarButtonItem (RACSupportDeprecated)
 
-@property (nonatomic, strong) RACCommand *rac_command RACDeprecated("Use `rac_action` instead");
+@property (nonatomic, strong) RACCommand *rac_command RACDeprecated("Use `rac_actionSignal` and bind to `enabled` instead");
 
 @end

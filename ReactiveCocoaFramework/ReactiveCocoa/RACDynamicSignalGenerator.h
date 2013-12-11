@@ -11,21 +11,19 @@
 /// A generator that implements its behavior using a block.
 @interface RACDynamicSignalGenerator : RACSignalGenerator
 
-/// Initializes the receiver to generate signals using the given block.
-///
-/// This is the designated initializer of this class.
+/// Creates a signal generator using the given block.
 ///
 /// block - Describes how to create a signal from an input value, which may be
 ///         nil. This block must not be nil, and must not return a nil signal.
-- (id)initWithBlock:(RACSignal * (^)(id input))block;
++ (instancetype)generatorWithBlock:(RACSignal * (^)(id input))block;
 
-/// Behaves like -initWithBlock:, but allows the block to invoke other methods
-/// upon the generator.
+/// Behaves like -generatorWithBlock:, but allows the block to invoke other
+/// methods upon the generator.
 ///
 /// block - Describes how to create a signal from an input value, which may be
-///         nil. The `generator` argument will be the receiver, and can be used
-///         to generate additional signals if desired. This block must not be
-///         nil, and must not return a nil signal.
+///         nil. The `generator` argument will be the instantiated generator,
+///         and can be used to generate additional signals if desired. This
+///         block must not be nil, and must not return a nil signal.
 ///
 /// Examples
 ///
@@ -47,6 +45,6 @@
 ///                   concat:moreUsers];
 ///           }];
 ///   }];
-- (id)initWithReflexiveBlock:(RACSignal * (^)(id input, RACDynamicSignalGenerator *generator))block;
++ (instancetype)generatorWithReflexiveBlock:(RACSignal * (^)(id input, RACDynamicSignalGenerator *generator))block;
 
 @end

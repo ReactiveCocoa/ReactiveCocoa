@@ -15,13 +15,13 @@ extern NSString * const RACCommandErrorDomain;
 extern const NSInteger RACCommandErrorNotEnabled;
 extern NSString * const RACUnderlyingCommandErrorKey;
 
-RACDeprecated("Use RACSignal or RACQueuedSignalGenerator instead")
+RACDeprecated("Use RACSignal or RACSignalGenerator instead")
 @interface RACCommand : NSObject
 
 @property (nonatomic, strong, readonly) RACSignal *executionSignals;
 @property (atomic, assign) BOOL allowsConcurrentExecution;
 
-@property (nonatomic, strong, readonly) RACSignal *executing RACDeprecated("Use RACQueuedSignalGenerator.executing instead");
+@property (nonatomic, strong, readonly) RACSignal *executing RACDeprecated("Use +defer: and -doDisposed: instead");
 @property (nonatomic, strong, readonly) RACSignal *enabled RACDeprecated("Use a separate 'enabled' signal instead");
 @property (nonatomic, strong, readonly) RACSignal *errors RACDeprecated("Use -catch: or -doError: instead");
 

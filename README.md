@@ -400,17 +400,15 @@ RACSignal *databaseSignal = [[databaseClient
 	fetchObjectsMatchingPredicate:predicate]
 	subscribeOn:[RACScheduler scheduler]];
 
-RACSignal *fileSignal = [[RACPromise
-	promiseWithScheduler:[RACScheduler scheduler] block:^(id<RACSubscriber> subscriber) {
-		NSMutableArray *filesInProgress = [NSMutableArray array];
-		for (NSString *path in files) {
-			[filesInProgress addObject:[NSData dataWithContentsOfFile:path]];
-		}
+RACSignal *fileSignal = [RACSignal create:^(id<RACSubscriber> subscriber) {
+    NSMutableArray *filesInProgress = [NSMutableArray array];
+    for (NSString *path in files) {
+        [filesInProgress addObject:[NSData dataWithContentsOfFile:path]];
+    }
 
-		[subscriber sendNext:[filesInProgress copy]];
-		[subscriber sendCompleted];
-	}]
-	start];
+    [subscriber sendNext:[filesInProgress copy]];
+    [subscriber sendCompleted];
+}];
 
 [[RACSignal
 	combineLatest:@[ databaseSignal, fileSignal ]

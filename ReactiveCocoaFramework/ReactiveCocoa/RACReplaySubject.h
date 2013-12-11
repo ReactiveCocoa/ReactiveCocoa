@@ -11,7 +11,7 @@
 
 extern const NSUInteger RACReplaySubjectUnlimitedCapacity;
 
-RACDeprecated("Use RACPromise instead")
+RACDeprecated("Use a plain RACSignal or RACSubject instead")
 @interface RACReplaySubject : RACSubject
 
 + (instancetype)replaySubjectWithCapacity:(NSUInteger)capacity;

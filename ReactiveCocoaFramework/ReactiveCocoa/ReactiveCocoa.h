@@ -28,7 +28,6 @@
 #import "RACEvent.h"
 #import "RACGroupedSignal.h"
 #import "RACKVOChannel.h"
-#import "RACPromise.h"
 #import "RACQueueScheduler.h"
 #import "RACScheduler.h"
 #import "RACScopedDisposable.h"

@@ -80,20 +80,6 @@ Therefore, if multiple parties are interested in a signal's values — but its s
 effects shouldn't be repeated — you can forward the events to a subject (using
 [-subscribe:][RACSignal]), and have everything subscribe to the subject instead.
 
-## Promises
-
-A **promise**, implemented as the [RACPromise][] class, represents work that
-should be performed (at most) once. This is useful for one-off tasks that should
-never be repeated, like deleting a file on disk.
-
-Promises can start _eagerly_ (immediately upon creation) or _lazily_ (only when
-the results are needed), and cannot be canceled once they begin executing.
-
-In RAC, promises have a symbiotic relationship with [signals](#signals). Signals
-are used to deliver the results of a promise, and any signal can be converted
-into a promise. Consequently, which one to use should be determined entirely by
-the use case, and not by APIs.
-
 ## Disposables
 
 The **[RACDisposable][]** class is used for cancellation and resource cleanup.
@@ -153,7 +139,6 @@ the information is still valuable).
 [RACDisposable]: ../ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
 [RACEvent]: ../ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h
 [RACExtensions]: ../RACExtensions
-[RACPromise]: ../ReactiveCocoaFramework/ReactiveCocoa/RACPromise.h
 [RACScheduler]: ../ReactiveCocoaFramework/ReactiveCocoa/RACScheduler.h
 [RACSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h
 [RACSignal+Operations]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h

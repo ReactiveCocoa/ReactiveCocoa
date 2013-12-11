@@ -30,7 +30,6 @@
 #import "RACKVOChannel.h"
 #import "RACPromise.h"
 #import "RACQueueScheduler.h"
-#import "RACQueuedSignalGenerator.h"
 #import "RACScheduler.h"
 #import "RACScopedDisposable.h"
 #import "RACSerialDisposable.h"

@@ -8,7 +8,6 @@
 
 #import "RACSignalGenerator+Operations.h"
 #import "RACDynamicSignalGenerator.h"
-#import "RACQueuedSignalGenerator.h"
 #import "RACSignal+Operations.h"
 
 @implementation RACSignalGenerator (Operations)
@@ -23,10 +22,6 @@
 				return [otherGenerator signalWithValue:intermediateValue];
 			}];
 	}];
-}
-
-- (RACQueuedSignalGenerator *)serializeOnScheduler:(RACScheduler *)scheduler {
-	return [RACQueuedSignalGenerator queuedGeneratorWithGenerator:self scheduler:scheduler];
 }
 
 @end

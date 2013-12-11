@@ -7,6 +7,8 @@
 //
 
 #import "RACSignalGenerator.h"
+#import "RACDynamicSignalGenerator.h"
+#import "RACSignal+Operations.h"
 
 @implementation RACSignalGenerator
 
@@ -15,6 +17,22 @@
 - (RACSignal *)signalWithValue:(id)input {
 	NSCAssert(NO, @"Subclasses must override this method");
 	return nil;
+}
+
+@end
+
+@implementation RACSignalGenerator (Operations)
+
+- (RACSignalGenerator *)postcompose:(RACSignalGenerator *)otherGenerator {
+	NSCParameterAssert(otherGenerator != nil);
+
+	return [[RACDynamicSignalGenerator alloc] initWithBlock:^(id input) {
+		return [[self
+			signalWithValue:input]
+			flattenMap:^(id intermediateValue) {
+				return [otherGenerator signalWithValue:intermediateValue];
+			}];
+	}];
 }
 
 @end

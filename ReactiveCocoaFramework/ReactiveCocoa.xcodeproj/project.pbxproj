@@ -504,6 +504,8 @@
 		D0C70EC8166595AD005AAD03 /* RACLiveSubscriberSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C70EC7166595AD005AAD03 /* RACLiveSubscriberSpec.m */; };
 		D0C70F90164337A2007027B4 /* RACCollectionSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C70F8F164337A2007027B4 /* RACCollectionSupportSpec.m */; };
 		D0C70F93164337E3007027B4 /* RACSequenceExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C70F92164337E3007027B4 /* RACSequenceExamples.m */; };
+		D0CCA3B918584AD40009499A /* RACAggregatingSignalGeneratorSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D0CCA3B818584AD40009499A /* RACAggregatingSignalGeneratorSpec.m */; };
+		D0CCA3BA18584AD40009499A /* RACAggregatingSignalGeneratorSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D0CCA3B818584AD40009499A /* RACAggregatingSignalGeneratorSpec.m */; };
 		D0D243BD1741FA13004359C6 /* NSObject+RACDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = D0D243B61741FA0E004359C6 /* NSObject+RACDescription.m */; };
 		D0D243BE1741FA13004359C6 /* NSObject+RACDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = D0D243B61741FA0E004359C6 /* NSObject+RACDescription.m */; };
 		D0D487011642550100DD7605 /* RACStream.h in Headers */ = {isa = PBXBuildFile; fileRef = D0D486FF1642550100DD7605 /* RACStream.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -969,6 +971,7 @@
 		D0C70F8F164337A2007027B4 /* RACCollectionSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACCollectionSupportSpec.m; sourceTree = "<group>"; };
 		D0C70F91164337E3007027B4 /* RACSequenceExamples.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACSequenceExamples.h; sourceTree = "<group>"; };
 		D0C70F92164337E3007027B4 /* RACSequenceExamples.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSequenceExamples.m; sourceTree = "<group>"; };
+		D0CCA3B818584AD40009499A /* RACAggregatingSignalGeneratorSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACAggregatingSignalGeneratorSpec.m; sourceTree = "<group>"; };
 		D0D243B51741FA0E004359C6 /* NSObject+RACDescription.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSObject+RACDescription.h"; sourceTree = "<group>"; };
 		D0D243B61741FA0E004359C6 /* NSObject+RACDescription.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSObject+RACDescription.m"; sourceTree = "<group>"; };
 		D0D486FF1642550100DD7605 /* RACStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACStream.h; sourceTree = "<group>"; };
@@ -1306,6 +1309,7 @@
 				5FDC350E1736F81800792E52 /* NSStringRACKeyPathUtilitiesSpec.m */,
 				D090768917FBECBF00EB087A /* NSURLConnectionRACSupportSpec.m */,
 				D02C7C921822D44400CB20D6 /* RACActionSpec.m */,
+				D0CCA3B818584AD40009499A /* RACAggregatingSignalGeneratorSpec.m */,
 				D0870C6E16884A0600D0E11D /* RACBacktraceSpec.m */,
 				886CEACC163DE669007632D1 /* RACBlockTrampolineSpec.m */,
 				5F7EFECC168FBC4B0037E500 /* RACChannelExamples.h */,
@@ -2297,6 +2301,7 @@
 				5FAF5240174D4D5600CAC810 /* NSObjectRACDeallocatingSpec.m in Sources */,
 				5FAF5241174D4D5600CAC810 /* NSObjectRACLiftingSpec.m in Sources */,
 				5FAF5242174D4D5600CAC810 /* NSObjectRACPropertySubscribingExamples.m in Sources */,
+				D0CCA3BA18584AD40009499A /* RACAggregatingSignalGeneratorSpec.m in Sources */,
 				5FAF5243174D4D5600CAC810 /* NSObjectRACPropertySubscribingSpec.m in Sources */,
 				5FAF5244174D4D5600CAC810 /* NSStringRACKeyPathUtilitiesSpec.m in Sources */,
 				5FAF5246174D4D5600CAC810 /* RACBacktraceSpec.m in Sources */,
@@ -2458,6 +2463,7 @@
 				6E58405F16F3414200F588A6 /* NSObjectRACDeallocatingSpec.m in Sources */,
 				1E893381171647A5009071B0 /* NSObjectRACPropertySubscribingExamples.m in Sources */,
 				880D7A6616F7BB1A004A3361 /* NSObjectRACSelectorSignalSpec.m in Sources */,
+				D0CCA3B918584AD40009499A /* RACAggregatingSignalGeneratorSpec.m in Sources */,
 				880D7A6916F7BCC7004A3361 /* RACSubclassObject.m in Sources */,
 				5FDC350F1736F81900792E52 /* NSStringRACKeyPathUtilitiesSpec.m in Sources */,
 				D075A72A17BCB7E100C24FB7 /* RACControlActionExamples.m in Sources */,

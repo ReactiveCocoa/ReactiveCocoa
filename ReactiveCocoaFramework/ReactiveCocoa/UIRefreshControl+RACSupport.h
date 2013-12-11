@@ -8,17 +8,19 @@
 
 #import <UIKit/UIKit.h>
 
-@class RACAction;
 @class RACCommand;
+@class RACSignalGenerator;
 
 @interface UIRefreshControl (RACSupport)
 
-/// Sets the control's target and action using a `RACAction`.
+/// Subscribes to a signal from the given generator when the refresh control is
+/// activated.
 ///
-/// When this refresh control is activated by the user, the action will be
-/// executed. When the action completes or errors, -endRefreshing will be
-/// invoked.
-@property (nonatomic, strong) RACAction *rac_action;
+/// When the receiver is activated, -[RACSignalGenerator signalWithValue:] will
+/// be invoked (with the sender as the argument), and the resulting signal will
+/// be subscribed to. When the signal terminates, -endRefreshing will be invoked
+/// automatically.
+@property (nonatomic, strong) RACSignalGenerator *rac_refreshGenerator;
 
 @end
 

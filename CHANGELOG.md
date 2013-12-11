@@ -16,7 +16,6 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=4&sta
 
 **[Replacements](#replacements)**
 
- 1. [Actions instead of commands](#actions-instead-of-commands)
  1. [Simplified signal creation and disposal](#simplified-signal-creation-and-disposal)
  1. [Generalized throttling](#generalized-throttling)
 
@@ -32,67 +31,6 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=4&sta
  1. [Signal generators](#signal-generators)
 
 ## Replacements
-
-### Actions instead of commands
-
-Because of its confusing API, `RACCommand` hasn't been used much, despite the
-value it offers in responding to UI events. The new `RACAction` class, which
-[replaces](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/910)
-`RACCommand`, attempts to provide the same value in a much less confusing way.
-
-Any signal can be directly converted into an action via `-[RACSignal action]`.
-Whenever the resulting action is executed, the signal will be subscribed to,
-triggering its side effects. In addition, `RACAction` automatically ensures that
-the base signal is not run multiple times in parallel.
-
-The class still provides some familiar `RACCommand` conveniences (like
-collecting execution errors onto an `errors` signal), but without any signal
-blocks, signals of signals, or concurrent behaviors to worry about.
-
-**To update:**
-
- * Replace uses of `-[RACCommand initWithSignalBlock:]` with `-action`.
- * Instead of subscribing to `RACCommand.executionSignals`, try to incorporate
-   that logic into the base signal.
- * Instead of setting `RACCommand.allowsConcurrentExecution` to `YES`, use
-   a plain `RACSignal` instead.
- * Replace `-[RACCommand execute:]` with `-[RACAction deferred]` when you need
-   the results of the execution.
- * Invoke `-[RACAction execute:]` from your UI when the caller does not care
-   about the results.
- * Replace `rac_command` bindings with `rac_action` (and a separate binding to
-   the control's `enabled` property, if desired).
- * Instead of initializing `RACAction` with an "enabled" signal (a la
-   `RACCommand`), expose enabledness through other means.
-
-For example, this `RACCommand` code:
-
-```objc
-// View model
-_command = [[RACCommand alloc] initWithEnabled:otherSourceOfEnabledness signalBlock:^(id _) {
-    return [self longRunningSignal];
-}];
-
-// View controller
-self.button.rac_command = viewModel.command;
-self.buttonContainerView.hidden = [viewModel.command.enabled not];
-```
-
-Would look more like this, using `RACAction`:
-
-```objc
-// View model
-_action = [[self longRunningSignal] action];
-_enabled = [[RACSignal
-    combineLatest:@[ otherSourceOfEnabledness, [action.executing not] ]]
-    and];
-
-// View controller
-self.button.rac_action = viewModel.action;
-RAC(self.button, enabled) = viewModel.enabled;
-
-self.buttonContainerView.hidden = [viewModel.enabled not];
-```
 
 ### Simplified signal creation and disposal
 

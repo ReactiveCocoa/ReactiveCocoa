@@ -45,7 +45,6 @@ typedef enum : NSUInteger {
 	RACSignalFlattenPolicyDisposeLatest
 } RACSignalFlattenPolicy;
 
-@class RACAction;
 @class RACCommand;
 @class RACDisposable;
 @class RACMulticastConnection;

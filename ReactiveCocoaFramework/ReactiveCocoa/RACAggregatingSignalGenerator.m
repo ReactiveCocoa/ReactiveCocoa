@@ -63,3 +63,11 @@
 }
 
 @end
+
+@implementation RACSignalGenerator (RACAggregatingSignalGeneratorAdditions)
+
+- (RACAggregatingSignalGenerator *)aggregate {
+	return [[RACAggregatingSignalGenerator alloc] initWithGenerator:self];
+}
+
+@end

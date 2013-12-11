@@ -225,7 +225,7 @@ Although similar in principle, a signal generator boasts a couple major
 advantages over a plain block of type `RACSignal * (^)(id input)`:
 
  1. Operators can be added to `RACSignalGenerator`. This can be used for greater
-    compositionality, like the built-in `-postcompose:` method that chains two
+    composability, like the built-in `-postcompose:` method that chains two
     generators together.
  1. A signal generator's algorithm can reference itself using
     `-[RACDynamicSignalGenerator initWithReflexiveBlock:]`, which is extremely

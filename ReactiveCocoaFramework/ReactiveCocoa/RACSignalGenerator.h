@@ -41,11 +41,9 @@
 
 @interface RACSignalGenerator (Operations)
 
-/// Creates a new generator that first creates a signal using the logic of the
-/// receiver, then transforms the created signal's values using `otherGenerator`.
+/// Passes the outputs of the receiver through `otherGenerator`.
 ///
-/// In other words, this behaves like the receiver, followed by a -flattenMap:
-/// using `otherGenerator`.
+/// This behaves like the receiver, followed by a -flattenMap: using `otherGenerator`.
 ///
 /// otherGenerator - The generator to apply after the receiver. This must not be nil.
 ///

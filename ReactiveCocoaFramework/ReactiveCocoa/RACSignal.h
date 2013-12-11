@@ -98,7 +98,7 @@
 ///              care about the events, and only wish to perform the work (and
 ///              side effects) of a subscription.
 ///
-/// Returns nil or a disposable. You can call -[RACDisposable dispose] if you
+/// Returns a disposable. You can call -[RACDisposable dispose] if you
 /// need to end your subscription before it would "naturally" end, either by
 /// completing or erroring. Once the disposable has been disposed, the subscriber
 /// won't receive any more events from the subscription.

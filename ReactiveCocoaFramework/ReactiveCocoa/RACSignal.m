@@ -67,7 +67,13 @@
 @implementation RACSignal (Subscription)
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	RACLiveSubscriber *liveSubscriber = [RACLiveSubscriber subscriberForwardingToSubscriber:subscriber];
+	RACLiveSubscriber *liveSubscriber;
+	if (subscriber == nil) {
+		liveSubscriber = [RACLiveSubscriber subscriberWithNext:nil error:nil completed:nil];
+	} else {
+		liveSubscriber = [RACLiveSubscriber subscriberForwardingToSubscriber:subscriber];
+	}
+
 	liveSubscriber.signal = self;
 
 	[self attachSubscriber:liveSubscriber];

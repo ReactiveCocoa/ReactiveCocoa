@@ -94,7 +94,11 @@
 /// Subscribes `subscriber` to changes on the receiver. The receiver defines which
 /// events it actually sends and in what situations the events are sent.
 ///
-/// Returns nil or a disposable. You can call -[RACDisposable dispose] if you
+/// subscriber - The subscriber to send events to. This may be nil if you don't
+///              care about the events, and only wish to perform the work (and
+///              side effects) of a subscription.
+///
+/// Returns a disposable. You can call -[RACDisposable dispose] if you
 /// need to end your subscription before it would "naturally" end, either by
 /// completing or erroring. Once the disposable has been disposed, the subscriber
 /// won't receive any more events from the subscription.

@@ -94,7 +94,7 @@
 #pragma mark Execution
 
 - (void)execute:(id)sender {
-	[self.sharedSignal subscribeCompleted:^{}];
+	[self.sharedSignal subscribe:nil];
 }
 
 - (RACSignal *)deferred {

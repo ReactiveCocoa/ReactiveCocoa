@@ -32,14 +32,14 @@
 /// the ability to terminate this individual subscription (without terminating
 /// other subscriptions to the same subscriber).
 ///
-/// subscriber - The subscriber to forward events to. This must not be nil.
+/// subscriber - The subscriber to forward events to.
 + (instancetype)subscriberForwardingToSubscriber:(id<RACSubscriber>)subscriber;
 
 /// Creates a subscriber that invokes the given blocks when signal events occur.
 ///
-/// next      - A block to invoke upon `next` events. This must not be nil.
-/// error     - A block to invoke upon `error` events. This must not be nil.
-/// completed - A block to invoke upon `completed` events. This must not be nil.
+/// next      - A block to invoke upon `next` events. This may be nil.
+/// error     - A block to invoke upon `error` events. This may be nil.
+/// completed - A block to invoke upon `completed` events. This may be nil.
 + (instancetype)subscriberWithNext:(void (^)(id x))next error:(void (^)(NSError *error))error completed:(void (^)(void))completed;
 
 @end

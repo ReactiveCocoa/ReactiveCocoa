@@ -50,7 +50,7 @@ sharedExamples(RACSignalStartSharedExamplesName, ^(NSDictionary *data) {
 
 	it(@"should replay all values", ^{
 		// Force a subscription so that we get replayed results.
-		[[signal publish] connect];
+		[signal subscribe:nil];
 		
 		NSArray *values = [signal toArray];
 		expect(values).to.equal(expectedValues);

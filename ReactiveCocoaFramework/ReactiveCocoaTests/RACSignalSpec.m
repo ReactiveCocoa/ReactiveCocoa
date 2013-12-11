@@ -294,7 +294,7 @@ describe(@"subscribing", ^{
 			[innerSignal subscribe:subscriber];
 		}];
 
-		RACDisposable *disposable = [outerSignal subscribeCompleted:^{}];
+		RACDisposable *disposable = [outerSignal subscribe:nil];
 		expect(disposable).notTo.beNil();
 		expect(innerDisposed).to.beFalsy();
 
@@ -491,7 +491,7 @@ describe(@"-takeUntilReplacement:", ^{
 			}];
 		}];
 
-		[[[receiver takeUntilReplacement:RACSignal.never] subscribeCompleted:^{}] dispose];
+		[[[receiver takeUntilReplacement:RACSignal.never] subscribe:nil] dispose];
 
 		expect(receiverDisposed).to.beTruthy();
 	});
@@ -504,7 +504,7 @@ describe(@"-takeUntilReplacement:", ^{
 			}];
 		}];
 
-		[[[RACSignal.never takeUntilReplacement:replacement] subscribeCompleted:^{}] dispose];
+		[[[RACSignal.never takeUntilReplacement:replacement] subscribe:nil] dispose];
 
 		expect(replacementDisposed).to.beTruthy();
 	});
@@ -518,7 +518,7 @@ describe(@"-takeUntilReplacement:", ^{
 		}];
 		RACSubject *replacement = [RACSubject subject];
 
-		[[receiver takeUntilReplacement:replacement] subscribeCompleted:^{}];
+		[[receiver takeUntilReplacement:replacement] subscribe:nil];
 
 		expect(receiverDisposed).to.beFalsy();
 
@@ -1058,7 +1058,7 @@ describe(@"+combineLatestWith:", ^{
 				signalDeallocd = YES;
 			}]];
 
-			[signal subscribeCompleted:^{}];
+			[signal subscribe:nil];
 			[subject sendCompleted];
 		}
 
@@ -1548,7 +1548,7 @@ describe(@"memory management", ^{
 						deallocd = YES;
 					}]];
 					
-					disposable = [signal subscribeCompleted:^{}];
+					disposable = [signal subscribe:nil];
 				}
 				
 				// Spin the run loop to account for RAC magic that retains the
@@ -1788,10 +1788,10 @@ describe(@"-switchToLatest", ^{
 
 		RACSignal *switched = [signalOfSignals switchToLatest];
 
-		[[switched publish] connect];
+		[switched subscribe:nil];
 		expect(subscriptions).to.equal(1);
 
-		[[switched publish] connect];
+		[switched subscribe:nil];
 		expect(subscriptions).to.equal(2);
 	});
 });
@@ -2305,7 +2305,7 @@ describe(@"-catch:", ^{
 			}];
 		}];
 
-		RACDisposable *disposable = [signal subscribeCompleted:^{}];
+		RACDisposable *disposable = [signal subscribe:nil];
 		[subject sendError:RACSignalTestError];
 		[disposable dispose];
 
@@ -3146,7 +3146,7 @@ describe(@"-concat", ^{
 			}];
 		}];
 
-		RACDisposable *concatDisposable = [[subject concat] subscribeCompleted:^{}];
+		RACDisposable *concatDisposable = [[subject concat] subscribe:nil];
 		
 		[subject sendNext:innerSignal];
 		expect(disposed).notTo.beTruthy();
@@ -3170,7 +3170,7 @@ describe(@"-concat", ^{
 			return nil;
 		}];
 
-		RACDisposable *concatDisposable = [[outerSignal concat] subscribeCompleted:^{}];
+		RACDisposable *concatDisposable = [[outerSignal concat] subscribe:nil];
 
 		[firstSignal sendCompleted];
 		expect(disposed).notTo.beTruthy();
@@ -3204,7 +3204,7 @@ describe(@"-doFinished:", ^{
 		__block RACDisposable *disposable;
 
 		beforeEach(^{
-			disposable = [signal subscribeCompleted:^{}];
+			disposable = [signal subscribe:nil];
 		});
 		
 		afterEach(^{
@@ -3252,7 +3252,7 @@ describe(@"-doDisposed:", ^{
 		__block RACDisposable *disposable;
 
 		beforeEach(^{
-			disposable = [signal subscribeCompleted:^{}];
+			disposable = [signal subscribe:nil];
 		});
 
 		it(@"should not run upon next", ^{
@@ -3500,7 +3500,7 @@ describe(@"starting signals", ^{
 			}];
 
 			subscribe = [^{
-				[signal subscribeCompleted:^{}];
+				[signal subscribe:nil];
 			} copy];
 		});
 
@@ -3568,10 +3568,10 @@ describe(@"starting signals", ^{
 
 			expect(invokedCount).to.equal(1);
 
-			[[signal publish] connect];
+			[signal subscribe:nil];
 			expect(invokedCount).to.equal(1);
 
-			[[signal publish] connect];
+			[signal subscribe:nil];
 			expect(invokedCount).to.equal(1);
 		});
 
@@ -3739,8 +3739,8 @@ describe(@"-shareWhileActive", ^{
 	});
 
 	it(@"should have at most one subscription to the underlying signal", ^{
-		[signal subscribeCompleted:^{}];
-		[signal subscribeCompleted:^{}];
+		[signal subscribe:nil];
+		[signal subscribe:nil];
 		expect(totalSubscriptions).to.equal(1);
 		expect(activeSubscriptions).to.equal(1);
 
@@ -3748,8 +3748,8 @@ describe(@"-shareWhileActive", ^{
 		expect(totalSubscriptions).to.equal(1);
 		expect(activeSubscriptions).to.equal(0);
 
-		[signal subscribeCompleted:^{}];
-		[signal subscribeCompleted:^{}];
+		[signal subscribe:nil];
+		[signal subscribe:nil];
 		expect(totalSubscriptions).to.equal(2);
 		expect(activeSubscriptions).to.equal(1);
 
@@ -3797,8 +3797,8 @@ describe(@"-shareWhileActive", ^{
 	});
 
 	it(@"should dispose of the underlying subscription when all subscribers are disposed", ^{
-		RACDisposable *firstDisposable = [signal subscribeCompleted:^{}];
-		RACDisposable *secondDisposable = [signal subscribeCompleted:^{}];
+		RACDisposable *firstDisposable = [signal subscribe:nil];
+		RACDisposable *secondDisposable = [signal subscribe:nil];
 		expect(totalSubscriptions).to.equal(1);
 		expect(activeSubscriptions).to.equal(1);
 
@@ -4031,7 +4031,7 @@ describe(@"-flatten:withPolicy:", ^{
 				signalDeallocd = YES;
 			}]];
 
-			[signal subscribeCompleted:^{}];
+			[signal subscribe:nil];
 			[subject sendCompleted];
 		}
 
@@ -4040,7 +4040,7 @@ describe(@"-flatten:withPolicy:", ^{
 	});
 
 	it(@"should not crash when disposing while subscribing", ^{
-		RACDisposable *disposable = [[signals flatten:1 withPolicy:RACSignalFlattenPolicyQueue] subscribeCompleted:^{}];
+		RACDisposable *disposable = [[signals flatten:1 withPolicy:RACSignalFlattenPolicyQueue] subscribe:nil];
 
 		[signals sendNext:[RACSignal create:^(id<RACSubscriber> subscriber) {
 			[disposable dispose];

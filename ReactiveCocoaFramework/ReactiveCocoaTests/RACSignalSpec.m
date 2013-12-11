@@ -1788,10 +1788,10 @@ describe(@"-switchToLatest", ^{
 
 		RACSignal *switched = [signalOfSignals switchToLatest];
 
-		[[switched publish] connect];
+		[switched subscribe:nil];
 		expect(subscriptions).to.equal(1);
 
-		[[switched publish] connect];
+		[switched subscribe:nil];
 		expect(subscriptions).to.equal(2);
 	});
 });
@@ -3568,10 +3568,10 @@ describe(@"starting signals", ^{
 
 			expect(invokedCount).to.equal(1);
 
-			[[signal publish] connect];
+			[signal subscribe:nil];
 			expect(invokedCount).to.equal(1);
 
-			[[signal publish] connect];
+			[signal subscribe:nil];
 			expect(invokedCount).to.equal(1);
 		});
 

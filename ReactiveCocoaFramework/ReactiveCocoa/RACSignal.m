@@ -13,7 +13,8 @@
 #import "RACEmptySignal.h"
 #import "RACErrorSignal.h"
 #import "RACLiveSubscriber.h"
-#import "RACPromise.h"
+#import "RACMulticastConnection.h"
+#import "RACReplaySubject.h"
 #import "RACReturnSignal.h"
 #import "RACScheduler.h"
 #import "RACSerialDisposable.h"
@@ -66,7 +67,13 @@
 @implementation RACSignal (Subscription)
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	RACLiveSubscriber *liveSubscriber = [RACLiveSubscriber subscriberForwardingToSubscriber:subscriber];
+	RACLiveSubscriber *liveSubscriber;
+	if (subscriber == nil) {
+		liveSubscriber = [RACLiveSubscriber subscriberWithNext:nil error:nil completed:nil];
+	} else {
+		liveSubscriber = [RACLiveSubscriber subscriberForwardingToSubscriber:subscriber];
+	}
+
 	liveSubscriber.signal = self;
 
 	[self attachSubscriber:liveSubscriber];
@@ -226,11 +233,34 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 }
 
 + (RACSignal *)startEagerlyWithScheduler:(RACScheduler *)scheduler block:(void (^)(id<RACSubscriber> subscriber))block {
-	return [[RACPromise promiseWithScheduler:scheduler block:block] start];
+	NSCParameterAssert(scheduler != nil);
+	NSCParameterAssert(block != NULL);
+
+	RACSignal *signal = [self startLazilyWithScheduler:scheduler block:block];
+	// Subscribe to force the lazy signal to call its block.
+	[[signal publish] connect];
+	return [signal setNameWithFormat:@"+startEagerlyWithScheduler:%@ block:", scheduler];
 }
 
 + (RACSignal *)startLazilyWithScheduler:(RACScheduler *)scheduler block:(void (^)(id<RACSubscriber> subscriber))block {
-	return [[RACPromise promiseWithScheduler:scheduler block:block] deferred];
+	NSCParameterAssert(scheduler != nil);
+	NSCParameterAssert(block != NULL);
+
+	RACMulticastConnection *connection = [[RACSignal
+		createSignal:^ id (id<RACSubscriber> subscriber) {
+			block(subscriber);
+			return nil;
+		}]
+		multicast:[RACReplaySubject subject]];
+	
+	return [[[RACSignal
+		createSignal:^ id (id<RACSubscriber> subscriber) {
+			[connection.signal subscribe:subscriber];
+			[connection connect];
+			return nil;
+		}]
+		subscribeOn:scheduler]
+		setNameWithFormat:@"+startLazilyWithScheduler:%@ block:", scheduler];
 }
 
 @end

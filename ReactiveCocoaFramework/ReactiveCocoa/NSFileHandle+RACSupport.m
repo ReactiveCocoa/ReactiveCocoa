@@ -8,14 +8,15 @@
 
 #import "NSFileHandle+RACSupport.h"
 #import "NSNotificationCenter+RACSupport.h"
-#import "RACPromise.h"
+#import "NSObject+RACDescription.h"
+#import "RACReplaySubject.h"
 #import "RACScheduler.h"
 #import "RACSignal+Operations.h"
 
 @implementation NSFileHandle (RACSupport)
 
-- (RACSignal *)rac_readInBackground {
-	return [[[[[[[RACSignal
+- (RACSignal *)rac_readDataToEndOfFile {
+	return [[[[[[RACSignal
 		create:^(id<RACSubscriber> subscriber) {
 			[[NSNotificationCenter.defaultCenter
 				rac_addObserverForName:NSFileHandleReadCompletionNotification object:self]
@@ -39,9 +40,25 @@
 		}]
 		// -readInBackgroundAndNotify must be called on a thread with a run loop,
 		// so subscribe on the main thread.
-		promiseOnScheduler:RACScheduler.mainThreadScheduler]
-		start]
-		setNameWithFormat:@"%@ -rac_readInBackground", self];
+		subscribeOn:RACScheduler.mainThreadScheduler]
+		setNameWithFormat:@"%@ -rac_readDataToEndOfFile", self.rac_description];
 }
 
 @end
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
+@implementation NSFileHandle (RACSupportDeprecated)
+
+- (RACSignal *)rac_readInBackground {
+	RACReplaySubject *subject = [RACReplaySubject subject];
+	[[self rac_readDataToEndOfFile] subscribe:subject];
+
+	return subject;
+}
+
+@end
+
+#pragma clang diagnostic pop

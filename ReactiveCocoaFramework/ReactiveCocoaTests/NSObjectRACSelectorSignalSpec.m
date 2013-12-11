@@ -134,7 +134,7 @@ describe(@"RACTestObject", ^{
 	it(@"should send arguments for invocation and invoke the original method on previously KVO'd receiver", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 
-		[[RACObserve(object, objectValue) publish] connect];
+		[RACObserve(object, objectValue) subscribe:nil];
 
 		__block id key;
 		__block id value;
@@ -163,7 +163,7 @@ describe(@"RACTestObject", ^{
 			key = x.second;
 		}];
 
-		[[RACObserve(object, objectValue) publish] connect];
+		[RACObserve(object, objectValue) subscribe:nil];
 
 		[object setObjectValue:@YES andSecondObjectValue:@"Winner"];
 
@@ -180,7 +180,7 @@ describe(@"RACTestObject", ^{
 
 		// First, setup KVO on `object`, which gives us the desired side-effect
 		// of `object` taking on a KVO-custom subclass.
-		[[RACObserve(object, objectValue) publish] connect];
+		[RACObserve(object, objectValue) subscribe:nil];
 
 		SEL selector = NSSelectorFromString(@"anyOldSelector:");
 

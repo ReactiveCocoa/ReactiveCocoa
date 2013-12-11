@@ -16,7 +16,6 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=4&sta
 
 **[Replacements](#replacements)**
 
- 1. [Promises instead of replaying](#promises-instead-of-replaying)
  1. [Actions instead of commands](#actions-instead-of-commands)
  1. [Simplified signal creation and disposal](#simplified-signal-creation-and-disposal)
  1. [Generalized throttling](#generalized-throttling)
@@ -25,6 +24,7 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=4&sta
 
  1. [Sequences](#sequences)
  1. [Multicasting](#multicasting)
+ 1. [Replay subjects](#replay-subjects)
  1. [Behavior subjects](#behavior-subjects)
 
 **[Additions](#additions)**
@@ -32,34 +32,6 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=4&sta
  1. [Signal generators](#signal-generators)
 
 ## Replacements
-
-### Promises instead of replaying
-
-`RACReplaySubject` has been used mostly for _memoization_: doing
-something once, then saving the results. However, this has made it something of
-an odd duck next to `RACSignal` and `RACSubject`.
-
-Where `RACSignal` usually represents a "cold" signal (one that performs its side
-effects once for each subscription), and `RACSubject` represents a "hot" signal
-(one that doesn't perform any side effects upon subscription),
-`RACReplaySubject` has occupied a weird "lukewarm" middle ground.
-
-Additionally, memoization doesn't require a manually-controllable subject — only
-some way to force a side-effecting signal to run (at most) once.
-
-For these reasons, `RACReplaySubject` and its corresponding signal operators
-have been [replaced](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/877)
-with `RACPromise` and `-[RACSignal promiseOnScheduler:]`, which solve most of
-the same problems in a much simpler way.
-
-**To update:**
-
- * Replace uses of `RACReplaySubject` with `RACPromise` or plain `RACSubject`.
- * Replace `-replay` with `-promiseOnScheduler:` and `-[RACPromise start]`.
- * Replace `-replayLazily` with `-promiseOnScheduler:` and `-[RACPromise deferred]`.
- * Replace `-replayLast` with `-takeLast:`, `-promiseOnScheduler:`, and `-[RACPromise start]`.
- * Replace `+startEagerlyWithScheduler:block:` with `+[RACPromise promiseWithScheduler:block:]` and `-[RACPromise start]`.
- * Replace `+startLazilyWithScheduler:block:` with `+[RACPromise promiseWithScheduler:block:]` and `-[RACPromise deferred]`.
 
 ### Actions instead of commands
 
@@ -230,11 +202,67 @@ using subjects directly.
 
 **To update:**
 
- * Replace `-publish` with `-subscribe:` and a `RACSubject`.
- * Replace `-multicast:` with `-subscribe:` (for `RACSubject`) or
-   a [promise](#promises-instead-of-replaying) (for `RACReplaySubject`).
+ * Replace `-publish` and `-multicast:` with `-subscribe:` plus a `RACSubject`.
  * Ensure that subscription occurs in the same place that the underlying signal
    was being connected to.
+
+### Replay subjects 
+
+`RACReplaySubject` has been used mostly for memoization: doing
+something once, then saving the results. However, this has made it something of
+an odd duck next to `RACSignal` and `RACSubject`.
+
+Where `RACSignal` usually represents a "cold" signal (one that performs its side
+effects once for each subscription), and `RACSubject` represents a "hot" signal
+(one that doesn't perform any side effects upon subscription),
+`RACReplaySubject` has occupied a weird "lukewarm" middle ground.
+
+Additionally, replayed signals don't support certain kinds of manipulation, like
+`-retry:`, `-repeat`, `-subscribeOn:`, etc. Such operators will have—at best—
+surprising behavior, since they don't actually allow the underlying subscription
+to be controlled.
+
+For these reasons, `RACReplaySubject` and its corresponding signal operators
+have been [deprecated](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/877).
+_(Note that the replacement offered in that pull request, `RACPromise`, was later
+[removed](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/995) as well.)_
+
+**To update:**
+
+ * Replace `RACReplaySubject`, `-replay`, `-replayLazily`, and `-replayLast` with cold signals or plain `RACSubject` if possible.
+ * Replace `+startEagerlyWithScheduler:block:` and `+startLazilyWithScheduler:block:` with `+create:` plus `-subscribeOn:`.
+
+By far, the easiest solution is to adopt cold signals everywhere, and limit the
+number of subscriptions to signals that have side effects.
+
+For example, given this replaying signal:
+
+```objc
+RACSignal *lazyFetch = [[[self
+    fetchUser]
+    flattenMap:^(User *user) {
+        return [self saveUser:user];
+    }]
+    replayLazily];
+```
+
+Removing the `-replayLazily` doesn't alter the behavior for _one_ subscription.
+If _multiple_ subscribers are interested in the results, connect them to a subject,
+and then forward the signal to that subject:
+
+```objc
+RACSubject *lazyFetchSubject = [RACSubject subject];
+
+[lazyFetchSubject subscribeCompleted:^{
+    NSLog(@"First subscriber completed");
+}];
+
+[lazyFetchSubject subscribeCompleted:^{
+    NSLog(@"Second subscriber completed");
+}];
+
+[lazyFetch subscribe:lazyFetchSubject];
+```
 
 ### Behavior subjects
 
@@ -245,7 +273,7 @@ its semantics can be implemented with other classes or operators.
 
 **To update:**
 
-Replace uses of `RACBehaviorSubject` with `RACPromise` or a plain `RACSubject`.
+Replace uses of `RACBehaviorSubject` with a property or a plain `RACSubject`.
 
 ## Additions
 

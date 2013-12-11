@@ -515,6 +515,11 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 				[activeSignals addObject:signal];
 			}
 
+			// Keep a retained reference to the block that still has the
+			// retain cycle so dequeueAndSubscribeIfAllowed doesn't get teared down
+			// until after everything is done.
+			id oldCompleteSignal __attribute((unused)) = completeSignal;
+
 			__block RACDisposable *disposable = [signal subscribeNext:^(id x) {
 				[subscriber sendNext:x];
 			} error:^(NSError *error) {
@@ -543,10 +548,6 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 		[compoundDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 			@synchronized (compoundDisposable) {
-				// Keep an autoreleasing reference to the block that still has the
-				// retain cycle so dequeueAndSubscribeIfAllowed doesn't get teared down
-				// until after everything is done.
-				__autoreleasing id oldCompleteSignal __attribute__((unused)) = completeSignal;
 				completeSignal = ^(RACSignal *signal) {
 					// Do nothing. We're just replacing this block to break the
 					// retain cycle.

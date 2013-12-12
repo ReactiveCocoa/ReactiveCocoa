@@ -152,6 +152,8 @@ NSString * const RACActionErrorKey = @"RACActionErrorKey";
 }
 
 - (RACSignal *)deferred:(id)input {
+	RACSignal *generated = [self.generator signalWithValue:input];
+
 	return [[[RACSignal
 		defer:^{
 			if (!self.immediateEnabled) {
@@ -172,8 +174,7 @@ NSString * const RACActionErrorKey = @"RACActionErrorKey";
 			// the ordering isn't well-defined there anyways.
 			self.immediateExecuting = YES;
 
-			return [[[[self.generator
-				signalWithValue:input]
+			return [[[generated
 				deliverOn:RACScheduler.mainThreadScheduler]
 				doError:^(NSError *error) {
 					[_errors sendNext:error];

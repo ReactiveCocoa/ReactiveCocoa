@@ -126,13 +126,12 @@ NSString * const RACActionErrorKey = @"RACActionErrorKey";
 	_generator = generator;
 	_errors = [[RACSubject subject] setNameWithFormat:@"%@ -errors", self];
 
-	RAC(self, immediateEnabled) = [RACSignal
+	RAC(self, immediateEnabled) = [[RACSignal
 		combineLatest:@[
 			[enabledSignal startWith:@YES],
-			RACObserve(self, immediateExecuting),
-		] reduce:^(NSNumber *enabled, NSNumber *executing) {
-			return @(enabled.boolValue && !executing.boolValue);
-		}];
+			[RACObserve(self, immediateExecuting) not],
+		]]
+		and];
 
 	return self;
 }

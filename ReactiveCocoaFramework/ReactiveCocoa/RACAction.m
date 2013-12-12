@@ -116,26 +116,6 @@ NSString * const RACActionErrorKey = @"RACActionErrorKey";
 
 #pragma mark Lifecycle
 
-+ (instancetype)actionWithEnabled:(RACSignal *)enabledSignal generator:(RACSignalGenerator *)generator {
-	return [[self alloc] initWithEnabled:enabledSignal generator:generator];
-}
-
-+ (instancetype)actionWithGenerator:(RACSignalGenerator *)generator {
-	return [self actionWithEnabled:[RACSignal empty] generator:generator];
-}
-
-+ (instancetype)actionWithEnabled:(RACSignal *)enabledSignal signal:(RACSignal *)signal {
-	RACSignalGenerator *generator = [RACDynamicSignalGenerator generatorWithBlock:^(id _) {
-		return signal;
-	}];
-
-	return [self actionWithEnabled:enabledSignal generator:generator];
-}
-
-+ (instancetype)actionWithSignal:(RACSignal *)signal {
-	return [self actionWithEnabled:[RACSignal empty] signal:signal];
-}
-
 - (instancetype)initWithEnabled:(RACSignal *)enabledSignal generator:(RACSignalGenerator *)generator {
 	NSCParameterAssert(enabledSignal != nil);
 	NSCParameterAssert(generator != nil);
@@ -216,6 +196,34 @@ NSString * const RACActionErrorKey = @"RACActionErrorKey";
 	// Generate all KVO notifications manually to avoid the performance impact
 	// of unnecessary swizzling.
 	return NO;
+}
+
+@end
+
+@implementation RACSignalGenerator (RACActionAdditions)
+
+- (RACAction *)action {
+	return [self actionEnabledIf:[RACSignal empty]];
+}
+
+- (RACAction *)actionEnabledIf:(RACSignal *)enabledSignal {
+	return [[RACAction alloc] initWithEnabled:enabledSignal generator:self];
+}
+
+@end
+
+@implementation RACSignal (RACActionAdditions)
+
+- (RACAction *)action {
+	return [self actionEnabledIf:[RACSignal empty]];
+}
+
+- (RACAction *)actionEnabledIf:(RACSignal *)enabledSignal {
+	RACSignalGenerator *generator = [RACDynamicSignalGenerator generatorWithBlock:^(id _) {
+		return self;
+	}];
+
+	return [[RACAction alloc] initWithEnabled:enabledSignal generator:generator];
 }
 
 @end

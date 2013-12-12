@@ -8,18 +8,17 @@
 
 #import "UIRefreshControl+RACSupport.h"
 #import "NSObject+RACSelectorSignal.h"
-#import "RACDynamicSignalGenerator.h"
+#import "RACAction.h"
 #import "RACSignal+Operations.h"
 #import "RACSubject.h"
 
 SpecBegin(UIRefreshControlRACSupport)
 
 describe(@"UIRefreshControl", ^{
-	__block UIRefreshControl *refreshControl;
-
+	__block BOOL subscribed;
 	__block RACSubject *subject;
-	__block RACSignalGenerator *generator;
-
+	
+	__block UIRefreshControl *refreshControl;
 	__block BOOL refreshingEnded;
 
 	beforeEach(^{
@@ -27,11 +26,14 @@ describe(@"UIRefreshControl", ^{
 		expect(refreshControl).notTo.beNil();
 
 		subject = [RACSubject subject];
-		generator = [RACDynamicSignalGenerator generatorWithBlock:^(id _) {
-			return subject;
-		}];
 
-		refreshControl.rac_refreshGenerator = generator;
+		subscribed = NO;
+		refreshControl.rac_action = [[RACSignal
+			defer:^{
+				subscribed = YES;
+				return subject;
+			}]
+			action];
 
 		// Just -rac_signalForSelector: posing as a mock.
 		refreshingEnded = NO;
@@ -44,18 +46,20 @@ describe(@"UIRefreshControl", ^{
 
 	it(@"should call -endRefreshing upon completion", ^{
 		[refreshControl sendActionsForControlEvents:UIControlEventValueChanged];
+		expect(subscribed).will.beTruthy();
 		expect(refreshingEnded).to.beFalsy();
 
 		[subject sendCompleted];
-		expect(refreshingEnded).to.beTruthy();
+		expect(refreshingEnded).will.beTruthy();
 	});
 
 	it(@"should call -endRefreshing upon error", ^{
 		[refreshControl sendActionsForControlEvents:UIControlEventValueChanged];
+		expect(subscribed).will.beTruthy();
 		expect(refreshingEnded).to.beFalsy();
 
 		[subject sendError:[NSError errorWithDomain:@"" code:1 userInfo:nil]];
-		expect(refreshingEnded).to.beTruthy();
+		expect(refreshingEnded).will.beTruthy();
 	});
 });
 

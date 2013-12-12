@@ -26,14 +26,24 @@ NSString * const RACActionErrorKey = @"RACActionErrorKey";
 @interface RACAction () {
 	RACSubject *_errors;
 
-	// Atomic backing variables.
+	// Atomic backing variables for implementing `immediateEnabled` and
+	// `immediateExecuting` ourselves (needed so we can also generate KVO
+	// notifications ourselves).
 	volatile int _immediateEnabled;
 	volatile int _immediateExecuting;
 }
 
+// The generator that the receiver was initialized with.
 @property (nonatomic, strong, readonly) RACSignalGenerator *generator;
 
+// Whether the receiver is currently enabled.
+//
+// This property may be modified from any thread.
 @property (atomic, assign) BOOL immediateEnabled;
+
+// Whether the receiver is currently executing.
+//
+// This property may be modified from any thread.
 @property (atomic, assign) BOOL immediateExecuting;
 
 // Improves the performance of KVO on the receiver.

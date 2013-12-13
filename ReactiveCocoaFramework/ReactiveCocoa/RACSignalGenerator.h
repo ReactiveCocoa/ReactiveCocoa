@@ -38,3 +38,17 @@
 - (RACSignal *)signalWithValue:(id)input;
 
 @end
+
+@interface RACSignalGenerator (Operations)
+
+/// Passes the outputs of the receiver through `otherGenerator`.
+///
+/// This behaves like the receiver, followed by a -flattenMap: using `otherGenerator`.
+///
+/// otherGenerator - The generator to apply after the receiver. This must not be nil.
+///
+/// Returns a new `RACSignalGenerator` that combines the logic of the two
+/// generators.
+- (RACSignalGenerator *)postcompose:(RACSignalGenerator *)otherGenerator;
+
+@end

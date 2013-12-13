@@ -10,7 +10,6 @@
 #import "NSObject+RACDeallocating.h"
 #import "RACCompoundDisposable.h"
 #import "RACSignal+Operations.h"
-#import "RACSignalGenerator+Operations.h"
 
 SpecBegin(RACDynamicSignalGenerator)
 

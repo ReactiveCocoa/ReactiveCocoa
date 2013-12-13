@@ -36,10 +36,7 @@ static void *UIRefreshControlActionDisposableKey = &UIRefreshControlActionDispos
 
 	if (action == nil) return;
 
-	// Like RAC(self, enabled) = action.enabled; but with access to the
-	// disposable.
 	RACDisposable *enabledDisposable = [action.enabled setKeyPath:@keypath(self.enabled) onObject:self];
-
 	RACDisposable *actionDisposable = [[[[[self
 		rac_signalForControlEvents:UIControlEventValueChanged]
 		doDisposed:^{

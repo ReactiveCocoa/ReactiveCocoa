@@ -15,6 +15,9 @@
 
 /// An action to execute when the refresh control is activated.
 ///
+/// The receiver will be automatically enabled and disabled based on
+/// `RACAction.enabled`.
+///
 /// When the action finishes executing (and if it was started by the receiver),
 /// -endRefreshing will be invoked automatically.
 @property (nonatomic, strong) RACAction *rac_action;

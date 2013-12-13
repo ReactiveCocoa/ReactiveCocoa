@@ -88,7 +88,7 @@ perform side-effecting work as the user interacts with the app.
 
 Actions can also be automatically disabled based on a signal, and this disabled
 state can be represented in a UI by disabling any controls associated with the
-command.
+action.
 
 RAC adds a `rac_action` property to many built-in AppKit and UIKit controls, to
 make it easy to set up these behaviors automatically.

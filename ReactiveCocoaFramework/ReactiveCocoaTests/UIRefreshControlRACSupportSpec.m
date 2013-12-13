@@ -6,7 +6,9 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import "RACControlActionExamples.h"
 #import "UIRefreshControl+RACSupport.h"
+
 #import "NSObject+RACSelectorSignal.h"
 #import "RACAction.h"
 #import "RACSignal+Operations.h"
@@ -20,6 +22,10 @@ describe(@"UIRefreshControl", ^{
 	
 	__block UIRefreshControl *refreshControl;
 	__block BOOL refreshingEnded;
+
+	void (^activate)(UIRefreshControl *) = ^(UIRefreshControl *refreshControl) {
+		[refreshControl sendActionsForControlEvents:UIControlEventValueChanged];
+	};
 
 	beforeEach(^{
 		refreshControl = [[UIRefreshControl alloc] init];
@@ -45,7 +51,7 @@ describe(@"UIRefreshControl", ^{
 	});
 
 	it(@"should call -endRefreshing upon completion", ^{
-		[refreshControl sendActionsForControlEvents:UIControlEventValueChanged];
+		activate(refreshControl);
 		expect(subscribed).will.beTruthy();
 		expect(refreshingEnded).to.beFalsy();
 
@@ -54,12 +60,19 @@ describe(@"UIRefreshControl", ^{
 	});
 
 	it(@"should call -endRefreshing upon error", ^{
-		[refreshControl sendActionsForControlEvents:UIControlEventValueChanged];
+		activate(refreshControl);
 		expect(subscribed).will.beTruthy();
 		expect(refreshingEnded).to.beFalsy();
 
 		[subject sendError:[NSError errorWithDomain:@"" code:1 userInfo:nil]];
 		expect(refreshingEnded).will.beTruthy();
+	});
+
+	itShouldBehaveLike(RACControlActionExamples, ^{
+		return @{
+			RACControlActionExampleControl: refreshControl,
+			RACControlActionExampleActivateBlock: activate
+		};
 	});
 });
 

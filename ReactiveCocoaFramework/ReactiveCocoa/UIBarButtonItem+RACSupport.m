@@ -77,7 +77,6 @@ static void *UIBarButtonItemActionDisposableKey = &UIBarButtonItemActionDisposab
 	objc_setAssociatedObject(self, UIBarButtonItemActionDisposableKey, actionDisposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-
 @end
 
 #pragma clang diagnostic push

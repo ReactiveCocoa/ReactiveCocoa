@@ -16,6 +16,7 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=4&sta
 
 **[Replacements](#replacements)**
 
+ 1. [Actions instead of commands](#actions-instead-of-commands)
  1. [Simplified signal creation and disposal](#simplified-signal-creation-and-disposal)
  1. [Generalized throttling](#generalized-throttling)
 
@@ -31,6 +32,69 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=4&sta
  1. [Signal generators](#signal-generators)
 
 ## Replacements
+
+### Actions instead of commands
+
+Because of its confusing API, `RACCommand` hasn't been used much, despite the
+value it offers in responding to UI events. The new `RACAction` class, which
+[replaces](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/910)
+`RACCommand`, attempts to provide the same value in a much less confusing way.
+
+Any [signal generator](#signal-generators) can be directly converted into an
+action via the `-action` or `-actionEnabledIf:` methods. Whenever the resulting
+action is executed, a signal will be generated and subscribed to, triggering its
+side effects. `RACAction` will automatically ensure that only one subscription
+is in effect at a time.
+
+The class still provides some familiar `RACCommand` conveniences (like
+collecting execution errors onto an `errors` signal), but without any signal
+blocks, signals of signals, or concurrent behaviors to worry about.
+
+**To update:**
+
+ * Replace uses of `-[RACCommand initWithSignalBlock:]` that _do not use the
+   argument_ with a cold signal and `-[RACSignal action]`.
+ * Replace uses of `-[RACCommand initWithSignalBlock:]` that _use the argument_
+   with `+[RACDynamicSignalGenerator generatorWithBlock:]` and
+   `-[RACSignalGenerator action]`.
+ * If you were instead using `-[RACCommand initWithEnabled:signalBlock:]`, use
+   the `-actionEnabledIf:` variant.
+ * Replace uses of `RACCommand.executionSignals` with
+   `RACAggregatingSignalGenerator`, and create the action from that.
+ * Instead of setting `RACCommand.allowsConcurrentExecution` to `YES`, use
+   a plain `RACSignal` instead.
+ * Replace `-[RACCommand execute:]` with `-[RACAction deferred:]` when you need
+   the results of the execution.
+ * Invoke `-[RACAction execute:]` from your UI when the caller does not care
+   about the results.
+ * Replace `rac_command` bindings with `rac_action`.
+
+For example, this command:
+
+```objc
+// View model
+_logInCommand = [[RACCommand alloc] initWithEnabled:currentlyOnline signalBlock:^(NSString *username) {
+    return [self logInWithUsername:username];
+}];
+
+// View controller
+self.button.rac_command = viewModel.logInCommand;
+```
+
+Would look more like this, using `RACAction`:
+
+```objc
+// View model
+_logInAction = [[RACDynamicSignalGenerator
+    generatorWithBlock:^(NSString *username) {
+        // Note that this signal should be cold. Use +defer: if necessary.
+        return [self logInWithUsername:username];
+    }]
+    actionEnabledIf:currentlyOnline];
+
+// View controller
+self.button.rac_action = viewModel.logInAction;
+```
 
 ### Simplified signal creation and disposal
 

@@ -26,11 +26,6 @@
 
 @interface UIRefreshControl (RACSupportDeprecated)
 
-/// Manipulate the RACCommand property associated with this refresh control.
-///
-/// When this refresh control is activated by the user, the command will be
-/// executed. Upon completion or error of the execution signal, -endRefreshing
-/// will be invoked.
-@property (nonatomic, strong) RACCommand *rac_command;
+@property (nonatomic, strong) RACCommand *rac_command RACDeprecated("Use `rac_action` instead");
 
 @end

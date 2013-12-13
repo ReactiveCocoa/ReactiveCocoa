@@ -24,6 +24,6 @@
 
 @interface UIButton (RACSupportDeprecated)
 
-@property (nonatomic, strong) RACCommand *rac_command RACDeprecated("Use `rac_tapSignal` and bind to `enabled` instead");
+@property (nonatomic, strong) RACCommand *rac_command RACDeprecated("Use `rac_action` instead");
 
 @end

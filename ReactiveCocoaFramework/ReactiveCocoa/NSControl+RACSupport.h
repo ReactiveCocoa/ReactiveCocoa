@@ -48,6 +48,6 @@
 
 @interface NSControl (RACSupportDeprecated)
 
-@property (nonatomic, strong) RACCommand *rac_command RACDeprecated("Use `rac_actionSignal` and `rac_enabled` instead");
+@property (nonatomic, strong) RACCommand *rac_command RACDeprecated("Use `rac_action` instead");
 
 @end

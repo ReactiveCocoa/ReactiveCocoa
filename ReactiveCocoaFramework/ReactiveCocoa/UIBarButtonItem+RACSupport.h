@@ -34,6 +34,6 @@
 
 @interface UIBarButtonItem (RACSupportDeprecated)
 
-@property (nonatomic, strong) RACCommand *rac_command RACDeprecated("Use `rac_actionSignal` and bind to `enabled` instead");
+@property (nonatomic, strong) RACCommand *rac_command RACDeprecated("Use `rac_action` instead");
 
 @end

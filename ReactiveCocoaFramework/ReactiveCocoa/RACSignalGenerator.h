@@ -23,7 +23,7 @@
 ///
 /// Although this class is meant to be subclassed, there may be a provided
 /// subclass or an operator that already does what you need. In particular, see
-/// `RACDynamicSignalGenerator` and `RACSignalGenerator+Operations.h`.
+/// `RACDynamicSignalGenerator` and `RACAggregatingSignalGenerator`.
 @interface RACSignalGenerator : NSObject
 
 /// Creates a signal for the given value.

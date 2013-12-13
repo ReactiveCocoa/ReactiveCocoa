@@ -13,6 +13,7 @@
 #import "RACDynamicSignalGenerator.h"
 #import "RACScheduler.h"
 #import "RACSignal+Operations.h"
+#import "RACSubject.h"
 #import "RACUnit.h"
 
 SpecBegin(RACAction)
@@ -25,6 +26,40 @@ __block NSMutableArray *enabled;
 __block NSUInteger subscriptionCount;
 __block NSUInteger disposalCount;
 
+void (^connectAction)(void) = ^{
+	[[action.executing distinctUntilChanged] subscribeNext:^(NSNumber *value) {
+		expect(value).to.beKindOf(NSNumber.class);
+
+		if (executing.count > 0) {
+			expect(RACScheduler.currentScheduler).to.equal(RACScheduler.mainThreadScheduler);
+		}
+
+		[executing addObject:value];
+	}];
+
+	[[action.enabled distinctUntilChanged] subscribeNext:^(NSNumber *value) {
+		expect(value).to.beKindOf(NSNumber.class);
+
+		if (enabled.count > 0) {
+			expect(RACScheduler.currentScheduler).to.equal(RACScheduler.mainThreadScheduler);
+		}
+
+		[enabled addObject:value];
+	}];
+};
+
+RACSignal * (^signalWithValue)(id) = ^(id value) {
+	return [[[RACSignal
+		defer:^{
+			subscriptionCount++;
+			return [RACSignal return:value];
+		}]
+		doDisposed:^{
+			disposalCount++;
+		}]
+		deliverOn:[RACScheduler scheduler]];
+};
+
 beforeEach(^{
 	subscriptionCount = 0;
 	disposalCount = 0;
@@ -33,7 +68,7 @@ beforeEach(^{
 	enabled = [NSMutableArray array];
 });
 
-sharedExamplesFor(@"execution", ^(id _) {
+sharedExamplesFor(@"enabled action", ^(id _) {
 	it(@"should be enabled by default", ^{
 		expect(enabled).to.equal((@[ @YES ]));
 	});
@@ -67,8 +102,31 @@ sharedExamplesFor(@"execution", ^(id _) {
 		expect(receivedError).to.beFalsy();
 	});
 
-	pending(@"should error if already executing");
-	pending(@"should send all execution results on the main thread");
+	it(@"should error if already executing", ^{
+		[action execute:nil];
+
+		NSError *error = nil;
+		BOOL success = [[action deferred:nil] asynchronouslyWaitUntilCompleted:&error];
+		expect(success).to.beFalsy();
+
+		expect(error).notTo.beNil();
+		expect(error.domain).to.equal(RACActionErrorDomain);
+		expect(error.code).to.equal(RACActionErrorNotEnabled);
+		expect(error.userInfo[RACActionErrorKey]).to.beIdenticalTo(action);
+	});
+
+	it(@"should send all execution results on the main thread", ^{
+		__block BOOL completed = NO;
+
+		[[action deferred:nil] subscribeNext:^(id _) {
+			expect(RACScheduler.currentScheduler).to.equal(RACScheduler.mainThreadScheduler);
+		} completed:^{
+			expect(RACScheduler.currentScheduler).to.equal(RACScheduler.mainThreadScheduler);
+			completed = YES;
+		}];
+
+		expect(completed).will.beTruthy();
+	});
 });
 
 describe(@"from a signal generator", ^{
@@ -80,41 +138,17 @@ describe(@"from a signal generator", ^{
 		action = [[RACDynamicSignalGenerator
 			generatorWithBlock:^(id value) {
 				generationCount++;
-
-				return [[RACSignal
-					defer:^{
-						subscriptionCount++;
-						return [RACSignal return:value];
-					}]
-					doDisposed:^{
-						disposalCount++;
-					}];
+				return signalWithValue(value);
 			}]
 			action];
 
 		expect(action).notTo.beNil();
+		connectAction();
+
 		expect(generationCount).to.equal(0);
-
-		[[action.executing distinctUntilChanged] subscribeNext:^(NSNumber *value) {
-			expect(value).to.beKindOf(NSNumber.class);
-
-			if (executing.count > 0) {
-				expect(RACScheduler.currentScheduler).to.equal(RACScheduler.mainThreadScheduler);
-			}
-
-			[executing addObject:value];
-		}];
-
-		[[action.enabled distinctUntilChanged] subscribeNext:^(NSNumber *value) {
-			expect(value).to.beKindOf(NSNumber.class);
-
-			if (enabled.count > 0) {
-				expect(RACScheduler.currentScheduler).to.equal(RACScheduler.mainThreadScheduler);
-			}
-
-			[enabled addObject:value];
-		}];
 	});
+
+	itShouldBehaveLike(@"enabled action", @{});
 
 	it(@"should generate a new signal with each call to -execute:", ^{
 		[action execute:nil];
@@ -150,44 +184,17 @@ describe(@"from a signal generator", ^{
 		// only been generated once.
 		expect(generationCount).to.equal(1);
 	});
-
-	pending(@"should forward errors on the main thread");
 });
 
 describe(@"from a signal", ^{
 	beforeEach(^{
-		action = [[[RACSignal
-			defer:^{
-				subscriptionCount++;
-				return [RACSignal return:RACUnit.defaultUnit];
-			}]
-			doDisposed:^{
-				disposalCount++;
-			}]
-			action];
-
+		action = [signalWithValue(RACUnit.defaultUnit) action];
 		expect(action).notTo.beNil();
 
-		[[action.executing distinctUntilChanged] subscribeNext:^(NSNumber *value) {
-			expect(value).to.beKindOf(NSNumber.class);
-
-			if (executing.count > 0) {
-				expect(RACScheduler.currentScheduler).to.equal(RACScheduler.mainThreadScheduler);
-			}
-
-			[executing addObject:value];
-		}];
-
-		[[action.enabled distinctUntilChanged] subscribeNext:^(NSNumber *value) {
-			expect(value).to.beKindOf(NSNumber.class);
-
-			if (enabled.count > 0) {
-				expect(RACScheduler.currentScheduler).to.equal(RACScheduler.mainThreadScheduler);
-			}
-
-			[enabled addObject:value];
-		}];
+		connectAction();
 	});
+
+	itShouldBehaveLike(@"enabled action", @{});
 
 	it(@"should defer execution", ^{
 		// The input value should be ignored here.
@@ -212,12 +219,86 @@ describe(@"from a signal", ^{
 });
 
 describe(@"enabled", ^{
-	pending(@"should default to YES before enabledSignal sends anything");
-	pending(@"should send NO after enabledSignal sends NO");
-	pending(@"should send NO after enabledSignal sends YES but while executing");
-	pending(@"should send YES after enabledSignal sends YES and not executing");
-	pending(@"should immediately sample enabledSignal at initialization time");
-	pending(@"should complete upon deallocation even if enabledSignal hasn't");
+	__block RACSubject *enabledSubject;
+
+	beforeEach(^{
+		enabledSubject = [RACSubject subject];
+
+		action = [signalWithValue(nil) actionEnabledIf:enabledSubject];
+		expect(action).notTo.beNil();
+
+		connectAction();
+	});
+
+	// Before anything is sent upon `enabledSubject`, the action should be
+	// enabled.
+	itShouldBehaveLike(@"enabled action", @{});
+
+	it(@"should send NO after enabledSignal sends NO", ^{
+		[enabledSubject sendNext:@NO];
+		expect(enabled).will.equal((@[ @YES, @NO ]));
+	});
+
+	it(@"should send NO after enabledSignal sends YES but while executing", ^{
+		[enabledSubject sendNext:@YES];
+
+		[action execute:nil];
+		expect(executing).will.equal((@[ @NO, @YES, @NO ]));
+		expect(enabled).to.equal((@[ @YES, @NO, @YES ]));
+	});
+
+	it(@"should send YES after enabledSignal sends YES and not executing", ^{
+		[enabledSubject sendNext:@NO];
+		expect(enabled).will.equal((@[ @YES, @NO ]));
+
+		[enabledSubject sendNext:@YES];
+		expect(enabled).will.equal((@[ @YES, @NO, @YES ]));
+	});
+
+	it(@"should immediately sample enabledSignal at initialization time", ^{
+		action = [[RACSignal empty] actionEnabledIf:[RACSignal return:@NO]];
+		expect([action.enabled first]).to.equal(@NO);
+	});
+
+	it(@"should complete upon deallocation even if enabledSignal hasn't", ^{
+		__block BOOL deallocated = NO;
+		__block BOOL completed = NO;
+
+		@autoreleasepool {
+			RACAction *action __attribute__((objc_precise_lifetime)) = [[RACSignal
+				empty]
+				actionEnabledIf:enabledSubject];
+
+			[action.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				deallocated = YES;
+			}]];
+
+			[action.enabled subscribeCompleted:^{
+				completed = YES;
+			}];
+		}
+
+		expect(deallocated).will.beTruthy();
+		expect(completed).will.beTruthy();
+	});
+});
+
+it(@"should forward errors on the main thread", ^{
+	NSError *testError = [NSError errorWithDomain:@"RACActionSpecDomain" code:321 userInfo:nil];
+
+	action = [[[RACSignal
+		error:testError]
+		deliverOn:[RACScheduler scheduler]]
+		action];
+	
+	__block NSError *receivedError = nil;
+	[action.errors subscribeNext:^(NSError *e) {
+		expect(RACScheduler.currentScheduler).to.equal(RACScheduler.mainThreadScheduler);
+		receivedError = e;
+	}];
+
+	[action execute:nil];
+	expect(receivedError).will.equal(testError);
 });
 
 it(@"should complete signals on the main thread when deallocated", ^{

@@ -21,9 +21,10 @@
 /// class behave like -flattenMap:, except that they can be applied directly to
 /// values (not just existing signals).
 ///
-/// Although this class is meant to be subclassed, there may be a provided
-/// subclass or an operator that already does what you need. In particular, see
-/// `RACDynamicSignalGenerator` and `RACAggregatingSignalGenerator`.
+/// This class is not meant to be instantiated directly. Instead, use one of the
+/// available subclasses or extensions on `RACSignal`. If you need behavior that
+/// cannot be achieved with `RACDynamicSignalGenerator` or another subclass, you
+/// may create your own by overriding `-signalWithValue:`.
 @interface RACSignalGenerator : NSObject
 
 /// Creates a signal for the given value.

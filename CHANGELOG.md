@@ -60,7 +60,8 @@ blocks, signals of signals, or concurrent behaviors to worry about.
  * If you were instead using `-[RACCommand initWithEnabled:signalBlock:]`, use
    the `-actionEnabledIf:` variant.
  * Replace uses of `RACCommand.executionSignals` with
-   `RACAggregatingSignalGenerator`, and create the action from that.
+   `RACAggregatingSignalGenerator`, and create the action from that. _(Note,
+   however, that the signal generator does not automatically catch errors.)_
  * Instead of setting `RACCommand.allowsConcurrentExecution` to `YES`, use
    a plain `RACSignal` instead.
  * Replace `-[RACCommand execute:]` with `-[RACAction deferred:]` when you need

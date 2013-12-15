@@ -63,6 +63,7 @@
 	#import "UIControl+RACSupport.h"
 	#import "UIDatePicker+RACSupport.h"
 	#import "UIGestureRecognizer+RACSupport.h"
+	#import "UIRefreshControl+RACSupport.h"
 	#import "UISegmentedControl+RACSupport.h"
 	#import "UISlider+RACSupport.h"
 	#import "UIStepper+RACSupport.h"

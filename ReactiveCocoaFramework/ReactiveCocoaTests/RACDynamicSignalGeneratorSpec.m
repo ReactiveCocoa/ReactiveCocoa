@@ -7,9 +7,11 @@
 //
 
 #import "RACDynamicSignalGenerator.h"
+
 #import "NSObject+RACDeallocating.h"
 #import "RACCompoundDisposable.h"
 #import "RACSignal+Operations.h"
+#import "RACUnit.h"
 
 SpecBegin(RACDynamicSignalGenerator)
 
@@ -22,6 +24,17 @@ it(@"should generate signals using a block", ^{
 	expect([[generator signalWithValue:@0] array]).to.equal(@[ @0 ]);
 	expect([[generator signalWithValue:@1] array]).to.equal(@[ @2 ]);
 	expect([[generator signalWithValue:@2] array]).to.equal(@[ @4 ]);
+});
+
+it(@"should generate a constant signal", ^{
+	RACSignalGenerator *generator = [[RACSignal
+		return:RACUnit.defaultUnit]
+		signalGenerator];
+
+	expect(generator).notTo.beNil();
+	expect([[generator signalWithValue:@0] array]).to.equal(@[ RACUnit.defaultUnit ]);
+	expect([[generator signalWithValue:@1] array]).to.equal(@[ RACUnit.defaultUnit ]);
+	expect([[generator signalWithValue:@2] array]).to.equal(@[ RACUnit.defaultUnit ]);
 });
 
 describe(@"with a reflexive block", ^{

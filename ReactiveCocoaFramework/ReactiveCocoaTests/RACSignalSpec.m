@@ -1749,6 +1749,38 @@ describe(@"-flatten:", ^{
 
 		expect(flattenDisposable.disposed).will.beTruthy();
 	});
+
+	it(@"should not crash when disposed because of takeUntil:", ^{
+		for (int i = 0; i < 100; i++) {
+			RACSubject *flattenedReceiver = [RACSubject subject];
+			RACSignal *done = [flattenedReceiver map:^(NSNumber *n) {
+				return @(n.integerValue == 1);
+			}];
+
+			RACSignal *flattened = [signalsSubject flatten:1];
+
+			RACDisposable *flattenDisposable = [[flattened takeUntil:[done ignore:@NO]] subscribe:flattenedReceiver];
+
+			RACSignal *syncSignal = [RACSignal createSignal:^ RACDisposable *(id<RACSubscriber> subscriber) {
+				expect(flattenDisposable.disposed).to.beFalsy();
+				[subscriber sendNext:@1];
+				expect(flattenDisposable.disposed).to.beTruthy();
+				[subscriber sendCompleted];
+				return nil;
+			}];
+
+			RACSignal *asyncSignal = [sub1 delay:0];
+			[subject1 sendNext:@0];
+
+			[signalsSubject sendNext:asyncSignal];
+			[signalsSubject sendNext:syncSignal];
+			[signalsSubject sendCompleted];
+
+			[subject1 sendCompleted];
+
+			expect(flattenDisposable.disposed).will.beTruthy();
+		}
+	});
 });
 
 describe(@"-switchToLatest", ^{

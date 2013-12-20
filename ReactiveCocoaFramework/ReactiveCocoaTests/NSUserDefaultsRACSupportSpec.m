@@ -63,13 +63,13 @@ it(@"should read defaults", ^{
 	RACChannelTo(observer, bool1, @NO) = [defaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecBoolDefault];
 	
 	expect(observer.string1).to.beNil();
-	expect(observer.bool1).to.equal(@NO);
+	expect(observer.bool1).to.equal(NO);
 	
 	[defaults setObject:@"Another string" forKey:NSUserDefaultsRACSupportSpecStringDefault];
 	[defaults setBool:YES forKey:NSUserDefaultsRACSupportSpecBoolDefault];
 	
 	expect(observer.string1).to.equal(@"Another string");
-	expect(observer.bool1).to.equal(@YES);
+	expect(observer.bool1).to.equal(YES);
 });
 
 it(@"should be okay to create 2 terminals", ^{
@@ -93,7 +93,7 @@ it(@"should handle removed defaults", ^{
 	[defaults removeObjectForKey:NSUserDefaultsRACSupportSpecBoolDefault];
 	
 	expect(observer.string1).to.beNil();
-	expect(observer.bool1).to.equal(@NO);
+	expect(observer.bool1).to.equal(NO);
 });
 
 it(@"shouldn't resend values", ^{

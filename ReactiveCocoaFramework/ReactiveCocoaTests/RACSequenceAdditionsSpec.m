@@ -13,6 +13,7 @@
 #import "NSOrderedSet+RACSequenceAdditions.h"
 #import "NSSet+RACSequenceAdditions.h"
 #import "NSString+RACSequenceAdditions.h"
+#import "NSIndexSet+RACSequenceAdditions.h"
 #import "RACSequence.h"
 #import "RACTuple.h"
 
@@ -289,6 +290,41 @@ describe(@"RACTuple sequences", ^{
 			RACSequenceExampleExpectedValues: @[ @"foo", NSNull.null, @"bar", NSNull.null, NSNull.null ]
 		};
 	});
+});
+
+describe(@"NSIndexSet sequences", ^{
+	__block NSMutableIndexSet *values;
+	__block RACSequence *sequence;
+	
+	beforeEach(^{
+		values = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 10)];
+		sequence = values.rac_sequence;
+		expect(sequence).notTo.beNil();
+	});
+	
+	itShouldBehaveLike(RACSequenceExamples, ^{
+		return @{
+				 RACSequenceExampleSequence: sequence,
+				 RACSequenceExampleExpectedValues: values.rac_sequence.array
+				 };
+	});
+	
+	describe(@"should be immutable", ^{
+		__block NSArray *unchangedValues;
+		
+		beforeEach(^{
+			unchangedValues = values.rac_sequence.array;
+			[values addIndex:20];
+		});
+		
+		itShouldBehaveLike(RACSequenceExamples, ^{
+			return @{
+					 RACSequenceExampleSequence: sequence,
+					 RACSequenceExampleExpectedValues: unchangedValues
+					 };
+		});
+	});
+
 });
 
 SpecEnd

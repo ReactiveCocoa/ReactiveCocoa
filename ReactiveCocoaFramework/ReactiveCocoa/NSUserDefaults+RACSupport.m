@@ -32,7 +32,7 @@
 		}]
 		startWith:[self objectForKey:key]]
 		// Don't send values that were set on the other side of the terminal.
-		filter:^BOOL(id _) {
+		filter:^ BOOL (id _) {
 			if (RACScheduler.currentScheduler == scheduler && ignoreNextValue) {
 				ignoreNextValue = NO;
 				return NO;

@@ -17,18 +17,22 @@
 
 @implementation NSString (RACSupport)
 
-- (RACSignal *)rac_signal {
+- (RACSignal *)rac_substringsInRange:(NSRange)range options:(NSStringEnumerationOptions)options {
 	NSString *string = [self copy];
 
-	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		[string enumerateSubstringsInRange:NSMakeRange(0, string.length) options:NSStringEnumerationByComposedCharacterSequences usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
-			[subscriber sendNext:substring];
+	return [[RACSignal
+		create:^(id<RACSubscriber> subscriber) {
+			[string enumerateSubstringsInRange:range options:options usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
+				NSValue *substringValue = [NSValue valueWithRange:substringRange];
+				NSValue *enclosingValue = [NSValue valueWithRange:enclosingRange];
+				[subscriber sendNext:RACTuplePack(substring, substringValue, enclosingValue)];
 
-			*stop = subscriber.disposable.disposed;
-		}];
+				*stop = subscriber.disposable.disposed;
+			}];
 
-		[subscriber sendCompleted];
-	}] setNameWithFormat:@"%@ -rac_signal", self.rac_description];
+			[subscriber sendCompleted];
+		}]
+		setNameWithFormat:@"%@ -rac_substringsInRange: %@ options: %li", self.rac_description, NSStringFromRange(range), (long)options];
 }
 
 + (RACSignal *)rac_contentsAndEncodingOfURL:(NSURL *)URL {

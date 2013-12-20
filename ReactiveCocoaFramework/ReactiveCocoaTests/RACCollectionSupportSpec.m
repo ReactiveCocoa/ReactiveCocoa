@@ -136,18 +136,14 @@ describe(@"NSSet signals", ^{
 });
 
 describe(@"NSString signals", ^{
-	__block NSMutableString *string;
-	__block NSArray *values;
-	__block RACSignal *signal;
+	it(@"should enumerate immutably", ^{
+		NSMutableString *string = [@"foo bar" mutableCopy];
+		NSArray *values = @[
+			RACTuplePack(@"foo", [NSValue valueWithRange:NSMakeRange(0, 3)], [NSValue valueWithRange:NSMakeRange(0, 4)]),
+			RACTuplePack(@"bar", [NSValue valueWithRange:NSMakeRange(4, 3)], [NSValue valueWithRange:NSMakeRange(4, 3)]),
+		];
 
-	beforeEach(^{
-		string = [@"foobar" mutableCopy];
-		values = @[ @"f", @"o", @"o", @"b", @"a", @"r" ];
-		signal = string.rac_signal;
-		expect(signal).notTo.beNil();
-	});
-
-	it(@"should be immutable", ^{
+		RACSignal *signal = [string rac_substringsInRange:NSMakeRange(0, string.length) options:NSStringEnumerationByWords];
 		expect([signal array]).to.equal(values);
 
 		[string appendString:@"buzz"];
@@ -156,8 +152,14 @@ describe(@"NSString signals", ^{
 
 	it(@"should work with composed characters", ^{
 		NSString *string = @"\u2665\uFE0F\u2666\uFE0F";
-		NSArray *expectedSignal = @[ @"\u2665\uFE0F", @"\u2666\uFE0F" ];
-		expect([string.rac_signal array]).to.equal(expectedSignal);
+		RACSignal *signal = [[string
+			rac_substringsInRange:NSMakeRange(0, string.length) options:NSStringEnumerationByComposedCharacterSequences]
+			reduceEach:^(NSString *substring, NSValue *substringRange, NSValue *enclosingRange) {
+				return substring;
+			}];
+
+		NSArray *values = @[ @"\u2665\uFE0F", @"\u2666\uFE0F" ];
+		expect([signal array]).to.equal(values);
 	});
 });
 

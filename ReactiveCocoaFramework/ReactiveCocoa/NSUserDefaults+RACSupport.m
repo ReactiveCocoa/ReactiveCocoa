@@ -10,6 +10,8 @@
 
 #import "EXTScope.h"
 #import "RACChannel.h"
+#import "RACScheduler.h"
+#import "RACSignal+Operations.h"
 #import "NSNotificationCenter+RACSupport.h"
 #import "NSObject+RACLifting.h"
 
@@ -18,18 +20,35 @@
 - (RACChannelTerminal *)rac_channelTerminalForKey:(NSString *)key {
 	RACChannel *channel = [RACChannel new];
 	
+	RACScheduler *scheduler = [RACScheduler scheduler];
+	__block BOOL ignoreNextValue = NO;
+	
 	@weakify(self);
-	[[[[[NSNotificationCenter.defaultCenter
+	[[[[[[NSNotificationCenter.defaultCenter
 		rac_addObserverForName:NSUserDefaultsDidChangeNotification object:self]
 		map:^(id _) {
 			@strongify(self);
 			return [self objectForKey:key];
 		}]
 		startWith:[self objectForKey:key]]
+		// Don't send values that were set on the other side of the terminal.
+		filter:^BOOL(id _) {
+			if (RACScheduler.currentScheduler == scheduler && ignoreNextValue) {
+				ignoreNextValue = NO;
+				return NO;
+			}
+			return YES;
+		}]
 		distinctUntilChanged]
 		subscribe:channel.leadingTerminal];
 	
-	[self rac_liftSelector:@selector(setObject:forKey:) withSignals:channel.leadingTerminal, [RACSignal return:key], nil];
+	[[channel.leadingTerminal
+		deliverOn:scheduler]
+		subscribeNext:^(id value) {
+			@strongify(self);
+			ignoreNextValue = YES;
+			[self setObject:value forKey:key];
+		}];
 	
 	return channel.followingTerminal;
 }

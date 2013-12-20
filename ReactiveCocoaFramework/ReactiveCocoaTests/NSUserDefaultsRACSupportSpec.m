@@ -9,6 +9,7 @@
 #import "NSUserDefaults+RACSupport.h"
 
 #import "RACKVOChannel.h"
+#import "RACSignal+Operations.h"
 
 static NSString * const NSUserDefaultsRACSupportSpecStringDefault = @"NSUserDefaultsRACSupportSpecStringDefault";
 static NSString * const NSUserDefaultsRACSupportSpecBoolDefault = @"NSUserDefaultsRACSupportSpecBoolDefault";
@@ -93,6 +94,17 @@ it(@"should handle removed defaults", ^{
 	
 	expect(observer.string1).to.beNil();
 	expect(observer.bool1).to.equal(@NO);
+});
+
+it(@"shouldn't resend values", ^{
+	RACChannelTerminal *terminal = [defaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecStringDefault];
+	
+	RACChannelTo(observer, string1) = terminal;
+	
+	RACSignal *sentValue = [terminal replayLast];
+	observer.string1 = @"Test value";
+	id value = [sentValue asynchronousFirstOrDefault:nil success:NULL error:NULL];
+	expect(value).to.beNil();
 });
 
 SpecEnd

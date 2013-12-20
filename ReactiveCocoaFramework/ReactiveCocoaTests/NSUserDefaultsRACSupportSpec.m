@@ -13,8 +13,6 @@
 static NSString * const NSUserDefaultsRACSupportSpecStringDefault = @"NSUserDefaultsRACSupportSpecStringDefault";
 static NSString * const NSUserDefaultsRACSupportSpecBoolDefault = @"NSUserDefaultsRACSupportSpecBoolDefault";
 
-static void * TestContext = &TestContext;
-
 @interface TestObserver : NSObject
 
 @property (strong, atomic) NSString *string1;

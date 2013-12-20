@@ -17,7 +17,7 @@
 
 @implementation RACIndexSetSequence
 
-+ (instancetype)seqneceWithIndexSet:(NSIndexSet *)indexSet {
++ (instancetype)sequenceWithIndexSet:(NSIndexSet *)indexSet {
 	RACIndexSetSequence *seq = [[self alloc] init];
 	seq->_indexes = malloc(sizeof(NSUInteger) * indexSet.count);
     [indexSet getIndexes:seq->_indexes maxCount:indexSet.count inIndexRange:NULL];
@@ -26,7 +26,7 @@
 	return seq;
 }
 
-+ (instancetype)seqneceWithRawIndexSet:(const NSUInteger *)indexSetBuff size:(NSUInteger)size{
++ (instancetype)sequenceWithRawIndexSet:(const NSUInteger *)indexSetBuff size:(NSUInteger)size{
 	RACIndexSetSequence *seq = [[self alloc] init];
 	
 	seq->_indexes = malloc(sizeof(NSUInteger) * size);
@@ -51,7 +51,7 @@
 
 - (RACSequence *)tail {
     if (_size - 1) {
-        return [self.class seqneceWithRawIndexSet:&_indexes[1] size:_size - 1];
+        return [self.class sequenceWithRawIndexSet:&_indexes[1] size:_size - 1];
     }
     else {
         return RACSequence.empty;
@@ -68,7 +68,10 @@
 		return 0;
 	}
 	
-	state->mutationsPtr = state->extra;
+	if (state->state == 0) {
+		//enumration begun, mark mutation flag
+		state->mutationsPtr = state->extra;
+	}
 	
 	state->itemsPtr = stackbuf;
 	
@@ -80,6 +83,16 @@
 	
 	state->state += index;
 	return index;
+}
+
+#pragma mark NSObject
+
+- (NSString *)description {
+	NSMutableString *indexesStr = [NSMutableString string];
+	for (unsigned int i = 0; i < _size; ++i) {
+		[indexesStr appendFormat:@"%@%lu", i ? @"," : @"", (unsigned long)_indexes[i]];
+	}
+	return [NSString stringWithFormat:@"<%@: %p>{ name = %@, array = %@ }", self.class, self, self.name, indexesStr];
 }
 
 @end

@@ -9,5 +9,5 @@
 #import <ReactiveCocoa/ReactiveCocoa.h>
 
 @interface RACIndexSetSequence : RACSequence
-+ (instancetype)seqneceWithIndexSet:(NSIndexSet *)indexSet;
++ (instancetype)sequenceWithIndexSet:(NSIndexSet *)indexSet;
 @end

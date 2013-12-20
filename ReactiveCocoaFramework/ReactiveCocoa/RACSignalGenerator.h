@@ -7,8 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
-@class RACSignal;
+#import "RACSignal.h"
 
 /// An abstract class representing the logic for creating a signal from one
 /// input value.
@@ -37,6 +36,16 @@
 ///
 /// Returns a new signal.
 - (RACSignal *)signalWithValue:(id)input;
+
+@end
+
+@interface RACSignal (RACSignalGeneratorAdditions)
+
+/// Creates a constant signal generator from the receiver.
+///
+/// Returns a signal generator that will discard input to -signalWithValue: and
+/// always return the receiver.
+- (RACSignalGenerator *)signalGenerator;
 
 @end
 

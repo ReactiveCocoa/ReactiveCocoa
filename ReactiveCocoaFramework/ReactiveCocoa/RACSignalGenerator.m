@@ -21,6 +21,16 @@
 
 @end
 
+@implementation RACSignal (RACSignalGeneratorAdditions)
+
+- (RACSignalGenerator *)signalGenerator {
+	return [RACDynamicSignalGenerator generatorWithBlock:^(id _) {
+		return self;
+	}];
+}
+
+@end
+
 @implementation RACSignalGenerator (Operations)
 
 - (RACSignalGenerator *)postcompose:(RACSignalGenerator *)otherGenerator {

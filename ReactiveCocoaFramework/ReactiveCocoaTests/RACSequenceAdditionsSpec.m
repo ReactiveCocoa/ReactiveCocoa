@@ -296,6 +296,14 @@ describe(@"NSIndexSet sequences", ^{
 	__block NSMutableIndexSet *values;
 	__block RACSequence *sequence;
 	
+	NSArray * (^valuesFromIndexSet)(NSIndexSet *indexSet) =  ^NSArray *(NSIndexSet *indexSet) {
+		NSMutableArray *arr = [NSMutableArray array];
+		[values enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
+			[arr addObject:@(idx)];
+		}];
+		return [arr copy];
+	};
+	
 	beforeEach(^{
 		values = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 10)];
 		sequence = values.rac_sequence;
@@ -305,7 +313,7 @@ describe(@"NSIndexSet sequences", ^{
 	itShouldBehaveLike(RACSequenceExamples, ^{
 		return @{
 				 RACSequenceExampleSequence: sequence,
-				 RACSequenceExampleExpectedValues: values.rac_sequence.array
+				 RACSequenceExampleExpectedValues: valuesFromIndexSet(values)
 				 };
 	});
 	
@@ -313,7 +321,7 @@ describe(@"NSIndexSet sequences", ^{
 		__block NSArray *unchangedValues;
 		
 		beforeEach(^{
-			unchangedValues = values.rac_sequence.array;
+			unchangedValues = valuesFromIndexSet(values);
 			[values addIndex:20];
 		});
 		

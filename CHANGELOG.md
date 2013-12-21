@@ -74,27 +74,53 @@ For example, this command:
 
 ```objc
 // View model
-_logInCommand = [[RACCommand alloc] initWithEnabled:currentlyOnline signalBlock:^(NSString *username) {
-    return [self logInWithUsername:username];
+_logInCommand = [[RACCommand alloc] initWithEnabled:currentlyOnline signalBlock:^(id _) {
+    @strongify(self);
+    return [self logInWithUsername:self.username];
 }];
 
 // View controller
-self.button.rac_command = viewModel.logInCommand;
+RAC(self.viewModel, username) = self.usernameField.rac_textSignal;
+self.button.rac_command = self.viewModel.logInCommand;
 ```
 
 Would look more like this, using `RACAction`:
 
 ```objc
 // View model
-_logInAction = [[RACDynamicSignalGenerator
-    generatorWithBlock:^(NSString *username) {
-        // Note that this signal should be cold. Use +defer: if necessary.
-        return [self logInWithUsername:username];
+_logInAction = [[RACSignal
+    defer:^{
+        @strongify(self);
+        return [self logInWithUsername:self.username];
     }]
     actionEnabledIf:currentlyOnline];
 
 // View controller
-self.button.rac_action = viewModel.logInAction;
+RAC(self.viewModel, username) = self.usernameField.rac_textSignal;
+self.button.rac_action = self.viewModel.logInAction;
+```
+
+To accept input to the action, add a signal generator:
+
+```objc
+// View model
+_logInAction = [[RACDynamicSignalGenerator
+    generatorWithBlock:^(NSString *username) {
+        @strongify(self);
+        return [RACSignal defer:^{
+            return [self logInWithUsername:username];
+        }];
+    }]
+    actionEnabledIf:currentlyOnline];
+
+// View controller
+self.button.rac_action = [[[self.usernameField.rac_textSignal
+    take:1]
+    flattenMap:^(NSString *username) {
+        @strongify(self);
+        return [self.viewModel.logInAction deferred:username];
+    }]
+    actionEnabledIf:self.viewModel.logInAction.enabled];
 ```
 
 ### Simplified signal creation and disposal

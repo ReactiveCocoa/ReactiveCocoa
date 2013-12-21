@@ -7,8 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
-@class RACSignal;
+#import "RACSignal.h"
 
 /// An abstract class representing the logic for creating a signal from one
 /// input value.
@@ -21,9 +20,10 @@
 /// class behave like -flattenMap:, except that they can be applied directly to
 /// values (not just existing signals).
 ///
-/// Although this class is meant to be subclassed, there may be a provided
-/// subclass or an operator that already does what you need. In particular, see
-/// `RACDynamicSignalGenerator` and `RACSignalGenerator+Operations.h`.
+/// This class is not meant to be instantiated directly. Instead, use one of the
+/// available subclasses or extensions on `RACSignal`. If you need behavior that
+/// cannot be achieved with `RACDynamicSignalGenerator` or another subclass, you
+/// may create your own by overriding `-signalWithValue:`.
 @interface RACSignalGenerator : NSObject
 
 /// Creates a signal for the given value.
@@ -36,6 +36,16 @@
 ///
 /// Returns a new signal.
 - (RACSignal *)signalWithValue:(id)input;
+
+@end
+
+@interface RACSignal (RACSignalGeneratorAdditions)
+
+/// Creates a constant signal generator from the receiver.
+///
+/// Returns a signal generator that will discard input to -signalWithValue: and
+/// always return the receiver.
+- (RACSignalGenerator *)signalGenerator;
 
 @end
 

@@ -16,7 +16,7 @@
 @implementation NSSet (RACSupport)
 
 - (RACSignal *)rac_signal {
-	NSOrderedSet *collection = [self copy];
+	NSSet *collection = [self copy];
 
 	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
 		for (id obj in collection) {

@@ -19,11 +19,11 @@
 	NSSet *collection = [self copy];
 
 	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		for (id obj in collection) {
+		[collection enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
 			[subscriber sendNext:obj];
 
-			if (subscriber.disposable.disposed) return;
-		}
+			*stop = subscriber.disposable.disposed;
+		}];
 
 		[subscriber sendCompleted];
 	}] setNameWithFormat:@"%@ -rac_signal", self.rac_description];

@@ -64,12 +64,15 @@
 				[objectLock unlock];
 			};
 
-			if (unsafeSelf == nil) {
+			__strong NSObject *observer __attribute__((objc_precise_lifetime)) = unsafeObserver;
+			__strong NSObject *self __attribute__((objc_precise_lifetime)) = unsafeSelf;
+
+			if (self == nil) {
 				[subscriber sendCompleted];
 				return nil;
 			}
 
-			return [unsafeSelf rac_observeKeyPath:keyPath options:options observer:unsafeObserver block:^(id value, NSDictionary *change) {
+			return [self rac_observeKeyPath:keyPath options:options observer:observer block:^(id value, NSDictionary *change) {
 				[subscriber sendNext:RACTuplePack(value, change)];
 			}];
 		}]

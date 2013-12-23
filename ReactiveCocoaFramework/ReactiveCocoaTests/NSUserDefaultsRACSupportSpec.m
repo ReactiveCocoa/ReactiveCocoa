@@ -16,8 +16,8 @@ static NSString * const NSUserDefaultsRACSupportSpecBoolDefault = @"NSUserDefaul
 
 @interface TestObserver : NSObject
 
-@property (strong, atomic) NSString *string1;
-@property (strong, atomic) NSString *string2;
+@property (copy, atomic) NSString *string1;
+@property (copy, atomic) NSString *string2;
 
 @property (assign, atomic) BOOL bool1;
 

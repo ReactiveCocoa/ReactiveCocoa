@@ -39,7 +39,7 @@
 	__block __unsafe_unretained NSObject *unsafeSelf = self;
 	__block __unsafe_unretained NSObject *unsafeObserver = observer;
 
-	RACSignal *deallocSignal = [[[RACSignal
+	RACSignal *deallocSignal = [[RACSignal
 		zip:@[
 			self.rac_willDeallocSignal,
 			observer.rac_willDeallocSignal ?: [RACSignal never]
@@ -54,8 +54,7 @@
 
 			unsafeSelf = nil;
 			unsafeObserver = nil;
-		}]
-		replay];
+		}];
 
 	return [[[RACSignal
 		createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {

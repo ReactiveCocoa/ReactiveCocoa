@@ -1695,6 +1695,8 @@
 				5F9743F61694A2460024EB82 /* RACEagerSequence.m */,
 				D0E967651641EF9C00FCFF06 /* RACEmptySequence.h */,
 				D0E967661641EF9C00FCFF06 /* RACEmptySequence.m */,
+				7479F6E3186177D200575CDB /* RACIndexSetSequence.h */,
+				7479F6E4186177D200575CDB /* RACIndexSetSequence.m */,
 				D0E967691641EF9C00FCFF06 /* RACStringSequence.h */,
 				D0E9676A1641EF9C00FCFF06 /* RACStringSequence.m */,
 				D0EE2849164D906B006954A4 /* RACSignalSequence.h */,
@@ -1703,8 +1705,6 @@
 				D0307EDC1731AAE100D83211 /* RACTupleSequence.m */,
 				D07CD7141731BA3900DE2394 /* RACUnarySequence.h */,
 				D07CD7151731BA3900DE2394 /* RACUnarySequence.m */,
-				7479F6E3186177D200575CDB /* RACIndexSetSequence.h */,
-				7479F6E4186177D200575CDB /* RACIndexSetSequence.m */,
 			);
 			name = Sequences;
 			sourceTree = "<group>";

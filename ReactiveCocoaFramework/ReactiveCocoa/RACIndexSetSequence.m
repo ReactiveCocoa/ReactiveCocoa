@@ -10,52 +10,48 @@
 
 @interface RACIndexSetSequence ()
 {
-	NSUInteger *_indexes;
-	NSUInteger _size;
 }
+
+@property (nonatomic) NSUInteger offset;
+@property (nonatomic) NSData *indexes;
 @end
 
 @implementation RACIndexSetSequence
 
 + (instancetype)sequenceWithIndexSet:(NSIndexSet *)indexSet {
 	RACIndexSetSequence *seq = [[self alloc] init];
-	seq->_indexes = malloc(sizeof(NSUInteger) * indexSet.count);
-    [indexSet getIndexes:seq->_indexes maxCount:indexSet.count inIndexRange:NULL];
-	seq->_size = indexSet.count;
+	NSUInteger sizeInBytes = sizeof(NSUInteger) * indexSet.count;
+	void *buff = malloc(sizeInBytes);
+	[indexSet getIndexes:buff maxCount:indexSet.count inIndexRange:NULL];
+	seq.indexes = [[NSData alloc] initWithBytesNoCopy:buff
+											   length:sizeInBytes
+										 freeWhenDone:YES];
+	seq.offset = 0;
 	
 	return seq;
 }
 
-+ (instancetype)sequenceWithRawIndexSet:(const NSUInteger *)indexSetBuff size:(NSUInteger)size{
++ (instancetype)sequenceWithIndexSetSequence:(RACIndexSetSequence *)indexSetSequence offset:(NSUInteger)offset {
 	RACIndexSetSequence *seq = [[self alloc] init];
 	
-	seq->_indexes = malloc(sizeof(NSUInteger) * size);
-	memcpy(seq->_indexes, indexSetBuff, sizeof(NSUInteger) * size);
-	seq->_size = size;
+	seq.indexes = indexSetSequence.indexes;
+	seq.offset = offset;
 	return seq;
 }
-
-- (void)dealloc {
-	if (_indexes) {
-		free(_indexes);
-		_indexes = NULL;
-	}
-}
-
 
 #pragma mark - RACSequence
 
 - (id) head {
-	return @(*_indexes);
+	return @(((NSUInteger *)[self.indexes bytes])[self.offset]);
 }
 
 - (RACSequence *)tail {
-    if (_size - 1) {
-        return [self.class sequenceWithRawIndexSet:&_indexes[1] size:_size - 1];
-    }
-    else {
-        return RACSequence.empty;
-    }
+	if (self.offset + 1 < self.indexes.length / sizeof(NSUInteger)) {
+		return [self.class sequenceWithIndexSetSequence:self offset:self.offset + 1];
+	}
+	else {
+		return RACSequence.empty;
+	}
 }
 
 #pragma mark NSFastEnumeration
@@ -63,7 +59,7 @@
 - (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(__unsafe_unretained id[])stackbuf count:(NSUInteger)len {
 	NSCParameterAssert(len > 0);
 	
-	if (state->state >= _size) {
+	if (state->state >= self.indexes.length / sizeof(NSUInteger)) {
 		// Enumeration has completed.
 		return 0;
 	}
@@ -76,8 +72,9 @@
 	state->itemsPtr = stackbuf;
 	
 	unsigned long index = 0;
-	while (index < MIN(_size - state->state, len)) {
-		stackbuf[index] = @(_indexes[index + state->state]);
+	NSUInteger sizeInIndexes = self.indexes.length / sizeof(NSUInteger);
+	while (index < MIN(sizeInIndexes - state->state, len)) {
+		stackbuf[index] = @( ((NSUInteger *)self.indexes.bytes)[index + state->state] );
 		++index;
 	}
 	
@@ -89,8 +86,9 @@
 
 - (NSString *)description {
 	NSMutableString *indexesStr = [NSMutableString string];
-	for (unsigned int i = 0; i < _size; ++i) {
-		[indexesStr appendFormat:@"%@%lu", i ? @"," : @"", (unsigned long)_indexes[i]];
+	NSUInteger sizeInIndexes = self.indexes.length / sizeof(NSUInteger);
+	for (unsigned int i = 0; i < sizeInIndexes; ++i) {
+		[indexesStr appendFormat:@"%@%lu", i ? @"," : @"", (unsigned long) ((NSUInteger *)self.indexes.bytes)[i] ];
 	}
 	return [NSString stringWithFormat:@"<%@: %p>{ name = %@, array = %@ }", self.class, self, self.name, indexesStr];
 }

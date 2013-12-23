@@ -114,4 +114,10 @@ it(@"should complete when the NSUserDefaults deallocates", ^{
 	expect([terminal asynchronouslyWaitUntilCompleted:NULL]).to.beTruthy();
 });
 
+it(@"should send an initial value", ^{
+	[defaults setObject:@"Initial" forKey:NSUserDefaultsRACSupportSpecStringDefault];
+	RACChannelTerminal *terminal = [defaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecStringDefault];
+	expect([terminal asynchronousFirstOrDefault:nil success:NULL error:NULL]).to.equal(@"Initial");
+});
+
 SpecEnd

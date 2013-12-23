@@ -19,6 +19,8 @@
 // This makes it easy to bind a property to a default by assigning to
 // `RACChannelTo`.
 //
+// The terminal will send the value of the user defaults key upon subscription.
+//
 // Returns a channel terminal.
 - (RACChannelTerminal *)rac_channelTerminalForKey:(NSString *)key;
 

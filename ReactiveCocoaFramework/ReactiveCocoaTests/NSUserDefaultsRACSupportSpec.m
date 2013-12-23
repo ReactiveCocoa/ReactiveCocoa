@@ -32,11 +32,8 @@ SpecBegin(NSUserDefaultsRACSupportSpec)
 __block NSUserDefaults *defaults = nil;
 __block TestObserver *observer = nil;
 
-beforeAll(^{
-	defaults = NSUserDefaults.standardUserDefaults;
-});
-
 beforeEach(^{
+	defaults = NSUserDefaults.standardUserDefaults;
 	[defaults removeObjectForKey:NSUserDefaultsRACSupportSpecStringDefault];
 	[defaults removeObjectForKey:NSUserDefaultsRACSupportSpecBoolDefault];
 	

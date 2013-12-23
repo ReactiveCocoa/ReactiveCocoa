@@ -8,7 +8,10 @@
 
 #import "NSUserDefaults+RACSupport.h"
 
+#import "RACCompoundDisposable.h"
+#import "RACDisposable.h"
 #import "RACKVOChannel.h"
+#import "NSObject+RACDeallocating.h"
 #import "RACSignal+Operations.h"
 
 static NSString * const NSUserDefaultsRACSupportSpecStringDefault = @"NSUserDefaultsRACSupportSpecStringDefault";
@@ -105,12 +108,19 @@ it(@"shouldn't resend values", ^{
 });
 
 it(@"should complete when the NSUserDefaults deallocates", ^{
-	defaults = [NSUserDefaults new];
+	__block RACChannelTerminal *terminal;
+	__block BOOL deallocated = NO;
 	
-	RACChannelTerminal *terminal = [defaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecStringDefault];
+	@autoreleasepool {
+		NSUserDefaults *customDefaults __attribute__((objc_precise_lifetime)) = [NSUserDefaults new];
+		[customDefaults.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+			deallocated = YES;
+		}]];
+		
+		terminal = [customDefaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecStringDefault];
+	}
 	
-	defaults = nil;
-	
+	expect(deallocated).to.beTruthy();
 	expect([terminal asynchronouslyWaitUntilCompleted:NULL]).to.beTruthy();
 });
 

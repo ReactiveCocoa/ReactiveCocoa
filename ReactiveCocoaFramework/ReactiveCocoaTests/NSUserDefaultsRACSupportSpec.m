@@ -104,4 +104,14 @@ it(@"shouldn't resend values", ^{
 	expect(value).to.beNil();
 });
 
+it(@"should complete when the NSUserDefaults deallocates", ^{
+	defaults = [NSUserDefaults new];
+	
+	RACChannelTerminal *terminal = [defaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecStringDefault];
+	
+	defaults = nil;
+	
+	expect([terminal asynchronouslyWaitUntilCompleted:NULL]).to.beTruthy();
+});
+
 SpecEnd

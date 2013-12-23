@@ -13,6 +13,7 @@
 #import "RACScheduler.h"
 #import "RACSignal+Operations.h"
 #import "NSNotificationCenter+RACSupport.h"
+#import "NSObject+RACDeallocating.h"
 #import "NSObject+RACLifting.h"
 
 @implementation NSUserDefaults (RACSupport)
@@ -24,7 +25,7 @@
 	__block BOOL ignoreNextValue = NO;
 	
 	@weakify(self);
-	[[[[[[NSNotificationCenter.defaultCenter
+	[[[[[[[NSNotificationCenter.defaultCenter
 		rac_addObserverForName:NSUserDefaultsDidChangeNotification object:self]
 		map:^(id _) {
 			@strongify(self);
@@ -40,6 +41,7 @@
 			return YES;
 		}]
 		distinctUntilChanged]
+		takeUntil:self.rac_willDeallocSignal]
 		subscribe:channel.leadingTerminal];
 	
 	[[channel.leadingTerminal

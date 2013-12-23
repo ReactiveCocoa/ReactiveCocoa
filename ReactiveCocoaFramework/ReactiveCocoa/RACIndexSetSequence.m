@@ -9,8 +9,6 @@
 #import "RACIndexSetSequence.h"
 
 @interface RACIndexSetSequence ()
-{
-}
 
 @property (nonatomic) NSUInteger offset;
 @property (nonatomic) NSData *indexes;
@@ -23,9 +21,7 @@
 	NSUInteger sizeInBytes = sizeof(NSUInteger) * indexSet.count;
 	void *buff = malloc(sizeInBytes);
 	[indexSet getIndexes:buff maxCount:indexSet.count inIndexRange:NULL];
-	seq.indexes = [[NSData alloc] initWithBytesNoCopy:buff
-											   length:sizeInBytes
-										 freeWhenDone:YES];
+	seq.indexes = [[NSData alloc] initWithBytesNoCopy:buff length:sizeInBytes freeWhenDone:YES];
 	seq.offset = 0;
 	
 	return seq;
@@ -41,7 +37,7 @@
 
 #pragma mark - RACSequence
 
-- (id) head {
+- (id)head {
 	return @(((NSUInteger *)[self.indexes bytes])[self.offset]);
 }
 
@@ -65,7 +61,7 @@
 	}
 	
 	if (state->state == 0) {
-		//enumration begun, mark mutation flag
+		//enumeration begun, mark mutation flag
 		state->mutationsPtr = state->extra;
 	}
 	

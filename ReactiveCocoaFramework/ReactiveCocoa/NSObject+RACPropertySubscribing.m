@@ -59,6 +59,10 @@
 
 	return [[[RACSignal
 		createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			// Hold onto the lock the whole time we're setting up the KVO
+			// observation, because any resurrection that might be caused by our
+			// retaining below must be balanced out by the time -dealloc returns
+			// (if another thread is waiting on the lock above).
 			[objectLock lock];
 			@onExit {
 				[objectLock unlock];

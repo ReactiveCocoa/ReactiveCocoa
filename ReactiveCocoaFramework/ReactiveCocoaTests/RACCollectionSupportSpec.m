@@ -8,6 +8,7 @@
 
 #import "NSArray+RACSupport.h"
 #import "NSDictionary+RACSupport.h"
+#import "NSHashTable+RACSupport.h"
 #import "NSOrderedSet+RACSupport.h"
 #import "NSSet+RACSupport.h"
 #import "NSString+RACSupport.h"
@@ -94,6 +95,31 @@ describe(@"NSDictionary signals", ^{
 		expect([tupleSignal array]).to.equal(tuples);
 		expect([keySignal array]).to.equal(keys);
 		expect([valueSignal array]).to.equal(values);
+	});
+});
+
+describe(@"NSHashTable signals", ^{
+	__block NSHashTable *values;
+	__block RACSignal *signal;
+
+	beforeEach(^{
+		values = [NSHashTable weakObjectsHashTable];
+		for (NSNumber *number in numbers) {
+			[values addObject:number];
+		}
+		signal = values.rac_signal;
+		expect(signal).notTo.beNil();
+	});
+
+	it(@"should be immutable", ^{
+		// The signal values' (fast enumeration) order and -allObjects values'
+		// order are not the same, so compares equality using set.
+
+		NSSet *unchangedValues = [NSSet setWithArray:[values.allObjects copy]];
+		expect([NSSet setWithArray:[signal array]]).to.equal(unchangedValues);
+
+		[values addObject:@6];
+		expect([NSSet setWithArray:[signal array]]).to.equal(unchangedValues);
 	});
 });
 

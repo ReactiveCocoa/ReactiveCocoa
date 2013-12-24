@@ -32,11 +32,11 @@
 }
 
 - (RACSignal *)rac_keySignal {
-	return [self.keyEnumerator.allObjects.rac_signal setNameWithFormat:@"%@ -rac_signal", self.rac_description];
+	return [self.keyEnumerator.allObjects.rac_signal setNameWithFormat:@"%@ -rac_keySignal", self.rac_description];
 }
 
 - (RACSignal *)rac_valueSignal {
-	return [self.objectEnumerator.allObjects.rac_signal setNameWithFormat:@"%@ -rac_signal", self.rac_description];
+	return [self.objectEnumerator.allObjects.rac_signal setNameWithFormat:@"%@ -rac_valueSignal", self.rac_description];
 }
 
 @end

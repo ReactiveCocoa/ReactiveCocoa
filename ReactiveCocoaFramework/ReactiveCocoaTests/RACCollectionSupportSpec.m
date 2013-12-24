@@ -9,6 +9,7 @@
 #import "NSArray+RACSupport.h"
 #import "NSDictionary+RACSupport.h"
 #import "NSHashTable+RACSupport.h"
+#import "NSMapTable+RACSupport.h"
 #import "NSOrderedSet+RACSupport.h"
 #import "NSSet+RACSupport.h"
 #import "NSString+RACSupport.h"
@@ -120,6 +121,56 @@ describe(@"NSHashTable signals", ^{
 
 		[values addObject:@6];
 		expect([NSSet setWithArray:[signal array]]).to.equal(unchangedValues);
+	});
+});
+
+describe(@"NSMapTable signals", ^{
+	__block NSMapTable *mapTable;
+
+	__block NSMutableArray *tuples;
+	__block RACSignal *tupleSignal;
+
+	__block NSArray *keys;
+	__block RACSignal *keySignal;
+
+	__block NSArray *values;
+	__block RACSignal *valueSignal;
+
+	beforeEach(^{
+		mapTable = [NSMapTable mapTableWithWeakToWeakObjects];
+		[mapTable setObject:@"bar" forKey:@"foo"];
+		[mapTable setObject:@"buzz" forKey:@"baz"];
+		[mapTable setObject:NSNull.null forKey:@5];
+
+		tuples = [NSMutableArray array];
+		for (id key in mapTable) {
+			RACTuple *tuple = [RACTuple tupleWithObjects:key, [mapTable objectForKey:key], nil];
+			[tuples addObject:tuple];
+		}
+
+		tupleSignal = mapTable.rac_signal;
+		expect(tupleSignal).notTo.beNil();
+
+		keys = [mapTable.keyEnumerator.allObjects copy];
+		keySignal = mapTable.rac_keySignal;
+		expect(keySignal).notTo.beNil();
+
+		values = [mapTable.objectEnumerator.allObjects copy];
+		valueSignal = mapTable.rac_valueSignal;
+		expect(valueSignal).notTo.beNil();
+	});
+
+	it(@"should be immutable", ^{
+		expect([tupleSignal array]).to.equal(tuples);
+		expect([keySignal array]).to.equal(keys);
+		expect([valueSignal array]).to.equal(values);
+
+		[mapTable setObject:@"rab" forKey:@"foo"];
+		[mapTable setObject:@7 forKey:@6];
+
+		expect([tupleSignal array]).to.equal(tuples);
+		expect([keySignal array]).to.equal(keys);
+		expect([valueSignal array]).to.equal(values);
 	});
 });
 

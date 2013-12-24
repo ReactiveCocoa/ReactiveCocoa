@@ -12,6 +12,8 @@
 #import "NSDictionary+RACSupport.h"
 #import "NSEnumerator+RACSupport.h"
 #import "NSFileHandle+RACSupport.h"
+#import "NSHashTable+RACSupport.h"
+#import "NSMapTable+RACSupport.h"
 #import "NSNotificationCenter+RACSupport.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACLifting.h"

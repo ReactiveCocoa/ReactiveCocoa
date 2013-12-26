@@ -56,19 +56,32 @@
 
 /// Creates a signal to observe the value at the given key path.
 ///
-/// The initial value is sent on subscription, the subsequent values are sent
-/// from whichever thread the change occured on, even if it doesn't have a valid
+/// The initial value is sent on subscription. Subsequent values are sent from
+/// whichever thread the change occured on, even if it doesn't have a valid
 /// scheduler.
 ///
 /// Returns a signal that immediately sends the receiver's current value at the
 /// given keypath, then any changes thereafter.
 - (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer;
 
+/// Creates a signal to observe the changes to the <RACCollection> at the given
+/// key path.
+///
+/// The initial value is sent on subscription. Subsequent values are sent from
+/// whichever thread the change occured on, even if it doesn't have a valid
+/// scheduler.
+///
+/// Returns a signal that sends tuples containing the current collection at the
+/// key path and a <RACCollectionMutation> describing the change that occurred.
+/// If the collection is specifically a <RACOrderedCollection>, the collection
+/// mutation will conform to <RACOrderedCollectionMutation>.
+- (RACSignal *)rac_valuesAndCollectionMutationsForKeyPath:(NSString *)keyPath observer:(NSObject *)observer;
+
 /// Creates a signal to observe the changes of the given key path.
 ///
-/// The initial value is sent on subscription, the subsequent values are sent
-/// from whichever thread the change occured on, even if it doesn't have a valid
-/// scheduler.
+/// The initial value (if `NSKeyValueObservingOptionInitial` is specified) is
+/// sent on subscription. Subsequent values are sent from whichever thread the
+/// change occured on, even if it doesn't have a valid scheduler.
 ///
 /// Returns a signal that sends tuples containing the current value at the key
 /// path and the change dictionary for each KVO callback.

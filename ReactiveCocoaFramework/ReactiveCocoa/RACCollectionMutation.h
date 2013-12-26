@@ -13,4 +13,6 @@
 
 - (void)mutateCollection:(id<RACCollection>)collection;
 
+- (instancetype)map:(id (^)(id object))block;
+
 @end

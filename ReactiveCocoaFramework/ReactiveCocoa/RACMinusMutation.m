@@ -8,6 +8,9 @@
 
 #import "RACMinusMutation.h"
 
+#import "NSArray+RACSupport.h"
+#import "RACSignal+Operations.h"
+
 @implementation RACMinusMutation
 
 #pragma mark Lifecycle
@@ -21,6 +24,13 @@
 	_removedObjects = [objects copy];
 
 	return self;
+}
+
+#pragma mark RACCollectionMutation
+
+- (instancetype)map:(id (^)(id object))block {
+	NSArray *newObjects = [[self.removedObjects.rac_signal map:block] array];
+	return [(RACMinusMutation *)[self.class alloc] initWithObjects:newObjects];
 }
 
 #pragma mark RACCollectionMutation

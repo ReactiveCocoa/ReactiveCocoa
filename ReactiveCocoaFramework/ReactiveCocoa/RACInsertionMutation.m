@@ -8,6 +8,9 @@
 
 #import "RACInsertionMutation.h"
 
+#import "NSArray+RACSupport.h"
+#import "RACSignal+Operations.h"
+
 @implementation RACInsertionMutation
 
 #pragma mark Properties
@@ -26,6 +29,13 @@
 	_indexes = [indexes copy];
 
 	return self;
+}
+
+#pragma mark RACCollectionMutation
+
+- (instancetype)map:(id (^)(id object))block {
+	NSArray *newObjects = [[self.addedObjects.rac_signal map:block] array];
+	return [[self.class alloc] initWithObjects:newObjects indexes:self.indexes];
 }
 
 #pragma mark RACOrderedCollectionMutation

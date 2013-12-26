@@ -8,6 +8,9 @@
 
 #import "RACReplacementMutation.h"
 
+#import "NSArray+RACSupport.h"
+#import "RACSignal+Operations.h"
+
 @implementation RACReplacementMutation
 
 #pragma mark Properties
@@ -34,6 +37,13 @@
 }
 
 #pragma mark RACCollectionMutation
+
+- (instancetype)map:(id (^)(id object))block {
+	NSArray *newRemoved = [[self.removedObjects.rac_signal map:block] array];
+	NSArray *newAdded = [[self.addedObjects.rac_signal map:block] array];
+
+	return [[self.class alloc] initWithRemovedObjects:newRemoved addedObjects:newAdded indexes:self.indexes];
+}
 
 - (void)mutateCollection:(id<RACCollection>)collection {
 	[collection rac_removeObjects:self.removedObjects];

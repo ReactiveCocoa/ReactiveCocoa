@@ -10,7 +10,25 @@
 
 @implementation RACInsertionMutation
 
+#pragma mark Properties
+
 @synthesize indexes = _indexes;
+
+#pragma mark Lifecycle
+
+- (instancetype)initWithObjects:(NSArray *)objects indexes:(NSIndexSet *)indexes {
+	NSCParameterAssert(indexes != nil);
+	NSCParameterAssert(indexes.count == objects.count);
+
+	self = [super initWithObjects:objects];
+	if (self == nil) return nil;
+
+	_indexes = [indexes copy];
+
+	return self;
+}
+
+#pragma mark RACOrderedCollectionMutation
 
 - (void)mutateOrderedCollection:(id<RACOrderedCollection>)collection {
 	[collection rac_insertObjects:self.addedObjects atIndexes:self.indexes];

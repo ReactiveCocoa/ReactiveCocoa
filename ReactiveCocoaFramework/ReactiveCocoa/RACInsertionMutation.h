@@ -10,4 +10,7 @@
 #import "RACOrderedCollectionMutation.h"
 
 @interface RACInsertionMutation : RACUnionMutation <RACOrderedCollectionMutation>
+
+- (instancetype)initWithObjects:(NSArray *)objects indexes:(NSIndexSet *)indexes;
+
 @end

@@ -13,4 +13,6 @@
 @property (nonatomic, copy, readonly) NSArray *removedObjects;
 @property (nonatomic, copy, readonly) NSArray *addedObjects;
 
+- (instancetype)initWithRemovedObjects:(NSArray *)removedObjects addedObjects:(NSArray *)addedObjects indexes:(NSIndexSet *)indexes;
+
 @end

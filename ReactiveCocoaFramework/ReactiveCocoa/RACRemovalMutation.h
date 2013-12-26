@@ -10,4 +10,7 @@
 #import "RACOrderedCollectionMutation.h"
 
 @interface RACRemovalMutation : RACMinusMutation <RACOrderedCollectionMutation>
+
+- (instancetype)initWithObjects:(NSArray *)objects indexes:(NSIndexSet *)indexes;
+
 @end

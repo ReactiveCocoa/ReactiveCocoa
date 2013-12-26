@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "RACDeprecated.h"
+#import "RACOrderedCollection.h"
 
 @class RACSequence;
 @class RACSignal;
@@ -19,6 +20,9 @@
 /// Mutating the collection will not affect the signal after it's been created.
 @property (nonatomic, strong, readonly) RACSignal *rac_signal;
 
+@end
+
+@interface NSMutableArray (RACCollectionSupport) <RACOrderedCollection>
 @end
 
 @interface NSArray (RACSupportDeprecated)

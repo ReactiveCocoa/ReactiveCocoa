@@ -6,8 +6,10 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#import <ReactiveCocoa/ReactiveCocoa.h>
+#import "RACSequence.h"
 
 @interface RACIndexSetSequence : RACSequence
+
 + (instancetype)sequenceWithIndexSet:(NSIndexSet *)indexSet;
+
 @end

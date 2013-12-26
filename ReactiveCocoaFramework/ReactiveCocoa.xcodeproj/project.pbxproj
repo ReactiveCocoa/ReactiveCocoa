@@ -140,9 +140,9 @@
 		7479F6E8186177D200575CDB /* RACIndexSetSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = 7479F6E4186177D200575CDB /* RACIndexSetSequence.m */; };
 		7479F6E9186177D200575CDB /* RACIndexSetSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = 7479F6E4186177D200575CDB /* RACIndexSetSequence.m */; };
 		7479F6EA186177D200575CDB /* RACIndexSetSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = 7479F6E4186177D200575CDB /* RACIndexSetSequence.m */; };
-		74F17318186024A900BC937C /* NSIndexSet+RACSequenceAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 74F17316186024A900BC937C /* NSIndexSet+RACSequenceAdditions.h */; };
-		74F17319186024A900BC937C /* NSIndexSet+RACSequenceAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 74F17316186024A900BC937C /* NSIndexSet+RACSequenceAdditions.h */; };
-		74F1731A186024A900BC937C /* NSIndexSet+RACSequenceAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 74F17316186024A900BC937C /* NSIndexSet+RACSequenceAdditions.h */; };
+		74F17318186024A900BC937C /* NSIndexSet+RACSequenceAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 74F17316186024A900BC937C /* NSIndexSet+RACSequenceAdditions.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		74F17319186024A900BC937C /* NSIndexSet+RACSequenceAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 74F17316186024A900BC937C /* NSIndexSet+RACSequenceAdditions.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		74F1731A186024A900BC937C /* NSIndexSet+RACSequenceAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 74F17316186024A900BC937C /* NSIndexSet+RACSequenceAdditions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		74F1731B186024A900BC937C /* NSIndexSet+RACSequenceAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 74F17317186024A900BC937C /* NSIndexSet+RACSequenceAdditions.m */; };
 		74F1731C186024A900BC937C /* NSIndexSet+RACSequenceAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 74F17317186024A900BC937C /* NSIndexSet+RACSequenceAdditions.m */; };
 		74F1731D186024A900BC937C /* NSIndexSet+RACSequenceAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 74F17317186024A900BC937C /* NSIndexSet+RACSequenceAdditions.m */; };
@@ -1220,8 +1220,6 @@
 		889C04BB155DA37600F19F0C /* Foundation Support */ = {
 			isa = PBXGroup;
 			children = (
-				74F17316186024A900BC937C /* NSIndexSet+RACSequenceAdditions.h */,
-				74F17317186024A900BC937C /* NSIndexSet+RACSequenceAdditions.m */,
 				D0E967571641EF9C00FCFF06 /* NSArray+RACSequenceAdditions.h */,
 				D0E967581641EF9C00FCFF06 /* NSArray+RACSequenceAdditions.m */,
 				88442C8716090C1500636B49 /* NSData+RACSupport.h */,
@@ -1232,6 +1230,8 @@
 				5F773DE9169B46670023069D /* NSEnumerator+RACSequenceAdditions.m */,
 				88442C8916090C1500636B49 /* NSFileHandle+RACSupport.h */,
 				88442C8A16090C1500636B49 /* NSFileHandle+RACSupport.m */,
+				74F17316186024A900BC937C /* NSIndexSet+RACSequenceAdditions.h */,
+				74F17317186024A900BC937C /* NSIndexSet+RACSequenceAdditions.m */,
 				88442C8B16090C1500636B49 /* NSNotificationCenter+RACSupport.h */,
 				88442C8C16090C1500636B49 /* NSNotificationCenter+RACSupport.m */,
 				D0D243B51741FA0E004359C6 /* NSObject+RACDescription.h */,

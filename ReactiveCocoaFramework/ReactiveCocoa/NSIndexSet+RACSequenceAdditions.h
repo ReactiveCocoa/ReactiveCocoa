@@ -11,9 +11,10 @@
 
 @interface NSIndexSet (RACSequenceAdditions)
 
-/// Creates and returns a sequence of indexes corresponding to the receiver.
-/// NSUinteger indexes are wrapped into NSNumbers when passing along.
+/// Creates and returns a sequence of indexes (as `NSNumber`s) corresponding to
+/// the receiver.
 ///
 /// Mutating the receiver will not affect the sequence after it's been created.
 @property (nonatomic, copy, readonly) RACSequence *rac_sequence;
+
 @end

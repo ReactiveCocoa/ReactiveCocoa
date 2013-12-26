@@ -301,6 +301,7 @@ describe(@"NSIndexSet sequences", ^{
 		[values enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
 			[arr addObject:@(idx)];
 		}];
+
 		return [arr copy];
 	};
 	
@@ -312,9 +313,9 @@ describe(@"NSIndexSet sequences", ^{
 	
 	itShouldBehaveLike(RACSequenceExamples, ^{
 		return @{
-				 RACSequenceExampleSequence: sequence,
-				 RACSequenceExampleExpectedValues: valuesFromIndexSet(values)
-				 };
+			RACSequenceExampleSequence: sequence,
+			RACSequenceExampleExpectedValues: valuesFromIndexSet(values)
+		};
 	});
 	
 	describe(@"should be immutable", ^{
@@ -327,12 +328,11 @@ describe(@"NSIndexSet sequences", ^{
 		
 		itShouldBehaveLike(RACSequenceExamples, ^{
 			return @{
-					 RACSequenceExampleSequence: sequence,
-					 RACSequenceExampleExpectedValues: unchangedValues
-					 };
+				RACSequenceExampleSequence: sequence,
+				RACSequenceExampleExpectedValues: unchangedValues
+			};
 		});
 	});
-
 });
 
 SpecEnd

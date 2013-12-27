@@ -892,12 +892,14 @@ describe(@"-retry:", ^{
 		RACScheduler *scheduler = [RACScheduler scheduler];
 
 		NSUInteger retryCount = 3;
+		NSUInteger totalTryCount = 1 + retryCount; // First try plus retries.
+
 		__block NSUInteger numberOfSubscriptions = 0;
 
-		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		RACSignal *signal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 			return [scheduler schedule:^{
 				numberOfSubscriptions++;
-				expect(numberOfSubscriptions).to.beLessThanOrEqualTo(retryCount);
+				expect(numberOfSubscriptions).to.beLessThanOrEqualTo(totalTryCount);
 
 				[subscriber sendNext:@"1"];
 				[subscriber sendError:RACSignalTestError];
@@ -913,8 +915,8 @@ describe(@"-retry:", ^{
 			receivedError = error;
 		}];
 		
-		expect(nextCount).will.equal(retryCount + 1);
-		expect(receivedError).to.equal(RACSignalTestError);
+		expect(receivedError).will.equal(RACSignalTestError);
+		expect(nextCount).to.equal(totalTryCount);
 	});
 
 	it(@"should stop retrying when disposed", ^{

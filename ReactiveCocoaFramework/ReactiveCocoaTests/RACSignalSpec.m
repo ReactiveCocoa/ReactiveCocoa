@@ -897,10 +897,9 @@ describe(@"-retry:", ^{
 		__block NSUInteger numberOfSubscriptions = 0;
 
 		RACSignal *signal = [RACSignal create:^(id<RACSubscriber> subscriber) {
-			[subscriber.disposable addDisposable:[scheduler schedule:^{
-				numberOfSubscriptions++;
-				expect(numberOfSubscriptions).to.beLessThanOrEqualTo(totalTryCount);
+			numberOfSubscriptions++;
 
+			[subscriber.disposable addDisposable:[scheduler schedule:^{
 				[subscriber sendNext:@"1"];
 				[subscriber sendError:RACSignalTestError];
 			}]];
@@ -916,6 +915,7 @@ describe(@"-retry:", ^{
 		}];
 		
 		expect(receivedError).will.equal(RACSignalTestError);
+		expect(numberOfSubscriptions).to.equal(totalTryCount);
 		expect(nextCount).to.equal(totalTryCount);
 	});
 

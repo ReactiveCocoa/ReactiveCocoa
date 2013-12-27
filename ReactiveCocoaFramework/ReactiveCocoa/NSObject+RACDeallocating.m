@@ -7,9 +7,12 @@
 //
 
 #import "NSObject+RACDeallocating.h"
+
+#import "NSObject+RACDescription.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
-#import "RACSubject.h"
+#import "RACReplaySubject.h"
+
 #import <objc/message.h>
 #import <objc/runtime.h>
 
@@ -73,12 +76,20 @@ static void swizzleDeallocIfNeeded(Class classToSwizzle) {
 
 - (RACSignal *)rac_willDeallocSignal {
 	RACSubject *subject = [RACSubject subject];
-
-	[self.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+	RACDisposable *disposable = [RACDisposable disposableWithBlock:^{
 		[subject sendCompleted];
-	}]];
+	}];
 
-	return subject;
+	[self.rac_deallocDisposable addDisposable:disposable];
+
+	return [[RACSignal
+		create:^(id<RACSubscriber> subscriber) {
+			[subject subscribe:subscriber];
+
+			// Catch deallocation that occurred before subscription.
+			if (disposable.disposed) [subscriber sendCompleted];
+		}]
+		setNameWithFormat:@"%@ -rac_willDeallocSignal", self.rac_description];
 }
 
 - (RACCompoundDisposable *)rac_deallocDisposable {

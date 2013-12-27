@@ -8,7 +8,10 @@
 
 #import "NSUserDefaults+RACSupport.h"
 
+#import "RACCompoundDisposable.h"
+#import "RACDisposable.h"
 #import "RACKVOChannel.h"
+#import "NSObject+RACDeallocating.h"
 #import "RACSignal+Operations.h"
 
 static NSString * const NSUserDefaultsRACSupportSpecStringDefault = @"NSUserDefaultsRACSupportSpecStringDefault";
@@ -16,8 +19,8 @@ static NSString * const NSUserDefaultsRACSupportSpecBoolDefault = @"NSUserDefaul
 
 @interface TestObserver : NSObject
 
-@property (strong, atomic) NSString *string1;
-@property (strong, atomic) NSString *string2;
+@property (copy, atomic) NSString *string1;
+@property (copy, atomic) NSString *string2;
 
 @property (assign, atomic) BOOL bool1;
 
@@ -32,11 +35,8 @@ SpecBegin(NSUserDefaultsRACSupportSpec)
 __block NSUserDefaults *defaults = nil;
 __block TestObserver *observer = nil;
 
-beforeAll(^{
-	defaults = NSUserDefaults.standardUserDefaults;
-});
-
 beforeEach(^{
+	defaults = NSUserDefaults.standardUserDefaults;
 	[defaults removeObjectForKey:NSUserDefaultsRACSupportSpecStringDefault];
 	[defaults removeObjectForKey:NSUserDefaultsRACSupportSpecBoolDefault];
 	
@@ -105,6 +105,29 @@ it(@"shouldn't resend values", ^{
 	observer.string1 = @"Test value";
 	id value = [sentValue asynchronousFirstOrDefault:nil success:NULL error:NULL];
 	expect(value).to.beNil();
+});
+
+it(@"should complete when the NSUserDefaults deallocates", ^{
+	__block RACChannelTerminal *terminal;
+	__block BOOL deallocated = NO;
+	
+	@autoreleasepool {
+		NSUserDefaults *customDefaults __attribute__((objc_precise_lifetime)) = [NSUserDefaults new];
+		[customDefaults.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+			deallocated = YES;
+		}]];
+		
+		terminal = [customDefaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecStringDefault];
+	}
+	
+	expect(deallocated).to.beTruthy();
+	expect([terminal asynchronouslyWaitUntilCompleted:NULL]).to.beTruthy();
+});
+
+it(@"should send an initial value", ^{
+	[defaults setObject:@"Initial" forKey:NSUserDefaultsRACSupportSpecStringDefault];
+	RACChannelTerminal *terminal = [defaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecStringDefault];
+	expect([terminal asynchronousFirstOrDefault:nil success:NULL error:NULL]).to.equal(@"Initial");
 });
 
 SpecEnd

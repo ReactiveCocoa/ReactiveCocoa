@@ -153,6 +153,24 @@ describe(@"-rac_willDeallocSignal", ^{
 		expect(completed).to.beTruthy();
 	});
 
+	it(@"should complete upon subscription if already deallocated", ^{
+		__block BOOL deallocated = NO;
+
+		RACSignal *signal;
+
+		@autoreleasepool {
+			RACTestObject *object = [[RACTestObject alloc] init];
+
+			signal = [object rac_willDeallocSignal];
+			[signal subscribeCompleted:^{
+				deallocated = YES;
+			}];
+		}
+
+		expect(deallocated).to.beTruthy();
+		expect([signal waitUntilCompleted:NULL]).to.beTruthy();
+	});
+
 	it(@"should complete before the object is invalid", ^{
 		__block NSString *objectValue;
 

@@ -22,49 +22,65 @@
 @implementation NSObject (RACPropertySubscribing)
 
 - (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
-	return [[[self rac_valuesAndChangesForKeyPath:keyPath options:NSKeyValueObservingOptionInitial observer:observer] reduceEach:^(id value, NSDictionary *change) {
-		return value;
-	}] setNameWithFormat:@"RACObserve(%@, %@)", self.rac_description, keyPath];
+	return [[[self
+		rac_valuesAndChangesForKeyPath:keyPath options:NSKeyValueObservingOptionInitial observer:observer]
+		reduceEach:^(id value, NSDictionary *change) {
+			return value;
+		}]
+		setNameWithFormat:@"RACObserve(%@, %@)", self.rac_description, keyPath];
 }
 
 - (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer {
 	keyPath = [keyPath copy];
 
-	RACDisposable *deallocFlagDisposable = [[RACDisposable alloc] init];
-	RACCompoundDisposable *observerDisposable = observer.rac_deallocDisposable;
-	RACCompoundDisposable *objectDisposable = self.rac_deallocDisposable;
-	[observerDisposable addDisposable:deallocFlagDisposable];
-	[objectDisposable addDisposable:deallocFlagDisposable];
+	NSRecursiveLock *objectLock = [[NSRecursiveLock alloc] init];
+	objectLock.name = @"com.github.ReactiveCocoa.NSObjectRACPropertySubscribing";
 
-	@unsafeify(self, observer);
-	return [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
-		if (deallocFlagDisposable.disposed) {
-			[subscriber sendCompleted];
-			return nil;
-		}
+	__block __unsafe_unretained NSObject *unsafeSelf = self;
+	__block __unsafe_unretained NSObject *unsafeObserver = observer;
 
-		@strongify(self, observer);
+	RACSignal *deallocSignal = [[RACSignal
+		zip:@[
+			self.rac_willDeallocSignal,
+			observer.rac_willDeallocSignal ?: [RACSignal never]
+		]]
+		doCompleted:^{
+			// Forces deallocation to wait if the object variables are currently
+			// being read on another thread.
+			[objectLock lock];
+			@onExit {
+				[objectLock unlock];
+			};
 
-		RACDisposable *observationDisposable = [self rac_observeKeyPath:keyPath options:options observer:observer block:^(id value, NSDictionary *change) {
-			[subscriber sendNext:RACTuplePack(value, change)];
+			unsafeSelf = nil;
+			unsafeObserver = nil;
 		}];
 
-		RACDisposable *deallocDisposable = [RACDisposable disposableWithBlock:^{
-			[observationDisposable dispose];
-			[subscriber sendCompleted];
-		}];
+	return [[[RACSignal
+		createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			// Hold onto the lock the whole time we're setting up the KVO
+			// observation, because any resurrection that might be caused by our
+			// retaining below must be balanced out by the time -dealloc returns
+			// (if another thread is waiting on the lock above).
+			[objectLock lock];
+			@onExit {
+				[objectLock unlock];
+			};
 
-		[observer.rac_deallocDisposable addDisposable:deallocDisposable];
-		[self.rac_deallocDisposable addDisposable:deallocDisposable];
+			__strong NSObject *observer __attribute__((objc_precise_lifetime)) = unsafeObserver;
+			__strong NSObject *self __attribute__((objc_precise_lifetime)) = unsafeSelf;
 
-		return [RACDisposable disposableWithBlock:^{
-			[observerDisposable removeDisposable:deallocFlagDisposable];
-			[objectDisposable removeDisposable:deallocFlagDisposable];
-			[observerDisposable removeDisposable:deallocDisposable];
-			[objectDisposable removeDisposable:deallocDisposable];
-			[observationDisposable dispose];
-		}];
-	}];
+			if (self == nil) {
+				[subscriber sendCompleted];
+				return nil;
+			}
+
+			return [self rac_observeKeyPath:keyPath options:options observer:observer block:^(id value, NSDictionary *change) {
+				[subscriber sendNext:RACTuplePack(value, change)];
+			}];
+		}]
+		takeUntil:deallocSignal]
+		setNameWithFormat:@"%@ -rac_valueAndChangesForKeyPath: %@ options: %lu observer: %@", self.rac_description, keyPath, (unsigned long)options, observer.rac_description];
 }
 
 @end

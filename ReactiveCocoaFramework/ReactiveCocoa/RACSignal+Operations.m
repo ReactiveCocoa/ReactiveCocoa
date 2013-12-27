@@ -730,16 +730,18 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 		[disposable addDisposable:triggerDisposable];
 
-		RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
-			[subscriber sendNext:x];
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[disposable dispose];
-			[subscriber sendCompleted];
-		}];
+		if (!disposable.disposed) {
+			RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
+				[subscriber sendNext:x];
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				[disposable dispose];
+				[subscriber sendCompleted];
+			}];
 
-		[disposable addDisposable:selfDisposable];
+			[disposable addDisposable:selfDisposable];
+		}
 
 		return disposable;
 	}] setNameWithFormat:@"[%@] -takeUntil: %@", self.name, signalTrigger];

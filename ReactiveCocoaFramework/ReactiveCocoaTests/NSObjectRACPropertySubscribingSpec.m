@@ -15,9 +15,9 @@
 
 SpecBegin(NSObjectRACPropertySubscribing)
 
-describe(@"-rac_valuesForKeyPath:observer:", ^{
-	id (^setupBlock)(id, id, id) = ^(RACTestObject *object, NSString *keyPath, id observer) {
-		return [object rac_valuesForKeyPath:keyPath observer:observer];
+describe(@"-rac_valuesForKeyPath:", ^{
+	id (^setupBlock)(id, id) = ^(RACTestObject *object, NSString *keyPath) {
+		return [object rac_valuesForKeyPath:keyPath];
 	};
 
 	itShouldBehaveLike(RACPropertySubscribingExamples, ^{
@@ -26,7 +26,7 @@ describe(@"-rac_valuesForKeyPath:observer:", ^{
 
 });
 
-describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
+describe(@"+rac_signalWithChangesFor:keyPath:options:", ^{
 	describe(@"KVO options argument", ^{
 		__block RACTestObject *object;
 		__block id actual;
@@ -36,7 +36,7 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 			object = [[RACTestObject alloc] init];
 
 			objectValueSignal = ^(NSKeyValueObservingOptions options) {
-				return [[object rac_valuesAndChangesForKeyPath:@keypath(object, objectValue) options:options observer:self] reduceEach:^(id value, NSDictionary *change) {
+				return [[object rac_valuesAndChangesForKeyPath:@keypath(object, objectValue) options:options] reduceEach:^(id value, NSDictionary *change) {
 					return change;
 				}];
 			};
@@ -134,13 +134,12 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 	});
 });
 
-describe(@"-rac_valuesAndChangesForKeyPath:options:observer:", ^{
-	it(@"should complete immediately if the receiver or observer have deallocated", ^{
+describe(@"-rac_valuesAndChangesForKeyPath:options:", ^{
+	it(@"should complete immediately if the receiver has deallocated", ^{
 		RACSignal *signal;
 		@autoreleasepool {
 			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			RACTestObject *observer __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			signal = [object rac_valuesAndChangesForKeyPath:@keypath(object, stringValue) options:0 observer:observer];
+			signal = [object rac_valuesAndChangesForKeyPath:@keypath(object, stringValue) options:0];
 		}
 
 		__block BOOL completed = NO;

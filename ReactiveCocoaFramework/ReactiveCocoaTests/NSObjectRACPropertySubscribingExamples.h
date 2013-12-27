@@ -10,7 +10,7 @@
 extern NSString * const RACPropertySubscribingExamples;
 
 // The block should have the signature:
-//   RACSignal * (^)(RACTestObject *testObject, NSString *keyPath, id observer)
-// and should observe the value of the key path on testObject with observer. The value
-// for this key should not be nil.
+//   RACSignal * (^)(RACTestObject *testObject, NSString *keyPath)
+// and should observe the value of the key path on testObject. The value for
+// this key should not be nil.
 extern NSString * const RACPropertySubscribingExamplesSetupBlock;

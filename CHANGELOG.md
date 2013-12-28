@@ -38,7 +38,7 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=4&sta
 Because of its confusing API, `RACCommand` hasn't been used much, despite the
 value it offers in responding to UI events. The new `RACAction` class, which
 [replaces](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/910)
-`RACCommand`, attempts to provide the same value in a much less confusing way.
+`RACCommand`, attempts to provide the same value in a less confusing way.
 
 Any [signal generator](#signal-generators) can be directly converted into an
 action via the `-action` or `-actionEnabledIf:` methods. Whenever the resulting
@@ -46,9 +46,9 @@ action is executed, a signal will be generated and subscribed to, triggering its
 side effects. `RACAction` will automatically ensure that only one subscription
 is in effect at a time.
 
-The class still provides some familiar `RACCommand` conveniences (like
-collecting execution errors onto an `errors` signal), but without any signal
-blocks, signals of signals, or concurrent behaviors to worry about.
+The class still provides most of the familiar `RACCommand` conveniences, but
+minimizes the use of signal blocks, signals of signals, and concurrent
+behaviors, hopefully making it more approachable.
 
 **To update:**
 
@@ -59,13 +59,14 @@ blocks, signals of signals, or concurrent behaviors to worry about.
    `-[RACSignalGenerator action]`.
  * If you were instead using `-[RACCommand initWithEnabled:signalBlock:]`, use
    the `-actionEnabledIf:` variant.
- * Replace uses of `RACCommand.executionSignals` with
-   `RACAggregatingSignalGenerator`, and create the action from that. _(Note,
-   however, that the signal generator does not automatically catch errors.)_
+ * Replace uses of `RACCommand.executionSignals` that _only care about values_
+   with `RACAction.results`.
+ * Replace uses of `RACCommand.executionSignals` that _care about completion and
+   error events_ with `RACAction.executionSignals`.
  * Instead of setting `RACCommand.allowsConcurrentExecution` to `YES`, use
-   a plain `RACSignal` instead.
- * Replace `-[RACCommand execute:]` with `-[RACAction deferred:]` when you need
-   the results of the execution.
+   a `RACSignalGenerator` for your behavior instead.
+ * Replace `-[RACCommand execute:]` with `-[RACAction signalWithValue:]` when
+   you need the results of the execution.
  * Invoke `-[RACAction execute:]` from your UI when the caller does not care
    about the results.
  * Replace `rac_command` bindings with `rac_action`.
@@ -114,12 +115,8 @@ _logInAction = [[RACDynamicSignalGenerator
     actionEnabledIf:currentlyOnline];
 
 // View controller
-self.button.rac_action = [[[self.usernameField.rac_textSignal
-    take:1]
-    flattenMap:^(NSString *username) {
-        @strongify(self);
-        return [self.viewModel.logInAction deferred:username];
-    }]
+self.button.rac_action = [[RACSamplingSignalGenerator
+    generatorBySampling:self.usernameField.rac_textSignal forGenerator:self.viewModel.logInAction]
     actionEnabledIf:self.viewModel.logInAction.enabled];
 ```
 

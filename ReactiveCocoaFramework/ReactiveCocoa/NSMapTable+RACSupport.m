@@ -32,11 +32,32 @@
 }
 
 - (RACSignal *)rac_keySignal {
-	return [self.keyEnumerator.allObjects.rac_signal setNameWithFormat:@"%@ -rac_keySignal", self.rac_description];
+	NSMapTable *collection = [self copy];
+
+	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
+		for (id key in collection) {
+			[subscriber sendNext:key];
+
+			if (subscriber.disposable.disposed) return;
+		}
+
+		[subscriber sendCompleted];
+	}] setNameWithFormat:@"%@ -rac_keySignal", self.rac_description];
 }
 
 - (RACSignal *)rac_valueSignal {
-	return [self.objectEnumerator.allObjects.rac_signal setNameWithFormat:@"%@ -rac_valueSignal", self.rac_description];
+	NSMapTable *collection = [self copy];
+
+	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
+		for (id key in collection) {
+			id object = [collection objectForKey:key];
+			[subscriber sendNext:object];
+
+			if (subscriber.disposable.disposed) return;
+		}
+
+		[subscriber sendCompleted];
+	}] setNameWithFormat:@"%@ -rac_valueSignal", self.rac_description];
 }
 
 @end

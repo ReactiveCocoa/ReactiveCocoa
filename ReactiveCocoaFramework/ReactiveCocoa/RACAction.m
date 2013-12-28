@@ -91,10 +91,10 @@ NSString * const RACActionErrorKey = @"RACActionErrorKey";
 #pragma mark Execution
 
 - (void)execute:(id)input {
-	[[self deferred:input] subscribe:nil];
+	[[self signalWithValue:input] subscribe:nil];
 }
 
-- (RACSignal *)deferred:(id)input {
+- (RACSignal *)signalWithValue:(id)input {
 	return [[[RACSignal
 		create:^(id<RACSubscriber> subscriber) {
 			NSNumber *enabled = [self.enabled first];
@@ -110,7 +110,7 @@ NSString * const RACActionErrorKey = @"RACActionErrorKey";
 
 			#pragma clang diagnostic push
 			#pragma clang diagnostic ignored "-Wdeprecated"
-			RACReplaySubject *replayed = [[RACReplaySubject subject] setNameWithFormat:@"%@ -deferred: %@", self, [input rac_description]];
+			RACReplaySubject *replayed = [[RACReplaySubject subject] setNameWithFormat:@"%@ -signalWithValue: %@", self, [input rac_description]];
 			#pragma clang diagnostic pop
 			
 			[replayed subscribe:subscriber];
@@ -150,7 +150,7 @@ NSString * const RACActionErrorKey = @"RACActionErrorKey";
 				} error:nil completed:nil];
 		}]
 		subscribeOn:RACScheduler.mainThreadScheduler]
-		setNameWithFormat:@"%@ -deferred: %@", self, [input rac_description]];
+		setNameWithFormat:@"%@ -signalWithValue: %@", self, [input rac_description]];
 }
 
 @end

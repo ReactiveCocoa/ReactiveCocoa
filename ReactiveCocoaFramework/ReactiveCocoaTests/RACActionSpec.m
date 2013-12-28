@@ -99,7 +99,7 @@ sharedExamplesFor(@"enabled action", ^(id _) {
 			receivedError = YES;
 		}];
 		
-		expect([[action deferred:nil] asynchronouslyWaitUntilCompleted:NULL]).to.beTruthy();
+		expect([[action signalWithValue:nil] asynchronouslyWaitUntilCompleted:NULL]).to.beTruthy();
 		expect(receivedError).to.beFalsy();
 	});
 
@@ -107,7 +107,7 @@ sharedExamplesFor(@"enabled action", ^(id _) {
 		[action execute:nil];
 
 		NSError *error = nil;
-		BOOL success = [[action deferred:nil] asynchronouslyWaitUntilCompleted:&error];
+		BOOL success = [[action signalWithValue:nil] asynchronouslyWaitUntilCompleted:&error];
 		expect(success).to.beFalsy();
 
 		expect(error).notTo.beNil();
@@ -119,7 +119,7 @@ sharedExamplesFor(@"enabled action", ^(id _) {
 	it(@"should forward execution results on their original scheduler", ^{
 		__block BOOL completed = NO;
 
-		[[action deferred:nil] subscribeNext:^(id _) {
+		[[action signalWithValue:nil] subscribeNext:^(id _) {
 			expect(RACScheduler.currentScheduler).to.equal(scheduler);
 		} completed:^{
 			expect(RACScheduler.currentScheduler).to.equal(scheduler);
@@ -162,7 +162,7 @@ describe(@"from a signal generator", ^{
 	});
 
 	it(@"should defer execution", ^{
-		RACSignal *deferred = [action deferred:RACUnit.defaultUnit];
+		RACSignal *deferred = [action signalWithValue:RACUnit.defaultUnit];
 		expect(deferred).notTo.beNil();
 
 		expect(executing).to.equal((@[ @NO ]));
@@ -196,7 +196,7 @@ describe(@"from a signal", ^{
 
 	it(@"should defer execution", ^{
 		// The input value should be ignored here.
-		RACSignal *deferred = [action deferred:nil];
+		RACSignal *deferred = [action signalWithValue:nil];
 		expect(deferred).notTo.beNil();
 
 		expect(executing).to.equal((@[ @NO ]));

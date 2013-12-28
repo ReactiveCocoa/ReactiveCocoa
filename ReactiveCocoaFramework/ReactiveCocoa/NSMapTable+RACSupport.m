@@ -7,7 +7,6 @@
 //
 
 #import "NSMapTable+RACSupport.h"
-#import "NSArray+RACSupport.h"
 #import "NSObject+RACDescription.h"
 #import "RACCompoundDisposable.h"
 #import "RACSignal.h"

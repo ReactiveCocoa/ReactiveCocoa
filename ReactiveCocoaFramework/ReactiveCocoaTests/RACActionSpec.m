@@ -19,6 +19,7 @@
 SpecBegin(RACAction)
 
 __block RACAction *action;
+__block RACScheduler *scheduler;
 
 __block NSMutableArray *executing;
 __block NSMutableArray *enabled;
@@ -57,13 +58,14 @@ RACSignal * (^signalWithValue)(id) = ^(id value) {
 		doDisposed:^{
 			disposalCount++;
 		}]
-		deliverOn:[RACScheduler scheduler]];
+		deliverOn:scheduler];
 };
 
 beforeEach(^{
 	subscriptionCount = 0;
 	disposalCount = 0;
 
+	scheduler = [RACScheduler scheduler];
 	executing = [NSMutableArray array];
 	enabled = [NSMutableArray array];
 });
@@ -84,7 +86,6 @@ sharedExamplesFor(@"enabled action", ^(id _) {
 		expect(executing).to.equal((@[ @NO ]));
 		expect(enabled).to.equal((@[ @YES ]));
 
-		// Subscription happens asynchronously on the main thread.
 		expect(subscriptionCount).will.equal(1);
 		expect(executing).will.equal((@[ @NO, @YES, @NO ]));
 		expect(enabled).to.equal((@[ @YES, @NO, @YES ]));
@@ -115,13 +116,13 @@ sharedExamplesFor(@"enabled action", ^(id _) {
 		expect(error.userInfo[RACActionErrorKey]).to.beIdenticalTo(action);
 	});
 
-	it(@"should send all execution results on the main thread", ^{
+	it(@"should forward execution results on their original scheduler", ^{
 		__block BOOL completed = NO;
 
 		[[action deferred:nil] subscribeNext:^(id _) {
-			expect(RACScheduler.currentScheduler).to.equal(RACScheduler.mainThreadScheduler);
+			expect(RACScheduler.currentScheduler).to.equal(scheduler);
 		} completed:^{
-			expect(RACScheduler.currentScheduler).to.equal(RACScheduler.mainThreadScheduler);
+			expect(RACScheduler.currentScheduler).to.equal(scheduler);
 			completed = YES;
 		}];
 
@@ -152,11 +153,11 @@ describe(@"from a signal generator", ^{
 
 	it(@"should generate a new signal with each call to -execute:", ^{
 		[action execute:nil];
-		expect(generationCount).to.equal(1);
+		expect(generationCount).will.equal(1);
 		expect(disposalCount).will.equal(1);
 
 		[action execute:nil];
-		expect(generationCount).to.equal(2);
+		expect(generationCount).will.equal(2);
 		expect(disposalCount).will.equal(2);
 	});
 
@@ -164,25 +165,22 @@ describe(@"from a signal generator", ^{
 		RACSignal *deferred = [action deferred:RACUnit.defaultUnit];
 		expect(deferred).notTo.beNil();
 
-		expect(generationCount).to.equal(1);
 		expect(executing).to.equal((@[ @NO ]));
 		expect(enabled).to.equal((@[ @YES ]));
 
 		expect([[deferred collect] asynchronousFirstOrDefault:nil success:NULL error:NULL]).to.equal((@[ RACUnit.defaultUnit ]));
+		expect(generationCount).to.equal(1);
 		expect(subscriptionCount).to.equal(1);
 		expect(disposalCount).to.equal(1);
-		expect(executing).to.equal((@[ @NO, @YES, @NO ]));
+		expect(executing).will.equal((@[ @NO, @YES, @NO ]));
 		expect(enabled).to.equal((@[ @YES, @NO, @YES ]));
 
 		expect([deferred asynchronouslyWaitUntilCompleted:NULL]).to.beTruthy();
+		expect(generationCount).to.equal(2);
 		expect(subscriptionCount).to.equal(2);
 		expect(disposalCount).to.equal(2);
-		expect(executing).to.equal((@[ @NO, @YES, @NO, @YES, @NO ]));
+		expect(executing).will.equal((@[ @NO, @YES, @NO, @YES, @NO ]));
 		expect(enabled).to.equal((@[ @YES, @NO, @YES, @NO, @YES ]));
-
-		// Despite the multiple subscriptions, the underlying signal should've
-		// only been generated once.
-		expect(generationCount).to.equal(1);
 	});
 });
 
@@ -207,13 +205,13 @@ describe(@"from a signal", ^{
 		expect([[deferred collect] asynchronousFirstOrDefault:nil success:NULL error:NULL]).to.equal((@[ RACUnit.defaultUnit ]));
 		expect(subscriptionCount).to.equal(1);
 		expect(disposalCount).to.equal(1);
-		expect(executing).to.equal((@[ @NO, @YES, @NO ]));
+		expect(executing).will.equal((@[ @NO, @YES, @NO ]));
 		expect(enabled).to.equal((@[ @YES, @NO, @YES ]));
 
 		expect([deferred asynchronouslyWaitUntilCompleted:NULL]).to.beTruthy();
 		expect(subscriptionCount).to.equal(2);
 		expect(disposalCount).to.equal(2);
-		expect(executing).to.equal((@[ @NO, @YES, @NO, @YES, @NO ]));
+		expect(executing).will.equal((@[ @NO, @YES, @NO, @YES, @NO ]));
 		expect(enabled).to.equal((@[ @YES, @NO, @YES, @NO, @YES ]));
 	});
 });

@@ -8,111 +8,40 @@
 
 #import "RACAction.h"
 
-#import "EXTKeyPathCoding.h"
 #import "NSObject+RACDescription.h"
-#import "NSObject+RACPropertySubscribing.h"
-#import "RACDynamicSignalGenerator.h"
+#import "RACCompoundDisposable.h"
+#import "RACReplaySubject.h"
 #import "RACScheduler.h"
+#import "RACSignalGenerator.h"
 #import "RACSignal+Operations.h"
 #import "RACSubject.h"
-#import "RACSubscriptingAssignmentTrampoline.h"
-
-#import <libkern/OSAtomic.h>
+#import "RACTuple.h"
 
 NSString * const RACActionErrorDomain = @"RACActionErrorDomain";
 const NSInteger RACActionErrorNotEnabled = 1;
 NSString * const RACActionErrorKey = @"RACActionErrorKey";
 
 @interface RACAction () {
+	RACSubject *_results;
 	RACSubject *_errors;
+	RACSubject *_executionSignals;
 
-	// Atomic backing variables for implementing `immediateEnabled` and
-	// `immediateExecuting` ourselves (needed so we can also generate KVO
-	// notifications ourselves).
-	volatile int _immediateEnabled;
-	volatile int _immediateExecuting;
+	// Although RACReplaySubject is deprecated for consumers, we're going to use it
+	// internally for the foreseeable future. We just want to expose something
+	// higher level.
+	#pragma clang diagnostic push
+	#pragma clang diagnostic ignored "-Wdeprecated"
+	RACReplaySubject *_enabled;
+	RACReplaySubject *_executing;
+	#pragma clang diagnostic pop
 }
 
 // The generator that the receiver was initialized with.
 @property (nonatomic, strong, readonly) RACSignalGenerator *generator;
 
-// Whether the receiver is currently enabled.
-//
-// This property may be modified from any thread.
-@property (atomic, assign) BOOL immediateEnabled;
-
-// Whether the receiver is currently executing.
-//
-// This property may be modified from any thread.
-@property (atomic, assign) BOOL immediateExecuting;
-
-// Improves the performance of KVO on the receiver.
-//
-// See the documentation for <NSKeyValueObserving> for more information.
-@property (atomic) void *observationInfo;
-
 @end
 
 @implementation RACAction
-
-#pragma mark Properties
-
-- (RACSignal *)signalWithImmediateProperty:(RACSignal *)immediate {
-	NSCParameterAssert(immediate != nil);
-
-	RACSignal *mainThreadValues = [[immediate
-		skip:1]
-		deliverOn:RACScheduler.mainThreadScheduler];
-
-	return [[[immediate
-		take:1]
-		concat:mainThreadValues]
-		distinctUntilChanged];
-}
-
-- (BOOL)immediateEnabled {
-	return _immediateEnabled != 0;
-}
-
-- (void)setImmediateEnabled:(BOOL)value {
-	[self willChangeValueForKey:@keypath(self.immediateEnabled)];
-
-	if (value) {
-		OSAtomicCompareAndSwapIntBarrier(0, 1, &_immediateEnabled);
-	} else {
-		OSAtomicCompareAndSwapIntBarrier(1, 0, &_immediateEnabled);
-	}
-
-	[self didChangeValueForKey:@keypath(self.immediateEnabled)];
-}
-
-- (BOOL)immediateExecuting {
-	return _immediateExecuting != 0;
-}
-
-- (void)setImmediateExecuting:(BOOL)value {
-	[self willChangeValueForKey:@keypath(self.immediateExecuting)];
-
-	if (value) {
-		OSAtomicCompareAndSwapIntBarrier(0, 1, &_immediateExecuting);
-	} else {
-		OSAtomicCompareAndSwapIntBarrier(1, 0, &_immediateExecuting);
-	}
-
-	[self didChangeValueForKey:@keypath(self.immediateExecuting)];
-}
-
-- (RACSignal *)enabled {
-	return [[self
-		signalWithImmediateProperty:RACObserve(self, immediateEnabled)]
-		setNameWithFormat:@"%@ -enabled", self];
-}
-
-- (RACSignal *)executing {
-	return [[self
-		signalWithImmediateProperty:RACObserve(self, immediateExecuting)]
-		setNameWithFormat:@"%@ -executing", self];
-}
 
 #pragma mark Lifecycle
 
@@ -124,23 +53,38 @@ NSString * const RACActionErrorKey = @"RACActionErrorKey";
 	if (self == nil) return nil;
 
 	_generator = generator;
-	_errors = [[RACSubject subject] setNameWithFormat:@"%@ -errors", self];
 
-	RAC(self, immediateEnabled) = [[RACSignal
+	_results = [[RACSubject subject] setNameWithFormat:@"%@ -results", self];
+	_errors = [[RACSubject subject] setNameWithFormat:@"%@ -errors", self];
+	_executionSignals = [[RACSubject subject] setNameWithFormat:@"%@ -executionSignals", self];
+
+	#pragma clang diagnostic push
+	#pragma clang diagnostic ignored "-Wdeprecated"
+	_executing = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"%@ -executing", self];
+	_enabled = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"%@ -enabled", self];
+	#pragma clang diagnostic pop
+
+	[_executing sendNext:@NO];
+	[[[RACSignal
 		combineLatest:@[
 			[enabledSignal startWith:@YES],
-			[RACObserve(self, immediateExecuting) not],
+			[self.executing not],
 		]]
-		and];
+		and]
+		subscribe:_enabled];
 
 	return self;
 }
 
 - (void)dealloc {
-	RACSubject *errors = _errors;
+	RACTuple *subjects = RACTuplePack(_results, _errors, _executionSignals, _enabled, _executing);
 
 	[RACScheduler.mainThreadScheduler schedule:^{
-		[errors sendCompleted];
+		for (id subject in subjects) {
+			if (subject == RACTupleNil.tupleNil) continue;
+
+			[subject sendCompleted];
+		}
 	}];
 }
 
@@ -151,51 +95,62 @@ NSString * const RACActionErrorKey = @"RACActionErrorKey";
 }
 
 - (RACSignal *)deferred:(id)input {
-	RACSignal *generated = [self.generator signalWithValue:input];
-
 	return [[[RACSignal
-		defer:^{
-			if (!self.immediateEnabled) {
+		create:^(id<RACSubscriber> subscriber) {
+			NSNumber *enabled = [self.enabled first];
+			if (!enabled.boolValue) {
 				NSError *disabledError = [NSError errorWithDomain:RACActionErrorDomain code:RACActionErrorNotEnabled userInfo:@{
 					NSLocalizedDescriptionKey: NSLocalizedString(@"The action is disabled and cannot be executed", nil),
 					RACActionErrorKey: self
 				}];
 
-				return [RACSignal error:disabledError];
+				[subscriber sendError:disabledError];
+				return;
 			}
 
-			// Because `immediateExecuting` is only ever set to `YES` on the
-			// main thread (per our -subscribeOn:), there's no way another
-			// thread could perform the assignment below before we get to it.
-			//
-			// It _is_ possible for the `enabledSignal` given upon
-			// initialization to send `NO` and invalidate our check above, but
-			// the ordering isn't well-defined there anyways.
-			self.immediateExecuting = YES;
+			#pragma clang diagnostic push
+			#pragma clang diagnostic ignored "-Wdeprecated"
+			RACReplaySubject *replayed = [[RACReplaySubject subject] setNameWithFormat:@"%@ -deferred: %@", self, [input rac_description]];
+			#pragma clang diagnostic pop
+			
+			[replayed subscribe:subscriber];
+			[_executionSignals sendNext:replayed];
+			[_executing sendNext:@YES];
 
-			return [[[generated
-				deliverOn:RACScheduler.mainThreadScheduler]
+			[[[[self.generator
+				signalWithValue:input]
+				// Errors are handled up here, instead of in the subscription
+				// call below, because any error must be forwarded before the
+				// `completed` corresponding to disposal.
 				doError:^(NSError *error) {
-					[_errors sendNext:error];
+					[replayed sendError:error];
+
+					[RACScheduler.mainThreadScheduler schedule:^{
+						[_errors sendNext:error];
+					}];
 				}]
 				doDisposed:^{
-					// It's okay to flip this to `NO` on a background thread (if
-					// that's where we happen to be disposed), since it won't
-					// _prevent_ other threads from doing anything, but this
-					// must only be set to `YES` on the main thread.
-					self.immediateExecuting = NO;
-				}];
+					// This handles the case of disposal and `completed`. If an
+					// error occurred, it would've already been sent above.
+					[replayed sendCompleted];
+
+					[RACScheduler.mainThreadScheduler schedule:^{
+						[_executing sendNext:@NO];
+					}];
+				}]
+				subscribeSavingDisposable:^(RACDisposable *disposable) {
+					// Allow disposal as early as possible.
+					[subscriber.disposable addDisposable:disposable];
+				} next:^(id value) {
+					[replayed sendNext:value];
+
+					[RACScheduler.mainThreadScheduler schedule:^{
+						[_results sendNext:value];
+					}];
+				} error:nil completed:nil];
 		}]
 		subscribeOn:RACScheduler.mainThreadScheduler]
 		setNameWithFormat:@"%@ -deferred: %@", self, [input rac_description]];
-}
-
-#pragma mark NSKeyValueObserving
-
-+ (BOOL)automaticallyNotifiesObserversForKey:(NSString *)key {
-	// Generate all KVO notifications manually to avoid the performance impact
-	// of unnecessary swizzling.
-	return NO;
 }
 
 @end
@@ -219,10 +174,7 @@ NSString * const RACActionErrorKey = @"RACActionErrorKey";
 }
 
 - (RACAction *)actionEnabledIf:(RACSignal *)enabledSignal {
-	RACSignalGenerator *generator = [RACDynamicSignalGenerator generatorWithBlock:^(id _) {
-		return self;
-	}];
-
+	RACSignalGenerator *generator = [self signalGenerator];
 	return [[RACAction alloc] initWithEnabled:enabledSignal generator:generator];
 }
 

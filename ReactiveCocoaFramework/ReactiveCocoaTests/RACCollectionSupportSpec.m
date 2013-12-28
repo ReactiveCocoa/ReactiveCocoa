@@ -137,7 +137,7 @@ describe(@"NSMapTable signals", ^{
 	__block RACSignal *valueSignal;
 
 	beforeEach(^{
-		mapTable = [NSMapTable mapTableWithWeakToWeakObjects];
+		mapTable = [NSMapTable weakToWeakObjectsMapTable];
 		[mapTable setObject:@"bar" forKey:@"foo"];
 		[mapTable setObject:@"buzz" forKey:@"baz"];
 		[mapTable setObject:NSNull.null forKey:@5];

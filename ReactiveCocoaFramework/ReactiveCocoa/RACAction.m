@@ -96,7 +96,7 @@ NSString * const RACActionErrorKey = @"RACActionErrorKey";
 
 - (RACSignal *)signalWithValue:(id)input {
 	return [[[RACSignal
-		create:^(id<RACSubscriber> subscriber) {
+		defer:^{
 			NSNumber *enabled = [self.enabled first];
 			if (!enabled.boolValue) {
 				NSError *disabledError = [NSError errorWithDomain:RACActionErrorDomain code:RACActionErrorNotEnabled userInfo:@{
@@ -104,8 +104,7 @@ NSString * const RACActionErrorKey = @"RACActionErrorKey";
 					RACActionErrorKey: self
 				}];
 
-				[subscriber sendError:disabledError];
-				return;
+				return [RACSignal error:disabledError];
 			}
 
 			#pragma clang diagnostic push
@@ -113,15 +112,21 @@ NSString * const RACActionErrorKey = @"RACActionErrorKey";
 			RACReplaySubject *replayed = [[RACReplaySubject subject] setNameWithFormat:@"%@ -signalWithValue: %@", self, [input rac_description]];
 			#pragma clang diagnostic pop
 			
-			[replayed subscribe:subscriber];
 			[_executionSignals sendNext:replayed];
 			[_executing sendNext:@YES];
 
-			[[[[self.generator
+			return [[[[self.generator
 				signalWithValue:input]
-				// Errors are handled up here, instead of in the subscription
-				// call below, because any error must be forwarded before the
-				// `completed` corresponding to disposal.
+				doNext:^(id value) {
+					[replayed sendNext:value];
+
+					[RACScheduler.mainThreadScheduler schedule:^{
+						[_results sendNext:value];
+					}];
+				}]
+				// Errors are handled here because any error must be forwarded
+				// before sending the `completed` event corresponding to
+				// disposal.
 				doError:^(NSError *error) {
 					[replayed sendError:error];
 
@@ -137,17 +142,7 @@ NSString * const RACActionErrorKey = @"RACActionErrorKey";
 					[RACScheduler.mainThreadScheduler schedule:^{
 						[_executing sendNext:@NO];
 					}];
-				}]
-				subscribeSavingDisposable:^(RACDisposable *disposable) {
-					// Allow disposal as early as possible.
-					[subscriber.disposable addDisposable:disposable];
-				} next:^(id value) {
-					[replayed sendNext:value];
-
-					[RACScheduler.mainThreadScheduler schedule:^{
-						[_results sendNext:value];
-					}];
-				} error:nil completed:nil];
+				}];
 		}]
 		subscribeOn:RACScheduler.mainThreadScheduler]
 		setNameWithFormat:@"%@ -signalWithValue: %@", self, [input rac_description]];

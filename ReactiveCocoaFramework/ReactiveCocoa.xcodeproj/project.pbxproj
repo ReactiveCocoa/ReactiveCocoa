@@ -506,6 +506,8 @@
 		D0A32253186E8944006B6EA6 /* RACSamplingSignalGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = D0A3224F186E8944006B6EA6 /* RACSamplingSignalGenerator.m */; };
 		D0A32254186E8944006B6EA6 /* RACSamplingSignalGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = D0A3224F186E8944006B6EA6 /* RACSamplingSignalGenerator.m */; };
 		D0A32255186E8944006B6EA6 /* RACSamplingSignalGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = D0A3224F186E8944006B6EA6 /* RACSamplingSignalGenerator.m */; };
+		D0A3225B186E933B006B6EA6 /* RACSamplingSignalGeneratorSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D0A3225A186E933B006B6EA6 /* RACSamplingSignalGeneratorSpec.m */; };
+		D0A3225C186E933B006B6EA6 /* RACSamplingSignalGeneratorSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D0A3225A186E933B006B6EA6 /* RACSamplingSignalGeneratorSpec.m */; };
 		D0BD34C5182B159500B324CB /* RACSignalGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = D0BD34C3182B159500B324CB /* RACSignalGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D0BD34C6182B159500B324CB /* RACSignalGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = D0BD34C3182B159500B324CB /* RACSignalGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D0BD34C7182B159500B324CB /* RACSignalGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = D0BD34C3182B159500B324CB /* RACSignalGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -986,6 +988,7 @@
 		D0A318F1182864BF00A99BAD /* RACSignal+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACSignal+Private.h"; sourceTree = "<group>"; };
 		D0A3224E186E8944006B6EA6 /* RACSamplingSignalGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACSamplingSignalGenerator.h; sourceTree = "<group>"; };
 		D0A3224F186E8944006B6EA6 /* RACSamplingSignalGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSamplingSignalGenerator.m; sourceTree = "<group>"; };
+		D0A3225A186E933B006B6EA6 /* RACSamplingSignalGeneratorSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSamplingSignalGeneratorSpec.m; sourceTree = "<group>"; };
 		D0BD34C3182B159500B324CB /* RACSignalGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACSignalGenerator.h; sourceTree = "<group>"; };
 		D0BD34C4182B159500B324CB /* RACSignalGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSignalGenerator.m; sourceTree = "<group>"; };
 		D0BD34D1182B163E00B324CB /* RACDynamicSignalGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACDynamicSignalGenerator.h; sourceTree = "<group>"; };
@@ -1359,6 +1362,7 @@
 				88C5A02816924BFC0045EF05 /* RACMulticastConnectionSpec.m */,
 				D0EDE76516968AB10072A780 /* RACPropertySignalExamples.h */,
 				D0EDE76616968AB10072A780 /* RACPropertySignalExamples.m */,
+				D0A3225A186E933B006B6EA6 /* RACSamplingSignalGeneratorSpec.m */,
 				D02C7C8F1822D43000CB20D6 /* RACSchedulerSpec.m */,
 				D0C70F91164337E3007027B4 /* RACSequenceExamples.h */,
 				D0C70F92164337E3007027B4 /* RACSequenceExamples.m */,
@@ -2368,6 +2372,7 @@
 				5FAF5254174D4D5600CAC810 /* RACSequenceSpec.m in Sources */,
 				5FAF5255174D4D5600CAC810 /* RACSignalSpec.m in Sources */,
 				5FAF5256174D4D5600CAC810 /* RACStreamExamples.m in Sources */,
+				D0A3225C186E933B006B6EA6 /* RACSamplingSignalGeneratorSpec.m in Sources */,
 				5FAF5257174D4D5600CAC810 /* RACSubjectSpec.m in Sources */,
 				5FAF5258174D4D5600CAC810 /* RACSubscriberExamples.m in Sources */,
 				5FAF5259174D4D5600CAC810 /* RACLiveSubscriberSpec.m in Sources */,
@@ -2522,6 +2527,7 @@
 				D075A72A17BCB7E100C24FB7 /* RACControlActionExamples.m in Sources */,
 				88302BFD1762A9E6003633BD /* RACTestExampleScheduler.m in Sources */,
 				4925E806181BCC71000B2FEE /* (null) in Sources */,
+				D0A3225B186E933B006B6EA6 /* RACSamplingSignalGeneratorSpec.m in Sources */,
 				8884DD651756ACF600F6C379 /* RACSignalStartExamples.m in Sources */,
 				88302C2E1762C180003633BD /* RACTargetQueueSchedulerSpec.m in Sources */,
 				D0A0E226176A84DB007273ED /* RACDisposableSpec.m in Sources */,

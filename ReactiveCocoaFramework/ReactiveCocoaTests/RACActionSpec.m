@@ -116,8 +116,39 @@ sharedExamplesFor(@"enabled action", ^(id _) {
 		expect(error.userInfo[RACActionErrorKey]).to.beIdenticalTo(action);
 	});
 
-	it(@"should forward execution results on their original scheduler", ^{
+	it(@"should forward results on the main thread", ^{
+		[action.results subscribeNext:^(id _) {
+			expect(RACScheduler.currentScheduler).to.equal(RACScheduler.mainThreadScheduler);
+		}];
+
+		expect([[action signalWithValue:nil] asynchronouslyWaitUntilCompleted:NULL]).to.beTruthy();
+	});
+
+	it(@"should send replayed executionSignals on the main thread", ^{
+		__block RACSignal *signal = nil;
+		[action.executionSignals subscribeNext:^(RACSignal *s) {
+			expect(RACScheduler.currentScheduler).to.equal(RACScheduler.mainThreadScheduler);
+			signal = s;
+		}];
+
+		expect(signal).to.beNil();
+
+		NSArray *values = [[[action
+			signalWithValue:nil]
+			collect]
+			asynchronousFirstOrDefault:nil success:NULL error:NULL];
+
+		expect(values).notTo.beNil();
+		expect(signal).notTo.beNil();
+		expect([signal array]).to.equal(values);
+	});
+
+	it(@"should forward -signalWithValue: and execution signal results on their original scheduler", ^{
 		__block BOOL completed = NO;
+
+		[[action.executionSignals flatten] subscribeNext:^(id _) {
+			expect(RACScheduler.currentScheduler).to.equal(scheduler);
+		}];
 
 		[[action signalWithValue:nil] subscribeNext:^(id _) {
 			expect(RACScheduler.currentScheduler).to.equal(scheduler);
@@ -304,6 +335,8 @@ it(@"should complete signals on the main thread when deallocated", ^{
 	__block RACScheduler *executingScheduler = nil;
 	__block RACScheduler *enabledScheduler = nil;
 	__block RACScheduler *errorsScheduler = nil;
+	__block RACScheduler *resultsScheduler = nil;
+	__block RACScheduler *executionSignalsScheduler = nil;
 
 	[[RACScheduler scheduler] schedule:^{
 		@autoreleasepool {
@@ -326,13 +359,23 @@ it(@"should complete signals on the main thread when deallocated", ^{
 			[action.errors subscribeCompleted:^{
 				errorsScheduler = RACScheduler.currentScheduler;
 			}];
+
+			[action.results subscribeCompleted:^{
+				resultsScheduler = RACScheduler.currentScheduler;
+			}];
+
+			[action.executionSignals subscribeCompleted:^{
+				executionSignalsScheduler = RACScheduler.currentScheduler;
+			}];
 		}
 	}];
 
 	expect(deallocated).will.beTruthy();
 	expect(executingScheduler).will.equal(RACScheduler.mainThreadScheduler);
-	expect(enabledScheduler).will.equal(RACScheduler.mainThreadScheduler);
-	expect(errorsScheduler).will.equal(RACScheduler.mainThreadScheduler);
+	expect(enabledScheduler).to.equal(RACScheduler.mainThreadScheduler);
+	expect(errorsScheduler).to.equal(RACScheduler.mainThreadScheduler);
+	expect(resultsScheduler).to.equal(RACScheduler.mainThreadScheduler);
+	expect(executionSignalsScheduler).to.equal(RACScheduler.mainThreadScheduler);
 });
 
 SpecEnd

@@ -9,6 +9,7 @@
 #import "NSArray+RACSupport.h"
 #import "NSDictionary+RACSupport.h"
 #import "NSHashTable+RACSupport.h"
+#import "NSIndexSet+RACSupport.h"
 #import "NSMapTable+RACSupport.h"
 #import "NSOrderedSet+RACSupport.h"
 #import "NSSet+RACSupport.h"
@@ -134,6 +135,25 @@ describe(@"NSHashTable signals", ^{
 		}
 
 		expect([signal array].count).to.equal(count);
+	});
+});
+
+describe(@"NSIndexSet signals", ^{
+	__block NSMutableIndexSet *indexes;
+	__block RACSignal *signal;
+
+	beforeEach(^{
+		indexes = [[NSMutableIndexSet alloc] initWithIndexesInRange:NSMakeRange(0, 3)];
+		signal = indexes.rac_signal;
+		expect(signal).notTo.beNil();
+	});
+
+	it(@"should be immutable", ^{
+		NSArray *unchangedIndexes = @[ @0, @1, @2 ];
+		expect([signal array]).to.equal(unchangedIndexes);
+
+		[indexes addIndex:6];
+		expect([signal array]).to.equal(unchangedIndexes);
 	});
 });
 

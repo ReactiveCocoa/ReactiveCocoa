@@ -122,6 +122,19 @@ describe(@"NSHashTable signals", ^{
 		[values addObject:@6];
 		expect([NSSet setWithArray:[signal array]]).to.equal(unchangedValues);
 	});
+
+	it(@"should not retain the objects in the collection by itself", ^{
+		NSUInteger count = values.allObjects.count;
+
+		@autoreleasepool {
+			NSObject *obj __attribute__((objc_precise_lifetime)) = [NSObject new];
+			[values addObject:obj];
+
+			signal = values.rac_signal;
+		}
+
+		expect([signal array].count).to.equal(count);
+	});
 });
 
 describe(@"NSMapTable signals", ^{
@@ -167,6 +180,22 @@ describe(@"NSMapTable signals", ^{
 
 		[mapTable setObject:@"rab" forKey:@"foo"];
 		[mapTable setObject:@7 forKey:@6];
+
+		expect([tupleSignal array]).to.equal(tuples);
+		expect([keySignal array]).to.equal(keys);
+		expect([valueSignal array]).to.equal(values);
+	});
+
+	it(@"should not retain the keys and values in the collection by itself", ^{
+		@autoreleasepool {
+			NSObject *key __attribute__((objc_precise_lifetime)) = [NSObject new];
+			NSObject *value __attribute__((objc_precise_lifetime)) = [NSObject new];
+			[mapTable setObject:value forKey:key];
+
+			tupleSignal = mapTable.rac_signal;
+			keySignal = mapTable.rac_keySignal;
+			valueSignal = mapTable.rac_valueSignal;
+		}
 
 		expect([tupleSignal array]).to.equal(tuples);
 		expect([keySignal array]).to.equal(keys);

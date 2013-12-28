@@ -15,16 +15,22 @@
 /// A signal that will send RACTuples of the key-value pairs in the map table.
 ///
 /// Mutating the map table will not affect the signal after it's been created.
+///
+/// The signal itself does not retain the keys and values in the collection.
 @property (nonatomic, strong, readonly) RACSignal *rac_signal;
 
 /// A signal that will send all of the keys in the map table.
 ///
 /// Mutating the map table will not affect the signal after it's been created.
+///
+/// The signal itself does not retain the keys in the collection.
 @property (nonatomic, strong, readonly) RACSignal *rac_keySignal;
 
 /// A signal that will send all of the values in the map table.
 ///
 /// Mutating the map table will not affect the signal after it's been created.
+///
+/// The signal itself does not retain the values in the collection.
 @property (nonatomic, strong, readonly) RACSignal *rac_valueSignal;
 
 @end

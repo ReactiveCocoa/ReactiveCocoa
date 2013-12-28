@@ -44,7 +44,7 @@ static void *UIRefreshControlActionDisposableKey = &UIRefreshControlActionDispos
 		}]
 		map:^(UIRefreshControl *control) {
 			return [[[[action
-				deferred:control]
+				signalWithValue:control]
 				catchTo:[RACSignal empty]]
 				ignoreValues]
 				concat:[RACSignal return:control]];

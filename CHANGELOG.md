@@ -115,8 +115,14 @@ _logInAction = [[RACDynamicSignalGenerator
     actionEnabledIf:currentlyOnline];
 
 // View controller
+RACSignalGenerator *logInGenerator = [[RACDynamicSignalGenerator
+    generatorWithBlock:^(RACTuple *buttonAndUsername) {
+        return [RACSignal return:buttonAndUsername[1]];
+    }]
+    postcompose:self.viewModel.logInAction];
+
 self.button.rac_action = [[RACSamplingSignalGenerator
-    generatorBySampling:self.usernameField.rac_textSignal forGenerator:self.viewModel.logInAction]
+    generatorBySampling:self.usernameField.rac_textSignal forGenerator:logInGenerator]
     actionEnabledIf:self.viewModel.logInAction.enabled];
 ```
 

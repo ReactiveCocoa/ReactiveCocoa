@@ -113,7 +113,7 @@ static void RACSwizzleRespondsToSelector(Class class) {
 		return originalRespondsToSelector(self, respondsToSelectorSEL, selector);
 	};
 
-	class_replaceMethod(class, @selector(respondsToSelector:), imp_implementationWithBlock(newRespondsToSelector), method_getTypeEncoding(respondsToSelectorMethod));
+	class_replaceMethod(class, respondsToSelectorSEL, imp_implementationWithBlock(newRespondsToSelector), method_getTypeEncoding(respondsToSelectorMethod));
 }
 
 // It's hard to tell which struct return types use _objc_msgForward, and

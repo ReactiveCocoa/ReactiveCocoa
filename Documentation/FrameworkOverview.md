@@ -152,7 +152,6 @@ the information is still valuable).
 [RACBacktrace]: ../ReactiveCocoaFramework/ReactiveCocoa/RACBacktrace.h
 [RACDisposable]: ../ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
 [RACEvent]: ../ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h
-[RACExtensions]: ../RACExtensions
 [RACScheduler]: ../ReactiveCocoaFramework/ReactiveCocoa/RACScheduler.h
 [RACSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h
 [RACSignal+Operations]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h

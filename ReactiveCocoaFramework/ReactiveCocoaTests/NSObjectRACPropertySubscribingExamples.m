@@ -7,8 +7,9 @@
 //
 
 #import "RACTestObject.h"
-
 #import "NSObjectRACPropertySubscribingExamples.h"
+
+#import "EXTScope.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACCompoundDisposable.h"
@@ -150,6 +151,65 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 
 		expect(signalDealloced).will.beTruthy();
 		expect(objectDealloced).to.beTruthy();
+	});
+
+	it(@"should not resurrect a deallocated object upon subscription", ^{
+		dispatch_queue_t queue = dispatch_queue_create(NULL, DISPATCH_QUEUE_CONCURRENT);
+		@onExit {
+			dispatch_release(queue);
+		};
+
+		dispatch_set_target_queue(queue, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0));
+
+		// Fuzz out race conditions.
+		for (unsigned i = 0; i < 100; i++) {
+			dispatch_suspend(queue);
+
+			__block CFTypeRef object;
+			__block BOOL deallocated;
+
+			RACSignal *signal;
+
+			@autoreleasepool {
+				RACTestObject *testObject = [[RACTestObject alloc] init];
+				[testObject.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+					deallocated = YES;
+				}]];
+
+				signal = signalBlock(testObject, @keypath(testObject, objectValue), nil);
+				object = CFBridgingRetain(testObject);
+			}
+
+			dispatch_block_t testSubscription = ^{
+				RACDisposable *disposable = [signal subscribeCompleted:^{}];
+				expect(disposable).notTo.beNil();
+			};
+
+			unsigned beforeCount = arc4random_uniform(20);
+			for (unsigned j = 0; j < beforeCount; j++) {
+				dispatch_async(queue, testSubscription);
+			}
+
+			dispatch_async(queue, ^{
+				CFRelease(object);
+
+				// expect() is a bit finicky on background threads.
+				STAssertTrue(deallocated, @"Object did not deallocate after being released");
+			});
+
+			unsigned afterCount = arc4random_uniform(20);
+			for (unsigned j = 0; j < afterCount; j++) {
+				dispatch_async(queue, testSubscription);
+			}
+
+			dispatch_barrier_async(queue, testSubscription);
+
+			// Start everything and wait for it all to complete.
+			dispatch_resume(queue);
+
+			expect(deallocated).will.beTruthy();
+			dispatch_barrier_sync(queue, ^{});
+		}
 	});
 
 	it(@"shouldn't crash when the value is changed on a different queue", ^{

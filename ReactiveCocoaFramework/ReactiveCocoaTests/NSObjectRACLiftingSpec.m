@@ -219,10 +219,6 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		_Bool value = true;
 		[subject sendNext:@(value)];
 		expect(object.c99BoolValue).to.beTruthy();
-
-		value = false;
-		[subject sendNext:[NSValue valueWithBytes:&value objCType:@encode(_Bool)]];
-		expect(object.c99BoolValue).to.beFalsy();
 	});
 
 	it(@"should work for primitive pointers", ^{

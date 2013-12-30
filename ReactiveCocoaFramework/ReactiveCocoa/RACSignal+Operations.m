@@ -335,9 +335,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
 			@synchronized (values) {
 				if (values.count == 0) {
-					timerDisposable.disposable = [scheduler
-					                              afterDelay:interval
-					                              schedule:flushValues];
+					timerDisposable.disposable = [scheduler afterDelay:interval schedule:flushValues];
 				}
 
 				[values addObject:x ?: RACTupleNil.tupleNil];

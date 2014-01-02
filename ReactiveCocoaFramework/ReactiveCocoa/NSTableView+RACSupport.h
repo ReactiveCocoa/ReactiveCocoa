@@ -19,8 +19,9 @@
 /// This method only supports view-based table views.
 ///
 /// orderedMutations - A signal of <RACOrderedCollectionMutation> objects
-///                    describing the changes that should be made to the table
-///                    view. This signal should never error.
+///                    describing the indexes that should be updated in the
+///                    table view. The actual objects being modified are
+///                    ignored. This signal should never error.
 /// insertionOptions - Options describing how insertions into the table view
 ///                    should be animated.
 /// removalOptions   - Options describing how removals from the table view

@@ -13,12 +13,6 @@
 
 @implementation RACSettingMutation
 
-#pragma mark Properties
-
-- (NSIndexSet *)indexes {
-	return [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, self.addedObjects.count)];
-}
-
 #pragma mark Lifecycle
 
 - (instancetype)initWithObjects:(NSArray *)objects {

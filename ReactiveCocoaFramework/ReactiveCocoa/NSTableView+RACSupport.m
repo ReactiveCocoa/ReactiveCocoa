@@ -26,24 +26,24 @@
 
 	return [[orderedMutations
 		takeUntil:self.rac_willDeallocSignal]
-		subscribeNext:^(id<RACOrderedCollectionMutation> mutation) {
+		subscribeNext:^(id mutation) {
 			@strongify(self);
 			NSCAssert([mutation conformsToProtocol:@protocol(RACOrderedCollectionMutation)], @"Expected ordered collection mutation, got %@", mutation);
 
 			if ([mutation isKindOfClass:RACInsertionMutation.class]) {
 				[self beginUpdates];
-				[self insertRowsAtIndexes:mutation.indexes withAnimation:insertionOptions];
+				[self insertRowsAtIndexes:[mutation indexes] withAnimation:insertionOptions];
 				[self endUpdates];
 			} else if ([mutation isKindOfClass:RACRemovalMutation.class]) {
 				[self beginUpdates];
-				[self removeRowsAtIndexes:mutation.indexes withAnimation:removalOptions];
+				[self removeRowsAtIndexes:[mutation indexes] withAnimation:removalOptions];
 				[self endUpdates];
 			} else if ([mutation isKindOfClass:RACReplacementMutation.class]) {
 				NSIndexSet *columnIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, (NSUInteger)self.numberOfColumns)];
 
 				[self beginUpdates];
-				[self reloadDataForRowIndexes:mutation.indexes columnIndexes:columnIndexes];
-				[self noteHeightOfRowsWithIndexesChanged:mutation.indexes];
+				[self reloadDataForRowIndexes:[mutation indexes] columnIndexes:columnIndexes];
+				[self noteHeightOfRowsWithIndexesChanged:[mutation indexes]];
 				[self endUpdates];
 			} else {
 				[self reloadData];

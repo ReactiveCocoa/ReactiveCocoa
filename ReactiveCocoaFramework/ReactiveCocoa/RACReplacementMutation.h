@@ -10,6 +10,7 @@
 
 @interface RACReplacementMutation : NSObject <RACOrderedCollectionMutation>
 
+@property (nonatomic, copy, readonly) NSIndexSet *indexes;
 @property (nonatomic, copy, readonly) NSArray *removedObjects;
 @property (nonatomic, copy, readonly) NSArray *addedObjects;
 

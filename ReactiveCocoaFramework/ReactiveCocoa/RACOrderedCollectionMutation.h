@@ -12,8 +12,6 @@
 @protocol RACOrderedCollectionMutation <RACCollectionMutation>
 @required
 
-@property (nonatomic, copy, readonly) NSIndexSet *indexes;
-
 - (void)mutateOrderedCollection:(id<RACOrderedCollection>)collection;
 
 @end

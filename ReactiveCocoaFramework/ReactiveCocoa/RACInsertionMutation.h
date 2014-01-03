@@ -11,6 +11,8 @@
 
 @interface RACInsertionMutation : RACUnionMutation <RACOrderedCollectionMutation>
 
+@property (nonatomic, copy, readonly) NSIndexSet *indexes;
+
 - (instancetype)initWithObjects:(NSArray *)objects indexes:(NSIndexSet *)indexes;
 
 @end

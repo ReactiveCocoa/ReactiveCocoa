@@ -13,10 +13,6 @@
 
 @implementation RACRemovalMutation
 
-#pragma mark Properties
-
-@synthesize indexes = _indexes;
-
 #pragma mark Lifecycle
 
 - (instancetype)initWithObjects:(NSArray *)objects indexes:(NSIndexSet *)indexes {

@@ -15,18 +15,18 @@
 	if (self == nil) return nil;
 
 	_numberOfSections = 1;
-	[self.tableView registerClass:UITableViewHeaderFooterView.class forHeaderFooterViewReuseIdentifier:[self.class description]];
+	[self.tableView registerClass:UITableViewHeaderFooterView.class forHeaderFooterViewReuseIdentifier:NSStringFromClass(self.class)];
 
 	return self;
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
-	UITableViewHeaderFooterView *headerView = [tableView dequeueReusableHeaderFooterViewWithIdentifier:[self.class description]];
+	UITableViewHeaderFooterView *headerView = [tableView dequeueReusableHeaderFooterViewWithIdentifier:NSStringFromClass(self.class)];
 	return headerView;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-	return [tableView dequeueReusableCellWithIdentifier:[self.class description]] ?: [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:[self.class description]];
+	return [tableView dequeueReusableCellWithIdentifier:NSStringFromClass(self.class)] ?: [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:NSStringFromClass(self.class)];
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {

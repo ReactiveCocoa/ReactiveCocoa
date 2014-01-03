@@ -15,7 +15,7 @@
 	if (self == nil) return nil;
 
 	_numberOfSections = 1;
-	[self.tableView registerClass:[UITableViewHeaderFooterView class] forHeaderFooterViewReuseIdentifier:[self.class description]];
+	[self.tableView registerClass:UITableViewHeaderFooterView.class forHeaderFooterViewReuseIdentifier:[self.class description]];
 
 	return self;
 }

@@ -13,6 +13,7 @@
 #import "RACDisposable.h"
 #import "RACOrderedCollectionMutation.h"
 #import "RACInsertionMutation.h"
+#import "RACMoveMutation.h"
 #import "RACRemovalMutation.h"
 #import "RACReplacementMutation.h"
 #import "RACSignal+Operations.h"
@@ -44,6 +45,10 @@
 				[self beginUpdates];
 				[self reloadDataForRowIndexes:[mutation indexes] columnIndexes:columnIndexes];
 				[self noteHeightOfRowsWithIndexesChanged:[mutation indexes]];
+				[self endUpdates];
+			} else if ([mutation isKindOfClass:RACMoveMutation.class]) {
+				[self beginUpdates];
+				[self moveRowAtIndex:(NSInteger)[mutation fromIndex] toIndex:(NSInteger)[mutation toIndex]];
 				[self endUpdates];
 			} else {
 				[self reloadData];

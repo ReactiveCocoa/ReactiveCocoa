@@ -602,6 +602,12 @@
 		D0F26EEB1875359000E44470 /* NSTableView+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D0F26EE81875359000E44470 /* NSTableView+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D0F26EEC1875359000E44470 /* NSTableView+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D0F26EE91875359000E44470 /* NSTableView+RACSupport.m */; };
 		D0F26EED1875359000E44470 /* NSTableView+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D0F26EE91875359000E44470 /* NSTableView+RACSupport.m */; };
+		D0F64CAB1876946C00E139B9 /* RACMoveMutation.h in Headers */ = {isa = PBXBuildFile; fileRef = D0F64CA91876946C00E139B9 /* RACMoveMutation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D0F64CAC1876946C00E139B9 /* RACMoveMutation.h in Headers */ = {isa = PBXBuildFile; fileRef = D0F64CA91876946C00E139B9 /* RACMoveMutation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D0F64CAD1876946C00E139B9 /* RACMoveMutation.h in Headers */ = {isa = PBXBuildFile; fileRef = D0F64CA91876946C00E139B9 /* RACMoveMutation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D0F64CAE1876946C00E139B9 /* RACMoveMutation.m in Sources */ = {isa = PBXBuildFile; fileRef = D0F64CAA1876946C00E139B9 /* RACMoveMutation.m */; };
+		D0F64CAF1876946C00E139B9 /* RACMoveMutation.m in Sources */ = {isa = PBXBuildFile; fileRef = D0F64CAA1876946C00E139B9 /* RACMoveMutation.m */; };
+		D0F64CB01876946C00E139B9 /* RACMoveMutation.m in Sources */ = {isa = PBXBuildFile; fileRef = D0F64CAA1876946C00E139B9 /* RACMoveMutation.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1079,6 +1085,8 @@
 		D0F117CB179F0B97006CE68F /* UITableViewCellRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UITableViewCellRACSupportSpec.m; sourceTree = "<group>"; };
 		D0F26EE81875359000E44470 /* NSTableView+RACSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSTableView+RACSupport.h"; sourceTree = "<group>"; };
 		D0F26EE91875359000E44470 /* NSTableView+RACSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSTableView+RACSupport.m"; sourceTree = "<group>"; };
+		D0F64CA91876946C00E139B9 /* RACMoveMutation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACMoveMutation.h; sourceTree = "<group>"; };
+		D0F64CAA1876946C00E139B9 /* RACMoveMutation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACMoveMutation.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1730,6 +1738,8 @@
 			children = (
 				D04F43CF186CCD30006ADA61 /* RACInsertionMutation.h */,
 				D04F43D0186CCD30006ADA61 /* RACInsertionMutation.m */,
+				D0F64CA91876946C00E139B9 /* RACMoveMutation.h */,
+				D0F64CAA1876946C00E139B9 /* RACMoveMutation.m */,
 				D04F43DF186CCD92006ADA61 /* RACRemovalMutation.h */,
 				D04F43E0186CCD92006ADA61 /* RACRemovalMutation.m */,
 				D04F43E7186CCE02006ADA61 /* RACReplacementMutation.h */,
@@ -1926,6 +1936,7 @@
 				883A84DA1513964B006DB4C7 /* RACBehaviorSubject.h in Headers */,
 				883A84DF1513B5EC006DB4C7 /* RACDisposable.h in Headers */,
 				886F702A1551CF920045D68B /* RACGroupedSignal.h in Headers */,
+				D0F64CAB1876946C00E139B9 /* RACMoveMutation.h in Headers */,
 				881B37CC152260BF0079220B /* RACUnit.h in Headers */,
 				884476E4152367D100958F44 /* RACScopedDisposable.h in Headers */,
 				D07040521811D9490079D4DD /* RACDeprecated.h in Headers */,
@@ -2008,6 +2019,7 @@
 				D04F43FA186CD206006ADA61 /* RACSettingMutation.h in Headers */,
 				D08FF27F169A331B00743C6D /* RACScheduler.h in Headers */,
 				D08FF26B169A330000743C6D /* NSObject+RACLifting.h in Headers */,
+				D0F64CAC1876946C00E139B9 /* RACMoveMutation.h in Headers */,
 				D08FF280169A333400743C6D /* NSArray+RACSupport.h in Headers */,
 				D0BD34C6182B159500B324CB /* RACSignalGenerator.h in Headers */,
 				D04F43BD186CC9BF006ADA61 /* RACCollection.h in Headers */,
@@ -2084,6 +2096,7 @@
 				D05AD3EA17F2DB270080895B /* RACCommand.h in Headers */,
 				D05AD3DE17F2DB1D0080895B /* RACReplaySubject.h in Headers */,
 				D05AD3D817F2DB1D0080895B /* RACMulticastConnection.h in Headers */,
+				D0F64CAD1876946C00E139B9 /* RACMoveMutation.h in Headers */,
 				D05AD3E817F2DB230080895B /* RACSerialDisposable.h in Headers */,
 				D05AD42E17F2DB840080895B /* NSObject+RACPropertySubscribing.h in Headers */,
 				D05AD3CB17F2DB100080895B /* NSObject+RACDeallocating.h in Headers */,
@@ -2536,6 +2549,7 @@
 				D0E9678D1641EF9C00FCFF06 /* RACSequence.m in Sources */,
 				D0E967911641EF9C00FCFF06 /* RACStringSequence.m in Sources */,
 				D0D487031642550100DD7605 /* RACStream.m in Sources */,
+				D0F64CAE1876946C00E139B9 /* RACMoveMutation.m in Sources */,
 				D0EE284D164D906B006954A4 /* RACSignalSequence.m in Sources */,
 				881E86A41669304800667F7B /* RACCompoundDisposable.m in Sources */,
 				881E87AE16695C5600667F7B /* RACQueueScheduler.m in Sources */,
@@ -2717,6 +2731,7 @@
 				5F70B2C317AB1857009AEDF9 /* UIStepper+RACSupport.m in Sources */,
 				5F70B2C517AB1857009AEDF9 /* UISwitch+RACSupport.m in Sources */,
 				5F016DF717B10AA8002EEC69 /* UIControl+RACSupportPrivate.m in Sources */,
+				D0F64CAF1876946C00E139B9 /* RACMoveMutation.m in Sources */,
 				D013A3EA1807B7C30072B6CE /* RACReturnSignal.m in Sources */,
 				D04F43CD186CCD09006ADA61 /* RACUnionMutation.m in Sources */,
 				D020F3DC17F6A3E40092BED2 /* RACCompoundDisposableProvider.d in Sources */,
@@ -2775,6 +2790,7 @@
 				D05AD42917F2DB840080895B /* RACKVOChannel.m in Sources */,
 				D05AD42C17F2DB840080895B /* NSString+RACKeyPathUtilities.m in Sources */,
 				D05AD42717F2DB840080895B /* RACChannel.m in Sources */,
+				D0F64CB01876946C00E139B9 /* RACMoveMutation.m in Sources */,
 				D05AD3FB17F2DB5D0080895B /* RACScheduler.m in Sources */,
 				D05AD3EB17F2DB270080895B /* RACCommand.m in Sources */,
 				D05AD3D117F2DB100080895B /* RACStream.m in Sources */,

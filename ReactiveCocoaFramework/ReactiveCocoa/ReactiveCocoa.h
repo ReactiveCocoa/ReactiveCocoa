@@ -34,6 +34,7 @@
 #import "RACInsertionMutation.h"
 #import "RACKVOChannel.h"
 #import "RACMinusMutation.h"
+#import "RACMoveMutation.h"
 #import "RACOrderedCollectionMutation.h"
 #import "RACQueueScheduler.h"
 #import "RACRemovalMutation.h"

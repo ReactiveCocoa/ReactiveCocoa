@@ -58,6 +58,10 @@
 	[self replaceObjectsAtIndexes:indexSet withObjects:objects];
 }
 
+- (void)rac_moveObjectAtIndex:(NSUInteger)fromIndex toIndex:(NSUInteger)toIndex {
+	[self moveObjectsAtIndexes:[NSIndexSet indexSetWithIndex:fromIndex] toIndex:toIndex];
+}
+
 @end
 
 #pragma clang diagnostic push

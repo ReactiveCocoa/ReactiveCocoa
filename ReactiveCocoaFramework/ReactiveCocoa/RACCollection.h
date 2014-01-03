@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
+/// An abstraction of a collection, which may or may not be ordered.
 @protocol RACCollection <NSObject>
 @required
 

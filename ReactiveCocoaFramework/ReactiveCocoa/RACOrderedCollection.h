@@ -8,6 +8,7 @@
 
 #import "RACCollection.h"
 
+/// An abstraction of an ordered collection.
 @protocol RACOrderedCollection <RACCollection>
 @required
 

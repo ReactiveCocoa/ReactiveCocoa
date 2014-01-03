@@ -8,10 +8,14 @@
 
 #import "RACCollectionMutation.h"
 
+/// Removes objects from a collection.
 @interface RACMinusMutation : NSObject <RACCollectionMutation>
 
+/// The objects to remove from the collection.
 @property (nonatomic, copy, readonly) NSArray *removedObjects;
 
+/// Initializes a mutation that will remove `objects` from the contents of
+/// a collection.
 - (instancetype)initWithObjects:(NSArray *)objects;
 
 @end

@@ -13,7 +13,7 @@
 
 @interface NSTableView (RACSupport)
 
-/// Automatically inserts, removes, and reloads rows in the table view based on
+/// Automatically inserts, removes, and reloads rows in the table view, based on
 /// the ordered collection mutations received from the given signal.
 ///
 /// This method only supports view-based table views.

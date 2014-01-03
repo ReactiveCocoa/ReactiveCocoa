@@ -10,7 +10,6 @@
 
 #import "EXTScope.h"
 #import "NSObject+RACDeallocating.h"
-#import "RACDisposable.h"
 #import "RACOrderedCollectionMutation.h"
 #import "RACInsertionMutation.h"
 #import "RACMoveMutation.h"
@@ -24,7 +23,6 @@
 	NSCParameterAssert(orderedMutations != nil);
 
 	@weakify(self);
-
 	return [[orderedMutations
 		takeUntil:self.rac_willDeallocSignal]
 		subscribeNext:^(id mutation) {

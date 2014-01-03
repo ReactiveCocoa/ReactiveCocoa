@@ -608,6 +608,8 @@
 		D0F64CAE1876946C00E139B9 /* RACMoveMutation.m in Sources */ = {isa = PBXBuildFile; fileRef = D0F64CAA1876946C00E139B9 /* RACMoveMutation.m */; };
 		D0F64CAF1876946C00E139B9 /* RACMoveMutation.m in Sources */ = {isa = PBXBuildFile; fileRef = D0F64CAA1876946C00E139B9 /* RACMoveMutation.m */; };
 		D0F64CB01876946C00E139B9 /* RACMoveMutation.m in Sources */ = {isa = PBXBuildFile; fileRef = D0F64CAA1876946C00E139B9 /* RACMoveMutation.m */; };
+		D0F64CB718769B1700E139B9 /* UITableView+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D0F64CB518769B1700E139B9 /* UITableView+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D0F64CB818769B1700E139B9 /* UITableView+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D0F64CB618769B1700E139B9 /* UITableView+RACSupport.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1087,6 +1089,8 @@
 		D0F26EE91875359000E44470 /* NSTableView+RACSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSTableView+RACSupport.m"; sourceTree = "<group>"; };
 		D0F64CA91876946C00E139B9 /* RACMoveMutation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACMoveMutation.h; sourceTree = "<group>"; };
 		D0F64CAA1876946C00E139B9 /* RACMoveMutation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACMoveMutation.m; sourceTree = "<group>"; };
+		D0F64CB518769B1700E139B9 /* UITableView+RACSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITableView+RACSupport.h"; sourceTree = "<group>"; };
+		D0F64CB618769B1700E139B9 /* UITableView+RACSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITableView+RACSupport.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1520,6 +1524,8 @@
 				5F70B2BB17AB1857009AEDF9 /* UIStepper+RACSupport.m */,
 				5F70B2BC17AB1857009AEDF9 /* UISwitch+RACSupport.h */,
 				5F70B2BD17AB1857009AEDF9 /* UISwitch+RACSupport.m */,
+				D0F64CB518769B1700E139B9 /* UITableView+RACSupport.h */,
+				D0F64CB618769B1700E139B9 /* UITableView+RACSupport.m */,
 				D028DB85179E616700D1042F /* UITableViewCell+RACSupport.h */,
 				D028DB86179E616700D1042F /* UITableViewCell+RACSupport.m */,
 				88F44264153DCAC50097B4C3 /* UITextField+RACSupport.h */,
@@ -2049,6 +2055,7 @@
 				88302C9B1762EC7E003633BD /* RACQueueScheduler+Subclass.h in Headers */,
 				88302CA21762F62D003633BD /* RACTargetQueueScheduler.h in Headers */,
 				D04F43B9186CC9B3006ADA61 /* RACOrderedCollection.h in Headers */,
+				D0F64CB718769B1700E139B9 /* UITableView+RACSupport.h in Headers */,
 				557A4B5A177648C7008EF796 /* UIActionSheet+RACSupport.h in Headers */,
 				ACB0EAF41797DDD400942FFC /* UIAlertView+RACSupport.h in Headers */,
 				D094E44A17775AF200906BF7 /* EXTKeyPathCoding.h in Headers */,
@@ -2678,6 +2685,7 @@
 				88FC735816114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.m in Sources */,
 				886CEAE5163DE942007632D1 /* NSObject+RACLifting.m in Sources */,
 				887ACDAA165878A8009190AD /* NSInvocation+RACTypeParsing.m in Sources */,
+				D0F64CB818769B1700E139B9 /* UITableView+RACSupport.m in Sources */,
 				D0E9676E1641EF9C00FCFF06 /* NSArray+RACSupport.m in Sources */,
 				D013A3E21807B7450072B6CE /* RACEmptySignal.m in Sources */,
 				D0E967721641EF9C00FCFF06 /* NSDictionary+RACSupport.m in Sources */,

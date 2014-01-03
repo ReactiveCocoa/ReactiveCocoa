@@ -77,6 +77,7 @@
 	#import "UISlider+RACSupport.h"
 	#import "UIStepper+RACSupport.h"
 	#import "UISwitch+RACSupport.h"
+	#import "UITableView+RACSupport.h"
 	#import "UITableViewCell+RACSupport.h"
 	#import "UITextField+RACSupport.h"
 	#import "UITextView+RACSupport.h"

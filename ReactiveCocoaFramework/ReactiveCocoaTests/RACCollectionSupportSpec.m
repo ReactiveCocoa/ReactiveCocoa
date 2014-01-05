@@ -132,6 +132,13 @@ describe(@"NSHashTable signals", ^{
 			[values addObject:obj];
 
 			signal = values.rac_signal;
+
+			// Don't use -array because it (-collect) retains the objects.
+			__block NSInteger countFromSignal = 0;
+			[signal subscribeNext:^(id _) {
+				countFromSignal++;
+			}];
+			expect(countFromSignal).to.equal(count + 1);
 		}
 
 		expect([signal array].count).to.equal(count);
@@ -215,6 +222,21 @@ describe(@"NSMapTable signals", ^{
 			tupleSignal = mapTable.rac_signal;
 			keySignal = mapTable.rac_keySignal;
 			valueSignal = mapTable.rac_valueSignal;
+
+			void (^testSignalIncludeNewEntry)(RACSignal *, id) = ^(RACSignal *signal, id newEntry) {
+				// Don't use signal operators not to retain signal values.
+				__block id obj = nil;
+				[signal subscribeNext:^(id x) {
+					if ([x isEqual:newEntry]) {
+						obj = x;
+					}
+				}];
+				expect(obj).notTo.beNil();
+			};
+
+			testSignalIncludeNewEntry(tupleSignal, RACTuplePack(key, value));
+			testSignalIncludeNewEntry(keySignal, key);
+			testSignalIncludeNewEntry(valueSignal, value);
 		}
 
 		expect([tupleSignal array]).to.equal(tuples);

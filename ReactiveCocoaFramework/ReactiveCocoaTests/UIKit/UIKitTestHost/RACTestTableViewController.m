@@ -14,7 +14,6 @@
 	self = [super initWithStyle:style];
 	if (self == nil) return nil;
 
-	_numberOfSections = 1;
 	[self.tableView registerClass:UITableViewHeaderFooterView.class forHeaderFooterViewReuseIdentifier:NSStringFromClass(self.class)];
 
 	return self;
@@ -30,11 +29,11 @@
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-	return self.numberOfSections;
+	return 2;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-	return 10;
+	return 20;
 }
 
 @end

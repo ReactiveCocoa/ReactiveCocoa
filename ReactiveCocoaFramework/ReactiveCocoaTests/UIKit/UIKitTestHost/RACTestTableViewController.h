@@ -10,6 +10,4 @@
 
 @interface RACTestTableViewController : UITableViewController
 
-@property (nonatomic, assign) NSInteger numberOfSections;
-
 @end

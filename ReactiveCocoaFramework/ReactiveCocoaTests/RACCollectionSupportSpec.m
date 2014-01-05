@@ -117,7 +117,7 @@ describe(@"NSHashTable signals", ^{
 		// The signal values' (fast enumeration) order and -allObjects values'
 		// order are not the same, so compares equality using set.
 
-		NSSet *unchangedValues = [NSSet setWithArray:[values.allObjects copy]];
+		NSSet *unchangedValues = [NSSet setWithArray:values.allObjects];
 		expect([NSSet setWithArray:[signal array]]).to.equal(unchangedValues);
 
 		[values addObject:@6];
@@ -177,7 +177,7 @@ describe(@"NSMapTable signals", ^{
 
 		tuples = [NSMutableArray array];
 		for (id key in mapTable) {
-			RACTuple *tuple = [RACTuple tupleWithObjects:key, [mapTable objectForKey:key], nil];
+			RACTuple *tuple = RACTuplePack(key, [mapTable objectForKey:key]);
 			[tuples addObject:tuple];
 		}
 

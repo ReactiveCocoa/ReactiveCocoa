@@ -67,7 +67,8 @@ typedef enum : NSUInteger {
 /// This corresponds to the `SelectMany` method in Rx.
 ///
 /// block - A block which accepts the values in the receiver and returns a new
-///         signal. This block should not return `nil`.
+///         signal. Returning `nil` from this block is equivalent to returning
+///         an empty signal.
 ///
 /// Examples
 ///

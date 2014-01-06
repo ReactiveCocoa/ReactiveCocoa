@@ -776,9 +776,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 		RACDisposable *subscriptionDisposable = [[connection.signal
 			flattenMap:^(RACSignal *x) {
-				if (x == nil) return [RACSignal empty];
-
-				NSCAssert([x isKindOfClass:RACSignal.class], @"-switchToLatest requires that the source signal (%@) send signals. Instead we got: %@", self, x);
+				NSCAssert(x == nil || [x isKindOfClass:RACSignal.class], @"-switchToLatest requires that the source signal (%@) send signals. Instead we got: %@", self, x);
 
 				// -concat:[RACSignal never] prevents completion of the receiver from
 				// prematurely terminating the inner signal.

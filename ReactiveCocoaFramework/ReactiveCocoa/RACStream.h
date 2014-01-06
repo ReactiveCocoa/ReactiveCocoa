@@ -103,7 +103,8 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 /// This corresponds to the `SelectMany` method in Rx.
 ///
 /// block - A block which accepts the values in the receiver and returns a new
-///         instance of the receiver's class. This block should not return `nil`.
+///         instance of the receiver's class. Returning `nil` from this block is
+///         equivalent to returning an empty signal.
 ///
 /// Examples
 ///

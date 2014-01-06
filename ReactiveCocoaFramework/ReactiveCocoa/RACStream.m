@@ -68,10 +68,12 @@
 @implementation RACStream (Operations)
 
 - (instancetype)flattenMap:(RACStream * (^)(id value))block {
+	Class class = self.class;
+
 	return [[self bind:^{
 		return ^(id value, BOOL *stop) {
-			id stream = block(value);
-			NSCAssert(stream != nil, @"Expected non-nil stream to be returned from -flattenMap:");
+			id stream = block(value) ?: [class empty];
+			NSCAssert([stream isKindOfClass:RACStream.class], @"Value returned from -flattenMap: is not a stream: %@", stream);
 
 			return stream;
 		};
@@ -81,7 +83,6 @@
 - (instancetype)flatten {
 	__weak RACStream *stream __attribute__((unused)) = self;
 	return [[self flattenMap:^(id value) {
-		NSCAssert([value isKindOfClass:RACStream.class], @"Stream %@ being flattened contains an object that is not a stream: %@", stream, value);
 		return value;
 	}] setNameWithFormat:@"[%@] -flatten", self.name];
 }

@@ -34,7 +34,6 @@
 #import "RACGroupedSignal.h"
 #import "RACKVOChannel.h"
 #import "RACQueueScheduler.h"
-#import "RACSamplingSignalGenerator.h"
 #import "RACScheduler.h"
 #import "RACScopedDisposable.h"
 #import "RACSerialDisposable.h"

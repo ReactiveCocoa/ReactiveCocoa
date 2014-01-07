@@ -101,7 +101,7 @@ RAC(self.viewModel, username) = self.usernameField.rac_textSignal;
 self.button.rac_action = self.viewModel.logInAction;
 ```
 
-To accept input to the action, add a signal generator:
+To accept input to the action, use a signal generator:
 
 ```objc
 // View model
@@ -115,14 +115,9 @@ _logInAction = [[RACDynamicSignalGenerator
     actionEnabledIf:currentlyOnline];
 
 // View controller
-RACSignalGenerator *logInGenerator = [[RACDynamicSignalGenerator
-    generatorWithBlock:^(RACTuple *buttonAndUsername) {
-        return [RACSignal return:buttonAndUsername[1]];
-    }]
-    postcompose:self.viewModel.logInAction];
-
-self.button.rac_action = [[RACSamplingSignalGenerator
-    generatorBySampling:self.usernameField.rac_textSignal forGenerator:logInGenerator]
+self.button.rac_action = [[[self.usernameField.rac_textSignal
+    take:1]
+    postcompose:self.viewModel.logInAction]
     actionEnabledIf:self.viewModel.logInAction.enabled];
 ```
 

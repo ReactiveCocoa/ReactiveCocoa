@@ -387,12 +387,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 		[subscriber.disposable addDisposable:[self subscribeNext:^(id x) {
 			@synchronized (values) {
 				if (values.count == 0) {
-					timerDisposable.disposable = [[[RACSignal
-						interval:interval onScheduler:scheduler]
-						take:1]
-						subscribeNext:^(id _) {
-							flushValues();
-						}];
+					timerDisposable.disposable = [scheduler afterDelay:interval schedule:flushValues];
 				}
 
 				[values addObject:x ?: RACTupleNil.tupleNil];
@@ -977,12 +972,9 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	NSCParameterAssert(scheduler != RACScheduler.immediateScheduler);
 
 	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		RACDisposable *timeoutDisposable = [[[RACSignal
-			interval:interval onScheduler:scheduler]
-			take:1]
-			subscribeNext:^(id _) {
-				[subscriber sendError:[NSError errorWithDomain:RACSignalErrorDomain code:RACSignalErrorTimedOut userInfo:nil]];
-			}];
+		RACDisposable *timeoutDisposable = [scheduler afterDelay:interval schedule:^{
+			[subscriber sendError:[NSError errorWithDomain:RACSignalErrorDomain code:RACSignalErrorTimedOut userInfo:nil]];
+		}];
 
 		[subscriber.disposable addDisposable:timeoutDisposable];
 		[self subscribe:subscriber];

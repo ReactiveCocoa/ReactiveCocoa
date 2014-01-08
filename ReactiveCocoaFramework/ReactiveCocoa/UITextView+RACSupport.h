@@ -23,7 +23,7 @@
 @end
 
 @class RACDelegateProxy;
-@interface UITextView (RACSignalSupportUnavailable)
+@interface UITextView (RACSupportUnavailable)
 
 
 @property (nonatomic, strong, readonly) RACDelegateProxy *rac_delegateProxy __attribute__((unavailable("Use the `delegate` property of UITextView normally.")));

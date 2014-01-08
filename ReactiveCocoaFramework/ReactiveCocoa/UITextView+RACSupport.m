@@ -13,7 +13,6 @@
 #import "RACTuple.h"
 #import "NSObject+RACDescription.h"
 #import "NSNotificationCenter+RACSupport.h"
-#import "RACDelegateProxy.h"
 #import <objc/runtime.h>
 
 @implementation UITextView (RACSupport)

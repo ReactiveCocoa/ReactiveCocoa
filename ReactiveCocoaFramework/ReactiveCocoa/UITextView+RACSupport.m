@@ -13,16 +13,32 @@
 #import "RACSignal+Operations.h"
 #import "RACTuple.h"
 #import "NSObject+RACDescription.h"
+#import "NSNotificationCenter+RACSupport.h"
 #import <objc/runtime.h>
 
 @implementation UITextView (RACSupport)
 
-static void RACUseDelegateProxy(UITextView *self) {
-    if (self.delegate == self.rac_delegateProxy) return;
-
-    self.rac_delegateProxy.rac_proxiedDelegate = self.delegate;
-    self.delegate = (id)self.rac_delegateProxy;
+- (RACSignal *)rac_textSignal {
+	@weakify(self);
+	RACSignal *noteSignal = [[NSNotificationCenter.defaultCenter
+		rac_addObserverForName:UITextViewTextDidChangeNotification object:self]
+		map:^(NSNotification *note) {
+			UITextView *tv = note.object;
+			return tv.text;
+	}];
+	RACSignal *signal = [[[[RACSignal
+		defer:^{
+			@strongify(self);
+			return [RACSignal return:self.text];
+		}]
+		concat:noteSignal]
+		takeUntil:self.rac_willDeallocSignal]
+		setNameWithFormat:@"%@ -rac_textSignal", [self rac_description]];
+	return signal;
 }
+@end
+
+@implementation UITextView (RACSupportDeprecated)
 
 - (RACDelegateProxy *)rac_delegateProxy {
 	RACDelegateProxy *proxy = objc_getAssociatedObject(self, _cmd);
@@ -33,24 +49,4 @@ static void RACUseDelegateProxy(UITextView *self) {
 
 	return proxy;
 }
-
-- (RACSignal *)rac_textSignal {
-	@weakify(self);
-	RACSignal *signal = [[[[[RACSignal
-		defer:^{
-			@strongify(self);
-			return [RACSignal return:RACTuplePack(self)];
-		}]
-		concat:[self.rac_delegateProxy signalForSelector:@selector(textViewDidChange:)]]
-		reduceEach:^(UITextView *x) {
-			return x.text;
-		}]
-		takeUntil:self.rac_willDeallocSignal]
-		setNameWithFormat:@"%@ -rac_textSignal", [self rac_description]];
-
-	RACUseDelegateProxy(self);
-
-	return signal;
-}
-
 @end

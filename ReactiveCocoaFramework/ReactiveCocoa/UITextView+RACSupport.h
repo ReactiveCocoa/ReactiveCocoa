@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import "RACDeprecated.h"
 
 @class RACSignal;
 
@@ -23,10 +23,12 @@
 @end
 
 @class RACDelegateProxy;
+@interface UITextView (RACSupportDeprecated)
+@property (nonatomic, strong, readonly) RACDelegateProxy *rac_delegateProxy RACDeprecated("Use the `delegate` property of UITextView normally.");
+@end
+
 @interface UITextView (RACSupportUnavailable)
 
-
-@property (nonatomic, strong, readonly) RACDelegateProxy *rac_delegateProxy __attribute__((unavailable("Use the `delegate` property of UITextView normally.")));
 - (RACSignal *)rac_signalForDelegateMethod:(SEL)method __attribute__((unavailable("Use -rac_signalForSelector:fromProtocol: instead")));
 
 @end

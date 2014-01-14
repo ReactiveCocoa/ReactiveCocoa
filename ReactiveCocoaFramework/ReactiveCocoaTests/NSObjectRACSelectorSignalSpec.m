@@ -384,4 +384,31 @@ describe(@"-rac_signalForSelector:fromProtocol", ^{
 	});
 });
 
+describe(@"class reporting", ^{
+	__block RACTestObject *object;
+	__block Class originalClass;
+
+	beforeEach(^{
+		object = [[RACTestObject alloc] init];
+		originalClass = object.class;
+	});
+
+	it(@"should report the original class", ^{
+		(void)[object rac_signalForSelector:@selector(lifeIsGood:)];
+		expect(object.class).to.equal(originalClass);
+	});
+
+	it(@"should report the original class when its KVO'd after dynamically subclassing", ^{
+		(void)[object rac_signalForSelector:@selector(lifeIsGood:)];
+		(void)RACObserve(object, objectValue);
+		expect(object.class).to.equal(originalClass);
+	});
+
+	it(@"should report the original class when its KVO'd before dynamically subclassing", ^{
+		(void)RACObserve(object, objectValue);
+		(void)[object rac_signalForSelector:@selector(lifeIsGood:)];
+		expect(object.class).to.equal(originalClass);
+	});
+});
+
 SpecEnd

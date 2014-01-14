@@ -116,6 +116,15 @@ static void RACSwizzleRespondsToSelector(Class class) {
 	class_replaceMethod(class, respondsToSelectorSEL, imp_implementationWithBlock(newRespondsToSelector), method_getTypeEncoding(respondsToSelectorMethod));
 }
 
+static void RACSwizzleGetClass(Class class, Class statedClass) {
+	SEL selector = @selector(class);
+	Method method = class_getInstanceMethod(class, selector);
+	IMP newIMP = imp_implementationWithBlock(^(id self) {
+		return statedClass;
+	});
+	class_replaceMethod(class, selector, newIMP, method_getTypeEncoding(method));
+}
+
 // It's hard to tell which struct return types use _objc_msgForward, and
 // which use _objc_msgForward_stret instead, so just exclude all struct, array,
 // union, complex and vector return types.
@@ -237,6 +246,8 @@ static Class RACSwizzleClass(NSObject *self) {
 			if (![swizzledClasses() containsObject:className]) {
 				RACSwizzleForwardInvocation(baseClass);
 				RACSwizzleRespondsToSelector(baseClass);
+				RACSwizzleGetClass(baseClass, statedClass);
+				RACSwizzleGetClass(object_getClass(baseClass), statedClass);
 				[swizzledClasses() addObject:className];
 			}
 		}
@@ -253,6 +264,10 @@ static Class RACSwizzleClass(NSObject *self) {
 
 		RACSwizzleForwardInvocation(subclass);
 		RACSwizzleRespondsToSelector(subclass);
+
+		RACSwizzleGetClass(subclass, statedClass);
+		RACSwizzleGetClass(object_getClass(subclass), statedClass);
+
 		objc_registerClassPair(subclass);
 	}
 

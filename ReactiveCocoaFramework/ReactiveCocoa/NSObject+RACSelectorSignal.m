@@ -125,6 +125,22 @@ static void RACSwizzleGetClass(Class class, Class statedClass) {
 	class_replaceMethod(class, selector, newIMP, method_getTypeEncoding(method));
 }
 
+static void RACSwizzleMethodSignatureForSelector(Class class, SEL fakeSelector, const char *encoding) {
+	SEL selector = @selector(methodSignatureForSelector:);
+
+	Method methodSignatureForSelectorMethod = class_getInstanceMethod(class, selector);
+	NSMethodSignature * (*originalMethodSignatureForSelector)(id, SEL) = (__typeof__(originalMethodSignatureForSelector))method_getImplementation(methodSignatureForSelectorMethod);
+
+	IMP newIMP = imp_implementationWithBlock(^(id self, SEL selector) {
+		if (selector == fakeSelector) {
+			return [NSMethodSignature signatureWithObjCTypes:encoding];
+		} else {
+			return originalMethodSignatureForSelector(self, selector);
+		}
+	});
+	class_replaceMethod(class, selector, newIMP, method_getTypeEncoding(methodSignatureForSelectorMethod));
+}
+
 // It's hard to tell which struct return types use _objc_msgForward, and
 // which use _objc_msgForward_stret instead, so just exclude all struct, array,
 // union, complex and vector return types.
@@ -180,6 +196,8 @@ static RACSignal *NSObjectRACSignalForSelector(NSObject *self, SEL selector, Pro
 			}
 
 			RACCheckTypeEncoding(typeEncoding);
+
+			RACSwizzleMethodSignatureForSelector(class, selector, typeEncoding);
 
 			// Define the selector to call -forwardInvocation:.
 			if (!class_addMethod(class, selector, _objc_msgForward, typeEncoding)) {

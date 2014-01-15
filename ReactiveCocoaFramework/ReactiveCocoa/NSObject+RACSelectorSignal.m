@@ -125,18 +125,30 @@ static void RACSwizzleGetClass(Class class, Class statedClass) {
 	class_replaceMethod(class, selector, newIMP, method_getTypeEncoding(method));
 }
 
-static void RACSwizzleMethodSignatureForSelector(Class class, SEL fakeSelector, const char *encoding) {
+static void RACSwizzleMethodSignatureForSelector(Class class) {
 	SEL selector = @selector(methodSignatureForSelector:);
-
 	Method methodSignatureForSelectorMethod = class_getInstanceMethod(class, selector);
-	NSMethodSignature * (*originalMethodSignatureForSelector)(id, SEL) = (__typeof__(originalMethodSignatureForSelector))method_getImplementation(methodSignatureForSelectorMethod);
-
 	IMP newIMP = imp_implementationWithBlock(^(id self, SEL selector) {
-		if (selector == fakeSelector) {
-			return [NSMethodSignature signatureWithObjCTypes:encoding];
-		} else {
-			return originalMethodSignatureForSelector(self, selector);
+		// Don't send the -class message because we've changed that to return
+		// the original class.
+		Class actualClass = object_getClass(self);
+		Method method = class_getInstanceMethod(actualClass, selector);
+		if (method == NULL) {
+			// Unimplemented methods that RAC hasn't implemented fall here.
+			// Call the original class' methodSignatureForSelector:.
+			//
+			// Start the method lookup with the direct superclass of our
+			// swizzled class, rather than looking up the class in the hierarchy
+			// that implements it ourself.
+			struct objc_super target = {
+				.super_class = class_getSuperclass(actualClass),
+				.receiver = self,
+			};
+			return ((NSMethodSignature * (*)(struct objc_super *, SEL))objc_msgSendSuper)(&target, @selector(methodSignatureForSelector:));
 		}
+
+		char const *encoding = method_getTypeEncoding(method);
+		return [NSMethodSignature signatureWithObjCTypes:encoding];
 	});
 	class_replaceMethod(class, selector, newIMP, method_getTypeEncoding(methodSignatureForSelectorMethod));
 }
@@ -196,8 +208,6 @@ static RACSignal *NSObjectRACSignalForSelector(NSObject *self, SEL selector, Pro
 			}
 
 			RACCheckTypeEncoding(typeEncoding);
-
-			RACSwizzleMethodSignatureForSelector(class, selector, typeEncoding);
 
 			// Define the selector to call -forwardInvocation:.
 			if (!class_addMethod(class, selector, _objc_msgForward, typeEncoding)) {
@@ -266,6 +276,7 @@ static Class RACSwizzleClass(NSObject *self) {
 				RACSwizzleRespondsToSelector(baseClass);
 				RACSwizzleGetClass(baseClass, statedClass);
 				RACSwizzleGetClass(object_getClass(baseClass), statedClass);
+				RACSwizzleMethodSignatureForSelector(baseClass);
 				[swizzledClasses() addObject:className];
 			}
 		}
@@ -285,6 +296,8 @@ static Class RACSwizzleClass(NSObject *self) {
 
 		RACSwizzleGetClass(subclass, statedClass);
 		RACSwizzleGetClass(object_getClass(subclass), statedClass);
+
+		RACSwizzleMethodSignatureForSelector(subclass);
 
 		objc_registerClassPair(subclass);
 	}

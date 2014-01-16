@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "RACDeprecated.h"
 
+@class RACDelegateProxy;
 @class RACSignal;
 
 @interface UITextView (RACSupport)
@@ -22,9 +23,10 @@
 
 @end
 
-@class RACDelegateProxy;
 @interface UITextView (RACSupportDeprecated)
+
 @property (nonatomic, strong, readonly) RACDelegateProxy *rac_delegateProxy RACDeprecated("Use the `delegate` property of UITextView normally.");
+
 @end
 
 @interface UITextView (RACSupportUnavailable)

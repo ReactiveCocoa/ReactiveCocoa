@@ -7,25 +7,28 @@
 //
 
 #import "UITextView+RACSupport.h"
+
 #import "EXTScope.h"
+#import "NSNotificationCenter+RACSupport.h"
 #import "NSObject+RACDeallocating.h"
+#import "NSObject+RACDescription.h"
 #import "RACDelegateProxy.h"
 #import "RACSignal+Operations.h"
 #import "RACTuple.h"
-#import "NSObject+RACDescription.h"
-#import "NSNotificationCenter+RACSupport.h"
+
 #import <objc/runtime.h>
 
 @implementation UITextView (RACSupport)
 
 - (RACSignal *)rac_textSignal {
-	@weakify(self);
 	RACSignal *noteSignal = [[NSNotificationCenter.defaultCenter
 		rac_addObserverForName:UITextViewTextDidChangeNotification object:self]
 		map:^(NSNotification *note) {
-			UITextView *tv = note.object;
-			return tv.text;
-	}];
+			return note.object;
+		}];
+
+	@weakify(self);
+
 	RACSignal *signal = [[[[RACSignal
 		defer:^{
 			@strongify(self);
@@ -33,7 +36,8 @@
 		}]
 		concat:noteSignal]
 		takeUntil:self.rac_willDeallocSignal]
-		setNameWithFormat:@"%@ -rac_textSignal", [self rac_description]];
+		setNameWithFormat:@"%@ -rac_textSignal", self.rac_description];
+
 	return signal;
 }
 @end

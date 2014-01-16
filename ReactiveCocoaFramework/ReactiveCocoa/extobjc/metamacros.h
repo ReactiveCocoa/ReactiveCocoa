@@ -9,10 +9,6 @@
 #ifndef EXTC_METAMACROS_H
 #define EXTC_METAMACROS_H
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 /**
  * Executes one or more expressions (which may have a void type, such as a call
  * to a function that returns no value) and always returns true.

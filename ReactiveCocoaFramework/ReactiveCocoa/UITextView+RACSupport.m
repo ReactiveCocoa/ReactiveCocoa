@@ -24,7 +24,8 @@
 	RACSignal *noteSignal = [[NSNotificationCenter.defaultCenter
 		rac_addObserverForName:UITextViewTextDidChangeNotification object:self]
 		map:^(NSNotification *note) {
-			return note.object;
+			UITextView *textView = note.object;
+			return textView.text;
 		}];
 
 	@weakify(self);

@@ -7,30 +7,26 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "RACDeprecated.h"
 
+@class RACAction;
 @class RACCommand;
-@class RACSignalGenerator;
 
 @interface UIRefreshControl (RACSupport)
 
-/// Subscribes to a signal from the given generator when the refresh control is
-/// activated.
+/// An action to execute when the refresh control is activated.
 ///
-/// When the receiver is activated, -[RACSignalGenerator signalWithValue:] will
-/// be invoked (with the sender as the argument), and the resulting signal will
-/// be subscribed to. When the signal terminates, -endRefreshing will be invoked
-/// automatically.
-@property (nonatomic, strong) RACSignalGenerator *rac_refreshGenerator;
+/// The receiver will be automatically enabled and disabled based on
+/// `RACAction.enabled`.
+///
+/// When the action finishes executing (and if it was started by the receiver),
+/// -endRefreshing will be invoked automatically.
+@property (nonatomic, strong) RACAction *rac_action;
 
 @end
 
 @interface UIRefreshControl (RACSupportDeprecated)
 
-/// Manipulate the RACCommand property associated with this refresh control.
-///
-/// When this refresh control is activated by the user, the command will be
-/// executed. Upon completion or error of the execution signal, -endRefreshing
-/// will be invoked.
-@property (nonatomic, strong) RACCommand *rac_command;
+@property (nonatomic, strong) RACCommand *rac_command RACDeprecated("Use `rac_action` instead");
 
 @end

@@ -1114,7 +1114,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	return [[self map:^(NSNumber *value) {
 		NSCAssert([value isKindOfClass:NSNumber.class], @"-not must only be used on a signal of NSNumbers. Instead, got: %@", value);
 
-		return @(!value.boolValue);
+		return @(value.boolValue ? NO : YES);
 	}] setNameWithFormat:@"[%@] -not", self.name];
 }
 

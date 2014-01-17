@@ -9,16 +9,26 @@
 #import <Cocoa/Cocoa.h>
 #import "RACDeprecated.h"
 
+@class RACAction;
 @class RACCommand;
 @class RACSignal;
 
 @interface NSControl (RACSupport)
 
-/// Sends the receiver whenever the control's action is invoked.
+/// Sends the receiver whenever the control sends an action message.
 ///
 /// **Note:** Subscribing to this signal will reset the control's target and
-/// action.
+/// action. However, this signal can be used simultaneously with `rac_action`.
 @property (nonatomic, strong, readonly) RACSignal *rac_actionSignal;
+
+/// An action to execute whenever the control sends an action message.
+///
+/// The receiver will be automatically enabled and disabled based on
+/// `RACAction.enabled`.
+///
+/// **Note:** Setting this property will reset the control's target and action.
+/// However, this property can be used simultaneously with `rac_actionSignal`.
+@property (nonatomic, strong) RACAction *rac_action;
 
 /// For a text-based control, sends the current string value of the receiver,
 /// then the new values any time it changes.
@@ -38,6 +48,6 @@
 
 @interface NSControl (RACSupportDeprecated)
 
-@property (nonatomic, strong) RACCommand *rac_command RACDeprecated("Use `rac_actionSignal` and `rac_enabled` instead");
+@property (nonatomic, strong) RACCommand *rac_command RACDeprecated("Use `rac_action` instead");
 
 @end

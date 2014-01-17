@@ -9,41 +9,52 @@
 #import "UIRefreshControl+RACSupport.h"
 #import "EXTKeyPathCoding.h"
 #import "NSObject+RACSelectorSignal.h"
+#import "RACAction.h"
 #import "RACDisposable.h"
 #import "RACCommand.h"
 #import "RACCompoundDisposable.h"
 #import "RACSignal.h"
 #import "RACSignal+Operations.h"
-#import "RACSignalGenerator.h"
 #import "UIControl+RACSupport.h"
 #import <objc/runtime.h>
 
+static void *UIRefreshControlActionKey = &UIRefreshControlActionKey;
+static void *UIRefreshControlActionDisposableKey = &UIRefreshControlActionDisposableKey;
+
 @implementation UIRefreshControl (RACSupport)
 
-- (RACSignalGenerator *)rac_refreshGenerator {
-	return objc_getAssociatedObject(self, @selector(rac_refreshGenerator));
+- (RACAction *)rac_action {
+	return objc_getAssociatedObject(self, UIRefreshControlActionKey);
 }
 
-- (void)setRac_refreshGenerator:(RACSignalGenerator *)generator {
-	RACSignalGenerator *previousGenerator = self.rac_refreshGenerator;
-	if (generator == previousGenerator) return;
+- (void)setRac_action:(RACAction *)action {
+	RACAction *previousAction = self.rac_action;
+	if (action == previousAction) return;
 
-	objc_setAssociatedObject(self, @selector(rac_refreshGenerator), generator, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	objc_setAssociatedObject(self, UIRefreshControlActionKey, action, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	[objc_getAssociatedObject(self, UIRefreshControlActionDisposableKey) dispose];
 
-	if (generator == nil) {
-		[self removeTarget:self action:@selector(rac_refresh:) forControlEvents:UIControlEventValueChanged];
-	} else {
-		[self addTarget:self action:@selector(rac_refresh:) forControlEvents:UIControlEventValueChanged];
-	}
-}
+	if (action == nil) return;
 
-- (void)rac_refresh:(id)sender {
-	[[[self.rac_refreshGenerator
-		signalWithValue:sender]
-		catchTo:[RACSignal empty]]
-		subscribeCompleted:^{
-			[self endRefreshing];
+	RACDisposable *enabledDisposable = [action.enabled setKeyPath:@keypath(self.enabled) onObject:self];
+	RACDisposable *actionDisposable = [[[[[self
+		rac_signalForControlEvents:UIControlEventValueChanged]
+		doDisposed:^{
+			[enabledDisposable dispose];
+		}]
+		map:^(UIRefreshControl *control) {
+			return [[[[action
+				signalWithValue:control]
+				catchTo:[RACSignal empty]]
+				ignoreValues]
+				concat:[RACSignal return:control]];
+		}]
+		concat]
+		subscribeNext:^(UIRefreshControl *control) {
+			[control endRefreshing];
 		}];
+
+	objc_setAssociatedObject(self, UIRefreshControlActionDisposableKey, actionDisposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 @end

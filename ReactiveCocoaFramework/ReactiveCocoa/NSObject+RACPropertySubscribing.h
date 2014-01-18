@@ -31,8 +31,20 @@
 /// Returns a signal which sends the current value of the key path on
 /// subscription, then sends the new value every time it changes, and sends
 /// completed when `TARGET` is deallocated.
-#define RACObserve(TARGET, KEYPATH) \
-    [(id)(TARGET) rac_valuesForKeyPath:@keypath(TARGET, KEYPATH)]
+#ifndef WE_PROMISE_TO_MIGRATE_TO_REACTIVECOCOA_3_0
+	#define RACObserve(TARGET, KEYPATH) \
+		RACObserve_(TARGET, KEYPATH)
+#else
+	#define RACObserve(TARGET, KEYPATH) \
+		/* If `TARGET` is not exactly `self`, warn about the new memory
+		 * management behavior */ \
+		metamacro_if_eq(1, metamacro_argcount(metamacro_concat(RACObserve_warn_, TARGET) 1)) \
+			( \
+				_Pragma("message \"RACObserve no longer stops when self deallocates\"") \
+				RACObserve_(TARGET, KEYPATH) \
+			) \
+			(RACObserve_(TARGET, KEYPATH))
+#endif
 
 @class RACDisposable;
 @class RACSignal;
@@ -60,6 +72,14 @@
 - (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options;
 
 @end
+
+/// Do not use this directly. Use the RACObserve macro above.
+#define RACObserve_(TARGET, KEYPATH) \
+    [(id)(TARGET) rac_valuesForKeyPath:@keypath(TARGET, KEYPATH)]
+
+#define RACObserve_warn_self \
+	2,
+
 @interface NSObject (RACUnavailablePropertySubscribing)
 
 + (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer __attribute__((unavailable("Use -rac_valuesForKeyPath:observer: or RACObserve() instead.")));

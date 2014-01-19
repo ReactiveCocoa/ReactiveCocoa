@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#import <ReactiveCocoa/ReactiveCocoa.h>
+#import "RACSignal.h"
 
 // A private `RACSignal` subclasses that implements its subscription behavior
 // using a block.

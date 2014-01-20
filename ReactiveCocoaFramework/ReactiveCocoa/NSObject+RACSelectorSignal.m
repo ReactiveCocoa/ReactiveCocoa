@@ -129,17 +129,15 @@ static void RACSwizzleMethodSignatureForSelector(Class class) {
 	SEL selector = @selector(methodSignatureForSelector:);
 	Method methodSignatureForSelectorMethod = class_getInstanceMethod(class, selector);
 	IMP newIMP = imp_implementationWithBlock(^(id self, SEL selector) {
-		// Don't send the -class message because we've changed that to return
-		// the original class.
+		// Don't send the -class message to the receiver because we've changed
+		// that to return the original class.
 		Class actualClass = object_getClass(self);
 		Method method = class_getInstanceMethod(actualClass, selector);
 		if (method == NULL) {
-			// Unimplemented methods that RAC hasn't implemented fall here.
-			// Call the original class' methodSignatureForSelector:.
+			// Messages that the original class dynamically implements fall
+			// here.
 			//
-			// Start the method lookup with the direct superclass of our
-			// swizzled class, rather than looking up the class in the hierarchy
-			// that implements it ourself.
+			// Call the original class' -methodSignatureForSelector:.
 			struct objc_super target = {
 				.super_class = class_getSuperclass(actualClass),
 				.receiver = self,

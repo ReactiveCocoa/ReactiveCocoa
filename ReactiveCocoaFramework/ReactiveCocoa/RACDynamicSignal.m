@@ -11,6 +11,7 @@
 #import "RACPassthroughSubscriber.h"
 #import "RACScheduler+Private.h"
 #import "RACSubscriber.h"
+#import "RACCompoundDisposable.h"
 #import <libkern/OSAtomic.h>
 
 // Retains dynamic signals while they wait for subscriptions.

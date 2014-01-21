@@ -394,20 +394,20 @@ describe(@"class reporting", ^{
 	});
 
 	it(@"should report the original class", ^{
-		(void)[object rac_signalForSelector:@selector(lifeIsGood:)];
-		expect(object.class).to.equal(originalClass);
+		[object rac_signalForSelector:@selector(lifeIsGood:)];
+		expect(object.class).to.beIdenticalTo(originalClass);
 	});
 
-	it(@"should report the original class when its KVO'd after dynamically subclassing", ^{
-		(void)[object rac_signalForSelector:@selector(lifeIsGood:)];
-		(void)RACObserve(object, objectValue);
-		expect(object.class).to.equal(originalClass);
+	it(@"should report the original class when it's KVO'd after dynamically subclassing", ^{
+		[object rac_signalForSelector:@selector(lifeIsGood:)];
+		RACObserve(object, objectValue);
+		expect(object.class).to.beIdenticalTo(originalClass);
 	});
 
-	it(@"should report the original class when its KVO'd before dynamically subclassing", ^{
-		(void)RACObserve(object, objectValue);
-		(void)[object rac_signalForSelector:@selector(lifeIsGood:)];
-		expect(object.class).to.equal(originalClass);
+	it(@"should report the original class when it's KVO'd before dynamically subclassing", ^{
+		RACObserve(object, objectValue);
+		[object rac_signalForSelector:@selector(lifeIsGood:)];
+		expect(object.class).to.beIdenticalTo(originalClass);
 	});
 });
 

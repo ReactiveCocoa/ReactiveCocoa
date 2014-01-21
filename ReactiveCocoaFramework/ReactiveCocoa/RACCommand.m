@@ -49,11 +49,6 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 // The signal block that the receiver was initialized with.
 @property (nonatomic, copy, readonly) RACSignal * (^signalBlock)(id input);
 
-// Improves the performance of KVO on the receiver.
-//
-// See the documentation for <NSKeyValueObserving> for more information.
-@property (atomic) void *observationInfo;
-
 // Adds a signal to `activeExecutionSignals` and generates a KVO notification.
 - (void)addActiveExecutionSignal:(RACSignal *)signal;
 

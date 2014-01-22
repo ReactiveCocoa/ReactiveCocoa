@@ -84,7 +84,7 @@ express properties in terms of signals and operations:
 
 ```objc
 // Create a one-way binding so that self.createEnabled will be
-// true whenever self.password and self.passwordConfirmation
+// true whenever self.password and self.passwordConfirm
 // are equal.
 //
 // RAC() is a macro that makes the binding look nicer.
@@ -93,7 +93,7 @@ express properties in terms of signals and operations:
 // latest value from each signal whenever any of them changes, and returns a new
 // RACSignal that sends the return value of that block as values.
 RAC(self, createEnabled) = [RACSignal 
-	combineLatest:@[ RACObserve(self, password), RACObserve(self, passwordConfirmation) ] 
+	combineLatest:@[ RACObserve(self, password), RACObserve(self, passwordConfirm) ] 
 	reduce:^(NSString *password, NSString *passwordConfirm) {
 		return @([passwordConfirm isEqualToString:password]);
 	}];

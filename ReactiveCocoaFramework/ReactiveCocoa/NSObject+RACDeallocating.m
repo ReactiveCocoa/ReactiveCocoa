@@ -14,6 +14,7 @@
 #import <objc/runtime.h>
 
 static const void *RACObjectCompoundDisposable = &RACObjectCompoundDisposable;
+static const void *RACObjectWillDeallocSignal = &RACObjectWillDeallocSignal;
 
 static NSMutableSet *swizzledClasses() {
 	static dispatch_once_t onceToken;
@@ -72,11 +73,16 @@ static void swizzleDeallocIfNeeded(Class classToSwizzle) {
 @implementation NSObject (RACDeallocating)
 
 - (RACSignal *)rac_willDeallocSignal {
+	RACSignal *signal = objc_getAssociatedObject(self, RACObjectWillDeallocSignal);
+	if (signal != nil) return signal;
+
 	RACReplaySubject *subject = [RACReplaySubject subject];
 
 	[self.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 		[subject sendCompleted];
 	}]];
+
+	objc_setAssociatedObject(self, RACObjectWillDeallocSignal, subject, OBJC_ASSOCIATION_RETAIN);
 
 	return subject;
 }

@@ -211,7 +211,11 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 	[observerDisposable addDisposable:disposable];
 	[selfDisposable addDisposable:disposable];
 
-	return disposable;
+	return [RACDisposable disposableWithBlock:^{
+		[disposable dispose];
+		[observerDisposable removeDisposable:disposable];
+		[selfDisposable removeDisposable:disposable];
+	}];
 }
 
 @end

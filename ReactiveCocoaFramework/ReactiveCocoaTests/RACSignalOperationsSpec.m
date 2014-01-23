@@ -2963,7 +2963,6 @@ describe(@"-concat", ^{
 	__block RACSignal *completedSignal;
 
 	beforeEach(^{
-
 		oneSignal = [RACSignal return:@1];
 		twoSignal = [RACSignal return:@2];
 		threeSignal = [RACSignal return:@3];
@@ -3013,8 +3012,8 @@ describe(@"-concat", ^{
 
 		NSMutableArray *values = [NSMutableArray array];
 		[[[subject
-			concat]
 			startWith:oneSignal]
+			concat]
 			subscribeNext:^(id x) {
 				[values addObject:x];
 			}];

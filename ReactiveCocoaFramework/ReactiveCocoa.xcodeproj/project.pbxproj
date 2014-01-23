@@ -103,7 +103,6 @@
 		5FAF5249174D4D5600CAC810 /* RACCompoundDisposableSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 881E86B91669350B00667F7B /* RACCompoundDisposableSpec.m */; };
 		5FAF524A174D4D5600CAC810 /* RACEventSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D077A171169B79A900057BB1 /* RACEventSpec.m */; };
 		5FAF524B174D4D5600CAC810 /* RACKVOWrapperSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D041376815D2281C004BBF80 /* RACKVOWrapperSpec.m */; };
-		5FAF524C174D4D5600CAC810 /* RACMulticastConnectionSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 88C5A02816924BFC0045EF05 /* RACMulticastConnectionSpec.m */; };
 		5FAF524D174D4D5600CAC810 /* RACKVOChannelSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F2447AC167E87C50062180C /* RACKVOChannelSpec.m */; };
 		5FAF524E174D4D5600CAC810 /* RACPropertySignalExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EDE76616968AB10072A780 /* RACPropertySignalExamples.m */; };
 		5FAF524F174D4D5600CAC810 /* RACChannelExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F7EFECD168FBC4B0037E500 /* RACChannelExamples.m */; };
@@ -217,7 +216,6 @@
 		88C5A0241692460A0045EF05 /* RACMulticastConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 88C5A0231692460A0045EF05 /* RACMulticastConnection.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88C5A026169246140045EF05 /* RACMulticastConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 88C5A025169246140045EF05 /* RACMulticastConnection.m */; };
 		88C5A027169246140045EF05 /* RACMulticastConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 88C5A025169246140045EF05 /* RACMulticastConnection.m */; };
-		88C5A02916924BFC0045EF05 /* RACMulticastConnectionSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 88C5A02816924BFC0045EF05 /* RACMulticastConnectionSpec.m */; };
 		88CDF7DE15000FCF00163A9F /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7DD15000FCF00163A9F /* SenTestingKit.framework */; };
 		88CDF7DF15000FCF00163A9F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7BF15000FCE00163A9F /* Cocoa.framework */; };
 		88CDF7E715000FCF00163A9F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 88CDF7E515000FCF00163A9F /* InfoPlist.strings */; };
@@ -851,7 +849,6 @@
 		88B76F8D153726B00053EAE2 /* RACTuple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACTuple.m; sourceTree = "<group>"; };
 		88C5A0231692460A0045EF05 /* RACMulticastConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACMulticastConnection.h; sourceTree = "<group>"; };
 		88C5A025169246140045EF05 /* RACMulticastConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACMulticastConnection.m; sourceTree = "<group>"; };
-		88C5A02816924BFC0045EF05 /* RACMulticastConnectionSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACMulticastConnectionSpec.m; sourceTree = "<group>"; };
 		88CDF7BF15000FCE00163A9F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		88CDF7C315000FCE00163A9F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		88CDF7C415000FCE00163A9F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -1352,7 +1349,6 @@
 				5F2447AC167E87C50062180C /* RACKVOChannelSpec.m */,
 				D041376815D2281C004BBF80 /* RACKVOWrapperSpec.m */,
 				D0C70EC7166595AD005AAD03 /* RACLiveSubscriberSpec.m */,
-				88C5A02816924BFC0045EF05 /* RACMulticastConnectionSpec.m */,
 				D0EDE76516968AB10072A780 /* RACPropertySignalExamples.h */,
 				D0EDE76616968AB10072A780 /* RACPropertySignalExamples.m */,
 				D01052101890FB3D0004A983 /* RACReplaySubjectSpec.m */,
@@ -2354,7 +2350,6 @@
 				BE527EA01863706B006349E8 /* NSUserDefaultsRACSupportSpec.m in Sources */,
 				5FAF524A174D4D5600CAC810 /* RACEventSpec.m in Sources */,
 				5FAF524B174D4D5600CAC810 /* RACKVOWrapperSpec.m in Sources */,
-				5FAF524C174D4D5600CAC810 /* RACMulticastConnectionSpec.m in Sources */,
 				5FAF524D174D4D5600CAC810 /* RACKVOChannelSpec.m in Sources */,
 				5FAF524E174D4D5600CAC810 /* RACPropertySignalExamples.m in Sources */,
 				5FAF524F174D4D5600CAC810 /* RACChannelExamples.m in Sources */,
@@ -2497,7 +2492,6 @@
 				5F7EFECF168FBC4B0037E500 /* RACChannelExamples.m in Sources */,
 				5F7EFED0168FBC4B0037E500 /* RACChannelSpec.m in Sources */,
 				D0870C6F16884A0600D0E11D /* RACBacktraceSpec.m in Sources */,
-				88C5A02916924BFC0045EF05 /* RACMulticastConnectionSpec.m in Sources */,
 				D0EDE76716968AB10072A780 /* RACPropertySignalExamples.m in Sources */,
 				BE527E9F1863705B006349E8 /* NSUserDefaultsRACSupportSpec.m in Sources */,
 				D05CE1C61840A2520015A2B0 /* RACDynamicSignalGeneratorSpec.m in Sources */,

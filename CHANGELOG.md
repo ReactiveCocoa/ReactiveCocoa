@@ -22,7 +22,7 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=4&sta
 
 **[Behavior Differences](#behavior-differences)**
 
- 1. [`RACObserve` no longer captures `self`](#-racobserve--no-longer-captures--self-)
+ 1. [`RACObserve` no longer captures `self`](#racobserve-no-longer-captures-self)
 
 **[Deprecations](#deprecations)**
 
@@ -203,7 +203,47 @@ RACSignal *throttledEvens = [[numbers
 
 ### `RACObserve` no longer captures `self`
 
-BLAH
+Previously, `RACObserve` had an implicit reference to `self`, potentially
+causing a [retain
+cycle](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/472) when used
+inside a block. This was used to ensure that the KVO observation always stopped
+when `self` deallocated, regardless of whether `self` was the object being
+observed.
+
+The intention was to help with code like this:
+
+```
+// In a view or view controller:
+[RACObserve(viewModel, text) subscribeNext:^(NSString *text) {
+    textField.text = text;
+}];
+```
+
+Where the `viewModel` could deallocate much later than `self`—or possibly
+never—causing the subscription to live much longer than one might expect.
+
+However, it was determined that real code doesn't benefit from this behavior
+often enough to justify the subtle memory management issues, so `RACObserve` [no
+longer](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/1034) captures
+`self` unless it's the actual target of observation.
+
+To ensure that observations still have a finite lifetime, use features like
+`RAC()` or `-rac_liftSelector:`, which will automatically dispose of the
+subscription when the receiver deallocates.
+
+For example, the above code could be modified in one of the following ways:
+
+```objc
+// Automatically stops observing when `self.textField` deallocates.
+RAC(self.textField, text) = [RACObserve(viewModel, text) map:^(NSString *text) {
+    return text ?: @"";
+}];
+```
+
+```objc
+// Automatically stops observing when `self.textField` deallocates.
+[self.textField rac_liftSelector:@selector(setText:) withSignals:RACObserve(viewModel, text), nil];
+```
 
 ## Deprecations
 

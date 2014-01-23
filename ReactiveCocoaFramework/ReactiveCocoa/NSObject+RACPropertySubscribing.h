@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "EXTKeyPathCoding.h"
 #import "metamacros.h"
+#import "RACDeprecated.h"
 
 /// Creates a signal which observes `KEYPATH` on `TARGET` for changes.
 ///
@@ -79,6 +80,13 @@
 
 #define RACObserve_warn_self \
 	2,
+
+@interface NSObject (RACDeprecatedPropertySubscribing)
+
+- (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer RACDeprecated("Use -rac_valuesForKeyPath: instead");
+- (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer RACDeprecated("Use -rac_valuesAndChangesForKeyPath:options:observer: instead");
+
+@end
 
 @interface NSObject (RACUnavailablePropertySubscribing)
 

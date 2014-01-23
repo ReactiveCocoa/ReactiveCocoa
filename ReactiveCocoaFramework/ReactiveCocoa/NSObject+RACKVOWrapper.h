@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#import "RACDeprecated.h"
 
 /// RAC-specific KVO change dictionary key: Will be @YES if the change was caused
 /// by the value at the key path or an intermediate value deallocating, @NO
@@ -45,8 +45,14 @@ extern NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey;
 
 @end
 
+@interface NSObject (RACDeprecatedKVOWrapper)
+
+- (RACDisposable *)rac_observeKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer block:(void (^)(id value, NSDictionary *change))block RACDeprecated("Use -rac_observeKeyPath:options:block: instead");
+
+@end
+
 @interface NSObject (RACUnavailableKVOWrapper)
 
-- (RACKVOTrampoline *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(void (^)(id, id, NSDictionary *))block __attribute((unavailable("Use rac_observeKeyPath:options:block: instead.")));
+- (RACKVOTrampoline *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(void (^)(id, id, NSDictionary *))block __attribute((unavailable("Use -rac_observeKeyPath:options:block: instead.")));
 
 @end

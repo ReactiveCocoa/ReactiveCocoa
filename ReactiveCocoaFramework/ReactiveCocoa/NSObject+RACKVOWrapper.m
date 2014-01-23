@@ -7,6 +7,7 @@
 //
 
 #import "NSObject+RACKVOWrapper.h"
+
 #import "EXTRuntimeExtensions.h"
 #import "EXTScope.h"
 #import "NSObject+RACDeallocating.h"
@@ -201,3 +202,19 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 }
 
 @end
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
+
+@implementation NSObject (RACDeprecatedKVOWrapper)
+
+- (RACDisposable *)rac_observeKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer block:(void (^)(id value, NSDictionary *change))block {
+	RACDisposable *observationDisposable = [self rac_observeKeyPath:keyPath options:options block:block];
+	[observer.rac_deallocDisposable addDisposable:observationDisposable];
+
+	return observationDisposable;
+}
+
+@end
+
+#pragma clang diagnostic pop

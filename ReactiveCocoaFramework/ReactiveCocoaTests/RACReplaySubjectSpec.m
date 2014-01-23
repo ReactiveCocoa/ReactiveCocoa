@@ -14,6 +14,7 @@
 #import "RACCompoundDisposable.h"
 #import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"
+#import <libkern/OSAtomic.h>
 
 SpecBegin(RACReplaySubject)
 

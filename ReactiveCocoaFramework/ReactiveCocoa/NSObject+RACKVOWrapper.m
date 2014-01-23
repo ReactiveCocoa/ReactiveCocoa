@@ -198,7 +198,11 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 	// Dispose of this observation if the receiver deallocates.
 	[self.rac_deallocDisposable addDisposable:disposable];
 
-	return disposable;
+	return [RACDisposable disposableWithBlock:^{
+		[disposable dispose];
+		[observerDisposable removeDisposable:disposable];
+		[selfDisposable removeDisposable:disposable];
+	}];
 }
 
 @end

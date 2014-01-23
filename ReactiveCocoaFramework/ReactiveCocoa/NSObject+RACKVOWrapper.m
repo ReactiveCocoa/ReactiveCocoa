@@ -196,11 +196,11 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 	}
 
 	// Dispose of this observation if the receiver deallocates.
-	[self.rac_deallocDisposable addDisposable:disposable];
+	RACCompoundDisposable *selfDisposable = self.rac_deallocDisposable;
+	[selfDisposable addDisposable:disposable];
 
 	return [RACDisposable disposableWithBlock:^{
 		[disposable dispose];
-		[observerDisposable removeDisposable:disposable];
 		[selfDisposable removeDisposable:disposable];
 	}];
 }
@@ -213,10 +213,15 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 @implementation NSObject (RACDeprecatedKVOWrapper)
 
 - (RACDisposable *)rac_observeKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer block:(void (^)(id value, NSDictionary *change))block {
-	RACDisposable *observationDisposable = [self rac_observeKeyPath:keyPath options:options block:block];
-	[observer.rac_deallocDisposable addDisposable:observationDisposable];
+	RACDisposable *disposable = [self rac_observeKeyPath:keyPath options:options block:block];
 
-	return observationDisposable;
+	RACCompoundDisposable *observerDisposable = observer.rac_deallocDisposable;
+	[observerDisposable addDisposable:disposable];
+
+	return [RACDisposable disposableWithBlock:^{
+		[disposable dispose];
+		[observerDisposable removeDisposable:disposable];
+	}];
 }
 
 @end

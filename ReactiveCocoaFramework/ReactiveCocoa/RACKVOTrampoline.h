@@ -26,6 +26,6 @@ typedef void (^RACKVOBlock)(id target, NSDictionary *change);
 ///            Cannot be nil.
 ///
 /// Returns the initialized object.
-- (id)initWithTarget:(NSObject *)target keyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(RACKVOBlock)block;
+- (instancetype)initWithTarget:(NSObject *)target keyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(RACKVOBlock)block;
 
 @end

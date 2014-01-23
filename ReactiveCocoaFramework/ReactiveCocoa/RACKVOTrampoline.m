@@ -28,7 +28,7 @@ static void *RACKVOWrapperContext = &RACKVOWrapperContext;
 
 #pragma mark Lifecycle
 
-- (id)initWithTarget:(NSObject *)target keyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(RACKVOBlock)block {
+- (instancetype)initWithTarget:(NSObject *)target keyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(RACKVOBlock)block {
 	NSCParameterAssert(target != nil);
 	NSCParameterAssert(keyPath != nil);
 	NSCParameterAssert(block != nil);

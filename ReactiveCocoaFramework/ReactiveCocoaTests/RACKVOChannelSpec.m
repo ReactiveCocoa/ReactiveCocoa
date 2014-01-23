@@ -92,11 +92,10 @@ describe(@"RACKVOChannel", ^{
 			[receivedValues addObject:value];
 		}];
 
-		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		RACSignal *signal = [RACSignal create:^(id<RACSubscriber> subscriber) {
 			[subscriber sendNext:value1];
 			[subscriber sendNext:value2];
 			[subscriber sendNext:value3];
-			return nil;
 		}];
 
 		[signal subscribe:channel.followingTerminal];

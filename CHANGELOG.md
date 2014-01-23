@@ -227,9 +227,12 @@ often enough to justify the subtle memory management issues, so `RACObserve` [no
 longer](https://github.com/ReactiveCocoa/ReactiveCocoa/pull/1034) captures
 `self` unless it's the actual target of observation.
 
-To ensure that observations still have a finite lifetime, use features like
-`RAC()` or `-rac_liftSelector:`, which will automatically dispose of the
-subscription when the receiver deallocates.
+**To update:**
+
+ * When observing `self`, no changes are necessary.
+ * When observing other objects, use features like `RAC()` or
+   `rac_liftSelector:` to ensure that the observations still have a finite
+   lifetime.
 
 For example, the above code could be modified in one of the following ways:
 

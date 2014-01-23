@@ -6,7 +6,6 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACStreamExamples.h"
 #import "RACTestObject.h"
 
 #import "NSObject+RACDeallocating.h"
@@ -18,44 +17,6 @@
 #import "RACUnit.h"
 
 SpecBegin(RACSignal)
-
-describe(@"RACStream", ^{
-	id verifyValues = ^(RACSignal *signal, NSArray *expectedValues) {
-		expect(signal).notTo.beNil();
-
-		NSMutableArray *collectedValues = [NSMutableArray array];
-
-		__block BOOL success = NO;
-		__block NSError *error = nil;
-		[signal subscribeNext:^(id value) {
-			[collectedValues addObject:value];
-		} error:^(NSError *receivedError) {
-			error = receivedError;
-		} completed:^{
-			success = YES;
-		}];
-
-		expect(success).will.beTruthy();
-		expect(error).to.beNil();
-		expect(collectedValues).to.equal(expectedValues);
-	};
-
-	RACSignal *infiniteSignal = [RACSignal create:^(id<RACSubscriber> subscriber) {
-		[RACScheduler.mainThreadScheduler schedule:^{
-			while (!subscriber.disposable.disposed) {
-				[subscriber sendNext:RACUnit.defaultUnit];
-			}
-		}];
-	}];
-
-	itShouldBehaveLike(RACStreamExamples, ^{
-		return @{
-			RACStreamExamplesClass: RACSignal.class,
-			RACStreamExamplesVerifyValuesBlock: verifyValues,
-			RACStreamExamplesInfiniteStream: infiniteSignal
-		};
-	});
-});
 
 describe(@"subscribing", ^{
 	__block BOOL disposed;

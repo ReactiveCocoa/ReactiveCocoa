@@ -213,6 +213,18 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 
 			verifyValues(stream, @[ @1, @3 ]);
 		});
+
+		it(@"should treat nil streams like empty streams", ^{
+			RACStream *baseStream = streamWithValues(@[ @0, @1, @2 ]);
+			RACStream *stream = [baseStream flattenMap:^ RACStream * (NSNumber *value) {
+				if (value.integerValue == 1) return nil;
+
+				NSNumber *newValue = @(value.integerValue + 1);
+				return [streamClass return:newValue];
+			}];
+
+			verifyValues(stream, @[ @1, @3 ]);
+		});
 	});
 
 	it(@"should map", ^{

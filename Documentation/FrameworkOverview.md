@@ -80,6 +80,19 @@ Therefore, if multiple parties are interested in a signal's values — but its s
 effects shouldn't be repeated — you can forward the events to a subject (using
 [-subscribe:][RACSignal]), and have everything subscribe to the subject instead.
 
+## Actions
+
+An **action**, represented by the [RACAction][] class, subscribes to a signal in
+response to some UI action, like a button being clicked. This makes it easy to
+perform side-effecting work as the user interacts with the app.
+
+Actions can also be automatically disabled based on a signal, and this disabled
+state can be represented in a UI by disabling any controls associated with the
+action.
+
+RAC adds a `rac_action` property to many built-in AppKit and UIKit controls, to
+make it easy to set up these behaviors automatically.
+
 ## Disposables
 
 The **[RACDisposable][]** class is used for cancellation and resource cleanup.
@@ -135,6 +148,7 @@ the information is still valuable).
 [Design Guidelines]: DesignGuidelines.md
 [Futures and promises]: http://en.wikipedia.org/wiki/Futures_and_promises
 [Memory Management]: MemoryManagement.md
+[RACAction]: ../ReactiveCocoaFramework/ReactiveCocoa/RACAction.h
 [RACBacktrace]: ../ReactiveCocoaFramework/ReactiveCocoa/RACBacktrace.h
 [RACDisposable]: ../ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
 [RACEvent]: ../ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h

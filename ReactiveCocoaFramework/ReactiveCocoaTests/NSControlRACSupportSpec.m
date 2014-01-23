@@ -6,9 +6,12 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import "RACControlActionExamples.h"
+
 #import "NSControl+RACSupport.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
+#import "RACAction.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSubject.h"
@@ -17,6 +20,10 @@ SpecBegin(NSControlRACSupport)
 
 describe(@"NSButton", ^{
 	__block NSButton *button;
+
+	void (^activate)(NSControl *) = ^(id _) {
+		[button performClick:self];
+	};
 
 	beforeEach(^{
 		button = [[NSButton alloc] initWithFrame:NSZeroRect];
@@ -37,14 +44,26 @@ describe(@"NSButton", ^{
 		expect(button.action).notTo.beNil();
 		expect(value).to.beNil();
 
-		[button performClick:self];
+		activate(button);
 		expect(value).to.beIdenticalTo(button);
+	});
+
+	itShouldBehaveLike(RACControlActionExamples, ^{
+		return @{
+			RACControlActionExampleControl: button,
+			RACControlActionExampleActivateBlock: activate
+		};
 	});
 });
 
 describe(@"NSTextField", ^{
 	__block NSTextField *field;
 	__block NSWindow *window;
+
+	void (^activate)(NSControl *) = ^(id _) {
+		expect([window makeFirstResponder:nil]).to.beTruthy();
+		expect(window.firstResponder).to.equal(window);
+	};
 	
 	beforeEach(^{
 		field = [[NSTextField alloc] initWithFrame:NSZeroRect];
@@ -75,9 +94,15 @@ describe(@"NSTextField", ^{
 		expect(field.action).notTo.beNil();
 		expect(value).to.beNil();
 
-		expect([window makeFirstResponder:nil]).to.beTruthy();
-		expect(window.firstResponder).to.equal(window);
+		activate(field);
 		expect(value).to.beIdenticalTo(field);
+	});
+
+	itShouldBehaveLike(RACControlActionExamples, ^{
+		return @{
+			RACControlActionExampleControl: field,
+			RACControlActionExampleActivateBlock: activate
+		};
 	});
 
 	describe(@"-rac_textSignal", ^{

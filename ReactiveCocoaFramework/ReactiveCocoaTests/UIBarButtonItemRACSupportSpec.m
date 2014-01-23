@@ -6,7 +6,10 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import "RACControlActionExamples.h"
+
 #import "UIBarButtonItem+RACSupport.h"
+#import "RACAction.h"
 #import "RACDisposable.h"
 #import "RACSignal.h"
 
@@ -14,6 +17,15 @@ SpecBegin(UIBarButtonItemRACSupport)
 
 describe(@"UIBarButtonItem", ^{
 	__block UIBarButtonItem *button;
+
+	void (^activate)(UIBarButtonItem *) = ^(UIBarButtonItem *button) {
+		NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[button.target methodSignatureForSelector:button.action]];
+		invocation.selector = button.action;
+
+		id sender = self;
+		[invocation setArgument:&sender atIndex:2];
+		[invocation invokeWithTarget:button];
+	};
 	
 	beforeEach(^{
 		button = [[UIBarButtonItem alloc] init];
@@ -34,14 +46,15 @@ describe(@"UIBarButtonItem", ^{
 		expect(button.action).notTo.beNil();
 		expect(value).to.beNil();
 
-		NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[button.target methodSignatureForSelector:button.action]];
-		invocation.selector = button.action;
-
-		id sender = self;
-		[invocation setArgument:&sender atIndex:2];
-		[invocation invokeWithTarget:button];
-
+		activate(button);
 		expect(value).to.beIdenticalTo(button);
+	});
+
+	itShouldBehaveLike(RACControlActionExamples, ^{
+		return @{
+			RACControlActionExampleControl: button,
+			RACControlActionExampleActivateBlock: activate
+		};
 	});
 });
 

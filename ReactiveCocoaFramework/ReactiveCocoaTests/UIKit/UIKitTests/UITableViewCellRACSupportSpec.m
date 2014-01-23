@@ -7,20 +7,18 @@
 //
 
 #import "RACAppDelegate.h"
+#import "RACTestTableViewController.h"
 
 #import "RACSignal.h"
 #import "RACUnit.h"
 #import "UITableViewCell+RACSupport.h"
 
-@interface TestTableViewController : UITableViewController
-@end
-
 SpecBegin(UITableViewCellRACSupport)
 
-__block TestTableViewController *tableViewController;
+__block RACTestTableViewController *tableViewController;
 
 beforeEach(^{
-	tableViewController = [[TestTableViewController alloc] initWithStyle:UITableViewStylePlain];
+	tableViewController = [[RACTestTableViewController alloc] initWithStyle:UITableViewStylePlain];
 	expect(tableViewController).notTo.beNil();
 
 	RACAppDelegate.delegate.window.rootViewController = tableViewController;
@@ -46,15 +44,3 @@ it(@"should send on rac_prepareForReuseSignal", ^{
 });
 
 SpecEnd
-
-@implementation TestTableViewController
-
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-	return [tableView dequeueReusableCellWithIdentifier:[self.class description]] ?: [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:[self.class description]];
-}
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-	return 10;
-}
-
-@end

@@ -28,7 +28,7 @@
 /// Examples
 ///
 ///   // Fetches users from the API, starting at the given page.
-///   RACSignalGenerator *fetchUsers = [[RACDynamicSignalGenerator alloc] initWithReflexiveBlock:^(NSNumber *pageNum, RACSignalGenerator *generator) {
+///   RACSignalGenerator *fetchUsers = [RACDynamicSignalGenerator generatorWithReflexiveBlock:^(NSNumber *pageNum, RACSignalGenerator *generator) {
 ///       return [[APIClient.sharedClient
 ///           fetchUsersAtPage:pageNum.intValue]
 ///           flattenMap:^(Page *page) {

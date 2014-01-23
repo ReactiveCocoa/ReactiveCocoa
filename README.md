@@ -454,7 +454,7 @@ NSArray *results = [[[strings.rac_signal
 
 ## System Requirements
 
-ReactiveCocoa supports OS X 10.7+ and iOS 5.0+.
+ReactiveCocoa supports OS X 10.7+ and iOS 6.0+.
 
 ## Importing ReactiveCocoa
 

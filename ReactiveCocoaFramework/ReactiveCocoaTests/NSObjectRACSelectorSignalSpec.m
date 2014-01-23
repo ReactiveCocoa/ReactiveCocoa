@@ -400,12 +400,12 @@ describe(@"class reporting", ^{
 
 	it(@"should report the original class when it's KVO'd after dynamically subclassing", ^{
 		[object rac_signalForSelector:@selector(lifeIsGood:)];
-		RACObserve(object, objectValue);
+		[[RACObserve(object, objectValue) publish] connect];
 		expect(object.class).to.beIdenticalTo(originalClass);
 	});
 
 	it(@"should report the original class when it's KVO'd before dynamically subclassing", ^{
-		RACObserve(object, objectValue);
+		[[RACObserve(object, objectValue) publish] connect];
 		[object rac_signalForSelector:@selector(lifeIsGood:)];
 		expect(object.class).to.beIdenticalTo(originalClass);
 	});

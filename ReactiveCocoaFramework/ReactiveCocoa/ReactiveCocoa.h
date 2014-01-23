@@ -72,6 +72,7 @@
 	#import "UIBarButtonItem+RACSupport.h"
 	#import "UIButton+RACSupport.h"
 	#import "UICollectionReusableView+RACSupport.h"
+	#import "UICollectionView+RACSupport.h"
 	#import "UIControl+RACSupport.h"
 	#import "UIDatePicker+RACSupport.h"
 	#import "UIGestureRecognizer+RACSupport.h"

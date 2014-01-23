@@ -283,6 +283,8 @@
 		D00C4081185A654800E6D460 /* RACActionSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D00C407F185A654800E6D460 /* RACActionSpec.m */; };
 		D01052111890FB3D0004A983 /* RACReplaySubjectSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D01052101890FB3D0004A983 /* RACReplaySubjectSpec.m */; };
 		D01052121890FB3D0004A983 /* RACReplaySubjectSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D01052101890FB3D0004A983 /* RACReplaySubjectSpec.m */; };
+		D010521C1891028D0004A983 /* RACSignalOperationsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D010521B1891028D0004A983 /* RACSignalOperationsSpec.m */; };
+		D010521D1891028D0004A983 /* RACSignalOperationsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D010521B1891028D0004A983 /* RACSignalOperationsSpec.m */; };
 		D011F9D01782AFD400EE7E38 /* NSObjectRACAppKitBindingsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D011F9CF1782AFD400EE7E38 /* NSObjectRACAppKitBindingsSpec.m */; };
 		D013A3D91807B5ED0072B6CE /* RACErrorSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = D013A3D51807B5ED0072B6CE /* RACErrorSignal.m */; };
 		D013A3DA1807B5ED0072B6CE /* RACErrorSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = D013A3D51807B5ED0072B6CE /* RACErrorSignal.m */; };
@@ -900,6 +902,7 @@
 		D00930781788AB7B00EE7E8B /* RACTestScheduler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACTestScheduler.m; sourceTree = "<group>"; };
 		D00C407F185A654800E6D460 /* RACActionSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACActionSpec.m; sourceTree = "<group>"; };
 		D01052101890FB3D0004A983 /* RACReplaySubjectSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACReplaySubjectSpec.m; sourceTree = "<group>"; };
+		D010521B1891028D0004A983 /* RACSignalOperationsSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSignalOperationsSpec.m; sourceTree = "<group>"; };
 		D011F9CF1782AFD400EE7E38 /* NSObjectRACAppKitBindingsSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSObjectRACAppKitBindingsSpec.m; sourceTree = "<group>"; };
 		D013A3D41807B5ED0072B6CE /* RACErrorSignal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACErrorSignal.h; sourceTree = "<group>"; };
 		D013A3D51807B5ED0072B6CE /* RACErrorSignal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACErrorSignal.m; sourceTree = "<group>"; };
@@ -1351,6 +1354,7 @@
 				D02C7C8F1822D43000CB20D6 /* RACSchedulerSpec.m */,
 				D028DB7C179E591E00D1042F /* RACSerialDisposableSpec.m */,
 				8820937B1501C8A600796685 /* RACSignalSpec.m */,
+				D010521B1891028D0004A983 /* RACSignalOperationsSpec.m */,
 				D0487AB1164314430085D890 /* RACStreamExamples.h */,
 				D0487AB2164314430085D890 /* RACStreamExamples.m */,
 				880D7A6716F7BCC7004A3361 /* RACSubclassObject.h */,
@@ -2334,6 +2338,7 @@
 				5FAF523F174D4D3600CAC810 /* NSNotificationCenterRACSupportSpec.m in Sources */,
 				D090768B17FBECBF00EB087A /* NSURLConnectionRACSupportSpec.m in Sources */,
 				5FAF5240174D4D5600CAC810 /* NSObjectRACDeallocatingSpec.m in Sources */,
+				D010521D1891028D0004A983 /* RACSignalOperationsSpec.m in Sources */,
 				5FAF5241174D4D5600CAC810 /* NSObjectRACLiftingSpec.m in Sources */,
 				5FAF5242174D4D5600CAC810 /* NSObjectRACPropertySubscribingExamples.m in Sources */,
 				5FAF5243174D4D5600CAC810 /* NSObjectRACPropertySubscribingSpec.m in Sources */,
@@ -2481,6 +2486,7 @@
 				881E86BA1669350B00667F7B /* RACCompoundDisposableSpec.m in Sources */,
 				D0700F4C1672994D00D7CD30 /* NSNotificationCenterRACSupportSpec.m in Sources */,
 				5F2447AD167E87C50062180C /* RACKVOChannelSpec.m in Sources */,
+				D010521C1891028D0004A983 /* RACSignalOperationsSpec.m in Sources */,
 				D02221621678910900DBD031 /* RACTupleSpec.m in Sources */,
 				5F7EFECF168FBC4B0037E500 /* RACChannelExamples.m in Sources */,
 				5F7EFED0168FBC4B0037E500 /* RACChannelSpec.m in Sources */,

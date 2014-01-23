@@ -644,8 +644,6 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)aggregateWithStart:(id)start reduce:(id (^)(id running, id next))reduceBlock {
-	NSCParameterAssert(start != nil);
-
 	return [[[[self
 		scanWithStart:start reduce:reduceBlock]
 		startWith:start]

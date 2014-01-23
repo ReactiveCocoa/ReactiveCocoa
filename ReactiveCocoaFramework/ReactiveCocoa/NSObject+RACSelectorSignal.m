@@ -142,8 +142,8 @@ static void RACSwizzleMethodSignatureForSelector(Class class) {
 				.super_class = class_getSuperclass(actualClass),
 				.receiver = self,
 			};
-			NSMethodSignature * (*messageSend)(struct objc_super *, SEL) = (__typeof__(messageSend))objc_msgSendSuper;
-			return messageSend(&target, @selector(methodSignatureForSelector:));
+			NSMethodSignature * (*messageSend)(struct objc_super *, SEL, SEL) = (__typeof__(messageSend))objc_msgSendSuper;
+			return messageSend(&target, @selector(methodSignatureForSelector:), selector);
 		}
 
 		char const *encoding = method_getTypeEncoding(method);

@@ -20,6 +20,10 @@ milestone](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?milestone=4&sta
  1. [Simplified signal creation and disposal](#simplified-signal-creation-and-disposal)
  1. [Generalized throttling](#generalized-throttling)
 
+**[Behavior Differences](#behavior-differences)**
+
+ 1. [`RACObserve` no longer captures `self`](#-racobserve--no-longer-captures--self-)
+
 **[Deprecations](#deprecations)**
 
  1. [Sequences](#sequences)
@@ -194,6 +198,12 @@ RACSignal *throttledEvens = [[numbers
     // Limit the queue to 1 even number.
     flatten:1 withPolicy:RACSignalFlattenPolicyDisposeEarliest];
 ```
+
+## Behavior Differences
+
+### `RACObserve` no longer captures `self`
+
+BLAH
 
 ## Deprecations
 

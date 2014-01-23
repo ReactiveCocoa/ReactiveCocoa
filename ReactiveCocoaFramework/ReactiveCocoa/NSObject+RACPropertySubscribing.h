@@ -36,9 +36,9 @@
 		RACObserve_(TARGET, KEYPATH)
 #else
 	#define RACObserve(TARGET, KEYPATH) \
-		/* If `TARGET` is not exactly `self`, warn about the new memory
+		/* If `TARGET` does not start with `self`, warn about the new memory
 		 * management behavior */ \
-		metamacro_if_eq(1, metamacro_argcount(metamacro_concat(RACObserve_warn_, TARGET) 1)) \
+		metamacro_if_eq(1, metamacro_argcount(RACObserve_warn_ ## TARGET 1)) \
 			( \
 				_Pragma("message \"RACObserve no longer stops when self deallocates\"") \
 				RACObserve_(TARGET, KEYPATH) \

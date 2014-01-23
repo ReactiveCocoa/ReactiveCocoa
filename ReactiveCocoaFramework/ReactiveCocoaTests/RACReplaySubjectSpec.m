@@ -277,4 +277,25 @@ describe(@"with an unlimited capacity", ^{
 	});
 });
 
+it(@"should dealloc a replay subject if it completes immediately", ^{
+	__block BOOL completed = NO;
+	__block BOOL deallocd = NO;
+	@autoreleasepool {
+		RACReplaySubject *subject __attribute__((objc_precise_lifetime)) = [RACReplaySubject subject];
+		[subject sendCompleted];
+
+		[subject.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+			deallocd = YES;
+		}]];
+
+		[subject subscribeCompleted:^{
+			completed = YES;
+		}];
+	}
+
+	expect(completed).will.beTruthy();
+
+	expect(deallocd).will.beTruthy();
+});
+
 SpecEnd

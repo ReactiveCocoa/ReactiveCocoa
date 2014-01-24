@@ -26,7 +26,7 @@ describe(@"-rac_valuesForKeyPath:observer:", ^{
 
 });
 
-describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
+describe(@"-rac_valuesAndChangesForKeyPath:options:observer:", ^{
 	describe(@"KVO options argument", ^{
 		__block RACTestObject *object;
 		__block id actual;
@@ -132,9 +132,7 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 			expect(actual).to.equal(NSNull.null);
 		});
 	});
-});
 
-describe(@"-rac_valuesAndChangesForKeyPath:options:observer:", ^{
 	it(@"should complete immediately if the receiver or observer have deallocated", ^{
 		RACSignal *signal;
 		@autoreleasepool {

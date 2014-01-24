@@ -67,6 +67,11 @@
 /// Creates a signal to observe the changes to the <RACCollection> at the given
 /// key path.
 ///
+/// Note that granular changes (like insertion and deletion) will only be sent
+/// if changes to the given key path are made through KVC's to-many accessor
+/// methods. See:
+/// https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/KeyValueCoding/Articles/AccessorConventions.html
+///
 /// The initial value is sent on subscription. Subsequent values are sent from
 /// whichever thread the change occured on, even if it doesn't have a valid
 /// scheduler.

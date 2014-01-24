@@ -17,15 +17,15 @@
 #import "RACRemovalMutation.h"
 #import "RACReplacementMutation.h"
 #import "RACSettingMutation.h"
-#import "RACSignal.h"
+#import "RACSignal+Operations.h"
 #import "RACUnionMutation.h"
 #import "RACUnit.h"
 
 SpecBegin(NSObjectRACPropertySubscribing)
 
-describe(@"-rac_valuesForKeyPath:observer:", ^{
-	id (^setupBlock)(id, id, id) = ^(RACTestObject *object, NSString *keyPath, id observer) {
-		return [object rac_valuesForKeyPath:keyPath observer:observer];
+describe(@"-rac_valuesForKeyPath:", ^{
+	id (^setupBlock)(id, id) = ^(RACTestObject *object, NSString *keyPath) {
+		return [object rac_valuesForKeyPath:keyPath];
 	};
 
 	itShouldBehaveLike(RACPropertySubscribingExamples, ^{
@@ -34,7 +34,7 @@ describe(@"-rac_valuesForKeyPath:observer:", ^{
 
 });
 
-describe(@"-rac_valuesAndChangesForKeyPath:options:observer:", ^{
+describe(@"-rac_valuesAndChangesForKeyPath:options:", ^{
 	describe(@"KVO options argument", ^{
 		__block RACTestObject *object;
 		__block id actual;
@@ -44,7 +44,7 @@ describe(@"-rac_valuesAndChangesForKeyPath:options:observer:", ^{
 			object = [[RACTestObject alloc] init];
 
 			objectValueSignal = ^(NSKeyValueObservingOptions options) {
-				return [[object rac_valuesAndChangesForKeyPath:@keypath(object, objectValue) options:options observer:self] reduceEach:^(id value, NSDictionary *change) {
+				return [[object rac_valuesAndChangesForKeyPath:@keypath(object, objectValue) options:options] reduceEach:^(id value, NSDictionary *change) {
 					return change;
 				}];
 			};
@@ -141,12 +141,11 @@ describe(@"-rac_valuesAndChangesForKeyPath:options:observer:", ^{
 		});
 	});
 
-	it(@"should complete immediately if the receiver or observer have deallocated", ^{
+	it(@"should complete immediately if the receiver has deallocated", ^{
 		RACSignal *signal;
 		@autoreleasepool {
 			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			RACTestObject *observer __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
-			signal = [object rac_valuesAndChangesForKeyPath:@keypath(object, stringValue) options:0 observer:observer];
+			signal = [object rac_valuesAndChangesForKeyPath:@keypath(object, stringValue) options:0];
 		}
 
 		__block BOOL completed = NO;
@@ -158,7 +157,7 @@ describe(@"-rac_valuesAndChangesForKeyPath:options:observer:", ^{
 	});
 });
 
-describe(@"-rac_valuesAndCollectionMutationsForKeyPath:observer:", ^{
+describe(@"-rac_valuesAndCollectionMutationsForKeyPath:", ^{
 	__block RACTestObject *object;
 	__block RACDisposable *disposable;
 
@@ -191,7 +190,7 @@ describe(@"-rac_valuesAndCollectionMutationsForKeyPath:observer:", ^{
 		arrayMutation = nil;
 
 		RACDisposable *setDisposable = [[[[object
-			rac_valuesAndCollectionMutationsForKeyPath:@keypath(object.setValue) observer:self]
+			rac_valuesAndCollectionMutationsForKeyPath:@keypath(object.setValue)]
 			skip:1]
 			reduceEach:^(NSSet *newValue, id mutation) {
 				expect(object.setValue).to.equal(newValue);
@@ -203,7 +202,7 @@ describe(@"-rac_valuesAndCollectionMutationsForKeyPath:observer:", ^{
 			}];
 
 		RACDisposable *arrayDisposable = [[[[object
-			rac_valuesAndCollectionMutationsForKeyPath:@keypath(object.arrayValue) observer:self]
+			rac_valuesAndCollectionMutationsForKeyPath:@keypath(object.arrayValue)]
 			skip:1]
 			reduceEach:^(NSArray *newValue, id mutation) {
 				expect(object.arrayValue).to.equal(newValue);
@@ -309,6 +308,51 @@ describe(@"-rac_valuesAndCollectionMutationsForKeyPath:observer:", ^{
 			id expectedMutation = [[RACReplacementMutation alloc] initWithRemovedObjects:@[ @"bar" ] addedObjects:@[ RACUnit.defaultUnit ] indexes:[NSIndexSet indexSetWithIndex:1]];
 			expect(arrayMutation).to.equal(expectedMutation);
 		});
+	});
+});
+
+describe(@"RACObserve", ^{
+	__block RACTestObject *testObject;
+
+	beforeEach(^{
+		testObject = [[RACTestObject alloc] init];
+	});
+
+	it(@"should work with object properties", ^{
+		NSArray *expected = @[ @"hello", @"world" ];
+		testObject.objectValue = expected[0];
+
+		NSMutableArray *valuesReceived = [NSMutableArray array];
+		[RACObserve(testObject, objectValue) subscribeNext:^(id x) {
+			[valuesReceived addObject:x];
+		}];
+
+		testObject.objectValue = expected[1];
+
+		expect(valuesReceived).to.equal(expected);
+	});
+
+	it(@"should work with non-object properties", ^{
+		NSArray *expected = @[ @42, @43 ];
+		testObject.integerValue = [expected[0] integerValue];
+
+		NSMutableArray *valuesReceived = [NSMutableArray array];
+		[RACObserve(testObject, integerValue) subscribeNext:^(id x) {
+			[valuesReceived addObject:x];
+		}];
+
+		testObject.integerValue = [expected[1] integerValue];
+
+		expect(valuesReceived).to.equal(expected);
+	});
+
+	it(@"should read the initial value upon subscription", ^{
+		testObject.objectValue = @"foo";
+
+		RACSignal *signal = RACObserve(testObject, objectValue);
+		testObject.objectValue = @"bar";
+
+		expect([signal first]).to.equal(@"bar");
 	});
 });
 

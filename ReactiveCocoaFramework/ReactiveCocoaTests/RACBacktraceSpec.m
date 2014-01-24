@@ -6,11 +6,11 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import "NSArray+RACSupport.h"
 #import "RACBacktrace.h"
 #import "RACScheduler.h"
 #import "RACSequence.h"
-#import "NSArray+RACSupport.h"
-#import "RACSignal.h"
+#import "RACSignal+Operations.h"
 
 #ifdef DEBUG
 
@@ -100,12 +100,9 @@ it(@"shouldn't go bonkers with RACScheduler", ^{
 		[a addObject:@(i)];
 	}
 
-	[[a.rac_sequence signalWithScheduler:[RACScheduler scheduler]]
-	 subscribeNext:^(id x) {
-
-	 } completed:^{
-
-	 }];
+	[[a.rac_signal
+		deliverOn:[RACScheduler scheduler]]
+		subscribe:nil];
 });
 
 // Tracing across NSOperationQueue only works on OS X because it depends on

@@ -8,6 +8,7 @@
 
 #import "RACSubscriberExamples.h"
 
+#import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSubject.h"
 #import "RACSubscriber.h"
@@ -122,17 +123,17 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 
 		it(@"should dispose of all current subscriptions upon termination", ^{
 			__block BOOL firstDisposed = NO;
-			RACSignal *firstDisposableSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-				return [RACDisposable disposableWithBlock:^{
+			RACSignal *firstDisposableSignal = [RACSignal create:^(id<RACSubscriber> subscriber) {
+				[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
 					firstDisposed = YES;
-				}];
+				}]];
 			}];
 
 			__block BOOL secondDisposed = NO;
-			RACSignal *secondDisposableSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-				return [RACDisposable disposableWithBlock:^{
+			RACSignal *secondDisposableSignal = [RACSignal create:^(id<RACSubscriber> subscriber) {
+				[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
 					secondDisposed = YES;
-				}];
+				}]];
 			}];
 
 			[firstDisposableSignal subscribe:subscriber];
@@ -149,10 +150,10 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 
 		it(@"should dispose of future subscriptions upon termination", ^{
 			__block BOOL disposed = NO;
-			RACSignal *disposableSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-				return [RACDisposable disposableWithBlock:^{
+			RACSignal *disposableSignal = [RACSignal create:^(id<RACSubscriber> subscriber) {
+				[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
 					disposed = YES;
-				}];
+				}]];
 			}];
 
 			[first sendCompleted];

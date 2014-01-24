@@ -88,15 +88,14 @@ describe(@"RACKVOChannel", ^{
 	
 	it(@"should be able to subscribe to signals", ^{
 		NSMutableArray *receivedValues = [NSMutableArray array];
-		[object rac_observeKeyPath:@keypath(object.stringValue) options:0 observer:self block:^(id value, NSDictionary *change) {
+		[object rac_observeKeyPath:@keypath(object.stringValue) options:0 block:^(id value, NSDictionary *change) {
 			[receivedValues addObject:value];
 		}];
 
-		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		RACSignal *signal = [RACSignal create:^(id<RACSubscriber> subscriber) {
 			[subscriber sendNext:value1];
 			[subscriber sendNext:value2];
 			[subscriber sendNext:value3];
-			return nil;
 		}];
 
 		[signal subscribe:channel.followingTerminal];

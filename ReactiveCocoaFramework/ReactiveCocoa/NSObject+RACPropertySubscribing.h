@@ -9,45 +9,43 @@
 #import <Foundation/Foundation.h>
 #import "EXTKeyPathCoding.h"
 #import "metamacros.h"
+#import "RACDeprecated.h"
 
 /// Creates a signal which observes `KEYPATH` on `TARGET` for changes.
 ///
-/// In either case, the observation continues until `TARGET` _or self_ is
-/// deallocated. If any intermediate object is deallocated instead, it will be
-/// assumed to have been set to nil.
-///
-/// Make sure to `@strongify(self)` when using this macro within a block! The
-/// macro will _always_ reference `self`, which can silently introduce a retain
-/// cycle within a block. As a result, you should make sure that `self` is a weak
-/// reference (e.g., created by `@weakify` and `@strongify`) before the
-/// expression that uses `RACObserve`.
+/// The observation continues until `TARGET` is deallocated. If any intermediate
+/// object is deallocated instead, it will be assumed to have been set to nil.
 ///
 /// Examples
 ///
 ///    // Observes self, and doesn't stop until self is deallocated.
 ///    RACSignal *selfSignal = RACObserve(self, arrayController.items);
 ///
-///    // Observes the array controller, and stops when self _or_ the array
-///    // controller is deallocated.
+///    // Observes the array controller, and stops when the array controller is
+///    // deallocated.
 ///    RACSignal *arrayControllerSignal = RACObserve(self.arrayController, items);
 ///
-///    // Observes obj.arrayController, and stops when self _or_ the array
-///    // controller is deallocated.
+///    // Observes obj.arrayController, and stops when the array controller is
+///    // deallocated.
 ///    RACSignal *signal2 = RACObserve(obj.arrayController, items);
-///
-///    @weakify(self);
-///    RACSignal *signal3 = [anotherSignal flattenMap:^(NSArrayController *arrayController) {
-///        // Avoids a retain cycle because of RACObserve implicitly referencing
-///        // self.
-///        @strongify(self);
-///        return RACObserve(arrayController, items);
-///    }];
 ///
 /// Returns a signal which sends the current value of the key path on
 /// subscription, then sends the new value every time it changes, and sends
-/// completed if self or observer is deallocated.
-#define RACObserve(TARGET, KEYPATH) \
-    [(id)(TARGET) rac_valuesForKeyPath:@keypath(TARGET, KEYPATH) observer:self]
+/// completed when `TARGET` is deallocated.
+#ifndef WE_PROMISE_TO_MIGRATE_TO_REACTIVECOCOA_3_0
+	#define RACObserve(TARGET, KEYPATH) \
+		RACObserve_(TARGET, KEYPATH)
+#else
+	#define RACObserve(TARGET, KEYPATH) \
+		/* If `TARGET` does not start with `self`, warn about the new memory
+		 * management behavior */ \
+		metamacro_if_eq(1, metamacro_argcount(RACObserve_warn_ ## TARGET 1)) \
+			( \
+				_Pragma("message \"RACObserve no longer stops when self deallocates\"") \
+				RACObserve_(TARGET, KEYPATH) \
+			) \
+			(RACObserve_(TARGET, KEYPATH))
+#endif
 
 @class RACDisposable;
 @class RACSignal;
@@ -62,7 +60,7 @@
 ///
 /// Returns a signal that immediately sends the receiver's current value at the
 /// given keypath, then any changes thereafter.
-- (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer;
+- (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath;
 
 /// Creates a signal to observe the changes to the <RACCollection> at the given
 /// key path.
@@ -79,7 +77,7 @@
 /// Examples
 ///
 ///     [[[self
-///         rac_valuesAndCollectionMutationsForKeyPath:@keypath(self.models) observer:self]
+///         rac_valuesAndCollectionMutationsForKeyPath:@keypath(self.models)]
 ///         reduceEach:^(id _, id<RACOrderedCollectionMutation> modelsMutation) {
 ///             return [modelsMutation map:^(Model *model) {
 ///                 return [[ViewModel alloc] initWithModel:model];
@@ -96,7 +94,7 @@
 /// key path and a <RACCollectionMutation> describing the change that occurred.
 /// If the collection is specifically a <RACOrderedCollection>, the collection
 /// mutation will conform to <RACOrderedCollectionMutation>.
-- (RACSignal *)rac_valuesAndCollectionMutationsForKeyPath:(NSString *)keyPath observer:(NSObject *)observer;
+- (RACSignal *)rac_valuesAndCollectionMutationsForKeyPath:(NSString *)keyPath;
 
 /// Creates a signal to observe the changes of the given key path.
 ///
@@ -106,23 +104,23 @@
 ///
 /// Returns a signal that sends tuples containing the current value at the key
 /// path and the change dictionary for each KVO callback.
-- (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer;
+- (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options;
 
 @end
 
-#define RACAble(...) \
-    metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__)) \
-        (_RACAbleObject(self, __VA_ARGS__)) \
-        (_RACAbleObject(__VA_ARGS__))
+/// Do not use this directly. Use the RACObserve macro above.
+#define RACObserve_(TARGET, KEYPATH) \
+    [(id)(TARGET) rac_valuesForKeyPath:@keypath(TARGET, KEYPATH)]
 
-#define _RACAbleObject(object, property) [object rac_signalForKeyPath:@keypath(object, property) observer:self]
+#define RACObserve_warn_self \
+	2,
 
-#define RACAbleWithStart(...) \
-    metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__)) \
-        (_RACAbleWithStartObject(self, __VA_ARGS__)) \
-        (_RACAbleWithStartObject(__VA_ARGS__))
+@interface NSObject (RACDeprecatedPropertySubscribing)
 
-#define _RACAbleWithStartObject(object, property) [object rac_signalWithStartingValueForKeyPath:@keypath(object, property) observer:self]
+- (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer RACDeprecated("Use -rac_valuesForKeyPath: instead");
+- (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer RACDeprecated("Use -rac_valuesAndChangesForKeyPath:options:observer: instead");
+
+@end
 
 @interface NSObject (RACUnavailablePropertySubscribing)
 

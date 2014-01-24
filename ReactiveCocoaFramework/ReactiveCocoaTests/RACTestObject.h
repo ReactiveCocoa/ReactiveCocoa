@@ -38,9 +38,9 @@ typedef struct {
 @property (nonatomic, assign) RACTestStruct structValue;
 @property (nonatomic, assign) _Bool c99BoolValue;
 @property (nonatomic, copy) NSString *stringValue;
-@property (nonatomic, copy) NSArray *arrayValue;
-@property (nonatomic, copy) NSSet *setValue;
-@property (nonatomic, copy) NSOrderedSet *orderedSetValue;
+@property (nonatomic, strong) NSMutableArray *arrayValue;
+@property (nonatomic, strong) NSMutableSet *setValue;
+@property (nonatomic, strong) NSMutableOrderedSet *orderedSetValue;
 
 // Returns a new object each time, with the integerValue set to 42.
 @property (nonatomic, copy, readonly) RACTestObject *dynamicObjectProperty;

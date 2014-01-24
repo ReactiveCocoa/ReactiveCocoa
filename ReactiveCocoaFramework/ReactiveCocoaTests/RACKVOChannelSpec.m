@@ -284,7 +284,7 @@ describe(@"RACChannelTo", ^{
 	});
 	
 	it(@"should bind changes made by KVC on arrays", ^{
-		b.arrayValue = @[];
+		b.arrayValue = [NSMutableArray array];
 		RACChannelTo(a, arrayValue) = RACChannelTo(b, arrayValue);
 
 		[[b mutableArrayValueForKeyPath:@keypath(b.arrayValue)] addObject:@1];
@@ -292,7 +292,7 @@ describe(@"RACChannelTo", ^{
 	});
 	
 	it(@"should bind changes made by KVC on sets", ^{
-		b.setValue = [NSSet set];
+		b.setValue = [NSMutableSet set];
 		RACChannelTo(a, setValue) = RACChannelTo(b, setValue);
 
 		[[b mutableSetValueForKeyPath:@keypath(b.setValue)] addObject:@1];
@@ -300,7 +300,7 @@ describe(@"RACChannelTo", ^{
 	});
 	
 	it(@"should bind changes made by KVC on ordered sets", ^{
-		b.orderedSetValue = [NSOrderedSet orderedSet];
+		b.orderedSetValue = [NSMutableOrderedSet orderedSet];
 		RACChannelTo(a, orderedSetValue) = RACChannelTo(b, orderedSetValue);
 
 		[[b mutableOrderedSetValueForKeyPath:@keypath(b.orderedSetValue)] addObject:@1];

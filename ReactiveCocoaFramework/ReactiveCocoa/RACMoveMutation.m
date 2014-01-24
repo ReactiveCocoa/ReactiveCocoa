@@ -42,4 +42,27 @@
 	[collection rac_moveObjectAtIndex:self.fromIndex toIndex:self.toIndex];
 }
 
+#pragma mark NSCopying
+
+- (id)copyWithZone:(NSZone *)zone {
+	return self;
+}
+
+#pragma mark NSObject
+
+- (NSString *)description {
+	return [NSString stringWithFormat:@"<%@: %p>{ fromIndex = %lu, toIndex = %lu }", self.class, self, (unsigned long)self.fromIndex, (unsigned long)self.toIndex];
+}
+
+- (NSUInteger)hash {
+	return self.fromIndex ^ self.toIndex;
+}
+
+- (BOOL)isEqual:(RACMoveMutation *)mutation {
+	if (self == mutation) return YES;
+	if (![mutation isKindOfClass:RACMoveMutation.class]) return NO;
+
+	return self.fromIndex == mutation.fromIndex && self.toIndex == mutation.toIndex;
+}
+
 @end

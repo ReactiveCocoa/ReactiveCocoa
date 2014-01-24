@@ -40,4 +40,21 @@
 	[collection rac_removeObjectsAtIndexes:self.indexes];
 }
 
+#pragma mark NSObject
+
+- (NSString *)description {
+	return [NSString stringWithFormat:@"<%@: %p>{ indexes = %@, removedObjects = %@ }", self.class, self, self.indexes, self.removedObjects];
+}
+
+- (NSUInteger)hash {
+	return self.removedObjects.hash ^ self.indexes.hash;
+}
+
+- (BOOL)isEqual:(RACRemovalMutation *)mutation {
+	if (self == mutation) return YES;
+	if (![mutation isKindOfClass:RACRemovalMutation.class]) return NO;
+
+	return [self.removedObjects isEqual:mutation.removedObjects] && [self.indexes isEqual:mutation.indexes];
+}
+
 @end

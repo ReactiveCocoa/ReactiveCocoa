@@ -9,7 +9,7 @@
 #import "RACCollection.h"
 
 /// Represents an in-place change to a <RACCollection>.
-@protocol RACCollectionMutation <NSObject>
+@protocol RACCollectionMutation <NSObject, NSCopying>
 @required
 
 /// Applies the mutation described by the receiver to the given collection.

@@ -43,4 +43,27 @@
 	[self mutateCollection:collection];
 }
 
+#pragma mark NSCopying
+
+- (id)copyWithZone:(NSZone *)zone {
+	return self;
+}
+
+#pragma mark NSObject
+
+- (NSString *)description {
+	return [NSString stringWithFormat:@"<%@: %p>{ addedObjects = %@ }", self.class, self, self.addedObjects];
+}
+
+- (NSUInteger)hash {
+	return self.addedObjects.hash;
+}
+
+- (BOOL)isEqual:(RACSettingMutation *)mutation {
+	if (self == mutation) return YES;
+	if (![mutation isKindOfClass:RACSettingMutation.class]) return NO;
+
+	return [self.addedObjects isEqual:mutation.addedObjects];
+}
+
 @end

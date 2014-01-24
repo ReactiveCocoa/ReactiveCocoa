@@ -40,4 +40,21 @@
 	[collection rac_insertObjects:self.addedObjects atIndexes:self.indexes];
 }
 
+#pragma mark NSObject
+
+- (NSString *)description {
+	return [NSString stringWithFormat:@"<%@: %p>{ indexes = %@, addedObjects = %@ }", self.class, self, self.indexes, self.addedObjects];
+}
+
+- (NSUInteger)hash {
+	return self.addedObjects.hash ^ self.indexes.hash;
+}
+
+- (BOOL)isEqual:(RACInsertionMutation *)mutation {
+	if (self == mutation) return YES;
+	if (![mutation isKindOfClass:RACInsertionMutation.class]) return NO;
+
+	return [self.addedObjects isEqual:mutation.addedObjects] && [self.indexes isEqual:mutation.indexes];
+}
+
 @end

@@ -39,4 +39,27 @@
 	[collection rac_removeObjects:self.removedObjects];
 }
 
+#pragma mark NSCopying
+
+- (id)copyWithZone:(NSZone *)zone {
+	return self;
+}
+
+#pragma mark NSObject
+
+- (NSString *)description {
+	return [NSString stringWithFormat:@"<%@: %p>{ removedObjects = %@ }", self.class, self, self.removedObjects];
+}
+
+- (NSUInteger)hash {
+	return self.removedObjects.hash;
+}
+
+- (BOOL)isEqual:(RACMinusMutation *)mutation {
+	if (self == mutation) return YES;
+	if (![mutation isKindOfClass:RACMinusMutation.class]) return NO;
+
+	return [self.removedObjects isEqual:mutation.removedObjects];
+}
+
 @end

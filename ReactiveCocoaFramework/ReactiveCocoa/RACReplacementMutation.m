@@ -52,4 +52,27 @@
 	[collection rac_replaceObjectsAtIndexes:self.indexes withObjects:self.addedObjects];
 }
 
+#pragma mark NSCopying
+
+- (id)copyWithZone:(NSZone *)zone {
+	return self;
+}
+
+#pragma mark NSObject
+
+- (NSString *)description {
+	return [NSString stringWithFormat:@"<%@: %p>{ indexes = %@, removedObjects = %@, addedObjects = %@ }", self.class, self, self.indexes, self.removedObjects, self.addedObjects];
+}
+
+- (NSUInteger)hash {
+	return self.removedObjects.hash ^ self.addedObjects.hash ^ self.indexes.hash;
+}
+
+- (BOOL)isEqual:(RACReplacementMutation *)mutation {
+	if (self == mutation) return YES;
+	if (![mutation isKindOfClass:RACReplacementMutation.class]) return NO;
+
+	return [self.removedObjects isEqual:mutation.removedObjects] && [self.addedObjects isEqual:mutation.addedObjects] && [self.indexes isEqual:mutation.indexes];
+}
+
 @end

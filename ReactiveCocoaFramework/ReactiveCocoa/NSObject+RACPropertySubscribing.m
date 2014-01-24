@@ -21,40 +21,33 @@
 
 @implementation NSObject (RACPropertySubscribing)
 
-- (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
+- (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath {
 	return [[[self
-		rac_valuesAndChangesForKeyPath:keyPath options:NSKeyValueObservingOptionInitial observer:observer]
+		rac_valuesAndChangesForKeyPath:keyPath options:NSKeyValueObservingOptionInitial]
 		reduceEach:^(id value, NSDictionary *change) {
 			return value;
 		}]
 		setNameWithFormat:@"RACObserve(%@, %@)", self.rac_description, keyPath];
 }
 
-- (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer {
+- (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options {
 	keyPath = [keyPath copy];
 
 	NSRecursiveLock *objectLock = [[NSRecursiveLock alloc] init];
 	objectLock.name = @"com.github.ReactiveCocoa.NSObjectRACPropertySubscribing";
 
 	__block __unsafe_unretained NSObject *unsafeSelf = self;
-	__block __unsafe_unretained NSObject *unsafeObserver = observer;
 
-	RACSignal *deallocSignal = [[RACSignal
-		zip:@[
-			self.rac_willDeallocSignal,
-			observer.rac_willDeallocSignal ?: [RACSignal never]
-		]]
-		doCompleted:^{
-			// Forces deallocation to wait if the object variables are currently
-			// being read on another thread.
-			[objectLock lock];
-			@onExit {
-				[objectLock unlock];
-			};
+	RACSignal *deallocSignal = [self.rac_willDeallocSignal doCompleted:^{
+		// Forces deallocation to wait if the object variable is currently
+		// being read on another thread.
+		[objectLock lock];
+		@onExit {
+			[objectLock unlock];
+		};
 
-			unsafeSelf = nil;
-			unsafeObserver = nil;
-		}];
+		unsafeSelf = nil;
+	}];
 
 	return [[[RACSignal
 		create:^(id<RACSubscriber> subscriber) {
@@ -67,7 +60,6 @@
 				[objectLock unlock];
 			};
 
-			__strong NSObject *observer __attribute__((objc_precise_lifetime)) = unsafeObserver;
 			__strong NSObject *self __attribute__((objc_precise_lifetime)) = unsafeSelf;
 
 			if (self == nil) {
@@ -75,12 +67,33 @@
 				return;
 			}
 
-			[subscriber.disposable addDisposable:[self rac_observeKeyPath:keyPath options:options observer:observer block:^(id value, NSDictionary *change) {
+			[subscriber.disposable addDisposable:[self rac_observeKeyPath:keyPath options:options block:^(id value, NSDictionary *change) {
 				[subscriber sendNext:RACTuplePack(value, change)];
 			}]];
 		}]
 		takeUntil:deallocSignal]
-		setNameWithFormat:@"%@ -rac_valueAndChangesForKeyPath: %@ options: %lu observer: %@", self.rac_description, keyPath, (unsigned long)options, observer.rac_description];
+		setNameWithFormat:@"%@ -rac_valueAndChangesForKeyPath: %@ options: %lu", self.rac_description, keyPath, (unsigned long)options];
 }
 
 @end
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
+
+@implementation NSObject (RACDeprecatedPropertySubscribing)
+
+- (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
+	return [[self
+		rac_valuesForKeyPath:keyPath]
+		takeUntil:observer.rac_willDeallocSignal];
+}
+
+- (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer {
+	return [[self
+		rac_valuesAndChangesForKeyPath:keyPath options:options]
+		takeUntil:observer.rac_willDeallocSignal];
+}
+
+@end
+
+#pragma clang diagnostic pop

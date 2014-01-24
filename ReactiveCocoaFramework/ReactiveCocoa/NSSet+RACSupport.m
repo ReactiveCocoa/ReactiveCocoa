@@ -31,6 +31,22 @@
 
 @end
 
+@implementation NSMutableSet (RACCollectionSupport)
+
+- (void)rac_addObjects:(NSArray *)objects {
+	[self addObjectsFromArray:objects];
+}
+
+- (void)rac_removeObjects:(NSArray *)objects {
+	[self minusSet:[NSSet setWithArray:objects]];
+}
+
+- (void)rac_replaceAllObjects:(NSArray *)objects {
+	[self setSet:[NSSet setWithArray:objects]];
+}
+
+@end
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #pragma clang diagnostic ignored "-Wdeprecated-implementations"

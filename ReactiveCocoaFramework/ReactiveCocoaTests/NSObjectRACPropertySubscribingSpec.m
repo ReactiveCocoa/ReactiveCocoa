@@ -10,8 +10,16 @@
 #import "RACTestObject.h"
 
 #import "NSObject+RACPropertySubscribing.h"
-#import "RACDisposable.h"
+#import "RACCompoundDisposable.h"
+#import "RACInsertionMutation.h"
+#import "RACMinusMutation.h"
+#import "RACMoveMutation.h"
+#import "RACRemovalMutation.h"
+#import "RACReplacementMutation.h"
+#import "RACSettingMutation.h"
 #import "RACSignal+Operations.h"
+#import "RACUnionMutation.h"
+#import "RACUnit.h"
 
 SpecBegin(NSObjectRACPropertySubscribing)
 
@@ -26,7 +34,7 @@ describe(@"-rac_valuesForKeyPath:", ^{
 
 });
 
-describe(@"+rac_signalWithChangesFor:keyPath:options:", ^{
+describe(@"-rac_valuesAndChangesForKeyPath:options:", ^{
 	describe(@"KVO options argument", ^{
 		__block RACTestObject *object;
 		__block id actual;
@@ -132,9 +140,7 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:", ^{
 			expect(actual).to.equal(NSNull.null);
 		});
 	});
-});
 
-describe(@"-rac_valuesAndChangesForKeyPath:options:", ^{
 	it(@"should complete immediately if the receiver has deallocated", ^{
 		RACSignal *signal;
 		@autoreleasepool {
@@ -148,6 +154,160 @@ describe(@"-rac_valuesAndChangesForKeyPath:options:", ^{
 		}];
 
 		expect(completed).to.beTruthy();
+	});
+});
+
+describe(@"-rac_valuesAndCollectionMutationsForKeyPath:", ^{
+	__block RACTestObject *object;
+	__block RACDisposable *disposable;
+
+	__block id<RACOrderedCollectionMutation> arrayMutation;
+	__block id<RACCollectionMutation> setMutation;
+
+	__block void (^mutateArray)(NSKeyValueChange, NSIndexSet *, dispatch_block_t);
+	__block void (^mutateSet)(NSKeyValueSetMutationKind, NSSet *, dispatch_block_t);
+
+	beforeEach(^{
+		object = [[RACTestObject alloc] init];
+
+		NSArray *values = @[ @"foo", @"bar", @"fuzz", @"buzz" ];
+		object.arrayValue = [NSMutableArray arrayWithArray:values];
+		object.setValue = [NSMutableSet setWithArray:values];
+
+		mutateArray = ^(NSKeyValueChange change, NSIndexSet *indexes, dispatch_block_t mutationBlock) {
+			[object willChange:change valuesAtIndexes:indexes forKey:@keypath(object.arrayValue)];
+			mutationBlock();
+			[object didChange:change valuesAtIndexes:indexes forKey:@keypath(object.arrayValue)];
+		};
+
+		mutateSet = ^(NSKeyValueSetMutationKind change, NSSet *objects, dispatch_block_t mutationBlock) {
+			[object willChangeValueForKey:@keypath(object.setValue) withSetMutation:change usingObjects:objects];
+			mutationBlock();
+			[object didChangeValueForKey:@keypath(object.setValue) withSetMutation:change usingObjects:objects];
+		};
+		
+		setMutation = nil;
+		arrayMutation = nil;
+
+		RACDisposable *setDisposable = [[[[object
+			rac_valuesAndCollectionMutationsForKeyPath:@keypath(object.setValue)]
+			skip:1]
+			reduceEach:^(NSSet *newValue, id mutation) {
+				expect(object.setValue).to.equal(newValue);
+				return mutation;
+			}]
+			subscribeNext:^(id mutation) {
+				expect(mutation).notTo.beNil();
+				setMutation = mutation;
+			}];
+
+		RACDisposable *arrayDisposable = [[[[object
+			rac_valuesAndCollectionMutationsForKeyPath:@keypath(object.arrayValue)]
+			skip:1]
+			reduceEach:^(NSArray *newValue, id mutation) {
+				expect(object.arrayValue).to.equal(newValue);
+				return mutation;
+			}]
+			subscribeNext:^(id mutation) {
+				expect(mutation).notTo.beNil();
+				arrayMutation = mutation;
+			}];
+
+		expect(setDisposable).notTo.beNil();
+		expect(arrayDisposable).notTo.beNil();
+
+		disposable = [RACCompoundDisposable compoundDisposableWithDisposables:@[ setDisposable, arrayDisposable ]];
+	});
+
+	afterEach(^{
+		object = nil;
+
+		[disposable dispose];
+		disposable = nil;
+	});
+
+	describe(@"setting the property", ^{
+		it(@"should send RACSettingMutation for an unordered collection", ^{
+			object.setValue = [NSMutableSet setWithObject:RACUnit.defaultUnit];
+
+			id expectedMutation = [[RACSettingMutation alloc] initWithObjects:@[ RACUnit.defaultUnit ]];
+			expect(setMutation).to.equal(expectedMutation);
+		});
+
+		it(@"should send RACSettingMutation for an ordered collection", ^{
+			object.arrayValue = [NSMutableArray arrayWithObject:RACUnit.defaultUnit];
+
+			id expectedMutation = [[RACSettingMutation alloc] initWithObjects:@[ RACUnit.defaultUnit ]];
+			expect(arrayMutation).to.equal(expectedMutation);
+		});
+	});
+
+	describe(@"inserting", ^{
+		it(@"should send RACUnionMutation for an unordered collection", ^{
+			mutateSet(NSKeyValueUnionSetMutation, [NSSet setWithObject:RACUnit.defaultUnit], ^{
+				[object.setValue addObject:RACUnit.defaultUnit];
+			});
+
+			id expectedMutation = [[RACUnionMutation alloc] initWithObjects:@[ RACUnit.defaultUnit ]];
+			expect(setMutation).to.equal(expectedMutation);
+		});
+
+		it(@"should send RACInsertionMutation for an ordered collection", ^{
+			NSIndexSet *indexes = [NSIndexSet indexSetWithIndex:1];
+
+			mutateArray(NSKeyValueChangeInsertion, indexes, ^{
+				[object.arrayValue insertObject:RACUnit.defaultUnit atIndex:1];
+			});
+
+			id expectedMutation = [[RACInsertionMutation alloc] initWithObjects:@[ RACUnit.defaultUnit ] indexes:[NSIndexSet indexSetWithIndex:1]];
+			expect(arrayMutation).to.equal(expectedMutation);
+		});
+	});
+
+	describe(@"removing", ^{
+		it(@"should send RACMinusMutation for an unordered collection", ^{
+			mutateSet(NSKeyValueMinusSetMutation, [NSSet setWithObject:@"foo"], ^{
+				[object.setValue removeObject:@"foo"];
+			});
+
+			id expectedMutation = [[RACMinusMutation alloc] initWithObjects:@[ @"foo" ]];
+			expect(setMutation).to.equal(expectedMutation);
+		});
+
+		it(@"should send RACRemovalMutation for an ordered collection", ^{
+			NSIndexSet *indexes = [NSIndexSet indexSetWithIndex:1];
+
+			mutateArray(NSKeyValueChangeRemoval, indexes, ^{
+				[object.arrayValue removeObjectAtIndex:1];
+			});
+
+			id expectedMutation = [[RACRemovalMutation alloc] initWithObjects:@[ @"bar" ] indexes:[NSIndexSet indexSetWithIndex:1]];
+			expect(arrayMutation).to.equal(expectedMutation);
+		});
+	});
+
+	describe(@"replacement", ^{
+		it(@"should send RACSettingMutation for an unordered collection", ^{
+			NSSet *newValues = [NSSet setWithObjects:@"foo", @"fizz", nil];
+
+			mutateSet(NSKeyValueSetSetMutation, newValues, ^{
+				[object.setValue setSet:newValues];
+			});
+
+			id expectedMutation = [[RACSettingMutation alloc] initWithObjects:newValues.allObjects];
+			expect(setMutation).to.equal(expectedMutation);
+		});
+
+		it(@"should send RACReplacementMutation for an ordered collection", ^{
+			NSIndexSet *indexes = [NSIndexSet indexSetWithIndex:1];
+
+			mutateArray(NSKeyValueChangeReplacement, indexes, ^{
+				[object.arrayValue replaceObjectAtIndex:1 withObject:RACUnit.defaultUnit];
+			});
+
+			id expectedMutation = [[RACReplacementMutation alloc] initWithRemovedObjects:@[ @"bar" ] addedObjects:@[ RACUnit.defaultUnit ] indexes:[NSIndexSet indexSetWithIndex:1]];
+			expect(arrayMutation).to.equal(expectedMutation);
+		});
 	});
 });
 

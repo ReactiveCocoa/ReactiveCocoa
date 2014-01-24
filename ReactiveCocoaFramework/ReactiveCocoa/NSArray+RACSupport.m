@@ -31,6 +31,40 @@
 
 @end
 
+@implementation NSMutableArray (RACCollectionSupport)
+
+- (void)rac_addObjects:(NSArray *)objects {
+	[self addObjectsFromArray:objects];
+}
+
+- (void)rac_removeObjects:(NSArray *)objects {
+	[self removeObjectsInArray:objects];
+}
+
+- (void)rac_replaceAllObjects:(NSArray *)objects {
+	[self setArray:objects];
+}
+
+- (void)rac_insertObjects:(NSArray *)objects atIndexes:(NSIndexSet *)indexSet {
+	[self insertObjects:objects atIndexes:indexSet];
+}
+
+- (void)rac_removeObjectsAtIndexes:(NSIndexSet *)indexSet {
+	[self removeObjectsAtIndexes:indexSet];
+}
+
+- (void)rac_replaceObjectsAtIndexes:(NSIndexSet *)indexSet withObjects:(NSArray *)objects {
+	[self replaceObjectsAtIndexes:indexSet withObjects:objects];
+}
+
+- (void)rac_moveObjectAtIndex:(NSUInteger)fromIndex toIndex:(NSUInteger)toIndex {
+	id object = self[fromIndex];
+	[self removeObjectAtIndex:fromIndex];
+	[self insertObject:object atIndex:toIndex];
+}
+
+@end
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #pragma clang diagnostic ignored "-Wdeprecated-implementations"

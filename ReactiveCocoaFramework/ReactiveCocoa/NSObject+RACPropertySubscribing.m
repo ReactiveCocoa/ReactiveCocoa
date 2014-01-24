@@ -7,17 +7,41 @@
 //
 
 #import "NSObject+RACPropertySubscribing.h"
+
 #import "EXTScope.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACDescription.h"
 #import "NSObject+RACKVOWrapper.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
+#import "RACInsertionMutation.h"
 #import "RACKVOTrampoline.h"
-#import "RACSubscriber.h"
+#import "RACMinusMutation.h"
+#import "RACRemovalMutation.h"
+#import "RACReplacementMutation.h"
+#import "RACSettingMutation.h"
 #import "RACSignal+Operations.h"
+#import "RACSubscriber.h"
 #import "RACTuple.h"
+#import "RACUnionMutation.h"
+
 #import <libkern/OSAtomic.h>
+
+static NSArray *RACConvertToArray(id collection) {
+	if (collection == nil) return @[];
+	if ([collection isKindOfClass:NSArray.class]) return collection;
+	if ([collection isKindOfClass:NSSet.class]) return [collection allObjects];
+	if ([collection isKindOfClass:NSOrderedSet.class]) return [collection array];
+
+	NSCParameterAssert([collection conformsToProtocol:@protocol(NSFastEnumeration)]);
+
+	NSMutableArray *enumeratedObjects = [[NSMutableArray alloc] init];
+	for (id obj in collection) {
+		[enumeratedObjects addObject:obj];
+	}
+
+	return enumeratedObjects;
+}
 
 @implementation NSObject (RACPropertySubscribing)
 
@@ -28,6 +52,73 @@
 			return value;
 		}]
 		setNameWithFormat:@"RACObserve(%@, %@)", self.rac_description, keyPath];
+}
+
+- (RACSignal *)rac_valuesAndCollectionMutationsForKeyPath:(NSString *)keyPath {
+	return [[[self
+		rac_valuesAndChangesForKeyPath:keyPath options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial]
+		reduceEach:^(id value, NSDictionary *change) {
+			NSCAssert(value == nil || [value conformsToProtocol:@protocol(NSFastEnumeration)], @"Expected an enumerable collection at key path \"%@\", instead got %@", keyPath, value);
+
+			NSKeyValueChange kind = [change[NSKeyValueChangeKindKey] unsignedIntegerValue];
+			NSIndexSet *indexes = change[NSKeyValueChangeIndexesKey];
+			id oldObjects = change[NSKeyValueChangeOldKey];
+			id newObjects = change[NSKeyValueChangeNewKey];
+
+			NSObject<RACCollectionMutation> *mutation;
+
+			switch (kind) {
+				case NSKeyValueChangeReplacement:
+					if (indexes != nil) {
+						// Only use `RACReplacementMutation` for ordered
+						// collections.
+						oldObjects = RACConvertToArray(oldObjects);
+						newObjects = RACConvertToArray(newObjects);
+
+						mutation = [[RACReplacementMutation alloc] initWithRemovedObjects:oldObjects addedObjects:newObjects indexes:indexes];
+						break;
+					}
+
+					// Otherwise, fall through and act like the entire
+					// collection was replaced (see `NSKeyValueSetSetMutation`).
+					newObjects = value;
+
+				case NSKeyValueChangeSetting:
+					newObjects = RACConvertToArray(newObjects);
+					mutation = [[RACSettingMutation alloc] initWithObjects:newObjects];
+
+					break;
+
+				case NSKeyValueChangeInsertion:
+					newObjects = RACConvertToArray(newObjects);
+
+					if (indexes == nil) {
+						mutation = [[RACUnionMutation alloc] initWithObjects:newObjects];
+					} else {
+						mutation = [[RACInsertionMutation alloc] initWithObjects:newObjects indexes:indexes];
+					}
+
+					break;
+
+				case NSKeyValueChangeRemoval:
+					oldObjects = RACConvertToArray(oldObjects);
+
+					if (indexes == nil) {
+						mutation = [[RACMinusMutation alloc] initWithObjects:oldObjects];
+					} else {
+						mutation = [[RACRemovalMutation alloc] initWithObjects:oldObjects indexes:indexes];
+					}
+
+					break;
+
+				default:
+					NSCAssert(NO, @"Unrecognized KVO change kind: %lu", (unsigned long)kind);
+					__builtin_unreachable();
+			}
+
+			return RACTuplePack(value, mutation);
+		}]
+		setNameWithFormat:@"%@ -rac_valuesAndCollectionMutationsForKeyPath: %@", self.rac_description, keyPath];
 }
 
 - (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options {

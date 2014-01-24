@@ -54,19 +54,53 @@
 
 /// Creates a signal to observe the value at the given key path.
 ///
-/// The initial value is sent on subscription, the subsequent values are sent
-/// from whichever thread the change occured on, even if it doesn't have a valid
+/// The initial value is sent on subscription. Subsequent values are sent from
+/// whichever thread the change occured on, even if it doesn't have a valid
 /// scheduler.
 ///
 /// Returns a signal that immediately sends the receiver's current value at the
 /// given keypath, then any changes thereafter.
 - (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath;
 
+/// Creates a signal to observe the changes to the <RACCollection> at the given
+/// key path.
+///
+/// Note that granular changes (like insertion and deletion) will only be sent
+/// if changes to the given key path are made through KVC's to-many accessor
+/// methods. See:
+/// https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/KeyValueCoding/Articles/AccessorConventions.html
+///
+/// The initial value is sent on subscription. Subsequent values are sent from
+/// whichever thread the change occured on, even if it doesn't have a valid
+/// scheduler.
+///
+/// Examples
+///
+///     [[[self
+///         rac_valuesAndCollectionMutationsForKeyPath:@keypath(self.models)]
+///         reduceEach:^(id _, id<RACOrderedCollectionMutation> modelsMutation) {
+///             return [modelsMutation map:^(Model *model) {
+///                 return [[ViewModel alloc] initWithModel:model];
+///             }];
+///         }]
+///         subscribeNext:^(id<RACOrderedCollectionMutation> viewModelsMutation) {
+///             @strongify(self);
+///             
+///             NSMutableArray *VMs = [self mutableArrayValueForKey:@keypath(self.viewModels)];
+///             [viewModelsMutation mutateCollection:VMs];
+///         }];
+///
+/// Returns a signal that sends tuples containing the current collection at the
+/// key path and a <RACCollectionMutation> describing the change that occurred.
+/// If the collection is specifically a <RACOrderedCollection>, the collection
+/// mutation will conform to <RACOrderedCollectionMutation>.
+- (RACSignal *)rac_valuesAndCollectionMutationsForKeyPath:(NSString *)keyPath;
+
 /// Creates a signal to observe the changes of the given key path.
 ///
-/// The initial value is sent on subscription, the subsequent values are sent
-/// from whichever thread the change occured on, even if it doesn't have a valid
-/// scheduler.
+/// The initial value (if `NSKeyValueObservingOptionInitial` is specified) is
+/// sent on subscription. Subsequent values are sent from whichever thread the
+/// change occured on, even if it doesn't have a valid scheduler.
 ///
 /// Returns a signal that sends tuples containing the current value at the key
 /// path and the change dictionary for each KVO callback.

@@ -47,11 +47,6 @@
 			NSArray *newObjects = change[NSKeyValueChangeNewKey];
 			NSIndexSet *indexes = change[NSKeyValueChangeIndexesKey];
 
-			if (value != nil) {
-				NSCAssert([value conformsToProtocol:@protocol(RACCollection)], @"Value is not a collection: %@", value);
-				NSCAssert(indexes == nil || [value conformsToProtocol:@protocol(RACOrderedCollection)], @"Indexes given, but value is not an ordered collection: %@", value);
-			}
-
 			NSObject<RACCollectionMutation> *mutation;
 
 			switch (kind) {
@@ -87,10 +82,6 @@
 				default:
 					NSCAssert(NO, @"Unrecognized KVO change kind: %lu", (unsigned long)kind);
 					__builtin_unreachable();
-			}
-
-			if ([value conformsToProtocol:@protocol(RACOrderedCollection)]) {
-				NSCAssert([mutation conformsToProtocol:@protocol(RACOrderedCollectionMutation)], @"Mutation %@ is not ordered, but the affected collection is: %@", mutation, value);
 			}
 
 			return RACTuplePack(value, mutation);

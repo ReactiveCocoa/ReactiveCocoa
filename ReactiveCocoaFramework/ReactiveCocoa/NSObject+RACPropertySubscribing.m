@@ -27,6 +27,22 @@
 
 #import <libkern/OSAtomic.h>
 
+static NSArray *RACConvertToArray(id collection) {
+	if (collection == nil) return @[];
+	if ([collection isKindOfClass:NSArray.class]) return collection;
+	if ([collection isKindOfClass:NSSet.class]) return [collection allObjects];
+	if ([collection isKindOfClass:NSOrderedSet.class]) return [collection array];
+
+	NSCParameterAssert([collection conformsToProtocol:@protocol(NSFastEnumeration)]);
+
+	NSMutableArray *enumeratedObjects = [[NSMutableArray alloc] init];
+	for (id obj in collection) {
+		[enumeratedObjects addObject:obj];
+	}
+
+	return enumeratedObjects;
+}
+
 @implementation NSObject (RACPropertySubscribing)
 
 - (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
@@ -42,19 +58,25 @@
 	return [[[self
 		rac_valuesAndChangesForKeyPath:keyPath options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial observer:observer]
 		reduceEach:^(id value, NSDictionary *change) {
+			NSCAssert(value == nil || [value conformsToProtocol:@protocol(NSFastEnumeration)], @"Expected an enumerable collection at key path \"%@\", instead got %@", keyPath, value);
+
 			NSKeyValueChange kind = [change[NSKeyValueChangeKindKey] unsignedIntegerValue];
-			NSArray *oldObjects = change[NSKeyValueChangeOldKey];
-			NSArray *newObjects = change[NSKeyValueChangeNewKey];
 			NSIndexSet *indexes = change[NSKeyValueChangeIndexesKey];
+			id oldObjects = change[NSKeyValueChangeOldKey];
+			id newObjects = change[NSKeyValueChangeNewKey];
 
 			NSObject<RACCollectionMutation> *mutation;
 
 			switch (kind) {
 				case NSKeyValueChangeSetting:
-					mutation = [[RACSettingMutation alloc] initWithObjects:newObjects ?: @[]];
+					newObjects = RACConvertToArray(newObjects);
+					mutation = [[RACSettingMutation alloc] initWithObjects:newObjects];
+
 					break;
 
 				case NSKeyValueChangeInsertion:
+					newObjects = RACConvertToArray(newObjects);
+
 					if (indexes == nil) {
 						mutation = [[RACUnionMutation alloc] initWithObjects:newObjects];
 					} else {
@@ -64,6 +86,8 @@
 					break;
 
 				case NSKeyValueChangeRemoval:
+					oldObjects = RACConvertToArray(oldObjects);
+
 					if (indexes == nil) {
 						mutation = [[RACMinusMutation alloc] initWithObjects:oldObjects];
 					} else {
@@ -75,6 +99,9 @@
 				case NSKeyValueChangeReplacement:
 					// Only ordered collections generate replacements.
 					NSCAssert(indexes != nil, @"Replacement change %@ received for unordered collection: %@", change, value);
+
+					oldObjects = RACConvertToArray(oldObjects);
+					newObjects = RACConvertToArray(newObjects);
 
 					mutation = [[RACReplacementMutation alloc] initWithRemovedObjects:oldObjects addedObjects:newObjects indexes:indexes];
 					break;

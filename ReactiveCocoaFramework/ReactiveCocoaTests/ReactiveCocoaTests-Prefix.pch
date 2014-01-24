@@ -12,5 +12,3 @@
 #define EXP_SHORTHAND
 #import "Specta.h"
 #import "Expecta.h"
-
-#define WE_PROMISE_TO_MIGRATE_TO_REACTIVECOCOA_3_0

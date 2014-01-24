@@ -101,9 +101,12 @@ it(@"shouldn't resend values", ^{
 	
 	RACChannelTo(observer, string1) = terminal;
 	
-	RACSignal *sentValue = [terminal replayLast];
+	__block id value = nil;
+	[terminal subscribeNext:^(id x) {
+		value = x;
+	}];
+
 	observer.string1 = @"Test value";
-	id value = [sentValue asynchronousFirstOrDefault:nil success:NULL error:NULL];
 	expect(value).to.beNil();
 });
 

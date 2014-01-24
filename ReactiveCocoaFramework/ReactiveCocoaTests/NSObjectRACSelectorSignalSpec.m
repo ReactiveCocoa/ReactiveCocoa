@@ -38,7 +38,7 @@ describe(@"RACTestObject", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		__block id value;
 		[[object rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(RACTuple *x) {
-			value = x.first;
+			value = x[0];
 		}];
 
 		[object lifeIsGood:@42];
@@ -85,13 +85,13 @@ describe(@"RACTestObject", ^{
 		RACTestObject *object1 = [[RACTestObject alloc] init];
 		__block id value1;
 		[[object1 rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(RACTuple *x) {
-			value1 = x.first;
+			value1 = x[0];
 		}];
 
 		RACTestObject *object2 = [[RACTestObject alloc] init];
 		__block id value2;
 		[[object2 rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(RACTuple *x) {
-			value2 = x.first;
+			value2 = x[0];
 		}];
 
 		[object1 lifeIsGood:@42];
@@ -107,8 +107,8 @@ describe(@"RACTestObject", ^{
 		__block id value1;
 		__block id value2;
 		[[object rac_signalForSelector:@selector(combineObjectValue:andSecondObjectValue:)] subscribeNext:^(RACTuple *x) {
-			value1 = x.first;
-			value2 = x.second;
+			value1 = x[0];
+			value2 = x[1];
 		}];
 
 		expect([object combineObjectValue:@42 andSecondObjectValue:@"foo"]).to.equal(@"42: foo");
@@ -121,8 +121,8 @@ describe(@"RACTestObject", ^{
 		__block id key;
 		__block id value;
 		[[object rac_signalForSelector:@selector(setObject:forKey:)] subscribeNext:^(RACTuple *x) {
-			value = x.first;
-			key = x.second;
+			value = x[0];
+			key = x[1];
 		}];
 
 		[object performSelector:@selector(setObject:forKey:) withObject:@YES withObject:@"Winner"];
@@ -139,8 +139,8 @@ describe(@"RACTestObject", ^{
 		__block id key;
 		__block id value;
 		[[object rac_signalForSelector:@selector(setObjectValue:andSecondObjectValue:)] subscribeNext:^(RACTuple *x) {
-			value = x.first;
-			key = x.second;
+			value = x[0];
+			key = x[1];
 		}];
 
 		[object setObjectValue:@YES andSecondObjectValue:@"Winner"];
@@ -159,8 +159,8 @@ describe(@"RACTestObject", ^{
 		__block id key;
 		__block id value;
 		[[object rac_signalForSelector:@selector(setObjectValue:andSecondObjectValue:)] subscribeNext:^(RACTuple *x) {
-			value = x.first;
-			key = x.second;
+			value = x[0];
+			key = x[1];
 		}];
 
 		[RACObserve(object, objectValue) subscribe:nil];
@@ -219,7 +219,7 @@ describe(@"RACTestObject", ^{
 
 		__block id value;
 		[[object rac_signalForSelector:@selector(setIntegerValue:)] subscribeNext:^(RACTuple *x) {
-			value = x.first;
+			value = x[0];
 		}];
 
 		object.integerValue = 42;
@@ -256,7 +256,7 @@ it(@"should work on a class that already overrides -forwardInvocation:", ^{
 
 	__block id value;
 	[[object rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(RACTuple *x) {
-		value = x.first;
+		value = x[0];
 	}];
 
 	[object lifeIsGood:@42];
@@ -297,12 +297,12 @@ describe(@"two classes in the same hierarchy", ^{
 		expect([superclassObj combineObjectValue:@"foo" andIntegerValue:42]).to.equal(@"foo: 42");
 
 		NSArray *expectedValues = @[ @"foo", @42 ];
-		expect(superclassTuple.allObjects).to.equal(expectedValues);
+		expect(superclassTuple.array).to.equal(expectedValues);
 
 		expect([subclassObj combineObjectValue:@"foo" andIntegerValue:42]).to.equal(@"fooSUBCLASS: 42");
 
 		expectedValues = @[ @"foo", @42 ];
-		expect(subclassTuple.allObjects).to.equal(expectedValues);
+		expect(subclassTuple.array).to.equal(expectedValues);
 	});
 
 	it(@"should not collide when the superclass is invoked asynchronously", ^{
@@ -318,14 +318,14 @@ describe(@"two classes in the same hierarchy", ^{
 		expect(superclassObj.hasInvokedSetObjectValueAndSecondObjectValue).to.beTruthy();
 
 		NSArray *expectedValues = @[ @"foo", @"42" ];
-		expect(superclassTuple.allObjects).to.equal(expectedValues);
+		expect(superclassTuple.array).to.equal(expectedValues);
 
 		[subclassObj setObjectValue:@"foo" andSecondObjectValue:@"42"];
 		expect(subclassObj.hasInvokedSetObjectValueAndSecondObjectValue).to.beFalsy();
 		expect(subclassObj.hasInvokedSetObjectValueAndSecondObjectValue).will.beTruthy();
 
 		expectedValues = @[ @"foo", @"42" ];
-		expect(subclassTuple.allObjects).to.equal(expectedValues);
+		expect(subclassTuple.array).to.equal(expectedValues);
 	});
 });
 
@@ -344,7 +344,7 @@ describe(@"-rac_signalForSelector:fromProtocol", ^{
 	it(@"should not clobber a required method already implemented", ^{
 		__block id value;
 		[[object rac_signalForSelector:@selector(lifeIsGood:) fromProtocol:protocol] subscribeNext:^(RACTuple *x) {
-			value = x.first;
+			value = x[0];
 		}];
 
 		[object lifeIsGood:@42];
@@ -366,7 +366,7 @@ describe(@"-rac_signalForSelector:fromProtocol", ^{
 	it(@"should inject a required method", ^{
 		__block id value;
 		[[object rac_signalForSelector:@selector(requiredMethod:) fromProtocol:protocol] subscribeNext:^(RACTuple *x) {
-			value = x.first;
+			value = x[0];
 		}];
 
 		expect([object requiredMethod:42]).to.beFalsy();

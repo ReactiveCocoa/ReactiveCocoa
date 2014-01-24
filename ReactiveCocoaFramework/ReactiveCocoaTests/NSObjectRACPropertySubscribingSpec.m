@@ -11,7 +11,7 @@
 
 #import "NSObject+RACPropertySubscribing.h"
 #import "RACDisposable.h"
-#import "RACSignal.h"
+#import "RACSignal+Operations.h"
 
 SpecBegin(NSObjectRACPropertySubscribing)
 
@@ -149,6 +149,51 @@ describe(@"-rac_valuesAndChangesForKeyPath:options:observer:", ^{
 		}];
 
 		expect(completed).to.beTruthy();
+	});
+});
+
+describe(@"RACObserve", ^{
+	__block RACTestObject *testObject;
+
+	beforeEach(^{
+		testObject = [[RACTestObject alloc] init];
+	});
+
+	it(@"should work with object properties", ^{
+		NSArray *expected = @[ @"hello", @"world" ];
+		testObject.objectValue = expected[0];
+
+		NSMutableArray *valuesReceived = [NSMutableArray array];
+		[RACObserve(testObject, objectValue) subscribeNext:^(id x) {
+			[valuesReceived addObject:x];
+		}];
+
+		testObject.objectValue = expected[1];
+
+		expect(valuesReceived).to.equal(expected);
+	});
+
+	it(@"should work with non-object properties", ^{
+		NSArray *expected = @[ @42, @43 ];
+		testObject.integerValue = [expected[0] integerValue];
+
+		NSMutableArray *valuesReceived = [NSMutableArray array];
+		[RACObserve(testObject, integerValue) subscribeNext:^(id x) {
+			[valuesReceived addObject:x];
+		}];
+
+		testObject.integerValue = [expected[1] integerValue];
+
+		expect(valuesReceived).to.equal(expected);
+	});
+
+	it(@"should read the initial value upon subscription", ^{
+		testObject.objectValue = @"foo";
+
+		RACSignal *signal = RACObserve(testObject, objectValue);
+		testObject.objectValue = @"bar";
+
+		expect([signal first]).to.equal(@"bar");
 	});
 });
 

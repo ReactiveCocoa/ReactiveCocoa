@@ -125,7 +125,9 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 			}
 		};
 
-		[subscriber.disposable addDisposable:[self subscribeNext:^(id x) {
+		[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+			[subscriber.disposable addDisposable:disposable];
+		} next:^(id x) {
 			@synchronized (selfValues) {
 				[selfValues addObject:x ?: RACTupleNil.tupleNil];
 				sendNext();
@@ -137,9 +139,11 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 				selfCompleted = YES;
 				sendCompletedIfNecessary();
 			}
-		}]];
+		}];
 
-		[subscriber.disposable addDisposable:[signal subscribeNext:^(id x) {
+		[signal subscribeSavingDisposable:^(RACDisposable *disposable) {
+			[subscriber.disposable addDisposable:disposable];
+		} next:^(id x) {
 			@synchronized (selfValues) {
 				[otherValues addObject:x ?: RACTupleNil.tupleNil];
 				sendNext();
@@ -151,7 +155,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 				otherCompleted = YES;
 				sendCompletedIfNecessary();
 			}
-		}]];
+		}];
 	}] setNameWithFormat:@"[%@] -zipWith: %@", self.name, signal];
 }
 

@@ -25,10 +25,8 @@ it(@"should fetch a JSON file", ^{
 	expect(error).to.beNil();
 	expect(result).to.beKindOf(RACTuple.class);
 
-	NSURLResponse *response = result.first;
+	RACTupleUnpack(NSURLResponse *response, NSData *data) = result;
 	expect(response).to.beKindOf(NSURLResponse.class);
-
-	NSData *data = result.second;
 	expect(data).to.beKindOf(NSData.class);
 	expect(data).to.equal([NSData dataWithContentsOfURL:fileURL]);
 });

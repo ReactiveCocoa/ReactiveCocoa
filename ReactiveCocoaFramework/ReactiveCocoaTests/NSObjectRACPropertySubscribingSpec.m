@@ -289,7 +289,7 @@ describe(@"-rac_valuesAndCollectionMutationsForKeyPath:observer:", ^{
 
 	describe(@"replacement", ^{
 		it(@"should send RACSettingMutation for an unordered collection", ^{
-			NSSet *newValues = [NSSet setWithObjects:@"foo", @"bar", nil];
+			NSSet *newValues = [NSSet setWithObjects:@"foo", @"fizz", nil];
 
 			mutateSet(NSKeyValueSetSetMutation, newValues, ^{
 				[object.setValue setSet:newValues];

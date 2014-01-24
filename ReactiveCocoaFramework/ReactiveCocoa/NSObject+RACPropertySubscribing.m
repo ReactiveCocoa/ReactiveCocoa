@@ -68,6 +68,21 @@ static NSArray *RACConvertToArray(id collection) {
 			NSObject<RACCollectionMutation> *mutation;
 
 			switch (kind) {
+				case NSKeyValueChangeReplacement:
+					if (indexes != nil) {
+						// Only use `RACReplacementMutation` for ordered
+						// collections.
+						oldObjects = RACConvertToArray(oldObjects);
+						newObjects = RACConvertToArray(newObjects);
+
+						mutation = [[RACReplacementMutation alloc] initWithRemovedObjects:oldObjects addedObjects:newObjects indexes:indexes];
+						break;
+					}
+
+					// Otherwise, fall through and act like the entire
+					// collection was replaced (see `NSKeyValueSetSetMutation`).
+					newObjects = value;
+
 				case NSKeyValueChangeSetting:
 					newObjects = RACConvertToArray(newObjects);
 					mutation = [[RACSettingMutation alloc] initWithObjects:newObjects];
@@ -94,16 +109,6 @@ static NSArray *RACConvertToArray(id collection) {
 						mutation = [[RACRemovalMutation alloc] initWithObjects:oldObjects indexes:indexes];
 					}
 
-					break;
-
-				case NSKeyValueChangeReplacement:
-					// Only ordered collections generate replacements.
-					NSCAssert(indexes != nil, @"Replacement change %@ received for unordered collection: %@", change, value);
-
-					oldObjects = RACConvertToArray(oldObjects);
-					newObjects = RACConvertToArray(newObjects);
-
-					mutation = [[RACReplacementMutation alloc] initWithRemovedObjects:oldObjects addedObjects:newObjects indexes:indexes];
 					break;
 
 				default:

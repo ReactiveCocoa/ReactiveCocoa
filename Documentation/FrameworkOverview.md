@@ -40,7 +40,7 @@ problematic if the signal has side effects or the work is expensive (for
 example, sending a network request).
 
 To share the values of a signal without duplicating its side effects, use
-a [subject](#subjects) or a [promise](#promises).
+a [subject](#subjects).
 
 ### Subscription
 
@@ -146,7 +146,6 @@ On iOS, only queue hops from within RAC and your project will be captured (but
 the information is still valuable).
 
 [Design Guidelines]: DesignGuidelines.md
-[Futures and promises]: http://en.wikipedia.org/wiki/Futures_and_promises
 [Memory Management]: MemoryManagement.md
 [RACAction]: ../ReactiveCocoaFramework/ReactiveCocoa/RACAction.h
 [RACBacktrace]: ../ReactiveCocoaFramework/ReactiveCocoa/RACBacktrace.h

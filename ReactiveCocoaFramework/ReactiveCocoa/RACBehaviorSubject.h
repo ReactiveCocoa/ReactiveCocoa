@@ -9,7 +9,7 @@
 #import "RACDeprecated.h"
 #import "RACSubject.h"
 
-RACDeprecated("Use a plain RACSignal or -[RACSignal promise] instead")
+RACDeprecated("Bind to a property with RAC() and give it a default value instead")
 @interface RACBehaviorSubject : RACSubject
 
 + (instancetype)behaviorSubjectWithDefaultValue:(id)value;

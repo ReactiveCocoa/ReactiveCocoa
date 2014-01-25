@@ -16,6 +16,8 @@
 }
 
 - (NSMethodSignature *)methodSignatureForSelector:(SEL)selector {
+	NSParameterAssert(selector != NULL);
+
 	NSMethodSignature *signature = [super methodSignatureForSelector:selector];
 	if (signature != nil) return signature;
 

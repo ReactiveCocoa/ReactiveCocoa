@@ -126,8 +126,6 @@ static void RACSwizzleGetClass(Class class, Class statedClass) {
 }
 
 static void RACSwizzleMethodSignatureForSelector(Class class) {
-	SEL selector = @selector(methodSignatureForSelector:);
-	Method methodSignatureForSelectorMethod = class_getInstanceMethod(class, selector);
 	IMP newIMP = imp_implementationWithBlock(^(id self, SEL selector) {
 		// Don't send the -class message to the receiver because we've changed
 		// that to return the original class.
@@ -139,16 +137,19 @@ static void RACSwizzleMethodSignatureForSelector(Class class) {
 			//
 			// Call the original class' -methodSignatureForSelector:.
 			struct objc_super target = {
-				.super_class = class_getSuperclass(actualClass),
+				.super_class = class_getSuperclass(class),
 				.receiver = self,
 			};
-			NSMethodSignature * (*messageSend)(struct objc_super *, SEL) = (__typeof__(messageSend))objc_msgSendSuper;
-			return messageSend(&target, @selector(methodSignatureForSelector:));
+			NSMethodSignature * (*messageSend)(struct objc_super *, SEL, SEL) = (__typeof__(messageSend))objc_msgSendSuper;
+			return messageSend(&target, @selector(methodSignatureForSelector:), selector);
 		}
 
 		char const *encoding = method_getTypeEncoding(method);
 		return [NSMethodSignature signatureWithObjCTypes:encoding];
 	});
+
+	SEL selector = @selector(methodSignatureForSelector:);
+	Method methodSignatureForSelectorMethod = class_getInstanceMethod(class, selector);
 	class_replaceMethod(class, selector, newIMP, method_getTypeEncoding(methodSignatureForSelectorMethod));
 }
 

@@ -251,23 +251,43 @@ it(@"should swizzle an NSObject method", ^{
 	expect(value).to.equal([[RACTuple alloc] init]);
 });
 
-it(@"should work on a class that already overrides -forwardInvocation:", ^{
-	RACSubclassObject *object = [[RACSubclassObject alloc] init];
+describe(@"a class that already overrides -forwardInvocation:", ^{
+	it(@"should invoke the superclass' implementation", ^{
+		RACSubclassObject *object = [[RACSubclassObject alloc] init];
 
-	__block id value;
-	[[object rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(RACTuple *x) {
-		value = x[0];
-	}];
+		__block id value;
+		[[object rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(RACTuple *x) {
+			value = x[0];
+		}];
 
-	[object lifeIsGood:@42];
-	expect(value).to.equal(@42);
+		[object lifeIsGood:@42];
+		expect(value).to.equal(@42);
 
-	expect(object.forwardedSelector).to.beNil();
+		expect(object.forwardedSelector).to.beNil();
 
-	[object performSelector:@selector(allObjects)];
+		[object performSelector:@selector(allObjects)];
 
-	expect(value).to.equal(@42);
-	expect(object.forwardedSelector).to.equal(@selector(allObjects));
+		expect(value).to.equal(@42);
+		expect(object.forwardedSelector).to.equal(@selector(allObjects));
+	});
+
+	it(@"should not infinite recurse when KVO'd after RAC swizzled", ^{
+		RACSubclassObject *object = [[RACSubclassObject alloc] init];
+
+		__block id value;
+		[[object rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(RACTuple *x) {
+			value = x[0];
+		}];
+
+		[RACObserve(object, objectValue) subscribe:nil];
+
+		[object lifeIsGood:@42];
+		expect(value).to.equal(@42);
+
+		expect(object.forwardedSelector).to.beNil();
+		[object performSelector:@selector(allObjects)];
+		expect(object.forwardedSelector).to.equal(@selector(allObjects));
+	});
 });
 
 describe(@"two classes in the same hierarchy", ^{
@@ -400,12 +420,12 @@ describe(@"class reporting", ^{
 
 	it(@"should report the original class when it's KVO'd after dynamically subclassing", ^{
 		[object rac_signalForSelector:@selector(lifeIsGood:)];
-		RACObserve(object, objectValue);
+		[RACObserve(object, objectValue) subscribe:nil];
 		expect(object.class).to.beIdenticalTo(originalClass);
 	});
 
 	it(@"should report the original class when it's KVO'd before dynamically subclassing", ^{
-		RACObserve(object, objectValue);
+		[RACObserve(object, objectValue) subscribe:nil];
 		[object rac_signalForSelector:@selector(lifeIsGood:)];
 		expect(object.class).to.beIdenticalTo(originalClass);
 	});

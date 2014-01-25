@@ -832,10 +832,10 @@ typedef enum : NSUInteger {
 - (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory reduce:(id (^)(id running, id next))reduceBlock RACDeprecated("Use +defer: and -aggregateWithStart:reduce: instead");
 - (RACSignal *)then:(RACSignal * (^)(void))block RACDeprecated("Use -ignoreValues followed by -concat: with +defer: instead");
 - (RACMulticastConnection *)publish RACDeprecated("Send events to a shared RACSubject instead");
-- (RACMulticastConnection *)multicast:(RACSubject *)subject RACDeprecated("Use -promiseOnScheduler: or send events to a shared RACSubject instead");
-- (RACSignal *)replay RACDeprecated("Use -promiseOnScheduler: instead");
-- (RACSignal *)replayLast RACDeprecated("Use -takeLast: and -promiseOnScheduler: instead");
-- (RACSignal *)replayLazily RACDeprecated("Use -promiseOnScheduler: instead");
+- (RACMulticastConnection *)multicast:(RACSubject *)subject RACDeprecated("Send events to a shared RACSubject instead");
+- (RACSignal *)replay RACDeprecated("Bind to a property with RAC() instead");
+- (RACSignal *)replayLast RACDeprecated("Bind to a property with RAC() instead");
+- (RACSignal *)replayLazily RACDeprecated("Bind to a property with RAC() or use -shareWhileActive instead");
 - (NSArray *)toArray RACDeprecated("Renamed to -array");
 
 @end

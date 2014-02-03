@@ -48,7 +48,7 @@
 #pragma mark Naming
 
 - (instancetype)setNameWithFormat:(NSString *)format, ... {
-#ifdef DEBUG
+#ifdef RAC_DEBUG_SIGNAL_NAMES
 	NSCParameterAssert(format != nil);
 
 	va_list args;

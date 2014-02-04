@@ -24,7 +24,7 @@ If you want to learn more, we recommend these resources, roughly in order:
     questions and [GitHub issues](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?labels=question&state=closed)
  1. The rest of the [Documentation][] folder
  
-If you have any further questions feel free to [file an issue](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/new), making sure to add the `question` label. 
+If you have any further questions, please feel free to [file an issue](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/new). 
 
 ## Introduction
 

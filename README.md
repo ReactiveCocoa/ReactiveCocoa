@@ -23,6 +23,8 @@ If you want to learn more, we recommend these resources, roughly in order:
  1. Previously answered [Stack Overflow](https://github.com/ReactiveCocoa/ReactiveCocoa/wiki)
     questions and [GitHub issues](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?labels=question&state=closed)
  1. The rest of the [Documentation][] folder
+ 1. [Functional Reactive Programming on iOS](https://leanpub.com/iosfrp/) 
+    (eBook)
  
 If you have any further questions, please feel free to [file an issue](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/new). 
 
@@ -510,7 +512,8 @@ podspecs](https://github.com/CocoaPods/Specs/tree/master/ReactiveCocoa) that
 have been generously contributed by third parties.
 
 To see a project already set up with RAC, check out the [Mac][GHAPIDemo] or
-[iOS][RACiOSDemo] demos.
+[iOS][RACiOSDemo] demos, or [C-41][C41], a full-featured iOS app written in 
+ReactiveCocoa.
 
 ## More Info
 
@@ -553,3 +556,4 @@ some more resources for learning about FRP:
 [RAC]: ReactiveCocoaFramework/ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h
 [RACiOSDemo]: https://github.com/ReactiveCocoa/RACiOSDemo
 [futures and promises]: http://en.wikipedia.org/wiki/Futures_and_promises
+[C41]: https://github.com/AshFurrow/C-41

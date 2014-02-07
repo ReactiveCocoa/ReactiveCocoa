@@ -24,7 +24,7 @@
 			@strongify(self);
 			return [RACSignal return:self];
 		}]
-		concat:[self rac_signalForControlEvents:UIControlEventEditingChanged]]
+		concat:[self rac_signalForControlEvents:UIControlEventEditingChanged|UIControlEventEditingDidBegin]]
 		map:^(UITextField *x) {
 			return x.text;
 		}]

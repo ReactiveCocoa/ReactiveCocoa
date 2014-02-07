@@ -33,7 +33,7 @@
 }
 
 - (RACChannelTerminal *)rac_newTextChannel {
-	return [self rac_channelForControlEvents:UIControlEventEditingChanged key:@keypath(self.text) nilValue:@""];
+	return [self rac_channelForControlEvents:UIControlEventEditingChanged|UIControlEventEditingDidBegin key:@keypath(self.text) nilValue:@""];
 }
 
 @end

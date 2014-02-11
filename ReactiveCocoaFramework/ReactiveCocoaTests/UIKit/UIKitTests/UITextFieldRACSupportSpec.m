@@ -29,6 +29,19 @@ describe(@"-rac_textSignal", ^{
 		textField.text = @"bar";
 		expect([textSignal first]).to.equal(@"bar");
 	});
+
+	it(@"should clear text upon editing", ^{
+		textField.text = @"foo";
+		textField.clearsOnBeginEditing = YES;
+
+		RACSignal *textSignal = textField.rac_textSignal;
+		[[textSignal skip:1] subscribeNext:^(id x) {
+			expect([textSignal first]).to.equal(@"");
+		}];
+
+		expect([textSignal first]).to.equal(@"foo");
+		[textField becomeFirstResponder];
+	});
 });
 
 SpecEnd

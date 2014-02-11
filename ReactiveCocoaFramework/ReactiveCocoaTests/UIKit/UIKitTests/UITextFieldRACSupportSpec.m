@@ -34,13 +34,19 @@ describe(@"-rac_textSignal", ^{
 		textField.text = @"foo";
 		textField.clearsOnBeginEditing = YES;
 
-		RACSignal *textSignal = textField.rac_textSignal;
-		[[textSignal skip:1] subscribeNext:^(id x) {
-			expect([textSignal first]).to.equal(@"");
-		}];
+		UIWindow *win = [UIWindow new];
+		[win addSubview:textField];
 
-		expect([textSignal first]).to.equal(@"foo");
+		__block NSString *str = @"bar";
+
+		RACSignal *textSignal = textField.rac_textSignal;
+		[textSignal subscribeNext:^(id x) {
+			str = x;
+		}];
+		expect(str).to.equal(@"foo");
+
 		[textField becomeFirstResponder];
+		expect(str).to.equal(@"");
 	});
 });
 

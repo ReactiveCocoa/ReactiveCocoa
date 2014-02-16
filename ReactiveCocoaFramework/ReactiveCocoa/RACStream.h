@@ -82,7 +82,7 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 /// Sets the name of the receiver to the given format string.
 ///
 /// This is for debugging purposes only, and won't do anything unless the
-/// RAC_DEBUG_SIGNAL_NAMES preprocessor macro is defined.
+/// RAC_DEBUG_SIGNAL_NAMES environment variable is set.
 ///
 /// Returns the receiver, for easy method chaining.
 - (instancetype)setNameWithFormat:(NSString *)format, ... NS_FORMAT_FUNCTION(1, 2);

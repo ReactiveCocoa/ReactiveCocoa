@@ -43,7 +43,7 @@
 			return invocation.rac_returnValue;
 		}]
 		replayLast]
-		setNameWithFormat:@"%@ -rac_liftSelector: %@ withSignalsFromArray: %@", [self rac_description], NSStringFromSelector(selector), signals];
+		setNameWithFormat:@"%@ -rac_liftSelector: %s withSignalsFromArray: %@", [self rac_description], sel_getName(selector), signals];
 }
 
 - (RACSignal *)rac_liftSelector:(SEL)selector withSignals:(RACSignal *)firstSignal, ... {
@@ -62,7 +62,7 @@
 
 	return [[self
 		rac_liftSelector:selector withSignalsFromArray:signals]
-		setNameWithFormat:@"%@ -rac_liftSelector: %@ withSignals: %@", [self rac_description], NSStringFromSelector(selector), signals];
+		setNameWithFormat:@"%@ -rac_liftSelector: %s withSignals: %@", [self rac_description], sel_getName(selector), signals];
 }
 
 @end

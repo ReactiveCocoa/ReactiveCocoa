@@ -154,7 +154,7 @@ NSString * const RACSchedulerCurrentSchedulerKey = @"RACSchedulerCurrentSchedule
 			// This doesn't actually need to be __block qualified, but Clang
 			// complains otherwise. :C
 			__block NSLock *lock = [[NSLock alloc] init];
-			lock.name = [NSString stringWithFormat:@"%@ %@", self, NSStringFromSelector(_cmd)];
+			lock.name = [NSString stringWithFormat:@"%@ %s", self, sel_getName(_cmd)];
 
 			__block NSUInteger rescheduleCount = 0;
 

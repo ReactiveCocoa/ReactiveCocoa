@@ -8,6 +8,8 @@
 
 #import "RACSubscriberExamples.h"
 
+#import "NSObject+RACDeallocating.h"
+#import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSubject.h"
 #import "RACSubscriber.h"
@@ -160,6 +162,22 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 
 			[disposableSignal subscribe:subscriber];
 			expect(disposed).to.beTruthy();
+		});
+	});
+
+	describe(@"memory management", ^{
+		it(@"should not retain disposed disposables", ^{
+			__block BOOL disposableDeallocd = NO;
+			@autoreleasepool {
+				RACDisposable *disposable __attribute__((objc_precise_lifetime)) = [RACDisposable disposableWithBlock:^{}];
+				[disposable.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+					disposableDeallocd = YES;
+				}]];
+
+				[subscriber didSubscribeWithDisposable:disposable];
+				[disposable dispose];
+			}
+			expect(disposableDeallocd).to.beTruthy();
 		});
 	});
 });

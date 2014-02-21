@@ -87,7 +87,7 @@ header:
 }];
 ```
 
-_(Replace `__weak` or `@weakify` with `__unsafe_unretained` or `@unsafeify`,
+_(Replace_ `__weak` _or_ `@weakify` _with_ `__unsafe_unretained` _or_ `@unsafeify` _,
 respectively, if the object doesn't support weak references.)_
 
 However, [there's probably a better pattern you could use instead][avoid-explicit-subscriptions-and-disposal]. For

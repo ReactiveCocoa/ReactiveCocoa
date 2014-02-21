@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class RACDisposable;
+@class RACCompoundDisposable;
 
 /// Represents any object which can directly receive values from a RACSignal.
 ///
@@ -46,6 +46,6 @@
 /// A subscriber may receive multiple disposables if it gets subscribed to
 /// multiple signals; however, any error or completed events must terminate _all_
 /// subscriptions.
-- (void)didSubscribeWithDisposable:(RACDisposable *)disposable;
+- (void)didSubscribeWithDisposable:(RACCompoundDisposable *)disposable;
 
 @end

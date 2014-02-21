@@ -169,7 +169,7 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 		it(@"should not retain disposed disposables", ^{
 			__block BOOL disposableDeallocd = NO;
 			@autoreleasepool {
-				RACDisposable *disposable __attribute__((objc_precise_lifetime)) = [RACDisposable disposableWithBlock:^{}];
+				RACCompoundDisposable *disposable __attribute__((objc_precise_lifetime)) = [RACCompoundDisposable disposableWithBlock:^{}];
 				[disposable.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 					disposableDeallocd = YES;
 				}]];

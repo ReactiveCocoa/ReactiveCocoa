@@ -110,7 +110,7 @@
 	}];
 }
 
-- (void)didSubscribeWithDisposable:(RACDisposable *)d {
+- (void)didSubscribeWithDisposable:(RACCompoundDisposable *)d {	
 	[self.disposable addDisposable:d];
 }
 

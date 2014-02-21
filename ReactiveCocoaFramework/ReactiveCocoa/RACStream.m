@@ -10,17 +10,11 @@
 #import "NSObject+RACDescription.h"
 #import "RACBlockTrampoline.h"
 #import "RACTuple.h"
+#import <objc/runtime.h>
 
-@implementation RACStream
-
-#pragma mark Lifecycle
-
-- (id)init {
-	self = [super init];
-	if (self == nil) return nil;
-
-	self.name = @"";
-	return self;
+@implementation RACStream {
+	NSString *_name;
+	NSString *(^_nameBlock)();
 }
 
 #pragma mark Abstract methods
@@ -47,6 +41,25 @@
 
 #pragma mark Naming
 
+- (NSString *)name {
+	NSString *name = nil;
+	@synchronized(self) {
+		if (_nameBlock != nil) {
+			_name = _nameBlock();
+			_nameBlock = nil;
+		}
+		name = _name;
+	}
+	return name;
+}
+
+- (void)setName:(NSString *)name {
+	@synchronized(self) {
+		_name = name;
+		_nameBlock = nil;
+	}
+}
+
 - (instancetype)setNameWithFormat:(NSString *)format, ... {
 	if (getenv("RAC_DEBUG_SIGNAL_NAMES") == NULL) return self;
 
@@ -59,6 +72,14 @@
 	va_end(args);
 
 	self.name = str;
+	return self;
+}
+
+- (instancetype)setNameBlock:(NSString *(^)())nameBlock {
+	@synchronized(self) {
+		_nameBlock = nameBlock;
+		_name = nil;
+	}
 	return self;
 }
 

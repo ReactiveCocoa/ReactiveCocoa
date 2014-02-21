@@ -87,6 +87,13 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 /// Returns the receiver, for easy method chaining.
 - (instancetype)setNameWithFormat:(NSString *)format, ... NS_FORMAT_FUNCTION(1, 2);
 
+/// Sets the name block of the receiver.
+///
+/// A subsequent call to `name` will execute the given block.
+///
+/// Returns the receiver, for easy method chaining.
+- (instancetype)setNameBlock:(NSString *(^)())nameBlock;
+
 @end
 
 /// Operations built on the RACStream primitives.

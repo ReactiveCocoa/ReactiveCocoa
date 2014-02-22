@@ -139,8 +139,6 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 		RACSubject *subject = [RACSubject subject];
 		expect(subject).notTo.beNil();
 
-		__block BOOL deallocd = NO;
-
 		@autoreleasepool {
 			@autoreleasepool {
 				RACSignal *intermediateSignal = [subject map:^(NSNumber *num) {
@@ -148,10 +146,6 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 				}];
 
 				expect(intermediateSignal).notTo.beNil();
-
-				[intermediateSignal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-					deallocd = YES;
-				}]];
 
 				setupBlock(testObject, @keypath(testObject.integerValue), nil, intermediateSignal);
 			}
@@ -161,15 +155,12 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 			[NSRunLoop.mainRunLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate date]];
 		}
 
-		expect(deallocd).to.beFalsy();
-
 		[subject sendNext:@5];
 		expect(testObject.integerValue).to.equal(6);
 
 		[subject sendNext:@6];
 		expect(testObject.integerValue).to.equal(7);
 
-		expect(deallocd).to.beFalsy();
 		[subject sendCompleted];
 
 		// Can't test deallocd again, because it's legal for the chain to be

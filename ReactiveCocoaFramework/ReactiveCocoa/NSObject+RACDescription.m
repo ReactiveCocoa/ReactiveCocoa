@@ -22,10 +22,11 @@
 
 - (NSString *(^)())rac_deferredDescription {
 	@weakify(self);
-	NSString *className = [NSString stringWithFormat:@"<%@>", NSStringFromClass(self.class)];
+	Class class = self.class;
+	void *pointer = (__bridge void *)self;
 	return ^{
 		@strongify(self);
-		return self ? self.description : className;
+		return self ? self.description : [NSString stringWithFormat:@"<%@: %p>", NSStringFromClass(class), pointer];
 	};
 }
 

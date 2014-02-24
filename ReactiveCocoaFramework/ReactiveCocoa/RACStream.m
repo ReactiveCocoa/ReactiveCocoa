@@ -45,7 +45,7 @@
 	NSString *name = nil;
 	@synchronized(self) {
 		if (_nameBlock != nil) {
-			_name = _nameBlock();
+			_name = [_nameBlock() copy];
 			_nameBlock = nil;
 		}
 		name = _name;
@@ -55,7 +55,7 @@
 
 - (void)setName:(NSString *)name {
 	@synchronized(self) {
-		_name = name;
+		_name = [name copy];
 		_nameBlock = nil;
 	}
 }
@@ -77,7 +77,7 @@
 
 - (instancetype)setNameBlock:(NSString *(^)())nameBlock {
 	@synchronized(self) {
-		_nameBlock = nameBlock;
+		_nameBlock = [nameBlock copy];
 		_name = nil;
 	}
 	return self;

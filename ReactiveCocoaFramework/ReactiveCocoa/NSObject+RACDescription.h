@@ -17,4 +17,10 @@
 /// unless the RAC_DEBUG_SIGNAL_NAMES environment variable is set.
 - (NSString *)rac_description;
 
+/// Returns a block that returns the receiver's description or its class name.
+///
+/// The returned block references the receiver weakly, and will return only the
+/// class name if the receiver was deallocated.
+- (NSString *(^)())rac_deferredDescription;
+
 @end

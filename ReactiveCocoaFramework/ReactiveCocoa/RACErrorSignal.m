@@ -25,11 +25,9 @@
 	RACErrorSignal *signal = [[self alloc] init];
 	signal->_error = error;
 
-#ifdef DEBUG
-	[signal setNameWithFormat:@"+error: %@", error];
-#else
-	signal.name = @"+error:";
-#endif
+	[signal setNameBlock:^{
+		return [NSString stringWithFormat:@"+error: %@", error];
+	}];
 
 	return signal;
 }

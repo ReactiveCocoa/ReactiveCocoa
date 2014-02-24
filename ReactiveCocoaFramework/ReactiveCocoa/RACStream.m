@@ -97,14 +97,18 @@
 
 			return stream;
 		};
-	}] setNameWithFormat:@"[%@] -flattenMap:", self.name];
+	}] setNameBlock:^{
+		return [NSString stringWithFormat:@"[%@] -flattenMap:", self.name];
+	}];
 }
 
 - (instancetype)flatten {
 	__weak RACStream *stream __attribute__((unused)) = self;
 	return [[self flattenMap:^(id value) {
 		return value;
-	}] setNameWithFormat:@"[%@] -flatten", self.name];
+	}] setNameBlock:^{
+		return [NSString stringWithFormat:@"[%@] -flatten", self.name];
+	}];
 }
 
 - (instancetype)map:(id (^)(id value))block {
@@ -114,13 +118,17 @@
 	
 	return [[self flattenMap:^(id value) {
 		return [class return:block(value)];
-	}] setNameWithFormat:@"[%@] -map:", self.name];
+	}] setNameBlock:^{
+		return [NSString stringWithFormat:@"[%@] -map:", self.name];
+	}];
 }
 
 - (instancetype)mapReplace:(id)object {
 	return [[self map:^(id _) {
 		return object;
-	}] setNameWithFormat:@"[%@] -mapReplace: %@", self.name, [object rac_description]];
+	}] setNameBlock:^{
+		return [NSString stringWithFormat:@"[%@] -mapReplace: %@", self.name, object];
+	}];
 }
 
 - (instancetype)combinePreviousWithStart:(id)start reduce:(id (^)(id previous, id next))reduceBlock {
@@ -134,7 +142,9 @@
 		map:^(RACTuple *tuple) {
 			return tuple[1];
 		}]
-		setNameWithFormat:@"[%@] -combinePreviousWithStart: %@ reduce:", self.name, [start rac_description]];
+		setNameBlock:^{
+			return [NSString stringWithFormat:@"[%@] -combinePreviousWithStart: %@ reduce:", self.name, start];
+		}];
 }
 
 - (instancetype)filter:(BOOL (^)(id value))block {
@@ -148,13 +158,17 @@
 		} else {
 			return class.empty;
 		}
-	}] setNameWithFormat:@"[%@] -filter:", self.name];
+	}] setNameBlock:^{
+		return [NSString stringWithFormat:@"[%@] -filter:", self.name];
+	}];
 }
 
 - (instancetype)ignore:(id)value {
 	return [[self filter:^ BOOL (id innerValue) {
 		return innerValue != value && ![innerValue isEqual:value];
-	}] setNameWithFormat:@"[%@] -ignore: %@", self.name, [value rac_description]];
+	}] setNameBlock:^{
+		return [NSString stringWithFormat:@"[%@] -ignore: %@", self.name, value];
+	}];
 }
 
 - (instancetype)reduceEach:(id (^)())reduceBlock {
@@ -164,13 +178,17 @@
 	return [[self map:^(RACTuple *t) {
 		NSCAssert([t isKindOfClass:RACTuple.class], @"Value from stream %@ is not a tuple: %@", stream, t);
 		return [RACBlockTrampoline invokeBlock:reduceBlock withArguments:t];
-	}] setNameWithFormat:@"[%@] -reduceEach:", self.name];
+	}] setNameBlock:^{
+		return [NSString stringWithFormat:@"[%@] -reduceEach:", self.name];
+	}];
 }
 
 - (instancetype)startWith:(id)value {
 	return [[[self.class return:value]
 		concat:self]
-		setNameWithFormat:@"[%@] -startWith: %@", self.name, [value rac_description]];
+		setNameBlock:^{
+			return [NSString stringWithFormat:@"[%@] -startWith: %@", self.name, value];
+		}];
 }
 
 - (instancetype)skip:(NSUInteger)skipCount {
@@ -185,7 +203,9 @@
 			skipped++;
 			return class.empty;
 		};
-	}] setNameWithFormat:@"[%@] -skip: %lu", self.name, (unsigned long)skipCount];
+	}] setNameBlock:^{
+		return [NSString stringWithFormat:@"[%@] -skip: %lu", self.name, (unsigned long)skipCount];
+	}];
 }
 
 - (instancetype)take:(NSUInteger)count {
@@ -202,7 +222,9 @@
 
 			return result;
 		};
-	}] setNameWithFormat:@"[%@] -take: %lu", self.name, (unsigned long)count];
+	}] setNameBlock:^{
+		return [NSString stringWithFormat:@"[%@] -take: %lu", self.name, (unsigned long)count];
+	}];
 }
 
 + (instancetype)join:(id<NSFastEnumeration>)streams block:(RACStream * (^)(id, id))block {
@@ -246,7 +268,9 @@
 + (instancetype)zip:(id<NSFastEnumeration>)streams {
 	return [[self join:streams block:^(RACStream *left, RACStream *right) {
 		return [left zipWith:right];
-	}] setNameWithFormat:@"+zip: %@", streams];
+	}] setNameBlock:^{
+		return [NSString stringWithFormat:@"+zip: %@", streams];
+	}];
 }
 
 + (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id (^)())reduceBlock {
@@ -259,7 +283,9 @@
 	// apps that depended on that.
 	if (reduceBlock != nil) result = [result reduceEach:reduceBlock];
 
-	return [result setNameWithFormat:@"+zip: %@ reduce:", streams];
+	return [result setNameBlock:^{
+		return [NSString stringWithFormat:@"+zip: %@ reduce:", streams];
+	}];
 }
 
 + (instancetype)concat:(id<NSFastEnumeration>)streams {
@@ -268,7 +294,9 @@
 		result = [result concat:stream];
 	}
 
-	return [result setNameWithFormat:@"+concat: %@", streams];
+	return [result setNameBlock:^{
+		return [NSString stringWithFormat:@"+concat: %@", streams];
+	}];
 }
 
 - (instancetype)scanWithStart:(id)startingValue reduce:(id (^)(id running, id next))block {
@@ -283,7 +311,9 @@
 			running = block(running, value);
 			return [class return:running];
 		};
-	}] setNameWithFormat:@"[%@] -scanWithStart: %@ reduce:", self.name, [startingValue rac_description]];
+	}] setNameBlock:^{
+		return [NSString stringWithFormat:@"[%@] -scanWithStart: %@ reduce:", self.name, startingValue];
+	}];
 }
 
 - (instancetype)takeUntilBlock:(BOOL (^)(id x))predicate {
@@ -297,7 +327,9 @@
 
 			return [class return:value];
 		};
-	}] setNameWithFormat:@"[%@] -takeUntilBlock:", self.name];
+	}] setNameBlock:^{
+		return [NSString stringWithFormat:@"[%@] -takeUntilBlock:", self.name];
+	}];
 }
 
 - (instancetype)takeWhileBlock:(BOOL (^)(id x))predicate {
@@ -305,7 +337,9 @@
 
 	return [[self takeUntilBlock:^ BOOL (id x) {
 		return !predicate(x);
-	}] setNameWithFormat:@"[%@] -takeWhileBlock:", self.name];
+	}] setNameBlock:^{
+		return [NSString stringWithFormat:@"[%@] -takeWhileBlock:", self.name];
+	}];
 }
 
 - (instancetype)skipUntilBlock:(BOOL (^)(id x))predicate {
@@ -327,7 +361,9 @@
 
 			return [class return:value];
 		};
-	}] setNameWithFormat:@"[%@] -skipUntilBlock:", self.name];
+	}] setNameBlock:^{
+		return [NSString stringWithFormat:@"[%@] -skipUntilBlock:", self.name];
+	}];
 }
 
 - (instancetype)skipWhileBlock:(BOOL (^)(id x))predicate {
@@ -335,7 +371,9 @@
 
 	return [[self skipUntilBlock:^ BOOL (id x) {
 		return !predicate(x);
-	}] setNameWithFormat:@"[%@] -skipUntilBlock:", self.name];
+	}] setNameBlock:^{
+		return [NSString stringWithFormat:@"[%@] -skipUntilBlock:", self.name];
+	}];
 }
 
 - (instancetype)distinctUntilChanged {
@@ -352,7 +390,9 @@
 			lastValue = x;
 			return [class return:x];
 		};
-	}] setNameWithFormat:@"[%@] -distinctUntilChanged", self.name];
+	}] setNameBlock:^{
+		return [NSString stringWithFormat:@"[%@] -distinctUntilChanged", self.name];
+	}];
 }
 
 @end
@@ -367,7 +407,9 @@
 
 	return [[self flattenMap:^(id _) {
 		return block();
-	}] setNameWithFormat:@"[%@] -sequenceMany:", self.name];
+	}] setNameBlock:^{
+		return [NSString stringWithFormat:@"[%@] -sequenceMany:", self.name];
+	}];
 }
 
 - (instancetype)scanWithStart:(id)startingValue combine:(id (^)(id running, id next))block {

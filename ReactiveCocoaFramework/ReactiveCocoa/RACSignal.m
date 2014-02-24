@@ -178,7 +178,9 @@
 		}
 
 		return compoundDisposable;
-	}] setNameWithFormat:@"[%@] -bind:", self.name];
+	}] setNameBlock:^{
+		return [NSString stringWithFormat:@"[%@] -bind:", self.name];
+	}];
 }
 
 - (RACSignal *)concat:(RACSignal *)signal {
@@ -196,7 +198,9 @@
 
 		serialDisposable.disposable = sourceDisposable;
 		return serialDisposable;
-	}] setNameWithFormat:@"[%@] -concat: %@", self.name, signal];
+	}] setNameBlock:^{
+		return [NSString stringWithFormat:@"[%@] -concat: %@", self.name, signal];
+	}];
 }
 
 - (RACSignal *)zipWith:(RACSignal *)signal {
@@ -263,7 +267,9 @@
 			[selfDisposable dispose];
 			[otherDisposable dispose];
 		}];
-	}] setNameWithFormat:@"[%@] -zipWith: %@", self.name, signal];
+	}] setNameBlock:^{
+		return [NSString stringWithFormat:@"[%@] -zipWith: %@", self.name, signal];
+	}];
 }
 
 @end
@@ -340,19 +346,25 @@
 - (RACSignal *)logNext {
 	return [[self doNext:^(id x) {
 		NSLog(@"%@ next: %@", self, x);
-	}] setNameWithFormat:@"%@", self.name];
+	}] setNameBlock:^{
+		return [NSString stringWithFormat:@"%@", self.name];
+	}];
 }
 
 - (RACSignal *)logError {
 	return [[self doError:^(NSError *error) {
 		NSLog(@"%@ error: %@", self, error);
-	}] setNameWithFormat:@"%@", self.name];
+	}] setNameBlock:^{
+		return [NSString stringWithFormat:@"%@", self.name];
+	}];
 }
 
 - (RACSignal *)logCompleted {
 	return [[self doCompleted:^{
 		NSLog(@"%@ completed", self);
-	}] setNameWithFormat:@"%@", self.name];
+	}] setNameBlock:^{
+		return [NSString stringWithFormat:@"%@", self.name];
+	}];
 }
 
 @end
@@ -439,7 +451,9 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 			[subscriber sendNext:returned];
 			[subscriber sendCompleted];
 		}
-	}] setNameWithFormat:@"+startWithScheduler:block:"];
+	}] setNameBlock:^{
+		return [NSString stringWithFormat:@"+startWithScheduler:block:"];
+	}];
 }
 
 #pragma clang diagnostic pop

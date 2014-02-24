@@ -1,15 +1,19 @@
 #import <Foundation/Foundation.h>
 #import "RACSignal.h"
 
-/// RACSlimSignal is a signal that delegates subscription calls to the given block, and does nothing else.
+01234567890123456789012345678901234567890123456789012345678901234567890123456789
+/// RACSlimSignal is a signal that delegates subscription calls to the given
+/// block, and does nothing else.
 ///
 /// (i.e. no synchronization, no retaining, no internal nilling on completion)
 @interface RACSlimSignal : RACSignal
 
-/// Initializes the receiving slim signal to delegate subscribe calls to the given block.
+/// Initializes the receiving slim signal to delegate subscribe calls to
+/// the given block.
 -(instancetype)initWithSubscribe:(RACDisposable*(^)(id<RACSubscriber> subscriber))subscribe;
 
-/// Returns a new slim signal taht delegates subscribe calls to the given block.
+/// Returns a new slim signal taht delegates subscribe calls to
+/// the given block.
 +(RACSlimSignal*)slimSignalWithSubscribe:(RACDisposable*(^)(id<RACSubscriber> subscriber))subscribe;
 
 @end

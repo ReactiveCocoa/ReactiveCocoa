@@ -30,8 +30,8 @@
 								andCompleted:(void(^)(void))onCompleted
 						 andDidSubscribeWith:(void(^)(RACDisposable* disposable))didSubscribeWithDisposable {
     return [[RACSlimSubscriber alloc] initWithNext:onNext
-											 andError:onError
-										 andCompleted:onCompleted
+										  andError:onError
+									  andCompleted:onCompleted
 							   andDidSubscribeWith:didSubscribeWithDisposable];
 }
 
@@ -40,7 +40,7 @@
 	if ([subscriber isKindOfClass:RACSlimSubscriber.class]) {
 		return subscriber;
 	}
-
+	
     return [RACSlimSubscriber slimSubscriberWithNext:^(id x) { [subscriber sendNext:x]; }
 											andError:^(NSError* error) { [subscriber sendError:error]; }
 										andCompleted:^{ [subscriber sendCompleted]; }

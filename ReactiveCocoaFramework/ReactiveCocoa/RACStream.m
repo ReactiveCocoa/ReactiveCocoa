@@ -77,7 +77,7 @@
 
 - (instancetype)setNameBlock:(NSString *(^)())nameBlock {
 	@synchronized(self) {
-		_nameBlock = [nameBlock copy];
+		_nameBlock = nameBlock;
 		_name = nil;
 	}
 	return self;

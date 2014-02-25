@@ -18,16 +18,12 @@ SpecBegin(RACMulticastConnection)
 
 __block NSUInteger subscriptionCount = 0;
 __block RACMulticastConnection *connection;
-__block BOOL disposed = NO;
 
 beforeEach(^{
 	subscriptionCount = 0;
-	disposed = NO;
 	connection = [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		subscriptionCount++;
-		return [RACDisposable disposableWithBlock:^{
-			disposed = YES;
-		}];
+		return (RACDisposable *)nil;
 	}] publish];
 	expect(subscriptionCount).to.equal(0);
 });
@@ -99,7 +95,17 @@ describe(@"-autoconnect", ^{
 	});
 
 	it(@"should dispose of the multicasted subscription when the signal has no subscribers", ^{
-		RACDisposable *disposable = [autoconnectedSignal subscribeNext:^(id x) {}];
+		__block BOOL disposed = NO;
+		__block id<RACSubscriber> connectionSubscriber = nil;
+		RACSignal *signal = [[[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			// Keep the subscriber alive so it doesn't trigger disposal on dealloc
+			connectionSubscriber = subscriber;
+			subscriptionCount++;
+			return [RACDisposable disposableWithBlock:^{
+				disposed = YES;
+			}];
+		}] publish] autoconnect];
+		RACDisposable *disposable = [signal subscribeNext:^(id x) {}];
 
 		expect(disposed).to.beFalsy();
 		[disposable dispose];

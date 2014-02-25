@@ -262,6 +262,10 @@
 		88FC735716114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FC735416114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.m */; };
 		88FC735816114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FC735416114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.m */; };
 		88FC735B16114FFB00F8A774 /* RACSubscriptingAssignmentTrampolineSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FC735A16114FFB00F8A774 /* RACSubscriptingAssignmentTrampolineSpec.m */; };
+		A1A1349918BC2F990067ECB0 /* RACSlimSignalSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = A1A1349818BC2F990067ECB0 /* RACSlimSignalSpec.m */; };
+		A1A1349A18BC2F990067ECB0 /* RACSlimSignalSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = A1A1349818BC2F990067ECB0 /* RACSlimSignalSpec.m */; };
+		A1A134A018BC33450067ECB0 /* RACSlimSubscriberSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = A1A1349F18BC33450067ECB0 /* RACSlimSubscriberSpec.m */; };
+		A1A134A118BC33450067ECB0 /* RACSlimSubscriberSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = A1A1349F18BC33450067ECB0 /* RACSlimSubscriberSpec.m */; };
 		A1E89C7418B8272F00676B4D /* RACSlimSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = A1E89C7018B8272F00676B4D /* RACSlimSignal.h */; };
 		A1E89C7518B8272F00676B4D /* RACSlimSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E89C7118B8272F00676B4D /* RACSlimSignal.m */; };
 		A1E89C7618B8272F00676B4D /* RACSlimSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E89C7118B8272F00676B4D /* RACSlimSignal.m */; };
@@ -901,6 +905,8 @@
 		88FC735316114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACSubscriptingAssignmentTrampoline.h; sourceTree = "<group>"; };
 		88FC735416114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSubscriptingAssignmentTrampoline.m; sourceTree = "<group>"; };
 		88FC735A16114FFB00F8A774 /* RACSubscriptingAssignmentTrampolineSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSubscriptingAssignmentTrampolineSpec.m; sourceTree = "<group>"; };
+		A1A1349818BC2F990067ECB0 /* RACSlimSignalSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSlimSignalSpec.m; sourceTree = "<group>"; };
+		A1A1349F18BC33450067ECB0 /* RACSlimSubscriberSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSlimSubscriberSpec.m; sourceTree = "<group>"; };
 		A1E89C7018B8272F00676B4D /* RACSlimSignal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACSlimSignal.h; sourceTree = "<group>"; };
 		A1E89C7118B8272F00676B4D /* RACSlimSignal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSlimSignal.m; sourceTree = "<group>"; };
 		A1E89C7218B8272F00676B4D /* RACSlimSubscriber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACSlimSubscriber.h; sourceTree = "<group>"; };
@@ -1428,6 +1434,8 @@
 				8803C010166732BA00C36839 /* RACSchedulerSpec.m */,
 				D028DB7C179E591E00D1042F /* RACSerialDisposableSpec.m */,
 				D07200241788C57200987F70 /* RACTestSchedulerSpec.m */,
+				A1A1349818BC2F990067ECB0 /* RACSlimSignalSpec.m */,
+				A1A1349F18BC33450067ECB0 /* RACSlimSubscriberSpec.m */,
 			);
 			path = ReactiveCocoaTests;
 			sourceTree = "<group>";
@@ -2321,6 +2329,7 @@
 				5FAF525D174D4D5600CAC810 /* NSObjectRACSelectorSignalSpec.m in Sources */,
 				5FAF525E174D4D5600CAC810 /* RACSubclassObject.m in Sources */,
 				5FAF5262174D4D8F00CAC810 /* UIBarButtonItemRACSupportSpec.m in Sources */,
+				A1A1349A18BC2F990067ECB0 /* RACSlimSignalSpec.m in Sources */,
 				88302BFE1762A9E6003633BD /* RACTestExampleScheduler.m in Sources */,
 				8884DD6B1756B65300F6C379 /* RACSignalStartExamples.m in Sources */,
 				D028DB7E179E591E00D1042F /* RACSerialDisposableSpec.m in Sources */,
@@ -2329,6 +2338,7 @@
 				D0A0E227176A84DB007273ED /* RACDisposableSpec.m in Sources */,
 				D066C796176D262500C242D2 /* UIControlRACSupportSpec.m in Sources */,
 				D066C79D176D263D00C242D2 /* RACTestUIButton.m in Sources */,
+				A1A134A118BC33450067ECB0 /* RACSlimSubscriberSpec.m in Sources */,
 				D0C55CE217759559008CDDCA /* RACDelegateProxySpec.m in Sources */,
 				D07200261788C57200987F70 /* RACTestSchedulerSpec.m in Sources */,
 				D075A72B17BCB7E100C24FB7 /* RACControlCommandExamples.m in Sources */,
@@ -2424,6 +2434,7 @@
 			files = (
 				A1E89C7A18B8272F00676B4D /* RACSlimSubscriber.m in Sources */,
 				8820937C1501C8A600796685 /* RACSignalSpec.m in Sources */,
+				A1A1349918BC2F990067ECB0 /* RACSlimSignalSpec.m in Sources */,
 				889D0A8015974B2A00F833E3 /* RACSubjectSpec.m in Sources */,
 				D041376915D2281C004BBF80 /* RACKVOWrapperSpec.m in Sources */,
 				D028DB7D179E591E00D1042F /* RACSerialDisposableSpec.m in Sources */,
@@ -2456,6 +2467,7 @@
 				D077A172169B79A900057BB1 /* RACEventSpec.m in Sources */,
 				D0A0B01816EAA5CC00C47593 /* NSTextRACSupportSpec.m in Sources */,
 				6E58405F16F3414200F588A6 /* NSObjectRACDeallocatingSpec.m in Sources */,
+				A1A134A018BC33450067ECB0 /* RACSlimSubscriberSpec.m in Sources */,
 				A1E89C7618B8272F00676B4D /* RACSlimSignal.m in Sources */,
 				1E893381171647A5009071B0 /* NSObjectRACPropertySubscribingExamples.m in Sources */,
 				880D7A6616F7BB1A004A3361 /* NSObjectRACSelectorSignalSpec.m in Sources */,

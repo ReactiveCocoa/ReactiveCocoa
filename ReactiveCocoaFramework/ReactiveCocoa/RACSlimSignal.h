@@ -1,7 +1,6 @@
 #import <Foundation/Foundation.h>
 #import "RACSignal.h"
 
-01234567890123456789012345678901234567890123456789012345678901234567890123456789
 /// RACSlimSignal is a signal that delegates subscription calls to the given
 /// block, and does nothing else.
 ///

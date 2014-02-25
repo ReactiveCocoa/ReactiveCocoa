@@ -38,6 +38,14 @@
 #endif
 }
 
+- (instancetype)setNameBlock:(NSString *(^)())nameBlock {
+#ifdef DEBUG
+	return [super setNameBlock:nameBlock];
+#else
+	return self;
+#endif
+}
+
 #pragma mark Lifecycle
 
 + (RACSignal *)return:(id)value {
@@ -69,9 +77,9 @@
 	RACReturnSignal *signal = [[self alloc] init];
 	signal->_value = value;
 
-#ifdef DEBUG
-	[signal setNameWithFormat:@"+return: %@", value];
-#endif
+	[signal setNameBlock:^{
+		return [NSString stringWithFormat:@"+return: %@", value];
+	}];
 
 	return signal;
 }

@@ -7,6 +7,7 @@
 //
 
 #import "NSObject+RACDescription.h"
+#import "EXTScope.h"
 #import "RACTuple.h"
 
 @implementation NSObject (RACDescription)
@@ -17,6 +18,16 @@
 	} else {
 		return @"(description skipped)";
 	}
+}
+
+- (NSString *(^)())rac_deferredDescription {
+	@weakify(self);
+	Class class = self.class;
+	void *pointer = (__bridge void *)self;
+	return ^{
+		@strongify(self);
+		return self ? self.description : [NSString stringWithFormat:@"<%@: %p>", NSStringFromClass(class), pointer];
+	};
 }
 
 @end

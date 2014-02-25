@@ -30,6 +30,14 @@
 #endif
 }
 
+- (instancetype)setNameBlock:(NSString *(^)())nameBlock {
+#ifdef DEBUG
+	return [super setNameBlock:nameBlock];
+#else
+	return self;
+#endif
+}
+
 #pragma mark Lifecycle
 
 + (RACSignal *)empty {

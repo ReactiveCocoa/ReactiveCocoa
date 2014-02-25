@@ -56,12 +56,6 @@ it(@"should forward to the given blocks", ^{
 	expect(callsToCompleted).to.equal(1);
 });
 
-
-
-
-
-
-
 it(@"should override next", ^{
 	__block NSUInteger callsToNext = 0;
 	__block id lastNext = nil;

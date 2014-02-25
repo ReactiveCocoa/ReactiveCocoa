@@ -118,11 +118,11 @@ it(@"should return self when wrapped", ^{
 });
 
 it(@"should wrap arbitrary subjects", ^{
-	RACSignal *t = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+	RACSignal *t = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		RACSlimSubscriber *s = [RACSlimSubscriber slimSubscriberWrapping:subscriber];
 		[s sendNext:@1];
 		[s sendCompleted];
-		return nil;
+		return (RACDisposable *)nil;
 	}];
 	
 	__block BOOL didComplete = NO;

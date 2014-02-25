@@ -19,7 +19,7 @@
 
 - (instancetype)init {
 	// default to 'never' instead of 'fail horribly with segfault'
-	return [self initWithSubscribe:^RACDisposable *(id<RACSubscriber> subscriber) { return nil; }];
+	return [self initWithSubscribe:^(id<RACSubscriber> subscriber) { return (RACDisposable *)nil; }];
 }
 
 + (RACSlimSignal *)slimSignalWithSubscribe:(RACDisposable *(^)(id<RACSubscriber> subscriber))subscribe {

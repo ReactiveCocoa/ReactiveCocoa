@@ -7,6 +7,7 @@
 //
 
 #import "RACScheduler.h"
+#import "RACInOrderScheduler.h"
 #import "RACScheduler+Private.h"
 #import "RACQueueScheduler+Subclass.h"
 #import "RACDisposable.h"
@@ -418,6 +419,112 @@ describe(@"subclassing", ^{
 		}];
 
 		expect(currentScheduler).will.equal(scheduler);
+	});
+});
+
+describe(@"RACInOrderScheduler", ^{
+	it(@"should run actions immediately by default", ^{
+		RACInOrderScheduler* inOrderScheduler = [RACInOrderScheduler new];
+		__block int i = 0;
+		[inOrderScheduler schedule:^{ i++; }];
+		expect(i).to.equal(1);
+	});
+	
+	it(@"should run actions on the scheduler given to its static factory method", ^{
+		RACTestScheduler* testScheduler = [RACTestScheduler new];
+
+		RACInOrderScheduler* inOrderScheduler = [RACInOrderScheduler inOrderSchedulerOnScheduler:testScheduler];
+		
+		__block int i = 0;
+		[inOrderScheduler schedule:^{ i++; }];
+
+		expect(i).to.equal(0);
+		[testScheduler step];
+		expect(i).to.equal(1);
+	});
+
+	it(@"should run actions on the scheduler given to its init method", ^{
+		RACTestScheduler* testScheduler = [RACTestScheduler new];
+		
+		RACInOrderScheduler* inOrderScheduler = [[RACInOrderScheduler alloc] initWithScheduler:testScheduler];
+		
+		__block int i = 0;
+		[inOrderScheduler schedule:^{ i++; }];
+		
+		expect(i).to.equal(0);
+		[testScheduler step];
+		expect(i).to.equal(1);
+	});
+	
+	it(@"should defer to its underlying scheduler for delays", ^{
+		RACTestScheduler* testScheduler = [RACTestScheduler new];
+		
+		RACInOrderScheduler* inOrderScheduler = [RACInOrderScheduler inOrderSchedulerOnScheduler:testScheduler];
+		
+		__block int i = 0;
+		[inOrderScheduler afterDelay:1.0 schedule:^{ i++; }];
+		
+		expect(i).to.equal(0);
+		[testScheduler step];
+		expect(i).to.equal(1);
+	});
+
+	it(@"should defer to its underlying scheduler for periodics", ^{
+		RACTestScheduler* testScheduler = [RACTestScheduler new];
+		
+		RACInOrderScheduler* inOrderScheduler = [RACInOrderScheduler inOrderSchedulerOnScheduler:testScheduler];
+		
+		__block int i = 0;
+		[inOrderScheduler after:NSDate.date
+				 repeatingEvery:1
+					 withLeeway:0
+					   schedule:^{ i++; }];
+		
+		expect(i).to.equal(0);
+		[testScheduler step];
+		expect(i).to.equal(1);
+		[testScheduler step];
+		expect(i).to.equal(2);
+	});
+	
+	it(@"should run actions in order even under reentrancy", ^{
+		RACInOrderScheduler* inOrderScheduler = [RACInOrderScheduler new];
+		__block int i = 0;
+		__block int j = 0;
+		[inOrderScheduler schedule:^{
+			i++;
+			[inOrderScheduler schedule:^{
+				expect(i).to.equal(1);
+				j++;
+			}];
+			expect(j).to.equal(0);
+		}];
+		expect(i).to.equal(1);
+		expect(j).to.equal(1);
+	});
+
+	
+	it(@"should run actions in order even under concurrency", ^{
+		RACInOrderScheduler* inOrderScheduler = [RACInOrderScheduler new];
+		const int threads = 2;
+		const int increments = 10000;
+		
+		__block int total = 0;
+		
+		for (int thread = 0; thread < threads; thread++) {
+			__block int threadTotal = 0;
+			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+				for (int i = 0; i < increments; i++) {
+					[inOrderScheduler schedule:^{
+						if (threadTotal == i) total++;
+						threadTotal++;
+					}];
+				}
+			});
+			expect(threadTotal).will.equal(increments);
+		}
+		
+		expect(total).will.equal(threads*increments);
 	});
 });
 

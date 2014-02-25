@@ -49,6 +49,7 @@
 #import "RACTestScheduler.h"
 #import "RACTuple.h"
 #import "RACUnit.h"
+#import "RACInOrderScheduler.h"
 
 #ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
 	#import "UIActionSheet+RACSignalSupport.h"

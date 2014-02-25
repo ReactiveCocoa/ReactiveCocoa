@@ -13,7 +13,7 @@ it(@"should forward to the given next block", ^{
 								lastNext = x;
 							}
 							andError:nil
-							andCompleted:nil
+							andComplete:nil
 							andDidSubscribeWith:nil];
 	
 	expect(callsToNext).to.equal(0);
@@ -31,7 +31,7 @@ it(@"should forward to the given blocks", ^{
 								callsToError++;
 								lastError = error;
 							}
-							andCompleted:nil
+							andComplete:nil
 							andDidSubscribeWith:nil];
 	
 	expect(callsToError).to.equal(0);
@@ -46,7 +46,7 @@ it(@"should forward to the given blocks", ^{
 	RACSlimSubscriber* r = [RACSlimSubscriber
 							slimSubscriberWithNext:nil
 							andError:nil
-							andCompleted:^{
+							andComplete:^{
 								callsToCompleted++;
 							}
 							andDidSubscribeWith:nil];
@@ -68,7 +68,7 @@ it(@"should override next", ^{
 	RACSlimSubscriber* r = [[RACSlimSubscriber
 							 slimSubscriberWithNext:nil
 							 andError:nil
-							 andCompleted:nil
+							 andComplete:nil
 							 andDidSubscribeWith:nil]
 							withSendNext:^(id x) {
 								callsToNext++;
@@ -87,7 +87,7 @@ it(@"should override error", ^{
 	RACSlimSubscriber* r = [[RACSlimSubscriber
 							 slimSubscriberWithNext:nil
 							 andError:nil
-							 andCompleted:nil
+							 andComplete:nil
 							 andDidSubscribeWith:nil]
 							withSendError:^(NSError* error) {
 								callsToError++;
@@ -106,9 +106,9 @@ it(@"should override complete", ^{
 	RACSlimSubscriber* r = [[RACSlimSubscriber
 							 slimSubscriberWithNext:nil
 							 andError:nil
-							 andCompleted:nil
+							 andComplete:nil
 							 andDidSubscribeWith:nil]
-							withSendCompleted:^{
+							withSendComplete:^{
 								callsToCompleted++;
 							}];
 	
@@ -131,15 +131,15 @@ it(@"should wrap arbitrary subjects", ^{
 		return nil;
 	}];
 	
-	__block bool didComplete = false;
-	__block bool didError = false;
-	__block bool didGetNext = false;
-	RACDisposable* d = [t subscribeNext:^(id x) {
+	__block BOOL didComplete = NO;
+	__block BOOL didError = NO;
+	__block BOOL didGetNext = NO;
+	RACDisposable *d = [t subscribeNext:^(id x) {
 		didGetNext = [x isEqual:@1];
 	} error:^(NSError *error) {
-		didError = false;
+		didError = YES;
 	} completed:^{
-		didComplete = true;
+		didComplete = YES;
 	}];
 	
 	expect(d).to.beNil;

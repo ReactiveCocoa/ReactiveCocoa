@@ -9,10 +9,10 @@
 
 /// Initializes the receiving slim signal to delegate subscribe calls to
 /// the given block.
--(instancetype)initWithSubscribe:(RACDisposable*(^)(id<RACSubscriber> subscriber))subscribe;
+- (instancetype)initWithSubscribe:(RACDisposable *(^)(id<RACSubscriber> subscriber))subscribe;
 
 /// Returns a new slim signal taht delegates subscribe calls to
 /// the given block.
-+(RACSlimSignal*)slimSignalWithSubscribe:(RACDisposable*(^)(id<RACSubscriber> subscriber))subscribe;
++ (RACSlimSignal*)slimSignalWithSubscribe:(RACDisposable *(^)(id<RACSubscriber> subscriber))subscribe;
 
 @end

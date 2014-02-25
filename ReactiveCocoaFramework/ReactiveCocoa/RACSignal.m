@@ -268,31 +268,31 @@
 	}] setNameWithFormat:@"[%@] -zipWith: %@", self.name, signal];
 }
 
--(instancetype)map:(id (^)(id))block {
+- (instancetype)map:(id (^)(id))block {
 	NSCParameterAssert(block != nil);
 	
 	return [[RACSlimSignal slimSignalWithSubscribe:^(id<RACSubscriber> subscriber) {
 		NSCParameterAssert(subscriber != nil);
 		
-		id<RACSubscriber> mapped = [[RACSlimSubscriber slimSubscriberWrapping:subscriber]
-									withSendNext:^(id x) {
-										[subscriber sendNext:block(x)];
-									}];
+		RACSlimSubscriber *wrapped = [RACSlimSubscriber slimSubscriberWrapping:subscriber];
+		id<RACSubscriber> mapped = [wrapped withSendNext:^(id x) {
+			[subscriber sendNext:block(x)];
+		}];
 		return [self subscribe:mapped];
 	}] setNameWithFormat:@"[%@] -map:", self.name];
 }
--(instancetype)filter:(BOOL (^)(id))block {
+- (instancetype)filter:(BOOL (^)(id))block {
 	NSCParameterAssert(block != nil);
 	
 	return [[RACSlimSignal slimSignalWithSubscribe:^(id<RACSubscriber> subscriber) {
 		NSCParameterAssert(subscriber != nil);
 		
-		id<RACSubscriber> filtered = [[RACSlimSubscriber slimSubscriberWrapping:subscriber]
-									  withSendNext:^(id x) {
-										  if (block(x)) {
-											  [subscriber sendNext:x];
-										  }
-									  }];
+		RACSlimSubscriber *wrapped = [RACSlimSubscriber slimSubscriberWrapping:subscriber];
+		id<RACSubscriber> filtered = [wrapped withSendNext:^(id x) {
+			if (block(x)) {
+				[subscriber sendNext:x];
+			}
+		}];
 		return [self subscribe:filtered];
 	}] setNameWithFormat:@"[%@] -filter:", self.name];
 }

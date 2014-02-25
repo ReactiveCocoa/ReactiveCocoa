@@ -7,13 +7,13 @@ SpecBegin(RACSlimSignal)
 it(@"should act like RACSignal.never when initialized with no arguments", ^{
 	RACSlimSignal* r = [RACSlimSignal new];
 	
-	__block bool didAnything = false;
+	__block BOOL didAnything = NO;
 	[[r subscribeNext:^(id x) {
-		didAnything = true;
+		didAnything = YES;
 	} error:^(NSError *error) {
-		didAnything = true;
+		didAnything = YES;
 	} completed:^{
-		didAnything = true;
+		didAnything = YES;
 	}] dispose];
 	expect(didAnything).to.beFalsy;
 	
@@ -38,7 +38,7 @@ it(@"should dispose with the block's result", ^{
 			callsToDispose++;
 		}];
 	}];
-	RACDisposable* d = [r subscribeNext:^(id x){}];
+	RACDisposable *d = [r subscribeNext:^(id x){}];
 	
 	expect(callsToDispose).to.equal(0);
 	[d dispose];

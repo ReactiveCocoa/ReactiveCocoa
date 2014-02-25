@@ -1,29 +1,34 @@
 #import "RACSlimSignal.h"
 
-@implementation RACSlimSignal {
-@private RACDisposable*(^_subscribe)(id<RACSubscriber> subscriber);
-}
+@interface RACSlimSignal ()
 
--(instancetype)initWithSubscribe:(RACDisposable*(^)(id<RACSubscriber> subscriber))subscribe {
-    NSCParameterAssert(subscribe != nil);
-	if (self = [super init]) {
-		self->_subscribe = subscribe;
-	}
+@property (readonly,nonatomic,strong) RACDisposable *(^subscribe)(id<RACSubscriber> subscriber);
+
+@end
+
+@implementation RACSlimSignal
+
+- (instancetype)initWithSubscribe:(RACDisposable *(^)(id<RACSubscriber> subscriber))subscribe {
+	NSCParameterAssert(subscribe != nil);
+	self = [super init];
+	if (self == nil) return nil;
+	
+	_subscribe = subscribe;
 	return self;
 }
 
--(instancetype)init {
+- (instancetype)init {
 	// default to 'never' instead of 'fail horribly with segfault'
-	return [self initWithSubscribe:^RACDisposable*(id<RACSubscriber> subscriber) { return nil; }];
+	return [self initWithSubscribe:^RACDisposable *(id<RACSubscriber> subscriber) { return nil; }];
 }
 
-+(RACSlimSignal*)slimSignalWithSubscribe:(RACDisposable*(^)(id<RACSubscriber> subscriber))subscribe {
-    NSCParameterAssert(subscribe != nil);
-    return [[RACSlimSignal alloc] initWithSubscribe:subscribe];
++ (RACSlimSignal *)slimSignalWithSubscribe:(RACDisposable *(^)(id<RACSubscriber> subscriber))subscribe {
+	NSCParameterAssert(subscribe != nil);
+	return [[RACSlimSignal alloc] initWithSubscribe:subscribe];
 }
 
--(RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-    return _subscribe(subscriber);
+- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
+	return _subscribe(subscriber);
 }
 
 @end

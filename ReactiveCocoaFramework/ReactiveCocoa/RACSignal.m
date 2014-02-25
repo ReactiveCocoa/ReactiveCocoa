@@ -271,7 +271,7 @@
 -(instancetype)map:(id (^)(id))block {
 	NSCParameterAssert(block != nil);
 	
-	return [RACSlimSignal slimSignalWithSubscribe:^(id<RACSubscriber> subscriber) {
+	return [[RACSlimSignal slimSignalWithSubscribe:^(id<RACSubscriber> subscriber) {
 		NSCParameterAssert(subscriber != nil);
 		
 		id<RACSubscriber> mapped = [[RACSlimSubscriber slimSubscriberWrapping:subscriber]
@@ -279,12 +279,12 @@
 										[subscriber sendNext:block(x)];
 									}];
 		return [self subscribe:mapped];
-	}];
+	}] setNameWithFormat:@"[%@] -map:", self.name];
 }
 -(instancetype)filter:(BOOL (^)(id))block {
 	NSCParameterAssert(block != nil);
 	
-	return [RACSlimSignal slimSignalWithSubscribe:^(id<RACSubscriber> subscriber) {
+	return [[RACSlimSignal slimSignalWithSubscribe:^(id<RACSubscriber> subscriber) {
 		NSCParameterAssert(subscriber != nil);
 		
 		id<RACSubscriber> filtered = [[RACSlimSubscriber slimSubscriberWrapping:subscriber]
@@ -294,7 +294,7 @@
 										  }
 									  }];
 		return [self subscribe:filtered];
-	}];
+	}] setNameWithFormat:@"[%@] -filter:", self.name];
 }
 
 @end

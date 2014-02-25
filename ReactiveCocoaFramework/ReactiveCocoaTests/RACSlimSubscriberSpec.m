@@ -60,14 +60,14 @@ it(@"should override next", ^{
 	__block NSUInteger callsToNext = 0;
 	__block id lastNext = nil;
 	RACSlimSubscriber *r = [[RACSlimSubscriber
-							 slimSubscriberWithNext:nil
-							 andError:nil
-							 andComplete:nil
-							 andDidSubscribeWith:nil]
-							withSendNext:^(id x) {
-								callsToNext++;
-								lastNext = x;
-							}];
+		slimSubscriberWithNext:nil
+		andError:nil
+		andComplete:nil
+		andDidSubscribeWith:nil]
+		withSendNext:^(id x) {
+			callsToNext++;
+			lastNext = x;
+		}];
 	
 	expect(callsToNext).to.equal(0);
 	[r sendNext:@""];

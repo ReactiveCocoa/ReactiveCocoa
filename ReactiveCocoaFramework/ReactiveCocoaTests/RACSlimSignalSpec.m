@@ -5,7 +5,7 @@
 SpecBegin(RACSlimSignal)
 
 it(@"should act like RACSignal.never when initialized with no arguments", ^{
-	RACSlimSignal* r = [RACSlimSignal new];
+	RACSlimSignal *r = [RACSlimSignal new];
 	
 	__block BOOL didAnything = NO;
 	[[r subscribeNext:^(id x) {
@@ -20,8 +20,8 @@ it(@"should act like RACSignal.never when initialized with no arguments", ^{
 });
 
 it(@"should call the block it is initialized with", ^{
-	__block int callsToBlock = 0;
-	RACSlimSignal* r = [RACSlimSignal slimSignalWithSubscribe:^RACDisposable *(id<RACSubscriber> subscriber) {
+	__block NSUInteger callsToBlock = 0;
+	RACSlimSignal *r = [RACSlimSignal slimSignalWithSubscribe:^RACDisposable *(id<RACSubscriber> subscriber) {
 		callsToBlock++;
 		return nil;
 	}];
@@ -32,8 +32,8 @@ it(@"should call the block it is initialized with", ^{
 });
 
 it(@"should dispose with the block's result", ^{
-	__block int callsToDispose = 0;
-	RACSlimSignal* r = [RACSlimSignal slimSignalWithSubscribe:^RACDisposable *(id<RACSubscriber> subscriber) {
+	__block NSUInteger callsToDispose = 0;
+	RACSlimSignal *r = [RACSlimSignal slimSignalWithSubscribe:^RACDisposable *(id<RACSubscriber> subscriber) {
 		return [RACDisposable disposableWithBlock:^{
 			callsToDispose++;
 		}];
@@ -46,8 +46,8 @@ it(@"should dispose with the block's result", ^{
 });
 
 it(@"should forward to the given subscriber", ^{
-	__block int callsToNext = 0;
-	RACSlimSignal* r = [RACSlimSignal slimSignalWithSubscribe:^RACDisposable *(id<RACSubscriber> subscriber) {
+	__block NSUInteger callsToNext = 0;
+	RACSlimSignal *r = [RACSlimSignal slimSignalWithSubscribe:^RACDisposable *(id<RACSubscriber> subscriber) {
 		[subscriber sendNext:@1];
 		return nil;
 	}];

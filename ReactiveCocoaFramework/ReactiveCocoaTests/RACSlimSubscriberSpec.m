@@ -5,16 +5,16 @@
 SpecBegin(RACSlimSubscriber)
 
 it(@"should forward to the given next block", ^{
-	__block int callsToNext = 0;
+	__block NSUInteger callsToNext = 0;
 	__block id lastNext = nil;
-	RACSlimSubscriber* r = [RACSlimSubscriber
-							slimSubscriberWithNext:^(id x) {
-								callsToNext++;
-								lastNext = x;
-							}
-							andError:nil
-							andComplete:nil
-							andDidSubscribeWith:nil];
+	RACSlimSubscriber *r = [RACSlimSubscriber
+		slimSubscriberWithNext:^(id x) {
+			callsToNext++;
+			lastNext = x;
+		}
+		andError:nil
+		andComplete:nil
+		andDidSubscribeWith:nil];
 	
 	expect(callsToNext).to.equal(0);
 	[r sendNext:@""];
@@ -23,16 +23,16 @@ it(@"should forward to the given next block", ^{
 });
 
 it(@"should forward to the given blocks", ^{
-	__block int callsToError = 0;
+	__block NSUInteger callsToError = 0;
 	__block id lastError = nil;
-	RACSlimSubscriber* r = [RACSlimSubscriber
-							slimSubscriberWithNext:nil
-							andError:^(NSError *error) {
-								callsToError++;
-								lastError = error;
-							}
-							andComplete:nil
-							andDidSubscribeWith:nil];
+	RACSlimSubscriber *r = [RACSlimSubscriber
+		slimSubscriberWithNext:nil
+		andError:^(NSError *error) {
+			callsToError++;
+			lastError = error;
+		}
+		andComplete:nil
+		andDidSubscribeWith:nil];
 	
 	expect(callsToError).to.equal(0);
 	NSError* e = [NSError errorWithDomain:@"" code:0 userInfo:@{}];
@@ -42,14 +42,14 @@ it(@"should forward to the given blocks", ^{
 });
 
 it(@"should forward to the given blocks", ^{
-	__block int callsToCompleted = 0;
-	RACSlimSubscriber* r = [RACSlimSubscriber
-							slimSubscriberWithNext:nil
-							andError:nil
-							andComplete:^{
-								callsToCompleted++;
-							}
-							andDidSubscribeWith:nil];
+	__block NSUInteger callsToCompleted = 0;
+	RACSlimSubscriber *r = [RACSlimSubscriber
+		slimSubscriberWithNext:nil
+		andError:nil
+		andComplete:^{
+			callsToCompleted++;
+		}
+		andDidSubscribeWith:nil];
 	
 	expect(callsToCompleted).to.equal(0);
 	[r sendCompleted];
@@ -63,9 +63,9 @@ it(@"should forward to the given blocks", ^{
 
 
 it(@"should override next", ^{
-	__block int callsToNext = 0;
+	__block NSUInteger callsToNext = 0;
 	__block id lastNext = nil;
-	RACSlimSubscriber* r = [[RACSlimSubscriber
+	RACSlimSubscriber *r = [[RACSlimSubscriber
 							 slimSubscriberWithNext:nil
 							 andError:nil
 							 andComplete:nil
@@ -82,17 +82,17 @@ it(@"should override next", ^{
 });
 
 it(@"should override error", ^{
-	__block int callsToError = 0;
+	__block NSUInteger callsToError = 0;
 	__block id lastError = nil;
-	RACSlimSubscriber* r = [[RACSlimSubscriber
-							 slimSubscriberWithNext:nil
-							 andError:nil
-							 andComplete:nil
-							 andDidSubscribeWith:nil]
-							withSendError:^(NSError* error) {
-								callsToError++;
-								lastError = error;
-							}];
+	RACSlimSubscriber *r = [[RACSlimSubscriber
+		slimSubscriberWithNext:nil
+		andError:nil
+		andComplete:nil
+		andDidSubscribeWith:nil]
+		withSendError:^(NSError* error) {
+			callsToError++;
+			lastError = error;
+		}];
 	
 	expect(callsToError).to.equal(0);
 	NSError* e = [NSError errorWithDomain:@"" code:0 userInfo:@{}];
@@ -102,15 +102,15 @@ it(@"should override error", ^{
 });
 
 it(@"should override complete", ^{
-	__block int callsToCompleted = 0;
-	RACSlimSubscriber* r = [[RACSlimSubscriber
-							 slimSubscriberWithNext:nil
-							 andError:nil
-							 andComplete:nil
-							 andDidSubscribeWith:nil]
-							withSendComplete:^{
-								callsToCompleted++;
-							}];
+	__block NSUInteger callsToCompleted = 0;
+	RACSlimSubscriber *r = [[RACSlimSubscriber
+		slimSubscriberWithNext:nil
+		andError:nil
+		andComplete:nil
+		andDidSubscribeWith:nil]
+		withSendComplete:^{
+			callsToCompleted++;
+		}];
 	
 	expect(callsToCompleted).to.equal(0);
 	[r sendCompleted];
@@ -118,14 +118,14 @@ it(@"should override complete", ^{
 });
 
 it(@"should return self when wrapped", ^{
-	RACSlimSubscriber* r = [RACSlimSubscriber new];
-	RACSlimSubscriber* w = [RACSlimSubscriber slimSubscriberWrapping:r];
+	RACSlimSubscriber *r = [RACSlimSubscriber new];
+	RACSlimSubscriber *w = [RACSlimSubscriber slimSubscriberWrapping:r];
 	expect(r).to.equal(w);
 });
 
 it(@"should wrap arbitrary subjects", ^{
-	RACSignal* t = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
-		RACSlimSubscriber* s = [RACSlimSubscriber slimSubscriberWrapping:subscriber];
+	RACSignal *t = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+		RACSlimSubscriber *s = [RACSlimSubscriber slimSubscriberWrapping:subscriber];
 		[s sendNext:@1];
 		[s sendCompleted];
 		return nil;

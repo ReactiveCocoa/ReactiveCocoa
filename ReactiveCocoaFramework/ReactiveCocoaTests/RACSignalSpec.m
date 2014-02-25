@@ -296,8 +296,11 @@ describe(@"subscribing", ^{
 	
 	it(@"should automatically dispose of other subscriptions from +createSignal:", ^{
 		__block BOOL innerDisposed = NO;
+		__block id<RACSubscriber> innerSubscriber = nil;
 
 		RACSignal *innerSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			// Keep the subscriber alive so it doesn't trigger disposal on dealloc
+			innerSubscriber = subscriber;
 			return [RACDisposable disposableWithBlock:^{
 				innerDisposed = YES;
 			}];
@@ -496,7 +499,10 @@ describe(@"-takeUntilReplacement:", ^{
 
 	it(@"should dispose of the receiver when the replacement signal sends an event", ^{
 		__block BOOL receiverDisposed = NO;
+		__block id<RACSubscriber> receiverSubscriber = nil;
 		RACSignal *receiver = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			// Keep the subscriber alive so it doesn't trigger disposal on dealloc
+			receiverSubscriber = subscriber;
 			return [RACDisposable disposableWithBlock:^{
 				receiverDisposed = YES;
 			}];
@@ -3233,7 +3239,10 @@ describe(@"-concat", ^{
 
 	it(@"should dispose the current signal", ^{
 		__block BOOL disposed = NO;
+		__block id<RACSubscriber> innerSubscriber = nil;
 		RACSignal *innerSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			// Keep the subscriber alive so it doesn't trigger disposal on dealloc
+			innerSubscriber = subscriber;
 			return [RACDisposable disposableWithBlock:^{
 				disposed = YES;
 			}];
@@ -3250,7 +3259,10 @@ describe(@"-concat", ^{
 
 	it(@"should dispose later signals", ^{
 		__block BOOL disposed = NO;
+		__block id<RACSubscriber> laterSubscriber = nil;
 		RACSignal *laterSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			// Keep the subscriber alive so it doesn't trigger disposal on dealloc
+			laterSubscriber = subscriber;
 			return [RACDisposable disposableWithBlock:^{
 				disposed = YES;
 			}];

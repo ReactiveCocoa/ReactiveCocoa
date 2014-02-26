@@ -24,7 +24,13 @@
 			queue.name = @"com.github.ReactiveCocoa.NSURLConnectionRACSupport";
 
 			[NSURLConnection sendAsynchronousRequest:request queue:queue completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
-				if (data == nil) {
+				// The docs say that `nil` data means an error occurred, but
+				// `nil` responses can also occur in practice (circumstances
+				// unknown). Consider either to be an error.
+				//
+				// Note that _empty_ data is not necessarily erroneous, as there
+				// may be headers but no HTTP body.
+				if (response == nil || data == nil) {
 					[subscriber sendError:error];
 				} else {
 					[subscriber sendNext:RACTuplePack(response, data)];

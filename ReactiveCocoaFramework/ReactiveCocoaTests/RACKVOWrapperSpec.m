@@ -500,7 +500,7 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 		expect(objectDeallocationTriggeredChange).to.beTruthy();
 	});
 
-	it(@"should call the callback block for deallocation of a protocol property", ^{
+	it(@"should call the callback block for deallocation of an object conforming to protocol property", ^{
 		RACTestObject *target = [RACTestObject new];
 		__block BOOL objectDisposed = NO;
 		__block BOOL objectDeallocationTriggeredChange = NO;

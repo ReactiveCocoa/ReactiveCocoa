@@ -11,7 +11,7 @@
 /// the given block.
 - (instancetype)initWithSubscribe:(RACDisposable *(^)(id<RACSubscriber> subscriber))subscribe;
 
-/// Returns a new slim signal taht delegates subscribe calls to
+/// Returns a new slim signal that delegates subscribe calls to
 /// the given block.
 + (RACSlimSignal*)slimSignalWithSubscribe:(RACDisposable *(^)(id<RACSubscriber> subscriber))subscribe;
 

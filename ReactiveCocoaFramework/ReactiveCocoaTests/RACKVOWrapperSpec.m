@@ -499,6 +499,27 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 		expect(objectDisposed).to.beTruthy();
 		expect(objectDeallocationTriggeredChange).to.beTruthy();
 	});
+
+	it(@"should call the callback block for deallocation of a protocol property", ^{
+		RACTestObject *target = [RACTestObject new];
+		__block BOOL objectDisposed = NO;
+		__block BOOL objectDeallocationTriggeredChange = NO;
+
+		@autoreleasepool {
+			RACTestObject *object __attribute__((objc_precise_lifetime)) = [RACTestObject new];
+			target.weakObjectWithProtocol = object;
+			[object.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				objectDisposed = YES;
+			}]];
+
+			[target rac_observeKeyPath:@keypath(target.weakObjectWithProtocol) options:0 observer:target block:^(id _, NSDictionary *__) {
+				objectDeallocationTriggeredChange = YES;
+			}];
+		}
+
+		expect(objectDisposed).to.beTruthy();
+		expect(objectDeallocationTriggeredChange).to.beTruthy();
+    });
 });
 
 describe(@"rac_addObserver:forKeyPath:options:block:", ^{

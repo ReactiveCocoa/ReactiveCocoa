@@ -73,7 +73,10 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 			free(attributes);
 		};
 
-		if (attributes->objectClass == nil && strcmp(attributes->type, @encode(id)) != 0) {
+		BOOL isNonObject = attributes->objectClass == nil && strstr(attributes->type, @encode(id)) != attributes->type;
+		BOOL isProtocol = attributes->objectClass == NSClassFromString(@"Protocol");
+		BOOL isBlock = strcmp(attributes->type, @encode(void(^)())) == 0;
+		if (isNonObject || isProtocol || isBlock) {
 			// If this property isn't actually an object (or is a Class object),
 			// no point in observing the deallocation of the wrapper returned by
 			// KVC.

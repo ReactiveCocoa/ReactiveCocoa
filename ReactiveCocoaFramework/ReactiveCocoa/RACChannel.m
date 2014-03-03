@@ -84,7 +84,7 @@
 	[self.otherTerminal sendCompleted];
 }
 
-- (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
+- (void)didSubscribeWithDisposable:(RACCompoundDisposable *)disposable {
 	[self.otherTerminal didSubscribeWithDisposable:disposable];
 }
 

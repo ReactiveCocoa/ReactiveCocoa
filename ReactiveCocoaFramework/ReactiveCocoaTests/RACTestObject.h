@@ -26,6 +26,7 @@ typedef struct {
 @property (nonatomic, strong) id secondObjectValue;
 @property (nonatomic, strong) RACTestObject *strongTestObjectValue;
 @property (nonatomic, weak) RACTestObject *weakTestObjectValue;
+@property (nonatomic, weak) id<RACTestProtocol> weakObjectWithProtocol;
 @property (nonatomic, assign) NSInteger integerValue;
 // Holds a copy of the string.
 @property (nonatomic, assign) char *charPointerValue;

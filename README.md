@@ -23,6 +23,10 @@ If you want to learn more, we recommend these resources, roughly in order:
  1. Previously answered [Stack Overflow](https://github.com/ReactiveCocoa/ReactiveCocoa/wiki)
     questions and [GitHub issues](https://github.com/ReactiveCocoa/ReactiveCocoa/issues?labels=question&state=closed)
  1. The rest of the [Documentation][] folder
+ 1. [Functional Reactive Programming on iOS](https://leanpub.com/iosfrp/) 
+    (eBook)
+ 
+If you have any further questions, please feel free to [file an issue](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/new). 
 
 ## Introduction
 
@@ -205,8 +209,9 @@ so powerful. It's hard to appreciate RAC from README-sized examples, but it
 makes it possible to write code with less state, less boilerplate, better code
 locality, and better expression of intent.
 
-For more sample code, check out the [Mac][GHAPIDemo] or [iOS][RACiOSDemo] demos.
-Additional information about RAC can be found in the [Documentation][] folder.
+For more sample code, check out [C-41][] or [GroceryList][], which are real iOS
+apps written using ReactiveCocoa. Additional information about RAC can be found
+in the [Documentation][] folder.
 
 ## When to use ReactiveCocoa
 
@@ -484,8 +489,8 @@ If you would prefer to use [CocoaPods](http://cocoapods.org), there are some
 podspecs](https://github.com/CocoaPods/Specs/tree/master/ReactiveCocoa) that
 have been generously contributed by third parties.
 
-To see a project already set up with RAC, check out the [Mac][GHAPIDemo] or
-[iOS][RACiOSDemo] demos.
+To see a project already set up with RAC, check out [C-41][] or [GroceryList][],
+which are real iOS apps written using ReactiveCocoa.
 
 ## More Info
 
@@ -513,7 +518,7 @@ some more resources for learning about FRP:
 [Documentation]: Documentation
 [Framework Overview]: Documentation/FrameworkOverview.md
 [Functional Reactive Programming]: http://en.wikipedia.org/wiki/Functional_reactive_programming
-[GHAPIDemo]:  https://github.com/ReactiveCocoa/GHAPIDemo
+[GroceryList]:  https://github.com/jspahrsummers/GroceryList
 [Memory Management]: Documentation/MemoryManagement.md
 [NSObject+RACLifting]: ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACLifting.h
 [RACDisposable]: ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
@@ -523,5 +528,5 @@ some more resources for learning about FRP:
 [RACSignal]: ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h
 [RACSubscriber]: ReactiveCocoaFramework/ReactiveCocoa/RACSubscriber.h
 [RAC]: ReactiveCocoaFramework/ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h
-[RACiOSDemo]: https://github.com/ReactiveCocoa/RACiOSDemo
 [futures and promises]: http://en.wikipedia.org/wiki/Futures_and_promises
+[C-41]: https://github.com/AshFurrow/C-41

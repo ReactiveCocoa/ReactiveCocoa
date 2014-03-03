@@ -29,6 +29,25 @@ describe(@"-rac_textSignal", ^{
 		textField.text = @"bar";
 		expect([textSignal first]).to.equal(@"bar");
 	});
+
+	it(@"should clear text upon editing", ^{
+		textField.text = @"foo";
+		textField.clearsOnBeginEditing = YES;
+
+		UIWindow *win = [UIWindow new];
+		[win addSubview:textField];
+
+		__block NSString *str = @"bar";
+
+		RACSignal *textSignal = textField.rac_textSignal;
+		[textSignal subscribeNext:^(id x) {
+			str = x;
+		}];
+		expect(str).to.equal(@"foo");
+
+		[textField becomeFirstResponder];
+		expect(str).to.equal(@"");
+	});
 });
 
 SpecEnd

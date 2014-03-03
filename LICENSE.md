@@ -1,4 +1,4 @@
-**Copyright (c) 2012 - 2013, GitHub, Inc.**
+**Copyright (c) 2012 - 2014, GitHub, Inc.**
 **All rights reserved.**
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of

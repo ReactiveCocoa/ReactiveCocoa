@@ -102,11 +102,8 @@ describe(@"subscribing", ^{
 	
 	it(@"should automatically dispose of other subscriptions from +create:", ^{
 		__block BOOL innerDisposed = NO;
-		__block id<RACSubscriber> innerSubscriber = nil;
 
 		RACSignal *innerSignal = [RACSignal create:^(id<RACSubscriber> subscriber) {
-			// Keep the subscriber alive so it doesn't trigger disposal on dealloc
-			innerSubscriber = subscriber;
 			[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
 				innerDisposed = YES;
 			}]];

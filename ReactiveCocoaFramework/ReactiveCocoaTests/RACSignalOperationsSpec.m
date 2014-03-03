@@ -1111,9 +1111,7 @@ describe(@"-takeUntilReplacement:", ^{
 
 	it(@"should dispose of the receiver when the replacement signal sends an event", ^{
 		__block BOOL receiverDisposed = NO;
-		__block id<RACSubscriber> receiverSubscriber = nil;
 		RACSignal *receiver = [RACSignal create:^(id<RACSubscriber> subscriber) {
-			receiverSubscriber = subscriber;
 			[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
 				receiverDisposed = YES;
 			}]];

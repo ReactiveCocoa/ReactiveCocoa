@@ -1401,21 +1401,15 @@ describe(@"memory management", ^{
 		RACDisposable *disposable;
 
 		@autoreleasepool {
-			@autoreleasepool {
-				RACSignal *intermediateSignal = [subject doNext:^(id _) {
-					gotNext = YES;
-				}];
+			RACSignal *intermediateSignal = [subject doNext:^(id _) {
+				gotNext = YES;
+			}];
 
-				expect(intermediateSignal).notTo.beNil();
+			expect(intermediateSignal).notTo.beNil();
 
-				disposable = [intermediateSignal subscribeCompleted:^{
-					completed = YES;
-				}];
-			}
-
-			// Spin the run loop to account for RAC magic that retains the
-			// signal for a single iteration.
-			[NSRunLoop.mainRunLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate date]];
+			disposable = [intermediateSignal subscribeCompleted:^{
+				completed = YES;
+			}];
 		}
 
 		[subject sendNext:@5];

@@ -54,8 +54,8 @@ it(@"should set defaults", ^{
 	observer.string1 = @"A string";
 	observer.bool1 = YES;
 	
-	expect([defaults objectForKey:NSUserDefaultsRACSupportSpecStringDefault]).to.equal(@"A string");
-	expect([defaults objectForKey:NSUserDefaultsRACSupportSpecBoolDefault]).to.equal(@YES);
+	expect([defaults objectForKey:NSUserDefaultsRACSupportSpecStringDefault]).will.equal(@"A string");
+	expect([defaults objectForKey:NSUserDefaultsRACSupportSpecBoolDefault]).will.equal(@YES);
 });
 
 it(@"should read defaults", ^{

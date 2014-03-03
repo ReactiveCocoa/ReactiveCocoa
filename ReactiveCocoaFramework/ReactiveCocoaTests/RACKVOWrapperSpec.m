@@ -497,7 +497,7 @@ describe(@"-rac_observeKeyPath:options:block:", ^{
 				objectDisposed = YES;
 			}]];
 
-			[target rac_observeKeyPath:@keypath(target.weakObjectWithProtocol) options:0 observer:target block:^(id _, NSDictionary *__) {
+			[target rac_observeKeyPath:@keypath(target.weakObjectWithProtocol) options:0 block:^(id _, NSDictionary *__) {
 				objectDeallocationTriggeredChange = YES;
 			}];
 		}

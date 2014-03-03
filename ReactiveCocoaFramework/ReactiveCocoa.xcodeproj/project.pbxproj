@@ -3062,6 +3062,7 @@
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PUBLIC_HEADERS_FOLDER_PATH = include/ReactiveCocoa;
+				VALID_ARCHS = "armv6 armv7 armv7s arm64";
 			};
 			name = Test;
 		};
@@ -3168,6 +3169,7 @@
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PUBLIC_HEADERS_FOLDER_PATH = include/ReactiveCocoa;
+				VALID_ARCHS = "armv6 armv7 armv7s arm64";
 			};
 			name = Debug;
 		};
@@ -3178,6 +3180,7 @@
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PUBLIC_HEADERS_FOLDER_PATH = include/ReactiveCocoa;
+				VALID_ARCHS = "armv6 armv7 armv7s arm64";
 			};
 			name = Release;
 		};
@@ -3267,6 +3270,7 @@
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PUBLIC_HEADERS_FOLDER_PATH = include/ReactiveCocoa;
+				VALID_ARCHS = "armv6 armv7 armv7s arm64";
 			};
 			name = Profile;
 		};

@@ -46,10 +46,6 @@
 	return self;
 }
 
-- (void)dealloc {
-	[self.disposable dispose];
-}
-
 #pragma mark Subscription
 
 - (void)attachSubscriber:(RACLiveSubscriber *)subscriber {

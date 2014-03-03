@@ -95,10 +95,6 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 	return self;
 }
 
-- (void)dealloc {
-	[self.disposable dispose];
-}
-
 #pragma mark RACSubscriber
 
 - (void)sendNext:(id)value {

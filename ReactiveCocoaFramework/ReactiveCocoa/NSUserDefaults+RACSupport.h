@@ -14,8 +14,8 @@
 
 /// Creates and returns a terminal for binding the user defaults key.
 ///
-/// Note that the value in the user defaults is updated with values sent to the
-/// channel asynchronously.
+/// **Note:** The value in the user defaults is *asynchronously* updated with
+/// values sent to the channel.
 ///
 /// key - The user defaults key to create the channel terminal for.
 ///

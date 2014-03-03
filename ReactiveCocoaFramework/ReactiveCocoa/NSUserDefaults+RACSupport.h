@@ -14,14 +14,14 @@
 
 /// Creates and returns a terminal for binding the user defaults key.
 ///
-/// key - The user defaults key to create the channel terminal for.
+/// **Note:** The value in the user defaults is *asynchronously* updated with
+/// values sent to the channel.
 ///
-/// This makes it easy to bind a property to a default by assigning to
-/// `RACChannelTo`.
+/// key - The user defaults key to create the channel terminal for.
 ///
 /// Returns a channel terminal that sends the value of the user defaults key
 /// upon subscription, sends an updated value whenever the default changes, and
-/// updates the default with values it receives.
+/// updates the default asynchronously with values it receives.
 - (RACChannelTerminal *)rac_channelTerminalForKey:(NSString *)key;
 
 @end

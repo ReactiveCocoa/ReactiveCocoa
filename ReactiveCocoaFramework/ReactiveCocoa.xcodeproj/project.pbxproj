@@ -3059,7 +3059,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D094E45F17775B1000906BF7 /* iOS-StaticLibrary.xcconfig */;
 			buildSettings = {
-				CLANG_ENABLE_OBJC_ARC = NO;
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
@@ -3173,7 +3174,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D094E45F17775B1000906BF7 /* iOS-StaticLibrary.xcconfig */;
 			buildSettings = {
-				CLANG_ENABLE_OBJC_ARC = NO;
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
@@ -3191,7 +3193,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D094E45F17775B1000906BF7 /* iOS-StaticLibrary.xcconfig */;
 			buildSettings = {
-				CLANG_ENABLE_OBJC_ARC = NO;
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
@@ -3288,7 +3291,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D094E45F17775B1000906BF7 /* iOS-StaticLibrary.xcconfig */;
 			buildSettings = {
-				CLANG_ENABLE_OBJC_ARC = NO;
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				HEADER_SEARCH_PATHS = (

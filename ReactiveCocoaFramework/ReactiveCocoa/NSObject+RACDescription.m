@@ -12,11 +12,11 @@
 @implementation NSObject (RACDescription)
 
 - (NSString *)rac_description {
-#ifdef DEBUG
-	return [[NSString alloc] initWithFormat:@"<%@: %p>", self.class, self];
-#else
-	return @"(description skipped)";
-#endif
+	if (getenv("RAC_DEBUG_SIGNAL_NAMES") != NULL) {
+		return [[NSString alloc] initWithFormat:@"<%@: %p>", self.class, self];
+	} else {
+		return @"(description skipped)";
+	}
 }
 
 @end

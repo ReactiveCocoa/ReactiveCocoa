@@ -33,7 +33,7 @@
 	// higher level.
 	#pragma clang diagnostic push
 	#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-	RACReplaySubject *results = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"%@ -rac_liftSelector: %@ withSignalsFromArray: %@", [self rac_description], NSStringFromSelector(selector), signals];
+	RACReplaySubject *results = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"%@ -rac_liftSelector: %s withSignalsFromArray: %@", [self rac_description], sel_getName(selector), signals];
 	#pragma clang diagnostic pop
 
 	@unsafeify(self);
@@ -71,7 +71,7 @@
 
 	return [[self
 		rac_liftSelector:selector withSignalsFromArray:signals]
-		setNameWithFormat:@"%@ -rac_liftSelector: %@ withSignals: %@", [self rac_description], NSStringFromSelector(selector), signals];
+		setNameWithFormat:@"%@ -rac_liftSelector: %s withSignals: %@", [self rac_description], sel_getName(selector), signals];
 }
 
 @end

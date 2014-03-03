@@ -5,13 +5,10 @@ To get started with a template, simply double-click it.
 
 ### Signal Names
 
-The `name` property of `RACSignal` is currently only functional in `DEBUG`
-builds, which means that you won't have access to meaningful names in
-Instruments if you're profiling a Release build.
+The `name` property of `RACSignal` requires that the `RAC_DEBUG_SIGNAL_NAMES`
+environment variable be set, which means that you won't have access to
+meaningful names in Instruments by default.
 
-As a workaround, you can do one of the following:
-
- 1. Run your application (instead of using the Profile action), then ask
-    Instruments to attach to the running process.
- 2. In your application's scheme, set the Profile action to use the "Debug"
-    configuration, then profile normally.
+To add signal names, open your application's scheme in Xcode, select the Profile
+action, and add `RAC_DEBUG_SIGNAL_NAMES` with a value of `1` to the list of
+environment variables.

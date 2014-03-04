@@ -76,7 +76,7 @@ extern NSString * const RACUnderlyingCommandErrorKey;
 /// The default value for this property is NO.
 @property (atomic, assign) BOOL allowsConcurrentExecution;
 
-/// Invokes -initWithSignalBlock:enabled: with a nil `enabledSignal`.
+/// Invokes -initWithEnabled:signalBlock: with a nil `enabledSignal`.
 - (id)initWithSignalBlock:(RACSignal * (^)(id input))signalBlock;
 
 /// Initializes a command that is conditionally enabled.

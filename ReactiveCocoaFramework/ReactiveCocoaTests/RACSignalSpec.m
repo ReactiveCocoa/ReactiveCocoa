@@ -1469,6 +1469,32 @@ describe(@"memory management", ^{
 	});
 });
 
+describe(@"-mergeWith:", ^{
+	__block RACSubject *sub1;
+	__block RACSubject *sub2;
+	__block RACSignal *merged;
+	beforeEach(^{
+		sub1 = [RACSubject subject];
+		sub2 = [RACSubject subject];
+		merged = [sub1 mergeWith:sub2];
+	});
+
+	it(@"should send all values from both signals", ^{
+		NSMutableArray *values = [NSMutableArray array];
+		[merged subscribeNext:^(id x) {
+			[values addObject:x];
+		}];
+
+		[sub1 sendNext:@1];
+		[sub2 sendNext:@2];
+		[sub2 sendNext:@3];
+		[sub1 sendNext:@4];
+
+		NSArray *expected = @[ @1, @2, @3, @4 ];
+		expect(values).to.equal(expected);
+	});
+});
+
 describe(@"+merge:", ^{
 	__block RACSubject *sub1;
 	__block RACSubject *sub2;

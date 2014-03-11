@@ -458,6 +458,12 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	return [result setNameWithFormat:@"+combineLatest: %@ reduce:", signals];
 }
 
+- (RACSignal *)mergeWith:(RACSignal *)signal {
+	return [[RACSignal
+		merge:@[ self, signal ]]
+		setNameWithFormat:@"[%@] -mergeWith: %@", self.name, signal];
+}
+
 + (RACSignal *)merge:(id<NSFastEnumeration>)signals {
 	NSMutableArray *copiedSignals = [[NSMutableArray alloc] init];
 	for (RACSignal *signal in signals) {

@@ -62,7 +62,7 @@ There's still a bit of a tricky middle case here, though. Any time a signal's
 lifetime is tied to the calling scope, you'll have a much harder cycle to break.
 
 This commonly occurs when using `RACObserve()` on a key
-path that's relative to `self`, and then applying a block that needs to captures
+path that's relative to `self`, and then applying a block that needs to capture
 `self`.
 
 The easiest answer here is just to **capture `self` weakly**:

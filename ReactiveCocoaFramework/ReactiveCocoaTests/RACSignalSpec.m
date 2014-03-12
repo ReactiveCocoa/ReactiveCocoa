@@ -1469,14 +1469,14 @@ describe(@"memory management", ^{
 	});
 });
 
-describe(@"-mergeWith:", ^{
+describe(@"-merge:", ^{
 	__block RACSubject *sub1;
 	__block RACSubject *sub2;
 	__block RACSignal *merged;
 	beforeEach(^{
 		sub1 = [RACSubject subject];
 		sub2 = [RACSubject subject];
-		merged = [sub1 mergeWith:sub2];
+		merged = [sub1 merge:sub2];
 	});
 
 	it(@"should send all values from both signals", ^{

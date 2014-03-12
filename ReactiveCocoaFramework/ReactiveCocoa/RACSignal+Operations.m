@@ -458,7 +458,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	return [result setNameWithFormat:@"+combineLatest: %@ reduce:", signals];
 }
 
-- (RACSignal *)mergeWith:(RACSignal *)signal {
+- (RACSignal *)merge:(RACSignal *)signal {
 	return [[RACSignal
 		merge:@[ self, signal ]]
 		setNameWithFormat:@"[%@] -mergeWith: %@", self.name, signal];

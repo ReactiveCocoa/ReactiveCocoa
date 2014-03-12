@@ -195,7 +195,7 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 + (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals reduce:(id (^)())reduceBlock;
 
 /// Returns a signal that merges the receiver and the given signal with `+merge:`.
-- (RACSignal *)mergeWith:(RACSignal *)signal;
+- (RACSignal *)merge:(RACSignal *)signal;
 
 /// Sends the latest `next` from any of the signals.
 ///

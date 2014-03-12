@@ -461,7 +461,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 - (RACSignal *)merge:(RACSignal *)signal {
 	return [[RACSignal
 		merge:@[ self, signal ]]
-		setNameWithFormat:@"[%@] -mergeWith: %@", self.name, signal];
+		setNameWithFormat:@"[%@] -merge: %@", self.name, signal];
 }
 
 + (RACSignal *)merge:(id<NSFastEnumeration>)signals {

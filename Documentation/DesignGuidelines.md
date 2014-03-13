@@ -500,7 +500,7 @@ complex.
 ### Cancel work and clean up all resources in a disposable
 
 When implementing a signal with the [+create:][RACSignal] method, you can add
-disposables to the subscriber's [-disposable][RACSubscriber] property. Taking
+disposables to the subscriber's [disposable][RACSubscriber] property. Taking
 advantage of this you should:
 
  * As soon as it is convenient, gracefully cancel any in-progress work that was

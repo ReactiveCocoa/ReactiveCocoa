@@ -25,7 +25,7 @@ removed**.
 For example, if you have some code like this in your view controller:
 
 ```objc
-self.disposable = [signal subscribeCompleted:^{
+[signal subscribeCompleted:^{
     doSomethingPossiblyInvolving(self);
 }];
 ```
@@ -33,7 +33,7 @@ self.disposable = [signal subscribeCompleted:^{
 … the memory management will look something like the following:
 
 ```
-view controller -> RACDisposable -> RACSignal -> RACSubscriber -> view controller
+RACSignal -> RACSubscriber -> view controller
 ```
 
 However, the `RACSignal -> RACSubscriber` relationship is torn down as soon as
@@ -108,32 +108,5 @@ RACSignal *validated = [RACObserve(self, username) map:^(NSString *username) {
 
 As with infinite signals, there are generally ways you can avoid referencing
 `self` (or any object) from blocks in a signal chain.
-
-----
-
-The above information is really all you should need in order to use
-ReactiveCocoa effectively. However, there's one more point to address, just for
-the technically curious or for anyone interested in contributing to RAC.
-
-The design goal of "no retaining necessary" begs the question: how do we know
-when a signal should be deallocated? What if it was just created, escaped an
-autorelease pool, and hasn't been retained yet?
-
-The real answer is _we don't_, BUT we can usually assume that the caller will
-retain the signal within the current run loop iteration if they want to keep it.
-
-Consequently:
-
- 1. A created signal is automatically added to a global set of active signals.
- 2. The signal will wait for a single pass of the main run loop, and then remove
-    itself from the active set _if it has no subscribers_. Unless the signal was
-    retained somehow, it would deallocate at this point.
- 3. If something did subscribe in that run loop iteration, the signal stays in
-    the set.
- 4. Later, when all the subscribers are gone, step 2 is triggered again.
-
-This could backfire if the run loop is spun recursively (like in a modal event
-loop on OS X), but it makes the life of the framework consumer much easier for
-most or all other cases.
 
 [avoid-explicit-subscriptions-and-disposal]: DesignGuidelines.md#avoid-explicit-subscriptions-and-disposal

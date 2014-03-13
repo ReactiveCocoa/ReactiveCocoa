@@ -11,7 +11,6 @@ resource for getting up to speed on the functionality provided by RAC.
 **[The RACSignal contract](#the-racsignal-contract)**
 
  1. [Signal events are serialized](#signal-events-are-serialized)
- 1. [Subscription will always occur on a scheduler](#subscription-will-always-occur-on-a-scheduler)
  1. [Errors are propagated immediately](#errors-are-propagated-immediately)
  1. [Side effects occur for each subscription](#side-effects-occur-for-each-subscription)
  1. [Subscriptions are automatically disposed upon completion or error](#subscriptions-are-automatically-disposed-upon-completion-or-error)
@@ -60,20 +59,6 @@ been handled.
 Most notably, this means that the blocks passed to
 [-subscribeNext:error:completed:][RACSignal] do not need to be synchronized with
 respect to each other, because they will never be invoked simultaneously.
-
-### Subscription will always occur on a scheduler
-
-To ensure consistent behavior for the `+createSignal:` and `-subscribe:`
-methods, each [RACSignal][] subscription is guaranteed to take place on
-a valid [RACScheduler][].
-
-If the subscriber's thread already has a [+currentScheduler][RACScheduler],
-scheduling takes place immediately; otherwise, scheduling occurs as soon as
-possible on a background scheduler. Note that the main thread is always
-associated with the [+mainThreadScheduler][RACScheduler], so subscription will
-always be immediate there.
-
-See the documentation for [-subscribe:][RACSignal] for more information.
 
 ### Errors are propagated immediately
 
@@ -225,9 +210,9 @@ RACSignal *result2 = [signal map:^(NSNumber *value) {
 ```
 
 When transforming the same signal multiple times, ensure that all of the
-steps are aligned. Complex operators like [+zip:reduce:][RACSignal+Operations] or
-[+combineLatest:reduce:][RACSignal+Operations] may be split over multiple lines
-for readability:
+steps are aligned. Complex operators like [+zip:reduce:][RACSignal+Operations]
+or [+combineLatest:reduce:][RACSignal+Operations] may be split over multiple
+lines for readability:
 
 ```objc
 RACSignal *result = [[[RACSignal
@@ -286,10 +271,10 @@ values, and then automatically [dispose of the
 subscription](#disposal-cancels-in-progress-work-and-cleans-up-resources)
 immediately thereafter.
 
-Operators like `-take:` and [-takeUntil:][RACSignal+Operations] automatically propagate cancellation
-up the stack as well. If nothing else needs the rest of the values, any
-dependencies will be terminated too, potentially saving a significant amount of
-work.
+Operators like `-take:` and [-takeUntil:][RACSignal+Operations] automatically
+propagate cancellation up the stack as well. If nothing else needs the rest of
+the values, any dependencies will be terminated too, potentially saving a
+significant amount of work.
 
 ### Deliver signal events onto a known scheduler
 
@@ -514,14 +499,14 @@ complex.
 
 ### Cancel work and clean up all resources in a disposable
 
-When implementing a signal with the [+createSignal:][RACSignal] method, the
-provided block is expected to return a [RACDisposable][]. This disposable
-should:
+When implementing a signal with the [+create:][RACSignal] method, you can add
+disposables to the subscriber's [disposable][RACSubscriber] property. Taking
+advantage of this you should:
 
  * As soon as it is convenient, gracefully cancel any in-progress work that was
    started by the signal.
- * Immediately dispose of any subscriptions to other signals, thus triggering
-   their cancellation and cleanup code as well.
+ * Immediately dispose of any subscriptions by other subscribers, thus
+   triggering their cancellation and cleanup code as well.
  * Release any memory or other resources that were allocated by the signal.
 
 This helps fulfill [the RACSignal

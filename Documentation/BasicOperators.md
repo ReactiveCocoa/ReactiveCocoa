@@ -242,6 +242,8 @@ RACSignal *letters = [@"A B C D E F G H I" componentsSeparatedByString:@" "].rac
     }];
 ```
 
+A detailed explanation about the difference between `-map:` and `-flattenMap:` can be seen [here](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/448#issuecomment-34977600). 
+
 ## Combining signals
 
 These operators combine multiple signals into a single new [RACSignal][].

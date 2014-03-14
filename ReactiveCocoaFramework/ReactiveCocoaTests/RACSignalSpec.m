@@ -1469,6 +1469,85 @@ describe(@"memory management", ^{
 	});
 });
 
+describe(@"-merge:", ^{
+	__block RACSubject *sub1;
+	__block RACSubject *sub2;
+	__block RACSignal *merged;
+	beforeEach(^{
+		sub1 = [RACSubject subject];
+		sub2 = [RACSubject subject];
+		merged = [sub1 merge:sub2];
+	});
+
+	it(@"should send all values from both signals", ^{
+		NSMutableArray *values = [NSMutableArray array];
+		[merged subscribeNext:^(id x) {
+			[values addObject:x];
+		}];
+
+		[sub1 sendNext:@1];
+		[sub2 sendNext:@2];
+		[sub2 sendNext:@3];
+		[sub1 sendNext:@4];
+
+		NSArray *expected = @[ @1, @2, @3, @4 ];
+		expect(values).to.equal(expected);
+	});
+
+	it(@"should send an error if one occurs", ^{
+		__block NSError *errorReceived;
+		[merged subscribeError:^(NSError *error) {
+			errorReceived = error;
+		}];
+
+		[sub1 sendError:RACSignalTestError];
+		expect(errorReceived).to.equal(RACSignalTestError);
+	});
+
+	it(@"should complete only after both signals complete", ^{
+		NSMutableArray *values = [NSMutableArray array];
+		__block BOOL completed = NO;
+		[merged subscribeNext:^(id x) {
+			[values addObject:x];
+		} completed:^{
+			completed = YES;
+		}];
+
+		[sub1 sendNext:@1];
+		[sub2 sendNext:@2];
+		[sub2 sendNext:@3];
+		[sub2 sendCompleted];
+		expect(completed).to.beFalsy();
+
+		[sub1 sendNext:@4];
+		[sub1 sendCompleted];
+		expect(completed).to.beTruthy();
+
+		NSArray *expected = @[ @1, @2, @3, @4 ];
+		expect(values).to.equal(expected);
+	});
+
+	it(@"should complete only after both signals complete for any number of subscribers", ^{
+		__block BOOL completed1 = NO;
+		__block BOOL completed2 = NO;
+		[merged subscribeCompleted:^{
+			completed1 = YES;
+		}];
+
+		[merged subscribeCompleted:^{
+			completed2 = YES;
+		}];
+
+		expect(completed1).to.beFalsy();
+		expect(completed2).to.beFalsy();
+
+		[sub1 sendCompleted];
+		[sub2 sendCompleted];
+		expect(completed1).to.beTruthy();
+		expect(completed2).to.beTruthy();
+	});
+});
+
 describe(@"+merge:", ^{
 	__block RACSubject *sub1;
 	__block RACSubject *sub2;

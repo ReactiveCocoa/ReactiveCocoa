@@ -143,7 +143,7 @@ static void RACExceptionHandler (NSException *ex) {
 	return array;
 }
 
-#pragma mark Initialization
+#pragma mark Lifecycle
 
 + (void)load {
 	@autoreleasepool {
@@ -166,6 +166,11 @@ static void RACExceptionHandler (NSException *ex) {
 	signal(SIGSEGV, &RACSignalHandler);
 	signal(SIGSYS, &RACSignalHandler);
 	signal(SIGPIPE, &RACSignalHandler);
+}
+
+- (void)dealloc {
+	__autoreleasing RACBacktrace *previous __attribute__((unused)) = self.previousThreadBacktrace;
+	self.previousThreadBacktrace = nil;
 }
 
 #pragma mark Backtraces

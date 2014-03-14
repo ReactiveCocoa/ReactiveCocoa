@@ -61,7 +61,7 @@ static dispatch_block_t RACBacktraceBlock (dispatch_queue_t queue, dispatch_bloc
 	RACBacktrace *backtrace = [RACBacktrace backtrace];
 
 	return [^{
-		__autoreleasing RACBacktrace *backtraceKeptAlive = backtrace;
+		RACBacktrace *backtraceKeptAlive __attribute__((objc_precise_lifetime)) = backtrace;
 
 		dispatch_queue_set_specific(queue, (void *)pthread_self(), (__bridge void *)backtraceKeptAlive, NULL);
 		block();

@@ -6,6 +6,22 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		AC6CF15718D5A3A500E3FF6A /* ReactiveCocoaIOS */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = AC6CF16018D5A3A600E3FF6A /* Build configuration list for PBXAggregateTarget "ReactiveCocoaIOS" */;
+			buildPhases = (
+				AC6CF16118D5A3BC00E3FF6A /* Build Framework */,
+			);
+			dependencies = (
+				AC6CF16718D5A47D00E3FF6A /* PBXTargetDependency */,
+				AC6CF16518D5A46F00E3FF6A /* PBXTargetDependency */,
+			);
+			name = ReactiveCocoaIOS;
+			productName = ReactiveCocoaIOS;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		1646747B17FFA0610036E30B /* UICollectionReusableView+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 1668027817FE75E900C724B4 /* UICollectionReusableView+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1668028017FE75F900C724B4 /* UICollectionReusableView+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 1668027917FE75E900C724B4 /* UICollectionReusableView+RACSignalSupport.m */; };
@@ -664,6 +680,20 @@
 			remoteGlobalIDString = E9ACDF0B13B2DD520010F4D7;
 			remoteInfo = Expecta;
 		};
+		AC6CF16418D5A46F00E3FF6A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 88CDF7B215000FCE00163A9F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 88F440AA153DAC820097B4C3;
+			remoteInfo = "ReactiveCocoa-iOS";
+		};
+		AC6CF16618D5A47D00E3FF6A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 88CDF7B215000FCE00163A9F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5FAF5222174D4C2000CAC810;
+			remoteInfo = "ReactiveCocoaTests-iOS";
+		};
 		D0ED9DB517501806003859A6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 88CDF7B215000FCE00163A9F /* Project object */;
@@ -907,9 +937,9 @@
 		BE527E9E1863705B006349E8 /* NSUserDefaultsRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSUserDefaultsRACSupportSpec.m; sourceTree = "<group>"; };
 		CD11C6F118714CD0007C7CFD /* UITableViewHeaderFooterView+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITableViewHeaderFooterView+RACSignalSupport.h"; sourceTree = "<group>"; };
 		CD11C6F218714CD0007C7CFD /* UITableViewHeaderFooterView+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITableViewHeaderFooterView+RACSignalSupport.m"; sourceTree = "<group>"; };
+		CD11C6F918714DC1007C7CFD /* UITableViewHeaderFooterViewRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UITableViewHeaderFooterViewRACSupportSpec.m; sourceTree = "<group>"; };
 		CD11C6FC18714DFB007C7CFD /* RACTestTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACTestTableViewController.h; sourceTree = "<group>"; };
 		CD11C6FD18714DFB007C7CFD /* RACTestTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACTestTableViewController.m; sourceTree = "<group>"; };
-		CD11C6F918714DC1007C7CFD /* UITableViewHeaderFooterViewRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UITableViewHeaderFooterViewRACSupportSpec.m; sourceTree = "<group>"; };
 		D004BC9B177E1A2B00A5B8C5 /* UIActionSheetRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = UIActionSheetRACSupportSpec.m; path = ReactiveCocoaTests/UIActionSheetRACSupportSpec.m; sourceTree = SOURCE_ROOT; };
 		D00930771788AB7B00EE7E8B /* RACTestScheduler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACTestScheduler.h; sourceTree = "<group>"; };
 		D00930781788AB7B00EE7E8B /* RACTestScheduler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACTestScheduler.m; sourceTree = "<group>"; };
@@ -2112,6 +2142,7 @@
 			projectRoot = "";
 			targets = (
 				88037F8215056328001A5B19 /* ReactiveCocoa */,
+				AC6CF15718D5A3A500E3FF6A /* ReactiveCocoaIOS */,
 				88F440AA153DAC820097B4C3 /* ReactiveCocoa-iOS */,
 				88CDF7DB15000FCF00163A9F /* ReactiveCocoaTests */,
 				5FAF5222174D4C2000CAC810 /* ReactiveCocoaTests-iOS */,
@@ -2226,6 +2257,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		AC6CF16118D5A3BC00E3FF6A /* Build Framework */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Build Framework";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\nset +u\n# Avoid recursively calling this script.\nif [[ $SF_MASTER_SCRIPT_RUNNING ]]\nthen\nexit 0\nfi\nset -u\nexport SF_MASTER_SCRIPT_RUNNING=1\n\nSF_TARGET_NAME=\"ReactiveCocoa-iOS\"\nSF_EXECUTABLE_PATH=\"lib${SF_TARGET_NAME}.a\"\nSF_WRAPPER_NAME=\"${SF_TARGET_NAME}.framework\"\n\n# The following conditionals come from\n# https://github.com/kstenerud/iOS-Universal-Framework\n\nif [[ \"$SDK_NAME\" =~ ([A-Za-z]+) ]]\nthen\nSF_SDK_PLATFORM=${BASH_REMATCH[1]}\nelse\necho \"Could not find platform name from SDK_NAME: $SDK_NAME\"\nexit 1\nfi\n\nif [[ \"$SDK_NAME\" =~ ([0-9]+.*$) ]]\nthen\nSF_SDK_VERSION=${BASH_REMATCH[1]}\nelse\necho \"Could not find sdk version from SDK_NAME: $SDK_NAME\"\nexit 1\nfi\n\nif [[ \"$SF_SDK_PLATFORM\" = \"iphoneos\" ]]\nthen\nSF_OTHER_PLATFORM=iphonesimulator\nelse\nSF_OTHER_PLATFORM=iphoneos\nfi\n\nif [[ \"$BUILT_PRODUCTS_DIR\" =~ (.*)$SF_SDK_PLATFORM$ ]]\nthen\nSF_OTHER_BUILT_PRODUCTS_DIR=\"${BASH_REMATCH[1]}${SF_OTHER_PLATFORM}\"\nelse\necho \"Could not find platform name from build products directory: $BUILT_PRODUCTS_DIR\"\nexit 1\nfi\n\n# Build the other platform.\nxcodebuild -project \"${PROJECT_FILE_PATH}\" -target \"${TARGET_NAME}\" -configuration \"${CONFIGURATION}\" -sdk ${SF_OTHER_PLATFORM}${SF_SDK_VERSION} BUILD_DIR=\"${BUILD_DIR}\" OBJROOT=\"${OBJROOT}\" BUILD_ROOT=\"${BUILD_ROOT}\" SYMROOT=\"${SYMROOT}\" $ACTION\n\nif [ -e \"${BUILT_PRODUCTS_DIR}/${SF_TARGET_NAME}.framework\" ];\nthen\n   rm -rf \"${BUILT_PRODUCTS_DIR}/${SF_TARGET_NAME}.framework\"\nfi\n\nmkdir -p \"${BUILT_PRODUCTS_DIR}/${SF_TARGET_NAME}.framework/Versions/${FRAMEWORK_VERSION}/Headers\"\ncp -r \"${BUILT_PRODUCTS_DIR}/include/${PROJECT_NAME}\" \"${BUILT_PRODUCTS_DIR}/${SF_TARGET_NAME}.framework/Versions/${FRAMEWORK_VERSION}/Headers\"\n\n# Link the \"Current\" version to \"${FRAMEWORK_VERSION}\"\nln -sfh ${FRAMEWORK_VERSION} \"${BUILT_PRODUCTS_DIR}/${SF_TARGET_NAME}.framework/Versions/Current\"\nln -sfh Versions/Current/Headers \"${BUILT_PRODUCTS_DIR}/${SF_TARGET_NAME}.framework/Headers\"\nln -sfh \"Versions/Current/${SF_TARGET_NAME}\" \"${BUILT_PRODUCTS_DIR}/${SF_TARGET_NAME}.framework/${SF_TARGET_NAME}\"\n\n# Smash the two static libraries into one fat binary and store it in the .framework\nlipo -create \"${BUILT_PRODUCTS_DIR}/${SF_EXECUTABLE_PATH}\" \"${SF_OTHER_BUILT_PRODUCTS_DIR}/${SF_EXECUTABLE_PATH}\" -output \"${BUILT_PRODUCTS_DIR}/${SF_WRAPPER_NAME}/Versions/${FRAMEWORK_VERSION}/${SF_TARGET_NAME}\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		1860F40E177C91B500C7B3C9 /* Sources */ = {
@@ -2648,6 +2696,16 @@
 			isa = PBXTargetDependency;
 			name = Expecta;
 			targetProxy = 8803806F15056B1B001A5B19 /* PBXContainerItemProxy */;
+		};
+		AC6CF16518D5A46F00E3FF6A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 88F440AA153DAC820097B4C3 /* ReactiveCocoa-iOS */;
+			targetProxy = AC6CF16418D5A46F00E3FF6A /* PBXContainerItemProxy */;
+		};
+		AC6CF16718D5A47D00E3FF6A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5FAF5222174D4C2000CAC810 /* ReactiveCocoaTests-iOS */;
+			targetProxy = AC6CF16618D5A47D00E3FF6A /* PBXContainerItemProxy */;
 		};
 		D0ED9DB617501806003859A6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -3179,6 +3237,38 @@
 			};
 			name = Release;
 		};
+		AC6CF15818D5A3A500E3FF6A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		AC6CF15918D5A3A500E3FF6A /* Test */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+			};
+			name = Test;
+		};
+		AC6CF15A18D5A3A500E3FF6A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+			};
+			name = Release;
+		};
+		AC6CF15B18D5A3A500E3FF6A /* Profile */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+			};
+			name = Profile;
+		};
 		D05AD3B117F2D5710080895B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D094E46517775B1000906BF7 /* Mac-StaticLibrary.xcconfig */;
@@ -3362,6 +3452,17 @@
 				88997CAC1728912B00C569A6 /* Test */,
 				88F440B5153DAC820097B4C3 /* Release */,
 				D095BDD315CB2F9D00E9BB13 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AC6CF16018D5A3A600E3FF6A /* Build configuration list for PBXAggregateTarget "ReactiveCocoaIOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AC6CF15818D5A3A500E3FF6A /* Debug */,
+				AC6CF15918D5A3A500E3FF6A /* Test */,
+				AC6CF15A18D5A3A500E3FF6A /* Release */,
+				AC6CF15B18D5A3A500E3FF6A /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

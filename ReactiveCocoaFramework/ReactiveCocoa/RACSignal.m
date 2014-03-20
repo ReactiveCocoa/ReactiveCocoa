@@ -18,6 +18,8 @@
 #import "RACScheduler.h"
 #import "RACSerialDisposable.h"
 #import "RACSignal+Operations.h"
+#import "RACSlimSignal.h"
+#import "RACSlimSubscriber.h"
 #import "RACSubject.h"
 #import "RACSubscriber+Private.h"
 #import "RACTuple.h"
@@ -264,6 +266,35 @@
 			[otherDisposable dispose];
 		}];
 	}] setNameWithFormat:@"[%@] -zipWith: %@", self.name, signal];
+}
+
+- (instancetype)map:(id (^)(id))block {
+	NSCParameterAssert(block != nil);
+	
+	return [[RACSlimSignal slimSignalWithSubscribe:^(id<RACSubscriber> subscriber) {
+		NSCParameterAssert(subscriber != nil);
+		
+		RACSlimSubscriber *wrapped = [RACSlimSubscriber slimSubscriberWrapping:subscriber];
+		id<RACSubscriber> mapped = [wrapped withSendNext:^(id x) {
+			[subscriber sendNext:block(x)];
+		}];
+		return [self subscribe:mapped];
+	}] setNameWithFormat:@"[%@] -map:", self.name];
+}
+- (instancetype)filter:(BOOL (^)(id))block {
+	NSCParameterAssert(block != nil);
+	
+	return [[RACSlimSignal slimSignalWithSubscribe:^(id<RACSubscriber> subscriber) {
+		NSCParameterAssert(subscriber != nil);
+		
+		RACSlimSubscriber *wrapped = [RACSlimSubscriber slimSubscriberWrapping:subscriber];
+		id<RACSubscriber> filtered = [wrapped withSendNext:^(id x) {
+			if (block(x)) {
+				[subscriber sendNext:x];
+			}
+		}];
+		return [self subscribe:filtered];
+	}] setNameWithFormat:@"[%@] -filter:", self.name];
 }
 
 @end

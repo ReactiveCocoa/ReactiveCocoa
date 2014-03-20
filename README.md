@@ -490,7 +490,7 @@ To add RAC to your application:
 
  1. Add the ReactiveCocoa repository as a submodule of your application's
     repository.
- 1. Run `script/bootstrap` from within the ReactiveCocoa folder.
+ 1. Run `git submodule update --init --recursive` from within the ReactiveCocoa folder.
  1. Drag and drop `ReactiveCocoaFramework/ReactiveCocoa.xcodeproj` into your
     application's Xcode project or workspace.
  1. On the "Build Phases" tab of your application target, add RAC to the "Link
@@ -514,6 +514,9 @@ have been generously contributed by third parties.
 
 To see a project already set up with RAC, check out [C-41][] or [GroceryList][],
 which are real iOS apps written using ReactiveCocoa.
+
+If you're looking to integrate ReactiveCocoa in your project's CI setup, refer
+to the `script/bootstrap` and `script/cibuild` scripts.
 
 ## More Info
 

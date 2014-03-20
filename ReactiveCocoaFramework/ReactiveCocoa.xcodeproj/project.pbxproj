@@ -559,6 +559,8 @@
 		D0F117CC179F0B97006CE68F /* UITableViewCellRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D0F117CB179F0B97006CE68F /* UITableViewCellRACSupportSpec.m */; };
 		D4ACA47618DB88E400EBD899 /* libSpecta.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D4ACA47518DB88E400EBD899 /* libSpecta.a */; };
 		D4ACA47818DB890900EBD899 /* libExpecta.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D4ACA47718DB890900EBD899 /* libExpecta.a */; };
+		D4ACA4A418DB926700EBD899 /* libExpecta-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D4ACA4A318DB926700EBD899 /* libExpecta-iOS.a */; };
+		D4ACA4A618DB926D00EBD899 /* libSpecta-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D4ACA4A518DB926D00EBD899 /* libSpecta-iOS.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -929,6 +931,8 @@
 		D0FAEC02176AEEE600D3C1A7 /* RACSubscriber+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RACSubscriber+Private.h"; sourceTree = "<group>"; };
 		D4ACA47518DB88E400EBD899 /* libSpecta.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSpecta.a; path = ../external/specta/build/Debug/libSpecta.a; sourceTree = "<group>"; };
 		D4ACA47718DB890900EBD899 /* libExpecta.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libExpecta.a; path = ../external/expecta/build/Debug/libExpecta.a; sourceTree = "<group>"; };
+		D4ACA4A318DB926700EBD899 /* libExpecta-iOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libExpecta-iOS.a"; path = "../external/expecta/build/Debug-iphoneos/libExpecta-iOS.a"; sourceTree = "<group>"; };
+		D4ACA4A518DB926D00EBD899 /* libSpecta-iOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libSpecta-iOS.a"; path = "../external/specta/build/Debug-iphoneos/libSpecta-iOS.a"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -961,6 +965,8 @@
 				5FAF5289174E9CD300CAC810 /* CoreGraphics.framework in Frameworks */,
 				5FAF5265174D500D00CAC810 /* libReactiveCocoa-iOS.a in Frameworks */,
 				5FAF5224174D4C2000CAC810 /* SenTestingKit.framework in Frameworks */,
+				D4ACA4A418DB926700EBD899 /* libExpecta-iOS.a in Frameworks */,
+				D4ACA4A618DB926D00EBD899 /* libSpecta-iOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1179,7 +1185,9 @@
 			isa = PBXGroup;
 			children = (
 				D4ACA47718DB890900EBD899 /* libExpecta.a */,
+				D4ACA4A318DB926700EBD899 /* libExpecta-iOS.a */,
 				D4ACA47518DB88E400EBD899 /* libSpecta.a */,
+				D4ACA4A518DB926D00EBD899 /* libSpecta-iOS.a */,
 				D094E44417775ACD00906BF7 /* libextobjc */,
 				1860F413177C91B500C7B3C9 /* UIKit.framework */,
 				1860F415177C91B500C7B3C9 /* Foundation.framework */,
@@ -2841,7 +2849,6 @@
 					"\"$(PROJECT_DIR)/../external/expecta/src\"/**",
 				);
 				INFOPLIST_FILE = "ReactiveCocoaTests/ReactiveCocoaTests-Info.plist";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = ReactiveCocoaTests;
 				VALID_ARCHS = x86_64;
@@ -2902,7 +2909,6 @@
 					"\"$(PROJECT_DIR)/../external/expecta/src\"/**",
 				);
 				INFOPLIST_FILE = "ReactiveCocoaTests/ReactiveCocoaTests-Info.plist";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = ReactiveCocoaTests;
 				VALID_ARCHS = x86_64;
@@ -2921,7 +2927,6 @@
 					"\"$(PROJECT_DIR)/../external/expecta/src\"/**",
 				);
 				INFOPLIST_FILE = "ReactiveCocoaTests/ReactiveCocoaTests-Info.plist";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = ReactiveCocoaTests;
 				VALID_ARCHS = x86_64;
@@ -3049,7 +3054,6 @@
 					"\"$(PROJECT_DIR)/../external/expecta/src\"/**",
 				);
 				INFOPLIST_FILE = "ReactiveCocoaTests/ReactiveCocoaTests-Info.plist";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = ReactiveCocoaTests;
 				VALID_ARCHS = x86_64;

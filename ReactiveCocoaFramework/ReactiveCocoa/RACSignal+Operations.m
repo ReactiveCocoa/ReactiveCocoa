@@ -633,15 +633,27 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 
+	SEL allowsWeakReferenceSEL = sel_registerName("allowsWeakReference");
+	Method objectAllowsWeakReference = class_getInstanceMethod(object_getClass(object), allowsWeakReferenceSEL);
+	Method rootAllowsWeakReference = class_getInstanceMethod(NSObject.class, allowsWeakReferenceSEL);
+	BOOL allowsWeakReference = (objectAllowsWeakReference == rootAllowsWeakReference);
+
 	// Purposely not retaining 'object', since we want to tear down the binding
 	// when it deallocates normally.
-	__block void * volatile objectPtr = (__bridge void *)object;
+	__block void * volatile objectPtr;
+	__weak NSObject *weakObject;
+
+	if (allowsWeakReference) {
+		weakObject = object;
+	} else {
+		objectPtr = (__bridge void *)object;
+	}
 
 	RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
-		NSObject *object __attribute__((objc_precise_lifetime)) = (__bridge id)objectPtr;
+		NSObject *object = allowsWeakReference ? weakObject : (__bridge id)objectPtr;
 		[object setValue:x ?: nilValue forKeyPath:keyPath];
 	} error:^(NSError *error) {
-		NSObject *object __attribute__((objc_precise_lifetime)) = (__bridge id)objectPtr;
+		NSObject *object = allowsWeakReference ? weakObject : (__bridge id)objectPtr;
 
 		NSCAssert(NO, @"Received error from %@ in binding for key path \"%@\" on %@: %@", self, keyPath, object, error);
 
@@ -681,7 +693,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		}
 		#endif
 
-		while (YES) {
+		while (!allowsWeakReference) {
 			void *ptr = objectPtr;
 			if (OSAtomicCompareAndSwapPtrBarrier(ptr, NULL, &objectPtr)) {
 				break;

@@ -638,6 +638,10 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	__block void * volatile objectPtr = (__bridge void *)object;
 
 	RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
+		// Possibly spec, possibly compiler bug, but this __bridge cast does not
+		// result in a retain here, effectively an invisible __unsafe_unretained
+		// qualifier. Using objc_precise_lifetime gives the __strong reference
+		// desired. The explicit use of __strong is strictly defensive.
 		__strong NSObject *object __attribute__((objc_precise_lifetime)) = (__bridge __strong id)objectPtr;
 		[object setValue:x ?: nilValue forKeyPath:keyPath];
 	} error:^(NSError *error) {

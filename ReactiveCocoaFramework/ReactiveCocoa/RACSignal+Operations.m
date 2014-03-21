@@ -638,10 +638,10 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	__block void * volatile objectPtr = (__bridge void *)object;
 
 	RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
-		NSObject *object __attribute__((objc_precise_lifetime)) = (__bridge id)objectPtr;
+		__strong NSObject *object __attribute__((objc_precise_lifetime)) = (__bridge __strong id)objectPtr;
 		[object setValue:x ?: nilValue forKeyPath:keyPath];
 	} error:^(NSError *error) {
-		NSObject *object __attribute__((objc_precise_lifetime)) = (__bridge id)objectPtr;
+		__strong NSObject *object __attribute__((objc_precise_lifetime)) = (__bridge __strong id)objectPtr;
 
 		NSCAssert(NO, @"Received error from %@ in binding for key path \"%@\" on %@: %@", self, keyPath, object, error);
 

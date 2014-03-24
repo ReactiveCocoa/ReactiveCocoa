@@ -242,11 +242,24 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 - (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory reduce:(id (^)(id running, id next))reduceBlock;
 
 /// Invokes -setKeyPath:onObject:nilValue: with `nil` for the nil value.
+///
+/// WARNING: Under certain conditions, this method is known to be thread-unsafe.
+///          See the description in -setKeyPath:onObject:nilValue:.
 - (RACDisposable *)setKeyPath:(NSString *)keyPath onObject:(NSObject *)object;
 
 /// Binds the receiver to an object, automatically setting the given key path on
 /// every `next`. When the signal completes, the binding is automatically
 /// disposed of.
+///
+/// WARNING: Under certain conditions, this method is known to be thread-unsafe.
+///          A crash can result if `object` is deallocated concurrently on
+///          another thread within a window of time between a value being sent
+///          on this signal and the subsequent re-establishing of an inner
+///          strong reference to `object`. To prevent this, ensure `object` is
+///          deallocated on the same thread the receiver sends on, or ensure
+///          that the returned disposable is disposed of before `object`
+///          deallocates.
+///          See https://github.com/ReactiveCocoa/ReactiveCocoa/pull/1184
 ///
 /// Sending an error on the signal is considered undefined behavior, and will
 /// generate an assertion failure in Debug builds.

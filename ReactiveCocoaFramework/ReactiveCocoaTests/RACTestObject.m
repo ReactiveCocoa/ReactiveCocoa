@@ -43,6 +43,11 @@
 	self.secondObjectValue = secondObjectValue;
 }
 
+- (void)setSlowObjectValue:(id)value {
+	[NSThread sleepForTimeInterval:0.02];
+	_slowObjectValue = value;
+}
+
 - (NSString *)combineObjectValue:(id)objectValue andIntegerValue:(NSInteger)integerValue {
 	return [NSString stringWithFormat:@"%@: %ld", objectValue, (long)integerValue];
 }

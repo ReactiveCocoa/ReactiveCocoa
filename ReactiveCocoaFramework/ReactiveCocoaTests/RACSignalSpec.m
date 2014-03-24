@@ -1270,6 +1270,29 @@ describe(@"-setKeyPath:onObject:", ^{
 		[subject sendCompleted];
 		expect(testObject.integerValue).to.equal(5);
 	});
+
+	it(@"should keep object alive over -sendNext:", ^{
+		RACSubject *subject = [RACSubject subject];
+		__block RACTestObject *testObject = [[RACTestObject alloc] init];
+		__block id deallocValue;
+
+		__block __unsafe_unretained __typeof__(testObject) unsafeTestObject = testObject;
+		[testObject.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+			deallocValue = unsafeTestObject.slowObjectValue;
+		}]];
+
+		[subject setKeyPath:@keypath(testObject.slowObjectValue) onObject:testObject];
+		expect(testObject.slowObjectValue).to.beNil();
+
+		// Attempt to deallocate concurrently.
+		[RACScheduler.scheduler afterDelay:0.01 schedule:^{
+			testObject = nil;
+		}];
+
+		expect(deallocValue).to.beNil();
+		[subject sendNext:@1];
+		expect(deallocValue).to.equal(@1);
+	});
 });
 
 describe(@"memory management", ^{

@@ -1276,7 +1276,7 @@ describe(@"-setKeyPath:onObject:", ^{
 		__block RACTestObject *testObject = [[RACTestObject alloc] init];
 		__block id deallocValue;
 
-		__block __unsafe_unretained __typeof__(testObject) unsafeTestObject = testObject;
+		__unsafe_unretained RACTestObject *unsafeTestObject = testObject;
 		[testObject.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 			deallocValue = unsafeTestObject.slowObjectValue;
 		}]];
@@ -1285,7 +1285,7 @@ describe(@"-setKeyPath:onObject:", ^{
 		expect(testObject.slowObjectValue).to.beNil();
 
 		// Attempt to deallocate concurrently.
-		[RACScheduler.scheduler afterDelay:0.01 schedule:^{
+		[[RACScheduler scheduler] afterDelay:0.01 schedule:^{
 			testObject = nil;
 		}];
 

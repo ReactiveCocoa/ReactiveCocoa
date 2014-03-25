@@ -515,6 +515,10 @@ have been generously contributed by third parties.
 To see a project already set up with RAC, check out [C-41][] or [GroceryList][],
 which are real iOS apps written using ReactiveCocoa.
 
+## Standalone Development
+
+If you’re working on RAC in isolation instead of integrating it into another project, you’ll want to open `ReactiveCocoaFramework/ReactiveCocoa.xcworkspace` and not the `.xcodeproj`.
+
 ## More Info
 
 ReactiveCocoa is based on .NET's [Reactive

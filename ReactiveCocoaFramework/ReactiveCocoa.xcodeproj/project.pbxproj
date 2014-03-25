@@ -277,6 +277,7 @@
 		BE527E9818636F7F006349E8 /* NSUserDefaults+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = BE527E9218636F7F006349E8 /* NSUserDefaults+RACSupport.m */; };
 		BE527E9F1863705B006349E8 /* NSUserDefaultsRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = BE527E9E1863705B006349E8 /* NSUserDefaultsRACSupportSpec.m */; };
 		BE527EA01863706B006349E8 /* NSUserDefaultsRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = BE527E9E1863705B006349E8 /* NSUserDefaultsRACSupportSpec.m */; };
+		CC194A1D18E1910C006A5178 /* RACDelegateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = A1FCC3761567DED0008C9686 /* RACDelegateProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CD11C6F318714CD0007C7CFD /* UITableViewHeaderFooterView+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = CD11C6F118714CD0007C7CFD /* UITableViewHeaderFooterView+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CD11C6F418714CD0007C7CFD /* UITableViewHeaderFooterView+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = CD11C6F218714CD0007C7CFD /* UITableViewHeaderFooterView+RACSignalSupport.m */; };
 		CD11C6FF18714F00007C7CFD /* RACTestTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CD11C6FD18714DFB007C7CFD /* RACTestTableViewController.m */; };
@@ -1878,6 +1879,7 @@
 				D013A3DF1807B7450072B6CE /* RACEmptySignal.h in Headers */,
 				55C39DF017F1EC84006DC60C /* NSData+RACSupport.h in Headers */,
 				55C39DF117F1EC84006DC60C /* NSFileHandle+RACSupport.h in Headers */,
+				CC194A1D18E1910C006A5178 /* RACDelegateProxy.h in Headers */,
 				55C39DF217F1EC84006DC60C /* NSNotificationCenter+RACSupport.h in Headers */,
 				55C39DF317F1EC84006DC60C /* NSString+RACSupport.h in Headers */,
 			);

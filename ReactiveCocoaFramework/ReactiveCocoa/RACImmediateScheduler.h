@@ -8,7 +8,7 @@
 
 #import "RACScheduler.h"
 
-/// A scheduler which immediately executes its scheduled blocks.
+// A private scheduler which immediately executes its scheduled blocks.
 @interface RACImmediateScheduler : RACScheduler
 
 @end

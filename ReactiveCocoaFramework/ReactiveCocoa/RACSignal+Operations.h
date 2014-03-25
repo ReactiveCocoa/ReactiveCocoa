@@ -254,11 +254,11 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// WARNING: Under certain conditions, this method is known to be thread-unsafe.
 ///          A crash can result if `object` is deallocated concurrently on
 ///          another thread within a window of time between a value being sent
-///          on this signal and the subsequent re-establishing of an inner
-///          strong reference to `object`. To prevent this, ensure `object` is
-///          deallocated on the same thread the receiver sends on, or ensure
-///          that the returned disposable is disposed of before `object`
-///          deallocates.
+///          on this signal and immediately prior to the invocation of
+///          -setValue:forKeyPath:, which sets the property. To prevent this,
+///          ensure `object` is deallocated on the same thread the receiver
+///          sends on, or ensure that the returned disposable is disposed of
+///          before `object` deallocates.
 ///          See https://github.com/ReactiveCocoa/ReactiveCocoa/pull/1184
 ///
 /// Sending an error on the signal is considered undefined behavior, and will

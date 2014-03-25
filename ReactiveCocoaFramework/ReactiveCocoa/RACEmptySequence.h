@@ -8,6 +8,7 @@
 
 #import "RACSequence.h"
 
-/// Private class representing an empty sequence.
+// Private class representing an empty sequence.
 @interface RACEmptySequence : RACSequence
+
 @end

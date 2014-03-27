@@ -2932,6 +2932,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PUBLIC_HEADERS_FOLDER_PATH = include/ReactiveCocoa;
 			};
 			name = Debug;
 		};
@@ -2943,6 +2944,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PUBLIC_HEADERS_FOLDER_PATH = include/ReactiveCocoa;
 			};
 			name = Test;
 		};
@@ -2954,6 +2956,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PUBLIC_HEADERS_FOLDER_PATH = include/ReactiveCocoa;
 			};
 			name = Release;
 		};
@@ -2965,6 +2968,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PUBLIC_HEADERS_FOLDER_PATH = include/ReactiveCocoa;
 			};
 			name = Profile;
 		};

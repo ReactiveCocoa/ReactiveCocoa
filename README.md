@@ -152,7 +152,7 @@ changes over time.
 
 Using signals for asynchronous operations makes it possible to build up more
 complex behavior by chaining and transforming those signals. Work can easily be
-trigged after a group of operations completes:
+triggered after a group of operations completes:
 
 ```objc
 // Perform 2 network operations and log a message to the console when they are

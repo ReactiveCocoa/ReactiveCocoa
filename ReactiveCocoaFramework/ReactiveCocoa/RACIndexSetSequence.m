@@ -55,6 +55,9 @@
 #pragma mark RACSequence
 
 - (id)head {
+	if (self.count == 0) {
+		return nil;
+	}
 	return @(self.indexes[0]);
 }
 

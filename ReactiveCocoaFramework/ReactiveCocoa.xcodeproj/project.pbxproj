@@ -546,6 +546,10 @@
 		D40D7AB118E22BF60065BB70 /* libSpecta-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D40D7AB018E22BF60065BB70 /* libSpecta-iOS.a */; };
 		D40D7AB218E22EC60065BB70 /* libSpecta-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D40D7AB018E22BF60065BB70 /* libSpecta-iOS.a */; };
 		D40D7AB318E22EC90065BB70 /* libExpecta-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D40D7AAE18E22BE30065BB70 /* libExpecta-iOS.a */; };
+		D45F1AAB18E498D0005CE515 /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = 88037F8C15056328001A5B19 /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D45F1AAC18E498FD005CE515 /* EXTKeyPathCoding.h in Headers */ = {isa = PBXBuildFile; fileRef = D094E44517775AF200906BF7 /* EXTKeyPathCoding.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D45F1AAD18E498FD005CE515 /* EXTScope.h in Headers */ = {isa = PBXBuildFile; fileRef = D094E44617775AF200906BF7 /* EXTScope.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D45F1AAE18E498FD005CE515 /* metamacros.h in Headers */ = {isa = PBXBuildFile; fileRef = D094E44817775AF200906BF7 /* metamacros.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1792,6 +1796,10 @@
 				D05AD41117F2DB6A0080895B /* NSNotificationCenter+RACSupport.h in Headers */,
 				D05AD40917F2DB6A0080895B /* NSData+RACSupport.h in Headers */,
 				D05AD3C317F2DB100080895B /* RACUnit.h in Headers */,
+				D45F1AAB18E498D0005CE515 /* ReactiveCocoa.h in Headers */,
+				D45F1AAC18E498FD005CE515 /* EXTKeyPathCoding.h in Headers */,
+				D45F1AAD18E498FD005CE515 /* EXTScope.h in Headers */,
+				D45F1AAE18E498FD005CE515 /* metamacros.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

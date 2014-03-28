@@ -29,11 +29,9 @@
 #pragma mark Lifecycle
 
 + (instancetype)sequenceWithIndexSet:(NSIndexSet *)indexSet {
-	NSUInteger count = [indexSet count];
+	NSUInteger count = indexSet.count;
 	
-	if (count == 0) {
-		return [self empty];
-	}
+	if (count == 0) return self.empty;
 	
 	NSUInteger sizeInBytes = sizeof(NSUInteger) * count;
 

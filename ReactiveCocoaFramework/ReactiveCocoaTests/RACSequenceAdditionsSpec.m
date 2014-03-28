@@ -298,7 +298,7 @@ describe(@"NSIndexSet sequences", ^{
 	
 	NSArray * (^valuesFromIndexSet)(NSIndexSet *indexSet) =  ^NSArray *(NSIndexSet *indexSet) {
 		NSMutableArray *arr = [NSMutableArray array];
-		[values enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
+		[indexSet enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
 			[arr addObject:@(idx)];
 		}];
 

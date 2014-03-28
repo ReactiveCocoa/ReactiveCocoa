@@ -333,6 +333,24 @@ describe(@"NSIndexSet sequences", ^{
 			};
 		});
 	});
+	
+	describe(@"should not fire if empty", ^{
+		__block NSIndexSet *emptyIndexSet;
+		__block RACSequence *emptySequence;
+
+		beforeEach(^{
+			emptyIndexSet = [NSIndexSet indexSet];
+			emptySequence = emptyIndexSet.rac_sequence;
+			expect(emptySequence).notTo.beNil();
+		});
+
+		itShouldBehaveLike(RACSequenceExamples, ^{
+			return @{
+				RACSequenceExampleSequence: emptySequence,
+				RACSequenceExampleExpectedValues: valuesFromIndexSet(emptyIndexSet)
+			};
+		});
+	});
 });
 
 SpecEnd

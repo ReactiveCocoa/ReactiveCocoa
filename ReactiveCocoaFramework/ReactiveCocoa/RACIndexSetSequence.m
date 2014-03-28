@@ -29,7 +29,12 @@
 #pragma mark Lifecycle
 
 + (instancetype)sequenceWithIndexSet:(NSIndexSet *)indexSet {
-	NSUInteger count = indexSet.count;
+	NSUInteger count = [indexSet count];
+	
+	if (count == 0) {
+		return [self empty];
+	}
+	
 	NSUInteger sizeInBytes = sizeof(NSUInteger) * count;
 
 	NSMutableData *data = [[NSMutableData alloc] initWithCapacity:sizeInBytes];
@@ -55,9 +60,6 @@
 #pragma mark RACSequence
 
 - (id)head {
-	if (self.count == 0) {
-		return nil;
-	}
 	return @(self.indexes[0]);
 }
 

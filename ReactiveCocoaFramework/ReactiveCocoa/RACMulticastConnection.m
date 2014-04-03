@@ -66,7 +66,7 @@
 
 	return [[RACSignal
 		createSignal:^(id<RACSubscriber> subscriber) {
-			OSAtomicIncrement32Barrier(&subscriberCount);
+			OSAtomicAdd32Barrier(1, &subscriberCount);
 
 			RACDisposable *subscriptionDisposable = [self.signal subscribe:subscriber];
 			RACDisposable *connectionDisposable = [self connect];
@@ -74,7 +74,7 @@
 			return [RACDisposable disposableWithBlock:^{
 				[subscriptionDisposable dispose];
 
-				if (OSAtomicDecrement32Barrier(&subscriberCount) == 0) {
+				if (OSAtomicAdd32Barrier(-1, &subscriberCount); == 0) {
 					[connectionDisposable dispose];
 				}
 			}];

@@ -118,7 +118,7 @@ example, they can also represent button presses:
 self.button.rac_command = [[RACCommand alloc] initWithSignalBlock:^(id _) {
 	NSLog(@"button was pressed!");
 	return [RACSignal empty];
-}]
+}];
 ```
 
 Or asynchronous network operations:

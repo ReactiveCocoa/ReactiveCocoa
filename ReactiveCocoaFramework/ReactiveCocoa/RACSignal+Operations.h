@@ -604,6 +604,23 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// Returns a signal that applies OR to each NSNumber in the tuple.
 - (RACSignal *)or;
 
+/// Applies the first element of RACTuple to the remaining elements.
+///
+/// The reciever must send tuple values, where the first element of the tuple is
+/// a block, taking a number of parameters equal to the count of the remaining
+/// elements of the tuple.
+///
+/// Example:
+///
+///   RACSignal *adder = [RACSignal return:^(NSNumber *a, NSNumber *b){
+///       return @(a.intValue + b.intValue);
+///   }];
+///   RACSignal *sums = [[RACSignal combineLatest:@[adder, as, bs]] ap];
+///
+/// Returns a signal of the result of applying the first element of each tuple
+/// to the remaining elements.
+- (RACSignal *)ap;
+
 @end
 
 @interface RACSignal (OperationsDeprecated)

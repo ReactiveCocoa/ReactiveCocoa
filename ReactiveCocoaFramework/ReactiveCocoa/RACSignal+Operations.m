@@ -9,6 +9,7 @@
 #import "RACSignal+Operations.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACDescription.h"
+#import "RACBlockTrampoline.h"
 #import "RACCommand.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
@@ -1269,6 +1270,15 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			return number.boolValue;
 		}]);
 	}] setNameWithFormat:@"[%@] -or", self.name];
+}
+
+- (RACSignal *)ap {
+	return [self map:^(RACTuple *tuple) {
+		NSCAssert([tuple isKindOfClass:RACTuple.class], @"-ap must only be used on a signal of RACTuples. Instead, received: %@", tuple);
+		NSCAssert(tuple.count > 0, @"-ap must only be used on a signal of RACTuples, with at least a block in tuple.first");
+		
+		return [RACBlockTrampoline invokeBlock:tuple.first withArguments:tuple.tail];
+	}];
 }
 
 @end

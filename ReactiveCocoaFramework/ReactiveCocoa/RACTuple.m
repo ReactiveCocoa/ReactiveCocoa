@@ -206,6 +206,13 @@
 	return [self objectAtIndex:self.count - 1];
 }
 
+- (instancetype)tail {
+	NSCAssert(self.count > 0, @"-tail of a zero-length tuple is undefined.");
+	
+	NSArray *newArray = [self.backingArray subarrayWithRange:NSMakeRange(1, self.backingArray.count - 1)];
+	return [self.class tupleWithObjectsFromArray:newArray convertNullsToNils:NO];
+}
+
 @end
 
 

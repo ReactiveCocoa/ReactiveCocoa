@@ -1272,12 +1272,12 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -or", self.name];
 }
 
-- (RACSignal *)ap {
+- (RACSignal *)apply {
 	return [self map:^(RACTuple *tuple) {
 		NSCAssert([tuple isKindOfClass:RACTuple.class], @"-ap must only be used on a signal of RACTuples. Instead, received: %@", tuple);
 		NSCAssert(tuple.count > 0, @"-ap must only be used on a signal of RACTuples, with at least a block in tuple.first");
 		
-		return [RACBlockTrampoline invokeBlock:tuple.first withArguments:tuple.tail];
+		return [RACBlockTrampoline invokeBlock:tuple[0] withArguments:tuple.tail];
 	}];
 }
 

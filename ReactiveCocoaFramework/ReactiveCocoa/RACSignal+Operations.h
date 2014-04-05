@@ -619,7 +619,7 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 ///
 /// Returns a signal of the result of applying the first element of each tuple
 /// to the remaining elements.
-- (RACSignal *)ap;
+- (RACSignal *)apply;
 
 @end
 

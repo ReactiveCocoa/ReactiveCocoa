@@ -3885,7 +3885,7 @@ describe(@"-ap", ^{
 		[subject sendNext:RACTuplePack(madd, @2, @3, @1)];
 		[subject sendCompleted];
 		
-		NSArray *results = [[subject ap] toArray];
+		NSArray *results = [[subject apply] toArray];
 		NSArray *expected = @[ @3, @7 ];
 		
 		expect(results).to.equal(expected);

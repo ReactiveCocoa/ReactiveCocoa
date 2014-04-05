@@ -3874,7 +3874,7 @@ describe(@"-replayLazily", ^{
 	});
 });
 
-describe(@"-ap", ^{
+describe(@"-apply", ^{
 	it(@"should apply a block to the rest of a tuple", ^{
 		RACSubject *subject = [RACReplaySubject subject];
 		

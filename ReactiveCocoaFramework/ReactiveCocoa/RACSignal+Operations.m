@@ -1273,12 +1273,12 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 }
 
 - (RACSignal *)apply {
-	return [self map:^(RACTuple *tuple) {
-		NSCAssert([tuple isKindOfClass:RACTuple.class], @"-ap must only be used on a signal of RACTuples. Instead, received: %@", tuple);
-		NSCAssert(tuple.count > 0, @"-ap must only be used on a signal of RACTuples, with at least a block in tuple.first");
+	return [[self map:^(RACTuple *tuple) {
+		NSCAssert([tuple isKindOfClass:RACTuple.class], @"-apply must only be used on a signal of RACTuples. Instead, received: %@", tuple);
+		NSCAssert(tuple.count > 0, @"-apply must only be used on a signal of RACTuples, with at least a block in tuple.first");
 		
 		return [RACBlockTrampoline invokeBlock:tuple[0] withArguments:tuple.tail];
-	}];
+	}] setNameWithFormat:@"[%@] -apply", self.name];
 }
 
 @end

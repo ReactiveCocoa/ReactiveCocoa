@@ -94,7 +94,8 @@
 /// Returns a new tuple.
 - (instancetype)tupleByAddingObject:(id)obj;
 
-/// Removes first from the receiver.
+/// Removes the first element from the receiver. The receiver must contain at
+/// least one element.
 ///
 /// Returns a new tuple.
 - (instancetype)tail;

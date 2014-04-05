@@ -3874,7 +3874,7 @@ describe(@"-replayLazily", ^{
 	});
 });
 
-describe(@"-apply", ^{
+describe(@"-reduceApply", ^{
 	it(@"should apply a block to the rest of a tuple", ^{
 		RACSubject *subject = [RACReplaySubject subject];
 		
@@ -3885,7 +3885,7 @@ describe(@"-apply", ^{
 		[subject sendNext:RACTuplePack(madd, @2, @3, @1)];
 		[subject sendCompleted];
 		
-		NSArray *results = [[subject apply] toArray];
+		NSArray *results = [[subject reduceApply] toArray];
 		NSArray *expected = @[ @3, @7 ];
 		
 		expect(results).to.equal(expected);

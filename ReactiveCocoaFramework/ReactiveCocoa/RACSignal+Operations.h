@@ -608,7 +608,7 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 ///
 /// The reciever must send tuple values, where the first element of the tuple is
 /// a block, taking a number of parameters equal to the count of the remaining
-/// elements of the tuple.
+/// elements of the tuple, and returning an object.
 ///
 /// Example:
 ///

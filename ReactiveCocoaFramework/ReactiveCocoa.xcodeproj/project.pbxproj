@@ -252,6 +252,10 @@
 		88FC735716114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FC735416114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.m */; };
 		88FC735816114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FC735416114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.m */; };
 		88FC735B16114FFB00F8A774 /* RACSubscriptingAssignmentTrampolineSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FC735A16114FFB00F8A774 /* RACSubscriptingAssignmentTrampolineSpec.m */; };
+		9238B4C518F14DF00089B122 /* UIPickerView+RACChannelSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 9238B4C318F14DF00089B122 /* UIPickerView+RACChannelSupport.h */; };
+		9238B4C718F14DFD0089B122 /* UIPickerView+RACChannelSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 9238B4C418F14DF00089B122 /* UIPickerView+RACChannelSupport.m */; };
+		9238B4CA18F1521A0089B122 /* UIPickerViewRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 9238B4C818F151C50089B122 /* UIPickerViewRACSupportSpec.m */; };
+		9238B4CF18F152E30089B122 /* RACUIPickerViewTestDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 9238B4CC18F152C50089B122 /* RACUIPickerViewTestDataSource.m */; };
 		A1FCC27715666AA3008C9686 /* UITextView+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = A1FCC27315666AA3008C9686 /* UITextView+RACSignalSupport.m */; };
 		A1FCC374156754A7008C9686 /* RACObjCRuntime.m in Sources */ = {isa = PBXBuildFile; fileRef = A1FCC371156754A7008C9686 /* RACObjCRuntime.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		A1FCC375156754A7008C9686 /* RACObjCRuntime.m in Sources */ = {isa = PBXBuildFile; fileRef = A1FCC371156754A7008C9686 /* RACObjCRuntime.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
@@ -780,6 +784,11 @@
 		88FC735316114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACSubscriptingAssignmentTrampoline.h; sourceTree = "<group>"; };
 		88FC735416114F9C00F8A774 /* RACSubscriptingAssignmentTrampoline.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSubscriptingAssignmentTrampoline.m; sourceTree = "<group>"; };
 		88FC735A16114FFB00F8A774 /* RACSubscriptingAssignmentTrampolineSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSubscriptingAssignmentTrampolineSpec.m; sourceTree = "<group>"; };
+		9238B4C318F14DF00089B122 /* UIPickerView+RACChannelSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIPickerView+RACChannelSupport.h"; sourceTree = "<group>"; };
+		9238B4C418F14DF00089B122 /* UIPickerView+RACChannelSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIPickerView+RACChannelSupport.m"; sourceTree = "<group>"; };
+		9238B4C818F151C50089B122 /* UIPickerViewRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIPickerViewRACSupportSpec.m; sourceTree = "<group>"; };
+		9238B4CB18F152C50089B122 /* RACUIPickerViewTestDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACUIPickerViewTestDataSource.h; sourceTree = "<group>"; };
+		9238B4CC18F152C50089B122 /* RACUIPickerViewTestDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACUIPickerViewTestDataSource.m; sourceTree = "<group>"; };
 		A1FCC27215666AA3008C9686 /* UITextView+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITextView+RACSignalSupport.h"; sourceTree = "<group>"; };
 		A1FCC27315666AA3008C9686 /* UITextView+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITextView+RACSignalSupport.m"; sourceTree = "<group>"; };
 		A1FCC370156754A7008C9686 /* RACObjCRuntime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACObjCRuntime.h; sourceTree = "<group>"; };
@@ -1080,6 +1089,9 @@
 				D066C79B176D263D00C242D2 /* RACTestUIButton.h */,
 				D066C79C176D263D00C242D2 /* RACTestUIButton.m */,
 				AC65FD51176DECB1005ED22B /* UIAlertViewRACSupportSpec.m */,
+				9238B4C818F151C50089B122 /* UIPickerViewRACSupportSpec.m */,
+				9238B4CB18F152C50089B122 /* RACUIPickerViewTestDataSource.h */,
+				9238B4CC18F152C50089B122 /* RACUIPickerViewTestDataSource.m */,
 				5FAF5261174D4D8E00CAC810 /* UIBarButtonItemRACSupportSpec.m */,
 				5EE9A79A1760D88500EAF5A2 /* UIButtonRACSupportSpec.m */,
 				D066C795176D262500C242D2 /* UIControlRACSupportSpec.m */,
@@ -1382,6 +1394,8 @@
 				554D9E5C181064E200F21262 /* UIRefreshControl+RACCommandSupport.m */,
 				5F70B2B617AB1856009AEDF9 /* UISegmentedControl+RACSignalSupport.h */,
 				5F70B2B717AB1856009AEDF9 /* UISegmentedControl+RACSignalSupport.m */,
+				9238B4C318F14DF00089B122 /* UIPickerView+RACChannelSupport.h */,
+				9238B4C418F14DF00089B122 /* UIPickerView+RACChannelSupport.m */,
 				5F70B2B817AB1856009AEDF9 /* UISlider+RACSignalSupport.h */,
 				5F70B2B917AB1856009AEDF9 /* UISlider+RACSignalSupport.m */,
 				5F70B2BA17AB1857009AEDF9 /* UIStepper+RACSignalSupport.h */,
@@ -1639,6 +1653,7 @@
 				D0D910CE15F915BD00AD2DDA /* RACSignal+Operations.h in Headers */,
 				D0E9676B1641EF9C00FCFF06 /* NSArray+RACSequenceAdditions.h in Headers */,
 				D0E9676F1641EF9C00FCFF06 /* NSDictionary+RACSequenceAdditions.h in Headers */,
+				9238B4C518F14DF00089B122 /* UIPickerView+RACChannelSupport.h in Headers */,
 				D0E967731641EF9C00FCFF06 /* NSOrderedSet+RACSequenceAdditions.h in Headers */,
 				D0E967771641EF9C00FCFF06 /* NSSet+RACSequenceAdditions.h in Headers */,
 				D0E9677B1641EF9C00FCFF06 /* NSString+RACSequenceAdditions.h in Headers */,
@@ -2040,6 +2055,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9238B4CF18F152E30089B122 /* RACUIPickerViewTestDataSource.m in Sources */,
 				5FAF523E174D4D3200CAC810 /* NSEnumeratorRACSequenceAdditionsSpec.m in Sources */,
 				5FAF523F174D4D3600CAC810 /* NSNotificationCenterRACSupportSpec.m in Sources */,
 				D090768B17FBECBF00EB087A /* NSURLConnectionRACSupportSpec.m in Sources */,
@@ -2068,6 +2084,7 @@
 				5FAF5256174D4D5600CAC810 /* RACStreamExamples.m in Sources */,
 				5FAF5257174D4D5600CAC810 /* RACSubjectSpec.m in Sources */,
 				5FAF5258174D4D5600CAC810 /* RACSubscriberExamples.m in Sources */,
+				9238B4CA18F1521A0089B122 /* UIPickerViewRACSupportSpec.m in Sources */,
 				5FAF5259174D4D5600CAC810 /* RACSubscriberSpec.m in Sources */,
 				AC65FD52176DECB1005ED22B /* UIAlertViewRACSupportSpec.m in Sources */,
 				5FAF525A174D4D5600CAC810 /* RACSubscriptingAssignmentTrampolineSpec.m in Sources */,
@@ -2311,6 +2328,7 @@
 				D013A3EA1807B7C30072B6CE /* RACReturnSignal.m in Sources */,
 				D020F3DC17F6A3E40092BED2 /* RACCompoundDisposableProvider.d in Sources */,
 				7479F6E9186177D200575CDB /* RACIndexSetSequence.m in Sources */,
+				9238B4C718F14DFD0089B122 /* UIPickerView+RACChannelSupport.m in Sources */,
 				55C39DE817F1EC6E006DC60C /* NSData+RACSupport.m in Sources */,
 				55C39DE917F1EC6E006DC60C /* NSFileHandle+RACSupport.m in Sources */,
 				55C39DEA17F1EC6E006DC60C /* NSNotificationCenter+RACSupport.m in Sources */,

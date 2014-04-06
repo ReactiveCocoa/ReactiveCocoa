@@ -604,10 +604,10 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// Returns a signal that applies OR to each NSNumber in the tuple.
 - (RACSignal *)or;
 
-/// Calls the block first element on the remaining elements of each RACTuple
-/// sent by the receiver and sends the result.
+/// Sends the result of calling the block with arguments as packed in each RACTuple
+/// sent by the receiver.
 ///
-/// The reciever must send tuple values, where the first element of the tuple is
+/// The receiver must send tuple values, where the first element of the tuple is
 /// a block, taking a number of parameters equal to the count of the remaining
 /// elements of the tuple, and returning an object. Each block must take at least
 /// one argument, so each tuple must contain at least 2 elements.

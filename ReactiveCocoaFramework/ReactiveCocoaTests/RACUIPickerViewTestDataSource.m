@@ -18,9 +18,4 @@
 {
 	return 2;
 }
-
-- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component
-{
-	return @"";
-}
 @end

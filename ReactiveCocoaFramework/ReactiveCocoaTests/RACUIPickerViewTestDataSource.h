@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-@interface RACUIPickerViewTestDataSource : NSObject <UIPickerViewDataSource, UIPickerViewDelegate>
+@interface RACUIPickerViewTestDataSource : NSObject <UIPickerViewDataSource>
 - (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView;
 - (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component;
 @end

@@ -9,6 +9,7 @@
 #import "NSString+RACSupport.h"
 #import "NSObject+RACDescription.h"
 #import "RACCompoundDisposable.h"
+#import "RACReduce.h"
 #import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"
 #import "RACStringSequence.h"
@@ -72,13 +73,12 @@
 	[[[[[self
 		rac_contentsAndEncodingOfURL:URL]
 		subscribeOn:scheduler]
-		doNext:^(RACTuple *contentsAndEncoding) {
-			RACTupleUnpack(NSString *contents, NSNumber *boxedEncoding) = contentsAndEncoding;
+		doNext:RACReduce(^(NSString *contents, NSNumber *boxedEncoding) {
 			[subject sendNext:contents];
 
 			// lol this is so ridiculously unsafe
 			*encoding = boxedEncoding.unsignedIntegerValue;
-		}]
+		})]
 		ignoreValues]
 		subscribe:subject];
 

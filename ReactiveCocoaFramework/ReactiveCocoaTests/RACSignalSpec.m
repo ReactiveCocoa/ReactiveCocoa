@@ -196,6 +196,26 @@ describe(@"-bind:", ^{
 		[values sendNext:@2];
 		expect(lastValue).to.equal(@2);
 	});
+
+	it(@"should properly stop subscribing to new signals after error", ^{
+		RACSignal *signal = [[RACSignal return:@2] startWith:@1];
+
+		__block BOOL subscribedAfterError = NO;
+		RACSignal *bind = [signal bind:^{
+			__block NSUInteger count = 0;
+			return ^(id x, BOOL *stop) {
+				if (count++ == 0) return [RACSignal error:nil];
+
+				return [RACSignal defer:^{
+					subscribedAfterError = YES;
+					return [RACSignal empty];
+				}];
+			};
+		}];
+
+		[bind subscribeCompleted:^{}];
+		expect(subscribedAfterError).to.beFalsy();
+	});
 });
 
 describe(@"subscribing", ^{

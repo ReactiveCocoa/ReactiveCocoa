@@ -199,16 +199,15 @@ describe(@"-bind:", ^{
 
 	it(@"should properly stop subscribing to new signals after error", ^{
 		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@0];
 			[subscriber sendNext:@1];
-			[subscriber sendNext:@2];
 			return nil;
 		}];
 
 		__block BOOL subscribedAfterError = NO;
 		RACSignal *bind = [signal bind:^{
-			__block NSUInteger count = 0;
-			return ^(id x, BOOL *stop) {
-				if (count++ == 0) return [RACSignal error:nil];
+			return ^(NSNumber *x, BOOL *stop) {
+				if (x.integerValue == 0) return [RACSignal error:nil];
 
 				return [RACSignal defer:^{
 					subscribedAfterError = YES;

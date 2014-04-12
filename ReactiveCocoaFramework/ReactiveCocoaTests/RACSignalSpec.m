@@ -198,7 +198,11 @@ describe(@"-bind:", ^{
 	});
 
 	it(@"should properly stop subscribing to new signals after error", ^{
-		RACSignal *signal = [[RACSignal return:@2] startWith:@1];
+		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendNext:@2];
+			return nil;
+		}];
 
 		__block BOOL subscribedAfterError = NO;
 		RACSignal *bind = [signal bind:^{

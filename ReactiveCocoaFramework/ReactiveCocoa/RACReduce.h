@@ -13,6 +13,7 @@
 static inline __attribute__((overloadable))
 id (^RACReduce(id (^block)(id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 1);
 		return block(t[0]);
 	};
 }
@@ -20,6 +21,7 @@ id (^RACReduce(id (^block)(id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 id (^RACReduce(id (^block)(id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 2);
 		return block(t[0],t[1]);
 	};
 }
@@ -27,6 +29,7 @@ id (^RACReduce(id (^block)(id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 id (^RACReduce(id (^block)(id,id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 3);
 		return block(t[0],t[1],t[2]);
 	};
 }
@@ -34,6 +37,7 @@ id (^RACReduce(id (^block)(id,id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 id (^RACReduce(id (^block)(id,id,id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 4);
 		return block(t[0],t[1],t[2],t[3]);
 	};
 }
@@ -41,6 +45,7 @@ id (^RACReduce(id (^block)(id,id,id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 id (^RACReduce(id (^block)(id,id,id,id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 5);
 		return block(t[0],t[1],t[2],t[3],t[4]);
 	};
 }
@@ -48,6 +53,7 @@ id (^RACReduce(id (^block)(id,id,id,id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 id (^RACReduce(id (^block)(id,id,id,id,id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 6);
 		return block(t[0],t[1],t[2],t[3],t[4],t[5]);
 	};
 }
@@ -55,6 +61,7 @@ id (^RACReduce(id (^block)(id,id,id,id,id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 id (^RACReduce(id (^block)(id,id,id,id,id,id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 7);
 		return block(t[0],t[1],t[2],t[3],t[4],t[5],t[6]);
 	};
 }
@@ -62,6 +69,7 @@ id (^RACReduce(id (^block)(id,id,id,id,id,id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 id (^RACReduce(id (^block)(id,id,id,id,id,id,id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 8);
 		return block(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7]);
 	};
 }
@@ -69,6 +77,7 @@ id (^RACReduce(id (^block)(id,id,id,id,id,id,id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 id (^RACReduce(id (^block)(id,id,id,id,id,id,id,id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 9);
 		return block(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8]);
 	};
 }
@@ -76,6 +85,7 @@ id (^RACReduce(id (^block)(id,id,id,id,id,id,id,id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 id (^RACReduce(id (^block)(id,id,id,id,id,id,id,id,id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 10);
 		return block(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9]);
 	};
 }
@@ -83,6 +93,7 @@ id (^RACReduce(id (^block)(id,id,id,id,id,id,id,id,id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 BOOL (^RACReduce(BOOL (^block)(id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 1);
 		return block(t[0]);
 	};
 }
@@ -90,6 +101,7 @@ BOOL (^RACReduce(BOOL (^block)(id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 BOOL (^RACReduce(BOOL (^block)(id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 2);
 		return block(t[0],t[1]);
 	};
 }
@@ -97,6 +109,7 @@ BOOL (^RACReduce(BOOL (^block)(id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 BOOL (^RACReduce(BOOL (^block)(id,id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 3);
 		return block(t[0],t[1],t[2]);
 	};
 }
@@ -104,6 +117,7 @@ BOOL (^RACReduce(BOOL (^block)(id,id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 BOOL (^RACReduce(BOOL (^block)(id,id,id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 4);
 		return block(t[0],t[1],t[2],t[3]);
 	};
 }
@@ -111,6 +125,7 @@ BOOL (^RACReduce(BOOL (^block)(id,id,id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 BOOL (^RACReduce(BOOL (^block)(id,id,id,id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 5);
 		return block(t[0],t[1],t[2],t[3],t[4]);
 	};
 }
@@ -118,6 +133,7 @@ BOOL (^RACReduce(BOOL (^block)(id,id,id,id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 BOOL (^RACReduce(BOOL (^block)(id,id,id,id,id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 6);
 		return block(t[0],t[1],t[2],t[3],t[4],t[5]);
 	};
 }
@@ -125,6 +141,7 @@ BOOL (^RACReduce(BOOL (^block)(id,id,id,id,id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 BOOL (^RACReduce(BOOL (^block)(id,id,id,id,id,id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 7);
 		return block(t[0],t[1],t[2],t[3],t[4],t[5],t[6]);
 	};
 }
@@ -132,6 +149,7 @@ BOOL (^RACReduce(BOOL (^block)(id,id,id,id,id,id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 BOOL (^RACReduce(BOOL (^block)(id,id,id,id,id,id,id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 8);
 		return block(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7]);
 	};
 }
@@ -139,6 +157,7 @@ BOOL (^RACReduce(BOOL (^block)(id,id,id,id,id,id,id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 BOOL (^RACReduce(BOOL (^block)(id,id,id,id,id,id,id,id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 9);
 		return block(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8]);
 	};
 }
@@ -146,6 +165,7 @@ BOOL (^RACReduce(BOOL (^block)(id,id,id,id,id,id,id,id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 BOOL (^RACReduce(BOOL (^block)(id,id,id,id,id,id,id,id,id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 10);
 		return block(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9]);
 	};
 }
@@ -153,6 +173,7 @@ BOOL (^RACReduce(BOOL (^block)(id,id,id,id,id,id,id,id,id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 void (^RACReduce(void (^block)(id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 1);
 		return block(t[0]);
 	};
 }
@@ -160,6 +181,7 @@ void (^RACReduce(void (^block)(id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 void (^RACReduce(void (^block)(id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 2);
 		return block(t[0],t[1]);
 	};
 }
@@ -167,6 +189,7 @@ void (^RACReduce(void (^block)(id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 void (^RACReduce(void (^block)(id,id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 3);
 		return block(t[0],t[1],t[2]);
 	};
 }
@@ -174,6 +197,7 @@ void (^RACReduce(void (^block)(id,id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 void (^RACReduce(void (^block)(id,id,id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 4);
 		return block(t[0],t[1],t[2],t[3]);
 	};
 }
@@ -181,6 +205,7 @@ void (^RACReduce(void (^block)(id,id,id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 void (^RACReduce(void (^block)(id,id,id,id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 5);
 		return block(t[0],t[1],t[2],t[3],t[4]);
 	};
 }
@@ -188,6 +213,7 @@ void (^RACReduce(void (^block)(id,id,id,id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 void (^RACReduce(void (^block)(id,id,id,id,id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 6);
 		return block(t[0],t[1],t[2],t[3],t[4],t[5]);
 	};
 }
@@ -195,6 +221,7 @@ void (^RACReduce(void (^block)(id,id,id,id,id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 void (^RACReduce(void (^block)(id,id,id,id,id,id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 7);
 		return block(t[0],t[1],t[2],t[3],t[4],t[5],t[6]);
 	};
 }
@@ -202,6 +229,7 @@ void (^RACReduce(void (^block)(id,id,id,id,id,id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 void (^RACReduce(void (^block)(id,id,id,id,id,id,id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 8);
 		return block(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7]);
 	};
 }
@@ -209,6 +237,7 @@ void (^RACReduce(void (^block)(id,id,id,id,id,id,id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 void (^RACReduce(void (^block)(id,id,id,id,id,id,id,id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 9);
 		return block(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8]);
 	};
 }
@@ -216,7 +245,7 @@ void (^RACReduce(void (^block)(id,id,id,id,id,id,id,id,id)))(RACTuple *) {
 static inline __attribute__((overloadable))
 void (^RACReduce(void (^block)(id,id,id,id,id,id,id,id,id,id)))(RACTuple *) {
 	return ^(RACTuple *t) {
+		NSCParameterAssert(t.count == 10);
 		return block(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9]);
 	};
 }
-

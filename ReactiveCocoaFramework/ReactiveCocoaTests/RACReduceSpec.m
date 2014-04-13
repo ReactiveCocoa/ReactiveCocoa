@@ -43,7 +43,7 @@ it(@"should return the BOOL result of the block invocation", ^{
 });
 
 it(@"should pass RACTupleNils as nil", ^{
-	__block id arg;
+	__block id arg = [[NSObject alloc] init];
 	id (^block)(RACTuple *) = RACReduce(^ id (id obj) {
 		arg = obj;
 		return nil;

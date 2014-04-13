@@ -9,20 +9,214 @@
 #import <Foundation/Foundation.h>
 
 #import "RACTuple.h"
-#import "metamacros.h"
 
-#define RACReduce_define_for_type(INDEX, _, TYPE) \
-	metamacro_foreach_cxt_recursive(RACReduce_overload,, TYPE, 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)
+static inline __attribute__((overloadable))
+id (^RACReduce(id (^block)(id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0]);
+	};
+}
 
-#define RACReduce_overload(INDEX, TYPE, ARITY) \
-	static inline __attribute__((overloadable)) \
-	TYPE (^RACReduce(TYPE (^block)(id metamacro_for_cxt(INDEX, RACReduce_arg_type,,))))(RACTuple *) { \
-		return ^(RACTuple *tuple) { \
-			return block(tuple[0] metamacro_for_cxt(INDEX, RACReduce_tuple_value,,)); \
-		}; \
-	}
+static inline __attribute__((overloadable))
+id (^RACReduce(id (^block)(id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1]);
+	};
+}
 
-#define RACReduce_arg_type(INDEX, _) ,id
-#define RACReduce_tuple_value(INDEX, _) ,tuple[metamacro_inc(INDEX)]
+static inline __attribute__((overloadable))
+id (^RACReduce(id (^block)(id,id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1],t[2]);
+	};
+}
 
-metamacro_foreach_cxt(RACReduce_define_for_type,,, id, BOOL, void)
+static inline __attribute__((overloadable))
+id (^RACReduce(id (^block)(id,id,id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1],t[2],t[3]);
+	};
+}
+
+static inline __attribute__((overloadable))
+id (^RACReduce(id (^block)(id,id,id,id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1],t[2],t[3],t[4]);
+	};
+}
+
+static inline __attribute__((overloadable))
+id (^RACReduce(id (^block)(id,id,id,id,id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1],t[2],t[3],t[4],t[5]);
+	};
+}
+
+static inline __attribute__((overloadable))
+id (^RACReduce(id (^block)(id,id,id,id,id,id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1],t[2],t[3],t[4],t[5],t[6]);
+	};
+}
+
+static inline __attribute__((overloadable))
+id (^RACReduce(id (^block)(id,id,id,id,id,id,id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7]);
+	};
+}
+
+static inline __attribute__((overloadable))
+id (^RACReduce(id (^block)(id,id,id,id,id,id,id,id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8]);
+	};
+}
+
+static inline __attribute__((overloadable))
+id (^RACReduce(id (^block)(id,id,id,id,id,id,id,id,id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9]);
+	};
+}
+
+static inline __attribute__((overloadable))
+BOOL (^RACReduce(BOOL (^block)(id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0]);
+	};
+}
+
+static inline __attribute__((overloadable))
+BOOL (^RACReduce(BOOL (^block)(id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1]);
+	};
+}
+
+static inline __attribute__((overloadable))
+BOOL (^RACReduce(BOOL (^block)(id,id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1],t[2]);
+	};
+}
+
+static inline __attribute__((overloadable))
+BOOL (^RACReduce(BOOL (^block)(id,id,id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1],t[2],t[3]);
+	};
+}
+
+static inline __attribute__((overloadable))
+BOOL (^RACReduce(BOOL (^block)(id,id,id,id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1],t[2],t[3],t[4]);
+	};
+}
+
+static inline __attribute__((overloadable))
+BOOL (^RACReduce(BOOL (^block)(id,id,id,id,id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1],t[2],t[3],t[4],t[5]);
+	};
+}
+
+static inline __attribute__((overloadable))
+BOOL (^RACReduce(BOOL (^block)(id,id,id,id,id,id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1],t[2],t[3],t[4],t[5],t[6]);
+	};
+}
+
+static inline __attribute__((overloadable))
+BOOL (^RACReduce(BOOL (^block)(id,id,id,id,id,id,id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7]);
+	};
+}
+
+static inline __attribute__((overloadable))
+BOOL (^RACReduce(BOOL (^block)(id,id,id,id,id,id,id,id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8]);
+	};
+}
+
+static inline __attribute__((overloadable))
+BOOL (^RACReduce(BOOL (^block)(id,id,id,id,id,id,id,id,id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9]);
+	};
+}
+
+static inline __attribute__((overloadable))
+void (^RACReduce(void (^block)(id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0]);
+	};
+}
+
+static inline __attribute__((overloadable))
+void (^RACReduce(void (^block)(id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1]);
+	};
+}
+
+static inline __attribute__((overloadable))
+void (^RACReduce(void (^block)(id,id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1],t[2]);
+	};
+}
+
+static inline __attribute__((overloadable))
+void (^RACReduce(void (^block)(id,id,id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1],t[2],t[3]);
+	};
+}
+
+static inline __attribute__((overloadable))
+void (^RACReduce(void (^block)(id,id,id,id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1],t[2],t[3],t[4]);
+	};
+}
+
+static inline __attribute__((overloadable))
+void (^RACReduce(void (^block)(id,id,id,id,id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1],t[2],t[3],t[4],t[5]);
+	};
+}
+
+static inline __attribute__((overloadable))
+void (^RACReduce(void (^block)(id,id,id,id,id,id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1],t[2],t[3],t[4],t[5],t[6]);
+	};
+}
+
+static inline __attribute__((overloadable))
+void (^RACReduce(void (^block)(id,id,id,id,id,id,id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7]);
+	};
+}
+
+static inline __attribute__((overloadable))
+void (^RACReduce(void (^block)(id,id,id,id,id,id,id,id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8]);
+	};
+}
+
+static inline __attribute__((overloadable))
+void (^RACReduce(void (^block)(id,id,id,id,id,id,id,id,id,id)))(RACTuple *) {
+	return ^(RACTuple *t) {
+		return block(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9]);
+	};
+}
+

@@ -86,11 +86,30 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)skip:(NSUInteger)skipCount {
-	return [super skip:skipCount];
+	return [[RACSignal
+		defer:^{
+			__block NSUInteger skipped = 0;
+
+			return [self transform:^(id<RACSubscriber> subscriber, id x) {
+				if (skipped++ < skipCount) return;
+
+				[subscriber sendNext:x];
+			}];
+		}]
+		setNameWithFormat:@"[%@] -skip: %lu", self.name, (unsigned long)skipCount];
 }
 
-- (RACSignal *)take:(NSUInteger)count {
-	return [super take:count];
+- (RACSignal *)take:(NSUInteger)takeCount {
+	return [[RACSignal
+		defer:^{
+			__block NSUInteger taken = 0;
+
+			return [self transform:^(id<RACSubscriber> subscriber, id x) {
+				if (taken < takeCount) [subscriber sendNext:x];
+				if (++taken >= takeCount) [subscriber sendCompleted];
+			}];
+		}]
+		setNameWithFormat:@"[%@] -take: %lu", self.name, (unsigned long)takeCount];
 }
 
 - (RACSignal *)zipWith:(RACSignal *)signal {
@@ -178,7 +197,18 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 #pragma clang diagnostic pop
 
 - (RACSignal *)scanWithStart:(id)startingValue reduce:(id (^)(id running, id next))block {
-	return [super scanWithStart:startingValue reduce:block];
+	NSCParameterAssert(block != nil);
+
+	return [[RACSignal
+		defer:^{
+			__block id running = startingValue;
+
+			return [self transform:^(id<RACSubscriber> subscriber, id x) {
+				running = block(running, x);
+				[subscriber sendNext:running];
+			}];
+		}]
+		setNameWithFormat:@"[%@] -scanWithStart: %@ reduce:", self.name, [startingValue rac_description]];
 }
 
 - (RACSignal *)combinePreviousWithStart:(id)start reduce:(id (^)(id previous, id current))reduceBlock {
@@ -186,15 +216,43 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)distinctUntilChanged {
-	return [super distinctUntilChanged];
+	return [[RACSignal
+		defer:^{
+			__block id lastValue = [[NSObject alloc] init];
+
+			return [self transform:^(id<RACSubscriber> subscriber, id x) {
+				if (x == lastValue || [x isEqual:lastValue]) return;
+
+				lastValue = x;
+				[subscriber sendNext:x];
+			}];
+		}]
+		setNameWithFormat:@"[%@] -distinctUntilChanged", self.name];
 }
 
-- (RACSignal *)takeWhile:(BOOL (^)(id x))predicate {
-	return [super takeWhileBlock:predicate];
+- (RACSignal *)takeWhile:(BOOL (^)(id x))predicateBlock {
+	return [[self
+		transform:^(id<RACSubscriber> subscriber, id x) {
+			if (!predicateBlock(x)) return [subscriber sendCompleted];
+
+			[subscriber sendNext:x];
+		}]
+		setNameWithFormat:@"[%@] -takeWhile:", self.name];
 }
 
-- (RACSignal *)skipWhile:(BOOL (^)(id x))predicate {
-	return [super skipWhileBlock:predicate];
+- (RACSignal *)skipWhile:(BOOL (^)(id x))predicateBlock {
+	return [[RACSignal
+		defer:^RACSignal *{
+			__block BOOL skipping = YES;
+
+			return [self transform:^(id<RACSubscriber> subscriber, id x) {
+				skipping = skipping && predicateBlock(x);
+				if (skipping) return;
+
+				[subscriber sendNext:x];
+			}];
+		}]
+		setNameWithFormat:@"[%@] -skipWhile:", self.name];
 }
 
 - (RACSignal *)doNext:(void (^)(id x))block {
@@ -1094,22 +1152,20 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)dematerialize {
-	return [[self bind:^{
-		return ^(RACEvent *event, BOOL *stop) {
+	return [[self
+		transform:^(id<RACSubscriber> subscriber, RACEvent *event) {
 			switch (event.eventType) {
+				case RACEventTypeNext:
+					return [subscriber sendNext:event.value];
+
 				case RACEventTypeCompleted:
-					*stop = YES;
-					return [RACSignal empty];
+					return [subscriber sendCompleted];
 
 				case RACEventTypeError:
-					*stop = YES;
-					return [RACSignal error:event.error];
-
-				case RACEventTypeNext:
-					return [RACSignal return:event.value];
+					return [subscriber sendError:event.error];
 			}
-		};
-	}] setNameWithFormat:@"[%@] -dematerialize", self.name];
+		}]
+		setNameWithFormat:@"[%@] -dematerialize", self.name];
 }
 
 - (RACSignal *)not {

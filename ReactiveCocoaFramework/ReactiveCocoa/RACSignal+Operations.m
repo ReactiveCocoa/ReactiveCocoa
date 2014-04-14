@@ -1158,11 +1158,11 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 				case RACEventTypeNext:
 					return [subscriber sendNext:event.value];
 
-				case RACEventTypeCompleted:
-					return [subscriber sendCompleted];
-
 				case RACEventTypeError:
 					return [subscriber sendError:event.error];
+
+				case RACEventTypeCompleted:
+					return [subscriber sendCompleted];
 			}
 		}]
 		setNameWithFormat:@"[%@] -dematerialize", self.name];

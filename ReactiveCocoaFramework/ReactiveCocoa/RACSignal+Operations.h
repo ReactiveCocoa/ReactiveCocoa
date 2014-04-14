@@ -794,6 +794,8 @@ typedef enum : NSUInteger {
 /// Returns a signal that applies OR to each NSNumber in the tuple.
 - (RACSignal *)or;
 
+- (RACSignal *)transform:(void (^)(id<RACSubscriber> subscriber, id x))transformBlock;
+
 /// Lazily binds a block to the values in the receiver.
 ///
 /// This should only be used if you need to terminate the bind early, or close

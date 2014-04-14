@@ -1150,6 +1150,24 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	}] setNameWithFormat:@"[%@] -or", self.name];
 }
 
+- (RACSignal *)transform:(void (^)(id<RACSubscriber>, id))transformBlock {
+	NSCParameterAssert(transformBlock != nil);
+
+	return [[RACSignal
+		create:^(id<RACSubscriber> subscriber) {
+			[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+				[subscriber.disposable addDisposable:disposable];
+			} next:^(id x) {
+				transformBlock(subscriber, x);
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				[subscriber sendCompleted];
+			}];
+		}]
+		setNameWithFormat:@"[%@] -transform:", self.name];;
+}
+
 - (RACSignal *)bind:(RACSignalBindBlock (^)(void))block {
 	NSCParameterAssert(block != NULL);
 

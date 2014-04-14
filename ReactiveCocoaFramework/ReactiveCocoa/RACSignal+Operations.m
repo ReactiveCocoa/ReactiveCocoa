@@ -203,9 +203,9 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 		defer:^{
 			__block id running = startingValue;
 
-			return [self transform:^(id<RACSubscriber> subscriber, id x) {
+			return [self map:^(id x) {
 				running = block(running, x);
-				[subscriber sendNext:running];
+				return running;
 			}];
 		}]
 		setNameWithFormat:@"[%@] -scanWithStart: %@ reduce:", self.name, [startingValue rac_description]];

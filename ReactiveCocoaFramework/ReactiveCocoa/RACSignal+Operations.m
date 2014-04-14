@@ -517,7 +517,8 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		//
 		// This array should only be used while synchronized on `subscriber`.
 		NSMutableArray *queuedSignals = [NSMutableArray array];
-
+		
+		__weak __block void (^recurse)(RACSignal *);
 		subscribeToSignal = ^(RACSignal *signal) {
 			RACSerialDisposable *serialDisposable = [[RACSerialDisposable alloc] init];
 
@@ -531,6 +532,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			} error:^(NSError *error) {
 				[subscriber sendError:error];
 			} completed:^{
+				__strong void (^subscribeToSignal)(RACSignal *) = recurse;
 				RACSignal *nextSignal;
 
 				@synchronized (subscriber) {
@@ -553,6 +555,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 				#pragma clang diagnostic pop
 			}];
 		};
+		recurse = subscribeToSignal;
 
 		[compoundDisposable addDisposable:[self subscribeNext:^(RACSignal *signal) {
 			if (signal == nil) return;

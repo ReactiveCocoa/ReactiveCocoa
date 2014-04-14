@@ -220,11 +220,10 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 		defer:^{
 			__block id lastValue = [[NSObject alloc] init];
 
-			return [self transform:^(id<RACSubscriber> subscriber, id x) {
-				if (x == lastValue || [x isEqual:lastValue]) return;
-
-				lastValue = x;
-				[subscriber sendNext:x];
+			return [self filter:^ BOOL (id x) {
+				BOOL changed = x != lastValue && ![x isEqual:lastValue];
+				if (changed) lastValue = x;
+				return changed;
 			}];
 		}]
 		setNameWithFormat:@"[%@] -distinctUntilChanged", self.name];

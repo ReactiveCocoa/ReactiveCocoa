@@ -90,10 +90,8 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 		defer:^{
 			__block NSUInteger skipped = 0;
 
-			return [self transform:^(id<RACSubscriber> subscriber, id x) {
-				if (skipped++ < skipCount) return;
-
-				[subscriber sendNext:x];
+			return [self skipWhile:^ BOOL (id x) {
+				return skipped++ < skipCount;
 			}];
 		}]
 		setNameWithFormat:@"[%@] -skip: %lu", self.name, (unsigned long)skipCount];

@@ -10,6 +10,28 @@
 
 #import "RACTuple.h"
 
+/// RACReduce() converts a block taking one or more object parameters to a block
+/// taking a single RACTuple * parameter. The return type can be any of id,
+/// BOOL, or void.
+///
+/// The purpose of RACReduce() is to allow for literal block parameters when
+/// using signals of tuples.
+///
+/// Examples
+///
+///   [combinedSignal filter:RACReduce(^ BOOL (NSNumber *currentValue, NSNumber *minimumThreshold) {
+///       return currentValue.integerValue >= minimumThreshold.integerValue;
+///   })];
+///
+///   [delegateSignal flattenMap:RACReduce(^(id _, id result, NSError *error) {
+///       return (error != nil) ? [RACSignal error:error] : [RACSignal return:result];
+///   })];
+///
+///   [miltivalueSignal subscribeNext:RACReduce(^(NSString *firstName, NSString *lastName) {
+///       self.firstName = firstName;
+///       self.lastName = lastName;
+///   })];
+
 static inline __attribute__((overloadable))
 id (^RACReduce(id (^block)(id)))(RACTuple *) {
 	return ^(RACTuple *t) {

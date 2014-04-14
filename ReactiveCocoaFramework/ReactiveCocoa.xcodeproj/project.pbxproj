@@ -1330,6 +1330,7 @@
 				D094E45117775B1000906BF7 /* Configuration */,
 				88CDF7BC15000FCE00163A9F /* Products */,
 			);
+			indentWidth = 4;
 			sourceTree = "<group>";
 			usesTabs = 1;
 		};

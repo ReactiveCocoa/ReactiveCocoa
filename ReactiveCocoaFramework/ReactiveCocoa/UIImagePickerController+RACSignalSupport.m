@@ -1,6 +1,6 @@
 //
 //  UIImagePickerController+RACSignalSupport.m
-//  Real Estate
+//  ReactiveCocoa
 //
 //  Created by Timur Kuchkarov on 28.03.14.
 //  Copyright (c) 2014 GitHub. All rights reserved.
@@ -23,8 +23,7 @@ static void RACUseDelegateProxy(UIImagePickerController *self) {
 	self.delegate = (id)self.rac_delegateProxy;
 }
 
-- (RACDelegateProxy *)rac_delegateProxy
-{
+- (RACDelegateProxy *)rac_delegateProxy {
 	RACDelegateProxy *proxy = objc_getAssociatedObject(self, _cmd);
 	if (proxy == nil) {
 		proxy = [[RACDelegateProxy alloc] initWithProtocol:@protocol(UIImagePickerControllerDelegate)];
@@ -34,21 +33,19 @@ static void RACUseDelegateProxy(UIImagePickerController *self) {
 	return proxy;
 }
 
-- (RACSignal *)rac_imageSelectedSignal
-{
-    @weakify(self);
+- (RACSignal *)rac_imageSelectedSignal {
 	RACSignal *signal = [[[[self.rac_delegateProxy
-                            signalForSelector:@selector(imagePickerController:didFinishPickingMediaWithInfo:)]
-                           reduceEach:^(UIImagePickerController *pickerController, NSDictionary *userInfo) {
-                               @strongify(self);
-                               [self dismissViewControllerAnimated:YES completion:nil];
-                               return userInfo;
-                           }]
-                          takeUntil:self.rac_willDeallocSignal]
-                         setNameWithFormat:@"%@ -rac_imageSelectedSignal", [self rac_description]];
+        signalForSelector:@selector(imagePickerController:didFinishPickingMediaWithInfo:)]
+        reduceEach:^(UIImagePickerController *pickerController, NSDictionary *userInfo) {
+			[pickerController dismissViewControllerAnimated:YES completion:nil];
+			return userInfo;
+		}]
+		takeUntil:self.rac_willDeallocSignal]
+        setNameWithFormat:@"%@ -rac_imageSelectedSignal", [self rac_description]];
     
 	RACUseDelegateProxy(self);
     
 	return signal;
 }
+
 @end

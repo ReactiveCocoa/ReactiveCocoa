@@ -240,6 +240,13 @@ describe(@"-rac_valuesAndCollectionMutationsForKeyPath:", ^{
 			id expectedMutation = [[RACSettingMutation alloc] initWithObjects:@[ RACUnit.defaultUnit ]];
 			expect(arrayMutation).to.equal(expectedMutation);
 		});
+
+		it(@"should send what?", ^{
+			object.arrayValue = nil;
+
+			id expectedMutation = [[RACSettingMutation alloc] initWithObjects:@[ RACUnit.defaultUnit ]];
+			expect(arrayMutation).to.equal(expectedMutation);
+		});
 	});
 
 	describe(@"inserting", ^{

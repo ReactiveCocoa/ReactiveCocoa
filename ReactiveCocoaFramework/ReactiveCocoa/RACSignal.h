@@ -151,7 +151,7 @@
 /// nextBlock           - Invoked upon a `next` event. This block may be nil.
 /// errorBlock          - Invoked upon an `error` event. This block may be nil.
 /// completedBlock      - Invoked upon a `completed` event. This block may be nil.
-- (void)subscribeSavingDisposable:(void (^)(RACDisposable *))saveDisposableBlock next:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
+- (void)subscribeSavingDisposable:(void (^)(RACDisposable *disposable))saveDisposableBlock next:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
 
 @end
 

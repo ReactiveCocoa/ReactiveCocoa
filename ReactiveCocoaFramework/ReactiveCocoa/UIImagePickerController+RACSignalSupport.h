@@ -26,7 +26,7 @@
 /// undefined behavior.
 ///
 /// Returns a signal which will send the dictionary with user info of selected image.
-/// The signal will complete itself after selection is done.
+/// You are responsible for picker controller dismissal.
 - (RACSignal *)rac_imageSelectedSignal;
 
 @end

@@ -30,7 +30,7 @@
 		1EC06B18173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EC06B16173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.m */; };
 		27A887D11703DC6800040001 /* UIBarButtonItem+RACCommandSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 27A887C81703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.m */; };
 		27A887D21703DDEB00040001 /* UIBarButtonItem+RACCommandSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 27A887C71703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		3C163DE218FE843D001AA13E /* UIImagePickerController+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C163DE018FE843D001AA13E /* UIImagePickerController+RACSignalSupport.h */; };
+		3C163DE218FE843D001AA13E /* UIImagePickerController+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C163DE018FE843D001AA13E /* UIImagePickerController+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C163DE318FE843D001AA13E /* UIImagePickerController+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C163DE118FE843D001AA13E /* UIImagePickerController+RACSignalSupport.m */; };
 		4925E806181BCC71000B2FEE /* NSControllerRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 4925E805181BCC71000B2FEE /* NSControllerRACSupportSpec.m */; };
 		554D9E5D181064E200F21262 /* UIRefreshControl+RACCommandSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 554D9E5B181064E200F21262 /* UIRefreshControl+RACCommandSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1366,8 +1366,6 @@
 				A1FCC3771567DED0008C9686 /* RACDelegateProxy.m */,
 				557A4B58177648C7008EF796 /* UIActionSheet+RACSignalSupport.h */,
 				557A4B59177648C7008EF796 /* UIActionSheet+RACSignalSupport.m */,
-				3C163DE018FE843D001AA13E /* UIImagePickerController+RACSignalSupport.h */,
-				3C163DE118FE843D001AA13E /* UIImagePickerController+RACSignalSupport.m */,
 				ACB0EAF21797DDD400942FFC /* UIAlertView+RACSignalSupport.h */,
 				ACB0EAF11797DDD400942FFC /* UIAlertView+RACSignalSupport.m */,
 				27A887C71703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.h */,
@@ -1384,6 +1382,8 @@
 				5F70B2AE17AB1829009AEDF9 /* UIDatePicker+RACSignalSupport.m */,
 				1EC06B15173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.h */,
 				1EC06B16173CB04000365258 /* UIGestureRecognizer+RACSignalSupport.m */,
+				3C163DE018FE843D001AA13E /* UIImagePickerController+RACSignalSupport.h */,
+				3C163DE118FE843D001AA13E /* UIImagePickerController+RACSignalSupport.m */,
 				554D9E5B181064E200F21262 /* UIRefreshControl+RACCommandSupport.h */,
 				554D9E5C181064E200F21262 /* UIRefreshControl+RACCommandSupport.m */,
 				5F70B2B617AB1856009AEDF9 /* UISegmentedControl+RACSignalSupport.h */,

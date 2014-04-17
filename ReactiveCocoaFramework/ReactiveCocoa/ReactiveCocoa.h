@@ -59,6 +59,7 @@
 	#import "UIControl+RACSignalSupport.h"
 	#import "UIDatePicker+RACSignalSupport.h"
 	#import "UIGestureRecognizer+RACSignalSupport.h"
+	#import "UIImagePickerController+RACSignalSupport.h"
 	#import "UISegmentedControl+RACSignalSupport.h"
 	#import "UISlider+RACSignalSupport.h"
 	#import "UIStepper+RACSignalSupport.h"

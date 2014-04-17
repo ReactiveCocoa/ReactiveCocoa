@@ -32,6 +32,7 @@
 		27A887D21703DDEB00040001 /* UIBarButtonItem+RACCommandSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 27A887C71703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C163DE218FE843D001AA13E /* UIImagePickerController+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C163DE018FE843D001AA13E /* UIImagePickerController+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C163DE318FE843D001AA13E /* UIImagePickerController+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C163DE118FE843D001AA13E /* UIImagePickerController+RACSignalSupport.m */; };
+		3C80F51F18FFCF810018AE41 /* UIImagePickerControllerRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C80F51D18FFCF810018AE41 /* UIImagePickerControllerRACSupportSpec.m */; };
 		4925E806181BCC71000B2FEE /* NSControllerRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 4925E805181BCC71000B2FEE /* NSControllerRACSupportSpec.m */; };
 		554D9E5D181064E200F21262 /* UIRefreshControl+RACCommandSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 554D9E5B181064E200F21262 /* UIRefreshControl+RACCommandSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		554D9E5E181064E200F21262 /* UIRefreshControl+RACCommandSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 554D9E5C181064E200F21262 /* UIRefreshControl+RACCommandSupport.m */; };
@@ -629,6 +630,7 @@
 		27A887C81703DB4F00040001 /* UIBarButtonItem+RACCommandSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIBarButtonItem+RACCommandSupport.m"; sourceTree = "<group>"; };
 		3C163DE018FE843D001AA13E /* UIImagePickerController+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImagePickerController+RACSignalSupport.h"; sourceTree = "<group>"; };
 		3C163DE118FE843D001AA13E /* UIImagePickerController+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImagePickerController+RACSignalSupport.m"; sourceTree = "<group>"; };
+		3C80F51D18FFCF810018AE41 /* UIImagePickerControllerRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIImagePickerControllerRACSupportSpec.m; sourceTree = "<group>"; };
 		4925E805181BCC71000B2FEE /* NSControllerRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSControllerRACSupportSpec.m; sourceTree = "<group>"; };
 		554D9E5B181064E200F21262 /* UIRefreshControl+RACCommandSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIRefreshControl+RACCommandSupport.h"; sourceTree = "<group>"; };
 		554D9E5C181064E200F21262 /* UIRefreshControl+RACCommandSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIRefreshControl+RACCommandSupport.m"; sourceTree = "<group>"; };
@@ -1087,6 +1089,7 @@
 				5FAF5261174D4D8E00CAC810 /* UIBarButtonItemRACSupportSpec.m */,
 				5EE9A79A1760D88500EAF5A2 /* UIButtonRACSupportSpec.m */,
 				D066C795176D262500C242D2 /* UIControlRACSupportSpec.m */,
+				3C80F51D18FFCF810018AE41 /* UIImagePickerControllerRACSupportSpec.m */,
 				5564542318107275002BD2E4 /* UIRefreshControlRACSupportSpec.m */,
 			);
 			name = iOS;
@@ -2050,6 +2053,7 @@
 				5FAF523E174D4D3200CAC810 /* NSEnumeratorRACSequenceAdditionsSpec.m in Sources */,
 				5FAF523F174D4D3600CAC810 /* NSNotificationCenterRACSupportSpec.m in Sources */,
 				D090768B17FBECBF00EB087A /* NSURLConnectionRACSupportSpec.m in Sources */,
+				3C80F51F18FFCF810018AE41 /* UIImagePickerControllerRACSupportSpec.m in Sources */,
 				5FAF5240174D4D5600CAC810 /* NSObjectRACDeallocatingSpec.m in Sources */,
 				5FAF5241174D4D5600CAC810 /* NSObjectRACLiftingSpec.m in Sources */,
 				5FAF5242174D4D5600CAC810 /* NSObjectRACPropertySubscribingExamples.m in Sources */,

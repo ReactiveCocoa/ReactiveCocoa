@@ -7,7 +7,6 @@
 //
 
 #import "UIImagePickerController+RACSignalSupport.h"
-#import <objc/message.h>
 #import "RACSignal.h"
 
 SpecBegin(UIImagePickerControllerRACSupport)
@@ -25,9 +24,10 @@ describe(@"UIImagePickerController", ^{
 		[imagePicker.rac_imageSelectedSignal subscribeNext:^(NSDictionary *userInfo) {
 			selectedImageUserInfo = userInfo;
 		}];
+		
 		NSDictionary *info = @{
-							   @"UIImagePickerControllerMediaType" :@"public.image",
-							   @"UIImagePickerControllerMediaMetadata" : @{}
+							   UIImagePickerControllerMediaType :@"public.image",
+							   UIImagePickerControllerMediaMetadata : @{}
 							   };
 		[imagePicker.delegate imagePickerController:imagePicker didFinishPickingMediaWithInfo:info];
 		expect(selectedImageUserInfo).to.equal(info);

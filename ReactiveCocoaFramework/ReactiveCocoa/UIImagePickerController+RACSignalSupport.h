@@ -27,6 +27,7 @@
 ///
 /// Returns a signal which will send the dictionary with user info of selected image.
 /// You are responsible for picker controller dismissal.
+/// The signal will complete itself when the receiver is deallocated.
 - (RACSignal *)rac_imageSelectedSignal;
 
 @end

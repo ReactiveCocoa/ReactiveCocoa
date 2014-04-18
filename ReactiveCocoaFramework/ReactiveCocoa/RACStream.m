@@ -318,6 +318,12 @@
 }
 
 - (instancetype)distinctUntilChanged {
+	return [[self distinctWithPredicate:^BOOL(id previous, id current) {
+		return (previous == current || [current isEqual:previous]);
+	}] setNameWithFormat:@"[%@] -distinctUntilChanged", self.name];
+}
+
+- (instancetype)distinctWithPredicate:(BOOL (^)(id, id))predicate {
 	Class class = self.class;
 
 	return [[self bind:^{
@@ -325,13 +331,13 @@
 		__block BOOL initial = YES;
 
 		return ^(id x, BOOL *stop) {
-			if (!initial && (lastValue == x || [x isEqual:lastValue])) return [class empty];
+			if (!initial && predicate(lastValue, x)) return [class empty];
 
 			initial = NO;
 			lastValue = x;
 			return [class return:x];
 		};
-	}] setNameWithFormat:@"[%@] -distinctUntilChanged", self.name];
+	}] setNameWithFormat:@"[%@] -distinctWithPredicate:", self.name];
 }
 
 @end

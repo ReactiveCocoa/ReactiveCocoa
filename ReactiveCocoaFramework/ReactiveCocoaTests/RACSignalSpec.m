@@ -1174,7 +1174,7 @@ describe(@"+combineLatest:reduce:", ^{
 	});
 });
 
-describe(@"distinctUntilChanged", ^{
+describe(@"-distinctUntilChanged", ^{
 	it(@"should only send values that are distinct from the previous value", ^{
 		RACSignal *sub = [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
@@ -1218,6 +1218,66 @@ describe(@"distinctUntilChanged", ^{
 		
 		NSArray *values = sub.toArray;
 		NSArray *expected = @[ [NSNull null], @1 ];
+		expect(values).to.equal(expected);
+	});
+});
+
+describe(@"-distinctWithPredicate:", ^{
+	it(@"shouldn't consider two NSValues whose pointers dereference to the same value to be distinct", ^{
+		int *pa = calloc(1, sizeof(int));
+		int *pb = calloc(1, sizeof(int));
+		int a = 1;
+		int b = 2;
+		*pa = a;
+		*pb = b;
+		*pb -= 1;
+		
+		NSValue *va = [NSValue valueWithPointer:pa];
+		NSValue *vb = [NSValue valueWithPointer:pb];
+		
+		// Prove -[NSValue isEqual:] doesn't dereference its pointer to check
+		// for equality.
+		expect(va).notTo.equal(vb);
+		
+		RACSignal *sub = [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:va];
+			[subscriber sendNext:vb];
+			[subscriber sendCompleted];
+			return nil;
+		}] distinctWithPredicate:^BOOL(NSValue *previous, NSValue *current) {
+			int *ipa = [previous pointerValue];
+			int *ipb = [current pointerValue];
+			return *ipa == *ipb;
+		}];
+		
+		NSArray *values = sub.toArray;
+		NSArray *expected = @[ va ];
+		expect(values).to.equal(expected);
+		
+		free(pa);
+		free(pb);
+	});
+	
+	it(@"should consider two NSValues whose pointers dereference to different values to be distinct", ^{
+		int a = 1;
+		int b = 2;
+		
+		NSValue *va = [NSValue valueWithPointer:&a];
+		NSValue *vb = [NSValue valueWithPointer:&b];
+		
+		RACSignal *sub = [[RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:va];
+			[subscriber sendNext:vb];
+			[subscriber sendCompleted];
+			return nil;
+		}] distinctWithPredicate:^BOOL(NSValue *previous, NSValue *current) {
+			int *ipa = [previous pointerValue];
+			int *ipb = [current pointerValue];
+			return *ipa == *ipb;
+		}];
+		
+		NSArray *values = sub.toArray;
+		NSArray *expected = @[ va, vb ];
 		expect(values).to.equal(expected);
 	});
 });

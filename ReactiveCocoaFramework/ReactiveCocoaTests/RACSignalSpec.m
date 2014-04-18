@@ -196,6 +196,56 @@ describe(@"-bind:", ^{
 		[values sendNext:@2];
 		expect(lastValue).to.equal(@2);
 	});
+
+	it(@"should properly stop subscribing to new signals after error", ^{
+		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@0];
+			[subscriber sendNext:@1];
+			return nil;
+		}];
+
+		__block BOOL subscribedAfterError = NO;
+		RACSignal *bind = [signal bind:^{
+			return ^(NSNumber *x, BOOL *stop) {
+				if (x.integerValue == 0) return [RACSignal error:nil];
+
+				return [RACSignal defer:^{
+					subscribedAfterError = YES;
+					return [RACSignal empty];
+				}];
+			};
+		}];
+
+		[bind subscribeCompleted:^{}];
+		expect(subscribedAfterError).to.beFalsy();
+	});
+
+	it(@"should not subscribe to signals following error in +merge:", ^{
+		__block BOOL firstSubscribed = NO;
+		__block BOOL secondSubscribed = NO;
+		__block BOOL errored = NO;
+
+		RACSignal *signal = [[RACSignal
+			merge:@[
+				[RACSignal defer:^{
+					firstSubscribed = YES;
+					return [RACSignal error:nil];
+				}],
+				[RACSignal defer:^{
+					secondSubscribed = YES;
+					return [RACSignal return:nil];
+				}]
+			]]
+			doError:^(NSError *error) {
+				errored = YES;
+			}];
+
+		[signal subscribeCompleted:^{}];
+
+		expect(firstSubscribed).to.beTruthy();
+		expect(secondSubscribed).to.beFalsy();
+		expect(errored).to.beTruthy();
+	});
 });
 
 describe(@"subscribing", ^{

@@ -241,18 +241,15 @@ describe(@"-rac_valuesAndCollectionMutationsForKeyPath:", ^{
 			expect(arrayMutation).to.equal(expectedMutation);
 		});
 
-		it(@"should send what?", ^{
+		it(@"should send RACSettingMutation for an ordered collection", ^{
 			object.arrayValue = nil;
 
-			id expectedMutation = [[RACSettingMutation alloc] initWithObjects:@[ RACUnit.defaultUnit ]];
+			id expectedMutation = [[RACSettingMutation alloc] initWithObjects:@[]];
 			expect(arrayMutation).to.equal(expectedMutation);
 		});
 
-		it(@"should send what?", ^{
-			object.arrayValue = (id)NSNull.null;
-
-			id expectedMutation = [[RACSettingMutation alloc] initWithObjects:@[ RACUnit.defaultUnit ]];
-			expect(arrayMutation).to.equal(expectedMutation);
+		it(@"should not send RACSettingMutation for an ordered collection", ^{
+			expect(^{ object.arrayValue = (id)NSNull.null; }).to.raiseAny();
 		});
 	});
 

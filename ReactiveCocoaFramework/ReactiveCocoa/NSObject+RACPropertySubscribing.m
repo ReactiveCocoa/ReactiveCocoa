@@ -81,10 +81,9 @@ static NSArray *RACConvertToArray(id collection) {
 
 					// Otherwise, fall through and act like the entire
 					// collection was replaced (see `NSKeyValueSetSetMutation`).
-					newObjects = value;
 
 				case NSKeyValueChangeSetting:
-					newObjects = RACConvertToArray(newObjects);
+					newObjects = RACConvertToArray(value);
 					mutation = [[RACSettingMutation alloc] initWithObjects:newObjects];
 
 					break;

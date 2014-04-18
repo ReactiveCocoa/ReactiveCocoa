@@ -184,6 +184,14 @@
 	}] setNameWithFormat:@"[%@] -take: %lu", self.name, (unsigned long)count];
 }
 
+- (instancetype)zipWithIndex {
+	__block NSUInteger index = 0;
+
+	return [[self map:^(id value) {
+		return RACTuplePack(value, @(index++));
+	}] setNameWithFormat:@"[%@] -zipWithIndex", self.name];
+}
+
 + (instancetype)join:(id<NSFastEnumeration>)streams block:(RACStream * (^)(id, id))block {
 	RACStream *current = nil;
 

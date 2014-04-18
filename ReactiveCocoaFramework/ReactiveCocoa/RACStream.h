@@ -186,6 +186,16 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 /// equivalent to the receiver is returned.
 - (instancetype)take:(NSUInteger)count;
 
+/// Zips the values in the receiver with indexes which starts from 0 to create
+/// RACTuples.
+///
+/// The each value of the receiver and an index for the value will be combined
+/// until the receiver is exhausted.
+///
+/// Returns a new stream of RACTuples, representing the zipped values of the
+/// receiver and indexes.
+- (instancetype)zipWithIndex;
+
 /// Zips the values in the given streams to create RACTuples.
 ///
 /// The first value of each stream will be combined, then the second value, and

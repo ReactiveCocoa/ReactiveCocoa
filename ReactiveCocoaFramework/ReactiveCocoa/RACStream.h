@@ -310,6 +310,10 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 /// previous value.
 - (instancetype)distinctUntilChanged;
 
+/// Returns a stream of values for which the predicate returns NO when compared
+/// to the previous value.
+- (instancetype)distinctWithPredicate:(BOOL (^)(id previous, id current))predicate;
+
 @end
 
 @interface RACStream (Deprecated)

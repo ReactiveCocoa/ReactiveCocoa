@@ -219,6 +219,33 @@ describe(@"-bind:", ^{
 		[bind subscribeCompleted:^{}];
 		expect(subscribedAfterError).to.beFalsy();
 	});
+
+	it(@"should not subscribe to signals following error in +merge:", ^{
+		__block BOOL firstSubscribed = NO;
+		__block BOOL secondSubscribed = NO;
+		__block BOOL errored = NO;
+
+		RACSignal *signal = [[RACSignal
+			merge:@[
+				[RACSignal defer:^{
+					firstSubscribed = YES;
+					return [RACSignal error:nil];
+				}],
+				[RACSignal defer:^{
+					secondSubscribed = YES;
+					return [RACSignal return:nil];
+				}]
+			]]
+			doError:^(NSError *error) {
+				errored = YES;
+			}];
+
+		[signal subscribeCompleted:^{}];
+
+		expect(firstSubscribed).to.beTruthy();
+		expect(secondSubscribed).to.beFalsy();
+		expect(errored).to.beTruthy();
+	});
 });
 
 describe(@"subscribing", ^{

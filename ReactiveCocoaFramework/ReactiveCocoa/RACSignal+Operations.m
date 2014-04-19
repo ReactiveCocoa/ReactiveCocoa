@@ -53,8 +53,41 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	}] setNameWithFormat:@"[%@] -concat: %@", self.name, signal];
 }
 
-- (RACSignal *)flattenMap:(RACSignal * (^)(id value))block {
-	return [super flattenMap:block];
+- (RACSignal *)flattenMap:(RACSignal * (^)(id value))signalBlock {
+	return [[RACSignal
+		create:^(id<RACSubscriber> subscriber) {
+			__block volatile int32_t subscriptions = 0;
+
+			void (^subscribeSignal)(RACSignal *, void (^)(id)) = ^(RACSignal *signal, void (^nextBlock)(id)) {
+				__block RACDisposable *savedDisposable;
+
+				[signal subscribeSavingDisposable:^(RACDisposable *disposable) {
+					savedDisposable = disposable;
+
+					OSAtomicIncrement32(&subscriptions);
+					[subscriber.disposable addDisposable:savedDisposable];
+				} next:nextBlock error:^(NSError *error) {
+					[subscriber sendError:error];
+				} completed:^{
+					[subscriber.disposable removeDisposable:savedDisposable];
+					if (OSAtomicDecrement32(&subscriptions) == 0) [subscriber sendCompleted];
+				}];
+			};
+
+			subscribeSignal(self, ^(id x) {
+				RACSignal *innerSignal = signalBlock(x);
+
+				if (innerSignal == nil) return;
+				NSCAssert([innerSignal isKindOfClass:RACSignal.class], @"Expected a RACSignal, got %@", innerSignal);
+
+				// The crux of -flattenMap:
+				// Send all values from inner signals to the (outer) subscriber.
+				subscribeSignal(innerSignal, ^(id x) {
+					[subscriber sendNext:x];
+				});
+			});
+		}]
+		setNameWithFormat:@"[%@] -flattenMap:", self.name];
 }
 
 - (RACSignal *)flatten {

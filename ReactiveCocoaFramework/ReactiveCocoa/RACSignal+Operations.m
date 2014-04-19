@@ -86,7 +86,15 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)skip:(NSUInteger)skipCount {
-	return [super skip:skipCount];
+	return [[RACSignal
+		defer:^{
+			__block NSUInteger skipped = 0;
+
+			return [self skipWhile:^ BOOL (id x) {
+				return skipped++ < skipCount;
+			}];
+		}]
+		setNameWithFormat:@"[%@] -skip: %lu", self.name, (unsigned long)skipCount];
 }
 
 - (RACSignal *)take:(NSUInteger)count {

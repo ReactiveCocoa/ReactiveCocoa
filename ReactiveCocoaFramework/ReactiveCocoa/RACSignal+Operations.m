@@ -97,8 +97,28 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 		setNameWithFormat:@"[%@] -skip: %lu", self.name, (unsigned long)skipCount];
 }
 
-- (RACSignal *)take:(NSUInteger)count {
-	return [super take:count];
+- (RACSignal *)take:(NSUInteger)takeCount {
+	if (takeCount == 0) return [RACSignal empty];
+
+	return [[RACSignal
+		create:^(id<RACSubscriber> subscriber) {
+			__block NSUInteger taken = 0;
+
+			[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+				[subscriber.disposable addDisposable:disposable];
+			} next:^(id x) {
+				[subscriber sendNext:x];
+
+				if (++taken >= takeCount) {
+					[subscriber sendCompleted];
+				}
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				[subscriber sendCompleted];
+			}];
+		}]
+		setNameWithFormat:@"[%@] -take: %lu", self.name, (unsigned long)takeCount];
 }
 
 - (RACSignal *)zipWith:(RACSignal *)signal {

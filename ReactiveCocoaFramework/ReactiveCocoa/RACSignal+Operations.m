@@ -205,7 +205,17 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)distinctUntilChanged {
-	return [super distinctUntilChanged];
+	return [[RACSignal
+		defer:^{
+			__block id lastValue = [[NSObject alloc] init];
+
+			return [self filter:^ BOOL (id x) {
+				BOOL changed = !(x == lastValue || [x isEqual:lastValue]);
+				if (changed) lastValue = x;
+				return changed;
+			}];
+		}]
+		setNameWithFormat:@"[%@] -distinctUntilChanged", self.name];
 }
 
 - (RACSignal *)takeWhile:(BOOL (^)(id x))predicate {

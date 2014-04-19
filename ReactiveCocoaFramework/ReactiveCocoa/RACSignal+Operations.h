@@ -794,21 +794,6 @@ typedef enum : NSUInteger {
 /// Returns a signal that applies OR to each NSNumber in the tuple.
 - (RACSignal *)or;
 
-/// Lazily binds a block to the values in the receiver.
-///
-/// This should only be used if you need to terminate the bind early, or close
-/// over some state. -flattenMap: is more appropriate for all other cases.
-///
-/// block - A block returning a RACSignalBindBlock. This block will be invoked
-///         each time the signal is subscribed to. This block must not be nil or
-///         return nil.
-///
-/// Returns a new signal which represents the combination of all signals
-/// returned from the lazy applications of `block`. The resulting signal will
-/// forward events from all of the original signals in the order that they
-/// arrive.
-- (RACSignal *)bind:(RACSignalBindBlock (^)(void))block;
-
 @end
 
 @interface RACSignal (DeprecatedOperations)
@@ -837,6 +822,7 @@ typedef enum : NSUInteger {
 - (RACSignal *)replayLast RACDeprecated("Bind to a property with RAC() instead");
 - (RACSignal *)replayLazily RACDeprecated("Bind to a property with RAC() or use -shareWhileActive instead");
 - (NSArray *)toArray RACDeprecated("Renamed to -array");
+- (RACSignal *)bind:(RACSignalBindBlock (^)(void))block RACDeprecated("Use +defer: or -subscribeSavingDisposable:next:error:completed: instead");
 
 @end
 

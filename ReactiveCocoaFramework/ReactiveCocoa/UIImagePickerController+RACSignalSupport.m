@@ -34,17 +34,24 @@ static void RACUseDelegateProxy(UIImagePickerController *self) {
 }
 
 - (RACSignal *)rac_imageSelectedSignal {
-	RACSignal *signal = [[[[self.rac_delegateProxy
+	RACSignal *pickerCancelledSignal = [[[self.rac_delegateProxy
+		signalForSelector:@selector(imagePickerControllerDidCancel:)]
+		reduceEach:^id{
+			return nil;
+		}]
+		takeUntil:self.rac_willDeallocSignal];
+	RACSignal *imagePickerSignal = [[[[[self.rac_delegateProxy
 		signalForSelector:@selector(imagePickerController:didFinishPickingMediaWithInfo:)]
 		reduceEach:^(UIImagePickerController *pickerController, NSDictionary *userInfo) {
 			return userInfo;
 		}]
 		takeUntil:self.rac_willDeallocSignal]
+		merge:pickerCancelledSignal]
 		setNameWithFormat:@"%@ -rac_imageSelectedSignal", [self rac_description]];
     
 	RACUseDelegateProxy(self);
     
-	return signal;
+	return imagePickerSignal;
 }
 
 @end

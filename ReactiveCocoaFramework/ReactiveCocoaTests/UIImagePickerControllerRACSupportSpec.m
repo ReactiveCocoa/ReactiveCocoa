@@ -26,10 +26,14 @@ describe(@"UIImagePickerController", ^{
 		}];
 		
 		NSDictionary *info = @{
-							   UIImagePickerControllerMediaType :@"public.image",
-							   UIImagePickerControllerMediaMetadata : @{}
-							   };
+			UIImagePickerControllerMediaType :@"public.image",
+			UIImagePickerControllerMediaMetadata : @{}
+			};
 		[imagePicker.delegate imagePickerController:imagePicker didFinishPickingMediaWithInfo:info];
+		expect(selectedImageUserInfo).to.equal(info);
+		
+		info = nil;
+		[imagePicker.delegate imagePickerControllerDidCancel:imagePicker];
 		expect(selectedImageUserInfo).to.equal(info);
 	});
 });

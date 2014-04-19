@@ -186,7 +186,18 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 #pragma clang diagnostic pop
 
 - (RACSignal *)scanWithStart:(id)startingValue reduce:(id (^)(id running, id next))block {
-	return [super scanWithStart:startingValue reduce:block];
+	NSCParameterAssert(block != nil);
+
+	return [[RACSignal
+		defer:^{
+			__block id running = startingValue;
+
+			return [self map:^(id x) {
+				running = block(running, x);
+				return running;
+			}];
+		}]
+		setNameWithFormat:@"[%@] -scanWithStart: %@ reduce:", self.name, [startingValue rac_description]];
 }
 
 - (RACSignal *)combinePreviousWithStart:(id)start reduce:(id (^)(id previous, id current))reduceBlock {

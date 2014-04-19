@@ -236,8 +236,25 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 		setNameWithFormat:@"[%@] -takeWhile:", self.name];
 }
 
-- (RACSignal *)skipWhile:(BOOL (^)(id x))predicate {
-	return [super skipWhileBlock:predicate];
+- (RACSignal *)skipWhile:(BOOL (^)(id x))predicateBlock {
+	return [[RACSignal
+		create:^(id<RACSubscriber> subscriber) {
+			__block BOOL skipping = YES;
+
+			[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+				[subscriber.disposable addDisposable:disposable];
+			} next:^(id x) {
+				skipping = skipping && predicateBlock(x);
+				if (skipping) return;
+
+				[subscriber sendNext:x];
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				[subscriber sendCompleted];
+			}];
+		}]
+		setNameWithFormat:@"[%@] -skipWhile:", self.name];
 }
 
 - (RACSignal *)doNext:(void (^)(id x))block {

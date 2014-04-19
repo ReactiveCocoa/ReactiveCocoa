@@ -29,6 +29,9 @@
 
 static NSArray *RACConvertToArray(id collection) {
 	if (collection == nil) return @[];
+	// nil value is represented as NSNull.null in KVO change dictionary.
+	// So we treat NSNull.null as same as nil.
+	if ([collection isEqual:NSNull.null]) return @[];
 	if ([collection isKindOfClass:NSArray.class]) return collection;
 	if ([collection isKindOfClass:NSSet.class]) return [collection allObjects];
 	if ([collection isKindOfClass:NSOrderedSet.class]) return [collection array];

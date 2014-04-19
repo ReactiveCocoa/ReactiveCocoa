@@ -218,8 +218,22 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 		setNameWithFormat:@"[%@] -distinctUntilChanged", self.name];
 }
 
-- (RACSignal *)takeWhile:(BOOL (^)(id x))predicate {
-	return [super takeWhileBlock:predicate];
+- (RACSignal *)takeWhile:(BOOL (^)(id x))predicateBlock {
+	return [[RACSignal
+		create:^(id<RACSubscriber> subscriber) {
+			[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+				[subscriber.disposable addDisposable:disposable];
+			} next:^(id x) {
+				if (!predicateBlock(x)) return [subscriber sendCompleted];
+
+				[subscriber sendNext:x];
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				[subscriber sendCompleted];
+			}];
+		}]
+		setNameWithFormat:@"[%@] -takeWhile:", self.name];
 }
 
 - (RACSignal *)skipWhile:(BOOL (^)(id x))predicate {

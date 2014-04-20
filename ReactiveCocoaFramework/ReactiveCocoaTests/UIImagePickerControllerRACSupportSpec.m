@@ -31,8 +31,14 @@ describe(@"UIImagePickerController", ^{
 			};
 		[imagePicker.delegate imagePickerController:imagePicker didFinishPickingMediaWithInfo:info];
 		expect(selectedImageUserInfo).to.equal(info);
-		
-		info = nil;
+	});
+	
+	it(@"cancels image picking process", ^{
+		__block NSDictionary *selectedImageUserInfo = nil;
+		[imagePicker.rac_imageSelectedSignal subscribeNext:^(NSDictionary *userInfo) {
+			selectedImageUserInfo = userInfo;
+		}];
+		NSDictionary *info = nil;
 		[imagePicker.delegate imagePickerControllerDidCancel:imagePicker];
 		expect(selectedImageUserInfo).to.equal(info);
 	});

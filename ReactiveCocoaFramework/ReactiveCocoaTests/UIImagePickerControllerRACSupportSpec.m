@@ -38,9 +38,8 @@ describe(@"UIImagePickerController", ^{
 		[imagePicker.rac_imageSelectedSignal subscribeNext:^(NSDictionary *userInfo) {
 			selectedImageUserInfo = userInfo;
 		}];
-		NSDictionary *info = nil;
 		[imagePicker.delegate imagePickerControllerDidCancel:imagePicker];
-		expect(selectedImageUserInfo).to.equal(info);
+		expect(selectedImageUserInfo).to.beNil();
 	});
 });
 

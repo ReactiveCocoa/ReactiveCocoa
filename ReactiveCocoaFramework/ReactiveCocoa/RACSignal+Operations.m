@@ -1218,13 +1218,16 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 		} next:^(RACEvent *event) {
 			switch (event.eventType) {
 				case RACEventTypeCompleted:
-					return [subscriber sendCompleted];
+					[subscriber sendCompleted];
+					break;
 
 				case RACEventTypeError:
-					return [subscriber sendError:event.error];
+					[subscriber sendError:event.error];
+					break;
 
 				case RACEventTypeNext:
-					return [subscriber sendNext:event.value];
+					[subscriber sendNext:event.value];
+					break;
 			}
 		} error:^(NSError *error) {
 			[subscriber sendError:error];

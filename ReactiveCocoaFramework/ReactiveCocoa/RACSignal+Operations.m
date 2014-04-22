@@ -1213,7 +1213,9 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 
 - (RACSignal *)dematerialize {
 	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		[subscriber.disposable addDisposable:[self subscribeNext:^(RACEvent *event) {
+		[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+			[subscriber.disposable addDisposable:disposable];
+		} next:^(RACEvent *event) {
 			switch (event.eventType) {
 				case RACEventTypeCompleted:
 					return [subscriber sendCompleted];
@@ -1228,7 +1230,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 			[subscriber sendError:error];
 		} completed:^{
 			[subscriber sendCompleted];
-		}]];
+		}];
 	}] setNameWithFormat:@"[%@] -dematerialize", self.name];
 }
 

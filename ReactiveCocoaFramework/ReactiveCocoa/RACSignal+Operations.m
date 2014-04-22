@@ -1277,7 +1277,14 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		NSCAssert([tuple isKindOfClass:RACTuple.class], @"-reduceApply must only be used on a signal of RACTuples. Instead, received: %@", tuple);
 		NSCAssert(tuple.count > 1, @"-reduceApply must only be used on a signal of RACTuples, with at least a block in tuple[0] and its first argument in tuple[1]");
 		
-		return [RACBlockTrampoline invokeBlock:tuple[0] withArguments:tuple.tail];
+		// We can't use -array, because we need to preserve RACTupleNil
+		NSMutableArray *tupleArray = [NSMutableArray arrayWithCapacity:tuple.count];
+		for (id val in tuple) {
+			[tupleArray addObject:val];
+		}
+		RACTuple *arguments = [RACTuple tupleWithObjectsFromArray:[tupleArray subarrayWithRange:NSMakeRange(1, tupleArray.count - 1)]];
+		
+		return [RACBlockTrampoline invokeBlock:tuple[0] withArguments:arguments];
 	}] setNameWithFormat:@"[%@] -reduceApply", self.name];
 }
 

@@ -94,12 +94,6 @@
 /// Returns a new tuple.
 - (instancetype)tupleByAddingObject:(id)obj;
 
-/// Removes the first element from the receiver. The receiver must contain at
-/// least one element.
-///
-/// Returns a new tuple.
-- (instancetype)tail;
-
 @end
 
 @interface RACTuple (RACSequenceAdditions)

@@ -3878,8 +3878,12 @@ describe(@"-reduceApply", ^{
 	it(@"should apply a block to the rest of a tuple", ^{
 		RACSubject *subject = [RACReplaySubject subject];
 		
-		id sum = ^(NSNumber *a, NSNumber *b) { return @(a.intValue + b.intValue); };
-		id madd = ^(NSNumber *a, NSNumber *b, NSNumber *c) { return @(a.intValue * b.intValue + c.intValue); };
+		id sum = ^(NSNumber *a, NSNumber *b) {
+			return @(a.intValue + b.intValue);
+		};
+		id madd = ^(NSNumber *a, NSNumber *b, NSNumber *c) {
+			return @(a.intValue * b.intValue + c.intValue);
+		};
 		
 		[subject sendNext:RACTuplePack(sum, @1, @2)];
 		[subject sendNext:RACTuplePack(madd, @2, @3, @1)];

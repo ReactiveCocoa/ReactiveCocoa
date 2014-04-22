@@ -617,7 +617,9 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 ///   RACSignal *adder = [RACSignal return:^(NSNumber *a, NSNumber *b) {
 ///       return @(a.intValue + b.intValue);
 ///   }];
-///   RACSignal *sums = [[RACSignal combineLatest:@[adder, as, bs]] reduceApply];
+///   RACSignal *sums = [[RACSignal
+///       combineLatest:@[ adder, as, bs ]]
+///       reduceApply];
 ///
 /// Returns a signal of the result of applying the first element of each tuple
 /// to the remaining elements.

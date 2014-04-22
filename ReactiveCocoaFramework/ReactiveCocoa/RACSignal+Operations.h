@@ -822,7 +822,7 @@ typedef enum : NSUInteger {
 - (RACSignal *)replayLast RACDeprecated("Bind to a property with RAC() instead");
 - (RACSignal *)replayLazily RACDeprecated("Bind to a property with RAC() or use -shareWhileActive instead");
 - (NSArray *)toArray RACDeprecated("Renamed to -array");
-- (RACSignal *)bind:(RACSignalBindBlock (^)(void))block RACDeprecated("Use +defer: or -subscribeSavingDisposable:next:error:completed: instead");
+- (RACSignal *)bind:(RACSignalBindBlock (^)(void))block RACDeprecated("Use +create: or -flattenMap: instead");
 
 @end
 

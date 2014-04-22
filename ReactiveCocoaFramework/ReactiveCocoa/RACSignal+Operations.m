@@ -263,9 +263,12 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 			__block id lastValue = [[NSObject alloc] init];
 
 			return [self filter:^ BOOL (id x) {
-				BOOL changed = !(x == lastValue || [x isEqual:lastValue]);
-				if (changed) lastValue = x;
-				return changed;
+				if (x == lastValue || [x isEqual:lastValue]) {
+					return NO;
+				} else {
+					lastValue = x;
+					return YES;
+				}
 			}];
 		}]
 		setNameWithFormat:@"[%@] -distinctUntilChanged", self.name];

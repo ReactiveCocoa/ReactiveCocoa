@@ -280,9 +280,11 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 			[self subscribeSavingDisposable:^(RACDisposable *disposable) {
 				[subscriber.disposable addDisposable:disposable];
 			} next:^(id x) {
-				if (!predicateBlock(x)) return [subscriber sendCompleted];
-
-				[subscriber sendNext:x];
+				if (predicateBlock(x)) {
+					[subscriber sendNext:x];
+				} else {
+					[subscriber sendCompleted];
+				}
 			} error:^(NSError *error) {
 				[subscriber sendError:error];
 			} completed:^{

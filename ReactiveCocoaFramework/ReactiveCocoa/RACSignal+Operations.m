@@ -498,17 +498,20 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		__block BOOL selfCompleted = NO;
 
 		// Subscribes to the given signal.
-		//
-		// This will be set to nil once all signals have completed (to break
-		// a retain cycle in the recursive block).
 		__block void (^subscribeToSignal)(RACSignal *);
 
+		// Weak reference to the above, to avoid a leak.
+		__weak __block void (^recur)(RACSignal *);
+		
 		// Sends completed to the subscriber if all signals are finished.
 		//
 		// This should only be used while synchronized on `subscriber`.
 		void (^completeIfAllowed)(void) = ^{
 			if (selfCompleted && activeDisposables.count == 0) {
 				[subscriber sendCompleted];
+
+				// A strong reference is held to `subscribeToSignal` until completion,
+				// preventing it from deallocating early.
 				subscribeToSignal = nil;
 			}
 		};
@@ -517,8 +520,8 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		//
 		// This array should only be used while synchronized on `subscriber`.
 		NSMutableArray *queuedSignals = [NSMutableArray array];
-
-		subscribeToSignal = ^(RACSignal *signal) {
+		
+		recur = subscribeToSignal = ^(RACSignal *signal) {
 			RACSerialDisposable *serialDisposable = [[RACSerialDisposable alloc] init];
 
 			@synchronized (subscriber) {
@@ -531,6 +534,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			} error:^(NSError *error) {
 				[subscriber sendError:error];
 			} completed:^{
+				__strong void (^subscribeToSignal)(RACSignal *) = recur;
 				RACSignal *nextSignal;
 
 				@synchronized (subscriber) {
@@ -546,11 +550,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 					[queuedSignals removeObjectAtIndex:0];
 				}
 
-				#pragma clang diagnostic push
-				#pragma clang diagnostic ignored "-Warc-retain-cycles"
-				// This retain cycle is broken in `completeIfAllowed`.
 				subscribeToSignal(nextSignal);
-				#pragma clang diagnostic pop
 			}];
 		};
 

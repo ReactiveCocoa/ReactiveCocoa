@@ -258,9 +258,13 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)distinctUntilChanged {
+	// No need to synchronize initialization, any arbitrary object will do.
+	static id unique;
+	unique = unique ?: [[NSObject alloc] init];
+
 	return [[RACSignal
 		defer:^{
-			__block id lastValue = [[NSObject alloc] init];
+			__block id lastValue = unique;
 
 			return [self filter:^ BOOL (id x) {
 				if (x == lastValue || [x isEqual:lastValue]) {

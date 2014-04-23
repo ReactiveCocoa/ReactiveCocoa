@@ -599,26 +599,18 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 - (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory reduce:(id (^)(id running, id next))reduceBlock {
 	NSCParameterAssert(startFactory != NULL);
 	NSCParameterAssert(reduceBlock != NULL);
-	
-	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		__block id runningValue = startFactory();
-		return [self subscribeNext:^(id x) {
-			runningValue = reduceBlock(runningValue, x);
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendNext:runningValue];
-			[subscriber sendCompleted];
-		}];
+
+	return [[RACSignal defer:^{
+		return [self aggregateWithStart:startFactory() reduce:reduceBlock];
 	}] setNameWithFormat:@"[%@] -aggregateWithStartFactory:reduce:", self.name];
 }
 
 - (RACSignal *)aggregateWithStart:(id)start reduce:(id (^)(id running, id next))reduceBlock {
-	RACSignal *signal = [self aggregateWithStartFactory:^{
-		return start;
-	} reduce:reduceBlock];
-
-	return [signal setNameWithFormat:@"[%@] -aggregateWithStart: %@ reduce:", self.name, [start rac_description]];
+	return [[[[self
+		scanWithStart:start reduce:reduceBlock]
+		startWith:start]
+		takeLast:1]
+		setNameWithFormat:@"[%@] -aggregateWithStart: %@ reduce:", self.name, [start rac_description]];
 }
 
 - (RACDisposable *)setKeyPath:(NSString *)keyPath onObject:(NSObject *)object {

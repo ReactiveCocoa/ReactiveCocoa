@@ -1051,10 +1051,10 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			id<NSCopying> key = keyBlock(x);
 			RACGroupedSignal *groupSubject = nil;
 			@synchronized(groups) {
-				groupSubject = [groups objectForKey:key];
+				groupSubject = groups[key];
 				if(groupSubject == nil) {
 					groupSubject = [RACGroupedSignal signalWithKey:key];
-					[groups setObject:groupSubject forKey:key];
+					groups[key] = groupSubject;
 					[subscriber sendNext:groupSubject];
 				}
 			}

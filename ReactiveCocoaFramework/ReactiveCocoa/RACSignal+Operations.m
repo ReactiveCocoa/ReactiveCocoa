@@ -369,14 +369,14 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		return [self subscribeNext:^(id x) {
 			[valuesTaken addObject:x ? : [RACTupleNil tupleNil]];
 			
-			while(valuesTaken.count > count) {
+			while (valuesTaken.count > count) {
 				[valuesTaken removeObjectAtIndex:0];
 			}
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
-			for(id value in valuesTaken) {
-				[subscriber sendNext:[value isKindOfClass:[RACTupleNil class]] ? nil : value];
+			for (id value in valuesTaken) {
+				[subscriber sendNext:[value isKindOfClass:RACTupleNil.class] ? nil : value];
 			}
 			
 			[subscriber sendCompleted];

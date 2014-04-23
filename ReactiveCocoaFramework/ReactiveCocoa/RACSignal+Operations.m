@@ -367,7 +367,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {		
 		NSMutableArray *valuesTaken = [NSMutableArray arrayWithCapacity:count];
 		return [self subscribeNext:^(id x) {
-			[valuesTaken addObject:x ? : [RACTupleNil tupleNil]];
+			[valuesTaken addObject:x ? : RACTupleNil.tupleNil];
 			
 			while (valuesTaken.count > count) {
 				[valuesTaken removeObjectAtIndex:0];

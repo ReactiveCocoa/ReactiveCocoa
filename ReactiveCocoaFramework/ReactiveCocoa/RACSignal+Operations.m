@@ -1052,7 +1052,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			RACGroupedSignal *groupSubject = nil;
 			@synchronized(groups) {
 				groupSubject = groups[key];
-				if(groupSubject == nil) {
+				if (groupSubject == nil) {
 					groupSubject = [RACGroupedSignal signalWithKey:key];
 					groups[key] = groupSubject;
 					[subscriber sendNext:groupSubject];

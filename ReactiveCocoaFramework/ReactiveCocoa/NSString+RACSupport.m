@@ -21,7 +21,7 @@
 	[scheduler schedule:^{
 		NSError *error = nil;
 		NSString *string = [NSString stringWithContentsOfURL:URL usedEncoding:encoding error:&error];
-		if(string == nil) {
+		if (string == nil) {
 			[subject sendError:error];
 		} else {
 			[subject sendNext:string];

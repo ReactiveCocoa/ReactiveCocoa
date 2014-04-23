@@ -22,7 +22,7 @@
 	}];
 	
 	__block RACDisposable *subscription = [dataNotification subscribeNext:^(NSData *data) {
-		if(data.length > 0) {
+		if (data.length > 0) {
 			[subject sendNext:data];
 			[self readInBackgroundAndNotify];
 		} else {

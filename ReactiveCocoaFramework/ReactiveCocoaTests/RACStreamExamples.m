@@ -405,7 +405,23 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 				]);
 			});
 		});
-		
+
+		describe(@"-zipWithIndex", ^{
+			it(@"should make a stream of tuples whose index values start from 0", ^{
+				RACStream *stream = [streamOne zipWithIndex];
+				verifyValues(stream, @[
+					RACTuplePack(valuesOne[0], @0),
+					RACTuplePack(valuesOne[1], @1),
+					RACTuplePack(valuesOne[2], @2)
+				]);
+			});
+
+			it(@"should work for empty streams", ^{
+				RACStream *stream = [streamWithValues(@[]) zipWithIndex];
+				verifyValues(stream, @[]);
+			});
+		});
+
 		describe(@"+zip:reduce:", ^{
 			it(@"should reduce values", ^{
 				RACStream *stream = [streamClass zip:threeStreams reduce:^ NSString * (id x, id y, id z) {

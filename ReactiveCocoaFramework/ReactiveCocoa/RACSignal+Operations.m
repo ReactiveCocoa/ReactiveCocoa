@@ -258,9 +258,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)distinctUntilChanged {
-	// No need to synchronize initialization, any arbitrary object will do.
-	static id unique;
-	unique = unique ?: [[NSObject alloc] init];
+	id unique = [[NSObject alloc] init];
 
 	return [[RACSignal
 		defer:^{

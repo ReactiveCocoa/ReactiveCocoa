@@ -145,6 +145,8 @@
 		7912106118F71F55004DFB82 /* RACKVOProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 7912105F18F71F55004DFB82 /* RACKVOProxy.m */; };
 		7912106318F71F63004DFB82 /* RACKVOProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 7912105F18F71F55004DFB82 /* RACKVOProxy.m */; };
 		7912106418F71F65004DFB82 /* RACKVOProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 7912105F18F71F55004DFB82 /* RACKVOProxy.m */; };
+		798A54E91909345700F6EF5D /* RACKVOProxySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 798A54E81909345700F6EF5D /* RACKVOProxySpec.m */; };
+		798A54EA1909345700F6EF5D /* RACKVOProxySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 798A54E81909345700F6EF5D /* RACKVOProxySpec.m */; };
 		8801E7511644BDE200A155FE /* NSObjectRACLiftingSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 8801E7501644BDE200A155FE /* NSObjectRACLiftingSpec.m */; };
 		88037F8415056328001A5B19 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7BF15000FCE00163A9F /* Cocoa.framework */; };
 		88037FB81505645C001A5B19 /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = 88037F8C15056328001A5B19 /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -675,6 +677,7 @@
 		74F17317186024A900BC937C /* NSIndexSet+RACSequenceAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSIndexSet+RACSequenceAdditions.m"; sourceTree = "<group>"; };
 		7912105E18F71F55004DFB82 /* RACKVOProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACKVOProxy.h; sourceTree = "<group>"; };
 		7912105F18F71F55004DFB82 /* RACKVOProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOProxy.m; sourceTree = "<group>"; };
+		798A54E81909345700F6EF5D /* RACKVOProxySpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOProxySpec.m; sourceTree = "<group>"; };
 		8801E7501644BDE200A155FE /* NSObjectRACLiftingSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSObjectRACLiftingSpec.m; sourceTree = "<group>"; };
 		88037F8315056328001A5B19 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		88037F8C15056328001A5B19 /* ReactiveCocoa.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReactiveCocoa.h; sourceTree = "<group>"; };
@@ -1238,8 +1241,6 @@
 			isa = PBXGroup;
 			children = (
 				5FAF5260174D4D7100CAC810 /* iOS */,
-				5FAF525F174D4D6100CAC810 /* OS X */,
-				88CDF7E315000FCF00163A9F /* Supporting Files */,
 				5F773DEF169B48830023069D /* NSEnumeratorRACSequenceAdditionsSpec.m */,
 				D0700F4B1672994D00D7CD30 /* NSNotificationCenterRACSupportSpec.m */,
 				6E58405E16F3414200F588A6 /* NSObjectRACDeallocatingSpec.m */,
@@ -1251,18 +1252,20 @@
 				5FDC350E1736F81800792E52 /* NSStringRACKeyPathUtilitiesSpec.m */,
 				D090768917FBECBF00EB087A /* NSURLConnectionRACSupportSpec.m */,
 				BE527E9E1863705B006349E8 /* NSUserDefaultsRACSupportSpec.m */,
+				5FAF525F174D4D6100CAC810 /* OS X */,
 				D0870C6E16884A0600D0E11D /* RACBacktraceSpec.m */,
+				886CEACC163DE669007632D1 /* RACBlockTrampolineSpec.m */,
 				5F7EFECC168FBC4B0037E500 /* RACChannelExamples.h */,
 				5F7EFECD168FBC4B0037E500 /* RACChannelExamples.m */,
 				5F7EFECE168FBC4B0037E500 /* RACChannelSpec.m */,
-				D075A72817BCB7E100C24FB7 /* RACControlCommandExamples.h */,
-				D075A72917BCB7E100C24FB7 /* RACControlCommandExamples.m */,
-				886CEACC163DE669007632D1 /* RACBlockTrampolineSpec.m */,
 				882CCA1D15F1564D00937D6E /* RACCommandSpec.m */,
 				881E86B91669350B00667F7B /* RACCompoundDisposableSpec.m */,
+				D075A72817BCB7E100C24FB7 /* RACControlCommandExamples.h */,
+				D075A72917BCB7E100C24FB7 /* RACControlCommandExamples.m */,
 				D0A0E225176A84DA007273ED /* RACDisposableSpec.m */,
 				D077A171169B79A900057BB1 /* RACEventSpec.m */,
 				5F2447AC167E87C50062180C /* RACKVOChannelSpec.m */,
+				798A54E81909345700F6EF5D /* RACKVOProxySpec.m */,
 				D041376815D2281C004BBF80 /* RACKVOWrapperSpec.m */,
 				88C5A02816924BFC0045EF05 /* RACMulticastConnectionSpec.m */,
 				D0EDE76516968AB10072A780 /* RACPropertySignalExamples.h */,
@@ -1272,6 +1275,7 @@
 				D0C70F91164337E3007027B4 /* RACSequenceExamples.h */,
 				D0C70F92164337E3007027B4 /* RACSequenceExamples.m */,
 				D0D487051642651400DD7605 /* RACSequenceSpec.m */,
+				D028DB7C179E591E00D1042F /* RACSerialDisposableSpec.m */,
 				8820937B1501C8A600796685 /* RACSignalSpec.m */,
 				8884DD6A1756AD3600F6C379 /* RACSignalStartExamples.h */,
 				8884DD641756ACF600F6C379 /* RACSignalStartExamples.m */,
@@ -1289,10 +1293,10 @@
 				88302BFC1762A9E6003633BD /* RACTestExampleScheduler.m */,
 				88442A321608A9AD00636B49 /* RACTestObject.h */,
 				88442A331608A9AD00636B49 /* RACTestObject.m */,
-				D02221611678910900DBD031 /* RACTupleSpec.m */,
-				8803C010166732BA00C36839 /* RACSchedulerSpec.m */,
-				D028DB7C179E591E00D1042F /* RACSerialDisposableSpec.m */,
 				D07200241788C57200987F70 /* RACTestSchedulerSpec.m */,
+				D02221611678910900DBD031 /* RACTupleSpec.m */,
+				88CDF7E315000FCF00163A9F /* Supporting Files */,
+				8803C010166732BA00C36839 /* RACSchedulerSpec.m */,
 			);
 			path = ReactiveCocoaTests;
 			sourceTree = "<group>";
@@ -2072,6 +2076,7 @@
 				5FAF5259174D4D5600CAC810 /* RACSubscriberSpec.m in Sources */,
 				AC65FD52176DECB1005ED22B /* UIAlertViewRACSupportSpec.m in Sources */,
 				5FAF525A174D4D5600CAC810 /* RACSubscriptingAssignmentTrampolineSpec.m in Sources */,
+				798A54EA1909345700F6EF5D /* RACKVOProxySpec.m in Sources */,
 				5FAF525B174D4D5600CAC810 /* RACTestObject.m in Sources */,
 				5FAF525C174D4D5600CAC810 /* RACTupleSpec.m in Sources */,
 				5FAF525D174D4D5600CAC810 /* NSObjectRACSelectorSignalSpec.m in Sources */,
@@ -2216,6 +2221,7 @@
 				5FDC350F1736F81900792E52 /* NSStringRACKeyPathUtilitiesSpec.m in Sources */,
 				D075A72A17BCB7E100C24FB7 /* RACControlCommandExamples.m in Sources */,
 				88302BFD1762A9E6003633BD /* RACTestExampleScheduler.m in Sources */,
+				798A54E91909345700F6EF5D /* RACKVOProxySpec.m in Sources */,
 				4925E806181BCC71000B2FEE /* NSControllerRACSupportSpec.m in Sources */,
 				8884DD651756ACF600F6C379 /* RACSignalStartExamples.m in Sources */,
 				88302C2E1762C180003633BD /* RACTargetQueueSchedulerSpec.m in Sources */,

@@ -53,8 +53,41 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	}] setNameWithFormat:@"[%@] -concat: %@", self.name, signal];
 }
 
-- (RACSignal *)flattenMap:(RACSignal * (^)(id value))block {
-	return [super flattenMap:block];
+- (RACSignal *)flattenMap:(RACSignal * (^)(id value))signalBlock {
+	return [[RACSignal
+		create:^(id<RACSubscriber> subscriber) {
+			__block volatile int32_t subscriptions = 0;
+
+			void (^subscribeSignal)(RACSignal *, void (^)(id)) = ^(RACSignal *signal, void (^nextBlock)(id)) {
+				__block RACDisposable *savedDisposable;
+
+				[signal subscribeSavingDisposable:^(RACDisposable *disposable) {
+					savedDisposable = disposable;
+
+					OSAtomicIncrement32(&subscriptions);
+					[subscriber.disposable addDisposable:savedDisposable];
+				} next:nextBlock error:^(NSError *error) {
+					[subscriber sendError:error];
+				} completed:^{
+					[subscriber.disposable removeDisposable:savedDisposable];
+					if (OSAtomicDecrement32(&subscriptions) == 0) [subscriber sendCompleted];
+				}];
+			};
+
+			subscribeSignal(self, ^(id x) {
+				RACSignal *innerSignal = signalBlock(x);
+
+				if (innerSignal == nil) return;
+				NSCAssert([innerSignal isKindOfClass:RACSignal.class], @"Expected a RACSignal, got %@", innerSignal);
+
+				// The crux of -flattenMap:
+				// Send all values from inner signals to the (outer) subscriber.
+				subscribeSignal(innerSignal, ^(id x) {
+					[subscriber sendNext:x];
+				});
+			});
+		}]
+		setNameWithFormat:@"[%@] -flattenMap:", self.name];
 }
 
 - (RACSignal *)flatten {
@@ -86,11 +119,39 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)skip:(NSUInteger)skipCount {
-	return [super skip:skipCount];
+	return [[RACSignal
+		defer:^{
+			__block NSUInteger skipped = 0;
+
+			return [self skipWhile:^ BOOL (id x) {
+				return skipped++ < skipCount;
+			}];
+		}]
+		setNameWithFormat:@"[%@] -skip: %lu", self.name, (unsigned long)skipCount];
 }
 
-- (RACSignal *)take:(NSUInteger)count {
-	return [super take:count];
+- (RACSignal *)take:(NSUInteger)takeCount {
+	if (takeCount == 0) return [RACSignal empty];
+
+	return [[RACSignal
+		create:^(id<RACSubscriber> subscriber) {
+			__block NSUInteger taken = 0;
+
+			[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+				[subscriber.disposable addDisposable:disposable];
+			} next:^(id x) {
+				[subscriber sendNext:x];
+
+				if (++taken >= takeCount) {
+					[subscriber sendCompleted];
+				}
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				[subscriber sendCompleted];
+			}];
+		}]
+		setNameWithFormat:@"[%@] -take: %lu", self.name, (unsigned long)takeCount];
 }
 
 - (RACSignal *)zipWith:(RACSignal *)signal {
@@ -178,7 +239,18 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 #pragma clang diagnostic pop
 
 - (RACSignal *)scanWithStart:(id)startingValue reduce:(id (^)(id running, id next))block {
-	return [super scanWithStart:startingValue reduce:block];
+	NSCParameterAssert(block != nil);
+
+	return [[RACSignal
+		defer:^{
+			__block id running = startingValue;
+
+			return [self map:^(id x) {
+				running = block(running, x);
+				return running;
+			}];
+		}]
+		setNameWithFormat:@"[%@] -scanWithStart: %@ reduce:", self.name, [startingValue rac_description]];
 }
 
 - (RACSignal *)combinePreviousWithStart:(id)start reduce:(id (^)(id previous, id current))reduceBlock {
@@ -186,15 +258,63 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)distinctUntilChanged {
-	return [super distinctUntilChanged];
+	id unique = [[NSObject alloc] init];
+
+	return [[RACSignal
+		defer:^{
+			__block id lastValue = unique;
+
+			return [self filter:^ BOOL (id x) {
+				if (x == lastValue || [x isEqual:lastValue]) {
+					return NO;
+				} else {
+					lastValue = x;
+					return YES;
+				}
+			}];
+		}]
+		setNameWithFormat:@"[%@] -distinctUntilChanged", self.name];
 }
 
-- (RACSignal *)takeWhile:(BOOL (^)(id x))predicate {
-	return [super takeWhileBlock:predicate];
+- (RACSignal *)takeWhile:(BOOL (^)(id x))predicateBlock {
+	return [[RACSignal
+		create:^(id<RACSubscriber> subscriber) {
+			[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+				[subscriber.disposable addDisposable:disposable];
+			} next:^(id x) {
+				if (predicateBlock(x)) {
+					[subscriber sendNext:x];
+				} else {
+					[subscriber sendCompleted];
+				}
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				[subscriber sendCompleted];
+			}];
+		}]
+		setNameWithFormat:@"[%@] -takeWhile:", self.name];
 }
 
-- (RACSignal *)skipWhile:(BOOL (^)(id x))predicate {
-	return [super skipWhileBlock:predicate];
+- (RACSignal *)skipWhile:(BOOL (^)(id x))predicateBlock {
+	return [[RACSignal
+		create:^(id<RACSubscriber> subscriber) {
+			__block BOOL skipping = YES;
+
+			[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+				[subscriber.disposable addDisposable:disposable];
+			} next:^(id x) {
+				skipping = skipping && predicateBlock(x);
+				if (skipping) return;
+
+				[subscriber sendNext:x];
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				[subscriber sendCompleted];
+			}];
+		}]
+		setNameWithFormat:@"[%@] -skipWhile:", self.name];
 }
 
 - (RACSignal *)doNext:(void (^)(id x))block {
@@ -1094,21 +1214,28 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)dematerialize {
-	return [[self bind:^{
-		return ^(RACEvent *event, BOOL *stop) {
+	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
+		[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+			[subscriber.disposable addDisposable:disposable];
+		} next:^(RACEvent *event) {
 			switch (event.eventType) {
 				case RACEventTypeCompleted:
-					*stop = YES;
-					return [RACSignal empty];
+					[subscriber sendCompleted];
+					break;
 
 				case RACEventTypeError:
-					*stop = YES;
-					return [RACSignal error:event.error];
+					[subscriber sendError:event.error];
+					break;
 
 				case RACEventTypeNext:
-					return [RACSignal return:event.value];
+					[subscriber sendNext:event.value];
+					break;
 			}
-		};
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
 	}] setNameWithFormat:@"[%@] -dematerialize", self.name];
 }
 
@@ -1148,90 +1275,6 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 
 		return @NO;
 	}] setNameWithFormat:@"[%@] -or", self.name];
-}
-
-- (RACSignal *)bind:(RACSignalBindBlock (^)(void))block {
-	NSCParameterAssert(block != NULL);
-
-	/*
-	 * -bind: should:
-	 * 
-	 * 1. Subscribe to the original signal of values.
-	 * 2. Any time the original signal sends a value, transform it using the binding block.
-	 * 3. If the binding block returns a signal, subscribe to it, and pass all of its values through to the subscriber as they're received.
-	 * 4. If the binding block asks the bind to terminate, complete the _original_ signal.
-	 * 5. When _all_ signals complete, send completed to the subscriber.
-	 * 
-	 * If any signal sends an error at any point, send that to the subscriber.
-	 */
-
-	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		RACSignalBindBlock bindingBlock = block();
-		NSMutableArray *signals = [NSMutableArray arrayWithObject:self];
-
-		void (^completeSignal)(RACSignal *, RACDisposable *) = ^(RACSignal *signal, RACDisposable *finishedDisposable) {
-			BOOL removeDisposable = NO;
-
-			@synchronized (signals) {
-				[signals removeObject:signal];
-
-				if (signals.count == 0) {
-					[subscriber sendCompleted];
-				} else {
-					removeDisposable = YES;
-				}
-			}
-
-			if (removeDisposable) [subscriber.disposable removeDisposable:finishedDisposable];
-		};
-
-		void (^addSignal)(RACSignal *) = ^(RACSignal *signal) {
-			@synchronized (signals) {
-				[signals addObject:signal];
-			}
-
-			RACSerialDisposable *innerDisposable = [[RACSerialDisposable alloc] init];
-			[subscriber.disposable addDisposable:innerDisposable];
-
-			[signal subscribeSavingDisposable:^(RACDisposable *disposable) {
-				innerDisposable.disposable = disposable;
-			} next:^(id x) {
-				[subscriber sendNext:x];
-			} error:^(NSError *error) {
-				[subscriber sendError:error];
-			} completed:^{
-				@autoreleasepool {
-					completeSignal(signal, innerDisposable);
-				}
-			}];
-		};
-
-		@autoreleasepool {
-			RACSerialDisposable *selfDisposable = [[RACSerialDisposable alloc] init];
-			[subscriber.disposable addDisposable:selfDisposable];
-
-			[self subscribeSavingDisposable:^(RACDisposable *disposable) {
-				selfDisposable.disposable = disposable;
-			} next:^(id x) {
-				BOOL stop = NO;
-				id signal = bindingBlock(x, &stop);
-
-				@autoreleasepool {
-					if (signal != nil) addSignal(signal);
-					if (signal == nil || stop) {
-						[selfDisposable dispose];
-						completeSignal(self, selfDisposable);
-					}
-				}
-			} error:^(NSError *error) {
-				[subscriber sendError:error];
-			} completed:^{
-				@autoreleasepool {
-					completeSignal(self, selfDisposable);
-				}
-			}];
-		}
-	}] setNameWithFormat:@"[%@] -bind:", self.name];
 }
 
 @end
@@ -1442,6 +1485,90 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 
 - (NSArray *)toArray {
 	return [self array];
+}
+
+- (RACSignal *)bind:(RACSignalBindBlock (^)(void))block {
+	NSCParameterAssert(block != NULL);
+
+	/*
+	 * -bind: should:
+	 *
+	 * 1. Subscribe to the original signal of values.
+	 * 2. Any time the original signal sends a value, transform it using the binding block.
+	 * 3. If the binding block returns a signal, subscribe to it, and pass all of its values through to the subscriber as they're received.
+	 * 4. If the binding block asks the bind to terminate, complete the _original_ signal.
+	 * 5. When _all_ signals complete, send completed to the subscriber.
+	 *
+	 * If any signal sends an error at any point, send that to the subscriber.
+	 */
+
+	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
+		RACSignalBindBlock bindingBlock = block();
+		NSMutableArray *signals = [NSMutableArray arrayWithObject:self];
+
+		void (^completeSignal)(RACSignal *, RACDisposable *) = ^(RACSignal *signal, RACDisposable *finishedDisposable) {
+			BOOL removeDisposable = NO;
+
+			@synchronized (signals) {
+				[signals removeObject:signal];
+
+				if (signals.count == 0) {
+					[subscriber sendCompleted];
+				} else {
+					removeDisposable = YES;
+				}
+			}
+
+			if (removeDisposable) [subscriber.disposable removeDisposable:finishedDisposable];
+		};
+
+		void (^addSignal)(RACSignal *) = ^(RACSignal *signal) {
+			@synchronized (signals) {
+				[signals addObject:signal];
+			}
+
+			RACSerialDisposable *innerDisposable = [[RACSerialDisposable alloc] init];
+			[subscriber.disposable addDisposable:innerDisposable];
+
+			[signal subscribeSavingDisposable:^(RACDisposable *disposable) {
+				innerDisposable.disposable = disposable;
+			} next:^(id x) {
+				[subscriber sendNext:x];
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				@autoreleasepool {
+					completeSignal(signal, innerDisposable);
+				}
+			}];
+		};
+
+		@autoreleasepool {
+			RACSerialDisposable *selfDisposable = [[RACSerialDisposable alloc] init];
+			[subscriber.disposable addDisposable:selfDisposable];
+
+			[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+				selfDisposable.disposable = disposable;
+			} next:^(id x) {
+				BOOL stop = NO;
+				id signal = bindingBlock(x, &stop);
+
+				@autoreleasepool {
+					if (signal != nil) addSignal(signal);
+					if (signal == nil || stop) {
+						[selfDisposable dispose];
+						completeSignal(self, selfDisposable);
+					}
+				}
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				@autoreleasepool {
+					completeSignal(self, selfDisposable);
+				}
+			}];
+		}
+	}] setNameWithFormat:@"[%@] -bind:", self.name];
 }
 
 @end

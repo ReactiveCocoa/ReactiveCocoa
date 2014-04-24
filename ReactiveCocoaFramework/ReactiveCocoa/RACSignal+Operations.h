@@ -87,7 +87,7 @@ typedef enum : NSUInteger {
 /// Returns a new signal which represents the combination of all signals
 /// returned from `block`. The resulting signal will forward events from all of
 /// the original signals in the order that they arrive.
-- (RACSignal *)flattenMap:(RACSignal * (^)(id value))block;
+- (RACSignal *)flattenMap:(RACSignal * (^)(id value))signalBlock;
 
 /// Flattens a signal of signals.
 ///
@@ -150,7 +150,7 @@ typedef enum : NSUInteger {
 /// Returns a signal of the first `count` values in the receiver. If `count` is
 /// greater than or equal to the number of values in the signal, a signal
 /// equivalent to the receiver is returned.
-- (RACSignal *)take:(NSUInteger)count;
+- (RACSignal *)take:(NSUInteger)takeCount;
 
 /// Zips the values in the receiver with those of the given signal to create
 /// RACTuples.
@@ -263,14 +263,14 @@ typedef enum : NSUInteger {
 /// Returns a signal of the initial values in the receiver that pass `predicate`.
 /// If `predicate` never returns `NO`, a signal equivalent to the receiver is
 /// returned.
-- (RACSignal *)takeWhile:(BOOL (^)(id x))predicate;
+- (RACSignal *)takeWhile:(BOOL (^)(id x))predicateBlock;
 
 /// Skips values until the given block returns `NO`.
 ///
 /// Returns a signal containing the values of the receiver that follow any
 /// initial values passing `predicate`. If `predicate` never returns `NO`, an
 /// empty signal is returned.
-- (RACSignal *)skipWhile:(BOOL (^)(id x))predicate;
+- (RACSignal *)skipWhile:(BOOL (^)(id x))predicateBlock;
 
 /// Returns a signal of values for which -isEqual: returns NO when compared to the
 /// previous value.
@@ -794,21 +794,6 @@ typedef enum : NSUInteger {
 /// Returns a signal that applies OR to each NSNumber in the tuple.
 - (RACSignal *)or;
 
-/// Lazily binds a block to the values in the receiver.
-///
-/// This should only be used if you need to terminate the bind early, or close
-/// over some state. -flattenMap: is more appropriate for all other cases.
-///
-/// block - A block returning a RACSignalBindBlock. This block will be invoked
-///         each time the signal is subscribed to. This block must not be nil or
-///         return nil.
-///
-/// Returns a new signal which represents the combination of all signals
-/// returned from the lazy applications of `block`. The resulting signal will
-/// forward events from all of the original signals in the order that they
-/// arrive.
-- (RACSignal *)bind:(RACSignalBindBlock (^)(void))block;
-
 @end
 
 @interface RACSignal (DeprecatedOperations)
@@ -837,6 +822,7 @@ typedef enum : NSUInteger {
 - (RACSignal *)replayLast RACDeprecated("Bind to a property with RAC() instead");
 - (RACSignal *)replayLazily RACDeprecated("Bind to a property with RAC() or use -shareWhileActive instead");
 - (NSArray *)toArray RACDeprecated("Renamed to -array");
+- (RACSignal *)bind:(RACSignalBindBlock (^)(void))block RACDeprecated("Use +create: or -flattenMap: instead");
 
 @end
 

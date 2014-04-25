@@ -496,13 +496,30 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		});
 	});
 
-	it(@"should scan", ^{
-		RACStream *stream = streamWithValues(@[ @1, @2, @3, @4 ]);
-		RACStream *scanned = [stream scanWithStart:@0 reduce:^(NSNumber *running, NSNumber *next) {
-			return @(running.integerValue + next.integerValue);
-		}];
+	describe(@"scanning", ^{
+		NSArray *values = @[ @1, @2, @3, @4 ];
 
-		verifyValues(scanned, @[ @1, @3, @6, @10 ]);
+		__block RACStream *stream;
+
+		before(^{
+			stream = streamWithValues(values);
+		});
+
+		it(@"should scan", ^{
+			RACStream *scanned = [stream scanWithStart:@0 reduce:^(NSNumber *running, NSNumber *next) {
+				return @(running.integerValue + next.integerValue);
+			}];
+
+			verifyValues(scanned, @[ @1, @3, @6, @10 ]);
+		});
+
+		it(@"should scan with index", ^{
+			RACStream *scanned = [stream scanWithStart:@0 reduceWithIndex:^(NSNumber *running, NSNumber *next, NSUInteger index) {
+				return @(running.integerValue + next.integerValue + (NSInteger)index);
+			}];
+
+			verifyValues(scanned, @[ @1, @4, @9, @16 ]);
+		});
 	});
 
 	describe(@"taking with a predicate", ^{

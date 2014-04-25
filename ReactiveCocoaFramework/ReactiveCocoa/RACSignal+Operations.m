@@ -606,11 +606,19 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 }
 
 - (RACSignal *)aggregateWithStart:(id)start reduce:(id (^)(id running, id next))reduceBlock {
+	return [[self
+		aggregateWithStart:start
+		reduceWithIndex:^(id running, id next, NSUInteger index) {
+			return reduceBlock(running, next);
+		}] setNameWithFormat:@"[%@] -aggregateWithStart: %@ reduce:", self.name, [start rac_description]];
+}
+
+- (RACSignal *)aggregateWithStart:(id)start reduceWithIndex:(id (^)(id, id, NSUInteger))reduceBlock {
 	return [[[[self
-		scanWithStart:start reduce:reduceBlock]
+		scanWithStart:start reduceWithIndex:reduceBlock]
 		startWith:start]
 		takeLast:1]
-		setNameWithFormat:@"[%@] -aggregateWithStart: %@ reduce:", self.name, [start rac_description]];
+		setNameWithFormat:@"[%@] -aggregateWithStart: %@ reduceWithIndex:", self.name, [start rac_description]];
 }
 
 - (RACDisposable *)setKeyPath:(NSString *)keyPath onObject:(NSObject *)object {

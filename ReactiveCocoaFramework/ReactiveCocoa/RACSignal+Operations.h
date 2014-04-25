@@ -260,6 +260,21 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 - (RACSignal *)aggregateWithStart:(id)start reduce:(id (^)(id running, id next))reduceBlock;
 
 /// Aggregates the `next` values of the receiver into a single combined value.
+/// This is indexed version of -aggregateWithStart:reduce:.
+///
+/// start       - The value to be combined with the first element of the
+///               receiver. This value may be `nil`.
+/// reduceBlock - The block that describes how to combine values of the
+///               receiver. This block takes zero-based index value as the last
+///               parameter. If the receiver is empty, this block will never be
+///               invoked. Cannot be nil.
+///
+/// Returns a signal that will send the aggregated value when the receiver
+/// completes, then itself complete. If the receiver never sends any values,
+/// `start` will be sent instead.
+- (RACSignal *)aggregateWithStart:(id)start reduceWithIndex:(id (^)(id running, id next, NSUInteger index))reduceBlock;
+
+/// Aggregates the `next` values of the receiver into a single combined value.
 ///
 /// This invokes `startFactory` block on each subscription, then calls
 /// -aggregateWithStart:reduce: with the return value of the block as start value.

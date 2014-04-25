@@ -250,8 +250,8 @@
 	return [result setNameWithFormat:@"+concat: %@", streams];
 }
 
-- (instancetype)scanWithStart:(id)startingValue reduce:(id (^)(id running, id next))block {
-	NSCParameterAssert(block != nil);
+- (instancetype)scanWithStart:(id)startingValue reduce:(id (^)(id running, id next))reduceBlock {
+	NSCParameterAssert(reduceBlock != nil);
 
 	Class class = self.class;
 	
@@ -259,7 +259,7 @@
 		__block id running = startingValue;
 
 		return ^(id value, BOOL *stop) {
-			running = block(running, value);
+			running = reduceBlock(running, value);
 			return [class return:running];
 		};
 	}] setNameWithFormat:@"[%@] -scanWithStart: %@ reduce:", self.name, [startingValue rac_description]];

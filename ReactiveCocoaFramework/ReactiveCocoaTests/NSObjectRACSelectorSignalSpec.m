@@ -206,6 +206,29 @@ describe(@"RACTestObject", ^{
 
 		expect([object respondsToSelector:selector]).to.beTruthy();
 	});
+
+	it(@"should properly implement -respondsToSelector: when called on signalForSelector'd receiver that has subsequently been KVO'd, then signalForSelector'd again", ^{
+		RACTestObject *object = [[RACTestObject alloc] init];
+
+		SEL selector = NSSelectorFromString(@"anyOldSelector:");
+
+		// Implement -anyOldSelector: on the object first
+		[object rac_signalForSelector:selector];
+
+		expect([object respondsToSelector:selector]).to.beTruthy();
+
+		// Then KVO the object
+		[[RACObserve(object, objectValue) publish] connect];
+
+		expect([object respondsToSelector:selector]).to.beTruthy();
+		
+		SEL selector2 = NSSelectorFromString(@"anotherSelector:");
+
+		// Then implement -anotherSelector: on the object
+		[object rac_signalForSelector:selector2];
+
+		expect([object respondsToSelector:selector2]).to.beTruthy();
+	});
 	
 	it(@"should properly implement -respondsToSelector: for optional method from a protocol", ^{
 		// Selector for the targeted optional method from a protocol.

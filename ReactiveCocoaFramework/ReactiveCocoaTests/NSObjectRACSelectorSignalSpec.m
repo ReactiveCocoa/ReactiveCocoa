@@ -230,6 +230,31 @@ describe(@"RACTestObject", ^{
 		expect([object respondsToSelector:selector2]).to.beTruthy();
 	});
 	
+	it(@"should call the right signal for two instances of the same class, adding signals for the same selector", ^{
+		RACTestObject *object1 = [[RACTestObject alloc] init];
+		RACTestObject *object2 = [[RACTestObject alloc] init];
+
+		SEL selector = NSSelectorFromString(@"lifeIsGood:");
+
+		__block id value1 = nil;
+		[[object1 rac_signalForSelector:selector] subscribeNext:^(RACTuple *x) {
+			value1 = x.first;
+		}];
+
+		__block id value2 = nil;
+		[[object2 rac_signalForSelector:selector] subscribeNext:^(RACTuple *x) {
+			value2 = x.first;
+		}];
+
+		[object1 lifeIsGood:@42];
+		expect(value1).to.equal(@42);
+		expect(value2).to.beNil();
+
+		[object2 lifeIsGood:@420];
+		expect(value1).to.equal(@42);
+		expect(value2).to.equal(@420);
+	});
+
 	it(@"should properly implement -respondsToSelector: for optional method from a protocol", ^{
 		// Selector for the targeted optional method from a protocol.
 		SEL selector = @selector(optionalProtocolMethodWithObjectValue:);

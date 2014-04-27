@@ -24,6 +24,7 @@ const NSInteger RACSelectorSignalErrorMethodSwizzlingRace = 1;
 
 static NSString * const RACSignalForSelectorAliasPrefix = @"rac_alias_";
 static NSString * const RACSubclassSuffix = @"_RACSelectorSignal";
+static void *RACSubclassAssociationKey = &RACSubclassAssociationKey;
 
 static NSMutableSet *swizzledClasses() {
 	static NSMutableSet *set;
@@ -103,7 +104,7 @@ static void RACSwizzleRespondsToSelector(Class class) {
 	// the instance has a signal for the selector.
 	// Otherwise, call the original -respondsToSelector:.
 	id newRespondsToSelector = ^ BOOL (id self, SEL selector) {
-		Method method = class_getInstanceMethod(object_getClass(self), selector);
+		Method method = rac_getImmediateInstanceMethod(class, selector);
 
 		if (method != NULL && method_getImplementation(method) == _objc_msgForward) {
 			SEL aliasSelector = RACAliasForSelector(selector);
@@ -255,10 +256,11 @@ static const char *RACSignatureForUndefinedSelector(SEL selector) {
 static Class RACSwizzleClass(NSObject *self) {
 	Class statedClass = self.class;
 	Class baseClass = object_getClass(self);
+	Class preSwizzledClass = objc_getAssociatedObject(self, RACSubclassAssociationKey);
 	NSString *className = NSStringFromClass(baseClass);
 
-	if ([className hasSuffix:RACSubclassSuffix]) {
-		return baseClass;
+	if (preSwizzledClass != nil) {
+		return preSwizzledClass;
 	} else if (statedClass != baseClass) {
 		// If the class is already lying about what it is, it's probably a KVO
 		// dynamic subclass or something else that we shouldn't subclass
@@ -303,6 +305,7 @@ static Class RACSwizzleClass(NSObject *self) {
 	}
 
 	object_setClass(self, subclass);
+	objc_setAssociatedObject(self, RACSubclassAssociationKey, subclass, OBJC_ASSOCIATION_ASSIGN);
 	return subclass;
 }
 

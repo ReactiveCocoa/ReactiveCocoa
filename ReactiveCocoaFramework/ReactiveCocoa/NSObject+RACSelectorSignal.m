@@ -256,11 +256,11 @@ static const char *RACSignatureForUndefinedSelector(SEL selector) {
 static Class RACSwizzleClass(NSObject *self) {
 	Class statedClass = self.class;
 	Class baseClass = object_getClass(self);
-	Class preSwizzledClass = objc_getAssociatedObject(self, RACSubclassAssociationKey);
+	Class knownDynamicSubclass = objc_getAssociatedObject(self, RACSubclassAssociationKey);
 	NSString *className = NSStringFromClass(baseClass);
 
-	if (preSwizzledClass != nil) {
-		return preSwizzledClass;
+	if (knownDynamicSubclass != nil) {
+		return knownDynamicSubclass;
 	} else if (statedClass != baseClass) {
 		// If the class is already lying about what it is, it's probably a KVO
 		// dynamic subclass or something else that we shouldn't subclass

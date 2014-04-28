@@ -1,8 +1,9 @@
 //
 //  RACKVOProxy.h
-//  Pods
+//  ReactiveCocoa
 //
 //  Created by Richard Speyer on 4/10/14.
+//  Copyright (c) 2014 GitHub, Inc. All rights reserved.
 //
 
 // A private singleton proxy object known only to RACKVOTrampoline
@@ -22,23 +23,19 @@
 // when the proxy receives a KVO change with the given context, it forwards
 // it to the observer
 //
-// observer	-	True observer of the KVO change
-// context	-	Arbitrary context object used to differentiate multiple
-//				observations of the same kaypath.
-//				Must be unique
-//				Cannot be nil
-- (void)addObserver:(NSObject *)observer
-         forContext:(void *)context;
+// observer - True observer of the KVO change
+// context  - Arbitrary context object used to differentiate multiple
+//            observations of the same keypath.
+//            Must be unique; cannot be nil
+- (void)addObserver:(NSObject *)observer forContext:(void *)context;
 
 // Remove an existing observer (RACKVOTrampoline) from the proxy. This
 // is done when the trampoline is being disposed. Parameters must
 // match those passed to addObserver:forContext:
 //
-// observer	-	True observer of the KVO change
-// context	-	Arbitrary context object used to differentiate multiple
-//				observations of the same kaypath.
-//				Must be unique
-//				Cannot be nil
-- (void)removeObserver:(NSObject *)observer
-            forContext:(void *)context;
+// observer - True observer of the KVO change
+// context  - Arbitrary context object used to differentiate multiple
+//            observations of the same keypath.
+//            Must be unique; cannot be nil
+- (void)removeObserver:(NSObject *)observer forContext:(void *)context;
 @end

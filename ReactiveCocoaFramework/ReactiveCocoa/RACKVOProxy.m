@@ -3,7 +3,7 @@
 //  ReactiveCocoa
 //
 //  Created by Richard Speyer on 4/10/14.
-//
+//  Copyright (c) 2014 GitHub, Inc. All rights reserved.
 //
 
 #import "RACKVOProxy.h"
@@ -24,45 +24,35 @@
     return proxy;
 }
 
-- (id)init {
-    if (self = [super init]) {
-        _trampolines = [NSMapTable strongToWeakObjectsMapTable];
-    }
-    
+- (instancetype)init {
+    self = [super init];
+    if (self == nil) return nil;
+    _trampolines = [NSMapTable strongToWeakObjectsMapTable];
     return self;
 }
 
-- (void)addObserver:(NSObject *)observer
-         forContext:(void *)context {
+- (void)addObserver:(NSObject *)observer forContext:(void *)context {
     NSValue *valueContext = [NSValue valueWithPointer:context];
     @synchronized (self) {
-        [self.trampolines setObject:observer
-                             forKey:valueContext];
+        [self.trampolines setObject:observer forKey:valueContext];
     }
 }
 
-- (void)removeObserver:(NSObject *)observer
-            forContext:(void *)context {
+- (void)removeObserver:(NSObject *)observer forContext:(void *)context {
     NSValue *valueContext = [NSValue valueWithPointer:context];
     @synchronized (self) {
         [self.trampolines removeObjectForKey:valueContext];
     }
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath
-                      ofObject:(id)object
-                        change:(NSDictionary *)change
-                       context:(void *)context {
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     NSValue *valueContext = [NSValue valueWithPointer:context];
     NSObject *trueObserver;
     @synchronized (self) {
         trueObserver = [self.trampolines objectForKey:valueContext];
     }
     if (trueObserver) {
-        [trueObserver observeValueForKeyPath:keyPath
-                                    ofObject:object
-                                      change:change
-                                     context:context];
+        [trueObserver observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
     else {
         NSLog(@"observer of \"%@\" on %@ is gone", keyPath, object);

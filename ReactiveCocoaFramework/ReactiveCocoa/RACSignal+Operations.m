@@ -321,14 +321,16 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	NSCParameterAssert(block != NULL);
 
 	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		[subscriber.disposable addDisposable:[self subscribeNext:^(id x) {
+		[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+			[subscriber.disposable addDisposable:disposable];
+		} next:^(id x) {
 			block(x);
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
 			[subscriber sendCompleted];
-		}]];
+		}];
 	}] setNameWithFormat:@"[%@] -doNext:", self.name];
 }
 
@@ -336,14 +338,16 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	NSCParameterAssert(block != NULL);
 	
 	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		[subscriber.disposable addDisposable:[self subscribeNext:^(id x) {
+		[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+			[subscriber.disposable addDisposable:disposable];
+		} next:^(id x) {
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
 			block(error);
 			[subscriber sendError:error];
 		} completed:^{
 			[subscriber sendCompleted];
-		}]];
+		}];
 	}] setNameWithFormat:@"[%@] -doError:", self.name];
 }
 
@@ -351,14 +355,16 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	NSCParameterAssert(block != NULL);
 	
 	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		[subscriber.disposable addDisposable:[self subscribeNext:^(id x) {
+		[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+			[subscriber.disposable addDisposable:disposable];
+		} next:^(id x) {
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
 			block();
 			[subscriber sendCompleted];
-		}]];
+		}];
 	}] setNameWithFormat:@"[%@] -doCompleted:", self.name];
 }
 
@@ -417,7 +423,9 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 			[subscriber.disposable addDisposable:[delayScheduler afterDelay:interval schedule:block]];
 		};
 
-		[subscriber.disposable addDisposable:[self subscribeNext:^(id x) {
+		[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+			[subscriber.disposable addDisposable:disposable];
+		} next:^(id x) {
 			schedule(^{
 				[subscriber sendNext:x];
 			});
@@ -427,7 +435,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 			schedule(^{
 				[subscriber sendCompleted];
 			});
-		}]];
+		}];
 	}] setNameWithFormat:@"[%@] -delay: %f", self.name, (double)interval];
 }
 
@@ -508,7 +516,9 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 			}
 		};
 
-		[subscriber.disposable addDisposable:[self subscribeNext:^(id x) {
+		[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+			[subscriber.disposable addDisposable:disposable];
+		} next:^(id x) {
 			@synchronized (values) {
 				if (values.count == 0) {
 					timerDisposable.disposable = [scheduler afterDelay:interval schedule:flushValues];
@@ -521,7 +531,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 		} completed:^{
 			flushValues();
 			[subscriber sendCompleted];
-		}]];
+		}];
 	}] setNameWithFormat:@"[%@] -bufferWithTime: %f", self.name, (double)interval];
 }
 
@@ -581,7 +591,9 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 			}
 		};
 
-		[subscriber.disposable addDisposable:[self subscribeNext:^(id x) {
+		[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+			[subscriber.disposable addDisposable:disposable];
+		} next:^(id x) {
 			@synchronized (subscriber) {
 				lastSelfValue = x ?: RACTupleNil.tupleNil;
 				sendNext();
@@ -593,9 +605,11 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 				selfCompleted = YES;
 				if (otherCompleted) [subscriber sendCompleted];
 			}
-		}]];
+		}];
 
-		[subscriber.disposable addDisposable:[signal subscribeNext:^(id x) {
+		[signal subscribeSavingDisposable:^(RACDisposable *disposable) {
+			[subscriber.disposable addDisposable:disposable];
+		} next:^(id x) {
 			@synchronized (subscriber) {
 				lastOtherValue = x ?: RACTupleNil.tupleNil;
 				sendNext();
@@ -607,7 +621,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 				otherCompleted = YES;
 				if (selfCompleted) [subscriber sendCompleted];
 			}
-		}]];
+		}];
 	}] setNameWithFormat:@"[%@] -combineLatestWith: %@", self.name, signal];
 }
 
@@ -712,7 +726,9 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 			}];
 		};
 
-		[subscriber.disposable addDisposable:[self subscribeNext:^(RACSignal *signal) {
+		[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+			[subscriber.disposable addDisposable:disposable];
+		} next:^(RACSignal *signal) {
 			if (signal == nil) return;
 
 			NSCAssert([signal isKindOfClass:RACSignal.class], @"Expected a RACSignal, got %@", signal);
@@ -759,7 +775,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 				selfCompleted = YES;
 				completeIfAllowed();
 			}
-		}]];
+		}];
 	}] setNameWithFormat:@"[%@] -flatten: %lu withPolicy: %u", self.name, (unsigned long)maxConcurrent, (unsigned)policy];
 }
 
@@ -873,11 +889,13 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 
 - (RACSignal *)takeUntil:(RACSignal *)signalTrigger {
 	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		[subscriber.disposable addDisposable:[signalTrigger subscribeNext:^(id _) {
+		[signalTrigger subscribeSavingDisposable:^(RACDisposable *disposable) {
+			[subscriber.disposable addDisposable:disposable];
+		} next:^(id _) {
 			[subscriber sendCompleted];
-		} completed:^{
+		} error:nil completed:^{
 			[subscriber sendCompleted];
-		}]];
+		}];
 
 		[self subscribe:subscriber];
 	}] setNameWithFormat:@"[%@] -takeUntil: %@", self.name, signalTrigger];
@@ -888,7 +906,9 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 		RACSerialDisposable *selfDisposable = [[RACSerialDisposable alloc] init];
 		[subscriber.disposable addDisposable:selfDisposable];
 
-		[subscriber.disposable addDisposable:[replacement subscribeNext:^(id x) {
+		[replacement subscribeSavingDisposable:^(RACDisposable *disposable) {
+			[subscriber.disposable addDisposable:disposable];
+		} next:^(id x) {
 			[selfDisposable dispose];
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
@@ -897,7 +917,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 		} completed:^{
 			[selfDisposable dispose];
 			[subscriber sendCompleted];
-		}]];
+		}];
 
 		if (!selfDisposable.disposed) {
 			selfDisposable.disposable = [[self
@@ -1162,7 +1182,9 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 		__block id lastValue;
 		__block BOOL hasValue = NO;
 
-		[subscriber.disposable addDisposable:[self subscribeNext:^(id x) {
+		[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+			[subscriber.disposable addDisposable:disposable];
+		} next:^(id x) {
 			[lock lock];
 			hasValue = YES;
 			lastValue = x;
@@ -1171,9 +1193,11 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 			[subscriber sendError:error];
 		} completed:^{
 			[subscriber sendCompleted];
-		}]];
+		}];
 
-		[subscriber.disposable addDisposable:[sampler subscribeNext:^(id _) {
+		[sampler subscribeSavingDisposable:^(RACDisposable *disposable) {
+			[subscriber.disposable addDisposable:disposable];
+		} next:^(id _) {
 			BOOL shouldSend = NO;
 			id value;
 
@@ -1189,7 +1213,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 			[subscriber sendError:error];
 		} completed:^{
 			[subscriber sendCompleted];
-		}]];
+		}];
 	}] setNameWithFormat:@"[%@] -sample: %@", self.name, sampler];
 }
 
@@ -1201,7 +1225,9 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 
 - (RACSignal *)materialize {
 	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		[subscriber.disposable addDisposable:[self subscribeNext:^(id x) {
+		[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+			[subscriber.disposable addDisposable:disposable];
+		} next:^(id x) {
 			[subscriber sendNext:[RACEvent eventWithValue:x]];
 		} error:^(NSError *error) {
 			[subscriber sendNext:[RACEvent eventWithError:error]];
@@ -1209,7 +1235,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 		} completed:^{
 			[subscriber sendNext:RACEvent.completedEvent];
 			[subscriber sendCompleted];
-		}]];
+		}];
 	}] setNameWithFormat:@"[%@] -materialize", self.name];
 }
 

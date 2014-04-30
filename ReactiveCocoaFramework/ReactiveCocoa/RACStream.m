@@ -257,7 +257,8 @@
 		scanWithStart:startingValue
 		reduceWithIndex:^(id running, id next, NSUInteger index) {
 			return reduceBlock(running, next);
-	}] setNameWithFormat:@"[%@] -scanWithStart: %@ reduce:", self.name, [startingValue rac_description]];
+		}]
+		setNameWithFormat:@"[%@] -scanWithStart: %@ reduce:", self.name, [startingValue rac_description]];
 }
 
 - (instancetype)scanWithStart:(id)startingValue reduceWithIndex:(id (^)(id, id, NSUInteger))reduceBlock {

@@ -610,7 +610,8 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		aggregateWithStart:start
 		reduceWithIndex:^(id running, id next, NSUInteger index) {
 			return reduceBlock(running, next);
-		}] setNameWithFormat:@"[%@] -aggregateWithStart: %@ reduce:", self.name, [start rac_description]];
+		}]
+		setNameWithFormat:@"[%@] -aggregateWithStart: %@ reduce:", self.name, [start rac_description]];
 }
 
 - (RACSignal *)aggregateWithStart:(id)start reduceWithIndex:(id (^)(id, id, NSUInteger))reduceBlock {

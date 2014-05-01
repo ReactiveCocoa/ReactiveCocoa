@@ -1,6 +1,6 @@
 //
 //  NSObject+RACKVOWrapper.h
-//  GitHub
+//  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 10/11/11.
 //  Copyright (c) 2011 GitHub. All rights reserved.

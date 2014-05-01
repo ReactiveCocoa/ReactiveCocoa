@@ -8,7 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-
 // RAC-specific KVO change dictionary key: Will be @YES if the change was caused
 // by the value at the key path or an intermediate value deallocating, @NO
 // otherwise.

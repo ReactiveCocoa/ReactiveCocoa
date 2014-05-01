@@ -8,7 +8,6 @@
 
 #import "RACSubject.h"
 
-
 /// A grouped signal is used by -[RACSignal groupBy:transform:].
 @interface RACGroupedSignal : RACSubject
 

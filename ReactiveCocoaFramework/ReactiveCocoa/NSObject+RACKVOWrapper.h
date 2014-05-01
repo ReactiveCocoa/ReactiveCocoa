@@ -19,7 +19,8 @@ extern NSString * const RACKeyValueChangeCausedByDeallocationKey;
 // intermediate key path components unaltered, @NO otherwise.
 extern NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey;
 
-@class RACDisposable, RACKVOTrampoline;
+@class RACDisposable;
+@class RACKVOTrampoline;
 
 // A private category providing a block based interface to KVO.
 @interface NSObject (RACKVOWrapper)

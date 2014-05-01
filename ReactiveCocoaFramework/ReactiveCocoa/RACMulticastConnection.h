@@ -6,8 +6,10 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-@class RACSignal;
+#import <Foundation/Foundation.h>
+
 @class RACDisposable;
+@class RACSignal;
 
 /// A multicast connection encapsulates the idea of sharing one subscription to a
 /// signal to many subscribers. This is most often needed if the subscription to

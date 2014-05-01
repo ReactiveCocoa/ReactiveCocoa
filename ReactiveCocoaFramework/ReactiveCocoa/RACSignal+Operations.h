@@ -19,13 +19,13 @@ extern const NSInteger RACSignalErrorTimedOut;
 /// match any of the cases, and no default was given.
 extern const NSInteger RACSignalErrorNoMatchingCase;
 
-@class RACMulticastConnection;
+@class RACCommand;
 @class RACDisposable;
+@class RACMulticastConnection;
 @class RACScheduler;
 @class RACSequence;
 @class RACSubject;
 @class RACTuple;
-@class RACCommand;
 @protocol RACSubscriber;
 
 @interface RACSignal (Operations)

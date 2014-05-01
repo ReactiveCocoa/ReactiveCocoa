@@ -8,7 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
-@class RACSignal, RACChannelTerminal;
+@class RACChannelTerminal;
+@class RACSignal;
 
 @interface UITextField (RACSignalSupport)
 

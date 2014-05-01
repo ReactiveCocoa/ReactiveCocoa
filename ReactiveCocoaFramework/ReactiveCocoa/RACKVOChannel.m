@@ -9,17 +9,12 @@
 #import "RACKVOChannel.h"
 #import "EXTScope.h"
 #import "NSObject+RACDeallocating.h"
-#import "NSObject+RACDescription.h"
 #import "NSObject+RACKVOWrapper.h"
-#import "NSObject+RACPropertySubscribing.h"
 #import "NSString+RACKeyPathUtilities.h"
 #import "RACChannel.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
-#import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"
-#import "RACSubscriber+Private.h"
-#import "RACSubject.h"
 
 // Key for the array of RACKVOChannel's additional thread local
 // data in the thread dictionary.

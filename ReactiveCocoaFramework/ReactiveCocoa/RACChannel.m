@@ -10,7 +10,6 @@
 #import "RACDisposable.h"
 #import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"
-#import "RACUnit.h"
 
 @interface RACChannelTerminal ()
 

@@ -16,7 +16,6 @@
 #import "RACReplaySubject.h"
 #import "RACScheduler.h"
 #import "RACSequence.h"
-#import "RACSerialDisposable.h"
 #import "RACSignal+Operations.h"
 #import <libkern/OSAtomic.h>
 

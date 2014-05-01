@@ -9,11 +9,11 @@
 #import "UIGestureRecognizer+RACSignalSupport.h"
 #import "EXTScope.h"
 #import "NSObject+RACDeallocating.h"
+#import "NSObject+RACDescription.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSignal.h"
 #import "RACSubscriber.h"
-#import "NSObject+RACDescription.h"
 
 @implementation UIGestureRecognizer (RACSignalSupport)
 

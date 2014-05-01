@@ -10,9 +10,9 @@
 #import "EXTScope.h"
 #import "NSInvocation+RACTypeParsing.h"
 #import "NSObject+RACDeallocating.h"
+#import "NSObject+RACDescription.h"
 #import "RACSignal+Operations.h"
 #import "RACTuple.h"
-#import "NSObject+RACDescription.h"
 
 @implementation NSObject (RACLifting)
 

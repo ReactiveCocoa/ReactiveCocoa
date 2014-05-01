@@ -10,7 +10,6 @@
 
 @class RACScopedDisposable;
 
-
 /// A disposable encapsulates the work necessary to tear down and cleanup a
 /// subscription.
 @interface RACDisposable : NSObject

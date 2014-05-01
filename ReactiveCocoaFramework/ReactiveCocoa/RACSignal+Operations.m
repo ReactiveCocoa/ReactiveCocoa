@@ -16,7 +16,6 @@
 #import "RACGroupedSignal.h"
 #import "RACMulticastConnection+Private.h"
 #import "RACReplaySubject.h"
-#import "RACScheduler+Private.h"
 #import "RACScheduler.h"
 #import "RACSerialDisposable.h"
 #import "RACSignalSequence.h"

@@ -11,7 +11,6 @@
 #import "RACSignal+Operations.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACDescription.h"
-#import "RACTuple.h"
 #import <objc/runtime.h>
 
 @implementation UIAlertView (RACSignalSupport)

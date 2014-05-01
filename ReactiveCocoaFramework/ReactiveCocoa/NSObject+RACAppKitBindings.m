@@ -14,8 +14,6 @@
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACKVOChannel.h"
-#import "RACMulticastConnection.h"
-#import "RACSignal+Operations.h"
 #import "RACValueTransformer.h"
 #import <objc/runtime.h>
 

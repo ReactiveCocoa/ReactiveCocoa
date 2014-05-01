@@ -8,7 +8,6 @@
 
 #import "RACSubject.h"
 
-
 /// A behavior subject sends the last value it received when it is subscribed to.
 @interface RACBehaviorSubject : RACSubject
 

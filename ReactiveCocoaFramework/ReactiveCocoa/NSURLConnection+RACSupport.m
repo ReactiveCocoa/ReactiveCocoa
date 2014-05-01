@@ -9,7 +9,6 @@
 #import "NSURLConnection+RACSupport.h"
 #import "RACDisposable.h"
 #import "RACSignal.h"
-#import "RACSignal+Operations.h"
 #import "RACSubscriber.h"
 #import "RACTuple.h"
 
@@ -19,7 +18,7 @@
 	NSCParameterAssert(request != nil);
 
 	return [[RACSignal
-		createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		createSignal:^(id<RACSubscriber> subscriber) {
 			NSOperationQueue *queue = [[NSOperationQueue alloc] init];
 			queue.name = @"com.github.ReactiveCocoa.NSURLConnectionRACSupport";
 

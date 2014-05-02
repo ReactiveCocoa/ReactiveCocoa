@@ -321,6 +321,18 @@ describe(@"-scheduleRecursiveBlock:", ^{
 
 			expect(count).to.equal(3);
 		});
+
+		it(@"should unroll deep recursion", ^{
+			static const NSUInteger depth = 100000;
+			__block NSUInteger scheduleCount = 0;
+			[RACScheduler.immediateScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
+				scheduleCount++;
+
+				if (scheduleCount < depth) recurse();
+			}];
+
+			expect(scheduleCount).to.equal(depth);
+		});
 	});
 
 	describe(@"with an asynchronous scheduler", ^{
@@ -354,7 +366,7 @@ describe(@"-scheduleRecursiveBlock:", ^{
 			__block NSUInteger count = 0;
 
 			RACScheduler *asynchronousScheduler = [RACScheduler scheduler];
-			[RACScheduler.immediateScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
+			[RACScheduler.mainThreadScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
 				[asynchronousScheduler after:[NSDate dateWithTimeIntervalSinceNow:0.01] schedule:^{
 					NSUInteger thisCount = ++count;
 					if (thisCount < 3) {

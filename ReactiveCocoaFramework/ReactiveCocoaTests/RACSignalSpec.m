@@ -3505,6 +3505,55 @@ describe(@"-finally:", ^{
 	});
 });
 
+describe(@"-doDisposed:", ^{
+	__block RACSubject *subject;
+
+	__block BOOL disposedInvoked;
+	__block RACSignal *signal;
+
+	beforeEach(^{
+		subject = [RACSubject subject];
+
+		disposedInvoked = NO;
+		signal = [subject doDisposed:^{
+			disposedInvoked = YES;
+		}];
+	});
+
+	it(@"should not run block without a subscription", ^{
+		[subject sendCompleted];
+		expect(disposedInvoked).to.beFalsy();
+	});
+
+	describe(@"with a subscription", ^{
+		__block RACDisposable *disposable;
+
+		beforeEach(^{
+			disposable = [signal subscribeCompleted:^{}];
+		});
+
+		it(@"should not run upon next", ^{
+			[subject sendNext:RACUnit.defaultUnit];
+			expect(disposedInvoked).to.beFalsy();
+		});
+
+		it(@"should run upon completed", ^{
+			[subject sendCompleted];
+			expect(disposedInvoked).to.beTruthy();
+		});
+
+		it(@"should run upon error", ^{
+			[subject sendError:nil];
+			expect(disposedInvoked).to.beTruthy();
+		});
+
+		it(@"should run upon manual disposal", ^{
+			[disposable dispose];
+			expect(disposedInvoked).to.beTruthy();
+		});
+	});
+});
+
 describe(@"-ignoreValues", ^{
 	__block RACSubject *subject;
 

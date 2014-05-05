@@ -42,10 +42,9 @@
 }
 
 - (RACDisposable *)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock {
-	__block NSUInteger count = 1;
-	for (NSUInteger i = 0; i < count; i++) {
+	for (__block NSUInteger remaining = 1; remaining > 0; remaining--) {
 		recursiveBlock(^{
-			count++;
+			remaining++;
 		});
 	}
 

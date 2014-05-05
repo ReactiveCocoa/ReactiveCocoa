@@ -42,6 +42,21 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// into the signal.
 - (RACSignal *)doCompleted:(void (^)(void))block;
 
+/// Run the given block immediately when the subscription is disposed.
+///
+/// This should be used to inject side effects into the signal.
+///
+/// Note that subscriptions are automatically disposed upon `error` and
+/// `completed` events, so this block will effectively run whenever the signal
+/// terminates or is cancelled through _any_ means.
+///
+/// Use -finally: instead, if you don't want to perform side effects upon
+/// cancellation.
+///
+/// Returns a signal which forwards the events of the receiver, running `block`
+/// before forwarding `completed` or `error`, or immediately upon disposal.
+- (RACSignal *)doDisposed:(void (^)(void))block;
+
 /// Sends `next`s only if we don't receive another `next` in `interval` seconds.
 ///
 /// If a `next` is received, and then another `next` is received before

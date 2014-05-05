@@ -54,7 +54,7 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// before forwarding `completed`.
 - (RACSignal *)doCompleted:(void (^)(void))block;
 
-/// Run the given block immediately when the subscription is disposed.
+/// Runs the given block immediately when the subscription is disposed.
 ///
 /// This should be used to inject side effects into the signal.
 ///

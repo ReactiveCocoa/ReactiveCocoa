@@ -10,7 +10,6 @@
 #import "RACDelegateProxy.h"
 #import "RACSignal+Operations.h"
 #import "NSObject+RACDeallocating.h"
-#import "RACTuple.h"
 #import "NSObject+RACDescription.h"
 #import <objc/runtime.h>
 

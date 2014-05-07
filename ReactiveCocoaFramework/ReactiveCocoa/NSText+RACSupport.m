@@ -8,11 +8,11 @@
 
 #import "NSText+RACSupport.h"
 #import "EXTScope.h"
+#import "NSObject+RACDescription.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSignal.h"
 #import "RACSubscriber.h"
-#import "NSObject+RACDescription.h"
 
 @implementation NSText (RACSupport)
 

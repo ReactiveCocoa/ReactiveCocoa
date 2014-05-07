@@ -42,7 +42,7 @@
 #pragma mark RACSequence
 
 - (id)head {
-	return [self.backingArray objectAtIndex:self.offset];
+	return self.backingArray[self.offset];
 }
 
 - (RACSequence *)tail {

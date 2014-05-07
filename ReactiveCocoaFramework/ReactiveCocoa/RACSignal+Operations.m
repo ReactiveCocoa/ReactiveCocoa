@@ -19,7 +19,6 @@
 #import "RACLiveSubscriber.h"
 #import "RACMulticastConnection+Private.h"
 #import "RACReplaySubject.h"
-#import "RACScheduler+Private.h"
 #import "RACScheduler.h"
 #import "RACSerialDisposable.h"
 #import "RACSignal+Private.h"
@@ -644,6 +643,12 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	return [result setNameWithFormat:@"+combineLatest: %@ reduce:", signals];
 }
 
+- (RACSignal *)merge:(RACSignal *)signal {
+	return [[RACSignal
+		merge:@[ self, signal ]]
+		setNameWithFormat:@"[%@] -merge: %@", self.name, signal];
+}
+
 + (RACSignal *)merge:(id<NSFastEnumeration>)signals {
 	NSMutableArray *copiedSignals = [[NSMutableArray alloc] init];
 	for (RACSignal *signal in signals) {
@@ -668,17 +673,20 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 		__block BOOL selfCompleted = NO;
 
 		// Subscribes to the given signal.
-		//
-		// This will be set to nil once all signals have completed (to break
-		// a retain cycle in the recursive block).
 		__block void (^subscribeToSignal)(RACSignal *);
 
+		// Weak reference to the above, to avoid a leak.
+		__weak __block void (^recur)(RACSignal *);
+		
 		// Sends completed to the subscriber if all signals are finished.
 		//
 		// This should only be used while synchronized on `subscriber`.
 		void (^completeIfAllowed)(void) = ^{
 			if (selfCompleted && activeDisposables.count == 0) {
 				[subscriber sendCompleted];
+
+				// A strong reference is held to `subscribeToSignal` until completion,
+				// preventing it from deallocating early.
 				subscribeToSignal = nil;
 			}
 		};
@@ -690,7 +698,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 		NSMutableArray *queuedSignals = nil;
 		if (policy == RACSignalFlattenPolicyQueue) queuedSignals = [NSMutableArray array];
 
-		subscribeToSignal = ^(RACSignal *signal) {
+		recur = subscribeToSignal = ^(RACSignal *signal) {
 			RACSerialDisposable *serialDisposable = [[RACSerialDisposable alloc] init];
 
 			@synchronized (subscriber) {
@@ -703,6 +711,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 			} error:^(NSError *error) {
 				[subscriber sendError:error];
 			} completed:^{
+				__strong void (^subscribeToSignal)(RACSignal *) = recur;
 				RACSignal *nextSignal;
 
 				@synchronized (subscriber) {
@@ -718,11 +727,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 					[queuedSignals removeObjectAtIndex:0];
 				}
 
-				#pragma clang diagnostic push
-				#pragma clang diagnostic ignored "-Warc-retain-cycles"
-				// This retain cycle is broken in `completeIfAllowed`.
 				subscribeToSignal(nextSignal);
-				#pragma clang diagnostic pop
 			}];
 		};
 
@@ -808,10 +813,14 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	__block void * volatile objectPtr = (__bridge void *)object;
 
 	RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
-		NSObject *object = (__bridge id)objectPtr;
+		// Possibly spec, possibly compiler bug, but this __bridge cast does not
+		// result in a retain here, effectively an invisible __unsafe_unretained
+		// qualifier. Using objc_precise_lifetime gives the __strong reference
+		// desired. The explicit use of __strong is strictly defensive.
+		__strong NSObject *object __attribute__((objc_precise_lifetime)) = (__bridge __strong id)objectPtr;
 		[object setValue:x ?: nilValue forKeyPath:keyPath];
 	} error:^(NSError *error) {
-		NSObject *object = (__bridge id)objectPtr;
+		__strong NSObject *object __attribute__((objc_precise_lifetime)) = (__bridge __strong id)objectPtr;
 
 		NSCAssert(NO, @"Received error from %@ in binding for key path \"%@\" on %@: %@", self, keyPath, object, error);
 

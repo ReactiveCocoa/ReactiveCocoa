@@ -1,6 +1,6 @@
 //
 //  NSObject+RACKVOWrapper.h
-//  GitHub
+//  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 10/11/11.
 //  Copyright (c) 2011 GitHub. All rights reserved.
@@ -14,13 +14,15 @@
 /// otherwise.
 extern NSString * const RACKeyValueChangeCausedByDeallocationKey;
 
-/// RAC-specific KVO change dictionary key: Will be @YES if the change only
-/// affected the value of the last key path component leaving the values of the
-/// intermediate key path components unaltered, @NO otherwise.
+// RAC-specific KVO change dictionary key: Will be @YES if the change only
+// affected the value of the last key path component leaving the values of the
+// intermediate key path components unaltered, @NO otherwise.
 extern NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey;
 
-@class RACDisposable, RACKVOTrampoline;
+@class RACDisposable;
+@class RACKVOTrampoline;
 
+// A private category providing a block based interface to KVO.
 @interface NSObject (RACKVOWrapper)
 
 /// Adds the given block as the callbacks for when the key path changes.

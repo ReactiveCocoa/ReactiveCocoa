@@ -8,7 +8,6 @@
 
 #import "RACDisposable.h"
 
-
 /// A disposable that calls its own -dispose when it is dealloc'd.
 @interface RACScopedDisposable : RACDisposable
 

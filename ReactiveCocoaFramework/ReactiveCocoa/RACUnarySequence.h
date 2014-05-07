@@ -12,6 +12,7 @@
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 @interface RACUnarySequence : RACSequence
+
 @end
 
 #pragma clang diagnostic pop

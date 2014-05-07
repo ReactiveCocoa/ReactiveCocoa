@@ -42,6 +42,7 @@ typedef struct {
 @property (nonatomic, strong) NSMutableArray *arrayValue;
 @property (nonatomic, strong) NSMutableSet *setValue;
 @property (nonatomic, strong) NSMutableOrderedSet *orderedSetValue;
+@property (nonatomic, strong) id slowObjectValue;
 
 // Returns a new object each time, with the integerValue set to 42.
 @property (nonatomic, copy, readonly) RACTestObject *dynamicObjectProperty;

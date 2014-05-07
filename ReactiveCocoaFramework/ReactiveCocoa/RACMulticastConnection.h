@@ -8,8 +8,8 @@
 
 #import "RACDeprecated.h"
 
-@class RACSignal;
 @class RACDisposable;
+@class RACSignal;
 
 RACDeprecated("Use -promiseOnScheduler: or send events to a shared RACSubject instead")
 @interface RACMulticastConnection : NSObject

@@ -328,7 +328,7 @@ typedef enum : NSUInteger {
 /// before forwarding `completed` or `error`.
 - (RACSignal *)doFinished:(void (^)(void))block;
 
-/// Send `next`s only if we don't receive another `next` in `interval` seconds.
+/// Sends `next`s only if we don't receive another `next` in `interval` seconds.
 ///
 /// If a `next` is received, and then another `next` is received before
 /// `interval` seconds have passed, the first value is discarded.
@@ -379,7 +379,7 @@ typedef enum : NSUInteger {
 /// values will be sent immediately.
 - (RACSignal *)bufferWithTime:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler;
 
-/// Collect all receiver's `next`s into a NSArray. nil values will be converted
+/// Collects all receiver's `next`s into a NSArray. Nil values will be converted
 /// to NSNull.
 ///
 /// This corresponds to the `ToArray` method in Rx.
@@ -437,6 +437,10 @@ typedef enum : NSUInteger {
 /// `reduceBlock`.
 + (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals reduce:(id (^)())reduceBlock;
 
+/// Merges the receiver and the given signal with `+merge:` and returns the
+/// resulting signal.
+- (RACSignal *)merge:(RACSignal *)signal;
+
 /// Sends the latest `next` from any of the signals.
 ///
 /// Returns a signal that passes through values from each of the given signals,
@@ -492,11 +496,24 @@ typedef enum : NSUInteger {
 - (RACSignal *)aggregateWithStart:(id)startingValue reduce:(id (^)(id running, id next))block;
 
 /// Invokes -setKeyPath:onObject:nilValue: with `nil` for the nil value.
+///
+/// WARNING: Under certain conditions, this method is known to be thread-unsafe.
+///          See the description in -setKeyPath:onObject:nilValue:.
 - (RACDisposable *)setKeyPath:(NSString *)keyPath onObject:(NSObject *)object;
 
 /// Binds the receiver to an object, automatically setting the given key path on
 /// every `next`. When the signal completes, the binding is automatically
 /// disposed of.
+///
+/// WARNING: Under certain conditions, this method is known to be thread-unsafe.
+///          A crash can result if `object` is deallocated concurrently on
+///          another thread within a window of time between a value being sent
+///          on this signal and immediately prior to the invocation of
+///          -setValue:forKeyPath:, which sets the property. To prevent this,
+///          ensure `object` is deallocated on the same thread the receiver
+///          sends on, or ensure that the returned disposable is disposed of
+///          before `object` deallocates.
+///          See https://github.com/ReactiveCocoa/ReactiveCocoa/pull/1184
 ///
 /// Sending an error on the signal is considered undefined behavior, and will
 /// generate an assertion failure in Debug builds.
@@ -544,14 +561,14 @@ typedef enum : NSUInteger {
 /// `scheduler`.
 + (RACSignal *)interval:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler withLeeway:(NSTimeInterval)leeway;
 
-/// Take `next`s until the `signalTrigger` sends `next` or `completed`.
+/// Takes `next`s until the `signalTrigger` sends `next` or `completed`.
 ///
 /// Returns a signal which passes through all events from the receiver until
 /// `signalTrigger` sends `next` or `completed`, at which point the returned signal
 /// will send `completed`.
 - (RACSignal *)takeUntil:(RACSignal *)signalTrigger;
 
-/// Take `next`s until the `replacement` sends an event.
+/// Takes `next`s until the `replacement` sends an event.
 ///
 /// replacement - The signal which replaces the receiver as soon as it sends an
 ///               event.
@@ -562,10 +579,10 @@ typedef enum : NSUInteger {
 /// instead, regardless of whether the receiver has sent events already.
 - (RACSignal *)takeUntilReplacement:(RACSignal *)replacement;
 
-/// Subscribe to the returned signal when an error occurs.
+/// Subscribes to the returned signal when an error occurs.
 - (RACSignal *)catch:(RACSignal * (^)(NSError *error))catchBlock;
 
-/// Subscribe to the given signal when an error occurs.
+/// Subscribes to the given signal when an error occurs.
 - (RACSignal *)catchTo:(RACSignal *)signal;
 
 /// Runs `tryBlock` against each of the receiver's values, passing values
@@ -638,7 +655,7 @@ typedef enum : NSUInteger {
 /// values sent from the signal will be represented as `NSNull`s in the array.
 - (NSArray *)array;
 
-/// Defer creation of a signal until the signal's actually subscribed to.
+/// Defers creation of a signal until the signal's actually subscribed to.
 ///
 /// This can be used to effectively turn a hot signal into a cold signal, or to
 /// perform side effects before subscription.

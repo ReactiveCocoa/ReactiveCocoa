@@ -9,9 +9,9 @@
 #import <Foundation/Foundation.h>
 #import "RACDeprecated.h"
 
+@class RACScheduler;
 @class RACSequence;
 @class RACSignal;
-@class RACScheduler;
 
 @interface NSString (RACSupport)
 

@@ -82,7 +82,7 @@
 		ignoreValues]
 		subscribe:subject];
 
-	return subject;
+	return [subject setNameWithFormat:@"+rac_readContentsOfURL: %@ usedEncoding:scheduler: %@", URL, scheduler];
 }
 
 @end

@@ -12,7 +12,7 @@
 
 typedef void (^RACKVOBlock)(id target, NSDictionary *change);
 
-/// The KVO trampoline object. Represents a KVO observation.
+/// A private trampoline object that represents a KVO observation.
 ///
 /// Disposing of the trampoline will stop observation.
 @interface RACKVOTrampoline : RACDisposable

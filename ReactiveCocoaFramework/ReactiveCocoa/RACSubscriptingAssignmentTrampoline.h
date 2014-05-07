@@ -1,6 +1,6 @@
 //
 //  RACSubscriptingAssignmentTrampoline.h
-//  iOSDemo
+//  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 9/24/12.
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
@@ -34,6 +34,9 @@
 ///  RAC(self, objectProperty) = objectSignal;
 ///  RAC(self, stringProperty, @"foobar") = stringSignal;
 ///  RAC(self, integerProperty, @42) = integerSignal;
+///
+/// WARNING: Under certain conditions, use of this macro can be thread-unsafe.
+///          See the documentation of -setKeyPath:onObject:nilValue:.
 #define RAC(TARGET, ...) \
     metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__)) \
         (RAC_(TARGET, __VA_ARGS__, nil)) \

@@ -42,3 +42,22 @@
 }
 
 @end
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
+@implementation RACImmediateScheduler (Deprecated)
+
+- (RACDisposable *)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock {
+	for (__block NSUInteger remaining = 1; remaining > 0; remaining--) {
+		recursiveBlock(^{
+			remaining++;
+		});
+	}
+
+	return nil;
+}
+
+@end
+
+#pragma clang diagnostic pop

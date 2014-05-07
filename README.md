@@ -56,7 +56,7 @@ callback blocks, target-action mechanisms, notifications, and KVO.
 Here's a simple example:
 
 ```objc
-// When self.username changes, log the new name to the console.
+// When self.username changes, logs the new name to the console.
 //
 // RACObserve(self, username) creates a new RACSignal that sends the current
 // value of self.username, then the new value whenever it changes.
@@ -69,7 +69,7 @@ Here's a simple example:
 But unlike KVO notifications, signals can be chained together and operated on:
 
 ```objc
-// Only log names that start with "j".
+// Only logs names that starts with "j".
 //
 // -filter returns a new RACSignal that only sends a new value when its block
 // returns YES.
@@ -87,7 +87,7 @@ setting other properties in response to the new values, RAC makes it possible to
 express properties in terms of signals and operations:
 
 ```objc
-// Create a one-way binding so that self.createEnabled will be
+// Creates a one-way binding so that self.createEnabled will be
 // true whenever self.password and self.passwordConfirmation
 // are equal.
 //
@@ -108,7 +108,7 @@ example, they can also represent button presses and asynchronous network
 operations:
 
 ```objc
-// Start a network request whenever the button is pressed.
+// Starts a network request whenever the button is pressed.
 [[[[self.button
     rac_signalForControlEvents:UIControlEventTouchUpInside]
     flattenMap:^(UIButton *button) {
@@ -129,10 +129,10 @@ changes over time.
 
 Using signals for asynchronous operations makes it possible to build up more
 complex behavior by chaining and transforming those signals. Work can easily be
-trigged after a group of operations completes:
+triggered after a group of operations completes:
 
 ```objc
-// Perform 2 network operations and log a message to the console when they are
+// Performs 2 network operations and logs a message to the console when they are
 // both completed.
 //
 // +merge: takes an array of signals and returns a new RACSignal that passes
@@ -152,15 +152,15 @@ of nesting callbacks with blocks. This is similar to how [futures and promises][
 are usually used:
 
 ```objc
-// Log in the user, then load any cached messages, then fetch the remaining
-// messages from the server. After that's all done, log a message to the
+// Logs in the user, then loads any cached messages, then fetches the remaining
+// messages from the server. After that's all done, logs a message to the
 // console.
 //
 // The hypothetical -logInUser methods returns a signal that completes after
 // logging in.
 //
 // -flattenMap: will execute its block whenever the signal sends a value, and
-// return a new RACSignal that merges all of the signals returned from the block
+// returns a new RACSignal that merges all of the signals returned from the block
 // into a single signal.
 [[[[client 
 	logInUser] 
@@ -182,7 +182,7 @@ are usually used:
 RAC even makes it easy to bind to the result of an asynchronous operation:
 
 ```objc
-// Create a one-way binding so that self.imageView.image will be set the user's
+// Creates a one-way binding so that self.imageView.image will be set the user's
 // avatar as soon as it's downloaded.
 //
 // The hypothetical -fetchUserWithUsername: method returns a signal which sends
@@ -491,6 +491,10 @@ have been generously contributed by third parties.
 
 To see a project already set up with RAC, check out [C-41][] or [GroceryList][],
 which are real iOS apps written using ReactiveCocoa.
+
+## Standalone Development
+
+If you’re working on RAC in isolation instead of integrating it into another project, you’ll want to open `ReactiveCocoaFramework/ReactiveCocoa.xcworkspace` and not the `.xcodeproj`.
 
 ## More Info
 

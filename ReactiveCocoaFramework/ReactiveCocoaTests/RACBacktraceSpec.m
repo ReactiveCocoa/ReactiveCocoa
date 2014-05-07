@@ -8,6 +8,8 @@
 
 #import "NSArray+RACSupport.h"
 #import "RACBacktrace.h"
+
+#import "RACReplaySubject.h"
 #import "RACScheduler.h"
 #import "RACSequence.h"
 #import "RACSignal+Operations.h"
@@ -18,6 +20,22 @@ static RACBacktrace *previousBacktrace;
 
 static void capturePreviousBacktrace(void *context) {
 	previousBacktrace = [RACBacktrace backtrace].previousThreadBacktrace;
+}
+
+typedef struct {
+	dispatch_queue_t queue;
+	NSUInteger i;
+	__unsafe_unretained RACSubject *doneSubject;
+} RACDeepRecursionContext;
+
+static void recurseDeeply(void *ptr) {
+	RACDeepRecursionContext *context = ptr;
+
+	if (context->i++ < 10000) {
+		rac_dispatch_async_f(context->queue, context, recurseDeeply);
+	} else {
+		[context->doneSubject sendCompleted];
+	}
 }
 
 SpecBegin(RACBacktrace)
@@ -86,6 +104,22 @@ describe(@"with a GCD queue", ^{
 	it(@"should trace across dispatch_after_f", ^{
 		rac_dispatch_after_f(dispatch_time(DISPATCH_TIME_NOW, 1), queue, NULL, &capturePreviousBacktrace);
 		expect(previousBacktrace).willNot.beNil();
+	});
+
+	it(@"shouldn't overflow the stack when deallocating a huge backtrace list", ^{
+		#pragma clang diagnostic push
+		#pragma clang diagnostic ignored "-Wdeprecated"
+		RACSubject *doneSubject = [RACReplaySubject subject];
+		#pragma clang diagnostic pop
+
+		RACDeepRecursionContext context = {
+			.queue = queue,
+			.i = 0,
+			.doneSubject = doneSubject
+		};
+
+		rac_dispatch_async_f(queue, &context, &recurseDeeply);
+		[doneSubject waitUntilCompleted:NULL];
 	});
 });
 

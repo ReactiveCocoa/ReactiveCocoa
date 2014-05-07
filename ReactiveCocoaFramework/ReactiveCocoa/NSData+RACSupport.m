@@ -42,12 +42,13 @@
 	NSCParameterAssert(scheduler != nil);
 
 	RACReplaySubject *subject = [RACReplaySubject subject];
+
 	[[[self
 		rac_contentsOfURL:URL options:options]
 		subscribeOn:scheduler]
 		subscribe:subject];
 
-	return subject;
+	return [subject setNameWithFormat:@"+rac_readContentsOfURL: %@ options: %lu scheduler: %@", URL, (unsigned long)options, scheduler];
 }
 
 @end

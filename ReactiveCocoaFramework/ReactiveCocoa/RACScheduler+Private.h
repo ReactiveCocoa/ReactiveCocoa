@@ -8,10 +8,10 @@
 
 #import "RACScheduler.h"
 
-/// The thread-specific current scheduler key.
+// The thread-specific current scheduler key.
 extern NSString * const RACSchedulerCurrentSchedulerKey;
 
-/// A private interface for internal RAC use only.
+// A private interface for internal RAC use only.
 @interface RACScheduler ()
 
 /// Initializes the receiver with the given name.

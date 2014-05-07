@@ -56,7 +56,7 @@
 	RACReplaySubject *subject = [RACReplaySubject subject];
 	[[self rac_readDataToEndOfFile] subscribe:subject];
 
-	return subject;
+	return [subject setNameWithFormat:@"%@ -rac_readInBackground", self];
 }
 
 @end

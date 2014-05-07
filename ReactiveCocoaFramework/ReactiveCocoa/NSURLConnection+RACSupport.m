@@ -10,7 +10,6 @@
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSignal.h"
-#import "RACSignal+Operations.h"
 #import "RACSubscriber.h"
 #import "RACTuple.h"
 

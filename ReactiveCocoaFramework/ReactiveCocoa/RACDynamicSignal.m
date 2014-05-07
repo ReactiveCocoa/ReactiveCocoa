@@ -8,10 +8,10 @@
 
 #import "RACDynamicSignal.h"
 #import "EXTScope.h"
+#import "RACCompoundDisposable.h"
 #import "RACLiveSubscriber.h"
 #import "RACScheduler+Private.h"
 #import "RACSubscriber.h"
-#import "RACCompoundDisposable.h"
 #import <libkern/OSAtomic.h>
 
 @interface RACDynamicSignal ()

@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @class RACCompoundDisposable;
+@class RACDisposable;
 @class RACEvent;
 @class RACScheduler;
 
@@ -117,7 +118,9 @@
 
 /// Registers a block that will be invoked when an event is dequeued and ready
 /// to be handled.
-- (void)addEventHandler:(void (^)(RACEvent *))eventHandler;
+///
+/// Returns a disposable that will remove the event handler upon disposal.
+- (RACDisposable *)addEventHandler:(void (^)(RACEvent *))eventHandler;
 
 /// Registers the given blocks to be invoked when events are dequeued and ready
 /// to be handled.
@@ -128,10 +131,13 @@
 ///                    events. This may be nil.
 /// completedHandler - A block to run to handle dequeued and delivered
 ///                    `completed` events. This may be nil.
-- (void)addNextHandler:(void (^)(id x))nextHandler errorHandler:(void (^)(NSError *error))errorHandler completedHandler:(void (^)(void))completedHandler;
+///
+/// Returns a disposable that will remove the event handlers upon disposal.
+- (RACDisposable *)addNextHandler:(void (^)(id x))nextHandler errorHandler:(void (^)(NSError *error))errorHandler completedHandler:(void (^)(void))completedHandler;
 
-- (void)addNextHandler:(void (^)(id x))nextHandler;
-- (void)addErrorHandler:(void (^)(NSError *error))errorHandler;
-- (void)addCompletedHandler:(void (^)(void))completedHandler;
+- (RACDisposable *)addNextHandler:(void (^)(id x))nextHandler;
+- (RACDisposable *)addErrorHandler:(void (^)(NSError *error))errorHandler;
+- (RACDisposable *)addCompletedHandler:(void (^)(void))completedHandler;
+
 
 @end

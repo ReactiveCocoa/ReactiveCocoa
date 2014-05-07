@@ -8,6 +8,7 @@
 
 #import "RACSubscriber.h"
 
+#import "RACDisposable.h"
 #import "RACEvent.h"
 #import "RACScheduler.h"
 
@@ -64,7 +65,7 @@
 
 #pragma mark Handler Registration
 
-- (void)addEventHandler:(void (^)(RACEvent *))eventHandler {
+- (RACDisposable *)addEventHandler:(void (^)(RACEvent *))eventHandler {
 	NSCParameterAssert(eventHandler != nil);
 
 	eventHandler = [eventHandler copy];
@@ -72,22 +73,30 @@
 	OSSpinLockLock(&_handlersLock);
 	self.handlers = [self.handlers arrayByAddingObject:eventHandler];
 	OSSpinLockUnlock(&_handlersLock);
+
+	return [RACDisposable disposableWithBlock:^{
+		OSSpinLockLock(&_handlersLock);
+		NSMutableArray *handlers = [self.handlers mutableCopy];
+		[handlers removeObjectIdenticalTo:eventHandler];
+		self.handlers = handlers;
+		OSSpinLockUnlock(&_handlersLock);
+	}];
 }
 
-- (void)addNextHandler:(void (^)(id x))nextHandler {
-	[self addNextHandler:nextHandler errorHandler:nil completedHandler:nil];
+- (RACDisposable *)addNextHandler:(void (^)(id x))nextHandler {
+	return [self addNextHandler:nextHandler errorHandler:nil completedHandler:nil];
 }
 
-- (void)addErrorHandler:(void (^)(NSError *error))errorHandler {
-	[self addNextHandler:nil errorHandler:errorHandler completedHandler:nil];
+- (RACDisposable *)addErrorHandler:(void (^)(NSError *error))errorHandler {
+	return [self addNextHandler:nil errorHandler:errorHandler completedHandler:nil];
 }
 
-- (void)addCompletedHandler:(void (^)(void))completedHandler {
-	[self addNextHandler:nil errorHandler:nil completedHandler:completedHandler];
+- (RACDisposable *)addCompletedHandler:(void (^)(void))completedHandler {
+	return [self addNextHandler:nil errorHandler:nil completedHandler:completedHandler];
 }
 
-- (void)addNextHandler:(void (^)(id x))nextHandler errorHandler:(void (^)(NSError *error))errorHandler completedHandler:(void (^)(void))completedHandler {
-	[self addEventHandler:^(RACEvent *event) {
+- (RACDisposable *)addNextHandler:(void (^)(id x))nextHandler errorHandler:(void (^)(NSError *error))errorHandler completedHandler:(void (^)(void))completedHandler {
+	return [self addEventHandler:^(RACEvent *event) {
 		switch (event.eventType) {
 			case RACEventTypeNext:
 				if (nextHandler != nil) nextHandler(event.value);

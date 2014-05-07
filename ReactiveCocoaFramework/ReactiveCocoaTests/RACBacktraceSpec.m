@@ -23,8 +23,9 @@ static void capturePreviousBacktrace(void *context) {
 }
 
 typedef struct {
-	dispatch_queue_t queue;
 	NSUInteger i;
+
+	__unsafe_unretained dispatch_queue_t queue;
 	__unsafe_unretained RACSubject *doneSubject;
 } RACDeepRecursionContext;
 
@@ -65,7 +66,6 @@ describe(@"with a GCD queue", ^{
 
 	afterEach(^{
 		dispatch_barrier_sync(queue, ^{});
-		dispatch_release(queue);
 	});
 
 	it(@"should trace across dispatch_async", ^{

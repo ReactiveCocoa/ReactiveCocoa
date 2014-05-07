@@ -19,7 +19,7 @@
 @interface RACQueueScheduler ()
 
 /// The queue on which blocks are enqueued.
-@property (nonatomic, readonly) dispatch_queue_t queue;
+@property (nonatomic, strong, readonly) dispatch_queue_t queue;
 
 /// Initializes the receiver with the name of the scheduler and the queue which
 /// the scheduler should use.

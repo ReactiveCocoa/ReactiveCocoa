@@ -1,19 +1,19 @@
 //
-//  RACQueueSubscriber.m
+//  RACSubscriber.m
 //  ReactiveCocoa
 //
 //  Created by Justin Spahr-Summers on 2014-05-07.
 //  Copyright (c) 2014 GitHub, Inc. All rights reserved.
 //
 
-#import "RACQueueSubscriber.h"
+#import "RACSubscriber.h"
 
 #import "RACEvent.h"
 #import "RACScheduler.h"
 
 #import <libkern/OSAtomic.h>
 
-@interface RACQueueSubscriber () {
+@interface RACSubscriber () {
 	volatile int32_t _pendingEventCount;
 
 	OSSpinLock _pendingEventsLock;
@@ -26,7 +26,7 @@
 
 @end
 
-@implementation RACQueueSubscriber
+@implementation RACSubscriber
 
 #pragma mark Properties
 
@@ -34,6 +34,10 @@
 @synthesize disposable = _disposable;
 
 #pragma mark Lifecycle
+
+- (instancetype)init {
+	return [self initWithScheduler:RACScheduler.immediateScheduler];
+}
 
 - (instancetype)initWithScheduler:(RACScheduler *)scheduler {
 	NSCParameterAssert(scheduler != nil);
@@ -48,6 +52,16 @@
 	return self;
 }
 
++ (instancetype)subscriberWithScheduler:(RACScheduler *)scheduler nextHandler:(void (^)(id x))nextHandler errorHandler:(void (^)(NSError *error))errorHandler completedHandler:(void (^)(void))completedHandler {
+	RACSubscriber *subscriber = [[self alloc] initWithScheduler:scheduler];
+	[subscriber addNextHandler:nextHandler errorHandler:errorHandler completedHandler:completedHandler];
+	return subscriber;
+}
+
++ (instancetype)subscriberWithNextHandler:(void (^)(id x))nextHandler errorHandler:(void (^)(NSError *error))errorHandler completedHandler:(void (^)(void))completedHandler {
+	return [self subscriberWithScheduler:RACScheduler.immediateScheduler nextHandler:nextHandler errorHandler:errorHandler completedHandler:completedHandler];
+}
+
 #pragma mark Handler Registration
 
 - (void)addEventHandler:(void (^)(RACEvent *))eventHandler {
@@ -58,6 +72,36 @@
 	OSSpinLockLock(&_handlersLock);
 	self.handlers = [self.handlers arrayByAddingObject:eventHandler];
 	OSSpinLockUnlock(&_handlersLock);
+}
+
+- (void)addNextHandler:(void (^)(id x))nextHandler {
+	[self addNextHandler:nextHandler errorHandler:nil completedHandler:nil];
+}
+
+- (void)addErrorHandler:(void (^)(NSError *error))errorHandler {
+	[self addNextHandler:nil errorHandler:errorHandler completedHandler:nil];
+}
+
+- (void)addCompletedHandler:(void (^)(void))completedHandler {
+	[self addNextHandler:nil errorHandler:nil completedHandler:completedHandler];
+}
+
+- (void)addNextHandler:(void (^)(id x))nextHandler errorHandler:(void (^)(NSError *error))errorHandler completedHandler:(void (^)(void))completedHandler {
+	[self addEventHandler:^(RACEvent *event) {
+		switch (event.eventType) {
+			case RACEventTypeNext:
+				if (nextHandler != nil) nextHandler(event.value);
+				break;
+
+			case RACEventTypeError:
+				if (errorHandler != nil) errorHandler(event.error);
+				break;
+
+			case RACEventTypeCompleted:
+				if (completedHandler != nil) completedHandler();
+				break;
+		}
+	}];
 }
 
 #pragma mark Event Handling

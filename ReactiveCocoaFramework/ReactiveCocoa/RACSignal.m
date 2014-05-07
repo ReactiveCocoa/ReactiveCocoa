@@ -64,66 +64,6 @@
 
 @end
 
-@implementation RACSignal (Subscription)
-
-- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	RACLiveSubscriber *liveSubscriber;
-	if (subscriber == nil) {
-		liveSubscriber = [RACLiveSubscriber subscriberWithNext:nil error:nil completed:nil];
-	} else {
-		liveSubscriber = [RACLiveSubscriber subscriberForwardingToSubscriber:subscriber];
-	}
-
-	liveSubscriber.signal = self;
-
-	[self attachSubscriber:liveSubscriber];
-	return liveSubscriber.disposable;
-}
-
-- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock {
-	return [self subscribeNext:nextBlock error:nil completed:nil];
-}
-
-- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock {
-	return [self subscribeNext:nextBlock error:nil completed:completedBlock];
-}
-
-- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock {
-	RACLiveSubscriber *subscriber = [RACLiveSubscriber subscriberWithNext:nextBlock error:errorBlock completed:completedBlock];
-	subscriber.signal = self;
-
-	[self attachSubscriber:subscriber];
-	return subscriber.disposable;
-}
-
-- (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock {
-	return [self subscribeNext:nil error:errorBlock completed:nil];
-}
-
-- (RACDisposable *)subscribeCompleted:(void (^)(void))completedBlock {
-	return [self subscribeNext:nil error:nil completed:completedBlock];
-}
-
-- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock {
-	return [self subscribeNext:nextBlock error:errorBlock completed:nil];
-}
-
-- (RACDisposable *)subscribeError:(void (^)(NSError *))errorBlock completed:(void (^)(void))completedBlock {
-	return [self subscribeNext:nil error:errorBlock completed:completedBlock];
-}
-
-- (void)subscribeSavingDisposable:(void (^)(RACDisposable *))saveDisposableBlock next:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock {
-	NSCParameterAssert(saveDisposableBlock != nil);
-
-	RACLiveSubscriber *subscriber = [RACLiveSubscriber subscriberWithNext:nextBlock error:errorBlock completed:completedBlock];
-	subscriber.signal = self;
-
-	saveDisposableBlock(subscriber.disposable);
-	[self attachSubscriber:subscriber];
-}
-
-@end
-
 @implementation RACSignal (Debugging)
 
 @dynamic name;
@@ -261,6 +201,62 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 		}]
 		subscribeOn:scheduler]
 		setNameWithFormat:@"+startLazilyWithScheduler:%@ block:", scheduler];
+}
+
+- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
+	RACLiveSubscriber *liveSubscriber;
+	if (subscriber == nil) {
+		liveSubscriber = [RACLiveSubscriber subscriberWithNext:nil error:nil completed:nil];
+	} else {
+		liveSubscriber = [RACLiveSubscriber subscriberForwardingToSubscriber:subscriber];
+	}
+
+	liveSubscriber.signal = self;
+
+	[self attachSubscriber:liveSubscriber];
+	return liveSubscriber.disposable;
+}
+
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock {
+	return [self subscribeNext:nextBlock error:nil completed:nil];
+}
+
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock {
+	return [self subscribeNext:nextBlock error:nil completed:completedBlock];
+}
+
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock {
+	RACLiveSubscriber *subscriber = [RACLiveSubscriber subscriberWithNext:nextBlock error:errorBlock completed:completedBlock];
+	subscriber.signal = self;
+
+	[self attachSubscriber:subscriber];
+	return subscriber.disposable;
+}
+
+- (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock {
+	return [self subscribeNext:nil error:errorBlock completed:nil];
+}
+
+- (RACDisposable *)subscribeCompleted:(void (^)(void))completedBlock {
+	return [self subscribeNext:nil error:nil completed:completedBlock];
+}
+
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock {
+	return [self subscribeNext:nextBlock error:errorBlock completed:nil];
+}
+
+- (RACDisposable *)subscribeError:(void (^)(NSError *))errorBlock completed:(void (^)(void))completedBlock {
+	return [self subscribeNext:nil error:errorBlock completed:completedBlock];
+}
+
+- (void)subscribeSavingDisposable:(void (^)(RACDisposable *))saveDisposableBlock next:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock {
+	NSCParameterAssert(saveDisposableBlock != nil);
+
+	RACLiveSubscriber *subscriber = [RACLiveSubscriber subscriberWithNext:nextBlock error:errorBlock completed:completedBlock];
+	subscriber.signal = self;
+
+	saveDisposableBlock(subscriber.disposable);
+	[self attachSubscriber:subscriber];
 }
 
 @end

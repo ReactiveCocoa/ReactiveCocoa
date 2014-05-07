@@ -89,69 +89,40 @@
 
 @end
 
-@interface RACSignal (Subscription)
+@interface RACSignal (Connection)
 
-/// Subscribes `subscriber` to changes on the receiver. The receiver defines which
-/// events it actually sends and in what situations the events are sent.
+/// Connects `subscriber` to the receiver, triggering any work and side effects
+/// involved in the signal.
 ///
 /// subscriber - The subscriber to send events to. This may be nil if you don't
-///              care about the events, and only wish to perform the work (and
-///              side effects) of a subscription.
+///              care about the events, and only wish to perform the side
+///              effects of connection.
 ///
-/// Returns a disposable. You can call -[RACDisposable dispose] if you
-/// need to end your subscription before it would "naturally" end, either by
-/// completing or erroring. Once the disposable has been disposed, the subscriber
-/// won't receive any more events from the subscription.
-- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber;
+/// Returns a disposable. You can call -[RACDisposable dispose] if you need to
+/// cancel your connection before it would "naturally" end, either by completing
+/// or erroring. Once the disposable has been disposed, the subscriber won't
+/// receive any more events from this connection.
+- (RACDisposable *)connect:(id<RACSubscriber>)subscriber;
 
-/// Convenience method to subscribe to the `next` event.
-///
-/// This corresponds to `IObserver<T>.OnNext` in Rx.
-- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock;
-
-/// Convenience method to subscribe to the `next` and `completed` events.
-- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock;
-
-/// Convenience method to subscribe to the `next`, `completed`, and `error` events.
-- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
-
-/// Convenience method to subscribe to `error` events.
-///
-/// This corresponds to the `IObserver<T>.OnError` in Rx.
-- (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock;
-
-/// Convenience method to subscribe to `completed` events.
-///
-/// This corresponds to the `IObserver<T>.OnCompleted` in Rx.
-- (RACDisposable *)subscribeCompleted:(void (^)(void))completedBlock;
-
-/// Convenience method to subscribe to `next` and `error` events.
-- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock;
-
-/// Convenience method to subscribe to `error` and `completed` events.
-- (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
-
-/// Subscribes to the receiver, offering an opportunity to save the disposable
-/// before actually starting the signal.
+/// Connects a subscriber to the receiver, offering an opportunity to save the
+/// disposable before actually initiating the connection.
 ///
 /// This is primarily useful for signals that may be synchronous. Because the
-/// other -subscribe… methods _return_ a disposable, it's impossible to dispose of
-/// the subscription until the signal finishes any synchronous behaviors it may
-/// have. This is particularly problematic with signals or operators that may
-/// run forever (e.g., -repeat).
+/// -connect: _returns_ a disposable, it's impossible to cancel the connection
+/// until the signal finishes any synchronous behaviors it may have. This is
+/// particularly problematic with signals or operators that may run forever
+/// (e.g., -repeat).
 ///
 /// By contrast, this method allows you to save the disposable immediately,
-/// _then_ start the signal, so it can be disposed from any of your event
-/// handlers, even if they're invoked synchronously.
+/// _then_ start the connection, so it can be disposed from any of your
+/// subscriber's event handlers, even if they're invoked synchronously.
 ///
-/// saveDisposableBlock - Invoked before starting the signal, this block can be
-///                       used to save the given `RACDisposable` for later use
-///                       in the event handler blocks. This block must not be
-///                       nil.
-/// nextBlock           - Invoked upon a `next` event. This block may be nil.
-/// errorBlock          - Invoked upon an `error` event. This block may be nil.
-/// completedBlock      - Invoked upon a `completed` event. This block may be nil.
-- (void)subscribeSavingDisposable:(void (^)(RACDisposable *disposable))saveDisposableBlock next:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
+/// subscriberBlock - Invoked with a `RACDisposable` that can cancel the
+///                   connection, this block should return a subscriber to send
+///                   events to, or nil if you don't care about the events, and
+///                   only wish to perform the side effects of connection. This
+///                   block must not be nil.
+- (void)connectSavingDisposable:(id<RACSubscriber> (^)(RACDisposable *))subscriberBlock;
 
 @end
 
@@ -222,6 +193,16 @@
 + (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe RACDeprecated("Use +create: instead");
 + (RACSignal *)startEagerlyWithScheduler:(RACScheduler *)scheduler block:(void (^)(id<RACSubscriber> subscriber))block RACDeprecated("Use +create: instead");
 + (RACSignal *)startLazilyWithScheduler:(RACScheduler *)scheduler block:(void (^)(id<RACSubscriber> subscriber))block RACDeprecated("Use +create: instead");
+
+- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber RACDeprecated("Use -connect: instead");
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock RACDeprecated("Use -connect: instead");
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock RACDeprecated("Use -connect: instead");
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock RACDeprecated("Use -connect: instead");
+- (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock RACDeprecated("Use -connect: instead");
+- (RACDisposable *)subscribeCompleted:(void (^)(void))completedBlock RACDeprecated("Use -connect: instead");
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock RACDeprecated("Use -connect: instead");
+- (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock RACDeprecated("Use -connect: instead");
+- (void)subscribeSavingDisposable:(void (^)(RACDisposable *disposable))saveDisposableBlock next:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock RACDeprecated("Use -connectSavingDisposable: instead");
 
 @end
 

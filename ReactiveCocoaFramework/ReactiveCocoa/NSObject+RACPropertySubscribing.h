@@ -49,6 +49,19 @@
 #define RACObserve(TARGET, KEYPATH) \
     [(id)(TARGET) rac_valuesForKeyPath:@keypath(TARGET, KEYPATH) observer:self]
 
+/// Creates a signal which observes `KEYPATH` on `TARGET` for changes.
+///
+/// This is similar to RACObserve, except it only sends a next if the value
+/// has actually changed since the last time it was set. RACObserve will send
+/// a next even if the value hasn't actually changed, but the setter was
+/// invoked with the current value.
+///
+/// Returns a signal which sends the current value of the key path on
+/// subscription, then sends the new value every time it changes, and sends
+/// completed if self or observer is deallocated.
+#define RACObserveChanges(TARGET, KEYPATH) \
+    [[(id)(TARGET) rac_valuesForKeyPath:@keypath(TARGET, KEYPATH) observer:self] distinctUntilChanged]
+
 @class RACDisposable;
 @class RACSignal;
 

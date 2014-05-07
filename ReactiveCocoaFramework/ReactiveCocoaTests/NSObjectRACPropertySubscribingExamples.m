@@ -155,10 +155,6 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 
 	it(@"should not resurrect a deallocated object upon subscription", ^{
 		dispatch_queue_t queue = dispatch_queue_create(NULL, DISPATCH_QUEUE_CONCURRENT);
-		@onExit {
-			dispatch_release(queue);
-		};
-
 		dispatch_set_target_queue(queue, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0));
 
 		// Fuzz out race conditions.

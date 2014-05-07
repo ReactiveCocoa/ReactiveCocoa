@@ -87,12 +87,6 @@ describe(@"finishing", ^{
 		// Time out after one second.
 		dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC));
 		expect(dispatch_group_wait(dispatchGroup, time)).to.equal(0);
-		
-		dispatch_release(dispatchGroup);
-		dispatchGroup = NULL;
-
-		dispatch_release(concurrentQueue);
-		concurrentQueue = NULL;
 
 		expect(nextsAfterFinished).to.equal(0);
 

@@ -53,6 +53,11 @@
 /// it cannot connect to anything else in the future).
 - (void)sendCompleted;
 
+/// Sends the given event to subscribers.
+///
+/// event - The event to send. Must not be nil.
+- (void)sendEvent:(RACEvent *)event;
+
 @end
 
 /// A subscriber that always delivers its events on a particular scheduler.

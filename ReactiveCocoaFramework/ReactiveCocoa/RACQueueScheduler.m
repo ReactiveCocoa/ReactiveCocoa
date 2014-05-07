@@ -16,17 +16,12 @@
 
 #pragma mark Lifecycle
 
-- (void)dealloc {
-	dispatch_release(_queue);
-}
-
 - (id)initWithName:(NSString *)name queue:(dispatch_queue_t)queue {
 	NSCParameterAssert(queue != NULL);
 
 	self = [super initWithName:name];
 	if (self == nil) return nil;
 
-	dispatch_retain(queue);
 	_queue = queue;
 
 	return self;
@@ -93,7 +88,6 @@
 
 	return [RACDisposable disposableWithBlock:^{
 		dispatch_source_cancel(timer);
-		dispatch_release(timer);
 	}];
 }
 

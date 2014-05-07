@@ -12,6 +12,7 @@
 @class RACDisposable;
 @class RACEvent;
 @class RACScheduler;
+@class RACSignal;
 
 /// Represents any object which can directly receive values from a RACSignal.
 ///
@@ -139,5 +140,7 @@
 - (RACDisposable *)addErrorHandler:(void (^)(NSError *error))errorHandler;
 - (RACDisposable *)addCompletedHandler:(void (^)(void))completedHandler;
 
+/// Returns a signal of the events that are dequeued by this subscriber.
+- (RACSignal *)events;
 
 @end

@@ -11,6 +11,7 @@
 #import "RACDisposable.h"
 #import "RACEvent.h"
 #import "RACScheduler.h"
+#import "RACSignal.h"
 
 #import <libkern/OSAtomic.h>
 
@@ -169,6 +170,16 @@
 	// Keep dequeuing and delivering events until other threads stop enqueuing
 	// them.
 	} while (OSAtomicDecrement32(&_pendingEventCount) > 0);
+}
+
+- (RACSignal *)events {
+	return [RACSignal create:^(id<RACSubscriber> subscriber) {
+		RACDisposable *disposable = [self addEventHandler:^(RACEvent *event) {
+			[subscriber sendEvent:event];
+		}];
+
+		[subscriber.disposable addDisposable:disposable];
+	}];
 }
 
 @end

@@ -17,7 +17,7 @@ config ()
     #
     # Only one of `XCWORKSPACE` and `XCODEPROJ` needs to be set. The former will
     # take precedence.
-    : ${XCWORKSPACE=}
+    : ${XCWORKSPACE="ReactiveCocoaFramework/ReactiveCocoa.xcworkspace"}
 
     # The project to build.
     #
@@ -26,7 +26,7 @@ config ()
     #
     # Only one of `XCWORKSPACE` and `XCODEPROJ` needs to be set. The former will
     # take precedence.
-    : ${XCODEPROJ="ReactiveCocoaFramework/ReactiveCocoa.xcodeproj"}
+    : ${XCODEPROJ=}
 
     # A bootstrap script to run before building.
     #
@@ -39,7 +39,7 @@ config ()
     # A whitespace-separated list of default schemes to build.
     #
     # Individual names can be quoted to avoid word splitting.
-    : ${SCHEMES:=$(xcodebuild -list -project "$XCODEPROJ" 2>/dev/null | awk -f "$SCRIPT_DIR/schemes.awk")}
+    : ${SCHEMES:=$(xcodebuild -list -workspace "$XCWORKSPACE" 2>/dev/null | awk -f "$SCRIPT_DIR/schemes.awk")}
     
     export XCWORKSPACE
     export XCODEPROJ
@@ -132,21 +132,7 @@ build_scheme ()
         sdkflag="-sdk iphonesimulator"
     fi
 
-    run_xctool $sdkflag -scheme "$scheme" $action | awk '{ print; } /Failed to query the list of test cases in the test bundle/ { exit 1; }'
-
-    local awkstatus=$?
-    local result=${PIPESTATUS[0]}
-
-    if [ "$awkstatus" -eq "1" ]
-    then
-        echo
-        echo "*** Mac application tests are currently buggy, so they have been skipped."
-        echo "*** See https://github.com/facebook/xctool/issues/243 for more information."
-        echo
-        return 0
-    fi
-
-    return $result
+    run_xctool $sdkflag -scheme "$scheme" $action
 }
 
 export -f build_scheme

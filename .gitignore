@@ -13,4 +13,5 @@ build/*
 xcuserdata
 profile
 *.moved-aside
+DerivedData
 

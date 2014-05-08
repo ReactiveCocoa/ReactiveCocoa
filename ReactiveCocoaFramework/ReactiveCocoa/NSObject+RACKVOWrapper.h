@@ -8,16 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-// RAC-specific KVO change dictionary key: Will be @YES if the change was caused
-// by the value at the key path or an intermediate value deallocating, @NO
-// otherwise.
-extern NSString * const RACKeyValueChangeCausedByDeallocationKey;
-
-// RAC-specific KVO change dictionary key: Will be @YES if the change only
-// affected the value of the last key path component leaving the values of the
-// intermediate key path components unaltered, @NO otherwise.
-extern NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey;
-
 @class RACDisposable;
 @class RACKVOTrampoline;
 
@@ -43,7 +33,7 @@ extern NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey;
 //            be nil.
 //
 // Returns a disposable that can be used to stop the observation.
-- (RACDisposable *)rac_observeKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer block:(void (^)(id value, NSDictionary *change))block;
+- (RACDisposable *)rac_observeKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer block:(void (^)(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent))block;
 
 @end
 

@@ -16,12 +16,9 @@
 #import "RACKVOTrampoline.h"
 #import "RACSerialDisposable.h"
 
-NSString * const RACKeyValueChangeCausedByDeallocationKey = @"RACKeyValueChangeCausedByDeallocationKey";
-NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueChangeAffectedOnlyLastComponentKey";
-
 @implementation NSObject (RACKVOWrapper)
 
-- (RACDisposable *)rac_observeKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer block:(void (^)(id, NSDictionary *))block {
+- (RACDisposable *)rac_observeKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer block:(void (^)(id, NSDictionary *, BOOL, BOOL))block {
 	NSCParameterAssert(block != nil);
 	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
 
@@ -95,13 +92,11 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 		NSDictionary *change = @{
 			NSKeyValueChangeKindKey: @(NSKeyValueChangeSetting),
 			NSKeyValueChangeNewKey: NSNull.null,
-			RACKeyValueChangeCausedByDeallocationKey: @YES,
-			RACKeyValueChangeAffectedOnlyLastComponentKey: @(keyPathHasOneComponent)
 		};
 
 		RACCompoundDisposable *valueDisposable = value.rac_deallocDisposable;
 		RACDisposable *deallocDisposable = [RACDisposable disposableWithBlock:^{
-			block(nil, change);
+			block(nil, change, YES, keyPathHasOneComponent);
 		}];
 
 		[valueDisposable addDisposable:deallocDisposable];
@@ -127,14 +122,6 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 	// separately.
 	NSKeyValueObservingOptions trampolineOptions = (options | NSKeyValueObservingOptionPrior) & ~NSKeyValueObservingOptionInitial;
 	RACKVOTrampoline *trampoline = [[RACKVOTrampoline alloc] initWithTarget:self observer:observer keyPath:keyPathHead options:trampolineOptions block:^(id trampolineTarget, id trampolineObserver, NSDictionary *change) {
-		// Prepare the change dictionary by adding the RAC specific keys
-		{
-			NSMutableDictionary *newChange = [change mutableCopy];
-			newChange[RACKeyValueChangeCausedByDeallocationKey] = @NO;
-			newChange[RACKeyValueChangeAffectedOnlyLastComponentKey] = @(keyPathHasOneComponent);
-			change = newChange.copy;
-		}
-
 		// If this is a prior notification, clean up all the callbacks added to the
 		// previous value and call the callback block. Everything else is deferred
 		// until after we get the notification after the change.
@@ -142,7 +129,7 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 			[firstComponentDisposable() dispose];
 
 			if ((options & NSKeyValueObservingOptionPrior) != 0) {
-				block([trampolineTarget valueForKeyPath:keyPath], change);
+				block([trampolineTarget valueForKeyPath:keyPath], change, NO, keyPathHasOneComponent);
 			}
 
 			return;
@@ -154,7 +141,7 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 		// If the value has changed but is nil, there is no need to add callbacks to
 		// it, just call the callback block.
 		if (value == nil) {
-			block(nil, change);
+			block(nil, change, NO, keyPathHasOneComponent);
 			return;
 		}
 
@@ -170,7 +157,7 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 		// If there are no further key path components, there is no need to add the
 		// other callbacks, just call the callback block with the value itself.
 		if (keyPathHasOneComponent) {
-			block(value, change);
+			block(value, change, NO, keyPathHasOneComponent);
 			return;
 		}
 
@@ -179,7 +166,7 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 		// components and call the callback block with the current value of the full
 		// key path.
 		addObserverToValue(value);
-		block([value valueForKeyPath:keyPathTail], change);
+		block([value valueForKeyPath:keyPathTail], change, NO, keyPathHasOneComponent);
 	}];
 
 	// Stop the KVO observation when this one is disposed of.
@@ -201,10 +188,8 @@ NSString * const RACKeyValueChangeAffectedOnlyLastComponentKey = @"RACKeyValueCh
 		NSDictionary *initialChange = @{
 			NSKeyValueChangeKindKey: @(NSKeyValueChangeSetting),
 			NSKeyValueChangeNewKey: initialValue ?: NSNull.null,
-			RACKeyValueChangeCausedByDeallocationKey: @NO,
-			RACKeyValueChangeAffectedOnlyLastComponentKey: @(keyPathHasOneComponent)
 		};
-		block(initialValue, initialChange);
+		block(initialValue, initialChange, NO, keyPathHasOneComponent);
 	}
 
 

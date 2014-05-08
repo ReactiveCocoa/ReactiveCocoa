@@ -75,7 +75,7 @@
 				return nil;
 			}
 
-			return [self rac_observeKeyPath:keyPath options:options observer:observer block:^(id value, NSDictionary *change) {
+			return [self rac_observeKeyPath:keyPath options:options observer:observer block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
 				[subscriber sendNext:RACTuplePack(value, change)];
 			}];
 		}]

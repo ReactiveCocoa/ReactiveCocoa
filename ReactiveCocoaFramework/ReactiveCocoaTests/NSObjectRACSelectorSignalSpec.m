@@ -190,7 +190,71 @@ describe(@"RACTestObject", ^{
 
 		expect([object respondsToSelector:selector]).to.beTruthy();
 	});
+
+	it(@"should properly implement -respondsToSelector: when called on signalForSelector'd receiver that has subsequently been KVO'd", ^{
+		RACTestObject *object = [[RACTestObject alloc] init];
+
+		SEL selector = NSSelectorFromString(@"anyOldSelector:");
+
+		// Implement -anyOldSelector: on the object first
+		[object rac_signalForSelector:selector];
+
+		expect([object respondsToSelector:selector]).to.beTruthy();
+
+		// Then KVO the object
+		[[RACObserve(object, objectValue) publish] connect];
+
+		expect([object respondsToSelector:selector]).to.beTruthy();
+	});
+
+	it(@"should properly implement -respondsToSelector: when called on signalForSelector'd receiver that has subsequently been KVO'd, then signalForSelector'd again", ^{
+		RACTestObject *object = [[RACTestObject alloc] init];
+
+		SEL selector = NSSelectorFromString(@"anyOldSelector:");
+
+		// Implement -anyOldSelector: on the object first
+		[object rac_signalForSelector:selector];
+
+		expect([object respondsToSelector:selector]).to.beTruthy();
+
+		// Then KVO the object
+		[[RACObserve(object, objectValue) publish] connect];
+
+		expect([object respondsToSelector:selector]).to.beTruthy();
+		
+		SEL selector2 = NSSelectorFromString(@"anotherSelector:");
+
+		// Then implement -anotherSelector: on the object
+		[object rac_signalForSelector:selector2];
+
+		expect([object respondsToSelector:selector2]).to.beTruthy();
+	});
 	
+	it(@"should call the right signal for two instances of the same class, adding signals for the same selector", ^{
+		RACTestObject *object1 = [[RACTestObject alloc] init];
+		RACTestObject *object2 = [[RACTestObject alloc] init];
+
+		SEL selector = NSSelectorFromString(@"lifeIsGood:");
+
+		__block id value1 = nil;
+		[[object1 rac_signalForSelector:selector] subscribeNext:^(RACTuple *x) {
+			value1 = x.first;
+		}];
+
+		__block id value2 = nil;
+		[[object2 rac_signalForSelector:selector] subscribeNext:^(RACTuple *x) {
+			value2 = x.first;
+		}];
+
+		[object1 lifeIsGood:@42];
+		expect(value1).to.equal(@42);
+		expect(value2).to.beNil();
+
+		[object2 lifeIsGood:@420];
+		expect(value1).to.equal(@42);
+		expect(value2).to.equal(@420);
+	});
+
 	it(@"should properly implement -respondsToSelector: for optional method from a protocol", ^{
 		// Selector for the targeted optional method from a protocol.
 		SEL selector = @selector(optionalProtocolMethodWithObjectValue:);

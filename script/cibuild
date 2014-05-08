@@ -26,7 +26,7 @@ config ()
     #
     # Only one of `XCWORKSPACE` and `XCODEPROJ` needs to be set. The former will
     # take precedence.
-    : ${XCODEPROJ=}
+    : ${XCODEPROJ="ReactiveCocoaFramework/ReactiveCocoa.xcodeproj"}
 
     # A bootstrap script to run before building.
     #
@@ -39,7 +39,7 @@ config ()
     # A whitespace-separated list of default schemes to build.
     #
     # Individual names can be quoted to avoid word splitting.
-    : ${SCHEMES:=$(xcodebuild -list -workspace "$XCWORKSPACE" 2>/dev/null | awk -f "$SCRIPT_DIR/schemes.awk")}
+    : ${SCHEMES:=$(xcodebuild -list -project "$XCODEPROJ" 2>/dev/null | awk -f "$SCRIPT_DIR/schemes.awk")}
     
     export XCWORKSPACE
     export XCODEPROJ

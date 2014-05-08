@@ -107,7 +107,7 @@
 /// Connects a subscriber to the receiver, offering an opportunity to save the
 /// disposable before actually initiating the connection.
 ///
-/// This is primarily useful for signals that may be synchronous. Because the
+/// This is primarily useful for signals that may be synchronous. Because
 /// -connect: _returns_ a disposable, it's impossible to cancel the connection
 /// until the signal finishes any synchronous behaviors it may have. This is
 /// particularly problematic with signals or operators that may run forever
@@ -122,7 +122,7 @@
 ///                   events to, or nil if you don't care about the events, and
 ///                   only wish to perform the side effects of connection. This
 ///                   block must not be nil.
-- (void)connectSavingDisposable:(id<RACSubscriber> (^)(RACDisposable *))subscriberBlock;
+- (void)connectSavingDisposable:(id<RACSubscriber> (^)(RACDisposable *disposable))subscriberBlock;
 
 @end
 

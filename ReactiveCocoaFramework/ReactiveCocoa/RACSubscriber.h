@@ -107,7 +107,7 @@
 ///                    events. This may be nil.
 /// completedHandler - A block to run to handle dequeued and delivered
 ///                    `completed` events. This may be nil.
-+ (instancetype)subscriberWithScheduler:(RACScheduler *)scheduler nextHandler:(void (^)(id x))nextHandler errorHandler:(void (^)(NSError *error))errorHandler completedHandler:(void (^)(void))completedHandler;
++ (instancetype)subscriberWithScheduler:(RACScheduler *)scheduler nextHandler:(void (^)(id value))nextHandler errorHandler:(void (^)(NSError *error))errorHandler completedHandler:(void (^)(void))completedHandler;
 
 /// Invokes +subscriberWithScheduler:nextHandler:errorHandler:completedHandler:
 /// with the immediate scheduler.
@@ -115,13 +115,13 @@
 /// This will result in a subscriber that runs its event handlers on one of the
 /// schedulers that events are received upon (it's unspecified which one will
 /// be picked).
-+ (instancetype)subscriberWithNextHandler:(void (^)(id x))nextHandler errorHandler:(void (^)(NSError *error))errorHandler completedHandler:(void (^)(void))completedHandler;
++ (instancetype)subscriberWithNextHandler:(void (^)(id value))nextHandler errorHandler:(void (^)(NSError *error))errorHandler completedHandler:(void (^)(void))completedHandler;
 
 /// Registers a block that will be invoked when an event is dequeued and ready
 /// to be handled.
 ///
 /// Returns a disposable that will remove the event handler upon disposal.
-- (RACDisposable *)addEventHandler:(void (^)(RACEvent *))eventHandler;
+- (RACDisposable *)addEventHandler:(void (^)(RACEvent *event))eventHandler;
 
 /// Registers the given blocks to be invoked when events are dequeued and ready
 /// to be handled.
@@ -134,9 +134,9 @@
 ///                    `completed` events. This may be nil.
 ///
 /// Returns a disposable that will remove the event handlers upon disposal.
-- (RACDisposable *)addNextHandler:(void (^)(id x))nextHandler errorHandler:(void (^)(NSError *error))errorHandler completedHandler:(void (^)(void))completedHandler;
+- (RACDisposable *)addNextHandler:(void (^)(id value))nextHandler errorHandler:(void (^)(NSError *error))errorHandler completedHandler:(void (^)(void))completedHandler;
 
-- (RACDisposable *)addNextHandler:(void (^)(id x))nextHandler;
+- (RACDisposable *)addNextHandler:(void (^)(id value))nextHandler;
 - (RACDisposable *)addErrorHandler:(void (^)(NSError *error))errorHandler;
 - (RACDisposable *)addCompletedHandler:(void (^)(void))completedHandler;
 

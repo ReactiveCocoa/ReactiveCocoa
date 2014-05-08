@@ -41,31 +41,12 @@
 	};
 
 	[disposable addDisposable:firstComponentSerialDisposable];
-
-	// Adds the callback block to the value's deallocation. Also adds the logic to
-	// clean up the callback to the firstComponentDisposable.
-	void (^addDeallocObserverToPropertyValue)(NSObject *, NSString *, NSObject *) = ^(NSObject *parent, NSString *propertyKey, NSObject *value) {
-		// If a key path value is the observer, commonly when a key path begins
-		// with "self", we prevent deallocation triggered callbacks for any such key
-		// path components. Thus, the observer's deallocation is not considered a
-		// change to the key path.
-		@strongify(observer);
-		if (value == observer) return;
-
-		objc_property_t property = class_getProperty(object_getClass(parent), propertyKey.UTF8String);
-		if (property == NULL) {
-			// If we can't find an Objective-C property for this key, we assume
-			// that we don't need to observe its deallocation (thus matching
-			// vanilla KVO behavior).
-			//
-			// Even if we wanted to, there's not enough type information on
-			// ivars to figure out its memory management.
-			return;
-		}
-
+	
+	BOOL shouldAddDeallocObserver = NO;
+	
+	objc_property_t property = class_getProperty(object_getClass(self), keyPathHead.UTF8String);
+	if (property != NULL) {
 		rac_propertyAttributes *attributes = rac_copyPropertyAttributes(property);
-		if (attributes == NULL) return;
-
 		@onExit {
 			free(attributes);
 		};
@@ -73,21 +54,35 @@
 		BOOL isNonObject = attributes->objectClass == nil && strstr(attributes->type, @encode(id)) != attributes->type;
 		BOOL isProtocol = attributes->objectClass == NSClassFromString(@"Protocol");
 		BOOL isBlock = strcmp(attributes->type, @encode(void(^)())) == 0;
-		if (isNonObject || isProtocol || isBlock) {
+		BOOL isWeak = attributes->weak;
+
+		if (!isNonObject && !isProtocol && !isBlock && isWeak) {
 			// If this property isn't actually an object (or is a Class object),
 			// no point in observing the deallocation of the wrapper returned by
 			// KVC.
-			return;
-		}
-
-		if (!attributes->weak) {
+			//
 			// If this property is an object, but not declared `weak`, we
 			// don't need to watch for it spontaneously being set to nil.
 			//
 			// Attempting to observe non-weak properties will result in
 			// broken behavior for dynamic getters, so don't even try.
+			shouldAddDeallocObserver = YES;
+		}
+	}
+
+	// Adds the callback block to the value's deallocation. Also adds the logic to
+	// clean up the callback to the firstComponentDisposable.
+	void (^addDeallocObserverToPropertyValue)(NSObject *) = ^(NSObject *value) {
+		if (!shouldAddDeallocObserver) {
 			return;
 		}
+
+		// If a key path value is the observer, commonly when a key path begins
+		// with "self", we prevent deallocation triggered callbacks for any such key
+		// path components. Thus, the observer's deallocation is not considered a
+		// change to the key path.
+		@strongify(observer);
+		if (value == observer) return;
 
 		NSDictionary *change = @{
 			NSKeyValueChangeKindKey: @(NSKeyValueChangeSetting),
@@ -152,7 +147,7 @@
 		RACDisposable *oldFirstComponentDisposable = [firstComponentSerialDisposable swapInDisposable:[RACCompoundDisposable compoundDisposable]];
 		[oldFirstComponentDisposable dispose];
 
-		addDeallocObserverToPropertyValue(trampolineTarget, keyPathHead, value);
+		addDeallocObserverToPropertyValue(value);
 
 		// If there are no further key path components, there is no need to add the
 		// other callbacks, just call the callback block with the value itself.
@@ -175,7 +170,7 @@
 	// Add the callbacks to the initial value if needed.
 	NSObject *value = [self valueForKey:keyPathHead];
 	if (value != nil) {
-		addDeallocObserverToPropertyValue(self, keyPathHead, value);
+		addDeallocObserverToPropertyValue(value);
 
 		if (!keyPathHasOneComponent) {
 			addObserverToValue(value);

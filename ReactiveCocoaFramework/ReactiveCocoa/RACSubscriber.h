@@ -17,8 +17,8 @@
 /// Represents any object which can directly receive values from a RACSignal.
 ///
 /// You generally shouldn't need to implement this protocol. +[RACSignal
-/// create:], or a `RACSubscriber` instance with -[RACSignal connect:] should
-/// work for most uses.
+/// create:], or a `RACSubscriber` instance passed to -[RACSignal
+/// startSubscriptionWithSubscriber:] should work for most uses.
 ///
 /// Implementors of this protocol may receive messages and values from multiple
 /// threads simultaneously, and so should be thread-safe. Subscribers will also
@@ -28,12 +28,12 @@
 
 /// The subscriber's disposable.
 ///
-/// When the receiver is connected to a signal, the disposable representing
-/// that connection should be added to this compound disposable.
+/// When the receiver is subscribed to a signal, the disposable representing
+/// that subscription should be added to this compound disposable.
 ///
-/// A subscriber may receive multiple disposables if it gets connected to
+/// A subscriber may receive multiple disposables if it gets subscribed to
 /// multiple signals; however, `error` or `completed` events from any
-/// connection must terminate _all_ of them.
+/// subscription must terminate _all_ of them.
 @property (nonatomic, strong, readonly) RACCompoundDisposable *disposable;
 
 /// Sends the next value to subscribers.
@@ -45,14 +45,14 @@
 ///
 /// error - The error to send. This can be `nil`.
 ///
-/// This terminates the connection, and invalidates the subscriber (such that
-/// it cannot connect to anything else in the future).
+/// This terminates the subscription, and invalidates the subscriber (such that
+/// it cannot subscribe to anything else in the future).
 - (void)sendError:(NSError *)error;
 
 /// Sends completed to subscribers.
 ///
-/// This terminates the connection, and invalidates the subscriber (such that
-/// it cannot connect to anything else in the future).
+/// This terminates the subscription, and invalidates the subscriber (such that
+/// it cannot subscribe to anything else in the future).
 - (void)sendCompleted;
 
 /// Sends the given event to subscribers.

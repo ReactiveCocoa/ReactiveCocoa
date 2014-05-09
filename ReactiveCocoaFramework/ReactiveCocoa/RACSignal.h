@@ -89,20 +89,20 @@
 
 @end
 
-@interface RACSignal (Connection)
+@interface RACSignal (Subscription)
 
-/// Connects `subscriber` to the receiver, triggering any work and side effects
-/// involved in the signal.
+/// Creates a subscription to the receiver, then starts it, triggering any work
+/// and side effects involved in the signal.
 ///
 /// subscriber - The subscriber to send events to. This may be nil if you don't
 ///              care about the events, and only wish to perform the side
-///              effects of connection.
+///              effects of subscription.
 ///
 /// Returns a disposable. You can call -[RACDisposable dispose] if you need to
-/// cancel your connection before it would "naturally" end, either by completing
+/// cancel your subscription before it would "naturally" end, either by completing
 /// or erroring. Once the disposable has been disposed, the subscriber won't
-/// receive any more events from this connection.
-- (RACDisposable *)connect:(id<RACSubscriber>)subscriber;
+/// receive any more events from this subscription.
+- (RACDisposable *)startSubscriptionWithSubscriber:(id<RACSubscriber>)subscriber;
 
 @end
 
@@ -174,15 +174,15 @@
 + (RACSignal *)startEagerlyWithScheduler:(RACScheduler *)scheduler block:(void (^)(id<RACSubscriber> subscriber))block RACDeprecated("Use +create: instead");
 + (RACSignal *)startLazilyWithScheduler:(RACScheduler *)scheduler block:(void (^)(id<RACSubscriber> subscriber))block RACDeprecated("Use +create: instead");
 
-- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber RACDeprecated("Use -connect: instead");
-- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock RACDeprecated("Use -connect: instead");
-- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock RACDeprecated("Use -connect: instead");
-- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock RACDeprecated("Use -connect: instead");
-- (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock RACDeprecated("Use -connect: instead");
-- (RACDisposable *)subscribeCompleted:(void (^)(void))completedBlock RACDeprecated("Use -connect: instead");
-- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock RACDeprecated("Use -connect: instead");
-- (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock RACDeprecated("Use -connect: instead");
-- (void)subscribeSavingDisposable:(void (^)(RACDisposable *disposable))saveDisposableBlock next:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock RACDeprecated("Use -connectSavingDisposable: instead");
+- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber RACDeprecated("Use -startSubscriptionWithSubscriber: instead");
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock RACDeprecated("Use -startSubscriptionWithSubscriber: instead");
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock completed:(void (^)(void))completedBlock RACDeprecated("Use -startSubscriptionWithSubscriber: instead");
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock RACDeprecated("Use -startSubscriptionWithSubscriber: instead");
+- (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock RACDeprecated("Use -startSubscriptionWithSubscriber: instead");
+- (RACDisposable *)subscribeCompleted:(void (^)(void))completedBlock RACDeprecated("Use -startSubscriptionWithSubscriber: instead");
+- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock RACDeprecated("Use -startSubscriptionWithSubscriber: instead");
+- (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock RACDeprecated("Use -startSubscriptionWithSubscriber: instead");
+- (void)subscribeSavingDisposable:(void (^)(RACDisposable *disposable))saveDisposableBlock next:(void (^)(id x))nextBlock error:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock RACDeprecated("Use -startSubscriptionWithSubscriber: instead");
 
 @end
 

@@ -104,26 +104,6 @@
 /// receive any more events from this connection.
 - (RACDisposable *)connect:(id<RACSubscriber>)subscriber;
 
-/// Connects a subscriber to the receiver, offering an opportunity to save the
-/// disposable before actually initiating the connection.
-///
-/// This is primarily useful for signals that may be synchronous. Because
-/// -connect: _returns_ a disposable, it's impossible to cancel the connection
-/// until the signal finishes any synchronous behaviors it may have. This is
-/// particularly problematic with signals or operators that may run forever
-/// (e.g., -repeat).
-///
-/// By contrast, this method allows you to save the disposable immediately,
-/// _then_ start the connection, so it can be disposed from any of your
-/// subscriber's event handlers, even if they're invoked synchronously.
-///
-/// subscriberBlock - Invoked with a `RACDisposable` that can cancel the
-///                   connection, this block should return a subscriber to send
-///                   events to, or nil if you don't care about the events, and
-///                   only wish to perform the side effects of connection. This
-///                   block must not be nil.
-- (void)connectSavingDisposable:(id<RACSubscriber> (^)(RACDisposable *disposable))subscriberBlock;
-
 @end
 
 /// Additional methods to assist with debugging.

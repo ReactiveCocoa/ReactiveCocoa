@@ -918,6 +918,90 @@ describe(@"-repeat", ^{
 	});
 });
 
+describe(@"-retry:", ^{
+	it(@"should retry N times after error", ^{
+		RACScheduler *scheduler = [RACScheduler scheduler];
+
+		NSInteger retryCount = 3;
+		NSInteger totalTryCount = 1 + retryCount; // First try plus retries.
+
+		__block NSUInteger numberOfSubscriptions = 0;
+
+		RACSignal *signal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			numberOfSubscriptions++;
+
+			return [scheduler schedule:^{
+				[subscriber sendNext:@"1"];
+				[subscriber sendError:RACSignalTestError];
+			}];
+		}];
+
+		__block NSUInteger nextCount = 0;
+		__block NSError *receivedError = nil;
+
+		[[signal retry:retryCount] subscribeNext:^(id x) {
+			nextCount++;
+		} error:^(NSError *error) {
+			receivedError = error;
+		}];
+
+		expect(receivedError).will.equal(RACSignalTestError);
+		expect(numberOfSubscriptions).to.equal(totalTryCount);
+		expect(nextCount).to.equal(totalTryCount);
+	});
+
+	it(@"should stop retrying when disposed", ^{
+		__block BOOL disposed = NO;
+
+		RACSignal *signal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendError:RACSignalTestError];
+
+			return [RACDisposable disposableWithBlock:^{
+				disposed = YES;
+			}];
+		}];
+
+		NSMutableArray *values = [NSMutableArray array];
+
+		__block BOOL completed = NO;
+		__block BOOL errored = NO;
+		__block RACDisposable *disposable = [[signal retry] subscribeNext:^(id x) {
+			[values addObject:x];
+			[disposable dispose];
+		} error:^(NSError *error) {
+			errored = YES;
+		} completed:^{
+			completed = YES;
+		}];
+
+		expect(disposed).will.beTruthy();
+		expect(values).to.equal(@[ @1 ]);
+		expect(completed).to.beFalsy();
+		expect(errored).to.beFalsy();
+	});
+
+	it(@"should stop retrying when disposed by -take:", ^{
+		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendError:RACSignalTestError];
+			return nil;
+		}];
+
+		NSMutableArray *values = [NSMutableArray array];
+
+		__block BOOL completed = NO;
+		[[[signal retry] take:2] subscribeNext:^(id x) {
+			[values addObject:x];
+		} completed:^{
+			completed = YES;
+		}];
+
+		expect(values).will.equal((@[ @1, @1 ]));
+		expect(completed).to.beTruthy();
+	});
+});
+
 describe(@"+combineLatestWith:", ^{
 	__block RACSubject *subject1 = nil;
 	__block RACSubject *subject2 = nil;

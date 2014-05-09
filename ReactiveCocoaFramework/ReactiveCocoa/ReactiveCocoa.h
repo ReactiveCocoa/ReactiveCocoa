@@ -87,7 +87,7 @@
 	#import "UITextView+RACSupport.h"
 #elif TARGET_OS_MAC
 	#import "NSControl+RACSupport.h"
-	#import "NSObject+RACAppKitBindings.h"
 	#import "NSTableView+RACSupport.h"
 	#import "NSText+RACSupport.h"
+	#import "RACSignal+AppKitBindings.h"
 #endif

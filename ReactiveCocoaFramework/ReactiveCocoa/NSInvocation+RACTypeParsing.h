@@ -50,7 +50,7 @@
 // This does not support C arrays or unions.
 //
 // Returns the return value of the invocation, wrapped in an object. Void
-// returns will be represented with `nil`.
+// returns will be represented by an unspecified, possibly nil, object.
 - (id)rac_returnValue;
 
 @end

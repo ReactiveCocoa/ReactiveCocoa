@@ -9,7 +9,6 @@
 #import "RACAppDelegate.h"
 
 #import "RACSignal.h"
-#import "RACUnit.h"
 #import "UICollectionReusableView+RACSupport.h"
 
 @interface TestCollectionViewController : UICollectionViewController
@@ -39,7 +38,6 @@ it(@"should send on rac_prepareForReuseSignal", ^{
 	
 	__block NSUInteger invocationCount = 0;
 	[cell.rac_prepareForReuseSignal subscribeNext:^(id value) {
-		expect(value).to.equal(RACUnit.defaultUnit);
 		++invocationCount;
 	}];
 	

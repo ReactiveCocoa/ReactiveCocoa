@@ -202,7 +202,7 @@ describe(@"RACTestObject", ^{
 		expect([object respondsToSelector:selector]).to.beTruthy();
 
 		// Then KVO the object
-		[[RACObserve(object, objectValue) publish] connect];
+		[RACObserve(object, objectValue) subscribe:nil];
 
 		expect([object respondsToSelector:selector]).to.beTruthy();
 	});
@@ -218,7 +218,7 @@ describe(@"RACTestObject", ^{
 		expect([object respondsToSelector:selector]).to.beTruthy();
 
 		// Then KVO the object
-		[[RACObserve(object, objectValue) publish] connect];
+		[RACObserve(object, objectValue) subscribe:nil];
 
 		expect([object respondsToSelector:selector]).to.beTruthy();
 		
@@ -238,12 +238,12 @@ describe(@"RACTestObject", ^{
 
 		__block id value1 = nil;
 		[[object1 rac_signalForSelector:selector] subscribeNext:^(RACTuple *x) {
-			value1 = x.first;
+			value1 = x[0];
 		}];
 
 		__block id value2 = nil;
 		[[object2 rac_signalForSelector:selector] subscribeNext:^(RACTuple *x) {
-			value2 = x.first;
+			value2 = x[0];
 		}];
 
 		[object1 lifeIsGood:@42];

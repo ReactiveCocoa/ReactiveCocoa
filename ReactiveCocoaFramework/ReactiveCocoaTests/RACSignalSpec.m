@@ -873,7 +873,7 @@ describe(@"-repeat", ^{
 	it(@"should stop repeating when disposed", ^{
 		__block BOOL disposed = NO;
 
-		RACSignal *signal = [RACSignal createSignal:^ RACDisposable *(id<RACSubscriber> subscriber) {
+		RACSignal *signal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendCompleted];
 

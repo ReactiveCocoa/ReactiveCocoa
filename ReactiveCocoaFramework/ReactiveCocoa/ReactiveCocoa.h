@@ -26,7 +26,6 @@
 #import "NSURLConnection+RACSupport.h"
 #import "NSUserDefaults+RACSupport.h"
 #import "RACAction.h"
-#import "RACChannel.h"
 #import "RACCollectionMutation.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
@@ -34,7 +33,6 @@
 #import "RACEvent.h"
 #import "RACGroupedSignal.h"
 #import "RACInsertionMutation.h"
-#import "RACKVOChannel.h"
 #import "RACMinusMutation.h"
 #import "RACMoveMutation.h"
 #import "RACOrderedCollectionMutation.h"
@@ -59,7 +57,9 @@
 
 #ifdef WE_PROMISE_TO_MIGRATE_TO_REACTIVECOCOA_3_0
 	#import "RACBehaviorSubject.h"
+	#import "RACChannel.h"
 	#import "RACCommand.h"
+	#import "RACKVOChannel.h"
 	#import "RACMulticastConnection.h"
 	#import "RACReplaySubject.h"
 	#import "RACSequence.h"

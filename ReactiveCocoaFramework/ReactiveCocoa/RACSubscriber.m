@@ -69,8 +69,6 @@
 - (RACDisposable *)addEventHandler:(void (^)(RACEvent *))eventHandler {
 	NSCParameterAssert(eventHandler != nil);
 
-	eventHandler = [eventHandler copy];
-
 	OSSpinLockLock(&_handlersLock);
 	self.handlers = [self.handlers arrayByAddingObject:eventHandler];
 	OSSpinLockUnlock(&_handlersLock);

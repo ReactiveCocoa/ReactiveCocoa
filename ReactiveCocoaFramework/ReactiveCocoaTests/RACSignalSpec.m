@@ -816,7 +816,7 @@ describe(@"querying", ^{
 	});
 });
 
-describe(@"continuation", ^{
+describe(@"-repeat", ^{
 	it(@"should repeat after completion", ^{
 		__block NSUInteger numberOfSubscriptions = 0;
 		RACScheduler *scheduler = [RACScheduler scheduler];
@@ -827,34 +827,59 @@ describe(@"continuation", ^{
 					[subscriber sendError:RACSignalTestError];
 					return;
 				}
-				
+
 				numberOfSubscriptions++;
-				
+
 				[subscriber sendNext:@"1"];
 				[subscriber sendCompleted];
 				[subscriber sendError:RACSignalTestError];
 			}];
 		}];
-		
+
 		__block NSUInteger nextCount = 0;
 		__block BOOL gotCompleted = NO;
 		[[signal repeat] subscribeNext:^(id x) {
 			nextCount++;
 		} error:^(NSError *error) {
-			
+
 		} completed:^{
 			gotCompleted = YES;
 		}];
-		
+
 		expect(nextCount).will.equal(3);
 		expect(gotCompleted).to.beFalsy();
 	});
 
+	it(@"should stop repeating upon error", ^{
+        RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@1];
+			[subscriber sendError:RACSignalTestError];
+            return nil;
+        }];
+
+		NSMutableArray *values = [NSMutableArray array];
+		__block NSError *receivedError = nil;
+
+		[[signal repeat] subscribeNext:^(id x) {
+			[values addObject:x];
+		} error:^(NSError *e) {
+			receivedError = e;
+		}];
+
+		expect(values).will.equal(@[ @1 ]);
+		expect(receivedError).to.equal(RACSignalTestError);
+	});
+
 	it(@"should stop repeating when disposed", ^{
-		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+		__block BOOL disposed = NO;
+
+		RACSignal *signal = [RACSignal createSignal:^ RACDisposable *(id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendCompleted];
-			return nil;
+
+			return [RACDisposable disposableWithBlock:^{
+				disposed = YES;
+			}];
 		}];
 
 		NSMutableArray *values = [NSMutableArray array];
@@ -867,7 +892,8 @@ describe(@"continuation", ^{
 			completed = YES;
 		}];
 
-		expect(values).will.equal(@[ @1 ]);
+		expect(disposed).will.beTruthy();
+		expect(values).to.equal(@[ @1 ]);
 		expect(completed).to.beFalsy();
 	});
 
@@ -881,13 +907,13 @@ describe(@"continuation", ^{
 		NSMutableArray *values = [NSMutableArray array];
 
 		__block BOOL completed = NO;
-		[[[signal repeat] take:1] subscribeNext:^(id x) {
+		[[[signal repeat] take:2] subscribeNext:^(id x) {
 			[values addObject:x];
 		} completed:^{
 			completed = YES;
 		}];
 
-		expect(values).will.equal(@[ @1 ]);
+		expect(values).will.equal((@[ @1, @1 ]));
 		expect(completed).to.beTruthy();
 	});
 });

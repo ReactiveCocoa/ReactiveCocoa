@@ -851,11 +851,11 @@ describe(@"-repeat", ^{
 	});
 
 	it(@"should stop repeating upon error", ^{
-        RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		RACSignal *signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
 			[subscriber sendError:RACSignalTestError];
-            return nil;
-        }];
+			return nil;
+		}];
 
 		NSMutableArray *values = [NSMutableArray array];
 		__block NSError *receivedError = nil;

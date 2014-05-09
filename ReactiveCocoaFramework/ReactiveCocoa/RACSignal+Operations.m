@@ -961,21 +961,12 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 
 		RACDisposable *timeoutDisposable = [scheduler afterDelay:interval schedule:^{
-			[disposable dispose];
 			[subscriber sendError:[NSError errorWithDomain:RACSignalErrorDomain code:RACSignalErrorTimedOut userInfo:nil]];
 		}];
 
 		[disposable addDisposable:timeoutDisposable];
 
-		RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
-			[subscriber sendNext:x];
-		} error:^(NSError *error) {
-			[disposable dispose];
-			[subscriber sendError:error];
-		} completed:^{
-			[disposable dispose];
-			[subscriber sendCompleted];
-		}];
+		RACDisposable *subscriptionDisposable = [self subscribe:subscriber];
 
 		[disposable addDisposable:subscriptionDisposable];
 		return disposable;

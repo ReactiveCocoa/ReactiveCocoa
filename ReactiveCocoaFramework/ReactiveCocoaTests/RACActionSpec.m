@@ -14,7 +14,6 @@
 #import "RACScheduler.h"
 #import "RACSignal+Operations.h"
 #import "RACSubject.h"
-#import "RACUnit.h"
 
 SpecBegin(RACAction)
 
@@ -193,13 +192,13 @@ describe(@"from a signal generator", ^{
 	});
 
 	it(@"should defer execution", ^{
-		RACSignal *deferred = [action signalWithValue:RACUnit.defaultUnit];
+		RACSignal *deferred = [action signalWithValue:nil];
 		expect(deferred).notTo.beNil();
 
 		expect(executing).to.equal((@[ @NO ]));
 		expect(enabled).to.equal((@[ @YES ]));
 
-		expect([[deferred collect] asynchronousFirstOrDefault:nil success:NULL error:NULL]).to.equal((@[ RACUnit.defaultUnit ]));
+		expect([[deferred collect] asynchronousFirstOrDefault:nil success:NULL error:NULL]).to.equal((@[ NSNull.null ]));
 		expect(generationCount).to.equal(1);
 		expect(subscriptionCount).to.equal(1);
 		expect(disposalCount).to.equal(1);
@@ -217,7 +216,7 @@ describe(@"from a signal generator", ^{
 
 describe(@"from a signal", ^{
 	beforeEach(^{
-		action = [signalWithValue(RACUnit.defaultUnit) action];
+		action = [signalWithValue(nil) action];
 		expect(action).notTo.beNil();
 
 		connectAction();
@@ -233,7 +232,7 @@ describe(@"from a signal", ^{
 		expect(executing).to.equal((@[ @NO ]));
 		expect(enabled).to.equal((@[ @YES ]));
 
-		expect([[deferred collect] asynchronousFirstOrDefault:nil success:NULL error:NULL]).to.equal((@[ RACUnit.defaultUnit ]));
+		expect([[deferred collect] asynchronousFirstOrDefault:nil success:NULL error:NULL]).to.equal((@[ NSNull.null ]));
 		expect(subscriptionCount).to.equal(1);
 		expect(disposalCount).to.equal(1);
 		expect(executing).will.equal((@[ @NO, @YES, @NO ]));

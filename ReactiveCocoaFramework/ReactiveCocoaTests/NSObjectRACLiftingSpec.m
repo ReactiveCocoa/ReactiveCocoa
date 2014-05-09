@@ -15,7 +15,6 @@
 #import "RACDisposable.h"
 #import "RACSubject.h"
 #import "RACTuple.h"
-#import "RACUnit.h"
 
 SpecBegin(NSObjectRACLifting)
 
@@ -273,18 +272,18 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 			expect(result).to.equal(@"Magic number: 42");
 		});
 
-		it(@"should send RACUnit.defaultUnit for void-returning methods", ^{
+		it(@"should send a value for void-returning methods", ^{
 			RACSubject *subject = [RACSubject subject];
 			RACSignal *signal = [object rac_liftSelector:@selector(setObjectValue:) withSignalsFromArray:@[ subject ]];
 
-			__block id result;
+			__block BOOL gotNext = NO;
 			[signal subscribeNext:^(id x) {
-				result = x;
+				gotNext = YES;
 			}];
 
 			[subject sendNext:@1];
 
-			expect(result).to.equal(RACUnit.defaultUnit);
+			expect(gotNext).to.beTruthy();
 		});
 
 		it(@"should support integer returning methods", ^{

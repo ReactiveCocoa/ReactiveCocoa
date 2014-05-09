@@ -7,14 +7,13 @@
 //
 
 #import "RACTuple.h"
-#import "RACUnit.h"
 
 SpecBegin(RACTuple)
 
 describe(@"RACTupleUnpack", ^{
 	it(@"should unpack a single value", ^{
-		RACTupleUnpack(RACUnit *value) = [RACTuple tupleWithObjects:RACUnit.defaultUnit, nil];
-		expect(value).to.equal(RACUnit.defaultUnit);
+		RACTupleUnpack(NSString *value) = [RACTuple tupleWithObjects:@"foobar", nil];
+		expect(value).to.equal(@"foobar");
 	});
 
 	it(@"should translate RACTupleNil", ^{
@@ -37,7 +36,7 @@ describe(@"RACTupleUnpack", ^{
 	});
 
 	it(@"should skip any values not assigned to", ^{
-		RACTupleUnpack(NSString *str, NSNumber *num) = [RACTuple tupleWithObjects:@"foobar", @5, RACUnit.defaultUnit, nil];
+		RACTupleUnpack(NSString *str, NSNumber *num) = [RACTuple tupleWithObjects:@"foobar", @5, @NO, nil];
 
 		expect(str).to.equal(@"foobar");
 		expect(num).to.equal(@5);
@@ -65,8 +64,8 @@ describe(@"RACTupleUnpack", ^{
 
 describe(@"RACTuplePack", ^{
 	it(@"should pack a single value", ^{
-		RACTuple *tuple = [RACTuple tupleWithObjects:RACUnit.defaultUnit, nil];
-		expect(RACTuplePack(RACUnit.defaultUnit)).to.equal(tuple);
+		RACTuple *tuple = [RACTuple tupleWithObjects:@"foobar", nil];
+		expect(RACTuplePack(@"foobar")).to.equal(tuple);
 	});
 	
 	it(@"should translate nil", ^{

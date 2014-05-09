@@ -49,8 +49,8 @@
 //
 // This does not support C arrays or unions.
 //
-// Returns the return value of the invocation, wrapped in an object. Voids are
-// returned as `RACUnit.defaultUnit`.
+// Returns the return value of the invocation, wrapped in an object. Void
+// returns will be represented with `nil`.
 - (id)rac_returnValue;
 
 @end

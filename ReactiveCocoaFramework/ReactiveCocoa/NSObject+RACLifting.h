@@ -29,8 +29,9 @@
 ///   [button rac_liftSelector:@selector(setTitleColor:forState:) withSignals:textColorSignal, [RACSignal return:@(UIControlStateNormal)], nil];
 ///
 /// Returns a signal which sends the return value from each invocation of the
-/// selector. If the selector returns void, it instead sends RACUnit.defaultUnit.
-/// It completes only after all the signal arguments complete.
+/// selector. If the selector returns void, an unspecified (possibly nil) object
+/// will be sent. The returned signal will complete only after all the signal
+/// arguments complete.
 - (RACSignal *)rac_liftSelector:(SEL)selector withSignals:(RACSignal *)firstSignal, ... NS_REQUIRES_NIL_TERMINATION;
 
 /// Like -rac_liftSelector:withSignals:, but accepts an array instead of

@@ -12,7 +12,6 @@
 #import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"
 #import "RACSignal+Private.h"
-#import "RACUnit.h"
 
 @interface RACChannelTerminal ()
 

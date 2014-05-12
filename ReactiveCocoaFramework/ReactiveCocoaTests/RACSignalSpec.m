@@ -14,7 +14,6 @@
 #import "RACSubject.h"
 #import "RACSubscriber.h"
 #import "RACTestScheduler.h"
-#import "RACUnit.h"
 
 SpecBegin(RACSignal)
 

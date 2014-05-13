@@ -22,22 +22,15 @@
 @implementation NSObject (RACPropertySubscribing)
 
 - (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
-	return [[self rac_valuesAndChangesForKeyPath:keyPath options:NSKeyValueObservingOptionInitial observer:observer map:^id(id value, NSDictionary *change) {
-		return value;
-	}]
-	setNameWithFormat:@"RACObserve(%@, %@)", self.rac_description, keyPath];
+	return [[[self
+		rac_valuesAndChangesForKeyPath:keyPath options:NSKeyValueObservingOptionInitial observer:observer]
+		map:^id(RACTuple *value) {
+			return value[0];
+		}]
+		setNameWithFormat:@"RACObserve(%@, %@)", self.rac_description, keyPath];
 }
 
 - (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer {
-	return [[self rac_valuesAndChangesForKeyPath:keyPath options:options observer:observer map:^id(id value, NSDictionary *change) {
-		return RACTuplePack(value, change);
-	}]
-	setNameWithFormat:@"%@ -rac_valueAndChangesForKeyPath: %@ options: %lu observer: %@", self.rac_description, keyPath, (unsigned long)options, observer.rac_description];
-}
-
-- (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer map:(id(^)(id, NSDictionary*))map {
-	NSCParameterAssert(map != NULL);
-
 	keyPath = [keyPath copy];
 
 	NSRecursiveLock *objectLock = [[NSRecursiveLock alloc] init];
@@ -63,7 +56,7 @@
 			unsafeObserver = nil;
 		}];
 
-	return [[RACSignal
+	return [[[RACSignal
 		createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			// Hold onto the lock the whole time we're setting up the KVO
 			// observation, because any resurrection that might be caused by our
@@ -83,10 +76,11 @@
 			}
 
 			return [self rac_observeKeyPath:keyPath options:options observer:observer block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
-				[subscriber sendNext:map(value, change)];
+				[subscriber sendNext:RACTuplePack(value, change)];
 			}];
 		}]
-		takeUntil:deallocSignal];
+		takeUntil:deallocSignal]
+		setNameWithFormat:@"%@ -rac_valueAndChangesForKeyPath: %@ options: %lu observer: %@", self.rac_description, keyPath, (unsigned long)options, observer.rac_description];
 }
 
 @end

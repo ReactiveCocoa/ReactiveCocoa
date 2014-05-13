@@ -135,33 +135,25 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 		expect(setNilValueForKeyInvoked).to.beTruthy();
 	});
 
-	it(@"should retain intermediate signals when binding", ^{
+	it(@"should keep binding even with unreferenced intermediate signals", ^{
 		RACSubject *subject = [RACSubject subject];
 		expect(subject).notTo.beNil();
 
 		__block BOOL deallocd = NO;
 
 		@autoreleasepool {
-			@autoreleasepool {
-				RACSignal *intermediateSignal = [subject map:^(NSNumber *num) {
-					return @(num.integerValue + 1);
-				}];
+			RACSignal *intermediateSignal = [subject map:^(NSNumber *num) {
+				return @(num.integerValue + 1);
+			}];
 
-				expect(intermediateSignal).notTo.beNil();
+			expect(intermediateSignal).notTo.beNil();
 
-				[intermediateSignal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-					deallocd = YES;
-				}]];
+			[intermediateSignal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+				deallocd = YES;
+			}]];
 
-				setupBlock(testObject, @keypath(testObject.integerValue), nil, intermediateSignal);
-			}
-
-			// Spin the run loop to account for RAC magic that retains the
-			// signal for a single iteration.
-			[NSRunLoop.mainRunLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate date]];
+			setupBlock(testObject, @keypath(testObject.integerValue), nil, intermediateSignal);
 		}
-
-		expect(deallocd).to.beFalsy();
 
 		[subject sendNext:@5];
 		expect(testObject.integerValue).to.equal(6);
@@ -169,11 +161,7 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 		[subject sendNext:@6];
 		expect(testObject.integerValue).to.equal(7);
 
-		expect(deallocd).to.beFalsy();
 		[subject sendCompleted];
-
-		// Can't test deallocd again, because it's legal for the chain to be
-		// retained until the object or the original signal is destroyed.
 	});
 });
 

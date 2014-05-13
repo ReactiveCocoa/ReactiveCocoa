@@ -59,10 +59,6 @@
 	return self;
 }
 
-- (void)dealloc {
-	[self.disposable dispose];
-}
-
 #pragma mark RACSubscriber
 
 - (void)sendNext:(id)value {

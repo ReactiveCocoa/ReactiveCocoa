@@ -24,8 +24,8 @@
 - (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
 	return [[[self
 		rac_valuesAndChangesForKeyPath:keyPath options:NSKeyValueObservingOptionInitial observer:observer]
-		map:^(RACTuple *value) {
-			return value[0];
+		reduceEach:^(id value, NSDictionary *change) {
+			return value;
 		}]
 		setNameWithFormat:@"RACObserve(%@, %@)", self.rac_description, keyPath];
 }

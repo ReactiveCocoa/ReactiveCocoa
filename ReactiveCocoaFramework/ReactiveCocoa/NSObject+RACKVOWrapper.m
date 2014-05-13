@@ -47,25 +47,27 @@
 	objc_property_t property = class_getProperty(object_getClass(self), keyPathHead.UTF8String);
 	if (property != NULL) {
 		rac_propertyAttributes *attributes = rac_copyPropertyAttributes(property);
-		@onExit {
-			free(attributes);
-		};
-
-		BOOL isObject = attributes->objectClass != nil || strstr(attributes->type, @encode(id)) == attributes->type;
-		BOOL isProtocol = attributes->objectClass == NSClassFromString(@"Protocol");
-		BOOL isBlock = strcmp(attributes->type, @encode(void(^)())) == 0;
-		BOOL isWeak = attributes->weak;
-
-		// If this property isn't actually an object (or is a Class object),
-		// no point in observing the deallocation of the wrapper returned by
-		// KVC.
-		//
-		// If this property is an object, but not declared `weak`, we
-		// don't need to watch for it spontaneously being set to nil.
-		//
-		// Attempting to observe non-weak properties will result in
-		// broken behavior for dynamic getters, so don't even try.
-		shouldAddDeallocObserver = isObject && isWeak && !isBlock && !isProtocol;
+		if (attributes != NULL) {
+			@onExit {
+				free(attributes);
+			};
+			
+			BOOL isObject = attributes->objectClass != nil || strstr(attributes->type, @encode(id)) == attributes->type;
+			BOOL isProtocol = attributes->objectClass == NSClassFromString(@"Protocol");
+			BOOL isBlock = strcmp(attributes->type, @encode(void(^)())) == 0;
+			BOOL isWeak = attributes->weak;
+			
+			// If this property isn't actually an object (or is a Class object),
+			// no point in observing the deallocation of the wrapper returned by
+			// KVC.
+			//
+			// If this property is an object, but not declared `weak`, we
+			// don't need to watch for it spontaneously being set to nil.
+			//
+			// Attempting to observe non-weak properties will result in
+			// broken behavior for dynamic getters, so don't even try.
+			shouldAddDeallocObserver = isObject && isWeak && !isBlock && !isProtocol;
+		}
 	}
 
 	// Adds the callback block to the value's deallocation. Also adds the logic to

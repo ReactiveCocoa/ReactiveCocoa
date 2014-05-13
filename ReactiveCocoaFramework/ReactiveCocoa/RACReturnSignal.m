@@ -10,7 +10,6 @@
 #import "RACLiveSubscriber.h"
 #import "RACScheduler+Private.h"
 #import "RACSubscriber.h"
-#import "RACUnit.h"
 
 @interface RACReturnSignal ()
 
@@ -43,18 +42,8 @@
 
 + (RACSignal *)return:(id)value {
 #ifndef DEBUG
-	// In release builds, use singletons for two very common cases.
-	if (value == RACUnit.defaultUnit) {
-		static RACReturnSignal *unitSingleton;
-		static dispatch_once_t unitPred;
-
-		dispatch_once(&unitPred, ^{
-			unitSingleton = [[self alloc] init];
-			unitSingleton->_value = RACUnit.defaultUnit;
-		});
-
-		return unitSingleton;
-	} else if (value == nil) {
+	// In release builds, use a singleton for one very common case.
+	if (value == nil) {
 		static RACReturnSignal *nilSingleton;
 		static dispatch_once_t nilPred;
 

@@ -19,7 +19,6 @@
 #import "RACSettingMutation.h"
 #import "RACSignal+Operations.h"
 #import "RACUnionMutation.h"
-#import "RACUnit.h"
 
 SpecBegin(NSObjectRACPropertySubscribing)
 
@@ -228,27 +227,27 @@ describe(@"-rac_valuesAndCollectionMutationsForKeyPath:", ^{
 
 	describe(@"setting the property", ^{
 		it(@"should send RACSettingMutation for an unordered collection", ^{
-			object.setValue = [NSMutableSet setWithObject:RACUnit.defaultUnit];
+			object.setValue = [NSMutableSet setWithObject:NSNull.null];
 
-			id expectedMutation = [[RACSettingMutation alloc] initWithObjects:@[ RACUnit.defaultUnit ]];
+			id expectedMutation = [[RACSettingMutation alloc] initWithObjects:@[ NSNull.null ]];
 			expect(setMutation).to.equal(expectedMutation);
 		});
 
 		it(@"should send RACSettingMutation for an ordered collection", ^{
-			object.arrayValue = [NSMutableArray arrayWithObject:RACUnit.defaultUnit];
+			object.arrayValue = [NSMutableArray arrayWithObject:NSNull.null];
 
-			id expectedMutation = [[RACSettingMutation alloc] initWithObjects:@[ RACUnit.defaultUnit ]];
+			id expectedMutation = [[RACSettingMutation alloc] initWithObjects:@[ NSNull.null ]];
 			expect(arrayMutation).to.equal(expectedMutation);
 		});
 	});
 
 	describe(@"inserting", ^{
 		it(@"should send RACUnionMutation for an unordered collection", ^{
-			mutateSet(NSKeyValueUnionSetMutation, [NSSet setWithObject:RACUnit.defaultUnit], ^{
-				[object.setValue addObject:RACUnit.defaultUnit];
+			mutateSet(NSKeyValueUnionSetMutation, [NSSet setWithObject:NSNull.null], ^{
+				[object.setValue addObject:NSNull.null];
 			});
 
-			id expectedMutation = [[RACUnionMutation alloc] initWithObjects:@[ RACUnit.defaultUnit ]];
+			id expectedMutation = [[RACUnionMutation alloc] initWithObjects:@[ NSNull.null ]];
 			expect(setMutation).to.equal(expectedMutation);
 		});
 
@@ -256,10 +255,10 @@ describe(@"-rac_valuesAndCollectionMutationsForKeyPath:", ^{
 			NSIndexSet *indexes = [NSIndexSet indexSetWithIndex:1];
 
 			mutateArray(NSKeyValueChangeInsertion, indexes, ^{
-				[object.arrayValue insertObject:RACUnit.defaultUnit atIndex:1];
+				[object.arrayValue insertObject:NSNull.null atIndex:1];
 			});
 
-			id expectedMutation = [[RACInsertionMutation alloc] initWithObjects:@[ RACUnit.defaultUnit ] indexes:[NSIndexSet indexSetWithIndex:1]];
+			id expectedMutation = [[RACInsertionMutation alloc] initWithObjects:@[ NSNull.null ] indexes:[NSIndexSet indexSetWithIndex:1]];
 			expect(arrayMutation).to.equal(expectedMutation);
 		});
 	});
@@ -302,10 +301,10 @@ describe(@"-rac_valuesAndCollectionMutationsForKeyPath:", ^{
 			NSIndexSet *indexes = [NSIndexSet indexSetWithIndex:1];
 
 			mutateArray(NSKeyValueChangeReplacement, indexes, ^{
-				[object.arrayValue replaceObjectAtIndex:1 withObject:RACUnit.defaultUnit];
+				[object.arrayValue replaceObjectAtIndex:1 withObject:NSNull.null];
 			});
 
-			id expectedMutation = [[RACReplacementMutation alloc] initWithRemovedObjects:@[ @"bar" ] addedObjects:@[ RACUnit.defaultUnit ] indexes:[NSIndexSet indexSetWithIndex:1]];
+			id expectedMutation = [[RACReplacementMutation alloc] initWithRemovedObjects:@[ @"bar" ] addedObjects:@[ NSNull.null ] indexes:[NSIndexSet indexSetWithIndex:1]];
 			expect(arrayMutation).to.equal(expectedMutation);
 		});
 	});

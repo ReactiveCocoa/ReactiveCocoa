@@ -55,7 +55,6 @@
 #import "RACTestScheduler.h"
 #import "RACTuple.h"
 #import "RACUnionMutation.h"
-#import "RACUnit.h"
 
 #ifdef WE_PROMISE_TO_MIGRATE_TO_REACTIVECOCOA_3_0
 	#import "RACBehaviorSubject.h"
@@ -64,6 +63,7 @@
 	#import "RACReplaySubject.h"
 	#import "RACSequence.h"
 	#import "RACStream.h"
+	#import "RACUnit.h"
 #endif
 
 #ifdef __IPHONE_OS_VERSION_MIN_REQUIRED

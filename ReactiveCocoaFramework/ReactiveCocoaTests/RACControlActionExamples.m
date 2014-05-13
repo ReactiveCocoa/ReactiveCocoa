@@ -12,7 +12,6 @@
 #import "RACDynamicSignalGenerator.h"
 #import "RACSignal+Operations.h"
 #import "RACSubject.h"
-#import "RACUnit.h"
 
 NSString * const RACControlActionExamples = @"RACControlActionExamples";
 NSString * const RACControlActionExampleControl = @"RACControlActionExampleControl";

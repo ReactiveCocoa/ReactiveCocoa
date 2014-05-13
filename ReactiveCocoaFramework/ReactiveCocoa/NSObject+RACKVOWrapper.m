@@ -73,9 +73,7 @@
 	// Adds the callback block to the value's deallocation. Also adds the logic to
 	// clean up the callback to the firstComponentDisposable.
 	void (^addDeallocObserverToPropertyValue)(NSObject *) = ^(NSObject *value) {
-		if (!shouldAddDeallocObserver) {
-			return;
-		}
+		if (!shouldAddDeallocObserver) return;
 
 		// If a key path value is the observer, commonly when a key path begins
 		// with "self", we prevent deallocation triggered callbacks for any such key

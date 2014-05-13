@@ -25,6 +25,7 @@
 	return [[[self
 		rac_valuesAndChangesForKeyPath:keyPath options:NSKeyValueObservingOptionInitial observer:observer]
 		map:^(RACTuple *value) {
+			// -map: because it doesn't require the block trampoline that -reduceEach: uses
 			return value[0];
 		}]
 		setNameWithFormat:@"RACObserve(%@, %@)", self.rac_description, keyPath];

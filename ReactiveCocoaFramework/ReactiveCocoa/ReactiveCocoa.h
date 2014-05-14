@@ -67,6 +67,7 @@
 #endif
 
 #ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
+	#import "CADisplayLink+RACSupport.h"
 	#import "UIActionSheet+RACSupport.h"
 	#import "UIAlertView+RACSupport.h"
 	#import "UIBarButtonItem+RACSupport.h"

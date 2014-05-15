@@ -234,11 +234,60 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// Concats the inner signals of a signal of signals.
 - (RACSignal *)concat;
 
-/// Aggregates `next`s with the given start and combination.
+/// Aggregates the `next` values of the receiver into a single combined value.
+///
+/// The algorithm proceeds as follows:
+///
+///  1. `start` is passed into the block as the `running` value, and the first
+///     element of the receiver is passed into the block as the `next` value.
+///  2. The result of the invocation (`running`) and the next element of the
+///     receiver (`next`) is passed into `reduceBlock`.
+///  3. Steps 2 and 3 are repeated until all values have been processed.
+///  4. The last result of `reduceBlock` is sent on the returned signal.
+///
+/// This method is similar to -scanWithStart:reduce:, except that only the
+/// final result is sent on the returned signal.
+///
+/// start       - The value to be combined with the first element of the
+///               receiver. This value may be `nil`.
+/// reduceBlock - The block that describes how to combine values of the
+///               receiver. If the receiver is empty, this block will never be
+///               invoked. Cannot be nil.
+///
+/// Returns a signal that will send the aggregated value when the receiver
+/// completes, then itself complete. If the receiver never sends any values,
+/// `start` will be sent instead.
 - (RACSignal *)aggregateWithStart:(id)start reduce:(id (^)(id running, id next))reduceBlock;
 
-/// Aggregates `next`s with the given start and combination. The start factory
-/// block is called to get a new start object for each subscription.
+/// Aggregates the `next` values of the receiver into a single combined value.
+/// This is indexed version of -aggregateWithStart:reduce:.
+///
+/// start       - The value to be combined with the first element of the
+///               receiver. This value may be `nil`.
+/// reduceBlock - The block that describes how to combine values of the
+///               receiver. This block takes zero-based index value as the last
+///               parameter. If the receiver is empty, this block will never be
+///               invoked. Cannot be nil.
+///
+/// Returns a signal that will send the aggregated value when the receiver
+/// completes, then itself complete. If the receiver never sends any values,
+/// `start` will be sent instead.
+- (RACSignal *)aggregateWithStart:(id)start reduceWithIndex:(id (^)(id running, id next, NSUInteger index))reduceBlock;
+
+/// Aggregates the `next` values of the receiver into a single combined value.
+///
+/// This invokes `startFactory` block on each subscription, then calls
+/// -aggregateWithStart:reduce: with the return value of the block as start value.
+///
+/// startFactory - The block that returns start value which will be combined
+///                with the first element of the receiver. Cannot be nil.
+/// reduceBlock  - The block that describes how to combine values of the
+///                receiver. If the receiver is empty, this block will never be
+///                invoked. Cannot be nil.
+///
+/// Returns a signal that will send the aggregated value when the receiver
+/// completes, then itself complete. If the receiver never sends any values,
+/// the return value of `startFactory` will be sent instead.
 - (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory reduce:(id (^)(id running, id next))reduceBlock;
 
 /// Invokes -setKeyPath:onObject:nilValue: with `nil` for the nil value.

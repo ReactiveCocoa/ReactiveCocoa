@@ -1025,13 +1025,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 
 		RACDisposable *schedulingDisposable = [scheduler schedule:^{
-			RACDisposable *subscriptionDisposable = [self subscribeNext:^(id x) {
-				[subscriber sendNext:x];
-			} error:^(NSError *error) {
-				[subscriber sendError:error];
-			} completed:^{
-				[subscriber sendCompleted];
-			}];
+			RACDisposable *subscriptionDisposable = [self subscribe:subscriber];
 
 			[disposable addDisposable:subscriptionDisposable];
 		}];

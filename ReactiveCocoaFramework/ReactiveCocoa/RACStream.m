@@ -170,6 +170,8 @@
 - (instancetype)take:(NSUInteger)count {
 	Class class = self.class;
 	
+	if (count == 0) return class.empty;
+
 	return [[self bind:^{
 		__block NSUInteger taken = 0;
 

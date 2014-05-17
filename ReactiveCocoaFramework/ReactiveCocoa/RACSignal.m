@@ -225,7 +225,7 @@
 				if (selfValues.count == 0) return;
 				if (otherValues.count == 0) return;
 
-				RACTuple *tuple = [RACTuple tupleWithObjects:selfValues[0], otherValues[0], nil];
+				RACTuple *tuple = RACTuplePack(selfValues[0], otherValues[0]);
 				[selfValues removeObjectAtIndex:0];
 				[otherValues removeObjectAtIndex:0];
 

@@ -398,7 +398,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		void (^sendNext)(void) = ^{
 			@synchronized (disposable) {
 				if (lastSelfValue == nil || lastOtherValue == nil) return;
-				[subscriber sendNext:[RACTuple tupleWithObjects:lastSelfValue, lastOtherValue, nil]];
+				[subscriber sendNext:RACTuplePack(lastSelfValue, lastOtherValue)];
 			}
 		};
 

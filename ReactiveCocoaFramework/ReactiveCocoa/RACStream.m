@@ -211,7 +211,7 @@
 		// (((1), 2), 3)
 		//
 		// We need to unwrap all the layers and create a tuple out of the result.
-		NSMutableArray *values = [[NSMutableArray alloc] init];
+		NSMutableArray *values = [NSMutableArray array];
 
 		while (xs != nil) {
 			[values insertObject:xs.last ?: RACTupleNil.tupleNil atIndex:0];

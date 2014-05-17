@@ -2775,8 +2775,8 @@ describe(@"throttling", ^{
 			__block NSMutableArray *expected;
 
 			beforeEach(^{
-				expected = [[NSMutableArray alloc] init];
-				valuesReceived = [[NSMutableArray alloc] init];
+				expected = [NSMutableArray array];
+				valuesReceived = [NSMutableArray array];
 
 				[throttledSignal subscribeNext:^(id x) {
 					[valuesReceived addObject:x];

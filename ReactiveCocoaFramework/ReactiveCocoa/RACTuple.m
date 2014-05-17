@@ -144,7 +144,7 @@
 		return tuple;
 	}
 	
-	NSMutableArray *objects = [[NSMutableArray alloc] initWithCapacity:count];
+	NSMutableArray *objects = [NSMutableArray arrayWithCapacity:count];
 	
 	va_start(args, object);
 	for (id currentObject = object; currentObject != nil; currentObject = va_arg(args, id)) {

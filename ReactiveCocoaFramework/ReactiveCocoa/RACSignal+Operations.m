@@ -375,7 +375,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			[subscriber sendError:error];
 		} completed:^{
 			for (id value in valuesTaken) {
-				[subscriber sendNext:[value isKindOfClass:RACTupleNil.class] ? nil : value];
+				[subscriber sendNext:value == RACTupleNil.tupleNil ? nil : value];
 			}
 			
 			[subscriber sendCompleted];

@@ -325,7 +325,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 				if (values.count == 0) return;
 
-				RACTuple *tuple = [RACTuple tupleWithObjectsFromArray:values convertNullsToNils:NO];
+				RACTuple *tuple = [RACTuple tupleWithObjectsFromArray:values];
 				[values removeAllObjects];
 				[subscriber sendNext:tuple];
 			}
@@ -1331,7 +1331,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		RACSubject *windowCloseSubject = [RACSubject subject];
 		
 		RACDisposable *closeDisposable = [windowCloseSubject subscribeNext:^(id x) {
-			[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:values convertNullsToNils:NO]];
+			[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:values]];
 			[values removeAllObjects];
 		}];
 

@@ -26,20 +26,25 @@ describe(@"UIImagePickerController", ^{
 		}];
 		
 		NSDictionary *info = @{
-			UIImagePickerControllerMediaType :@"public.image",
-			UIImagePickerControllerMediaMetadata : @{}
-			};
+			UIImagePickerControllerMediaType: @"public.image",
+			UIImagePickerControllerMediaMetadata: @{}
+		};
 		[imagePicker.delegate imagePickerController:imagePicker didFinishPickingMediaWithInfo:info];
 		expect(selectedImageUserInfo).to.equal(info);
 	});
 	
 	it(@"cancels image picking process", ^{
-		__block NSDictionary *selectedImageUserInfo = nil;
+		__block BOOL didSend = NO;
+		__block BOOL didComplete = NO;
 		[imagePicker.rac_imageSelectedSignal subscribeNext:^(NSDictionary *userInfo) {
-			selectedImageUserInfo = userInfo;
+			didSend = YES;
+		} completed:^{
+			didComplete = YES;
 		}];
+		
 		[imagePicker.delegate imagePickerControllerDidCancel:imagePicker];
-		expect(selectedImageUserInfo).to.beNil();
+		expect(didSend).to.beFalsy();
+		expect(didComplete).to.beTruthy();
 	});
 });
 

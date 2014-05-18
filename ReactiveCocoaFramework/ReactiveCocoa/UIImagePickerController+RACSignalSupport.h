@@ -17,7 +17,7 @@
 /// methods in this category are used.
 @property (nonatomic, strong, readonly) RACDelegateProxy *rac_delegateProxy;
 
-/// Creates a signal for every new selected image
+/// Creates a signal for every new selected image.
 ///
 /// When this method is invoked, the `rac_delegateProxy` will become the
 /// receiver's delegate. Any previous delegate will become the -[RACDelegateProxy
@@ -25,10 +25,9 @@
 /// know how to handle. Setting the receiver's `delegate` afterward is considered
 /// undefined behavior.
 ///
-/// Returns a signal which will send the dictionary with user info of selected image.
-/// You are responsible for picker controller dismissal.
-/// The signal will complete itself when the receiver is deallocated or when user
-/// cancels selection.
+/// Returns a signal which will send the dictionary with info for the selected image.
+/// Caller is responsible for picker controller dismissal. The signal will complete
+/// itself when the receiver is deallocated or when user cancels selection.
 - (RACSignal *)rac_imageSelectedSignal;
 
 @end

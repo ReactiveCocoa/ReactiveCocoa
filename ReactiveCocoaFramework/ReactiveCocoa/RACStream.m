@@ -108,7 +108,7 @@
 		scanWithStart:RACTuplePack(start)
 		reduce:^(RACTuple *previousTuple, id next) {
 			id value = reduceBlock(previousTuple[0], next);
-			return RACTuplePack(next ?: RACTupleNil.tupleNil, value ?: RACTupleNil.tupleNil);
+			return RACTuplePack(next, value);
 		}]
 		map:^(RACTuple *tuple) {
 			return tuple[1];

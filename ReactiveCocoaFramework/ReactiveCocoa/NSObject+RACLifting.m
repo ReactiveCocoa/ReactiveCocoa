@@ -1,6 +1,6 @@
 //
 //  NSObject+RACLifting.m
-//  iOSDemo
+//  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 10/13/12.
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
@@ -10,9 +10,9 @@
 #import "EXTScope.h"
 #import "NSInvocation+RACTypeParsing.h"
 #import "NSObject+RACDeallocating.h"
+#import "NSObject+RACDescription.h"
 #import "RACSignal+Operations.h"
 #import "RACTuple.h"
-#import "NSObject+RACDescription.h"
 
 @implementation NSObject (RACLifting)
 

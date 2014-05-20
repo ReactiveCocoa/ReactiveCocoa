@@ -19,13 +19,13 @@ extern const NSInteger RACSignalErrorTimedOut;
 /// match any of the cases, and no default was given.
 extern const NSInteger RACSignalErrorNoMatchingCase;
 
-@class RACMulticastConnection;
+@class RACCommand;
 @class RACDisposable;
+@class RACMulticastConnection;
 @class RACScheduler;
 @class RACSequence;
 @class RACSubject;
 @class RACTuple;
-@class RACCommand;
 @protocol RACSubscriber;
 
 @interface RACSignal (Operations)
@@ -42,7 +42,7 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// into the signal.
 - (RACSignal *)doCompleted:(void (^)(void))block;
 
-/// Send `next`s only if we don't receive another `next` in `interval` seconds.
+/// Sends `next`s only if we don't receive another `next` in `interval` seconds.
 ///
 /// If a `next` is received, and then another `next` is received before
 /// `interval` seconds have passed, the first value is discarded.
@@ -94,7 +94,7 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// Resubscribes when the signal completes.
 - (RACSignal *)repeat;
 
-/// Execute the given block each time a subscription is created.
+/// Executes the given block each time a subscription is created.
 ///
 /// block - A block which defines the subscription side effects. Cannot be `nil`.
 ///
@@ -120,7 +120,7 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// of the receiver.
 - (RACSignal *)initially:(void (^)(void))block;
 
-/// Execute the given block when the signal completes or errors.
+/// Executes the given block when the signal completes or errors.
 - (RACSignal *)finally:(void (^)(void))block;
 
 /// Divides the receiver's `next`s into buffers which deliver every `interval`
@@ -136,7 +136,7 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// values will be sent immediately.
 - (RACSignal *)bufferWithTime:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler;
 
-/// Collect all receiver's `next`s into a NSArray. nil values will be converted
+/// Collects all receiver's `next`s into a NSArray. Nil values will be converted
 /// to NSNull.
 ///
 /// This corresponds to the `ToArray` method in Rx.
@@ -234,11 +234,60 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// Concats the inner signals of a signal of signals.
 - (RACSignal *)concat;
 
-/// Aggregate `next`s with the given start and combination.
+/// Aggregates the `next` values of the receiver into a single combined value.
+///
+/// The algorithm proceeds as follows:
+///
+///  1. `start` is passed into the block as the `running` value, and the first
+///     element of the receiver is passed into the block as the `next` value.
+///  2. The result of the invocation (`running`) and the next element of the
+///     receiver (`next`) is passed into `reduceBlock`.
+///  3. Steps 2 and 3 are repeated until all values have been processed.
+///  4. The last result of `reduceBlock` is sent on the returned signal.
+///
+/// This method is similar to -scanWithStart:reduce:, except that only the
+/// final result is sent on the returned signal.
+///
+/// start       - The value to be combined with the first element of the
+///               receiver. This value may be `nil`.
+/// reduceBlock - The block that describes how to combine values of the
+///               receiver. If the receiver is empty, this block will never be
+///               invoked. Cannot be nil.
+///
+/// Returns a signal that will send the aggregated value when the receiver
+/// completes, then itself complete. If the receiver never sends any values,
+/// `start` will be sent instead.
 - (RACSignal *)aggregateWithStart:(id)start reduce:(id (^)(id running, id next))reduceBlock;
 
-/// Aggregate `next`s with the given start and combination. The start factory 
-/// block is called to get a new start object for each subscription.
+/// Aggregates the `next` values of the receiver into a single combined value.
+/// This is indexed version of -aggregateWithStart:reduce:.
+///
+/// start       - The value to be combined with the first element of the
+///               receiver. This value may be `nil`.
+/// reduceBlock - The block that describes how to combine values of the
+///               receiver. This block takes zero-based index value as the last
+///               parameter. If the receiver is empty, this block will never be
+///               invoked. Cannot be nil.
+///
+/// Returns a signal that will send the aggregated value when the receiver
+/// completes, then itself complete. If the receiver never sends any values,
+/// `start` will be sent instead.
+- (RACSignal *)aggregateWithStart:(id)start reduceWithIndex:(id (^)(id running, id next, NSUInteger index))reduceBlock;
+
+/// Aggregates the `next` values of the receiver into a single combined value.
+///
+/// This invokes `startFactory` block on each subscription, then calls
+/// -aggregateWithStart:reduce: with the return value of the block as start value.
+///
+/// startFactory - The block that returns start value which will be combined
+///                with the first element of the receiver. Cannot be nil.
+/// reduceBlock  - The block that describes how to combine values of the
+///                receiver. If the receiver is empty, this block will never be
+///                invoked. Cannot be nil.
+///
+/// Returns a signal that will send the aggregated value when the receiver
+/// completes, then itself complete. If the receiver never sends any values,
+/// the return value of `startFactory` will be sent instead.
 - (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory reduce:(id (^)(id running, id next))reduceBlock;
 
 /// Invokes -setKeyPath:onObject:nilValue: with `nil` for the nil value.
@@ -307,14 +356,14 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// `scheduler`.
 + (RACSignal *)interval:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler withLeeway:(NSTimeInterval)leeway;
 
-/// Take `next`s until the `signalTrigger` sends `next` or `completed`.
+/// Takes `next`s until the `signalTrigger` sends `next` or `completed`.
 ///
 /// Returns a signal which passes through all events from the receiver until
 /// `signalTrigger` sends `next` or `completed`, at which point the returned signal
 /// will send `completed`.
 - (RACSignal *)takeUntil:(RACSignal *)signalTrigger;
 
-/// Take `next`s until the `replacement` sends an event.
+/// Takes `next`s until the `replacement` sends an event.
 ///
 /// replacement - The signal which replaces the receiver as soon as it sends an
 ///               event.
@@ -325,10 +374,10 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// instead, regardless of whether the receiver has sent events already.
 - (RACSignal *)takeUntilReplacement:(RACSignal *)replacement;
 
-/// Subscribe to the returned signal when an error occurs.
+/// Subscribes to the returned signal when an error occurs.
 - (RACSignal *)catch:(RACSignal * (^)(NSError *error))catchBlock;
 
-/// Subscribe to the given signal when an error occurs.
+/// Subscribes to the given signal when an error occurs.
 - (RACSignal *)catchTo:(RACSignal *)signal;
 
 /// Runs `tryBlock` against each of the receiver's values, passing values
@@ -393,7 +442,7 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// to the error that occurred.
 - (BOOL)waitUntilCompleted:(NSError **)error;
 
-/// Defer creation of a signal until the signal's actually subscribed to.
+/// Defers creation of a signal until the signal's actually subscribed to.
 ///
 /// This can be used to effectively turn a hot signal into a cold signal.
 + (RACSignal *)defer:(RACSignal * (^)(void))block;
@@ -442,8 +491,8 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// last switched signal complete.
 + (RACSignal *)if:(RACSignal *)boolSignal then:(RACSignal *)trueSignal else:(RACSignal *)falseSignal;
 
-/// Add every `next` to an array. Nils are represented by NSNulls. Note that this
-/// is a blocking call.
+/// Adds every `next` to an array. Nils are represented by NSNulls. Note that
+/// this is a blocking call.
 ///
 /// **This is not the same as the `ToArray` method in Rx.** See -collect for
 /// that behavior instead.
@@ -451,7 +500,7 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// Returns the array of `next` values, or nil if an error occurs.
 - (NSArray *)toArray;
 
-/// Add every `next` to a sequence. Nils are represented by NSNulls.
+/// Adds every `next` to a sequence. Nils are represented by NSNulls.
 ///
 /// This corresponds to the `ToEnumerable` method in Rx.
 ///

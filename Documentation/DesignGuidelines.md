@@ -594,7 +594,7 @@ as well.
 
 For these reasons, new operators should be implemented using only [RACStream][]
 methods whenever possible. The minimal required methods of the class, including
-`-bind:`, `+zipWith:`, and `-concat:`, are quite powerful, and many tasks can
+`-bind:`, `-zipWith:`, and `-concat:`, are quite powerful, and many tasks can
 be accomplished without needing anything else.
 
 If a new [RACSignal][] operator needs to handle `error` and `completed` events,

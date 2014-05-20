@@ -24,8 +24,9 @@
 - (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
 	return [[[self
 		rac_valuesAndChangesForKeyPath:keyPath options:NSKeyValueObservingOptionInitial observer:observer]
-		reduceEach:^(id value, NSDictionary *change) {
-			return value;
+		map:^(RACTuple *value) {
+			// -map: because it doesn't require the block trampoline that -reduceEach: uses
+			return value[0];
 		}]
 		setNameWithFormat:@"RACObserve(%@, %@)", self.rac_description, keyPath];
 }
@@ -75,7 +76,7 @@
 				return nil;
 			}
 
-			return [self rac_observeKeyPath:keyPath options:options observer:observer block:^(id value, NSDictionary *change) {
+			return [self rac_observeKeyPath:keyPath options:options observer:observer block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
 				[subscriber sendNext:RACTuplePack(value, change)];
 			}];
 		}]

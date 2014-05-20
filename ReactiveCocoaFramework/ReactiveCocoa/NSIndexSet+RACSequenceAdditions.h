@@ -7,7 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RACSequence.h"
+
+@class RACSequence;
 
 @interface NSIndexSet (RACSequenceAdditions)
 

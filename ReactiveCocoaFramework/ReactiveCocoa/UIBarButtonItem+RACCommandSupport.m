@@ -8,7 +8,6 @@
 
 #import "UIBarButtonItem+RACCommandSupport.h"
 #import "EXTKeyPathCoding.h"
-#import "NSObject+RACPropertySubscribing.h"
 #import "RACCommand.h"
 #import "RACDisposable.h"
 #import "RACSignal+Operations.h"

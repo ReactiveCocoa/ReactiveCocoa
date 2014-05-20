@@ -8,7 +8,6 @@
 
 #import "UISlider+RACSignalSupport.h"
 #import "EXTKeyPathCoding.h"
-#import "UIControl+RACSignalSupport.h"
 #import "UIControl+RACSignalSupportPrivate.h"
 
 @implementation UISlider (RACSignalSupport)

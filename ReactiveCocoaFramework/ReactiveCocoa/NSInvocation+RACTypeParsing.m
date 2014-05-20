@@ -18,7 +18,7 @@
 	do { \
 		type val = [object selector]; \
 		[self setArgument:&val atIndex:(NSInteger)index]; \
-	} while(0)
+	} while (0)
 
 	const char *argType = [self.methodSignature getArgumentTypeAtIndex:index];
 	// Skip const type qualifier.

@@ -37,7 +37,7 @@
 #pragma mark RACSequence
 
 - (id)head {
-	id object = [self.tupleBackingArray objectAtIndex:self.offset];
+	id object = self.tupleBackingArray[self.offset];
 	return (object == RACTupleNil.tupleNil ? NSNull.null : object);
 }
 

@@ -9,17 +9,12 @@
 #import "RACKVOChannel.h"
 #import "EXTScope.h"
 #import "NSObject+RACDeallocating.h"
-#import "NSObject+RACDescription.h"
 #import "NSObject+RACKVOWrapper.h"
-#import "NSObject+RACPropertySubscribing.h"
 #import "NSString+RACKeyPathUtilities.h"
 #import "RACChannel.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
-#import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"
-#import "RACSubscriber+Private.h"
-#import "RACSubject.h"
 
 // Key for the array of RACKVOChannel's additional thread local
 // data in the thread dictionary.
@@ -91,11 +86,11 @@ static NSString * const RACKVOChannelDataDictionaryKey = @"RACKVOChannelKey";
 	//
 	// Intentionally capturing `self` strongly in the blocks below, so the
 	// channel object stays alive while observing.
-	RACDisposable *observationDisposable = [target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionInitial observer:nil block:^(id value, NSDictionary *change) {
+	RACDisposable *observationDisposable = [target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionInitial observer:nil block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
 		// If the change wasn't triggered by deallocation, only affects the last
 		// path component, and ignoreNextUpdate is set, then it was triggered by
 		// this channel and should not be forwarded.
-		if (![change[RACKeyValueChangeCausedByDeallocationKey] boolValue] && [change[RACKeyValueChangeAffectedOnlyLastComponentKey] boolValue] && self.currentThreadData.ignoreNextUpdate) {
+		if (!causedByDealloc && affectedOnlyLastComponent && self.currentThreadData.ignoreNextUpdate) {
 			[self destroyCurrentThreadData];
 			return;
 		}

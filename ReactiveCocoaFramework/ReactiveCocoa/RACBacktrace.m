@@ -147,7 +147,7 @@ static void RACExceptionHandler (NSException *ex) {
 
 + (void)load {
 	@autoreleasepool {
-		NSString *libraries = [[[NSProcessInfo processInfo] environment] objectForKey:@"DYLD_INSERT_LIBRARIES"];
+		NSString *libraries = NSProcessInfo.processInfo.environment[@"DYLD_INSERT_LIBRARIES"];
 
 		// Don't install our handlers if we're not actually intercepting function
 		// calls.

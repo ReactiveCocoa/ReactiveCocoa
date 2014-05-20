@@ -534,7 +534,7 @@ out there:
 * [Programming Reactive Extensions and LINQ](http://www.amazon.com/Programming-Reactive-Extensions-Jesse-Liberty/dp/1430237473)
 
 RAC and Rx are both frameworks inspired by functional reactive programming. Here 
-are some resources for learning about FRP:
+are some resources related to FRP:
 
 * [What is FRP? - Elm Language](http://elm-lang.org/learn/What-is-FRP.elm)
 * [What is Functional Reactive Programming - Stack Overflow](http://stackoverflow.com/questions/1028250/what-is-functional-reactive-programming/1030631#1030631)

@@ -40,7 +40,7 @@
 	if (self == nil) return nil;
 
 	_disposable = [RACCompoundDisposable compoundDisposable];
-	_subscribers = [NSMutableArray arrayWithCapacity:1];
+	_subscribers = [[NSMutableArray alloc] initWithCapacity:1];
 	
 	return self;
 }

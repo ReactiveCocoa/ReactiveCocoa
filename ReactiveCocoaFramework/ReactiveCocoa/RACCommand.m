@@ -132,7 +132,7 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 	self = [super init];
 	if (self == nil) return nil;
 
-	_activeExecutionSignals = [NSMutableArray array];
+	_activeExecutionSignals = [[NSMutableArray alloc] init];
 	_signalBlock = [signalBlock copy];
 
 	// A signal of additions to `activeExecutionSignals`.

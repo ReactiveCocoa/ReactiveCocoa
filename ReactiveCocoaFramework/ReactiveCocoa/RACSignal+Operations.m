@@ -355,7 +355,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 - (RACSignal *)collect {
 	return [[self aggregateWithStartFactory:^{
-		return [NSMutableArray array];
+		return [[NSMutableArray alloc] init];
 	} reduce:^(NSMutableArray *collectedValues, id x) {
 		[collectedValues addObject:(x ?: NSNull.null)];
 		return collectedValues;
@@ -464,7 +464,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 }
 
 + (RACSignal *)merge:(id<NSFastEnumeration>)signals {
-	NSMutableArray *copiedSignals = [NSMutableArray array];
+	NSMutableArray *copiedSignals = [[NSMutableArray alloc] init];
 	for (RACSignal *signal in signals) {
 		[copiedSignals addObject:signal];
 	}
@@ -489,7 +489,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		// Contains disposables for the currently active subscriptions.
 		//
 		// This should only be used while synchronized on `subscriber`.
-		NSMutableArray *activeDisposables = [NSMutableArray arrayWithCapacity:maxConcurrent];
+		NSMutableArray *activeDisposables = [[NSMutableArray alloc] initWithCapacity:maxConcurrent];
 
 		// Whether the signal-of-signals has completed yet.
 		//

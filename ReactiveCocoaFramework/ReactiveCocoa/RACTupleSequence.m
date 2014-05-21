@@ -49,7 +49,7 @@
 
 - (NSArray *)array {
 	NSRange range = NSMakeRange(self.offset, self.tupleBackingArray.count - self.offset);
-	NSMutableArray *array = [NSMutableArray arrayWithCapacity:range.length];
+	NSMutableArray *array = [[NSMutableArray alloc] initWithCapacity:range.length];
 
 	[self.tupleBackingArray enumerateObjectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:range] options:0 usingBlock:^(id object, NSUInteger index, BOOL *stop) {
 		id mappedObject = (object == RACTupleNil.tupleNil ? NSNull.null : object);

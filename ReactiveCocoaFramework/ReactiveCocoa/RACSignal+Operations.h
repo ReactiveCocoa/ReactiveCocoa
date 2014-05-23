@@ -136,6 +136,37 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// values will be sent immediately.
 - (RACSignal *)bufferWithTime:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler;
 
+/// Divides the receiver `next`s into buffers which contains at most
+/// `bufferCount` values.
+///
+/// `skip` indicates how many receiver `next`s have to happen until another
+/// buffer with values is started. Modifying `skip` value you can obtain three
+/// different behaviours:
+/// - Overlap: a `skip` value less than `bufferCount` value will overlap the
+///            resulting buffers.
+///            Example: [signal bufferWithCount:3 skip:1];
+///            Original signal: 1-2-3----------4---------5
+///            Buffered signal:     (1, 2, 3)-(2, 3, 4)-(3, 4, 5)
+/// - Standard: a `skip` value equal to `bufferCount` will return non-overlapping
+///             buffers.
+///             Example: [signal bufferWithCount:3 skip:3];
+///             Original signal: 1-2-3------4-5-6
+///             Buffered signal:     (1, 2, 3)-(4, 5, 6)
+/// - Skip: a `skip` value greater than `bufferCount` will ignore
+///         `skip - bufferCount` values from the original signal between the
+///         resulting buffers.
+///         Example: [signal bufferWithCount:3 skip:4];
+///         Original signal: 1-2-3-4----5-6-7
+///         Buffered signal:     (1, 2, 3)-(5, 6, 7)
+///
+/// bufferCount - The maximum number of values in each tuple. Minimum 1.
+/// skip        - The number of values to skip between tuples. Minimum 1.
+///
+/// Returns a signal which sends RACTuples of the buffered values according to
+/// the `bufferCount` and `skip` parameters. When the receiver completes,
+/// any currently-buffered values will be sent immediately.
+- (RACSignal *)bufferWithCount:(NSUInteger)bufferCount skip:(NSUInteger)skip;
+
 /// Collects all receiver's `next`s into a NSArray. Nil values will be converted
 /// to NSNull.
 ///

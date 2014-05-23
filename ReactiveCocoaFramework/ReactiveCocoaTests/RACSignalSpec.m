@@ -3303,6 +3303,128 @@ describe(@"-bufferWithTime:", ^{
 	});
 });
 
+describe(@"-bufferWithCount:skip:", ^{
+	__block RACSubject *input;
+	__block RACSignal *bufferedInput;
+	__block RACTuple *latestValue;
+
+	beforeEach(^{
+		input = [RACSubject subject];
+		bufferedInput = [input bufferWithCount:3 skip:1];
+		latestValue = nil;
+
+		[bufferedInput subscribeNext:^(RACTuple *x) {
+			latestValue = x;
+		}];
+	});
+
+	it(@"should buffer nexts", ^{
+		[input sendNext:@1];
+		[input sendNext:@2];
+		[input sendNext:@3];
+
+		expect(latestValue).to.equal(RACTuplePack(@1, @2, @3));
+
+		[input sendNext:@4];
+
+		expect(latestValue).to.equal(RACTuplePack(@2, @3, @4));
+
+		[input sendNext:@5];
+
+		expect(latestValue).to.equal(RACTuplePack(@3, @4, @5));
+	});
+
+	it(@"should not perform buffering until a count values are sent", ^{
+		[input sendNext:@1];
+		[input sendNext:@2];
+		expect(latestValue).to.beNil;
+
+		[input sendNext:@3];
+		expect(latestValue).to.equal(RACTuplePack(@1, @2, @3));
+	});
+
+	it(@"should flush any buffered nexts upon completion", ^{
+		[input sendNext:@1];
+		[input sendCompleted];
+		expect(latestValue).to.equal(RACTuplePack(@1));
+	});
+
+	it(@"should support NSNull values", ^{
+		[input sendNext:NSNull.null];
+		[input sendNext:@1];
+		[input sendNext:@2];
+		expect(latestValue).to.equal(RACTuplePack(NSNull.null, @1, @2));
+	});
+
+	it(@"should buffer nil values", ^{
+		[input sendNext:nil];
+		[input sendNext:@1];
+		[input sendNext:@2];
+		expect(latestValue).to.equal(RACTuplePack(nil, @1, @2));
+	});
+});
+
+describe(@"-bufferWithCount:skip: with skip==count", ^{
+	__block RACSubject *input;
+	__block RACSignal *bufferedInput;
+	__block RACTuple *latestValue;
+
+	beforeEach(^{
+		input = [RACSubject subject];
+		bufferedInput = [input bufferWithCount:3 skip:3];
+		latestValue = nil;
+
+		[bufferedInput subscribeNext:^(RACTuple *x) {
+			latestValue = x;
+		}];
+	});
+
+	it(@"should buffer nexts", ^{
+		[input sendNext:@1];
+		[input sendNext:@2];
+		[input sendNext:@3];
+
+		expect(latestValue).to.equal(RACTuplePack(@1, @2, @3));
+
+		[input sendNext:@4];
+		[input sendNext:@5];
+		[input sendNext:@6];
+
+		expect(latestValue).to.equal(RACTuplePack(@4, @5, @6));
+	});
+});
+
+describe(@"-bufferWithCount:skip: with skip>count", ^{
+	__block RACSubject *input;
+	__block RACSignal *bufferedInput;
+	__block RACTuple *latestValue;
+
+	beforeEach(^{
+		input = [RACSubject subject];
+		bufferedInput = [input bufferWithCount:3 skip:4];
+		latestValue = nil;
+
+		[bufferedInput subscribeNext:^(RACTuple *x) {
+			latestValue = x;
+		}];
+	});
+
+	it(@"should buffer nexts", ^{
+		[input sendNext:@1];
+		[input sendNext:@2];
+		[input sendNext:@3];
+
+		expect(latestValue).to.equal(RACTuplePack(@1, @2, @3));
+
+		[input sendNext:@4];
+		[input sendNext:@5];
+		[input sendNext:@6];
+		[input sendNext:@7];
+
+		expect(latestValue).to.equal(RACTuplePack(@5, @6, @7));
+	});
+});
+
 describe(@"-concat", ^{
 	__block RACSubject *subject;
 

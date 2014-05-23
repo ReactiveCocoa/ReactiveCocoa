@@ -353,6 +353,57 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -bufferWithTime: %f", self.name, (double)interval];
 }
 
+- (RACSignal *)bufferWithCount:(NSUInteger)bufferCount skip:(NSUInteger)skip {
+	NSCParameterAssert(bufferCount > 0);
+	NSCParameterAssert(skip > 0);
+
+	return [[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+		NSMutableArray *queue = [[NSMutableArray alloc] initWithCapacity:bufferCount];
+		__block NSUInteger n = 0;
+
+		void (^createWindow)() = ^{
+			NSMutableArray *s = [NSMutableArray arrayWithCapacity:bufferCount];
+			[queue addObject:s];
+		};
+
+		createWindow();
+
+		return [self subscribeNext:^(id x) {
+			for (NSMutableArray *s in queue) {
+				[s addObject:x ? : RACTupleNil.tupleNil];
+			}
+
+			NSUInteger c = n - bufferCount + 1;
+			if (n >= bufferCount - 1 && c % skip == 0) {
+				NSMutableArray *s = [queue objectAtIndex:0];
+				[queue removeObjectAtIndex:0];
+
+				if (s.count > 0) {
+					[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:s]];
+				}
+			}
+
+			n++;
+			if (n % skip == 0) {
+				createWindow();
+			}
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			while (queue.count > 0) {
+				NSMutableArray *s = [queue objectAtIndex:0];
+				[queue removeObjectAtIndex:0];
+
+				if (s.count > 0) {
+					[subscriber sendNext:[RACTuple tupleWithObjectsFromArray:s]];
+				}
+			}
+
+			[subscriber sendCompleted];
+		}];
+	}] setNameWithFormat:@"[%@] - bufferWithCount: %lu skip: %lu", self.name, (unsigned long)bufferCount, (unsigned long) skip];
+}
+
 - (RACSignal *)collect {
 	return [[self aggregateWithStartFactory:^{
 		return [[NSMutableArray alloc] init];

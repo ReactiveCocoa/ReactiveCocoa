@@ -348,6 +348,8 @@ typedef enum : NSUInteger {
 /// If a `next` is received, and then another `next` is received before
 /// `interval` seconds have passed, the second value is discarded.
 ///
+/// interval - The minimum time interval guaranteed to occur between values.
+///
 /// Returns a signal which sends `next` events as they're received, dropping any
 /// that arrive less than `interval` seconds since the last. Completion and
 /// errors are always forwarded immediately.

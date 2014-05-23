@@ -402,6 +402,8 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 - (RACSignal *)throttleDiscardingLatest:(NSTimeInterval)interval {
 	NSCParameterAssert(interval >= 0);
 
+	if (interval == 0) return self;
+
 	return [[RACSignal
 		defer:^{
 			RACSubject *multicastedSelf = [RACSubject subject];

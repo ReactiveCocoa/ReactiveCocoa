@@ -2672,6 +2672,19 @@ describe(@"-throttleDiscardingLatest:", ^{
 		[subject sendError:RACSignalTestError];
 		expect(error).to.equal(RACSignalTestError);
 	});
+
+	it(@"should not throttle for zero interval", ^{
+		throttledSignal = [subject throttleDiscardingLatest:0];
+
+		NSMutableArray *valuesReceived = [NSMutableArray array];
+		[throttledSignal subscribeNext:^(id x) {
+			[valuesReceived addObject:x];
+		}];
+
+		[subject sendNext:@1];
+		[subject sendNext:@2];
+		expect(valuesReceived).to.equal((@[ @1, @2 ]));
+	});
 });
 
 describe(@"-sample:", ^{

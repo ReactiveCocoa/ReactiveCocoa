@@ -2626,7 +2626,7 @@ describe(@"-throttleDiscardingEarliest:", ^{
 	});
 });
 
-fdescribe(@"-throttleDiscardingLatest:", ^{
+describe(@"-throttleDiscardingLatest:", ^{
 	__block RACSubject *subject;
 	__block RACSignal *throttledSignal;
 

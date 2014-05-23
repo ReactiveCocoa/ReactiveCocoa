@@ -402,11 +402,20 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 - (RACSignal *)throttleDiscardingLatest:(NSTimeInterval)interval {
 	NSCParameterAssert(interval >= 0);
 
-	return [[[self
-		map:^(id x) {
-			return [[RACSignal return:x] delay:interval];
+	return [[RACSignal
+		defer:^{
+			RACSubject *multicastedSelf = [RACSubject subject];
+
+			RACSignal *throttled = [[[[multicastedSelf
+				take:1]
+				concat:[[RACSignal empty] delay:interval]]
+				repeat]
+				takeUntil:[multicastedSelf ignoreValues]];
+
+			[self subscribe:multicastedSelf];
+
+			return throttled;
 		}]
-		flatten:1 withPolicy:RACSignalFlattenPolicyDisposeLatest]
 		setNameWithFormat:@"[%@] -throttleDiscardingLatest: %f", self.name, (double)interval];
 }
 

@@ -405,7 +405,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	if (interval == 0) return self;
 
 	return [[RACSignal
-		defer:^{
+		create:^(id<RACSubscriber> subscriber) {
 			RACSubject *multicastedSelf = [RACSubject subject];
 
 			RACSignal *throttled = [[[[multicastedSelf
@@ -414,9 +414,9 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 				repeat]
 				takeUntil:[multicastedSelf ignoreValues]];
 
-			[self subscribe:multicastedSelf];
+			[throttled subscribe:subscriber];
 
-			return throttled;
+			[subscriber.disposable addDisposable:[self subscribe:multicastedSelf]];
 		}]
 		setNameWithFormat:@"[%@] -throttleDiscardingLatest: %f", self.name, (double)interval];
 }

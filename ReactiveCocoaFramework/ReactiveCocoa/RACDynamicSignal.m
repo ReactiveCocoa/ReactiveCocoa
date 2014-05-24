@@ -28,7 +28,7 @@
 + (RACSignal *)create:(void (^)(id<RACSubscriber>))didSubscribe {
 	RACDynamicSignal *signal = [[self alloc] init];
 	signal->_didSubscribe = [didSubscribe copy];
-	return [signal setNameWithFormat:@"+createSignal:"];
+	return [signal setNameWithFormat:@"+create:"];
 }
 
 #pragma mark Managing Subscribers

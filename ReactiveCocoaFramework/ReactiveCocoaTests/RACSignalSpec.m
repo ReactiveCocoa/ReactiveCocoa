@@ -3235,7 +3235,7 @@ describe(@"-collect", ^{
 	});
 });
 
-describe(@"-bufferWithTime:", ^{
+describe(@"-bufferWithTime:onScheduler:", ^{
 	__block RACTestScheduler *scheduler;
 
 	__block RACSubject *input;

@@ -350,7 +350,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			[selfDisposable dispose];
 			[timerDisposable dispose];
 		}];
-	}] setNameWithFormat:@"[%@] -bufferWithTime: %f", self.name, (double)interval];
+	}] setNameWithFormat:@"[%@] -bufferWithTime: %f onScheduler: %@", self.name, (double)interval, scheduler];
 }
 
 - (RACSignal *)collect {
@@ -999,7 +999,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 		[disposable addDisposable:subscriptionDisposable];
 		return disposable;
-	}] setNameWithFormat:@"[%@] -timeout: %f", self.name, (double)interval];
+	}] setNameWithFormat:@"[%@] -timeout: %f onScheduler: %@", self.name, (double)interval, scheduler];
 }
 
 - (RACSignal *)deliverOn:(RACScheduler *)scheduler {

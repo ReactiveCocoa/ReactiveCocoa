@@ -47,7 +47,7 @@
 	RACSignal *signal = [self startLazilyWithScheduler:scheduler block:block];
 	// Subscribe to force the lazy signal to call its block.
 	[[signal publish] connect];
-	return [signal setNameWithFormat:@"+startEagerlyWithScheduler:%@ block:", scheduler];
+	return [signal setNameWithFormat:@"+startEagerlyWithScheduler: %@ block:", scheduler];
 }
 
 + (RACSignal *)startLazilyWithScheduler:(RACScheduler *)scheduler block:(void (^)(id<RACSubscriber> subscriber))block {
@@ -68,7 +68,7 @@
 			return nil;
 		}]
 		subscribeOn:scheduler]
-		setNameWithFormat:@"+startLazilyWithScheduler:%@ block:", scheduler];
+		setNameWithFormat:@"+startLazilyWithScheduler: %@ block:", scheduler];
 }
 
 #pragma mark NSObject

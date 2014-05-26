@@ -326,7 +326,7 @@
 
 	return [[self skipUntilBlock:^ BOOL (id x) {
 		return !predicate(x);
-	}] setNameWithFormat:@"[%@] -skipUntilBlock:", self.name];
+	}] setNameWithFormat:@"[%@] -skipWhileBlock:", self.name];
 }
 
 - (instancetype)distinctUntilChanged {

@@ -32,7 +32,7 @@
 			return [control.stringValue copy];
 		}]
 		startWith:[self.stringValue copy]]
-		setNameWithFormat:@"%@ -rac_textSignal", [self rac_description]];
+		setNameWithFormat:@"%@ -rac_textSignal", self.rac_description];
 }
 
 @end

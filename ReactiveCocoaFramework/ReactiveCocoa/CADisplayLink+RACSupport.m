@@ -30,9 +30,7 @@
 			[displayLink addToRunLoop:NSRunLoop.mainRunLoop forMode:NSRunLoopCommonModes];
 
 			// displayLink retains the target.
-			@weakify(displayLink);
 			[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
-				@strongify(displayLink);
 				[displayLink invalidate];
 			}]];
 		}]

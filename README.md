@@ -509,7 +509,7 @@ To add RAC to your application:
 
 If you would prefer to use [CocoaPods](http://cocoapods.org), there are some
 [ReactiveCocoa
-podspecs](https://github.com/CocoaPods/Specs/tree/master/ReactiveCocoa) that
+podspecs](https://github.com/CocoaPods/Specs/tree/master/Specs/ReactiveCocoa) that
 have been generously contributed by third parties.
 
 To see a project already set up with RAC, check out [C-41][] or [GroceryList][],

@@ -33,7 +33,7 @@
 			@weakify(displayLink);
 			[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
 				@strongify(displayLink);
-				[displayLink removeFromRunLoop:NSRunLoop.mainRunLoop forMode:NSRunLoopCommonModes];
+				[displayLink invalidate];
 			}]];
 		}]
 		setNameWithFormat:@"%@ -rac_displayLinkSignalWithFrameInterval:%td", self.rac_description, frameInterval];

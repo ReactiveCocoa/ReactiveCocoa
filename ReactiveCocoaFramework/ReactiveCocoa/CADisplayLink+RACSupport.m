@@ -27,7 +27,7 @@
 			}]];
 			displayLink.frameInterval = frameInterval;
 
-			[displayLink addToRunLoop:NSRunLoop.mainRunLoop forMode:NSRunLoopCommonModes];
+			[displayLink addToRunLoop:NSRunLoop.mainRunLoop forMode:NSDefaultRunLoopMode];
 
 			// displayLink retains the target.
 			[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{

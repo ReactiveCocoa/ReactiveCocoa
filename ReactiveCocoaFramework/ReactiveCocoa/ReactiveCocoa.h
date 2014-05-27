@@ -83,6 +83,7 @@
 	#import "UISwitch+RACSupport.h"
 	#import "UITableView+RACSupport.h"
 	#import "UITableViewCell+RACSupport.h"
+	#import "UITableViewHeaderFooterView+RACSignalSupport.h"
 	#import "UITextField+RACSupport.h"
 	#import "UITextView+RACSupport.h"
 #elif TARGET_OS_MAC

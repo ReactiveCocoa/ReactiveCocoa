@@ -764,6 +764,14 @@ typedef enum : NSUInteger {
 /// Resubscribes to the receiving signal if an error occurs.
 - (RACSignal *)retry;
 
+/// Resubscribes to the receiving signal if an error occurs, up until it has
+/// retried the given number of times.
+///
+/// retryCount - if 0, it keeps retrying until it completes.
+/// errorMatchingBlock - retry only this block returns YES.
+///                      can be nil, and assumes it returns YES.
+- (RACSignal *)retry:(NSUInteger)retryCount matchingError:(BOOL (^)(NSError *error))errorMatchingBlock;
+
 /// Sends the latest value from the receiver only when `sampler` sends a value.
 /// The returned signal could repeat values if `sampler` fires more often than
 /// the receiver. Values from `sampler` are ignored before the receiver sends

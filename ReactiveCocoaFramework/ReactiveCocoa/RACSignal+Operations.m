@@ -1161,10 +1161,14 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	}] setNameWithFormat:@"[%@] -subscribeOn: %@", self.name, scheduler];
 }
 
-- (RACSignal *)retry:(NSUInteger)retryCount {
+- (RACSignal *)retry:(NSUInteger)retryCount matchingError:(BOOL (^)(NSError *error))errorMatchingBlock {
 	return [[RACSignal defer:^{
 		RACSignalGenerator *generator = [RACDynamicSignalGenerator generatorWithReflexiveBlock:^(NSNumber *currentRetryCount, RACSignalGenerator *generator) {
 			return [self catch:^(NSError *error) {
+				if (errorMatchingBlock && !errorMatchingBlock(error)) {
+					return [RACSignal error:error];
+				}
+
 				if (retryCount == 0 || currentRetryCount.unsignedIntegerValue < retryCount) {
 					return [generator signalWithValue:@(currentRetryCount.unsignedIntegerValue + 1)];
 				} else {
@@ -1175,11 +1179,15 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 		}];
 
 		return [generator signalWithValue:@0];
-	}] setNameWithFormat:@"[%@] -retry: %lu", self.name, (unsigned long)retryCount];
+	}] setNameWithFormat:@"[%@] -retry:matchingError: %lu", self.name, (unsigned long)retryCount];
+}
+
+- (RACSignal *)retry:(NSUInteger)retryCount {
+	return [[self retry:retryCount matchingError:nil] setNameWithFormat:@"[%@] -retry: %lu", self.name, (unsigned long)retryCount];
 }
 
 - (RACSignal *)retry {
-	return [[self retry:0] setNameWithFormat:@"[%@] -retry", self.name];
+	return [[self retry:0 matchingError:nil] setNameWithFormat:@"[%@] -retry", self.name];
 }
 
 - (RACSignal *)sample:(RACSignal *)sampler {

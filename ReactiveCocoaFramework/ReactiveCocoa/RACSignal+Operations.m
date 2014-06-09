@@ -9,6 +9,7 @@
 #import "RACSignal+Operations.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACDescription.h"
+#import "RACBlockTrampoline.h"
 #import "RACCommand.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
@@ -1263,6 +1264,22 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			return number.boolValue;
 		}]);
 	}] setNameWithFormat:@"[%@] -or", self.name];
+}
+
+- (RACSignal *)reduceApply {
+	return [[self map:^(RACTuple *tuple) {
+		NSCAssert([tuple isKindOfClass:RACTuple.class], @"-reduceApply must only be used on a signal of RACTuples. Instead, received: %@", tuple);
+		NSCAssert(tuple.count > 1, @"-reduceApply must only be used on a signal of RACTuples, with at least a block in tuple[0] and its first argument in tuple[1]");
+		
+		// We can't use -array, because we need to preserve RACTupleNil
+		NSMutableArray *tupleArray = [NSMutableArray arrayWithCapacity:tuple.count];
+		for (id val in tuple) {
+			[tupleArray addObject:val];
+		}
+		RACTuple *arguments = [RACTuple tupleWithObjectsFromArray:[tupleArray subarrayWithRange:NSMakeRange(1, tupleArray.count - 1)]];
+		
+		return [RACBlockTrampoline invokeBlock:tuple[0] withArguments:arguments];
+	}] setNameWithFormat:@"[%@] -reduceApply", self.name];
 }
 
 @end

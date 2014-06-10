@@ -22,14 +22,11 @@
 	return [[RACSignal
 		create:^(id<RACSubscriber> subscriber) {
 			CADisplayLink *displayLink = [CADisplayLink displayLinkWithTarget:subscriber selector:@selector(sendNext:)];
-			[displayLink.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-				[subscriber sendCompleted];
-			}]];
 			displayLink.frameInterval = frameInterval;
-
+			
+			if (subscriber.disposable.disposed) return;
 			[displayLink addToRunLoop:NSRunLoop.mainRunLoop forMode:NSDefaultRunLoopMode];
 
-			// displayLink retains the target.
 			[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
 				[displayLink invalidate];
 			}]];

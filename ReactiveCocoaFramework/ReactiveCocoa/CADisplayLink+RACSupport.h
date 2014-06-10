@@ -12,8 +12,11 @@
 
 @interface CADisplayLink (RACSupport)
 
-/// Sends an CADisplayLink instance whenever the screen’s contents need to be updated.
-/// @Returns a signal that never completes.
+/// A signal that fires whenever the screen’s contents need to be updated.
+///
+/// Returns a signal that sends the receiver whenever an update should occur.
+/// The returned signal will never complete naturally, and must therefore be
+/// disposed manually or with an operator like -takeUntil:.
 + (RACSignal *)rac_displayLinkSignalWithFrameInterval:(NSInteger)frameInterval;
 
 @end

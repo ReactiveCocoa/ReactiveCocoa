@@ -63,9 +63,8 @@ convenience methods. Technically, most [RACStream][] and
 [RACSignal][RACSignal+Operations] operators create subscriptions as well, but
 these intermediate subscriptions are usually an implementation detail.
 
-Subscriptions [retain their signals][Memory Management], and are automatically
-disposed of when the signal completes or errors. Subscriptions can also be
-[disposed of manually](#disposables).
+Subscriptions are automatically disposed of when the signal completes or errors,
+and can also be [disposed of manually](#disposables).
 
 ### Subjects
 

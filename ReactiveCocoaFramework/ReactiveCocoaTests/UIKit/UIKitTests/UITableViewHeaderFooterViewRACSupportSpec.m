@@ -10,7 +10,7 @@
 #import "RACTestTableViewController.h"
 
 #import "RACSignal.h"
-#import "UITableViewHeaderFooterView+RACSignalSupport.h"
+#import "UITableViewHeaderFooterView+RACSupport.h"
 
 SpecBegin(UITableViewHeaderFooterViewRACSupportSpec)
 

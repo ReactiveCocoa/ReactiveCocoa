@@ -87,11 +87,11 @@ static NSString * const RACKVOChannelDataDictionaryKey = @"RACKVOChannelKey";
 	//
 	// Intentionally capturing `self` strongly in the blocks below, so the
 	// channel object stays alive while observing.
-	RACDisposable *observationDisposable = [target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionInitial block:^(id value, NSDictionary *change) {
+	RACDisposable *observationDisposable = [target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionInitial block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
 		// If the change wasn't triggered by deallocation, only affects the last
 		// path component, and ignoreNextUpdate is set, then it was triggered by
 		// this channel and should not be forwarded.
-		if (![change[RACKeyValueChangeCausedByDeallocationKey] boolValue] && [change[RACKeyValueChangeAffectedOnlyLastComponentKey] boolValue] && self.currentThreadData.ignoreNextUpdate) {
+		if (!causedByDealloc && affectedOnlyLastComponent && self.currentThreadData.ignoreNextUpdate) {
 			[self destroyCurrentThreadData];
 			return;
 		}

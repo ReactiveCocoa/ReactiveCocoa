@@ -1,5 +1,5 @@
 //
-//  UITableViewHeaderFooterView+RACSignalSupport.h
+//  UITableViewHeaderFooterView+RACSupport.h
 //  ReactiveCocoa
 //
 //  Created by Syo Ikeda on 12/30/13.
@@ -11,7 +11,7 @@
 @class RACSignal;
 
 // This category is only applicable to iOS >= 6.0.
-@interface UITableViewHeaderFooterView (RACSignalSupport)
+@interface UITableViewHeaderFooterView (RACSupport)
 
 /// A signal which will send a value whenever -prepareForReuse is invoked upon
 /// the receiver.

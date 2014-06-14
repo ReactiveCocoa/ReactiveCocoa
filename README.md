@@ -1,6 +1,6 @@
 # ReactiveCocoa
 
-ReactiveCocoa (RAC) is an Objective-C framework for [Functional Reactive
+ReactiveCocoa (RAC) is an Objective-C framework inspired by [Functional Reactive
 Programming][]. It provides APIs for **composing and transforming streams of
 values**.
 
@@ -30,7 +30,7 @@ If you have any further questions, please feel free to [file an issue](https://g
 
 ## Introduction
 
-ReactiveCocoa is an implementation of [functional reactive
+ReactiveCocoa is inspired by [functional reactive
 programming](http://blog.maybeapps.com/post/42894317939/input-and-output).
 Rather than using mutable variables which are replaced and modified in-place,
 RAC provides signals (represented by `RACSignal`) that capture present and
@@ -486,7 +486,7 @@ To add RAC to your application:
 
 If you would prefer to use [CocoaPods](http://cocoapods.org), there are some
 [ReactiveCocoa
-podspecs](https://github.com/CocoaPods/Specs/tree/master/ReactiveCocoa) that
+podspecs](https://github.com/CocoaPods/Specs/tree/master/Specs/ReactiveCocoa) that
 have been generously contributed by third parties.
 
 To see a project already set up with RAC, check out [C-41][] or [GroceryList][],
@@ -510,11 +510,12 @@ out there:
 * [101 Rx Samples](http://rxwiki.wikidot.com/101samples)
 * [Programming Reactive Extensions and LINQ](http://www.amazon.com/Programming-Reactive-Extensions-Jesse-Liberty/dp/1430237473)
 
-RAC and Rx are both implementations of functional reactive programming. Here are
-some more resources for learning about FRP:
+RAC and Rx are both frameworks inspired by functional reactive programming. Here 
+are some resources related to FRP:
 
 * [What is FRP? - Elm Language](http://elm-lang.org/learn/What-is-FRP.elm)
 * [What is Functional Reactive Programming - Stack Overflow](http://stackoverflow.com/questions/1028250/what-is-functional-reactive-programming/1030631#1030631)
+* [Specification for a Functional Reactive Language - Stack Overflow](http://stackoverflow.com/questions/5875929/specification-for-a-functional-reactive-programming-language#5878525)
 * [Escape from Callback Hell](http://elm-lang.org/learn/Escape-from-Callback-Hell.elm)
 * [Principles of Reactive Programming on Coursera](https://www.coursera.org/course/reactive)
 

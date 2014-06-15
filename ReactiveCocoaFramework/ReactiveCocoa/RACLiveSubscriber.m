@@ -31,13 +31,6 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 @interface RACLiveSubscriber () {
 	OSSpinLock _spinLock;
 }
-
-// These callbacks should only be accessed with _spinLock, and only invoked
-// while synchronized on self.
-@property (nonatomic, copy) void (^next)(id value);
-@property (nonatomic, copy) void (^error)(NSError *error);
-@property (nonatomic, copy) void (^completed)(void);
-
 @end
 
 @implementation RACLiveSubscriber

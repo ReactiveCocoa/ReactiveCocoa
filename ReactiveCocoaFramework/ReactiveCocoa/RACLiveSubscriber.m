@@ -27,15 +27,6 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 	return cleanedDTraceString(desc);
 }
 
-@interface RACLiveSubscriber ()
-
-// These callbacks should only be accessed while synchronized on self.
-@property (nonatomic, copy) void (^next)(id value);
-@property (nonatomic, copy) void (^error)(NSError *error);
-@property (nonatomic, copy) void (^completed)(void);
-
-@end
-
 @implementation RACLiveSubscriber
 
 #pragma mark Properties

@@ -66,16 +66,15 @@ const NSUInteger RACSignalUnlimitedConcurrentSubscriptions = 0;
 - (RACSignal *)map:(id (^)(id value))block {
 	NSCParameterAssert(block != nil);
 
-	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
-		[self subscribeSavingDisposable:^(RACDisposable *disposable) {
-			[subscriber.disposable addDisposable:disposable];
-		} next:^(id x) {
-			[subscriber sendNext:block(x)];
-		} error:^(NSError *error) {
-			[subscriber sendError:error];
-		} completed:^{
-			[subscriber sendCompleted];
-		}];
+	return [[RACSignal create:^(RACLiveSubscriber *subscriber) {
+		void (^oldNext)(id) = subscriber.next;
+		if (oldNext != nil) {
+			subscriber.next = ^(id value) {
+				oldNext(block(value));
+			};
+		}
+
+		[self attachSubscriber:subscriber];
 	}] setNameWithFormat:@"[%@] -map:", self.name];
 }
 

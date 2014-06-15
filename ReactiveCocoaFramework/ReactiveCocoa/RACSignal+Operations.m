@@ -52,48 +52,30 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)flattenMap:(RACSignal * (^)(id value))signalBlock {
-	return [[RACSignal
-		create:^(id<RACSubscriber> subscriber) {
-			__block volatile int32_t subscriptions = 0;
-
-			void (^subscribeSignal)(RACSignal *, void (^)(id)) = ^(RACSignal *signal, void (^nextBlock)(id)) {
-				__block RACDisposable *savedDisposable;
-
-				[signal subscribeSavingDisposable:^(RACDisposable *disposable) {
-					savedDisposable = disposable;
-
-					OSAtomicIncrement32(&subscriptions);
-					[subscriber.disposable addDisposable:savedDisposable];
-				} next:nextBlock error:^(NSError *error) {
-					[subscriber sendError:error];
-				} completed:^{
-					[subscriber.disposable removeDisposable:savedDisposable];
-					if (OSAtomicDecrement32(&subscriptions) == 0) [subscriber sendCompleted];
-				}];
-			};
-
-			subscribeSignal(self, ^(id x) {
-				RACSignal *innerSignal = signalBlock(x);
-
-				if (innerSignal == nil) return;
-				NSCAssert([innerSignal isKindOfClass:RACSignal.class], @"Expected a RACSignal, got %@", innerSignal);
-
-				// The crux of -flattenMap:
-				// Send all values from inner signals to the (outer) subscriber.
-				subscribeSignal(innerSignal, ^(id x) {
-					[subscriber sendNext:x];
-				});
-			});
-		}]
+	return [[[self
+		map:signalBlock]
+		flatten]
 		setNameWithFormat:@"[%@] -flattenMap:", self.name];
 }
 
 - (RACSignal *)flatten {
-	return [super flatten];
+	return [self flatten:0 withPolicy:RACSignalFlattenPolicyQueue];
 }
 
 - (RACSignal *)map:(id (^)(id value))block {
-	return [super map:block];
+	NSCParameterAssert(block != nil);
+
+	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
+		[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+			[subscriber.disposable addDisposable:disposable];
+		} next:^(id x) {
+			[subscriber sendNext:block(x)];
+		} error:^(NSError *error) {
+			[subscriber sendError:error];
+		} completed:^{
+			[subscriber sendCompleted];
+		}];
+	}] setNameWithFormat:@"[%@] -map:", self.name];
 }
 
 - (RACSignal *)mapReplace:(id)object {
@@ -658,8 +640,6 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)flatten:(NSUInteger)maxConcurrent withPolicy:(RACSignalFlattenPolicy)policy {
-	NSCParameterAssert(maxConcurrent > 0);
-
 	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
 		// Contains disposables for the currently active subscriptions.
 		//
@@ -738,7 +718,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 			NSCAssert([signal isKindOfClass:RACSignal.class], @"Expected a RACSignal, got %@", signal);
 
 			@synchronized (subscriber) {
-				if (activeDisposables.count >= maxConcurrent) {
+				if (maxConcurrent > 0 && activeDisposables.count >= maxConcurrent) {
 					switch (policy) {
 						case RACSignalFlattenPolicyQueue: {
 							[queuedSignals addObject:signal];
@@ -1358,11 +1338,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)flatten:(NSUInteger)maxConcurrent {
-	if (maxConcurrent == 0) {
-		return [self flatten];
-	} else {
-		return [self flatten:maxConcurrent withPolicy:RACSignalFlattenPolicyQueue];
-	}
+	return [self flatten:maxConcurrent withPolicy:RACSignalFlattenPolicyQueue];
 }
 
 - (RACSignal *)takeUntilBlock:(BOOL (^)(id x))predicate {
@@ -1433,7 +1409,9 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
 		NSMutableDictionary *groups = [NSMutableDictionary dictionary];
 
-		[subscriber.disposable addDisposable:[self subscribeNext:^(id x) {
+		[self subscribeSavingDisposable:^(RACDisposable *disposable) {
+			[subscriber.disposable addDisposable:disposable];
+		} next:^(id x) {
 			id<NSCopying> key = keyBlock(x);
 			RACGroupedSignal *groupSubject = nil;
 
@@ -1454,7 +1432,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 		} completed:^{
 			[subscriber sendCompleted];
 			[groups.allValues makeObjectsPerformSelector:@selector(sendCompleted)];
-		}]];
+		}];
 	}] setNameWithFormat:@"[%@] -groupBy:transform:", self.name];
 }
 

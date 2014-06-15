@@ -20,6 +20,10 @@ extern const NSInteger RACSignalErrorTimedOut;
 /// match any of the cases, and no default was given.
 extern const NSInteger RACSignalErrorNoMatchingCase;
 
+/// The value to pass to -flatten:withPolicy: to flatten unlimited signals
+/// concurrently.
+extern const NSUInteger RACSignalUnlimitedConcurrentSubscriptions;
+
 /// A block which accepts a value from a RACSignal and returns a new signal.
 ///
 /// Setting `stop` to `YES` will cause the bind to terminate after the returned
@@ -458,7 +462,9 @@ typedef enum : NSUInteger {
 /// in Rx.
 ///
 /// maxConcurrent - The maximum number of signals to subscribe to at a
-///                 time. This must be greater than 0.
+///                 time. This must be greater than 0 or
+///                 RACSignalUnlimitedConcurrentSubscriptions to not enforce a
+///                 maximum number.
 /// policy        - Describes what to do when `maxConcurrent` is exceeded.
 ///
 /// Returns a signal that forwards values from up to `maxConcurrent` signals at

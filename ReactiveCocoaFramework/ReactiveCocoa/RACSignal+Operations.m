@@ -34,6 +34,7 @@ NSString * const RACSignalErrorDomain = @"RACSignalErrorDomain";
 
 const NSInteger RACSignalErrorTimedOut = 1;
 const NSInteger RACSignalErrorNoMatchingCase = 2;
+const NSUInteger RACSignalUnlimitedConcurrentSubscriptions = 0;
 
 @implementation RACSignal (Operations)
 
@@ -59,7 +60,7 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)flatten {
-	return [self flatten:0 withPolicy:RACSignalFlattenPolicyQueue];
+	return [self flatten:RACSignalUnlimitedConcurrentSubscriptions withPolicy:RACSignalFlattenPolicyQueue];
 }
 
 - (RACSignal *)map:(id (^)(id value))block {
@@ -640,6 +641,8 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)flatten:(NSUInteger)maxConcurrent withPolicy:(RACSignalFlattenPolicy)policy {
+	NSCParameterAssert(maxConcurrent > 0 || maxConcurrent == RACSignalUnlimitedConcurrentSubscriptions);
+
 	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
 		// Contains disposables for the currently active subscriptions.
 		//

@@ -41,6 +41,7 @@ RACDeprecated("Use RACSignal instead")
 + (instancetype)zip:(id<NSFastEnumeration>)streams reduce:(id (^)())reduceBlock;
 + (instancetype)concat:(id<NSFastEnumeration>)streams;
 - (instancetype)scanWithStart:(id)startingValue reduce:(id (^)(id running, id next))block;
+- (instancetype)scanWithStart:(id)startingValue reduceWithIndex:(id (^)(id running, id next, NSUInteger index))reduceBlock;
 - (instancetype)combinePreviousWithStart:(id)start reduce:(id (^)(id previous, id current))reduceBlock;
 - (instancetype)takeUntilBlock:(BOOL (^)(id x))predicate;
 - (instancetype)takeWhileBlock:(BOOL (^)(id x))predicate;

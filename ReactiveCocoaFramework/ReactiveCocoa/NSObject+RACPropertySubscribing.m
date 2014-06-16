@@ -48,8 +48,9 @@ static NSArray *RACConvertToArray(id collection) {
 - (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath {
 	return [[[self
 		rac_valuesAndChangesForKeyPath:keyPath options:NSKeyValueObservingOptionInitial]
-		reduceEach:^(id value, NSDictionary *change) {
-			return value;
+		map:^(RACTuple *value) {
+			// -map: because it doesn't require the block trampoline that -reduceEach: uses
+			return value[0];
 		}]
 		setNameWithFormat:@"RACObserve(%@, %@)", self.rac_description, keyPath];
 }
@@ -158,7 +159,7 @@ static NSArray *RACConvertToArray(id collection) {
 				return;
 			}
 
-			[subscriber.disposable addDisposable:[self rac_observeKeyPath:keyPath options:options block:^(id value, NSDictionary *change) {
+			[subscriber.disposable addDisposable:[self rac_observeKeyPath:keyPath options:options block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
 				[subscriber sendNext:RACTuplePack(value, change)];
 			}]];
 		}]

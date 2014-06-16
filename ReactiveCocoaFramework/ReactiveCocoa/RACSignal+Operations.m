@@ -11,6 +11,7 @@
 #import "NSArray+RACSupport.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACDescription.h"
+#import "RACBlockTrampoline.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACDynamicSignalGenerator.h"
@@ -788,11 +789,20 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)aggregateWithStart:(id)start reduce:(id (^)(id running, id next))reduceBlock {
+	return [[self
+		aggregateWithStart:start
+		reduceWithIndex:^(id running, id next, NSUInteger index) {
+			return reduceBlock(running, next);
+		}]
+		setNameWithFormat:@"[%@] -aggregateWithStart: %@ reduce:", self.name, [start rac_description]];
+}
+
+- (RACSignal *)aggregateWithStart:(id)start reduceWithIndex:(id (^)(id, id, NSUInteger))reduceBlock {
 	return [[[[self
-		scanWithStart:start reduce:reduceBlock]
+		scanWithStart:start reduceWithIndex:reduceBlock]
 		startWith:start]
 		takeLast:1]
-		setNameWithFormat:@"[%@] -aggregateWithStart: %@ reduce:", self.name, [start rac_description]];
+		setNameWithFormat:@"[%@] -aggregateWithStart: %@ reduceWithIndex:", self.name, [start rac_description]];
 }
 
 - (RACDisposable *)setKeyPath:(NSString *)keyPath onObject:(NSObject *)object {
@@ -1309,6 +1319,22 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 
 		return @NO;
 	}] setNameWithFormat:@"[%@] -or", self.name];
+}
+
+- (RACSignal *)reduceApply {
+	return [[self map:^(RACTuple *tuple) {
+		NSCAssert([tuple isKindOfClass:RACTuple.class], @"-reduceApply must only be used on a signal of RACTuples. Instead, received: %@", tuple);
+		NSCAssert(tuple.count > 1, @"-reduceApply must only be used on a signal of RACTuples, with at least a block in tuple[0] and its first argument in tuple[1]");
+		
+		// We can't use -array, because we need to preserve RACTupleNil
+		NSMutableArray *tupleArray = [NSMutableArray arrayWithCapacity:tuple.count];
+		for (id val in tuple) {
+			[tupleArray addObject:val];
+		}
+		RACTuple *arguments = [RACTuple tupleWithArray:[tupleArray subarrayWithRange:NSMakeRange(1, tupleArray.count - 1)]];
+		
+		return [RACBlockTrampoline invokeBlock:tuple[0] withArguments:arguments];
+	}] setNameWithFormat:@"[%@] -reduceApply", self.name];
 }
 
 @end

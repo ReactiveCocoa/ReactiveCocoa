@@ -104,19 +104,19 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 	});
 
 	it(@"should not call the callback block on add if called without NSKeyValueObservingOptionInitial", ^{
-		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior observer:nil block:callbackBlock];
+		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior block:callbackBlock];
 		expect(priorCallCount).to.equal(0);
 		expect(posteriorCallCount).to.equal(0);
 	});
 
 	it(@"should call the callback block on add if called with NSKeyValueObservingOptionInitial", ^{
-		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior | NSKeyValueObservingOptionInitial observer:nil block:callbackBlock];
+		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior | NSKeyValueObservingOptionInitial block:callbackBlock];
 		expect(priorCallCount).to.equal(0);
 		expect(posteriorCallCount).to.equal(1);
 	});
 
 	it(@"should call the callback block twice per change, once prior and once posterior", ^{
-		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior observer:nil block:callbackBlock];
+		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior block:callbackBlock];
 		priorCallCount = 0;
 		posteriorCallCount = 0;
 
@@ -147,7 +147,7 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 		changeBlock(target, value1);
 		id oldValue = [target valueForKeyPath:keyPath];
 
-		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior observer:nil block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
+		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
 			if ([change[NSKeyValueChangeNotificationIsPriorKey] boolValue]) {
 				priorCalled = YES;
 				priorValue = value;
@@ -169,7 +169,7 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 	});
 
 	it(@"should not call the callback block after it's been disposed", ^{
-		RACDisposable *disposable = [target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior observer:nil block:callbackBlock];
+		RACDisposable *disposable = [target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior block:callbackBlock];
 		priorCallCount = 0;
 		posteriorCallCount = 0;
 
@@ -186,7 +186,7 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 	it(@"should call the callback block only once with NSKeyValueChangeNotificationIsPriorKey not set when the value is deallocated", ^{
 		__block BOOL valueDidDealloc = NO;
 
-		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior observer:nil block:callbackBlock];
+		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior block:callbackBlock];
 
 		@autoreleasepool {
 			NSObject *value __attribute__((objc_precise_lifetime)) = valueBlock();
@@ -233,7 +233,7 @@ sharedExamplesFor(RACKVOWrapperCollectionExamples, ^(NSDictionary *data) {
 		} copy];
 
 		[target setValue:[NSOrderedSet orderedSetWithObject:@0] forKeyPath:keyPath];
-		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld | NSKeyValueObservingOptionPrior observer:nil block:callbackBlock];
+		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld | NSKeyValueObservingOptionPrior block:callbackBlock];
 		mutableKeyPathProxy = [target mutableOrderedSetValueForKeyPath:keyPath];
 	});
 
@@ -314,7 +314,7 @@ SharedExampleGroupsEnd
 
 SpecBegin(RACKVOWrapper)
 
-describe(@"-rac_observeKeyPath:options:observer:block:", ^{
+describe(@"-rac_observeKeyPath:options:block:", ^{
 	describe(@"on simple keys", ^{
 		NSObject * (^targetBlock)(void) = ^{
 			return [[RACTestObject alloc] init];
@@ -401,7 +401,7 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 
 			__block id lastValue = nil;
 			@autoreleasepool {
-				[object rac_observeKeyPath:@keypath(object.dynamicObjectProperty) options:NSKeyValueObservingOptionInitial observer:nil block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
+				[object rac_observeKeyPath:@keypath(object.dynamicObjectProperty) options:NSKeyValueObservingOptionInitial block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
 					lastValue = value;
 				}];
 
@@ -416,7 +416,7 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 
 			__block id lastValue = nil;
 			@autoreleasepool {
-				[object rac_observeKeyPath:@keypath(object.dynamicObjectProperty.integerValue) options:NSKeyValueObservingOptionInitial observer:nil block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
+				[object rac_observeKeyPath:@keypath(object.dynamicObjectProperty.integerValue) options:NSKeyValueObservingOptionInitial block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
 					lastValue = value;
 				}];
 
@@ -431,7 +431,7 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 
 			__block id lastValue = nil;
 			@autoreleasepool {
-				[object rac_observeKeyPath:@keypath(object.dynamicObjectMethod) options:NSKeyValueObservingOptionInitial observer:nil block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
+				[object rac_observeKeyPath:@keypath(object.dynamicObjectMethod) options:NSKeyValueObservingOptionInitial block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
 					lastValue = value;
 				}];
 
@@ -442,38 +442,23 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 		});
 	});
 
-	it(@"should not call the callback block when the value is the observer", ^{
-		__block BOOL observerDisposed = NO;
-		__block BOOL observerDeallocationTriggeredChange = NO;
+	it(@"should call the callback block when the value is the target", ^{
 		__block BOOL targetDisposed = NO;
 		__block BOOL targetDeallocationTriggeredChange = NO;
 
 		@autoreleasepool {
-			RACTestObject *observer __attribute__((objc_precise_lifetime)) = [RACTestObject new];
-			[observer.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-				observerDisposed = YES;
-			}]];
-
 			RACTestObject *target __attribute__((objc_precise_lifetime)) = [RACTestObject new];
 			[target.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				targetDisposed = YES;
 			}]];
 
-			observer.weakTestObjectValue = observer;
 			target.weakTestObjectValue = target;
 
-			// These observations can only result in dealloc triggered callbacks.
-			[observer rac_observeKeyPath:@keypath(target.weakTestObjectValue) options:0 observer:observer block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
-				observerDeallocationTriggeredChange = YES;
-			}];
-
-			[target rac_observeKeyPath:@keypath(target.weakTestObjectValue) options:0 observer:observer block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
+			// This observation can only result in dealloc triggered callbacks.
+			[target rac_observeKeyPath:@keypath(target.weakTestObjectValue) options:0 block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
 				targetDeallocationTriggeredChange = YES;
 			}];
 		}
-
-		expect(observerDisposed).to.beTruthy();
-		expect(observerDeallocationTriggeredChange).to.beFalsy();
 
 		expect(targetDisposed).to.beTruthy();
 		expect(targetDeallocationTriggeredChange).to.beTruthy();
@@ -491,7 +476,7 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 				objectDisposed = YES;
 			}]];
 
-			[target rac_observeKeyPath:@keypath(target.weakTestObjectValue) options:0 observer:target block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
+			[target rac_observeKeyPath:@keypath(target.weakTestObjectValue) options:0 block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
 				objectDeallocationTriggeredChange = YES;
 			}];
 		}
@@ -512,7 +497,7 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 				objectDisposed = YES;
 			}]];
 
-			[target rac_observeKeyPath:@keypath(target.weakObjectWithProtocol) options:0 observer:target block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
+			[target rac_observeKeyPath:@keypath(target.weakObjectWithProtocol) options:0 block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
 				objectDeallocationTriggeredChange = YES;
 			}];
 		}
@@ -528,7 +513,7 @@ describe(@"rac_addObserver:forKeyPath:options:block:", ^{
 		expect(operation).notTo.beNil();
 
 		__block BOOL notified = NO;
-		RACDisposable *disposable = [operation rac_observeKeyPath:@"isFinished" options:NSKeyValueObservingOptionNew observer:self block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
+		RACDisposable *disposable = [operation rac_observeKeyPath:@"isFinished" options:NSKeyValueObservingOptionNew block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
 			expect([change objectForKey:NSKeyValueChangeNewKey]).to.equal(@YES);
 
 			expect(notified).to.beFalsy();
@@ -541,17 +526,18 @@ describe(@"rac_addObserver:forKeyPath:options:block:", ^{
 		[operation waitUntilFinished];
 
 		expect(notified).will.beTruthy();
+		[disposable dispose];
 	});
 
 	it(@"should accept a nil observer", ^{
 		NSBlockOperation *operation = [NSBlockOperation blockOperationWithBlock:^{}];
-		RACDisposable *disposable = [operation rac_observeKeyPath:@"isFinished" options:NSKeyValueObservingOptionNew observer:nil block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {}];
+		RACDisposable *disposable = [operation rac_observeKeyPath:@"isFinished" options:NSKeyValueObservingOptionNew block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {}];
 
 		expect(disposable).notTo.beNil();
 	});
 
 	it(@"automatically stops KVO on subclasses when the target deallocates", ^{
-		void (^testKVOOnSubclass)(Class targetClass, id observer) = ^(Class targetClass, id observer) {
+		void (^testKVOOnSubclass)(Class targetClass) = ^(Class targetClass) {
 			__weak id weakTarget = nil;
 			__weak id identifier = nil;
 
@@ -563,7 +549,7 @@ describe(@"rac_addObserver:forKeyPath:options:block:", ^{
 				weakTarget = (__bridge id)target;
 				expect(weakTarget).notTo.beNil();
 
-				identifier = [(__bridge id)target rac_observeKeyPath:@"isFinished" options:0 observer:observer block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {}];
+				identifier = [(__bridge id)target rac_observeKeyPath:@"isFinished" options:0 block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {}];
 				expect(identifier).notTo.beNil();
 
 				CFRelease(target);
@@ -574,50 +560,19 @@ describe(@"rac_addObserver:forKeyPath:options:block:", ^{
 		};
 
 		it (@"stops KVO on NSObject subclasses", ^{
-			testKVOOnSubclass(NSOperation.class, self);
+			testKVOOnSubclass(NSOperation.class);
 		});
 
 		it(@"stops KVO on subclasses of already-swizzled classes", ^{
-			testKVOOnSubclass(RACTestOperation.class, self);
-		});
-
-		it (@"stops KVO on NSObject subclasses even with a nil observer", ^{
-			testKVOOnSubclass(NSOperation.class, nil);
-		});
-
-		it(@"stops KVO on subclasses of already-swizzled classes even with a nil observer", ^{
-			testKVOOnSubclass(RACTestOperation.class, nil);
+			testKVOOnSubclass(RACTestOperation.class);
 		});
 	});
 
-	it(@"should automatically stop KVO when the observer deallocates", ^{
-		__weak id weakObserver = nil;
-		__weak id identifier = nil;
-
-		NSOperation *operation = [[NSOperation alloc] init];
-
-		@autoreleasepool {
-			// Create an observer that we control the memory management of.
-			CFTypeRef observer = CFBridgingRetain([[NSOperation alloc] init]);
-			expect(observer).notTo.beNil();
-
-			weakObserver = (__bridge id)observer;
-			expect(weakObserver).notTo.beNil();
-
-			identifier = [operation rac_observeKeyPath:@"isFinished" options:0 observer:(__bridge id)observer block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {}];
-			expect(identifier).notTo.beNil();
-
-			CFRelease(observer);
-		}
-
-		expect(weakObserver).to.beNil();
-	});
-
-	it(@"should stop KVO when the observer is disposed", ^{
+	it(@"should stop KVO when the observation is disposed", ^{
 		NSOperationQueue *queue = [[NSOperationQueue alloc] init];
 		__block NSString *name = nil;
 
-		RACDisposable *disposable = [queue rac_observeKeyPath:@"name" options:0 observer:self block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
+		RACDisposable *disposable = [queue rac_observeKeyPath:@"name" options:0 block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
 			name = queue.name;
 		}];
 
@@ -628,22 +583,24 @@ describe(@"rac_addObserver:forKeyPath:options:block:", ^{
 		expect(name).to.equal(@"1");
 	});
 
-	it(@"should distinguish between observers being disposed", ^{
+	it(@"should distinguish between observations being disposed", ^{
 		NSOperationQueue *queue = [[NSOperationQueue alloc] init];
 		__block NSString *name1 = nil;
 		__block NSString *name2 = nil;
 
-		RACDisposable *disposable = [queue rac_observeKeyPath:@"name" options:0 observer:self block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
+		RACDisposable *disposable = [queue rac_observeKeyPath:@"name" options:0 block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
 			name1 = queue.name;
 		}];
-		[queue rac_observeKeyPath:@"name" options:0 observer:self block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
+		[queue rac_observeKeyPath:@"name" options:0 block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
 			name2 = queue.name;
 		}];
 
 		queue.name = @"1";
 		expect(name1).to.equal(@"1");
 		expect(name2).to.equal(@"1");
+
 		[disposable dispose];
+
 		queue.name = @"2";
 		expect(name1).to.equal(@"1");
 		expect(name2).to.equal(@"2");

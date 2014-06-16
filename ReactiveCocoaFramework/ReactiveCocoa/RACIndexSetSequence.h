@@ -8,9 +8,13 @@
 
 #import "RACSequence.h"
 
-// Private class that adapts an array to the RACSequence interface.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
+
 @interface RACIndexSetSequence : RACSequence
 
 + (instancetype)sequenceWithIndexSet:(NSIndexSet *)indexSet;
 
 @end
+
+#pragma clang diagnostic pop

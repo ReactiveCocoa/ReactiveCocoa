@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#import "NSText+RACSignalSupport.h"
+#import "NSText+RACSupport.h"
 #import "RACSignal.h"
 
 SpecBegin(NSTextRACSupport)

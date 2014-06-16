@@ -15,6 +15,7 @@
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSignal+Operations.h"
+#import "RACSubject.h"
 
 // Key for the array of RACKVOChannel's additional thread local
 // data in the thread dictionary.
@@ -86,7 +87,7 @@ static NSString * const RACKVOChannelDataDictionaryKey = @"RACKVOChannelKey";
 	//
 	// Intentionally capturing `self` strongly in the blocks below, so the
 	// channel object stays alive while observing.
-	RACDisposable *observationDisposable = [target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionInitial observer:nil block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
+	RACDisposable *observationDisposable = [target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionInitial block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
 		// If the change wasn't triggered by deallocation, only affects the last
 		// path component, and ignoreNextUpdate is set, then it was triggered by
 		// this channel and should not be forwarded.
@@ -105,7 +106,7 @@ static NSString * const RACKVOChannelDataDictionaryKey = @"RACKVOChannelKey";
 
 	// Update the value of the property with the values received.
 	[[self.leadingTerminal
-		finally:^{
+		doFinished:^{
 			[observationDisposable dispose];
 		}]
 		subscribeNext:^(id x) {

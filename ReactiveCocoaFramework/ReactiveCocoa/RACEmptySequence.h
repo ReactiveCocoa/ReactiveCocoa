@@ -8,7 +8,11 @@
 
 #import "RACSequence.h"
 
-// Private class representing an empty sequence.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 @interface RACEmptySequence : RACSequence
 
 @end
+
+#pragma clang diagnostic pop

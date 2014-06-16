@@ -8,7 +8,11 @@
 
 #import "RACSequence.h"
 
-// Private class representing a sequence of exactly one value.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 @interface RACUnarySequence : RACSequence
 
 @end
+
+#pragma clang diagnostic pop

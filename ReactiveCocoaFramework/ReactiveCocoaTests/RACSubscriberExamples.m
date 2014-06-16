@@ -8,7 +8,6 @@
 
 #import "RACSubscriberExamples.h"
 
-#import "NSObject+RACDeallocating.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSubject.h"
@@ -124,17 +123,17 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 
 		it(@"should dispose of all current subscriptions upon termination", ^{
 			__block BOOL firstDisposed = NO;
-			RACSignal *firstDisposableSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-				return [RACDisposable disposableWithBlock:^{
+			RACSignal *firstDisposableSignal = [RACSignal create:^(id<RACSubscriber> subscriber) {
+				[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
 					firstDisposed = YES;
-				}];
+				}]];
 			}];
 
 			__block BOOL secondDisposed = NO;
-			RACSignal *secondDisposableSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-				return [RACDisposable disposableWithBlock:^{
+			RACSignal *secondDisposableSignal = [RACSignal create:^(id<RACSubscriber> subscriber) {
+				[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
 					secondDisposed = YES;
-				}];
+				}]];
 			}];
 
 			[firstDisposableSignal subscribe:subscriber];
@@ -151,10 +150,10 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 
 		it(@"should dispose of future subscriptions upon termination", ^{
 			__block BOOL disposed = NO;
-			RACSignal *disposableSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-				return [RACDisposable disposableWithBlock:^{
+			RACSignal *disposableSignal = [RACSignal create:^(id<RACSubscriber> subscriber) {
+				[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
 					disposed = YES;
-				}];
+				}]];
 			}];
 
 			[first sendCompleted];
@@ -162,22 +161,6 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 
 			[disposableSignal subscribe:subscriber];
 			expect(disposed).to.beTruthy();
-		});
-	});
-
-	describe(@"memory management", ^{
-		it(@"should not retain disposed disposables", ^{
-			__block BOOL disposableDeallocd = NO;
-			@autoreleasepool {
-				RACCompoundDisposable *disposable __attribute__((objc_precise_lifetime)) = [RACCompoundDisposable disposableWithBlock:^{}];
-				[disposable.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-					disposableDeallocd = YES;
-				}]];
-
-				[subscriber didSubscribeWithDisposable:disposable];
-				[disposable dispose];
-			}
-			expect(disposableDeallocd).to.beTruthy();
 		});
 	});
 });

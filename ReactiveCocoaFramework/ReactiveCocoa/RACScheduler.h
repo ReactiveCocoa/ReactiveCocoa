@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "RACDeprecated.h"
 
 /// The priority for the scheduler.
 ///
@@ -20,10 +21,6 @@ typedef enum : long {
 	RACSchedulerPriorityLow = DISPATCH_QUEUE_PRIORITY_LOW,
 	RACSchedulerPriorityBackground = DISPATCH_QUEUE_PRIORITY_BACKGROUND,
 } RACSchedulerPriority;
-
-/// Scheduled with -scheduleRecursiveBlock:, this type of block is passed a block
-/// with which it can call itself recursively.
-typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 
 @class RACDisposable;
 
@@ -120,29 +117,18 @@ typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 /// rescheduling, or nil if cancellation is not supported.
 - (RACDisposable *)after:(NSDate *)date repeatingEvery:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway schedule:(void (^)(void))block;
 
-/// Schedule the given recursive block for execution on the scheduler. The
-/// scheduler will automatically flatten any recursive scheduling into iteration
-/// instead, so this can be used without issue for blocks that may keep invoking
-/// themselves forever.
-///
-/// Scheduled blocks will be executed in the order in which they were scheduled.
-///
-/// recursiveBlock - The block to schedule for execution. When invoked, the
-///                  recursive block will be passed a `void (^)(void)` block
-///                  which will reschedule the recursive block at the end of the
-///                  receiver's queue. This passed-in block will automatically
-///                  skip scheduling if the scheduling of the `recursiveBlock`
-///                  was disposed in the meantime.
-///
-/// Returns a disposable which can be used to cancel the scheduled block before
-/// it begins executing, or to stop it from rescheduling if it's already begun
-/// execution.
-- (RACDisposable *)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock;
-
 @end
+
+typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
 
 @interface RACScheduler (Deprecated)
 
-+ (RACScheduler *)schedulerWithQueue:(dispatch_queue_t)queue name:(NSString *)name __attribute__((deprecated("Use -[RACScheduler initWithName:targetQueue:] instead.")));
+- (RACDisposable *)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock RACDeprecated("Use -scheduleOn: and a reflexive RACDynamicSignalGenerator instead");
+
+@end
+
+@interface RACScheduler (Unavailable)
+
++ (RACScheduler *)schedulerWithQueue:(dispatch_queue_t)queue name:(NSString *)name __attribute__((unavailable("Use -[RACScheduler initWithName:targetQueue:] instead.")));
 
 @end

@@ -8,32 +8,57 @@
 
 #import "NSFileHandle+RACSupport.h"
 #import "NSNotificationCenter+RACSupport.h"
+#import "NSObject+RACDescription.h"
 #import "RACReplaySubject.h"
-#import "RACDisposable.h"
+#import "RACScheduler.h"
+#import "RACSignal+Operations.h"
 
 @implementation NSFileHandle (RACSupport)
 
-- (RACSignal *)rac_readInBackground {
-	RACReplaySubject *subject = [RACReplaySubject subject];
-	[subject setNameWithFormat:@"%@ -rac_readInBackground", self];
+- (RACSignal *)rac_readDataToEndOfFile {
+	return [[[[[[RACSignal
+		create:^(id<RACSubscriber> subscriber) {
+			[[NSNotificationCenter.defaultCenter
+				rac_addObserverForName:NSFileHandleReadCompletionNotification object:self]
+				subscribe:subscriber];
 
-	RACSignal *dataNotification = [[[NSNotificationCenter defaultCenter] rac_addObserverForName:NSFileHandleReadCompletionNotification object:self] map:^(NSNotification *note) {
-		return note.userInfo[NSFileHandleNotificationDataItem];
-	}];
-	
-	__block RACDisposable *subscription = [dataNotification subscribeNext:^(NSData *data) {
-		if (data.length > 0) {
-			[subject sendNext:data];
 			[self readInBackgroundAndNotify];
-		} else {
-			[subject sendCompleted];
-			[subscription dispose];
-		}
-	}];
-	
-	[self readInBackgroundAndNotify];
-	
-	return subject;
+		}]
+		map:^(NSNotification *note) {
+			return note.userInfo[NSFileHandleNotificationDataItem];
+		}]
+		takeWhile:^ BOOL (NSData *data) {
+			return data.length > 0;
+		}]
+		flattenMap:^(NSData *data) {
+			// Deliver the data to the subscriber first, then read more.
+			return [[RACSignal
+				return:data]
+				doCompleted:^{
+					[self readInBackgroundAndNotify];
+				}];
+		}]
+		// -readInBackgroundAndNotify must be called on a thread with a run loop,
+		// so subscribe on the main thread.
+		subscribeOn:RACScheduler.mainThreadScheduler]
+		setNameWithFormat:@"%@ -rac_readDataToEndOfFile", self.rac_description];
 }
 
 @end
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
+@implementation NSFileHandle (RACSupportDeprecated)
+
+- (RACSignal *)rac_readInBackground {
+	RACReplaySubject *subject = [RACReplaySubject subject];
+	[[self rac_readDataToEndOfFile] subscribe:subject];
+
+	return [subject setNameWithFormat:@"%@ -rac_readInBackground", self];
+}
+
+@end
+
+#pragma clang diagnostic pop

@@ -6,17 +6,14 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import "RACDeprecated.h"
 #import "RACSubject.h"
 
 extern const NSUInteger RACReplaySubjectUnlimitedCapacity;
 
-/// A replay subject saves the values it is sent (up to its defined capacity)
-/// and resends those to new subscribers. It will also replay an error or
-/// completion.
+RACDeprecated("Use a plain RACSignal or RACSubject instead")
 @interface RACReplaySubject : RACSubject
 
-/// Creates a new replay subject with the given capacity. A capacity of
-/// RACReplaySubjectUnlimitedCapacity means values are never trimmed.
 + (instancetype)replaySubjectWithCapacity:(NSUInteger)capacity;
 
 @end

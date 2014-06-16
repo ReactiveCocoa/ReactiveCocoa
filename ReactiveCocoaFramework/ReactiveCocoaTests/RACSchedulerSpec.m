@@ -45,7 +45,6 @@ it(@"should know its current scheduler", ^{
 	RACScheduler *backgroundScheduler = [RACScheduler scheduler];
 
 	expectCurrentSchedulers(@[ backgroundScheduler, RACScheduler.immediateScheduler ], @[ backgroundScheduler, backgroundScheduler ]);
-	expectCurrentSchedulers(@[ backgroundScheduler, RACScheduler.subscriptionScheduler ], @[ backgroundScheduler, backgroundScheduler ]);
 
 	NSArray *mainThreadJumper = @[ RACScheduler.mainThreadScheduler, backgroundScheduler, RACScheduler.mainThreadScheduler ];
 	expectCurrentSchedulers(mainThreadJumper, mainThreadJumper);
@@ -214,64 +213,6 @@ describe(@"+scheduler", ^{
 	});
 });
 
-describe(@"+subscriptionScheduler", ^{
-	describe(@"setting +currentScheduler", ^{
-		__block RACScheduler *currentScheduler;
-
-		beforeEach(^{
-			currentScheduler = nil;
-		});
-
-		it(@"should be the +mainThreadScheduler when scheduled from the main queue", ^{
-			dispatch_async(dispatch_get_main_queue(), ^{
-				[RACScheduler.subscriptionScheduler schedule:^{
-					currentScheduler = RACScheduler.currentScheduler;
-				}];
-			});
-
-			expect(currentScheduler).will.equal(RACScheduler.mainThreadScheduler);
-		});
-
-		it(@"should be a +scheduler when scheduled from an unknown queue", ^{
-			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-				[RACScheduler.subscriptionScheduler schedule:^{
-					currentScheduler = RACScheduler.currentScheduler;
-				}];
-			});
-
-			expect(currentScheduler).willNot.beNil();
-			expect(currentScheduler).notTo.equal(RACScheduler.mainThreadScheduler);
-		});
-
-		it(@"should equal the background scheduler from which the block was scheduled", ^{
-			RACScheduler *backgroundScheduler = [RACScheduler scheduler];
-			[backgroundScheduler schedule:^{
-				[RACScheduler.subscriptionScheduler schedule:^{
-					currentScheduler = RACScheduler.currentScheduler;
-				}];
-			}];
-
-			expect(currentScheduler).will.equal(backgroundScheduler);
-		});
-	});
-
-	it(@"should execute scheduled blocks immediately if it's in a scheduler already", ^{
-		__block BOOL done = NO;
-		__block BOOL executedImmediately = NO;
-
-		[[RACScheduler scheduler] schedule:^{
-			[RACScheduler.subscriptionScheduler schedule:^{
-				executedImmediately = YES;
-			}];
-
-			done = YES;
-		}];
-
-		expect(done).will.beTruthy();
-		expect(executedImmediately).to.beTruthy();
-	});
-});
-
 describe(@"+immediateScheduler", ^{
 	it(@"should immediately execute scheduled blocks", ^{
 		__block BOOL executed = NO;
@@ -291,110 +232,6 @@ describe(@"+immediateScheduler", ^{
 
 		expect(executed).to.beTruthy();
 		expect(disposable).to.beNil();
-	});
-});
-
-describe(@"-scheduleRecursiveBlock:", ^{
-	describe(@"with a synchronous scheduler", ^{
-		it(@"should behave like a normal block when it doesn't invoke itself", ^{
-			__block BOOL executed = NO;
-			[RACScheduler.immediateScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
-				expect(executed).to.beFalsy();
-				executed = YES;
-			}];
-
-			expect(executed).to.beTruthy();
-		});
-
-		it(@"should reschedule itself after the caller completes", ^{
-			__block NSUInteger count = 0;
-			[RACScheduler.immediateScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
-				NSUInteger thisCount = ++count;
-				if (thisCount < 3) {
-					recurse();
-
-					// The block shouldn't have been invoked again yet, only
-					// scheduled.
-					expect(count).to.equal(thisCount);
-				}
-			}];
-
-			expect(count).to.equal(3);
-		});
-
-		it(@"should unroll deep recursion", ^{
-			static const NSUInteger depth = 100000;
-			__block NSUInteger scheduleCount = 0;
-			[RACScheduler.immediateScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
-				scheduleCount++;
-
-				if (scheduleCount < depth) recurse();
-			}];
-
-			expect(scheduleCount).to.equal(depth);
-		});
-	});
-
-	describe(@"with an asynchronous scheduler", ^{
-		it(@"should behave like a normal block when it doesn't invoke itself", ^{
-			__block BOOL executed = NO;
-			[RACScheduler.mainThreadScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
-				expect(executed).to.beFalsy();
-				executed = YES;
-			}];
-
-			expect(executed).will.beTruthy();
-		});
-
-		it(@"should reschedule itself after the caller completes", ^{
-			__block NSUInteger count = 0;
-			[RACScheduler.mainThreadScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
-				NSUInteger thisCount = ++count;
-				if (thisCount < 3) {
-					recurse();
-
-					// The block shouldn't have been invoked again yet, only
-					// scheduled.
-					expect(count).to.equal(thisCount);
-				}
-			}];
-
-			expect(count).will.equal(3);
-		});
-
-		it(@"should reschedule when invoked asynchronously", ^{
-			__block NSUInteger count = 0;
-
-			RACScheduler *asynchronousScheduler = [RACScheduler scheduler];
-			[RACScheduler.mainThreadScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
-				[asynchronousScheduler after:[NSDate dateWithTimeIntervalSinceNow:0.01] schedule:^{
-					NSUInteger thisCount = ++count;
-					if (thisCount < 3) {
-						recurse();
-
-						// The block shouldn't have been invoked again yet, only
-						// scheduled.
-						expect(count).to.equal(thisCount);
-					}
-				}];
-			}];
-
-			expect(count).will.equal(3);
-		});
-
-		it(@"shouldn't reschedule itself when disposed", ^{
-			__block NSUInteger count = 0;
-			__block RACDisposable *disposable = [RACScheduler.mainThreadScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
-				++count;
-
-				expect(disposable).notTo.beNil();
-				[disposable dispose];
-
-				recurse();
-			}];
-
-			expect(count).will.equal(1);
-		});
 	});
 });
 

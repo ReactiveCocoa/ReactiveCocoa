@@ -7,9 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "RACDeprecated.h"
 #import "metamacros.h"
 
 @class RACSequence;
+@class RACSignal;
 
 /// Creates a new tuple with the given values. At least one value must be given.
 /// Values can be nil.
@@ -48,72 +50,83 @@
 /// It should never be necessary to create a tuple nil yourself. Just use
 /// +tupleNil.
 @interface RACTupleNil : NSObject <NSCopying, NSCoding>
-/// A singleton instance.
-+ (RACTupleNil *)tupleNil;
-@end
 
+/// A singleton instance.
++ (instancetype)tupleNil;
+
+@end
 
 /// A tuple is an ordered collection of objects. It may contain nils, represented
 /// by RACTupleNil.
 @interface RACTuple : NSObject <NSCoding, NSCopying, NSFastEnumeration>
 
+/// The number of objects in the tuple, including any nil values.
 @property (nonatomic, readonly) NSUInteger count;
 
-/// These properties all return the object at that index or nil if the number of 
-/// objects is less than the index.
-@property (nonatomic, readonly) id first;
-@property (nonatomic, readonly) id second;
-@property (nonatomic, readonly) id third;
-@property (nonatomic, readonly) id fourth;
-@property (nonatomic, readonly) id fifth;
-@property (nonatomic, readonly) id last;
+/// An array of all the objects in the tuple.
+///
+/// RACTupleNils are converted to NSNulls in the array.
+@property (nonatomic, copy, readonly) NSArray *array;
 
-/// Creates a new tuple out of the array. Does not convert nulls to nils.
-+ (instancetype)tupleWithObjectsFromArray:(NSArray *)array;
+/// A signal that will send all of the objects in the tuple.
+///
+/// RACTupleNils will be sent as `nil` values on the signal.
+@property (nonatomic, strong, readonly) RACSignal *rac_signal;
 
-/// Creates a new tuple out of the array. If `convert` is YES, it also converts
-/// every NSNull to RACTupleNil.
-+ (instancetype)tupleWithObjectsFromArray:(NSArray *)array convertNullsToNils:(BOOL)convert;
+/// Invokes +tupleWithArray:convertNullsToNils: with `convert` set to NO.
++ (instancetype)tupleWithArray:(NSArray *)array;
 
-/// Creates a new tuple with the given objects. Use RACTupleNil to represent
-/// nils.
+/// Creates a new tuple out of the given array.
+///
+/// convert - Whether to convert `NSNull` objects in the array to `RACTupleNil`
+///           values for the tuple. If this is NO, `NSNull`s will be left
+///           untouched.
++ (instancetype)tupleWithArray:(NSArray *)array convertNullsToNils:(BOOL)convert;
+
+/// Creates a new tuple with the given objects.
+///
+/// To include nil objects in the tuple, use `RACTupleNil` in the argument list.
 + (instancetype)tupleWithObjects:(id)object, ... NS_REQUIRES_NIL_TERMINATION;
 
-/// Returns the object at `index` or nil if the object is a RACTupleNil. Unlike
-/// NSArray and friends, it's perfectly fine to ask for the object at an index
-/// past the tuple's count - 1. It will simply return nil.
+/// Retrieves the object at the given index.
+///
+/// Unlike `NSArray` and friends, it's perfectly fine to ask for the object at
+/// an index past the end of the tuple. It will simply return nil.
+///
+/// Returns the object at `index`, or `nil` if the object is a `RACTupleNil` or
+/// the index is out of bounds.
 - (id)objectAtIndex:(NSUInteger)index;
-
-/// Returns an array of all the objects. RACTupleNils are converted to NSNulls.
-- (NSArray *)allObjects;
-
-/// Appends `obj` to the receiver.
-///
-/// obj - The object to add to the tuple. This argument may be nil.
-///
-/// Returns a new tuple.
-- (instancetype)tupleByAddingObject:(id)obj;
-
-@end
-
-@interface RACTuple (RACSequenceAdditions)
-
-/// Returns a sequence of all the objects. RACTupleNils are converted to NSNulls.
-@property (nonatomic, copy, readonly) RACSequence *rac_sequence;
 
 @end
 
 @interface RACTuple (ObjectSubscripting)
-/// Returns the object at that index or nil if the number of objects is less
-/// than the index.
+
+/// Invokes -objectAtIndex: with the given index.
 - (id)objectAtIndexedSubscript:(NSUInteger)idx; 
+
+@end
+
+@interface RACTuple (Deprecated)
+
+@property (nonatomic, copy, readonly) RACSequence *rac_sequence RACDeprecated("Use -rac_signal instead");
+@property (nonatomic, copy, readonly) NSArray *allObjects RACDeprecated("Renamed to -array");
+
+@property (nonatomic, strong, readonly) id first RACDeprecated("Use subscripting or -objectAtIndex: instead");
+@property (nonatomic, strong, readonly) id second RACDeprecated("Use subscripting or -objectAtIndex: instead");
+@property (nonatomic, strong, readonly) id third RACDeprecated("Use subscripting or -objectAtIndex: instead");
+@property (nonatomic, strong, readonly) id fourth RACDeprecated("Use subscripting or -objectAtIndex: instead");
+@property (nonatomic, strong, readonly) id fifth RACDeprecated("Use subscripting or -objectAtIndex: instead");
+@property (nonatomic, strong, readonly) id last RACDeprecated("Use subscripting or -objectAtIndex: instead");
+
+- (instancetype)tupleByAddingObject:(id)obj RACDeprecated("Use -array and -arrayByAddingObject: instead");
+
 @end
 
 /// This and everything below is for internal use only.
 ///
 /// See RACTuplePack() and RACTupleUnpack() instead.
 #define RACTuplePack_(...) \
-    ([RACTuple tupleWithObjectsFromArray:@[ metamacro_foreach(RACTuplePack_object_or_ractuplenil,, __VA_ARGS__) ]])
+    ([RACTuple tupleWithArray:@[ metamacro_foreach(RACTuplePack_object_or_ractuplenil,, __VA_ARGS__) ]])
 
 #define RACTuplePack_object_or_ractuplenil(INDEX, ARG) \
     (ARG) ?: RACTupleNil.tupleNil,

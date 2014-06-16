@@ -12,7 +12,6 @@
 #import "RACDisposable.h"
 #import "RACImmediateScheduler.h"
 #import "RACScheduler+Private.h"
-#import "RACSubscriptionScheduler.h"
 #import "RACTargetQueueScheduler.h"
 
 // The key for the thread-specific current scheduler.
@@ -79,16 +78,6 @@ NSString * const RACSchedulerCurrentSchedulerKey = @"RACSchedulerCurrentSchedule
 	return [self schedulerWithPriority:RACSchedulerPriorityDefault];
 }
 
-+ (instancetype)subscriptionScheduler {
-	static dispatch_once_t onceToken;
-	static RACScheduler *subscriptionScheduler;
-	dispatch_once(&onceToken, ^{
-		subscriptionScheduler = [[RACSubscriptionScheduler alloc] init];
-	});
-
-	return subscriptionScheduler;
-}
-
 + (BOOL)isOnMainThread {
 	return [NSOperationQueue.currentQueue isEqual:NSOperationQueue.mainQueue] || [NSThread isMainThread];
 }
@@ -121,6 +110,13 @@ NSString * const RACSchedulerCurrentSchedulerKey = @"RACSchedulerCurrentSchedule
 	NSCAssert(NO, @"%@ must be implemented by subclasses.", NSStringFromSelector(_cmd));
 	return nil;
 }
+
+@end
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
+@implementation RACScheduler (Deprecated)
 
 - (RACDisposable *)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock {
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
@@ -210,17 +206,4 @@ NSString * const RACSchedulerCurrentSchedulerKey = @"RACSchedulerCurrentSchedule
 
 @end
 
-@implementation RACScheduler (Deprecated)
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-
-+ (instancetype)schedulerWithQueue:(dispatch_queue_t)queue name:(NSString *)name {
-	NSCParameterAssert(queue != NULL);
-
-	return [[RACTargetQueueScheduler alloc] initWithName:name targetQueue:queue];
-}
-
 #pragma clang diagnostic pop
-
-@end

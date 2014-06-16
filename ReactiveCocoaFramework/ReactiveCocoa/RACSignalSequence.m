@@ -6,6 +6,8 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#define WE_PROMISE_TO_MIGRATE_TO_REACTIVECOCOA_3_0
+
 #import "RACSignalSequence.h"
 #import "RACDisposable.h"
 #import "RACReplaySubject.h"

@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 GitHub, Inc. All rights reserved.
 //
 
-#import "UIImagePickerController+RACSignalSupport.h"
+#import "UIImagePickerController+RACSupport.h"
 #import "RACSignal.h"
 
 SpecBegin(UIImagePickerControllerRACSupport)

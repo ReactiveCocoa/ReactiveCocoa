@@ -10,8 +10,7 @@
 #import "RACTestTableViewController.h"
 
 #import "RACSignal.h"
-#import "RACUnit.h"
-#import "UITableViewHeaderFooterView+RACSignalSupport.h"
+#import "UITableViewHeaderFooterView+RACSupport.h"
 
 SpecBegin(UITableViewHeaderFooterViewRACSupportSpec)
 
@@ -30,7 +29,6 @@ it(@"should send on rac_prepareForReuseSignal", ^{
 
 	__block NSUInteger invocationCount = 0;
 	[headerView.rac_prepareForReuseSignal subscribeNext:^(id value) {
-		expect(value).to.equal(RACUnit.defaultUnit);
 		invocationCount++;
 	}];
 

@@ -7,23 +7,47 @@
 //
 
 #import "NSObject+RACPropertySubscribing.h"
+
 #import "EXTScope.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACDescription.h"
 #import "NSObject+RACKVOWrapper.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
+#import "RACInsertionMutation.h"
 #import "RACKVOTrampoline.h"
-#import "RACSubscriber.h"
+#import "RACMinusMutation.h"
+#import "RACRemovalMutation.h"
+#import "RACReplacementMutation.h"
+#import "RACSettingMutation.h"
 #import "RACSignal+Operations.h"
+#import "RACSubscriber.h"
 #import "RACTuple.h"
+#import "RACUnionMutation.h"
+
 #import <libkern/OSAtomic.h>
+
+static NSArray *RACConvertToArray(id collection) {
+	if (collection == nil) return @[];
+	if ([collection isKindOfClass:NSArray.class]) return collection;
+	if ([collection isKindOfClass:NSSet.class]) return [collection allObjects];
+	if ([collection isKindOfClass:NSOrderedSet.class]) return [collection array];
+
+	NSCParameterAssert([collection conformsToProtocol:@protocol(NSFastEnumeration)]);
+
+	NSMutableArray *enumeratedObjects = [[NSMutableArray alloc] init];
+	for (id obj in collection) {
+		[enumeratedObjects addObject:obj];
+	}
+
+	return enumeratedObjects;
+}
 
 @implementation NSObject (RACPropertySubscribing)
 
-- (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
+- (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath {
 	return [[[self
-		rac_valuesAndChangesForKeyPath:keyPath options:NSKeyValueObservingOptionInitial observer:observer]
+		rac_valuesAndChangesForKeyPath:keyPath options:NSKeyValueObservingOptionInitial]
 		map:^(RACTuple *value) {
 			// -map: because it doesn't require the block trampoline that -reduceEach: uses
 			return value[0];
@@ -31,34 +55,94 @@
 		setNameWithFormat:@"RACObserve(%@, %@)", self.rac_description, keyPath];
 }
 
-- (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer {
+- (RACSignal *)rac_valuesAndCollectionMutationsForKeyPath:(NSString *)keyPath {
+	return [[[self
+		rac_valuesAndChangesForKeyPath:keyPath options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial]
+		reduceEach:^(id value, NSDictionary *change) {
+			NSCAssert(value == nil || [value conformsToProtocol:@protocol(NSFastEnumeration)], @"Expected an enumerable collection at key path \"%@\", instead got %@", keyPath, value);
+
+			NSKeyValueChange kind = [change[NSKeyValueChangeKindKey] unsignedIntegerValue];
+			NSIndexSet *indexes = change[NSKeyValueChangeIndexesKey];
+			id oldObjects = change[NSKeyValueChangeOldKey];
+			id newObjects = change[NSKeyValueChangeNewKey];
+
+			NSObject<RACCollectionMutation> *mutation;
+
+			switch (kind) {
+				case NSKeyValueChangeReplacement:
+					if (indexes != nil) {
+						// Only use `RACReplacementMutation` for ordered
+						// collections.
+						oldObjects = RACConvertToArray(oldObjects);
+						newObjects = RACConvertToArray(newObjects);
+
+						mutation = [[RACReplacementMutation alloc] initWithRemovedObjects:oldObjects addedObjects:newObjects indexes:indexes];
+						break;
+					}
+
+					// Otherwise, fall through and act like the entire
+					// collection was replaced (see `NSKeyValueSetSetMutation`).
+					newObjects = value;
+
+				case NSKeyValueChangeSetting:
+					newObjects = RACConvertToArray(newObjects);
+					mutation = [[RACSettingMutation alloc] initWithObjects:newObjects];
+
+					break;
+
+				case NSKeyValueChangeInsertion:
+					newObjects = RACConvertToArray(newObjects);
+
+					if (indexes == nil) {
+						mutation = [[RACUnionMutation alloc] initWithObjects:newObjects];
+					} else {
+						mutation = [[RACInsertionMutation alloc] initWithObjects:newObjects indexes:indexes];
+					}
+
+					break;
+
+				case NSKeyValueChangeRemoval:
+					oldObjects = RACConvertToArray(oldObjects);
+
+					if (indexes == nil) {
+						mutation = [[RACMinusMutation alloc] initWithObjects:oldObjects];
+					} else {
+						mutation = [[RACRemovalMutation alloc] initWithObjects:oldObjects indexes:indexes];
+					}
+
+					break;
+
+				default:
+					NSCAssert(NO, @"Unrecognized KVO change kind: %lu", (unsigned long)kind);
+					__builtin_unreachable();
+			}
+
+			return RACTuplePack(value, mutation);
+		}]
+		setNameWithFormat:@"%@ -rac_valuesAndCollectionMutationsForKeyPath: %@", self.rac_description, keyPath];
+}
+
+- (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options {
 	keyPath = [keyPath copy];
 
 	NSRecursiveLock *objectLock = [[NSRecursiveLock alloc] init];
 	objectLock.name = @"com.github.ReactiveCocoa.NSObjectRACPropertySubscribing";
 
 	__block __unsafe_unretained NSObject *unsafeSelf = self;
-	__block __unsafe_unretained NSObject *unsafeObserver = observer;
 
-	RACSignal *deallocSignal = [[RACSignal
-		zip:@[
-			self.rac_willDeallocSignal,
-			observer.rac_willDeallocSignal ?: [RACSignal never]
-		]]
-		doCompleted:^{
-			// Forces deallocation to wait if the object variables are currently
-			// being read on another thread.
-			[objectLock lock];
-			@onExit {
-				[objectLock unlock];
-			};
+	RACSignal *deallocSignal = [self.rac_willDeallocSignal doCompleted:^{
+		// Forces deallocation to wait if the object variable is currently
+		// being read on another thread.
+		[objectLock lock];
+		@onExit {
+			[objectLock unlock];
+		};
 
-			unsafeSelf = nil;
-			unsafeObserver = nil;
-		}];
+		unsafeSelf = nil;
+	}];
 
 	return [[[RACSignal
-		createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
+		create:^(id<RACSubscriber> subscriber) {
 			// Hold onto the lock the whole time we're setting up the KVO
 			// observation, because any resurrection that might be caused by our
 			// retaining below must be balanced out by the time -dealloc returns
@@ -68,95 +152,40 @@
 				[objectLock unlock];
 			};
 
-			__strong NSObject *observer __attribute__((objc_precise_lifetime)) = unsafeObserver;
 			__strong NSObject *self __attribute__((objc_precise_lifetime)) = unsafeSelf;
 
 			if (self == nil) {
 				[subscriber sendCompleted];
-				return nil;
+				return;
 			}
 
-			return [self rac_observeKeyPath:keyPath options:options observer:observer block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
+			[subscriber.disposable addDisposable:[self rac_observeKeyPath:keyPath options:options block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
 				[subscriber sendNext:RACTuplePack(value, change)];
-			}];
+			}]];
 		}]
 		takeUntil:deallocSignal]
-		setNameWithFormat:@"%@ -rac_valueAndChangesForKeyPath: %@ options: %lu observer: %@", self.rac_description, keyPath, (unsigned long)options, observer.rac_description];
+		setNameWithFormat:@"%@ -rac_valueAndChangesForKeyPath: %@ options: %lu", self.rac_description, keyPath, (unsigned long)options];
 }
 
 @end
-
-static RACSignal *signalWithoutChangesFor(Class class, NSObject *object, NSString *keyPath, NSKeyValueObservingOptions options, NSObject *observer) {
-	NSCParameterAssert(object != nil);
-	NSCParameterAssert(keyPath != nil);
-	NSCParameterAssert(observer != nil);
-
-	keyPath = [keyPath copy];
-
-	@unsafeify(object);
-
-	return [[class
-		rac_signalWithChangesFor:object keyPath:keyPath options:options observer:observer]
-		map:^(NSDictionary *change) {
-			@strongify(object);
-			return [object valueForKeyPath:keyPath];
-		}];
-}
-
-@implementation NSObject (RACPropertySubscribingDeprecated)
 
 #pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+#pragma clang diagnostic ignored "-Wdeprecated"
 
-+ (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer {
-	return signalWithoutChangesFor(self, object, keyPath, 0, observer);
+@implementation NSObject (RACDeprecatedPropertySubscribing)
+
+- (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
+	return [[self
+		rac_valuesForKeyPath:keyPath]
+		takeUntil:observer.rac_willDeallocSignal];
 }
 
-+ (RACSignal *)rac_signalWithStartingValueFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer {
-	return signalWithoutChangesFor(self, object, keyPath, NSKeyValueObservingOptionInitial, observer);
+- (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer {
+	return [[self
+		rac_valuesAndChangesForKeyPath:keyPath options:options]
+		takeUntil:observer.rac_willDeallocSignal];
 }
-
-+ (RACSignal *)rac_signalWithChangesFor:(NSObject *)object keyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer {
-	@unsafeify(observer, object);
-	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-
-		@strongify(observer, object);
-		RACKVOTrampoline *KVOTrampoline = [object rac_addObserver:observer forKeyPath:keyPath options:options block:^(id target, id observer, NSDictionary *change) {
-			[subscriber sendNext:change];
-		}];
-
-		@weakify(subscriber);
-		RACDisposable *deallocDisposable = [RACDisposable disposableWithBlock:^{
-			@strongify(subscriber);
-			[KVOTrampoline dispose];
-			[subscriber sendCompleted];
-		}];
-
-		[observer.rac_deallocDisposable addDisposable:deallocDisposable];
-		[object.rac_deallocDisposable addDisposable:deallocDisposable];
-
-		RACCompoundDisposable *observerDisposable = observer.rac_deallocDisposable;
-		RACCompoundDisposable *objectDisposable = object.rac_deallocDisposable;
-		return [RACDisposable disposableWithBlock:^{
-			[observerDisposable removeDisposable:deallocDisposable];
-			[objectDisposable removeDisposable:deallocDisposable];
-			[KVOTrampoline dispose];
-		}];
-	}] setNameWithFormat:@"RACAble(%@, %@)", object.rac_description, keyPath];
-}
-
-- (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
-	return [self.class rac_signalFor:self keyPath:keyPath observer:observer];
-}
-
-- (RACSignal *)rac_signalWithStartingValueForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
-	return [self.class rac_signalWithStartingValueFor:self keyPath:keyPath observer:observer];
-}
-
-- (RACDisposable *)rac_deriveProperty:(NSString *)keyPath from:(RACSignal *)signal {
-	return [signal setKeyPath:keyPath onObject:self];
-}
-
-#pragma clang diagnostic pop
 
 @end
+
+#pragma clang diagnostic pop

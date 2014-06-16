@@ -6,12 +6,12 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import "RACDeprecated.h"
 #import "RACSubject.h"
 
-/// A grouped signal is used by -[RACSignal groupBy:transform:].
+RACDeprecated("Use a plain RACSignal and -map: instead")
 @interface RACGroupedSignal : RACSubject
 
-/// The key shared by the group.
 @property (nonatomic, readonly, copy) id<NSCopying> key;
 
 + (instancetype)signalWithKey:(id<NSCopying>)key;

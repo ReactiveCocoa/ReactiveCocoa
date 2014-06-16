@@ -6,9 +6,9 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import "NSArray+RACSupport.h"
 #import "RACBacktrace.h"
 
-#import "NSArray+RACSequenceAdditions.h"
 #import "RACReplaySubject.h"
 #import "RACScheduler.h"
 #import "RACSequence.h"
@@ -23,8 +23,9 @@ static void capturePreviousBacktrace(void *context) {
 }
 
 typedef struct {
-	dispatch_queue_t queue;
 	NSUInteger i;
+
+	__unsafe_unretained dispatch_queue_t queue;
 	__unsafe_unretained RACSubject *doneSubject;
 } RACDeepRecursionContext;
 
@@ -65,7 +66,6 @@ describe(@"with a GCD queue", ^{
 
 	afterEach(^{
 		dispatch_barrier_sync(queue, ^{});
-		dispatch_release(queue);
 	});
 
 	it(@"should trace across dispatch_async", ^{
@@ -107,7 +107,11 @@ describe(@"with a GCD queue", ^{
 	});
 
 	it(@"shouldn't overflow the stack when deallocating a huge backtrace list", ^{
+		#pragma clang diagnostic push
+		#pragma clang diagnostic ignored "-Wdeprecated"
 		RACSubject *doneSubject = [RACReplaySubject subject];
+		#pragma clang diagnostic pop
+
 		RACDeepRecursionContext context = {
 			.queue = queue,
 			.i = 0,
@@ -130,7 +134,9 @@ it(@"shouldn't go bonkers with RACScheduler", ^{
 		[a addObject:@(i)];
 	}
 
-	[[a.rac_sequence signalWithScheduler:[RACScheduler scheduler]] subscribeCompleted:^{}];
+	[[a.rac_signal
+		deliverOn:[RACScheduler scheduler]]
+		subscribe:nil];
 });
 
 // Tracing across NSOperationQueue only works on OS X because it depends on

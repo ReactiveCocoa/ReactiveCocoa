@@ -6,10 +6,14 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#define WE_PROMISE_TO_MIGRATE_TO_REACTIVECOCOA_3_0
+
 #import "RACReplaySubject.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
+#import "RACLiveSubscriber.h"
 #import "RACScheduler+Private.h"
+#import "RACSignal+Private.h"
 #import "RACSubscriber.h"
 #import "RACTuple.h"
 
@@ -52,33 +56,24 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = NSUIntegerMax;
 
 #pragma mark RACSignal
 
-- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposable];
+- (void)attachSubscriber:(RACLiveSubscriber *)subscriber {
+	@synchronized (self) {
+		for (id value in self.valuesReceived) {
+			if (subscriber.disposable.disposed) return;
 
-	RACDisposable *schedulingDisposable = [RACScheduler.subscriptionScheduler schedule:^{
-		@synchronized (self) {
-			for (id value in self.valuesReceived) {
-				if (compoundDisposable.disposed) return;
-
-				[subscriber sendNext:([value isKindOfClass:RACTupleNil.class] ? nil : value)];
-			}
-
-			if (compoundDisposable.disposed) return;
-
-			if (self.hasCompleted) {
-				[subscriber sendCompleted];
-			} else if (self.hasError) {
-				[subscriber sendError:self.error];
-			} else {
-				RACDisposable *subscriptionDisposable = [super subscribe:subscriber];
-				[compoundDisposable addDisposable:subscriptionDisposable];
-			}
+			[subscriber sendNext:(value == RACTupleNil.tupleNil ? nil : value)];
 		}
-	}];
 
-	[compoundDisposable addDisposable:schedulingDisposable];
+		if (subscriber.disposable.disposed) return;
 
-	return compoundDisposable;
+		if (self.hasCompleted) {
+			[subscriber sendCompleted];
+		} else if (self.hasError) {
+			[subscriber sendError:self.error];
+		} else {
+			[super attachSubscriber:subscriber];
+		}
+	}
 }
 
 #pragma mark RACSubscriber

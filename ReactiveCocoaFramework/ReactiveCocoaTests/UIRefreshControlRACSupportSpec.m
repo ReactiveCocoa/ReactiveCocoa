@@ -6,62 +6,73 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#import "UIRefreshControl+RACCommandSupport.h"
+#import "RACControlActionExamples.h"
+#import "UIRefreshControl+RACSupport.h"
+
 #import "NSObject+RACSelectorSignal.h"
-#import "RACControlCommandExamples.h"
-#import "RACCommand.h"
-#import "RACSignal.h"
+#import "RACAction.h"
+#import "RACSignal+Operations.h"
+#import "RACSubject.h"
 
 SpecBegin(UIRefreshControlRACSupport)
 
 describe(@"UIRefreshControl", ^{
+	__block BOOL subscribed;
+	__block RACSubject *subject;
+	
 	__block UIRefreshControl *refreshControl;
+	__block BOOL refreshingEnded;
+
+	void (^activate)(UIRefreshControl *) = ^(UIRefreshControl *refreshControl) {
+		[refreshControl sendActionsForControlEvents:UIControlEventValueChanged];
+	};
 
 	beforeEach(^{
 		refreshControl = [[UIRefreshControl alloc] init];
 		expect(refreshControl).notTo.beNil();
-	});
 
-	itShouldBehaveLike(RACControlCommandExamples, ^{
-		return @{
-			RACControlCommandExampleControl: refreshControl,
-			RACControlCommandExampleActivateBlock: ^(UIRefreshControl *refreshControl) {
-				[refreshControl sendActionsForControlEvents:UIControlEventValueChanged];
-			}
-		};
-	});
+		subject = [RACSubject subject];
 
-	describe(@"finishing", ^{
-		__block RACSignal *commandSignal;
-		__block BOOL refreshingEnded;
+		subscribed = NO;
+		refreshControl.rac_action = [[RACSignal
+			defer:^{
+				subscribed = YES;
+				return subject;
+			}]
+			action];
 
-		beforeEach(^{
-			refreshControl.rac_command = [[RACCommand alloc] initWithSignalBlock:^(id _) {
-				return commandSignal;
+		// Just -rac_signalForSelector: posing as a mock.
+		refreshingEnded = NO;
+		[[refreshControl
+			rac_signalForSelector:@selector(endRefreshing)]
+			subscribeNext:^(id _) {
+				refreshingEnded = YES;
 			}];
+	});
 
-			// Just -rac_signalForSelector: posing as a mock.
-			refreshingEnded = NO;
-			[[refreshControl
-				rac_signalForSelector:@selector(endRefreshing)]
-				subscribeNext:^(id _) {
-					refreshingEnded = YES;
-				}];
-		});
+	it(@"should call -endRefreshing upon completion", ^{
+		activate(refreshControl);
+		expect(subscribed).will.beTruthy();
+		expect(refreshingEnded).to.beFalsy();
 
-		it(@"should call -endRefreshing upon completion", ^{
-			commandSignal = [RACSignal empty];
+		[subject sendCompleted];
+		expect(refreshingEnded).will.beTruthy();
+	});
 
-			[refreshControl sendActionsForControlEvents:UIControlEventValueChanged];
-			expect(refreshingEnded).will.beTruthy();
-		});
+	it(@"should call -endRefreshing upon error", ^{
+		activate(refreshControl);
+		expect(subscribed).will.beTruthy();
+		expect(refreshingEnded).to.beFalsy();
 
-		it(@"should call -endRefreshing upon error", ^{
-			commandSignal = [RACSignal error:[NSError errorWithDomain:@"" code:1 userInfo:nil]];
+		[subject sendError:[NSError errorWithDomain:@"" code:1 userInfo:nil]];
+		expect(refreshingEnded).will.beTruthy();
+	});
 
-			[refreshControl sendActionsForControlEvents:UIControlEventValueChanged];
-			expect(refreshingEnded).will.beTruthy();
-		});
+	itShouldBehaveLike(RACControlActionExamples, ^{
+		return @{
+			RACControlActionExampleControl: refreshControl,
+			RACControlActionExampleActivateBlock: activate
+		};
 	});
 });
 

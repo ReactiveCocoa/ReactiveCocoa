@@ -6,6 +6,8 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#define WE_PROMISE_TO_MIGRATE_TO_REACTIVECOCOA_3_0
+
 #import "RACStream.h"
 #import "NSObject+RACDescription.h"
 #import "RACBlockTrampoline.h"
@@ -62,9 +64,7 @@
 	return self;
 }
 
-@end
-
-@implementation RACStream (Operations)
+#pragma mark Operations
 
 - (instancetype)flattenMap:(RACStream * (^)(id value))block {
 	Class class = self.class;
@@ -218,7 +218,7 @@
 			xs = (xs.count > 1 ? xs.first : nil);
 		}
 
-		return [RACTuple tupleWithObjectsFromArray:values];
+		return [RACTuple tupleWithArray:values];
 	}];
 }
 
@@ -345,30 +345,5 @@
 		};
 	}] setNameWithFormat:@"[%@] -distinctUntilChanged", self.name];
 }
-
-@end
-
-@implementation RACStream (Deprecated)
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-
-- (instancetype)sequenceMany:(RACStream * (^)(void))block {
-	NSCParameterAssert(block != NULL);
-
-	return [[self flattenMap:^(id _) {
-		return block();
-	}] setNameWithFormat:@"[%@] -sequenceMany:", self.name];
-}
-
-- (instancetype)scanWithStart:(id)startingValue combine:(id (^)(id running, id next))block {
-	return [self scanWithStart:startingValue reduce:block];
-}
-
-- (instancetype)mapPreviousWithStart:(id)start reduce:(id (^)(id previous, id current))combineBlock {
-	return [self combinePreviousWithStart:start reduce:combineBlock];
-}
-
-#pragma clang diagnostic pop
 
 @end

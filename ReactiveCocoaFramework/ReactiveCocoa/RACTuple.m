@@ -8,13 +8,18 @@
 
 #import "RACTuple.h"
 #import "EXTKeyPathCoding.h"
+#import "NSObject+RACDescription.h"
+#import "RACCompoundDisposable.h"
+#import "RACSignal.h"
+#import "RACSubscriber.h"
 #import "RACTupleSequence.h"
 
 @implementation RACTupleNil
 
-+ (RACTupleNil *)tupleNil {
++ (instancetype)tupleNil {
 	static dispatch_once_t onceToken;
 	static RACTupleNil *tupleNil = nil;
+
 	dispatch_once(&onceToken, ^{
 		tupleNil = [[self alloc] init];
 	});
@@ -40,76 +45,48 @@
 
 @end
 
-
 @interface RACTuple ()
-@property (nonatomic, strong) NSArray *backingArray;
-@end
 
+@property (nonatomic, strong) NSArray *backingArray;
+
+@end
 
 @implementation RACTuple
 
-- (instancetype)init {
-	self = [super init];
-	if (self == nil) return nil;
+#pragma mark Properties
+
+- (NSArray *)array {
+	NSMutableArray *newArray = [NSMutableArray arrayWithCapacity:self.backingArray.count];
+	for (id object in self.backingArray) {
+		[newArray addObject:(object == RACTupleNil.tupleNil ? NSNull.null : object)];
+	}
 	
-	self.backingArray = [NSArray array];
-	
-	return self;
+	return newArray;
 }
 
-- (NSString *)description {
-	return [NSString stringWithFormat:@"<%@: %p> %@", self.class, self, self.allObjects];
+- (RACSignal *)rac_signal {
+	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
+		for (id object in self.backingArray) {
+			[subscriber sendNext:(object == RACTupleNil.tupleNil ? nil : object)];
+
+			if (subscriber.disposable.disposed) return;
+		}
+
+		[subscriber sendCompleted];
+	}] setNameWithFormat:@"%@ -rac_signal", self.rac_description];
 }
 
-- (BOOL)isEqual:(RACTuple *)object {
-	if (object == self) return YES;
-	if (![object isKindOfClass:self.class]) return NO;
-	
-	return [self.backingArray isEqual:object.backingArray];
+- (NSUInteger)count {
+	return self.backingArray.count;
 }
 
-- (NSUInteger)hash {
-	return self.backingArray.hash;
+#pragma mark Lifecycle
+
++ (instancetype)tupleWithArray:(NSArray *)array {
+	return [self tupleWithArray:array convertNullsToNils:NO];
 }
 
-
-#pragma mark NSFastEnumeration
-
-- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id __unsafe_unretained [])buffer count:(NSUInteger)len {
-	return [self.backingArray countByEnumeratingWithState:state objects:buffer count:len];
-}
-
-
-#pragma mark NSCopying
-
-- (instancetype)copyWithZone:(NSZone *)zone {
-	// we're immutable, bitches!
-	return self;
-}
-
-
-#pragma mark NSCoding
-
-- (id)initWithCoder:(NSCoder *)coder {
-	self = [self init];
-	if (self == nil) return nil;
-	
-	self.backingArray = [coder decodeObjectForKey:@keypath(self.backingArray)];
-	return self;
-}
-
-- (void)encodeWithCoder:(NSCoder *)coder {
-	if (self.backingArray != nil) [coder encodeObject:self.backingArray forKey:@keypath(self.backingArray)];
-}
-
-
-#pragma mark API
-
-+ (instancetype)tupleWithObjectsFromArray:(NSArray *)array {
-	return [self tupleWithObjectsFromArray:array convertNullsToNils:NO];
-}
-
-+ (instancetype)tupleWithObjectsFromArray:(NSArray *)array convertNullsToNils:(BOOL)convert {
++ (instancetype)tupleWithArray:(NSArray *)array convertNullsToNils:(BOOL)convert {
 	RACTuple *tuple = [[self alloc] init];
 	
 	if (convert) {
@@ -157,6 +134,63 @@
 	return tuple;
 }
 
+- (instancetype)init {
+	self = [super init];
+	if (self == nil) return nil;
+	
+	self.backingArray = [NSArray array];
+	
+	return self;
+}
+
+#pragma mark NSObject
+
+- (NSString *)description {
+	return [NSString stringWithFormat:@"<%@: %p> %@", self.class, self, self.array];
+}
+
+- (BOOL)isEqual:(RACTuple *)object {
+	if (object == self) return YES;
+	if (![object isKindOfClass:self.class]) return NO;
+	
+	return [self.backingArray isEqual:object.backingArray];
+}
+
+- (NSUInteger)hash {
+	return self.backingArray.hash;
+}
+
+
+#pragma mark NSFastEnumeration
+
+- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id __unsafe_unretained [])buffer count:(NSUInteger)len {
+	return [self.backingArray countByEnumeratingWithState:state objects:buffer count:len];
+}
+
+
+#pragma mark NSCopying
+
+- (instancetype)copyWithZone:(NSZone *)zone {
+	// we're immutable, bitches!
+	return self;
+}
+
+#pragma mark NSCoding
+
+- (id)initWithCoder:(NSCoder *)coder {
+	self = [self init];
+	if (self == nil) return nil;
+	
+	self.backingArray = [coder decodeObjectForKey:@keypath(self.backingArray)];
+	return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder {
+	if (self.backingArray != nil) [coder encodeObject:self.backingArray forKey:@keypath(self.backingArray)];
+}
+
+#pragma mark Indexing
+
 - (id)objectAtIndex:(NSUInteger)index {
 	if (index >= self.count) return nil;
 	
@@ -164,22 +198,28 @@
 	return (object == RACTupleNil.tupleNil ? nil : object);
 }
 
+@end
+
+@implementation RACTuple (ObjectSubscripting)
+
+- (id)objectAtIndexedSubscript:(NSUInteger)idx {
+	return [self objectAtIndex:idx];
+}
+
+@end
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
+@implementation RACTuple (Deprecated)
+
+- (RACSequence *)rac_sequence {
+	return [RACTupleSequence sequenceWithTupleBackingArray:self.backingArray offset:0];
+}
+
 - (NSArray *)allObjects {
-	NSMutableArray *newArray = [NSMutableArray arrayWithCapacity:self.backingArray.count];
-	for (id object in self.backingArray) {
-		[newArray addObject:(object == RACTupleNil.tupleNil ? NSNull.null : object)];
-	}
-	
-	return newArray;
-}
-
-- (instancetype)tupleByAddingObject:(id)obj {
-	NSArray *newArray = [self.backingArray arrayByAddingObject:obj ?: RACTupleNil.tupleNil];
-	return [self.class tupleWithObjectsFromArray:newArray convertNullsToNils:NO];
-}
-
-- (NSUInteger)count {
-	return self.backingArray.count;
+	return self.array;
 }
 
 - (id)first {
@@ -206,25 +246,14 @@
 	return self[self.count - 1];
 }
 
-@end
-
-
-@implementation RACTuple (RACSequenceAdditions)
-
-- (RACSequence *)rac_sequence {
-	return [RACTupleSequence sequenceWithTupleBackingArray:self.backingArray offset:0];
+- (instancetype)tupleByAddingObject:(id)obj {
+	NSArray *newArray = [self.backingArray arrayByAddingObject:obj ?: RACTupleNil.tupleNil];
+	return [self.class tupleWithArray:newArray convertNullsToNils:NO];
 }
 
 @end
 
-@implementation RACTuple (ObjectSubscripting)
-
-- (id)objectAtIndexedSubscript:(NSUInteger)idx {
-	return [self objectAtIndex:idx];
-}
-
-@end
-
+#pragma clang diagnostic pop
 
 @implementation RACTupleUnpackingTrampoline
 

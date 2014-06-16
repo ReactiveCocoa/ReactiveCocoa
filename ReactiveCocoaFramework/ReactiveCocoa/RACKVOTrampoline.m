@@ -21,7 +21,6 @@ static void *RACKVOWrapperContext = &RACKVOWrapperContext;
 // receiver.
 @property (nonatomic, readonly, copy) RACKVOBlock block;
 @property (nonatomic, readonly, unsafe_unretained) NSObject *target;
-@property (nonatomic, readonly, unsafe_unretained) NSObject *observer;
 
 @end
 
@@ -29,7 +28,7 @@ static void *RACKVOWrapperContext = &RACKVOWrapperContext;
 
 #pragma mark Lifecycle
 
-- (id)initWithTarget:(NSObject *)target observer:(NSObject *)observer keyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(RACKVOBlock)block {
+- (instancetype)initWithTarget:(NSObject *)target keyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(RACKVOBlock)block {
 	NSCParameterAssert(target != nil);
 	NSCParameterAssert(keyPath != nil);
 	NSCParameterAssert(block != nil);
@@ -41,11 +40,9 @@ static void *RACKVOWrapperContext = &RACKVOWrapperContext;
 
 	_block = [block copy];
 	_target = target;
-	_observer = observer;
 
 	[self.target addObserver:self forKeyPath:self.keyPath options:options context:&RACKVOWrapperContext];
 	[self.target.rac_deallocDisposable addDisposable:self];
-	[self.observer.rac_deallocDisposable addDisposable:self];
 
 	return self;
 }
@@ -58,21 +55,15 @@ static void *RACKVOWrapperContext = &RACKVOWrapperContext;
 
 - (void)dispose {
 	NSObject *target;
-	NSObject *observer;
 
 	@synchronized (self) {
 		_block = nil;
 
 		target = self.target;
-		observer = self.observer;
-
 		_target = nil;
-		_observer = nil;
 	}
 
 	[target.rac_deallocDisposable removeDisposable:self];
-	[observer.rac_deallocDisposable removeDisposable:self];
-
 	[target removeObserver:self forKeyPath:self.keyPath context:&RACKVOWrapperContext];
 }
 
@@ -83,18 +74,16 @@ static void *RACKVOWrapperContext = &RACKVOWrapperContext;
 	}
 
 	RACKVOBlock block;
-	id observer;
 	id target;
 
 	@synchronized (self) {
 		block = self.block;
-		observer = self.observer;
 		target = self.target;
 	}
 
 	if (block == nil) return;
 
-	block(target, observer, change);
+	block(target, change);
 }
 
 @end

@@ -7,9 +7,13 @@
 //
 
 #import "NSObject+RACDeallocating.h"
+
+#import "NSObject+RACDescription.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACReplaySubject.h"
+#import "RACTuple.h"
+
 #import <objc/message.h>
 #import <objc/runtime.h>
 
@@ -72,18 +76,29 @@ static void swizzleDeallocIfNeeded(Class classToSwizzle) {
 @implementation NSObject (RACDeallocating)
 
 - (RACSignal *)rac_willDeallocSignal {
-	RACSignal *signal = objc_getAssociatedObject(self, _cmd);
-	if (signal != nil) return signal;
+	RACTuple *subjectAndDisposable = objc_getAssociatedObject(self, _cmd);
+	if (subjectAndDisposable == nil) {
+		RACSubject *subject = [RACSubject subject];
+		RACDisposable *disposable = [RACDisposable disposableWithBlock:^{
+			[subject sendCompleted];
+		}];
 
-	RACReplaySubject *subject = [RACReplaySubject subject];
+		subjectAndDisposable = RACTuplePack(subject, disposable);
+		objc_setAssociatedObject(self, _cmd, subjectAndDisposable, OBJC_ASSOCIATION_COPY);
 
-	[self.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-		[subject sendCompleted];
-	}]];
+		[self.rac_deallocDisposable addDisposable:disposable];
+	}
 
-	objc_setAssociatedObject(self, _cmd, subject, OBJC_ASSOCIATION_RETAIN);
+	return [[RACSignal
+		create:^(id<RACSubscriber> subscriber) {
+			RACTupleUnpack(RACSubject *subject, RACDisposable *disposable) = subjectAndDisposable;
 
-	return subject;
+			[subject subscribe:subscriber];
+
+			// Catch deallocation that occurred before subscription.
+			if (disposable.disposed) [subscriber sendCompleted];
+		}]
+		setNameWithFormat:@"%@ -rac_willDeallocSignal", self.rac_description];
 }
 
 - (RACCompoundDisposable *)rac_deallocDisposable {
@@ -99,31 +114,5 @@ static void swizzleDeallocIfNeeded(Class classToSwizzle) {
 		return compoundDisposable;
 	}
 }
-
-@end
-
-@implementation NSObject (RACDeallocatingDeprecated)
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-
-- (RACSignal *)rac_didDeallocSignal {
-	RACSubject *subject = [RACSubject subject];
-
-	RACScopedDisposable *disposable = [[RACDisposable
-		disposableWithBlock:^{
-			[subject sendCompleted];
-		}]
-		asScopedDisposable];
-	
-	objc_setAssociatedObject(self, (__bridge void *)disposable, disposable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-	return subject;
-}
-
-- (void)rac_addDeallocDisposable:(RACDisposable *)disposable {
-	[self.rac_deallocDisposable addDisposable:disposable];
-}
-
-#pragma clang diagnostic pop
 
 @end

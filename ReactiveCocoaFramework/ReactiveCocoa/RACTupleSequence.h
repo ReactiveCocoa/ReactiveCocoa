@@ -8,11 +8,13 @@
 
 #import "RACSequence.h"
 
-// Private class that adapts a RACTuple to the RACSequence interface.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 @interface RACTupleSequence : RACSequence
 
-// Returns a sequence for enumerating over the given backing array (from a
-// RACTuple), starting from the given offset.
 + (instancetype)sequenceWithTupleBackingArray:(NSArray *)backingArray offset:(NSUInteger)offset;
 
 @end
+
+#pragma clang diagnostic pop

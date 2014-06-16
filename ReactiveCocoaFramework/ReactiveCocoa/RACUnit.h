@@ -6,14 +6,11 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import "RACDeprecated.h"
 
-/// A unit represents an empty value.
-///
-/// It should never be necessary to create a unit yourself. Just use +defaultUnit.
+RACDeprecated("Use nil or NSNull instead")
 @interface RACUnit : NSObject
 
-/// A singleton instance.
 + (RACUnit *)defaultUnit;
 
 @end

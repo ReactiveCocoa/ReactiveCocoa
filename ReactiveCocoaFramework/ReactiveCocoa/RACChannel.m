@@ -8,8 +8,10 @@
 
 #import "RACChannel.h"
 #import "RACDisposable.h"
+#import "RACLiveSubscriber.h"
 #import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"
+#import "RACSignal+Private.h"
 
 @interface RACChannelTerminal ()
 
@@ -29,10 +31,18 @@
 	self = [super init];
 	if (self == nil) return nil;
 
+	// Although RACReplaySubject is deprecated for consumers, we're going to use it
+	// internally for the foreseeable future. We just want to expose something
+	// higher level.
+	#pragma clang diagnostic push
+	#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 	// We don't want any starting value from the leadingSubject, but we do want
 	// error and completion to be replayed.
 	RACReplaySubject *leadingSubject = [[RACReplaySubject replaySubjectWithCapacity:0] setNameWithFormat:@"leadingSubject"];
 	RACReplaySubject *followingSubject = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"followingSubject"];
+
+	#pragma clang diagnostic pop
 
 	// Propagate errors and completion to everything.
 	[[leadingSubject ignoreValues] subscribe:followingSubject];
@@ -47,6 +57,12 @@
 @end
 
 @implementation RACChannelTerminal
+
+#pragma mark Properties
+
+- (RACCompoundDisposable *)disposable {
+	return self.otherTerminal.disposable;
+}
 
 #pragma mark Lifecycle
 
@@ -65,8 +81,8 @@
 
 #pragma mark RACSignal
 
-- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	return [self.values subscribe:subscriber];
+- (void)attachSubscriber:(RACLiveSubscriber *)subscriber {
+	[self.values attachSubscriber:subscriber];
 }
 
 #pragma mark <RACSubscriber>
@@ -81,10 +97,6 @@
 
 - (void)sendCompleted {
 	[self.otherTerminal sendCompleted];
-}
-
-- (void)didSubscribeWithDisposable:(RACCompoundDisposable *)disposable {
-	[self.otherTerminal didSubscribeWithDisposable:disposable];
 }
 
 @end

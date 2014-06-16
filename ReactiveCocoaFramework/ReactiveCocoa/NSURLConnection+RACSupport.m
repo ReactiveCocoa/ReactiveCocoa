@@ -7,6 +7,7 @@
 //
 
 #import "NSURLConnection+RACSupport.h"
+#import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSignal.h"
 #import "RACSubscriber.h"
@@ -18,7 +19,7 @@
 	NSCParameterAssert(request != nil);
 
 	return [[RACSignal
-		createSignal:^(id<RACSubscriber> subscriber) {
+		create:^(id<RACSubscriber> subscriber) {
 			NSOperationQueue *queue = [[NSOperationQueue alloc] init];
 			queue.name = @"com.github.ReactiveCocoa.NSURLConnectionRACSupport";
 
@@ -37,14 +38,14 @@
 				}
 			}];
 
-			return [RACDisposable disposableWithBlock:^{
+			[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
 				// It's not clear if this will actually cancel the connection,
 				// but we can at least prevent _some_ unnecessary work --
 				// without writing all the code for a proper delegate, which
 				// doesn't really belong in RAC.
 				queue.suspended = YES;
 				[queue cancelAllOperations];
-			}];
+			}]];
 		}]
 		setNameWithFormat:@"+rac_sendAsynchronousRequest: %@", request];
 }

@@ -11,6 +11,7 @@
 #import "NSInvocation+RACTypeParsing.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACDescription.h"
+#import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"
 #import "RACTuple.h"
 
@@ -27,9 +28,16 @@
 	NSUInteger numberOfArguments __attribute__((unused)) = methodSignature.numberOfArguments - 2;
 	NSCAssert(numberOfArguments == signals.count, @"Wrong number of signals for %@ (expected %lu, got %lu)", NSStringFromSelector(selector), (unsigned long)numberOfArguments, (unsigned long)signals.count);
 
-	@unsafeify(self);
+	// Although RACReplaySubject is deprecated for consumers, we're going to use it
+	// internally for the foreseeable future. We just want to expose something
+	// higher level.
+	#pragma clang diagnostic push
+	#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+	RACReplaySubject *results = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"%@ -rac_liftSelector: %s withSignalsFromArray: %@", [self rac_description], sel_getName(selector), signals];
+	#pragma clang diagnostic pop
 
-	return [[[[[RACSignal
+	@unsafeify(self);
+	[[[[RACSignal
 		combineLatest:signals]
 		takeUntil:self.rac_willDeallocSignal]
 		map:^(RACTuple *arguments) {
@@ -42,8 +50,9 @@
 
 			return invocation.rac_returnValue;
 		}]
-		replayLast]
-		setNameWithFormat:@"%@ -rac_liftSelector: %s withSignalsFromArray: %@", [self rac_description], sel_getName(selector), signals];
+		subscribe:results];
+	
+	return results;
 }
 
 - (RACSignal *)rac_liftSelector:(SEL)selector withSignals:(RACSignal *)firstSignal, ... {
@@ -64,69 +73,5 @@
 		rac_liftSelector:selector withSignalsFromArray:signals]
 		setNameWithFormat:@"%@ -rac_liftSelector: %s withSignals: %@", [self rac_description], sel_getName(selector), signals];
 }
-
-@end
-
-@implementation NSObject (RACLiftingDeprecated)
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-
-static NSArray *RACMapArgumentsToSignals(NSArray *args) {
-	NSMutableArray *mappedArgs = [NSMutableArray array];
-	for (id arg in args) {
-		if ([arg isEqual:RACTupleNil.tupleNil]) {
-			[mappedArgs addObject:[RACSignal return:nil]];
-		} else if ([arg isKindOfClass:RACSignal.class]) {
-			[mappedArgs addObject:arg];
-		} else {
-			[mappedArgs addObject:[RACSignal return:arg]];
-		}
-	}
-
-	return mappedArgs;
-}
-
-- (RACSignal *)rac_liftSelector:(SEL)selector withObjects:(id)arg, ... {
-	NSMethodSignature *methodSignature = [self methodSignatureForSelector:selector];
-	NSMutableArray *arguments = [NSMutableArray array];
-
-	va_list args;
-	va_start(args, arg);
-	for (NSUInteger i = 2; i < methodSignature.numberOfArguments; i++) {
-		id currentObject = (i == 2 ? arg : va_arg(args, id));
-		[arguments addObject:currentObject ?: RACTupleNil.tupleNil];
-	}
-
-	va_end(args);
-	return [self rac_liftSelector:selector withObjectsFromArray:arguments];
-}
-
-- (RACSignal *)rac_liftSelector:(SEL)selector withObjectsFromArray:(NSArray *)args {
-	return [self rac_liftSelector:selector withSignalsFromArray:RACMapArgumentsToSignals(args)];
-}
-
-- (RACSignal *)rac_liftBlock:(id)block withArguments:(id)arg, ... {
-	NSMutableArray *arguments = [NSMutableArray array];
-
-	va_list args;
-	va_start(args, arg);
-	for (id currentObject = arg; currentObject != nil; currentObject = va_arg(args, id)) {
-		[arguments addObject:currentObject];
-	}
-
-	va_end(args);
-	return [self rac_liftBlock:block withArgumentsFromArray:arguments];
-}
-
-- (RACSignal *)rac_liftBlock:(id)block withArgumentsFromArray:(NSArray *)args {
-	return [[[[RACSignal
-		combineLatest:RACMapArgumentsToSignals(args)]
-		reduceEach:block]
-		takeUntil:self.rac_willDeallocSignal]
-		replayLast];
-}
-
-#pragma clang diagnostic pop
 
 @end

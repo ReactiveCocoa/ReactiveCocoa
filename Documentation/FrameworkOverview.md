@@ -8,27 +8,10 @@ learning about new modules and finding more specific documentation.
 For examples and help understanding how to use RAC, see the [README][] or
 the [Design Guidelines][].
 
-## Streams
-
-A **stream**, represented by the [RACStream][] abstract class, is any series of
-object values.
-
-Values may be available immediately or in the future, but must be retrieved
-sequentially. There is no way to retrieve the second value of a stream without
-evaluating or waiting for the first value.
-
-Streams are [monads][]. Among other things, this allows complex operations to be
-built on a few basic primitives (`-bind:` in particular). [RACStream][] also
-implements the equivalent of the [Monoid][] and [MonadZip][] typeclasses from
-[Haskell][].
-
-[RACStream][] isn't terribly useful on its own. Most streams are treated as
-[signals](#signals) or [sequences](#sequences) instead.
-
 ## Signals
 
 A **signal**, represented by the [RACSignal][] class, is a _push-driven_
-[stream](#streams).
+stream.
 
 Signals generally represent data that will be delivered in the future. As work
 is performed or data is received, values are _sent_ on the signal, which pushes
@@ -37,9 +20,8 @@ in order to access its values.
 
 Signals send three different types of events to their subscribers:
 
- * The **next** event provides a new value from the stream. [RACStream][]
-   methods only operate on events of this type. Unlike Cocoa collections, it is
-   completely valid for a signal to include `nil`.
+ * The **next** event provides a new value from the stream. Unlike Cocoa
+   collections, it is completely valid for a signal to include `nil`.
  * The **error** event indicates that an error occurred before the signal could
    finish. The event may include an `NSError` object that indicates what went
    wrong. Errors must be handled specially – they are not included in the
@@ -51,6 +33,15 @@ Signals send three different types of events to their subscribers:
 The lifetime of a signal consists of any number of `next` events, followed by
 one `error` or `completed` event (but not both).
 
+Signals are _cold_ by default, meaning that they start doing work _each_ time
+a new subscription is added. This behavior is usually desirable, because it
+means that data will be freshly recalculated for each subscriber, but it can be
+problematic if the signal has side effects or the work is expensive (for
+example, sending a network request).
+
+To share the values of a signal without duplicating its side effects, use
+a [subject](#subjects).
+
 ### Subscription
 
 A **subscriber** is anything that is waiting or capable of waiting for events
@@ -59,13 +50,12 @@ that conforms to the [RACSubscriber][] protocol.
 
 A **subscription** is created through any call to
 [-subscribeNext:error:completed:][RACSignal], or one of the corresponding
-convenience methods. Technically, most [RACStream][] and
-[RACSignal][RACSignal+Operations] operators create subscriptions as well, but
-these intermediate subscriptions are usually an implementation detail.
+convenience methods. Technically, most [operators][RACSignal+Operations] create
+subscriptions as well, but these intermediate subscriptions are usually an
+implementation detail.
 
-Subscriptions [retain their signals][Memory Management], and are automatically
-disposed of when the signal completes or errors. Subscriptions can also be
-[disposed of manually](#disposables).
+Subscriptions are automatically disposed of when the signal completes or errors,
+and can also be [disposed of manually](#disposables).
 
 ### Subjects
 
@@ -81,60 +71,26 @@ blocks can simply send events to a shared subject instead. The subject can then
 be returned as a [RACSignal][], hiding the implementation detail of the
 callbacks.
 
-Some subjects offer additional behaviors as well. In particular,
-[RACReplaySubject][] can be used to buffer events for future
-[subscribers](#subscription), like when a network request finishes before
-anything is ready to handle the result.
+Subjects can also be used to share a signal's values without duplicating its
+side effects. Unlike signals (which start off "cold"), subjects are _hot_,
+meaning they don't perform any side effects upon [subscription](#subscription).
 
-### Commands
+Therefore, if multiple parties are interested in a signal's values — but its side
+effects shouldn't be repeated — you can forward the events to a subject (using
+[-subscribe:][RACSignal]), and have everything subscribe to the subject instead.
 
-A **command**, represented by the [RACCommand][] class, creates and subscribes
-to a signal in response to some action. This makes it easy to perform
-side-effecting work as the user interacts with the app.
+## Actions
 
-Usually the action triggering a command is UI-driven, like when a button is
-clicked. Commands can also be automatically disabled based on a signal, and this
-disabled state can be represented in a UI by disabling any controls associated
-with the command.
+An **action**, represented by the [RACAction][] class, subscribes to a signal in
+response to some UI action, like a button being clicked. This makes it easy to
+perform side-effecting work as the user interacts with the app.
 
-On OS X, RAC adds a `rac_command` property to
-[NSButton][NSButton+RACCommandSupport] for setting up these behaviors
-automatically.
+Actions can also be automatically disabled based on a signal, and this disabled
+state can be represented in a UI by disabling any controls associated with the
+action.
 
-### Connections
-
-A **connection**, represented by the [RACMulticastConnection][] class, is
-a [subscription](#subscription) that is shared between any number of
-subscribers.
-
-[Signals](#signals) are _cold_ by default, meaning that they start doing work
-_each_ time a new subscription is added. This behavior is usually desirable,
-because it means that data will be freshly recalculated for each subscriber, but
-it can be problematic if the signal has side effects or the work is expensive
-(for example, sending a network request).
-
-A connection is created through the `-publish` or `-multicast:` methods on
-[RACSignal][RACSignal+Operations], and ensures that only one underlying
-subscription is created, no matter how many times the connection is subscribed
-to. Once connected, the connection's signal is said to be _hot_, and the
-underlying subscription will remain active until _all_ subscriptions to the
-connection are [disposed](#disposables).
-
-## Sequences
-
-A **sequence**, represented by the [RACSequence][] class, is a _pull-driven_
-[stream](#streams).
-
-Sequences are a kind of collection, similar in purpose to `NSArray`. Unlike
-an array, the values in a sequence are evaluated _lazily_ (i.e., only when they
-are needed) by default, potentially improving performance if only part of
-a sequence is used. Just like Cocoa collections, sequences cannot contain `nil`.
-
-Sequences are similar to [Clojure's sequences][seq] ([lazy-seq][] in particular), or
-the [List][] type in [Haskell][].
-
-RAC adds a `-rac_sequence` method to most of Cocoa's collection classes,
-allowing them to be used as [RACSequences][RACSequence] instead.
+RAC adds a `rac_action` property to many built-in AppKit and UIKit controls, to
+make it easy to set up these behaviors automatically.
 
 ## Disposables
 
@@ -165,14 +121,14 @@ do not allow tasks to be reordered or depend on one another.
 ## Value types
 
 RAC offers a few miscellaneous classes for conveniently representing values in
-a [stream](#streams):
+a [signal](#signals):
 
  * **[RACTuple][]** is a small, constant-sized collection that can contain
    `nil` (represented by `RACTupleNil`). It is generally used to represent
-   the combined values of multiple streams.
+   the combined values of multiple signals.
  * **[RACUnit][]** is a singleton "empty" value. It is used as a value in
-   a stream for those times when more meaningful data doesn't exist.
- * **[RACEvent][]** represents any [signal event](#signals) as a single value.
+   a signal for those times when more meaningful data doesn't exist.
+ * **[RACEvent][]** represents any signal event as a single value.
    It is primarily used by the `-materialize` method of
    [RACSignal][RACSignal+Operations].
 
@@ -189,28 +145,16 @@ On iOS, only queue hops from within RAC and your project will be captured (but
 the information is still valuable).
 
 [Design Guidelines]: DesignGuidelines.md
-[Haskell]: http://www.haskell.org
-[lazy-seq]: http://clojure.github.com/clojure/clojure.core-api.html#clojure.core/lazy-seq
-[List]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Data-List.html
 [Memory Management]: MemoryManagement.md
-[monads]: http://en.wikipedia.org/wiki/Monad_(functional_programming)
-[Monoid]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Data-Monoid.html#t:Monoid
-[MonadZip]: http://www.haskell.org/ghc/docs/latest/html/libraries/base-4.6.0.1/Control-Monad-Zip.html#t:MonadZip
-[NSButton+RACCommandSupport]: ../ReactiveCocoaFramework/ReactiveCocoa/NSButton+RACCommandSupport.h
+[RACAction]: ../ReactiveCocoaFramework/ReactiveCocoa/RACAction.h
 [RACBacktrace]: ../ReactiveCocoaFramework/ReactiveCocoa/RACBacktrace.h
-[RACCommand]: ../ReactiveCocoaFramework/ReactiveCocoa/RACCommand.h
 [RACDisposable]: ../ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
 [RACEvent]: ../ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h
-[RACMulticastConnection]: ../ReactiveCocoaFramework/ReactiveCocoa/RACMulticastConnection.h
-[RACReplaySubject]: ../ReactiveCocoaFramework/ReactiveCocoa/RACReplaySubject.h
 [RACScheduler]: ../ReactiveCocoaFramework/ReactiveCocoa/RACScheduler.h
-[RACSequence]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSequence.h
 [RACSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h
 [RACSignal+Operations]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h
-[RACStream]: ../ReactiveCocoaFramework/ReactiveCocoa/RACStream.h
 [RACSubject]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubject.h
 [RACSubscriber]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubscriber.h
 [RACTuple]: ../ReactiveCocoaFramework/ReactiveCocoa/RACTuple.h
 [RACUnit]: ../ReactiveCocoaFramework/ReactiveCocoa/RACUnit.h
 [README]: ../README.md
-[seq]: http://clojure.org/sequences

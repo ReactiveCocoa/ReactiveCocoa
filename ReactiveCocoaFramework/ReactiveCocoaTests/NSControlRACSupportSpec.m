@@ -6,13 +6,12 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "RACControlCommandExamples.h"
+#import "RACControlActionExamples.h"
 
-#import "NSControl+RACCommandSupport.h"
-#import "NSControl+RACTextSignalSupport.h"
+#import "NSControl+RACSupport.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
-#import "RACCommand.h"
+#import "RACAction.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSubject.h"
@@ -22,17 +21,37 @@ SpecBegin(NSControlRACSupport)
 describe(@"NSButton", ^{
 	__block NSButton *button;
 
+	void (^activate)(NSControl *) = ^(id _) {
+		[button performClick:self];
+	};
+
 	beforeEach(^{
 		button = [[NSButton alloc] initWithFrame:NSZeroRect];
 		expect(button).notTo.beNil();
 	});
 
-	itShouldBehaveLike(RACControlCommandExamples, ^{
+	it(@"should send on rac_actionSignal", ^{
+		RACSignal *actionSignal = button.rac_actionSignal;
+		expect(button.target).to.beNil();
+		expect(button.action).to.beNil();
+
+		__block id value = nil;
+		[actionSignal subscribeNext:^(id x) {
+			value = x;
+		}];
+
+		expect(button.target).notTo.beNil();
+		expect(button.action).notTo.beNil();
+		expect(value).to.beNil();
+
+		activate(button);
+		expect(value).to.beIdenticalTo(button);
+	});
+
+	itShouldBehaveLike(RACControlActionExamples, ^{
 		return @{
-			RACControlCommandExampleControl: button,
-			RACControlCommandExampleActivateBlock: ^(NSButton *button) {
-				[button performClick:nil];
-			}
+			RACControlActionExampleControl: button,
+			RACControlActionExampleActivateBlock: activate
 		};
 	});
 });
@@ -40,6 +59,11 @@ describe(@"NSButton", ^{
 describe(@"NSTextField", ^{
 	__block NSTextField *field;
 	__block NSWindow *window;
+
+	void (^activate)(NSControl *) = ^(id _) {
+		expect([window makeFirstResponder:nil]).to.beTruthy();
+		expect(window.firstResponder).to.equal(window);
+	};
 	
 	beforeEach(^{
 		field = [[NSTextField alloc] initWithFrame:NSZeroRect];
@@ -56,13 +80,28 @@ describe(@"NSTextField", ^{
 		expect(window.firstResponder).notTo.equal(window);
 	});
 
-	itShouldBehaveLike(RACControlCommandExamples, ^{
+	it(@"should send on rac_actionSignal", ^{
+		RACSignal *actionSignal = field.rac_actionSignal;
+		expect(field.target).to.beNil();
+		expect(field.action).to.beNil();
+
+		__block id value = nil;
+		[actionSignal subscribeNext:^(id x) {
+			value = x;
+		}];
+
+		expect(field.target).notTo.beNil();
+		expect(field.action).notTo.beNil();
+		expect(value).to.beNil();
+
+		activate(field);
+		expect(value).to.beIdenticalTo(field);
+	});
+
+	itShouldBehaveLike(RACControlActionExamples, ^{
 		return @{
-			RACControlCommandExampleControl: field,
-			RACControlCommandExampleActivateBlock: ^(NSTextField *field) {
-				expect([window makeFirstResponder:nil]).to.beTruthy();
-				expect(window.firstResponder).to.equal(window);
-			}
+			RACControlActionExampleControl: field,
+			RACControlActionExampleActivateBlock: activate
 		};
 	});
 

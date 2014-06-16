@@ -153,7 +153,7 @@
 		[argumentsArray addObject:[self rac_argumentAtIndex:index] ?: RACTupleNil.tupleNil];
 	}
 
-	return [RACTuple tupleWithObjectsFromArray:argumentsArray];
+	return [RACTuple tupleWithArray:argumentsArray];
 }
 
 - (void)setRac_argumentsTuple:(RACTuple *)arguments {
@@ -213,7 +213,11 @@
 	} else if (strcmp(returnType, @encode(char *)) == 0) {
 		WRAP_AND_RETURN(const char *);
 	} else if (strcmp(returnType, @encode(void)) == 0) {
+		#pragma clang diagnostic push
+		#pragma clang diagnostic ignored "-Wdeprecated"
+		// Can't break our RAC 2.x interface contract here.
 		return RACUnit.defaultUnit;
+		#pragma clang diagnostic pop
 	} else {
 		NSUInteger valueSize = 0;
 		NSGetSizeAndAlignment(returnType, &valueSize, NULL);

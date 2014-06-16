@@ -6,9 +6,8 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#import <objc/message.h>
 #import "RACSignal.h"
-#import "UIAlertView+RACSignalSupport.h"
+#import "UIAlertView+RACSupport.h"
 
 SpecBegin(UIAlertViewRACSupport)
 

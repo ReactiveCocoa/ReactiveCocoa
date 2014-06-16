@@ -104,47 +104,24 @@ RAC(self, createEnabled) = [RACSignal
 ```
 
 Signals can be built on any stream of values over time, not just KVO. For
-example, they can also represent button presses:
+example, they can also represent button presses and asynchronous network
+operations:
 
 ```objc
-// Logs a message whenever the button is pressed.
-//
-// RACCommand creates signals to represent UI actions. Each signal can
-// represent a button press, for example, and have additional work associated
-// with it.
-//
-// -rac_command is an addition to NSButton. The button will send itself on that
-// command whenever it's pressed.
-self.button.rac_command = [[RACCommand alloc] initWithSignalBlock:^(id _) {
-	NSLog(@"button was pressed!");
-	return [RACSignal empty];
-}];
-```
-
-Or asynchronous network operations:
-
-```objc
-// Hooks up a "Log in" button to log in over the network.
-//
-// This block will be run whenever the login command is executed, starting
-// the login process.
-self.loginCommand = [[RACCommand alloc] initWithSignalBlock:^(id sender) {
-	// The hypothetical -logIn method returns a signal that sends a value when
-	// the network request finishes.
-	return [client logIn];
-}];
-
-// -executionSignals returns a signal that includes the signals returned from
-// the above block, one for each time the command is executed.
-[self.loginCommand.executionSignals subscribeNext:^(RACSignal *loginSignal) {
-	// Log a message whenever we log in successfully.
-	[loginSignal subscribeCompleted:^{
-		NSLog(@"Logged in successfully!");
-	}];
-}];
-
-// Executes the login command when the button is pressed.
-self.loginButton.rac_command = self.loginCommand;
+// Starts a network request whenever the button is pressed.
+[[[[self.button
+    rac_signalForControlEvents:UIControlEventTouchUpInside]
+    flattenMap:^(UIButton *button) {
+        return [NSURLConnection rac_sendAsynchronousRequest:request];
+    }]
+    reduceEach:^(NSURLResponse *response, NSData *data) {
+        // Discard the response, since we don't care about the status code or
+        // headers.
+        return data;
+    }]
+    subscribeNext:^(NSData *data) {
+        NSLog(@"Received %@", data);
+    }];
 ```
 
 Signals can also represent timers, other UI events, or anything else that
@@ -372,10 +349,9 @@ on:
 ReactiveCocoa makes this pattern particularly easy:
 
 ```objc
-[[[[client logIn]
-	then:^{
-		return [client loadCachedMessages];
-	}]
+[[[[client
+	logIn]
+	concat:[client loadCachedMessages]]
 	flattenMap:^(NSArray *messages) {
 		return [client fetchMessagesAfterMessage:messages.lastObject];
 	}]
@@ -429,14 +405,14 @@ RACSignal *databaseSignal = [[databaseClient
 	fetchObjectsMatchingPredicate:predicate]
 	subscribeOn:[RACScheduler scheduler]];
 
-RACSignal *fileSignal = [RACSignal startEagerlyWithScheduler:[RACScheduler scheduler] block:^(id<RACSubscriber> subscriber) {
-	NSMutableArray *filesInProgress = [NSMutableArray array];
-	for (NSString *path in files) {
-		[filesInProgress addObject:[NSData dataWithContentsOfFile:path]];
-	}
+RACSignal *fileSignal = [RACSignal create:^(id<RACSubscriber> subscriber) {
+    NSMutableArray *filesInProgress = [NSMutableArray array];
+    for (NSString *path in files) {
+        [filesInProgress addObject:[NSData dataWithContentsOfFile:path]];
+    }
 
-	[subscriber sendNext:[filesInProgress copy]];
-	[subscriber sendCompleted];
+    [subscriber sendNext:[filesInProgress copy]];
+    [subscriber sendCompleted];
 }];
 
 [[RACSignal
@@ -467,22 +443,23 @@ for (NSString *str in strings) {
 }
 ```
 
-[RACSequence][] allows any Cocoa collection to be manipulated in a uniform and
+[RACSignal][] allows any Cocoa collection to be manipulated in a uniform and
 declarative way:
 
 ```objc
-RACSequence *results = [[strings.rac_sequence
+NSArray *results = [[[strings.rac_signal
 	filter:^ BOOL (NSString *str) {
 		return str.length >= 2;
 	}]
 	map:^(NSString *str) {
 		return [str stringByAppendingString:@"foobar"];
-	}];
+	}]
+	array];
 ```
 
 ## System Requirements
 
-ReactiveCocoa supports OS X 10.7+ and iOS 5.0+.
+ReactiveCocoa supports OS X 10.7+ and iOS 6.0+.
 
 ## Importing ReactiveCocoa
 
@@ -551,12 +528,9 @@ are some resources related to FRP:
 [NSObject+RACLifting]: ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACLifting.h
 [RACDisposable]: ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
 [RACEvent]: ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h
-[RACMulticastConnection]: ReactiveCocoaFramework/ReactiveCocoa/RACMulticastConnection.h
 [RACScheduler]: ReactiveCocoaFramework/ReactiveCocoa/RACScheduler.h
-[RACSequence]: ReactiveCocoaFramework/ReactiveCocoa/RACSequence.h
 [RACSignal+Operations]: ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h
 [RACSignal]: ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h
-[RACStream]: ReactiveCocoaFramework/ReactiveCocoa/RACStream.h
 [RACSubscriber]: ReactiveCocoaFramework/ReactiveCocoa/RACSubscriber.h
 [RAC]: ReactiveCocoaFramework/ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h
 [futures and promises]: http://en.wikipedia.org/wiki/Futures_and_promises

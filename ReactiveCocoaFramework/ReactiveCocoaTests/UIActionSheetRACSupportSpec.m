@@ -8,7 +8,7 @@
 
 #import "RACSignal.h"
 #import "RACSignal+Operations.h"
-#import "UIActionSheet+RACSignalSupport.h"
+#import "UIActionSheet+RACSupport.h"
 
 SpecBegin(UIActionSheetRACSupportSpec)
 

@@ -14,8 +14,8 @@
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSignal.h"
-#import "UIControl+RACSignalSupport.h"
-#import "UISlider+RACSignalSupport.h"
+#import "UIControl+RACSupport.h"
+#import "UISlider+RACSupport.h"
 
 SpecBegin(UIControlRACSupport)
 
@@ -60,8 +60,8 @@ it(@"should send on the returned signal when matching actions are sent", ^{
 	__block NSUInteger receivedCount = 0;
 	[[control
 		rac_signalForControlEvents:UIControlEventTouchUpInside | UIControlEventTouchUpOutside]
-		subscribeNext:^(UIControl *sender) {
-			expect(sender).to.beIdenticalTo(control);
+		subscribeNext:^(UIControl *value) {
+			expect(value).to.beIdenticalTo(control);
 			receivedCount++;
 		}];
 

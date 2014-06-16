@@ -20,8 +20,6 @@ it(@"should have a valid current scheduler", ^{
 	}];
 
 	expect(currentScheduler).will.equal(scheduler);
-
-	dispatch_release(queue);
 });
 
 it(@"should schedule blocks FIFO even when given a concurrent queue", ^{
@@ -43,8 +41,6 @@ it(@"should schedule blocks FIFO even when given a concurrent queue", ^{
 	OSAtomicAnd32Barrier(0, &waitInFirst);
 
 	expect(startedCount).will.equal(2);
-
-	dispatch_release(queue);
 });
 
 SpecEnd

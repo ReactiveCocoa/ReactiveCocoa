@@ -7,14 +7,13 @@
 //
 
 #import "RACTuple.h"
-#import "RACUnit.h"
 
 SpecBegin(RACTuple)
 
 describe(@"RACTupleUnpack", ^{
 	it(@"should unpack a single value", ^{
-		RACTupleUnpack(RACUnit *value) = [RACTuple tupleWithObjects:RACUnit.defaultUnit, nil];
-		expect(value).to.equal(RACUnit.defaultUnit);
+		RACTupleUnpack(NSString *value) = [RACTuple tupleWithObjects:@"foobar", nil];
+		expect(value).to.equal(@"foobar");
 	});
 
 	it(@"should translate RACTupleNil", ^{
@@ -37,7 +36,7 @@ describe(@"RACTupleUnpack", ^{
 	});
 
 	it(@"should skip any values not assigned to", ^{
-		RACTupleUnpack(NSString *str, NSNumber *num) = [RACTuple tupleWithObjects:@"foobar", @5, RACUnit.defaultUnit, nil];
+		RACTupleUnpack(NSString *str, NSNumber *num) = [RACTuple tupleWithObjects:@"foobar", @5, @NO, nil];
 
 		expect(str).to.equal(@"foobar");
 		expect(num).to.equal(@5);
@@ -65,8 +64,8 @@ describe(@"RACTupleUnpack", ^{
 
 describe(@"RACTuplePack", ^{
 	it(@"should pack a single value", ^{
-		RACTuple *tuple = [RACTuple tupleWithObjects:RACUnit.defaultUnit, nil];
-		expect(RACTuplePack(RACUnit.defaultUnit)).to.equal(tuple);
+		RACTuple *tuple = [RACTuple tupleWithObjects:@"foobar", nil];
+		expect(RACTuplePack(@"foobar")).to.equal(tuple);
 	});
 	
 	it(@"should translate nil", ^{
@@ -79,41 +78,6 @@ describe(@"RACTuplePack", ^{
 		NSNumber *number = @5;
 		RACTuple *tuple = [RACTuple tupleWithObjects:string, number, nil];
 		expect(RACTuplePack(string, number)).to.equal(tuple);
-	});
-});
-
-describe(@"-tupleByAddingObject:", ^{
-	__block RACTuple *tuple;
-
-	beforeEach(^{
-		tuple = RACTuplePack(@"foo", nil, @"bar");
-	});
-
-	it(@"should add a non-nil object", ^{
-		RACTuple *newTuple = [tuple tupleByAddingObject:@"buzz"];
-		expect(newTuple.count).to.equal(4);
-		expect(newTuple[0]).to.equal(@"foo");
-		expect(newTuple[1]).to.beNil();
-		expect(newTuple[2]).to.equal(@"bar");
-		expect(newTuple[3]).to.equal(@"buzz");
-	});
-
-	it(@"should add nil", ^{
-		RACTuple *newTuple = [tuple tupleByAddingObject:nil];
-		expect(newTuple.count).to.equal(4);
-		expect(newTuple[0]).to.equal(@"foo");
-		expect(newTuple[1]).to.beNil();
-		expect(newTuple[2]).to.equal(@"bar");
-		expect(newTuple[3]).to.beNil();
-	});
-
-	it(@"should add NSNull", ^{
-		RACTuple *newTuple = [tuple tupleByAddingObject:NSNull.null];
-		expect(newTuple.count).to.equal(4);
-		expect(newTuple[0]).to.equal(@"foo");
-		expect(newTuple[1]).to.beNil();
-		expect(newTuple[2]).to.equal(@"bar");
-		expect(newTuple[3]).to.equal(NSNull.null);
 	});
 });
 

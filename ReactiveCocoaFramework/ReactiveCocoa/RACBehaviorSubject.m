@@ -6,9 +6,13 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#define WE_PROMISE_TO_MIGRATE_TO_REACTIVECOCOA_3_0
+
 #import "RACBehaviorSubject.h"
 #import "RACDisposable.h"
+#import "RACLiveSubscriber.h"
 #import "RACScheduler+Private.h"
+#import "RACSignal+Private.h"
 
 @interface RACBehaviorSubject ()
 
@@ -29,19 +33,12 @@
 
 #pragma mark RACSignal
 
-- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
-	RACDisposable *subscriptionDisposable = [super subscribe:subscriber];
+- (void)attachSubscriber:(RACLiveSubscriber *)subscriber {
+	[super attachSubscriber:subscriber];
 
-	RACDisposable *schedulingDisposable = [RACScheduler.subscriptionScheduler schedule:^{
-		@synchronized (self) {
-			[subscriber sendNext:self.currentValue];
-		}
-	}];
-	
-	return [RACDisposable disposableWithBlock:^{
-		[subscriptionDisposable dispose];
-		[schedulingDisposable dispose];
-	}];
+	@synchronized (self) {
+		[subscriber sendNext:self.currentValue];
+	}
 }
 
 #pragma mark RACSubscriber

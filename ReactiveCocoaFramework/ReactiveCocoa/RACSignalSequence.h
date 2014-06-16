@@ -10,10 +10,13 @@
 
 @class RACSignal;
 
-// Private class that adapts a RACSignal to the RACSequence interface.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 @interface RACSignalSequence : RACSequence
 
-// Returns a sequence for enumerating over the given signal.
 + (RACSequence *)sequenceWithSignal:(RACSignal *)signal;
 
 @end
+
+#pragma clang diagnostic pop

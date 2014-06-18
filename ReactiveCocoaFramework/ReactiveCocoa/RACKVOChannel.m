@@ -6,6 +6,7 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#define WE_PROMISE_TO_MIGRATE_TO_REACTIVECOCOA_3_0
 #import "RACKVOChannel.h"
 #import "EXTScope.h"
 #import "NSObject+RACDeallocating.h"

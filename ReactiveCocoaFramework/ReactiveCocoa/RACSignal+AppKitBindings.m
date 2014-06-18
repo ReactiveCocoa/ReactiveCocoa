@@ -1,61 +1,114 @@
 //
-//  NSObject+RACAppKitBindings.m
+//  RACSignal+AppKitBindings.m
 //  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 4/17/12.
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#import "NSObject+RACAppKitBindings.h"
+#import "RACSignal+AppKitBindings.h"
+
 #import "EXTKeyPathCoding.h"
 #import "EXTScope.h"
 #import "NSObject+RACDeallocating.h"
+#import "NSObject+RACDescription.h"
+#import "NSObject+RACPropertySubscribing.h"
 #import "RACChannel.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACKVOChannel.h"
 #import "RACMulticastConnection.h"
 #import "RACSignal+Operations.h"
+
+#import <AppKit/AppKit.h>
 #import <objc/runtime.h>
 
-// Used as an object to bind to, so we can hide the object creation and just
-// expose a RACChannel instead.
-@interface RACChannelProxy : NSObject
+/// Used to create Cocoa Bindings through.
+@interface RACBindingProxy : NSObject
 
-// The RACChannel used for this Cocoa binding.
-@property (nonatomic, strong, readonly) RACChannel *channel;
-
-// The KVC- and KVO-compliant property to be read and written by the Cocoa
-// binding.
-//
-// This should not be set manually.
 @property (nonatomic, strong) id value;
 
-// The target of the Cocoa binding.
-//
-// This should be set to nil when the target deallocates.
+@end
+
+@implementation RACSignal (AppKitBindings)
+
+- (RACSignal *)bind:(NSString *)binding onObject:(id)bindableObject {
+	return [self bind:binding onObject:bindableObject options:nil];
+}
+
+- (RACSignal *)bind:(NSString *)binding onObject:(id)bindableObject options:(NSDictionary *)options {
+	NSCParameterAssert(binding != nil);
+	NSCParameterAssert(bindableObject != nil);
+
+	return [[RACSignal
+		create:^(id<RACSubscriber> subscriber) {
+			RACBindingProxy *proxy = [[RACBindingProxy alloc] init];
+
+			// Forward the binding's values to the returned signal.
+			[RACObserve(proxy, value) subscribe:subscriber];
+
+			// Forward the receiver's values to the binding, and terminate the
+			// returned signal upon completion or error.
+			[subscriber.disposable addDisposable:[self subscribeNext:^(id newValue) {
+				proxy.value = newValue;
+			} error:^(NSError *error) {
+				[subscriber sendError:error];
+			} completed:^{
+				[subscriber sendCompleted];
+			}]];
+
+			// Complete the returned signal if the bound object deallocates.
+			[[bindableObject rac_deallocDisposable] addDisposable:subscriber.disposable];
+
+			// Enable the binding.
+			[bindableObject bind:binding toObject:proxy withKeyPath:@keypath(proxy.value) options:options];
+
+			[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
+				[bindableObject unbind:binding];
+				[[bindableObject rac_deallocDisposable] removeDisposable:subscriber.disposable];
+			}]];
+		}]
+		setNameWithFormat:@"[%@] -bind: %@ onObject: %@ options: %@", self.name, binding, [bindableObject rac_description], options];
+}
+
+@end
+
+@implementation RACBindingProxy
+
+#pragma mark Properties
+
+- (void)setValue:(id)value {
+	[self willChangeValueForKey:@keypath(self.value)];
+	_value = value;
+	[self didChangeValueForKey:@keypath(self.value)];
+}
+
+#pragma mark NSKeyValueObserving
+
++ (BOOL)automaticallyNotifiesObserversForKey:(NSString *)key {
+	// Generating manual notifications for `value` is simpler and more
+	// performant than having KVO swizzle our class and add its own logic.
+	return NO;
+}
+
+@end
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
+
+@interface RACChannelProxy : NSObject
+
+@property (nonatomic, strong, readonly) RACChannel *channel;
+@property (nonatomic, strong) id value;
 @property (atomic, unsafe_unretained) id target;
-
-// The name of the Cocoa binding used.
 @property (nonatomic, copy, readonly) NSString *bindingName;
-
-// Improves the performance of KVO on the receiver.
-//
-// See the documentation for <NSKeyValueObserving> for more information.
 @property (atomic, assign) void *observationInfo;
 
-// Initializes the receiver and binds to the given target.
-//
-// target      - The target of the Cocoa binding. This must not be nil.
-// bindingName - The name of the Cocoa binding to use. This must not be nil.
-// options     - Any options to pass to the binding. This may be nil.
-//
-// Returns an initialized channel proxy.
 - (id)initWithTarget:(id)target bindingName:(NSString *)bindingName options:(NSDictionary *)options;
 
 @end
 
-@implementation NSObject (RACAppKitBindings)
+@implementation NSObject (RACAppKitBindingsDeprecated)
 
 - (RACChannelTerminal *)rac_channelToBinding:(NSString *)binding {
 	return [self rac_channelToBinding:binding options:nil];
@@ -146,3 +199,5 @@
 }
 
 @end
+
+#pragma clang diagnostic pop

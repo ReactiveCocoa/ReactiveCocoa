@@ -10,108 +10,67 @@
 
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
-#import "RACKVOChannel.h"
 #import "NSObject+RACDeallocating.h"
 #import "RACSignal+Operations.h"
 
 static NSString * const NSUserDefaultsRACSupportSpecStringDefault = @"NSUserDefaultsRACSupportSpecStringDefault";
 static NSString * const NSUserDefaultsRACSupportSpecBoolDefault = @"NSUserDefaultsRACSupportSpecBoolDefault";
 
-@interface TestObserver : NSObject
-
-@property (copy, atomic) NSString *string1;
-@property (copy, atomic) NSString *string2;
-
-@property (assign, atomic) BOOL bool1;
-
-@end
-
-@implementation TestObserver
-
-@end
-
 SpecBegin(NSUserDefaultsRACSupportSpec)
 
 __block NSUserDefaults *defaults = nil;
-__block TestObserver *observer = nil;
+__block NSString *string;
+__block BOOL boolean;
 
 beforeEach(^{
 	defaults = NSUserDefaults.standardUserDefaults;
 	[defaults removeObjectForKey:NSUserDefaultsRACSupportSpecStringDefault];
 	[defaults removeObjectForKey:NSUserDefaultsRACSupportSpecBoolDefault];
+
+	[[defaults rac_objectsForKey:NSUserDefaultsRACSupportSpecStringDefault] subscribeNext:^(NSString *x) {
+		string = x;
+	}];
+
+	[[defaults rac_objectsForKey:NSUserDefaultsRACSupportSpecBoolDefault] subscribeNext:^(NSNumber *x) {
+		boolean = x.boolValue;
+	}];
 	
-	observer = [TestObserver new];
+	expect(string).to.beNil();
+	expect(boolean).to.beFalsy();
 });
 
-afterEach(^{
-	observer = nil;
-});
-
-it(@"should set defaults", ^{
-	RACChannelTo(observer, string1) = [defaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecStringDefault];
-	RACChannelTo(observer, bool1, @NO) = [defaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecBoolDefault];
-	
-	observer.string1 = @"A string";
-	observer.bool1 = YES;
-	
-	expect([defaults objectForKey:NSUserDefaultsRACSupportSpecStringDefault]).will.equal(@"A string");
-	expect([defaults objectForKey:NSUserDefaultsRACSupportSpecBoolDefault]).will.equal(@YES);
-});
-
-it(@"should read defaults", ^{
-	RACChannelTo(observer, string1) = [defaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecStringDefault];
-	RACChannelTo(observer, bool1, @NO) = [defaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecBoolDefault];
-	
-	expect(observer.string1).to.beNil();
-	expect(observer.bool1).to.equal(NO);
-	
+it(@"should observe defaults", ^{
 	[defaults setObject:@"Another string" forKey:NSUserDefaultsRACSupportSpecStringDefault];
 	[defaults setBool:YES forKey:NSUserDefaultsRACSupportSpecBoolDefault];
 	
-	expect(observer.string1).to.equal(@"Another string");
-	expect(observer.bool1).to.equal(YES);
-});
+	expect(string).to.equal(@"Another string");
+	expect(boolean).to.beTruthy();
 
-it(@"should be okay to create 2 terminals", ^{
-	RACChannelTo(observer, string1) = [defaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecStringDefault];
-	RACChannelTo(observer, string2) = [defaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecStringDefault];
-	
-	[defaults setObject:@"String 3" forKey:NSUserDefaultsRACSupportSpecStringDefault];
-	
-	expect(observer.string1).to.equal(@"String 3");
-	expect(observer.string2).to.equal(@"String 3");
-});
-
-it(@"should handle removed defaults", ^{
-	observer.string1 = @"Some string";
-	observer.bool1 = YES;
-	
-	RACChannelTo(observer, string1) = [defaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecStringDefault];
-	RACChannelTo(observer, bool1, @NO) = [defaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecBoolDefault];
-	
 	[defaults removeObjectForKey:NSUserDefaultsRACSupportSpecStringDefault];
 	[defaults removeObjectForKey:NSUserDefaultsRACSupportSpecBoolDefault];
 	
-	expect(observer.string1).to.beNil();
-	expect(observer.bool1).to.equal(NO);
+	expect(string).to.beNil();
+	expect(boolean).to.beFalsy();
 });
 
 it(@"shouldn't resend values", ^{
-	RACChannelTerminal *terminal = [defaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecStringDefault];
-	
-	RACChannelTo(observer, string1) = terminal;
-	
-	__block id value = nil;
-	[terminal subscribeNext:^(id x) {
-		value = x;
+	__block NSUInteger nextCount = 0;
+	[[defaults rac_objectsForKey:NSUserDefaultsRACSupportSpecStringDefault] subscribeNext:^(id _) {
+		nextCount++;
 	}];
 
-	observer.string1 = @"Test value";
-	expect(value).to.beNil();
+	[defaults setObject:@"foobar" forKey:NSUserDefaultsRACSupportSpecStringDefault];
+	expect(nextCount).to.equal(1);
+
+	[defaults setObject:@"foobar" forKey:NSUserDefaultsRACSupportSpecStringDefault];
+	expect(nextCount).to.equal(1);
+
+	[defaults setObject:@"fuzzbuzz" forKey:NSUserDefaultsRACSupportSpecStringDefault];
+	expect(nextCount).to.equal(2);
 });
 
 it(@"should complete when the NSUserDefaults deallocates", ^{
-	__block RACChannelTerminal *terminal;
+	__block BOOL completed = NO;
 	__block BOOL deallocated = NO;
 	
 	@autoreleasepool {
@@ -120,17 +79,18 @@ it(@"should complete when the NSUserDefaults deallocates", ^{
 			deallocated = YES;
 		}]];
 		
-		terminal = [customDefaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecStringDefault];
+		[[customDefaults rac_objectsForKey:NSUserDefaultsRACSupportSpecStringDefault] subscribeCompleted:^{
+			completed = YES;
+		}];
 	}
 	
 	expect(deallocated).to.beTruthy();
-	expect([terminal asynchronouslyWaitUntilCompleted:NULL]).to.beTruthy();
+	expect(completed).to.beTruthy();
 });
 
 it(@"should send an initial value", ^{
 	[defaults setObject:@"Initial" forKey:NSUserDefaultsRACSupportSpecStringDefault];
-	RACChannelTerminal *terminal = [defaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecStringDefault];
-	expect([terminal asynchronousFirstOrDefault:nil success:NULL error:NULL]).to.equal(@"Initial");
+	expect([[defaults rac_objectsForKey:NSUserDefaultsRACSupportSpecStringDefault] first]).to.equal(@"Initial");
 });
 
 SpecEnd

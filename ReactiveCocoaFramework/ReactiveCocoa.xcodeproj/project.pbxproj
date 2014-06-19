@@ -485,6 +485,9 @@
 		D08E4FA51952B85300E704BD /* Stream.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F7A1952B85300E704BD /* Stream.swift */; };
 		D08E4FA61952B85300E704BD /* Stream.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F7A1952B85300E704BD /* Stream.swift */; };
 		D08E4FA71952B85300E704BD /* Stream.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F7A1952B85300E704BD /* Stream.swift */; };
+		D08E4FA91952BC0800E704BD /* ObjectiveCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4FA81952BC0800E704BD /* ObjectiveCBridge.swift */; };
+		D08E4FAA1952BC0800E704BD /* ObjectiveCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4FA81952BC0800E704BD /* ObjectiveCBridge.swift */; };
+		D08E4FAB1952BC0800E704BD /* ObjectiveCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4FA81952BC0800E704BD /* ObjectiveCBridge.swift */; };
 		D08FF264169A32D100743C6D /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = 88037F8C15056328001A5B19 /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D08FF265169A32DC00743C6D /* RACSubscriber.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CDF7FA150019CA00163A9F /* RACSubscriber.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D08FF267169A330000743C6D /* RACUnit.h in Headers */ = {isa = PBXBuildFile; fileRef = 881B37CA152260BF0079220B /* RACUnit.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -908,6 +911,7 @@
 		D08E4F781952B85300E704BD /* Scheduler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scheduler.swift; sourceTree = "<group>"; };
 		D08E4F791952B85300E704BD /* SpinLock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpinLock.swift; sourceTree = "<group>"; };
 		D08E4F7A1952B85300E704BD /* Stream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stream.swift; sourceTree = "<group>"; };
+		D08E4FA81952BC0800E704BD /* ObjectiveCBridge.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectiveCBridge.swift; sourceTree = "<group>"; };
 		D090767D17FBEADE00EB087A /* NSURLConnection+RACSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURLConnection+RACSupport.h"; sourceTree = "<group>"; };
 		D090767E17FBEADE00EB087A /* NSURLConnection+RACSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURLConnection+RACSupport.m"; sourceTree = "<group>"; };
 		D090768917FBECBF00EB087A /* NSURLConnectionRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSURLConnectionRACSupportSpec.m; sourceTree = "<group>"; };
@@ -1525,6 +1529,7 @@
 				D08E4F721952B85300E704BD /* Disposable.swift */,
 				D08E4F731952B85300E704BD /* Event.swift */,
 				D08E4F741952B85300E704BD /* NSLockingExtensions.swift */,
+				D08E4FA81952BC0800E704BD /* ObjectiveCBridge.swift */,
 				D08E4F751952B85300E704BD /* Observable.swift */,
 				D08E4F761952B85300E704BD /* ObservableProperty.swift */,
 				D08E4F771952B85300E704BD /* Promise.swift */,
@@ -1888,10 +1893,6 @@
 				D05AD41117F2DB6A0080895B /* NSNotificationCenter+RACSupport.h in Headers */,
 				D05AD40917F2DB6A0080895B /* NSData+RACSupport.h in Headers */,
 				D05AD3C317F2DB100080895B /* RACUnit.h in Headers */,
-				D45F1AAB18E498D0005CE515 /* ReactiveCocoa.h in Headers */,
-				D45F1AAC18E498FD005CE515 /* EXTKeyPathCoding.h in Headers */,
-				D45F1AAD18E498FD005CE515 /* EXTScope.h in Headers */,
-				D45F1AAE18E498FD005CE515 /* metamacros.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2249,6 +2250,7 @@
 				D08E4F8D1952B85300E704BD /* Disposable.swift in Sources */,
 				D077A16F169B740200057BB1 /* RACEvent.m in Sources */,
 				8837EA1816A5A33300FC3CDF /* RACKVOTrampoline.m in Sources */,
+				D08E4FA91952BC0800E704BD /* ObjectiveCBridge.swift in Sources */,
 				D0A0B01616EAA3D100C47593 /* NSText+RACSignalSupport.m in Sources */,
 				D08E4F9C1952B85300E704BD /* Promise.swift in Sources */,
 				D020F3DB17F6A3E40092BED2 /* RACCompoundDisposableProvider.d in Sources */,
@@ -2352,6 +2354,7 @@
 				88F440C9153DAD740097B4C3 /* RACUnit.m in Sources */,
 				88F440CB153DAD780097B4C3 /* RACScheduler.m in Sources */,
 				88F440CA153DAD760097B4C3 /* RACTuple.m in Sources */,
+				D08E4FAA1952BC0800E704BD /* ObjectiveCBridge.swift in Sources */,
 				88F440C5153DAD6C0097B4C3 /* RACDisposable.m in Sources */,
 				D08E4FA31952B85300E704BD /* SpinLock.swift in Sources */,
 				D090768317FBEADE00EB087A /* NSURLConnection+RACSupport.m in Sources */,
@@ -2508,6 +2511,7 @@
 				D08E4F8F1952B85300E704BD /* Disposable.swift in Sources */,
 				D05AD40017F2DB5D0080895B /* RACTargetQueueScheduler.m in Sources */,
 				D05AD41717F2DB6A0080895B /* NSOrderedSet+RACSequenceAdditions.m in Sources */,
+				D08E4FAB1952BC0800E704BD /* ObjectiveCBridge.swift in Sources */,
 				D05AD40617F2DB5D0080895B /* RACTestScheduler.m in Sources */,
 				D08E4F9E1952B85300E704BD /* Promise.swift in Sources */,
 				D05AD3EF17F2DB4F0080895B /* RACSequence.m in Sources */,

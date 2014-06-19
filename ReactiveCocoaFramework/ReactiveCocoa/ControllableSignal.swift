@@ -1,5 +1,5 @@
 //
-//  ControllableObservable.swift
+//  ControllableSignal.swift
 //  RxSwift
 //
 //  Created by Justin Spahr-Summers on 2014-06-14.
@@ -8,11 +8,11 @@
 
 import Foundation
 
-/// An Observable that can be manually controlled.
+/// A Signal that can be manually controlled.
 ///
 /// Instances of this class will automatically send Completed events to all
 /// observers upon deinitialization.
-@final class ControllableObservable<T>: Observable<T> {
+@final class ControllableSignal<T>: Signal<T> {
 	init() {
 		super.init({ send in
 			return nil

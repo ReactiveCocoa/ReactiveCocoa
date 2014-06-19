@@ -1,5 +1,5 @@
 //
-//  ObservableProperty.swift
+//  SignalingProperty.swift
 //  RxSwift
 //
 //  Created by Justin Spahr-Summers on 2014-06-14.
@@ -13,7 +13,7 @@ import Foundation
 /// New observers of this stream will receive the current `value`, all future
 /// values thereafter, and then a Completed event when the property is
 /// deinitialized.
-@final class ObservableProperty<T>: Observable<T> {
+@final class SignalingProperty<T>: Signal<T> {
 	var _mutableClosure: () -> T
 
 	/// The value of the property.

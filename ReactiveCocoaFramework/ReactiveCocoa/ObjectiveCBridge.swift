@@ -13,9 +13,9 @@ extension RACDisposable: Disposable {}
 // FIXME
 let emptyError = NSError(domain: "RACErrorDomain", code: 1, userInfo: nil)
 
-/// Creates an Observable from a RACSignal.
-func fromRACSignal(signal: RACSignal) -> Observable<AnyObject?> {
-	return Observable { send in
+/// Creates a Signal from a RACSignal.
+func fromRACSignal(signal: RACSignal) -> Signal<AnyObject?> {
+	return Signal { send in
 		let next = { (obj: AnyObject?) -> () in
 			send(.Next(Box(obj)))
 		}
@@ -35,8 +35,8 @@ func fromRACSignal(signal: RACSignal) -> Observable<AnyObject?> {
 	}
 }
 
-/// Creates a RACSignal from an Observable.
-func toRACSignal<T: AnyObject>(observable: Observable<T?>) -> RACSignal {
+/// Creates a RACSignal from a Signal.
+func toRACSignal<T: AnyObject>(observable: Signal<T?>) -> RACSignal {
 	return RACSignal.createSignal { subscriber in
 		let selfDisposable = observable.observe { event in
 			switch event {

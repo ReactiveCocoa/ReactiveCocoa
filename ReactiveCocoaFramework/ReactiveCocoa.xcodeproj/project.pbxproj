@@ -455,9 +455,9 @@
 		D08E4F871952B85300E704BD /* Box.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F701952B85300E704BD /* Box.swift */; };
 		D08E4F881952B85300E704BD /* Box.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F701952B85300E704BD /* Box.swift */; };
 		D08E4F891952B85300E704BD /* Box.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F701952B85300E704BD /* Box.swift */; };
-		D08E4F8A1952B85300E704BD /* ControllableObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F711952B85300E704BD /* ControllableObservable.swift */; };
-		D08E4F8B1952B85300E704BD /* ControllableObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F711952B85300E704BD /* ControllableObservable.swift */; };
-		D08E4F8C1952B85300E704BD /* ControllableObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F711952B85300E704BD /* ControllableObservable.swift */; };
+		D08E4F8A1952B85300E704BD /* ControllableSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F711952B85300E704BD /* ControllableSignal.swift */; };
+		D08E4F8B1952B85300E704BD /* ControllableSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F711952B85300E704BD /* ControllableSignal.swift */; };
+		D08E4F8C1952B85300E704BD /* ControllableSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F711952B85300E704BD /* ControllableSignal.swift */; };
 		D08E4F8D1952B85300E704BD /* Disposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F721952B85300E704BD /* Disposable.swift */; };
 		D08E4F8E1952B85300E704BD /* Disposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F721952B85300E704BD /* Disposable.swift */; };
 		D08E4F8F1952B85300E704BD /* Disposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F721952B85300E704BD /* Disposable.swift */; };
@@ -467,12 +467,12 @@
 		D08E4F931952B85300E704BD /* NSLockingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F741952B85300E704BD /* NSLockingExtensions.swift */; };
 		D08E4F941952B85300E704BD /* NSLockingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F741952B85300E704BD /* NSLockingExtensions.swift */; };
 		D08E4F951952B85300E704BD /* NSLockingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F741952B85300E704BD /* NSLockingExtensions.swift */; };
-		D08E4F961952B85300E704BD /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F751952B85300E704BD /* Observable.swift */; };
-		D08E4F971952B85300E704BD /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F751952B85300E704BD /* Observable.swift */; };
-		D08E4F981952B85300E704BD /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F751952B85300E704BD /* Observable.swift */; };
-		D08E4F991952B85300E704BD /* ObservableProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F761952B85300E704BD /* ObservableProperty.swift */; };
-		D08E4F9A1952B85300E704BD /* ObservableProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F761952B85300E704BD /* ObservableProperty.swift */; };
-		D08E4F9B1952B85300E704BD /* ObservableProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F761952B85300E704BD /* ObservableProperty.swift */; };
+		D08E4F961952B85300E704BD /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F751952B85300E704BD /* Signal.swift */; };
+		D08E4F971952B85300E704BD /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F751952B85300E704BD /* Signal.swift */; };
+		D08E4F981952B85300E704BD /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F751952B85300E704BD /* Signal.swift */; };
+		D08E4F991952B85300E704BD /* SignalingProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F761952B85300E704BD /* SignalingProperty.swift */; };
+		D08E4F9A1952B85300E704BD /* SignalingProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F761952B85300E704BD /* SignalingProperty.swift */; };
+		D08E4F9B1952B85300E704BD /* SignalingProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F761952B85300E704BD /* SignalingProperty.swift */; };
 		D08E4F9C1952B85300E704BD /* Promise.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F771952B85300E704BD /* Promise.swift */; };
 		D08E4F9D1952B85300E704BD /* Promise.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F771952B85300E704BD /* Promise.swift */; };
 		D08E4F9E1952B85300E704BD /* Promise.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08E4F771952B85300E704BD /* Promise.swift */; };
@@ -901,12 +901,12 @@
 		D08E4F6E1952B85300E704BD /* AsyncSequence.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsyncSequence.swift; sourceTree = "<group>"; };
 		D08E4F6F1952B85300E704BD /* Atomic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Atomic.swift; sourceTree = "<group>"; };
 		D08E4F701952B85300E704BD /* Box.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Box.swift; sourceTree = "<group>"; };
-		D08E4F711952B85300E704BD /* ControllableObservable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ControllableObservable.swift; sourceTree = "<group>"; };
+		D08E4F711952B85300E704BD /* ControllableSignal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ControllableSignal.swift; sourceTree = "<group>"; };
 		D08E4F721952B85300E704BD /* Disposable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Disposable.swift; sourceTree = "<group>"; };
 		D08E4F731952B85300E704BD /* Event.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		D08E4F741952B85300E704BD /* NSLockingExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSLockingExtensions.swift; sourceTree = "<group>"; };
-		D08E4F751952B85300E704BD /* Observable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Observable.swift; sourceTree = "<group>"; };
-		D08E4F761952B85300E704BD /* ObservableProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObservableProperty.swift; sourceTree = "<group>"; };
+		D08E4F751952B85300E704BD /* Signal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Signal.swift; sourceTree = "<group>"; };
+		D08E4F761952B85300E704BD /* SignalingProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalingProperty.swift; sourceTree = "<group>"; };
 		D08E4F771952B85300E704BD /* Promise.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Promise.swift; sourceTree = "<group>"; };
 		D08E4F781952B85300E704BD /* Scheduler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scheduler.swift; sourceTree = "<group>"; };
 		D08E4F791952B85300E704BD /* SpinLock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpinLock.swift; sourceTree = "<group>"; };
@@ -1525,15 +1525,15 @@
 				D08E4F6E1952B85300E704BD /* AsyncSequence.swift */,
 				D08E4F6F1952B85300E704BD /* Atomic.swift */,
 				D08E4F701952B85300E704BD /* Box.swift */,
-				D08E4F711952B85300E704BD /* ControllableObservable.swift */,
+				D08E4F711952B85300E704BD /* ControllableSignal.swift */,
 				D08E4F721952B85300E704BD /* Disposable.swift */,
 				D08E4F731952B85300E704BD /* Event.swift */,
 				D08E4F741952B85300E704BD /* NSLockingExtensions.swift */,
 				D08E4FA81952BC0800E704BD /* ObjectiveCBridge.swift */,
-				D08E4F751952B85300E704BD /* Observable.swift */,
-				D08E4F761952B85300E704BD /* ObservableProperty.swift */,
 				D08E4F771952B85300E704BD /* Promise.swift */,
 				D08E4F781952B85300E704BD /* Scheduler.swift */,
+				D08E4F751952B85300E704BD /* Signal.swift */,
+				D08E4F761952B85300E704BD /* SignalingProperty.swift */,
 				D08E4F791952B85300E704BD /* SpinLock.swift */,
 				D08E4F7A1952B85300E704BD /* Stream.swift */,
 				D08E4F6A1952B85200E704BD /* ReactiveCocoa-Bridging-Header.h */,
@@ -2242,9 +2242,9 @@
 				881E87C61669636000667F7B /* RACSubscriptionScheduler.m in Sources */,
 				5F45A887168CFA3E00B58A2B /* RACKVOChannel.m in Sources */,
 				5F6FE8551692568A00A8D7A6 /* RACChannel.m in Sources */,
-				D08E4F961952B85300E704BD /* Observable.swift in Sources */,
+				D08E4F961952B85300E704BD /* Signal.swift in Sources */,
 				88C5A026169246140045EF05 /* RACMulticastConnection.m in Sources */,
-				D08E4F991952B85300E704BD /* ObservableProperty.swift in Sources */,
+				D08E4F991952B85300E704BD /* SignalingProperty.swift in Sources */,
 				5F9743F91694A2460024EB82 /* RACEagerSequence.m in Sources */,
 				5F773DEC169B46670023069D /* NSEnumerator+RACSequenceAdditions.m in Sources */,
 				D08E4F8D1952B85300E704BD /* Disposable.swift in Sources */,
@@ -2275,7 +2275,7 @@
 				55C39DE417F1EC6E006DC60C /* NSData+RACSupport.m in Sources */,
 				55C39DE517F1EC6E006DC60C /* NSFileHandle+RACSupport.m in Sources */,
 				55C39DE617F1EC6E006DC60C /* NSNotificationCenter+RACSupport.m in Sources */,
-				D08E4F8A1952B85300E704BD /* ControllableObservable.swift in Sources */,
+				D08E4F8A1952B85300E704BD /* ControllableSignal.swift in Sources */,
 				D013A3F21807B9690072B6CE /* RACDynamicSignal.m in Sources */,
 				55C39DE717F1EC6E006DC60C /* NSString+RACSupport.m in Sources */,
 			);
@@ -2339,7 +2339,7 @@
 			files = (
 				27A887D11703DC6800040001 /* UIBarButtonItem+RACCommandSupport.m in Sources */,
 				D08E4F821952B85300E704BD /* AsyncSequence.swift in Sources */,
-				D08E4F8B1952B85300E704BD /* ControllableObservable.swift in Sources */,
+				D08E4F8B1952B85300E704BD /* ControllableSignal.swift in Sources */,
 				8882D4601673B0450080E7CD /* RACBlockTrampoline.m in Sources */,
 				88F440BA153DAD570097B4C3 /* RACCommand.m in Sources */,
 				88F440BC153DAD5A0097B4C3 /* RACSubscriber.m in Sources */,
@@ -2361,7 +2361,7 @@
 				88F44263153DC2C70097B4C3 /* UIControl+RACSignalSupport.m in Sources */,
 				886F702C1551CF9D0045D68B /* RACGroupedSignal.m in Sources */,
 				88F44267153DCAC50097B4C3 /* UITextField+RACSignalSupport.m in Sources */,
-				D08E4F971952B85300E704BD /* Observable.swift in Sources */,
+				D08E4F971952B85300E704BD /* Signal.swift in Sources */,
 				A1FCC27715666AA3008C9686 /* UITextView+RACSignalSupport.m in Sources */,
 				D03525D917E2FAAD0099CBAB /* RACSignalProvider.d in Sources */,
 				D08E4F941952B85300E704BD /* NSLockingExtensions.swift in Sources */,
@@ -2411,7 +2411,7 @@
 				5F773DED169B46670023069D /* NSEnumerator+RACSequenceAdditions.m in Sources */,
 				D077A170169B740200057BB1 /* RACEvent.m in Sources */,
 				D08E4F7C1952B85300E704BD /* ArrayExtensions.swift in Sources */,
-				D08E4F9A1952B85300E704BD /* ObservableProperty.swift in Sources */,
+				D08E4F9A1952B85300E704BD /* SignalingProperty.swift in Sources */,
 				8837EA1916A5A33300FC3CDF /* RACKVOTrampoline.m in Sources */,
 				6E58405D16F22F7800F588A6 /* NSObject+RACDeallocating.m in Sources */,
 				880D7A5D16F7B351004A3361 /* NSObject+RACSelectorSignal.m in Sources */,
@@ -2503,9 +2503,9 @@
 				D05AD3F717F2DB4F0080895B /* RACUnarySequence.m in Sources */,
 				D05AD3D317F2DB1D0080895B /* RACSignal.m in Sources */,
 				D05AD42F17F2DB840080895B /* NSObject+RACPropertySubscribing.m in Sources */,
-				D08E4F981952B85300E704BD /* Observable.swift in Sources */,
+				D08E4F981952B85300E704BD /* Signal.swift in Sources */,
 				D05AD3F317F2DB4F0080895B /* RACEmptySequence.m in Sources */,
-				D08E4F9B1952B85300E704BD /* ObservableProperty.swift in Sources */,
+				D08E4F9B1952B85300E704BD /* SignalingProperty.swift in Sources */,
 				D05AD42317F2DB6E0080895B /* NSObject+RACAppKitBindings.m in Sources */,
 				D05AD40817F2DB6A0080895B /* NSArray+RACSequenceAdditions.m in Sources */,
 				D08E4F8F1952B85300E704BD /* Disposable.swift in Sources */,
@@ -2536,7 +2536,7 @@
 				D05AD3D717F2DB1D0080895B /* RACEvent.m in Sources */,
 				D05AD3C117F2DB100080895B /* RACPassthroughSubscriber.m in Sources */,
 				D05AD3C617F2DB100080895B /* RACTuple.m in Sources */,
-				D08E4F8C1952B85300E704BD /* ControllableObservable.swift in Sources */,
+				D08E4F8C1952B85300E704BD /* ControllableSignal.swift in Sources */,
 				D013A3F41807B9690072B6CE /* RACDynamicSignal.m in Sources */,
 				D049804217F91F42001EE042 /* EXTRuntimeExtensions.m in Sources */,
 			);

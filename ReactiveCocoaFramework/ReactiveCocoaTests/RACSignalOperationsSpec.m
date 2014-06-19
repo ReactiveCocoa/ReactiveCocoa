@@ -2705,6 +2705,67 @@ describe(@"-throttleDiscardingEarliest:", ^{
 	});
 });
 
+describe(@"-throttleDiscardingLatest:", ^{
+	__block RACSubject *subject;
+	__block RACSignal *throttledSignal;
+
+	beforeEach(^{
+		subject = [RACSubject subject];
+		throttledSignal = [subject throttleDiscardingLatest:0.01];
+	});
+
+	it(@"should throttle nexts", ^{
+		NSMutableArray *valuesReceived = [NSMutableArray array];
+		[throttledSignal subscribeNext:^(id x) {
+			[valuesReceived addObject:x];
+		}];
+
+		[subject sendNext:@1];
+		[subject sendNext:@2];
+		expect(valuesReceived).to.equal(@[ @1 ]);
+
+		[RACScheduler.mainThreadScheduler after:[NSDate dateWithTimeIntervalSinceNow:0.01] schedule:^{
+			[subject sendNext:@3];
+			[subject sendNext:@4];
+		}];
+
+		expect(valuesReceived).will.equal((@[ @1, @3 ]));
+	});
+
+	it(@"should forward completed immediately", ^{
+		__block BOOL completed = NO;
+		[throttledSignal subscribeCompleted:^{
+			completed = YES;
+		}];
+
+		[subject sendCompleted];
+		expect(completed).to.beTruthy();
+	});
+
+	it(@"should forward errors immediately", ^{
+		__block NSError *error = nil;
+		[throttledSignal subscribeError:^(NSError *e) {
+			error = e;
+		}];
+
+		[subject sendError:RACSignalTestError];
+		expect(error).to.equal(RACSignalTestError);
+	});
+
+	it(@"should not throttle for zero interval", ^{
+		throttledSignal = [subject throttleDiscardingLatest:0];
+
+		NSMutableArray *valuesReceived = [NSMutableArray array];
+		[throttledSignal subscribeNext:^(id x) {
+			[valuesReceived addObject:x];
+		}];
+
+		[subject sendNext:@1];
+		[subject sendNext:@2];
+		expect(valuesReceived).to.equal((@[ @1, @2 ]));
+	});
+});
+
 describe(@"-sample:", ^{
 	it(@"should send the latest value when the sampler signal fires", ^{
 		RACSubject *subject = [RACSubject subject];

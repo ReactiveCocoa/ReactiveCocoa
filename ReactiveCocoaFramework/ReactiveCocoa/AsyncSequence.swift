@@ -82,12 +82,12 @@ class AsyncSequence<T>: Stream<T>, Sequence {
 	///
 	/// Work will only begin when the generated promises are actually resolved.
 	/// Each promise may be evaluated in any order, or even skipped entirely.
-	func generate() -> GeneratorType {
+	@final func generate() -> GeneratorType {
 		return self._generate()
 	}
 
 	/// Injects side effects into the generation of each event.
-	func doEvent(action: Event<T> -> ()) -> AsyncSequence<T> {
+	@final func doEvent(action: Event<T> -> ()) -> AsyncSequence<T> {
 		return AsyncSequence {
 			var selfGenerator = self.generate()
 
@@ -102,7 +102,7 @@ class AsyncSequence<T>: Stream<T>, Sequence {
 		}
 	}
 	
-	override class func empty() -> AsyncSequence<T> {
+	@final override class func empty() -> AsyncSequence<T> {
 		return AsyncSequence {
 			return GeneratorOf {
 				Promise { Event.Completed }
@@ -110,7 +110,7 @@ class AsyncSequence<T>: Stream<T>, Sequence {
 		}
 	}
 
-	override class func single(x: T) -> AsyncSequence<T> {
+	@final override class func single(x: T) -> AsyncSequence<T> {
 		return AsyncSequence {
 			return SequenceOf([
 				Promise { Event.Next(Box(x)) },
@@ -119,7 +119,7 @@ class AsyncSequence<T>: Stream<T>, Sequence {
 		}
 	}
 
-	override class func error(error: NSError) -> AsyncSequence<T> {
+	@final override class func error(error: NSError) -> AsyncSequence<T> {
 		return AsyncSequence {
 			return GeneratorOf {
 				Promise { Event.Error(error) }
@@ -127,14 +127,14 @@ class AsyncSequence<T>: Stream<T>, Sequence {
 		}
 	}
 
-	override func flattenScan<S, U>(initial: S, _ f: (S, T) -> (S?, Stream<U>)) -> AsyncSequence<U> {
+	@final override func flattenScan<S, U>(initial: S, _ f: (S, T) -> (S?, Stream<U>)) -> AsyncSequence<U> {
 		return AsyncSequence<U> {
 			let g = _FlattenScanGenerator(disposable: SimpleDisposable(), scanFunc: f, valueGenerators: [], state: initial, selfGenerator: self.generate())
 			return GeneratorOf(g)
 		}
 	}
 
-	override func concat(stream: Stream<T>) -> AsyncSequence<T> {
+	@final override func concat(stream: Stream<T>) -> AsyncSequence<T> {
 		return AsyncSequence {
 			var selfGenerator = self.generate()
 			var streamGenerator = (stream as AsyncSequence<T>).generate()
@@ -162,7 +162,7 @@ class AsyncSequence<T>: Stream<T>, Sequence {
 		}
 	}
 
-	override func zipWith<U>(stream: Stream<U>) -> AsyncSequence<(T, U)> {
+	@final override func zipWith<U>(stream: Stream<U>) -> AsyncSequence<(T, U)> {
 		return AsyncSequence<(T, U)> {
 			var selfGenerator = self.generate()
 			var streamGenerator = (stream as AsyncSequence<U>).generate()
@@ -203,7 +203,7 @@ class AsyncSequence<T>: Stream<T>, Sequence {
 		}
 	}
 
-	override func materialize() -> AsyncSequence<Event<T>> {
+	@final override func materialize() -> AsyncSequence<Event<T>> {
 		return AsyncSequence<Event<T>> {
 			var generator = self.generate()
 			let disposable = SimpleDisposable()

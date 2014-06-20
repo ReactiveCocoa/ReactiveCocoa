@@ -52,7 +52,7 @@ class Signal<T>: Stream<T> {
 	/// Observes the stream for new events.
 	///
 	/// Returns a disposable which can be used to cease observation.
-	func observe(observer: Observer) -> Disposable {
+	@final func observe(observer: Observer) -> Disposable {
 		let box = Box(observer)
 	
 		dispatch_sync(_observerQueue, {
@@ -73,14 +73,14 @@ class Signal<T>: Stream<T> {
 	///
 	/// Returns the buffered sequence, and a disposable which can be used to
 	/// stop buffering further events.
-	func replay() -> (AsyncSequence<T>, Disposable) {
+	@final func replay() -> (AsyncSequence<T>, Disposable) {
 		let buf = AsyncBuffer<T>()
 		return (buf, self.observe(buf.send))
 	}
 
 	/// Takes events from the receiver until `trigger` sends a Next or Completed
 	/// event.
-	func takeUntil<U>(trigger: Signal<U>) -> Signal<T> {
+	@final func takeUntil<U>(trigger: Signal<U>) -> Signal<T> {
 		return Signal { send in
 			let triggerDisposable = trigger.observe { event in
 				switch event {
@@ -103,7 +103,7 @@ class Signal<T>: Stream<T> {
 	/// The returned observable could repeat values if `sampler` fires more
 	/// often than the receiver. Values from `sampler` are ignored before the
 	/// receiver sends its first value.
-	func sample<U>(sampler: Signal<U>) -> Signal<T> {
+	@final func sample<U>(sampler: Signal<U>) -> Signal<T> {
 		return Signal { send in
 			let latest: Atomic<T?> = Atomic(nil)
 
@@ -137,7 +137,7 @@ class Signal<T>: Stream<T> {
 	/// on the given scheduler.
 	///
 	/// Error events are always forwarded immediately.
-	func delay(interval: NSTimeInterval, onScheduler scheduler: Scheduler) -> Signal<T> {
+	@final func delay(interval: NSTimeInterval, onScheduler scheduler: Scheduler) -> Signal<T> {
 		return Signal { send in
 			return self.observe { event in
 				switch event {
@@ -154,7 +154,7 @@ class Signal<T>: Stream<T> {
 	}
 
 	/// Delivers all events onto the given scheduler.
-	func deliverOn(scheduler: Scheduler) -> Signal<T> {
+	@final func deliverOn(scheduler: Scheduler) -> Signal<T> {
 		return Signal { send in
 			return self.observe { event in
 				scheduler.schedule { send(event) }
@@ -165,7 +165,7 @@ class Signal<T>: Stream<T> {
 
 	/// Creates a Signal which will send the latest value from both input
 	/// Signals, whenever either of them fire.
-	func combineLatestWith<U>(other: Signal<U>) -> Signal<(T, U)> {
+	@final func combineLatestWith<U>(other: Signal<U>) -> Signal<(T, U)> {
 		return Signal<(T, U)> { send in
 			let states = Atomic((_CombineState<T>(), _CombineState<U>()))
 
@@ -227,7 +227,7 @@ class Signal<T>: Stream<T> {
 	
 	/// Creates a Signal which will repeatedly send the current date at the
 	/// given interval, on the given scheduler, starting from the time of observation.
-	class func interval(interval: NSTimeInterval, onScheduler scheduler: RepeatableScheduler, withLeeway leeway: NSTimeInterval = 0) -> Signal<NSDate> {
+	@final class func interval(interval: NSTimeInterval, onScheduler scheduler: RepeatableScheduler, withLeeway leeway: NSTimeInterval = 0) -> Signal<NSDate> {
 		return Signal<NSDate> { send in
 			return scheduler.scheduleAfter(NSDate(timeIntervalSinceNow: interval), repeatingEvery: interval, withLeeway: leeway) {
 				let now = Box(NSDate())
@@ -236,14 +236,14 @@ class Signal<T>: Stream<T> {
 		}
 	}
 	
-	override class func empty() -> Signal<T> {
+	@final override class func empty() -> Signal<T> {
 		return Signal { send in
 			send(.Completed)
 			return nil
 		}
 	}
 	
-	override class func single(x: T) -> Signal<T> {
+	@final override class func single(x: T) -> Signal<T> {
 		return Signal { send in
 			send(.Next(Box(x)))
 			send(.Completed)
@@ -251,14 +251,14 @@ class Signal<T>: Stream<T> {
 		}
 	}
 
-	override class func error(error: NSError) -> Signal<T> {
+	@final override class func error(error: NSError) -> Signal<T> {
 		return Signal { send in
 			send(.Error(error))
 			return nil
 		}
 	}
 
-	override func flattenScan<S, U>(initial: S, _ f: (S, T) -> (S?, Stream<U>)) -> Signal<U> {
+	@final override func flattenScan<S, U>(initial: S, _ f: (S, T) -> (S?, Stream<U>)) -> Signal<U> {
 		return Signal<U> { send in
 			let disposable = CompositeDisposable()
 			let inFlight = Atomic(1)
@@ -318,7 +318,7 @@ class Signal<T>: Stream<T> {
 		}
 	}
 
-	override func concat(stream: Stream<T>) -> Signal<T> {
+	@final override func concat(stream: Stream<T>) -> Signal<T> {
 		return Signal { send in
 			let disposable = SerialDisposable()
 
@@ -336,7 +336,7 @@ class Signal<T>: Stream<T> {
 		}
 	}
 
-	override func zipWith<U>(stream: Stream<U>) -> Signal<(T, U)> {
+	@final override func zipWith<U>(stream: Stream<U>) -> Signal<(T, U)> {
 		return Signal<(T, U)> { send in
 			let states = Atomic((_ZipState<T>(), _ZipState<U>()))
 
@@ -411,7 +411,7 @@ class Signal<T>: Stream<T> {
 		}
 	}
 
-	override func materialize() -> Signal<Event<T>> {
+	@final override func materialize() -> Signal<Event<T>> {
 		return Signal<Event<T>> { send in
 			return self.observe { event in
 				send(.Next(Box(event)))

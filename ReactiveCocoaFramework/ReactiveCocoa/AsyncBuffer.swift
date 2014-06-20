@@ -8,7 +8,7 @@
 
 import Foundation
 
-class AsyncBuffer<T>: AsyncSequence<T> {
+@final class AsyncBuffer<T>: AsyncSequence<T> {
 	let condition = NSCondition()
 	var events: Event<T>[] = []
 	

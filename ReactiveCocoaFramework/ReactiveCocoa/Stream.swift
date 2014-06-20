@@ -92,8 +92,9 @@ class Stream<T> {
 
 	/// Keeps only the values in the stream that match the given predicate.
 	@final func filter(pred: T -> Bool) -> Stream<T> {
-		return map { x in pred(x) ? .single(x) : .empty() }
-			|> flatten
+		return self
+			.map { x in pred(x) ? .single(x) : .empty() }
+			.flatten(Refl<Stream<T>>())
 	}
 
 	/// Takes only the first `count` values from the stream.
@@ -238,48 +239,57 @@ class Stream<T> {
 	@final func ignoreValues() -> Stream<T> {
 		return filter { _ in false }
 	}
-}
 
-/// Flattens a stream-of-streams into a single stream of values.
-///
-/// The exact manner in which flattening occurs is determined by the
-/// stream's implementation of `flattenScan()`.
-func flatten<T>(stream: Stream<Stream<T>>) -> Stream<T> {
-	return stream.flattenScan(0) { (_, s) in (0, s) }
-}
-
-/// Converts a stream of Event values back into a stream of real events.
-func dematerialize<T>(stream: Stream<Event<T>>) -> Stream<T> {
-	return stream.map { event in
-		switch event {
-		case let .Next(value):
-			return .single(value)
-
-		case let .Error(error):
-			return .error(error)
-
-		case let .Completed:
-			return .empty()
-		}
-	} |> flatten
-}
-
-/// Ignores all occurrences of a value in the given stream.
-func ignore<T: Equatable>(value: T, inStream stream: Stream<T>) -> Stream<T> {
-	return stream.filter { $0 != value }
-}
-
-/// Deduplicates consecutive appearances of the same value into only the first
-/// occurrence.
-func nub<T: Equatable>(stream: Stream<T>) -> Stream<T> {
-	return stream.flattenScan(nil) { (previous: T?, current) in
-		if let p = previous {
-			if p == current {
-				return (current, .empty())
+	/// Flattens a stream-of-streams into a single stream of values.
+	///
+	/// The exact manner in which flattening occurs is determined by the
+	/// stream's implementation of `flattenScan()`.
+	@final func flatten<U, EV: TypeEquality where EV.From == T, EV.To == Stream<Stream<U>>>(ev: EV) -> Stream<U> {
+		return ev
+			.apply(self)
+			.flattenScan(0) { (_, s) in (0, s) }
+	}
+	
+	/// Converts a stream of Event values back into a stream of real events.
+	@final func dematerialize<U, EV: TypeEquality where EV.From == T, EV.To == Stream<Event<U>>>(ev: EV) -> Stream<U> {
+		let s: Stream<Event<U>> = ev.apply(self)
+		return s
+			.map { event in
+				switch event {
+				case let .Next(value):
+					return .single(value)
+					
+				case let .Error(error):
+					return .error(error)
+					
+				case let .Completed:
+					return .empty()
+				}
 			}
-		}
-		
-		return (current, .single(current))
+			.flatten(Refl<Stream<U>>())
+	}
+
+	/// Ignores all occurrences of a value in the given stream.
+	@final func ignore<U: Equatable, EV: TypeEquality where EV.From == T, EV.To == Stream<U>>(ev: EV, value: U) -> Stream<U> {
+		return ev
+			.apply(self)
+			.filter { $0 != value }
+	}
+
+	/// Deduplicates consecutive appearances of the same value into only the first
+	/// occurrence.
+	@final func nub<U: Equatable, EV: TypeEquality where EV.From == T, EV.To == Stream<U>>(ev: EV) -> Stream<U> {
+		return ev
+			.apply(self)
+			.flattenScan(nil) { (previous: U?, current: U) -> (U??, Stream<U>) in
+				if let p = previous {
+					if p == current {
+						return (current, .empty())
+					}
+				}
+				
+				return (current, .single(current))
+			}
 	}
 }
 

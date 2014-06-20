@@ -268,24 +268,28 @@ class Stream<T> {
 			}
 			.flatten(Refl<Stream<U>>())
 	}
-}
 
-/// Ignores all occurrences of a value in the given stream.
-func ignore<T: Equatable>(value: T, inStream stream: Stream<T>) -> Stream<T> {
-	return stream.filter { $0 != value }
-}
+	/// Ignores all occurrences of a value in the given stream.
+	@final func ignore<U: Equatable, EV: TypeEquality where EV.From == T, EV.To == Stream<U>>(ev: EV, value: U) -> Stream<U> {
+		return ev
+			.apply(self)
+			.filter { $0 != value }
+	}
 
-/// Deduplicates consecutive appearances of the same value into only the first
-/// occurrence.
-func nub<T: Equatable>(stream: Stream<T>) -> Stream<T> {
-	return stream.flattenScan(nil) { (previous: T?, current) in
-		if let p = previous {
-			if p == current {
-				return (current, .empty())
+	/// Deduplicates consecutive appearances of the same value into only the first
+	/// occurrence.
+	@final func nub<U: Equatable, EV: TypeEquality where EV.From == T, EV.To == Stream<U>>(ev: EV) -> Stream<U> {
+		return ev
+			.apply(self)
+			.flattenScan(nil) { (previous: U?, current: U) -> (U??, Stream<U>) in
+				if let p = previous {
+					if p == current {
+						return (current, .empty())
+					}
+				}
+				
+				return (current, .single(current))
 			}
-		}
-		
-		return (current, .single(current))
 	}
 }
 

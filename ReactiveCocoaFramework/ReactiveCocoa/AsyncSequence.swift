@@ -72,7 +72,7 @@ struct _FlattenScanGenerator<S, T, U>: Generator {
 class AsyncSequence<T>: Stream<T>, Sequence {
 	typealias GeneratorType = GeneratorOf<Promise<Event<T>>>
 
-	let _generate: () -> GeneratorType
+	@final let _generate: () -> GeneratorType
 	init(_ generate: () -> GeneratorType) {
 		self._generate = generate
 	}

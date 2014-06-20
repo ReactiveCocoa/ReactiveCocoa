@@ -41,13 +41,13 @@ class Signal<T>: Stream<T> {
 	/// The type of a consumer for the stream's events.
 	typealias Observer = Event<T> -> ()
 	
-	let _observe: Observer -> Disposable?
+	@final let _observe: Observer -> Disposable?
 	init(_ observe: Observer -> Disposable?) {
 		self._observe = observe
 	}
 	
-	let _observerQueue = dispatch_queue_create("com.github.RxSwift.Signal", DISPATCH_QUEUE_SERIAL)
-	var _observers: Box<Observer>[] = []
+	@final let _observerQueue = dispatch_queue_create("com.github.RxSwift.Signal", DISPATCH_QUEUE_SERIAL)
+	@final var _observers: Box<Observer>[] = []
  
 	/// Observes the stream for new events.
 	///

@@ -11,7 +11,7 @@ import Foundation
 /// An atomic variable.
 @final class Atomic<T> {
 	let _lock = SpinLock()
-	let _box: MutableBox<T>
+	var _box: Box<T>
 	
 	/// Atomically gets or sets the value of the variable.
 	var value: T {
@@ -23,14 +23,14 @@ import Foundation
 	
 		set(newValue) {
 			_lock.lock()
-			_box.value = newValue
+			_box = Box(newValue)
 			_lock.unlock()
 		}
 	}
 	
 	/// Initializes the variable with the given initial value.
 	init(_ value: T) {
-		_box = MutableBox(value)
+		_box = Box(value)
 	}
 	
 	/// Atomically replaces the contents of the variable.
@@ -55,7 +55,7 @@ import Foundation
 		_lock.lock()
 		let oldValue: T = _box
 		let (newValue, data) = action(_box)
-		_box.value = newValue
+		_box = Box(newValue)
 		_lock.unlock()
 		
 		return (oldValue, data)

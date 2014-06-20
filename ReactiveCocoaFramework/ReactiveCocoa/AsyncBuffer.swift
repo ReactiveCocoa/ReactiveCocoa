@@ -8,12 +8,12 @@
 
 import Foundation
 
-class AsyncBuffer<T>: AsyncSequence<T> {
-	let condition = NSCondition()
-	var events: Event<T>[] = []
+@final class AsyncBuffer<T>: AsyncSequence<T> {
+	let _condition = NSCondition()
+	var _events: Event<T>[] = []
 	
 	init() {
-		self.condition.name = "com.github.RxSwift.Observable.AsyncBuffer"
+		_condition.name = "com.github.RxSwift.Observable.AsyncBuffer"
 		super.init(_generate)
 	}
 
@@ -27,12 +27,12 @@ class AsyncBuffer<T>: AsyncSequence<T> {
 			}
 		
 			return Promise {
-				let e: Event<T> = withLock(self.condition) {
-					while self.events.count < index {
-						self.condition.wait()
+				let e: Event<T> = withLock(self._condition) {
+					while self._events.count < index {
+						self._condition.wait()
 					}
 					
-					return self.events[index++]
+					return self._events[index++]
 				}
 				
 				if e.isTerminating {
@@ -45,9 +45,9 @@ class AsyncBuffer<T>: AsyncSequence<T> {
 	}
 	
 	func send(event: Event<T>) {
-		withLock(self.condition) { () -> () in
-			self.events.append(event)
-			self.condition.broadcast()
+		withLock(_condition) { () -> () in
+			self._events.append(event)
+			self._condition.broadcast()
 		}
 	}
 }

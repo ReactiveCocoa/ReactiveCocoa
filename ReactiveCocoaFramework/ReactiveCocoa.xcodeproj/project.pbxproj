@@ -274,6 +274,9 @@
 		CD11C6F418714CD0007C7CFD /* UITableViewHeaderFooterView+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = CD11C6F218714CD0007C7CFD /* UITableViewHeaderFooterView+RACSignalSupport.m */; };
 		CD11C6FF18714F00007C7CFD /* RACTestTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CD11C6FD18714DFB007C7CFD /* RACTestTableViewController.m */; };
 		CD11C700187151AE007C7CFD /* UITableViewHeaderFooterViewRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = CD11C6F918714DC1007C7CFD /* UITableViewHeaderFooterViewRACSupportSpec.m */; };
+		D0005E0E1958AC73000895CF /* RACScheduler+Subclass.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F477B16AF0120164B3827C8 /* RACScheduler+Subclass.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D0005E0F1958AC73000895CF /* RACScheduler+Subclass.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F477B16AF0120164B3827C8 /* RACScheduler+Subclass.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D0005E101958AC74000895CF /* RACScheduler+Subclass.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F477B16AF0120164B3827C8 /* RACScheduler+Subclass.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D004BC9C177E1A2B00A5B8C5 /* UIActionSheetRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D004BC9B177E1A2B00A5B8C5 /* UIActionSheetRACSupportSpec.m */; };
 		D005A259169A3B7D00A9D2DB /* RACBacktrace.h in Headers */ = {isa = PBXBuildFile; fileRef = D02538A115E2D7FB005BACB8 /* RACBacktrace.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D00930791788AB7B00EE7E8B /* RACTestScheduler.h in Headers */ = {isa = PBXBuildFile; fileRef = D00930771788AB7B00EE7E8B /* RACTestScheduler.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1627,6 +1630,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				882D071917614FA7009EDA69 /* RACTargetQueueScheduler.h in Headers */,
+				D0005E0E1958AC73000895CF /* RACScheduler+Subclass.h in Headers */,
 				881E87AC16695C5600667F7B /* RACQueueScheduler.h in Headers */,
 				88037FB81505645C001A5B19 /* ReactiveCocoa.h in Headers */,
 				88037FBB1505646C001A5B19 /* NSObject+RACPropertySubscribing.h in Headers */,
@@ -1700,6 +1704,7 @@
 				74F17319186024A900BC937C /* NSIndexSet+RACSequenceAdditions.h in Headers */,
 				D08FF26C169A331A00743C6D /* RACStream.h in Headers */,
 				D08FF26D169A331A00743C6D /* RACSignal.h in Headers */,
+				D0005E0F1958AC73000895CF /* RACScheduler+Subclass.h in Headers */,
 				D08FF26E169A331A00743C6D /* RACSignal+Operations.h in Headers */,
 				D08FF26F169A331A00743C6D /* RACMulticastConnection.h in Headers */,
 				D08FF270169A331A00743C6D /* RACGroupedSignal.h in Headers */,
@@ -1760,6 +1765,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D05AD3E017F2DB1D0080895B /* RACBehaviorSubject.h in Headers */,
+				D0005E101958AC74000895CF /* RACScheduler+Subclass.h in Headers */,
 				D05AD3C917F2DB100080895B /* RACSubscriptingAssignmentTrampoline.h in Headers */,
 				D05AD3C517F2DB100080895B /* RACTuple.h in Headers */,
 				74F1731A186024A900BC937C /* NSIndexSet+RACSequenceAdditions.h in Headers */,

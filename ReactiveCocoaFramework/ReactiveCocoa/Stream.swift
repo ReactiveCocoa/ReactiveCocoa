@@ -94,7 +94,7 @@ class Stream<T> {
 	@final func filter(pred: T -> Bool) -> Stream<T> {
 		return self
 			.map { x in pred(x) ? .single(x) : .empty() }
-			.flatten(Refl<Stream<T>>())
+			.flatten(identity)
 	}
 
 	/// Takes only the first `count` values from the stream.
@@ -244,15 +244,22 @@ class Stream<T> {
 	///
 	/// The exact manner in which flattening occurs is determined by the
 	/// stream's implementation of `flattenScan()`.
-	@final func flatten<U, EV: TypeEquality where EV.From == T, EV.To == Stream<Stream<U>>>(ev: EV) -> Stream<U> {
-		return ev
-			.apply(self)
+	///
+	/// You can only use this function on a `Stream<Stream<U>>`.
+	/// The first argument `ev` is a function to show the stream is
+	/// a stream of `Stream<U>`. Pass in `identity`.
+	@final func flatten<U>(ev: Stream<T> -> Stream<Stream<U>>) -> Stream<U> {
+		return ev(self)
 			.flattenScan(0) { (_, s) in (0, s) }
 	}
 	
 	/// Converts a stream of Event values back into a stream of real events.
-	@final func dematerialize<U, EV: TypeEquality where EV.From == T, EV.To == Stream<Event<U>>>(ev: EV) -> Stream<U> {
-		let s: Stream<Event<U>> = ev.apply(self)
+	///
+	/// You can only use this function on a `Stream<Event<U>>`.
+	/// The first argument `ev` is a function to show the stream is
+	/// a stream of `Event<U>`. Pass in `identity`.
+	@final func dematerialize<U>(ev: Stream<T> -> Stream<Event<U>>) -> Stream<U> {
+		let s: Stream<Event<U>> = ev(self)
 		return s
 			.map { event in
 				switch event {
@@ -266,21 +273,27 @@ class Stream<T> {
 					return .empty()
 				}
 			}
-			.flatten(Refl<Stream<U>>())
+			.flatten(identity)
 	}
 
 	/// Ignores all occurrences of a value in the given stream.
-	@final func ignore<U: Equatable, EV: TypeEquality where EV.From == T, EV.To == Stream<U>>(ev: EV, value: U) -> Stream<U> {
-		return ev
-			.apply(self)
+	///
+	/// You can only use this function on a `Stream<U>` where U is Equatable.
+	/// The first argument `ev` is a function to show the stream element
+	/// is equatable. Pass in `identity`.
+	@final func ignore<U: Equatable>(ev: Stream<T> -> Stream<U>, value: U) -> Stream<U> {
+		return ev(self)
 			.filter { $0 != value }
 	}
 
 	/// Deduplicates consecutive appearances of the same value into only the first
 	/// occurrence.
-	@final func nub<U: Equatable, EV: TypeEquality where EV.From == T, EV.To == Stream<U>>(ev: EV) -> Stream<U> {
-		return ev
-			.apply(self)
+	///
+	/// You can only use this function on a `Stream<U>` where U is Equatable.
+	/// The first argument `ev` is a function to show the stream element
+	/// is equatable. Pass in `identity`.
+	@final func nub<U: Equatable>(ev: Stream<T> -> Stream<U>) -> Stream<U> {
+		return ev(self)
 			.flattenScan(nil) { (previous: U?, current: U) -> (U??, Stream<U>) in
 				if let p = previous {
 					if p == current {

@@ -2704,6 +2704,7 @@
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				HEADER_SEARCH_PATHS = (
 					"\"$(PROJECT_DIR)/../external/specta/src\"",
 					"\"$(PROJECT_DIR)/../external/expecta/src\"/**",
@@ -2733,6 +2734,7 @@
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				HEADER_SEARCH_PATHS = (
 					"\"$(PROJECT_DIR)/../external/specta/src\"",
 					"\"$(PROJECT_DIR)/../external/expecta/src\"/**",
@@ -2762,6 +2764,7 @@
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				HEADER_SEARCH_PATHS = (
 					"\"$(PROJECT_DIR)/../external/specta/src\"",
 					"\"$(PROJECT_DIR)/../external/expecta/src\"/**",
@@ -2790,6 +2793,7 @@
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				HEADER_SEARCH_PATHS = (
 					"\"$(PROJECT_DIR)/../external/specta/src\"",
 					"\"$(PROJECT_DIR)/../external/expecta/src\"/**",
@@ -2814,6 +2818,7 @@
 					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
 				);
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				HEADER_SEARCH_PATHS = (
 					"\"$(PROJECT_DIR)/../external/specta/src\"",
 					"\"$(PROJECT_DIR)/../external/expecta/src\"/**",
@@ -2835,6 +2840,7 @@
 					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
 				);
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				HEADER_SEARCH_PATHS = (
 					"\"$(PROJECT_DIR)/../external/specta/src\"",
 					"\"$(PROJECT_DIR)/../external/expecta/src\"/**",
@@ -2856,6 +2862,7 @@
 					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
 				);
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				HEADER_SEARCH_PATHS = (
 					"\"$(PROJECT_DIR)/../external/specta/src\"",
 					"\"$(PROJECT_DIR)/../external/expecta/src\"/**",
@@ -2877,6 +2884,7 @@
 					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
 				);
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				HEADER_SEARCH_PATHS = (
 					"\"$(PROJECT_DIR)/../external/specta/src\"",
 					"\"$(PROJECT_DIR)/../external/expecta/src\"/**",
@@ -2977,6 +2985,7 @@
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				HEADER_SEARCH_PATHS = (
 					"\"$(PROJECT_DIR)/../external/specta/src\"",
 					"\"$(PROJECT_DIR)/../external/expecta/src\"/**",
@@ -3029,6 +3038,7 @@
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				HEADER_SEARCH_PATHS = (
 					"\"$(PROJECT_DIR)/../external/specta/src\"",
 					"\"$(PROJECT_DIR)/../external/expecta/src\"/**",
@@ -3047,6 +3057,7 @@
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				HEADER_SEARCH_PATHS = (
 					"\"$(PROJECT_DIR)/../external/specta/src\"",
 					"\"$(PROJECT_DIR)/../external/expecta/src\"/**",
@@ -3193,6 +3204,7 @@
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				HEADER_SEARCH_PATHS = (
 					"\"$(PROJECT_DIR)/../external/specta/src\"",
 					"\"$(PROJECT_DIR)/../external/expecta/src\"/**",

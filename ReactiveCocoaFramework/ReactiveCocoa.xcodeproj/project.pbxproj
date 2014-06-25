@@ -615,6 +615,13 @@
 			remoteGlobalIDString = 88037F8215056328001A5B19;
 			remoteInfo = ReactiveCocoa;
 		};
+		D0465BF7195A9D0500244A41 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 88CDF7B215000FCE00163A9F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1860F411177C91B500C7B3C9;
+			remoteInfo = "ReactiveCocoa-iOS-UIKitTestHost";
+		};
 		D0ED9DB517501806003859A6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 88CDF7B215000FCE00163A9F /* Project object */;
@@ -1932,6 +1939,7 @@
 			);
 			dependencies = (
 				1860F436177C91B500C7B3C9 /* PBXTargetDependency */,
+				D0465BF8195A9D0500244A41 /* PBXTargetDependency */,
 			);
 			name = "ReactiveCocoa-iOS-UIKitTestHostTests";
 			productName = "ReactiveCocoa-iOS-UIKitTestHostTests";
@@ -2036,6 +2044,11 @@
 				CLASSPREFIX = RAC;
 				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = "GitHub, Inc.";
+				TargetAttributes = {
+					1860F42F177C91B500C7B3C9 = {
+						TestTargetID = 1860F411177C91B500C7B3C9;
+					};
+				};
 			};
 			buildConfigurationList = 88CDF7B515000FCE00163A9F /* Build configuration list for PBXProject "ReactiveCocoa" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -2559,6 +2572,11 @@
 			target = 88037F8215056328001A5B19 /* ReactiveCocoa */;
 			targetProxy = 88037FDA150564E9001A5B19 /* PBXContainerItemProxy */;
 		};
+		D0465BF8195A9D0500244A41 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1860F411177C91B500C7B3C9 /* ReactiveCocoa-iOS-UIKitTestHost */;
+			targetProxy = D0465BF7195A9D0500244A41 /* PBXContainerItemProxy */;
+		};
 		D0ED9DB617501806003859A6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 88F440AA153DAC820097B4C3 /* ReactiveCocoa-iOS */;
@@ -2901,16 +2919,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D094E46417775B1000906BF7 /* Mac-Framework.xcconfig */;
 			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				INFOPLIST_FILE = "ReactiveCocoa/ReactiveCocoa-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Debug;
@@ -2919,14 +2933,11 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D094E46417775B1000906BF7 /* Mac-Framework.xcconfig */;
 			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				INFOPLIST_FILE = "ReactiveCocoa/ReactiveCocoa-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = framework;
 			};
@@ -2938,15 +2949,12 @@
 			buildSettings = {
 				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
 				GCC_OPTIMIZATION_LEVEL = fast;
-				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_STRICT_SELECTOR_MATCH = YES;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				SDKROOT = macosx;
 				SWIFT_OBJC_BRIDGING_HEADER = "ReactiveCocoa/ReactiveCocoa-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALID_ARCHS = x86_64;
 			};
 			name = Test;
 		};
@@ -2954,14 +2962,11 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D094E46417775B1000906BF7 /* Mac-Framework.xcconfig */;
 			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				INFOPLIST_FILE = "ReactiveCocoa/ReactiveCocoa-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = framework;
 			};
@@ -2971,11 +2976,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D094E45F17775B1000906BF7 /* iOS-StaticLibrary.xcconfig */;
 			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PUBLIC_HEADERS_FOLDER_PATH = include/ReactiveCocoa;
 			};
 			name = Test;
 		};
@@ -2993,7 +2995,6 @@
 				INFOPLIST_FILE = "ReactiveCocoaTests/ReactiveCocoaTests-Info.plist";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = ReactiveCocoaTests;
-				VALID_ARCHS = x86_64;
 				WRAPPER_EXTENSION = octest;
 			};
 			name = Test;
@@ -3003,15 +3004,12 @@
 			baseConfigurationReference = D094E45517775B1000906BF7 /* Debug.xcconfig */;
 			buildSettings = {
 				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
-				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_STRICT_SELECTOR_MATCH = YES;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				SDKROOT = macosx;
 				SWIFT_OBJC_BRIDGING_HEADER = "ReactiveCocoa/ReactiveCocoa-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALID_ARCHS = x86_64;
 			};
 			name = Debug;
 		};
@@ -3020,15 +3018,12 @@
 			baseConfigurationReference = D094E45717775B1000906BF7 /* Release.xcconfig */;
 			buildSettings = {
 				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
-				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_STRICT_SELECTOR_MATCH = YES;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				SDKROOT = macosx;
 				SWIFT_OBJC_BRIDGING_HEADER = "ReactiveCocoa/ReactiveCocoa-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALID_ARCHS = x86_64;
 			};
 			name = Release;
 		};
@@ -3046,7 +3041,6 @@
 				INFOPLIST_FILE = "ReactiveCocoaTests/ReactiveCocoaTests-Info.plist";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = ReactiveCocoaTests;
-				VALID_ARCHS = x86_64;
 				WRAPPER_EXTENSION = octest;
 			};
 			name = Debug;
@@ -3065,7 +3059,6 @@
 				INFOPLIST_FILE = "ReactiveCocoaTests/ReactiveCocoaTests-Info.plist";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = ReactiveCocoaTests;
-				VALID_ARCHS = x86_64;
 				WRAPPER_EXTENSION = octest;
 			};
 			name = Release;
@@ -3074,12 +3067,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D094E45F17775B1000906BF7 /* iOS-StaticLibrary.xcconfig */;
 			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PUBLIC_HEADERS_FOLDER_PATH = include/ReactiveCocoa;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
@@ -3087,11 +3076,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D094E45F17775B1000906BF7 /* iOS-StaticLibrary.xcconfig */;
 			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PUBLIC_HEADERS_FOLDER_PATH = include/ReactiveCocoa;
 			};
 			name = Release;
 		};
@@ -3101,12 +3087,8 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PUBLIC_HEADERS_FOLDER_PATH = include/ReactiveCocoa;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
@@ -3116,11 +3098,8 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PUBLIC_HEADERS_FOLDER_PATH = include/ReactiveCocoa;
 			};
 			name = Test;
 		};
@@ -3130,11 +3109,8 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PUBLIC_HEADERS_FOLDER_PATH = include/ReactiveCocoa;
 			};
 			name = Release;
 		};
@@ -3144,11 +3120,8 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PUBLIC_HEADERS_FOLDER_PATH = include/ReactiveCocoa;
 			};
 			name = Profile;
 		};
@@ -3157,15 +3130,12 @@
 			baseConfigurationReference = D094E45617775B1000906BF7 /* Profile.xcconfig */;
 			buildSettings = {
 				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
-				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_STRICT_SELECTOR_MATCH = YES;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				SDKROOT = macosx;
 				SWIFT_OBJC_BRIDGING_HEADER = "ReactiveCocoa/ReactiveCocoa-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALID_ARCHS = x86_64;
 			};
 			name = Profile;
 		};
@@ -3173,14 +3143,11 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D094E46417775B1000906BF7 /* Mac-Framework.xcconfig */;
 			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
 				INFOPLIST_FILE = "ReactiveCocoa/ReactiveCocoa-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = framework;
 			};
@@ -3190,11 +3157,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D094E45F17775B1000906BF7 /* iOS-StaticLibrary.xcconfig */;
 			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
 				GCC_PREFIX_HEADER = "ReactiveCocoa/ReactiveCocoa-Prefix.pch";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PUBLIC_HEADERS_FOLDER_PATH = include/ReactiveCocoa;
 			};
 			name = Profile;
 		};
@@ -3212,7 +3176,6 @@
 				INFOPLIST_FILE = "ReactiveCocoaTests/ReactiveCocoaTests-Info.plist";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = ReactiveCocoaTests;
-				VALID_ARCHS = x86_64;
 				WRAPPER_EXTENSION = octest;
 			};
 			name = Profile;

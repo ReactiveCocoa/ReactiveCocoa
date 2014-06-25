@@ -2939,10 +2939,6 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "ReactiveCocoa/ReactiveCocoa-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = x86_64;
-				WARNING_CFLAGS = (
-					"-Werror",
-					"-Wall",
-				);
 			};
 			name = Test;
 		};
@@ -3007,10 +3003,6 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "ReactiveCocoa/ReactiveCocoa-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = x86_64;
-				WARNING_CFLAGS = (
-					"-Werror",
-					"-Wall",
-				);
 			};
 			name = Debug;
 		};
@@ -3028,10 +3020,6 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "ReactiveCocoa/ReactiveCocoa-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = x86_64;
-				WARNING_CFLAGS = (
-					"-Werror",
-					"-Wall",
-				);
 			};
 			name = Release;
 		};
@@ -3167,10 +3155,6 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "ReactiveCocoa/ReactiveCocoa-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = x86_64;
-				WARNING_CFLAGS = (
-					"-Werror",
-					"-Wall",
-				);
 			};
 			name = Profile;
 		};

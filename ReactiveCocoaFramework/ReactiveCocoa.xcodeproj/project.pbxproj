@@ -56,7 +56,7 @@
 		55C39DF117F1EC84006DC60C /* NSFileHandle+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 88442C8916090C1500636B49 /* NSFileHandle+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		55C39DF217F1EC84006DC60C /* NSNotificationCenter+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 88442C8B16090C1500636B49 /* NSNotificationCenter+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		55C39DF317F1EC84006DC60C /* NSString+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 88442C8D16090C1500636B49 /* NSString+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		5905A5F9195392790000DC67 /* TypeEquality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5905A5F8195392790000DC67 /* TypeEquality.swift */; };
+		5905A5F9195392790000DC67 /* IdentityFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5905A5F8195392790000DC67 /* IdentityFunction.swift */; };
 		5EE9A7931760D61300EAF5A2 /* UIButton+RACCommandSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 5EE9A7911760D61300EAF5A2 /* UIButton+RACCommandSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5EE9A7941760D61300EAF5A2 /* UIButton+RACCommandSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 5EE9A7921760D61300EAF5A2 /* UIButton+RACCommandSupport.m */; };
 		5EE9A79B1760D88500EAF5A2 /* UIButtonRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5EE9A79A1760D88500EAF5A2 /* UIButtonRACSupportSpec.m */; };
@@ -690,7 +690,7 @@
 		5564542318107275002BD2E4 /* UIRefreshControlRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIRefreshControlRACSupportSpec.m; sourceTree = "<group>"; };
 		557A4B58177648C7008EF796 /* UIActionSheet+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIActionSheet+RACSignalSupport.h"; sourceTree = "<group>"; };
 		557A4B59177648C7008EF796 /* UIActionSheet+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIActionSheet+RACSignalSupport.m"; sourceTree = "<group>"; };
-		5905A5F8195392790000DC67 /* TypeEquality.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TypeEquality.swift; sourceTree = "<group>"; };
+		5905A5F8195392790000DC67 /* IdentityFunction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IdentityFunction.swift; sourceTree = "<group>"; };
 		5EE9A7911760D61300EAF5A2 /* UIButton+RACCommandSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIButton+RACCommandSupport.h"; sourceTree = "<group>"; };
 		5EE9A7921760D61300EAF5A2 /* UIButton+RACCommandSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIButton+RACCommandSupport.m"; sourceTree = "<group>"; };
 		5EE9A79A1760D88500EAF5A2 /* UIButtonRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIButtonRACSupportSpec.m; sourceTree = "<group>"; };
@@ -1546,7 +1546,7 @@
 				D08E4F791952B85300E704BD /* SpinLock.swift */,
 				D08E4F7A1952B85300E704BD /* Stream.swift */,
 				D08E4F6A1952B85200E704BD /* ReactiveCocoa-Bridging-Header.h */,
-				5905A5F8195392790000DC67 /* TypeEquality.swift */,
+				5905A5F8195392790000DC67 /* IdentityFunction.swift */,
 			);
 			name = Swift;
 			sourceTree = "<group>";
@@ -2254,7 +2254,7 @@
 				D0EE284D164D906B006954A4 /* RACSignalSequence.m in Sources */,
 				881E86A41669304800667F7B /* RACCompoundDisposable.m in Sources */,
 				881E87AE16695C5600667F7B /* RACQueueScheduler.m in Sources */,
-				5905A5F9195392790000DC67 /* TypeEquality.swift in Sources */,
+				5905A5F9195392790000DC67 /* IdentityFunction.swift in Sources */,
 				881E87B416695EDF00667F7B /* RACImmediateScheduler.m in Sources */,
 				881E87C61669636000667F7B /* RACSubscriptionScheduler.m in Sources */,
 				5F45A887168CFA3E00B58A2B /* RACKVOChannel.m in Sources */,

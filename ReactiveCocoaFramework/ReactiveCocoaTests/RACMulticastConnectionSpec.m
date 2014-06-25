@@ -76,8 +76,6 @@ describe(@"-connect", ^{
 		dispatch_semaphore_signal(semaphore);
 
 		expect(disposable).willNot.beNil();
-
-		dispatch_release(semaphore);
 	});
 });
 

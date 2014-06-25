@@ -213,10 +213,6 @@ describe(@"RACReplaySubject", ^{
 			}];
 
 			dispatch_queue_t queue = dispatch_queue_create("com.github.ReactiveCocoa.RACSubjectSpec", DISPATCH_QUEUE_CONCURRENT);
-			@onExit {
-				dispatch_release(queue);
-			};
-
 			dispatch_suspend(queue);
 			
 			for (NSUInteger i = 0; i < count; i++) {

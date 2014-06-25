@@ -3605,19 +3605,19 @@ describe(@"-dematerialize", ^{
 	});
 });
 
-describe(@"-not", ^{
+describe(@"-notEach", ^{
 	it(@"should invert every BOOL sent", ^{
 		RACSubject *subject = [RACReplaySubject subject];
 		[subject sendNext:@NO];
 		[subject sendNext:@YES];
 		[subject sendCompleted];
-		NSArray *results = [[subject not] toArray];
+		NSArray *results = [[subject notEach] toArray];
 		NSArray *expected = @[ @YES, @NO ];
 		expect(results).to.equal(expected);
 	});
 });
 
-describe(@"-and", ^{
+describe(@"-reduceAnd", ^{
 	it(@"should return YES if all YES values are sent", ^{
 		RACSubject *subject = [RACReplaySubject subject];
 		
@@ -3626,14 +3626,14 @@ describe(@"-and", ^{
 		[subject sendNext:RACTuplePack(@YES, @YES, @YES)];
 		[subject sendCompleted];
 		
-		NSArray *results = [[subject and] toArray];
+		NSArray *results = [[subject reduceAnd] toArray];
 		NSArray *expected = @[ @NO, @NO, @YES ];
 		
 		expect(results).to.equal(expected);
 	});
 });
 
-describe(@"-or", ^{
+describe(@"-reduceOr", ^{
 	it(@"should return YES for any YES values sent", ^{
 		RACSubject *subject = [RACReplaySubject subject];
 		
@@ -3641,7 +3641,7 @@ describe(@"-or", ^{
 		[subject sendNext:RACTuplePack(@NO, @NO, @NO)];
 		[subject sendCompleted];
 		
-		NSArray *results = [[subject or] toArray];
+		NSArray *results = [[subject reduceOr] toArray];
 		NSArray *expected = @[ @YES, @NO ];
 		
 		expect(results).to.equal(expected);

@@ -1529,24 +1529,12 @@
 		D08E4F691952B83B00E704BD /* Swift */ = {
 			isa = PBXGroup;
 			children = (
-				D08E4F6C1952B85300E704BD /* ArrayExtensions.swift */,
-				D08E4F6D1952B85300E704BD /* AsyncBuffer.swift */,
-				D08E4F6E1952B85300E704BD /* AsyncSequence.swift */,
-				D08E4F6F1952B85300E704BD /* Atomic.swift */,
-				D08E4F701952B85300E704BD /* Box.swift */,
-				D08E4F711952B85300E704BD /* ControllableSignal.swift */,
-				D08E4F721952B85300E704BD /* Disposable.swift */,
-				D08E4F731952B85300E704BD /* Event.swift */,
-				D08E4F741952B85300E704BD /* NSLockingExtensions.swift */,
-				D08E4FA81952BC0800E704BD /* ObjectiveCBridge.swift */,
-				D08E4F771952B85300E704BD /* Promise.swift */,
-				D08E4F781952B85300E704BD /* Scheduler.swift */,
-				D08E4F751952B85300E704BD /* Signal.swift */,
-				D08E4F761952B85300E704BD /* SignalingProperty.swift */,
-				D08E4F791952B85300E704BD /* SpinLock.swift */,
-				D08E4F7A1952B85300E704BD /* Stream.swift */,
-				D08E4F6A1952B85200E704BD /* ReactiveCocoa-Bridging-Header.h */,
-				5905A5F8195392790000DC67 /* TypeEquality.swift */,
+				D0BEB840195BE1C200A985F7 /* Bridging */,
+				D0BEB841195BE1CD00A985F7 /* Concurrency Primitives */,
+				D0BEB83F195BE1BA00A985F7 /* Extensions */,
+				D0BEB843195BE1EB00A985F7 /* Resource Management */,
+				D0BEB83C195BE19A00A985F7 /* Streams */,
+				D0BEB842195BE1E100A985F7 /* Utilities */,
 			);
 			name = Swift;
 			sourceTree = "<group>";
@@ -1626,6 +1614,82 @@
 				D094E46517775B1000906BF7 /* Mac-StaticLibrary.xcconfig */,
 			);
 			path = "Mac OS X";
+			sourceTree = "<group>";
+		};
+		D0BEB83C195BE19A00A985F7 /* Streams */ = {
+			isa = PBXGroup;
+			children = (
+				D08E4F731952B85300E704BD /* Event.swift */,
+				D08E4F7A1952B85300E704BD /* Stream.swift */,
+				D0BEB83E195BE1A700A985F7 /* Sequences */,
+				D0BEB83D195BE1A300A985F7 /* Signals */,
+			);
+			name = Streams;
+			sourceTree = "<group>";
+		};
+		D0BEB83D195BE1A300A985F7 /* Signals */ = {
+			isa = PBXGroup;
+			children = (
+				D08E4F711952B85300E704BD /* ControllableSignal.swift */,
+				D08E4F751952B85300E704BD /* Signal.swift */,
+				D08E4F761952B85300E704BD /* SignalingProperty.swift */,
+			);
+			name = Signals;
+			sourceTree = "<group>";
+		};
+		D0BEB83E195BE1A700A985F7 /* Sequences */ = {
+			isa = PBXGroup;
+			children = (
+				D08E4F6D1952B85300E704BD /* AsyncBuffer.swift */,
+				D08E4F6E1952B85300E704BD /* AsyncSequence.swift */,
+			);
+			name = Sequences;
+			sourceTree = "<group>";
+		};
+		D0BEB83F195BE1BA00A985F7 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				D08E4F6C1952B85300E704BD /* ArrayExtensions.swift */,
+				D08E4F741952B85300E704BD /* NSLockingExtensions.swift */,
+			);
+			name = Extensions;
+			sourceTree = "<group>";
+		};
+		D0BEB840195BE1C200A985F7 /* Bridging */ = {
+			isa = PBXGroup;
+			children = (
+				D08E4FA81952BC0800E704BD /* ObjectiveCBridge.swift */,
+				D08E4F6A1952B85200E704BD /* ReactiveCocoa-Bridging-Header.h */,
+			);
+			name = Bridging;
+			sourceTree = "<group>";
+		};
+		D0BEB841195BE1CD00A985F7 /* Concurrency Primitives */ = {
+			isa = PBXGroup;
+			children = (
+				D08E4F6F1952B85300E704BD /* Atomic.swift */,
+				D08E4F771952B85300E704BD /* Promise.swift */,
+				D08E4F781952B85300E704BD /* Scheduler.swift */,
+				D08E4F791952B85300E704BD /* SpinLock.swift */,
+			);
+			name = "Concurrency Primitives";
+			sourceTree = "<group>";
+		};
+		D0BEB842195BE1E100A985F7 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				D08E4F701952B85300E704BD /* Box.swift */,
+				5905A5F8195392790000DC67 /* TypeEquality.swift */,
+			);
+			name = Utilities;
+			sourceTree = "<group>";
+		};
+		D0BEB843195BE1EB00A985F7 /* Resource Management */ = {
+			isa = PBXGroup;
+			children = (
+				D08E4F721952B85300E704BD /* Disposable.swift */,
+			);
+			name = "Resource Management";
 			sourceTree = "<group>";
 		};
 		D0D486FB164253B600DD7605 /* Signals */ = {

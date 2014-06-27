@@ -12,3 +12,6 @@
 #define EXP_SHORTHAND
 #import "Specta.h"
 #import "Expecta.h"
+
+// Expecta #defines startWith as beginWith, which messes up -startWith: :-(
+#undef startWith

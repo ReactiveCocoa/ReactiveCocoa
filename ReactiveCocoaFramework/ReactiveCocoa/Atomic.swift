@@ -73,8 +73,8 @@ import Foundation
 		return result
 	}
 
-	@conversion
-	func __conversion() -> T {
+	/// Treats the Atomic variable as its underlying value in expressions.
+	@conversion func __conversion() -> T {
 		return value
 	}
 }

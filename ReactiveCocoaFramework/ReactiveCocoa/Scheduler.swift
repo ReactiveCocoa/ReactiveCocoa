@@ -162,3 +162,27 @@ struct QueueScheduler: Scheduler {
 		}
 	}
 }
+
+/// A scheduler that will attempt to use any `currentScheduler` that exists at
+/// the time of scheduling.
+struct DeferredCurrentScheduler: Scheduler {
+	/// The scheduler to use if no `currentScheduler` is set when an action is
+	/// enqueued.
+	let fallbackScheduler: Scheduler
+
+	func schedule(action: () -> ()) -> Disposable? {
+		if let s = currentScheduler {
+			return s.schedule(action)
+		} else {
+			return fallbackScheduler.schedule(action)
+		}
+	}
+
+	func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable? {
+		if let s = currentScheduler {
+			return s.scheduleAfter(date, action)
+		} else {
+			return fallbackScheduler.scheduleAfter(date, action)
+		}
+	}
+}

@@ -10,8 +10,7 @@ import Foundation
 
 /// Represents an object that can be “disposed,” usually associated with freeing
 /// resources or canceling work.
-@class_protocol
-protocol Disposable {
+@class_protocol protocol Disposable {
 	/// Whether this disposable has been disposed already.
 	var disposed: Bool { get }
 
@@ -102,6 +101,11 @@ protocol Disposable {
 		if shouldDispose {
 			d!.dispose()
 		}
+	}
+
+	/// Adds an ActionDisposable to the list.
+	func addDisposable(action: () -> ()) {
+		addDisposable(ActionDisposable(action))
 	}
 	
 	/// Removes the given disposable from the list.

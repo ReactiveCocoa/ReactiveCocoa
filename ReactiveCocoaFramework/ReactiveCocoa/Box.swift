@@ -24,8 +24,8 @@ import Foundation
 		_closure = { value }
 	}
 	
-	@conversion
-	func __conversion() -> T {
+	/// Treats the Box as its underlying value in expressions.
+	@conversion func __conversion() -> T {
 		return value
 	}
 }

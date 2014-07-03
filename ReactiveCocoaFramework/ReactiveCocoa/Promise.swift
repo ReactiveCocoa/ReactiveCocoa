@@ -2,72 +2,81 @@
 //  Promise.swift
 //  RxSwift
 //
-//  Created by Justin Spahr-Summers on 2014-06-02.
+//  Created by Justin Spahr-Summers on 2014-06-29.
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
 import Foundation
 
+enum _PromiseState<T> {
+	case Suspended(() -> T)
+	case Started
+}
+
 /// Represents deferred work to generate a value of type T.
-@final class Promise<T> {
-	let _queue = dispatch_queue_create("com.github.RxSwift.Promise", DISPATCH_QUEUE_CONCURRENT)
-	let _suspended = Atomic(true)
+@final class Promise<T>: Observable<T?> {
+	let _scheduler: Scheduler
+	let _state: Atomic<_PromiseState<T>>
 
-	var _result: Box<T>? = nil
+	var _sink = SinkOf<T?> { _ in () }
 
-	/// Initializes a promise that will generate a value using the given
-	/// function, executed upon the given queue.
-	init(_ work: () -> T, targetQueue: dispatch_queue_t = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
-		dispatch_set_target_queue(self._queue, targetQueue)
-		dispatch_suspend(self._queue)
-		
-		dispatch_barrier_async(self._queue) {
-			self._result = Box(work())
-		}
+	/// Initializes a Promise that will run the given action upon the given
+	/// scheduler.
+	init(onScheduler scheduler: Scheduler, action: () -> T) {
+		_scheduler = scheduler
+		_state = Atomic(.Suspended(action))
+
+		super.init(generator: { sink in
+			sink.put(nil)
+			self._sink = sink
+		})
 	}
-	
-	/// Starts resolving the promise, if it hasn't been started already.
-	func start() {
-		self._suspended.modify { b in
-			if b {
-				dispatch_resume(self._queue)
+
+	convenience init(action: () -> T) {
+		self.init(onScheduler: QueueScheduler(), action: action)
+	}
+
+	/// Starts the promise, if it hasn't started already.
+	func start() -> Observable<T?> {
+		let oldState = _state.modify { _ in .Started }
+
+		switch oldState {
+		case let .Suspended(action):
+			_scheduler.schedule {
+				let result = action()
+				self._sink.put(result)
 			}
-			
-			return false
+
+		default:
+			break
 		}
+
+		return self
 	}
-	
-	/// Starts resolving the promise (if necessary), then blocks on the result.
+
+	/// Starts the promise (if necessary), then blocks indefinitely on the
+	/// result.
 	func result() -> T {
-		self.start()
-		
-		// Wait for the work to finish.
-		dispatch_sync(self._queue) {}
-		
-		return self._result!
-	}
-	
-	/// Enqueues the given action to be performed when the promise finishes
-	/// resolving.
-	///
-	/// This does not start the promise.
-	///
-	/// Returns a disposable that can be used to cancel the action before it
-	/// runs.
-	func whenFinished(action: T -> ()) -> Disposable {
-		let disposable = SimpleDisposable()
-		
-		dispatch_async(self._queue) {
-			if disposable.disposed {
-				return
+		let cond = NSCondition()
+		cond.name = "com.github.ReactiveCocoa.Promise.result"
+
+		start().observe { _ in
+			withLock(cond) {
+				cond.signal()
 			}
-		
-			action(self._result!)
 		}
-		
-		return disposable
+
+		return withLock(cond) {
+			while self.current == nil {
+				cond.wait()
+			}
+
+			return self.current!
+		}
 	}
 
+	/// Creates a Promise that will start the receiver, then run the given
+	/// action and forward the results.
 	func then<U>(action: T -> Promise<U>) -> Promise<U> {
 		return Promise<U> {
 			action(self.result()).result()

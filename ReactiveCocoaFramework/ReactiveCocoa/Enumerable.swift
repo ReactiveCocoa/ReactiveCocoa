@@ -12,7 +12,7 @@ func _dummyNext(value: Any) {}
 func _dummyError(error: NSError) {}
 func _dummyCompleted() {}
 
-// FIXME
+// FIXME: Do something better with this.
 let emptyError = NSError(domain: "RACErrorDomain", code: 1, userInfo: nil)
 
 /// Receives events from an Enumerable.
@@ -143,13 +143,13 @@ class Enumerable<T> {
 		}
 	}
 
-	/// Creates a RACSignal that will enumerate over the receiver.
+	/// Creates a "cold" RACSignal that will enumerate over the receiver.
 	///
 	/// evidence - Used to prove to the typechecker that the receiver is
 	///            a stream of objects. Simply pass in the `identity` function.
 	@final func toSignal<U: AnyObject>(evidence: Enumerable<T> -> Enumerable<U?>) -> RACSignal {
 		return RACSignal.createSignal { subscriber in
-			let selfDisposable = self.enumerate { event in
+			let selfDisposable = evidence(self).enumerate { event in
 				switch event {
 				case let .Next(obj):
 					subscriber.sendNext(obj)

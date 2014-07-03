@@ -54,28 +54,28 @@ extension QueueScheduler: BridgedScheduler {
 let emptyError = NSError(domain: "RACErrorDomain", code: 1, userInfo: nil)
 
 extension RACSignal {
-	/// Creates an Enumerable that will, upon enumeration, subscribe to
-	/// a RACSignal and forward all of its events.
-	func toEnumerable() -> Enumerable<AnyObject?> {
-		return Enumerable { enumerator in
+	/// Creates an Producer that will produce events by subscribing to the
+	/// RACSignal.
+	func toProducer() -> Producer<AnyObject?> {
+		return Producer { consumer in
 			let next = { (obj: AnyObject?) -> () in
-				enumerator.put(.Next(Box(obj)))
+				consumer.put(.Next(Box(obj)))
 			}
 
 			let error = { (maybeError: NSError?) -> () in
 				if let e = maybeError {
-					enumerator.put(.Error(e))
+					consumer.put(.Error(e))
 				} else {
-					enumerator.put(.Error(emptyError))
+					consumer.put(.Error(emptyError))
 				}
 			}
 
 			let completed = {
-				enumerator.put(.Completed)
+				consumer.put(.Completed)
 			}
 
 			let disposable: RACDisposable? = self.subscribeNext(next, error: error, completed: completed)
-			enumerator.disposable.addDisposable(disposable)
+			consumer.disposable.addDisposable(disposable)
 		}
 	}
 
@@ -85,7 +85,7 @@ extension RACSignal {
 	/// The signal must not generate an `error` event.
 	func toSignal(initialValue: AnyObject? = nil) -> Signal<AnyObject?> {
 		let property = SignalingProperty(initialValue)
-		toEnumerable().bindToProperty(property)
+		toProducer().bindToProperty(property)
 
 		return property
 	}
@@ -139,14 +139,15 @@ extension RACCommand {
 	}
 }
 
-extension Enumerable {
-	/// Creates a "cold" RACSignal that will enumerate over the receiver.
+extension Producer {
+	/// Creates a "cold" RACSignal that will produce events from the receiver
+	/// upon each subscription.
 	///
 	/// evidence - Used to prove to the typechecker that the receiver is
 	///            a stream of objects. Simply pass in the `identity` function.
-	func toRACSignal<U: AnyObject>(evidence: Enumerable<T> -> Enumerable<U?>) -> RACSignal {
+	func toRACSignal<U: AnyObject>(evidence: Producer<T> -> Producer<U?>) -> RACSignal {
 		return RACSignal.createSignal { subscriber in
-			let selfDisposable = evidence(self).enumerate { event in
+			let selfDisposable = evidence(self).produce { event in
 				switch event {
 				case let .Next(obj):
 					subscriber.sendNext(obj)

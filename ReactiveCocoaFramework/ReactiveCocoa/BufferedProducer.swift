@@ -1,5 +1,5 @@
 //
-//  EnumerableBuffer.swift
+//  BufferedProducer.swift
 //  ReactiveCocoa
 //
 //  Created by Justin Spahr-Summers on 2014-06-26.
@@ -8,38 +8,38 @@
 
 import Foundation
 
-/// A controllable Enumerable that functions as a combination push- and
+/// A controllable Producer that functions as a combination push- and
 /// pull-driven stream.
-@final class EnumerableBuffer<T>: Enumerable<T>, Sink {
+@final class BufferedProducer<T>: Producer<T>, Sink {
 	typealias Element = Event<T>
 
 	let _capacity: Int?
 
-	let _queue = dispatch_queue_create("com.github.ReactiveCocoa.EnumerableBuffer", DISPATCH_QUEUE_SERIAL)
-	var _enumerators: Enumerator<T>[] = []
+	let _queue = dispatch_queue_create("com.github.ReactiveCocoa.BufferedProducer", DISPATCH_QUEUE_SERIAL)
+	var _consumers: Consumer<T>[] = []
 	var _eventBuffer: Event<T>[] = []
 	var _terminated = false
 
 	/// Creates a buffer for events up to the given maximum capacity.
 	///
 	/// If more than `capacity` values are received, the earliest values will be
-	/// dropped and won't be enumerated over in the future.
+	/// dropped and will no longer be given to consumers in the future.
 	init(capacity: Int? = nil) {
 		assert(capacity == nil || capacity! > 0)
 		_capacity = capacity
 
-		super.init(enumerate: { enumerator in
+		super.init(produce: { consumer in
 			dispatch_barrier_sync(self._queue) {
-				self._enumerators.append(enumerator)
+				self._consumers.append(consumer)
 
 				for event in self._eventBuffer {
-					enumerator.put(event)
+					consumer.put(event)
 				}
 			}
 
-			enumerator.disposable.addDisposable {
+			consumer.disposable.addDisposable {
 				dispatch_barrier_async(self._queue) {
-					self._enumerators = removeObjectIdenticalTo(enumerator, fromArray: self._enumerators)
+					self._consumers = removeObjectIdenticalTo(consumer, fromArray: self._consumers)
 				}
 			}
 		})
@@ -47,10 +47,10 @@ import Foundation
 
 	/// Stores the given event in the buffer, evicting the earliest event if the
 	/// buffer would be over capacity, then forwards it to all waiting
-	/// enumerators.
+	/// consumers.
 	///
 	/// If a terminating event is put into the buffer, it will stop accepting
-	/// any further events (to obey the contract of Enumerable).
+	/// any further events (to obey the contract of Producer).
 	func put(event: Event<T>) {
 		dispatch_barrier_sync(_queue) {
 			if (self._terminated) {
@@ -66,8 +66,8 @@ import Foundation
 
 			self._terminated = event.isTerminating
 
-			for enumerator in self._enumerators {
-				enumerator.put(event)
+			for consumer in self._consumers {
+				consumer.put(event)
 			}
 		}
 	}

@@ -278,10 +278,10 @@ class Signal<T> {
 	///            are received, the earliest values are dropped and won't be
 	///            enumerated over in the future.
 	///
-	/// Returns an Enumerable over the buffered values, and a Disposable which
+	/// Returns an Producer over the buffered values, and a Disposable which
 	/// can be used to cancel all further buffering.
-	@final func buffer(capacity: Int? = nil) -> (Enumerable<T>, Disposable) {
-		let buffer = EnumerableBuffer<T>(capacity: capacity)
+	@final func buffer(capacity: Int? = nil) -> (Producer<T>, Disposable) {
+		let buffer = BufferedProducer<T>(capacity: capacity)
 
 		let observationDisposable = self.observe { value in
 			buffer.put(.Next(Box(value)))

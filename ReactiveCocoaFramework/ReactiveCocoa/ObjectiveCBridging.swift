@@ -65,3 +65,23 @@ extension Enumerable {
 		}
 	}
 }
+
+extension Promise {
+	/// Creates a "warm" RACSignal that will start the promise upon the first
+	/// subscription, and share the result with all subscribers.
+	///
+	/// evidence - Used to prove to the typechecker that the receiver will
+	///            produce an object. Simply pass in the `identity` function.
+	@final func toSignal<U: AnyObject>(evidence: Promise<T> -> Promise<U>) -> RACSignal {
+		return RACSignal.createSignal { subscriber in
+			evidence(self).start().observe { maybeResult in
+				if let result = maybeResult {
+					subscriber.sendNext(result)
+					subscriber.sendCompleted()
+				}
+			}
+
+			return nil
+		}
+	}
+}

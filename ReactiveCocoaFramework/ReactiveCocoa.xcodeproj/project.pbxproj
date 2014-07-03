@@ -311,6 +311,9 @@
 		D03353D61965383C00E5349F /* Consumer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D03353D51965383C00E5349F /* Consumer.swift */; };
 		D03353D71965383C00E5349F /* Consumer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D03353D51965383C00E5349F /* Consumer.swift */; };
 		D03353D81965383C00E5349F /* Consumer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D03353D51965383C00E5349F /* Consumer.swift */; };
+		D03353DA1965448100E5349F /* NSURLSessionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D03353D91965448100E5349F /* NSURLSessionExtensions.swift */; };
+		D03353DB1965448100E5349F /* NSURLSessionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D03353D91965448100E5349F /* NSURLSessionExtensions.swift */; };
+		D03353DC1965448100E5349F /* NSURLSessionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D03353D91965448100E5349F /* NSURLSessionExtensions.swift */; };
 		D03525D417E2EBC90099CBAB /* RACSignalProvider.d in Sources */ = {isa = PBXBuildFile; fileRef = D03525D317E2EBC90099CBAB /* RACSignalProvider.d */; };
 		D03525D917E2FAAD0099CBAB /* RACSignalProvider.d in Sources */ = {isa = PBXBuildFile; fileRef = D03525D317E2EBC90099CBAB /* RACSignalProvider.d */; };
 		D041376915D2281C004BBF80 /* RACKVOWrapperSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D041376815D2281C004BBF80 /* RACKVOWrapperSpec.m */; };
@@ -885,6 +888,7 @@
 		D0307EDB1731AAE100D83211 /* RACTupleSequence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACTupleSequence.h; sourceTree = "<group>"; };
 		D0307EDC1731AAE100D83211 /* RACTupleSequence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACTupleSequence.m; sourceTree = "<group>"; };
 		D03353D51965383C00E5349F /* Consumer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Consumer.swift; sourceTree = "<group>"; };
+		D03353D91965448100E5349F /* NSURLSessionExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSURLSessionExtensions.swift; sourceTree = "<group>"; };
 		D03525D317E2EBC90099CBAB /* RACSignalProvider.d */ = {isa = PBXFileReference; explicitFileType = sourcecode.dtrace; fileEncoding = 4; path = RACSignalProvider.d; sourceTree = "<group>"; };
 		D041376815D2281C004BBF80 /* RACKVOWrapperSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOWrapperSpec.m; sourceTree = "<group>"; };
 		D0487AB1164314430085D890 /* RACStreamExamples.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACStreamExamples.h; sourceTree = "<group>"; };
@@ -1648,6 +1652,7 @@
 			children = (
 				D08E4F6C1952B85300E704BD /* ArrayExtensions.swift */,
 				D08E4F741952B85300E704BD /* NSLockingExtensions.swift */,
+				D03353D91965448100E5349F /* NSURLSessionExtensions.swift */,
 			);
 			name = Extensions;
 			sourceTree = "<group>";
@@ -2292,6 +2297,7 @@
 				886CEAE4163DE942007632D1 /* NSObject+RACLifting.m in Sources */,
 				D08E4FA21952B85300E704BD /* SpinLock.swift in Sources */,
 				D013A3E11807B7450072B6CE /* RACEmptySignal.m in Sources */,
+				D03353DA1965448100E5349F /* NSURLSessionExtensions.swift in Sources */,
 				887ACDA9165878A8009190AD /* NSInvocation+RACTypeParsing.m in Sources */,
 				D0E9676D1641EF9C00FCFF06 /* NSArray+RACSequenceAdditions.m in Sources */,
 				D0E967711641EF9C00FCFF06 /* NSDictionary+RACSequenceAdditions.m in Sources */,
@@ -2497,6 +2503,7 @@
 				5EE9A7941760D61300EAF5A2 /* UIButton+RACCommandSupport.m in Sources */,
 				882D071F17615139009EDA69 /* RACTargetQueueScheduler.m in Sources */,
 				D0A0E231176A8CD6007273ED /* RACPassthroughSubscriber.m in Sources */,
+				D03353DB1965448100E5349F /* NSURLSessionExtensions.swift in Sources */,
 				557A4B5B177648C7008EF796 /* UIActionSheet+RACSignalSupport.m in Sources */,
 				D05F9D3817984EC000FD7982 /* EXTRuntimeExtensions.m in Sources */,
 				D009307C1788AB7B00EE7E8B /* RACTestScheduler.m in Sources */,
@@ -2557,6 +2564,7 @@
 				D05AD3DD17F2DB1D0080895B /* RACSubject.m in Sources */,
 				D08E4FA41952B85300E704BD /* SpinLock.swift in Sources */,
 				D013A3E31807B7450072B6CE /* RACEmptySignal.m in Sources */,
+				D03353DC1965448100E5349F /* NSURLSessionExtensions.swift in Sources */,
 				D05AD3F417F2DB4F0080895B /* RACStringSequence.m in Sources */,
 				D05AD40C17F2DB6A0080895B /* NSDictionary+RACSequenceAdditions.m in Sources */,
 				D0BB88E71964E6450047E0EC /* Producer.swift in Sources */,

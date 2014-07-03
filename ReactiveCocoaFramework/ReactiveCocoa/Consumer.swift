@@ -12,7 +12,7 @@ func _dummyNext(value: Any) {}
 func _dummyError(error: NSError) {}
 func _dummyCompleted() {}
 
-/// Receives events from an Producer.
+/// Receives events from a Producer.
 class Consumer<T>: Sink {
 	typealias Element = Event<T>
 
@@ -22,7 +22,7 @@ class Consumer<T>: Sink {
 	/// a terminating event, or if event production is canceled.
 	let disposable = CompositeDisposable()
 
-	/// Initializes an Consumer that will forward events to the given sink.
+	/// Initializes a Consumer that will forward events to the given sink.
 	init<S: Sink where S.Element == Event<T>>(_ sink: S) {
 		_sink = Atomic(SinkOf(sink))
 
@@ -34,13 +34,13 @@ class Consumer<T>: Sink {
 		}
 	}
 
-	/// Initializes an Consumer that will perform the given action whenever an
+	/// Initializes a Consumer that will perform the given action whenever an
 	/// event is received.
 	convenience init(put: Event<T> -> ()) {
 		self.init(SinkOf(put))
 	}
 
-	/// Initializes an Consumer with zero or more different callbacks, based
+	/// Initializes a Consumer with zero or more different callbacks, based
 	/// on the type of Event received.
 	convenience init(next: T -> () = _dummyNext, error: NSError -> () = _dummyError, completed: () -> () = _dummyCompleted) {
 		self.init(SinkOf<Element> { event in

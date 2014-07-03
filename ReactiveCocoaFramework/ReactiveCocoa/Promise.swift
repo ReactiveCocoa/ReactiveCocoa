@@ -71,9 +71,9 @@ enum _PromiseState<T> {
 
 	/// Starts the promise (if necessary), then blocks indefinitely on the
 	/// result.
-	func result() -> T {
+	func await() -> T {
 		let cond = NSCondition()
-		cond.name = "com.github.ReactiveCocoa.Promise.result"
+		cond.name = "com.github.ReactiveCocoa.Promise.await"
 
 		start().observe { _ in
 			withLock(cond) {

@@ -85,7 +85,7 @@ extension RACSignal {
 	/// The signal must not generate an `error` event.
 	func asSignalOfLatestValue(initialValue: AnyObject? = nil) -> Signal<AnyObject?> {
 		let property = SignalingProperty(initialValue)
-		asProducer().bindToProperty(property)
+		asProducer().bindTo(property)
 
 		return property
 	}

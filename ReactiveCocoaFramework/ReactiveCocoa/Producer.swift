@@ -8,24 +8,24 @@
 
 import Foundation
 
-/// A pull-driven stream that executes work when an consumer is attached.
+/// A pull-driven stream that executes work when a consumer is attached.
 class Producer<T> {
 	@final let _produce: Consumer<T> -> ()
 
-	/// Initializes an Producer that will run the given action whenever an
+	/// Initializes a Producer that will run the given action whenever an
 	/// Consumer is attached.
 	init(produce: Consumer<T> -> ()) {
 		_produce = produce
 	}
 
-	/// Creates an Producer that will immediately complete.
+	/// Creates a Producer that will immediately complete.
 	@final class func empty() -> Producer<T> {
 		return Producer { consumer in
 			consumer.put(.Completed)
 		}
 	}
 
-	/// Creates an Producer that will immediately yield a single value then
+	/// Creates a Producer that will immediately yield a single value then
 	/// complete.
 	@final class func single(value: T) -> Producer<T> {
 		return Producer { consumer in
@@ -34,14 +34,14 @@ class Producer<T> {
 		}
 	}
 
-	/// Creates an Producer that will immediately generate an error.
+	/// Creates a Producer that will immediately generate an error.
 	@final class func error(error: NSError) -> Producer<T> {
 		return Producer { consumer in
 			consumer.put(.Error(error))
 		}
 	}
 
-	/// Creates an Producer that will never send any events.
+	/// Creates a Producer that will never send any events.
 	@final class func never() -> Producer<T> {
 		return Producer { _ in () }
 	}
@@ -56,13 +56,13 @@ class Producer<T> {
 		return consumer.disposable
 	}
 
-	/// Convenience function to invoke produce() with an Consumer that will
+	/// Convenience function to invoke produce() with a Consumer that will
 	/// pass values to the given closure.
 	@final func produce(consumer: Event<T> -> ()) -> Disposable {
 		return produce(Consumer(consumer))
 	}
 
-	/// Convenience function to invoke produce() with an Consumer that has
+	/// Convenience function to invoke produce() with a Consumer that has
 	/// the given callbacks for each event type.
 	@final func produce(next: T -> (), error: NSError -> (), completed: () -> ()) -> Disposable {
 		return produce(Consumer(next: next, error: error, completed: completed))
@@ -74,7 +74,7 @@ class Producer<T> {
 	/// This is meant as a primitive operator from which more complex operators
 	/// can be built.
 	///
-	/// Returns an Producer of the mapped values.
+	/// Returns a Producer of the mapped values.
 	@final func mapAccumulate<S, U>(initialState: S, _ f: (S, T) -> (S?, U)) -> Producer<U> {
 		return Producer<U> { consumer in
 			let state = Atomic(initialState)
@@ -102,12 +102,12 @@ class Producer<T> {
 		}
 	}
 
-	/// Merges an Producer of Producers into a single stream.
+	/// Merges a Producer of Producers into a single stream.
 	///
 	/// evidence - Used to prove to the typechecker that the receiver is
 	///            a stream-of-streams. Simply pass in the `identity` function.
 	///
-	/// Returns an Producer that will forward events from the original streams
+	/// Returns a Producer that will forward events from the original streams
 	/// as they arrive.
 	@final func merge<U>(evidence: Producer<T> -> Producer<Producer<U>>) -> Producer<U> {
 		return Producer<U> { consumer in
@@ -153,13 +153,13 @@ class Producer<T> {
 		}
 	}
 
-	/// Switches on an Producer of Producers, forwarding events from the
+	/// Switches on a Producer of Producers, forwarding events from the
 	/// latest inner stream.
 	///
 	/// evidence - Used to prove to the typechecker that the receiver is
 	///            a stream-of-streams. Simply pass in the `identity` function.
 	///
-	/// Returns an Producer that will forward events only from the latest
+	/// Returns a Producer that will forward events only from the latest
 	/// Producer sent upon the receiver.
 	@final func switchToLatest<U>(evidence: Producer<T> -> Producer<Producer<U>>) -> Producer<U> {
 		return Producer<U> { consumer in
@@ -282,34 +282,18 @@ class Producer<T> {
 			.merge(identity)
 	}
 
-	/// Starts producing events, blocks indefinitely waiting for the first event
-	/// to be generated, then cancels production once it has been consumed.
-	@final func first() -> Event<T> {
-		let cond = NSCondition()
-		cond.name = "com.github.ReactiveCocoa.Producer.first"
-
-		var event: Event<T>? = nil
-		take(1).produce { ev in
-			withLock(cond) {
-				event = ev
-				cond.signal()
-			}
-		}
-
-		return withLock(cond) {
-			while event == nil {
-				cond.wait()
-			}
-
-			return event!
+	/// Returns a Promise that will, when started, produce one event from the
+	/// receiver then cancel production.
+	@final func first() -> Promise<Event<T>> {
+		return Promise { sink in
+			self.take(1).produce(Consumer(sink))
+			return ()
 		}
 	}
 
-	/// Starts producing events, and blocks indefinitely waiting for completion.
-	///
-	/// Returns an Event which indicates whether production succeeded or failed
-	/// with an error.
-	@final func waitUntilCompleted() -> Event<()> {
+	/// Returns a Promise that will start event production, then yield an Event
+	/// which indicates whether production succeeded, or failed with an error.
+	@final func last() -> Promise<Event<()>> {
 		return ignoreValues().first()
 	}
 
@@ -319,7 +303,7 @@ class Producer<T> {
 	/// The stream must not produce an `Error` event when bound to a property.
 	///
 	/// Optionally returns a Disposable which can be used to cancel the binding.
-	@final func bindToProperty(property: SignalingProperty<T>) -> Disposable {
+	@final func bindTo(property: SignalingProperty<T>) -> Disposable {
 		return self.produce { event in
 			switch event {
 			case let .Next(value):
@@ -540,7 +524,7 @@ class Producer<T> {
 
 	/// Combines all of the values in the stream.
 	///
-	/// Returns an Producer which will send the single, aggregated value when
+	/// Returns a Producer which will send the single, aggregated value when
 	/// the receiver completes.
 	@final func aggregate<U>(initialValue: U, _ f: (U, T) -> U) -> Producer<U> {
 		let scanned = scan(initialValue, f)

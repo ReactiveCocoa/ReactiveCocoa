@@ -272,13 +272,13 @@ class Signal<T> {
 	}
 
 	/// Buffers values yielded by the receiver, preserving them for future
-	/// enumeration.
+	/// consumers.
 	///
 	/// capacity - If not nil, the maximum number of values to buffer. If more
 	///            are received, the earliest values are dropped and won't be
-	///            enumerated over in the future.
+	///            given to consumers in the future.
 	///
-	/// Returns an Producer over the buffered values, and a Disposable which
+	/// Returns a Producer over the buffered values, and a Disposable which
 	/// can be used to cancel all further buffering.
 	@final func buffer(capacity: Int? = nil) -> (Producer<T>, Disposable) {
 		let buffer = BufferedProducer<T>(capacity: capacity)
@@ -391,31 +391,17 @@ class Signal<T> {
 		}
 	}
 
-	/// Blocks indefinitely, waiting for the given predicate to be true.
-	///
-	/// Returns the first value that passes.
-	@final func firstPassingTest(pred: T -> Bool) -> T {
-		let cond = NSCondition()
-		cond.name = "com.github.ReactiveCocoa.Signal.firstPassingTest"
-
-		var matchingValue: T? = nil
-		observe { value in
-			if !pred(value) {
-				return
+	/// Returns a Promise that will wait for the first value from the receiver
+	/// that passes the given predicate.
+	@final func firstPassingTest(pred: T -> Bool) -> Promise<T> {
+		return Promise { sink in
+			self.take(1).observe { value in
+				if pred(value) {
+					sink.put(value)
+				}
 			}
 
-			withLock(cond) { () -> () in
-				matchingValue = value
-				cond.signal()
-			}
-		}
-
-		return withLock(cond) {
-			while matchingValue == nil {
-				cond.wait()
-			}
-
-			return matchingValue!
+			return ()
 		}
 	}
 }

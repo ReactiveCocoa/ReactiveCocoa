@@ -314,6 +314,9 @@
 		D03353DA1965448100E5349F /* NSURLSessionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D03353D91965448100E5349F /* NSURLSessionExtensions.swift */; };
 		D03353DB1965448100E5349F /* NSURLSessionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D03353D91965448100E5349F /* NSURLSessionExtensions.swift */; };
 		D03353DC1965448100E5349F /* NSURLSessionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D03353D91965448100E5349F /* NSURLSessionExtensions.swift */; };
+		D03353DE1965462100E5349F /* NSNotificationCenterExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D03353DD1965462100E5349F /* NSNotificationCenterExtensions.swift */; };
+		D03353DF1965462100E5349F /* NSNotificationCenterExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D03353DD1965462100E5349F /* NSNotificationCenterExtensions.swift */; };
+		D03353E01965462100E5349F /* NSNotificationCenterExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D03353DD1965462100E5349F /* NSNotificationCenterExtensions.swift */; };
 		D03525D417E2EBC90099CBAB /* RACSignalProvider.d in Sources */ = {isa = PBXBuildFile; fileRef = D03525D317E2EBC90099CBAB /* RACSignalProvider.d */; };
 		D03525D917E2FAAD0099CBAB /* RACSignalProvider.d in Sources */ = {isa = PBXBuildFile; fileRef = D03525D317E2EBC90099CBAB /* RACSignalProvider.d */; };
 		D041376915D2281C004BBF80 /* RACKVOWrapperSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D041376815D2281C004BBF80 /* RACKVOWrapperSpec.m */; };
@@ -889,6 +892,7 @@
 		D0307EDC1731AAE100D83211 /* RACTupleSequence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACTupleSequence.m; sourceTree = "<group>"; };
 		D03353D51965383C00E5349F /* Consumer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Consumer.swift; sourceTree = "<group>"; };
 		D03353D91965448100E5349F /* NSURLSessionExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSURLSessionExtensions.swift; sourceTree = "<group>"; };
+		D03353DD1965462100E5349F /* NSNotificationCenterExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSNotificationCenterExtensions.swift; sourceTree = "<group>"; };
 		D03525D317E2EBC90099CBAB /* RACSignalProvider.d */ = {isa = PBXFileReference; explicitFileType = sourcecode.dtrace; fileEncoding = 4; path = RACSignalProvider.d; sourceTree = "<group>"; };
 		D041376815D2281C004BBF80 /* RACKVOWrapperSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOWrapperSpec.m; sourceTree = "<group>"; };
 		D0487AB1164314430085D890 /* RACStreamExamples.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACStreamExamples.h; sourceTree = "<group>"; };
@@ -1652,6 +1656,7 @@
 			children = (
 				D08E4F6C1952B85300E704BD /* ArrayExtensions.swift */,
 				D08E4F741952B85300E704BD /* NSLockingExtensions.swift */,
+				D03353DD1965462100E5349F /* NSNotificationCenterExtensions.swift */,
 				D03353D91965448100E5349F /* NSURLSessionExtensions.swift */,
 			);
 			name = Extensions;
@@ -2306,6 +2311,7 @@
 				D08E4F7B1952B85300E704BD /* ArrayExtensions.swift in Sources */,
 				D0E9677D1641EF9C00FCFF06 /* NSString+RACSequenceAdditions.m in Sources */,
 				D0E967811641EF9C00FCFF06 /* RACArraySequence.m in Sources */,
+				D03353DE1965462100E5349F /* NSNotificationCenterExtensions.swift in Sources */,
 				D0E967851641EF9C00FCFF06 /* RACDynamicSequence.m in Sources */,
 				D0E967891641EF9C00FCFF06 /* RACEmptySequence.m in Sources */,
 				D0BB88F81964E65D0047E0EC /* Result.swift in Sources */,
@@ -2436,6 +2442,7 @@
 				88F440C5153DAD6C0097B4C3 /* RACDisposable.m in Sources */,
 				D08E4FA31952B85300E704BD /* SpinLock.swift in Sources */,
 				D090768317FBEADE00EB087A /* NSURLConnection+RACSupport.m in Sources */,
+				D03353DF1965462100E5349F /* NSNotificationCenterExtensions.swift in Sources */,
 				88F44263153DC2C70097B4C3 /* UIControl+RACSignalSupport.m in Sources */,
 				886F702C1551CF9D0045D68B /* RACGroupedSignal.m in Sources */,
 				88F44267153DCAC50097B4C3 /* UITextField+RACSignalSupport.m in Sources */,
@@ -2573,6 +2580,7 @@
 				D05AD3C817F2DB100080895B /* RACBacktrace.m in Sources */,
 				D08E4F7D1952B85300E704BD /* ArrayExtensions.swift in Sources */,
 				D05AD41217F2DB6A0080895B /* NSNotificationCenter+RACSupport.m in Sources */,
+				D03353E01965462100E5349F /* NSNotificationCenterExtensions.swift in Sources */,
 				D05AD3D917F2DB1D0080895B /* RACMulticastConnection.m in Sources */,
 				D05AD43117F2DB950080895B /* RACObjCRuntime.m in Sources */,
 				D05AD3DB17F2DB1D0080895B /* RACGroupedSignal.m in Sources */,

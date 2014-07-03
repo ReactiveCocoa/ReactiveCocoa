@@ -17,6 +17,8 @@ import Foundation
 	func dispose()
 }
 
+extension RACDisposable: Disposable {}
+
 /// A disposable that only flips `disposed` upon disposal, and performs no other
 /// work.
 @final class SimpleDisposable: Disposable {

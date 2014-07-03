@@ -12,9 +12,6 @@ func _dummyNext(value: Any) {}
 func _dummyError(error: NSError) {}
 func _dummyCompleted() {}
 
-// FIXME: Do something better with this.
-let emptyError = NSError(domain: "RACErrorDomain", code: 1, userInfo: nil)
-
 /// Receives events from an Enumerable.
 class Enumerator<T>: Sink {
 	typealias Element = Event<T>
@@ -113,59 +110,6 @@ class Enumerable<T> {
 	/// Creates an Enumerable that will never send any events.
 	@final class func never() -> Enumerable<T> {
 		return Enumerable { _ in () }
-	}
-	
-	/// Creates an Enumerable from a RACSignal.
-	///
-	/// Each signal value will be automatically coerced to T. The behavior is
-	/// undefined if coercion fails.
-	@final class func fromSignal(signal: RACSignal) -> Enumerable<T> {
-		return Enumerable { enumerator in
-			let next = { (obj: AnyObject!) -> () in
-				let coerced = obj as T
-				enumerator.put(.Next(Box(coerced)))
-			}
-
-			let error = { (maybeError: NSError?) -> () in
-				if let e = maybeError {
-					enumerator.put(.Error(e))
-				} else {
-					enumerator.put(.Error(emptyError))
-				}
-			}
-
-			let completed = {
-				enumerator.put(.Completed)
-			}
-
-			let disposable: RACDisposable? = signal.subscribeNext(next, error: error, completed: completed)
-			enumerator.disposable.addDisposable(disposable)
-		}
-	}
-
-	/// Creates a "cold" RACSignal that will enumerate over the receiver.
-	///
-	/// evidence - Used to prove to the typechecker that the receiver is
-	///            a stream of objects. Simply pass in the `identity` function.
-	@final func toSignal<U: AnyObject>(evidence: Enumerable<T> -> Enumerable<U?>) -> RACSignal {
-		return RACSignal.createSignal { subscriber in
-			let selfDisposable = evidence(self).enumerate { event in
-				switch event {
-				case let .Next(obj):
-					subscriber.sendNext(obj)
-
-				case let .Error(error):
-					subscriber.sendError(error)
-
-				case let .Completed:
-					subscriber.sendCompleted()
-				}
-			}
-
-			return RACDisposable {
-				selfDisposable.dispose()
-			}
-		}
 	}
 
 	/// Starts a new enumeration pass, performing any side effects embedded

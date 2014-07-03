@@ -116,7 +116,7 @@ extension Enumerable {
 	///
 	/// evidence - Used to prove to the typechecker that the receiver is
 	///            a stream of objects. Simply pass in the `identity` function.
-	@final func toSignal<U: AnyObject>(evidence: Enumerable<T> -> Enumerable<U?>) -> RACSignal {
+	func toSignal<U: AnyObject>(evidence: Enumerable<T> -> Enumerable<U?>) -> RACSignal {
 		return RACSignal.createSignal { subscriber in
 			let selfDisposable = evidence(self).enumerate { event in
 				switch event {
@@ -147,7 +147,7 @@ extension Observable {
 	/// Returns an infinite signal that will send the observable's current
 	/// value, then all changes thereafter. The signal will never complete or
 	/// error, so it must be disposed manually.
-	@final func toInfiniteSignal<U: AnyObject>(evidence: Observable<T> -> Observable<U?>) -> RACSignal {
+	func toInfiniteSignal<U: AnyObject>(evidence: Observable<T> -> Observable<U?>) -> RACSignal {
 		return RACSignal.createSignal { subscriber in
 			evidence(self).observe { value in
 				subscriber.sendNext(value)
@@ -164,7 +164,7 @@ extension Promise {
 	///
 	/// evidence - Used to prove to the typechecker that the receiver will
 	///            produce an object. Simply pass in the `identity` function.
-	@final func toSignal<U: AnyObject>(evidence: Promise<T> -> Promise<U>) -> RACSignal {
+	func toSignal<U: AnyObject>(evidence: Promise<T> -> Promise<U>) -> RACSignal {
 		return RACSignal.createSignal { subscriber in
 			evidence(self).start().observe { maybeResult in
 				if let result = maybeResult {

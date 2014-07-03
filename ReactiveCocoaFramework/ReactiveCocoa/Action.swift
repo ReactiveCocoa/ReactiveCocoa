@@ -13,7 +13,7 @@ import Foundation
 /// Before the first execution, the action's current value will be `nil`.
 /// Afterwards, it will always forward the latest results from any calls to
 /// execute() on the main thread.
-class Action<I, O>: Observable<Result<O>?> {
+class Action<I, O>: Signal<Result<O>?> {
 	/// The error that will be sent if execute() is invoked while the action is
 	/// disabled.
 	var notEnabledError: NSError {
@@ -25,13 +25,13 @@ class Action<I, O>: Observable<Result<O>?> {
 	}
 
 	let _execute: I -> Promise<Result<O>>
-	let _executions = ObservableProperty<Observable<Result<O>?>?>(nil)
+	let _executions = SignalingProperty<Signal<Result<O>?>?>(nil)
 
 	/// An observable of the observables returned from execute().
 	///
 	/// This will be non-nil while executing, nil between executions, and will
 	/// only update on the main thread.
-	var executions: Observable<Observable<Result<O>?>?> {
+	var executions: Signal<Signal<Result<O>?>?> {
 		get {
 			return _executions
 		}
@@ -40,16 +40,16 @@ class Action<I, O>: Observable<Result<O>?> {
 	/// Whether the action is currently executing.
 	///
 	/// This will only update on the main thread.
-	let executing: Observable<Bool>
+	let executing: Signal<Bool>
 
 	/// Whether the action is enabled.
 	///
 	/// This will only update on the main thread.
-	let enabled: Observable<Bool>
+	let enabled: Signal<Bool>
 
 	/// Initializes an action that will be conditionally enabled, and create
 	/// a Promise for each execution.
-	init(enabledIf: Observable<Bool>, execute: I -> Promise<Result<O>>) {
+	init(enabledIf: Signal<Bool>, execute: I -> Promise<Result<O>>) {
 		_execute = execute
 
 		executing = .constant(false)
@@ -82,8 +82,8 @@ class Action<I, O>: Observable<Result<O>?> {
 	/// If the action is disabled when this method is invoked, the returned
 	/// observable will be set to `notEnabledError`, and no result will be sent
 	/// along the action itself.
-	func execute(input: I) -> Observable<Result<O>?> {
-		let results = ObservableProperty<Result<O>?>(nil)
+	func execute(input: I) -> Signal<Result<O>?> {
+		let results = SignalingProperty<Result<O>?>(nil)
 
 		MainScheduler().schedule {
 			if (!self.enabled.current) {
@@ -92,7 +92,7 @@ class Action<I, O>: Observable<Result<O>?> {
 			}
 
 			let promise = self._execute(input)
-			let execution: Observable<Result<O>?> = promise
+			let execution: Signal<Result<O>?> = promise
 				.deliverOn(MainScheduler())
 				// Remove one layer of optional binding caused by the `deliverOn`.
 				.ignoreNil(identity, initialValue: nil)
@@ -124,7 +124,7 @@ class Action<I, O>: Observable<Result<O>?> {
 			return Promise { sink in
 				self
 					.execute(input)
-					.map { maybeResult -> Observable<Result<P>?> in
+					.map { maybeResult -> Signal<Result<P>?> in
 						if let result = maybeResult {
 							switch result {
 							case let .Success(value):

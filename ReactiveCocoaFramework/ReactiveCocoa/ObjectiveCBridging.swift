@@ -79,12 +79,12 @@ extension RACSignal {
 		}
 	}
 
-	/// Creates an Observable that will immediately subscribe to a RACSignal,
+	/// Creates a Signal that will immediately subscribe to a RACSignal,
 	/// and observe its latest value.
 	///
 	/// The signal must not generate an `error` event.
-	func toObservable(initialValue: AnyObject? = nil) -> Observable<AnyObject?> {
-		let property = ObservableProperty(initialValue)
+	func toSignal(initialValue: AnyObject? = nil) -> Signal<AnyObject?> {
+		let property = SignalingProperty(initialValue)
 		toEnumerable().bindToProperty(property)
 
 		return property
@@ -121,8 +121,8 @@ extension RACSignal {
 extension RACCommand {
 	/// Creates an Action that will execute the command.
 	func toAction() -> Action<AnyObject?, AnyObject?> {
-		let enabled: Observable<Bool> = self.enabled
-			.toObservable()
+		let enabled: Signal<Bool> = self.enabled
+			.toSignal()
 			.map { obj in
 				if let num = obj as? NSNumber {
 					return num.boolValue
@@ -144,7 +144,7 @@ extension Enumerable {
 	///
 	/// evidence - Used to prove to the typechecker that the receiver is
 	///            a stream of objects. Simply pass in the `identity` function.
-	func toSignal<U: AnyObject>(evidence: Enumerable<T> -> Enumerable<U?>) -> RACSignal {
+	func toRACSignal<U: AnyObject>(evidence: Enumerable<T> -> Enumerable<U?>) -> RACSignal {
 		return RACSignal.createSignal { subscriber in
 			let selfDisposable = evidence(self).enumerate { event in
 				switch event {
@@ -166,7 +166,7 @@ extension Enumerable {
 	}
 }
 
-extension Observable {
+extension Signal {
 	/// Creates a "hot" RACSignal that will forward values from the receiver.
 	///
 	/// evidence - Used to prove to the typechecker that the receiver is
@@ -175,7 +175,7 @@ extension Observable {
 	/// Returns an infinite signal that will send the observable's current
 	/// value, then all changes thereafter. The signal will never complete or
 	/// error, so it must be disposed manually.
-	func toInfiniteSignal<U: AnyObject>(evidence: Observable<T> -> Observable<U?>) -> RACSignal {
+	func toInfiniteRACSignal<U: AnyObject>(evidence: Signal<T> -> Signal<U?>) -> RACSignal {
 		return RACSignal.createSignal { subscriber in
 			evidence(self).observe { value in
 				subscriber.sendNext(value)
@@ -192,7 +192,7 @@ extension Promise {
 	///
 	/// evidence - Used to prove to the typechecker that the receiver will
 	///            produce an object. Simply pass in the `identity` function.
-	func toSignal<U: AnyObject>(evidence: Promise<T> -> Promise<U>) -> RACSignal {
+	func toRACSignal<U: AnyObject>(evidence: Promise<T> -> Promise<U>) -> RACSignal {
 		return RACSignal.createSignal { subscriber in
 			evidence(self).start().observe { maybeResult in
 				if let result = maybeResult {
@@ -214,7 +214,7 @@ extension Action {
 	func toCommand<U: AnyObject>(evidence: Action<I, O> -> Action<AnyObject?, U?>) -> RACCommand {
 		let enabled = self.enabled
 			.map { $0 as NSNumber? }
-			.toInfiniteSignal(identity)
+			.toInfiniteRACSignal(identity)
 
 		return RACCommand(enabled: enabled) { input in
 			return RACSignal.createSignal { subscriber in

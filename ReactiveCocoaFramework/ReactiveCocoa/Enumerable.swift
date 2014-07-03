@@ -386,7 +386,7 @@ class Enumerable<T> {
 	/// The stream must not generate an `Error` event when bound to a property.
 	///
 	/// Optionally returns a Disposable which can be used to cancel the binding.
-	@final func bindToProperty(property: ObservableProperty<T>) -> Disposable {
+	@final func bindToProperty(property: SignalingProperty<T>) -> Disposable {
 		return self.enumerate { event in
 			switch event {
 			case let .Next(value):

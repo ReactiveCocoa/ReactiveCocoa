@@ -1,5 +1,5 @@
 //
-//  ObservableProperty.swift
+//  SignalingProperty.swift
 //  ReactiveCocoa
 //
 //  Created by Justin Spahr-Summers on 2014-06-26.
@@ -9,7 +9,7 @@
 import Foundation
 
 /// Represents a mutable property of type T along with the changes to its value.
-@final class ObservableProperty<T>: Observable<T>, Sink {
+@final class SignalingProperty<T>: Signal<T>, Sink {
 	typealias Element = T
 
 	var _sink = SinkOf<T> { _ in () }

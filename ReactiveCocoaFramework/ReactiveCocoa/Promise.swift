@@ -14,7 +14,7 @@ enum _PromiseState<T> {
 }
 
 /// Represents deferred work to generate a value of type T.
-@final class Promise<T>: Observable<T?> {
+@final class Promise<T>: Signal<T?> {
 	let _state: Atomic<_PromiseState<T>>
 	var _sink = SinkOf<T?> { _ in () }
 
@@ -45,7 +45,7 @@ enum _PromiseState<T> {
 	}
 
 	/// Starts the promise, if it hasn't started already.
-	func start() -> Observable<T?> {
+	func start() -> Signal<T?> {
 		let oldState = _state.modify { _ in .Started }
 
 		switch oldState {

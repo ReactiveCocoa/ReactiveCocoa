@@ -95,13 +95,15 @@ extension RACSignal {
 extension RACCommand {
 	/// Creates an Action that will execute the command.
 	func toAction() -> Action<AnyObject?, AnyObject?> {
-		let enabled: Observable<Bool> = self.enabled.toObservable().map { obj in
-			if let num = obj as? NSNumber {
-				return num.boolValue
-			} else {
-				return true
+		let enabled: Observable<Bool> = self.enabled
+			.toObservable()
+			.map { obj in
+				if let num = obj as? NSNumber {
+					return num.boolValue
+				} else {
+					return true
+				}
 			}
-		}
 
 		return Action(enabledIf: enabled) { input in
 			return RACSignal
@@ -174,6 +176,39 @@ extension Promise {
 			}
 
 			return nil
+		}
+	}
+}
+
+extension Action {
+	/// Creates a RACCommand that will execute the Action.
+	///
+	/// evidence - Used to prove to the typechecker that the receiver accepts
+	///            and produces objects. Simply pass in the `identity` function.
+	func toCommand<U: AnyObject>(evidence: Action<I, O> -> Action<AnyObject?, U?>) -> RACCommand {
+		let enabled = self.enabled
+			.map { $0 as NSNumber? }
+			.toInfiniteSignal(identity)
+
+		return RACCommand(enabled: enabled) { input in
+			return RACSignal.createSignal { subscriber in
+				evidence(self).execute(input).observe { maybeResult in
+					if maybeResult == nil {
+						return
+					}
+
+					switch maybeResult! {
+					case let .Success(obj):
+						subscriber.sendNext(obj)
+						subscriber.sendCompleted()
+
+					case let .Error(error):
+						subscriber.sendError(error)
+					}
+				}
+
+				return nil
+			}
 		}
 	}
 }

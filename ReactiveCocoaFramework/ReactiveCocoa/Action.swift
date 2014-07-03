@@ -14,6 +14,8 @@ import Foundation
 /// Afterwards, it will always forward the latest results from any calls to
 /// execute() on the main thread.
 class Action<I, O>: Signal<Result<O>?> {
+	typealias ExecutionSignal = Signal<Result<O>?>
+
 	/// The error that will be sent if execute() is invoked while the action is
 	/// disabled.
 	var notEnabledError: NSError {
@@ -25,13 +27,13 @@ class Action<I, O>: Signal<Result<O>?> {
 	}
 
 	let _execute: I -> Promise<Result<O>>
-	let _executions = SignalingProperty<Signal<Result<O>?>?>(nil)
+	let _executions = SignalingProperty<ExecutionSignal?>(nil)
 
 	/// An observable of the observables returned from execute().
 	///
 	/// This will be non-nil while executing, nil between executions, and will
 	/// only update on the main thread.
-	var executions: Signal<Signal<Result<O>?>?> {
+	var executions: Signal<ExecutionSignal?> {
 		get {
 			return _executions
 		}
@@ -82,7 +84,7 @@ class Action<I, O>: Signal<Result<O>?> {
 	/// If the action is disabled when this method is invoked, the returned
 	/// observable will be set to `notEnabledError`, and no result will be sent
 	/// along the action itself.
-	func execute(input: I) -> Signal<Result<O>?> {
+	func execute(input: I) -> ExecutionSignal {
 		let results = SignalingProperty<Result<O>?>(nil)
 
 		MainScheduler().schedule {
@@ -92,7 +94,7 @@ class Action<I, O>: Signal<Result<O>?> {
 			}
 
 			let promise = self._execute(input)
-			let execution: Signal<Result<O>?> = promise
+			let execution: ExecutionSignal = promise
 				.deliverOn(MainScheduler())
 				// Remove one layer of optional binding caused by the `deliverOn`.
 				.ignoreNil(identity, initialValue: nil)

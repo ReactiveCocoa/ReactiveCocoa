@@ -1,6 +1,6 @@
 //
 //  Scheduler.swift
-//  RxSwift
+//  ReactiveCocoa
 //
 //  Created by Justin Spahr-Summers on 2014-06-02.
 //  Copyright (c) 2014 GitHub. All rights reserved.
@@ -95,7 +95,7 @@ struct MainScheduler: RepeatableScheduler {
 
 /// A scheduler backed by a serial GCD queue.
 struct QueueScheduler: Scheduler {
-	let _queue = dispatch_queue_create("com.github.RxSwift.QueueScheduler", DISPATCH_QUEUE_SERIAL)
+	let _queue = dispatch_queue_create("com.github.ReactiveCocoa.QueueScheduler", DISPATCH_QUEUE_SERIAL)
 
 	/// Initializes a scheduler that will target the given queue with its work.
 	///

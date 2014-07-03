@@ -1,6 +1,6 @@
 //
 //  Result.swift
-//  RxSwift
+//  ReactiveCocoa
 //
 //  Created by Justin Spahr-Summers on 2014-06-30.
 //  Copyright (c) 2014 GitHub. All rights reserved.

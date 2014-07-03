@@ -55,6 +55,13 @@ class Observable<T> {
 		})
 	}
 
+	/// Creates an Observable that will always have the same value.
+	@final class func constant(value: T) -> Observable<T> {
+		return Observable { sink in
+			sink.put(value)
+		}
+	}
+
 	/// Creates a repeating timer of the given interval, sending updates on the
 	/// given scheduler.
 	@final class func interval(interval: NSTimeInterval, onScheduler scheduler: RepeatableScheduler, withLeeway leeway: NSTimeInterval = 0) -> Observable<NSDate> {
@@ -92,13 +99,6 @@ class Observable<T> {
 	/// values to the given closure.
 	@final func observe(observer: T -> ()) -> Disposable {
 		return observe(SinkOf(observer))
-	}
-
-	/// Creates an Observable that will always have the same value.
-	@final class func constant(value: T) -> Observable<T> {
-		return Observable { sink in
-			sink.put(value)
-		}
 	}
 
 	/// Resolves all Optional values in the stream, ignoring any that are `nil`.

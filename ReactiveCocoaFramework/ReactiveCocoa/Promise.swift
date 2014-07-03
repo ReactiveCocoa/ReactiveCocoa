@@ -31,19 +31,6 @@ enum _PromiseState<T> {
 		})
 	}
 
-	/// Initializes a Promise that will run the given synchronous action upon
-	/// the given scheduler when started.
-	convenience init(onScheduler scheduler: Scheduler, action: () -> T) {
-		self.init(action: { sink in
-			scheduler.schedule {
-				let result = action()
-				sink.put(result)
-			}
-			
-			return ()
-		})
-	}
-
 	/// Starts the promise, if it hasn't started already.
 	func start() -> Signal<T?> {
 		let oldState = _state.modify { _ in .Started }

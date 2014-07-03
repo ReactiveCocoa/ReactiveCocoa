@@ -92,6 +92,25 @@ extension RACSignal {
 	}
 }
 
+extension RACCommand {
+	/// Creates an Action that will execute the command.
+	func toAction() -> Action<AnyObject?, AnyObject?> {
+		let enabled: Observable<Bool> = self.enabled.toObservable().map { obj in
+			if let num = obj as? NSNumber {
+				return num.boolValue
+			} else {
+				return true
+			}
+		}
+
+		return Action(enabledIf: enabled) { input in
+			return RACSignal
+				.defer { self.execute(input) }
+				.toPromise(onScheduler: ImmediateScheduler())
+		}
+	}
+}
+
 extension Enumerable {
 	/// Creates a "cold" RACSignal that will enumerate over the receiver.
 	///

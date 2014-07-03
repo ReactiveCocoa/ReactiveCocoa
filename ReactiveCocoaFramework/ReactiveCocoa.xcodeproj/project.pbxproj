@@ -543,6 +543,9 @@
 		D0BB89001964EC370047E0EC /* ObjectiveCBridging.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0BB88FF1964EC370047E0EC /* ObjectiveCBridging.swift */; };
 		D0BB89011964EC370047E0EC /* ObjectiveCBridging.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0BB88FF1964EC370047E0EC /* ObjectiveCBridging.swift */; };
 		D0BB89021964EC370047E0EC /* ObjectiveCBridging.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0BB88FF1964EC370047E0EC /* ObjectiveCBridging.swift */; };
+		D0BB89041964EDA10047E0EC /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0BB89031964EDA10047E0EC /* Action.swift */; };
+		D0BB89051964EDA10047E0EC /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0BB89031964EDA10047E0EC /* Action.swift */; };
+		D0BB89061964EDA10047E0EC /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0BB89031964EDA10047E0EC /* Action.swift */; };
 		D0C55CE217759559008CDDCA /* RACDelegateProxySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C55CE117759559008CDDCA /* RACDelegateProxySpec.m */; };
 		D0C70EC616659333005AAD03 /* RACSubscriberExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C70EC516659333005AAD03 /* RACSubscriberExamples.m */; };
 		D0C70EC8166595AD005AAD03 /* RACSubscriberSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C70EC7166595AD005AAD03 /* RACSubscriberSpec.m */; };
@@ -950,6 +953,7 @@
 		D0BB88F71964E65D0047E0EC /* Result.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
 		D0BB88FB1964E6610047E0EC /* Identity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Identity.swift; sourceTree = "<group>"; };
 		D0BB88FF1964EC370047E0EC /* ObjectiveCBridging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectiveCBridging.swift; sourceTree = "<group>"; };
+		D0BB89031964EDA10047E0EC /* Action.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
 		D0C55CD817758A73008CDDCA /* UITextFieldRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UITextFieldRACSupportSpec.m; sourceTree = "<group>"; };
 		D0C55CDE17758C2A008CDDCA /* UITextViewRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UITextViewRACSupportSpec.m; sourceTree = "<group>"; };
 		D0C55CE117759559008CDDCA /* RACDelegateProxySpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACDelegateProxySpec.m; sourceTree = "<group>"; };
@@ -1627,6 +1631,7 @@
 		D0BEB83D195BE1A300A985F7 /* Observables */ = {
 			isa = PBXGroup;
 			children = (
+				D0BB89031964EDA10047E0EC /* Action.swift */,
 				D0BB88EB1964E64F0047E0EC /* Observable.swift */,
 				D0BB88EC1964E64F0047E0EC /* ObservableProperty.swift */,
 				D0BB88F31964E6550047E0EC /* Promise.swift */,
@@ -2310,6 +2315,7 @@
 				881E87AE16695C5600667F7B /* RACQueueScheduler.m in Sources */,
 				881E87B416695EDF00667F7B /* RACImmediateScheduler.m in Sources */,
 				881E87C61669636000667F7B /* RACSubscriptionScheduler.m in Sources */,
+				D0BB89041964EDA10047E0EC /* Action.swift in Sources */,
 				5F45A887168CFA3E00B58A2B /* RACKVOChannel.m in Sources */,
 				5F6FE8551692568A00A8D7A6 /* RACChannel.m in Sources */,
 				88C5A026169246140045EF05 /* RACMulticastConnection.m in Sources */,
@@ -2475,6 +2481,7 @@
 				5F9743FA1694A2460024EB82 /* RACEagerSequence.m in Sources */,
 				5F773DED169B46670023069D /* NSEnumerator+RACSequenceAdditions.m in Sources */,
 				D077A170169B740200057BB1 /* RACEvent.m in Sources */,
+				D0BB89051964EDA10047E0EC /* Action.swift in Sources */,
 				D08E4F7C1952B85300E704BD /* ArrayExtensions.swift in Sources */,
 				8837EA1916A5A33300FC3CDF /* RACKVOTrampoline.m in Sources */,
 				6E58405D16F22F7800F588A6 /* NSObject+RACDeallocating.m in Sources */,
@@ -2571,6 +2578,7 @@
 				D05AD3FB17F2DB5D0080895B /* RACScheduler.m in Sources */,
 				D05AD3EB17F2DB270080895B /* RACCommand.m in Sources */,
 				D05AD3D117F2DB100080895B /* RACStream.m in Sources */,
+				D0BB89061964EDA10047E0EC /* Action.swift in Sources */,
 				D05AD3F717F2DB4F0080895B /* RACUnarySequence.m in Sources */,
 				D05AD3D317F2DB1D0080895B /* RACSignal.m in Sources */,
 				D05AD42F17F2DB840080895B /* NSObject+RACPropertySubscribing.m in Sources */,

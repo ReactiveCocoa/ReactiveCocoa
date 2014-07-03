@@ -93,41 +93,27 @@ extension RACSignal {
 	/// Creates a Promise that will subscribe to a RACSignal when started, and
 	/// yield the signal's _last_ value (or the given default value, if none are
 	/// sent) after it has completed successfully.
-	func toPromise(onScheduler scheduler: Scheduler = MainScheduler(), defaultValue: AnyObject? = nil) -> Promise<Result<AnyObject?>> {
-		let property = ObservableProperty<Result<AnyObject?>?>(nil)
-
-		let next = { (obj: AnyObject?) -> () in
-			property.current = Result.Success(Box(obj))
-		}
-
-		let error = { (maybeError: NSError?) -> () in
-			if let e = maybeError {
-				property.current = Result.Error(e)
-			} else {
-				property.current = Result.Error(emptyError)
-			}
-		}
-
-		let completed = { () -> () in
-			// Compiler complains about an ambiguous use of `current` without
-			// this.
-			let observable = property as Observable<Result<AnyObject?>?>
-			if observable.current == nil {
-				property.current = Result.Success(Box(defaultValue))
-			}
-		}
-
-		return Promise(onScheduler: QueueScheduler()) {
-			scheduler.schedule {
-				self
-					.takeLast(1)
-					.subscribeNext(next, error: error, completed: completed)
-				
-				return ()
+	func toPromise(defaultValue: AnyObject? = nil) -> Promise<Result<AnyObject?>> {
+		return Promise { sink in
+			let next = { (obj: AnyObject?) -> () in
+				sink.put(.Success(Box(obj)))
 			}
 
-			let result: Result<AnyObject?>? = property.firstPassingTest { $0 != nil }
-			return result!
+			let error = { (maybeError: NSError?) -> () in
+				if let e = maybeError {
+					sink.put(Result.Error(e))
+				} else {
+					sink.put(Result.Error(emptyError))
+				}
+			}
+
+			let completed = { () -> () in
+				// This will only take effect if we didn't get a `Next` event.
+				sink.put(.Success(Box(defaultValue)))
+			}
+
+			self.takeLast(1).subscribeNext(next, error: error, completed: completed)
+			return ()
 		}
 	}
 }
@@ -148,7 +134,7 @@ extension RACCommand {
 		return Action(enabledIf: enabled) { input in
 			return RACSignal
 				.defer { self.execute(input) }
-				.toPromise(onScheduler: ImmediateScheduler())
+				.toPromise()
 		}
 	}
 }

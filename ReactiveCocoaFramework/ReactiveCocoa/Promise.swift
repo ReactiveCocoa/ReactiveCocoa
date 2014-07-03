@@ -9,21 +9,20 @@
 import Foundation
 
 enum _PromiseState<T> {
-	case Suspended(() -> T)
+	case Suspended(SinkOf<T> -> ())
 	case Started
 }
 
 /// Represents deferred work to generate a value of type T.
 @final class Promise<T>: Observable<T?> {
-	let _scheduler: Scheduler
 	let _state: Atomic<_PromiseState<T>>
-
 	var _sink = SinkOf<T?> { _ in () }
 
-	/// Initializes a Promise that will run the given action upon the given
-	/// scheduler.
-	init(onScheduler scheduler: Scheduler, action: () -> T) {
-		_scheduler = scheduler
+	/// Initializes a Promise that will run the given action when started.
+	///
+	/// The action must eventually `put` a value into the given sink to resolve
+	/// the Promise.
+	init(action: SinkOf<T> -> ()) {
 		_state = Atomic(.Suspended(action))
 
 		super.init(generator: { sink in
@@ -32,8 +31,17 @@ enum _PromiseState<T> {
 		})
 	}
 
-	convenience init(action: () -> T) {
-		self.init(onScheduler: QueueScheduler(), action: action)
+	/// Initializes a Promise that will run the given synchronous action upon
+	/// the given scheduler when started.
+	convenience init(onScheduler scheduler: Scheduler, action: () -> T) {
+		self.init(action: { sink in
+			scheduler.schedule {
+				let result = action()
+				sink.put(result)
+			}
+			
+			return ()
+		})
 	}
 
 	/// Starts the promise, if it hasn't started already.
@@ -42,10 +50,17 @@ enum _PromiseState<T> {
 
 		switch oldState {
 		case let .Suspended(action):
-			_scheduler.schedule {
-				let result = action()
-				self._sink.put(result)
+			let disposable = SimpleDisposable()
+			let disposableSink = SinkOf<T> { value in
+				if disposable.disposed {
+					return
+				}
+
+				disposable.dispose()
+				self._sink.put(value)
 			}
+
+			action(disposableSink)
 
 		default:
 			break
@@ -78,8 +93,20 @@ enum _PromiseState<T> {
 	/// Creates a Promise that will start the receiver, then run the given
 	/// action and forward the results.
 	func then<U>(action: T -> Promise<U>) -> Promise<U> {
-		return Promise<U> {
-			action(self.result()).result()
+		return Promise<U> { sink in
+			let disposable = SerialDisposable()
+
+			disposable.innerDisposable = self.start().observe { maybeResult in
+				if maybeResult == nil {
+					return
+				}
+
+				disposable.innerDisposable = action(maybeResult!).start().observe { maybeResult in
+					if let result = maybeResult {
+						sink.put(result)
+					}
+				}
+			}
 		}
 	}
 }

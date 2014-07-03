@@ -121,8 +121,8 @@ class Action<I, O>: Observable<Result<O>?> {
 			.map { (a, b) in a && b }
 
 		return Action<I, P>(enabledIf: bothEnabled) { input in
-			return Promise(onScheduler: QueueScheduler()) {
-				let firstResult = self
+			return Promise { sink in
+				self
 					.execute(input)
 					.map { maybeResult -> Observable<Result<P>?> in
 						if let result = maybeResult {
@@ -138,9 +138,13 @@ class Action<I, O>: Observable<Result<O>?> {
 						return .constant(nil)
 					}
 					.switchToLatest(identity)
-					.firstPassingTest { $0 != nil }
-
-				return firstResult!
+					.observe { maybeValue in
+						if let value = maybeValue {
+							sink.put(value)
+						}
+					}
+				
+				return ()
 			}
 		}
 	}

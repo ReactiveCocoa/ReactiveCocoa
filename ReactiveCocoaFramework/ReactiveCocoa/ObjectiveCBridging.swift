@@ -9,6 +9,46 @@
 import Foundation
 
 extension RACDisposable: Disposable {}
+extension RACScheduler: Scheduler, RepeatableScheduler {
+	func schedule(action: () -> ()) -> Disposable? {
+		let disposable: RACDisposable? = self.schedule(action)
+		return disposable
+	}
+
+	func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable? {
+		let disposable: RACDisposable? = self.after(date, schedule: action)
+		return disposable
+	}
+
+	func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> ()) -> Disposable? {
+		let disposable: RACDisposable? = self.after(date, repeatingEvery: repeatingEvery, withLeeway: withLeeway, schedule: action)
+		return disposable
+	}
+}
+
+extension RACScheduler: BridgedScheduler {
+	func asRACScheduler() -> RACScheduler {
+		return self
+	}
+}
+
+extension ImmediateScheduler: BridgedScheduler {
+	func asRACScheduler() -> RACScheduler {
+		return RACScheduler.immediateScheduler()
+	}
+}
+
+extension MainScheduler: BridgedScheduler {
+	func asRACScheduler() -> RACScheduler {
+		return RACScheduler.mainThreadScheduler()
+	}
+}
+
+extension QueueScheduler: BridgedScheduler {
+	func asRACScheduler() -> RACScheduler {
+		return RACTargetQueueScheduler(name: nil, targetQueue: _queue)
+	}
+}
 
 // FIXME: Do something better with this.
 let emptyError = NSError(domain: "RACErrorDomain", code: 1, userInfo: nil)

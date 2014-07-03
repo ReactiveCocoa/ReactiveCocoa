@@ -35,23 +35,30 @@ protocol RepeatableScheduler: Scheduler {
 	func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> ()) -> Disposable?
 }
 
-let currentSchedulerKey = "RxSwiftCurrentSchedulerKey"
+/// Represents a scheduler that can be bridged to Objective-C RAC code.
+protocol BridgedScheduler {
+	func asRACScheduler() -> RACScheduler
+}
+
+// Purposely matches RACScheduler.m, so we can bridge the currentScheduler
+// across the two.
+let currentSchedulerKey = "RACSchedulerCurrentSchedulerKey"
 
 /// Returns the scheduler upon which the calling code is executing, if any.
-var currentScheduler: Scheduler? {
+var currentScheduler: protocol<Scheduler, BridgedScheduler>? {
 	get {
-		return NSThread.currentThread().threadDictionary[currentSchedulerKey] as? Box<Scheduler>
+		return NSThread.currentThread().threadDictionary[currentSchedulerKey] as? RACScheduler
 	}
 }
 
 /// Performs an action while setting `currentScheduler` to the given
 /// scheduler instance.
-func _asCurrentScheduler<T>(scheduler: Scheduler, action: () -> T) -> T {
-	let previousScheduler = currentScheduler
+func _asCurrentScheduler<T>(scheduler: protocol<Scheduler, BridgedScheduler>, action: () -> T) -> T {
+	let previousScheduler: AnyObject? = NSThread.currentThread().threadDictionary[currentSchedulerKey]
 
-	NSThread.currentThread().threadDictionary[currentSchedulerKey] = Box(scheduler)
+	NSThread.currentThread().threadDictionary[currentSchedulerKey] = scheduler.asRACScheduler()
 	let result = action()
-	NSThread.currentThread().threadDictionary[currentSchedulerKey] = Box(previousScheduler)
+	NSThread.currentThread().threadDictionary[currentSchedulerKey] = previousScheduler
 
 	return result
 }

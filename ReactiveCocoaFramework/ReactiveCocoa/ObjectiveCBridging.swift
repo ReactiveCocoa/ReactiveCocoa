@@ -14,7 +14,8 @@ extension RACDisposable: Disposable {}
 let emptyError = NSError(domain: "RACErrorDomain", code: 1, userInfo: nil)
 
 extension RACSignal {
-	/// Creates an Enumerable from a RACSignal.
+	/// Creates an Enumerable that will, upon enumeration, subscribe to
+	/// a RACSignal and forward all of its events.
 	func toEnumerable() -> Enumerable<AnyObject?> {
 		return Enumerable { enumerator in
 			let next = { (obj: AnyObject?) -> () in
@@ -36,6 +37,17 @@ extension RACSignal {
 			let disposable: RACDisposable? = self.subscribeNext(next, error: error, completed: completed)
 			enumerator.disposable.addDisposable(disposable)
 		}
+	}
+
+	/// Creates an Observable that will immediately subscribe to a RACSignal,
+	/// and observe its latest value.
+	///
+	/// The signal must not generate an `error` event.
+	func toObservable(initialValue: AnyObject? = nil) -> Observable<AnyObject?> {
+		let property = ObservableProperty(initialValue)
+		toEnumerable().bindToProperty(property)
+
+		return property
 	}
 }
 

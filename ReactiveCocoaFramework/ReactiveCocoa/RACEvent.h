@@ -13,11 +13,11 @@
 /// RACEventTypeCompleted - A `completed` event.
 /// RACEventTypeError     - An `error` event.
 /// RACEventTypeNext      - A `next` event.
-typedef enum : NSUInteger {
+typedef NS_ENUM(NSUInteger, RACEventType) {
     RACEventTypeCompleted,
     RACEventTypeError,
     RACEventTypeNext
-} RACEventType;
+};
 
 /// Represents an event sent by a RACSignal.
 ///

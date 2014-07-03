@@ -66,6 +66,26 @@ extension Enumerable {
 	}
 }
 
+extension Observable {
+	/// Creates a "hot" RACSignal that will forward values from the receiver.
+	///
+	/// evidence - Used to prove to the typechecker that the receiver is
+	///            a stream of objects. Simply pass in the `identity` function.
+	///
+	/// Returns an infinite signal that will send the observable's current
+	/// value, then all changes thereafter. The signal will never complete or
+	/// error, so it must be disposed manually.
+	@final func toInfiniteSignal<U: AnyObject>(evidence: Observable<T> -> Observable<U?>) -> RACSignal {
+		return RACSignal.createSignal { subscriber in
+			evidence(self).observe { value in
+				subscriber.sendNext(value)
+			}
+
+			return nil
+		}
+	}
+}
+
 extension Promise {
 	/// Creates a "warm" RACSignal that will start the promise upon the first
 	/// subscription, and share the result with all subscribers.

@@ -190,7 +190,7 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 				CFRelease(object);
 
 				// expect() is a bit finicky on background threads.
-				STAssertTrue(deallocated, @"Object did not deallocate after being released");
+				XCTAssertTrue(deallocated, @"Object did not deallocate after being released");
 			});
 
 			unsigned afterCount = arc4random_uniform(20);

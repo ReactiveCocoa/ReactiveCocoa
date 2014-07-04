@@ -8,9 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		D047967919666BF30066B267 /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = D047967819666BF30066B267 /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D047967F19666BF30066B267 /* ReactiveCocoa-Mac.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D047967319666BF30066B267 /* ReactiveCocoa-Mac.framework */; };
+		D047967F19666BF30066B267 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D047967319666BF30066B267 /* ReactiveCocoa.framework */; };
 		D047968619666BF30066B267 /* ReactiveCocoaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047968519666BF30066B267 /* ReactiveCocoaTests.swift */; };
-		D04796A519666CBF0066B267 /* ReactiveCocoa-iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D047969A19666CBF0066B267 /* ReactiveCocoa-iOS.framework */; };
+		D04796A519666CBF0066B267 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D047969A19666CBF0066B267 /* ReactiveCocoa.framework */; };
 		D04797DD196670900066B267 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479709196670900066B267 /* Action.swift */; };
 		D04797DE196670900066B267 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479709196670900066B267 /* Action.swift */; };
 		D04797DF196670900066B267 /* ArrayExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970A196670900066B267 /* ArrayExtensions.swift */; };
@@ -398,6 +398,12 @@
 		D0479992196671DF0066B267 /* EXTScope.h in Headers */ = {isa = PBXBuildFile; fileRef = D0479989196671DF0066B267 /* EXTScope.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D0479993196671DF0066B267 /* metamacros.h in Headers */ = {isa = PBXBuildFile; fileRef = D047998A196671DF0066B267 /* metamacros.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D0479994196671DF0066B267 /* metamacros.h in Headers */ = {isa = PBXBuildFile; fileRef = D047998A196671DF0066B267 /* metamacros.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D047999A196673AC0066B267 /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0479998196673AC0066B267 /* Nimble.framework */; };
+		D047999B196673AC0066B267 /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0479999196673AC0066B267 /* Quick.framework */; };
+		D047999C196673B00066B267 /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0479998196673AC0066B267 /* Nimble.framework */; };
+		D047999D196673B00066B267 /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0479999196673AC0066B267 /* Quick.framework */; };
+		D047999F196678F20066B267 /* ObjectiveCBridgingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047999E196678F20066B267 /* ObjectiveCBridgingSpec.swift */; };
+		D04799A0196678F20066B267 /* ObjectiveCBridgingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047999E196678F20066B267 /* ObjectiveCBridgingSpec.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -583,16 +589,58 @@
 			remoteGlobalIDString = D047969919666CBF0066B267;
 			remoteInfo = "ReactiveCocoa-iOS";
 		};
+		D04799A119667AF80066B267 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D047966A19666BF30066B267 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D047967219666BF30066B267;
+			remoteInfo = "ReactiveCocoa-Mac";
+		};
+		D04799A319667CAD0066B267 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D047966A19666BF30066B267 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D047967219666BF30066B267;
+			remoteInfo = "ReactiveCocoa-Mac";
+		};
+		D04799A519667E580066B267 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D047966A19666BF30066B267 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D047967219666BF30066B267;
+			remoteInfo = "ReactiveCocoa-Mac";
+		};
+		D04799A719667E5D0066B267 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D047966A19666BF30066B267 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D047969919666CBF0066B267;
+			remoteInfo = "ReactiveCocoa-iOS";
+		};
+		D04799A919667E620066B267 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D047966A19666BF30066B267 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D047967219666BF30066B267;
+			remoteInfo = "ReactiveCocoa-Mac";
+		};
+		D04799AB19667E740066B267 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D047966A19666BF30066B267 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D047969919666CBF0066B267;
+			remoteInfo = "ReactiveCocoa-iOS";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		D047967319666BF30066B267 /* ReactiveCocoa-Mac.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = "ReactiveCocoa-Mac.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D047967319666BF30066B267 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D047967719666BF30066B267 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D047967819666BF30066B267 /* ReactiveCocoa.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReactiveCocoa.h; sourceTree = "<group>"; };
 		D047967E19666BF30066B267 /* ReactiveCocoa-MacTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ReactiveCocoa-MacTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D047968419666BF30066B267 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D047968519666BF30066B267 /* ReactiveCocoaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactiveCocoaTests.swift; sourceTree = "<group>"; };
-		D047969A19666CBF0066B267 /* ReactiveCocoa-iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = "ReactiveCocoa-iOS.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D047969A19666CBF0066B267 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D04796A419666CBF0066B267 /* ReactiveCocoa-iOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ReactiveCocoa-iOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D04796D719666CE40066B267 /* Common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Common.xcconfig; sourceTree = "<group>"; };
 		D04796D919666CE40066B267 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
@@ -829,6 +877,9 @@
 		D0479989196671DF0066B267 /* EXTScope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXTScope.h; sourceTree = "<group>"; };
 		D047998A196671DF0066B267 /* metamacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = metamacros.h; sourceTree = "<group>"; };
 		D0479995196673730066B267 /* ReactiveCocoa-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ReactiveCocoa-Prefix.pch"; sourceTree = "<group>"; };
+		D0479998196673AC0066B267 /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Nimble.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D0479999196673AC0066B267 /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Quick.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D047999E196678F20066B267 /* ObjectiveCBridgingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectiveCBridgingSpec.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -843,7 +894,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D047967F19666BF30066B267 /* ReactiveCocoa-Mac.framework in Frameworks */,
+				D047999A196673AC0066B267 /* Nimble.framework in Frameworks */,
+				D047999B196673AC0066B267 /* Quick.framework in Frameworks */,
+				D047967F19666BF30066B267 /* ReactiveCocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -858,7 +911,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D04796A519666CBF0066B267 /* ReactiveCocoa-iOS.framework in Frameworks */,
+				D047999C196673B00066B267 /* Nimble.framework in Frameworks */,
+				D047999D196673B00066B267 /* Quick.framework in Frameworks */,
+				D04796A519666CBF0066B267 /* ReactiveCocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -878,9 +933,9 @@
 		D047967419666BF30066B267 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D047967319666BF30066B267 /* ReactiveCocoa-Mac.framework */,
+				D047967319666BF30066B267 /* ReactiveCocoa.framework */,
 				D047967E19666BF30066B267 /* ReactiveCocoa-MacTests.xctest */,
-				D047969A19666CBF0066B267 /* ReactiveCocoa-iOS.framework */,
+				D047969A19666CBF0066B267 /* ReactiveCocoa.framework */,
 				D04796A419666CBF0066B267 /* ReactiveCocoa-iOSTests.xctest */,
 			);
 			name = Products;
@@ -921,6 +976,8 @@
 		D047968319666BF30066B267 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				D0479998196673AC0066B267 /* Nimble.framework */,
+				D0479999196673AC0066B267 /* Quick.framework */,
 				D047968419666BF30066B267 /* Info.plist */,
 			);
 			name = "Supporting Files";
@@ -1224,6 +1281,7 @@
 		D04797071966706F0066B267 /* Swift */ = {
 			isa = PBXGroup;
 			children = (
+				D047999E196678F20066B267 /* ObjectiveCBridgingSpec.swift */,
 			);
 			name = Swift;
 			sourceTree = "<group>";
@@ -1453,7 +1511,7 @@
 			);
 			name = "ReactiveCocoa-Mac";
 			productName = ReactiveCocoa;
-			productReference = D047967319666BF30066B267 /* ReactiveCocoa-Mac.framework */;
+			productReference = D047967319666BF30066B267 /* ReactiveCocoa.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		D047967D19666BF30066B267 /* ReactiveCocoa-MacTests */ = {
@@ -1475,6 +1533,10 @@
 				D04796D419666CD20066B267 /* PBXTargetDependency */,
 				D04796EE19666D6C0066B267 /* PBXTargetDependency */,
 				D04796F819666F1D0066B267 /* PBXTargetDependency */,
+				D04799A219667AF80066B267 /* PBXTargetDependency */,
+				D04799A419667CAD0066B267 /* PBXTargetDependency */,
+				D04799A619667E580066B267 /* PBXTargetDependency */,
+				D04799AA19667E620066B267 /* PBXTargetDependency */,
 			);
 			name = "ReactiveCocoa-MacTests";
 			productName = ReactiveCocoaTests;
@@ -1496,7 +1558,7 @@
 			);
 			name = "ReactiveCocoa-iOS";
 			productName = ReactiveCocoa;
-			productReference = D047969A19666CBF0066B267 /* ReactiveCocoa-iOS.framework */;
+			productReference = D047969A19666CBF0066B267 /* ReactiveCocoa.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		D04796A319666CBF0066B267 /* ReactiveCocoa-iOSTests */ = {
@@ -1528,6 +1590,8 @@
 				D04796D019666CCB0066B267 /* PBXTargetDependency */,
 				D04796F019666DB60066B267 /* PBXTargetDependency */,
 				D04796FA19666F1F0066B267 /* PBXTargetDependency */,
+				D04799A819667E5D0066B267 /* PBXTargetDependency */,
+				D04799AC19667E740066B267 /* PBXTargetDependency */,
 			);
 			name = "ReactiveCocoa-iOSTests";
 			productName = ReactiveCocoaTests;
@@ -1717,6 +1781,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D047999F196678F20066B267 /* ObjectiveCBridgingSpec.swift in Sources */,
 				D047968619666BF30066B267 /* ReactiveCocoaTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1842,6 +1907,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D04799A0196678F20066B267 /* ObjectiveCBridgingSpec.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1978,6 +2044,36 @@
 			target = D047969919666CBF0066B267 /* ReactiveCocoa-iOS */;
 			targetProxy = D04796F919666F1F0066B267 /* PBXContainerItemProxy */;
 		};
+		D04799A219667AF80066B267 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D047967219666BF30066B267 /* ReactiveCocoa-Mac */;
+			targetProxy = D04799A119667AF80066B267 /* PBXContainerItemProxy */;
+		};
+		D04799A419667CAD0066B267 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D047967219666BF30066B267 /* ReactiveCocoa-Mac */;
+			targetProxy = D04799A319667CAD0066B267 /* PBXContainerItemProxy */;
+		};
+		D04799A619667E580066B267 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D047967219666BF30066B267 /* ReactiveCocoa-Mac */;
+			targetProxy = D04799A519667E580066B267 /* PBXContainerItemProxy */;
+		};
+		D04799A819667E5D0066B267 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D047969919666CBF0066B267 /* ReactiveCocoa-iOS */;
+			targetProxy = D04799A719667E5D0066B267 /* PBXContainerItemProxy */;
+		};
+		D04799AA19667E620066B267 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D047967219666BF30066B267 /* ReactiveCocoa-Mac */;
+			targetProxy = D04799A919667E620066B267 /* PBXContainerItemProxy */;
+		};
+		D04799AC19667E740066B267 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D047969919666CBF0066B267 /* ReactiveCocoa-iOS */;
+			targetProxy = D04799AB19667E740066B267 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -2019,14 +2115,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D04796EA19666CE40066B267 /* Mac-Framework.xcconfig */;
 			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = ReactiveCocoa;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -2035,14 +2129,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D04796EA19666CE40066B267 /* Mac-Framework.xcconfig */;
 			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = ReactiveCocoa;
 			};
 			name = Release;
 		};
@@ -2050,10 +2142,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D04796E719666CE40066B267 /* Mac-Application.xcconfig */;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(inherited)",
-				);
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2064,10 +2152,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D04796E719666CE40066B267 /* Mac-Application.xcconfig */;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(inherited)",
-				);
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2078,13 +2162,11 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D04796E419666CE40066B267 /* iOS-Framework.xcconfig */;
 			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = ReactiveCocoa;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -2093,13 +2175,11 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D04796E419666CE40066B267 /* iOS-Framework.xcconfig */;
 			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = ReactiveCocoa;
 			};
 			name = Release;
 		};
@@ -2107,13 +2187,16 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D04796E219666CE40066B267 /* iOS-Application.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
 				);
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
@@ -2121,12 +2204,14 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D04796E219666CE40066B267 /* iOS-Application.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
 				);
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -2152,14 +2237,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D04796EA19666CE40066B267 /* Mac-Framework.xcconfig */;
 			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = ReactiveCocoa;
 			};
 			name = Profile;
 		};
@@ -2167,10 +2250,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D04796E719666CE40066B267 /* Mac-Application.xcconfig */;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(inherited)",
-				);
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2181,13 +2260,11 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D04796E419666CE40066B267 /* iOS-Framework.xcconfig */;
 			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = ReactiveCocoa;
 			};
 			name = Profile;
 		};
@@ -2195,12 +2272,14 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D04796E219666CE40066B267 /* iOS-Application.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
 				);
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Profile;
@@ -2226,14 +2305,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D04796EA19666CE40066B267 /* Mac-Framework.xcconfig */;
 			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = ReactiveCocoa;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Test;
@@ -2242,10 +2319,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D04796E719666CE40066B267 /* Mac-Application.xcconfig */;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(inherited)",
-				);
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2256,13 +2329,11 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D04796E419666CE40066B267 /* iOS-Framework.xcconfig */;
 			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = ReactiveCocoa;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Test;
@@ -2271,13 +2342,16 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D04796E219666CE40066B267 /* iOS-Application.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
 				);
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Test;
 		};

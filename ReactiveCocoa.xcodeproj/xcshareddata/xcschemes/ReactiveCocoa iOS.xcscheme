@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D047969919666CBF0066B267"
-               BuildableName = "ReactiveCocoa-iOS.framework"
+               BuildableName = "ReactiveCocoa.framework"
                BlueprintName = "ReactiveCocoa-iOS"
                ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
             </BuildableReference>
@@ -26,7 +26,7 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
-      buildConfiguration = "Test">
+      buildConfiguration = "Debug">
       <Testables>
          <TestableReference
             skipped = "NO">

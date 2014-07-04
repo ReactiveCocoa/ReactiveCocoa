@@ -7,3 +7,6 @@
 [submodule "external/xcconfigs"]
 	path = external/xcconfigs
 	url = https://github.com/jspahrsummers/xcconfigs.git
+[submodule "external/Quick"]
+	path = external/Quick
+	url = https://github.com/modocache/Quick.git

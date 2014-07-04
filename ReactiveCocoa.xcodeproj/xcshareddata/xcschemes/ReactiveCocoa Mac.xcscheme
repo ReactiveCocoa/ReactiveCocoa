@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0510"
+   LastUpgradeVersion = "0600"
    version = "2.0">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,23 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "88037F8215056328001A5B19"
-               BuildableName = "ReactiveCocoa.framework"
-               BlueprintName = "ReactiveCocoa"
-               ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "NO"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "88CDF7DB15000FCF00163A9F"
-               BuildableName = "ReactiveCocoaTests.xctest"
-               BlueprintName = "ReactiveCocoaTests"
+               BlueprintIdentifier = "D047967219666BF30066B267"
+               BuildableName = "ReactiveCocoa-Mac.framework"
+               BlueprintName = "ReactiveCocoa-Mac"
                ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -39,36 +25,20 @@
    <TestAction
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "NO"
+      shouldUseLaunchSchemeArgsEnv = "YES"
       buildConfiguration = "Test">
       <Testables>
          <TestableReference
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "88CDF7DB15000FCF00163A9F"
-               BuildableName = "ReactiveCocoaTests.xctest"
-               BlueprintName = "ReactiveCocoaTests"
+               BlueprintIdentifier = "D047967D19666BF30066B267"
+               BuildableName = "ReactiveCocoa-MacTests.xctest"
+               BlueprintName = "ReactiveCocoa-MacTests"
                ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "88037F8215056328001A5B19"
-            BuildableName = "ReactiveCocoa.framework"
-            BlueprintName = "ReactiveCocoa"
-            ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
-      <EnvironmentVariables>
-         <EnvironmentVariable
-            key = "DYLD_INSERT_LIBRARIES"
-            value = "$(BUILT_PRODUCTS_DIR)/ReactiveCocoa.framework/ReactiveCocoa"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-      </EnvironmentVariables>
    </TestAction>
    <LaunchAction
       selectedDebuggerIdentifier = ""

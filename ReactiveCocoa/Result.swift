@@ -44,4 +44,15 @@ enum Result<T> {
 			return .Error(error)
 		}
 	}
+
+	/// Case analysis on the receiver.
+	func result<U>(#ifSuccess: T -> U, ifError: NSError -> U) -> U {
+		switch self {
+		case let .Success(value):
+			return ifSuccess(value)
+
+		case let .Error(err):
+			return ifError(err)
+		}
+	}
 }

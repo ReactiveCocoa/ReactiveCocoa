@@ -246,7 +246,7 @@ extension RACEvent {
 	func asEvent() -> Event<AnyObject?> {
 		switch eventType {
 		case RACEventType.Next:
-			let obj: AnyObject? = value()
+			let obj: AnyObject? = value
 			return .Next(Box(obj))
 
 		case RACEventType.Error:

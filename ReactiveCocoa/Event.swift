@@ -49,4 +49,18 @@ enum Event<T> {
 			return .Completed
 		}
 	}
+
+	/// Case analysis on the receiver.
+	func event<U>(#ifNext: T -> U, ifError: NSError -> U, ifCompleted: @auto_closure () -> U) -> U {
+		switch self {
+		case let .Next(value):
+			return ifNext(value)
+
+		case let .Error(err):
+			return ifError(err)
+
+		case let .Completed:
+			return ifCompleted()
+		}
+	}
 }

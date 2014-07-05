@@ -3868,6 +3868,7 @@ describe(@"-ignore:", ^{
 
 describe(@"-replayLazily", ^{
 	__block NSUInteger subscriptionCount;
+	__block BOOL subscriptionDelayExecuted;
 	__block BOOL disposed;
 
 	__block RACSignal *signal;
@@ -3877,12 +3878,14 @@ describe(@"-replayLazily", ^{
 	beforeEach(^{
 		subscriptionCount = 0;
 		disposed = NO;
-
+		subscriptionDelayExecuted = NO;
+		
 		signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			subscriptionCount++;
 			[subscriber sendNext:RACUnit.defaultUnit];
 
-			RACDisposable *schedulingDisposable = [RACScheduler.mainThreadScheduler schedule:^{
+			RACDisposable *schedulingDisposable = [RACScheduler.mainThreadScheduler afterDelay:1 schedule:^{
+				subscriptionDelayExecuted = YES;
 				[subscriber sendNext:RACUnit.defaultUnit];
 				[subscriber sendCompleted];
 			}];
@@ -3921,6 +3924,14 @@ describe(@"-replayLazily", ^{
 		[disposeSubject sendCompleted];
 		expect(valueCount).to.equal(1);
 		expect([[replayedSignal toArray] count]).to.equal(valueCount);
+	});
+	
+	it(@"should cancel pending work after disposal", ^{
+		expect(subscriptionDelayExecuted).to.equal(0);
+		RACDisposable * disposable = [replayedSignal subscribeNext:^(id x) {
+		}];
+		[disposable dispose];
+		expect(subscriptionDelayExecuted).to.equal(0);
 	});
 });
 

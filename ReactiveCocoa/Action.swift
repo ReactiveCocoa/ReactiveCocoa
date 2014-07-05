@@ -42,19 +42,45 @@ class Action<I, O>: Signal<Result<O>?> {
 	/// Whether the action is currently executing.
 	///
 	/// This will only update on the main thread.
-	let executing: Signal<Bool>
+	var executing: Signal<Bool> {
+		get {
+			return executions.map { $0 != nil }
+		}
+	}
 
 	/// Whether the action is enabled.
 	///
 	/// This will only update on the main thread.
 	let enabled: Signal<Bool>
 
+	/// A signal of all successful results from the receiver.
+	///
+	/// This will be `nil` before the first execution and whenever an error
+	/// occurs.
+	var results: Signal<O?> {
+		get {
+			return self.map { maybeResult in
+				return maybeResult?.result(ifSuccess: identity, ifError: { _ -> O? in nil })
+			}
+		}
+	}
+
+	/// A signal of all error results from the receiver.
+	///
+	/// This will be `nil` before the first execution and whenever execution
+	/// completes successfully.
+	var errors: Signal<NSError?> {
+		get {
+			return self.map { maybeResult in
+				return maybeResult?.result(ifSuccess: { _ -> NSError? in nil }, ifError: identity)
+			}
+		}
+	}
+
 	/// Initializes an action that will be conditionally enabled, and create
 	/// a Promise for each execution.
 	init(enabledIf: Signal<Bool>, execute: I -> Promise<Result<O>>) {
 		_execute = execute
-
-		executing = .constant(false)
 		enabled = .constant(true)
 
 		super.init(generator: { sink in
@@ -65,9 +91,6 @@ class Action<I, O>: Signal<Result<O>?> {
 
 			return ()
 		})
-
-		executing = executions
-			.map { $0 != nil }
 
 		enabled = enabledIf
 			.combineLatestWith(executing)

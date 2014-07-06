@@ -596,4 +596,42 @@ class Producer<T> {
 			consumer.disposable.addDisposable(selfDisposable)
 		}
 	}
+
+	/// Performs the given action upon each value in the receiver, bailing out
+	/// with an error if it returns `false`.
+	@final func try(f: (T, NSErrorPointer) -> Bool) -> Producer<T> {
+		return self
+			.map { value in
+				var error: NSError?
+				if f(value, &error) {
+					return .single(value)
+				} else if let e = error {
+					return .error(e)
+				} else {
+					// FIXME
+					return .error(emptyError)
+				}
+			}
+			.merge(identity)
+	}
+
+	/// Attempts to map each value in the receiver, bailing out with an error if
+	/// a given mapping is `nil`.
+	@final func tryMap<U>(f: (T, NSErrorPointer) -> U?) -> Producer<U> {
+		return self
+			.map { value in
+				var error: NSError?
+				let maybeValue = f(value, &error)
+
+				if let v = maybeValue {
+					return .single(v)
+				} else if let e = error {
+					return .error(e)
+				} else {
+					// FIXME
+					return .error(emptyError)
+				}
+			}
+			.merge(identity)
+	}
 }

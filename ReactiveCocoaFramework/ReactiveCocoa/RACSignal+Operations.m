@@ -967,11 +967,14 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 - (RACSignal *)replayLazily {
 	RACMulticastConnection *connection = [self multicast:[RACReplaySubject subject]];
 	return [[RACSignal
-		defer:^{
-			[connection connect];
-			return connection.signal;
-		}]
-		setNameWithFormat:@"[%@] -replayLazily", self.name];
+			 defer:^{
+				 RACDisposable * disposable = [connection connect];
+				 return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+					 [connection.signal subscribe: subscriber];
+					 return disposable;
+				 }];
+			 }]
+			setNameWithFormat:@"[%@] -replayLazily", self.name];
 }
 
 - (RACSignal *)timeout:(NSTimeInterval)interval onScheduler:(RACScheduler *)scheduler {

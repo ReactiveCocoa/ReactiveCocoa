@@ -37,6 +37,10 @@
 /// a variadic list of arguments.
 - (RACSignal *)rac_liftSelector:(SEL)selector withSignalsFromArray:(NSArray *)signals;
 
+/// Like -rac_liftSelector:withSignals:, but accepts a signal sending tuples of
+/// arguments instead of a variadic list of arguments.
+- (RACSignal *)rac_liftSelector:(SEL)selector withSignalOfArguments:(RACSignal *)arguments;
+
 @end
 
 @interface NSObject (RACLiftingDeprecated)

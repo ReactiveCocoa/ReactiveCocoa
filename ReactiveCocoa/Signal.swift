@@ -12,7 +12,7 @@ import Foundation
 class Signal<T> {
 	@final let _queue = dispatch_queue_create("com.github.ReactiveCocoa.Signal", DISPATCH_QUEUE_CONCURRENT)
 	@final var _current: Box<T>? = nil
-	@final var _observers: Box<SinkOf<T>>[] = []
+	@final var _observers: [Box<SinkOf<T>>] = []
 
 	/// The current (most recent) value of the Signal.
 	var current: T {
@@ -43,7 +43,7 @@ class Signal<T> {
 			}
 		})
 
-		assert(_current != nil)
+		assert(_current)
 	}
 	
 	/// Initializes a Signal with the given default value, and an action to
@@ -131,7 +131,7 @@ class Signal<T> {
 	/// as they arrive, starting with earlier ones.
 	@final func merge<U>(evidence: Signal<T> -> Signal<Signal<U>>) -> Signal<U> {
 		return Signal<U> { sink in
-			let streams = Atomic<Signal<U>[]>([])
+			let streams = Atomic<[Signal<U>]>([])
 
 			evidence(self).observe { stream in
 				streams.modify { (var arr) in

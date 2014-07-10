@@ -16,8 +16,8 @@ import Foundation
 	let _capacity: Int?
 
 	let _queue = dispatch_queue_create("com.github.ReactiveCocoa.BufferedProducer", DISPATCH_QUEUE_SERIAL)
-	var _consumers: Consumer<T>[] = []
-	var _eventBuffer: Event<T>[] = []
+	var _consumers: [Consumer<T>] = []
+	var _eventBuffer: [Event<T>] = []
 	var _terminated = false
 
 	/// Creates a buffer for events up to the given maximum capacity.

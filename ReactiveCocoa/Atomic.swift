@@ -44,7 +44,7 @@ import Foundation
 	///
 	/// Returns the old value.
 	func modify(action: T -> T) -> T {
-		let (oldValue, _) = modify { oldValue in (action(oldValue), nil) }
+		let (oldValue, _) = modify { oldValue in (action(oldValue), 0) }
 		return oldValue
 	}
 	

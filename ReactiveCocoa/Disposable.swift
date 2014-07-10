@@ -39,7 +39,7 @@ import Foundation
 
 	var disposed: Bool {
 		get {
-			return _action == nil
+			return !_action.value
 		}
 	}
 
@@ -56,17 +56,17 @@ import Foundation
 
 /// A disposable that will dispose of any number of other disposables.
 @final class CompositeDisposable: Disposable {
-	var _disposables: Atomic<Disposable[]?>
+	var _disposables: Atomic<[Disposable]?>
 	
 	var disposed: Bool {
 		get {
-			return _disposables.value == nil
+			return !_disposables.value
 		}
 	}
 
 	/// Initializes a CompositeDisposable containing the given list of
 	/// disposables.
-	init(_ disposables: Disposable[]) {
+	init(_ disposables: [Disposable]) {
 		_disposables = Atomic(disposables)
 	}
 
@@ -85,7 +85,7 @@ import Foundation
 	
 	/// Adds the given disposable to the list.
 	func addDisposable(d: Disposable?) {
-		if d == nil {
+		if !d {
 			return
 		}
 	
@@ -110,7 +110,7 @@ import Foundation
 	
 	/// Removes the given disposable from the list.
 	func removeDisposable(d: Disposable?) {
-		if d == nil {
+		if !d {
 			return
 		}
 	

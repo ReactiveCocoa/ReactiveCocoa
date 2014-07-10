@@ -44,7 +44,7 @@ class Action<I, O>: Signal<Result<O>?> {
 	/// This will only update on the main thread.
 	var executing: Signal<Bool> {
 		get {
-			return executions.map { $0 != nil }
+			return executions.map { !(!$0) }
 		}
 	}
 
@@ -126,7 +126,7 @@ class Action<I, O>: Signal<Result<O>?> {
 			execution.observe { maybeResult in
 				results.current = maybeResult
 
-				if maybeResult != nil {
+				if maybeResult {
 					// Execution completed.
 					self._executions.current = nil
 				}

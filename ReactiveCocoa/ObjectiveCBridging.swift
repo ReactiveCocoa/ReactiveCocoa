@@ -221,7 +221,7 @@ extension Action {
 		return RACCommand(enabled: enabled) { input in
 			return RACSignal.createSignal { subscriber in
 				evidence(self).execute(input).observe { maybeResult in
-					if maybeResult == nil {
+					if !maybeResult {
 						return
 					}
 
@@ -241,12 +241,22 @@ extension Action {
 	}
 }
 
+// These definitions work around a weird bug where the `RACEvent.value` property
+// is considered to be a Swift function on OS X and a Swift property on iOS.
+func _getValue(v: AnyObject?) -> AnyObject? {
+	return v
+}
+
+func _getValue(f: () -> AnyObject?) -> AnyObject? {
+	return f()
+}
+
 extension RACEvent {
 	/// Creates an Event from the RACEvent.
 	func asEvent() -> Event<AnyObject?> {
 		switch eventType {
 		case RACEventType.Next:
-			let obj: AnyObject? = value
+			let obj: AnyObject? = _getValue(value)
 			return .Next(Box(obj))
 
 		case RACEventType.Error:

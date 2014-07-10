@@ -493,7 +493,7 @@ class Producer<T> {
 	/// last `count` values.
 	@final func takeLast(count: Int) -> Producer<T> {
 		return Producer { consumer in
-			let values: Atomic<T[]> = Atomic([])
+			let values: Atomic<[T]> = Atomic([])
 			let disposable = self.produce { event in
 				switch event {
 				case let .Next(value):

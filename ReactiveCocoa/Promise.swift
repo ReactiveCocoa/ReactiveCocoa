@@ -69,7 +69,7 @@ enum _PromiseState<T> {
 		}
 
 		return withLock(cond) {
-			while self.current == nil {
+			while !self.current {
 				cond.wait()
 			}
 
@@ -84,7 +84,7 @@ enum _PromiseState<T> {
 			let disposable = SerialDisposable()
 
 			disposable.innerDisposable = self.start().observe { maybeResult in
-				if maybeResult == nil {
+				if !maybeResult {
 					return
 				}
 

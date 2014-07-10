@@ -288,7 +288,7 @@ class Signal<T> {
 	/// Returns a Producer over the buffered values, and a Disposable which
 	/// can be used to cancel all further buffering.
 	@final func buffer(capacity: Int? = nil) -> (Producer<T>, Disposable) {
-		let buffer = BufferedProducer<T>(capacity: capacity)
+		let buffer = EventBuffer<T>(capacity: capacity)
 
 		let observationDisposable = self.observe { value in
 			buffer.put(.Next(Box(value)))

@@ -1,5 +1,5 @@
 //
-//  BufferedProducer.swift
+//  EventBuffer.swift
 //  ReactiveCocoa
 //
 //  Created by Justin Spahr-Summers on 2014-06-26.
@@ -8,17 +8,36 @@
 
 import Foundation
 
-/// A controllable Producer that functions as a combination push- and
-/// pull-driven stream.
-@final class BufferedProducer<T>: Producer<T>, Sink {
+/// A buffer for Events that can be treated as a Sink or a Producer.
+@final class EventBuffer<T>: Sink {
 	typealias Element = Event<T>
 
 	let _capacity: Int?
 
-	let _queue = dispatch_queue_create("com.github.ReactiveCocoa.BufferedProducer", DISPATCH_QUEUE_SERIAL)
+	let _queue = dispatch_queue_create("com.github.ReactiveCocoa.EventBuffer", DISPATCH_QUEUE_SERIAL)
 	var _consumers: [Consumer<T>] = []
 	var _eventBuffer: [Event<T>] = []
 	var _terminated = false
+
+	var producer: Producer<T> {
+		get {
+			return Producer { consumer in
+				dispatch_barrier_sync(self._queue) {
+					self._consumers.append(consumer)
+
+					for event in self._eventBuffer {
+						consumer.put(event)
+					}
+				}
+
+				consumer.disposable.addDisposable {
+					dispatch_barrier_async(self._queue) {
+						self._consumers = removeObjectIdenticalTo(consumer, fromArray: self._consumers)
+					}
+				}
+			}
+		}
+	}
 
 	/// Creates a buffer for events up to the given maximum capacity.
 	///
@@ -27,22 +46,6 @@ import Foundation
 	init(capacity: Int? = nil) {
 		assert(capacity == nil || capacity! > 0)
 		_capacity = capacity
-
-		super.init(produce: { consumer in
-			dispatch_barrier_sync(self._queue) {
-				self._consumers.append(consumer)
-
-				for event in self._eventBuffer {
-					consumer.put(event)
-				}
-			}
-
-			consumer.disposable.addDisposable {
-				dispatch_barrier_async(self._queue) {
-					self._consumers = removeObjectIdenticalTo(consumer, fromArray: self._consumers)
-				}
-			}
-		})
 	}
 
 	/// Stores the given event in the buffer, evicting the earliest event if the
@@ -70,5 +73,9 @@ import Foundation
 				consumer.put(event)
 			}
 		}
+	}
+
+	@conversion func __conversion() -> Producer<T> {
+		return producer
 	}
 }

@@ -18,8 +18,8 @@
 		D04797E2196670900066B267 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970B196670900066B267 /* Atomic.swift */; };
 		D04797E3196670900066B267 /* Box.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970C196670900066B267 /* Box.swift */; };
 		D04797E4196670900066B267 /* Box.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970C196670900066B267 /* Box.swift */; };
-		D04797E5196670900066B267 /* BufferedProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970D196670900066B267 /* BufferedProducer.swift */; };
-		D04797E6196670900066B267 /* BufferedProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970D196670900066B267 /* BufferedProducer.swift */; };
+		D04797E5196670900066B267 /* EventBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970D196670900066B267 /* EventBuffer.swift */; };
+		D04797E6196670900066B267 /* EventBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970D196670900066B267 /* EventBuffer.swift */; };
 		D04797E7196670900066B267 /* Consumer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970E196670900066B267 /* Consumer.swift */; };
 		D04797E8196670900066B267 /* Consumer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970E196670900066B267 /* Consumer.swift */; };
 		D04797E9196670900066B267 /* Disposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970F196670900066B267 /* Disposable.swift */; };
@@ -662,7 +662,7 @@
 		D047970A196670900066B267 /* ArrayExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArrayExtensions.swift; sourceTree = "<group>"; };
 		D047970B196670900066B267 /* Atomic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Atomic.swift; sourceTree = "<group>"; };
 		D047970C196670900066B267 /* Box.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Box.swift; sourceTree = "<group>"; };
-		D047970D196670900066B267 /* BufferedProducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BufferedProducer.swift; sourceTree = "<group>"; };
+		D047970D196670900066B267 /* EventBuffer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventBuffer.swift; sourceTree = "<group>"; };
 		D047970E196670900066B267 /* Consumer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Consumer.swift; sourceTree = "<group>"; };
 		D047970F196670900066B267 /* Disposable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Disposable.swift; sourceTree = "<group>"; };
 		D0479710196670900066B267 /* Event.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
@@ -1053,10 +1053,10 @@
 				D047970A196670900066B267 /* ArrayExtensions.swift */,
 				D047970B196670900066B267 /* Atomic.swift */,
 				D047970C196670900066B267 /* Box.swift */,
-				D047970D196670900066B267 /* BufferedProducer.swift */,
 				D047970E196670900066B267 /* Consumer.swift */,
 				D047970F196670900066B267 /* Disposable.swift */,
 				D0479710196670900066B267 /* Event.swift */,
+				D047970D196670900066B267 /* EventBuffer.swift */,
 				D0479711196670900066B267 /* Identity.swift */,
 				D0479724196670900066B267 /* NSLockingExtensions.swift */,
 				D0479727196670900066B267 /* NSNotificationCenterExtensions.swift */,
@@ -1693,7 +1693,7 @@
 				D047986D196670900066B267 /* RACBlockTrampoline.m in Sources */,
 				D04797ED196670900066B267 /* Identity.swift in Sources */,
 				D04798DF196670900066B267 /* RACSequence.m in Sources */,
-				D04797E5196670900066B267 /* BufferedProducer.swift in Sources */,
+				D04797E5196670900066B267 /* EventBuffer.swift in Sources */,
 				D04797DD196670900066B267 /* Action.swift in Sources */,
 				D04797F9196670900066B267 /* NSControl+RACTextSignalSupport.m in Sources */,
 				D04798CB196670900066B267 /* RACReplaySubject.m in Sources */,
@@ -1810,7 +1810,7 @@
 				D047986E196670900066B267 /* RACBlockTrampoline.m in Sources */,
 				D04797EE196670900066B267 /* Identity.swift in Sources */,
 				D04798E0196670900066B267 /* RACSequence.m in Sources */,
-				D04797E6196670900066B267 /* BufferedProducer.swift in Sources */,
+				D04797E6196670900066B267 /* EventBuffer.swift in Sources */,
 				D0479990196671DF0066B267 /* EXTRuntimeExtensions.m in Sources */,
 				D04797DE196670900066B267 /* Action.swift in Sources */,
 				D047997C196670900066B267 /* UITableViewHeaderFooterView+RACSignalSupport.m in Sources */,

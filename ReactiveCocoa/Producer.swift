@@ -9,8 +9,8 @@
 import Foundation
 
 /// A pull-driven stream that executes work when a consumer is attached.
-class Producer<T> {
-	@final let _produce: Consumer<T> -> ()
+struct Producer<T> {
+	let _produce: Consumer<T> -> ()
 
 	/// Initializes a Producer that will run the given action whenever an
 	/// Consumer is attached.
@@ -19,7 +19,7 @@ class Producer<T> {
 	}
 
 	/// Creates a Producer that will immediately complete.
-	@final class func empty() -> Producer<T> {
+	static func empty() -> Producer<T> {
 		return Producer { consumer in
 			consumer.put(.Completed)
 		}
@@ -27,7 +27,7 @@ class Producer<T> {
 
 	/// Creates a Producer that will immediately yield a single value then
 	/// complete.
-	@final class func single(value: T) -> Producer<T> {
+	static func single(value: T) -> Producer<T> {
 		return Producer { consumer in
 			consumer.put(.Next(Box(value)))
 			consumer.put(.Completed)
@@ -35,14 +35,14 @@ class Producer<T> {
 	}
 
 	/// Creates a Producer that will immediately generate an error.
-	@final class func error(error: NSError) -> Producer<T> {
+	static func error(error: NSError) -> Producer<T> {
 		return Producer { consumer in
 			consumer.put(.Error(error))
 		}
 	}
 
 	/// Creates a Producer that will never send any events.
-	@final class func never() -> Producer<T> {
+	static func never() -> Producer<T> {
 		return Producer { _ in () }
 	}
 
@@ -51,20 +51,20 @@ class Producer<T> {
 	///
 	/// Optionally returns a Disposable which will cancel the work associated
 	/// with event production, and prevent any further events from being sent.
-	@final func produce(consumer: Consumer<T>) -> Disposable {
+	func produce(consumer: Consumer<T>) -> Disposable {
 		_produce(consumer)
 		return consumer.disposable
 	}
 
 	/// Convenience function to invoke produce() with a Consumer that will
 	/// pass values to the given closure.
-	@final func produce(consumer: Event<T> -> ()) -> Disposable {
+	func produce(consumer: Event<T> -> ()) -> Disposable {
 		return produce(Consumer(consumer))
 	}
 
 	/// Convenience function to invoke produce() with a Consumer that has
 	/// the given callbacks for each event type.
-	@final func produce(next: T -> (), error: NSError -> (), completed: () -> ()) -> Disposable {
+	func produce(next: T -> (), error: NSError -> (), completed: () -> ()) -> Disposable {
 		return produce(Consumer(next: next, error: error, completed: completed))
 	}
 
@@ -75,7 +75,7 @@ class Producer<T> {
 	/// can be built.
 	///
 	/// Returns a Producer of the mapped values.
-	@final func mapAccumulate<S, U>(initialState: S, _ f: (S, T) -> (S?, U)) -> Producer<U> {
+	func mapAccumulate<S, U>(initialState: S, _ f: (S, T) -> (S?, U)) -> Producer<U> {
 		return Producer<U> { consumer in
 			let state = Atomic(initialState)
 			let disposable = self.produce { event in
@@ -109,7 +109,7 @@ class Producer<T> {
 	///
 	/// Returns a Producer that will forward events from the original streams
 	/// as they arrive.
-	@final func merge<U>(evidence: Producer<T> -> Producer<Producer<U>>) -> Producer<U> {
+	func merge<U>(evidence: Producer<T> -> Producer<Producer<U>>) -> Producer<U> {
 		return Producer<U> { consumer in
 			let disposable = CompositeDisposable()
 			let inFlight = Atomic(1)
@@ -161,7 +161,7 @@ class Producer<T> {
 	///
 	/// Returns a Producer that will forward events only from the latest
 	/// Producer sent upon the receiver.
-	@final func switchToLatest<U>(evidence: Producer<T> -> Producer<Producer<U>>) -> Producer<U> {
+	func switchToLatest<U>(evidence: Producer<T> -> Producer<Producer<U>>) -> Producer<U> {
 		return Producer<U> { consumer in
 			let selfCompleted = Atomic(false)
 			let latestCompleted = Atomic(false)
@@ -204,7 +204,7 @@ class Producer<T> {
 	}
 
 	/// Maps each value in the stream to a new value.
-	@final func map<U>(f: T -> U) -> Producer<U> {
+	func map<U>(f: T -> U) -> Producer<U> {
 		return mapAccumulate(()) { (_, value) in
 			return ((), f(value))
 		}
@@ -212,7 +212,7 @@ class Producer<T> {
 
 	/// Combines all the values in the stream, forwarding the result of each
 	/// intermediate combination step.
-	@final func scan<U>(initialValue: U, _ f: (U, T) -> U) -> Producer<U> {
+	func scan<U>(initialValue: U, _ f: (U, T) -> U) -> Producer<U> {
 		return mapAccumulate(initialValue) { (previous, current) in
 			let mapped = f(previous, current)
 			return (mapped, mapped)
@@ -221,7 +221,7 @@ class Producer<T> {
 
 	/// Returns a stream that will yield the first `count` values from the
 	/// receiver.
-	@final func take(count: Int) -> Producer<T> {
+	func take(count: Int) -> Producer<T> {
 		if count == 0 {
 			return .empty()
 		}
@@ -234,7 +234,7 @@ class Producer<T> {
 
 	/// Returns a stream that will yield values from the receiver while `pred`
 	/// remains `true`.
-	@final func takeWhile(pred: T -> Bool) -> Producer<T> {
+	func takeWhile(pred: T -> Bool) -> Producer<T> {
 		return self
 			.mapAccumulate(true) { (taking, value) in
 				if taking && pred(value) {
@@ -248,7 +248,7 @@ class Producer<T> {
 
 	/// Combines each value in the stream with its preceding value, starting
 	/// with `initialValue`.
-	@final func combinePrevious(initialValue: T) -> Producer<(T, T)> {
+	func combinePrevious(initialValue: T) -> Producer<(T, T)> {
 		return mapAccumulate(initialValue) { (previous, current) in
 			return (current, (previous, current))
 		}
@@ -256,7 +256,7 @@ class Producer<T> {
 
 	/// Returns a stream that will skip the first `count` values from the
 	/// receiver, then forward everything afterward.
-	@final func skip(count: Int) -> Producer<T> {
+	func skip(count: Int) -> Producer<T> {
 		return self
 			.mapAccumulate(0) { (n, value) in
 				if n >= count {
@@ -270,7 +270,7 @@ class Producer<T> {
 
 	/// Returns a stream that will skip values from the receiver while `pred`
 	/// remains `true`, then forward everything afterward.
-	@final func skipWhile(pred: T -> Bool) -> Producer<T> {
+	func skipWhile(pred: T -> Bool) -> Producer<T> {
 		return self
 			.mapAccumulate(true) { (skipping, value) in
 				if !skipping || !pred(value) {
@@ -284,7 +284,7 @@ class Producer<T> {
 
 	/// Returns a Promise that will, when started, produce one event from the
 	/// receiver then cancel production.
-	@final func first() -> Promise<Event<T>> {
+	func first() -> Promise<Event<T>> {
 		return Promise { sink in
 			self.take(1).produce(Consumer(sink))
 			return ()
@@ -293,7 +293,7 @@ class Producer<T> {
 
 	/// Returns a Promise that will start event production, then yield an Event
 	/// which indicates whether production succeeded, or failed with an error.
-	@final func last() -> Promise<Event<()>> {
+	func last() -> Promise<Event<()>> {
 		return ignoreValues().first()
 	}
 
@@ -303,7 +303,7 @@ class Producer<T> {
 	/// The stream must not produce an `Error` event when bound to a property.
 	///
 	/// Optionally returns a Disposable which can be used to cancel the binding.
-	@final func bindTo(property: SignalingProperty<T>) -> Disposable {
+	func bindTo(property: SignalingProperty<T>) -> Disposable {
 		return self.produce { event in
 			switch event {
 			case let .Next(value):
@@ -319,7 +319,7 @@ class Producer<T> {
 	}
 
 	/// Preserves only the values of the stream that pass the given predicate.
-	@final func filter(pred: T -> Bool) -> Producer<T> {
+	func filter(pred: T -> Bool) -> Producer<T> {
 		return self
 			.map { value -> Producer<T> in
 				if pred(value) {
@@ -337,7 +337,7 @@ class Producer<T> {
 	/// evidence - Used to prove to the typechecker that the receiver contains
 	///            values which are `Equatable`. Simply pass in the `identity`
 	///            function.
-	@final func skipRepeats<U: Equatable>(evidence: Producer<T> -> Producer<U>) -> Producer<U> {
+	func skipRepeats<U: Equatable>(evidence: Producer<T> -> Producer<U>) -> Producer<U> {
 		return evidence(self)
 			.mapAccumulate(nil) { (maybePrevious: U?, current: U) -> (U??, Producer<U>) in
 				if let previous = maybePrevious {
@@ -353,7 +353,7 @@ class Producer<T> {
 
 	/// Brings the stream events into the monad, allowing them to be manipulated
 	/// just like any other value.
-	@final func materialize() -> Producer<Event<T>> {
+	func materialize() -> Producer<Event<T>> {
 		return Producer<Event<T>> { consumer in
 			let disposable = self.produce { event in
 				consumer.put(.Next(Box(event)))
@@ -372,7 +372,7 @@ class Producer<T> {
 	///
 	/// evidence - Used to prove to the typechecker that the receiver contains
 	///            a stream of `Event`s. Simply pass in the `identity` function.
-	@final func dematerialize<U>(evidence: Producer<T> -> Producer<Event<U>>) -> Producer<U> {
+	func dematerialize<U>(evidence: Producer<T> -> Producer<Event<U>>) -> Producer<U> {
 		return Producer<U> { consumer in
 			let disposable = evidence(self).produce { event in
 				switch event {
@@ -392,7 +392,7 @@ class Producer<T> {
 	}
 
 	/// Creates and attaches to a new Producer when an error occurs.
-	@final func catch(f: NSError -> Producer<T>) -> Producer<T> {
+	func catch(f: NSError -> Producer<T>) -> Producer<T> {
 		return Producer { consumer in
 			let serialDisposable = SerialDisposable()
 			consumer.disposable.addDisposable(serialDisposable)
@@ -412,7 +412,7 @@ class Producer<T> {
 
 	/// Discards all values in the stream, preserving only `Error` and
 	/// `Completed` events.
-	@final func ignoreValues() -> Producer<()> {
+	func ignoreValues() -> Producer<()> {
 		return Producer<()> { consumer in
 			let disposable = self.produce { event in
 				switch event {
@@ -432,7 +432,7 @@ class Producer<T> {
 	}
 
 	/// Performs the given action whenever the Producer yields an Event.
-	@final func doEvent(action: Event<T> -> ()) -> Producer<T> {
+	func doEvent(action: Event<T> -> ()) -> Producer<T> {
 		return Producer { consumer in
 			let disposable = self.produce { event in
 				action(event)
@@ -446,7 +446,7 @@ class Producer<T> {
 	/// Performs the given action whenever event production for a single
 	/// consumer is disposed of (whether it completed successfully, terminated
 	/// from an error, or was manually disposed).
-	@final func doDisposed(action: () -> ()) -> Producer<T> {
+	func doDisposed(action: () -> ()) -> Producer<T> {
 		return Producer { consumer in
 			consumer.disposable.addDisposable(ActionDisposable(action))
 			consumer.disposable.addDisposable(self.produce(consumer))
@@ -460,7 +460,7 @@ class Producer<T> {
 	///
 	/// Values may still be sent upon other schedulers—this merely affects how
 	/// the `produce` method is invoked.
-	@final func produceOn(scheduler: Scheduler) -> Producer<T> {
+	func produceOn(scheduler: Scheduler) -> Producer<T> {
 		return Producer { consumer in
 			let disposable = self.produce { event in
 				scheduler.schedule { consumer.put(event) }
@@ -472,7 +472,7 @@ class Producer<T> {
 	}
 
 	/// Concatenates `stream` after the receiver.
-	@final func concat(stream: Producer<T>) -> Producer<T> {
+	func concat(stream: Producer<T>) -> Producer<T> {
 		return Producer { consumer in
 			let serialDisposable = SerialDisposable()
 			consumer.disposable.addDisposable(serialDisposable)
@@ -491,7 +491,7 @@ class Producer<T> {
 
 	/// Waits for the receiver to complete successfully, then forwards only the
 	/// last `count` values.
-	@final func takeLast(count: Int) -> Producer<T> {
+	func takeLast(count: Int) -> Producer<T> {
 		return Producer { consumer in
 			let values: Atomic<[T]> = Atomic([])
 			let disposable = self.produce { event in
@@ -526,7 +526,7 @@ class Producer<T> {
 	///
 	/// Returns a Producer which will send the single, aggregated value when
 	/// the receiver completes.
-	@final func aggregate<U>(initialValue: U, _ f: (U, T) -> U) -> Producer<U> {
+	func aggregate<U>(initialValue: U, _ f: (U, T) -> U) -> Producer<U> {
 		let scanned = scan(initialValue, f)
 
 		return Producer<U>.single(initialValue)
@@ -536,7 +536,7 @@ class Producer<T> {
 
 	/// Waits for the receiver to complete successfully, then forwards
 	/// a Sequence of all the values that were produced.
-	@final func collect() -> Producer<SequenceOf<T>> {
+	func collect() -> Producer<SequenceOf<T>> {
 		return self
 			.aggregate([]) { (var values, current) in
 				values.append(current)
@@ -549,7 +549,7 @@ class Producer<T> {
 	/// them on the given scheduler.
 	///
 	/// `Error` events are always scheduled immediately.
-	@final func delay(interval: NSTimeInterval, onScheduler scheduler: Scheduler) -> Producer<T> {
+	func delay(interval: NSTimeInterval, onScheduler scheduler: Scheduler) -> Producer<T> {
 		return Producer { consumer in
 			let disposable = self.produce { event in
 				switch event {
@@ -571,7 +571,7 @@ class Producer<T> {
 
 	/// Yields all events on the given scheduler, instead of whichever
 	/// scheduler they originally arrived upon.
-	@final func deliverOn(scheduler: Scheduler) -> Producer<T> {
+	func deliverOn(scheduler: Scheduler) -> Producer<T> {
 		return Producer { consumer in
 			let disposable = self.produce { event in
 				scheduler.schedule { consumer.put(event) }
@@ -584,7 +584,7 @@ class Producer<T> {
 
 	/// Yields `error` after the given interval if the receiver has not yet
 	/// completed by that point.
-	@final func timeoutWithError(error: NSError, afterInterval interval: NSTimeInterval, onScheduler scheduler: Scheduler) -> Producer<T> {
+	func timeoutWithError(error: NSError, afterInterval interval: NSTimeInterval, onScheduler scheduler: Scheduler) -> Producer<T> {
 		return Producer { consumer in
 			let schedulerDisposable = scheduler.scheduleAfter(NSDate(timeIntervalSinceNow: interval)) {
 				consumer.put(.Error(error))
@@ -599,7 +599,7 @@ class Producer<T> {
 
 	/// Performs the given action upon each value in the receiver, bailing out
 	/// with an error if it returns `false`.
-	@final func try(f: (T, NSErrorPointer) -> Bool) -> Producer<T> {
+	func try(f: (T, NSErrorPointer) -> Bool) -> Producer<T> {
 		return self
 			.map { value in
 				var error: NSError?
@@ -617,7 +617,7 @@ class Producer<T> {
 
 	/// Attempts to map each value in the receiver, bailing out with an error if
 	/// a given mapping is `nil`.
-	@final func tryMap<U>(f: (T, NSErrorPointer) -> U?) -> Producer<U> {
+	func tryMap<U>(f: (T, NSErrorPointer) -> U?) -> Producer<U> {
 		return self
 			.map { value in
 				var error: NSError?

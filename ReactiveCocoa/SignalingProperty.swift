@@ -9,17 +9,19 @@
 import Foundation
 
 /// Represents a mutable property of type T along with the changes to its value.
-@final class SignalingProperty<T>: Signal<T>, Sink {
+@final class SignalingProperty<T>: Sink {
 	typealias Element = T
 
 	var _sink = SinkOf<T> { _ in () }
 
+	/// A signal representing the current value of the property, along with all
+	/// changes to it over time.
+	let signal: Signal<T>
+
 	/// The current value of the property.
-	///
-	/// Setting this will notify all observers of the change.
-	override var current: T {
+	var value: T {
 		get {
-			return super.current
+			return signal.current
 		}
 
 		set(newValue) {
@@ -28,18 +30,24 @@ import Foundation
 	}
 
 	/// Initializes the property with the given default value.
-	init(_ value: T) {
-		super.init(initialValue: value, generator: { sink in
+	init(_ defaultValue: T) {
+		signal = .constant(defaultValue)
+		signal = Signal(initialValue: defaultValue) { sink in
 			self._sink = sink
-		})
+		}
 	}
 
 	/// Treats the property as its current value in expressions.
 	@conversion func __conversion() -> T {
-		return current
+		return value
+	}
+
+	/// Treats the property as a signal of its values in expressions.
+	@conversion func __conversion() -> Signal<T> {
+		return signal
 	}
 
 	func put(value: T) {
-		current = value
+		self.value = value
 	}
 }

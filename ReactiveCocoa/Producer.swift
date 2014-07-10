@@ -307,7 +307,7 @@ struct Producer<T> {
 		return self.produce { event in
 			switch event {
 			case let .Next(value):
-				property.current = value
+				property.value = value
 
 			case let .Error(error):
 				assert(false)

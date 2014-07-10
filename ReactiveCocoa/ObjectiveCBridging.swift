@@ -174,7 +174,7 @@ extension Promise {
 	///            produce an object. Simply pass in the `identity` function.
 	func asReplayedRACSignal<U: AnyObject>(evidence: Promise<T> -> Promise<U>) -> RACSignal {
 		return RACSignal.createSignal { subscriber in
-			evidence(self).start().observe { maybeResult in
+			evidence(self).start().signal.observe { maybeResult in
 				if let result = maybeResult {
 					subscriber.sendNext(result)
 					subscriber.sendCompleted()

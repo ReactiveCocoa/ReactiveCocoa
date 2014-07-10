@@ -9,11 +9,7 @@
 import Foundation
 
 /// Represents a UI action that will perform some work when executed.
-///
-/// Before the first execution, the action's current value will be `nil`.
-/// Afterwards, it will always forward the latest results from any calls to
-/// execute() on the main thread.
-class Action<I, O>: Signal<Result<O>?> {
+@final class Action<I, O> {
 	typealias ExecutionSignal = Signal<Result<O>?>
 
 	/// The error that will be sent if execute() is invoked while the action is
@@ -39,6 +35,19 @@ class Action<I, O>: Signal<Result<O>?> {
 		}
 	}
 
+	/// A signal of all success and error results from the receiver.
+	///
+	/// Before the first execution, the current value of this signal will be
+	/// `nil`. Afterwards, it will always forward the latest results from any
+	/// calls to execute() on the main thread.
+	var results: Signal<Result<O>?> {
+		get {
+			return executions
+				.unwrapOptionals(identity, initialValue: .constant(nil))
+				.switchToLatest(identity)
+		}
+	}
+
 	/// Whether the action is currently executing.
 	///
 	/// This will only update on the main thread.
@@ -57,9 +66,9 @@ class Action<I, O>: Signal<Result<O>?> {
 	///
 	/// This will be `nil` before the first execution and whenever an error
 	/// occurs.
-	var results: Signal<O?> {
+	var values: Signal<O?> {
 		get {
-			return self.map { maybeResult in
+			return results.map { maybeResult in
 				return maybeResult?.result(ifSuccess: identity, ifError: { _ -> O? in nil })
 			}
 		}
@@ -71,7 +80,7 @@ class Action<I, O>: Signal<Result<O>?> {
 	/// completes successfully.
 	var errors: Signal<NSError?> {
 		get {
-			return self.map { maybeResult in
+			return results.map { maybeResult in
 				return maybeResult?.result(ifSuccess: { _ -> NSError? in nil }, ifError: identity)
 			}
 		}
@@ -81,17 +90,8 @@ class Action<I, O>: Signal<Result<O>?> {
 	/// a Promise for each execution.
 	init(enabledIf: Signal<Bool>, execute: I -> Promise<Result<O>>) {
 		_execute = execute
+
 		enabled = .constant(true)
-
-		super.init(initialValue: nil, generator: { sink in
-			self.executions
-				.unwrapOptionals(identity, initialValue: .constant(nil))
-				.switchToLatest(identity)
-				.observe(sink)
-
-			return ()
-		})
-
 		enabled = enabledIf
 			.combineLatestWith(executing)
 			.map { (enabled, executing) in enabled && !executing }
@@ -112,23 +112,23 @@ class Action<I, O>: Signal<Result<O>?> {
 
 		MainScheduler().schedule {
 			if (!self.enabled.current) {
-				results.current = Result.Error(self.notEnabledError)
+				results.value = Result.Error(self.notEnabledError)
 				return
 			}
 
 			let promise = self._execute(input)
-			let execution: ExecutionSignal = promise
+			let execution: ExecutionSignal = promise.signal
 				.deliverOn(MainScheduler())
 				// Remove one layer of optional binding caused by the `deliverOn`.
 				.unwrapOptionals(identity, initialValue: nil)
 
-			self._executions.current = execution
+			self._executions.value = execution
 			execution.observe { maybeResult in
-				results.current = maybeResult
+				results.value = maybeResult
 
 				if maybeResult {
 					// Execution completed.
-					self._executions.current = nil
+					self._executions.value = nil
 				}
 			}
 

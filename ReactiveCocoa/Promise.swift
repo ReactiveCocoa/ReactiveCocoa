@@ -14,9 +14,13 @@ enum _PromiseState<T> {
 }
 
 /// Represents deferred work to generate a value of type T.
-@final class Promise<T>: Signal<T?> {
+@final class Promise<T> {
 	let _state: Atomic<_PromiseState<T>>
 	var _sink = SinkOf<T?> { _ in () }
+
+	/// A signal of the Promise's value. This will be `nil` before the promise
+	/// has been resolved, and the generated value afterward.
+	let signal: Signal<T?>
 
 	/// Initializes a Promise that will run the given action when started.
 	///
@@ -25,13 +29,14 @@ enum _PromiseState<T> {
 	init(action: SinkOf<T> -> ()) {
 		_state = Atomic(.Suspended(action))
 
-		super.init(initialValue: nil, generator: { sink in
+		signal = .constant(nil)
+		signal = Signal(initialValue: nil) { sink in
 			self._sink = sink
-		})
+		}
 	}
 
 	/// Starts the promise, if it hasn't started already.
-	func start() -> Signal<T?> {
+	func start() -> Promise<T> {
 		let oldState = _state.modify { _ in .Started }
 
 		switch oldState {
@@ -61,18 +66,18 @@ enum _PromiseState<T> {
 		let cond = NSCondition()
 		cond.name = "com.github.ReactiveCocoa.Promise.await"
 
-		start().observe { _ in
+		start().signal.observe { _ in
 			withLock(cond) {
 				cond.signal()
 			}
 		}
 
 		return withLock(cond) {
-			while !self.current {
+			while !self.signal.current {
 				cond.wait()
 			}
 
-			return self.current!
+			return self.signal.current!
 		}
 	}
 
@@ -82,12 +87,12 @@ enum _PromiseState<T> {
 		return Promise<U> { sink in
 			let disposable = SerialDisposable()
 
-			disposable.innerDisposable = self.start().observe { maybeResult in
+			disposable.innerDisposable = self.start().signal.observe { maybeResult in
 				if !maybeResult {
 					return
 				}
 
-				disposable.innerDisposable = action(maybeResult!).start().observe { maybeResult in
+				disposable.innerDisposable = action(maybeResult!).start().signal.observe { maybeResult in
 					if let result = maybeResult {
 						sink.put(result)
 					}

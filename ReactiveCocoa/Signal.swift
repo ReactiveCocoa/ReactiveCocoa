@@ -101,20 +101,41 @@ class Signal<T> {
 		return observe(SinkOf(observer))
 	}
 
-	/// Resolves all Optional values in the stream, ignoring any that are `nil`.
+	/// Unwraps all Optional values in the stream, silently ignoring any that
+	/// are `nil`.
 	///
 	/// evidence     - Used to prove to the typechecker that the receiver is
 	///                a stream of optionals. Simply pass in the `identity`
 	///                function.
 	/// initialValue - A default value for the returned stream, in case the
 	///                receiver's current value is `nil`, which would otherwise
-	///                result in a null value for the returned stream.
-	@final func ignoreNil<U>(evidence: Signal<T> -> Signal<U?>, initialValue: U) -> Signal<U> {
+	///                result in a missing value for the returned stream.
+	@final func unwrapOptionals<U>(evidence: Signal<T> -> Signal<U?>, initialValue: U) -> Signal<U> {
 		return Signal<U>(initialValue: initialValue) { sink in
 			evidence(self).observe { maybeValue in
 				if let value = maybeValue {
 					sink.put(value)
 				}
+			}
+
+			return ()
+		}
+	}
+
+	/// Forcibly unwraps all Optional values in the stream.
+	///
+	/// Use only when you're completely sure that the signal will never contain
+	/// `nil`, because any `nil` values will result in a runtime error.
+	///
+	/// evidence     - Used to prove to the typechecker that the receiver is
+	///                a stream of optionals. Simply pass in the `identity`
+	///                function.
+	@final func forceUnwrapOptionals<U>(evidence: Signal<T> -> Signal<U?>) -> Signal<U> {
+		let evidencedSelf = evidence(self)
+
+		return Signal<U>(initialValue: evidencedSelf.current!) { sink in
+			evidencedSelf.observe { maybeValue in
+				sink.put(maybeValue!)
 			}
 
 			return ()

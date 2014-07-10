@@ -85,7 +85,7 @@ class Action<I, O>: Signal<Result<O>?> {
 
 		super.init(generator: { sink in
 			self.executions
-				.ignoreNil(identity, initialValue: .constant(nil))
+				.unwrapOptionals(identity, initialValue: .constant(nil))
 				.switchToLatest(identity)
 				.observe(sink)
 
@@ -120,7 +120,7 @@ class Action<I, O>: Signal<Result<O>?> {
 			let execution: ExecutionSignal = promise
 				.deliverOn(MainScheduler())
 				// Remove one layer of optional binding caused by the `deliverOn`.
-				.ignoreNil(identity, initialValue: nil)
+				.unwrapOptionals(identity, initialValue: nil)
 
 			self._executions.current = execution
 			execution.observe { maybeResult in

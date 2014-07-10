@@ -210,10 +210,10 @@ class Signal<T> {
 	}
 
 	/// Returns a stream that will yield values from the receiver while `pred`
-	/// remains `true`, starting with `initialValue` (in case the predicate
-	/// fails on the receiver's current value).
-	@final func takeWhile(initialValue: T, _ pred: T -> Bool) -> Signal<T> {
-		return Signal(initialValue: initialValue) { sink in
+	/// remains `true`. If no values pass the predicate, the resulting signal
+	/// will be `nil`.
+	@final func takeWhile(pred: T -> Bool) -> Signal<T?> {
+		return Signal<T?>(initialValue: nil) { sink in
 			let selfDisposable = SerialDisposable()
 
 			selfDisposable.innerDisposable = self.observe { value in
@@ -298,14 +298,14 @@ class Signal<T> {
 		return (buffer, bufferDisposable)
 	}
 
-	/// Preserves only the values of the stream that pass the given predicate,
-	/// starting with `initialValue` (in case the predicate fails on the
-	/// receiver's current value).
-	@final func filter(initialValue: T, pred: T -> Bool) -> Signal<T> {
-		return Signal(initialValue: initialValue) { sink in
+	/// Preserves only the values of the stream that pass the given predicate.
+	@final func filter(pred: T -> Bool) -> Signal<T?> {
+		return Signal<T?>(initialValue: nil) { sink in
 			self.observe { value in
 				if pred(value) {
 					sink.put(value)
+				} else {
+					sink.put(nil)
 				}
 			}
 

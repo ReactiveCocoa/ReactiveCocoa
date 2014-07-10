@@ -83,7 +83,7 @@ class Action<I, O>: Signal<Result<O>?> {
 		_execute = execute
 		enabled = .constant(true)
 
-		super.init(generator: { sink in
+		super.init(initialValue: nil, generator: { sink in
 			self.executions
 				.unwrapOptionals(identity, initialValue: .constant(nil))
 				.switchToLatest(identity)

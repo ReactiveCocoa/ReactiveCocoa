@@ -29,8 +29,7 @@ import Foundation
 
 	/// Initializes the property with the given default value.
 	init(_ value: T) {
-		super.init(generator: { sink in
-			sink.put(value)
+		super.init(initialValue: value, generator: { sink in
 			self._sink = sink
 		})
 	}

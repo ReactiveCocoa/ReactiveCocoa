@@ -26,13 +26,12 @@ class Signal<T> {
 			return value!
 		}
 	}
+	
+	/// Initializes a Signal with the given starting value, and an action to
+	/// perform to begin observing future changes.
+	init(initialValue: T, generator: SinkOf<T> -> ()) {
+		_current = initialValue
 
-	/// Initializes a Signal that will run the given action immediately, to
-	/// observe all changes.
-	///
-	/// `generator` _must_ yield at least one value synchronously, as
-	/// Signals can never have a null current value.
-	init(generator: SinkOf<T> -> ()) {
 		generator(SinkOf { value in
 			dispatch_barrier_sync(self._queue) {
 				self._current = value
@@ -42,24 +41,11 @@ class Signal<T> {
 				}
 			}
 		})
-
-		assert(_current)
-	}
-	
-	/// Initializes a Signal with the given default value, and an action to
-	/// perform to begin observing future changes.
-	convenience init(initialValue: T, generator: SinkOf<T> -> ()) {
-		self.init(generator: { sink in
-			sink.put(initialValue)
-			return generator(sink)
-		})
 	}
 
 	/// Creates a Signal that will always have the same value.
 	@final class func constant(value: T) -> Signal<T> {
-		return Signal { sink in
-			sink.put(value)
-		}
+		return Signal(initialValue: value) { _ in }
 	}
 
 	/// Creates a repeating timer of the given interval, sending updates on the
@@ -151,7 +137,7 @@ class Signal<T> {
 	/// Returns a Signal that will forward changes from the original streams
 	/// as they arrive, starting with earlier ones.
 	@final func merge<U>(evidence: Signal<T> -> Signal<Signal<U>>) -> Signal<U> {
-		return Signal<U> { sink in
+		return Signal<U?>(initialValue: nil) { sink in
 			let streams = Atomic<[Signal<U>]>([])
 
 			evidence(self).observe { stream in
@@ -160,9 +146,9 @@ class Signal<T> {
 					return arr
 				}
 
-				stream.observe(sink)
+				stream.observe { value in sink.put(value) }
 			}
-		}
+		}.forceUnwrapOptionals(identity)
 	}
 
 	/// Switches on a Signal of Signals, forwarding values from the
@@ -174,22 +160,22 @@ class Signal<T> {
 	/// Returns a Signal that will forward changes only from the latest
 	/// Signal sent upon the receiver.
 	@final func switchToLatest<U>(evidence: Signal<T> -> Signal<Signal<U>>) -> Signal<U> {
-		return Signal<U> { sink in
+		return Signal<U?>(initialValue: nil) { sink in
 			let latestDisposable = SerialDisposable()
 
 			evidence(self).observe { stream in
 				latestDisposable.innerDisposable = nil
-				latestDisposable.innerDisposable = stream.observe(sink)
+				latestDisposable.innerDisposable = stream.observe { value in sink.put(value) }
 			}
-		}
+		}.forceUnwrapOptionals(identity)
 	}
 
 	/// Maps each value in the stream to a new value.
 	@final func map<U>(f: T -> U) -> Signal<U> {
-		return Signal<U> { sink in
+		return Signal<U?>(initialValue: nil) { sink in
 			self.observe { value in sink.put(f(value)) }
 			return ()
-		}
+		}.forceUnwrapOptionals(identity)
 	}
 
 	/// Combines all the values in the stream, forwarding the result of each
@@ -197,7 +183,7 @@ class Signal<T> {
 	@final func scan<U>(initialValue: U, _ f: (U, T) -> U) -> Signal<U> {
 		let previous = Atomic(initialValue)
 
-		return Signal<U> { sink in
+		return Signal<U?>(initialValue: nil) { sink in
 			self.observe { value in
 				let newValue = f(previous.value, value)
 				sink.put(newValue)
@@ -206,7 +192,7 @@ class Signal<T> {
 			}
 
 			return ()
-		}
+		}.forceUnwrapOptionals(identity)
 	}
 
 	/// Returns a stream that will yield the first `count` values from the
@@ -216,7 +202,7 @@ class Signal<T> {
 
 		let soFar = Atomic(0)
 
-		return Signal { sink in
+		return Signal(initialValue: self.current) { sink in
 			let selfDisposable = SerialDisposable()
 
 			selfDisposable.innerDisposable = self.observe { value in
@@ -252,14 +238,14 @@ class Signal<T> {
 	@final func combinePrevious(initialValue: T) -> Signal<(T, T)> {
 		let previous = Atomic(initialValue)
 
-		return Signal<(T, T)> { sink in
+		return Signal<(T, T)?>(initialValue: nil) { sink in
 			self.observe { value in
 				let orig = previous.swap(value)
 				sink.put((orig, value))
 			}
 
 			return ()
-		}
+		}.forceUnwrapOptionals(identity)
 	}
 
 	/// Returns a stream that will replace the first `count` values from the
@@ -341,10 +327,12 @@ class Signal<T> {
 	///            values which are `Equatable`. Simply pass in the `identity`
 	///            function.
 	@final func skipRepeats<U: Equatable>(evidence: Signal<T> -> Signal<U>) -> Signal<U> {
-		return Signal<U> { sink in
+		let evidencedSelf = evidence(self)
+
+		return Signal<U>(initialValue: evidencedSelf.current) { sink in
 			let maybePrevious = Atomic<U?>(nil)
 
-			evidence(self).observe { current in
+			evidencedSelf.observe { current in
 				if let previous = maybePrevious.swap(current) {
 					if current == previous {
 						return
@@ -364,7 +352,7 @@ class Signal<T> {
 	/// Returns a Signal which will send a new value whenever the receiver
 	/// or `stream` changes.
 	@final func combineLatestWith<U>(stream: Signal<U>) -> Signal<(T, U)> {
-		return Signal<(T, U)> { sink in
+		return Signal<(T, U)>(initialValue: (self.current, stream.current)) { sink in
 			// FIXME: This implementation is probably racey.
 			self.observe { value in sink.put(value, stream.current) }
 			stream.observe { value in sink.put(self.current, value) }
@@ -374,7 +362,7 @@ class Signal<T> {
 	/// Forwards the current value from the receiver whenever `sampler` sends
 	/// a value.
 	@final func sampleOn<U>(sampler: Signal<U>) -> Signal<T> {
-		return Signal { sink in
+		return Signal(initialValue: self.current) { sink in
 			sampler.observe { _ in sink.put(self.current) }
 			return ()
 		}

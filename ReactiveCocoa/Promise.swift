@@ -25,8 +25,7 @@ enum _PromiseState<T> {
 	init(action: SinkOf<T> -> ()) {
 		_state = Atomic(.Suspended(action))
 
-		super.init(generator: { sink in
-			sink.put(nil)
+		super.init(initialValue: nil, generator: { sink in
 			self._sink = sink
 		})
 	}

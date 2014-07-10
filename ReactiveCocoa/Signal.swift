@@ -11,7 +11,7 @@ import Foundation
 /// A push-driven stream that sends the same values to all observers.
 class Signal<T> {
 	@final let _queue = dispatch_queue_create("com.github.ReactiveCocoa.Signal", DISPATCH_QUEUE_CONCURRENT)
-	@final var _current: Box<T>? = nil
+	@final var _current: T? = nil
 	@final var _observers: [Box<SinkOf<T>>] = []
 
 	/// The current (most recent) value of the Signal.
@@ -35,7 +35,7 @@ class Signal<T> {
 	init(generator: SinkOf<T> -> ()) {
 		generator(SinkOf { value in
 			dispatch_barrier_sync(self._queue) {
-				self._current = Box(value)
+				self._current = value
 
 				for sinkBox in self._observers {
 					sinkBox.value.put(value)

@@ -11,26 +11,26 @@ import Foundation
 /// An atomic variable.
 @final class Atomic<T> {
 	let _lock = SpinLock()
-	var _box: Box<T>
+	var _value: T
 	
 	/// Atomically gets or sets the value of the variable.
 	var value: T {
 		get {
 			return _lock.withLock {
-				return self._box
+				return self._value
 			}
 		}
 	
 		set(newValue) {
 			_lock.lock()
-			_box = Box(newValue)
+			_value = newValue
 			_lock.unlock()
 		}
 	}
 	
 	/// Initializes the variable with the given initial value.
 	init(_ value: T) {
-		_box = Box(value)
+		_value = value
 	}
 	
 	/// Atomically replaces the contents of the variable.
@@ -53,9 +53,9 @@ import Foundation
 	/// Returns the old value, plus arbitrary user-defined data.
 	func modify<U>(action: T -> (T, U)) -> (T, U) {
 		_lock.lock()
-		let oldValue: T = _box
-		let (newValue, data) = action(_box)
-		_box = Box(newValue)
+		let oldValue: T = _value
+		let (newValue, data) = action(_value)
+		_value = newValue
 		_lock.unlock()
 		
 		return (oldValue, data)
@@ -67,7 +67,7 @@ import Foundation
 	/// Returns the result of the action.
 	func withValue<U>(action: T -> U) -> U {
 		_lock.lock()
-		let result = action(_box)
+		let result = action(_value)
 		_lock.unlock()
 		
 		return result

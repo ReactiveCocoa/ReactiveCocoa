@@ -346,8 +346,6 @@
 		D0479934196670900066B267 /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04797B4196670900066B267 /* Signal.swift */; };
 		D0479935196670900066B267 /* SignalingProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04797B5196670900066B267 /* SignalingProperty.swift */; };
 		D0479936196670900066B267 /* SignalingProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04797B5196670900066B267 /* SignalingProperty.swift */; };
-		D0479937196670900066B267 /* SpinLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04797B6196670900066B267 /* SpinLock.swift */; };
-		D0479938196670900066B267 /* SpinLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04797B6196670900066B267 /* SpinLock.swift */; };
 		D047993A196670900066B267 /* UIActionSheet+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D04797B7196670900066B267 /* UIActionSheet+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D047993C196670900066B267 /* UIActionSheet+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D04797B8196670900066B267 /* UIActionSheet+RACSignalSupport.m */; };
 		D047993E196670900066B267 /* UIAlertView+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D04797B9196670900066B267 /* UIAlertView+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -830,7 +828,6 @@
 		D04797B3196670900066B267 /* Scheduler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scheduler.swift; sourceTree = "<group>"; };
 		D04797B4196670900066B267 /* Signal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Signal.swift; sourceTree = "<group>"; };
 		D04797B5196670900066B267 /* SignalingProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalingProperty.swift; sourceTree = "<group>"; };
-		D04797B6196670900066B267 /* SpinLock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpinLock.swift; sourceTree = "<group>"; };
 		D04797B7196670900066B267 /* UIActionSheet+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIActionSheet+RACSignalSupport.h"; sourceTree = "<group>"; };
 		D04797B8196670900066B267 /* UIActionSheet+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIActionSheet+RACSignalSupport.m"; sourceTree = "<group>"; };
 		D04797B9196670900066B267 /* UIAlertView+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIAlertView+RACSignalSupport.h"; sourceTree = "<group>"; };
@@ -1068,7 +1065,6 @@
 				D04797B3196670900066B267 /* Scheduler.swift */,
 				D04797B4196670900066B267 /* Signal.swift */,
 				D04797B5196670900066B267 /* SignalingProperty.swift */,
-				D04797B6196670900066B267 /* SpinLock.swift */,
 			);
 			name = Swift;
 			sourceTree = "<group>";
@@ -1767,7 +1763,6 @@
 				D047981D196670900066B267 /* NSObject+RACAppKitBindings.m in Sources */,
 				D047987B196670900066B267 /* RACCompoundDisposableProvider.d in Sources */,
 				D04797DF196670900066B267 /* ArrayExtensions.swift in Sources */,
-				D0479937196670900066B267 /* SpinLock.swift in Sources */,
 				D0479809196670900066B267 /* NSFileHandle+RACSupport.m in Sources */,
 				D04798C1196670900066B267 /* RACPassthroughSubscriber.m in Sources */,
 				D0479919196670900066B267 /* RACTuple.m in Sources */,
@@ -1892,7 +1887,6 @@
 				D047987C196670900066B267 /* RACCompoundDisposableProvider.d in Sources */,
 				D04797E0196670900066B267 /* ArrayExtensions.swift in Sources */,
 				D0479974196670900066B267 /* UISwitch+RACSignalSupport.m in Sources */,
-				D0479938196670900066B267 /* SpinLock.swift in Sources */,
 				D047980A196670900066B267 /* NSFileHandle+RACSupport.m in Sources */,
 				D04798C2196670900066B267 /* RACPassthroughSubscriber.m in Sources */,
 				D047991A196670900066B267 /* RACTuple.m in Sources */,

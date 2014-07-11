@@ -93,6 +93,7 @@ import Foundation
 			box.value.put(self._current!)
 		}
 
+		// TODO: Retain `self` strongly?
 		return ActionDisposable { [weak self] in
 			if let strongSelf = self {
 				dispatch_barrier_async(strongSelf._queue) {

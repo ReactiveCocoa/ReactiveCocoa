@@ -126,10 +126,10 @@ import Foundation
 
 /// A disposable that, upon deinitialization, will automatically dispose of
 /// another disposable.
-@final class ScopedDisposable: Disposable {
+@final class ScopedDisposable<D: Disposable>: Disposable {
 	/// The disposable which will be disposed when the ScopedDisposable
 	/// deinitializes.
-	let innerDisposable: Disposable
+	let innerDisposable: D
 	
 	var disposed: Bool {
 		get {
@@ -139,7 +139,7 @@ import Foundation
 	
 	/// Initializes the receiver to dispose of the argument upon
 	/// deinitialization.
-	init(_ disposable: Disposable) {
+	init(_ disposable: D) {
 		innerDisposable = disposable
 	}
 	

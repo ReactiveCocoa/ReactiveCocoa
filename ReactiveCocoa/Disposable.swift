@@ -107,19 +107,14 @@ import Foundation
 	func addDisposable(action: () -> ()) {
 		addDisposable(ActionDisposable(action))
 	}
-	
-	/// Removes the given disposable from the list.
-	func removeDisposable(d: Disposable?) {
-		if !d {
-			return
-		}
-	
-		_disposables.modify {
-			if let ds = $0 {
-				return removeObjectIdenticalTo(d!, fromArray: ds)
-			} else {
-				return nil
-			}
+
+	/// Removes all Disposables that have already been disposed.
+	///
+	/// This can be used to prevent unbounded resource growth in an infinite
+	/// algorithm.
+	func pruneDisposed() {
+		_disposables.modify { ds in
+			return ds?.filter { !$0.disposed }
 		}
 	}
 }

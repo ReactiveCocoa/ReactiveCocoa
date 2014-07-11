@@ -129,7 +129,8 @@ struct Producer<T> {
 
 					streamDisposable.innerDisposable = stream.value.produce { event in
 						if event.isTerminating {
-							disposable.removeDisposable(streamDisposable)
+							streamDisposable.dispose()
+							disposable.pruneDisposed()
 						}
 
 						switch event {

@@ -12,10 +12,15 @@ extension NSNotificationCenter {
 	/// Returns a Signal of the latest posted notification that matches the
 	/// given criteria.
 	func rac_notifications(name: String? = nil, object: AnyObject? = nil) -> Signal<NSNotification?> {
+		let disposable = ScopedDisposable(SerialDisposable())
+
 		return Signal(initialValue: nil) { sink in
-			// TODO: Figure out how to deregister from this.
-			self.addObserverForName(name, object: object, queue: nil) { notification in
+			let observer = self.addObserverForName(name, object: object, queue: nil) { notification in
 				sink.put(notification)
+			}
+
+			disposable.innerDisposable.innerDisposable = ActionDisposable {
+				self.removeObserver(observer)
 			}
 
 			return ()

@@ -8,9 +8,9 @@
 
 import Foundation
 
-/// Represents an object that can be “disposed,” usually associated with freeing
+/// Represents something that can be “disposed,” usually associated with freeing
 /// resources or canceling work.
-@class_protocol protocol Disposable {
+protocol Disposable {
 	/// Whether this disposable has been disposed already.
 	var disposed: Bool { get }
 
@@ -19,7 +19,7 @@ import Foundation
 
 /// A disposable that only flips `disposed` upon disposal, and performs no other
 /// work.
-@final class SimpleDisposable: Disposable {
+struct SimpleDisposable: Disposable {
 	var _disposed = Atomic(false)
 
 	var disposed: Bool {
@@ -34,7 +34,7 @@ import Foundation
 }
 
 /// A disposable that will run an action upon disposal.
-@final class ActionDisposable: Disposable {
+struct ActionDisposable: Disposable {
 	var _action: Atomic<(() -> ())?>
 
 	var disposed: Bool {
@@ -55,7 +55,7 @@ import Foundation
 }
 
 /// A disposable that will dispose of any number of other disposables.
-@final class CompositeDisposable: Disposable {
+struct CompositeDisposable: Disposable {
 	var _disposables: Atomic<[Disposable]?>
 	
 	var disposed: Bool {
@@ -71,7 +71,7 @@ import Foundation
 	}
 
 	/// Initializes an empty CompositeDisposable.
-	convenience init() {
+	init() {
 		self.init([])
 	}
 	
@@ -164,8 +164,8 @@ import Foundation
 
 	/// The inner disposable to dispose of.
 	///
-	/// Whenever this is set to a new disposable, the old one is automatically
-	/// disposed.
+	/// Whenever this property is set (even to the same value!), the previous
+	/// disposable is automatically disposed.
 	var innerDisposable: Disposable? {
 		get {
 			return _state.value.innerDisposable
@@ -174,9 +174,6 @@ import Foundation
 		set(d) {
 			_state.modify {
 				var s = $0
-				if s.innerDisposable === d {
-					return s
-				}
 
 				s.innerDisposable?.dispose()
 				s.innerDisposable = d
@@ -191,8 +188,7 @@ import Foundation
 
 	/// Initializes the receiver to dispose of the argument when the
 	/// SerialDisposable is disposed.
-	convenience init(_ disposable: Disposable) {
-		self.init()
+	init(_ disposable: Disposable? = nil) {
 		innerDisposable = disposable
 	}
 

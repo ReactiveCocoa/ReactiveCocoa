@@ -11,6 +11,8 @@ import Foundation
 /// A push-driven stream that sends the same values to all observers.
 @final class Signal<T> {
 	let _queue = dispatch_queue_create("com.github.ReactiveCocoa.Signal", DISPATCH_QUEUE_CONCURRENT)
+	let _generator: SinkOf<T> -> ()
+
 	var _current: T? = nil
 	var _observers: [Box<SinkOf<T>>] = []
 
@@ -32,12 +34,19 @@ import Foundation
 	init(initialValue: T, generator: SinkOf<T> -> ()) {
 		_current = initialValue
 
-		generator(SinkOf { value in
-			dispatch_barrier_sync(self._queue) {
-				self._current = value
+		// Save the generator closure so that anything it captures (e.g.,
+		// another Signal dependency) remains alive while this Signal object is
+		// too.
+		_generator = generator
 
-				for sinkBox in self._observers {
-					sinkBox.value.put(value)
+		_generator(SinkOf { [weak self] value in
+			if let strongSelf = self {
+				dispatch_barrier_sync(strongSelf._queue) {
+					strongSelf._current = value
+
+					for sinkBox in strongSelf._observers {
+						sinkBox.value.put(value)
+					}
 				}
 			}
 		})
@@ -74,9 +83,11 @@ import Foundation
 			box.value.put(self._current!)
 		}
 
-		return ActionDisposable {
-			dispatch_barrier_async(self._queue) {
-				self._observers = removeObjectIdenticalTo(box, fromArray: self._observers)
+		return ActionDisposable { [weak self] in
+			if let strongSelf = self {
+				dispatch_barrier_async(strongSelf._queue) {
+					strongSelf._observers = removeObjectIdenticalTo(box, fromArray: strongSelf._observers)
+				}
 			}
 		}
 	}
@@ -290,6 +301,7 @@ import Foundation
 	func buffer(capacity: Int? = nil) -> (Producer<T>, Disposable) {
 		let buffer = EventBuffer<T>(capacity: capacity)
 
+		// TODO: How does `self` get retained properly?
 		let observationDisposable = self.observe { value in
 			buffer.put(.Next(Box(value)))
 		}
@@ -354,8 +366,8 @@ import Foundation
 	func combineLatestWith<U>(stream: Signal<U>) -> Signal<(T, U)> {
 		return Signal<(T, U)>(initialValue: (self.current, stream.current)) { sink in
 			// FIXME: This implementation is probably racey.
-			self.observe { value in sink.put(value, stream.current) }
-			stream.observe { value in sink.put(self.current, value) }
+			self.observe { [unowned stream] value in sink.put(value, stream.current) }
+			stream.observe { [unowned self] value in sink.put(self.current, value) }
 		}
 	}
 

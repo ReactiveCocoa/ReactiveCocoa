@@ -15,15 +15,17 @@ import Foundation
 	let _capacity: Int?
 
 	let _queue = dispatch_queue_create("com.github.ReactiveCocoa.EventBuffer", DISPATCH_QUEUE_SERIAL)
-	var _consumers: [Consumer<T>] = []
+	var _consumers = Bag<Consumer<T>>()
 	var _eventBuffer: [Event<T>] = []
 	var _terminated = false
 
 	var producer: Producer<T> {
 		get {
 			return Producer { consumer in
+				var token: Bag.RemovalToken? = nil
+
 				dispatch_barrier_sync(self._queue) {
-					self._consumers.append(consumer)
+					token = self._consumers.add(consumer)
 
 					for event in self._eventBuffer {
 						consumer.put(event)
@@ -32,7 +34,7 @@ import Foundation
 
 				consumer.disposable.addDisposable {
 					dispatch_barrier_async(self._queue) {
-						self._consumers = removeObjectIdenticalTo(consumer, fromArray: self._consumers)
+						self._consumers.removeValueForToken(token!)
 					}
 				}
 			}

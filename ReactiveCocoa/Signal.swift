@@ -14,7 +14,7 @@ import Foundation
 	let _generator: SinkOf<T> -> ()
 
 	var _current: T? = nil
-	var _observers: [Box<SinkOf<T>>] = []
+	var _observers = Bag<SinkOf<T>>()
 
 	/// The current (most recent) value of the Signal.
 	var current: T {
@@ -44,8 +44,8 @@ import Foundation
 				dispatch_barrier_sync(strongSelf._queue) {
 					strongSelf._current = value
 
-					for sinkBox in strongSelf._observers {
-						sinkBox.value.put(value)
+					for sink in strongSelf._observers {
+						sink.put(value)
 					}
 				}
 			}
@@ -86,18 +86,19 @@ import Foundation
 	/// Returns a Disposable which can be disposed of to stop notifying
 	/// `observer` of future changes.
 	func observe<S: Sink where S.Element == T>(observer: S) -> Disposable {
-		let box = Box(SinkOf<T>(observer))
+		let sink = SinkOf<T>(observer)
+		var token: Bag.RemovalToken? = nil
 
 		dispatch_barrier_sync(_queue) {
-			self._observers.append(box)
-			box.value.put(self._current!)
+			token = self._observers.add(sink)
+			sink.put(self._current!)
 		}
 
 		// TODO: Retain `self` strongly?
 		return ActionDisposable { [weak self] in
 			if let strongSelf = self {
 				dispatch_barrier_async(strongSelf._queue) {
-					strongSelf._observers = removeObjectIdenticalTo(box, fromArray: strongSelf._observers)
+					strongSelf._observers.removeValueForToken(token!)
 				}
 			}
 		}

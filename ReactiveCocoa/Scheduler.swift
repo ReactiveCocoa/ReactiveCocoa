@@ -191,3 +191,113 @@ struct DeferredCurrentScheduler: DeferrableScheduler {
 		}
 	}
 }
+
+/// A scheduler that implements virtualized time, for use in testing.
+@final class TestScheduler: DeferrableScheduler, RepeatableScheduler {
+	@final class ScheduledAction {
+		let date: NSDate
+		let action: () -> ()
+
+		init(date: NSDate, action: () -> ()) {
+			self.date = date
+			self.action = action
+		}
+
+		func less(rhs: ScheduledAction) -> Bool {
+			return date.compare(rhs.date) == NSComparisonResult.OrderedAscending
+		}
+	}
+
+	let _lock = NSRecursiveLock()
+	var _currentDate: NSDate
+
+	/// The virtual date that the scheduler is currently at.
+	var currentDate: NSDate {
+		get {
+			var d: NSDate? = nil
+
+			_lock.lock()
+			d = self._currentDate
+			_lock.unlock()
+
+			return d!
+		}
+	}
+
+	var _scheduledActions: [ScheduledAction] = []
+
+	/// Initializes a TestScheduler with the given start date.
+	init(startDate: NSDate = NSDate(timeIntervalSinceReferenceDate: 0)) {
+		_lock.name = "com.github.ReactiveCocoa.TestScheduler"
+		_currentDate = startDate
+	}
+
+	func schedule(action: ScheduledAction) -> Disposable {
+		_lock.lock()
+		_scheduledActions.append(action)
+		_scheduledActions.sort { $0.less($1) }
+		_lock.unlock()
+
+		return ActionDisposable {
+			self._lock.lock()
+			self._scheduledActions = self._scheduledActions.filter { $0 !== action }
+			self._lock.unlock()
+		}
+	}
+
+	func schedule(action: () -> ()) -> Disposable? {
+		return schedule(ScheduledAction(date: currentDate, action: action))
+	}
+
+	func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable? {
+		return schedule(ScheduledAction(date: date, action: action))
+	}
+
+	func _scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, disposable: SerialDisposable, action: () -> ()) {
+		disposable.innerDisposable = scheduleAfter(date) { [unowned self] in
+			action()
+			self._scheduleAfter(date.dateByAddingTimeInterval(repeatingEvery), repeatingEvery: repeatingEvery, disposable: disposable, action: action)
+		}
+	}
+
+	func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> ()) -> Disposable? {
+		let disposable = SerialDisposable()
+		_scheduleAfter(date, repeatingEvery: repeatingEvery, disposable: disposable, action: action)
+		return disposable
+	}
+
+	/// Advances the virtualized clock by the given interval, dequeuing and
+	/// executing any actions along the way.
+	func advanceByInterval(interval: NSTimeInterval) {
+		_lock.lock()
+		advanceToDate(currentDate.dateByAddingTimeInterval(interval))
+		_lock.unlock()
+	}
+
+	/// Advances the virtualized clock to the given future date, dequeuing and
+	/// executing any actions up until that point.
+	func advanceToDate(newDate: NSDate) {
+		_lock.lock()
+
+		assert(currentDate.compare(newDate) != NSComparisonResult.OrderedDescending)
+		_currentDate = newDate
+			
+		while _scheduledActions.count > 0 {
+			if newDate.compare(_scheduledActions[0].date) == NSComparisonResult.OrderedAscending {
+				break
+			}
+
+			let scheduledAction = _scheduledActions[0]
+			_scheduledActions.removeAtIndex(0)
+			scheduledAction.action()
+		}
+
+		_lock.unlock()
+	}
+
+	/// Dequeues and executes all scheduled actions, leaving the scheduler's
+	/// date at `NSDate.distantFuture()`.
+	func run() {
+		advanceToDate(NSDate.distantFuture() as NSDate)
+	}
+}

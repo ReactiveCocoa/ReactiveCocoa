@@ -9,7 +9,7 @@
 import Foundation
 
 extension RACDisposable: Disposable {}
-extension RACScheduler: Scheduler, RepeatableScheduler {
+extension RACScheduler: DeferrableScheduler, RepeatableScheduler {
 	func schedule(action: () -> ()) -> Disposable? {
 		let disposable: RACDisposable? = self.schedule(action)
 		return disposable

@@ -17,7 +17,10 @@ protocol Scheduler {
 	/// Optionally returns a disposable that can be used to cancel the work
 	/// before it begins.
 	func schedule(action: () -> ()) -> Disposable?
+}
 
+/// A particular kind of scheduler that supports deferred actions.
+protocol DeferrableScheduler: Scheduler {
 	/// Schedules an action for execution at or after the given date.
 	///
 	/// Optionally returns a disposable that can be used to cancel the work
@@ -45,7 +48,7 @@ protocol BridgedScheduler {
 let currentSchedulerKey = "RACSchedulerCurrentSchedulerKey"
 
 /// Returns the scheduler upon which the calling code is executing, if any.
-var currentScheduler: protocol<Scheduler, BridgedScheduler>? {
+var currentScheduler: protocol<DeferrableScheduler, BridgedScheduler>? {
 	get {
 		return NSThread.currentThread().threadDictionary[currentSchedulerKey] as? RACScheduler
 	}
@@ -53,7 +56,7 @@ var currentScheduler: protocol<Scheduler, BridgedScheduler>? {
 
 /// Performs an action while setting `currentScheduler` to the given
 /// scheduler instance.
-func _asCurrentScheduler<T>(scheduler: protocol<Scheduler, BridgedScheduler>, action: () -> T) -> T {
+func _asCurrentScheduler<T>(scheduler: protocol<DeferrableScheduler, BridgedScheduler>, action: () -> T) -> T {
 	let previousScheduler: AnyObject? = NSThread.currentThread().threadDictionary[currentSchedulerKey]
 
 	NSThread.currentThread().threadDictionary[currentSchedulerKey] = scheduler.asRACScheduler()
@@ -69,15 +72,10 @@ struct ImmediateScheduler: Scheduler {
 		action()
 		return nil
 	}
-
-	func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable? {
-		NSThread.sleepUntilDate(date)
-		return schedule(action)
-	}
 }
 
 /// A scheduler that performs all work on the main thread.
-struct MainScheduler: RepeatableScheduler {
+struct MainScheduler: DeferrableScheduler, RepeatableScheduler {
 	let _innerScheduler = QueueScheduler(dispatch_get_main_queue())
 
 	func schedule(action: () -> ()) -> Disposable? {
@@ -94,7 +92,7 @@ struct MainScheduler: RepeatableScheduler {
 }
 
 /// A scheduler backed by a serial GCD queue.
-struct QueueScheduler: RepeatableScheduler {
+struct QueueScheduler: DeferrableScheduler, RepeatableScheduler {
 	let _queue = dispatch_queue_create("com.github.ReactiveCocoa.QueueScheduler", DISPATCH_QUEUE_SERIAL)
 
 	/// Initializes a scheduler that will target the given queue with its work.
@@ -172,10 +170,10 @@ struct QueueScheduler: RepeatableScheduler {
 
 /// A scheduler that will attempt to use any `currentScheduler` that exists at
 /// the time of scheduling.
-struct DeferredCurrentScheduler: Scheduler {
+struct DeferredCurrentScheduler: DeferrableScheduler {
 	/// The scheduler to use if no `currentScheduler` is set when an action is
 	/// enqueued.
-	let fallbackScheduler: Scheduler
+	let fallbackScheduler: DeferrableScheduler
 
 	func schedule(action: () -> ()) -> Disposable? {
 		if let s = currentScheduler {

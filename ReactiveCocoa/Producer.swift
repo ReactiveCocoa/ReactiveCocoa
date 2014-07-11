@@ -550,7 +550,7 @@ struct Producer<T> {
 	/// them on the given scheduler.
 	///
 	/// `Error` events are always scheduled immediately.
-	func delay(interval: NSTimeInterval, onScheduler scheduler: Scheduler) -> Producer<T> {
+	func delay(interval: NSTimeInterval, onScheduler scheduler: DeferrableScheduler) -> Producer<T> {
 		return Producer { consumer in
 			let disposable = self.produce { event in
 				switch event {
@@ -585,7 +585,7 @@ struct Producer<T> {
 
 	/// Yields `error` after the given interval if the receiver has not yet
 	/// completed by that point.
-	func timeoutWithError(error: NSError, afterInterval interval: NSTimeInterval, onScheduler scheduler: Scheduler) -> Producer<T> {
+	func timeoutWithError(error: NSError, afterInterval interval: NSTimeInterval, onScheduler scheduler: DeferrableScheduler) -> Producer<T> {
 		return Producer { consumer in
 			let schedulerDisposable = scheduler.scheduleAfter(NSDate(timeIntervalSinceNow: interval)) {
 				consumer.put(.Error(error))

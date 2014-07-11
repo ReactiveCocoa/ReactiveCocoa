@@ -408,6 +408,33 @@ import Foundation
 		}
 	}
 
+	/// Throttle values sent by the receiver, so that at least `interval`
+	/// seconds pass between each, then forwards them on the given scheduler.
+	///
+	/// If multiple values are received before the interval has elapsed, the
+	/// latest value is the one that will be passed on.
+	func throttle(interval: NSTimeInterval, onScheduler scheduler: Scheduler) -> Signal<T> {
+		return Signal(initialValue: self.current) { sink in
+			let previousDate = Atomic(NSDate())
+			let disposable = SerialDisposable()
+
+			self.observe { value in
+				disposable.innerDisposable = nil
+
+				let now = NSDate()
+				let (_, scheduleDate) = previousDate.modify { date -> (NSDate, NSDate) in
+					if now.timeIntervalSinceDate(date) >= interval {
+						return (now, now)
+					} else {
+						return (date, date.dateByAddingTimeInterval(interval))
+					}
+				}
+
+				disposable.innerDisposable = scheduler.scheduleAfter(scheduleDate) { sink.put(value) }
+			}
+		}
+	}
+
 	/// Yields all values on the given scheduler, instead of whichever
 	/// scheduler they originally changed upon.
 	///

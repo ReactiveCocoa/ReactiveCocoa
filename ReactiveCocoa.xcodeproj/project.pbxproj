@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		D036AA4B196FB7CB00B49B76 /* Bag.swift in Sources */ = {isa = PBXBuildFile; fileRef = D036AA4A196FB7CB00B49B76 /* Bag.swift */; };
+		D036AA4C196FBCCD00B49B76 /* Bag.swift in Sources */ = {isa = PBXBuildFile; fileRef = D036AA4A196FB7CB00B49B76 /* Bag.swift */; };
 		D047967919666BF30066B267 /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = D047967819666BF30066B267 /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D047967F19666BF30066B267 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D047967319666BF30066B267 /* ReactiveCocoa.framework */; };
 		D04796A519666CBF0066B267 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D047969A19666CBF0066B267 /* ReactiveCocoa.framework */; };
@@ -1881,6 +1882,7 @@
 				D0479974196670900066B267 /* UISwitch+RACSignalSupport.m in Sources */,
 				D047980A196670900066B267 /* NSFileHandle+RACSupport.m in Sources */,
 				D04798C2196670900066B267 /* RACPassthroughSubscriber.m in Sources */,
+				D036AA4C196FBCCD00B49B76 /* Bag.swift in Sources */,
 				D047991A196670900066B267 /* RACTuple.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

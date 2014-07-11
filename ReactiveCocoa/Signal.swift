@@ -437,4 +437,16 @@ import Foundation
 			return ()
 		}
 	}
+
+	/// Applies the latest function from the given signal to the values in the
+	/// receiver.
+	func apply<U>(stream: Signal<T -> U>) -> Signal<U> {
+		// FIXME: This should use combineLatestWith, but attempting to do so
+		// crashes the compiler.
+		return Signal<U>(initialValue: stream.current(self.current)) { sink in
+			// FIXME: This implementation is probably racey.
+			self.observe { [unowned stream] value in sink.put(stream.current(value)) }
+			stream.observe { [unowned self] f in sink.put(f(self.current)) }
+		}
+	}
 }

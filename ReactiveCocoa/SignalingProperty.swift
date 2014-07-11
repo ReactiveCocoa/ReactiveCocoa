@@ -12,7 +12,7 @@ import Foundation
 @final class SignalingProperty<T>: Sink {
 	typealias Element = T
 
-	var _sink = SinkOf<T> { _ in () }
+	let _sink: SinkOf<T>
 
 	/// A signal representing the current value of the property, along with all
 	/// changes to it over time.
@@ -31,10 +31,7 @@ import Foundation
 
 	/// Initializes the property with the given default value.
 	init(_ defaultValue: T) {
-		signal = .constant(defaultValue)
-		signal = Signal(initialValue: defaultValue) { sink in
-			self._sink = sink
-		}
+		(signal, _sink) = Signal.pipeWithInitialValue(defaultValue)
 	}
 
 	/// Treats the property as its current value in expressions.

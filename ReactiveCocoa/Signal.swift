@@ -71,6 +71,16 @@ import Foundation
 		}
 	}
 
+	/// Creates a Signal that can be controlled by sending values to the
+	/// returned Sink.
+	class func pipeWithInitialValue(initialValue: T) -> (Signal<T>, SinkOf<T>) {
+		var sink: SinkOf<T>? = nil
+		let signal = Signal(initialValue: initialValue) { s in sink = s }
+
+		assert(sink)
+		return (signal, sink!)
+	}
+
 	/// Notifies `observer` about all changes to the receiver's value.
 	///
 	/// Returns a Disposable which can be disposed of to stop notifying

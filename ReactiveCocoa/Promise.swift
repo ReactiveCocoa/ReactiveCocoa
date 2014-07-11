@@ -16,7 +16,7 @@ enum _PromiseState<T> {
 /// Represents deferred work to generate a value of type T.
 @final class Promise<T> {
 	let _state: Atomic<_PromiseState<T>>
-	var _sink = SinkOf<T?> { _ in () }
+	let _sink: SinkOf<T?>
 
 	/// A signal of the Promise's value. This will be `nil` before the promise
 	/// has been resolved, and the generated value afterward.
@@ -28,11 +28,7 @@ enum _PromiseState<T> {
 	/// the Promise.
 	init(action: SinkOf<T> -> ()) {
 		_state = Atomic(.Suspended(action))
-
-		signal = .constant(nil)
-		signal = Signal(initialValue: nil) { sink in
-			self._sink = sink
-		}
+		(signal, _sink) = Signal.pipeWithInitialValue(nil)
 	}
 
 	/// Starts the promise, if it hasn't started already.

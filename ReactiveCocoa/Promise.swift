@@ -37,14 +37,16 @@ enum _PromiseState<T> {
 
 		switch oldState {
 		case let .Suspended(action):
-			let disposable = SimpleDisposable()
-			let disposableSink = SinkOf<T> { value in
+			// Hold on to the `action` closure until the promise is resolved.
+			let disposable = ActionDisposable { [action] in }
+
+			let disposableSink = SinkOf<T> { [weak self] value in
 				if disposable.disposed {
 					return
 				}
 
 				disposable.dispose()
-				self._sink.put(value)
+				self?._sink.put(value)
 			}
 
 			action(disposableSink)

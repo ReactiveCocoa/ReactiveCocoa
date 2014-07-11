@@ -38,34 +38,6 @@ protocol RepeatableScheduler: Scheduler {
 	func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> ()) -> Disposable?
 }
 
-/// Represents a scheduler that can be bridged to Objective-C RAC code.
-protocol BridgedScheduler {
-	func asRACScheduler() -> RACScheduler
-}
-
-// Purposely matches RACScheduler.m, so we can bridge the currentScheduler
-// across the two.
-let currentSchedulerKey = "RACSchedulerCurrentSchedulerKey"
-
-/// Returns the scheduler upon which the calling code is executing, if any.
-var currentScheduler: protocol<DeferrableScheduler, BridgedScheduler>? {
-	get {
-		return NSThread.currentThread().threadDictionary[currentSchedulerKey] as? RACScheduler
-	}
-}
-
-/// Performs an action while setting `currentScheduler` to the given
-/// scheduler instance.
-func _asCurrentScheduler<T>(scheduler: protocol<DeferrableScheduler, BridgedScheduler>, action: () -> T) -> T {
-	let previousScheduler: AnyObject? = NSThread.currentThread().threadDictionary[currentSchedulerKey]
-
-	NSThread.currentThread().threadDictionary[currentSchedulerKey] = scheduler.asRACScheduler()
-	let result = action()
-	NSThread.currentThread().threadDictionary[currentSchedulerKey] = previousScheduler
-
-	return result
-}
-
 /// A scheduler that performs all work synchronously.
 struct ImmediateScheduler: Scheduler {
 	func schedule(action: () -> ()) -> Disposable? {
@@ -123,7 +95,7 @@ struct QueueScheduler: DeferrableScheduler, RepeatableScheduler {
 				return
 			}
 			
-			_asCurrentScheduler(self, action)
+			action()
 		})
 		
 		return d
@@ -147,7 +119,7 @@ struct QueueScheduler: DeferrableScheduler, RepeatableScheduler {
 				return
 			}
 
-			_asCurrentScheduler(self, action)
+			action()
 		})
 
 		return d
@@ -164,30 +136,6 @@ struct QueueScheduler: DeferrableScheduler, RepeatableScheduler {
 
 		return ActionDisposable {
 			dispatch_source_cancel(timer)
-		}
-	}
-}
-
-/// A scheduler that will attempt to use any `currentScheduler` that exists at
-/// the time of scheduling.
-struct DeferredCurrentScheduler: DeferrableScheduler {
-	/// The scheduler to use if no `currentScheduler` is set when an action is
-	/// enqueued.
-	let fallbackScheduler: DeferrableScheduler
-
-	func schedule(action: () -> ()) -> Disposable? {
-		if let s = currentScheduler {
-			return s.schedule(action)
-		} else {
-			return fallbackScheduler.schedule(action)
-		}
-	}
-
-	func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable? {
-		if let s = currentScheduler {
-			return s.scheduleAfter(date, action)
-		} else {
-			return fallbackScheduler.scheduleAfter(date, action)
 		}
 	}
 }

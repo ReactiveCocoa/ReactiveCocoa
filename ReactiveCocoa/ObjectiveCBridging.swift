@@ -26,27 +26,21 @@ extension RACScheduler: DeferrableScheduler, RepeatableScheduler {
 	}
 }
 
-extension RACScheduler: BridgedScheduler {
-	func asRACScheduler() -> RACScheduler {
-		return self
-	}
-}
-
-extension ImmediateScheduler: BridgedScheduler {
+extension ImmediateScheduler {
 	func asRACScheduler() -> RACScheduler {
 		return RACScheduler.immediateScheduler()
 	}
 }
 
-extension MainScheduler: BridgedScheduler {
+extension MainScheduler {
 	func asRACScheduler() -> RACScheduler {
 		return RACScheduler.mainThreadScheduler()
 	}
 }
 
-extension QueueScheduler: BridgedScheduler {
+extension QueueScheduler {
 	func asRACScheduler() -> RACScheduler {
-		return RACTargetQueueScheduler(name: nil, targetQueue: _queue)
+		return RACTargetQueueScheduler(name: "com.github.ReactiveCocoa.QueueScheduler.asRACScheduler()", targetQueue: _queue)
 	}
 }
 

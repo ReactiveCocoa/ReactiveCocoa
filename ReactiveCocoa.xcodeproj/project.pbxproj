@@ -59,8 +59,6 @@
 		D0479810196670900066B267 /* NSInvocation+RACTypeParsing.h in Headers */ = {isa = PBXBuildFile; fileRef = D0479722196670900066B267 /* NSInvocation+RACTypeParsing.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D0479811196670900066B267 /* NSInvocation+RACTypeParsing.m in Sources */ = {isa = PBXBuildFile; fileRef = D0479723196670900066B267 /* NSInvocation+RACTypeParsing.m */; };
 		D0479812196670900066B267 /* NSInvocation+RACTypeParsing.m in Sources */ = {isa = PBXBuildFile; fileRef = D0479723196670900066B267 /* NSInvocation+RACTypeParsing.m */; };
-		D0479813196670900066B267 /* NSLockingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479724196670900066B267 /* NSLockingExtensions.swift */; };
-		D0479814196670900066B267 /* NSLockingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479724196670900066B267 /* NSLockingExtensions.swift */; };
 		D0479815196670900066B267 /* NSNotificationCenter+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D0479725196670900066B267 /* NSNotificationCenter+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D0479816196670900066B267 /* NSNotificationCenter+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D0479725196670900066B267 /* NSNotificationCenter+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D0479817196670900066B267 /* NSNotificationCenter+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D0479726196670900066B267 /* NSNotificationCenter+RACSupport.m */; };
@@ -682,7 +680,6 @@
 		D0479721196670900066B267 /* NSIndexSet+RACSequenceAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSIndexSet+RACSequenceAdditions.m"; sourceTree = "<group>"; };
 		D0479722196670900066B267 /* NSInvocation+RACTypeParsing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSInvocation+RACTypeParsing.h"; sourceTree = "<group>"; };
 		D0479723196670900066B267 /* NSInvocation+RACTypeParsing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSInvocation+RACTypeParsing.m"; sourceTree = "<group>"; };
-		D0479724196670900066B267 /* NSLockingExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSLockingExtensions.swift; sourceTree = "<group>"; };
 		D0479725196670900066B267 /* NSNotificationCenter+RACSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+RACSupport.h"; sourceTree = "<group>"; };
 		D0479726196670900066B267 /* NSNotificationCenter+RACSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSNotificationCenter+RACSupport.m"; sourceTree = "<group>"; };
 		D0479727196670900066B267 /* NSNotificationCenterExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSNotificationCenterExtensions.swift; sourceTree = "<group>"; };
@@ -1054,7 +1051,6 @@
 				D0479710196670900066B267 /* Event.swift */,
 				D047970D196670900066B267 /* EventBuffer.swift */,
 				D0479711196670900066B267 /* Identity.swift */,
-				D0479724196670900066B267 /* NSLockingExtensions.swift */,
 				D0479727196670900066B267 /* NSNotificationCenterExtensions.swift */,
 				D0479744196670900066B267 /* NSURLSessionExtensions.swift */,
 				D0479747196670900066B267 /* ObjectiveCBridging.swift */,
@@ -1712,7 +1708,6 @@
 				D047992D196670900066B267 /* Result.swift in Sources */,
 				D04798F1196670900066B267 /* RACSignalSequence.m in Sources */,
 				D0479845196670900066B267 /* NSString+RACSequenceAdditions.m in Sources */,
-				D0479813196670900066B267 /* NSLockingExtensions.swift in Sources */,
 				D04798B3196670900066B267 /* RACKVOTrampoline.m in Sources */,
 				D0479821196670900066B267 /* NSObject+RACDeallocating.m in Sources */,
 				D047985B196670900066B267 /* Producer.swift in Sources */,
@@ -1831,7 +1826,6 @@
 				D04798F2196670900066B267 /* RACSignalSequence.m in Sources */,
 				D0479948196670900066B267 /* UIButton+RACCommandSupport.m in Sources */,
 				D0479846196670900066B267 /* NSString+RACSequenceAdditions.m in Sources */,
-				D0479814196670900066B267 /* NSLockingExtensions.swift in Sources */,
 				D04798B4196670900066B267 /* RACKVOTrampoline.m in Sources */,
 				D0479822196670900066B267 /* NSObject+RACDeallocating.m in Sources */,
 				D047985C196670900066B267 /* Producer.swift in Sources */,

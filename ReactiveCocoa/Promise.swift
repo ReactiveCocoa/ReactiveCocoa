@@ -65,18 +65,20 @@ enum _PromiseState<T> {
 		cond.name = "com.github.ReactiveCocoa.Promise.await"
 
 		start().signal.observe { _ in
-			withLock(cond) {
-				cond.signal()
-			}
+			cond.lock()
+			cond.signal()
+			cond.unlock()
 		}
 
-		return withLock(cond) {
-			while !self.signal.current {
-				cond.wait()
-			}
-
-			return self.signal.current!
+		cond.lock()
+		while !self.signal.current {
+			cond.wait()
 		}
+
+		let result = self.signal.current!
+		cond.unlock()
+
+		return result
 	}
 
 	/// Creates a Promise that will start the receiver, then run the given

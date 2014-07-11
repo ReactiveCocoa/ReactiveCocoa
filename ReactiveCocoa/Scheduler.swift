@@ -19,17 +19,15 @@ protocol Scheduler {
 	func schedule(action: () -> ()) -> Disposable?
 }
 
-/// A particular kind of scheduler that supports deferred actions.
-protocol DeferrableScheduler: Scheduler {
+/// A particular kind of scheduler that supports enqueuing actions at future
+/// dates.
+protocol DateScheduler: Scheduler {
 	/// Schedules an action for execution at or after the given date.
 	///
 	/// Optionally returns a disposable that can be used to cancel the work
 	/// before it begins.
 	func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable?
-}
 
-/// A particular kind of scheduler that supports repeating actions.
-protocol RepeatableScheduler: Scheduler {
 	/// Schedules a recurring action at the given interval, beginning at the
 	/// given start time.
 	///
@@ -47,7 +45,7 @@ struct ImmediateScheduler: Scheduler {
 }
 
 /// A scheduler that performs all work on the main thread.
-struct MainScheduler: DeferrableScheduler, RepeatableScheduler {
+struct MainScheduler: DateScheduler {
 	let _innerScheduler = QueueScheduler(dispatch_get_main_queue())
 
 	func schedule(action: () -> ()) -> Disposable? {
@@ -64,7 +62,7 @@ struct MainScheduler: DeferrableScheduler, RepeatableScheduler {
 }
 
 /// A scheduler backed by a serial GCD queue.
-struct QueueScheduler: DeferrableScheduler, RepeatableScheduler {
+struct QueueScheduler: DateScheduler {
 	let _queue = dispatch_queue_create("com.github.ReactiveCocoa.QueueScheduler", DISPATCH_QUEUE_SERIAL)
 
 	/// Initializes a scheduler that will target the given queue with its work.
@@ -141,7 +139,7 @@ struct QueueScheduler: DeferrableScheduler, RepeatableScheduler {
 }
 
 /// A scheduler that implements virtualized time, for use in testing.
-@final class TestScheduler: DeferrableScheduler, RepeatableScheduler {
+@final class TestScheduler: DateScheduler {
 	@final class ScheduledAction {
 		let date: NSDate
 		let action: () -> ()

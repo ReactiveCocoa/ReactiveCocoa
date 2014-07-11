@@ -59,7 +59,7 @@ import Foundation
 
 	/// Creates a repeating timer of the given interval, sending updates on the
 	/// given scheduler.
-	class func interval(interval: NSTimeInterval, onScheduler scheduler: RepeatableScheduler, withLeeway leeway: NSTimeInterval = 0) -> Signal<NSDate> {
+	class func interval(interval: NSTimeInterval, onScheduler scheduler: DateScheduler, withLeeway leeway: NSTimeInterval = 0) -> Signal<NSDate> {
 		let startDate = NSDate()
 
 		return Signal<NSDate>(initialValue: startDate) { sink in
@@ -397,7 +397,7 @@ import Foundation
 	///
 	/// Returns a Signal that will default to `nil`, then send the
 	/// receiver's values after injecting the specified delay.
-	func delay(interval: NSTimeInterval, onScheduler scheduler: DeferrableScheduler) -> Signal<T?> {
+	func delay(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> Signal<T?> {
 		return Signal<T?>(initialValue: nil) { sink in
 			self.observe { value in
 				scheduler.scheduleAfter(NSDate(timeIntervalSinceNow: interval)) { sink.put(value) }
@@ -413,7 +413,7 @@ import Foundation
 	///
 	/// If multiple values are received before the interval has elapsed, the
 	/// latest value is the one that will be passed on.
-	func throttle(interval: NSTimeInterval, onScheduler scheduler: DeferrableScheduler) -> Signal<T> {
+	func throttle(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> Signal<T> {
 		return Signal(initialValue: self.current) { sink in
 			let previousDate = Atomic(NSDate())
 			let disposable = SerialDisposable()

@@ -24,6 +24,7 @@
 
 		return [RACDisposable disposableWithBlock:^{
 			[self removeObserver:observer];
+			[subscriber sendCompleted];
 		}];
 	}] setNameWithFormat:@"-rac_addObserverForName: %@ object: <%@: %p>", notificationName, [object class], object];
 }

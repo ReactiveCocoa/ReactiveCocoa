@@ -399,6 +399,8 @@
 		D095745619733BB1002D44C1 /* swiftz_core.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D095745419733BAD002D44C1 /* swiftz_core.framework */; };
 		D095745819733F74002D44C1 /* AtomicSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D095745719733F74002D44C1 /* AtomicSpec.swift */; };
 		D095745919733F74002D44C1 /* AtomicSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D095745719733F74002D44C1 /* AtomicSpec.swift */; };
+		D095745B197341C2002D44C1 /* BagSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D095745A197341C2002D44C1 /* BagSpec.swift */; };
+		D095745C197341C2002D44C1 /* BagSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D095745A197341C2002D44C1 /* BagSpec.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -872,6 +874,7 @@
 		D047999E196678F20066B267 /* ObjectiveCBridgingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectiveCBridgingSpec.swift; sourceTree = "<group>"; };
 		D095745419733BAD002D44C1 /* swiftz_core.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = swiftz_core.framework; path = "../../../../../../../../../Library/Developer/Xcode/DerivedData/ReactiveCocoa-fvhormsvfcxumbbehgudvscdctdn/Build/Products/Debug/swiftz_core.framework"; sourceTree = "<group>"; };
 		D095745719733F74002D44C1 /* AtomicSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AtomicSpec.swift; sourceTree = "<group>"; };
+		D095745A197341C2002D44C1 /* BagSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BagSpec.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1271,6 +1274,7 @@
 			isa = PBXGroup;
 			children = (
 				D095745719733F74002D44C1 /* AtomicSpec.swift */,
+				D095745A197341C2002D44C1 /* BagSpec.swift */,
 				D047999E196678F20066B267 /* ObjectiveCBridgingSpec.swift */,
 			);
 			name = Swift;
@@ -1762,6 +1766,7 @@
 			files = (
 				D047999F196678F20066B267 /* ObjectiveCBridgingSpec.swift in Sources */,
 				D095745819733F74002D44C1 /* AtomicSpec.swift in Sources */,
+				D095745B197341C2002D44C1 /* BagSpec.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1884,6 +1889,7 @@
 			files = (
 				D04799A0196678F20066B267 /* ObjectiveCBridgingSpec.swift in Sources */,
 				D095745919733F74002D44C1 /* AtomicSpec.swift in Sources */,
+				D095745C197341C2002D44C1 /* BagSpec.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

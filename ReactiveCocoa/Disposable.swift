@@ -18,10 +18,16 @@ protocol Disposable {
 /// A disposable that only flips `disposed` upon disposal, and performs no other
 /// work.
 struct SimpleDisposable: Disposable {
-	var _disposed = Atomic(false)
+	var _disposed: Atomic<Bool>
+
+	init() {
+		_disposed = Atomic(false)
+	}
 
 	var disposed: Bool {
-		return _disposed
+		get {
+			return _disposed
+		}
 	}
 	
 	func dispose() {
@@ -81,12 +87,12 @@ struct CompositeDisposable: Disposable {
 			return
 		}
 	
-		let shouldDispose: Bool = _disposables.withValue {
-			if var ds = $0 {
-				ds.append(d!)
-				return false
+		let (_, shouldDispose) = _disposables.modify { maybeDisposables -> ([Disposable]?, Bool) in
+			if var disposables = maybeDisposables {
+				disposables.append(d!)
+				return (disposables, false)
 			} else {
-				return true
+				return (nil, true)
 			}
 		}
 		
@@ -181,6 +187,7 @@ struct CompositeDisposable: Disposable {
 	}
 
 	func dispose() {
-		innerDisposable = nil
+		let orig = _state.swap(_State(innerDisposable: nil, disposed: true))
+		orig.innerDisposable?.dispose()
 	}
 }

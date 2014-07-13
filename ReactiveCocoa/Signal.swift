@@ -154,7 +154,7 @@
 	/// the Signals added earlier.
 	///
 	/// evidence - Used to prove to the typechecker that the receiver is
-	///            a stream-of-streams. Simply pass in the `identity` function.
+	///            a signal of signals. Simply pass in the `identity` function.
 	///
 	/// Returns a Signal that will forward changes from the original streams
 	/// as they arrive, starting with earlier ones.
@@ -177,7 +177,7 @@
 	/// latest inner stream.
 	///
 	/// evidence - Used to prove to the typechecker that the receiver is
-	///            a stream-of-streams. Simply pass in the `identity` function.
+	///            a signal of signals. Simply pass in the `identity` function.
 	///
 	/// Returns a Signal that will forward changes only from the latest
 	/// Signal sent upon the receiver.

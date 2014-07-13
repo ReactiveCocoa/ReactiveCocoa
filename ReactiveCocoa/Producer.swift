@@ -108,7 +108,7 @@ struct Producer<T> {
 	/// Merges a Producer of Producers into a single stream.
 	///
 	/// evidence - Used to prove to the typechecker that the receiver is
-	///            a stream-of-streams. Simply pass in the `identity` function.
+	///            a producer of producers. Simply pass in the `identity` function.
 	///
 	/// Returns a Producer that will forward events from the original streams
 	/// as they arrive.
@@ -161,7 +161,7 @@ struct Producer<T> {
 	/// latest inner stream.
 	///
 	/// evidence - Used to prove to the typechecker that the receiver is
-	///            a stream-of-streams. Simply pass in the `identity` function.
+	///            a producer of producers. Simply pass in the `identity` function.
 	///
 	/// Returns a Producer that will forward events only from the latest
 	/// Producer sent upon the receiver.

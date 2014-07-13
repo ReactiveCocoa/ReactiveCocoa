@@ -11,7 +11,7 @@ func _dummyError(error: NSError) {}
 func _dummyCompleted() {}
 
 /// Receives events from a Producer.
-class Consumer<T>: Sink {
+@final class Consumer<T>: Sink {
 	typealias Element = Event<T>
 
 	let _sink: Atomic<SinkOf<Element>?>

@@ -81,7 +81,7 @@ struct Producer<T> {
 	/// Producer, and dispose of it.
 	///
 	/// Returns a Producer of the mapped values.
-	func mapAccumulate<S, U>(initialState: S, _ f: (S, T) -> (S?, U)) -> Producer<U> {
+	func mapAccumulate<State, U>(initialState: State, _ f: (State, T) -> (State?, U)) -> Producer<U> {
 		return Producer<U> { consumer in
 			let state = Atomic(initialState)
 			let disposable = self.produce { event in

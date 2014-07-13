@@ -198,7 +198,7 @@ extension Action {
 	///
 	/// evidence - Used to prove to the typechecker that the receiver accepts
 	///            and produces objects. Simply pass in the `identity` function.
-	func asCommand<U: AnyObject>(evidence: Action<I, O> -> Action<AnyObject?, U?>) -> RACCommand {
+	func asCommand<ObjectOutput: AnyObject>(evidence: Action<Input, Output> -> Action<AnyObject?, ObjectOutput?>) -> RACCommand {
 		let enabled = self.enabled
 			.map { $0 as NSNumber? }
 			.asInfiniteRACSignal(identity)

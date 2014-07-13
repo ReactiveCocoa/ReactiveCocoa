@@ -7,8 +7,8 @@
 //
 
 /// Represents a UI action that will perform some work when executed.
-@final class Action<I, O> {
-	typealias ExecutionSignal = Signal<Result<O>?>
+@final class Action<Input, Output> {
+	typealias ExecutionSignal = Signal<Result<Output>?>
 
 	/// The error that will be sent if execute() is invoked while the action is
 	/// disabled.
@@ -19,7 +19,7 @@
 	}
 
 	let _scheduler: Scheduler
-	let _execute: I -> Promise<Result<O>>
+	let _execute: Input -> Promise<Result<Output>>
 	let _executions = SignalingProperty<ExecutionSignal?>(nil)
 
 	/// A signal of the signals returned from execute().
@@ -35,7 +35,7 @@
 	/// Before the first execution, the current value of this signal will be
 	/// `nil`. Afterwards, it will always forward the latest results from any
 	/// calls to execute() on the main thread.
-	var results: Signal<Result<O>?> {
+	var results: Signal<Result<Output>?> {
 		return executions
 			.unwrapOptionals(identity, initialValue: .constant(nil))
 			.switchToLatest(identity)
@@ -57,9 +57,9 @@
 	///
 	/// This will be `nil` before the first execution and whenever an error
 	/// occurs.
-	var values: Signal<O?> {
+	var values: Signal<Output?> {
 		return results.map { maybeResult in
-			return maybeResult?.result(ifSuccess: identity, ifError: { _ -> O? in nil })
+			return maybeResult?.result(ifSuccess: identity, ifError: { _ -> Output? in nil })
 		}
 	}
 
@@ -75,7 +75,7 @@
 
 	/// Initializes an action that will be conditionally enabled, and create
 	/// a Promise for each execution.
-	init(enabledIf: Signal<Bool>, scheduler: Scheduler = MainScheduler(), execute: I -> Promise<Result<O>>) {
+	init(enabledIf: Signal<Bool>, scheduler: Scheduler = MainScheduler(), execute: Input -> Promise<Result<Output>>) {
 		_execute = execute
 		_scheduler = scheduler
 
@@ -86,7 +86,7 @@
 	}
 
 	/// Initializes an action that will create a Promise for each execution.
-	convenience init(scheduler: Scheduler = MainScheduler(), execute: I -> Promise<Result<O>>) {
+	convenience init(scheduler: Scheduler = MainScheduler(), execute: Input -> Promise<Result<Output>>) {
 		self.init(enabledIf: .constant(true), scheduler: scheduler, execute: execute)
 	}
 
@@ -95,8 +95,8 @@
 	/// If the action is disabled when this method is invoked, the returned
 	/// signal will be set to `notEnabledError`, and no result will be sent
 	/// along the action itself.
-	func execute(input: I) -> ExecutionSignal {
-		let results = SignalingProperty<Result<O>?>(nil)
+	func execute(input: Input) -> ExecutionSignal {
+		let results = SignalingProperty<Result<Output>?>(nil)
 
 		_scheduler.schedule {
 			if (!self.enabled.current) {
@@ -128,16 +128,16 @@
 
 	/// Returns an action that will execute the receiver, followed by the given
 	/// action upon success.
-	func then<P>(action: Action<O, P>) -> Action<I, P> {
+	func then<NewOutput>(action: Action<Output, NewOutput>) -> Action<Input, NewOutput> {
 		let bothEnabled = enabled
 			.combineLatestWith(action.enabled)
 			.map { (a, b) in a && b }
 
-		return Action<I, P>(enabledIf: bothEnabled) { input in
+		return Action<Input, NewOutput>(enabledIf: bothEnabled) { input in
 			return Promise { sink in
 				self
 					.execute(input)
-					.map { maybeResult -> Signal<Result<P>?> in
+					.map { maybeResult -> Signal<Result<NewOutput>?> in
 						return maybeResult.optional(ifNone: Signal.constant(nil)) { result in
 							switch result {
 							case let .Success(value):

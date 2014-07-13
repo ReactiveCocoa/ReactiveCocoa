@@ -12,22 +12,22 @@
 /// equivalent to a given type B.
 /// 
 /// For example, the following global function is normally impossible to bring
-/// into the `Stream<T>` class:
+/// into the `Signal<T>` class:
 /// 
-///     func flatten<U>(stream: Stream<Stream<U>>) -> Stream<U>
+///     func merge<U>(signal: Signal<Signal<U>>) -> Signal<U>
 /// 
 /// However, you can work around this restriction using an instance method with
 /// an “evidence” parameter:
 /// 
-///     func flatten<U>(evidence: Stream<T> -> Stream<Stream<U>>) -> Stream<U>
+///     func merge<U>(evidence: Signal<T> -> Signal<Signal<U>>) -> Signal<U>
 /// 
 /// Which would then be invoked with the identity function, like this:
 /// 
-///     stream.flatten(identity)
+///     signal.merge(identity)
 /// 
-/// This will verify that `stream`, which is nominally `Stream<T>`, is logically
-/// equivalent to `Stream<Stream<U>>`. If that's not actually the case, a type
+/// This will verify that `signal`, which is nominally `Signal<T>`, is logically
+/// equivalent to `Signal<Signal<U>>`. If that's not actually the case, a type
 /// error will result.
-func identity<A>(id: A) -> A {
+func identity<T>(id: T) -> T {
 	return id
 }

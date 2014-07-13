@@ -33,20 +33,6 @@ enum Event<T> {
 			return true
 		}
 	}
-	
-	/// Lifts the given function over the event's value.
-	func map<U>(f: T -> U) -> Event<U> {
-		switch self {
-		case let .Next(box):
-			return .Next(Box(f(box.value)))
-			
-		case let .Error(error):
-			return .Error(error)
-			
-		case let .Completed:
-			return .Completed
-		}
-	}
 
 	/// Case analysis on the receiver.
 	func event<U>(#ifNext: T -> U, ifError: NSError -> U, ifCompleted: @auto_closure () -> U) -> U {

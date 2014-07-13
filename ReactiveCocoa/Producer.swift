@@ -77,6 +77,9 @@ struct Producer<T> {
 	/// This is meant as a primitive operator from which more complex operators
 	/// can be built.
 	///
+	/// Yielding a `nil` state at any point will stop evaluation of the original
+	/// Producer, and dispose of it.
+	///
 	/// Returns a Producer of the mapped values.
 	func mapAccumulate<S, U>(initialState: S, _ f: (S, T) -> (S?, U)) -> Producer<U> {
 		return Producer<U> { consumer in

@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D02C14B1197243CB007127D4 /* OptionalExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D02C14B0197243CB007127D4 /* OptionalExtensions.swift */; };
+		D02C14B2197243CB007127D4 /* OptionalExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D02C14B0197243CB007127D4 /* OptionalExtensions.swift */; };
 		D036AA4B196FB7CB00B49B76 /* Bag.swift in Sources */ = {isa = PBXBuildFile; fileRef = D036AA4A196FB7CB00B49B76 /* Bag.swift */; };
 		D036AA4C196FBCCD00B49B76 /* Bag.swift in Sources */ = {isa = PBXBuildFile; fileRef = D036AA4A196FB7CB00B49B76 /* Bag.swift */; };
 		D047967919666BF30066B267 /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = D047967819666BF30066B267 /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -629,6 +631,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D02C14B0197243CB007127D4 /* OptionalExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OptionalExtensions.swift; sourceTree = "<group>"; };
 		D036AA4A196FB7CB00B49B76 /* Bag.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Bag.swift; sourceTree = "<group>"; };
 		D047967319666BF30066B267 /* ReactiveCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D047967719666BF30066B267 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -1055,6 +1058,7 @@
 				D0479727196670900066B267 /* NSNotificationCenterExtensions.swift */,
 				D0479744196670900066B267 /* NSURLSessionExtensions.swift */,
 				D0479747196670900066B267 /* ObjectiveCBridging.swift */,
+				D02C14B0197243CB007127D4 /* OptionalExtensions.swift */,
 				D0479748196670900066B267 /* Producer.swift */,
 				D0479749196670900066B267 /* Promise.swift */,
 				D04797B1196670900066B267 /* Result.swift */,
@@ -1751,6 +1755,7 @@
 				D0479931196670900066B267 /* Scheduler.swift in Sources */,
 				D0479857196670900066B267 /* NSUserDefaults+RACSupport.m in Sources */,
 				D0479859196670900066B267 /* ObjectiveCBridging.swift in Sources */,
+				D02C14B1197243CB007127D4 /* OptionalExtensions.swift in Sources */,
 				D0479817196670900066B267 /* NSNotificationCenter+RACSupport.m in Sources */,
 				D04798A3196670900066B267 /* RACGroupedSignal.m in Sources */,
 				D047991D196670900066B267 /* RACTupleSequence.m in Sources */,
@@ -1856,6 +1861,7 @@
 				D0479900196670900066B267 /* RACSubject.m in Sources */,
 				D047990E196670900066B267 /* RACSubscriptionScheduler.m in Sources */,
 				D047992A196670900066B267 /* RACValueTransformer.m in Sources */,
+				D02C14B2197243CB007127D4 /* OptionalExtensions.swift in Sources */,
 				D0479836196670900066B267 /* NSObject+RACSelectorSignal.m in Sources */,
 				D04797FE196670900066B267 /* NSData+RACSupport.m in Sources */,
 				D04797E2196670900066B267 /* Atomic.swift in Sources */,

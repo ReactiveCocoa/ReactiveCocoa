@@ -138,7 +138,7 @@
 				self
 					.execute(input)
 					.map { maybeResult -> Signal<Result<P>?> in
-						if let result = maybeResult {
+						return maybeResult.optional(ifNone: Signal.constant(nil)) { result in
 							switch result {
 							case let .Success(value):
 								return action.execute(value)
@@ -147,8 +147,6 @@
 								return .constant(Result.Error(error))
 							}
 						}
-
-						return .constant(nil)
 					}
 					.switchToLatest(identity)
 					.observe { maybeValue in

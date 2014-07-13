@@ -52,11 +52,7 @@ extension RACSignal {
 			}
 
 			let error = { (maybeError: NSError?) -> () in
-				if let e = maybeError {
-					consumer.put(.Error(e))
-				} else {
-					consumer.put(.Error(emptyError))
-				}
+				consumer.put(.Error(maybeError.orDefault(emptyError)))
 			}
 
 			let completed = {

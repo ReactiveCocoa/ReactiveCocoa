@@ -604,11 +604,9 @@ struct Producer<T> {
 				var error: NSError?
 				if f(value, &error) {
 					return .single(value)
-				} else if let e = error {
-					return .error(e)
 				} else {
 					// FIXME
-					return .error(emptyError)
+					return .error(error.orDefault(emptyError))
 				}
 			}
 			.merge(identity)
@@ -624,11 +622,9 @@ struct Producer<T> {
 
 				if let v = maybeValue {
 					return .single(v)
-				} else if let e = error {
-					return .error(e)
 				} else {
 					// FIXME
-					return .error(emptyError)
+					return .error(error.orDefault(emptyError))
 				}
 			}
 			.merge(identity)

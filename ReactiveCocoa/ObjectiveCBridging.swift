@@ -240,14 +240,14 @@ extension RACEvent {
 	/// Creates an Event from the RACEvent.
 	func asEvent() -> Event<AnyObject?> {
 		switch eventType {
-		case RACEventType.Next:
+		case .Next:
 			let obj: AnyObject? = _getValue(value)
 			return .Next(Box(obj))
 
-		case RACEventType.Error:
+		case .Error:
 			return .Error(error)
 
-		case RACEventType.Completed:
+		case .Completed:
 			return .Completed
 		}
 	}

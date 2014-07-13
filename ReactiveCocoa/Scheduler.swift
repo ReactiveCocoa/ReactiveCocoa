@@ -87,11 +87,9 @@ struct QueueScheduler: DateScheduler {
 		let d = SimpleDisposable()
 	
 		dispatch_async(_queue, {
-			if d.disposed {
-				return
+			if !d.disposed {
+				action()
 			}
-			
-			action()
 		})
 		
 		return d
@@ -111,11 +109,9 @@ struct QueueScheduler: DateScheduler {
 		let d = SimpleDisposable()
 
 		dispatch_after(_wallTimeWithDate(date), _queue, {
-			if d.disposed {
-				return
+			if !d.disposed {
+				action()
 			}
-
-			action()
 		})
 
 		return d

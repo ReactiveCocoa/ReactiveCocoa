@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
+import swiftz_core
+
 /// A stream that will begin generating Events when a Consumer is attached,
 /// possibly performing some side effects in the process. Events are pushed to
 /// the consumer as they are generated.
@@ -86,8 +88,8 @@ struct Producer<T> {
 			let state = Atomic(initialState)
 			let disposable = self.produce { event in
 				switch event {
-				case let .Next(value):
-					let (maybeState, newValue) = f(state, value)
+				case let .Next(box):
+					let (maybeState, newValue) = f(state, box.value)
 					consumer.put(.Next(Box(newValue)))
 
 					if let s = maybeState {
@@ -313,8 +315,8 @@ struct Producer<T> {
 	func bindTo(property: SignalingProperty<T>) -> Disposable {
 		return self.produce { event in
 			switch event {
-			case let .Next(value):
-				property.value = value
+			case let .Next(box):
+				property.value = box.value
 
 			case let .Error(error):
 				assert(false)
@@ -383,8 +385,8 @@ struct Producer<T> {
 		return Producer<U> { consumer in
 			let disposable = evidence(self).produce { event in
 				switch event {
-				case let .Next(innerEvent):
-					consumer.put(innerEvent)
+				case let .Next(eventBox):
+					consumer.put(eventBox.value)
 
 				case let .Error(error):
 					consumer.put(.Error(error))
@@ -503,9 +505,9 @@ struct Producer<T> {
 			let values: Atomic<[T]> = Atomic([])
 			let disposable = self.produce { event in
 				switch event {
-				case let .Next(value):
+				case let .Next(box):
 					values.modify { (var arr) in
-						arr.append(value)
+						arr.append(box.value)
 						while arr.count > count {
 							arr.removeAtIndex(0)
 						}

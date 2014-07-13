@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
+import swiftz_core
+
 /// Represents a UI action that will perform some work when executed.
 @final class Action<Input, Output> {
 	typealias ExecutionSignal = Signal<Result<Output>?>
@@ -59,7 +61,17 @@
 	/// occurs.
 	var values: Signal<Output?> {
 		return results.map { maybeResult in
-			return maybeResult?.result(ifSuccess: identity, ifError: { _ -> Output? in nil })
+			if let result = maybeResult {
+				switch result {
+				case let .Value(valueClosure):
+					return valueClosure()
+
+				default:
+					break
+				}
+			}
+
+			return nil
 		}
 	}
 
@@ -69,7 +81,17 @@
 	/// completes successfully.
 	var errors: Signal<NSError?> {
 		return results.map { maybeResult in
-			return maybeResult?.result(ifSuccess: { _ -> NSError? in nil }, ifError: identity)
+			if let result = maybeResult {
+				switch result {
+				case let .Error(error):
+					return error
+
+				default:
+					break
+				}
+			}
+
+			return nil
 		}
 	}
 
@@ -140,8 +162,8 @@
 					.map { maybeResult -> Signal<Result<NewOutput>?> in
 						return maybeResult.optional(ifNone: Signal.constant(nil)) { result in
 							switch result {
-							case let .Success(value):
-								return action.execute(value)
+							case let .Value(valueClosure):
+								return action.execute(valueClosure())
 
 							case let .Error(error):
 								return .constant(Result.Error(error))

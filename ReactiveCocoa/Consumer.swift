@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 GitHub, Inc. All rights reserved.
 //
 
+import swiftz_core
+
 func _emptyNext(value: Any) {}
 func _emptyError(error: NSError) {}
 func _emptyCompleted() {}
@@ -43,8 +45,8 @@ func _emptyCompleted() {}
 	convenience init(next: T -> () = _emptyNext, error: NSError -> () = _emptyError, completed: () -> () = _emptyCompleted) {
 		self.init(SinkOf<Element> { event in
 			switch event {
-			case let .Next(value):
-				next(value)
+			case let .Next(box):
+				next(box.value)
 
 			case let .Error(err):
 				error(err)

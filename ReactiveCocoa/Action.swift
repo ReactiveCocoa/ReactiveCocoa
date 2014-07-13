@@ -23,7 +23,7 @@ import Foundation
 	let _execute: I -> Promise<Result<O>>
 	let _executions = SignalingProperty<ExecutionSignal?>(nil)
 
-	/// An observable of the observables returned from execute().
+	/// A signal of the signals returned from execute().
 	///
 	/// This will be non-nil while executing, nil between executions, and will
 	/// only update on the main thread.
@@ -93,7 +93,7 @@ import Foundation
 	/// Executes the action on the main thread with the given input.
 	///
 	/// If the action is disabled when this method is invoked, the returned
-	/// observable will be set to `notEnabledError`, and no result will be sent
+	/// signal will be set to `notEnabledError`, and no result will be sent
 	/// along the action itself.
 	func execute(input: I) -> ExecutionSignal {
 		let results = SignalingProperty<Result<O>?>(nil)

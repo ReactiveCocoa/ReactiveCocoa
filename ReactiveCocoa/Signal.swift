@@ -86,7 +86,7 @@
 		var token: Bag.RemovalToken? = nil
 
 		dispatch_barrier_sync(_queue) {
-			token = self._observers.add(sink)
+			token = self._observers.insert(sink)
 			sink.put(self._current!)
 		}
 

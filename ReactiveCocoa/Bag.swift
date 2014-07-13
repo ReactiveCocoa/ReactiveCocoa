@@ -13,9 +13,9 @@ struct Bag<T>: Sequence {
 	var _next: UInt = 0
 	var _elements = [UInt: T]()
 
-	/// Adds the given value to the collection, and returns a token that can
+	/// Inserts the given value in the collection, and returns a token that can
 	/// later be passed to removeValueForToken().
-	mutating func add(value: T) -> RemovalToken {
+	mutating func insert(value: T) -> RemovalToken {
 		let start = _next
 
 		while _elements[_next] {
@@ -34,7 +34,7 @@ struct Bag<T>: Sequence {
 		}
 	}
 
-	/// Removes a value, given the token returned from add().
+	/// Removes a value, given the token returned from insert().
 	///
 	/// If the value has already been removed, nothing happens.
 	mutating func removeValueForToken(token: RemovalToken) {

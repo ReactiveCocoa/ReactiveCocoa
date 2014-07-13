@@ -22,7 +22,7 @@
 			var token: Bag.RemovalToken? = nil
 
 			dispatch_barrier_sync(self._queue) {
-				token = self._consumers.add(consumer)
+				token = self._consumers.insert(consumer)
 
 				for event in self._eventBuffer {
 					consumer.put(event)

@@ -607,17 +607,7 @@ struct Producer<T> {
 	/// Performs the given action upon each value in the receiver, bailing out
 	/// with an error if it returns `false`.
 	func try(f: (T, NSErrorPointer) -> Bool) -> Producer<T> {
-		return self
-			.map { value in
-				var error: NSError?
-				if f(value, &error) {
-					return .single(value)
-				} else {
-					// FIXME
-					return .error(error.orDefault(emptyError))
-				}
-			}
-			.merge(identity)
+		return tryMap { (value, error) in f(value, error) ? value : nil }
 	}
 
 	/// Attempts to map each value in the receiver, bailing out with an error if

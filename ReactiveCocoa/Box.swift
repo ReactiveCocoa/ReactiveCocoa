@@ -6,8 +6,6 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-import Foundation
-
 /// An immutable wrapper that can turn any value into an object.
 @final class Box<T> {
 	let _closure: () -> T

@@ -6,8 +6,6 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-import Foundation
-
 /// An atomic variable.
 @final class Atomic<T> {
 	var _spinlock = OS_SPINLOCK_INIT

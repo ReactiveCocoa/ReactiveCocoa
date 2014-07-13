@@ -6,8 +6,6 @@
 //  Copyright (c) 2014 GitHub, Inc. All rights reserved.
 //
 
-import Foundation
-
 func _dummyNext(value: Any) {}
 func _dummyError(error: NSError) {}
 func _dummyCompleted() {}

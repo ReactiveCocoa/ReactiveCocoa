@@ -6,8 +6,6 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-import Foundation
-
 /// A push-driven stream that sends the same values to all observers.
 @final class Signal<T> {
 	let _queue = dispatch_queue_create("com.github.ReactiveCocoa.Signal", DISPATCH_QUEUE_CONCURRENT)

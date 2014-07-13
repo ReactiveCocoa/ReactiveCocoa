@@ -6,8 +6,6 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-import Foundation
-
 /// An unordered, non-unique collection of values of type T.
 struct Bag<T>: Sequence {
 	typealias RemovalToken = () -> UInt?

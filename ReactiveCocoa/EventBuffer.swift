@@ -6,8 +6,6 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-import Foundation
-
 /// A buffer for Events that can be treated as a Sink or a Producer.
 @final class EventBuffer<T>: Sink {
 	typealias Element = Event<T>

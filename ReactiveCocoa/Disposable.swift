@@ -6,8 +6,6 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-import Foundation
-
 /// Represents something that can be “disposed,” usually associated with freeing
 /// resources or canceling work.
 protocol Disposable {

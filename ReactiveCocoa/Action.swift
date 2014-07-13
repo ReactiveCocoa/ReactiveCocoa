@@ -6,8 +6,6 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-import Foundation
-
 /// Represents a UI action that will perform some work when executed.
 @final class Action<I, O> {
 	typealias ExecutionSignal = Signal<Result<O>?>

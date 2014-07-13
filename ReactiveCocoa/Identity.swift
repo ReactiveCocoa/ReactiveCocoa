@@ -6,8 +6,6 @@
 //  Copyright (c) 2014 Maxwell Swadling. All rights reserved.
 //
 
-import Foundation
-
 /// The identity function, which returns its argument.
 ///
 /// This can be used to prove to the typechecker that a given type A is

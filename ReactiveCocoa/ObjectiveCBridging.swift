@@ -6,8 +6,6 @@
 //  Copyright (c) 2014 GitHub, Inc. All rights reserved.
 //
 
-import Foundation
-
 extension RACDisposable: Disposable {}
 extension RACScheduler: DateScheduler {
 	func schedule(action: () -> ()) -> Disposable? {

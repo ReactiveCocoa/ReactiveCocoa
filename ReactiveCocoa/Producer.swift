@@ -6,8 +6,6 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-import Foundation
-
 /// A pull-driven stream that executes work when a consumer is attached.
 struct Producer<T> {
 	let _produce: Consumer<T> -> ()

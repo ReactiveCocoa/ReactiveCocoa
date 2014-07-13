@@ -6,8 +6,6 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-import Foundation
-
 /// Represents a successful result or an error that occurred.
 enum Result<T> {
 	/// A valid, successful value was generated.

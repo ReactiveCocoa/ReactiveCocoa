@@ -6,8 +6,6 @@
 //  Copyright (c) 2014 GitHub, Inc. All rights reserved.
 //
 
-import Foundation
-
 extension NSNotificationCenter {
 	/// Returns a Signal of the latest posted notification that matches the
 	/// given criteria.

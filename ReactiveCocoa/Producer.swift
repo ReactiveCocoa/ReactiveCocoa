@@ -6,7 +6,12 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-/// A pull-driven stream that executes work when a consumer is attached.
+/// A stream that will begin generating Events when a Consumer is attached,
+/// possibly performing some side effects in the process. Events are pushed to
+/// the consumer as they are generated.
+///
+/// A corollary to this is that different Consumers may see a different timing
+/// of Events, or even a different version of events altogether.
 struct Producer<T> {
 	let _produce: Consumer<T> -> ()
 

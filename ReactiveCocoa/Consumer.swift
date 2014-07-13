@@ -6,9 +6,9 @@
 //  Copyright (c) 2014 GitHub, Inc. All rights reserved.
 //
 
-func _dummyNext(value: Any) {}
-func _dummyError(error: NSError) {}
-func _dummyCompleted() {}
+func _emptyNext(value: Any) {}
+func _emptyError(error: NSError) {}
+func _emptyCompleted() {}
 
 /// Receives events from a Producer.
 @final class Consumer<T>: Sink {
@@ -40,7 +40,7 @@ func _dummyCompleted() {}
 
 	/// Initializes a Consumer with zero or more different callbacks, based
 	/// on the type of Event received.
-	convenience init(next: T -> () = _dummyNext, error: NSError -> () = _dummyError, completed: () -> () = _dummyCompleted) {
+	convenience init(next: T -> () = _emptyNext, error: NSError -> () = _emptyError, completed: () -> () = _emptyCompleted) {
 		self.init(SinkOf<Element> { event in
 			switch event {
 			case let .Next(value):

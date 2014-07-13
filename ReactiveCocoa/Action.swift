@@ -20,6 +20,7 @@ import Foundation
 		return NSError(domain: "RACAction", code: 1, userInfo: nil)
 	}
 
+	let _scheduler: Scheduler
 	let _execute: I -> Promise<Result<O>>
 	let _executions = SignalingProperty<ExecutionSignal?>(nil)
 
@@ -76,8 +77,9 @@ import Foundation
 
 	/// Initializes an action that will be conditionally enabled, and create
 	/// a Promise for each execution.
-	init(enabledIf: Signal<Bool>, execute: I -> Promise<Result<O>>) {
+	init(enabledIf: Signal<Bool>, scheduler: Scheduler = MainScheduler(), execute: I -> Promise<Result<O>>) {
 		_execute = execute
+		_scheduler = scheduler
 
 		enabled = .constant(true)
 		enabled = enabledIf
@@ -86,8 +88,8 @@ import Foundation
 	}
 
 	/// Initializes an action that will create a Promise for each execution.
-	convenience init(execute: I -> Promise<Result<O>>) {
-		self.init(enabledIf: .constant(true), execute: execute)
+	convenience init(scheduler: Scheduler = MainScheduler(), execute: I -> Promise<Result<O>>) {
+		self.init(enabledIf: .constant(true), scheduler: scheduler, execute: execute)
 	}
 
 	/// Executes the action on the main thread with the given input.
@@ -98,7 +100,7 @@ import Foundation
 	func execute(input: I) -> ExecutionSignal {
 		let results = SignalingProperty<Result<O>?>(nil)
 
-		MainScheduler().schedule {
+		_scheduler.schedule {
 			if (!self.enabled.current) {
 				results.value = Result.Error(self.notEnabledError)
 				return
@@ -106,7 +108,7 @@ import Foundation
 
 			let promise = self._execute(input)
 			let execution: ExecutionSignal = promise.signal
-				.deliverOn(MainScheduler())
+				.deliverOn(self._scheduler)
 				// Remove one layer of optional binding caused by the `deliverOn`.
 				.unwrapOptionals(identity, initialValue: nil)
 

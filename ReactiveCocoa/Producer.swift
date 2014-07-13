@@ -615,16 +615,29 @@ struct Producer<T> {
 	/// Attempts to map each value in the receiver, bailing out with an error if
 	/// a given mapping is `nil`.
 	func tryMap<U>(f: (T, NSErrorPointer) -> U?) -> Producer<U> {
+		return tryMap { value -> Result<U> in
+			var error: NSError?
+			let maybeValue = f(value, &error)
+
+			if let v = maybeValue {
+				return .Value(v)
+			} else {
+				return .Error(error.orDefault(emptyError))
+			}
+		}
+	}
+
+	/// Attempts to map each value in the receiver, bailing out with an error if
+	/// a given mapping fails.
+	func tryMap<U>(f: T -> Result<U>) -> Producer<U> {
 		return self
 			.map { value in
-				var error: NSError?
-				let maybeValue = f(value, &error)
+				switch f(value) {
+				case let .Value(valueClosure):
+					return .single(valueClosure())
 
-				if let v = maybeValue {
-					return .single(v)
-				} else {
-					// FIXME
-					return .error(error.orDefault(emptyError))
+				case let .Error(error):
+					return .error(error)
 				}
 			}
 			.merge(identity)

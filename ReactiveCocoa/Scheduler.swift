@@ -159,15 +159,13 @@ struct QueueScheduler: DateScheduler {
 
 	/// The virtual date that the scheduler is currently at.
 	var currentDate: NSDate {
-		get {
-			var d: NSDate? = nil
+		var d: NSDate? = nil
 
-			_lock.lock()
-			d = self._currentDate
-			_lock.unlock()
+		_lock.lock()
+		d = self._currentDate
+		_lock.unlock()
 
-			return d!
-		}
+		return d!
 	}
 
 	var _scheduledActions: [ScheduledAction] = []

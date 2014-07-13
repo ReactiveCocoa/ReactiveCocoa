@@ -14,9 +14,7 @@ import Foundation
 
 	/// The underlying value.
 	var value: T {
-		get {
-			return _closure()
-		}
+		return _closure()
 	}
 	
 	/// Initializes the box to wrap the given value.

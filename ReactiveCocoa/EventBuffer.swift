@@ -20,22 +20,20 @@ import Foundation
 	var _terminated = false
 
 	var producer: Producer<T> {
-		get {
-			return Producer { consumer in
-				var token: Bag.RemovalToken? = nil
+		return Producer { consumer in
+			var token: Bag.RemovalToken? = nil
 
-				dispatch_barrier_sync(self._queue) {
-					token = self._consumers.add(consumer)
+			dispatch_barrier_sync(self._queue) {
+				token = self._consumers.add(consumer)
 
-					for event in self._eventBuffer {
-						consumer.put(event)
-					}
+				for event in self._eventBuffer {
+					consumer.put(event)
 				}
+			}
 
-				consumer.disposable.addDisposable {
-					dispatch_barrier_async(self._queue) {
-						self._consumers.removeValueForToken(token!)
-					}
+			consumer.disposable.addDisposable {
+				dispatch_barrier_async(self._queue) {
+					self._consumers.removeValueForToken(token!)
 				}
 			}
 		}

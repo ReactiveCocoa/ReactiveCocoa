@@ -25,14 +25,12 @@ enum Event<T> {
 	/// Whether this event indicates stream termination (from success or
 	/// failure).
 	var isTerminating: Bool {
-		get {
-			switch self {
-			case let .Next:
-				return false
-			
-			default:
-				return true
-			}
+		switch self {
+		case let .Next:
+			return false
+		
+		default:
+			return true
 		}
 	}
 	

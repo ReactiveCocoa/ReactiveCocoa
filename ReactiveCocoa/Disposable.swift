@@ -23,9 +23,7 @@ struct SimpleDisposable: Disposable {
 	var _disposed = Atomic(false)
 
 	var disposed: Bool {
-		get {
-			return _disposed
-		}
+		return _disposed
 	}
 	
 	func dispose() {
@@ -38,9 +36,7 @@ struct ActionDisposable: Disposable {
 	var _action: Atomic<(() -> ())?>
 
 	var disposed: Bool {
-		get {
-			return !_action.value
-		}
+		return !_action.value
 	}
 
 	/// Initializes the disposable to run the given action upon disposal.
@@ -59,9 +55,7 @@ struct CompositeDisposable: Disposable {
 	var _disposables: Atomic<[Disposable]?>
 	
 	var disposed: Bool {
-		get {
-			return !_disposables.value
-		}
+		return !_disposables.value
 	}
 
 	/// Initializes a CompositeDisposable containing the given list of
@@ -127,9 +121,7 @@ struct CompositeDisposable: Disposable {
 	let innerDisposable: D
 	
 	var disposed: Bool {
-		get {
-			return innerDisposable.disposed
-		}
+		return innerDisposable.disposed
 	}
 	
 	/// Initializes the receiver to dispose of the argument upon
@@ -157,9 +149,7 @@ struct CompositeDisposable: Disposable {
 	var _state = Atomic(_State())
 
 	var disposed: Bool {
-		get {
-			return _state.value.disposed
-		}
+		return _state.value.disposed
 	}
 
 	/// The inner disposable to dispose of.

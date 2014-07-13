@@ -18,15 +18,13 @@ import Foundation
 
 	/// The current (most recent) value of the Signal.
 	var current: T {
-		get {
-			var value: T? = nil
+		var value: T? = nil
 
-			dispatch_sync(_queue) {
-				value = self._current
-			}
-
-			return value!
+		dispatch_sync(_queue) {
+			value = self._current
 		}
+
+		return value!
 	}
 	
 	/// Initializes a Signal with the given starting value, and an action to

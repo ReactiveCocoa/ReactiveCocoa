@@ -15,11 +15,9 @@ import Foundation
 	/// The error that will be sent if execute() is invoked while the action is
 	/// disabled.
 	var notEnabledError: NSError {
-		get {
-			// TODO: Put these domains and codes into constants for the whole framework.
-			// TODO: Use real userInfo here.
-			return NSError(domain: "RACAction", code: 1, userInfo: nil)
-		}
+		// TODO: Put these domains and codes into constants for the whole framework.
+		// TODO: Use real userInfo here.
+		return NSError(domain: "RACAction", code: 1, userInfo: nil)
 	}
 
 	let _execute: I -> Promise<Result<O>>
@@ -30,9 +28,7 @@ import Foundation
 	/// This will be non-nil while executing, nil between executions, and will
 	/// only update on the main thread.
 	var executions: Signal<ExecutionSignal?> {
-		get {
-			return _executions
-		}
+		return _executions
 	}
 
 	/// A signal of all success and error results from the receiver.
@@ -41,20 +37,16 @@ import Foundation
 	/// `nil`. Afterwards, it will always forward the latest results from any
 	/// calls to execute() on the main thread.
 	var results: Signal<Result<O>?> {
-		get {
-			return executions
-				.unwrapOptionals(identity, initialValue: .constant(nil))
-				.switchToLatest(identity)
-		}
+		return executions
+			.unwrapOptionals(identity, initialValue: .constant(nil))
+			.switchToLatest(identity)
 	}
 
 	/// Whether the action is currently executing.
 	///
 	/// This will only update on the main thread.
 	var executing: Signal<Bool> {
-		get {
-			return executions.map { !(!$0) }
-		}
+		return executions.map { !(!$0) }
 	}
 
 	/// Whether the action is enabled.
@@ -67,10 +59,8 @@ import Foundation
 	/// This will be `nil` before the first execution and whenever an error
 	/// occurs.
 	var values: Signal<O?> {
-		get {
-			return results.map { maybeResult in
-				return maybeResult?.result(ifSuccess: identity, ifError: { _ -> O? in nil })
-			}
+		return results.map { maybeResult in
+			return maybeResult?.result(ifSuccess: identity, ifError: { _ -> O? in nil })
 		}
 	}
 
@@ -79,10 +69,8 @@ import Foundation
 	/// This will be `nil` before the first execution and whenever execution
 	/// completes successfully.
 	var errors: Signal<NSError?> {
-		get {
-			return results.map { maybeResult in
-				return maybeResult?.result(ifSuccess: { _ -> NSError? in nil }, ifError: identity)
-			}
+		return results.map { maybeResult in
+			return maybeResult?.result(ifSuccess: { _ -> NSError? in nil }, ifError: identity)
 		}
 	}
 

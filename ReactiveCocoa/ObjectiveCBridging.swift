@@ -108,7 +108,7 @@ extension Producer {
 	/// upon each subscription.
 	///
 	/// evidence - Used to prove to the typechecker that the receiver is
-	///            a stream of objects. Simply pass in the `identity` function.
+	///            a producer of objects. Simply pass in the `identity` function.
 	func asDeferredRACSignal<U: AnyObject>(evidence: Producer<T> -> Producer<U?>) -> RACSignal {
 		return RACSignal.createSignal { subscriber in
 			let selfDisposable = evidence(self).produce { event in
@@ -135,7 +135,7 @@ extension Signal {
 	/// Creates a "hot" RACSignal that will forward values from the receiver.
 	///
 	/// evidence - Used to prove to the typechecker that the receiver is
-	///            a stream of objects. Simply pass in the `identity` function.
+	///            a signal of objects. Simply pass in the `identity` function.
 	///
 	/// Returns an infinite signal that will send the observable's current
 	/// value, then all changes thereafter. The signal will never complete or

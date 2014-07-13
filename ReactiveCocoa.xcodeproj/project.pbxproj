@@ -401,6 +401,8 @@
 		D047999D196673B00066B267 /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0479999196673AC0066B267 /* Quick.framework */; };
 		D047999F196678F20066B267 /* ObjectiveCBridgingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047999E196678F20066B267 /* ObjectiveCBridgingSpec.swift */; };
 		D04799A0196678F20066B267 /* ObjectiveCBridgingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047999E196678F20066B267 /* ObjectiveCBridgingSpec.swift */; };
+		D095745519733BAD002D44C1 /* swiftz_core.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D095745419733BAD002D44C1 /* swiftz_core.framework */; };
+		D095745619733BB1002D44C1 /* swiftz_core.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D095745419733BAD002D44C1 /* swiftz_core.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -875,6 +877,7 @@
 		D0479998196673AC0066B267 /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Nimble.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0479999196673AC0066B267 /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Quick.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D047999E196678F20066B267 /* ObjectiveCBridgingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectiveCBridgingSpec.swift; sourceTree = "<group>"; };
+		D095745419733BAD002D44C1 /* swiftz_core.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = swiftz_core.framework; path = "../../../../../../../../../Library/Developer/Xcode/DerivedData/ReactiveCocoa-fvhormsvfcxumbbehgudvscdctdn/Build/Products/Debug/swiftz_core.framework"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -882,6 +885,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D095745519733BAD002D44C1 /* swiftz_core.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -899,6 +903,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D095745619733BB1002D44C1 /* swiftz_core.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -950,6 +955,7 @@
 		D047967619666BF30066B267 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				D095745419733BAD002D44C1 /* swiftz_core.framework */,
 				D04797B0196670900066B267 /* ReactiveCocoa-Bridging-Header.h */,
 				D0479995196673730066B267 /* ReactiveCocoa-Prefix.pch */,
 				D047967719666BF30066B267 /* Info.plist */,
@@ -2105,6 +2111,10 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ReactiveCocoa-fvhormsvfcxumbbehgudvscdctdn/Build/Products/Debug",
+				);
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
@@ -2119,6 +2129,10 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ReactiveCocoa-fvhormsvfcxumbbehgudvscdctdn/Build/Products/Debug",
+				);
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
@@ -2152,6 +2166,10 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ReactiveCocoa-fvhormsvfcxumbbehgudvscdctdn/Build/Products/Debug",
+				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = ReactiveCocoa;
@@ -2165,6 +2183,10 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ReactiveCocoa-fvhormsvfcxumbbehgudvscdctdn/Build/Products/Debug",
+				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = ReactiveCocoa;
@@ -2226,6 +2248,10 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ReactiveCocoa-fvhormsvfcxumbbehgudvscdctdn/Build/Products/Debug",
+				);
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
@@ -2249,6 +2275,10 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ReactiveCocoa-fvhormsvfcxumbbehgudvscdctdn/Build/Products/Debug",
+				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = ReactiveCocoa;
@@ -2293,6 +2323,10 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ReactiveCocoa-fvhormsvfcxumbbehgudvscdctdn/Build/Products/Debug",
+				);
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
@@ -2317,6 +2351,10 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ReactiveCocoa-fvhormsvfcxumbbehgudvscdctdn/Build/Products/Debug",
+				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = ReactiveCocoa;

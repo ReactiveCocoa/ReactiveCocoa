@@ -10,4 +10,7 @@
    <FileRef
       location = "group:External/Quick/Quick/Quick.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:External/swiftz/swiftz_core/swiftz_core.xcodeproj">
+   </FileRef>
 </Workspace>

@@ -9,18 +9,15 @@
 extension RACDisposable: Disposable {}
 extension RACScheduler: DateScheduler {
 	func schedule(action: () -> ()) -> Disposable? {
-		let disposable: RACDisposable? = self.schedule(action)
-		return disposable
+		return self.schedule(action)
 	}
 
 	func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable? {
-		let disposable: RACDisposable? = self.after(date, schedule: action)
-		return disposable
+		return self.after(date, schedule: action)
 	}
 
 	func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> ()) -> Disposable? {
-		let disposable: RACDisposable? = self.after(date, repeatingEvery: repeatingEvery, withLeeway: withLeeway, schedule: action)
-		return disposable
+		return self.after(date, repeatingEvery: repeatingEvery, withLeeway: withLeeway, schedule: action)
 	}
 }
 

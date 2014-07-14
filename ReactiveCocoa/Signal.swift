@@ -309,22 +309,59 @@
 	/// Returns a Producer over the buffered values, and a Disposable which
 	/// can be used to cancel all further buffering.
 	func buffer(capacity: Int? = nil) -> (Producer<T>, Disposable) {
-		let buffer = EventBuffer<T>(capacity: capacity)
+		let queue = dispatch_queue_create("com.github.ReactiveCocoa.Signal.buffer", DISPATCH_QUEUE_CONCURRENT)
+		var compositeDisposable = CompositeDisposable()
 
-		// TODO: How does `self` get retained properly?
-		let observationDisposable = self.observe { value in
-			buffer.put(.Next(Box(value)))
+		var bufferedValues: [T] = []
+		let bufferDisposable = self.observe { value in
+			// Append to the buffer synchronously, so that Consumers attempting
+			// to connect simultaneously (below) see a consistent view of
+			// buffered vs. future values.
+			dispatch_barrier_sync(queue) {
+				bufferedValues.append(value)
+
+				if let c = capacity {
+					while bufferedValues.count > c {
+						bufferedValues.removeAtIndex(0)
+					}
+				}
+			}
 		}
 
-		let bufferDisposable = ActionDisposable {
-			observationDisposable.dispose()
+		compositeDisposable.addDisposable(bufferDisposable)
 
-			// FIXME: This violates the buffer size, since it will now only
-			// contain N - 1 values.
-			buffer.put(.Completed)
+		let producer = Producer<T> { consumer in
+			var observeDisposable: Disposable? = nil
+
+			dispatch_sync(queue) {
+				// Send all values accumulated to this point…
+				for value in bufferedValues {
+					consumer.put(.Next(Box(value)))
+				}
+
+				// then all future changes as well.
+				observeDisposable = self.skip(1).observe { maybeValue in
+					if let value = maybeValue {
+						consumer.put(.Next(Box(value)))
+					}
+				}
+			}
+
+			let completeDisposable = ActionDisposable {
+				// Stop observing value changes, and terminate the Consumer.
+				observeDisposable!.dispose()
+				consumer.put(.Completed)
+
+				// Remove this disposable from the CompositeDisposable to
+				// prevent infinite resource growth.
+				compositeDisposable.pruneDisposed()
+			}
+
+			consumer.disposable.addDisposable(completeDisposable)
+			compositeDisposable.addDisposable(completeDisposable)
 		}
 
-		return (buffer, bufferDisposable)
+		return (producer, compositeDisposable)
 	}
 
 	/// Preserves only the values of the stream that pass the given predicate.

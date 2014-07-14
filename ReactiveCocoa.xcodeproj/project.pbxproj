@@ -401,6 +401,8 @@
 		D047999D196673B00066B267 /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0479999196673AC0066B267 /* Quick.framework */; };
 		D047999F196678F20066B267 /* ObjectiveCBridgingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047999E196678F20066B267 /* ObjectiveCBridgingSpec.swift */; };
 		D04799A0196678F20066B267 /* ObjectiveCBridgingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047999E196678F20066B267 /* ObjectiveCBridgingSpec.swift */; };
+		D0E3CF551973AFC7004FD181 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E3CF541973AFC7004FD181 /* Errors.swift */; };
+		D0E3CF561973AFC7004FD181 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E3CF541973AFC7004FD181 /* Errors.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -875,6 +877,7 @@
 		D0479998196673AC0066B267 /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Nimble.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0479999196673AC0066B267 /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Quick.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D047999E196678F20066B267 /* ObjectiveCBridgingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectiveCBridgingSpec.swift; sourceTree = "<group>"; };
+		D0E3CF541973AFC7004FD181 /* Errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1052,6 +1055,7 @@
 				D047970C196670900066B267 /* Box.swift */,
 				D047970E196670900066B267 /* Consumer.swift */,
 				D047970F196670900066B267 /* Disposable.swift */,
+				D0E3CF541973AFC7004FD181 /* Errors.swift */,
 				D0479710196670900066B267 /* Event.swift */,
 				D047970D196670900066B267 /* EventBuffer.swift */,
 				D0479711196670900066B267 /* Identity.swift */,
@@ -1698,6 +1702,7 @@
 				D0479893196670900066B267 /* RACEmptySequence.m in Sources */,
 				D047988F196670900066B267 /* RACEagerSequence.m in Sources */,
 				D0479935196670900066B267 /* SignalingProperty.swift in Sources */,
+				D0E3CF551973AFC7004FD181 /* Errors.swift in Sources */,
 				D047985D196670900066B267 /* Promise.swift in Sources */,
 				D0479805196670900066B267 /* NSEnumerator+RACSequenceAdditions.m in Sources */,
 				D0479925196670900066B267 /* RACUnit.m in Sources */,
@@ -1887,6 +1892,7 @@
 				D047987C196670900066B267 /* RACCompoundDisposableProvider.d in Sources */,
 				D0479974196670900066B267 /* UISwitch+RACSignalSupport.m in Sources */,
 				D047980A196670900066B267 /* NSFileHandle+RACSupport.m in Sources */,
+				D0E3CF561973AFC7004FD181 /* Errors.swift in Sources */,
 				D04798C2196670900066B267 /* RACPassthroughSubscriber.m in Sources */,
 				D036AA4C196FBCCD00B49B76 /* Bag.swift in Sources */,
 				D047991A196670900066B267 /* RACTuple.m in Sources */,

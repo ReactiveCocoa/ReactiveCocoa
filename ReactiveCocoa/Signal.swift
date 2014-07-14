@@ -93,12 +93,11 @@
 			sink.put(self._current!)
 		}
 
-		// TODO: Retain `self` strongly?
-		return ActionDisposable { [weak self] in
-			if let strongSelf = self {
-				dispatch_barrier_async(strongSelf._queue) {
-					strongSelf._observers.removeValueForToken(token!)
-				}
+		return ActionDisposable {
+			// Retain `self` strongly so that observers can hold onto the Signal
+			// _or_ the Disposable to ensure the receipt of values.
+			dispatch_barrier_async(self._queue) {
+				self._observers.removeValueForToken(token!)
 			}
 		}
 	}

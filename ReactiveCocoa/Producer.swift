@@ -621,8 +621,7 @@ struct Producer<T> {
 				if let v = maybeValue {
 					return .single(v)
 				} else {
-					// FIXME
-					return .error(error.orDefault(emptyError))
+					return .error(error.orDefault(RACError.Empty.error))
 				}
 			}
 			.merge(identity)

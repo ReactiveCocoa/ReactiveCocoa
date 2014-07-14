@@ -403,6 +403,8 @@
 		D095745C197341C2002D44C1 /* BagSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D095745A197341C2002D44C1 /* BagSpec.swift */; };
 		D095745E197344E3002D44C1 /* DisposableSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D095745D197344E3002D44C1 /* DisposableSpec.swift */; };
 		D095745F197344E3002D44C1 /* DisposableSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D095745D197344E3002D44C1 /* DisposableSpec.swift */; };
+		D09574611973506C002D44C1 /* SchedulerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D09574601973506C002D44C1 /* SchedulerSpec.swift */; };
+		D09574621973506C002D44C1 /* SchedulerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D09574601973506C002D44C1 /* SchedulerSpec.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -878,6 +880,7 @@
 		D095745719733F74002D44C1 /* AtomicSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AtomicSpec.swift; sourceTree = "<group>"; };
 		D095745A197341C2002D44C1 /* BagSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BagSpec.swift; sourceTree = "<group>"; };
 		D095745D197344E3002D44C1 /* DisposableSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DisposableSpec.swift; sourceTree = "<group>"; };
+		D09574601973506C002D44C1 /* SchedulerSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SchedulerSpec.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1280,6 +1283,7 @@
 				D095745A197341C2002D44C1 /* BagSpec.swift */,
 				D095745D197344E3002D44C1 /* DisposableSpec.swift */,
 				D047999E196678F20066B267 /* ObjectiveCBridgingSpec.swift */,
+				D09574601973506C002D44C1 /* SchedulerSpec.swift */,
 			);
 			name = Swift;
 			sourceTree = "<group>";
@@ -1769,6 +1773,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D095745E197344E3002D44C1 /* DisposableSpec.swift in Sources */,
+				D09574611973506C002D44C1 /* SchedulerSpec.swift in Sources */,
 				D047999F196678F20066B267 /* ObjectiveCBridgingSpec.swift in Sources */,
 				D095745819733F74002D44C1 /* AtomicSpec.swift in Sources */,
 				D095745B197341C2002D44C1 /* BagSpec.swift in Sources */,
@@ -1893,6 +1898,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D095745F197344E3002D44C1 /* DisposableSpec.swift in Sources */,
+				D09574621973506C002D44C1 /* SchedulerSpec.swift in Sources */,
 				D04799A0196678F20066B267 /* ObjectiveCBridgingSpec.swift in Sources */,
 				D095745919733F74002D44C1 /* AtomicSpec.swift in Sources */,
 				D095745C197341C2002D44C1 /* BagSpec.swift in Sources */,

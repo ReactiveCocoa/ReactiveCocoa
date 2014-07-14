@@ -44,7 +44,7 @@ struct ImmediateScheduler: Scheduler {
 
 /// A scheduler that performs all work on the main thread.
 struct MainScheduler: DateScheduler {
-	let _innerScheduler = QueueScheduler(dispatch_get_main_queue())
+	let _innerScheduler = QueueScheduler(queue: dispatch_get_main_queue())
 
 	func schedule(action: () -> ()) -> Disposable? {
 		return _innerScheduler.schedule(action)
@@ -67,20 +67,18 @@ struct QueueScheduler: DateScheduler {
 	///
 	/// Even if the queue is concurrent, all work items enqueued with the
 	/// QueueScheduler will be serial with respect to each other.
-	init(_ queue: dispatch_queue_t) {
+	init(queue: dispatch_queue_t) {
 		dispatch_set_target_queue(_queue, queue)
 	}
 	
 	/// Initializes a scheduler that will target the global queue with the given
 	/// priority.
-	init(_ priority: CLong) {
-		self.init(dispatch_get_global_queue(priority, 0))
-	}
-	
-	/// Initializes a scheduler that will target the default priority global
-	/// queue.
-	init() {
-		self.init(DISPATCH_QUEUE_PRIORITY_DEFAULT)
+	init(priority: CLong = DISPATCH_QUEUE_PRIORITY_DEFAULT) {
+		dispatch_set_target_queue(_queue, dispatch_get_global_queue(priority, 0))
+
+		// TODO: This should eventually work, but currently crashes at runtime.
+		// Radar filed.
+		//self.init(queue: dispatch_get_global_queue(priority, 0))
 	}
 	
 	func schedule(action: () -> ()) -> Disposable? {

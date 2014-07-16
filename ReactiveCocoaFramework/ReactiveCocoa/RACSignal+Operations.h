@@ -637,21 +637,21 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// the receiver sends anything other than NSNumbers.
 ///
 /// Returns a signal of inverted NSNumber-wrapped BOOLs.
-- (RACSignal *)not;
+- (RACSignal *)notEach;
 
 /// Performs a boolean AND on all of the RACTuple of NSNumbers in sent by the receiver.
 ///
 /// Asserts if the receiver sends anything other than a RACTuple of one or more NSNumbers.
 ///
 /// Returns a signal that applies AND to each NSNumber in the tuple.
-- (RACSignal *)and;
+- (RACSignal *)reduceAnd;
 
 /// Performs a boolean OR on all of the RACTuple of NSNumbers in sent by the receiver.
 ///
 /// Asserts if the receiver sends anything other than a RACTuple of one or more NSNumbers.
 /// 
 /// Returns a signal that applies OR to each NSNumber in the tuple.
-- (RACSignal *)or;
+- (RACSignal *)reduceOr;
 
 /// Sends the result of calling the block with arguments as packed in each RACTuple
 /// sent by the receiver.
@@ -691,5 +691,8 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 - (RACSignal *)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock __attribute__((deprecated("Renamed to -aggregateWithStart:reduce:")));
 - (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock __attribute__((deprecated("Renamed to -aggregateWithStartFactory:reduce:")));
 - (RACDisposable *)executeCommand:(RACCommand *)command __attribute__((deprecated("Use -flattenMap: or -subscribeNext: instead")));
+- (RACSignal *)and __attribute__((deprecated("Renamed to -reduceAnd for Swift compatibility")));
+- (RACSignal *)or __attribute__((deprecated("Renamed to -reduceOr for Swift compatibility")));
+- (RACSignal *)not __attribute__((deprecated("Renamed to -notEach for Swift compatibility")));
 
 @end

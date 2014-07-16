@@ -7,6 +7,7 @@
 //
 
 #import "EXTKeyPathCoding.h"
+#import "EXTScope.h"
 #import "NSArray+RACSequenceAdditions.h"
 #import "NSData+RACSupport.h"
 #import "NSDictionary+RACSequenceAdditions.h"
@@ -24,6 +25,7 @@
 #import "NSIndexSet+RACSequenceAdditions.h"
 #import "NSURLConnection+RACSupport.h"
 #import "NSUserDefaults+RACSupport.h"
+#import "RACBacktrace.h"
 #import "RACBehaviorSubject.h"
 #import "RACChannel.h"
 #import "RACCommand.h"
@@ -34,8 +36,10 @@
 #import "RACKVOChannel.h"
 #import "RACMulticastConnection.h"
 #import "RACQueueScheduler.h"
+#import "RACQueueScheduler+Subclass.h"
 #import "RACReplaySubject.h"
 #import "RACScheduler.h"
+#import "RACScheduler+Subclass.h"
 #import "RACScopedDisposable.h"
 #import "RACSequence.h"
 #import "RACSerialDisposable.h"

@@ -439,8 +439,49 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 }
 
 + (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals {
-	return [[self join:signals block:^(RACSignal *left, RACSignal *right) {
-		return [left combineLatestWith:right];
+    return [[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+        RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+
+        NSMutableArray *values = [NSMutableArray array];
+        __block uint activeSignals = 0;
+
+        // Use the disposable as a sentinal to determine when all signals have sent a value
+        for (RACSignal *signal __unused in signals) {
+            [values addObject:disposable];
+            activeSignals++;
+        }
+
+        __block BOOL awaitingInitialValues = YES;
+        uint i = 0;
+        for (RACSignal *signal in signals) {
+            RACDisposable *innerDisposable = [signal
+                                              subscribeNext:^(id x) {
+                                                  @synchronized(disposable) {
+                                                      values[i] = x ?: RACTupleNil.tupleNil;
+                                                      if (awaitingInitialValues) {
+                                                          awaitingInitialValues = [values containsObject:disposable];
+                                                      }
+
+                                                      if (!awaitingInitialValues) {
+                                                          [subscriber sendNext:[RACTuple tupleWithObjectsFromArray:values]];
+                                                      }
+                                                  }
+                                              }
+                                              error:^(NSError *error) {
+                                                  [subscriber sendError:error];
+                                              }
+                                              completed:^{
+                                                  @synchronized(disposable) {
+                                                      if (--activeSignals == 0) {
+                                                          [subscriber sendCompleted];
+                                                      }
+                                                  }
+                                              }];
+            [disposable addDisposable:innerDisposable];
+            i++;
+        }
+
+        return disposable;
 	}] setNameWithFormat:@"+combineLatest: %@", signals];
 }
 

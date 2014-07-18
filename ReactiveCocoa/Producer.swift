@@ -629,7 +629,7 @@ struct Producer<T> {
 	}
 }
 
-/// Extension to simplify Procuder calls.
+/// Extension to simplify Producer calls.
 extension Producer {
     
     /// Convenience function to invoke produce() with a Consumer,

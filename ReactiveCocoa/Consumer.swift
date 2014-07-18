@@ -71,3 +71,37 @@ func _emptyCompleted() {}
 		}
 	}
 }
+
+/// Extension to simplify Consumer calls.
+extension Consumer {
+    
+    func putNext(value: T) {
+        self.put(.Next(Box(value)))
+    }
+    
+    func putCompleted() {
+        self.put(.Completed)
+    }
+    
+    func putError(error: NSError?) {
+        if let e = error {
+            self.put(.Error(e))
+        }
+        else {
+            self.put(.Error(NSError(domain: "RACErrorDomain", code: 1, userInfo: nil))) // FIXME: Create a shared place for errors
+        }
+    }
+    
+}
+
+/// Extension to simplify adding a disposable to Consumer.
+extension Consumer {
+    
+    func addDisposable(action: () -> Void) {
+        self.disposable.addDisposable(action)
+    }
+    
+}
+
+
+

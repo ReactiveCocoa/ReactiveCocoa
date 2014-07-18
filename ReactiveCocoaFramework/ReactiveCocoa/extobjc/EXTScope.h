@@ -102,17 +102,10 @@ static inline void rac_executeCleanupBlock (__strong rac_cleanupBlock_t *block) 
 
 // Details about the choice of backing keyword:
 //
-// The use of @try/@catch/@finally can cause the compiler to suppress
-// return-type warnings.
-// The use of @autoreleasepool {} is not optimized away by the compiler,
-// resulting in superfluous creation of autorelease pools.
-//
-// Since neither option is perfect, and with no other alternatives, the
-// compromise is to use @autorelease in DEBUG builds to maintain compiler
-// analysis, and to use @try/@catch otherwise to avoid insertion of unnecessary
-// autorelease pools.
-#if DEBUG
-#define rac_keywordify autoreleasepool {}
-#else
-#define rac_keywordify try {} @catch (...) {}
-#endif
+// The compiler will (we hope) supress the string comparison
+// and this is better than using `autoreleasepool` or `try {} @catch (...)`
+#define rac_keywordify	_Pragma("clang diagnostic push") \
+						_Pragma("clang diagnostic ignored \"-Wunused-comparison\"") \
+						"" == nil; \
+						_Pragma("clang diagnostic pop")
+

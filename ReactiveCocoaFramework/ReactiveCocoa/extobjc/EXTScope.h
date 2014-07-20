@@ -102,9 +102,9 @@ static inline void rac_executeCleanupBlock (__strong rac_cleanupBlock_t *block) 
 
 // Details about the choice of backing keyword:
 //
-// This is better than using `autoreleasepool` or `try {} @catch (...)`
-#define rac_keywordify	_Pragma("clang diagnostic push") \
-						_Pragma("clang diagnostic ignored \"-Wunused-comparison\"") \
-						"" == nil; \
-						_Pragma("clang diagnostic pop")
-
+// Use a string comparison that will (hopefully) be suppressed by the compiler.
+#define rac_keywordify \
+    _Pragma("clang diagnostic push") \
+    _Pragma("clang diagnostic ignored \"-Wunused-comparison\"") \
+    "" == nil; \
+    _Pragma("clang diagnostic pop")

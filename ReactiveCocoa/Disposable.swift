@@ -160,16 +160,14 @@ struct CompositeDisposable: Disposable {
 		}
 
 		set(d) {
-			_state.modify {
-				var s = $0
-
-				s.innerDisposable?.dispose()
-				s.innerDisposable = d
-				if s.disposed {
-					d?.dispose()
-				}
-
-				return s
+			let oldState = _state.modify { (var state) in
+				state.innerDisposable = d
+				return state
+			}
+			
+			oldState.innerDisposable?.dispose()
+			if oldState.disposed {
+				d?.dispose()
 			}
 		}
 	}

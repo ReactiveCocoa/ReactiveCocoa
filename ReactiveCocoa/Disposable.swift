@@ -81,12 +81,12 @@ struct CompositeDisposable: Disposable {
 			return
 		}
 	
-		let shouldDispose: Bool = _disposables.withValue {
-			if var ds = $0 {
-				ds.append(d!)
-				return false
+		let (_, shouldDispose) = _disposables.modify { ds -> ([Disposable]?, Bool) in
+			if var ds = ds {
+				ds += d!
+				return (ds, false)
 			} else {
-				return true
+				return (nil, true)
 			}
 		}
 		

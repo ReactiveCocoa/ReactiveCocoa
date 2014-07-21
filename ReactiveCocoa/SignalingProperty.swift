@@ -7,7 +7,7 @@
 //
 
 /// Represents a mutable property of type T along with the changes to its value.
-@final class SignalingProperty<T>: Sink {
+final class SignalingProperty<T>: Sink {
 	typealias Element = T
 
 	let _sink: SinkOf<T>
@@ -33,12 +33,12 @@
 	}
 
 	/// Treats the property as its current value in expressions.
-	@conversion func __conversion() -> T {
+	func __conversion() -> T {
 		return value
 	}
 
 	/// Treats the property as a signal of its values in expressions.
-	@conversion func __conversion() -> Signal<T> {
+	func __conversion() -> Signal<T> {
 		return signal
 	}
 

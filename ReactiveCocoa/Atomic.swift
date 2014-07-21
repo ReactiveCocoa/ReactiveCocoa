@@ -7,7 +7,7 @@
 //
 
 /// An atomic variable.
-@final class Atomic<T> {
+final class Atomic<T> {
 	var _spinlock = OS_SPINLOCK_INIT
 	var _value: T
 	
@@ -82,7 +82,7 @@
 	}
 
 	/// Treats the Atomic variable as its underlying value in expressions.
-	@conversion func __conversion() -> T {
+	func __conversion() -> T {
 		return value
 	}
 }

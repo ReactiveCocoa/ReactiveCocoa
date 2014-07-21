@@ -133,8 +133,8 @@ struct QueueScheduler: DateScheduler {
 }
 
 /// A scheduler that implements virtualized time, for use in testing.
-@final class TestScheduler: DateScheduler {
-	@final class ScheduledAction {
+final class TestScheduler: DateScheduler {
+	final class ScheduledAction {
 		let date: NSDate
 		let action: () -> ()
 

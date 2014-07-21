@@ -7,7 +7,7 @@
 //
 
 /// Represents a UI action that will perform some work when executed.
-@final class Action<Input, Output> {
+final class Action<Input, Output> {
 	typealias ExecutionSignal = Signal<Result<Output>?>
 
 	/// The error that will be sent if execute() is invoked while the action is

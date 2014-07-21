@@ -12,7 +12,7 @@ enum _PromiseState<T> {
 }
 
 /// Represents deferred work to generate a value of type T.
-@final class Promise<T> {
+final class Promise<T> {
 	let _state: Atomic<_PromiseState<T>>
 	let _sink: SinkOf<T?>
 

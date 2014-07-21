@@ -11,7 +11,7 @@ func _emptyError(error: NSError) {}
 func _emptyCompleted() {}
 
 /// Receives events from a Producer.
-@final class Consumer<T>: Sink {
+final class Consumer<T>: Sink {
 	typealias Element = Event<T>
 
 	let _sink: Atomic<SinkOf<Element>?>

@@ -7,7 +7,7 @@
 //
 
 /// An immutable wrapper that can turn any value into an object.
-@final class Box<T> {
+final class Box<T> {
 	let _closure: () -> T
 
 	/// The underlying value.
@@ -21,7 +21,7 @@
 	}
 	
 	/// Treats the Box as its underlying value in expressions.
-	@conversion func __conversion() -> T {
+	func __conversion() -> T {
 		return value
 	}
 }

@@ -7,7 +7,7 @@
 //
 
 /// A buffer for Events that can be treated as a Sink or a Producer.
-@final class EventBuffer<T>: Sink {
+final class EventBuffer<T>: Sink {
 	typealias Element = Event<T>
 
 	let _capacity: Int?
@@ -73,7 +73,7 @@
 		}
 	}
 
-	@conversion func __conversion() -> Producer<T> {
+	func __conversion() -> Producer<T> {
 		return producer
 	}
 }

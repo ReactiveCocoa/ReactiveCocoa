@@ -10,7 +10,7 @@
 ///
 /// Unlike the Consumers of a Producer, all observers of a Signal will see the
 /// same version of events.
-@final class Signal<T> {
+final class Signal<T> {
 	let _queue = dispatch_queue_create("com.github.ReactiveCocoa.Signal", DISPATCH_QUEUE_CONCURRENT)
 	let _generator: SinkOf<T> -> ()
 

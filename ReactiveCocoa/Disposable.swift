@@ -113,7 +113,7 @@ struct CompositeDisposable: Disposable {
 
 /// A disposable that, upon deinitialization, will automatically dispose of
 /// another disposable.
-@final class ScopedDisposable<D: Disposable>: Disposable {
+final class ScopedDisposable<D: Disposable>: Disposable {
 	/// The disposable which will be disposed when the ScopedDisposable
 	/// deinitializes.
 	let innerDisposable: D
@@ -138,7 +138,7 @@ struct CompositeDisposable: Disposable {
 }
 
 /// A disposable that will optionally dispose of another disposable.
-@final class SerialDisposable: Disposable {
+final class SerialDisposable: Disposable {
 	struct _State {
 		var innerDisposable: Disposable? = nil
 		var disposed = false

@@ -102,7 +102,7 @@ static inline void rac_executeCleanupBlock (__strong rac_cleanupBlock_t *block) 
 
 // Details about the choice of backing keyword:
 //
-// The use of @try/@catch/finally can cause the compiler to suppress
+// The use of @try/@catch/@finally can cause the compiler to suppress
 // return-type warnings.
 // The use of @autoreleasepool {} is not optimized away by the compiler,
 // resulting in superfluous creation of autorelease pools.

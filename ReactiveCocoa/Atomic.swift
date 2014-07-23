@@ -7,7 +7,7 @@
 //
 
 /// An atomic variable.
-public final class Atomic<T> {
+internal final class Atomic<T> {
 	private var _spinlock = OS_SPINLOCK_INIT
 	private var _value: T
 	

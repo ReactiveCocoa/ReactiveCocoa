@@ -7,7 +7,7 @@
 //
 
 /// An unordered, non-unique collection of values of type T.
-public struct Bag<T>: Sequence {
+internal struct Bag<T>: Sequence {
 	public typealias RemovalToken = () -> UInt?
 
 	private var _next: UInt = 0

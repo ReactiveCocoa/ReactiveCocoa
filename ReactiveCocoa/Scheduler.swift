@@ -134,16 +134,16 @@ public struct QueueScheduler: DateScheduler {
 
 /// A scheduler that implements virtualized time, for use in testing.
 public final class TestScheduler: DateScheduler {
-	public final class ScheduledAction {
-		public let date: NSDate
-		public let action: () -> ()
+	private final class ScheduledAction {
+		let date: NSDate
+		let action: () -> ()
 
-		public init(date: NSDate, action: () -> ()) {
+		init(date: NSDate, action: () -> ()) {
 			self.date = date
 			self.action = action
 		}
 
-		public func less(rhs: ScheduledAction) -> Bool {
+		func less(rhs: ScheduledAction) -> Bool {
 			return date.compare(rhs.date) == NSComparisonResult.OrderedAscending
 		}
 	}
@@ -170,7 +170,7 @@ public final class TestScheduler: DateScheduler {
 		_currentDate = startDate
 	}
 
-	public func schedule(action: ScheduledAction) -> Disposable {
+	private func schedule(action: ScheduledAction) -> Disposable {
 		_lock.lock()
 		_scheduledActions.append(action)
 		_scheduledActions.sort { $0.less($1) }

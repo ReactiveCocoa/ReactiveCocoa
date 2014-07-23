@@ -8,7 +8,7 @@
 
 /// Represents a UI action that will perform some work when executed.
 public final class Action<Input, Output> {
-	typealias ExecutionSignal = Signal<Result<Output>?>
+	public typealias ExecutionSignal = Signal<Result<Output>?>
 
 	private let _scheduler: Scheduler
 	private let _execute: Input -> Promise<Result<Output>>

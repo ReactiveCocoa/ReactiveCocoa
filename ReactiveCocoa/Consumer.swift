@@ -12,7 +12,7 @@ private func _emptyCompleted() {}
 
 /// Receives events from a Producer.
 public final class Consumer<T>: Sink {
-	typealias Element = Event<T>
+	public typealias Element = Event<T>
 
 	private let _sink: Atomic<SinkOf<Element>?>
 

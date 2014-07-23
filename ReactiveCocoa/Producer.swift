@@ -629,3 +629,83 @@ struct Producer<T> {
 			.merge(identity)
 	}
 }
+
+/// Extension to simplify Producer calls.
+extension Producer {
+    
+    /// Convenience function to invoke produce() with a Consumer,
+    /// returning a SimpleProducerHelper instance.
+    func produce() -> SimpleProducerHelper<T> {
+        let helper = SimpleProducerHelper<T>()
+        
+        let consumer = Consumer<T>(
+            next: { value in
+                if let nextClosure = helper._nextClosure {
+                    nextClosure(value)
+                }
+            },
+            error: { error in
+                if let errorClosure = helper._errorClosure {
+                    errorClosure(error)
+                }
+            },
+            completed: {
+                if let completedClosure = helper._completedClosure {
+                    completedClosure()
+                }
+            })
+        
+        helper.disposable = self.produce(consumer)
+        
+        return helper
+    }
+    
+    /// Convenience method to subscribe to the `next` events,
+    /// returning a SimpleProducerHelper instance.
+    func next(nextClosure: (T) -> Void) -> SimpleProducerHelper<T> {
+        return self.produce().next(nextClosure)
+    }
+    
+    /// Convenience method to subscribe to `error` event,
+    /// returning a SimpleProducerHelper instance.
+    func error(errorClosure: (NSError) -> Void) -> SimpleProducerHelper<T> {
+        return self.produce().error(errorClosure)
+    }
+    
+    /// Convenience method to subscribe to `completed` event,
+    /// returning a SimpleProducerHelper instance.
+    func completed(completedClosure: () -> Void) -> SimpleProducerHelper<T> {
+        return self.produce().completed(completedClosure)
+    }
+    
+}
+
+/// Helper class to allow a simpler producer handling.
+class SimpleProducerHelper<T> {
+    
+    var _nextClosure: ((T) -> Void)? = nil
+    var _errorClosure: ((NSError) -> Void)? = nil
+    var _completedClosure: (() -> Void)? = nil
+    
+    var disposable: Disposable! = nil
+    
+    /// Convenience method to subscribe to the `next` events.
+    func next(nextClosure: (T) -> Void) -> Self {
+        self._nextClosure = nextClosure
+        return self
+    }
+    
+    /// Convenience method to subscribe to `error` event.
+    func error(errorClosure: (NSError) -> Void) -> Self {
+        self._errorClosure = errorClosure
+        return self
+    }
+    
+    /// Convenience method to subscribe to `completed` event.
+    func completed(completedClosure: () -> Void) -> Self {
+        self._completedClosure = completedClosure
+        return self
+    }
+    
+}
+

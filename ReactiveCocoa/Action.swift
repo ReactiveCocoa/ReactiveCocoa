@@ -10,17 +10,15 @@
 public final class Action<Input, Output> {
 	public typealias ExecutionSignal = Signal<Result<Output>?>
 
-	private let _scheduler: Scheduler
-	private let _execute: Input -> Promise<Result<Output>>
-	private let _executions = SignalingProperty<ExecutionSignal?>(nil)
+	private let scheduler: Scheduler
+	private let executeClosure: Input -> Promise<Result<Output>>
+	private let executionsSink: SinkOf<ExecutionSignal?>
 
 	/// A signal of the signals returned from execute().
 	///
 	/// This will be non-nil while executing, nil between executions, and will
 	/// only update on the main thread.
-	public var executions: Signal<ExecutionSignal?> {
-		return _executions
-	}
+	public let executions: Signal<ExecutionSignal?>
 
 	/// A signal of all success and error results from the receiver.
 	///
@@ -68,8 +66,9 @@ public final class Action<Input, Output> {
 	/// Initializes an action that will be conditionally enabled, and create
 	/// a Promise for each execution.
 	public init(enabledIf: Signal<Bool>, scheduler: Scheduler = MainScheduler(), execute: Input -> Promise<Result<Output>>) {
-		_execute = execute
-		_scheduler = scheduler
+		(executions, executionsSink) = Signal.pipeWithInitialValue(nil)
+		executeClosure = execute
+		self.scheduler = scheduler
 
 		enabled = .constant(true)
 		enabled = enabledIf
@@ -91,25 +90,25 @@ public final class Action<Input, Output> {
 	public func execute(input: Input) -> ExecutionSignal {
 		let results = SignalingProperty<Result<Output>?>(nil)
 
-		_scheduler.schedule {
+		scheduler.schedule {
 			if (!self.enabled.current) {
 				results.put(Result.Error(RACError.ActionNotEnabled.error))
 				return
 			}
 
-			let promise = self._execute(input)
+			let promise = self.executeClosure(input)
 			let execution: ExecutionSignal = promise.signal
-				.deliverOn(self._scheduler)
+				.deliverOn(self.scheduler)
 				// Remove one layer of optional binding caused by the `deliverOn`.
 				.unwrapOptionals(identity, initialValue: nil)
 
-			self._executions.put(execution)
+			self.executionsSink.put(execution)
 			execution.observe { maybeResult in
 				results.put(maybeResult)
 
 				if maybeResult {
 					// Execution completed.
-					self._executions.put(nil)
+					self.executionsSink.put(nil)
 				}
 			}
 

@@ -35,7 +35,7 @@ extension MainScheduler {
 
 extension QueueScheduler {
 	public func asRACScheduler() -> RACScheduler {
-		return RACTargetQueueScheduler(name: "com.github.ReactiveCocoa.QueueScheduler.asRACScheduler()", targetQueue: _queue)
+		return RACTargetQueueScheduler(name: "com.github.ReactiveCocoa.QueueScheduler.asRACScheduler()", targetQueue: queue)
 	}
 }
 
@@ -223,11 +223,11 @@ extension Action {
 
 // These definitions work around a weird bug where the `RACEvent.value` property
 // is considered to be a Swift function on OS X and a Swift property on iOS.
-private func _getValue(v: AnyObject?) -> AnyObject? {
+private func getValue(v: AnyObject?) -> AnyObject? {
 	return v
 }
 
-private func _getValue(f: () -> AnyObject?) -> AnyObject? {
+private func getValue(f: () -> AnyObject?) -> AnyObject? {
 	return f()
 }
 
@@ -236,7 +236,7 @@ extension RACEvent {
 	public func asEvent() -> Event<AnyObject?> {
 		switch eventType {
 		case .Next:
-			let obj: AnyObject? = _getValue(value)
+			let obj: AnyObject? = getValue(value)
 			return .Next(Box(obj))
 
 		case .Error:

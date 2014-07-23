@@ -10,22 +10,22 @@
 internal struct Bag<T>: Sequence {
 	public typealias RemovalToken = () -> UInt?
 
-	private var _next: UInt = 0
-	private var _elements = [UInt: T]()
+	private var next: UInt = 0
+	private var elements = [UInt: T]()
 
 	/// Inserts the given value in the collection, and returns a token that can
 	/// later be passed to removeValueForToken().
 	public mutating func insert(value: T) -> RemovalToken {
-		let start = _next
+		let start = next
 
-		while _elements[_next] {
-			_next = _next &+ 1
-			assert(_next != start)
+		while elements[next] {
+			next = next &+ 1
+			assert(next != start)
 		}
 
-		_elements[_next] = value
+		elements[next] = value
 
-		var key = Optional(_next)
+		var key = Optional(next)
 		return {
 			let k = key
 			key = nil
@@ -39,11 +39,11 @@ internal struct Bag<T>: Sequence {
 	/// If the value has already been removed, nothing happens.
 	public mutating func removeValueForToken(token: RemovalToken) {
 		if let key = token() {
-			self._elements.removeValueForKey(key)
+			self.elements.removeValueForKey(key)
 		}
 	}
 
 	public func generate() -> GeneratorOf<T> {
-		return GeneratorOf(_elements.values.generate())
+		return GeneratorOf(elements.values.generate())
 	}
 }

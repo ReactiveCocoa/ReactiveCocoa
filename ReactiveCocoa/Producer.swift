@@ -13,12 +13,12 @@
 /// A corollary to this is that different Consumers may see a different timing
 /// of Events, or even a different version of events altogether.
 public struct Producer<T> {
-	private let _produce: Consumer<T> -> ()
+	private let producerClosure: Consumer<T> -> ()
 
 	/// Initializes a Producer that will run the given action whenever an
 	/// Consumer is attached.
 	public init(produce: Consumer<T> -> ()) {
-		_produce = produce
+		producerClosure = produce
 	}
 
 	/// Creates a Producer that will immediately complete.
@@ -55,7 +55,7 @@ public struct Producer<T> {
 	/// Optionally returns a Disposable which will cancel the work associated
 	/// with event production, and prevent any further events from being sent.
 	public func produce(consumer: Consumer<T>) -> Disposable {
-		_produce(consumer)
+		producerClosure(consumer)
 		return consumer.disposable
 	}
 

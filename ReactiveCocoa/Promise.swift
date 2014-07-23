@@ -6,15 +6,15 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-private enum _PromiseState<T> {
+private enum PromiseState<T> {
 	case Suspended(SinkOf<T> -> ())
 	case Started
 }
 
 /// Represents deferred work to generate a value of type T.
 public final class Promise<T> {
-	private let _state: Atomic<_PromiseState<T>>
-	private let _sink: SinkOf<T?>
+	private let state: Atomic<PromiseState<T>>
+	private let sink: SinkOf<T?>
 
 	/// A signal of the Promise's value. This will be `nil` before the promise
 	/// has been resolved, and the generated value afterward.
@@ -25,13 +25,13 @@ public final class Promise<T> {
 	/// The action must eventually `put` a value into the given sink to resolve
 	/// the Promise.
 	public init(action: SinkOf<T> -> ()) {
-		_state = Atomic(.Suspended(action))
-		(signal, _sink) = Signal.pipeWithInitialValue(nil)
+		state = Atomic(.Suspended(action))
+		(signal, sink) = Signal.pipeWithInitialValue(nil)
 	}
 
 	/// Starts the promise, if it hasn't started already.
 	public func start() -> Promise<T> {
-		let oldState = _state.modify { _ in .Started }
+		let oldState = state.modify { _ in .Started }
 
 		switch oldState {
 		case let .Suspended(action):
@@ -44,7 +44,7 @@ public final class Promise<T> {
 				}
 
 				disposable.dispose()
-				self?._sink.put(value)
+				self?.sink.put(value)
 			}
 
 			action(disposableSink)

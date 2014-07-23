@@ -8,23 +8,23 @@
 
 /// An atomic variable.
 internal final class Atomic<T> {
-	private var _spinlock = OS_SPINLOCK_INIT
+	private var spinlock = OS_SPINLOCK_INIT
 	private var _value: T
 	
 	/// Atomically gets or sets the value of the variable.
 	public var value: T {
 		get {
-			_lock()
+			lock()
 			let v = _value
-			_unlock()
+			unlock()
 
 			return v
 		}
 	
 		set(newValue) {
-			_lock()
+			lock()
 			_value = newValue
-			_unlock()
+			unlock()
 		}
 	}
 	
@@ -33,12 +33,12 @@ internal final class Atomic<T> {
 		_value = value
 	}
 	
-	private func _lock() {
-		withUnsafePointer(&_spinlock, OSSpinLockLock)
+	private func lock() {
+		withUnsafePointer(&spinlock, OSSpinLockLock)
 	}
 	
-	private func _unlock() {
-		withUnsafePointer(&_spinlock, OSSpinLockUnlock)
+	private func unlock() {
+		withUnsafePointer(&spinlock, OSSpinLockUnlock)
 	}
 	
 	/// Atomically replaces the contents of the variable.
@@ -60,11 +60,11 @@ internal final class Atomic<T> {
 	///
 	/// Returns the old value, plus arbitrary user-defined data.
 	public func modify<U>(action: T -> (T, U)) -> (T, U) {
-		_lock()
+		lock()
 		let oldValue: T = _value
 		let (newValue, data) = action(_value)
 		_value = newValue
-		_unlock()
+		unlock()
 		
 		return (oldValue, data)
 	}
@@ -74,9 +74,9 @@ internal final class Atomic<T> {
 	///
 	/// Returns the result of the action.
 	public func withValue<U>(action: T -> U) -> U {
-		_lock()
+		lock()
 		let result = action(_value)
-		_unlock()
+		unlock()
 		
 		return result
 	}

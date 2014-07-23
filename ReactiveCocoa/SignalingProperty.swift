@@ -10,7 +10,7 @@
 public final class SignalingProperty<T>: Sink {
 	public typealias Element = T
 
-	private let _sink: SinkOf<T>
+	private let sink: SinkOf<T>
 
 	/// A signal representing the current value of the property, along with all
 	/// changes to it over time.
@@ -23,13 +23,13 @@ public final class SignalingProperty<T>: Sink {
 		}
 
 		set(newValue) {
-			_sink.put(newValue)
+			sink.put(newValue)
 		}
 	}
 
 	/// Initializes the property with the given default value.
 	public init(_ defaultValue: T) {
-		(signal, _sink) = Signal.pipeWithInitialValue(defaultValue)
+		(signal, sink) = Signal.pipeWithInitialValue(defaultValue)
 	}
 
 	/// Treats the property as its current value in expressions.

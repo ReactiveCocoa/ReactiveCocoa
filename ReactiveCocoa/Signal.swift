@@ -11,18 +11,18 @@
 /// Unlike the Consumers of a Producer, all observers of a Signal will see the
 /// same version of events.
 public final class Signal<T> {
-	private let _queue = dispatch_queue_create("com.github.ReactiveCocoa.Signal", DISPATCH_QUEUE_CONCURRENT)
-	private let _generator: SinkOf<T> -> ()
+	private let queue = dispatch_queue_create("com.github.ReactiveCocoa.Signal", DISPATCH_QUEUE_CONCURRENT)
+	private let generator: SinkOf<T> -> ()
 
 	private var _current: T? = nil
-	private var _observers = Bag<SinkOf<T>>()
+	private var observers = Bag<SinkOf<T>>()
 
 	/// The current (most recent) value of the Signal.
 	public var current: T {
 		var value: T? = nil
 
-		dispatch_sync(_queue) {
-			value = self._current
+		dispatch_sync(queue) {
+			value = self.current
 		}
 
 		return value!
@@ -36,14 +36,13 @@ public final class Signal<T> {
 		// Save the generator closure so that anything it captures (e.g.,
 		// another Signal dependency) remains alive while this Signal object is
 		// too.
-		_generator = generator
-
-		_generator(SinkOf { [weak self] value in
+		self.generator = generator
+		self.generator(SinkOf { [weak self] value in
 			if let strongSelf = self {
-				dispatch_barrier_sync(strongSelf._queue) {
+				dispatch_barrier_sync(strongSelf.queue) {
 					strongSelf._current = value
 
-					for sink in strongSelf._observers {
+					for sink in strongSelf.observers {
 						sink.put(value)
 					}
 				}
@@ -88,16 +87,16 @@ public final class Signal<T> {
 		let sink = SinkOf<T>(observer)
 		var token: Bag.RemovalToken? = nil
 
-		dispatch_barrier_sync(_queue) {
-			token = self._observers.insert(sink)
+		dispatch_barrier_sync(queue) {
+			token = self.observers.insert(sink)
 			sink.put(self._current!)
 		}
 
 		return ActionDisposable {
 			// Retain `self` strongly so that observers can hold onto the Signal
 			// _or_ the Disposable to ensure the receipt of values.
-			dispatch_barrier_async(self._queue) {
-				self._observers.removeValueForToken(token!)
+			dispatch_barrier_async(self.queue) {
+				self.observers.removeValueForToken(token!)
 			}
 		}
 	}

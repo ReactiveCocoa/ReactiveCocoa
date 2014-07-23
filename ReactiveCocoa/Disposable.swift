@@ -31,35 +31,35 @@ public struct SimpleDisposable: Disposable {
 
 /// A disposable that will run an action upon disposal.
 public struct ActionDisposable: Disposable {
-	private var _action: Atomic<(() -> ())?>
+	private var action: Atomic<(() -> ())?>
 
 	public var disposed: Bool {
-		return !_action.value
+		return !action.value
 	}
 
 	/// Initializes the disposable to run the given action upon disposal.
 	public init(action: () -> ()) {
-		_action = Atomic(action)
+		self.action = Atomic(action)
 	}
 
 	public func dispose() {
-		let action = _action.swap(nil)
-		action?()
+		let oldAction = action.swap(nil)
+		oldAction?()
 	}
 }
 
 /// A disposable that will dispose of any number of other disposables.
 public struct CompositeDisposable: Disposable {
-	private var _disposables: Atomic<[Disposable]?>
+	private var disposables: Atomic<[Disposable]?>
 	
 	public var disposed: Bool {
-		return !_disposables.value
+		return !disposables.value
 	}
 
 	/// Initializes a CompositeDisposable containing the given list of
 	/// disposables.
 	public init(_ disposables: [Disposable]) {
-		_disposables = Atomic(disposables)
+		self.disposables = Atomic(disposables)
 	}
 
 	/// Initializes an empty CompositeDisposable.
@@ -68,7 +68,7 @@ public struct CompositeDisposable: Disposable {
 	}
 	
 	public func dispose() {
-		if let ds = _disposables.swap(nil) {
+		if let ds = disposables.swap(nil) {
 			for d in ds {
 				d.dispose()
 			}
@@ -81,7 +81,7 @@ public struct CompositeDisposable: Disposable {
 			return
 		}
 	
-		let (_, shouldDispose) = _disposables.modify { ds -> ([Disposable]?, Bool) in
+		let (_, shouldDispose) = disposables.modify { ds -> ([Disposable]?, Bool) in
 			if var ds = ds {
 				ds += d!
 				return (ds, false)
@@ -105,7 +105,7 @@ public struct CompositeDisposable: Disposable {
 	/// This can be used to prevent unbounded resource growth in an infinite
 	/// algorithm.
 	public func pruneDisposed() {
-		_disposables.modify { ds in
+		disposables.modify { ds in
 			return ds?.filter { !$0.disposed }
 		}
 	}
@@ -139,15 +139,15 @@ public final class ScopedDisposable<D: Disposable>: Disposable {
 
 /// A disposable that will optionally dispose of another disposable.
 public final class SerialDisposable: Disposable {
-	private struct _State {
+	private struct State {
 		var innerDisposable: Disposable? = nil
 		var disposed = false
 	}
 
-	private var _state = Atomic(_State())
+	private var state = Atomic(State())
 
 	public var disposed: Bool {
-		return _state.value.disposed
+		return state.value.disposed
 	}
 
 	/// The inner disposable to dispose of.
@@ -156,11 +156,11 @@ public final class SerialDisposable: Disposable {
 	/// disposable is automatically disposed.
 	public var innerDisposable: Disposable? {
 		get {
-			return _state.value.innerDisposable
+			return state.value.innerDisposable
 		}
 
 		set(d) {
-			let oldState = _state.modify { (var state) in
+			let oldState = state.modify { (var state) in
 				state.innerDisposable = d
 				return state
 			}

@@ -44,31 +44,31 @@ public struct ImmediateScheduler: Scheduler {
 
 /// A scheduler that performs all work on the main thread.
 public struct MainScheduler: DateScheduler {
-	private let _innerScheduler = QueueScheduler(dispatch_get_main_queue())
+	private let innerScheduler = QueueScheduler(dispatch_get_main_queue())
 
 	public func schedule(action: () -> ()) -> Disposable? {
-		return _innerScheduler.schedule(action)
+		return innerScheduler.schedule(action)
 	}
 
 	public func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable? {
-		return _innerScheduler.scheduleAfter(date, action: action)
+		return innerScheduler.scheduleAfter(date, action: action)
 	}
 
 	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> ()) -> Disposable? {
-		return _innerScheduler.scheduleAfter(date, repeatingEvery: repeatingEvery, withLeeway: withLeeway, action: action)
+		return innerScheduler.scheduleAfter(date, repeatingEvery: repeatingEvery, withLeeway: withLeeway, action: action)
 	}
 }
 
 /// A scheduler backed by a serial GCD queue.
 public struct QueueScheduler: DateScheduler {
-	internal let _queue = dispatch_queue_create("com.github.ReactiveCocoa.QueueScheduler", DISPATCH_QUEUE_SERIAL)
+	internal let queue = dispatch_queue_create("com.github.ReactiveCocoa.QueueScheduler", DISPATCH_QUEUE_SERIAL)
 
 	/// Initializes a scheduler that will target the given queue with its work.
 	///
 	/// Even if the queue is concurrent, all work items enqueued with the
 	/// QueueScheduler will be serial with respect to each other.
 	public init(_ queue: dispatch_queue_t) {
-		dispatch_set_target_queue(_queue, queue)
+		dispatch_set_target_queue(queue, queue)
 	}
 	
 	/// Initializes a scheduler that will target the global queue with the given
@@ -86,7 +86,7 @@ public struct QueueScheduler: DateScheduler {
 	public func schedule(action: () -> ()) -> Disposable? {
 		let d = SimpleDisposable()
 	
-		dispatch_async(_queue, {
+		dispatch_async(queue, {
 			if !d.disposed {
 				action()
 			}
@@ -95,7 +95,7 @@ public struct QueueScheduler: DateScheduler {
 		return d
 	}
 
-	private func _wallTimeWithDate(date: NSDate) -> dispatch_time_t {
+	private func wallTimeWithDate(date: NSDate) -> dispatch_time_t {
 		var seconds = 0.0
 		let frac = modf(date.timeIntervalSince1970, &seconds)
 		
@@ -108,7 +108,7 @@ public struct QueueScheduler: DateScheduler {
 	public func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable? {
 		let d = SimpleDisposable()
 
-		dispatch_after(_wallTimeWithDate(date), _queue, {
+		dispatch_after(wallTimeWithDate(date), queue, {
 			if !d.disposed {
 				action()
 			}
@@ -121,8 +121,8 @@ public struct QueueScheduler: DateScheduler {
 		let nsecInterval = repeatingEvery * Double(NSEC_PER_SEC)
 		let nsecLeeway = leeway * Double(NSEC_PER_SEC)
 		
-		let timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, _queue)
-		dispatch_source_set_timer(timer, _wallTimeWithDate(date), UInt64(nsecInterval), UInt64(nsecLeeway))
+		let timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue)
+		dispatch_source_set_timer(timer, wallTimeWithDate(date), UInt64(nsecInterval), UInt64(nsecLeeway))
 		dispatch_source_set_event_handler(timer, action)
 		dispatch_resume(timer)
 
@@ -148,38 +148,38 @@ public final class TestScheduler: DateScheduler {
 		}
 	}
 
-	private let _lock = NSRecursiveLock()
+	private let lock = NSRecursiveLock()
 	private var _currentDate: NSDate
 
 	/// The virtual date that the scheduler is currently at.
 	public var currentDate: NSDate {
 		var d: NSDate? = nil
 
-		_lock.lock()
-		d = self._currentDate
-		_lock.unlock()
+		lock.lock()
+		d = _currentDate
+		lock.unlock()
 
 		return d!
 	}
 
-	private var _scheduledActions: [ScheduledAction] = []
+	private var scheduledActions: [ScheduledAction] = []
 
 	/// Initializes a TestScheduler with the given start date.
 	public init(startDate: NSDate = NSDate(timeIntervalSinceReferenceDate: 0)) {
-		_lock.name = "com.github.ReactiveCocoa.TestScheduler"
+		lock.name = "com.github.ReactiveCocoa.TestScheduler"
 		_currentDate = startDate
 	}
 
 	private func schedule(action: ScheduledAction) -> Disposable {
-		_lock.lock()
-		_scheduledActions.append(action)
-		_scheduledActions.sort { $0.less($1) }
-		_lock.unlock()
+		lock.lock()
+		scheduledActions.append(action)
+		scheduledActions.sort { $0.less($1) }
+		lock.unlock()
 
 		return ActionDisposable {
-			self._lock.lock()
-			self._scheduledActions = self._scheduledActions.filter { $0 !== action }
-			self._lock.unlock()
+			self.lock.lock()
+			self.scheduledActions = self.scheduledActions.filter { $0 !== action }
+			self.lock.unlock()
 		}
 	}
 
@@ -191,46 +191,46 @@ public final class TestScheduler: DateScheduler {
 		return schedule(ScheduledAction(date: date, action: action))
 	}
 
-	private func _scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, disposable: SerialDisposable, action: () -> ()) {
+	private func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, disposable: SerialDisposable, action: () -> ()) {
 		disposable.innerDisposable = scheduleAfter(date) { [unowned self] in
 			action()
-			self._scheduleAfter(date.dateByAddingTimeInterval(repeatingEvery), repeatingEvery: repeatingEvery, disposable: disposable, action: action)
+			self.scheduleAfter(date.dateByAddingTimeInterval(repeatingEvery), repeatingEvery: repeatingEvery, disposable: disposable, action: action)
 		}
 	}
 
 	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> ()) -> Disposable? {
 		let disposable = SerialDisposable()
-		_scheduleAfter(date, repeatingEvery: repeatingEvery, disposable: disposable, action: action)
+		scheduleAfter(date, repeatingEvery: repeatingEvery, disposable: disposable, action: action)
 		return disposable
 	}
 
 	/// Advances the virtualized clock by the given interval, dequeuing and
 	/// executing any actions along the way.
 	public func advanceByInterval(interval: NSTimeInterval) {
-		_lock.lock()
+		lock.lock()
 		advanceToDate(currentDate.dateByAddingTimeInterval(interval))
-		_lock.unlock()
+		lock.unlock()
 	}
 
 	/// Advances the virtualized clock to the given future date, dequeuing and
 	/// executing any actions up until that point.
 	public func advanceToDate(newDate: NSDate) {
-		_lock.lock()
+		lock.lock()
 
 		assert(currentDate.compare(newDate) != NSComparisonResult.OrderedDescending)
 		_currentDate = newDate
 			
-		while _scheduledActions.count > 0 {
-			if newDate.compare(_scheduledActions[0].date) == NSComparisonResult.OrderedAscending {
+		while scheduledActions.count > 0 {
+			if newDate.compare(scheduledActions[0].date) == NSComparisonResult.OrderedAscending {
 				break
 			}
 
-			let scheduledAction = _scheduledActions[0]
-			_scheduledActions.removeAtIndex(0)
+			let scheduledAction = scheduledActions[0]
+			scheduledActions.removeAtIndex(0)
 			scheduledAction.action()
 		}
 
-		_lock.unlock()
+		lock.unlock()
 	}
 
 	/// Dequeues and executes all scheduled actions, leaving the scheduler's

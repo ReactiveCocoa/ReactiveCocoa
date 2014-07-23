@@ -10,7 +10,7 @@
 ///
 /// Streams must conform to the grammar:
 /// `Next* (Error | Completed)?`
-enum Event<T> {
+public enum Event<T> {
 	/// A value provided by the stream.
 	case Next(Box<T>)
 
@@ -22,7 +22,7 @@ enum Event<T> {
 	
 	/// Whether this event indicates stream termination (from success or
 	/// failure).
-	var isTerminating: Bool {
+	public var isTerminating: Bool {
 		switch self {
 		case let .Next:
 			return false
@@ -33,7 +33,7 @@ enum Event<T> {
 	}
 	
 	/// Lifts the given function over the event's value.
-	func map<U>(f: T -> U) -> Event<U> {
+	public func map<U>(f: T -> U) -> Event<U> {
 		switch self {
 		case let .Next(box):
 			return .Next(Box(f(box)))
@@ -47,7 +47,7 @@ enum Event<T> {
 	}
 
 	/// Case analysis on the receiver.
-	func event<U>(#ifNext: T -> U, ifError: NSError -> U, ifCompleted: @auto_closure () -> U) -> U {
+	public func event<U>(#ifNext: T -> U, ifError: NSError -> U, ifCompleted: @auto_closure () -> U) -> U {
 		switch self {
 		case let .Next(value):
 			return ifNext(value)

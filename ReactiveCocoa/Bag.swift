@@ -7,25 +7,25 @@
 //
 
 /// An unordered, non-unique collection of values of type T.
-struct Bag<T>: Sequence {
-	typealias RemovalToken = () -> UInt?
+internal struct Bag<T>: Sequence {
+	public typealias RemovalToken = () -> UInt?
 
-	var _next: UInt = 0
-	var _elements = [UInt: T]()
+	private var next: UInt = 0
+	private var elements = [UInt: T]()
 
 	/// Inserts the given value in the collection, and returns a token that can
 	/// later be passed to removeValueForToken().
-	mutating func insert(value: T) -> RemovalToken {
-		let start = _next
+	public mutating func insert(value: T) -> RemovalToken {
+		let start = next
 
-		while _elements[_next] {
-			_next = _next &+ 1
-			assert(_next != start)
+		while elements[next] {
+			next = next &+ 1
+			assert(next != start)
 		}
 
-		_elements[_next] = value
+		elements[next] = value
 
-		var key = Optional(_next)
+		var key = Optional(next)
 		return {
 			let k = key
 			key = nil
@@ -37,13 +37,13 @@ struct Bag<T>: Sequence {
 	/// Removes a value, given the token returned from insert().
 	///
 	/// If the value has already been removed, nothing happens.
-	mutating func removeValueForToken(token: RemovalToken) {
+	public mutating func removeValueForToken(token: RemovalToken) {
 		if let key = token() {
-			self._elements.removeValueForKey(key)
+			self.elements.removeValueForKey(key)
 		}
 	}
 
-	func generate() -> GeneratorOf<T> {
-		return GeneratorOf(_elements.values.generate())
+	public func generate() -> GeneratorOf<T> {
+		return GeneratorOf(elements.values.generate())
 	}
 }

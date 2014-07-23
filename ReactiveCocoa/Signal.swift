@@ -10,19 +10,19 @@
 ///
 /// Unlike the Consumers of a Producer, all observers of a Signal will see the
 /// same version of events.
-@final class Signal<T> {
-	let _queue = dispatch_queue_create("com.github.ReactiveCocoa.Signal", DISPATCH_QUEUE_CONCURRENT)
-	let _generator: SinkOf<T> -> ()
+public final class Signal<T> {
+	private let queue = dispatch_queue_create("com.github.ReactiveCocoa.Signal", DISPATCH_QUEUE_CONCURRENT)
+	private let generator: SinkOf<T> -> ()
 
-	var _current: T? = nil
-	var _observers = Bag<SinkOf<T>>()
+	private var _current: T? = nil
+	private var observers = Bag<SinkOf<T>>()
 
 	/// The current (most recent) value of the Signal.
-	var current: T {
+	public var current: T {
 		var value: T? = nil
 
-		dispatch_sync(_queue) {
-			value = self._current
+		dispatch_sync(queue) {
+			value = self.current
 		}
 
 		return value!
@@ -30,20 +30,19 @@
 	
 	/// Initializes a Signal with the given starting value, and an action to
 	/// perform to begin observing future changes.
-	init(initialValue: T, generator: SinkOf<T> -> ()) {
+	public init(initialValue: T, generator: SinkOf<T> -> ()) {
 		_current = initialValue
 
 		// Save the generator closure so that anything it captures (e.g.,
 		// another Signal dependency) remains alive while this Signal object is
 		// too.
-		_generator = generator
-
-		_generator(SinkOf { [weak self] value in
+		self.generator = generator
+		self.generator(SinkOf { [weak self] value in
 			if let strongSelf = self {
-				dispatch_barrier_sync(strongSelf._queue) {
+				dispatch_barrier_sync(strongSelf.queue) {
 					strongSelf._current = value
 
-					for sink in strongSelf._observers {
+					for sink in strongSelf.observers {
 						sink.put(value)
 					}
 				}
@@ -52,13 +51,13 @@
 	}
 
 	/// Creates a Signal that will always have the same value.
-	class func constant(value: T) -> Signal<T> {
+	public class func constant(value: T) -> Signal<T> {
 		return Signal(initialValue: value) { _ in }
 	}
 
 	/// Creates a repeating timer of the given interval, sending updates on the
 	/// given scheduler.
-	class func interval(interval: NSTimeInterval, onScheduler scheduler: DateScheduler, withLeeway leeway: NSTimeInterval = 0) -> Signal<NSDate> {
+	public class func interval(interval: NSTimeInterval, onScheduler scheduler: DateScheduler, withLeeway leeway: NSTimeInterval = 0) -> Signal<NSDate> {
 		let startDate = NSDate()
 
 		return Signal<NSDate>(initialValue: startDate) { sink in
@@ -72,7 +71,7 @@
 
 	/// Creates a Signal that can be controlled by sending values to the
 	/// returned Sink.
-	class func pipeWithInitialValue(initialValue: T) -> (Signal<T>, SinkOf<T>) {
+	public class func pipeWithInitialValue(initialValue: T) -> (Signal<T>, SinkOf<T>) {
 		var sink: SinkOf<T>? = nil
 		let signal = Signal(initialValue: initialValue) { s in sink = s }
 
@@ -84,27 +83,27 @@
 	///
 	/// Returns a Disposable which can be disposed of to stop notifying
 	/// `observer` of future changes.
-	func observe<S: Sink where S.Element == T>(observer: S) -> Disposable {
+	public func observe<S: Sink where S.Element == T>(observer: S) -> Disposable {
 		let sink = SinkOf<T>(observer)
 		var token: Bag.RemovalToken? = nil
 
-		dispatch_barrier_sync(_queue) {
-			token = self._observers.insert(sink)
+		dispatch_barrier_sync(queue) {
+			token = self.observers.insert(sink)
 			sink.put(self._current!)
 		}
 
 		return ActionDisposable {
 			// Retain `self` strongly so that observers can hold onto the Signal
 			// _or_ the Disposable to ensure the receipt of values.
-			dispatch_barrier_async(self._queue) {
-				self._observers.removeValueForToken(token!)
+			dispatch_barrier_async(self.queue) {
+				self.observers.removeValueForToken(token!)
 			}
 		}
 	}
 
 	/// Convenience function to invoke observe() with a Sink that will pass
 	/// values to the given closure.
-	func observe(observer: T -> ()) -> Disposable {
+	public func observe(observer: T -> ()) -> Disposable {
 		return observe(SinkOf(observer))
 	}
 
@@ -117,7 +116,7 @@
 	/// initialValue - A default value for the returned stream, in case the
 	///                receiver's current value is `nil`, which would otherwise
 	///                result in a missing value for the returned stream.
-	func unwrapOptionals<U>(evidence: Signal<T> -> Signal<U?>, initialValue: U) -> Signal<U> {
+	public func unwrapOptionals<U>(evidence: Signal<T> -> Signal<U?>, initialValue: U) -> Signal<U> {
 		return Signal<U>(initialValue: initialValue) { sink in
 			evidence(self).observe { maybeValue in
 				if let value = maybeValue {
@@ -137,7 +136,7 @@
 	/// evidence     - Used to prove to the typechecker that the receiver is
 	///                a stream of optionals. Simply pass in the `identity`
 	///                function.
-	func forceUnwrapOptionals<U>(evidence: Signal<T> -> Signal<U?>) -> Signal<U> {
+	public func forceUnwrapOptionals<U>(evidence: Signal<T> -> Signal<U?>) -> Signal<U> {
 		let evidencedSelf = evidence(self)
 
 		return Signal<U>(initialValue: evidencedSelf.current!) { sink in
@@ -157,7 +156,7 @@
 	///
 	/// Returns a Signal that will forward changes from the original streams
 	/// as they arrive, starting with earlier ones.
-	func merge<U>(evidence: Signal<T> -> Signal<Signal<U>>) -> Signal<U> {
+	public func merge<U>(evidence: Signal<T> -> Signal<Signal<U>>) -> Signal<U> {
 		return Signal<U?>(initialValue: nil) { sink in
 			let streams = Atomic<[Signal<U>]>([])
 
@@ -180,7 +179,7 @@
 	///
 	/// Returns a Signal that will forward changes only from the latest
 	/// Signal sent upon the receiver.
-	func switchToLatest<U>(evidence: Signal<T> -> Signal<Signal<U>>) -> Signal<U> {
+	public func switchToLatest<U>(evidence: Signal<T> -> Signal<Signal<U>>) -> Signal<U> {
 		return Signal<U?>(initialValue: nil) { sink in
 			let latestDisposable = SerialDisposable()
 
@@ -192,7 +191,7 @@
 	}
 
 	/// Maps each value in the stream to a new value.
-	func map<U>(f: T -> U) -> Signal<U> {
+	public func map<U>(f: T -> U) -> Signal<U> {
 		return Signal<U?>(initialValue: nil) { sink in
 			self.observe { value in sink.put(f(value)) }
 			return ()
@@ -201,7 +200,7 @@
 
 	/// Combines all the values in the stream, forwarding the result of each
 	/// intermediate combination step.
-	func scan<U>(initialValue: U, _ f: (U, T) -> U) -> Signal<U> {
+	public func scan<U>(initialValue: U, _ f: (U, T) -> U) -> Signal<U> {
 		let previous = Atomic(initialValue)
 
 		return Signal<U?>(initialValue: nil) { sink in
@@ -218,7 +217,7 @@
 
 	/// Returns a stream that will yield the first `count` values from the
 	/// receiver, where `count` is greater than zero.
-	func take(count: Int) -> Signal<T> {
+	public func take(count: Int) -> Signal<T> {
 		assert(count > 0)
 
 		let soFar = Atomic(0)
@@ -240,7 +239,7 @@
 	/// Returns a stream that will yield values from the receiver while `pred`
 	/// remains `true`. If no values pass the predicate, the resulting signal
 	/// will be `nil`.
-	func takeWhile(pred: T -> Bool) -> Signal<T?> {
+	public func takeWhile(pred: T -> Bool) -> Signal<T?> {
 		return Signal<T?>(initialValue: nil) { sink in
 			let selfDisposable = SerialDisposable()
 
@@ -256,7 +255,7 @@
 
 	/// Combines each value in the stream with its preceding value, starting
 	/// with `initialValue`.
-	func combinePrevious(initialValue: T) -> Signal<(T, T)> {
+	public func combinePrevious(initialValue: T) -> Signal<(T, T)> {
 		let previous = Atomic(initialValue)
 
 		return Signal<(T, T)?>(initialValue: nil) { sink in
@@ -271,7 +270,7 @@
 
 	/// Returns a stream that will replace the first `count` values from the
 	/// receiver with `nil`, then forward everything afterward.
-	func skip(count: Int) -> Signal<T?> {
+	public func skip(count: Int) -> Signal<T?> {
 		let soFar = Atomic(0)
 
 		return skipWhile { _ in
@@ -282,7 +281,7 @@
 
 	/// Returns a stream that will replace values from the receiver with `nil`
 	/// while `pred` remains `true`, then forward everything afterward.
-	func skipWhile(pred: T -> Bool) -> Signal<T?> {
+	public func skipWhile(pred: T -> Bool) -> Signal<T?> {
 		return Signal<T?>(initialValue: nil) { sink in
 			let skipping = Atomic(true)
 
@@ -308,7 +307,7 @@
 	///
 	/// Returns a Producer over the buffered values, and a Disposable which
 	/// can be used to cancel all further buffering.
-	func buffer(capacity: Int? = nil) -> (Producer<T>, Disposable) {
+	public func buffer(capacity: Int? = nil) -> (Producer<T>, Disposable) {
 		let queue = dispatch_queue_create("com.github.ReactiveCocoa.Signal.buffer", DISPATCH_QUEUE_CONCURRENT)
 		var compositeDisposable = CompositeDisposable()
 
@@ -365,7 +364,7 @@
 	}
 
 	/// Preserves only the values of the stream that pass the given predicate.
-	func filter(pred: T -> Bool) -> Signal<T?> {
+	public func filter(pred: T -> Bool) -> Signal<T?> {
 		return Signal<T?>(initialValue: nil) { sink in
 			self.observe { value in
 				if pred(value) {
@@ -385,7 +384,7 @@
 	/// evidence - Used to prove to the typechecker that the receiver contains
 	///            values which are `Equatable`. Simply pass in the `identity`
 	///            function.
-	func skipRepeats<U: Equatable>(evidence: Signal<T> -> Signal<U>) -> Signal<U> {
+	public func skipRepeats<U: Equatable>(evidence: Signal<T> -> Signal<U>) -> Signal<U> {
 		let evidencedSelf = evidence(self)
 
 		return Signal<U>(initialValue: evidencedSelf.current) { sink in
@@ -410,7 +409,7 @@
 	///
 	/// Returns a Signal which will send a new value whenever the receiver
 	/// or `stream` changes.
-	func combineLatestWith<U>(stream: Signal<U>) -> Signal<(T, U)> {
+	public func combineLatestWith<U>(stream: Signal<U>) -> Signal<(T, U)> {
 		return Signal<(T, U)>(initialValue: (self.current, stream.current)) { sink in
 			// FIXME: This implementation is probably racey.
 			self.observe { [unowned stream] value in sink.put(value, stream.current) }
@@ -420,7 +419,7 @@
 
 	/// Forwards the current value from the receiver whenever `sampler` sends
 	/// a value.
-	func sampleOn<U>(sampler: Signal<U>) -> Signal<T> {
+	public func sampleOn<U>(sampler: Signal<U>) -> Signal<T> {
 		return Signal(initialValue: self.current) { sink in
 			sampler.observe { _ in sink.put(self.current) }
 			return ()
@@ -432,7 +431,7 @@
 	///
 	/// Returns a Signal that will default to `nil`, then send the
 	/// receiver's values after injecting the specified delay.
-	func delay(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> Signal<T?> {
+	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> Signal<T?> {
 		return Signal<T?>(initialValue: nil) { sink in
 			self.observe { value in
 				scheduler.scheduleAfter(NSDate(timeIntervalSinceNow: interval)) { sink.put(value) }
@@ -448,7 +447,7 @@
 	///
 	/// If multiple values are received before the interval has elapsed, the
 	/// latest value is the one that will be passed on.
-	func throttle(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> Signal<T> {
+	public func throttle(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> Signal<T> {
 		return Signal(initialValue: self.current) { sink in
 			let previousDate = Atomic(NSDate())
 			let disposable = SerialDisposable()
@@ -475,7 +474,7 @@
 	///
 	/// Returns a Signal that will default to `nil`, then send the
 	/// receiver's values after being scheduled.
-	func deliverOn(scheduler: Scheduler) -> Signal<T?> {
+	public func deliverOn(scheduler: Scheduler) -> Signal<T?> {
 		return Signal<T?>(initialValue: nil) { sink in
 			self.observe { value in
 				scheduler.schedule { sink.put(value) }
@@ -488,7 +487,7 @@
 
 	/// Returns a Promise that will wait for the first value from the receiver
 	/// that passes the given predicate.
-	func firstPassingTest(pred: T -> Bool) -> Promise<T> {
+	public func firstPassingTest(pred: T -> Bool) -> Promise<T> {
 		return Promise { sink in
 			self.take(1).observe { value in
 				if pred(value) {
@@ -502,7 +501,7 @@
 
 	/// Applies the latest function from the given signal to the values in the
 	/// receiver.
-	func apply<U>(stream: Signal<T -> U>) -> Signal<U> {
+	public func apply<U>(stream: Signal<T -> U>) -> Signal<U> {
 		// FIXME: This should use combineLatestWith, but attempting to do so
 		// crashes the compiler.
 		return Signal<U>(initialValue: stream.current(self.current)) { sink in

@@ -6,32 +6,32 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-enum _PromiseState<T> {
+private enum PromiseState<T> {
 	case Suspended(SinkOf<T> -> ())
 	case Started
 }
 
 /// Represents deferred work to generate a value of type T.
-@final class Promise<T> {
-	let _state: Atomic<_PromiseState<T>>
-	let _sink: SinkOf<T?>
+public final class Promise<T> {
+	private let state: Atomic<PromiseState<T>>
+	private let sink: SinkOf<T?>
 
 	/// A signal of the Promise's value. This will be `nil` before the promise
 	/// has been resolved, and the generated value afterward.
-	let signal: Signal<T?>
+	public let signal: Signal<T?>
 
 	/// Initializes a Promise that will run the given action when started.
 	///
 	/// The action must eventually `put` a value into the given sink to resolve
 	/// the Promise.
-	init(action: SinkOf<T> -> ()) {
-		_state = Atomic(.Suspended(action))
-		(signal, _sink) = Signal.pipeWithInitialValue(nil)
+	public init(action: SinkOf<T> -> ()) {
+		state = Atomic(.Suspended(action))
+		(signal, sink) = Signal.pipeWithInitialValue(nil)
 	}
 
 	/// Starts the promise, if it hasn't started already.
-	func start() -> Promise<T> {
-		let oldState = _state.modify { _ in .Started }
+	public func start() -> Promise<T> {
+		let oldState = state.modify { _ in .Started }
 
 		switch oldState {
 		case let .Suspended(action):
@@ -44,7 +44,7 @@ enum _PromiseState<T> {
 				}
 
 				disposable.dispose()
-				self?._sink.put(value)
+				self?.sink.put(value)
 			}
 
 			action(disposableSink)
@@ -58,7 +58,7 @@ enum _PromiseState<T> {
 
 	/// Starts the promise (if necessary), then blocks indefinitely on the
 	/// result.
-	func await() -> T {
+	public func await() -> T {
 		let cond = NSCondition()
 		cond.name = "com.github.ReactiveCocoa.Promise.await"
 
@@ -81,7 +81,7 @@ enum _PromiseState<T> {
 
 	/// Creates a Promise that will start the receiver, then run the given
 	/// action and forward the results.
-	func then<U>(action: T -> Promise<U>) -> Promise<U> {
+	public func then<U>(action: T -> Promise<U>) -> Promise<U> {
 		return Promise<U> { sink in
 			let disposable = SerialDisposable()
 

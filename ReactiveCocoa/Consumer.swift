@@ -6,9 +6,9 @@
 //  Copyright (c) 2014 GitHub, Inc. All rights reserved.
 //
 
-private func _emptyNext(value: Any) {}
-private func _emptyError(error: NSError) {}
-private func _emptyCompleted() {}
+public func _emptyNext(value: Any) {}
+public func _emptyError(error: NSError) {}
+public func _emptyCompleted() {}
 
 /// Receives events from a Producer.
 public final class Consumer<T>: Sink {

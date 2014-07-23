@@ -1036,6 +1036,47 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -subscribeOn: %@", self.name, scheduler];
 }
 
+- (RACSignal *)deliverOnMainThread
+{
+	__block volatile int32_t queueLength = 0;
+	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		return [self subscribeNext:^(id x) {
+			int32_t queued = OSAtomicIncrement32Barrier(&queueLength);
+			if ([NSThread isMainThread] && (queued == 1)) {
+				[subscriber sendNext:x];
+				OSAtomicDecrement32(&queueLength);
+			} else {
+				dispatch_async(dispatch_get_main_queue(), ^{
+					[subscriber sendNext:x];
+					OSAtomicDecrement32(&queueLength);
+				});
+			}
+		} error:^(NSError *error) {
+			int32_t queued = OSAtomicIncrement32Barrier(&queueLength);
+			if ([NSThread isMainThread] && (queued == 1)) {
+				[subscriber sendError:error];
+				OSAtomicDecrement32(&queueLength);
+			} else {
+				dispatch_async(dispatch_get_main_queue(), ^{
+					[subscriber sendError:error];
+					OSAtomicDecrement32(&queueLength);
+				});
+			}
+		} completed:^{
+			int32_t queued = OSAtomicIncrement32Barrier(&queueLength);
+			if ([NSThread isMainThread] && (queued == 1)) {
+				[subscriber sendCompleted];
+				OSAtomicDecrement32(&queueLength);
+			} else {
+				dispatch_async(dispatch_get_main_queue(), ^{
+					[subscriber sendCompleted];
+					OSAtomicDecrement32(&queueLength);
+				});
+			}
+		}];
+	}] setNameWithFormat:@"[%@] -deliverOnMainThread", self.name];
+}
+
 - (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock transform:(id (^)(id object))transformBlock {
 	NSCParameterAssert(keyBlock != NULL);
 

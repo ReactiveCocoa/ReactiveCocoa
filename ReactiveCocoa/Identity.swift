@@ -28,6 +28,6 @@
 /// This will verify that `signal`, which is nominally `Signal<T>`, is logically
 /// equivalent to `Signal<Signal<U>>`. If that's not actually the case, a type
 /// error will result.
-func identity<T>(id: T) -> T {
+public func identity<T>(id: T) -> T {
 	return id
 }

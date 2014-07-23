@@ -7,26 +7,26 @@
 //
 
 /// Represents a UI action that will perform some work when executed.
-@final class Action<Input, Output> {
+public final class Action<Input, Output> {
 	typealias ExecutionSignal = Signal<Result<Output>?>
 
 	/// The error that will be sent if execute() is invoked while the action is
 	/// disabled.
-	var notEnabledError: NSError {
+	public var notEnabledError: NSError {
 		// TODO: Put these domains and codes into constants for the whole framework.
 		// TODO: Use real userInfo here.
 		return NSError(domain: "RACAction", code: 1, userInfo: nil)
 	}
 
-	let _scheduler: Scheduler
-	let _execute: Input -> Promise<Result<Output>>
-	let _executions = SignalingProperty<ExecutionSignal?>(nil)
+	private let _scheduler: Scheduler
+	private let _execute: Input -> Promise<Result<Output>>
+	private let _executions = SignalingProperty<ExecutionSignal?>(nil)
 
 	/// A signal of the signals returned from execute().
 	///
 	/// This will be non-nil while executing, nil between executions, and will
 	/// only update on the main thread.
-	var executions: Signal<ExecutionSignal?> {
+	public var executions: Signal<ExecutionSignal?> {
 		return _executions
 	}
 
@@ -35,7 +35,7 @@
 	/// Before the first execution, the current value of this signal will be
 	/// `nil`. Afterwards, it will always forward the latest results from any
 	/// calls to execute() on the main thread.
-	var results: Signal<Result<Output>?> {
+	public var results: Signal<Result<Output>?> {
 		return executions
 			.unwrapOptionals(identity, initialValue: .constant(nil))
 			.switchToLatest(identity)
@@ -44,20 +44,20 @@
 	/// Whether the action is currently executing.
 	///
 	/// This will only update on the main thread.
-	var executing: Signal<Bool> {
+	public var executing: Signal<Bool> {
 		return executions.map { !(!$0) }
 	}
 
 	/// Whether the action is enabled.
 	///
 	/// This will only update on the main thread.
-	let enabled: Signal<Bool>
+	public let enabled: Signal<Bool>
 
 	/// A signal of all successful results from the receiver.
 	///
 	/// This will be `nil` before the first execution and whenever an error
 	/// occurs.
-	var values: Signal<Output?> {
+	public var values: Signal<Output?> {
 		return results.map { maybeResult in
 			return maybeResult?.result(ifSuccess: identity, ifError: { _ -> Output? in nil })
 		}
@@ -67,7 +67,7 @@
 	///
 	/// This will be `nil` before the first execution and whenever execution
 	/// completes successfully.
-	var errors: Signal<NSError?> {
+	public var errors: Signal<NSError?> {
 		return results.map { maybeResult in
 			return maybeResult?.result(ifSuccess: { _ -> NSError? in nil }, ifError: identity)
 		}
@@ -75,7 +75,7 @@
 
 	/// Initializes an action that will be conditionally enabled, and create
 	/// a Promise for each execution.
-	init(enabledIf: Signal<Bool>, scheduler: Scheduler = MainScheduler(), execute: Input -> Promise<Result<Output>>) {
+	public init(enabledIf: Signal<Bool>, scheduler: Scheduler = MainScheduler(), execute: Input -> Promise<Result<Output>>) {
 		_execute = execute
 		_scheduler = scheduler
 
@@ -86,7 +86,7 @@
 	}
 
 	/// Initializes an action that will create a Promise for each execution.
-	convenience init(scheduler: Scheduler = MainScheduler(), execute: Input -> Promise<Result<Output>>) {
+	public convenience init(scheduler: Scheduler = MainScheduler(), execute: Input -> Promise<Result<Output>>) {
 		self.init(enabledIf: .constant(true), scheduler: scheduler, execute: execute)
 	}
 
@@ -95,12 +95,12 @@
 	/// If the action is disabled when this method is invoked, the returned
 	/// signal will be set to `notEnabledError`, and no result will be sent
 	/// along the action itself.
-	func execute(input: Input) -> ExecutionSignal {
+	public func execute(input: Input) -> ExecutionSignal {
 		let results = SignalingProperty<Result<Output>?>(nil)
 
 		_scheduler.schedule {
 			if (!self.enabled.current) {
-				results.value = Result.Error(self.notEnabledError)
+				results.put(Result.Error(self.notEnabledError))
 				return
 			}
 
@@ -110,13 +110,13 @@
 				// Remove one layer of optional binding caused by the `deliverOn`.
 				.unwrapOptionals(identity, initialValue: nil)
 
-			self._executions.value = execution
+			self._executions.put(execution)
 			execution.observe { maybeResult in
-				results.value = maybeResult
+				results.put(maybeResult)
 
 				if maybeResult {
 					// Execution completed.
-					self._executions.value = nil
+					self._executions.put(nil)
 				}
 			}
 
@@ -128,7 +128,7 @@
 
 	/// Returns an action that will execute the receiver, followed by the given
 	/// action upon success.
-	func then<NewOutput>(action: Action<Output, NewOutput>) -> Action<Input, NewOutput> {
+	public func then<NewOutput>(action: Action<Output, NewOutput>) -> Action<Input, NewOutput> {
 		let bothEnabled = enabled
 			.combineLatestWith(action.enabled)
 			.map { (a, b) in a && b }

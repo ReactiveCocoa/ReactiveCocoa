@@ -6,10 +6,10 @@
 //  Copyright (c) 2014 GitHub, Inc. All rights reserved.
 //
 
-extension NSURLSession {
+public extension NSURLSession {
 	/// Returns a Producer that will fetch data for each Consumer using the
 	/// given request.
-	func rac_dataProducerWithRequest(request: NSURLRequest) -> Producer<(NSData, NSURLResponse)> {
+	public func rac_dataProducerWithRequest(request: NSURLRequest) -> Producer<(NSData, NSURLResponse)> {
 		return Producer { consumer in
 			let task = self.dataTaskWithRequest(request) { (data, response, error) in
 				if data == nil || response == nil {

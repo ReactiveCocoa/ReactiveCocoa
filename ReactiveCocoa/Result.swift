@@ -7,7 +7,7 @@
 //
 
 /// Represents a successful result or an error that occurred.
-enum Result<T> {
+public enum Result<T> {
 	/// A valid, successful value was generated.
 	case Success(Box<T>)
 
@@ -15,7 +15,7 @@ enum Result<T> {
 	case Error(NSError)
 
 	/// Lifts the given function over the event's value.
-	func map<U>(f: T -> U) -> Result<U> {
+	public func map<U>(f: T -> U) -> Result<U> {
 		switch self {
 		case let .Success(box):
 			return .Success(Box(f(box)))
@@ -33,7 +33,7 @@ enum Result<T> {
 	///
 	/// Returns the inner result if the receiver represents the `Success` case,
 	/// or the error if the receiver represents the `Error` case.
-	func merge<U>(evidence: Result<T> -> Result<Result<U>>) -> Result<U> {
+	public func merge<U>(evidence: Result<T> -> Result<Result<U>>) -> Result<U> {
 		switch evidence(self) {
 		case let .Success(result):
 			return result
@@ -44,7 +44,7 @@ enum Result<T> {
 	}
 
 	/// Case analysis on the receiver.
-	func result<U>(#ifSuccess: T -> U, ifError: NSError -> U) -> U {
+	public func result<U>(#ifSuccess: T -> U, ifError: NSError -> U) -> U {
 		switch self {
 		case let .Success(value):
 			return ifSuccess(value)

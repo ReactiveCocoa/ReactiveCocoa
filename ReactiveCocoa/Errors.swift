@@ -13,10 +13,10 @@ import Foundation
 ///
 /// For backwards compatibility reasons, the Objective-C components of
 /// ReactiveCocoa use their own individual domains.
-let RACErrorDomain: NSString = "RACErrorDomain"
+public let RACErrorDomain: NSString = "RACErrorDomain"
 
 /// Possible error codes within `RACErrorDomain`.
-enum RACError: NSInteger {
+public enum RACError: NSInteger {
 	/// An error event occurred, but there was no `NSError` object.
 	///
 	/// This should only be used when bridging from Objective-C, or when
@@ -28,7 +28,7 @@ enum RACError: NSInteger {
 
 	/// Returns the `RACError` that corresponds to the code within the given
 	/// `NSError`, or nil if the domain of the error is not `RACErrorDomain`.
-	static func fromError(error: NSError) -> RACError? {
+	public static func fromError(error: NSError) -> RACError? {
 		if error.domain == RACErrorDomain {
 			return fromRaw(error.code)
 		} else {
@@ -37,7 +37,7 @@ enum RACError: NSInteger {
 	}
 
 	/// An `NSError` object corresponding to this error code.
-	var error: NSError {
+	public var error: NSError {
 		return NSError(domain: RACErrorDomain, code: toRaw(), userInfo: nil)
 	}
 }

@@ -117,7 +117,7 @@ public final class Signal<T> {
 	/// initialValue - A default value for the returned stream, in case the
 	///                receiver's current value is `nil`, which would otherwise
 	///                result in a missing value for the returned stream.
-	func unwrapOptionals<U>(evidence: Signal<T> -> Signal<U?>, initialValue: U) -> Signal<U> {
+	public func unwrapOptionals<U>(evidence: Signal<T> -> Signal<U?>, initialValue: U) -> Signal<U> {
 		return Signal<U>(initialValue: initialValue) { sink in
 			evidence(self).observe { maybeValue in
 				if let value = maybeValue {

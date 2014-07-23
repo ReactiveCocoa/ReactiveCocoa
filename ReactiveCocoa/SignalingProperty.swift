@@ -14,10 +14,10 @@ public final class SignalingProperty<T>: Sink {
 
 	/// A signal representing the current value of the property, along with all
 	/// changes to it over time.
-	private let signal: Signal<T>
+	public let signal: Signal<T>
 
 	/// The current value of the property.
-    public private(set) var value: T {
+    public var value: T {
 		get {
 			return signal.current
 		}

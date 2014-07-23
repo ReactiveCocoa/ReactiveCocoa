@@ -39,9 +39,6 @@ extension QueueScheduler {
 	}
 }
 
-// FIXME: Do something better with this.
-let emptyError = NSError(domain: "RACErrorDomain", code: 1, userInfo: nil)
-
 extension RACSignal {
 	/// Creates an Producer that will produce events by subscribing to the
 	/// RACSignal.
@@ -52,7 +49,8 @@ extension RACSignal {
 			}
 
 			let error = { (maybeError: NSError?) -> () in
-				consumer.put(.Error(maybeError.orDefault(emptyError)))
+				let nsError = maybeError.orDefault(RACError.Empty.error)
+				consumer.put(.Error(nsError))
 			}
 
 			let completed = {
@@ -85,11 +83,8 @@ extension RACSignal {
 			}
 
 			let error = { (maybeError: NSError?) -> () in
-				if let e = maybeError {
-					sink.put(Result.Error(e))
-				} else {
-					sink.put(Result.Error(emptyError))
-				}
+				let nsError = maybeError.orDefault(RACError.Empty.error)
+				sink.put(.Error(nsError))
 			}
 
 			let completed = { () -> () in

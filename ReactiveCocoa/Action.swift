@@ -10,14 +10,6 @@
 @final class Action<Input, Output> {
 	typealias ExecutionSignal = Signal<Result<Output>?>
 
-	/// The error that will be sent if execute() is invoked while the action is
-	/// disabled.
-	var notEnabledError: NSError {
-		// TODO: Put these domains and codes into constants for the whole framework.
-		// TODO: Use real userInfo here.
-		return NSError(domain: "RACAction", code: 1, userInfo: nil)
-	}
-
 	let _scheduler: Scheduler
 	let _execute: Input -> Promise<Result<Output>>
 	let _executions = SignalingProperty<ExecutionSignal?>(nil)
@@ -93,14 +85,15 @@
 	/// Executes the action on the main thread with the given input.
 	///
 	/// If the action is disabled when this method is invoked, the returned
-	/// signal will be set to `notEnabledError`, and no result will be sent
-	/// along the action itself.
+	/// signal will be set to an `NSError` corresponding to
+	/// `RACError.ActionNotEnabled`, and no result will be sent along the action
+	/// itself.
 	func execute(input: Input) -> ExecutionSignal {
 		let results = SignalingProperty<Result<Output>?>(nil)
 
 		_scheduler.schedule {
 			if (!self.enabled.current) {
-				results.value = Result.Error(self.notEnabledError)
+				results.value = Result.Error(RACError.ActionNotEnabled.error)
 				return
 			}
 

@@ -7,17 +7,17 @@
 //
 
 /// A buffer for Events that can be treated as a Sink or a Producer.
-@final class EventBuffer<T>: Sink {
+public final class EventBuffer<T>: Sink {
 	typealias Element = Event<T>
 
-	let _capacity: Int?
+	private let _capacity: Int?
 
-	let _queue = dispatch_queue_create("com.github.ReactiveCocoa.EventBuffer", DISPATCH_QUEUE_SERIAL)
-	var _consumers = Bag<Consumer<T>>()
-	var _eventBuffer: [Event<T>] = []
-	var _terminated = false
+	private let _queue = dispatch_queue_create("com.github.ReactiveCocoa.EventBuffer", DISPATCH_QUEUE_SERIAL)
+	private var _consumers = Bag<Consumer<T>>()
+	private var _eventBuffer: [Event<T>] = []
+	private var _terminated = false
 
-	var producer: Producer<T> {
+	public var producer: Producer<T> {
 		return Producer { consumer in
 			var token: Bag.RemovalToken? = nil
 
@@ -41,7 +41,7 @@
 	///
 	/// If more than `capacity` values are received, the earliest values will be
 	/// dropped and will no longer be given to consumers in the future.
-	init(capacity: Int? = nil) {
+	public init(capacity: Int? = nil) {
 		assert(capacity == nil || capacity! > 0)
 		_capacity = capacity
 	}
@@ -52,7 +52,7 @@
 	///
 	/// If a terminating event is put into the buffer, it will stop accepting
 	/// any further events (to obey the contract of Producer).
-	func put(event: Event<T>) {
+	public func put(event: Event<T>) {
 		dispatch_barrier_sync(_queue) {
 			if (self._terminated) {
 				return
@@ -73,7 +73,7 @@
 		}
 	}
 
-	@conversion func __conversion() -> Producer<T> {
+	public func __conversion() -> Producer<T> {
 		return producer
 	}
 }

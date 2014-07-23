@@ -7,21 +7,21 @@
 //
 
 /// An immutable wrapper that can turn any value into an object.
-@final class Box<T> {
-	let _closure: () -> T
+public final class Box<T> {
+	private let _closure: () -> T
 
 	/// The underlying value.
-	var value: T {
+	public var value: T {
 		return _closure()
 	}
 	
 	/// Initializes the box to wrap the given value.
-	init(_ value: T) {
+	public init(_ value: T) {
 		_closure = { value }
 	}
 	
 	/// Treats the Box as its underlying value in expressions.
-	@conversion func __conversion() -> T {
+	public func __conversion() -> T {
 		return value
 	}
 }

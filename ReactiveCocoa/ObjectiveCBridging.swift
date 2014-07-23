@@ -6,46 +6,46 @@
 //  Copyright (c) 2014 GitHub, Inc. All rights reserved.
 //
 
-extension RACDisposable: Disposable {}
-extension RACScheduler: DateScheduler {
-	func schedule(action: () -> ()) -> Disposable? {
+ extension RACDisposable: Disposable {}
+ extension RACScheduler: DateScheduler {
+	public func schedule(action: () -> ()) -> Disposable? {
 		return self.schedule(action)
 	}
 
-	func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable? {
+	public func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable? {
 		return self.after(date, schedule: action)
 	}
 
-	func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> ()) -> Disposable? {
+	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> ()) -> Disposable? {
 		return self.after(date, repeatingEvery: repeatingEvery, withLeeway: withLeeway, schedule: action)
 	}
 }
 
-extension ImmediateScheduler {
-	func asRACScheduler() -> RACScheduler {
+public extension ImmediateScheduler {
+	public func asRACScheduler() -> RACScheduler {
 		return RACScheduler.immediateScheduler()
 	}
 }
 
-extension MainScheduler {
-	func asRACScheduler() -> RACScheduler {
+public extension MainScheduler {
+	public func asRACScheduler() -> RACScheduler {
 		return RACScheduler.mainThreadScheduler()
 	}
 }
 
-extension QueueScheduler {
-	func asRACScheduler() -> RACScheduler {
+public extension QueueScheduler {
+	public func asRACScheduler() -> RACScheduler {
 		return RACTargetQueueScheduler(name: "com.github.ReactiveCocoa.QueueScheduler.asRACScheduler()", targetQueue: _queue)
 	}
 }
 
 // FIXME: Do something better with this.
-let emptyError = NSError(domain: "RACErrorDomain", code: 1, userInfo: nil)
+internal let emptyError = NSError(domain: "RACErrorDomain", code: 1, userInfo: nil)
 
-extension RACSignal {
+public extension RACSignal {
 	/// Creates an Producer that will produce events by subscribing to the
 	/// RACSignal.
-	func asProducer() -> Producer<AnyObject?> {
+	public func asProducer() -> Producer<AnyObject?> {
 		return Producer { consumer in
 			let next = { (obj: AnyObject?) -> () in
 				consumer.put(.Next(Box(obj)))
@@ -68,7 +68,7 @@ extension RACSignal {
 	/// and observe its latest value.
 	///
 	/// The signal must not generate an `error` event.
-	func asSignalOfLatestValue(initialValue: AnyObject? = nil) -> Signal<AnyObject?> {
+	public func asSignalOfLatestValue(initialValue: AnyObject? = nil) -> Signal<AnyObject?> {
 		let property = SignalingProperty(initialValue)
 		asProducer().bindTo(property)
 
@@ -78,7 +78,7 @@ extension RACSignal {
 	/// Creates a Promise that will subscribe to a RACSignal when started, and
 	/// yield the signal's _last_ value (or the given default value, if none are
 	/// sent) after it has completed successfully.
-	func asPromiseOfLastValue(defaultValue: AnyObject? = nil) -> Promise<Result<AnyObject?>> {
+	public func asPromiseOfLastValue(defaultValue: AnyObject? = nil) -> Promise<Result<AnyObject?>> {
 		return Promise { sink in
 			let next = { (obj: AnyObject?) -> () in
 				sink.put(.Success(Box(obj)))
@@ -103,13 +103,13 @@ extension RACSignal {
 	}
 }
 
-extension Producer {
+public extension Producer {
 	/// Creates a "cold" RACSignal that will produce events from the receiver
 	/// upon each subscription.
 	///
 	/// evidence - Used to prove to the typechecker that the receiver is
 	///            a producer of objects. Simply pass in the `identity` function.
-	func asDeferredRACSignal<U: AnyObject>(evidence: Producer<T> -> Producer<U?>) -> RACSignal {
+	public func asDeferredRACSignal<U: AnyObject>(evidence: Producer<T> -> Producer<U?>) -> RACSignal {
 		return RACSignal.createSignal { subscriber in
 			let selfDisposable = evidence(self).produce { event in
 				switch event {
@@ -131,7 +131,7 @@ extension Producer {
 	}
 }
 
-extension Signal {
+public extension Signal {
 	/// Creates a "hot" RACSignal that will forward values from the receiver.
 	///
 	/// evidence - Used to prove to the typechecker that the receiver is
@@ -140,7 +140,7 @@ extension Signal {
 	/// Returns an infinite signal that will send the observable's current
 	/// value, then all changes thereafter. The signal will never complete or
 	/// error, so it must be disposed manually.
-	func asInfiniteRACSignal<U: AnyObject>(evidence: Signal<T> -> Signal<U?>) -> RACSignal {
+	public func asInfiniteRACSignal<U: AnyObject>(evidence: Signal<T> -> Signal<U?>) -> RACSignal {
 		return RACSignal.createSignal { subscriber in
 			evidence(self).observe { value in
 				subscriber.sendNext(value)
@@ -151,13 +151,13 @@ extension Signal {
 	}
 }
 
-extension Promise {
+public extension Promise {
 	/// Creates a "warm" RACSignal that will start the promise upon the first
 	/// subscription, and share the result with all subscribers.
 	///
 	/// evidence - Used to prove to the typechecker that the receiver will
 	///            produce an object. Simply pass in the `identity` function.
-	func asReplayedRACSignal<U: AnyObject>(evidence: Promise<T> -> Promise<U>) -> RACSignal {
+	public func asReplayedRACSignal<U: AnyObject>(evidence: Promise<T> -> Promise<U>) -> RACSignal {
 		return RACSignal.createSignal { subscriber in
 			evidence(self).start().signal.observe { maybeResult in
 				if let result = maybeResult {
@@ -171,10 +171,10 @@ extension Promise {
 	}
 }
 
-extension RACCommand {
+public extension RACCommand {
 	/// Creates an Action that will execute the command, then forward the last
 	/// value generated by the execution.
-	func asAction() -> Action<AnyObject?, AnyObject?> {
+	public func asAction() -> Action<AnyObject?, AnyObject?> {
 		let enabled: Signal<Bool> = self.enabled
 			.asSignalOfLatestValue()
 			.map { obj in
@@ -193,12 +193,12 @@ extension RACCommand {
 	}
 }
 
-extension Action {
+public extension Action {
 	/// Creates a RACCommand that will execute the Action.
 	///
 	/// evidence - Used to prove to the typechecker that the receiver accepts
 	///            and produces objects. Simply pass in the `identity` function.
-	func asCommand<ObjectOutput: AnyObject>(evidence: Action<Input, Output> -> Action<AnyObject?, ObjectOutput?>) -> RACCommand {
+	public func asCommand<ObjectOutput: AnyObject>(evidence: Action<Input, Output> -> Action<AnyObject?, ObjectOutput?>) -> RACCommand {
 		let enabled = self.enabled
 			.map { $0 as NSNumber? }
 			.asInfiniteRACSignal(identity)
@@ -228,17 +228,17 @@ extension Action {
 
 // These definitions work around a weird bug where the `RACEvent.value` property
 // is considered to be a Swift function on OS X and a Swift property on iOS.
-func _getValue(v: AnyObject?) -> AnyObject? {
+private func _getValue(v: AnyObject?) -> AnyObject? {
 	return v
 }
 
-func _getValue(f: () -> AnyObject?) -> AnyObject? {
+private func _getValue(f: () -> AnyObject?) -> AnyObject? {
 	return f()
 }
 
-extension RACEvent {
+public extension RACEvent {
 	/// Creates an Event from the RACEvent.
-	func asEvent() -> Event<AnyObject?> {
+	public func asEvent() -> Event<AnyObject?> {
 		switch eventType {
 		case .Next:
 			let obj: AnyObject? = _getValue(value)
@@ -253,12 +253,12 @@ extension RACEvent {
 	}
 }
 
-extension Event {
+public extension Event {
 	/// Creates a RACEvent from the Event.
 	///
 	/// evidence - Used to prove to the typechecker that the event can contain
 	///            an object. Simply pass in the `identity` function.
-	func asRACEvent<U: AnyObject>(evidence: Event<T> -> Event<U>) -> RACEvent {
+	public func asRACEvent<U: AnyObject>(evidence: Event<T> -> Event<U>) -> RACEvent {
 		switch evidence(self) {
 		case let .Next(obj):
 			return RACEvent(value: obj)

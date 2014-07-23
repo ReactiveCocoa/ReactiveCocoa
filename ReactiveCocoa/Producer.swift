@@ -130,6 +130,8 @@ struct Producer<T> {
 			let selfDisposable = evidence(self).produce { event in
 				switch event {
 				case let .Next(stream):
+					inFlight.modify { $0 + 1 }
+
 					let streamDisposable = SerialDisposable()
 					disposable.addDisposable(streamDisposable)
 

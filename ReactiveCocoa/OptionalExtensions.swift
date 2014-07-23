@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension Optional {
+extension Optional {
 	public func optional<U>(#ifNone: @auto_closure () -> U, ifSome: T -> U) -> U {
 		if let value = self {
 			return ifSome(value)

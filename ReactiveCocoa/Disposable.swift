@@ -81,12 +81,12 @@ public struct CompositeDisposable: Disposable {
 			return
 		}
 	
-		let shouldDispose: Bool = _disposables.withValue {
-			if var ds = $0 {
-				ds.append(d!)
-				return false
+		let (_, shouldDispose) = _disposables.modify { ds -> ([Disposable]?, Bool) in
+			if var ds = ds {
+				ds += d!
+				return (ds, false)
 			} else {
-				return true
+				return (nil, true)
 			}
 		}
 		
@@ -160,16 +160,14 @@ public final class SerialDisposable: Disposable {
 		}
 
 		set(d) {
-			_state.modify {
-				var s = $0
-
-				s.innerDisposable?.dispose()
-				s.innerDisposable = d
-				if s.disposed {
-					d?.dispose()
-				}
-
-				return s
+			let oldState = _state.modify { (var state) in
+				state.innerDisposable = d
+				return state
+			}
+			
+			oldState.innerDisposable?.dispose()
+			if oldState.disposed {
+				d?.dispose()
 			}
 		}
 	}

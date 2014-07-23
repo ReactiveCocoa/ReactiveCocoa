@@ -130,6 +130,8 @@ public struct Producer<T> {
 			let selfDisposable = evidence(self).produce { event in
 				switch event {
 				case let .Next(stream):
+					inFlight.modify { $0 + 1 }
+
 					let streamDisposable = SerialDisposable()
 					disposable.addDisposable(streamDisposable)
 
@@ -621,8 +623,7 @@ public struct Producer<T> {
 				if let v = maybeValue {
 					return .single(v)
 				} else {
-					// FIXME
-					return .error(error.orDefault(emptyError))
+					return .error(error.orDefault(RACError.Empty.error))
 				}
 			}
 			.merge(identity)

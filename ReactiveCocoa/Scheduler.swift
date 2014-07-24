@@ -45,6 +45,10 @@ public struct ImmediateScheduler: Scheduler {
 /// A scheduler that performs all work on the main thread.
 public struct MainScheduler: DateScheduler {
 	private let innerScheduler = QueueScheduler(dispatch_get_main_queue())
+    
+    public init() {
+        // We need a public constructor, even if it is empty.
+    }
 
 	public func schedule(action: () -> ()) -> Disposable? {
 		return innerScheduler.schedule(action)

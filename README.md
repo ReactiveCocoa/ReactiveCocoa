@@ -1,3 +1,5 @@
+[![Reference Status](https://www.versioneye.com/objective-c/reactivecocoa/reference_badge.svg?style=flat)](https://www.versioneye.com/objective-c/reactivecocoa/references)
+
 # ReactiveCocoa
 
 ReactiveCocoa (RAC) is an Objective-C framework inspired by [Functional Reactive

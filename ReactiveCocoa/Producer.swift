@@ -230,13 +230,14 @@ public struct Producer<T> {
 
 	/// Returns a stream that will yield the first `count` values from the
 	/// receiver.
-	public func take(count: Int) -> Producer<T> {
+	public func take(count: UInt) -> Producer<T> {
 		if count == 0 {
 			return .empty()
 		}
 
-		return mapAccumulate(0) { (n, value) in
-			let newN: Int? = (n + 1 < count ? n + 1 : nil)
+		let initial: UInt = 0
+		return mapAccumulate(initial) { (n, value) in
+			let newN: UInt? = (n + 1 < count ? n + 1 : nil)
 			return (newN, value)
 		}
 	}
@@ -265,9 +266,10 @@ public struct Producer<T> {
 
 	/// Returns a stream that will skip the first `count` values from the
 	/// receiver, then forward everything afterward.
-	public func skip(count: Int) -> Producer<T> {
+	public func skip(count: UInt) -> Producer<T> {
+		let initial: UInt = 0
 		return self
-			.mapAccumulate(0) { (n, value) in
+			.mapAccumulate(initial) { (n, value) in
 				if n >= count {
 					return (count, .single(value))
 				} else {
@@ -500,7 +502,7 @@ public struct Producer<T> {
 
 	/// Waits for the receiver to complete successfully, then forwards only the
 	/// last `count` values.
-	public func takeLast(count: Int) -> Producer<T> {
+	public func takeLast(count: UInt) -> Producer<T> {
 		return Producer { consumer in
 			let values: Atomic<[T]> = Atomic([])
 			let disposable = self.produce { event in
@@ -508,7 +510,7 @@ public struct Producer<T> {
 				case let .Next(value):
 					values.modify { (var arr) in
 						arr.append(value)
-						while arr.count > count {
+						while arr.count.asUnsigned() > count {
 							arr.removeAtIndex(0)
 						}
 

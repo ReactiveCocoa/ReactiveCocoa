@@ -217,10 +217,11 @@ public final class Signal<T> {
 
 	/// Returns a stream that will yield the first `count` values from the
 	/// receiver, where `count` is greater than zero.
-	public func take(count: Int) -> Signal<T> {
-		assert(count > 0)
+	public func take(count: UInt) -> Signal<T> {
+		assert(count != 0)
 
-		let soFar = Atomic(0)
+		let initial: UInt = 0
+		let soFar = Atomic(initial)
 
 		return Signal(initialValue: self.current) { sink in
 			let selfDisposable = SerialDisposable()
@@ -270,8 +271,9 @@ public final class Signal<T> {
 
 	/// Returns a stream that will replace the first `count` values from the
 	/// receiver with `nil`, then forward everything afterward.
-	public func skip(count: Int) -> Signal<T?> {
-		let soFar = Atomic(0)
+	public func skip(count: UInt) -> Signal<T?> {
+		let initial: UInt = 0
+		let soFar = Atomic(initial)
 
 		return skipWhile { _ in
 			let orig = soFar.modify { $0 + 1 }
@@ -307,7 +309,7 @@ public final class Signal<T> {
 	///
 	/// Returns a Producer over the buffered values, and a Disposable which
 	/// can be used to cancel all further buffering.
-	public func buffer(capacity: Int? = nil) -> (Producer<T>, Disposable) {
+	public func buffer(capacity: UInt? = nil) -> (Producer<T>, Disposable) {
 		let queue = dispatch_queue_create("com.github.ReactiveCocoa.Signal.buffer", DISPATCH_QUEUE_CONCURRENT)
 		var compositeDisposable = CompositeDisposable()
 
@@ -320,7 +322,7 @@ public final class Signal<T> {
 				bufferedValues.append(value)
 
 				if let c = capacity {
-					while bufferedValues.count > c {
+					while bufferedValues.count.asUnsigned() > c {
 						bufferedValues.removeAtIndex(0)
 					}
 				}

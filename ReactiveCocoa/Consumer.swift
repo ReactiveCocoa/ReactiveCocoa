@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 GitHub, Inc. All rights reserved.
 //
 
+import swiftz_core
+
 public func emptyNext(value: Any) {}
 public func emptyError(error: NSError) {}
 public func emptyCompleted() {}
@@ -43,8 +45,8 @@ public final class Consumer<T>: Sink {
 	public convenience init(next: T -> () = emptyNext, error: NSError -> () = emptyError, completed: () -> () = emptyCompleted) {
 		self.init(SinkOf<Element> { event in
 			switch event {
-			case let .Next(value):
-				next(value)
+			case let .Next(box):
+				next(box.value)
 
 			case let .Error(err):
 				error(err)
@@ -63,7 +65,7 @@ public final class Consumer<T>: Sink {
 				return s
 			}
 		}
-		
+
 		oldSink?.put(event)
 
 		if event.isTerminating {

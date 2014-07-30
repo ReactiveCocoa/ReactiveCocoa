@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-import Foundation
+import swiftz_core
 
 extension Optional {
 	public func optional<U>(#ifNone: @auto_closure () -> U, ifSome: T -> U) -> U {

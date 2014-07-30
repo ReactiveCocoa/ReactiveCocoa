@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
+import swiftz_core
+
 /// A stream that will begin generating Events when a Consumer is attached,
 /// possibly performing some side effects in the process. Events are pushed to
 /// the consumer as they are generated.
@@ -86,8 +88,8 @@ public struct Producer<T> {
 			let state = Atomic(initialState)
 			let disposable = self.produce { event in
 				switch event {
-				case let .Next(value):
-					let (maybeState, newValue) = f(state, value)
+				case let .Next(box):
+					let (maybeState, newValue) = f(state, box.value)
 					consumer.put(.Next(Box(newValue)))
 
 					if let s = maybeState {
@@ -103,7 +105,7 @@ public struct Producer<T> {
 					consumer.put(.Completed)
 				}
 			}
-			
+
 			consumer.disposable.addDisposable(disposable)
 		}
 	}
@@ -315,8 +317,8 @@ public struct Producer<T> {
 	public func bindTo(property: SignalingProperty<T>) -> Disposable {
 		return self.produce { event in
 			switch event {
-			case let .Next(value):
-				property.put(value)
+			case let .Next(box):
+				property.put(box.value)
 
 			case let .Error(error):
 				assert(false)
@@ -371,7 +373,7 @@ public struct Producer<T> {
 					consumer.put(.Completed)
 				}
 			}
-			
+
 			consumer.disposable.addDisposable(disposable)
 		}
 	}
@@ -385,8 +387,8 @@ public struct Producer<T> {
 		return Producer<U> { consumer in
 			let disposable = evidence(self).produce { event in
 				switch event {
-				case let .Next(innerEvent):
-					consumer.put(innerEvent)
+				case let .Next(eventBox):
+					consumer.put(eventBox.value)
 
 				case let .Error(error):
 					consumer.put(.Error(error))
@@ -395,7 +397,7 @@ public struct Producer<T> {
 					consumer.put(.Completed)
 				}
 			}
-			
+
 			consumer.disposable.addDisposable(disposable)
 		}
 	}
@@ -435,7 +437,7 @@ public struct Producer<T> {
 					consumer.put(.Completed)
 				}
 			}
-			
+
 			consumer.disposable.addDisposable(disposable)
 		}
 	}
@@ -447,7 +449,7 @@ public struct Producer<T> {
 				action(event)
 				consumer.put(event)
 			}
-			
+
 			consumer.disposable.addDisposable(disposable)
 		}
 	}
@@ -475,7 +477,7 @@ public struct Producer<T> {
 				scheduler.schedule { consumer.put(event) }
 				return ()
 			}
-			
+
 			consumer.disposable.addDisposable(disposable)
 		}
 	}
@@ -505,9 +507,9 @@ public struct Producer<T> {
 			let values: Atomic<[T]> = Atomic([])
 			let disposable = self.produce { event in
 				switch event {
-				case let .Next(value):
+				case let .Next(box):
 					values.modify { (var arr) in
-						arr.append(value)
+						arr.append(box.value)
 						while arr.count > count {
 							arr.removeAtIndex(0)
 						}
@@ -526,7 +528,7 @@ public struct Producer<T> {
 					consumer.put(event)
 				}
 			}
-			
+
 			consumer.disposable.addDisposable(disposable)
 		}
 	}
@@ -573,7 +575,7 @@ public struct Producer<T> {
 					}
 				}
 			}
-			
+
 			consumer.disposable.addDisposable(disposable)
 		}
 	}
@@ -586,7 +588,7 @@ public struct Producer<T> {
 				scheduler.schedule { consumer.put(event) }
 				return ()
 			}
-			
+
 			consumer.disposable.addDisposable(disposable)
 		}
 	}
@@ -615,15 +617,29 @@ public struct Producer<T> {
 	/// Attempts to map each value in the receiver, bailing out with an error if
 	/// a given mapping is `nil`.
 	public func tryMap<U>(f: (T, NSErrorPointer) -> U?) -> Producer<U> {
+		return tryMap { value -> Result<U> in
+			var error: NSError?
+			let maybeValue = f(value, &error)
+
+			if let v = maybeValue {
+				return .Value(Box(v))
+			} else {
+				return .Error(error.orDefault(RACError.Empty.error))
+			}
+		}
+	}
+
+	/// Attempts to map each value in the receiver, bailing out with an error if
+	/// a given mapping fails.
+	public func tryMap<U>(f: T -> Result<U>) -> Producer<U> {
 		return self
 			.map { value in
-				var error: NSError?
-				let maybeValue = f(value, &error)
+				switch f(value) {
+				case let .Value(box):
+					return .single(box.value)
 
-				if let v = maybeValue {
-					return .single(v)
-				} else {
-					return .error(error.orDefault(RACError.Empty.error))
+				case let .Error(error):
+					return .error(error)
 				}
 			}
 			.merge(identity)

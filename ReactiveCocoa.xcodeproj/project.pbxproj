@@ -18,16 +18,12 @@
 		D04797DE196670900066B267 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479709196670900066B267 /* Action.swift */; };
 		D04797E1196670900066B267 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970B196670900066B267 /* Atomic.swift */; };
 		D04797E2196670900066B267 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970B196670900066B267 /* Atomic.swift */; };
-		D04797E3196670900066B267 /* Box.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970C196670900066B267 /* Box.swift */; };
-		D04797E4196670900066B267 /* Box.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970C196670900066B267 /* Box.swift */; };
 		D04797E7196670900066B267 /* Consumer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970E196670900066B267 /* Consumer.swift */; };
 		D04797E8196670900066B267 /* Consumer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970E196670900066B267 /* Consumer.swift */; };
 		D04797E9196670900066B267 /* Disposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970F196670900066B267 /* Disposable.swift */; };
 		D04797EA196670900066B267 /* Disposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970F196670900066B267 /* Disposable.swift */; };
 		D04797EB196670900066B267 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479710196670900066B267 /* Event.swift */; };
 		D04797EC196670900066B267 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479710196670900066B267 /* Event.swift */; };
-		D04797ED196670900066B267 /* Identity.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479711196670900066B267 /* Identity.swift */; };
-		D04797EE196670900066B267 /* Identity.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479711196670900066B267 /* Identity.swift */; };
 		D04797EF196670900066B267 /* NSArray+RACSequenceAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = D0479712196670900066B267 /* NSArray+RACSequenceAdditions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D04797F0196670900066B267 /* NSArray+RACSequenceAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = D0479712196670900066B267 /* NSArray+RACSequenceAdditions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D04797F1196670900066B267 /* NSArray+RACSequenceAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = D0479713196670900066B267 /* NSArray+RACSequenceAdditions.m */; };
@@ -336,8 +332,6 @@
 		D047992A196670900066B267 /* RACValueTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = D04797AF196670900066B267 /* RACValueTransformer.m */; };
 		D047992B196670900066B267 /* ReactiveCocoa-Bridging-Header.h in Headers */ = {isa = PBXBuildFile; fileRef = D04797B0196670900066B267 /* ReactiveCocoa-Bridging-Header.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D047992C196670900066B267 /* ReactiveCocoa-Bridging-Header.h in Headers */ = {isa = PBXBuildFile; fileRef = D04797B0196670900066B267 /* ReactiveCocoa-Bridging-Header.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D047992D196670900066B267 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04797B1196670900066B267 /* Result.swift */; };
-		D047992E196670900066B267 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04797B1196670900066B267 /* Result.swift */; };
 		D0479931196670900066B267 /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04797B3196670900066B267 /* Scheduler.swift */; };
 		D0479932196670900066B267 /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04797B3196670900066B267 /* Scheduler.swift */; };
 		D0479933196670900066B267 /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04797B4196670900066B267 /* Signal.swift */; };
@@ -399,6 +393,8 @@
 		D047999D196673B00066B267 /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0479999196673AC0066B267 /* Quick.framework */; };
 		D047999F196678F20066B267 /* ObjectiveCBridgingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047999E196678F20066B267 /* ObjectiveCBridgingSpec.swift */; };
 		D04799A0196678F20066B267 /* ObjectiveCBridgingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047999E196678F20066B267 /* ObjectiveCBridgingSpec.swift */; };
+		D095745519733BAD002D44C1 /* swiftz_core.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D095745419733BAD002D44C1 /* swiftz_core.framework */; };
+		D095745619733BB1002D44C1 /* swiftz_core.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D095745419733BAD002D44C1 /* swiftz_core.framework */; };
 		D0E3CF551973AFC7004FD181 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E3CF541973AFC7004FD181 /* Errors.swift */; };
 		D0E3CF561973AFC7004FD181 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E3CF541973AFC7004FD181 /* Errors.swift */; };
 /* End PBXBuildFile section */
@@ -660,11 +656,9 @@
 		D04796EC19666CE40066B267 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		D0479709196670900066B267 /* Action.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
 		D047970B196670900066B267 /* Atomic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Atomic.swift; sourceTree = "<group>"; };
-		D047970C196670900066B267 /* Box.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Box.swift; sourceTree = "<group>"; };
 		D047970E196670900066B267 /* Consumer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Consumer.swift; sourceTree = "<group>"; };
 		D047970F196670900066B267 /* Disposable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Disposable.swift; sourceTree = "<group>"; };
 		D0479710196670900066B267 /* Event.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
-		D0479711196670900066B267 /* Identity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Identity.swift; sourceTree = "<group>"; };
 		D0479712196670900066B267 /* NSArray+RACSequenceAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+RACSequenceAdditions.h"; sourceTree = "<group>"; };
 		D0479713196670900066B267 /* NSArray+RACSequenceAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+RACSequenceAdditions.m"; sourceTree = "<group>"; };
 		D0479714196670900066B267 /* NSControl+RACCommandSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSControl+RACCommandSupport.h"; sourceTree = "<group>"; };
@@ -823,7 +817,6 @@
 		D04797AE196670900066B267 /* RACValueTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACValueTransformer.h; sourceTree = "<group>"; };
 		D04797AF196670900066B267 /* RACValueTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACValueTransformer.m; sourceTree = "<group>"; };
 		D04797B0196670900066B267 /* ReactiveCocoa-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ReactiveCocoa-Bridging-Header.h"; sourceTree = "<group>"; };
-		D04797B1196670900066B267 /* Result.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
 		D04797B3196670900066B267 /* Scheduler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scheduler.swift; sourceTree = "<group>"; };
 		D04797B4196670900066B267 /* Signal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Signal.swift; sourceTree = "<group>"; };
 		D04797B5196670900066B267 /* SignalingProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalingProperty.swift; sourceTree = "<group>"; };
@@ -874,6 +867,7 @@
 		D0479998196673AC0066B267 /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Nimble.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0479999196673AC0066B267 /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Quick.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D047999E196678F20066B267 /* ObjectiveCBridgingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectiveCBridgingSpec.swift; sourceTree = "<group>"; };
+		D095745419733BAD002D44C1 /* swiftz_core.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = swiftz_core.framework; path = "../../../../../../../../../Library/Developer/Xcode/DerivedData/ReactiveCocoa-fvhormsvfcxumbbehgudvscdctdn/Build/Products/Debug/swiftz_core.framework"; sourceTree = "<group>"; };
 		D0E3CF541973AFC7004FD181 /* Errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -882,6 +876,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D095745519733BAD002D44C1 /* swiftz_core.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -899,6 +894,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D095745619733BB1002D44C1 /* swiftz_core.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -950,6 +946,7 @@
 		D047967619666BF30066B267 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				D095745419733BAD002D44C1 /* swiftz_core.framework */,
 				D04797B0196670900066B267 /* ReactiveCocoa-Bridging-Header.h */,
 				D0479995196673730066B267 /* ReactiveCocoa-Prefix.pch */,
 				D047967719666BF30066B267 /* Info.plist */,
@@ -1049,19 +1046,16 @@
 				D0479709196670900066B267 /* Action.swift */,
 				D047970B196670900066B267 /* Atomic.swift */,
 				D036AA4A196FB7CB00B49B76 /* Bag.swift */,
-				D047970C196670900066B267 /* Box.swift */,
 				D047970E196670900066B267 /* Consumer.swift */,
 				D047970F196670900066B267 /* Disposable.swift */,
 				D0E3CF541973AFC7004FD181 /* Errors.swift */,
 				D0479710196670900066B267 /* Event.swift */,
-				D0479711196670900066B267 /* Identity.swift */,
 				D0479727196670900066B267 /* NSNotificationCenterExtensions.swift */,
 				D0479744196670900066B267 /* NSURLSessionExtensions.swift */,
 				D0479747196670900066B267 /* ObjectiveCBridging.swift */,
 				D02C14B0197243CB007127D4 /* OptionalExtensions.swift */,
 				D0479748196670900066B267 /* Producer.swift */,
 				D0479749196670900066B267 /* Promise.swift */,
-				D04797B1196670900066B267 /* Result.swift */,
 				D04797B3196670900066B267 /* Scheduler.swift */,
 				D04797B4196670900066B267 /* Signal.swift */,
 				D04797B5196670900066B267 /* SignalingProperty.swift */,
@@ -1688,7 +1682,6 @@
 				D047989F196670900066B267 /* RACEvent.m in Sources */,
 				D0479911196670900066B267 /* RACTargetQueueScheduler.m in Sources */,
 				D047986D196670900066B267 /* RACBlockTrampoline.m in Sources */,
-				D04797ED196670900066B267 /* Identity.swift in Sources */,
 				D04798DF196670900066B267 /* RACSequence.m in Sources */,
 				D04797DD196670900066B267 /* Action.swift in Sources */,
 				D04797F9196670900066B267 /* NSControl+RACTextSignalSupport.m in Sources */,
@@ -1710,7 +1703,6 @@
 				D0479825196670900066B267 /* NSObject+RACDescription.m in Sources */,
 				D04798C5196670900066B267 /* RACQueueScheduler.m in Sources */,
 				D0479875196670900066B267 /* RACCommand.m in Sources */,
-				D047992D196670900066B267 /* Result.swift in Sources */,
 				D04798F1196670900066B267 /* RACSignalSequence.m in Sources */,
 				D0479845196670900066B267 /* NSString+RACSequenceAdditions.m in Sources */,
 				D04798B3196670900066B267 /* RACKVOTrampoline.m in Sources */,
@@ -1726,7 +1718,6 @@
 				D0479849196670900066B267 /* NSString+RACSupport.m in Sources */,
 				D0479841196670900066B267 /* NSString+RACKeyPathUtilities.m in Sources */,
 				D04798E3196670900066B267 /* RACSerialDisposable.m in Sources */,
-				D04797E3196670900066B267 /* Box.swift in Sources */,
 				D04798D3196670900066B267 /* RACScheduler.m in Sources */,
 				D0479887196670900066B267 /* RACDynamicSequence.m in Sources */,
 				D04798F5196670900066B267 /* RACStream.m in Sources */,
@@ -1803,7 +1794,6 @@
 				D04798A0196670900066B267 /* RACEvent.m in Sources */,
 				D0479912196670900066B267 /* RACTargetQueueScheduler.m in Sources */,
 				D047986E196670900066B267 /* RACBlockTrampoline.m in Sources */,
-				D04797EE196670900066B267 /* Identity.swift in Sources */,
 				D04798E0196670900066B267 /* RACSequence.m in Sources */,
 				D0479990196671DF0066B267 /* EXTRuntimeExtensions.m in Sources */,
 				D04797DE196670900066B267 /* Action.swift in Sources */,
@@ -1827,7 +1817,6 @@
 				D04798C6196670900066B267 /* RACQueueScheduler.m in Sources */,
 				D047995C196670900066B267 /* UIGestureRecognizer+RACSignalSupport.m in Sources */,
 				D0479876196670900066B267 /* RACCommand.m in Sources */,
-				D047992E196670900066B267 /* Result.swift in Sources */,
 				D04798F2196670900066B267 /* RACSignalSequence.m in Sources */,
 				D0479948196670900066B267 /* UIButton+RACCommandSupport.m in Sources */,
 				D0479846196670900066B267 /* NSString+RACSequenceAdditions.m in Sources */,
@@ -1847,7 +1836,6 @@
 				D047993C196670900066B267 /* UIActionSheet+RACSignalSupport.m in Sources */,
 				D0479964196670900066B267 /* UIRefreshControl+RACCommandSupport.m in Sources */,
 				D04798E4196670900066B267 /* RACSerialDisposable.m in Sources */,
-				D04797E4196670900066B267 /* Box.swift in Sources */,
 				D04798D4196670900066B267 /* RACScheduler.m in Sources */,
 				D0479888196670900066B267 /* RACDynamicSequence.m in Sources */,
 				D04798F6196670900066B267 /* RACStream.m in Sources */,
@@ -2105,6 +2093,10 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ReactiveCocoa-fvhormsvfcxumbbehgudvscdctdn/Build/Products/Debug",
+				);
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
@@ -2119,6 +2111,10 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ReactiveCocoa-fvhormsvfcxumbbehgudvscdctdn/Build/Products/Debug",
+				);
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
@@ -2152,6 +2148,10 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ReactiveCocoa-fvhormsvfcxumbbehgudvscdctdn/Build/Products/Debug",
+				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = ReactiveCocoa;
@@ -2165,6 +2165,10 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ReactiveCocoa-fvhormsvfcxumbbehgudvscdctdn/Build/Products/Debug",
+				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = ReactiveCocoa;
@@ -2226,6 +2230,10 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ReactiveCocoa-fvhormsvfcxumbbehgudvscdctdn/Build/Products/Debug",
+				);
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
@@ -2249,6 +2257,10 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ReactiveCocoa-fvhormsvfcxumbbehgudvscdctdn/Build/Products/Debug",
+				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = ReactiveCocoa;
@@ -2293,6 +2305,10 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ReactiveCocoa-fvhormsvfcxumbbehgudvscdctdn/Build/Products/Debug",
+				);
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
@@ -2317,6 +2333,10 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ReactiveCocoa-fvhormsvfcxumbbehgudvscdctdn/Build/Products/Debug",
+				);
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = ReactiveCocoa;

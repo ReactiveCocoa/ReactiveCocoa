@@ -36,6 +36,8 @@ public protocol DateScheduler: Scheduler {
 
 /// A scheduler that performs all work synchronously.
 public struct ImmediateScheduler: Scheduler {
+	public init() {}
+
 	public func schedule(action: () -> ()) -> Disposable? {
 		action()
 		return nil
@@ -45,10 +47,8 @@ public struct ImmediateScheduler: Scheduler {
 /// A scheduler that performs all work on the main thread.
 public struct MainScheduler: DateScheduler {
 	private let innerScheduler = QueueScheduler(dispatch_get_main_queue())
-    
-    public init() {
-        // We need a public constructor, even if it is empty.
-    }
+
+    public init() {}
 
 	public func schedule(action: () -> ()) -> Disposable? {
 		return innerScheduler.schedule(action)
@@ -74,38 +74,38 @@ public struct QueueScheduler: DateScheduler {
 	public init(_ queue: dispatch_queue_t) {
 		dispatch_set_target_queue(queue, queue)
 	}
-	
+
 	/// Initializes a scheduler that will target the global queue with the given
 	/// priority.
 	public init(_ priority: CLong) {
 		self.init(dispatch_get_global_queue(priority, 0))
 	}
-	
+
 	/// Initializes a scheduler that will target the default priority global
 	/// queue.
 	public init() {
 		self.init(DISPATCH_QUEUE_PRIORITY_DEFAULT)
 	}
-	
+
 	public func schedule(action: () -> ()) -> Disposable? {
 		let d = SimpleDisposable()
-	
+
 		dispatch_async(queue, {
 			if !d.disposed {
 				action()
 			}
 		})
-		
+
 		return d
 	}
 
 	private func wallTimeWithDate(date: NSDate) -> dispatch_time_t {
 		var seconds = 0.0
 		let frac = modf(date.timeIntervalSince1970, &seconds)
-		
+
 		let nsec: Double = frac * Double(NSEC_PER_SEC)
 		var walltime = timespec(tv_sec: CLong(seconds), tv_nsec: CLong(nsec))
-		
+
 		return dispatch_walltime(&walltime, 0)
 	}
 
@@ -124,7 +124,7 @@ public struct QueueScheduler: DateScheduler {
 	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway leeway: NSTimeInterval, action: () -> ()) -> Disposable? {
 		let nsecInterval = repeatingEvery * Double(NSEC_PER_SEC)
 		let nsecLeeway = leeway * Double(NSEC_PER_SEC)
-		
+
 		let timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue)
 		dispatch_source_set_timer(timer, wallTimeWithDate(date), UInt64(nsecInterval), UInt64(nsecLeeway))
 		dispatch_source_set_event_handler(timer, action)
@@ -223,7 +223,7 @@ public final class TestScheduler: DateScheduler {
 
 		assert(currentDate.compare(newDate) != NSComparisonResult.OrderedDescending)
 		_currentDate = newDate
-			
+
 		while scheduledActions.count > 0 {
 			if newDate.compare(scheduledActions[0].date) == NSComparisonResult.OrderedAscending {
 				break

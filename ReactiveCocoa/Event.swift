@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
+import swiftz_core
+
 /// Represents a stream event.
 ///
 /// Streams must conform to the grammar:
@@ -36,7 +38,7 @@ public enum Event<T> {
 	public func map<U>(f: T -> U) -> Event<U> {
 		switch self {
 		case let .Next(box):
-			return .Next(Box(f(box)))
+			return .Next(Box(f(box.value)))
 			
 		case let .Error(error):
 			return .Error(error)
@@ -49,8 +51,8 @@ public enum Event<T> {
 	/// Case analysis on the receiver.
 	public func event<U>(#ifNext: T -> U, ifError: NSError -> U, ifCompleted: @auto_closure () -> U) -> U {
 		switch self {
-		case let .Next(value):
-			return ifNext(value)
+		case let .Next(box):
+			return ifNext(box.value)
 
 		case let .Error(err):
 			return ifError(err)

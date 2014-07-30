@@ -7,51 +7,51 @@
 //
 
 /// An atomic variable.
-@final class Atomic<T> {
-	var _spinlock = OS_SPINLOCK_INIT
-	var _value: T
+internal final class Atomic<T> {
+	private var spinlock = OS_SPINLOCK_INIT
+	private var _value: T
 	
 	/// Atomically gets or sets the value of the variable.
-	var value: T {
+	public var value: T {
 		get {
-			_lock()
+			lock()
 			let v = _value
-			_unlock()
+			unlock()
 
 			return v
 		}
 	
 		set(newValue) {
-			_lock()
+			lock()
 			_value = newValue
-			_unlock()
+			unlock()
 		}
 	}
 	
 	/// Initializes the variable with the given initial value.
-	init(_ value: T) {
+	public init(_ value: T) {
 		_value = value
 	}
 	
-	func _lock() {
-		withUnsafePointer(&_spinlock, OSSpinLockLock)
+	private func lock() {
+		withUnsafePointer(&spinlock, OSSpinLockLock)
 	}
 	
-	func _unlock() {
-		withUnsafePointer(&_spinlock, OSSpinLockUnlock)
+	private func unlock() {
+		withUnsafePointer(&spinlock, OSSpinLockUnlock)
 	}
 	
 	/// Atomically replaces the contents of the variable.
 	///
 	/// Returns the old value.
-	func swap(newValue: T) -> T {
+	public func swap(newValue: T) -> T {
 		return modify { _ in newValue }
 	}
 
 	/// Atomically modifies the variable.
 	///
 	/// Returns the old value.
-	func modify(action: T -> T) -> T {
+	public func modify(action: T -> T) -> T {
 		let (oldValue, _) = modify { oldValue in (action(oldValue), 0) }
 		return oldValue
 	}
@@ -59,12 +59,12 @@
 	/// Atomically modifies the variable.
 	///
 	/// Returns the old value, plus arbitrary user-defined data.
-	func modify<U>(action: T -> (T, U)) -> (T, U) {
-		_lock()
+	public func modify<U>(action: T -> (T, U)) -> (T, U) {
+		lock()
 		let oldValue: T = _value
 		let (newValue, data) = action(_value)
 		_value = newValue
-		_unlock()
+		unlock()
 		
 		return (oldValue, data)
 	}
@@ -73,16 +73,16 @@
 	/// variable.
 	///
 	/// Returns the result of the action.
-	func withValue<U>(action: T -> U) -> U {
-		_lock()
+	public func withValue<U>(action: T -> U) -> U {
+		lock()
 		let result = action(_value)
-		_unlock()
+		unlock()
 		
 		return result
 	}
 
 	/// Treats the Atomic variable as its underlying value in expressions.
-	@conversion func __conversion() -> T {
+	public func __conversion() -> T {
 		return value
 	}
 }

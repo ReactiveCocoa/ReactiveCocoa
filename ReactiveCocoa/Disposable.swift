@@ -23,7 +23,9 @@ public struct SimpleDisposable: Disposable {
 	public var disposed: Bool {
 		return _disposed
 	}
-	
+
+	public init() {}
+
 	public func dispose() {
 		_disposed.value = true
 	}
@@ -51,7 +53,7 @@ public struct ActionDisposable: Disposable {
 /// A disposable that will dispose of any number of other disposables.
 public struct CompositeDisposable: Disposable {
 	private var disposables: Atomic<[Disposable]?>
-	
+
 	public var disposed: Bool {
 		return !disposables.value
 	}
@@ -66,7 +68,7 @@ public struct CompositeDisposable: Disposable {
 	public init() {
 		self.init([])
 	}
-	
+
 	public func dispose() {
 		if let ds = disposables.swap(nil) {
 			for d in ds {
@@ -74,13 +76,13 @@ public struct CompositeDisposable: Disposable {
 			}
 		}
 	}
-	
+
 	/// Adds the given disposable to the list.
 	public func addDisposable(d: Disposable?) {
 		if !d {
 			return
 		}
-	
+
 		let (_, shouldDispose) = disposables.modify { ds -> ([Disposable]?, Bool) in
 			if var ds = ds {
 				ds += d!
@@ -89,7 +91,7 @@ public struct CompositeDisposable: Disposable {
 				return (nil, true)
 			}
 		}
-		
+
 		if shouldDispose {
 			d!.dispose()
 		}
@@ -117,21 +119,21 @@ public final class ScopedDisposable<D: Disposable>: Disposable {
 	/// The disposable which will be disposed when the ScopedDisposable
 	/// deinitializes.
 	public let innerDisposable: D
-	
+
 	public var disposed: Bool {
 		return innerDisposable.disposed
 	}
-	
+
 	/// Initializes the receiver to dispose of the argument upon
 	/// deinitialization.
 	public init(_ disposable: D) {
 		innerDisposable = disposable
 	}
-	
+
 	deinit {
 		dispose()
 	}
-	
+
 	public func dispose() {
 		innerDisposable.dispose()
 	}
@@ -164,7 +166,7 @@ public final class SerialDisposable: Disposable {
 				state.innerDisposable = d
 				return state
 			}
-			
+
 			oldState.innerDisposable?.dispose()
 			if oldState.disposed {
 				d?.dispose()

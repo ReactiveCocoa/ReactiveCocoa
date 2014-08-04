@@ -30,7 +30,7 @@ public final class Promise<T> {
 	}
 
 	/// Starts the promise, if it hasn't started already.
-	public func start() -> Promise<T> {
+	public func start() {
 		let oldState = state.modify { _ in .Started }
 
 		switch oldState {
@@ -52,8 +52,6 @@ public final class Promise<T> {
 		default:
 			break
 		}
-
-		return self
 	}
 
 	/// Starts the promise (if necessary), then blocks indefinitely on the
@@ -62,11 +60,13 @@ public final class Promise<T> {
 		let cond = NSCondition()
 		cond.name = "com.github.ReactiveCocoa.Promise.await"
 
-		start().signal.observe { _ in
+		signal.observe { _ in
 			cond.lock()
 			cond.signal()
 			cond.unlock()
 		}
+
+		start()
 
 		cond.lock()
 		while !self.signal.current {
@@ -85,17 +85,22 @@ public final class Promise<T> {
 		return Promise<U> { sink in
 			let disposable = SerialDisposable()
 
-			disposable.innerDisposable = self.start().signal.observe { maybeResult in
+			disposable.innerDisposable = self.signal.observe { maybeResult in
 				if !maybeResult {
 					return
 				}
 
-				disposable.innerDisposable = action(maybeResult!).start().signal.observe { maybeResult in
+				let innerPromise = action(maybeResult!)
+				disposable.innerDisposable = innerPromise.signal.observe { maybeResult in
 					if let result = maybeResult {
 						sink.put(result)
 					}
 				}
+
+				innerPromise.start()
 			}
+
+			self.start()
 		}
 	}
 }

@@ -13,7 +13,7 @@ internal final class Atomic<T> {
 	private var _value: T
 	
 	/// Atomically gets or sets the value of the variable.
-    internal var value: T {
+	internal var value: T {
 		get {
 			lock()
 			let v = _value

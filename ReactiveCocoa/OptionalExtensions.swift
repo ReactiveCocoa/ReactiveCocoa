@@ -9,7 +9,7 @@
 import swiftz_core
 
 extension Optional {
-	func optional<U>(#ifNone: @auto_closure () -> U, ifSome: T -> U) -> U {
+	public func optional<U>(#ifNone: @auto_closure () -> U, ifSome: T -> U) -> U {
 		if let value = self {
 			return ifSome(value)
 		} else {
@@ -17,7 +17,7 @@ extension Optional {
 		}
 	}
 
-	func orDefault(defaultValue: @auto_closure () -> T) -> T {
+	public func orDefault(defaultValue: @auto_closure () -> T) -> T {
 		return optional(ifNone: defaultValue, ifSome: identity)
 	}
 }

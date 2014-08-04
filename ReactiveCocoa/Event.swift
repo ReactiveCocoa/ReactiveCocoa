@@ -12,7 +12,7 @@ import swiftz_core
 ///
 /// Streams must conform to the grammar:
 /// `Next* (Error | Completed)?`
-enum Event<T> {
+public enum Event<T> {
 	/// A value provided by the stream.
 	case Next(Box<T>)
 
@@ -21,21 +21,35 @@ enum Event<T> {
 
 	/// The stream successfully terminated.
 	case Completed
-	
+
 	/// Whether this event indicates stream termination (from success or
 	/// failure).
-	var isTerminating: Bool {
+	public var isTerminating: Bool {
 		switch self {
 		case let .Next:
 			return false
-		
+
 		default:
 			return true
 		}
 	}
+	
+	/// Lifts the given function over the event's value.
+	public func map<U>(f: T -> U) -> Event<U> {
+		switch self {
+		case let .Next(box):
+			return .Next(Box(f(box.value)))
+
+		case let .Error(error):
+			return .Error(error)
+
+		case let .Completed:
+			return .Completed
+		}
+	}
 
 	/// Case analysis on the receiver.
-	func event<U>(#ifNext: T -> U, ifError: NSError -> U, ifCompleted: @auto_closure () -> U) -> U {
+	public func event<U>(#ifNext: T -> U, ifError: NSError -> U, ifCompleted: @auto_closure () -> U) -> U {
 		switch self {
 		case let .Next(box):
 			return ifNext(box.value)

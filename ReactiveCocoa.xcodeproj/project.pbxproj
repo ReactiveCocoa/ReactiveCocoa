@@ -18,8 +18,6 @@
 		D04797DE196670900066B267 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479709196670900066B267 /* Action.swift */; };
 		D04797E1196670900066B267 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970B196670900066B267 /* Atomic.swift */; };
 		D04797E2196670900066B267 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970B196670900066B267 /* Atomic.swift */; };
-		D04797E5196670900066B267 /* EventBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970D196670900066B267 /* EventBuffer.swift */; };
-		D04797E6196670900066B267 /* EventBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970D196670900066B267 /* EventBuffer.swift */; };
 		D04797E7196670900066B267 /* Consumer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970E196670900066B267 /* Consumer.swift */; };
 		D04797E8196670900066B267 /* Consumer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970E196670900066B267 /* Consumer.swift */; };
 		D04797E9196670900066B267 /* Disposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970F196670900066B267 /* Disposable.swift */; };
@@ -405,6 +403,8 @@
 		D095745F197344E3002D44C1 /* DisposableSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D095745D197344E3002D44C1 /* DisposableSpec.swift */; };
 		D09574611973506C002D44C1 /* SchedulerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D09574601973506C002D44C1 /* SchedulerSpec.swift */; };
 		D09574621973506C002D44C1 /* SchedulerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D09574601973506C002D44C1 /* SchedulerSpec.swift */; };
+		D0E3CF551973AFC7004FD181 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E3CF541973AFC7004FD181 /* Errors.swift */; };
+		D0E3CF561973AFC7004FD181 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E3CF541973AFC7004FD181 /* Errors.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -664,7 +664,6 @@
 		D04796EC19666CE40066B267 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		D0479709196670900066B267 /* Action.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
 		D047970B196670900066B267 /* Atomic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Atomic.swift; sourceTree = "<group>"; };
-		D047970D196670900066B267 /* EventBuffer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventBuffer.swift; sourceTree = "<group>"; };
 		D047970E196670900066B267 /* Consumer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Consumer.swift; sourceTree = "<group>"; };
 		D047970F196670900066B267 /* Disposable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Disposable.swift; sourceTree = "<group>"; };
 		D0479710196670900066B267 /* Event.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
@@ -881,6 +880,7 @@
 		D095745A197341C2002D44C1 /* BagSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BagSpec.swift; sourceTree = "<group>"; };
 		D095745D197344E3002D44C1 /* DisposableSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DisposableSpec.swift; sourceTree = "<group>"; };
 		D09574601973506C002D44C1 /* SchedulerSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SchedulerSpec.swift; sourceTree = "<group>"; };
+		D0E3CF541973AFC7004FD181 /* Errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1059,8 +1059,8 @@
 				D036AA4A196FB7CB00B49B76 /* Bag.swift */,
 				D047970E196670900066B267 /* Consumer.swift */,
 				D047970F196670900066B267 /* Disposable.swift */,
+				D0E3CF541973AFC7004FD181 /* Errors.swift */,
 				D0479710196670900066B267 /* Event.swift */,
-				D047970D196670900066B267 /* EventBuffer.swift */,
 				D0479727196670900066B267 /* NSNotificationCenterExtensions.swift */,
 				D0479744196670900066B267 /* NSURLSessionExtensions.swift */,
 				D0479747196670900066B267 /* ObjectiveCBridging.swift */,
@@ -1691,7 +1691,6 @@
 				D0479911196670900066B267 /* RACTargetQueueScheduler.m in Sources */,
 				D047986D196670900066B267 /* RACBlockTrampoline.m in Sources */,
 				D04798DF196670900066B267 /* RACSequence.m in Sources */,
-				D04797E5196670900066B267 /* EventBuffer.swift in Sources */,
 				D04797DD196670900066B267 /* Action.swift in Sources */,
 				D04797F9196670900066B267 /* NSControl+RACTextSignalSupport.m in Sources */,
 				D04798CB196670900066B267 /* RACReplaySubject.m in Sources */,
@@ -1699,6 +1698,7 @@
 				D0479893196670900066B267 /* RACEmptySequence.m in Sources */,
 				D047988F196670900066B267 /* RACEagerSequence.m in Sources */,
 				D0479935196670900066B267 /* SignalingProperty.swift in Sources */,
+				D0E3CF551973AFC7004FD181 /* Errors.swift in Sources */,
 				D047985D196670900066B267 /* Promise.swift in Sources */,
 				D0479805196670900066B267 /* NSEnumerator+RACSequenceAdditions.m in Sources */,
 				D0479925196670900066B267 /* RACUnit.m in Sources */,
@@ -1807,7 +1807,6 @@
 				D0479912196670900066B267 /* RACTargetQueueScheduler.m in Sources */,
 				D047986E196670900066B267 /* RACBlockTrampoline.m in Sources */,
 				D04798E0196670900066B267 /* RACSequence.m in Sources */,
-				D04797E6196670900066B267 /* EventBuffer.swift in Sources */,
 				D0479990196671DF0066B267 /* EXTRuntimeExtensions.m in Sources */,
 				D04797DE196670900066B267 /* Action.swift in Sources */,
 				D047997C196670900066B267 /* UITableViewHeaderFooterView+RACSignalSupport.m in Sources */,
@@ -1887,6 +1886,7 @@
 				D047987C196670900066B267 /* RACCompoundDisposableProvider.d in Sources */,
 				D0479974196670900066B267 /* UISwitch+RACSignalSupport.m in Sources */,
 				D047980A196670900066B267 /* NSFileHandle+RACSupport.m in Sources */,
+				D0E3CF561973AFC7004FD181 /* Errors.swift in Sources */,
 				D04798C2196670900066B267 /* RACPassthroughSubscriber.m in Sources */,
 				D036AA4C196FBCCD00B49B76 /* Bag.swift in Sources */,
 				D047991A196670900066B267 /* RACTuple.m in Sources */,

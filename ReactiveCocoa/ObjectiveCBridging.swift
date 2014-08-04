@@ -203,7 +203,7 @@ extension Action {
 		return RACCommand(enabled: enabled) { input in
 			return RACSignal.createSignal { subscriber in
 				evidence(self).execute(input).observe { maybeResult in
-					if !maybeResult {
+					if maybeResult == nil {
 						return
 					}
 

@@ -13,7 +13,7 @@ public func emptyError(error: NSError) {}
 public func emptyCompleted() {}
 
 /// Receives events from a Producer.
-public final class Consumer<T>: Sink {
+public final class Consumer<T>: SinkType {
 	public typealias Element = Event<T>
 
 	private let sink: Atomic<SinkOf<Element>?>
@@ -23,9 +23,9 @@ public final class Consumer<T>: Sink {
 	public let disposable = CompositeDisposable()
 
 	/// Initializes a Consumer that will forward events to the given sink.
-	public init<S: Sink where S.Element == Event<T>>(_ sink: S) {
+	public init<S: SinkType where S.Element == Event<T>>(_ sink: S) {
 		self.sink = Atomic(SinkOf(sink))
-
+        
 		// This is redundant with the behavior of put() in case of
 		// a terminating event, but ensures that we get rid of the closure
 		// upon cancellation as well.

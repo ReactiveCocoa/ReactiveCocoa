@@ -77,7 +77,7 @@ public final class Signal<T> {
 		var sink: SinkOf<T>? = nil
 		let signal = Signal(initialValue: initialValue) { s in sink = s }
 
-		assert(sink)
+		assert(sink != nil)
 		return (signal, sink!)
 	}
 
@@ -85,7 +85,7 @@ public final class Signal<T> {
 	///
 	/// Returns a Disposable which can be disposed of to stop notifying
 	/// `observer` of future changes.
-	public func observe<S: Sink where S.Element == T>(observer: S) -> Disposable {
+	public func observe<S: SinkType where S.Element == T>(observer: S) -> Disposable {
 		let sink = SinkOf<T>(observer)
 		var token: Bag.RemovalToken? = nil
 

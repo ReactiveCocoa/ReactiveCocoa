@@ -5,10 +5,10 @@
       location = "group:ReactiveCocoa.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:External/Quick/Nimble/Nimble.xcodeproj">
+      location = "group:External/Quick/Quick/Quick.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:External/Quick/Quick/Quick.xcodeproj">
+      location = "group:External/Quick/Externals/Nimble/Nimble.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:External/swiftz/swiftz_core/swiftz_core.xcodeproj">

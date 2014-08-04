@@ -311,17 +311,22 @@ public struct Producer<T> {
 	/// Starts producing events, setting the current value of `property` to each
 	/// value yielded by the receiver.
 	///
-	/// The stream must not produce an `Error` event when bound to a property.
+	/// If `errorHandler` is `nil`, the stream must never produce an `Error`
+	/// event.
 	///
 	/// Optionally returns a Disposable which can be used to cancel the binding.
-	public func bindTo(property: SignalingProperty<T>) -> Disposable {
+	public func bindTo(property: SignalingProperty<T>, errorHandler: (NSError -> ())?) -> Disposable {
 		return self.produce { event in
 			switch event {
 			case let .Next(box):
 				property.put(box.value)
 
 			case let .Error(error):
-				assert(false)
+				if let handler = errorHandler {
+					handler(error)
+				} else {
+					assert(false)
+				}
 
 			default:
 				break

@@ -20,7 +20,7 @@ class SchedulerSpec: QuickSpec {
 					didRun = true
 				}
 
-				expect(didRun).to.beTrue()
+				expect(didRun).to(beTruthy())
 			}
 		}
 
@@ -29,11 +29,11 @@ class SchedulerSpec: QuickSpec {
 				var didRun = false
 				MainScheduler().schedule {
 					didRun = true
-					expect(NSThread.isMainThread()).to.beTrue()
+					expect(NSThread.isMainThread()).to(beTruthy())
 				}
 
-				expect(didRun).to.beFalse()
-				expect{didRun}.will.beTrue()
+				expect(didRun).to(beFalsy())
+				expect{didRun}.toEventually(beTruthy())
 			}
 		}
 
@@ -42,17 +42,17 @@ class SchedulerSpec: QuickSpec {
 				var didRun = false
 				QueueScheduler().schedule {
 					didRun = true
-					expect(NSThread.isMainThread()).to.beFalse()
+					expect(NSThread.isMainThread()).to(beFalsy())
 				}
 
-				expect{didRun}.will.beTrue()
+				expect{didRun}.toEventually(beTruthy())
 			}
 
 			it("should run enqueued actions serially on the given queue") {
 				let queue = dispatch_queue_create("", DISPATCH_QUEUE_CONCURRENT)
 				dispatch_suspend(queue)
 
-				let scheduler = QueueScheduler(queue: queue)
+				let scheduler = QueueScheduler(queue)
 				var value = 0
 
 				for i in 0..<5 {
@@ -61,10 +61,10 @@ class SchedulerSpec: QuickSpec {
 					}
 				}
 
-				expect(value).to.equal(0)
-				
+				expect(value).to(equal(0))
+
 				dispatch_resume(queue)
-				expect{value}.will.equal(5)
+				expect{value}.toEventually(equal(5))
 			}
 		}
 

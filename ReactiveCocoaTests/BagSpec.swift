@@ -13,7 +13,7 @@ import ReactiveCocoa
 class BagSpec: QuickSpec {
 	override func spec() {
 		var bag = Bag<String>()
-		
+
 		beforeEach {
 			bag = Bag()
 		}
@@ -23,11 +23,11 @@ class BagSpec: QuickSpec {
 			let b = bag.insert("bar")
 			let c = bag.insert("buzz")
 
-			expect(contains(bag, "foo")).to.beTrue()
-			expect(contains(bag, "bar")).to.beTrue()
-			expect(contains(bag, "buzz")).to.beTrue()
-			expect(contains(bag, "fuzz")).to.beFalse()
-			expect(contains(bag, "foobar")).to.beFalse()
+			expect(contains(bag, "foo")).to(beTruthy())
+			expect(contains(bag, "bar")).to(beTruthy())
+			expect(contains(bag, "buzz")).to(beTruthy())
+			expect(contains(bag, "fuzz")).to(beFalsy())
+			expect(contains(bag, "foobar")).to(beFalsy())
 		}
 
 		it("should remove values given the token from insertion") {
@@ -36,19 +36,19 @@ class BagSpec: QuickSpec {
 			let c = bag.insert("buzz")
 
 			bag.removeValueForToken(b)
-			expect(contains(bag, "foo")).to.beTrue()
-			expect(contains(bag, "bar")).to.beFalse()
-			expect(contains(bag, "buzz")).to.beTrue()
+			expect(contains(bag, "foo")).to(beTruthy())
+			expect(contains(bag, "bar")).to(beFalsy())
+			expect(contains(bag, "buzz")).to(beTruthy())
 
 			bag.removeValueForToken(a)
-			expect(contains(bag, "foo")).to.beFalse()
-			expect(contains(bag, "bar")).to.beFalse()
-			expect(contains(bag, "buzz")).to.beTrue()
+			expect(contains(bag, "foo")).to(beFalsy())
+			expect(contains(bag, "bar")).to(beFalsy())
+			expect(contains(bag, "buzz")).to(beTruthy())
 
 			bag.removeValueForToken(c)
-			expect(contains(bag, "foo")).to.beFalse()
-			expect(contains(bag, "bar")).to.beFalse()
-			expect(contains(bag, "buzz")).to.beFalse()
+			expect(contains(bag, "foo")).to(beFalsy())
+			expect(contains(bag, "bar")).to(beFalsy())
+			expect(contains(bag, "buzz")).to(beFalsy())
 		}
 	}
 }

@@ -15,20 +15,20 @@ class DisposableSpec: QuickSpec {
 		describe("SimpleDisposable") {
 			it("should set disposed to true") {
 				let disposable = SimpleDisposable()
-				expect(disposable.disposed).to.beFalse()
+				expect(disposable.disposed).to(beFalsy())
 
 				disposable.dispose()
-				expect(disposable.disposed).to.beTrue()
+				expect(disposable.disposed).to(beTruthy())
 			}
-			
+
 			it("should dispose of all copies") {
 				let disposable = SimpleDisposable()
-				
+
 				let disposableCopy = disposable
-				expect(disposableCopy.disposed).to.beFalse()
+				expect(disposableCopy.disposed).to(beFalsy())
 
 				disposable.dispose()
-				expect(disposableCopy.disposed).to.beTrue()
+				expect(disposableCopy.disposed).to(beTruthy())
 			}
 		}
 
@@ -39,12 +39,12 @@ class DisposableSpec: QuickSpec {
 					didDispose = true
 				}
 
-				expect(didDispose).to.beFalse()
-				expect(disposable.disposed).to.beFalse()
+				expect(didDispose).to(beFalsy())
+				expect(disposable.disposed).to(beFalsy())
 
 				disposable.dispose()
-				expect(didDispose).to.beTrue()
-				expect(disposable.disposed).to.beTrue()
+				expect(didDispose).to(beTruthy())
+				expect(disposable.disposed).to(beTruthy())
 			}
 		}
 
@@ -68,14 +68,14 @@ class DisposableSpec: QuickSpec {
 					didDispose = true
 				}
 
-				expect(simpleDisposable.disposed).to.beFalse()
-				expect(didDispose).to.beFalse()
-				expect(disposable.disposed).to.beFalse()
+				expect(simpleDisposable.disposed).to(beFalsy())
+				expect(didDispose).to(beFalsy())
+				expect(disposable.disposed).to(beFalsy())
 
 				disposable.dispose()
-				expect(simpleDisposable.disposed).to.beTrue()
-				expect(didDispose).to.beTrue()
-				expect(disposable.disposed).to.beTrue()
+				expect(simpleDisposable.disposed).to(beTruthy())
+				expect(didDispose).to(beTruthy())
+				expect(disposable.disposed).to(beTruthy())
 			}
 
 			it("should not prune active disposables") {
@@ -90,10 +90,10 @@ class DisposableSpec: QuickSpec {
 				simpleDisposable.dispose()
 
 				disposable.pruneDisposed()
-				expect(didDispose).to.beFalse()
+				expect(didDispose).to(beFalsy())
 
 				disposable.dispose()
-				expect(didDispose).to.beTrue()
+				expect(didDispose).to(beTruthy())
 			}
 		}
 
@@ -103,14 +103,14 @@ class DisposableSpec: QuickSpec {
 
 				func runScoped() {
 					let scopedDisposable = ScopedDisposable(simpleDisposable)
-					expect(simpleDisposable.disposed).to.beFalse()
-					expect(scopedDisposable.disposed).to.beFalse()
+					expect(simpleDisposable.disposed).to(beFalsy())
+					expect(scopedDisposable.disposed).to(beFalsy())
 				}
 
-				expect(simpleDisposable.disposed).to.beFalse()
+				expect(simpleDisposable.disposed).to(beFalsy())
 
 				runScoped()
-				expect(simpleDisposable.disposed).to.beTrue()
+				expect(simpleDisposable.disposed).to(beTruthy())
 			}
 		}
 
@@ -125,14 +125,14 @@ class DisposableSpec: QuickSpec {
 				let simpleDisposable = SimpleDisposable()
 				disposable.innerDisposable = simpleDisposable
 
-				expect(!disposable.innerDisposable).to.beFalse()
-				expect(simpleDisposable.disposed).to.beFalse()
-				expect(disposable.disposed).to.beFalse()
+				expect(!disposable.innerDisposable).to(beFalsy())
+				expect(simpleDisposable.disposed).to(beFalsy())
+				expect(disposable.disposed).to(beFalsy())
 
 				disposable.dispose()
-				expect(!disposable.innerDisposable).to.beTrue()
-				expect(simpleDisposable.disposed).to.beTrue()
-				expect(disposable.disposed).to.beTrue()
+				expect(!disposable.innerDisposable).to(beTruthy())
+				expect(simpleDisposable.disposed).to(beTruthy())
+				expect(disposable.disposed).to(beTruthy())
 			}
 
 			it("should dispose of the previous disposable when swapping innerDisposable") {
@@ -140,17 +140,17 @@ class DisposableSpec: QuickSpec {
 				let newDisposable = SimpleDisposable()
 
 				disposable.innerDisposable = oldDisposable
-				expect(oldDisposable.disposed).to.beFalse()
-				expect(newDisposable.disposed).to.beFalse()
+				expect(oldDisposable.disposed).to(beFalsy())
+				expect(newDisposable.disposed).to(beFalsy())
 
 				disposable.innerDisposable = newDisposable
-				expect(oldDisposable.disposed).to.beTrue()
-				expect(newDisposable.disposed).to.beFalse()
-				expect(disposable.disposed).to.beFalse()
+				expect(oldDisposable.disposed).to(beTruthy())
+				expect(newDisposable.disposed).to(beFalsy())
+				expect(disposable.disposed).to(beFalsy())
 
 				disposable.innerDisposable = nil
-				expect(newDisposable.disposed).to.beTrue()
-				expect(disposable.disposed).to.beFalse()
+				expect(newDisposable.disposed).to(beTruthy())
+				expect(disposable.disposed).to(beFalsy())
 			}
 		}
 	}

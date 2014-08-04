@@ -37,7 +37,7 @@ public final class Action<Input, Output> {
 	///
 	/// This will only update on the main thread.
 	public var executing: Signal<Bool> {
-        return executions.map { $0 != nil }
+        	return executions.map { $0 != nil }
 	}
 
 	/// Whether the action is enabled.

@@ -42,7 +42,8 @@ internal struct Bag<T>: SequenceType {
 			self.elements.removeValueForKey(key)
 		}
 	}
-    internal func generate() -> GeneratorOf<T> {
+	
+	internal func generate() -> GeneratorOf<T> {
 		return GeneratorOf(elements.values.generate())
 	}
 }

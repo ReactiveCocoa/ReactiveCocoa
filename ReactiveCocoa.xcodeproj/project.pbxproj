@@ -391,10 +391,6 @@
 		D04799A0196678F20066B267 /* ObjectiveCBridgingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047999E196678F20066B267 /* ObjectiveCBridgingSpec.swift */; };
 		D095745519733BAD002D44C1 /* swiftz_core.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D095745419733BAD002D44C1 /* swiftz_core.framework */; };
 		D095745619733BB1002D44C1 /* swiftz_core.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D095745419733BAD002D44C1 /* swiftz_core.framework */; };
-		D095745819733F74002D44C1 /* AtomicSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D095745719733F74002D44C1 /* AtomicSpec.swift */; };
-		D095745919733F74002D44C1 /* AtomicSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D095745719733F74002D44C1 /* AtomicSpec.swift */; };
-		D095745B197341C2002D44C1 /* BagSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D095745A197341C2002D44C1 /* BagSpec.swift */; };
-		D095745C197341C2002D44C1 /* BagSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D095745A197341C2002D44C1 /* BagSpec.swift */; };
 		D095745E197344E3002D44C1 /* DisposableSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D095745D197344E3002D44C1 /* DisposableSpec.swift */; };
 		D095745F197344E3002D44C1 /* DisposableSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D095745D197344E3002D44C1 /* DisposableSpec.swift */; };
 		D09574611973506C002D44C1 /* SchedulerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D09574601973506C002D44C1 /* SchedulerSpec.swift */; };
@@ -1777,8 +1773,6 @@
 				D095745E197344E3002D44C1 /* DisposableSpec.swift in Sources */,
 				D09574611973506C002D44C1 /* SchedulerSpec.swift in Sources */,
 				D047999F196678F20066B267 /* ObjectiveCBridgingSpec.swift in Sources */,
-				D095745819733F74002D44C1 /* AtomicSpec.swift in Sources */,
-				D095745B197341C2002D44C1 /* BagSpec.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1902,8 +1896,6 @@
 				D095745F197344E3002D44C1 /* DisposableSpec.swift in Sources */,
 				D09574621973506C002D44C1 /* SchedulerSpec.swift in Sources */,
 				D04799A0196678F20066B267 /* ObjectiveCBridgingSpec.swift in Sources */,
-				D095745919733F74002D44C1 /* AtomicSpec.swift in Sources */,
-				D095745C197341C2002D44C1 /* BagSpec.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -72,7 +72,7 @@ public struct QueueScheduler: DateScheduler {
 	/// Even if the queue is concurrent, all work items enqueued with the
 	/// QueueScheduler will be serial with respect to each other.
 	public init(_ queue: dispatch_queue_t) {
-		dispatch_set_target_queue(queue, queue)
+		dispatch_set_target_queue(self.queue, queue)
 	}
 
 	/// Initializes a scheduler that will target the global queue with the given

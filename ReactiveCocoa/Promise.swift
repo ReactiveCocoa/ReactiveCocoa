@@ -69,7 +69,7 @@ public final class Promise<T> {
 		}
 
 		cond.lock()
-		while !self.signal.current {
+		while self.signal.current == nil {
 			cond.wait()
 		}
 
@@ -86,7 +86,7 @@ public final class Promise<T> {
 			let disposable = SerialDisposable()
 
 			disposable.innerDisposable = self.start().signal.observe { maybeResult in
-				if !maybeResult {
+				if maybeResult == nil {
 					return
 				}
 

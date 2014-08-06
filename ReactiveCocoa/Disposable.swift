@@ -21,7 +21,7 @@ public struct SimpleDisposable: Disposable {
 	private var _disposed = Atomic(false)
 
 	public var disposed: Bool {
-		return _disposed
+		return _disposed != nil
 	}
 
 	public init() {}
@@ -36,7 +36,7 @@ public struct ActionDisposable: Disposable {
 	private var action: Atomic<(() -> ())?>
 
 	public var disposed: Bool {
-		return !action.value
+		return action.value == nil
 	}
 
 	/// Initializes the disposable to run the given action upon disposal.
@@ -55,7 +55,7 @@ public struct CompositeDisposable: Disposable {
 	private var disposables: Atomic<[Disposable]?>
 
 	public var disposed: Bool {
-		return !disposables.value
+		return disposables.value == nil
 	}
 
 	/// Initializes a CompositeDisposable containing the given list of
@@ -79,13 +79,13 @@ public struct CompositeDisposable: Disposable {
 
 	/// Adds the given disposable to the list.
 	public func addDisposable(d: Disposable?) {
-		if !d {
+		if d == nil {
 			return
 		}
 
 		let (_, shouldDispose) = disposables.modify { ds -> ([Disposable]?, Bool) in
 			if var ds = ds {
-				ds += d!
+				ds.append(d!)
 				return (ds, false)
 			} else {
 				return (nil, true)

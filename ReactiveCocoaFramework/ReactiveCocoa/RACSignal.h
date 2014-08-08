@@ -157,6 +157,9 @@
 /// Convenience method to subscribe to `error` and `completed` events.
 - (RACDisposable *)subscribeError:(void (^)(NSError *error))errorBlock completed:(void (^)(void))completedBlock;
 
+/// Convenience method to subscribe to both `error` and `completed` events.
+- (RACDisposable *)subscribeErrorOrCompleted:(void(^)(NSError *errorOrNil))block;
+
 @end
 
 /// Additional methods to assist with debugging.

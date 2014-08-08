@@ -332,6 +332,16 @@
 	return [self subscribe:o];
 }
 
+- (RACDisposable *)subscribeErrorOrCompleted:(void(^)(NSError *errorOrNil))block
+{
+	NSCParameterAssert(block != NULL);
+
+	RACSubscriber *o = [RACSubscriber subscriberWithNext:NULL error:block completed:^{
+		block(nil);
+	}];
+	return [self subscribe:o];
+}
+
 @end
 
 @implementation RACSignal (Debugging)

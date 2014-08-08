@@ -21,7 +21,7 @@ public struct SimpleDisposable: Disposable {
 	private var _disposed = Atomic(false)
 
 	public var disposed: Bool {
-		return _disposed != nil
+		return _disposed.value
 	}
 
 	public init() {}

@@ -7,7 +7,7 @@
 //
 
 /// Represents a mutable property of type T along with the changes to its value.
-public final class SignalingProperty<T>: Sink {
+public final class SignalingProperty<T>: SinkType {
 	public typealias Element = T
 
 	private let sink: SinkOf<T>

@@ -36,7 +36,7 @@ public struct ActionDisposable: Disposable {
 	private var action: Atomic<(() -> ())?>
 
 	public var disposed: Bool {
-		return action.value == false
+		return action.value == nil
 	}
 
 	/// Initializes the disposable to run the given action upon disposal.
@@ -55,7 +55,7 @@ public struct CompositeDisposable: Disposable {
 	private var disposables: Atomic<[Disposable]?>
 
 	public var disposed: Bool {
-		return disposables.value == false
+		return disposables.value == nil
 	}
 
 	/// Initializes a CompositeDisposable containing the given list of

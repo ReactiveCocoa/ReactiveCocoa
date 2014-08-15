@@ -6,6 +6,7 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import "UIButton+RACCommandSupport.h"
 #import "UIBarButtonItem+RACCommandSupport.h"
 #import "EXTKeyPathCoding.h"
 #import "RACCommand.h"
@@ -23,6 +24,11 @@ static void *UIControlEnabledDisposableKey = &UIControlEnabledDisposableKey;
 }
 
 - (void)setRac_command:(RACCommand *)command {
+	if ([self.customView isKindOfClass:[UIButton class]]) {
+		UIButton *button = [self customView];
+		return [button setRac_command:command];
+	}
+		
 	objc_setAssociatedObject(self, UIControlRACCommandKey, command, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
 	// Check for stored signal in order to remove it and add a new one

@@ -88,7 +88,7 @@ describe(@"RACKVOChannel", ^{
 	
 	it(@"should be able to subscribe to signals", ^{
 		NSMutableArray *receivedValues = [NSMutableArray array];
-		[object rac_observeKeyPath:@keypath(object.stringValue) options:0 observer:self block:^(id value, NSDictionary *change) {
+		[object rac_observeKeyPath:@keypath(object.stringValue) options:0 observer:self block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
 			[receivedValues addObject:value];
 		}];
 

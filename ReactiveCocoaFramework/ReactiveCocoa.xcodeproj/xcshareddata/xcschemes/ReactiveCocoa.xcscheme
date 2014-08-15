@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0500"
+   LastUpgradeVersion = "0510"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -29,7 +29,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "88CDF7DB15000FCF00163A9F"
-               BuildableName = "ReactiveCocoaTests.octest"
+               BuildableName = "ReactiveCocoaTests.xctest"
                BlueprintName = "ReactiveCocoaTests"
                ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
             </BuildableReference>
@@ -47,7 +47,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "88CDF7DB15000FCF00163A9F"
-               BuildableName = "ReactiveCocoaTests.octest"
+               BuildableName = "ReactiveCocoaTests.xctest"
                BlueprintName = "ReactiveCocoaTests"
                ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
             </BuildableReference>

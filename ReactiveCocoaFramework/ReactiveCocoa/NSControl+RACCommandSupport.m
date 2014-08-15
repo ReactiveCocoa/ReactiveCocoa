@@ -7,8 +7,6 @@
 //
 
 #import "NSControl+RACCommandSupport.h"
-#import "EXTScope.h"
-#import "NSObject+RACPropertySubscribing.h"
 #import "RACCommand.h"
 #import "RACScopedDisposable.h"
 #import "RACSignal+Operations.h"

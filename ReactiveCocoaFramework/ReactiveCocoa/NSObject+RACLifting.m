@@ -1,6 +1,6 @@
 //
 //  NSObject+RACLifting.m
-//  iOSDemo
+//  ReactiveCocoa
 //
 //  Created by Josh Abernathy on 10/13/12.
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
@@ -10,14 +10,38 @@
 #import "EXTScope.h"
 #import "NSInvocation+RACTypeParsing.h"
 #import "NSObject+RACDeallocating.h"
+#import "NSObject+RACDescription.h"
 #import "RACSignal+Operations.h"
 #import "RACTuple.h"
-#import "NSObject+RACDescription.h"
 
 @implementation NSObject (RACLifting)
 
-- (RACSignal *)rac_liftSelector:(SEL)selector withSignalsFromArray:(NSArray *)signals {
+- (RACSignal *)rac_liftSelector:(SEL)selector withSignalOfArguments:(RACSignal *)arguments {
 	NSCParameterAssert(selector != NULL);
+	NSCParameterAssert(arguments != nil);
+	
+	@unsafeify(self);
+	
+	NSMethodSignature *methodSignature = [self methodSignatureForSelector:selector];
+	NSCAssert(methodSignature != nil, @"%@ does not respond to %@", self, NSStringFromSelector(selector));
+	
+	return [[[[arguments
+		takeUntil:self.rac_willDeallocSignal]
+		map:^(RACTuple *arguments) {
+			@strongify(self);
+			
+			NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
+			invocation.selector = selector;
+			invocation.rac_argumentsTuple = arguments;
+			[invocation invokeWithTarget:self];
+			
+			return invocation.rac_returnValue;
+		}]
+		replayLast]
+		setNameWithFormat:@"%@ -rac_liftSelector: %s withSignalsOfArguments: %@", [self rac_description], sel_getName(selector), arguments];
+}
+
+- (RACSignal *)rac_liftSelector:(SEL)selector withSignalsFromArray:(NSArray *)signals {
 	NSCParameterAssert(signals != nil);
 	NSCParameterAssert(signals.count > 0);
 
@@ -27,22 +51,8 @@
 	NSUInteger numberOfArguments __attribute__((unused)) = methodSignature.numberOfArguments - 2;
 	NSCAssert(numberOfArguments == signals.count, @"Wrong number of signals for %@ (expected %lu, got %lu)", NSStringFromSelector(selector), (unsigned long)numberOfArguments, (unsigned long)signals.count);
 
-	@unsafeify(self);
-
-	return [[[[[RACSignal
-		combineLatest:signals]
-		takeUntil:self.rac_willDeallocSignal]
-		map:^(RACTuple *arguments) {
-			@strongify(self);
-
-			NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
-			invocation.selector = selector;
-			invocation.rac_argumentsTuple = arguments;
-			[invocation invokeWithTarget:self];
-
-			return invocation.rac_returnValue;
-		}]
-		replayLast]
+	return [[self
+		rac_liftSelector:selector withSignalOfArguments:[RACSignal combineLatest:signals]]
 		setNameWithFormat:@"%@ -rac_liftSelector: %s withSignalsFromArray: %@", [self rac_description], sel_getName(selector), signals];
 }
 

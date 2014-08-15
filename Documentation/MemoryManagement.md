@@ -62,7 +62,7 @@ There's still a bit of a tricky middle case here, though. Any time a signal's
 lifetime is tied to the calling scope, you'll have a much harder cycle to break.
 
 This commonly occurs when using `RACObserve()` on a key
-path that's relative to `self`, and then applying a block that needs to captures
+path that's relative to `self`, and then applying a block that needs to capture
 `self`.
 
 The easiest answer here is just to **capture `self` weakly**:
@@ -87,8 +87,8 @@ header:
 }];
 ```
 
-_(Replace_ `__weak` _or_ `@weakify` _with_ `__unsafe_unretained` _or_ `@unsafeify` _,
-respectively, if the object doesn't support weak references.)_
+*(Replace `__weak` or `@weakify` with `__unsafe_unretained` or `@unsafeify`,
+respectively, if the object doesn't support weak references.)*
 
 However, [there's probably a better pattern you could use instead][avoid-explicit-subscriptions-and-disposal]. For
 example, the above sample could perhaps be written like:

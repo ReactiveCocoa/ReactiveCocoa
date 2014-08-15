@@ -61,7 +61,7 @@ static dispatch_block_t RACBacktraceBlock (dispatch_queue_t queue, dispatch_bloc
 	RACBacktrace *backtrace = [RACBacktrace backtrace];
 
 	return [^{
-		__autoreleasing RACBacktrace *backtraceKeptAlive = backtrace;
+		RACBacktrace *backtraceKeptAlive __attribute__((objc_precise_lifetime)) = backtrace;
 
 		dispatch_queue_set_specific(queue, (void *)pthread_self(), (__bridge void *)backtraceKeptAlive, NULL);
 		block();
@@ -143,11 +143,11 @@ static void RACExceptionHandler (NSException *ex) {
 	return array;
 }
 
-#pragma mark Initialization
+#pragma mark Lifecycle
 
 + (void)load {
 	@autoreleasepool {
-		NSString *libraries = [[[NSProcessInfo processInfo] environment] objectForKey:@"DYLD_INSERT_LIBRARIES"];
+		NSString *libraries = NSProcessInfo.processInfo.environment[@"DYLD_INSERT_LIBRARIES"];
 
 		// Don't install our handlers if we're not actually intercepting function
 		// calls.
@@ -166,6 +166,11 @@ static void RACExceptionHandler (NSException *ex) {
 	signal(SIGSEGV, &RACSignalHandler);
 	signal(SIGSYS, &RACSignalHandler);
 	signal(SIGPIPE, &RACSignalHandler);
+}
+
+- (void)dealloc {
+	__autoreleasing RACBacktrace *previous __attribute__((unused)) = self.previousThreadBacktrace;
+	self.previousThreadBacktrace = nil;
 }
 
 #pragma mark Backtraces

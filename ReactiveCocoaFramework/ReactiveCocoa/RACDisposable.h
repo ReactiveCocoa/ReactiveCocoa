@@ -10,7 +10,6 @@
 
 @class RACScopedDisposable;
 
-
 /// A disposable encapsulates the work necessary to tear down and cleanup a
 /// subscription.
 @interface RACDisposable : NSObject
@@ -25,7 +24,7 @@
 
 + (instancetype)disposableWithBlock:(void (^)(void))block;
 
-/// Performs the disposal work. Can be called multiple times, though sebsequent
+/// Performs the disposal work. Can be called multiple times, though subsequent
 /// calls won't do anything.
 - (void)dispose;
 

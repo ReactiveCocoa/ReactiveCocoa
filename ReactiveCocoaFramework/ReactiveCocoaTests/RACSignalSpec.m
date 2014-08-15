@@ -196,6 +196,56 @@ describe(@"-bind:", ^{
 		[values sendNext:@2];
 		expect(lastValue).to.equal(@2);
 	});
+
+	it(@"should properly stop subscribing to new signals after error", ^{
+		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
+			[subscriber sendNext:@0];
+			[subscriber sendNext:@1];
+			return nil;
+		}];
+
+		__block BOOL subscribedAfterError = NO;
+		RACSignal *bind = [signal bind:^{
+			return ^(NSNumber *x, BOOL *stop) {
+				if (x.integerValue == 0) return [RACSignal error:nil];
+
+				return [RACSignal defer:^{
+					subscribedAfterError = YES;
+					return [RACSignal empty];
+				}];
+			};
+		}];
+
+		[bind subscribeCompleted:^{}];
+		expect(subscribedAfterError).to.beFalsy();
+	});
+
+	it(@"should not subscribe to signals following error in +merge:", ^{
+		__block BOOL firstSubscribed = NO;
+		__block BOOL secondSubscribed = NO;
+		__block BOOL errored = NO;
+
+		RACSignal *signal = [[RACSignal
+			merge:@[
+				[RACSignal defer:^{
+					firstSubscribed = YES;
+					return [RACSignal error:nil];
+				}],
+				[RACSignal defer:^{
+					secondSubscribed = YES;
+					return [RACSignal return:nil];
+				}]
+			]]
+			doError:^(NSError *error) {
+				errored = YES;
+			}];
+
+		[signal subscribeCompleted:^{}];
+
+		expect(firstSubscribed).to.beTruthy();
+		expect(secondSubscribed).to.beFalsy();
+		expect(errored).to.beTruthy();
+	});
 });
 
 describe(@"subscribing", ^{
@@ -1276,6 +1326,29 @@ describe(@"-setKeyPath:onObject:", ^{
 		[subject sendCompleted];
 		expect(testObject.integerValue).to.equal(5);
 	});
+
+	it(@"should keep object alive over -sendNext:", ^{
+		RACSubject *subject = [RACSubject subject];
+		__block RACTestObject *testObject = [[RACTestObject alloc] init];
+		__block id deallocValue;
+
+		__unsafe_unretained RACTestObject *unsafeTestObject = testObject;
+		[testObject.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+			deallocValue = unsafeTestObject.slowObjectValue;
+		}]];
+
+		[subject setKeyPath:@keypath(testObject.slowObjectValue) onObject:testObject];
+		expect(testObject.slowObjectValue).to.beNil();
+
+		// Attempt to deallocate concurrently.
+		[[RACScheduler scheduler] afterDelay:0.01 schedule:^{
+			testObject = nil;
+		}];
+
+		expect(deallocValue).to.beNil();
+		[subject sendNext:@1];
+		expect(deallocValue).to.equal(@1);
+	});
 });
 
 describe(@"memory management", ^{
@@ -1419,6 +1492,85 @@ describe(@"memory management", ^{
 		expect(completed).to.beTruthy();
 		
 		[disposable dispose];
+	});
+});
+
+describe(@"-merge:", ^{
+	__block RACSubject *sub1;
+	__block RACSubject *sub2;
+	__block RACSignal *merged;
+	beforeEach(^{
+		sub1 = [RACSubject subject];
+		sub2 = [RACSubject subject];
+		merged = [sub1 merge:sub2];
+	});
+
+	it(@"should send all values from both signals", ^{
+		NSMutableArray *values = [NSMutableArray array];
+		[merged subscribeNext:^(id x) {
+			[values addObject:x];
+		}];
+
+		[sub1 sendNext:@1];
+		[sub2 sendNext:@2];
+		[sub2 sendNext:@3];
+		[sub1 sendNext:@4];
+
+		NSArray *expected = @[ @1, @2, @3, @4 ];
+		expect(values).to.equal(expected);
+	});
+
+	it(@"should send an error if one occurs", ^{
+		__block NSError *errorReceived;
+		[merged subscribeError:^(NSError *error) {
+			errorReceived = error;
+		}];
+
+		[sub1 sendError:RACSignalTestError];
+		expect(errorReceived).to.equal(RACSignalTestError);
+	});
+
+	it(@"should complete only after both signals complete", ^{
+		NSMutableArray *values = [NSMutableArray array];
+		__block BOOL completed = NO;
+		[merged subscribeNext:^(id x) {
+			[values addObject:x];
+		} completed:^{
+			completed = YES;
+		}];
+
+		[sub1 sendNext:@1];
+		[sub2 sendNext:@2];
+		[sub2 sendNext:@3];
+		[sub2 sendCompleted];
+		expect(completed).to.beFalsy();
+
+		[sub1 sendNext:@4];
+		[sub1 sendCompleted];
+		expect(completed).to.beTruthy();
+
+		NSArray *expected = @[ @1, @2, @3, @4 ];
+		expect(values).to.equal(expected);
+	});
+
+	it(@"should complete only after both signals complete for any number of subscribers", ^{
+		__block BOOL completed1 = NO;
+		__block BOOL completed2 = NO;
+		[merged subscribeCompleted:^{
+			completed1 = YES;
+		}];
+
+		[merged subscribeCompleted:^{
+			completed2 = YES;
+		}];
+
+		expect(completed1).to.beFalsy();
+		expect(completed2).to.beFalsy();
+
+		[sub1 sendCompleted];
+		[sub2 sendCompleted];
+		expect(completed1).to.beTruthy();
+		expect(completed2).to.beTruthy();
 	});
 });
 
@@ -3728,6 +3880,28 @@ describe(@"-replayLazily", ^{
 		[disposeSubject sendCompleted];
 		expect(valueCount).to.equal(1);
 		expect([[replayedSignal toArray] count]).to.equal(valueCount);
+	});
+});
+
+describe(@"-reduceApply", ^{
+	it(@"should apply a block to the rest of a tuple", ^{
+		RACSubject *subject = [RACReplaySubject subject];
+		
+		id sum = ^(NSNumber *a, NSNumber *b) {
+			return @(a.intValue + b.intValue);
+		};
+		id madd = ^(NSNumber *a, NSNumber *b, NSNumber *c) {
+			return @(a.intValue * b.intValue + c.intValue);
+		};
+		
+		[subject sendNext:RACTuplePack(sum, @1, @2)];
+		[subject sendNext:RACTuplePack(madd, @2, @3, @1)];
+		[subject sendCompleted];
+		
+		NSArray *results = [[subject reduceApply] toArray];
+		NSArray *expected = @[ @3, @7 ];
+		
+		expect(results).to.equal(expected);
 	});
 });
 

@@ -26,6 +26,7 @@ typedef struct {
 @property (nonatomic, strong) id secondObjectValue;
 @property (nonatomic, strong) RACTestObject *strongTestObjectValue;
 @property (nonatomic, weak) RACTestObject *weakTestObjectValue;
+@property (nonatomic, weak) id<RACTestProtocol> weakObjectWithProtocol;
 @property (nonatomic, assign) NSInteger integerValue;
 // Holds a copy of the string.
 @property (nonatomic, assign) char *charPointerValue;
@@ -41,6 +42,7 @@ typedef struct {
 @property (nonatomic, copy) NSArray *arrayValue;
 @property (nonatomic, copy) NSSet *setValue;
 @property (nonatomic, copy) NSOrderedSet *orderedSetValue;
+@property (nonatomic, strong) id slowObjectValue;
 
 // Returns a new object each time, with the integerValue set to 42.
 @property (nonatomic, copy, readonly) RACTestObject *dynamicObjectProperty;

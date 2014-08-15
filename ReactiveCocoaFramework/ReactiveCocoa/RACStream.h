@@ -139,7 +139,7 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 /// Returns a new stream with the mapped values.
 - (instancetype)map:(id (^)(id value))block;
 
-/// Replace each value in the receiver with the given object.
+/// Replaces each value in the receiver with the given object.
 ///
 /// Returns a new stream which includes the given object once for each value in
 /// the receiver.
@@ -237,9 +237,9 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 ///
 /// startingValue - The value to be combined with the first element of the
 ///                 receiver. This value may be `nil`.
-/// block         - A block that describes how to combine values of the
+/// reduceBlock   - The block that describes how to combine values of the
 ///                 receiver. If the receiver is empty, this block will never be
-///                 invoked.
+///                 invoked. Cannot be nil.
 ///
 /// Examples
 ///
@@ -250,9 +250,23 @@ typedef RACStream * (^RACStreamBindBlock)(id value, BOOL *stop);
 ///          return @(sum.integerValue + next.integerValue);
 ///      }];
 ///
-/// Returns a new stream that consists of each application of `block`. If the
+/// Returns a new stream that consists of each application of `reduceBlock`. If the
 /// receiver is empty, an empty stream is returned.
-- (instancetype)scanWithStart:(id)startingValue reduce:(id (^)(id running, id next))block;
+- (instancetype)scanWithStart:(id)startingValue reduce:(id (^)(id running, id next))reduceBlock;
+
+/// Combines values in the receiver from left to right using the given block
+/// which also takes zero-based index of the values.
+///
+/// startingValue - The value to be combined with the first element of the
+///                 receiver. This value may be `nil`.
+/// reduceBlock   - The block that describes how to combine values of the
+///                 receiver. This block takes zero-based index value as the last
+///                 parameter. If the receiver is empty, this block will never
+///                 be invoked. Cannot be nil.
+///
+/// Returns a new stream that consists of each application of `reduceBlock`. If the
+/// receiver is empty, an empty stream is returned.
+- (instancetype)scanWithStart:(id)startingValue reduceWithIndex:(id (^)(id running, id next, NSUInteger index))reduceBlock;
 
 /// Combines each previous and current value into one object.
 ///

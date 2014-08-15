@@ -298,7 +298,7 @@ describe(@"NSIndexSet sequences", ^{
 	
 	NSArray * (^valuesFromIndexSet)(NSIndexSet *indexSet) =  ^NSArray *(NSIndexSet *indexSet) {
 		NSMutableArray *arr = [NSMutableArray array];
-		[values enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
+		[indexSet enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
 			[arr addObject:@(idx)];
 		}];
 
@@ -330,6 +330,24 @@ describe(@"NSIndexSet sequences", ^{
 			return @{
 				RACSequenceExampleSequence: sequence,
 				RACSequenceExampleExpectedValues: unchangedValues
+			};
+		});
+	});
+	
+	describe(@"should not fire if empty", ^{
+		__block NSIndexSet *emptyIndexSet;
+		__block RACSequence *emptySequence;
+
+		beforeEach(^{
+			emptyIndexSet = [NSIndexSet indexSet];
+			emptySequence = emptyIndexSet.rac_sequence;
+			expect(emptySequence).notTo.beNil();
+		});
+
+		itShouldBehaveLike(RACSequenceExamples, ^{
+			return @{
+				RACSequenceExampleSequence: emptySequence,
+				RACSequenceExampleExpectedValues: valuesFromIndexSet(emptyIndexSet)
 			};
 		});
 	});

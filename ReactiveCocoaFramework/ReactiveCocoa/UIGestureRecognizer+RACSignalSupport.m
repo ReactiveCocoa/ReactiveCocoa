@@ -1,6 +1,6 @@
 //
 //  UIGestureRecognizer+RACSignalSupport.m
-//  Talks
+//  ReactiveCocoa
 //
 //  Created by Josh Vera on 5/5/13.
 //  Copyright (c) 2013 GitHub. All rights reserved.
@@ -9,11 +9,11 @@
 #import "UIGestureRecognizer+RACSignalSupport.h"
 #import "EXTScope.h"
 #import "NSObject+RACDeallocating.h"
+#import "NSObject+RACDescription.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSignal.h"
 #import "RACSubscriber.h"
-#import "NSObject+RACDescription.h"
 
 @implementation UIGestureRecognizer (RACSignalSupport)
 

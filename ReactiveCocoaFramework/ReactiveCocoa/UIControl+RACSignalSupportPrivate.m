@@ -7,8 +7,6 @@
 //
 
 #import "UIControl+RACSignalSupportPrivate.h"
-#import "EXTScope.h"
-#import "NSInvocation+RACTypeParsing.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACLifting.h"
 #import "RACChannel.h"

@@ -160,7 +160,7 @@
 - (id)objectAtIndex:(NSUInteger)index {
 	if (index >= self.count) return nil;
 	
-	id object = [self.backingArray objectAtIndex:index];
+	id object = self.backingArray[index];
 	return (object == RACTupleNil.tupleNil ? nil : object);
 }
 
@@ -183,27 +183,27 @@
 }
 
 - (id)first {
-	return [self objectAtIndex:0];
+	return self[0];
 }
 
 - (id)second {
-	return [self objectAtIndex:1];
+	return self[1];
 }
 
 - (id)third {
-	return [self objectAtIndex:2];
+	return self[2];
 }
 
 - (id)fourth {
-	return [self objectAtIndex:3];
+	return self[3];
 }
 
 - (id)fifth {
-	return [self objectAtIndex:4];
+	return self[4];
 }
 
 - (id)last {
-	return [self objectAtIndex:self.count - 1];
+	return self[self.count - 1];
 }
 
 @end

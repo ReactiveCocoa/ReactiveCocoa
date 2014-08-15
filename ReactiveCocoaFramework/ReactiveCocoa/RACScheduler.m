@@ -188,6 +188,26 @@ NSString * const RACSchedulerCurrentSchedulerKey = @"RACSchedulerCurrentSchedule
 	}
 }
 
+- (void)performAsCurrentScheduler:(void (^)(void))block {
+	NSCParameterAssert(block != NULL);
+
+	// If we're using a concurrent queue, we could end up in here concurrently,
+	// in which case we *don't* want to clear the current scheduler immediately
+	// after our block is done executing, but only *after* all our concurrent
+	// invocations are done.
+
+	RACScheduler *previousScheduler = RACScheduler.currentScheduler;
+	NSThread.currentThread.threadDictionary[RACSchedulerCurrentSchedulerKey] = self;
+
+	block();
+
+	if (previousScheduler != nil) {
+		NSThread.currentThread.threadDictionary[RACSchedulerCurrentSchedulerKey] = previousScheduler;
+	} else {
+		[NSThread.currentThread.threadDictionary removeObjectForKey:RACSchedulerCurrentSchedulerKey];
+	}
+}
+
 @end
 
 @implementation RACScheduler (Deprecated)

@@ -7,11 +7,11 @@
 //
 
 #import "RACReplaySubject.h"
+#import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACScheduler+Private.h"
 #import "RACSubscriber.h"
 #import "RACTuple.h"
-#import "RACCompoundDisposable.h"
 
 const NSUInteger RACReplaySubjectUnlimitedCapacity = NSUIntegerMax;
 
@@ -33,7 +33,7 @@ const NSUInteger RACReplaySubjectUnlimitedCapacity = NSUIntegerMax;
 #pragma mark Lifecycle
 
 + (instancetype)replaySubjectWithCapacity:(NSUInteger)capacity {
-	return [[self alloc] initWithCapacity:capacity];
+	return [(RACReplaySubject *)[self alloc] initWithCapacity:capacity];
 }
 
 - (instancetype)init {

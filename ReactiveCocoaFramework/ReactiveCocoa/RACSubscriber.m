@@ -94,8 +94,15 @@
 	}
 }
 
-- (void)didSubscribeWithDisposable:(RACDisposable *)d {
+- (void)didSubscribeWithDisposable:(RACCompoundDisposable *)d {
+	if (d.disposed) return;
 	[self.disposable addDisposable:d];
+
+	@weakify(self, d);
+	[d addDisposable:[RACDisposable disposableWithBlock:^{
+		@strongify(self, d);
+		[self.disposable removeDisposable:d];
+	}]];
 }
 
 @end

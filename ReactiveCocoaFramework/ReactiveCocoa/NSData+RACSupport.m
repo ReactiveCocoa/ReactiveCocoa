@@ -21,7 +21,7 @@
 	[scheduler schedule:^{
 		NSError *error = nil;
 		NSData *data = [[NSData alloc] initWithContentsOfURL:URL options:options error:&error];
-		if(data == nil) {
+		if (data == nil) {
 			[subject sendError:error];
 		} else {
 			[subject sendNext:data];

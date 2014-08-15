@@ -10,7 +10,6 @@
 #import "RACDisposable.h"
 #import "RACReplaySubject.h"
 #import "RACSignal+Operations.h"
-#import "RACUnit.h"
 
 @interface RACChannelTerminal ()
 
@@ -84,7 +83,7 @@
 	[self.otherTerminal sendCompleted];
 }
 
-- (void)didSubscribeWithDisposable:(RACDisposable *)disposable {
+- (void)didSubscribeWithDisposable:(RACCompoundDisposable *)disposable {
 	[self.otherTerminal didSubscribeWithDisposable:disposable];
 }
 

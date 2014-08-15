@@ -8,7 +8,6 @@
 
 #import "UIDatePicker+RACSignalSupport.h"
 #import "EXTKeyPathCoding.h"
-#import "UIControl+RACSignalSupport.h"
 #import "UIControl+RACSignalSupportPrivate.h"
 
 @implementation UIDatePicker (RACSignalSupport)

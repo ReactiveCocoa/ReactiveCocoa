@@ -7,14 +7,12 @@
 //
 
 #import "NSUserDefaults+RACSupport.h"
-
 #import "EXTScope.h"
+#import "NSNotificationCenter+RACSupport.h"
+#import "NSObject+RACDeallocating.h"
 #import "RACChannel.h"
 #import "RACScheduler.h"
 #import "RACSignal+Operations.h"
-#import "NSNotificationCenter+RACSupport.h"
-#import "NSObject+RACDeallocating.h"
-#import "NSObject+RACLifting.h"
 
 @implementation NSUserDefaults (RACSupport)
 

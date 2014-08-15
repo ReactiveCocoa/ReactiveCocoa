@@ -1,6 +1,6 @@
 # ReactiveCocoa
 
-ReactiveCocoa (RAC) is an Objective-C framework for [Functional Reactive
+ReactiveCocoa (RAC) is an Objective-C framework inspired by [Functional Reactive
 Programming][]. It provides APIs for **composing and transforming streams of
 values**.
 
@@ -30,7 +30,7 @@ If you have any further questions, please feel free to [file an issue](https://g
 
 ## Introduction
 
-ReactiveCocoa is an implementation of [functional reactive
+ReactiveCocoa is inspired by [functional reactive
 programming](http://blog.maybeapps.com/post/42894317939/input-and-output).
 Rather than using mutable variables which are replaced and modified in-place,
 RAC provides signals (represented by `RACSignal`) that capture present and
@@ -56,7 +56,7 @@ callback blocks, target-action mechanisms, notifications, and KVO.
 Here's a simple example:
 
 ```objc
-// When self.username changes, log the new name to the console.
+// When self.username changes, logs the new name to the console.
 //
 // RACObserve(self, username) creates a new RACSignal that sends the current
 // value of self.username, then the new value whenever it changes.
@@ -69,7 +69,7 @@ Here's a simple example:
 But unlike KVO notifications, signals can be chained together and operated on:
 
 ```objc
-// Only log names that start with "j".
+// Only logs names that starts with "j".
 //
 // -filter returns a new RACSignal that only sends a new value when its block
 // returns YES.
@@ -87,7 +87,7 @@ setting other properties in response to the new values, RAC makes it possible to
 express properties in terms of signals and operations:
 
 ```objc
-// Create a one-way binding so that self.createEnabled will be
+// Creates a one-way binding so that self.createEnabled will be
 // true whenever self.password and self.passwordConfirmation
 // are equal.
 //
@@ -107,7 +107,7 @@ Signals can be built on any stream of values over time, not just KVO. For
 example, they can also represent button presses:
 
 ```objc
-// Log a message whenever the button is pressed.
+// Logs a message whenever the button is pressed.
 //
 // RACCommand creates signals to represent UI actions. Each signal can
 // represent a button press, for example, and have additional work associated
@@ -118,13 +118,13 @@ example, they can also represent button presses:
 self.button.rac_command = [[RACCommand alloc] initWithSignalBlock:^(id _) {
 	NSLog(@"button was pressed!");
 	return [RACSignal empty];
-}]
+}];
 ```
 
 Or asynchronous network operations:
 
 ```objc
-// Hook up a "Log in" button to log in over the network.
+// Hooks up a "Log in" button to log in over the network.
 //
 // This block will be run whenever the login command is executed, starting
 // the login process.
@@ -138,12 +138,12 @@ self.loginCommand = [[RACCommand alloc] initWithSignalBlock:^(id sender) {
 // the above block, one for each time the command is executed.
 [self.loginCommand.executionSignals subscribeNext:^(RACSignal *loginSignal) {
 	// Log a message whenever we log in successfully.
-	[loginSignal subscribeCompleted:^ {
+	[loginSignal subscribeCompleted:^{
 		NSLog(@"Logged in successfully!");
 	}];
 }];
 
-// Execute the login command when the button is pressed.
+// Executes the login command when the button is pressed.
 self.loginButton.rac_command = self.loginCommand;
 ```
 
@@ -152,10 +152,10 @@ changes over time.
 
 Using signals for asynchronous operations makes it possible to build up more
 complex behavior by chaining and transforming those signals. Work can easily be
-trigged after a group of operations completes:
+triggered after a group of operations completes:
 
 ```objc
-// Perform 2 network operations and log a message to the console when they are
+// Performs 2 network operations and logs a message to the console when they are
 // both completed.
 //
 // +merge: takes an array of signals and returns a new RACSignal that passes
@@ -175,15 +175,15 @@ of nesting callbacks with blocks. This is similar to how [futures and promises][
 are usually used:
 
 ```objc
-// Log in the user, then load any cached messages, then fetch the remaining
-// messages from the server. After that's all done, log a message to the
+// Logs in the user, then loads any cached messages, then fetches the remaining
+// messages from the server. After that's all done, logs a message to the
 // console.
 //
 // The hypothetical -logInUser methods returns a signal that completes after
 // logging in.
 //
 // -flattenMap: will execute its block whenever the signal sends a value, and
-// return a new RACSignal that merges all of the signals returned from the block
+// returns a new RACSignal that merges all of the signals returned from the block
 // into a single signal.
 [[[[client 
 	logInUser] 
@@ -205,7 +205,7 @@ are usually used:
 RAC even makes it easy to bind to the result of an asynchronous operation:
 
 ```objc
-// Create a one-way binding so that self.imageView.image will be set the user's
+// Creates a one-way binding so that self.imageView.image will be set the user's
 // avatar as soon as it's downloaded.
 //
 // The hypothetical -fetchUserWithUsername: method returns a signal which sends
@@ -509,11 +509,15 @@ To add RAC to your application:
 
 If you would prefer to use [CocoaPods](http://cocoapods.org), there are some
 [ReactiveCocoa
-podspecs](https://github.com/CocoaPods/Specs/tree/master/ReactiveCocoa) that
+podspecs](https://github.com/CocoaPods/Specs/tree/master/Specs/ReactiveCocoa) that
 have been generously contributed by third parties.
 
 To see a project already set up with RAC, check out [C-41][] or [GroceryList][],
 which are real iOS apps written using ReactiveCocoa.
+
+## Standalone Development
+
+If you’re working on RAC in isolation instead of integrating it into another project, you’ll want to open `ReactiveCocoaFramework/ReactiveCocoa.xcworkspace` and not the `.xcodeproj`.
 
 ## More Info
 
@@ -529,13 +533,19 @@ out there:
 * [101 Rx Samples](http://rxwiki.wikidot.com/101samples)
 * [Programming Reactive Extensions and LINQ](http://www.amazon.com/Programming-Reactive-Extensions-Jesse-Liberty/dp/1430237473)
 
-RAC and Rx are both implementations of functional reactive programming. Here are
-some more resources for learning about FRP:
+RAC and Rx are both frameworks inspired by functional reactive programming. Here 
+are some resources related to FRP:
 
 * [What is FRP? - Elm Language](http://elm-lang.org/learn/What-is-FRP.elm)
 * [What is Functional Reactive Programming - Stack Overflow](http://stackoverflow.com/questions/1028250/what-is-functional-reactive-programming/1030631#1030631)
+* [Specification for a Functional Reactive Language - Stack Overflow](http://stackoverflow.com/questions/5875929/specification-for-a-functional-reactive-programming-language#5878525)
 * [Escape from Callback Hell](http://elm-lang.org/learn/Escape-from-Callback-Hell.elm)
 * [Principles of Reactive Programming on Coursera](https://www.coursera.org/course/reactive)
+
+ReactiveCocoa also has a chat room on [Slack](https://slack.com/). If you'd like
+to join, just [provide your email
+address](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/871#issuecomment-44237545) and we'll
+happily send you an invite!
 
 [Basic Operators]: Documentation/BasicOperators.md
 [Documentation]: Documentation

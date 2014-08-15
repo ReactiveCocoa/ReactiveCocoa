@@ -29,7 +29,7 @@
  * a useless construct in such a case anyways.
  */
 #define onExit \
-    autoreleasepool {} \
+    rac_keywordify \
     __strong rac_cleanupBlock_t metamacro_concat(rac_exitBlock_, __LINE__) __attribute__((cleanup(rac_executeCleanupBlock), unused)) = ^
 
 /**
@@ -43,7 +43,7 @@
  * See #strongify for an example of usage.
  */
 #define weakify(...) \
-    autoreleasepool {} \
+    rac_keywordify \
     metamacro_foreach_cxt(rac_weakify_,, __weak, __VA_ARGS__)
 
 /**
@@ -51,7 +51,7 @@
  * classes that do not support weak references.
  */
 #define unsafeify(...) \
-    autoreleasepool {} \
+    rac_keywordify \
     metamacro_foreach_cxt(rac_weakify_,, __unsafe_unretained, __VA_ARGS__)
 
 /**
@@ -81,7 +81,7 @@
  * @endcode
  */
 #define strongify(...) \
-    try {} @finally {} \
+    rac_keywordify \
     _Pragma("clang diagnostic push") \
     _Pragma("clang diagnostic ignored \"-Wshadow\"") \
     metamacro_foreach(rac_strongify_,, __VA_ARGS__) \
@@ -99,3 +99,20 @@ static inline void rac_executeCleanupBlock (__strong rac_cleanupBlock_t *block) 
 
 #define rac_strongify_(INDEX, VAR) \
     __strong __typeof__(VAR) VAR = metamacro_concat(VAR, _weak_);
+
+// Details about the choice of backing keyword:
+//
+// The use of @try/@catch/@finally can cause the compiler to suppress
+// return-type warnings.
+// The use of @autoreleasepool {} is not optimized away by the compiler,
+// resulting in superfluous creation of autorelease pools.
+//
+// Since neither option is perfect, and with no other alternatives, the
+// compromise is to use @autorelease in DEBUG builds to maintain compiler
+// analysis, and to use @try/@catch otherwise to avoid insertion of unnecessary
+// autorelease pools.
+#if DEBUG
+#define rac_keywordify autoreleasepool {}
+#else
+#define rac_keywordify try {} @catch (...) {}
+#endif

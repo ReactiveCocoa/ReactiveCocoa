@@ -3,7 +3,7 @@
 	url = https://github.com/jspahrsummers/xcconfigs.git
 [submodule "External/Quick"]
 	path = External/Quick
-	url = https://github.com/modocache/Quick.git
+	url = https://github.com/Quick/Quick.git
 [submodule "External/swiftz"]
 	path = External/swiftz
 	url = https://github.com/maxpow4h/swiftz.git

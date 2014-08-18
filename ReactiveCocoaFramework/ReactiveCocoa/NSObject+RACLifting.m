@@ -17,28 +17,23 @@
 
 @implementation NSObject (RACLifting)
 
-- (RACSignal *)rac_liftSelector:(SEL)selector withSignalsFromArray:(NSArray *)signals {
+- (RACSignal *)rac_liftSelector:(SEL)selector withSignalOfArguments:(RACSignal *)arguments {
 	NSCParameterAssert(selector != NULL);
-	NSCParameterAssert(signals != nil);
-	NSCParameterAssert(signals.count > 0);
+	NSCParameterAssert(arguments != nil);
 
 	NSMethodSignature *methodSignature = [self methodSignatureForSelector:selector];
 	NSCAssert(methodSignature != nil, @"%@ does not respond to %@", self, NSStringFromSelector(selector));
 
-	NSUInteger numberOfArguments __attribute__((unused)) = methodSignature.numberOfArguments - 2;
-	NSCAssert(numberOfArguments == signals.count, @"Wrong number of signals for %@ (expected %lu, got %lu)", NSStringFromSelector(selector), (unsigned long)numberOfArguments, (unsigned long)signals.count);
-
 	// Although RACReplaySubject is deprecated for consumers, we're going to use it
 	// internally for the foreseeable future. We just want to expose something
 	// higher level.
-	#pragma clang diagnostic push
-	#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-	RACReplaySubject *results = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"%@ -rac_liftSelector: %s withSignalsFromArray: %@", [self rac_description], sel_getName(selector), signals];
-	#pragma clang diagnostic pop
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+	RACReplaySubject *results = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"%@ -rac_liftSelector: %s withSignalOfArguments: %@", [self rac_description], sel_getName(selector), arguments];
+#pragma clang diagnostic pop
 
 	@unsafeify(self);
-	[[[[RACSignal
-		combineLatest:signals]
+	[[[arguments
 		takeUntil:self.rac_willDeallocSignal]
 		map:^(RACTuple *arguments) {
 			@strongify(self);
@@ -51,8 +46,23 @@
 			return invocation.rac_returnValue;
 		}]
 		subscribe:results];
-	
+
 	return results;
+}
+
+- (RACSignal *)rac_liftSelector:(SEL)selector withSignalsFromArray:(NSArray *)signals {
+	NSCParameterAssert(signals != nil);
+	NSCParameterAssert(signals.count > 0);
+
+	NSMethodSignature *methodSignature = [self methodSignatureForSelector:selector];
+	NSCAssert(methodSignature != nil, @"%@ does not respond to %@", self, NSStringFromSelector(selector));
+
+	NSUInteger numberOfArguments __attribute__((unused)) = methodSignature.numberOfArguments - 2;
+	NSCAssert(numberOfArguments == signals.count, @"Wrong number of signals for %@ (expected %lu, got %lu)", NSStringFromSelector(selector), (unsigned long)numberOfArguments, (unsigned long)signals.count);
+
+	return [[self
+		rac_liftSelector:selector withSignalOfArguments:[RACSignal combineLatest:signals]]
+		setNameWithFormat:@"%@ -rac_liftSelector: %s withSignalsFromArray: %@", [self rac_description], sel_getName(selector), signals];
 }
 
 - (RACSignal *)rac_liftSelector:(SEL)selector withSignals:(RACSignal *)firstSignal, ... {

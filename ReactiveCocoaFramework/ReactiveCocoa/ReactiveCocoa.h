@@ -7,6 +7,7 @@
 //
 
 #import "EXTKeyPathCoding.h"
+#import "EXTScope.h"
 #import "NSArray+RACSupport.h"
 #import "NSData+RACSupport.h"
 #import "NSDictionary+RACSupport.h"

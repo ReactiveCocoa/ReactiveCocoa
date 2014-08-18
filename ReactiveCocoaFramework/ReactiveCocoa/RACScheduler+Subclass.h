@@ -17,7 +17,7 @@
 /// **Note that RACSchedulers are expected to be serial**. Subclasses must honor
 /// that contract. See `RACTargetQueueScheduler` for a queue-based scheduler
 /// which will enforce the serialization guarantee.
-@interface RACScheduler (Subclass)
+@interface RACScheduler ()
 
 /// Performs the given block with the receiver as the current scheduler for
 /// its thread. This should only be called by subclasses to perform their

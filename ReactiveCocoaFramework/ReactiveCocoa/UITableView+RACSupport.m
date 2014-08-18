@@ -56,6 +56,7 @@
 			}
 		} error:^(NSError *error) {
 			@strongify(self);
+			#pragma unused (self)
 			NSCAssert(NO, @"Received error from ordered mutations signal %@ bound to %@: %@", orderedMutations, self, error);
 		}];
 }

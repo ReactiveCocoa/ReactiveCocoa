@@ -137,7 +137,7 @@ public final class Action<Input, Output> {
 			promise.start()
 		}
 
-		return results
+		return results.signal
 	}
 
 	/// Returns an action that will execute the receiver, followed by the given

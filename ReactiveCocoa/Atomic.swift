@@ -81,9 +81,4 @@ internal final class Atomic<T> {
 		
 		return result
 	}
-
-	/// Treats the Atomic variable as its underlying value in expressions.
-	func __conversion() -> T {
-		return value
-	}
 }

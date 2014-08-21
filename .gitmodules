@@ -6,4 +6,4 @@
 	url = https://github.com/modocache/Quick.git
 [submodule "External/swiftz"]
 	path = External/swiftz
-	url = https://github.com/pyrtsa/swiftz.git
+	url = https://github.com/maxpow4h/swiftz.git

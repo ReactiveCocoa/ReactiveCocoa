@@ -72,7 +72,7 @@ extension RACSignal {
 		let property = SignalingProperty(initialValue)
 		asProducer().bindTo(property)
 
-		return property
+		return property.signal
 	}
 
 	/// Creates a Promise that will subscribe to a RACSignal when started, and

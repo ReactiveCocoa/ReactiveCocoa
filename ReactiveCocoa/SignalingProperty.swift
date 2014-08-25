@@ -32,16 +32,6 @@ public final class SignalingProperty<T>: SinkType {
 		(signal, sink) = Signal.pipeWithInitialValue(defaultValue)
 	}
 
-	/// Treats the property as its current value in expressions.
-	public func __conversion() -> T {
-		return value
-	}
-
-	/// Treats the property as a signal of its values in expressions.
-	public func __conversion() -> Signal<T> {
-		return signal
-	}
-
 	public func put(value: T) {
 		self.value = value
 	}

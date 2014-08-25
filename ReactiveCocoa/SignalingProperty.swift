@@ -7,7 +7,7 @@
 //
 
 /// Represents a mutable property of type T along with the changes to its value.
-public final class SignalingProperty<T>: Sink {
+public final class SignalingProperty<T>: SinkType {
 	public typealias Element = T
 
 	private let sink: SinkOf<T>
@@ -30,16 +30,6 @@ public final class SignalingProperty<T>: Sink {
 	/// Initializes the property with the given default value.
 	public init(_ defaultValue: T) {
 		(signal, sink) = Signal.pipeWithInitialValue(defaultValue)
-	}
-
-	/// Treats the property as its current value in expressions.
-	public func __conversion() -> T {
-		return value
-	}
-
-	/// Treats the property as a signal of its values in expressions.
-	public func __conversion() -> Signal<T> {
-		return signal
 	}
 
 	public func put(value: T) {

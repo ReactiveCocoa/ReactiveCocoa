@@ -89,7 +89,7 @@ public struct Producer<T> {
 			let disposable = self.produce { event in
 				switch event {
 				case let .Next(box):
-					let (maybeState, newValue) = f(state, box.value)
+					let (maybeState, newValue) = f(state.value, box.value)
 					consumer.put(.Next(Box(newValue)))
 
 					if let s = maybeState {
@@ -122,7 +122,7 @@ public struct Producer<T> {
 			let disposable = CompositeDisposable()
 			let inFlight = Atomic(1)
 
-			func decrementInFlight() {
+			let decrementInFlight: () -> () = {
 				let orig = inFlight.modify { $0 - 1 }
 				if orig == 1 {
 					consumer.put(.Completed)
@@ -177,7 +177,7 @@ public struct Producer<T> {
 			let selfCompleted = Atomic(false)
 			let latestCompleted = Atomic(false)
 
-			func completeIfNecessary() {
+			let completeIfNecessary: () -> () = {
 				if selfCompleted.value && latestCompleted.value {
 					consumer.put(.Completed)
 				}

@@ -38,9 +38,9 @@
 - (RACDisposable *)disposable {
 	RACDisposable *result;
 
-    OSSpinLockLock(&_spinLock);
-    RACDisposable *disposable = (__bridge id)_disposablePtr;
-    result = (disposable == self ? nil : disposable);
+	OSSpinLockLock(&_spinLock);
+	RACDisposable *disposable = (__bridge id)_disposablePtr;
+	result = (disposable == self ? nil : disposable);
 	OSSpinLockUnlock(&_spinLock);
 
 	return result;
@@ -87,24 +87,24 @@
 
 	RACDisposable *existingDisposable;
 	BOOL alreadyDisposed;
-    OSSpinLockLock(&_spinLock);
-    // Have we already been disposed?
-    if (_disposablePtr == nil) {
-        alreadyDisposed = YES;
-    }
-    else {
-        alreadyDisposed = NO;
+	OSSpinLockLock(&_spinLock);
+	// Have we already been disposed?
+	if (_disposablePtr == nil) {
+		alreadyDisposed = YES;
+	}
+	else {
+		alreadyDisposed = NO;
 
-        if (_disposablePtr != (__bridge void *)self) {
-            existingDisposable = (__bridge_transfer RACDisposable *)_disposablePtr;
-        }
-        if (newDisposable) {
-            _disposablePtr = (void *)CFBridgingRetain(newDisposable);
-        }
-        else {
-            _disposablePtr = (__bridge void *)self;
-        }
-    }
+		if (_disposablePtr != (__bridge void *)self) {
+			existingDisposable = (__bridge_transfer RACDisposable *)_disposablePtr;
+		}
+		if (newDisposable) {
+			_disposablePtr = (void *)CFBridgingRetain(newDisposable);
+		}
+		else {
+			_disposablePtr = (__bridge void *)self;
+		}
+	}
 	OSSpinLockUnlock(&_spinLock);
 
 	if (alreadyDisposed) {
@@ -120,14 +120,14 @@
 - (void)dispose {
 	RACDisposable *existingDisposable;
 
-    OSSpinLockLock(&_spinLock);
-    if (_disposablePtr != (__bridge void *)self) {
-        existingDisposable = (__bridge_transfer RACDisposable *)_disposablePtr;
-    }
-    _disposablePtr = nil;
-    OSSpinLockUnlock(&_spinLock);
-    
-    [existingDisposable dispose];
+	OSSpinLockLock(&_spinLock);
+	if (_disposablePtr != (__bridge void *)self) {
+		existingDisposable = (__bridge_transfer RACDisposable *)_disposablePtr;
+	}
+	_disposablePtr = nil;
+	OSSpinLockUnlock(&_spinLock);
+	
+	[existingDisposable dispose];
 }
 
 @end

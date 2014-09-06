@@ -12,7 +12,7 @@
 
 #define RAC_BACKTRACE_MAX_CALL_STACK_FRAMES 128
 
-#ifdef DEBUG
+#ifdef RAC_DEBUG_BACKTRACE
 
 // Undefine the macros that hide the real GCD functions.
 #undef dispatch_async

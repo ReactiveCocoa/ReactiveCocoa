@@ -170,16 +170,15 @@
 - (instancetype)take:(NSUInteger)count {
 	Class class = self.class;
 	
+	if (count == 0) return class.empty;
+
 	return [[self bind:^{
 		__block NSUInteger taken = 0;
 
 		return ^ id (id value, BOOL *stop) {
-			RACStream *result = class.empty;
-
-			if (taken < count) result = [class return:value];
 			if (++taken >= count) *stop = YES;
 
-			return result;
+			return [class return:value];
 		};
 	}] setNameWithFormat:@"[%@] -take: %lu", self.name, (unsigned long)count];
 }

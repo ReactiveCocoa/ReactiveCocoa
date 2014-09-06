@@ -24,7 +24,7 @@ public final class Signal<T> {
 		var value: T? = nil
 
 		dispatch_sync(queue) {
-			value = _current
+			value = self._current
 		}
 
 		return value!

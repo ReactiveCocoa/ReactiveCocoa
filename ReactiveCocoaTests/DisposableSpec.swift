@@ -125,12 +125,12 @@ class DisposableSpec: QuickSpec {
 				let simpleDisposable = SimpleDisposable()
 				disposable.innerDisposable = simpleDisposable
 
-				expect(!disposable.innerDisposable).to(beFalsy())
+				expect(disposable.innerDisposable).notTo(beNil())
 				expect(simpleDisposable.disposed).to(beFalsy())
 				expect(disposable.disposed).to(beFalsy())
 
 				disposable.dispose()
-				expect(!disposable.innerDisposable).to(beTruthy())
+				expect(disposable.innerDisposable).to(beNil())
 				expect(simpleDisposable.disposed).to(beTruthy())
 				expect(disposable.disposed).to(beTruthy())
 			}

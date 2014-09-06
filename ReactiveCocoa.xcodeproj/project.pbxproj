@@ -389,14 +389,14 @@
 		D0479994196671DF0066B267 /* metamacros.h in Headers */ = {isa = PBXBuildFile; fileRef = D047998A196671DF0066B267 /* metamacros.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D047999F196678F20066B267 /* ObjectiveCBridgingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047999E196678F20066B267 /* ObjectiveCBridgingSpec.swift */; };
 		D04799A0196678F20066B267 /* ObjectiveCBridgingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047999E196678F20066B267 /* ObjectiveCBridgingSpec.swift */; };
+		D0945C6419BB51AD00179506 /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0945C6319BB51AD00179506 /* Nimble.framework */; };
+		D0945C6619BB51B100179506 /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0945C6519BB51B100179506 /* Nimble.framework */; };
 		D095745519733BAD002D44C1 /* swiftz_core.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D095745419733BAD002D44C1 /* swiftz_core.framework */; };
 		D095745619733BB1002D44C1 /* swiftz_core.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D095745419733BAD002D44C1 /* swiftz_core.framework */; };
 		D095745E197344E3002D44C1 /* DisposableSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D095745D197344E3002D44C1 /* DisposableSpec.swift */; };
 		D095745F197344E3002D44C1 /* DisposableSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D095745D197344E3002D44C1 /* DisposableSpec.swift */; };
 		D09574611973506C002D44C1 /* SchedulerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D09574601973506C002D44C1 /* SchedulerSpec.swift */; };
 		D09574621973506C002D44C1 /* SchedulerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D09574601973506C002D44C1 /* SchedulerSpec.swift */; };
-		D09C6CB8198F4923008E129B /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D09C6CB7198F4923008E129B /* Nimble.framework */; };
-		D09C6CBA198F4929008E129B /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D09C6CB9198F4929008E129B /* Nimble.framework */; };
 		D09C6CBC198F4931008E129B /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D09C6CBB198F4931008E129B /* Quick.framework */; };
 		D09C6CBD198F4934008E129B /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D09C6CBB198F4931008E129B /* Quick.framework */; };
 		D0E3CF551973AFC7004FD181 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E3CF541973AFC7004FD181 /* Errors.swift */; };
@@ -869,14 +869,14 @@
 		D047998A196671DF0066B267 /* metamacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = metamacros.h; sourceTree = "<group>"; };
 		D0479995196673730066B267 /* ReactiveCocoa-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ReactiveCocoa-Prefix.pch"; sourceTree = "<group>"; };
 		D047999E196678F20066B267 /* ObjectiveCBridgingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectiveCBridgingSpec.swift; sourceTree = "<group>"; };
+		D0945C6319BB51AD00179506 /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Nimble.framework; path = ../External/Quick/Externals/Nimble/build/Debug/Nimble.framework; sourceTree = "<group>"; };
+		D0945C6519BB51B100179506 /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Nimble.framework; path = "../External/Quick/Externals/Nimble/build/Debug-iphoneos/Nimble.framework"; sourceTree = "<group>"; };
 		D095745419733BAD002D44C1 /* swiftz_core.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = swiftz_core.framework; path = "../../../../../../../../../Library/Developer/Xcode/DerivedData/ReactiveCocoa-fvhormsvfcxumbbehgudvscdctdn/Build/Products/Debug/swiftz_core.framework"; sourceTree = "<group>"; };
 		D095745719733F74002D44C1 /* AtomicSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AtomicSpec.swift; sourceTree = "<group>"; };
 		D095745A197341C2002D44C1 /* BagSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BagSpec.swift; sourceTree = "<group>"; };
 		D095745D197344E3002D44C1 /* DisposableSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DisposableSpec.swift; sourceTree = "<group>"; };
 		D09574601973506C002D44C1 /* SchedulerSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SchedulerSpec.swift; sourceTree = "<group>"; };
-		D09C6CB7198F4923008E129B /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Nimble.framework; path = ../External/Quick/Externals/Nimble/build/Debug/Nimble.framework; sourceTree = "<group>"; };
-		D09C6CB9198F4929008E129B /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Nimble.framework; path = "../External/Quick/Externals/Nimble/build/Debug-iphoneos/Nimble.framework"; sourceTree = "<group>"; };
-		D09C6CBB198F4931008E129B /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quick.framework; path = "../../../../../../../Library/Developer/Xcode/DerivedData/ReactiveCocoa-anedscstkitsydccssaxwasrgsku/Build/Products/Debug/Quick.framework"; sourceTree = "<group>"; };
+		D09C6CBB198F4931008E129B /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Quick.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0E3CF541973AFC7004FD181 /* Errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -893,8 +893,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D0945C6419BB51AD00179506 /* Nimble.framework in Frameworks */,
 				D09C6CBD198F4934008E129B /* Quick.framework in Frameworks */,
-				D09C6CB8198F4923008E129B /* Nimble.framework in Frameworks */,
 				D047967F19666BF30066B267 /* ReactiveCocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -911,8 +911,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D0945C6619BB51B100179506 /* Nimble.framework in Frameworks */,
 				D09C6CBC198F4931008E129B /* Quick.framework in Frameworks */,
-				D09C6CBA198F4929008E129B /* Nimble.framework in Frameworks */,
 				D04796A519666CBF0066B267 /* ReactiveCocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -975,9 +975,9 @@
 		D047968319666BF30066B267 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				D0945C6519BB51B100179506 /* Nimble.framework */,
+				D0945C6319BB51AD00179506 /* Nimble.framework */,
 				D09C6CBB198F4931008E129B /* Quick.framework */,
-				D09C6CB9198F4929008E129B /* Nimble.framework */,
-				D09C6CB7198F4923008E129B /* Nimble.framework */,
 				D047968419666BF30066B267 /* Info.plist */,
 			);
 			name = "Supporting Files";

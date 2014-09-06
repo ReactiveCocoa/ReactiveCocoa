@@ -24,12 +24,12 @@ public final class Signal<T> {
 		var value: T? = nil
 
 		dispatch_sync(queue) {
-			value = self.current
+			value = self._current
 		}
 
 		return value!
 	}
-	
+
 	/// Initializes a Signal with the given starting value, and an action to
 	/// perform to begin observing future changes.
 	public init(initialValue: T, generator: SinkOf<T> -> ()) {
@@ -66,7 +66,7 @@ public final class Signal<T> {
 			scheduler.scheduleAfter(startDate.dateByAddingTimeInterval(interval), repeatingEvery: interval, withLeeway: leeway) {
 				sink.put(NSDate())
 			}
-			
+
 			return ()
 		}
 	}
@@ -77,7 +77,7 @@ public final class Signal<T> {
 		var sink: SinkOf<T>? = nil
 		let signal = Signal(initialValue: initialValue) { s in sink = s }
 
-		assert(sink)
+		assert(sink != nil)
 		return (signal, sink!)
 	}
 
@@ -85,7 +85,7 @@ public final class Signal<T> {
 	///
 	/// Returns a Disposable which can be disposed of to stop notifying
 	/// `observer` of future changes.
-	public func observe<S: Sink where S.Element == T>(observer: S) -> Disposable {
+	public func observe<S: SinkType where S.Element == T>(observer: S) -> Disposable {
 		let sink = SinkOf<T>(observer)
 		var token: Bag.RemovalToken? = nil
 

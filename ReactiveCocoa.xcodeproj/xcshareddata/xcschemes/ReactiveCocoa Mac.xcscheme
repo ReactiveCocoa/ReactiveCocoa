@@ -50,6 +50,15 @@
       debugDocumentVersioning = "YES"
       debugXPCServices = "NO"
       allowLocationSimulation = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "D047967219666BF30066B267"
+            BuildableName = "ReactiveCocoa.framework"
+            BlueprintName = "ReactiveCocoa-Mac"
+            ReferencedContainer = "container:ReactiveCocoa.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>

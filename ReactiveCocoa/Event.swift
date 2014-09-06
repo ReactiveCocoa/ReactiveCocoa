@@ -21,14 +21,14 @@ public enum Event<T> {
 
 	/// The stream successfully terminated.
 	case Completed
-	
+
 	/// Whether this event indicates stream termination (from success or
 	/// failure).
 	public var isTerminating: Bool {
 		switch self {
 		case let .Next:
 			return false
-		
+
 		default:
 			return true
 		}
@@ -39,10 +39,10 @@ public enum Event<T> {
 		switch self {
 		case let .Next(box):
 			return .Next(Box(f(box.value)))
-			
+
 		case let .Error(error):
 			return .Error(error)
-			
+
 		case let .Completed:
 			return .Completed
 		}

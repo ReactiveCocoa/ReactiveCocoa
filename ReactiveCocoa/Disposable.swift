@@ -181,6 +181,7 @@ public final class SerialDisposable: Disposable {
 	}
 
 	public func dispose() {
-		innerDisposable = nil
+		let orig = state.swap(State(innerDisposable: nil, disposed: true))
+		orig.innerDisposable?.dispose()
 	}
 }

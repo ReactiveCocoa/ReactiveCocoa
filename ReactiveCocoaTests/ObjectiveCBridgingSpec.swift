@@ -13,16 +13,5 @@ import ReactiveCocoa
 
 class ObjectiveCBridgingSpec: QuickSpec {
 	override func spec() {
-		describe("RACSignal") {
-			let signal = RACSignal.createSignal { subscriber in
-				subscriber.sendNext("foobar")
-				subscriber.sendCompleted()
-				return nil
-			}
-
-			it("should convert to a Signal") {
-				expect(signal.asSignalOfLatestValue().current as NSObject?).to.equal("foobar")
-			}
-		}
 	}
 }

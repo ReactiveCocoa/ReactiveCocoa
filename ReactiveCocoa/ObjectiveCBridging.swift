@@ -72,7 +72,7 @@ extension RACSignal {
 		let property = SignalingProperty(initialValue)
 		asProducer().bindTo(property, errorHandler: nil)
 
-		return property
+		return property.signal
 	}
 
 	/// Creates a Promise that will subscribe to a RACSignal when started, and
@@ -203,7 +203,7 @@ extension Action {
 		return RACCommand(enabled: enabled) { input in
 			return RACSignal.createSignal { subscriber in
 				evidence(self).execute(input).observe { maybeResult in
-					if !maybeResult {
+					if maybeResult == nil {
 						return
 					}
 

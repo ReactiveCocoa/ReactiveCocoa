@@ -89,7 +89,7 @@ public struct Producer<T> {
 			let disposable = self.produce { event in
 				switch event {
 				case let .Next(box):
-					let (maybeState, newValue) = f(state, box.value)
+					let (maybeState, newValue) = f(state.value, box.value)
 					consumer.put(.Next(Box(newValue)))
 
 					if let s = maybeState {
@@ -122,7 +122,7 @@ public struct Producer<T> {
 			let disposable = CompositeDisposable()
 			let inFlight = Atomic(1)
 
-			func decrementInFlight() {
+			let decrementInFlight: () -> () = {
 				let orig = inFlight.modify { $0 - 1 }
 				if orig == 1 {
 					consumer.put(.Completed)
@@ -177,7 +177,7 @@ public struct Producer<T> {
 			let selfCompleted = Atomic(false)
 			let latestCompleted = Atomic(false)
 
-			func completeIfNecessary() {
+			let completeIfNecessary: () -> () = {
 				if selfCompleted.value && latestCompleted.value {
 					consumer.put(.Completed)
 				}
@@ -423,6 +423,50 @@ public struct Producer<T> {
 					consumer.put(event)
 				}
 			}
+		}
+	}
+
+	private func retry(behavior: (NSError, Int) -> Promise<Bool>, consumer: Consumer<T>, attempt: Int, disposable: SerialDisposable) {
+		disposable.innerDisposable = self.produce { event in
+			switch event {
+			case let .Error(error):
+				let promise = behavior(error, attempt)
+
+				disposable.innerDisposable = promise.signal.observe { shouldRetry in
+					if let shouldRetry = shouldRetry {
+						if shouldRetry {
+							self.retry(behavior, consumer: consumer, attempt: attempt + 1, disposable: disposable)
+						} else {
+							consumer.put(.Error(error))
+						}
+					}
+				}
+
+				promise.start()
+
+			default:
+				consumer.put(event)
+			}
+		}
+	}
+
+	/// Optionally retries when an error occurs.
+	///
+	/// behavior - A function accepting the error that occurred, and the retry
+	///            attempt that this constitutes (starting at 1). When the
+	///            returned Promise yields `true`, the receiver will be started
+	///            again. If it yields `false`, the error will continue
+	///            propagating.
+	///
+	/// Returns a Producer that will pass through the receiver's events until
+	/// an error occurs, then pass through the events from any retry attempts.
+	/// If retrying is declined at any point, the Producer will send the error.
+	public func retry(behavior: (NSError, Int) -> Promise<Bool>) -> Producer<T> {
+		return Producer { consumer in
+			let serialDisposable = SerialDisposable()
+			consumer.disposable.addDisposable(serialDisposable)
+
+			self.retry(behavior, consumer: consumer, attempt: 1, disposable: serialDisposable)
 		}
 	}
 

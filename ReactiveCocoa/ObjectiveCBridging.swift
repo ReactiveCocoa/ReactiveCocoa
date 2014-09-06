@@ -70,7 +70,7 @@ extension RACSignal {
 	/// The signal must not generate an `error` event.
 	public func asSignalOfLatestValue(initialValue: AnyObject? = nil) -> Signal<AnyObject?> {
 		let property = SignalingProperty(initialValue)
-		asProducer().bindTo(property)
+		asProducer().bindTo(property, errorHandler: nil)
 
 		return property.signal
 	}

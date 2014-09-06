@@ -24,12 +24,12 @@ public final class Signal<T> {
 		var value: T? = nil
 
 		dispatch_sync(queue) {
-			value = self.current
+			value = _current
 		}
 
 		return value!
 	}
-	
+
 	/// Initializes a Signal with the given starting value, and an action to
 	/// perform to begin observing future changes.
 	public init(initialValue: T, generator: SinkOf<T> -> ()) {
@@ -66,7 +66,7 @@ public final class Signal<T> {
 			scheduler.scheduleAfter(startDate.dateByAddingTimeInterval(interval), repeatingEvery: interval, withLeeway: leeway) {
 				sink.put(NSDate())
 			}
-			
+
 			return ()
 		}
 	}

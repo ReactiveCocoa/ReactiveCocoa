@@ -428,10 +428,12 @@ public struct Producer<T> {
 				let promise = behavior(error, attempt)
 
 				disposable.innerDisposable = promise.signal.observe { shouldRetry in
-					if shouldRetry {
-						self.retry(behavior, consumer: consumer, attempt: attempt + 1, disposable: disposable)
-					} else {
-						consumer.put(.Error(error))
+					if let shouldRetry = shouldRetry {
+						if shouldRetry {
+							self.retry(behavior, consumer: consumer, attempt: attempt + 1, disposable: disposable)
+						} else {
+							consumer.put(.Error(error))
+						}
 					}
 				}
 

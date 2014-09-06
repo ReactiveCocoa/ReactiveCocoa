@@ -311,17 +311,22 @@ public struct Producer<T> {
 	/// Starts producing events, setting the current value of `property` to each
 	/// value yielded by the receiver.
 	///
-	/// The stream must not produce an `Error` event when bound to a property.
+	/// If `errorHandler` is `nil`, the stream must never produce an `Error`
+	/// event.
 	///
 	/// Optionally returns a Disposable which can be used to cancel the binding.
-	public func bindTo(property: SignalingProperty<T>) -> Disposable {
+	public func bindTo(property: SignalingProperty<T>, errorHandler: (NSError -> ())?) -> Disposable {
 		return self.produce { event in
 			switch event {
 			case let .Next(box):
 				property.put(box.value)
 
 			case let .Error(error):
-				assert(false)
+				if let handler = errorHandler {
+					handler(error)
+				} else {
+					assert(false)
+				}
 
 			default:
 				break
@@ -418,6 +423,50 @@ public struct Producer<T> {
 					consumer.put(event)
 				}
 			}
+		}
+	}
+
+	private func retry(behavior: (NSError, Int) -> Promise<Bool>, consumer: Consumer<T>, attempt: Int, disposable: SerialDisposable) {
+		disposable.innerDisposable = self.produce { event in
+			switch event {
+			case let .Error(error):
+				let promise = behavior(error, attempt)
+
+				disposable.innerDisposable = promise.signal.observe { shouldRetry in
+					if let shouldRetry = shouldRetry {
+						if shouldRetry {
+							self.retry(behavior, consumer: consumer, attempt: attempt + 1, disposable: disposable)
+						} else {
+							consumer.put(.Error(error))
+						}
+					}
+				}
+
+				promise.start()
+
+			default:
+				consumer.put(event)
+			}
+		}
+	}
+
+	/// Optionally retries when an error occurs.
+	///
+	/// behavior - A function accepting the error that occurred, and the retry
+	///            attempt that this constitutes (starting at 1). When the
+	///            returned Promise yields `true`, the receiver will be started
+	///            again. If it yields `false`, the error will continue
+	///            propagating.
+	///
+	/// Returns a Producer that will pass through the receiver's events until
+	/// an error occurs, then pass through the events from any retry attempts.
+	/// If retrying is declined at any point, the Producer will send the error.
+	public func retry(behavior: (NSError, Int) -> Promise<Bool>) -> Producer<T> {
+		return Producer { consumer in
+			let serialDisposable = SerialDisposable()
+			consumer.disposable.addDisposable(serialDisposable)
+
+			self.retry(behavior, consumer: consumer, attempt: 1, disposable: serialDisposable)
 		}
 	}
 

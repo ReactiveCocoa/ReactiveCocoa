@@ -70,7 +70,7 @@ extension RACSignal {
 	/// The signal must not generate an `error` event.
 	public func asSignalOfLatestValue(initialValue: AnyObject? = nil) -> Signal<AnyObject?> {
 		let property = SignalingProperty(initialValue)
-		asProducer().bindTo(property)
+		asProducer().bindTo(property, errorHandler: nil)
 
 		return property.signal
 	}
@@ -156,14 +156,18 @@ extension Promise {
 	///            produce an object. Simply pass in the `identity` function.
 	public func asReplayedRACSignal<U: AnyObject>(evidence: Promise<T> -> Promise<U>) -> RACSignal {
 		return RACSignal.createSignal { subscriber in
-			evidence(self).start().signal.observe { maybeResult in
+			let evidencedSelf = evidence(self)
+			let selfDisposable = evidencedSelf.signal.observe { maybeResult in
 				if let result = maybeResult {
 					subscriber.sendNext(result)
 					subscriber.sendCompleted()
 				}
 			}
 
-			return nil
+			evidencedSelf.start()
+			return RACDisposable {
+				selfDisposable.dispose()
+			}
 		}
 	}
 }

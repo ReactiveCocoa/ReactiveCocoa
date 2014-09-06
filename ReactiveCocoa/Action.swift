@@ -37,7 +37,7 @@ public final class Action<Input, Output> {
 	///
 	/// This will only update on the main thread.
 	public var executing: Signal<Bool> {
-		return executions.map { !(!$0) }
+        	return executions.map { $0 != nil }
 	}
 
 	/// Whether the action is enabled.
@@ -128,7 +128,7 @@ public final class Action<Input, Output> {
 			execution.observe { maybeResult in
 				results.put(maybeResult)
 
-				if maybeResult {
+				if maybeResult != nil {
 					// Execution completed.
 					self.executionsSink.put(nil)
 				}
@@ -137,7 +137,7 @@ public final class Action<Input, Output> {
 			promise.start()
 		}
 
-		return results
+		return results.signal
 	}
 
 	/// Returns an action that will execute the receiver, followed by the given

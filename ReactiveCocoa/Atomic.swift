@@ -1,3 +1,4 @@
+
 //
 //  Atomic.swift
 //  ReactiveCocoa
@@ -12,7 +13,7 @@ internal final class Atomic<T> {
 	private var _value: T
 	
 	/// Atomically gets or sets the value of the variable.
-	public var value: T {
+	var value: T {
 		get {
 			lock()
 			let v = _value
@@ -29,29 +30,29 @@ internal final class Atomic<T> {
 	}
 	
 	/// Initializes the variable with the given initial value.
-	public init(_ value: T) {
+	init(_ value: T) {
 		_value = value
 	}
 	
 	private func lock() {
-		withUnsafePointer(&spinlock, OSSpinLockLock)
+		withUnsafeMutablePointer(&spinlock, OSSpinLockLock)
 	}
 	
 	private func unlock() {
-		withUnsafePointer(&spinlock, OSSpinLockUnlock)
+		withUnsafeMutablePointer(&spinlock, OSSpinLockUnlock)
 	}
 	
 	/// Atomically replaces the contents of the variable.
 	///
 	/// Returns the old value.
-	public func swap(newValue: T) -> T {
+	func swap(newValue: T) -> T {
 		return modify { _ in newValue }
 	}
 
 	/// Atomically modifies the variable.
 	///
 	/// Returns the old value.
-	public func modify(action: T -> T) -> T {
+	func modify(action: T -> T) -> T {
 		let (oldValue, _) = modify { oldValue in (action(oldValue), 0) }
 		return oldValue
 	}
@@ -59,7 +60,7 @@ internal final class Atomic<T> {
 	/// Atomically modifies the variable.
 	///
 	/// Returns the old value, plus arbitrary user-defined data.
-	public func modify<U>(action: T -> (T, U)) -> (T, U) {
+	func modify<U>(action: T -> (T, U)) -> (T, U) {
 		lock()
 		let oldValue: T = _value
 		let (newValue, data) = action(_value)
@@ -73,16 +74,11 @@ internal final class Atomic<T> {
 	/// variable.
 	///
 	/// Returns the result of the action.
-	public func withValue<U>(action: T -> U) -> U {
+	func withValue<U>(action: T -> U) -> U {
 		lock()
 		let result = action(_value)
 		unlock()
 		
 		return result
-	}
-
-	/// Treats the Atomic variable as its underlying value in expressions.
-	public func __conversion() -> T {
-		return value
 	}
 }

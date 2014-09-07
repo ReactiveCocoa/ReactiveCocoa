@@ -140,6 +140,76 @@ class SchedulerSpec: QuickSpec {
 		}
 
 		describe("TestScheduler") {
+			var scheduler: TestScheduler!
+
+			beforeEach {
+				scheduler = TestScheduler()
+			}
+
+			it("should run immediately enqueued actions upon advancement") {
+				var string = ""
+
+				scheduler.schedule {
+					string += "foo"
+					expect(NSThread.isMainThread()).to(beTruthy())
+				}
+
+				scheduler.schedule {
+					string += "bar"
+					expect(NSThread.isMainThread()).to(beTruthy())
+				}
+
+				expect(string).to(equal(""))
+
+				scheduler.advanceByInterval(0.00001)
+				expect(string).to(equal("foobar"))
+			}
+
+			it("should run actions when advanced past the target date") {
+				var string = ""
+
+				scheduler.scheduleAfter(15) {
+					string += "bar"
+					expect(NSThread.isMainThread()).to(beTruthy())
+				}
+
+				scheduler.scheduleAfter(5) {
+					string += "foo"
+					expect(NSThread.isMainThread()).to(beTruthy())
+				}
+
+				expect(string).to(equal(""))
+
+				scheduler.advanceByInterval(10)
+				expect(string).to(equal("foo"))
+
+				scheduler.advanceByInterval(10)
+				expect(string).to(equal("foobar"))
+			}
+
+			it("should run all remaining actions in order") {
+				var string = ""
+
+				scheduler.scheduleAfter(15) {
+					string += "bar"
+					expect(NSThread.isMainThread()).to(beTruthy())
+				}
+
+				scheduler.scheduleAfter(5) {
+					string += "foo"
+					expect(NSThread.isMainThread()).to(beTruthy())
+				}
+
+				scheduler.schedule {
+					string += "fuzzbuzz"
+					expect(NSThread.isMainThread()).to(beTruthy())
+				}
+
+				expect(string).to(equal(""))
+
+				scheduler.run()
+				expect(string).to(equal("fuzzbuzzfoobar"))
+			}
 		}
 	}
 }

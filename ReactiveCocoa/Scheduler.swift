@@ -58,6 +58,15 @@ public struct MainScheduler: DateScheduler {
 		return innerScheduler.scheduleAfter(date, action: action)
 	}
 
+	/// Schedules a recurring action at the given interval, beginning at the
+	/// given start time, and with a reasonable default leeway.
+	///
+	/// Optionally returns a disposable that can be used to cancel the work
+	/// before it begins.
+	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, action: () -> ()) -> Disposable? {
+		return innerScheduler.scheduleAfter(date, repeatingEvery: repeatingEvery, action: action)
+	}
+
 	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> ()) -> Disposable? {
 		return innerScheduler.scheduleAfter(date, repeatingEvery: repeatingEvery, withLeeway: withLeeway, action: action)
 	}
@@ -119,6 +128,17 @@ public struct QueueScheduler: DateScheduler {
 		})
 
 		return d
+	}
+
+	/// Schedules a recurring action at the given interval, beginning at the
+	/// given start time, and with a reasonable default leeway.
+	///
+	/// Optionally returns a disposable that can be used to cancel the work
+	/// before it begins.
+	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, action: () -> ()) -> Disposable? {
+		// Apple's "Power Efficiency Guide for Mac Apps" recommends a leeway of
+		// at least 10% of the timer interval.
+		return scheduleAfter(date, repeatingEvery: repeatingEvery, withLeeway: repeatingEvery * 0.1, action: action)
 	}
 
 	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway leeway: NSTimeInterval, action: () -> ()) -> Disposable? {

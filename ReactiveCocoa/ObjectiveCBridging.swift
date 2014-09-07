@@ -157,11 +157,9 @@ extension Promise {
 	public func asReplayedRACSignal<U: AnyObject>(evidence: Promise<T> -> Promise<U>) -> RACSignal {
 		return RACSignal.createSignal { subscriber in
 			let evidencedSelf = evidence(self)
-			let selfDisposable = evidencedSelf.signal.observe { maybeResult in
-				if let result = maybeResult {
-					subscriber.sendNext(result)
-					subscriber.sendCompleted()
-				}
+			let selfDisposable = evidencedSelf.notify { result in
+				subscriber.sendNext(result)
+				subscriber.sendCompleted()
 			}
 
 			evidencedSelf.start()

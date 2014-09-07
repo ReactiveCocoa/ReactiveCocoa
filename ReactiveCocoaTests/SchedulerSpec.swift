@@ -35,6 +35,35 @@ class SchedulerSpec: QuickSpec {
 				expect(didRun).to(beFalsy())
 				expect{didRun}.toEventually(beTruthy())
 			}
+
+			it("should run enqueued actions after a given date") {
+				var didRun = false
+				MainScheduler().scheduleAfter(NSDate()) {
+					didRun = true
+					expect(NSThread.isMainThread()).to(beTruthy())
+				}
+
+				expect(didRun).to(beFalsy())
+				expect{didRun}.toEventually(beTruthy())
+			}
+
+			it("should repeatedly run actions after a given date") {
+				let disposable = SerialDisposable()
+
+				var count = 0
+				let timesToRun = 3
+
+				disposable.innerDisposable = MainScheduler().scheduleAfter(NSDate(), repeatingEvery: 0.01, withLeeway: 0) {
+					expect(NSThread.isMainThread()).to(beTruthy())
+
+					if ++count == timesToRun {
+						disposable.dispose()
+					}
+				}
+
+				expect(count).to(equal(0))
+				expect{count}.toEventually(equal(timesToRun))
+			}
 		}
 
 		describe("QueueScheduler") {

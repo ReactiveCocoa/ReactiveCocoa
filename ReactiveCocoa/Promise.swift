@@ -60,7 +60,7 @@ public final class Promise<T> {
 		let cond = NSCondition()
 		cond.name = "com.github.ReactiveCocoa.Promise.await"
 
-		signal.observe { _ in
+		let disposable = signal.observe { _ in
 			cond.lock()
 			cond.signal()
 			cond.unlock()
@@ -69,13 +69,14 @@ public final class Promise<T> {
 		start()
 
 		cond.lock()
-		while self.signal.current == nil {
+		while signal.current == nil {
 			cond.wait()
 		}
 
-		let result = self.signal.current!
+		let result = signal.current!
 		cond.unlock()
 
+		disposable.dispose()
 		return result
 	}
 

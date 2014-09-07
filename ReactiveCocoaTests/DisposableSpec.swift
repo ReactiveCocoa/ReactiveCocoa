@@ -20,16 +20,6 @@ class DisposableSpec: QuickSpec {
 				disposable.dispose()
 				expect(disposable.disposed).to(beTruthy())
 			}
-
-			it("should dispose of all copies") {
-				let disposable = SimpleDisposable()
-
-				let disposableCopy = disposable
-				expect(disposableCopy.disposed).to(beFalsy())
-
-				disposable.dispose()
-				expect(disposableCopy.disposed).to(beTruthy())
-			}
 		}
 
 		describe("ActionDisposable") {

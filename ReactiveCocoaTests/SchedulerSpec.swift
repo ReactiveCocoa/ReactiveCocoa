@@ -141,9 +141,17 @@ class SchedulerSpec: QuickSpec {
 
 		describe("TestScheduler") {
 			var scheduler: TestScheduler!
+			var startInterval: NSTimeInterval!
+
+			// How much dates are allowed to differ when they should be "equal."
+			let dateComparisonDelta = 0.00001
 
 			beforeEach {
-				scheduler = TestScheduler()
+				let startDate = NSDate()
+				startInterval = startDate.timeIntervalSinceReferenceDate
+
+				scheduler = TestScheduler(startDate: startDate)
+				expect(scheduler.currentDate).to(equal(startDate))
 			}
 
 			it("should run immediately enqueued actions upon advancement") {
@@ -161,7 +169,10 @@ class SchedulerSpec: QuickSpec {
 
 				expect(string).to(equal(""))
 
-				scheduler.advanceByInterval(0.00001)
+				let interval = 0.001
+				scheduler.advanceByInterval(interval)
+				expect(scheduler.currentDate.timeIntervalSinceReferenceDate).to(beCloseTo(startInterval + interval, within: dateComparisonDelta))
+
 				expect(string).to(equal("foobar"))
 			}
 
@@ -181,9 +192,11 @@ class SchedulerSpec: QuickSpec {
 				expect(string).to(equal(""))
 
 				scheduler.advanceByInterval(10)
+				expect(scheduler.currentDate.timeIntervalSinceReferenceDate).to(beCloseTo(startInterval + 10, within: dateComparisonDelta))
 				expect(string).to(equal("foo"))
 
 				scheduler.advanceByInterval(10)
+				expect(scheduler.currentDate.timeIntervalSinceReferenceDate).to(beCloseTo(startInterval + 20, within: dateComparisonDelta))
 				expect(string).to(equal("foobar"))
 			}
 
@@ -208,6 +221,7 @@ class SchedulerSpec: QuickSpec {
 				expect(string).to(equal(""))
 
 				scheduler.run()
+				expect(scheduler.currentDate).to(equal(NSDate.distantFuture() as? NSDate))
 				expect(string).to(equal("fuzzbuzzfoobar"))
 			}
 		}

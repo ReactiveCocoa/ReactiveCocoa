@@ -77,23 +77,65 @@ class SchedulerSpec: QuickSpec {
 				expect{didRun}.toEventually(beTruthy())
 			}
 
-			it("should run enqueued actions serially on the given queue") {
-				let queue = dispatch_queue_create("", DISPATCH_QUEUE_CONCURRENT)
-				dispatch_suspend(queue)
+			describe("on a given queue") {
+				var queue: dispatch_queue_t!
+				var scheduler: QueueScheduler!
 
-				let scheduler = QueueScheduler(queue)
-				var value = 0
+				beforeEach {
+					queue = dispatch_queue_create("", DISPATCH_QUEUE_CONCURRENT)
+					dispatch_suspend(queue)
 
-				for i in 0..<5 {
-					scheduler.schedule {
-						value = value + 1
-					}
+					scheduler = QueueScheduler(queue)
 				}
 
-				expect(value).to(equal(0))
+				it("should run enqueued actions serially on the given queue") {
+					var value = 0
 
-				dispatch_resume(queue)
-				expect{value}.toEventually(equal(5))
+					for i in 0..<5 {
+						scheduler.schedule {
+							expect(NSThread.isMainThread()).to(beFalsy())
+							value = value + 1
+						}
+					}
+
+					expect(value).to(equal(0))
+
+					dispatch_resume(queue)
+					expect{value}.toEventually(equal(5))
+				}
+
+				it("should run enqueued actions after a given date") {
+					var didRun = false
+					scheduler.scheduleAfter(NSDate()) {
+						didRun = true
+						expect(NSThread.isMainThread()).to(beFalsy())
+					}
+
+					expect(didRun).to(beFalsy())
+
+					dispatch_resume(queue)
+					expect{didRun}.toEventually(beTruthy())
+				}
+
+				it("should repeatedly run actions after a given date") {
+					let disposable = SerialDisposable()
+
+					var count = 0
+					let timesToRun = 3
+
+					disposable.innerDisposable = scheduler.scheduleAfter(NSDate(), repeatingEvery: 0.01, withLeeway: 0) {
+						expect(NSThread.isMainThread()).to(beFalsy())
+
+						if ++count == timesToRun {
+							disposable.dispose()
+						}
+					}
+
+					expect(count).to(equal(0))
+
+					dispatch_resume(queue)
+					expect{count}.toEventually(equal(timesToRun))
+				}
 			}
 		}
 

@@ -191,6 +191,15 @@ public final class TestScheduler: DateScheduler {
 		return schedule(ScheduledAction(date: currentDate, action: action))
 	}
 
+	/// Schedules an action for execution at or after the given interval
+	/// (counted from `currentDate`).
+	///
+	/// Optionally returns a disposable that can be used to cancel the work
+	/// before it begins.
+	public func scheduleAfter(interval: NSTimeInterval, action: () -> ()) -> Disposable? {
+		return scheduleAfter(currentDate.dateByAddingTimeInterval(interval), action)
+	}
+
 	public func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable? {
 		return schedule(ScheduledAction(date: date, action: action))
 	}
@@ -200,6 +209,15 @@ public final class TestScheduler: DateScheduler {
 			action()
 			self.scheduleAfter(date.dateByAddingTimeInterval(repeatingEvery), repeatingEvery: repeatingEvery, disposable: disposable, action: action)
 		}
+	}
+
+	/// Schedules a recurring action at the given interval, beginning at the
+	/// given interval (counted from `currentDate`).
+	///
+	/// Optionally returns a disposable that can be used to cancel the work
+	/// before it begins.
+	public func scheduleAfter(interval: NSTimeInterval, repeatingEvery: NSTimeInterval, withLeeway leeway: NSTimeInterval, action: () -> ()) -> Disposable? {
+		return scheduleAfter(currentDate.dateByAddingTimeInterval(interval), repeatingEvery: repeatingEvery, withLeeway: leeway, action: action)
 	}
 
 	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> ()) -> Disposable? {

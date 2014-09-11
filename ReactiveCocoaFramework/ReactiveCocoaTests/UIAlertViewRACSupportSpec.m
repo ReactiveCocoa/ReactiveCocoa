@@ -29,6 +29,16 @@ describe(@"UIAlertView", ^{
 		[alertView.delegate alertView:alertView clickedButtonAtIndex:2];
 		expect(index).to.equal(2);
 	});
+
+	it(@"sends the index of the appropriate button to the willDismissSignal when dismissed programatically", ^{
+		__block NSInteger index = -1;
+		[alertView.rac_willDismissSignal subscribeNext:^(NSNumber *sentIndex) {
+			index = sentIndex.integerValue;
+		}];
+
+		[alertView.delegate alertView:alertView willDismissWithButtonIndex:2];
+		expect(index).to.equal(2);
+	});
 });
 
 SpecEnd

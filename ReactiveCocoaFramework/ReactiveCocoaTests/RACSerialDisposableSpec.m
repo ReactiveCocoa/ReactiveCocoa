@@ -134,11 +134,10 @@ it(@"should release the inner disposable upon deallocation", ^{
 	expect(weakInnerDisposable).to.beNil();
 });
 
-it(@"should not crash when racing between swapInDisposable and disposable", ^AsyncBlock{
+it(@"should not crash when racing between swapInDisposable and disposable", ^{
 	__block BOOL stop = NO;
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (long long)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 		stop = YES;
-		done();
 	});
 
 	RACSerialDisposable *serialDisposable =  [[RACSerialDisposable alloc] init];
@@ -153,6 +152,8 @@ it(@"should not crash when racing between swapInDisposable and disposable", ^Asy
 			[serialDisposable disposable];
 		}
 	});
+
+	expect(stop).will.beTruthy();
 });
 
 SpecEnd

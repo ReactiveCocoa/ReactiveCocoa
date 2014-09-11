@@ -20,8 +20,11 @@
 	//
 	// Otherwise, this is a retained reference to the inner disposable and the
 	// receiver has not been disposed of yet.
-	void * volatile _disposablePtr;
+	void * _disposablePtr;
 
+	// A spinlock to protect access to _disposablePtr.
+	//
+	// It must be used when _disposablePtr is mutated or retained.
 	OSSpinLock _spinLock;
 }
 
@@ -91,17 +94,15 @@
 	// Have we already been disposed?
 	if (_disposablePtr == nil) {
 		alreadyDisposed = YES;
-	}
-	else {
+	} else {
 		alreadyDisposed = NO;
 
 		if (_disposablePtr != (__bridge void *)self) {
 			existingDisposable = (__bridge_transfer RACDisposable *)_disposablePtr;
 		}
-		if (newDisposable) {
+		if (newDisposable != nil) {
 			_disposablePtr = (void *)CFBridgingRetain(newDisposable);
-		}
-		else {
+		} else {
 			_disposablePtr = (__bridge void *)self;
 		}
 	}

@@ -98,7 +98,7 @@
 		alreadyDisposed = NO;
 
 		if (_disposablePtr != (__bridge void *)self) {
-			existingDisposable = (__bridge_transfer RACDisposable *)_disposablePtr;
+			existingDisposable = CFBridgingRelease(_disposablePtr);
 		}
 		if (newDisposable != nil) {
 			_disposablePtr = (void *)CFBridgingRetain(newDisposable);
@@ -123,7 +123,7 @@
 
 	OSSpinLockLock(&_spinLock);
 	if (_disposablePtr != (__bridge void *)self) {
-		existingDisposable = (__bridge_transfer RACDisposable *)_disposablePtr;
+		existingDisposable = CFBridgingRelease(_disposablePtr);
 	}
 	_disposablePtr = nil;
 	OSSpinLockUnlock(&_spinLock);

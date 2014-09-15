@@ -27,7 +27,9 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 	return cleanedDTraceString(desc);
 }
 
-@interface RACLiveSubscriber ()
+@interface RACLiveSubscriber () {
+	OSSpinLock _spinLock;
+}
 
 // These callbacks should only be accessed while synchronized on self.
 @property (nonatomic, copy) void (^next)(id value);
@@ -83,11 +85,11 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 		@strongify(self);
 		if (self == nil) return;
 
-		@synchronized (self) {
-			self.next = nil;
-			self.error = nil;
-			self.completed = nil;
-		}
+		OSSpinLockLock(&self->_spinLock);
+		self.next = nil;
+		self.error = nil;
+		self.completed = nil;
+		OSSpinLockUnlock(&self->_spinLock);
 	}];
 
 	_disposable = [RACCompoundDisposable compoundDisposableWithDisposables:@[ selfDisposable ]];
@@ -99,7 +101,9 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 
 - (void)sendNext:(id)value {
 	@synchronized (self) {
+		OSSpinLockLock(&_spinLock);
 		void (^nextBlock)(id) = [self.next copy];
+		OSSpinLockUnlock(&_spinLock);
 
 		if (nextBlock == nil) return;
 		if (RACSIGNAL_NEXT_ENABLED()) {
@@ -112,7 +116,10 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 
 - (void)sendError:(NSError *)error {
 	@synchronized (self) {
+		OSSpinLockLock(&_spinLock);
 		void (^errorBlock)(NSError *) = [self.error copy];
+		OSSpinLockUnlock(&_spinLock);
+
 		[self.disposable dispose];
 
 		if (errorBlock == nil) return;
@@ -126,7 +133,10 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 
 - (void)sendCompleted {
 	@synchronized (self) {
+		OSSpinLockLock(&_spinLock);
 		void (^completedBlock)(void) = [self.completed copy];
+		OSSpinLockUnlock(&_spinLock);
+
 		[self.disposable dispose];
 
 		if (completedBlock == nil) return;

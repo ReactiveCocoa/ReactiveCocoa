@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
-#ifdef DEBUG
+#ifdef RAC_DEBUG_BACKTRACE
 
 extern void rac_dispatch_async(dispatch_queue_t queue, dispatch_block_t block);
 extern void rac_dispatch_barrier_async(dispatch_queue_t queue, dispatch_block_t block);

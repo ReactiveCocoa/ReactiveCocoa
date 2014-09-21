@@ -30,7 +30,7 @@ public enum RACError: NSInteger {
 	/// `NSError`, or nil if the domain of the error is not `RACErrorDomain`.
 	public static func fromError(error: NSError) -> RACError? {
 		if error.domain == RACErrorDomain {
-			return fromRaw(error.code)
+			return self(rawValue: error.code)
 		} else {
 			return nil
 		}
@@ -38,6 +38,6 @@ public enum RACError: NSInteger {
 
 	/// An `NSError` object corresponding to this error code.
 	public var error: NSError {
-		return NSError(domain: RACErrorDomain, code: toRaw(), userInfo: nil)
+		return NSError(domain: RACErrorDomain, code: rawValue, userInfo: nil)
 	}
 }

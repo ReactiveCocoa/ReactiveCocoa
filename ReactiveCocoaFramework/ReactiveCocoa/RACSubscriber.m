@@ -40,11 +40,10 @@
 	self = [super init];
 	if (self == nil) return nil;
 
-	@weakify(self);
+	@unsafeify(self);
 
 	RACDisposable *selfDisposable = [RACDisposable disposableWithBlock:^{
 		@strongify(self);
-		if (self == nil) return;
 
 		@synchronized (self) {
 			self.next = nil;
@@ -55,7 +54,7 @@
 
 	_disposable = [RACCompoundDisposable compoundDisposable];
 	[_disposable addDisposable:selfDisposable];
-	
+
 	return self;
 }
 

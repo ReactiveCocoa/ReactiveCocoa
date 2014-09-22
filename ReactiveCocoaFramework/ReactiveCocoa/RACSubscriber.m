@@ -93,14 +93,16 @@
 	}
 }
 
-- (void)didSubscribeWithDisposable:(RACCompoundDisposable *)d {
-	if (d.disposed) return;
-	[self.disposable addDisposable:d];
+- (void)didSubscribeWithDisposable:(RACCompoundDisposable *)otherDisposable {
+	if (otherDisposable.disposed) return;
 
-	@weakify(self, d);
-	[d addDisposable:[RACDisposable disposableWithBlock:^{
-		@strongify(self, d);
-		[self.disposable removeDisposable:d];
+	RACCompoundDisposable *selfDisposable = self.disposable;
+	[selfDisposable addDisposable:otherDisposable];
+
+	// If this subscription terminates, purge its disposable to avoid unbounded
+	// memory growth.
+	[otherDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+		[selfDisposable removeDisposable:otherDisposable];
 	}]];
 }
 

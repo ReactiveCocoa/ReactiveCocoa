@@ -99,9 +99,12 @@
 	RACCompoundDisposable *selfDisposable = self.disposable;
 	[selfDisposable addDisposable:otherDisposable];
 
+	@unsafeify(otherDisposable);
+
 	// If this subscription terminates, purge its disposable to avoid unbounded
 	// memory growth.
 	[otherDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+		@strongify(otherDisposable);
 		[selfDisposable removeDisposable:otherDisposable];
 	}]];
 }

@@ -18,6 +18,12 @@
 /// used privately (e.g., within -subscribeNext:… and friends).
 @interface RACLiveSubscriber : NSObject <RACSubscriber>
 
+/// The callbacks to call when events are sent to the subscriber.
+/// Should only be accessed while synchronized on the subscriber.
+@property (nonatomic, copy) void (^next)(id value);
+@property (nonatomic, copy) void (^error)(NSError *error);
+@property (nonatomic, copy) void (^completed)(void);
+
 /// The signal sending events to this subscriber.
 ///
 /// This property isn't `weak` because it's only used for DTrace probes, so

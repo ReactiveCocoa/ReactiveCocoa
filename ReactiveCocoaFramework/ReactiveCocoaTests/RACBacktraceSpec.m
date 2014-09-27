@@ -14,7 +14,7 @@
 #import "RACSequence.h"
 #import "RACSignal+Operations.h"
 
-#ifdef DEBUG
+#ifdef RAC_DEBUG_BACKTRACE
 
 static RACBacktrace *previousBacktrace;
 

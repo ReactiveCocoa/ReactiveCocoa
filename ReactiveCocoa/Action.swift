@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-import swiftz_core
+import LlamaKit
 
 /// Represents a UI action that will perform some work when executed.
 public final class Action<Input, Output> {
@@ -53,8 +53,8 @@ public final class Action<Input, Output> {
 		return results.map { maybeResult in
 			if let result = maybeResult {
 				switch result {
-				case let .Value(box):
-					return box.value
+				case let .Success(box):
+					return box.unbox
 
 				default:
 					break
@@ -73,7 +73,7 @@ public final class Action<Input, Output> {
 		return results.map { maybeResult in
 			if let result = maybeResult {
 				switch result {
-				case let .Error(error):
+				case let .Failure(error):
 					return error
 
 				default:
@@ -114,7 +114,7 @@ public final class Action<Input, Output> {
 
 		scheduler.schedule {
 			if (!self.enabled.current) {
-				results.put(Result.Error(RACError.ActionNotEnabled.error))
+				results.put(Result.Failure(RACError.ActionNotEnabled.error))
 				return
 			}
 
@@ -154,11 +154,11 @@ public final class Action<Input, Output> {
 					.map { maybeResult -> Signal<Result<NewOutput>?> in
 						return maybeResult.optional(ifNone: Signal.constant(nil)) { result in
 							switch result {
-							case let .Value(box):
-								return action.execute(box.value)
+							case let .Success(box):
+								return action.execute(box.unbox)
 
-							case let .Error(error):
-								return .constant(Result.Error(error))
+							case let .Failure(error):
+								return .constant(Result.Failure(error))
 							}
 						}
 					}

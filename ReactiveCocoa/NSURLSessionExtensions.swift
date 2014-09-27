@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 GitHub, Inc. All rights reserved.
 //
 
-import swiftz_core
+import LlamaKit
 
 extension NSURLSession {
 	/// Returns a Producer that will fetch data for each Consumer using the

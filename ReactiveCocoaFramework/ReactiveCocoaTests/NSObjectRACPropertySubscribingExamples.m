@@ -6,7 +6,6 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
-#import "RACTestObject.h"
 #import "NSObjectRACPropertySubscribingExamples.h"
 
 #import "EXTScope.h"
@@ -15,6 +14,7 @@
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSignal.h"
+#import "RACTestObject.h"
 
 NSString * const RACPropertySubscribingExamples = @"RACPropertySubscribingExamples";
 NSString * const RACPropertySubscribingExamplesSetupBlock = @"RACPropertySubscribingExamplesSetupBlock";
@@ -136,7 +136,7 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 				CFRelease(object);
 
 				// expect() is a bit finicky on background threads.
-				STAssertTrue(deallocated, @"Object did not deallocate after being released");
+				XCTAssertTrue(deallocated, @"Object did not deallocate after being released");
 			});
 
 			unsigned afterCount = arc4random_uniform(20);

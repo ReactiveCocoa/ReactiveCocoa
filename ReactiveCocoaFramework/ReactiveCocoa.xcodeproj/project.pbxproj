@@ -19,7 +19,6 @@
 		1860F426177C91B500C7B3C9 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 1860F425177C91B500C7B3C9 /* Default.png */; };
 		1860F428177C91B500C7B3C9 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1860F427177C91B500C7B3C9 /* Default@2x.png */; };
 		1860F42A177C91B500C7B3C9 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1860F429177C91B500C7B3C9 /* Default-568h@2x.png */; };
-		1860F432177C91B500C7B3C9 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1860F431177C91B500C7B3C9 /* SenTestingKit.framework */; };
 		1860F433177C91B500C7B3C9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1860F413177C91B500C7B3C9 /* UIKit.framework */; };
 		1860F434177C91B500C7B3C9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1860F415177C91B500C7B3C9 /* Foundation.framework */; };
 		1860F43C177C91B500C7B3C9 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1860F43A177C91B500C7B3C9 /* InfoPlist.strings */; };
@@ -99,7 +98,6 @@
 		5F7EFED0168FBC4B0037E500 /* RACChannelSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F7EFECE168FBC4B0037E500 /* RACChannelSpec.m */; };
 		5F9743F91694A2460024EB82 /* RACEagerSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F9743F61694A2460024EB82 /* RACEagerSequence.m */; };
 		5F9743FA1694A2460024EB82 /* RACEagerSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F9743F61694A2460024EB82 /* RACEagerSequence.m */; };
-		5FAF5224174D4C2000CAC810 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7DD15000FCF00163A9F /* SenTestingKit.framework */; };
 		5FAF523F174D4D3600CAC810 /* NSNotificationCenterRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D0700F4B1672994D00D7CD30 /* NSNotificationCenterRACSupportSpec.m */; };
 		5FAF5240174D4D5600CAC810 /* NSObjectRACDeallocatingSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E58405E16F3414200F588A6 /* NSObjectRACDeallocatingSpec.m */; };
 		5FAF5241174D4D5600CAC810 /* NSObjectRACLiftingSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 8801E7501644BDE200A155FE /* NSObjectRACLiftingSpec.m */; };
@@ -220,7 +218,6 @@
 		88C5A0241692460A0045EF05 /* RACMulticastConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 88C5A0231692460A0045EF05 /* RACMulticastConnection.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88C5A026169246140045EF05 /* RACMulticastConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 88C5A025169246140045EF05 /* RACMulticastConnection.m */; };
 		88C5A027169246140045EF05 /* RACMulticastConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 88C5A025169246140045EF05 /* RACMulticastConnection.m */; };
-		88CDF7DE15000FCF00163A9F /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7DD15000FCF00163A9F /* SenTestingKit.framework */; };
 		88CDF7DF15000FCF00163A9F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDF7BF15000FCE00163A9F /* Cocoa.framework */; };
 		88CDF7E715000FCF00163A9F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 88CDF7E515000FCF00163A9F /* InfoPlist.strings */; };
 		88D4AB3E1510F6C30011494F /* RACReplaySubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D4AB3C1510F6C30011494F /* RACReplaySubject.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -253,6 +250,7 @@
 		AC65FD52176DECB1005ED22B /* UIAlertViewRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = AC65FD51176DECB1005ED22B /* UIAlertViewRACSupportSpec.m */; };
 		ACB0EAF31797DDD400942FFC /* UIAlertView+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = ACB0EAF11797DDD400942FFC /* UIAlertView+RACSupport.m */; };
 		ACB0EAF41797DDD400942FFC /* UIAlertView+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = ACB0EAF21797DDD400942FFC /* UIAlertView+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		BE1FC229195DFB4500ECEBD4 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D05AD3A317F2D5700080895B /* XCTest.framework */; };
 		BE527E9318636F7F006349E8 /* NSUserDefaults+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = BE527E9118636F7F006349E8 /* NSUserDefaults+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		BE527E9418636F7F006349E8 /* NSUserDefaults+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = BE527E9118636F7F006349E8 /* NSUserDefaults+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		BE527E9518636F7F006349E8 /* NSUserDefaults+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = BE527E9118636F7F006349E8 /* NSUserDefaults+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -261,6 +259,7 @@
 		BE527E9818636F7F006349E8 /* NSUserDefaults+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = BE527E9218636F7F006349E8 /* NSUserDefaults+RACSupport.m */; };
 		BE527E9F1863705B006349E8 /* NSUserDefaultsRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = BE527E9E1863705B006349E8 /* NSUserDefaultsRACSupportSpec.m */; };
 		BE527EA01863706B006349E8 /* NSUserDefaultsRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = BE527E9E1863705B006349E8 /* NSUserDefaultsRACSupportSpec.m */; };
+		BE5C179818EDF2DB003A13EC /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D05AD3A317F2D5700080895B /* XCTest.framework */; };
 		CD0C273F1865734100C61F7A /* NSHashTable+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = CD0C273D1865734100C61F7A /* NSHashTable+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CD0C27401865734100C61F7A /* NSHashTable+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = CD0C273D1865734100C61F7A /* NSHashTable+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CD0C27411865734100C61F7A /* NSHashTable+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = CD0C273D1865734100C61F7A /* NSHashTable+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -628,7 +627,7 @@
 		D0F64CB718769B1700E139B9 /* UITableView+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D0F64CB518769B1700E139B9 /* UITableView+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D0F64CB818769B1700E139B9 /* UITableView+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D0F64CB618769B1700E139B9 /* UITableView+RACSupport.m */; };
 		D40D7AAB18E22B5E0065BB70 /* libExpecta.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D40D7AAA18E22B5E0065BB70 /* libExpecta.a */; };
-		D40D7AAD18E22B7E0065BB70 /* libSpecta.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D40D7AAC18E22B7E0065BB70 /* libSpecta.a */; };
+		D40D7AAD18E22B7E0065BB70 /* libSpecta-OSX.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D40D7AAC18E22B7E0065BB70 /* libSpecta-OSX.a */; };
 		D40D7AAF18E22BE30065BB70 /* libExpecta-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D40D7AAE18E22BE30065BB70 /* libExpecta-iOS.a */; };
 		D40D7AB118E22BF60065BB70 /* libSpecta-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D40D7AB018E22BF60065BB70 /* libSpecta-iOS.a */; };
 		D40D7AB218E22EC60065BB70 /* libSpecta-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D40D7AB018E22BF60065BB70 /* libSpecta-iOS.a */; };
@@ -698,7 +697,6 @@
 		1860F427177C91B500C7B3C9 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
 		1860F429177C91B500C7B3C9 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		1860F430177C91B500C7B3C9 /* ReactiveCocoa-iOS-UIKitTestHostTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ReactiveCocoa-iOS-UIKitTestHostTests.octest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		1860F431177C91B500C7B3C9 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		1860F43B177C91B500C7B3C9 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1860F455177C96B200C7B3C9 /* ReactiveCocoa-iOS-UIKitTestHostTests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "ReactiveCocoa-iOS-UIKitTestHostTests-Info.plist"; path = "ReactiveCocoaTests/UIKit/UIKitTests/ReactiveCocoa-iOS-UIKitTestHostTests-Info.plist"; sourceTree = SOURCE_ROOT; };
 		1860F457177C972E00C7B3C9 /* ReactiveCocoa-iOS-UIKitTest-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "ReactiveCocoa-iOS-UIKitTest-Prefix.pch"; path = "ReactiveCocoaTests/UIKit/UIKitTests/ReactiveCocoa-iOS-UIKitTest-Prefix.pch"; sourceTree = SOURCE_ROOT; };
@@ -745,7 +743,7 @@
 		5F7EFECE168FBC4B0037E500 /* RACChannelSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACChannelSpec.m; sourceTree = "<group>"; };
 		5F9743F51694A2460024EB82 /* RACEagerSequence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACEagerSequence.h; sourceTree = "<group>"; };
 		5F9743F61694A2460024EB82 /* RACEagerSequence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACEagerSequence.m; sourceTree = "<group>"; };
-		5FAF5223174D4C2000CAC810 /* ReactiveCocoaTests-iOS.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ReactiveCocoaTests-iOS.octest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5FAF5223174D4C2000CAC810 /* ReactiveCocoaTests-iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ReactiveCocoaTests-iOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5FAF5261174D4D8E00CAC810 /* UIBarButtonItemRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIBarButtonItemRACSupportSpec.m; sourceTree = "<group>"; };
 		5FAF5288174E9CD200CAC810 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = DEVELOPER_DIR; };
 		5FD7DC7B174F9EEB008710B4 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -834,8 +832,7 @@
 		88CDF7C715000FCE00163A9F /* ReactiveCocoa-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "ReactiveCocoa-Info.plist"; sourceTree = "<group>"; };
 		88CDF7C915000FCE00163A9F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		88CDF7CD15000FCE00163A9F /* ReactiveCocoa-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ReactiveCocoa-Prefix.pch"; sourceTree = "<group>"; };
-		88CDF7DC15000FCF00163A9F /* ReactiveCocoaTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReactiveCocoaTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
-		88CDF7DD15000FCF00163A9F /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
+		88CDF7DC15000FCF00163A9F /* ReactiveCocoaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReactiveCocoaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		88CDF7E415000FCF00163A9F /* ReactiveCocoaTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "ReactiveCocoaTests-Info.plist"; sourceTree = "<group>"; };
 		88CDF7E615000FCF00163A9F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		88CDF7FA150019CA00163A9F /* RACSubscriber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACSubscriber.h; sourceTree = "<group>"; };
@@ -1030,7 +1027,7 @@
 		D0F64CB518769B1700E139B9 /* UITableView+RACSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITableView+RACSupport.h"; sourceTree = "<group>"; };
 		D0F64CB618769B1700E139B9 /* UITableView+RACSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITableView+RACSupport.m"; sourceTree = "<group>"; };
 		D40D7AAA18E22B5E0065BB70 /* libExpecta.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libExpecta.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		D40D7AAC18E22B7E0065BB70 /* libSpecta.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libSpecta.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D40D7AAC18E22B7E0065BB70 /* libSpecta-OSX.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libSpecta-OSX.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D40D7AAE18E22BE30065BB70 /* libExpecta-iOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libExpecta-iOS.a"; path = "../external/expecta/build/Debug-iphoneos/libExpecta-iOS.a"; sourceTree = "<group>"; };
 		D40D7AB018E22BF60065BB70 /* libSpecta-iOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libSpecta-iOS.a"; path = "../external/specta/build/Debug-iphoneos/libSpecta-iOS.a"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1051,7 +1048,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1860F432177C91B500C7B3C9 /* SenTestingKit.framework in Frameworks */,
 				1860F433177C91B500C7B3C9 /* UIKit.framework in Frameworks */,
 				1860F434177C91B500C7B3C9 /* Foundation.framework in Frameworks */,
 				D40D7AB218E22EC60065BB70 /* libSpecta-iOS.a in Frameworks */,
@@ -1064,10 +1060,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				6E5D8E9219474136008C3E5F /* QuartzCore.framework in Frameworks */,
+				BE1FC229195DFB4500ECEBD4 /* XCTest.framework in Frameworks */,
 				5FD7DC7C174F9EEB008710B4 /* UIKit.framework in Frameworks */,
 				5FAF5289174E9CD300CAC810 /* CoreGraphics.framework in Frameworks */,
 				5FAF5265174D500D00CAC810 /* libReactiveCocoa-iOS.a in Frameworks */,
-				5FAF5224174D4C2000CAC810 /* SenTestingKit.framework in Frameworks */,
 				D40D7AAF18E22BE30065BB70 /* libExpecta-iOS.a in Frameworks */,
 				D40D7AB118E22BF60065BB70 /* libSpecta-iOS.a in Frameworks */,
 			);
@@ -1085,11 +1081,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BE5C179818EDF2DB003A13EC /* XCTest.framework in Frameworks */,
 				88037FD9150564D9001A5B19 /* ReactiveCocoa.framework in Frameworks */,
-				88CDF7DE15000FCF00163A9F /* SenTestingKit.framework in Frameworks */,
 				88CDF7DF15000FCF00163A9F /* Cocoa.framework in Frameworks */,
 				D40D7AAB18E22B5E0065BB70 /* libExpecta.a in Frameworks */,
-				D40D7AAD18E22B7E0065BB70 /* libSpecta.a in Frameworks */,
+				D40D7AAD18E22B7E0065BB70 /* libSpecta-OSX.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1240,10 +1236,10 @@
 		88CDF7BC15000FCE00163A9F /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				88CDF7DC15000FCF00163A9F /* ReactiveCocoaTests.octest */,
+				88CDF7DC15000FCF00163A9F /* ReactiveCocoaTests.xctest */,
 				88037F8315056328001A5B19 /* ReactiveCocoa.framework */,
 				88F440AB153DAC820097B4C3 /* libReactiveCocoa-iOS.a */,
-				5FAF5223174D4C2000CAC810 /* ReactiveCocoaTests-iOS.octest */,
+				5FAF5223174D4C2000CAC810 /* ReactiveCocoaTests-iOS.xctest */,
 				1860F412177C91B500C7B3C9 /* ReactiveCocoa-iOS-UIKitTestHost.app */,
 				1860F430177C91B500C7B3C9 /* ReactiveCocoa-iOS-UIKitTestHostTests.octest */,
 				D05AD39417F2D56F0080895B /* libReactiveCocoa-Mac.a */,
@@ -1255,7 +1251,7 @@
 			isa = PBXGroup;
 			children = (
 				6EA0AB431921106A00A8F141 /* QuartzCore.framework */,
-				D40D7AAC18E22B7E0065BB70 /* libSpecta.a */,
+				D40D7AAC18E22B7E0065BB70 /* libSpecta-OSX.a */,
 				D40D7AB018E22BF60065BB70 /* libSpecta-iOS.a */,
 				D40D7AAA18E22B5E0065BB70 /* libExpecta.a */,
 				D40D7AAE18E22BE30065BB70 /* libExpecta-iOS.a */,
@@ -1263,7 +1259,6 @@
 				1860F413177C91B500C7B3C9 /* UIKit.framework */,
 				1860F415177C91B500C7B3C9 /* Foundation.framework */,
 				1860F417177C91B500C7B3C9 /* CoreGraphics.framework */,
-				1860F431177C91B500C7B3C9 /* SenTestingKit.framework */,
 				D05AD39517F2D5700080895B /* Cocoa.framework */,
 				D05AD3A317F2D5700080895B /* XCTest.framework */,
 				88CDF7C115000FCE00163A9F /* Other Frameworks */,
@@ -1278,7 +1273,6 @@
 				88CDF7C315000FCE00163A9F /* CoreData.framework */,
 				5FAF5288174E9CD200CAC810 /* CoreGraphics.framework */,
 				88CDF7C415000FCE00163A9F /* Foundation.framework */,
-				88CDF7DD15000FCF00163A9F /* SenTestingKit.framework */,
 				5FD7DC7B174F9EEB008710B4 /* UIKit.framework */,
 				D05AD39717F2D5700080895B /* AppKit.framework */,
 			);
@@ -2165,7 +2159,7 @@
 			);
 			name = "ReactiveCocoaTests-iOS";
 			productName = "ReactiveCocoaTests-iOS";
-			productReference = 5FAF5223174D4C2000CAC810 /* ReactiveCocoaTests-iOS.octest */;
+			productReference = 5FAF5223174D4C2000CAC810 /* ReactiveCocoaTests-iOS.xctest */;
 			productType = "com.apple.product-type.bundle";
 		};
 		88037F8215056328001A5B19 /* ReactiveCocoa */ = {
@@ -2202,8 +2196,8 @@
 			);
 			name = ReactiveCocoaTests;
 			productName = GHObservableTests;
-			productReference = 88CDF7DC15000FCF00163A9F /* ReactiveCocoaTests.octest */;
-			productType = "com.apple.product-type.bundle";
+			productReference = 88CDF7DC15000FCF00163A9F /* ReactiveCocoaTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		88F440AA153DAC820097B4C3 /* ReactiveCocoa-iOS */ = {
 			isa = PBXNativeTarget;
@@ -2999,6 +2993,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
 					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
 				);
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
@@ -3009,7 +3004,7 @@
 				INFOPLIST_FILE = "ReactiveCocoaTests/ReactiveCocoaTests-Info.plist";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				WRAPPER_EXTENSION = octest;
+				WRAPPER_EXTENSION = xctest;
 			};
 			name = Debug;
 		};
@@ -3020,6 +3015,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
 					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
 				);
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
@@ -3028,9 +3024,10 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "ReactiveCocoaTests/ReactiveCocoaTests-Info.plist";
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				WRAPPER_EXTENSION = octest;
+				WRAPPER_EXTENSION = xctest;
 			};
 			name = Test;
 		};
@@ -3041,6 +3038,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
 					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
 				);
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
@@ -3051,7 +3049,7 @@
 				INFOPLIST_FILE = "ReactiveCocoaTests/ReactiveCocoaTests-Info.plist";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				WRAPPER_EXTENSION = octest;
+				WRAPPER_EXTENSION = xctest;
 			};
 			name = Release;
 		};
@@ -3062,6 +3060,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
 					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
 				);
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
@@ -3072,7 +3071,7 @@
 				INFOPLIST_FILE = "ReactiveCocoaTests/ReactiveCocoaTests-Info.plist";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				WRAPPER_EXTENSION = octest;
+				WRAPPER_EXTENSION = xctest;
 			};
 			name = Profile;
 		};
@@ -3153,7 +3152,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D094E46117775B1000906BF7 /* Mac-Application.xcconfig */;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"\"$(PROJECT_DIR)/../external/specta/src\"",
@@ -3163,7 +3165,6 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = ReactiveCocoaTests;
 				VALID_ARCHS = x86_64;
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Test;
 		};
@@ -3211,7 +3212,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D094E46117775B1000906BF7 /* Mac-Application.xcconfig */;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"\"$(PROJECT_DIR)/../external/specta/src\"",
@@ -3221,7 +3225,6 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = ReactiveCocoaTests;
 				VALID_ARCHS = x86_64;
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Debug;
 		};
@@ -3229,7 +3232,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D094E46117775B1000906BF7 /* Mac-Application.xcconfig */;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"\"$(PROJECT_DIR)/../external/specta/src\"",
@@ -3239,7 +3245,6 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = ReactiveCocoaTests;
 				VALID_ARCHS = x86_64;
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Release;
 		};
@@ -3359,7 +3364,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D094E46117775B1000906BF7 /* Mac-Application.xcconfig */;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
 				GCC_PREFIX_HEADER = "ReactiveCocoaTests/ReactiveCocoaTests-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"\"$(PROJECT_DIR)/../external/specta/src\"",
@@ -3369,7 +3377,6 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = ReactiveCocoaTests;
 				VALID_ARCHS = x86_64;
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Profile;
 		};

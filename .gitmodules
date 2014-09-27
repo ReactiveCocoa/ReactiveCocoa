@@ -1,9 +1,9 @@
 [submodule "external/specta"]
 	path = external/specta
-	url = git://github.com/github/specta.git
+	url = https://github.com/specta/specta.git
 [submodule "external/expecta"]
 	path = external/expecta
-	url = git://github.com/github/expecta.git
+	url = https://github.com/specta/expecta.git
 [submodule "external/xcconfigs"]
 	path = external/xcconfigs
 	url = https://github.com/jspahrsummers/xcconfigs.git

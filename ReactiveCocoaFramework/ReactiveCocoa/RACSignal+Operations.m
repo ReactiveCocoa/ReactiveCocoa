@@ -73,6 +73,10 @@ const NSUInteger RACSignalUnlimitedConcurrentSubscriptions = 0;
 			subscriber.next = ^(id value) {
 				oldNext(block(value));
 			};
+		} else {
+			subscriber.next = ^(id value) {
+				block(value);
+			};
 		}
 
 		[self attachSubscriber:subscriber];

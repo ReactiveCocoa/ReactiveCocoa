@@ -4,6 +4,6 @@
 [submodule "External/Quick"]
 	path = External/Quick
 	url = https://github.com/Quick/Quick.git
-[submodule "External/swiftz"]
-	path = External/swiftz
-	url = https://github.com/maxpow4h/swiftz.git
+[submodule "External/LlamaKit"]
+	path = External/LlamaKit
+	url = https://github.com/LlamaKit/LlamaKit.git

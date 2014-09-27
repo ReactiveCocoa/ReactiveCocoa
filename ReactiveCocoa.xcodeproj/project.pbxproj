@@ -389,8 +389,6 @@
 		D0479994196671DF0066B267 /* metamacros.h in Headers */ = {isa = PBXBuildFile; fileRef = D047998A196671DF0066B267 /* metamacros.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D047999F196678F20066B267 /* ObjectiveCBridgingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047999E196678F20066B267 /* ObjectiveCBridgingSpec.swift */; };
 		D04799A0196678F20066B267 /* ObjectiveCBridgingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047999E196678F20066B267 /* ObjectiveCBridgingSpec.swift */; };
-		D095745519733BAD002D44C1 /* swiftz_core.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D095745419733BAD002D44C1 /* swiftz_core.framework */; };
-		D095745619733BB1002D44C1 /* swiftz_core.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D095745419733BAD002D44C1 /* swiftz_core.framework */; };
 		D095745E197344E3002D44C1 /* DisposableSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D095745D197344E3002D44C1 /* DisposableSpec.swift */; };
 		D095745F197344E3002D44C1 /* DisposableSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D095745D197344E3002D44C1 /* DisposableSpec.swift */; };
 		D09574611973506C002D44C1 /* SchedulerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D09574601973506C002D44C1 /* SchedulerSpec.swift */; };
@@ -869,7 +867,6 @@
 		D047998A196671DF0066B267 /* metamacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = metamacros.h; sourceTree = "<group>"; };
 		D0479995196673730066B267 /* ReactiveCocoa-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ReactiveCocoa-Prefix.pch"; sourceTree = "<group>"; };
 		D047999E196678F20066B267 /* ObjectiveCBridgingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectiveCBridgingSpec.swift; sourceTree = "<group>"; };
-		D095745419733BAD002D44C1 /* swiftz_core.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = swiftz_core.framework; path = "../../../../../../../../../Library/Developer/Xcode/DerivedData/ReactiveCocoa-fvhormsvfcxumbbehgudvscdctdn/Build/Products/Debug/swiftz_core.framework"; sourceTree = "<group>"; };
 		D095745719733F74002D44C1 /* AtomicSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AtomicSpec.swift; sourceTree = "<group>"; };
 		D095745A197341C2002D44C1 /* BagSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BagSpec.swift; sourceTree = "<group>"; };
 		D095745D197344E3002D44C1 /* DisposableSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DisposableSpec.swift; sourceTree = "<group>"; };
@@ -885,7 +882,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D095745519733BAD002D44C1 /* swiftz_core.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -903,7 +899,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D095745619733BB1002D44C1 /* swiftz_core.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -955,7 +950,6 @@
 		D047967619666BF30066B267 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				D095745419733BAD002D44C1 /* swiftz_core.framework */,
 				D04797B0196670900066B267 /* ReactiveCocoa-Bridging-Header.h */,
 				D0479995196673730066B267 /* ReactiveCocoa-Prefix.pch */,
 				D047967719666BF30066B267 /* Info.plist */,

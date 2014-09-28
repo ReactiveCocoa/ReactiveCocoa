@@ -642,8 +642,6 @@ const NSUInteger RACSignalUnlimitedConcurrentSubscriptions = 0;
 }
 
 - (RACSignal *)flatten:(NSUInteger)maxConcurrent withPolicy:(RACSignalFlattenPolicy)policy {
-	NSCParameterAssert(maxConcurrent > 0 || maxConcurrent == RACSignalUnlimitedConcurrentSubscriptions);
-
 	return [[RACSignal create:^(id<RACSubscriber> subscriber) {
 		// Contains disposables for the currently active subscriptions.
 		//
@@ -722,7 +720,7 @@ const NSUInteger RACSignalUnlimitedConcurrentSubscriptions = 0;
 			NSCAssert([signal isKindOfClass:RACSignal.class], @"Expected a RACSignal, got %@", signal);
 
 			@synchronized (subscriber) {
-				if (maxConcurrent > 0 && activeDisposables.count >= maxConcurrent) {
+				if (maxConcurrent != RACSignalUnlimitedConcurrentSubscriptions && activeDisposables.count >= maxConcurrent) {
 					switch (policy) {
 						case RACSignalFlattenPolicyQueue: {
 							[queuedSignals addObject:signal];

@@ -40,11 +40,10 @@
 	self = [super init];
 	if (self == nil) return nil;
 
-	@weakify(self);
+	@unsafeify(self);
 
 	RACDisposable *selfDisposable = [RACDisposable disposableWithBlock:^{
 		@strongify(self);
-		if (self == nil) return;
 
 		@synchronized (self) {
 			self.next = nil;
@@ -55,7 +54,7 @@
 
 	_disposable = [RACCompoundDisposable compoundDisposable];
 	[_disposable addDisposable:selfDisposable];
-	
+
 	return self;
 }
 
@@ -94,14 +93,19 @@
 	}
 }
 
-- (void)didSubscribeWithDisposable:(RACCompoundDisposable *)d {
-	if (d.disposed) return;
-	[self.disposable addDisposable:d];
+- (void)didSubscribeWithDisposable:(RACCompoundDisposable *)otherDisposable {
+	if (otherDisposable.disposed) return;
 
-	@weakify(self, d);
-	[d addDisposable:[RACDisposable disposableWithBlock:^{
-		@strongify(self, d);
-		[self.disposable removeDisposable:d];
+	RACCompoundDisposable *selfDisposable = self.disposable;
+	[selfDisposable addDisposable:otherDisposable];
+
+	@unsafeify(otherDisposable);
+
+	// If this subscription terminates, purge its disposable to avoid unbounded
+	// memory growth.
+	[otherDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+		@strongify(otherDisposable);
+		[selfDisposable removeDisposable:otherDisposable];
 	}]];
 }
 

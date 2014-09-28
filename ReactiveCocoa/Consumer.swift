@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 GitHub, Inc. All rights reserved.
 //
 
-import swiftz_core
+import LlamaKit
 
 public func emptyNext(value: Any) {}
 public func emptyError(error: NSError) {}
@@ -46,7 +46,7 @@ public final class Consumer<T>: SinkType {
 		self.init(SinkOf<Element> { event in
 			switch event {
 			case let .Next(box):
-				next(box.value)
+				next(box.unbox)
 
 			case let .Error(err):
 				error(err)

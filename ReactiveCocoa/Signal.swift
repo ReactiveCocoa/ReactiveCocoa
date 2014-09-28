@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-import swiftz_core
+import LlamaKit
 
 /// A push-driven stream that sends the same values to all observers.
 ///
@@ -57,9 +57,17 @@ public final class Signal<T> {
 		return Signal(initialValue: value) { _ in }
 	}
 
+	/// Creates a repeating timer of the given interval, with a reasonable
+	/// default leeway, sending updates on the given scheduler.
+	public class func interval(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> Signal<NSDate> {
+		// Apple's "Power Efficiency Guide for Mac Apps" recommends a leeway of
+		// at least 10% of the timer interval.
+		return self.interval(interval, onScheduler: scheduler, withLeeway: interval * 0.1)
+	}
+
 	/// Creates a repeating timer of the given interval, sending updates on the
 	/// given scheduler.
-	public class func interval(interval: NSTimeInterval, onScheduler scheduler: DateScheduler, withLeeway leeway: NSTimeInterval = 0) -> Signal<NSDate> {
+	public class func interval(interval: NSTimeInterval, onScheduler scheduler: DateScheduler, withLeeway leeway: NSTimeInterval) -> Signal<NSDate> {
 		let startDate = NSDate()
 
 		return Signal<NSDate>(initialValue: startDate) { sink in

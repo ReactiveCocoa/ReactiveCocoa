@@ -17,7 +17,7 @@ public protocol Disposable {
 
 /// A disposable that only flips `disposed` upon disposal, and performs no other
 /// work.
-public struct SimpleDisposable: Disposable {
+public final class SimpleDisposable: Disposable {
 	private var _disposed = Atomic(false)
 
 	public var disposed: Bool {
@@ -32,7 +32,7 @@ public struct SimpleDisposable: Disposable {
 }
 
 /// A disposable that will run an action upon disposal.
-public struct ActionDisposable: Disposable {
+public final class ActionDisposable: Disposable {
 	private var action: Atomic<(() -> ())?>
 
 	public var disposed: Bool {
@@ -51,7 +51,7 @@ public struct ActionDisposable: Disposable {
 }
 
 /// A disposable that will dispose of any number of other disposables.
-public struct CompositeDisposable: Disposable {
+public final class CompositeDisposable: Disposable {
 	private var disposables: Atomic<[Disposable]?>
 
 	public var disposed: Bool {
@@ -65,7 +65,7 @@ public struct CompositeDisposable: Disposable {
 	}
 
 	/// Initializes an empty CompositeDisposable.
-	public init() {
+	public convenience init() {
 		self.init([])
 	}
 

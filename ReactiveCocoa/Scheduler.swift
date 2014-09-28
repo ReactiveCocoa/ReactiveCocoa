@@ -35,7 +35,7 @@ public protocol DateScheduler: Scheduler {
 }
 
 /// A scheduler that performs all work synchronously.
-public struct ImmediateScheduler: Scheduler {
+public final class ImmediateScheduler: Scheduler {
 	public init() {}
 
 	public func schedule(action: () -> ()) -> Disposable? {
@@ -45,7 +45,7 @@ public struct ImmediateScheduler: Scheduler {
 }
 
 /// A scheduler that performs all work on the main thread.
-public struct MainScheduler: DateScheduler {
+public final class MainScheduler: DateScheduler {
 	private let innerScheduler = QueueScheduler(dispatch_get_main_queue())
 
     public init() {}
@@ -58,13 +58,22 @@ public struct MainScheduler: DateScheduler {
 		return innerScheduler.scheduleAfter(date, action: action)
 	}
 
+	/// Schedules a recurring action at the given interval, beginning at the
+	/// given start time, and with a reasonable default leeway.
+	///
+	/// Optionally returns a disposable that can be used to cancel the work
+	/// before it begins.
+	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, action: () -> ()) -> Disposable? {
+		return innerScheduler.scheduleAfter(date, repeatingEvery: repeatingEvery, action: action)
+	}
+
 	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> ()) -> Disposable? {
 		return innerScheduler.scheduleAfter(date, repeatingEvery: repeatingEvery, withLeeway: withLeeway, action: action)
 	}
 }
 
 /// A scheduler backed by a serial GCD queue.
-public struct QueueScheduler: DateScheduler {
+public final class QueueScheduler: DateScheduler {
 	internal let queue = dispatch_queue_create("com.github.ReactiveCocoa.QueueScheduler", DISPATCH_QUEUE_SERIAL)
 
 	/// Initializes a scheduler that will target the given queue with its work.
@@ -77,13 +86,13 @@ public struct QueueScheduler: DateScheduler {
 
 	/// Initializes a scheduler that will target the global queue with the given
 	/// priority.
-	public init(_ priority: CLong) {
+	public convenience init(_ priority: CLong) {
 		self.init(dispatch_get_global_queue(priority, 0))
 	}
 
 	/// Initializes a scheduler that will target the default priority global
 	/// queue.
-	public init() {
+	public convenience init() {
 		self.init(DISPATCH_QUEUE_PRIORITY_DEFAULT)
 	}
 
@@ -119,6 +128,17 @@ public struct QueueScheduler: DateScheduler {
 		})
 
 		return d
+	}
+
+	/// Schedules a recurring action at the given interval, beginning at the
+	/// given start time, and with a reasonable default leeway.
+	///
+	/// Optionally returns a disposable that can be used to cancel the work
+	/// before it begins.
+	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, action: () -> ()) -> Disposable? {
+		// Apple's "Power Efficiency Guide for Mac Apps" recommends a leeway of
+		// at least 10% of the timer interval.
+		return scheduleAfter(date, repeatingEvery: repeatingEvery, withLeeway: repeatingEvery * 0.1, action: action)
 	}
 
 	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway leeway: NSTimeInterval, action: () -> ()) -> Disposable? {

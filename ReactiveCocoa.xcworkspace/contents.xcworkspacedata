@@ -11,6 +11,6 @@
       location = "group:External/Quick/Externals/Nimble/Nimble.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:External/swiftz/swiftz_core/swiftz_core.xcodeproj">
+      location = "group:External/LlamaKit/LlamaKit.xcodeproj">
    </FileRef>
 </Workspace>

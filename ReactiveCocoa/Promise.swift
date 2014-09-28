@@ -60,7 +60,7 @@ public final class Promise<T> {
 		let cond = NSCondition()
 		cond.name = "com.github.ReactiveCocoa.Promise.await"
 
-		signal.observe { _ in
+		let disposable = signal.observe { _ in
 			cond.lock()
 			cond.signal()
 			cond.unlock()
@@ -69,14 +69,34 @@ public final class Promise<T> {
 		start()
 
 		cond.lock()
-		while self.signal.current == nil {
+		while signal.current == nil {
 			cond.wait()
 		}
 
-		let result = self.signal.current!
+		let result = signal.current!
 		cond.unlock()
 
+		disposable.dispose()
 		return result
+	}
+
+	/// Performs the given action when the promise completes.
+	///
+	/// This method does not start the promise or block waiting for it.
+	///
+	/// Returns a Disposable that can be used to cancel the given action before
+	/// it occurs.
+	public func notify(action: T -> ()) -> Disposable {
+		let disposable = SerialDisposable()
+
+		disposable.innerDisposable = signal.observe { value in
+			if let value = value {
+				disposable.dispose()
+				action(value)
+			}
+		}
+
+		return disposable
 	}
 
 	/// Creates a Promise that will start the receiver, then run the given
@@ -85,16 +105,10 @@ public final class Promise<T> {
 		return Promise<U> { sink in
 			let disposable = SerialDisposable()
 
-			disposable.innerDisposable = self.signal.observe { maybeResult in
-				if maybeResult == nil {
-					return
-				}
-
-				let innerPromise = action(maybeResult!)
-				disposable.innerDisposable = innerPromise.signal.observe { maybeResult in
-					if let result = maybeResult {
-						sink.put(result)
-					}
+			disposable.innerDisposable = self.notify { result in
+				let innerPromise = action(result)
+				disposable.innerDisposable = innerPromise.notify { result in
+					sink.put(result)
 				}
 
 				innerPromise.start()

@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-import swiftz_core
+import LlamaKit
 
 /// Represents a stream event.
 ///
@@ -38,7 +38,7 @@ public enum Event<T> {
 	public func map<U>(f: T -> U) -> Event<U> {
 		switch self {
 		case let .Next(box):
-			return .Next(Box(f(box.value)))
+			return .Next(Box(f(box.unbox)))
 
 		case let .Error(error):
 			return .Error(error)
@@ -52,7 +52,7 @@ public enum Event<T> {
 	public func event<U>(#ifNext: T -> U, ifError: NSError -> U, ifCompleted: @autoclosure () -> U) -> U {
 		switch self {
 		case let .Next(box):
-			return ifNext(box.value)
+			return ifNext(box.unbox)
 
 		case let .Error(err):
 			return ifError(err)

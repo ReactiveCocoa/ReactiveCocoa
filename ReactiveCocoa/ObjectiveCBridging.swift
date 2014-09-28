@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 GitHub, Inc. All rights reserved.
 //
 
-import swiftz_core
+import LlamaKit
 
 extension RACDisposable: Disposable {}
 extension RACScheduler: DateScheduler {
@@ -81,17 +81,17 @@ extension RACSignal {
 	public func asPromiseOfLastValue(defaultValue: AnyObject? = nil) -> Promise<Result<AnyObject?>> {
 		return Promise { sink in
 			let next = { (obj: AnyObject?) -> () in
-				sink.put(.Value(Box(obj)))
+				sink.put(.Success(Box(obj)))
 			}
 
 			let error = { (maybeError: NSError?) -> () in
 				let nsError = maybeError.orDefault(RACError.Empty.error)
-				sink.put(.Error(nsError))
+				sink.put(.Failure(nsError))
 			}
 
 			let completed = { () -> () in
 				// This will only take effect if we didn't get a `Next` event.
-				sink.put(.Value(Box(defaultValue)))
+				sink.put(.Success(Box(defaultValue)))
 			}
 
 			self.takeLast(1).subscribeNext(next, error: error, completed: completed)
@@ -210,11 +210,11 @@ extension Action {
 					}
 
 					switch maybeResult! {
-					case let .Value(box):
-						subscriber.sendNext(box.value)
+					case let .Success(box):
+						subscriber.sendNext(box.unbox)
 						subscriber.sendCompleted()
 
-					case let .Error(error):
+					case let .Failure(error):
 						subscriber.sendError(error)
 					}
 				}

@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-import swiftz_core
+import LlamaKit
 
 /// A stream that will begin generating Events when a Consumer is attached,
 /// possibly performing some side effects in the process. Events are pushed to
@@ -89,7 +89,7 @@ public struct Producer<T> {
 			let disposable = self.produce { event in
 				switch event {
 				case let .Next(box):
-					let (maybeState, newValue) = f(state.value, box.value)
+					let (maybeState, newValue) = f(state.value, box.unbox)
 					consumer.put(.Next(Box(newValue)))
 
 					if let s = maybeState {
@@ -137,7 +137,7 @@ public struct Producer<T> {
 					let streamDisposable = SerialDisposable()
 					disposable.addDisposable(streamDisposable)
 
-					streamDisposable.innerDisposable = stream.value.produce { event in
+					streamDisposable.innerDisposable = stream.unbox.produce { event in
 						if event.isTerminating {
 							streamDisposable.dispose()
 							disposable.pruneDisposed()
@@ -190,7 +190,7 @@ public struct Producer<T> {
 				switch event {
 				case let .Next(stream):
 					latestDisposable.innerDisposable = nil
-					latestDisposable.innerDisposable = stream.value.produce { innerEvent in
+					latestDisposable.innerDisposable = stream.unbox.produce { innerEvent in
 						switch innerEvent {
 						case let .Completed:
 							latestCompleted.value = true
@@ -319,7 +319,7 @@ public struct Producer<T> {
 		return self.produce { event in
 			switch event {
 			case let .Next(box):
-				property.put(box.value)
+				property.put(box.unbox)
 
 			case let .Error(error):
 				if let handler = errorHandler {
@@ -393,7 +393,7 @@ public struct Producer<T> {
 			let disposable = evidence(self).produce { event in
 				switch event {
 				case let .Next(eventBox):
-					consumer.put(eventBox.value)
+					consumer.put(eventBox.unbox)
 
 				case let .Error(error):
 					consumer.put(.Error(error))
@@ -558,7 +558,7 @@ public struct Producer<T> {
 				switch event {
 				case let .Next(box):
 					values.modify { (var arr) in
-						arr.append(box.value)
+						arr.append(box.unbox)
 						while arr.count > count {
 							arr.removeAtIndex(0)
 						}
@@ -671,9 +671,9 @@ public struct Producer<T> {
 			let maybeValue = f(value, &error)
 
 			if let v = maybeValue {
-				return .Value(Box(v))
+				return .Success(Box(v))
 			} else {
-				return .Error(error.orDefault(RACError.Empty.error))
+				return .Failure(error.orDefault(RACError.Empty.error))
 			}
 		}
 	}
@@ -684,10 +684,10 @@ public struct Producer<T> {
 		return self
 			.map { value in
 				switch f(value) {
-				case let .Value(box):
-					return .single(box.value)
+				case let .Success(box):
+					return .single(box.unbox)
 
-				case let .Error(error):
+				case let .Failure(error):
 					return .error(error)
 				}
 			}

@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
-import swiftz_core
+import LlamaKit
 
 /// A push-driven stream that sends the same values to all observers.
 ///

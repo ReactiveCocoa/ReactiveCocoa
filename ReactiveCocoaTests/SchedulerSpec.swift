@@ -35,6 +35,35 @@ class SchedulerSpec: QuickSpec {
 				expect(didRun).to(beFalsy())
 				expect{didRun}.toEventually(beTruthy())
 			}
+
+			it("should run enqueued actions after a given date") {
+				var didRun = false
+				MainScheduler().scheduleAfter(NSDate()) {
+					didRun = true
+					expect(NSThread.isMainThread()).to(beTruthy())
+				}
+
+				expect(didRun).to(beFalsy())
+				expect{didRun}.toEventually(beTruthy())
+			}
+
+			it("should repeatedly run actions after a given date") {
+				let disposable = SerialDisposable()
+
+				var count = 0
+				let timesToRun = 3
+
+				disposable.innerDisposable = MainScheduler().scheduleAfter(NSDate(), repeatingEvery: 0.01, withLeeway: 0) {
+					expect(NSThread.isMainThread()).to(beTruthy())
+
+					if ++count == timesToRun {
+						disposable.dispose()
+					}
+				}
+
+				expect(count).to(equal(0))
+				expect{count}.toEventually(equal(timesToRun))
+			}
 		}
 
 		describe("QueueScheduler") {
@@ -48,27 +77,153 @@ class SchedulerSpec: QuickSpec {
 				expect{didRun}.toEventually(beTruthy())
 			}
 
-			it("should run enqueued actions serially on the given queue") {
-				let queue = dispatch_queue_create("", DISPATCH_QUEUE_CONCURRENT)
-				dispatch_suspend(queue)
+			describe("on a given queue") {
+				var queue: dispatch_queue_t!
+				var scheduler: QueueScheduler!
 
-				let scheduler = QueueScheduler(queue)
-				var value = 0
+				beforeEach {
+					queue = dispatch_queue_create("", DISPATCH_QUEUE_CONCURRENT)
+					dispatch_suspend(queue)
 
-				for i in 0..<5 {
-					scheduler.schedule {
-						value = value + 1
-					}
+					scheduler = QueueScheduler(queue)
 				}
 
-				expect(value).to(equal(0))
+				it("should run enqueued actions serially on the given queue") {
+					var value = 0
 
-				dispatch_resume(queue)
-				expect{value}.toEventually(equal(5))
+					for i in 0..<5 {
+						scheduler.schedule {
+							expect(NSThread.isMainThread()).to(beFalsy())
+							value++
+						}
+					}
+
+					expect(value).to(equal(0))
+
+					dispatch_resume(queue)
+					expect{value}.toEventually(equal(5))
+				}
+
+				it("should run enqueued actions after a given date") {
+					var didRun = false
+					scheduler.scheduleAfter(NSDate()) {
+						didRun = true
+						expect(NSThread.isMainThread()).to(beFalsy())
+					}
+
+					expect(didRun).to(beFalsy())
+
+					dispatch_resume(queue)
+					expect{didRun}.toEventually(beTruthy())
+				}
+
+				it("should repeatedly run actions after a given date") {
+					let disposable = SerialDisposable()
+
+					var count = 0
+					let timesToRun = 3
+
+					disposable.innerDisposable = scheduler.scheduleAfter(NSDate(), repeatingEvery: 0.01, withLeeway: 0) {
+						expect(NSThread.isMainThread()).to(beFalsy())
+
+						if ++count == timesToRun {
+							disposable.dispose()
+						}
+					}
+
+					expect(count).to(equal(0))
+
+					dispatch_resume(queue)
+					expect{count}.toEventually(equal(timesToRun))
+				}
 			}
 		}
 
 		describe("TestScheduler") {
+			var scheduler: TestScheduler!
+			var startInterval: NSTimeInterval!
+
+			// How much dates are allowed to differ when they should be "equal."
+			let dateComparisonDelta = 0.00001
+
+			beforeEach {
+				let startDate = NSDate()
+				startInterval = startDate.timeIntervalSinceReferenceDate
+
+				scheduler = TestScheduler(startDate: startDate)
+				expect(scheduler.currentDate).to(equal(startDate))
+			}
+
+			it("should run immediately enqueued actions upon advancement") {
+				var string = ""
+
+				scheduler.schedule {
+					string += "foo"
+					expect(NSThread.isMainThread()).to(beTruthy())
+				}
+
+				scheduler.schedule {
+					string += "bar"
+					expect(NSThread.isMainThread()).to(beTruthy())
+				}
+
+				expect(string).to(equal(""))
+
+				let interval = 0.001
+				scheduler.advanceByInterval(interval)
+				expect(scheduler.currentDate.timeIntervalSinceReferenceDate).to(beCloseTo(startInterval + interval, within: dateComparisonDelta))
+
+				expect(string).to(equal("foobar"))
+			}
+
+			it("should run actions when advanced past the target date") {
+				var string = ""
+
+				scheduler.scheduleAfter(15) {
+					string += "bar"
+					expect(NSThread.isMainThread()).to(beTruthy())
+				}
+
+				scheduler.scheduleAfter(5) {
+					string += "foo"
+					expect(NSThread.isMainThread()).to(beTruthy())
+				}
+
+				expect(string).to(equal(""))
+
+				scheduler.advanceByInterval(10)
+				expect(scheduler.currentDate.timeIntervalSinceReferenceDate).to(beCloseTo(startInterval + 10, within: dateComparisonDelta))
+				expect(string).to(equal("foo"))
+
+				scheduler.advanceByInterval(10)
+				expect(scheduler.currentDate.timeIntervalSinceReferenceDate).to(beCloseTo(startInterval + 20, within: dateComparisonDelta))
+				expect(string).to(equal("foobar"))
+			}
+
+			it("should run all remaining actions in order") {
+				var string = ""
+
+				scheduler.scheduleAfter(15) {
+					string += "bar"
+					expect(NSThread.isMainThread()).to(beTruthy())
+				}
+
+				scheduler.scheduleAfter(5) {
+					string += "foo"
+					expect(NSThread.isMainThread()).to(beTruthy())
+				}
+
+				scheduler.schedule {
+					string += "fuzzbuzz"
+					expect(NSThread.isMainThread()).to(beTruthy())
+				}
+
+				expect(string).to(equal(""))
+
+				scheduler.run()
+				expect(scheduler.currentDate).to(equal(NSDate.distantFuture() as? NSDate))
+				expect(string).to(equal("fuzzbuzzfoobar"))
+			}
 		}
 	}
 }

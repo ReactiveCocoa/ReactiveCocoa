@@ -94,7 +94,7 @@ class SchedulerSpec: QuickSpec {
 					for i in 0..<5 {
 						scheduler.schedule {
 							expect(NSThread.isMainThread()).to(beFalsy())
-							value = value + 1
+							value++
 						}
 					}
 

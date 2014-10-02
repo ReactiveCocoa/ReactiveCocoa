@@ -6,6 +6,11 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #import "EXTKeyPathCoding.h"
 #import "EXTScope.h"
 #import "NSArray+RACSequenceAdditions.h"
@@ -74,4 +79,8 @@
 	#import "NSControl+RACTextSignalSupport.h"
 	#import "NSObject+RACAppKitBindings.h"
 	#import "NSText+RACSignalSupport.h"
+#endif
+
+#ifdef __cplusplus
+}
 #endif

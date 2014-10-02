@@ -44,5 +44,34 @@ class SignalSpec: QuickSpec {
 			dispatch_sync(queue) {}
 			expect(observedValues).to(equal([ 0, 1, 2, 3 ]))
 		}
+
+		describe("interval") {
+			var scheduler: TestScheduler!
+
+			beforeEach {
+				scheduler = TestScheduler()
+			}
+
+			it("should fire on the given interval") {
+				let signal = Signal<NSDate>.interval(1, onScheduler: scheduler!)
+
+				var observedDates = 0
+				signal.observe { _ in
+					observedDates++
+					return ()
+				}
+
+				expect(observedDates).to(equal(1))
+
+				scheduler.advanceToDate(signal.current)
+				expect(observedDates).to(equal(1))
+
+				scheduler.advanceByInterval(2.5)
+				expect(observedDates).to(equal(3))
+
+				scheduler.advanceByInterval(1)
+				expect(observedDates).to(equal(4))
+			}
+		}
 	}
 }

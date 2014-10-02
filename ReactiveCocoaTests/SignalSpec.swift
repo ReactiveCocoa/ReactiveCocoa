@@ -92,5 +92,42 @@ class SignalSpec: QuickSpec {
 				expect(observedDates).to(equal(4))
 			}
 		}
+
+		describe("optional unwrapping") {
+			var optionalsSignal: Signal<Int?>!
+			var optionalsSink: SinkOf<Int?>!
+
+			beforeEach {
+				let (signal, sink) = Signal<Int?>.pipeWithInitialValue(nil)
+				optionalsSignal = signal
+				optionalsSink = sink
+
+				expect(optionalsSignal.current).to(beNil())
+			}
+
+			it("should safely unwrap optionals") {
+				let unwrapped = optionalsSignal.unwrapOptionals(identity, initialValue: 0)
+				expect(unwrapped.current).to(equal(0))
+
+				optionalsSink.put(1)
+				expect(unwrapped.current).to(equal(1))
+
+				optionalsSink.put(nil)
+				expect(unwrapped.current).to(equal(1))
+
+				optionalsSink.put(5)
+				expect(unwrapped.current).to(equal(5))
+			}
+
+			it("should forcibly unwrap optionals") {
+				optionalsSink.put(0)
+
+				let unwrapped = optionalsSignal.forceUnwrapOptionals(identity)
+				expect(unwrapped.current).to(equal(0))
+
+				optionalsSink.put(1)
+				expect(unwrapped.current).to(equal(1))
+			}
+		}
 	}
 }

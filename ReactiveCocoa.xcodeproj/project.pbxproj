@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D011F1F319DD13F600A6F6C8 /* SignalSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D011F1F219DD13F600A6F6C8 /* SignalSpec.swift */; };
+		D011F1F419DD13F600A6F6C8 /* SignalSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D011F1F219DD13F600A6F6C8 /* SignalSpec.swift */; };
 		D0297D3619D67D42009986A9 /* Identity.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0297D3519D67D42009986A9 /* Identity.swift */; };
 		D0297D3719D67D42009986A9 /* Identity.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0297D3519D67D42009986A9 /* Identity.swift */; };
 		D0297D3C19D67EF5009986A9 /* LlamaKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0297D3B19D67EF5009986A9 /* LlamaKit.framework */; };
@@ -633,6 +635,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D011F1F219DD13F600A6F6C8 /* SignalSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalSpec.swift; sourceTree = "<group>"; };
 		D0297D3519D67D42009986A9 /* Identity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Identity.swift; sourceTree = "<group>"; };
 		D0297D3B19D67EF5009986A9 /* LlamaKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LlamaKit.framework; path = "../External/LlamaKit/build/Debug-iphoneos/LlamaKit.framework"; sourceTree = "<group>"; };
 		D0297D3D19D67F01009986A9 /* LlamaKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LlamaKit.framework; path = ../External/LlamaKit/build/Debug/LlamaKit.framework; sourceTree = "<group>"; };
@@ -1288,6 +1291,7 @@
 				D095745D197344E3002D44C1 /* DisposableSpec.swift */,
 				D047999E196678F20066B267 /* ObjectiveCBridgingSpec.swift */,
 				D09574601973506C002D44C1 /* SchedulerSpec.swift */,
+				D011F1F219DD13F600A6F6C8 /* SignalSpec.swift */,
 			);
 			name = Swift;
 			sourceTree = "<group>";
@@ -1777,6 +1781,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D011F1F319DD13F600A6F6C8 /* SignalSpec.swift in Sources */,
 				D095745E197344E3002D44C1 /* DisposableSpec.swift in Sources */,
 				D09574611973506C002D44C1 /* SchedulerSpec.swift in Sources */,
 				D047999F196678F20066B267 /* ObjectiveCBridgingSpec.swift in Sources */,
@@ -1901,6 +1906,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D011F1F419DD13F600A6F6C8 /* SignalSpec.swift in Sources */,
 				D095745F197344E3002D44C1 /* DisposableSpec.swift in Sources */,
 				D09574621973506C002D44C1 /* SchedulerSpec.swift in Sources */,
 				D04799A0196678F20066B267 /* ObjectiveCBridgingSpec.swift in Sources */,

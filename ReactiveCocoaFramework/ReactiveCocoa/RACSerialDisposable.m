@@ -10,21 +10,18 @@
 #import <libkern/OSAtomic.h>
 
 @interface RACSerialDisposable () {
-	// A reference to the receiver's `disposable`. This variable must only be
-	// modified atomically.
-	//
-	// If this is `self`, no `disposable` has been set, but the receiver has not
-	// been disposed of yet. `self` is never stored retained.
-	//
-	// If this is `nil`, the receiver has been disposed.
-	//
-	// Otherwise, this is a retained reference to the inner disposable and the
-	// receiver has not been disposed of yet.
-	void * _disposablePtr;
+	// The receiver's `disposable`. This variable must only be referenced while
+	// _spinLock is held.
+	RACDisposable * _disposable;
 
-	// A spinlock to protect access to _disposablePtr.
+	// YES if the receiver has been disposed. This variable must only be modified
+	// while _spinLock is held.
+	BOOL _disposed;
+
+	// A spinlock to protect access to _disposable and _disposed.
 	//
-	// It must be used when _disposablePtr is mutated or retained.
+	// It must be used when _disposable is mutated or retained and when _disposed
+	// is mutated.
 	OSSpinLock _spinLock;
 }
 
@@ -35,15 +32,14 @@
 #pragma mark Properties
 
 - (BOOL)isDisposed {
-	return _disposablePtr == nil;
+	return _disposed;
 }
 
 - (RACDisposable *)disposable {
 	RACDisposable *result;
 
 	OSSpinLockLock(&_spinLock);
-	RACDisposable *disposable = (__bridge id)_disposablePtr;
-	result = (disposable == self ? nil : disposable);
+	result = _disposable;
 	OSSpinLockUnlock(&_spinLock);
 
 	return result;
@@ -61,16 +57,6 @@
 	return serialDisposable;
 }
 
-- (id)init {
-	self = [super init];
-	if (self == nil) return nil;
-
-	_disposablePtr = (__bridge void *)self;
-	OSMemoryBarrier();
-
-	return self;
-}
-
 - (id)initWithBlock:(void (^)(void))block {
 	self = [self init];
 	if (self == nil) return nil;
@@ -80,31 +66,17 @@
 	return self;
 }
 
-- (void)dealloc {
-	self.disposable = nil;
-}
-
 #pragma mark Inner Disposable
 
 - (RACDisposable *)swapInDisposable:(RACDisposable *)newDisposable {
-
 	RACDisposable *existingDisposable;
 	BOOL alreadyDisposed;
-	OSSpinLockLock(&_spinLock);
-	// Have we already been disposed?
-	if (_disposablePtr == nil) {
-		alreadyDisposed = YES;
-	} else {
-		alreadyDisposed = NO;
 
-		if (_disposablePtr != (__bridge void *)self) {
-			existingDisposable = CFBridgingRelease(_disposablePtr);
-		}
-		if (newDisposable != nil) {
-			_disposablePtr = (void *)CFBridgingRetain(newDisposable);
-		} else {
-			_disposablePtr = (__bridge void *)self;
-		}
+	OSSpinLockLock(&_spinLock);
+	alreadyDisposed = _disposed;
+	if (!alreadyDisposed) {
+		existingDisposable = _disposable;
+		_disposable = newDisposable;
 	}
 	OSSpinLockUnlock(&_spinLock);
 
@@ -122,10 +94,11 @@
 	RACDisposable *existingDisposable;
 
 	OSSpinLockLock(&_spinLock);
-	if (_disposablePtr != (__bridge void *)self) {
-		existingDisposable = CFBridgingRelease(_disposablePtr);
+	if (!_disposed) {
+		existingDisposable = _disposable;
+		_disposed = YES;
+		_disposable = nil;
 	}
-	_disposablePtr = nil;
 	OSSpinLockUnlock(&_spinLock);
 	
 	[existingDisposable dispose];

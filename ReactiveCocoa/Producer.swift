@@ -619,7 +619,8 @@ public struct Producer<T> {
 					}
 
 				default:
-					scheduler.scheduleAfter(NSDate(timeIntervalSinceNow: interval)) {
+					let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
+					scheduler.scheduleAfter(date) {
 						consumer.put(event)
 					}
 				}
@@ -646,7 +647,8 @@ public struct Producer<T> {
 	/// completed by that point.
 	public func timeoutWithError(error: NSError, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> Producer<T> {
 		return Producer { consumer in
-			let schedulerDisposable = scheduler.scheduleAfter(NSDate(timeIntervalSinceNow: interval)) {
+			let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
+			let schedulerDisposable = scheduler.scheduleAfter(date) {
 				consumer.put(.Error(error))
 			}
 

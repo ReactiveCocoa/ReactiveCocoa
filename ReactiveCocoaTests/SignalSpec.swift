@@ -129,5 +129,70 @@ class SignalSpec: QuickSpec {
 				expect(unwrapped.current).to(equal(1))
 			}
 		}
+
+		describe("signals of signals") {
+			var signalsSignal: Signal<Signal<Int>>!
+			var signalsSink: SinkOf<Signal<Int>>!
+
+			beforeEach {
+				let (signal, sink) = Signal.pipeWithInitialValue(Signal.constant(0))
+				signalsSignal = signal
+				signalsSink = sink
+
+				expect(signalsSignal.current.current).to(equal(0))
+			}
+
+			it("should merge") {
+				let merged = signalsSignal.merge(identity)
+				expect(merged.current).to(equal(0))
+
+				let (firstSignal, firstSink) = Signal.pipeWithInitialValue(1)
+				signalsSink.put(firstSignal)
+				expect(merged.current).to(equal(1))
+
+				let (secondSignal, secondSink) = Signal.pipeWithInitialValue(2)
+				signalsSink.put(secondSignal)
+				expect(merged.current).to(equal(2))
+
+				firstSink.put(5)
+				expect(merged.current).to(equal(5))
+
+				secondSink.put(10)
+				expect(merged.current).to(equal(10))
+
+				let (thirdSignal, thirdSink) = Signal.pipeWithInitialValue(15)
+				signalsSink.put(thirdSignal)
+				expect(merged.current).to(equal(15))
+
+				secondSink.put(20)
+				expect(merged.current).to(equal(20))
+			}
+
+			it("should switch") {
+				let switched = signalsSignal.switchToLatest(identity)
+				expect(switched.current).to(equal(0))
+
+				let (firstSignal, firstSink) = Signal.pipeWithInitialValue(1)
+				signalsSink.put(firstSignal)
+				expect(switched.current).to(equal(1))
+
+				let (secondSignal, secondSink) = Signal.pipeWithInitialValue(2)
+				signalsSink.put(secondSignal)
+				expect(switched.current).to(equal(2))
+
+				firstSink.put(5)
+				expect(switched.current).to(equal(2))
+
+				secondSink.put(10)
+				expect(switched.current).to(equal(10))
+
+				let (thirdSignal, thirdSink) = Signal.pipeWithInitialValue(15)
+				signalsSink.put(thirdSignal)
+				expect(switched.current).to(equal(15))
+
+				secondSink.put(20)
+				expect(switched.current).to(equal(15))
+			}
+		}
 	}
 }

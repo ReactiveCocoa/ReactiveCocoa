@@ -265,7 +265,7 @@ public final class Signal<T> {
 
 	/// Combines each value in the stream with its preceding value, starting
 	/// with `initialValue`.
-	public func combinePrevious(initialValue: T) -> Signal<(T, T)> {
+	public func combinePreviousWithStart(initialValue: T) -> Signal<(T, T)> {
 		let previous = Atomic(initialValue)
 
 		return Signal<(T, T)?>(initialValue: nil) { sink in

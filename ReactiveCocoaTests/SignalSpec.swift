@@ -270,6 +270,22 @@ class SignalSpec: QuickSpec {
 					expect(terminating.current).to(beNil())
 				}
 			}
+
+			describe("combinePrevious") {
+				it("should combine each value with the previous") {
+					let combined = signal.combinePreviousWithStart(-1)
+					expect(combined.current.0).to(equal(-1))
+					expect(combined.current.1).to(equal(0))
+
+					sink.put(5)
+					expect(combined.current.0).to(equal(0))
+					expect(combined.current.1).to(equal(5))
+
+					sink.put(6)
+					expect(combined.current.0).to(equal(5))
+					expect(combined.current.1).to(equal(6))
+				}
+			}
 		}
 	}
 }

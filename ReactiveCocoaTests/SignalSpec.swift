@@ -38,7 +38,7 @@ class SignalSpec: QuickSpec {
 				expect(signal.current).to(equal(0))
 
 				var observedValues: [Int] = []
-				signal.observe { observedValues.append($0) }
+				signal.observe(observedValues.append)
 				expect(observedValues).to(equal([ 0 ]))
 
 				dispatch_resume(queue)
@@ -51,7 +51,7 @@ class SignalSpec: QuickSpec {
 				expect(signal.current).to(equal(0))
 
 				var observedValues: [Int] = []
-				signal.observe { observedValues.append($0) }
+				signal.observe(observedValues.append)
 				expect(observedValues).to(equal([ 0 ]))
 
 				sink.put(1)

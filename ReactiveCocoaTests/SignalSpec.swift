@@ -195,48 +195,80 @@ class SignalSpec: QuickSpec {
 			}
 		}
 
-		describe("map") {
-			it("should map values to other values") {
-				let (signal, sink) = Signal.pipeWithInitialValue(0)
+		describe("value operations") {
+			var signal: Signal<Int>!
+			var sink: SinkOf<Int>!
 
-				let mapped = signal.map { $0.description }
-				expect(mapped.current).to(equal("0"))
-
-				sink.put(2)
-				expect(mapped.current).to(equal("2"))
-
-				sink.put(15)
-				expect(mapped.current).to(equal("15"))
+			beforeEach {
+				let (a, b) = Signal<Int>.pipeWithInitialValue(0)
+				signal = a
+				sink = b
 			}
-		}
 
-		describe("scan") {
-			it("should scan and accumulate a value") {
-				let (signal, sink) = Signal.pipeWithInitialValue(0)
+			describe("map") {
+				it("should map values to other values") {
+					let mapped = signal.map { $0.description }
+					expect(mapped.current).to(equal("0"))
 
-				let accumulator = signal.scanWithStart([]) { $0 + [ $1 ] }
-				expect(accumulator.current).to(equal([ 0 ]))
+					sink.put(2)
+					expect(mapped.current).to(equal("2"))
 
-				sink.put(1)
-				expect(accumulator.current).to(equal([ 0, 1 ]))
-
-				sink.put(3)
-				expect(accumulator.current).to(equal([ 0, 1, 3 ]))
+					sink.put(15)
+					expect(mapped.current).to(equal("15"))
+				}
 			}
-		}
 
-		describe("take") {
-			it("should stop after the given number of values") {
-				let (signal, sink) = Signal.pipeWithInitialValue(0)
+			describe("scan") {
+				it("should scan and accumulate a value") {
+					let accumulator = signal.scanWithStart([]) { $0 + [ $1 ] }
+					expect(accumulator.current).to(equal([ 0 ]))
 
-				let terminating = signal.take(2)
-				expect(terminating.current).to(equal(0))
+					sink.put(1)
+					expect(accumulator.current).to(equal([ 0, 1 ]))
 
-				sink.put(1)
-				expect(terminating.current).to(equal(1))
+					sink.put(3)
+					expect(accumulator.current).to(equal([ 0, 1, 3 ]))
+				}
+			}
 
-				sink.put(2)
-				expect(terminating.current).to(equal(1))
+			describe("take") {
+				it("should stop after the given number of values") {
+					let terminating = signal.take(2)
+					expect(terminating.current).to(equal(0))
+
+					sink.put(1)
+					expect(terminating.current).to(equal(1))
+
+					sink.put(2)
+					expect(terminating.current).to(equal(1))
+				}
+			}
+
+			describe("takeWhile") {
+				it("should stop when a value fails") {
+					let terminating = signal.takeWhile { $0 < 5 }
+					expect(terminating.current).to(equal(0))
+
+					sink.put(1)
+					expect(terminating.current).to(equal(1))
+
+					sink.put(2)
+					expect(terminating.current).to(equal(2))
+
+					sink.put(5)
+					expect(terminating.current).to(equal(2))
+
+					sink.put(3)
+					expect(terminating.current).to(equal(2))
+				}
+
+				it("should stop immediately if the current value fails") {
+					let terminating = signal.takeWhile { $0 > 0 }
+					expect(terminating.current).to(beNil())
+
+					sink.put(1)
+					expect(terminating.current).to(beNil())
+				}
 			}
 		}
 	}

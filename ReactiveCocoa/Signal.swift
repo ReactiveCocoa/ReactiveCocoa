@@ -210,7 +210,7 @@ public final class Signal<T> {
 
 	/// Combines all the values in the stream, forwarding the result of each
 	/// intermediate combination step.
-	public func scan<U>(initialValue: U, _ f: (U, T) -> U) -> Signal<U> {
+	public func scanWithStart<U>(initialValue: U, _ f: (U, T) -> U) -> Signal<U> {
 		let previous = Atomic(initialValue)
 
 		return Signal<U?>(initialValue: nil) { sink in

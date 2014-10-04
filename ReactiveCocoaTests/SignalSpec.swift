@@ -209,5 +209,20 @@ class SignalSpec: QuickSpec {
 				expect(mapped.current).to(equal("15"))
 			}
 		}
+
+		describe("scan") {
+			it("should scan and accumulate a value") {
+				let (signal, sink) = Signal.pipeWithInitialValue(0)
+
+				let accumulator = signal.scanWithStart([]) { $0 + [ $1 ] }
+				expect(accumulator.current).to(equal([ 0 ]))
+
+				sink.put(1)
+				expect(accumulator.current).to(equal([ 0, 1 ]))
+
+				sink.put(3)
+				expect(accumulator.current).to(equal([ 0, 1, 3 ]))
+			}
+		}
 	}
 }

@@ -334,6 +334,28 @@ class SignalSpec: QuickSpec {
 					expect(filtered.current).to(beNil())
 				}
 			}
+
+			describe("skipRepeats") {
+				it("should ignore successive occurrences of the same value") {
+					let skipped = signal.skipRepeats(identity)
+
+					var values: [Int] = []
+					skipped.observe(values.append)
+					expect(values).to(equal([ 0 ]))
+
+					sink.put(0)
+					expect(values).to(equal([ 0 ]))
+
+					sink.put(1)
+					expect(values).to(equal([ 0, 1 ]))
+
+					sink.put(1)
+					expect(values).to(equal([ 0, 1 ]))
+
+					sink.put(0)
+					expect(values).to(equal([ 0, 1, 0 ]))
+				}
+			}
 		}
 	}
 }

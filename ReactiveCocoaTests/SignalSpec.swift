@@ -286,6 +286,22 @@ class SignalSpec: QuickSpec {
 					expect(combined.current.1).to(equal(6))
 				}
 			}
+
+			describe("skip") {
+				it("should nil out skipped values") {
+					let skipped = signal.skip(2)
+					expect(skipped.current).to(beNil())
+
+					sink.put(0)
+					expect(skipped.current).to(beNil())
+
+					sink.put(0)
+					expect(skipped.current).to(equal(0))
+
+					sink.put(1)
+					expect(skipped.current).to(equal(1))
+				}
+			}
 		}
 	}
 }

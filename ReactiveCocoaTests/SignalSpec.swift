@@ -302,6 +302,22 @@ class SignalSpec: QuickSpec {
 					expect(skipped.current).to(equal(1))
 				}
 			}
+
+			describe("skipWhile") {
+				it("should nil out skipped values") {
+					let skipped = signal.skipWhile { $0 < 2 }
+					expect(skipped.current).to(beNil())
+
+					sink.put(1)
+					expect(skipped.current).to(beNil())
+
+					sink.put(2)
+					expect(skipped.current).to(equal(2))
+
+					sink.put(1)
+					expect(skipped.current).to(equal(1))
+				}
+			}
 		}
 	}
 }

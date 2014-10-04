@@ -228,7 +228,7 @@ public final class Signal<T> {
 	/// Returns a stream that will yield the first `count` values from the
 	/// receiver, where `count` is greater than zero.
 	public func take(count: Int) -> Signal<T> {
-		assert(count > 0)
+		precondition(count > 0)
 
 		let soFar = Atomic(0)
 

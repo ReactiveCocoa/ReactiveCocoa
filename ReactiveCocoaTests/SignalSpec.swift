@@ -224,5 +224,20 @@ class SignalSpec: QuickSpec {
 				expect(accumulator.current).to(equal([ 0, 1, 3 ]))
 			}
 		}
+
+		describe("take") {
+			it("should stop after the given number of values") {
+				let (signal, sink) = Signal.pipeWithInitialValue(0)
+
+				let terminating = signal.take(2)
+				expect(terminating.current).to(equal(0))
+
+				sink.put(1)
+				expect(terminating.current).to(equal(1))
+
+				sink.put(2)
+				expect(terminating.current).to(equal(1))
+			}
+		}
 	}
 }

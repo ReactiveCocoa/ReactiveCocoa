@@ -318,6 +318,22 @@ class SignalSpec: QuickSpec {
 					expect(skipped.current).to(equal(1))
 				}
 			}
+
+			describe("filter") {
+				it("should nil values that fail the predicate") {
+					let filtered = signal.filter { $0 >= 2 }
+					expect(filtered.current).to(beNil())
+
+					sink.put(1)
+					expect(filtered.current).to(beNil())
+
+					sink.put(2)
+					expect(filtered.current).to(equal(2))
+
+					sink.put(1)
+					expect(filtered.current).to(beNil())
+				}
+			}
 		}
 	}
 }

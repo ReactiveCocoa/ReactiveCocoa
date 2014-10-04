@@ -194,5 +194,20 @@ class SignalSpec: QuickSpec {
 				expect(switched.current).to(equal(15))
 			}
 		}
+
+		describe("map") {
+			it("should map values to other values") {
+				let (signal, sink) = Signal.pipeWithInitialValue(0)
+
+				let mapped = signal.map { $0.description }
+				expect(mapped.current).to(equal("0"))
+
+				sink.put(2)
+				expect(mapped.current).to(equal("2"))
+
+				sink.put(15)
+				expect(mapped.current).to(equal("15"))
+			}
+		}
 	}
 }

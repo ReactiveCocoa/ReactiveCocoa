@@ -10,6 +10,10 @@ import LlamaKit
 
 extension RACDisposable: Disposable {}
 extension RACScheduler: DateScheduler {
+	public var currentDate: NSDate {
+		return NSDate()
+	}
+
 	public func schedule(action: () -> ()) -> Disposable? {
 		return self.schedule(action)
 	}

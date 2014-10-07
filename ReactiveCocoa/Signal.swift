@@ -505,9 +505,12 @@ public final class Signal<T> {
 	/// that passes the given predicate.
 	public func firstPassingTest(pred: T -> Bool) -> Promise<T> {
 		return Promise { sink in
-			self.take(1).observe { value in
+			let disposable = SerialDisposable()
+
+			disposable.innerDisposable = self.observe { value in
 				if pred(value) {
 					sink.put(value)
+					disposable.dispose()
 				}
 			}
 

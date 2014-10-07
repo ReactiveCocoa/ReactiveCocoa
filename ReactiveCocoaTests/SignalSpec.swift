@@ -616,5 +616,45 @@ class SignalSpec: QuickSpec {
 				expect(values).to(equal([ -1, 0, 1, 2, 3 ]))
 			}
 		}
+
+		describe("firstPassingTest") {
+			var signal: Signal<Int>!
+			var sink: SinkOf<Int>!
+
+			beforeEach {
+				let (a, b) = Signal<Int>.pipeWithInitialValue(0)
+				signal = a
+				sink = b
+			}
+
+			it("should return a promise that yields immediately if the current value passes") {
+				let promise = signal.firstPassingTest { $0 == 0 }
+				expect(promise.await()).to(equal(0))
+			}
+
+			it("should return a promise that yields once a value passes") {
+				let promise = signal.firstPassingTest { $0 == 1 }
+
+				promise.start()
+				expect(promise.signal.current).to(beNil())
+
+				sink.put(2)
+				expect(promise.signal.current).to(beNil())
+
+				sink.put(1)
+				expect(promise.signal.current).to(equal(1))
+			}
+
+			it("should only begin observing after the promise is started") {
+				let promise = signal.firstPassingTest { $0 == 0 }
+				sink.put(1)
+
+				promise.start()
+				expect(promise.signal.current).to(beNil())
+
+				sink.put(0)
+				expect(promise.signal.current).to(equal(0))
+			}
+		}
 	}
 }

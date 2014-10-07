@@ -53,7 +53,9 @@ public struct Producer<T> {
 	/// be multi-pass (i.e., support obtaining and using multiple generators).
 	public static func fromSequence<S: SequenceType where S.Generator.Element == T>(sequence: S) -> Producer<T> {
 		return Producer { consumer in
-			for value in sequence {
+			var generator = sequence.generate()
+
+			while let value: T = generator.next() {
 				consumer.put(.Next(Box(value)))
 			}
 

@@ -459,20 +459,24 @@ public final class Signal<T> {
 	///
 	/// If multiple values are received before the interval has elapsed, the
 	/// latest value is the one that will be passed on.
-	public func throttle(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> Signal<T> {
-		return Signal(initialValue: self.current) { sink in
-			let previousDate = Atomic(scheduler.currentDate)
+	///
+	/// Returns a Signal that will default to `nil`, send the receiver's initial
+	/// value on the given scheduler, then forward any remaining values after
+	/// throttling on the given scheduler.
+	public func throttle(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> Signal<T?> {
+		return Signal<T?>(initialValue: nil) { sink in
+			let previousDate = Atomic<NSDate?>(nil)
 			let disposable = SerialDisposable()
 
 			self.observe { value in
 				disposable.innerDisposable = nil
 
 				let now = scheduler.currentDate
-				let (_, scheduleDate) = previousDate.modify { date -> (NSDate, NSDate) in
-					if now.timeIntervalSinceDate(date) >= interval {
+				let (_, scheduleDate) = previousDate.modify { date -> (NSDate?, NSDate) in
+					if date == nil || now.timeIntervalSinceDate(date!) >= interval {
 						return (now, now)
 					} else {
-						return (date, date.dateByAddingTimeInterval(interval))
+						return (date, date!.dateByAddingTimeInterval(interval))
 					}
 				}
 

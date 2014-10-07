@@ -516,7 +516,7 @@ class SignalSpec: QuickSpec {
 						expect(values).to(equal([]))
 					}
 				}
-				
+
 				expect(values).to(equal([]))
 
 				scheduler.advanceByInterval(1.5)
@@ -527,13 +527,82 @@ class SignalSpec: QuickSpec {
 
 				scheduler.advanceByInterval(1)
 				expect(values).to(equal([ 0, 1 ]))
-				
+
 				sink.put(2)
 				sink.put(3)
 				expect(values).to(equal([ 0, 1 ]))
 
 				scheduler.advanceByInterval(1.5)
 				expect(values).to(equal([ 0, 1, 2, 3 ]))
+			}
+		}
+
+		describe("throttle") {
+			var signal: Signal<Int>!
+			var sink: SinkOf<Int>!
+
+			var scheduler: TestScheduler!
+			var throttled: Signal<Int?>!
+			var values: [Int] = []
+
+			beforeEach {
+				let (a, b) = Signal<Int>.pipeWithInitialValue(0)
+				signal = a
+				sink = b
+
+				scheduler = TestScheduler()
+				throttled = signal.throttle(1, onScheduler: scheduler)
+
+				values = []
+				throttled.observe {
+					if let value = $0 {
+						values.append(value)
+					} else {
+						expect(values).to(equal([]))
+					}
+				}
+			}
+
+			it("should immediately schedule unthrottled values") {
+				expect(values).to(equal([]))
+
+				scheduler.advanceByInterval(0.001)
+				expect(values).to(equal([ 0 ]))
+
+				scheduler.advanceByInterval(1.5)
+				sink.put(1)
+				expect(values).to(equal([ 0 ]))
+
+				scheduler.advanceByInterval(0.001)
+				expect(values).to(equal([ 0, 1 ]))
+
+				scheduler.advanceByInterval(5)
+				sink.put(2)
+				expect(values).to(equal([ 0, 1 ]))
+
+				scheduler.advanceByInterval(0.001)
+				expect(values).to(equal([ 0, 1, 2 ]))
+			}
+
+			it("should forward the latest throttled value") {
+				sink.put(1)
+				sink.put(2)
+				expect(values).to(equal([]))
+
+				scheduler.advanceByInterval(1.5)
+				expect(values).to(equal([ 2 ]))
+
+				sink.put(3)
+				scheduler.advanceByInterval(0.25)
+				expect(values).to(equal([ 2, 3 ]))
+
+				sink.put(4)
+				scheduler.advanceByInterval(0.25)
+				expect(values).to(equal([ 2, 3 ]))
+
+				sink.put(5)
+				scheduler.advanceByInterval(1.5)
+				expect(values).to(equal([ 2, 3, 5 ]))
 			}
 		}
 	}

@@ -656,5 +656,24 @@ class SignalSpec: QuickSpec {
 				expect(promise.signal.current).to(equal(0))
 			}
 		}
+
+		describe("apply") {
+			it("should apply the latest function to the latest value") {
+				let (signal, sink) = Signal.pipeWithInitialValue(0)
+				let (funcSignal, funcSink) = Signal.pipeWithInitialValue { (x: Int) in x }
+
+				let applied = signal.apply(funcSignal)
+				expect(applied.current).to(equal(0))
+
+				sink.put(1)
+				expect(applied.current).to(equal(1))
+
+				funcSink.put { $0 * 2 }
+				expect(applied.current).to(equal(2))
+
+				sink.put(2)
+				expect(applied.current).to(equal(4))
+			}
+		}
 	}
 }

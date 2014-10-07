@@ -12,7 +12,7 @@
 
 #define RAC_BACKTRACE_MAX_CALL_STACK_FRAMES 128
 
-#ifdef DEBUG
+#ifdef RAC_DEBUG_BACKTRACE
 
 // Undefine the macros that hide the real GCD functions.
 #undef dispatch_async
@@ -147,7 +147,7 @@ static void RACExceptionHandler (NSException *ex) {
 
 + (void)load {
 	@autoreleasepool {
-		NSString *libraries = NSProcessInfo.processInfo.environment[@"DYLD_INSERT_LIBRARIES"];
+		NSString *libraries = [NSProcessInfo.processInfo.environment objectForKey:@"DYLD_INSERT_LIBRARIES"];
 
 		// Don't install our handlers if we're not actually intercepting function
 		// calls.

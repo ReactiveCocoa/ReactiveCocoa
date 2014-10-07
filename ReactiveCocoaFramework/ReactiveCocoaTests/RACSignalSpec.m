@@ -346,8 +346,11 @@ describe(@"subscribing", ^{
 	
 	it(@"should automatically dispose of other subscriptions from +createSignal:", ^{
 		__block BOOL innerDisposed = NO;
+		__block id<RACSubscriber> innerSubscriber = nil;
 
 		RACSignal *innerSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			// Keep the subscriber alive so it doesn't trigger disposal on dealloc
+			innerSubscriber = subscriber;
 			return [RACDisposable disposableWithBlock:^{
 				innerDisposed = YES;
 			}];
@@ -546,7 +549,10 @@ describe(@"-takeUntilReplacement:", ^{
 
 	it(@"should dispose of the receiver when the replacement signal sends an event", ^{
 		__block BOOL receiverDisposed = NO;
+		__block id<RACSubscriber> receiverSubscriber = nil;
 		RACSignal *receiver = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			// Keep the subscriber alive so it doesn't trigger disposal on dealloc
+			receiverSubscriber = subscriber;
 			return [RACDisposable disposableWithBlock:^{
 				receiverDisposed = YES;
 			}];
@@ -1361,23 +1367,6 @@ describe(@"memory management", ^{
 		expect(deallocd).will.beTruthy();
 	});
 
-	it(@"should retain signals for a single run loop iteration", ^{
-		__block BOOL deallocd = NO;
-
-		@autoreleasepool {
-			RACSignal *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
-				return nil;
-			}];
-
-			[signal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-				deallocd = YES;
-			}]];
-		}
-
-		expect(deallocd).to.beFalsy();
-		expect(deallocd).will.beTruthy();
-	});
-
 	it(@"should dealloc signals if the signal immediately completes", ^{
 		__block BOOL deallocd = NO;
 		@autoreleasepool {
@@ -1475,36 +1464,6 @@ describe(@"memory management", ^{
 		Expecta.asynchronousTestTimeout = originalTestTimeout;
 	});
 
-	it(@"should retain signals when subscribing", ^{
-		__block BOOL deallocd = NO;
-
-		RACDisposable *disposable;
-		@autoreleasepool {
-			@autoreleasepool {
-				@autoreleasepool {
-					RACSignal *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
-						return nil;
-					}];
-					
-					[signal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-						deallocd = YES;
-					}]];
-					
-					disposable = [signal subscribeCompleted:^{}];
-				}
-				
-				// Spin the run loop to account for RAC magic that retains the
-				// signal for a single iteration.
-				[NSRunLoop.mainRunLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate date]];
-			}
-			
-			expect(deallocd).to.beFalsy();
-			
-			[disposable dispose];
-		}
-		expect(deallocd).will.beTruthy();
-	});
-
 	it(@"should retain intermediate signals when subscribing", ^{
 		RACSubject *subject = [RACSubject subject];
 		expect(subject).notTo.beNil();
@@ -1515,21 +1474,15 @@ describe(@"memory management", ^{
 		RACDisposable *disposable;
 
 		@autoreleasepool {
-			@autoreleasepool {
-				RACSignal *intermediateSignal = [subject doNext:^(id _) {
-					gotNext = YES;
-				}];
+			RACSignal *intermediateSignal = [subject doNext:^(id _) {
+				gotNext = YES;
+			}];
 
-				expect(intermediateSignal).notTo.beNil();
+			expect(intermediateSignal).notTo.beNil();
 
-				disposable = [intermediateSignal subscribeCompleted:^{
-					completed = YES;
-				}];
-			}
-
-			// Spin the run loop to account for RAC magic that retains the
-			// signal for a single iteration.
-			[NSRunLoop.mainRunLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate date]];
+			disposable = [intermediateSignal subscribeCompleted:^{
+				completed = YES;
+			}];
 		}
 
 		[subject sendNext:@5];
@@ -3385,7 +3338,10 @@ describe(@"-concat", ^{
 
 	it(@"should dispose the current signal", ^{
 		__block BOOL disposed = NO;
+		__block id<RACSubscriber> innerSubscriber = nil;
 		RACSignal *innerSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			// Keep the subscriber alive so it doesn't trigger disposal on dealloc
+			innerSubscriber = subscriber;
 			return [RACDisposable disposableWithBlock:^{
 				disposed = YES;
 			}];
@@ -3402,7 +3358,10 @@ describe(@"-concat", ^{
 
 	it(@"should dispose later signals", ^{
 		__block BOOL disposed = NO;
+		__block id<RACSubscriber> laterSubscriber = nil;
 		RACSignal *laterSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+			// Keep the subscriber alive so it doesn't trigger disposal on dealloc
+			laterSubscriber = subscriber;
 			return [RACDisposable disposableWithBlock:^{
 				disposed = YES;
 			}];

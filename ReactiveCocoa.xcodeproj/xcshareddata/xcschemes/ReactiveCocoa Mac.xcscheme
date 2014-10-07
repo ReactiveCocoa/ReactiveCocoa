@@ -88,7 +88,7 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
-      buildConfiguration = "Release"
+      buildConfiguration = "Profile"
       debugDocumentVersioning = "YES">
       <MacroExpansion>
          <BuildableReference

@@ -469,5 +469,34 @@ class SignalSpec: QuickSpec {
 				expect(combined.current.1).to(equal("foo"))
 			}
 		}
+
+		describe("sampleOn") {
+			it("should sample the current value whenever the sampler fires") {
+				let (signal, sink) = Signal.pipeWithInitialValue(0)
+				let (samplerSignal, samplerSink) = Signal.pipeWithInitialValue(())
+
+				var values: [Int] = []
+				signal.sampleOn(samplerSignal).observe(values.append)
+				expect(values).to(equal([ 0 ]))
+
+				sink.put(1)
+				expect(values).to(equal([ 0 ]))
+
+				sink.put(2)
+				expect(values).to(equal([ 0 ]))
+
+				samplerSink.put(())
+				expect(values).to(equal([ 0, 2 ]))
+
+				samplerSink.put(())
+				expect(values).to(equal([ 0, 2, 2 ]))
+
+				sink.put(3)
+				expect(values).to(equal([ 0, 2, 2 ]))
+
+				samplerSink.put(())
+				expect(values).to(equal([ 0, 2, 2, 3 ]))
+			}
+		}
 	}
 }

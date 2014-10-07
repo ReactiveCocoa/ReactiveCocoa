@@ -442,5 +442,32 @@ class SignalSpec: QuickSpec {
 				expect(values).to(equal([ 0, 1 ]))
 			}
 		}
+
+		describe("combineLatestWith") {
+			it("should combine the latest values from each input") {
+				let (signal1, sink1) = Signal.pipeWithInitialValue(0)
+				let (signal2, sink2) = Signal.pipeWithInitialValue("")
+
+				let combined = signal1.combineLatestWith(signal2)
+				expect(combined.current.0).to(equal(0))
+				expect(combined.current.1).to(equal(""))
+
+				sink1.put(1)
+				expect(combined.current.0).to(equal(1))
+				expect(combined.current.1).to(equal(""))
+
+				sink1.put(2)
+				expect(combined.current.0).to(equal(2))
+				expect(combined.current.1).to(equal(""))
+
+				sink2.put("foo")
+				expect(combined.current.0).to(equal(2))
+				expect(combined.current.1).to(equal("foo"))
+
+				sink1.put(3)
+				expect(combined.current.0).to(equal(3))
+				expect(combined.current.1).to(equal("foo"))
+			}
+		}
 	}
 }

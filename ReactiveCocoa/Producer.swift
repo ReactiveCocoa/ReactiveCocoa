@@ -46,6 +46,23 @@ public struct Producer<T> {
 		}
 	}
 
+	/// Creates a Producer that will iterate over the given sequence whenever a
+	/// Consumer is attached.
+	///
+	/// If the Producer will be consumed multiple times, the given sequence must
+	/// be multi-pass (i.e., support obtaining and using multiple generators).
+	public static func fromSequence<S: SequenceType where S.Generator.Element == T>(sequence: S) -> Producer<T> {
+		return Producer { consumer in
+			var generator = sequence.generate()
+
+			while let value: T = generator.next() {
+				consumer.put(.Next(Box(value)))
+			}
+
+			consumer.put(.Completed)
+		}
+	}
+
 	/// Creates a Producer that will never send any events.
 	public static func never() -> Producer<T> {
 		return Producer { _ in () }

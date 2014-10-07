@@ -357,5 +357,90 @@ class SignalSpec: QuickSpec {
 				}
 			}
 		}
+
+		describe("buffer") {
+			var signal: Signal<Int>!
+			var sink: SinkOf<Int>!
+
+			beforeEach {
+				let (a, b) = Signal<Int>.pipeWithInitialValue(0)
+				signal = a
+				sink = b
+			}
+
+			it("should buffer an unlimited number of values") {
+				let (producer, _) = signal.buffer()
+
+				sink.put(1)
+				sink.put(2)
+
+				var values: [Int] = []
+				producer.produce(Consumer(next: values.append))
+				expect(values).to(equal([ 0, 1, 2 ]))
+
+				sink.put(3)
+				expect(values).to(equal([ 0, 1, 2, 3 ]))
+
+				values = []
+				producer.produce(Consumer(next: values.append))
+				expect(values).to(equal([ 0, 1, 2, 3 ]))
+			}
+
+			it("should buffer a limited number of values") {
+				let (producer, _) = signal.buffer(capacity: 2)
+
+				sink.put(1)
+				sink.put(2)
+
+				var values: [Int] = []
+				producer.produce(Consumer(next: values.append))
+				expect(values).to(equal([ 1, 2 ]))
+
+				sink.put(3)
+				expect(values).to(equal([ 1, 2, 3 ]))
+
+				values = []
+				producer.produce(Consumer(next: values.append))
+				expect(values).to(equal([ 2, 3 ]))
+			}
+
+			it("should allow buffering zero values") {
+				let (producer, _) = signal.buffer(capacity: 0)
+
+				sink.put(1)
+				sink.put(2)
+
+				var values: [Int] = []
+				producer.produce(Consumer(next: values.append))
+				expect(values).to(equal([]))
+
+				sink.put(3)
+				expect(values).to(equal([ 3 ]))
+
+				values = []
+				producer.produce(Consumer(next: values.append))
+				expect(values).to(equal([]))
+			}
+
+			it("should stop buffering when disposed") {
+				let (producer, disposable) = signal.buffer()
+
+				sink.put(1)
+				disposable.dispose()
+
+				sink.put(2)
+
+				var values: [Int] = []
+				producer.produce(Consumer(next: values.append))
+				expect(values).to(equal([ 0, 1 ]))
+
+				sink.put(3)
+				expect(values).to(equal([ 0, 1 ]))
+
+				values = []
+				producer.produce(Consumer(next: values.append))
+				expect(values).to(equal([ 0, 1 ]))
+			}
+		}
 	}
 }

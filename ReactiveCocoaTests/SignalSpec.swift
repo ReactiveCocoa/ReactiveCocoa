@@ -81,15 +81,15 @@ class SignalSpec: QuickSpec {
 				}
 
 				expect(observedDates).to(equal(1))
-
-				scheduler.advanceToDate(signal.current)
-				expect(observedDates).to(equal(1))
+				expect(signal.current).to(equal(scheduler.currentDate))
 
 				scheduler.advanceByInterval(2.5)
 				expect(observedDates).to(equal(3))
+				expect(signal.current).to(equal(scheduler.currentDate))
 
 				scheduler.advanceByInterval(1)
 				expect(observedDates).to(equal(4))
+				expect(signal.current).to(equal(scheduler.currentDate))
 			}
 		}
 

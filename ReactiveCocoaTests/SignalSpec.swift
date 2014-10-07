@@ -509,31 +509,24 @@ class SignalSpec: QuickSpec {
 				let delayed = signal.delay(1, onScheduler: scheduler)
 
 				var values: [Int] = []
-				delayed.observe {
-					if let value = $0 {
-						values.append(value)
-					} else {
-						expect(values).to(equal([]))
-					}
-				}
-
-				expect(values).to(equal([]))
+				delayed.observe { values.append($0 ?? -1) }
+				expect(values).to(equal([ -1 ]))
 
 				scheduler.advanceByInterval(1.5)
-				expect(values).to(equal([ 0 ]))
+				expect(values).to(equal([ -1, 0 ]))
 
 				sink.put(1)
-				expect(values).to(equal([ 0 ]))
+				expect(values).to(equal([ -1, 0 ]))
 
 				scheduler.advanceByInterval(1)
-				expect(values).to(equal([ 0, 1 ]))
+				expect(values).to(equal([ -1, 0, 1 ]))
 
 				sink.put(2)
 				sink.put(3)
-				expect(values).to(equal([ 0, 1 ]))
+				expect(values).to(equal([ -1, 0, 1 ]))
 
 				scheduler.advanceByInterval(1.5)
-				expect(values).to(equal([ 0, 1, 2, 3 ]))
+				expect(values).to(equal([ -1, 0, 1, 2, 3 ]))
 			}
 		}
 
@@ -554,55 +547,73 @@ class SignalSpec: QuickSpec {
 				throttled = signal.throttle(1, onScheduler: scheduler)
 
 				values = []
-				throttled.observe {
-					if let value = $0 {
-						values.append(value)
-					} else {
-						expect(values).to(equal([]))
-					}
-				}
+				throttled.observe { values.append($0 ?? -1) }
 			}
 
 			it("should immediately schedule unthrottled values") {
-				expect(values).to(equal([]))
+				expect(values).to(equal([ -1 ]))
 
 				scheduler.advance()
-				expect(values).to(equal([ 0 ]))
+				expect(values).to(equal([ -1, 0 ]))
 
 				scheduler.advanceByInterval(1.5)
 				sink.put(1)
-				expect(values).to(equal([ 0 ]))
+				expect(values).to(equal([ -1, 0 ]))
 
 				scheduler.advance()
-				expect(values).to(equal([ 0, 1 ]))
+				expect(values).to(equal([ -1, 0, 1 ]))
 
 				scheduler.advanceByInterval(5)
 				sink.put(2)
-				expect(values).to(equal([ 0, 1 ]))
+				expect(values).to(equal([ -1, 0, 1 ]))
 
 				scheduler.advance()
-				expect(values).to(equal([ 0, 1, 2 ]))
+				expect(values).to(equal([ -1, 0, 1, 2 ]))
 			}
 
 			it("should forward the latest throttled value") {
 				sink.put(1)
 				sink.put(2)
-				expect(values).to(equal([]))
+				expect(values).to(equal([ -1 ]))
 
 				scheduler.advanceByInterval(1.5)
-				expect(values).to(equal([ 2 ]))
+				expect(values).to(equal([ -1, 2 ]))
 
 				sink.put(3)
 				scheduler.advanceByInterval(0.25)
-				expect(values).to(equal([ 2, 3 ]))
+				expect(values).to(equal([ -1, 2, 3 ]))
 
 				sink.put(4)
 				scheduler.advanceByInterval(0.25)
-				expect(values).to(equal([ 2, 3 ]))
+				expect(values).to(equal([ -1, 2, 3 ]))
 
 				sink.put(5)
 				scheduler.advanceByInterval(1.5)
-				expect(values).to(equal([ 2, 3, 5 ]))
+				expect(values).to(equal([ -1, 2, 3, 5 ]))
+			}
+		}
+
+		describe("deliverOn") {
+			it("should immediately schedule each value") {
+				let (signal, sink) = Signal.pipeWithInitialValue(0)
+
+				let scheduler = TestScheduler()
+				let scheduled = signal.deliverOn(scheduler)
+
+				var values: [Int] = []
+				scheduled.observe { values.append($0 ?? -1) }
+				expect(values).to(equal([ -1 ]))
+
+				scheduler.advance()
+				expect(values).to(equal([ -1, 0 ]))
+
+				sink.put(1)
+				sink.put(2)
+				sink.put(3)
+				expect(values).to(equal([ -1, 0 ]))
+
+				scheduler.advance()
+				expect(values).to(equal([ -1, 0, 1, 2, 3 ]))
 			}
 		}
 	}

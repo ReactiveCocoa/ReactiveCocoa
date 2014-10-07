@@ -68,11 +68,11 @@ public final class Signal<T> {
 	/// Creates a repeating timer of the given interval, sending updates on the
 	/// given scheduler.
 	public class func interval(interval: NSTimeInterval, onScheduler scheduler: DateScheduler, withLeeway leeway: NSTimeInterval) -> Signal<NSDate> {
-		let startDate = NSDate()
+		let startDate = scheduler.currentDate
 
 		return Signal<NSDate>(initialValue: startDate) { sink in
 			scheduler.scheduleAfter(startDate.dateByAddingTimeInterval(interval), repeatingEvery: interval, withLeeway: leeway) {
-				sink.put(NSDate())
+				sink.put(scheduler.currentDate)
 			}
 
 			return ()
@@ -444,7 +444,9 @@ public final class Signal<T> {
 	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> Signal<T?> {
 		return Signal<T?>(initialValue: nil) { sink in
 			self.observe { value in
-				scheduler.scheduleAfter(NSDate(timeIntervalSinceNow: interval)) { sink.put(value) }
+				let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
+				scheduler.scheduleAfter(date) { sink.put(value) }
+
 				return ()
 			}
 
@@ -459,13 +461,13 @@ public final class Signal<T> {
 	/// latest value is the one that will be passed on.
 	public func throttle(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> Signal<T> {
 		return Signal(initialValue: self.current) { sink in
-			let previousDate = Atomic(NSDate())
+			let previousDate = Atomic(scheduler.currentDate)
 			let disposable = SerialDisposable()
 
 			self.observe { value in
 				disposable.innerDisposable = nil
 
-				let now = NSDate()
+				let now = scheduler.currentDate
 				let (_, scheduleDate) = previousDate.modify { date -> (NSDate, NSDate) in
 					if now.timeIntervalSinceDate(date) >= interval {
 						return (now, now)

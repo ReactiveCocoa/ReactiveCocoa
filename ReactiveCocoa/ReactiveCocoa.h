@@ -6,6 +6,14 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
+
+//! Project version number for ReactiveCocoa.
+FOUNDATION_EXPORT double ReactiveCocoaVersionNumber;
+
+//! Project version string for ReactiveCocoa.
+FOUNDATION_EXPORT const unsigned char ReactiveCocoaVersionString[];
+
 #import "EXTKeyPathCoding.h"
 #import "EXTScope.h"
 #import "NSArray+RACSequenceAdditions.h"

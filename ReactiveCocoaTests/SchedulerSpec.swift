@@ -169,9 +169,8 @@ class SchedulerSpec: QuickSpec {
 
 				expect(string).to(equal(""))
 
-				let interval = 0.001
-				scheduler.advanceByInterval(interval)
-				expect(scheduler.currentDate.timeIntervalSinceReferenceDate).to(beCloseTo(startInterval + interval, within: dateComparisonDelta))
+				scheduler.advance()
+				expect(scheduler.currentDate.timeIntervalSinceReferenceDate).to(beCloseTo(startInterval))
 
 				expect(string).to(equal("foobar"))
 			}

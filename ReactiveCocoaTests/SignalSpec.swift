@@ -566,21 +566,21 @@ class SignalSpec: QuickSpec {
 			it("should immediately schedule unthrottled values") {
 				expect(values).to(equal([]))
 
-				scheduler.advanceByInterval(0.001)
+				scheduler.advance()
 				expect(values).to(equal([ 0 ]))
 
 				scheduler.advanceByInterval(1.5)
 				sink.put(1)
 				expect(values).to(equal([ 0 ]))
 
-				scheduler.advanceByInterval(0.001)
+				scheduler.advance()
 				expect(values).to(equal([ 0, 1 ]))
 
 				scheduler.advanceByInterval(5)
 				sink.put(2)
 				expect(values).to(equal([ 0, 1 ]))
 
-				scheduler.advanceByInterval(0.001)
+				scheduler.advance()
 				expect(values).to(equal([ 0, 1, 2 ]))
 			}
 

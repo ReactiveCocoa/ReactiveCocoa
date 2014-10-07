@@ -476,7 +476,9 @@ class SignalSpec: QuickSpec {
 				let (samplerSignal, samplerSink) = Signal.pipeWithInitialValue(())
 
 				var values: [Int] = []
-				signal.sampleOn(samplerSignal).observe(values.append)
+				let sampled = signal.sampleOn(samplerSignal)
+
+				sampled.observe(values.append)
 				expect(values).to(equal([ 0 ]))
 
 				sink.put(1)

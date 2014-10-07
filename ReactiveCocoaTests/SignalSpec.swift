@@ -500,5 +500,41 @@ class SignalSpec: QuickSpec {
 				expect(values).to(equal([ 0, 2, 2, 3 ]))
 			}
 		}
+
+		describe("delay") {
+			it("should wait the given interval before forwarding values") {
+				let (signal, sink) = Signal.pipeWithInitialValue(0)
+
+				let scheduler = TestScheduler()
+				let delayed = signal.delay(1, onScheduler: scheduler)
+
+				var values: [Int] = []
+				delayed.observe {
+					if let value = $0 {
+						values.append(value)
+					} else {
+						expect(values).to(equal([]))
+					}
+				}
+				
+				expect(values).to(equal([]))
+
+				scheduler.advanceByInterval(1.5)
+				expect(values).to(equal([ 0 ]))
+
+				sink.put(1)
+				expect(values).to(equal([ 0 ]))
+
+				scheduler.advanceByInterval(1)
+				expect(values).to(equal([ 0, 1 ]))
+				
+				sink.put(2)
+				sink.put(3)
+				expect(values).to(equal([ 0, 1 ]))
+
+				scheduler.advanceByInterval(1.5)
+				expect(values).to(equal([ 0, 1, 2, 3 ]))
+			}
+		}
 	}
 }

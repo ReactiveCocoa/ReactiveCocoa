@@ -20,6 +20,12 @@ public protocol Scheduler {
 /// A particular kind of scheduler that supports enqueuing actions at future
 /// dates.
 public protocol DateScheduler: Scheduler {
+	/// The current date, as determined by this scheduler.
+	///
+	/// This can be implemented to deterministic return a known date (e.g., for
+	/// testing purposes).
+	var currentDate: NSDate { get }
+
 	/// Schedules an action for execution at or after the given date.
 	///
 	/// Optionally returns a disposable that can be used to cancel the work
@@ -47,6 +53,10 @@ public final class ImmediateScheduler: Scheduler {
 /// A scheduler that performs all work on the main thread.
 public final class MainScheduler: DateScheduler {
 	private let innerScheduler = QueueScheduler(dispatch_get_main_queue())
+	
+	public var currentDate: NSDate {
+		return NSDate()
+	}
 
     public init() {}
 
@@ -75,6 +85,10 @@ public final class MainScheduler: DateScheduler {
 /// A scheduler backed by a serial GCD queue.
 public final class QueueScheduler: DateScheduler {
 	internal let queue = dispatch_queue_create("com.github.ReactiveCocoa.QueueScheduler", DISPATCH_QUEUE_SERIAL)
+	
+	public var currentDate: NSDate {
+		return NSDate()
+	}
 
 	/// Initializes a scheduler that will target the given queue with its work.
 	///

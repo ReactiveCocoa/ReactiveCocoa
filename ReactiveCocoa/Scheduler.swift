@@ -53,7 +53,7 @@ public final class ImmediateScheduler: Scheduler {
 /// A scheduler that performs all work on the main thread.
 public final class MainScheduler: DateScheduler {
 	private let innerScheduler = QueueScheduler(dispatch_get_main_queue())
-	
+
 	public var currentDate: NSDate {
 		return NSDate()
 	}
@@ -85,7 +85,7 @@ public final class MainScheduler: DateScheduler {
 /// A scheduler backed by a serial GCD queue.
 public final class QueueScheduler: DateScheduler {
 	internal let queue = dispatch_queue_create("com.github.ReactiveCocoa.QueueScheduler", DISPATCH_QUEUE_SERIAL)
-	
+
 	public var currentDate: NSDate {
 		return NSDate()
 	}
@@ -258,6 +258,15 @@ public final class TestScheduler: DateScheduler {
 		let disposable = SerialDisposable()
 		scheduleAfter(date, repeatingEvery: repeatingEvery, disposable: disposable, action: action)
 		return disposable
+	}
+
+	/// Advances the virtualized clock by an extremely tiny interval, dequeuing
+	/// and executing any actions along the way.
+	///
+	/// This is intended to be used as a way to execute actions that have been
+	/// scheduled to run as soon as possible.
+	public func advance() {
+		advanceByInterval(DBL_EPSILON)
 	}
 
 	/// Advances the virtualized clock by the given interval, dequeuing and

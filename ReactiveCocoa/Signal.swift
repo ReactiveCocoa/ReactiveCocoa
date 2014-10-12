@@ -210,7 +210,7 @@ public final class Signal<T> {
 
 	/// Combines all the values in the stream, forwarding the result of each
 	/// intermediate combination step.
-	public func scan<U>(initialValue: U, _ f: (U, T) -> U) -> Signal<U> {
+	public func scanWithStart<U>(initialValue: U, _ f: (U, T) -> U) -> Signal<U> {
 		let previous = Atomic(initialValue)
 
 		return Signal<U?>(initialValue: nil) { sink in
@@ -228,7 +228,7 @@ public final class Signal<T> {
 	/// Returns a stream that will yield the first `count` values from the
 	/// receiver, where `count` is greater than zero.
 	public func take(count: Int) -> Signal<T> {
-		assert(count > 0)
+		precondition(count > 0)
 
 		let soFar = Atomic(0)
 
@@ -265,7 +265,7 @@ public final class Signal<T> {
 
 	/// Combines each value in the stream with its preceding value, starting
 	/// with `initialValue`.
-	public func combinePrevious(initialValue: T) -> Signal<(T, T)> {
+	public func combinePreviousWithStart(initialValue: T) -> Signal<(T, T)> {
 		let previous = Atomic(initialValue)
 
 		return Signal<(T, T)?>(initialValue: nil) { sink in
@@ -316,7 +316,7 @@ public final class Signal<T> {
 	///            given to consumers in the future.
 	///
 	/// Returns a Producer over the buffered values, and a Disposable which
-	/// can be used to cancel all further buffering.
+	/// can be used to cancel all further buffering and forwarding.
 	public func buffer(capacity: Int? = nil) -> (Producer<T>, Disposable) {
 		let queue = dispatch_queue_create("com.github.ReactiveCocoa.Signal.buffer", DISPATCH_QUEUE_CONCURRENT)
 		var compositeDisposable = CompositeDisposable()
@@ -459,20 +459,24 @@ public final class Signal<T> {
 	///
 	/// If multiple values are received before the interval has elapsed, the
 	/// latest value is the one that will be passed on.
-	public func throttle(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> Signal<T> {
-		return Signal(initialValue: self.current) { sink in
-			let previousDate = Atomic(scheduler.currentDate)
+	///
+	/// Returns a Signal that will default to `nil`, send the receiver's initial
+	/// value on the given scheduler, then forward any remaining values after
+	/// throttling on the given scheduler.
+	public func throttle(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> Signal<T?> {
+		return Signal<T?>(initialValue: nil) { sink in
+			let previousDate = Atomic<NSDate?>(nil)
 			let disposable = SerialDisposable()
 
 			self.observe { value in
 				disposable.innerDisposable = nil
 
 				let now = scheduler.currentDate
-				let (_, scheduleDate) = previousDate.modify { date -> (NSDate, NSDate) in
-					if now.timeIntervalSinceDate(date) >= interval {
+				let (_, scheduleDate) = previousDate.modify { date -> (NSDate?, NSDate) in
+					if date == nil || now.timeIntervalSinceDate(date!) >= interval {
 						return (now, now)
 					} else {
-						return (date, date.dateByAddingTimeInterval(interval))
+						return (date, date!.dateByAddingTimeInterval(interval))
 					}
 				}
 
@@ -501,9 +505,12 @@ public final class Signal<T> {
 	/// that passes the given predicate.
 	public func firstPassingTest(pred: T -> Bool) -> Promise<T> {
 		return Promise { sink in
-			self.take(1).observe { value in
+			let disposable = SerialDisposable()
+
+			disposable.innerDisposable = self.observe { value in
 				if pred(value) {
 					sink.put(value)
+					disposable.dispose()
 				}
 			}
 

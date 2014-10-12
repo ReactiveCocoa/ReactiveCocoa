@@ -35,10 +35,8 @@ public final class Promise<T> {
 
 		switch oldState {
 		case let .Suspended(action):
-			action(SinkOf<T> { [weak self] value in
-				self?.sink.put(value)
-				return ()
-			})
+			var sink = self.sink
+			action(SinkOf<T>{ sink.put($0) })
 
 		default:
 			break

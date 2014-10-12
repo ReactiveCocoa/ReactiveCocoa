@@ -35,19 +35,10 @@ public final class Promise<T> {
 
 		switch oldState {
 		case let .Suspended(action):
-			// Hold on to the `action` closure until the promise is resolved.
-			let disposable = ActionDisposable { [action] in }
-
-			let disposableSink = SinkOf<T> { [weak self] value in
-				if disposable.disposed {
-					return
-				}
-
-				disposable.dispose()
+			action(SinkOf<T> { [weak self] value in
 				self?.sink.put(value)
-			}
-
-			action(disposableSink)
+				return ()
+			})
 
 		default:
 			break

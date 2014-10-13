@@ -654,7 +654,6 @@
 		D04796EC19666CE40066B267 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		D0479709196670900066B267 /* Action.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
 		D047970B196670900066B267 /* Atomic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Atomic.swift; sourceTree = "<group>"; };
-		D047970E196670900066B267 /* Consumer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Consumer.swift; sourceTree = "<group>"; };
 		D047970F196670900066B267 /* Disposable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Disposable.swift; sourceTree = "<group>"; };
 		D0479710196670900066B267 /* Event.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		D0479712196670900066B267 /* NSArray+RACSequenceAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+RACSequenceAdditions.h"; sourceTree = "<group>"; };
@@ -817,7 +816,6 @@
 		D04797B0196670900066B267 /* ReactiveCocoa-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ReactiveCocoa-Bridging-Header.h"; sourceTree = "<group>"; };
 		D04797B3196670900066B267 /* Scheduler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scheduler.swift; sourceTree = "<group>"; };
 		D04797B4196670900066B267 /* HotSignal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HotSignal.swift; sourceTree = "<group>"; };
-		D04797B5196670900066B267 /* SignalingProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalingProperty.swift; sourceTree = "<group>"; };
 		D04797B7196670900066B267 /* UIActionSheet+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIActionSheet+RACSignalSupport.h"; sourceTree = "<group>"; };
 		D04797B8196670900066B267 /* UIActionSheet+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIActionSheet+RACSignalSupport.m"; sourceTree = "<group>"; };
 		D04797B9196670900066B267 /* UIAlertView+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIAlertView+RACSignalSupport.h"; sourceTree = "<group>"; };
@@ -1050,7 +1048,6 @@
 				D047970B196670900066B267 /* Atomic.swift */,
 				D036AA4A196FB7CB00B49B76 /* Bag.swift */,
 				D0479748196670900066B267 /* ColdSignal.swift */,
-				D047970E196670900066B267 /* Consumer.swift */,
 				D047970F196670900066B267 /* Disposable.swift */,
 				D0E3CF541973AFC7004FD181 /* Errors.swift */,
 				D0479710196670900066B267 /* Event.swift */,
@@ -1062,7 +1059,6 @@
 				D02C14B0197243CB007127D4 /* OptionalExtensions.swift */,
 				D0479749196670900066B267 /* Promise.swift */,
 				D04797B3196670900066B267 /* Scheduler.swift */,
-				D04797B5196670900066B267 /* SignalingProperty.swift */,
 			);
 			name = Swift;
 			sourceTree = "<group>";

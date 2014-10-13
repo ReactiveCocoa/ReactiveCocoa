@@ -389,6 +389,8 @@
 		D0AFFF1C19CF2EFC0078D030 /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0AFFF1B19CF2EFC0078D030 /* Nimble.framework */; };
 		D0CBD3F219EC8AB70049520D /* ColdSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479748196670900066B267 /* ColdSignal.swift */; };
 		D0CBD3F319EC8AB80049520D /* ColdSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479748196670900066B267 /* ColdSignal.swift */; };
+		D0CBD3F619EC8F290049520D /* ObjectiveCBridging.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479747196670900066B267 /* ObjectiveCBridging.swift */; };
+		D0CBD3F719EC8F290049520D /* ObjectiveCBridging.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479747196670900066B267 /* ObjectiveCBridging.swift */; };
 		D0E3CF551973AFC7004FD181 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E3CF541973AFC7004FD181 /* Errors.swift */; };
 		D0E3CF561973AFC7004FD181 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E3CF541973AFC7004FD181 /* Errors.swift */; };
 /* End PBXBuildFile section */
@@ -1717,6 +1719,7 @@
 				D04798E7196670900066B267 /* RACSignal.m in Sources */,
 				D047980D196670900066B267 /* NSIndexSet+RACSequenceAdditions.m in Sources */,
 				D04798FF196670900066B267 /* RACSubject.m in Sources */,
+				D0CBD3F619EC8F290049520D /* ObjectiveCBridging.swift in Sources */,
 				D047990D196670900066B267 /* RACSubscriptionScheduler.m in Sources */,
 				D0479929196670900066B267 /* RACValueTransformer.m in Sources */,
 				D0479835196670900066B267 /* NSObject+RACSelectorSignal.m in Sources */,
@@ -1812,6 +1815,7 @@
 				D0479846196670900066B267 /* NSString+RACSequenceAdditions.m in Sources */,
 				D04798B4196670900066B267 /* RACKVOTrampoline.m in Sources */,
 				D0479822196670900066B267 /* NSObject+RACDeallocating.m in Sources */,
+				D0CBD3F719EC8F290049520D /* ObjectiveCBridging.swift in Sources */,
 				D0479922196670900066B267 /* RACUnarySequence.m in Sources */,
 				D0479880196670900066B267 /* RACDelegateProxy.m in Sources */,
 				D04798D0196670900066B267 /* RACReturnSignal.m in Sources */,

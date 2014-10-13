@@ -387,6 +387,8 @@
 		D09C6CBD198F4934008E129B /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D09C6CBB198F4931008E129B /* Quick.framework */; };
 		D0AFFF1A19CF2EF70078D030 /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0AFFF1919CF2EF70078D030 /* Nimble.framework */; };
 		D0AFFF1C19CF2EFC0078D030 /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0AFFF1B19CF2EFC0078D030 /* Nimble.framework */; };
+		D0CBD3F219EC8AB70049520D /* ColdSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479748196670900066B267 /* ColdSignal.swift */; };
+		D0CBD3F319EC8AB80049520D /* ColdSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479748196670900066B267 /* ColdSignal.swift */; };
 		D0E3CF551973AFC7004FD181 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E3CF541973AFC7004FD181 /* Errors.swift */; };
 		D0E3CF561973AFC7004FD181 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E3CF541973AFC7004FD181 /* Errors.swift */; };
 /* End PBXBuildFile section */
@@ -708,7 +710,7 @@
 		D0479745196670900066B267 /* NSUserDefaults+RACSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSUserDefaults+RACSupport.h"; sourceTree = "<group>"; };
 		D0479746196670900066B267 /* NSUserDefaults+RACSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSUserDefaults+RACSupport.m"; sourceTree = "<group>"; };
 		D0479747196670900066B267 /* ObjectiveCBridging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectiveCBridging.swift; sourceTree = "<group>"; };
-		D0479748196670900066B267 /* Producer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Producer.swift; sourceTree = "<group>"; };
+		D0479748196670900066B267 /* ColdSignal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColdSignal.swift; sourceTree = "<group>"; };
 		D0479749196670900066B267 /* Promise.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Promise.swift; sourceTree = "<group>"; };
 		D047974A196670900066B267 /* RACArraySequence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACArraySequence.h; sourceTree = "<group>"; };
 		D047974B196670900066B267 /* RACArraySequence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACArraySequence.m; sourceTree = "<group>"; };
@@ -1047,6 +1049,7 @@
 				D0479709196670900066B267 /* Action.swift */,
 				D047970B196670900066B267 /* Atomic.swift */,
 				D036AA4A196FB7CB00B49B76 /* Bag.swift */,
+				D0479748196670900066B267 /* ColdSignal.swift */,
 				D047970E196670900066B267 /* Consumer.swift */,
 				D047970F196670900066B267 /* Disposable.swift */,
 				D0E3CF541973AFC7004FD181 /* Errors.swift */,
@@ -1057,7 +1060,6 @@
 				D0479744196670900066B267 /* NSURLSessionExtensions.swift */,
 				D0479747196670900066B267 /* ObjectiveCBridging.swift */,
 				D02C14B0197243CB007127D4 /* OptionalExtensions.swift */,
-				D0479748196670900066B267 /* Producer.swift */,
 				D0479749196670900066B267 /* Promise.swift */,
 				D04797B3196670900066B267 /* Scheduler.swift */,
 				D04797B5196670900066B267 /* SignalingProperty.swift */,
@@ -1685,6 +1687,7 @@
 				D04798DF196670900066B267 /* RACSequence.m in Sources */,
 				D04797F9196670900066B267 /* NSControl+RACTextSignalSupport.m in Sources */,
 				D04798CB196670900066B267 /* RACReplaySubject.m in Sources */,
+				D0CBD3F219EC8AB70049520D /* ColdSignal.swift in Sources */,
 				D047988B196670900066B267 /* RACDynamicSignal.m in Sources */,
 				D0479893196670900066B267 /* RACEmptySequence.m in Sources */,
 				D047988F196670900066B267 /* RACEagerSequence.m in Sources */,
@@ -1827,6 +1830,7 @@
 				D0479964196670900066B267 /* UIRefreshControl+RACCommandSupport.m in Sources */,
 				D04798E4196670900066B267 /* RACSerialDisposable.m in Sources */,
 				D0297D3719D67D42009986A9 /* Identity.swift in Sources */,
+				D0CBD3F319EC8AB80049520D /* ColdSignal.swift in Sources */,
 				D04798D4196670900066B267 /* RACScheduler.m in Sources */,
 				D0479888196670900066B267 /* RACDynamicSequence.m in Sources */,
 				D04798F6196670900066B267 /* RACStream.m in Sources */,

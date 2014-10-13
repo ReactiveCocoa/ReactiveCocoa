@@ -1,5 +1,5 @@
 //
-//  Signal.swift
+//  HotSignal.swift
 //  ReactiveCocoa
 //
 //  Created by Justin Spahr-Summers on 2014-06-25.
@@ -31,6 +31,11 @@ public final class HotSignal<T> {
 				}
 			}
 		})
+	}
+
+	/// Creates a signal that will never send any values.
+	public class func never() -> HotSignal {
+		return HotSignal { _ in () }
 	}
 
 	/// Creates a repeating timer of the given interval, with a reasonable
@@ -156,9 +161,11 @@ public final class HotSignal<T> {
 	}
 
 	/// Returns a signal that will yield the first `count` values from the
-	/// receiver, where `count` is greater than zero.
+	/// receiver.
 	public func take(count: Int) -> HotSignal {
-		precondition(count > 0)
+		if (count == 0) {
+			return .never()
+		}
 
 		let soFar = Atomic(0)
 
@@ -176,8 +183,8 @@ public final class HotSignal<T> {
 		}
 	}
 
-	/// Returns a signal that will yield values from the receiver while `pred`
-	/// remains `true`.
+	/// Returns a signal that will yield values from the receiver while
+	/// `predicate` remains `true`.
 	public func takeWhile(predicate: T -> Bool) -> HotSignal {
 		return HotSignal { sink in
 			let selfDisposable = SerialDisposable()
@@ -195,6 +202,10 @@ public final class HotSignal<T> {
 	/// Returns a signal that will skip the first `count` values from the
 	/// receiver, then forward everything afterward.
 	public func skip(count: Int) -> HotSignal {
+		if (count == 0) {
+			return self
+		}
+
 		let soFar = Atomic(0)
 
 		return skipWhile { _ in

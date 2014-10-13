@@ -391,6 +391,8 @@
 		D0CBD3F319EC8AB80049520D /* ColdSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479748196670900066B267 /* ColdSignal.swift */; };
 		D0CBD3F619EC8F290049520D /* ObjectiveCBridging.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479747196670900066B267 /* ObjectiveCBridging.swift */; };
 		D0CBD3F719EC8F290049520D /* ObjectiveCBridging.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479747196670900066B267 /* ObjectiveCBridging.swift */; };
+		D0CBD3FB19EC93E60049520D /* ObservableProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0CBD3FA19EC93E60049520D /* ObservableProperty.swift */; };
+		D0CBD3FC19EC93E60049520D /* ObservableProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0CBD3FA19EC93E60049520D /* ObservableProperty.swift */; };
 		D0E3CF551973AFC7004FD181 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E3CF541973AFC7004FD181 /* Errors.swift */; };
 		D0E3CF561973AFC7004FD181 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E3CF541973AFC7004FD181 /* Errors.swift */; };
 /* End PBXBuildFile section */
@@ -869,6 +871,7 @@
 		D09C6CBB198F4931008E129B /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Quick.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0AFFF1919CF2EF70078D030 /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Nimble.framework; path = ../External/Quick/Externals/Nimble/build/Debug/Nimble.framework; sourceTree = "<group>"; };
 		D0AFFF1B19CF2EFC0078D030 /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Nimble.framework; path = "../External/Quick/Externals/Nimble/build/Debug-iphoneos/Nimble.framework"; sourceTree = "<group>"; };
+		D0CBD3FA19EC93E60049520D /* ObservableProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObservableProperty.swift; sourceTree = "<group>"; };
 		D0E3CF541973AFC7004FD181 /* Errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -1057,6 +1060,7 @@
 				D0479727196670900066B267 /* NSNotificationCenterExtensions.swift */,
 				D0479744196670900066B267 /* NSURLSessionExtensions.swift */,
 				D0479747196670900066B267 /* ObjectiveCBridging.swift */,
+				D0CBD3FA19EC93E60049520D /* ObservableProperty.swift */,
 				D02C14B0197243CB007127D4 /* OptionalExtensions.swift */,
 				D04797B3196670900066B267 /* Scheduler.swift */,
 			);
@@ -1748,6 +1752,7 @@
 				D047981D196670900066B267 /* NSObject+RACAppKitBindings.m in Sources */,
 				D047987B196670900066B267 /* RACCompoundDisposableProvider.d in Sources */,
 				D0479809196670900066B267 /* NSFileHandle+RACSupport.m in Sources */,
+				D0CBD3FB19EC93E60049520D /* ObservableProperty.swift in Sources */,
 				D04798C1196670900066B267 /* RACPassthroughSubscriber.m in Sources */,
 				D0479919196670900066B267 /* RACTuple.m in Sources */,
 			);
@@ -1771,6 +1776,7 @@
 				D0479984196670900066B267 /* UITextView+RACSignalSupport.m in Sources */,
 				D04798B0196670900066B267 /* RACKVOChannel.m in Sources */,
 				D0479898196670900066B267 /* RACEmptySignal.m in Sources */,
+				D0CBD3FC19EC93E60049520D /* ObservableProperty.swift in Sources */,
 				D0479950196670900066B267 /* UIControl+RACSignalSupport.m in Sources */,
 				D0479954196670900066B267 /* UIControl+RACSignalSupportPrivate.m in Sources */,
 				D0479960196670900066B267 /* UIImagePickerController+RACSignalSupport.m in Sources */,

@@ -20,12 +20,8 @@
 		D047967919666BF30066B267 /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = D047967819666BF30066B267 /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D047967F19666BF30066B267 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D047967319666BF30066B267 /* ReactiveCocoa.framework */; };
 		D04796A519666CBF0066B267 /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D047969A19666CBF0066B267 /* ReactiveCocoa.framework */; };
-		D04797DD196670900066B267 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479709196670900066B267 /* Action.swift */; };
-		D04797DE196670900066B267 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479709196670900066B267 /* Action.swift */; };
 		D04797E1196670900066B267 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970B196670900066B267 /* Atomic.swift */; };
 		D04797E2196670900066B267 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970B196670900066B267 /* Atomic.swift */; };
-		D04797E7196670900066B267 /* Consumer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970E196670900066B267 /* Consumer.swift */; };
-		D04797E8196670900066B267 /* Consumer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970E196670900066B267 /* Consumer.swift */; };
 		D04797E9196670900066B267 /* Disposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970F196670900066B267 /* Disposable.swift */; };
 		D04797EA196670900066B267 /* Disposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D047970F196670900066B267 /* Disposable.swift */; };
 		D04797EB196670900066B267 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479710196670900066B267 /* Event.swift */; };
@@ -66,8 +62,6 @@
 		D0479816196670900066B267 /* NSNotificationCenter+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D0479725196670900066B267 /* NSNotificationCenter+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D0479817196670900066B267 /* NSNotificationCenter+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D0479726196670900066B267 /* NSNotificationCenter+RACSupport.m */; };
 		D0479818196670900066B267 /* NSNotificationCenter+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D0479726196670900066B267 /* NSNotificationCenter+RACSupport.m */; };
-		D0479819196670900066B267 /* NSNotificationCenterExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479727196670900066B267 /* NSNotificationCenterExtensions.swift */; };
-		D047981A196670900066B267 /* NSNotificationCenterExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479727196670900066B267 /* NSNotificationCenterExtensions.swift */; };
 		D047981B196670900066B267 /* NSObject+RACAppKitBindings.h in Headers */ = {isa = PBXBuildFile; fileRef = D0479728196670900066B267 /* NSObject+RACAppKitBindings.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D047981D196670900066B267 /* NSObject+RACAppKitBindings.m in Sources */ = {isa = PBXBuildFile; fileRef = D0479729196670900066B267 /* NSObject+RACAppKitBindings.m */; };
 		D047981F196670900066B267 /* NSObject+RACDeallocating.h in Headers */ = {isa = PBXBuildFile; fileRef = D047972A196670900066B267 /* NSObject+RACDeallocating.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -120,18 +114,10 @@
 		D0479850196670900066B267 /* NSURLConnection+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D0479742196670900066B267 /* NSURLConnection+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D0479851196670900066B267 /* NSURLConnection+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D0479743196670900066B267 /* NSURLConnection+RACSupport.m */; };
 		D0479852196670900066B267 /* NSURLConnection+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D0479743196670900066B267 /* NSURLConnection+RACSupport.m */; };
-		D0479853196670900066B267 /* NSURLSessionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479744196670900066B267 /* NSURLSessionExtensions.swift */; };
-		D0479854196670900066B267 /* NSURLSessionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479744196670900066B267 /* NSURLSessionExtensions.swift */; };
 		D0479855196670900066B267 /* NSUserDefaults+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D0479745196670900066B267 /* NSUserDefaults+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D0479856196670900066B267 /* NSUserDefaults+RACSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D0479745196670900066B267 /* NSUserDefaults+RACSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D0479857196670900066B267 /* NSUserDefaults+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D0479746196670900066B267 /* NSUserDefaults+RACSupport.m */; };
 		D0479858196670900066B267 /* NSUserDefaults+RACSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D0479746196670900066B267 /* NSUserDefaults+RACSupport.m */; };
-		D0479859196670900066B267 /* ObjectiveCBridging.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479747196670900066B267 /* ObjectiveCBridging.swift */; };
-		D047985A196670900066B267 /* ObjectiveCBridging.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479747196670900066B267 /* ObjectiveCBridging.swift */; };
-		D047985B196670900066B267 /* Producer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479748196670900066B267 /* Producer.swift */; };
-		D047985C196670900066B267 /* Producer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479748196670900066B267 /* Producer.swift */; };
-		D047985D196670900066B267 /* Promise.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479749196670900066B267 /* Promise.swift */; };
-		D047985E196670900066B267 /* Promise.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0479749196670900066B267 /* Promise.swift */; };
 		D047985F196670900066B267 /* RACArraySequence.h in Headers */ = {isa = PBXBuildFile; fileRef = D047974A196670900066B267 /* RACArraySequence.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D0479860196670900066B267 /* RACArraySequence.h in Headers */ = {isa = PBXBuildFile; fileRef = D047974A196670900066B267 /* RACArraySequence.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D0479861196670900066B267 /* RACArraySequence.m in Sources */ = {isa = PBXBuildFile; fileRef = D047974B196670900066B267 /* RACArraySequence.m */; };
@@ -340,10 +326,8 @@
 		D047992C196670900066B267 /* ReactiveCocoa-Bridging-Header.h in Headers */ = {isa = PBXBuildFile; fileRef = D04797B0196670900066B267 /* ReactiveCocoa-Bridging-Header.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D0479931196670900066B267 /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04797B3196670900066B267 /* Scheduler.swift */; };
 		D0479932196670900066B267 /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04797B3196670900066B267 /* Scheduler.swift */; };
-		D0479933196670900066B267 /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04797B4196670900066B267 /* Signal.swift */; };
-		D0479934196670900066B267 /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04797B4196670900066B267 /* Signal.swift */; };
-		D0479935196670900066B267 /* SignalingProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04797B5196670900066B267 /* SignalingProperty.swift */; };
-		D0479936196670900066B267 /* SignalingProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04797B5196670900066B267 /* SignalingProperty.swift */; };
+		D0479933196670900066B267 /* HotSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04797B4196670900066B267 /* HotSignal.swift */; };
+		D0479934196670900066B267 /* HotSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04797B4196670900066B267 /* HotSignal.swift */; };
 		D047993A196670900066B267 /* UIActionSheet+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D04797B7196670900066B267 /* UIActionSheet+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D047993C196670900066B267 /* UIActionSheet+RACSignalSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = D04797B8196670900066B267 /* UIActionSheet+RACSignalSupport.m */; };
 		D047993E196670900066B267 /* UIAlertView+RACSignalSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = D04797B9196670900066B267 /* UIAlertView+RACSignalSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -830,7 +814,7 @@
 		D04797AF196670900066B267 /* RACValueTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACValueTransformer.m; sourceTree = "<group>"; };
 		D04797B0196670900066B267 /* ReactiveCocoa-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ReactiveCocoa-Bridging-Header.h"; sourceTree = "<group>"; };
 		D04797B3196670900066B267 /* Scheduler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scheduler.swift; sourceTree = "<group>"; };
-		D04797B4196670900066B267 /* Signal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Signal.swift; sourceTree = "<group>"; };
+		D04797B4196670900066B267 /* HotSignal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HotSignal.swift; sourceTree = "<group>"; };
 		D04797B5196670900066B267 /* SignalingProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalingProperty.swift; sourceTree = "<group>"; };
 		D04797B7196670900066B267 /* UIActionSheet+RACSignalSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIActionSheet+RACSignalSupport.h"; sourceTree = "<group>"; };
 		D04797B8196670900066B267 /* UIActionSheet+RACSignalSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIActionSheet+RACSignalSupport.m"; sourceTree = "<group>"; };
@@ -1067,6 +1051,7 @@
 				D047970F196670900066B267 /* Disposable.swift */,
 				D0E3CF541973AFC7004FD181 /* Errors.swift */,
 				D0479710196670900066B267 /* Event.swift */,
+				D04797B4196670900066B267 /* HotSignal.swift */,
 				D0297D3519D67D42009986A9 /* Identity.swift */,
 				D0479727196670900066B267 /* NSNotificationCenterExtensions.swift */,
 				D0479744196670900066B267 /* NSURLSessionExtensions.swift */,
@@ -1075,7 +1060,6 @@
 				D0479748196670900066B267 /* Producer.swift */,
 				D0479749196670900066B267 /* Promise.swift */,
 				D04797B3196670900066B267 /* Scheduler.swift */,
-				D04797B4196670900066B267 /* Signal.swift */,
 				D04797B5196670900066B267 /* SignalingProperty.swift */,
 			);
 			name = Swift;
@@ -1699,15 +1683,12 @@
 				D0479911196670900066B267 /* RACTargetQueueScheduler.m in Sources */,
 				D047986D196670900066B267 /* RACBlockTrampoline.m in Sources */,
 				D04798DF196670900066B267 /* RACSequence.m in Sources */,
-				D04797DD196670900066B267 /* Action.swift in Sources */,
 				D04797F9196670900066B267 /* NSControl+RACTextSignalSupport.m in Sources */,
 				D04798CB196670900066B267 /* RACReplaySubject.m in Sources */,
 				D047988B196670900066B267 /* RACDynamicSignal.m in Sources */,
 				D0479893196670900066B267 /* RACEmptySequence.m in Sources */,
 				D047988F196670900066B267 /* RACEagerSequence.m in Sources */,
-				D0479935196670900066B267 /* SignalingProperty.swift in Sources */,
 				D0E3CF551973AFC7004FD181 /* Errors.swift in Sources */,
-				D047985D196670900066B267 /* Promise.swift in Sources */,
 				D0479805196670900066B267 /* NSEnumerator+RACSequenceAdditions.m in Sources */,
 				D0479925196670900066B267 /* RACUnit.m in Sources */,
 				D047984D196670900066B267 /* NSText+RACSignalSupport.m in Sources */,
@@ -1723,13 +1704,10 @@
 				D0479845196670900066B267 /* NSString+RACSequenceAdditions.m in Sources */,
 				D04798B3196670900066B267 /* RACKVOTrampoline.m in Sources */,
 				D0479821196670900066B267 /* NSObject+RACDeallocating.m in Sources */,
-				D047985B196670900066B267 /* Producer.swift in Sources */,
 				D0479921196670900066B267 /* RACUnarySequence.m in Sources */,
-				D0479853196670900066B267 /* NSURLSessionExtensions.swift in Sources */,
 				D047987F196670900066B267 /* RACDelegateProxy.m in Sources */,
 				D04798CF196670900066B267 /* RACReturnSignal.m in Sources */,
 				D04798B7196670900066B267 /* RACMulticastConnection.m in Sources */,
-				D0479819196670900066B267 /* NSNotificationCenterExtensions.swift in Sources */,
 				D0479871196670900066B267 /* RACChannel.m in Sources */,
 				D0479849196670900066B267 /* NSString+RACSupport.m in Sources */,
 				D0479841196670900066B267 /* NSString+RACKeyPathUtilities.m in Sources */,
@@ -1737,7 +1715,6 @@
 				D04798D3196670900066B267 /* RACScheduler.m in Sources */,
 				D0479887196670900066B267 /* RACDynamicSequence.m in Sources */,
 				D04798F5196670900066B267 /* RACStream.m in Sources */,
-				D04797E7196670900066B267 /* Consumer.swift in Sources */,
 				D04797F1196670900066B267 /* NSArray+RACSequenceAdditions.m in Sources */,
 				D047982D196670900066B267 /* NSObject+RACLifting.m in Sources */,
 				D04798E7196670900066B267 /* RACSignal.m in Sources */,
@@ -1758,11 +1735,10 @@
 				D0479869196670900066B267 /* RACBehaviorSubject.m in Sources */,
 				D04798ED196670900066B267 /* RACSignalProvider.d in Sources */,
 				D0479861196670900066B267 /* RACArraySequence.m in Sources */,
-				D0479933196670900066B267 /* Signal.swift in Sources */,
+				D0479933196670900066B267 /* HotSignal.swift in Sources */,
 				D0479851196670900066B267 /* NSURLConnection+RACSupport.m in Sources */,
 				D0479931196670900066B267 /* Scheduler.swift in Sources */,
 				D0479857196670900066B267 /* NSUserDefaults+RACSupport.m in Sources */,
-				D0479859196670900066B267 /* ObjectiveCBridging.swift in Sources */,
 				D02C14B1197243CB007127D4 /* OptionalExtensions.swift in Sources */,
 				D0479817196670900066B267 /* NSNotificationCenter+RACSupport.m in Sources */,
 				D04798A3196670900066B267 /* RACGroupedSignal.m in Sources */,
@@ -1816,15 +1792,12 @@
 				D047986E196670900066B267 /* RACBlockTrampoline.m in Sources */,
 				D04798E0196670900066B267 /* RACSequence.m in Sources */,
 				D0479990196671DF0066B267 /* EXTRuntimeExtensions.m in Sources */,
-				D04797DE196670900066B267 /* Action.swift in Sources */,
 				D047997C196670900066B267 /* UITableViewHeaderFooterView+RACSignalSupport.m in Sources */,
 				D04798CC196670900066B267 /* RACReplaySubject.m in Sources */,
 				D0479958196670900066B267 /* UIDatePicker+RACSignalSupport.m in Sources */,
 				D047988C196670900066B267 /* RACDynamicSignal.m in Sources */,
 				D0479894196670900066B267 /* RACEmptySequence.m in Sources */,
 				D0479890196670900066B267 /* RACEagerSequence.m in Sources */,
-				D0479936196670900066B267 /* SignalingProperty.swift in Sources */,
-				D047985E196670900066B267 /* Promise.swift in Sources */,
 				D0479806196670900066B267 /* NSEnumerator+RACSequenceAdditions.m in Sources */,
 				D047994C196670900066B267 /* UICollectionReusableView+RACSignalSupport.m in Sources */,
 				D0479926196670900066B267 /* RACUnit.m in Sources */,
@@ -1842,14 +1815,11 @@
 				D0479846196670900066B267 /* NSString+RACSequenceAdditions.m in Sources */,
 				D04798B4196670900066B267 /* RACKVOTrampoline.m in Sources */,
 				D0479822196670900066B267 /* NSObject+RACDeallocating.m in Sources */,
-				D047985C196670900066B267 /* Producer.swift in Sources */,
 				D0479922196670900066B267 /* RACUnarySequence.m in Sources */,
-				D0479854196670900066B267 /* NSURLSessionExtensions.swift in Sources */,
 				D0479880196670900066B267 /* RACDelegateProxy.m in Sources */,
 				D04798D0196670900066B267 /* RACReturnSignal.m in Sources */,
 				D0479980196670900066B267 /* UITextField+RACSignalSupport.m in Sources */,
 				D04798B8196670900066B267 /* RACMulticastConnection.m in Sources */,
-				D047981A196670900066B267 /* NSNotificationCenterExtensions.swift in Sources */,
 				D0479872196670900066B267 /* RACChannel.m in Sources */,
 				D047984A196670900066B267 /* NSString+RACSupport.m in Sources */,
 				D0479842196670900066B267 /* NSString+RACKeyPathUtilities.m in Sources */,
@@ -1860,7 +1830,6 @@
 				D04798D4196670900066B267 /* RACScheduler.m in Sources */,
 				D0479888196670900066B267 /* RACDynamicSequence.m in Sources */,
 				D04798F6196670900066B267 /* RACStream.m in Sources */,
-				D04797E8196670900066B267 /* Consumer.swift in Sources */,
 				D04797F2196670900066B267 /* NSArray+RACSequenceAdditions.m in Sources */,
 				D047982E196670900066B267 /* NSObject+RACLifting.m in Sources */,
 				D04798E8196670900066B267 /* RACSignal.m in Sources */,
@@ -1882,11 +1851,10 @@
 				D047986A196670900066B267 /* RACBehaviorSubject.m in Sources */,
 				D04798EE196670900066B267 /* RACSignalProvider.d in Sources */,
 				D0479862196670900066B267 /* RACArraySequence.m in Sources */,
-				D0479934196670900066B267 /* Signal.swift in Sources */,
+				D0479934196670900066B267 /* HotSignal.swift in Sources */,
 				D0479852196670900066B267 /* NSURLConnection+RACSupport.m in Sources */,
 				D0479932196670900066B267 /* Scheduler.swift in Sources */,
 				D0479858196670900066B267 /* NSUserDefaults+RACSupport.m in Sources */,
-				D047985A196670900066B267 /* ObjectiveCBridging.swift in Sources */,
 				D0479818196670900066B267 /* NSNotificationCenter+RACSupport.m in Sources */,
 				D04798A4196670900066B267 /* RACGroupedSignal.m in Sources */,
 				D047991E196670900066B267 /* RACTupleSequence.m in Sources */,

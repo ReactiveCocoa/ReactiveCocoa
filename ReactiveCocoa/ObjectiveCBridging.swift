@@ -89,7 +89,7 @@ extension ColdSignal {
 	///
 	/// evidence - Used to prove to the typechecker that the receiver is
 	///            a signal of objects. Simply pass in the `identity` function.
-	public func asRACSignal<U: AnyObject>(evidence: ColdSignal -> ColdSignal<U?>) -> RACSignal {
+	public func asDeferredRACSignal<U: AnyObject>(evidence: ColdSignal -> ColdSignal<U?>) -> RACSignal {
 		return RACSignal.createSignal { subscriber in
 			let selfDisposable = evidence(self).subscribe(next: { value in
 				subscriber.sendNext(value)

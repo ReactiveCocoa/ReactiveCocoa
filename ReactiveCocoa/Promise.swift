@@ -35,19 +35,8 @@ public final class Promise<T> {
 
 		switch oldState {
 		case let .Suspended(action):
-			// Hold on to the `action` closure until the promise is resolved.
-			let disposable = ActionDisposable { [action] in }
-
-			let disposableSink = SinkOf<T> { [weak self] value in
-				if disposable.disposed {
-					return
-				}
-
-				disposable.dispose()
-				self?.sink.put(value)
-			}
-
-			action(disposableSink)
+			var sink = self.sink
+			action(SinkOf<T>{ sink.put($0) })
 
 		default:
 			break
@@ -57,27 +46,22 @@ public final class Promise<T> {
 	/// Starts the promise (if necessary), then blocks indefinitely on the
 	/// result.
 	public func await() -> T {
-		let cond = NSCondition()
-		cond.name = "com.github.ReactiveCocoa.Promise.await"
+		let semaphore = dispatch_semaphore_create(0)
+		let disposable = SerialDisposable()
 
-		let disposable = signal.observe { _ in
-			cond.lock()
-			cond.signal()
-			cond.unlock()
+		var observedValue: T? = nil
+		disposable.innerDisposable = signal.observe { value in
+			if let value = value {
+				observedValue = value
+				dispatch_semaphore_signal(semaphore)
+				disposable.dispose()
+			}
 		}
 
 		start()
+		dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
 
-		cond.lock()
-		while signal.current == nil {
-			cond.wait()
-		}
-
-		let result = signal.current!
-		cond.unlock()
-
-		disposable.dispose()
-		return result
+		return observedValue!
 	}
 
 	/// Performs the given action when the promise completes.

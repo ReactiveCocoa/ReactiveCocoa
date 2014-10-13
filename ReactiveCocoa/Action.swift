@@ -10,24 +10,20 @@ import LlamaKit
 
 /// Represents a UI action that will perform some work when executed.
 public final class Action<Input, Output> {
-	public typealias ExecutionSignal = Signal<Result<Output>?>
-
 	private let scheduler: Scheduler
-	private let executeClosure: Input -> Promise<Result<Output>>
-	private let executionsSink: SinkOf<ExecutionSignal?>
+	private let executeClosure: Input -> ColdSignal<Output>
+	private let executionsSink: SinkOf<ColdSignal<Output>>
 
 	/// A signal of the signals returned from execute().
 	///
-	/// This will be non-nil while executing, nil between executions, and will
-	/// only update on the main thread.
-	public let executions: Signal<ExecutionSignal?>
+	/// This will only fire on the main thread.
+	public let executions: HotSignal<ColdSignal<Output>>
 
 	/// A signal of all success and error results from the receiver.
 	///
-	/// Before the first execution, the current value of this signal will be
-	/// `nil`. Afterwards, it will always forward the latest results from any
-	/// calls to execute() on the main thread.
-	public var results: Signal<Result<Output>?> {
+	/// This signal will forward the latest results from any calls to execute(),
+	/// on the main thread.
+	public var results: HotSignal<Output> {
 		return executions
 			.unwrapOptionals(identity, initialValue: .constant(nil))
 			.switchToLatest(identity)
@@ -36,7 +32,7 @@ public final class Action<Input, Output> {
 	/// Whether the action is currently executing.
 	///
 	/// This will only update on the main thread.
-	public var executing: Signal<Bool> {
+	public var executing: HotSignal<Bool> {
         	return executions.map { $0 != nil }
 	}
 
@@ -168,7 +164,7 @@ public final class Action<Input, Output> {
 							sink.put(value)
 						}
 					}
-				
+
 				return ()
 			}
 		}

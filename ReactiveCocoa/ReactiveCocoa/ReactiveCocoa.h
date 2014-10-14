@@ -15,5 +15,3 @@ FOUNDATION_EXPORT double ReactiveCocoaVersionNumber;
 FOUNDATION_EXPORT const unsigned char ReactiveCocoaVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <ReactiveCocoa/PublicHeader.h>
-
-

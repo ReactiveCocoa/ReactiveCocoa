@@ -76,7 +76,7 @@ public final class HotSignal<T> {
 	/// `observer` of future changes.
 	public func observe<S: SinkType where S.Element == T>(observer: S) -> Disposable {
 		let sink = SinkOf<T>(observer)
-		var token: Bag.RemovalToken? = nil
+		var token: RemovalToken? = nil
 
 		dispatch_barrier_sync(queue) {
 			token = self.observers.insert(sink)

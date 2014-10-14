@@ -6,10 +6,14 @@
 //  Copyright (c) 2014 GitHub. All rights reserved.
 //
 
+/// A uniquely identifying token for removing a value that was inserted into a
+/// Bag.
+internal struct RemovalToken {
+	private let extract: () -> UInt?
+}
+
 /// An unordered, non-unique collection of values of type T.
 internal struct Bag<T>: SequenceType {
-	internal typealias RemovalToken = () -> UInt?
-
 	private var next: UInt = 0
 	private var elements = [UInt: T]()
 
@@ -26,7 +30,7 @@ internal struct Bag<T>: SequenceType {
 		elements[next] = value
 
 		var key = Optional(next)
-		return {
+		return RemovalToken {
 			let k = key
 			key = nil
 
@@ -38,7 +42,7 @@ internal struct Bag<T>: SequenceType {
 	///
 	/// If the value has already been removed, nothing happens.
 	internal mutating func removeValueForToken(token: RemovalToken) {
-		if let key = token() {
+		if let key = token.extract() {
 			self.elements.removeValueForKey(key)
 		}
 	}

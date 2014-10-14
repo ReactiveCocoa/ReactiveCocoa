@@ -292,7 +292,6 @@
 		D037667419EDA57100A782A9 /* metamacros.h in Headers */ = {isa = PBXBuildFile; fileRef = D037666A19EDA57100A782A9 /* metamacros.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D03766B919EDA60000A782A9 /* NSControllerRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D037667619EDA60000A782A9 /* NSControllerRACSupportSpec.m */; };
 		D03766BA19EDA60000A782A9 /* NSControllerRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D037667619EDA60000A782A9 /* NSControllerRACSupportSpec.m */; };
-		D03766BB19EDA60000A782A9 /* NSControlRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D037667719EDA60000A782A9 /* NSControlRACSupportSpec.m */; };
 		D03766BD19EDA60000A782A9 /* NSEnumeratorRACSequenceAdditionsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D037667819EDA60000A782A9 /* NSEnumeratorRACSequenceAdditionsSpec.m */; };
 		D03766BE19EDA60000A782A9 /* NSEnumeratorRACSequenceAdditionsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D037667819EDA60000A782A9 /* NSEnumeratorRACSequenceAdditionsSpec.m */; };
 		D03766BF19EDA60000A782A9 /* NSNotificationCenterRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D037667919EDA60000A782A9 /* NSNotificationCenterRACSupportSpec.m */; };
@@ -310,7 +309,6 @@
 		D03766CC19EDA60000A782A9 /* NSObjectRACSelectorSignalSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D037668019EDA60000A782A9 /* NSObjectRACSelectorSignalSpec.m */; };
 		D03766CD19EDA60000A782A9 /* NSStringRACKeyPathUtilitiesSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D037668119EDA60000A782A9 /* NSStringRACKeyPathUtilitiesSpec.m */; };
 		D03766CE19EDA60000A782A9 /* NSStringRACKeyPathUtilitiesSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D037668119EDA60000A782A9 /* NSStringRACKeyPathUtilitiesSpec.m */; };
-		D03766CF19EDA60000A782A9 /* NSTextRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D037668219EDA60000A782A9 /* NSTextRACSupportSpec.m */; };
 		D03766D119EDA60000A782A9 /* NSURLConnectionRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D037668319EDA60000A782A9 /* NSURLConnectionRACSupportSpec.m */; };
 		D03766D219EDA60000A782A9 /* NSURLConnectionRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D037668319EDA60000A782A9 /* NSURLConnectionRACSupportSpec.m */; };
 		D03766D319EDA60000A782A9 /* NSUserDefaultsRACSupportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D037668419EDA60000A782A9 /* NSUserDefaultsRACSupportSpec.m */; };
@@ -616,7 +614,6 @@
 		D037666919EDA57100A782A9 /* EXTScope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXTScope.h; sourceTree = "<group>"; };
 		D037666A19EDA57100A782A9 /* metamacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = metamacros.h; sourceTree = "<group>"; };
 		D037667619EDA60000A782A9 /* NSControllerRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSControllerRACSupportSpec.m; sourceTree = "<group>"; };
-		D037667719EDA60000A782A9 /* NSControlRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSControlRACSupportSpec.m; sourceTree = "<group>"; };
 		D037667819EDA60000A782A9 /* NSEnumeratorRACSequenceAdditionsSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSEnumeratorRACSequenceAdditionsSpec.m; sourceTree = "<group>"; };
 		D037667919EDA60000A782A9 /* NSNotificationCenterRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSNotificationCenterRACSupportSpec.m; sourceTree = "<group>"; };
 		D037667A19EDA60000A782A9 /* NSObjectRACAppKitBindingsSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSObjectRACAppKitBindingsSpec.m; sourceTree = "<group>"; };
@@ -627,7 +624,6 @@
 		D037667F19EDA60000A782A9 /* NSObjectRACPropertySubscribingSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSObjectRACPropertySubscribingSpec.m; sourceTree = "<group>"; };
 		D037668019EDA60000A782A9 /* NSObjectRACSelectorSignalSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSObjectRACSelectorSignalSpec.m; sourceTree = "<group>"; };
 		D037668119EDA60000A782A9 /* NSStringRACKeyPathUtilitiesSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringRACKeyPathUtilitiesSpec.m; sourceTree = "<group>"; };
-		D037668219EDA60000A782A9 /* NSTextRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextRACSupportSpec.m; sourceTree = "<group>"; };
 		D037668319EDA60000A782A9 /* NSURLConnectionRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSURLConnectionRACSupportSpec.m; sourceTree = "<group>"; };
 		D037668419EDA60000A782A9 /* NSUserDefaultsRACSupportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSUserDefaultsRACSupportSpec.m; sourceTree = "<group>"; };
 		D037668519EDA60000A782A9 /* RACBacktraceSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACBacktraceSpec.m; sourceTree = "<group>"; };
@@ -964,7 +960,6 @@
 			isa = PBXGroup;
 			children = (
 				D037667619EDA60000A782A9 /* NSControllerRACSupportSpec.m */,
-				D037667719EDA60000A782A9 /* NSControlRACSupportSpec.m */,
 				D037667819EDA60000A782A9 /* NSEnumeratorRACSequenceAdditionsSpec.m */,
 				D037667919EDA60000A782A9 /* NSNotificationCenterRACSupportSpec.m */,
 				D037667A19EDA60000A782A9 /* NSObjectRACAppKitBindingsSpec.m */,
@@ -975,7 +970,6 @@
 				D037667F19EDA60000A782A9 /* NSObjectRACPropertySubscribingSpec.m */,
 				D037668019EDA60000A782A9 /* NSObjectRACSelectorSignalSpec.m */,
 				D037668119EDA60000A782A9 /* NSStringRACKeyPathUtilitiesSpec.m */,
-				D037668219EDA60000A782A9 /* NSTextRACSupportSpec.m */,
 				D037668319EDA60000A782A9 /* NSURLConnectionRACSupportSpec.m */,
 				D037668419EDA60000A782A9 /* NSUserDefaultsRACSupportSpec.m */,
 				D037668519EDA60000A782A9 /* RACBacktraceSpec.m */,
@@ -1539,7 +1533,6 @@
 			files = (
 				D03766C719EDA60000A782A9 /* NSObjectRACPropertySubscribingExamples.m in Sources */,
 				D03766E319EDA60000A782A9 /* RACDelegateProxySpec.m in Sources */,
-				D03766CF19EDA60000A782A9 /* NSTextRACSupportSpec.m in Sources */,
 				D03766F919EDA60000A782A9 /* RACSerialDisposableSpec.m in Sources */,
 				D037670B19EDA60000A782A9 /* RACTargetQueueSchedulerSpec.m in Sources */,
 				D03766DD19EDA60000A782A9 /* RACCommandSpec.m in Sources */,
@@ -1562,7 +1555,6 @@
 				D03766FB19EDA60000A782A9 /* RACSignalSpec.m in Sources */,
 				D037670719EDA60000A782A9 /* RACSubscriberSpec.m in Sources */,
 				D03766EF19EDA60000A782A9 /* RACPropertySignalExamples.m in Sources */,
-				D03766BB19EDA60000A782A9 /* NSControlRACSupportSpec.m in Sources */,
 				D03766D519EDA60000A782A9 /* RACBacktraceSpec.m in Sources */,
 				D03766FD19EDA60000A782A9 /* RACSignalStartExamples.m in Sources */,
 				D037670519EDA60000A782A9 /* RACSubscriberExamples.m in Sources */,

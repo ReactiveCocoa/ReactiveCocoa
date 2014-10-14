@@ -1810,8 +1810,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(inherited)",
-					"$(PROJECT_DIR)/External/Quick/Externals/Nimble/build/Debug",
-					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ReactiveCocoa-anedscstkitsydccssaxwasrgsku/Build/Products/Debug",
 				);
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1825,8 +1823,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(inherited)",
-					"$(PROJECT_DIR)/External/Quick/Externals/Nimble/build/Debug",
-					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ReactiveCocoa-anedscstkitsydccssaxwasrgsku/Build/Products/Debug",
 				);
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1864,7 +1860,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
-					"$(PROJECT_DIR)/External/Quick/Externals/Nimble/build/Debug-iphoneos",
 				);
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1878,7 +1873,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
-					"$(PROJECT_DIR)/External/Quick/Externals/Nimble/build/Debug-iphoneos",
 				);
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1917,8 +1911,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(inherited)",
-					"$(PROJECT_DIR)/External/Quick/Externals/Nimble/build/Debug",
-					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ReactiveCocoa-anedscstkitsydccssaxwasrgsku/Build/Products/Debug",
 				);
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1944,7 +1936,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
-					"$(PROJECT_DIR)/External/Quick/Externals/Nimble/build/Debug-iphoneos",
 				);
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1983,8 +1974,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(inherited)",
-					"$(PROJECT_DIR)/External/Quick/Externals/Nimble/build/Debug",
-					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ReactiveCocoa-anedscstkitsydccssaxwasrgsku/Build/Products/Debug",
 				);
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2010,7 +1999,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
-					"$(PROJECT_DIR)/External/Quick/Externals/Nimble/build/Debug-iphoneos",
 				);
 				INFOPLIST_FILE = ReactiveCocoaTests/Info.plist;
 				PRODUCT_NAME = "$(TARGET_NAME)";

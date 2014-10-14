@@ -78,6 +78,7 @@ FOUNDATION_EXPORT const unsigned char ReactiveCocoaVersionString[];
 	#import "UIStepper+RACSignalSupport.h"
 	#import "UISwitch+RACSignalSupport.h"
 	#import "UITableViewCell+RACSignalSupport.h"
+	#import "UITableViewHeaderFooterView+RACSignalSupport.h"
 	#import "UITextField+RACSignalSupport.h"
 	#import "UITextView+RACSignalSupport.h"
 #elif TARGET_OS_MAC

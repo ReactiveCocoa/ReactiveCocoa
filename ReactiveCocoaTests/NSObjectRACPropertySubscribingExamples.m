@@ -156,59 +156,6 @@ qck_sharedExamples(RACPropertySubscribingExamples, ^(QCKDSLSharedExampleContext 
 		expect(@(objectDealloced)).to(beTruthy());
 	});
 
-	qck_it(@"should not resurrect a deallocated object upon subscription", ^{
-		dispatch_queue_t queue = dispatch_queue_create(NULL, DISPATCH_QUEUE_CONCURRENT);
-		dispatch_set_target_queue(queue, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0));
-
-		// Fuzz out race conditions.
-		for (unsigned i = 0; i < 100; i++) {
-			dispatch_suspend(queue);
-
-			__block CFTypeRef object;
-			__block BOOL deallocated;
-
-			RACSignal *signal;
-
-			@autoreleasepool {
-				RACTestObject *testObject = [[RACTestObject alloc] init];
-				[testObject.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
-					deallocated = YES;
-				}]];
-
-				signal = signalBlock(testObject, @keypath(testObject, objectValue), nil);
-				object = CFBridgingRetain(testObject);
-			}
-
-			dispatch_block_t testSubscription = ^{
-				RACDisposable *disposable = [signal subscribeCompleted:^{}];
-				expect(disposable).notTo(beNil());
-			};
-
-			unsigned beforeCount = arc4random_uniform(20);
-			for (unsigned j = 0; j < beforeCount; j++) {
-				dispatch_async(queue, testSubscription);
-			}
-
-			dispatch_async(queue, ^{
-				CFRelease(object);
-				expect(@(deallocated)).to(beTruthy());
-			});
-
-			unsigned afterCount = arc4random_uniform(20);
-			for (unsigned j = 0; j < afterCount; j++) {
-				dispatch_async(queue, testSubscription);
-			}
-
-			dispatch_barrier_async(queue, testSubscription);
-
-			// Start everything and wait for it all to complete.
-			dispatch_resume(queue);
-
-			expect(@(deallocated)).toEventually(beTruthy());
-			dispatch_barrier_sync(queue, ^{});
-		}
-	});
-
 	qck_it(@"shouldn't crash when the value is changed on a different queue", ^{
 		__block id value;
 		@autoreleasepool {

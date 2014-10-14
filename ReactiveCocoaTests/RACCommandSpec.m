@@ -393,7 +393,7 @@ qck_it(@"should send errors on the main thread", ^{
 	RACSignal *errorSignal = [RACSignal error:error];
 
 	[[RACScheduler scheduler] schedule:^{
-		expect(@([[command execute:errorSignal] waitUntilCompleted:NULL])).to(beTruthy());
+		[command execute:errorSignal];
 	}];
 
 	expect(receivedScheduler).to(beNil());

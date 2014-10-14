@@ -27,7 +27,6 @@
 #import "RACReplaySubject.h"
 #import "RACScheduler.h"
 #import "RACSignal+Operations.h"
-#import "RACSignalStartExamples.h"
 #import "RACSubject.h"
 #import "RACSubscriber+Private.h"
 #import "RACSubscriber.h"
@@ -1441,6 +1440,8 @@ qck_describe(@"memory management", ^{
 
 	qck_it(@"should dealloc if the signal was created on a background queue, never gets any subscribers, and the background queue gets delayed", ^{
 		__block BOOL deallocd = NO;
+		dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+		
 		@autoreleasepool {
 			[[RACScheduler scheduler] schedule:^{
 				RACSignal *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
@@ -1449,6 +1450,7 @@ qck_describe(@"memory management", ^{
 
 				[signal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 					deallocd = YES;
+					dispatch_semaphore_signal(semaphore);
 				}]];
 
 				[NSThread sleepForTimeInterval:1];
@@ -1457,7 +1459,8 @@ qck_describe(@"memory management", ^{
 			}];
 		}
 
-		expect(@(deallocd)).toEventually(beTruthy());
+		dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+		expect(@(deallocd)).to(beTruthy());
 	});
 
 	qck_it(@"should retain intermediate signals when subscribing", ^{
@@ -3658,22 +3661,6 @@ qck_describe(@"-groupBy:", ^{
 
 qck_describe(@"starting signals", ^{
 	qck_describe(@"+startLazilyWithScheduler:block:", ^{
-		qck_itBehavesLike(RACSignalStartSharedExamplesName, ^{
-			NSArray *expectedValues = @[ @42, @43 ];
-			RACScheduler *scheduler = [RACScheduler scheduler];
-			RACSignal *signal = [RACSignal startLazilyWithScheduler:scheduler block:^(id<RACSubscriber> subscriber) {
-				for (id value in expectedValues) {
-					[subscriber sendNext:value];
-				}
-				[subscriber sendCompleted];
-			}];
-			return @{
-				RACSignalStartSignal: signal,
-				RACSignalStartExpectedValues: expectedValues,
-				RACSignalStartExpectedScheduler: scheduler,
-			};
-		});
-
 		__block NSUInteger invokedCount = 0;
 		__block void (^subscribe)(void);
 
@@ -3722,22 +3709,6 @@ qck_describe(@"starting signals", ^{
 	});
 
 	qck_describe(@"+startEagerlyWithScheduler:block:", ^{
-		qck_itBehavesLike(RACSignalStartSharedExamplesName, ^{
-			NSArray *expectedValues = @[ @42, @43 ];
-			RACScheduler *scheduler = [RACScheduler scheduler];
-			RACSignal *signal = [RACSignal startEagerlyWithScheduler:scheduler block:^(id<RACSubscriber> subscriber) {
-				for (id value in expectedValues) {
-					[subscriber sendNext:value];
-				}
-				[subscriber sendCompleted];
-			}];
-			return @{
-				RACSignalStartSignal: signal,
-				RACSignalStartExpectedValues: expectedValues,
-				RACSignalStartExpectedScheduler: scheduler,
-			};
-		});
-
 		qck_it(@"should immediately invoke the block", ^{
 			__block BOOL blockInvoked = NO;
 			[RACSignal startEagerlyWithScheduler:[RACScheduler scheduler] block:^(id<RACSubscriber> subscriber) {

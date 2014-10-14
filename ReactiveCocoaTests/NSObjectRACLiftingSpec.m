@@ -111,10 +111,10 @@ qck_describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		[object rac_liftSelector:@selector(setObjectValue:) withSignalsFromArray:@[ subject ]];
 
 		[subject sendNext:nil];
-		expect(object.objectValue).to(equal(nil));
+		expect(object.objectValue).to(beNil());
 
 		[subject sendNext:RACTupleNil.tupleNil];
-		expect(object.objectValue).to(equal(nil));
+		expect(object.objectValue).to(beNil());
 	});
 
 	qck_it(@"should work with integers", ^{
@@ -141,7 +141,7 @@ qck_describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setObjectValue:) withSignalsFromArray:@[ subject ]];
 
-		expect(object.objectValue).to(equal(nil));
+		expect(object.objectValue).to(beNil());
 
 		[subject sendNext:self.class];
 		expect(object.objectValue).to(equal(self.class));

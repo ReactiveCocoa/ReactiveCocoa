@@ -353,8 +353,6 @@
 		D03766FA19EDA60000A782A9 /* RACSerialDisposableSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D037669B19EDA60000A782A9 /* RACSerialDisposableSpec.m */; };
 		D03766FB19EDA60000A782A9 /* RACSignalSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D037669C19EDA60000A782A9 /* RACSignalSpec.m */; };
 		D03766FC19EDA60000A782A9 /* RACSignalSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D037669C19EDA60000A782A9 /* RACSignalSpec.m */; };
-		D03766FD19EDA60000A782A9 /* RACSignalStartExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = D037669E19EDA60000A782A9 /* RACSignalStartExamples.m */; };
-		D03766FE19EDA60000A782A9 /* RACSignalStartExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = D037669E19EDA60000A782A9 /* RACSignalStartExamples.m */; };
 		D03766FF19EDA60000A782A9 /* RACStreamExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = D03766A019EDA60000A782A9 /* RACStreamExamples.m */; };
 		D037670019EDA60000A782A9 /* RACStreamExamples.m in Sources */ = {isa = PBXBuildFile; fileRef = D03766A019EDA60000A782A9 /* RACStreamExamples.m */; };
 		D037670119EDA60000A782A9 /* RACSubclassObject.m in Sources */ = {isa = PBXBuildFile; fileRef = D03766A219EDA60000A782A9 /* RACSubclassObject.m */; };
@@ -650,8 +648,6 @@
 		D037669A19EDA60000A782A9 /* RACSequenceSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSequenceSpec.m; sourceTree = "<group>"; };
 		D037669B19EDA60000A782A9 /* RACSerialDisposableSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSerialDisposableSpec.m; sourceTree = "<group>"; };
 		D037669C19EDA60000A782A9 /* RACSignalSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSignalSpec.m; sourceTree = "<group>"; };
-		D037669D19EDA60000A782A9 /* RACSignalStartExamples.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACSignalStartExamples.h; sourceTree = "<group>"; };
-		D037669E19EDA60000A782A9 /* RACSignalStartExamples.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACSignalStartExamples.m; sourceTree = "<group>"; };
 		D037669F19EDA60000A782A9 /* RACStreamExamples.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACStreamExamples.h; sourceTree = "<group>"; };
 		D03766A019EDA60000A782A9 /* RACStreamExamples.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACStreamExamples.m; sourceTree = "<group>"; };
 		D03766A119EDA60000A782A9 /* RACSubclassObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACSubclassObject.h; sourceTree = "<group>"; };
@@ -996,8 +992,6 @@
 				D037669A19EDA60000A782A9 /* RACSequenceSpec.m */,
 				D037669B19EDA60000A782A9 /* RACSerialDisposableSpec.m */,
 				D037669C19EDA60000A782A9 /* RACSignalSpec.m */,
-				D037669D19EDA60000A782A9 /* RACSignalStartExamples.h */,
-				D037669E19EDA60000A782A9 /* RACSignalStartExamples.m */,
 				D037669F19EDA60000A782A9 /* RACStreamExamples.h */,
 				D03766A019EDA60000A782A9 /* RACStreamExamples.m */,
 				D03766A119EDA60000A782A9 /* RACSubclassObject.h */,
@@ -1556,7 +1550,6 @@
 				D037670719EDA60000A782A9 /* RACSubscriberSpec.m in Sources */,
 				D03766EF19EDA60000A782A9 /* RACPropertySignalExamples.m in Sources */,
 				D03766D519EDA60000A782A9 /* RACBacktraceSpec.m in Sources */,
-				D03766FD19EDA60000A782A9 /* RACSignalStartExamples.m in Sources */,
 				D037670519EDA60000A782A9 /* RACSubscriberExamples.m in Sources */,
 				D03766D719EDA60000A782A9 /* RACBlockTrampolineSpec.m in Sources */,
 				D03766FF19EDA60000A782A9 /* RACStreamExamples.m in Sources */,
@@ -1712,7 +1705,6 @@
 				D037671C19EDA60000A782A9 /* UIAlertViewRACSupportSpec.m in Sources */,
 				D03766F019EDA60000A782A9 /* RACPropertySignalExamples.m in Sources */,
 				D03766D619EDA60000A782A9 /* RACBacktraceSpec.m in Sources */,
-				D03766FE19EDA60000A782A9 /* RACSignalStartExamples.m in Sources */,
 				D037670619EDA60000A782A9 /* RACSubscriberExamples.m in Sources */,
 				D03766D819EDA60000A782A9 /* RACBlockTrampolineSpec.m in Sources */,
 				D037670019EDA60000A782A9 /* RACStreamExamples.m in Sources */,

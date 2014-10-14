@@ -119,14 +119,14 @@ qck_describe(@"+mainThreadScheduler", ^{
 		}];
 
 		expect(@(count)).to(equal(@0));
-		expect(@(count)).toEventually(equal(@1));
-		expect(@(count)).toEventually(equal(@2));
-		expect(@(count)).toEventually(equal(@3));
+		expect(@(count)).toEventually(beGreaterThanOrEqualTo(@1));
+		expect(@(count)).toEventually(beGreaterThanOrEqualTo(@2));
+		expect(@(count)).toEventually(beGreaterThanOrEqualTo(@3));
 
 		[disposable dispose];
 		[NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
 
-		expect(@(count)).to(equal(@3));
+		expect(@(count)).to(beGreaterThanOrEqualTo(@3));
 	});
 });
 
@@ -205,15 +205,15 @@ qck_describe(@"+scheduler", ^{
 			count++;
 		}];
 
-		expect(@(count)).to(equal(@0));
-		expect(@(count)).toEventually(equal(@1));
-		expect(@(count)).toEventually(equal(@2));
-		expect(@(count)).toEventually(equal(@3));
+		expect(@(count)).to(beGreaterThanOrEqualTo(@0));
+		expect(@(count)).toEventually(beGreaterThanOrEqualTo(@1));
+		expect(@(count)).toEventually(beGreaterThanOrEqualTo(@2));
+		expect(@(count)).toEventually(beGreaterThanOrEqualTo(@3));
 
 		[disposable dispose];
 		[NSThread sleepForTimeInterval:0.1];
 
-		expect(@(count)).to(equal(@3));
+		expect(@(count)).to(beGreaterThanOrEqualTo(@3));
 	});
 });
 

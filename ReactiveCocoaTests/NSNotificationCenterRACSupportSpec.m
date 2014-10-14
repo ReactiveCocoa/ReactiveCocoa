@@ -56,7 +56,7 @@ qck_it(@"should send the notification when posted by a specific object", ^{
 
 		expect(notification).to(beAKindOf(NSNotification.class));
 		expect(notification.name).to(equal(TestNotification));
-		expect(notification.object).to(equal(self));
+		expect(notification.object).to(beIdenticalTo(self));
 	}];
 
 	expect(@(count)).to(equal(@0));

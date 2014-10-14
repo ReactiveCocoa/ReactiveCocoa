@@ -6,6 +6,9 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACTestObject.h"
 #import "RACChannelExamples.h"
 #import "RACPropertySignalExamples.h"
@@ -17,9 +20,9 @@
 #import "RACKVOChannel.h"
 #import "RACSignal+Operations.h"
 
-SpecBegin(RACKVOChannel)
+QuickSpecBegin(RACKVOChannelSpec)
 
-describe(@"RACKVOChannel", ^{
+qck_describe(@"RACKVOChannel", ^{
 	__block RACTestObject *object;
 	__block RACKVOChannel *channel;
 	id value1 = @"test value 1";
@@ -27,7 +30,7 @@ describe(@"RACKVOChannel", ^{
 	id value3 = @"test value 3";
 	NSArray *values = @[ value1, value2, value3 ];
 	
-	before(^{
+	qck_before(^{
 		object = [[RACTestObject alloc] init];
 		channel = [[RACKVOChannel alloc] initWithTarget:object keyPath:@keypath(object.stringValue) nilValue:nil];
 	});
@@ -47,7 +50,7 @@ describe(@"RACKVOChannel", ^{
 		} copy]
 	});
 	
-	it(@"should send the object's current value when subscribed to followingTerminal", ^{
+	qck_it(@"should send the object's current value when subscribed to followingTerminal", ^{
 		__block id receivedValue = @"received value should not be this";
 		[[channel.followingTerminal take:1] subscribeNext:^(id x) {
 			receivedValue = x;
@@ -63,7 +66,7 @@ describe(@"RACKVOChannel", ^{
 		expect(receivedValue).to.equal(value1);
 	});
 	
-	it(@"should send the object's new value on followingTerminal when it's changed", ^{
+	qck_it(@"should send the object's new value on followingTerminal when it's changed", ^{
 		object.stringValue = value1;
 
 		NSMutableArray *receivedValues = [NSMutableArray array];
@@ -76,7 +79,7 @@ describe(@"RACKVOChannel", ^{
 		expect(receivedValues).to.equal(values);
 	});
 	
-	it(@"should set the object's value using values sent to the followingTerminal", ^{
+	qck_it(@"should set the object's value using values sent to the followingTerminal", ^{
 		expect(object.stringValue).to.beNil();
 
 		[channel.followingTerminal sendNext:value1];
@@ -86,7 +89,7 @@ describe(@"RACKVOChannel", ^{
 		expect(object.stringValue).to.equal(value2);
 	});
 	
-	it(@"should be able to subscribe to signals", ^{
+	qck_it(@"should be able to subscribe to signals", ^{
 		NSMutableArray *receivedValues = [NSMutableArray array];
 		[object rac_observeKeyPath:@keypath(object.stringValue) options:0 observer:self block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
 			[receivedValues addObject:value];
@@ -103,7 +106,7 @@ describe(@"RACKVOChannel", ^{
 		expect(receivedValues).to.equal(values);
 	});
 
-	it(@"should complete both terminals when the target deallocates", ^{
+	qck_it(@"should complete both terminals when the target deallocates", ^{
 		__block BOOL leadingCompleted = NO;
 		__block BOOL followingCompleted = NO;
 		__block BOOL deallocated = NO;
@@ -133,7 +136,7 @@ describe(@"RACKVOChannel", ^{
 		expect(followingCompleted).to.beTruthy();
 	});
 
-	it(@"should deallocate when the target deallocates", ^{
+	qck_it(@"should deallocate when the target deallocates", ^{
 		__block BOOL targetDeallocated = NO;
 		__block BOOL channelDeallocated = NO;
 
@@ -157,7 +160,7 @@ describe(@"RACKVOChannel", ^{
 	});
 });
 
-describe(@"RACChannelTo", ^{
+qck_describe(@"RACChannelTo", ^{
 	__block RACTestObject *a;
 	__block RACTestObject *b;
 	__block RACTestObject *c;
@@ -165,7 +168,7 @@ describe(@"RACChannelTo", ^{
 	__block NSString *testName2;
 	__block NSString *testName3;
 	
-	before(^{
+	qck_before(^{
 		a = [[RACTestObject alloc] init];
 		b = [[RACTestObject alloc] init];
 		c = [[RACTestObject alloc] init];
@@ -174,7 +177,7 @@ describe(@"RACChannelTo", ^{
 		testName3 = @"sync it once more!";
 	});
 	
-	it(@"should keep objects' properties in sync", ^{
+	qck_it(@"should keep objects' properties in sync", ^{
 		RACChannelTo(a, stringValue) = RACChannelTo(b, stringValue);
 		expect(a.stringValue).to.beNil();
 		expect(b.stringValue).to.beNil();
@@ -192,7 +195,7 @@ describe(@"RACChannelTo", ^{
 		expect(b.stringValue).to.beNil();
 	});
 	
-	it(@"should keep properties identified by keypaths in sync", ^{
+	qck_it(@"should keep properties identified by keypaths in sync", ^{
 		RACChannelTo(a, strongTestObjectValue.stringValue) = RACChannelTo(b, strongTestObjectValue.stringValue);
 		a.strongTestObjectValue = [[RACTestObject alloc] init];
 		b.strongTestObjectValue = [[RACTestObject alloc] init];
@@ -212,7 +215,7 @@ describe(@"RACChannelTo", ^{
 		expect(a.strongTestObjectValue).notTo.equal(b.strongTestObjectValue);
 	});
 	
-	it(@"should update properties identified by keypaths when the intermediate values change", ^{
+	qck_it(@"should update properties identified by keypaths when the intermediate values change", ^{
 		RACChannelTo(a, strongTestObjectValue.stringValue) = RACChannelTo(b, strongTestObjectValue.stringValue);
 		a.strongTestObjectValue = [[RACTestObject alloc] init];
 		b.strongTestObjectValue = [[RACTestObject alloc] init];
@@ -223,7 +226,7 @@ describe(@"RACChannelTo", ^{
 		expect(a.strongTestObjectValue).notTo.equal(b.strongTestObjectValue);
 	});
 	
-	it(@"should update properties identified by keypaths when the channel was created when one of the two objects had an intermediate nil value", ^{
+	qck_it(@"should update properties identified by keypaths when the channel was created when one of the two objects had an intermediate nil value", ^{
 		RACChannelTo(a, strongTestObjectValue.stringValue) = RACChannelTo(b, strongTestObjectValue.stringValue);
 		b.strongTestObjectValue = [[RACTestObject alloc] init];
 		c.stringValue = testName1;
@@ -234,7 +237,7 @@ describe(@"RACChannelTo", ^{
 		expect(a.strongTestObjectValue).notTo.equal(b.strongTestObjectValue);
 	});
 	
-	it(@"should take the value of the object being bound to at the start", ^{
+	qck_it(@"should take the value of the object being bound to at the start", ^{
 		a.stringValue = testName1;
 		b.stringValue = testName2;
 
@@ -243,7 +246,7 @@ describe(@"RACChannelTo", ^{
 		expect(b.stringValue).to.equal(testName2);
 	});
 	
-	it(@"should update the value even if it's the same value the object had before it was bound", ^{
+	qck_it(@"should update the value even if it's the same value the object had before it was bound", ^{
 		a.stringValue = testName1;
 		b.stringValue = testName2;
 
@@ -256,7 +259,7 @@ describe(@"RACChannelTo", ^{
 		expect(b.stringValue).to.equal(testName1);
 	});
 	
-	it(@"should bind transitively", ^{
+	qck_it(@"should bind transitively", ^{
 		a.stringValue = testName1;
 		b.stringValue = testName2;
 		c.stringValue = testName3;
@@ -283,7 +286,7 @@ describe(@"RACChannelTo", ^{
 		expect(c.stringValue).to.equal(testName3);
 	});
 	
-	it(@"should bind changes made by KVC on arrays", ^{
+	qck_it(@"should bind changes made by KVC on arrays", ^{
 		b.arrayValue = @[];
 		RACChannelTo(a, arrayValue) = RACChannelTo(b, arrayValue);
 
@@ -291,7 +294,7 @@ describe(@"RACChannelTo", ^{
 		expect(a.arrayValue).to.equal(b.arrayValue);
 	});
 	
-	it(@"should bind changes made by KVC on sets", ^{
+	qck_it(@"should bind changes made by KVC on sets", ^{
 		b.setValue = [NSSet set];
 		RACChannelTo(a, setValue) = RACChannelTo(b, setValue);
 
@@ -299,7 +302,7 @@ describe(@"RACChannelTo", ^{
 		expect(a.setValue).to.equal(b.setValue);
 	});
 	
-	it(@"should bind changes made by KVC on ordered sets", ^{
+	qck_it(@"should bind changes made by KVC on ordered sets", ^{
 		b.orderedSetValue = [NSOrderedSet orderedSet];
 		RACChannelTo(a, orderedSetValue) = RACChannelTo(b, orderedSetValue);
 
@@ -307,7 +310,7 @@ describe(@"RACChannelTo", ^{
 		expect(a.orderedSetValue).to.equal(b.orderedSetValue);
 	});
 	
-	it(@"should handle deallocation of intermediate objects correctly even without support from KVO", ^{
+	qck_it(@"should handle deallocation of intermediate objects correctly even without support from KVO", ^{
 		__block BOOL wasDisposed = NO;
 
 		RACChannelTo(a, weakTestObjectValue.stringValue) = RACChannelTo(b, strongTestObjectValue.stringValue);
@@ -330,7 +333,7 @@ describe(@"RACChannelTo", ^{
 		expect(b.strongTestObjectValue.stringValue).to.beNil();
 	});
 	
-	it(@"should stop binding when disposed", ^{
+	qck_it(@"should stop binding when disposed", ^{
 		RACChannelTerminal *aTerminal = RACChannelTo(a, stringValue);
 		RACChannelTerminal *bTerminal = RACChannelTo(b, stringValue);
 
@@ -351,7 +354,7 @@ describe(@"RACChannelTo", ^{
 		expect(b.stringValue).to.equal(testName2);
 	});
 	
-	it(@"should use the nilValue when sent nil", ^{
+	qck_it(@"should use the nilValue when sent nil", ^{
 		RACChannelTerminal *terminal = RACChannelTo(a, integerValue, @5);
 		expect(a.integerValue).to.equal(0);
 
@@ -362,7 +365,7 @@ describe(@"RACChannelTo", ^{
 		expect(a.integerValue).to.equal(5);
 	});
 
-	it(@"should use the nilValue when an intermediate object is nil", ^{
+	qck_it(@"should use the nilValue when an intermediate object is nil", ^{
 		__block BOOL wasDisposed = NO;
 
 		RACChannelTo(a, weakTestObjectValue.integerValue, @5) = RACChannelTo(b, strongTestObjectValue.integerValue, @5);
@@ -386,4 +389,4 @@ describe(@"RACChannelTo", ^{
 	});
 });
 
-SpecEnd
+QuickSpecEnd

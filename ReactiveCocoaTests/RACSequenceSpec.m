@@ -6,6 +6,9 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACSequenceExamples.h"
 #import "RACStreamExamples.h"
 
@@ -17,9 +20,9 @@
 #import "RACSequence.h"
 #import "RACUnit.h"
 
-SpecBegin(RACSequence)
+QuickSpecBegin(RACSequenceSpec)
 
-describe(@"RACStream", ^{
+qck_describe(@"RACStream", ^{
 	id verifyValues = ^(RACSequence *sequence, NSArray *expectedValues) {
 		NSMutableArray *collectedValues = [NSMutableArray array];
 		while (sequence.head != nil) {
@@ -45,12 +48,12 @@ describe(@"RACStream", ^{
 	});
 });
 
-describe(@"+sequenceWithHeadBlock:tailBlock:", ^{
+qck_describe(@"+sequenceWithHeadBlock:tailBlock:", ^{
 	__block RACSequence *sequence;
 	__block BOOL headInvoked;
 	__block BOOL tailInvoked;
 
-	before(^{
+	qck_before(^{
 		headInvoked = NO;
 		tailInvoked = NO;
 
@@ -65,13 +68,13 @@ describe(@"+sequenceWithHeadBlock:tailBlock:", ^{
 		expect(sequence).notTo.beNil();
 	});
 
-	it(@"should use the values from the head and tail blocks", ^{
+	qck_it(@"should use the values from the head and tail blocks", ^{
 		expect(sequence.head).to.equal(@0);
 		expect(sequence.tail.head).to.equal(@1);
 		expect(sequence.tail.tail).to.beNil();
 	});
 
-	it(@"should lazily invoke head and tail blocks", ^{
+	qck_it(@"should lazily invoke head and tail blocks", ^{
 		expect(headInvoked).to.beFalsy();
 		expect(tailInvoked).to.beFalsy();
 
@@ -83,7 +86,7 @@ describe(@"+sequenceWithHeadBlock:tailBlock:", ^{
 		expect(tailInvoked).to.beTruthy();
 	});
 
-	after(^{
+	qck_after(^{
 		itShouldBehaveLike(RACSequenceExamples, ^{
 			return @{
 				RACSequenceExampleSequence: sequence,
@@ -93,7 +96,7 @@ describe(@"+sequenceWithHeadBlock:tailBlock:", ^{
 	});
 });
 
-describe(@"empty sequences", ^{
+qck_describe(@"empty sequences", ^{
 	itShouldBehaveLike(RACSequenceExamples, ^{
 		return @{
 			RACSequenceExampleSequence: [RACSequence empty],
@@ -102,7 +105,7 @@ describe(@"empty sequences", ^{
 	});
 });
 
-describe(@"non-empty sequences", ^{
+qck_describe(@"non-empty sequences", ^{
 	itShouldBehaveLike(RACSequenceExamples, ^{
 		return @{
 			RACSequenceExampleSequence: [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]],
@@ -111,14 +114,14 @@ describe(@"non-empty sequences", ^{
 	});
 });
 
-describe(@"eager sequences", ^{
+qck_describe(@"eager sequences", ^{
 	__block RACSequence *lazySequence;
 	__block BOOL headInvoked;
 	__block BOOL tailInvoked;
 
 	NSArray *values = @[ @0, @1 ];
 	
-	before(^{
+	qck_before(^{
 		headInvoked = NO;
 		tailInvoked = NO;
 		
@@ -140,7 +143,7 @@ describe(@"eager sequences", ^{
 		};
 	});
 	
-	it(@"should evaluate all values immediately", ^{
+	qck_it(@"should evaluate all values immediately", ^{
 		RACSequence *eagerSequence = lazySequence.eagerSequence;
 		expect(headInvoked).to.beTruthy();
 		expect(tailInvoked).to.beTruthy();
@@ -148,8 +151,8 @@ describe(@"eager sequences", ^{
 	});
 });
 
-describe(@"-take:", ^{
-	it(@"should complete take: without needing the head of the second item in the sequence", ^{
+qck_describe(@"-take:", ^{
+	qck_it(@"should complete take: without needing the head of the second item in the sequence", ^{
 		__block NSUInteger valuesTaken = 0;
 
 		__block RACSequence *sequence = [RACSequence sequenceWithHeadBlock:^{
@@ -165,8 +168,8 @@ describe(@"-take:", ^{
 	});
 });
 
-describe(@"-bind:", ^{
-	it(@"should only evaluate head when the resulting sequence is evaluated", ^{
+qck_describe(@"-bind:", ^{
+	qck_it(@"should only evaluate head when the resulting sequence is evaluated", ^{
 		__block BOOL headInvoked = NO;
 
 		RACSequence *original = [RACSequence sequenceWithHeadBlock:^{
@@ -190,8 +193,8 @@ describe(@"-bind:", ^{
 	});
 });
 
-describe(@"-objectEnumerator", ^{
-	it(@"should only evaluate head as it's enumerated", ^{
+qck_describe(@"-objectEnumerator", ^{
+	qck_it(@"should only evaluate head as it's enumerated", ^{
 		__block BOOL firstHeadInvoked = NO;
 		__block BOOL secondHeadInvoked = NO;
 		__block BOOL thirdHeadInvoked = NO;
@@ -236,7 +239,7 @@ describe(@"-objectEnumerator", ^{
 		expect([enumerator nextObject]).to.beNil();
 	});
 	
-	it(@"should let the sequence dealloc as it's enumerated", ^{
+	qck_it(@"should let the sequence dealloc as it's enumerated", ^{
 		__block BOOL firstSequenceDeallocd = NO;
 		__block BOOL secondSequenceDeallocd = NO;
 		__block BOOL thirdSequenceDeallocd = NO;
@@ -295,7 +298,7 @@ describe(@"-objectEnumerator", ^{
 	});
 });
 
-it(@"shouldn't overflow the stack when deallocated on a background queue", ^{
+qck_it(@"shouldn't overflow the stack when deallocated on a background queue", ^{
 	NSUInteger length = 10000;
 	NSMutableArray *values = [NSMutableArray arrayWithCapacity:length];
 	for (NSUInteger i = 0; i < length; ++i) {
@@ -319,8 +322,8 @@ it(@"shouldn't overflow the stack when deallocated on a background queue", ^{
 	Expecta.asynchronousTestTimeout = oldTimeout;
 });
 
-describe(@"-foldLeftWithStart:reduce:", ^{
-	it(@"should reduce with start first", ^{
+qck_describe(@"-foldLeftWithStart:reduce:", ^{
+	qck_it(@"should reduce with start first", ^{
 		RACSequence *sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
 		NSNumber *result = [sequence foldLeftWithStart:@3 reduce:^(NSNumber *first, NSNumber *rest) {
 			return first;
@@ -328,7 +331,7 @@ describe(@"-foldLeftWithStart:reduce:", ^{
 		expect(result).to.equal(@3);
 	});
 
-	it(@"should be left associative", ^{
+	qck_it(@"should be left associative", ^{
 		RACSequence *sequence = [[[RACSequence return:@1] concat:[RACSequence return:@2]] concat:[RACSequence return:@3]];
 		NSNumber *result = [sequence foldLeftWithStart:@0 reduce:^(NSNumber *first, NSNumber *rest) {
 			int difference = first.intValue - rest.intValue;
@@ -338,8 +341,8 @@ describe(@"-foldLeftWithStart:reduce:", ^{
 	});
 });
 
-describe(@"-foldRightWithStart:reduce:", ^{
-	it(@"should be lazy", ^{
+qck_describe(@"-foldRightWithStart:reduce:", ^{
+	qck_it(@"should be lazy", ^{
 		__block BOOL headInvoked = NO;
 		__block BOOL tailInvoked = NO;
 		RACSequence *sequence = [RACSequence sequenceWithHeadBlock:^{
@@ -359,7 +362,7 @@ describe(@"-foldRightWithStart:reduce:", ^{
 		expect(tailInvoked).to.beFalsy();
 	});
 	
-	it(@"should reduce with start last", ^{
+	qck_it(@"should reduce with start last", ^{
 		RACSequence *sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
 		NSNumber *result = [sequence foldRightWithStart:@3 reduce:^(NSNumber *first, RACSequence *rest) {
 			return rest.head;
@@ -367,7 +370,7 @@ describe(@"-foldRightWithStart:reduce:", ^{
 		expect(result).to.equal(@3);
 	});
 	
-	it(@"should be right associative", ^{
+	qck_it(@"should be right associative", ^{
 		RACSequence *sequence = [[[RACSequence return:@1] concat:[RACSequence return:@2]] concat:[RACSequence return:@3]];
 		NSNumber *result = [sequence foldRightWithStart:@0 reduce:^(NSNumber *first, RACSequence *rest) {
 			int difference = first.intValue - [rest.head intValue];
@@ -377,20 +380,20 @@ describe(@"-foldRightWithStart:reduce:", ^{
 	});
 });
 
-describe(@"-any", ^{
+qck_describe(@"-any", ^{
 	__block RACSequence *sequence;
-	beforeEach(^{
+	qck_beforeEach(^{
 		sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
 	});
 	
-	it(@"should return true when at least one exists", ^{
+	qck_it(@"should return true when at least one exists", ^{
 		BOOL result = [sequence any:^ BOOL (NSNumber *value) {
 			return value.integerValue > 0;
 		}];
 		expect(result).to.beTruthy();
 	});
 	
-	it(@"should return false when no such thing exists", ^{
+	qck_it(@"should return false when no such thing exists", ^{
 		BOOL result = [sequence any:^ BOOL (NSNumber *value) {
 			return value.integerValue == 3;
 		}];
@@ -398,20 +401,20 @@ describe(@"-any", ^{
 	});
 });
 
-describe(@"-all", ^{
+qck_describe(@"-all", ^{
 	__block RACSequence *sequence;
-	beforeEach(^{
+	qck_beforeEach(^{
 		sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
 	});
 	
-	it(@"should return true when all values pass", ^{
+	qck_it(@"should return true when all values pass", ^{
 		BOOL result = [sequence all:^ BOOL (NSNumber *value) {
 			return value.integerValue >= 0;
 		}];
 		expect(result).to.beTruthy();
 	});
 	
-	it(@"should return false when at least one value fails", ^{
+	qck_it(@"should return false when at least one value fails", ^{
 		BOOL result = [sequence all:^ BOOL (NSNumber *value) {
 			return value.integerValue < 2;
 		}];
@@ -419,20 +422,20 @@ describe(@"-all", ^{
 	});
 });
 
-describe(@"-objectPassingTest:", ^{
+qck_describe(@"-objectPassingTest:", ^{
 	__block RACSequence *sequence;
-	beforeEach(^{
+	qck_beforeEach(^{
 		sequence = [[[RACSequence return:@0] concat:[RACSequence return:@1]] concat:[RACSequence return:@2]];
 	});
 	
-	it(@"should return leftmost object that passes the test", ^{
+	qck_it(@"should return leftmost object that passes the test", ^{
 		NSNumber *result = [sequence objectPassingTest:^ BOOL (NSNumber *value) {
 			return value.intValue > 0;
 		}];
 		expect(result).to.equal(@1);
 	});
 	
-	it(@"should return nil if no objects pass the test", ^{
+	qck_it(@"should return nil if no objects pass the test", ^{
 		NSNumber *result = [sequence objectPassingTest:^ BOOL (NSNumber *value) {
 			return value.intValue < 0;
 		}];
@@ -440,4 +443,4 @@ describe(@"-objectPassingTest:", ^{
 	});
 });
 
-SpecEnd
+QuickSpecEnd

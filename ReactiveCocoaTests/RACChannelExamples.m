@@ -6,6 +6,9 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACChannelExamples.h"
 
 #import "NSObject+RACDeallocating.h"
@@ -35,12 +38,12 @@ sharedExamplesFor(RACChannelExamples, ^(NSDictionary *data) {
 	id value3 = @"test value 3";
 	NSArray *values = @[ value1, value2, value3 ];
 	
-	before(^{
+	qck_before(^{
 		getChannel = data[RACChannelExampleCreateBlock];
 		channel = getChannel();
 	});
 	
-	it(@"should not send any leadingTerminal value on subscription", ^{
+	qck_it(@"should not send any leadingTerminal value on subscription", ^{
 		__block id receivedValue = nil;
 
 		[channel.followingTerminal sendNext:value1];
@@ -54,7 +57,7 @@ sharedExamplesFor(RACChannelExamples, ^(NSDictionary *data) {
 		expect(receivedValue).to.equal(value2);
 	});
 	
-	it(@"should send the latest followingTerminal value on subscription", ^{
+	qck_it(@"should send the latest followingTerminal value on subscription", ^{
 		__block id receivedValue = nil;
 
 		[channel.leadingTerminal sendNext:value1];
@@ -72,7 +75,7 @@ sharedExamplesFor(RACChannelExamples, ^(NSDictionary *data) {
 		expect(receivedValue).to.equal(value2);
 	});
 	
-	it(@"should send leadingTerminal values as they change", ^{
+	qck_it(@"should send leadingTerminal values as they change", ^{
 		NSMutableArray *receivedValues = [NSMutableArray array];
 		[channel.leadingTerminal subscribeNext:^(id x) {
 			[receivedValues addObject:x];
@@ -84,7 +87,7 @@ sharedExamplesFor(RACChannelExamples, ^(NSDictionary *data) {
 		expect(receivedValues).to.equal(values);
 	});
 	
-	it(@"should send followingTerminal values as they change", ^{
+	qck_it(@"should send followingTerminal values as they change", ^{
 		[channel.leadingTerminal sendNext:value1];
 
 		NSMutableArray *receivedValues = [NSMutableArray array];
@@ -97,7 +100,7 @@ sharedExamplesFor(RACChannelExamples, ^(NSDictionary *data) {
 		expect(receivedValues).to.equal(values);
 	});
 
-	it(@"should complete both signals when the leadingTerminal is completed", ^{
+	qck_it(@"should complete both signals when the leadingTerminal is completed", ^{
 		__block BOOL completedLeft = NO;
 		[channel.leadingTerminal subscribeCompleted:^{
 			completedLeft = YES;
@@ -113,7 +116,7 @@ sharedExamplesFor(RACChannelExamples, ^(NSDictionary *data) {
 		expect(completedRight).to.beTruthy();
 	});
 
-	it(@"should complete both signals when the followingTerminal is completed", ^{
+	qck_it(@"should complete both signals when the followingTerminal is completed", ^{
 		__block BOOL completedLeft = NO;
 		[channel.leadingTerminal subscribeCompleted:^{
 			completedLeft = YES;
@@ -129,7 +132,7 @@ sharedExamplesFor(RACChannelExamples, ^(NSDictionary *data) {
 		expect(completedRight).to.beTruthy();
 	});
 
-	it(@"should replay completion to new subscribers", ^{
+	qck_it(@"should replay completion to new subscribers", ^{
 		[channel.leadingTerminal sendCompleted];
 
 		__block BOOL completedLeft = NO;
@@ -160,7 +163,7 @@ sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
 	__block NSObject *testView;
 	__block RACChannelTerminal *endpoint;
 
-	beforeEach(^{
+	qck_beforeEach(^{
 		keyPath = data[RACViewChannelExampleKeyPath];
 		getTerminal = data[RACViewChannelExampleCreateTerminalBlock];
 		getView = data[RACViewChannelExampleCreateViewBlock];
@@ -170,7 +173,7 @@ sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
 		endpoint = getTerminal(testView);
 	});
 
-	it(@"should not send changes made by the channel itself", ^{
+	qck_it(@"should not send changes made by the channel itself", ^{
 		__block BOOL receivedNext = NO;
 		[endpoint subscribeNext:^(id x) {
 			receivedNext = YES;
@@ -188,7 +191,7 @@ sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
 		expect(receivedNext).to.beFalsy();
 	});
 
-	it(@"should not send progammatic changes made to the view", ^{
+	qck_it(@"should not send progammatic changes made to the view", ^{
 		__block BOOL receivedNext = NO;
 		[endpoint subscribeNext:^(id x) {
 			receivedNext = YES;
@@ -203,7 +206,7 @@ sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
 		expect(receivedNext).to.beFalsy();
 	});
 
-	it(@"should not have a starting value", ^{
+	qck_it(@"should not have a starting value", ^{
 		__block BOOL receivedNext = NO;
 		[endpoint subscribeNext:^(id x) {
 			receivedNext = YES;
@@ -212,7 +215,7 @@ sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
 		expect(receivedNext).to.beFalsy();
 	});
 
-	it(@"should send view changes", ^{
+	qck_it(@"should send view changes", ^{
 		__block NSString *received;
 		[endpoint subscribeNext:^(id x) {
 			received = x;
@@ -225,7 +228,7 @@ sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
 		expect(received).to.equal(@0.2);
 	});
 
-	it(@"should set values on the view", ^{
+	qck_it(@"should set values on the view", ^{
 		[endpoint sendNext:@0.1];
 		expect([testView valueForKeyPath:keyPath]).to.equal(@0.1);
 
@@ -233,7 +236,7 @@ sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
 		expect([testView valueForKeyPath:keyPath]).to.equal(@0.2);
 	});
 
-	it(@"should not echo changes back to the channel", ^{
+	qck_it(@"should not echo changes back to the channel", ^{
 		__block NSUInteger receivedCount = 0;
 		[endpoint subscribeNext:^(id _) {
 			receivedCount++;
@@ -248,7 +251,7 @@ sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
 		expect(receivedCount).to.equal(1);
 	});
 
-	it(@"should complete when the view deallocates", ^{
+	qck_it(@"should complete when the view deallocates", ^{
 		__block BOOL deallocated = NO;
 		__block BOOL completed = NO;
 
@@ -271,7 +274,7 @@ sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
 		expect(completed).to.beTruthy();
 	});
 
-	it(@"should deallocate after the view deallocates", ^{
+	qck_it(@"should deallocate after the view deallocates", ^{
 		__block BOOL viewDeallocated = NO;
 		__block BOOL terminalDeallocated = NO;
 

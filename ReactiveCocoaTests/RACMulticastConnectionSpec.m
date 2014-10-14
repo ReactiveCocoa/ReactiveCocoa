@@ -6,6 +6,9 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACMulticastConnection.h"
 #import "RACDisposable.h"
 #import "RACSignal+Operations.h"
@@ -14,12 +17,12 @@
 #import "RACScheduler.h"
 #import <libkern/OSAtomic.h>
 
-SpecBegin(RACMulticastConnection)
+QuickSpecBegin(RACMulticastConnectionSpec)
 
 __block NSUInteger subscriptionCount = 0;
 __block RACMulticastConnection *connection;
 
-beforeEach(^{
+qck_beforeEach(^{
 	subscriptionCount = 0;
 	connection = [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		subscriptionCount++;
@@ -28,20 +31,20 @@ beforeEach(^{
 	expect(subscriptionCount).to.equal(0);
 });
 
-describe(@"-connect", ^{
-	it(@"should subscribe to the underlying signal", ^{
+qck_describe(@"-connect", ^{
+	qck_it(@"should subscribe to the underlying signal", ^{
 		[connection connect];
 		expect(subscriptionCount).to.equal(1);
 	});
 
-	it(@"should return the same disposable for each invocation", ^{
+	qck_it(@"should return the same disposable for each invocation", ^{
 		RACDisposable *d1 = [connection connect];
 		RACDisposable *d2 = [connection connect];
 		expect(d1).to.equal(d2);
 		expect(subscriptionCount).to.equal(1);
 	});
 
-	it(@"shouldn't reconnect after disposal", ^{
+	qck_it(@"shouldn't reconnect after disposal", ^{
 		RACDisposable *disposable1 = [connection connect];
 		expect(subscriptionCount).to.equal(1);
 
@@ -52,7 +55,7 @@ describe(@"-connect", ^{
 		expect(disposable1).to.equal(disposable2);
 	});
 
-	it(@"shouldn't race when connecting", ^{
+	qck_it(@"shouldn't race when connecting", ^{
 		dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
 
 		RACMulticastConnection *connection = [[RACSignal
@@ -77,14 +80,14 @@ describe(@"-connect", ^{
 	});
 });
 
-describe(@"-autoconnect", ^{
+qck_describe(@"-autoconnect", ^{
 	__block RACSignal *autoconnectedSignal;
 	
-	beforeEach(^{
+	qck_beforeEach(^{
 		autoconnectedSignal = [connection autoconnect];
 	});
 
-	it(@"should subscribe to the multicasted signal on the first subscription", ^{
+	qck_it(@"should subscribe to the multicasted signal on the first subscription", ^{
 		expect(subscriptionCount).to.equal(0);
 		
 		[autoconnectedSignal subscribeNext:^(id x) {}];
@@ -94,7 +97,7 @@ describe(@"-autoconnect", ^{
 		expect(subscriptionCount).to.equal(1);
 	});
 
-	it(@"should dispose of the multicasted subscription when the signal has no subscribers", ^{
+	qck_it(@"should dispose of the multicasted subscription when the signal has no subscribers", ^{
 		__block BOOL disposed = NO;
 		__block id<RACSubscriber> connectionSubscriber = nil;
 		RACSignal *signal = [[[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
@@ -112,7 +115,7 @@ describe(@"-autoconnect", ^{
 		expect(disposed).to.beTruthy();
 	});
 
-	it(@"shouldn't reconnect after disposal", ^{
+	qck_it(@"shouldn't reconnect after disposal", ^{
 		RACDisposable *disposable = [autoconnectedSignal subscribeNext:^(id x) {}];
 		expect(subscriptionCount).to.equal(1);
 		[disposable dispose];
@@ -122,7 +125,7 @@ describe(@"-autoconnect", ^{
 		[disposable dispose];
 	});
 
-	it(@"should replay values after disposal when multicasted to a replay subject", ^{
+	qck_it(@"should replay values after disposal when multicasted to a replay subject", ^{
 		RACSubject *subject = [RACSubject subject];
 		RACSignal *signal = [[subject multicast:[RACReplaySubject subject]] autoconnect];
 
@@ -145,4 +148,4 @@ describe(@"-autoconnect", ^{
 	});
 });
 
-SpecEnd
+QuickSpecEnd

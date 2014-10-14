@@ -6,44 +6,47 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACTuple.h"
 #import "RACUnit.h"
 
-SpecBegin(RACTuple)
+QuickSpecBegin(RACTupleSpec)
 
-describe(@"RACTupleUnpack", ^{
-	it(@"should unpack a single value", ^{
+qck_describe(@"RACTupleUnpack", ^{
+	qck_it(@"should unpack a single value", ^{
 		RACTupleUnpack(RACUnit *value) = [RACTuple tupleWithObjects:RACUnit.defaultUnit, nil];
 		expect(value).to.equal(RACUnit.defaultUnit);
 	});
 
-	it(@"should translate RACTupleNil", ^{
+	qck_it(@"should translate RACTupleNil", ^{
 		RACTupleUnpack(id value) = [RACTuple tupleWithObjects:RACTupleNil.tupleNil, nil];
 		expect(value).to.beNil();
 	});
 
-	it(@"should unpack multiple values", ^{
+	qck_it(@"should unpack multiple values", ^{
 		RACTupleUnpack(NSString *str, NSNumber *num) = [RACTuple tupleWithObjects:@"foobar", @5, nil];
 
 		expect(str).to.equal(@"foobar");
 		expect(num).to.equal(@5);
 	});
 
-	it(@"should fill in missing values with nil", ^{
+	qck_it(@"should fill in missing values with nil", ^{
 		RACTupleUnpack(NSString *str, NSNumber *num) = [RACTuple tupleWithObjects:@"foobar", nil];
 
 		expect(str).to.equal(@"foobar");
 		expect(num).to.beNil();
 	});
 
-	it(@"should skip any values not assigned to", ^{
+	qck_it(@"should skip any values not assigned to", ^{
 		RACTupleUnpack(NSString *str, NSNumber *num) = [RACTuple tupleWithObjects:@"foobar", @5, RACUnit.defaultUnit, nil];
 
 		expect(str).to.equal(@"foobar");
 		expect(num).to.equal(@5);
 	});
 
-	it(@"should keep an unpacked value alive when captured in a block", ^{
+	qck_it(@"should keep an unpacked value alive when captured in a block", ^{
 		__weak id weakPtr = nil;
 		id (^block)(void) = nil;
 
@@ -63,18 +66,18 @@ describe(@"RACTupleUnpack", ^{
 	});
 });
 
-describe(@"RACTuplePack", ^{
-	it(@"should pack a single value", ^{
+qck_describe(@"RACTuplePack", ^{
+	qck_it(@"should pack a single value", ^{
 		RACTuple *tuple = [RACTuple tupleWithObjects:RACUnit.defaultUnit, nil];
 		expect(RACTuplePack(RACUnit.defaultUnit)).to.equal(tuple);
 	});
 	
-	it(@"should translate nil", ^{
+	qck_it(@"should translate nil", ^{
 		RACTuple *tuple = [RACTuple tupleWithObjects:RACTupleNil.tupleNil, nil];
 		expect(RACTuplePack(nil)).to.equal(tuple);
 	});
 	
-	it(@"should pack multiple values", ^{
+	qck_it(@"should pack multiple values", ^{
 		NSString *string = @"foobar";
 		NSNumber *number = @5;
 		RACTuple *tuple = [RACTuple tupleWithObjects:string, number, nil];
@@ -82,14 +85,14 @@ describe(@"RACTuplePack", ^{
 	});
 });
 
-describe(@"-tupleByAddingObject:", ^{
+qck_describe(@"-tupleByAddingObject:", ^{
 	__block RACTuple *tuple;
 
-	beforeEach(^{
+	qck_beforeEach(^{
 		tuple = RACTuplePack(@"foo", nil, @"bar");
 	});
 
-	it(@"should add a non-nil object", ^{
+	qck_it(@"should add a non-nil object", ^{
 		RACTuple *newTuple = [tuple tupleByAddingObject:@"buzz"];
 		expect(newTuple.count).to.equal(4);
 		expect(newTuple[0]).to.equal(@"foo");
@@ -98,7 +101,7 @@ describe(@"-tupleByAddingObject:", ^{
 		expect(newTuple[3]).to.equal(@"buzz");
 	});
 
-	it(@"should add nil", ^{
+	qck_it(@"should add nil", ^{
 		RACTuple *newTuple = [tuple tupleByAddingObject:nil];
 		expect(newTuple.count).to.equal(4);
 		expect(newTuple[0]).to.equal(@"foo");
@@ -107,7 +110,7 @@ describe(@"-tupleByAddingObject:", ^{
 		expect(newTuple[3]).to.beNil();
 	});
 
-	it(@"should add NSNull", ^{
+	qck_it(@"should add NSNull", ^{
 		RACTuple *newTuple = [tuple tupleByAddingObject:NSNull.null];
 		expect(newTuple.count).to.equal(4);
 		expect(newTuple[0]).to.equal(@"foo");
@@ -117,4 +120,4 @@ describe(@"-tupleByAddingObject:", ^{
 	});
 });
 
-SpecEnd
+QuickSpecEnd

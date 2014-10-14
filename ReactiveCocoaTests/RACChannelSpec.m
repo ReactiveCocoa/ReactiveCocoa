@@ -6,6 +6,9 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACChannelExamples.h"
 
 #import "NSObject+RACDeallocating.h"
@@ -14,17 +17,17 @@
 #import "RACDisposable.h"
 #import "RACSignal.h"
 
-SpecBegin(RACChannel)
+QuickSpecBegin(RACChannelSpec)
 
-describe(@"RACChannel", ^{
+qck_describe(@"RACChannel", ^{
 	itShouldBehaveLike(RACChannelExamples, @{
 		RACChannelExampleCreateBlock: [^{
 			return [[RACChannel alloc] init];
 		} copy]
 	});
 	
-	describe(@"memory management", ^{
-		it(@"should dealloc when its subscribers are disposed", ^{
+	qck_describe(@"memory management", ^{
+		qck_it(@"should dealloc when its subscribers are disposed", ^{
 			RACDisposable *leadingDisposable = nil;
 			RACDisposable *followingDisposable = nil;
 
@@ -45,7 +48,7 @@ describe(@"RACChannel", ^{
 			expect(deallocated).will.beTruthy();
 		});
 		
-		it(@"should dealloc when its subscriptions are disposed", ^{
+		qck_it(@"should dealloc when its subscriptions are disposed", ^{
 			RACDisposable *leadingDisposable = nil;
 			RACDisposable *followingDisposable = nil;
 
@@ -68,4 +71,4 @@ describe(@"RACChannel", ^{
 	});
 });
 
-SpecEnd
+QuickSpecEnd

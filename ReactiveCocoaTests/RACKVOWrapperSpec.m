@@ -6,6 +6,9 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "NSObject+RACKVOWrapper.h"
 
 #import "EXTKeyPathCoding.h"
@@ -70,7 +73,7 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 	__block BOOL posteriorTriggeredByDeallocation = NO;
 	__block void (^callbackBlock)(id, NSDictionary *, BOOL, BOOL) = nil;
 
-	beforeEach(^{
+	qck_beforeEach(^{
 		NSObject * (^targetBlock)(void) = data[RACKVOWrapperExamplesTargetBlock];
 		target = targetBlock();
 		keyPath = data[RACKVOWrapperExamplesKeyPath];
@@ -93,7 +96,7 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 		} copy];
 	});
 
-	afterEach(^{
+	qck_afterEach(^{
 		target = nil;
 		keyPath = nil;
 		changeBlock = nil;
@@ -103,19 +106,19 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 		callbackBlock = nil;
 	});
 
-	it(@"should not call the callback block on add if called without NSKeyValueObservingOptionInitial", ^{
+	qck_it(@"should not call the callback block on add if called without NSKeyValueObservingOptionInitial", ^{
 		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior observer:nil block:callbackBlock];
 		expect(priorCallCount).to.equal(0);
 		expect(posteriorCallCount).to.equal(0);
 	});
 
-	it(@"should call the callback block on add if called with NSKeyValueObservingOptionInitial", ^{
+	qck_it(@"should call the callback block on add if called with NSKeyValueObservingOptionInitial", ^{
 		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior | NSKeyValueObservingOptionInitial observer:nil block:callbackBlock];
 		expect(priorCallCount).to.equal(0);
 		expect(posteriorCallCount).to.equal(1);
 	});
 
-	it(@"should call the callback block twice per change, once prior and once posterior", ^{
+	qck_it(@"should call the callback block twice per change, once prior and once posterior", ^{
 		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior observer:nil block:callbackBlock];
 		priorCallCount = 0;
 		posteriorCallCount = 0;
@@ -137,7 +140,7 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 		expect(posteriorTriggeredByDeallocation).to.beFalsy();
 	});
 
-	it(@"should call the callback block with NSKeyValueChangeNotificationIsPriorKey set before the value is changed, and not set after the value is changed", ^{
+	qck_it(@"should call the callback block with NSKeyValueChangeNotificationIsPriorKey set before the value is changed, and not set after the value is changed", ^{
 		__block BOOL priorCalled = NO;
 		__block BOOL posteriorCalled = NO;
 		__block id priorValue = nil;
@@ -168,7 +171,7 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 		expect(posteriorValue).to.equal(newValue);
 	});
 
-	it(@"should not call the callback block after it's been disposed", ^{
+	qck_it(@"should not call the callback block after it's been disposed", ^{
 		RACDisposable *disposable = [target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior observer:nil block:callbackBlock];
 		priorCallCount = 0;
 		posteriorCallCount = 0;
@@ -183,7 +186,7 @@ sharedExamplesFor(RACKVOWrapperExamples, ^(NSDictionary *data) {
 		expect(posteriorCallCount).to.equal(0);
 	});
 
-	it(@"should call the callback block only once with NSKeyValueChangeNotificationIsPriorKey not set when the value is deallocated", ^{
+	qck_it(@"should call the callback block only once with NSKeyValueChangeNotificationIsPriorKey not set when the value is deallocated", ^{
 		__block BOOL valueDidDealloc = NO;
 
 		[target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionPrior observer:nil block:callbackBlock];
@@ -217,7 +220,7 @@ sharedExamplesFor(RACKVOWrapperCollectionExamples, ^(NSDictionary *data) {
 	__block NSDictionary *priorChange = nil;
 	__block NSDictionary *posteriorChange = nil;
 
-	beforeEach(^{
+	qck_beforeEach(^{
 		NSObject * (^targetBlock)(void) = data[RACKVOWrapperCollectionExamplesTargetBlock];
 		target = targetBlock();
 		keyPath = data[RACKVOWrapperCollectionExamplesKeyPath];
@@ -237,7 +240,7 @@ sharedExamplesFor(RACKVOWrapperCollectionExamples, ^(NSDictionary *data) {
 		mutableKeyPathProxy = [target mutableOrderedSetValueForKeyPath:keyPath];
 	});
 
-	afterEach(^{
+	qck_afterEach(^{
 		target = nil;
 		keyPath = nil;
 		callbackBlock = nil;
@@ -248,7 +251,7 @@ sharedExamplesFor(RACKVOWrapperCollectionExamples, ^(NSDictionary *data) {
 		posteriorChange = nil;
 	});
 
-	it(@"should support inserting elements into ordered collections", ^{
+	qck_it(@"should support inserting elements into ordered collections", ^{
 		[mutableKeyPathProxy insertObject:@1 atIndex:0];
 
 		expect(priorValue).to.equal([NSOrderedSet orderedSetWithArray:@[ @0 ]]);
@@ -261,7 +264,7 @@ sharedExamplesFor(RACKVOWrapperCollectionExamples, ^(NSDictionary *data) {
 		expect(posteriorChange[NSKeyValueChangeIndexesKey]).to.equal([NSIndexSet indexSetWithIndex:0]);
 	});
 
-	it(@"should support removing elements from ordered collections", ^{
+	qck_it(@"should support removing elements from ordered collections", ^{
 		[mutableKeyPathProxy removeObjectAtIndex:0];
 
 		expect(priorValue).to.equal([NSOrderedSet orderedSetWithArray:@[ @0 ]]);
@@ -274,7 +277,7 @@ sharedExamplesFor(RACKVOWrapperCollectionExamples, ^(NSDictionary *data) {
 		expect(posteriorChange[NSKeyValueChangeIndexesKey]).to.equal([NSIndexSet indexSetWithIndex:0]);
 	});
 
-	it(@"should support replacing elements in ordered collections", ^{
+	qck_it(@"should support replacing elements in ordered collections", ^{
 		[mutableKeyPathProxy replaceObjectAtIndex:0 withObject:@1];
 
 		expect(priorValue).to.equal([NSOrderedSet orderedSetWithArray:@[ @0 ]]);
@@ -287,7 +290,7 @@ sharedExamplesFor(RACKVOWrapperCollectionExamples, ^(NSDictionary *data) {
 		expect(posteriorChange[NSKeyValueChangeIndexesKey]).to.equal([NSIndexSet indexSetWithIndex:0]);
 	});
 
-	it(@"should support adding elements to unordered collections", ^{
+	qck_it(@"should support adding elements to unordered collections", ^{
 		[mutableKeyPathProxy unionOrderedSet:[NSOrderedSet orderedSetWithObject:@1]];
 
 		expect(priorValue).to.equal([NSOrderedSet orderedSetWithArray:@[ @0 ]]);
@@ -298,7 +301,7 @@ sharedExamplesFor(RACKVOWrapperCollectionExamples, ^(NSDictionary *data) {
 		expect(posteriorChange[NSKeyValueChangeNewKey]).to.equal(@[ @1 ]);
 	});
 
-	it(@"should support removing elements from unordered collections", ^{
+	qck_it(@"should support removing elements from unordered collections", ^{
 		[mutableKeyPathProxy minusOrderedSet:[NSOrderedSet orderedSetWithObject:@0]];
 
 		expect(priorValue).to.equal([NSOrderedSet orderedSetWithArray:@[ @0 ]]);
@@ -312,10 +315,10 @@ sharedExamplesFor(RACKVOWrapperCollectionExamples, ^(NSDictionary *data) {
 
 SharedExampleGroupsEnd
 
-SpecBegin(RACKVOWrapper)
+QuickSpecBegin(RACKVOWrapperSpec)
 
-describe(@"-rac_observeKeyPath:options:observer:block:", ^{
-	describe(@"on simple keys", ^{
+qck_describe(@"-rac_observeKeyPath:options:observer:block:", ^{
+	qck_describe(@"on simple keys", ^{
 		NSObject * (^targetBlock)(void) = ^{
 			return [[RACTestObject alloc] init];
 		};
@@ -342,8 +345,8 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 		});
 	});
 
-	describe(@"on composite key paths'", ^{
-		describe(@"last key path components", ^{
+	qck_describe(@"on composite key paths'", ^{
+		qck_describe(@"last key path components", ^{
 			NSObject *(^targetBlock)(void) = ^{
 				RACTestObject *object = [[RACTestObject alloc] init];
 				object.strongTestObjectValue = [[RACTestObject alloc] init];
@@ -372,7 +375,7 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 			});
 		});
 
-		describe(@"intermediate key path components", ^{
+		qck_describe(@"intermediate key path components", ^{
 			NSObject *(^targetBlock)(void) = ^{
 				return [[RACTestObject alloc] init];
 			};
@@ -396,7 +399,7 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 			});
 		});
 
-		it(@"should not notice deallocation of the object returned by a dynamic final property", ^{
+		qck_it(@"should not notice deallocation of the object returned by a dynamic final property", ^{
 			RACTestObject *object = [[RACTestObject alloc] init];
 
 			__block id lastValue = nil;
@@ -411,7 +414,7 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 			expect(lastValue).to.beKindOf(RACTestObject.class);
 		});
 
-		it(@"should not notice deallocation of the object returned by a dynamic intermediate property", ^{
+		qck_it(@"should not notice deallocation of the object returned by a dynamic intermediate property", ^{
 			RACTestObject *object = [[RACTestObject alloc] init];
 
 			__block id lastValue = nil;
@@ -426,7 +429,7 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 			expect(lastValue).to.equal(@42);
 		});
 
-		it(@"should not notice deallocation of the object returned by a dynamic method", ^{
+		qck_it(@"should not notice deallocation of the object returned by a dynamic method", ^{
 			RACTestObject *object = [[RACTestObject alloc] init];
 
 			__block id lastValue = nil;
@@ -442,7 +445,7 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 		});
 	});
 
-	it(@"should not call the callback block when the value is the observer", ^{
+	qck_it(@"should not call the callback block when the value is the observer", ^{
 		__block BOOL observerDisposed = NO;
 		__block BOOL observerDeallocationTriggeredChange = NO;
 		__block BOOL targetDisposed = NO;
@@ -479,7 +482,7 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 		expect(targetDeallocationTriggeredChange).to.beTruthy();
 	});
 
-	it(@"should call the callback block for deallocation of the initial value of a single-key key path", ^{
+	qck_it(@"should call the callback block for deallocation of the initial value of a single-key key path", ^{
 		RACTestObject *target = [RACTestObject new];
 		__block BOOL objectDisposed = NO;
 		__block BOOL objectDeallocationTriggeredChange = NO;
@@ -500,7 +503,7 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
 		expect(objectDeallocationTriggeredChange).to.beTruthy();
 	});
 
-	it(@"should call the callback block for deallocation of an object conforming to protocol property", ^{
+	qck_it(@"should call the callback block for deallocation of an object conforming to protocol property", ^{
 		RACTestObject *target = [RACTestObject new];
 		__block BOOL objectDisposed = NO;
 		__block BOOL objectDeallocationTriggeredChange = NO;
@@ -522,8 +525,8 @@ describe(@"-rac_observeKeyPath:options:observer:block:", ^{
     });
 });
 
-describe(@"rac_addObserver:forKeyPath:options:block:", ^{
-	it(@"should add and remove an observer", ^{
+qck_describe(@"rac_addObserver:forKeyPath:options:block:", ^{
+	qck_it(@"should add and remove an observer", ^{
 		NSBlockOperation *operation = [NSBlockOperation blockOperationWithBlock:^{}];
 		expect(operation).notTo.beNil();
 
@@ -543,14 +546,14 @@ describe(@"rac_addObserver:forKeyPath:options:block:", ^{
 		expect(notified).will.beTruthy();
 	});
 
-	it(@"should accept a nil observer", ^{
+	qck_it(@"should accept a nil observer", ^{
 		NSBlockOperation *operation = [NSBlockOperation blockOperationWithBlock:^{}];
 		RACDisposable *disposable = [operation rac_observeKeyPath:@"isFinished" options:NSKeyValueObservingOptionNew observer:nil block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {}];
 
 		expect(disposable).notTo.beNil();
 	});
 
-	it(@"automatically stops KVO on subclasses when the target deallocates", ^{
+	qck_it(@"automatically stops KVO on subclasses when the target deallocates", ^{
 		void (^testKVOOnSubclass)(Class targetClass, id observer) = ^(Class targetClass, id observer) {
 			__weak id weakTarget = nil;
 			__weak id identifier = nil;
@@ -577,7 +580,7 @@ describe(@"rac_addObserver:forKeyPath:options:block:", ^{
 			testKVOOnSubclass(NSOperation.class, self);
 		});
 
-		it(@"stops KVO on subclasses of already-swizzled classes", ^{
+		qck_it(@"stops KVO on subclasses of already-swizzled classes", ^{
 			testKVOOnSubclass(RACTestOperation.class, self);
 		});
 
@@ -585,12 +588,12 @@ describe(@"rac_addObserver:forKeyPath:options:block:", ^{
 			testKVOOnSubclass(NSOperation.class, nil);
 		});
 
-		it(@"stops KVO on subclasses of already-swizzled classes even with a nil observer", ^{
+		qck_it(@"stops KVO on subclasses of already-swizzled classes even with a nil observer", ^{
 			testKVOOnSubclass(RACTestOperation.class, nil);
 		});
 	});
 
-	it(@"should automatically stop KVO when the observer deallocates", ^{
+	qck_it(@"should automatically stop KVO when the observer deallocates", ^{
 		__weak id weakObserver = nil;
 		__weak id identifier = nil;
 
@@ -613,7 +616,7 @@ describe(@"rac_addObserver:forKeyPath:options:block:", ^{
 		expect(weakObserver).to.beNil();
 	});
 
-	it(@"should stop KVO when the observer is disposed", ^{
+	qck_it(@"should stop KVO when the observer is disposed", ^{
 		NSOperationQueue *queue = [[NSOperationQueue alloc] init];
 		__block NSString *name = nil;
 
@@ -628,7 +631,7 @@ describe(@"rac_addObserver:forKeyPath:options:block:", ^{
 		expect(name).to.equal(@"1");
 	});
 
-	it(@"should distinguish between observers being disposed", ^{
+	qck_it(@"should distinguish between observers being disposed", ^{
 		NSOperationQueue *queue = [[NSOperationQueue alloc] init];
 		__block NSString *name1 = nil;
 		__block NSString *name2 = nil;
@@ -650,7 +653,7 @@ describe(@"rac_addObserver:forKeyPath:options:block:", ^{
 	});
 });
 
-SpecEnd
+QuickSpecEnd
 
 @implementation RACTestOperation
 @end

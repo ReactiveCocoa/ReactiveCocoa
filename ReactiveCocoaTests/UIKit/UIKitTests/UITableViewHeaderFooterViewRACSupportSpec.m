@@ -13,11 +13,11 @@
 #import "RACUnit.h"
 #import "UITableViewHeaderFooterView+RACSignalSupport.h"
 
-SpecBegin(UITableViewHeaderFooterViewRACSupportSpec)
+QuickSpecBegin(UITableViewHeaderFooterViewRACSupportSpec)
 
 __block RACTestTableViewController *tableViewController;
 
-beforeEach(^{
+qck_beforeEach(^{
 	tableViewController = [[RACTestTableViewController alloc] initWithStyle:UITableViewStylePlain];
 	expect(tableViewController).notTo.beNil();
 
@@ -25,7 +25,7 @@ beforeEach(^{
 	expect([tableViewController.tableView headerViewForSection:0]).notTo.beNil();
 });
 
-it(@"should send on rac_prepareForReuseSignal", ^{
+qck_it(@"should send on rac_prepareForReuseSignal", ^{
 	UITableViewHeaderFooterView *headerView = [tableViewController.tableView headerViewForSection:0];
 
 	__block NSUInteger invocationCount = 0;
@@ -48,4 +48,4 @@ it(@"should send on rac_prepareForReuseSignal", ^{
 	expect(invocationCount).will.equal(2);
 });
 
-SpecEnd
+QuickSpecEnd

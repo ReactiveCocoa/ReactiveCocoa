@@ -6,21 +6,24 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import <objc/message.h>
 #import "RACSignal.h"
 #import "UIAlertView+RACSignalSupport.h"
 
-SpecBegin(UIAlertViewRACSupport)
+QuickSpecBegin(UIAlertViewRACSupportSpec)
 
-describe(@"UIAlertView", ^{
+qck_describe(@"UIAlertView", ^{
 	__block UIAlertView *alertView;
 
-	beforeEach(^{
+	qck_beforeEach(^{
 		alertView = [[UIAlertView alloc] initWithFrame:CGRectZero];
 		expect(alertView).notTo.beNil();
 	});
 
-	it(@"sends the index of the clicked button to the buttonClickedSignal when a button is clicked", ^{
+	qck_it(@"sends the index of the clicked button to the buttonClickedSignal when a button is clicked", ^{
 		__block NSInteger index = -1;
 		[alertView.rac_buttonClickedSignal subscribeNext:^(NSNumber *sentIndex) {
 			index = sentIndex.integerValue;
@@ -30,7 +33,7 @@ describe(@"UIAlertView", ^{
 		expect(index).to.equal(2);
 	});
 
-	it(@"sends the index of the appropriate button to the willDismissSignal when dismissed programatically", ^{
+	qck_it(@"sends the index of the appropriate button to the willDismissSignal when dismissed programatically", ^{
 		__block NSInteger index = -1;
 		[alertView.rac_willDismissSignal subscribeNext:^(NSNumber *sentIndex) {
 			index = sentIndex.integerValue;
@@ -41,4 +44,4 @@ describe(@"UIAlertView", ^{
 	});
 });
 
-SpecEnd
+QuickSpecEnd

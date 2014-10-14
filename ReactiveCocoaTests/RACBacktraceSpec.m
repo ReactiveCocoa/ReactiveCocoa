@@ -6,6 +6,9 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACBacktrace.h"
 
 #import "NSArray+RACSequenceAdditions.h"
@@ -38,11 +41,11 @@ static void recurseDeeply(void *ptr) {
 	}
 }
 
-SpecBegin(RACBacktrace)
+QuickSpecBegin(RACBacktraceSpec)
 
 __block dispatch_block_t block;
 
-beforeEach(^{
+qck_beforeEach(^{
 	expect([RACBacktrace backtrace].previousThreadBacktrace).to.beNil();
 	previousBacktrace = nil;
 
@@ -51,29 +54,29 @@ beforeEach(^{
 	};
 });
 
-it(@"should capture the current backtrace", ^{
+qck_it(@"should capture the current backtrace", ^{
 	RACBacktrace *backtrace = [RACBacktrace backtrace];
 	expect(backtrace).notTo.beNil();
 });
 
-describe(@"with a GCD queue", ^{
+qck_describe(@"with a GCD queue", ^{
 	__block dispatch_queue_t queue;
 
-	beforeEach(^{
+	qck_beforeEach(^{
 		queue = dispatch_queue_create("com.github.ReactiveCocoa.RACBacktraceSpec", DISPATCH_QUEUE_SERIAL);
 	});
 
-	afterEach(^{
+	qck_afterEach(^{
 		dispatch_barrier_sync(queue, ^{});
 		dispatch_release(queue);
 	});
 
-	it(@"should trace across dispatch_async", ^{
+	qck_it(@"should trace across dispatch_async", ^{
 		rac_dispatch_async(queue, block);
 		expect(previousBacktrace).willNot.beNil();
 	});
 
-	it(@"should trace across dispatch_async to the main thread", ^{
+	qck_it(@"should trace across dispatch_async to the main thread", ^{
 		rac_dispatch_async(queue, ^{
 			rac_dispatch_async(dispatch_get_main_queue(), block);
 		});
@@ -81,32 +84,32 @@ describe(@"with a GCD queue", ^{
 		expect(previousBacktrace).willNot.beNil();
 	});
 
-	it(@"should trace across dispatch_async_f", ^{
+	qck_it(@"should trace across dispatch_async_f", ^{
 		rac_dispatch_async_f(queue, NULL, &capturePreviousBacktrace);
 		expect(previousBacktrace).willNot.beNil();
 	});
 
-	it(@"should trace across dispatch_barrier_async", ^{
+	qck_it(@"should trace across dispatch_barrier_async", ^{
 		rac_dispatch_barrier_async(queue, block);
 		expect(previousBacktrace).willNot.beNil();
 	});
 
-	it(@"should trace across dispatch_barrier_async_f", ^{
+	qck_it(@"should trace across dispatch_barrier_async_f", ^{
 		rac_dispatch_barrier_async_f(queue, NULL, &capturePreviousBacktrace);
 		expect(previousBacktrace).willNot.beNil();
 	});
 
-	it(@"should trace across dispatch_after", ^{
+	qck_it(@"should trace across dispatch_after", ^{
 		rac_dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1), queue, block);
 		expect(previousBacktrace).willNot.beNil();
 	});
 
-	it(@"should trace across dispatch_after_f", ^{
+	qck_it(@"should trace across dispatch_after_f", ^{
 		rac_dispatch_after_f(dispatch_time(DISPATCH_TIME_NOW, 1), queue, NULL, &capturePreviousBacktrace);
 		expect(previousBacktrace).willNot.beNil();
 	});
 
-	it(@"shouldn't overflow the stack when deallocating a huge backtrace list", ^{
+	qck_it(@"shouldn't overflow the stack when deallocating a huge backtrace list", ^{
 		RACSubject *doneSubject = [RACReplaySubject subject];
 		RACDeepRecursionContext context = {
 			.queue = queue,
@@ -119,12 +122,12 @@ describe(@"with a GCD queue", ^{
 	});
 });
 
-it(@"should trace across a RACScheduler", ^{
+qck_it(@"should trace across a RACScheduler", ^{
 	[[RACScheduler scheduler] schedule:block];
 	expect(previousBacktrace).willNot.beNil();
 });
 
-it(@"shouldn't go bonkers with RACScheduler", ^{
+qck_it(@"shouldn't go bonkers with RACScheduler", ^{
 	NSMutableArray *a = [NSMutableArray array];
 	for (NSUInteger i = 0; i < 5000; i++) {
 		[a addObject:@(i)];
@@ -136,13 +139,13 @@ it(@"shouldn't go bonkers with RACScheduler", ^{
 // Tracing across NSOperationQueue only works on OS X because it depends on
 // interposing through dynamic linking
 #ifndef __IPHONE_OS_VERSION_MIN_REQUIRED
-	it(@"should trace across an NSOperationQueue", ^{
+	qck_it(@"should trace across an NSOperationQueue", ^{
 		NSOperationQueue *queue = [[NSOperationQueue alloc] init];
 		[queue addOperationWithBlock:block];
 		expect(previousBacktrace).willNot.beNil();
 	});
 #endif
 
-SpecEnd
+QuickSpecEnd
 
 #endif

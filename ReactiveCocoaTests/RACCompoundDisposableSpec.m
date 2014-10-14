@@ -6,11 +6,14 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACCompoundDisposable.h"
 
-SpecBegin(RACCompoundDisposable)
+QuickSpecBegin(RACCompoundDisposableSpec)
 
-it(@"should dispose of all its contained disposables", ^{
+qck_it(@"should dispose of all its contained disposables", ^{
 	__block BOOL d1Disposed = NO;
 	RACDisposable *d1 = [RACDisposable disposableWithBlock:^{
 		d1Disposed = YES;
@@ -49,7 +52,7 @@ it(@"should dispose of all its contained disposables", ^{
 	expect(disposable.disposed).to.beTruthy();
 });
 
-it(@"should dispose of any added disposables immediately if it's already been disposed", ^{
+qck_it(@"should dispose of any added disposables immediately if it's already been disposed", ^{
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 	[disposable dispose];
 
@@ -60,7 +63,7 @@ it(@"should dispose of any added disposables immediately if it's already been di
 	expect(d.disposed).to.beTruthy();
 });
 
-it(@"should work when initialized with -init", ^{
+qck_it(@"should work when initialized with -init", ^{
 	RACCompoundDisposable *disposable = [[RACCompoundDisposable alloc] init];
 
 	__block BOOL disposed = NO;
@@ -75,7 +78,7 @@ it(@"should work when initialized with -init", ^{
 	expect(disposed).to.beTruthy();
 });
 
-it(@"should work when initialized with +disposableWithBlock:", ^{
+qck_it(@"should work when initialized with +disposableWithBlock:", ^{
 	__block BOOL compoundDisposed = NO;
 	RACCompoundDisposable *disposable = [RACCompoundDisposable disposableWithBlock:^{
 		compoundDisposed = YES;
@@ -95,7 +98,7 @@ it(@"should work when initialized with +disposableWithBlock:", ^{
 	expect(compoundDisposed).to.beTruthy();
 });
 
-it(@"should allow disposables to be removed", ^{
+qck_it(@"should allow disposables to be removed", ^{
 	RACCompoundDisposable *disposable = [[RACCompoundDisposable alloc] init];
 	RACDisposable *d = [[RACDisposable alloc] init];
 
@@ -106,4 +109,4 @@ it(@"should allow disposables to be removed", ^{
 	expect(d.disposed).to.beFalsy();
 });
 
-SpecEnd
+QuickSpecEnd

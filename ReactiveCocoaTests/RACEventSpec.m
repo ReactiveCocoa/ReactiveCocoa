@@ -6,11 +6,14 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACEvent.h"
 
-SpecBegin(RACEvent)
+QuickSpecBegin(RACEventSpec)
 
-it(@"should return the singleton completed event", ^{
+qck_it(@"should return the singleton completed event", ^{
 	RACEvent *event = RACEvent.completedEvent;
 	expect(event).notTo.beNil();
 
@@ -23,7 +26,7 @@ it(@"should return the singleton completed event", ^{
 	expect(event.value).to.beNil();
 });
 
-it(@"should return an error event", ^{
+qck_it(@"should return an error event", ^{
 	NSError *error = [NSError errorWithDomain:@"foo" code:1 userInfo:nil];
 	RACEvent *event = [RACEvent eventWithError:error];
 	expect(event).notTo.beNil();
@@ -37,7 +40,7 @@ it(@"should return an error event", ^{
 	expect(event.value).to.beNil();
 });
 
-it(@"should return an error event with a nil error", ^{
+qck_it(@"should return an error event with a nil error", ^{
 	RACEvent *event = [RACEvent eventWithError:nil];
 	expect(event).notTo.beNil();
 
@@ -50,7 +53,7 @@ it(@"should return an error event with a nil error", ^{
 	expect(event.value).to.beNil();
 });
 
-it(@"should return a next event", ^{
+qck_it(@"should return a next event", ^{
 	NSString *value = @"foo";
 	RACEvent *event = [RACEvent eventWithValue:value];
 	expect(event).notTo.beNil();
@@ -64,7 +67,7 @@ it(@"should return a next event", ^{
 	expect(event.value).to.equal(value);
 });
 
-it(@"should return a next event with a nil value", ^{
+qck_it(@"should return a next event with a nil value", ^{
 	RACEvent *event = [RACEvent eventWithValue:nil];
 	expect(event).notTo.beNil();
 
@@ -77,4 +80,4 @@ it(@"should return a next event with a nil value", ^{
 	expect(event.value).to.beNil();
 });
 
-SpecEnd
+QuickSpecEnd

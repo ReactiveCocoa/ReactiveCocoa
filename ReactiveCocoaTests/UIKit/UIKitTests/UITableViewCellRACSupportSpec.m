@@ -13,11 +13,11 @@
 #import "RACUnit.h"
 #import "UITableViewCell+RACSignalSupport.h"
 
-SpecBegin(UITableViewCellRACSupport)
+QuickSpecBegin(UITableViewCellRACSupportSpec)
 
 __block RACTestTableViewController *tableViewController;
 
-beforeEach(^{
+qck_beforeEach(^{
 	tableViewController = [[RACTestTableViewController alloc] initWithStyle:UITableViewStylePlain];
 	expect(tableViewController).notTo.beNil();
 
@@ -25,7 +25,7 @@ beforeEach(^{
 	expect(tableViewController.tableView.visibleCells.count).will.beGreaterThan(0);
 });
 
-it(@"should send on rac_prepareForReuseSignal", ^{
+qck_it(@"should send on rac_prepareForReuseSignal", ^{
 	UITableViewCell *cell = tableViewController.tableView.visibleCells[0];
 	
 	__block NSUInteger invocationCount = 0;
@@ -43,4 +43,4 @@ it(@"should send on rac_prepareForReuseSignal", ^{
 	expect(invocationCount).will.equal(2);
 });
 
-SpecEnd
+QuickSpecEnd

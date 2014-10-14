@@ -6,20 +6,23 @@
 //  Copyright (c) 2014 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "UIImagePickerController+RACSignalSupport.h"
 #import "RACSignal.h"
 
-SpecBegin(UIImagePickerControllerRACSupport)
+QuickSpecBegin(UIImagePickerControllerRACSupportSpec)
 
-describe(@"UIImagePickerController", ^{
+qck_describe(@"UIImagePickerController", ^{
 	__block UIImagePickerController *imagePicker;
 	
-	beforeEach(^{
+	qck_beforeEach(^{
 		imagePicker = [[UIImagePickerController alloc] init];
 		expect(imagePicker).notTo.beNil();
 	});
 	
-	it(@"sends the user info dictionary after confirmation", ^{
+	qck_it(@"sends the user info dictionary after confirmation", ^{
 		__block NSDictionary *selectedImageUserInfo = nil;
 		[imagePicker.rac_imageSelectedSignal subscribeNext:^(NSDictionary *userInfo) {
 			selectedImageUserInfo = userInfo;
@@ -33,7 +36,7 @@ describe(@"UIImagePickerController", ^{
 		expect(selectedImageUserInfo).to.equal(info);
 	});
 	
-	it(@"cancels image picking process", ^{
+	qck_it(@"cancels image picking process", ^{
 		__block BOOL didSend = NO;
 		__block BOOL didComplete = NO;
 		[imagePicker.rac_imageSelectedSignal subscribeNext:^(NSDictionary *userInfo) {
@@ -48,4 +51,4 @@ describe(@"UIImagePickerController", ^{
 	});
 });
 
-SpecEnd
+QuickSpecEnd

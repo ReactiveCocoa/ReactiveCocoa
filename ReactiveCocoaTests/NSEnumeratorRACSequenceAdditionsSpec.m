@@ -6,13 +6,16 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACSequenceExamples.h"
 
 #import "NSEnumerator+RACSequenceAdditions.h"
 
-SpecBegin(NSEnumeratorRACSequenceAdditions)
+QuickSpecBegin(NSEnumeratorRACSequenceAdditionsSpec)
 
-describe(@"-rac_sequence", ^{
+qck_describe(@"-rac_sequence", ^{
 	NSArray *values = @[ @0, @1, @2, @3, @4 ];
 	itShouldBehaveLike(RACSequenceExamples, ^{
 		return @{
@@ -22,4 +25,4 @@ describe(@"-rac_sequence", ^{
 	});
 });
 
-SpecEnd
+QuickSpecEnd

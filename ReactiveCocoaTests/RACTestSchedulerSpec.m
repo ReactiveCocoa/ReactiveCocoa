@@ -8,22 +8,22 @@
 
 #import "RACTestScheduler.h"
 
-SpecBegin(RACTestScheduler)
+QuickSpecBegin(RACTestSchedulerSpec)
 
 __block RACTestScheduler *scheduler;
 
-beforeEach(^{
+qck_beforeEach(^{
 	scheduler = [[RACTestScheduler alloc] init];
 	expect(scheduler).notTo.beNil();
 });
 
-it(@"should do nothing when stepping while empty", ^{
+qck_it(@"should do nothing when stepping while empty", ^{
 	[scheduler step];
 	[scheduler step:5];
 	[scheduler stepAll];
 });
 
-it(@"should execute the earliest enqueued block when stepping", ^{
+qck_it(@"should execute the earliest enqueued block when stepping", ^{
 	__block BOOL firstExecuted = NO;
 	[scheduler schedule:^{
 		firstExecuted = YES;
@@ -45,7 +45,7 @@ it(@"should execute the earliest enqueued block when stepping", ^{
 	expect(secondExecuted).to.beTruthy();
 });
 
-it(@"should step multiple times", ^{
+qck_it(@"should step multiple times", ^{
 	__block BOOL firstExecuted = NO;
 	[scheduler schedule:^{
 		firstExecuted = YES;
@@ -74,7 +74,7 @@ it(@"should step multiple times", ^{
 	expect(thirdExecuted).to.beTruthy();
 });
 
-it(@"should step through all scheduled blocks", ^{
+qck_it(@"should step through all scheduled blocks", ^{
 	__block NSUInteger executions = 0;
 	for (NSUInteger i = 0; i < 10; i++) {
 		[scheduler schedule:^{
@@ -88,7 +88,7 @@ it(@"should step through all scheduled blocks", ^{
 	expect(executions).to.equal(10);
 });
 
-it(@"should execute blocks in date order when stepping", ^{
+qck_it(@"should execute blocks in date order when stepping", ^{
 	__block BOOL laterExecuted = NO;
 	[scheduler after:[NSDate distantFuture] schedule:^{
 		laterExecuted = YES;
@@ -110,7 +110,7 @@ it(@"should execute blocks in date order when stepping", ^{
 	expect(laterExecuted).to.beTruthy();
 });
 
-it(@"should execute delayed blocks in date order when stepping", ^{
+qck_it(@"should execute delayed blocks in date order when stepping", ^{
 	__block BOOL laterExecuted = NO;
 	[scheduler afterDelay:100 schedule:^{
 		laterExecuted = YES;
@@ -132,7 +132,7 @@ it(@"should execute delayed blocks in date order when stepping", ^{
 	expect(laterExecuted).to.beTruthy();
 });
 
-it(@"should execute a repeating blocks in date order", ^{
+qck_it(@"should execute a repeating blocks in date order", ^{
 	__block NSUInteger firstExecutions = 0;
 	[scheduler after:[NSDate dateWithTimeIntervalSinceNow:20] repeatingEvery:5 withLeeway:0 schedule:^{
 		firstExecutions++;
@@ -172,4 +172,4 @@ it(@"should execute a repeating blocks in date order", ^{
 	expect(secondExecutions).to.equal(2);
 });
 
-SpecEnd
+QuickSpecEnd

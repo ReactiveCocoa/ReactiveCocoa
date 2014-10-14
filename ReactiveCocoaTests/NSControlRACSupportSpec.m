@@ -6,6 +6,9 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACControlCommandExamples.h"
 
 #import "NSControl+RACCommandSupport.h"
@@ -17,12 +20,12 @@
 #import "RACDisposable.h"
 #import "RACSubject.h"
 
-SpecBegin(NSControlRACSupport)
+QuickSpecBegin(NSControlRACSupportSpec)
 
-describe(@"NSButton", ^{
+qck_describe(@"NSButton", ^{
 	__block NSButton *button;
 
-	beforeEach(^{
+	qck_beforeEach(^{
 		button = [[NSButton alloc] initWithFrame:NSZeroRect];
 		expect(button).notTo.beNil();
 	});
@@ -37,11 +40,11 @@ describe(@"NSButton", ^{
 	});
 });
 
-describe(@"NSTextField", ^{
+qck_describe(@"NSTextField", ^{
 	__block NSTextField *field;
 	__block NSWindow *window;
 	
-	beforeEach(^{
+	qck_beforeEach(^{
 		field = [[NSTextField alloc] initWithFrame:NSZeroRect];
 		expect(field).notTo.beNil();
 
@@ -66,8 +69,8 @@ describe(@"NSTextField", ^{
 		};
 	});
 
-	describe(@"-rac_textSignal", ^{
-		it(@"should send changes", ^{
+	qck_describe(@"-rac_textSignal", ^{
+		qck_it(@"should send changes", ^{
 			NSMutableArray *strings = [NSMutableArray array];
 			[field.rac_textSignal subscribeNext:^(NSString *str) {
 				[strings addObject:str];
@@ -86,7 +89,7 @@ describe(@"NSTextField", ^{
 			expect(strings).to.equal(expected);
 		});
 
-		it(@"shouldn't give the text field eternal life", ^{
+		qck_it(@"shouldn't give the text field eternal life", ^{
 			__block BOOL dealloced = NO;
 			@autoreleasepool {
 				NSTextField *field __attribute__((objc_precise_lifetime)) = [[NSTextField alloc] initWithFrame:CGRectZero];
@@ -103,4 +106,4 @@ describe(@"NSTextField", ^{
 	});
 });
 
-SpecEnd
+QuickSpecEnd

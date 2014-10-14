@@ -6,6 +6,9 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACControlCommandExamples.h"
 
 #import "RACCommand.h"
@@ -35,7 +38,7 @@ sharedExamplesFor(RACControlCommandExamples, ^(NSDictionary *data) {
 	__block RACSubject *enabledSubject;
 	__block RACCommand *command;
 
-	beforeEach(^{
+	qck_beforeEach(^{
 		control = data[RACControlCommandExampleControl];
 		activate = [data[RACControlCommandExampleActivateBlock] copy];
 
@@ -47,7 +50,7 @@ sharedExamplesFor(RACControlCommandExamples, ^(NSDictionary *data) {
 		[control setRac_command:command];
 	});
 
-	it(@"should bind the control's enabledness to the command", ^{
+	qck_it(@"should bind the control's enabledness to the command", ^{
 		expect([control isEnabled]).will.beTruthy();
 
 		[enabledSubject sendNext:@NO];
@@ -57,7 +60,7 @@ sharedExamplesFor(RACControlCommandExamples, ^(NSDictionary *data) {
 		expect([control isEnabled]).will.beTruthy();
 	});
 
-	it(@"should execute the control's command when activated", ^{
+	qck_it(@"should execute the control's command when activated", ^{
 		__block BOOL executed = NO;
 		[[command.executionSignals flatten] subscribeNext:^(id sender) {
 			expect(sender).to.equal(control);
@@ -68,7 +71,7 @@ sharedExamplesFor(RACControlCommandExamples, ^(NSDictionary *data) {
 		expect(executed).will.beTruthy();
 	});
 	
-	it(@"should overwrite an existing command when setting a new one", ^{
+	qck_it(@"should overwrite an existing command when setting a new one", ^{
 		RACCommand *secondCommand = [[RACCommand alloc] initWithSignalBlock:^(id _) {
 			return [RACSignal return:RACUnit.defaultUnit];
 		}];

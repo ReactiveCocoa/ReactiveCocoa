@@ -6,6 +6,9 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACSubscriberExamples.h"
 
 #import "NSObject+RACDeallocating.h"
@@ -28,7 +31,7 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 	__block BOOL (^success)(void);
 	__block id<RACSubscriber> subscriber;
 	
-	beforeEach(^{
+	qck_beforeEach(^{
 		valuesReceived = data[RACSubscriberExampleValuesReceivedBlock];
 		errorReceived = data[RACSubscriberExampleErrorReceivedBlock];
 		success = data[RACSubscriberExampleSuccessBlock];
@@ -36,7 +39,7 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 		expect(subscriber).notTo.beNil();
 	});
 
-	it(@"should accept a nil error", ^{
+	qck_it(@"should accept a nil error", ^{
 		[subscriber sendError:nil];
 
 		expect(success()).to.beFalsy();
@@ -44,10 +47,10 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 		expect(valuesReceived()).to.equal(@[]);
 	});
 
-	describe(@"with values", ^{
+	qck_describe(@"with values", ^{
 		__block NSSet *values;
 		
-		beforeEach(^{
+		qck_beforeEach(^{
 			NSMutableSet *mutableValues = [NSMutableSet set];
 			for (NSUInteger i = 0; i < 20; i++) {
 				[mutableValues addObject:@(i)];
@@ -56,7 +59,7 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 			values = [mutableValues copy];
 		});
 
-		it(@"should send nexts serially, even when delivered from multiple threads", ^{
+		qck_it(@"should send nexts serially, even when delivered from multiple threads", ^{
 			NSArray *allValues = values.allObjects;
 			dispatch_apply(allValues.count, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), [^(size_t index) {
 				[subscriber sendNext:allValues[index]];
@@ -70,11 +73,11 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 		});
 	});
 
-	describe(@"multiple subscriptions", ^{
+	qck_describe(@"multiple subscriptions", ^{
 		__block RACSubject *first;
 		__block RACSubject *second;
 
-		beforeEach(^{
+		qck_beforeEach(^{
 			first = [RACSubject subject];
 			[first subscribe:subscriber];
 
@@ -82,7 +85,7 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 			[second subscribe:subscriber];
 		});
 
-		it(@"should send values from all subscriptions", ^{
+		qck_it(@"should send values from all subscriptions", ^{
 			[first sendNext:@"foo"];
 			[second sendNext:@"bar"];
 			[first sendNext:@"buzz"];
@@ -95,7 +98,7 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 			expect(valuesReceived()).to.equal(expected);
 		});
 
-		it(@"should terminate after the first error from any subscription", ^{
+		qck_it(@"should terminate after the first error from any subscription", ^{
 			NSError *error = [NSError errorWithDomain:@"" code:-1 userInfo:nil];
 
 			[first sendNext:@"foo"];
@@ -109,7 +112,7 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 			expect(valuesReceived()).to.equal(expected);
 		});
 
-		it(@"should terminate after the first completed from any subscription", ^{
+		qck_it(@"should terminate after the first completed from any subscription", ^{
 			[first sendNext:@"foo"];
 			[second sendNext:@"bar"];
 			[first sendCompleted];
@@ -122,7 +125,7 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 			expect(valuesReceived()).to.equal(expected);
 		});
 
-		it(@"should dispose of all current subscriptions upon termination", ^{
+		qck_it(@"should dispose of all current subscriptions upon termination", ^{
 			__block BOOL firstDisposed = NO;
 			RACSignal *firstDisposableSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 				return [RACDisposable disposableWithBlock:^{
@@ -149,7 +152,7 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 			expect(secondDisposed).to.beTruthy();
 		});
 
-		it(@"should dispose of future subscriptions upon termination", ^{
+		qck_it(@"should dispose of future subscriptions upon termination", ^{
 			__block BOOL disposed = NO;
 			RACSignal *disposableSignal = [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 				return [RACDisposable disposableWithBlock:^{
@@ -165,8 +168,8 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 		});
 	});
 
-	describe(@"memory management", ^{
-		it(@"should not retain disposed disposables", ^{
+	qck_describe(@"memory management", ^{
+		qck_it(@"should not retain disposed disposables", ^{
 			__block BOOL disposableDeallocd = NO;
 			@autoreleasepool {
 				RACCompoundDisposable *disposable __attribute__((objc_precise_lifetime)) = [RACCompoundDisposable disposableWithBlock:^{}];

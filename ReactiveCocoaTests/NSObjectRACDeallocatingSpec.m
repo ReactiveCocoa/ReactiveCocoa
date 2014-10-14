@@ -6,6 +6,9 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACTestObject.h"
 
 #import "NSObject+RACDeallocating.h"
@@ -31,12 +34,12 @@
 @implementation RACDeallocSwizzlingTestSubclass
 @end
 
-SpecBegin(NSObjectRACDeallocatingSpec)
+QuickSpecBegin(NSObjectRACDeallocatingSpec)
 
-describe(@"-dealloc swizzling", ^{
+qck_describe(@"-dealloc swizzling", ^{
 	SEL selector = NSSelectorFromString(@"dealloc");
 
-	it(@"should not invoke superclass -dealloc method twice", ^{
+	qck_it(@"should not invoke superclass -dealloc method twice", ^{
 		__block NSUInteger superclassDeallocatedCount = 0;
 		__block BOOL subclassDeallocated = NO;
 
@@ -65,7 +68,7 @@ describe(@"-dealloc swizzling", ^{
 		expect(superclassDeallocatedCount).to.equal(1);
 	});
 
-	it(@"should invoke superclass -dealloc method swizzled in after the subclass", ^{
+	qck_it(@"should invoke superclass -dealloc method swizzled in after the subclass", ^{
 		__block BOOL superclassDeallocated = NO;
 		__block BOOL subclassDeallocated = NO;
 
@@ -94,8 +97,8 @@ describe(@"-dealloc swizzling", ^{
 	});
 });
 
-describe(@"-rac_deallocDisposable", ^{
-	it(@"should dispose of the disposable when it is dealloc'd", ^{
+qck_describe(@"-rac_deallocDisposable", ^{
+	qck_it(@"should dispose of the disposable when it is dealloc'd", ^{
 		__block BOOL wasDisposed = NO;
 		@autoreleasepool {
 			NSObject *object __attribute__((objc_precise_lifetime)) = [[NSObject alloc] init];
@@ -109,7 +112,7 @@ describe(@"-rac_deallocDisposable", ^{
 		expect(wasDisposed).to.beTruthy();
 	});
 
-	it(@"should be able to use the object during disposal", ^{
+	qck_it(@"should be able to use the object during disposal", ^{
 		@autoreleasepool {
 			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
 
@@ -126,8 +129,8 @@ describe(@"-rac_deallocDisposable", ^{
 	});
 });
 
-describe(@"-rac_willDeallocSignal", ^{
-	it(@"should complete on dealloc", ^{
+qck_describe(@"-rac_willDeallocSignal", ^{
+	qck_it(@"should complete on dealloc", ^{
 		__block BOOL completed = NO;
 		@autoreleasepool {
 			[[[[RACTestObject alloc] init] rac_willDeallocSignal] subscribeCompleted:^{
@@ -138,7 +141,7 @@ describe(@"-rac_willDeallocSignal", ^{
 		expect(completed).to.beTruthy();
 	});
 
-	it(@"should not send anything", ^{
+	qck_it(@"should not send anything", ^{
 		__block BOOL valueReceived = NO;
 		__block BOOL completed = NO;
 		@autoreleasepool {
@@ -153,7 +156,7 @@ describe(@"-rac_willDeallocSignal", ^{
 		expect(completed).to.beTruthy();
 	});
 
-	it(@"should complete upon subscription if already deallocated", ^{
+	qck_it(@"should complete upon subscription if already deallocated", ^{
 		__block BOOL deallocated = NO;
 
 		RACSignal *signal;
@@ -171,7 +174,7 @@ describe(@"-rac_willDeallocSignal", ^{
 		expect([signal waitUntilCompleted:NULL]).to.beTruthy();
 	});
 
-	it(@"should complete before the object is invalid", ^{
+	qck_it(@"should complete before the object is invalid", ^{
 		__block NSString *objectValue;
 
 		@autoreleasepool {
@@ -192,4 +195,4 @@ describe(@"-rac_willDeallocSignal", ^{
 	});
 });
 
-SpecEnd
+QuickSpecEnd

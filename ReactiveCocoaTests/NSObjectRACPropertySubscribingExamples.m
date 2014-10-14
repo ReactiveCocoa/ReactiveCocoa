@@ -6,6 +6,9 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACTestObject.h"
 #import "NSObjectRACPropertySubscribingExamples.h"
 
@@ -24,11 +27,11 @@ SharedExamplesBegin(NSObjectRACPropertySubscribingExamples)
 sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 	__block RACSignal *(^signalBlock)(RACTestObject *object, NSString *keyPath, id observer);
 
-	before(^{
+	qck_before(^{
 		signalBlock = data[RACPropertySubscribingExamplesSetupBlock];
 	});
 
-	it(@"should send the current value once on subscription", ^{
+	qck_it(@"should send the current value once on subscription", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		RACSignal *signal = signalBlock(object, @keypath(object, objectValue), self);
 		NSMutableArray *values = [NSMutableArray array];
@@ -41,7 +44,7 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 		expect(values).to.equal((@[ @0 ]));
 	});
 
-	it(@"should send the new value when it changes", ^{
+	qck_it(@"should send the new value when it changes", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		RACSignal *signal = signalBlock(object, @keypath(object, objectValue), self);
 		NSMutableArray *values = [NSMutableArray array];
@@ -58,7 +61,7 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 
 	});
 
-	it(@"should stop observing when disposed", ^{
+	qck_it(@"should stop observing when disposed", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		RACSignal *signal = signalBlock(object, @keypath(object, objectValue), self);
 		NSMutableArray *values = [NSMutableArray array];
@@ -77,7 +80,7 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 		expect(values).to.equal(expected);
 	});
 
-	it(@"shouldn't send any more values after the observer is gone", ^{
+	qck_it(@"shouldn't send any more values after the observer is gone", ^{
 		__block BOOL observerDealloced = NO;
 		RACTestObject *object = [[RACTestObject alloc] init];
 		NSMutableArray *values = [NSMutableArray array];
@@ -103,7 +106,7 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 		expect(values).to.equal(expected);
 	});
 
-	it(@"shouldn't keep either object alive unnaturally long", ^{
+	qck_it(@"shouldn't keep either object alive unnaturally long", ^{
 		__block BOOL objectDealloced = NO;
 		__block BOOL scopeObjectDealloced = NO;
 		@autoreleasepool {
@@ -127,7 +130,7 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 		expect(scopeObjectDealloced).to.beTruthy();
 	});
 
-	it(@"shouldn't keep the signal alive past the lifetime of the object", ^{
+	qck_it(@"shouldn't keep the signal alive past the lifetime of the object", ^{
 		__block BOOL objectDealloced = NO;
 		__block BOOL signalDealloced = NO;
 		@autoreleasepool {
@@ -153,7 +156,7 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 		expect(objectDealloced).to.beTruthy();
 	});
 
-	it(@"should not resurrect a deallocated object upon subscription", ^{
+	qck_it(@"should not resurrect a deallocated object upon subscription", ^{
 		dispatch_queue_t queue = dispatch_queue_create(NULL, DISPATCH_QUEUE_CONCURRENT);
 		@onExit {
 			dispatch_release(queue);
@@ -212,7 +215,7 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 		}
 	});
 
-	it(@"shouldn't crash when the value is changed on a different queue", ^{
+	qck_it(@"shouldn't crash when the value is changed on a different queue", ^{
 		__block id value;
 		@autoreleasepool {
 			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
@@ -234,12 +237,12 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 		expect(value).will.equal(@1);
 	});
 
-	describe(@"mutating collections", ^{
+	qck_describe(@"mutating collections", ^{
 		__block RACTestObject *object;
 		__block NSMutableOrderedSet *lastValue;
 		__block NSMutableOrderedSet *proxySet;
 
-		before(^{
+		qck_before(^{
 			object = [[RACTestObject alloc] init];
 			object.objectValue = [NSMutableOrderedSet orderedSetWithObject:@1];
 
@@ -252,21 +255,21 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 			proxySet = [object mutableOrderedSetValueForKey:keyPath];
 		});
 
-		it(@"sends the newest object when inserting values into an observed object", ^{
+		qck_it(@"sends the newest object when inserting values into an observed object", ^{
 			NSMutableOrderedSet *expected = [NSMutableOrderedSet orderedSetWithObjects: @1, @2, nil];
 
 			[proxySet addObject:@2];
 			expect(lastValue).to.equal(expected);
 		});
 
-		it(@"sends the newest object when removing values in an observed object", ^{
+		qck_it(@"sends the newest object when removing values in an observed object", ^{
 			NSMutableOrderedSet *expected = [NSMutableOrderedSet orderedSet];
 
 			[proxySet removeAllObjects];
 			expect(lastValue).to.equal(expected);
 		});
 
-		it(@"sends the newest object when replacing values in an observed object", ^{
+		qck_it(@"sends the newest object when replacing values in an observed object", ^{
 			NSMutableOrderedSet *expected = [NSMutableOrderedSet orderedSetWithObjects: @2, nil];
 
 			[proxySet replaceObjectAtIndex:0 withObject:@2];

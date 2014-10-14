@@ -6,6 +6,9 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACTestUIButton.h"
 
 #import "EXTKeyPathCoding.h"
@@ -17,7 +20,7 @@
 #import "UIControl+RACSignalSupport.h"
 #import "UISlider+RACSignalSupport.h"
 
-SpecBegin(UIControlRACSupport)
+QuickSpecBegin(UIControlRACSupportSpec)
 
 void (^setViewValueBlock)(UISlider *, NSNumber *) = ^(UISlider *view, NSNumber *value) {
 	view.value = value.floatValue;
@@ -53,7 +56,7 @@ itShouldBehaveLike(RACViewChannelExamples, ^{
 	};
 });
 
-it(@"should send on the returned signal when matching actions are sent", ^{
+qck_it(@"should send on the returned signal when matching actions are sent", ^{
 	UIControl *control = [RACTestUIButton button];
 	expect(control).notTo.beNil();
 
@@ -78,7 +81,7 @@ it(@"should send on the returned signal when matching actions are sent", ^{
 	expect(receivedCount).to.equal(2);
 });
 
-it(@"should send completed when the control is deallocated", ^{
+qck_it(@"should send completed when the control is deallocated", ^{
 	__block BOOL completed = NO;
 	__block BOOL deallocated = NO;
 
@@ -102,4 +105,4 @@ it(@"should send completed when the control is deallocated", ^{
 	expect(completed).to.beTruthy();
 });
 
-SpecEnd
+QuickSpecEnd

@@ -6,6 +6,9 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import <AppKit/AppKit.h>
 #import "RACKVOChannel.h"
 
@@ -19,9 +22,9 @@
 
 @end
 
-SpecBegin(NSControllerRACSupport)
+QuickSpecBegin(NSControllerRACSupportSpec)
 
-it(@"RACKVOChannel should support NSController", ^{
+qck_it(@"RACKVOChannel should support NSController", ^{
 	RACTestController *a = [[RACTestController alloc] init];
 	RACTestController *b = [[RACTestController alloc] init];
 	RACChannelTo(a, object) = RACChannelTo(b, object);
@@ -41,4 +44,4 @@ it(@"RACKVOChannel should support NSController", ^{
 	expect(b.object).to.beNil();
 });
 
-SpecEnd
+QuickSpecEnd

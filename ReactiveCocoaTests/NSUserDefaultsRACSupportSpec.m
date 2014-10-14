@@ -6,6 +6,9 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "NSUserDefaults+RACSupport.h"
 
 #import "RACCompoundDisposable.h"
@@ -30,12 +33,12 @@ static NSString * const NSUserDefaultsRACSupportSpecBoolDefault = @"NSUserDefaul
 
 @end
 
-SpecBegin(NSUserDefaultsRACSupportSpec)
+QuickSpecBegin(NSUserDefaultsRACSupportSpec)
 
 __block NSUserDefaults *defaults = nil;
 __block TestObserver *observer = nil;
 
-beforeEach(^{
+qck_beforeEach(^{
 	defaults = NSUserDefaults.standardUserDefaults;
 	[defaults removeObjectForKey:NSUserDefaultsRACSupportSpecStringDefault];
 	[defaults removeObjectForKey:NSUserDefaultsRACSupportSpecBoolDefault];
@@ -43,11 +46,11 @@ beforeEach(^{
 	observer = [TestObserver new];
 });
 
-afterEach(^{
+qck_afterEach(^{
 	observer = nil;
 });
 
-it(@"should set defaults", ^{
+qck_it(@"should set defaults", ^{
 	RACChannelTo(observer, string1) = [defaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecStringDefault];
 	RACChannelTo(observer, bool1, @NO) = [defaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecBoolDefault];
 	
@@ -58,7 +61,7 @@ it(@"should set defaults", ^{
 	expect([defaults objectForKey:NSUserDefaultsRACSupportSpecBoolDefault]).will.equal(@YES);
 });
 
-it(@"should read defaults", ^{
+qck_it(@"should read defaults", ^{
 	RACChannelTo(observer, string1) = [defaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecStringDefault];
 	RACChannelTo(observer, bool1, @NO) = [defaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecBoolDefault];
 	
@@ -72,7 +75,7 @@ it(@"should read defaults", ^{
 	expect(observer.bool1).to.equal(YES);
 });
 
-it(@"should be okay to create 2 terminals", ^{
+qck_it(@"should be okay to create 2 terminals", ^{
 	RACChannelTo(observer, string1) = [defaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecStringDefault];
 	RACChannelTo(observer, string2) = [defaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecStringDefault];
 	
@@ -82,7 +85,7 @@ it(@"should be okay to create 2 terminals", ^{
 	expect(observer.string2).to.equal(@"String 3");
 });
 
-it(@"should handle removed defaults", ^{
+qck_it(@"should handle removed defaults", ^{
 	observer.string1 = @"Some string";
 	observer.bool1 = YES;
 	
@@ -96,7 +99,7 @@ it(@"should handle removed defaults", ^{
 	expect(observer.bool1).to.equal(NO);
 });
 
-it(@"shouldn't resend values", ^{
+qck_it(@"shouldn't resend values", ^{
 	RACChannelTerminal *terminal = [defaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecStringDefault];
 	
 	RACChannelTo(observer, string1) = terminal;
@@ -107,7 +110,7 @@ it(@"shouldn't resend values", ^{
 	expect(value).to.beNil();
 });
 
-it(@"should complete when the NSUserDefaults deallocates", ^{
+qck_it(@"should complete when the NSUserDefaults deallocates", ^{
 	__block RACChannelTerminal *terminal;
 	__block BOOL deallocated = NO;
 	
@@ -124,10 +127,10 @@ it(@"should complete when the NSUserDefaults deallocates", ^{
 	expect([terminal asynchronouslyWaitUntilCompleted:NULL]).to.beTruthy();
 });
 
-it(@"should send an initial value", ^{
+qck_it(@"should send an initial value", ^{
 	[defaults setObject:@"Initial" forKey:NSUserDefaultsRACSupportSpecStringDefault];
 	RACChannelTerminal *terminal = [defaults rac_channelTerminalForKey:NSUserDefaultsRACSupportSpecStringDefault];
 	expect([terminal asynchronousFirstOrDefault:nil success:NULL error:NULL]).to.equal(@"Initial");
 });
 
-SpecEnd
+QuickSpecEnd

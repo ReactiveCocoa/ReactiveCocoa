@@ -6,6 +6,9 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACTestObject.h"
 #import "RACSubclassObject.h"
 
@@ -31,10 +34,10 @@
 
 @end
 
-SpecBegin(NSObjectRACSelectorSignal)
+QuickSpecBegin(NSObjectRACSelectorSignalSpec)
 
-describe(@"RACTestObject", ^{
-	it(@"should send the argument for each invocation", ^{
+qck_describe(@"RACTestObject", ^{
+	qck_it(@"should send the argument for each invocation", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		__block id value;
 		[[object rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(RACTuple *x) {
@@ -46,7 +49,7 @@ describe(@"RACTestObject", ^{
 		expect(value).to.equal(@42);
 	});
 
-	it(@"should send completed on deallocation", ^{
+	qck_it(@"should send completed on deallocation", ^{
 		__block BOOL completed = NO;
 		__block BOOL deallocated = NO;
 
@@ -69,7 +72,7 @@ describe(@"RACTestObject", ^{
 		expect(completed).to.beTruthy();
 	});
 
-	it(@"should send for a zero-argument method", ^{
+	qck_it(@"should send for a zero-argument method", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 
 		__block RACTuple *value;
@@ -81,7 +84,7 @@ describe(@"RACTestObject", ^{
 		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
 	});
 
-	it(@"should send the argument for each invocation to the instance's own signal", ^{
+	qck_it(@"should send the argument for each invocation to the instance's own signal", ^{
 		RACTestObject *object1 = [[RACTestObject alloc] init];
 		__block id value1;
 		[[object1 rac_signalForSelector:@selector(lifeIsGood:)] subscribeNext:^(RACTuple *x) {
@@ -101,7 +104,7 @@ describe(@"RACTestObject", ^{
 		expect(value2).to.equal(@"Carpe diem");
 	});
 
-	it(@"should send multiple arguments for each invocation", ^{
+	qck_it(@"should send multiple arguments for each invocation", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 
 		__block id value1;
@@ -116,7 +119,7 @@ describe(@"RACTestObject", ^{
 		expect(value2).to.equal(@"foo");
 	});
 
-	it(@"should send arguments for invocation of non-existant methods", ^{
+	qck_it(@"should send arguments for invocation of non-existant methods", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 		__block id key;
 		__block id value;
@@ -131,7 +134,7 @@ describe(@"RACTestObject", ^{
 		expect(key).to.equal(@"Winner");
 	});
 
-	it(@"should send arguments for invocation and invoke the original method on previously KVO'd receiver", ^{
+	qck_it(@"should send arguments for invocation and invoke the original method on previously KVO'd receiver", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 
 		[[RACObserve(object, objectValue) publish] connect];
@@ -153,7 +156,7 @@ describe(@"RACTestObject", ^{
 		expect(key).to.equal(@"Winner");
 	});
 
-	it(@"should send arguments for invocation and invoke the original method when receiver is subsequently KVO'd", ^{
+	qck_it(@"should send arguments for invocation and invoke the original method when receiver is subsequently KVO'd", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 
 		__block id key;
@@ -175,7 +178,7 @@ describe(@"RACTestObject", ^{
 		expect(key).to.equal(@"Winner");
 	});
 
-	it(@"should properly implement -respondsToSelector: when called on KVO'd receiver", ^{
+	qck_it(@"should properly implement -respondsToSelector: when called on KVO'd receiver", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 
 		// First, setup KVO on `object`, which gives us the desired side-effect
@@ -191,7 +194,7 @@ describe(@"RACTestObject", ^{
 		expect([object respondsToSelector:selector]).to.beTruthy();
 	});
 
-	it(@"should properly implement -respondsToSelector: when called on signalForSelector'd receiver that has subsequently been KVO'd", ^{
+	qck_it(@"should properly implement -respondsToSelector: when called on signalForSelector'd receiver that has subsequently been KVO'd", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 
 		SEL selector = NSSelectorFromString(@"anyOldSelector:");
@@ -207,7 +210,7 @@ describe(@"RACTestObject", ^{
 		expect([object respondsToSelector:selector]).to.beTruthy();
 	});
 
-	it(@"should properly implement -respondsToSelector: when called on signalForSelector'd receiver that has subsequently been KVO'd, then signalForSelector'd again", ^{
+	qck_it(@"should properly implement -respondsToSelector: when called on signalForSelector'd receiver that has subsequently been KVO'd, then signalForSelector'd again", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 
 		SEL selector = NSSelectorFromString(@"anyOldSelector:");
@@ -230,7 +233,7 @@ describe(@"RACTestObject", ^{
 		expect([object respondsToSelector:selector2]).to.beTruthy();
 	});
 	
-	it(@"should call the right signal for two instances of the same class, adding signals for the same selector", ^{
+	qck_it(@"should call the right signal for two instances of the same class, adding signals for the same selector", ^{
 		RACTestObject *object1 = [[RACTestObject alloc] init];
 		RACTestObject *object2 = [[RACTestObject alloc] init];
 
@@ -255,7 +258,7 @@ describe(@"RACTestObject", ^{
 		expect(value2).to.equal(@420);
 	});
 
-	it(@"should properly implement -respondsToSelector: for optional method from a protocol", ^{
+	qck_it(@"should properly implement -respondsToSelector: for optional method from a protocol", ^{
 		// Selector for the targeted optional method from a protocol.
 		SEL selector = @selector(optionalProtocolMethodWithObjectValue:);
 
@@ -278,7 +281,7 @@ describe(@"RACTestObject", ^{
 		expect([object2 respondsToSelector:selector]).to.beFalsy();
 	});
 
-	it(@"should send non-object arguments", ^{
+	qck_it(@"should send non-object arguments", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 
 		__block id value;
@@ -290,7 +293,7 @@ describe(@"RACTestObject", ^{
 		expect(value).to.equal(@42);
 	});
 
-	it(@"should send on signal after the original method is invoked", ^{
+	qck_it(@"should send on signal after the original method is invoked", ^{
 		RACTestObject *object = [[RACTestObject alloc] init];
 
 		__block BOOL invokedMethodBefore = NO;
@@ -303,7 +306,7 @@ describe(@"RACTestObject", ^{
 	});
 });
 
-it(@"should swizzle an NSObject method", ^{
+qck_it(@"should swizzle an NSObject method", ^{
 	NSObject *object = [[NSObject alloc] init];
 
 	__block RACTuple *value;
@@ -315,8 +318,8 @@ it(@"should swizzle an NSObject method", ^{
 	expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
 });
 
-describe(@"a class that already overrides -forwardInvocation:", ^{
-	it(@"should invoke the superclass' implementation", ^{
+qck_describe(@"a class that already overrides -forwardInvocation:", ^{
+	qck_it(@"should invoke the superclass' implementation", ^{
 		RACSubclassObject *object = [[RACSubclassObject alloc] init];
 
 		__block id value;
@@ -335,7 +338,7 @@ describe(@"a class that already overrides -forwardInvocation:", ^{
 		expect(object.forwardedSelector).to.equal(@selector(allObjects));
 	});
 
-	it(@"should not infinite recurse when KVO'd after RAC swizzled", ^{
+	qck_it(@"should not infinite recurse when KVO'd after RAC swizzled", ^{
 		RACSubclassObject *object = [[RACSubclassObject alloc] init];
 
 		__block id value;
@@ -354,14 +357,14 @@ describe(@"a class that already overrides -forwardInvocation:", ^{
 	});
 });
 
-describe(@"two classes in the same hierarchy", ^{
+qck_describe(@"two classes in the same hierarchy", ^{
 	__block RACTestObject *superclassObj;
 	__block RACTuple *superclassTuple;
 
 	__block RACSubclassObject *subclassObj;
 	__block RACTuple *subclassTuple;
 
-	beforeEach(^{
+	qck_beforeEach(^{
 		superclassObj = [[RACTestObject alloc] init];
 		expect(superclassObj).notTo.beNil();
 
@@ -369,7 +372,7 @@ describe(@"two classes in the same hierarchy", ^{
 		expect(subclassObj).notTo.beNil();
 	});
 
-	it(@"should not collide", ^{
+	qck_it(@"should not collide", ^{
 		[[superclassObj rac_signalForSelector:@selector(combineObjectValue:andIntegerValue:)] subscribeNext:^(RACTuple *t) {
 			superclassTuple = t;
 		}];
@@ -389,7 +392,7 @@ describe(@"two classes in the same hierarchy", ^{
 		expect(subclassTuple.allObjects).to.equal(expectedValues);
 	});
 
-	it(@"should not collide when the superclass is invoked asynchronously", ^{
+	qck_it(@"should not collide when the superclass is invoked asynchronously", ^{
 		[[superclassObj rac_signalForSelector:@selector(setObjectValue:andSecondObjectValue:)] subscribeNext:^(RACTuple *t) {
 			superclassTuple = t;
 		}];
@@ -413,11 +416,11 @@ describe(@"two classes in the same hierarchy", ^{
 	});
 });
 
-describe(@"-rac_signalForSelector:fromProtocol", ^{
+qck_describe(@"-rac_signalForSelector:fromProtocol", ^{
 	__block RACTestObject<TestProtocol> *object;
 	__block Protocol *protocol;
 	
-	beforeEach(^{
+	qck_beforeEach(^{
 		object = (id)[[RACTestObject alloc] init];
 		expect(object).notTo.beNil();
 
@@ -425,7 +428,7 @@ describe(@"-rac_signalForSelector:fromProtocol", ^{
 		expect(protocol).notTo.beNil();
 	});
 
-	it(@"should not clobber a required method already implemented", ^{
+	qck_it(@"should not clobber a required method already implemented", ^{
 		__block id value;
 		[[object rac_signalForSelector:@selector(lifeIsGood:) fromProtocol:protocol] subscribeNext:^(RACTuple *x) {
 			value = x.first;
@@ -435,7 +438,7 @@ describe(@"-rac_signalForSelector:fromProtocol", ^{
 		expect(value).to.equal(@42);
 	});
 
-	it(@"should not clobber an optional method already implemented", ^{
+	qck_it(@"should not clobber an optional method already implemented", ^{
 		object.objectValue = @"foo";
 
 		__block id value;
@@ -447,7 +450,7 @@ describe(@"-rac_signalForSelector:fromProtocol", ^{
 		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
 	});
 
-	it(@"should inject a required method", ^{
+	qck_it(@"should inject a required method", ^{
 		__block id value;
 		[[object rac_signalForSelector:@selector(requiredMethod:) fromProtocol:protocol] subscribeNext:^(RACTuple *x) {
 			value = x.first;
@@ -457,7 +460,7 @@ describe(@"-rac_signalForSelector:fromProtocol", ^{
 		expect(value).to.equal(42);
 	});
 
-	it(@"should inject an optional method", ^{
+	qck_it(@"should inject an optional method", ^{
 		__block id value;
 		[[object rac_signalForSelector:@selector(optionalMethodWithObject:flag:) fromProtocol:protocol] subscribeNext:^(RACTuple *x) {
 			value = x;
@@ -468,31 +471,31 @@ describe(@"-rac_signalForSelector:fromProtocol", ^{
 	});
 });
 
-describe(@"class reporting", ^{
+qck_describe(@"class reporting", ^{
 	__block RACTestObject *object;
 	__block Class originalClass;
 
-	beforeEach(^{
+	qck_beforeEach(^{
 		object = [[RACTestObject alloc] init];
 		originalClass = object.class;
 	});
 
-	it(@"should report the original class", ^{
+	qck_it(@"should report the original class", ^{
 		[object rac_signalForSelector:@selector(lifeIsGood:)];
 		expect(object.class).to.beIdenticalTo(originalClass);
 	});
 
-	it(@"should report the original class when it's KVO'd after dynamically subclassing", ^{
+	qck_it(@"should report the original class when it's KVO'd after dynamically subclassing", ^{
 		[object rac_signalForSelector:@selector(lifeIsGood:)];
 		[[RACObserve(object, objectValue) publish] connect];
 		expect(object.class).to.beIdenticalTo(originalClass);
 	});
 
-	it(@"should report the original class when it's KVO'd before dynamically subclassing", ^{
+	qck_it(@"should report the original class when it's KVO'd before dynamically subclassing", ^{
 		[[RACObserve(object, objectValue) publish] connect];
 		[object rac_signalForSelector:@selector(lifeIsGood:)];
 		expect(object.class).to.beIdenticalTo(originalClass);
 	});
 });
 
-SpecEnd
+QuickSpecEnd

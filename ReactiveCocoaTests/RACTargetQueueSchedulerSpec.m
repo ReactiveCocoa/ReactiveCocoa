@@ -6,12 +6,15 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACTargetQueueScheduler.h"
 #import <libkern/OSAtomic.h>
 
-SpecBegin(RACTargetQueueScheduler)
+QuickSpecBegin(RACTargetQueueSchedulerSpec)
 
-it(@"should have a valid current scheduler", ^{
+qck_it(@"should have a valid current scheduler", ^{
 	dispatch_queue_t queue = dispatch_queue_create("test-queue", DISPATCH_QUEUE_SERIAL);
 	RACScheduler *scheduler = [[RACTargetQueueScheduler alloc] initWithName:@"test-scheduler" targetQueue:queue];
 	__block RACScheduler *currentScheduler;
@@ -24,7 +27,7 @@ it(@"should have a valid current scheduler", ^{
 	dispatch_release(queue);
 });
 
-it(@"should schedule blocks FIFO even when given a concurrent queue", ^{
+qck_it(@"should schedule blocks FIFO even when given a concurrent queue", ^{
 	dispatch_queue_t queue = dispatch_queue_create("test-queue", DISPATCH_QUEUE_CONCURRENT);
 	RACScheduler *scheduler = [[RACTargetQueueScheduler alloc] initWithName:@"test-scheduler" targetQueue:queue];
 	__block volatile int32_t startedCount = 0;
@@ -47,4 +50,4 @@ it(@"should schedule blocks FIFO even when given a concurrent queue", ^{
 	dispatch_release(queue);
 });
 
-SpecEnd
+QuickSpecEnd

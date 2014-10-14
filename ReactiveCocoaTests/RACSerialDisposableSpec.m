@@ -6,17 +6,20 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACSerialDisposable.h"
 
-SpecBegin(RACSerialDisposable)
+QuickSpecBegin(RACSerialDisposableSpec)
 
-it(@"should initialize with -init", ^{
+qck_it(@"should initialize with -init", ^{
 	RACSerialDisposable *serial = [[RACSerialDisposable alloc] init];
 	expect(serial).notTo.beNil();
 	expect(serial.disposable).to.beNil();
 });
 
-it(@"should initialize an inner disposable with -initWithBlock:", ^{
+qck_it(@"should initialize an inner disposable with -initWithBlock:", ^{
 	__block BOOL disposed = NO;
 	RACSerialDisposable *serial = [RACSerialDisposable disposableWithBlock:^{
 		disposed = YES;
@@ -30,14 +33,14 @@ it(@"should initialize an inner disposable with -initWithBlock:", ^{
 	expect(disposed).to.beTruthy();
 });
 
-it(@"should initialize with a disposable", ^{
+qck_it(@"should initialize with a disposable", ^{
 	RACDisposable *inner = [[RACDisposable alloc] init];
 	RACSerialDisposable *serial = [RACSerialDisposable serialDisposableWithDisposable:inner];
 	expect(serial).notTo.beNil();
 	expect(serial.disposable).to.equal(inner);
 });
 
-it(@"should dispose of the inner disposable", ^{
+qck_it(@"should dispose of the inner disposable", ^{
 	__block BOOL disposed = NO;
 	RACDisposable *inner = [RACDisposable disposableWithBlock:^{
 		disposed = YES;
@@ -53,7 +56,7 @@ it(@"should dispose of the inner disposable", ^{
 	expect(disposed).to.beTruthy();
 });
 
-it(@"should dispose of a new inner disposable if it's already been disposed", ^{
+qck_it(@"should dispose of a new inner disposable if it's already been disposed", ^{
 	__block BOOL disposed = NO;
 	RACDisposable *inner = [RACDisposable disposableWithBlock:^{
 		disposed = YES;
@@ -71,7 +74,7 @@ it(@"should dispose of a new inner disposable if it's already been disposed", ^{
 	expect(serial.disposable).to.beNil();
 });
 
-it(@"should allow the inner disposable to be set to nil", ^{
+qck_it(@"should allow the inner disposable to be set to nil", ^{
 	__block BOOL disposed = NO;
 	RACDisposable *inner = [RACDisposable disposableWithBlock:^{
 		disposed = YES;
@@ -91,7 +94,7 @@ it(@"should allow the inner disposable to be set to nil", ^{
 	expect(serial.disposable).to.beNil();
 });
 
-it(@"should swap inner disposables", ^{
+qck_it(@"should swap inner disposables", ^{
 	__block BOOL firstDisposed = NO;
 	RACDisposable *first = [RACDisposable disposableWithBlock:^{
 		firstDisposed = YES;
@@ -117,7 +120,7 @@ it(@"should swap inner disposables", ^{
 	expect(secondDisposed).to.beTruthy();
 });
 
-it(@"should release the inner disposable upon deallocation", ^{
+qck_it(@"should release the inner disposable upon deallocation", ^{
 	__weak RACDisposable *weakInnerDisposable;
 	__weak RACSerialDisposable *weakSerialDisposable;
 
@@ -134,4 +137,4 @@ it(@"should release the inner disposable upon deallocation", ^{
 	expect(weakInnerDisposable).to.beNil();
 });
 
-SpecEnd
+QuickSpecEnd

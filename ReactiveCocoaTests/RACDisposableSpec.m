@@ -6,12 +6,15 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACDisposable.h"
 #import "RACScopedDisposable.h"
 
-SpecBegin(RACDisposable)
+QuickSpecBegin(RACDisposableSpec)
 
-it(@"should initialize without a block", ^{
+qck_it(@"should initialize without a block", ^{
 	RACDisposable *disposable = [[RACDisposable alloc] init];
 	expect(disposable).notTo.beNil();
 	expect(disposable.disposed).to.beFalsy();
@@ -20,7 +23,7 @@ it(@"should initialize without a block", ^{
 	expect(disposable.disposed).to.beTruthy();
 });
 
-it(@"should execute a block upon disposal", ^{
+qck_it(@"should execute a block upon disposal", ^{
 	__block BOOL disposed = NO;
 	RACDisposable *disposable = [RACDisposable disposableWithBlock:^{
 		disposed = YES;
@@ -35,7 +38,7 @@ it(@"should execute a block upon disposal", ^{
 	expect(disposable.disposed).to.beTruthy();
 });
 
-it(@"should not dispose upon deallocation", ^{
+qck_it(@"should not dispose upon deallocation", ^{
 	__block BOOL disposed = NO;
 	__weak RACDisposable *weakDisposable = nil;
 
@@ -52,7 +55,7 @@ it(@"should not dispose upon deallocation", ^{
 	expect(disposed).to.beFalsy();
 });
 
-it(@"should create a scoped disposable", ^{
+qck_it(@"should create a scoped disposable", ^{
 	__block BOOL disposed = NO;
 	__weak RACScopedDisposable *weakDisposable = nil;
 
@@ -70,4 +73,4 @@ it(@"should create a scoped disposable", ^{
 	expect(disposed).to.beTruthy();
 });
 
-SpecEnd
+QuickSpecEnd

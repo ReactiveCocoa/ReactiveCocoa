@@ -6,6 +6,9 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACSubscriberExamples.h"
 
 #import <libkern/OSAtomic.h>
@@ -18,16 +21,16 @@
 #import "RACSubject.h"
 #import "RACUnit.h"
 
-SpecBegin(RACSubject)
+QuickSpecBegin(RACSubjectSpec)
 
-describe(@"RACSubject", ^{
+qck_describe(@"RACSubject", ^{
 	__block RACSubject *subject;
 	__block NSMutableArray *values;
 
 	__block BOOL success;
 	__block NSError *error;
 
-	beforeEach(^{
+	qck_beforeEach(^{
 		values = [NSMutableArray array];
 
 		subject = [RACSubject subject];
@@ -54,15 +57,15 @@ describe(@"RACSubject", ^{
 	});
 });
 
-describe(@"RACReplaySubject", ^{
+qck_describe(@"RACReplaySubject", ^{
 	__block RACReplaySubject *subject = nil;
 
-	describe(@"with a capacity of 1", ^{
-		beforeEach(^{
+	qck_describe(@"with a capacity of 1", ^{
+		qck_beforeEach(^{
 			subject = [RACReplaySubject replaySubjectWithCapacity:1];
 		});
 		
-		it(@"should send the last value", ^{
+		qck_it(@"should send the last value", ^{
 			id firstValue = @"blah";
 			id secondValue = @"more blah";
 			
@@ -77,7 +80,7 @@ describe(@"RACReplaySubject", ^{
 			expect(valueReceived).to.equal(secondValue);
 		});
 		
-		it(@"should send the last value to new subscribers after completion", ^{
+		qck_it(@"should send the last value to new subscribers after completion", ^{
 			id firstValue = @"blah";
 			id secondValue = @"more blah";
 			
@@ -101,7 +104,7 @@ describe(@"RACReplaySubject", ^{
 			expect(valueReceived).to.equal(secondValue);
 		});
 
-		it(@"should not send any values to new subscribers if none were sent originally", ^{
+		qck_it(@"should not send any values to new subscribers if none were sent originally", ^{
 			[subject sendCompleted];
 
 			__block BOOL nextInvoked = NO;
@@ -112,7 +115,7 @@ describe(@"RACReplaySubject", ^{
 			expect(nextInvoked).to.beFalsy();
 		});
 
-		it(@"should resend errors", ^{
+		qck_it(@"should resend errors", ^{
 			NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
 			[subject sendError:error];
 
@@ -125,7 +128,7 @@ describe(@"RACReplaySubject", ^{
 			expect(errorSent).to.beTruthy();
 		});
 
-		it(@"should resend nil errors", ^{
+		qck_it(@"should resend nil errors", ^{
 			[subject sendError:nil];
 
 			__block BOOL errorSent = NO;
@@ -138,8 +141,8 @@ describe(@"RACReplaySubject", ^{
 		});
 	});
 
-	describe(@"with an unlimited capacity", ^{
-		beforeEach(^{
+	qck_describe(@"with an unlimited capacity", ^{
+		qck_beforeEach(^{
 			subject = [RACReplaySubject subject];
 		});
 
@@ -178,7 +181,7 @@ describe(@"RACReplaySubject", ^{
 			};
 		});
 		
-		it(@"should send both values to new subscribers after completion", ^{
+		qck_it(@"should send both values to new subscribers after completion", ^{
 			id firstValue = @"blah";
 			id secondValue = @"more blah";
 			
@@ -200,7 +203,7 @@ describe(@"RACReplaySubject", ^{
 			expect(completed).to.beTruthy();
 		});
 
-		it(@"should send values in the same order live as when replaying", ^{
+		qck_it(@"should send values in the same order live as when replaying", ^{
 			NSUInteger count = 49317;
 
 			// Just leak it, ain't no thang.
@@ -246,7 +249,7 @@ describe(@"RACReplaySubject", ^{
 			}];
 		});
 
-		it(@"should have a current scheduler when replaying", ^{
+		qck_it(@"should have a current scheduler when replaying", ^{
 			[subject sendNext:RACUnit.defaultUnit];
 
 			__block RACScheduler *currentScheduler;
@@ -266,7 +269,7 @@ describe(@"RACReplaySubject", ^{
 			expect(currentScheduler).willNot.beNil();
 		});
 		
-		it(@"should stop replaying when the subscription is disposed", ^{
+		qck_it(@"should stop replaying when the subscription is disposed", ^{
 			NSMutableArray *values = [NSMutableArray array];
 
 			[subject sendNext:@0];
@@ -284,7 +287,7 @@ describe(@"RACReplaySubject", ^{
 			expect(values).will.equal(@[ @0 ]);
 		});
 
-		it(@"should finish replaying before completing", ^{
+		qck_it(@"should finish replaying before completing", ^{
 			[subject sendNext:@1];
 
 			__block id received;
@@ -299,7 +302,7 @@ describe(@"RACReplaySubject", ^{
 			expect(received).will.equal(@1);
 		});
 
-		it(@"should finish replaying before erroring", ^{
+		qck_it(@"should finish replaying before erroring", ^{
 			[subject sendNext:@1];
 
 			__block id received;
@@ -314,7 +317,7 @@ describe(@"RACReplaySubject", ^{
 			expect(received).will.equal(@1);
 		});
 
-		it(@"should finish replaying before sending new values", ^{
+		qck_it(@"should finish replaying before sending new values", ^{
 			[subject sendNext:@1];
 
 			NSMutableArray *received = [NSMutableArray array];
@@ -332,4 +335,4 @@ describe(@"RACReplaySubject", ^{
 	});
 });
 
-SpecEnd
+QuickSpecEnd

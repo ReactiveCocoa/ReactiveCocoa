@@ -10,17 +10,17 @@
 #import "RACSignal+Operations.h"
 #import "UITextView+RACSignalSupport.h"
 
-SpecBegin(UITextViewRACSupport)
+QuickSpecBegin(UITextViewRACSupportSpec)
 
-describe(@"-rac_textSignal", ^{
+qck_describe(@"-rac_textSignal", ^{
 	__block UITextView *textView;
 
-	beforeEach(^{
+	qck_beforeEach(^{
 		textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, 100, 20)];
 		expect(textView).notTo.beNil();
 	});
 
-	it(@"should start with the initial text", ^{
+	qck_it(@"should start with the initial text", ^{
 		textView.text = @"foo";
 
 		RACSignal *textSignal = textView.rac_textSignal;
@@ -31,4 +31,4 @@ describe(@"-rac_textSignal", ^{
 	});
 });
 
-SpecEnd
+QuickSpecEnd

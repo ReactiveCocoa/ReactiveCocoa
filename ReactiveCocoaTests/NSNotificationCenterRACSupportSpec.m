@@ -6,6 +6,9 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "NSNotificationCenter+RACSupport.h"
 #import "RACSignal.h"
 #import "RACCompoundDisposable.h"
@@ -14,17 +17,17 @@
 
 static NSString * const TestNotification = @"TestNotification";
 
-SpecBegin(NSNotificationCenterRACSupport)
+QuickSpecBegin(NSNotificationCenterRACSupportSpec)
 
 __block NSNotificationCenter *notificationCenter;
 
-beforeEach(^{
+qck_beforeEach(^{
 	// The compiler gets confused and thinks you might be messaging
 	// NSDistributedNotificationCenter otherwise. Wtf?
 	notificationCenter = NSNotificationCenter.defaultCenter;
 });
 
-it(@"should send the notification when posted by any object", ^{
+qck_it(@"should send the notification when posted by any object", ^{
 	RACSignal *signal = [notificationCenter rac_addObserverForName:TestNotification object:nil];
 
 	__block NSUInteger count = 0;
@@ -44,7 +47,7 @@ it(@"should send the notification when posted by any object", ^{
 	expect(count).to.equal(2);
 });
 
-it(@"should send the notification when posted by a specific object", ^{
+qck_it(@"should send the notification when posted by a specific object", ^{
 	RACSignal *signal = [notificationCenter rac_addObserverForName:TestNotification object:self];
 
 	__block NSUInteger count = 0;
@@ -65,20 +68,20 @@ it(@"should send the notification when posted by a specific object", ^{
 	expect(count).to.equal(1);
 });
 
-it(@"shouldn't strongly capture the notification object", ^{
+qck_it(@"shouldn't strongly capture the notification object", ^{
 	RACSignal *signal __attribute__((objc_precise_lifetime, unused));
-	
+
 	__block BOOL dealloced = NO;
 	@autoreleasepool {
 		NSObject *notificationObject = [[NSObject alloc] init];
 		[notificationObject.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 			dealloced = YES;
 		}]];
-		
+
 		signal = [notificationCenter rac_addObserverForName:TestNotification object:notificationObject];
 	}
 
 	expect(dealloced).to.beTruthy();
 });
 
-SpecEnd
+QuickSpecEnd

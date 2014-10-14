@@ -6,6 +6,9 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACTestObject.h"
 
 #import "EXTKeyPathCoding.h"
@@ -25,12 +28,12 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 	__block RACTestObject *testObject = nil;
 	__block void (^setupBlock)(RACTestObject *, NSString *keyPath, id nilValue, RACSignal *);
 
-	beforeEach(^{
+	qck_beforeEach(^{
 		setupBlock = data[RACPropertySignalExamplesSetupBlock];
 		testObject = [[RACTestObject alloc] init];
 	});
 
-	it(@"should set the value of the property with the latest value from the signal", ^{
+	qck_it(@"should set the value of the property with the latest value from the signal", ^{
 		RACSubject *subject = [RACSubject subject];
 		setupBlock(testObject, @keypath(testObject.objectValue), nil, subject);
 		expect(testObject.objectValue).to.beNil();
@@ -45,7 +48,7 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 		expect(testObject.objectValue).to.beNil();
 	});
 
-	it(@"should set the given nilValue for an object property", ^{
+	qck_it(@"should set the given nilValue for an object property", ^{
 		RACSubject *subject = [RACSubject subject];
 		setupBlock(testObject, @keypath(testObject.objectValue), @"foo", subject);
 		expect(testObject.objectValue).to.beNil();
@@ -60,7 +63,7 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 		expect(testObject.objectValue).to.equal(@"foo");
 	});
 
-	it(@"should leave the value of the property alone after the signal completes", ^{
+	qck_it(@"should leave the value of the property alone after the signal completes", ^{
 		RACSubject *subject = [RACSubject subject];
 		setupBlock(testObject, @keypath(testObject.objectValue), nil, subject);
 		expect(testObject.objectValue).to.beNil();
@@ -72,7 +75,7 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 		expect(testObject.objectValue).to.equal(@1);
 	});
 
-	it(@"should set the value of a non-object property with the latest value from the signal", ^{
+	qck_it(@"should set the value of a non-object property with the latest value from the signal", ^{
 		RACSubject *subject = [RACSubject subject];
 		setupBlock(testObject, @keypath(testObject.integerValue), nil, subject);
 		expect(testObject.integerValue).to.equal(0);
@@ -87,7 +90,7 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 		expect(testObject.integerValue).to.equal(0);
 	});
 
-	it(@"should set the given nilValue for a non-object property", ^{
+	qck_it(@"should set the given nilValue for a non-object property", ^{
 		RACSubject *subject = [RACSubject subject];
 		setupBlock(testObject, @keypath(testObject.integerValue), @42, subject);
 		expect(testObject.integerValue).to.equal(0);
@@ -102,7 +105,7 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 		expect(testObject.integerValue).to.equal(@42);
 	});
 
-	it(@"should not invoke -setNilValueForKey: with a nilValue", ^{
+	qck_it(@"should not invoke -setNilValueForKey: with a nilValue", ^{
 		RACSubject *subject = [RACSubject subject];
 		setupBlock(testObject, @keypath(testObject.integerValue), @42, subject);
 
@@ -116,7 +119,7 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 		expect(setNilValueForKeyInvoked).to.beFalsy();
 	});
 
-	it(@"should invoke -setNilValueForKey: without a nilValue", ^{
+	qck_it(@"should invoke -setNilValueForKey: without a nilValue", ^{
 		RACSubject *subject = [RACSubject subject];
 		setupBlock(testObject, @keypath(testObject.integerValue), nil, subject);
 

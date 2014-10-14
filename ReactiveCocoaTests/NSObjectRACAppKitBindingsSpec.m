@@ -6,12 +6,15 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACChannelExamples.h"
 
 #import "EXTKeyPathCoding.h"
 #import "NSObject+RACAppKitBindings.h"
 
-SpecBegin(NSObjectRACAppKitBindings)
+QuickSpecBegin(NSObjectRACAppKitBindingsSpec)
 
 itShouldBehaveLike(RACViewChannelExamples, ^{
 	return @{
@@ -33,4 +36,4 @@ itShouldBehaveLike(RACViewChannelExamples, ^{
 	};
 });
 
-SpecEnd
+QuickSpecEnd

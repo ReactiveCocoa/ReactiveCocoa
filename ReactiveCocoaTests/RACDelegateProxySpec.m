@@ -6,6 +6,9 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "NSObject+RACSelectorSignal.h"
 #import "RACDelegateProxy.h"
 #import "RACSignal.h"
@@ -21,13 +24,13 @@
 @property (nonatomic, assign) BOOL lengthOfStringInvoked;
 @end
 
-SpecBegin(RACDelegateProxy)
+QuickSpecBegin(RACDelegateProxySpec)
 
 __block id proxy;
 __block TestDelegate *delegate;
 __block Protocol *protocol;
 
-beforeEach(^{
+qck_beforeEach(^{
 	protocol = @protocol(TestDelegateProtocol);
 	expect(protocol).notTo.beNil();
 
@@ -39,11 +42,11 @@ beforeEach(^{
 	expect(delegate).notTo.beNil();
 });
 
-it(@"should not respond to selectors at first", ^{
+qck_it(@"should not respond to selectors at first", ^{
 	expect([proxy respondsToSelector:@selector(lengthOfString:)]).to.beFalsy();
 });
 
-it(@"should send on a signal for a protocol method", ^{
+qck_it(@"should send on a signal for a protocol method", ^{
 	__block RACTuple *tuple;
 	[[proxy signalForSelector:@selector(lengthOfString:)] subscribeNext:^(RACTuple *t) {
 		tuple = t;
@@ -54,7 +57,7 @@ it(@"should send on a signal for a protocol method", ^{
 	expect(tuple).to.equal(RACTuplePack(@"foo"));
 });
 
-it(@"should forward to the proxied delegate", ^{
+qck_it(@"should forward to the proxied delegate", ^{
 	[proxy setRac_proxiedDelegate:delegate];
 
 	expect([proxy respondsToSelector:@selector(lengthOfString:)]).to.beTruthy();
@@ -62,7 +65,7 @@ it(@"should forward to the proxied delegate", ^{
 	expect(delegate.lengthOfStringInvoked).to.beTruthy();
 });
 
-it(@"should not send to the delegate when signals are applied", ^{
+qck_it(@"should not send to the delegate when signals are applied", ^{
 	[proxy setRac_proxiedDelegate:delegate];
 
 	__block RACTuple *tuple;
@@ -77,7 +80,7 @@ it(@"should not send to the delegate when signals are applied", ^{
 	expect(delegate.lengthOfStringInvoked).to.beFalsy();
 });
 
-SpecEnd
+QuickSpecEnd
 
 @implementation TestDelegate
 

@@ -6,6 +6,9 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACTestObject.h"
 
 #import "NSObject+RACLifting.h"
@@ -17,16 +20,16 @@
 #import "RACTuple.h"
 #import "RACUnit.h"
 
-SpecBegin(NSObjectRACLifting)
+QuickSpecBegin(NSObjectRACLiftingSpec)
 
-describe(@"-rac_liftSelector:withSignals:", ^{
+qck_describe(@"-rac_liftSelector:withSignals:", ^{
 	__block RACTestObject *object;
 
-	beforeEach(^{
+	qck_beforeEach(^{
 		object = [[RACTestObject alloc] init];
 	});
 
-	it(@"should call the selector with the value of the signal", ^{
+	qck_it(@"should call the selector with the value of the signal", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setObjectValue:) withSignals:subject, nil];
 
@@ -40,14 +43,14 @@ describe(@"-rac_liftSelector:withSignals:", ^{
 	});
 });
 
-describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
+qck_describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 	__block RACTestObject *object;
 
-	beforeEach(^{
+	qck_beforeEach(^{
 		object = [[RACTestObject alloc] init];
 	});
 
-	it(@"should call the selector with the value of the signal", ^{
+	qck_it(@"should call the selector with the value of the signal", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setObjectValue:) withSignalsFromArray:@[ subject ]];
 
@@ -60,7 +63,7 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		expect(object.objectValue).to.equal(@42);
 	});
 
-	it(@"should call the selector with the value of the signal unboxed", ^{
+	qck_it(@"should call the selector with the value of the signal unboxed", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setIntegerValue:) withSignalsFromArray:@[ subject ]];
 
@@ -73,7 +76,7 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		expect(object.integerValue).to.equal(42);
 	});
 
-	it(@"should work with multiple arguments", ^{
+	qck_it(@"should work with multiple arguments", ^{
 		RACSubject *objectValueSubject = [RACSubject subject];
 		RACSubject *integerValueSubject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setObjectValue:andIntegerValue:) withSignalsFromArray:@[ objectValueSubject, integerValueSubject ]];
@@ -93,7 +96,7 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		expect(object.integerValue).to.equal(42);
 	});
 
-	it(@"should work with signals that immediately start with a value", ^{
+	qck_it(@"should work with signals that immediately start with a value", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setObjectValue:) withSignalsFromArray:@[ [subject startWith:@42] ]];
 
@@ -103,7 +106,7 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		expect(object.objectValue).to.equal(@1);
 	});
 
-	it(@"should work with signals that send nil", ^{
+	qck_it(@"should work with signals that send nil", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setObjectValue:) withSignalsFromArray:@[ subject ]];
 
@@ -114,7 +117,7 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		expect(object.objectValue).to.equal(nil);
 	});
 
-	it(@"should work with integers", ^{
+	qck_it(@"should work with integers", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setIntegerValue:) withSignalsFromArray:@[ subject ]];
 
@@ -124,7 +127,7 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		expect(object.integerValue).to.equal(@1);
 	});
 
-	it(@"should convert between numeric types", ^{
+	qck_it(@"should convert between numeric types", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setIntegerValue:) withSignalsFromArray:@[ subject ]];
 
@@ -134,7 +137,7 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		expect(object.integerValue).to.equal(@1);
 	});
 	
-	it(@"should work with class objects", ^{
+	qck_it(@"should work with class objects", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setObjectValue:) withSignalsFromArray:@[ subject ]];
 
@@ -144,7 +147,7 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		expect(object.objectValue).to.equal(self.class);
 	});
 
-	it(@"should work for char pointer", ^{
+	qck_it(@"should work for char pointer", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setCharPointerValue:) withSignalsFromArray:@[ subject ]];
 		
@@ -155,7 +158,7 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		expect(@(object.charPointerValue)).to.equal(string);
 	});
 
-	it(@"should work for const char pointer", ^{
+	qck_it(@"should work for const char pointer", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setConstCharPointerValue:) withSignalsFromArray:@[ subject ]];
 
@@ -166,7 +169,7 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		expect(@(object.constCharPointerValue)).to.equal(string);
 	});
 
-	it(@"should work for CGRect", ^{
+	qck_it(@"should work for CGRect", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setRectValue:) withSignalsFromArray:@[ subject ]];
 
@@ -177,7 +180,7 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		expect(object.rectValue).to.equal(value);
 	});
 
-	it(@"should work for CGSize", ^{
+	qck_it(@"should work for CGSize", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setSizeValue:) withSignalsFromArray:@[ subject ]];
 
@@ -188,7 +191,7 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		expect(object.sizeValue).to.equal(value);
 	});
 
-	it(@"should work for CGPoint", ^{
+	qck_it(@"should work for CGPoint", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setPointValue:) withSignalsFromArray:@[ subject ]];
 
@@ -199,7 +202,7 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		expect(object.pointValue).to.equal(value);
 	});
 
-	it(@"should work for NSRange", ^{
+	qck_it(@"should work for NSRange", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setRangeValue:) withSignalsFromArray:@[ subject ]];
 
@@ -210,7 +213,7 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		expect(NSEqualRanges(object.rangeValue, value)).to.beTruthy();
 	});
 
-	it(@"should work for _Bool", ^{
+	qck_it(@"should work for _Bool", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setC99BoolValue:) withSignalsFromArray:@[ subject ]];
 
@@ -221,7 +224,7 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		expect(object.c99BoolValue).to.beTruthy();
 	});
 
-	it(@"should work for primitive pointers", ^{
+	qck_it(@"should work for primitive pointers", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(write5ToIntPointer:) withSignalsFromArray:@[ subject ]];
 
@@ -233,7 +236,7 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		expect(value).to.equal(5);
 	});
 
-	it(@"should work for custom structs", ^{
+	qck_it(@"should work for custom structs", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setStructValue:) withSignalsFromArray:@[ subject ]];
 
@@ -246,7 +249,7 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		expect(object.structValue.doubleField).to.equal(value.doubleField);
 	});
 
-	it(@"should send the latest value of the signal as the right argument", ^{
+	qck_it(@"should send the latest value of the signal as the right argument", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setObjectValue:andIntegerValue:) withSignalsFromArray:@[ [RACSignal return:@"object"], subject ]];
 		[subject sendNext:@1];
@@ -255,8 +258,8 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		expect(object.integerValue).to.equal(1);
 	});
 
-	describe(@"the returned signal", ^{
-		it(@"should send the return value of the method invocation", ^{
+	qck_describe(@"the returned signal", ^{
+		qck_it(@"should send the return value of the method invocation", ^{
 			RACSubject *objectSubject = [RACSubject subject];
 			RACSubject *integerSubject = [RACSubject subject];
 			RACSignal *signal = [object rac_liftSelector:@selector(combineObjectValue:andIntegerValue:) withSignalsFromArray:@[ objectSubject, integerSubject ]];
@@ -273,7 +276,7 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 			expect(result).to.equal(@"Magic number: 42");
 		});
 
-		it(@"should send RACUnit.defaultUnit for void-returning methods", ^{
+		qck_it(@"should send RACUnit.defaultUnit for void-returning methods", ^{
 			RACSubject *subject = [RACSubject subject];
 			RACSignal *signal = [object rac_liftSelector:@selector(setObjectValue:) withSignalsFromArray:@[ subject ]];
 
@@ -287,7 +290,7 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 			expect(result).to.equal(RACUnit.defaultUnit);
 		});
 
-		it(@"should support integer returning methods", ^{
+		qck_it(@"should support integer returning methods", ^{
 			RACSubject *subject = [RACSubject subject];
 			RACSignal *signal = [object rac_liftSelector:@selector(doubleInteger:) withSignalsFromArray:@[ subject ]];
 
@@ -301,7 +304,7 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 			expect(result).to.equal(@2);
 		});
 
-		it(@"should support char * returning methods", ^{
+		qck_it(@"should support char * returning methods", ^{
 			RACSubject *subject = [RACSubject subject];
 			RACSignal *signal = [object rac_liftSelector:@selector(doubleString:) withSignalsFromArray:@[ subject ]];
 
@@ -315,7 +318,7 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 			expect(result).to.equal(@"testtest");
 		});
 		
-		it(@"should support const char * returning methods", ^{
+		qck_it(@"should support const char * returning methods", ^{
 			RACSubject *subject = [RACSubject subject];
 			RACSignal *signal = [object rac_liftSelector:@selector(doubleConstString:) withSignalsFromArray:@[ subject ]];
 
@@ -329,7 +332,7 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 			expect(result).to.equal(@"testtest");
 		});
 		
-		it(@"should support struct returning methods", ^{
+		qck_it(@"should support struct returning methods", ^{
 			RACSubject *subject = [RACSubject subject];
 			RACSignal *signal = [object rac_liftSelector:@selector(doubleStruct:) withSignalsFromArray:@[ subject ]];
 
@@ -348,7 +351,7 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 			expect(result.doubleField).to.equal(24.6);
 		});
 		
-		it(@"should support block arguments and returns", ^{
+		qck_it(@"should support block arguments and returns", ^{
 			RACSubject *subject = [RACSubject subject];
 			RACSignal *signal = [object rac_liftSelector:@selector(wrapBlock:) withSignalsFromArray:@[ subject ]];
 
@@ -369,7 +372,7 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 			expect(blockInvoked).to.beTruthy();
 		});
 		
-		it(@"should replay the last value", ^{
+		qck_it(@"should replay the last value", ^{
 			RACSubject *objectSubject = [RACSubject subject];
 			RACSubject *integerSubject = [RACSubject subject];
 			RACSignal *signal = [object rac_liftSelector:@selector(combineObjectValue:andIntegerValue:) withSignalsFromArray:@[ objectSubject, integerSubject ]];
@@ -387,7 +390,7 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		});
 	});
 
-	it(@"shouldn't strongly capture the receiver", ^{
+	qck_it(@"shouldn't strongly capture the receiver", ^{
 		__block BOOL dealloced = NO;
 		@autoreleasepool {
 			RACTestObject *testObject __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
@@ -404,4 +407,4 @@ describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 	});
 });
 
-SpecEnd
+QuickSpecEnd

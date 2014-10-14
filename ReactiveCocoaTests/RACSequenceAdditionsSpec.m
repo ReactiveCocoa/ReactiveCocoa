@@ -6,6 +6,9 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACSequenceExamples.h"
 
 #import "NSArray+RACSequenceAdditions.h"
@@ -17,11 +20,11 @@
 #import "RACSequence.h"
 #import "RACTuple.h"
 
-SpecBegin(RACSequenceAdditions)
+QuickSpecBegin(RACSequenceAdditionsSpec)
 
 __block NSArray *numbers;
 
-beforeEach(^{
+qck_beforeEach(^{
 	NSMutableArray *mutableNumbers = [NSMutableArray array];
 	for (NSUInteger i = 0; i < 100; i++) {
 		[mutableNumbers addObject:@(i)];
@@ -30,11 +33,11 @@ beforeEach(^{
 	numbers = [mutableNumbers copy];
 });
 
-describe(@"NSArray sequences", ^{
+qck_describe(@"NSArray sequences", ^{
 	__block NSMutableArray *values;
 	__block RACSequence *sequence;
 	
-	beforeEach(^{
+	qck_beforeEach(^{
 		values = [numbers mutableCopy];
 		sequence = values.rac_sequence;
 		expect(sequence).notTo.beNil();
@@ -47,10 +50,10 @@ describe(@"NSArray sequences", ^{
 		};
 	});
 
-	describe(@"should be immutable", ^{
+	qck_describe(@"should be immutable", ^{
 		__block NSArray *unchangedValues;
 		
-		beforeEach(^{
+		qck_beforeEach(^{
 			unchangedValues = [values copy];
 			[values addObject:@6];
 		});
@@ -63,7 +66,7 @@ describe(@"NSArray sequences", ^{
 		});
 	});
 
-	it(@"should fast enumerate after zipping", ^{
+	qck_it(@"should fast enumerate after zipping", ^{
 		// This certain list of values causes issues, for some reason.
 		NSArray *values = @[ @0, @0, @0, @0, @0, @0, @0, @0, @0, @0, @0, @0, @0, @0, @0, @0 ];
 		RACSequence *zippedSequence = [RACSequence zip:@[ values.rac_sequence, values.rac_sequence ] reduce:^(id obj1, id obj2) {
@@ -79,7 +82,7 @@ describe(@"NSArray sequences", ^{
 	});
 });
 
-describe(@"NSDictionary sequences", ^{
+qck_describe(@"NSDictionary sequences", ^{
 	__block NSMutableDictionary *dict;
 
 	__block NSMutableArray *tuples;
@@ -91,7 +94,7 @@ describe(@"NSDictionary sequences", ^{
 	__block NSArray *values;
 	__block RACSequence *valueSequence;
 
-	beforeEach(^{
+	qck_beforeEach(^{
 		dict = [@{
 			@"foo": @"bar",
 			@"baz": @"buzz",
@@ -137,8 +140,8 @@ describe(@"NSDictionary sequences", ^{
 		};
 	});
 
-	describe(@"should be immutable", ^{
-		beforeEach(^{
+	qck_describe(@"should be immutable", ^{
+		qck_beforeEach(^{
 			dict[@"foo"] = @"rab";
 			dict[@6] = @7;
 		});
@@ -166,11 +169,11 @@ describe(@"NSDictionary sequences", ^{
 	});
 });
 
-describe(@"NSOrderedSet sequences", ^{
+qck_describe(@"NSOrderedSet sequences", ^{
 	__block NSMutableOrderedSet *values;
 	__block RACSequence *sequence;
 
-	beforeEach(^{
+	qck_beforeEach(^{
 		values = [NSMutableOrderedSet orderedSetWithArray:numbers];
 		sequence = values.rac_sequence;
 		expect(sequence).notTo.beNil();
@@ -183,10 +186,10 @@ describe(@"NSOrderedSet sequences", ^{
 		};
 	});
 
-	describe(@"should be immutable", ^{
+	qck_describe(@"should be immutable", ^{
 		__block NSArray *unchangedValues;
 		
-		beforeEach(^{
+		qck_beforeEach(^{
 			unchangedValues = [values.array copy];
 			[values addObject:@6];
 		});
@@ -200,11 +203,11 @@ describe(@"NSOrderedSet sequences", ^{
 	});
 });
 
-describe(@"NSSet sequences", ^{
+qck_describe(@"NSSet sequences", ^{
 	__block NSMutableSet *values;
 	__block RACSequence *sequence;
 
-	beforeEach(^{
+	qck_beforeEach(^{
 		values = [NSMutableSet setWithArray:numbers];
 		sequence = values.rac_sequence;
 		expect(sequence).notTo.beNil();
@@ -217,10 +220,10 @@ describe(@"NSSet sequences", ^{
 		};
 	});
 
-	describe(@"should be immutable", ^{
+	qck_describe(@"should be immutable", ^{
 		__block NSArray *unchangedValues;
 		
-		beforeEach(^{
+		qck_beforeEach(^{
 			unchangedValues = [values.allObjects copy];
 			[values addObject:@6];
 		});
@@ -234,12 +237,12 @@ describe(@"NSSet sequences", ^{
 	});
 });
 
-describe(@"NSString sequences", ^{
+qck_describe(@"NSString sequences", ^{
 	__block NSMutableString *string;
 	__block NSArray *values;
 	__block RACSequence *sequence;
 
-	beforeEach(^{
+	qck_beforeEach(^{
 		string = [@"foobar" mutableCopy];
 		values = @[ @"f", @"o", @"o", @"b", @"a", @"r" ];
 		sequence = string.rac_sequence;
@@ -253,8 +256,8 @@ describe(@"NSString sequences", ^{
 		};
 	});
 
-	describe(@"should be immutable", ^{
-		beforeEach(^{
+	qck_describe(@"should be immutable", ^{
+		qck_beforeEach(^{
 			[string appendString:@"buzz"];
 		});
 
@@ -266,18 +269,18 @@ describe(@"NSString sequences", ^{
 		});
 	});
 
-	it(@"should work with composed characters", ^{
+	qck_it(@"should work with composed characters", ^{
 		NSString  *string = @"\u2665\uFE0F\u2666\uFE0F";
 		NSArray *expectedSequence = @[ @"\u2665\uFE0F", @"\u2666\uFE0F" ];
 		expect(string.rac_sequence.array).to.equal(expectedSequence);
 	});
 });
 
-describe(@"RACTuple sequences", ^{
+qck_describe(@"RACTuple sequences", ^{
 	__block RACTuple *tuple;
 	__block RACSequence *sequence;
 	
-	beforeEach(^{
+	qck_beforeEach(^{
 		tuple = RACTuplePack(@"foo", nil, @"bar", NSNull.null, RACTupleNil.tupleNil);
 
 		sequence = tuple.rac_sequence;
@@ -292,7 +295,7 @@ describe(@"RACTuple sequences", ^{
 	});
 });
 
-describe(@"NSIndexSet sequences", ^{
+qck_describe(@"NSIndexSet sequences", ^{
 	__block NSMutableIndexSet *values;
 	__block RACSequence *sequence;
 	
@@ -305,7 +308,7 @@ describe(@"NSIndexSet sequences", ^{
 		return [arr copy];
 	};
 	
-	beforeEach(^{
+	qck_beforeEach(^{
 		values = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 10)];
 		sequence = values.rac_sequence;
 		expect(sequence).notTo.beNil();
@@ -318,10 +321,10 @@ describe(@"NSIndexSet sequences", ^{
 		};
 	});
 	
-	describe(@"should be immutable", ^{
+	qck_describe(@"should be immutable", ^{
 		__block NSArray *unchangedValues;
 		
-		beforeEach(^{
+		qck_beforeEach(^{
 			unchangedValues = valuesFromIndexSet(values);
 			[values addIndex:20];
 		});
@@ -334,11 +337,11 @@ describe(@"NSIndexSet sequences", ^{
 		});
 	});
 	
-	describe(@"should not fire if empty", ^{
+	qck_describe(@"should not fire if empty", ^{
 		__block NSIndexSet *emptyIndexSet;
 		__block RACSequence *emptySequence;
 
-		beforeEach(^{
+		qck_beforeEach(^{
 			emptyIndexSet = [NSIndexSet indexSet];
 			emptySequence = emptyIndexSet.rac_sequence;
 			expect(emptySequence).notTo.beNil();
@@ -353,4 +356,4 @@ describe(@"NSIndexSet sequences", ^{
 	});
 });
 
-SpecEnd
+QuickSpecEnd

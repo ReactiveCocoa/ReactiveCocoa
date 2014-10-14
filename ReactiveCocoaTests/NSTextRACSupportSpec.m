@@ -6,12 +6,15 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "NSText+RACSignalSupport.h"
 #import "RACSignal.h"
 
-SpecBegin(NSTextRACSupport)
+QuickSpecBegin(NSTextRACSupportSpec)
 
-it(@"NSTextView should send changes on rac_textSignal", ^{
+qck_it(@"NSTextView should send changes on rac_textSignal", ^{
 	NSTextView *textView = [[NSTextView alloc] initWithFrame:NSZeroRect];
 	expect(textView).notTo.beNil();
 
@@ -30,4 +33,4 @@ it(@"NSTextView should send changes on rac_textSignal", ^{
 	expect(strings).to.equal(expected);
 });
 
-SpecEnd
+QuickSpecEnd

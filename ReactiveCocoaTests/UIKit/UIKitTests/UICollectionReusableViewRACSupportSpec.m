@@ -15,12 +15,12 @@
 @interface TestCollectionViewController : UICollectionViewController
 @end
 
-SpecBegin(UICollectionReusableViewRACSupport)
+QuickSpecBegin(UICollectionReusableViewRACSupportSpec)
 
 __block UICollectionViewFlowLayout *collectionViewFlowLayout;
 __block TestCollectionViewController *collectionViewController;
 
-beforeEach(^{
+qck_beforeEach(^{
 	collectionViewFlowLayout = [[UICollectionViewFlowLayout alloc] init];
 	CGSize screenSize = UIScreen.mainScreen.bounds.size;
 	collectionViewFlowLayout.itemSize = CGSizeMake(screenSize.width, screenSize.height / 2);
@@ -34,7 +34,7 @@ beforeEach(^{
 	expect(collectionViewController.collectionView.visibleCells.count).will.beGreaterThan(0);
 });
 
-it(@"should send on rac_prepareForReuseSignal", ^{
+qck_it(@"should send on rac_prepareForReuseSignal", ^{
 	UICollectionViewCell *cell = collectionViewController.collectionView.visibleCells[0];
 	
 	__block NSUInteger invocationCount = 0;
@@ -58,7 +58,7 @@ it(@"should send on rac_prepareForReuseSignal", ^{
 	}
 });
 
-SpecEnd
+QuickSpecEnd
 
 @implementation TestCollectionViewController
 

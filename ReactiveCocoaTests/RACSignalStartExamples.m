@@ -6,6 +6,9 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACSignalStartExamples.h"
 #import "RACSignal.h"
 #import "RACSignal+Operations.h"
@@ -27,7 +30,7 @@ sharedExamples(RACSignalStartSharedExamplesName, ^(NSDictionary *data) {
 	__block RACScheduler *scheduler;
 	__block RACScheduler * (^subscribeAndGetScheduler)(void);
 
-	beforeEach(^{
+	qck_beforeEach(^{
 		signal = data[RACSignalStartSignal];
 		expectedValues = data[RACSignalStartExpectedValues];
 		scheduler = data[RACSignalStartExpectedScheduler];
@@ -43,12 +46,12 @@ sharedExamples(RACSignalStartSharedExamplesName, ^(NSDictionary *data) {
 		} copy];
 	});
 
-	it(@"should send values from the returned signal", ^{
+	qck_it(@"should send values from the returned signal", ^{
 		NSArray *values = [signal toArray];
 		expect(values).to.equal(expectedValues);
 	});
 
-	it(@"should replay all values", ^{
+	qck_it(@"should replay all values", ^{
 		// Force a subscription so that we get replayed results.
 		[[signal publish] connect];
 		
@@ -56,12 +59,12 @@ sharedExamples(RACSignalStartSharedExamplesName, ^(NSDictionary *data) {
 		expect(values).to.equal(expectedValues);
 	});
 
-	it(@"should deliver the original results on the given scheduler", ^{
+	qck_it(@"should deliver the original results on the given scheduler", ^{
 		RACScheduler *currentScheduler = subscribeAndGetScheduler();
 		expect(currentScheduler).to.equal(scheduler);
 	});
 
-	it(@"should deliver replayed results on the given scheduler", ^{
+	qck_it(@"should deliver replayed results on the given scheduler", ^{
 		// Force a subscription so that we get replayed results on the
 		// tested subscription.
 		subscribeAndGetScheduler();

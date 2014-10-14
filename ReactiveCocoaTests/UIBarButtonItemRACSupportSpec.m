@@ -6,18 +6,21 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACControlCommandExamples.h"
 
 #import "UIBarButtonItem+RACCommandSupport.h"
 #import "RACCommand.h"
 #import "RACDisposable.h"
 
-SpecBegin(UIBarButtonItemRACSupport)
+QuickSpecBegin(UIBarButtonItemRACSupportSpec)
 
-describe(@"UIBarButtonItem", ^{
+qck_describe(@"UIBarButtonItem", ^{
 	__block UIBarButtonItem *button;
 	
-	beforeEach(^{
+	qck_beforeEach(^{
 		button = [[UIBarButtonItem alloc] init];
 		expect(button).notTo.beNil();
 	});
@@ -37,4 +40,4 @@ describe(@"UIBarButtonItem", ^{
 	});
 });
 
-SpecEnd
+QuickSpecEnd

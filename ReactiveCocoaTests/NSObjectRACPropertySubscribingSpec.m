@@ -6,6 +6,9 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "NSObjectRACPropertySubscribingExamples.h"
 #import "RACTestObject.h"
 
@@ -13,9 +16,9 @@
 #import "RACDisposable.h"
 #import "RACSignal.h"
 
-SpecBegin(NSObjectRACPropertySubscribing)
+QuickSpecBegin(NSObjectRACPropertySubscribingSpec)
 
-describe(@"-rac_valuesForKeyPath:observer:", ^{
+qck_describe(@"-rac_valuesForKeyPath:observer:", ^{
 	id (^setupBlock)(id, id, id) = ^(RACTestObject *object, NSString *keyPath, id observer) {
 		return [object rac_valuesForKeyPath:keyPath observer:observer];
 	};
@@ -26,13 +29,13 @@ describe(@"-rac_valuesForKeyPath:observer:", ^{
 
 });
 
-describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
-	describe(@"KVO options argument", ^{
+qck_describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
+	qck_describe(@"KVO options argument", ^{
 		__block RACTestObject *object;
 		__block id actual;
 		__block RACSignal *(^objectValueSignal)(NSKeyValueObservingOptions);
 
-		before(^{
+		qck_before(^{
 			object = [[RACTestObject alloc] init];
 
 			objectValueSignal = ^(NSKeyValueObservingOptions options) {
@@ -42,7 +45,7 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 			};
 		});
 
-		it(@"sends a KVO dictionary", ^{
+		qck_it(@"sends a KVO dictionary", ^{
 			[objectValueSignal(0) subscribeNext:^(NSDictionary *x) {
 				actual = x;
 			}];
@@ -52,7 +55,7 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 			expect(actual).to.beKindOf(NSDictionary.class);
 		});
 
-		it(@"sends a kind key by default", ^{
+		qck_it(@"sends a kind key by default", ^{
 			[objectValueSignal(0) subscribeNext:^(NSDictionary *x) {
 				actual = x[NSKeyValueChangeKindKey];
 			}];
@@ -62,7 +65,7 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 			expect(actual).notTo.beNil();
 		});
 
-		it(@"sends the newest changes with NSKeyValueObservingOptionNew", ^{
+		qck_it(@"sends the newest changes with NSKeyValueObservingOptionNew", ^{
 			[objectValueSignal(NSKeyValueObservingOptionNew) subscribeNext:^(NSDictionary *x) {
 				actual = x[NSKeyValueChangeNewKey];
 			}];
@@ -74,7 +77,7 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 			expect(actual).to.equal(@2);
 		});
 
-		it(@"sends an additional change value with NSKeyValueObservingOptionPrior", ^{
+		qck_it(@"sends an additional change value with NSKeyValueObservingOptionPrior", ^{
 			NSMutableArray *values = [NSMutableArray new];
 			NSArray *expected = @[ @(YES), @(NO) ];
 
@@ -88,7 +91,7 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 			expect(values).to.equal(expected);
 		});
 
-		it(@"sends index changes when adding, inserting or removing a value from an observed object", ^{
+		qck_it(@"sends index changes when adding, inserting or removing a value from an observed object", ^{
 			__block NSUInteger hasIndexesCount = 0;
 
 			[objectValueSignal(0) subscribeNext:^(NSDictionary *x) {
@@ -112,7 +115,7 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 			expect(hasIndexesCount).to.equal(3);
 		});
 
-		it(@"sends the previous value with NSKeyValueObservingOptionOld", ^{
+		qck_it(@"sends the previous value with NSKeyValueObservingOptionOld", ^{
 			[objectValueSignal(NSKeyValueObservingOptionOld) subscribeNext:^(NSDictionary *x) {
 				actual = x[NSKeyValueChangeOldKey];
 			}];
@@ -124,7 +127,7 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 			expect(actual).to.equal(@1);
 		});
 
-		it(@"sends the initial value with NSKeyValueObservingOptionInitial", ^{
+		qck_it(@"sends the initial value with NSKeyValueObservingOptionInitial", ^{
 			[objectValueSignal(NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew) subscribeNext:^(NSDictionary *x) {
 				actual = x[NSKeyValueChangeNewKey];
 			}];
@@ -134,8 +137,8 @@ describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 	});
 });
 
-describe(@"-rac_valuesAndChangesForKeyPath:options:observer:", ^{
-	it(@"should complete immediately if the receiver or observer have deallocated", ^{
+qck_describe(@"-rac_valuesAndChangesForKeyPath:options:observer:", ^{
+	qck_it(@"should complete immediately if the receiver or observer have deallocated", ^{
 		RACSignal *signal;
 		@autoreleasepool {
 			RACTestObject *object __attribute__((objc_precise_lifetime)) = [[RACTestObject alloc] init];
@@ -152,4 +155,4 @@ describe(@"-rac_valuesAndChangesForKeyPath:options:observer:", ^{
 	});
 });
 
-SpecEnd
+QuickSpecEnd

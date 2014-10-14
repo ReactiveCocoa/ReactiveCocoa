@@ -6,6 +6,9 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACControlCommandExamples.h"
 #import "RACTestUIButton.h"
 
@@ -13,12 +16,12 @@
 #import "RACCommand.h"
 #import "RACDisposable.h"
 
-SpecBegin(UIButtonRACSupport)
+QuickSpecBegin(UIButtonRACSupportSpec)
 
-describe(@"UIButton", ^{
+qck_describe(@"UIButton", ^{
 	__block UIButton *button;
 	
-	beforeEach(^{
+	qck_beforeEach(^{
 		button = [RACTestUIButton button];
 		expect(button).notTo.beNil();
 	});
@@ -36,4 +39,4 @@ describe(@"UIButton", ^{
 	});
 });
 
-SpecEnd
+QuickSpecEnd

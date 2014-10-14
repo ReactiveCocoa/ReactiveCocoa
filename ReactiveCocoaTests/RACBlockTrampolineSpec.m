@@ -6,12 +6,15 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACBlockTrampoline.h"
 #import "RACTuple.h"
 
-SpecBegin(RACBlockTrampoline)
+QuickSpecBegin(RACBlockTrampolineSpec)
 
-it(@"should invoke the block with the given arguments", ^{
+qck_it(@"should invoke the block with the given arguments", ^{
 	__block NSString *stringArg;
 	__block NSNumber *numberArg;
 	id (^block)(NSString *, NSNumber *) = ^ id (NSString *string, NSNumber *number) {
@@ -25,7 +28,7 @@ it(@"should invoke the block with the given arguments", ^{
 	expect(numberArg).to.equal(@1);
 });
 
-it(@"should return the result of the block invocation", ^{
+qck_it(@"should return the result of the block invocation", ^{
 	NSString * (^block)(NSString *) = ^(NSString *string) {
 		return string.uppercaseString;
 	};
@@ -34,7 +37,7 @@ it(@"should return the result of the block invocation", ^{
 	expect(result).to.equal(@"HI");
 });
 
-it(@"should pass RACTupleNils as nil", ^{
+qck_it(@"should pass RACTupleNils as nil", ^{
 	__block id arg;
 	id (^block)(id) = ^ id (id obj) {
 		arg = obj;
@@ -45,4 +48,4 @@ it(@"should pass RACTupleNils as nil", ^{
 	expect(arg).to.beNil();
 });
 
-SpecEnd
+QuickSpecEnd

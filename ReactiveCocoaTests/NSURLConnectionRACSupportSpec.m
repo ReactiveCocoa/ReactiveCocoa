@@ -6,13 +6,16 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "NSURLConnection+RACSupport.h"
 #import "RACSignal+Operations.h"
 #import "RACTuple.h"
 
-SpecBegin(NSURLConnectionRACSupport)
+QuickSpecBegin(NSURLConnectionRACSupportSpec)
 
-it(@"should fetch a JSON file", ^{
+qck_it(@"should fetch a JSON file", ^{
 	NSURL *fileURL = [[NSBundle bundleForClass:self.class] URLForResource:@"test-data" withExtension:@"json"];
 	expect(fileURL).notTo.beNil();
 
@@ -33,4 +36,4 @@ it(@"should fetch a JSON file", ^{
 	expect(data).to.equal([NSData dataWithContentsOfURL:fileURL]);
 });
 
-SpecEnd
+QuickSpecEnd

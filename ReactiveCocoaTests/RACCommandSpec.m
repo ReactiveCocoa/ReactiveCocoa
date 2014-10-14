@@ -6,6 +6,9 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "NSArray+RACSequenceAdditions.h"
 #import "NSObject+RACDeallocating.h"
 #import "NSObject+RACPropertySubscribing.h"
@@ -19,16 +22,16 @@
 #import "RACSubject.h"
 #import "RACUnit.h"
 
-SpecBegin(RACCommand)
+QuickSpecBegin(RACCommandSpec)
 
 RACSignal * (^emptySignalBlock)(id) = ^(id _) {
 	return [RACSignal empty];
 };
 
-describe(@"with a simple signal block", ^{
+qck_describe(@"with a simple signal block", ^{
 	__block RACCommand *command;
 
-	beforeEach(^{
+	qck_beforeEach(^{
 		command = [[RACCommand alloc] initWithSignalBlock:^(id value) {
 			return [RACSignal return:value];
 		}];
@@ -37,15 +40,15 @@ describe(@"with a simple signal block", ^{
 		expect(command.allowsConcurrentExecution).to.beFalsy();
 	});
 
-	it(@"should be enabled by default", ^{
+	qck_it(@"should be enabled by default", ^{
 		expect([command.enabled first]).to.equal(@YES);
 	});
 
-	it(@"should not be executing by default", ^{
+	qck_it(@"should not be executing by default", ^{
 		expect([command.executing first]).to.equal(@NO);
 	});
 
-	it(@"should create an execution signal", ^{
+	qck_it(@"should create an execution signal", ^{
 		__block NSUInteger signalsReceived = 0;
 		__block BOOL completed = NO;
 
@@ -67,7 +70,7 @@ describe(@"with a simple signal block", ^{
 		expect(completed).to.beTruthy();
 	});
 
-	it(@"should return the execution signal from -execute:", ^{
+	qck_it(@"should return the execution signal from -execute:", ^{
 		__block BOOL completed = NO;
 
 		id value = NSNull.null;
@@ -82,7 +85,7 @@ describe(@"with a simple signal block", ^{
 		expect(completed).will.beTruthy();
 	});
 
-	it(@"should always send executionSignals on the main thread", ^{
+	qck_it(@"should always send executionSignals on the main thread", ^{
 		__block RACScheduler *receivedScheduler = nil;
 		[command.executionSignals subscribeNext:^(id _) {
 			receivedScheduler = RACScheduler.currentScheduler;
@@ -96,7 +99,7 @@ describe(@"with a simple signal block", ^{
 		expect(receivedScheduler).will.equal(RACScheduler.mainThreadScheduler);
 	});
 
-	it(@"should not send anything on 'errors' by default", ^{
+	qck_it(@"should not send anything on 'errors' by default", ^{
 		__block BOOL receivedError = NO;
 		[command.errors subscribeNext:^(id _) {
 			receivedError = YES;
@@ -106,7 +109,7 @@ describe(@"with a simple signal block", ^{
 		expect(receivedError).to.beFalsy();
 	});
 
-	it(@"should be executing while an execution signal is running", ^{
+	qck_it(@"should be executing while an execution signal is running", ^{
 		[command.executionSignals subscribeNext:^(RACSignal *signal) {
 			[signal subscribeNext:^(id x) {
 				expect([command.executing first]).to.equal(@YES);
@@ -117,7 +120,7 @@ describe(@"with a simple signal block", ^{
 		expect([command.executing first]).to.equal(@NO);
 	});
 
-	it(@"should always update executing on the main thread", ^{
+	qck_it(@"should always update executing on the main thread", ^{
 		__block RACScheduler *updatedScheduler = nil;
 		[[command.executing skip:1] subscribeNext:^(NSNumber *executing) {
 			if (!executing.boolValue) return;
@@ -133,7 +136,7 @@ describe(@"with a simple signal block", ^{
 		expect(updatedScheduler).will.equal(RACScheduler.mainThreadScheduler);
 	});
 
-	it(@"should dealloc without subscribers", ^{
+	qck_it(@"should dealloc without subscribers", ^{
 		__block BOOL disposed = NO;
 
 		@autoreleasepool {
@@ -146,7 +149,7 @@ describe(@"with a simple signal block", ^{
 		expect(disposed).will.beTruthy();
 	});
 
-	it(@"should complete signals on the main thread when deallocated", ^{
+	qck_it(@"should complete signals on the main thread when deallocated", ^{
 		__block RACScheduler *executionSignalsScheduler = nil;
 		__block RACScheduler *executingScheduler = nil;
 		__block RACScheduler *enabledScheduler = nil;
@@ -181,7 +184,7 @@ describe(@"with a simple signal block", ^{
 	});
 });
 
-it(@"should invoke the signalBlock once per execution", ^{
+qck_it(@"should invoke the signalBlock once per execution", ^{
 	NSMutableArray *valuesReceived = [NSMutableArray array];
 	RACCommand *command = [[RACCommand alloc] initWithSignalBlock:^(id x) {
 		[valuesReceived addObject:x];
@@ -195,7 +198,7 @@ it(@"should invoke the signalBlock once per execution", ^{
 	expect(valuesReceived).to.equal((@[ @"foo", @"bar" ]));
 });
 
-it(@"should send on executionSignals in order of execution", ^{
+qck_it(@"should send on executionSignals in order of execution", ^{
 	RACCommand *command = [[RACCommand alloc] initWithSignalBlock:^(RACSequence *seq) {
 		return [seq signalWithScheduler:RACScheduler.immediateScheduler];
 	}];
@@ -217,7 +220,7 @@ it(@"should send on executionSignals in order of execution", ^{
 	expect(valuesReceived).to.equal(expectedValues);
 });
 
-it(@"should wait for all signals to complete or error before executing sends NO", ^{
+qck_it(@"should wait for all signals to complete or error before executing sends NO", ^{
 	RACCommand *command = [[RACCommand alloc] initWithSignalBlock:^(RACSignal *signal) {
 		return signal;
 	}];
@@ -242,7 +245,7 @@ it(@"should wait for all signals to complete or error before executing sends NO"
 	expect([command.executing first]).will.equal(@NO);
 });
 
-it(@"should not deliver errors from executionSignals", ^{
+qck_it(@"should not deliver errors from executionSignals", ^{
 	RACSubject *subject = [RACSubject subject];
 	NSMutableArray *receivedEvents = [NSMutableArray array];
 
@@ -279,7 +282,7 @@ it(@"should not deliver errors from executionSignals", ^{
 	expect(receivedEvents).to.equal(expectedEvents);
 });
 
-it(@"should deliver errors from -execute:", ^{
+qck_it(@"should deliver errors from -execute:", ^{
 	RACSubject *subject = [RACSubject subject];
 	NSMutableArray *receivedEvents = [NSMutableArray array];
 
@@ -316,7 +319,7 @@ it(@"should deliver errors from -execute:", ^{
 	expect([command.executing first]).will.equal(@NO);
 });
 
-it(@"should deliver errors onto 'errors'", ^{
+qck_it(@"should deliver errors onto 'errors'", ^{
 	RACCommand *command = [[RACCommand alloc] initWithSignalBlock:^(RACSignal *signal) {
 		return signal;
 	}];
@@ -353,7 +356,7 @@ it(@"should deliver errors onto 'errors'", ^{
 	expect(receivedErrors).will.equal(expected);
 });
 
-it(@"should not deliver non-error events onto 'errors'", ^{
+qck_it(@"should not deliver non-error events onto 'errors'", ^{
 	RACSubject *subject = [RACSubject subject];
 	RACCommand *command = [[RACCommand alloc] initWithSignalBlock:^(id _) {
 		return subject;
@@ -374,7 +377,7 @@ it(@"should not deliver non-error events onto 'errors'", ^{
 	expect(receivedEvent).to.beFalsy();
 });
 
-it(@"should send errors on the main thread", ^{
+qck_it(@"should send errors on the main thread", ^{
 	RACCommand *command = [[RACCommand alloc] initWithSignalBlock:^(RACSignal *signal) {
 		return signal;
 	}];
@@ -397,22 +400,22 @@ it(@"should send errors on the main thread", ^{
 	expect(receivedScheduler).will.equal(RACScheduler.mainThreadScheduler);
 });
 
-describe(@"enabled signal", ^{
+qck_describe(@"enabled signal", ^{
 	__block RACSubject *enabledSubject;
 	__block RACCommand *command;
 
-	beforeEach(^{
+	qck_beforeEach(^{
 		enabledSubject = [RACSubject subject];
 		command = [[RACCommand alloc] initWithEnabled:enabledSubject signalBlock:^(id _) {
 			return [RACSignal return:RACUnit.defaultUnit];
 		}];
 	});
 
-	it(@"should send YES by default", ^{
+	qck_it(@"should send YES by default", ^{
 		expect([command.enabled first]).to.equal(@YES);
 	});
 
-	it(@"should send whatever the enabledSignal has sent most recently", ^{
+	qck_it(@"should send whatever the enabledSignal has sent most recently", ^{
 		[enabledSubject sendNext:@NO];
 		expect([command.enabled first]).will.equal(@NO);
 
@@ -423,14 +426,14 @@ describe(@"enabled signal", ^{
 		expect([command.enabled first]).will.equal(@NO);
 	});
 	
-	it(@"should sample enabledSignal synchronously at initialization time", ^{
+	qck_it(@"should sample enabledSignal synchronously at initialization time", ^{
 		RACCommand *command = [[RACCommand alloc] initWithEnabled:[RACSignal return:@NO] signalBlock:^(id _) {
 			return [RACSignal empty];
 		}];
 		expect([command.enabled first]).to.equal(@NO);
 	});
 
-	it(@"should send NO while executing is YES and allowsConcurrentExecution is NO", ^{
+	qck_it(@"should send NO while executing is YES and allowsConcurrentExecution is NO", ^{
 		[[command.executionSignals flatten] subscribeNext:^(id _) {
 			expect([command.executing first]).to.equal(@YES);
 			expect([command.enabled first]).to.equal(@NO);
@@ -441,7 +444,7 @@ describe(@"enabled signal", ^{
 		expect([command.enabled first]).to.equal(@YES);
 	});
 
-	it(@"should send YES while executing is YES and allowsConcurrentExecution is YES", ^{
+	qck_it(@"should send YES while executing is YES and allowsConcurrentExecution is YES", ^{
 		command.allowsConcurrentExecution = YES;
 
 		__block BOOL outerExecuted = NO;
@@ -471,7 +474,7 @@ describe(@"enabled signal", ^{
 		expect([command.enabled first]).to.equal(@YES);
 	});
 
-	it(@"should send an error from -execute: when NO", ^{
+	qck_it(@"should send an error from -execute: when NO", ^{
 		[enabledSubject sendNext:@NO];
 
 		RACSignal *signal = [command execute:nil];
@@ -488,7 +491,7 @@ describe(@"enabled signal", ^{
 		expect(error.userInfo[RACUnderlyingCommandErrorKey]).to.beIdenticalTo(command);
 	});
 
-	it(@"should always update on the main thread", ^{
+	qck_it(@"should always update on the main thread", ^{
 		__block RACScheduler *updatedScheduler = nil;
 		[[command.enabled skip:1] subscribeNext:^(id _) {
 			updatedScheduler = RACScheduler.currentScheduler;
@@ -503,7 +506,7 @@ describe(@"enabled signal", ^{
 		expect(updatedScheduler).to.equal(RACScheduler.mainThreadScheduler);
 	});
 
-	it(@"should complete when the command is deallocated even if the input signal hasn't", ^{
+	qck_it(@"should complete when the command is deallocated even if the input signal hasn't", ^{
 		__block BOOL deallocated = NO;
 		__block BOOL completed = NO;
 
@@ -523,4 +526,4 @@ describe(@"enabled signal", ^{
 	});
 });
 
-SpecEnd
+QuickSpecEnd

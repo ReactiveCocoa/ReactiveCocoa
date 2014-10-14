@@ -6,13 +6,16 @@
 //  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACSubscriberExamples.h"
 
 #import "RACSubscriber.h"
 #import "RACSubscriber+Private.h"
 #import <libkern/OSAtomic.h>
 
-SpecBegin(RACSubscriber)
+QuickSpecBegin(RACSubscriberSpec)
 
 __block RACSubscriber *subscriber;
 __block NSMutableArray *values;
@@ -23,7 +26,7 @@ __block volatile int32_t nextsAfterFinished;
 __block BOOL success;
 __block NSError *error;
 
-beforeEach(^{
+qck_beforeEach(^{
 	values = [NSMutableArray array];
 
 	finished = NO;
@@ -53,14 +56,14 @@ itShouldBehaveLike(RACSubscriberExamples, ^{
 	};
 });
 
-describe(@"finishing", ^{
+qck_describe(@"finishing", ^{
 	__block void (^sendValues)(void);
 	__block BOOL expectedSuccess;
 
 	__block dispatch_group_t dispatchGroup;
 	__block dispatch_queue_t concurrentQueue;
 
-	beforeEach(^{
+	qck_beforeEach(^{
 		dispatchGroup = dispatch_group_create();
 		expect(dispatchGroup).notTo.beNil();
 
@@ -80,7 +83,7 @@ describe(@"finishing", ^{
 		sendValues();
 	});
 
-	afterEach(^{
+	qck_afterEach(^{
 		sendValues();
 		dispatch_resume(concurrentQueue);
 
@@ -104,7 +107,7 @@ describe(@"finishing", ^{
 		}
 	});
 
-	it(@"should never invoke next after sending completed", ^{
+	qck_it(@"should never invoke next after sending completed", ^{
 		expectedSuccess = YES;
 
 		dispatch_group_async(dispatchGroup, concurrentQueue, ^{
@@ -115,7 +118,7 @@ describe(@"finishing", ^{
 		});
 	});
 
-	it(@"should never invoke next after sending error", ^{
+	qck_it(@"should never invoke next after sending error", ^{
 		expectedSuccess = NO;
 
 		dispatch_group_async(dispatchGroup, concurrentQueue, ^{
@@ -127,4 +130,4 @@ describe(@"finishing", ^{
 	});
 });
 
-SpecEnd
+QuickSpecEnd

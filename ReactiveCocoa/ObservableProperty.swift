@@ -7,13 +7,17 @@
 //
 
 import Foundation
+import LlamaKit
 
-public final class ObservableProperty<T>: SinkType {
-	typealias Element = T
-
+/// A property of type T that allows the observation of its changes.
+public final class ObservableProperty<T> {
 	private let queue = dispatch_queue_create("com.github.ReactiveCocoa.ObservableProperty", DISPATCH_QUEUE_SERIAL)
 	private var sinks = Bag<SinkOf<Event<T>>>()
 
+	/// The current value of the property.
+	///
+	/// Setting this to a new value will notify all observers of `changes` and
+	/// all subscribers to `values()`.
 	public var value: T {
 		didSet(value) {
 			dispatch_sync(queue) {
@@ -24,18 +28,25 @@ public final class ObservableProperty<T>: SinkType {
 		}
 	}
 
+	/// A signal of all future changes to this property's value.
 	public lazy var changes: HotSignal<T> = {
-		let (signal, sink) = HotSignal.pipe()
+		let (signal, sink) = HotSignal<T>.pipe()
 		let eventSink = SinkOf<Event<T>> { event in
 			switch (event) {
-			case .Next(value):
+			case let .Next(value):
 				sink.put(value.unbox)
+
+			default:
+				break
 			}
 		}
 
-		dispatch_sync(queue) {
-			self.sinks.append(eventSink)
+		dispatch_sync(self.queue) {
+			let token = self.sinks.insert(eventSink)
+			return ()
 		}
+
+		return signal
 	}()
 
 	init(_ value: T) {
@@ -50,17 +61,29 @@ public final class ObservableProperty<T>: SinkType {
 		}
 	}
 
+	/// A signal that will send the property's current value, followed by all
+	/// changes over time. The signal will complete when the property
+	/// deinitializes.
 	public func values() -> ColdSignal<T> {
 		return ColdSignal { subscriber in
-			var token: Bag.RemovalToken?
+			var token: RemovalToken?
 
-			dispatch_sync(queue) {
+			dispatch_sync(self.queue) {
 				token = self.sinks.insert(SinkOf(subscriber))
+				subscriber.put(.Next(Box(self.value)))
 			}
 
-			return ActionDisposable {
-				self.sinks.removeValueForToken(token)
+			subscriber.disposable.addDisposable {
+				dispatch_sync(self.queue) {
+					self.sinks.removeValueForToken(token!)
+				}
 			}
 		}
+	}
+}
+
+extension ObservableProperty: SinkType {
+	public func put(value: T) {
+		self.value = value
 	}
 }

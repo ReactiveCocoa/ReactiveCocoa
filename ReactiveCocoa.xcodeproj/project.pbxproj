@@ -49,8 +49,6 @@
 		D037651719EDA41200A782A9 /* NSObject+RACDeallocating.m in Sources */ = {isa = PBXBuildFile; fileRef = D037644119EDA41200A782A9 /* NSObject+RACDeallocating.m */; };
 		D037651A19EDA41200A782A9 /* NSObject+RACDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = D037644319EDA41200A782A9 /* NSObject+RACDescription.m */; };
 		D037651B19EDA41200A782A9 /* NSObject+RACDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = D037644319EDA41200A782A9 /* NSObject+RACDescription.m */; };
-		D037651C19EDA41200A782A9 /* NSObject+RACKVOWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = D037644419EDA41200A782A9 /* NSObject+RACKVOWrapper.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D037651D19EDA41200A782A9 /* NSObject+RACKVOWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = D037644419EDA41200A782A9 /* NSObject+RACKVOWrapper.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D037651E19EDA41200A782A9 /* NSObject+RACKVOWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = D037644519EDA41200A782A9 /* NSObject+RACKVOWrapper.m */; };
 		D037651F19EDA41200A782A9 /* NSObject+RACKVOWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = D037644519EDA41200A782A9 /* NSObject+RACKVOWrapper.m */; };
 		D037652019EDA41200A782A9 /* NSObject+RACLifting.h in Headers */ = {isa = PBXBuildFile; fileRef = D037644619EDA41200A782A9 /* NSObject+RACLifting.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1187,7 +1185,6 @@
 				D03765D619EDA41200A782A9 /* RACSignal+Operations.h in Headers */,
 				D03765B619EDA41200A782A9 /* RACReplaySubject.h in Headers */,
 				D03765A219EDA41200A782A9 /* RACMulticastConnection.h in Headers */,
-				D037651C19EDA41200A782A9 /* NSObject+RACKVOWrapper.h in Headers */,
 				D037658E19EDA41200A782A9 /* RACGroupedSignal.h in Headers */,
 				D037654819EDA41200A782A9 /* NSUserDefaults+RACSupport.h in Headers */,
 				D03765BE19EDA41200A782A9 /* RACScheduler.h in Headers */,
@@ -1251,7 +1248,6 @@
 				D03765C519EDA41200A782A9 /* RACScheduler+Subclass.h in Headers */,
 				D03765E119EDA41200A782A9 /* RACStream.h in Headers */,
 				D03765D719EDA41200A782A9 /* RACSignal+Operations.h in Headers */,
-				D037651D19EDA41200A782A9 /* NSObject+RACKVOWrapper.h in Headers */,
 				D037655119EDA41200A782A9 /* RACBacktrace.h in Headers */,
 				D037665D19EDA41200A782A9 /* UITextField+RACSignalSupport.h in Headers */,
 				D037664919EDA41200A782A9 /* UISlider+RACSignalSupport.h in Headers */,
@@ -1777,6 +1773,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
 			};
 			name = Debug;
 		};
@@ -1788,6 +1785,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
 			};
 			name = Release;
 		};
@@ -1825,6 +1823,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
 			};
 			name = Debug;
 		};
@@ -1836,6 +1835,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
 			};
 			name = Release;
 		};
@@ -1886,6 +1886,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
 			};
 			name = Profile;
 		};
@@ -1910,6 +1911,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
 			};
 			name = Profile;
 		};
@@ -1947,6 +1949,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
 			};
 			name = Test;
 		};
@@ -1971,6 +1974,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = ReactiveCocoa/Info.plist;
+				USER_HEADER_SEARCH_PATHS = ReactiveCocoa/extobjc;
 			};
 			name = Test;
 		};

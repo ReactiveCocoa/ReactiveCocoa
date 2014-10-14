@@ -24,8 +24,8 @@ qck_it(@"should invoke the block with the given arguments", ^{
 	};
 
 	[RACBlockTrampoline invokeBlock:block withArguments:RACTuplePack(@"hi", @1)];
-	expect(stringArg).to.equal(@"hi");
-	expect(numberArg).to.equal(@1);
+	expect(stringArg).to(equal(@"hi"));
+	expect(numberArg).to(equal(@1));
 });
 
 qck_it(@"should return the result of the block invocation", ^{
@@ -34,7 +34,7 @@ qck_it(@"should return the result of the block invocation", ^{
 	};
 
 	NSString *result = [RACBlockTrampoline invokeBlock:block withArguments:RACTuplePack(@"hi")];
-	expect(result).to.equal(@"HI");
+	expect(result).to(equal(@"HI"));
 });
 
 qck_it(@"should pass RACTupleNils as nil", ^{
@@ -45,7 +45,7 @@ qck_it(@"should pass RACTupleNils as nil", ^{
 	};
 
 	[RACBlockTrampoline invokeBlock:block withArguments:RACTuplePack(nil)];
-	expect(arg).to.beNil();
+	expect(arg).to(beNil());
 });
 
 QuickSpecEnd

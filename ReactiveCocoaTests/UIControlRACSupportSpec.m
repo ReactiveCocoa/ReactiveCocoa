@@ -43,7 +43,7 @@ void (^setViewValueBlock)(UISlider *, NSNumber *) = ^(UISlider *view, NSNumber *
 	}
 };
 
-itShouldBehaveLike(RACViewChannelExamples, ^{
+qck_itBehavesLike(RACViewChannelExamples, ^{
 	return @{
 		RACViewChannelExampleCreateViewBlock: ^{
 			return [[UISlider alloc] init];
@@ -58,27 +58,27 @@ itShouldBehaveLike(RACViewChannelExamples, ^{
 
 qck_it(@"should send on the returned signal when matching actions are sent", ^{
 	UIControl *control = [RACTestUIButton button];
-	expect(control).notTo.beNil();
+	expect(control).notTo(beNil());
 
 	__block NSUInteger receivedCount = 0;
 	[[control
 		rac_signalForControlEvents:UIControlEventTouchUpInside | UIControlEventTouchUpOutside]
 		subscribeNext:^(UIControl *sender) {
-			expect(sender).to.beIdenticalTo(control);
+			expect(sender).to(beIdenticalTo(control));
 			receivedCount++;
 		}];
 
-	expect(receivedCount).to.equal(0);
+	expect(receivedCount).to(equal(@0));
 	
 	[control sendActionsForControlEvents:UIControlEventTouchUpInside];
-	expect(receivedCount).to.equal(1);
+	expect(receivedCount).to(equal(@1));
 
 	// Should do nothing.
 	[control sendActionsForControlEvents:UIControlEventTouchDown];
-	expect(receivedCount).to.equal(1);
+	expect(receivedCount).to(equal(@1));
 	
 	[control sendActionsForControlEvents:UIControlEventTouchUpOutside];
-	expect(receivedCount).to.equal(2);
+	expect(receivedCount).to(equal(@2));
 });
 
 qck_it(@"should send completed when the control is deallocated", ^{
@@ -97,12 +97,12 @@ qck_it(@"should send completed when the control is deallocated", ^{
 				completed = YES;
 			}];
 
-		expect(deallocated).to.beFalsy();
-		expect(completed).to.beFalsy();
+		expect(@(deallocated)).to(beFalsy());
+		expect(@(completed)).to(beFalsy());
 	}
 
-	expect(deallocated).to.beTruthy();
-	expect(completed).to.beTruthy();
+	expect(@(deallocated)).to(beTruthy());
+	expect(@(completed)).to(beTruthy());
 });
 
 QuickSpecEnd

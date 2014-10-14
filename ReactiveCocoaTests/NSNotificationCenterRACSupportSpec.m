@@ -34,17 +34,17 @@ qck_it(@"should send the notification when posted by any object", ^{
 	[signal subscribeNext:^(NSNotification *notification) {
 		++count;
 
-		expect(notification).to.beKindOf(NSNotification.class);
-		expect(notification.name).to.equal(TestNotification);
+		expect(notification).to(beAKindOf(NSNotification.class));
+		expect(notification.name).to(equal(TestNotification));
 	}];
 
-	expect(count).to.equal(0);
+	expect(@(count)).to(equal(@0));
 
 	[notificationCenter postNotificationName:TestNotification object:nil];
-	expect(count).to.equal(1);
+	expect(@(count)).to(equal(@1));
 
 	[notificationCenter postNotificationName:TestNotification object:self];
-	expect(count).to.equal(2);
+	expect(@(count)).to(equal(@2));
 });
 
 qck_it(@"should send the notification when posted by a specific object", ^{
@@ -54,18 +54,18 @@ qck_it(@"should send the notification when posted by a specific object", ^{
 	[signal subscribeNext:^(NSNotification *notification) {
 		++count;
 
-		expect(notification).to.beKindOf(NSNotification.class);
-		expect(notification.name).to.equal(TestNotification);
-		expect(notification.object).to.equal(self);
+		expect(notification).to(beAKindOf(NSNotification.class));
+		expect(notification.name).to(equal(TestNotification));
+		expect(notification.object).to(equal(self));
 	}];
 
-	expect(count).to.equal(0);
+	expect(@(count)).to(equal(@0));
 
 	[notificationCenter postNotificationName:TestNotification object:nil];
-	expect(count).to.equal(0);
+	expect(@(count)).to(equal(@0));
 
 	[notificationCenter postNotificationName:TestNotification object:self];
-	expect(count).to.equal(1);
+	expect(@(count)).to(equal(@1));
 });
 
 qck_it(@"shouldn't strongly capture the notification object", ^{
@@ -81,7 +81,7 @@ qck_it(@"shouldn't strongly capture the notification object", ^{
 		signal = [notificationCenter rac_addObserverForName:TestNotification object:notificationObject];
 	}
 
-	expect(dealloced).to.beTruthy();
+	expect(@(dealloced)).to(beTruthy());
 });
 
 QuickSpecEnd

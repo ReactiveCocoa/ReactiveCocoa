@@ -16,21 +16,21 @@ QuickSpecBegin(NSTextRACSupportSpec)
 
 qck_it(@"NSTextView should send changes on rac_textSignal", ^{
 	NSTextView *textView = [[NSTextView alloc] initWithFrame:NSZeroRect];
-	expect(textView).notTo.beNil();
+	expect(textView).notTo(beNil());
 
 	NSMutableArray *strings = [NSMutableArray array];
 	[textView.rac_textSignal subscribeNext:^(NSString *str) {
 		[strings addObject:str];
 	}];
 
-	expect(strings).to.equal(@[ @"" ]);
+	expect(strings).to(equal(@[ @"" ]));
 
 	[textView insertText:@"f"];
 	[textView insertText:@"o"];
 	[textView insertText:@"b"];
 
 	NSArray *expected = @[ @"", @"f", @"fo", @"fob" ];
-	expect(strings).to.equal(expected);
+	expect(strings).to(equal(expected));
 });
 
 QuickSpecEnd

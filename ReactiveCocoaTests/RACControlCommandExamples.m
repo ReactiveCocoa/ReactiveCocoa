@@ -29,9 +29,9 @@ NSString * const RACControlCommandExampleActivateBlock = @"RACControlCommandExam
 
 @end
 
-SharedExampleGroupsBegin(RACControlCommandExamples)
+QuickSharedExampleGroupsBegin(RACControlCommandExampleGroups)
 
-sharedExamplesFor(RACControlCommandExamples, ^(NSDictionary *data) {
+qck_sharedExamples(RACControlCommandExamples, ^(QCKDSLSharedExampleContext exampleContext) {
 	__block id control;
 	__block void (^activate)(id);
 
@@ -39,8 +39,8 @@ sharedExamplesFor(RACControlCommandExamples, ^(NSDictionary *data) {
 	__block RACCommand *command;
 
 	qck_beforeEach(^{
-		control = data[RACControlCommandExampleControl];
-		activate = [data[RACControlCommandExampleActivateBlock] copy];
+		control = exampleContext()[RACControlCommandExampleControl];
+		activate = [exampleContext()[RACControlCommandExampleActivateBlock] copy];
 
 		enabledSubject = [RACSubject subject];
 		command = [[RACCommand alloc] initWithEnabled:enabledSubject signalBlock:^(id sender) {
@@ -51,24 +51,24 @@ sharedExamplesFor(RACControlCommandExamples, ^(NSDictionary *data) {
 	});
 
 	qck_it(@"should bind the control's enabledness to the command", ^{
-		expect([control isEnabled]).will.beTruthy();
+		expect(@([control isEnabled])).toEventually(beTruthy());
 
 		[enabledSubject sendNext:@NO];
-		expect([control isEnabled]).will.beFalsy();
+		expect(@([control isEnabled])).toEventually(beFalsy());
 		
 		[enabledSubject sendNext:@YES];
-		expect([control isEnabled]).will.beTruthy();
+		expect(@([control isEnabled])).toEventually(beTruthy());
 	});
 
 	qck_it(@"should execute the control's command when activated", ^{
 		__block BOOL executed = NO;
 		[[command.executionSignals flatten] subscribeNext:^(id sender) {
-			expect(sender).to.equal(control);
+			expect(sender).to(equal(control));
 			executed = YES;
 		}];
 		
 		activate(control);
-		expect(executed).will.beTruthy();
+		expect(@(executed)).toEventually(beTruthy());
 	});
 	
 	qck_it(@"should overwrite an existing command when setting a new one", ^{
@@ -77,8 +77,8 @@ sharedExamplesFor(RACControlCommandExamples, ^(NSDictionary *data) {
 		}];
 		
 		[control setRac_command:secondCommand];
-		expect([control rac_command]).to.beIdenticalTo(secondCommand);
+		expect([control rac_command]).to(beIdenticalTo(secondCommand));
 	});
 });
 
-SharedExampleGroupsEnd
+QuickSharedExampleGroupsEnd

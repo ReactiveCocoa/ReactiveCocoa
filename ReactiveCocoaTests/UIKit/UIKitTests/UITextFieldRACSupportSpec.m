@@ -17,17 +17,17 @@ qck_describe(@"-rac_textSignal", ^{
 
 	qck_beforeEach(^{
 		textField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 100, 20)];
-		expect(textField).notTo.beNil();
+		expect(textField).notTo(beNil());
 	});
 
 	qck_it(@"should start with the initial text", ^{
 		textField.text = @"foo";
 
 		RACSignal *textSignal = textField.rac_textSignal;
-		expect([textSignal first]).to.equal(@"foo");
+		expect([textSignal first]).to(equal(@"foo"));
 
 		textField.text = @"bar";
-		expect([textSignal first]).to.equal(@"bar");
+		expect([textSignal first]).to(equal(@"bar"));
 	});
 
 	qck_it(@"should clear text upon editing", ^{
@@ -43,10 +43,10 @@ qck_describe(@"-rac_textSignal", ^{
 		[textSignal subscribeNext:^(id x) {
 			str = x;
 		}];
-		expect(str).to.equal(@"foo");
+		expect(str).to(equal(@"foo"));
 
 		[textField becomeFirstResponder];
-		expect(str).to.equal(@"");
+		expect(str).to(equal(@""));
 	});
 });
 

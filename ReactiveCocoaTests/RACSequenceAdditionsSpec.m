@@ -40,10 +40,10 @@ qck_describe(@"NSArray sequences", ^{
 	qck_beforeEach(^{
 		values = [numbers mutableCopy];
 		sequence = values.rac_sequence;
-		expect(sequence).notTo.beNil();
+		expect(sequence).notTo(beNil());
 	});
 
-	itShouldBehaveLike(RACSequenceExamples, ^{
+	qck_itBehavesLike(RACSequenceExamples, ^{
 		return @{
 			RACSequenceExampleSequence: sequence,
 			RACSequenceExampleExpectedValues: values
@@ -58,7 +58,7 @@ qck_describe(@"NSArray sequences", ^{
 			[values addObject:@6];
 		});
 
-		itShouldBehaveLike(RACSequenceExamples, ^{
+		qck_itBehavesLike(RACSequenceExamples, ^{
 			return @{
 				RACSequenceExampleSequence: sequence,
 				RACSequenceExampleExpectedValues: unchangedValues
@@ -78,7 +78,7 @@ qck_describe(@"NSArray sequences", ^{
 			[collectedValues addObject:value];
 		}
 
-		expect(collectedValues).to.equal(values);
+		expect(collectedValues).to(equal(values));
 	});
 });
 
@@ -108,32 +108,32 @@ qck_describe(@"NSDictionary sequences", ^{
 		}
 
 		tupleSequence = dict.rac_sequence;
-		expect(tupleSequence).notTo.beNil();
+		expect(tupleSequence).notTo(beNil());
 
 		keys = [dict.allKeys copy];
 		keySequence = dict.rac_keySequence;
-		expect(keySequence).notTo.beNil();
+		expect(keySequence).notTo(beNil());
 
 		values = [dict.allValues copy];
 		valueSequence = dict.rac_valueSequence;
-		expect(valueSequence).notTo.beNil();
+		expect(valueSequence).notTo(beNil());
 	});
 
-	itShouldBehaveLike(RACSequenceExamples, ^{
+	qck_itBehavesLike(RACSequenceExamples, ^{
 		return @{
 			RACSequenceExampleSequence: tupleSequence,
 			RACSequenceExampleExpectedValues: tuples
 		};
 	});
 
-	itShouldBehaveLike(RACSequenceExamples, ^{
+	qck_itBehavesLike(RACSequenceExamples, ^{
 		return @{
 			RACSequenceExampleSequence: keySequence,
 			RACSequenceExampleExpectedValues: keys
 		};
 	});
 
-	itShouldBehaveLike(RACSequenceExamples, ^{
+	qck_itBehavesLike(RACSequenceExamples, ^{
 		return @{
 			RACSequenceExampleSequence: valueSequence,
 			RACSequenceExampleExpectedValues: values
@@ -146,21 +146,21 @@ qck_describe(@"NSDictionary sequences", ^{
 			dict[@6] = @7;
 		});
 
-		itShouldBehaveLike(RACSequenceExamples, ^{
+		qck_itBehavesLike(RACSequenceExamples, ^{
 			return @{
 				RACSequenceExampleSequence: tupleSequence,
 				RACSequenceExampleExpectedValues: tuples
 			};
 		});
 
-		itShouldBehaveLike(RACSequenceExamples, ^{
+		qck_itBehavesLike(RACSequenceExamples, ^{
 			return @{
 				RACSequenceExampleSequence: keySequence,
 				RACSequenceExampleExpectedValues: keys
 			};
 		});
 
-		itShouldBehaveLike(RACSequenceExamples, ^{
+		qck_itBehavesLike(RACSequenceExamples, ^{
 			return @{
 				RACSequenceExampleSequence: valueSequence,
 				RACSequenceExampleExpectedValues: values
@@ -176,10 +176,10 @@ qck_describe(@"NSOrderedSet sequences", ^{
 	qck_beforeEach(^{
 		values = [NSMutableOrderedSet orderedSetWithArray:numbers];
 		sequence = values.rac_sequence;
-		expect(sequence).notTo.beNil();
+		expect(sequence).notTo(beNil());
 	});
 
-	itShouldBehaveLike(RACSequenceExamples, ^{
+	qck_itBehavesLike(RACSequenceExamples, ^{
 		return @{
 			RACSequenceExampleSequence: sequence,
 			RACSequenceExampleExpectedValues: values.array
@@ -194,7 +194,7 @@ qck_describe(@"NSOrderedSet sequences", ^{
 			[values addObject:@6];
 		});
 
-		itShouldBehaveLike(RACSequenceExamples, ^{
+		qck_itBehavesLike(RACSequenceExamples, ^{
 			return @{
 				RACSequenceExampleSequence: sequence,
 				RACSequenceExampleExpectedValues: unchangedValues
@@ -210,10 +210,10 @@ qck_describe(@"NSSet sequences", ^{
 	qck_beforeEach(^{
 		values = [NSMutableSet setWithArray:numbers];
 		sequence = values.rac_sequence;
-		expect(sequence).notTo.beNil();
+		expect(sequence).notTo(beNil());
 	});
 
-	itShouldBehaveLike(RACSequenceExamples, ^{
+	qck_itBehavesLike(RACSequenceExamples, ^{
 		return @{
 			RACSequenceExampleSequence: sequence,
 			RACSequenceExampleExpectedValues: values.allObjects
@@ -228,7 +228,7 @@ qck_describe(@"NSSet sequences", ^{
 			[values addObject:@6];
 		});
 
-		itShouldBehaveLike(RACSequenceExamples, ^{
+		qck_itBehavesLike(RACSequenceExamples, ^{
 			return @{
 				RACSequenceExampleSequence: sequence,
 				RACSequenceExampleExpectedValues: unchangedValues
@@ -246,10 +246,10 @@ qck_describe(@"NSString sequences", ^{
 		string = [@"foobar" mutableCopy];
 		values = @[ @"f", @"o", @"o", @"b", @"a", @"r" ];
 		sequence = string.rac_sequence;
-		expect(sequence).notTo.beNil();
+		expect(sequence).notTo(beNil());
 	});
 
-	itShouldBehaveLike(RACSequenceExamples, ^{
+	qck_itBehavesLike(RACSequenceExamples, ^{
 		return @{
 			RACSequenceExampleSequence: sequence,
 			RACSequenceExampleExpectedValues: values
@@ -261,7 +261,7 @@ qck_describe(@"NSString sequences", ^{
 			[string appendString:@"buzz"];
 		});
 
-		itShouldBehaveLike(RACSequenceExamples, ^{
+		qck_itBehavesLike(RACSequenceExamples, ^{
 			return @{
 				RACSequenceExampleSequence: sequence,
 				RACSequenceExampleExpectedValues: values
@@ -272,7 +272,7 @@ qck_describe(@"NSString sequences", ^{
 	qck_it(@"should work with composed characters", ^{
 		NSString  *string = @"\u2665\uFE0F\u2666\uFE0F";
 		NSArray *expectedSequence = @[ @"\u2665\uFE0F", @"\u2666\uFE0F" ];
-		expect(string.rac_sequence.array).to.equal(expectedSequence);
+		expect(string.rac_sequence.array).to(equal(expectedSequence));
 	});
 });
 
@@ -284,10 +284,10 @@ qck_describe(@"RACTuple sequences", ^{
 		tuple = RACTuplePack(@"foo", nil, @"bar", NSNull.null, RACTupleNil.tupleNil);
 
 		sequence = tuple.rac_sequence;
-		expect(sequence).notTo.beNil();
+		expect(sequence).notTo(beNil());
 	});
 
-	itShouldBehaveLike(RACSequenceExamples, ^{
+	qck_itBehavesLike(RACSequenceExamples, ^{
 		return @{
 			RACSequenceExampleSequence: sequence,
 			RACSequenceExampleExpectedValues: @[ @"foo", NSNull.null, @"bar", NSNull.null, NSNull.null ]
@@ -311,10 +311,10 @@ qck_describe(@"NSIndexSet sequences", ^{
 	qck_beforeEach(^{
 		values = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 10)];
 		sequence = values.rac_sequence;
-		expect(sequence).notTo.beNil();
+		expect(sequence).notTo(beNil());
 	});
 	
-	itShouldBehaveLike(RACSequenceExamples, ^{
+	qck_itBehavesLike(RACSequenceExamples, ^{
 		return @{
 			RACSequenceExampleSequence: sequence,
 			RACSequenceExampleExpectedValues: valuesFromIndexSet(values)
@@ -329,7 +329,7 @@ qck_describe(@"NSIndexSet sequences", ^{
 			[values addIndex:20];
 		});
 		
-		itShouldBehaveLike(RACSequenceExamples, ^{
+		qck_itBehavesLike(RACSequenceExamples, ^{
 			return @{
 				RACSequenceExampleSequence: sequence,
 				RACSequenceExampleExpectedValues: unchangedValues
@@ -344,10 +344,10 @@ qck_describe(@"NSIndexSet sequences", ^{
 		qck_beforeEach(^{
 			emptyIndexSet = [NSIndexSet indexSet];
 			emptySequence = emptyIndexSet.rac_sequence;
-			expect(emptySequence).notTo.beNil();
+			expect(emptySequence).notTo(beNil());
 		});
 
-		itShouldBehaveLike(RACSequenceExamples, ^{
+		qck_itBehavesLike(RACSequenceExamples, ^{
 			return @{
 				RACSequenceExampleSequence: emptySequence,
 				RACSequenceExampleExpectedValues: valuesFromIndexSet(emptyIndexSet)

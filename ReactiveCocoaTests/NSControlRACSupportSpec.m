@@ -27,10 +27,10 @@ qck_describe(@"NSButton", ^{
 
 	qck_beforeEach(^{
 		button = [[NSButton alloc] initWithFrame:NSZeroRect];
-		expect(button).notTo.beNil();
+		expect(button).notTo(beNil());
 	});
 
-	itShouldBehaveLike(RACControlCommandExamples, ^{
+	qck_itBehavesLike(RACControlCommandExamples, ^{
 		return @{
 			RACControlCommandExampleControl: button,
 			RACControlCommandExampleActivateBlock: ^(NSButton *button) {
@@ -46,25 +46,25 @@ qck_describe(@"NSTextField", ^{
 	
 	qck_beforeEach(^{
 		field = [[NSTextField alloc] initWithFrame:NSZeroRect];
-		expect(field).notTo.beNil();
+		expect(field).notTo(beNil());
 
 		[field.cell setSendsActionOnEndEditing:YES];
 
 		window = [[NSWindow alloc] initWithContentRect:NSZeroRect styleMask:NSTitledWindowMask backing:NSBackingStoreBuffered defer:NO];
-		expect(window).notTo.beNil();
+		expect(window).notTo(beNil());
 
 		[window.contentView addSubview:field];
 
-		expect([window makeFirstResponder:field]).to.beTruthy();
-		expect(window.firstResponder).notTo.equal(window);
+		expect(@([window makeFirstResponder:field])).to(beTruthy());
+		expect(window.firstResponder).notTo(equal(window));
 	});
 
-	itShouldBehaveLike(RACControlCommandExamples, ^{
+	qck_itBehavesLike(RACControlCommandExamples, ^{
 		return @{
 			RACControlCommandExampleControl: field,
 			RACControlCommandExampleActivateBlock: ^(NSTextField *field) {
-				expect([window makeFirstResponder:nil]).to.beTruthy();
-				expect(window.firstResponder).to.equal(window);
+				expect(@([window makeFirstResponder:nil])).to(beTruthy());
+				expect(window.firstResponder).to(equal(window));
 			}
 		};
 	});
@@ -76,17 +76,17 @@ qck_describe(@"NSTextField", ^{
 				[strings addObject:str];
 			}];
 
-			expect(strings).to.equal(@[ @"" ]);
+			expect(strings).to(equal(@[ @"" ]));
 
 			NSText *fieldEditor = (id)window.firstResponder;
-			expect(fieldEditor).to.beKindOf(NSText.class);
+			expect(fieldEditor).to(beAKindOf(NSText.class));
 
 			[fieldEditor insertText:@"f"];
 			[fieldEditor insertText:@"o"];
 			[fieldEditor insertText:@"b"];
 
 			NSArray *expected = @[ @"", @"f", @"fo", @"fob" ];
-			expect(strings).to.equal(expected);
+			expect(strings).to(equal(expected));
 		});
 
 		qck_it(@"shouldn't give the text field eternal life", ^{
@@ -101,7 +101,7 @@ qck_describe(@"NSTextField", ^{
 				}];
 			}
 
-			expect(dealloced).will.beTruthy();
+			expect(@(dealloced)).toEventually(beTruthy());
 		});
 	});
 });

@@ -19,7 +19,7 @@ qck_describe(@"UIImagePickerController", ^{
 	
 	qck_beforeEach(^{
 		imagePicker = [[UIImagePickerController alloc] init];
-		expect(imagePicker).notTo.beNil();
+		expect(imagePicker).notTo(beNil());
 	});
 	
 	qck_it(@"sends the user info dictionary after confirmation", ^{
@@ -33,7 +33,7 @@ qck_describe(@"UIImagePickerController", ^{
 			UIImagePickerControllerMediaMetadata: @{}
 		};
 		[imagePicker.delegate imagePickerController:imagePicker didFinishPickingMediaWithInfo:info];
-		expect(selectedImageUserInfo).to.equal(info);
+		expect(selectedImageUserInfo).to(equal(info));
 	});
 	
 	qck_it(@"cancels image picking process", ^{
@@ -46,8 +46,8 @@ qck_describe(@"UIImagePickerController", ^{
 		}];
 		
 		[imagePicker.delegate imagePickerControllerDidCancel:imagePicker];
-		expect(didSend).to.beFalsy();
-		expect(didComplete).to.beTruthy();
+		expect(@(didSend)).to(beFalsy());
+		expect(@(didComplete)).to(beTruthy());
 	});
 });
 

@@ -26,12 +26,12 @@ qck_beforeEach(^{
 	collectionViewFlowLayout.itemSize = CGSizeMake(screenSize.width, screenSize.height / 2);
 	
 	collectionViewController = [[TestCollectionViewController alloc] initWithCollectionViewLayout:collectionViewFlowLayout];
-	expect(collectionViewController).notTo.beNil();
+	expect(collectionViewController).notTo(beNil());
 	
 	[collectionViewController.collectionView registerClass:UICollectionViewCell.class forCellWithReuseIdentifier:NSStringFromClass(collectionViewController.class)];
 	
 	RACAppDelegate.delegate.window.rootViewController = collectionViewController;
-	expect(collectionViewController.collectionView.visibleCells.count).will.beGreaterThan(0);
+	expect(collectionViewController.collectionView.visibleCells.count).toEventually(beGreaterThan(0));
 });
 
 qck_it(@"should send on rac_prepareForReuseSignal", ^{
@@ -39,11 +39,11 @@ qck_it(@"should send on rac_prepareForReuseSignal", ^{
 	
 	__block NSUInteger invocationCount = 0;
 	[cell.rac_prepareForReuseSignal subscribeNext:^(id value) {
-		expect(value).to.equal(RACUnit.defaultUnit);
+		expect(value).to(equal(RACUnit.defaultUnit));
 		++invocationCount;
 	}];
 	
-	expect(invocationCount).to.equal(0);
+	expect(invocationCount).to(equal(@0));
 	
 	// The following two expectations will fail in the iOS 7 simulator, but pass on an iPad 4th gen device running iOS 7.
 	// This appears to be a known issue with the iOS 7 simulator. See http://openradar.appspot.com/14973972
@@ -51,10 +51,10 @@ qck_it(@"should send on rac_prepareForReuseSignal", ^{
 	if ([UIDevice.currentDevice.systemVersion compare:@"7.0" options:NSNumericSearch] == NSOrderedAscending ||
 		(!TARGET_IPHONE_SIMULATOR && UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)) {
 		[collectionViewController.collectionView reloadData];
-		expect(invocationCount).will.equal(1);
+		expect(invocationCount).toEventually(equal(@1));
 		
 		[collectionViewController.collectionView reloadData];
-		expect(invocationCount).will.equal(2);
+		expect(invocationCount).toEventually(equal(@2));
 	}
 });
 

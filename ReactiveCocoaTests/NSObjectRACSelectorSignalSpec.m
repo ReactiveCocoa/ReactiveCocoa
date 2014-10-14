@@ -46,7 +46,7 @@ qck_describe(@"RACTestObject", ^{
 
 		[object lifeIsGood:@42];
 
-		expect(value).to.equal(@42);
+		expect(value).to(equal(@42));
 	});
 
 	qck_it(@"should send completed on deallocation", ^{
@@ -64,12 +64,12 @@ qck_describe(@"RACTestObject", ^{
 				completed = YES;
 			}];
 
-			expect(deallocated).to.beFalsy();
-			expect(completed).to.beFalsy();
+			expect(@(deallocated)).to(beFalsy());
+			expect(@(completed)).to(beFalsy());
 		}
 
-		expect(deallocated).to.beTruthy();
-		expect(completed).to.beTruthy();
+		expect(@(deallocated)).to(beTruthy());
+		expect(@(completed)).to(beTruthy());
 	});
 
 	qck_it(@"should send for a zero-argument method", ^{
@@ -81,7 +81,7 @@ qck_describe(@"RACTestObject", ^{
 		}];
 
 		[object objectValue];
-		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
+		expect(value).to(equal([RACTuple tupleWithObjectsFromArray:@[]]));
 	});
 
 	qck_it(@"should send the argument for each invocation to the instance's own signal", ^{
@@ -100,8 +100,8 @@ qck_describe(@"RACTestObject", ^{
 		[object1 lifeIsGood:@42];
 		[object2 lifeIsGood:@"Carpe diem"];
 
-		expect(value1).to.equal(@42);
-		expect(value2).to.equal(@"Carpe diem");
+		expect(value1).to(equal(@42));
+		expect(value2).to(equal(@"Carpe diem"));
 	});
 
 	qck_it(@"should send multiple arguments for each invocation", ^{
@@ -114,9 +114,9 @@ qck_describe(@"RACTestObject", ^{
 			value2 = x.second;
 		}];
 
-		expect([object combineObjectValue:@42 andSecondObjectValue:@"foo"]).to.equal(@"42: foo");
-		expect(value1).to.equal(@42);
-		expect(value2).to.equal(@"foo");
+		expect([object combineObjectValue:@42 andSecondObjectValue:@"foo"]).to(equal(@"42: foo"));
+		expect(value1).to(equal(@42));
+		expect(value2).to(equal(@"foo"));
 	});
 
 	qck_it(@"should send arguments for invocation of non-existant methods", ^{
@@ -130,8 +130,8 @@ qck_describe(@"RACTestObject", ^{
 
 		[object performSelector:@selector(setObject:forKey:) withObject:@YES withObject:@"Winner"];
 
-		expect(value).to.equal(@YES);
-		expect(key).to.equal(@"Winner");
+		expect(value).to(equal(@YES));
+		expect(key).to(equal(@"Winner"));
 	});
 
 	qck_it(@"should send arguments for invocation and invoke the original method on previously KVO'd receiver", ^{
@@ -148,12 +148,12 @@ qck_describe(@"RACTestObject", ^{
 
 		[object setObjectValue:@YES andSecondObjectValue:@"Winner"];
 
-		expect(object.hasInvokedSetObjectValueAndSecondObjectValue).to.beTruthy();
-		expect(object.objectValue).to.equal(@YES);
-		expect(object.secondObjectValue).to.equal(@"Winner");
+		expect(@(object.hasInvokedSetObjectValueAndSecondObjectValue)).to(beTruthy());
+		expect(object.objectValue).to(equal(@YES));
+		expect(object.secondObjectValue).to(equal(@"Winner"));
 
-		expect(value).to.equal(@YES);
-		expect(key).to.equal(@"Winner");
+		expect(value).to(equal(@YES));
+		expect(key).to(equal(@"Winner"));
 	});
 
 	qck_it(@"should send arguments for invocation and invoke the original method when receiver is subsequently KVO'd", ^{
@@ -170,12 +170,12 @@ qck_describe(@"RACTestObject", ^{
 
 		[object setObjectValue:@YES andSecondObjectValue:@"Winner"];
 
-		expect(object.hasInvokedSetObjectValueAndSecondObjectValue).to.beTruthy();
-		expect(object.objectValue).to.equal(@YES);
-		expect(object.secondObjectValue).to.equal(@"Winner");
+		expect(@(object.hasInvokedSetObjectValueAndSecondObjectValue)).to(beTruthy());
+		expect(object.objectValue).to(equal(@YES));
+		expect(object.secondObjectValue).to(equal(@"Winner"));
 
-		expect(value).to.equal(@YES);
-		expect(key).to.equal(@"Winner");
+		expect(value).to(equal(@YES));
+		expect(key).to(equal(@"Winner"));
 	});
 
 	qck_it(@"should properly implement -respondsToSelector: when called on KVO'd receiver", ^{
@@ -191,7 +191,7 @@ qck_describe(@"RACTestObject", ^{
 		// implement -anyOldSelector: directly on the KVO subclass.
 		[object rac_signalForSelector:selector];
 
-		expect([object respondsToSelector:selector]).to.beTruthy();
+		expect(@([object respondsToSelector:selector])).to(beTruthy());
 	});
 
 	qck_it(@"should properly implement -respondsToSelector: when called on signalForSelector'd receiver that has subsequently been KVO'd", ^{
@@ -202,12 +202,12 @@ qck_describe(@"RACTestObject", ^{
 		// Implement -anyOldSelector: on the object first
 		[object rac_signalForSelector:selector];
 
-		expect([object respondsToSelector:selector]).to.beTruthy();
+		expect(@([object respondsToSelector:selector])).to(beTruthy());
 
 		// Then KVO the object
 		[[RACObserve(object, objectValue) publish] connect];
 
-		expect([object respondsToSelector:selector]).to.beTruthy();
+		expect(@([object respondsToSelector:selector])).to(beTruthy());
 	});
 
 	qck_it(@"should properly implement -respondsToSelector: when called on signalForSelector'd receiver that has subsequently been KVO'd, then signalForSelector'd again", ^{
@@ -218,19 +218,19 @@ qck_describe(@"RACTestObject", ^{
 		// Implement -anyOldSelector: on the object first
 		[object rac_signalForSelector:selector];
 
-		expect([object respondsToSelector:selector]).to.beTruthy();
+		expect(@([object respondsToSelector:selector])).to(beTruthy());
 
 		// Then KVO the object
 		[[RACObserve(object, objectValue) publish] connect];
 
-		expect([object respondsToSelector:selector]).to.beTruthy();
+		expect(@([object respondsToSelector:selector])).to(beTruthy());
 		
 		SEL selector2 = NSSelectorFromString(@"anotherSelector:");
 
 		// Then implement -anotherSelector: on the object
 		[object rac_signalForSelector:selector2];
 
-		expect([object respondsToSelector:selector2]).to.beTruthy();
+		expect(@([object respondsToSelector:selector2])).to(beTruthy());
 	});
 	
 	qck_it(@"should call the right signal for two instances of the same class, adding signals for the same selector", ^{
@@ -250,12 +250,12 @@ qck_describe(@"RACTestObject", ^{
 		}];
 
 		[object1 lifeIsGood:@42];
-		expect(value1).to.equal(@42);
-		expect(value2).to.beNil();
+		expect(value1).to(equal(@42));
+		expect(value2).to(beNil());
 
 		[object2 lifeIsGood:@420];
-		expect(value1).to.equal(@42);
-		expect(value2).to.equal(@420);
+		expect(value1).to(equal(@42));
+		expect(value2).to(equal(@420));
 	});
 
 	qck_it(@"should properly implement -respondsToSelector: for optional method from a protocol", ^{
@@ -267,7 +267,7 @@ qck_describe(@"RACTestObject", ^{
 		// Method implementation of the selector is added to its swizzled class.
 		[object1 rac_signalForSelector:selector fromProtocol:@protocol(RACTestProtocol)];
 
-		expect([object1 respondsToSelector:selector]).to.beTruthy();
+		expect(@([object1 respondsToSelector:selector])).to(beTruthy());
 
 		RACTestObject *object2 = [[RACTestObject alloc] init];
 
@@ -278,7 +278,7 @@ qck_describe(@"RACTestObject", ^{
 
 		// This instance should not respond to the selector because of not
 		// calling -rac_signalForSelector: with the selector.
-		expect([object2 respondsToSelector:selector]).to.beFalsy();
+		expect(@([object2 respondsToSelector:selector])).to(beFalsy());
 	});
 
 	qck_it(@"should send non-object arguments", ^{
@@ -290,7 +290,7 @@ qck_describe(@"RACTestObject", ^{
 		}];
 
 		object.integerValue = 42;
-		expect(value).to.equal(@42);
+		expect(value).to(equal(@42));
 	});
 
 	qck_it(@"should send on signal after the original method is invoked", ^{
@@ -302,7 +302,7 @@ qck_describe(@"RACTestObject", ^{
 		}];
 		
 		[object setObjectValue:@YES andSecondObjectValue:@"Winner"];
-		expect(invokedMethodBefore).to.beTruthy();
+		expect(@(invokedMethodBefore)).to(beTruthy());
 	});
 });
 
@@ -314,8 +314,8 @@ qck_it(@"should swizzle an NSObject method", ^{
 		value = x;
 	}];
 
-	expect([object description]).notTo.beNil();
-	expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
+	expect([object description]).notTo(beNil());
+	expect(value).to(equal([RACTuple tupleWithObjectsFromArray:@[]]));
 });
 
 qck_describe(@"a class that already overrides -forwardInvocation:", ^{
@@ -328,14 +328,14 @@ qck_describe(@"a class that already overrides -forwardInvocation:", ^{
 		}];
 
 		[object lifeIsGood:@42];
-		expect(value).to.equal(@42);
+		expect(value).to(equal(@42));
 
-		expect(object.forwardedSelector).to.beNil();
+		expect([NSValue valueWithPointer:object.forwardedSelector]).to(equal([NSValue valueWithPointer:NULL]));
 
 		[object performSelector:@selector(allObjects)];
 
-		expect(value).to.equal(@42);
-		expect(object.forwardedSelector).to.equal(@selector(allObjects));
+		expect(value).to(equal(@42));
+		expect(NSStringFromSelector(object.forwardedSelector)).to(equal(@"allObjects"));
 	});
 
 	qck_it(@"should not infinite recurse when KVO'd after RAC swizzled", ^{
@@ -349,11 +349,11 @@ qck_describe(@"a class that already overrides -forwardInvocation:", ^{
 		[[RACObserve(object, objectValue) publish] connect];
 
 		[object lifeIsGood:@42];
-		expect(value).to.equal(@42);
+		expect(value).to(equal(@42));
 
-		expect(object.forwardedSelector).to.beNil();
+		expect([NSValue valueWithPointer:object.forwardedSelector]).to(equal([NSValue valueWithPointer:NULL]));
 		[object performSelector:@selector(allObjects)];
-		expect(object.forwardedSelector).to.equal(@selector(allObjects));
+		expect(NSStringFromSelector(object.forwardedSelector)).to(equal(@"allObjects"));
 	});
 });
 
@@ -366,10 +366,10 @@ qck_describe(@"two classes in the same hierarchy", ^{
 
 	qck_beforeEach(^{
 		superclassObj = [[RACTestObject alloc] init];
-		expect(superclassObj).notTo.beNil();
+		expect(superclassObj).notTo(beNil());
 
 		subclassObj = [[RACSubclassObject alloc] init];
-		expect(subclassObj).notTo.beNil();
+		expect(subclassObj).notTo(beNil());
 	});
 
 	qck_it(@"should not collide", ^{
@@ -381,15 +381,15 @@ qck_describe(@"two classes in the same hierarchy", ^{
 			subclassTuple = t;
 		}];
 
-		expect([superclassObj combineObjectValue:@"foo" andIntegerValue:42]).to.equal(@"foo: 42");
+		expect([superclassObj combineObjectValue:@"foo" andIntegerValue:42]).to(equal(@"foo: 42"));
 
 		NSArray *expectedValues = @[ @"foo", @42 ];
-		expect(superclassTuple.allObjects).to.equal(expectedValues);
+		expect(superclassTuple.allObjects).to(equal(expectedValues));
 
-		expect([subclassObj combineObjectValue:@"foo" andIntegerValue:42]).to.equal(@"fooSUBCLASS: 42");
+		expect([subclassObj combineObjectValue:@"foo" andIntegerValue:42]).to(equal(@"fooSUBCLASS: 42"));
 
 		expectedValues = @[ @"foo", @42 ];
-		expect(subclassTuple.allObjects).to.equal(expectedValues);
+		expect(subclassTuple.allObjects).to(equal(expectedValues));
 	});
 
 	qck_it(@"should not collide when the superclass is invoked asynchronously", ^{
@@ -402,17 +402,17 @@ qck_describe(@"two classes in the same hierarchy", ^{
 		}];
 
 		[superclassObj setObjectValue:@"foo" andSecondObjectValue:@"42"];
-		expect(superclassObj.hasInvokedSetObjectValueAndSecondObjectValue).to.beTruthy();
+		expect(@(superclassObj.hasInvokedSetObjectValueAndSecondObjectValue)).to(beTruthy());
 
 		NSArray *expectedValues = @[ @"foo", @"42" ];
-		expect(superclassTuple.allObjects).to.equal(expectedValues);
+		expect(superclassTuple.allObjects).to(equal(expectedValues));
 
 		[subclassObj setObjectValue:@"foo" andSecondObjectValue:@"42"];
-		expect(subclassObj.hasInvokedSetObjectValueAndSecondObjectValue).to.beFalsy();
-		expect(subclassObj.hasInvokedSetObjectValueAndSecondObjectValue).will.beTruthy();
+		expect(@(subclassObj.hasInvokedSetObjectValueAndSecondObjectValue)).to(beFalsy());
+		expect(@(subclassObj.hasInvokedSetObjectValueAndSecondObjectValue)).toEventually(beTruthy());
 
 		expectedValues = @[ @"foo", @"42" ];
-		expect(subclassTuple.allObjects).to.equal(expectedValues);
+		expect(subclassTuple.allObjects).to(equal(expectedValues));
 	});
 });
 
@@ -422,10 +422,10 @@ qck_describe(@"-rac_signalForSelector:fromProtocol", ^{
 	
 	qck_beforeEach(^{
 		object = (id)[[RACTestObject alloc] init];
-		expect(object).notTo.beNil();
+		expect(object).notTo(beNil());
 
 		protocol = @protocol(TestProtocol);
-		expect(protocol).notTo.beNil();
+		expect(protocol).notTo(beNil());
 	});
 
 	qck_it(@"should not clobber a required method already implemented", ^{
@@ -435,7 +435,7 @@ qck_describe(@"-rac_signalForSelector:fromProtocol", ^{
 		}];
 
 		[object lifeIsGood:@42];
-		expect(value).to.equal(@42);
+		expect(value).to(equal(@42));
 	});
 
 	qck_it(@"should not clobber an optional method already implemented", ^{
@@ -446,8 +446,8 @@ qck_describe(@"-rac_signalForSelector:fromProtocol", ^{
 			value = x;
 		}];
 
-		expect([object objectValue]).to.equal(@"foo");
-		expect(value).to.equal([RACTuple tupleWithObjectsFromArray:@[]]);
+		expect([object objectValue]).to(equal(@"foo"));
+		expect(value).to(equal([RACTuple tupleWithObjectsFromArray:@[]]));
 	});
 
 	qck_it(@"should inject a required method", ^{
@@ -456,8 +456,8 @@ qck_describe(@"-rac_signalForSelector:fromProtocol", ^{
 			value = x.first;
 		}];
 
-		expect([object requiredMethod:42]).to.beFalsy();
-		expect(value).to.equal(42);
+		expect(@([object requiredMethod:42])).to(beFalsy());
+		expect(value).to(equal(@42));
 	});
 
 	qck_it(@"should inject an optional method", ^{
@@ -466,8 +466,8 @@ qck_describe(@"-rac_signalForSelector:fromProtocol", ^{
 			value = x;
 		}];
 
-		expect([object optionalMethodWithObject:@"foo" flag:YES]).to.equal(0);
-		expect(value).to.equal(RACTuplePack(@"foo", @YES));
+		expect(@([object optionalMethodWithObject:@"foo" flag:YES])).to(equal(@0));
+		expect(value).to(equal(RACTuplePack(@"foo", @YES)));
 	});
 });
 
@@ -482,19 +482,19 @@ qck_describe(@"class reporting", ^{
 
 	qck_it(@"should report the original class", ^{
 		[object rac_signalForSelector:@selector(lifeIsGood:)];
-		expect(object.class).to.beIdenticalTo(originalClass);
+		expect(object.class).to(beIdenticalTo(originalClass));
 	});
 
 	qck_it(@"should report the original class when it's KVO'd after dynamically subclassing", ^{
 		[object rac_signalForSelector:@selector(lifeIsGood:)];
 		[[RACObserve(object, objectValue) publish] connect];
-		expect(object.class).to.beIdenticalTo(originalClass);
+		expect(object.class).to(beIdenticalTo(originalClass));
 	});
 
 	qck_it(@"should report the original class when it's KVO'd before dynamically subclassing", ^{
 		[[RACObserve(object, objectValue) publish] connect];
 		[object rac_signalForSelector:@selector(lifeIsGood:)];
-		expect(object.class).to.beIdenticalTo(originalClass);
+		expect(object.class).to(beIdenticalTo(originalClass));
 	});
 });
 

@@ -19,10 +19,10 @@ __block RACTestTableViewController *tableViewController;
 
 qck_beforeEach(^{
 	tableViewController = [[RACTestTableViewController alloc] initWithStyle:UITableViewStylePlain];
-	expect(tableViewController).notTo.beNil();
+	expect(tableViewController).notTo(beNil());
 
 	RACAppDelegate.delegate.window.rootViewController = tableViewController;
-	expect([tableViewController.tableView headerViewForSection:0]).notTo.beNil();
+	expect([tableViewController.tableView headerViewForSection:0]).notTo(beNil());
 });
 
 qck_it(@"should send on rac_prepareForReuseSignal", ^{
@@ -30,11 +30,11 @@ qck_it(@"should send on rac_prepareForReuseSignal", ^{
 
 	__block NSUInteger invocationCount = 0;
 	[headerView.rac_prepareForReuseSignal subscribeNext:^(id value) {
-		expect(value).to.equal(RACUnit.defaultUnit);
+		expect(value).to(equal(RACUnit.defaultUnit));
 		invocationCount++;
 	}];
 
-	expect(invocationCount).to.equal(0);
+	expect(invocationCount).to(equal(@0));
 
 	void (^scrollToSectionForReuse)(NSInteger) = ^(NSInteger section) {
 		NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:section];
@@ -42,10 +42,10 @@ qck_it(@"should send on rac_prepareForReuseSignal", ^{
 	};
 
 	scrollToSectionForReuse(tableViewController.tableView.numberOfSections - 1);
-	expect(invocationCount).will.equal(1);
+	expect(invocationCount).toEventually(equal(@1));
 
 	scrollToSectionForReuse(0);
-	expect(invocationCount).will.equal(2);
+	expect(invocationCount).toEventually(equal(@2));
 });
 
 QuickSpecEnd

@@ -6,6 +6,9 @@
 //  Copyright (c) 2013 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACTestScheduler.h"
 
 QuickSpecBegin(RACTestSchedulerSpec)
@@ -14,7 +17,7 @@ __block RACTestScheduler *scheduler;
 
 qck_beforeEach(^{
 	scheduler = [[RACTestScheduler alloc] init];
-	expect(scheduler).notTo.beNil();
+	expect(scheduler).notTo(beNil());
 });
 
 qck_it(@"should do nothing when stepping while empty", ^{
@@ -34,15 +37,15 @@ qck_it(@"should execute the earliest enqueued block when stepping", ^{
 		secondExecuted = YES;
 	}];
 
-	expect(firstExecuted).to.beFalsy();
-	expect(secondExecuted).to.beFalsy();
+	expect(@(firstExecuted)).to(beFalsy());
+	expect(@(secondExecuted)).to(beFalsy());
 
 	[scheduler step];
-	expect(firstExecuted).to.beTruthy();
-	expect(secondExecuted).to.beFalsy();
+	expect(@(firstExecuted)).to(beTruthy());
+	expect(@(secondExecuted)).to(beFalsy());
 
 	[scheduler step];
-	expect(secondExecuted).to.beTruthy();
+	expect(@(secondExecuted)).to(beTruthy());
 });
 
 qck_it(@"should step multiple times", ^{
@@ -61,17 +64,17 @@ qck_it(@"should step multiple times", ^{
 		thirdExecuted = YES;
 	}];
 
-	expect(firstExecuted).to.beFalsy();
-	expect(secondExecuted).to.beFalsy();
-	expect(thirdExecuted).to.beFalsy();
+	expect(@(firstExecuted)).to(beFalsy());
+	expect(@(secondExecuted)).to(beFalsy());
+	expect(@(thirdExecuted)).to(beFalsy());
 
 	[scheduler step:2];
-	expect(firstExecuted).to.beTruthy();
-	expect(secondExecuted).to.beTruthy();
-	expect(thirdExecuted).to.beFalsy();
+	expect(@(firstExecuted)).to(beTruthy());
+	expect(@(secondExecuted)).to(beTruthy());
+	expect(@(thirdExecuted)).to(beFalsy());
 
 	[scheduler step:1];
-	expect(thirdExecuted).to.beTruthy();
+	expect(@(thirdExecuted)).to(beTruthy());
 });
 
 qck_it(@"should step through all scheduled blocks", ^{
@@ -82,10 +85,10 @@ qck_it(@"should step through all scheduled blocks", ^{
 		}];
 	}
 
-	expect(executions).to.equal(0);
+	expect(@(executions)).to(equal(@0));
 
 	[scheduler stepAll];
-	expect(executions).to.equal(10);
+	expect(@(executions)).to(equal(@10));
 });
 
 qck_it(@"should execute blocks in date order when stepping", ^{
@@ -99,15 +102,15 @@ qck_it(@"should execute blocks in date order when stepping", ^{
 		earlierExecuted = YES;
 	}];
 
-	expect(earlierExecuted).to.beFalsy();
-	expect(laterExecuted).to.beFalsy();
+	expect(@(earlierExecuted)).to(beFalsy());
+	expect(@(laterExecuted)).to(beFalsy());
 
 	[scheduler step];
-	expect(earlierExecuted).to.beTruthy();
-	expect(laterExecuted).to.beFalsy();
+	expect(@(earlierExecuted)).to(beTruthy());
+	expect(@(laterExecuted)).to(beFalsy());
 
 	[scheduler step];
-	expect(laterExecuted).to.beTruthy();
+	expect(@(laterExecuted)).to(beTruthy());
 });
 
 qck_it(@"should execute delayed blocks in date order when stepping", ^{
@@ -121,15 +124,15 @@ qck_it(@"should execute delayed blocks in date order when stepping", ^{
 		earlierExecuted = YES;
 	}];
 
-	expect(earlierExecuted).to.beFalsy();
-	expect(laterExecuted).to.beFalsy();
+	expect(@(earlierExecuted)).to(beFalsy());
+	expect(@(laterExecuted)).to(beFalsy());
 
 	[scheduler step];
-	expect(earlierExecuted).to.beTruthy();
-	expect(laterExecuted).to.beFalsy();
+	expect(@(earlierExecuted)).to(beTruthy());
+	expect(@(laterExecuted)).to(beFalsy());
 
 	[scheduler step];
-	expect(laterExecuted).to.beTruthy();
+	expect(@(laterExecuted)).to(beTruthy());
 });
 
 qck_it(@"should execute a repeating blocks in date order", ^{
@@ -143,33 +146,33 @@ qck_it(@"should execute a repeating blocks in date order", ^{
 		secondExecutions++;
 	}];
 
-	expect(firstExecutions).to.equal(0);
-	expect(secondExecutions).to.equal(0);
+	expect(@(firstExecutions)).to(equal(@0));
+	expect(@(secondExecutions)).to(equal(@0));
 
 	// 20 ticks
 	[scheduler step];
-	expect(firstExecutions).to.equal(1);
-	expect(secondExecutions).to.equal(0);
+	expect(@(firstExecutions)).to(equal(@1));
+	expect(@(secondExecutions)).to(equal(@0));
 
 	// 22 ticks
 	[scheduler step];
-	expect(firstExecutions).to.equal(1);
-	expect(secondExecutions).to.equal(1);
+	expect(@(firstExecutions)).to(equal(@1));
+	expect(@(secondExecutions)).to(equal(@1));
 
 	// 25 ticks
 	[scheduler step];
-	expect(firstExecutions).to.equal(2);
-	expect(secondExecutions).to.equal(1);
+	expect(@(firstExecutions)).to(equal(@2));
+	expect(@(secondExecutions)).to(equal(@1));
 
 	// 30 ticks
 	[scheduler step];
-	expect(firstExecutions).to.equal(3);
-	expect(secondExecutions).to.equal(1);
+	expect(@(firstExecutions)).to(equal(@3));
+	expect(@(secondExecutions)).to(equal(@1));
 
 	// 32 ticks
 	[scheduler step];
-	expect(firstExecutions).to.equal(3);
-	expect(secondExecutions).to.equal(2);
+	expect(@(firstExecutions)).to(equal(@3));
+	expect(@(secondExecutions)).to(equal(@2));
 });
 
 QuickSpecEnd

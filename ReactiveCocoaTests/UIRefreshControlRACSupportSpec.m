@@ -22,10 +22,10 @@ qck_describe(@"UIRefreshControl", ^{
 
 	qck_beforeEach(^{
 		refreshControl = [[UIRefreshControl alloc] init];
-		expect(refreshControl).notTo.beNil();
+		expect(refreshControl).notTo(beNil());
 	});
 
-	itShouldBehaveLike(RACControlCommandExamples, ^{
+	qck_itBehavesLike(RACControlCommandExamples, ^{
 		return @{
 			RACControlCommandExampleControl: refreshControl,
 			RACControlCommandExampleActivateBlock: ^(UIRefreshControl *refreshControl) {
@@ -56,14 +56,14 @@ qck_describe(@"UIRefreshControl", ^{
 			commandSignal = [RACSignal empty];
 
 			[refreshControl sendActionsForControlEvents:UIControlEventValueChanged];
-			expect(refreshingEnded).will.beTruthy();
+			expect(refreshingEnded).toEventually(beTruthy());
 		});
 
 		qck_it(@"should call -endRefreshing upon error", ^{
 			commandSignal = [RACSignal error:[NSError errorWithDomain:@"" code:1 userInfo:nil]];
 
 			[refreshControl sendActionsForControlEvents:UIControlEventValueChanged];
-			expect(refreshingEnded).will.beTruthy();
+			expect(refreshingEnded).toEventually(beTruthy());
 		});
 	});
 });

@@ -42,7 +42,7 @@ qck_it(@"should know its current scheduler", ^{
 	void (^expectCurrentSchedulers)(NSArray *, NSArray *) = ^(NSArray *schedulers, NSArray *expectedCurrentSchedulers) {
 		NSMutableArray *currentSchedulerArray = [NSMutableArray array];
 		expectCurrentSchedulersInner(schedulers, currentSchedulerArray);
-		expect(currentSchedulerArray).will.equal(expectedCurrentSchedulers);
+		expect(currentSchedulerArray).toEventually(equal(expectedCurrentSchedulers));
 	};
 
 	RACScheduler *backgroundScheduler = [RACScheduler scheduler];
@@ -66,7 +66,7 @@ qck_describe(@"+mainThreadScheduler", ^{
 			firstBlockRan = YES;
 		}];
 
-		expect(disposable).notTo.beNil();
+		expect(disposable).notTo(beNil());
 
 		[RACScheduler.mainThreadScheduler schedule:^{
 			secondBlockRan = YES;
@@ -74,9 +74,9 @@ qck_describe(@"+mainThreadScheduler", ^{
 
 		[disposable dispose];
 
-		expect(secondBlockRan).to.beFalsy();
-		expect(secondBlockRan).will.beTruthy();
-		expect(firstBlockRan).to.beFalsy();
+		expect(@(secondBlockRan)).to(beFalsy());
+		expect(@(secondBlockRan)).toEventually(beTruthy());
+		expect(@(firstBlockRan)).to(beFalsy());
 	});
 
 	qck_it(@"should schedule future blocks", ^{
@@ -86,8 +86,8 @@ qck_describe(@"+mainThreadScheduler", ^{
 			done = YES;
 		}];
 
-		expect(done).to.beFalsy();
-		expect(done).will.beTruthy();
+		expect(@(done)).to(beFalsy());
+		expect(@(done)).toEventually(beTruthy());
 	});
 
 	qck_it(@"should cancel future blocks when disposed", ^{
@@ -98,7 +98,7 @@ qck_describe(@"+mainThreadScheduler", ^{
 			firstBlockRan = YES;
 		}];
 
-		expect(disposable).notTo.beNil();
+		expect(disposable).notTo(beNil());
 
 		[RACScheduler.mainThreadScheduler after:[NSDate date] schedule:^{
 			secondBlockRan = YES;
@@ -106,9 +106,9 @@ qck_describe(@"+mainThreadScheduler", ^{
 
 		[disposable dispose];
 
-		expect(secondBlockRan).to.beFalsy();
-		expect(secondBlockRan).will.beTruthy();
-		expect(firstBlockRan).to.beFalsy();
+		expect(@(secondBlockRan)).to(beFalsy());
+		expect(@(secondBlockRan)).toEventually(beTruthy());
+		expect(@(firstBlockRan)).to(beFalsy());
 	});
 
 	qck_it(@"should schedule recurring blocks", ^{
@@ -118,15 +118,15 @@ qck_describe(@"+mainThreadScheduler", ^{
 			count++;
 		}];
 
-		expect(count).to.equal(0);
-		expect(count).will.equal(1);
-		expect(count).will.equal(2);
-		expect(count).will.equal(3);
+		expect(@(count)).to(equal(@0));
+		expect(@(count)).toEventually(equal(@1));
+		expect(@(count)).toEventually(equal(@2));
+		expect(@(count)).toEventually(equal(@3));
 
 		[disposable dispose];
 		[NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
 
-		expect(count).to.equal(3);
+		expect(@(count)).to(equal(@3));
 	});
 });
 
@@ -153,7 +153,7 @@ qck_describe(@"+scheduler", ^{
 				firstBlockRan = YES;
 			}];
 
-			expect(disposable).notTo.beNil();
+			expect(disposable).notTo(beNil());
 
 			[scheduler schedule:^{
 				secondBlockRan = YES;
@@ -162,8 +162,8 @@ qck_describe(@"+scheduler", ^{
 			[disposable dispose];
 		}];
 
-		expect(secondBlockRan).will.beTruthy();
-		expect(firstBlockRan).to.beFalsy();
+		expect(@(secondBlockRan)).toEventually(beTruthy());
+		expect(@(firstBlockRan)).to(beFalsy());
 	});
 
 	qck_it(@"should schedule future blocks", ^{
@@ -173,8 +173,8 @@ qck_describe(@"+scheduler", ^{
 			done = YES;
 		}];
 
-		expect(done).to.beFalsy();
-		expect(done).will.beTruthy();
+		expect(@(done)).to(beFalsy());
+		expect(@(done)).toEventually(beTruthy());
 	});
 
 	qck_it(@"should cancel future blocks when disposed", ^{
@@ -186,16 +186,16 @@ qck_describe(@"+scheduler", ^{
 			firstBlockRan = YES;
 		}];
 
-		expect(disposable).notTo.beNil();
+		expect(disposable).notTo(beNil());
 		[disposable dispose];
 
 		[scheduler after:date schedule:^{
 			secondBlockRan = YES;
 		}];
 
-		expect(secondBlockRan).to.beFalsy();
-		expect(secondBlockRan).will.beTruthy();
-		expect(firstBlockRan).to.beFalsy();
+		expect(@(secondBlockRan)).to(beFalsy());
+		expect(@(secondBlockRan)).toEventually(beTruthy());
+		expect(@(firstBlockRan)).to(beFalsy());
 	});
 
 	qck_it(@"should schedule recurring blocks", ^{
@@ -205,15 +205,15 @@ qck_describe(@"+scheduler", ^{
 			count++;
 		}];
 
-		expect(count).to.equal(0);
-		expect(count).will.equal(1);
-		expect(count).will.equal(2);
-		expect(count).will.equal(3);
+		expect(@(count)).to(equal(@0));
+		expect(@(count)).toEventually(equal(@1));
+		expect(@(count)).toEventually(equal(@2));
+		expect(@(count)).toEventually(equal(@3));
 
 		[disposable dispose];
 		[NSThread sleepForTimeInterval:0.1];
 
-		expect(count).to.equal(3);
+		expect(@(count)).to(equal(@3));
 	});
 });
 
@@ -232,7 +232,7 @@ qck_describe(@"+subscriptionScheduler", ^{
 				}];
 			});
 
-			expect(currentScheduler).will.equal(RACScheduler.mainThreadScheduler);
+			expect(currentScheduler).toEventually(equal(RACScheduler.mainThreadScheduler));
 		});
 
 		qck_it(@"should be a +scheduler when scheduled from an unknown queue", ^{
@@ -242,8 +242,8 @@ qck_describe(@"+subscriptionScheduler", ^{
 				}];
 			});
 
-			expect(currentScheduler).willNot.beNil();
-			expect(currentScheduler).notTo.equal(RACScheduler.mainThreadScheduler);
+			expect(currentScheduler).toEventuallyNot(beNil());
+			expect(currentScheduler).notTo(equal(RACScheduler.mainThreadScheduler));
 		});
 
 		qck_it(@"should equal the background scheduler from which the block was scheduled", ^{
@@ -254,7 +254,7 @@ qck_describe(@"+subscriptionScheduler", ^{
 				}];
 			}];
 
-			expect(currentScheduler).will.equal(backgroundScheduler);
+			expect(currentScheduler).toEventually(equal(backgroundScheduler));
 		});
 	});
 
@@ -270,8 +270,8 @@ qck_describe(@"+subscriptionScheduler", ^{
 			done = YES;
 		}];
 
-		expect(done).will.beTruthy();
-		expect(executedImmediately).to.beTruthy();
+		expect(@(done)).toEventually(beTruthy());
+		expect(@(executedImmediately)).to(beTruthy());
 	});
 });
 
@@ -282,8 +282,8 @@ qck_describe(@"+immediateScheduler", ^{
 			executed = YES;
 		}];
 
-		expect(disposable).to.beNil();
-		expect(executed).to.beTruthy();
+		expect(disposable).to(beNil());
+		expect(@(executed)).to(beTruthy());
 	});
 
 	qck_it(@"should block for future scheduled blocks", ^{
@@ -292,8 +292,8 @@ qck_describe(@"+immediateScheduler", ^{
 			executed = YES;
 		}];
 
-		expect(executed).to.beTruthy();
-		expect(disposable).to.beNil();
+		expect(@(executed)).to(beTruthy());
+		expect(disposable).to(beNil());
 	});
 });
 
@@ -302,11 +302,11 @@ qck_describe(@"-scheduleRecursiveBlock:", ^{
 		qck_it(@"should behave like a normal block when it doesn't invoke itself", ^{
 			__block BOOL executed = NO;
 			[RACScheduler.immediateScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
-				expect(executed).to.beFalsy();
+				expect(@(executed)).to(beFalsy());
 				executed = YES;
 			}];
 
-			expect(executed).to.beTruthy();
+			expect(@(executed)).to(beTruthy());
 		});
 
 		qck_it(@"should reschedule itself after the caller completes", ^{
@@ -318,11 +318,11 @@ qck_describe(@"-scheduleRecursiveBlock:", ^{
 
 					// The block shouldn't have been invoked again yet, only
 					// scheduled.
-					expect(count).to.equal(thisCount);
+					expect(@(count)).to(equal(@(thisCount)));
 				}
 			}];
 
-			expect(count).to.equal(3);
+			expect(@(count)).to(equal(@3));
 		});
 
 		qck_it(@"should unroll deep recursion", ^{
@@ -334,7 +334,7 @@ qck_describe(@"-scheduleRecursiveBlock:", ^{
 				if (scheduleCount < depth) recurse();
 			}];
 
-			expect(scheduleCount).to.equal(depth);
+			expect(@(scheduleCount)).to(equal(@(depth)));
 		});
 	});
 
@@ -342,11 +342,11 @@ qck_describe(@"-scheduleRecursiveBlock:", ^{
 		qck_it(@"should behave like a normal block when it doesn't invoke itself", ^{
 			__block BOOL executed = NO;
 			[RACScheduler.mainThreadScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
-				expect(executed).to.beFalsy();
+				expect(@(executed)).to(beFalsy());
 				executed = YES;
 			}];
 
-			expect(executed).will.beTruthy();
+			expect(@(executed)).toEventually(beTruthy());
 		});
 
 		qck_it(@"should reschedule itself after the caller completes", ^{
@@ -358,11 +358,11 @@ qck_describe(@"-scheduleRecursiveBlock:", ^{
 
 					// The block shouldn't have been invoked again yet, only
 					// scheduled.
-					expect(count).to.equal(thisCount);
+					expect(@(count)).to(equal(@(thisCount)));
 				}
 			}];
 
-			expect(count).will.equal(3);
+			expect(@(count)).toEventually(equal(@3));
 		});
 
 		qck_it(@"should reschedule when invoked asynchronously", ^{
@@ -377,12 +377,12 @@ qck_describe(@"-scheduleRecursiveBlock:", ^{
 
 						// The block shouldn't have been invoked again yet, only
 						// scheduled.
-						expect(count).to.equal(thisCount);
+						expect(@(count)).to(equal(@(thisCount)));
 					}
 				}];
 			}];
 
-			expect(count).will.equal(3);
+			expect(@(count)).toEventually(equal(@3));
 		});
 
 		qck_it(@"shouldn't reschedule itself when disposed", ^{
@@ -390,13 +390,13 @@ qck_describe(@"-scheduleRecursiveBlock:", ^{
 			__block RACDisposable *disposable = [RACScheduler.mainThreadScheduler scheduleRecursiveBlock:^(void (^recurse)(void)) {
 				++count;
 
-				expect(disposable).notTo.beNil();
+				expect(disposable).notTo(beNil());
 				[disposable dispose];
 
 				recurse();
 			}];
 
-			expect(count).will.equal(1);
+			expect(@(count)).toEventually(equal(@1));
 		});
 	});
 });
@@ -414,7 +414,7 @@ qck_describe(@"subclassing", ^{
 			invoked = YES;
 		}];
 
-		expect(invoked).will.beTruthy();
+		expect(@(invoked)).toEventually(beTruthy());
 	});
 
 	qck_it(@"should invoke blocks scheduled with -after:schedule:", ^{
@@ -422,8 +422,8 @@ qck_describe(@"subclassing", ^{
 		[scheduler after:[NSDate dateWithTimeIntervalSinceNow:0.01] schedule:^{
 			invoked = YES;
 		}];
-		
-		expect(invoked).will.beTruthy();
+
+		expect(@(invoked)).toEventually(beTruthy());
 	});
 
 	qck_it(@"should set a valid current scheduler", ^{
@@ -432,7 +432,7 @@ qck_describe(@"subclassing", ^{
 			currentScheduler = RACScheduler.currentScheduler;
 		}];
 
-		expect(currentScheduler).will.equal(scheduler);
+		expect(currentScheduler).toEventually(equal(scheduler));
 	});
 });
 

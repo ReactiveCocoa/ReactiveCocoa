@@ -23,10 +23,10 @@ qck_describe(@"UIButton", ^{
 	
 	qck_beforeEach(^{
 		button = [RACTestUIButton button];
-		expect(button).notTo.beNil();
+		expect(button).notTo(beNil());
 	});
 
-	itShouldBehaveLike(RACControlCommandExamples, ^{
+	qck_itBehavesLike(RACControlCommandExamples, ^{
 		return @{
 			RACControlCommandExampleControl: button,
 			RACControlCommandExampleActivateBlock: ^(UIButton *button) {

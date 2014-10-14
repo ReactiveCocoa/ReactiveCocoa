@@ -20,19 +20,19 @@ NSString * const RACStreamExamplesClass = @"RACStreamExamplesClass";
 NSString * const RACStreamExamplesInfiniteStream = @"RACStreamExamplesInfiniteStream";
 NSString * const RACStreamExamplesVerifyValuesBlock = @"RACStreamExamplesVerifyValuesBlock";
 
-SharedExampleGroupsBegin(RACStreamExamples)
+QuickSharedExampleGroupsBegin(RACStreamExampleGroups)
 
-sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
+qck_sharedExamples(RACStreamExamples, ^(QCKDSLSharedExampleContext exampleContext) {
 	__block Class streamClass;
 	__block void (^verifyValues)(RACStream *, NSArray *);
 	__block RACStream *infiniteStream;
 
 	__block RACStream *(^streamWithValues)(NSArray *);
 	
-	qck_before(^{
-		streamClass = data[RACStreamExamplesClass];
-		verifyValues = data[RACStreamExamplesVerifyValuesBlock];
-		infiniteStream = data[RACStreamExamplesInfiniteStream];
+	qck_beforeEach(^{
+		streamClass = exampleContext()[RACStreamExamplesClass];
+		verifyValues = exampleContext()[RACStreamExamplesVerifyValuesBlock];
+		infiniteStream = exampleContext()[RACStreamExamplesInfiniteStream];
 		streamWithValues = [^(NSArray *values) {
 			RACStream *stream = [streamClass empty];
 
@@ -283,7 +283,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		__block NSArray *values;
 		__block RACStream *stream;
 
-		qck_before(^{
+		qck_beforeEach(^{
 			values = @[ @0, @1, @2 ];
 			stream = streamWithValues(values);
 		});
@@ -304,7 +304,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			__block NSArray *values;
 			__block RACStream *stream;
 
-			qck_before(^{
+			qck_beforeEach(^{
 				values = @[ @0, @1, @2 ];
 				stream = streamWithValues(values);
 			});
@@ -345,7 +345,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		__block NSArray *twoStreamTuples;
 		__block NSArray *threeStreamTuples;
 		
-		qck_before(^{
+		qck_beforeEach(^{
 			valuesOne = @[ @"Ada", @"Bob", @"Dea" ];
 			NSArray *valuesTwo = @[ @"eats", @"cooks", @"jumps" ];
 			NSArray *valuesThree = @[ @"fish", @"bear", @"rock" ];
@@ -475,7 +475,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 		__block NSArray *streams = nil;
 		__block NSArray *result = nil;
 		
-		qck_before(^{
+		qck_beforeEach(^{
 			RACStream *a = [streamClass return:@0];
 			RACStream *b = [streamClass empty];
 			RACStream *c = streamWithValues(@[ @1, @2, @3 ]);
@@ -504,7 +504,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 
 		__block RACStream *stream;
 
-		qck_before(^{
+		qck_beforeEach(^{
 			stream = streamWithValues(values);
 		});
 
@@ -530,7 +530,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 
 		__block RACStream *stream;
 
-		qck_before(^{
+		qck_beforeEach(^{
 			stream = streamWithValues(values);
 		});
 
@@ -584,7 +584,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 
 		__block RACStream *stream;
 
-		qck_before(^{
+		qck_beforeEach(^{
 			stream = streamWithValues(values);
 		});
 
@@ -638,7 +638,7 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 			verifyValues(mapped, @[ @1, @2, @3 ]);
 
 			NSArray *expected = @[ RACTupleNil.tupleNil, @1, @2 ];
-			expect(previouses).to.equal(expected);
+			expect(previouses).to(equal(expected));
 		});
 
 		qck_it(@"should send the combined value", ^{
@@ -665,4 +665,4 @@ sharedExamplesFor(RACStreamExamples, ^(NSDictionary *data) {
 	});
 });
 
-SharedExampleGroupsEnd
+QuickSharedExampleGroupsEnd

@@ -22,87 +22,87 @@
 NSString * const RACPropertySignalExamples = @"RACPropertySignalExamples";
 NSString * const RACPropertySignalExamplesSetupBlock = @"RACPropertySignalExamplesSetupBlock";
 
-SharedExampleGroupsBegin(RACPropertySignalExamples)
+QuickSharedExampleGroupsBegin(RACPropertySignalExampleGroups)
 
-sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
+qck_sharedExamples(RACPropertySignalExamples, ^(QCKDSLSharedExampleContext exampleContext) {
 	__block RACTestObject *testObject = nil;
 	__block void (^setupBlock)(RACTestObject *, NSString *keyPath, id nilValue, RACSignal *);
 
 	qck_beforeEach(^{
-		setupBlock = data[RACPropertySignalExamplesSetupBlock];
+		setupBlock = exampleContext()[RACPropertySignalExamplesSetupBlock];
 		testObject = [[RACTestObject alloc] init];
 	});
 
 	qck_it(@"should set the value of the property with the latest value from the signal", ^{
 		RACSubject *subject = [RACSubject subject];
 		setupBlock(testObject, @keypath(testObject.objectValue), nil, subject);
-		expect(testObject.objectValue).to.beNil();
+		expect(testObject.objectValue).to(beNil());
 
 		[subject sendNext:@1];
-		expect(testObject.objectValue).to.equal(@1);
+		expect(testObject.objectValue).to(equal(@1));
 
 		[subject sendNext:@2];
-		expect(testObject.objectValue).to.equal(@2);
+		expect(testObject.objectValue).to(equal(@2));
 
 		[subject sendNext:nil];
-		expect(testObject.objectValue).to.beNil();
+		expect(testObject.objectValue).to(beNil());
 	});
 
 	qck_it(@"should set the given nilValue for an object property", ^{
 		RACSubject *subject = [RACSubject subject];
 		setupBlock(testObject, @keypath(testObject.objectValue), @"foo", subject);
-		expect(testObject.objectValue).to.beNil();
+		expect(testObject.objectValue).to(beNil());
 
 		[subject sendNext:@1];
-		expect(testObject.objectValue).to.equal(@1);
+		expect(testObject.objectValue).to(equal(@1));
 
 		[subject sendNext:@2];
-		expect(testObject.objectValue).to.equal(@2);
+		expect(testObject.objectValue).to(equal(@2));
 
 		[subject sendNext:nil];
-		expect(testObject.objectValue).to.equal(@"foo");
+		expect(testObject.objectValue).to(equal(@"foo"));
 	});
 
 	qck_it(@"should leave the value of the property alone after the signal completes", ^{
 		RACSubject *subject = [RACSubject subject];
 		setupBlock(testObject, @keypath(testObject.objectValue), nil, subject);
-		expect(testObject.objectValue).to.beNil();
+		expect(testObject.objectValue).to(beNil());
 
 		[subject sendNext:@1];
-		expect(testObject.objectValue).to.equal(@1);
+		expect(testObject.objectValue).to(equal(@1));
 
 		[subject sendCompleted];
-		expect(testObject.objectValue).to.equal(@1);
+		expect(testObject.objectValue).to(equal(@1));
 	});
 
 	qck_it(@"should set the value of a non-object property with the latest value from the signal", ^{
 		RACSubject *subject = [RACSubject subject];
 		setupBlock(testObject, @keypath(testObject.integerValue), nil, subject);
-		expect(testObject.integerValue).to.equal(0);
+		expect(@(testObject.integerValue)).to(equal(@0));
 
 		[subject sendNext:@1];
-		expect(testObject.integerValue).to.equal(1);
+		expect(@(testObject.integerValue)).to(equal(@1));
 
 		[subject sendNext:@2];
-		expect(testObject.integerValue).to.equal(2);
+		expect(@(testObject.integerValue)).to(equal(@2));
 
 		[subject sendNext:@0];
-		expect(testObject.integerValue).to.equal(0);
+		expect(@(testObject.integerValue)).to(equal(@0));
 	});
 
 	qck_it(@"should set the given nilValue for a non-object property", ^{
 		RACSubject *subject = [RACSubject subject];
 		setupBlock(testObject, @keypath(testObject.integerValue), @42, subject);
-		expect(testObject.integerValue).to.equal(0);
+		expect(@(testObject.integerValue)).to(equal(@0));
 
 		[subject sendNext:@1];
-		expect(testObject.integerValue).to.equal(@1);
+		expect(@(testObject.integerValue)).to(equal(@1));
 
 		[subject sendNext:@2];
-		expect(testObject.integerValue).to.equal(@2);
+		expect(@(testObject.integerValue)).to(equal(@2));
 
 		[subject sendNext:nil];
-		expect(testObject.integerValue).to.equal(@42);
+		expect(@(testObject.integerValue)).to(equal(@42));
 	});
 
 	qck_it(@"should not invoke -setNilValueForKey: with a nilValue", ^{
@@ -115,8 +115,8 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 		}];
 
 		[subject sendNext:nil];
-		expect(testObject.integerValue).to.equal(@42);
-		expect(setNilValueForKeyInvoked).to.beFalsy();
+		expect(@(testObject.integerValue)).to(equal(@42));
+		expect(@(setNilValueForKeyInvoked)).to(beFalsy());
 	});
 
 	qck_it(@"should invoke -setNilValueForKey: without a nilValue", ^{
@@ -124,7 +124,7 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 		setupBlock(testObject, @keypath(testObject.integerValue), nil, subject);
 
 		[subject sendNext:@1];
-		expect(testObject.integerValue).to.equal(@1);
+		expect(@(testObject.integerValue)).to(equal(@1));
 
 		testObject.catchSetNilValueForKey = YES;
 
@@ -134,9 +134,9 @@ sharedExamplesFor(RACPropertySignalExamples, ^(NSDictionary *data) {
 		}];
 
 		[subject sendNext:nil];
-		expect(testObject.integerValue).to.equal(@1);
-		expect(setNilValueForKeyInvoked).to.beTruthy();
+		expect(@(testObject.integerValue)).to(equal(@1));
+		expect(@(setNilValueForKeyInvoked)).to(beTruthy());
 	});
 });
 
-SharedExampleGroupsEnd
+QuickSharedExampleGroupsEnd

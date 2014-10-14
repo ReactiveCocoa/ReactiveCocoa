@@ -20,7 +20,7 @@ id setupBlock = ^(RACTestObject *testObject, NSString *keyPath, id nilValue, RAC
 	[[RACSubscriptingAssignmentTrampoline alloc] initWithTarget:testObject nilValue:nilValue][keyPath] = signal;
 };
 
-itShouldBehaveLike(RACPropertySignalExamples, ^{
+qck_itBehavesLike(RACPropertySignalExamples, ^{
 	return @{ RACPropertySignalExamplesSetupBlock: setupBlock };
 });
 
@@ -30,7 +30,7 @@ qck_it(@"should expand the RAC macro properly", ^{
 	RAC(testObject, objectValue) = subject;
 
 	[subject sendNext:@1];
-	expect(testObject.objectValue).to.equal(@1);
+	expect(testObject.objectValue).to(equal(@1));
 });
 
 QuickSpecEnd

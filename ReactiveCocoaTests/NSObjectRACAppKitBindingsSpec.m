@@ -16,7 +16,7 @@
 
 QuickSpecBegin(NSObjectRACAppKitBindingsSpec)
 
-itShouldBehaveLike(RACViewChannelExamples, ^{
+qck_itBehavesLike(RACViewChannelExamples, ^{
 	return @{
 		RACViewChannelExampleCreateViewBlock: ^{
 			return [[NSSlider alloc] initWithFrame:NSZeroRect];

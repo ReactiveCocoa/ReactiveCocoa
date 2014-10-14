@@ -28,31 +28,32 @@ qck_beforeEach(^{
 		subscriptionCount++;
 		return (RACDisposable *)nil;
 	}] publish];
-	expect(subscriptionCount).to.equal(0);
+
+	expect(@(subscriptionCount)).to(equal(@0));
 });
 
 qck_describe(@"-connect", ^{
 	qck_it(@"should subscribe to the underlying signal", ^{
 		[connection connect];
-		expect(subscriptionCount).to.equal(1);
+		expect(@(subscriptionCount)).to(equal(@1));
 	});
 
 	qck_it(@"should return the same disposable for each invocation", ^{
 		RACDisposable *d1 = [connection connect];
 		RACDisposable *d2 = [connection connect];
-		expect(d1).to.equal(d2);
-		expect(subscriptionCount).to.equal(1);
+		expect(d1).to(equal(d2));
+		expect(@(subscriptionCount)).to(equal(@1));
 	});
 
 	qck_it(@"shouldn't reconnect after disposal", ^{
 		RACDisposable *disposable1 = [connection connect];
-		expect(subscriptionCount).to.equal(1);
+		expect(@(subscriptionCount)).to(equal(@1));
 
 		[disposable1 dispose];
 		
 		RACDisposable *disposable2 = [connection connect];
-		expect(subscriptionCount).to.equal(1);
-		expect(disposable1).to.equal(disposable2);
+		expect(@(subscriptionCount)).to(equal(@1));
+		expect(disposable1).to(equal(disposable2));
 	});
 
 	qck_it(@"shouldn't race when connecting", ^{
@@ -71,12 +72,10 @@ qck_describe(@"-connect", ^{
 			dispatch_semaphore_signal(semaphore);
 		}];
 
-		expect([connection connect]).notTo.beNil();
+		expect([connection connect]).notTo(beNil());
 		dispatch_semaphore_signal(semaphore);
 
-		expect(disposable).willNot.beNil();
-
-		dispatch_release(semaphore);
+		expect(disposable).toEventuallyNot(beNil());
 	});
 });
 
@@ -88,13 +87,13 @@ qck_describe(@"-autoconnect", ^{
 	});
 
 	qck_it(@"should subscribe to the multicasted signal on the first subscription", ^{
-		expect(subscriptionCount).to.equal(0);
+		expect(@(subscriptionCount)).to(equal(@0));
 		
 		[autoconnectedSignal subscribeNext:^(id x) {}];
-		expect(subscriptionCount).to.equal(1);
+		expect(@(subscriptionCount)).to(equal(@1));
 
 		[autoconnectedSignal subscribeNext:^(id x) {}];
-		expect(subscriptionCount).to.equal(1);
+		expect(@(subscriptionCount)).to(equal(@1));
 	});
 
 	qck_it(@"should dispose of the multicasted subscription when the signal has no subscribers", ^{
@@ -110,18 +109,18 @@ qck_describe(@"-autoconnect", ^{
 		}] publish] autoconnect];
 		RACDisposable *disposable = [signal subscribeNext:^(id x) {}];
 
-		expect(disposed).to.beFalsy();
+		expect(@(disposed)).to(beFalsy());
 		[disposable dispose];
-		expect(disposed).to.beTruthy();
+		expect(@(disposed)).to(beTruthy());
 	});
 
 	qck_it(@"shouldn't reconnect after disposal", ^{
 		RACDisposable *disposable = [autoconnectedSignal subscribeNext:^(id x) {}];
-		expect(subscriptionCount).to.equal(1);
+		expect(@(subscriptionCount)).to(equal(@1));
 		[disposable dispose];
 
 		disposable = [autoconnectedSignal subscribeNext:^(id x) {}];
-		expect(subscriptionCount).to.equal(1);
+		expect(@(subscriptionCount)).to(equal(@1));
 		[disposable dispose];
 	});
 
@@ -137,14 +136,14 @@ qck_describe(@"-autoconnect", ^{
 		[subject sendNext:@1];
 		[subject sendNext:@2];
 		
-		expect(results1).to.equal((@[ @1, @2 ]));
+		expect(results1).to(equal((@[ @1, @2 ])));
 		[disposable dispose];
 
 		NSMutableArray *results2 = [NSMutableArray array];
 		[signal subscribeNext:^(id x) {
 			[results2 addObject:x];
 		}];
-		expect(results2).will.equal((@[ @1, @2 ]));
+		expect(results2).toEventually(equal((@[ @1, @2 ])));
 	});
 });
 

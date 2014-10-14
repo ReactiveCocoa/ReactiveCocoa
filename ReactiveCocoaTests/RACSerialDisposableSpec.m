@@ -15,8 +15,8 @@ QuickSpecBegin(RACSerialDisposableSpec)
 
 qck_it(@"should initialize with -init", ^{
 	RACSerialDisposable *serial = [[RACSerialDisposable alloc] init];
-	expect(serial).notTo.beNil();
-	expect(serial.disposable).to.beNil();
+	expect(serial).notTo(beNil());
+	expect(serial.disposable).to(beNil());
 });
 
 qck_it(@"should initialize an inner disposable with -initWithBlock:", ^{
@@ -25,19 +25,19 @@ qck_it(@"should initialize an inner disposable with -initWithBlock:", ^{
 		disposed = YES;
 	}];
 
-	expect(serial).notTo.beNil();
-	expect(serial.disposable).notTo.beNil();
+	expect(serial).notTo(beNil());
+	expect(serial.disposable).notTo(beNil());
 
 	[serial.disposable dispose];
-	expect(serial.disposed).to.beFalsy();
-	expect(disposed).to.beTruthy();
+	expect(@(serial.disposed)).to(beFalsy());
+	expect(@(disposed)).to(beTruthy());
 });
 
 qck_it(@"should initialize with a disposable", ^{
 	RACDisposable *inner = [[RACDisposable alloc] init];
 	RACSerialDisposable *serial = [RACSerialDisposable serialDisposableWithDisposable:inner];
-	expect(serial).notTo.beNil();
-	expect(serial.disposable).to.equal(inner);
+	expect(serial).notTo(beNil());
+	expect(serial.disposable).to(equal(inner));
 });
 
 qck_it(@"should dispose of the inner disposable", ^{
@@ -47,13 +47,13 @@ qck_it(@"should dispose of the inner disposable", ^{
 	}];
 
 	RACSerialDisposable *serial = [RACSerialDisposable serialDisposableWithDisposable:inner];
-	expect(serial.disposed).to.beFalsy();
-	expect(disposed).to.beFalsy();
+	expect(@(serial.disposed)).to(beFalsy());
+	expect(@(disposed)).to(beFalsy());
 
 	[serial dispose];
-	expect(serial.disposed).to.beTruthy();
-	expect(serial.disposable).to.beNil();
-	expect(disposed).to.beTruthy();
+	expect(@(serial.disposed)).to(beTruthy());
+	expect(serial.disposable).to(beNil());
+	expect(@(disposed)).to(beTruthy());
 });
 
 qck_it(@"should dispose of a new inner disposable if it's already been disposed", ^{
@@ -63,15 +63,15 @@ qck_it(@"should dispose of a new inner disposable if it's already been disposed"
 	}];
 
 	RACSerialDisposable *serial = [[RACSerialDisposable alloc] init];
-	expect(serial.disposed).to.beFalsy();
+	expect(@(serial.disposed)).to(beFalsy());
 
 	[serial dispose];
-	expect(serial.disposed).to.beTruthy();
-	expect(disposed).to.beFalsy();
+	expect(@(serial.disposed)).to(beTruthy());
+	expect(@(disposed)).to(beFalsy());
 
 	serial.disposable = inner;
-	expect(disposed).to.beTruthy();
-	expect(serial.disposable).to.beNil();
+	expect(@(disposed)).to(beTruthy());
+	expect(serial.disposable).to(beNil());
 });
 
 qck_it(@"should allow the inner disposable to be set to nil", ^{
@@ -81,17 +81,17 @@ qck_it(@"should allow the inner disposable to be set to nil", ^{
 	}];
 
 	RACSerialDisposable *serial = [RACSerialDisposable serialDisposableWithDisposable:inner];
-	expect(disposed).to.beFalsy();
+	expect(@(disposed)).to(beFalsy());
 
 	serial.disposable = nil;
-	expect(serial.disposable).to.beNil();
+	expect(serial.disposable).to(beNil());
 
 	serial.disposable = inner;
-	expect(serial.disposable).to.equal(inner);
+	expect(serial.disposable).to(equal(inner));
 
 	[serial dispose];
-	expect(disposed).to.beTruthy();
-	expect(serial.disposable).to.beNil();
+	expect(@(disposed)).to(beTruthy());
+	expect(serial.disposable).to(beNil());
 });
 
 qck_it(@"should swap inner disposables", ^{
@@ -106,18 +106,18 @@ qck_it(@"should swap inner disposables", ^{
 	}];
 
 	RACSerialDisposable *serial = [RACSerialDisposable serialDisposableWithDisposable:first];
-	expect([serial swapInDisposable:second]).to.equal(first);
+	expect([serial swapInDisposable:second]).to(equal(first));
 
-	expect(serial.disposed).to.beFalsy();
-	expect(firstDisposed).to.beFalsy();
-	expect(secondDisposed).to.beFalsy();
+	expect(@(serial.disposed)).to(beFalsy());
+	expect(@(firstDisposed)).to(beFalsy());
+	expect(@(secondDisposed)).to(beFalsy());
 	
 	[serial dispose];
-	expect(serial.disposed).to.beTruthy();
-	expect(serial.disposable).to.beNil();
+	expect(@(serial.disposed)).to(beTruthy());
+	expect(serial.disposable).to(beNil());
 
-	expect(firstDisposed).to.beFalsy();
-	expect(secondDisposed).to.beTruthy();
+	expect(@(firstDisposed)).to(beFalsy());
+	expect(@(secondDisposed)).to(beTruthy());
 });
 
 qck_it(@"should release the inner disposable upon deallocation", ^{
@@ -133,8 +133,8 @@ qck_it(@"should release the inner disposable upon deallocation", ^{
 		weakSerialDisposable = serialDisposable;
 	}
 
-	expect(weakSerialDisposable).to.beNil();
-	expect(weakInnerDisposable).to.beNil();
+	expect(weakSerialDisposable).to(beNil());
+	expect(weakInnerDisposable).to(beNil());
 });
 
 QuickSpecEnd

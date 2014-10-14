@@ -17,7 +17,7 @@ QuickSpecBegin(NSEnumeratorRACSequenceAdditionsSpec)
 
 qck_describe(@"-rac_sequence", ^{
 	NSArray *values = @[ @0, @1, @2, @3, @4 ];
-	itShouldBehaveLike(RACSequenceExamples, ^{
+	qck_itBehavesLike(RACSequenceExamples, ^{
 		return @{
 			RACSequenceExampleSequence: values.objectEnumerator.rac_sequence,
 			RACSequenceExampleExpectedValues: values

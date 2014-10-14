@@ -27,9 +27,9 @@ NSString * const RACViewChannelExampleCreateTerminalBlock = @"RACViewChannelExam
 NSString * const RACViewChannelExampleKeyPath = @"RACViewChannelExampleKeyPath";
 NSString * const RACViewChannelExampleSetViewValueBlock = @"RACViewChannelExampleSetViewValueBlock";
 
-SharedExampleGroupsBegin(RACChannelExamples)
+QuickSharedExampleGroupsBegin(RACChannelExampleGroups)
 
-sharedExamplesFor(RACChannelExamples, ^(NSDictionary *data) {
+qck_sharedExamples(RACChannelExamples, ^(QCKDSLSharedExampleContext exampleContext) {
 	__block RACChannel * (^getChannel)(void);
 	__block RACChannel *channel;
 
@@ -38,8 +38,8 @@ sharedExamplesFor(RACChannelExamples, ^(NSDictionary *data) {
 	id value3 = @"test value 3";
 	NSArray *values = @[ value1, value2, value3 ];
 	
-	qck_before(^{
-		getChannel = data[RACChannelExampleCreateBlock];
+	qck_beforeEach(^{
+		getChannel = exampleContext()[RACChannelExampleCreateBlock];
 		channel = getChannel();
 	});
 	
@@ -51,10 +51,10 @@ sharedExamplesFor(RACChannelExamples, ^(NSDictionary *data) {
 			receivedValue = x;
 		}];
 
-		expect(receivedValue).to.beNil();
+		expect(receivedValue).to(beNil());
 		
 		[channel.followingTerminal sendNext:value2];
-		expect(receivedValue).to.equal(value2);
+		expect(receivedValue).to(equal(value2));
 	});
 	
 	qck_it(@"should send the latest followingTerminal value on subscription", ^{
@@ -65,14 +65,14 @@ sharedExamplesFor(RACChannelExamples, ^(NSDictionary *data) {
 			receivedValue = x;
 		}];
 
-		expect(receivedValue).to.equal(value1);
+		expect(receivedValue).to(equal(value1));
 		
 		[channel.leadingTerminal sendNext:value2];
 		[[channel.followingTerminal take:1] subscribeNext:^(id x) {
 			receivedValue = x;
 		}];
 
-		expect(receivedValue).to.equal(value2);
+		expect(receivedValue).to(equal(value2));
 	});
 	
 	qck_it(@"should send leadingTerminal values as they change", ^{
@@ -84,7 +84,7 @@ sharedExamplesFor(RACChannelExamples, ^(NSDictionary *data) {
 		[channel.followingTerminal sendNext:value1];
 		[channel.followingTerminal sendNext:value2];
 		[channel.followingTerminal sendNext:value3];
-		expect(receivedValues).to.equal(values);
+		expect(receivedValues).to(equal(values));
 	});
 	
 	qck_it(@"should send followingTerminal values as they change", ^{
@@ -97,7 +97,7 @@ sharedExamplesFor(RACChannelExamples, ^(NSDictionary *data) {
 
 		[channel.leadingTerminal sendNext:value2];
 		[channel.leadingTerminal sendNext:value3];
-		expect(receivedValues).to.equal(values);
+		expect(receivedValues).to(equal(values));
 	});
 
 	qck_it(@"should complete both signals when the leadingTerminal is completed", ^{
@@ -112,8 +112,8 @@ sharedExamplesFor(RACChannelExamples, ^(NSDictionary *data) {
 		}];
 
 		[channel.leadingTerminal sendCompleted];
-		expect(completedLeft).to.beTruthy();
-		expect(completedRight).to.beTruthy();
+		expect(@(completedLeft)).to(beTruthy());
+		expect(@(completedRight)).to(beTruthy());
 	});
 
 	qck_it(@"should complete both signals when the followingTerminal is completed", ^{
@@ -128,8 +128,8 @@ sharedExamplesFor(RACChannelExamples, ^(NSDictionary *data) {
 		}];
 
 		[channel.followingTerminal sendCompleted];
-		expect(completedLeft).to.beTruthy();
-		expect(completedRight).to.beTruthy();
+		expect(@(completedLeft)).to(beTruthy());
+		expect(@(completedRight)).to(beTruthy());
 	});
 
 	qck_it(@"should replay completion to new subscribers", ^{
@@ -145,16 +145,16 @@ sharedExamplesFor(RACChannelExamples, ^(NSDictionary *data) {
 			completedRight = YES;
 		}];
 
-		expect(completedLeft).to.beTruthy();
-		expect(completedRight).to.beTruthy();
+		expect(@(completedLeft)).to(beTruthy());
+		expect(@(completedRight)).to(beTruthy());
 	});
 });
 
-SharedExampleGroupsEnd
+QuickSharedExampleGroupsEnd
 
-SharedExampleGroupsBegin(RACViewChannelExamples)
+QuickSharedExampleGroupsBegin(RACViewChannelExampleGroups)
 
-sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
+qck_sharedExamples(RACViewChannelExamples, ^(QCKDSLSharedExampleContext exampleContext) {
 	__block NSString *keyPath;
 	__block NSObject * (^getView)(void);
 	__block RACChannelTerminal * (^getTerminal)(NSObject *);
@@ -164,10 +164,10 @@ sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
 	__block RACChannelTerminal *endpoint;
 
 	qck_beforeEach(^{
-		keyPath = data[RACViewChannelExampleKeyPath];
-		getTerminal = data[RACViewChannelExampleCreateTerminalBlock];
-		getView = data[RACViewChannelExampleCreateViewBlock];
-		setViewValue = data[RACViewChannelExampleSetViewValueBlock];
+		keyPath = exampleContext()[RACViewChannelExampleKeyPath];
+		getTerminal = exampleContext()[RACViewChannelExampleCreateTerminalBlock];
+		getView = exampleContext()[RACViewChannelExampleCreateViewBlock];
+		setViewValue = exampleContext()[RACViewChannelExampleSetViewValueBlock];
 
 		testView = getView();
 		endpoint = getTerminal(testView);
@@ -179,16 +179,16 @@ sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
 			receivedNext = YES;
 		}];
 
-		expect(receivedNext).to.beFalsy();
+		expect(@(receivedNext)).to(beFalsy());
 
 		[endpoint sendNext:@0.1];
-		expect(receivedNext).to.beFalsy();
+		expect(@(receivedNext)).to(beFalsy());
 
 		[endpoint sendNext:@0.2];
-		expect(receivedNext).to.beFalsy();
+		expect(@(receivedNext)).to(beFalsy());
 
 		[endpoint sendCompleted];
-		expect(receivedNext).to.beFalsy();
+		expect(@(receivedNext)).to(beFalsy());
 	});
 
 	qck_it(@"should not send progammatic changes made to the view", ^{
@@ -197,13 +197,13 @@ sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
 			receivedNext = YES;
 		}];
 
-		expect(receivedNext).to.beFalsy();
+		expect(@(receivedNext)).to(beFalsy());
 
 		[testView setValue:@0.1 forKeyPath:keyPath];
-		expect(receivedNext).to.beFalsy();
+		expect(@(receivedNext)).to(beFalsy());
 
 		[testView setValue:@0.2 forKeyPath:keyPath];
-		expect(receivedNext).to.beFalsy();
+		expect(@(receivedNext)).to(beFalsy());
 	});
 
 	qck_it(@"should not have a starting value", ^{
@@ -212,7 +212,7 @@ sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
 			receivedNext = YES;
 		}];
 
-		expect(receivedNext).to.beFalsy();
+		expect(@(receivedNext)).to(beFalsy());
 	});
 
 	qck_it(@"should send view changes", ^{
@@ -222,18 +222,18 @@ sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
 		}];
 
 		setViewValue(testView, @0.1);
-		expect(received).to.equal(@0.1);
+		expect(received).to(equal(@0.1));
 
 		setViewValue(testView, @0.2);
-		expect(received).to.equal(@0.2);
+		expect(received).to(equal(@0.2));
 	});
 
 	qck_it(@"should set values on the view", ^{
 		[endpoint sendNext:@0.1];
-		expect([testView valueForKeyPath:keyPath]).to.equal(@0.1);
+		expect([testView valueForKeyPath:keyPath]).to(equal(@0.1));
 
 		[endpoint sendNext:@0.2];
-		expect([testView valueForKeyPath:keyPath]).to.equal(@0.2);
+		expect([testView valueForKeyPath:keyPath]).to(equal(@0.2));
 	});
 
 	qck_it(@"should not echo changes back to the channel", ^{
@@ -242,13 +242,13 @@ sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
 			receivedCount++;
 		}];
 
-		expect(receivedCount).to.equal(0);
+		expect(@(receivedCount)).to(equal(@0));
 
 		[endpoint sendNext:@0.1];
-		expect(receivedCount).to.equal(0);
+		expect(@(receivedCount)).to(equal(@0));
 
 		setViewValue(testView, @0.2);
-		expect(receivedCount).to.equal(1);
+		expect(@(receivedCount)).to(equal(@1));
 	});
 
 	qck_it(@"should complete when the view deallocates", ^{
@@ -266,12 +266,12 @@ sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
 				completed = YES;
 			}];
 
-			expect(deallocated).to.beFalsy();
-			expect(completed).to.beFalsy();
+			expect(@(deallocated)).to(beFalsy());
+			expect(@(completed)).to(beFalsy());
 		}
 
-		expect(deallocated).to.beTruthy();
-		expect(completed).to.beTruthy();
+		expect(@(deallocated)).to(beTruthy());
+		expect(@(completed)).to(beTruthy());
 	});
 
 	qck_it(@"should deallocate after the view deallocates", ^{
@@ -289,13 +289,13 @@ sharedExamplesFor(RACViewChannelExamples, ^(NSDictionary *data) {
 				terminalDeallocated = YES;
 			}]];
 
-			expect(viewDeallocated).to.beFalsy();
-			expect(terminalDeallocated).to.beFalsy();
+			expect(@(viewDeallocated)).to(beFalsy());
+			expect(@(terminalDeallocated)).to(beFalsy());
 		}
 
-		expect(viewDeallocated).to.beTruthy();
-		expect(terminalDeallocated).will.beTruthy();
+		expect(@(viewDeallocated)).to(beTruthy());
+		expect(@(terminalDeallocated)).toEventually(beTruthy());
 	});
 });
 
-SharedExampleGroupsEnd
+QuickSharedExampleGroupsEnd

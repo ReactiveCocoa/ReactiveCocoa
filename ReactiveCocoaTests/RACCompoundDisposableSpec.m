@@ -37,19 +37,19 @@ qck_it(@"should dispose of all its contained disposables", ^{
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposableWithDisposables:@[ d1, d2, d3 ]];
 	[disposable addDisposable:d4];
 
-	expect(d1Disposed).to.beFalsy();
-	expect(d2Disposed).to.beFalsy();
-	expect(d3Disposed).to.beFalsy();
-	expect(d4Disposed).to.beFalsy();
-	expect(disposable.disposed).to.beFalsy();
+	expect(@(d1Disposed)).to(beFalsy());
+	expect(@(d2Disposed)).to(beFalsy());
+	expect(@(d3Disposed)).to(beFalsy());
+	expect(@(d4Disposed)).to(beFalsy());
+	expect(@(disposable.disposed)).to(beFalsy());
 
 	[disposable dispose];
 
-	expect(d1Disposed).to.beTruthy();
-	expect(d2Disposed).to.beTruthy();
-	expect(d3Disposed).to.beTruthy();
-	expect(d4Disposed).to.beTruthy();
-	expect(disposable.disposed).to.beTruthy();
+	expect(@(d1Disposed)).to(beTruthy());
+	expect(@(d2Disposed)).to(beTruthy());
+	expect(@(d3Disposed)).to(beTruthy());
+	expect(@(d4Disposed)).to(beTruthy());
+	expect(@(disposable.disposed)).to(beTruthy());
 });
 
 qck_it(@"should dispose of any added disposables immediately if it's already been disposed", ^{
@@ -58,9 +58,9 @@ qck_it(@"should dispose of any added disposables immediately if it's already bee
 
 	RACDisposable *d = [[RACDisposable alloc] init];
 
-	expect(d.disposed).to.beFalsy();
+	expect(@(d.disposed)).to(beFalsy());
 	[disposable addDisposable:d];
-	expect(d.disposed).to.beTruthy();
+	expect(@(d.disposed)).to(beTruthy());
 });
 
 qck_it(@"should work when initialized with -init", ^{
@@ -72,10 +72,10 @@ qck_it(@"should work when initialized with -init", ^{
 	}];
 
 	[disposable addDisposable:d];
-	expect(disposed).to.beFalsy();
+	expect(@(disposed)).to(beFalsy());
 
 	[disposable dispose];
-	expect(disposed).to.beTruthy();
+	expect(@(disposed)).to(beTruthy());
 });
 
 qck_it(@"should work when initialized with +disposableWithBlock:", ^{
@@ -90,12 +90,12 @@ qck_it(@"should work when initialized with +disposableWithBlock:", ^{
 	}];
 
 	[disposable addDisposable:d];
-	expect(disposed).to.beFalsy();
-	expect(compoundDisposed).to.beFalsy();
+	expect(@(disposed)).to(beFalsy());
+	expect(@(compoundDisposed)).to(beFalsy());
 
 	[disposable dispose];
-	expect(disposed).to.beTruthy();
-	expect(compoundDisposed).to.beTruthy();
+	expect(@(disposed)).to(beTruthy());
+	expect(@(compoundDisposed)).to(beTruthy());
 });
 
 qck_it(@"should allow disposables to be removed", ^{
@@ -106,7 +106,7 @@ qck_it(@"should allow disposables to be removed", ^{
 	[disposable removeDisposable:d];
 
 	[disposable dispose];
-	expect(d.disposed).to.beFalsy();
+	expect(@(d.disposed)).to(beFalsy());
 });
 
 QuickSpecEnd

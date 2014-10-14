@@ -20,10 +20,12 @@
 QuickSpecBegin(RACChannelSpec)
 
 qck_describe(@"RACChannel", ^{
-	itShouldBehaveLike(RACChannelExamples, @{
-		RACChannelExampleCreateBlock: [^{
-			return [[RACChannel alloc] init];
-		} copy]
+	qck_itBehavesLike(RACChannelExamples, ^{
+		return @{
+			RACChannelExampleCreateBlock: [^{
+				return [[RACChannel alloc] init];
+			} copy]
+		};
 	});
 	
 	qck_describe(@"memory management", ^{
@@ -45,7 +47,7 @@ qck_describe(@"RACChannel", ^{
 
 			[leadingDisposable dispose];
 			[followingDisposable dispose];
-			expect(deallocated).will.beTruthy();
+			expect(@(deallocated)).toEventually(beTruthy());
 		});
 		
 		qck_it(@"should dealloc when its subscriptions are disposed", ^{
@@ -66,7 +68,7 @@ qck_describe(@"RACChannel", ^{
 
 			[leadingDisposable dispose];
 			[followingDisposable dispose];
-			expect(deallocated).will.beTruthy();
+			expect(@(deallocated)).toEventually(beTruthy());
 		});
 	});
 });

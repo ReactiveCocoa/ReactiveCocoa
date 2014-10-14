@@ -47,7 +47,7 @@ qck_describe(@"RACSubject", ^{
 		}];
 	});
 
-	itShouldBehaveLike(RACSubscriberExamples, ^{
+	qck_itBehavesLike(RACSubscriberExamples, ^{
 		return @{
 			RACSubscriberExampleSubscriber: subject,
 			RACSubscriberExampleValuesReceivedBlock: [^{ return [values copy]; } copy],
@@ -77,7 +77,7 @@ qck_describe(@"RACReplaySubject", ^{
 				valueReceived = x;
 			}];
 			
-			expect(valueReceived).to.equal(secondValue);
+			expect(valueReceived).to(equal(secondValue));
 		});
 		
 		qck_it(@"should send the last value to new subscribers after completion", ^{
@@ -90,8 +90,8 @@ qck_describe(@"RACReplaySubject", ^{
 			[subject sendNext:firstValue];
 			[subject sendNext:secondValue];
 			
-			expect(nextsReceived).to.equal(0);
-			expect(valueReceived).to.beNil();
+			expect(@(nextsReceived)).to(equal(@0));
+			expect(valueReceived).to(beNil());
 			
 			[subject sendCompleted];
 			
@@ -100,8 +100,8 @@ qck_describe(@"RACReplaySubject", ^{
 				nextsReceived++;
 			}];
 			
-			expect(nextsReceived).to.equal(1);
-			expect(valueReceived).to.equal(secondValue);
+			expect(@(nextsReceived)).to(equal(@1));
+			expect(valueReceived).to(equal(secondValue));
 		});
 
 		qck_it(@"should not send any values to new subscribers if none were sent originally", ^{
@@ -112,7 +112,7 @@ qck_describe(@"RACReplaySubject", ^{
 				nextInvoked = YES;
 			}];
 
-			expect(nextInvoked).to.beFalsy();
+			expect(@(nextInvoked)).to(beFalsy());
 		});
 
 		qck_it(@"should resend errors", ^{
@@ -121,11 +121,11 @@ qck_describe(@"RACReplaySubject", ^{
 
 			__block BOOL errorSent = NO;
 			[subject subscribeError:^(NSError *sentError) {
-				expect(sentError).to.equal(error);
+				expect(sentError).to(equal(error));
 				errorSent = YES;
 			}];
 
-			expect(errorSent).to.beTruthy();
+			expect(@(errorSent)).to(beTruthy());
 		});
 
 		qck_it(@"should resend nil errors", ^{
@@ -133,11 +133,11 @@ qck_describe(@"RACReplaySubject", ^{
 
 			__block BOOL errorSent = NO;
 			[subject subscribeError:^(NSError *sentError) {
-				expect(sentError).to.beNil();
+				expect(sentError).to(beNil());
 				errorSent = YES;
 			}];
 
-			expect(errorSent).to.beTruthy();
+			expect(@(errorSent)).to(beTruthy());
 		});
 	});
 
@@ -146,7 +146,7 @@ qck_describe(@"RACReplaySubject", ^{
 			subject = [RACReplaySubject subject];
 		});
 
-		itShouldBehaveLike(RACSubscriberExamples, ^{
+		qck_itBehavesLike(RACSubscriberExamples, ^{
 			return @{
 				RACSubscriberExampleSubscriber: subject,
 				RACSubscriberExampleValuesReceivedBlock: [^{
@@ -197,10 +197,10 @@ qck_describe(@"RACReplaySubject", ^{
 				completed = YES;
 			}];
 			
-			expect(valuesReceived.count).to.equal(2);
+			expect(@(valuesReceived.count)).to(equal(@2));
 			NSArray *expected = [NSArray arrayWithObjects:firstValue, secondValue, nil];
-			expect(valuesReceived).to.equal(expected);
-			expect(completed).to.beTruthy();
+			expect(valuesReceived).to(equal(expected));
+			expect(@(completed)).to(beTruthy());
 		});
 
 		qck_it(@"should send values in the same order live as when replaying", ^{
@@ -216,10 +216,6 @@ qck_describe(@"RACReplaySubject", ^{
 			}];
 
 			dispatch_queue_t queue = dispatch_queue_create("com.github.ReactiveCocoa.RACSubjectSpec", DISPATCH_QUEUE_CONCURRENT);
-			@onExit {
-				dispatch_release(queue);
-			};
-
 			dispatch_suspend(queue);
 			
 			for (NSUInteger i = 0; i < count; i++) {
@@ -236,16 +232,16 @@ qck_describe(@"RACReplaySubject", ^{
 			OSMemoryBarrier();
 
 			NSArray *liveValues = [NSArray arrayWithObjects:(id *)values count:(NSUInteger)nextIndex];
-			expect(liveValues.count).to.equal(count);
+			expect(@(liveValues.count)).to(equal(@(count)));
 			
 			NSArray *replayedValues = subject.toArray;
-			expect(replayedValues.count).to.equal(count);
+			expect(@(replayedValues.count)).to(equal(@(count)));
 
 			// It should return the same ordering for multiple invocations too.
-			expect(replayedValues).to.equal(subject.toArray);
+			expect(replayedValues).to(equal(subject.toArray));
 
 			[replayedValues enumerateObjectsUsingBlock:^(id value, NSUInteger index, BOOL *stop) {
-				expect(liveValues[index]).to.equal(value);
+				expect(liveValues[index]).to(equal(value));
 			}];
 		});
 
@@ -257,7 +253,7 @@ qck_describe(@"RACReplaySubject", ^{
 				currentScheduler = RACScheduler.currentScheduler;
 			}];
 
-			expect(currentScheduler).notTo.beNil();
+			expect(currentScheduler).notTo(beNil());
 
 			currentScheduler = nil;
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -266,7 +262,7 @@ qck_describe(@"RACReplaySubject", ^{
 				}];
 			});
 
-			expect(currentScheduler).willNot.beNil();
+			expect(currentScheduler).toEventuallyNot(beNil());
 		});
 		
 		qck_it(@"should stop replaying when the subscription is disposed", ^{
@@ -277,14 +273,14 @@ qck_describe(@"RACReplaySubject", ^{
 
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 				__block RACDisposable *disposable = [subject subscribeNext:^(id x) {
-					expect(disposable).notTo.beNil();
+					expect(disposable).notTo(beNil());
 
 					[values addObject:x];
 					[disposable dispose];
 				}];
 			});
 
-			expect(values).will.equal(@[ @0 ]);
+			expect(values).toEventually(equal(@[ @0 ]));
 		});
 
 		qck_it(@"should finish replaying before completing", ^{
@@ -299,7 +295,7 @@ qck_describe(@"RACReplaySubject", ^{
 				[subject sendCompleted];
 			});
 
-			expect(received).will.equal(@1);
+			expect(received).toEventually(equal(@1));
 		});
 
 		qck_it(@"should finish replaying before erroring", ^{
@@ -314,7 +310,7 @@ qck_describe(@"RACReplaySubject", ^{
 				[subject sendError:[NSError errorWithDomain:@"blah" code:-99 userInfo:nil]];
 			});
 
-			expect(received).will.equal(@1);
+			expect(received).toEventually(equal(@1));
 		});
 
 		qck_it(@"should finish replaying before sending new values", ^{
@@ -330,7 +326,7 @@ qck_describe(@"RACReplaySubject", ^{
 			});
 
 			NSArray *expected = @[ @1, @2 ];
-			expect(received).will.equal(expected);
+			expect(received).toEventually(equal(expected));
 		});
 	});
 });

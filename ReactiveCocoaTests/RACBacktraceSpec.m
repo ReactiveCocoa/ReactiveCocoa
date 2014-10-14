@@ -46,7 +46,7 @@ QuickSpecBegin(RACBacktraceSpec)
 __block dispatch_block_t block;
 
 qck_beforeEach(^{
-	expect([RACBacktrace backtrace].previousThreadBacktrace).to.beNil();
+	expect([RACBacktrace backtrace].previousThreadBacktrace).to(beNil());
 	previousBacktrace = nil;
 
 	block = ^{
@@ -56,7 +56,7 @@ qck_beforeEach(^{
 
 qck_it(@"should capture the current backtrace", ^{
 	RACBacktrace *backtrace = [RACBacktrace backtrace];
-	expect(backtrace).notTo.beNil();
+	expect(backtrace).notTo(beNil());
 });
 
 qck_describe(@"with a GCD queue", ^{
@@ -73,7 +73,7 @@ qck_describe(@"with a GCD queue", ^{
 
 	qck_it(@"should trace across dispatch_async", ^{
 		rac_dispatch_async(queue, block);
-		expect(previousBacktrace).willNot.beNil();
+		expect(previousBacktrace).toEventuallyNot(beNil());
 	});
 
 	qck_it(@"should trace across dispatch_async to the main thread", ^{
@@ -81,32 +81,32 @@ qck_describe(@"with a GCD queue", ^{
 			rac_dispatch_async(dispatch_get_main_queue(), block);
 		});
 
-		expect(previousBacktrace).willNot.beNil();
+		expect(previousBacktrace).toEventuallyNot(beNil());
 	});
 
 	qck_it(@"should trace across dispatch_async_f", ^{
 		rac_dispatch_async_f(queue, NULL, &capturePreviousBacktrace);
-		expect(previousBacktrace).willNot.beNil();
+		expect(previousBacktrace).toEventuallyNot(beNil());
 	});
 
 	qck_it(@"should trace across dispatch_barrier_async", ^{
 		rac_dispatch_barrier_async(queue, block);
-		expect(previousBacktrace).willNot.beNil();
+		expect(previousBacktrace).toEventuallyNot(beNil());
 	});
 
 	qck_it(@"should trace across dispatch_barrier_async_f", ^{
 		rac_dispatch_barrier_async_f(queue, NULL, &capturePreviousBacktrace);
-		expect(previousBacktrace).willNot.beNil();
+		expect(previousBacktrace).toEventuallyNot(beNil());
 	});
 
 	qck_it(@"should trace across dispatch_after", ^{
 		rac_dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1), queue, block);
-		expect(previousBacktrace).willNot.beNil();
+		expect(previousBacktrace).toEventuallyNot(beNil());
 	});
 
 	qck_it(@"should trace across dispatch_after_f", ^{
 		rac_dispatch_after_f(dispatch_time(DISPATCH_TIME_NOW, 1), queue, NULL, &capturePreviousBacktrace);
-		expect(previousBacktrace).willNot.beNil();
+		expect(previousBacktrace).toEventuallyNot(beNil());
 	});
 
 	qck_it(@"shouldn't overflow the stack when deallocating a huge backtrace list", ^{
@@ -124,7 +124,7 @@ qck_describe(@"with a GCD queue", ^{
 
 qck_it(@"should trace across a RACScheduler", ^{
 	[[RACScheduler scheduler] schedule:block];
-	expect(previousBacktrace).willNot.beNil();
+	expect(previousBacktrace).toEventuallyNot(beNil());
 });
 
 qck_it(@"shouldn't go bonkers with RACScheduler", ^{
@@ -142,7 +142,7 @@ qck_it(@"shouldn't go bonkers with RACScheduler", ^{
 	qck_it(@"should trace across an NSOperationQueue", ^{
 		NSOperationQueue *queue = [[NSOperationQueue alloc] init];
 		[queue addOperationWithBlock:block];
-		expect(previousBacktrace).willNot.beNil();
+		expect(previousBacktrace).toEventuallyNot(beNil());
 	});
 #endif
 

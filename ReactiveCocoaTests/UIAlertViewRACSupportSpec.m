@@ -20,7 +20,7 @@ qck_describe(@"UIAlertView", ^{
 
 	qck_beforeEach(^{
 		alertView = [[UIAlertView alloc] initWithFrame:CGRectZero];
-		expect(alertView).notTo.beNil();
+		expect(alertView).notTo(beNil());
 	});
 
 	qck_it(@"sends the index of the clicked button to the buttonClickedSignal when a button is clicked", ^{
@@ -30,7 +30,7 @@ qck_describe(@"UIAlertView", ^{
 		}];
 
 		[alertView.delegate alertView:alertView clickedButtonAtIndex:2];
-		expect(index).to.equal(2);
+		expect(index).to(equal(@2));
 	});
 
 	qck_it(@"sends the index of the appropriate button to the willDismissSignal when dismissed programatically", ^{
@@ -40,7 +40,7 @@ qck_describe(@"UIAlertView", ^{
 		}];
 
 		[alertView.delegate alertView:alertView willDismissWithButtonIndex:2];
-		expect(index).to.equal(2);
+		expect(index).to(equal(@2));
 	});
 });
 

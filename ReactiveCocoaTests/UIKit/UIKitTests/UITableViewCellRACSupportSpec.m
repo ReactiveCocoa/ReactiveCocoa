@@ -19,10 +19,10 @@ __block RACTestTableViewController *tableViewController;
 
 qck_beforeEach(^{
 	tableViewController = [[RACTestTableViewController alloc] initWithStyle:UITableViewStylePlain];
-	expect(tableViewController).notTo.beNil();
+	expect(tableViewController).notTo(beNil());
 
 	RACAppDelegate.delegate.window.rootViewController = tableViewController;
-	expect(tableViewController.tableView.visibleCells.count).will.beGreaterThan(0);
+	expect(tableViewController.tableView.visibleCells.count).toEventually(beGreaterThan(0));
 });
 
 qck_it(@"should send on rac_prepareForReuseSignal", ^{
@@ -30,17 +30,17 @@ qck_it(@"should send on rac_prepareForReuseSignal", ^{
 	
 	__block NSUInteger invocationCount = 0;
 	[cell.rac_prepareForReuseSignal subscribeNext:^(id value) {
-		expect(value).to.equal(RACUnit.defaultUnit);
+		expect(value).to(equal(RACUnit.defaultUnit));
 		invocationCount++;
 	}];
 
-	expect(invocationCount).to.equal(0);
+	expect(invocationCount).to(equal(@0));
 
 	[tableViewController.tableView reloadData];
-	expect(invocationCount).will.equal(1);
+	expect(invocationCount).toEventually(equal(@1));
 
 	[tableViewController.tableView reloadData];
-	expect(invocationCount).will.equal(2);
+	expect(invocationCount).toEventually(equal(@2));
 });
 
 QuickSpecEnd

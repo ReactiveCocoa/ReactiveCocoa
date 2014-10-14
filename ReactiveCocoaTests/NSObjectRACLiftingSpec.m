@@ -33,13 +33,13 @@ qck_describe(@"-rac_liftSelector:withSignals:", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setObjectValue:) withSignals:subject, nil];
 
-		expect(object.objectValue).to.beNil();
+		expect(object.objectValue).to(beNil());
 
 		[subject sendNext:@1];
-		expect(object.objectValue).to.equal(@1);
+		expect(object.objectValue).to(equal(@1));
 
 		[subject sendNext:@42];
-		expect(object.objectValue).to.equal(@42);
+		expect(object.objectValue).to(equal(@42));
 	});
 });
 
@@ -54,26 +54,26 @@ qck_describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setObjectValue:) withSignalsFromArray:@[ subject ]];
 
-		expect(object.objectValue).to.beNil();
+		expect(object.objectValue).to(beNil());
 
 		[subject sendNext:@1];
-		expect(object.objectValue).to.equal(@1);
+		expect(object.objectValue).to(equal(@1));
 
 		[subject sendNext:@42];
-		expect(object.objectValue).to.equal(@42);
+		expect(object.objectValue).to(equal(@42));
 	});
 
 	qck_it(@"should call the selector with the value of the signal unboxed", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setIntegerValue:) withSignalsFromArray:@[ subject ]];
 
-		expect(object.integerValue).to.equal(0);
+		expect(@(object.integerValue)).to(equal(@0));
 
 		[subject sendNext:@1];
-		expect(object.integerValue).to.equal(1);
+		expect(@(object.integerValue)).to(equal(@1));
 
 		[subject sendNext:@42];
-		expect(object.integerValue).to.equal(42);
+		expect(@(object.integerValue)).to(equal(@42));
 	});
 
 	qck_it(@"should work with multiple arguments", ^{
@@ -81,29 +81,29 @@ qck_describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		RACSubject *integerValueSubject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setObjectValue:andIntegerValue:) withSignalsFromArray:@[ objectValueSubject, integerValueSubject ]];
 
-		expect(object.hasInvokedSetObjectValueAndIntegerValue).to.beFalsy();
-		expect(object.objectValue).to.beNil();
-		expect(object.integerValue).to.equal(0);
+		expect(@(object.hasInvokedSetObjectValueAndIntegerValue)).to(beFalsy());
+		expect(object.objectValue).to(beNil());
+		expect(@(object.integerValue)).to(equal(@0));
 
 		[objectValueSubject sendNext:@1];
-		expect(object.hasInvokedSetObjectValueAndIntegerValue).to.beFalsy();
-		expect(object.objectValue).to.beNil();
-		expect(object.integerValue).to.equal(0);
+		expect(@(object.hasInvokedSetObjectValueAndIntegerValue)).to(beFalsy());
+		expect(object.objectValue).to(beNil());
+		expect(@(object.integerValue)).to(equal(@0));
 
 		[integerValueSubject sendNext:@42];
-		expect(object.hasInvokedSetObjectValueAndIntegerValue).to.beTruthy();
-		expect(object.objectValue).to.equal(@1);
-		expect(object.integerValue).to.equal(42);
+		expect(@(object.hasInvokedSetObjectValueAndIntegerValue)).to(beTruthy());
+		expect(object.objectValue).to(equal(@1));
+		expect(@(object.integerValue)).to(equal(@42));
 	});
 
 	qck_it(@"should work with signals that immediately start with a value", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setObjectValue:) withSignalsFromArray:@[ [subject startWith:@42] ]];
 
-		expect(object.objectValue).to.equal(@42);
+		expect(object.objectValue).to(equal(@42));
 
 		[subject sendNext:@1];
-		expect(object.objectValue).to.equal(@1);
+		expect(object.objectValue).to(equal(@1));
 	});
 
 	qck_it(@"should work with signals that send nil", ^{
@@ -111,117 +111,117 @@ qck_describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		[object rac_liftSelector:@selector(setObjectValue:) withSignalsFromArray:@[ subject ]];
 
 		[subject sendNext:nil];
-		expect(object.objectValue).to.equal(nil);
+		expect(object.objectValue).to(equal(nil));
 
 		[subject sendNext:RACTupleNil.tupleNil];
-		expect(object.objectValue).to.equal(nil);
+		expect(object.objectValue).to(equal(nil));
 	});
 
 	qck_it(@"should work with integers", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setIntegerValue:) withSignalsFromArray:@[ subject ]];
 
-		expect(object.integerValue).to.equal(0);
+		expect(@(object.integerValue)).to(equal(@0));
 
 		[subject sendNext:@1];
-		expect(object.integerValue).to.equal(@1);
+		expect(@(object.integerValue)).to(equal(@1));
 	});
 
 	qck_it(@"should convert between numeric types", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setIntegerValue:) withSignalsFromArray:@[ subject ]];
 
-		expect(object.integerValue).to.equal(0);
+		expect(@(object.integerValue)).to(equal(@0));
 
 		[subject sendNext:@1.0];
-		expect(object.integerValue).to.equal(@1);
+		expect(@(object.integerValue)).to(equal(@1));
 	});
-	
+
 	qck_it(@"should work with class objects", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setObjectValue:) withSignalsFromArray:@[ subject ]];
 
-		expect(object.objectValue).to.equal(nil);
+		expect(object.objectValue).to(equal(nil));
 
 		[subject sendNext:self.class];
-		expect(object.objectValue).to.equal(self.class);
+		expect(object.objectValue).to(equal(self.class));
 	});
 
 	qck_it(@"should work for char pointer", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setCharPointerValue:) withSignalsFromArray:@[ subject ]];
-		
-		expect(object.charPointerValue).to.equal(NULL);
+
+		expect([NSValue valueWithPointer:object.charPointerValue]).to(equal([NSValue valueWithPointer:NULL]));
 
 		NSString *string = @"blah blah blah";
 		[subject sendNext:string];
-		expect(@(object.charPointerValue)).to.equal(string);
+		expect(@(object.charPointerValue)).to(equal(string));
 	});
 
 	qck_it(@"should work for const char pointer", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setConstCharPointerValue:) withSignalsFromArray:@[ subject ]];
 
-		expect(object.constCharPointerValue).to.equal(NULL);
+		expect([NSValue valueWithPointer:object.constCharPointerValue]).to(equal([NSValue valueWithPointer:NULL]));
 
 		NSString *string = @"blah blah blah";
 		[subject sendNext:string];
-		expect(@(object.constCharPointerValue)).to.equal(string);
+		expect(@(object.constCharPointerValue)).to(equal(string));
 	});
 
 	qck_it(@"should work for CGRect", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setRectValue:) withSignalsFromArray:@[ subject ]];
 
-		expect(object.rectValue).to.equal(CGRectZero);
+		expect(@(CGRectEqualToRect(object.rectValue, CGRectZero))).to(beTruthy());
 
 		CGRect value = CGRectMake(10, 20, 30, 40);
 		[subject sendNext:[NSValue valueWithBytes:&value objCType:@encode(CGRect)]];
-		expect(object.rectValue).to.equal(value);
+		expect(@(CGRectEqualToRect(object.rectValue, value))).to(beTruthy());
 	});
 
 	qck_it(@"should work for CGSize", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setSizeValue:) withSignalsFromArray:@[ subject ]];
 
-		expect(object.sizeValue).to.equal(CGSizeZero);
+		expect(@(CGSizeEqualToSize(object.sizeValue, CGSizeZero))).to(beTruthy());
 
 		CGSize value = CGSizeMake(10, 20);
 		[subject sendNext:[NSValue valueWithBytes:&value objCType:@encode(CGSize)]];
-		expect(object.sizeValue).to.equal(value);
+		expect(@(CGSizeEqualToSize(object.sizeValue, value))).to(beTruthy());
 	});
 
 	qck_it(@"should work for CGPoint", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setPointValue:) withSignalsFromArray:@[ subject ]];
 
-		expect(object.pointValue).to.equal(CGPointZero);
+		expect(@(CGPointEqualToPoint(object.pointValue, CGPointZero))).to(beTruthy());
 
 		CGPoint value = CGPointMake(10, 20);
 		[subject sendNext:[NSValue valueWithBytes:&value objCType:@encode(CGPoint)]];
-		expect(object.pointValue).to.equal(value);
+		expect(@(CGPointEqualToPoint(object.pointValue, value))).to(beTruthy());
 	});
 
 	qck_it(@"should work for NSRange", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setRangeValue:) withSignalsFromArray:@[ subject ]];
 
-		expect(NSEqualRanges(object.rangeValue, NSMakeRange(0, 0))).to.beTruthy();
+		expect(@(NSEqualRanges(object.rangeValue, NSMakeRange(0, 0)))).to(beTruthy());
 
 		NSRange value = NSMakeRange(10, 20);
 		[subject sendNext:[NSValue valueWithRange:value]];
-		expect(NSEqualRanges(object.rangeValue, value)).to.beTruthy();
+		expect(@(NSEqualRanges(object.rangeValue, value))).to(beTruthy());
 	});
 
 	qck_it(@"should work for _Bool", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setC99BoolValue:) withSignalsFromArray:@[ subject ]];
 
-		expect(object.c99BoolValue).to.beFalsy();
+		expect(@(object.c99BoolValue)).to(beFalsy());
 
 		_Bool value = true;
 		[subject sendNext:@(value)];
-		expect(object.c99BoolValue).to.beTruthy();
+		expect(@(object.c99BoolValue)).to(beTruthy());
 	});
 
 	qck_it(@"should work for primitive pointers", ^{
@@ -230,23 +230,23 @@ qck_describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 
 		int value = 0;
 		int *valuePointer = &value;
-		expect(value).to.equal(0);
+		expect(@(value)).to(equal(@0));
 
 		[subject sendNext:[NSValue valueWithPointer:valuePointer]];
-		expect(value).to.equal(5);
+		expect(@(value)).to(equal(@5));
 	});
 
 	qck_it(@"should work for custom structs", ^{
 		RACSubject *subject = [RACSubject subject];
 		[object rac_liftSelector:@selector(setStructValue:) withSignalsFromArray:@[ subject ]];
 
-		expect(object.structValue.integerField).to.equal(0);
-		expect(object.structValue.doubleField).to.equal(0.0);
+		expect(@(object.structValue.integerField)).to(equal(@0));
+		expect(@(object.structValue.doubleField)).to(equal(@0.0));
 
 		RACTestStruct value = (RACTestStruct){7, 1.23};
 		[subject sendNext:[NSValue valueWithBytes:&value objCType:@encode(typeof(value))]];
-		expect(object.structValue.integerField).to.equal(value.integerField);
-		expect(object.structValue.doubleField).to.equal(value.doubleField);
+		expect(@(object.structValue.integerField)).to(equal(@(value.integerField)));
+		expect(@(object.structValue.doubleField)).to(equal(@(value.doubleField)));
 	});
 
 	qck_it(@"should send the latest value of the signal as the right argument", ^{
@@ -254,8 +254,8 @@ qck_describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 		[object rac_liftSelector:@selector(setObjectValue:andIntegerValue:) withSignalsFromArray:@[ [RACSignal return:@"object"], subject ]];
 		[subject sendNext:@1];
 
-		expect(object.objectValue).to.equal(@"object");
-		expect(object.integerValue).to.equal(1);
+		expect(object.objectValue).to(equal(@"object"));
+		expect(@(object.integerValue)).to(equal(@1));
 	});
 
 	qck_describe(@"the returned signal", ^{
@@ -270,10 +270,10 @@ qck_describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 			}];
 
 			[objectSubject sendNext:@"Magic number"];
-			expect(result).to.beNil();
+			expect(result).to(beNil());
 
 			[integerSubject sendNext:@42];
-			expect(result).to.equal(@"Magic number: 42");
+			expect(result).to(equal(@"Magic number: 42"));
 		});
 
 		qck_it(@"should send RACUnit.defaultUnit for void-returning methods", ^{
@@ -287,7 +287,7 @@ qck_describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 
 			[subject sendNext:@1];
 
-			expect(result).to.equal(RACUnit.defaultUnit);
+			expect(result).to(equal(RACUnit.defaultUnit));
 		});
 
 		qck_it(@"should support integer returning methods", ^{
@@ -301,7 +301,7 @@ qck_describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 
 			[subject sendNext:@1];
 
-			expect(result).to.equal(@2);
+			expect(result).to(equal(@2));
 		});
 
 		qck_it(@"should support char * returning methods", ^{
@@ -315,9 +315,9 @@ qck_describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 
 			[subject sendNext:@"test"];
 
-			expect(result).to.equal(@"testtest");
+			expect(result).to(equal(@"testtest"));
 		});
-		
+
 		qck_it(@"should support const char * returning methods", ^{
 			RACSubject *subject = [RACSubject subject];
 			RACSignal *signal = [object rac_liftSelector:@selector(doubleConstString:) withSignalsFromArray:@[ subject ]];
@@ -329,9 +329,9 @@ qck_describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 
 			[subject sendNext:@"test"];
 
-			expect(result).to.equal(@"testtest");
+			expect(result).to(equal(@"testtest"));
 		});
-		
+
 		qck_it(@"should support struct returning methods", ^{
 			RACSubject *subject = [RACSubject subject];
 			RACSignal *signal = [object rac_liftSelector:@selector(doubleStruct:) withSignalsFromArray:@[ subject ]];
@@ -347,10 +347,10 @@ qck_describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 
 			RACTestStruct result = {0, 0.0};
 			[boxedResult getValue:&result];
-			expect(result.integerField).to.equal(8);
-			expect(result.doubleField).to.equal(24.6);
+			expect(@(result.integerField)).to(equal(@8));
+			expect(@(result.doubleField)).to(equal(@24.6));
 		});
-		
+
 		qck_it(@"should support block arguments and returns", ^{
 			RACSubject *subject = [RACSubject subject];
 			RACSignal *signal = [object rac_liftSelector:@selector(wrapBlock:) withSignalsFromArray:@[ subject ]];
@@ -366,12 +366,12 @@ qck_describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 			}];
 
 			[subject sendNext:testBlock];
-			expect(result).notTo.beNil();
+			expect(result).notTo(beNil());
 
 			result();
-			expect(blockInvoked).to.beTruthy();
+			expect(@(blockInvoked)).to(beTruthy());
 		});
-		
+
 		qck_it(@"should replay the last value", ^{
 			RACSubject *objectSubject = [RACSubject subject];
 			RACSubject *integerSubject = [RACSubject subject];
@@ -386,7 +386,7 @@ qck_describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 				result = x;
 			}];
 
-			expect(result).to.equal(@"Magic number: 43");
+			expect(result).to(equal(@"Magic number: 43"));
 		});
 	});
 
@@ -403,7 +403,7 @@ qck_describe(@"-rac_liftSelector:withSignalsFromArray:", ^{
 			[subject sendNext:@1];
 		}
 
-		expect(dealloced).to.beTruthy();
+		expect(@(dealloced)).to(beTruthy());
 	});
 });
 

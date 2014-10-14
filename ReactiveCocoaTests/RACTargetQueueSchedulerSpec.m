@@ -22,9 +22,7 @@ qck_it(@"should have a valid current scheduler", ^{
 		currentScheduler = RACScheduler.currentScheduler;
 	}];
 
-	expect(currentScheduler).will.equal(scheduler);
-
-	dispatch_release(queue);
+	expect(currentScheduler).toEventually(equal(scheduler));
 });
 
 qck_it(@"should schedule blocks FIFO even when given a concurrent queue", ^{
@@ -41,13 +39,11 @@ qck_it(@"should schedule blocks FIFO even when given a concurrent queue", ^{
 		OSAtomicIncrement32Barrier(&startedCount);
 	}];
 
-	expect(startedCount).will.equal(1);
+	expect(@(startedCount)).toEventually(equal(@1));
 
 	OSAtomicAnd32Barrier(0, &waitInFirst);
 
-	expect(startedCount).will.equal(2);
-
-	dispatch_release(queue);
+	expect(@(startedCount)).toEventually(equal(@2));
 });
 
 QuickSpecEnd

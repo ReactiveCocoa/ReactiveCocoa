@@ -23,28 +23,28 @@ NSString * const RACSubscriberExampleValuesReceivedBlock = @"RACSubscriberExampl
 NSString * const RACSubscriberExampleErrorReceivedBlock = @"RACSubscriberExampleErrorReceivedBlock";
 NSString * const RACSubscriberExampleSuccessBlock = @"RACSubscriberExampleSuccessBlock";
 
-SharedExampleGroupsBegin(RACSubscriberExamples)
+QuickSharedExampleGroupsBegin(RACSubscriberExampleGroups)
 
-sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
+qck_sharedExamples(RACSubscriberExamples, ^(QCKDSLSharedExampleContext exampleContext) {
 	__block NSArray * (^valuesReceived)(void);
 	__block NSError * (^errorReceived)(void);
 	__block BOOL (^success)(void);
 	__block id<RACSubscriber> subscriber;
 	
 	qck_beforeEach(^{
-		valuesReceived = data[RACSubscriberExampleValuesReceivedBlock];
-		errorReceived = data[RACSubscriberExampleErrorReceivedBlock];
-		success = data[RACSubscriberExampleSuccessBlock];
-		subscriber = data[RACSubscriberExampleSubscriber];
-		expect(subscriber).notTo.beNil();
+		valuesReceived = exampleContext()[RACSubscriberExampleValuesReceivedBlock];
+		errorReceived = exampleContext()[RACSubscriberExampleErrorReceivedBlock];
+		success = exampleContext()[RACSubscriberExampleSuccessBlock];
+		subscriber = exampleContext()[RACSubscriberExampleSubscriber];
+		expect(subscriber).notTo(beNil());
 	});
 
 	qck_it(@"should accept a nil error", ^{
 		[subscriber sendError:nil];
 
-		expect(success()).to.beFalsy();
-		expect(errorReceived()).to.beNil();
-		expect(valuesReceived()).to.equal(@[]);
+		expect(@(success())).to(beFalsy());
+		expect(errorReceived()).to(beNil());
+		expect(valuesReceived()).to(equal(@[]));
 	});
 
 	qck_describe(@"with values", ^{
@@ -65,11 +65,11 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 				[subscriber sendNext:allValues[index]];
 			} copy]);
 
-			expect(success()).to.beTruthy();
-			expect(errorReceived()).to.beNil();
+			expect(@(success())).to(beTruthy());
+			expect(errorReceived()).to(beNil());
 
 			NSSet *valuesReceivedSet = [NSSet setWithArray:valuesReceived()];
-			expect(valuesReceivedSet).to.equal(values);
+			expect(valuesReceivedSet).to(equal(values));
 		});
 	});
 
@@ -91,11 +91,11 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 			[first sendNext:@"buzz"];
 			[second sendNext:@"baz"];
 
-			expect(success()).to.beTruthy();
-			expect(errorReceived()).to.beNil();
+			expect(@(success())).to(beTruthy());
+			expect(errorReceived()).to(beNil());
 
 			NSArray *expected = @[ @"foo", @"bar", @"buzz", @"baz" ];
-			expect(valuesReceived()).to.equal(expected);
+			expect(valuesReceived()).to(equal(expected));
 		});
 
 		qck_it(@"should terminate after the first error from any subscription", ^{
@@ -105,11 +105,11 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 			[second sendError:error];
 			[first sendNext:@"buzz"];
 
-			expect(success()).to.beFalsy();
-			expect(errorReceived()).to.equal(error);
+			expect(@(success())).to(beFalsy());
+			expect(errorReceived()).to(equal(error));
 
 			NSArray *expected = @[ @"foo" ];
-			expect(valuesReceived()).to.equal(expected);
+			expect(valuesReceived()).to(equal(expected));
 		});
 
 		qck_it(@"should terminate after the first completed from any subscription", ^{
@@ -118,11 +118,11 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 			[first sendCompleted];
 			[second sendNext:@"baz"];
 
-			expect(success()).to.beTruthy();
-			expect(errorReceived()).to.beNil();
+			expect(@(success())).to(beTruthy());
+			expect(errorReceived()).to(beNil());
 
 			NSArray *expected = @[ @"foo", @"bar" ];
-			expect(valuesReceived()).to.equal(expected);
+			expect(valuesReceived()).to(equal(expected));
 		});
 
 		qck_it(@"should dispose of all current subscriptions upon termination", ^{
@@ -143,13 +143,13 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 			[firstDisposableSignal subscribe:subscriber];
 			[secondDisposableSignal subscribe:subscriber];
 			
-			expect(firstDisposed).to.beFalsy();
-			expect(secondDisposed).to.beFalsy();
+			expect(@(firstDisposed)).to(beFalsy());
+			expect(@(secondDisposed)).to(beFalsy());
 
 			[first sendCompleted];
 
-			expect(firstDisposed).to.beTruthy();
-			expect(secondDisposed).to.beTruthy();
+			expect(@(firstDisposed)).to(beTruthy());
+			expect(@(secondDisposed)).to(beTruthy());
 		});
 
 		qck_it(@"should dispose of future subscriptions upon termination", ^{
@@ -161,10 +161,10 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 			}];
 
 			[first sendCompleted];
-			expect(disposed).to.beFalsy();
+			expect(@(disposed)).to(beFalsy());
 
 			[disposableSignal subscribe:subscriber];
-			expect(disposed).to.beTruthy();
+			expect(@(disposed)).to(beTruthy());
 		});
 	});
 
@@ -180,9 +180,9 @@ sharedExamplesFor(RACSubscriberExamples, ^(NSDictionary *data) {
 				[subscriber didSubscribeWithDisposable:disposable];
 				[disposable dispose];
 			}
-			expect(disposableDeallocd).to.beTruthy();
+			expect(@(disposableDeallocd)).to(beTruthy());
 		});
 	});
 });
 
-SharedExampleGroupsEnd
+QuickSharedExampleGroupsEnd

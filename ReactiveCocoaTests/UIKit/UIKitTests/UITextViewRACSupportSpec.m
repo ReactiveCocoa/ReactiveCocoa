@@ -17,17 +17,17 @@ qck_describe(@"-rac_textSignal", ^{
 
 	qck_beforeEach(^{
 		textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, 100, 20)];
-		expect(textView).notTo.beNil();
+		expect(textView).notTo(beNil());
 	});
 
 	qck_it(@"should start with the initial text", ^{
 		textView.text = @"foo";
 
 		RACSignal *textSignal = textView.rac_textSignal;
-		expect([textSignal first]).to.equal(@"foo");
+		expect([textSignal first]).to(equal(@"foo"));
 
 		textView.text = @"bar";
-		expect([textSignal first]).to.equal(@"bar");
+		expect([textSignal first]).to(equal(@"bar"));
 	});
 });
 

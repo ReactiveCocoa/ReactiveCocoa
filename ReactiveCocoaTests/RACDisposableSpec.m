@@ -16,11 +16,11 @@ QuickSpecBegin(RACDisposableSpec)
 
 qck_it(@"should initialize without a block", ^{
 	RACDisposable *disposable = [[RACDisposable alloc] init];
-	expect(disposable).notTo.beNil();
-	expect(disposable.disposed).to.beFalsy();
+	expect(disposable).notTo(beNil());
+	expect(@(disposable.disposed)).to(beFalsy());
 
 	[disposable dispose];
-	expect(disposable.disposed).to.beTruthy();
+	expect(@(disposable.disposed)).to(beTruthy());
 });
 
 qck_it(@"should execute a block upon disposal", ^{
@@ -29,13 +29,13 @@ qck_it(@"should execute a block upon disposal", ^{
 		disposed = YES;
 	}];
 
-	expect(disposable).notTo.beNil();
-	expect(disposed).to.beFalsy();
-	expect(disposable.disposed).to.beFalsy();
+	expect(disposable).notTo(beNil());
+	expect(@(disposed)).to(beFalsy());
+	expect(@(disposable.disposed)).to(beFalsy());
 
 	[disposable dispose];
-	expect(disposed).to.beTruthy();
-	expect(disposable.disposed).to.beTruthy();
+	expect(@(disposed)).to(beTruthy());
+	expect(@(disposable.disposed)).to(beTruthy());
 });
 
 qck_it(@"should not dispose upon deallocation", ^{
@@ -48,11 +48,11 @@ qck_it(@"should not dispose upon deallocation", ^{
 		}];
 
 		weakDisposable = disposable;
-		expect(weakDisposable).notTo.beNil();
+		expect(weakDisposable).notTo(beNil());
 	}
 
-	expect(weakDisposable).to.beNil();
-	expect(disposed).to.beFalsy();
+	expect(weakDisposable).to(beNil());
+	expect(@(disposed)).to(beFalsy());
 });
 
 qck_it(@"should create a scoped disposable", ^{
@@ -65,12 +65,12 @@ qck_it(@"should create a scoped disposable", ^{
 		}];
 
 		weakDisposable = disposable;
-		expect(weakDisposable).notTo.beNil();
-		expect(disposed).to.beFalsy();
+		expect(weakDisposable).notTo(beNil());
+		expect(@(disposed)).to(beFalsy());
 	}
 
-	expect(weakDisposable).to.beNil();
-	expect(disposed).to.beTruthy();
+	expect(weakDisposable).to(beNil());
+	expect(@(disposed)).to(beTruthy());
 });
 
 QuickSpecEnd

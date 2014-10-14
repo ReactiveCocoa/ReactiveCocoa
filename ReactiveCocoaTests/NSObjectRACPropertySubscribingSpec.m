@@ -23,7 +23,7 @@ qck_describe(@"-rac_valuesForKeyPath:observer:", ^{
 		return [object rac_valuesForKeyPath:keyPath observer:observer];
 	};
 
-	itShouldBehaveLike(RACPropertySubscribingExamples, ^{
+	qck_itBehavesLike(RACPropertySubscribingExamples, ^{
 		return @{ RACPropertySubscribingExamplesSetupBlock: setupBlock };
 	});
 
@@ -35,7 +35,7 @@ qck_describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 		__block id actual;
 		__block RACSignal *(^objectValueSignal)(NSKeyValueObservingOptions);
 
-		qck_before(^{
+		qck_beforeEach(^{
 			object = [[RACTestObject alloc] init];
 
 			objectValueSignal = ^(NSKeyValueObservingOptions options) {
@@ -52,7 +52,7 @@ qck_describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 
 			object.objectValue = @1;
 
-			expect(actual).to.beKindOf(NSDictionary.class);
+			expect(actual).to(beAKindOf(NSDictionary.class));
 		});
 
 		qck_it(@"sends a kind key by default", ^{
@@ -62,7 +62,7 @@ qck_describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 
 			object.objectValue = @1;
 
-			expect(actual).notTo.beNil();
+			expect(actual).notTo(beNil());
 		});
 
 		qck_it(@"sends the newest changes with NSKeyValueObservingOptionNew", ^{
@@ -71,10 +71,10 @@ qck_describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 			}];
 
 			object.objectValue = @1;
-			expect(actual).to.equal(@1);
+			expect(actual).to(equal(@1));
 
 			object.objectValue = @2;
-			expect(actual).to.equal(@2);
+			expect(actual).to(equal(@2));
 		});
 
 		qck_it(@"sends an additional change value with NSKeyValueObservingOptionPrior", ^{
@@ -88,7 +88,7 @@ qck_describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 
 			object.objectValue = @[ @1 ];
 
-			expect(values).to.equal(expected);
+			expect(values).to(equal(expected));
 		});
 
 		qck_it(@"sends index changes when adding, inserting or removing a value from an observed object", ^{
@@ -101,18 +101,18 @@ qck_describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 			}];
 
 			object.objectValue = [NSMutableOrderedSet orderedSet];
-			expect(hasIndexesCount).to.equal(0);
+			expect(@(hasIndexesCount)).to(equal(@0));
 
 			NSMutableOrderedSet *objectValue = [object mutableOrderedSetValueForKey:@"objectValue"];
 
 			[objectValue addObject:@1];
-			expect(hasIndexesCount).to.equal(1);
+			expect(@(hasIndexesCount)).to(equal(@1));
 
 			[objectValue replaceObjectAtIndex:0 withObject:@2];
-			expect(hasIndexesCount).to.equal(2);
+			expect(@(hasIndexesCount)).to(equal(@2));
 
 			[objectValue removeObject:@2];
-			expect(hasIndexesCount).to.equal(3);
+			expect(@(hasIndexesCount)).to(equal(@3));
 		});
 
 		qck_it(@"sends the previous value with NSKeyValueObservingOptionOld", ^{
@@ -121,10 +121,10 @@ qck_describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 			}];
 
 			object.objectValue = @1;
-			expect(actual).to.equal(NSNull.null);
+			expect(actual).to(equal(NSNull.null));
 
 			object.objectValue = @2;
-			expect(actual).to.equal(@1);
+			expect(actual).to(equal(@1));
 		});
 
 		qck_it(@"sends the initial value with NSKeyValueObservingOptionInitial", ^{
@@ -132,7 +132,7 @@ qck_describe(@"+rac_signalWithChangesFor:keyPath:options:observer:", ^{
 				actual = x[NSKeyValueChangeNewKey];
 			}];
 			
-			expect(actual).to.equal(NSNull.null);
+			expect(actual).to(equal(NSNull.null));
 		});
 	});
 });
@@ -151,7 +151,7 @@ qck_describe(@"-rac_valuesAndChangesForKeyPath:options:observer:", ^{
 			completed = YES;
 		}];
 
-		expect(completed).to.beTruthy();
+		expect(@(completed)).to(beTruthy());
 	});
 });
 

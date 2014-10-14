@@ -22,7 +22,7 @@ qck_describe(@"-rac_buttonClickedSignal", ^{
 		actionSheet = [[UIActionSheet alloc] init];
 		[actionSheet addButtonWithTitle:@"Button 0"];
 		[actionSheet addButtonWithTitle:@"Button 1"];
-		expect(actionSheet).notTo.beNil();
+		expect(actionSheet).notTo(beNil());
 	});
 
 	qck_it(@"should send the index of the clicked button", ^{
@@ -32,7 +32,7 @@ qck_describe(@"-rac_buttonClickedSignal", ^{
 		}];
 
 		[actionSheet.delegate actionSheet:actionSheet clickedButtonAtIndex:1];
-		expect(index).to.equal(@1);
+		expect(index).to(equal(@1));
 	});
 });
 

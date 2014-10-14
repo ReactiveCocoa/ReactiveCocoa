@@ -32,18 +32,18 @@ __block Protocol *protocol;
 
 qck_beforeEach(^{
 	protocol = @protocol(TestDelegateProtocol);
-	expect(protocol).notTo.beNil();
+	expect(protocol).notTo(beNil());
 
 	proxy = [[RACDelegateProxy alloc] initWithProtocol:protocol];
-	expect(proxy).notTo.beNil();
-	expect([proxy rac_proxiedDelegate]).to.beNil();
+	expect(proxy).notTo(beNil());
+	expect([proxy rac_proxiedDelegate]).to(beNil());
 
 	delegate = [[TestDelegate alloc] init];
-	expect(delegate).notTo.beNil();
+	expect(delegate).notTo(beNil());
 });
 
 qck_it(@"should not respond to selectors at first", ^{
-	expect([proxy respondsToSelector:@selector(lengthOfString:)]).to.beFalsy();
+	expect(@([proxy respondsToSelector:@selector(lengthOfString:)])).to(beFalsy());
 });
 
 qck_it(@"should send on a signal for a protocol method", ^{
@@ -52,17 +52,17 @@ qck_it(@"should send on a signal for a protocol method", ^{
 		tuple = t;
 	}];
 
-	expect([proxy respondsToSelector:@selector(lengthOfString:)]).to.beTruthy();
-	expect([proxy lengthOfString:@"foo"]).to.equal(0);
-	expect(tuple).to.equal(RACTuplePack(@"foo"));
+	expect(@([proxy respondsToSelector:@selector(lengthOfString:)])).to(beTruthy());
+	expect(@([proxy lengthOfString:@"foo"])).to(equal(@0));
+	expect(tuple).to(equal(RACTuplePack(@"foo")));
 });
 
 qck_it(@"should forward to the proxied delegate", ^{
 	[proxy setRac_proxiedDelegate:delegate];
 
-	expect([proxy respondsToSelector:@selector(lengthOfString:)]).to.beTruthy();
-	expect([proxy lengthOfString:@"foo"]).to.equal(3);
-	expect(delegate.lengthOfStringInvoked).to.beTruthy();
+	expect(@([proxy respondsToSelector:@selector(lengthOfString:)])).to(beTruthy());
+	expect(@([proxy lengthOfString:@"foo"])).to(equal(@3));
+	expect(@(delegate.lengthOfStringInvoked)).to(beTruthy());
 });
 
 qck_it(@"should not send to the delegate when signals are applied", ^{
@@ -73,11 +73,11 @@ qck_it(@"should not send to the delegate when signals are applied", ^{
 		tuple = t;
 	}];
 
-	expect([proxy respondsToSelector:@selector(lengthOfString:)]).to.beTruthy();
-	expect([proxy lengthOfString:@"foo"]).to.equal(0);
+	expect(@([proxy respondsToSelector:@selector(lengthOfString:)])).to(beTruthy());
+	expect(@([proxy lengthOfString:@"foo"])).to(equal(@0));
 
-	expect(tuple).to.equal(RACTuplePack(@"foo"));
-	expect(delegate.lengthOfStringInvoked).to.beFalsy();
+	expect(tuple).to(equal(RACTuplePack(@"foo")));
+	expect(@(delegate.lengthOfStringInvoked)).to(beFalsy());
 });
 
 QuickSpecEnd

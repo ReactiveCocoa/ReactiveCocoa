@@ -47,7 +47,7 @@ qck_beforeEach(^{
 	}];
 });
 
-itShouldBehaveLike(RACSubscriberExamples, ^{
+qck_itBehavesLike(RACSubscriberExamples, ^{
 	return @{
 		RACSubscriberExampleSubscriber: subscriber,
 		RACSubscriberExampleValuesReceivedBlock: [^{ return [values copy]; } copy],
@@ -65,10 +65,10 @@ qck_describe(@"finishing", ^{
 
 	qck_beforeEach(^{
 		dispatchGroup = dispatch_group_create();
-		expect(dispatchGroup).notTo.beNil();
+		expect(dispatchGroup).notTo(beNil());
 
 		concurrentQueue = dispatch_queue_create("com.github.ReactiveCocoa.RACSubscriberSpec", DISPATCH_QUEUE_CONCURRENT);
-		expect(concurrentQueue).notTo.beNil();
+		expect(concurrentQueue).notTo(beNil());
 
 		dispatch_suspend(concurrentQueue);
 
@@ -89,21 +89,18 @@ qck_describe(@"finishing", ^{
 
 		// Time out after one second.
 		dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC));
-		expect(dispatch_group_wait(dispatchGroup, time)).to.equal(0);
+		expect(@(dispatch_group_wait(dispatchGroup, time))).to(equal(@0));
 		
-		dispatch_release(dispatchGroup);
 		dispatchGroup = NULL;
-
-		dispatch_release(concurrentQueue);
 		concurrentQueue = NULL;
 
-		expect(nextsAfterFinished).to.equal(0);
+		expect(@(nextsAfterFinished)).to(equal(@0));
 
 		if (expectedSuccess) {
-			expect(success).to.beTruthy();
-			expect(error).to.beNil();
+			expect(@(success)).to(beTruthy());
+			expect(error).to(beNil());
 		} else {
-			expect(success).to.beFalsy();
+			expect(@(success)).to(beFalsy());
 		}
 	});
 

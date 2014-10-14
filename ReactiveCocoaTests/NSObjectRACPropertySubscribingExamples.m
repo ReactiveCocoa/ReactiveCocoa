@@ -22,13 +22,13 @@
 NSString * const RACPropertySubscribingExamples = @"RACPropertySubscribingExamples";
 NSString * const RACPropertySubscribingExamplesSetupBlock = @"RACPropertySubscribingExamplesSetupBlock";
 
-SharedExamplesBegin(NSObjectRACPropertySubscribingExamples)
+QuickSharedExampleGroupsBegin(NSObjectRACPropertySubscribingExamples)
 
-sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
+qck_sharedExamples(RACPropertySubscribingExamples, ^(QCKDSLSharedExampleContext exampleContext) {
 	__block RACSignal *(^signalBlock)(RACTestObject *object, NSString *keyPath, id observer);
 
-	qck_before(^{
-		signalBlock = data[RACPropertySubscribingExamplesSetupBlock];
+	qck_beforeEach(^{
+		signalBlock = exampleContext()[RACPropertySubscribingExamplesSetupBlock];
 	});
 
 	qck_it(@"should send the current value once on subscription", ^{
@@ -41,7 +41,7 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 			[values addObject:x];
 		}];
 
-		expect(values).to.equal((@[ @0 ]));
+		expect(values).to(equal((@[ @0 ])));
 	});
 
 	qck_it(@"should send the new value when it changes", ^{
@@ -54,10 +54,10 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 			[values addObject:x];
 		}];
 
-		expect(values).to.equal((@[ @0 ]));
+		expect(values).to(equal((@[ @0 ])));
 
 		object.objectValue = @1;
-		expect(values).to.equal((@[ @0, @1 ]));
+		expect(values).to(equal((@[ @0, @1 ])));
 
 	});
 
@@ -73,11 +73,11 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 
 		object.objectValue = @1;
 		NSArray *expected = @[ @0, @1 ];
-		expect(values).to.equal(expected);
+		expect(values).to(equal(expected));
 
 		[disposable dispose];
 		object.objectValue = @2;
-		expect(values).to.equal(expected);
+		expect(values).to(equal(expected));
 	});
 
 	qck_it(@"shouldn't send any more values after the observer is gone", ^{
@@ -97,13 +97,13 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 			}];
 		}
 
-		expect(observerDealloced).to.beTruthy();
+		expect(@(observerDealloced)).to(beTruthy());
 
 		NSArray *expected = @[ @1 ];
-		expect(values).to.equal(expected);
+		expect(values).to(equal(expected));
 
 		object.objectValue = @2;
-		expect(values).to.equal(expected);
+		expect(values).to(equal(expected));
 	});
 
 	qck_it(@"shouldn't keep either object alive unnaturally long", ^{
@@ -126,8 +126,8 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 			}];
 		}
 
-		expect(objectDealloced).to.beTruthy();
-		expect(scopeObjectDealloced).to.beTruthy();
+		expect(@(objectDealloced)).to(beTruthy());
+		expect(@(scopeObjectDealloced)).to(beTruthy());
 	});
 
 	qck_it(@"shouldn't keep the signal alive past the lifetime of the object", ^{
@@ -152,16 +152,12 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 			}];
 		}
 
-		expect(signalDealloced).will.beTruthy();
-		expect(objectDealloced).to.beTruthy();
+		expect(@(signalDealloced)).toEventually(beTruthy());
+		expect(@(objectDealloced)).to(beTruthy());
 	});
 
 	qck_it(@"should not resurrect a deallocated object upon subscription", ^{
 		dispatch_queue_t queue = dispatch_queue_create(NULL, DISPATCH_QUEUE_CONCURRENT);
-		@onExit {
-			dispatch_release(queue);
-		};
-
 		dispatch_set_target_queue(queue, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0));
 
 		// Fuzz out race conditions.
@@ -185,7 +181,7 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 
 			dispatch_block_t testSubscription = ^{
 				RACDisposable *disposable = [signal subscribeCompleted:^{}];
-				expect(disposable).notTo.beNil();
+				expect(disposable).notTo(beNil());
 			};
 
 			unsigned beforeCount = arc4random_uniform(20);
@@ -195,9 +191,7 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 
 			dispatch_async(queue, ^{
 				CFRelease(object);
-
-				// expect() is a bit finicky on background threads.
-				XCTAssertTrue(deallocated, @"Object did not deallocate after being released");
+				expect(@(deallocated)).to(beTruthy());
 			});
 
 			unsigned afterCount = arc4random_uniform(20);
@@ -210,7 +204,7 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 			// Start everything and wait for it all to complete.
 			dispatch_resume(queue);
 
-			expect(deallocated).will.beTruthy();
+			expect(@(deallocated)).toEventually(beTruthy());
 			dispatch_barrier_sync(queue, ^{});
 		}
 	});
@@ -234,7 +228,7 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 			[queue waitUntilAllOperationsAreFinished];
 		}
 
-		expect(value).will.equal(@1);
+		expect(value).toEventually(equal(@1));
 	});
 
 	qck_describe(@"mutating collections", ^{
@@ -242,7 +236,7 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 		__block NSMutableOrderedSet *lastValue;
 		__block NSMutableOrderedSet *proxySet;
 
-		qck_before(^{
+		qck_beforeEach(^{
 			object = [[RACTestObject alloc] init];
 			object.objectValue = [NSMutableOrderedSet orderedSetWithObject:@1];
 
@@ -259,24 +253,24 @@ sharedExamples(RACPropertySubscribingExamples, ^(NSDictionary *data) {
 			NSMutableOrderedSet *expected = [NSMutableOrderedSet orderedSetWithObjects: @1, @2, nil];
 
 			[proxySet addObject:@2];
-			expect(lastValue).to.equal(expected);
+			expect(lastValue).to(equal(expected));
 		});
 
 		qck_it(@"sends the newest object when removing values in an observed object", ^{
 			NSMutableOrderedSet *expected = [NSMutableOrderedSet orderedSet];
 
 			[proxySet removeAllObjects];
-			expect(lastValue).to.equal(expected);
+			expect(lastValue).to(equal(expected));
 		});
 
 		qck_it(@"sends the newest object when replacing values in an observed object", ^{
 			NSMutableOrderedSet *expected = [NSMutableOrderedSet orderedSetWithObjects: @2, nil];
 
 			[proxySet replaceObjectAtIndex:0 withObject:@2];
-			expect(lastValue).to.equal(expected);
+			expect(lastValue).to(equal(expected));
 		});
 	});
 
 });
 
-SharedExamplesEnd
+QuickSharedExampleGroupsEnd

@@ -22,10 +22,10 @@ qck_describe(@"UIBarButtonItem", ^{
 	
 	qck_beforeEach(^{
 		button = [[UIBarButtonItem alloc] init];
-		expect(button).notTo.beNil();
+		expect(button).notTo(beNil());
 	});
 
-	itShouldBehaveLike(RACControlCommandExamples, ^{
+	qck_itBehavesLike(RACControlCommandExamples, ^{
 		return @{
 			RACControlCommandExampleControl: button,
 			RACControlCommandExampleActivateBlock: ^(UIBarButtonItem *button) {

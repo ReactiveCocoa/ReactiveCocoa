@@ -830,6 +830,7 @@
 		D037642919EDA3B600A782A9 /* Objective-C */ = {
 			isa = PBXGroup;
 			children = (
+				D037666519EDA57100A782A9 /* extobjc */,
 				D037642A19EDA41200A782A9 /* NSArray+RACSequenceAdditions.h */,
 				D037642B19EDA41200A782A9 /* NSArray+RACSequenceAdditions.m */,
 				D037642C19EDA41200A782A9 /* NSControl+RACCommandSupport.h */,
@@ -1132,7 +1133,6 @@
 		D04725ED19E49ED7006002AA /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				D037666519EDA57100A782A9 /* extobjc */,
 				D0C3130719EF2AD900984962 /* LlamaKit.framework */,
 				D0C3130519EF2ACC00984962 /* LlamaKit.framework */,
 				D04725EE19E49ED7006002AA /* Info.plist */,

@@ -1255,7 +1255,7 @@
 				D0C312C919EF2A5800984962 /* Signal.swift */,
 				D0C312CA19EF2A5800984962 /* SignalingProperty.swift */,
 			);
-			name = Swift;
+			path = Swift;
 			sourceTree = "<group>";
 		};
 		D0C312ED19EF2A6F00984962 /* Swift */ = {

@@ -1021,7 +1021,7 @@
 				D03764E619EDA41200A782A9 /* UITextView+RACSignalSupport.h */,
 				D03764E719EDA41200A782A9 /* UITextView+RACSignalSupport.m */,
 			);
-			name = "Objective-C";
+			path = "Objective-C";
 			sourceTree = "<group>";
 		};
 		D037666519EDA57100A782A9 /* extobjc */ = {

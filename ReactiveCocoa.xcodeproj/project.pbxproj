@@ -427,8 +427,6 @@
 		D0C312EA19EF2A5800984962 /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312C919EF2A5800984962 /* Signal.swift */; };
 		D0C312EB19EF2A5800984962 /* SignalingProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312CA19EF2A5800984962 /* SignalingProperty.swift */; };
 		D0C312EC19EF2A5800984962 /* SignalingProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312CA19EF2A5800984962 /* SignalingProperty.swift */; };
-		D0C3130619EF2ACC00984962 /* LlamaKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3130519EF2ACC00984962 /* LlamaKit.framework */; };
-		D0C3130819EF2AD900984962 /* LlamaKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3130719EF2AD900984962 /* LlamaKit.framework */; };
 		D0C3130C19EF2B1F00984962 /* DisposableSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312F019EF2A7700984962 /* DisposableSpec.swift */; };
 		D0C3130D19EF2B1F00984962 /* ObjectiveCBridgingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312F119EF2A7700984962 /* ObjectiveCBridgingSpec.swift */; };
 		D0C3130E19EF2B1F00984962 /* SchedulerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312F219EF2A7700984962 /* SchedulerSpec.swift */; };
@@ -437,6 +435,10 @@
 		D0C3131319EF2B2000984962 /* ObjectiveCBridgingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312F119EF2A7700984962 /* ObjectiveCBridgingSpec.swift */; };
 		D0C3131419EF2B2000984962 /* SchedulerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312F219EF2A7700984962 /* SchedulerSpec.swift */; };
 		D0C3131519EF2B2000984962 /* SignalSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312F319EF2A7700984962 /* SignalSpec.swift */; };
+		D0C3132D19EF2FAE00984962 /* LlamaKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3132B19EF2FA300984962 /* LlamaKit.framework */; };
+		D0C3132E19EF2FB400984962 /* LlamaKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3132B19EF2FA300984962 /* LlamaKit.framework */; };
+		D0C3133019EF304300984962 /* LlamaKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3132B19EF2FA300984962 /* LlamaKit.framework */; };
+		D0C3133119EF304600984962 /* LlamaKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3132B19EF2FA300984962 /* LlamaKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -779,8 +781,7 @@
 		D0C312F119EF2A7700984962 /* ObjectiveCBridgingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectiveCBridgingSpec.swift; sourceTree = "<group>"; };
 		D0C312F219EF2A7700984962 /* SchedulerSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SchedulerSpec.swift; sourceTree = "<group>"; };
 		D0C312F319EF2A7700984962 /* SignalSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalSpec.swift; sourceTree = "<group>"; };
-		D0C3130519EF2ACC00984962 /* LlamaKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LlamaKit.framework; path = "../External/LlamaKit/build/Debug-iphoneos/LlamaKit.framework"; sourceTree = "<group>"; };
-		D0C3130719EF2AD900984962 /* LlamaKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LlamaKit.framework; path = ../External/LlamaKit/build/Debug/LlamaKit.framework; sourceTree = "<group>"; };
+		D0C3132B19EF2FA300984962 /* LlamaKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = LlamaKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -788,7 +789,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D0C3130819EF2AD900984962 /* LlamaKit.framework in Frameworks */,
+				D0C3132E19EF2FB400984962 /* LlamaKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -796,6 +797,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D0C3133119EF304600984962 /* LlamaKit.framework in Frameworks */,
 				D05E662519EDD82000904ACA /* Nimble.framework in Frameworks */,
 				D037672D19EDA75D00A782A9 /* Quick.framework in Frameworks */,
 				D04725F619E49ED7006002AA /* ReactiveCocoa.framework in Frameworks */,
@@ -806,7 +808,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D0C3130619EF2ACC00984962 /* LlamaKit.framework in Frameworks */,
+				D0C3132D19EF2FAE00984962 /* LlamaKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -817,6 +819,7 @@
 				D05E662619EDD83000904ACA /* Nimble.framework in Frameworks */,
 				D037672F19EDA78B00A782A9 /* Quick.framework in Frameworks */,
 				D047261719E49F82006002AA /* ReactiveCocoa.framework in Frameworks */,
+				D0C3133019EF304300984962 /* LlamaKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1128,8 +1131,7 @@
 			isa = PBXGroup;
 			children = (
 				D037666519EDA57100A782A9 /* extobjc */,
-				D0C3130719EF2AD900984962 /* LlamaKit.framework */,
-				D0C3130519EF2ACC00984962 /* LlamaKit.framework */,
+				D0C3132B19EF2FA300984962 /* LlamaKit.framework */,
 				D04725EE19E49ED7006002AA /* Info.plist */,
 			);
 			name = "Supporting Files";

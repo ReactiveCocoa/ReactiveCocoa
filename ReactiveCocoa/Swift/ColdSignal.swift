@@ -582,6 +582,41 @@ public struct ColdSignal<T> {
 			.merge(identity)
 	}
 
+	/// Ignores all values from the receiver, then subscribes to and forwards
+	/// events from the given signal once the receiver has completed.
+	public func then<U>(signal: ColdSignal<U>) -> ColdSignal<U> {
+		return ColdSignal<U> { subscriber in
+			let disposable = SerialDisposable()
+			subscriber.disposable.addDisposable(disposable)
+
+			disposable.innerDisposable = self.subscribe(error: { error in
+				subscriber.put(.Error(error))
+			}, completed: {
+				disposable.innerDisposable = signal.subscribe(subscriber)
+			})
+		}
+	}
+
+	private func subscribeWithStates<U>(selfState: CombineLatestState<T>, _ otherState: CombineLatestState<U>, queue: dispatch_queue_t, onBothNext: () -> (), onError: NSError -> (), onBothCompleted: () -> ()) -> Disposable {
+		return subscribe(next: { value in
+			dispatch_sync(queue) {
+				selfState.latestValue = value
+				if otherState.latestValue == nil {
+					return
+				}
+
+				onBothNext()
+			}
+		}, error: onError, completed: {
+			dispatch_sync(queue) {
+				selfState.completed = true
+				if otherState.completed {
+					onBothCompleted()
+				}
+			}
+		})
+	}
+
 	/// Immediately subscribes to the receiver, then forwards all values on the
 	/// returned signal.
 	///

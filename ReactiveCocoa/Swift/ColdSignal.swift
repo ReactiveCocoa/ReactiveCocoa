@@ -463,7 +463,7 @@ public struct ColdSignal<T> {
 
 					return arr
 				}
-				
+
 				return ()
 			}, error: { error in
 				subscriber.put(.Error(error))
@@ -580,6 +580,31 @@ public struct ColdSignal<T> {
 				}
 			}
 			.merge(identity)
+	}
+
+	/// Immediately subscribes to the receiver, then forwards all values on the
+	/// returned signal.
+	///
+	/// If `errorHandler` is `nil`, the stream must never produce an `Error`
+	/// event.
+	public func start(errorHandler: (NSError -> ())?, completionHandler: () -> () = doNothing) -> HotSignal<T> {
+		let (signal, sink) = HotSignal<T>.pipe()
+
+		var onError = { (error: NSError) in
+			assert(false)
+		}
+
+		// Apparently ?? has trouble with closures, so use this lame pattern
+		// instead.
+		if let errorHandler = errorHandler {
+			onError = errorHandler
+		}
+
+		subscribe(next: { value in
+			sink.put(value)
+		}, error: onError, completed: completionHandler)
+
+		return signal
 	}
 }
 

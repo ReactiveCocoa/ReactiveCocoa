@@ -27,6 +27,27 @@ public struct ColdSignal<T> {
 		self.generator = generator
 	}
 
+	/// Starts producing events for the given subscriber, performing any side
+	/// effects embedded within the ColdSignal.
+	///
+	/// Returns a Disposable which will cancel the work associated with event
+	/// production, and prevent any further events from being sent.
+	public func subscribe(subscriber: Subscriber<T>) -> Disposable {
+		// TODO: We need an intermediate subscriber here, so disposal doesn't
+		// cancel everything about this given subscriber.
+		generator(subscriber)
+		return subscriber.disposable
+	}
+
+	/// Convenience function to invoke subscribe() with a Subscriber that has
+	/// the given callbacks for each event type.
+	public func subscribe(next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing) -> Disposable {
+		return subscribe(Subscriber(next: next, error: error, completed: completed))
+	}
+}
+
+/// Convenience constructors.
+extension ColdSignal {
 	/// Creates a signal that will execute the given action upon subscription,
 	/// then forward all events from the generated signal.
 	public static func defer(action: () -> ColdSignal) -> ColdSignal {
@@ -59,6 +80,11 @@ public struct ColdSignal<T> {
 		}
 	}
 
+	/// Creates a signal that will never send any events.
+	public static func never() -> ColdSignal {
+		return ColdSignal { _ in () }
+	}
+
 	/// Creates a signal that will iterate over the given sequence whenever a
 	/// Subscriber is attached.
 	///
@@ -75,30 +101,10 @@ public struct ColdSignal<T> {
 			subscriber.put(.Completed)
 		}
 	}
+}
 
-	/// Creates a signal that will never send any events.
-	public static func never() -> ColdSignal {
-		return ColdSignal { _ in () }
-	}
-
-	/// Starts producing events for the given subscriber, performing any side
-	/// effects embedded within the ColdSignal.
-	///
-	/// Returns a Disposable which will cancel the work associated with event
-	/// production, and prevent any further events from being sent.
-	public func subscribe(subscriber: Subscriber<T>) -> Disposable {
-		// TODO: We need an intermediate subscriber here, so disposal doesn't
-		// cancel everything about this given subscriber.
-		generator(subscriber)
-		return subscriber.disposable
-	}
-
-	/// Convenience function to invoke subscribe() with a Subscriber that has
-	/// the given callbacks for each event type.
-	public func subscribe(next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing) -> Disposable {
-		return subscribe(Subscriber(next: next, error: error, completed: completed))
-	}
-
+/// Transformative operators.
+extension ColdSignal {
 	/// Maps over the elements of the signal, accumulating a state along the
 	/// way.
 	///
@@ -128,101 +134,6 @@ public struct ColdSignal<T> {
 			})
 
 			subscriber.disposable.addDisposable(disposable)
-		}
-	}
-
-	/// Merges a signal of signals down into a single signal, biased toward the
-	/// signals added earlier.
-	///
-	/// evidence - Used to prove to the typechecker that the receiver is
-	///            a signal of signals. Simply pass in the `identity` function.
-	///
-	/// Returns a signal that will forward events from the original signals
-	/// as they arrive.
-	public func merge<U>(evidence: ColdSignal<T> -> ColdSignal<ColdSignal<U>>) -> ColdSignal<U> {
-		return ColdSignal<U> { subscriber in
-			let disposable = CompositeDisposable()
-			let inFlight = Atomic(1)
-
-			let decrementInFlight: () -> () = {
-				let orig = inFlight.modify { $0 - 1 }
-				if orig == 1 {
-					subscriber.put(.Completed)
-				}
-			}
-
-			let selfDisposable = evidence(self).subscribe(next: { stream in
-				inFlight.modify { $0 + 1 }
-
-				let streamDisposable = SerialDisposable()
-				disposable.addDisposable(streamDisposable)
-
-				streamDisposable.innerDisposable = stream.subscribe(Subscriber { event in
-					if event.isTerminating {
-						streamDisposable.dispose()
-						disposable.pruneDisposed()
-					}
-
-					switch event {
-					case let .Completed:
-						decrementInFlight()
-
-					default:
-						subscriber.put(event)
-					}
-				})
-			}, error: { error in
-				subscriber.put(.Error(error))
-			}, completed: {
-				decrementInFlight()
-			})
-
-			subscriber.disposable.addDisposable(selfDisposable)
-		}
-	}
-
-	/// Switches on a signal of signal, forwarding events from the
-	/// latest inner signal.
-	///
-	/// evidence - Used to prove to the typechecker that the receiver is
-	///            a signal of signals. Simply pass in the `identity` function.
-	///
-	/// Returns a signal that will forward events only from the latest
-	/// signal sent upon the receiver.
-	public func switchToLatest<U>(evidence: ColdSignal<T> -> ColdSignal<ColdSignal<U>>) -> ColdSignal<U> {
-		return ColdSignal<U> { subscriber in
-			let selfCompleted = Atomic(false)
-			let latestCompleted = Atomic(false)
-
-			let completeIfNecessary: () -> () = {
-				if selfCompleted.value && latestCompleted.value {
-					subscriber.put(.Completed)
-				}
-			}
-
-			let latestDisposable = SerialDisposable()
-			subscriber.disposable.addDisposable(latestDisposable)
-
-			let selfDisposable = evidence(self).subscribe(next: { stream in
-				latestDisposable.innerDisposable = nil
-				latestDisposable.innerDisposable = stream.subscribe(Subscriber { innerEvent in
-					switch innerEvent {
-					case let .Completed:
-						latestCompleted.value = true
-						completeIfNecessary()
-
-					default:
-						subscriber.put(innerEvent)
-					}
-				})
-			}, error: { error in
-				subscriber.put(.Error(error))
-			}, completed: {
-				selfCompleted.value = true
-				completeIfNecessary()
-			})
-
-			subscriber.disposable.addDisposable(selfDisposable)
 		}
 	}
 
@@ -431,24 +342,6 @@ public struct ColdSignal<T> {
 		}
 	}
 
-	/// Concatenates `signal` after the receiver.
-	public func concat(signal: ColdSignal) -> ColdSignal {
-		return ColdSignal { subscriber in
-			let serialDisposable = SerialDisposable()
-			subscriber.disposable.addDisposable(serialDisposable)
-
-			serialDisposable.innerDisposable = self.subscribe(Subscriber { event in
-				switch event {
-				case let .Completed:
-					serialDisposable.innerDisposable = signal.subscribe(subscriber)
-
-				default:
-					subscriber.put(event)
-				}
-			})
-		}
-	}
-
 	/// Waits for the receiver to complete successfully, then forwards only the
 	/// last `count` values.
 	public func takeLast(count: Int) -> ColdSignal {
@@ -581,22 +474,10 @@ public struct ColdSignal<T> {
 			}
 			.merge(identity)
 	}
+}
 
-	/// Ignores all values from the receiver, then subscribes to and forwards
-	/// events from the given signal once the receiver has completed.
-	public func then<U>(signal: ColdSignal<U>) -> ColdSignal<U> {
-		return ColdSignal<U> { subscriber in
-			let disposable = SerialDisposable()
-			subscriber.disposable.addDisposable(disposable)
-
-			disposable.innerDisposable = self.subscribe(error: { error in
-				subscriber.put(.Error(error))
-			}, completed: {
-				disposable.innerDisposable = signal.subscribe(subscriber)
-			})
-		}
-	}
-
+/// Methods for combining multiple signals.
+extension ColdSignal {
 	private func subscribeWithStates<U>(selfState: CombineLatestState<T>, _ otherState: CombineLatestState<U>, queue: dispatch_queue_t, onBothNext: () -> (), onError: NSError -> (), onBothCompleted: () -> ()) -> Disposable {
 		return subscribe(next: { value in
 			dispatch_sync(queue) {
@@ -641,6 +522,137 @@ public struct ColdSignal<T> {
 		}
 	}
 
+	/// Concatenates `signal` after the receiver.
+	public func concat(signal: ColdSignal) -> ColdSignal {
+		return ColdSignal { subscriber in
+			let serialDisposable = SerialDisposable()
+			subscriber.disposable.addDisposable(serialDisposable)
+
+			serialDisposable.innerDisposable = self.subscribe(Subscriber { event in
+				switch event {
+				case let .Completed:
+					serialDisposable.innerDisposable = signal.subscribe(subscriber)
+
+				default:
+					subscriber.put(event)
+				}
+			})
+		}
+	}
+
+	/// Ignores all values from the receiver, then subscribes to and forwards
+	/// events from the given signal once the receiver has completed.
+	public func then<U>(signal: ColdSignal<U>) -> ColdSignal<U> {
+		return ColdSignal<U> { subscriber in
+			let disposable = SerialDisposable()
+			subscriber.disposable.addDisposable(disposable)
+
+			disposable.innerDisposable = self.subscribe(error: { error in
+				subscriber.put(.Error(error))
+			}, completed: {
+				disposable.innerDisposable = signal.subscribe(subscriber)
+			})
+		}
+	}
+
+	/// Merges a signal of signals down into a single signal, biased toward the
+	/// signals added earlier.
+	///
+	/// evidence - Used to prove to the typechecker that the receiver is
+	///            a signal of signals. Simply pass in the `identity` function.
+	///
+	/// Returns a signal that will forward events from the original signals
+	/// as they arrive.
+	public func merge<U>(evidence: ColdSignal<T> -> ColdSignal<ColdSignal<U>>) -> ColdSignal<U> {
+		return ColdSignal<U> { subscriber in
+			let disposable = CompositeDisposable()
+			let inFlight = Atomic(1)
+
+			let decrementInFlight: () -> () = {
+				let orig = inFlight.modify { $0 - 1 }
+				if orig == 1 {
+					subscriber.put(.Completed)
+				}
+			}
+
+			let selfDisposable = evidence(self).subscribe(next: { stream in
+				inFlight.modify { $0 + 1 }
+
+				let streamDisposable = SerialDisposable()
+				disposable.addDisposable(streamDisposable)
+
+				streamDisposable.innerDisposable = stream.subscribe(Subscriber { event in
+					if event.isTerminating {
+						streamDisposable.dispose()
+						disposable.pruneDisposed()
+					}
+
+					switch event {
+					case let .Completed:
+						decrementInFlight()
+
+					default:
+						subscriber.put(event)
+					}
+				})
+			}, error: { error in
+				subscriber.put(.Error(error))
+			}, completed: {
+				decrementInFlight()
+			})
+
+			subscriber.disposable.addDisposable(selfDisposable)
+		}
+	}
+
+	/// Switches on a signal of signal, forwarding events from the
+	/// latest inner signal.
+	///
+	/// evidence - Used to prove to the typechecker that the receiver is
+	///            a signal of signals. Simply pass in the `identity` function.
+	///
+	/// Returns a signal that will forward events only from the latest
+	/// signal sent upon the receiver.
+	public func switchToLatest<U>(evidence: ColdSignal<T> -> ColdSignal<ColdSignal<U>>) -> ColdSignal<U> {
+		return ColdSignal<U> { subscriber in
+			let selfCompleted = Atomic(false)
+			let latestCompleted = Atomic(false)
+
+			let completeIfNecessary: () -> () = {
+				if selfCompleted.value && latestCompleted.value {
+					subscriber.put(.Completed)
+				}
+			}
+
+			let latestDisposable = SerialDisposable()
+			subscriber.disposable.addDisposable(latestDisposable)
+
+			let selfDisposable = evidence(self).subscribe(next: { stream in
+				latestDisposable.innerDisposable = nil
+				latestDisposable.innerDisposable = stream.subscribe(Subscriber { innerEvent in
+					switch innerEvent {
+					case let .Completed:
+						latestCompleted.value = true
+						completeIfNecessary()
+
+					default:
+						subscriber.put(innerEvent)
+					}
+				})
+			}, error: { error in
+				subscriber.put(.Error(error))
+			}, completed: {
+				selfCompleted.value = true
+				completeIfNecessary()
+			})
+
+			subscriber.disposable.addDisposable(selfDisposable)
+		}
+	}
+}
+
+/// Blocking methods for receiving values.
+extension ColdSignal {
 	/// Subscribes to the receiver, then returns the first value received.
 	public func first() -> Result<T> {
 		let semaphore = dispatch_semaphore_create(0)
@@ -660,7 +672,10 @@ public struct ColdSignal<T> {
 		dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
 		return result!
 	}
+}
 
+/// Conversions from ColdSignal to HotSignal.
+extension ColdSignal {
 	/// Immediately subscribes to the receiver, then forwards all values on the
 	/// returned signal.
 	///

@@ -9,45 +9,23 @@
 import Foundation
 import LlamaKit
 
-/// A property of type T that allows the observation of its changes.
+/// A mutable property of type T that allows observation of its changes.
 public final class ObservableProperty<T> {
 	private let queue = dispatch_queue_create("com.github.ReactiveCocoa.ObservableProperty", DISPATCH_QUEUE_SERIAL)
-	private var sinks = Bag<SinkOf<Event<T>>>()
+	private var subscribers = Bag<Subscriber<T>>()
 
 	/// The current value of the property.
 	///
-	/// Setting this to a new value will notify all observers of `changes` and
-	/// all subscribers to `values()`.
+	/// Setting this to a new value will notify all subscribers to `values()`.
 	public var value: T {
 		didSet(value) {
 			dispatch_sync(queue) {
-				for sink in self.sinks {
-					sink.put(.Next(Box(value)))
+				for subscriber in self.subscribers {
+					subscriber.put(.Next(Box(value)))
 				}
 			}
 		}
 	}
-
-	/// A signal of all future changes to this property's value.
-	public lazy var changes: HotSignal<T> = {
-		let (signal, sink) = HotSignal<T>.pipe()
-		let eventSink = SinkOf<Event<T>> { event in
-			switch (event) {
-			case let .Next(value):
-				sink.put(value.unbox)
-
-			default:
-				break
-			}
-		}
-
-		dispatch_sync(self.queue) {
-			let token = self.sinks.insert(eventSink)
-			return ()
-		}
-
-		return signal
-	}()
 
 	init(_ value: T) {
 		self.value = value
@@ -55,8 +33,8 @@ public final class ObservableProperty<T> {
 
 	deinit {
 		dispatch_sync(queue) {
-			for sink in self.sinks {
-				sink.put(.Completed)
+			for subscriber in self.subscribers {
+				subscriber.put(.Completed)
 			}
 		}
 	}
@@ -69,13 +47,13 @@ public final class ObservableProperty<T> {
 			var token: RemovalToken?
 
 			dispatch_sync(self.queue) {
-				token = self.sinks.insert(SinkOf(subscriber))
+				token = self.subscribers.insert(subscriber)
 				subscriber.put(.Next(Box(self.value)))
 			}
 
 			subscriber.disposable.addDisposable {
 				dispatch_sync(self.queue) {
-					self.sinks.removeValueForToken(token!)
+					self.subscribers.removeValueForToken(token!)
 				}
 			}
 		}

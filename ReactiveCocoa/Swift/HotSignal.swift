@@ -281,4 +281,54 @@ public final class HotSignal<T> {
 			.merge(identity)
 			.take(count)
 	}
+
+	/// Replays up to `capacity` values, then forwards all future values.
+	///
+	/// Returns a signal that will forward the latest `capacity` (or fewer)
+	/// values observed up to that point, then forward all future values from
+	/// the receiver. The returned signal will never complete, so it must be
+	/// disposed manually.
+	public func replay(capacity: Int = 1) -> ColdSignal<T> {
+		precondition(capacity >= 0)
+
+		if capacity == 0 {
+			return ColdSignal { subscriber in
+				let disposable = self.observe { subscriber.put(.Next(Box($0))) }
+				subscriber.disposable.addDisposable(disposable)
+			}
+		}
+
+		let replayProperty = ObservableProperty<[(Int, T)]>([])
+		var index = 0
+
+		observe { elem in
+			var array: [(Int, T)] = replayProperty.value
+			let newEntry = (index++, elem)
+			array.append(newEntry)
+
+			if array.count > capacity {
+				array.removeAtIndex(0)
+			}
+
+			replayProperty.value = array
+		}
+
+		return replayProperty.values()
+			.mapAccumulate(0) { (var lastIndex, values) in
+				var valuesToSend: [T] = []
+
+				for (index, value) in values {
+					if (index <= lastIndex) {
+						continue
+					}
+
+					valuesToSend.append(value)
+					lastIndex = index
+				}
+
+				return (lastIndex, ColdSignal.fromValues(valuesToSend))
+			}
+			// FIXME: This should actually be concat(), which doesn't exist yet.
+			.merge(identity)
+	}
 }

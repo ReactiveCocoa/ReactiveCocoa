@@ -63,6 +63,8 @@ public final class HotSignal<T> {
 	/// Creates a signal that can be controlled by sending values to the
 	/// returned sink.
 	public class func pipe() -> (HotSignal, SinkOf<T>) {
+		// TODO: Keep the signal alive while the sink is, for operators like
+		// replay().
 		var sink: SinkOf<T>? = nil
 		let signal = HotSignal { sink = $0 }
 
@@ -250,7 +252,7 @@ public final class HotSignal<T> {
 	/// Returns a signal that will send the first `count` values observed on
 	/// the receiver, then complete. If fewer than `count` values are observed,
 	/// the returned signal will not complete, so it must be disposed manually.
-	public func buffer(count: Int = 1) -> ColdSignal<T> {
+	public func buffer(_ count: Int = 1) -> ColdSignal<T> {
 		precondition(count >= 0)
 
 		if count == 0 {
@@ -288,7 +290,7 @@ public final class HotSignal<T> {
 	/// values observed up to that point, then forward all future values from
 	/// the receiver. The returned signal will never complete, so it must be
 	/// disposed manually.
-	public func replay(capacity: Int = 1) -> ColdSignal<T> {
+	public func replay(_ capacity: Int = 1) -> ColdSignal<T> {
 		precondition(capacity >= 0)
 
 		if capacity == 0 {
@@ -301,6 +303,9 @@ public final class HotSignal<T> {
 		let replayProperty = ObservableProperty<[(Int, T)]>([])
 		var index = 0
 
+		// TODO: Tear down this observation when the resulting ColdSignal
+		// disappears somehow? Or maybe this will actually get taken care of by
+		// the Signal lifetime.
 		observe { elem in
 			var array: [(Int, T)] = replayProperty.value
 			let newEntry = (index++, elem)

@@ -35,7 +35,7 @@
 	keyPath = [keyPath copy];
 
 	NSRecursiveLock *objectLock = [[NSRecursiveLock alloc] init];
-	objectLock.name = @"com.github.ReactiveCocoa.NSObjectRACPropertySubscribing";
+	objectLock.name = @"org.reactivecocoa.ReactiveCocoa.NSObjectRACPropertySubscribing";
 
 	__block __unsafe_unretained NSObject *unsafeSelf = self;
 	__block __unsafe_unretained NSObject *unsafeObserver = observer;

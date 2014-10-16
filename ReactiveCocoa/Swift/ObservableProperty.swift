@@ -11,7 +11,7 @@ import LlamaKit
 
 /// A mutable property of type T that allows observation of its changes.
 public final class ObservableProperty<T> {
-	private let queue = dispatch_queue_create("com.github.ReactiveCocoa.ObservableProperty", DISPATCH_QUEUE_SERIAL)
+	private let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.ObservableProperty", DISPATCH_QUEUE_SERIAL)
 	private var subscribers = Bag<Subscriber<T>>()
 
 	/// The current value of the property.

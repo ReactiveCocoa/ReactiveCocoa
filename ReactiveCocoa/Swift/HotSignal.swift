@@ -12,7 +12,7 @@ import LlamaKit
 public final class HotSignal<T> {
 	private let generator: SinkOf<T> -> ()
 
-	private let queue = dispatch_queue_create("com.github.ReactiveCocoa.HotSignal", DISPATCH_QUEUE_CONCURRENT)
+	private let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.HotSignal", DISPATCH_QUEUE_CONCURRENT)
 	private var observers = Bag<SinkOf<T>>()
 
 	/// Initializes a signal that will immediately perform the given action to

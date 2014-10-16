@@ -64,42 +64,42 @@ qck_describe(@"RACReplaySubject", ^{
 		qck_beforeEach(^{
 			subject = [RACReplaySubject replaySubjectWithCapacity:1];
 		});
-		
+
 		qck_it(@"should send the last value", ^{
 			id firstValue = @"blah";
 			id secondValue = @"more blah";
-			
+
 			[subject sendNext:firstValue];
 			[subject sendNext:secondValue];
-			
+
 			__block id valueReceived = nil;
 			[subject subscribeNext:^(id x) {
 				valueReceived = x;
 			}];
-			
+
 			expect(valueReceived).to(equal(secondValue));
 		});
-		
+
 		qck_it(@"should send the last value to new subscribers after completion", ^{
 			id firstValue = @"blah";
 			id secondValue = @"more blah";
-			
+
 			__block id valueReceived = nil;
 			__block NSUInteger nextsReceived = 0;
-			
+
 			[subject sendNext:firstValue];
 			[subject sendNext:secondValue];
-			
+
 			expect(@(nextsReceived)).to(equal(@0));
 			expect(valueReceived).to(beNil());
-			
+
 			[subject sendCompleted];
-			
+
 			[subject subscribeNext:^(id x) {
 				valueReceived = x;
 				nextsReceived++;
 			}];
-			
+
 			expect(@(nextsReceived)).to(equal(@1));
 			expect(valueReceived).to(equal(secondValue));
 		});
@@ -180,15 +180,15 @@ qck_describe(@"RACReplaySubject", ^{
 				} copy]
 			};
 		});
-		
+
 		qck_it(@"should send both values to new subscribers after completion", ^{
 			id firstValue = @"blah";
 			id secondValue = @"more blah";
-			
+
 			[subject sendNext:firstValue];
 			[subject sendNext:secondValue];
 			[subject sendCompleted];
-			
+
 			__block BOOL completed = NO;
 			NSMutableArray *valuesReceived = [NSMutableArray array];
 			[subject subscribeNext:^(id x) {
@@ -196,7 +196,7 @@ qck_describe(@"RACReplaySubject", ^{
 			} completed:^{
 				completed = YES;
 			}];
-			
+
 			expect(@(valuesReceived.count)).to(equal(@2));
 			NSArray *expected = [NSArray arrayWithObjects:firstValue, secondValue, nil];
 			expect(valuesReceived).to(equal(expected));
@@ -215,9 +215,9 @@ qck_describe(@"RACReplaySubject", ^{
 				values[indexPlusOne - 1] = value;
 			}];
 
-			dispatch_queue_t queue = dispatch_queue_create("com.github.ReactiveCocoa.RACSubjectSpec", DISPATCH_QUEUE_CONCURRENT);
+			dispatch_queue_t queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.RACSubjectSpec", DISPATCH_QUEUE_CONCURRENT);
 			dispatch_suspend(queue);
-			
+
 			for (NSUInteger i = 0; i < count; i++) {
 				dispatch_async(queue, ^{
 					[subject sendNext:@(i)];
@@ -233,7 +233,7 @@ qck_describe(@"RACReplaySubject", ^{
 
 			NSArray *liveValues = [NSArray arrayWithObjects:(id *)values count:(NSUInteger)nextIndex];
 			expect(@(liveValues.count)).to(equal(@(count)));
-			
+
 			NSArray *replayedValues = subject.toArray;
 			expect(@(replayedValues.count)).to(equal(@(count)));
 
@@ -264,7 +264,7 @@ qck_describe(@"RACReplaySubject", ^{
 
 			expect(currentScheduler).toEventuallyNot(beNil());
 		});
-		
+
 		qck_it(@"should stop replaying when the subscription is disposed", ^{
 			NSMutableArray *values = [NSMutableArray array];
 

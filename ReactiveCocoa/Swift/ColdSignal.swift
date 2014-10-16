@@ -624,7 +624,7 @@ public struct ColdSignal<T> {
 	/// at least one value each.
 	public func combineLatestWith<U>(signal: ColdSignal<U>) -> ColdSignal<(T, U)> {
 		return ColdSignal<(T, U)> { subscriber in
-			let queue = dispatch_queue_create("com.github.ReactiveCocoa.ColdSignal.combineLatestWith", DISPATCH_QUEUE_SERIAL)
+			let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.ColdSignal.combineLatestWith", DISPATCH_QUEUE_SERIAL)
 			let selfState = CombineLatestState<T>()
 			let otherState = CombineLatestState<U>()
 

@@ -9,21 +9,20 @@
 import LlamaKit
 
 extension NSURLSession {
-	/// Returns a Producer that will fetch data for each Consumer using the
-	/// given request.
-	public func rac_dataProducerWithRequest(request: NSURLRequest) -> Producer<(NSData, NSURLResponse)> {
-		return Producer { consumer in
+	/// Returns a signal that will fetch data using the given request.
+	public func rac_dataWithRequest(request: NSURLRequest) -> ColdSignal<(NSData, NSURLResponse)> {
+		return ColdSignal { subscriber in
 			let task = self.dataTaskWithRequest(request) { (data, response, error) in
 				if data == nil || response == nil {
-					consumer.put(.Error(error))
+					subscriber.put(.Error(error))
 				} else {
 					let value = (data!, response!)
-					consumer.put(.Next(Box(value)))
-					consumer.put(.Completed)
+					subscriber.put(.Next(Box(value)))
+					subscriber.put(.Completed)
 				}
 			}
 
-			consumer.disposable.addDisposable {
+			subscriber.disposable.addDisposable {
 				task.cancel()
 			}
 

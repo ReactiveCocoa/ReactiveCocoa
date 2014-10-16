@@ -7,12 +7,11 @@
 //
 
 extension NSNotificationCenter {
-	/// Returns a Signal of the latest posted notification that matches the
-	/// given criteria.
-	public func rac_notifications(name: String? = nil, object: AnyObject? = nil) -> Signal<NSNotification?> {
+	/// Returns a signal of notifications posted that match the given criteria.
+	public func rac_notifications(name: String? = nil, object: AnyObject? = nil) -> HotSignal<NSNotification> {
 		let disposable = ScopedDisposable(SerialDisposable())
 
-		return Signal(initialValue: nil) { sink in
+		return HotSignal { sink in
 			let observer = self.addObserverForName(name, object: object, queue: nil) { notification in
 				sink.put(notification)
 			}

@@ -259,6 +259,19 @@ extension HotSignal {
 
 /// Blocking methods for receiving values.
 extension HotSignal {
+	/// Observes the receiver, then returns the first value received.
+	public func next() -> T {
+		let semaphore = dispatch_semaphore_create(0)
+		var result: T?
+
+		take(1).observe { value in
+			result = value
+			dispatch_semaphore_signal(semaphore)
+		}
+
+		dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
+		return result!
+	}
 }
 
 /// Conversions from HotSignal to ColdSignal.

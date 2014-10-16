@@ -2,8 +2,8 @@
 //  ReactiveCocoa.h
 //  ReactiveCocoa
 //
-//  Created by Justin Spahr-Summers on 2014-07-03.
-//  Copyright (c) 2014 GitHub. All rights reserved.
+//  Created by Josh Abernathy on 3/5/12.
+//  Copyright (c) 2012 GitHub, Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -15,6 +15,7 @@ FOUNDATION_EXPORT double ReactiveCocoaVersionNumber;
 FOUNDATION_EXPORT const unsigned char ReactiveCocoaVersionString[];
 
 #import <ReactiveCocoa/EXTKeyPathCoding.h>
+#import <ReactiveCocoa/EXTScope.h>
 #import <ReactiveCocoa/NSArray+RACSequenceAdditions.h>
 #import <ReactiveCocoa/NSData+RACSupport.h>
 #import <ReactiveCocoa/NSDictionary+RACSequenceAdditions.h>
@@ -32,6 +33,7 @@ FOUNDATION_EXPORT const unsigned char ReactiveCocoaVersionString[];
 #import <ReactiveCocoa/NSIndexSet+RACSequenceAdditions.h>
 #import <ReactiveCocoa/NSURLConnection+RACSupport.h>
 #import <ReactiveCocoa/NSUserDefaults+RACSupport.h>
+#import <ReactiveCocoa/RACBacktrace.h>
 #import <ReactiveCocoa/RACBehaviorSubject.h>
 #import <ReactiveCocoa/RACChannel.h>
 #import <ReactiveCocoa/RACCommand.h>
@@ -42,8 +44,10 @@ FOUNDATION_EXPORT const unsigned char ReactiveCocoaVersionString[];
 #import <ReactiveCocoa/RACKVOChannel.h>
 #import <ReactiveCocoa/RACMulticastConnection.h>
 #import <ReactiveCocoa/RACQueueScheduler.h>
+#import <ReactiveCocoa/RACQueueScheduler+Subclass.h>
 #import <ReactiveCocoa/RACReplaySubject.h>
 #import <ReactiveCocoa/RACScheduler.h>
+#import <ReactiveCocoa/RACScheduler+Subclass.h>
 #import <ReactiveCocoa/RACScopedDisposable.h>
 #import <ReactiveCocoa/RACSequence.h>
 #import <ReactiveCocoa/RACSerialDisposable.h>
@@ -74,6 +78,7 @@ FOUNDATION_EXPORT const unsigned char ReactiveCocoaVersionString[];
 	#import <ReactiveCocoa/UIStepper+RACSignalSupport.h>
 	#import <ReactiveCocoa/UISwitch+RACSignalSupport.h>
 	#import <ReactiveCocoa/UITableViewCell+RACSignalSupport.h>
+	#import <ReactiveCocoa/UITableViewHeaderFooterView+RACSignalSupport.h>
 	#import <ReactiveCocoa/UITextField+RACSignalSupport.h>
 	#import <ReactiveCocoa/UITextView+RACSignalSupport.h>
 #elif TARGET_OS_MAC

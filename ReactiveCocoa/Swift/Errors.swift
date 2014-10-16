@@ -26,6 +26,11 @@ public enum RACError: NSInteger {
 	/// An attempt was made to execute an `Action` while it was disabled.
 	case ActionNotEnabled
 
+	/// first() or last() failed because the signal did not send at least one
+	/// value before completing, or single() failed because the signal did not
+	/// send exactly one value before completing.
+	case ExpectedCountMismatch
+
 	/// Returns the `RACError` that corresponds to the code within the given
 	/// `NSError`, or nil if the domain of the error is not `RACErrorDomain`.
 	public static func fromError(error: NSError) -> RACError? {

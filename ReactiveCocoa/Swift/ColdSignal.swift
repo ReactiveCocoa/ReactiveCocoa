@@ -641,6 +641,26 @@ public struct ColdSignal<T> {
 		}
 	}
 
+	/// Subscribes to the receiver, then returns the first value received.
+	public func first() -> Result<T> {
+		let semaphore = dispatch_semaphore_create(0)
+		var result: Result<T>?
+
+		take(1).subscribe(next: { value in
+			result = success(value)
+			dispatch_semaphore_signal(semaphore)
+		}, error: { error in
+			result = failure(error)
+			dispatch_semaphore_signal(semaphore)
+		}, completed: {
+			result = failure(RACError.ExpectedCountMismatch.error)
+			dispatch_semaphore_signal(semaphore)
+		})
+
+		dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
+		return result!
+	}
+
 	/// Immediately subscribes to the receiver, then forwards all values on the
 	/// returned signal.
 	///

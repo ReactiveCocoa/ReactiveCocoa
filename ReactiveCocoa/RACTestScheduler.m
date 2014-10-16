@@ -73,7 +73,7 @@ static void RACReleaseScheduledAction(CFAllocatorRef allocator, const void *ptr)
 #pragma mark Lifecycle
 
 - (instancetype)init {
-	self = [super initWithName:@"com.github.ReactiveCocoa.RACTestScheduler"];
+	self = [super initWithName:@"org.reactivecocoa.ReactiveCocoa.RACTestScheduler"];
 	if (self == nil) return nil;
 
 	CFBinaryHeapCallBacks callbacks = (CFBinaryHeapCallBacks){
@@ -113,7 +113,7 @@ static void RACReleaseScheduledAction(CFAllocatorRef allocator, const void *ptr)
 			CFBinaryHeapRemoveMinimumValue(self.scheduledActions);
 
 			if (action.disposable.disposed) continue;
-			
+
 			RACScheduler *previousScheduler = RACScheduler.currentScheduler;
 			NSThread.currentThread.threadDictionary[RACSchedulerCurrentSchedulerKey] = self;
 
@@ -180,7 +180,7 @@ static void RACReleaseScheduledAction(CFAllocatorRef allocator, const void *ptr)
 			// Schedule the next interval.
 			RACDisposable *schedulingDisposable = [self after:[date dateByAddingTimeInterval:interval] repeatingEvery:interval withLeeway:leeway schedule:block];
 			[compoundDisposable addDisposable:schedulingDisposable];
-		
+
 			block();
 		};
 

@@ -617,6 +617,30 @@ public struct ColdSignal<T> {
 		})
 	}
 
+	/// Combines the latest value of the receiver with the latest value from
+	/// the given signal.
+	///
+	/// The returned signal will not send a value until both inputs have sent
+	/// at least one value each.
+	public func combineLatestWith<U>(signal: ColdSignal<U>) -> ColdSignal<(T, U)> {
+		return ColdSignal<(T, U)> { subscriber in
+			let queue = dispatch_queue_create("com.github.ReactiveCocoa.ColdSignal.combineLatestWith", DISPATCH_QUEUE_SERIAL)
+			let selfState = CombineLatestState<T>()
+			let otherState = CombineLatestState<U>()
+
+			let onBothNext = { () -> () in
+				let combined = (selfState.latestValue!, otherState.latestValue!)
+				subscriber.put(.Next(Box(combined)))
+			}
+
+			let onError = { subscriber.put(.Error($0)) }
+			let onBothCompleted = { subscriber.put(.Completed) }
+
+			subscriber.disposable.addDisposable(self.subscribeWithStates(selfState, otherState, queue: queue, onBothNext: onBothNext, onError: onError, onBothCompleted: onBothCompleted))
+			subscriber.disposable.addDisposable(signal.subscribeWithStates(otherState, selfState, queue: queue, onBothNext: onBothNext, onError: onError, onBothCompleted: onBothCompleted))
+		}
+	}
+
 	/// Immediately subscribes to the receiver, then forwards all values on the
 	/// returned signal.
 	///
@@ -703,4 +727,9 @@ public final class Subscriber<T>: SinkType {
 			disposable.dispose()
 		}
 	}
+}
+
+private class CombineLatestState<T> {
+	var latestValue: T?
+	var completed = false
 }

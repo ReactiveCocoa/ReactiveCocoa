@@ -41,7 +41,7 @@ extension MainScheduler {
 
 extension QueueScheduler {
 	public func asRACScheduler() -> RACScheduler {
-		return RACTargetQueueScheduler(name: "com.github.ReactiveCocoa.QueueScheduler.asRACScheduler()", targetQueue: queue)
+		return RACTargetQueueScheduler(name: "org.reactivecocoa.ReactiveCocoa.QueueScheduler.asRACScheduler()", targetQueue: queue)
 	}
 }
 

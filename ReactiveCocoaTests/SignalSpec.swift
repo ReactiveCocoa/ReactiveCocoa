@@ -24,7 +24,7 @@ class SignalSpec: QuickSpec {
 			}
 
 			it("should instantiate with a custom generator") {
-				let queue = dispatch_queue_create("com.github.ReactiveCocoa.SignalSpec", DISPATCH_QUEUE_SERIAL)
+				let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.SignalSpec", DISPATCH_QUEUE_SERIAL)
 				dispatch_suspend(queue)
 
 				let signal = Signal(initialValue: 0) { sink in

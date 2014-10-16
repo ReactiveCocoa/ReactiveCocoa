@@ -13,7 +13,7 @@ import LlamaKit
 /// Unlike the Consumers of a Producer, all observers of a Signal will see the
 /// same version of events.
 public final class Signal<T> {
-	private let queue = dispatch_queue_create("com.github.ReactiveCocoa.Signal", DISPATCH_QUEUE_CONCURRENT)
+	private let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.Signal", DISPATCH_QUEUE_CONCURRENT)
 	private let generator: SinkOf<T> -> ()
 
 	private var _current: T? = nil
@@ -318,7 +318,7 @@ public final class Signal<T> {
 	/// Returns a Producer over the buffered values, and a Disposable which
 	/// can be used to cancel all further buffering and forwarding.
 	public func buffer(capacity: Int? = nil) -> (Producer<T>, Disposable) {
-		let queue = dispatch_queue_create("com.github.ReactiveCocoa.Signal.buffer", DISPATCH_QUEUE_CONCURRENT)
+		let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.Signal.buffer", DISPATCH_QUEUE_CONCURRENT)
 		var compositeDisposable = CompositeDisposable()
 
 		var bufferedValues: [T] = []

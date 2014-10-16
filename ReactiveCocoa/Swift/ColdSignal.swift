@@ -672,6 +672,40 @@ extension ColdSignal {
 		dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
 		return result!
 	}
+
+	/// Subscribes to the receiver, then returns the last value received.
+	public func last() -> Result<T> {
+		return takeLast(1).first()
+	}
+
+	/// Subscribes to the receiver, and returns a successful result if exactly
+	/// one value is received. If the receiver sends fewer or more values, an
+	/// error will be returned instead.
+	public func single() -> Result<T> {
+		let result = reduce(initial: Array<T>()) { (var array, value) in
+			array.append(value)
+			return array
+		}.first()
+
+		switch result {
+		case let .Success(values):
+			if values.unbox.count == 1 {
+				return success(values.unbox[0])
+			} else {
+				return failure(RACError.ExpectedCountMismatch.error)
+			}
+
+		case let .Failure(error):
+			return failure(error)
+		}
+	}
+
+	/// Subscribes to the receiver, then waits for completion.
+	public func wait() -> Result<()> {
+		return reduce(initial: ()) { (_, _) in () }
+			.takeLast(1)
+			.first()
+	}
 }
 
 /// Conversions from ColdSignal to HotSignal.

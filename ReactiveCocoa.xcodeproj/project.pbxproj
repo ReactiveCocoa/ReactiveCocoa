@@ -392,8 +392,6 @@
 		D097CE3C19EF7AF5005A201C /* HotSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D097CE3719EF7AF5005A201C /* HotSignal.swift */; };
 		D097CE3D19EF7AF5005A201C /* ObservableProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = D097CE3819EF7AF5005A201C /* ObservableProperty.swift */; };
 		D097CE3E19EF7AF5005A201C /* ObservableProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = D097CE3819EF7AF5005A201C /* ObservableProperty.swift */; };
-		D0C312CB19EF2A5800984962 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BA19EF2A5800984962 /* Action.swift */; };
-		D0C312CC19EF2A5800984962 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BA19EF2A5800984962 /* Action.swift */; };
 		D0C312CD19EF2A5800984962 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BB19EF2A5800984962 /* Atomic.swift */; };
 		D0C312CE19EF2A5800984962 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BB19EF2A5800984962 /* Atomic.swift */; };
 		D0C312CF19EF2A5800984962 /* Bag.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BC19EF2A5800984962 /* Bag.swift */; };
@@ -406,10 +404,6 @@
 		D0C312D819EF2A5800984962 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312C019EF2A5800984962 /* Event.swift */; };
 		D0C312D919EF2A5800984962 /* Identity.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312C119EF2A5800984962 /* Identity.swift */; };
 		D0C312DA19EF2A5800984962 /* Identity.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312C119EF2A5800984962 /* Identity.swift */; };
-		D0C312DB19EF2A5800984962 /* NSNotificationCenterExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312C219EF2A5800984962 /* NSNotificationCenterExtensions.swift */; };
-		D0C312DC19EF2A5800984962 /* NSNotificationCenterExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312C219EF2A5800984962 /* NSNotificationCenterExtensions.swift */; };
-		D0C312DD19EF2A5800984962 /* NSURLSessionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312C319EF2A5800984962 /* NSURLSessionExtensions.swift */; };
-		D0C312DE19EF2A5800984962 /* NSURLSessionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312C319EF2A5800984962 /* NSURLSessionExtensions.swift */; };
 		D0C312DF19EF2A5800984962 /* ObjectiveCBridging.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312C419EF2A5800984962 /* ObjectiveCBridging.swift */; };
 		D0C312E019EF2A5800984962 /* ObjectiveCBridging.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312C419EF2A5800984962 /* ObjectiveCBridging.swift */; };
 		D0C312E119EF2A5800984962 /* OptionalExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312C519EF2A5800984962 /* OptionalExtensions.swift */; };
@@ -1553,7 +1547,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				D037654219EDA41200A782A9 /* NSText+RACSignalSupport.m in Sources */,
-				D0C312CB19EF2A5800984962 /* Action.swift in Sources */,
 				D037659C19EDA41200A782A9 /* RACKVOChannel.m in Sources */,
 				D0C312D919EF2A5800984962 /* Identity.swift in Sources */,
 				D03765C819EDA41200A782A9 /* RACScopedDisposable.m in Sources */,
@@ -1573,7 +1566,6 @@
 				D03765B819EDA41200A782A9 /* RACReplaySubject.m in Sources */,
 				D03765EC19EDA41200A782A9 /* RACSubject.m in Sources */,
 				D03765D019EDA41200A782A9 /* RACSerialDisposable.m in Sources */,
-				D0C312DD19EF2A5800984962 /* NSURLSessionExtensions.swift in Sources */,
 				D0C312D319EF2A5800984962 /* Disposable.swift in Sources */,
 				D037666F19EDA57100A782A9 /* EXTRuntimeExtensions.m in Sources */,
 				D037653E19EDA41200A782A9 /* NSString+RACSupport.m in Sources */,
@@ -1606,7 +1598,6 @@
 				D037653219EDA41200A782A9 /* NSSet+RACSequenceAdditions.m in Sources */,
 				D037651219EDA41200A782A9 /* NSObject+RACAppKitBindings.m in Sources */,
 				D037656619EDA41200A782A9 /* RACCompoundDisposable.m in Sources */,
-				D0C312DB19EF2A5800984962 /* NSNotificationCenterExtensions.swift in Sources */,
 				D037655A19EDA41200A782A9 /* RACBlockTrampoline.m in Sources */,
 				D0C312DF19EF2A5800984962 /* ObjectiveCBridging.swift in Sources */,
 				D037659019EDA41200A782A9 /* RACGroupedSignal.m in Sources */,
@@ -1743,7 +1734,6 @@
 				D037651B19EDA41200A782A9 /* NSObject+RACDescription.m in Sources */,
 				D03765A519EDA41200A782A9 /* RACMulticastConnection.m in Sources */,
 				D037654F19EDA41200A782A9 /* RACArraySequence.m in Sources */,
-				D0C312DE19EF2A5800984962 /* NSURLSessionExtensions.swift in Sources */,
 				D037652319EDA41200A782A9 /* NSObject+RACLifting.m in Sources */,
 				D037650719EDA41200A782A9 /* NSIndexSet+RACSequenceAdditions.m in Sources */,
 				D037665F19EDA41200A782A9 /* UITextField+RACSignalSupport.m in Sources */,
@@ -1763,7 +1753,6 @@
 				D03765DB19EDA41200A782A9 /* RACSignalProvider.d in Sources */,
 				D037653319EDA41200A782A9 /* NSSet+RACSequenceAdditions.m in Sources */,
 				D037665319EDA41200A782A9 /* UISwitch+RACSignalSupport.m in Sources */,
-				D0C312CC19EF2A5800984962 /* Action.swift in Sources */,
 				D0C312D819EF2A5800984962 /* Event.swift in Sources */,
 				D037664B19EDA41200A782A9 /* UISlider+RACSignalSupport.m in Sources */,
 				D037656719EDA41200A782A9 /* RACCompoundDisposable.m in Sources */,
@@ -1795,7 +1784,6 @@
 				D037660719EDA41200A782A9 /* RACTuple.m in Sources */,
 				D037667019EDA57100A782A9 /* EXTRuntimeExtensions.m in Sources */,
 				D037651F19EDA41200A782A9 /* NSObject+RACKVOWrapper.m in Sources */,
-				D0C312DC19EF2A5800984962 /* NSNotificationCenterExtensions.swift in Sources */,
 				D037661719EDA41200A782A9 /* RACValueTransformer.m in Sources */,
 				D03765CD19EDA41200A782A9 /* RACSequence.m in Sources */,
 				D037652F19EDA41200A782A9 /* NSOrderedSet+RACSequenceAdditions.m in Sources */,

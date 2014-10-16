@@ -244,4 +244,41 @@ public final class HotSignal<T> {
 			return ()
 		}
 	}
+
+	/// Buffers `count` values, starting at the time of the method invocation.
+	///
+	/// Returns a signal that will send the first `count` values observed on
+	/// the receiver, then complete. If fewer than `count` values are observed,
+	/// the returned signal will not complete, so it must be disposed manually.
+	public func buffer(count: Int = 1) -> ColdSignal<T> {
+		precondition(count >= 0)
+
+		if count == 0 {
+			return .empty()
+		}
+
+		let bufferProperty = ObservableProperty<[T]>([])
+
+		let disposable = SerialDisposable()
+		disposable.innerDisposable = observe { elem in
+			var array = bufferProperty.value
+			array.append(elem)
+
+			if array.count == count {
+				disposable.dispose()
+			}
+
+			bufferProperty.value = array
+		}
+
+		return bufferProperty.values()
+			.mapAccumulate(0) { (lastIndex, values) in
+				let newIndex = values.count - 1
+				let signal = ColdSignal.fromValues(values[lastIndex...newIndex])
+				return (newIndex, signal)
+			}
+			// FIXME: This should actually be concat(), which doesn't exist yet.
+			.merge(identity)
+			.take(count)
+	}
 }

@@ -20,7 +20,7 @@
 	return [[RACSignal
 		createSignal:^(id<RACSubscriber> subscriber) {
 			NSOperationQueue *queue = [[NSOperationQueue alloc] init];
-			queue.name = @"com.github.ReactiveCocoa.NSURLConnectionRACSupport";
+			queue.name = @"org.reactivecocoa.ReactiveCocoa.NSURLConnectionRACSupport";
 
 			[NSURLConnection sendAsynchronousRequest:request queue:queue completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
 				// The docs say that `nil` data means an error occurred, but

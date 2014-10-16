@@ -63,7 +63,7 @@ qck_describe(@"with a GCD queue", ^{
 	__block dispatch_queue_t queue;
 
 	qck_beforeEach(^{
-		queue = dispatch_queue_create("com.github.ReactiveCocoa.RACBacktraceSpec", DISPATCH_QUEUE_SERIAL);
+		queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.RACBacktraceSpec", DISPATCH_QUEUE_SERIAL);
 	});
 
 	qck_afterEach(^{

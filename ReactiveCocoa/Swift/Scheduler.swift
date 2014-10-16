@@ -84,7 +84,7 @@ public final class MainScheduler: DateScheduler {
 
 /// A scheduler backed by a serial GCD queue.
 public final class QueueScheduler: DateScheduler {
-	internal let queue = dispatch_queue_create("com.github.ReactiveCocoa.QueueScheduler", DISPATCH_QUEUE_SERIAL)
+	internal let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.QueueScheduler", DISPATCH_QUEUE_SERIAL)
 
 	public var currentDate: NSDate {
 		return NSDate()
@@ -204,7 +204,7 @@ public final class TestScheduler: DateScheduler {
 
 	/// Initializes a TestScheduler with the given start date.
 	public init(startDate: NSDate = NSDate(timeIntervalSinceReferenceDate: 0)) {
-		lock.name = "com.github.ReactiveCocoa.TestScheduler"
+		lock.name = "org.reactivecocoa.ReactiveCocoa.TestScheduler"
 		_currentDate = startDate
 	}
 

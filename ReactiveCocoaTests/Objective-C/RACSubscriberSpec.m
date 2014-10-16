@@ -67,7 +67,7 @@ qck_describe(@"finishing", ^{
 		dispatchGroup = dispatch_group_create();
 		expect(dispatchGroup).notTo(beNil());
 
-		concurrentQueue = dispatch_queue_create("com.github.ReactiveCocoa.RACSubscriberSpec", DISPATCH_QUEUE_CONCURRENT);
+		concurrentQueue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.RACSubscriberSpec", DISPATCH_QUEUE_CONCURRENT);
 		expect(concurrentQueue).notTo(beNil());
 
 		dispatch_suspend(concurrentQueue);
@@ -90,7 +90,7 @@ qck_describe(@"finishing", ^{
 		// Time out after one second.
 		dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC));
 		expect(@(dispatch_group_wait(dispatchGroup, time))).to(equal(@0));
-		
+
 		dispatchGroup = NULL;
 		concurrentQueue = NULL;
 

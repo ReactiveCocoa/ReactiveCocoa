@@ -10,7 +10,6 @@ import LlamaKit
 
 /// Represents a UI action that will perform some work when executed.
 public final class Action<Input, Output> {
-	private let scheduler: Scheduler
 	private let executeClosure: Input -> ColdSignal<Output>
 	private let executionsSink: SinkOf<ColdSignal<Output>>
 
@@ -21,9 +20,9 @@ public final class Action<Input, Output> {
 
 	/// A signal of all success and error results from the receiver.
 	///
-	/// This signal will forward the latest results from any calls to execute(),
+	/// This signal will forward the latest results from any calls to execute()
 	/// on the main thread.
-	public var results: HotSignal<Output> {
+	public var results: HotSignal<Result<Output>> {
 		return executions
 			.unwrapOptionals(identity, initialValue: .constant(nil))
 			.switchToLatest(identity)
@@ -31,21 +30,21 @@ public final class Action<Input, Output> {
 
 	/// Whether the action is currently executing.
 	///
-	/// This will only update on the main thread.
-	public var executing: HotSignal<Bool> {
-        	return executions.map { $0 != nil }
+	/// This will send the current value immediately, then all future values on
+	/// the main thread.
+	public var executing: ColdSignal<Bool> {
+		return executions.map { $0 != nil }
 	}
 
 	/// Whether the action is enabled.
 	///
-	/// This will only update on the main thread.
-	public let enabled: Signal<Bool>
+	/// This will send the current value immediately, then all future values on
+	/// the main thread.
+	public let enabled: ColdSignal<Bool>
 
-	/// A signal of all successful results from the receiver.
-	///
-	/// This will be `nil` before the first execution and whenever an error
-	/// occurs.
-	public var values: Signal<Output?> {
+	/// A signal of all successful results from the receiver, sent on the main
+	/// thread.
+	public var values: HotSignal<Output> {
 		return results.map { maybeResult in
 			if let result = maybeResult {
 				switch result {
@@ -61,11 +60,9 @@ public final class Action<Input, Output> {
 		}
 	}
 
-	/// A signal of all error results from the receiver.
-	///
-	/// This will be `nil` before the first execution and whenever execution
-	/// completes successfully.
-	public var errors: Signal<NSError?> {
+	/// A signal of all error results from the receiver, sent on the main
+	/// thread.
+	public var errors: HotSignal<NSError> {
 		return results.map { maybeResult in
 			if let result = maybeResult {
 				switch result {
@@ -82,11 +79,12 @@ public final class Action<Input, Output> {
 	}
 
 	/// Initializes an action that will be conditionally enabled, and create
-	/// a Promise for each execution.
-	public init(enabledIf: Signal<Bool>, scheduler: Scheduler = MainScheduler(), execute: Input -> Promise<Result<Output>>) {
+	/// a ColdSignal for each execution.
+	///
+	/// Before `enabledIf` sends a value, the command will be disabled.
+	public init(enabledIf: HotSignal<Bool>, execute: Input -> ColdSignal<Output>) {
 		(executions, executionsSink) = Signal.pipeWithInitialValue(nil)
 		executeClosure = execute
-		self.scheduler = scheduler
 
 		enabled = .constant(true)
 		enabled = enabledIf
@@ -94,21 +92,26 @@ public final class Action<Input, Output> {
 			.map { (enabled, executing) in enabled && !executing }
 	}
 
-	/// Initializes an action that will create a Promise for each execution.
-	public convenience init(scheduler: Scheduler = MainScheduler(), execute: Input -> Promise<Result<Output>>) {
-		self.init(enabledIf: .constant(true), scheduler: scheduler, execute: execute)
+	/// Initializes an action that will always be enabled, and create a
+	/// ColdSignal for each execution.
+	public convenience init(execute: Input -> ColdSignal<Output>) {
+		let (enabled, enabledSink) = HotSignal.pipe()
+		self.init(enabledIf: enabled, execute: execute)
+
+		enabledSink.put(true)
 	}
 
-	/// Executes the action on the main thread with the given input.
+	/// Creates a signal that will execute the action on the main thread, with
+	/// the given input, then forward the results.
 	///
-	/// If the action is disabled when this method is invoked, the returned
-	/// signal will be set to an `NSError` corresponding to
+	/// If the action is disabled when the returned signal is subscribed to,
+	/// the signal will send an `NSError` corresponding to
 	/// `RACError.ActionNotEnabled`, and no result will be sent along the action
 	/// itself.
-	public func execute(input: Input) -> ExecutionSignal {
+	public func execute(input: Input) -> ColdSignal<Output> {
 		let results = SignalingProperty<Result<Output>?>(nil)
 
-		scheduler.schedule {
+		MainScheduler().schedule {
 			if (!self.enabled.current) {
 				results.put(Result.Failure(RACError.ActionNotEnabled.error))
 				return
@@ -116,7 +119,7 @@ public final class Action<Input, Output> {
 
 			let promise = self.executeClosure(input)
 			let execution: ExecutionSignal = promise.signal
-				.deliverOn(self.scheduler)
+				.deliverOn(MainScheduler())
 				// Remove one layer of optional binding caused by the `deliverOn`.
 				.unwrapOptionals(identity, initialValue: nil)
 

@@ -33,6 +33,36 @@ public final class HotSignal<T> {
 		})
 	}
 
+	/// Notifies `observer` about new values from the receiver.
+	///
+	/// Returns a Disposable which can be disposed of to stop notifying
+	/// `observer` of future changes.
+	public func observe<S: SinkType where S.Element == T>(observer: S) -> Disposable {
+		let sink = SinkOf<T>(observer)
+		var token: RemovalToken? = nil
+
+		dispatch_barrier_sync(queue) {
+			token = self.observers.insert(sink)
+		}
+
+		return ActionDisposable {
+			// Retain `self` strongly so that observers can hold onto the signal
+			// _or_ the disposable to ensure the receipt of values.
+			dispatch_barrier_async(self.queue) {
+				self.observers.removeValueForToken(token!)
+			}
+		}
+	}
+
+	/// Convenience function to invoke observe() with a sink that will pass
+	/// values to the given closure.
+	public func observe(next: T -> ()) -> Disposable {
+		return observe(SinkOf(next))
+	}
+}
+
+/// Convenience constructors.
+extension HotSignal {
 	/// Creates a signal that will never send any values.
 	public class func never() -> HotSignal {
 		return HotSignal { _ in () }
@@ -71,76 +101,10 @@ public final class HotSignal<T> {
 		assert(sink != nil)
 		return (signal, sink!)
 	}
+}
 
-	/// Notifies `observer` about new values from the receiver.
-	///
-	/// Returns a Disposable which can be disposed of to stop notifying
-	/// `observer` of future changes.
-	public func observe<S: SinkType where S.Element == T>(observer: S) -> Disposable {
-		let sink = SinkOf<T>(observer)
-		var token: RemovalToken? = nil
-
-		dispatch_barrier_sync(queue) {
-			token = self.observers.insert(sink)
-		}
-
-		return ActionDisposable {
-			// Retain `self` strongly so that observers can hold onto the signal
-			// _or_ the disposable to ensure the receipt of values.
-			dispatch_barrier_async(self.queue) {
-				self.observers.removeValueForToken(token!)
-			}
-		}
-	}
-
-	/// Convenience function to invoke observe() with a sink that will pass
-	/// values to the given closure.
-	public func observe(next: T -> ()) -> Disposable {
-		return observe(SinkOf(next))
-	}
-
-	/// Merges a signal of signals down into a single signal, biased toward the
-	/// signals added earlier.
-	///
-	/// evidence - Used to prove to the typechecker that the receiver is
-	///            a signal of signals. Simply pass in the `identity` function.
-	///
-	/// Returns a signal that will forward changes from the original signals
-	/// as they arrive, starting with earlier ones.
-	public func merge<U>(evidence: HotSignal -> HotSignal<HotSignal<U>>) -> HotSignal<U> {
-		return HotSignal<U> { sink in
-			let signals = Atomic<[HotSignal<U>]>([])
-
-			evidence(self).observe { signal in
-				signals.modify { (var arr) in
-					arr.append(signal)
-					return arr
-				}
-
-				signal.observe(sink)
-			}
-		}
-	}
-
-	/// Switches on a signal of signals, forwarding values from the
-	/// latest inner signal.
-	///
-	/// evidence - Used to prove to the typechecker that the receiver is
-	///            a signal of signals. Simply pass in the `identity` function.
-	///
-	/// Returns a signal that will forward changes only from the latest
-	/// signal sent upon the receiver.
-	public func switchToLatest<U>(evidence: HotSignal -> HotSignal<HotSignal<U>>) -> HotSignal<U> {
-		return HotSignal<U> { sink in
-			let latestDisposable = SerialDisposable()
-
-			evidence(self).observe { signal in
-				latestDisposable.innerDisposable = nil
-				latestDisposable.innerDisposable = signal.observe(sink)
-			}
-		}
-	}
-
+/// Transformative operators.
+extension HotSignal {
 	/// Maps each value in the stream to a new value.
 	public func map<U>(f: T -> U) -> HotSignal<U> {
 		return HotSignal<U> { sink in
@@ -246,7 +210,59 @@ public final class HotSignal<T> {
 			return ()
 		}
 	}
+}
 
+/// Methods for combining multiple signals.
+extension HotSignal {
+	/// Merges a signal of signals down into a single signal, biased toward the
+	/// signals added earlier.
+	///
+	/// evidence - Used to prove to the typechecker that the receiver is
+	///            a signal of signals. Simply pass in the `identity` function.
+	///
+	/// Returns a signal that will forward changes from the original signals
+	/// as they arrive, starting with earlier ones.
+	public func merge<U>(evidence: HotSignal -> HotSignal<HotSignal<U>>) -> HotSignal<U> {
+		return HotSignal<U> { sink in
+			let signals = Atomic<[HotSignal<U>]>([])
+
+			evidence(self).observe { signal in
+				signals.modify { (var arr) in
+					arr.append(signal)
+					return arr
+				}
+
+				signal.observe(sink)
+			}
+		}
+	}
+
+	/// Switches on a signal of signals, forwarding values from the
+	/// latest inner signal.
+	///
+	/// evidence - Used to prove to the typechecker that the receiver is
+	///            a signal of signals. Simply pass in the `identity` function.
+	///
+	/// Returns a signal that will forward changes only from the latest
+	/// signal sent upon the receiver.
+	public func switchToLatest<U>(evidence: HotSignal -> HotSignal<HotSignal<U>>) -> HotSignal<U> {
+		return HotSignal<U> { sink in
+			let latestDisposable = SerialDisposable()
+
+			evidence(self).observe { signal in
+				latestDisposable.innerDisposable = nil
+				latestDisposable.innerDisposable = signal.observe(sink)
+			}
+		}
+	}
+}
+
+/// Blocking methods for receiving values.
+extension HotSignal {
+}
+
+/// Conversions from HotSignal to ColdSignal.
+extension HotSignal {
 	/// Buffers `count` values, starting at the time of the method invocation.
 	///
 	/// Returns a signal that will send the first `count` values observed on

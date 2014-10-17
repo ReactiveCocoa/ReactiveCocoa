@@ -91,6 +91,9 @@ extension HotSignal {
 	/// Creates a repeating timer of the given interval, sending updates on the
 	/// given scheduler.
 	public class func interval(interval: NSTimeInterval, onScheduler scheduler: DateScheduler, withLeeway leeway: NSTimeInterval) -> HotSignal<NSDate> {
+		precondition(interval >= 0)
+		precondition(leeway >= 0)
+
 		let startDate = scheduler.currentDate
 
 		return HotSignal<NSDate> { sink in
@@ -142,6 +145,8 @@ extension HotSignal {
 	/// Returns a signal that will skip the first `count` values from the
 	/// receiver, then forward everything afterward.
 	public func skip(count: Int) -> HotSignal {
+		precondition(count >= 0)
+
 		if (count == 0) {
 			return self
 		}
@@ -198,6 +203,8 @@ extension HotSignal {
 	/// Returns a signal that will yield the first `count` values from the
 	/// receiver.
 	public func take(count: Int) -> HotSignal {
+		precondition(count >= 0)
+
 		if (count == 0) {
 			return .never()
 		}
@@ -271,6 +278,8 @@ extension HotSignal {
 	/// Delays values by the given interval, forwarding them on the given
 	/// scheduler.
 	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> HotSignal {
+		precondition(interval >= 0)
+
 		return HotSignal { sink in
 			self.observe { value in
 				let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
@@ -289,6 +298,8 @@ extension HotSignal {
 	/// If multiple values are received before the interval has elapsed, the
 	/// latest value is the one that will be passed on.
 	public func throttle(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> HotSignal {
+		precondition(interval >= 0)
+
 		let previousDate = Atomic<NSDate?>(nil)
 		let disposable = SerialDisposable()
 
@@ -456,7 +467,7 @@ extension HotSignal {
 		}
 
 		return bufferProperty.values()
-			.mapAccumulate(0) { (lastIndex, values) in
+			.mapAccumulate(initialState: 0) { (lastIndex, values) in
 				let newIndex = values.count - 1
 				let signal = ColdSignal.fromValues(values[lastIndex...newIndex])
 				return (newIndex, signal)
@@ -501,7 +512,7 @@ extension HotSignal {
 		}
 
 		return replayProperty.values()
-			.mapAccumulate(0) { (var lastIndex, values) in
+			.mapAccumulate(initialState: 0) { (var lastIndex, values) in
 				var valuesToSend: [T] = []
 
 				for (index, value) in values {

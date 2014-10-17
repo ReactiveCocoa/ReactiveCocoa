@@ -78,7 +78,7 @@ public final class Action<Input, Output> {
 
 				return self.executeClosure(input)
 					.deliverOn(MainScheduler())
-					.on(subscribe: {
+					.on(subscribed: {
 						self._executing.value = true
 					}, next: { value in
 						self._values.put(value)

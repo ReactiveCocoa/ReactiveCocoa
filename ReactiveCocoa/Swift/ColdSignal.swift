@@ -115,7 +115,7 @@ extension ColdSignal {
 	/// signal, and dispose of it.
 	///
 	/// Returns a signal of the mapped values.
-	public func mapAccumulate<State, U>(initialState: State, _ f: (State, T) -> (State?, U)) -> ColdSignal<U> {
+	public func mapAccumulate<State, U>(#initialState: State, _ f: (State, T) -> (State?, U)) -> ColdSignal<U> {
 		return ColdSignal<U> { subscriber in
 			let state = Atomic(initialState)
 			let disposable = self.subscribe(next: { value in
@@ -139,16 +139,16 @@ extension ColdSignal {
 
 	/// Maps each value in the stream to a new value.
 	public func map<U>(f: T -> U) -> ColdSignal<U> {
-		return mapAccumulate(()) { (_, value) in
+		return mapAccumulate(initialState: ()) { (_, value) in
 			return ((), f(value))
 		}
 	}
 
 	/// Preserves only the values of the signal that pass the given predicate.
-	public func filter(pred: T -> Bool) -> ColdSignal {
+	public func filter(predicate: T -> Bool) -> ColdSignal {
 		return self
-			.map { value -> ColdSignal<T> in
-				if pred(value) {
+			.map { value -> ColdSignal in
+				if predicate(value) {
 					return .single(value)
 				} else {
 					return .empty()
@@ -159,8 +159,8 @@ extension ColdSignal {
 
 	/// Combines all the values in the stream, forwarding the result of each
 	/// intermediate combination step.
-	public func scan<U>(initialValue: U, _ f: (U, T) -> U) -> ColdSignal<U> {
-		return mapAccumulate(initialValue) { (previous, current) in
+	public func scan<U>(#initial: U, _ f: (U, T) -> U) -> ColdSignal<U> {
+		return mapAccumulate(initialState: initial) { (previous, current) in
 			let mapped = f(previous, current)
 			return (mapped, mapped)
 		}
@@ -171,7 +171,7 @@ extension ColdSignal {
 	/// Returns a signal which will send the single, aggregated value when
 	/// the receiver completes.
 	public func reduce<U>(#initial: U, _ f: (U, T) -> U) -> ColdSignal<U> {
-		let scanned = scan(initial, f)
+		let scanned = scan(initial: initial, f)
 
 		return ColdSignal<U>.single(initial)
 			.concat(scanned)
@@ -180,8 +180,8 @@ extension ColdSignal {
 
 	/// Combines each value from the signal with its preceding value, starting
 	/// with `initialValue`.
-	public func combinePrevious(initialValue: T) -> ColdSignal<(T, T)> {
-		return mapAccumulate(initialValue) { (previous, current) in
+	public func combinePrevious(#initial: T) -> ColdSignal<(T, T)> {
+		return mapAccumulate(initialState: initial) { (previous, current) in
 			return (current, (previous, current))
 		}
 	}
@@ -189,12 +189,14 @@ extension ColdSignal {
 	/// Returns a signal that will skip the first `count` values from the
 	/// receiver, then forward everything afterward.
 	public func skip(count: Int) -> ColdSignal {
+		precondition(count >= 0)
+
 		if (count == 0) {
 			return self
 		}
 
 		return self
-			.mapAccumulate(0) { (n, value) in
+			.mapAccumulate(initialState: 0) { (n, value) in
 				if n >= count {
 					return (count, .single(value))
 				} else {
@@ -212,7 +214,7 @@ extension ColdSignal {
 	///            function.
 	public func skipRepeats<U: Equatable>(evidence: ColdSignal -> ColdSignal<U>) -> ColdSignal<U> {
 		return evidence(self)
-			.mapAccumulate(nil) { (maybePrevious: U?, current: U) -> (U??, ColdSignal<U>) in
+			.mapAccumulate(initialState: nil) { (maybePrevious: U?, current: U) -> (U??, ColdSignal<U>) in
 				if let previous = maybePrevious {
 					if current == previous {
 						return (current, .empty())
@@ -226,10 +228,10 @@ extension ColdSignal {
 
 	/// Returns a signal that will skip values from the receiver while `pred`
 	/// remains `true`, then forward everything afterward.
-	public func skipWhile(pred: T -> Bool) -> ColdSignal {
+	public func skipWhile(predicate: T -> Bool) -> ColdSignal {
 		return self
-			.mapAccumulate(true) { (skipping, value) in
-				if !skipping || !pred(value) {
+			.mapAccumulate(initialState: true) { (skipping, value) in
+				if !skipping || !predicate(value) {
 					return (false, .single(value))
 				} else {
 					return (true, .empty())
@@ -241,11 +243,13 @@ extension ColdSignal {
 	/// Returns a signal that will yield the first `count` values from the
 	/// receiver.
 	public func take(count: Int) -> ColdSignal {
+		precondition(count >= 0)
+
 		if count == 0 {
 			return .empty()
 		}
 
-		return mapAccumulate(0) { (n, value) in
+		return mapAccumulate(initialState: 0) { (n, value) in
 			let newN: Int? = (n + 1 < count ? n + 1 : nil)
 			return (newN, value)
 		}
@@ -254,6 +258,12 @@ extension ColdSignal {
 	/// Waits for the receiver to complete successfully, then forwards only the
 	/// last `count` values.
 	public func takeLast(count: Int) -> ColdSignal {
+		precondition(count >= 0)
+
+		if count == 0 {
+			return filter(false)
+		}
+
 		return ColdSignal { subscriber in
 			let values: Atomic<[T]> = Atomic([])
 			let disposable = self.subscribe(next: { value in
@@ -285,7 +295,7 @@ extension ColdSignal {
 	/// `predicate` remains `true`.
 	public func takeWhile(predicate: T -> Bool) -> ColdSignal {
 		return self
-			.mapAccumulate(true) { (taking, value) in
+			.mapAccumulate(initialState: true) { (taking, value) in
 				if taking && predicate(value) {
 					return (true, .single(value))
 				} else {
@@ -331,6 +341,8 @@ extension ColdSignal {
 	///
 	/// `Error` events are always scheduled immediately.
 	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> ColdSignal {
+		precondition(interval >= 0)
+
 		return ColdSignal { subscriber in
 			let disposable = self.subscribe(Subscriber { event in
 				switch event {
@@ -354,6 +366,8 @@ extension ColdSignal {
 	/// Yields `error` after the given interval if the receiver has not yet
 	/// completed by that point.
 	public func timeoutWithError(error: NSError, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> ColdSignal {
+		precondition(interval >= 0)
+
 		return ColdSignal { subscriber in
 			let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
 			let schedulerDisposable = scheduler.scheduleAfter(date) {
@@ -368,7 +382,7 @@ extension ColdSignal {
 	}
 
 	/// Injects side effects to be performed upon the specified signal events.
-	func on(subscribe: () -> () = doNothing, next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing, terminated: () -> () = doNothing, disposed: () -> () = doNothing) -> ColdSignal {
+	func on(subscribed: () -> () = doNothing, next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing, terminated: () -> () = doNothing, disposed: () -> () = doNothing) -> ColdSignal {
 		return ColdSignal { subscriber in
 			subscriber.disposable.addDisposable(ActionDisposable(disposed))
 
@@ -548,7 +562,7 @@ extension ColdSignal {
 	///
 	/// Returns a signal that will forward events from the original signals
 	/// as they arrive.
-	public func merge<U>(evidence: ColdSignal<T> -> ColdSignal<ColdSignal<U>>) -> ColdSignal<U> {
+	public func merge<U>(evidence: ColdSignal -> ColdSignal<ColdSignal<U>>) -> ColdSignal<U> {
 		return ColdSignal<U> { subscriber in
 			let disposable = CompositeDisposable()
 			let inFlight = Atomic(1)
@@ -598,7 +612,7 @@ extension ColdSignal {
 	///
 	/// Returns a signal that will forward events only from the latest
 	/// signal sent upon the receiver.
-	public func switchToLatest<U>(evidence: ColdSignal<T> -> ColdSignal<ColdSignal<U>>) -> ColdSignal<U> {
+	public func switchToLatest<U>(evidence: ColdSignal -> ColdSignal<ColdSignal<U>>) -> ColdSignal<U> {
 		return ColdSignal<U> { subscriber in
 			let selfCompleted = Atomic(false)
 			let latestCompleted = Atomic(false)

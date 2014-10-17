@@ -218,8 +218,8 @@ extension HotSignal {
 		}
 	}
 
-	/// Forwards values from the receiver until `trigger` sends an event, at
-	/// which point no further values will be sent.
+	/// Forwards values from the receiver until `trigger` fires, at which point
+	/// no further values will be sent.
 	public func takeUntil(trigger: HotSignal<()>) -> HotSignal {
 		let disposable = CompositeDisposable()
 		let triggerDisposable = trigger.observe { _ in
@@ -231,6 +231,19 @@ extension HotSignal {
 		return HotSignal { sink in
 			let selfDisposable = self.observe(sink)
 			disposable.addDisposable(selfDisposable)
+		}
+	}
+
+	/// Forwards values from the receiver until `replacement` sends a value,
+	/// at which point only values from `replacement` will be forwarded.
+	public func takeUntilReplacement(replacement: HotSignal) -> HotSignal {
+		return HotSignal { sink in
+			let selfDisposable = self.observe(sink)
+
+			replacement.observe { value in
+				selfDisposable.dispose()
+				sink.put(value)
+			}
 		}
 	}
 

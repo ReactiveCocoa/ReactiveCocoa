@@ -50,7 +50,7 @@ public struct ColdSignal<T> {
 extension ColdSignal {
 	/// Creates a signal that will execute the given action upon subscription,
 	/// then forward all events from the generated signal.
-	public static func defer(action: () -> ColdSignal) -> ColdSignal {
+	public static func lazy(action: () -> ColdSignal) -> ColdSignal {
 		return ColdSignal { subscriber in
 			action().subscribe(subscriber)
 			return ()

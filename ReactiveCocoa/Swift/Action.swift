@@ -70,7 +70,7 @@ public final class Action<Input, Output> {
 	/// `RACError.ActionNotEnabled`, and no result will be sent along the action
 	/// itself.
 	public func execute(input: Input) -> ColdSignal<Output> {
-		return ColdSignal<Output>.defer {
+		return ColdSignal<Output>.lazy {
 				let isEnabled = self.enabled.first().value()!
 				if (!isEnabled) {
 					return .error(RACError.ActionNotEnabled.error)

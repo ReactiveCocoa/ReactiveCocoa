@@ -268,6 +268,21 @@ extension HotSignal {
 		}
 	}
 
+	/// Delays values by the given interval, forwarding them on the given
+	/// scheduler.
+	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> HotSignal {
+		return HotSignal { sink in
+			self.observe { value in
+				let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
+				scheduler.scheduleAfter(date) {
+					sink.put(value)
+				}
+			}
+			
+			return ()
+		}
+	}
+
 	/// Forwards the latest value from the receiver whenever `sampler` fires.
 	///
 	/// If `sampler` fires before a value has been observed on the receiver,

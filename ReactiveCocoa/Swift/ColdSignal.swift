@@ -204,7 +204,7 @@ extension ColdSignal {
 			.merge(identity)
 	}
 
-	/// Skips all consecutive, repeating values in the stream, forwarding only
+	/// Skips all consecutive, repeating values in the signal, forwarding only
 	/// the first occurrence.
 	///
 	/// evidence - Used to prove to the typechecker that the receiver contains

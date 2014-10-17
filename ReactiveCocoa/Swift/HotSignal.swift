@@ -154,6 +154,29 @@ extension HotSignal {
 		}
 	}
 
+	/// Skips all consecutive, repeating values in the signal, forwarding only
+	/// the first occurrence.
+	///
+	/// evidence - Used to prove to the typechecker that the receiver contains
+	///            values which are `Equatable`. Simply pass in the `identity`
+	///            function.
+	public func skipRepeats<U: Equatable>(evidence: HotSignal -> HotSignal<U>) -> HotSignal<U> {
+		let previous = Atomic<U?>(nil)
+
+		return evidence(self).filter { value in
+			let previousValue = previous.value
+			previous.value = value
+
+			if let previousValue = previousValue {
+				if value == previousValue {
+					return false
+				}
+			}
+
+			return true
+		}
+	}
+
 	/// Returns a signal that will skip values from the receiver while
 	/// `predicate` remains `true`, then forward everything afterward.
 	public func skipWhile(predicate: T -> Bool) -> HotSignal {

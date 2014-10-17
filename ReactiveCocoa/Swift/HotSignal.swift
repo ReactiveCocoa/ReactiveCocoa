@@ -307,7 +307,7 @@ extension HotSignal {
 
 				disposable.innerDisposable = scheduler.scheduleAfter(scheduleDate) { sink.put(value) }
 			}
-			
+
 			return ()
 		}
 	}
@@ -334,6 +334,39 @@ extension HotSignal {
 
 /// Methods for combining multiple signals.
 extension HotSignal {
+	/// Combines the latest value of the receiver with the latest value from
+	/// the given signal.
+	///
+	/// The returned signal will not send a value until both inputs have sent
+	/// at least one value each.
+	public func combineLatestWith<U>(signal: HotSignal<U>) -> HotSignal<(T, U)> {
+		return HotSignal<(T, U)> { sink in
+			let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.HotSignal.combineLatestWith", DISPATCH_QUEUE_SERIAL)
+			var selfLatest: T? = nil
+			var otherLatest: U? = nil
+
+			self.observe { value in
+				dispatch_sync(queue) {
+					selfLatest = value
+					if let otherLatest = otherLatest {
+						sink.put((value, otherLatest))
+					}
+				}
+			}
+
+			signal.observe { value in
+				dispatch_sync(queue) {
+					otherLatest = value
+					if let selfLatest = selfLatest {
+						sink.put((selfLatest, value))
+					}
+				}
+			}
+
+			return ()
+		}
+	}
+
 	/// Merges a signal of signals down into a single signal, biased toward the
 	/// signals added earlier.
 	///

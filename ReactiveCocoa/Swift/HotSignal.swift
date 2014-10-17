@@ -262,6 +262,25 @@ extension HotSignal {
 			}
 		}
 	}
+
+	/// Forwards the latest value from the receiver whenever `sampler` fires.
+	///
+	/// If `sampler` fires before a value has been observed on the receiver,
+	/// nothing happens.
+	public func sampleOn(sampler: HotSignal<()>) -> HotSignal {
+		let latest = Atomic<T?>(nil)
+		observe { latest.value = $0 }
+
+		return HotSignal { sink in
+			sampler.observe { _ in
+				if let value = latest.value {
+					sink.put(value)
+				}
+			}
+
+			return ()
+		}
+	}
 }
 
 /// Methods for combining multiple signals.

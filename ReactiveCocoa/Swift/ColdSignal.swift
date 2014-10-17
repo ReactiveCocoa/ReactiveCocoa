@@ -144,6 +144,19 @@ extension ColdSignal {
 		}
 	}
 
+	/// Preserves only the values of the signal that pass the given predicate.
+	public func filter(pred: T -> Bool) -> ColdSignal {
+		return self
+			.map { value -> ColdSignal<T> in
+				if pred(value) {
+					return .single(value)
+				} else {
+					return .empty()
+				}
+			}
+			.merge(identity)
+	}
+
 	/// Combines all the values in the stream, forwarding the result of each
 	/// intermediate combination step.
 	public func scan<U>(initialValue: U, _ f: (U, T) -> U) -> ColdSignal<U> {
@@ -153,31 +166,16 @@ extension ColdSignal {
 		}
 	}
 
-	/// Returns a signal that will yield the first `count` values from the
-	/// receiver.
-	public func take(count: Int) -> ColdSignal {
-		if count == 0 {
-			return .empty()
-		}
+	/// Combines all of the values in the stream.
+	///
+	/// Returns a signal which will send the single, aggregated value when
+	/// the receiver completes.
+	public func reduce<U>(#initial: U, _ f: (U, T) -> U) -> ColdSignal<U> {
+		let scanned = scan(initial, f)
 
-		return mapAccumulate(0) { (n, value) in
-			let newN: Int? = (n + 1 < count ? n + 1 : nil)
-			return (newN, value)
-		}
-	}
-
-	/// Returns a signal that will yield values from the receiver while
-	/// `predicate` remains `true`.
-	public func takeWhile(predicate: T -> Bool) -> ColdSignal {
-		return self
-			.mapAccumulate(true) { (taking, value) in
-				if taking && predicate(value) {
-					return (true, .single(value))
-				} else {
-					return (nil, .empty())
-				}
-			}
-			.merge(identity)
+		return ColdSignal<U>.single(initial)
+			.concat(scanned)
+			.takeLast(1)
 	}
 
 	/// Combines each value from the signal with its preceding value, starting
@@ -206,33 +204,6 @@ extension ColdSignal {
 			.merge(identity)
 	}
 
-	/// Returns a signal that will skip values from the receiver while `pred`
-	/// remains `true`, then forward everything afterward.
-	public func skipWhile(pred: T -> Bool) -> ColdSignal {
-		return self
-			.mapAccumulate(true) { (skipping, value) in
-				if !skipping || !pred(value) {
-					return (false, .single(value))
-				} else {
-					return (true, .empty())
-				}
-			}
-			.merge(identity)
-	}
-
-	/// Preserves only the values of the signal that pass the given predicate.
-	public func filter(pred: T -> Bool) -> ColdSignal {
-		return self
-			.map { value -> ColdSignal<T> in
-				if pred(value) {
-					return .single(value)
-				} else {
-					return .empty()
-				}
-			}
-			.merge(identity)
-	}
-
 	/// Skips all consecutive, repeating values in the stream, forwarding only
 	/// the first occurrence.
 	///
@@ -253,92 +224,30 @@ extension ColdSignal {
 			.merge(identity)
 	}
 
-	/// Brings all signal Events into the monad, allowing them to be manipulated
-	/// just like any other value.
-	public func materialize() -> ColdSignal<Event<T>> {
-		return ColdSignal<Event<T>> { subscriber in
-			let disposable = self.subscribe(Subscriber { event in
-				subscriber.put(.Next(Box(event)))
-
-				if event.isTerminating {
-					subscriber.put(.Completed)
+	/// Returns a signal that will skip values from the receiver while `pred`
+	/// remains `true`, then forward everything afterward.
+	public func skipWhile(pred: T -> Bool) -> ColdSignal {
+		return self
+			.mapAccumulate(true) { (skipping, value) in
+				if !skipping || !pred(value) {
+					return (false, .single(value))
+				} else {
+					return (true, .empty())
 				}
-			})
-
-			subscriber.disposable.addDisposable(disposable)
-		}
+			}
+			.merge(identity)
 	}
 
-	/// The inverse of `materialize`, this will translate a signal of `Event`
-	/// _values_ into a signal of those events themselves.
-	///
-	/// evidence - Used to prove to the typechecker that the receiver contains
-	///            `Event`s. Simply pass in the `identity` function.
-	public func dematerialize<U>(evidence: ColdSignal -> ColdSignal<Event<U>>) -> ColdSignal<U> {
-		return ColdSignal<U> { subscriber in
-			let disposable = evidence(self).subscribe(next: subscriber.put, error: { error in
-				subscriber.put(.Error(error))
-			}, completed: {
-				subscriber.put(.Completed)
-			})
-
-			subscriber.disposable.addDisposable(disposable)
+	/// Returns a signal that will yield the first `count` values from the
+	/// receiver.
+	public func take(count: Int) -> ColdSignal {
+		if count == 0 {
+			return .empty()
 		}
-	}
 
-	/// Switches to a new signal when an error occurs.
-	public func catch(handler: NSError -> ColdSignal) -> ColdSignal {
-		return ColdSignal { subscriber in
-			let serialDisposable = SerialDisposable()
-			subscriber.disposable.addDisposable(serialDisposable)
-
-			serialDisposable.innerDisposable = self.subscribe(Subscriber { event in
-				switch event {
-				case let .Error(error):
-					let newStream = handler(error)
-					serialDisposable.innerDisposable = newStream.subscribe(subscriber)
-
-				default:
-					subscriber.put(event)
-				}
-			})
-		}
-	}
-
-	/// Injects side effects to be performed upon the specified signal events.
-	func on(subscribe: () -> () = doNothing, next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing, terminated: () -> () = doNothing, disposed: () -> () = doNothing) -> ColdSignal {
-		return ColdSignal { subscriber in
-			subscriber.disposable.addDisposable(ActionDisposable(disposed))
-
-			let disposable = self.subscribe(next: { value in
-				next(value)
-			}, error: { err in
-				error(err)
-				terminated()
-			}, completed: {
-				completed()
-				terminated()
-			})
-
-			subscriber.disposable.addDisposable(disposable)
-		}
-	}
-
-	/// Performs the work of event production on the given Scheduler.
-	///
-	/// This implies that any side effects embedded in the receiver will be
-	/// performed on the given scheduler as well.
-	///
-	/// Values may still be sent upon other schedulers—this merely affects how
-	/// the `subscribe` method is invoked.
-	public func subscribeOn(scheduler: Scheduler) -> ColdSignal {
-		return ColdSignal { subscriber in
-			let disposable = self.subscribe(Subscriber { event in
-				scheduler.schedule { subscriber.put(event) }
-				return ()
-			})
-
-			subscriber.disposable.addDisposable(disposable)
+		return mapAccumulate(0) { (n, value) in
+			let newN: Int? = (n + 1 < count ? n + 1 : nil)
+			return (newN, value)
 		}
 	}
 
@@ -372,16 +281,49 @@ extension ColdSignal {
 		}
 	}
 
-	/// Combines all of the values in the stream.
-	///
-	/// Returns a signal which will send the single, aggregated value when
-	/// the receiver completes.
-	public func reduce<U>(#initial: U, _ f: (U, T) -> U) -> ColdSignal<U> {
-		let scanned = scan(initial, f)
+	/// Returns a signal that will yield values from the receiver while
+	/// `predicate` remains `true`.
+	public func takeWhile(predicate: T -> Bool) -> ColdSignal {
+		return self
+			.mapAccumulate(true) { (taking, value) in
+				if taking && predicate(value) {
+					return (true, .single(value))
+				} else {
+					return (nil, .empty())
+				}
+			}
+			.merge(identity)
+	}
 
-		return ColdSignal<U>.single(initial)
-			.concat(scanned)
-			.takeLast(1)
+	/// Yields all events on the given scheduler, instead of whichever
+	/// scheduler they originally arrived upon.
+	public func deliverOn(scheduler: Scheduler) -> ColdSignal {
+		return ColdSignal { subscriber in
+			let disposable = self.subscribe(Subscriber { event in
+				scheduler.schedule { subscriber.put(event) }
+				return ()
+			})
+
+			subscriber.disposable.addDisposable(disposable)
+		}
+	}
+
+	/// Performs the work of event production on the given Scheduler.
+	///
+	/// This implies that any side effects embedded in the receiver will be
+	/// performed on the given scheduler as well.
+	///
+	/// Values may still be sent upon other schedulers—this merely affects how
+	/// the `subscribe` method is invoked.
+	public func subscribeOn(scheduler: Scheduler) -> ColdSignal {
+		return ColdSignal { subscriber in
+			let disposable = self.subscribe(Subscriber { event in
+				scheduler.schedule { subscriber.put(event) }
+				return ()
+			})
+
+			subscriber.disposable.addDisposable(disposable)
+		}
 	}
 
 	/// Delays `Next` and `Completed` events by the given interval, forwarding
@@ -409,19 +351,6 @@ extension ColdSignal {
 		}
 	}
 
-	/// Yields all events on the given scheduler, instead of whichever
-	/// scheduler they originally arrived upon.
-	public func deliverOn(scheduler: Scheduler) -> ColdSignal {
-		return ColdSignal { subscriber in
-			let disposable = self.subscribe(Subscriber { event in
-				scheduler.schedule { subscriber.put(event) }
-				return ()
-			})
-
-			subscriber.disposable.addDisposable(disposable)
-		}
-	}
-
 	/// Yields `error` after the given interval if the receiver has not yet
 	/// completed by that point.
 	public func timeoutWithError(error: NSError, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> ColdSignal {
@@ -435,6 +364,25 @@ extension ColdSignal {
 
 			let selfDisposable = self.subscribe(subscriber)
 			subscriber.disposable.addDisposable(selfDisposable)
+		}
+	}
+
+	/// Injects side effects to be performed upon the specified signal events.
+	func on(subscribe: () -> () = doNothing, next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing, terminated: () -> () = doNothing, disposed: () -> () = doNothing) -> ColdSignal {
+		return ColdSignal { subscriber in
+			subscriber.disposable.addDisposable(ActionDisposable(disposed))
+
+			let disposable = self.subscribe(next: { value in
+				next(value)
+			}, error: { err in
+				error(err)
+				terminated()
+			}, completed: {
+				completed()
+				terminated()
+			})
+
+			subscriber.disposable.addDisposable(disposable)
 		}
 	}
 
@@ -473,6 +421,58 @@ extension ColdSignal {
 				}
 			}
 			.merge(identity)
+	}
+
+	/// Switches to a new signal when an error occurs.
+	public func catch(handler: NSError -> ColdSignal) -> ColdSignal {
+		return ColdSignal { subscriber in
+			let serialDisposable = SerialDisposable()
+			subscriber.disposable.addDisposable(serialDisposable)
+
+			serialDisposable.innerDisposable = self.subscribe(Subscriber { event in
+				switch event {
+				case let .Error(error):
+					let newStream = handler(error)
+					serialDisposable.innerDisposable = newStream.subscribe(subscriber)
+
+				default:
+					subscriber.put(event)
+				}
+			})
+		}
+	}
+
+	/// Brings all signal Events into the monad, allowing them to be manipulated
+	/// just like any other value.
+	public func materialize() -> ColdSignal<Event<T>> {
+		return ColdSignal<Event<T>> { subscriber in
+			let disposable = self.subscribe(Subscriber { event in
+				subscriber.put(.Next(Box(event)))
+
+				if event.isTerminating {
+					subscriber.put(.Completed)
+				}
+			})
+
+			subscriber.disposable.addDisposable(disposable)
+		}
+	}
+
+	/// The inverse of `materialize`, this will translate a signal of `Event`
+	/// _values_ into a signal of those events themselves.
+	///
+	/// evidence - Used to prove to the typechecker that the receiver contains
+	///            `Event`s. Simply pass in the `identity` function.
+	public func dematerialize<U>(evidence: ColdSignal -> ColdSignal<Event<U>>) -> ColdSignal<U> {
+		return ColdSignal<U> { subscriber in
+			let disposable = evidence(self).subscribe(next: subscriber.put, error: { error in
+				subscriber.put(.Error(error))
+			}, completed: {
+				subscriber.put(.Completed)
+			})
+
+			subscriber.disposable.addDisposable(disposable)
+		}
 	}
 }
 
@@ -536,21 +536,6 @@ extension ColdSignal {
 				default:
 					subscriber.put(event)
 				}
-			})
-		}
-	}
-
-	/// Ignores all values from the receiver, then subscribes to and forwards
-	/// events from the given signal once the receiver has completed.
-	public func then<U>(signal: ColdSignal<U>) -> ColdSignal<U> {
-		return ColdSignal<U> { subscriber in
-			let disposable = SerialDisposable()
-			subscriber.disposable.addDisposable(disposable)
-
-			disposable.innerDisposable = self.subscribe(error: { error in
-				subscriber.put(.Error(error))
-			}, completed: {
-				disposable.innerDisposable = signal.subscribe(subscriber)
 			})
 		}
 	}
@@ -647,6 +632,21 @@ extension ColdSignal {
 			})
 
 			subscriber.disposable.addDisposable(selfDisposable)
+		}
+	}
+
+	/// Ignores all values from the receiver, then subscribes to and forwards
+	/// events from the given signal once the receiver has completed.
+	public func then<U>(signal: ColdSignal<U>) -> ColdSignal<U> {
+		return ColdSignal<U> { subscriber in
+			let disposable = SerialDisposable()
+			subscriber.disposable.addDisposable(disposable)
+
+			disposable.innerDisposable = self.subscribe(error: { error in
+				subscriber.put(.Error(error))
+			}, completed: {
+				disposable.innerDisposable = signal.subscribe(subscriber)
+			})
 		}
 	}
 }

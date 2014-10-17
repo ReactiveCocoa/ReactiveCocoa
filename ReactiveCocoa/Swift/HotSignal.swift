@@ -68,6 +68,18 @@ extension HotSignal {
 		return HotSignal { _ in () }
 	}
 
+	/// Creates a signal that can be controlled by sending values to the
+	/// returned sink.
+	public class func pipe() -> (HotSignal, SinkOf<T>) {
+		// TODO: Keep the signal alive while the sink is, for operators like
+		// replay().
+		var sink: SinkOf<T>? = nil
+		let signal = HotSignal { sink = $0 }
+
+		assert(sink != nil)
+		return (signal, sink!)
+	}
+
 	/// Creates a repeating timer of the given interval, with a reasonable
 	/// default leeway, sending updates on the given scheduler.
 	public class func interval(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> HotSignal<NSDate> {
@@ -89,18 +101,6 @@ extension HotSignal {
 			return ()
 		}
 	}
-
-	/// Creates a signal that can be controlled by sending values to the
-	/// returned sink.
-	public class func pipe() -> (HotSignal, SinkOf<T>) {
-		// TODO: Keep the signal alive while the sink is, for operators like
-		// replay().
-		var sink: SinkOf<T>? = nil
-		let signal = HotSignal { sink = $0 }
-
-		assert(sink != nil)
-		return (signal, sink!)
-	}
 }
 
 /// Transformative operators.
@@ -109,6 +109,19 @@ extension HotSignal {
 	public func map<U>(f: T -> U) -> HotSignal<U> {
 		return HotSignal<U> { sink in
 			self.observe { sink.put(f($0)) }
+			return ()
+		}
+	}
+
+	/// Preserves only the values of the stream that pass the given predicate.
+	public func filter(predicate: T -> Bool) -> HotSignal {
+		return HotSignal { sink in
+			self.observe { value in
+				if predicate(value) {
+					sink.put(value)
+				}
+			}
+
 			return ()
 		}
 	}
@@ -123,6 +136,39 @@ extension HotSignal {
 			previous.value = newValue
 
 			return newValue
+		}
+	}
+
+	/// Returns a signal that will skip the first `count` values from the
+	/// receiver, then forward everything afterward.
+	public func skip(count: Int) -> HotSignal {
+		if (count == 0) {
+			return self
+		}
+
+		let soFar = Atomic(0)
+
+		return skipWhile { _ in
+			let orig = soFar.modify { $0 + 1 }
+			return orig < count
+		}
+	}
+
+	/// Returns a signal that will skip values from the receiver while
+	/// `predicate` remains `true`, then forward everything afterward.
+	public func skipWhile(predicate: T -> Bool) -> HotSignal {
+		let skipping = Atomic(true)
+
+		return filter { value in
+			if skipping.value {
+				if predicate(value) {
+					return false
+				}
+
+				skipping.value = false
+			}
+
+			return true
 		}
 	}
 
@@ -162,52 +208,6 @@ extension HotSignal {
 					selfDisposable.dispose()
 				}
 			}
-		}
-	}
-
-	/// Returns a signal that will skip the first `count` values from the
-	/// receiver, then forward everything afterward.
-	public func skip(count: Int) -> HotSignal {
-		if (count == 0) {
-			return self
-		}
-
-		let soFar = Atomic(0)
-
-		return skipWhile { _ in
-			let orig = soFar.modify { $0 + 1 }
-			return orig < count
-		}
-	}
-
-	/// Returns a signal that will skip values from the receiver while
-	/// `predicate` remains `true`, then forward everything afterward.
-	public func skipWhile(predicate: T -> Bool) -> HotSignal {
-		let skipping = Atomic(true)
-
-		return filter { value in
-			if skipping.value {
-				if predicate(value) {
-					return false
-				}
-
-				skipping.value = false
-			}
-
-			return true
-		}
-	}
-
-	/// Preserves only the values of the stream that pass the given predicate.
-	public func filter(predicate: T -> Bool) -> HotSignal {
-		return HotSignal { sink in
-			self.observe { value in
-				if predicate(value) {
-					sink.put(value)
-				}
-			}
-
-			return ()
 		}
 	}
 }

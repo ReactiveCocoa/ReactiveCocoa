@@ -278,6 +278,35 @@ extension HotSignal {
 					sink.put(value)
 				}
 			}
+
+			return ()
+		}
+	}
+
+	/// Throttle values sent by the receiver, so that at least `interval`
+	/// seconds pass between each, then forwards them on the given scheduler.
+	///
+	/// If multiple values are received before the interval has elapsed, the
+	/// latest value is the one that will be passed on.
+	public func throttle(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> HotSignal {
+		let previousDate = Atomic<NSDate?>(nil)
+		let disposable = SerialDisposable()
+
+		return HotSignal { sink in
+			self.observe { value in
+				disposable.innerDisposable = nil
+
+				let now = scheduler.currentDate
+				let (_, scheduleDate) = previousDate.modify { date -> (NSDate?, NSDate) in
+					if date == nil || now.timeIntervalSinceDate(date!) >= interval {
+						return (now, now)
+					} else {
+						return (date, date!.dateByAddingTimeInterval(interval))
+					}
+				}
+
+				disposable.innerDisposable = scheduler.scheduleAfter(scheduleDate) { sink.put(value) }
+			}
 			
 			return ()
 		}

@@ -255,6 +255,19 @@ extension HotSignal {
 		}
 	}
 
+	/// Forwards all values on the given scheduler, instead of whichever
+	/// scheduler they originally arrived upon.
+	public func deliverOn(scheduler: Scheduler) -> HotSignal {
+		return HotSignal { sink in
+			self.observe { value in
+				scheduler.schedule { sink.put(value) }
+				return ()
+			}
+
+			return ()
+		}
+	}
+
 	/// Forwards the latest value from the receiver whenever `sampler` fires.
 	///
 	/// If `sampler` fires before a value has been observed on the receiver,

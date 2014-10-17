@@ -204,17 +204,9 @@ extension HotSignal {
 
 		let soFar = Atomic(0)
 
-		return HotSignal { sink in
-			let selfDisposable = SerialDisposable()
-
-			selfDisposable.innerDisposable = self.observe { value in
-				let orig = soFar.modify { $0 + 1 }
-				if orig < count {
-					sink.put(value)
-				} else {
-					selfDisposable.dispose()
-				}
-			}
+		return takeWhile { _ in
+			let orig = soFar.modify { $0 + 1 }
+			return orig < count
 		}
 	}
 

@@ -218,6 +218,22 @@ extension HotSignal {
 		}
 	}
 
+	/// Forwards values from the receiver until `trigger` sends an event, at
+	/// which point no further values will be sent.
+	public func takeUntil(trigger: HotSignal<()>) -> HotSignal {
+		let disposable = CompositeDisposable()
+		let triggerDisposable = trigger.observe { _ in
+			disposable.dispose()
+		}
+
+		disposable.addDisposable(triggerDisposable)
+
+		return HotSignal { sink in
+			let selfDisposable = self.observe(sink)
+			disposable.addDisposable(selfDisposable)
+		}
+	}
+
 	/// Returns a signal that will yield values from the receiver while
 	/// `predicate` remains `true`.
 	public func takeWhile(predicate: T -> Bool) -> HotSignal {

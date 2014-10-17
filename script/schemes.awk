@@ -2,10 +2,8 @@ BEGIN {
     FS = "\n";
 }
 
-/Targets:/ {
+/Schemes:/ {
     while (getline && $0 != "") {
-        if ($0 ~ /Test/) continue;
-
         sub(/^ +/, "");
         print "'" $0 "'";
     }

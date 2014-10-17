@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:ReactiveCocoa.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:External/Quick/Quick/Quick.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:External/Quick/Externals/Nimble/Nimble.xcodeproj">
+   </FileRef>
+</Workspace>

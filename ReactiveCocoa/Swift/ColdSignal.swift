@@ -754,7 +754,8 @@ extension ColdSignal {
 public final class Subscriber<T>: SinkType {
 	public typealias Element = Event<T>
 
-	private let sink: Atomic<SinkOf<Element>?>
+	private let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.ColdSignal.Subscriber", DISPATCH_QUEUE_SERIAL)
+	private var sink: SinkOf<Element>?
 
 	/// A list of Disposables to dispose of when the subscriber receives
 	/// a terminating event, or if the subscription is canceled.
@@ -762,13 +763,15 @@ public final class Subscriber<T>: SinkType {
 
 	/// Initializes a Subscriber that will forward events to the given sink.
 	public init<S: SinkType where S.Element == Event<T>>(_ sink: S) {
-		self.sink = Atomic(SinkOf(sink))
+		self.sink = SinkOf(sink)
 
 		// This is redundant with the behavior of put() in case of
-		// a terminating event, but ensures that we get rid of the closure
+		// a terminating event, but ensures that we get rid of the sink
 		// upon cancellation as well.
 		disposable.addDisposable {
-			self.sink.value = nil
+			dispatch_async(self.queue) {
+				self.sink = nil
+			}
 		}
 	}
 
@@ -796,18 +799,13 @@ public final class Subscriber<T>: SinkType {
 	}
 
 	public func put(event: Event<T>) {
-		let oldSink = sink.modify { s in
+		dispatch_sync(queue) {
+			self.sink?.put(event)
+
 			if event.isTerminating {
-				return nil
-			} else {
-				return s
+				self.sink = nil
+				self.disposable.dispose()
 			}
-		}
-
-		oldSink?.put(event)
-
-		if event.isTerminating {
-			disposable.dispose()
 		}
 	}
 }

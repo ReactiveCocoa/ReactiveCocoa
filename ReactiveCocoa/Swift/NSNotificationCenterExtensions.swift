@@ -9,18 +9,14 @@
 extension NSNotificationCenter {
 	/// Returns a signal of notifications posted that match the given criteria.
 	public func rac_notifications(name: String? = nil, object: AnyObject? = nil) -> HotSignal<NSNotification> {
-		let disposable = ScopedDisposable(SerialDisposable())
-
 		return HotSignal { sink in
 			let observer = self.addObserverForName(name, object: object, queue: nil) { notification in
 				sink.put(notification)
 			}
 
-			disposable.innerDisposable.innerDisposable = ActionDisposable {
+			return ActionDisposable {
 				self.removeObserver(observer)
 			}
-
-			return ()
 		}
 	}
 }

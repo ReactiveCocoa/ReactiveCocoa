@@ -78,7 +78,7 @@ extension RACSignal {
 			let next = { sink.put($0) }
 			let error = { (error: NSError?) in assert(false) }
 
-			self.subscribeNext(next, error: error)
+			return self.subscribeNext(next, error: error)
 		}
 	}
 }

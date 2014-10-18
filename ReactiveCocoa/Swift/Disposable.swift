@@ -115,10 +115,10 @@ public final class CompositeDisposable: Disposable {
 
 /// A disposable that, upon deinitialization, will automatically dispose of
 /// another disposable.
-public final class ScopedDisposable<D: Disposable>: Disposable {
+public final class ScopedDisposable: Disposable {
 	/// The disposable which will be disposed when the ScopedDisposable
 	/// deinitializes.
-	public let innerDisposable: D
+	public let innerDisposable: Disposable
 
 	public var disposed: Bool {
 		return innerDisposable.disposed
@@ -126,7 +126,7 @@ public final class ScopedDisposable<D: Disposable>: Disposable {
 
 	/// Initializes the receiver to dispose of the argument upon
 	/// deinitialization.
-	public init(_ disposable: D) {
+	public init(_ disposable: Disposable) {
 		innerDisposable = disposable
 	}
 

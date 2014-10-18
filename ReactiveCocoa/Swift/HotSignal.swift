@@ -10,19 +10,16 @@ import LlamaKit
 
 /// A push-driven stream that sends the same values to all observers.
 public final class HotSignal<T> {
-	private let generator: SinkOf<T> -> ()
-
 	private let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.HotSignal", DISPATCH_QUEUE_CONCURRENT)
 	private var observers = Bag<SinkOf<T>>()
+	private var disposable: Disposable?
 
 	/// Initializes a signal that will immediately perform the given action to
 	/// begin generating its values.
-	public init(_ generator: SinkOf<T> -> ()) {
-		// Save the generator closure so that anything it captures (e.g.,
-		// another signal dependency) remains alive while this signal object is
-		// too.
-		self.generator = generator
-		self.generator(SinkOf { [weak self] value in
+	public init(_ generator: SinkOf<T> -> Disposable?) {
+		// Weakly capture `self` so that lifetime is determined by any
+		// observers, not the generator.
+		disposable = generator(SinkOf { [weak self] value in
 			if let strongSelf = self {
 				dispatch_sync(strongSelf.queue) {
 					for sink in strongSelf.observers {
@@ -31,6 +28,10 @@ public final class HotSignal<T> {
 				}
 			}
 		})
+	}
+
+	deinit {
+		disposable?.dispose()
 	}
 
 	/// Notifies `observer` about new values from the receiver.
@@ -65,18 +66,18 @@ public final class HotSignal<T> {
 extension HotSignal {
 	/// Creates a signal that will never send any values.
 	public class func never() -> HotSignal {
-		return HotSignal { _ in () }
+		return HotSignal { _ in nil }
 	}
 
 	/// Creates a signal that can be controlled by sending values to the
 	/// returned sink.
 	public class func pipe() -> (HotSignal, SinkOf<T>) {
-		// TODO: Keep the signal alive while the sink is, for operators like
-		// replay().
 		var sink: SinkOf<T>? = nil
-		let signal = HotSignal { sink = $0 }
+		let signal = HotSignal { s in
+			sink = s
+			return nil
+		}
 
-		assert(sink != nil)
 		return (signal, sink!)
 	}
 
@@ -97,11 +98,9 @@ extension HotSignal {
 		let startDate = scheduler.currentDate
 
 		return HotSignal<NSDate> { sink in
-			scheduler.scheduleAfter(startDate.dateByAddingTimeInterval(interval), repeatingEvery: interval, withLeeway: leeway) {
+			return scheduler.scheduleAfter(startDate.dateByAddingTimeInterval(interval), repeatingEvery: interval, withLeeway: leeway) {
 				sink.put(scheduler.currentDate)
 			}
-
-			return ()
 		}
 	}
 }
@@ -111,21 +110,18 @@ extension HotSignal {
 	/// Maps each value in the stream to a new value.
 	public func map<U>(f: T -> U) -> HotSignal<U> {
 		return HotSignal<U> { sink in
-			self.observe { sink.put(f($0)) }
-			return ()
+			return self.observe { sink.put(f($0)) }
 		}
 	}
 
 	/// Preserves only the values of the stream that pass the given predicate.
 	public func filter(predicate: T -> Bool) -> HotSignal {
 		return HotSignal { sink in
-			self.observe { value in
+			return self.observe { value in
 				if predicate(value) {
 					sink.put(value)
 				}
 			}
-
-			return ()
 		}
 	}
 
@@ -230,6 +226,8 @@ extension HotSignal {
 		return HotSignal { sink in
 			let selfDisposable = self.observe(sink)
 			disposable.addDisposable(selfDisposable)
+
+			return disposable
 		}
 	}
 
@@ -238,11 +236,12 @@ extension HotSignal {
 	public func takeUntilReplacement(replacement: HotSignal) -> HotSignal {
 		return HotSignal { sink in
 			let selfDisposable = self.observe(sink)
-
-			replacement.observe { value in
+			let replacementDisposable = replacement.observe { value in
 				selfDisposable.dispose()
 				sink.put(value)
 			}
+
+			return CompositeDisposable([ selfDisposable, replacementDisposable ])
 		}
 	}
 
@@ -259,6 +258,8 @@ extension HotSignal {
 					selfDisposable.dispose()
 				}
 			}
+
+			return selfDisposable
 		}
 	}
 
@@ -266,12 +267,10 @@ extension HotSignal {
 	/// scheduler they originally arrived upon.
 	public func deliverOn(scheduler: Scheduler) -> HotSignal {
 		return HotSignal { sink in
-			self.observe { value in
+			return self.observe { value in
 				scheduler.schedule { sink.put(value) }
 				return ()
 			}
-
-			return ()
 		}
 	}
 
@@ -281,14 +280,12 @@ extension HotSignal {
 		precondition(interval >= 0)
 
 		return HotSignal { sink in
-			self.observe { value in
+			return self.observe { value in
 				let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
 				scheduler.scheduleAfter(date) {
 					sink.put(value)
 				}
 			}
-
-			return ()
 		}
 	}
 
@@ -304,7 +301,7 @@ extension HotSignal {
 		let disposable = SerialDisposable()
 
 		return HotSignal { sink in
-			self.observe { value in
+			return self.observe { value in
 				disposable.innerDisposable = nil
 
 				let now = scheduler.currentDate
@@ -318,8 +315,6 @@ extension HotSignal {
 
 				disposable.innerDisposable = scheduler.scheduleAfter(scheduleDate) { sink.put(value) }
 			}
-
-			return ()
 		}
 	}
 
@@ -329,16 +324,16 @@ extension HotSignal {
 	/// nothing happens.
 	public func sampleOn(sampler: HotSignal<()>) -> HotSignal {
 		let latest = Atomic<T?>(nil)
-		observe { latest.value = $0 }
+		let selfDisposable = observe { latest.value = $0 }
 
 		return HotSignal { sink in
-			sampler.observe { _ in
+			let samplerDisposable = sampler.observe { _ in
 				if let value = latest.value {
 					sink.put(value)
 				}
 			}
 
-			return ()
+			return CompositeDisposable([ selfDisposable, samplerDisposable ])
 		}
 	}
 }
@@ -356,7 +351,7 @@ extension HotSignal {
 			var selfLatest: T? = nil
 			var otherLatest: U? = nil
 
-			self.observe { value in
+			let selfDisposable = self.observe { value in
 				dispatch_sync(queue) {
 					selfLatest = value
 					if let otherLatest = otherLatest {
@@ -365,7 +360,7 @@ extension HotSignal {
 				}
 			}
 
-			signal.observe { value in
+			let otherDisposable = signal.observe { value in
 				dispatch_sync(queue) {
 					otherLatest = value
 					if let selfLatest = selfLatest {
@@ -374,7 +369,7 @@ extension HotSignal {
 				}
 			}
 
-			return ()
+			return CompositeDisposable([ selfDisposable, otherDisposable ])
 		}
 	}
 
@@ -388,16 +383,15 @@ extension HotSignal {
 	/// as they arrive, starting with earlier ones.
 	public func merge<U>(evidence: HotSignal -> HotSignal<HotSignal<U>>) -> HotSignal<U> {
 		return HotSignal<U> { sink in
-			let signals = Atomic<[HotSignal<U>]>([])
+			let disposable = CompositeDisposable()
 
-			evidence(self).observe { signal in
-				signals.modify { (var arr) in
-					arr.append(signal)
-					return arr
-				}
-
-				signal.observe(sink)
+			let selfDisposable = evidence(self).observe { signal in
+				let innerDisposable = signal.observe(sink)
+				disposable.addDisposable(innerDisposable)
 			}
+
+			disposable.addDisposable(selfDisposable)
+			return disposable
 		}
 	}
 
@@ -413,10 +407,12 @@ extension HotSignal {
 		return HotSignal<U> { sink in
 			let latestDisposable = SerialDisposable()
 
-			evidence(self).observe { signal in
+			let selfDisposable = evidence(self).observe { signal in
 				latestDisposable.innerDisposable = nil
 				latestDisposable.innerDisposable = signal.observe(sink)
 			}
+
+			return CompositeDisposable([ selfDisposable, latestDisposable ])
 		}
 	}
 }
@@ -496,10 +492,7 @@ extension HotSignal {
 		let replayProperty = ObservableProperty<[(Int, T)]>([])
 		var index = 0
 
-		// TODO: Tear down this observation when the resulting ColdSignal
-		// disappears somehow? Or maybe this will actually get taken care of by
-		// the Signal lifetime.
-		observe { elem in
+		let selfDisposable = observe { elem in
 			var array: [(Int, T)] = replayProperty.value
 			let newEntry = (index++, elem)
 			array.append(newEntry)
@@ -511,11 +504,20 @@ extension HotSignal {
 			replayProperty.value = array
 		}
 
+		let scopedDisposable = ScopedDisposable(selfDisposable)
+
 		return replayProperty.values()
 			.mapAccumulate(initialState: 0) { (var lastIndex, values) in
 				var valuesToSend: [T] = []
 
 				for (index, value) in values {
+					if scopedDisposable.disposed {
+						// This will never actually be true, but we want to keep
+						// the disposable alive for at least as long as the
+						// ColdSignal is.
+						break
+					}
+
 					if (index <= lastIndex) {
 						continue
 					}

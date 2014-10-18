@@ -261,7 +261,7 @@ extension ColdSignal {
 		precondition(count >= 0)
 
 		if count == 0 {
-			return filter(false)
+			return filter { _ in false }
 		}
 
 		return ColdSignal { subscriber in

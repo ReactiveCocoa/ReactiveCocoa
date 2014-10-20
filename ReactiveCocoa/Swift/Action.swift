@@ -46,9 +46,13 @@ public final class Action<Input, Output> {
 
 		executing = _executing.values()
 
-		// TODO: Make this complete when the action deinitializes.
+		// Fires when the `executing` signal terminates.
+		let executingTerminated = executing.then(.single(()))
+			.startMulticasted(errorHandler: nil)
+
 		enabled = enabledIf.replay(1)
 			.deliverOn(MainScheduler())
+			.takeUntil(executingTerminated)
 			.combineLatestWith(executing)
 			.map { (enabled, executing) in enabled && !executing }
 	}

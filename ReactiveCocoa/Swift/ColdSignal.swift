@@ -82,14 +82,13 @@ public struct ColdSignal<T> {
 		self.generator = generator
 	}
 
-	/// Starts producing events for the given subscriber, performing any side
+	/// Starts producing events for the given sink, performing any side
 	/// effects embedded within the ColdSignal.
 	///
 	/// Returns a Disposable which will cancel the work associated with event
 	/// production, and prevent any further events from being sent.
-	public func start(subscriber: Subscriber<T>) -> Disposable {
-		// TODO: We need an intermediate subscriber here, so disposal doesn't
-		// cancel everything about this given subscriber.
+	public func start<S: SinkType where S.Element == Event<T>>(sink: S) -> Disposable {
+		let subscriber = Subscriber<T>(sink)
 		generator(subscriber)
 		return subscriber.disposable
 	}

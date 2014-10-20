@@ -37,7 +37,7 @@ public enum Event<T> {
 			return true
 		}
 	}
-	
+
 	/// Lifts the given function over the event's value.
 	public func map<U>(f: T -> U) -> Event<U> {
 		switch self {
@@ -87,17 +87,17 @@ public struct ColdSignal<T> {
 	///
 	/// Returns a Disposable which will cancel the work associated with event
 	/// production, and prevent any further events from being sent.
-	public func subscribe(subscriber: Subscriber<T>) -> Disposable {
+	public func start(subscriber: Subscriber<T>) -> Disposable {
 		// TODO: We need an intermediate subscriber here, so disposal doesn't
 		// cancel everything about this given subscriber.
 		generator(subscriber)
 		return subscriber.disposable
 	}
 
-	/// Convenience function to invoke subscribe() with a Subscriber that has
+	/// Convenience function to invoke start() with a Subscriber that has
 	/// the given callbacks for each event type.
-	public func subscribe(next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing) -> Disposable {
-		return subscribe(Subscriber(next: next, error: error, completed: completed))
+	public func start(next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing) -> Disposable {
+		return start(Subscriber(next: next, error: error, completed: completed))
 	}
 }
 
@@ -107,7 +107,7 @@ extension ColdSignal {
 	/// then forward all events from the generated signal.
 	public static func lazy(action: () -> ColdSignal) -> ColdSignal {
 		return ColdSignal { subscriber in
-			action().subscribe(subscriber)
+			action().start(subscriber)
 			return ()
 		}
 	}
@@ -173,7 +173,7 @@ extension ColdSignal {
 	public func mapAccumulate<State, U>(#initialState: State, _ f: (State, T) -> (State?, U)) -> ColdSignal<U> {
 		return ColdSignal<U> { subscriber in
 			let state = Atomic(initialState)
-			let disposable = self.subscribe(next: { value in
+			let disposable = self.start(next: { value in
 				let (maybeState, newValue) = f(state.value, value)
 				subscriber.put(.Next(Box(newValue)))
 
@@ -321,7 +321,7 @@ extension ColdSignal {
 
 		return ColdSignal { subscriber in
 			let values: Atomic<[T]> = Atomic([])
-			let disposable = self.subscribe(next: { value in
+			let disposable = self.start(next: { value in
 				values.modify { (var arr) in
 					arr.append(value)
 					while arr.count > count {
@@ -364,7 +364,7 @@ extension ColdSignal {
 	/// scheduler they originally arrived upon.
 	public func deliverOn(scheduler: Scheduler) -> ColdSignal {
 		return ColdSignal { subscriber in
-			let disposable = self.subscribe(Subscriber { event in
+			let disposable = self.start(Subscriber { event in
 				scheduler.schedule { subscriber.put(event) }
 				return ()
 			})
@@ -379,10 +379,10 @@ extension ColdSignal {
 	/// performed on the given scheduler as well.
 	///
 	/// Values may still be sent upon other schedulers—this merely affects how
-	/// the `subscribe` method is invoked.
+	/// the `start` method is invoked.
 	public func subscribeOn(scheduler: Scheduler) -> ColdSignal {
 		return ColdSignal { subscriber in
-			let disposable = self.subscribe(Subscriber { event in
+			let disposable = self.start(Subscriber { event in
 				scheduler.schedule { subscriber.put(event) }
 				return ()
 			})
@@ -399,7 +399,7 @@ extension ColdSignal {
 		precondition(interval >= 0)
 
 		return ColdSignal { subscriber in
-			let disposable = self.subscribe(Subscriber { event in
+			let disposable = self.start(Subscriber { event in
 				switch event {
 				case let .Error:
 					scheduler.schedule {
@@ -431,7 +431,7 @@ extension ColdSignal {
 
 			subscriber.disposable.addDisposable(schedulerDisposable)
 
-			let selfDisposable = self.subscribe(subscriber)
+			let selfDisposable = self.start(subscriber)
 			subscriber.disposable.addDisposable(selfDisposable)
 		}
 	}
@@ -441,7 +441,7 @@ extension ColdSignal {
 		return ColdSignal { subscriber in
 			subscriber.disposable.addDisposable(ActionDisposable(disposed))
 
-			let disposable = self.subscribe(next: { value in
+			let disposable = self.start(next: { value in
 				next(value)
 			}, error: { err in
 				error(err)
@@ -498,11 +498,11 @@ extension ColdSignal {
 			let serialDisposable = SerialDisposable()
 			subscriber.disposable.addDisposable(serialDisposable)
 
-			serialDisposable.innerDisposable = self.subscribe(Subscriber { event in
+			serialDisposable.innerDisposable = self.start(Subscriber { event in
 				switch event {
 				case let .Error(error):
 					let newStream = handler(error)
-					serialDisposable.innerDisposable = newStream.subscribe(subscriber)
+					serialDisposable.innerDisposable = newStream.start(subscriber)
 
 				default:
 					subscriber.put(event)
@@ -515,7 +515,7 @@ extension ColdSignal {
 	/// just like any other value.
 	public func materialize() -> ColdSignal<Event<T>> {
 		return ColdSignal<Event<T>> { subscriber in
-			let disposable = self.subscribe(Subscriber { event in
+			let disposable = self.start(Subscriber { event in
 				subscriber.put(.Next(Box(event)))
 
 				if event.isTerminating {
@@ -534,7 +534,7 @@ extension ColdSignal {
 	///            `Event`s. Simply pass in the `identity` function.
 	public func dematerialize<U>(evidence: ColdSignal -> ColdSignal<Event<U>>) -> ColdSignal<U> {
 		return ColdSignal<U> { subscriber in
-			let disposable = evidence(self).subscribe(next: subscriber.put, error: { error in
+			let disposable = evidence(self).start(next: subscriber.put, error: { error in
 				subscriber.put(.Error(error))
 			}, completed: {
 				subscriber.put(.Completed)
@@ -548,7 +548,7 @@ extension ColdSignal {
 /// Methods for combining multiple signals.
 extension ColdSignal {
 	private func subscribeWithStates<U>(selfState: CombineLatestState<T>, _ otherState: CombineLatestState<U>, queue: dispatch_queue_t, onBothNext: () -> (), onError: NSError -> (), onBothCompleted: () -> ()) -> Disposable {
-		return subscribe(next: { value in
+		return start(next: { value in
 			dispatch_sync(queue) {
 				selfState.latestValue = value
 				if otherState.latestValue == nil {
@@ -597,10 +597,10 @@ extension ColdSignal {
 			let serialDisposable = SerialDisposable()
 			subscriber.disposable.addDisposable(serialDisposable)
 
-			serialDisposable.innerDisposable = self.subscribe(Subscriber { event in
+			serialDisposable.innerDisposable = self.start(Subscriber { event in
 				switch event {
 				case let .Completed:
-					serialDisposable.innerDisposable = signal.subscribe(subscriber)
+					serialDisposable.innerDisposable = signal.start(subscriber)
 
 				default:
 					subscriber.put(event)
@@ -629,13 +629,13 @@ extension ColdSignal {
 				}
 			}
 
-			let selfDisposable = evidence(self).subscribe(next: { stream in
+			let selfDisposable = evidence(self).start(next: { stream in
 				inFlight.modify { $0 + 1 }
 
 				let streamDisposable = SerialDisposable()
 				disposable.addDisposable(streamDisposable)
 
-				streamDisposable.innerDisposable = stream.subscribe(Subscriber { event in
+				streamDisposable.innerDisposable = stream.start(Subscriber { event in
 					if event.isTerminating {
 						streamDisposable.dispose()
 						disposable.pruneDisposed()
@@ -681,9 +681,9 @@ extension ColdSignal {
 			let latestDisposable = SerialDisposable()
 			subscriber.disposable.addDisposable(latestDisposable)
 
-			let selfDisposable = evidence(self).subscribe(next: { stream in
+			let selfDisposable = evidence(self).start(next: { stream in
 				latestDisposable.innerDisposable = nil
-				latestDisposable.innerDisposable = stream.subscribe(Subscriber { innerEvent in
+				latestDisposable.innerDisposable = stream.start(Subscriber { innerEvent in
 					switch innerEvent {
 					case let .Completed:
 						latestCompleted.value = true
@@ -711,10 +711,10 @@ extension ColdSignal {
 			let disposable = SerialDisposable()
 			subscriber.disposable.addDisposable(disposable)
 
-			disposable.innerDisposable = self.subscribe(error: { error in
+			disposable.innerDisposable = self.start(error: { error in
 				subscriber.put(.Error(error))
 			}, completed: {
-				disposable.innerDisposable = signal.subscribe(subscriber)
+				disposable.innerDisposable = signal.start(subscriber)
 			})
 		}
 	}
@@ -727,7 +727,7 @@ extension ColdSignal {
 		let semaphore = dispatch_semaphore_create(0)
 		var result: Result<T>?
 
-		take(1).subscribe(next: { value in
+		take(1).start(next: { value in
 			result = success(value)
 			dispatch_semaphore_signal(semaphore)
 		}, error: { error in
@@ -797,7 +797,7 @@ extension ColdSignal {
 			onError = errorHandler
 		}
 
-		subscribe(next: { value in
+		start(next: { value in
 			sink.put(value)
 		}, error: onError, completed: completionHandler)
 

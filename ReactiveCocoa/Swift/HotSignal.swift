@@ -468,8 +468,7 @@ extension HotSignal {
 				let signal = ColdSignal.fromValues(values[lastIndex...newIndex])
 				return (newIndex, signal)
 			}
-			// FIXME: This should actually be concat(), which doesn't exist yet.
-			.merge(identity)
+			.concat(identity)
 			.take(count)
 	}
 
@@ -528,7 +527,6 @@ extension HotSignal {
 
 				return (lastIndex, ColdSignal.fromValues(valuesToSend))
 			}
-			// FIXME: This should actually be concat(), which doesn't exist yet.
-			.merge(identity)
+			.concat(identity)
 	}
 }

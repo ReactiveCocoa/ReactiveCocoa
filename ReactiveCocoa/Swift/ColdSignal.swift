@@ -346,6 +346,37 @@ extension ColdSignal {
 		}
 	}
 
+	/// Forwards all events from the receiver, until `trigger` fires, at which
+	/// point the returned signal will complete.
+	public func takeUntil(trigger: HotSignal<()>) -> ColdSignal {
+		let disposable = CompositeDisposable()
+		let triggerDisposable = trigger.observe { _ in
+			disposable.dispose()
+		}
+
+		disposable.addDisposable(triggerDisposable)
+
+		return ColdSignal { subscriber in
+			// Automatically complete the returned signal when the trigger
+			// fires.
+			let subscriptionDisposable = ActionDisposable {
+				subscriber.put(.Completed)
+			}
+
+			disposable.addDisposable(subscriptionDisposable)
+
+			// When this particular subscription terminates, make sure to prune
+			// our unique disposable from `disposable`, to avoid infinite memory
+			// growth.
+			subscriber.disposable.addDisposable {
+				subscriptionDisposable.dispose()
+				disposable.pruneDisposed()
+			}
+
+			self.start(subscriber)
+		}
+	}
+
 	/// Returns a signal that will yield values from the receiver while
 	/// `predicate` remains `true`.
 	public func takeWhile(predicate: T -> Bool) -> ColdSignal {

@@ -621,24 +621,6 @@ extension ColdSignal {
 		}
 	}
 
-	/// Concatenates `signal` after the receiver.
-	public func concat(signal: ColdSignal) -> ColdSignal {
-		return ColdSignal { subscriber in
-			let serialDisposable = SerialDisposable()
-			subscriber.disposable.addDisposable(serialDisposable)
-
-			serialDisposable.innerDisposable = self.start(Subscriber { event in
-				switch event {
-				case let .Completed:
-					serialDisposable.innerDisposable = signal.start(subscriber)
-
-				default:
-					subscriber.put(event)
-				}
-			})
-		}
-	}
-
 	/// Merges a signal of signals down into a single signal, biased toward the
 	/// signals added earlier.
 	///
@@ -732,6 +714,40 @@ extension ColdSignal {
 
 			subscriber.disposable.addDisposable(selfDisposable)
 		}
+	}
+
+	/// Concatenates each inner signal with the previous and next inner signals.
+	///
+	/// evidence - Used to prove to the typechecker that the receiver is
+	///            a signal of signals. Simply pass in the `identity` function.
+	///
+	/// Returns a signal that will forward events from each of the original
+	/// signals, in sequential order.
+	public func concat<U>(evidence: ColdSignal -> ColdSignal<ColdSignal<U>>) -> ColdSignal<U> {
+		return ColdSignal<U> { subscriber in
+			var state = ConcatState<U>(subscriber: subscriber)
+
+			let selfDisposable = evidence(self).start(next: { signal in
+				// TODO: Avoid multiple dispatches.
+				dispatch_sync(state.queue) {
+					state.enqueuedSignals.append(signal)
+				}
+
+				state.dequeueIfReady()
+			}, error: { error in
+				subscriber.put(.Error(error))
+			}, completed: {
+				state.decrementInFlight()
+			})
+
+			subscriber.disposable.addDisposable(selfDisposable)
+		}
+	}
+
+	/// Concatenates the given signal after the receiver.
+	public func concat(signal: ColdSignal) -> ColdSignal {
+		return ColdSignal<ColdSignal>.fromValues([ self, signal ])
+			.concat(identity)
 	}
 
 	/// Ignores all values from the receiver, then subscribes to and forwards
@@ -898,4 +914,64 @@ public final class Subscriber<T>: SinkType {
 private class CombineLatestState<T> {
 	var latestValue: T?
 	var completed = false
+}
+
+private class ConcatState<T> {
+	let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.ColdSignal.concat", DISPATCH_QUEUE_SERIAL)
+	let subscriber: Subscriber<T>
+
+	var inFlight: Int = 1
+	var enqueuedSignals = [ColdSignal<T>]()
+	var currentSignal: ColdSignal<T>?
+
+	init(subscriber: Subscriber<T>) {
+		self.subscriber = subscriber
+	}
+
+	func decrementInFlight() {
+		dispatch_sync(queue) {
+			if --self.inFlight == 0 && self.enqueuedSignals.count == 0 && self.currentSignal == nil {
+				self.subscriber.put(.Completed)
+			}
+		}
+	}
+
+	func dequeueIfReady() {
+		var signal: ColdSignal<T>?
+
+		dispatch_sync(queue) {
+			if self.currentSignal != nil {
+				return
+			} else if self.enqueuedSignals.count == 0 {
+				return
+			}
+
+			signal = self.enqueuedSignals.removeAtIndex(0)
+			self.currentSignal = signal
+			self.inFlight++
+		}
+
+		if let signal = signal {
+			let signalDisposable = SerialDisposable()
+			subscriber.disposable.addDisposable(signalDisposable)
+
+			signalDisposable.innerDisposable = signal.start(next: { value in
+				self.subscriber.put(.Next(Box(value)))
+			}, error: { error in
+				self.subscriber.put(.Error(error))
+
+				// TODO: We should remove our disposable from the
+				// composite disposable here, but that is non-trivial to
+				// do right now. See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/1535.
+			}, completed: {
+				dispatch_sync(self.queue) {
+					self.currentSignal = nil
+				}
+
+				// TODO: Avoid multiple dispatches.
+				self.decrementInFlight()
+				self.dequeueIfReady()
+			})
+		}
+	}
 }

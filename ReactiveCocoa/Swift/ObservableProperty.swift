@@ -27,7 +27,7 @@ public final class ObservableProperty<T> {
 		}
 	}
 
-	init(_ value: T) {
+	public init(_ value: T) {
 		self.value = value
 	}
 

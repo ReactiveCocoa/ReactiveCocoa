@@ -415,11 +415,9 @@
 		D0C3130C19EF2B1F00984962 /* DisposableSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312F019EF2A7700984962 /* DisposableSpec.swift */; };
 		D0C3130D19EF2B1F00984962 /* ObjectiveCBridgingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312F119EF2A7700984962 /* ObjectiveCBridgingSpec.swift */; };
 		D0C3130E19EF2B1F00984962 /* SchedulerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312F219EF2A7700984962 /* SchedulerSpec.swift */; };
-		D0C3130F19EF2B1F00984962 /* SignalSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312F319EF2A7700984962 /* SignalSpec.swift */; };
 		D0C3131219EF2B2000984962 /* DisposableSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312F019EF2A7700984962 /* DisposableSpec.swift */; };
 		D0C3131319EF2B2000984962 /* ObjectiveCBridgingSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312F119EF2A7700984962 /* ObjectiveCBridgingSpec.swift */; };
 		D0C3131419EF2B2000984962 /* SchedulerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312F219EF2A7700984962 /* SchedulerSpec.swift */; };
-		D0C3131519EF2B2000984962 /* SignalSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312F319EF2A7700984962 /* SignalSpec.swift */; };
 		D0C3131E19EF2D9700984962 /* RACTestExampleScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C3131819EF2D9700984962 /* RACTestExampleScheduler.m */; };
 		D0C3131F19EF2D9700984962 /* RACTestExampleScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C3131819EF2D9700984962 /* RACTestExampleScheduler.m */; };
 		D0C3132019EF2D9700984962 /* RACTestObject.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C3131A19EF2D9700984962 /* RACTestObject.m */; };
@@ -761,7 +759,6 @@
 		D0C312F019EF2A7700984962 /* DisposableSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DisposableSpec.swift; sourceTree = "<group>"; };
 		D0C312F119EF2A7700984962 /* ObjectiveCBridgingSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectiveCBridgingSpec.swift; sourceTree = "<group>"; };
 		D0C312F219EF2A7700984962 /* SchedulerSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SchedulerSpec.swift; sourceTree = "<group>"; };
-		D0C312F319EF2A7700984962 /* SignalSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalSpec.swift; sourceTree = "<group>"; };
 		D0C3131719EF2D9700984962 /* RACTestExampleScheduler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACTestExampleScheduler.h; sourceTree = "<group>"; };
 		D0C3131819EF2D9700984962 /* RACTestExampleScheduler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACTestExampleScheduler.m; sourceTree = "<group>"; };
 		D0C3131919EF2D9700984962 /* RACTestObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACTestObject.h; sourceTree = "<group>"; };
@@ -1269,7 +1266,6 @@
 				D0C312F019EF2A7700984962 /* DisposableSpec.swift */,
 				D0C312F119EF2A7700984962 /* ObjectiveCBridgingSpec.swift */,
 				D0C312F219EF2A7700984962 /* SchedulerSpec.swift */,
-				D0C312F319EF2A7700984962 /* SignalSpec.swift */,
 			);
 			path = Swift;
 			sourceTree = "<group>";
@@ -1684,7 +1680,6 @@
 				D03766D119EDA60000A782A9 /* NSURLConnectionRACSupportSpec.m in Sources */,
 				D03766F319EDA60000A782A9 /* RACSequenceAdditionsSpec.m in Sources */,
 				D03766ED19EDA60000A782A9 /* RACMulticastConnectionSpec.m in Sources */,
-				D0C3130F19EF2B1F00984962 /* SignalSpec.swift in Sources */,
 				D03766E919EDA60000A782A9 /* RACKVOChannelSpec.m in Sources */,
 				D03766FB19EDA60000A782A9 /* RACSignalSpec.m in Sources */,
 				D037670719EDA60000A782A9 /* RACSubscriberSpec.m in Sources */,
@@ -1842,7 +1837,6 @@
 				D0C3131319EF2B2000984962 /* ObjectiveCBridgingSpec.swift in Sources */,
 				D0C3132319EF2D9700984962 /* RACTestSchedulerSpec.m in Sources */,
 				D03766C419EDA60000A782A9 /* NSObjectRACDeallocatingSpec.m in Sources */,
-				D0C3131519EF2B2000984962 /* SignalSpec.swift in Sources */,
 				D03766BE19EDA60000A782A9 /* NSEnumeratorRACSequenceAdditionsSpec.m in Sources */,
 				D037672019EDA60000A782A9 /* UIButtonRACSupportSpec.m in Sources */,
 				D0C3132519EF2D9700984962 /* RACTestUIButton.m in Sources */,

@@ -156,6 +156,9 @@ public final class QueueScheduler: DateScheduler {
 	}
 
 	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway leeway: NSTimeInterval, action: () -> ()) -> Disposable? {
+		precondition(repeatingEvery >= 0)
+		precondition(leeway >= 0)
+
 		let nsecInterval = repeatingEvery * Double(NSEC_PER_SEC)
 		let nsecLeeway = leeway * Double(NSEC_PER_SEC)
 
@@ -239,6 +242,8 @@ public final class TestScheduler: DateScheduler {
 	}
 
 	private func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, disposable: SerialDisposable, action: () -> ()) {
+		precondition(repeatingEvery >= 0)
+
 		disposable.innerDisposable = scheduleAfter(date) { [unowned self] in
 			action()
 			self.scheduleAfter(date.dateByAddingTimeInterval(repeatingEvery), repeatingEvery: repeatingEvery, disposable: disposable, action: action)

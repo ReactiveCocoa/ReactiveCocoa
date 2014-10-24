@@ -474,12 +474,15 @@ extension ColdSignal {
 
 			let disposable = self.start(next: { value in
 				next(value)
+				subscriber.put(.Next(Box(value)))
 			}, error: { err in
 				error(err)
 				terminated()
+				subscriber.put(.Error(err))
 			}, completed: {
 				completed()
 				terminated()
+				subscriber.put(.Completed)
 			})
 
 			subscriber.disposable.addDisposable(disposable)

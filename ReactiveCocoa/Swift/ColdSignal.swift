@@ -775,7 +775,7 @@ extension ColdSignal {
 	/// Subscribes to the receiver, then returns the first value received.
 	public func first() -> Result<T> {
 		let semaphore = dispatch_semaphore_create(0)
-		var result: Result<T>?
+		var result: Result<T> = failure(RACError.ExpectedCountMismatch.error)
 
 		take(1).start(next: { value in
 			result = success(value)
@@ -784,12 +784,12 @@ extension ColdSignal {
 			result = failure(error)
 			dispatch_semaphore_signal(semaphore)
 		}, completed: {
-			result = failure(RACError.ExpectedCountMismatch.error)
 			dispatch_semaphore_signal(semaphore)
+			return ()
 		})
 
 		dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
-		return result!
+		return result
 	}
 
 	/// Subscribes to the receiver, then returns the last value received.

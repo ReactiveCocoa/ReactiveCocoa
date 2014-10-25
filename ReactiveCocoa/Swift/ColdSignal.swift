@@ -155,6 +155,19 @@ extension ColdSignal {
 			subscriber.put(.Completed)
 		}
 	}
+
+	/// Creates a signal that will yield events equivalent to the given Result.
+	///
+	/// Returns a signal that will send one value then complete, or error.
+	public static func fromResult(result: Result<T>) -> ColdSignal {
+		switch (result) {
+		case let .Success(value):
+			return .single(value.unbox)
+
+		case let .Failure(error):
+			return .error(error)
+		}
+	}
 }
 
 /// Transformative operators.

@@ -428,6 +428,7 @@
 		D0C3132D19EF2FAE00984962 /* LlamaKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3132B19EF2FA300984962 /* LlamaKit.framework */; };
 		D0C3132E19EF2FB400984962 /* LlamaKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3132B19EF2FA300984962 /* LlamaKit.framework */; };
 		D0C3133519EF311700984962 /* LlamaKit.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3132B19EF2FA300984962 /* LlamaKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F63BBA331A02550A00DD140D /* HotSignalSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = F63BBA321A02550A00DD140D /* HotSignalSpec.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -767,6 +768,7 @@
 		D0C3131C19EF2D9700984962 /* RACTestUIButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACTestUIButton.h; sourceTree = "<group>"; };
 		D0C3131D19EF2D9700984962 /* RACTestUIButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACTestUIButton.m; sourceTree = "<group>"; };
 		D0C3132B19EF2FA300984962 /* LlamaKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = LlamaKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F63BBA321A02550A00DD140D /* HotSignalSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HotSignalSpec.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1261,6 +1263,7 @@
 		D0C312ED19EF2A6F00984962 /* Swift */ = {
 			isa = PBXGroup;
 			children = (
+				F63BBA321A02550A00DD140D /* HotSignalSpec.swift */,
 				D0C312EE19EF2A7700984962 /* AtomicSpec.swift */,
 				D0C312EF19EF2A7700984962 /* BagSpec.swift */,
 				D0C312F019EF2A7700984962 /* DisposableSpec.swift */,
@@ -1687,6 +1690,7 @@
 				D03766D519EDA60000A782A9 /* RACBacktraceSpec.m in Sources */,
 				D037670519EDA60000A782A9 /* RACSubscriberExamples.m in Sources */,
 				D0C3132219EF2D9700984962 /* RACTestSchedulerSpec.m in Sources */,
+				F63BBA331A02550A00DD140D /* HotSignalSpec.swift in Sources */,
 				D0C3130C19EF2B1F00984962 /* DisposableSpec.swift in Sources */,
 				D03766D719EDA60000A782A9 /* RACBlockTrampolineSpec.m in Sources */,
 				D03766FF19EDA60000A782A9 /* RACStreamExamples.m in Sources */,

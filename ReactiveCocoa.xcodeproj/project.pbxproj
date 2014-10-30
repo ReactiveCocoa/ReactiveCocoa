@@ -429,6 +429,7 @@
 		D0C3132E19EF2FB400984962 /* LlamaKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3132B19EF2FA300984962 /* LlamaKit.framework */; };
 		D0C3133519EF311700984962 /* LlamaKit.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3132B19EF2FA300984962 /* LlamaKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F63BBA331A02550A00DD140D /* HotSignalSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = F63BBA321A02550A00DD140D /* HotSignalSpec.swift */; };
+		F63BBA3C1A0265A900DD140D /* LlamaKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3132B19EF2FA300984962 /* LlamaKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -784,6 +785,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F63BBA3C1A0265A900DD140D /* LlamaKit.framework in Frameworks */,
 				D05E662519EDD82000904ACA /* Nimble.framework in Frameworks */,
 				D037672D19EDA75D00A782A9 /* Quick.framework in Frameworks */,
 				D04725F619E49ED7006002AA /* ReactiveCocoa.framework in Frameworks */,

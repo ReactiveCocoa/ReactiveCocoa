@@ -517,7 +517,7 @@ extension HotSignal {
 						break
 					}
 
-					if (index < lastIndex) {
+					if (index <= lastIndex) {
 						continue
 					}
 

@@ -15,18 +15,19 @@ class HotSignalSpec: QuickSpec {
 		describe("replay") {
 			var signal : HotSignal<Int>!
 			var sink : SinkOf<Int>!
-			var coldSignal : ColdSignal<Int>!
+			var replaySignal : ColdSignal<Int>!
 
 			beforeEach {
 				let pipe = HotSignal<Int>.pipe()
 				signal = pipe.0
 				sink = pipe.1
-				coldSignal = signal.replay(1)
+				replaySignal = signal.replay(1)
 			}
 
-			it("should replay the first value to a subscriber") {
+			it("should replay the first value") {
 				sink.put(99)
-				let result = coldSignal.first().value()
+
+				let result = replaySignal.first().value()
 				expect(result).toNot(beNil())
 				expect(result).to(equal(99))
 			}

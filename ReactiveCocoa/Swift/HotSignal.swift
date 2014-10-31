@@ -336,6 +336,33 @@ extension HotSignal {
 			return CompositeDisposable([ selfDisposable, samplerDisposable ])
 		}
 	}
+    
+    /// Returns a signal which sends arrays of the buffered values grouped by `interval` on `scheduler`.
+    public func groupByInterval(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> HotSignal<[T]> {
+        let previousDate = Atomic<NSDate?>(nil)
+        let disposable = SerialDisposable()
+        let buffer = Atomic<[T]>([])
+        
+        return HotSignal<[T]> { sink in
+            return self.observe { value in
+                buffer.modify { innerBuffer in return innerBuffer + [value] }
+                
+                let now = scheduler.currentDate
+                let (_, scheduleDate) = previousDate.modify { date -> (NSDate?, NSDate) in
+                    if date == nil || now.timeIntervalSinceDate(date!) <= interval {
+                        return (date, now.dateByAddingTimeInterval(interval))
+                    } else {
+                        return (now, now)
+                    }
+                }
+                
+                disposable.innerDisposable = scheduler.scheduleAfter(scheduleDate) {
+                    sink.put(buffer.value)
+                    buffer.modify { innerBuffer in return [] }
+                }
+            }
+        }
+    }
 }
 
 /// Methods for combining multiple signals.

@@ -21,15 +21,71 @@ class HotSignalSpec: QuickSpec {
 				let pipe = HotSignal<Int>.pipe()
 				signal = pipe.0
 				sink = pipe.1
-				replaySignal = signal.replay(1)
 			}
 
-			it("should replay the first value") {
-				sink.put(99)
+			context("replay(1)") {
+				beforeEach {
+					replaySignal = signal.replay(1)
+				}
 
-				let result = replaySignal.first().value()
-				expect(result).toNot(beNil())
-				expect(result).to(equal(99))
+				it("should replay the first value") {
+					replaySignal.start() { value in
+						println(value)
+					}
+
+					sink.put(99)
+
+					let result = replaySignal.first().value()
+					expect(result).toNot(beNil())
+					expect(result).to(equal(99))
+				}
+
+				it("should replay only the latest value") {
+					sink.put(99)
+					sink.put(400)
+
+					let result = replaySignal.first().value()
+					expect(result).toNot(beNil())
+					expect(result).to(equal(400))
+				}
+			}
+
+			context("replay(2)") {
+				beforeEach {
+					replaySignal = signal.replay(2)
+				}
+
+				it("should replay the first 2 values") {
+					sink.put(99)
+					sink.put(400)
+
+					let result = replaySignal
+						.take(2)
+						.reduce(initial: [] as [Int]) { (array, value) in
+							return array + [ value ]
+						}
+						.first()
+						.value()
+					expect(result).toNot(beNil())
+					expect(result).to(equal([99, 400]))
+				}
+
+				it("should replay only the latest values") {
+					sink.put(99)
+					sink.put(400)
+					sink.put(9000)
+					sink.put(77)
+
+					let result = replaySignal
+						.take(2)
+						.reduce(initial: [] as [Int]) { (array, value) in
+							return array + [ value ]
+						}
+						.first()
+						.value()
+					expect(result).toNot(beNil())
+					expect(result).to(equal([9000, 77]))
+				}
 			}
 		}
 	}

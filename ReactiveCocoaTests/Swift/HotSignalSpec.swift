@@ -29,10 +29,6 @@ class HotSignalSpec: QuickSpec {
 				}
 
 				it("should replay the first value") {
-					replaySignal.start() { value in
-						println(value)
-					}
-
 					sink.put(99)
 
 					let result = replaySignal.first().value()

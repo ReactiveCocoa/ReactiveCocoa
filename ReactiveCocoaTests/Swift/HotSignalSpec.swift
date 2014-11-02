@@ -23,6 +23,30 @@ class HotSignalSpec: QuickSpec {
 				sink = pipe.1
 			}
 
+			context("replay(0)") {
+				beforeEach {
+					replaySignal = signal.replay(0)
+				}
+
+				it("should not complete") {
+					let error = NSError(domain: "test", code: -1, userInfo: nil)
+					let result = replaySignal.timeoutWithError(error, afterInterval: 10, onScheduler: QueueScheduler()).first().error()
+
+					expect(result).to(equal(error))
+				}
+
+				it("should forward values sent on the hot signal") {
+					var count = 0
+					replaySignal.start() {
+						expect($0).to(equal(9000))
+						count++
+					}
+
+					sink.put(9000)
+					expect(count).to(equal(1))
+				}
+			}
+
 			context("replay(1)") {
 				beforeEach {
 					replaySignal = signal.replay(1)

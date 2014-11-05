@@ -43,9 +43,7 @@ class HotSignalSpec: QuickSpec {
 
 				it("should forward values sent on the hot signal") {
 					var collectedValues: [Int] = []
-					replaySignal.start() {
-						collectedValues += [ $0 ]
-					}
+					replaySignal.start() { collectedValues += [ $0 ] }
 
 					sink.put(9000)
 					expect(collectedValues).to(equal([ 9000 ]))

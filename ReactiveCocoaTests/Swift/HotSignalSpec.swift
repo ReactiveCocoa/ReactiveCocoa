@@ -30,26 +30,28 @@ class HotSignalSpec: QuickSpec {
 
 				it("should not complete") {
 					let error = RACError.Empty.error
-                    let scheduler = TestScheduler(startDate: NSDate())
+					let scheduler = TestScheduler(startDate: NSDate())
 
-                    var receivedError: NSError? = nil
-                    replaySignal.timeoutWithError(error, afterInterval: 10, onScheduler:scheduler).start(error: { error in
-                       receivedError = error
-                    })
+					var receivedError: NSError? = nil
+					replaySignal.timeoutWithError(error, afterInterval: 10, onScheduler:scheduler).start(error: { error in
+						receivedError = error
+					})
 
-                    scheduler.advanceByInterval(10)
-                    expect(receivedError).to(equal(error))
+					scheduler.advanceByInterval(10)
+					expect(receivedError).to(equal(error))
 				}
 
 				it("should forward values sent on the hot signal") {
-					var count = 0
+					var collectedValues: [Int] = []
 					replaySignal.start() {
-						expect($0).to(equal(9000))
-						count++
+						collectedValues += [ $0 ]
 					}
 
 					sink.put(9000)
-					expect(count).to(equal(1))
+					expect(collectedValues).to(equal([ 9000 ]))
+
+					sink.put(40)
+					expect(collectedValues).to(equal([ 9000, 40 ]))
 				}
 			}
 

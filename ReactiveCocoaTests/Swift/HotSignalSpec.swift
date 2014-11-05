@@ -107,15 +107,14 @@ class HotSignalSpec: QuickSpec {
 					sink.put(9000)
 					sink.put(77)
 
-					let result = replaySignal
-						.take(2)
-						.reduce(initial: [] as [Int]) { (array, value) in
-							return array + [ value ]
-						}
-						.first()
-						.value()
-					expect(result).toNot(beNil())
-					expect(result).to(equal([9000, 77]))
+					var collectedValues: [Int] = []
+					replaySignal.start() { collectedValues += [ $0 ] }
+
+					expect(collectedValues).to(equal([ 9000, 77 ]))
+
+					// New events should now be forwarded
+					sink.put(50)
+					expect(collectedValues).to(equal([ 9000, 77, 50 ]))
 				}
 			}
 		}

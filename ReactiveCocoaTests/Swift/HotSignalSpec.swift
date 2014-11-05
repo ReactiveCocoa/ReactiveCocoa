@@ -29,7 +29,7 @@ class HotSignalSpec: QuickSpec {
 				}
 
 				it("should not complete") {
-					let error = NSError(domain: "test", code: -1, userInfo: nil)
+					let error = RACError.Empty.error
                     let scheduler = TestScheduler(startDate: NSDate())
 
                     var receivedError: NSError? = nil

@@ -13,9 +13,9 @@ import ReactiveCocoa
 class HotSignalSpec: QuickSpec {
 	override func spec() {
 		describe("replay") {
-			var signal : HotSignal<Int>!
-			var sink : SinkOf<Int>!
-			var replaySignal : ColdSignal<Int>!
+			var signal: HotSignal<Int>!
+			var sink: SinkOf<Int>!
+			var replaySignal: ColdSignal<Int>!
 
 			beforeEach {
 				let pipe = HotSignal<Int>.pipe()

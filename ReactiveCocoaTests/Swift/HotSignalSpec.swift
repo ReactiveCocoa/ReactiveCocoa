@@ -47,7 +47,7 @@ class HotSignalSpec: QuickSpec {
 				}
 			}
 
-			context("replay(1)") {
+			describe("replay(1)") {
 				beforeEach {
 					replaySignal = signal.replay(1)
 				}
@@ -70,7 +70,7 @@ class HotSignalSpec: QuickSpec {
 				}
 			}
 
-			context("replay(2)") {
+			describe("replay(2)") {
 				beforeEach {
 					replaySignal = signal.replay(2)
 				}

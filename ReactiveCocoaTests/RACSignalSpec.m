@@ -41,43 +41,45 @@ static NSError *RACSignalTestError;
 static NSString * const RACSignalMergeConcurrentCompletionExampleGroup = @"RACSignalMergeConcurrentCompletionExampleGroup";
 static NSString * const RACSignalMaxConcurrent = @"RACSignalMaxConcurrent";
 
-QuickSharedExampleGroupsBegin(mergeConcurrentCompletionName)
+QuickConfigurationBegin(mergeConcurrentCompletionName)
 
-qck_sharedExamples(RACSignalMergeConcurrentCompletionExampleGroup, ^(QCKDSLSharedExampleContext exampleContext) {
-	qck_it(@"should complete only after the source and all its signals have completed", ^{
-		RACSubject *subject1 = [RACSubject subject];
-		RACSubject *subject2 = [RACSubject subject];
-		RACSubject *subject3 = [RACSubject subject];
++ (void)configure:(Configuration *)configuration {
+	sharedExamples(RACSignalMergeConcurrentCompletionExampleGroup, ^(QCKDSLSharedExampleContext exampleContext) {
+		qck_it(@"should complete only after the source and all its signals have completed", ^{
+			RACSubject *subject1 = [RACSubject subject];
+			RACSubject *subject2 = [RACSubject subject];
+			RACSubject *subject3 = [RACSubject subject];
 
-		RACSubject *signalsSubject = [RACSubject subject];
-		__block BOOL completed = NO;
-		[[signalsSubject flatten:[exampleContext()[RACSignalMaxConcurrent] unsignedIntegerValue]] subscribeCompleted:^{
-			completed = YES;
-		}];
+			RACSubject *signalsSubject = [RACSubject subject];
+			__block BOOL completed = NO;
+			[[signalsSubject flatten:[exampleContext()[RACSignalMaxConcurrent] unsignedIntegerValue]] subscribeCompleted:^{
+				completed = YES;
+			}];
 
-		[signalsSubject sendNext:subject1];
-		[subject1 sendCompleted];
+			[signalsSubject sendNext:subject1];
+			[subject1 sendCompleted];
 
-		expect(@(completed)).to(beFalsy());
+			expect(@(completed)).to(beFalsy());
 
-		[signalsSubject sendNext:subject2];
-		[signalsSubject sendNext:subject3];
+			[signalsSubject sendNext:subject2];
+			[signalsSubject sendNext:subject3];
 
-		[signalsSubject sendCompleted];
+			[signalsSubject sendCompleted];
 
-		expect(@(completed)).to(beFalsy());
+			expect(@(completed)).to(beFalsy());
 
-		[subject2 sendCompleted];
+			[subject2 sendCompleted];
 
-		expect(@(completed)).to(beFalsy());
+			expect(@(completed)).to(beFalsy());
 
-		[subject3 sendCompleted];
+			[subject3 sendCompleted];
 
-		expect(@(completed)).to(beTruthy());
+			expect(@(completed)).to(beTruthy());
+		});
 	});
-});
+}
 
-QuickSharedExampleGroupsEnd
+QuickConfigurationEnd
 
 QuickSpecBegin(RACSignalSpec)
 
@@ -254,7 +256,7 @@ qck_describe(@"-bind:", ^{
 qck_describe(@"subscribing", ^{
 	__block RACSignal *signal = nil;
 	id nextValueSent = @"1";
-	
+
 	qck_beforeEach(^{
 		signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:nextValueSent];
@@ -262,46 +264,46 @@ qck_describe(@"subscribing", ^{
 			return nil;
 		}];
 	});
-	
+
 	qck_it(@"should get next values", ^{
 		__block id nextValueReceived = nil;
 		[signal subscribeNext:^(id x) {
 			nextValueReceived = x;
 		} error:^(NSError *error) {
-			
+
 		} completed:^{
-			
+
 		}];
-		
+
 		expect(nextValueReceived).to(equal(nextValueSent));
 	});
-	
+
 	qck_it(@"should get completed", ^{
 		__block BOOL didGetCompleted = NO;
 		[signal subscribeNext:^(id x) {
-			
+
 		} error:^(NSError *error) {
-			
+
 		} completed:^{
 			didGetCompleted = YES;
 		}];
-		
+
 		expect(@(didGetCompleted)).to(beTruthy());
 	});
-	
+
 	qck_it(@"should not get an error", ^{
 		__block BOOL didGetError = NO;
 		[signal subscribeNext:^(id x) {
-			
+
 		} error:^(NSError *error) {
 			didGetError = YES;
 		} completed:^{
-			
+
 		}];
-		
+
 		expect(@(didGetError)).to(beFalsy());
 	});
-	
+
 	qck_it(@"shouldn't get anything after dispose", ^{
 		RACTestScheduler *scheduler = [[RACTestScheduler alloc] init];
 		NSMutableArray *receivedValues = [NSMutableArray array];
@@ -322,10 +324,10 @@ qck_describe(@"subscribing", ^{
 
 		NSArray *expectedValues = @[ @0 ];
 		expect(receivedValues).to(equal(expectedValues));
-		
+
 		[disposable dispose];
 		[scheduler stepAll];
-		
+
 		expect(receivedValues).to(equal(expectedValues));
 	});
 
@@ -346,7 +348,7 @@ qck_describe(@"subscribing", ^{
 		});
 		expect(currentScheduler).toEventuallyNot(beNil());
 	});
-	
+
 	qck_it(@"should automatically dispose of other subscriptions from +createSignal:", ^{
 		__block BOOL innerDisposed = NO;
 		__block id<RACSubscriber> innerSubscriber = nil;
@@ -391,7 +393,7 @@ qck_describe(@"-takeUntil:", ^{
 		shouldBeGettingItems = NO;
 		[subject sendNext:@"test 3"];
 	});
-    
+
 	qck_it(@"should support completion as trigger", ^{
 		__block BOOL shouldBeGettingItems = YES;
 		RACSubject *subject = [RACSubject subject];
@@ -399,9 +401,9 @@ qck_describe(@"-takeUntil:", ^{
 		[[subject takeUntil:cutOffSubject] subscribeNext:^(id x) {
 			expect(@(shouldBeGettingItems)).to(beTruthy());
 		}];
-        
+
 		[cutOffSubject sendCompleted];
-        
+
 		shouldBeGettingItems = NO;
 		[subject sendNext:@"should not go through"];
 	});
@@ -500,7 +502,7 @@ qck_describe(@"-takeUntilReplacement:", ^{
 		[replacement sendCompleted];
 		expect(@(receivedCompleted)).to(beTruthy());
 	});
-	
+
 	qck_it(@"should not forward values from the receiver if both send synchronously", ^{
 		RACSignal *receiver = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
@@ -567,7 +569,7 @@ qck_describe(@"-takeUntilReplacement:", ^{
 		expect(@(receiverDisposed)).to(beFalsy());
 
 		[replacement sendNext:nil];
-		
+
 		expect(@(receiverDisposed)).to(beTruthy());
 	});
 });
@@ -610,7 +612,7 @@ qck_describe(@"disposal", ^{
 qck_describe(@"querying", ^{
 	__block RACSignal *signal = nil;
 	id nextValueSent = @"1";
-	
+
 	qck_beforeEach(^{
 		signal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:nextValueSent];
@@ -619,7 +621,7 @@ qck_describe(@"querying", ^{
 			return nil;
 		}];
 	});
-	
+
 	qck_it(@"should return first 'next' value with -firstOrDefault:success:error:", ^{
 		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 			[subscriber sendNext:@1];
@@ -637,7 +639,7 @@ qck_describe(@"querying", ^{
 		expect(@(success)).to(beTruthy());
 		expect(error).to(beNil());
 	});
-	
+
 	qck_it(@"should return first default value with -firstOrDefault:success:error:", ^{
 		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 			[subscriber sendCompleted];
@@ -652,7 +654,7 @@ qck_describe(@"querying", ^{
 		expect(@(success)).to(beTruthy());
 		expect(error).to(beNil());
 	});
-	
+
 	qck_it(@"should return error with -firstOrDefault:success:error:", ^{
 		RACSignal *signal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
 			[subscriber sendError:RACSignalTestError];
@@ -836,25 +838,25 @@ qck_describe(@"continuation", ^{
 					[subscriber sendError:RACSignalTestError];
 					return;
 				}
-				
+
 				numberOfSubscriptions++;
-				
+
 				[subscriber sendNext:@"1"];
 				[subscriber sendCompleted];
 				[subscriber sendError:RACSignalTestError];
 			}];
 		}];
-		
+
 		__block NSUInteger nextCount = 0;
 		__block BOOL gotCompleted = NO;
 		[[signal repeat] subscribeNext:^(id x) {
 			nextCount++;
 		} error:^(NSError *error) {
-			
+
 		} completed:^{
 			gotCompleted = YES;
 		}];
-		
+
 		expect(@(nextCount)).toEventually(equal(@3));
 		expect(@(gotCompleted)).to(beFalsy());
 	});
@@ -905,20 +907,20 @@ qck_describe(@"+combineLatestWith:", ^{
 	__block RACSubject *subject1 = nil;
 	__block RACSubject *subject2 = nil;
 	__block RACSignal *combined = nil;
-	
+
 	qck_beforeEach(^{
 		subject1 = [RACSubject subject];
 		subject2 = [RACSubject subject];
 		combined = [RACSignal combineLatest:@[ subject1, subject2 ]];
 	});
-	
+
 	qck_it(@"should send next only once both signals send next", ^{
 		__block RACTuple *tuple;
-		
+
 		[combined subscribeNext:^(id x) {
 			tuple = x;
 		}];
-		
+
 		expect(tuple).to(beNil());
 
 		[subject1 sendNext:@"1"];
@@ -927,46 +929,46 @@ qck_describe(@"+combineLatestWith:", ^{
 		[subject2 sendNext:@"2"];
 		expect(tuple).to(equal(RACTuplePack(@"1", @"2")));
 	});
-	
+
 	qck_it(@"should send nexts when either signal sends multiple times", ^{
 		NSMutableArray *results = [NSMutableArray array];
 		[combined subscribeNext:^(id x) {
 			[results addObject:x];
 		}];
-		
+
 		[subject1 sendNext:@"1"];
 		[subject2 sendNext:@"2"];
-		
+
 		[subject1 sendNext:@"3"];
 		[subject2 sendNext:@"4"];
-		
+
 		expect(results[0]).to(equal(RACTuplePack(@"1", @"2")));
 		expect(results[1]).to(equal(RACTuplePack(@"3", @"2")));
 		expect(results[2]).to(equal(RACTuplePack(@"3", @"4")));
 	});
-	
+
 	qck_it(@"should complete when only both signals complete", ^{
 		__block BOOL completed = NO;
-		
+
 		[combined subscribeCompleted:^{
 			completed = YES;
 		}];
 
 		expect(@(completed)).to(beFalsy());
-		
+
 		[subject1 sendCompleted];
 		expect(@(completed)).to(beFalsy());
 
 		[subject2 sendCompleted];
 		expect(@(completed)).to(beTruthy());
 	});
-	
+
 	qck_it(@"should error when either signal errors", ^{
 		__block NSError *receivedError = nil;
 		[combined subscribeError:^(NSError *error) {
 			receivedError = error;
 		}];
-		
+
 		[subject1 sendError:RACSignalTestError];
 		expect(receivedError).to(equal(RACSignalTestError));
 	});
@@ -980,7 +982,7 @@ qck_describe(@"+combineLatestWith:", ^{
 			[subject.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				subjectDeallocd = YES;
 			}]];
-			
+
 			RACSignal *signal __attribute__((objc_precise_lifetime)) = [RACSignal combineLatest:@[ subject ]];
 			[signal.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 				signalDeallocd = YES;
@@ -1001,14 +1003,14 @@ qck_describe(@"+combineLatestWith:", ^{
 		[combined subscribeNext:^(id x) {
 			tuple = x;
 		}];
-		
+
 		[subject1 sendNext:@"foo"];
 		expect(tuple).to(equal(RACTuplePack(@"foo", @"foo")));
-		
+
 		[subject1 sendNext:@"bar"];
 		expect(tuple).to(equal(RACTuplePack(@"bar", @"bar")));
 	});
-    
+
 	qck_it(@"should combine the same side-effecting signal", ^{
 		__block NSUInteger counter = 0;
 		RACSignal *sideEffectingSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
@@ -1024,7 +1026,7 @@ qck_describe(@"+combineLatestWith:", ^{
 		[combined subscribeNext:^(id x) {
 			[receivedValues addObject:x];
 		}];
-		
+
 		expect(@(counter)).to(equal(@2));
 
 		NSArray *expected = @[ RACTuplePack(@1, @2) ];
@@ -1134,31 +1136,31 @@ qck_describe(@"+combineLatest:reduce:", ^{
 
 		expect(received).to(equal(@"hello: world!!1"));
 	});
-	
+
 	qck_it(@"should handle multiples of the same signals", ^{
 		RACSignal *combined = [RACSignal combineLatest:@[ subject1, subject2, subject1, subject3 ] reduce:^(NSString *string1, NSString *string2, NSString *string3, NSString *string4) {
 			return [NSString stringWithFormat:@"%@ : %@ = %@ : %@", string1, string2, string3, string4];
 		}];
-		
+
 		NSMutableArray *receivedValues = NSMutableArray.array;
-		
+
 		[combined subscribeNext:^(id x) {
 			[receivedValues addObject:x];
 		}];
-		
+
 		[subject1 sendNext:@"apples"];
 		expect(receivedValues.lastObject).to(beNil());
-		
+
 		[subject2 sendNext:@"oranges"];
 		expect(receivedValues.lastObject).to(beNil());
 
 		[subject3 sendNext:@"cattle"];
 		expect(receivedValues.lastObject).to(equal(@"apples : oranges = apples : cattle"));
-		
+
 		[subject1 sendNext:@"horses"];
 		expect(receivedValues.lastObject).to(equal(@"horses : oranges = horses : cattle"));
 	});
-    
+
 	qck_it(@"should handle multiples of the same side-effecting signal", ^{
 		__block NSUInteger counter = 0;
 		RACSignal *sideEffectingSignal = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
@@ -1173,11 +1175,11 @@ qck_describe(@"+combineLatest:reduce:", ^{
 
 		NSMutableArray *receivedValues = [NSMutableArray array];
 		expect(@(counter)).to(equal(@0));
-		
+
 		[combined subscribeNext:^(id x) {
 			[receivedValues addObject:x];
 		}];
-		
+
 		expect(@(counter)).to(equal(@3));
 		expect(receivedValues).to(equal(@[ @"123" ]));
 	});
@@ -1194,7 +1196,7 @@ qck_describe(@"distinctUntilChanged", ^{
 			[subscriber sendCompleted];
 			return nil;
 		}] distinctUntilChanged];
-		
+
 		NSArray *values = sub.toArray;
 		NSArray *expected = @[ @1, @2, @1 ];
 		expect(values).to(equal(expected));
@@ -1210,7 +1212,7 @@ qck_describe(@"distinctUntilChanged", ^{
 			[subscriber sendCompleted];
 			return nil;
 		}] distinctUntilChanged];
-		
+
 		NSArray *values = sub.toArray;
 		NSArray *expected = @[ @1, [NSNull null], @1 ];
 		expect(values).to(equal(expected));
@@ -1224,7 +1226,7 @@ qck_describe(@"distinctUntilChanged", ^{
 			[subscriber sendCompleted];
 			return nil;
 		}] distinctUntilChanged];
-		
+
 		NSArray *values = sub.toArray;
 		NSArray *expected = @[ [NSNull null], @1 ];
 		expect(values).to(equal(expected));
@@ -1390,7 +1392,7 @@ qck_describe(@"memory management", ^{
 
 			expect(@(done)).toEventually(beTruthy());
 		}
-		
+
 		expect(@(deallocd)).toEventually(beTruthy());
 	});
 
@@ -1441,7 +1443,7 @@ qck_describe(@"memory management", ^{
 	qck_it(@"should dealloc if the signal was created on a background queue, never gets any subscribers, and the background queue gets delayed", ^{
 		__block BOOL deallocd = NO;
 		dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-		
+
 		@autoreleasepool {
 			[[RACScheduler scheduler] schedule:^{
 				RACSignal *signal __attribute__((objc_precise_lifetime)) = [RACSignal createSignal:^ id (id<RACSubscriber> subscriber) {
@@ -1489,7 +1491,7 @@ qck_describe(@"memory management", ^{
 
 		[subject sendCompleted];
 		expect(@(completed)).to(beTruthy());
-		
+
 		[disposable dispose];
 	});
 });
@@ -1675,7 +1677,7 @@ qck_describe(@"-flatten:", ^{
 	__block RACSubject *subject3;
 	__block RACSubject *signalsSubject;
 	__block NSMutableArray *values;
-	
+
 	qck_beforeEach(^{
 		subscribedTo1 = NO;
 		subject1 = [RACSubject subject];
@@ -1723,7 +1725,7 @@ qck_describe(@"-flatten:", ^{
 			[subject1 sendNext:@1];
 
 			[signalsSubject sendNext:sub3];
-			
+
 			expect(@(subscribedTo1)).to(beTruthy());
 			expect(@(subscribedTo2)).to(beTruthy());
 			expect(@(subscribedTo3)).to(beTruthy());
@@ -1957,12 +1959,12 @@ qck_describe(@"-switchToLatest", ^{
 		[subject sendCompleted];
 		expect(@(completed)).to(beFalsy());
 	});
-	
+
 	qck_it(@"should send completed when the switching signal completes and the last sent signal does", ^{
 		[subject sendNext:RACSignal.empty];
-		
+
 		expect(@(completed)).to(beFalsy());
-		
+
 		[subject sendCompleted];
 		expect(@(completed)).to(beTruthy());
 	});
@@ -2262,7 +2264,7 @@ qck_describe(@"+if:then:else", ^{
 		[boolSubject sendNext:@YES];
 		[trueSubject sendNext:@"foo"];
 		[boolSubject sendCompleted];
-		
+
 		expect(values).to(equal(@[ @"foo" ]));
 		expect(@(completed)).to(beFalsy());
 	});
@@ -2281,9 +2283,9 @@ qck_describe(@"+if:then:else", ^{
 qck_describe(@"+interval:onScheduler: and +interval:onScheduler:withLeeway:", ^{
 	static const NSTimeInterval interval = 0.1;
 	static const NSTimeInterval leeway = 0.2;
-	
+
 	__block void (^testTimer)(RACSignal *, NSNumber *, NSNumber *) = nil;
-	
+
 	qck_beforeEach(^{
 		testTimer = [^(RACSignal *timer, NSNumber *minInterval, NSNumber *leeway) {
 			__block NSUInteger nextsReceived = 0;
@@ -2304,26 +2306,26 @@ qck_describe(@"+interval:onScheduler: and +interval:onScheduler:withLeeway:", ^{
 				expect(@(currentTime - startTime)).to(beGreaterThanOrEqualTo(@(expectedMinInterval)));
 				expect(@(currentTime - startTime)).to(beLessThanOrEqualTo(@(expectedMaxInterval)));
 			}];
-			
+
 			expect(@(nextsReceived)).toEventually(equal(@3));
 		} copy];
 	});
-	
+
 	qck_describe(@"+interval:onScheduler:", ^{
 		qck_it(@"should work on the main thread scheduler", ^{
 			testTimer([RACSignal interval:interval onScheduler:RACScheduler.mainThreadScheduler], @(interval), @0);
 		});
-		
+
 		qck_it(@"should work on a background scheduler", ^{
 			testTimer([RACSignal interval:interval onScheduler:[RACScheduler scheduler]], @(interval), @0);
 		});
 	});
-	
+
 	qck_describe(@"+interval:onScheduler:withLeeway:", ^{
 		qck_it(@"should work on the main thread scheduler", ^{
 			testTimer([RACSignal interval:interval onScheduler:RACScheduler.mainThreadScheduler withLeeway:leeway], @(interval), @(leeway));
 		});
-		
+
 		qck_it(@"should work on a background scheduler", ^{
 			testTimer([RACSignal interval:interval onScheduler:[RACScheduler scheduler] withLeeway:leeway], @(interval), @(leeway));
 		});
@@ -2519,18 +2521,18 @@ qck_describe(@"-try:", ^{
 	__block NSError *receivedError;
 	__block NSMutableArray *nextValues;
 	__block BOOL completed;
-	
+
 	qck_beforeEach(^{
 		subject = [RACSubject subject];
 		nextValues = [NSMutableArray array];
 		completed = NO;
 		receivedError = nil;
-		
+
 		[[subject try:^(NSString *value, NSError **error) {
 			if (value != nil) return YES;
-			
+
 			if (error != nil) *error = RACSignalTestError;
-			
+
 			return NO;
 		}] subscribeNext:^(id x) {
 			[nextValues addObject:x];
@@ -2540,32 +2542,32 @@ qck_describe(@"-try:", ^{
 			completed = YES;
 		}];
 	});
-	
+
 	qck_it(@"should pass values while YES is returned from the tryBlock", ^{
 		[subject sendNext:@"foo"];
 		[subject sendNext:@"bar"];
 		[subject sendNext:@"baz"];
 		[subject sendNext:@"buzz"];
 		[subject sendCompleted];
-		
+
 		NSArray *receivedValues = [nextValues copy];
 		NSArray *expectedValues = @[ @"foo", @"bar", @"baz", @"buzz" ];
-		
+
 		expect(receivedError).to(beNil());
 		expect(receivedValues).to(equal(expectedValues));
 		expect(@(completed)).to(beTruthy());
 	});
-	
+
 	qck_it(@"should pass values until NO is returned from the tryBlock", ^{
 		[subject sendNext:@"foo"];
 		[subject sendNext:@"bar"];
 		[subject sendNext:nil];
 		[subject sendNext:@"buzz"];
 		[subject sendCompleted];
-		
+
 		NSArray *receivedValues = [nextValues copy];
 		NSArray *expectedValues = @[ @"foo", @"bar" ];
-		
+
 		expect(receivedError).to(equal(RACSignalTestError));
 		expect(receivedValues).to(equal(expectedValues));
 		expect(@(completed)).to(beFalsy());
@@ -2577,16 +2579,16 @@ qck_describe(@"-tryMap:", ^{
 	__block NSError *receivedError;
 	__block NSMutableArray *nextValues;
 	__block BOOL completed;
-	
+
 	qck_beforeEach(^{
 		subject = [RACSubject subject];
 		nextValues = [NSMutableArray array];
 		completed = NO;
 		receivedError = nil;
-		
+
 		[[subject tryMap:^ id (NSString *value, NSError **error) {
 			if (value != nil) return [NSString stringWithFormat:@"%@_a", value];
-			
+
 			if (error != nil) *error = RACSignalTestError;
 
 			return nil;
@@ -2598,7 +2600,7 @@ qck_describe(@"-tryMap:", ^{
 			completed = YES;
 		}];
 	});
-	
+
 	qck_it(@"should map values with the mapBlock", ^{
 		[subject sendNext:@"foo"];
 		[subject sendNext:@"bar"];
@@ -2608,22 +2610,22 @@ qck_describe(@"-tryMap:", ^{
 
 		NSArray *receivedValues = [nextValues copy];
 		NSArray *expectedValues = @[ @"foo_a", @"bar_a", @"baz_a", @"buzz_a" ];
-		
+
 		expect(receivedError).to(beNil());
 		expect(receivedValues).to(equal(expectedValues));
 		expect(@(completed)).to(beTruthy());
 	});
-	
+
 	qck_it(@"should map values with the mapBlock, until the mapBlock returns nil", ^{
 		[subject sendNext:@"foo"];
 		[subject sendNext:@"bar"];
 		[subject sendNext:nil];
 		[subject sendNext:@"buzz"];
 		[subject sendCompleted];
-		
+
 		NSArray *receivedValues = [nextValues copy];
 		NSArray *expectedValues = @[ @"foo_a", @"bar_a" ];
-		
+
 		expect(receivedError).to(equal(RACSignalTestError));
 		expect(receivedValues).to(equal(expectedValues));
 		expect(@(completed)).to(beFalsy());
@@ -2918,7 +2920,7 @@ qck_describe(@"+zip:", ^{
 	__block void (^send3NextAndErrorTo1)(void) = nil;
 	__block void (^send2NextAndCompletedTo2)(void) = nil;
 	__block void (^send3NextAndCompletedTo2)(void) = nil;
-	
+
 	qck_beforeEach(^{
 		send2NextAndErrorTo1 = [^{
 			[subject1 sendNext:@1];
@@ -2952,68 +2954,68 @@ qck_describe(@"+zip:", ^{
 			hasSentCompleted = YES;
 		}];
 	});
-	
+
 	qck_afterEach(^{
 		[disposable dispose];
 	});
-	
+
 	qck_it(@"should complete as soon as no new zipped values are possible", ^{
 		[subject1 sendNext:@1];
 		[subject2 sendNext:@1];
 		expect(@(hasSentCompleted)).to(beFalsy());
-		
+
 		[subject1 sendNext:@2];
 		[subject1 sendCompleted];
 		expect(@(hasSentCompleted)).to(beFalsy());
-		
+
 		[subject2 sendNext:@2];
 		expect(@(hasSentCompleted)).to(beTruthy());
 	});
-	
+
 	qck_it(@"outcome should not be dependent on order of signals", ^{
 		[subject2 sendCompleted];
 		expect(@(hasSentCompleted)).to(beTruthy());
 	});
-    
+
 	qck_it(@"should forward errors sent earlier than (time-wise) and before (position-wise) a complete", ^{
 		send2NextAndErrorTo1();
 		send3NextAndCompletedTo2();
 		expect(@(hasSentError)).to(beTruthy());
 		expect(@(hasSentCompleted)).to(beFalsy());
 	});
-	
+
 	qck_it(@"should forward errors sent earlier than (time-wise) and after (position-wise) a complete", ^{
 		send3NextAndErrorTo1();
 		send2NextAndCompletedTo2();
 		expect(@(hasSentError)).to(beTruthy());
 		expect(@(hasSentCompleted)).to(beFalsy());
 	});
-	
+
 	qck_it(@"should forward errors sent later than (time-wise) and before (position-wise) a complete", ^{
 		send3NextAndCompletedTo2();
 		send2NextAndErrorTo1();
 		expect(@(hasSentError)).to(beTruthy());
 		expect(@(hasSentCompleted)).to(beFalsy());
 	});
-	
+
 	qck_it(@"should ignore errors sent later than (time-wise) and after (position-wise) a complete", ^{
 		send2NextAndCompletedTo2();
 		send3NextAndErrorTo1();
 		expect(@(hasSentError)).to(beFalsy());
 		expect(@(hasSentCompleted)).to(beTruthy());
 	});
-	
+
 	qck_it(@"should handle signals sending values unevenly", ^{
 		__block NSError *receivedError = nil;
 		__block BOOL hasCompleted = NO;
-		
+
 		RACSubject *a = [RACSubject subject];
 		RACSubject *b = [RACSubject subject];
 		RACSubject *c = [RACSubject subject];
-		
+
 		NSMutableArray *receivedValues = NSMutableArray.array;
 		NSArray *expectedValues = nil;
-		
+
 		[[RACSignal zip:@[ a, b, c ] reduce:^(NSNumber *a, NSNumber *b, NSNumber *c) {
 			return [NSString stringWithFormat:@"%@%@%@", a, b, c];
 		}] subscribeNext:^(id x) {
@@ -3023,68 +3025,68 @@ qck_describe(@"+zip:", ^{
 		} completed:^{
 			hasCompleted = YES;
 		}];
-		
+
 		[a sendNext:@1];
 		[a sendNext:@2];
 		[a sendNext:@3];
-		
+
 		[b sendNext:@1];
-		
+
 		[c sendNext:@1];
 		[c sendNext:@2];
-		
+
 		// a: [===......]
 		// b: [=........]
 		// c: [==.......]
-		
+
 		expectedValues = @[ @"111" ];
 		expect(receivedValues).to(equal(expectedValues));
 		expect(receivedError).to(beNil());
 		expect(@(hasCompleted)).to(beFalsy());
-		
+
 		[b sendNext:@2];
 		[b sendNext:@3];
 		[b sendNext:@4];
 		[b sendCompleted];
-		
+
 		// a: [===......]
 		// b: [====C....]
 		// c: [==.......]
-		
+
 		expectedValues = @[ @"111", @"222" ];
 		expect(receivedValues).to(equal(expectedValues));
 		expect(receivedError).to(beNil());
 		expect(@(hasCompleted)).to(beFalsy());
-		
+
 		[c sendNext:@3];
 		[c sendNext:@4];
 		[c sendNext:@5];
 		[c sendError:RACSignalTestError];
-		
+
 		// a: [===......]
 		// b: [====C....]
 		// c: [=====E...]
-		
+
 		expectedValues = @[ @"111", @"222", @"333" ];
 		expect(receivedValues).to(equal(expectedValues));
 		expect(receivedError).to(equal(RACSignalTestError));
 		expect(@(hasCompleted)).to(beFalsy());
-		
+
 		[a sendNext:@4];
 		[a sendNext:@5];
 		[a sendNext:@6];
 		[a sendNext:@7];
-		
+
 		// a: [=======..]
 		// b: [====C....]
 		// c: [=====E...]
-		
+
 		expectedValues = @[ @"111", @"222", @"333" ];
 		expect(receivedValues).to(equal(expectedValues));
 		expect(receivedError).to(equal(RACSignalTestError));
 		expect(@(hasCompleted)).to(beFalsy());
 	});
-	
+
 	qck_it(@"should handle multiples of the same side-effecting signal", ^{
 		__block NSUInteger counter = 0;
 		RACSignal *sideEffectingSignal = [RACSignal createSignal:^ RACDisposable * (id<RACSubscriber> subscriber) {
@@ -3097,13 +3099,13 @@ qck_describe(@"+zip:", ^{
 			return [NSString stringWithFormat:@"%@%@", x, y];
 		}];
 		NSMutableArray *receivedValues = NSMutableArray.array;
-		
+
 		expect(@(counter)).to(equal(@0));
-		
+
 		[combined subscribeNext:^(id x) {
 			[receivedValues addObject:x];
 		}];
-		
+
 		expect(@(counter)).to(equal(@2));
 		expect(receivedValues).to(equal(@[ @"11" ]));
 	});
@@ -3118,10 +3120,10 @@ qck_describe(@"-sample:", ^{
 		[sampled subscribeNext:^(id x) {
 			[values addObject:x];
 		}];
-		
+
 		[sampleSubject sendNext:RACUnit.defaultUnit];
 		expect(values).to(equal(@[]));
-		
+
 		[subject sendNext:@1];
 		[subject sendNext:@2];
 		expect(values).to(equal(@[]));
@@ -3153,17 +3155,17 @@ qck_describe(@"-collect", ^{
 	qck_beforeEach(^{
 		subject = [RACSubject subject];
 		collected = [subject collect];
-		
+
 		value = nil;
 		hasCompleted = NO;
-		
+
 		[collected subscribeNext:^(id x) {
 			value = x;
 		} completed:^{
 			hasCompleted = YES;
 		}];
 	});
-	
+
 	qck_it(@"should send a single array when the original signal completes", ^{
 		NSArray *expected = @[ @1, @2, @3 ];
 
@@ -3179,12 +3181,12 @@ qck_describe(@"-collect", ^{
 
 	qck_it(@"should add NSNull to an array for nil values", ^{
 		NSArray *expected = @[ NSNull.null, @1, NSNull.null ];
-		
+
 		[subject sendNext:nil];
 		[subject sendNext:@1];
 		[subject sendNext:nil];
 		expect(value).to(beNil());
-		
+
 		[subject sendCompleted];
 		expect(value).to(equal(expected));
 		expect(@(hasCompleted)).to(beTruthy());
@@ -3216,7 +3218,7 @@ qck_describe(@"-bufferWithTime:", ^{
 
 		[scheduler stepAll];
 		expect(latestValue).to(equal(RACTuplePack(@1, @2)));
-		
+
 		[input sendNext:@3];
 		[input sendNext:@4];
 
@@ -3232,7 +3234,7 @@ qck_describe(@"-bufferWithTime:", ^{
 
 		[scheduler stepAll];
 		expect(latestValue).to(equal(RACTuplePack(@1, @2)));
-		
+
 		[input sendNext:@3];
 		[input sendNext:@4];
 		[scheduler stepAll];
@@ -3311,7 +3313,7 @@ qck_describe(@"-concat", ^{
 
 	qck_it(@"should pass through errors", ^{
 		[subject sendNext:errorSignal];
-		
+
 		NSError *error = nil;
 		[[subject concat] firstOrDefault:nil success:NULL error:&error];
 		expect(error).to(equal(RACSignalTestError));
@@ -3351,7 +3353,7 @@ qck_describe(@"-concat", ^{
 		}];
 
 		RACDisposable *concatDisposable = [[subject concat] subscribeCompleted:^{}];
-		
+
 		[subject sendNext:innerSignal];
 		expect(@(disposed)).notTo(beTruthy());
 
@@ -3427,7 +3429,7 @@ qck_describe(@"-finally:", ^{
 
 	qck_beforeEach(^{
 		subject = [RACSubject subject];
-		
+
 		finallyInvoked = NO;
 		signal = [subject finally:^{
 			finallyInvoked = YES;
@@ -3445,7 +3447,7 @@ qck_describe(@"-finally:", ^{
 		qck_beforeEach(^{
 			disposable = [signal subscribeCompleted:^{}];
 		});
-		
+
 		qck_afterEach(^{
 			[disposable dispose];
 		});
@@ -3582,15 +3584,15 @@ qck_describe(@"-not", ^{
 qck_describe(@"-and", ^{
 	qck_it(@"should return YES if all YES values are sent", ^{
 		RACSubject *subject = [RACReplaySubject subject];
-		
+
 		[subject sendNext:RACTuplePack(@YES, @NO, @YES)];
 		[subject sendNext:RACTuplePack(@NO, @NO, @NO)];
 		[subject sendNext:RACTuplePack(@YES, @YES, @YES)];
 		[subject sendCompleted];
-		
+
 		NSArray *results = [[subject and] toArray];
 		NSArray *expected = @[ @NO, @NO, @YES ];
-		
+
 		expect(results).to(equal(expected));
 	});
 });
@@ -3598,14 +3600,14 @@ qck_describe(@"-and", ^{
 qck_describe(@"-or", ^{
 	qck_it(@"should return YES for any YES values sent", ^{
 		RACSubject *subject = [RACReplaySubject subject];
-		
+
 		[subject sendNext:RACTuplePack(@YES, @NO, @YES)];
 		[subject sendNext:RACTuplePack(@NO, @NO, @NO)];
 		[subject sendCompleted];
-		
+
 		NSArray *results = [[subject or] toArray];
 		NSArray *expected = @[ @YES, @NO ];
-		
+
 		expect(results).to(equal(expected));
 	});
 });
@@ -3747,19 +3749,19 @@ qck_describe(@"starting signals", ^{
 
 qck_describe(@"-toArray", ^{
 	__block RACSubject *subject;
-	
+
 	qck_beforeEach(^{
 		subject = [RACReplaySubject subject];
 	});
-	
+
 	qck_it(@"should return an array which contains NSNulls for nil values", ^{
 		NSArray *expected = @[ NSNull.null, @1, NSNull.null ];
-		
+
 		[subject sendNext:nil];
 		[subject sendNext:@1];
 		[subject sendNext:nil];
 		[subject sendCompleted];
-		
+
 		expect([subject toArray]).to(equal(expected));
 	});
 
@@ -3772,7 +3774,7 @@ qck_describe(@"-toArray", ^{
 		[subject sendNext:@1];
 		[subject sendNext:@2];
 		[subject sendError:nil];
-		
+
 		expect([subject toArray]).to(beNil());
 	});
 });
@@ -3790,7 +3792,7 @@ qck_describe(@"-ignore:", ^{
 				return nil;
 			}]
 			ignore:nil];
-		
+
 		NSArray *expected = @[ @1, @3, @4 ];
 		expect([signal toArray]).to(equal(expected));
 	});
@@ -3857,21 +3859,21 @@ qck_describe(@"-replayLazily", ^{
 qck_describe(@"-reduceApply", ^{
 	qck_it(@"should apply a block to the rest of a tuple", ^{
 		RACSubject *subject = [RACReplaySubject subject];
-		
+
 		id sum = ^(NSNumber *a, NSNumber *b) {
 			return @(a.intValue + b.intValue);
 		};
 		id madd = ^(NSNumber *a, NSNumber *b, NSNumber *c) {
 			return @(a.intValue * b.intValue + c.intValue);
 		};
-		
+
 		[subject sendNext:RACTuplePack(sum, @1, @2)];
 		[subject sendNext:RACTuplePack(madd, @2, @3, @1)];
 		[subject sendCompleted];
-		
+
 		NSArray *results = [[subject reduceApply] toArray];
 		NSArray *expected = @[ @3, @7 ];
-		
+
 		expect(results).to(equal(expected));
 	});
 });

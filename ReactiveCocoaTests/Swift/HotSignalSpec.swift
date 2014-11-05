@@ -30,9 +30,15 @@ class HotSignalSpec: QuickSpec {
 
 				it("should not complete") {
 					let error = NSError(domain: "test", code: -1, userInfo: nil)
-					let result = replaySignal.timeoutWithError(error, afterInterval: 10, onScheduler: QueueScheduler()).first().error()
+                    let scheduler = TestScheduler(startDate: NSDate())
 
-					expect(result).to(equal(error))
+                    var receivedError: NSError? = nil
+                    replaySignal.timeoutWithError(error, afterInterval: 10, onScheduler:scheduler).start(error: { error in
+                       receivedError = error
+                    })
+
+                    scheduler.advanceByInterval(10)
+                    expect(receivedError).to(equal(error))
 				}
 
 				it("should forward values sent on the hot signal") {

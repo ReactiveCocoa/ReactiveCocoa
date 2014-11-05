@@ -18,10 +18,10 @@ public final class ObservableProperty<T> {
 	///
 	/// Setting this to a new value will notify all subscribers to `values()`.
 	public var value: T {
-		didSet(value) {
+		didSet {
 			dispatch_sync(queue) {
 				for subscriber in self.subscribers {
-					subscriber.put(.Next(Box(value)))
+					subscriber.put(.Next(Box(self.value)))
 				}
 			}
 		}

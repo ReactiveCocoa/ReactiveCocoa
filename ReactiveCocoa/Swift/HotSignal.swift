@@ -506,7 +506,7 @@ extension HotSignal {
 		let scopedDisposable = ScopedDisposable(selfDisposable)
 
 		return replayProperty.values()
-			.mapAccumulate(initialState: 0) { (var lastIndex, values) in
+			.mapAccumulate(initialState: -1) { (var lastIndex, values) in
 				var valuesToSend: [T] = []
 
 				for (index, value) in values {

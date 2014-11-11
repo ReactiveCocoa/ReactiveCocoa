@@ -287,7 +287,7 @@ extension ColdSignal {
 	/// the first occurrence.
 	///
 	/// areEqual - Used to determine whether two values are equal. The `==`
-	///			   function will work in most cases.
+	///            function will work in most cases.
 	public func skipRepeats(areEqual: (T, T) -> Bool) -> ColdSignal<T> {
 		return mapAccumulate(initialState: nil) { (maybePrevious: T?, current: T) -> (T??, ColdSignal<T>) in
 				if let previous = maybePrevious {
@@ -298,7 +298,7 @@ extension ColdSignal {
 				
 				return (current, .single(current))
 			}
-		.merge(identity)
+			.merge(identity)
 	}
 
 	/// Returns a signal that will skip values from the receiver while `pred`

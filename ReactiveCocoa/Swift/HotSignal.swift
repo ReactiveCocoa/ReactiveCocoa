@@ -169,7 +169,7 @@ extension HotSignal {
 	/// the first occurrence.
 	///
 	/// areEqual - Used to determine whether two values are equal. The `==`
-	///			   function will work in most cases.
+	///            function will work in most cases.
 	public func skipRepeats(areEqual: (T, T) -> Bool) -> HotSignal<T> {
 		let previous = Atomic<T?>(nil)
 		

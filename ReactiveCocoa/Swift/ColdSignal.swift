@@ -286,12 +286,12 @@ extension ColdSignal {
 	/// Skips all consecutive, repeating values in the signal, forwarding only
 	/// the first occurrence.
 	///
-	/// areEqual - Used to determine whether two values are equal. The `==`
-	///            function will work in most cases.
-	public func skipRepeats(areEqual: (T, T) -> Bool) -> ColdSignal<T> {
+	/// isEqual - Used to determine whether two values are equal. The `==`
+	///           function will work in most cases.
+	public func skipRepeats(isEqual: (T, T) -> Bool) -> ColdSignal<T> {
 		return mapAccumulate(initialState: nil) { (maybePrevious: T?, current: T) -> (T??, ColdSignal<T>) in
 				if let previous = maybePrevious {
-					if areEqual(current, previous) {
+					if isEqual(current, previous) {
 						return (current, .empty())
 					}
 				}

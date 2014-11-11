@@ -168,9 +168,9 @@ extension HotSignal {
 	/// Skips all consecutive, repeating values in the signal, forwarding only
 	/// the first occurrence.
 	///
-	/// areEqual - Used to determine whether two values are equal. The `==`
-	///            function will work in most cases.
-	public func skipRepeats(areEqual: (T, T) -> Bool) -> HotSignal<T> {
+	/// isEqual - Used to determine whether two values are equal. The `==`
+	///           function will work in most cases.
+	public func skipRepeats(isEqual: (T, T) -> Bool) -> HotSignal<T> {
 		let previous = Atomic<T?>(nil)
 		
 		return filter { value in
@@ -178,7 +178,7 @@ extension HotSignal {
 			previous.value = value
 			
 			if let previousValue = previousValue {
-				if areEqual(value, previousValue) {
+				if isEqual(value, previousValue) {
 					return false
 				}
 			}

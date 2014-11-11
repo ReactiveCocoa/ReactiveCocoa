@@ -280,17 +280,25 @@ extension ColdSignal {
 	///            values which are `Equatable`. Simply pass in the `identity`
 	///            function.
 	public func skipRepeats<U: Equatable>(evidence: ColdSignal -> ColdSignal<U>) -> ColdSignal<U> {
-		return evidence(self)
-			.mapAccumulate(initialState: nil) { (maybePrevious: U?, current: U) -> (U??, ColdSignal<U>) in
+		return evidence(self).skipRepeats { $0 == $1 }
+	}
+	
+	/// Skips all consecutive, repeating values in the signal, forwarding only
+	/// the first occurrence.
+	///
+	/// areEqual - Used to determine whether two values are equal. The `==`
+	///			   function will work in most cases.
+	public func skipRepeats(areEqual: (T, T) -> Bool) -> ColdSignal<T> {
+		return mapAccumulate(initialState: nil) { (maybePrevious: T?, current: T) -> (T??, ColdSignal<T>) in
 				if let previous = maybePrevious {
-					if current == previous {
+					if areEqual(current, previous) {
 						return (current, .empty())
 					}
 				}
-
+				
 				return (current, .single(current))
 			}
-			.merge(identity)
+		.merge(identity)
 	}
 
 	/// Returns a signal that will skip values from the receiver while `pred`

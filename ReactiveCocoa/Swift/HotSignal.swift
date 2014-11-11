@@ -162,18 +162,27 @@ extension HotSignal {
 	///            values which are `Equatable`. Simply pass in the `identity`
 	///            function.
 	public func skipRepeats<U: Equatable>(evidence: HotSignal -> HotSignal<U>) -> HotSignal<U> {
-		let previous = Atomic<U?>(nil)
-
-		return evidence(self).filter { value in
+		return evidence(self).skipRepeats { $0 == $1 }
+	}
+	
+	/// Skips all consecutive, repeating values in the signal, forwarding only
+	/// the first occurrence.
+	///
+	/// areEqual - Used to determine whether two values are equal. The `==`
+	///			   function will work in most cases.
+	public func skipRepeats(areEqual: (T, T) -> Bool) -> HotSignal<T> {
+		let previous = Atomic<T?>(nil)
+		
+		return filter { value in
 			let previousValue = previous.value
 			previous.value = value
-
+			
 			if let previousValue = previousValue {
-				if value == previousValue {
+				if areEqual(value, previousValue) {
 					return false
 				}
 			}
-
+			
 			return true
 		}
 	}

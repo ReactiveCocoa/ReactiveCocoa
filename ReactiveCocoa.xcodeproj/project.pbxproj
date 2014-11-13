@@ -428,6 +428,21 @@
 		D0C3132D19EF2FAE00984962 /* LlamaKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3132B19EF2FA300984962 /* LlamaKit.framework */; };
 		D0C3132E19EF2FB400984962 /* LlamaKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3132B19EF2FA300984962 /* LlamaKit.framework */; };
 		D0C3133519EF311700984962 /* LlamaKit.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3132B19EF2FA300984962 /* LlamaKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F6170C591A0B8D0A008ADF64 /* LlamaKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3132B19EF2FA300984962 /* LlamaKit.framework */; };
+		F6170CA61A0B8D4C008ADF64 /* Disposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BE19EF2A5800984962 /* Disposable.swift */; };
+		F6170CA71A0B8D4C008ADF64 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BF19EF2A5800984962 /* Errors.swift */; };
+		F6170CA81A0B8D4C008ADF64 /* Identity.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312C119EF2A5800984962 /* Identity.swift */; };
+		F6170CAA1A0B8D4C008ADF64 /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312C819EF2A5800984962 /* Scheduler.swift */; };
+		F6170CAB1A0B8D4C008ADF64 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BA19EF2A5800984962 /* Action.swift */; };
+		F6170CAC1A0B8D4C008ADF64 /* ColdSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D097CE3619EF7AF5005A201C /* ColdSignal.swift */; };
+		F6170CAD1A0B8D4C008ADF64 /* HotSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D097CE3719EF7AF5005A201C /* HotSignal.swift */; };
+		F6170CAE1A0B8D4C008ADF64 /* ObservableProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = D097CE3819EF7AF5005A201C /* ObservableProperty.swift */; };
+		F6170CAF1A0B8D4C008ADF64 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BB19EF2A5800984962 /* Atomic.swift */; };
+		F6170CB01A0B8D4C008ADF64 /* Bag.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BC19EF2A5800984962 /* Bag.swift */; };
+		F6170CB11A0B8D4C008ADF64 /* OptionalExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312C519EF2A5800984962 /* OptionalExtensions.swift */; };
+		F6170CB21A0B8D4C008ADF64 /* FoundationExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D03B4A3C19F4C39A009E02AC /* FoundationExtensions.swift */; };
+		F6170CB71A0B8E2D008ADF64 /* Swift-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F6170CB61A0B8E2D008ADF64 /* Swift-Info.plist */; };
+		F6170CB91A0B909F008ADF64 /* ReactiveSwift.h in Headers */ = {isa = PBXBuildFile; fileRef = F6170CB81A0B909F008ADF64 /* ReactiveSwift.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F63BBA331A02550A00DD140D /* HotSignalSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = F63BBA321A02550A00DD140D /* HotSignalSpec.swift */; };
 		F63BBA3C1A0265A900DD140D /* LlamaKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3132B19EF2FA300984962 /* LlamaKit.framework */; };
 /* End PBXBuildFile section */
@@ -769,6 +784,10 @@
 		D0C3131C19EF2D9700984962 /* RACTestUIButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACTestUIButton.h; sourceTree = "<group>"; };
 		D0C3131D19EF2D9700984962 /* RACTestUIButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACTestUIButton.m; sourceTree = "<group>"; };
 		D0C3132B19EF2FA300984962 /* LlamaKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = LlamaKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F6170CA41A0B8D0A008ADF64 /* ReactiveSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F6170CA51A0B8D0A008ADF64 /* ReactiveCocoa-iOS copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "ReactiveCocoa-iOS copy-Info.plist"; path = "/Users/alanr/Code/personal/theleaguesnooker/External/ReactiveCocoa/ReactiveCocoa-iOS copy-Info.plist"; sourceTree = "<absolute>"; };
+		F6170CB61A0B8E2D008ADF64 /* Swift-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Swift-Info.plist"; sourceTree = "<group>"; };
+		F6170CB81A0B909F008ADF64 /* ReactiveSwift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReactiveSwift.h; sourceTree = "<group>"; };
 		F63BBA321A02550A00DD140D /* HotSignalSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HotSignalSpec.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -807,6 +826,14 @@
 				D05E662619EDD83000904ACA /* Nimble.framework in Frameworks */,
 				D037672F19EDA78B00A782A9 /* Quick.framework in Frameworks */,
 				D047261719E49F82006002AA /* ReactiveCocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F6170C581A0B8D0A008ADF64 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F6170C591A0B8D0A008ADF64 /* LlamaKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1126,6 +1153,7 @@
 				D04725F919E49ED7006002AA /* ReactiveCocoaTests */,
 				D047262519E49FE8006002AA /* Configuration */,
 				D04725EB19E49ED7006002AA /* Products */,
+				F6170CA51A0B8D0A008ADF64 /* ReactiveCocoa-iOS copy-Info.plist */,
 			);
 			sourceTree = "<group>";
 			usesTabs = 1;
@@ -1137,6 +1165,7 @@
 				D04725F519E49ED7006002AA /* ReactiveCocoa-MacTests.xctest */,
 				D047260C19E49F82006002AA /* ReactiveCocoa.framework */,
 				D047261619E49F82006002AA /* ReactiveCocoa-iOSTests.xctest */,
+				F6170CA41A0B8D0A008ADF64 /* ReactiveSwift.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1144,6 +1173,7 @@
 		D04725EC19E49ED7006002AA /* ReactiveCocoa */ = {
 			isa = PBXGroup;
 			children = (
+				F6170CB81A0B909F008ADF64 /* ReactiveSwift.h */,
 				D04725EF19E49ED7006002AA /* ReactiveCocoa.h */,
 				D0C312B919EF2A3000984962 /* Swift */,
 				D037642919EDA3B600A782A9 /* Objective-C */,
@@ -1155,8 +1185,9 @@
 		D04725ED19E49ED7006002AA /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				D0C3132B19EF2FA300984962 /* LlamaKit.framework */,
 				D04725EE19E49ED7006002AA /* Info.plist */,
+				D0C3132B19EF2FA300984962 /* LlamaKit.framework */,
+				F6170CB61A0B8E2D008ADF64 /* Swift-Info.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -1413,6 +1444,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F6170C5A1A0B8D0A008ADF64 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F6170CB91A0B909F008ADF64 /* ReactiveSwift.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
@@ -1489,6 +1528,24 @@
 			productReference = D047261619E49F82006002AA /* ReactiveCocoa-iOSTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		F6170BEF1A0B8D0A008ADF64 /* ReactiveSwift */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F6170C9F1A0B8D0A008ADF64 /* Build configuration list for PBXNativeTarget "ReactiveSwift" */;
+			buildPhases = (
+				F6170BF01A0B8D0A008ADF64 /* Sources */,
+				F6170C581A0B8D0A008ADF64 /* Frameworks */,
+				F6170C5A1A0B8D0A008ADF64 /* Headers */,
+				F6170C9E1A0B8D0A008ADF64 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ReactiveSwift;
+			productName = ReactiveCocoa;
+			productReference = F6170CA41A0B8D0A008ADF64 /* ReactiveSwift.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -1528,6 +1585,7 @@
 				D04725F419E49ED7006002AA /* ReactiveCocoa-MacTests */,
 				D047260B19E49F82006002AA /* ReactiveCocoa-iOS */,
 				D047261519E49F82006002AA /* ReactiveCocoa-iOSTests */,
+				F6170BEF1A0B8D0A008ADF64 /* ReactiveSwift */,
 			);
 		};
 /* End PBXProject section */
@@ -1537,6 +1595,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F6170CB71A0B8E2D008ADF64 /* Swift-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1560,6 +1619,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				D037671819EDA60000A782A9 /* test-data.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F6170C9E1A0B8D0A008ADF64 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1882,6 +1948,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F6170BF01A0B8D0A008ADF64 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F6170CA61A0B8D4C008ADF64 /* Disposable.swift in Sources */,
+				F6170CA71A0B8D4C008ADF64 /* Errors.swift in Sources */,
+				F6170CA81A0B8D4C008ADF64 /* Identity.swift in Sources */,
+				F6170CAA1A0B8D4C008ADF64 /* Scheduler.swift in Sources */,
+				F6170CAB1A0B8D4C008ADF64 /* Action.swift in Sources */,
+				F6170CAC1A0B8D4C008ADF64 /* ColdSignal.swift in Sources */,
+				F6170CAD1A0B8D4C008ADF64 /* HotSignal.swift in Sources */,
+				F6170CAE1A0B8D4C008ADF64 /* ObservableProperty.swift in Sources */,
+				F6170CAF1A0B8D4C008ADF64 /* Atomic.swift in Sources */,
+				F6170CB01A0B8D4C008ADF64 /* Bag.swift in Sources */,
+				F6170CB11A0B8D4C008ADF64 /* OptionalExtensions.swift in Sources */,
+				F6170CB21A0B8D4C008ADF64 /* FoundationExtensions.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -2166,6 +2251,58 @@
 			};
 			name = Test;
 		};
+		F6170CA01A0B8D0A008ADF64 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				INFOPLIST_FILE = "ReactiveCocoa/Swift-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = ReactiveSwift;
+			};
+			name = Debug;
+		};
+		F6170CA11A0B8D0A008ADF64 /* Test */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				INFOPLIST_FILE = "ReactiveCocoa/Swift-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = ReactiveSwift;
+			};
+			name = Test;
+		};
+		F6170CA21A0B8D0A008ADF64 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				INFOPLIST_FILE = "ReactiveCocoa/Swift-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = ReactiveSwift;
+			};
+			name = Release;
+		};
+		F6170CA31A0B8D0A008ADF64 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D047263419E49FE8006002AA /* iOS-Framework.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				INFOPLIST_FILE = "ReactiveCocoa/Swift-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = ReactiveSwift;
+			};
+			name = Profile;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -2220,6 +2357,17 @@
 				D047264619E4A00B006002AA /* Test */,
 				D047262419E49F82006002AA /* Release */,
 				D047264119E4A008006002AA /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F6170C9F1A0B8D0A008ADF64 /* Build configuration list for PBXNativeTarget "ReactiveSwift" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F6170CA01A0B8D0A008ADF64 /* Debug */,
+				F6170CA11A0B8D0A008ADF64 /* Test */,
+				F6170CA21A0B8D0A008ADF64 /* Release */,
+				F6170CA31A0B8D0A008ADF64 /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

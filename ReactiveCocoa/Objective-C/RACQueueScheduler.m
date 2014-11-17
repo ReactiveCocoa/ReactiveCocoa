@@ -23,9 +23,23 @@
 	if (self == nil) return nil;
 
 	_queue = queue;
+#if !OS_OBJECT_HAVE_OBJC_SUPPORT
+	dispatch_retain(_queue);
+#endif
 
 	return self;
 }
+
+#if !OS_OBJECT_HAVE_OBJC_SUPPORT
+
+- (void)dealloc {
+	if (_queue != NULL) {
+		dispatch_release(_queue);
+		_queue = NULL;
+	}
+}
+
+#endif
 
 #pragma mark Date Conversions
 

@@ -18,7 +18,7 @@
 #if OS_OBJECT_HAVE_OBJC_SUPPORT
 @property (nonatomic, strong, readonly) dispatch_queue_t queue;
 #else
-// Swift targets are built with OS_OBJECT_HAVE_OBJC_SUPPORT=0 :(
+// Swift builds with OS_OBJECT_HAVE_OBJC_SUPPORT=0 for Playgrounds and LLDB :(
 @property (nonatomic, assign, readonly) dispatch_queue_t queue;
 #endif
 

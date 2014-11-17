@@ -33,7 +33,10 @@
 #if !OS_OBJECT_HAVE_OBJC_SUPPORT
 
 - (void)dealloc {
-	dispatch_release(_queue), _queue = nil;
+	if (_queue != NULL) {
+		dispatch_release(_queue);
+		_queue = NULL;
+	}
 }
 
 #endif

@@ -7,6 +7,6 @@
 [submodule "Carthage.checkout/xcconfigs"]
 	path = Carthage.checkout/xcconfigs
 	url = https://github.com/jspahrsummers/xcconfigs.git
-[submodule "External/LlamaKit"]
-	path = External/LlamaKit
-	url = https://github.com/ReactiveCocoa/LlamaKit.git
+[submodule "Carthage.checkout/LlamaKit"]
+	path = Carthage.checkout/LlamaKit
+	url = https://github.com/LlamaKit/LlamaKit.git

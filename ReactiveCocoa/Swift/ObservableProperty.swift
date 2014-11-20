@@ -51,9 +51,11 @@ public final class ObservableProperty<T> {
 				subscriber.put(.Next(Box(self.value)))
 			}
 
-			subscriber.disposable.addDisposable {
-				dispatch_sync(self.queue) {
-					self.subscribers.removeValueForToken(token!)
+			subscriber.disposable.addDisposable { [weak self] in
+				if let strongSelf = self {
+					dispatch_async(strongSelf.queue) {
+						strongSelf.subscribers.removeValueForToken(token!)
+					}
 				}
 			}
 		}

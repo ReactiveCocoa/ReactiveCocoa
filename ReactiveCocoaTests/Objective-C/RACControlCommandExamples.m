@@ -29,56 +29,58 @@ NSString * const RACControlCommandExampleActivateBlock = @"RACControlCommandExam
 
 @end
 
-QuickSharedExampleGroupsBegin(RACControlCommandExampleGroups)
+QuickConfigurationBegin(RACControlCommandExampleGroups)
 
-qck_sharedExamples(RACControlCommandExamples, ^(QCKDSLSharedExampleContext exampleContext) {
-	__block id control;
-	__block void (^activate)(id);
++ (void)configure:(Configuration *)configuration {
+	sharedExamples(RACControlCommandExamples, ^(QCKDSLSharedExampleContext exampleContext) {
+		__block id control;
+		__block void (^activate)(id);
 
-	__block RACSubject *enabledSubject;
-	__block RACCommand *command;
+		__block RACSubject *enabledSubject;
+		__block RACCommand *command;
 
-	qck_beforeEach(^{
-		control = exampleContext()[RACControlCommandExampleControl];
-		activate = [exampleContext()[RACControlCommandExampleActivateBlock] copy];
+		qck_beforeEach(^{
+			control = exampleContext()[RACControlCommandExampleControl];
+			activate = [exampleContext()[RACControlCommandExampleActivateBlock] copy];
 
-		enabledSubject = [RACSubject subject];
-		command = [[RACCommand alloc] initWithEnabled:enabledSubject signalBlock:^(id sender) {
-			return [RACSignal return:sender];
-		}];
+			enabledSubject = [RACSubject subject];
+			command = [[RACCommand alloc] initWithEnabled:enabledSubject signalBlock:^(id sender) {
+				return [RACSignal return:sender];
+			}];
 
-		[control setRac_command:command];
+			[control setRac_command:command];
+		});
+
+		qck_it(@"should bind the control's enabledness to the command", ^{
+			expect(@([control isEnabled])).toEventually(beTruthy());
+
+			[enabledSubject sendNext:@NO];
+			expect(@([control isEnabled])).toEventually(beFalsy());
+
+			[enabledSubject sendNext:@YES];
+			expect(@([control isEnabled])).toEventually(beTruthy());
+		});
+
+		qck_it(@"should execute the control's command when activated", ^{
+			__block BOOL executed = NO;
+			[[command.executionSignals flatten] subscribeNext:^(id sender) {
+				expect(sender).to(equal(control));
+				executed = YES;
+			}];
+
+			activate(control);
+			expect(@(executed)).toEventually(beTruthy());
+		});
+
+		qck_it(@"should overwrite an existing command when setting a new one", ^{
+			RACCommand *secondCommand = [[RACCommand alloc] initWithSignalBlock:^(id _) {
+				return [RACSignal return:RACUnit.defaultUnit];
+			}];
+
+			[control setRac_command:secondCommand];
+			expect([control rac_command]).to(beIdenticalTo(secondCommand));
+		});
 	});
+}
 
-	qck_it(@"should bind the control's enabledness to the command", ^{
-		expect(@([control isEnabled])).toEventually(beTruthy());
-
-		[enabledSubject sendNext:@NO];
-		expect(@([control isEnabled])).toEventually(beFalsy());
-		
-		[enabledSubject sendNext:@YES];
-		expect(@([control isEnabled])).toEventually(beTruthy());
-	});
-
-	qck_it(@"should execute the control's command when activated", ^{
-		__block BOOL executed = NO;
-		[[command.executionSignals flatten] subscribeNext:^(id sender) {
-			expect(sender).to(equal(control));
-			executed = YES;
-		}];
-		
-		activate(control);
-		expect(@(executed)).toEventually(beTruthy());
-	});
-	
-	qck_it(@"should overwrite an existing command when setting a new one", ^{
-		RACCommand *secondCommand = [[RACCommand alloc] initWithSignalBlock:^(id _) {
-			return [RACSignal return:RACUnit.defaultUnit];
-		}];
-		
-		[control setRac_command:secondCommand];
-		expect([control rac_command]).to(beIdenticalTo(secondCommand));
-	});
-});
-
-QuickSharedExampleGroupsEnd
+QuickConfigurationEnd

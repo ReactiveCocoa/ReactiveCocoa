@@ -871,12 +871,15 @@ qck_describe(@"continuation", ^{
 		NSMutableArray *values = [NSMutableArray array];
 
 		__block BOOL completed = NO;
-		__block RACDisposable *disposable = [[signal repeat] subscribeNext:^(id x) {
-			[values addObject:x];
-			[disposable dispose];
-		} completed:^{
-			completed = YES;
-		}];
+		__block RACDisposable *disposable = [[[signal
+			repeat]
+			subscribeOn:RACScheduler.mainThreadScheduler]
+			subscribeNext:^(id x) {
+				[values addObject:x];
+				[disposable dispose];
+			} completed:^{
+				completed = YES;
+			}];
 
 		expect(values).toEventually(equal(@[ @1 ]));
 		expect(@(completed)).to(beFalsy());

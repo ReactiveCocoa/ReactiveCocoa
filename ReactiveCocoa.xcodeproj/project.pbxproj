@@ -1101,7 +1101,7 @@
 				D047263C19E49FE8006002AA /* README.md */,
 			);
 			name = Configuration;
-			path = External/xcconfigs;
+			path = Carthage.checkout/xcconfigs;
 			sourceTree = "<group>";
 		};
 		D047262619E49FE8006002AA /* Base */ = {

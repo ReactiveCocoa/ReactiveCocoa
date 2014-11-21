@@ -12,6 +12,30 @@ import ReactiveCocoa
 
 class HotSignalSpec: QuickSpec {
 	override func spec() {
+		describe("pipe") {
+			it("should forward values sent to the sink") {
+				let (signal, sink) = HotSignal<Int>.pipe()
+
+				var lastValue: Int?
+				signal.observe { lastValue = $0 }
+
+				expect(lastValue).to(beNil())
+
+				sink.put(1)
+				expect(lastValue).to(equal(1))
+
+				var otherLastValue: Int?
+				signal.observe { otherLastValue = $0 }
+
+				expect(lastValue).to(equal(1))
+				expect(otherLastValue).to(beNil())
+
+				sink.put(2)
+				expect(lastValue).to(equal(2))
+				expect(otherLastValue).to(equal(2))
+			}
+		}
+
 		describe("replay") {
 			var signal: HotSignal<Int>!
 			var sink: SinkOf<Int>!
@@ -23,7 +47,7 @@ class HotSignalSpec: QuickSpec {
 				sink = pipe.1
 			}
 
-			context("replay(0)") {
+			describe("replay(0)") {
 				beforeEach {
 					replaySignal = signal.replay(0)
 				}

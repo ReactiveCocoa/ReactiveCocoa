@@ -4,6 +4,6 @@
 [submodule "Carthage.checkout/Quick"]
 	path = Carthage.checkout/Quick
 	url = https://github.com/Quick/Quick.git
-[submodule "Configuration"]
-	path = Configuration
+[submodule "Carthage.checkout/xcconfigs"]
+	path = Carthage.checkout/xcconfigs
 	url = https://github.com/jspahrsummers/xcconfigs.git

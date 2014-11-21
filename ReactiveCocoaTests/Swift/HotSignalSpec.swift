@@ -63,6 +63,24 @@ class HotSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("map") {
+			it("should transform the values of the signal") {
+				let (signal, sink) = HotSignal<Int>.pipe()
+				let mappedSignal = signal.map { $0 * 2 }
+
+				var latestValue: Int?
+				mappedSignal.observe { latestValue = $0 }
+
+				expect(latestValue).to(beNil())
+
+				sink.put(1)
+				expect(latestValue).to(equal(2))
+
+				sink.put(3)
+				expect(latestValue).to(equal(6))
+			}
+		}
+
 		describe("replay") {
 			var signal: HotSignal<Int>!
 			var sink: SinkOf<Int>!

@@ -105,6 +105,27 @@ class HotSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("scan") {
+			it("should accumulate a value") {
+				let (signal, sink) = HotSignal<Int>.pipe()
+				let newSignal = signal.scan(initial: 0) { $0 + $1 }
+
+				var latestValue: Int?
+				newSignal.observe { latestValue = $0 }
+
+				expect(latestValue).to(beNil())
+
+				sink.put(1)
+				expect(latestValue).to(equal(1))
+
+				sink.put(2)
+				expect(latestValue).to(equal(3))
+
+				sink.put(3)
+				expect(latestValue).to(equal(6))
+			}
+		}
+
 		describe("replay") {
 			var signal: HotSignal<Int>!
 			var sink: SinkOf<Int>!

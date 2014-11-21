@@ -41,43 +41,45 @@ static NSError *RACSignalTestError;
 static NSString * const RACSignalMergeConcurrentCompletionExampleGroup = @"RACSignalMergeConcurrentCompletionExampleGroup";
 static NSString * const RACSignalMaxConcurrent = @"RACSignalMaxConcurrent";
 
-QuickSharedExampleGroupsBegin(mergeConcurrentCompletionName)
+QuickConfigurationBegin(mergeConcurrentCompletionName)
 
-qck_sharedExamples(RACSignalMergeConcurrentCompletionExampleGroup, ^(QCKDSLSharedExampleContext exampleContext) {
-	qck_it(@"should complete only after the source and all its signals have completed", ^{
-		RACSubject *subject1 = [RACSubject subject];
-		RACSubject *subject2 = [RACSubject subject];
-		RACSubject *subject3 = [RACSubject subject];
++ (void)configure:(Configuration *)configuration {
+	sharedExamples(RACSignalMergeConcurrentCompletionExampleGroup, ^(QCKDSLSharedExampleContext exampleContext) {
+		qck_it(@"should complete only after the source and all its signals have completed", ^{
+			RACSubject *subject1 = [RACSubject subject];
+			RACSubject *subject2 = [RACSubject subject];
+			RACSubject *subject3 = [RACSubject subject];
 
-		RACSubject *signalsSubject = [RACSubject subject];
-		__block BOOL completed = NO;
-		[[signalsSubject flatten:[exampleContext()[RACSignalMaxConcurrent] unsignedIntegerValue]] subscribeCompleted:^{
-			completed = YES;
-		}];
+			RACSubject *signalsSubject = [RACSubject subject];
+			__block BOOL completed = NO;
+			[[signalsSubject flatten:[exampleContext()[RACSignalMaxConcurrent] unsignedIntegerValue]] subscribeCompleted:^{
+				completed = YES;
+			}];
 
-		[signalsSubject sendNext:subject1];
-		[subject1 sendCompleted];
+			[signalsSubject sendNext:subject1];
+			[subject1 sendCompleted];
 
-		expect(@(completed)).to(beFalsy());
+			expect(@(completed)).to(beFalsy());
 
-		[signalsSubject sendNext:subject2];
-		[signalsSubject sendNext:subject3];
+			[signalsSubject sendNext:subject2];
+			[signalsSubject sendNext:subject3];
 
-		[signalsSubject sendCompleted];
+			[signalsSubject sendCompleted];
 
-		expect(@(completed)).to(beFalsy());
+			expect(@(completed)).to(beFalsy());
 
-		[subject2 sendCompleted];
+			[subject2 sendCompleted];
 
-		expect(@(completed)).to(beFalsy());
+			expect(@(completed)).to(beFalsy());
 
-		[subject3 sendCompleted];
+			[subject3 sendCompleted];
 
-		expect(@(completed)).to(beTruthy());
+			expect(@(completed)).to(beTruthy());
+		});
 	});
-});
+}
 
-QuickSharedExampleGroupsEnd
+QuickConfigurationEnd
 
 QuickSpecBegin(RACSignalSpec)
 
@@ -869,12 +871,15 @@ qck_describe(@"continuation", ^{
 		NSMutableArray *values = [NSMutableArray array];
 
 		__block BOOL completed = NO;
-		__block RACDisposable *disposable = [[signal repeat] subscribeNext:^(id x) {
-			[values addObject:x];
-			[disposable dispose];
-		} completed:^{
-			completed = YES;
-		}];
+		__block RACDisposable *disposable = [[[signal
+			repeat]
+			subscribeOn:RACScheduler.mainThreadScheduler]
+			subscribeNext:^(id x) {
+				[values addObject:x];
+				[disposable dispose];
+			} completed:^{
+				completed = YES;
+			}];
 
 		expect(values).toEventually(equal(@[ @1 ]));
 		expect(@(completed)).to(beFalsy());

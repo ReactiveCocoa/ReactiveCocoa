@@ -160,6 +160,52 @@ class HotSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("skipRepeats") {
+			it("should skip duplicate Equatable values") {
+				let (signal, sink) = HotSignal<Int>.pipe()
+				let newSignal = signal.skipRepeats(identity)
+
+				var count = 0
+				newSignal.observe { _ in
+					count++
+					return ()
+				}
+
+				expect(count).to(equal(0))
+
+				sink.put(3)
+				expect(count).to(equal(1))
+
+				sink.put(3)
+				expect(count).to(equal(1))
+
+				sink.put(5)
+				expect(count).to(equal(2))
+			}
+
+			it("should skip values according to a predicate") {
+				let (signal, sink) = HotSignal<[Int]>.pipe()
+				let newSignal = signal.skipRepeats { $0 == $1 }
+
+				var count = 0
+				newSignal.observe { _ in
+					count++
+					return ()
+				}
+
+				expect(count).to(equal(0))
+
+				sink.put([ 0 ])
+				expect(count).to(equal(1))
+
+				sink.put([ 0 ])
+				expect(count).to(equal(1))
+
+				sink.put([ 0, 1 ])
+				expect(count).to(equal(2))
+			}
+		}
+
 		describe("replay") {
 			var signal: HotSignal<Int>!
 			var sink: SinkOf<Int>!

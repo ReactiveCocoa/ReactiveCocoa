@@ -164,7 +164,7 @@ extension HotSignal {
 	public func skipRepeats<U: Equatable>(evidence: HotSignal -> HotSignal<U>) -> HotSignal<U> {
 		return evidence(self).skipRepeats { $0 == $1 }
 	}
-	
+
 	/// Skips all consecutive, repeating values in the signal, forwarding only
 	/// the first occurrence.
 	///
@@ -172,17 +172,17 @@ extension HotSignal {
 	///           function will work in most cases.
 	public func skipRepeats(isEqual: (T, T) -> Bool) -> HotSignal<T> {
 		let previous = Atomic<T?>(nil)
-		
+
 		return filter { value in
 			let previousValue = previous.value
 			previous.value = value
-			
+
 			if let previousValue = previousValue {
 				if isEqual(value, previousValue) {
 					return false
 				}
 			}
-			
+
 			return true
 		}
 	}

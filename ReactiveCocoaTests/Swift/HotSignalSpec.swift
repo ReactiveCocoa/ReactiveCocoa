@@ -36,6 +36,33 @@ class HotSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("interval") {
+			it("should fire at the given interval") {
+				let scheduler = TestScheduler()
+				let signal = HotSignal<NSDate>.interval(1, onScheduler: scheduler, withLeeway: 0)
+
+				var fireCount = 0
+				signal.observe { date in
+					expect(date).to(equal(scheduler.currentDate))
+					fireCount++
+				}
+
+				expect(fireCount).to(equal(0))
+
+				scheduler.advanceByInterval(1.5)
+				expect(fireCount).to(equal(1))
+
+				scheduler.advanceByInterval(1)
+				expect(fireCount).to(equal(2))
+
+				scheduler.advanceByInterval(2)
+				expect(fireCount).to(equal(4))
+
+				scheduler.advanceByInterval(0.1)
+				expect(fireCount).to(equal(4))
+			}
+		}
+
 		describe("replay") {
 			var signal: HotSignal<Int>!
 			var sink: SinkOf<Int>!

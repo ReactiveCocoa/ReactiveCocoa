@@ -165,7 +165,7 @@ extension ColdSignal {
 			return .single(value.unbox)
 
 		case let .Failure(error):
-			return .error(error)
+			return .error(error as NSError)
 		}
 	}
 }
@@ -541,7 +541,7 @@ extension ColdSignal {
 					return .single(box.unbox)
 
 				case let .Failure(error):
-					return .error(error)
+					return .error(error as NSError)
 				}
 			}
 			.merge(identity)

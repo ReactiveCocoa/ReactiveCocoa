@@ -43,20 +43,24 @@ public final class ObservableProperty<T> {
 	/// changes over time. The signal will complete when the property
 	/// deinitializes.
 	public func values() -> ColdSignal<T> {
-		return ColdSignal { subscriber in
-			var token: RemovalToken?
-
-			dispatch_sync(self.queue) {
-				token = self.subscribers.insert(subscriber)
-				subscriber.put(.Next(Box(self.value)))
-			}
-
-			subscriber.disposable.addDisposable { [weak self] in
-				if let strongSelf = self {
-					dispatch_async(strongSelf.queue) {
-						strongSelf.subscribers.removeValueForToken(token!)
+		return ColdSignal { [weak self] subscriber in
+			if let strongSelf = self {
+				var token: RemovalToken?
+				
+				dispatch_sync(strongSelf.queue) {
+					token = strongSelf.subscribers.insert(subscriber)
+					subscriber.put(.Next(Box(strongSelf.value)))
+				}
+				
+				subscriber.disposable.addDisposable {
+					if let strongSelf = self {
+						dispatch_async(strongSelf.queue) {
+							strongSelf.subscribers.removeValueForToken(token!)
+						}
 					}
 				}
+			} else {
+				subscriber.put(.Completed)
 			}
 		}
 	}

@@ -346,6 +346,43 @@ class HotSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("takeWhile") {
+			it("should take while the predicate is true") {
+				let (signal, sink) = HotSignal<Int>.pipe()
+				let newSignal = signal.takeWhile { $0 % 2 == 0 }
+
+				var latestValue: Int?
+				newSignal.observe { latestValue = $0 }
+
+				expect(latestValue).to(beNil())
+
+				sink.put(0)
+				expect(latestValue).to(equal(0))
+
+				sink.put(2)
+				expect(latestValue).to(equal(2))
+
+				sink.put(3)
+				expect(latestValue).to(equal(2))
+
+				sink.put(4)
+				expect(latestValue).to(equal(2))
+			}
+
+			it("should not take any values when the predicate starts false") {
+				let (signal, sink) = HotSignal<Int>.pipe()
+				let newSignal = signal.takeWhile { _ in false }
+
+				var latestValue: Int?
+				newSignal.observe { latestValue = $0 }
+
+				expect(latestValue).to(beNil())
+
+				sink.put(0)
+				expect(latestValue).to(beNil())
+			}
+		}
+
 		describe("replay") {
 			var signal: HotSignal<Int>!
 			var sink: SinkOf<Int>!

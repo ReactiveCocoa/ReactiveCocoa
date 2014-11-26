@@ -246,6 +246,40 @@ class HotSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("take") {
+			it("should take initial values") {
+				let (signal, sink) = HotSignal<Int>.pipe()
+				let newSignal = signal.take(2)
+
+				var latestValue: Int?
+				newSignal.observe { latestValue = $0 }
+
+				expect(latestValue).to(beNil())
+
+				sink.put(0)
+				expect(latestValue).to(equal(0))
+
+				sink.put(1)
+				expect(latestValue).to(equal(1))
+
+				sink.put(2)
+				expect(latestValue).to(equal(1))
+			}
+
+			it("should not take any values when 0") {
+				let (signal, sink) = HotSignal<Int>.pipe()
+				let newSignal = signal.take(0)
+
+				var latestValue: Int?
+				newSignal.observe { latestValue = $0 }
+
+				expect(latestValue).to(beNil())
+
+				sink.put(0)
+				expect(latestValue).to(beNil())
+			}
+		}
+
 		describe("replay") {
 			var signal: HotSignal<Int>!
 			var sink: SinkOf<Int>!

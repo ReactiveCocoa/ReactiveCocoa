@@ -280,6 +280,44 @@ class HotSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("takeUntil") {
+			it("should take values until the trigger fires") {
+				let (signal, sink) = HotSignal<Int>.pipe()
+				let (triggerSignal, triggerSink) = HotSignal<()>.pipe()
+				let newSignal = signal.takeUntil(triggerSignal)
+
+				var latestValue: Int?
+				newSignal.observe { latestValue = $0 }
+
+				expect(latestValue).to(beNil())
+
+				sink.put(0)
+				expect(latestValue).to(equal(0))
+
+				sink.put(1)
+				expect(latestValue).to(equal(1))
+
+				triggerSink.put(())
+
+				sink.put(2)
+				expect(latestValue).to(equal(1))
+			}
+
+			it("should not take any values if the trigger fires immediately") {
+				let (signal, sink) = HotSignal<Int>.pipe()
+				let (triggerSignal, triggerSink) = HotSignal<()>.pipe()
+				let newSignal = signal.takeUntil(triggerSignal)
+
+				var latestValue: Int?
+				newSignal.observe { latestValue = $0 }
+
+				triggerSink.put(())
+
+				sink.put(0)
+				expect(latestValue).to(beNil())
+			}
+		}
+
 		describe("replay") {
 			var signal: HotSignal<Int>!
 			var sink: SinkOf<Int>!

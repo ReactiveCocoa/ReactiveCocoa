@@ -9,4 +9,4 @@
 	url = https://github.com/jspahrsummers/xcconfigs.git
 [submodule "Carthage.checkout/LlamaKit"]
 	path = Carthage.checkout/LlamaKit
-	url = https://github.com/LlamaKit/LlamaKit.git
+	url = https://github.com/Carthage/LlamaKit.git

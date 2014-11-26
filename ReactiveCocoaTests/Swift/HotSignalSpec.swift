@@ -318,6 +318,34 @@ class HotSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("takeUntilReplacement") {
+			it("should take values from the original then the replacement") {
+				let (signal, sink) = HotSignal<Int>.pipe()
+				let (replacementSignal, replacementSink) = HotSignal<Int>.pipe()
+				let newSignal = signal.takeUntilReplacement(replacementSignal)
+
+				var latestValue: Int?
+				newSignal.observe { latestValue = $0 }
+
+				expect(latestValue).to(beNil())
+
+				sink.put(0)
+				expect(latestValue).to(equal(0))
+
+				sink.put(1)
+				expect(latestValue).to(equal(1))
+
+				replacementSink.put(2)
+				expect(latestValue).to(equal(2))
+
+				sink.put(3)
+				expect(latestValue).to(equal(2))
+
+				replacementSink.put(4)
+				expect(latestValue).to(equal(4))
+			}
+		}
+
 		describe("replay") {
 			var signal: HotSignal<Int>!
 			var sink: SinkOf<Int>!

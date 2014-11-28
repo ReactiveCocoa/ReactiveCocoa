@@ -72,6 +72,17 @@ class HotSignalSpec: QuickSpec {
 				expect(innerSignal).toEventually(beNil())
 			}
 
+			it("generator should be disposed when signal is destroyed") {
+				let disposable = SimpleDisposable()
+
+				let createSignal = { () -> HotSignal<()> in
+					return HotSignal<()> { _ in disposable }
+				}
+
+				expect(createSignal()).notTo(beNil())
+				expect(disposable.disposed).to(beTruthy())
+			}
+
 			it("pipe() should keep signal alive while sink is") {
 				let (outerSignal, outerSink) = HotSignal<Int>.pipe()
 

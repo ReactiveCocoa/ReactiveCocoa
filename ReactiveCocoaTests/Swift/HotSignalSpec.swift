@@ -12,6 +12,36 @@ import ReactiveCocoa
 
 class HotSignalSpec: QuickSpec {
 	override func spec() {
+		describe("lifetime") {
+			it("pipe() should keep signal alive while sink is") {
+				let (outerSignal, outerSink) = HotSignal<Int>.pipe()
+
+				func addSink() -> SinkOf<Int> {
+					let (signal, sink) = HotSignal<Int>.pipe()
+					signal.observe(outerSink)
+
+					return sink
+				}
+
+				var latestValue: Int?
+				outerSignal.observe { latestValue = $0 }
+
+				expect(latestValue).to(beNil())
+
+				let innerSink = addSink()
+				expect(latestValue).to(beNil())
+
+				innerSink.put(1)
+				expect(latestValue).to(equal(1))
+
+				outerSink.put(2)
+				expect(latestValue).to(equal(2))
+
+				innerSink.put(3)
+				expect(latestValue).to(equal(3))
+			}
+		}
+
 		describe("replay") {
 			var signal: HotSignal<Int>!
 			var sink: SinkOf<Int>!

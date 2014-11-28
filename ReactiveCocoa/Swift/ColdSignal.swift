@@ -99,6 +99,11 @@ public struct ColdSignal<T> {
 		let disposable = CompositeDisposable()
 		var innerSink: S? = sinkCreator(disposable)
 
+		// Skip all generation work if the disposable was already used.
+		if disposable.disposed {
+			return disposable
+		}
+
 		let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.ColdSignal.start", DISPATCH_QUEUE_SERIAL)
 		disposable.addDisposable {
 			// This is redundant with the behavior of the outer sink below for a

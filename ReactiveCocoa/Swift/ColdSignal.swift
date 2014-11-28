@@ -67,36 +67,67 @@ public enum Event<T> {
 	}
 }
 
-/// A stream that will begin generating Events when a Subscriber is attached,
-/// possibly performing some side effects in the process. Events are pushed to
-/// the subscriber as they are generated.
+/// A stream that will begin generating Events when a sink is attached, possibly
+/// performing some side effects in the process. Events are pushed to the sink
+/// as they are generated.
 ///
-/// A corollary to this is that different Subscribers may see a different timing
-/// of Events, or even a different version of events altogether.
+/// A corollary to this is that different sinks may see a different timing of
+/// Events, or even a different version of events altogether.
 public struct ColdSignal<T> {
-	private let generator: Subscriber<T> -> ()
+	/// The type of value that will be sent to any sink which attaches to this
+	/// signal.
+	public typealias Element = Event<T>
+
+	/// A closure which implements the behavior for a ColdSignal.
+	public typealias Generator = (SinkOf<Element>, CompositeDisposable) -> ()
+
+	private let generator: Generator
 
 	/// Initializes a signal that will run the given action whenever a
 	/// subscription is created.
-	public init(generator: Subscriber<T> -> ()) {
+	public init(generator: Generator) {
 		self.generator = generator
 	}
 
-	/// Starts producing events for the given sink, performing any side
-	/// effects embedded within the ColdSignal.
+	/// Runs the given closure with a new disposable, then starts producing
+	/// events for the returned sink, performing any side effects embedded
+	/// within the ColdSignal.
 	///
 	/// Returns a Disposable which will cancel the work associated with event
 	/// production, and prevent any further events from being sent.
-	public func start<S: SinkType where S.Element == Event<T>>(sink: S) -> Disposable {
-		let subscriber = Subscriber<T>(sink)
-		generator(subscriber)
-		return subscriber.disposable
-	}
+	public func start<S: SinkType where S.Element == Element>(sinkCreator: Disposable -> S) -> Disposable {
+		let disposable = CompositeDisposable()
+		var innerSink: S? = sinkCreator(disposable)
 
-	/// Convenience function to invoke start() with a Subscriber that has
-	/// the given callbacks for each event type.
-	public func start(next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing) -> Disposable {
-		return start(Subscriber(next: next, error: error, completed: completed))
+		let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.ColdSignal.start", DISPATCH_QUEUE_SERIAL)
+		disposable.addDisposable {
+			// This is redundant with the behavior of the outer sink below for a
+			// terminating event, but this ensures that we properly handle
+			// simple cancellation as well.
+			dispatch_async(queue) {
+				innerSink = nil
+			}
+		}
+
+		let outerSink = SinkOf<Element> { event in
+			dispatch_sync(queue) {
+				if disposable.disposed {
+					return
+				}
+
+				if event.isTerminating {
+					disposable.dispose()
+				}
+
+				// This variable should only be nil after disposal (which occurs
+				// upon our current queue), so there's no situation in which
+				// this should be nil here.
+				innerSink!.put(event)
+			}
+		}
+
+		generator(outerSink, disposable)
+		return disposable
 	}
 }
 
@@ -140,7 +171,7 @@ extension ColdSignal {
 	}
 
 	/// Creates a signal that will iterate over the given sequence whenever a
-	/// Subscriber is attached.
+	/// sink is attached.
 	///
 	/// If the signal will be consumed multiple times, the given sequence must
 	/// be multi-pass (i.e., support obtaining and using multiple generators).
@@ -282,7 +313,7 @@ extension ColdSignal {
 	public func skipRepeats<U: Equatable>(evidence: ColdSignal -> ColdSignal<U>) -> ColdSignal<U> {
 		return evidence(self).skipRepeats { $0 == $1 }
 	}
-	
+
 	/// Skips all consecutive, repeating values in the signal, forwarding only
 	/// the first occurrence.
 	///
@@ -295,7 +326,7 @@ extension ColdSignal {
 						return (current, .empty())
 					}
 				}
-				
+
 				return (current, .single(current))
 			}
 			.merge(identity)
@@ -876,62 +907,34 @@ extension ColdSignal {
 	}
 }
 
-/// Receives Events from a ColdSignal.
-public final class Subscriber<T>: SinkType {
+/// A convenience type representing a sink that receives Events from a
+/// ColdSignal.
+public struct Subscriber<T>: SinkType {
 	public typealias Element = Event<T>
 
-	private let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.ColdSignal.Subscriber", DISPATCH_QUEUE_SERIAL)
-	private var sink: SinkOf<Element>?
-
-	/// A list of Disposables to dispose of when the subscriber receives
-	/// a terminating event, or if the subscription is canceled.
-	public let disposable = CompositeDisposable()
-
-	/// Initializes a Subscriber that will forward events to the given sink.
-	public init<S: SinkType where S.Element == Event<T>>(_ sink: S) {
-		self.sink = SinkOf(sink)
-
-		// This is redundant with the behavior of put() in case of
-		// a terminating event, but ensures that we get rid of the sink
-		// upon cancellation as well.
-		disposable.addDisposable {
-			dispatch_async(self.queue) {
-				self.sink = nil
-			}
-		}
-	}
-
-	/// Initializes a Subscriber that will perform the given action whenever an
-	/// event is received.
-	public convenience init(handler: Event<T> -> ()) {
-		self.init(SinkOf(handler))
-	}
+	private let next: T -> ()
+	private let error: NSError -> ()
+	private let completed: () -> ()
 
 	/// Initializes a Subscriber with different callbacks to invoke, based
 	/// on the type of Event received.
-	public convenience init(next: T -> (), error: NSError -> (), completed: () -> ()) {
-		self.init(SinkOf<Event<T>> { event in
-			switch event {
-			case let .Next(box):
-				next(box.unbox)
-
-			case let .Error(err):
-				error(err)
-
-			case let .Completed:
-				completed()
-			}
-		})
+	public init(next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing) {
+		self.next = next
+		self.error = error
+		self.completed = completed
 	}
 
+	/// Sends an event to this subscriber.
 	public func put(event: Event<T>) {
-		dispatch_sync(queue) {
-			self.sink?.put(event)
+		switch event {
+		case let .Next(value):
+			next(value.unbox)
 
-			if event.isTerminating {
-				self.sink = nil
-				self.disposable.dispose()
-			}
+		case let .Error(err):
+			error(err)
+
+		case .Completed:
+			completed()
 		}
 	}
 }

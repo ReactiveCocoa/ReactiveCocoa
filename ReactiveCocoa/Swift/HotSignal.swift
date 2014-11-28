@@ -71,14 +71,29 @@ extension HotSignal {
 
 	/// Creates a signal that can be controlled by sending values to the
 	/// returned sink.
+	///
+	/// The signal will be kept alive for as long as the sink is, ensuring that
+	/// values sent to the sink will be properly forwarded to observers even if
+	/// a direct reference to the signal is lost.
 	public class func pipe() -> (HotSignal, SinkOf<T>) {
 		var sink: SinkOf<T>? = nil
-		let signal = HotSignal { s in
+		let signal: HotSignal<T>? = HotSignal { s in
 			sink = s
 			return nil
 		}
 
-		return (signal, sink!)
+		assert(sink != nil)
+		let retainingSink = SinkOf<T> { value in
+			// This will always be true. It's just a convenient hack to capture
+			// `signal` strongly within our sink.
+			if let signal = signal {
+				sink!.put(value)
+			} else {
+				assert(false)
+			}
+		}
+
+		return (signal!, retainingSink)
 	}
 
 	/// Creates a repeating timer of the given interval, with a reasonable
@@ -164,7 +179,7 @@ extension HotSignal {
 	public func skipRepeats<U: Equatable>(evidence: HotSignal -> HotSignal<U>) -> HotSignal<U> {
 		return evidence(self).skipRepeats { $0 == $1 }
 	}
-	
+
 	/// Skips all consecutive, repeating values in the signal, forwarding only
 	/// the first occurrence.
 	///
@@ -172,17 +187,17 @@ extension HotSignal {
 	///           function will work in most cases.
 	public func skipRepeats(isEqual: (T, T) -> Bool) -> HotSignal<T> {
 		let previous = Atomic<T?>(nil)
-		
+
 		return filter { value in
 			let previousValue = previous.value
 			previous.value = value
-			
+
 			if let previousValue = previousValue {
 				if isEqual(value, previousValue) {
 					return false
 				}
 			}
-			
+
 			return true
 		}
 	}

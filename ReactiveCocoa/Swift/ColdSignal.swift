@@ -136,6 +136,23 @@ public struct ColdSignal<T> {
 		generator(outerSink, disposable)
 		return disposable
 	}
+
+	/// Starts producing events, performing any side effects embedded within the
+	/// ColdSignal, and invoking the given handlers for each kind of event
+	/// generated.
+	///
+	/// If `disposable` is not nil, the returned disposable will be added to it
+	/// before any work begins. This ensures that synchronous operations can
+	/// still be canceled.
+	///
+	/// Returns a disposable that will cancel the work associated with event
+	/// production, and prevent any further events from being sent.
+	public func startWithDisposable(disposable: CompositeDisposable?, next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing) -> Disposable {
+		return start { selfDisposable in
+			disposable?.addDisposable(selfDisposable)
+			return eventSink(next: next, error: error, completed: completed)
+		}
+	}
 }
 
 /// Convenience constructors.

@@ -49,22 +49,22 @@ extension RACSignal {
 	/// Creates a ColdSignal that will produce events by subscribing to the
 	/// underlying RACSignal.
 	public func asColdSignal() -> ColdSignal<AnyObject?> {
-		return ColdSignal { subscriber in
+		return ColdSignal { (sink, disposable) in
 			let next = { (obj: AnyObject?) -> () in
-				subscriber.put(.Next(Box(obj)))
+				sink.put(.Next(Box(obj)))
 			}
 
 			let error = { (maybeError: NSError?) -> () in
 				let nsError = maybeError.orDefault(RACError.Empty.error)
-				subscriber.put(.Error(nsError))
+				sink.put(.Error(nsError))
 			}
 
 			let completed = {
-				subscriber.put(.Completed)
+				sink.put(.Completed)
 			}
 
-			let disposable: RACDisposable? = self.subscribeNext(next, error: error, completed: completed)
-			subscriber.disposable.addDisposable(disposable)
+			let selfDisposable: RACDisposable? = self.subscribeNext(next, error: error, completed: completed)
+			disposable.addDisposable(selfDisposable)
 		}
 	}
 
@@ -91,7 +91,7 @@ extension ColdSignal {
 	///            a signal of objects. Simply pass in the `identity` function.
 	public func asDeferredRACSignal<U: AnyObject>(evidence: ColdSignal -> ColdSignal<U?>) -> RACSignal {
 		return RACSignal.createSignal { subscriber in
-			let selfDisposable = evidence(self).start(next: { value in
+			let selfDisposable = evidence(self).startWithDisposable(nil, next: { value in
 				subscriber.sendNext(value)
 			}, error: { error in
 				subscriber.sendError(error)

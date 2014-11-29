@@ -18,9 +18,10 @@ class ObservablePropertySpec: QuickSpec {
 			it("should immediately send new values") {
 				let observableProperty = ObservableProperty(1)
 				var value = observableProperty.value
-				observableProperty.values().start { newValue in
+				observableProperty.values().startWithDisposable(nil, next: { newValue in
 					value = newValue
-				}
+				})
+				
 				observableProperty.value = 2
 				expect(value).to(equal(observableProperty.value))
 			}
@@ -30,7 +31,7 @@ class ObservablePropertySpec: QuickSpec {
 				let signal = observableProperty!.values()
 				
 				var completed = false
-				signal.start(completed: {
+				signal.startWithDisposable(nil, completed: {
 					completed = true
 				})
 				
@@ -44,7 +45,7 @@ class ObservablePropertySpec: QuickSpec {
 				observableProperty = nil
 				
 				var completed = false
-				signal.start(completed: {
+				signal.startWithDisposable(nil, completed: {
 					completed = true
 				})
 				

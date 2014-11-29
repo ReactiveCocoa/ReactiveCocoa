@@ -93,11 +93,13 @@ public struct ColdSignal<T> {
 	/// events for the returned sink, performing any side effects embedded
 	/// within the ColdSignal.
 	///
-	/// Returns a Disposable which will cancel the work associated with event
-	/// production, and prevent any further events from being sent.
-	public func start<S: SinkType where S.Element == Element>(sinkCreator: Disposable -> S) -> Disposable {
+	/// The disposable given to the closure will cancel the work associated with
+	/// event production, and prevent any further events from being sent.
+	///
+	/// Returns the disposable which was given to the closure.
+	public func start(sinkCreator: Disposable -> SinkOf<Element>) -> Disposable {
 		let disposable = CompositeDisposable()
-		var innerSink: S? = sinkCreator(disposable)
+		var innerSink: SinkOf<Element>? = sinkCreator(disposable)
 
 		// Skip all generation work if the disposable was already used.
 		if disposable.disposed {
@@ -912,25 +914,10 @@ extension ColdSignal {
 	}
 }
 
-/// A convenience type representing a sink that receives Events from a
-/// ColdSignal.
-public struct Subscriber<T>: SinkType {
-	public typealias Element = Event<T>
-
-	private let next: T -> ()
-	private let error: NSError -> ()
-	private let completed: () -> ()
-
-	/// Initializes a Subscriber with different callbacks to invoke, based
-	/// on the type of Event received.
-	public init(next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing) {
-		self.next = next
-		self.error = error
-		self.completed = completed
-	}
-
-	/// Sends an event to this subscriber.
-	public func put(event: Event<T>) {
+/// Creates a sink that can receive events from a ColdSignal, then invoke the
+/// given handlers based on the event type.
+public func eventSink<T>(next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing) -> SinkOf<Event<T>> {
+	return SinkOf { event in
 		switch event {
 		case let .Next(value):
 			next(value.unbox)

@@ -97,7 +97,7 @@ public struct ColdSignal<T> {
 	/// event production, and prevent any further events from being sent.
 	///
 	/// Returns the disposable which was given to the closure.
-	public func start(sinkCreator: Disposable -> SinkOf<Element>) -> Disposable {
+	public func startWithSink(sinkCreator: Disposable -> SinkOf<Element>) -> Disposable {
 		let disposable = CompositeDisposable()
 		var innerSink: SinkOf<Element>? = sinkCreator(disposable)
 
@@ -106,7 +106,7 @@ public struct ColdSignal<T> {
 			return disposable
 		}
 
-		let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.ColdSignal.start", DISPATCH_QUEUE_SERIAL)
+		let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.ColdSignal.startWithSink", DISPATCH_QUEUE_SERIAL)
 		disposable.addDisposable {
 			// This is redundant with the behavior of the outer sink below for a
 			// terminating event, but this ensures that we properly handle
@@ -141,17 +141,10 @@ public struct ColdSignal<T> {
 	/// ColdSignal, and invoking the given handlers for each kind of event
 	/// generated.
 	///
-	/// If `disposable` is not nil, the returned disposable will be added to it
-	/// before any work begins. This ensures that synchronous operations can
-	/// still be canceled.
-	///
 	/// Returns a disposable that will cancel the work associated with event
 	/// production, and prevent any further events from being sent.
-	public func startWithDisposable(disposable: CompositeDisposable?, next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing) -> Disposable {
-		return start { selfDisposable in
-			disposable?.addDisposable(selfDisposable)
-			return eventSink(next: next, error: error, completed: completed)
-		}
+	public func start(next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing) -> Disposable {
+		return startWithSink { _ in eventSink(next: next, error: error, completed: completed) }
 	}
 }
 
@@ -162,7 +155,7 @@ extension ColdSignal {
 	public static func lazy(action: () -> ColdSignal) -> ColdSignal {
 		return ColdSignal { (sink, disposable) in
 			if !disposable.disposed {
-				action().start { innerDisposable in
+				action().startWithSink { innerDisposable in
 					disposable.addDisposable(innerDisposable)
 					return sink
 				}
@@ -249,20 +242,26 @@ extension ColdSignal {
 		return ColdSignal<U> { (sink, disposable) in
 			let state = Atomic(initialState)
 
-			self.startWithDisposable(disposable, next: { value in
-				let (maybeState, newValue) = f(state.value, value)
-				sink.put(.Next(Box(newValue)))
+			self.startWithSink { selfDisposable in
+				disposable.addDisposable(selfDisposable)
 
-				if let s = maybeState {
-					state.value = s
-				} else {
+				return eventSink(next: { value in
+					let (maybeState, newValue) = f(state.value, value)
+					sink.put(.Next(Box(newValue)))
+
+					if let s = maybeState {
+						state.value = s
+					} else {
+						sink.put(.Completed)
+					}
+				}, error: { error in
+					sink.put(.Error(error))
+				}, completed: {
 					sink.put(.Completed)
-				}
-			}, error: { error in
-				sink.put(.Error(error))
-			}, completed: {
-				sink.put(.Completed)
-			})
+				})
+			}
+
+			return ()
 		}
 	}
 
@@ -404,26 +403,30 @@ extension ColdSignal {
 		return ColdSignal { (sink, disposable) in
 			let values: Atomic<[T]> = Atomic([])
 
-			self.startWithDisposable(disposable, next: { value in
-				values.modify { (var arr) in
-					arr.append(value)
-					while arr.count > count {
-						arr.removeAtIndex(0)
+			self.startWithSink { selfDisposable in
+				disposable.addDisposable(selfDisposable)
+
+				return eventSink(next: { value in
+					values.modify { (var arr) in
+						arr.append(value)
+						while arr.count > count {
+							arr.removeAtIndex(0)
+						}
+
+						return arr
 					}
 
-					return arr
-				}
+					return ()
+				}, error: { error in
+					sink.put(.Error(error))
+				}, completed: {
+					for v in values.value {
+						sink.put(.Next(Box(v)))
+					}
 
-				return ()
-			}, error: { error in
-				sink.put(.Error(error))
-			}, completed: {
-				for v in values.value {
-					sink.put(.Next(Box(v)))
-				}
-
-				sink.put(.Completed)
-			})
+					sink.put(.Completed)
+				})
+			}
 		}
 	}
 
@@ -446,7 +449,7 @@ extension ColdSignal {
 
 			disposable.addDisposable(completingDisposable)
 
-			self.start { selfDisposable in
+			self.startWithSink { selfDisposable in
 				sinkDisposable.addDisposable {
 					selfDisposable.dispose()
 
@@ -480,7 +483,7 @@ extension ColdSignal {
 	/// scheduler they originally arrived upon.
 	public func deliverOn(scheduler: Scheduler) -> ColdSignal {
 		return ColdSignal { (sink, disposable) in
-			self.start { selfDisposable in
+			self.startWithSink { selfDisposable in
 				disposable.addDisposable(selfDisposable)
 
 				return SinkOf { event in
@@ -503,7 +506,7 @@ extension ColdSignal {
 	public func subscribeOn(scheduler: Scheduler) -> ColdSignal {
 		return ColdSignal { (sink, disposable) in
 			let schedulerDisposable = scheduler.schedule {
-				self.start { selfDisposable in
+				self.startWithSink { selfDisposable in
 					disposable.addDisposable(selfDisposable)
 					return sink
 				}
@@ -523,7 +526,7 @@ extension ColdSignal {
 		precondition(interval >= 0)
 
 		return ColdSignal { (sink, disposable) in
-			self.start { selfDisposable in
+			self.startWithSink { selfDisposable in
 				disposable.addDisposable(selfDisposable)
 
 				return SinkOf { event in
@@ -559,7 +562,7 @@ extension ColdSignal {
 
 			disposable.addDisposable(timeoutDisposable)
 
-			self.start { selfDisposable in
+			self.startWithSink { selfDisposable in
 				disposable.addDisposable(selfDisposable)
 				return sink
 			}
@@ -574,18 +577,22 @@ extension ColdSignal {
 			subscribed()
 			disposable.addDisposable(disposed)
 
-			self.startWithDisposable(disposable, next: { value in
-				next(value)
-				sink.put(.Next(Box(value)))
-			}, error: { err in
-				error(err)
-				terminated()
-				sink.put(.Error(err))
-			}, completed: {
-				completed()
-				terminated()
-				sink.put(.Completed)
-			})
+			self.startWithSink { selfDisposable in
+				disposable.addDisposable(selfDisposable)
+
+				return eventSink(next: { value in
+					next(value)
+					sink.put(.Next(Box(value)))
+				}, error: { err in
+					error(err)
+					terminated()
+					sink.put(.Error(err))
+				}, completed: {
+					completed()
+					terminated()
+					sink.put(.Completed)
+				})
+			}
 
 			return ()
 		}
@@ -634,13 +641,13 @@ extension ColdSignal {
 			let serialDisposable = SerialDisposable()
 			disposable.addDisposable(serialDisposable)
 
-			self.start { selfDisposable in
+			self.startWithSink { selfDisposable in
 				serialDisposable.innerDisposable = selfDisposable
 
 				return SinkOf<Element> { event in
 					switch event {
 					case let .Error(error):
-						handler(error).start { handlerDisposable in
+						handler(error).startWithSink { handlerDisposable in
 							serialDisposable.innerDisposable = handlerDisposable
 							return sink
 						}
@@ -657,7 +664,7 @@ extension ColdSignal {
 	/// just like any other value.
 	public func materialize() -> ColdSignal<Event<T>> {
 		return ColdSignal<Event<T>> { (sink, disposable) in
-			self.start { selfDisposable in
+			self.startWithSink { selfDisposable in
 				disposable.addDisposable(selfDisposable)
 
 				return SinkOf { event in
@@ -680,13 +687,17 @@ extension ColdSignal {
 	///            `Event`s. Simply pass in the `identity` function.
 	public func dematerialize<U>(evidence: ColdSignal -> ColdSignal<Event<U>>) -> ColdSignal<U> {
 		return ColdSignal<U> { (sink, disposable) in
-			evidence(self).startWithDisposable(disposable, next: { event in
-				sink.put(event)
-			}, error: { error in
-				sink.put(.Error(error))
-			}, completed: {
-				sink.put(.Completed)
-			})
+			evidence(self).startWithSink { selfDisposable in
+				disposable.addDisposable(selfDisposable)
+
+				return eventSink(next: { event in
+					sink.put(event)
+				}, error: { error in
+					sink.put(.Error(error))
+				}, completed: {
+					sink.put(.Completed)
+				})
+			}
 
 			return ()
 		}
@@ -696,23 +707,27 @@ extension ColdSignal {
 /// Methods for combining multiple signals.
 extension ColdSignal {
 	private func startWithStates<U>(disposable: CompositeDisposable, _ selfState: CombineLatestState<T>, _ otherState: CombineLatestState<U>, queue: dispatch_queue_t, onBothNext: () -> (), onError: NSError -> (), onBothCompleted: () -> ()) {
-		startWithDisposable(disposable, next: { value in
-			dispatch_sync(queue) {
-				selfState.latestValue = value
-				if otherState.latestValue == nil {
-					return
-				}
+		startWithSink { selfDisposable in
+			disposable.addDisposable(selfDisposable)
 
-				onBothNext()
-			}
-		}, error: onError, completed: {
-			dispatch_sync(queue) {
-				selfState.completed = true
-				if otherState.completed {
-					onBothCompleted()
+			return eventSink(next: { value in
+				dispatch_sync(queue) {
+					selfState.latestValue = value
+					if otherState.latestValue == nil {
+						return
+					}
+
+					onBothNext()
 				}
-			}
-		})
+			}, error: onError, completed: {
+				dispatch_sync(queue) {
+					selfState.completed = true
+					if otherState.completed {
+						onBothCompleted()
+					}
+				}
+			})
+		}
 	}
 
 	/// Combines the latest value of the receiver with the latest value from
@@ -758,33 +773,37 @@ extension ColdSignal {
 				}
 			}
 
-			evidence(self).startWithDisposable(disposable, next: { signal in
-				signal.start { signalDisposable in
-					inFlight.modify { $0 + 1 }
-					disposable.addDisposable(signalDisposable)
+			evidence(self).startWithSink { selfDisposable in
+				disposable.addDisposable(selfDisposable)
 
-					return SinkOf { event in
-						if event.isTerminating {
-							signalDisposable.dispose()
-							disposable.pruneDisposed()
-						}
+				return eventSink(next: { signal in
+					signal.startWithSink { signalDisposable in
+						inFlight.modify { $0 + 1 }
+						disposable.addDisposable(signalDisposable)
 
-						switch event {
-						case .Completed:
-							decrementInFlight()
+						return SinkOf { event in
+							if event.isTerminating {
+								signalDisposable.dispose()
+								disposable.pruneDisposed()
+							}
 
-						default:
-							sink.put(event)
+							switch event {
+							case .Completed:
+								decrementInFlight()
+
+							default:
+								sink.put(event)
+							}
 						}
 					}
-				}
 
-				return ()
-			}, error: { error in
-				sink.put(.Error(error))
-			}, completed: {
-				decrementInFlight()
-			})
+					return ()
+				}, error: { error in
+					sink.put(.Error(error))
+				}, completed: {
+					decrementInFlight()
+				})
+			}
 
 			return ()
 		}
@@ -812,11 +831,11 @@ extension ColdSignal {
 			let latestDisposable = SerialDisposable()
 			disposable.addDisposable(latestDisposable)
 
-			evidence(self).start { selfDisposable in
+			evidence(self).startWithSink { selfDisposable in
 				latestDisposable.innerDisposable = selfDisposable
 
 				return eventSink(next: { signal in
-					latestDisposable.innerDisposable = signal.start { signalDisposable in
+					latestDisposable.innerDisposable = signal.startWithSink { signalDisposable in
 						latestDisposable.innerDisposable = signalDisposable
 
 						return SinkOf { innerEvent in
@@ -851,18 +870,22 @@ extension ColdSignal {
 		return ColdSignal<U> { (sink, disposable) in
 			var state = ConcatState<U>(sink: sink, disposable: disposable)
 
-			evidence(self).startWithDisposable(disposable, next: { signal in
-				// TODO: Avoid multiple dispatches.
-				dispatch_sync(state.queue) {
-					state.enqueuedSignals.append(signal)
-				}
+			evidence(self).startWithSink { selfDisposable in
+				disposable.addDisposable(selfDisposable)
 
-				state.dequeueIfReady()
-			}, error: { error in
-				sink.put(.Error(error))
-			}, completed: {
-				state.decrementInFlight()
-			})
+				return eventSink(next: { signal in
+					// TODO: Avoid multiple dispatches.
+					dispatch_sync(state.queue) {
+						state.enqueuedSignals.append(signal)
+					}
+
+					state.dequeueIfReady()
+				}, error: { error in
+					sink.put(.Error(error))
+				}, completed: {
+					state.decrementInFlight()
+				})
+			}
 		}
 	}
 
@@ -879,21 +902,21 @@ extension ColdSignal {
 			let serialDisposable = SerialDisposable()
 			disposable.addDisposable(serialDisposable)
 
-			self.start { selfDisposable in
+			self.startWithSink { selfDisposable in
 				serialDisposable.innerDisposable = selfDisposable
 
 				return eventSink(error: { error in
 					sink.put(.Error(error))
 				}, completed: {
-					signal.start { signalDisposable in
+					signal.startWithSink { signalDisposable in
 						serialDisposable.innerDisposable = signalDisposable
 						return sink
 					}
-					
+
 					return ()
 				})
 			}
-			
+
 			return ()
 		}
 	}
@@ -906,7 +929,7 @@ extension ColdSignal {
 		let semaphore = dispatch_semaphore_create(0)
 		var result: Result<T> = failure(RACError.ExpectedCountMismatch.error)
 
-		take(1).startWithDisposable(nil, next: { value in
+		take(1).start(next: { value in
 			result = success(value)
 			dispatch_semaphore_signal(semaphore)
 		}, error: { error in
@@ -976,7 +999,7 @@ extension ColdSignal {
 			onError = errorHandler
 		}
 
-		startWithDisposable(nil, next: { value in
+		start(next: { value in
 			sink.put(value)
 		}, error: onError, completed: completionHandler)
 
@@ -1044,7 +1067,7 @@ private class ConcatState<T> {
 		}
 
 		if let signal = signal {
-			signal.start { signalDisposable in
+			signal.startWithSink { signalDisposable in
 				self.disposable.addDisposable(signalDisposable)
 
 				return eventSink(next: { value in

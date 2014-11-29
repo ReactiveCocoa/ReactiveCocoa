@@ -33,7 +33,7 @@ class HotSignalSpec: QuickSpec {
 					let scheduler = TestScheduler(startDate: NSDate())
 
 					var receivedError: NSError? = nil
-					replaySignal.timeoutWithError(error, afterInterval: 10, onScheduler:scheduler).startWithDisposable(nil, error: { error in
+					replaySignal.timeoutWithError(error, afterInterval: 10, onScheduler:scheduler).start(error: { error in
 						receivedError = error
 					})
 
@@ -43,7 +43,7 @@ class HotSignalSpec: QuickSpec {
 
 				it("should forward values sent on the hot signal") {
 					var collectedValues: [Int] = []
-					replaySignal.startWithDisposable(nil, next: {
+					replaySignal.start(next: {
 						collectedValues += [ $0 ]
 					})
 
@@ -73,7 +73,7 @@ class HotSignalSpec: QuickSpec {
 					sink.put(400)
 
 					var collectedValues: [Int] = []
-					replaySignal.startWithDisposable(nil, next: {
+					replaySignal.start(next: {
 						collectedValues += [ $0 ]
 					})
 
@@ -112,7 +112,7 @@ class HotSignalSpec: QuickSpec {
 					sink.put(77)
 
 					var collectedValues: [Int] = []
-					replaySignal.startWithDisposable(nil, next: {
+					replaySignal.start(next: {
 						collectedValues += [ $0 ]
 					})
 

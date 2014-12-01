@@ -12,6 +12,130 @@ import ReactiveCocoa
 
 class HotSignalSpec: QuickSpec {
 	override func spec() {
+		describe("lifetime") {
+			it("observe() should not keep signal alive") {
+				let (outerSignal, outerSink) = HotSignal<Int>.pipe()
+
+				weak var innerSignal: HotSignal<Int>?
+				expect(innerSignal).to(beNil())
+
+				var latestValue: Int?
+				outerSignal.observe { latestValue = $0 }
+
+				let createSignal = { () -> HotSignal<Int> in
+					let (signal, sink) = HotSignal<Int>.pipe()
+					innerSignal = signal
+
+					expect(innerSignal).notTo(beNil())
+
+					signal.observe(outerSink)
+					expect(latestValue).to(beNil())
+
+					sink.put(1)
+					expect(latestValue).to(equal(1))
+
+					return signal
+				}
+
+				expect(createSignal()).notTo(beNil())
+				expect(innerSignal).to(beNil())
+			}
+
+			it("observe() disposable should keep signal alive") {
+				let (outerSignal, outerSink) = HotSignal<Int>.pipe()
+
+				weak var innerSignal: HotSignal<Int>?
+				expect(innerSignal).to(beNil())
+
+				var latestValue: Int?
+				outerSignal.observe { latestValue = $0 }
+
+				let createAndObserve = { () -> Disposable in
+					let (signal, sink) = HotSignal<Int>.pipe()
+					innerSignal = signal
+
+					expect(innerSignal).notTo(beNil())
+
+					let disposable = signal.observe(outerSink)
+					expect(latestValue).to(beNil())
+
+					sink.put(1)
+					expect(latestValue).to(equal(1))
+
+					return disposable
+				}
+
+				let disposable = createAndObserve()
+
+				disposable.dispose()
+				expect(innerSignal).toEventually(beNil())
+			}
+
+			it("generator should be disposed when signal is destroyed") {
+				let disposable = SimpleDisposable()
+
+				let createSignal = { () -> HotSignal<()> in
+					return HotSignal<()> { _ in disposable }
+				}
+
+				expect(createSignal()).notTo(beNil())
+				expect(disposable.disposed).to(beTruthy())
+			}
+
+			it("generator should not keep signal alive automatically") {
+				let scheduler = TestScheduler()
+
+				weak var innerSignal: HotSignal<NSDate>?
+				expect(innerSignal).to(beNil())
+
+				let createSignal = { () -> HotSignal<NSDate> in
+					let signal = HotSignal<NSDate> { sink in
+						scheduler.scheduleAfter(scheduler.currentDate, repeatingEvery: 1) {
+							sink.put(scheduler.currentDate)
+						}
+
+						return nil
+					}
+
+					innerSignal = signal
+					expect(innerSignal).notTo(beNil())
+
+					return signal
+				}
+
+				expect(createSignal()).notTo(beNil())
+				expect(innerSignal).to(beNil())
+			}
+
+			it("pipe() should keep signal alive while sink is") {
+				let (outerSignal, outerSink) = HotSignal<Int>.pipe()
+
+				func addSink() -> SinkOf<Int> {
+					let (signal, sink) = HotSignal<Int>.pipe()
+					signal.observe(outerSink)
+
+					return sink
+				}
+
+				var latestValue: Int?
+				outerSignal.observe { latestValue = $0 }
+
+				expect(latestValue).to(beNil())
+
+				let innerSink = addSink()
+				expect(latestValue).to(beNil())
+
+				innerSink.put(1)
+				expect(latestValue).to(equal(1))
+
+				outerSink.put(2)
+				expect(latestValue).to(equal(2))
+
+				innerSink.put(3)
+				expect(latestValue).to(equal(3))
+			}
+		}
+
 		describe("replay") {
 			var signal: HotSignal<Int>!
 			var sink: SinkOf<Int>!

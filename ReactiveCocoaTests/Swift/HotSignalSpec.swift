@@ -43,7 +43,9 @@ class HotSignalSpec: QuickSpec {
 
 				it("should forward values sent on the hot signal") {
 					var collectedValues: [Int] = []
-					replaySignal.start() { collectedValues += [ $0 ] }
+					replaySignal.start(next: {
+						collectedValues += [ $0 ]
+					})
 
 					sink.put(9000)
 					expect(collectedValues).to(equal([ 9000 ]))
@@ -71,7 +73,9 @@ class HotSignalSpec: QuickSpec {
 					sink.put(400)
 
 					var collectedValues: [Int] = []
-					replaySignal.start() { collectedValues += [ $0 ] }
+					replaySignal.start(next: {
+						collectedValues += [ $0 ]
+					})
 
 					expect(collectedValues).to(equal([ 400 ]))
 
@@ -108,7 +112,9 @@ class HotSignalSpec: QuickSpec {
 					sink.put(77)
 
 					var collectedValues: [Int] = []
-					replaySignal.start() { collectedValues += [ $0 ] }
+					replaySignal.start(next: {
+						collectedValues += [ $0 ]
+					})
 
 					expect(collectedValues).to(equal([ 9000, 77 ]))
 

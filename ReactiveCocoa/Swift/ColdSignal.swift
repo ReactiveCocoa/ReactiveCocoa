@@ -67,36 +67,84 @@ public enum Event<T> {
 	}
 }
 
-/// A stream that will begin generating Events when a Subscriber is attached,
-/// possibly performing some side effects in the process. Events are pushed to
-/// the subscriber as they are generated.
+/// A stream that will begin generating Events when a sink is attached, possibly
+/// performing some side effects in the process. Events are pushed to the sink
+/// as they are generated.
 ///
-/// A corollary to this is that different Subscribers may see a different timing
-/// of Events, or even a different version of events altogether.
+/// A corollary to this is that different sinks may see a different timing of
+/// Events, or even a different version of events altogether.
 public struct ColdSignal<T> {
-	private let generator: Subscriber<T> -> ()
+	/// The type of value that will be sent to any sink which attaches to this
+	/// signal.
+	public typealias Element = Event<T>
+
+	/// A closure which implements the behavior for a ColdSignal.
+	public typealias Generator = (SinkOf<Element>, CompositeDisposable) -> ()
+
+	private let generator: Generator
 
 	/// Initializes a signal that will run the given action whenever a
 	/// subscription is created.
-	public init(generator: Subscriber<T> -> ()) {
+	public init(generator: Generator) {
 		self.generator = generator
 	}
 
-	/// Starts producing events for the given sink, performing any side
-	/// effects embedded within the ColdSignal.
+	/// Runs the given closure with a new disposable, then starts producing
+	/// events for the returned sink, performing any side effects embedded
+	/// within the ColdSignal.
 	///
-	/// Returns a Disposable which will cancel the work associated with event
-	/// production, and prevent any further events from being sent.
-	public func start<S: SinkType where S.Element == Event<T>>(sink: S) -> Disposable {
-		let subscriber = Subscriber<T>(sink)
-		generator(subscriber)
-		return subscriber.disposable
+	/// The disposable given to the closure will cancel the work associated with
+	/// event production, and prevent any further events from being sent.
+	///
+	/// Returns the disposable which was given to the closure.
+	public func startWithSink(sinkCreator: Disposable -> SinkOf<Element>) -> Disposable {
+		let disposable = CompositeDisposable()
+		var innerSink: SinkOf<Element>? = sinkCreator(disposable)
+
+		// Skip all generation work if the disposable was already used.
+		if disposable.disposed {
+			return disposable
+		}
+
+		let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.ColdSignal.startWithSink", DISPATCH_QUEUE_SERIAL)
+		disposable.addDisposable {
+			// This is redundant with the behavior of the outer sink below for a
+			// terminating event, but this ensures that we properly handle
+			// simple cancellation as well.
+			dispatch_async(queue) {
+				innerSink = nil
+			}
+		}
+
+		let outerSink = SinkOf<Element> { event in
+			dispatch_sync(queue) {
+				if disposable.disposed {
+					return
+				}
+
+				if event.isTerminating {
+					disposable.dispose()
+				}
+
+				// This variable should only be nil after disposal (which occurs
+				// upon our current queue), so there's no situation in which
+				// this should be nil here.
+				innerSink!.put(event)
+			}
+		}
+
+		generator(outerSink, disposable)
+		return disposable
 	}
 
-	/// Convenience function to invoke start() with a Subscriber that has
-	/// the given callbacks for each event type.
+	/// Starts producing events, performing any side effects embedded within the
+	/// ColdSignal, and invoking the given handlers for each kind of event
+	/// generated.
+	///
+	/// Returns a disposable that will cancel the work associated with event
+	/// production, and prevent any further events from being sent.
 	public func start(next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing) -> Disposable {
-		return start(Subscriber(next: next, error: error, completed: completed))
+		return startWithSink { _ in eventSink(next: next, error: error, completed: completed) }
 	}
 }
 
@@ -105,32 +153,36 @@ extension ColdSignal {
 	/// Creates a signal that will execute the given action upon subscription,
 	/// then forward all events from the generated signal.
 	public static func lazy(action: () -> ColdSignal) -> ColdSignal {
-		return ColdSignal { subscriber in
-			action().start(subscriber)
-			return ()
+		return ColdSignal { (sink, disposable) in
+			if !disposable.disposed {
+				action().startWithSink { innerDisposable in
+					disposable.addDisposable(innerDisposable)
+					return sink
+				}
+			}
 		}
 	}
 
 	/// Creates a signal that will immediately complete.
 	public static func empty() -> ColdSignal {
-		return ColdSignal { subscriber in
-			subscriber.put(.Completed)
+		return ColdSignal { (sink, _) in
+			sink.put(.Completed)
 		}
 	}
 
 	/// Creates a signal that will immediately yield a single value then
 	/// complete.
 	public static func single(value: T) -> ColdSignal {
-		return ColdSignal { subscriber in
-			subscriber.put(.Next(Box(value)))
-			subscriber.put(.Completed)
+		return ColdSignal { (sink, _) in
+			sink.put(.Next(Box(value)))
+			sink.put(.Completed)
 		}
 	}
 
 	/// Creates a signal that will immediately generate an error.
 	public static func error(error: NSError) -> ColdSignal {
-		return ColdSignal { subscriber in
-			subscriber.put(.Error(error))
+		return ColdSignal { (sink, _) in
+			sink.put(.Error(error))
 		}
 	}
 
@@ -140,19 +192,23 @@ extension ColdSignal {
 	}
 
 	/// Creates a signal that will iterate over the given sequence whenever a
-	/// Subscriber is attached.
+	/// sink is attached.
 	///
 	/// If the signal will be consumed multiple times, the given sequence must
 	/// be multi-pass (i.e., support obtaining and using multiple generators).
 	public static func fromValues<S: SequenceType where S.Generator.Element == T>(values: S) -> ColdSignal {
-		return ColdSignal { subscriber in
+		return ColdSignal { (sink, disposable) in
 			var generator = values.generate()
 
 			while let value: T = generator.next() {
-				subscriber.put(.Next(Box(value)))
+				sink.put(.Next(Box(value)))
+
+				if disposable.disposed {
+					return
+				}
 			}
 
-			subscriber.put(.Completed)
+			sink.put(.Completed)
 		}
 	}
 
@@ -160,7 +216,7 @@ extension ColdSignal {
 	///
 	/// Returns a signal that will send one value then complete, or error.
 	public static func fromResult(result: Result<T>) -> ColdSignal {
-		switch (result) {
+		switch result {
 		case let .Success(value):
 			return .single(value.unbox)
 
@@ -183,24 +239,29 @@ extension ColdSignal {
 	///
 	/// Returns a signal of the mapped values.
 	public func mapAccumulate<State, U>(#initialState: State, _ f: (State, T) -> (State?, U)) -> ColdSignal<U> {
-		return ColdSignal<U> { subscriber in
+		return ColdSignal<U> { (sink, disposable) in
 			let state = Atomic(initialState)
-			let disposable = self.start(next: { value in
-				let (maybeState, newValue) = f(state.value, value)
-				subscriber.put(.Next(Box(newValue)))
 
-				if let s = maybeState {
-					state.value = s
-				} else {
-					subscriber.put(.Completed)
-				}
-			}, error: { error in
-				subscriber.put(.Error(error))
-			}, completed: {
-				subscriber.put(.Completed)
-			})
+			self.startWithSink { selfDisposable in
+				disposable.addDisposable(selfDisposable)
 
-			subscriber.disposable.addDisposable(disposable)
+				return eventSink(next: { value in
+					let (maybeState, newValue) = f(state.value, value)
+					sink.put(.Next(Box(newValue)))
+
+					if let s = maybeState {
+						state.value = s
+					} else {
+						sink.put(.Completed)
+					}
+				}, error: { error in
+					sink.put(.Error(error))
+				}, completed: {
+					sink.put(.Completed)
+				})
+			}
+
+			return ()
 		}
 	}
 
@@ -282,7 +343,7 @@ extension ColdSignal {
 	public func skipRepeats<U: Equatable>(evidence: ColdSignal -> ColdSignal<U>) -> ColdSignal<U> {
 		return evidence(self).skipRepeats { $0 == $1 }
 	}
-	
+
 	/// Skips all consecutive, repeating values in the signal, forwarding only
 	/// the first occurrence.
 	///
@@ -295,7 +356,7 @@ extension ColdSignal {
 						return (current, .empty())
 					}
 				}
-				
+
 				return (current, .single(current))
 			}
 			.merge(identity)
@@ -339,30 +400,33 @@ extension ColdSignal {
 			return filter { _ in false }
 		}
 
-		return ColdSignal { subscriber in
+		return ColdSignal { (sink, disposable) in
 			let values: Atomic<[T]> = Atomic([])
-			let disposable = self.start(next: { value in
-				values.modify { (var arr) in
-					arr.append(value)
-					while arr.count > count {
-						arr.removeAtIndex(0)
+
+			self.startWithSink { selfDisposable in
+				disposable.addDisposable(selfDisposable)
+
+				return eventSink(next: { value in
+					values.modify { (var arr) in
+						arr.append(value)
+						while arr.count > count {
+							arr.removeAtIndex(0)
+						}
+
+						return arr
 					}
 
-					return arr
-				}
+					return ()
+				}, error: { error in
+					sink.put(.Error(error))
+				}, completed: {
+					for v in values.value {
+						sink.put(.Next(Box(v)))
+					}
 
-				return ()
-			}, error: { error in
-				subscriber.put(.Error(error))
-			}, completed: {
-				for v in values.value {
-					subscriber.put(.Next(Box(v)))
-				}
-
-				subscriber.put(.Completed)
-			})
-
-			subscriber.disposable.addDisposable(disposable)
+					sink.put(.Completed)
+				})
+			}
 		}
 	}
 
@@ -376,24 +440,28 @@ extension ColdSignal {
 
 		disposable.addDisposable(triggerDisposable)
 
-		return ColdSignal { subscriber in
+		return ColdSignal { (sink, sinkDisposable) in
 			// Automatically complete the returned signal when the trigger
 			// fires.
-			let subscriptionDisposable = ActionDisposable {
-				subscriber.put(.Completed)
+			let completingDisposable = ActionDisposable {
+				sink.put(.Completed)
 			}
 
-			disposable.addDisposable(subscriptionDisposable)
+			disposable.addDisposable(completingDisposable)
 
-			// When this particular subscription terminates, make sure to prune
-			// our unique disposable from `disposable`, to avoid infinite memory
-			// growth.
-			subscriber.disposable.addDisposable {
-				subscriptionDisposable.dispose()
-				disposable.pruneDisposed()
+			self.startWithSink { selfDisposable in
+				sinkDisposable.addDisposable {
+					selfDisposable.dispose()
+
+					// When this subscription terminates, make sure to prune our
+					// unique disposable from `disposable`, to avoid infinite
+					// memory growth.
+					completingDisposable.dispose()
+					disposable.pruneDisposed()
+				}
+
+				return sink
 			}
-
-			self.start(subscriber)
 		}
 	}
 
@@ -414,13 +482,17 @@ extension ColdSignal {
 	/// Yields all events on the given scheduler, instead of whichever
 	/// scheduler they originally arrived upon.
 	public func deliverOn(scheduler: Scheduler) -> ColdSignal {
-		return ColdSignal { subscriber in
-			let disposable = self.start(Subscriber { event in
-				scheduler.schedule { subscriber.put(event) }
-				return ()
-			})
+		return ColdSignal { (sink, disposable) in
+			self.startWithSink { selfDisposable in
+				disposable.addDisposable(selfDisposable)
 
-			subscriber.disposable.addDisposable(disposable)
+				return SinkOf { event in
+					scheduler.schedule { sink.put(event) }
+					return ()
+				}
+			}
+
+			return ()
 		}
 	}
 
@@ -432,13 +504,17 @@ extension ColdSignal {
 	/// Values may still be sent upon other schedulers—this merely affects how
 	/// the `start` method is invoked.
 	public func subscribeOn(scheduler: Scheduler) -> ColdSignal {
-		return ColdSignal { subscriber in
-			let disposable = self.start(Subscriber { event in
-				scheduler.schedule { subscriber.put(event) }
-				return ()
-			})
+		return ColdSignal { (sink, disposable) in
+			let schedulerDisposable = scheduler.schedule {
+				self.startWithSink { selfDisposable in
+					disposable.addDisposable(selfDisposable)
+					return sink
+				}
 
-			subscriber.disposable.addDisposable(disposable)
+				return ()
+			}
+
+			disposable.addDisposable(schedulerDisposable)
 		}
 	}
 
@@ -449,23 +525,27 @@ extension ColdSignal {
 	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> ColdSignal {
 		precondition(interval >= 0)
 
-		return ColdSignal { subscriber in
-			let disposable = self.start(Subscriber { event in
-				switch event {
-				case let .Error:
-					scheduler.schedule {
-						subscriber.put(event)
-					}
+		return ColdSignal { (sink, disposable) in
+			self.startWithSink { selfDisposable in
+				disposable.addDisposable(selfDisposable)
 
-				default:
-					let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
-					scheduler.scheduleAfter(date) {
-						subscriber.put(event)
+				return SinkOf { event in
+					switch event {
+					case .Error:
+						scheduler.schedule {
+							sink.put(event)
+						}
+
+					default:
+						let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
+						scheduler.scheduleAfter(date) {
+							sink.put(event)
+						}
 					}
 				}
-			})
+			}
 
-			subscriber.disposable.addDisposable(disposable)
+			return ()
 		}
 	}
 
@@ -474,39 +554,47 @@ extension ColdSignal {
 	public func timeoutWithError(error: NSError, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> ColdSignal {
 		precondition(interval >= 0)
 
-		return ColdSignal { subscriber in
+		return ColdSignal { (sink, disposable) in
 			let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
-			let schedulerDisposable = scheduler.scheduleAfter(date) {
-				subscriber.put(.Error(error))
+			let timeoutDisposable = scheduler.scheduleAfter(date) {
+				sink.put(.Error(error))
 			}
 
-			subscriber.disposable.addDisposable(schedulerDisposable)
+			disposable.addDisposable(timeoutDisposable)
 
-			let selfDisposable = self.start(subscriber)
-			subscriber.disposable.addDisposable(selfDisposable)
+			self.startWithSink { selfDisposable in
+				disposable.addDisposable(selfDisposable)
+				return sink
+			}
+
+			return ()
 		}
 	}
 
 	/// Injects side effects to be performed upon the specified signal events.
 	public func on(subscribed: () -> () = doNothing, next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing, terminated: () -> () = doNothing, disposed: () -> () = doNothing) -> ColdSignal {
-		return ColdSignal { subscriber in
+		return ColdSignal { (sink, disposable) in
 			subscribed()
-			subscriber.disposable.addDisposable(ActionDisposable(disposed))
+			disposable.addDisposable(disposed)
 
-			let disposable = self.start(next: { value in
-				next(value)
-				subscriber.put(.Next(Box(value)))
-			}, error: { err in
-				error(err)
-				terminated()
-				subscriber.put(.Error(err))
-			}, completed: {
-				completed()
-				terminated()
-				subscriber.put(.Completed)
-			})
+			self.startWithSink { selfDisposable in
+				disposable.addDisposable(selfDisposable)
 
-			subscriber.disposable.addDisposable(disposable)
+				return eventSink(next: { value in
+					next(value)
+					sink.put(.Next(Box(value)))
+				}, error: { err in
+					error(err)
+					terminated()
+					sink.put(.Error(err))
+				}, completed: {
+					completed()
+					terminated()
+					sink.put(.Completed)
+				})
+			}
+
+			return ()
 		}
 	}
 
@@ -549,36 +637,46 @@ extension ColdSignal {
 
 	/// Switches to a new signal when an error occurs.
 	public func catch(handler: NSError -> ColdSignal) -> ColdSignal {
-		return ColdSignal { subscriber in
+		return ColdSignal { (sink, disposable) in
 			let serialDisposable = SerialDisposable()
-			subscriber.disposable.addDisposable(serialDisposable)
+			disposable.addDisposable(serialDisposable)
 
-			serialDisposable.innerDisposable = self.start(Subscriber { event in
-				switch event {
-				case let .Error(error):
-					let newStream = handler(error)
-					serialDisposable.innerDisposable = newStream.start(subscriber)
+			self.startWithSink { selfDisposable in
+				serialDisposable.innerDisposable = selfDisposable
 
-				default:
-					subscriber.put(event)
+				return SinkOf<Element> { event in
+					switch event {
+					case let .Error(error):
+						handler(error).startWithSink { handlerDisposable in
+							serialDisposable.innerDisposable = handlerDisposable
+							return sink
+						}
+
+					default:
+						sink.put(event)
+					}
 				}
-			})
+			}
 		}
 	}
 
 	/// Brings all signal Events into the monad, allowing them to be manipulated
 	/// just like any other value.
 	public func materialize() -> ColdSignal<Event<T>> {
-		return ColdSignal<Event<T>> { subscriber in
-			let disposable = self.start(Subscriber { event in
-				subscriber.put(.Next(Box(event)))
+		return ColdSignal<Event<T>> { (sink, disposable) in
+			self.startWithSink { selfDisposable in
+				disposable.addDisposable(selfDisposable)
 
-				if event.isTerminating {
-					subscriber.put(.Completed)
+				return SinkOf { event in
+					sink.put(.Next(Box(event)))
+
+					if event.isTerminating {
+						sink.put(.Completed)
+					}
 				}
-			})
+			}
 
-			subscriber.disposable.addDisposable(disposable)
+			return ()
 		}
 	}
 
@@ -588,38 +686,48 @@ extension ColdSignal {
 	/// evidence - Used to prove to the typechecker that the receiver contains
 	///            `Event`s. Simply pass in the `identity` function.
 	public func dematerialize<U>(evidence: ColdSignal -> ColdSignal<Event<U>>) -> ColdSignal<U> {
-		return ColdSignal<U> { subscriber in
-			let disposable = evidence(self).start(next: subscriber.put, error: { error in
-				subscriber.put(.Error(error))
-			}, completed: {
-				subscriber.put(.Completed)
-			})
+		return ColdSignal<U> { (sink, disposable) in
+			evidence(self).startWithSink { selfDisposable in
+				disposable.addDisposable(selfDisposable)
 
-			subscriber.disposable.addDisposable(disposable)
+				return eventSink(next: { event in
+					sink.put(event)
+				}, error: { error in
+					sink.put(.Error(error))
+				}, completed: {
+					sink.put(.Completed)
+				})
+			}
+
+			return ()
 		}
 	}
 }
 
 /// Methods for combining multiple signals.
 extension ColdSignal {
-	private func subscribeWithStates<U>(selfState: CombineLatestState<T>, _ otherState: CombineLatestState<U>, queue: dispatch_queue_t, onBothNext: () -> (), onError: NSError -> (), onBothCompleted: () -> ()) -> Disposable {
-		return start(next: { value in
-			dispatch_sync(queue) {
-				selfState.latestValue = value
-				if otherState.latestValue == nil {
-					return
-				}
+	private func startWithStates<U>(disposable: CompositeDisposable, _ selfState: CombineLatestState<T>, _ otherState: CombineLatestState<U>, queue: dispatch_queue_t, onBothNext: () -> (), onError: NSError -> (), onBothCompleted: () -> ()) {
+		startWithSink { selfDisposable in
+			disposable.addDisposable(selfDisposable)
 
-				onBothNext()
-			}
-		}, error: onError, completed: {
-			dispatch_sync(queue) {
-				selfState.completed = true
-				if otherState.completed {
-					onBothCompleted()
+			return eventSink(next: { value in
+				dispatch_sync(queue) {
+					selfState.latestValue = value
+					if otherState.latestValue == nil {
+						return
+					}
+
+					onBothNext()
 				}
-			}
-		})
+			}, error: onError, completed: {
+				dispatch_sync(queue) {
+					selfState.completed = true
+					if otherState.completed {
+						onBothCompleted()
+					}
+				}
+			})
+		}
 	}
 
 	/// Combines the latest value of the receiver with the latest value from
@@ -628,21 +736,21 @@ extension ColdSignal {
 	/// The returned signal will not send a value until both inputs have sent
 	/// at least one value each.
 	public func combineLatestWith<U>(signal: ColdSignal<U>) -> ColdSignal<(T, U)> {
-		return ColdSignal<(T, U)> { subscriber in
+		return ColdSignal<(T, U)> { (sink, disposable) in
 			let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.ColdSignal.combineLatestWith", DISPATCH_QUEUE_SERIAL)
 			let selfState = CombineLatestState<T>()
 			let otherState = CombineLatestState<U>()
 
 			let onBothNext = { () -> () in
 				let combined = (selfState.latestValue!, otherState.latestValue!)
-				subscriber.put(.Next(Box(combined)))
+				sink.put(.Next(Box(combined)))
 			}
 
-			let onError = { subscriber.put(.Error($0)) }
-			let onBothCompleted = { subscriber.put(.Completed) }
+			let onError = { sink.put(.Error($0)) }
+			let onBothCompleted = { sink.put(.Completed) }
 
-			subscriber.disposable.addDisposable(self.subscribeWithStates(selfState, otherState, queue: queue, onBothNext: onBothNext, onError: onError, onBothCompleted: onBothCompleted))
-			subscriber.disposable.addDisposable(signal.subscribeWithStates(otherState, selfState, queue: queue, onBothNext: onBothNext, onError: onError, onBothCompleted: onBothCompleted))
+			self.startWithStates(disposable, selfState, otherState, queue: queue, onBothNext: onBothNext, onError: onError, onBothCompleted: onBothCompleted)
+			signal.startWithStates(disposable, otherState, selfState, queue: queue, onBothNext: onBothNext, onError: onError, onBothCompleted: onBothCompleted)
 		}
 	}
 
@@ -655,44 +763,49 @@ extension ColdSignal {
 	/// Returns a signal that will forward events from the original signals
 	/// as they arrive.
 	public func merge<U>(evidence: ColdSignal -> ColdSignal<ColdSignal<U>>) -> ColdSignal<U> {
-		return ColdSignal<U> { subscriber in
-			let disposable = CompositeDisposable()
+		return ColdSignal<U> { (sink, disposable) in
 			let inFlight = Atomic(1)
 
 			let decrementInFlight: () -> () = {
 				let orig = inFlight.modify { $0 - 1 }
 				if orig == 1 {
-					subscriber.put(.Completed)
+					sink.put(.Completed)
 				}
 			}
 
-			let selfDisposable = evidence(self).start(next: { stream in
-				inFlight.modify { $0 + 1 }
+			evidence(self).startWithSink { selfDisposable in
+				disposable.addDisposable(selfDisposable)
 
-				let streamDisposable = SerialDisposable()
-				disposable.addDisposable(streamDisposable)
+				return eventSink(next: { signal in
+					signal.startWithSink { signalDisposable in
+						inFlight.modify { $0 + 1 }
+						disposable.addDisposable(signalDisposable)
 
-				streamDisposable.innerDisposable = stream.start(Subscriber { event in
-					if event.isTerminating {
-						streamDisposable.dispose()
-						disposable.pruneDisposed()
+						return SinkOf { event in
+							if event.isTerminating {
+								signalDisposable.dispose()
+								disposable.pruneDisposed()
+							}
+
+							switch event {
+							case .Completed:
+								decrementInFlight()
+
+							default:
+								sink.put(event)
+							}
+						}
 					}
 
-					switch event {
-					case let .Completed:
-						decrementInFlight()
-
-					default:
-						subscriber.put(event)
-					}
+					return ()
+				}, error: { error in
+					sink.put(.Error(error))
+				}, completed: {
+					decrementInFlight()
 				})
-			}, error: { error in
-				subscriber.put(.Error(error))
-			}, completed: {
-				decrementInFlight()
-			})
+			}
 
-			subscriber.disposable.addDisposable(selfDisposable)
+			return ()
 		}
 	}
 
@@ -705,39 +818,44 @@ extension ColdSignal {
 	/// Returns a signal that will forward events only from the latest
 	/// signal sent upon the receiver.
 	public func switchToLatest<U>(evidence: ColdSignal -> ColdSignal<ColdSignal<U>>) -> ColdSignal<U> {
-		return ColdSignal<U> { subscriber in
+		return ColdSignal<U> { (sink, disposable) in
 			let selfCompleted = Atomic(false)
 			let latestCompleted = Atomic(false)
 
 			let completeIfNecessary: () -> () = {
 				if selfCompleted.value && latestCompleted.value {
-					subscriber.put(.Completed)
+					sink.put(.Completed)
 				}
 			}
 
 			let latestDisposable = SerialDisposable()
-			subscriber.disposable.addDisposable(latestDisposable)
+			disposable.addDisposable(latestDisposable)
 
-			let selfDisposable = evidence(self).start(next: { stream in
-				latestDisposable.innerDisposable = nil
-				latestDisposable.innerDisposable = stream.start(Subscriber { innerEvent in
-					switch innerEvent {
-					case let .Completed:
-						latestCompleted.value = true
-						completeIfNecessary()
+			evidence(self).startWithSink { selfDisposable in
+				latestDisposable.innerDisposable = selfDisposable
 
-					default:
-						subscriber.put(innerEvent)
+				return eventSink(next: { signal in
+					latestDisposable.innerDisposable = signal.startWithSink { signalDisposable in
+						latestDisposable.innerDisposable = signalDisposable
+
+						return SinkOf { innerEvent in
+							switch innerEvent {
+							case .Completed:
+								latestCompleted.value = true
+								completeIfNecessary()
+
+							default:
+								sink.put(innerEvent)
+							}
+						}
 					}
+				}, error: { error in
+					sink.put(.Error(error))
+				}, completed: {
+					selfCompleted.value = true
+					completeIfNecessary()
 				})
-			}, error: { error in
-				subscriber.put(.Error(error))
-			}, completed: {
-				selfCompleted.value = true
-				completeIfNecessary()
-			})
-
-			subscriber.disposable.addDisposable(selfDisposable)
+			}
 		}
 	}
 
@@ -749,23 +867,25 @@ extension ColdSignal {
 	/// Returns a signal that will forward events from each of the original
 	/// signals, in sequential order.
 	public func concat<U>(evidence: ColdSignal -> ColdSignal<ColdSignal<U>>) -> ColdSignal<U> {
-		return ColdSignal<U> { subscriber in
-			var state = ConcatState<U>(subscriber: subscriber)
+		return ColdSignal<U> { (sink, disposable) in
+			var state = ConcatState<U>(sink: sink, disposable: disposable)
 
-			let selfDisposable = evidence(self).start(next: { signal in
-				// TODO: Avoid multiple dispatches.
-				dispatch_sync(state.queue) {
-					state.enqueuedSignals.append(signal)
-				}
+			evidence(self).startWithSink { selfDisposable in
+				disposable.addDisposable(selfDisposable)
 
-				state.dequeueIfReady()
-			}, error: { error in
-				subscriber.put(.Error(error))
-			}, completed: {
-				state.decrementInFlight()
-			})
+				return eventSink(next: { signal in
+					// TODO: Avoid multiple dispatches.
+					dispatch_sync(state.queue) {
+						state.enqueuedSignals.append(signal)
+					}
 
-			subscriber.disposable.addDisposable(selfDisposable)
+					state.dequeueIfReady()
+				}, error: { error in
+					sink.put(.Error(error))
+				}, completed: {
+					state.decrementInFlight()
+				})
+			}
 		}
 	}
 
@@ -778,15 +898,26 @@ extension ColdSignal {
 	/// Ignores all values from the receiver, then subscribes to and forwards
 	/// events from the given signal once the receiver has completed.
 	public func then<U>(signal: ColdSignal<U>) -> ColdSignal<U> {
-		return ColdSignal<U> { subscriber in
-			let disposable = SerialDisposable()
-			subscriber.disposable.addDisposable(disposable)
+		return ColdSignal<U> { (sink, disposable) in
+			let serialDisposable = SerialDisposable()
+			disposable.addDisposable(serialDisposable)
 
-			disposable.innerDisposable = self.start(error: { error in
-				subscriber.put(.Error(error))
-			}, completed: {
-				disposable.innerDisposable = signal.start(subscriber)
-			})
+			self.startWithSink { selfDisposable in
+				serialDisposable.innerDisposable = selfDisposable
+
+				return eventSink(error: { error in
+					sink.put(.Error(error))
+				}, completed: {
+					signal.startWithSink { signalDisposable in
+						serialDisposable.innerDisposable = signalDisposable
+						return sink
+					}
+
+					return ()
+				})
+			}
+
+			return ()
 		}
 	}
 }
@@ -856,82 +987,37 @@ extension ColdSignal {
 	/// If `errorHandler` is `nil`, the stream must never produce an `Error`
 	/// event.
 	public func startMulticasted(#errorHandler: (NSError -> ())?, completionHandler: () -> () = doNothing) -> HotSignal<T> {
-		let (signal, sink) = HotSignal<T>.pipe()
+		return HotSignal { sink in
+			var onError = { (error: NSError) in
+				assert(false)
+			}
 
-		var onError = { (error: NSError) in
-			assert(false)
+			// Apparently ?? has trouble with closures, so use this lame pattern
+			// instead.
+			if let errorHandler = errorHandler {
+				onError = errorHandler
+			}
+
+			return self.self.start(next: { value in
+				sink.put(value)
+			}, error: onError, completed: completionHandler)
 		}
-
-		// Apparently ?? has trouble with closures, so use this lame pattern
-		// instead.
-		if let errorHandler = errorHandler {
-			onError = errorHandler
-		}
-
-		start(next: { value in
-			sink.put(value)
-		}, error: onError, completed: completionHandler)
-
-		return signal
 	}
 }
 
-/// Receives Events from a ColdSignal.
-public final class Subscriber<T>: SinkType {
-	public typealias Element = Event<T>
+/// Creates a sink that can receive events from a ColdSignal, then invoke the
+/// given handlers based on the event type.
+public func eventSink<T>(next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing) -> SinkOf<Event<T>> {
+	return SinkOf { event in
+		switch event {
+		case let .Next(value):
+			next(value.unbox)
 
-	private let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.ColdSignal.Subscriber", DISPATCH_QUEUE_SERIAL)
-	private var sink: SinkOf<Element>?
+		case let .Error(err):
+			error(err)
 
-	/// A list of Disposables to dispose of when the subscriber receives
-	/// a terminating event, or if the subscription is canceled.
-	public let disposable = CompositeDisposable()
-
-	/// Initializes a Subscriber that will forward events to the given sink.
-	public init<S: SinkType where S.Element == Event<T>>(_ sink: S) {
-		self.sink = SinkOf(sink)
-
-		// This is redundant with the behavior of put() in case of
-		// a terminating event, but ensures that we get rid of the sink
-		// upon cancellation as well.
-		disposable.addDisposable {
-			dispatch_async(self.queue) {
-				self.sink = nil
-			}
-		}
-	}
-
-	/// Initializes a Subscriber that will perform the given action whenever an
-	/// event is received.
-	public convenience init(handler: Event<T> -> ()) {
-		self.init(SinkOf(handler))
-	}
-
-	/// Initializes a Subscriber with different callbacks to invoke, based
-	/// on the type of Event received.
-	public convenience init(next: T -> (), error: NSError -> (), completed: () -> ()) {
-		self.init(SinkOf<Event<T>> { event in
-			switch event {
-			case let .Next(box):
-				next(box.unbox)
-
-			case let .Error(err):
-				error(err)
-
-			case let .Completed:
-				completed()
-			}
-		})
-	}
-
-	public func put(event: Event<T>) {
-		dispatch_sync(queue) {
-			self.sink?.put(event)
-
-			if event.isTerminating {
-				self.sink = nil
-				self.disposable.dispose()
-			}
+		case .Completed:
+			completed()
 		}
 	}
 }
@@ -943,20 +1029,22 @@ private class CombineLatestState<T> {
 
 private class ConcatState<T> {
 	let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.ColdSignal.concat", DISPATCH_QUEUE_SERIAL)
-	let subscriber: Subscriber<T>
+	let sink: SinkOf<Event<T>>
+	let disposable: CompositeDisposable
 
 	var inFlight: Int = 1
 	var enqueuedSignals = [ColdSignal<T>]()
 	var currentSignal: ColdSignal<T>?
 
-	init(subscriber: Subscriber<T>) {
-		self.subscriber = subscriber
+	init(sink: SinkOf<Event<T>>, disposable: CompositeDisposable) {
+		self.sink = sink
+		self.disposable = disposable
 	}
 
 	func decrementInFlight() {
 		dispatch_sync(queue) {
 			if --self.inFlight == 0 && self.enqueuedSignals.count == 0 && self.currentSignal == nil {
-				self.subscriber.put(.Completed)
+				self.sink.put(.Completed)
 			}
 		}
 	}
@@ -977,26 +1065,27 @@ private class ConcatState<T> {
 		}
 
 		if let signal = signal {
-			let signalDisposable = SerialDisposable()
-			subscriber.disposable.addDisposable(signalDisposable)
+			signal.startWithSink { signalDisposable in
+				self.disposable.addDisposable(signalDisposable)
 
-			signalDisposable.innerDisposable = signal.start(next: { value in
-				self.subscriber.put(.Next(Box(value)))
-			}, error: { error in
-				self.subscriber.put(.Error(error))
+				return eventSink(next: { value in
+					self.sink.put(.Next(Box(value)))
+				}, error: { error in
+					self.sink.put(.Error(error))
 
-				// TODO: We should remove our disposable from the
-				// composite disposable here, but that is non-trivial to
-				// do right now. See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/1535.
-			}, completed: {
-				dispatch_sync(self.queue) {
-					self.currentSignal = nil
-				}
+					// TODO: We should remove our disposable from the
+					// composite disposable here, but that is non-trivial to
+					// do right now. See https://github.com/ReactiveCocoa/ReactiveCocoa/issues/1535.
+				}, completed: {
+					dispatch_sync(self.queue) {
+						self.currentSignal = nil
+					}
 
-				// TODO: Avoid multiple dispatches.
-				self.decrementInFlight()
-				self.dequeueIfReady()
-			})
+					// TODO: Avoid multiple dispatches.
+					self.decrementInFlight()
+					self.dequeueIfReady()
+				})
+			}
 		}
 	}
 }

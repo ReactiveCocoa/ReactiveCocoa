@@ -18,9 +18,10 @@ class ObservablePropertySpec: QuickSpec {
 			it("should immediately send new values") {
 				let observableProperty = ObservableProperty(1)
 				var value = observableProperty.value
-				observableProperty.values().start { newValue in
+				observableProperty.values().start(next: { newValue in
 					value = newValue
-				}
+				})
+				
 				observableProperty.value = 2
 				expect(value).to(equal(observableProperty.value))
 			}

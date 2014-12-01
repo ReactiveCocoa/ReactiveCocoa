@@ -66,10 +66,9 @@ class HotSignalSpec: QuickSpec {
 				}
 
 				let disposable = createAndObserve()
-				expect(innerSignal).notTo(beNil())
 
 				disposable.dispose()
-				expect(innerSignal).toEventually(beNil(), timeout: 5)
+				expect(innerSignal).toEventually(beNil())
 			}
 
 			it("generator should be disposed when signal is destroyed") {

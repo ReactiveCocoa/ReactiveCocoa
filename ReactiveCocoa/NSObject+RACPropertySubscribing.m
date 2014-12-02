@@ -32,12 +32,8 @@
 }
 
 - (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(__weak NSObject *)weakObserver {
-	keyPath = [keyPath copy];
-
 	NSObject *strongObserver = weakObserver;
-	if (strongObserver == nil) {
-		return [RACSignal empty];
-	}
+	keyPath = [keyPath copy];
 
 	NSRecursiveLock *objectLock = [[NSRecursiveLock alloc] init];
 	objectLock.name = @"org.reactivecocoa.ReactiveCocoa.NSObjectRACPropertySubscribing";

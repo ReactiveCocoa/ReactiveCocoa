@@ -20,7 +20,8 @@ static void *RACKVOWrapperContext = &RACKVOWrapperContext;
 // These properties should only be manipulated while synchronized on the
 // receiver.
 @property (nonatomic, readonly, copy) RACKVOBlock block;
-@property (nonatomic, readonly, weak) NSObject *target;
+@property (nonatomic, readonly, unsafe_unretained) NSObject *unsafeTarget;
+@property (nonatomic, readonly, weak) NSObject *weakTarget;
 @property (nonatomic, readonly, weak) NSObject *observer;
 
 @end
@@ -42,7 +43,8 @@ static void *RACKVOWrapperContext = &RACKVOWrapperContext;
 	_keyPath = [keyPath copy];
 
 	_block = [block copy];
-	_target = target;
+	_weakTarget = target;
+	_unsafeTarget = strongTarget;
 	_observer = observer;
 
 	[strongTarget addObserver:self forKeyPath:self.keyPath options:options context:&RACKVOWrapperContext];
@@ -65,10 +67,14 @@ static void *RACKVOWrapperContext = &RACKVOWrapperContext;
 	@synchronized (self) {
 		_block = nil;
 
-		target = self.target;
+		// The target should still exist at this point, because we still need to
+		// tear down its KVO observation. Therefore, we can use the unsafe
+		// reference (and need to, because the weak one will have been zeroed by
+		// now).
+		target = self.unsafeTarget;
 		observer = self.observer;
 
-		_target = nil;
+		_unsafeTarget = nil;
 		_observer = nil;
 	}
 
@@ -91,7 +97,7 @@ static void *RACKVOWrapperContext = &RACKVOWrapperContext;
 	@synchronized (self) {
 		block = self.block;
 		observer = self.observer;
-		target = self.target;
+		target = self.weakTarget;
 	}
 
 	if (block == nil || target == nil) return;

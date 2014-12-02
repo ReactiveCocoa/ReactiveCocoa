@@ -21,7 +21,7 @@
 
 @implementation NSObject (RACPropertySubscribing)
 
-- (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
+- (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(__weak NSObject *)observer {
 	return [[[self
 		rac_valuesAndChangesForKeyPath:keyPath options:NSKeyValueObservingOptionInitial observer:observer]
 		map:^(RACTuple *value) {
@@ -31,14 +31,19 @@
 		setNameWithFormat:@"RACObserve(%@, %@)", self.rac_description, keyPath];
 }
 
-- (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer {
+- (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(__weak NSObject *)observer {
 	keyPath = [keyPath copy];
+
+	NSObject *strongObserver = observer;
+	if (strongObserver == nil) {
+		return [RACSignal empty];
+	}
 
 	NSRecursiveLock *objectLock = [[NSRecursiveLock alloc] init];
 	objectLock.name = @"org.reactivecocoa.ReactiveCocoa.NSObjectRACPropertySubscribing";
 
-	__block __unsafe_unretained NSObject *unsafeSelf = self;
-	__block __unsafe_unretained NSObject *unsafeObserver = observer;
+	__block __weak NSObject *weakSelf = self;
+	__block __weak NSObject *weakObserver = observer;
 
 	RACSignal *deallocSignal = [[RACSignal
 		zip:@[
@@ -52,9 +57,6 @@
 			@onExit {
 				[objectLock unlock];
 			};
-
-			unsafeSelf = nil;
-			unsafeObserver = nil;
 		}];
 
 	return [[[RACSignal
@@ -68,8 +70,8 @@
 				[objectLock unlock];
 			};
 
-			__strong NSObject *observer __attribute__((objc_precise_lifetime)) = unsafeObserver;
-			__strong NSObject *self __attribute__((objc_precise_lifetime)) = unsafeSelf;
+			__strong NSObject *observer __attribute__((objc_precise_lifetime)) = weakObserver;
+			__strong NSObject *self __attribute__((objc_precise_lifetime)) = weakSelf;
 
 			if (self == nil) {
 				[subscriber sendCompleted];

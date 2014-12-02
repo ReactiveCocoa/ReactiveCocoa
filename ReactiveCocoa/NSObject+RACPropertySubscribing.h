@@ -47,7 +47,10 @@
 /// subscription, then sends the new value every time it changes, and sends
 /// completed if self or observer is deallocated.
 #define RACObserve(TARGET, KEYPATH) \
-    [(id)(TARGET) rac_valuesForKeyPath:@keypath(TARGET, KEYPATH) observer:self]
+	({ \
+		__weak __typeof__(TARGET) target_ = (TARGET); \
+		[target_ rac_valuesForKeyPath:@keypath(target_, KEYPATH) observer:self]; \
+	})
 
 @class RACDisposable;
 @class RACSignal;
@@ -62,7 +65,7 @@
 ///
 /// Returns a signal that immediately sends the receiver's current value at the
 /// given keypath, then any changes thereafter.
-- (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer;
+- (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(__weak NSObject *)observer;
 
 /// Creates a signal to observe the changes of the given key path.
 ///
@@ -72,21 +75,21 @@
 ///
 /// Returns a signal that sends tuples containing the current value at the key
 /// path and the change dictionary for each KVO callback.
-- (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer;
+- (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(__weak NSObject *)observer;
 
 @end
 
 #define RACAble(...) \
-    metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__)) \
-        (_RACAbleObject(self, __VA_ARGS__)) \
-        (_RACAbleObject(__VA_ARGS__))
+	metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__)) \
+		(_RACAbleObject(self, __VA_ARGS__)) \
+		(_RACAbleObject(__VA_ARGS__))
 
 #define _RACAbleObject(object, property) [object rac_signalForKeyPath:@keypath(object, property) observer:self]
 
 #define RACAbleWithStart(...) \
-    metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__)) \
-        (_RACAbleWithStartObject(self, __VA_ARGS__)) \
-        (_RACAbleWithStartObject(__VA_ARGS__))
+	metamacro_if_eq(1, metamacro_argcount(__VA_ARGS__)) \
+		(_RACAbleWithStartObject(self, __VA_ARGS__)) \
+		(_RACAbleWithStartObject(__VA_ARGS__))
 
 #define _RACAbleWithStartObject(object, property) [object rac_signalWithStartingValueForKeyPath:@keypath(object, property) observer:self]
 

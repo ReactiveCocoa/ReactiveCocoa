@@ -31,10 +31,10 @@
 		setNameWithFormat:@"RACObserve(%@, %@)", self.rac_description, keyPath];
 }
 
-- (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(__weak NSObject *)observer {
+- (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(__weak NSObject *)weakObserver {
 	keyPath = [keyPath copy];
 
-	NSObject *strongObserver = observer;
+	NSObject *strongObserver = weakObserver;
 	if (strongObserver == nil) {
 		return [RACSignal empty];
 	}
@@ -42,13 +42,12 @@
 	NSRecursiveLock *objectLock = [[NSRecursiveLock alloc] init];
 	objectLock.name = @"org.reactivecocoa.ReactiveCocoa.NSObjectRACPropertySubscribing";
 
-	__block __weak NSObject *weakSelf = self;
-	__block __weak NSObject *weakObserver = observer;
+	__weak NSObject *weakSelf = self;
 
 	RACSignal *deallocSignal = [[RACSignal
 		zip:@[
 			self.rac_willDeallocSignal,
-			observer.rac_willDeallocSignal ?: [RACSignal never]
+			strongObserver.rac_willDeallocSignal ?: [RACSignal never]
 		]]
 		doCompleted:^{
 			// Forces deallocation to wait if the object variables are currently
@@ -83,7 +82,7 @@
 			}];
 		}]
 		takeUntil:deallocSignal]
-		setNameWithFormat:@"%@ -rac_valueAndChangesForKeyPath: %@ options: %lu observer: %@", self.rac_description, keyPath, (unsigned long)options, observer.rac_description];
+		setNameWithFormat:@"%@ -rac_valueAndChangesForKeyPath: %@ options: %lu observer: %@", self.rac_description, keyPath, (unsigned long)options, strongObserver.rac_description];
 }
 
 @end

@@ -48,8 +48,8 @@
 /// completed if self or observer is deallocated.
 #define RACObserve(TARGET, KEYPATH) \
 	({ \
-		__weak __typeof__(TARGET) target_ = (TARGET); \
-		[target_ rac_valuesForKeyPath:@keypath(target_, KEYPATH) observer:self]; \
+		__weak id target_ = (TARGET); \
+		[target_ rac_valuesForKeyPath:@keypath(TARGET, KEYPATH) observer:self]; \
 	})
 
 @class RACDisposable;

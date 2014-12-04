@@ -24,7 +24,7 @@
 
 	keyPath = [keyPath copy];
 
-	NSObject *observer = weakObserver;
+	NSObject *strongObserver = weakObserver;
 
 	NSArray *keyPathComponents = keyPath.rac_keyPathComponents;
 	BOOL keyPathHasOneComponent = (keyPathComponents.count == 1);
@@ -112,7 +112,7 @@
 	// handles changes to the value, callbacks to the initial value must be added
 	// separately.
 	NSKeyValueObservingOptions trampolineOptions = (options | NSKeyValueObservingOptionPrior) & ~NSKeyValueObservingOptionInitial;
-	RACKVOTrampoline *trampoline = [[RACKVOTrampoline alloc] initWithTarget:self observer:observer keyPath:keyPathHead options:trampolineOptions block:^(id trampolineTarget, id trampolineObserver, NSDictionary *change) {
+	RACKVOTrampoline *trampoline = [[RACKVOTrampoline alloc] initWithTarget:self observer:strongObserver keyPath:keyPathHead options:trampolineOptions block:^(id trampolineTarget, id trampolineObserver, NSDictionary *change) {
 		// If this is a prior notification, clean up all the callbacks added to the
 		// previous value and call the callback block. Everything else is deferred
 		// until after we get the notification after the change.
@@ -184,7 +184,7 @@
 	}
 
 
-	RACCompoundDisposable *observerDisposable = observer.rac_deallocDisposable;
+	RACCompoundDisposable *observerDisposable = strongObserver.rac_deallocDisposable;
 	RACCompoundDisposable *selfDisposable = self.rac_deallocDisposable;
 	// Dispose of this observation if the receiver or the observer deallocate.
 	[observerDisposable addDisposable:disposable];

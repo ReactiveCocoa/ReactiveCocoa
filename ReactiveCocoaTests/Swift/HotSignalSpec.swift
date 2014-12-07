@@ -525,6 +525,40 @@ class HotSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("merge") {
+			it("should forward values from any inner signals") {
+				let (signal, sink) = HotSignal<HotSignal<Int>>.pipe()
+				let newSignal = signal.merge(identity)
+
+				var latestValue: Int?
+				newSignal.observe { latestValue = $0 }
+
+				expect(latestValue).to(beNil())
+
+				let (firstSignal, firstSink) = HotSignal<Int>.pipe()
+				let (secondSignal, secondSink) = HotSignal<Int>.pipe()
+
+				firstSink.put(0)
+				sink.put(firstSignal)
+				expect(latestValue).to(beNil())
+
+				firstSink.put(1)
+				expect(latestValue).to(equal(1))
+
+				sink.put(secondSignal)
+				expect(latestValue).to(equal(1))
+
+				secondSink.put(2)
+				expect(latestValue).to(equal(2))
+
+				firstSink.put(3)
+				expect(latestValue).to(equal(3))
+
+				firstSink.put(4)
+				expect(latestValue).to(equal(4))
+			}
+		}
+
 		describe("lifetime") {
 			it("observe() should not keep signal alive") {
 				let (outerSignal, outerSink) = HotSignal<Int>.pipe()

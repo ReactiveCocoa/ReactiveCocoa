@@ -12,6 +12,41 @@ import ReactiveCocoa
 
 class HotSignalSpec: QuickSpec {
 	override func spec() {
+		describe("zipWith") {
+			it("should combine pairs") {
+				let (firstSignal, firstSink) = HotSignal<Int>.pipe()
+				let (secondSignal, secondSink) = HotSignal<String>.pipe()
+				let newSignal = firstSignal.zipWith(secondSignal)
+
+				var values: [String] = []
+				newSignal.observe { (num, str) in
+					values.append("\(num)\(str)")
+				}
+
+				expect(values).to(equal([]))
+
+				firstSink.put(1)
+				firstSink.put(2)
+				expect(values).to(equal([]))
+
+				secondSink.put("foo")
+				expect(values).to(equal([ "1foo" ]))
+
+				firstSink.put(3)
+				secondSink.put("bar")
+				expect(values).to(equal([ "1foo", "2bar" ]))
+
+				secondSink.put("buzz")
+				expect(values).to(equal([ "1foo", "2bar", "3buzz" ]))
+
+				secondSink.put("fuzz")
+				expect(values).to(equal([ "1foo", "2bar", "3buzz" ]))
+
+				firstSink.put(4)
+				expect(values).to(equal([ "1foo", "2bar", "3buzz", "4fuzz" ]))
+			}
+		}
+
 		describe("lifetime") {
 			it("observe() should not keep signal alive") {
 				let (outerSignal, outerSink) = HotSignal<Int>.pipe()

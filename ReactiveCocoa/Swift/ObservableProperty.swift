@@ -78,8 +78,8 @@ infix operator <~ {
 	precedence 90
 }
 
-/// Binds the given signal to the given property, updating the property's value
-/// to whatever is sent by the signal.
+/// Binds the given signal to a property, updating the property's value to
+/// the latest value sent by the signal.
 ///
 /// The binding will automatically terminate when the property is deinitialized.
 public func <~ <T> (property: ObservableProperty<T>, signal: HotSignal<T>) {
@@ -92,4 +92,40 @@ public func <~ <T> (property: ObservableProperty<T>, signal: HotSignal<T>) {
 	property.values().start(completed: {
 		disposable.dispose()
 	})
+}
+
+infix operator <~! {
+	associativity right
+	precedence 90
+}
+
+/// Binds the given signal to a property, updating the property's value to the
+/// latest value sent by the signal.
+///
+/// Note that the signal MUST NOT send an error, or the program will terminate.
+///
+/// The binding will automatically terminate when the property is deinitialized
+/// or the signal completes.
+public func <~! <T> (property: ObservableProperty<T>, signal: ColdSignal<T>) {
+	let disposable = CompositeDisposable()
+
+	// Dispose of the binding when the property deallocates.
+	let propertyDisposable = property.values().start(completed: {
+		disposable.dispose()
+	})
+
+	disposable.addDisposable(propertyDisposable)
+
+	signal.startWithSink { [weak property] signalDisposable in
+		disposable.addDisposable(signalDisposable)
+
+		return eventSink(next: { value in
+			property?.value = value
+			return
+		}, error: { error in
+			fatalError("Unhandled error in ColdSignal binding: \(error)")
+		}, completed: {
+			disposable.dispose()
+		})
+	}
 }

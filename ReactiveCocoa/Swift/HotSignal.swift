@@ -448,12 +448,18 @@ extension HotSignal {
 		let semaphore = dispatch_semaphore_create(0)
 		var result: T?
 
-		take(1).observe { value in
+		let disposable = take(1).observe { value in
 			result = value
 			dispatch_semaphore_signal(semaphore)
 		}
 
 		dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
+
+		// The signal is actually already disposed by this point, but keeping
+		// this disposable ensures that the signal is not deallocated while we
+		// wait for a value.
+		disposable.dispose()
+
 		return result!
 	}
 }

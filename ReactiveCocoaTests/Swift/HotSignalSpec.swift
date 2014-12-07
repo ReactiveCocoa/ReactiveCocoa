@@ -593,6 +593,14 @@ class HotSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("next") {
+			it("should return the first value received") {
+				let signal = HotSignal<NSDate>.interval(0.001, onScheduler: QueueScheduler(), withLeeway: 0)
+				let date = signal.next()
+				expect(date.earlierDate(NSDate())).to(equal(date))
+			}
+		}
+
 		describe("lifetime") {
 			it("observe() should not keep signal alive") {
 				let (outerSignal, outerSink) = HotSignal<Int>.pipe()

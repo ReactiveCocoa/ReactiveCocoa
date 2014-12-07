@@ -479,24 +479,22 @@ extension HotSignal {
 		}
 
 		let bufferProperty = ObservableProperty<[T]>([])
-
-		let disposable = SerialDisposable()
-		disposable.innerDisposable = observe { elem in
-			var array = bufferProperty.value
-			array.append(elem)
-
-			if array.count == count {
-				disposable.dispose()
-			}
-
-			bufferProperty.value = array
+		let disposable = take(count).observe { elem in
+			bufferProperty.value.append(elem)
 		}
 
 		return bufferProperty.values()
-			.mapAccumulate(initialState: 0) { (lastIndex, values) in
-				let newIndex = values.count - 1
-				let signal = ColdSignal.fromValues(values[lastIndex...newIndex])
-				return (newIndex, signal)
+			.mapAccumulate(initialState: 0) { (startIndex, values) in
+				// This disposable will never actually be disposed here, but we
+				// want to use it to keep the property alive for as long as the
+				// ColdSignal is.
+				if !disposable.disposed && values.count > startIndex {
+					let newIndex = values.count
+					let slice = values[startIndex ..< newIndex]
+					return (newIndex, ColdSignal.fromValues(slice))
+				} else {
+					return (startIndex, ColdSignal.empty())
+				}
 			}
 			.concat(identity)
 			.take(count)

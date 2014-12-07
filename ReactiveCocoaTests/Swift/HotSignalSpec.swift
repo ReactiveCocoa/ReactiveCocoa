@@ -730,6 +730,98 @@ class HotSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("buffer") {
+			var signal: HotSignal<Int>!
+			var sink: SinkOf<Int>!
+			var bufferSignal: ColdSignal<Int>!
+
+			beforeEach {
+				let pipe = HotSignal<Int>.pipe()
+				signal = pipe.0
+				sink = pipe.1
+			}
+
+			describe("buffer(0)") {
+				beforeEach {
+					bufferSignal = signal.buffer(0)
+				}
+
+				it("should complete immediately") {
+					var receivedValue = false
+					var completed = false
+
+					bufferSignal.start(next: { _ in
+						receivedValue = true
+					}, completed: {
+						completed = true
+					})
+
+					expect(completed).to(beTruthy())
+					expect(receivedValue).to(beFalsy())
+				}
+			}
+
+			describe("buffer(2)") {
+				beforeEach {
+					bufferSignal = signal.buffer(2)
+				}
+
+				it("should yield two values received previously then complete") {
+					sink.put(1)
+					sink.put(2)
+
+					let result = bufferSignal
+						.reduce(initial: []) { $0 + [ $1 ] }
+						.single()
+
+					expect(result.isSuccess()).to(beTruthy())
+					expect(result.value()).to(equal([ 1, 2 ]))
+				}
+
+				it("should yield the first two values received then complete") {
+					var values: [Int] = []
+					var completed = false
+
+					bufferSignal.start(next: { value in
+						values.append(value)
+					}, completed: {
+						completed = true
+					})
+
+					expect(values).to(equal([]))
+					expect(completed).to(beFalsy())
+
+					sink.put(1)
+					expect(values).to(equal([ 1 ]))
+					expect(completed).to(beFalsy())
+
+					sink.put(2)
+					expect(values).to(equal([ 1, 2 ]))
+					expect(completed).to(beTruthy())
+				}
+
+				it("should yield a previous value then forward a new one") {
+					sink.put(1)
+
+					var values: [Int] = []
+					var completed = false
+
+					bufferSignal.start(next: { value in
+						values.append(value)
+					}, completed: {
+						completed = true
+					})
+
+					expect(values).to(equal([ 1 ]))
+					expect(completed).to(beFalsy())
+
+					sink.put(2)
+					expect(values).to(equal([ 1, 2 ]))
+					expect(completed).to(beTruthy())
+				}
+			}
+		}
+
 		describe("replay") {
 			var signal: HotSignal<Int>!
 			var sink: SinkOf<Int>!

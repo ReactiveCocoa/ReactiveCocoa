@@ -14,6 +14,15 @@ public final class ObservableProperty<T> {
 	private let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.ObservableProperty", DISPATCH_QUEUE_SERIAL)
 	private var sinks = Bag<SinkOf<Event<T>>>()
 
+	/// The file in which this property was defined, if known.
+	public let file: String?
+
+	/// The function in which this property was defined, if known.
+	public let function: String?
+
+	/// The line number upon which this property was defined, if known.
+	public let line: Int?
+
 	/// The current value of the property.
 	///
 	/// Setting this to a new value will notify all sinks attached to
@@ -28,8 +37,11 @@ public final class ObservableProperty<T> {
 		}
 	}
 
-	public init(_ value: T) {
+	public init(_ value: T, file: String = __FILE__, line: Int = __LINE__, function: String = __FUNCTION__) {
 		self.value = value
+		self.file = file
+		self.line = line
+		self.function = function
 	}
 
 	deinit {
@@ -70,5 +82,11 @@ public final class ObservableProperty<T> {
 extension ObservableProperty: SinkType {
 	public func put(value: T) {
 		self.value = value
+	}
+}
+
+extension ObservableProperty: DebugPrintable {
+	public var debugDescription: String {
+		return "\(function).ObservableProperty (\(file):\(line))"
 	}
 }

@@ -81,12 +81,28 @@ public struct ColdSignal<T> {
 	/// A closure which implements the behavior for a ColdSignal.
 	public typealias Generator = (SinkOf<Element>, CompositeDisposable) -> ()
 
+	/// The file in which this signal was defined, if known.
+	public let file: String?
+
+	/// The function in which this signal was defined, if known.
+	public let function: String?
+
+	/// The line number upon which this signal was defined, if known.
+	public let line: Int?
+
 	private let generator: Generator
 
 	/// Initializes a signal that will run the given action whenever a
 	/// subscription is created.
-	public init(generator: Generator) {
+	public init(_ generator: Generator, file: String = __FILE__, line: Int = __LINE__, function: String = __FUNCTION__) {
 		self.generator = generator
+		self.file = file
+		self.line = line
+		self.function = function
+	}
+
+	internal init(file: String, line: Int, function: String, generator: Generator) {
+		self.init(generator, file: file, line: line, function: function)
 	}
 
 	/// Runs the given closure with a new disposable, then starts producing
@@ -1002,6 +1018,12 @@ extension ColdSignal {
 				sink.put(value)
 			}, error: onError, completed: completionHandler)
 		}
+	}
+}
+
+extension ColdSignal: DebugPrintable {
+	public var debugDescription: String {
+		return "\(function).ColdSignal (\(file):\(line))"
 	}
 }
 

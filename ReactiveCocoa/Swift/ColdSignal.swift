@@ -274,15 +274,13 @@ extension ColdSignal {
 
 	/// Preserves only the values of the signal that pass the given predicate.
 	public func filter(predicate: T -> Bool) -> ColdSignal {
-		return self
-			.map { value -> ColdSignal in
-				if predicate(value) {
-					return .single(value)
-				} else {
-					return .empty()
-				}
+		return mergeMap { value -> ColdSignal in
+			if predicate(value) {
+				return .single(value)
+			} else {
+				return .empty()
 			}
-			.merge(identity)
+		}
 	}
 
 	/// Combines all the values in the stream, forwarding the result of each
@@ -622,17 +620,15 @@ extension ColdSignal {
 	/// Attempts to map each value in the receiver, bailing out with an error if
 	/// a given mapping fails.
 	public func tryMap<U>(f: T -> Result<U>) -> ColdSignal<U> {
-		return self
-			.map { value in
-				switch f(value) {
-				case let .Success(box):
-					return .single(box.unbox)
+		return mergeMap { value in
+			switch f(value) {
+			case let .Success(box):
+				return .single(box.unbox)
 
-				case let .Failure(error):
-					return .error(error)
-				}
+			case let .Failure(error):
+				return .error(error)
 			}
-			.merge(identity)
+		}
 	}
 
 	/// Switches to a new signal when an error occurs.

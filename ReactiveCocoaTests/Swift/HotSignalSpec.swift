@@ -469,6 +469,33 @@ class HotSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("sampleOn") {
+			it("should forward a value when the sampler fires") {
+				let (signal, sink) = HotSignal<Int>.pipe()
+				let (samplerSignal, samplerSink) = HotSignal<()>.pipe()
+				let newSignal = signal.sampleOn(samplerSignal)
+
+				var values: [Int] = []
+				newSignal.observe { values.append($0) }
+
+				expect(values).to(equal([]))
+
+				samplerSink.put(())
+				expect(values).to(equal([]))
+
+				sink.put(0)
+				expect(values).to(equal([]))
+
+				samplerSink.put(())
+				expect(values).to(equal([ 0 ]))
+
+				sink.put(1)
+				sink.put(2)
+				samplerSink.put(())
+				expect(values).to(equal([ 0, 2 ]))
+			}
+		}
+
 		describe("lifetime") {
 			it("observe() should not keep signal alive") {
 				let (outerSignal, outerSink) = HotSignal<Int>.pipe()

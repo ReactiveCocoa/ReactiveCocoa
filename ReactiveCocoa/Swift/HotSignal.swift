@@ -572,6 +572,20 @@ extension HotSignal {
 	}
 }
 
+/// Debugging utilities.
+extension HotSignal {
+	/// Logs every value that passes through the signal.
+	///
+	/// Returns the receiver, for easy chaining.
+	public func log() -> HotSignal {
+		observe { [unowned self] value in
+			debugPrintln("\(self.debugDescription): \(value)")
+		}
+
+		return self
+	}
+}
+
 extension HotSignal: DebugPrintable {
 	public var debugDescription: String {
 		return "\(function).HotSignal (\(file):\(line))"

@@ -9,7 +9,6 @@
 import LlamaKit
 
 func doNothing<T>(value: T) {}
-func doNothing(error: NSError) {}
 func doNothing() {}
 
 /// Represents a stream event.
@@ -63,6 +62,21 @@ public enum Event<T> {
 
 		case let .Completed:
 			return ifCompleted()
+		}
+	}
+}
+
+extension Event: Printable {
+	public var description: String {
+		switch self {
+		case let .Next(value):
+			return "NEXT \(value.unbox)"
+
+		case let .Error(error):
+			return "ERROR \(error)"
+
+		case .Completed:
+			return "COMPLETED"
 		}
 	}
 }
@@ -588,7 +602,7 @@ extension ColdSignal {
 	}
 
 	/// Injects side effects to be performed upon the specified signal events.
-	public func on(subscribed: () -> () = doNothing, next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing, terminated: () -> () = doNothing, disposed: () -> () = doNothing) -> ColdSignal {
+	public func on(subscribed: () -> () = doNothing, event: Event<T> -> () = doNothing, next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing, terminated: () -> () = doNothing, disposed: () -> () = doNothing) -> ColdSignal {
 		return ColdSignal { (sink, disposable) in
 			subscribed()
 			disposable.addDisposable(disposed)
@@ -596,18 +610,24 @@ extension ColdSignal {
 			self.startWithSink { selfDisposable in
 				disposable.addDisposable(selfDisposable)
 
-				return eventSink(next: { value in
-					next(value)
-					sink.put(.Next(Box(value)))
-				}, error: { err in
-					error(err)
-					terminated()
-					sink.put(.Error(err))
-				}, completed: {
-					completed()
-					terminated()
-					sink.put(.Completed)
-				})
+				return SinkOf { receivedEvent in
+					event(receivedEvent)
+
+					switch receivedEvent {
+					case let .Next(value):
+						next(value.unbox)
+
+					case let .Error(err):
+						error(err)
+						terminated()
+
+					case .Completed:
+						completed()
+						terminated()
+					}
+
+					sink.put(receivedEvent)
+				}
 			}
 
 			return ()
@@ -1017,6 +1037,61 @@ extension ColdSignal {
 			return self.self.start(next: { value in
 				sink.put(value)
 			}, error: onError, completed: completionHandler)
+		}
+	}
+}
+
+/// Debugging utilities.
+extension ColdSignal {
+	private func logEvents(predicate: Event<T> -> Bool) -> ColdSignal {
+		return on(event: { event in
+			if predicate(event) {
+				debugPrintln("\(self.debugDescription): \(event)")
+			}
+		})
+	}
+
+	/// Logs every event that passes through the signal.
+	public func log() -> ColdSignal {
+		return logEvents { _ in true }
+	}
+
+	/// Logs every `next` event that passes through the signal.
+	public func logNext() -> ColdSignal {
+		return logEvents { event in
+			switch event {
+			case .Next:
+				return true
+
+			default:
+				return false
+			}
+		}
+	}
+
+	/// Logs every `error` event that passes through the signal.
+	public func logError() -> ColdSignal {
+		return logEvents { event in
+			switch event {
+			case .Error:
+				return true
+
+			default:
+				return false
+			}
+		}
+	}
+
+	/// Logs every `completed` event that passes through the signal.
+	public func logCompleted() -> ColdSignal {
+		return logEvents { event in
+			switch event {
+			case .Completed:
+				return true
+
+			default:
+				return false
+			}
 		}
 	}
 }

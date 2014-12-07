@@ -382,7 +382,32 @@ class HotSignalSpec: QuickSpec {
 				expect(latestValue).to(beNil())
 			}
 		}
-		
+
+		describe("deliverOn") {
+			it("should send values on the given scheduler") {
+				let (signal, sink) = HotSignal<Int>.pipe()
+				let scheduler = TestScheduler()
+				let newSignal = signal.deliverOn(scheduler)
+
+				var latestValue: Int?
+				newSignal.observe { latestValue = $0 }
+
+				expect(latestValue).to(beNil())
+
+				sink.put(0)
+				expect(latestValue).to(beNil())
+
+				scheduler.advance()
+				expect(latestValue).to(equal(0))
+
+				sink.put(1)
+				expect(latestValue).to(equal(0))
+
+				scheduler.advance()
+				expect(latestValue).to(equal(1))
+			}
+		}
+
 		describe("lifetime") {
 			it("observe() should not keep signal alive") {
 				let (outerSignal, outerSink) = HotSignal<Int>.pipe()

@@ -496,6 +496,35 @@ class HotSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("combineLatestWith") {
+			it("should forward the latest values from both inputs") {
+				let (firstSignal, firstSink) = HotSignal<Int>.pipe()
+				let (secondSignal, secondSink) = HotSignal<String>.pipe()
+				let newSignal = firstSignal.combineLatestWith(secondSignal)
+
+				var values: [String] = []
+				newSignal.observe { (num, str) in
+					values.append("\(num)\(str)")
+				}
+
+				expect(values).to(equal([]))
+
+				firstSink.put(0)
+				firstSink.put(1)
+				expect(values).to(equal([]))
+
+				secondSink.put("foo")
+				expect(values).to(equal([ "1foo" ]))
+
+				firstSink.put(2)
+				expect(values).to(equal([ "1foo", "2foo" ]))
+
+				secondSink.put("bar")
+				secondSink.put("buzz")
+				expect(values).to(equal([ "1foo", "2foo", "2bar", "2buzz" ]))
+			}
+		}
+
 		describe("lifetime") {
 			it("observe() should not keep signal alive") {
 				let (outerSignal, outerSink) = HotSignal<Int>.pipe()

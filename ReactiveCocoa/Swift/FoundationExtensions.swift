@@ -27,18 +27,18 @@ extension NSNotificationCenter {
 extension NSURLSession {
 	/// Returns a signal that will fetch data using the given request.
 	public func rac_dataWithRequest(request: NSURLRequest) -> ColdSignal<(NSData, NSURLResponse)> {
-		return ColdSignal { subscriber in
+		return ColdSignal { (sink, disposable) in
 			let task = self.dataTaskWithRequest(request) { (data, response, error) in
 				if data == nil || response == nil {
-					subscriber.put(.Error(error))
+					sink.put(.Error(error))
 				} else {
 					let value = (data!, response!)
-					subscriber.put(.Next(Box(value)))
-					subscriber.put(.Completed)
+					sink.put(.Next(Box(value)))
+					sink.put(.Completed)
 				}
 			}
 
-			subscriber.disposable.addDisposable {
+			disposable.addDisposable {
 				task.cancel()
 			}
 

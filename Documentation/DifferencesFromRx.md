@@ -20,17 +20,17 @@ RAC does not offer protocols that correspond to the `IEnumerable` and
 `IObservable` interfaces in .NET. Instead, the functionality is covered by three
 main classes:
 
- * **[RACStream](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/ReactiveCocoaFramework/ReactiveCocoa/RACStream.h)**
+ * **[RACStream](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/ReactiveCocoa/RACStream.h)**
    is an abstract class that implements stream operations using a few basic
    primitives. The equivalents to generic LINQ operators can generally be found
    on this class.
- * **[RACSignal](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h)**
+ * **[RACSignal](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/ReactiveCocoa/RACSignal.h)**
    is a concrete subclass of `RACStream` that implements a _push-driven_ stream,
    much like `IObservable`. Time-based operators, or methods dealing with the
    `completed` and `error` events, can be found on this class or in the
-   [RACSignal+Operations](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/ReactiveCocoaFramework/ReactiveCocoa/RACSignal%2BOperations.h)
+   [RACSignal+Operations](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/ReactiveCocoa/RACSignal%2BOperations.h)
    category upon it.
- * **[RACSequence](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/ReactiveCocoaFramework/ReactiveCocoa/RACSequence.h)**
+ * **[RACSequence](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/ReactiveCocoa/RACSequence.h)**
    is a concrete subclass of `RACStream` that implements a _pull-driven_ stream,
    much like `IEnumerable`.
 

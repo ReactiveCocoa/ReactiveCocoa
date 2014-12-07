@@ -71,14 +71,29 @@ extension HotSignal {
 
 	/// Creates a signal that can be controlled by sending values to the
 	/// returned sink.
+	///
+	/// The signal will be kept alive for as long as the sink is, ensuring that
+	/// values sent to the sink will be properly forwarded to observers even if
+	/// a direct reference to the signal is lost.
 	public class func pipe() -> (HotSignal, SinkOf<T>) {
 		var sink: SinkOf<T>? = nil
-		let signal = HotSignal { s in
+		let signal: HotSignal<T>? = HotSignal { s in
 			sink = s
 			return nil
 		}
 
-		return (signal, sink!)
+		assert(sink != nil)
+		let retainingSink = SinkOf<T> { value in
+			// This will always be true. It's just a convenient hack to capture
+			// `signal` strongly within our sink.
+			if let signal = signal {
+				sink!.put(value)
+			} else {
+				assert(false)
+			}
+		}
+
+		return (signal!, retainingSink)
 	}
 
 	/// Creates a repeating timer of the given interval, with a reasonable
@@ -491,9 +506,9 @@ extension HotSignal {
 		precondition(capacity >= 0)
 
 		if capacity == 0 {
-			return ColdSignal { subscriber in
-				let disposable = self.observe { subscriber.put(.Next(Box($0))) }
-				subscriber.disposable.addDisposable(disposable)
+			return ColdSignal { (sink, disposable) in
+				let selfDisposable = self.observe { sink.put(.Next(Box($0))) }
+				disposable.addDisposable(selfDisposable)
 			}
 		}
 

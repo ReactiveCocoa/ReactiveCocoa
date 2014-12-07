@@ -8,9 +8,9 @@
 
 import LlamaKit
 
-func doNothing<T>(value: T) {}
-func doNothing(error: NSError) {}
-func doNothing() {}
+private func doNothing<T>(value: T) {}
+private func doNothing(error: NSError) {}
+private func doNothing() {}
 
 /// Represents a stream event.
 ///

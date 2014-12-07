@@ -419,6 +419,17 @@ extension HotSignal {
 		}
 	}
 
+	/// Maps each value that the receiver sends to a new signal, then merges the
+	/// resulting signals together.
+	///
+	/// This is equivalent to map() followed by merge().
+	///
+	/// Returns a signal that will forward changes from all mapped signals as
+	/// they arrive.
+	public func mergeMap<U>(f: T -> HotSignal<U>) -> HotSignal<U> {
+		return map(f).merge(identity)
+	}
+
 	/// Switches on a signal of signals, forwarding values from the
 	/// latest inner signal.
 	///
@@ -438,6 +449,17 @@ extension HotSignal {
 
 			return CompositeDisposable([ selfDisposable, latestDisposable ])
 		}
+	}
+
+	/// Maps each value that the receiver sends to a new signal, then forwards
+	/// the values sent by the latest mapped signal.
+	///
+	/// This is equivalent to map() followed by switchToLatest().
+	///
+	/// Returns a signal that will forward changes only from the latest mapped
+	/// signal to arrive.
+	public func switchMap<U>(f: T -> HotSignal<U>) -> HotSignal<U> {
+		return map(f).switchToLatest(identity)
 	}
 }
 

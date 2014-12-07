@@ -72,3 +72,24 @@ extension ObservableProperty: SinkType {
 		self.value = value
 	}
 }
+
+infix operator <~ {
+	associativity right
+	precedence 90
+}
+
+/// Binds the given signal to the given property, updating the property's value
+/// to whatever is sent by the signal.
+///
+/// The binding will automatically terminate when the property is deinitialized.
+public func <~ <T> (property: ObservableProperty<T>, signal: HotSignal<T>) {
+	let disposable = signal.observe { [weak property] value in
+		property?.value = value
+		return
+	}
+
+	// Dispose of the binding when the property deallocates.
+	property.values().start(completed: {
+		disposable.dispose()
+	})
+}

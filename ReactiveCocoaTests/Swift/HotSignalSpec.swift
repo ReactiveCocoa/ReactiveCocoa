@@ -437,6 +437,38 @@ class HotSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("throttle") {
+			it("should send values on the given scheduler at no less than the interval") {
+				let (signal, sink) = HotSignal<Int>.pipe()
+				let scheduler = TestScheduler()
+				let newSignal = signal.throttle(1, onScheduler: scheduler)
+
+				var values: [Int] = []
+				newSignal.observe { values.append($0) }
+
+				expect(values).to(equal([]))
+
+				sink.put(0)
+				expect(values).to(equal([]))
+
+				scheduler.advance()
+				expect(values).to(equal([ 0 ]))
+
+				sink.put(1)
+				scheduler.advance()
+				expect(values).to(equal([ 0 ]))
+
+				sink.put(2)
+				sink.put(3)
+				scheduler.advanceByInterval(1.5)
+				expect(values).to(equal([ 0, 3 ]))
+
+				sink.put(4)
+				scheduler.advance()
+				expect(values).to(equal([ 0, 3, 4 ]))
+			}
+		}
+
 		describe("lifetime") {
 			it("observe() should not keep signal alive") {
 				let (outerSignal, outerSink) = HotSignal<Int>.pipe()

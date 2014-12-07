@@ -17,7 +17,7 @@ public final class ObservableProperty<T> {
 	/// The current value of the property.
 	///
 	/// Setting this to a new value will notify all sinks attached to
-	/// `values()`.
+	/// `values`.
 	public var value: T {
 		didSet {
 			dispatch_sync(queue) {
@@ -28,22 +28,10 @@ public final class ObservableProperty<T> {
 		}
 	}
 
-	public init(_ value: T) {
-		self.value = value
-	}
-
-	deinit {
-		dispatch_sync(queue) {
-			for sink in self.sinks {
-				sink.put(.Completed)
-			}
-		}
-	}
-
 	/// A signal that will send the property's current value, followed by all
 	/// changes over time. The signal will complete when the property
 	/// deinitializes.
-	public func values() -> ColdSignal<T> {
+	public var values: ColdSignal<T> {
 		return ColdSignal { [weak self] (sink, disposable) in
 			if let strongSelf = self {
 				var token: RemovalToken?
@@ -61,6 +49,18 @@ public final class ObservableProperty<T> {
 					}
 				}
 			} else {
+				sink.put(.Completed)
+			}
+		}
+	}
+
+	public init(_ value: T) {
+		self.value = value
+	}
+
+	deinit {
+		dispatch_sync(queue) {
+			for sink in self.sinks {
 				sink.put(.Completed)
 			}
 		}
@@ -89,7 +89,7 @@ public func <~ <T> (property: ObservableProperty<T>, signal: HotSignal<T>) {
 	}
 
 	// Dispose of the binding when the property deallocates.
-	property.values().start(completed: {
+	property.values.start(completed: {
 		disposable.dispose()
 	})
 }
@@ -110,7 +110,7 @@ public func <~! <T> (property: ObservableProperty<T>, signal: ColdSignal<T>) {
 	let disposable = CompositeDisposable()
 
 	// Dispose of the binding when the property deallocates.
-	let propertyDisposable = property.values().start(completed: {
+	let propertyDisposable = property.values.start(completed: {
 		disposable.dispose()
 	})
 

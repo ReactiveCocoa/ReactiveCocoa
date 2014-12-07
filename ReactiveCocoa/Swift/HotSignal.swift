@@ -486,7 +486,7 @@ extension HotSignal {
 			bufferProperty.value = array
 		}
 
-		return bufferProperty.values()
+		return bufferProperty.values
 			.mapAccumulate(initialState: 0) { (lastIndex, values) in
 				let newIndex = values.count - 1
 				let signal = ColdSignal.fromValues(values[lastIndex...newIndex])
@@ -529,7 +529,7 @@ extension HotSignal {
 
 		let scopedDisposable = ScopedDisposable(selfDisposable)
 
-		return replayProperty.values()
+		return replayProperty.values
 			.mapAccumulate(initialState: -1) { (var lastIndex, values) in
 				var valuesToSend: [T] = []
 

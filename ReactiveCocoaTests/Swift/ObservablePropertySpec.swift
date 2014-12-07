@@ -18,7 +18,7 @@ class ObservablePropertySpec: QuickSpec {
 			it("should immediately send new values") {
 				let observableProperty = ObservableProperty(1)
 				var value = observableProperty.value
-				observableProperty.values().start(next: { newValue in
+				observableProperty.values.start(next: { newValue in
 					value = newValue
 				})
 
@@ -28,7 +28,7 @@ class ObservablePropertySpec: QuickSpec {
 
 			it("should send complete when deallocates") {
 				var observableProperty: ObservableProperty<Int>? = ObservableProperty(1)
-				let signal = observableProperty!.values()
+				let signal = observableProperty!.values
 
 				var completed = false
 				signal.start(completed: {
@@ -41,7 +41,7 @@ class ObservablePropertySpec: QuickSpec {
 
 			it("should send complete if subscribing after it was deallocated") {
 				var observableProperty: ObservableProperty<Int>? = ObservableProperty(1)
-				let signal = observableProperty!.values()
+				let signal = observableProperty!.values
 				observableProperty = nil
 
 				var completed = false

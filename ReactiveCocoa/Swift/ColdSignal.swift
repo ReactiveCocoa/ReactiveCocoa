@@ -65,6 +65,23 @@ public enum Event<T> {
 			return ifCompleted()
 		}
 	}
+
+	/// Creates a sink that can receive events of this type, then invoke the
+	/// given handlers based on the kind of event received.
+	public static func sink(next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing) -> SinkOf<Event> {
+		return SinkOf { event in
+			switch event {
+			case let .Next(value):
+				next(value.unbox)
+
+			case let .Error(err):
+				error(err)
+
+			case .Completed:
+				completed()
+			}
+		}
+	}
 }
 
 /// A stream that will begin generating Events when a sink is attached, possibly
@@ -144,7 +161,7 @@ public struct ColdSignal<T> {
 	/// Returns a disposable that will cancel the work associated with event
 	/// production, and prevent any further events from being sent.
 	public func start(next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing) -> Disposable {
-		return startWithSink { _ in eventSink(next: next, error: error, completed: completed) }
+		return startWithSink { _ in Event.sink(next: next, error: error, completed: completed) }
 	}
 }
 
@@ -245,7 +262,7 @@ extension ColdSignal {
 			self.startWithSink { selfDisposable in
 				disposable.addDisposable(selfDisposable)
 
-				return eventSink(next: { value in
+				return Event.sink(next: { value in
 					let (maybeState, newValue) = f(state.value, value)
 					sink.put(.Next(Box(newValue)))
 
@@ -406,7 +423,7 @@ extension ColdSignal {
 			self.startWithSink { selfDisposable in
 				disposable.addDisposable(selfDisposable)
 
-				return eventSink(next: { value in
+				return Event.sink(next: { value in
 					values.modify { (var arr) in
 						arr.append(value)
 						while arr.count > count {
@@ -580,7 +597,7 @@ extension ColdSignal {
 			self.startWithSink { selfDisposable in
 				disposable.addDisposable(selfDisposable)
 
-				return eventSink(next: { value in
+				return Event.sink(next: { value in
 					next(value)
 					sink.put(.Next(Box(value)))
 				}, error: { err in
@@ -690,7 +707,7 @@ extension ColdSignal {
 			evidence(self).startWithSink { selfDisposable in
 				disposable.addDisposable(selfDisposable)
 
-				return eventSink(next: { event in
+				return Event.sink(next: { event in
 					sink.put(event)
 				}, error: { error in
 					sink.put(.Error(error))
@@ -710,7 +727,7 @@ extension ColdSignal {
 		startWithSink { selfDisposable in
 			disposable.addDisposable(selfDisposable)
 
-			return eventSink(next: { value in
+			return Event.sink(next: { value in
 				dispatch_sync(queue) {
 					selfState.latestValue = value
 					if otherState.latestValue == nil {
@@ -776,7 +793,7 @@ extension ColdSignal {
 			evidence(self).startWithSink { selfDisposable in
 				disposable.addDisposable(selfDisposable)
 
-				return eventSink(next: { signal in
+				return Event.sink(next: { signal in
 					signal.startWithSink { signalDisposable in
 						inFlight.modify { $0 + 1 }
 						disposable.addDisposable(signalDisposable)
@@ -834,7 +851,7 @@ extension ColdSignal {
 			evidence(self).startWithSink { selfDisposable in
 				latestDisposable.innerDisposable = selfDisposable
 
-				return eventSink(next: { signal in
+				return Event.sink(next: { signal in
 					latestDisposable.innerDisposable = signal.startWithSink { signalDisposable in
 						latestDisposable.innerDisposable = signalDisposable
 
@@ -873,7 +890,7 @@ extension ColdSignal {
 			evidence(self).startWithSink { selfDisposable in
 				disposable.addDisposable(selfDisposable)
 
-				return eventSink(next: { signal in
+				return Event.sink(next: { signal in
 					// TODO: Avoid multiple dispatches.
 					dispatch_sync(state.queue) {
 						state.enqueuedSignals.append(signal)
@@ -905,7 +922,7 @@ extension ColdSignal {
 			self.startWithSink { selfDisposable in
 				serialDisposable.innerDisposable = selfDisposable
 
-				return eventSink(error: { error in
+				return Event.sink(error: { error in
 					sink.put(.Error(error))
 				}, completed: {
 					signal.startWithSink { signalDisposable in
@@ -1005,23 +1022,6 @@ extension ColdSignal {
 	}
 }
 
-/// Creates a sink that can receive events from a ColdSignal, then invoke the
-/// given handlers based on the event type.
-public func eventSink<T>(next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing) -> SinkOf<Event<T>> {
-	return SinkOf { event in
-		switch event {
-		case let .Next(value):
-			next(value.unbox)
-
-		case let .Error(err):
-			error(err)
-
-		case .Completed:
-			completed()
-		}
-	}
-}
-
 private class CombineLatestState<T> {
 	var latestValue: T?
 	var completed = false
@@ -1068,7 +1068,7 @@ private class ConcatState<T> {
 			signal.startWithSink { signalDisposable in
 				self.disposable.addDisposable(signalDisposable)
 
-				return eventSink(next: { value in
+				return Event.sink(next: { value in
 					self.sink.put(.Next(Box(value)))
 				}, error: { error in
 					self.sink.put(.Error(error))

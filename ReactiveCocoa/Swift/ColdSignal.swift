@@ -766,6 +766,69 @@ extension ColdSignal {
 		}
 	}
 
+	/// Zips elements of two signals into pairs. The elements of any Nth pair
+	/// are the Nth elements of the two input signals.
+	///
+	/// The returned signal will complete as soon as one of the signals has
+	/// completed, and all pairs up until that point have been sent.
+	public func zipWith<U>(signal: ColdSignal<U>) -> ColdSignal<(T, U)> {
+		return ColdSignal<(T, U)> { (sink, disposable) in
+			let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.ColdSignal.zipWith", DISPATCH_QUEUE_SERIAL)
+			let selfState = ZipState<T>()
+			let otherState = ZipState<U>()
+
+			let flushEvents: () -> () = {
+				while !selfState.values.isEmpty && !otherState.values.isEmpty {
+					let pair = (selfState.values[0], otherState.values[0])
+					selfState.values.removeAtIndex(0)
+					otherState.values.removeAtIndex(0)
+
+					sink.put(.Next(Box(pair)))
+				}
+
+				if (selfState.completed && selfState.values.isEmpty) || (otherState.completed && otherState.values.isEmpty) {
+					sink.put(.Completed)
+				}
+			}
+
+			self.startWithSink { selfDisposable in
+				disposable.addDisposable(selfDisposable)
+
+				return Event.sink(next: { value in
+					dispatch_sync(queue) {
+						selfState.values.append(value)
+						flushEvents()
+					}
+				}, error: { error in
+					sink.put(.Error(error))
+				}, completed: {
+					dispatch_sync(queue) {
+						selfState.completed = true
+						flushEvents()
+					}
+				})
+			}
+
+			signal.startWithSink { signalDisposable in
+				disposable.addDisposable(signalDisposable)
+
+				return Event.sink(next: { value in
+					dispatch_sync(queue) {
+						otherState.values.append(value)
+						flushEvents()
+					}
+				}, error: { error in
+					sink.put(.Error(error))
+				}, completed: {
+					dispatch_sync(queue) {
+						otherState.completed = true
+						flushEvents()
+					}
+				})
+			}
+		}
+	}
+
 	/// Merges a signal of signals down into a single signal, biased toward the
 	/// signals added earlier.
 	///
@@ -1052,6 +1115,11 @@ extension ColdSignal {
 
 private class CombineLatestState<T> {
 	var latestValue: T?
+	var completed = false
+}
+
+private class ZipState<T> {
+	var values: [T] = []
 	var completed = false
 }
 

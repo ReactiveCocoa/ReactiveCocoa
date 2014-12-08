@@ -14,9 +14,18 @@ public final class HotSignal<T> {
 	private var observers = Bag<SinkOf<T>>()
 	private var disposable: Disposable?
 
+	/// The file in which this signal was defined, if known.
+	public let file: String?
+
+	/// The function in which this signal was defined, if known.
+	public let function: String?
+
+	/// The line number upon which this signal was defined, if known.
+	public let line: Int?
+
 	/// Initializes a signal that will immediately perform the given action to
 	/// begin generating its values.
-	public init(_ generator: SinkOf<T> -> Disposable?) {
+	public init(_ generator: SinkOf<T> -> Disposable?, file: String = __FILE__, line: Int = __LINE__, function: String = __FUNCTION__) {
 		// Weakly capture `self` so that lifetime is determined by any
 		// observers, not the generator.
 		disposable = generator(SinkOf { [weak self] value in
@@ -28,6 +37,14 @@ public final class HotSignal<T> {
 				}
 			}
 		})
+
+		self.file = file
+		self.line = line
+		self.function = function
+	}
+
+	internal convenience init(file: String, line: Int, function: String, generator: SinkOf<T> -> Disposable?) {
+		self.init(generator, file: file, line: line, function: function)
 	}
 
 	deinit {
@@ -614,5 +631,25 @@ extension HotSignal {
 				return (lastIndex, ColdSignal.fromValues(valuesToSend))
 			}
 			.concat(identity)
+	}
+}
+
+/// Debugging utilities.
+extension HotSignal {
+	/// Logs every value that passes through the signal.
+	///
+	/// Returns the receiver, for easy chaining.
+	public func log() -> HotSignal {
+		observe { [unowned self] value in
+			debugPrintln("\(self.debugDescription): \(value)")
+		}
+
+		return self
+	}
+}
+
+extension HotSignal: DebugPrintable {
+	public var debugDescription: String {
+		return "\(function).HotSignal (\(file):\(line))"
 	}
 }

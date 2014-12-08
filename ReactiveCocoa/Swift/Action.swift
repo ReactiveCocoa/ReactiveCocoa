@@ -35,11 +35,24 @@ public final class Action<Input, Output> {
 	/// thread.
 	public let errors: HotSignal<NSError>
 
+	/// The file in which this action was defined, if known.
+	public let file: String?
+
+	/// The function in which this action was defined, if known.
+	public let function: String?
+
+	/// The line number upon which this action was defined, if known.
+	public let line: Int?
+
 	/// Initializes an action that will be conditionally enabled, and create
 	/// a ColdSignal for each execution.
 	///
 	/// Before `enabledIf` sends a value, the command will be disabled.
-	public init(enabledIf: HotSignal<Bool>, execute: Input -> ColdSignal<Output>) {
+	public init(enabledIf: HotSignal<Bool>, _ execute: Input -> ColdSignal<Output>, file: String = __FILE__, line: Int = __LINE__, function: String = __FUNCTION__) {
+		self.file = file
+		self.line = line
+		self.function = function
+
 		(values, _values) = HotSignal.pipe()
 		(errors, _errors) = HotSignal.pipe()
 		executeClosure = execute
@@ -59,9 +72,9 @@ public final class Action<Input, Output> {
 
 	/// Initializes an action that will always be enabled, and create a
 	/// ColdSignal for each execution.
-	public convenience init(execute: Input -> ColdSignal<Output>) {
+	public convenience init(_ execute: Input -> ColdSignal<Output>, file: String = __FILE__, line: Int = __LINE__, function: String = __FUNCTION__) {
 		let (enabled, enabledSink) = HotSignal<Bool>.pipe()
-		self.init(enabledIf: enabled, execute: execute)
+		self.init(enabledIf: enabled, execute, file: file, line: line, function: function)
 
 		enabledSink.put(true)
 	}
@@ -93,5 +106,11 @@ public final class Action<Input, Output> {
 					})
 			}
 			.subscribeOn(MainScheduler())
+	}
+}
+
+extension Action: DebugPrintable {
+	public var debugDescription: String {
+		return "\(function).Action (\(file):\(line))"
 	}
 }

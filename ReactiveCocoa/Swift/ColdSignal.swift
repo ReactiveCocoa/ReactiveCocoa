@@ -9,7 +9,6 @@
 import LlamaKit
 
 private func doNothing<T>(value: T) {}
-private func doNothing(error: NSError) {}
 private func doNothing() {}
 
 /// Represents a stream event.
@@ -84,6 +83,21 @@ public enum Event<T> {
 	}
 }
 
+extension Event: Printable {
+	public var description: String {
+		switch self {
+		case let .Next(value):
+			return "NEXT \(value.unbox)"
+
+		case let .Error(error):
+			return "ERROR \(error)"
+
+		case .Completed:
+			return "COMPLETED"
+		}
+	}
+}
+
 /// A stream that will begin generating Events when a sink is attached, possibly
 /// performing some side effects in the process. Events are pushed to the sink
 /// as they are generated.
@@ -98,12 +112,28 @@ public struct ColdSignal<T> {
 	/// A closure which implements the behavior for a ColdSignal.
 	public typealias Generator = (SinkOf<Element>, CompositeDisposable) -> ()
 
+	/// The file in which this signal was defined, if known.
+	public let file: String?
+
+	/// The function in which this signal was defined, if known.
+	public let function: String?
+
+	/// The line number upon which this signal was defined, if known.
+	public let line: Int?
+
 	private let generator: Generator
 
 	/// Initializes a signal that will run the given action whenever a
 	/// subscription is created.
-	public init(generator: Generator) {
+	public init(_ generator: Generator, file: String = __FILE__, line: Int = __LINE__, function: String = __FUNCTION__) {
 		self.generator = generator
+		self.file = file
+		self.line = line
+		self.function = function
+	}
+
+	internal init(file: String, line: Int, function: String, generator: Generator) {
+		self.init(generator, file: file, line: line, function: function)
 	}
 
 	/// Runs the given closure with a new disposable, then starts producing
@@ -586,7 +616,7 @@ extension ColdSignal {
 	}
 
 	/// Injects side effects to be performed upon the specified signal events.
-	public func on(subscribed: () -> () = doNothing, next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing, terminated: () -> () = doNothing, disposed: () -> () = doNothing) -> ColdSignal {
+	public func on(subscribed: () -> () = doNothing, event: Event<T> -> () = doNothing, next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing, terminated: () -> () = doNothing, disposed: () -> () = doNothing) -> ColdSignal {
 		return ColdSignal { (sink, disposable) in
 			subscribed()
 			disposable.addDisposable(disposed)
@@ -594,18 +624,24 @@ extension ColdSignal {
 			self.startWithSink { selfDisposable in
 				disposable.addDisposable(selfDisposable)
 
-				return Event.sink(next: { value in
-					next(value)
-					sink.put(.Next(Box(value)))
-				}, error: { err in
-					error(err)
-					terminated()
-					sink.put(.Error(err))
-				}, completed: {
-					completed()
-					terminated()
-					sink.put(.Completed)
-				})
+				return SinkOf { receivedEvent in
+					event(receivedEvent)
+
+					switch receivedEvent {
+					case let .Next(value):
+						next(value.unbox)
+
+					case let .Error(err):
+						error(err)
+						terminated()
+
+					case .Completed:
+						completed()
+						terminated()
+					}
+
+					sink.put(receivedEvent)
+				}
 			}
 
 			return ()
@@ -1110,6 +1146,67 @@ extension ColdSignal {
 				sink.put(value)
 			}, error: onError, completed: completionHandler)
 		}
+	}
+}
+
+/// Debugging utilities.
+extension ColdSignal {
+	private func logEvents(predicate: Event<T> -> Bool) -> ColdSignal {
+		return on(event: { event in
+			if predicate(event) {
+				debugPrintln("\(self.debugDescription): \(event)")
+			}
+		})
+	}
+
+	/// Logs every event that passes through the signal.
+	public func log() -> ColdSignal {
+		return logEvents { _ in true }
+	}
+
+	/// Logs every `next` event that passes through the signal.
+	public func logNext() -> ColdSignal {
+		return logEvents { event in
+			switch event {
+			case .Next:
+				return true
+
+			default:
+				return false
+			}
+		}
+	}
+
+	/// Logs every `error` event that passes through the signal.
+	public func logError() -> ColdSignal {
+		return logEvents { event in
+			switch event {
+			case .Error:
+				return true
+
+			default:
+				return false
+			}
+		}
+	}
+
+	/// Logs every `completed` event that passes through the signal.
+	public func logCompleted() -> ColdSignal {
+		return logEvents { event in
+			switch event {
+			case .Completed:
+				return true
+
+			default:
+				return false
+			}
+		}
+	}
+}
+
+extension ColdSignal: DebugPrintable {
+	public var debugDescription: String {
+		return "\(function).ColdSignal (\(file):\(line))"
 	}
 }
 

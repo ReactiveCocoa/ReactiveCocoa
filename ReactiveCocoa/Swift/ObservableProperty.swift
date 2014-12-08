@@ -119,7 +119,7 @@ public func <~! <T> (property: ObservableProperty<T>, signal: ColdSignal<T>) {
 	signal.startWithSink { [weak property] signalDisposable in
 		disposable.addDisposable(signalDisposable)
 
-		return eventSink(next: { value in
+		return Event.sink(next: { value in
 			property?.value = value
 			return
 		}, error: { error in

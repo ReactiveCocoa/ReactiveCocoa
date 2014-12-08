@@ -8,9 +8,9 @@
 
 import LlamaKit
 
-func doNothing<T>(value: T) {}
-func doNothing(error: NSError) {}
-func doNothing() {}
+private func doNothing<T>(value: T) {}
+private func doNothing(error: NSError) {}
+private func doNothing() {}
 
 /// Represents a stream event.
 ///
@@ -63,6 +63,23 @@ public enum Event<T> {
 
 		case let .Completed:
 			return ifCompleted()
+		}
+	}
+
+	/// Creates a sink that can receive events of this type, then invoke the
+	/// given handlers based on the kind of event received.
+	public static func sink(next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing) -> SinkOf<Event> {
+		return SinkOf { event in
+			switch event {
+			case let .Next(value):
+				next(value.unbox)
+
+			case let .Error(err):
+				error(err)
+
+			case .Completed:
+				completed()
+			}
 		}
 	}
 }
@@ -144,7 +161,7 @@ public struct ColdSignal<T> {
 	/// Returns a disposable that will cancel the work associated with event
 	/// production, and prevent any further events from being sent.
 	public func start(next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing) -> Disposable {
-		return startWithSink { _ in eventSink(next: next, error: error, completed: completed) }
+		return startWithSink { _ in Event.sink(next: next, error: error, completed: completed) }
 	}
 }
 
@@ -245,7 +262,7 @@ extension ColdSignal {
 			self.startWithSink { selfDisposable in
 				disposable.addDisposable(selfDisposable)
 
-				return eventSink(next: { value in
+				return Event.sink(next: { value in
 					let (maybeState, newValue) = f(state.value, value)
 					sink.put(.Next(Box(newValue)))
 
@@ -274,15 +291,13 @@ extension ColdSignal {
 
 	/// Preserves only the values of the signal that pass the given predicate.
 	public func filter(predicate: T -> Bool) -> ColdSignal {
-		return self
-			.map { value -> ColdSignal in
-				if predicate(value) {
-					return .single(value)
-				} else {
-					return .empty()
-				}
+		return mergeMap { value -> ColdSignal in
+			if predicate(value) {
+				return .single(value)
+			} else {
+				return .empty()
 			}
-			.merge(identity)
+		}
 	}
 
 	/// Combines all the values in the stream, forwarding the result of each
@@ -406,7 +421,7 @@ extension ColdSignal {
 			self.startWithSink { selfDisposable in
 				disposable.addDisposable(selfDisposable)
 
-				return eventSink(next: { value in
+				return Event.sink(next: { value in
 					values.modify { (var arr) in
 						arr.append(value)
 						while arr.count > count {
@@ -447,17 +462,16 @@ extension ColdSignal {
 				sink.put(.Completed)
 			}
 
-			disposable.addDisposable(completingDisposable)
+			let completingHandle = disposable.addDisposable(completingDisposable)
 
 			self.startWithSink { selfDisposable in
 				sinkDisposable.addDisposable {
 					selfDisposable.dispose()
 
-					// When this subscription terminates, make sure to prune our
-					// unique disposable from `disposable`, to avoid infinite
-					// memory growth.
-					completingDisposable.dispose()
-					disposable.pruneDisposed()
+					// When this subscription terminates, make sure to remove
+					// our unique disposable from `disposable`, to avoid
+					// infinite memory growth.
+					completingHandle.remove()
 				}
 
 				return sink
@@ -580,7 +594,7 @@ extension ColdSignal {
 			self.startWithSink { selfDisposable in
 				disposable.addDisposable(selfDisposable)
 
-				return eventSink(next: { value in
+				return Event.sink(next: { value in
 					next(value)
 					sink.put(.Next(Box(value)))
 				}, error: { err in
@@ -622,17 +636,15 @@ extension ColdSignal {
 	/// Attempts to map each value in the receiver, bailing out with an error if
 	/// a given mapping fails.
 	public func tryMap<U>(f: T -> Result<U>) -> ColdSignal<U> {
-		return self
-			.map { value in
-				switch f(value) {
-				case let .Success(box):
-					return .single(box.unbox)
+		return mergeMap { value in
+			switch f(value) {
+			case let .Success(box):
+				return .single(box.unbox)
 
-				case let .Failure(error):
-					return .error(error)
-				}
+			case let .Failure(error):
+				return .error(error)
 			}
-			.merge(identity)
+		}
 	}
 
 	/// Switches to a new signal when an error occurs.
@@ -690,7 +702,7 @@ extension ColdSignal {
 			evidence(self).startWithSink { selfDisposable in
 				disposable.addDisposable(selfDisposable)
 
-				return eventSink(next: { event in
+				return Event.sink(next: { event in
 					sink.put(event)
 				}, error: { error in
 					sink.put(.Error(error))
@@ -710,7 +722,7 @@ extension ColdSignal {
 		startWithSink { selfDisposable in
 			disposable.addDisposable(selfDisposable)
 
-			return eventSink(next: { value in
+			return Event.sink(next: { value in
 				dispatch_sync(queue) {
 					selfState.latestValue = value
 					if otherState.latestValue == nil {
@@ -776,15 +788,15 @@ extension ColdSignal {
 			evidence(self).startWithSink { selfDisposable in
 				disposable.addDisposable(selfDisposable)
 
-				return eventSink(next: { signal in
+				return Event.sink(next: { signal in
 					signal.startWithSink { signalDisposable in
 						inFlight.modify { $0 + 1 }
-						disposable.addDisposable(signalDisposable)
+
+						let signalHandle = disposable.addDisposable(signalDisposable)
 
 						return SinkOf { event in
 							if event.isTerminating {
-								signalDisposable.dispose()
-								disposable.pruneDisposed()
+								signalHandle.remove()
 							}
 
 							switch event {
@@ -807,6 +819,17 @@ extension ColdSignal {
 
 			return ()
 		}
+	}
+
+	/// Maps each value that the receiver sends to a new signal, then merges the
+	/// resulting signals together.
+	///
+	/// This is equivalent to map() followed by merge().
+	///
+	/// Returns a signal that will forward changes from all mapped signals as
+	/// they arrive.
+	public func mergeMap<U>(f: T -> ColdSignal<U>) -> ColdSignal<U> {
+		return map(f).merge(identity)
 	}
 
 	/// Switches on a signal of signal, forwarding events from the
@@ -834,7 +857,7 @@ extension ColdSignal {
 			evidence(self).startWithSink { selfDisposable in
 				latestDisposable.innerDisposable = selfDisposable
 
-				return eventSink(next: { signal in
+				return Event.sink(next: { signal in
 					latestDisposable.innerDisposable = signal.startWithSink { signalDisposable in
 						latestDisposable.innerDisposable = signalDisposable
 
@@ -859,6 +882,17 @@ extension ColdSignal {
 		}
 	}
 
+	/// Maps each value that the receiver sends to a new signal, then forwards
+	/// the values sent by the latest mapped signal.
+	///
+	/// This is equivalent to map() followed by switchToLatest().
+	///
+	/// Returns a signal that will forward changes only from the latest mapped
+	/// signal to arrive.
+	public func switchMap<U>(f: T -> ColdSignal<U>) -> ColdSignal<U> {
+		return map(f).switchToLatest(identity)
+	}
+
 	/// Concatenates each inner signal with the previous and next inner signals.
 	///
 	/// evidence - Used to prove to the typechecker that the receiver is
@@ -873,7 +907,7 @@ extension ColdSignal {
 			evidence(self).startWithSink { selfDisposable in
 				disposable.addDisposable(selfDisposable)
 
-				return eventSink(next: { signal in
+				return Event.sink(next: { signal in
 					// TODO: Avoid multiple dispatches.
 					dispatch_sync(state.queue) {
 						state.enqueuedSignals.append(signal)
@@ -887,6 +921,17 @@ extension ColdSignal {
 				})
 			}
 		}
+	}
+
+	/// Maps each value that the receiver sends to a new signal, then
+	/// concatenates the resulting signals together.
+	///
+	/// This is equivalent to map() followed by concat().
+	///
+	/// Returns a signal that will forward changes sequentially from each mapped
+	/// signal.
+	public func concatMap<U>(f: T -> ColdSignal<U>) -> ColdSignal<U> {
+		return map(f).concat(identity)
 	}
 
 	/// Concatenates the given signal after the receiver.
@@ -905,7 +950,7 @@ extension ColdSignal {
 			self.startWithSink { selfDisposable in
 				serialDisposable.innerDisposable = selfDisposable
 
-				return eventSink(error: { error in
+				return Event.sink(error: { error in
 					sink.put(.Error(error))
 				}, completed: {
 					signal.startWithSink { signalDisposable in
@@ -1005,23 +1050,6 @@ extension ColdSignal {
 	}
 }
 
-/// Creates a sink that can receive events from a ColdSignal, then invoke the
-/// given handlers based on the event type.
-public func eventSink<T>(next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing) -> SinkOf<Event<T>> {
-	return SinkOf { event in
-		switch event {
-		case let .Next(value):
-			next(value.unbox)
-
-		case let .Error(err):
-			error(err)
-
-		case .Completed:
-			completed()
-		}
-	}
-}
-
 private class CombineLatestState<T> {
 	var latestValue: T?
 	var completed = false
@@ -1068,7 +1096,7 @@ private class ConcatState<T> {
 			signal.startWithSink { signalDisposable in
 				self.disposable.addDisposable(signalDisposable)
 
-				return eventSink(next: { value in
+				return Event.sink(next: { value in
 					self.sink.put(.Next(Box(value)))
 				}, error: { error in
 					self.sink.put(.Error(error))

@@ -414,6 +414,42 @@ extension HotSignal {
 		}
 	}
 
+	/// Zips elements of two signals into pairs. The elements of any Nth pair
+	/// are the Nth elements of the two input signals.
+	public func zipWith<U>(signal: HotSignal<U>) -> HotSignal<(T, U)> {
+		return HotSignal<(T, U)> { sink in
+			let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.HotSignal.zipWith", DISPATCH_QUEUE_SERIAL)
+			var selfValues: [T] = []
+			var otherValues: [U] = []
+
+			let flushValues: () -> () = {
+				while !selfValues.isEmpty && !otherValues.isEmpty {
+					let pair = (selfValues[0], otherValues[0])
+					selfValues.removeAtIndex(0)
+					otherValues.removeAtIndex(0)
+
+					sink.put(pair)
+				}
+			}
+
+			let selfDisposable = self.observe { value in
+				dispatch_sync(queue) {
+					selfValues.append(value)
+					flushValues()
+				}
+			}
+
+			let otherDisposable = signal.observe { value in
+				dispatch_sync(queue) {
+					otherValues.append(value)
+					flushValues()
+				}
+			}
+
+			return CompositeDisposable([ selfDisposable, otherDisposable ])
+		}
+	}
+
 	/// Merges a signal of signals down into a single signal, biased toward the
 	/// signals added earlier.
 	///
@@ -522,7 +558,7 @@ extension HotSignal {
 			bufferProperty.value.append(elem)
 		}
 
-		return bufferProperty.values()
+		return bufferProperty.values
 			.mapAccumulate(initialState: 0) { (startIndex, values) in
 				// This disposable will never actually be disposed here, but we
 				// want to use it to keep the property alive for as long as the
@@ -572,7 +608,7 @@ extension HotSignal {
 
 		let scopedDisposable = ScopedDisposable(selfDisposable)
 
-		return replayProperty.values()
+		return replayProperty.values
 			.mapAccumulate(initialState: -1) { (var lastIndex, values) in
 				var valuesToSend: [T] = []
 

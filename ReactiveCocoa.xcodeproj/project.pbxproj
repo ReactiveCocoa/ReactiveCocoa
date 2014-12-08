@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		270DE4451A1EAB4600151031 /* ObservablePropertySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 277F6A951A1EAA10003E0EC9 /* ObservablePropertySpec.swift */; };
 		270DE4461A1EACA200151031 /* ObservablePropertySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 277F6A951A1EAA10003E0EC9 /* ObservablePropertySpec.swift */; };
+		D01792021A34D79100A7B229 /* ColdSignalSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01792011A34D79100A7B229 /* ColdSignalSpec.swift */; };
+		D01792031A34D79100A7B229 /* ColdSignalSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01792011A34D79100A7B229 /* ColdSignalSpec.swift */; };
 		D01B7B6219EDD8FE00D26E01 /* Nimble.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D05E662419EDD82000904ACA /* Nimble.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D01B7B6319EDD8FE00D26E01 /* Quick.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D037672B19EDA75D00A782A9 /* Quick.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D01B7B6419EDD94B00D26E01 /* ReactiveCocoa.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D047260C19E49F82006002AA /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -470,6 +472,7 @@
 
 /* Begin PBXFileReference section */
 		277F6A951A1EAA10003E0EC9 /* ObservablePropertySpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObservablePropertySpec.swift; sourceTree = "<group>"; };
+		D01792011A34D79100A7B229 /* ColdSignalSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColdSignalSpec.swift; sourceTree = "<group>"; };
 		D037642A19EDA41200A782A9 /* NSArray+RACSequenceAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+RACSequenceAdditions.h"; sourceTree = "<group>"; };
 		D037642B19EDA41200A782A9 /* NSArray+RACSequenceAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+RACSequenceAdditions.m"; sourceTree = "<group>"; };
 		D037642C19EDA41200A782A9 /* NSControl+RACCommandSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSControl+RACCommandSupport.h"; sourceTree = "<group>"; };
@@ -1271,6 +1274,7 @@
 			children = (
 				D0C312EE19EF2A7700984962 /* AtomicSpec.swift */,
 				D0C312EF19EF2A7700984962 /* BagSpec.swift */,
+				D01792011A34D79100A7B229 /* ColdSignalSpec.swift */,
 				D0C312F019EF2A7700984962 /* DisposableSpec.swift */,
 				F63BBA321A02550A00DD140D /* HotSignalSpec.swift */,
 				D0C312F119EF2A7700984962 /* ObjectiveCBridgingSpec.swift */,
@@ -1686,6 +1690,7 @@
 				D03766BD19EDA60000A782A9 /* NSEnumeratorRACSequenceAdditionsSpec.m in Sources */,
 				D037670119EDA60000A782A9 /* RACSubclassObject.m in Sources */,
 				D03766CD19EDA60000A782A9 /* NSStringRACKeyPathUtilitiesSpec.m in Sources */,
+				D01792021A34D79100A7B229 /* ColdSignalSpec.swift in Sources */,
 				D037671519EDA60000A782A9 /* RACTupleSpec.m in Sources */,
 				D03766C519EDA60000A782A9 /* NSObjectRACLiftingSpec.m in Sources */,
 				D03766D119EDA60000A782A9 /* NSURLConnectionRACSupportSpec.m in Sources */,
@@ -1844,6 +1849,7 @@
 				D03766EC19EDA60000A782A9 /* RACKVOWrapperSpec.m in Sources */,
 				D03766E819EDA60000A782A9 /* RACEventSpec.m in Sources */,
 				D03766F819EDA60000A782A9 /* RACSequenceSpec.m in Sources */,
+				D01792031A34D79100A7B229 /* ColdSignalSpec.swift in Sources */,
 				D037671E19EDA60000A782A9 /* UIBarButtonItemRACSupportSpec.m in Sources */,
 				D03766CA19EDA60000A782A9 /* NSObjectRACPropertySubscribingSpec.m in Sources */,
 				D0C3131319EF2B2000984962 /* ObjectiveCBridgingSpec.swift in Sources */,

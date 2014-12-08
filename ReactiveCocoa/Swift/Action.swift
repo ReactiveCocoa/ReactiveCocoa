@@ -57,7 +57,7 @@ public final class Action<Input, Output> {
 		(errors, _errors) = HotSignal.pipe()
 		executeClosure = execute
 
-		executing = _executing.values()
+		executing = _executing.values
 
 		// Fires when the `executing` signal terminates.
 		let executingTerminated = executing.then(.single(()))

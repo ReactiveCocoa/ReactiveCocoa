@@ -26,7 +26,7 @@ public final class ObservableProperty<T> {
 	/// The current value of the property.
 	///
 	/// Setting this to a new value will notify all sinks attached to
-	/// `values()`.
+	/// `values`.
 	public var value: T {
 		didSet {
 			dispatch_sync(queue) {
@@ -37,25 +37,10 @@ public final class ObservableProperty<T> {
 		}
 	}
 
-	public init(_ value: T, file: String = __FILE__, line: Int = __LINE__, function: String = __FUNCTION__) {
-		self.value = value
-		self.file = file
-		self.line = line
-		self.function = function
-	}
-
-	deinit {
-		dispatch_sync(queue) {
-			for sink in self.sinks {
-				sink.put(.Completed)
-			}
-		}
-	}
-
 	/// A signal that will send the property's current value, followed by all
 	/// changes over time. The signal will complete when the property
 	/// deinitializes.
-	public func values() -> ColdSignal<T> {
+	public var values: ColdSignal<T> {
 		return ColdSignal { [weak self] (sink, disposable) in
 			if let strongSelf = self {
 				var token: RemovalToken?
@@ -77,6 +62,21 @@ public final class ObservableProperty<T> {
 			}
 		}
 	}
+
+	public init(_ value: T, file: String = __FILE__, line: Int = __LINE__, function: String = __FUNCTION__) {
+		self.value = value
+		self.file = file
+		self.line = line
+		self.function = function
+	}
+
+	deinit {
+		dispatch_sync(queue) {
+			for sink in self.sinks {
+				sink.put(.Completed)
+			}
+		}
+	}
 }
 
 extension ObservableProperty: SinkType {
@@ -88,5 +88,62 @@ extension ObservableProperty: SinkType {
 extension ObservableProperty: DebugPrintable {
 	public var debugDescription: String {
 		return "\(function).ObservableProperty (\(file):\(line))"
+	}
+}
+
+infix operator <~ {
+	associativity right
+	precedence 90
+}
+
+/// Binds the given signal to a property, updating the property's value to
+/// the latest value sent by the signal.
+///
+/// The binding will automatically terminate when the property is deinitialized.
+public func <~ <T> (property: ObservableProperty<T>, signal: HotSignal<T>) {
+	let disposable = signal.observe { [weak property] value in
+		property?.value = value
+		return
+	}
+
+	// Dispose of the binding when the property deallocates.
+	property.values.start(completed: {
+		disposable.dispose()
+	})
+}
+
+infix operator <~! {
+	associativity right
+	precedence 90
+}
+
+/// Binds the given signal to a property, updating the property's value to the
+/// latest value sent by the signal.
+///
+/// Note that the signal MUST NOT send an error, or the program will terminate.
+///
+/// The binding will automatically terminate when the property is deinitialized
+/// or the signal completes.
+public func <~! <T> (property: ObservableProperty<T>, signal: ColdSignal<T>) {
+	let disposable = CompositeDisposable()
+
+	// Dispose of the binding when the property deallocates.
+	let propertyDisposable = property.values.start(completed: {
+		disposable.dispose()
+	})
+
+	disposable.addDisposable(propertyDisposable)
+
+	signal.startWithSink { [weak property] signalDisposable in
+		disposable.addDisposable(signalDisposable)
+
+		return Event.sink(next: { value in
+			property?.value = value
+			return
+		}, error: { error in
+			fatalError("Unhandled error in ColdSignal binding: \(error)")
+		}, completed: {
+			disposable.dispose()
+		})
 	}
 }

@@ -52,16 +52,56 @@ public final class ActionDisposable: Disposable {
 
 /// A disposable that will dispose of any number of other disposables.
 public final class CompositeDisposable: Disposable {
-	private var disposables: Atomic<[Disposable]?>
+	private let disposables: Atomic<Bag<Disposable>?>
+
+	/// Represents a handle to a disposable previously added to a
+	/// CompositeDisposable.
+	public class DisposableHandle {
+		private let bagToken: Atomic<RemovalToken?>
+		private weak var disposable: CompositeDisposable?
+
+		private init() {
+			self.bagToken = Atomic(nil)
+		}
+
+		private init(bagToken: RemovalToken, disposable: CompositeDisposable) {
+			self.bagToken = Atomic(bagToken)
+			self.disposable = disposable
+		}
+
+		/// Removes the pointed-to disposable from its CompositeDisposable.
+		///
+		/// This is useful to minimize memory growth, by removing disposables
+		/// that are no longer needed.
+		public func remove() {
+			bagToken.modify { token in
+				if let token = token {
+					self.disposable?.disposables.modify { (var bag) in
+						bag?.removeValueForToken(token)
+						return bag
+					}
+				}
+
+				return nil
+			}
+		}
+	}
 
 	public var disposed: Bool {
 		return disposables.value == nil
 	}
 
-	/// Initializes a CompositeDisposable containing the given list of
+	/// Initializes a CompositeDisposable containing the given sequence of
 	/// disposables.
-	public init(_ disposables: [Disposable]) {
-		self.disposables = Atomic(disposables)
+	public init<S: SequenceType where S.Generator.Element == Disposable>(_ disposables: S) {
+		var bag: Bag<Disposable> = Bag()
+
+		var generator = disposables.generate()
+		while let disposable: Disposable = generator.next() {
+			bag.insert(disposable)
+		}
+
+		self.disposables = Atomic(bag)
 	}
 
 	/// Initializes an empty CompositeDisposable.
@@ -77,39 +117,32 @@ public final class CompositeDisposable: Disposable {
 		}
 	}
 
-	/// Adds the given disposable to the list.
-	public func addDisposable(d: Disposable?) {
+	/// Adds the given disposable to the list, then returns a handle which can
+	/// be used to opaquely remove the disposable later (if desired).
+	public func addDisposable(d: Disposable?) -> DisposableHandle {
 		if d == nil {
-			return
+			return DisposableHandle()
 		}
 
-		let (_, shouldDispose) = disposables.modify { ds -> ([Disposable]?, Bool) in
+		let (_, handle) = disposables.modify { ds -> (Bag<Disposable>?, DisposableHandle?) in
 			if var ds = ds {
-				ds.append(d!)
-				return (ds, false)
+				let token = ds.insert(d!)
+				return (ds, DisposableHandle(bagToken: token, disposable: self))
 			} else {
-				return (nil, true)
+				return (nil, nil)
 			}
 		}
 
-		if shouldDispose {
+		if handle == nil {
 			d!.dispose()
 		}
+
+		return handle ?? DisposableHandle()
 	}
 
 	/// Adds an ActionDisposable to the list.
-	public func addDisposable(action: () -> ()) {
-		addDisposable(ActionDisposable(action))
-	}
-
-	/// Removes all Disposables that have already been disposed.
-	///
-	/// This can be used to prevent unbounded resource growth in an infinite
-	/// algorithm.
-	public func pruneDisposed() {
-		disposables.modify { ds in
-			return ds?.filter { !$0.disposed }
-		}
+	public func addDisposable(action: () -> ()) -> DisposableHandle {
+		return addDisposable(ActionDisposable(action))
 	}
 }
 

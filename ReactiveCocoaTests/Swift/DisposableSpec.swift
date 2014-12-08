@@ -47,6 +47,7 @@ class DisposableSpec: QuickSpec {
 
 			it("should ignore the addition of nil") {
 				disposable.addDisposable(nil)
+				return
 			}
 
 			it("should dispose of added disposables") {
@@ -68,22 +69,17 @@ class DisposableSpec: QuickSpec {
 				expect(disposable.disposed).to(beTruthy())
 			}
 
-			it("should not prune active disposables") {
+			it("should not dispose of removed disposables") {
 				let simpleDisposable = SimpleDisposable()
-				disposable.addDisposable(simpleDisposable)
+				let handle = disposable.addDisposable(simpleDisposable)
 
-				var didDispose = false
-				disposable.addDisposable {
-					didDispose = true
-				}
-
-				simpleDisposable.dispose()
-
-				disposable.pruneDisposed()
-				expect(didDispose).to(beFalsy())
+				// We should be allowed to call this any number of times.
+				handle.remove()
+				handle.remove()
+				expect(simpleDisposable.disposed).to(beFalsy())
 
 				disposable.dispose()
-				expect(didDispose).to(beTruthy())
+				expect(simpleDisposable.disposed).to(beFalsy())
 			}
 		}
 

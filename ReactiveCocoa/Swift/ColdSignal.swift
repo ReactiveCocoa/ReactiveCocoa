@@ -447,17 +447,16 @@ extension ColdSignal {
 				sink.put(.Completed)
 			}
 
-			disposable.addDisposable(completingDisposable)
+			let completingHandle = disposable.addDisposable(completingDisposable)
 
 			self.startWithSink { selfDisposable in
 				sinkDisposable.addDisposable {
 					selfDisposable.dispose()
 
-					// When this subscription terminates, make sure to prune our
-					// unique disposable from `disposable`, to avoid infinite
-					// memory growth.
-					completingDisposable.dispose()
-					disposable.pruneDisposed()
+					// When this subscription terminates, make sure to remove
+					// our unique disposable from `disposable`, to avoid
+					// infinite memory growth.
+					completingHandle.remove()
 				}
 
 				return sink
@@ -779,12 +778,12 @@ extension ColdSignal {
 				return eventSink(next: { signal in
 					signal.startWithSink { signalDisposable in
 						inFlight.modify { $0 + 1 }
-						disposable.addDisposable(signalDisposable)
+
+						let signalHandle = disposable.addDisposable(signalDisposable)
 
 						return SinkOf { event in
 							if event.isTerminating {
-								signalDisposable.dispose()
-								disposable.pruneDisposed()
+								signalHandle.remove()
 							}
 
 							switch event {

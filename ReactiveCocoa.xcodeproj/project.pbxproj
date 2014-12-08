@@ -1269,10 +1269,10 @@
 		D0C312ED19EF2A6F00984962 /* Swift */ = {
 			isa = PBXGroup;
 			children = (
-				F63BBA321A02550A00DD140D /* HotSignalSpec.swift */,
 				D0C312EE19EF2A7700984962 /* AtomicSpec.swift */,
 				D0C312EF19EF2A7700984962 /* BagSpec.swift */,
 				D0C312F019EF2A7700984962 /* DisposableSpec.swift */,
+				F63BBA321A02550A00DD140D /* HotSignalSpec.swift */,
 				D0C312F119EF2A7700984962 /* ObjectiveCBridgingSpec.swift */,
 				277F6A951A1EAA10003E0EC9 /* ObservablePropertySpec.swift */,
 				D0C312F219EF2A7700984962 /* SchedulerSpec.swift */,

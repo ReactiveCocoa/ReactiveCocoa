@@ -436,6 +436,17 @@ extension HotSignal {
 		}
 	}
 
+	/// Maps each value that the receiver sends to a new signal, then merges the
+	/// resulting signals together.
+	///
+	/// This is equivalent to map() followed by merge().
+	///
+	/// Returns a signal that will forward changes from all mapped signals as
+	/// they arrive.
+	public func mergeMap<U>(f: T -> HotSignal<U>) -> HotSignal<U> {
+		return map(f).merge(identity)
+	}
+
 	/// Switches on a signal of signals, forwarding values from the
 	/// latest inner signal.
 	///
@@ -456,6 +467,17 @@ extension HotSignal {
 			return CompositeDisposable([ selfDisposable, latestDisposable ])
 		}
 	}
+
+	/// Maps each value that the receiver sends to a new signal, then forwards
+	/// the values sent by the latest mapped signal.
+	///
+	/// This is equivalent to map() followed by switchToLatest().
+	///
+	/// Returns a signal that will forward changes only from the latest mapped
+	/// signal to arrive.
+	public func switchMap<U>(f: T -> HotSignal<U>) -> HotSignal<U> {
+		return map(f).switchToLatest(identity)
+	}
 }
 
 /// Blocking methods for receiving values.
@@ -465,12 +487,18 @@ extension HotSignal {
 		let semaphore = dispatch_semaphore_create(0)
 		var result: T?
 
-		take(1).observe { value in
+		let disposable = take(1).observe { value in
 			result = value
 			dispatch_semaphore_signal(semaphore)
 		}
 
 		dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
+
+		// The signal is actually already disposed by this point, but keeping
+		// this disposable ensures that the signal is not deallocated while we
+		// wait for a value.
+		disposable.dispose()
+
 		return result!
 	}
 }
@@ -490,24 +518,22 @@ extension HotSignal {
 		}
 
 		let bufferProperty = ObservableProperty<[T]>([])
-
-		let disposable = SerialDisposable()
-		disposable.innerDisposable = observe { elem in
-			var array = bufferProperty.value
-			array.append(elem)
-
-			if array.count == count {
-				disposable.dispose()
-			}
-
-			bufferProperty.value = array
+		let disposable = take(count).observe { elem in
+			bufferProperty.value.append(elem)
 		}
 
 		return bufferProperty.values()
-			.mapAccumulate(initialState: 0) { (lastIndex, values) in
-				let newIndex = values.count - 1
-				let signal = ColdSignal.fromValues(values[lastIndex...newIndex])
-				return (newIndex, signal)
+			.mapAccumulate(initialState: 0) { (startIndex, values) in
+				// This disposable will never actually be disposed here, but we
+				// want to use it to keep the property alive for as long as the
+				// ColdSignal is.
+				if !disposable.disposed && values.count > startIndex {
+					let newIndex = values.count
+					let slice = values[startIndex ..< newIndex]
+					return (newIndex, ColdSignal.fromValues(slice))
+				} else {
+					return (startIndex, ColdSignal.empty())
+				}
 			}
 			.concat(identity)
 			.take(count)

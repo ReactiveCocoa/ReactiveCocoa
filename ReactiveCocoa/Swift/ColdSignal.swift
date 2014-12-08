@@ -1092,12 +1092,12 @@ extension ColdSignal {
 	/// Immediately subscribes to the receiver, then forwards all values on the
 	/// returned signal.
 	///
-	/// If `errorHandler` is `nil`, the stream must never produce an `Error`
-	/// event.
+	/// If `errorHandler` is `nil`, the stream MUST NOT produce an `Error`
+	/// event, or the program will terminate.
 	public func startMulticasted(#errorHandler: (NSError -> ())?, completionHandler: () -> () = doNothing) -> HotSignal<T> {
 		return HotSignal { sink in
 			var onError = { (error: NSError) in
-				assert(false)
+				fatalError("Unhandled error in startMulticasted: \(error)")
 			}
 
 			// Apparently ?? has trouble with closures, so use this lame pattern

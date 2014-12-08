@@ -541,7 +541,7 @@ extension HotSignal {
 			bufferProperty.value.append(elem)
 		}
 
-		return bufferProperty.values()
+		return bufferProperty.values
 			.mapAccumulate(initialState: 0) { (startIndex, values) in
 				// This disposable will never actually be disposed here, but we
 				// want to use it to keep the property alive for as long as the
@@ -591,7 +591,7 @@ extension HotSignal {
 
 		let scopedDisposable = ScopedDisposable(selfDisposable)
 
-		return replayProperty.values()
+		return replayProperty.values
 			.mapAccumulate(initialState: -1) { (var lastIndex, values) in
 				var valuesToSend: [T] = []
 

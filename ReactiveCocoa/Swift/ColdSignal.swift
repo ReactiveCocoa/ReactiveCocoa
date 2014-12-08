@@ -291,15 +291,13 @@ extension ColdSignal {
 
 	/// Preserves only the values of the signal that pass the given predicate.
 	public func filter(predicate: T -> Bool) -> ColdSignal {
-		return self
-			.map { value -> ColdSignal in
-				if predicate(value) {
-					return .single(value)
-				} else {
-					return .empty()
-				}
+		return mergeMap { value -> ColdSignal in
+			if predicate(value) {
+				return .single(value)
+			} else {
+				return .empty()
 			}
-			.merge(identity)
+		}
 	}
 
 	/// Combines all the values in the stream, forwarding the result of each
@@ -638,17 +636,15 @@ extension ColdSignal {
 	/// Attempts to map each value in the receiver, bailing out with an error if
 	/// a given mapping fails.
 	public func tryMap<U>(f: T -> Result<U>) -> ColdSignal<U> {
-		return self
-			.map { value in
-				switch f(value) {
-				case let .Success(box):
-					return .single(box.unbox)
+		return mergeMap { value in
+			switch f(value) {
+			case let .Success(box):
+				return .single(box.unbox)
 
-				case let .Failure(error):
-					return .error(error)
-				}
+			case let .Failure(error):
+				return .error(error)
 			}
-			.merge(identity)
+		}
 	}
 
 	/// Switches to a new signal when an error occurs.
@@ -825,6 +821,17 @@ extension ColdSignal {
 		}
 	}
 
+	/// Maps each value that the receiver sends to a new signal, then merges the
+	/// resulting signals together.
+	///
+	/// This is equivalent to map() followed by merge().
+	///
+	/// Returns a signal that will forward changes from all mapped signals as
+	/// they arrive.
+	public func mergeMap<U>(f: T -> ColdSignal<U>) -> ColdSignal<U> {
+		return map(f).merge(identity)
+	}
+
 	/// Switches on a signal of signal, forwarding events from the
 	/// latest inner signal.
 	///
@@ -875,6 +882,17 @@ extension ColdSignal {
 		}
 	}
 
+	/// Maps each value that the receiver sends to a new signal, then forwards
+	/// the values sent by the latest mapped signal.
+	///
+	/// This is equivalent to map() followed by switchToLatest().
+	///
+	/// Returns a signal that will forward changes only from the latest mapped
+	/// signal to arrive.
+	public func switchMap<U>(f: T -> ColdSignal<U>) -> ColdSignal<U> {
+		return map(f).switchToLatest(identity)
+	}
+
 	/// Concatenates each inner signal with the previous and next inner signals.
 	///
 	/// evidence - Used to prove to the typechecker that the receiver is
@@ -903,6 +921,17 @@ extension ColdSignal {
 				})
 			}
 		}
+	}
+
+	/// Maps each value that the receiver sends to a new signal, then
+	/// concatenates the resulting signals together.
+	///
+	/// This is equivalent to map() followed by concat().
+	///
+	/// Returns a signal that will forward changes sequentially from each mapped
+	/// signal.
+	public func concatMap<U>(f: T -> ColdSignal<U>) -> ColdSignal<U> {
+		return map(f).concat(identity)
 	}
 
 	/// Concatenates the given signal after the receiver.

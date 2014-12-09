@@ -1052,10 +1052,6 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 				[pendingEvents removeObjectAtIndex:0];
 				OSSpinLockUnlock(&pendingEventsLock);
 
-				if (!event) {
-					break;
-				}
-
 				switch (event.eventType) {
 					case RACEventTypeCompleted:
 						complete = YES;

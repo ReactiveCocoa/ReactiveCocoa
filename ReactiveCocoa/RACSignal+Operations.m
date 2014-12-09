@@ -1039,19 +1039,18 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 - (RACSignal *)deliverOnMainThread
 {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		volatile __block int32_t pendingEventCount;
+		__block OSSpinLock pendingEventsLock = OS_SPINLOCK_INIT;
 		NSMutableArray *pendingEvents = [NSMutableArray array];
-		NSLock *lock = [[NSLock alloc] init]; // Locks all accessed to pendingEvents
 
 		// This only ever gets called from the main thread
 		void (^drain)(void) = ^{
 			BOOL complete = NO;
 			do {
-				[lock lock];
-				RACEvent *event = nil;
-				if (pendingEvents.count > 0) {
-					event = pendingEvents[0];
-				}
-				[lock unlock];
+				OSSpinLockLock(&pendingEventsLock);
+				RACEvent *event = pendingEvents.firstObject;
+				[pendingEvents removeObjectAtIndex:0];
+				OSSpinLockUnlock(&pendingEventsLock);
 
 				if (!event) {
 					break;
@@ -1071,29 +1070,26 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 						break;
 				}
 
-				[lock lock];
-				[pendingEvents removeObjectAtIndex:0];
-				if (pendingEvents.count == 0) {
+				if (OSAtomicDecrement32(&pendingEventCount) <= 0) {
 					complete = YES;
 				}
-				[lock unlock];
-
 			} while (!complete);
 		};
 
 		void (^enqueueAndSchedule)(RACEvent *) = ^(RACEvent *event) {
-			[lock lock];
+			OSSpinLockLock(&pendingEventsLock);
 			[pendingEvents addObject:event];
-			NSUInteger pendingCount = pendingEvents.count;
-			[lock unlock];
+			OSSpinLockUnlock(&pendingEventsLock);
 
-			if (pendingCount == 1) {
-				// We added to an empty queue, so we start the draining
-				if ([NSThread isMainThread]) {
-					drain();
-				} else {
-					dispatch_async(dispatch_get_main_queue(), drain);
-				}
+			// The event queue should be being drained elsewhere
+			// if it wasn't empty
+			if (OSAtomicIncrement32(&pendingEventCount) > 1) return;
+
+			// We added to an empty queue, so we start the draining
+			if ([NSThread isMainThread]) {
+				drain();
+			} else {
+				dispatch_async(dispatch_get_main_queue(), drain);
 			}
 		};
 

@@ -1,9 +1,9 @@
-[submodule "external/specta"]
-	path = external/specta
-	url = https://github.com/specta/specta.git
-[submodule "external/expecta"]
-	path = external/expecta
-	url = https://github.com/specta/expecta.git
-[submodule "external/xcconfigs"]
-	path = external/xcconfigs
+[submodule "Carthage.checkout/Nimble"]
+	path = Carthage.checkout/Nimble
+	url = https://github.com/Quick/Nimble.git
+[submodule "Carthage.checkout/Quick"]
+	path = Carthage.checkout/Quick
+	url = https://github.com/Quick/Quick.git
+[submodule "Carthage.checkout/xcconfigs"]
+	path = Carthage.checkout/xcconfigs
 	url = https://github.com/jspahrsummers/xcconfigs.git

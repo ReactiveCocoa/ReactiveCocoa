@@ -17,7 +17,7 @@ config ()
     #
     # Only one of `XCWORKSPACE` and `XCODEPROJ` needs to be set. The former will
     # take precedence.
-    : ${XCWORKSPACE="ReactiveCocoaFramework/ReactiveCocoa.xcworkspace"}
+    : ${XCWORKSPACE=$(find_pattern "*.xcworkspace")}
 
     # The project to build.
     #
@@ -26,7 +26,7 @@ config ()
     #
     # Only one of `XCWORKSPACE` and `XCODEPROJ` needs to be set. The former will
     # take precedence.
-    : ${XCODEPROJ="ReactiveCocoaFramework/ReactiveCocoa.xcodeproj"}
+    : ${XCODEPROJ=$(find_pattern "*.xcodeproj")}
 
     # A bootstrap script to run before building.
     #
@@ -40,7 +40,7 @@ config ()
     #
     # Individual names can be quoted to avoid word splitting.
     : ${SCHEMES:=$(xcodebuild -list -project "$XCODEPROJ" 2>/dev/null | awk -f "$SCRIPT_DIR/schemes.awk")}
-    
+
     export XCWORKSPACE
     export XCODEPROJ
     export BOOTSTRAP
@@ -120,16 +120,27 @@ build_scheme ()
 
     local awkstatus=$?
 
+    if [ "$awkstatus" -eq "1" ]
+    then
+        # SDK not found, try for iphonesimulator.
+        sdkflag="-sdk iphonesimulator"
+
+        # Determine whether the unit tests will run with iphonesimulator
+        run_xctool $sdkflag -scheme "$scheme" run-tests | parse_build
+
+        awkstatus=$?
+
+        if [ "$awkstatus" -ne "0" ]
+        then
+            # Unit tests will not run on iphonesimulator.
+            sdkflag=""
+        fi
+    fi
+
     if [ "$awkstatus" -ne "0" ]
     then
         # Unit tests aren't supported.
         action=build
-    fi
-
-    if [ "$awkstatus" -eq "1" ]
-    then
-        # Build for iOS.
-        sdkflag="-sdk iphonesimulator"
     fi
 
     run_xctool $sdkflag -scheme "$scheme" $action

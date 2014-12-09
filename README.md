@@ -542,11 +542,6 @@ are some resources related to FRP:
 * [Escape from Callback Hell](http://elm-lang.org/learn/Escape-from-Callback-Hell.elm)
 * [Principles of Reactive Programming on Coursera](https://www.coursera.org/course/reactive)
 
-ReactiveCocoa also has a chat room on [Slack](https://slack.com/). If you'd like
-to join, just [provide your email
-address](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/871#issuecomment-44237545) and we'll
-happily send you an invite!
-
 [Basic Operators]: Documentation/BasicOperators.md
 [Documentation]: Documentation
 [Framework Overview]: Documentation/FrameworkOverview.md

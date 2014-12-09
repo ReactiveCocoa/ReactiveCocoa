@@ -1038,63 +1038,41 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 - (RACSignal *)deliverOnMainThread
 {
+	__block volatile int32_t queueLength = 0;
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
-		volatile __block int32_t pendingEventCount;
-		__block OSSpinLock pendingEventsLock = OS_SPINLOCK_INIT;
-		NSMutableArray *pendingEvents = [NSMutableArray array];
-
-		// This only ever gets called from the main thread
-		void (^drain)(void) = ^{
-			BOOL complete = NO;
-			do {
-				OSSpinLockLock(&pendingEventsLock);
-				RACEvent *event = pendingEvents.firstObject;
-				[pendingEvents removeObjectAtIndex:0];
-				OSSpinLockUnlock(&pendingEventsLock);
-
-				switch (event.eventType) {
-					case RACEventTypeCompleted:
-						complete = YES;
-						[subscriber sendCompleted];
-						break;
-					case RACEventTypeError:
-						complete = YES;
-						[subscriber sendError:event.error];
-						break;
-					case RACEventTypeNext:
-						[subscriber sendNext:event.value];
-						break;
-				}
-
-				if (OSAtomicDecrement32(&pendingEventCount) <= 0) {
-					complete = YES;
-				}
-			} while (!complete);
-		};
-
-		void (^enqueueAndSchedule)(RACEvent *) = ^(RACEvent *event) {
-			OSSpinLockLock(&pendingEventsLock);
-			[pendingEvents addObject:event];
-			OSSpinLockUnlock(&pendingEventsLock);
-
-			// The event queue should be being drained elsewhere
-			// if it wasn't empty
-			if (OSAtomicIncrement32(&pendingEventCount) > 1) return;
-
-			// We added to an empty queue, so we start the draining
-			if ([NSThread isMainThread]) {
-				drain();
-			} else {
-				dispatch_async(dispatch_get_main_queue(), drain);
-			}
-		};
-
 		return [self subscribeNext:^(id x) {
-			enqueueAndSchedule([RACEvent eventWithValue:x]);
+			int32_t queued = OSAtomicIncrement32Barrier(&queueLength);
+			if ([NSThread isMainThread] && (queued == 1)) {
+				[subscriber sendNext:x];
+				OSAtomicDecrement32(&queueLength);
+			} else {
+				dispatch_async(dispatch_get_main_queue(), ^{
+					[subscriber sendNext:x];
+					OSAtomicDecrement32(&queueLength);
+				});
+			}
 		} error:^(NSError *error) {
-			enqueueAndSchedule([RACEvent eventWithError:error]);
+			int32_t queued = OSAtomicIncrement32Barrier(&queueLength);
+			if ([NSThread isMainThread] && (queued == 1)) {
+				[subscriber sendError:error];
+				OSAtomicDecrement32(&queueLength);
+			} else {
+				dispatch_async(dispatch_get_main_queue(), ^{
+					[subscriber sendError:error];
+					OSAtomicDecrement32(&queueLength);
+				});
+			}
 		} completed:^{
-			enqueueAndSchedule([RACEvent completedEvent]);
+			int32_t queued = OSAtomicIncrement32Barrier(&queueLength);
+			if ([NSThread isMainThread] && (queued == 1)) {
+				[subscriber sendCompleted];
+				OSAtomicDecrement32(&queueLength);
+			} else {
+				dispatch_async(dispatch_get_main_queue(), ^{
+					[subscriber sendCompleted];
+					OSAtomicDecrement32(&queueLength);
+				});
+			}
 		}];
 	}] setNameWithFormat:@"[%@] -deliverOnMainThread", self.name];
 }

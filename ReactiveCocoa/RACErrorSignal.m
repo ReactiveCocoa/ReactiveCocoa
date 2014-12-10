@@ -7,7 +7,6 @@
 //
 
 #import "RACErrorSignal.h"
-#import "RACLiveSubscriber.h"
 #import "RACScheduler+Private.h"
 #import "RACSubscriber.h"
 
@@ -37,10 +36,10 @@
 
 #pragma mark Subscription
 
-- (void)attachSubscriber:(RACLiveSubscriber *)subscriber {
+- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
 	NSCParameterAssert(subscriber != nil);
 
-	[RACScheduler.subscriptionScheduler schedule:^{
+	return [RACScheduler.subscriptionScheduler schedule:^{
 		[subscriber sendError:self.error];
 	}];
 }

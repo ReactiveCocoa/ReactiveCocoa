@@ -711,7 +711,7 @@ class HotSignalSpec: QuickSpec {
 				expect(disposable.disposed).to(beTruthy())
 			}
 
-			it("generator should not keep signal alive automatically") {
+			it("generator should keep signal alive while sink is") {
 				let scheduler = TestScheduler()
 
 				weak var innerSignal: HotSignal<NSDate>?
@@ -719,7 +719,7 @@ class HotSignalSpec: QuickSpec {
 
 				let createSignal = { () -> HotSignal<NSDate> in
 					let signal = HotSignal<NSDate> { sink in
-						scheduler.scheduleAfter(scheduler.currentDate, repeatingEvery: 1) {
+						scheduler.schedule {
 							sink.put(scheduler.currentDate)
 						}
 
@@ -733,7 +733,24 @@ class HotSignalSpec: QuickSpec {
 				}
 
 				expect(createSignal()).notTo(beNil())
-				expect(innerSignal).to(beNil())
+				expect(innerSignal).notTo(beNil())
+
+				scheduler.run()
+				expect(innerSignal).toEventually(beNil())
+			}
+
+			it("derived signal should stay alive while original is") {
+				let scheduler = TestScheduler()
+				var receivedValue = false
+
+				HotSignal<NSDate>.interval(1, onScheduler: scheduler)
+					.take(1)
+					.observe { _ in receivedValue = true }
+
+				expect(receivedValue).to(beFalsy())
+
+				scheduler.advanceByInterval(1.5)
+				expect(receivedValue).to(beTruthy())
 			}
 
 			it("pipe() should keep signal alive while sink is") {

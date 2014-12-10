@@ -178,7 +178,7 @@ QuickConfigurationBegin(RACSubscriberExampleGroups)
 						disposableDeallocd = YES;
 					}]];
 
-					[subscriber didSubscribeWithDisposable:disposable];
+					[subscriber.disposable addDisposable:disposable];
 					[disposable dispose];
 				}
 				expect(@(disposableDeallocd)).to(beTruthy());

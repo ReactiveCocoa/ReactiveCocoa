@@ -26,14 +26,10 @@ public final class HotSignal<T> {
 	/// Initializes a signal that will immediately perform the given action to
 	/// begin generating its values.
 	public init(_ generator: SinkOf<T> -> Disposable?, file: String = __FILE__, line: Int = __LINE__, function: String = __FUNCTION__) {
-		// Weakly capture `self` so that lifetime is determined by any
-		// observers, not the generator.
-		disposable = generator(SinkOf { [weak self] value in
-			if let strongSelf = self {
-				dispatch_sync(strongSelf.queue) {
-					for sink in strongSelf.observers {
-						sink.put(value)
-					}
+		disposable = generator(SinkOf { value in
+			dispatch_sync(self.queue) {
+				for sink in self.observers {
+					sink.put(value)
 				}
 			}
 		})
@@ -94,23 +90,12 @@ extension HotSignal {
 	/// a direct reference to the signal is lost.
 	public class func pipe() -> (HotSignal, SinkOf<T>) {
 		var sink: SinkOf<T>? = nil
-		let signal: HotSignal<T>? = HotSignal { s in
+		let signal = HotSignal { s in
 			sink = s
 			return nil
 		}
 
-		assert(sink != nil)
-		let retainingSink = SinkOf<T> { value in
-			// This will always be true. It's just a convenient hack to capture
-			// `signal` strongly within our sink.
-			if let signal = signal {
-				sink!.put(value)
-			} else {
-				assert(false)
-			}
-		}
-
-		return (signal!, retainingSink)
+		return (signal, sink!)
 	}
 
 	/// Creates a repeating timer of the given interval, with a reasonable

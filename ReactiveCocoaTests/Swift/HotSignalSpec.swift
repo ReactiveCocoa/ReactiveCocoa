@@ -666,15 +666,16 @@ class HotSignalSpec: QuickSpec {
 			}
 
 			it("observe() disposable should keep signal alive") {
-				let (outerSignal, outerSink) = HotSignal<Int>.pipe()
-
 				weak var innerSignal: HotSignal<Int>?
-				expect(innerSignal).to(beNil())
 
-				var latestValue: Int?
-				outerSignal.observe { latestValue = $0 }
+				// Use an inner closure to help ARC deallocate things as we
+				// expect.
+				let test: () -> () = {
+					let (outerSignal, outerSink) = HotSignal<Int>.pipe()
 
-				let createAndObserve = { () -> Disposable in
+					var latestValue: Int?
+					outerSignal.observe { latestValue = $0 }
+
 					let (signal, sink) = HotSignal<Int>.pipe()
 					innerSignal = signal
 
@@ -685,19 +686,13 @@ class HotSignalSpec: QuickSpec {
 
 					sink.put(1)
 					expect(latestValue).to(equal(1))
+					expect(innerSignal).notTo(beNil())
 
-					return disposable
+					disposable.dispose()
 				}
 
-				let disposable = createAndObserve()
-				expect(innerSignal).notTo(beNil())
-
-				disposable.dispose()
-
-				// This fails non-deterministically, so it's probably ARC lulz.
-				// However, the main point of the test is exercised with the
-				// expectation above.
-				//expect(innerSignal).toEventually(beNil())
+				test()
+				expect(innerSignal).toEventually(beNil())
 			}
 
 			it("generator should be disposed when signal is destroyed") {
@@ -712,12 +707,12 @@ class HotSignalSpec: QuickSpec {
 			}
 
 			it("generator should keep signal alive while sink is") {
-				let scheduler = TestScheduler()
-
 				weak var innerSignal: HotSignal<NSDate>?
-				expect(innerSignal).to(beNil())
 
-				let createSignal = { () -> HotSignal<NSDate> in
+				// Use an inner closure to help ARC deallocate things as we
+				// expect.
+				let test: () -> () = {
+					let scheduler = TestScheduler()
 					let signal = HotSignal<NSDate> { sink in
 						scheduler.schedule {
 							sink.put(scheduler.currentDate)
@@ -729,13 +724,10 @@ class HotSignalSpec: QuickSpec {
 					innerSignal = signal
 					expect(innerSignal).notTo(beNil())
 
-					return signal
+					scheduler.run()
 				}
 
-				expect(createSignal()).notTo(beNil())
-				expect(innerSignal).notTo(beNil())
-
-				scheduler.run()
+				test()
 				expect(innerSignal).toEventually(beNil())
 			}
 

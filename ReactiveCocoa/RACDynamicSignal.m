@@ -9,7 +9,7 @@
 #import "RACDynamicSignal.h"
 #import "EXTScope.h"
 #import "RACCompoundDisposable.h"
-#import "RACPassthroughSubscriber.h"
+#import "RACLiveSubscriber.h"
 #import "RACScheduler+Private.h"
 #import "RACSubscriber.h"
 #import <libkern/OSAtomic.h>
@@ -33,22 +33,17 @@
 
 #pragma mark Managing Subscribers
 
-- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
+- (void)attachSubscriber:(RACLiveSubscriber *)subscriber {
 	NSCParameterAssert(subscriber != nil);
-
-	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
-	subscriber = [[RACPassthroughSubscriber alloc] initWithSubscriber:subscriber signal:self disposable:disposable];
 
 	if (self.didSubscribe != NULL) {
 		RACDisposable *schedulingDisposable = [RACScheduler.subscriptionScheduler schedule:^{
 			RACDisposable *innerDisposable = self.didSubscribe(subscriber);
-			[disposable addDisposable:innerDisposable];
+			[subscriber.disposable addDisposable:innerDisposable];
 		}];
 
-		[disposable addDisposable:schedulingDisposable];
+		[subscriber.disposable addDisposable:schedulingDisposable];
 	}
-	
-	return disposable;
 }
 
 @end

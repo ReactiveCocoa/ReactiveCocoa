@@ -571,6 +571,20 @@ extern const NSInteger RACSignalErrorNoMatchingCase;
 /// want to receive the signal's events on `scheduler`, use -deliverOn: instead.
 - (RACSignal *)subscribeOn:(RACScheduler *)scheduler;
 
+/// Creates and returns a signal that delivers its events on the main thread.
+/// If events are already being sent on the main thread, they may be passed on
+/// without delay. An event will instead be queued for later delivery on the main
+/// thread if sent on another thread, or if a previous event is already being
+/// processed, or has been queued.
+///
+/// Any side effects of the receiver will still be performed on the original
+/// thread.
+///
+/// This can be used when a signal will cause UI updates, to avoid potential
+/// flicker caused by delayed delivery of events, such as the first event from
+/// a RACObserve at view instantiation.
+- (RACSignal *)deliverOnMainThread;
+
 /// Groups each received object into a group, as determined by calling `keyBlock`
 /// with that object. The object sent is transformed by calling `transformBlock`
 /// with the object. If `transformBlock` is nil, it sends the original object.

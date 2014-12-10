@@ -13,11 +13,50 @@ import ReactiveCocoa
 
 class ColdSignalSpec: QuickSpec {
 	override func spec() {
+		describe("startWithSink") {
+			var subscribed = false
+			let signal = ColdSignal<Int> { (sink, disposable) in
+				subscribed = true
+
+				sink.put(.Next(Box(0)))
+				sink.put(.Completed)
+			}
+
+			beforeEach {
+				subscribed = false
+			}
+
+			it("should wait to start until the closure has returned") {
+				var receivedValue: Int?
+				var receivedCompleted = false
+
+				signal.startWithSink { disposable in
+					expect(subscribed).to(beFalsy())
+
+					return Event.sink(next: { value in
+						receivedValue = value
+					}, completed: {
+						receivedCompleted = true
+					})
+				}
+
+				expect(subscribed).to(beTruthy())
+				expect(receivedValue).to(equal(0))
+				expect(receivedCompleted).to(beTruthy())
+			}
+
+			it("should never attach the sink if disposed before returning") {
+			}
+
+			it("should stop sending events to the sink when the returned disposable is disposed") {
+			}
+		}
+
 		describe("zipWith") {
 			it("should combine pairs") {
 				let firstSignal = ColdSignal.fromValues([ 1, 2, 3 ])
 				let secondSignal = ColdSignal.fromValues([ "foo", "bar", "buzz", "fuzz" ])
-				
+
 				let result = firstSignal
 					.zipWith(secondSignal)
 					.map { num, str in "\(num)\(str)" }

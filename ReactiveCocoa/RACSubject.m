@@ -9,7 +9,7 @@
 #import "RACSubject.h"
 #import "EXTScope.h"
 #import "RACCompoundDisposable.h"
-#import "RACPassthroughSubscriber.h"
+#import "RACLiveSubscriber.h"
 
 @interface RACSubject ()
 
@@ -18,9 +18,6 @@
 // This should only be used while synchronized on `self`.
 @property (nonatomic, strong, readonly) NSMutableArray *subscribers;
 
-// Contains all of the receiver's subscriptions to other signals.
-@property (nonatomic, strong, readonly) RACCompoundDisposable *disposable;
-
 // Enumerates over each of the receiver's `subscribers` and invokes `block` for
 // each.
 - (void)enumerateSubscribersUsingBlock:(void (^)(id<RACSubscriber> subscriber))block;
@@ -28,6 +25,10 @@
 @end
 
 @implementation RACSubject
+
+#pragma mark Properties
+
+@synthesize disposable = _disposable;
 
 #pragma mark Lifecycle
 
@@ -51,18 +52,15 @@
 
 #pragma mark Subscription
 
-- (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
+- (void)attachSubscriber:(RACLiveSubscriber *)subscriber {
 	NSCParameterAssert(subscriber != nil);
-
-	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
-	subscriber = [[RACPassthroughSubscriber alloc] initWithSubscriber:subscriber signal:self disposable:disposable];
 
 	NSMutableArray *subscribers = self.subscribers;
 	@synchronized (subscribers) {
 		[subscribers addObject:subscriber];
 	}
 	
-	return [RACDisposable disposableWithBlock:^{
+	[subscriber.disposable addDisposable:[RACDisposable disposableWithBlock:^{
 		@synchronized (subscribers) {
 			// Since newer subscribers are generally shorter-lived, search
 			// starting from the end of the list.
@@ -72,7 +70,7 @@
 
 			if (index != NSNotFound) [subscribers removeObjectAtIndex:index];
 		}
-	}];
+	}]];
 }
 
 - (void)enumerateSubscribersUsingBlock:(void (^)(id<RACSubscriber> subscriber))block {
@@ -108,17 +106,6 @@
 	[self enumerateSubscribersUsingBlock:^(id<RACSubscriber> subscriber) {
 		[subscriber sendCompleted];
 	}];
-}
-
-- (void)didSubscribeWithDisposable:(RACCompoundDisposable *)d {
-	if (d.disposed) return;
-	[self.disposable addDisposable:d];
-
-	@weakify(self, d);
-	[d addDisposable:[RACDisposable disposableWithBlock:^{
-		@strongify(self, d);
-		[self.disposable removeDisposable:d];
-	}]];
 }
 
 @end

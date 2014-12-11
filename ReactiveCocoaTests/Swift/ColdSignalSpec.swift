@@ -11,6 +11,14 @@ import Nimble
 import Quick
 import ReactiveCocoa
 
+extension ColdSignal {
+	private func collect() -> [T]? {
+		return reduce(initial: []) { $0 + [ $1 ] }
+			.first()
+			.value()
+	}
+}
+
 class ColdSignalSpec: QuickSpec {
 	override func spec() {
 		describe("startWithSink") {
@@ -299,15 +307,25 @@ class ColdSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("map") {
+			it("should transform values") {
+				let values = ColdSignal
+					.fromValues([ 0, 1, 2, 3, 4 ])
+					.map { $0 * 2 }
+					.collect()
+
+				expect(values).to(equal([ 0, 2, 4, 6, 8 ]))
+			}
+		}
+
 		describe("filter") {
 			it("should omit values matching the predicate") {
-				let result = ColdSignal
+				let values = ColdSignal
 					.fromValues([ 0, 1, 2, 3, 4 ])
 					.filter { $0 % 2 == 0 }
-					.reduce(initial: []) { $0 + [ $1 ] }
-					.first()
+					.collect()
 
-				expect(result.value()).to(equal([ 0, 2, 4 ]))
+				expect(values).to(equal([ 0, 2, 4 ]))
 			}
 		}
 

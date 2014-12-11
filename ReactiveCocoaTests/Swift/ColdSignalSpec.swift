@@ -993,6 +993,28 @@ class ColdSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("materialize") {
+			it("should yield Event values") {
+				let signal = ColdSignal<Int> { (sink, disposable) in
+					sink.put(.Next(Box(0)))
+					sink.put(.Error(RACError.Empty.error))
+				}
+
+				let values = signal
+					.materialize()
+					.map { ev -> String in
+						return ev.event(ifNext: { value in
+							return value.description
+						}, ifError: { error in
+							return "error"
+						}, ifCompleted: "completed")
+					}
+					.collect()
+
+				expect(values).to(equal([ "0", "error" ]))
+			}
+		}
+
 		describe("zipWith") {
 			it("should combine pairs") {
 				let firstSignal = ColdSignal.fromValues([ 1, 2, 3 ])

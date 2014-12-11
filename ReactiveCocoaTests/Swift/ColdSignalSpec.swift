@@ -898,6 +898,82 @@ class ColdSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("try") {
+			let testError = RACError.Empty.error
+
+			it("should forward an error upon failure") {
+				let result = ColdSignal.single(0)
+					.try { value, error in
+						error.memory = testError
+						return false
+					}
+					.first()
+
+				expect(result.error()).to(equal(testError))
+			}
+
+			it("should forward the original value upon success") {
+				let result = ColdSignal.single(0)
+					.try { value, error in
+						// This should have no effect.
+						error.memory = testError
+
+						return true
+					}
+					.first()
+
+				expect(result.value()).to(equal(0))
+			}
+		}
+
+		describe("tryMap") {
+			let testError = RACError.Empty.error
+
+			describe("with an error pointer") {
+				it("should forward an error upon failure") {
+					let result = ColdSignal.single(0)
+						.tryMap { value, error -> Int? in
+							error.memory = testError
+							return nil
+						}
+						.first()
+
+					expect(result.error()).to(equal(testError))
+				}
+
+				it("should forward the mapped value upon success") {
+					let result = ColdSignal.single(0)
+						.tryMap { value, error -> Int? in
+							// This should have no effect.
+							error.memory = testError
+
+							return value + 1
+						}
+						.first()
+
+					expect(result.value()).to(equal(1))
+				}
+			}
+
+			describe("with a Result") {
+				it("should forward an error upon failure") {
+					let result = ColdSignal.single(0)
+						.tryMap { value in Result<Int>.Failure(testError) }
+						.first()
+
+					expect(result.error()).to(equal(testError))
+				}
+
+				it("should forward the mapped value upon success") {
+					let result = ColdSignal.single(0)
+						.tryMap { value in  Result<Int>.Success(Box(value + 1)) }
+						.first()
+
+					expect(result.value()).to(equal(1))
+				}
+			}
+		}
+
 		describe("zipWith") {
 			it("should combine pairs") {
 				let firstSignal = ColdSignal.fromValues([ 1, 2, 3 ])

@@ -380,6 +380,35 @@ class ColdSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("skip") {
+			it("should skip no values") {
+				let values = ColdSignal
+					.fromValues([ 0, 1, 2, 3, 4 ])
+					.skip(0)
+					.collect()
+
+				expect(values).to(equal([ 0, 1, 2, 3, 4 ]))
+			}
+
+			it("should skip multiple values") {
+				let values = ColdSignal
+					.fromValues([ 0, 1, 2, 3, 4 ])
+					.skip(2)
+					.collect()
+
+				expect(values).to(equal([ 2, 3, 4 ]))
+			}
+
+			it("should skip more than the signal length") {
+				let values = ColdSignal
+					.fromValues([ 0, 1, 2, 3, 4 ])
+					.skip(10)
+					.collect()
+
+				expect(values).to(equal([]))
+			}
+		}
+
 		describe("zipWith") {
 			it("should combine pairs") {
 				let firstSignal = ColdSignal.fromValues([ 1, 2, 3 ])

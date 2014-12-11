@@ -1040,6 +1040,47 @@ class ColdSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("combineLatestWith") {
+			it("should forward the latest values from both inputs") {
+				let scheduler = TestScheduler()
+				let firstSignal = ColdSignal<Int> { (sink, disposable) in
+					sink.put(.Next(Box(1)))
+
+					scheduler.schedule {
+						sink.put(.Next(Box(2)))
+						sink.put(.Next(Box(3)))
+						sink.put(.Completed)
+					}
+				}
+
+				let secondSignal = ColdSignal.fromValues([ "foo", "bar" ])
+
+				var receivedValues: [String] = []
+				var errored = false
+				var completed = false
+
+				firstSignal
+					.combineLatestWith(secondSignal)
+					.map { num, str in "\(num)\(str)" }
+					.start(next: {
+						receivedValues.append($0)
+					}, error: { _ in
+						errored = true
+					}, completed: {
+						completed = true
+					})
+
+				expect(receivedValues).to(equal([ "1foo", "1bar" ]))
+				expect(errored).to(beFalsy())
+				expect(completed).to(beFalsy())
+
+				scheduler.run()
+				expect(receivedValues).to(equal([ "1foo", "1bar", "2bar", "3bar" ]))
+				expect(errored).to(beFalsy())
+				expect(completed).to(beTruthy())
+			}
+		}
+
 		describe("zipWith") {
 			it("should combine pairs") {
 				let firstSignal = ColdSignal.fromValues([ 1, 2, 3 ])

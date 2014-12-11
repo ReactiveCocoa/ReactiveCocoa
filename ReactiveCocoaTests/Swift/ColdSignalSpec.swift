@@ -974,6 +974,25 @@ class ColdSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("catch") {
+			it("should switch to the given signal upon error") {
+				let testError = RACError.Empty.error
+				let signal = ColdSignal<Int> { (sink, disposable) in
+					sink.put(.Next(Box(0)))
+					sink.put(.Error(testError))
+				}
+
+				let values = signal
+					.catch { error in
+						expect(error).to(equal(testError))
+						return ColdSignal.single(1)
+					}
+					.collect()
+
+				expect(values).to(equal([ 0, 1 ]))
+			}
+		}
+
 		describe("zipWith") {
 			it("should combine pairs") {
 				let firstSignal = ColdSignal.fromValues([ 1, 2, 3 ])

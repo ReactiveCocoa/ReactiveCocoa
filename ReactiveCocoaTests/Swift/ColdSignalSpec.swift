@@ -1015,6 +1015,31 @@ class ColdSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("dematerialize") {
+			it("should transform Event values into real events") {
+				var receivedValues: [Int] = []
+				var receivedError: NSError?
+				var completed = false
+
+				let testError = RACError.Empty.error
+
+				ColdSignal
+					.fromValues([ Event.Next(Box(0)), Event.Next(Box(1)), Event.Error(testError) ])
+					.dematerialize(identity)
+					.start(next: {
+						receivedValues.append($0)
+					}, error: { error in
+						receivedError = error
+					}, completed: {
+						completed = true
+					})
+
+				expect(receivedValues).to(equal([ 0, 1 ]))
+				expect(receivedError).to(equal(testError))
+				expect(completed).to(beFalsy())
+			}
+		}
+
 		describe("zipWith") {
 			it("should combine pairs") {
 				let firstSignal = ColdSignal.fromValues([ 1, 2, 3 ])

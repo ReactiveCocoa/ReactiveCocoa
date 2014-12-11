@@ -11,6 +11,8 @@ import LlamaKit
 /// Represents a UI action that will perform some work when executed.
 public final class Action<Input, Output> {
 	private let executeClosure: Input -> ColdSignal<Output>
+	private let scheduler: Scheduler
+
 	private let _executing = ObservableProperty(false)
 	private let _values: SinkOf<Output>
 	private let _errors: SinkOf<NSError>
@@ -18,21 +20,21 @@ public final class Action<Input, Output> {
 	/// Whether the action is currently executing.
 	///
 	/// This will send the current value immediately, then all future values on
-	/// the main thread.
+	/// the scheduler given at initialization time.
 	public let executing: ColdSignal<Bool>
 
 	/// Whether the action is enabled.
 	///
 	/// This will send the current value immediately, then all future values on
-	/// the main thread.
+	/// the scheduler given at initialization time.
 	public let enabled: ColdSignal<Bool>
 
 	/// A signal of all values generated from future calls to execute(), sent on
-	/// the main thread.
+	/// the scheduler given at initialization time.
 	public let values: HotSignal<Output>
 
-	/// A signal of errors generated from future executions, sent on the main
-	/// thread.
+	/// A signal of errors generated from future executions, sent on the
+	/// scheduler given at initialization time.
 	public let errors: HotSignal<NSError>
 
 	/// The file in which this action was defined, if known.
@@ -48,10 +50,11 @@ public final class Action<Input, Output> {
 	/// a ColdSignal for each execution.
 	///
 	/// Before `enabledIf` sends a value, the command will be disabled.
-	public init(enabledIf: HotSignal<Bool>, _ execute: Input -> ColdSignal<Output>, file: String = __FILE__, line: Int = __LINE__, function: String = __FUNCTION__) {
+	public init(enabledIf: HotSignal<Bool>, serializedOnScheduler scheduler: Scheduler, _ execute: Input -> ColdSignal<Output>, file: String = __FILE__, line: Int = __LINE__, function: String = __FUNCTION__) {
 		self.file = file
 		self.line = line
 		self.function = function
+		self.scheduler = scheduler
 
 		(values, _values) = HotSignal.pipe()
 		(errors, _errors) = HotSignal.pipe()
@@ -64,19 +67,29 @@ public final class Action<Input, Output> {
 			.startMulticasted(errorHandler: nil)
 
 		enabled = enabledIf.replay(1)
-			.deliverOn(MainScheduler())
+			.deliverOn(scheduler)
 			.takeUntil(executingTerminated)
 			.combineLatestWith(executing)
 			.map { (enabled, executing) in enabled && !executing }
 	}
 
-	/// Initializes an action that will always be enabled, and create a
-	/// ColdSignal for each execution.
-	public convenience init(_ execute: Input -> ColdSignal<Output>, file: String = __FILE__, line: Int = __LINE__, function: String = __FUNCTION__) {
+	/// Initializes an action that will deliver all events on the main thread.
+	public convenience init(enabledIf: HotSignal<Bool>, _ execute: Input -> ColdSignal<Output>, file: String = __FILE__, line: Int = __LINE__, function: String = __FUNCTION__) {
+		self.init(enabledIf: enabledIf, serializedOnScheduler: MainScheduler(), execute, file: file, line: line, function: function)
+	}
+
+	/// Initializes an action that will always be enabled.
+	public convenience init(serializedOnScheduler: Scheduler, _ execute: Input -> ColdSignal<Output>, file: String = __FILE__, line: Int = __LINE__, function: String = __FUNCTION__) {
 		let (enabled, enabledSink) = HotSignal<Bool>.pipe()
-		self.init(enabledIf: enabled, execute, file: file, line: line, function: function)
+		self.init(enabledIf: enabled, serializedOnScheduler: serializedOnScheduler, execute, file: file, line: line, function: function)
 
 		enabledSink.put(true)
+	}
+
+	/// Initializes an action that will always be enabled, and deliver all
+	/// events on the main thread.
+	public convenience init(_ execute: Input -> ColdSignal<Output>, file: String = __FILE__, line: Int = __LINE__, function: String = __FUNCTION__) {
+		self.init(serializedOnScheduler: MainScheduler(), execute, file: file, line: line, function: function)
 	}
 
 	/// Creates a signal that will execute the action on the main thread, with
@@ -94,7 +107,7 @@ public final class Action<Input, Output> {
 				}
 
 				return self.executeClosure(input)
-					.deliverOn(MainScheduler())
+					.deliverOn(self.scheduler)
 					.on(subscribed: {
 						self._executing.value = true
 					}, next: { value in
@@ -105,7 +118,7 @@ public final class Action<Input, Output> {
 						self._executing.value = false
 					})
 			}
-			.subscribeOn(MainScheduler())
+			.subscribeOn(scheduler)
 	}
 }
 

@@ -471,6 +471,35 @@ class ColdSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("takeLast") {
+			it("should take no values") {
+				let values = ColdSignal
+					.fromValues([ 0, 1, 2, 3, 4 ])
+					.takeLast(0)
+					.collect()
+
+				expect(values).to(equal([]))
+			}
+
+			it("should take multiple values") {
+				let values = ColdSignal
+					.fromValues([ 0, 1, 2, 3, 4 ])
+					.takeLast(2)
+					.collect()
+
+				expect(values).to(equal([ 3, 4 ]))
+			}
+
+			it("should take more than the signal length") {
+				let values = ColdSignal
+					.fromValues([ 0, 1, 2, 3, 4 ])
+					.takeLast(10)
+					.collect()
+
+				expect(values).to(equal([ 0, 1, 2, 3, 4 ]))
+			}
+		}
+
 		describe("zipWith") {
 			it("should combine pairs") {
 				let firstSignal = ColdSignal.fromValues([ 1, 2, 3 ])

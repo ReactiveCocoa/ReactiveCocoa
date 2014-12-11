@@ -595,6 +595,37 @@ class ColdSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("deliverOn") {
+			it("should deliver all events on the given scheduler") {
+				let scheduler = TestScheduler()
+
+				var receivedValues: [Int] = []
+				var errored = false
+				var completed = false
+
+				ColdSignal
+					.fromValues([ 0, 1, 2 ])
+					.deliverOn(scheduler)
+					.start(next: {
+						receivedValues.append($0)
+					}, error: { _ in
+						errored = true
+					}, completed: {
+						completed = true
+					})
+
+				expect(receivedValues).to(equal([]))
+				expect(completed).to(beFalsy())
+				expect(errored).to(beFalsy())
+
+				scheduler.advance()
+
+				expect(receivedValues).to(equal([ 0, 1, 2 ]))
+				expect(completed).to(beTruthy())
+				expect(errored).to(beFalsy())
+			}
+		}
+
 		describe("zipWith") {
 			it("should combine pairs") {
 				let firstSignal = ColdSignal.fromValues([ 1, 2, 3 ])

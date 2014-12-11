@@ -363,6 +363,23 @@ class ColdSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("combinePrevious") {
+			it("should send tuples of current and previous") {
+				let values = ColdSignal
+					.fromValues([ 1, 2, 3 ])
+					.combinePrevious(initial: 0)
+					// Tuples don't distribute ==, so use an array.
+					.map { a, b in [ a, b ] }
+					.collect()
+
+				expect(values).to(equal([
+					[ 0, 1 ],
+					[ 1, 2 ],
+					[ 2, 3 ],
+				]))
+			}
+		}
+
 		describe("zipWith") {
 			it("should combine pairs") {
 				let firstSignal = ColdSignal.fromValues([ 1, 2, 3 ])

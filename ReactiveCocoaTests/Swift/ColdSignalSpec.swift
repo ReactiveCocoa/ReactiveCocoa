@@ -409,6 +409,28 @@ class ColdSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("skipRepeats") {
+			it("should skip equal elements") {
+				let values = ColdSignal
+					.fromValues([ 0, 0, 1, 2, 2, 3, 4, 4 ])
+					.skipRepeats(identity)
+					.collect()
+
+				expect(values).to(equal([ 0, 1, 2, 3, 4 ]))
+			}
+
+			it("should skip elements matching a predicate") {
+				let values = ColdSignal
+					.fromValues([ 0, 0, 1, 2, 2, 3, 4, 4 ])
+					.skipRepeats { a, b in
+						return a * b == b
+					}
+					.collect()
+
+				expect(values).to(equal([ 0, 2, 2, 3, 4, 4 ]))
+			}
+		}
+
 		describe("zipWith") {
 			it("should combine pairs") {
 				let firstSignal = ColdSignal.fromValues([ 1, 2, 3 ])

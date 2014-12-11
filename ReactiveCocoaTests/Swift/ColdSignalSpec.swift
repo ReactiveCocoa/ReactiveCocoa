@@ -329,6 +329,17 @@ class ColdSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("scan") {
+			it("should transform and aggregate values") {
+				let values = ColdSignal
+					.fromValues([ 0, 1, 2, 3, 4 ])
+					.scan(initial: 0, +)
+					.collect()
+
+				expect(values).to(equal([ 0, 1, 3, 6, 10 ]))
+			}
+		}
+
 		describe("zipWith") {
 			it("should combine pairs") {
 				let firstSignal = ColdSignal.fromValues([ 1, 2, 3 ])

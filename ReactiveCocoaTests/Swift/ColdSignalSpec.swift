@@ -1095,5 +1095,62 @@ class ColdSignalSpec: QuickSpec {
 				expect(result.value()).to(equal([ "1foo", "2bar", "3buzz" ]))
 			}
 		}
+
+		describe("merge") {
+			it("should send values from inner signals as they arrive") {
+				let scheduler = TestScheduler()
+				let signal = ColdSignal<ColdSignal<Int>> { (sink, disposable) in
+					sink.put(.Next(Box(ColdSignal.single(0))))
+
+					let firstSignal = ColdSignal<Int> { (sink, disposable) in
+						sink.put(.Next(Box(1)))
+
+						scheduler.schedule {
+							sink.put(.Next(Box(3)))
+
+							scheduler.schedule {
+								sink.put(.Completed)
+							}
+						}
+					}
+
+					let secondSignal = ColdSignal<Int> { (sink, disposable) in
+						sink.put(.Next(Box(2)))
+
+						scheduler.schedule {
+							sink.put(.Next(Box(4)))
+							sink.put(.Completed)
+						}
+					}
+
+					sink.put(.Next(Box(firstSignal)))
+					sink.put(.Next(Box(secondSignal)))
+					sink.put(.Completed)
+				}
+
+				var receivedValues: [Int] = []
+				var errored = false
+				var completed = false
+
+				signal
+					.merge(identity)
+					.start(next: {
+						receivedValues.append($0)
+					}, error: { _ in
+						errored = true
+					}, completed: {
+						completed = true
+					})
+
+				expect(receivedValues).to(equal([ 0, 1, 2 ]))
+				expect(errored).to(beFalsy())
+				expect(completed).to(beFalsy())
+
+				scheduler.run()
+				expect(receivedValues).to(equal([ 0, 1, 2, 3, 4 ]))
+				expect(errored).to(beFalsy())
+				expect(completed).to(beTruthy())
+			}
+		}
 	}
 }

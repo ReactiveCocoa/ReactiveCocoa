@@ -248,7 +248,7 @@ class ColdSignalSpec: QuickSpec {
 			}
 
 			beforeEach {
-				disposed = true
+				disposed = false
 			}
 
 			it("should thread a state through") {
@@ -276,7 +276,7 @@ class ColdSignalSpec: QuickSpec {
 
 			it("should dispose of the underlying signal when a nil state is returned") {
 				let newSignal: ColdSignal<Int> = baseSignal.mapAccumulate(initialState: 1) { (state, value) in
-					let newState = (state > 2 ? nil : state + 1)
+					let newState: Int? = (state > 2 ? nil : state + 1)
 					return (newState, state * value)
 				}
 

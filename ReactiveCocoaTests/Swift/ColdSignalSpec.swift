@@ -500,6 +500,17 @@ class ColdSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("takeWhile") {
+			it("should take until the predicate is false") {
+				let values = ColdSignal
+					.fromValues([ 0, 2, 1, 3, 4 ])
+					.takeWhile { $0 % 2 == 0 }
+					.collect()
+
+				expect(values).to(equal([ 0, 2 ]))
+			}
+		}
+
 		describe("zipWith") {
 			it("should combine pairs") {
 				let firstSignal = ColdSignal.fromValues([ 1, 2, 3 ])

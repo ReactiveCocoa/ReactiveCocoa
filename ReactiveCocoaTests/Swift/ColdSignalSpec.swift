@@ -768,6 +768,136 @@ class ColdSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("on") {
+			it("should invoke closures for events in a successful signal") {
+				var subscribedCallback = false
+				var eventCallbacks: [String] = []
+				var nextCallbacks: [Int] = []
+				var errorCallback: NSError?
+				var completedCallback = false
+				var terminatedCallback = false
+				var disposedCallback = false
+
+				var subscribed = false
+				var disposed = false
+				let signal = ColdSignal<Int> { (sink, disposable) in
+					expect(subscribedCallback).to(beTruthy())
+					subscribed = true
+
+					disposable.addDisposable {
+						expect(disposedCallback).to(beFalsy())
+						disposed = true
+					}
+
+					expect(eventCallbacks).to(equal([]))
+					expect(nextCallbacks).to(equal([]))
+
+					sink.put(.Next(Box(0)))
+					expect(eventCallbacks).to(equal([ "next" ]))
+					expect(nextCallbacks).to(equal([ 0 ]))
+
+					expect(completedCallback).to(beFalsy())
+					expect(terminatedCallback).to(beFalsy())
+
+					sink.put(.Completed)
+					expect(eventCallbacks).to(equal([ "next", "completed" ]))
+					expect(completedCallback).to(beTruthy())
+					expect(terminatedCallback).to(beTruthy())
+				}
+
+				signal.on(subscribed: {
+					subscribedCallback = true
+				}, event: { ev in
+					let name = ev.event(ifNext: { _ in "next" }, ifError: { _ in "error" }, ifCompleted: "completed")
+					eventCallbacks.append(name)
+				}, next: {
+					expect(eventCallbacks.count).to(equal(nextCallbacks.count + 1))
+					nextCallbacks.append($0)
+				}, error: {
+					errorCallback = $0
+				}, completed: {
+					expect(terminatedCallback).to(beFalsy())
+					completedCallback = true
+				}, terminated: {
+					expect(completedCallback).to(beTruthy())
+					terminatedCallback = true
+				}, disposed: {
+					expect(completedCallback).to(beTruthy())
+					expect(terminatedCallback).to(beTruthy())
+					disposedCallback = true
+				}).start()
+
+				expect(subscribedCallback).to(beTruthy())
+				expect(eventCallbacks).to(equal([ "next", "completed" ]))
+				expect(nextCallbacks).to(equal([ 0 ]))
+				expect(errorCallback).to(beNil())
+				expect(completedCallback).to(beTruthy())
+				expect(terminatedCallback).to(beTruthy())
+				expect(disposedCallback).to(beTruthy())
+			}
+
+			it("should invoke closures for events in an erroneous signal") {
+				var subscribedCallback = false
+				var eventCallbacks: [String] = []
+				var nextCallbacks: [Int] = []
+				var errorCallback: NSError?
+				var completedCallback = false
+				var terminatedCallback = false
+				var disposedCallback = false
+
+				let testError = RACError.Empty.error
+
+				var subscribed = false
+				var disposed = false
+				let signal = ColdSignal<Int> { (sink, disposable) in
+					expect(subscribedCallback).to(beTruthy())
+					subscribed = true
+
+					disposable.addDisposable {
+						expect(disposedCallback).to(beFalsy())
+						disposed = true
+					}
+
+					expect(eventCallbacks).to(equal([]))
+					expect(nextCallbacks).to(equal([]))
+
+					sink.put(.Error(testError))
+					expect(eventCallbacks).to(equal([ "error" ]))
+					expect(terminatedCallback).to(beTruthy())
+				}
+
+				signal.on(subscribed: {
+					subscribedCallback = true
+				}, event: { ev in
+					let name = ev.event(ifNext: { _ in "next" }, ifError: { _ in "error" }, ifCompleted: "completed")
+					eventCallbacks.append(name)
+				}, next: {
+					expect(eventCallbacks.count).to(equal(nextCallbacks.count + 1))
+					nextCallbacks.append($0)
+				}, error: {
+					expect(terminatedCallback).to(beFalsy())
+					errorCallback = $0
+				}, completed: {
+					completedCallback = true
+				}, terminated: {
+					expect(errorCallback).notTo(beNil())
+					terminatedCallback = true
+				}, disposed: {
+					expect(errorCallback).notTo(beNil())
+					expect(terminatedCallback).to(beTruthy())
+					disposedCallback = true
+				}).start()
+
+				expect(subscribedCallback).to(beTruthy())
+				expect(eventCallbacks).to(equal([ "error" ]))
+				expect(nextCallbacks).to(equal([]))
+				expect(errorCallback).to(equal(testError))
+				expect(completedCallback).to(beFalsy())
+				expect(terminatedCallback).to(beTruthy())
+				expect(disposedCallback).to(beTruthy())
+			}
+		}
+
 		describe("zipWith") {
 			it("should combine pairs") {
 				let firstSignal = ColdSignal.fromValues([ 1, 2, 3 ])

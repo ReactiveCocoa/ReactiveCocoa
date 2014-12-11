@@ -193,6 +193,45 @@ class ColdSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("fromResult") {
+			it("should return a signal that sends an error") {
+				var receivedOtherEvent = false
+				var receivedError: NSError?
+
+				let testError = RACError.Empty.error
+				let result: Result<()> = failure(testError)
+
+				ColdSignal.fromResult(result).start(next: { _ in
+					receivedOtherEvent = true
+				}, error: { error in
+					receivedError = error
+				}, completed: {
+					receivedOtherEvent = true
+				})
+
+				expect(receivedError).to(equal(testError))
+				expect(receivedOtherEvent).to(beFalsy())
+			}
+
+			it("should return a signal that sends a value then completes") {
+				var receivedOtherEvent = false
+				var receivedValue: Int?
+				var completed = false
+
+				ColdSignal.fromResult(success(0)).start(next: { value in
+					receivedValue = value
+				}, error: { _ in
+					receivedOtherEvent = true
+				}, completed: {
+					completed = true
+				})
+
+				expect(receivedValue).to(equal(0))
+				expect(completed).to(beTruthy())
+				expect(receivedOtherEvent).to(beFalsy())
+			}
+		}
+
 		describe("zipWith") {
 			it("should combine pairs") {
 				let firstSignal = ColdSignal.fromValues([ 1, 2, 3 ])

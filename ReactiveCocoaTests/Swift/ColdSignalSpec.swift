@@ -626,6 +626,44 @@ class ColdSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("subscribeOn") {
+			it("should evaluate the generator on the given scheduler") {
+				var started = false
+				let signal = ColdSignal<()> { (sink, disposable) in
+					started = true
+					sink.put(.Completed)
+				}
+
+				let scheduler = TestScheduler()
+
+				var receivedValue = false
+				var errored = false
+				var completed = false
+
+				signal
+					.subscribeOn(scheduler)
+					.start(next: { _ in
+						receivedValue = true
+					}, error: { _ in
+						errored = true
+					}, completed: {
+						completed = true
+					})
+
+				expect(receivedValue).to(beFalsy())
+				expect(started).to(beFalsy())
+				expect(completed).to(beFalsy())
+				expect(errored).to(beFalsy())
+
+				scheduler.advance()
+
+				expect(receivedValue).to(beFalsy())
+				expect(started).to(beTruthy())
+				expect(completed).to(beTruthy())
+				expect(errored).to(beFalsy())
+			}
+		}
+
 		describe("zipWith") {
 			it("should combine pairs") {
 				let firstSignal = ColdSignal.fromValues([ 1, 2, 3 ])

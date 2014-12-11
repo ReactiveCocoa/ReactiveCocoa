@@ -500,6 +500,90 @@ class ColdSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("takeUntil") {
+			it("should take values until the trigger fires") {
+				let scheduler = TestScheduler()
+				let signal = ColdSignal<Int> { (sink, disposable) in
+					disposable.addDisposable(scheduler.scheduleAfter(1) {
+						sink.put(.Next(Box(0)))
+					})
+
+					disposable.addDisposable(scheduler.scheduleAfter(2) {
+						sink.put(.Next(Box(1)))
+					})
+
+					disposable.addDisposable(scheduler.scheduleAfter(3) {
+						sink.put(.Next(Box(2)))
+					})
+
+					return
+				}
+
+				let (triggerSignal, triggerSink) = HotSignal<()>.pipe()
+				let newSignal = signal.takeUntil(triggerSignal)
+
+				var latestValue: Int?
+				var completed = false
+				var errored = false
+
+				newSignal.start(next: {
+					latestValue = $0
+				}, error: { _ in
+					errored = true
+				}, completed: {
+					completed = true
+				})
+
+				expect(latestValue).to(beNil())
+				expect(completed).to(beFalsy())
+				expect(errored).to(beFalsy())
+
+				scheduler.advanceByInterval(1.5)
+				expect(latestValue).to(equal(0))
+				expect(completed).to(beFalsy())
+				expect(errored).to(beFalsy())
+
+				scheduler.advanceByInterval(1)
+				expect(latestValue).to(equal(1))
+				expect(completed).to(beFalsy())
+				expect(errored).to(beFalsy())
+
+				triggerSink.put(())
+				expect(latestValue).to(equal(1))
+				expect(completed).to(beTruthy())
+				expect(errored).to(beFalsy())
+
+				scheduler.run()
+				expect(latestValue).to(equal(1))
+				expect(completed).to(beTruthy())
+				expect(errored).to(beFalsy())
+			}
+
+			it("should not take any values if the trigger fires immediately") {
+				let signal = ColdSignal.fromValues([ 0, 1, 2 ])
+				let (triggerSignal, triggerSink) = HotSignal<()>.pipe()
+				let newSignal = signal.takeUntil(triggerSignal)
+
+				triggerSink.put(())
+
+				var latestValue: Int?
+				var completed = false
+				var errored = false
+
+				newSignal.start(next: {
+					latestValue = $0
+				}, error: { _ in
+					errored = true
+				}, completed: {
+					completed = true
+				})
+
+				expect(latestValue).to(beNil())
+				expect(completed).to(beTruthy())
+				expect(errored).to(beFalsy())
+			}
+		}
+
 		describe("takeWhile") {
 			it("should take until the predicate is false") {
 				let values = ColdSignal

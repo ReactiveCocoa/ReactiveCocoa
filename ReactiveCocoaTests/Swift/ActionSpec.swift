@@ -39,8 +39,8 @@ class ActionSpec: QuickSpec {
 		}
 
 		it("should be disabled and not executing after initialization") {
-			expect(action.enabled.first().value()).to(equal(false))
-			expect(action.executing.first().value()).to(equal(false))
+			expect(action.enabled.first().value()).to(beFalsy())
+			expect(action.executing.first().value()).to(beFalsy())
 		}
 
 		it("should error if executed while disabled") {
@@ -53,6 +53,22 @@ class ActionSpec: QuickSpec {
 
 			scheduler.advance()
 			expect(receivedError).to(equal(RACError.ActionNotEnabled.error))
+		}
+
+		it("should enable and disable based on the given signal") {
+			enabledSink.put(true)
+			expect(action.enabled.first().value()).to(beFalsy())
+
+			scheduler.advance()
+			expect(action.enabled.first().value()).to(beTruthy())
+			expect(action.executing.first().value()).to(beFalsy())
+
+			enabledSink.put(false)
+			expect(action.enabled.first().value()).to(beTruthy())
+
+			scheduler.advance()
+			expect(action.enabled.first().value()).to(beFalsy())
+			expect(action.executing.first().value()).to(beFalsy())
 		}
 	}
 }

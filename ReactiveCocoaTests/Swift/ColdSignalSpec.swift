@@ -1291,5 +1291,96 @@ class ColdSignalSpec: QuickSpec {
 				expect(values).to(equal([ 3, 4, 5 ]))
 			}
 		}
+
+		describe("first") {
+			it("should return the first value sent, then dispose of the signal") {
+				var completed = false
+				var disposed = false
+
+				let result = ColdSignal
+					.fromValues([ 0, 1, 2 ])
+					.on(completed: {
+						completed = true
+					}, disposed: {
+						disposed = true
+					})
+					.first()
+
+				expect(result.value()).to(equal(0))
+				expect(completed).to(beFalsy())
+				expect(disposed).to(beTruthy())
+			}
+
+			it("should return an error if no values are sent") {
+				let result = ColdSignal<()>.empty().first()
+				expect(result.error()).to(equal(RACError.ExpectedCountMismatch.error))
+			}
+		}
+
+		describe("last") {
+			it("should return the last value sent after completion") {
+				var completed = false
+
+				let result = ColdSignal
+					.fromValues([ 0, 1, 2 ])
+					.on(completed: {
+						completed = true
+					})
+					.last()
+
+				expect(result.value()).to(equal(2))
+				expect(completed).to(beTruthy())
+			}
+
+			it("should return an error if no values are sent") {
+				let result = ColdSignal<()>.empty().last()
+				expect(result.error()).to(equal(RACError.ExpectedCountMismatch.error))
+			}
+		}
+
+		describe("single") {
+			it("should return the only value sent after completion") {
+				var completed = false
+
+				let result = ColdSignal
+					.single(0)
+					.on(completed: {
+						completed = true
+					})
+					.single()
+
+				expect(result.value()).to(equal(0))
+				expect(completed).to(beTruthy())
+			}
+
+			it("should return an error if no values are sent") {
+				let result = ColdSignal<()>.empty().single()
+				expect(result.error()).to(equal(RACError.ExpectedCountMismatch.error))
+			}
+
+			it("should return an error if too many values are sent") {
+				let result = ColdSignal
+					.fromValues([ 0, 1, 2 ])
+					.single()
+
+				expect(result.error()).to(equal(RACError.ExpectedCountMismatch.error))
+			}
+		}
+
+		describe("wait") {
+			it("should return success if the signal completes") {
+				let result = ColdSignal
+					.fromValues([ 0, 1, 2 ])
+					.wait()
+
+				expect(result.isSuccess()).to(beTruthy())
+			}
+
+			it("should return an error if the signal errors") {
+				let testError = RACError.Empty.error
+				let result = ColdSignal<()>.error(testError).wait()
+				expect(result.error()).to(equal(testError))
+			}
+		}
 	}
 }

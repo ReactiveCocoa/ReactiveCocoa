@@ -46,9 +46,40 @@ class ColdSignalSpec: QuickSpec {
 			}
 
 			it("should never attach the sink if disposed before returning") {
+				var receivedValue: Int?
+				var receivedCompleted = false
+
+				signal.startWithSink { disposable in
+					disposable.dispose()
+
+					return Event.sink(next: { value in
+						receivedValue = value
+					}, completed: {
+						receivedCompleted = true
+					})
+				}
+
+				expect(subscribed).to(beFalsy())
+				expect(receivedValue).to(beNil())
+				expect(receivedCompleted).to(beFalsy())
 			}
 
 			it("should stop sending events to the sink when the returned disposable is disposed") {
+				var receivedValue: Int?
+				var receivedCompleted = false
+
+				signal.startWithSink { disposable in
+					return Event.sink(next: { value in
+						receivedValue = value
+						disposable.dispose()
+					}, completed: {
+						receivedCompleted = true
+					})
+				}
+
+				expect(subscribed).to(beTruthy())
+				expect(receivedValue).to(equal(0))
+				expect(receivedCompleted).to(beFalsy())
 			}
 		}
 

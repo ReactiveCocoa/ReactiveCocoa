@@ -1206,5 +1206,70 @@ class ColdSignalSpec: QuickSpec {
 				expect(completed).to(beTruthy())
 			}
 		}
+
+		describe("concat") {
+			it("should send values from each inner signal in order") {
+				let scheduler = TestScheduler()
+				let signal = ColdSignal<ColdSignal<Int>> { (sink, disposable) in
+					sink.put(.Next(Box(ColdSignal.single(0))))
+
+					let firstSignal = ColdSignal<Int> { (sink, disposable) in
+						sink.put(.Next(Box(1)))
+
+						scheduler.schedule {
+							sink.put(.Next(Box(3)))
+
+							scheduler.schedule {
+								sink.put(.Completed)
+							}
+						}
+					}
+
+					let secondSignal = ColdSignal<Int> { (sink, disposable) in
+						sink.put(.Next(Box(2)))
+
+						scheduler.schedule {
+							sink.put(.Next(Box(4)))
+							sink.put(.Completed)
+						}
+					}
+
+					sink.put(.Next(Box(firstSignal)))
+					sink.put(.Next(Box(secondSignal)))
+					sink.put(.Completed)
+				}
+
+				var receivedValues: [Int] = []
+				var errored = false
+				var completed = false
+
+				signal
+					.concat(identity)
+					.start(next: {
+						receivedValues.append($0)
+					}, error: { _ in
+						errored = true
+					}, completed: {
+						completed = true
+					})
+
+				expect(receivedValues).to(equal([ 0, 1 ]))
+				expect(errored).to(beFalsy())
+				expect(completed).to(beFalsy())
+
+				scheduler.run()
+				expect(receivedValues).to(equal([ 0, 1, 3, 2, 4 ]))
+				expect(errored).to(beFalsy())
+				expect(completed).to(beTruthy())
+			}
+
+			it("should concatenate one signal after another") {
+				let values = ColdSignal.fromValues([ 0, 1, 2 ])
+					.concat(ColdSignal.fromValues([ 3, 4, 5 ]))
+					.collect()
+
+				expect(values).to(equal([ 0, 1, 2, 3, 4, 5 ]))
+			}
+		}
 	}
 }

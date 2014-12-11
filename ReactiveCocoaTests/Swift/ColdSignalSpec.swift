@@ -1382,5 +1382,73 @@ class ColdSignalSpec: QuickSpec {
 				expect(result.error()).to(equal(testError))
 			}
 		}
+
+		describe("startMulticasted") {
+			it("should forward values then invoke completion handler") {
+				let scheduler = TestScheduler()
+				let signal = ColdSignal<Int> { (sink, disposable) in
+					scheduler.schedule {
+						sink.put(.Next(Box(0)))
+						sink.put(.Next(Box(1)))
+						sink.put(.Next(Box(2)))
+						sink.put(.Completed)
+					}
+
+					return
+				}
+
+				var completed = false
+				let hotSignal = signal.startMulticasted(errorHandler: nil) {
+					completed = true
+				}
+
+				var receivedValues: [Int] = []
+				hotSignal.observe { receivedValues.append($0) }
+
+				expect(receivedValues).to(equal([]))
+				expect(completed).to(beFalsy())
+
+				scheduler.advance()
+				expect(receivedValues).to(equal([ 0, 1, 2 ]))
+				expect(completed).to(beTruthy())
+			}
+
+			it("should forward values then invoke error handler") {
+				let scheduler = TestScheduler()
+				let testError = RACError.Empty.error
+
+				let signal = ColdSignal<Int> { (sink, disposable) in
+					scheduler.schedule {
+						sink.put(.Next(Box(0)))
+						sink.put(.Next(Box(1)))
+						sink.put(.Next(Box(2)))
+						sink.put(.Error(testError))
+					}
+
+					return
+				}
+
+				var completed = false
+				var receivedError: NSError?
+
+				let hotSignal = signal.startMulticasted(errorHandler: { error in
+					receivedError = error
+				}, completionHandler: {
+					completed = true
+				})
+
+				var receivedValues: [Int] = []
+				hotSignal.observe { receivedValues.append($0) }
+
+				expect(receivedValues).to(equal([]))
+				expect(receivedError).to(beNil())
+				expect(completed).to(beFalsy())
+
+				scheduler.advance()
+				expect(receivedValues).to(equal([ 0, 1, 2 ]))
+				expect(receivedError).to(equal(testError))
+				expect(completed).to(beFalsy())
+			}
+		}
 	}
 }

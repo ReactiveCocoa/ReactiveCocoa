@@ -340,6 +340,29 @@ class ColdSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("reduce") {
+			it("should aggregate values and send one upon completion") {
+				var receivedValues: [Int] = []
+				var errored = false
+				var completed = false
+
+				ColdSignal
+					.fromValues([ 0, 1, 2, 3, 4 ])
+					.reduce(initial: 0, +)
+					.start(next: {
+						receivedValues.append($0)
+					}, error: { _ in
+						errored = true
+					}, completed: {
+						completed = true
+					})
+
+				expect(receivedValues).to(equal([ 10 ]))
+				expect(completed).to(beTruthy())
+				expect(errored).to(beFalsy())
+			}
+		}
+
 		describe("zipWith") {
 			it("should combine pairs") {
 				let firstSignal = ColdSignal.fromValues([ 1, 2, 3 ])

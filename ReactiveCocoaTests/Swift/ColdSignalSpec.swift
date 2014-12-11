@@ -83,6 +83,94 @@ class ColdSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("lazy") {
+			it("should execute the closure upon subscription") {
+				var executionCount = 0
+				let signal = ColdSignal<()>.lazy {
+					executionCount++
+					return ColdSignal.empty()
+				}
+
+				expect(executionCount).to(equal(0))
+
+				signal.start()
+				expect(executionCount).to(equal(1))
+
+				signal.start()
+				expect(executionCount).to(equal(2))
+			}
+		}
+
+		describe("empty") {
+			it("should return a signal that immediately completes") {
+				var receivedOtherEvent = false
+				var completed = false
+
+				ColdSignal<()>.empty().start(next: { _ in
+					receivedOtherEvent = true
+				}, error: { _ in
+					receivedOtherEvent = true
+				}, completed: {
+					completed = true
+				})
+
+				expect(completed).to(beTruthy())
+				expect(receivedOtherEvent).to(beFalsy())
+			}
+		}
+
+		describe("single") {
+			it("should return a signal that sends the value then immediately completes") {
+				var receivedOtherEvent = false
+				var receivedValue: Int?
+				var completed = false
+
+				ColdSignal.single(0).start(next: { value in
+					receivedValue = value
+				}, error: { _ in
+					receivedOtherEvent = true
+				}, completed: {
+					completed = true
+				})
+
+				expect(receivedValue).to(equal(0))
+				expect(completed).to(beTruthy())
+				expect(receivedOtherEvent).to(beFalsy())
+			}
+		}
+
+		describe("error") {
+			it("should return a signal that immediately errors") {
+				var receivedOtherEvent = false
+				var receivedError: NSError?
+
+				let testError = RACError.Empty.error
+
+				ColdSignal<()>.error(testError).start(next: { _ in
+					receivedOtherEvent = true
+				}, error: { error in
+					receivedError = error
+				}, completed: {
+					receivedOtherEvent = true
+				})
+
+				expect(receivedError).to(equal(testError))
+				expect(receivedOtherEvent).to(beFalsy())
+			}
+		}
+
+		describe("never") {
+			it("should return a signal never sends any events") {
+				var receivedEvent = false
+
+				ColdSignal<()>.never().startWithSink { disposable in
+					return SinkOf { _ in receivedEvent = true }
+				}
+
+				expect(receivedEvent).to(beFalsy())
+			}
+		}
+
 		describe("zipWith") {
 			it("should combine pairs") {
 				let firstSignal = ColdSignal.fromValues([ 1, 2, 3 ])

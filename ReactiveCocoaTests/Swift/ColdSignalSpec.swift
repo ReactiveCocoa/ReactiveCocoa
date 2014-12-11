@@ -299,6 +299,18 @@ class ColdSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("filter") {
+			it("should omit values matching the predicate") {
+				let result = ColdSignal
+					.fromValues([ 0, 1, 2, 3, 4 ])
+					.filter { $0 % 2 == 0 }
+					.reduce(initial: []) { $0 + [ $1 ] }
+					.first()
+
+				expect(result.value()).to(equal([ 0, 2, 4 ]))
+			}
+		}
+
 		describe("zipWith") {
 			it("should combine pairs") {
 				let firstSignal = ColdSignal.fromValues([ 1, 2, 3 ])

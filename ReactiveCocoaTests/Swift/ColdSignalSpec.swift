@@ -232,6 +232,73 @@ class ColdSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("mapAccumulate") {
+			var disposed = false
+			let baseSignal = ColdSignal<Int> { (sink, disposable) in
+				for i in 0 ... 3 {
+					if disposable.disposed {
+						disposed = true
+						return
+					}
+
+					sink.put(.Next(Box(i)))
+				}
+
+				sink.put(.Completed)
+			}
+
+			beforeEach {
+				disposed = true
+			}
+
+			it("should thread a state through") {
+				let newSignal: ColdSignal<Int> = baseSignal.mapAccumulate(initialState: 1) { (state, value) in
+					return (state + 1, state * value)
+				}
+
+				var receivedValues: [Int] = []
+				var completed = false
+				var errored = false
+
+				newSignal.start(next: {
+					receivedValues.append($0)
+				}, error: { _ in
+					errored = true
+				}, completed: {
+					completed = true
+				})
+
+				expect(receivedValues).to(equal([ 0, 2, 6, 12 ]))
+				expect(completed).to(beTruthy())
+				expect(disposed).to(beFalsy())
+				expect(errored).to(beFalsy())
+			}
+
+			it("should dispose of the underlying signal when a nil state is returned") {
+				let newSignal: ColdSignal<Int> = baseSignal.mapAccumulate(initialState: 1) { (state, value) in
+					let newState = (state > 2 ? nil : state + 1)
+					return (newState, state * value)
+				}
+
+				var receivedValues: [Int] = []
+				var completed = false
+				var errored = false
+
+				newSignal.start(next: {
+					receivedValues.append($0)
+				}, error: { _ in
+					errored = true
+				}, completed: {
+					completed = true
+				})
+
+				expect(receivedValues).to(equal([ 0, 2, 6 ]))
+				expect(completed).to(beTruthy())
+				expect(disposed).to(beTruthy())
+				expect(errored).to(beFalsy())
+			}
+		}
+
 		describe("zipWith") {
 			it("should combine pairs") {
 				let firstSignal = ColdSignal.fromValues([ 1, 2, 3 ])

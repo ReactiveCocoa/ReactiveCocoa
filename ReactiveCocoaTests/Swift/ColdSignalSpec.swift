@@ -1271,5 +1271,25 @@ class ColdSignalSpec: QuickSpec {
 				expect(values).to(equal([ 0, 1, 2, 3, 4, 5 ]))
 			}
 		}
+
+		describe("then") {
+			it("should ignore the first signal's values and forward the second") {
+				var subscribed = false
+				var completed = false
+
+				let values = ColdSignal.fromValues([ "foo", "bar" ])
+					.on(subscribed: {
+						subscribed = true
+					}, completed: {
+						completed = true
+					})
+					.then(ColdSignal.fromValues([ 3, 4, 5 ]))
+					.collect()
+
+				expect(subscribed).to(beTruthy())
+				expect(completed).to(beTruthy())
+				expect(values).to(equal([ 3, 4, 5 ]))
+			}
+		}
 	}
 }

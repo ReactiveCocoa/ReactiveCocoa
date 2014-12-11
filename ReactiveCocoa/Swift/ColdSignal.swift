@@ -83,6 +83,22 @@ public enum Event<T> {
 	}
 }
 
+public func == <T: Equatable> (lhs: Event<T>, rhs: Event<T>) -> Bool {
+	switch (lhs, rhs) {
+	case let (.Next(left), .Next(right)):
+		return left.unbox == right.unbox
+
+	case let (.Error(left), .Error(right)):
+		return left == right
+
+	case (.Completed, .Completed):
+		return true
+
+	default:
+		return false
+	}
+}
+
 extension Event: Printable {
 	public var description: String {
 		switch self {

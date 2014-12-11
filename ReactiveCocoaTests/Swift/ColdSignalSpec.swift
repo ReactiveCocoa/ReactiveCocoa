@@ -717,6 +717,57 @@ class ColdSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("timeoutWithError") {
+			let testError = RACError.Empty.error
+
+			it("should do nothing if the signal completes before the timeout") {
+				let scheduler = TestScheduler()
+
+				var receivedValues: [Int] = []
+				var errored = false
+				var completed = false
+
+				ColdSignal
+					.fromValues([ 0, 1, 2, 3 ])
+					.timeoutWithError(testError, afterInterval: 1, onScheduler: scheduler)
+					.start(next: {
+						receivedValues.append($0)
+					}, error: { _ in
+						errored = true
+					}, completed: {
+						completed = true
+					})
+
+				expect(receivedValues).to(equal([ 0, 1, 2, 3 ]))
+				expect(completed).to(beTruthy())
+				expect(errored).to(beFalsy())
+
+				scheduler.run()
+				expect(receivedValues).to(equal([ 0, 1, 2, 3 ]))
+				expect(completed).to(beTruthy())
+				expect(errored).to(beFalsy())
+			}
+
+			it("should error if the timeout elapses") {
+				let scheduler = TestScheduler()
+				var receivedError: NSError?
+
+				ColdSignal<()>.never()
+					.timeoutWithError(testError, afterInterval: 1, onScheduler: scheduler)
+					.start(error: { error in
+						receivedError = error
+					})
+
+				expect(receivedError).to(beNil())
+
+				scheduler.advanceByInterval(0.5)
+				expect(receivedError).to(beNil())
+
+				scheduler.advanceByInterval(0.6)
+				expect(receivedError).to(equal(testError))
+			}
+		}
+
 		describe("zipWith") {
 			it("should combine pairs") {
 				let firstSignal = ColdSignal.fromValues([ 1, 2, 3 ])

@@ -664,6 +664,59 @@ class ColdSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("delay") {
+			it("should delay next and completed events by the given interval") {
+				let scheduler = TestScheduler()
+
+				var receivedValues: [Int] = []
+				var errored = false
+				var completed = false
+
+				ColdSignal
+					.fromValues([ 0, 1, 2, 3 ])
+					.delay(1, onScheduler: scheduler)
+					.start(next: {
+						receivedValues.append($0)
+					}, error: { _ in
+						errored = true
+					}, completed: {
+						completed = true
+					})
+
+				expect(receivedValues).to(equal([]))
+				expect(completed).to(beFalsy())
+				expect(errored).to(beFalsy())
+
+				scheduler.advanceByInterval(0.5)
+				expect(receivedValues).to(equal([]))
+				expect(completed).to(beFalsy())
+				expect(errored).to(beFalsy())
+
+				scheduler.advanceByInterval(0.6)
+				expect(receivedValues).to(equal([ 0, 1, 2, 3 ]))
+				expect(completed).to(beTruthy())
+				expect(errored).to(beFalsy())
+			}
+
+			it("should schedule error events immediately") {
+				let scheduler = TestScheduler()
+
+				let testError = RACError.Empty.error
+				var receivedError: NSError?
+
+				ColdSignal<()>.error(testError)
+					.delay(1, onScheduler: scheduler)
+					.start(error: { error in
+						receivedError = error
+					})
+
+				expect(receivedError).to(beNil())
+
+				scheduler.advance()
+				expect(receivedError).to(equal(testError))
+			}
+		}
+
 		describe("zipWith") {
 			it("should combine pairs") {
 				let firstSignal = ColdSignal.fromValues([ 1, 2, 3 ])

@@ -66,9 +66,10 @@ public final class Action<Input, Output> {
 		let executingTerminated = executing.then(.single(()))
 			.startMulticasted(errorHandler: nil)
 
-		enabled = enabledIf.replay(1)
-			.deliverOn(scheduler)
-			.takeUntil(executingTerminated)
+		enabled = ColdSignal<Bool>.single(false)
+			.concat(enabledIf.replay(1)
+				.deliverOn(scheduler)
+				.takeUntil(executingTerminated))
 			.combineLatestWith(executing)
 			.map { (enabled, executing) in enabled && !executing }
 	}
@@ -92,8 +93,8 @@ public final class Action<Input, Output> {
 		self.init(serializedOnScheduler: MainScheduler(), execute, file: file, line: line, function: function)
 	}
 
-	/// Creates a signal that will execute the action on the main thread, with
-	/// the given input, then forward the results.
+	/// Creates a signal that will execute the action on the scheduler given at
+	/// initialization time, with the given input, then forward the results.
 	///
 	/// If the action is disabled when the returned signal is subscribed to,
 	/// the signal will send an `NSError` corresponding to

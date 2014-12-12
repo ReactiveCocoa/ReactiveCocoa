@@ -83,6 +83,22 @@ public enum Event<T> {
 	}
 }
 
+public func == <T: Equatable> (lhs: Event<T>, rhs: Event<T>) -> Bool {
+	switch (lhs, rhs) {
+	case let (.Next(left), .Next(right)):
+		return left.unbox == right.unbox
+
+	case let (.Error(left), .Error(right)):
+		return left == right
+
+	case (.Completed, .Completed):
+		return true
+
+	default:
+		return false
+	}
+}
+
 extension Event: Printable {
 	public var description: String {
 		switch self {
@@ -954,10 +970,13 @@ extension ColdSignal {
 			disposable.addDisposable(latestDisposable)
 
 			evidence(self).startWithSink { selfDisposable in
-				latestDisposable.innerDisposable = selfDisposable
+				disposable.addDisposable(selfDisposable)
 
 				return Event.sink(next: { signal in
-					latestDisposable.innerDisposable = signal.startWithSink { signalDisposable in
+					latestDisposable.innerDisposable = nil
+					latestCompleted.value = false
+
+					signal.startWithSink { signalDisposable in
 						latestDisposable.innerDisposable = signalDisposable
 
 						return SinkOf { innerEvent in
@@ -971,6 +990,8 @@ extension ColdSignal {
 							}
 						}
 					}
+
+					return
 				}, error: { error in
 					sink.put(.Error(error))
 				}, completed: {

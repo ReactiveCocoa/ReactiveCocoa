@@ -3881,4 +3881,75 @@ qck_describe(@"-reduceApply", ^{
 	});
 });
 
+describe(@"-deliverOnMainThread", ^{
+	void (^dispatchSyncInBackground)(dispatch_block_t) = ^(dispatch_block_t block) {
+		dispatch_group_t group = dispatch_group_create();
+		dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), block);
+		dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+	};
+
+	beforeEach(^{
+		expect(@(NSThread.isMainThread)).to(beTruthy());
+	});
+
+	it(@"should deliver events immediately when on the main thread", ^{
+		RACSubject *subject = [RACSubject subject];
+		NSMutableArray *values = [NSMutableArray array];
+
+		[[subject deliverOnMainThread] subscribeNext:^(id value) {
+			[values addObject:value];
+		}];
+
+		[subject sendNext:@0];
+		expect(values).to(equal(@[ @0 ]));
+
+		[subject sendNext:@1];
+		[subject sendNext:@2];
+		expect(values).to(equal(@[ @0, @1, @2 ]));
+	});
+
+	it(@"should enqueue events sent from the background", ^{
+		RACSubject *subject = [RACSubject subject];
+		NSMutableArray *values = [NSMutableArray array];
+
+		[[subject deliverOnMainThread] subscribeNext:^(id value) {
+			[values addObject:value];
+		}];
+
+		dispatchSyncInBackground(^{
+			[subject sendNext:@0];
+		});
+
+		expect(values).to(equal(@[]));
+		expect(values).toEventually(equal(@[ @0 ]));
+
+		dispatchSyncInBackground(^{
+			[subject sendNext:@1];
+			[subject sendNext:@2];
+		});
+
+		expect(values).to(equal(@[ @0 ]));
+		expect(values).toEventually(equal(@[ @0, @1, @2 ]));
+	});
+
+	it(@"should enqueue events sent from the main thread after events from the background", ^{
+		RACSubject *subject = [RACSubject subject];
+		NSMutableArray *values = [NSMutableArray array];
+
+		[[subject deliverOnMainThread] subscribeNext:^(id value) {
+			[values addObject:value];
+		}];
+
+		dispatchSyncInBackground(^{
+			[subject sendNext:@0];
+		});
+
+		[subject sendNext:@1];
+		[subject sendNext:@2];
+
+		expect(values).to(equal(@[]));
+		expect(values).toEventually(equal(@[ @0, @1, @2 ]));
+	});
+});
+
 QuickSpecEnd

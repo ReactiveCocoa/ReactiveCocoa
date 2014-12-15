@@ -139,8 +139,8 @@ public struct ColdSignal<T> {
 
 	private let generator: Generator
 
-	/// Initializes a signal that will run the given action whenever a
-	/// subscription is created.
+	/// Initializes a signal that will run the given action each time the signal
+	/// is started.
 	public init(_ generator: Generator, file: String = __FILE__, line: Int = __LINE__, function: String = __FUNCTION__) {
 		self.generator = generator
 		self.file = file
@@ -213,8 +213,8 @@ public struct ColdSignal<T> {
 
 /// Convenience constructors.
 extension ColdSignal {
-	/// Creates a signal that will execute the given action upon subscription,
-	/// then forward all events from the generated signal.
+	/// Executes the given action whenever the returned signal is started, then
+	/// forwards all events from the generated signal.
 	public static func lazy(action: () -> ColdSignal) -> ColdSignal {
 		return ColdSignal { (sink, disposable) in
 			if !disposable.disposed {
@@ -514,9 +514,9 @@ extension ColdSignal {
 				sinkDisposable.addDisposable {
 					selfDisposable.dispose()
 
-					// When this subscription terminates, make sure to remove
-					// our unique disposable from `disposable`, to avoid
-					// infinite memory growth.
+					// When the signal terminates, make sure to remove our
+					// unique disposable from `disposable`, to avoid infinite
+					// memory growth.
 					completingHandle.remove()
 				}
 
@@ -1060,8 +1060,8 @@ extension ColdSignal {
 			.concat(identity)
 	}
 
-	/// Ignores all values from the receiver, then subscribes to and forwards
-	/// events from the given signal once the receiver has completed.
+	/// Ignores all values from the receiver, then starts the given signal,
+	/// forwarding its events, once the receiver has completed.
 	public func then<U>(signal: ColdSignal<U>) -> ColdSignal<U> {
 		return ColdSignal<U> { (sink, disposable) in
 			let serialDisposable = SerialDisposable()
@@ -1089,7 +1089,7 @@ extension ColdSignal {
 
 /// Blocking methods for receiving values.
 extension ColdSignal {
-	/// Subscribes to the receiver, then returns the first value received.
+	/// Starts the receiver, then returns the first value received.
 	public func first() -> Result<T> {
 		let semaphore = dispatch_semaphore_create(0)
 		var result: Result<T> = failure(RACError.ExpectedCountMismatch.error)
@@ -1109,14 +1109,14 @@ extension ColdSignal {
 		return result
 	}
 
-	/// Subscribes to the receiver, then returns the last value received.
+	/// Starts the receiver, then returns the last value received.
 	public func last() -> Result<T> {
 		return takeLast(1).first()
 	}
 
-	/// Subscribes to the receiver, and returns a successful result if exactly
-	/// one value is received. If the receiver sends fewer or more values, an
-	/// error will be returned instead.
+	/// Starts the receiver, and returns a successful result if exactly one
+	/// value is received. If the receiver sends fewer or more values, an error
+	/// will be returned instead.
 	public func single() -> Result<T> {
 		let result = reduce(initial: Array<T>()) { (var array, value) in
 			array.append(value)
@@ -1136,7 +1136,7 @@ extension ColdSignal {
 		}
 	}
 
-	/// Subscribes to the receiver, then waits for completion.
+	/// Starts the receiver, then waits for completion.
 	public func wait() -> Result<()> {
 		return reduce(initial: ()) { (_, _) in () }
 			.takeLast(1)
@@ -1146,7 +1146,7 @@ extension ColdSignal {
 
 /// Conversions from ColdSignal to HotSignal.
 extension ColdSignal {
-	/// Immediately subscribes to the receiver, then forwards all values on the
+	/// Immediately starts the receiver, then forwards all values on the
 	/// returned signal.
 	///
 	/// If `errorHandler` is `nil`, the stream MUST NOT produce an `Error`

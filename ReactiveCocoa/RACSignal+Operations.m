@@ -1039,39 +1039,31 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 - (RACSignal *)deliverOnMainThread {
 	__block volatile int32_t queueLength = 0;
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+		void (^performOnMainThread)(dispatch_block_t) = ^(dispatch_block_t block) {
+			int32_t queued = OSAtomicIncrement32Barrier(&queueLength);
+			if (NSThread.isMainThread && queued == 1) {
+				block();
+				OSAtomicDecrement32(&queueLength);
+			} else {
+				dispatch_async(dispatch_get_main_queue(), ^{
+					block();
+					OSAtomicDecrement32(&queueLength);
+				});
+			}
+		};
+
 		return [self subscribeNext:^(id x) {
-			int32_t queued = OSAtomicIncrement32Barrier(&queueLength);
-			if ([NSThread isMainThread] && (queued == 1)) {
+			performOnMainThread(^{
 				[subscriber sendNext:x];
-				OSAtomicDecrement32(&queueLength);
-			} else {
-				dispatch_async(dispatch_get_main_queue(), ^{
-					[subscriber sendNext:x];
-					OSAtomicDecrement32(&queueLength);
-				});
-			}
+			});
 		} error:^(NSError *error) {
-			int32_t queued = OSAtomicIncrement32Barrier(&queueLength);
-			if ([NSThread isMainThread] && (queued == 1)) {
+			performOnMainThread(^{
 				[subscriber sendError:error];
-				OSAtomicDecrement32(&queueLength);
-			} else {
-				dispatch_async(dispatch_get_main_queue(), ^{
-					[subscriber sendError:error];
-					OSAtomicDecrement32(&queueLength);
-				});
-			}
+			});
 		} completed:^{
-			int32_t queued = OSAtomicIncrement32Barrier(&queueLength);
-			if ([NSThread isMainThread] && (queued == 1)) {
+			performOnMainThread(^{
 				[subscriber sendCompleted];
-				OSAtomicDecrement32(&queueLength);
-			} else {
-				dispatch_async(dispatch_get_main_queue(), ^{
-					[subscriber sendCompleted];
-					OSAtomicDecrement32(&queueLength);
-				});
-			}
+			});
 		}];
 	}] setNameWithFormat:@"[%@] -deliverOnMainThread", self.name];
 }

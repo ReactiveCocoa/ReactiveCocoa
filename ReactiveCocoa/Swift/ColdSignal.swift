@@ -632,9 +632,9 @@ extension ColdSignal {
 	}
 
 	/// Injects side effects to be performed upon the specified signal events.
-	public func on(subscribed: () -> () = doNothing, event: Event<T> -> () = doNothing, next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing, terminated: () -> () = doNothing, disposed: () -> () = doNothing) -> ColdSignal {
+	public func on(started: () -> () = doNothing, event: Event<T> -> () = doNothing, next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing, terminated: () -> () = doNothing, disposed: () -> () = doNothing) -> ColdSignal {
 		return ColdSignal { (sink, disposable) in
-			subscribed()
+			started()
 			disposable.addDisposable(disposed)
 
 			self.startWithSink { selfDisposable in

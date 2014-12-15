@@ -37,7 +37,7 @@ static NSString * const RACKVOChannelDataDictionaryKey = @"RACKVOChannelKey";
 @interface RACKVOChannel ()
 
 // The object whose key path the channel is wrapping.
-@property (atomic, unsafe_unretained) NSObject *target;
+@property (atomic, weak) NSObject *target;
 
 // The key path the channel is wrapping.
 @property (nonatomic, copy, readonly) NSString *keyPath;
@@ -69,8 +69,10 @@ static NSString * const RACKVOChannelDataDictionaryKey = @"RACKVOChannelKey";
 
 #pragma mark Lifecycle
 
-- (id)initWithTarget:(NSObject *)target keyPath:(NSString *)keyPath nilValue:(id)nilValue {
+- (id)initWithTarget:(__weak NSObject *)target keyPath:(NSString *)keyPath nilValue:(id)nilValue {
 	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
+
+	NSObject *strongTarget = target;
 
 	self = [super init];
 	if (self == nil) return nil;
@@ -81,12 +83,17 @@ static NSString * const RACKVOChannelDataDictionaryKey = @"RACKVOChannelKey";
 	[self.leadingTerminal setNameWithFormat:@"[-initWithTarget: %@ keyPath: %@ nilValue: %@] -leadingTerminal", target, keyPath, nilValue];
 	[self.followingTerminal setNameWithFormat:@"[-initWithTarget: %@ keyPath: %@ nilValue: %@] -followingTerminal", target, keyPath, nilValue];
 
+	if (strongTarget == nil) {
+		[self.leadingTerminal sendCompleted];
+		return self;
+	}
+
 	// Observe the key path on target for changes and forward the changes to the
 	// terminal.
 	//
 	// Intentionally capturing `self` strongly in the blocks below, so the
 	// channel object stays alive while observing.
-	RACDisposable *observationDisposable = [target rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionInitial observer:nil block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
+	RACDisposable *observationDisposable = [strongTarget rac_observeKeyPath:keyPath options:NSKeyValueObservingOptionInitial observer:nil block:^(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent) {
 		// If the change wasn't triggered by deallocation, only affects the last
 		// path component, and ignoreNextUpdate is set, then it was triggered by
 		// this channel and should not be forwarded.
@@ -97,7 +104,7 @@ static NSString * const RACKVOChannelDataDictionaryKey = @"RACKVOChannelKey";
 
 		[self.leadingTerminal sendNext:value];
 	}];
-	
+
 	NSString *keyPathByDeletingLastKeyPathComponent = keyPath.rac_keyPathByDeletingLastKeyPathComponent;
 	NSArray *keyPathComponents = keyPath.rac_keyPathComponents;
 	NSUInteger keyPathComponentsCount = keyPathComponents.count;
@@ -124,21 +131,21 @@ static NSString * const RACKVOChannelDataDictionaryKey = @"RACKVOChannelKey";
 			[object setValue:x ?: nilValue forKey:lastKeyPathComponent];
 		} error:^(NSError *error) {
 			NSCAssert(NO, @"Received error in %@: %@", self, error);
-			
+
 			// Log the error if we're running with assertions disabled.
 			NSLog(@"Received error in %@: %@", self, error);
 		}];
-	
+
 	// Capture `self` weakly for the target's deallocation disposable, so we can
 	// freely deallocate if we complete before then.
 	@weakify(self);
-	
-	[target.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
+
+	[strongTarget.rac_deallocDisposable addDisposable:[RACDisposable disposableWithBlock:^{
 		@strongify(self);
 		[self.leadingTerminal sendCompleted];
 		self.target = nil;
 	}]];
-	
+
 	return self;
 }
 
@@ -176,7 +183,7 @@ static NSString * const RACKVOChannelDataDictionaryKey = @"RACKVOChannelKey";
 
 	RACChannelTerminal *terminal = [self valueForKey:key];
 	NSCAssert([terminal isKindOfClass:RACChannelTerminal.class], @"Key \"%@\" does not identify a channel terminal", key);
-	
+
 	return terminal;
 }
 

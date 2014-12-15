@@ -21,7 +21,7 @@
 
 @implementation NSObject (RACPropertySubscribing)
 
-- (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
+- (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(__weak NSObject *)observer {
 	return [[[self
 		rac_valuesAndChangesForKeyPath:keyPath options:NSKeyValueObservingOptionInitial observer:observer]
 		map:^(RACTuple *value) {
@@ -31,19 +31,19 @@
 		setNameWithFormat:@"RACObserve(%@, %@)", self.rac_description, keyPath];
 }
 
-- (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer {
+- (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(__weak NSObject *)weakObserver {
+	NSObject *strongObserver = weakObserver;
 	keyPath = [keyPath copy];
 
 	NSRecursiveLock *objectLock = [[NSRecursiveLock alloc] init];
 	objectLock.name = @"org.reactivecocoa.ReactiveCocoa.NSObjectRACPropertySubscribing";
 
-	__block __unsafe_unretained NSObject *unsafeSelf = self;
-	__block __unsafe_unretained NSObject *unsafeObserver = observer;
+	__weak NSObject *weakSelf = self;
 
 	RACSignal *deallocSignal = [[RACSignal
 		zip:@[
 			self.rac_willDeallocSignal,
-			observer.rac_willDeallocSignal ?: [RACSignal never]
+			strongObserver.rac_willDeallocSignal ?: [RACSignal never]
 		]]
 		doCompleted:^{
 			// Forces deallocation to wait if the object variables are currently
@@ -52,9 +52,6 @@
 			@onExit {
 				[objectLock unlock];
 			};
-
-			unsafeSelf = nil;
-			unsafeObserver = nil;
 		}];
 
 	return [[[RACSignal
@@ -68,8 +65,8 @@
 				[objectLock unlock];
 			};
 
-			__strong NSObject *observer __attribute__((objc_precise_lifetime)) = unsafeObserver;
-			__strong NSObject *self __attribute__((objc_precise_lifetime)) = unsafeSelf;
+			__strong NSObject *observer __attribute__((objc_precise_lifetime)) = weakObserver;
+			__strong NSObject *self __attribute__((objc_precise_lifetime)) = weakSelf;
 
 			if (self == nil) {
 				[subscriber sendCompleted];
@@ -81,7 +78,7 @@
 			}];
 		}]
 		takeUntil:deallocSignal]
-		setNameWithFormat:@"%@ -rac_valueAndChangesForKeyPath: %@ options: %lu observer: %@", self.rac_description, keyPath, (unsigned long)options, observer.rac_description];
+		setNameWithFormat:@"%@ -rac_valueAndChangesForKeyPath: %@ options: %lu observer: %@", self.rac_description, keyPath, (unsigned long)options, strongObserver.rac_description];
 }
 
 @end

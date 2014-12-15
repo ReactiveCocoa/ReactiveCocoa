@@ -563,7 +563,7 @@ extension ColdSignal {
 	///
 	/// Values may still be sent upon other schedulers—this merely affects how
 	/// the `start` method is invoked.
-	public func subscribeOn(scheduler: Scheduler) -> ColdSignal {
+	public func evaluateOn(scheduler: Scheduler) -> ColdSignal {
 		return ColdSignal { (sink, disposable) in
 			let schedulerDisposable = scheduler.schedule {
 				self.startWithSink { selfDisposable in

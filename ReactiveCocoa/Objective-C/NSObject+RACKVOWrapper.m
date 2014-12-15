@@ -18,13 +18,13 @@
 
 @implementation NSObject (RACKVOWrapper)
 
-- (RACDisposable *)rac_observeKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer block:(void (^)(id, NSDictionary *, BOOL, BOOL))block {
+- (RACDisposable *)rac_observeKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(__weak NSObject *)weakObserver block:(void (^)(id, NSDictionary *, BOOL, BOOL))block {
 	NSCParameterAssert(block != nil);
 	NSCParameterAssert(keyPath.rac_keyPathComponents.count > 0);
 
 	keyPath = [keyPath copy];
 
-	@unsafeify(observer);
+	NSObject *strongObserver = weakObserver;
 
 	NSArray *keyPathComponents = keyPath.rac_keyPathComponents;
 	BOOL keyPathHasOneComponent = (keyPathComponents.count == 1);
@@ -41,9 +41,9 @@
 	};
 
 	[disposable addDisposable:firstComponentSerialDisposable];
-	
+
 	BOOL shouldAddDeallocObserver = NO;
-	
+
 	objc_property_t property = class_getProperty(object_getClass(self), keyPathHead.UTF8String);
 	if (property != NULL) {
 		rac_propertyAttributes *attributes = rac_copyPropertyAttributes(property);
@@ -51,12 +51,12 @@
 			@onExit {
 				free(attributes);
 			};
-			
+
 			BOOL isObject = attributes->objectClass != nil || strstr(attributes->type, @encode(id)) == attributes->type;
 			BOOL isProtocol = attributes->objectClass == NSClassFromString(@"Protocol");
 			BOOL isBlock = strcmp(attributes->type, @encode(void(^)())) == 0;
 			BOOL isWeak = attributes->weak;
-			
+
 			// If this property isn't actually an object (or is a Class object),
 			// no point in observing the deallocation of the wrapper returned by
 			// KVC.
@@ -79,8 +79,7 @@
 		// with "self", we prevent deallocation triggered callbacks for any such key
 		// path components. Thus, the observer's deallocation is not considered a
 		// change to the key path.
-		@strongify(observer);
-		if (value == observer) return;
+		if (value == weakObserver) return;
 
 		NSDictionary *change = @{
 			NSKeyValueChangeKindKey: @(NSKeyValueChangeSetting),
@@ -101,8 +100,7 @@
 	// Adds the callback block to the remaining path components on the value. Also
 	// adds the logic to clean up the callbacks to the firstComponentDisposable.
 	void (^addObserverToValue)(NSObject *) = ^(NSObject *value) {
-		@strongify(observer);
-		RACDisposable *observerDisposable = [value rac_observeKeyPath:keyPathTail options:(options & ~NSKeyValueObservingOptionInitial) observer:observer block:block];
+		RACDisposable *observerDisposable = [value rac_observeKeyPath:keyPathTail options:(options & ~NSKeyValueObservingOptionInitial) observer:weakObserver block:block];
 		[firstComponentDisposable() addDisposable:observerDisposable];
 	};
 
@@ -114,7 +112,7 @@
 	// handles changes to the value, callbacks to the initial value must be added
 	// separately.
 	NSKeyValueObservingOptions trampolineOptions = (options | NSKeyValueObservingOptionPrior) & ~NSKeyValueObservingOptionInitial;
-	RACKVOTrampoline *trampoline = [[RACKVOTrampoline alloc] initWithTarget:self observer:observer keyPath:keyPathHead options:trampolineOptions block:^(id trampolineTarget, id trampolineObserver, NSDictionary *change) {
+	RACKVOTrampoline *trampoline = [[RACKVOTrampoline alloc] initWithTarget:self observer:strongObserver keyPath:keyPathHead options:trampolineOptions block:^(id trampolineTarget, id trampolineObserver, NSDictionary *change) {
 		// If this is a prior notification, clean up all the callbacks added to the
 		// previous value and call the callback block. Everything else is deferred
 		// until after we get the notification after the change.
@@ -186,7 +184,7 @@
 	}
 
 
-	RACCompoundDisposable *observerDisposable = observer.rac_deallocDisposable;
+	RACCompoundDisposable *observerDisposable = strongObserver.rac_deallocDisposable;
 	RACCompoundDisposable *selfDisposable = self.rac_deallocDisposable;
 	// Dispose of this observation if the receiver or the observer deallocate.
 	[observerDisposable addDisposable:disposable];

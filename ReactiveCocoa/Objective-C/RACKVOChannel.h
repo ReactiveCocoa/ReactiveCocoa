@@ -82,7 +82,7 @@
 ///            an NSValue should be used for primitive properties, to avoid an
 ///            exception if `nil` is received (which might occur if an intermediate
 ///            object is set to `nil`).
-- (id)initWithTarget:(NSObject *)target keyPath:(NSString *)keyPath nilValue:(id)nilValue;
+- (id)initWithTarget:(__weak NSObject *)target keyPath:(NSString *)keyPath nilValue:(id)nilValue;
 
 - (id)init __attribute__((unavailable("Use -initWithTarget:keyPath:nilValue: instead")));
 

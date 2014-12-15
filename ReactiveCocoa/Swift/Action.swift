@@ -14,6 +14,7 @@ public final class Action<Input, Output> {
 	private let scheduler: Scheduler
 
 	private let _executing = ObservableProperty(false)
+	private let _enabled = ObservableProperty(false)
 	private let _values: SinkOf<Output>
 	private let _errors: SinkOf<NSError>
 
@@ -21,13 +22,17 @@ public final class Action<Input, Output> {
 	///
 	/// This will send the current value immediately, then all future values on
 	/// the scheduler given at initialization time.
-	public let executing: ColdSignal<Bool>
+	public var executing: ColdSignal<Bool> {
+		return _executing.values
+	}
 
 	/// Whether the action is enabled.
 	///
 	/// This will send the current value immediately, then all future values on
 	/// the scheduler given at initialization time.
-	public let enabled: ColdSignal<Bool>
+	public var enabled: ColdSignal<Bool> {
+		return _enabled.values
+	}
 
 	/// A signal of all values generated from future calls to execute(), sent on
 	/// the scheduler given at initialization time.
@@ -60,18 +65,12 @@ public final class Action<Input, Output> {
 		(errors, _errors) = HotSignal.pipe()
 		executeClosure = execute
 
-		executing = _executing.values
-
-		// Fires when the `executing` signal terminates.
-		let executingTerminated = executing.then(.single(()))
-			.startMulticasted(errorHandler: nil)
-
-		enabled = ColdSignal<Bool>.single(false)
-			.concat(enabledIf.replay(1)
-				.deliverOn(scheduler)
-				.takeUntil(executingTerminated))
+		_enabled <~! ColdSignal.single(false)
+			.concat(enabledIf
+				.replay(1)
+				.deliverOn(scheduler))
 			.combineLatestWith(executing)
-			.map { (enabled, executing) in enabled && !executing }
+			.map { enabled, executing in enabled && !executing }
 	}
 
 	/// Initializes an action that will deliver all events on the main thread.

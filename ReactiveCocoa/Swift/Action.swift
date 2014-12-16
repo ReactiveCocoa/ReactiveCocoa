@@ -88,7 +88,10 @@ public final class Action<Input, Output> {
 
 	/// Initializes an action that will always be enabled.
 	public convenience init(_ execute: Input -> ColdSignal<Output>, file: String = __FILE__, line: Int = __LINE__, function: String = __FUNCTION__) {
-		self.init(execute, file: file, line: line, function: function)
+		let (enabled, enabledSink) = HotSignal<Bool>.pipe()
+		self.init(enabledIf: enabled, execute, file: file, line: line, function: function)
+
+		enabledSink.put(true)
 	}
 
 	/// Creates a signal that will execute the action with the given input, then

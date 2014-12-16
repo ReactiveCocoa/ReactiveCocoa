@@ -482,7 +482,7 @@ RACSequence *results = [[strings.rac_sequence
 
 ## System Requirements
 
-ReactiveCocoa supports OS X 10.8+ and iOS 6.0+.
+ReactiveCocoa supports OS X 10.8+ and iOS 8.0+.
 
 ## Importing ReactiveCocoa
 

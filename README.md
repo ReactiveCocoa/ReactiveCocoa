@@ -521,7 +521,7 @@ If you’re working on RAC in isolation instead of integrating it into another p
 
 ## More Info
 
-ReactiveCocoa is based on .NET's [Reactive
+ReactiveCocoa is inspired by .NET's [Reactive
 Extensions](http://msdn.microsoft.com/en-us/data/gg577609) (Rx). Most of the
 principles of Rx apply to RAC as well. There are some really good Rx resources
 out there:
@@ -541,11 +541,6 @@ are some resources related to FRP:
 * [Specification for a Functional Reactive Language - Stack Overflow](http://stackoverflow.com/questions/5875929/specification-for-a-functional-reactive-programming-language#5878525)
 * [Escape from Callback Hell](http://elm-lang.org/learn/Escape-from-Callback-Hell.elm)
 * [Principles of Reactive Programming on Coursera](https://www.coursera.org/course/reactive)
-
-ReactiveCocoa also has a chat room on [Slack](https://slack.com/). If you'd like
-to join, just [provide your email
-address](https://github.com/ReactiveCocoa/ReactiveCocoa/issues/871#issuecomment-44237545) and we'll
-happily send you an invite!
 
 [Basic Operators]: Documentation/BasicOperators.md
 [Documentation]: Documentation

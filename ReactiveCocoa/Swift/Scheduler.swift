@@ -58,7 +58,7 @@ public final class MainScheduler: DateScheduler {
 		return NSDate()
 	}
 
-    public init() {}
+	public init() {}
 
 	public func schedule(action: () -> ()) -> Disposable? {
 		return innerScheduler.schedule(action)

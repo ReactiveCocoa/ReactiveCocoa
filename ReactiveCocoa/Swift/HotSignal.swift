@@ -133,7 +133,7 @@ extension HotSignal {
 
 	/// Creates a signal that will never send any values.
 	public class func never() -> HotSignal {
-		return HotSignal { _ in nil }
+		return HotSignal.infinite { _ in nil }
 	}
 
 	/// Creates a signal that can be controlled by sending values to the
@@ -144,10 +144,7 @@ extension HotSignal {
 	/// a direct reference to the signal is lost.
 	public class func pipe() -> (HotSignal, SinkOf<T>) {
 		var sink: SinkOf<T>? = nil
-		let signal = HotSignal { s in
-			sink = s
-			return nil
-		}
+		let signal = HotSignal.finite { sink = $0 }
 
 		return (signal, sink!)
 	}
@@ -168,7 +165,7 @@ extension HotSignal {
 
 		let startDate = scheduler.currentDate
 
-		return HotSignal<NSDate> { sink in
+		return HotSignal<NSDate>.infinite { sink in
 			return scheduler.scheduleAfter(startDate.dateByAddingTimeInterval(interval), repeatingEvery: interval, withLeeway: leeway) {
 				sink.put(scheduler.currentDate)
 			}
@@ -180,19 +177,25 @@ extension HotSignal {
 extension HotSignal {
 	/// Maps each value in the stream to a new value.
 	public func map<U>(f: T -> U) -> HotSignal<U> {
-		return HotSignal<U> { sink in
-			return self.observe { sink.put(f($0)) }
+		return HotSignal<U>.finite { sink in
+			self.observe { value in
+				sink.put(f(value))
+			}
+
+			return
 		}
 	}
 
 	/// Preserves only the values of the stream that pass the given predicate.
 	public func filter(predicate: T -> Bool) -> HotSignal {
-		return HotSignal { sink in
-			return self.observe { value in
+		return HotSignal.finite { sink in
+			self.observe { value in
 				if predicate(value) {
 					sink.put(value)
 				}
 			}
+
+			return
 		}
 	}
 
@@ -303,32 +306,30 @@ extension HotSignal {
 
 		disposable.addDisposable(triggerDisposable)
 
-		return HotSignal { sink in
-			let selfDisposable = self.observe(sink)
-			disposable.addDisposable(selfDisposable)
-
-			return disposable
+		return HotSignal.finite { sink in
+			disposable.addDisposable(self.observe(sink))
+			return
 		}
 	}
 
 	/// Forwards values from the receiver until `replacement` sends a value,
 	/// at which point only values from `replacement` will be forwarded.
 	public func takeUntilReplacement(replacement: HotSignal) -> HotSignal {
-		return HotSignal { sink in
+		return HotSignal.finite { sink in
 			let selfDisposable = self.observe(sink)
-			let replacementDisposable = replacement.observe { value in
+			replacement.observe { value in
 				selfDisposable.dispose()
 				sink.put(value)
 			}
 
-			return CompositeDisposable([ selfDisposable, replacementDisposable ])
+			return
 		}
 	}
 
 	/// Returns a signal that will yield values from the receiver while
 	/// `predicate` remains `true`.
 	public func takeWhile(predicate: T -> Bool) -> HotSignal {
-		return HotSignal { sink in
+		return HotSignal.finite { sink in
 			let selfDisposable = SerialDisposable()
 
 			selfDisposable.innerDisposable = self.observe { value in
@@ -338,19 +339,19 @@ extension HotSignal {
 					selfDisposable.dispose()
 				}
 			}
-
-			return selfDisposable
 		}
 	}
 
 	/// Forwards all values on the given scheduler, instead of whichever
 	/// scheduler they originally arrived upon.
 	public func deliverOn(scheduler: Scheduler) -> HotSignal {
-		return HotSignal { sink in
-			return self.observe { value in
+		return HotSignal.finite { sink in
+			self.observe { value in
 				scheduler.schedule { sink.put(value) }
-				return ()
+				return
 			}
+
+			return
 		}
 	}
 
@@ -359,13 +360,15 @@ extension HotSignal {
 	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> HotSignal {
 		precondition(interval >= 0)
 
-		return HotSignal { sink in
-			return self.observe { value in
+		return HotSignal.finite { sink in
+			self.observe { value in
 				let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
 				scheduler.scheduleAfter(date) {
 					sink.put(value)
 				}
 			}
+
+			return
 		}
 	}
 
@@ -380,8 +383,8 @@ extension HotSignal {
 		let previousDate = Atomic<NSDate?>(nil)
 		let disposable = SerialDisposable()
 
-		return HotSignal { sink in
-			return self.observe { value in
+		return HotSignal.finite { sink in
+			self.observe { value in
 				disposable.innerDisposable = nil
 
 				let now = scheduler.currentDate
@@ -395,6 +398,8 @@ extension HotSignal {
 
 				disposable.innerDisposable = scheduler.scheduleAfter(scheduleDate) { sink.put(value) }
 			}
+
+			return
 		}
 	}
 
@@ -406,7 +411,7 @@ extension HotSignal {
 		let latest = Atomic<T?>(nil)
 		let selfDisposable = observe { latest.value = $0 }
 
-		return HotSignal { sink in
+		return HotSignal.infinite { sink in
 			let samplerDisposable = sampler.observe { _ in
 				if let value = latest.value {
 					sink.put(value)
@@ -426,7 +431,7 @@ extension HotSignal {
 	/// The returned signal will not send a value until both inputs have sent
 	/// at least one value each.
 	public func combineLatestWith<U>(signal: HotSignal<U>) -> HotSignal<(T, U)> {
-		return HotSignal<(T, U)> { sink in
+		return HotSignal<(T, U)>.infinite { sink in
 			let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.HotSignal.combineLatestWith", DISPATCH_QUEUE_SERIAL)
 			var selfLatest: T? = nil
 			var otherLatest: U? = nil
@@ -456,7 +461,7 @@ extension HotSignal {
 	/// Zips elements of two signals into pairs. The elements of any Nth pair
 	/// are the Nth elements of the two input signals.
 	public func zipWith<U>(signal: HotSignal<U>) -> HotSignal<(T, U)> {
-		return HotSignal<(T, U)> { sink in
+		return HotSignal<(T, U)>.infinite { sink in
 			let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.HotSignal.zipWith", DISPATCH_QUEUE_SERIAL)
 			var selfValues: [T] = []
 			var otherValues: [U] = []
@@ -498,7 +503,7 @@ extension HotSignal {
 	/// Returns a signal that will forward changes from the original signals
 	/// as they arrive, starting with earlier ones.
 	public func merge<U>(evidence: HotSignal -> HotSignal<HotSignal<U>>) -> HotSignal<U> {
-		return HotSignal<U> { sink in
+		return HotSignal<U>.infinite { sink in
 			let disposable = CompositeDisposable()
 
 			let selfDisposable = evidence(self).observe { signal in
@@ -531,7 +536,7 @@ extension HotSignal {
 	/// Returns a signal that will forward changes only from the latest
 	/// signal sent upon the receiver.
 	public func switchToLatest<U>(evidence: HotSignal -> HotSignal<HotSignal<U>>) -> HotSignal<U> {
-		return HotSignal<U> { sink in
+		return HotSignal<U>.infinite { sink in
 			let latestDisposable = SerialDisposable()
 
 			let selfDisposable = evidence(self).observe { signal in

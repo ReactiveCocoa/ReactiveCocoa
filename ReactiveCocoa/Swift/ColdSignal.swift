@@ -1152,7 +1152,7 @@ extension ColdSignal {
 	/// If `errorHandler` is `nil`, the stream MUST NOT produce an `Error`
 	/// event, or the program will terminate.
 	public func startMulticasted(#errorHandler: (NSError -> ())?, completionHandler: () -> () = doNothing) -> HotSignal<T> {
-		return HotSignal { sink in
+		return HotSignal.finite { sink in
 			var onError = { (error: NSError) in
 				fatalError("Unhandled error in startMulticasted: \(error)")
 			}
@@ -1163,9 +1163,11 @@ extension ColdSignal {
 				onError = errorHandler
 			}
 
-			return self.self.start(next: { value in
+			self.start(next: { value in
 				sink.put(value)
 			}, error: onError, completed: completionHandler)
+
+			return
 		}
 	}
 }

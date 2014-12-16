@@ -757,18 +757,20 @@ class HotSignalSpec: QuickSpec {
 				expect(innerSignal).toEventually(beNil())
 			}
 
-			it("derived signal should stay alive while original is") {
-				let scheduler = TestScheduler()
+			it("derived signal lifetime should not be tied to original") {
+				let (signal, sink) = HotSignal<Int>.pipe()
+
 				var receivedValue = false
+				let test: () -> () = {
+					signal.take(1).observe { _ in receivedValue = true }
+					return
+				}
 
-				HotSignal<NSDate>.interval(1, onScheduler: scheduler)
-					.take(1)
-					.observe { _ in receivedValue = true }
-
+				test()
 				expect(receivedValue).to(beFalsy())
 
-				scheduler.advanceByInterval(1.5)
-				expect(receivedValue).to(beTruthy())
+				sink.put(1)
+				expect(receivedValue).to(beFalsy())
 			}
 
 			it("pipe() should keep signal alive while sink is") {

@@ -11,7 +11,7 @@ import LlamaKit
 /// A push-driven stream that sends the same values to all observers.
 public final class HotSignal<T> {
 	private let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.HotSignal", DISPATCH_QUEUE_CONCURRENT)
-	private var observers = Bag<SinkOf<T>>()
+	private var observers: Bag<SinkOf<T>>? = Bag()
 	private var disposable: Disposable?
 
 	/// The file in which this signal was defined, if known.
@@ -39,9 +39,18 @@ public final class HotSignal<T> {
 	/// Sends the given value to all observers.
 	private func put(value: T) {
 		dispatch_sync(self.queue) {
-			for sink in self.observers {
-				sink.put(value)
+			if let observers = self.observers {
+				for sink in observers {
+					sink.put(value)
+				}
 			}
+		}
+	}
+
+	/// Removes all observers, and prevents any new observers from attaching.
+	private func close() {
+		dispatch_barrier_async(self.queue) {
+			self.observers = nil
 		}
 	}
 
@@ -54,14 +63,17 @@ public final class HotSignal<T> {
 		var token: RemovalToken? = nil
 
 		dispatch_barrier_sync(queue) {
-			token = self.observers.insert(sink)
+			token = self.observers?.insert(sink)
 		}
 
 		return ActionDisposable {
-			// Retain `self` strongly so that observers can hold onto the signal
-			// _or_ the disposable to ensure the receipt of values.
-			dispatch_barrier_async(self.queue) {
-				self.observers.removeValueForToken(token!)
+			if let token = token {
+				// Retain `self` strongly so that observers can hold onto the signal
+				// _or_ the disposable to ensure the receipt of values.
+				dispatch_barrier_async(self.queue) {
+					self.observers?.removeValueForToken(token)
+					return
+				}
 			}
 		}
 	}
@@ -102,8 +114,17 @@ extension HotSignal {
 	/// Finite signals cannot be terminated before their work has finished.
 	public class func finite(generator: SinkOf<T> -> (), file: String = __FILE__, line: Int = __LINE__, function: String = __FUNCTION__) -> HotSignal {
 		return HotSignal(file: file, line: line, function: function) { signal in
+			let disposable = ScopedDisposable(ActionDisposable {
+				signal.close()
+			})
+
 			generator(SinkOf { value in
 				signal.put(value)
+
+				// Ensures that `scopedDisposable` will be deallocated when this
+				// block goes away, thereby removing all observers from the
+				// signal.
+				if disposable.disposed {}
 			})
 
 			return nil

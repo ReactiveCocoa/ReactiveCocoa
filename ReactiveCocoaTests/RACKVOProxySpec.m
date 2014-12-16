@@ -6,6 +6,9 @@
 //  Copyright (c) 2014 GitHub, Inc. All rights reserved.
 //
 
+#import <Quick/Quick.h>
+#import <Nimble/Nimble.h>
+
 #import "RACKVOProxy.h"
 
 #import "NSObject+RACKVOWrapper.h"
@@ -24,20 +27,21 @@
 @implementation TestObject
 @end
 
-SpecBegin(RACKVOProxy)
-describe(@"racproxyobserve", ^{
+QuickSpecBegin(RACKVOProxySpec)
+
+qck_describe(@"racproxyobserve", ^{
 	__block TestObject *testObject;
 	
-	beforeEach(^{
+	qck_beforeEach(^{
 		testObject = [[TestObject alloc] init];
 	});
 	
-	afterEach(^{
+	qck_afterEach(^{
 		testObject = nil;
 	});
 	
-	describe(@"basic", ^{
-		it (@"should handle multiple observations on the same value", ^{
+	qck_describe(@"basic", ^{
+		qck_it(@"should handle multiple observations on the same value", ^{
 			__block int observedValue1 = 0;
 			__block int observedValue2 = 0;
 			[[[RACObserve(testObject, testInt)
@@ -56,11 +60,11 @@ describe(@"racproxyobserve", ^{
 			
 			testObject.testInt = 2;
 			
-			EXP_expect(observedValue1).will.equal(testObject.testInt);
-			EXP_expect(observedValue2).will.equal(testObject.testInt);
+			expect(@(observedValue1)).toEventually(equal(@(testObject.testInt)));
+			expect(@(observedValue2)).toEventually(equal(@(testObject.testInt)));
 		});
 		
-		it (@"can remove individual observation", ^{
+		qck_it(@"can remove individual observation", ^{
 			__block int observedValue1 = 0;
 			__block int observedValue2 = 0;
 			RACDisposable *disposable1 = [RACObserve(testObject, testInt)
@@ -75,21 +79,20 @@ describe(@"racproxyobserve", ^{
 			
 			testObject.testInt = 2;
 			
-			EXP_expect(observedValue1).will.equal(testObject.testInt);
-			EXP_expect(observedValue2).will.equal(testObject.testInt);
-			
+			expect(@(observedValue1)).toEventually(equal(@(testObject.testInt)));
+			expect(@(observedValue2)).toEventually(equal(@(testObject.testInt)));
+
 			[disposable1 dispose];
 			
 			testObject.testInt = 3;
 			
-			EXP_expect(observedValue2).will.equal(testObject.testInt);
-			EXP_expect(observedValue1).toNot.equal(testObject.testInt);
-			
+			expect(@(observedValue1)).toEventuallyNot(equal(@(testObject.testInt)));
+			expect(@(observedValue2)).toEventually(equal(@(testObject.testInt)));
 		});
 	});
 	
-	describe(@"async", ^{
-		it(@"should handle changes being made on another queue", ^AsyncBlock{
+	qck_describe(@"async", ^{
+		qck_it(@"should handle changes being made on another queue", ^/*AsyncBlock*/{
 			__block int observedValue = 0;
 			[[[RACObserve(testObject, testInt)
 				skip:1]
@@ -100,12 +103,12 @@ describe(@"racproxyobserve", ^{
 			
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 				testObject.testInt = 2;
-				EXP_expect(observedValue).will.equal(testObject.testInt);
-				done();
+				expect(@(observedValue)).toEventually(equal(@(testObject.testInt)));
+//				done();
 			});
 		});
 		
-		it(@"should handle changes being made on another queue using deliverOn", ^AsyncBlock{
+		qck_it(@"should handle changes being made on another queue using deliverOn", ^/*AsyncBlock*/{
 			__block int observedValue = 0;
 			[[[[RACObserve(testObject, testInt)
 				skip:1]
@@ -118,12 +121,12 @@ describe(@"racproxyobserve", ^{
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 				testObject.testInt = 2;
 				
-				EXP_expect(observedValue).will.equal(testObject.testInt);
-				done();
+				expect(@(observedValue)).toEventually(equal(@(testObject.testInt)));
+//				done();
 			});
 		});
 		
-		it(@"async disposal of target", ^AsyncBlock{
+		qck_it(@"async disposal of target", ^/*AsyncBlock*/{
 			__block int observedValue;
 			[[RACObserve(testObject, testInt)
 				deliverOn:RACScheduler.mainThreadScheduler]
@@ -134,14 +137,14 @@ describe(@"racproxyobserve", ^{
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 				testObject.testInt = 2;
 				testObject = nil;
-				done();
+//				done();
 			});
 		});
 	});
 	
-	describe(@"stress", ^{
+	qck_describe(@"stress", ^{
 		int numIterations = 5000;
-		it(@"async disposal of observer reactivecocoa/1122", ^{
+		qck_it(@"async disposal of observer reactivecocoa/1122", ^{
 			__block int observedValue;
 			__block RACDisposable *dispose;
 			for (int i=0; i< numIterations; ++i) {
@@ -161,7 +164,7 @@ describe(@"racproxyobserve", ^{
 			}
 		});
 		
-		it(@"async disposal of signal with in-flight changes", ^AsyncBlock{
+		qck_it(@"async disposal of signal with in-flight changes", ^/*AsyncBlock*/{
 			RACSubject *teardown = [RACSubject subject];
 			
 			RACSignal *isEvenSignal = [RACSignal defer:^{
@@ -175,7 +178,7 @@ describe(@"racproxyobserve", ^{
 				deliverOn:RACScheduler.mainThreadScheduler]
 				takeUntil:teardown]
 				subscribeCompleted:^{
-					done();
+//					done();
 				}];
 			
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -189,4 +192,4 @@ describe(@"racproxyobserve", ^{
 	});
 });
 
-SpecEnd
+QuickSpecEnd

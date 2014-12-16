@@ -103,6 +103,10 @@ extension ObservableProperty: SinkType {
 
 extension ObservableProperty: DebugPrintable {
 	public var debugDescription: String {
+		let function = self.function ?? ""
+		let file = self.file ?? ""
+		let line = self.line?.description ?? ""
+
 		return "\(function).ObservableProperty (\(file):\(line))"
 	}
 }

@@ -124,6 +124,10 @@ public final class Action<Input, Output> {
 
 extension Action: DebugPrintable {
 	public var debugDescription: String {
+		let function = self.function ?? ""
+		let file = self.file ?? ""
+		let line = self.line?.description ?? ""
+
 		return "\(function).Action (\(file):\(line))"
 	}
 }

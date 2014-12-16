@@ -135,7 +135,9 @@ class ActionSpec: QuickSpec {
 
 			beforeEach {
 				action = Action { _ in .single(()) }
+
 				cocoaAction = CocoaAction(action)
+				expect(cocoaAction.enabled).toEventually(beTruthy())
 			}
 
 			#if os(OSX)
@@ -152,6 +154,36 @@ class ActionSpec: QuickSpec {
 					control.sendActionsForControlEvents(UIControlEvents.TouchDown)
 				}
 			#endif
+
+			it("should generate KVO notifications for enabled") {
+				var values: [Bool] = []
+
+				cocoaAction
+					.rac_valuesForKeyPath("enabled", observer: nil)
+					.asColdSignal()
+					.map { $0! as Bool }
+					.start(next: { values.append($0) })
+
+				expect(values).to(equal([ true ]))
+
+				action.apply(nil).wait()
+				expect(values).toEventually(equal([ true, false, true ]))
+			}
+
+			it("should generate KVO notifications for executing") {
+				var values: [Bool] = []
+
+				cocoaAction
+					.rac_valuesForKeyPath("executing", observer: nil)
+					.asColdSignal()
+					.map { $0! as Bool }
+					.start(next: { values.append($0) })
+
+				expect(values).to(equal([ false ]))
+
+				action.apply(nil).wait()
+				expect(values).toEventually(equal([ false, true, false ]))
+			}
 		}
 	}
 }

@@ -144,3 +144,103 @@ extension Action: DebugPrintable {
 		return "\(function).Action (\(file):\(line))"
 	}
 }
+
+/// Wraps an Action for use by a GUI control (such as `NSControl` or
+/// `UIControl`), with KVO, or with Cocoa Bindings.
+public final class CocoaAction: NSObject {
+	/// Whether the action is enabled.
+	///
+	/// This property will only change on the main thread, and will generate a
+	/// KVO notification for every change.
+	public var enabled: Bool {
+		return _enabled
+	}
+
+	/// Whether the action is executing.
+	///
+	/// This property will only change on the main thread, and will generate a
+	/// KVO notification for every change.
+	public var executing: Bool {
+		return _executing
+	}
+
+	/// The selector that a caller should invoke upon the receiver in order to
+	/// execute the action.
+	public let selector: Selector = "execute:"
+
+	private let _execute: AnyObject? -> ()
+	private var _enabled = false
+	private var _executing = false
+	private let disposable = CompositeDisposable()
+
+	private init(enabled: ColdSignal<Bool>, executing: ColdSignal<Bool>, execute: AnyObject? -> ()) {
+		_execute = execute
+
+		super.init()
+
+		startSignalOnMainThread(enabled) { [weak self] value in
+			self?.willChangeValueForKey("enabled")
+			self?._enabled = value
+			self?.didChangeValueForKey("enabled")
+		}
+
+		startSignalOnMainThread(executing) { [weak self] value in
+			self?.willChangeValueForKey("executing")
+			self?._executing = value
+			self?.didChangeValueForKey("executing")
+		}
+	}
+
+	/// Initializes a Cocoa action that will always invoke the given action with
+	/// an input of ().
+	public convenience init<Output>(_ action: Action<(), Output>) {
+		self.init(enabled: action.enabled, executing: action.executing, execute: { object in
+			action.apply(()).start()
+			return
+		})
+	}
+
+	/// Initializes a Cocoa action that will always invoke the given action with
+	/// an input of nil.
+	public convenience init<Input: NilLiteralConvertible, Output>(_ action: Action<Input, Output>) {
+		self.init(enabled: action.enabled, executing: action.executing, execute: { object in
+			action.apply(nil).start()
+			return
+		})
+	}
+
+	/// Initializes a Cocoa action that will invoke the given action with the
+	/// object given to execute() if it can be downcast successfully, or nil
+	/// otherwise.
+	public convenience init<Input: AnyObject, Output>(_ action: Action<Input?, Output>) {
+		self.init(enabled: action.enabled, executing: action.executing, execute: { object in
+			action.apply(object as? Input).start()
+			return
+		})
+	}
+
+	deinit {
+		self.disposable.dispose()
+	}
+
+	/// Starts the given signal, delivering its uniqued values to the main
+	/// thread and executing the given closure for each one.
+	private func startSignalOnMainThread<T: Equatable>(signal: ColdSignal<T>, next: T -> ()) {
+		let signalDisposable = signal
+			.skipRepeats(identity)
+			.deliverOn(MainScheduler())
+			.start(next: next)
+
+		self.disposable.addDisposable(signalDisposable)
+	}
+
+	/// Attempts to execute the underlying action with the given input, subject
+	/// to the behavior described by the initializer that was used.
+	@IBAction public func execute(input: AnyObject) {
+		_execute(input)
+	}
+
+	public override class func automaticallyNotifiesObserversForKey(key: String) -> Bool {
+		return false
+	}
+}

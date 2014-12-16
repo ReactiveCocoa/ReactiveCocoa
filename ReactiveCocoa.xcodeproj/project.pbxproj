@@ -7,12 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		07CD36E91A34B1DD00917FB6 /* RACKVOProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 07CD36E71A34B1DD00917FB6 /* RACKVOProxy.h */; };
-		07CD36EA1A34B1DD00917FB6 /* RACKVOProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 07CD36E71A34B1DD00917FB6 /* RACKVOProxy.h */; };
-		07CD36EB1A34B1DD00917FB6 /* RACKVOProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 07CD36E81A34B1DD00917FB6 /* RACKVOProxy.m */; };
-		07CD36EC1A34B1DD00917FB6 /* RACKVOProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 07CD36E81A34B1DD00917FB6 /* RACKVOProxy.m */; };
-		07CD36EE1A34B20300917FB6 /* RACKVOProxySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 07CD36ED1A34B20300917FB6 /* RACKVOProxySpec.m */; };
-		07CD36EF1A34B20300917FB6 /* RACKVOProxySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 07CD36ED1A34B20300917FB6 /* RACKVOProxySpec.m */; };
+		7A7065811A3F88B8001E8354 /* RACKVOProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A70657E1A3F88B8001E8354 /* RACKVOProxy.m */; };
+		7A7065821A3F88B8001E8354 /* RACKVOProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A70657E1A3F88B8001E8354 /* RACKVOProxy.m */; };
+		7A7065841A3F8967001E8354 /* RACKVOProxySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A7065831A3F8967001E8354 /* RACKVOProxySpec.m */; };
+		7A7065851A3F8967001E8354 /* RACKVOProxySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A7065831A3F8967001E8354 /* RACKVOProxySpec.m */; };
 		D01B7B6219EDD8FE00D26E01 /* Nimble.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D05E662419EDD82000904ACA /* Nimble.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D01B7B6319EDD8FE00D26E01 /* Quick.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D037672B19EDA75D00A782A9 /* Quick.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D01B7B6419EDD94B00D26E01 /* ReactiveCocoa.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D047260C19E49F82006002AA /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -437,9 +435,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		07CD36E71A34B1DD00917FB6 /* RACKVOProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACKVOProxy.h; sourceTree = "<group>"; };
-		07CD36E81A34B1DD00917FB6 /* RACKVOProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOProxy.m; sourceTree = "<group>"; };
-		07CD36ED1A34B20300917FB6 /* RACKVOProxySpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOProxySpec.m; sourceTree = "<group>"; };
+		7A70657D1A3F88B8001E8354 /* RACKVOProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RACKVOProxy.h; sourceTree = "<group>"; };
+		7A70657E1A3F88B8001E8354 /* RACKVOProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOProxy.m; sourceTree = "<group>"; };
+		7A7065831A3F8967001E8354 /* RACKVOProxySpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RACKVOProxySpec.m; sourceTree = "<group>"; };
 		D037642A19EDA41200A782A9 /* NSArray+RACSequenceAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+RACSequenceAdditions.h"; sourceTree = "<group>"; };
 		D037642B19EDA41200A782A9 /* NSArray+RACSequenceAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+RACSequenceAdditions.m"; sourceTree = "<group>"; };
 		D037642C19EDA41200A782A9 /* NSControl+RACCommandSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSControl+RACCommandSupport.h"; sourceTree = "<group>"; };
@@ -858,6 +856,8 @@
 				D037648219EDA41200A782A9 /* RACIndexSetSequence.m */,
 				D037648319EDA41200A782A9 /* RACKVOChannel.h */,
 				D037648419EDA41200A782A9 /* RACKVOChannel.m */,
+				7A70657D1A3F88B8001E8354 /* RACKVOProxy.h */,
+				7A70657E1A3F88B8001E8354 /* RACKVOProxy.m */,
 				D037648519EDA41200A782A9 /* RACKVOTrampoline.h */,
 				D037648619EDA41200A782A9 /* RACKVOTrampoline.m */,
 				D037648719EDA41200A782A9 /* RACMulticastConnection.h */,
@@ -1002,6 +1002,7 @@
 				D037668F19EDA60000A782A9 /* RACDisposableSpec.m */,
 				D037669019EDA60000A782A9 /* RACEventSpec.m */,
 				D037669119EDA60000A782A9 /* RACKVOChannelSpec.m */,
+				7A7065831A3F8967001E8354 /* RACKVOProxySpec.m */,
 				D037669219EDA60000A782A9 /* RACKVOWrapperSpec.m */,
 				D037669319EDA60000A782A9 /* RACMulticastConnectionSpec.m */,
 				D037669419EDA60000A782A9 /* RACPropertySignalExamples.h */,
@@ -1024,12 +1025,12 @@
 				D03766A719EDA60000A782A9 /* RACSubscriptingAssignmentTrampolineSpec.m */,
 				D03766A819EDA60000A782A9 /* RACTargetQueueSchedulerSpec.m */,
 				D03766B019EDA60000A782A9 /* RACTupleSpec.m */,
+				D037673819EDCA0E00A782A9 /* SwiftSpec.swift */,
 				D03766B219EDA60000A782A9 /* UIActionSheetRACSupportSpec.m */,
 				D03766B319EDA60000A782A9 /* UIAlertViewRACSupportSpec.m */,
 				D03766B419EDA60000A782A9 /* UIBarButtonItemRACSupportSpec.m */,
 				D03766B519EDA60000A782A9 /* UIButtonRACSupportSpec.m */,
 				D03766B719EDA60000A782A9 /* UIImagePickerControllerRACSupportSpec.m */,
-				D037673819EDCA0E00A782A9 /* SwiftSpec.swift */,
 			);
 			name = Specs;
 			sourceTree = "<group>";
@@ -1177,7 +1178,6 @@
 				D04725F019E49ED7006002AA /* ReactiveCocoa.h in Headers */,
 				D037652019EDA41200A782A9 /* NSObject+RACLifting.h in Headers */,
 				D03764EC19EDA41200A782A9 /* NSControl+RACCommandSupport.h in Headers */,
-				07CD36E91A34B1DD00917FB6 /* RACKVOProxy.h in Headers */,
 				D037655C19EDA41200A782A9 /* RACChannel.h in Headers */,
 				D03765EE19EDA41200A782A9 /* RACSubscriber.h in Headers */,
 				D03765D219EDA41200A782A9 /* RACSignal.h in Headers */,
@@ -1238,7 +1238,6 @@
 				D037664519EDA41200A782A9 /* UISegmentedControl+RACSignalSupport.h in Headers */,
 				D037666419EDA43C00A782A9 /* ReactiveCocoa.h in Headers */,
 				D037652519EDA41200A782A9 /* NSObject+RACPropertySubscribing.h in Headers */,
-				07CD36EA1A34B1DD00917FB6 /* RACKVOProxy.h in Headers */,
 				D03765B119EDA41200A782A9 /* RACQueueScheduler.h in Headers */,
 				D037662519EDA41200A782A9 /* UIButton+RACCommandSupport.h in Headers */,
 				D037672819EDA63500A782A9 /* RACBehaviorSubject.h in Headers */,
@@ -1510,12 +1509,12 @@
 				D037651219EDA41200A782A9 /* NSObject+RACAppKitBindings.m in Sources */,
 				D037656619EDA41200A782A9 /* RACCompoundDisposable.m in Sources */,
 				D037655A19EDA41200A782A9 /* RACBlockTrampoline.m in Sources */,
-				07CD36EB1A34B1DD00917FB6 /* RACKVOProxy.m in Sources */,
 				D037659019EDA41200A782A9 /* RACGroupedSignal.m in Sources */,
 				D037655E19EDA41200A782A9 /* RACChannel.m in Sources */,
 				D037657C19EDA41200A782A9 /* RACEagerSequence.m in Sources */,
 				D037657819EDA41200A782A9 /* RACDynamicSignal.m in Sources */,
 				D037659419EDA41200A782A9 /* RACImmediateScheduler.m in Sources */,
+				7A7065811A3F88B8001E8354 /* RACKVOProxy.m in Sources */,
 				D037651619EDA41200A782A9 /* NSObject+RACDeallocating.m in Sources */,
 				D037658419EDA41200A782A9 /* RACEmptySignal.m in Sources */,
 				D037654619EDA41200A782A9 /* NSURLConnection+RACSupport.m in Sources */,
@@ -1567,8 +1566,8 @@
 				D037670D19EDA60000A782A9 /* RACTestExampleScheduler.m in Sources */,
 				D03766ED19EDA60000A782A9 /* RACMulticastConnectionSpec.m in Sources */,
 				D03766E919EDA60000A782A9 /* RACKVOChannelSpec.m in Sources */,
-				07CD36EE1A34B20300917FB6 /* RACKVOProxySpec.m in Sources */,
 				D03766FB19EDA60000A782A9 /* RACSignalSpec.m in Sources */,
+				7A7065841A3F8967001E8354 /* RACKVOProxySpec.m in Sources */,
 				D037670719EDA60000A782A9 /* RACSubscriberSpec.m in Sources */,
 				D03766EF19EDA60000A782A9 /* RACPropertySignalExamples.m in Sources */,
 				D03766D519EDA60000A782A9 /* RACBacktraceSpec.m in Sources */,
@@ -1645,7 +1644,6 @@
 				D037660F19EDA41200A782A9 /* RACUnarySequence.m in Sources */,
 				D03765FF19EDA41200A782A9 /* RACTargetQueueScheduler.m in Sources */,
 				D03765DF19EDA41200A782A9 /* RACSignalSequence.m in Sources */,
-				07CD36EC1A34B1DD00917FB6 /* RACKVOProxy.m in Sources */,
 				D037656D19EDA41200A782A9 /* RACDelegateProxy.m in Sources */,
 				D037657519EDA41200A782A9 /* RACDynamicSequence.m in Sources */,
 				D037657119EDA41200A782A9 /* RACDisposable.m in Sources */,
@@ -1682,6 +1680,7 @@
 				D037652F19EDA41200A782A9 /* NSOrderedSet+RACSequenceAdditions.m in Sources */,
 				D037662719EDA41200A782A9 /* UIButton+RACCommandSupport.m in Sources */,
 				D037652719EDA41200A782A9 /* NSObject+RACPropertySubscribing.m in Sources */,
+				7A7065821A3F88B8001E8354 /* RACKVOProxy.m in Sources */,
 				D037658D19EDA41200A782A9 /* RACEvent.m in Sources */,
 				D03765B319EDA41200A782A9 /* RACQueueScheduler.m in Sources */,
 				D037655319EDA41200A782A9 /* RACBacktrace.m in Sources */,
@@ -1715,7 +1714,7 @@
 				D037670219EDA60000A782A9 /* RACSubclassObject.m in Sources */,
 				D03766CE19EDA60000A782A9 /* NSStringRACKeyPathUtilitiesSpec.m in Sources */,
 				D037671619EDA60000A782A9 /* RACTupleSpec.m in Sources */,
-				07CD36EF1A34B20300917FB6 /* RACKVOProxySpec.m in Sources */,
+				7A7065851A3F8967001E8354 /* RACKVOProxySpec.m in Sources */,
 				D03766C619EDA60000A782A9 /* NSObjectRACLiftingSpec.m in Sources */,
 				D03766D219EDA60000A782A9 /* NSURLConnectionRACSupportSpec.m in Sources */,
 				D03766F419EDA60000A782A9 /* RACSequenceAdditionsSpec.m in Sources */,

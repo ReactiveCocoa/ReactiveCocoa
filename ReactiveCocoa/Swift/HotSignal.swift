@@ -23,28 +23,26 @@ public final class HotSignal<T> {
 	/// The line number upon which this signal was defined, if known.
 	internal let line: Int?
 
-	/// Initializes a signal that will immediately perform the given action to
-	/// begin generating its values.
-	public init(_ generator: SinkOf<T> -> Disposable?, file: String = __FILE__, line: Int = __LINE__, function: String = __FUNCTION__) {
-		disposable = generator(SinkOf { value in
-			dispatch_sync(self.queue) {
-				for sink in self.observers {
-					sink.put(value)
-				}
-			}
-		})
-
+	/// Initializes a HotSignal, then starts it by invoking the given generator.
+	private init(file: String, line: Int, function: String, generator: HotSignal -> Disposable?) {
 		self.file = file
 		self.line = line
 		self.function = function
-	}
 
-	internal convenience init(file: String, line: Int, function: String, generator: SinkOf<T> -> Disposable?) {
-		self.init(generator, file: file, line: line, function: function)
+		disposable = generator(self)
 	}
 
 	deinit {
 		disposable?.dispose()
+	}
+
+	/// Sends the given value to all observers.
+	private func put(value: T) {
+		dispatch_sync(self.queue) {
+			for sink in self.observers {
+				sink.put(value)
+			}
+		}
 	}
 
 	/// Notifies `observer` about new values from the receiver.
@@ -77,6 +75,41 @@ public final class HotSignal<T> {
 
 /// Convenience constructors.
 extension HotSignal {
+	/// Creates an “infinite” HotSignal, or a signal that will not terminate
+	/// naturally.
+	///
+	/// Infinite signals will automatically deallocate when all references to
+	/// them are lost. In order to observe an infinite signal, the disposable
+	/// returned from observe() or the HotSignal itself must be retained for
+	/// the duration of the observation.
+	///
+	/// To terminate an infinite signal, drop all references to it.
+	public class func infinite(generator: SinkOf<T> -> Disposable, file: String = __FILE__, line: Int = __LINE__, function: String = __FUNCTION__) -> HotSignal {
+		return HotSignal(file: file, line: line, function: function) { signal in
+			return generator(SinkOf { [weak signal] value in
+				signal?.put(value)
+				return
+			})
+		}
+	}
+
+	/// Creates a “finite” HotSignal, or a signal that will terminate naturally.
+	///
+	/// Finite signals will stay alive for as long as their generator maintains
+	/// a reference to the sink. observe() can be invoked upon a finite signal
+	/// without retaining the signal itself or the returned disposable.
+	///
+	/// Finite signals cannot be terminated before their work has finished.
+	public class func finite(generator: SinkOf<T> -> (), file: String = __FILE__, line: Int = __LINE__, function: String = __FUNCTION__) -> HotSignal {
+		return HotSignal(file: file, line: line, function: function) { signal in
+			generator(SinkOf { value in
+				signal.put(value)
+			})
+
+			return nil
+		}
+	}
+
 	/// Creates a signal that will never send any values.
 	public class func never() -> HotSignal {
 		return HotSignal { _ in nil }

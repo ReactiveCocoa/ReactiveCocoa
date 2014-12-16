@@ -1227,6 +1227,10 @@ extension ColdSignal {
 
 extension ColdSignal: DebugPrintable {
 	public var debugDescription: String {
+		let function = self.function ?? ""
+		let file = self.file ?? ""
+		let line = self.line?.description ?? ""
+
 		return "\(function).ColdSignal (\(file):\(line))"
 	}
 }

@@ -650,6 +650,10 @@ extension HotSignal {
 
 extension HotSignal: DebugPrintable {
 	public var debugDescription: String {
+		let function = self.function ?? ""
+		let file = self.file ?? ""
+		let line = self.line?.description ?? ""
+
 		return "\(function).HotSignal (\(file):\(line))"
 	}
 }

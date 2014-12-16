@@ -129,13 +129,13 @@ public struct ColdSignal<T> {
 	public typealias Generator = (SinkOf<Element>, CompositeDisposable) -> ()
 
 	/// The file in which this signal was defined, if known.
-	public let file: String?
+	internal let file: String?
 
 	/// The function in which this signal was defined, if known.
-	public let function: String?
+	internal let function: String?
 
 	/// The line number upon which this signal was defined, if known.
-	public let line: Int?
+	internal let line: Int?
 
 	private let generator: Generator
 
@@ -1227,6 +1227,10 @@ extension ColdSignal {
 
 extension ColdSignal: DebugPrintable {
 	public var debugDescription: String {
+		let function = self.function ?? ""
+		let file = self.file ?? ""
+		let line = self.line?.description ?? ""
+
 		return "\(function).ColdSignal (\(file):\(line))"
 	}
 }

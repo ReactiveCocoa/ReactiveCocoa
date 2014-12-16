@@ -390,6 +390,8 @@
 		D04725F019E49ED7006002AA /* ReactiveCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = D04725EF19E49ED7006002AA /* ReactiveCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D04725F619E49ED7006002AA /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D04725EA19E49ED7006002AA /* ReactiveCocoa.framework */; };
 		D047261719E49F82006002AA /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D047260C19E49F82006002AA /* ReactiveCocoa.framework */; };
+		D052D6B21A3A54CB007CAD68 /* ActionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D052D6B11A3A54CB007CAD68 /* ActionSpec.swift */; };
+		D052D6B31A3A54CB007CAD68 /* ActionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D052D6B11A3A54CB007CAD68 /* ActionSpec.swift */; };
 		D05E662519EDD82000904ACA /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D05E662419EDD82000904ACA /* Nimble.framework */; };
 		D05E662619EDD83000904ACA /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D05E662419EDD82000904ACA /* Nimble.framework */; };
 		D097CE3919EF7AF5005A201C /* ColdSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D097CE3619EF7AF5005A201C /* ColdSignal.swift */; };
@@ -749,6 +751,7 @@
 		D047263A19E49FE8006002AA /* Mac-Framework.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Mac-Framework.xcconfig"; sourceTree = "<group>"; };
 		D047263B19E49FE8006002AA /* Mac-StaticLibrary.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Mac-StaticLibrary.xcconfig"; sourceTree = "<group>"; };
 		D047263C19E49FE8006002AA /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		D052D6B11A3A54CB007CAD68 /* ActionSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionSpec.swift; sourceTree = "<group>"; };
 		D05E662419EDD82000904ACA /* Nimble.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Nimble.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D097CE3619EF7AF5005A201C /* ColdSignal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColdSignal.swift; sourceTree = "<group>"; };
 		D097CE3719EF7AF5005A201C /* HotSignal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HotSignal.swift; sourceTree = "<group>"; };
@@ -1272,6 +1275,7 @@
 		D0C312ED19EF2A6F00984962 /* Swift */ = {
 			isa = PBXGroup;
 			children = (
+				D052D6B11A3A54CB007CAD68 /* ActionSpec.swift */,
 				D0C312EE19EF2A7700984962 /* AtomicSpec.swift */,
 				D0C312EF19EF2A7700984962 /* BagSpec.swift */,
 				D01792011A34D79100A7B229 /* ColdSignalSpec.swift */,
@@ -1681,6 +1685,7 @@
 				D03766DD19EDA60000A782A9 /* RACCommandSpec.m in Sources */,
 				D0C3130E19EF2B1F00984962 /* SchedulerSpec.swift in Sources */,
 				D037670919EDA60000A782A9 /* RACSubscriptingAssignmentTrampolineSpec.m in Sources */,
+				D052D6B21A3A54CB007CAD68 /* ActionSpec.swift in Sources */,
 				D03766EB19EDA60000A782A9 /* RACKVOWrapperSpec.m in Sources */,
 				D03766E719EDA60000A782A9 /* RACEventSpec.m in Sources */,
 				D03766F719EDA60000A782A9 /* RACSequenceSpec.m in Sources */,
@@ -1869,6 +1874,7 @@
 				D0C3131419EF2B2000984962 /* SchedulerSpec.swift in Sources */,
 				D0C3131219EF2B2000984962 /* DisposableSpec.swift in Sources */,
 				D03766EE19EDA60000A782A9 /* RACMulticastConnectionSpec.m in Sources */,
+				D052D6B31A3A54CB007CAD68 /* ActionSpec.swift in Sources */,
 				D03766EA19EDA60000A782A9 /* RACKVOChannelSpec.m in Sources */,
 				D0C3132119EF2D9700984962 /* RACTestObject.m in Sources */,
 				D03766FC19EDA60000A782A9 /* RACSignalSpec.m in Sources */,

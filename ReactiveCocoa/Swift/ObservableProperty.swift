@@ -18,13 +18,13 @@ public final class ObservableProperty<T> {
 	private var _value: T
 
 	/// The file in which this property was defined, if known.
-	public let file: String?
+	internal let file: String?
 
 	/// The function in which this property was defined, if known.
-	public let function: String?
+	internal let function: String?
 
 	/// The line number upon which this property was defined, if known.
-	public let line: Int?
+	internal let line: Int?
 
 	/// The current value of the property.
 	///

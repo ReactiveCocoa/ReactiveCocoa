@@ -15,13 +15,13 @@ public final class HotSignal<T> {
 	private var disposable: Disposable?
 
 	/// The file in which this signal was defined, if known.
-	public let file: String?
+	internal let file: String?
 
 	/// The function in which this signal was defined, if known.
-	public let function: String?
+	internal let function: String?
 
 	/// The line number upon which this signal was defined, if known.
-	public let line: Int?
+	internal let line: Int?
 
 	/// Initializes a signal that will immediately perform the given action to
 	/// begin generating its values.

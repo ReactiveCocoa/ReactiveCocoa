@@ -68,7 +68,7 @@ extension RACSignal {
 		}
 	}
 
-	/// Creates a HotSignal that will immediately subscriber to the underlying
+	/// Creates a HotSignal that will immediately subscribe to the underlying
 	/// RACSignal, and share all received values with its observers.
 	///
 	/// The RACSignal must not generate an `error` event. `completed` events

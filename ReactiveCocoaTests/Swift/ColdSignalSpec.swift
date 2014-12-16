@@ -22,16 +22,16 @@ extension ColdSignal {
 class ColdSignalSpec: QuickSpec {
 	override func spec() {
 		describe("startWithSink") {
-			var subscribed = false
+			var started = false
 			let signal = ColdSignal<Int> { (sink, disposable) in
-				subscribed = true
+				started = true
 
 				sink.put(.Next(Box(0)))
 				sink.put(.Completed)
 			}
 
 			beforeEach {
-				subscribed = false
+				started = false
 			}
 
 			it("should wait to start until the closure has returned") {
@@ -39,7 +39,7 @@ class ColdSignalSpec: QuickSpec {
 				var receivedCompleted = false
 
 				signal.startWithSink { disposable in
-					expect(subscribed).to(beFalsy())
+					expect(started).to(beFalsy())
 
 					return Event.sink(next: { value in
 						receivedValue = value
@@ -48,7 +48,7 @@ class ColdSignalSpec: QuickSpec {
 					})
 				}
 
-				expect(subscribed).to(beTruthy())
+				expect(started).to(beTruthy())
 				expect(receivedValue).to(equal(0))
 				expect(receivedCompleted).to(beTruthy())
 			}
@@ -67,7 +67,7 @@ class ColdSignalSpec: QuickSpec {
 					})
 				}
 
-				expect(subscribed).to(beFalsy())
+				expect(started).to(beFalsy())
 				expect(receivedValue).to(beNil())
 				expect(receivedCompleted).to(beFalsy())
 			}
@@ -85,7 +85,7 @@ class ColdSignalSpec: QuickSpec {
 					})
 				}
 
-				expect(subscribed).to(beTruthy())
+				expect(started).to(beTruthy())
 				expect(receivedValue).to(equal(0))
 				expect(receivedCompleted).to(beFalsy())
 			}
@@ -626,7 +626,7 @@ class ColdSignalSpec: QuickSpec {
 			}
 		}
 
-		describe("subscribeOn") {
+		describe("evaluateOn") {
 			it("should evaluate the generator on the given scheduler") {
 				var started = false
 				let signal = ColdSignal<()> { (sink, disposable) in
@@ -641,7 +641,7 @@ class ColdSignalSpec: QuickSpec {
 				var completed = false
 
 				signal
-					.subscribeOn(scheduler)
+					.evaluateOn(scheduler)
 					.start(next: { _ in
 						receivedValue = true
 					}, error: { _ in
@@ -770,7 +770,7 @@ class ColdSignalSpec: QuickSpec {
 
 		describe("on") {
 			it("should invoke closures for events in a successful signal") {
-				var subscribedCallback = false
+				var startedCallback = false
 				var eventCallbacks: [String] = []
 				var nextCallbacks: [Int] = []
 				var errorCallback: NSError?
@@ -778,11 +778,11 @@ class ColdSignalSpec: QuickSpec {
 				var terminatedCallback = false
 				var disposedCallback = false
 
-				var subscribed = false
+				var started = false
 				var disposed = false
 				let signal = ColdSignal<Int> { (sink, disposable) in
-					expect(subscribedCallback).to(beTruthy())
-					subscribed = true
+					expect(startedCallback).to(beTruthy())
+					started = true
 
 					disposable.addDisposable {
 						expect(disposedCallback).to(beFalsy())
@@ -805,8 +805,8 @@ class ColdSignalSpec: QuickSpec {
 					expect(terminatedCallback).to(beTruthy())
 				}
 
-				signal.on(subscribed: {
-					subscribedCallback = true
+				signal.on(started: {
+					startedCallback = true
 				}, event: { ev in
 					let name = ev.event(ifNext: { _ in "next" }, ifError: { _ in "error" }, ifCompleted: "completed")
 					eventCallbacks.append(name)
@@ -827,7 +827,7 @@ class ColdSignalSpec: QuickSpec {
 					disposedCallback = true
 				}).start()
 
-				expect(subscribedCallback).to(beTruthy())
+				expect(startedCallback).to(beTruthy())
 				expect(eventCallbacks).to(equal([ "next", "completed" ]))
 				expect(nextCallbacks).to(equal([ 0 ]))
 				expect(errorCallback).to(beNil())
@@ -837,7 +837,7 @@ class ColdSignalSpec: QuickSpec {
 			}
 
 			it("should invoke closures for events in an erroneous signal") {
-				var subscribedCallback = false
+				var startedCallback = false
 				var eventCallbacks: [String] = []
 				var nextCallbacks: [Int] = []
 				var errorCallback: NSError?
@@ -847,11 +847,11 @@ class ColdSignalSpec: QuickSpec {
 
 				let testError = RACError.Empty.error
 
-				var subscribed = false
+				var started = false
 				var disposed = false
 				let signal = ColdSignal<Int> { (sink, disposable) in
-					expect(subscribedCallback).to(beTruthy())
-					subscribed = true
+					expect(startedCallback).to(beTruthy())
+					started = true
 
 					disposable.addDisposable {
 						expect(disposedCallback).to(beFalsy())
@@ -866,8 +866,8 @@ class ColdSignalSpec: QuickSpec {
 					expect(terminatedCallback).to(beTruthy())
 				}
 
-				signal.on(subscribed: {
-					subscribedCallback = true
+				signal.on(started: {
+					startedCallback = true
 				}, event: { ev in
 					let name = ev.event(ifNext: { _ in "next" }, ifError: { _ in "error" }, ifCompleted: "completed")
 					eventCallbacks.append(name)
@@ -888,7 +888,7 @@ class ColdSignalSpec: QuickSpec {
 					disposedCallback = true
 				}).start()
 
-				expect(subscribedCallback).to(beTruthy())
+				expect(startedCallback).to(beTruthy())
 				expect(eventCallbacks).to(equal([ "error" ]))
 				expect(nextCallbacks).to(equal([]))
 				expect(errorCallback).to(equal(testError))
@@ -1274,19 +1274,19 @@ class ColdSignalSpec: QuickSpec {
 
 		describe("then") {
 			it("should ignore the first signal's values and forward the second") {
-				var subscribed = false
+				var started = false
 				var completed = false
 
 				let values = ColdSignal.fromValues([ "foo", "bar" ])
-					.on(subscribed: {
-						subscribed = true
+					.on(started: {
+						started = true
 					}, completed: {
 						completed = true
 					})
 					.then(ColdSignal.fromValues([ 3, 4, 5 ]))
 					.collect()
 
-				expect(subscribed).to(beTruthy())
+				expect(started).to(beTruthy())
 				expect(completed).to(beTruthy())
 				expect(values).to(equal([ 3, 4, 5 ]))
 			}

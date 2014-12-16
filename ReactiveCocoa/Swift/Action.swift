@@ -95,8 +95,8 @@ public final class Action<Input, Output> {
 	/// Creates a signal that will execute the action on the scheduler given at
 	/// initialization time, with the given input, then forward the results.
 	///
-	/// If the action is disabled when the returned signal is subscribed to,
-	/// the signal will send an `NSError` corresponding to
+	/// If the action is disabled when the returned signal is started, the
+	/// signal will send an `NSError` corresponding to
 	/// `RACError.ActionNotEnabled`, and no result will be sent along the action
 	/// itself.
 	public func execute(input: Input) -> ColdSignal<Output> {
@@ -108,7 +108,7 @@ public final class Action<Input, Output> {
 
 				return self.executeClosure(input)
 					.deliverOn(self.scheduler)
-					.on(subscribed: {
+					.on(started: {
 						self._executing.value = true
 					}, next: { value in
 						self._values.put(value)
@@ -118,7 +118,7 @@ public final class Action<Input, Output> {
 						self._executing.value = false
 					})
 			}
-			.subscribeOn(scheduler)
+			.evaluateOn(scheduler)
 	}
 }
 

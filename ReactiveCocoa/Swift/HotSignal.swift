@@ -96,7 +96,7 @@ extension HotSignal {
 	/// the duration of the observation.
 	///
 	/// To terminate an infinite signal, drop all references to it.
-	public class func infinite(generator: SinkOf<T> -> Disposable, file: String = __FILE__, line: Int = __LINE__, function: String = __FUNCTION__) -> HotSignal {
+	public class func infinite(generator: SinkOf<T> -> Disposable?, file: String = __FILE__, line: Int = __LINE__, function: String = __FUNCTION__) -> HotSignal {
 		return HotSignal(file: file, line: line, function: function) { signal in
 			return generator(SinkOf { [weak signal] value in
 				signal?.put(value)

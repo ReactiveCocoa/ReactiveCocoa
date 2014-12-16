@@ -236,7 +236,7 @@ public final class CocoaAction: NSObject {
 
 	/// Attempts to execute the underlying action with the given input, subject
 	/// to the behavior described by the initializer that was used.
-	@IBAction public func execute(input: AnyObject) {
+	@IBAction public func execute(input: AnyObject?) {
 		_execute(input)
 	}
 

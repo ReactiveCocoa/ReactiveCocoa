@@ -18,12 +18,11 @@ public final class Action<Input, Output> {
 	private let valuesSink: SinkOf<Output>
 	private let errorsSink: SinkOf<NSError>
 
-	/// A signal of all values generated from future calls to execute(), sent on
-	/// the scheduler given at initialization time.
+	/// A signal of all values sent upon the signals returned from apply().
 	public let values: HotSignal<Output>
 
-	/// A signal of errors generated from future executions, sent on the
-	/// scheduler given at initialization time.
+	/// A signal of all errors (except `RACAction.ActionNotEnabled` errors) sent
+	/// upon the signals returned from apply().
 	public let errors: HotSignal<NSError>
 
 	/// Whether the action is currently executing.

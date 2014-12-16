@@ -61,6 +61,32 @@ class HotSignalSpec: QuickSpec {
 				scheduler.advanceByInterval(0.1)
 				expect(fireCount).to(equal(4))
 			}
+
+			it("should stop sending values when the reference is lost") {
+				let scheduler = TestScheduler()
+				var fireCount = 0
+
+				// Use an inner closure to help ARC deallocate things as we
+				// expect.
+				let test: () -> () = {
+					let signal = HotSignal<NSDate>.interval(1, onScheduler: scheduler, withLeeway: 0)
+
+					signal.observe { date in
+						expect(date).to(equal(scheduler.currentDate))
+						fireCount++
+					}
+
+					expect(fireCount).to(equal(0))
+
+					scheduler.advanceByInterval(1.5)
+					expect(fireCount).to(equal(1))
+				}
+
+				test()
+
+				scheduler.run()
+				expect(fireCount).to(equal(1))
+			}
 		}
 
 		describe("map") {

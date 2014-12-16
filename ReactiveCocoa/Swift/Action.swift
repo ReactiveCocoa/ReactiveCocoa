@@ -36,13 +36,13 @@ public final class Action<Input, Output> {
 	public let errors: HotSignal<NSError>
 
 	/// The file in which this action was defined, if known.
-	public let file: String?
+	internal let file: String?
 
 	/// The function in which this action was defined, if known.
-	public let function: String?
+	internal let function: String?
 
 	/// The line number upon which this action was defined, if known.
-	public let line: Int?
+	internal let line: Int?
 
 	/// Initializes an action that will be conditionally enabled, and create
 	/// a ColdSignal for each execution.

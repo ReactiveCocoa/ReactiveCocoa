@@ -98,7 +98,7 @@ public final class Action<Input, Output> {
 	/// returned signal will send an `NSError` corresponding to
 	/// `RACError.ActionNotEnabled`, and nothing will be sent upon `values` or
 	/// `errors`.
-	public func execute(input: Input) -> ColdSignal<Output> {
+	public func apply(input: Input) -> ColdSignal<Output> {
 		return ColdSignal<Output>.lazy {
 			var startedExecuting = false
 

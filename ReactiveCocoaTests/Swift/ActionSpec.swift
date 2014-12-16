@@ -62,7 +62,7 @@ class ActionSpec: QuickSpec {
 
 		it("should error if executed while disabled") {
 			var receivedError: NSError?
-			action.execute(0).start(error: {
+			action.apply(0).start(error: {
 				receivedError = $0
 			})
 
@@ -87,7 +87,7 @@ class ActionSpec: QuickSpec {
 			it("should execute successfully") {
 				var receivedValue: String?
 
-				action.execute(0).start(next: {
+				action.apply(0).start(next: {
 					receivedValue = $0
 				})
 
@@ -110,7 +110,7 @@ class ActionSpec: QuickSpec {
 			it("should execute with an error") {
 				var receivedError: NSError?
 
-				action.execute(1).start(error: {
+				action.apply(1).start(error: {
 					receivedError = $0
 				})
 
@@ -121,7 +121,7 @@ class ActionSpec: QuickSpec {
 				scheduler.run()
 				expect(action.executing.first().value()).to(beFalsy())
 				expect(action.enabled.first().value()).to(beTruthy())
-				
+
 				expect(values).to(equal([]))
 				expect(errors).to(equal([ testError ]))
 			}

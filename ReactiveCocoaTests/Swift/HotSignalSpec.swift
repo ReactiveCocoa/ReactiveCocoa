@@ -725,7 +725,7 @@ class HotSignalSpec: QuickSpec {
 				let disposable = SimpleDisposable()
 
 				let createSignal = { () -> HotSignal<()> in
-					return HotSignal<()>.infinite { _ in disposable }
+					return HotSignal<()>.weak { _ in disposable }
 				}
 
 				expect(createSignal()).notTo(beNil())
@@ -739,11 +739,11 @@ class HotSignalSpec: QuickSpec {
 				// expect.
 				let test: () -> () = {
 					let scheduler = TestScheduler()
-					let signal = HotSignal<NSDate>.finite { sink in
+					let signal = HotSignal<NSDate> { sink in
 						scheduler.schedule {
 							sink.put(scheduler.currentDate)
 						}
-						
+
 						return
 					}
 

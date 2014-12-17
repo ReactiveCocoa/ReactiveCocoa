@@ -74,7 +74,7 @@ extension RACSignal {
 	/// The RACSignal must not generate an `error` event. `completed` events
 	/// will be ignored.
 	public func asHotSignal() -> HotSignal<AnyObject?> {
-		return HotSignal.infinite { sink in
+		return HotSignal.weak { sink in
 			let next = { sink.put($0) }
 			let error = { (error: NSError?) in assert(false) }
 

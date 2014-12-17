@@ -12,7 +12,7 @@ import LlamaKit
 extension NSNotificationCenter {
 	/// Returns a signal of notifications posted that match the given criteria.
 	public func rac_notifications(name: String? = nil, object: AnyObject? = nil) -> HotSignal<NSNotification> {
-		return HotSignal.infinite { sink in
+		return HotSignal.weak { sink in
 			let observer = self.addObserverForName(name, object: object, queue: nil) { notification in
 				sink.put(notification)
 			}

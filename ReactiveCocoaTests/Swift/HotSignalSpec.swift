@@ -41,6 +41,8 @@ class HotSignalSpec: QuickSpec {
 
 				it("derived signals should stay alive until the original terminates") {
 					let scheduler = TestScheduler()
+					weak var originalSignal: HotSignal<()>?
+					weak var derivedSignal: HotSignal<()>?
 
 					var receivedValue = false
 					let test: () -> () = {
@@ -48,19 +50,29 @@ class HotSignalSpec: QuickSpec {
 							scheduler.schedule {
 								sink.put(())
 							}
-							
+
 							return
 						}
 
-						signal.take(1).observe { _ in receivedValue = true }
+						originalSignal = signal
+						expect(originalSignal).notTo(beNil())
+
+						derivedSignal = signal.take(1)
+						expect(derivedSignal).notTo(beNil())
+
+						derivedSignal?.observe { _ in receivedValue = true }
 						return
 					}
 
 					test()
 					expect(receivedValue).to(beFalsy())
+					expect(originalSignal).notTo(beNil())
+					expect(derivedSignal).notTo(beNil())
 
 					scheduler.run()
 					expect(receivedValue).to(beTruthy())
+					expect(originalSignal).toEventually(beNil())
+					expect(derivedSignal).toEventually(beNil())
 				}
 			}
 

@@ -13,114 +13,153 @@ import ReactiveCocoa
 class HotSignalSpec: QuickSpec {
 	override func spec() {
 		describe("lifetime") {
-			it("observe() should not keep signal alive") {
-				let (outerSignal, outerSink) = HotSignal<Int>.pipe()
+			describe("signals initialized with init") {
+				it("generator should keep signal alive while sink is") {
+					weak var innerSignal: HotSignal<NSDate>?
 
-				weak var innerSignal: HotSignal<Int>?
-				expect(innerSignal).to(beNil())
+					// Use an inner closure to help ARC deallocate things as we
+					// expect.
+					let test: () -> () = {
+						let scheduler = TestScheduler()
+						let signal = HotSignal<NSDate> { sink in
+							scheduler.schedule {
+								sink.put(scheduler.currentDate)
+							}
 
-				var latestValue: Int?
-				outerSignal.observe { latestValue = $0 }
+							return
+						}
 
-				let createSignal = { () -> HotSignal<Int> in
-					let (signal, sink) = HotSignal<Int>.pipe()
-					innerSignal = signal
+						innerSignal = signal
+						expect(innerSignal).notTo(beNil())
 
-					expect(innerSignal).notTo(beNil())
+						scheduler.run()
+					}
 
-					signal.observe(outerSink)
-					expect(latestValue).to(beNil())
-
-					sink.put(1)
-					expect(latestValue).to(equal(1))
-
-					return signal
+					test()
+					expect(innerSignal).toEventually(beNil())
 				}
 
-				expect(createSignal()).notTo(beNil())
-				expect(innerSignal).to(beNil())
+				it("derived signals should stay alive until the original terminates") {
+					let scheduler = TestScheduler()
+
+					var receivedValue = false
+					let test: () -> () = {
+						let signal = HotSignal<()> { sink in
+							scheduler.schedule {
+								sink.put(())
+							}
+							
+							return
+						}
+
+						signal.take(1).observe { _ in receivedValue = true }
+						return
+					}
+
+					test()
+					expect(receivedValue).to(beFalsy())
+
+					scheduler.run()
+					expect(receivedValue).to(beTruthy())
+				}
 			}
 
-			it("observe() disposable should keep signal alive") {
-				weak var innerSignal: HotSignal<Int>?
-
-				// Use an inner closure to help ARC deallocate things as we
-				// expect.
-				let test: () -> () = {
+			describe("weak signals") {
+				it("observe() should not keep signal alive") {
 					let (outerSignal, outerSink) = HotSignal<Int>.pipe()
+					let scheduler = TestScheduler()
+
+					weak var innerSignal: HotSignal<Int>?
+					expect(innerSignal).to(beNil())
 
 					var latestValue: Int?
 					outerSignal.observe { latestValue = $0 }
 
-					let (signal, sink) = HotSignal<Int>.pipe()
-					innerSignal = signal
+					let createSignal = { () -> HotSignal<Int> in
+						let signal = HotSignal<Int>.weak { sink in
+							var value = 1
 
-					expect(innerSignal).notTo(beNil())
-
-					let disposable = signal.observe(outerSink)
-					expect(latestValue).to(beNil())
-
-					sink.put(1)
-					expect(latestValue).to(equal(1))
-					expect(innerSignal).notTo(beNil())
-
-					disposable.dispose()
-				}
-
-				test()
-				expect(innerSignal).toEventually(beNil())
-			}
-
-			it("generator should be disposed when signal is destroyed") {
-				let disposable = SimpleDisposable()
-
-				let createSignal = { () -> HotSignal<()> in
-					return HotSignal<()>.weak { _ in disposable }
-				}
-
-				expect(createSignal()).notTo(beNil())
-				expect(disposable.disposed).to(beTruthy())
-			}
-
-			it("generator should keep signal alive while sink is") {
-				weak var innerSignal: HotSignal<NSDate>?
-
-				// Use an inner closure to help ARC deallocate things as we
-				// expect.
-				let test: () -> () = {
-					let scheduler = TestScheduler()
-					let signal = HotSignal<NSDate> { sink in
-						scheduler.schedule {
-							sink.put(scheduler.currentDate)
+							return scheduler.scheduleAfter(1, repeatingEvery: 1) {
+								sink.put(value++)
+							}
 						}
 
-						return
+						innerSignal = signal
+						expect(innerSignal).notTo(beNil())
+
+						signal.observe(outerSink)
+						expect(latestValue).to(beNil())
+
+						scheduler.advanceByInterval(1.5)
+						expect(latestValue).to(equal(1))
+
+						scheduler.advanceByInterval(1)
+						expect(latestValue).to(equal(2))
+
+						return signal
 					}
 
-					innerSignal = signal
-					expect(innerSignal).notTo(beNil())
+					expect(createSignal()).notTo(beNil())
+					expect(innerSignal).to(beNil())
 
-					scheduler.run()
+					scheduler.advanceByInterval(1)
+					expect(latestValue).to(equal(2))
 				}
 
-				test()
-				expect(innerSignal).toEventually(beNil())
-			}
+				it("observe() disposable should keep signal alive") {
+					weak var innerSignal: HotSignal<Int>?
+					let scheduler = TestScheduler()
 
-			it("derived signal lifetime should not be tied to original") {
-				let (signal, sink) = HotSignal<Int>.pipe()
+					var latestValue: Int?
 
-				var receivedValue = false
-				let test: () -> () = {
-					signal.take(1).observe { _ in receivedValue = true }
-					return
+					// Use an inner closure to help ARC deallocate things as we
+					// expect.
+					let test: () -> () = {
+						let (outerSignal, outerSink) = HotSignal<Int>.pipe()
+						outerSignal.observe { latestValue = $0 }
+
+						let signal = HotSignal<Int>.weak { sink in
+							var value = 1
+
+							return scheduler.scheduleAfter(1, repeatingEvery: 1) {
+								sink.put(value++)
+							}
+						}
+
+						innerSignal = signal
+						expect(innerSignal).notTo(beNil())
+
+						let disposable = signal.observe(outerSink)
+						expect(latestValue).to(beNil())
+
+						scheduler.advanceByInterval(1.5)
+						expect(latestValue).to(equal(1))
+						expect(innerSignal).notTo(beNil())
+
+						scheduler.advanceByInterval(1)
+						expect(latestValue).to(equal(2))
+						expect(innerSignal).notTo(beNil())
+
+						disposable.dispose()
+					}
+
+					test()
+
+					scheduler.advanceByInterval(1)
+					expect(latestValue).to(equal(2))
+					expect(innerSignal).toEventually(beNil())
 				}
 
-				test()
-				expect(receivedValue).to(beFalsy())
+				it("generator should be disposed when signal is destroyed") {
+					let disposable = SimpleDisposable()
 
-				sink.put(1)
-				expect(receivedValue).to(beFalsy())
+					let createSignal = { () -> HotSignal<()> in
+						return HotSignal<()>.weak { _ in disposable }
+					}
+
+					expect(createSignal()).notTo(beNil())
+					expect(disposable.disposed).to(beTruthy())
+				}
 			}
 		}
 

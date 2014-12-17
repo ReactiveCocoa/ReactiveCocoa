@@ -172,6 +172,40 @@ class HotSignalSpec: QuickSpec {
 					expect(createSignal()).notTo(beNil())
 					expect(disposable.disposed).to(beTruthy())
 				}
+
+				it("derived signals should keep the original alive") {
+					let scheduler = TestScheduler()
+					weak var originalSignal: HotSignal<()>?
+					weak var derivedSignal: HotSignal<()>?
+
+					var receivedValue = false
+					let test: () -> () = {
+						let signal = HotSignal<()>.weak { sink in
+							return scheduler.schedule {
+								sink.put(())
+							}
+						}
+
+						originalSignal = signal
+						expect(originalSignal).notTo(beNil())
+
+						derivedSignal = signal.take(1)
+						expect(derivedSignal).notTo(beNil())
+
+						derivedSignal?.observe { _ in receivedValue = true }
+						return
+					}
+
+					test()
+					expect(receivedValue).to(beFalsy())
+					expect(originalSignal).notTo(beNil())
+					expect(derivedSignal).notTo(beNil())
+
+					scheduler.run()
+					expect(receivedValue).to(beTruthy())
+					expect(originalSignal).toEventually(beNil())
+					expect(derivedSignal).toEventually(beNil())
+				}
 			}
 		}
 

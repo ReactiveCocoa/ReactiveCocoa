@@ -10,9 +10,12 @@ import Foundation
 import LlamaKit
 
 /// A mutable property of type T that allows observation of its changes.
+///
+/// Instances of this class are thread-safe.
 public final class ObservableProperty<T> {
-	private let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.ObservableProperty", DISPATCH_QUEUE_SERIAL)
+	private let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.ObservableProperty", DISPATCH_QUEUE_CONCURRENT)
 	private var sinks = Bag<SinkOf<Event<T>>>()
+	private var _value: T
 
 	/// The file in which this property was defined, if known.
 	internal let file: String?
@@ -28,10 +31,22 @@ public final class ObservableProperty<T> {
 	/// Setting this to a new value will notify all sinks attached to
 	/// `values`.
 	public var value: T {
-		didSet {
+		get {
+			var readValue: T?
+
 			dispatch_sync(queue) {
+				readValue = self._value
+			}
+
+			return readValue!
+		}
+
+		set(value) {
+			dispatch_barrier_sync(queue) {
+				self._value = value
+
 				for sink in self.sinks {
-					sink.put(.Next(Box(self.value)))
+					sink.put(.Next(Box(value)))
 				}
 			}
 		}
@@ -45,14 +60,14 @@ public final class ObservableProperty<T> {
 			if let strongSelf = self {
 				var token: RemovalToken?
 
-				dispatch_sync(strongSelf.queue) {
+				dispatch_barrier_sync(strongSelf.queue) {
 					token = strongSelf.sinks.insert(sink)
-					sink.put(.Next(Box(strongSelf.value)))
+					sink.put(.Next(Box(strongSelf._value)))
 				}
 
 				disposable.addDisposable {
 					if let strongSelf = self {
-						dispatch_async(strongSelf.queue) {
+						dispatch_barrier_async(strongSelf.queue) {
 							strongSelf.sinks.removeValueForToken(token!)
 						}
 					}
@@ -64,14 +79,15 @@ public final class ObservableProperty<T> {
 	}
 
 	public init(_ value: T, file: String = __FILE__, line: Int = __LINE__, function: String = __FUNCTION__) {
-		self.value = value
+		_value = value
+
 		self.file = file
 		self.line = line
 		self.function = function
 	}
 
 	deinit {
-		dispatch_sync(queue) {
+		dispatch_barrier_sync(queue) {
 			for sink in self.sinks {
 				sink.put(.Completed)
 			}
@@ -87,6 +103,10 @@ extension ObservableProperty: SinkType {
 
 extension ObservableProperty: DebugPrintable {
 	public var debugDescription: String {
+		let function = self.function ?? ""
+		let file = self.file ?? ""
+		let line = self.line?.description ?? ""
+
 		return "\(function).ObservableProperty (\(file):\(line))"
 	}
 }

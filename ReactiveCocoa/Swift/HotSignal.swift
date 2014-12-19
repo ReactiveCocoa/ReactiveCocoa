@@ -286,15 +286,22 @@ extension HotSignal {
 	public func take(count: Int) -> HotSignal {
 		precondition(count >= 0)
 
-		if (count == 0) {
+		if count == 0 {
 			return .never()
 		}
 
 		let soFar = Atomic(0)
+		let selfDisposable = SerialDisposable()
 
-		return takeWhile { _ in
-			let orig = soFar.modify { $0 + 1 }
-			return orig < count
+		return HotSignal { sink in
+			selfDisposable.innerDisposable = self.observe { value in
+				sink.put(value)
+
+				let orig = soFar.modify { $0 + 1 }
+				if orig + 1 >= count {
+					selfDisposable.dispose()
+				}
+			}
 		}
 	}
 

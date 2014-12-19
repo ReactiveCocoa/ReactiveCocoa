@@ -843,6 +843,36 @@ class HotSignalSpec: QuickSpec {
 				firstSink.put(4)
 				expect(latestValue).to(equal(4))
 			}
+
+			it("should release input signals when reference is lost") {
+				weak var innerSignal: HotSignal<Int>?
+				weak var mergedSignal: HotSignal<Int>?
+
+				let test: () -> () = {
+					let (signal, sink) = HotSignal<HotSignal<Int>>.pipe()
+					let newSignal = signal.merge(identity)
+
+					mergedSignal = newSignal
+					expect(mergedSignal).notTo(beNil())
+
+					var latestValue: Int?
+					newSignal.observe { latestValue = $0 }
+
+					expect(latestValue).to(beNil())
+
+					let (firstSignal, firstSink) = HotSignal<Int>.pipe()
+					innerSignal = firstSignal
+					expect(innerSignal).notTo(beNil())
+
+					sink.put(firstSignal)
+					firstSink.put(0)
+					expect(latestValue).to(equal(0))
+				}
+
+				test()
+				expect(mergedSignal).toEventually(beNil())
+				expect(innerSignal).toEventually(beNil())
+			}
 		}
 
 		describe("switchToLatest") {

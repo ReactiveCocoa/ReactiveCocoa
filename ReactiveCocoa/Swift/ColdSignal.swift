@@ -1163,9 +1163,11 @@ extension ColdSignal {
 				onError = errorHandler
 			}
 
-			return self.self.start(next: { value in
+			self.start(next: { value in
 				sink.put(value)
 			}, error: onError, completed: completionHandler)
+
+			return
 		}
 	}
 }

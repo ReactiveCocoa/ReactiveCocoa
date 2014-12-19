@@ -53,6 +53,7 @@ public final class ImmediateScheduler: Scheduler {
 /// A scheduler that performs all work on the main thread.
 public final class MainScheduler: DateScheduler {
 	private let innerScheduler = QueueScheduler(dispatch_get_main_queue())
+	private var queueLength: Int32 = 0
 
 	public var currentDate: NSDate {
 		return NSDate()
@@ -61,7 +62,21 @@ public final class MainScheduler: DateScheduler {
 	public init() {}
 
 	public func schedule(action: () -> ()) -> Disposable? {
-		return innerScheduler.schedule(action)
+		let actionAndDecrement: () -> () = {
+			action()
+			withUnsafeMutablePointer(&self.queueLength, OSAtomicDecrement32)
+		}
+
+		let queued = withUnsafeMutablePointer(&queueLength, OSAtomicIncrement32)
+
+		// If we're already running on the main thread, and there isn't work
+		// already enqueued, we can skip scheduling and just execute directly.
+		if NSThread.isMainThread() && queued == 1 {
+			actionAndDecrement()
+			return nil
+		} else {
+			return innerScheduler.schedule(actionAndDecrement)
+		}
 	}
 
 	public func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable? {

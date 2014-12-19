@@ -17,6 +17,10 @@ private func doNothing() {}
 ///
 /// A corollary to this is that different sinks may see a different timing of
 /// Events, or even a different version of events altogether.
+///
+/// Cold signals, once started, do not need to be retained in order to receive
+/// events. See the documentation for startWithSink() or start() for more
+/// information.
 public struct ColdSignal<T> {
 	/// The type of value that will be sent to any sink which attaches to this
 	/// signal.
@@ -55,6 +59,11 @@ public struct ColdSignal<T> {
 	///
 	/// The disposable given to the closure will cancel the work associated with
 	/// event production, and prevent any further events from being sent.
+	///
+	/// Once the signal has been started, there is no need to maintain a
+	/// reference to it. The signal will continue to do work until it sends a
+	/// Completed or Error event, or the returned Disposable is explicitly
+	/// disposed.
 	///
 	/// Returns the disposable which was given to the closure.
 	public func startWithSink(sinkCreator: Disposable -> SinkOf<Element>) -> Disposable {
@@ -100,6 +109,11 @@ public struct ColdSignal<T> {
 	/// Starts producing events, performing any side effects embedded within the
 	/// ColdSignal, and invoking the given handlers for each kind of event
 	/// generated.
+	///
+	/// Once the signal has been started, there is no need to maintain a
+	/// reference to it. The signal will continue to do work until it sends a
+	/// Completed or Error event, or the returned Disposable is explicitly
+	/// disposed.
 	///
 	/// Returns a disposable that will cancel the work associated with event
 	/// production, and prevent any further events from being sent.

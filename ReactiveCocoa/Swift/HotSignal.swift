@@ -614,9 +614,13 @@ extension HotSignal {
 		return bufferProperty.values
 			.mapAccumulate(initialState: 0) { (startIndex, values) in
 				// This disposable will never actually be disposed here, but we
-				// want to use it to keep the property alive for as long as the
-				// ColdSignal is.
-				if !disposable.disposed && values.count > startIndex {
+				// want to use it to keep the property and observation alive for
+				// as long as the ColdSignal is.
+				if disposable.disposed {
+					bufferProperty.value = []
+				}
+
+				if values.count > startIndex {
 					let newIndex = values.count
 					let slice = values[startIndex ..< newIndex]
 					return (newIndex, ColdSignal.fromValues(slice))

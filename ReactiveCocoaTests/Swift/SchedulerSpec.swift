@@ -25,15 +25,93 @@ class SchedulerSpec: QuickSpec {
 		}
 
 		describe("MainScheduler") {
-			it("should run enqueued actions on the main thread") {
-				var didRun = false
-				MainScheduler().schedule {
-					didRun = true
-					expect(NSThread.isMainThread()).to(beTruthy())
+			func dispatchSyncInBackground(action: () -> ()) {
+				let group = dispatch_group_create()
+				dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), action)
+				dispatch_group_wait(group, DISPATCH_TIME_FOREVER)
+			}
+
+			it("should run actions immediately when on the main thread") {
+				let scheduler = MainScheduler()
+				var values: [Int] = []
+				expect(NSThread.isMainThread()).to(beTruthy())
+
+				scheduler.schedule {
+					values.append(0)
 				}
 
-				expect(didRun).to(beFalsy())
-				expect{didRun}.toEventually(beTruthy())
+				expect(values).to(equal([ 0 ]))
+
+				scheduler.schedule {
+					values.append(1)
+				}
+
+				scheduler.schedule {
+					values.append(2)
+				}
+
+				expect(values).to(equal([ 0, 1, 2 ]))
+			}
+
+			it("should enqueue actions scheduled from the background") {
+				let scheduler = MainScheduler()
+				var values: [Int] = []
+
+				dispatchSyncInBackground {
+					scheduler.schedule {
+						expect(NSThread.isMainThread()).to(beTruthy())
+						values.append(0)
+					}
+
+					return
+				}
+
+				expect(values).to(equal([]))
+				expect(values).toEventually(equal([ 0 ]))
+
+				dispatchSyncInBackground {
+					scheduler.schedule {
+						expect(NSThread.isMainThread()).to(beTruthy())
+						values.append(1)
+					}
+
+					scheduler.schedule {
+						expect(NSThread.isMainThread()).to(beTruthy())
+						values.append(2)
+					}
+
+					return
+				}
+
+				expect(values).to(equal([ 0 ]))
+				expect(values).toEventually(equal([ 0, 1, 2 ]))
+			}
+
+			it("should run actions enqueued from the main thread after those from the background") {
+				let scheduler = MainScheduler()
+				var values: [Int] = []
+
+				dispatchSyncInBackground {
+					scheduler.schedule {
+						expect(NSThread.isMainThread()).to(beTruthy())
+						values.append(0)
+					}
+
+					return
+				}
+
+				scheduler.schedule {
+					expect(NSThread.isMainThread()).to(beTruthy())
+					values.append(1)
+				}
+
+				scheduler.schedule {
+					expect(NSThread.isMainThread()).to(beTruthy())
+					values.append(2)
+				}
+
+				expect(values).to(equal([]))
+				expect(values).toEventually(equal([ 0, 1, 2 ]))
 			}
 
 			it("should run enqueued actions after a given date") {

@@ -122,3 +122,30 @@ extension HotSignal {
 		}
 	}
 }
+
+extension RACCommand {
+	/// Creates an Action that will execute the receiver.
+	///
+	/// Note that the returned Action will not necessarily be marked as
+	/// executing when the command is. However, the reverse is always true:
+	/// the RACCommand will always be marked as executing when the action is.
+	public func asAction() -> Action<AnyObject?, AnyObject?> {
+		let (enabled, enabledSink) = HotSignal<Bool>.pipe()
+		let action = Action(enabledIf: enabled) { (input: AnyObject?) -> ColdSignal<AnyObject?> in
+			return ColdSignal.lazy {
+				return self.execute(input).asColdSignal()
+			}
+		}
+
+		self.enabled
+			.asColdSignal()
+			.map { $0 as Bool }
+			.start(next: { value in
+				enabledSink.put(value)
+			}, completed: {
+				enabledSink.put(false)
+			})
+
+		return action
+	}
+}

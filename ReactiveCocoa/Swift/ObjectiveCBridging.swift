@@ -149,3 +149,18 @@ extension RACCommand {
 		return action
 	}
 }
+
+extension Action {
+	/// Creates a RACCommand that will execute the receiver.
+	///
+	/// Note that the returned command will not necessarily be marked as
+	/// executing when the action is. However, the reverse is always true:
+	/// the Action will always be marked as executing when the RACCommand is.
+	public func asRACCommand<Output: AnyObject>(evidence: Action -> Action<AnyObject?, Output?>) -> RACCommand {
+		let enabled = self.enabled.map { $0 as NSNumber? }
+
+		return RACCommand(enabled: enabled.asDeferredRACSignal(identity)) { (input: AnyObject?) -> RACSignal in
+			return evidence(self).apply(input).asDeferredRACSignal(identity)
+		}
+	}
+}

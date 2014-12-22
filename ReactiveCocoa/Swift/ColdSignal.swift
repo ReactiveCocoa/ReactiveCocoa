@@ -998,6 +998,114 @@ extension ColdSignal {
 	}
 }
 
+/// An overloaded function that combines the values of up to 10 signals, in the
+/// manner described by ColdSignal.combineLatestWith().
+public func combineLatest<A, B>(a: ColdSignal<A>, b: ColdSignal<B>) -> ColdSignal<(A, B)> {
+	return a.combineLatestWith(b)
+}
+
+public func combineLatest<A, B, C>(a: ColdSignal<A>, b: ColdSignal<B>, c: ColdSignal<C>) -> ColdSignal<(A, B, C)> {
+	return combineLatest(a, b)
+		.combineLatestWith(c)
+		.map(repack)
+}
+
+public func combineLatest<A, B, C, D>(a: ColdSignal<A>, b: ColdSignal<B>, c: ColdSignal<C>, d: ColdSignal<D>) -> ColdSignal<(A, B, C, D)> {
+	return combineLatest(a, b, c)
+		.combineLatestWith(d)
+		.map(repack)
+}
+
+public func combineLatest<A, B, C, D, E>(a: ColdSignal<A>, b: ColdSignal<B>, c: ColdSignal<C>, d: ColdSignal<D>, e: ColdSignal<E>) -> ColdSignal<(A, B, C, D, E)> {
+	return combineLatest(a, b, c, d)
+		.combineLatestWith(e)
+		.map(repack)
+}
+
+public func combineLatest<A, B, C, D, E, F>(a: ColdSignal<A>, b: ColdSignal<B>, c: ColdSignal<C>, d: ColdSignal<D>, e: ColdSignal<E>, f: ColdSignal<F>) -> ColdSignal<(A, B, C, D, E, F)> {
+	return combineLatest(a, b, c, d, e)
+		.combineLatestWith(f)
+		.map(repack)
+}
+
+public func combineLatest<A, B, C, D, E, F, G>(a: ColdSignal<A>, b: ColdSignal<B>, c: ColdSignal<C>, d: ColdSignal<D>, e: ColdSignal<E>, f: ColdSignal<F>, g: ColdSignal<G>) -> ColdSignal<(A, B, C, D, E, F, G)> {
+	return combineLatest(a, b, c, d, e, f)
+		.combineLatestWith(g)
+		.map(repack)
+}
+
+public func combineLatest<A, B, C, D, E, F, G, H>(a: ColdSignal<A>, b: ColdSignal<B>, c: ColdSignal<C>, d: ColdSignal<D>, e: ColdSignal<E>, f: ColdSignal<F>, g: ColdSignal<G>, h: ColdSignal<H>) -> ColdSignal<(A, B, C, D, E, F, G, H)> {
+	return combineLatest(a, b, c, d, e, f, g)
+		.combineLatestWith(h)
+		.map(repack)
+}
+
+public func combineLatest<A, B, C, D, E, F, G, H, I>(a: ColdSignal<A>, b: ColdSignal<B>, c: ColdSignal<C>, d: ColdSignal<D>, e: ColdSignal<E>, f: ColdSignal<F>, g: ColdSignal<G>, h: ColdSignal<H>, i: ColdSignal<I>) -> ColdSignal<(A, B, C, D, E, F, G, H, I)> {
+	return combineLatest(a, b, c, d, e, f, g, h)
+		.combineLatestWith(i)
+		.map(repack)
+}
+
+public func combineLatest<A, B, C, D, E, F, G, H, I, J>(a: ColdSignal<A>, b: ColdSignal<B>, c: ColdSignal<C>, d: ColdSignal<D>, e: ColdSignal<E>, f: ColdSignal<F>, g: ColdSignal<G>, h: ColdSignal<H>, i: ColdSignal<I>, j: ColdSignal<J>) -> ColdSignal<(A, B, C, D, E, F, G, H, I, J)> {
+	return combineLatest(a, b, c, d, e, f, g, h, i)
+		.combineLatestWith(j)
+		.map(repack)
+}
+
+/// An overloaded function that zips the values of up to 10 signals, in the
+/// manner described by ColdSignal.zipWith().
+public func zip<A, B>(a: ColdSignal<A>, b: ColdSignal<B>) -> ColdSignal<(A, B)> {
+	return a.zipWith(b)
+}
+
+public func zip<A, B, C>(a: ColdSignal<A>, b: ColdSignal<B>, c: ColdSignal<C>) -> ColdSignal<(A, B, C)> {
+	return zip(a, b)
+		.zipWith(c)
+		.map(repack)
+}
+
+public func zip<A, B, C, D>(a: ColdSignal<A>, b: ColdSignal<B>, c: ColdSignal<C>, d: ColdSignal<D>) -> ColdSignal<(A, B, C, D)> {
+	return zip(a, b, c)
+		.zipWith(d)
+		.map(repack)
+}
+
+public func zip<A, B, C, D, E>(a: ColdSignal<A>, b: ColdSignal<B>, c: ColdSignal<C>, d: ColdSignal<D>, e: ColdSignal<E>) -> ColdSignal<(A, B, C, D, E)> {
+	return zip(a, b, c, d)
+		.zipWith(e)
+		.map(repack)
+}
+
+public func zip<A, B, C, D, E, F>(a: ColdSignal<A>, b: ColdSignal<B>, c: ColdSignal<C>, d: ColdSignal<D>, e: ColdSignal<E>, f: ColdSignal<F>) -> ColdSignal<(A, B, C, D, E, F)> {
+	return zip(a, b, c, d, e)
+		.zipWith(f)
+		.map(repack)
+}
+
+public func zip<A, B, C, D, E, F, G>(a: ColdSignal<A>, b: ColdSignal<B>, c: ColdSignal<C>, d: ColdSignal<D>, e: ColdSignal<E>, f: ColdSignal<F>, g: ColdSignal<G>) -> ColdSignal<(A, B, C, D, E, F, G)> {
+	return zip(a, b, c, d, e, f)
+		.zipWith(g)
+		.map(repack)
+}
+
+public func zip<A, B, C, D, E, F, G, H>(a: ColdSignal<A>, b: ColdSignal<B>, c: ColdSignal<C>, d: ColdSignal<D>, e: ColdSignal<E>, f: ColdSignal<F>, g: ColdSignal<G>, h: ColdSignal<H>) -> ColdSignal<(A, B, C, D, E, F, G, H)> {
+	return zip(a, b, c, d, e, f, g)
+		.zipWith(h)
+		.map(repack)
+}
+
+public func zip<A, B, C, D, E, F, G, H, I>(a: ColdSignal<A>, b: ColdSignal<B>, c: ColdSignal<C>, d: ColdSignal<D>, e: ColdSignal<E>, f: ColdSignal<F>, g: ColdSignal<G>, h: ColdSignal<H>, i: ColdSignal<I>) -> ColdSignal<(A, B, C, D, E, F, G, H, I)> {
+	return zip(a, b, c, d, e, f, g, h)
+		.zipWith(i)
+		.map(repack)
+}
+
+public func zip<A, B, C, D, E, F, G, H, I, J>(a: ColdSignal<A>, b: ColdSignal<B>, c: ColdSignal<C>, d: ColdSignal<D>, e: ColdSignal<E>, f: ColdSignal<F>, g: ColdSignal<G>, h: ColdSignal<H>, i: ColdSignal<I>, j: ColdSignal<J>) -> ColdSignal<(A, B, C, D, E, F, G, H, I, J)> {
+	return zip(a, b, c, d, e, f, g, h, i)
+		.zipWith(j)
+		.map(repack)
+}
+
 /// Blocking methods for receiving values.
 extension ColdSignal {
 	/// Starts the receiver, then returns the first value received.

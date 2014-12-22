@@ -9,6 +9,10 @@
 import LlamaKit
 
 /// A push-driven stream that sends the same values to all observers.
+///
+/// Generally, hot signals do not need to be retained in order to observe the
+/// values they send, but there are some exceptions. See the documentation for
+/// observe() and HotSignal.weak() for more information.
 public final class HotSignal<T> {
 	private let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.HotSignal", DISPATCH_QUEUE_CONCURRENT)
 	private var observers: Bag<SinkOf<T>>? = Bag()
@@ -87,6 +91,14 @@ public final class HotSignal<T> {
 
 	/// Notifies `observer` about new values from the receiver.
 	///
+	/// If this signal was created through HotSignal.weak, you must keep a
+	/// strong reference to the HotSignal or the returned Disposable in order to
+	/// keep receiving values.
+	///
+	/// Otherwise (if the signal was initialized with HotSignal.init), your
+	/// observer will be retained until the signal has finished generating
+	/// values, or until the returned Disposable is explicitly disposed.
+	///
 	/// Returns a Disposable which can be disposed of to stop notifying
 	/// `observer` of future changes.
 	public func observe<S: SinkType where S.Element == T>(observer: S) -> Disposable {
@@ -153,6 +165,10 @@ extension HotSignal {
 
 	/// Creates a repeating timer of the given interval, with a reasonable
 	/// default leeway, sending updates on the given scheduler.
+	///
+	/// The timer will automatically be destroyed when there are no more strong
+	/// references to the returned signal, and no Disposables returned from
+	/// observe() are still around.
 	public class func interval(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> HotSignal<NSDate> {
 		// Apple's "Power Efficiency Guide for Mac Apps" recommends a leeway of
 		// at least 10% of the timer interval.
@@ -161,6 +177,10 @@ extension HotSignal {
 
 	/// Creates a repeating timer of the given interval, sending updates on the
 	/// given scheduler.
+	///
+	/// The timer will automatically be destroyed when there are no more strong
+	/// references to the returned signal, and no Disposables returned from
+	/// observe() are still around.
 	public class func interval(interval: NSTimeInterval, onScheduler scheduler: DateScheduler, withLeeway leeway: NSTimeInterval) -> HotSignal<NSDate> {
 		precondition(interval >= 0)
 		precondition(leeway >= 0)
@@ -416,6 +436,10 @@ extension HotSignal {
 	///
 	/// If `sampler` fires before a value has been observed on the receiver,
 	/// nothing happens.
+	///
+	/// The returned signal will automatically be destroyed when there are no
+	/// more strong references to it, and no Disposables returned from observe()
+	/// are still around.
 	public func sampleOn(sampler: HotSignal<()>) -> HotSignal {
 		let latest = Atomic<T?>(nil)
 		let selfDisposable = observe { latest.value = $0 }
@@ -436,6 +460,10 @@ extension HotSignal {
 extension HotSignal {
 	/// Combines the latest value of the receiver with the latest value from
 	/// the given signal.
+	///
+	/// The returned signal will automatically be destroyed when there are no
+	/// more strong references to it, and no Disposables returned from observe()
+	/// are still around.
 	///
 	/// The returned signal will not send a value until both inputs have sent
 	/// at least one value each.
@@ -469,6 +497,10 @@ extension HotSignal {
 
 	/// Zips elements of two signals into pairs. The elements of any Nth pair
 	/// are the Nth elements of the two input signals.
+	///
+	/// The returned signal will automatically be destroyed when there are no
+	/// more strong references to it, and no Disposables returned from observe()
+	/// are still around.
 	public func zipWith<U>(signal: HotSignal<U>) -> HotSignal<(T, U)> {
 		return HotSignal<(T, U)>.weak { sink in
 			let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.HotSignal.zipWith", DISPATCH_QUEUE_SERIAL)
@@ -506,6 +538,10 @@ extension HotSignal {
 	/// Merges a signal of signals down into a single signal, biased toward the
 	/// signals added earlier.
 	///
+	/// The returned signal will automatically be destroyed when there are no
+	/// more strong references to it, and no Disposables returned from observe()
+	/// are still around.
+	///
 	/// evidence - Used to prove to the typechecker that the receiver is
 	///            a signal of signals. Simply pass in the `identity` function.
 	///
@@ -530,6 +566,10 @@ extension HotSignal {
 	///
 	/// This is equivalent to map() followed by merge().
 	///
+	/// The returned signal will automatically be destroyed when there are no
+	/// more strong references to it, and no Disposables returned from observe()
+	/// are still around.
+	///
 	/// Returns a signal that will forward changes from all mapped signals as
 	/// they arrive.
 	public func mergeMap<U>(f: T -> HotSignal<U>) -> HotSignal<U> {
@@ -538,6 +578,10 @@ extension HotSignal {
 
 	/// Switches on a signal of signals, forwarding values from the
 	/// latest inner signal.
+	///
+	/// The returned signal will automatically be destroyed when there are no
+	/// more strong references to it, and no Disposables returned from observe()
+	/// are still around.
 	///
 	/// evidence - Used to prove to the typechecker that the receiver is
 	///            a signal of signals. Simply pass in the `identity` function.
@@ -561,6 +605,10 @@ extension HotSignal {
 	/// the values sent by the latest mapped signal.
 	///
 	/// This is equivalent to map() followed by switchToLatest().
+	///
+	/// The returned signal will automatically be destroyed when there are no
+	/// more strong references to it, and no Disposables returned from observe()
+	/// are still around.
 	///
 	/// Returns a signal that will forward changes only from the latest mapped
 	/// signal to arrive.

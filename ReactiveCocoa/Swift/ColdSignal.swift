@@ -11,115 +11,16 @@ import LlamaKit
 private func doNothing<T>(value: T) {}
 private func doNothing() {}
 
-/// Represents a stream event.
-///
-/// Streams must conform to the grammar:
-/// `Next* (Error | Completed)?`
-public enum Event<T> {
-	/// A value provided by the stream.
-	case Next(Box<T>)
-
-	/// The stream terminated because of an error.
-	case Error(NSError)
-
-	/// The stream successfully terminated.
-	case Completed
-
-	/// Whether this event indicates stream termination (from success or
-	/// failure).
-	public var isTerminating: Bool {
-		switch self {
-		case let .Next:
-			return false
-
-		default:
-			return true
-		}
-	}
-
-	/// Lifts the given function over the event's value.
-	public func map<U>(f: T -> U) -> Event<U> {
-		switch self {
-		case let .Next(box):
-			return .Next(Box(f(box.unbox)))
-
-		case let .Error(error):
-			return .Error(error)
-
-		case let .Completed:
-			return .Completed
-		}
-	}
-
-	/// Case analysis on the receiver.
-	public func event<U>(#ifNext: T -> U, ifError: NSError -> U, ifCompleted: @autoclosure () -> U) -> U {
-		switch self {
-		case let .Next(box):
-			return ifNext(box.unbox)
-
-		case let .Error(err):
-			return ifError(err)
-
-		case let .Completed:
-			return ifCompleted()
-		}
-	}
-
-	/// Creates a sink that can receive events of this type, then invoke the
-	/// given handlers based on the kind of event received.
-	public static func sink(next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing) -> SinkOf<Event> {
-		return SinkOf { event in
-			switch event {
-			case let .Next(value):
-				next(value.unbox)
-
-			case let .Error(err):
-				error(err)
-
-			case .Completed:
-				completed()
-			}
-		}
-	}
-}
-
-public func == <T: Equatable> (lhs: Event<T>, rhs: Event<T>) -> Bool {
-	switch (lhs, rhs) {
-	case let (.Next(left), .Next(right)):
-		return left.unbox == right.unbox
-
-	case let (.Error(left), .Error(right)):
-		return left == right
-
-	case (.Completed, .Completed):
-		return true
-
-	default:
-		return false
-	}
-}
-
-extension Event: Printable {
-	public var description: String {
-		switch self {
-		case let .Next(value):
-			return "NEXT \(value.unbox)"
-
-		case let .Error(error):
-			return "ERROR \(error)"
-
-		case .Completed:
-			return "COMPLETED"
-		}
-	}
-}
-
 /// A stream that will begin generating Events when a sink is attached, possibly
 /// performing some side effects in the process. Events are pushed to the sink
 /// as they are generated.
 ///
 /// A corollary to this is that different sinks may see a different timing of
 /// Events, or even a different version of events altogether.
+///
+/// Cold signals, once started, do not need to be retained in order to receive
+/// events. See the documentation for startWithSink() or start() for more
+/// information.
 public struct ColdSignal<T> {
 	/// The type of value that will be sent to any sink which attaches to this
 	/// signal.
@@ -158,6 +59,11 @@ public struct ColdSignal<T> {
 	///
 	/// The disposable given to the closure will cancel the work associated with
 	/// event production, and prevent any further events from being sent.
+	///
+	/// Once the signal has been started, there is no need to maintain a
+	/// reference to it. The signal will continue to do work until it sends a
+	/// Completed or Error event, or the returned Disposable is explicitly
+	/// disposed.
 	///
 	/// Returns the disposable which was given to the closure.
 	public func startWithSink(sinkCreator: Disposable -> SinkOf<Element>) -> Disposable {
@@ -203,6 +109,11 @@ public struct ColdSignal<T> {
 	/// Starts producing events, performing any side effects embedded within the
 	/// ColdSignal, and invoking the given handlers for each kind of event
 	/// generated.
+	///
+	/// Once the signal has been started, there is no need to maintain a
+	/// reference to it. The signal will continue to do work until it sends a
+	/// Completed or Error event, or the returned Disposable is explicitly
+	/// disposed.
 	///
 	/// Returns a disposable that will cancel the work associated with event
 	/// production, and prevent any further events from being sent.
@@ -1234,6 +1145,109 @@ extension ColdSignal: DebugPrintable {
 		let line = self.line?.description ?? ""
 
 		return "\(function).ColdSignal (\(file):\(line))"
+	}
+}
+
+/// Represents a stream event.
+///
+/// Streams must conform to the grammar:
+/// `Next* (Error | Completed)?`
+public enum Event<T> {
+	/// A value provided by the stream.
+	case Next(Box<T>)
+
+	/// The stream terminated because of an error.
+	case Error(NSError)
+
+	/// The stream successfully terminated.
+	case Completed
+
+	/// Whether this event indicates stream termination (from success or
+	/// failure).
+	public var isTerminating: Bool {
+		switch self {
+		case let .Next:
+			return false
+
+		default:
+			return true
+		}
+	}
+
+	/// Lifts the given function over the event's value.
+	public func map<U>(f: T -> U) -> Event<U> {
+		switch self {
+		case let .Next(box):
+			return .Next(Box(f(box.unbox)))
+
+		case let .Error(error):
+			return .Error(error)
+
+		case let .Completed:
+			return .Completed
+		}
+	}
+
+	/// Case analysis on the receiver.
+	public func event<U>(#ifNext: T -> U, ifError: NSError -> U, ifCompleted: @autoclosure () -> U) -> U {
+		switch self {
+		case let .Next(box):
+			return ifNext(box.unbox)
+
+		case let .Error(err):
+			return ifError(err)
+
+		case let .Completed:
+			return ifCompleted()
+		}
+	}
+
+	/// Creates a sink that can receive events of this type, then invoke the
+	/// given handlers based on the kind of event received.
+	public static func sink(next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing) -> SinkOf<Event> {
+		return SinkOf { event in
+			switch event {
+			case let .Next(value):
+				next(value.unbox)
+
+			case let .Error(err):
+				error(err)
+
+			case .Completed:
+				completed()
+			}
+		}
+	}
+}
+
+public func == <T: Equatable> (lhs: Event<T>, rhs: Event<T>) -> Bool {
+	switch (lhs, rhs) {
+	case let (.Next(left), .Next(right)):
+		return left.unbox == right.unbox
+
+	case let (.Error(left), .Error(right)):
+		return left == right
+
+	case (.Completed, .Completed):
+		return true
+
+	default:
+		return false
+	}
+}
+
+extension Event: Printable {
+	public var description: String {
+		switch self {
+		case let .Next(value):
+			return "NEXT \(value.unbox)"
+
+		case let .Error(error):
+			return "ERROR \(error)"
+
+		case .Completed:
+			return "COMPLETED"
+		}
 	}
 }
 

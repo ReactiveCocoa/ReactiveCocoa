@@ -799,7 +799,7 @@ extension HotSignal {
 
 		if capacity == 0 {
 			return ColdSignal { (sink, disposable) in
-				let selfDisposable = self.observe { sink.put(.Next(Box($0))) }
+				let selfDisposable = self.observe { sendNext(sink, $0) }
 				disposable.addDisposable(selfDisposable)
 			}
 		}

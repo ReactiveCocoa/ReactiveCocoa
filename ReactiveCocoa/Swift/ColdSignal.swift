@@ -140,7 +140,7 @@ extension ColdSignal {
 	/// Creates a signal that will immediately complete.
 	public static func empty() -> ColdSignal {
 		return ColdSignal { (sink, _) in
-			sink.put(.Completed)
+			sendCompleted(sink)
 		}
 	}
 
@@ -148,15 +148,15 @@ extension ColdSignal {
 	/// complete.
 	public static func single(value: T) -> ColdSignal {
 		return ColdSignal { (sink, _) in
-			sink.put(.Next(Box(value)))
-			sink.put(.Completed)
+			sendNext(sink, value)
+			sendCompleted(sink)
 		}
 	}
 
 	/// Creates a signal that will immediately generate an error.
 	public static func error(error: NSError) -> ColdSignal {
 		return ColdSignal { (sink, _) in
-			sink.put(.Error(error))
+			sendError(sink, error)
 		}
 	}
 
@@ -175,14 +175,14 @@ extension ColdSignal {
 			var generator = values.generate()
 
 			while let value: T = generator.next() {
-				sink.put(.Next(Box(value)))
+				sendNext(sink, value)
 
 				if disposable.disposed {
 					return
 				}
 			}
 
-			sink.put(.Completed)
+			sendCompleted(sink)
 		}
 	}
 
@@ -221,17 +221,17 @@ extension ColdSignal {
 
 				return Event.sink(next: { value in
 					let (maybeState, newValue) = f(state.value, value)
-					sink.put(.Next(Box(newValue)))
+					sendNext(sink, newValue)
 
 					if let s = maybeState {
 						state.value = s
 					} else {
-						sink.put(.Completed)
+						sendCompleted(sink)
 					}
 				}, error: { error in
-					sink.put(.Error(error))
+					sendError(sink, error)
 				}, completed: {
-					sink.put(.Completed)
+					sendCompleted(sink)
 				})
 			}
 
@@ -390,13 +390,13 @@ extension ColdSignal {
 
 					return ()
 				}, error: { error in
-					sink.put(.Error(error))
+					sendError(sink, error)
 				}, completed: {
 					for v in values.value {
-						sink.put(.Next(Box(v)))
+						sendNext(sink, v)
 					}
 
-					sink.put(.Completed)
+					sendCompleted(sink)
 				})
 			}
 		}
@@ -416,7 +416,7 @@ extension ColdSignal {
 			// Automatically complete the returned signal when the trigger
 			// fires.
 			let completingDisposable = ActionDisposable {
-				sink.put(.Completed)
+				sendCompleted(sink)
 			}
 
 			let completingHandle = disposable.addDisposable(completingDisposable)
@@ -528,7 +528,7 @@ extension ColdSignal {
 		return ColdSignal { (sink, disposable) in
 			let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
 			let timeoutDisposable = scheduler.scheduleAfter(date) {
-				sink.put(.Error(error))
+				sendError(sink, error)
 			}
 
 			disposable.addDisposable(timeoutDisposable)
@@ -643,10 +643,10 @@ extension ColdSignal {
 				disposable.addDisposable(selfDisposable)
 
 				return SinkOf { event in
-					sink.put(.Next(Box(event)))
+					sendNext(sink, event)
 
 					if event.isTerminating {
-						sink.put(.Completed)
+						sendCompleted(sink)
 					}
 				}
 			}
@@ -668,9 +668,9 @@ extension ColdSignal {
 				return Event.sink(next: { event in
 					sink.put(event)
 				}, error: { error in
-					sink.put(.Error(error))
+					sendError(sink, error)
 				}, completed: {
-					sink.put(.Completed)
+					sendCompleted(sink)
 				})
 			}
 
@@ -718,11 +718,11 @@ extension ColdSignal {
 
 			let onBothNext = { () -> () in
 				let combined = (selfState.latestValue!, otherState.latestValue!)
-				sink.put(.Next(Box(combined)))
+				sendNext(sink, combined)
 			}
 
-			let onError = { sink.put(.Error($0)) }
-			let onBothCompleted = { sink.put(.Completed) }
+			let onError = { sendError(sink, $0) }
+			let onBothCompleted = { sendCompleted(sink) }
 
 			self.startWithStates(disposable, selfState, otherState, queue: queue, onBothNext: onBothNext, onError: onError, onBothCompleted: onBothCompleted)
 			signal.startWithStates(disposable, otherState, selfState, queue: queue, onBothNext: onBothNext, onError: onError, onBothCompleted: onBothCompleted)
@@ -746,11 +746,11 @@ extension ColdSignal {
 					selfState.values.removeAtIndex(0)
 					otherState.values.removeAtIndex(0)
 
-					sink.put(.Next(Box(pair)))
+					sendNext(sink, pair)
 				}
 
 				if (selfState.completed && selfState.values.isEmpty) || (otherState.completed && otherState.values.isEmpty) {
-					sink.put(.Completed)
+					sendCompleted(sink)
 				}
 			}
 
@@ -763,7 +763,7 @@ extension ColdSignal {
 						flushEvents()
 					}
 				}, error: { error in
-					sink.put(.Error(error))
+					sendError(sink, error)
 				}, completed: {
 					dispatch_sync(queue) {
 						selfState.completed = true
@@ -781,7 +781,7 @@ extension ColdSignal {
 						flushEvents()
 					}
 				}, error: { error in
-					sink.put(.Error(error))
+					sendError(sink, error)
 				}, completed: {
 					dispatch_sync(queue) {
 						otherState.completed = true
@@ -807,7 +807,7 @@ extension ColdSignal {
 			let decrementInFlight: () -> () = {
 				let orig = inFlight.modify { $0 - 1 }
 				if orig == 1 {
-					sink.put(.Completed)
+					sendCompleted(sink)
 				}
 			}
 
@@ -837,7 +837,7 @@ extension ColdSignal {
 
 					return ()
 				}, error: { error in
-					sink.put(.Error(error))
+					sendError(sink, error)
 				}, completed: {
 					decrementInFlight()
 				})
@@ -873,7 +873,7 @@ extension ColdSignal {
 
 			let completeIfNecessary: () -> () = {
 				if selfCompleted.value && latestCompleted.value {
-					sink.put(.Completed)
+					sendCompleted(sink)
 				}
 			}
 
@@ -904,7 +904,7 @@ extension ColdSignal {
 
 					return
 				}, error: { error in
-					sink.put(.Error(error))
+					sendError(sink, error)
 				}, completed: {
 					selfCompleted.value = true
 					completeIfNecessary()
@@ -946,7 +946,7 @@ extension ColdSignal {
 
 					state.dequeueIfReady()
 				}, error: { error in
-					sink.put(.Error(error))
+					sendError(sink, error)
 				}, completed: {
 					state.decrementInFlight()
 				})
@@ -982,7 +982,7 @@ extension ColdSignal {
 				serialDisposable.innerDisposable = selfDisposable
 
 				return Event.sink(error: { error in
-					sink.put(.Error(error))
+					sendError(sink, error)
 				}, completed: {
 					signal.startWithSink { signalDisposable in
 						serialDisposable.innerDisposable = signalDisposable
@@ -1401,7 +1401,7 @@ private class ConcatState<T> {
 	func decrementInFlight() {
 		dispatch_sync(queue) {
 			if --self.inFlight == 0 && self.enqueuedSignals.count == 0 && self.currentSignal == nil {
-				self.sink.put(.Completed)
+				sendCompleted(self.sink)
 			}
 		}
 	}
@@ -1426,9 +1426,9 @@ private class ConcatState<T> {
 				self.disposable.addDisposable(signalDisposable)
 
 				return Event.sink(next: { value in
-					self.sink.put(.Next(Box(value)))
+					sendNext(self.sink, value)
 				}, error: { error in
-					self.sink.put(.Error(error))
+					sendError(self.sink, error)
 
 					// TODO: We should remove our disposable from the
 					// composite disposable here, but that is non-trivial to

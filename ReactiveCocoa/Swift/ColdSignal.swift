@@ -1282,6 +1282,28 @@ public enum Event<T> {
 		}
 	}
 
+	/// The value in this event, if it was a `Next`.
+	public var value: T? {
+		switch self {
+		case let .Next(value):
+			return value.unbox
+
+		default:
+			return nil
+		}
+	}
+
+	/// The error in this event, if it was an `Error`.
+	public var error: NSError? {
+		switch self {
+		case let .Error(error):
+			return error
+
+		default:
+			return nil
+		}
+	}
+
 	/// Lifts the given function over the event's value.
 	public func map<U>(f: T -> U) -> Event<U> {
 		switch self {

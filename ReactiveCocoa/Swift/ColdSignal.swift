@@ -1359,6 +1359,21 @@ extension Event: Printable {
 	}
 }
 
+/// Puts a `Next` event into the given sink.
+public func sendNext<T>(sink: SinkOf<Event<T>>, value: T) {
+	sendNext(sink, value)
+}
+
+/// Puts an `Error` event into the given sink.
+public func sendError<T>(sink: SinkOf<Event<T>>, error: NSError) {
+	sink.put(Event<T>.Error(error))
+}
+
+/// Puts a `Completed` event into the given sink.
+public func sendCompleted<T>(sink: SinkOf<Event<T>>) {
+	sink.put(Event<T>.Completed)
+}
+
 private class CombineLatestState<T> {
 	var latestValue: T?
 	var completed = false

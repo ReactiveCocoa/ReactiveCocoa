@@ -1383,7 +1383,7 @@ extension Event: Printable {
 
 /// Puts a `Next` event into the given sink.
 public func sendNext<T>(sink: SinkOf<Event<T>>, value: T) {
-	sendNext(sink, value)
+	sink.put(.Next(Box(value)))
 }
 
 /// Puts an `Error` event into the given sink.

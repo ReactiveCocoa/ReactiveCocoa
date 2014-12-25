@@ -880,7 +880,7 @@ class HotSignalSpec: QuickSpec {
 				let (firstSignal, firstSink) = HotSignal<Int>.pipe()
 				let (secondSignal, secondSink) = HotSignal<Int>.pipe()
 
-				let newSignal = firstSignal.mergeWith(secondSignal)
+				let newSignal = HotSignal.merge([firstSignal, secondSignal])
 				
 				var latestValue: Int?
 				newSignal.observe { latestValue = $0 }

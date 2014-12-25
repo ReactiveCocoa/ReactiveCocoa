@@ -575,7 +575,7 @@ extension HotSignal {
 	}
 	
 	/// Merges the receiver with the input signal using the class function `merge`
-	public func mergeWith(signal: HotSignal) -> HotSignal<T> {
+	public func mergeWith(signal: HotSignal<T>) -> HotSignal<T> {
 		return HotSignal.merge([self, signal])
 	}
 	

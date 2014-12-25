@@ -875,6 +875,60 @@ class HotSignalSpec: QuickSpec {
 			}
 		}
 
+		describe("merge(SequenceType)") {
+			it("should forward values from any inner signals") {
+				let (firstSignal, firstSink) = HotSignal<Int>.pipe()
+				let (secondSignal, secondSink) = HotSignal<Int>.pipe()
+
+				let newSignal = HotSignal.merge([firstSignal, secondSignal])
+				
+				var latestValue: Int?
+				newSignal.observe { latestValue = $0 }
+
+				expect(latestValue).to(beNil())
+
+				firstSink.put(1)
+				expect(latestValue).to(equal(1))
+
+				secondSink.put(2)
+				expect(latestValue).to(equal(2))
+
+				firstSink.put(3)
+				expect(latestValue).to(equal(3))
+
+				firstSink.put(4)
+				expect(latestValue).to(equal(4))
+			}
+
+			it("should release input signals when reference is lost") {
+				weak var innerSignal: HotSignal<Int>?
+				weak var mergedSignal: HotSignal<Int>?
+
+				let test: () -> () = {
+					let (firstSignal, firstSink) = HotSignal<Int>.pipe()
+					let newSignal = HotSignal.merge([firstSignal])
+
+					mergedSignal = newSignal
+					expect(mergedSignal).notTo(beNil())
+
+					var latestValue: Int?
+					newSignal.observe { latestValue = $0 }
+
+					expect(latestValue).to(beNil())
+
+					innerSignal = firstSignal
+					expect(innerSignal).notTo(beNil())
+
+					firstSink.put(0)
+					expect(latestValue).to(equal(0))
+				}
+
+				test()
+				expect(mergedSignal).toEventually(beNil())
+				expect(innerSignal).toEventually(beNil())
+			}
+		}
+
 		describe("switchToLatest") {
 			it("should forward values from the latest inner signal") {
 				let (signal, sink) = HotSignal<HotSignal<Int>>.pipe()

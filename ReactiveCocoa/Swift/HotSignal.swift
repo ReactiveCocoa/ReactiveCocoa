@@ -574,6 +574,11 @@ extension HotSignal {
 		return ColdSignal.fromValues(values).merge(identity)
 	}
 	
+	/// Merges the receiver with the input signal using the class function `merge`
+	public func mergeWith(signal: HotSignal) -> HotSignal<T> {
+		return HotSignal.merge([self, signal])
+	}
+	
 	/// Maps each value that the receiver sends to a new signal, then merges the
 	/// resulting signals together.
 	///

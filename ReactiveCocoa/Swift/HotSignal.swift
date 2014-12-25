@@ -535,7 +535,7 @@ extension HotSignal {
 		}
 	}
 
-	/// Merges a signal of signals down into a single signal, biased toward the
+	/// Merges a HotSignal of HotSignals down into a single HotSignal, biased toward the
 	/// signals added earlier.
 	///
 	/// The returned signal will automatically be destroyed when there are no
@@ -545,7 +545,7 @@ extension HotSignal {
 	/// evidence - Used to prove to the typechecker that the receiver is
 	///            a signal of signals. Simply pass in the `identity` function.
 	///
-	/// Returns a signal that will forward changes from the original signals
+	/// Returns a HotSignal that will forward changes from the original signals
 	/// as they arrive, starting with earlier ones.
 	public func merge<U>(evidence: HotSignal -> HotSignal<HotSignal<U>>) -> HotSignal<U> {
 		return HotSignal<U>.weak { sink in

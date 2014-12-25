@@ -792,7 +792,7 @@ extension ColdSignal {
 		}
 	}
 
-	/// Merges a signal of signals down into a single signal, biased toward the
+	/// Merges a ColdSignal of ColdSignals down into a single ColdSignal, biased toward the
 	/// signals added earlier.
 	///
 	/// evidence - Used to prove to the typechecker that the receiver is
@@ -844,6 +844,33 @@ extension ColdSignal {
 			}
 
 			return ()
+		}
+	}
+
+	/// Merges a ColdSignal of HotSignals down into a single HotSignal, biased toward the
+	/// signals added earlier.
+	///
+	/// evidence - Used to prove to the typechecker that the receiver is
+	///            a signal of signals. Simply pass in the `identity` function.
+	///
+	/// Returns a signal that will forward events from the original signals
+	/// as they arrive.
+	public func merge<U>(evidence: ColdSignal -> ColdSignal<HotSignal<U>>) -> HotSignal<U> {
+		return HotSignal<U>.weak { sink in
+			let disposable = CompositeDisposable()
+			
+			evidence(self).startWithSink { selfDisposable in
+				disposable.addDisposable(selfDisposable)
+				
+				return Event.sink(next: { signal in
+					let innerDisposable = signal.observe(sink)
+					disposable.addDisposable(innerDisposable)
+					
+					return ()
+				})
+			}
+			
+			return disposable
 		}
 	}
 

@@ -561,6 +561,19 @@ extension HotSignal {
 		}
 	}
 
+	/// Merges a SequenceType of HotSignals down into a single HotSignal, biased toward the
+	/// signals added earlier.
+	///
+	/// The returned signal will automatically be destroyed when there are no
+	/// more strong references to it, and no Disposables returned from observe()
+	/// are still around.
+	///
+	/// Returns a HotSignal that will forward changes from the original signals
+	/// as they arrive, starting with earlier ones.
+	public class func merge<S: SequenceType where S.Generator.Element == HotSignal<T>>(values: S) -> HotSignal<T> {
+		return ColdSignal.fromValues(values).merge(identity)
+	}
+	
 	/// Maps each value that the receiver sends to a new signal, then merges the
 	/// resulting signals together.
 	///

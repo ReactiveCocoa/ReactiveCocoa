@@ -535,7 +535,7 @@ extension HotSignal {
 		}
 	}
 
-	/// Merges a signal of signals down into a single signal, biased toward the
+	/// Merges a HotSignal of HotSignals down into a single HotSignal, biased toward the
 	/// signals added earlier.
 	///
 	/// The returned signal will automatically be destroyed when there are no
@@ -545,7 +545,7 @@ extension HotSignal {
 	/// evidence - Used to prove to the typechecker that the receiver is
 	///            a signal of signals. Simply pass in the `identity` function.
 	///
-	/// Returns a signal that will forward changes from the original signals
+	/// Returns a HotSignal that will forward changes from the original signals
 	/// as they arrive, starting with earlier ones.
 	public func merge<U>(evidence: HotSignal -> HotSignal<HotSignal<U>>) -> HotSignal<U> {
 		return HotSignal<U>.weak { sink in
@@ -561,6 +561,25 @@ extension HotSignal {
 		}
 	}
 
+	/// Merges a SequenceType of HotSignals down into a single HotSignal, biased toward the
+	/// signals appearing earlier in the sequence.
+	///
+	/// The returned signal will automatically be destroyed when there are no
+	/// more strong references to it, and no Disposables returned from observe()
+	/// are still around.
+	///
+	/// Returns a HotSignal that will forward changes from the original signals
+	/// in the sequence, starting with earlier ones.
+	public class func merge<S: SequenceType where S.Generator.Element == HotSignal<T>>(signals: S) -> HotSignal<T> {
+		let (signal, sink) = HotSignal<HotSignal<T>>.pipe()
+		let merged = signal.merge(identity)
+		var generator = signals.generate()
+		while let signal: HotSignal<T> = generator.next() {
+			sink.put(signal)
+		}
+		return merged
+	}
+	
 	/// Maps each value that the receiver sends to a new signal, then merges the
 	/// resulting signals together.
 	///

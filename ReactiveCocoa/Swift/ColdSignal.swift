@@ -792,7 +792,7 @@ extension ColdSignal {
 		}
 	}
 
-	/// Merges a signal of signals down into a single signal, biased toward the
+	/// Merges a ColdSignal of ColdSignals down into a single ColdSignal, biased toward the
 	/// signals added earlier.
 	///
 	/// evidence - Used to prove to the typechecker that the receiver is

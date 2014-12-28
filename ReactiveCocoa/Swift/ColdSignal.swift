@@ -198,6 +198,25 @@ extension ColdSignal {
 			return .error(error)
 		}
 	}
+
+	/// Creates a signal that will execute the given closure when started, then
+	/// yield the resulting value upon success, or the error upon failure.
+	public static func try(f: @autoclosure () -> Result<T>) -> ColdSignal {
+		return lazy { .fromResult(f()) }
+	}
+
+	/// Creates a signal that will execute the given closure when started, then
+	/// yield the non-nil value upon success, or the error upon `nil`.
+	public static func try(defaultError: NSError = RACError.Empty.error, f: NSErrorPointer -> T?) -> ColdSignal {
+		return lazy {
+			var error: NSError?
+			if let value = f(&error) {
+				return .single(value)
+			} else {
+				return .error(error ?? defaultError)
+			}
+		}
+	}
 }
 
 /// Transformative operators.

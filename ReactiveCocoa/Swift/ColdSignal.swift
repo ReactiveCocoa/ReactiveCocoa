@@ -577,8 +577,14 @@ extension ColdSignal {
 
 	/// Performs the given action upon each value in the receiver, bailing out
 	/// with an error if it returns `false`.
-	public func try(f: (T, NSErrorPointer) -> Bool) -> ColdSignal {
-		return tryMap { (value, error) in f(value, error) ? value : nil }
+	public func try(defaultError: NSError = RACError.Empty.error, _ f: (T, NSErrorPointer) -> Bool) -> ColdSignal {
+		return tryMap(defaultError: defaultError) { (value, error) -> T? in
+			if f(value, error) {
+				return value
+			} else {
+				return nil
+			}
+		}
 	}
 
 	/// Performs the given action upon each value in the receiver, bailing out
@@ -591,7 +597,7 @@ extension ColdSignal {
 
 	/// Attempts to map each value in the receiver, bailing out with an error if
 	/// a given mapping is `nil`.
-	public func tryMap<U>(f: (T, NSErrorPointer) -> U?) -> ColdSignal<U> {
+	public func tryMap<U>(defaultError: NSError = RACError.Empty.error, _ f: (T, NSErrorPointer) -> U?) -> ColdSignal<U> {
 		return tryMap { value -> Result<U> in
 			var error: NSError?
 			let maybeValue = f(value, &error)
@@ -599,7 +605,7 @@ extension ColdSignal {
 			if let v = maybeValue {
 				return .Success(Box(v))
 			} else {
-				return .Failure(error.orDefault(RACError.Empty.error))
+				return .Failure(error.orDefault(defaultError))
 			}
 		}
 	}

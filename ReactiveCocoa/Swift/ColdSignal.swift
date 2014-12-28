@@ -201,7 +201,7 @@ extension ColdSignal {
 
 	/// Creates a signal that will execute the given closure when started, then
 	/// yield the resulting value upon success, or the error upon failure.
-	public static func try(f: @autoclosure () -> Result<T>) -> ColdSignal {
+	public static func try(f: () -> Result<T>) -> ColdSignal {
 		return lazy { .fromResult(f()) }
 	}
 

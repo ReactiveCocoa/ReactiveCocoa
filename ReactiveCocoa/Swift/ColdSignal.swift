@@ -208,12 +208,12 @@ extension ColdSignal {
 	/// Creates a signal that will execute the given closure when started, then
 	/// yield the non-nil value upon success, or the error upon `nil`.
 	public static func try(defaultError: NSError = RACError.Empty.error, f: NSErrorPointer -> T?) -> ColdSignal {
-		return lazy {
+		return try {
 			var error: NSError?
 			if let value = f(&error) {
-				return .single(value)
+				return success(value)
 			} else {
-				return .error(error ?? defaultError)
+				return failure(error ?? defaultError)
 			}
 		}
 	}

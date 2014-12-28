@@ -6,3 +6,4 @@ final class Property<T> {
 }
 
 func <~ <T>(property: Property<T>, signal: Signal<T>)
+func <~ <T>(property: Property<T>, template: SignalTemplate<T>)

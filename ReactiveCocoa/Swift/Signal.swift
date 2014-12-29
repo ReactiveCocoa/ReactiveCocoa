@@ -20,14 +20,14 @@ public final class Signal<T> {
 	public init(_ generator: (SinkOf<Event<T>>, Disposable) -> ())
 
 	/// A Signal that never sends any events.
-	public static let never: Signal
+	public class let never: Signal
 
 	/// Creates a Signal that will be controlled by sending events to the given
 	/// sink.
 	///
 	/// The Signal will remain alive until an `Error` or `Completed` event is
 	/// sent to the sink.
-	public static func pipe() -> (Signal, SinkOf<Event<T>>)
+	public class func pipe() -> (Signal, SinkOf<Event<T>>)
 
 	/// Observes the Signal by sending any future events to the given sink. If
 	/// the Signal has already terminated, the sink will not receive any events.

@@ -11,18 +11,18 @@
 /// different order between Signals, or the stream might be completely
 /// different!
 public struct SignalTemplate<T> {
-	/// Initializes a SignalTemplate that will invoke the given generator once
+	/// Initializes a SignalTemplate that will invoke the given closure once
 	/// for each invocation of start().
 	///
-	/// The events that the generator puts into the given sink will become the
+	/// The events that the closure puts into the given sink will become the
 	/// events sent by the started Signal to its observers.
 	///
 	/// If the Disposable returned from start() is disposed, the given
-	/// CompositeDisposable will be disposed as well. At this point, the
-	/// generator should cancel work as soon as possible, and clean up any
-	/// temporary resources. The CompositeDisposable will also be disposed when
-	/// an `Error` or `Completed` event is sent to the sink.
-	public init(_ generator: (SinkOf<Event<T>>, CompositeDisposable) -> ())
+	/// CompositeDisposable will be disposed as well, at which point work should
+	/// be cancelled, and any temporary resources cleaned up. The
+	/// CompositeDisposable will also be disposed when an `Error` or `Completed`
+	/// event is sent to the sink.
+	public init(_ startHandler: (SinkOf<Event<T>>, CompositeDisposable) -> ())
 
 	/// Creates a template for a Signal that will immediately send one value
 	/// then complete.

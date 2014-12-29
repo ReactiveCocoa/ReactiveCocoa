@@ -11,7 +11,7 @@ public final class Property<T> {
 	/// A plan for a signal that will send the property's current value,
 	/// followed by all changes over time, then complete when the property has
 	/// deinitialized.
-	public let values: Plan<T>
+	public let valuesPlan: Plan<T>
 
 	/// Initializes a property with the given value to start.
 	public init(_ initialValue: T)

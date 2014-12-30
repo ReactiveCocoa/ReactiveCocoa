@@ -6,11 +6,11 @@
 ///
 /// Signals are generally used to represent event streams that are already “in
 /// progress,” like notifications, user input, etc. To represent streams that
-/// must first be _started_, see the Plan type.
+/// must first be _started_, see the SignalProducer type.
 ///
 /// Signals do not need to be retained. A Signal will be automatically kept
 /// alive until the event stream has terminated, or until the operation which
-/// yielded the Signal (e.g., Plan.start) has been cancelled.
+/// yielded the Signal (e.g., SignalProducer.start) has been cancelled.
 public final class Signal<T> {
 	/// Initializes a Signal that will immediately invoke the given generator,
 	/// then forward events put into the given sink.

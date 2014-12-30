@@ -18,23 +18,18 @@ public final class Action<Input, Output> {
 	public let errors: Signal<NSError>
 
 	/// Whether the action is currently executing.
-	///
-	/// This producer creates signals that will send the current value immediately
-	/// (if the action is alive), and complete when the action has
-	/// deinitialized.
-	public let executing: SignalProducer<Bool>
+	public let executing: Property<Bool>
 
 	/// Whether the action is currently enabled.
-	///
-	/// This producer creates signals that will send the current value immediately
-	/// (if the action is alive), and complete when the action has
-	/// deinitialized.
-	public let enabled: SignalProducer<Bool>
+	public let enabled: Property<Bool>
 
-	/// Initializes an action that will create a SignalProducer for each input.
-	///
-	/// Before `enabledIf` sends a value, the action will be disabled.
-	public init(enabledIf: SignalProducer<Bool> = .single(true), _ execute: Input -> SignalProducer<Output>)
+	/// Initializes an action that will be conditionally enabled, and create a
+	/// SignalProducer for each input.
+	public init(enabledIf: Property<Bool>, _ execute: Input -> SignalProducer<Output>)
+
+	/// Initializes an action that will be enabled by default, and create a
+	/// SignalProducer for each input.
+	public convenience init(_ execute: Input -> SignalProducer<Output>)
 
 	/// Creates a SignalProducer that, when started, will execute the action
 	/// with the given input, then forward the results upon the produced Signal.

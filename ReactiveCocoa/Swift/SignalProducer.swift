@@ -146,3 +146,18 @@ public func takeUntil<T>(trigger: SignalProducer<()>)(producer: SignalProducer<T
 public func takeUntilReplacement<T>(replacement: SignalProducer<T>)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func then<T, U>(replacement: SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 public func zipWith<T, U>(otherSignalProducer: SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<(T, U)>
+
+/// SignalProducer.start() as a free function, for easier use with |>.
+public func start<T>(setUp: Signal<T> -> Disposable?)(producer: SignalProducer<T>) -> Disposable {
+	return producer.start(setUp)
+}
+
+/// SignalProducer.start() as a free function, for easier use with |>.
+public func start<T, S: SinkType where S.Element == Event<T>>(sink: S)(producer: SignalProducer<T>) -> Disposable {
+	return producer.start(sink)
+}
+
+/// SignalProducer.start() as a free function, for easier use with |>.
+public func start<T>(next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing)(producer: SignalProducer<T>) -> Disposable {
+	return producer.start(next: next, error: error, complete: completed)
+}

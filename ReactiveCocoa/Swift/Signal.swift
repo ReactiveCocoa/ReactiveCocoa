@@ -47,7 +47,7 @@ public final class Signal<T> {
 }
 
 infix operator |> {
-	associativity right
+	associativity left
 
 	// Bind tighter than assignment, but looser than everything else.
 	precedence 95

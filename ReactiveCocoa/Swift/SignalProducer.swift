@@ -78,6 +78,14 @@ public struct SignalProducer<T> {
 	/// with the Signal, and prevent any future events from being sent.
 	public func start(setUp: Signal<T> -> Disposable?) -> Disposable
 
+	/// Creates a Signal from the producer, then attaches the given sink to the
+	/// Signal as an observer.
+	///
+	/// Returns a Disposable which can be used to cancel the work associated
+	/// with the Signal, and prevent any future events from being put into the
+	/// sink.
+	public func start<S: SinkType where S.Element == Event<T>>(sink: S) -> Disposable
+
 	/// Creates a Signal from the producer, then adds exactly one observer to
 	/// the Signal, which will invoke the given callbacks when events are
 	/// received.

@@ -228,7 +228,7 @@ public final class CocoaAction: NSObject {
 	private func startSignalOnMainThread<T: Equatable>(signal: ColdSignal<T>, next: T -> ()) {
 		let signalDisposable = signal
 			.skipRepeats(identity)
-			.deliverOn(MainScheduler())
+			.deliverOn(UIScheduler())
 			.start(next: next)
 
 		self.disposable.addDisposable(signalDisposable)

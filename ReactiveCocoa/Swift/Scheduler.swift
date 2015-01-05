@@ -50,20 +50,23 @@ public final class ImmediateScheduler: Scheduler {
 	}
 }
 
-/// A scheduler that performs all work on the main thread.
-public final class MainScheduler: DateScheduler {
-	private let innerScheduler = QueueScheduler(dispatch_get_main_queue())
+/// A scheduler that performs all work on the main thread, as soon as possible.
+///
+/// If the caller is already running on the main thread when an action is
+/// scheduled, it may be run synchronously. However, ordering between actions
+/// will always be preserved.
+public final class UIScheduler: Scheduler {
 	private var queueLength: Int32 = 0
-
-	public var currentDate: NSDate {
-		return NSDate()
-	}
 
 	public init() {}
 
 	public func schedule(action: () -> ()) -> Disposable? {
+		let disposable = SimpleDisposable()
 		let actionAndDecrement: () -> () = {
-			action()
+			if !disposable.disposed {
+				action()
+			}
+
 			withUnsafeMutablePointer(&self.queueLength, OSAtomicDecrement32)
 		}
 
@@ -73,27 +76,11 @@ public final class MainScheduler: DateScheduler {
 		// already enqueued, we can skip scheduling and just execute directly.
 		if NSThread.isMainThread() && queued == 1 {
 			actionAndDecrement()
-			return nil
 		} else {
-			return innerScheduler.schedule(actionAndDecrement)
+			dispatch_async(dispatch_get_main_queue(), actionAndDecrement)
 		}
-	}
 
-	public func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable? {
-		return innerScheduler.scheduleAfter(date, action: action)
-	}
-
-	/// Schedules a recurring action at the given interval, beginning at the
-	/// given start time, and with a reasonable default leeway.
-	///
-	/// Optionally returns a disposable that can be used to cancel the work
-	/// before it begins.
-	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, action: () -> ()) -> Disposable? {
-		return innerScheduler.scheduleAfter(date, repeatingEvery: repeatingEvery, action: action)
-	}
-
-	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> ()) -> Disposable? {
-		return innerScheduler.scheduleAfter(date, repeatingEvery: repeatingEvery, withLeeway: withLeeway, action: action)
+		return disposable
 	}
 }
 

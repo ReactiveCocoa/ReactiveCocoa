@@ -33,7 +33,7 @@ extension ImmediateScheduler {
 	}
 }
 
-extension MainScheduler {
+extension UIScheduler {
 	public func asRACScheduler() -> RACScheduler {
 		return RACScheduler.mainThreadScheduler()
 	}

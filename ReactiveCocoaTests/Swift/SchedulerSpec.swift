@@ -24,7 +24,7 @@ class SchedulerSpec: QuickSpec {
 			}
 		}
 
-		describe("MainScheduler") {
+		describe("UIScheduler") {
 			func dispatchSyncInBackground(action: () -> ()) {
 				let group = dispatch_group_create()
 				dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), action)
@@ -32,7 +32,7 @@ class SchedulerSpec: QuickSpec {
 			}
 
 			it("should run actions immediately when on the main thread") {
-				let scheduler = MainScheduler()
+				let scheduler = UIScheduler()
 				var values: [Int] = []
 				expect(NSThread.isMainThread()).to(beTruthy())
 
@@ -54,7 +54,7 @@ class SchedulerSpec: QuickSpec {
 			}
 
 			it("should enqueue actions scheduled from the background") {
-				let scheduler = MainScheduler()
+				let scheduler = UIScheduler()
 				var values: [Int] = []
 
 				dispatchSyncInBackground {
@@ -88,7 +88,7 @@ class SchedulerSpec: QuickSpec {
 			}
 
 			it("should run actions enqueued from the main thread after those from the background") {
-				let scheduler = MainScheduler()
+				let scheduler = UIScheduler()
 				var values: [Int] = []
 
 				dispatchSyncInBackground {
@@ -112,35 +112,6 @@ class SchedulerSpec: QuickSpec {
 
 				expect(values).to(equal([]))
 				expect(values).toEventually(equal([ 0, 1, 2 ]))
-			}
-
-			it("should run enqueued actions after a given date") {
-				var didRun = false
-				MainScheduler().scheduleAfter(NSDate()) {
-					didRun = true
-					expect(NSThread.isMainThread()).to(beTruthy())
-				}
-
-				expect(didRun).to(beFalsy())
-				expect{didRun}.toEventually(beTruthy())
-			}
-
-			it("should repeatedly run actions after a given date") {
-				let disposable = SerialDisposable()
-
-				var count = 0
-				let timesToRun = 3
-
-				disposable.innerDisposable = MainScheduler().scheduleAfter(NSDate(), repeatingEvery: 0.01, withLeeway: 0) {
-					expect(NSThread.isMainThread()).to(beTruthy())
-
-					if ++count == timesToRun {
-						disposable.dispose()
-					}
-				}
-
-				expect(count).to(equal(0))
-				expect{count}.toEventually(equal(timesToRun))
 			}
 		}
 

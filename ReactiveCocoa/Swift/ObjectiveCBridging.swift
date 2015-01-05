@@ -9,7 +9,7 @@
 import LlamaKit
 
 extension RACDisposable: Disposable {}
-extension RACScheduler: DateScheduler {
+extension RACScheduler: DateSchedulerType {
 	public var currentDate: NSDate {
 		return NSDate()
 	}

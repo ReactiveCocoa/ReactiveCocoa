@@ -50,41 +50,57 @@ public final class ImmediateScheduler: Scheduler {
 	}
 }
 
-/// A scheduler that performs all work on the main thread.
-public final class MainScheduler: DateScheduler {
-	private let innerScheduler = QueueScheduler(dispatch_get_main_queue())
-
-	public var currentDate: NSDate {
-		return NSDate()
-	}
+/// A scheduler that performs all work on the main thread, as soon as possible.
+///
+/// If the caller is already running on the main thread when an action is
+/// scheduled, it may be run synchronously. However, ordering between actions
+/// will always be preserved.
+public final class UIScheduler: Scheduler {
+	private var queueLength: Int32 = 0
 
 	public init() {}
 
 	public func schedule(action: () -> ()) -> Disposable? {
-		return innerScheduler.schedule(action)
-	}
+		let disposable = SimpleDisposable()
+		let actionAndDecrement: () -> () = {
+			if !disposable.disposed {
+				action()
+			}
 
-	public func scheduleAfter(date: NSDate, action: () -> ()) -> Disposable? {
-		return innerScheduler.scheduleAfter(date, action: action)
-	}
+			withUnsafeMutablePointer(&self.queueLength, OSAtomicDecrement32)
+		}
 
-	/// Schedules a recurring action at the given interval, beginning at the
-	/// given start time, and with a reasonable default leeway.
-	///
-	/// Optionally returns a disposable that can be used to cancel the work
-	/// before it begins.
-	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, action: () -> ()) -> Disposable? {
-		return innerScheduler.scheduleAfter(date, repeatingEvery: repeatingEvery, action: action)
-	}
+		let queued = withUnsafeMutablePointer(&queueLength, OSAtomicIncrement32)
 
-	public func scheduleAfter(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway: NSTimeInterval, action: () -> ()) -> Disposable? {
-		return innerScheduler.scheduleAfter(date, repeatingEvery: repeatingEvery, withLeeway: withLeeway, action: action)
+		// If we're already running on the main thread, and there isn't work
+		// already enqueued, we can skip scheduling and just execute directly.
+		if NSThread.isMainThread() && queued == 1 {
+			actionAndDecrement()
+		} else {
+			dispatch_async(dispatch_get_main_queue(), actionAndDecrement)
+		}
+
+		return disposable
 	}
 }
 
 /// A scheduler backed by a serial GCD queue.
 public final class QueueScheduler: DateScheduler {
 	internal let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.QueueScheduler", DISPATCH_QUEUE_SERIAL)
+
+	private struct MainQueueSingleton {
+		static let mainQueueScheduler = QueueScheduler(dispatch_get_main_queue())
+	}
+
+	/// A singleton QueueScheduler that always targets the main thread's GCD
+	/// queue.
+	///
+	/// Unlike UIScheduler, this scheduler supports scheduling for a future
+	/// date, and will always schedule asynchronously (even if already running
+	/// on the main thread).
+	public class var mainQueueScheduler: QueueScheduler {
+		return MainQueueSingleton.mainQueueScheduler
+	}
 
 	public var currentDate: NSDate {
 		return NSDate()

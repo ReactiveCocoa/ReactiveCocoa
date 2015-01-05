@@ -24,45 +24,94 @@ class SchedulerSpec: QuickSpec {
 			}
 		}
 
-		describe("MainScheduler") {
-			it("should run enqueued actions on the main thread") {
-				var didRun = false
-				MainScheduler().schedule {
-					didRun = true
-					expect(NSThread.isMainThread()).to(beTruthy())
-				}
-
-				expect(didRun).to(beFalsy())
-				expect{didRun}.toEventually(beTruthy())
+		describe("UIScheduler") {
+			func dispatchSyncInBackground(action: () -> ()) {
+				let group = dispatch_group_create()
+				dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), action)
+				dispatch_group_wait(group, DISPATCH_TIME_FOREVER)
 			}
 
-			it("should run enqueued actions after a given date") {
-				var didRun = false
-				MainScheduler().scheduleAfter(NSDate()) {
-					didRun = true
-					expect(NSThread.isMainThread()).to(beTruthy())
+			it("should run actions immediately when on the main thread") {
+				let scheduler = UIScheduler()
+				var values: [Int] = []
+				expect(NSThread.isMainThread()).to(beTruthy())
+
+				scheduler.schedule {
+					values.append(0)
 				}
 
-				expect(didRun).to(beFalsy())
-				expect{didRun}.toEventually(beTruthy())
+				expect(values).to(equal([ 0 ]))
+
+				scheduler.schedule {
+					values.append(1)
+				}
+
+				scheduler.schedule {
+					values.append(2)
+				}
+
+				expect(values).to(equal([ 0, 1, 2 ]))
 			}
 
-			it("should repeatedly run actions after a given date") {
-				let disposable = SerialDisposable()
+			it("should enqueue actions scheduled from the background") {
+				let scheduler = UIScheduler()
+				var values: [Int] = []
 
-				var count = 0
-				let timesToRun = 3
-
-				disposable.innerDisposable = MainScheduler().scheduleAfter(NSDate(), repeatingEvery: 0.01, withLeeway: 0) {
-					expect(NSThread.isMainThread()).to(beTruthy())
-
-					if ++count == timesToRun {
-						disposable.dispose()
+				dispatchSyncInBackground {
+					scheduler.schedule {
+						expect(NSThread.isMainThread()).to(beTruthy())
+						values.append(0)
 					}
+
+					return
 				}
 
-				expect(count).to(equal(0))
-				expect{count}.toEventually(equal(timesToRun))
+				expect(values).to(equal([]))
+				expect(values).toEventually(equal([ 0 ]))
+
+				dispatchSyncInBackground {
+					scheduler.schedule {
+						expect(NSThread.isMainThread()).to(beTruthy())
+						values.append(1)
+					}
+
+					scheduler.schedule {
+						expect(NSThread.isMainThread()).to(beTruthy())
+						values.append(2)
+					}
+
+					return
+				}
+
+				expect(values).to(equal([ 0 ]))
+				expect(values).toEventually(equal([ 0, 1, 2 ]))
+			}
+
+			it("should run actions enqueued from the main thread after those from the background") {
+				let scheduler = UIScheduler()
+				var values: [Int] = []
+
+				dispatchSyncInBackground {
+					scheduler.schedule {
+						expect(NSThread.isMainThread()).to(beTruthy())
+						values.append(0)
+					}
+
+					return
+				}
+
+				scheduler.schedule {
+					expect(NSThread.isMainThread()).to(beTruthy())
+					values.append(1)
+				}
+
+				scheduler.schedule {
+					expect(NSThread.isMainThread()).to(beTruthy())
+					values.append(2)
+				}
+
+				expect(values).to(equal([]))
+				expect(values).toEventually(equal([ 0, 1, 2 ]))
 			}
 		}
 

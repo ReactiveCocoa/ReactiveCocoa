@@ -30,11 +30,11 @@ extension NSURLSession {
 		return ColdSignal { (sink, disposable) in
 			let task = self.dataTaskWithRequest(request) { (data, response, error) in
 				if data == nil || response == nil {
-					sink.put(.Error(error))
+					sendError(sink, error)
 				} else {
 					let value = (data!, response!)
-					sink.put(.Next(Box(value)))
-					sink.put(.Completed)
+					sendNext(sink, value)
+					sendCompleted(sink)
 				}
 			}
 

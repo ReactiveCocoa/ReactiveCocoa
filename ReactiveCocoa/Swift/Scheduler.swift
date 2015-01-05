@@ -7,7 +7,7 @@
 //
 
 /// Represents a serial queue of work items.
-public protocol Scheduler {
+public protocol SchedulerType {
 	/// Enqueues an action on the scheduler.
 	///
 	/// When the work is executed depends on the scheduler in use.
@@ -19,7 +19,7 @@ public protocol Scheduler {
 
 /// A particular kind of scheduler that supports enqueuing actions at future
 /// dates.
-public protocol DateScheduler: Scheduler {
+public protocol DateSchedulerType: SchedulerType {
 	/// The current date, as determined by this scheduler.
 	///
 	/// This can be implemented to deterministic return a known date (e.g., for
@@ -41,7 +41,7 @@ public protocol DateScheduler: Scheduler {
 }
 
 /// A scheduler that performs all work synchronously.
-public final class ImmediateScheduler: Scheduler {
+public final class ImmediateScheduler: SchedulerType {
 	public init() {}
 
 	public func schedule(action: () -> ()) -> Disposable? {
@@ -55,7 +55,7 @@ public final class ImmediateScheduler: Scheduler {
 /// If the caller is already running on the main thread when an action is
 /// scheduled, it may be run synchronously. However, ordering between actions
 /// will always be preserved.
-public final class UIScheduler: Scheduler {
+public final class UIScheduler: SchedulerType {
 	private var queueLength: Int32 = 0
 
 	public init() {}
@@ -85,7 +85,7 @@ public final class UIScheduler: Scheduler {
 }
 
 /// A scheduler backed by a serial GCD queue.
-public final class QueueScheduler: DateScheduler {
+public final class QueueScheduler: DateSchedulerType {
 	internal let queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.QueueScheduler", DISPATCH_QUEUE_SERIAL)
 
 	private struct MainQueueSingleton {
@@ -190,7 +190,7 @@ public final class QueueScheduler: DateScheduler {
 }
 
 /// A scheduler that implements virtualized time, for use in testing.
-public final class TestScheduler: DateScheduler {
+public final class TestScheduler: DateSchedulerType {
 	private final class ScheduledAction {
 		let date: NSDate
 		let action: () -> ()

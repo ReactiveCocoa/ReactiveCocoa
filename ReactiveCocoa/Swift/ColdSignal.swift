@@ -452,7 +452,7 @@ extension ColdSignal {
 
 	/// Yields all events on the given scheduler, instead of whichever
 	/// scheduler they originally arrived upon.
-	public func deliverOn(scheduler: Scheduler) -> ColdSignal {
+	public func deliverOn(scheduler: SchedulerType) -> ColdSignal {
 		return ColdSignal { (sink, disposable) in
 			self.startWithSink { selfDisposable in
 				disposable.addDisposable(selfDisposable)
@@ -474,7 +474,7 @@ extension ColdSignal {
 	///
 	/// Values may still be sent upon other schedulers—this merely affects how
 	/// the `start` method is invoked.
-	public func evaluateOn(scheduler: Scheduler) -> ColdSignal {
+	public func evaluateOn(scheduler: SchedulerType) -> ColdSignal {
 		return ColdSignal { (sink, disposable) in
 			let schedulerDisposable = scheduler.schedule {
 				self.startWithSink { selfDisposable in
@@ -493,7 +493,7 @@ extension ColdSignal {
 	/// them on the given scheduler.
 	///
 	/// `Error` events are always scheduled immediately.
-	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> ColdSignal {
+	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> ColdSignal {
 		precondition(interval >= 0)
 
 		return ColdSignal { (sink, disposable) in
@@ -522,7 +522,7 @@ extension ColdSignal {
 
 	/// Yields `error` after the given interval if the receiver has not yet
 	/// completed by that point.
-	public func timeoutWithError(error: NSError, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> ColdSignal {
+	public func timeoutWithError(error: NSError, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> ColdSignal {
 		precondition(interval >= 0)
 
 		return ColdSignal { (sink, disposable) in

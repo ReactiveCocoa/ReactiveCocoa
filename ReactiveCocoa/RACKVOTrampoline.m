@@ -46,10 +46,9 @@
 	_unsafeTarget = strongTarget;
 	_observer = observer;
 
-	RACKVOProxy *proxy = RACKVOProxy.instance;
-	[proxy addObserver:self forContext:(__bridge void *)self];
+	[RACKVOProxy.sharedProxy addObserver:self forContext:(__bridge void *)self];
+	[strongTarget addObserver:RACKVOProxy.sharedProxy forKeyPath:self.keyPath options:options context:(__bridge void *)self];
 
-	[strongTarget addObserver:proxy forKeyPath:self.keyPath options:options context:(__bridge void *)self];
 	[strongTarget.rac_deallocDisposable addDisposable:self];
 	[self.observer.rac_deallocDisposable addDisposable:self];
 
@@ -83,10 +82,8 @@
 	[target.rac_deallocDisposable removeDisposable:self];
 	[observer.rac_deallocDisposable removeDisposable:self];
 
-	RACKVOProxy *proxy = RACKVOProxy.instance;
-	[proxy removeObserver:self forContext:(__bridge void *)self];
-
-	[target removeObserver:proxy forKeyPath:self.keyPath context:(__bridge void *)self];
+	[target removeObserver:RACKVOProxy.sharedProxy forKeyPath:self.keyPath context:(__bridge void *)self];
+	[RACKVOProxy.sharedProxy removeObserver:self forContext:(__bridge void *)self];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {

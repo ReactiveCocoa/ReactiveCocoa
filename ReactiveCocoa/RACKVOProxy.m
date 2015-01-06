@@ -9,54 +9,62 @@
 #import "RACKVOProxy.h"
 
 @interface RACKVOProxy()
-@property(strong, nonatomic, readonly) NSMapTable *trampolines;
+
+@property (strong, nonatomic, readonly) NSMapTable *trampolines;
+@property (strong, nonatomic, readonly) dispatch_queue_t queue;
+
 @end
 
 @implementation RACKVOProxy
 
-+ (RACKVOProxy *)instance {
-    static RACKVOProxy *proxy;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        proxy = [[RACKVOProxy alloc] init];
-    });
-    
-    return proxy;
++ (instancetype)sharedProxy {
+	static RACKVOProxy *proxy;
+	static dispatch_once_t onceToken;
+
+	dispatch_once(&onceToken, ^{
+		proxy = [[self alloc] init];
+	});
+
+	return proxy;
 }
 
 - (instancetype)init {
-    self = [super init];
-    if (self == nil) return nil;
-    _trampolines = [NSMapTable strongToWeakObjectsMapTable];
-    return self;
+	self = [super init];
+	if (self == nil) return nil;
+
+	_queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.RACKVOProxy", DISPATCH_QUEUE_SERIAL);
+	_trampolines = [NSMapTable strongToWeakObjectsMapTable];
+
+	return self;
 }
 
-- (void)addObserver:(NSObject *)observer forContext:(void *)context {
-    NSValue *valueContext = [NSValue valueWithPointer:context];
-    @synchronized (self) {
-        [self.trampolines setObject:observer forKey:valueContext];
-    }
+- (void)addObserver:(__weak NSObject *)observer forContext:(void *)context {
+	NSValue *valueContext = [NSValue valueWithPointer:context];
+
+	dispatch_sync(self.queue, ^{
+		[self.trampolines setObject:observer forKey:valueContext];
+	});
 }
 
 - (void)removeObserver:(NSObject *)observer forContext:(void *)context {
-    NSValue *valueContext = [NSValue valueWithPointer:context];
-    @synchronized (self) {
-        [self.trampolines removeObjectForKey:valueContext];
-    }
+	NSValue *valueContext = [NSValue valueWithPointer:context];
+
+	dispatch_sync(self.queue, ^{
+		[self.trampolines removeObjectForKey:valueContext];
+	});
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    NSValue *valueContext = [NSValue valueWithPointer:context];
-    NSObject *trueObserver;
-    @synchronized (self) {
-        trueObserver = [self.trampolines objectForKey:valueContext];
-    }
-    if (trueObserver) {
-        [trueObserver observeValueForKeyPath:keyPath ofObject:object change:change context:context];
-    }
-    else {
-        NSLog(@"observer of \"%@\" on %@ is gone", keyPath, object);
-    }
+	NSValue *valueContext = [NSValue valueWithPointer:context];
+	__block NSObject *trueObserver;
+
+	dispatch_sync(self.queue, ^{
+		trueObserver = [self.trampolines objectForKey:valueContext];
+	});
+
+	if (trueObserver != nil) {
+		[trueObserver observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+	}
 }
 
 @end

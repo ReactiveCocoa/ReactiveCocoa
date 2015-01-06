@@ -13,15 +13,17 @@
 
 #import "NSObject+RACKVOWrapper.h"
 #import "NSObject+RACPropertySubscribing.h"
-#import "RACDisposable.h"
+#import "RACSerialDisposable.h"
 #import "RACSignal+Operations.h"
 #import "RACScheduler.h"
 #import "RACSubject.h"
 
 @interface TestObject : NSObject
-@property(nonatomic) int testInt;
-@property(strong, nonatomic) NSString *testString;
-@property(strong, nonatomic) TestObject *childObject;
+
+@property (assign, nonatomic) int testInt;
+@property (copy, nonatomic) NSString *testString;
+@property (strong, nonatomic) TestObject *childObject;
+
 @end
 
 @implementation TestObject
@@ -29,7 +31,7 @@
 
 QuickSpecBegin(RACKVOProxySpec)
 
-qck_describe(@"racproxyobserve", ^{
+qck_describe(@"RACKVOProxy", ^{
 	__block TestObject *testObject;
 
 	qck_beforeEach(^{
@@ -44,6 +46,7 @@ qck_describe(@"racproxyobserve", ^{
 		qck_it(@"should handle multiple observations on the same value", ^{
 			__block int observedValue1 = 0;
 			__block int observedValue2 = 0;
+
 			[[[RACObserve(testObject, testInt)
 				skip:1]
 				take:1]
@@ -67,15 +70,14 @@ qck_describe(@"racproxyobserve", ^{
 		qck_it(@"can remove individual observation", ^{
 			__block int observedValue1 = 0;
 			__block int observedValue2 = 0;
-			RACDisposable *disposable1 = [RACObserve(testObject, testInt)
-										  subscribeNext:^(NSNumber *wrappedInt) {
-											  observedValue1 = wrappedInt.intValue;
-										  }];
 
-			[RACObserve(testObject, testInt)
-			 subscribeNext:^(NSNumber *wrappedInt) {
-				 observedValue2 = wrappedInt.intValue;
-			 }];
+			RACDisposable *disposable1 = [RACObserve(testObject, testInt) subscribeNext:^(NSNumber *wrappedInt) {
+				observedValue1 = wrappedInt.intValue;
+			}];
+
+			[RACObserve(testObject, testInt) subscribeNext:^(NSNumber *wrappedInt) {
+				observedValue2 = wrappedInt.intValue;
+			}];
 
 			testObject.testInt = 2;
 
@@ -83,11 +85,10 @@ qck_describe(@"racproxyobserve", ^{
 			expect(@(observedValue2)).toEventually(equal(@2));
 
 			[disposable1 dispose];
-
 			testObject.testInt = 3;
 
-			expect(@(observedValue1)).toEventuallyNot(equal(@3));
 			expect(@(observedValue2)).toEventually(equal(@3));
+			expect(@(observedValue1)).to(equal(@2));
 		});
 	});
 
@@ -143,26 +144,34 @@ qck_describe(@"racproxyobserve", ^{
 	});
 
 	qck_describe(@"stress", ^{
-		static const int numIterations = 5000;
+		static const size_t numIterations = 5000;
 
-		qck_it(@"async disposal of observer reactivecocoa/1122", ^{
-			__block int observedValue;
-			__block RACDisposable *dispose;
+		__block dispatch_queue_t queue;
 
-			for (int i=0; i< numIterations; ++i) {
-				dispatch_async(dispatch_get_main_queue(), ^{
-					[dispose dispose];
-					dispose = nil;
+		beforeEach(^{
+			queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.RACKVOProxySpec", DISPATCH_QUEUE_CONCURRENT);
+		});
 
-					dispose = [RACObserve(testObject, testInt) subscribeNext:^(NSNumber *wrappedInt) {
-						observedValue = wrappedInt.intValue;
-					}];
+		afterEach(^{
+			dispatch_barrier_sync(queue, ^{});
+		});
 
-					dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-						testObject.testInt++;
-					});
+		// ReactiveCocoa/ReactiveCocoa#1122
+		qck_it(@"async disposal of observer", ^{
+			RACSerialDisposable *disposable = [[RACSerialDisposable alloc] init];
+
+			dispatch_apply(numIterations, queue, ^(size_t index) {
+				RACDisposable *newDisposable = [RACObserve(testObject, testInt) subscribeCompleted:^{}];
+				[[disposable swapInDisposable:newDisposable] dispose];
+
+				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+					testObject.testInt++;
 				});
-			}
+			});
+
+			dispatch_barrier_sync(queue, ^{
+				[disposable dispose];
+			});
 		});
 
 		qck_it(@"async disposal of signal with in-flight changes", ^{
@@ -176,11 +185,11 @@ qck_describe(@"racproxyobserve", ^{
 				takeUntil:teardown]
 				replayLast];
 
-			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-				for (int i=0; i<numIterations; ++i) {
-					testObject.testInt = rand();
-				}
+			dispatch_apply(numIterations, queue, ^(size_t index) {
+				testObject.testInt = (int)index;
+			});
 
+			dispatch_barrier_async(queue, ^{
 				[teardown sendNext:nil];
 			});
 

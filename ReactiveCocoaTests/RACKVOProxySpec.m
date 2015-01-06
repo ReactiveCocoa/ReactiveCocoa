@@ -20,9 +20,7 @@
 
 @interface TestObject : NSObject
 
-@property (assign, nonatomic) int testInt;
-@property (copy, nonatomic) NSString *testString;
-@property (strong, nonatomic) TestObject *childObject;
+@property (assign, atomic) int testInt;
 
 @end
 
@@ -165,7 +163,7 @@ qck_describe(@"RACKVOProxy", ^{
 				[[disposable swapInDisposable:newDisposable] dispose];
 
 				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-					testObject.testInt++;
+					testObject.testInt = (int)index;
 				});
 			});
 

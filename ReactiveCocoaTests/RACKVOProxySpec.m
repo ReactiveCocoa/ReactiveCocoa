@@ -168,20 +168,13 @@ qck_describe(@"racproxyobserve", ^{
 		qck_it(@"async disposal of signal with in-flight changes", ^{
 			RACSubject *teardown = [RACSubject subject];
 
-			RACSignal *isEvenSignal = [RACSignal defer:^{
-				return [RACObserve(testObject, testInt)
-						map:^id(NSNumber *wrappedInt) {
-							return @((wrappedInt.intValue % 2) == 0);
-						}];
-			}];
-
-			__block BOOL completed = NO;
-			[[[isEvenSignal
+			RACSignal *isEvenSignal = [[[[RACObserve(testObject, testInt)
+				map:^(NSNumber *wrappedInt) {
+					return @((wrappedInt.intValue % 2) == 0);
+				}]
 				deliverOn:RACScheduler.mainThreadScheduler]
 				takeUntil:teardown]
-				subscribeCompleted:^{
-					completed = YES;
-				}];
+				replayLast];
 
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 				for (int i=0; i<numIterations; ++i) {
@@ -191,7 +184,7 @@ qck_describe(@"racproxyobserve", ^{
 				[teardown sendNext:nil];
 			});
 
-			expect(@(completed)).toEventually(beTruthy());
+			expect(@([isEvenSignal asynchronouslyWaitUntilCompleted:NULL])).to(beTruthy());
 		});
 	});
 });

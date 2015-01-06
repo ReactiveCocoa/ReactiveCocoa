@@ -581,6 +581,14 @@ extension ColdSignal {
 		return tryMap { (value, error) in f(value, error) ? value : nil }
 	}
 
+	/// Performs the given action upon each value in the receiver, bailing out
+	/// if the returned Result is an error.
+	public func try(f: T -> Result<()>) -> ColdSignal {
+		return tryMap { value -> Result<T> in
+			return f(value).map { _ in value }
+		}
+	}
+
 	/// Attempts to map each value in the receiver, bailing out with an error if
 	/// a given mapping is `nil`.
 	public func tryMap<U>(f: (T, NSErrorPointer) -> U?) -> ColdSignal<U> {

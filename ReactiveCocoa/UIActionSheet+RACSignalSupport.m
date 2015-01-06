@@ -39,7 +39,7 @@ static void RACUseDelegateProxy(UIActionSheet *self) {
 			return buttonIndex;
 		}]
 		takeUntil:self.rac_willDeallocSignal]
-		setNameWithFormat:@"%@ -rac_buttonClickedSignal", [self rac_description]];
+		setNameWithFormat:@"%@ -rac_buttonClickedSignal", self.rac_description];
 
 	RACUseDelegateProxy(self);
 

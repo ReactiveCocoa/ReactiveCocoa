@@ -31,13 +31,17 @@ QuickSpecBegin(RACKVOProxySpec)
 
 qck_describe(@"RACKVOProxy", ^{
 	__block TestObject *testObject;
+	__block dispatch_queue_t concurrentQueue;
 
 	qck_beforeEach(^{
 		testObject = [[TestObject alloc] init];
+		concurrentQueue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.RACKVOProxySpec.concurrentQueue", DISPATCH_QUEUE_CONCURRENT);
 	});
 
 	qck_afterEach(^{
-		testObject = nil;
+		dispatch_barrier_sync(concurrentQueue, ^{
+			testObject = nil;
+		});
 	});
 
 	qck_describe(@"basic", ^{
@@ -100,10 +104,11 @@ qck_describe(@"RACKVOProxy", ^{
 					observedValue = wrappedInt.intValue;
 				}];
 
-			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+			dispatch_async(concurrentQueue, ^{
 				testObject.testInt = 2;
 			});
 
+			dispatch_barrier_sync(concurrentQueue, ^{});
 			expect(@(observedValue)).toEventually(equal(@2));
 		});
 
@@ -117,10 +122,11 @@ qck_describe(@"RACKVOProxy", ^{
 					observedValue = wrappedInt.intValue;
 				}];
 
-			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+			dispatch_async(concurrentQueue, ^{
 				testObject.testInt = 2;
 			});
 
+			dispatch_barrier_sync(concurrentQueue, ^{});
 			expect(@(observedValue)).toEventually(equal(@2));
 		});
 
@@ -132,11 +138,12 @@ qck_describe(@"RACKVOProxy", ^{
 					observedValue = wrappedInt.intValue;
 				}];
 
-			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+			dispatch_async(concurrentQueue, ^{
 				testObject.testInt = 2;
 				testObject = nil;
 			});
 
+			dispatch_barrier_sync(concurrentQueue, ^{});
 			expect(@(observedValue)).toEventually(equal(@2));
 		});
 	});
@@ -144,30 +151,26 @@ qck_describe(@"RACKVOProxy", ^{
 	qck_describe(@"stress", ^{
 		static const size_t numIterations = 5000;
 
-		__block dispatch_queue_t queue;
+		__block dispatch_queue_t iterationQueue;
 
 		beforeEach(^{
-			queue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.RACKVOProxySpec", DISPATCH_QUEUE_CONCURRENT);
-		});
-
-		afterEach(^{
-			dispatch_barrier_sync(queue, ^{});
+			iterationQueue = dispatch_queue_create("org.reactivecocoa.ReactiveCocoa.RACKVOProxySpec.iterationQueue", DISPATCH_QUEUE_CONCURRENT);
 		});
 
 		// ReactiveCocoa/ReactiveCocoa#1122
 		qck_it(@"async disposal of observer", ^{
 			RACSerialDisposable *disposable = [[RACSerialDisposable alloc] init];
 
-			dispatch_apply(numIterations, queue, ^(size_t index) {
+			dispatch_apply(numIterations, iterationQueue, ^(size_t index) {
 				RACDisposable *newDisposable = [RACObserve(testObject, testInt) subscribeCompleted:^{}];
 				[[disposable swapInDisposable:newDisposable] dispose];
 
-				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+				dispatch_async(concurrentQueue, ^{
 					testObject.testInt = (int)index;
 				});
 			});
 
-			dispatch_barrier_sync(queue, ^{
+			dispatch_barrier_sync(iterationQueue, ^{
 				[disposable dispose];
 			});
 		});
@@ -183,11 +186,11 @@ qck_describe(@"RACKVOProxy", ^{
 				takeUntil:teardown]
 				replayLast];
 
-			dispatch_apply(numIterations, queue, ^(size_t index) {
+			dispatch_apply(numIterations, iterationQueue, ^(size_t index) {
 				testObject.testInt = (int)index;
 			});
 
-			dispatch_barrier_async(queue, ^{
+			dispatch_barrier_async(iterationQueue, ^{
 				[teardown sendNext:nil];
 			});
 

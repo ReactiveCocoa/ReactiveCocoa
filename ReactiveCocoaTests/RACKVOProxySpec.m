@@ -18,13 +18,32 @@
 #import "RACScheduler.h"
 #import "RACSubject.h"
 
-@interface TestObject : NSObject
+@interface TestObject : NSObject {
+	volatile int _testInt;
+}
 
 @property (assign, atomic) int testInt;
 
 @end
 
 @implementation TestObject
+
+- (int)testInt {
+	return _testInt;
+}
+
+// Use manual KVO notifications to avoid any possible race conditions within the
+// automatic KVO implementation.
+- (void)setTestInt:(int)value {
+	[self willChangeValueForKey:@keypath(self.testInt)];
+	_testInt = value;
+	[self didChangeValueForKey:@keypath(self.testInt)];
+}
+
++ (BOOL)automaticallyNotifiesObserversForKey:(NSString *)key {
+	return NO;
+}
+
 @end
 
 QuickSpecBegin(RACKVOProxySpec)

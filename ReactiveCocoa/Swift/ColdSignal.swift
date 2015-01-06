@@ -600,13 +600,8 @@ extension ColdSignal {
 	/// a given mapping fails.
 	public func tryMap<U>(f: T -> Result<U>) -> ColdSignal<U> {
 		return mergeMap { value in
-			switch f(value) {
-			case let .Success(box):
-				return .single(box.unbox)
-
-			case let .Failure(error):
-				return .error(error)
-			}
+			let result = f(value)
+			return .fromResult(result)
 		}
 	}
 

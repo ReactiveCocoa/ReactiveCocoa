@@ -594,7 +594,7 @@ as well.
 
 For these reasons, new operators should be implemented using only [RACStream][]
 methods whenever possible. The minimal required methods of the class, including
-`-bind:`, `+zipWith:`, and `-concat:`, are quite powerful, and many tasks can
+`-bind:`, `-zipWith:`, and `-concat:`, are quite powerful, and many tasks can
 be accomplished without needing anything else.
 
 If a new [RACSignal][] operator needs to handle `error` and `completed` events,
@@ -732,20 +732,20 @@ By contrast, this version will avoid a stack overflow:
 
 [Framework Overview]: FrameworkOverview.md
 [Memory Management]: MemoryManagement.md
-[NSObject+RACLifting]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACLifting.h
-[NSObject+RACSelectorSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACSelectorSignal.h
-[RAC]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h
-[RACChannelTo]: ../ReactiveCocoaFramework/ReactiveCocoa/RACKVOChannel.h
-[RACCommand]: ../ReactiveCocoaFramework/ReactiveCocoa/RACCommand.h
-[RACDisposable]: ../ReactiveCocoaFramework/ReactiveCocoa/RACDisposable.h
-[RACEvent]: ../ReactiveCocoaFramework/ReactiveCocoa/RACEvent.h
-[RACMulticastConnection]: ../ReactiveCocoaFramework/ReactiveCocoa/RACMulticastConnection.h
-[RACObserve]: ../ReactiveCocoaFramework/ReactiveCocoa/NSObject+RACPropertySubscribing.h
-[RACScheduler]: ../ReactiveCocoaFramework/ReactiveCocoa/RACScheduler.h
-[RACSequence]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSequence.h
-[RACSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h
-[RACSignal+Operations]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h
-[RACStream]: ../ReactiveCocoaFramework/ReactiveCocoa/RACStream.h
-[RACSubscriber]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSubscriber.h
+[NSObject+RACLifting]: ../ReactiveCocoa/NSObject+RACLifting.h
+[NSObject+RACSelectorSignal]: ../ReactiveCocoa/NSObject+RACSelectorSignal.h
+[RAC]: ../ReactiveCocoa/RACSubscriptingAssignmentTrampoline.h
+[RACChannelTo]: ../ReactiveCocoa/RACKVOChannel.h
+[RACCommand]: ../ReactiveCocoa/RACCommand.h
+[RACDisposable]: ../ReactiveCocoa/RACDisposable.h
+[RACEvent]: ../ReactiveCocoa/RACEvent.h
+[RACMulticastConnection]: ../ReactiveCocoa/RACMulticastConnection.h
+[RACObserve]: ../ReactiveCocoa/NSObject+RACPropertySubscribing.h
+[RACScheduler]: ../ReactiveCocoa/RACScheduler.h
+[RACSequence]: ../ReactiveCocoa/RACSequence.h
+[RACSignal]: ../ReactiveCocoa/RACSignal.h
+[RACSignal+Operations]: ../ReactiveCocoa/RACSignal+Operations.h
+[RACStream]: ../ReactiveCocoa/RACStream.h
+[RACSubscriber]: ../ReactiveCocoa/RACSubscriber.h
 [Subjects]: FrameworkOverview.md#subjects
 [Parallelizing Independent Work]: ../README.md#parallelizing-independent-work

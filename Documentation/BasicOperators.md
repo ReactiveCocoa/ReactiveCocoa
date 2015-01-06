@@ -354,10 +354,10 @@ RACSignal *switched = [signalOfSignals switchToLatest];
 ```
 
 [Connections]: FrameworkOverview.md#connections
-[RACSequence]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSequence.h
-[RACSignal]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal.h
-[RACSignal+Operations]: ../ReactiveCocoaFramework/ReactiveCocoa/RACSignal+Operations.h
-[RACStream]: ../ReactiveCocoaFramework/ReactiveCocoa/RACStream.h
+[RACSequence]: ../ReactiveCocoa/RACSequence.h
+[RACSignal]: ../ReactiveCocoa/RACSignal.h
+[RACSignal+Operations]: ../ReactiveCocoa/RACSignal+Operations.h
+[RACStream]: ../ReactiveCocoa/RACStream.h
 [Sequences]: FrameworkOverview.md#sequences
 [Signals]: FrameworkOverview.md#signals
 [Streams]: FrameworkOverview.md#streams

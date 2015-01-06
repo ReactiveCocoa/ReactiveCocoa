@@ -60,8 +60,8 @@ qck_describe(@"racproxyobserve", ^{
 
 			testObject.testInt = 2;
 
-			expect(@(observedValue1)).toEventually(equal(@(testObject.testInt)));
-			expect(@(observedValue2)).toEventually(equal(@(testObject.testInt)));
+			expect(@(observedValue1)).toEventually(equal(@2));
+			expect(@(observedValue2)).toEventually(equal(@2));
 		});
 
 		qck_it(@"can remove individual observation", ^{
@@ -79,15 +79,15 @@ qck_describe(@"racproxyobserve", ^{
 
 			testObject.testInt = 2;
 
-			expect(@(observedValue1)).toEventually(equal(@(testObject.testInt)));
-			expect(@(observedValue2)).toEventually(equal(@(testObject.testInt)));
+			expect(@(observedValue1)).toEventually(equal(@2));
+			expect(@(observedValue2)).toEventually(equal(@2));
 
 			[disposable1 dispose];
 
 			testObject.testInt = 3;
 
-			expect(@(observedValue1)).toEventuallyNot(equal(@(testObject.testInt)));
-			expect(@(observedValue2)).toEventually(equal(@(testObject.testInt)));
+			expect(@(observedValue1)).toEventuallyNot(equal(@3));
+			expect(@(observedValue2)).toEventually(equal(@3));
 		});
 	});
 
@@ -105,7 +105,7 @@ qck_describe(@"racproxyobserve", ^{
 				testObject.testInt = 2;
 			});
 
-			expect(@(observedValue)).toEventually(equal(@(testObject.testInt)));
+			expect(@(observedValue)).toEventually(equal(@2));
 		});
 
 		qck_it(@"should handle changes being made on another queue using deliverOn", ^{
@@ -122,7 +122,7 @@ qck_describe(@"racproxyobserve", ^{
 				testObject.testInt = 2;
 			});
 
-			expect(@(observedValue)).toEventually(equal(@(testObject.testInt)));
+			expect(@(observedValue)).toEventually(equal(@2));
 		});
 
 		qck_it(@"async disposal of target", ^{

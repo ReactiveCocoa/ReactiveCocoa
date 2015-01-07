@@ -1,9 +1,11 @@
 language: objective-c
+osx_image: xcode611
+before_install: true
+install: true
+git:
+  submodules: false
 script: script/cibuild
 notifications:
   email: false
-  campfire:
-    on_success: always
-    on_failure: always
-    rooms:
-    - secure: "QVVzkmaWyLgGMOgtaBF2EUQS3Ot1Bj7jc8CI7L1mqxrDpNnxtemgSNBkvFNrec0RoSMiHBY9t+aVdnHsCLlqhDs3mX55zxlbTJPDpFTVI2p77n90teuOr1kK+a3DYoyaxO6acrAJwhjOe6j9zd3o/su+VG5OsXqCXhBFfnc863w="
+  slack:
+    secure: C9QTry5wUG9CfeH3rm3Z19R5rDWqDO7EhHAqHDXBxT6CpGRkTPFliJexpjBYB4sroJ8CiY5ZgTI2sjRBiAdGoE5ZQkfnwSoKQhWXkwo19TnbSnufr3cKO2SZkUhBqOlZcA+mgfjZ7rm2wm7RhpCR/4z8oBXDN4/xv0U5R2fLCLE=

@@ -169,7 +169,7 @@ extension HotSignal {
 	/// The timer will automatically be destroyed when there are no more strong
 	/// references to the returned signal, and no Disposables returned from
 	/// observe() are still around.
-	public class func interval(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> HotSignal<NSDate> {
+	public class func interval(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> HotSignal<NSDate> {
 		// Apple's "Power Efficiency Guide for Mac Apps" recommends a leeway of
 		// at least 10% of the timer interval.
 		return self.interval(interval, onScheduler: scheduler, withLeeway: interval * 0.1)
@@ -181,7 +181,7 @@ extension HotSignal {
 	/// The timer will automatically be destroyed when there are no more strong
 	/// references to the returned signal, and no Disposables returned from
 	/// observe() are still around.
-	public class func interval(interval: NSTimeInterval, onScheduler scheduler: DateScheduler, withLeeway leeway: NSTimeInterval) -> HotSignal<NSDate> {
+	public class func interval(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType, withLeeway leeway: NSTimeInterval) -> HotSignal<NSDate> {
 		precondition(interval >= 0)
 		precondition(leeway >= 0)
 
@@ -373,7 +373,7 @@ extension HotSignal {
 
 	/// Forwards all values on the given scheduler, instead of whichever
 	/// scheduler they originally arrived upon.
-	public func deliverOn(scheduler: Scheduler) -> HotSignal {
+	public func deliverOn(scheduler: SchedulerType) -> HotSignal {
 		return HotSignal { sink in
 			self.observe { value in
 				scheduler.schedule { sink.put(value) }
@@ -386,7 +386,7 @@ extension HotSignal {
 
 	/// Delays values by the given interval, forwarding them on the given
 	/// scheduler.
-	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> HotSignal {
+	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> HotSignal {
 		precondition(interval >= 0)
 
 		return HotSignal { sink in
@@ -406,7 +406,7 @@ extension HotSignal {
 	///
 	/// If multiple values are received before the interval has elapsed, the
 	/// latest value is the one that will be passed on.
-	public func throttle(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> HotSignal {
+	public func throttle(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> HotSignal {
 		precondition(interval >= 0)
 
 		let previousDate = Atomic<NSDate?>(nil)
@@ -818,7 +818,7 @@ extension HotSignal {
 
 		if capacity == 0 {
 			return ColdSignal { (sink, disposable) in
-				let selfDisposable = self.observe { sink.put(.Next(Box($0))) }
+				let selfDisposable = self.observe { sendNext(sink, $0) }
 				disposable.addDisposable(selfDisposable)
 			}
 		}

@@ -213,7 +213,7 @@ extension ColdSignal {
 			if let value = f(&error) {
 				return success(value)
 			} else {
-				return failure(error ?? RACError.Empty)
+				return failure(error ?? RACError.Empty.error)
 			}
 		}
 	}

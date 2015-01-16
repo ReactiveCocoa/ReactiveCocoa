@@ -90,23 +90,75 @@ public struct SignalProducer<T> {
 		return self { _ in () }
 	}
 
-	/// Creates a buffer for Events, with the given capacity, and a SignalProducer for
-	/// a signal that will send Events from the buffer.
+	/// Creates a buffer for Events, with the given capacity, and a
+	/// SignalProducer for a signal that will send Events from the buffer.
 	///
-	/// When events are put into the returned sink, they will be added to the
-	/// buffer. If the buffer is already at capacity, the earliest (oldest)
-	/// event will be dropped to make room for the new event.
+	/// When events are put into the returned observer (sink), they will be
+	/// added to the buffer. If the buffer is already at capacity, the earliest
+	/// (oldest) event will be dropped to make room for the new event.
 	///
 	/// Signals created from the returned producer will stay alive until an
 	/// `Error` or `Completed` is added to the buffer. If the buffer does not
 	/// contain such an event when the Signal is started, all events sent to the
-	/// returned sink will be automatically forwarded to the Signal’s observers
-	/// until a terminating event is received.
+	/// returned observer will be automatically forwarded to the Signal’s
+	/// observers until a terminating event is received.
 	///
 	/// After an `Error` or `Completed` event has been added to the buffer, the
-	/// sink will not add any further events.
-	public static func buffer(capacity: Int) -> (SignalProducer, SinkOf<Event<T>>) {
-		fatalError()
+	/// observer will not add any further events.
+	public static func buffer(capacity: Int = Int.max) -> (SignalProducer, Signal<T>.Observer) {
+		precondition(capacity >= 0)
+
+		let lock = NSRecursiveLock()
+		lock.name = "org.reactivecocoa.ReactiveCocoa.SignalProducer.buffer"
+
+		var events: [Event<T>] = []
+		var observers: Bag<Signal<T>.Observer>? = Bag()
+
+		let producer = self { observer, disposable in
+			if disposable.disposed {
+				return
+			}
+
+			lock.lock()
+			for event in events {
+				observer.put(event)
+			}
+
+			let token = observers?.insert(observer)
+			lock.unlock()
+
+			if let token = token {
+				disposable.addDisposable {
+					lock.lock()
+					observers?.removeValueForToken(token)
+					lock.unlock()
+				}
+			}
+		}
+
+		let observer = Signal<T>.Observer { event in
+			lock.lock()
+
+			// If not disposed…
+			if let liveObservers = observers {
+				if event.isTerminating {
+					observers = nil
+				}
+
+				events.append(event)
+				while events.count > capacity {
+					events.removeAtIndex(0)
+				}
+
+				for observer in liveObservers {
+					observer.put(event)
+				}
+			}
+
+			lock.unlock()
+		}
+
+		return (producer, observer)
 	}
 
 	/// Creates a SignalProducer that will attempt the given operation once for

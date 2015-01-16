@@ -759,6 +759,10 @@
 		D047263C19E49FE8006002AA /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		D052D6B11A3A54CB007CAD68 /* ActionSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionSpec.swift; sourceTree = "<group>"; };
 		D05E662419EDD82000904ACA /* Nimble.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Nimble.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D08C54AF1A69A2AC00AD8286 /* NewAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NewAction.swift; path = Swift/NewAction.swift; sourceTree = "<group>"; };
+		D08C54B01A69A2AC00AD8286 /* Property.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Property.swift; path = Swift/Property.swift; sourceTree = "<group>"; };
+		D08C54B11A69A2AC00AD8286 /* Signal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Signal.swift; path = Swift/Signal.swift; sourceTree = "<group>"; };
+		D08C54B21A69A2AC00AD8286 /* SignalProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SignalProducer.swift; path = Swift/SignalProducer.swift; sourceTree = "<group>"; };
 		D08C54B51A69A3DB00AD8286 /* Event.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		D097CE3619EF7AF5005A201C /* ColdSignal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColdSignal.swift; sourceTree = "<group>"; };
 		D097CE3719EF7AF5005A201C /* HotSignal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HotSignal.swift; sourceTree = "<group>"; };
@@ -1162,6 +1166,10 @@
 			isa = PBXGroup;
 			children = (
 				D04725EF19E49ED7006002AA /* ReactiveCocoa.h */,
+				D08C54AF1A69A2AC00AD8286 /* NewAction.swift */,
+				D08C54B01A69A2AC00AD8286 /* Property.swift */,
+				D08C54B11A69A2AC00AD8286 /* Signal.swift */,
+				D08C54B21A69A2AC00AD8286 /* SignalProducer.swift */,
 				D0C312B919EF2A3000984962 /* Swift */,
 				D037642919EDA3B600A782A9 /* Objective-C */,
 				D04725ED19E49ED7006002AA /* Supporting Files */,

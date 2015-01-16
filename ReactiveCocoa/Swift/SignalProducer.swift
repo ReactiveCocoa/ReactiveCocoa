@@ -301,10 +301,40 @@ public func |> <T, U>(producer: SignalProducer<T>, transform: SignalProducer<T> 
 	return transform(producer)
 }
 
-/*
-public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> SignalProducer<NSDate>
-public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler, withLeeway leeway: NSTimeInterval) -> SignalProducer<NSDate>
+/// Creates a repeating timer of the given interval, with a reasonable
+/// default leeway, sending updates on the given scheduler.
+///
+/// This timer will never complete naturally, so all invocations of start() must
+/// be disposed to avoid leaks.
+public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> SignalProducer<NSDate> {
+	// Apple's "Power Efficiency Guide for Mac Apps" recommends a leeway of
+	// at least 10% of the timer interval.
+	return timer(interval, onScheduler: scheduler, withLeeway: interval * 0.1)
+}
 
+/// Creates a repeating timer of the given interval, sending updates on the
+/// given scheduler.
+///
+/// This timer will never complete naturally, so all invocations of start() must
+/// be disposed to avoid leaks.
+public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler, withLeeway leeway: NSTimeInterval) -> SignalProducer<NSDate> {
+	precondition(interval >= 0)
+	precondition(leeway >= 0)
+
+	return SignalProducer { signal, compositeDisposable in
+		if compositeDisposable.disposed {
+			return
+		}
+
+		let disposable = scheduler.scheduleAfter(scheduler.currentDate.dateByAddingTimeInterval(interval), repeatingEvery: interval, withLeeway: leeway) {
+			sendNext(signal, scheduler.currentDate)
+		}
+
+		compositeDisposable.addDisposable(disposable)
+	}
+}
+
+/*
 public func concat<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>
 public func concatMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 public func merge<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>

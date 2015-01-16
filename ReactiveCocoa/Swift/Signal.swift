@@ -133,13 +133,29 @@ public func map<T, U>(transform: T -> U)(signal: Signal<T>) -> Signal<U> {
 	}
 }
 
+/// Preserves only the values of the signal that pass the given predicate.
+public func filter<T>(predicate: T -> Bool)(signal: Signal<T>) -> Signal<T> {
+	return Signal { observer, compositeDisposable in
+		let disposable = signal.observe(next: { value in
+			if predicate(value) {
+				sendNext(observer, value)
+			}
+		}, error: { error in
+			sendError(observer, error)
+		}, completed: {
+			sendCompleted(observer)
+		})
+
+		compositeDisposable.addDisposable(disposable)
+	}
+}
+
 /*
 public func combineLatestWith<T, U>(otherSignal: Signal<U>)(signal: Signal<T>) -> Signal<(T, U)>
 public func combinePrevious<T>(initial: T)(signal: Signal<T>) -> Signal<(T, T)>
 public func concat<T>(next: Signal<T>)(signal: Signal<T>) -> Signal<T>
 public func delay<T>(interval: NSTimeInterval, onScheduler scheduler: DateScheduler)(signal: Signal<T>) -> Signal<T>
 public func dematerialize<T>(signal: Signal<Event<T>>) -> Signal<T>
-public func filter<T>(predicate: T -> Bool)(signal: Signal<T>) -> Signal<T>
 public func materialize<T>(signal: Signal<T>) -> Signal<Event<T>>
 public func observeOn<T>(scheduler: Scheduler)(signal: Signal<T>) -> Signal<T>
 public func reduce<T, U>(initial: U, combine: (U, T) -> U)(signal: Signal<T>) -> Signal<U>

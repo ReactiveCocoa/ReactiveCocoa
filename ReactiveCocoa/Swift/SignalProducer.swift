@@ -109,6 +109,12 @@ public struct SignalProducer<T> {
 		fatalError()
 	}
 
+	/// Creates a SignalProducer that will attempt the given operation once for
+	/// each invocation of start().
+	///
+	/// Upon success, the started signal will send the resulting value then
+	/// complete. Upon failure, the started signal will send the error that
+	/// occurred.
 	public static func try(operation: () -> Result<T>) -> SignalProducer {
 		return self { observer, disposable in
 			if disposable.disposed {
@@ -126,6 +132,12 @@ public struct SignalProducer<T> {
 		}
 	}
 
+	/// Creates a SignalProducer that will attempt the given operation once for
+	/// each invocation of start().
+	///
+	/// If the returned value is not nil, the signal will send that value then
+	/// complete. If nil is returned, the signal will send the error that was
+	/// returned by reference, or RACError.Empty otherwise.
 	public static func try(operation: NSErrorPointer -> T?) -> SignalProducer {
 		return try {
 			var error: NSError?

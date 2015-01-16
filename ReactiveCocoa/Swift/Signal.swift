@@ -33,10 +33,10 @@ public final class Signal<T> {
 				for sink in observers {
 					sink.put(event)
 				}
-			}
 
-			if event.isTerminating {
-				self.disposable.dispose()
+				if event.isTerminating {
+					self.disposable.dispose()
+				}
 			}
 
 			self.lock.unlock()

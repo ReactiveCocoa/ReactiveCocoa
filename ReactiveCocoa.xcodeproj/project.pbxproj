@@ -401,6 +401,8 @@
 		D08C54B41A69A2AF00AD8286 /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54B11A69A2AC00AD8286 /* Signal.swift */; };
 		D08C54B61A69A3DB00AD8286 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54B51A69A3DB00AD8286 /* Event.swift */; };
 		D08C54B71A69A3DB00AD8286 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54B51A69A3DB00AD8286 /* Event.swift */; };
+		D08C54B81A69A9D000AD8286 /* SignalProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54B21A69A2AC00AD8286 /* SignalProducer.swift */; };
+		D08C54B91A69A9D100AD8286 /* SignalProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54B21A69A2AC00AD8286 /* SignalProducer.swift */; };
 		D097CE3919EF7AF5005A201C /* ColdSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D097CE3619EF7AF5005A201C /* ColdSignal.swift */; };
 		D097CE3A19EF7AF5005A201C /* ColdSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D097CE3619EF7AF5005A201C /* ColdSignal.swift */; };
 		D097CE3B19EF7AF5005A201C /* HotSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D097CE3719EF7AF5005A201C /* HotSignal.swift */; };
@@ -1686,6 +1688,7 @@
 				D037652E19EDA41200A782A9 /* NSOrderedSet+RACSequenceAdditions.m in Sources */,
 				D037652619EDA41200A782A9 /* NSObject+RACPropertySubscribing.m in Sources */,
 				D037658C19EDA41200A782A9 /* RACEvent.m in Sources */,
+				D08C54B81A69A9D000AD8286 /* SignalProducer.swift in Sources */,
 				D03765B219EDA41200A782A9 /* RACQueueScheduler.m in Sources */,
 				D097CE3919EF7AF5005A201C /* ColdSignal.swift in Sources */,
 				D037655219EDA41200A782A9 /* RACBacktrace.m in Sources */,
@@ -1774,6 +1777,7 @@
 				D03765D919EDA41200A782A9 /* RACSignal+Operations.m in Sources */,
 				D037661B19EDA41200A782A9 /* UIActionSheet+RACSignalSupport.m in Sources */,
 				D037650319EDA41200A782A9 /* NSFileHandle+RACSupport.m in Sources */,
+				D08C54B91A69A9D100AD8286 /* SignalProducer.swift in Sources */,
 				D03765E319EDA41200A782A9 /* RACStream.m in Sources */,
 				D037655719EDA41200A782A9 /* RACBehaviorSubject.m in Sources */,
 				D037663B19EDA41200A782A9 /* UIGestureRecognizer+RACSignalSupport.m in Sources */,

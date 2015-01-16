@@ -51,7 +51,7 @@ public final class Signal<T> {
 
 	/// A Signal that never sends any events.
 	public class var never: Signal {
-		return Signal { _ in () }
+		return self { _ in () }
 	}
 
 	/// Creates a Signal that will be controlled by sending events to the given

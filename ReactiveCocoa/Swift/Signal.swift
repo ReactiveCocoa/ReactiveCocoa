@@ -122,6 +122,17 @@ public func |> <T, U>(signal: Signal<T>, transform: Signal<T> -> U) -> U {
 	return transform(signal)
 }
 
+/// Maps each value in the signal to a new value.
+public func map<T, U>(transform: T -> U)(signal: Signal<T>) -> Signal<U> {
+	return Signal { observer, compositeDisposable in
+		let disposable = signal.observe(Signal.Observer { event in
+			observer.put(event.map(transform))
+		})
+
+		compositeDisposable.addDisposable(disposable)
+	}
+}
+
 /*
 public func combineLatestWith<T, U>(otherSignal: Signal<U>)(signal: Signal<T>) -> Signal<(T, U)>
 public func combinePrevious<T>(initial: T)(signal: Signal<T>) -> Signal<(T, T)>
@@ -129,8 +140,6 @@ public func concat<T>(next: Signal<T>)(signal: Signal<T>) -> Signal<T>
 public func delay<T>(interval: NSTimeInterval, onScheduler scheduler: DateScheduler)(signal: Signal<T>) -> Signal<T>
 public func dematerialize<T>(signal: Signal<Event<T>>) -> Signal<T>
 public func filter<T>(predicate: T -> Bool)(signal: Signal<T>) -> Signal<T>
-public func map<T, U>(transform: T -> U)(signal: Signal<T>) -> Signal<U>
-public func mapAccumulate<State, T, U>(initialState: State, _ transform: (State, T) -> (State?, U))(signal: Signal<T>) -> Signal<U> {
 public func materialize<T>(signal: Signal<T>) -> Signal<Event<T>>
 public func observeOn<T>(scheduler: Scheduler)(signal: Signal<T>) -> Signal<T>
 public func reduce<T, U>(initial: U, combine: (U, T) -> U)(signal: Signal<T>) -> Signal<U>

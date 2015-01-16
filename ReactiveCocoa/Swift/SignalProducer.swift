@@ -325,6 +325,34 @@ public func then<T, U>(replacement: SignalProducer<U>)(producer: SignalProducer<
 public func zipWith<T, U>(otherSignalProducer: SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<(T, U)>
 */
 
+/// Starts the producer, then blocks, waiting for the first value.
+public func first<T>(producer: SignalProducer<T>) -> Result<T> {
+	let semaphore = dispatch_semaphore_create(0)
+	var result: Result<T> = failure(RACError.ExpectedCountMismatch.error)
+
+	producer.start { signal, disposable in
+		disposable.addDisposable {
+			dispatch_semaphore_signal(semaphore)
+			return
+		}
+
+		signal.observe(next: { value in
+			result = success(value)
+			disposable.dispose()
+		}, error: { error in
+			result = failure(error)
+			disposable.dispose()
+		}, completed: {
+			disposable.dispose()
+		})
+
+		return
+	}
+
+	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
+	return result
+}
+
 /// SignalProducer.start() as a free function, for easier use with |>.
 public func start<T>(setUp: (Signal<T>, CompositeDisposable) -> ())(producer: SignalProducer<T>) -> Disposable {
 	return producer.start(setUp)

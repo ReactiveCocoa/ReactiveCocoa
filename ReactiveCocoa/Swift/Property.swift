@@ -47,7 +47,8 @@ public final class MutableProperty<T>: PropertyType {
 	/// created from the `values` producer.
 	public var value: T {
 		get {
-			return producer.first().value()!
+			let result = producer |> first
+			return result.value()!
 		}
 
 		set(x) {

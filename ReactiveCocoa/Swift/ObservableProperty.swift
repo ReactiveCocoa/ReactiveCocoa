@@ -111,11 +111,6 @@ extension ObservableProperty: DebugPrintable {
 	}
 }
 
-infix operator <~ {
-	associativity right
-	precedence 90
-}
-
 /// Binds the given signal to a property, updating the property's value to
 /// the latest value sent by the signal.
 ///

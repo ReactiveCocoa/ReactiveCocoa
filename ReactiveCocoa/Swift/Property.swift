@@ -81,7 +81,6 @@ extension MutableProperty: SinkType {
 	}
 }
 
-/*
 infix operator <~ {
 	associativity right
 	precedence 90
@@ -94,7 +93,26 @@ infix operator <~ {
 ///
 /// The binding will automatically terminate when the property is deinitialized,
 /// or when the signal sends a `Completed` event.
-public func <~ <T>(property: MutableProperty<T>, signal: Signal<T>)
+public func <~ <T>(property: MutableProperty<T>, signal: Signal<T>) -> Disposable {
+	let disposable = CompositeDisposable()
+	let propertyDisposable = property.producer.start(completed: {
+		disposable.dispose()
+	})
+
+	disposable.addDisposable(propertyDisposable)
+
+	let signalDisposable = signal.observe(next: { [weak property] value in
+		property?.value = value
+		return
+	}, error: { error in
+		fatalError("Unhandled error in MutableProperty <~ Signal binding: \(error)")
+	}, completed: {
+		disposable.dispose()
+	})
+
+	disposable.addDisposable(signalDisposable)
+	return disposable
+}
 
 /// Creates a signal from the given producer, which will be immediately bound to
 /// the given property, updating the property's value to the latest value sent
@@ -105,11 +123,52 @@ public func <~ <T>(property: MutableProperty<T>, signal: Signal<T>)
 ///
 /// The binding will automatically terminate when the property is deinitialized,
 /// or when the created signal sends a `Completed` event.
-public func <~ <T>(property: MutableProperty<T>, producer: SignalProducer<T>)
+public func <~ <T>(property: MutableProperty<T>, producer: SignalProducer<T>) -> Disposable {
+	let disposable = CompositeDisposable()
+	let propertyDisposable = property.producer.start(completed: {
+		disposable.dispose()
+	})
+
+	disposable.addDisposable(propertyDisposable)
+
+	producer.start { signal, signalDisposable in
+		disposable.addDisposable(signalDisposable)
+
+		signal.observe(next: { [weak property] value in
+			property?.value = value
+			return
+		}, error: { error in
+			fatalError("Unhandled error in MutableProperty <~ SignalProducer binding: \(error)")
+		}, completed: {
+			disposable.dispose()
+		})
+	}
+
+	return disposable
+}
 
 /// Binds `destinationProperty` to the latest values of `sourceProperty`.
 ///
 /// The binding will automatically terminate when either property is
 /// deinitialized.
-public func <~ <T>(destinationProperty: MutableProperty<T>, sourceProperty: Property<T>)
-*/
+public func <~ <T, P: PropertyType where P.Value == T>(destinationProperty: MutableProperty<T>, sourceProperty: P) -> Disposable {
+	let disposable = CompositeDisposable()
+	let destinationDisposable = destinationProperty.producer.start(completed: {
+		disposable.dispose()
+	})
+
+	disposable.addDisposable(destinationDisposable)
+
+	sourceProperty.producer.start { signal, sourceDisposable in
+		disposable.addDisposable(sourceDisposable)
+
+		signal.observe(next: { [weak destinationProperty] value in
+			destinationProperty?.value = value
+			return
+		}, completed: {
+			disposable.dispose()
+		})
+	}
+
+	return disposable
+}

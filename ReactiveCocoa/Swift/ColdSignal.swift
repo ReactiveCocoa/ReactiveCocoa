@@ -189,19 +189,19 @@ extension ColdSignal {
 	/// Creates a signal that will yield events equivalent to the given Result.
 	///
 	/// Returns a signal that will send one value then complete, or error.
-	public static func fromResult(result: Result<T>) -> ColdSignal {
+	public static func fromResult(result: Result<T, NSError>) -> ColdSignal {
 		switch result {
 		case let .Success(value):
 			return .single(value.unbox)
 
 		case let .Failure(error):
-			return .error(error)
+			return .error(error.unbox)
 		}
 	}
 
 	/// Creates a signal that will execute the given closure when started, then
 	/// yield the resulting value upon success, or the error upon failure.
-	public static func try(f: () -> Result<T>) -> ColdSignal {
+	public static func try(f: () -> Result<T, NSError>) -> ColdSignal {
 		return lazy { .fromResult(f()) }
 	}
 
@@ -602,8 +602,8 @@ extension ColdSignal {
 
 	/// Performs the given action upon each value in the receiver, bailing out
 	/// if the returned Result is an error.
-	public func try(f: T -> Result<()>) -> ColdSignal {
-		return tryMap { value -> Result<T> in
+	public func try(f: T -> Result<(), NSError>) -> ColdSignal {
+		return tryMap { value -> Result<T, NSError> in
 			return f(value).map { _ in value }
 		}
 	}
@@ -611,21 +611,21 @@ extension ColdSignal {
 	/// Attempts to map each value in the receiver, bailing out with an error if
 	/// a given mapping is `nil`.
 	public func tryMap<U>(f: (T, NSErrorPointer) -> U?) -> ColdSignal<U> {
-		return tryMap { value -> Result<U> in
+		return tryMap { value -> Result<U, NSError> in
 			var error: NSError?
 			let maybeValue = f(value, &error)
 
 			if let v = maybeValue {
 				return .Success(Box(v))
 			} else {
-				return .Failure(error.orDefault(RACError.Empty.error))
+				return .Failure(Box(error.orDefault(RACError.Empty.error)))
 			}
 		}
 	}
 
 	/// Attempts to map each value in the receiver, bailing out with an error if
 	/// a given mapping fails.
-	public func tryMap<U>(f: T -> Result<U>) -> ColdSignal<U> {
+	public func tryMap<U>(f: T -> Result<U, NSError>) -> ColdSignal<U> {
 		return mergeMap { value in
 			let result = f(value)
 			return .fromResult(result)
@@ -1131,9 +1131,9 @@ public func zip<A, B, C, D, E, F, G, H, I, J>(a: ColdSignal<A>, b: ColdSignal<B>
 /// Blocking methods for receiving values.
 extension ColdSignal {
 	/// Starts the receiver, then returns the first value received.
-	public func first() -> Result<T> {
+	public func first() -> Result<T, NSError> {
 		let semaphore = dispatch_semaphore_create(0)
-		var result: Result<T> = failure(RACError.ExpectedCountMismatch.error)
+		var result: Result<T, NSError> = failure(RACError.ExpectedCountMismatch.error)
 
 		take(1).start(next: { value in
 			result = success(value)
@@ -1151,14 +1151,14 @@ extension ColdSignal {
 	}
 
 	/// Starts the receiver, then returns the last value received.
-	public func last() -> Result<T> {
+	public func last() -> Result<T, NSError> {
 		return takeLast(1).first()
 	}
 
 	/// Starts the receiver, and returns a successful result if exactly one
 	/// value is received. If the receiver sends fewer or more values, an error
 	/// will be returned instead.
-	public func single() -> Result<T> {
+	public func single() -> Result<T, NSError> {
 		let result = reduce(initial: Array<T>()) { (var array, value) in
 			array.append(value)
 			return array
@@ -1173,12 +1173,12 @@ extension ColdSignal {
 			}
 
 		case let .Failure(error):
-			return failure(error)
+			return failure(error.unbox)
 		}
 	}
 
 	/// Starts the receiver, then waits for completion.
-	public func wait() -> Result<()> {
+	public func wait() -> Result<(), NSError> {
 		return reduce(initial: ()) { (_, _) in () }
 			.takeLast(1)
 			.first()

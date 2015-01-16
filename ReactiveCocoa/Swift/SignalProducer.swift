@@ -321,16 +321,51 @@ public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler
 	precondition(interval >= 0)
 	precondition(leeway >= 0)
 
-	return SignalProducer { signal, compositeDisposable in
+	return SignalProducer { observer, compositeDisposable in
 		if compositeDisposable.disposed {
 			return
 		}
 
 		let disposable = scheduler.scheduleAfter(scheduler.currentDate.dateByAddingTimeInterval(interval), repeatingEvery: interval, withLeeway: leeway) {
-			sendNext(signal, scheduler.currentDate)
+			sendNext(observer, scheduler.currentDate)
 		}
 
 		compositeDisposable.addDisposable(disposable)
+	}
+}
+
+/// Injects side effects to be performed upon the specified signal events.
+public func on<T>(started: () -> () = doNothing, event: Event<T> -> () = doNothing, next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing, terminated: () -> () = doNothing, disposed: () -> () = doNothing)(producer: SignalProducer<T>) -> SignalProducer<T> {
+	return SignalProducer { observer, compositeDisposable in
+		started()
+		compositeDisposable.addDisposable(disposed)
+
+		producer.start { signal, disposable in
+			compositeDisposable.addDisposable(disposable)
+
+			let innerObserver = Signal<T>.Observer { receivedEvent in
+				event(receivedEvent)
+
+				switch receivedEvent {
+				case let .Next(value):
+					next(value.unbox)
+
+				case let .Error(err):
+					error(err)
+
+				case let .Completed:
+					completed()
+				}
+
+				if receivedEvent.isTerminating {
+					terminated()
+				}
+
+				observer.put(receivedEvent)
+			}
+
+			signal.observe(innerObserver)
+		}
 	}
 }
 
@@ -345,7 +380,6 @@ public func switchToLatest<T>(producer: SignalProducer<SignalProducer<T>>) -> Si
 public func catch<T>(handler: NSError -> SignalProducer<T>)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func combineLatestWith<T, U>(otherSignalProducer: SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<(T, U)>
 public func concat<T>(next: SignalProducer<T>)(producer: SignalProducer<T>) -> SignalProducer<T>
-public func on<T>(started: () -> () = doNothing, event: Event<T> -> () = doNothing, next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing, terminated: () -> () = doNothing, disposed: () -> () = doNothing)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func repeat<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func retry<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func startOn<T>(scheduler: Scheduler)(producer: SignalProducer<T>) -> SignalProducer<T>

@@ -46,7 +46,7 @@ public final class ObservableProperty<T> {
 				self._value = value
 
 				for sink in self.sinks {
-					sink.put(.Next(Box(value)))
+					sendNext(sink, value)
 				}
 			}
 		}
@@ -62,7 +62,7 @@ public final class ObservableProperty<T> {
 
 				dispatch_barrier_sync(strongSelf.queue) {
 					token = strongSelf.sinks.insert(sink)
-					sink.put(.Next(Box(strongSelf._value)))
+					sendNext(sink, strongSelf._value)
 				}
 
 				disposable.addDisposable {
@@ -73,7 +73,7 @@ public final class ObservableProperty<T> {
 					}
 				}
 			} else {
-				sink.put(.Completed)
+				sendCompleted(sink)
 			}
 		}
 	}
@@ -89,7 +89,7 @@ public final class ObservableProperty<T> {
 	deinit {
 		dispatch_barrier_sync(queue) {
 			for sink in self.sinks {
-				sink.put(.Completed)
+				sendCompleted(sink)
 			}
 		}
 	}

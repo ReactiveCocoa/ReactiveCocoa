@@ -9,7 +9,7 @@
 import LlamaKit
 
 extension RACDisposable: Disposable {}
-extension RACScheduler: DateScheduler {
+extension RACScheduler: DateSchedulerType {
 	public var currentDate: NSDate {
 		return NSDate()
 	}
@@ -33,7 +33,7 @@ extension ImmediateScheduler {
 	}
 }
 
-extension MainScheduler {
+extension UIScheduler {
 	public func asRACScheduler() -> RACScheduler {
 		return RACScheduler.mainThreadScheduler()
 	}
@@ -51,16 +51,16 @@ extension RACSignal {
 	public func asColdSignal() -> ColdSignal<AnyObject?> {
 		return ColdSignal { (sink, disposable) in
 			let next = { (obj: AnyObject?) -> () in
-				sink.put(.Next(Box(obj)))
+				sendNext(sink, obj)
 			}
 
 			let error = { (maybeError: NSError?) -> () in
 				let nsError = maybeError.orDefault(RACError.Empty.error)
-				sink.put(.Error(nsError))
+				sendError(sink, nsError)
 			}
 
 			let completed = {
-				sink.put(.Completed)
+				sendCompleted(sink)
 			}
 
 			let selfDisposable: RACDisposable? = self.subscribeNext(next, error: error, completed: completed)

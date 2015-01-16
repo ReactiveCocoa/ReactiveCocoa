@@ -137,7 +137,7 @@ extension ColdSignal {
 	/// Creates a signal that will immediately complete.
 	public static func empty() -> ColdSignal {
 		return ColdSignal { (sink, _) in
-			sink.put(.Completed)
+			sendCompleted(sink)
 		}
 	}
 
@@ -145,15 +145,15 @@ extension ColdSignal {
 	/// complete.
 	public static func single(value: T) -> ColdSignal {
 		return ColdSignal { (sink, _) in
-			sink.put(.Next(Box(value)))
-			sink.put(.Completed)
+			sendNext(sink, value)
+			sendCompleted(sink)
 		}
 	}
 
 	/// Creates a signal that will immediately generate an error.
 	public static func error(error: NSError) -> ColdSignal {
 		return ColdSignal { (sink, _) in
-			sink.put(.Error(error))
+			sendError(sink, error)
 		}
 	}
 
@@ -172,14 +172,14 @@ extension ColdSignal {
 			var generator = values.generate()
 
 			while let value: T = generator.next() {
-				sink.put(.Next(Box(value)))
+				sendNext(sink, value)
 
 				if disposable.disposed {
 					return
 				}
 			}
 
-			sink.put(.Completed)
+			sendCompleted(sink)
 		}
 	}
 
@@ -193,6 +193,25 @@ extension ColdSignal {
 
 		case let .Failure(error):
 			return .error(error)
+		}
+	}
+
+	/// Creates a signal that will execute the given closure when started, then
+	/// yield the resulting value upon success, or the error upon failure.
+	public static func try(f: () -> Result<T>) -> ColdSignal {
+		return lazy { .fromResult(f()) }
+	}
+
+	/// Creates a signal that will execute the given closure when started, then
+	/// yield the non-nil value upon success, or the error upon `nil`.
+	public static func try(f: NSErrorPointer -> T?) -> ColdSignal {
+		return try {
+			var error: NSError?
+			if let value = f(&error) {
+				return success(value)
+			} else {
+				return failure(error ?? RACError.Empty.error)
+			}
 		}
 	}
 }
@@ -218,17 +237,17 @@ extension ColdSignal {
 
 				return Event.sink(next: { value in
 					let (maybeState, newValue) = f(state.value, value)
-					sink.put(.Next(Box(newValue)))
+					sendNext(sink, newValue)
 
 					if let s = maybeState {
 						state.value = s
 					} else {
-						sink.put(.Completed)
+						sendCompleted(sink)
 					}
 				}, error: { error in
-					sink.put(.Error(error))
+					sendError(sink, error)
 				}, completed: {
-					sink.put(.Completed)
+					sendCompleted(sink)
 				})
 			}
 
@@ -387,13 +406,13 @@ extension ColdSignal {
 
 					return ()
 				}, error: { error in
-					sink.put(.Error(error))
+					sendError(sink, error)
 				}, completed: {
 					for v in values.value {
-						sink.put(.Next(Box(v)))
+						sendNext(sink, v)
 					}
 
-					sink.put(.Completed)
+					sendCompleted(sink)
 				})
 			}
 		}
@@ -413,7 +432,7 @@ extension ColdSignal {
 			// Automatically complete the returned signal when the trigger
 			// fires.
 			let completingDisposable = ActionDisposable {
-				sink.put(.Completed)
+				sendCompleted(sink)
 			}
 
 			let completingHandle = disposable.addDisposable(completingDisposable)
@@ -449,7 +468,7 @@ extension ColdSignal {
 
 	/// Yields all events on the given scheduler, instead of whichever
 	/// scheduler they originally arrived upon.
-	public func deliverOn(scheduler: Scheduler) -> ColdSignal {
+	public func deliverOn(scheduler: SchedulerType) -> ColdSignal {
 		return ColdSignal { (sink, disposable) in
 			self.startWithSink { selfDisposable in
 				disposable.addDisposable(selfDisposable)
@@ -471,7 +490,7 @@ extension ColdSignal {
 	///
 	/// Values may still be sent upon other schedulers—this merely affects how
 	/// the `start` method is invoked.
-	public func evaluateOn(scheduler: Scheduler) -> ColdSignal {
+	public func evaluateOn(scheduler: SchedulerType) -> ColdSignal {
 		return ColdSignal { (sink, disposable) in
 			let schedulerDisposable = scheduler.schedule {
 				self.startWithSink { selfDisposable in
@@ -490,7 +509,7 @@ extension ColdSignal {
 	/// them on the given scheduler.
 	///
 	/// `Error` events are always scheduled immediately.
-	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> ColdSignal {
+	public func delay(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> ColdSignal {
 		precondition(interval >= 0)
 
 		return ColdSignal { (sink, disposable) in
@@ -519,13 +538,13 @@ extension ColdSignal {
 
 	/// Yields `error` after the given interval if the receiver has not yet
 	/// completed by that point.
-	public func timeoutWithError(error: NSError, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> ColdSignal {
+	public func timeoutWithError(error: NSError, afterInterval interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> ColdSignal {
 		precondition(interval >= 0)
 
 		return ColdSignal { (sink, disposable) in
 			let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
 			let timeoutDisposable = scheduler.scheduleAfter(date) {
-				sink.put(.Error(error))
+				sendError(sink, error)
 			}
 
 			disposable.addDisposable(timeoutDisposable)
@@ -578,6 +597,14 @@ extension ColdSignal {
 		return tryMap { (value, error) in f(value, error) ? value : nil }
 	}
 
+	/// Performs the given action upon each value in the receiver, bailing out
+	/// if the returned Result is an error.
+	public func try(f: T -> Result<()>) -> ColdSignal {
+		return tryMap { value -> Result<T> in
+			return f(value).map { _ in value }
+		}
+	}
+
 	/// Attempts to map each value in the receiver, bailing out with an error if
 	/// a given mapping is `nil`.
 	public func tryMap<U>(f: (T, NSErrorPointer) -> U?) -> ColdSignal<U> {
@@ -597,13 +624,8 @@ extension ColdSignal {
 	/// a given mapping fails.
 	public func tryMap<U>(f: T -> Result<U>) -> ColdSignal<U> {
 		return mergeMap { value in
-			switch f(value) {
-			case let .Success(box):
-				return .single(box.unbox)
-
-			case let .Failure(error):
-				return .error(error)
-			}
+			let result = f(value)
+			return .fromResult(result)
 		}
 	}
 
@@ -640,10 +662,10 @@ extension ColdSignal {
 				disposable.addDisposable(selfDisposable)
 
 				return SinkOf { event in
-					sink.put(.Next(Box(event)))
+					sendNext(sink, event)
 
 					if event.isTerminating {
-						sink.put(.Completed)
+						sendCompleted(sink)
 					}
 				}
 			}
@@ -665,9 +687,9 @@ extension ColdSignal {
 				return Event.sink(next: { event in
 					sink.put(event)
 				}, error: { error in
-					sink.put(.Error(error))
+					sendError(sink, error)
 				}, completed: {
-					sink.put(.Completed)
+					sendCompleted(sink)
 				})
 			}
 
@@ -715,11 +737,11 @@ extension ColdSignal {
 
 			let onBothNext = { () -> () in
 				let combined = (selfState.latestValue!, otherState.latestValue!)
-				sink.put(.Next(Box(combined)))
+				sendNext(sink, combined)
 			}
 
-			let onError = { sink.put(.Error($0)) }
-			let onBothCompleted = { sink.put(.Completed) }
+			let onError = { sendError(sink, $0) }
+			let onBothCompleted = { sendCompleted(sink) }
 
 			self.startWithStates(disposable, selfState, otherState, queue: queue, onBothNext: onBothNext, onError: onError, onBothCompleted: onBothCompleted)
 			signal.startWithStates(disposable, otherState, selfState, queue: queue, onBothNext: onBothNext, onError: onError, onBothCompleted: onBothCompleted)
@@ -743,11 +765,11 @@ extension ColdSignal {
 					selfState.values.removeAtIndex(0)
 					otherState.values.removeAtIndex(0)
 
-					sink.put(.Next(Box(pair)))
+					sendNext(sink, pair)
 				}
 
 				if (selfState.completed && selfState.values.isEmpty) || (otherState.completed && otherState.values.isEmpty) {
-					sink.put(.Completed)
+					sendCompleted(sink)
 				}
 			}
 
@@ -760,7 +782,7 @@ extension ColdSignal {
 						flushEvents()
 					}
 				}, error: { error in
-					sink.put(.Error(error))
+					sendError(sink, error)
 				}, completed: {
 					dispatch_sync(queue) {
 						selfState.completed = true
@@ -778,7 +800,7 @@ extension ColdSignal {
 						flushEvents()
 					}
 				}, error: { error in
-					sink.put(.Error(error))
+					sendError(sink, error)
 				}, completed: {
 					dispatch_sync(queue) {
 						otherState.completed = true
@@ -804,7 +826,7 @@ extension ColdSignal {
 			let decrementInFlight: () -> () = {
 				let orig = inFlight.modify { $0 - 1 }
 				if orig == 1 {
-					sink.put(.Completed)
+					sendCompleted(sink)
 				}
 			}
 
@@ -834,7 +856,7 @@ extension ColdSignal {
 
 					return ()
 				}, error: { error in
-					sink.put(.Error(error))
+					sendError(sink, error)
 				}, completed: {
 					decrementInFlight()
 				})
@@ -870,7 +892,7 @@ extension ColdSignal {
 
 			let completeIfNecessary: () -> () = {
 				if selfCompleted.value && latestCompleted.value {
-					sink.put(.Completed)
+					sendCompleted(sink)
 				}
 			}
 
@@ -901,7 +923,7 @@ extension ColdSignal {
 
 					return
 				}, error: { error in
-					sink.put(.Error(error))
+					sendError(sink, error)
 				}, completed: {
 					selfCompleted.value = true
 					completeIfNecessary()
@@ -943,7 +965,7 @@ extension ColdSignal {
 
 					state.dequeueIfReady()
 				}, error: { error in
-					sink.put(.Error(error))
+					sendError(sink, error)
 				}, completed: {
 					state.decrementInFlight()
 				})
@@ -979,7 +1001,7 @@ extension ColdSignal {
 				serialDisposable.innerDisposable = selfDisposable
 
 				return Event.sink(error: { error in
-					sink.put(.Error(error))
+					sendError(sink, error)
 				}, completed: {
 					signal.startWithSink { signalDisposable in
 						serialDisposable.innerDisposable = signalDisposable
@@ -1280,7 +1302,7 @@ private class ConcatState<T> {
 	func decrementInFlight() {
 		dispatch_sync(queue) {
 			if --self.inFlight == 0 && self.enqueuedSignals.count == 0 && self.currentSignal == nil {
-				self.sink.put(.Completed)
+				sendCompleted(self.sink)
 			}
 		}
 	}
@@ -1305,9 +1327,9 @@ private class ConcatState<T> {
 				self.disposable.addDisposable(signalDisposable)
 
 				return Event.sink(next: { value in
-					self.sink.put(.Next(Box(value)))
+					sendNext(self.sink, value)
 				}, error: { error in
-					self.sink.put(.Error(error))
+					sendError(self.sink, error)
 
 					// TODO: We should remove our disposable from the
 					// composite disposable here, but that is non-trivial to

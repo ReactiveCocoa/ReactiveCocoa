@@ -33,6 +33,20 @@ public struct PropertyOf<T>: PropertyType {
 	}
 }
 
+/// A property that never changes.
+internal struct ConstantProperty<T>: PropertyType {
+	typealias Value = T
+
+	let value: T
+	let producer: SignalProducer<T>
+
+	/// Initializes the property to have the given value.
+	init(_ value: T) {
+		self.value = value
+		self.producer = SignalProducer(value: value)
+	}
+}
+
 /// A mutable property of type T that allows observation of its changes.
 ///
 /// Instances of this class are thread-safe.

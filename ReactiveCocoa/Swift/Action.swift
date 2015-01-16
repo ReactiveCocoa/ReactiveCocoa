@@ -4,6 +4,10 @@
 /// Actions enforce serial execution. Any attempt to execute an action multiple
 /// times concurrently will return an error.
 public final class Action<Input, Output> {
+	private let executeClosure: Input -> SignalProducer<Output>
+	private let valuesObserver: Signal<Output>.Observer
+	private let errorsObserver: Signal<NSError>.Observer
+
 	/// A signal of all values generated from applications of the Action.
 	///
 	/// In other words, this will send every value from every signal generated
@@ -18,18 +22,48 @@ public final class Action<Input, Output> {
 	public let errors: Signal<NSError>
 
 	/// Whether the action is currently executing.
-	public let executing: Property<Bool>
+	public lazy let executing: PropertyOf<Bool> = PropertyOf(_executing)
+	private let _executing: MutableProperty<Bool>
 
 	/// Whether the action is currently enabled.
-	public let enabled: Property<Bool>
+	public lazy let enabled: PropertyOf<Bool> = PropertyOf(_enabled)
+	private let _enabled: MutableProperty<Bool>
+
+	/// Whether the action should be enabled for the given combination of user
+	/// enabledness and executing status.
+	private func shouldBeEnabled(#userEnabled: Bool, executing: Bool) -> Bool {
+		return userEnabled && !executing
+	}
 
 	/// Initializes an action that will be conditionally enabled, and create a
 	/// SignalProducer for each input.
-	public init(enabledIf: Property<Bool>, _ execute: Input -> SignalProducer<Output>)
+	public init<P: PropertyType where P.Value == Bool>(enabledIf: P, _ execute: Input -> SignalProducer<Output>) {
+		_executing = MutableProperty(false)
+		_enabled = MutableProperty(true)
+
+		let (vSink, vSig) = Signal<Output>.pipe()
+		valuesObserver = vSink
+		values = vSig
+
+		let (eSink, eSig) = Signal<NSError>.pipe()
+		errorsObserver = eSink
+		errors = eSig
+
+		_enabled <~ enabledIf.producer
+			.combineLatestWith(executing.producer)
+			.map(shouldBeEnabled)
+	}
 
 	/// Initializes an action that will be enabled by default, and create a
 	/// SignalProducer for each input.
-	public convenience init(_ execute: Input -> SignalProducer<Output>)
+	public convenience init(_ execute: Input -> SignalProducer<Output>) {
+		self.init(enabledIf: ConstantProperty(true), execute)
+	}
+
+	deinit {
+		sendCompleted(valuesObserver)
+		sendCompleted(errorsObserver)
+	}
 
 	/// Creates a SignalProducer that, when started, will execute the action
 	/// with the given input, then forward the results upon the produced Signal.
@@ -38,5 +72,7 @@ public final class Action<Input, Output> {
 	/// the produced signal will send an `NSError` corresponding to
 	/// `RACError.ActionNotEnabled`, and nothing will be sent upon `values` or
 	/// `errors` for that particular signal.
-	public func apply(input: Input) -> SignalProducer<Output>
+	public func apply(input: Input) -> SignalProducer<Output> {
+		fatalError()
+	}
 }

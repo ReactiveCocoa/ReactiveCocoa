@@ -397,6 +397,8 @@
 		D052D6B31A3A54CB007CAD68 /* ActionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = D052D6B11A3A54CB007CAD68 /* ActionSpec.swift */; };
 		D05E662519EDD82000904ACA /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D05E662419EDD82000904ACA /* Nimble.framework */; };
 		D05E662619EDD83000904ACA /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D05E662419EDD82000904ACA /* Nimble.framework */; };
+		D08C54B31A69A2AE00AD8286 /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54B11A69A2AC00AD8286 /* Signal.swift */; };
+		D08C54B41A69A2AF00AD8286 /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54B11A69A2AC00AD8286 /* Signal.swift */; };
 		D08C54B61A69A3DB00AD8286 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54B51A69A3DB00AD8286 /* Event.swift */; };
 		D08C54B71A69A3DB00AD8286 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54B51A69A3DB00AD8286 /* Event.swift */; };
 		D097CE3919EF7AF5005A201C /* ColdSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D097CE3619EF7AF5005A201C /* ColdSignal.swift */; };
@@ -1631,6 +1633,7 @@
 				D037653A19EDA41200A782A9 /* NSString+RACSequenceAdditions.m in Sources */,
 				D03765E819EDA41200A782A9 /* RACStringSequence.m in Sources */,
 				D03764EE19EDA41200A782A9 /* NSControl+RACCommandSupport.m in Sources */,
+				D08C54B31A69A2AE00AD8286 /* Signal.swift in Sources */,
 				D037660A19EDA41200A782A9 /* RACTupleSequence.m in Sources */,
 				D03765D419EDA41200A782A9 /* RACSignal.m in Sources */,
 				D037651A19EDA41200A782A9 /* NSObject+RACDescription.m in Sources */,
@@ -1754,6 +1757,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D037659D19EDA41200A782A9 /* RACKVOChannel.m in Sources */,
+				D08C54B41A69A2AF00AD8286 /* Signal.swift in Sources */,
 				D097CE4419EF91C6005A201C /* Action.swift in Sources */,
 				D037666319EDA41200A782A9 /* UITextView+RACSignalSupport.m in Sources */,
 				D037662F19EDA41200A782A9 /* UIControl+RACSignalSupport.m in Sources */,

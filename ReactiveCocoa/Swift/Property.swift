@@ -1,34 +1,86 @@
-/// An abstract class representing a property of type T that allows observation
-/// of its changes.
-public class Property<T> {
+/// Represents a property that allows observation of its changes.
+public protocol PropertyType {
+	typealias Value
+
 	/// The current value of the property.
-	public var value: T { get }
+	var value: Value { get }
+
+	/// A producer for Signals that will send the property's current value,
+	/// followed by all changes over time.
+	var producer: SignalProducer<Value> { get }
+}
+
+/// Represents a read-only view to a property of type T that allows observation
+/// of its changes.
+public struct PropertyOf<T>: PropertyType {
+	public typealias Value = T
+
+	private let _value: () -> T
+	private let _producer: () -> SignalProducer<T>
+
+	public var value: T {
+		return _value()
+	}
+
+	public var producer: SignalProducer<T> {
+		return _producer()
+	}
+
+	/// Initializes the receiver as a wrapper around the given property.
+	public init<P: PropertyType where P.Value == T>(property: P) {
+		_value = { property.value }
+		_producer = { property.producer }
+	}
+}
+
+/// A mutable property of type T that allows observation of its changes.
+///
+/// Instances of this class are thread-safe.
+public final class MutableProperty<T>: PropertyType {
+	public typealias Value = T
+
+	private let observer: Signal<T>.Observer
+
+	/// The current value of the property.
+	///
+	/// Setting this to a new value will notify all observers of any Signals
+	/// created from the `values` producer.
+	public var value: T {
+		get {
+			return producer.first().value()!
+		}
+
+		set(x) {
+			sendNext(observer, x)
+		}
+	}
 
 	/// A producer for Signals that will send the property's current value,
 	/// followed by all changes over time, then complete when the property has
 	/// deinitialized.
 	public let producer: SignalProducer<T>
 
-	/// Keeps this class abstract.
-	private init()
-}
-
-/// A mutable property of type T that allows observation of its changes.
-///
-/// Instances of this class are thread-safe.
-public final class MutableProperty<T>: Property<T> {
-	/// The current value of the property.
-	///
-	/// Setting this to a new value will notify all observers of any Signals
-	/// created from the `values` producer.
-	public override var value: T { get set }
-
 	/// Initializes the property with the given value to start.
-	public init(_ initialValue: T)
+	public init(_ initialValue: T) {
+		let (producer, observer) = SignalProducer<T>.buffer(1)
+		self.producer = producer
+		self.observer = observer
+
+		value = initialValue
+	}
+
+	deinit {
+		sendCompleted(observer)
+	}
 }
 
-extension MutableProperty: SinkType {}
+extension MutableProperty: SinkType {
+	public func put(value: T) {
+		self.value = value
+	}
+}
 
+/*
 infix operator <~ {
 	associativity right
 	precedence 90
@@ -59,3 +111,4 @@ public func <~ <T>(property: MutableProperty<T>, producer: SignalProducer<T>)
 /// The binding will automatically terminate when either property is
 /// deinitialized.
 public func <~ <T>(destinationProperty: MutableProperty<T>, sourceProperty: Property<T>)
+*/

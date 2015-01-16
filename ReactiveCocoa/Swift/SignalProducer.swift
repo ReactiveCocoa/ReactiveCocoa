@@ -105,7 +105,7 @@ public struct SignalProducer<T> {
 	///
 	/// After an `Error` or `Completed` event has been added to the buffer, the
 	/// observer will not add any further events.
-	public static func buffer(capacity: Int = Int.max) -> (SignalProducer, Signal<T>.Observer) {
+	public static func buffer(_ capacity: Int = Int.max) -> (SignalProducer, Signal<T>.Observer) {
 		precondition(capacity >= 0)
 
 		let lock = NSRecursiveLock()

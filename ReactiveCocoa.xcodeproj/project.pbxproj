@@ -403,6 +403,8 @@
 		D08C54B71A69A3DB00AD8286 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54B51A69A3DB00AD8286 /* Event.swift */; };
 		D08C54B81A69A9D000AD8286 /* SignalProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54B21A69A2AC00AD8286 /* SignalProducer.swift */; };
 		D08C54B91A69A9D100AD8286 /* SignalProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54B21A69A2AC00AD8286 /* SignalProducer.swift */; };
+		D08C54BA1A69C54300AD8286 /* Property.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54B01A69A2AC00AD8286 /* Property.swift */; };
+		D08C54BB1A69C54400AD8286 /* Property.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54B01A69A2AC00AD8286 /* Property.swift */; };
 		D097CE3919EF7AF5005A201C /* ColdSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D097CE3619EF7AF5005A201C /* ColdSignal.swift */; };
 		D097CE3A19EF7AF5005A201C /* ColdSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D097CE3619EF7AF5005A201C /* ColdSignal.swift */; };
 		D097CE3B19EF7AF5005A201C /* HotSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D097CE3719EF7AF5005A201C /* HotSignal.swift */; };
@@ -1678,6 +1680,7 @@
 				D037656219EDA41200A782A9 /* RACCommand.m in Sources */,
 				D037658819EDA41200A782A9 /* RACErrorSignal.m in Sources */,
 				D03765F619EDA41200A782A9 /* RACSubscriptingAssignmentTrampoline.m in Sources */,
+				D08C54BA1A69C54300AD8286 /* Property.swift in Sources */,
 				D037661219EDA41200A782A9 /* RACUnit.m in Sources */,
 				D03765A019EDA41200A782A9 /* RACKVOTrampoline.m in Sources */,
 				D037650A19EDA41200A782A9 /* NSInvocation+RACTypeParsing.m in Sources */,
@@ -1813,6 +1816,7 @@
 				D037654B19EDA41200A782A9 /* NSUserDefaults+RACSupport.m in Sources */,
 				D037660F19EDA41200A782A9 /* RACUnarySequence.m in Sources */,
 				D097CE3C19EF7AF5005A201C /* HotSignal.swift in Sources */,
+				D08C54BB1A69C54400AD8286 /* Property.swift in Sources */,
 				D03765FF19EDA41200A782A9 /* RACTargetQueueScheduler.m in Sources */,
 				D03765DF19EDA41200A782A9 /* RACSignalSequence.m in Sources */,
 				D037656D19EDA41200A782A9 /* RACDelegateProxy.m in Sources */,

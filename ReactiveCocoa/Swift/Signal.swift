@@ -116,8 +116,11 @@ infix operator |> {
 /// 	|> filter { num in num % 2 == 0 }
 /// 	|> map(toString)
 /// 	|> observe(next: { string in println(string) })
-public func |> <T, U>(signal: Signal<T>, transform: Signal<T> -> U) -> U
+public func |> <T, U>(signal: Signal<T>, transform: Signal<T> -> U) -> U {
+	return transform(signal)
+}
 
+/*
 public func combineLatestWith<T, U>(otherSignal: Signal<U>)(signal: Signal<T>) -> Signal<(T, U)>
 public func combinePrevious<T>(initial: T)(signal: Signal<T>) -> Signal<(T, T)>
 public func concat<T>(next: Signal<T>)(signal: Signal<T>) -> Signal<T>
@@ -147,6 +150,7 @@ public func try<T>(operation: T -> Result<()>)(signal: Signal<T>) -> Signal<T>
 public func tryMap<T, U>(operation: (T, NSErrorPointer) -> U?)(signal: Signal<T>) -> Signal<U>
 public func tryMap<T, U>(operation: T -> Result<U>)(signal: Signal<T>) -> Signal<U>
 public func zipWith<T, U>(otherSignal: Signal<U>)(signal: Signal<T>) -> Signal<(T, U)>
+*/
 
 /// Signal.observe() as a free function, for easier use with |>.
 public func observe<T, S: SinkType where S.Element == Event<T>>(sink: S)(signal: Signal<T>) -> Disposable {
@@ -154,6 +158,6 @@ public func observe<T, S: SinkType where S.Element == Event<T>>(sink: S)(signal:
 }
 
 /// Signal.observe() as a free function, for easier use with |>.
-public func observe<T>(next: T -> () = doNothing, error: NSError -> () = doNothing -> completed: () -> () = doNothing)(signal: Signal<T>) -> Disposable {
+public func observe<T>(next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing)(signal: Signal<T>) -> Disposable {
 	return signal.observe(next: next, error: error, completed: completed)
 }

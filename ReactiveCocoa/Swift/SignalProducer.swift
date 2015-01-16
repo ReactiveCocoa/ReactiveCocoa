@@ -152,27 +152,29 @@ public struct SignalProducer<T> {
 	/// Creates a Signal from the producer, passes it into the given closure,
 	/// then starts sending events on the Signal when the closure has returned.
 	///
-	/// If the closure returns a non-nil Disposable, it will be automatically
-	/// disposed when an `Error` or `Completed` event is sent, or when the
-	/// disposable returned from start() has been disposed.
+	/// The closure will also receive a disposable which can be used to cancel
+	/// the work associated with the signal, and prevent any future events from
+	/// being sent. Add other disposables to the CompositeDisposable to perform
+	/// additional cleanup upon termination or cancellation.
 	///
 	/// Returns a Disposable which can be used to cancel the work associated
 	/// with the Signal, and prevent any future events from being sent.
-	public func start(setUp: Signal<T> -> Disposable?) -> Disposable {
-		var observer: Signal<T>.Observer?
-		var disposable: CompositeDisposable?
+	public func start(setUp: (Signal<T>, CompositeDisposable) -> ()) -> Disposable {
+		var observer: Signal<T>.Observer!
+		var disposable: CompositeDisposable!
 
 		let signal = Signal<T> { innerObserver, innerDisposable in
 			observer = innerObserver
 			disposable = innerDisposable
 		}
 
-		if let setUpDisposable = setUp(signal) {
-			disposable!.addDisposable(setUpDisposable)
+		setUp(signal, disposable)
+
+		if !disposable.disposed {
+			startHandler(observer, disposable)
 		}
 
-		startHandler(observer!, disposable!)
-		return disposable!
+		return disposable
 	}
 
 	/// Creates a Signal from the producer, then attaches the given sink to the
@@ -182,7 +184,10 @@ public struct SignalProducer<T> {
 	/// with the Signal, and prevent any future events from being put into the
 	/// sink.
 	public func start<S: SinkType where S.Element == Event<T>>(sink: S) -> Disposable {
-		return start { signal in signal.observe(sink) }
+		return start { signal, disposable in
+			signal.observe(sink)
+			return
+		}
 	}
 
 	/// Creates a Signal from the producer, then adds exactly one observer to
@@ -192,7 +197,10 @@ public struct SignalProducer<T> {
 	/// Returns a Disposable which can be used to cancel the work associated
 	/// with the Signal, and prevent any future callbacks from being invoked.
 	public func start(next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing) -> Disposable {
-		return start { signal in signal.observe(next: next, error: error, completed: completed) }
+		return start { signal, disposable in
+			signal.observe(next: next, error: error, completed: completed)
+			return
+		}
 	}
 
 	/// Lifts a Signal operator to operate upon SignalProducers instead.
@@ -201,7 +209,16 @@ public struct SignalProducer<T> {
 	/// the given Signal operator to _every_ created Signal, just as if the
 	/// operator had been applied to each Signal yielded from start().
 	public func lift<U>(transform: Signal<T> -> Signal<U>) -> SignalProducer<U> {
-		fatalError()
+		return SignalProducer<U> { observer, outerDisposable in
+			self.start { signal, innerDisposable in
+				outerDisposable.addDisposable(innerDisposable)
+
+				transform(signal).observe(observer)
+				return
+			}
+
+			return
+		}
 	}
 }
 
@@ -257,7 +274,7 @@ public func zipWith<T, U>(otherSignalProducer: SignalProducer<U>)(producer: Sign
 */
 
 /// SignalProducer.start() as a free function, for easier use with |>.
-public func start<T>(setUp: Signal<T> -> Disposable?)(producer: SignalProducer<T>) -> Disposable {
+public func start<T>(setUp: (Signal<T>, CompositeDisposable) -> ())(producer: SignalProducer<T>) -> Disposable {
 	return producer.start(setUp)
 }
 

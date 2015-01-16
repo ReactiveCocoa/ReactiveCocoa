@@ -36,17 +36,19 @@ public final class Signal<T> {
 			}
 
 			if event.isTerminating {
-				self.observers = nil
+				self.disposable.dispose()
 			}
 
 			self.lock.unlock()
 		}
 
-		generator(sink, disposable)
-	}
+		disposable.addDisposable {
+			self.lock.lock()
+			self.observers = nil
+			self.lock.unlock()
+		}
 
-	deinit {
-		disposable.dispose()
+		generator(sink, disposable)
 	}
 
 	/// A Signal that never sends any events.
@@ -60,12 +62,12 @@ public final class Signal<T> {
 	/// The Signal will remain alive until an `Error` or `Completed` event is
 	/// sent to the observer.
 	public class func pipe() -> (Signal, Observer) {
-		var sink: Observer?
+		var sink: Observer!
 		let signal = self { innerSink, disposable in
 			sink = innerSink
 		}
 
-		return (signal, sink!)
+		return (signal, sink)
 	}
 
 	/// Observes the Signal by sending any future events to the given sink. If

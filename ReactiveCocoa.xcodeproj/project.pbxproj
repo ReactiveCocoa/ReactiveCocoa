@@ -405,14 +405,6 @@
 		D08C54B91A69A9D100AD8286 /* SignalProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54B21A69A2AC00AD8286 /* SignalProducer.swift */; };
 		D08C54BA1A69C54300AD8286 /* Property.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54B01A69A2AC00AD8286 /* Property.swift */; };
 		D08C54BB1A69C54400AD8286 /* Property.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54B01A69A2AC00AD8286 /* Property.swift */; };
-		D097CE3919EF7AF5005A201C /* ColdSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D097CE3619EF7AF5005A201C /* ColdSignal.swift */; };
-		D097CE3A19EF7AF5005A201C /* ColdSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D097CE3619EF7AF5005A201C /* ColdSignal.swift */; };
-		D097CE3B19EF7AF5005A201C /* HotSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D097CE3719EF7AF5005A201C /* HotSignal.swift */; };
-		D097CE3C19EF7AF5005A201C /* HotSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D097CE3719EF7AF5005A201C /* HotSignal.swift */; };
-		D097CE3D19EF7AF5005A201C /* ObservableProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = D097CE3819EF7AF5005A201C /* ObservableProperty.swift */; };
-		D097CE3E19EF7AF5005A201C /* ObservableProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = D097CE3819EF7AF5005A201C /* ObservableProperty.swift */; };
-		D097CE4319EF91C6005A201C /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BA19EF2A5800984962 /* Action.swift */; };
-		D097CE4419EF91C6005A201C /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BA19EF2A5800984962 /* Action.swift */; };
 		D0C312CD19EF2A5800984962 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BB19EF2A5800984962 /* Atomic.swift */; };
 		D0C312CE19EF2A5800984962 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BB19EF2A5800984962 /* Atomic.swift */; };
 		D0C312CF19EF2A5800984962 /* Bag.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C312BC19EF2A5800984962 /* Bag.swift */; };
@@ -765,15 +757,11 @@
 		D047263C19E49FE8006002AA /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		D052D6B11A3A54CB007CAD68 /* ActionSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionSpec.swift; sourceTree = "<group>"; };
 		D05E662419EDD82000904ACA /* Nimble.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Nimble.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		D08C54AF1A69A2AC00AD8286 /* NewAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NewAction.swift; path = Swift/NewAction.swift; sourceTree = "<group>"; };
-		D08C54B01A69A2AC00AD8286 /* Property.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Property.swift; path = Swift/Property.swift; sourceTree = "<group>"; };
-		D08C54B11A69A2AC00AD8286 /* Signal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Signal.swift; path = Swift/Signal.swift; sourceTree = "<group>"; };
-		D08C54B21A69A2AC00AD8286 /* SignalProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SignalProducer.swift; path = Swift/SignalProducer.swift; sourceTree = "<group>"; };
+		D08C54AF1A69A2AC00AD8286 /* Action.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
+		D08C54B01A69A2AC00AD8286 /* Property.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Property.swift; sourceTree = "<group>"; };
+		D08C54B11A69A2AC00AD8286 /* Signal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Signal.swift; sourceTree = "<group>"; };
+		D08C54B21A69A2AC00AD8286 /* SignalProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignalProducer.swift; sourceTree = "<group>"; };
 		D08C54B51A69A3DB00AD8286 /* Event.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
-		D097CE3619EF7AF5005A201C /* ColdSignal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColdSignal.swift; sourceTree = "<group>"; };
-		D097CE3719EF7AF5005A201C /* HotSignal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HotSignal.swift; sourceTree = "<group>"; };
-		D097CE3819EF7AF5005A201C /* ObservableProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObservableProperty.swift; sourceTree = "<group>"; };
-		D0C312BA19EF2A5800984962 /* Action.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
 		D0C312BB19EF2A5800984962 /* Atomic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Atomic.swift; sourceTree = "<group>"; };
 		D0C312BC19EF2A5800984962 /* Bag.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Bag.swift; sourceTree = "<group>"; };
 		D0C312BE19EF2A5800984962 /* Disposable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Disposable.swift; sourceTree = "<group>"; };
@@ -1119,10 +1107,10 @@
 		D03B4A3919F4C25F009E02AC /* Signals */ = {
 			isa = PBXGroup;
 			children = (
-				D0C312BA19EF2A5800984962 /* Action.swift */,
-				D097CE3619EF7AF5005A201C /* ColdSignal.swift */,
-				D097CE3719EF7AF5005A201C /* HotSignal.swift */,
-				D097CE3819EF7AF5005A201C /* ObservableProperty.swift */,
+				D08C54AF1A69A2AC00AD8286 /* Action.swift */,
+				D08C54B01A69A2AC00AD8286 /* Property.swift */,
+				D08C54B11A69A2AC00AD8286 /* Signal.swift */,
+				D08C54B21A69A2AC00AD8286 /* SignalProducer.swift */,
 			);
 			name = Signals;
 			sourceTree = "<group>";
@@ -1172,10 +1160,6 @@
 			isa = PBXGroup;
 			children = (
 				D04725EF19E49ED7006002AA /* ReactiveCocoa.h */,
-				D08C54AF1A69A2AC00AD8286 /* NewAction.swift */,
-				D08C54B01A69A2AC00AD8286 /* Property.swift */,
-				D08C54B11A69A2AC00AD8286 /* Signal.swift */,
-				D08C54B21A69A2AC00AD8286 /* SignalProducer.swift */,
 				D0C312B919EF2A3000984962 /* Swift */,
 				D037642919EDA3B600A782A9 /* Objective-C */,
 				D04725ED19E49ED7006002AA /* Supporting Files */,
@@ -1621,7 +1605,6 @@
 				D03764F219EDA41200A782A9 /* NSControl+RACTextSignalSupport.m in Sources */,
 				D037650219EDA41200A782A9 /* NSFileHandle+RACSupport.m in Sources */,
 				D03765E219EDA41200A782A9 /* RACStream.m in Sources */,
-				D097CE3B19EF7AF5005A201C /* HotSignal.swift in Sources */,
 				D037655619EDA41200A782A9 /* RACBehaviorSubject.m in Sources */,
 				D037660219EDA41200A782A9 /* RACTestScheduler.m in Sources */,
 				D03765B819EDA41200A782A9 /* RACReplaySubject.m in Sources */,
@@ -1654,7 +1637,6 @@
 				D037660E19EDA41200A782A9 /* RACUnarySequence.m in Sources */,
 				D03765FE19EDA41200A782A9 /* RACTargetQueueScheduler.m in Sources */,
 				D03765DE19EDA41200A782A9 /* RACSignalSequence.m in Sources */,
-				D097CE4319EF91C6005A201C /* Action.swift in Sources */,
 				D037656C19EDA41200A782A9 /* RACDelegateProxy.m in Sources */,
 				D037657419EDA41200A782A9 /* RACDynamicSequence.m in Sources */,
 				D037657019EDA41200A782A9 /* RACDisposable.m in Sources */,
@@ -1676,7 +1658,6 @@
 				D037654619EDA41200A782A9 /* NSURLConnection+RACSupport.m in Sources */,
 				D03765F019EDA41200A782A9 /* RACSubscriber.m in Sources */,
 				D03764F619EDA41200A782A9 /* NSData+RACSupport.m in Sources */,
-				D097CE3D19EF7AF5005A201C /* ObservableProperty.swift in Sources */,
 				D037656219EDA41200A782A9 /* RACCommand.m in Sources */,
 				D037658819EDA41200A782A9 /* RACErrorSignal.m in Sources */,
 				D03765F619EDA41200A782A9 /* RACSubscriptingAssignmentTrampoline.m in Sources */,
@@ -1693,7 +1674,6 @@
 				D037658C19EDA41200A782A9 /* RACEvent.m in Sources */,
 				D08C54B81A69A9D000AD8286 /* SignalProducer.swift in Sources */,
 				D03765B219EDA41200A782A9 /* RACQueueScheduler.m in Sources */,
-				D097CE3919EF7AF5005A201C /* ColdSignal.swift in Sources */,
 				D037655219EDA41200A782A9 /* RACBacktrace.m in Sources */,
 				D037652A19EDA41200A782A9 /* NSObject+RACSelectorSignal.m in Sources */,
 				D03765AE19EDA41200A782A9 /* RACPassthroughSubscriber.m in Sources */,
@@ -1764,7 +1744,6 @@
 			files = (
 				D037659D19EDA41200A782A9 /* RACKVOChannel.m in Sources */,
 				D08C54B41A69A2AF00AD8286 /* Signal.swift in Sources */,
-				D097CE4419EF91C6005A201C /* Action.swift in Sources */,
 				D037666319EDA41200A782A9 /* UITextView+RACSignalSupport.m in Sources */,
 				D037662F19EDA41200A782A9 /* UIControl+RACSignalSupport.m in Sources */,
 				D03765C919EDA41200A782A9 /* RACScopedDisposable.m in Sources */,
@@ -1815,7 +1794,6 @@
 				D0C312E019EF2A5800984962 /* ObjectiveCBridging.swift in Sources */,
 				D037654B19EDA41200A782A9 /* NSUserDefaults+RACSupport.m in Sources */,
 				D037660F19EDA41200A782A9 /* RACUnarySequence.m in Sources */,
-				D097CE3C19EF7AF5005A201C /* HotSignal.swift in Sources */,
 				D08C54BB1A69C54400AD8286 /* Property.swift in Sources */,
 				D03765FF19EDA41200A782A9 /* RACTargetQueueScheduler.m in Sources */,
 				D03765DF19EDA41200A782A9 /* RACSignalSequence.m in Sources */,
@@ -1832,9 +1810,7 @@
 				D037655B19EDA41200A782A9 /* RACBlockTrampoline.m in Sources */,
 				D037659119EDA41200A782A9 /* RACGroupedSignal.m in Sources */,
 				D037655F19EDA41200A782A9 /* RACChannel.m in Sources */,
-				D097CE3A19EF7AF5005A201C /* ColdSignal.swift in Sources */,
 				D037657D19EDA41200A782A9 /* RACEagerSequence.m in Sources */,
-				D097CE3E19EF7AF5005A201C /* ObservableProperty.swift in Sources */,
 				D037657919EDA41200A782A9 /* RACDynamicSignal.m in Sources */,
 				D037659519EDA41200A782A9 /* RACImmediateScheduler.m in Sources */,
 				D037651719EDA41200A782A9 /* NSObject+RACDeallocating.m in Sources */,

@@ -175,6 +175,22 @@ public func take<T>(count: Int)(signal: Signal<T>) -> Signal<T> {
 	}
 }
 
+/// Forwards all events onto the given scheduler, instead of whichever
+/// scheduler they originally arrived upon.
+public func observeOn<T>(scheduler: SchedulerType)(signal: Signal<T>) -> Signal<T> {
+	return Signal { observer, compositeDisposable in
+		let disposable = signal.observe(SinkOf { event in
+			scheduler.schedule {
+				observer.put(event)
+			}
+			
+			return
+		})
+
+		compositeDisposable.addDisposable(disposable)
+	}
+}
+
 /*
 public func combineLatestWith<T, U>(otherSignal: Signal<U>)(signal: Signal<T>) -> Signal<(T, U)>
 public func combinePrevious<T>(initial: T)(signal: Signal<T>) -> Signal<(T, T)>
@@ -182,7 +198,6 @@ public func concat<T>(next: Signal<T>)(signal: Signal<T>) -> Signal<T>
 public func delay<T>(interval: NSTimeInterval, onScheduler scheduler: DateScheduler)(signal: Signal<T>) -> Signal<T>
 public func dematerialize<T>(signal: Signal<Event<T>>) -> Signal<T>
 public func materialize<T>(signal: Signal<T>) -> Signal<Event<T>>
-public func observeOn<T>(scheduler: Scheduler)(signal: Signal<T>) -> Signal<T>
 public func reduce<T, U>(initial: U, combine: (U, T) -> U)(signal: Signal<T>) -> Signal<U>
 public func sampleOn<T>(sampler: Signal<()>)(signal: Signal<T>) -> Signal<T>
 public func scan<T, U>(initial: U, combine: (U, T) -> U)(signal: Signal<T>) -> Signal<U>

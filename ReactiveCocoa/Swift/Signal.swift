@@ -150,6 +150,31 @@ public func filter<T>(predicate: T -> Bool)(signal: Signal<T>) -> Signal<T> {
 	}
 }
 
+/// Returns a signal that will yield the first `count` values from the
+/// input signal.
+public func take<T>(count: Int)(signal: Signal<T>) -> Signal<T> {
+	precondition(count >= 0)
+
+	return Signal { observer, compositeDisposable in
+		var taken = 0
+
+		let disposable = signal.observe(next: { value in
+			if taken < count {
+				taken++
+				sendNext(observer, value)
+			} else {
+				sendCompleted(observer)
+			}
+		}, error: { error in
+			sendError(observer, error)
+		}, completed: {
+			sendCompleted(observer)
+		})
+
+		compositeDisposable.addDisposable(disposable)
+	}
+}
+
 /*
 public func combineLatestWith<T, U>(otherSignal: Signal<U>)(signal: Signal<T>) -> Signal<(T, U)>
 public func combinePrevious<T>(initial: T)(signal: Signal<T>) -> Signal<(T, T)>
@@ -165,7 +190,6 @@ public func skip<T>(count: Int)(signal: Signal<T>) -> Signal<T>
 public func skipRepeats<T: Equatable>(signal: Signal<T>) -> Signal<T>
 public func skipRepeats<T>(isRepeat: (T, T) -> Bool)(signal: Signal<T>) -> Signal<T>
 public func skipWhile<T>(predicate: T -> Bool)(signal: Signal<T>) -> Signal<T>
-public func take<T>(count: Int)(signal: Signal<T>) -> Signal<T>
 public func takeLast<T>(count: Int)(signal: Signal<T>) -> Signal<T>
 public func takeUntil<T>(trigger: Signal<()>)(signal: Signal<T>) -> Signal<T>
 public func takeUntilReplacement<T>(replacement: Signal<T>)(signal: Signal<T>) -> Signal<T>

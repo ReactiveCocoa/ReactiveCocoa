@@ -369,6 +369,30 @@ public func on<T>(started: () -> () = doNothing, event: Event<T> -> () = doNothi
 	}
 }
 
+/// Starts the returned signal on the given Scheduler.
+///
+/// This implies that any side effects embedded in the producer will be
+/// performed on the given scheduler as well.
+///
+/// Values may still be sent upon other schedulers—this merely affects where
+/// the `start()` method is run.
+public func startOn<T>(scheduler: SchedulerType)(producer: SignalProducer<T>) -> SignalProducer<T> {
+	return SignalProducer { observer, compositeDisposable in
+		if compositeDisposable.disposed {
+			return
+		}
+
+		let schedulerDisposable = scheduler.schedule {
+			producer.start { signal, signalDisposable in
+				compositeDisposable.addDisposable(signalDisposable)
+				signal.observe(observer)
+			}
+		}
+
+		compositeDisposable.addDisposable(schedulerDisposable)
+	}
+}
+
 /*
 public func concat<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>
 public func concatMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
@@ -382,7 +406,6 @@ public func combineLatestWith<T, U>(otherSignalProducer: SignalProducer<U>)(prod
 public func concat<T>(next: SignalProducer<T>)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func repeat<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func retry<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>
-public func startOn<T>(scheduler: Scheduler)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func takeUntil<T>(trigger: SignalProducer<()>)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func takeUntilReplacement<T>(replacement: SignalProducer<T>)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func then<T, U>(replacement: SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>

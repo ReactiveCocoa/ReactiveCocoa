@@ -65,10 +65,10 @@ public struct SignalProducer<T> {
 		self.init({ observer, disposable in
 			var generator = values.generate()
 
-			while !disposable.disposed {
-				if let value: T = generator.next() {
-					sendNext(observer, value)
-				} else {
+			while let value: T = generator.next() {
+				sendNext(observer, value)
+
+				if disposable.disposed {
 					break
 				}
 			}
@@ -115,10 +115,6 @@ public struct SignalProducer<T> {
 		var observers: Bag<Signal<T>.Observer>? = Bag()
 
 		let producer = self { observer, disposable in
-			if disposable.disposed {
-				return
-			}
-
 			lock.lock()
 			for event in events {
 				observer.put(event)
@@ -169,10 +165,6 @@ public struct SignalProducer<T> {
 	/// occurred.
 	public static func try(operation: () -> Result<T>) -> SignalProducer {
 		return self { observer, disposable in
-			if disposable.disposed {
-				return
-			}
-
 			switch operation() {
 			case let .Success(value):
 				sendNext(observer, value.unbox)
@@ -259,7 +251,7 @@ public struct SignalProducer<T> {
 
 				let signalDisposable = transform(signal).observe(observer)
 				outerDisposable.addDisposable(signalDisposable)
-				
+
 				return
 			}
 		}
@@ -314,10 +306,6 @@ public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler
 	precondition(leeway >= 0)
 
 	return SignalProducer { observer, compositeDisposable in
-		if compositeDisposable.disposed {
-			return
-		}
-
 		let disposable = scheduler.scheduleAfter(scheduler.currentDate.dateByAddingTimeInterval(interval), repeatingEvery: interval, withLeeway: leeway) {
 			sendNext(observer, scheduler.currentDate)
 		}
@@ -370,10 +358,6 @@ public func on<T>(started: () -> () = doNothing, event: Event<T> -> () = doNothi
 /// the `start()` method is run.
 public func startOn<T>(scheduler: SchedulerType)(producer: SignalProducer<T>) -> SignalProducer<T> {
 	return SignalProducer { observer, compositeDisposable in
-		if compositeDisposable.disposed {
-			return
-		}
-
 		let schedulerDisposable = scheduler.schedule {
 			producer.start { signal, signalDisposable in
 				compositeDisposable.addDisposable(signalDisposable)

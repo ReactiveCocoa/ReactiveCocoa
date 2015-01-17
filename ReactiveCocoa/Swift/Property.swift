@@ -145,7 +145,7 @@ public func <~ <T>(property: MutableProperty<T>, producer: SignalProducer<T>) ->
 
 	disposable.addDisposable(propertyDisposable)
 
-	producer.start { signal, signalDisposable in
+	producer.startWithSignal { signal, signalDisposable in
 		disposable.addDisposable(signalDisposable)
 
 		signal.observe(next: { [weak property] value in
@@ -173,7 +173,7 @@ public func <~ <T, P: PropertyType where P.Value == T>(destinationProperty: Muta
 
 	disposable.addDisposable(destinationDisposable)
 
-	sourceProperty.producer.start { signal, sourceDisposable in
+	sourceProperty.producer.startWithSignal { signal, sourceDisposable in
 		disposable.addDisposable(sourceDisposable)
 
 		signal.observe(next: { [weak destinationProperty] value in

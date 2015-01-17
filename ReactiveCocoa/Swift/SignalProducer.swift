@@ -203,7 +203,7 @@ public struct SignalProducer<T> {
 	///
 	/// Returns a Disposable which can be used to cancel the work associated
 	/// with the Signal, and prevent any future events from being sent.
-	public func start(setUp: (Signal<T>, CompositeDisposable) -> ()) {
+	public func startWithSignal(setUp: (Signal<T>, CompositeDisposable) -> ()) {
 		let (signal, observer, disposable) = Signal<T>.disposablePipe()
 		setUp(signal, disposable)
 
@@ -221,7 +221,7 @@ public struct SignalProducer<T> {
 	public func start<S: SinkType where S.Element == Event<T>>(sink: S) -> Disposable {
 		var disposable: Disposable!
 
-		start { signal, innerDisposable in
+		startWithSignal { signal, innerDisposable in
 			signal.observe(sink)
 			disposable = innerDisposable
 		}
@@ -246,7 +246,7 @@ public struct SignalProducer<T> {
 	/// operator had been applied to each Signal yielded from start().
 	public func lift<U>(transform: Signal<T> -> Signal<U>) -> SignalProducer<U> {
 		return SignalProducer<U> { observer, outerDisposable in
-			self.start { signal, innerDisposable in
+			self.startWithSignal { signal, innerDisposable in
 				outerDisposable.addDisposable(innerDisposable)
 
 				let signalDisposable = transform(signal).observe(observer)
@@ -320,7 +320,7 @@ public func on<T>(started: () -> () = doNothing, event: Event<T> -> () = doNothi
 		started()
 		compositeDisposable.addDisposable(disposed)
 
-		producer.start { signal, disposable in
+		producer.startWithSignal { signal, disposable in
 			compositeDisposable.addDisposable(disposable)
 
 			let innerObserver = Signal<T>.Observer { receivedEvent in
@@ -359,7 +359,7 @@ public func on<T>(started: () -> () = doNothing, event: Event<T> -> () = doNothi
 public func startOn<T>(scheduler: SchedulerType)(producer: SignalProducer<T>) -> SignalProducer<T> {
 	return SignalProducer { observer, compositeDisposable in
 		let schedulerDisposable = scheduler.schedule {
-			producer.start { signal, signalDisposable in
+			producer.startWithSignal { signal, signalDisposable in
 				compositeDisposable.addDisposable(signalDisposable)
 				signal.observe(observer)
 			}
@@ -393,23 +393,25 @@ public func first<T>(producer: SignalProducer<T>) -> Result<T> {
 	let semaphore = dispatch_semaphore_create(0)
 	var result: Result<T> = failure(RACError.ExpectedCountMismatch.error)
 
-	producer.lift(take(1)).start(next: { value in
-		result = success(value)
-		dispatch_semaphore_signal(semaphore)
-	}, error: { error in
-		result = failure(error)
-		dispatch_semaphore_signal(semaphore)
-	}, completed: {
-		dispatch_semaphore_signal(semaphore)
-	})
+	producer
+		|> take(1)
+		|> start(next: { value in
+			result = success(value)
+			dispatch_semaphore_signal(semaphore)
+		}, error: { error in
+			result = failure(error)
+			dispatch_semaphore_signal(semaphore)
+		}, completed: {
+			dispatch_semaphore_signal(semaphore)
+		})
 
 	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
 	return result
 }
 
-/// SignalProducer.start() as a free function, for easier use with |>.
-public func start<T>(setUp: (Signal<T>, CompositeDisposable) -> ())(producer: SignalProducer<T>) -> Disposable {
-	return producer.start(setUp)
+/// SignalProducer.startWithSignal() as a free function, for easier use with |>.
+public func startWithSignal<T>(setUp: (Signal<T>, CompositeDisposable) -> ())(producer: SignalProducer<T>) -> () {
+	return producer.startWithSignal(setUp)
 }
 
 /// SignalProducer.start() as a free function, for easier use with |>.

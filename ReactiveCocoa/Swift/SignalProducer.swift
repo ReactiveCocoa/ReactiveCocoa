@@ -403,6 +403,7 @@ public func first<T>(producer: SignalProducer<T>) -> Result<T> {
 			dispatch_semaphore_signal(semaphore)
 		}, completed: {
 			dispatch_semaphore_signal(semaphore)
+			return
 		})
 
 	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)

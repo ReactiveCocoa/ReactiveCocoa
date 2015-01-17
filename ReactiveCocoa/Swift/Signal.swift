@@ -197,8 +197,62 @@ public func observeOn<T>(scheduler: SchedulerType)(signal: Signal<T>) -> Signal<
 	}
 }
 
+private class CombineLatestState<T> {
+	var latestValue: T?
+	var completed = false
+}
+
+private func observeWithStates<T, U>(signalState: CombineLatestState<T>, otherState: CombineLatestState<U>, lock: NSRecursiveLock, onBothNext: () -> (), onError: NSError -> (), onBothCompleted: () -> ())(signal: Signal<T>) -> Disposable {
+	return signal.observe(next: { value in
+		lock.lock()
+
+		signalState.latestValue = value
+		if otherState.latestValue != nil {
+			onBothNext()
+		}
+
+		lock.unlock()
+	}, error: onError, completed: {
+		lock.lock()
+
+		signalState.completed = true
+		if otherState.completed {
+			onBothCompleted()
+		}
+
+		lock.unlock()
+	})
+}
+
+/// Combines the latest value of the receiver with the latest value from
+/// the given signal.
+///
+/// The returned signal will not send a value until both inputs have sent
+/// at least one value each.
+public func combineLatestWith<T, U>(otherSignal: Signal<U>)(signal: Signal<T>) -> Signal<(T, U)> {
+	return Signal { observer in
+		let lock = NSRecursiveLock()
+		lock.name = "org.reactivecocoa.ReactiveCocoa.combineLatestWith"
+
+		let signalState = CombineLatestState<T>()
+		let otherState = CombineLatestState<U>()
+
+		let onBothNext = { () -> () in
+			let combined = (signalState.latestValue!, otherState.latestValue!)
+			sendNext(observer, combined)
+		}
+
+		let onError = { sendError(observer, $0) }
+		let onBothCompleted = { sendCompleted(observer) }
+
+		let signalDisposable = signal |> observeWithStates(signalState, otherState, lock, onBothNext, onError, onBothCompleted)
+		let otherDisposable = otherSignal |> observeWithStates(otherState, signalState, lock, onBothNext, onError, onBothCompleted)
+
+		return CompositeDisposable([ signalDisposable, otherDisposable ])
+	}
+}
+
 /*
-public func combineLatestWith<T, U>(otherSignal: Signal<U>)(signal: Signal<T>) -> Signal<(T, U)>
 public func combinePrevious<T>(initial: T)(signal: Signal<T>) -> Signal<(T, T)>
 public func concat<T>(next: Signal<T>)(signal: Signal<T>) -> Signal<T>
 public func delay<T>(interval: NSTimeInterval, onScheduler scheduler: DateScheduler)(signal: Signal<T>) -> Signal<T>

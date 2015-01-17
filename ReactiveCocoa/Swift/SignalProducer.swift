@@ -369,6 +369,29 @@ public func startOn<T>(scheduler: SchedulerType)(producer: SignalProducer<T>) ->
 	}
 }
 
+/// Combines the latest value of the receiver with the latest value from
+/// the given producer.
+///
+/// Signals started by the returned producer will not send a value until both
+/// inputs have sent at least one value each.
+public func combineLatestWith<T, U>(otherSignalProducer: SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<(T, U)> {
+	return SignalProducer<(T, U)> { observer, outerDisposable in
+		producer.startWithSignal { signal, disposable in
+			outerDisposable.addDisposable(disposable)
+
+			otherSignalProducer.startWithSignal { otherSignal, otherDisposable in
+				outerDisposable.addDisposable(otherDisposable)
+
+				let signalDisposable = signal
+					|> combineLatestWith(otherSignal)
+					|> observe(observer)
+
+				outerDisposable.addDisposable(signalDisposable)
+			}
+		}
+	}
+}
+
 /*
 public func concat<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>
 public func concatMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
@@ -378,7 +401,6 @@ public func switchMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalP
 public func switchToLatest<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>
 
 public func catch<T>(handler: NSError -> SignalProducer<T>)(producer: SignalProducer<T>) -> SignalProducer<T>
-public func combineLatestWith<T, U>(otherSignalProducer: SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<(T, U)>
 public func concat<T>(next: SignalProducer<T>)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func repeat<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func retry<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>

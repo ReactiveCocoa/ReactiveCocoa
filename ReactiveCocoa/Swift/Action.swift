@@ -43,6 +43,8 @@ public final class Action<Input, Output> {
 	/// Initializes an action that will be conditionally enabled, and create a
 	/// SignalProducer for each input.
 	public init<P: PropertyType where P.Value == Bool>(enabledIf: P, _ execute: Input -> SignalProducer<Output>) {
+		executeClosure = execute
+	
 		let (vSig, vSink) = Signal<Output>.pipe()
 		valuesObserver = vSink
 		values = vSig

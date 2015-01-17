@@ -43,17 +43,17 @@ public final class Action<Input, Output> {
 	/// Initializes an action that will be conditionally enabled, and create a
 	/// SignalProducer for each input.
 	public init<P: PropertyType where P.Value == Bool>(enabledIf: P, _ execute: Input -> SignalProducer<Output>) {
-		let (vSink, vSig) = Signal<Output>.pipe()
+		let (vSig, vSink) = Signal<Output>.pipe()
 		valuesObserver = vSink
 		values = vSig
 
-		let (eSink, eSig) = Signal<NSError>.pipe()
+		let (eSig, eSink) = Signal<NSError>.pipe()
 		errorsObserver = eSink
 		errors = eSig
 
 		_enabled <~ enabledIf.producer
-			.combineLatestWith(executing.producer)
-			.map(shouldBeEnabled)
+			|> combineLatestWith(executing.producer)
+			|> map(shouldBeEnabled)
 	}
 
 	/// Initializes an action that will be enabled by default, and create a

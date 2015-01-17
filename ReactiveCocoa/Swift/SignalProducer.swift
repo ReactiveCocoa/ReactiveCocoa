@@ -290,7 +290,7 @@ public func |> <T, U>(producer: SignalProducer<T>, transform: SignalProducer<T> 
 ///
 /// This timer will never complete naturally, so all invocations of start() must
 /// be disposed to avoid leaks.
-public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler) -> SignalProducer<NSDate> {
+public func timer(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType) -> SignalProducer<NSDate> {
 	// Apple's "Power Efficiency Guide for Mac Apps" recommends a leeway of
 	// at least 10% of the timer interval.
 	return timer(interval, onScheduler: scheduler, withLeeway: interval * 0.1)
@@ -301,7 +301,7 @@ public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler
 ///
 /// This timer will never complete naturally, so all invocations of start() must
 /// be disposed to avoid leaks.
-public func timer(interval: NSTimeInterval, onScheduler scheduler: DateScheduler, withLeeway leeway: NSTimeInterval) -> SignalProducer<NSDate> {
+public func timer(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType, withLeeway leeway: NSTimeInterval) -> SignalProducer<NSDate> {
 	precondition(interval >= 0)
 	precondition(leeway >= 0)
 
@@ -393,7 +393,7 @@ public func first<T>(producer: SignalProducer<T>) -> Result<T> {
 	let semaphore = dispatch_semaphore_create(0)
 	var result: Result<T> = failure(RACError.ExpectedCountMismatch.error)
 
-	take(1)(producer).start(next: { value in
+	producer.lift(take(1)).start(next: { value in
 		result = success(value)
 		dispatch_semaphore_signal(semaphore)
 	}, error: { error in

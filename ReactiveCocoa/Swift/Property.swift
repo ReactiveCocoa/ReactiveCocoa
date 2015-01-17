@@ -27,7 +27,7 @@ public struct PropertyOf<T>: PropertyType {
 	}
 
 	/// Initializes the receiver as a wrapper around the given property.
-	public init<P: PropertyType where P.Value == T>(property: P) {
+	public init<P: PropertyType where P.Value == T>(_ property: P) {
 		_value = { property.value }
 		_producer = { property.producer }
 	}

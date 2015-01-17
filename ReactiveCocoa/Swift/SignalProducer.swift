@@ -393,24 +393,15 @@ public func first<T>(producer: SignalProducer<T>) -> Result<T> {
 	let semaphore = dispatch_semaphore_create(0)
 	var result: Result<T> = failure(RACError.ExpectedCountMismatch.error)
 
-	producer.start { signal, disposable in
-		disposable.addDisposable {
-			dispatch_semaphore_signal(semaphore)
-			return
-		}
-
-		signal.observe(next: { value in
-			result = success(value)
-			disposable.dispose()
-		}, error: { error in
-			result = failure(error)
-			disposable.dispose()
-		}, completed: {
-			disposable.dispose()
-		})
-
-		return
-	}
+	take(1)(producer).start(next: { value in
+		result = success(value)
+		dispatch_semaphore_signal(semaphore)
+	}, error: { error in
+		result = failure(error)
+		dispatch_semaphore_signal(semaphore)
+	}, completed: {
+		dispatch_semaphore_signal(semaphore)
+	})
 
 	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
 	return result

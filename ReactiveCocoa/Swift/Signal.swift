@@ -14,10 +14,9 @@
 public final class Signal<T> {
 	public typealias Observer = SinkOf<Event<T>>
 
-	internal let disposable = CompositeDisposable()
-
 	private let lock = NSRecursiveLock()
 	private var observers: Bag<Observer>? = Bag()
+	private let disposable = CompositeDisposable()
 
 	/// Initializes a Signal that will immediately invoke the given generator,
 	/// then forward events sent to the given observer.
@@ -73,6 +72,16 @@ public final class Signal<T> {
 		}
 
 		return (signal, sink)
+	}
+
+	/// Creates a Signal that will be controlled by sending events to the given
+	/// observer, and which can be disposed using the returned disposable.
+	///
+	/// The Signal will remain alive until an `Error` or `Completed` event is
+	/// sent to the observer, or until the disposable is used.
+	internal class func disposablePipe() -> (Signal, Observer, CompositeDisposable) {
+		let (signal, observer) = pipe()
+		return (signal, observer, signal.disposable)
 	}
 
 	/// Observes the Signal by sending any future events to the given sink. If

@@ -204,11 +204,11 @@ public struct SignalProducer<T> {
 	/// Returns a Disposable which can be used to cancel the work associated
 	/// with the Signal, and prevent any future events from being sent.
 	public func start(setUp: (Signal<T>, CompositeDisposable) -> ()) {
-		let (signal, observer) = Signal<T>.pipe()
-		setUp(signal, signal.disposable)
+		let (signal, observer, disposable) = Signal<T>.disposablePipe()
+		setUp(signal, disposable)
 
-		if !signal.disposable.disposed {
-			startHandler(observer, signal.disposable)
+		if !disposable.disposed {
+			startHandler(observer, disposable)
 		}
 	}
 

@@ -212,13 +212,7 @@ public struct SignalProducer<T> {
 	/// Returns a Disposable which can be used to cancel the work associated
 	/// with the Signal, and prevent any future events from being sent.
 	public func start(setUp: (Signal<T>, CompositeDisposable) -> ()) -> Disposable {
-		var observer: Signal<T>.Observer!
-
-		let signal = Signal<T> { innerObserver in
-			observer = innerObserver
-			return nil
-		}
-
+		let (signal, observer) = Signal<T>.pipe()
 		setUp(signal, signal.disposable)
 
 		if !signal.disposable.disposed {

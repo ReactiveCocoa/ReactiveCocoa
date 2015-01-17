@@ -14,16 +14,18 @@
 public final class Signal<T> {
 	public typealias Observer = SinkOf<Event<T>>
 
+	internal let disposable = CompositeDisposable()
+
 	private let lock = NSRecursiveLock()
-	private let disposable = CompositeDisposable()
 	private var observers: Bag<Observer>? = Bag()
 
 	/// Initializes a Signal that will immediately invoke the given generator,
-	/// then forward events put into the given sink.
+	/// then forward events sent to the given observer.
 	///
 	/// The Signal will remain alive until an `Error` or `Completed` event is
-	/// sent, or until the given Disposable has been disposed.
-	public init(_ generator: (Observer, CompositeDisposable) -> ()) {
+	/// sent, or until the signal's `disposable` has been disposed, at which
+	/// point the disposable returned from the closure will be disposed as well.
+	public init(_ generator: Observer -> Disposable?) {
 		lock.name = "org.reactivecocoa.ReactiveCocoa.Signal"
 
 		let sink = Observer { event in
@@ -48,12 +50,14 @@ public final class Signal<T> {
 			self.lock.unlock()
 		}
 
-		generator(sink, disposable)
+		if let d = generator(sink) {
+			disposable.addDisposable(d)
+		}
 	}
 
 	/// A Signal that never sends any events.
 	public class var never: Signal {
-		return self { _ in () }
+		return self { _ in nil }
 	}
 
 	/// Creates a Signal that will be controlled by sending events to the given
@@ -63,8 +67,9 @@ public final class Signal<T> {
 	/// sent to the observer.
 	public class func pipe() -> (Signal, Observer) {
 		var sink: Observer!
-		let signal = self { innerSink, disposable in
+		let signal = self { innerSink in
 			sink = innerSink
+			return nil
 		}
 
 		return (signal, sink)
@@ -124,19 +129,17 @@ public func |> <T, U>(signal: Signal<T>, transform: Signal<T> -> U) -> U {
 
 /// Maps each value in the signal to a new value.
 public func map<T, U>(transform: T -> U)(signal: Signal<T>) -> Signal<U> {
-	return Signal { observer, compositeDisposable in
-		let disposable = signal.observe(Signal.Observer { event in
+	return Signal { observer in
+		return signal.observe(Signal.Observer { event in
 			observer.put(event.map(transform))
 		})
-
-		compositeDisposable.addDisposable(disposable)
 	}
 }
 
 /// Preserves only the values of the signal that pass the given predicate.
 public func filter<T>(predicate: T -> Bool)(signal: Signal<T>) -> Signal<T> {
-	return Signal { observer, compositeDisposable in
-		let disposable = signal.observe(next: { value in
+	return Signal { observer in
+		return signal.observe(next: { value in
 			if predicate(value) {
 				sendNext(observer, value)
 			}
@@ -145,8 +148,6 @@ public func filter<T>(predicate: T -> Bool)(signal: Signal<T>) -> Signal<T> {
 		}, completed: {
 			sendCompleted(observer)
 		})
-
-		compositeDisposable.addDisposable(disposable)
 	}
 }
 
@@ -155,10 +156,10 @@ public func filter<T>(predicate: T -> Bool)(signal: Signal<T>) -> Signal<T> {
 public func take<T>(count: Int)(signal: Signal<T>) -> Signal<T> {
 	precondition(count >= 0)
 
-	return Signal { observer, compositeDisposable in
+	return Signal { observer in
 		var taken = 0
 
-		let disposable = signal.observe(next: { value in
+		return signal.observe(next: { value in
 			if taken < count {
 				taken++
 				sendNext(observer, value)
@@ -170,24 +171,20 @@ public func take<T>(count: Int)(signal: Signal<T>) -> Signal<T> {
 		}, completed: {
 			sendCompleted(observer)
 		})
-
-		compositeDisposable.addDisposable(disposable)
 	}
 }
 
 /// Forwards all events onto the given scheduler, instead of whichever
 /// scheduler they originally arrived upon.
 public func observeOn<T>(scheduler: SchedulerType)(signal: Signal<T>) -> Signal<T> {
-	return Signal { observer, compositeDisposable in
-		let disposable = signal.observe(SinkOf { event in
+	return Signal { observer in
+		return signal.observe(SinkOf { event in
 			scheduler.schedule {
 				observer.put(event)
 			}
-			
+
 			return
 		})
-
-		compositeDisposable.addDisposable(disposable)
 	}
 }
 

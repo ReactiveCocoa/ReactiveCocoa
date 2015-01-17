@@ -213,20 +213,19 @@ public struct SignalProducer<T> {
 	/// with the Signal, and prevent any future events from being sent.
 	public func start(setUp: (Signal<T>, CompositeDisposable) -> ()) -> Disposable {
 		var observer: Signal<T>.Observer!
-		var disposable: CompositeDisposable!
 
-		let signal = Signal<T> { innerObserver, innerDisposable in
+		let signal = Signal<T> { innerObserver in
 			observer = innerObserver
-			disposable = innerDisposable
+			return nil
 		}
 
-		setUp(signal, disposable)
+		setUp(signal, signal.disposable)
 
-		if !disposable.disposed {
-			startHandler(observer, disposable)
+		if !signal.disposable.disposed {
+			startHandler(observer, signal.disposable)
 		}
 
-		return disposable
+		return signal.disposable
 	}
 
 	/// Creates a Signal from the producer, then attaches the given sink to the

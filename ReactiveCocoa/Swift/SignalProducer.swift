@@ -211,15 +211,13 @@ public struct SignalProducer<T> {
 	///
 	/// Returns a Disposable which can be used to cancel the work associated
 	/// with the Signal, and prevent any future events from being sent.
-	public func start(setUp: (Signal<T>, CompositeDisposable) -> ()) -> Disposable {
+	public func start(setUp: (Signal<T>, CompositeDisposable) -> ()) {
 		let (signal, observer) = Signal<T>.pipe()
 		setUp(signal, signal.disposable)
 
 		if !signal.disposable.disposed {
 			startHandler(observer, signal.disposable)
 		}
-
-		return signal.disposable
 	}
 
 	/// Creates a Signal from the producer, then attaches the given sink to the
@@ -229,10 +227,14 @@ public struct SignalProducer<T> {
 	/// with the Signal, and prevent any future events from being put into the
 	/// sink.
 	public func start<S: SinkType where S.Element == Event<T>>(sink: S) -> Disposable {
-		return start { signal, disposable in
+		var disposable: Disposable!
+
+		start { signal, innerDisposable in
 			signal.observe(sink)
-			return
+			disposable = innerDisposable
 		}
+
+		return disposable
 	}
 
 	/// Creates a Signal from the producer, then adds exactly one observer to
@@ -242,10 +244,7 @@ public struct SignalProducer<T> {
 	/// Returns a Disposable which can be used to cancel the work associated
 	/// with the Signal, and prevent any future callbacks from being invoked.
 	public func start(next: T -> () = doNothing, error: NSError -> () = doNothing, completed: () -> () = doNothing) -> Disposable {
-		return start { signal, disposable in
-			signal.observe(next: next, error: error, completed: completed)
-			return
-		}
+		return start(Event.sink(next: next, error: error, completed: completed))
 	}
 
 	/// Lifts a Signal operator to operate upon SignalProducers instead.
@@ -258,11 +257,11 @@ public struct SignalProducer<T> {
 			self.start { signal, innerDisposable in
 				outerDisposable.addDisposable(innerDisposable)
 
-				transform(signal).observe(observer)
+				let signalDisposable = transform(signal).observe(observer)
+				outerDisposable.addDisposable(signalDisposable)
+				
 				return
 			}
-
-			return
 		}
 	}
 }

@@ -22,12 +22,17 @@ public final class Action<Input, Output> {
 	public let errors: Signal<NSError>
 
 	/// Whether the action is currently executing.
-	public lazy let executing: PropertyOf<Bool> = PropertyOf(_executing)
-	private let _executing: MutableProperty<Bool>
+	public var executing: PropertyOf<Bool> {
+		return PropertyOf(_executing)
+	}
 
 	/// Whether the action is currently enabled.
-	public lazy let enabled: PropertyOf<Bool> = PropertyOf(_enabled)
-	private let _enabled: MutableProperty<Bool>
+	public var enabled: PropertyOf<Bool> {
+		return PropertyOf(_enabled)
+	}
+
+	private let _executing: MutableProperty<Bool> = MutableProperty(false)
+	private let _enabled: MutableProperty<Bool> = MutableProperty(true)
 
 	/// Whether the action should be enabled for the given combination of user
 	/// enabledness and executing status.
@@ -38,9 +43,6 @@ public final class Action<Input, Output> {
 	/// Initializes an action that will be conditionally enabled, and create a
 	/// SignalProducer for each input.
 	public init<P: PropertyType where P.Value == Bool>(enabledIf: P, _ execute: Input -> SignalProducer<Output>) {
-		_executing = MutableProperty(false)
-		_enabled = MutableProperty(true)
-
 		let (vSink, vSig) = Signal<Output>.pipe()
 		valuesObserver = vSink
 		values = vSig

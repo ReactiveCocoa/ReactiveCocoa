@@ -437,6 +437,8 @@
 		D0C3132D19EF2FAE00984962 /* LlamaKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3132B19EF2FA300984962 /* LlamaKit.framework */; };
 		D0C3132E19EF2FB400984962 /* LlamaKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3132B19EF2FA300984962 /* LlamaKit.framework */; };
 		D0C3133519EF311700984962 /* LlamaKit.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3132B19EF2FA300984962 /* LlamaKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D0D11AB91A6AE87700C1F8B1 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54AF1A69A2AC00AD8286 /* Action.swift */; };
+		D0D11ABA1A6AE87700C1F8B1 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08C54AF1A69A2AC00AD8286 /* Action.swift */; };
 		F63BBA331A02550A00DD140D /* HotSignalSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = F63BBA321A02550A00DD140D /* HotSignalSpec.swift */; };
 		F63BBA3C1A0265A900DD140D /* LlamaKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0C3132B19EF2FA300984962 /* LlamaKit.framework */; };
 /* End PBXBuildFile section */
@@ -1662,6 +1664,7 @@
 				D037658819EDA41200A782A9 /* RACErrorSignal.m in Sources */,
 				D03765F619EDA41200A782A9 /* RACSubscriptingAssignmentTrampoline.m in Sources */,
 				D08C54BA1A69C54300AD8286 /* Property.swift in Sources */,
+				D0D11AB91A6AE87700C1F8B1 /* Action.swift in Sources */,
 				D037661219EDA41200A782A9 /* RACUnit.m in Sources */,
 				D03765A019EDA41200A782A9 /* RACKVOTrampoline.m in Sources */,
 				D037650A19EDA41200A782A9 /* NSInvocation+RACTypeParsing.m in Sources */,
@@ -1830,6 +1833,7 @@
 				D03765A119EDA41200A782A9 /* RACKVOTrampoline.m in Sources */,
 				D037665B19EDA41200A782A9 /* UITableViewHeaderFooterView+RACSignalSupport.m in Sources */,
 				D0C312D019EF2A5800984962 /* Bag.swift in Sources */,
+				D0D11ABA1A6AE87700C1F8B1 /* Action.swift in Sources */,
 				D037650B19EDA41200A782A9 /* NSInvocation+RACTypeParsing.m in Sources */,
 				D037660719EDA41200A782A9 /* RACTuple.m in Sources */,
 				D037667019EDA57100A782A9 /* EXTRuntimeExtensions.m in Sources */,

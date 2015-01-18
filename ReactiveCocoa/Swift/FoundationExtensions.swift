@@ -11,30 +11,33 @@ import LlamaKit
 
 extension NSNotificationCenter {
 	/// Returns a signal of notifications posted that match the given criteria.
-	public func rac_notifications(name: String? = nil, object: AnyObject? = nil) -> HotSignal<NSNotification> {
-		return HotSignal.weak { sink in
-			let observer = self.addObserverForName(name, object: object, queue: nil) { notification in
-				sink.put(notification)
+	/// This signal will not terminate naturally, so it must be explicitly
+	/// disposed to avoid leaks.
+	public func rac_notifications(name: String? = nil, object: AnyObject? = nil) -> Signal<NSNotification> {
+		return Signal { observer in
+			let notificationObserver = self.addObserverForName(name, object: object, queue: nil) { notification in
+				sendNext(observer, notification)
 			}
 
 			return ActionDisposable {
-				self.removeObserver(observer)
+				self.removeObserver(notificationObserver)
 			}
 		}
 	}
 }
 
 extension NSURLSession {
-	/// Returns a signal that will fetch data using the given request.
-	public func rac_dataWithRequest(request: NSURLRequest) -> ColdSignal<(NSData, NSURLResponse)> {
-		return ColdSignal { (sink, disposable) in
+	/// Returns a producer that will execute the given request once for each
+	/// invocation of start().
+	public func rac_dataWithRequest(request: NSURLRequest) -> SignalProducer<(NSData, NSURLResponse)> {
+		return SignalProducer { observer, disposable in
 			let task = self.dataTaskWithRequest(request) { (data, response, error) in
 				if data == nil || response == nil {
-					sendError(sink, error)
+					sendError(observer, error)
 				} else {
 					let value = (data!, response!)
-					sendNext(sink, value)
-					sendCompleted(sink)
+					sendNext(observer, value)
+					sendCompleted(observer)
 				}
 			}
 

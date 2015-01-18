@@ -252,10 +252,33 @@ public func combineLatestWith<T, U>(otherSignal: Signal<U>)(signal: Signal<T>) -
 	}
 }
 
+/// Delays `Next` and `Completed` events by the given interval, forwarding
+/// them on the given scheduler.
+///
+/// `Error` events are always scheduled immediately.
+public func delay<T>(interval: NSTimeInterval, onScheduler scheduler: DateSchedulerType)(signal: Signal<T>) -> Signal<T> {
+	precondition(interval >= 0)
+
+	return Signal { observer in
+		return signal.observe(SinkOf { event in
+			switch event {
+			case .Error:
+				scheduler.schedule {
+					observer.put(event)
+				}
+
+			default:
+				let date = scheduler.currentDate.dateByAddingTimeInterval(interval)
+				scheduler.scheduleAfter(date) {
+					observer.put(event)
+				}
+			}
+		})
+	}
+}
+
 /*
 public func combinePrevious<T>(initial: T)(signal: Signal<T>) -> Signal<(T, T)>
-public func concat<T>(next: Signal<T>)(signal: Signal<T>) -> Signal<T>
-public func delay<T>(interval: NSTimeInterval, onScheduler scheduler: DateScheduler)(signal: Signal<T>) -> Signal<T>
 public func dematerialize<T>(signal: Signal<Event<T>>) -> Signal<T>
 public func materialize<T>(signal: Signal<T>) -> Signal<Event<T>>
 public func reduce<T, U>(initial: U, combine: (U, T) -> U)(signal: Signal<T>) -> Signal<U>

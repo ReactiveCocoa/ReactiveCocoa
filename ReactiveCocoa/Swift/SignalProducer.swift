@@ -411,6 +411,14 @@ public func sampleOn<T>(sampler: SignalProducer<()>)(producer: SignalProducer<T>
 	return producer.lift(sampleOn)(sampler)
 }
 
+/// Forwards events from `producer` until `trigger` sends a Next or Completed
+/// event, at which point the returned producer will complete.
+///
+/// Errors from `trigger` will be ignored.
+public func takeUntil<T>(trigger: SignalProducer<()>)(producer: SignalProducer<T>) -> SignalProducer<T> {
+	return producer.lift(takeUntil)(trigger)
+}
+
 /*
 public func concat<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>
 public func concatMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
@@ -423,7 +431,6 @@ public func catch<T>(handler: NSError -> SignalProducer<T>)(producer: SignalProd
 public func concat<T>(next: SignalProducer<T>)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func repeat<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func retry<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>
-public func takeUntil<T>(trigger: SignalProducer<()>)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func takeUntilReplacement<T>(replacement: SignalProducer<T>)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func then<T, U>(replacement: SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 public func zipWith<T, U>(otherSignalProducer: SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<(T, U)>

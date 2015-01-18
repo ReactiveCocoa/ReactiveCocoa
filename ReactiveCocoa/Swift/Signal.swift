@@ -393,6 +393,27 @@ public func sampleOn<T>(sampler: Signal<()>)(signal: Signal<T>) -> Signal<T> {
 	}
 }
 
+/// Forwards events from `signal` until `trigger` sends a Next or Completed
+/// event, at which point the returned signal will complete.
+///
+/// Errors from `trigger` will be ignored.
+public func takeUntil<T>(trigger: Signal<()>)(signal: Signal<T>) -> Signal<T> {
+	return Signal { observer in
+		let signalDisposable = signal.observe(observer)
+		let triggerDisposable = trigger.observe(SinkOf { event in
+			switch event {
+			case .Next, .Completed:
+				sendCompleted(observer)
+
+			case .Error:
+				break
+			}
+		})
+
+		return CompositeDisposable([ signalDisposable, triggerDisposable ])
+	}
+}
+
 /*
 public func combinePrevious<T>(initial: T)(signal: Signal<T>) -> Signal<(T, T)>
 public func reduce<T, U>(initial: U, combine: (U, T) -> U)(signal: Signal<T>) -> Signal<U>
@@ -401,7 +422,6 @@ public func skipRepeats<T: Equatable>(signal: Signal<T>) -> Signal<T>
 public func skipRepeats<T>(isRepeat: (T, T) -> Bool)(signal: Signal<T>) -> Signal<T>
 public func skipWhile<T>(predicate: T -> Bool)(signal: Signal<T>) -> Signal<T>
 public func takeLast<T>(count: Int)(signal: Signal<T>) -> Signal<T>
-public func takeUntil<T>(trigger: Signal<()>)(signal: Signal<T>) -> Signal<T>
 public func takeUntilReplacement<T>(replacement: Signal<T>)(signal: Signal<T>) -> Signal<T>
 public func takeWhile<T>(predicate: T -> Bool)(signal: Signal<T>) -> Signal<T>
 public func throttle<T>(interval: NSTimeInterval, onScheduler scheduler: DateScheduler)(signal: Signal<T>) -> Signal<T>

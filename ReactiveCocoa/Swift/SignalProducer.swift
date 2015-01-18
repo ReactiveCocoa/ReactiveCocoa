@@ -416,6 +416,32 @@ public func takeUntil<T, E>(trigger: SignalProducer<(), NoError>)(producer: Sign
 	return producer.lift(takeUntil)(trigger)
 }
 
+/// Catches any error that may occur on the input producer, then starts a new
+/// producer in its place.
+public func catch<T, E, F>(handler: E -> SignalProducer<T, F>)(producer: SignalProducer<T, E>) -> SignalProducer<T, F> {
+	return SignalProducer { observer, disposable in
+		let serialDisposable = SerialDisposable()
+		disposable.addDisposable(serialDisposable)
+
+		producer.startWithSignal { signal, signalDisposable in
+			serialDisposable.innerDisposable = signalDisposable
+
+			signal.observe(SinkOf { event in
+				switch event {
+				case .Error(err):
+					handler(err.unbox).startWithSignal { signal, signalDisposable in
+						serialDisposable.innerDisposable = signalDisposable
+						signal.observe(observer)
+					}
+
+				default:
+					observer.put(event)
+				}
+			})
+		}
+	}
+}
+
 /*
 TODO
 
@@ -426,7 +452,6 @@ public func mergeMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalPr
 public func switch<T>(producer: SignalProducer<SignalProducer<T>>) -> SignalProducer<T>
 public func switchMap<T, U>(transform: T -> SignalProducer<U>)(producer: SignalProducer<T>) -> SignalProducer<U>
 
-public func catch<T>(handler: NSError -> SignalProducer<T>)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func concat<T>(next: SignalProducer<T>)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func repeat<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>
 public func retry<T>(count: Int)(producer: SignalProducer<T>) -> SignalProducer<T>

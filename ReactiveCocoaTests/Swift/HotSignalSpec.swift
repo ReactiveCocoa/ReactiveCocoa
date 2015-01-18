@@ -1015,8 +1015,8 @@ class HotSignalSpec: QuickSpec {
 						.reduce(initial: []) { $0 + [ $1 ] }
 						.single()
 
-					expect(result.isSuccess()).to(beTruthy())
-					expect(result.value()).to(equal([ 1, 2 ]))
+					expect(result.isSuccess).to(beTruthy())
+					expect(result.value).to(equal([ 1, 2 ]))
 				}
 
 				it("should yield the first two values received then complete") {
@@ -1114,7 +1114,7 @@ class HotSignalSpec: QuickSpec {
 				it("should replay the first value") {
 					sink.put(99)
 
-					let result = replaySignal.first().value()
+					let result = replaySignal.first().value
 					expect(result).toNot(beNil())
 					expect(result).to(equal(99))
 				}
@@ -1150,8 +1150,7 @@ class HotSignalSpec: QuickSpec {
 						.reduce(initial: [] as [Int]) { (array, value) in
 							return array + [ value ]
 						}
-						.first()
-						.value()
+						.first().value
 					expect(result).toNot(beNil())
 					expect(result).to(equal([99, 400]))
 				}

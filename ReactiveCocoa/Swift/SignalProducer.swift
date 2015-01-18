@@ -49,13 +49,13 @@ public struct SignalProducer<T> {
 	/// Creates a producer for a Signal that will immediately send one value
 	/// then complete, or immediately send an error, depending on the given
 	/// Result.
-	public init(result: Result<T>) {
+	public init(result: Result<T, NSError>) {
 		switch result {
 		case let .Success(value):
 			self.init(value: value.unbox)
 
 		case let .Failure(error):
-			self.init(error: error)
+			self.init(error: error.unbox)
 		}
 	}
 
@@ -163,7 +163,7 @@ public struct SignalProducer<T> {
 	/// Upon success, the started signal will send the resulting value then
 	/// complete. Upon failure, the started signal will send the error that
 	/// occurred.
-	public static func try(operation: () -> Result<T>) -> SignalProducer {
+	public static func try(operation: () -> Result<T, NSError>) -> SignalProducer {
 		return self { observer, disposable in
 			switch operation() {
 			case let .Success(value):
@@ -171,7 +171,7 @@ public struct SignalProducer<T> {
 				sendCompleted(observer)
 
 			case let .Failure(error):
-				sendError(observer, error)
+				sendError(observer, error.unbox)
 			}
 		}
 	}
@@ -437,9 +437,9 @@ public func zipWith<T, U>(otherSignalProducer: SignalProducer<U>)(producer: Sign
 */
 
 /// Starts the producer, then blocks, waiting for the first value.
-public func first<T>(producer: SignalProducer<T>) -> Result<T> {
+public func first<T>(producer: SignalProducer<T>) -> Result<T, NSError> {
 	let semaphore = dispatch_semaphore_create(0)
-	var result: Result<T> = failure(RACError.ExpectedCountMismatch.error)
+	var result: Result<T, NSError> = failure(RACError.ExpectedCountMismatch.error)
 
 	producer
 		|> take(1)

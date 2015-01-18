@@ -57,8 +57,8 @@ class ActionSpec: QuickSpec {
 			}
 
 			it("should be disabled and not executing after initialization") {
-				expect(action.enabled.first().value()).to(beFalsy())
-				expect(action.executing.first().value()).to(beFalsy())
+				expect(action.enabled.first().value).to(beFalsy())
+				expect(action.executing.first().value).to(beFalsy())
 			}
 
 			it("should error if executed while disabled") {
@@ -72,12 +72,12 @@ class ActionSpec: QuickSpec {
 
 			it("should enable and disable based on the given signal") {
 				enabledSink.put(true)
-				expect(action.enabled.first().value()).to(beTruthy())
-				expect(action.executing.first().value()).to(beFalsy())
+				expect(action.enabled.first().value).to(beTruthy())
+				expect(action.executing.first().value).to(beFalsy())
 
 				enabledSink.put(false)
-				expect(action.enabled.first().value()).to(beFalsy())
-				expect(action.executing.first().value()).to(beFalsy())
+				expect(action.enabled.first().value).to(beFalsy())
+				expect(action.executing.first().value).to(beFalsy())
 			}
 
 			describe("execution") {
@@ -93,16 +93,16 @@ class ActionSpec: QuickSpec {
 					})
 
 					expect(executionCount).to(equal(1))
-					expect(action.executing.first().value()).to(beTruthy())
-					expect(action.enabled.first().value()).to(beFalsy())
+					expect(action.executing.first().value).to(beTruthy())
+					expect(action.enabled.first().value).to(beFalsy())
 
 					expect(receivedValue).to(equal("00"))
 					expect(values).to(equal([ "0", "00" ]))
 					expect(errors).to(equal([]))
 
 					scheduler.run()
-					expect(action.executing.first().value()).to(beFalsy())
-					expect(action.enabled.first().value()).to(beTruthy())
+					expect(action.executing.first().value).to(beFalsy())
+					expect(action.enabled.first().value).to(beTruthy())
 
 					expect(values).to(equal([ "0", "00" ]))
 					expect(errors).to(equal([]))
@@ -116,12 +116,12 @@ class ActionSpec: QuickSpec {
 					})
 
 					expect(executionCount).to(equal(1))
-					expect(action.executing.first().value()).to(beTruthy())
-					expect(action.enabled.first().value()).to(beFalsy())
+					expect(action.executing.first().value).to(beTruthy())
+					expect(action.enabled.first().value).to(beFalsy())
 
 					scheduler.run()
-					expect(action.executing.first().value()).to(beFalsy())
-					expect(action.enabled.first().value()).to(beTruthy())
+					expect(action.executing.first().value).to(beFalsy())
+					expect(action.enabled.first().value).to(beTruthy())
 
 					expect(values).to(equal([]))
 					expect(errors).to(equal([ testError ]))

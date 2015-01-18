@@ -14,8 +14,7 @@ import ReactiveCocoa
 extension ColdSignal {
 	private func collect() -> [T]? {
 		return reduce(initial: []) { $0 + [ $1 ] }
-			.first()
-			.value()
+			.first().value
 	}
 }
 
@@ -207,7 +206,7 @@ class ColdSignalSpec: QuickSpec {
 				var receivedError: NSError?
 
 				let testError = RACError.Empty.error
-				let result: Result<()> = failure(testError)
+				let result: Result<(), NSError> = failure(testError)
 
 				ColdSignal.fromResult(result).start(next: { _ in
 					receivedOtherEvent = true
@@ -909,7 +908,7 @@ class ColdSignalSpec: QuickSpec {
 					}
 					.first()
 
-				expect(result.error()).to(equal(testError))
+				expect(result.error).to(equal(testError))
 			}
 
 			it("should forward the original value upon success") {
@@ -922,7 +921,7 @@ class ColdSignalSpec: QuickSpec {
 					}
 					.first()
 
-				expect(result.value()).to(equal(0))
+				expect(result.value).to(equal(0))
 			}
 		}
 
@@ -938,7 +937,7 @@ class ColdSignalSpec: QuickSpec {
 						}
 						.first()
 
-					expect(result.error()).to(equal(testError))
+					expect(result.error).to(equal(testError))
 				}
 
 				it("should forward the mapped value upon success") {
@@ -951,25 +950,25 @@ class ColdSignalSpec: QuickSpec {
 						}
 						.first()
 
-					expect(result.value()).to(equal(1))
+					expect(result.value).to(equal(1))
 				}
 			}
 
 			describe("with a Result") {
 				it("should forward an error upon failure") {
 					let result = ColdSignal.single(0)
-						.tryMap { value in Result<Int>.Failure(testError) }
+						.tryMap { value in Result<Int, NSError>.Failure(Box(testError)) }
 						.first()
 
-					expect(result.error()).to(equal(testError))
+					expect(result.error).to(equal(testError))
 				}
 
 				it("should forward the mapped value upon success") {
 					let result = ColdSignal.single(0)
-						.tryMap { value in  Result<Int>.Success(Box(value + 1)) }
+						.tryMap { value in  Result<Int, NSError>.Success(Box(value + 1)) }
 						.first()
 
-					expect(result.value()).to(equal(1))
+					expect(result.value).to(equal(1))
 				}
 			}
 		}
@@ -1092,7 +1091,7 @@ class ColdSignalSpec: QuickSpec {
 					.reduce(initial: []) { $0 + [ $1 ] }
 					.first()
 
-				expect(result.value()).to(equal([ "1foo", "2bar", "3buzz" ]))
+				expect(result.value).to(equal([ "1foo", "2bar", "3buzz" ]))
 			}
 		}
 
@@ -1306,14 +1305,14 @@ class ColdSignalSpec: QuickSpec {
 					})
 					.first()
 
-				expect(result.value()).to(equal(0))
+				expect(result.value).to(equal(0))
 				expect(completed).to(beFalsy())
 				expect(disposed).to(beTruthy())
 			}
 
 			it("should return an error if no values are sent") {
 				let result = ColdSignal<()>.empty().first()
-				expect(result.error()).to(equal(RACError.ExpectedCountMismatch.error))
+				expect(result.error).to(equal(RACError.ExpectedCountMismatch.error))
 			}
 		}
 
@@ -1328,13 +1327,13 @@ class ColdSignalSpec: QuickSpec {
 					})
 					.last()
 
-				expect(result.value()).to(equal(2))
+				expect(result.value).to(equal(2))
 				expect(completed).to(beTruthy())
 			}
 
 			it("should return an error if no values are sent") {
 				let result = ColdSignal<()>.empty().last()
-				expect(result.error()).to(equal(RACError.ExpectedCountMismatch.error))
+				expect(result.error).to(equal(RACError.ExpectedCountMismatch.error))
 			}
 		}
 
@@ -1349,13 +1348,13 @@ class ColdSignalSpec: QuickSpec {
 					})
 					.single()
 
-				expect(result.value()).to(equal(0))
+				expect(result.value).to(equal(0))
 				expect(completed).to(beTruthy())
 			}
 
 			it("should return an error if no values are sent") {
 				let result = ColdSignal<()>.empty().single()
-				expect(result.error()).to(equal(RACError.ExpectedCountMismatch.error))
+				expect(result.error).to(equal(RACError.ExpectedCountMismatch.error))
 			}
 
 			it("should return an error if too many values are sent") {
@@ -1363,7 +1362,7 @@ class ColdSignalSpec: QuickSpec {
 					.fromValues([ 0, 1, 2 ])
 					.single()
 
-				expect(result.error()).to(equal(RACError.ExpectedCountMismatch.error))
+				expect(result.error).to(equal(RACError.ExpectedCountMismatch.error))
 			}
 		}
 
@@ -1373,13 +1372,13 @@ class ColdSignalSpec: QuickSpec {
 					.fromValues([ 0, 1, 2 ])
 					.wait()
 
-				expect(result.isSuccess()).to(beTruthy())
+				expect(result.isSuccess).to(beTruthy())
 			}
 
 			it("should return an error if the signal errors") {
 				let testError = RACError.Empty.error
 				let result = ColdSignal<()>.error(testError).wait()
-				expect(result.error()).to(equal(testError))
+				expect(result.error).to(equal(testError))
 			}
 		}
 

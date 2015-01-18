@@ -1,4 +1,4 @@
-github "Carthage/LlamaKit" "v0.5.0"
+github "LlamaKit/LlamaKit" "v0.5.0"
 github "Quick/Nimble" "v0.2.0"
 github "Quick/Quick" "v0.2.2"
-github "jspahrsummers/xcconfigs" "0.7"
+github "jspahrsummers/xcconfigs" "0.7.1"
